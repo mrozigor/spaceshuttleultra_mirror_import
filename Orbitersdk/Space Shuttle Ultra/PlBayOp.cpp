@@ -61,7 +61,9 @@ void PayloadBayOp::Step (double t, double dt)
 
 	// Operate radiators
 	if (RadiatorStatus.Moving()) {
-		double da = dt * RAD_OPERATING_SPEED;
+		double da;
+		if(RadiatorCtrl[0]==RadiatorCtrl[1]) da = dt * RAD_OPERATING_SPEED;
+		else da = dt * RAD_OPERATING_SPEED * 0.5;
 		if (RadiatorStatus.Closing()) {
 			if (RadiatorStatus.pos > 0.0)
 				RadiatorStatus.pos = max (0.0, RadiatorStatus.pos-da);
@@ -78,7 +80,9 @@ void PayloadBayOp::Step (double t, double dt)
 
 	// Operate radiator latches
 	if (RadLatchStatus.Moving()) {
-		double da = dt * RADLATCH_OPERATING_SPEED;
+		double da;
+		if(RadLatchCtrl[0]==RadLatchCtrl[1]) da = dt * RADLATCH_OPERATING_SPEED;
+		else da = dt * RADLATCH_OPERATING_SPEED * 0.5; //only one motor working
 		if (RadLatchStatus.Closing()) {
 			if (RadLatchStatus.pos > 0.0)
 				RadLatchStatus.pos = max (0.0, RadLatchStatus.pos-da);
@@ -123,6 +127,9 @@ void PayloadBayOp::SetDoorAction (AnimState::Action action)
 	if (RadiatorStatus.action != AnimState::CLOSED) return;
 	// operate payload bay doors only if radiators are stowed
 
+	if(sts->RMSRollout.action != AnimState::CLOSED && sts->RMS) return;
+	// RMS must be stowed
+
 	for (i = 0; i < 2; i++)
 		if ((action != AnimState::STOPPED) && (BayDoor[i] != BD_ENABLE)) return;
 	// operate doors only if both systems are enabled
@@ -150,16 +157,20 @@ void PayloadBayOp::SetRadiatorAction (AnimState::Action action)
 		if ((action != AnimState::STOPPED) && (MechPwr[i] != MP_ON)) return;
 	// operate radiators only if power is online
 
-	for (i = 0; i < 2; i++) { // check both systems are set correctly
+	/*for (i = 0; i < 2; i++) { // check both systems are set correctly
 		if (action == AnimState::OPENING && RadiatorCtrl[i] != RC_DEPLOY) return;
 		if (action == AnimState::CLOSING && RadiatorCtrl[i] != RC_STOW) return;
+	}*/
+	if(action==AnimState::OPENING) {
+		if(RadiatorCtrl[0]!=RC_DEPLOY && RadiatorCtrl[1]!=RC_DEPLOY) return;
+		else if (RadiatorStatus.Closed() && !RadLatchStatus.Open()) return;
+		// don't deploy radiators if the latches are not fully released
 	}
-
-	if (action == AnimState::STOPPED && RadiatorStatus.Static()) return;
+	else if(action==AnimState::CLOSING) {
+		if(RadiatorCtrl[0]!=RC_STOW && RadiatorCtrl[1]!=RC_STOW) return;
+	}
+	else if (action == AnimState::STOPPED && RadiatorStatus.Static()) return;
 	// stopping doesn't make sense if the radiators are already fully deployed or stowed
-
-	if (action == AnimState::OPENING && RadiatorStatus.Closed() && !RadLatchStatus.Open()) return;
-	// don't deploy radiators if the latches are not fully released
 
 	RadiatorStatus.action = action;
 	sts->RecordEvent ("RADIATOR", ActionString[action]);
@@ -170,7 +181,7 @@ void PayloadBayOp::SetRadiatorAction (AnimState::Action action)
 
 // ==============================================================
 
-void PayloadBayOp::RevertDoorAction ()
+/*void PayloadBayOp::RevertDoorAction ()
 {
 	int i;
 	for (i = 0; i < 2; i++) BayDoor[i] = BD_ENABLE;
@@ -178,7 +189,7 @@ void PayloadBayOp::RevertDoorAction ()
 
 	SetDoorAction (BayDoorStatus.action == AnimState::CLOSED || BayDoorStatus.action == AnimState::CLOSING ?
 		AnimState::OPENING : AnimState::CLOSING);
-}
+}*/
 
 // ==============================================================
 
@@ -190,12 +201,14 @@ void PayloadBayOp::SetRadLatchAction (AnimState::Action action)
 		if ((action != AnimState::STOPPED) && (MechPwr[i] != MP_ON)) return;
 	// operate radiator latches only if power is online
 
-	for (i = 0; i < 2; i++) { // check both systems are set correctly
-		if (action == AnimState::OPENING && RadLatchCtrl[i] != LC_RELEASE) return;
-		if (action == AnimState::CLOSING && RadLatchCtrl[i] != LC_LATCH) return;
+	if(action==AnimState::OPENING) {
+		if(RadLatchCtrl[0]!=LC_RELEASE && RadLatchCtrl[1]!=LC_RELEASE) return;
+	}
+	else if(action==AnimState::CLOSING) {
+		if(RadLatchCtrl[0]!=LC_LATCH && RadLatchCtrl[1]!=LC_LATCH) return;
 	}
 
-	if (action == AnimState::STOPPED && RadLatchStatus.Static()) return;
+	else if (action == AnimState::STOPPED && RadLatchStatus.Static()) return;
 	// stopping doesn't make sense if the radiators are already fully deployed or stowed
 
 	RadLatchStatus.action = action;
@@ -214,6 +227,10 @@ void PayloadBayOp::SetKuAntennaAction (AnimState::Action action)
 
 	if (action == AnimState::STOPPED && KuAntennaStatus.Static()) return;
 	// stopping doesn't make sense if the doors are already fully open or closed
+
+	for (int i = 0; i < 2; i++)
+		if ((action != AnimState::STOPPED) && (MechPwr[i] != MP_ON)) return;
+	// make sure power is online
 
 	KuAntennaStatus.action = action;
 	sts->RecordEvent ("KUBAND", ActionString[action]);
@@ -431,12 +448,20 @@ bool PayloadBayOp::VCMouseEvent (int id, int event, VECTOR3 &p)
 				SetRadiatorAction (AnimState::STOPPED);
 				SetRadLatchAction (AnimState::STOPPED);
 			}
+			else if(MechPwr[1] == MP_ON) {
+				if(KuCtrl==KU_DEPLOY) SetKuAntennaAction(AnimState::OPENING);
+				else if(KuCtrl==KU_STOW) SetKuAntennaAction(AnimState::CLOSING);
+			}
 			action = true;
 		} else if (p.x >= 0.5996 && p.x < 0.7188) {
 			MechPwr[1] = (p.y < 0.1787 ? MP_ON:MP_OFF);
 			if (MechPwr[1] == MP_OFF) {
 				SetRadiatorAction (AnimState::STOPPED);
 				SetRadLatchAction (AnimState::STOPPED);
+			}
+			else if(MechPwr[0] == MP_ON) {
+				if(KuCtrl==KU_DEPLOY) SetKuAntennaAction(AnimState::OPENING);
+				else if(KuCtrl==KU_STOW) SetKuAntennaAction(AnimState::CLOSING);
 			}
 			action = true;
 		}
@@ -734,6 +759,7 @@ BOOL PayloadBayOp::DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // ==============================================================
 // Dialog callback hook
 
-BOOL CALLBACK PlOp_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+BOOL CALLBACK PlOp_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
 	return sts_dlg->plop->DlgProc (hWnd, uMsg, wParam, lParam);
 }
