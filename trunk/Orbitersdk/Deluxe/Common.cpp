@@ -12,8 +12,8 @@
 
 #ifdef _DEBUG
 // D. Beachy: GROW THE STACK HERE SO WE CAN USE BOUNDSCHECKER FOR DEBUGGING
-// We need this is because BoundsChecker (for this object) grows the stack more than 1 full page (4K) at once 
-// and then touches data beyond the initial 4K, skipping over the guard page that Windows places below the stack to grow it automatically.  
+// We need this is because BoundsChecker (for this object) grows the stack more than 1 full page (4K) at once
+// and then touches data beyond the initial 4K, skipping over the guard page that Windows places below the stack to grow it automatically.
 // Therefore we will grow the stack manually in one-page increments here.
 // This is only necessary for BoundsChecker debugging.
 
@@ -46,20 +46,12 @@ int GrowStack()
 int growStack=GrowStack();
 #endif
 
-int SRB_nt = 6;
-double SRB_Seq[6]    = {-SRB_STABILISATION_TIME, -1,     103,     115,       SRB_SEPARATION_TIME, SRB_CUTOUT_TIME};
-double SRB_Thrust[6] = { 0,                       1,       1,       0.85,    0.05,                0              };
-double SRB_Prop[6]   = { 1,                       0.98768, 0.13365, 0.04250, 0.001848,            0              };
-double SRB_ThrSCL[5] = {(SRB_Thrust[1]-SRB_Thrust[0])/(SRB_Seq[1]-SRB_Seq[0]),
-						(SRB_Thrust[2]-SRB_Thrust[1])/(SRB_Seq[2]-SRB_Seq[1]),
-						(SRB_Thrust[3]-SRB_Thrust[2])/(SRB_Seq[3]-SRB_Seq[2]),
-						(SRB_Thrust[4]-SRB_Thrust[3])/(SRB_Seq[4]-SRB_Seq[3]),
-						(SRB_Thrust[5]-SRB_Thrust[4])/(SRB_Seq[5]-SRB_Seq[4])};
-double SRB_PrpSCL[5] = {(SRB_Prop[1]-SRB_Prop[0])/(SRB_Seq[1]-SRB_Seq[0]),
-						(SRB_Prop[2]-SRB_Prop[1])/(SRB_Seq[2]-SRB_Seq[1]),
-						(SRB_Prop[3]-SRB_Prop[2])/(SRB_Seq[3]-SRB_Seq[2]),
-						(SRB_Prop[4]-SRB_Prop[3])/(SRB_Seq[4]-SRB_Seq[3]),
-						(SRB_Prop[5]-SRB_Prop[4])/(SRB_Seq[5]-SRB_Seq[4])};
+double SRB_Seq[SRB_nt]  = {-SRB_STABILISATION_TIME,-0.001,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,160};
+double SRB_Thrust[SRB_nt] = { 0,0,0.933,0.957,0.986,0.992,1.000,0.947,0.889,0.842,0.801,0.771,0.737,0.748,0.775,0.798,
+                                0.819,0.829,0.811,0.755,0.715,0.686,0.639,0.582,0.550,0.257,0.107,0.023,0.010,0.000};
+double SRB_Prop[SRB_nt]   = { 1,1,1.000,0.951,0.900,0.848,0.796,0.743,0.693,0.646,0.602,0.559,0.519,0.480,0.440,0.400,
+                                0.357,0.314,0.270,0.228,0.188,0.150,0.114,0.080,0.049,0.020,0.007,0.002,0.001,0.000};
+
 
 //PARTICLESTREAMSPEC srb_contrail = {
 //	0, 12.0, 3, 150.0, 0.4, 8.0, 4, 3.0, PARTICLESTREAMSPEC::DIFFUSE,
@@ -80,9 +72,12 @@ PARTICLESTREAMSPEC srb_exhaust = {
 // time-dependent calculation of SRB thrust and remaining propellant
 void GetSRB_State (double met, double &thrust_level, double &prop_level)
 {
-	for (int i = SRB_nt-2; i >= 0; i--)
+	int i;
+	for (i = SRB_nt-2; i >= 0; i--)
 		if (met > SRB_Seq[i]) break;
-	thrust_level = SRB_ThrSCL[i] * (met-SRB_Seq[i]) + SRB_Thrust[i];
-	prop_level = SRB_PrpSCL[i] * (met-SRB_Seq[i]) + SRB_Prop[i];
+    double SRB_ThrSCL=(SRB_Thrust[i+1]-SRB_Thrust[i])/(SRB_Seq[i+1]-SRB_Seq[i]);
+    double SRB_PrpSCL=(SRB_Prop[i+1]-SRB_Prop[i])/(SRB_Seq[i+1]-SRB_Seq[i]);
+	thrust_level = SRB_ThrSCL * (met-SRB_Seq[i]) + SRB_Thrust[i];
+	prop_level = SRB_PrpSCL * (met-SRB_Seq[i]) + SRB_Prop[i];
 }
 
