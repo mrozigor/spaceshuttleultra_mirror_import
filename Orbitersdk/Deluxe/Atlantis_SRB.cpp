@@ -31,13 +31,14 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 // reconstruct liftoff time from fuel level
 void Atlantis_SRB::SetRefTime (void)
 {
-	extern int SRB_nt;
-	extern double SRB_Seq[], SRB_Prop[], SRB_PrpSCL[];
+	extern double SRB_Seq[], SRB_Prop[];
 
 	double fuel = GetFuelMass()/GetMaxFuelMass();
-	for (int i = 1; i < SRB_nt; i++)
+	int i;
+	for (i = 1; i < SRB_nt; i++)
 		if (fuel >= SRB_Prop[i]) break;
-	double met = SRB_Seq[i] + (fuel-SRB_Prop[i])/SRB_PrpSCL[i-1];
+    double SRB_PrpSCL=(SRB_Prop[i]-SRB_Prop[i-1])/(SRB_Seq[i]-SRB_Seq[i-1]);
+	double met = SRB_Seq[i] + (fuel-SRB_Prop[i])/SRB_PrpSCL;
 	t0 = oapiGetSimTime()-met;
 }
 

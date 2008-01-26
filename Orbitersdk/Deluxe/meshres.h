@@ -1,6 +1,6 @@
 // ========================================================
-// Mesh resource file for ..\..\..\Meshes\Atlantis\Atlantis.msh
-// Generated with meshc on Sat Sep 23 02:41:10 2006
+// Mesh resource file for c:\Orbiter-Trunk\Meshes\Atlantis\Atlantis.msh
+// Generated with meshc on Wed Feb 07 18:22:47 2007
 
 // ========================================================
 
@@ -14,6 +14,7 @@
 #define NTEX 2
 
 // Named mesh groups:
+#define GRP_bodyflap 1
 #define GRP_cargodooroutR 2
 #define GRP_cargodooroutL 3
 #define GRP_flapR 4
@@ -44,6 +45,14 @@
 #define GRP_endeffecter 39
 #define GRP_RMScamera 40
 #define GRP_RMScamera_pivot 41
+#define GRP_camerapivotFL 42
+#define GRP_cameraFL 43
+#define GRP_cameraBL 44
+#define GRP_camerapivotBL 45
+#define GRP_cameraFR 46
+#define GRP_camerapivotFR 47
+#define GRP_camerapivotBR 48
+#define GRP_cameraBR 49
 #define GRP_radiatorFL 50
 #define GRP_radiatorFR 51
 #define GRP_radiatorBR 52

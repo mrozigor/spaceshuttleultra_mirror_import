@@ -2,7 +2,6 @@
 // Microsoft Developer Studio generated include file.
 // Used by Atlantis.rc
 //
-#define IDD_DIALOG1                     101
 #define IDD_RMS                         101
 #define IDI_UP                          105
 #define IDI_DOWN                        106
@@ -13,6 +12,7 @@
 #define IDD_PLBAY                       111
 #define IDD_CTRL                        112
 #define IDB_TKBKLABEL                   113
+#define IDD_PAYLOADCAM                  114
 #define IDC_BUTTON1                     1000
 #define IDC_WRIST_ROLLRIGHT             1000
 #define IDC_PLBAYOP                     1000
@@ -61,14 +61,33 @@
 #define IDC_KU_TLKBK                    1047
 #define IDC_KU                          1048
 #define IDC_KU_DIRECT                   1049
+#define IDC_TRANS_PX                    1050
+#define IDC_TRANS_PY                    1051
+#define IDC_TRANS_PZ                    1052
+#define IDC_CAM_SEL                     1052
+#define IDC_TRANS_MX                    1053
+#define IDC_CAM_BL                      1053
+#define IDC_TRANS_MY                    1054
+#define IDC_CAM_FL                      1054
+#define IDC_TRANS_MZ                    1055
+#define IDC_CAM_BR                      1055
+#define IDC_CAM_FR                      1056
+#define IDC_CAM_ROT                     1057
+#define IDC_CAM_UP                      1058
+#define IDC_CAM_DOWN                    1059
+#define IDC_CAM_LEFT                    1060
+#define IDC_CAM_RIGHT                   1061
+#define IDC_PAYCAM                      1063
+#define IDC_CAM_LOWRATE                 1064
+#define IDC_CAM_HIGHRATE                1065
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        114
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1051
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

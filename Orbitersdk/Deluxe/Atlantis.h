@@ -19,15 +19,14 @@
 // Some Orbiter-related parameters
 // ==========================================================
 
-const double ORBITER_EMPTY_MASS = 104326.0;
+const double ORBITER_EMPTY_MASS = 81100.0;
 // Orbiter empty mass [kg]
 
-const double ORBITER_MAX_PROPELLANT_MASS = 21600.0;
+const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
 // Amount of fuel the orbiter can hold in internal OMS tanks
 
-const double ORBITER_MAIN_THRUST = 1668652.0 * 1.25;
-// Vacuum thrust rating per main engine [N] (x3 for total)
-// assuming vacuum thrust is 5/4 liftoff thrust
+const double ORBITER_MAIN_THRUST = 2170732.15; //Nominal "104%" thrust
+// Vacuum thrust rating per main engine
 
 const double ORBITER_OMS_THRUST = 26700.0;
 // Vacuum thrust per unit for Orbital Maneuvering System [N] (x2 for total)
@@ -35,19 +34,18 @@ const double ORBITER_OMS_THRUST = 26700.0;
 const double ORBITER_RCS_THRUST = 7740.0;
 // Vacuum thrust rating for attitude thrusters (Reaction Control System) [N]
 
-const double ORBITER_MAIN_ISP0 = 5000.0;
-const double ORBITER_MAIN_ISP1 = 4000.0;
+const double ORBITER_MAIN_ISP0 = 453*9.80665;
+const double ORBITER_MAIN_ISP1 = 363*9.80665;
 // Vacuum and sea-level fuel-specific impulse for orbiter main engines [m/s]
 // using H2/O2 (hydrogen/oxygen)
-// The correct ISP0 is about 3532 m/s!
 
-const double ORBITER_OMS_ISP0 = 3100;
-const double ORBITER_OMS_ISP1 = 2500;
+const double ORBITER_OMS_ISP0 = 316*9.80665;
+const double ORBITER_OMS_ISP1 = ORBITER_OMS_ISP0*0.75;
 // Vacuum and sea-level fuel-specific impulse for Orbital Maneuvering System [m/s]
 // using MMH/N2O4 (monomethyl hydrazine/nitrogen tetroxide)
 
-const double ORBITER_RCS_ISP0 = 5000.0;
-const double ORBITER_RCS_ISP1 = 4000.0;
+const double ORBITER_RCS_ISP0 = ORBITER_OMS_ISP0;
+const double ORBITER_RCS_ISP1 = ORBITER_RCS_ISP0*0.75;
 // Vacuum and sea-level fuel-specific impulse for Reaction Control System [m/s]
 
 const double GEAR_OPERATING_SPEED = 0.3;
@@ -77,6 +75,8 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 
 const double ARM_OPERATING_SPEED = 0.005;
 // RMS arm joint rotation speed (rad/sec)
+const double ARM_TRANSLATE_SPEED = 0.1;
+// RMS IK translation speed (m/s)
 
 const VECTOR3 ORBITER_CS = {234.8,389.1,68.2};
 // Orbiter cross sections (projections into principal axes) [m^2]
@@ -93,6 +93,11 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling
 
+const double CAM_HIGHRATE_SPEED = 12;
+const double CAM_LOWRATE_SPEED = 1.2;
+// Payload camera speed rates (deg/sec)
+
+
 // ==========================================================
 // Some Tank-related parameters
 // ==========================================================
@@ -100,7 +105,9 @@ const double MAX_GRAPPLING_DIST = 0.5;
 const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 // Main tank propellant mass [kg]
 
-const double TANK_EMPTY_MASS = 35425.0;
+const double TANK_EMPTY_MASS = 26535; //Super light weight tank, 58500lb, STS-91 on
+                                      //STS-1 to STS-5 tank 76000lb 35425.0kg
+                                      //Light weight tank 66000lb 29937kg, STS-6 to STS-90
 // Main tank empty mass
 
 // ==========================================================
@@ -117,20 +124,21 @@ const double SRB_ISP0 = 3574.68;
 const double SRB_ISP1 = 2859.74;
 // SRB vacuum and sea-level fuel-specific impulse [m/s]
 
-const double SRB_THRUST = 1202020.0*9.81 * 1.25;
+const double SRB_THRUST = 17064000;
 // Vacuum SRB thrust per unit [N]
 
-const double MAX_ATT_LAUNCH = 1e5;
-const double MAX_ROLL_SRB = 2.5e5;
+const double MAX_ATT_LAUNCH = 1e-5;
+const double MAX_ROLL_SRB = 2.5e-5;
 // Max attitude thrust during launch phase (temporary)
 
-const double SRB_STABILISATION_TIME = 4.0;
+const double SRB_STABILISATION_TIME = 4;
 // MET: -SRB ignition
 
-const double SRB_SEPARATION_TIME = 126.0;
+const double SRB_SEPARATION_TIME = 126.6;
 // MET: SRB separation
+const int SRB_nt = 30;
 
-const double SRB_CUTOUT_TIME = 135.0;
+const double SRB_CUTOUT_TIME = 140.0;
 // MET: engine shutdown
 
 // ==========================================================
@@ -200,6 +208,15 @@ const UINT MESH_UNDEFINED = (UINT)-1;
 #define AID_R13L_TKBK5   105
 #define AID_R13L_TKBK6   106
 #define AID_R13L_MAX     120
+// Panel F6 (commander's panel)
+#define AID_F6_MIN     200
+#define AID_F6         200
+#define AID_F6_TKBK1   201
+#define AID_F6_TKBK2   202
+#define AID_F6_TKBK3   203
+#define AID_F6_BTN1    204
+#define AID_F6_BTN2    205
+#define AID_F6_MAX     220
 
 typedef struct {
 	HINSTANCE hDLL;
@@ -213,9 +230,11 @@ typedef struct {
 
 class Atlantis: public VESSEL2 {
 	friend class PayloadBayOp;
+	friend class GearOp;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
-	AnimState::Action gear_status, spdb_status;
+	AnimState::Action spdb_status;
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
 	void SetLaunchConfiguration (void);
@@ -231,7 +250,6 @@ public:
 	void SeparateMMU (void);
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
-	void SetGearParameters (double state);
 	void Jettison ();
 	void UpdateMesh ();
 	void ClearMeshes ();
@@ -239,11 +257,15 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetKuAntennaPosition (double pos);
-	void OperateLandingGear (AnimState::Action action);
-	void RevertLandingGear ();
 	void OperateSpeedbrake (AnimState::Action action);
 	void RevertSpeedbrake ();
 	void SetAnimationArm (UINT anim, double state);
+	void SetAnimationIKArm(VECTOR3 arm_wrist_dpos);
+	VECTOR3 CalcAnimationFKArm();
+    void PaintMarkings (SURFHANDLE tex);
+    char WingName[256];
+	// Actual Virtual Cockpit Mode
+	int VCMode;
 
 	void RegisterVC_CdrMFD ();
 	void RegisterVC_PltMFD ();
@@ -260,7 +282,6 @@ public:
 	double t0;          // reference time: designated liftoff time
 	WORD srb_id1, srb_id2;
 
-	double gear_proc; // landing gear deployment state (0=retracted, 1=deployed)
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc; // Speedbrake deployment state (0=retracted, 1=deployed)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
@@ -298,21 +319,25 @@ public:
 	bool clbkVCRedrawEvent (int id, int event, SURFHANDLE surf);
 
 	PayloadBayOp *plop; // control and status of payload bay operations
+	GearOp *gop; // control and status of landing gear
+	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
 private:
 	void AutoMainGimbal();
+	void SteerGimbal();
 	void LaunchClamps();
-	void CreateAttControls_Launch();
-	void CreateAttControls_RCS();
+	void CreateAttControls_RCS(VECTOR3 center);
+	void DisableAllRCS();
+	void EnableAllRCS();
 	bool SatGrappled() const { return GetAttachmentStatus (rms_attach) != 0; }
 	bool SatStowed() const { return GetAttachmentStatus (sat_attach) != 0; }
 	ATTACHMENTHANDLE CanArrest() const;
 
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad;                             // handle for radiator animation
-	UINT anim_gear;                            // handle for landing gear animation
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
 	UINT anim_elev;                            // handle for elevator animation
+	UINT anim_bf;                              // handle for body flap animation
 	UINT anim_laileron;						   // handle for left aileron animation
 	UINT anim_raileron;						   // handle for right aileron animation
 	UINT anim_rudder;						   // handle for rudder animation
@@ -322,9 +347,59 @@ private:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
+
+
+	// PAYLOAD CAMERAS ANIMATIONS
+	UINT anim_camFLyaw;						   // handle for front-left payload camera yaw animation 
+	UINT anim_camFLpitch;					   // handle for front-left payload camera pitch animation 
+	UINT anim_camFRyaw;						   // handle for front-right payload camera yaw animation 
+	UINT anim_camFRpitch;					   // handle for front-right payload camera pitch animation 
+	UINT anim_camBLyaw;						   // handle for back-left payload camera yaw animation 
+	UINT anim_camBLpitch;					   // handle for back-left payload camera pitch animation 
+	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
+	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
+	
+	// PAYLOAD CAMERAS ROTATION (-170 to 170 degrees)
+	double camFLyaw;
+	double camFLpitch;
+	double camFRyaw;
+	double camFRpitch;
+	double camBLyaw;
+	double camBLpitch;
+	double camBRyaw;
+	double camBRpitch;
+	
+	// Selected camera must be moved at low rate (if false at high rate)
+	bool cameraLowRate;
+
+	// If a camera have been moved (used for reposition camera animations)
+	bool cameraMoved;
+	
+	// Selected camera for control
+	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR
+	
+	// Transform for the cameras
+	MGROUP_TRANSFORM *CameraFLYaw;
+	MGROUP_TRANSFORM *CameraFLPitch;
+	MGROUP_TRANSFORM *CameraFRYaw;
+	MGROUP_TRANSFORM *CameraFRPitch;
+	MGROUP_TRANSFORM *CameraBLYaw;
+	MGROUP_TRANSFORM *CameraBLPitch;
+	MGROUP_TRANSFORM *CameraBRYaw;
+	MGROUP_TRANSFORM *CameraBRPitch;
+	
+	// Sets the camera positions and animations.
+	void SetAnimationCameras();
+
+
+	
+	
+	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb; // handles for propellant resources
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main engines
 	THRUSTER_HANDLE th_srb[2];                 // handles for SRB engines
+    THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
+	bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb;          // handles for thruster groups
 
 	// RMS arm animation status
@@ -332,6 +407,15 @@ private:
 	MGROUP_TRANSFORM *rms_anim[6];
 	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr;
 	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
+	//IK parameters
+	VECTOR3 arm_wrist_pos;
+	double lu,ll;
+    double shoulder_neutral;
+    double shoulder_range,shoulder_min,shoulder_max;
+    double elbow_neutral;
+    double elbow_range,elbow_min,elbow_max;
+    double wrist_neutral;
+    double wrist_range,wrist_min,wrist_max;
 
 	MGROUP_TRANSFORM *sat_anim, *sat_ref;
 
