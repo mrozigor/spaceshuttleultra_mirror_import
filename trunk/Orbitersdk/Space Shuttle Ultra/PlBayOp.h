@@ -26,7 +26,7 @@ public:
 	void Step (double t, double dt);
 	inline AnimState::Action GetDoorAction () const { return BayDoorStatus.action; }
 	void SetDoorAction (AnimState::Action action);
-	void RevertDoorAction (); // simplified operation
+	//void RevertDoorAction (); // simplified operation
 
 	inline AnimState::Action GetRadiatorAction () const { return RadiatorStatus.action; }
 	void SetRadiatorAction (AnimState::Action action);

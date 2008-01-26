@@ -49,6 +49,10 @@ void Atlantis_SRB::SetRefTime (void)
 // Set SRB class specs
 void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 {
+	bool Left;
+	oapiReadItem_bool(cfg, "Left", Left);
+	if(Left) hSRBMesh = oapiLoadMeshGlobal ("Shuttle_lsrb");
+	else hSRBMesh = oapiLoadMeshGlobal ("Shuttle_rsrb");
 	extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust;
 	PARTICLESTREAMSPEC srb_bolt = {
 		0, 8.0, 20, 0.0, 0.1, 0.3, 16, 3.0, PARTICLESTREAMSPEC::EMISSIVE,

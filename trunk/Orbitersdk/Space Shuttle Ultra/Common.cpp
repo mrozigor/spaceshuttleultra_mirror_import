@@ -78,6 +78,7 @@ void GetSRB_State (double met, double &thrust_level, double &prop_level)
     double SRB_ThrSCL=(SRB_Thrust[i+1]-SRB_Thrust[i])/(SRB_Seq[i+1]-SRB_Seq[i]);
     double SRB_PrpSCL=(SRB_Prop[i+1]-SRB_Prop[i])/(SRB_Seq[i+1]-SRB_Seq[i]);
 	thrust_level = SRB_ThrSCL * (met-SRB_Seq[i]) + SRB_Thrust[i];
+	if(met>0.0) thrust_level+=0.01*oapiRand() - 0.01*oapiRand();
 	prop_level = SRB_PrpSCL * (met-SRB_Seq[i]) + SRB_Prop[i];
 }
 

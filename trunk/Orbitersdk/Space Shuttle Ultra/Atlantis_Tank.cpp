@@ -23,7 +23,7 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 : VESSEL2(hObj)
 {
 	// preload mesh
-	hTankMesh = oapiLoadMeshGlobal ("Atlantis_tank");
+	hTankMesh = oapiLoadMeshGlobal ("Shuttle_tank");
 }
 
 // ==============================================================

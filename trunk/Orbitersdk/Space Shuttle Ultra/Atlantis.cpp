@@ -16,9 +16,12 @@
 #include "Atlantis.h"
 #include "PlBayOp.h"
 #include "GearOp.h"
+#include "PanelC3.h"
+#include "PanelR2.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
+#include "meshres_RMS.h"
 #include "resource.h"
 #include <stdio.h>
 #include <fstream>
@@ -44,7 +47,6 @@ HELPCONTEXT g_hc = {
   "html/vessels/Atlantis.chm::/Atlantis.hhk"
 };
 
-
 // ==============================================================
 // Local prototypes
 
@@ -67,15 +69,15 @@ int tpir(const double* list, int n_items, double target) {
   if(target>=list[n_items-1]) return n_items-2;
 //  sprintf(oapiDebugString(),"target %f n_items %d ",target,n_items);
   for(int i=1;i<n_items;i++) {
-  if(i>10) {
-  //    sprintf(buf,"list[%d] %.2f ",i,list[i]);
-  //  strcat(oapiDebugString(),buf);
-  }
-  if(list[i]>=target) {
-      //sprintf(buf,"result %d",i-1);
-    //strcat(oapiDebugString(),buf);
-    return i-1;
-  }
+	  //if(i>10) {
+	  //    sprintf(buf,"list[%d] %.2f ",i,list[i]);
+	  //  strcat(oapiDebugString(),buf);
+	  //}
+	  if(list[i]>=target) {
+		  //sprintf(buf,"result %d",i-1);
+		//strcat(oapiDebugString(),buf);
+		return i-1;
+	  }
   }
  // sprintf(buf,"result %d",-46);
  // strcat(oapiDebugString(),buf);
@@ -273,12 +275,13 @@ void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, doubl
 
   }
 //  sprintf(oapiDebugString(),"P%d Y%d R%d TableM: %f TableAoA: %f Table Cl: %f AFCS Cl: %f Table Cd: %f AFCS Cd: %f",v->PitchActive,v->YawActive,v->RollActive,M,aoa*180.0/PI,Tablecl,*cl,Tablecd,*cd);
-  *cl=Tablecl;
-  *cd=Tablecd;
+  else {
+	*cl=Tablecl;
+	*cd=Tablecd;
+  }
 //    *cm=tableterp(&cmBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
 //  *cm+=tableterp(&cmTrim[0][0], trimExt, n_trimExt, mach, n_mach, bfDeploy,M);
 }
-
 
 // 2. horizontal lift component (vertical stabiliser and body)
 
@@ -314,12 +317,13 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   int i;
 
   plop            = new PayloadBayOp (this);
-  gop            = new GearOp (this);
+  gop             = new GearOp (this);
+  c3po            = new PanelC3(this);
+  r2d2            = new PanelR2(this);
   status          = 3;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
   spdb_proc       = 0.0;
-
   mesh_orbiter    = MESH_UNDEFINED;
   mesh_cockpit    = MESH_UNDEFINED;
   mesh_vc         = MESH_UNDEFINED;
@@ -352,19 +356,36 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   // propellant resources
   ph_oms          = NULL;
+  ph_frcs		  = NULL;
   ph_tank         = NULL;
   ph_srb          = NULL;
   thg_main        = NULL;
+  thg_retro		  = NULL;
   thg_srb         = NULL;
+
+  oms_helium_tank[0] = NULL;
+  oms_helium_tank[1] = NULL;
+  for(int i=0;i<3;i++) {
+	  apu_tank[i] = NULL;
+	  mps_helium_tank[i] = NULL;
+  }
+
+  //Control Surfaces
+  hrudder	= NULL;
+  hbodyflap	= NULL;
+  helevator	= NULL;
+  hlaileron	= NULL;
+  hraileron	= NULL;
 
   // preload meshes
   hOrbiterMesh        = oapiLoadMeshGlobal ("Atlantis\\Atlantis");
   hOrbiterCockpitMesh = oapiLoadMeshGlobal ("Atlantis\\AtlantisCockpit");
   hOrbiterVCMesh      = oapiLoadMeshGlobal ("Atlantis\\AtlantisVC");
-  hTankMesh           = oapiLoadMeshGlobal ("Atlantis_tank");
-  hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
-
-  strcpy(WingName,"Atlantis");
+  hOrbiterRMSMesh	  = oapiLoadMeshGlobal ("Atlantis\\RMS");
+  hTankMesh           = oapiLoadMeshGlobal ("Shuttle_tank");
+  hSRBMesh[0]		  = oapiLoadMeshGlobal ("Shuttle_rsrb");
+  hSRBMesh[1]		  = oapiLoadMeshGlobal ("Shuttle_lsrb");
+  //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
 
   DefineAnimations();
@@ -380,16 +401,24 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   rms_attach      = NULL;
   cargo_static_ofs   =_V(0,0,0);
 
-  // default arm status: stowed
+  // default arm status: deployed
+  RMS=false;
+  RMSRollout.Set(AnimState::OPEN, 1);
   arm_sy = 0.5;
-  arm_sp = 0.0;
-  arm_ep = 0.0;
+  arm_sp = 0.0136;
+  arm_ep = 0.014688;
   arm_wp = 0.5;
   arm_wy = 0.5;
   arm_wr = 0.5;
-  arm_tip[0] = _V(-2.26,1.71,-6.5);
+  arm_tip[0] = _V(-2.87, 2.03, -6.27);
+  arm_tip[1] = _V(-2.87, 2.03, -7.27);
+  arm_tip[2] = _V(-2.87, 3.03, -6.27);
+  /*arm_tip[0] = _V(-3.017597, 1.658257, -6.5);
+  arm_tip[1] = _V(-3.017597, 1.658257, -7.5);
+  arm_tip[2] = _V(-3.518236, 2.479725, -6.5);*/
+  /*arm_tip[0] = _V(-2.26,1.71,-6.5);
   arm_tip[1] = _V(-2.26,1.71,-7.5);
-  arm_tip[2] = _V(-2.26,2.71,-6.5);
+  arm_tip[2] = _V(-2.26,2.71,-6.5);*/
 
   // default camera positions
   camFLyaw = 0;
@@ -405,6 +434,85 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   cameraMoved = false;
   cameraControl = 0;
 
+  pl_mass=0.0;
+
+  //Launch Guidance
+  MaxThrust=104.5; //104.5% thrust
+  Throttle_Bucket[0]=834*fps_to_ms;
+  Throttle_Bucket[1]=1174*fps_to_ms;
+  OMS_Assist[0]=0.0;
+  OMS_Assist[1]=0.0;
+  bAutopilot=false;
+  bThrottle=true;
+  bMECO=false;
+  bZThrust=false;
+  bEngineFail=false;
+  tSRBSep=SRB_SEPARATION_TIME;
+  TLastMajorCycle=0.0;
+
+  // gpc
+  ops=101;
+  last_mfd=0;
+  bFirstStep=true;
+  ThrAngleP=-13.20;
+  ThrAngleY=0.0;
+  //MNVR
+  MNVRLOAD=false;
+  TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
+  OMSGimbal[0][0]=OMSGimbal[0][1]=0;
+  OMSGimbal[1][0]=OMSGimbal[1][1]=0;
+  TV_ROLL=0;
+  BurnInProg=false;
+  BurnCompleted=false;
+  for(i=0; i<3; i++) {
+	  //MNVR
+	  PEG7.data[i]=0.0;
+	  //UNIV PTG
+	  MNVR_OPTION.data[i]=0.0;
+	  TRKROT_OPTION.data[i]=0.0;
+	  REQD_ATT.data[i]=0.0;
+	  LVLHOrientationReqd.data[i]=0.0;
+	  TargetAtt.data[i]=0.0;
+	  //Initialize DAP Config
+	  DAP[i].PRI_ROT_RATE=RotRate=1.0;
+	  DAP[i].PRI_ATT_DB=AttDeadband=0.5;
+	  DAP[i].PRI_RATE_DB=RateDeadband=0.1;
+	  DAP[i].PRI_ROT_PLS=0.1;
+	  DAP[i].PRI_COMP=0.0;
+  	  DAP[i].PRI_TRAN_PLS=0.2;
+	  DAP[i].PRI_P_OPTION=0;
+	  DAP[i].PRI_Y_OPTION=0;
+	  DAP[i].ALT_RATE_DB=0.2;
+	  DAP[i].ALT_ON_TIME=0.5;
+	  DAP[i].ALT_DELAY=0.5;
+	  DAP[i].ALT_JET_OPT=0;
+	  DAP[i].ALT_JETS=2;
+	  DAP[i].VERN_ROT_RATE=0.25;
+	  DAP[i].VERN_ATT_DB=0.1;
+	  DAP[i].VERN_RATE_DB=0.01;
+	  DAP[i].VERN_ROT_PLS=0.1;
+	  DAP[i].VERN_COMP=0.0;
+	  DAP[i].VERN_CNTL_ACC=0;
+  }
+  TGT_ID=2;
+  BODY_VECT=1;
+  P=0;
+  Y=0;
+  OM=-1;
+  MNVR=false;
+  ROT=false;
+  TRK=false;
+  JetsEnabled=3;
+  Thrusters=true;
+  NoseThrusters=true;
+  TailThrusters=true;
+  Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
+  Torque.data[YAW]=ORBITER_YAW_TORQUE;
+  Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
+  ManeuverinProg=false;
+
+  //I-loads
+  stage1guidance_size=0;
 }
 
 // --------------------------------------------------------------
@@ -413,8 +521,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 Atlantis::~Atlantis () {
   delete plop;
   delete gop;
+  delete c3po;
+  delete r2d2;
   int i;
-  for (i = 0; i < 6; i++) delete rms_anim[i];
+  for (i = 0; i < 7; i++) delete rms_anim[i];
   
   delete CameraFLYaw;
   delete CameraFLPitch;
@@ -424,6 +534,9 @@ Atlantis::~Atlantis () {
   delete CameraBLPitch;
   delete CameraBRYaw;
   delete CameraBRPitch;
+
+  delete [] stage1guidance[0];
+  delete [] stage1guidance[1];
 }
 
 // --------------------------------------------------------------
@@ -437,7 +550,7 @@ void Atlantis::SetLaunchConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (30.0);
-  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS);
+  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
   SetWingAspect (0.7);
   SetWingEffectiveness (2.5);
@@ -453,6 +566,13 @@ void Atlantis::SetLaunchConfiguration (void)
   if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
   if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
   if (!ph_srb)  ph_srb  = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
+  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+  for(i=0;i<3;i++) {
+	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+  }
+  for(i=0;i<2;i++) {
+	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
+  }
   SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
@@ -465,16 +585,26 @@ void Atlantis::SetLaunchConfiguration (void)
   ClearThrusterDefinitions();
 
   // orbiter main thrusters
-  th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V( 0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.13,1), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.13,1), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V( 0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);*/
+  th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-  for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
+  for(i=0;i<3;i++) {
+	  AddExhaust(th_main[i], 30.0, 2.0, tex_main);
+	  r2d2->CheckMPSArmed(i);
+  }
 
   // SRBs
-  th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  /*th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);*/
+  //th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  //th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(-0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0.0, 0.069338, 0.99759), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0.0, 0.069338, 0.99759), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
   srb_exhaust.tex = oapiRegisterParticleTexture ("Contrail2");
@@ -484,6 +614,15 @@ void Atlantis::SetLaunchConfiguration (void)
   AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,0,/*-30*/-50), &srb_contrail);
   AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(0,0,-25), &srb_exhaust);
   AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,0,-25), &srb_exhaust);
+
+  //OMS
+  VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.7,-13.8);
+  th_oms[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_oms[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  for(i=0;i<2;i++) {
+	  AddExhaust (th_oms[i], 4.0, 0.5);
+	  c3po->EngControl(i);
+  }
 
   // attitude
   CreateAttControls_RCS(OFS_LAUNCH_ORBITER);
@@ -527,7 +666,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (28.8);
-  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS);
+  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
   SetWingAspect (0.7);
   SetWingEffectiveness (2.5);
@@ -542,6 +681,13 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
   if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+  for(i=0;i<3;i++) {
+	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+  }
+  for(i=0;i<2;i++) {
+	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
+  }
   SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
@@ -554,19 +700,34 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   ofs = OFS_WITHTANK_ORBITER;
   if (thg_main) { // main engines already defined - just modify parameters
-    SetThrusterRef (th_main[0], ofs+_V(-1.6,-0.2,-16.0));
-    SetThrusterDir (th_main[0], _V( 0.0624,-0.1789,0.9819));
-    SetThrusterRef (th_main[1], ofs+_V( 1.6,-0.2,-16.0));
-    SetThrusterDir (th_main[1], _V(-0.0624,-0.1789,0.9819));
-    SetThrusterRef (th_main[2], ofs+_V( 0.0, 3.2,-15.5));
-    SetThrusterDir (th_main[2], _V( 0.0,   -0.308046,0.951372));
-  } else {        // create main engines
-    th_main[0] = CreateThruster (ofs+_V(-1.6,-0.2,-16.0), _V( 0.0624,-0.1789,0.9819), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-    th_main[1] = CreateThruster (ofs+_V( 1.6,-0.2,-16.0), _V(-0.0624,-0.1789,0.9819), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-    th_main[2] = CreateThruster (ofs+_V( 0.0, 3.2,-15.5), _V( 0.0,   -0.308046,0.951372), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-    thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
+	SetThrusterRef (th_main[1], ofs+_V(-1.6,-0.2,-16.0));
+    SetThrusterDir (th_main[1], _V( 0.0624,-0.1789,0.9819));
+    SetThrusterRef (th_main[2], ofs+_V( 1.6,-0.2,-16.0));
+    SetThrusterDir (th_main[2], _V(-0.0624,-0.1789,0.9819));
+    SetThrusterRef (th_main[0], ofs+_V( 0.0, 3.2,-15.5));
+    SetThrusterDir (th_main[0], _V( 0.0,-0.308046,0.951372));
+  } 
+  else {        // create main engines
+    th_main[0] = CreateThruster (ofs+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.308046,0.951372), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+	th_main[1] = CreateThruster (ofs+_V(-1.6,-0.2,-16.0), _V( 0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+	th_main[2] = CreateThruster (ofs+_V( 1.6,-0.2,-16.0), _V(-0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+	thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
     SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-    for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
+	//sprintf(oapiDebugString(), "Creating main engines");
+    //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
+	for(i=0;i<3;i++) {
+		AddExhaust(th_main[i], 30.0, 2.0, tex_main);
+		r2d2->CheckMPSArmed(i);
+	}
+  }
+  if(th_oms[0]==NULL) {
+    VECTOR3 OMS_POS=ofs+_V(0,3.7,-13.8);
+	th_oms[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	for(i=0;i<2;i++) {
+		AddExhaust (th_oms[i], 4.0, 0.5);
+		c3po->EngControl(i);
+	}
   }
   if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
     CreateAttControls_RCS(ofs);
@@ -597,7 +758,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (19.6);
-  SetEmptyMass (ORBITER_EMPTY_MASS);
+  SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
   VECTOR3 r[2] = {{0,0,10},{0,0,-8}};
   SetPMI (_V(104.2,108.8,13.497));
   SetGravityGradientDamping (20.0);
@@ -612,14 +773,15 @@ void Atlantis::SetOrbiterConfiguration (void)
   CreateAirfoil3 (LIFT_VERTICAL,   _V(0,0,-0.5), VLiftCoeff, NULL,Orbiterc, OrbiterS, OrbiterA);
   CreateAirfoil (LIFT_HORIZONTAL, _V(0,0,-4), HLiftCoeff, 20,  50, 1.5);
 
-  CreateControlSurface (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
-  CreateControlSurface (AIRCTRL_ELEVATORTRIM, 10, 1.5, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
-  CreateControlSurface (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
-  CreateControlSurface (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
-  CreateControlSurface (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+  helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
+  hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
+  hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+  hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+  hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+  ControlSurfacesEnabled=true;
 
   ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
+  CreateVariableDragElement (&spdb_proc, 12, _V(0, 7.5, -14)); // speedbrake drag
   CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
@@ -638,15 +800,67 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   if (!ph_oms) ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
   SetDefaultPropellantResource (ph_oms); // display OMS tank level in generic HUD
+  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+  for(i=0;i<3;i++) {
+	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+  }
+  for(i=0;i<2;i++) {
+	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
+  }
 
   // *********************** thruster definitions ********************************
 
   // OMS (Orbital Manouevering System)
   VECTOR3 OMS_POS=_V(0,3.7,-13.8);
-  th_main[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_main[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  thg_main = CreateThrusterGroup (th_main, 2, THGROUP_MAIN);
-  for (i = 0; i < 2; i++) AddExhaust (th_main[i], 4.0, 0.5);
+  th_oms[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_oms[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
+  for(i=0;i<2;i++) {
+	  AddExhaust (th_oms[i], 4.0, 0.5);
+	  c3po->EngControl(i);
+  }
+
+  for(i=0;i<3;i++) th_main[i]=NULL; //deactivate mains
+
+  /*VECTOR3 L_ENG_POS=_V(-1.6,-0.2,-16.0);
+  VECTOR3 R_ENG_POS=_V( 1.6,-0.2,-16.0);
+  VECTOR3 C_ENG_POS=_V( 0.0, 3.2,-15.5);
+  /*th_main[0] = CreateThruster (_V(-1.6,-0.2,-16.0), _V( 0.099496, 0.012437, 0.99496), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_main[1] = CreateThruster (_V( 1.6,-0.2,-16.0), _V(-0.099496, 0.012437, 0.99496), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_main[2] = CreateThruster (_V( 0.0, 3.2,-15.5), _V( 0.0, -0.20219, 0.97935), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);*/
+  //th_main[0] = CreateThruster (C_ENG_POS, -C_ENG_POS/length(C_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_main[1] = CreateThruster (L_ENG_POS, -L_ENG_POS/length(L_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_main[2] = CreateThruster (R_ENG_POS, -R_ENG_POS/length(R_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  /*th_main[0] = CreateThruster (C_ENG_POS, -C_ENG_POS/length(C_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_main[1] = CreateThruster (L_ENG_POS, -L_ENG_POS/length(L_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_main[2] = CreateThruster (R_ENG_POS, -R_ENG_POS/length(R_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_main[0] = CreateThruster (_V(-1.6,-0.2,-16.0), _V(0.0995, 0.0124, 0.9950), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_main[1] = CreateThruster (_V( 0.0, 3.2,-15.5), _V( 0.0, -0.0248, 0.9997), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_main[2] = CreateThruster (_V( 1.6,-0.2,-16.0), _V(-0.0995, 0.0124, 0.9950), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
+  SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+  for(i=0;i<3;i++) {
+	  AddExhaust(th_main[i], 30.0, 2.0, tex_main);
+	  r2d2->CheckMPSArmed(i);
+  }
+  //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+  //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
+  //AddExhaust (th_main[0], 30.0, 2.0, _V( 0.0, 3.2,-15.5), _V( 0.0, 0.308046,-0.951372), tex_main); 
+  //AddExhaust (th_main[1], 30.0, 2.0, _V(-1.6,-0.2,-16.0), _V( -0.0624,0.1789,-0.9819), tex_main);
+  //AddExhaust (th_main[2], 30.0, 2.0, _V( 1.6,-0.2,-16.0), _V(0.0624,0.1789,-0.9819), tex_main);
+  
+  //Retro (OMS)
+  VECTOR3 L_OMS_POS=_V(-2.7,3.7,-13.8);
+  VECTOR3 R_OMS_POS=_V(2.7,3.7,-13.8);
+  //th_retro[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_RETRO_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_retro[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_RETRO_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_retro[0] = CreateThruster (L_OMS_POS, -L_OMS_POS/length(L_OMS_POS), ORBITER_RETRO_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_retro[1] = CreateThruster (R_OMS_POS, -R_OMS_POS/length(R_OMS_POS), ORBITER_RETRO_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  thg_retro = CreateThrusterGroup (th_retro, 2, THGROUP_RETRO);
+  for(i=0;i<2;i++) {
+	  AddExhaust (th_retro[i], 4.0, 0.5);
+	  c3po->EngControl(i);
+  }*/
 
   // RCS (Reaction Control System)
   CreateAttControls_RCS (_V(0,0,0));
@@ -672,11 +886,15 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 
   // set of attitude thrusters (idealised). The arrangement is such that no angular
   // momentum is created in linear mode, and no linear momentum is created in rotational mode.
-  THRUSTER_HANDLE th_att_lin[4];
-  th_att_rcs[0] = th_att_lin[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[1] = th_att_lin[3] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[2] = th_att_lin[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[3] = th_att_lin[1] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[1] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[3] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  
+  th_att_lin[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[3] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[1] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   CreateThrusterGroup (th_att_lin,   2, THGROUP_ATT_UP);
   CreateThrusterGroup (th_att_lin+2, 2, THGROUP_ATT_DOWN);
 
@@ -705,12 +923,42 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddExhaust (th_att_rcs[3], eh, ew1, center+_V( 3.15, 1.6 ,-12.8 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D
   AddExhaust (th_att_rcs[3], eh, ew1, center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D
 
-  th_att_rcs[4] = th_att_lin[0] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[5] = th_att_lin[3] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[6] = th_att_lin[2] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[7] = th_att_lin[1] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  CreateThrusterGroup (th_att_lin,   2, THGROUP_ATT_LEFT);
-  CreateThrusterGroup (th_att_lin+2, 2, THGROUP_ATT_RIGHT);
+  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 1.60,-0.20, 18.78), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D
+  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 1.68,-0.18, 18.40), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D
+  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-1.55,-0.20, 18.78), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D
+  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-1.63,-0.18, 18.40), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D
+
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-12.30), _V(0, 1,0), tex_rcs);//L4U
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-12.70), _V(0, 1,0), tex_rcs);//L2U
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-13.10), _V(0, 1,0), tex_rcs);//L1U
+
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-12.30), _V(0, 1,0), tex_rcs);//R4U
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-12.70), _V(0, 1,0), tex_rcs);//R2U
+  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-13.10), _V(0, 1,0), tex_rcs);//R1U
+
+  AddExhaust (th_att_lin[2], eh, ew1, center+_V(-0.4 , 1.10, 18.3 ), _V(0, 1,0), tex_rcs);//F1U
+  AddExhaust (th_att_lin[2], eh, ew1, center+_V( 0.0 , 1.15 ,18.3 ), _V(0, 1,0), tex_rcs);//F3U
+  AddExhaust (th_att_lin[2], eh, ew1, center+_V( 0.4 , 1.10, 18.3 ), _V(0, 1,0), tex_rcs);//F2U
+
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.55,-12.45), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.6 ,-12.8 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.65,-13.15), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D
+
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.55,-12.45), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.6 ,-12.8 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D
+  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D
+
+  th_att_rcs[4] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[5] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[6] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[7] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+
+  th_att_lin[4] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[7] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[6] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[5] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  CreateThrusterGroup (th_att_lin+4,   2, THGROUP_ATT_LEFT);
+  CreateThrusterGroup (th_att_lin+6, 2, THGROUP_ATT_RIGHT);
 
   AddExhaust (th_att_rcs[4], eh, ew2, center+_V( 1.8 ,-0.3 , 18.0 ), _V( 1,0,0), tex_rcs);//F4R
   AddExhaust (th_att_rcs[4], eh, ew2, center+_V( 1.75, 0.1 , 18.05), _V( 1,0,0), tex_rcs);//F2R
@@ -727,9 +975,24 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddExhaust (th_att_rcs[7], eh, ew2, center+_V( 4.0 , 2.35,-13.0 ), _V( 1,0,0), tex_rcs);//R3R
   AddExhaust (th_att_rcs[7], eh, ew2, center+_V( 4.0,  2.35,-13.35), _V( 1,0,0), tex_rcs);//R1R
 
-  th_att_rcs[8] = CreateThruster (center+_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  AddExhaust (th_att_lin[4], eh, ew2, center+_V( 1.8 ,-0.3 , 18.0 ), _V( 1,0,0), tex_rcs);//F4R
+  AddExhaust (th_att_lin[4], eh, ew2, center+_V( 1.75, 0.1 , 18.05), _V( 1,0,0), tex_rcs);//F2R
+  AddExhaust (th_att_lin[6], eh, ew2, center+_V(-1.7 ,-0.3 , 18.0 ), _V(-1,0,0), tex_rcs);//F1L
+  AddExhaust (th_att_lin[6], eh, ew2, center+_V(-1.65,-0.1 , 18.05), _V(-1,0,0), tex_rcs);//F3L
+
+  AddExhaust (th_att_lin[7], eh, ew2, center+_V(-4.0 , 2.35,-12.35), _V(-1,0,0), tex_rcs);//L4L
+  AddExhaust (th_att_lin[7], eh, ew2, center+_V(-4.0 , 2.35,-12.6 ), _V(-1,0,0), tex_rcs);//L2L
+  AddExhaust (th_att_lin[7], eh, ew2, center+_V(-4.0 , 2.35,-13.0 ), _V(-1,0,0), tex_rcs);//L3L
+  AddExhaust (th_att_lin[7], eh, ew2, center+_V(-4.0 , 2.35,-13.35), _V(-1,0,0), tex_rcs);//L1L
+
+  AddExhaust (th_att_lin[5], eh, ew2, center+_V( 4.0 , 2.35,-12.35), _V( 1,0,0), tex_rcs);//R4R
+  AddExhaust (th_att_lin[5], eh, ew2, center+_V( 4.0 , 2.35,-12.6 ), _V( 1,0,0), tex_rcs);//R2R
+  AddExhaust (th_att_lin[5], eh, ew2, center+_V( 4.0 , 2.35,-13.0 ), _V( 1,0,0), tex_rcs);//R3R
+  AddExhaust (th_att_lin[5], eh, ew2, center+_V( 4.0,  2.35,-13.35), _V( 1,0,0), tex_rcs);//R1R
+
+  th_att_rcs[8] = CreateThruster (center+_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_rcs[9] = CreateThruster (center+_V(-2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_rcs[10] = CreateThruster (center+_V(-2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_rcs[10] = CreateThruster (center+_V(-2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_rcs[11] = CreateThruster (center+_V( 2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   //The virtual thrusters
   th_att_rcs[12] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -760,19 +1023,19 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 3.15, 1.6 ,-12.8 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D
   AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D
 
-  th_att_lin[0] = CreateThruster (center+_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  th_att_lin[1] = CreateThruster (center+_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  CreateThrusterGroup (th_att_lin,   1, THGROUP_ATT_FORWARD);
-  CreateThrusterGroup (th_att_lin+1, 1, THGROUP_ATT_BACK);
+  th_att_lin[8] = CreateThruster (center+_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  th_att_lin[9] = CreateThruster (center+_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  CreateThrusterGroup (th_att_lin+8, 1, THGROUP_ATT_FORWARD);
+  CreateThrusterGroup (th_att_lin+9, 1, THGROUP_ATT_BACK);
 
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-3.59, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//L1A
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-3.27, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//L3A
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 3.64, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//R1A
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 3.27, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//R3A
+  AddExhaust (th_att_lin[8], eh, ew1, center+_V(-3.59, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//L1A
+  AddExhaust (th_att_lin[8], eh, ew1, center+_V(-3.27, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//L3A
+  AddExhaust (th_att_lin[8], eh, ew1, center+_V( 3.64, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//R1A
+  AddExhaust (th_att_lin[8], eh, ew1, center+_V( 3.27, 2.8 ,-13.6 ), _V(0,0,-1), tex_rcs);//R3A
 
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 0.0 , 0.75, 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F3F
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-0.4 , 0.7 , 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 0.4 , 0.7 , 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F
+  AddExhaust (th_att_lin[9], eh, ew1, center+_V( 0.0 , 0.75, 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F3F
+  AddExhaust (th_att_lin[9], eh, ew1, center+_V(-0.4 , 0.7 , 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F
+  AddExhaust (th_att_lin[9], eh, ew1, center+_V( 0.4 , 0.7 , 19.2 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F
   RCSEnabled=true;
   CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
@@ -816,31 +1079,27 @@ void Atlantis::EnableAllRCS() {
   RCSEnabled=true;
 }
 
-void Atlantis::PaintMarkings (SURFHANDLE tex) {
-	HDC hDC = oapiGetDC (tex);
-	HFONT hFont = CreateFont(47, 0, 1800, 1800, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	HFONT pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextColor (hDC, 0x202020);
-	SetBkMode (hDC, TRANSPARENT);
-	char cbuf[256];
-//	strncpy (cbuf, "Kwan's Excellent Space Shuttle Adventure", 256);
-	strncpy (cbuf, WingName, 256);
-	int len = strlen(cbuf);
-	TextOut (hDC, 597, 296, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextAlign (hDC, TA_CENTER);
-	TextOut (hDC, 1800, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 2700, 2700, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	TextOut (hDC, 1400, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	oapiReleaseDC (tex, hDC);
+void Atlantis::DisableControlSurfaces()
+{
+	if(!ControlSurfacesEnabled) return;
+	ClearControlSurfaceDefinitions();
+	hrudder		= NULL;
+	hbodyflap	= NULL;
+	helevator	= NULL;
+	hlaileron	= NULL;
+	hraileron	= NULL;
+	ControlSurfacesEnabled=false;
+}
+
+void Atlantis::EnableControlSurfaces()
+{
+	if(ControlSurfacesEnabled) return;
+	helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
+    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
+	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	ControlSurfacesEnabled=true;
 }
 
 // --------------------------------------------------------------
@@ -850,6 +1109,7 @@ void Atlantis::DefineAnimations (void)
 {
   UINT midx = 1; // mesh index for all external animations
   UINT vidx = 2; // mesh index for all VC animations
+  UINT ridx = 3; // mesh index for all RMS animations
 
   // ***** 1. Cargo door and radiator animations *****
 
@@ -927,7 +1187,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RudderGrp[2] = {GRP_rudderR,GRP_rudderL};
   static MGROUP_ROTATE Rudder (midx, RudderGrp, 2,
-    _V(0,5.77,-12.17), _V(-0.037,0.833,-0.552), (float)(54.2*RAD));
+    _V(0,5.77,-12.17), _V(0.037,-0.833,0.552), (float)(54.2*RAD));
   anim_rudder = CreateAnimation (0.5);
   AddAnimationComponent (anim_rudder, 0, 1, &Rudder);
 
@@ -950,45 +1210,58 @@ void Atlantis::DefineAnimations (void)
 
   ANIMATIONCOMPONENT_HANDLE parent;
 
-  static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder};
-  rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
-    _V(-2.26, 1.5, 10), _V(0, 1, 0), (float)(-360*RAD)); // -180 .. +180
+  static UINT RMSRolloutGrp[8] = {GRP_MPM_RMS, GRP_base_RMS, GRP_Shoulder_RMS, GRP_Humerus_RMS, GRP_radii_RMS, GRP_wristpitch_RMS, GRP_wristyaw_RMS, GRP_endeffecter_RMS};
+  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 8,
+    _V(-2.69, 1.17, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
+  anim_rollout = CreateAnimation(1.0);
+  AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
+
+  static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_RMS};
+  rms_anim[0] = new MGROUP_ROTATE (ridx, RMSShoulderYawGrp, 1,
+    _V(-2.79, 1.78, 9.22), _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
   anim_arm_sy = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_sy, 0, 1, rms_anim[0]);
 
-  static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
-  rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
-    _V(-2.26, 1.8, 10), _V(1, 0, 0), (float)(147*RAD)); // -2 .. +145
+  static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus_RMS};
+  rms_anim[1] = new MGROUP_ROTATE (ridx, RMSShoulderPitchGrp, 1,
+    _V(-2.87, 2.03, 9.227), _V(0.948683298050514, 0.316227766016838, 0), (float)(147*RAD)); // -2 .. +145
   anim_arm_sp = CreateAnimation (0.0136);
   parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
 
-  static UINT RMSElbowPitchGrp[3] = {GRP_radii,GRP_RMScamera,GRP_RMScamera_pivot};
-  rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
-    _V(-2.26,1.7,3.3), _V(1,0,0), (float)(-162*RAD)); // -160 .. +2
-  anim_arm_ep = CreateAnimation (0.0123);
+  static UINT RMSElbowPitchGrp[1] = {GRP_radii_RMS};
+  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 1,
+    _V(-2.81, 1.86, 2.76), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
+  anim_arm_ep = CreateAnimation (0.014688);
   parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
 
-  static UINT RMSWristPitchGrp[1] = {GRP_wrist};
-  rms_anim[3] = new MGROUP_ROTATE (midx, RMSWristPitchGrp, 1,
-    _V(-2.26,1.7,-3.55), _V(1,0,0), (float)(240*RAD)); // -120 .. +120
+  static UINT RMSWristPitchGrp[1] = {GRP_wristpitch_RMS};
+  rms_anim[3] = new MGROUP_ROTATE (ridx, RMSWristPitchGrp, 1,
+    _V(-2.87, 2.03, -4.37), _V(0.949637404032871, 0.313350922867173, 0), (float)(242.8*RAD)); // -121.4 .. +121.4
   anim_arm_wp = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wp, 0, 1, rms_anim[3], parent);
 
-  static UINT RMSWristYawGrp[1] = {GRP_endeffecter};
-  rms_anim[4] = new MGROUP_ROTATE (midx, RMSWristYawGrp, 1,
-    _V(-2.26,1.7,-4.9), _V(0,1,0), (float)(-240*RAD)); // -120 .. +120
+  static UINT RMSWristYawGrp[1] = {GRP_wristyaw_RMS};
+  rms_anim[4] = new MGROUP_ROTATE (ridx, RMSWristYawGrp, 1,
+    _V(-2.87, 2.03, -4.88), _V(0.314338082679218, -0.949311102735849, 0), (float)(-242.6*RAD)); // -121.3 .. +121.3
   anim_arm_wy = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wy, 0, 1, rms_anim[4], parent);
 
-  rms_anim[5] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-    _V(-2.26,1.7,-6.5), _V(0,0,1), (float)(894*RAD)); // -447 .. +447
+  static UINT RMSEndEffectorGrp[1] = {GRP_endeffecter_RMS};
+  rms_anim[5] = new MGROUP_ROTATE (ridx, RMSEndEffectorGrp, 1,
+	  _V(-2.872205, 2.031515, -5.285479), _V(0, 0, 1), (float)(894*RAD));
+  rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+    _V(-2.87, 2.03, -6.27), _V(0,0,1), (float)(894*RAD)); // -447 .. +447
   anim_arm_wr = CreateAnimation (0.5);
-  hAC_arm = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
+  parent = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
+  hAC_arm = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[6], parent);
 
   //IK setup
-  VECTOR3 shoulder_pos=_V(-10,-2.26,1.8);
-  VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7);
-  VECTOR3 wrist_pos=_V(3.55,-2.26,1.7);
+  /*VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
+  VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7); //wrong
+  VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong*/
+  VECTOR3 shoulder_pos=_V(-9.227, -2.87, 2.03);
+  VECTOR3 elbow_pos=_V(-2.76, -2.81, 1.86);
+  VECTOR3 wrist_pos=_V(4.37, -2.87, 2.03);
   elbow_pos-=shoulder_pos;
   wrist_pos-=shoulder_pos;
   shoulder_pos-=shoulder_pos;
@@ -998,15 +1271,99 @@ void Atlantis::DefineAnimations (void)
   shoulder_range=147;      //in deg
   shoulder_min=shoulder_range*-shoulder_neutral; //Min angle, deg
   shoulder_max=shoulder_range*(1-shoulder_neutral); //Max angle, deg
-  elbow_neutral=0.0123;
-  elbow_range=162;
+  elbow_neutral=0.014688;
+  elbow_range=163.4;
   elbow_min=elbow_range*-elbow_neutral; //Min angle, deg
   elbow_max=elbow_range*(1-elbow_neutral); //Max angle, deg
   wrist_neutral=0.5; //In anim coordinate
-  wrist_range=240;      //in deg
+  wrist_range=242.8;      //in deg
   wrist_min=wrist_range*-wrist_neutral; //Min angle, deg
   wrist_max=wrist_range*(1-wrist_neutral); //Max angle, deg
   arm_wrist_pos=wrist_pos;
+
+  //ANIMATIONCOMPONENT_HANDLE parent;
+
+  //static UINT RMSRolloutGrp[9] = {GRP_Shoulder, GRP_Humerus, GRP_radii, GRP_wrist, GRP_endeffecter, GRP_RMScamera, GRP_RMScamera_pivot, GRP_portMPMs, GRP_shouldermount};
+  //rms_rollout_anim = new MGROUP_ROTATE (midx, RMSRolloutGrp, 9,
+  //  _V(-2.589, 0.955, 4.776), _V(0, 0, 1), (float)(49.3517*RAD)); //1.05 or 1.10
+  //anim_rollout = CreateAnimation(0);
+  //AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
+
+  //static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder};
+  /*rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
+    _V(-2.26, 1.5, 10), _V(0, 1, 0), (float)(-360*RAD));*/
+  /*rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
+    _V(-2.26, 1.5, 10), _V(-sin(31.36*RAD), cos(31.36*RAD), 0), (float)(-360*RAD));*/ // -180 .. +180
+  //rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
+  //  _V(-2.9203, 1.49861, 10), _V(-sin(31.36*RAD), cos(31.36*RAD), 0), (float)(-360*RAD)); // -180 .. +180
+  //anim_arm_sy = CreateAnimation (0.5);
+  //parent = AddAnimationComponent (anim_arm_sy, 0, 1, rms_anim[0]);
+
+  //static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
+  ///*rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
+  //  _V(-2.26, 1.8, 10), _V(1, 0, 0), (float)(147*RAD));*/
+  ///*rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
+  //  _V(-3.0609, 1.72932, 10), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(147*RAD));*/
+  //rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
+  //  _V(-3.012831,1.65044, 10), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(147*RAD)); // -2 .. +145
+  //anim_arm_sp = CreateAnimation (0.0136);
+  //parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
+
+  //static UINT RMSElbowPitchGrp[3] = {GRP_radii,GRP_RMScamera,GRP_RMScamera_pivot};
+  ///*rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
+  //  _V(-2.26,1.7,3.3), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));*/ // -160 .. +2
+  //rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
+  //  _V(-3.012831,1.65044,3.20), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));
+  ///*rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
+  //  _V(-3.012831,1.65044,3.1), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));*/ // -160 .. +2
+  //anim_arm_ep = CreateAnimation (0.0123);
+  //parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
+
+  //static UINT RMSWristPitchGrp[1] = {GRP_wrist};
+  ///*rms_anim[3] = new MGROUP_ROTATE (midx, RMSWristPitchGrp, 1,
+  //  _V(-2.26,1.7,-3.55), _V(1,0,0), (float)(240*RAD));*/ // -120 .. +120
+  //rms_anim[3] = new MGROUP_ROTATE (midx, RMSWristPitchGrp, 1,
+  //  _V(-3.012831,1.65044,-3.55), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(240*RAD)); // -120 .. +120
+  //anim_arm_wp = CreateAnimation (0.5);
+  //parent = AddAnimationComponent (anim_arm_wp, 0, 1, rms_anim[3], parent);
+
+  //static UINT RMSWristYawGrp[1] = {GRP_endeffecter};
+  ///*rms_anim[4] = new MGROUP_ROTATE (midx, RMSWristYawGrp, 1,
+  //  _V(-2.26,1.7,-4.9), _V(0,1,0), (float)(-240*RAD));*/ // -120 .. +120
+  //rms_anim[4] = new MGROUP_ROTATE (midx, RMSWristYawGrp, 1,
+  //  _V(-3.012831,1.65044,-4.9), _V(-sin(31.36*RAD), cos(31.36*RAD),0), (float)(-240*RAD)); // -120 .. +120
+  //anim_arm_wy = CreateAnimation (0.5);
+  //parent = AddAnimationComponent (anim_arm_wy, 0, 1, rms_anim[4], parent);
+
+  ///*rms_anim[5] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+  //  _V(-2.26,1.7,-6.5), _V(0,0,1), (float)(894*RAD));*/ // -447 .. +447
+  //rms_anim[5] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+  //  _V(-3.012831,1.65044, -6.5), _V(0,0,1), (float)(894*RAD)); // -447 .. +447
+  //anim_arm_wr = CreateAnimation (0.5);
+  //hAC_arm = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
+
+  ////IK setup
+  //VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
+  //VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7); //wrong
+  //VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong
+  //elbow_pos-=shoulder_pos;
+  //wrist_pos-=shoulder_pos;
+  //shoulder_pos-=shoulder_pos;
+  //lu=length(elbow_pos);
+  //ll=length(elbow_pos-wrist_pos);
+  //shoulder_neutral=0.0136; //In anim coordinate
+  //shoulder_range=147;      //in deg
+  //shoulder_min=shoulder_range*-shoulder_neutral; //Min angle, deg
+  //shoulder_max=shoulder_range*(1-shoulder_neutral); //Max angle, deg
+  //elbow_neutral=0.0123;
+  //elbow_range=162;
+  //elbow_min=elbow_range*-elbow_neutral; //Min angle, deg
+  //elbow_max=elbow_range*(1-elbow_neutral); //Max angle, deg
+  //wrist_neutral=0.5; //In anim coordinate
+  //wrist_range=240;      //in deg
+  //wrist_min=wrist_range*-wrist_neutral; //Min angle, deg
+  //wrist_max=wrist_range*(1-wrist_neutral); //Max angle, deg
+  //arm_wrist_pos=wrist_pos;
 
 
   // ***** 9 Payload cameras animation *****
@@ -1062,16 +1419,38 @@ void Atlantis::DefineAnimations (void)
   anim_camBRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
+  // ***** 10 Dummy animation *****
+  static MGROUP_ROTATE Dummy (midx, ElevGrp, 4,
+    _V(0,-2.173,-8.84), _V(1,0,0), (float)(0.0*RAD));
+  anim_dummy = CreateAnimation (0.5);
+  AddAnimationComponent (anim_dummy, 0, 1, &Dummy);
+
+  // ***** 11 ET Umb Door animation *****
+  static UINT ETUmbLGrp[1] = {GRP_etumbdoorL};
+  static UINT ETUmbRGrp[1] = {GRP_etumbdoorR};
+  static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
+	  _V(-1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(180.0*RAD));
+  static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
+	  _V(1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(-180.0*RAD));
+  anim_letumbdoor = CreateAnimation(0);
+  anim_retumbdoor = CreateAnimation(0);
+  AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
+  AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+
   // ======================================================
   // VC animation definitions
   // ======================================================
   plop->DefineAnimations (vidx);
   gop->DefineVCAnimations (vidx);
+  c3po->DefineVCAnimations (vidx);
+  r2d2->DefineVCAnimations (vidx);
 }
 
-void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs) {
+void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
+{
   orbiter_ofs = ofs;
   huds.hudcnt = _V(ofs.x-0.671257, ofs.y+2.523535, ofs.z+14.969);
+
   if (mesh_orbiter == MESH_UNDEFINED) {
 
     // ***** Load meshes
@@ -1081,11 +1460,14 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs) {
 
     mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-    SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, 2);
-	PaintMarkings (insignia_tex);
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
+
+	if(RMS) {
+		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
+		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	}
 
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
@@ -1130,7 +1512,8 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
   if (mesh_srb[which] == MESH_UNDEFINED) {
 
     // ***** Load mesh
-    mesh_srb[which] = AddMesh (hSRBMesh, &ofs);
+    //mesh_srb[which] = AddMesh (hSRBMesh, &ofs);
+    mesh_srb[which] = AddMesh (hSRBMesh[which], &ofs);
     SetMeshVisibilityMode (mesh_srb[which], MESHVIS_ALWAYS|MESHVIS_EXTPASS);
     int id = AddExhaustRef (EXHAUST_CUSTOM, _V(ofs.x, ofs.y, ofs.z-21.8), 0, 0);
     if (which) srb_id1 = id;
@@ -1160,11 +1543,11 @@ void Atlantis::SeparateBoosters (double met)
   vs.status = 0;
   char name[256];
   strcpy (name, GetName()); strcat (name, "-SRB1");
-  oapiCreateVesselEx (name, "Atlantis_SRB", &vs);
+  oapiCreateVesselEx (name, "Atlantis_RSRB", &vs);
   Local2Rel (OFS_LAUNCH_LEFTSRB, vs.rpos);
   vs.arot.z -= 1.5*PI;
   name[strlen(name)-1] = '2';
-  oapiCreateVesselEx (name, "Atlantis_SRB", &vs);
+  oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);
 
   // Remove SRB's from Shuttle instance
   DelPropellantResource (ph_srb);
@@ -1223,7 +1606,7 @@ void Atlantis::SeparateTank (void)
   ShiftCG (OFS_WITHTANK_ORBITER);
 
   // reconfigure
-  RecordEvent ("JET", "ET");
+  RecordEvent ("JET", "ET"); 
   SetOrbiterConfiguration ();
 }
 
@@ -1232,6 +1615,7 @@ void Atlantis::ToggleGrapple (void)
   HWND hDlg;
   OBJHANDLE hV = GetAttachmentStatus (rms_attach);
 
+  if(!RMS) return; //no arm
   if (hV) {  // release satellite
 
     ATTACHMENTHANDLE hAtt = CanArrest();
@@ -1340,6 +1724,18 @@ ATTACHMENTHANDLE Atlantis::CanArrest (void) const
   return 0;
 }
 
+bool Atlantis::ArmCradled()
+{
+	if(!RMS) return true;
+	if(!Eq(arm_sy, 0.5)) return false;
+	if(!Eq(arm_sp, shoulder_neutral)) return false;
+	if(!Eq(arm_ep, elbow_neutral)) return false;
+	if(!Eq(arm_wp, wrist_neutral)) return false;
+	if(!Eq(arm_wy, wrist_neutral)) return false;
+	if(!Eq(arm_wr, wrist_neutral)) return false;
+	return true;
+}
+
 void Atlantis::SeparateMMU (void)
 {
   // Create Tank as individual object
@@ -1356,67 +1752,96 @@ void Atlantis::SeparateMMU (void)
 
 void Atlantis::SteerGimbal() {
   //Use the left and right main engines to steer (after SRBs are gone)
-  double P,Y,R;
-  double PP,PY,PR,MP,MY,MR;
-  PP=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-  MP=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-  P=PP-MP;
-  PY=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-  MY=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-  Y=PY-MY;
-  PR=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-  MR=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-  R=PR-MR;
-  SetThrusterDir(th_main[0], _V( 0.0624-Y*0.05,-0.1789+(-P+R)*0.05,0.9819));
-  SetThrusterDir(th_main[1], _V(-0.0624-Y*0.05,-0.1789+(-P-R)*0.05,0.9819));
-//  sprintf(oapiDebugString(),"pp %f mp %f  py %f my %f  pr %f mr %f",PP,MP,PY,MY,PR,MR);
+	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+	VECTOR3 RateDeltas;
+	GetAngularVel(AngularVelocity);
+	for(int i=0;i<3;i++) {
+		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
+	}
+	if(!r2d2->bHydraulicPressure) {
+		for(int i=0;i<3;i++) {
+			pitchcorrect.data[i]=0.0;
+			yawcorrect.data[i]=0.0;
+			rollcorrect.data[i]=0.0;
+		}
+	}
+	else {
+		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[PITCH], 0.18);
+		pitchcorrect.data[0]=range(-0.18, -0.06*RateDeltas.data[PITCH], 0.18);
+		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.15, 0.03*RateDeltas.data[YAW], 0.15);
+		yawcorrect.data[0]=range(-0.15, 0.07*RateDeltas.data[YAW], 0.15);
+		rollcorrect.data[0]=0.0;
+		rollcorrect.data[1]=range(-0.18, 0.03*RateDeltas.data[ROLL], 0.18);
+		rollcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[ROLL], 0.18);
+	}
+	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.308046+pitchcorrect.data[0]+rollcorrect.data[0],0.951372)));
+	SetThrusterDir(th_main[1], NormZ(_V( 0.0624+yawcorrect.data[1],-0.1789+pitchcorrect.data[1]+rollcorrect.data[1],0.9819)));
+	SetThrusterDir(th_main[2], NormZ(_V(-0.0624+yawcorrect.data[2],-0.1789+pitchcorrect.data[2]+rollcorrect.data[2],0.9819)));
 }
 
 void Atlantis::AutoMainGimbal () {
   //Steer with the SRBs and lower SSMEs
-  double P,Y,R;
-  double PP,PY,PR,MP,MY,MR;
-  PP=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-  MP=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-  P=PP-MP;
-  PY=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-  MY=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-  Y=PY-MY;
-  PR=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-  MR=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-  R=PR-MR;
-  SetThrusterDir(th_srb[0], _V(0-Y*0.05,0.023643+(-P+R)*0.05,0.999720));
-  SetThrusterDir(th_srb[1], _V(0-Y*0.05,0.023643+(-P-R)*0.05,0.999720));
-  SetThrusterDir(th_main[0], _V( 0.04994-Y*0.05,(-P+R)*0.05,0.99875));
-  SetThrusterDir(th_main[1], _V(-0.04994-Y*0.05,(-P-R)*0.05,0.99875));
-//  sprintf(oapiDebugString(),"pp %f mp %f  py %f my %f  pr %f mr %f",PP,MP,PY,MY,PR,MR);
+	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+	VECTOR3 RateDeltas;
+	
+	GetAngularVel(AngularVelocity);
+	for(int i=0;i<3;i++) {
+		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
+	}
+	if(!r2d2->bHydraulicPressure) {
+		for(int i=0;i<3;i++) {
+			pitchcorrect.data[i]=0.0;
+			yawcorrect.data[i]=0.0;
+			rollcorrect.data[i]=0.0;
+		}
+	}
+	else {
+		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[PITCH], 0.18);
+		pitchcorrect.data[0]=range(-0.18, -0.06*RateDeltas.data[PITCH], 0.18);
+		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.15, 0.03*RateDeltas.data[YAW], 0.15);
+		yawcorrect.data[0]=range(-0.15, 0.07*RateDeltas.data[YAW], 0.15);
+		rollcorrect.data[0]=0.0;
+		rollcorrect.data[1]=range(-0.18, 0.03*RateDeltas.data[ROLL], 0.18);
+		rollcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[ROLL], 0.18);
+	}
+	SetThrusterDir(th_srb[0], NormZ(_V(0.0+yawcorrect.data[1],0.069338+pitchcorrect.data[1]+rollcorrect.data[1],0.99759)));
+	SetThrusterDir(th_srb[1], NormZ(_V(0.0+yawcorrect.data[2],0.069338+pitchcorrect.data[2]+rollcorrect.data[2],0.99759)));
+	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
+	SetThrusterDir(th_main[1], NormZ(_V( 0.065+yawcorrect.data[1],-0.2447+pitchcorrect.data[1]+rollcorrect.data[1],0.9674)));
+	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));
+}
 
-  // Implement automatic gimbal adjustment for main engines to correct for
-  // SRB thrust variations. We adjust only the upper engine
-  double        F_srb  = SRB_THRUST         *GetThrusterLevel (th_srb[0]);
-  double        F_main = ORBITER_MAIN_THRUST*GetThrusterLevel (th_main[0]);
-  if (F_main) {
-    double        M_srb =   2.51951112*F_srb;  // angular moment from SRB thrust
-    double        M_m2  = -12.02495   *F_main; // angular moment from the two lower main engines in neutral position
-    double        M_0   = M_srb + M_m2;
-    static double ry    =   9.42;  // upper main thruster: y-offset
-    static double rz    = -23.295; // upper main thruster: z-offset
-    static double ry2   = ry*ry;
-    static double rz2   = rz*rz;
-    double        F2    = F_main*F_main;
-    double        M2    = M_0*M_0;
-    double        term  = -M2 + F2*(ry2+rz2);
-    double        arg1  = max (0.0, rz2 * term);
-    double        scale = 1.0/(F_main*(ry2+rz2));
-    double        dz    = (M_0*ry + sqrt (arg1))*scale;
-    double      arg2  = max (0.0, ry2 * term);
-    double        dy    =-(M_0*rz + sqrt (arg2))*scale;
-    if (!arg1 || !arg2) {
-      double len = hypot(dy,dz);
-      dy /= len, dz /= len;
-    }
-    SetThrusterDir (th_main[2], _V(0,dy,dz));
-  }
+double Atlantis::CalcNetThrust()
+{
+	VECTOR3 N=_V(0, 0, 0), F, M;
+	for(int i=0;i<3;i++) {
+		GetThrusterMoment(th_main[i], F, M);
+		N+=F;
+	}
+	return length(N);
+}
+
+void Atlantis::CalcThrustAngles()
+{
+	VECTOR3 N=_V(0, 0, 0);
+	N+=_V( 0.0,-0.308046,0.951372)*GetThrusterLevel(th_main[0]);
+	N+=_V( 0.0624,-0.1789,0.9819)*GetThrusterLevel(th_main[1]);
+	N+=_V(-0.0624,-0.1789,0.9819)*GetThrusterLevel(th_main[2]);
+	ThrAngleP=DEG*asin(N.y/N.z);
+	ThrAngleY=DEG*asin(N.x/N.z);
+}
+
+void Atlantis::FailEngine(int engine)
+{
+	SetThrusterResource(th_main[engine], NULL);
+	//should check throttle increase
+	MaxThrust=109.0;
+	for(int i=0;i<3;i++)
+	{
+		SetThrusterMax0(th_main[i], SSME_RATED_THRUST*(MaxThrust/100.0));
+	}
+	CalcThrustAngles();
+	bEngineFail=false;
 }
 
 void Atlantis::LaunchClamps ()
@@ -1510,6 +1935,12 @@ void Atlantis::SetKuAntennaPosition (double pos)
   SetAnimation (anim_kubd, pos);
 }
 
+void Atlantis::SetETUmbDoorPosition (double pos, int door)
+{
+	if(door==0) SetAnimation (anim_letumbdoor, pos);
+	else SetAnimation (anim_retumbdoor, pos);
+}
+
 void Atlantis::OperateSpeedbrake (AnimState::Action action)
 {
   spdb_status = action;
@@ -1518,12 +1949,23 @@ void Atlantis::OperateSpeedbrake (AnimState::Action action)
 
 void Atlantis::RevertSpeedbrake (void)
 {
+  if(spdb_status == AnimState::CLOSED || spdb_status == AnimState::CLOSING) spdb_tgt=1.0;
+  else if(spdb_status == AnimState::OPEN || spdb_status == AnimState::OPENING) spdb_tgt=0.0;
   OperateSpeedbrake (spdb_status == AnimState::CLOSED || spdb_status == AnimState::CLOSING ?
     AnimState::OPENING : AnimState::CLOSING);
 }
 
+void Atlantis::SetSpeedbrake(double tgt)
+{
+	spdb_tgt=tgt;
+	if(spdb_tgt<spdb_proc) OperateSpeedbrake(AnimState::CLOSING);
+	else if(spdb_tgt>spdb_proc) OperateSpeedbrake(AnimState::OPENING);
+}
+
 void Atlantis::SetAnimationArm (UINT anim, double state)
 {
+  if(!RMS) return;
+  if(RMSRollout.action!=AnimState::OPEN) return;
   SetAnimation (anim, state);
   arm_moved = true;
 
@@ -1532,7 +1974,7 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
     SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
     EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), CanArrest() ? TRUE : FALSE);
   }
-  CalcAnimationFKArm();
+  //CalcAnimationFKArm();
 }
 
 void Atlantis::SetAnimationCameras() {
@@ -1618,6 +2060,190 @@ void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
   oapiReleaseDC (surf, hDC);
 }
 
+void Atlantis::SetILoads()
+{
+	stage1guidance[0]=new double[8];
+	stage1guidance[1]=new double[8];
+	for(int i=0;i<8;i++) {
+		stage1guidance[0][i]=defaultStage1Guidance[0][i];
+		stage1guidance[1][i]=defaultStage1Guidance[1][i];
+	}
+	stage1guidance_size=8;
+	return;
+}
+
+void Atlantis::CalcLVLHAttitude(VECTOR3 &Output)
+{
+	VECTOR3 H;
+	H = crossp(Status.rpos, Status.rvel);
+	TargetAtt=GetPYR2(Status.rvel, H);
+	//Output=CalcPitchYawRollAngles(ToRad(LVLHOrientationReqd));
+	Output=CalcPitchYawRollAngles(_V(0.0, 0.0, 0.0));
+	return;
+}
+
+VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
+{
+	RefPoints GlobalPts, LocalPts;
+	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
+	VECTOR3 H = crossp(Status.rpos, Status.rvel);
+	VECTOR3 RefAttitude = GetPYR2(Status.rvel, H);
+
+	RotateVector(PitchUnit, Target, PitchUnit);
+	RotateVector(YawRollUnit, Target, YawRollUnit);
+	RotateVector(PitchUnit, RefAttitude, GlobalPts.Pitch);
+	RotateVector(YawRollUnit, RefAttitude, GlobalPts.Yaw);
+	GlobalPts.Pitch = GVesselPos + GlobalPts.Pitch;
+	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
+	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
+	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
+	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+}
+
+VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
+{
+	RefPoints GlobalPts, LocalPts;
+	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
+	RotateVector(PitchUnit, RelAttitude, PitchUnit);
+	RotateVector(YawRollUnit, RelAttitude, YawRollUnit);
+	RotateVector(PitchUnit, TargetAtt, GlobalPts.Pitch);
+	RotateVector(YawRollUnit, TargetAtt, GlobalPts.Yaw);
+	GlobalPts.Pitch = GVesselPos + GlobalPts.Pitch;
+	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
+	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
+	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
+	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+}
+
+//Math
+/*double Atlantis::CalcKD(double Torque, double I, double KP)
+{
+  double k=fabs(KP*Torque);
+  double w2=k/I;
+  double beta=2*sqrt(w2);
+  double b=beta*I;
+  double KD=b/Torque*((KP>0)?1:-1);
+  return KD;
+}*/
+
+double Atlantis::NullStartAngle(double Rates, AXIS Axis)
+{
+	double Time, Angle;
+	//TorqueReq = -(Mass * PMI.data[Axis] * Rate) / TimeStep;
+	if(Rates!=0.0) {
+		Time = (Mass*PMI.data[Axis]*Rates)/Torque.data[Axis];
+		//Acceleration=Rates/Time;
+		//Angle=Acceleration*Time*Time;
+		Angle=0.5*Rates*Time;
+		//if(Axis==YAW) sprintf(oapiDebugString(), "%f %f %f", Rates, Angle, PMI.data[Axis]);
+		return DEG*Angle;
+	}
+	else return 0.0;
+}
+
+VECTOR3 Atlantis::GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
+{	
+	VECTOR3 Res = { 0, 0, 0 };
+
+	// Normalize the vectors
+	Pitch = Normalize(Pitch);
+	YawRoll = Normalize(YawRoll);
+	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
+
+	Res.data[YAW] = -asin(YawRoll.z);
+
+	Res.data[ROLL] = atan2(YawRoll.y, YawRoll.x);
+
+	Res.data[PITCH] = atan2(H.z, Pitch.z);
+
+	return Res;
+
+}
+
+VECTOR3 Atlantis::GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll)
+{	
+	VECTOR3 Res = { 0, 0, 0 };
+	// Normalize the vectors
+	Pitch = Normalize(Pitch);
+	YawRoll = Normalize(YawRoll);
+	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
+	Res.data[YAW] = -asin(Pitch.x);
+	Res.data[ROLL] = atan2(H.x, YawRoll.x);
+	Res.data[PITCH] = atan2(Pitch.y, Pitch.z);
+	return Res;
+}
+
+void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
+{
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	VECTOR3 AfterZ, AfterZY;					// Temporary variables
+
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+	
+	MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
+	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
+	MultiplyByMatrix(AfterZY, RotMatrixX, Result);
+}
+
+// Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
+void Atlantis::GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX)
+{
+	RotMatrixX.m11 = 1;
+	RotMatrixX.m12 = 0;
+	RotMatrixX.m13 = 0;
+	RotMatrixX.m21 = 0;
+	RotMatrixX.m22 = cos(Angle);
+	RotMatrixX.m23 = sin(Angle);
+	RotMatrixX.m31 = 0;
+	RotMatrixX.m32 = -sin(Angle);
+	RotMatrixX.m33 = cos(Angle);
+}
+
+// Returns the rotation matrix for a rotation of a given angle around the Y axis (Yaw)
+void Atlantis::GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY)
+{
+	RotMatrixY.m11 = cos(Angle);
+	RotMatrixY.m12 = 0;
+	RotMatrixY.m13 = -sin(Angle);
+	RotMatrixY.m21 = 0;
+	RotMatrixY.m22 = 1;
+	RotMatrixY.m23 = 0;
+	RotMatrixY.m31 = sin(Angle);
+	RotMatrixY.m32 = 0;
+	RotMatrixY.m33 = cos(Angle);
+}
+
+// Returns the rotation matrix for a rotation of a given angle around the Z axis (Roll)
+void Atlantis::GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
+{
+	RotMatrixZ.m11 = cos(Angle);
+	RotMatrixZ.m12 = sin(Angle);
+	RotMatrixZ.m13 = 0;
+	RotMatrixZ.m21 = -sin(Angle);
+	RotMatrixZ.m22 = cos(Angle);
+	RotMatrixZ.m23 = 0;
+	RotMatrixZ.m31 = 0;
+	RotMatrixZ.m32 = 0;
+	RotMatrixZ.m33 = 1;
+}
+
+void Atlantis::MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result)
+{
+
+	Result.x =	(Initial.x * RotMatrix.m11) 
+				+ (Initial.y * RotMatrix.m12) 
+				+ (Initial.z * RotMatrix.m13);	
+	Result.y =	(Initial.x * RotMatrix.m21) 
+				+ (Initial.y * RotMatrix.m22) 
+				+ (Initial.z * RotMatrix.m23);	
+	Result.z =	(Initial.x * RotMatrix.m31) 
+				+ (Initial.y * RotMatrix.m32) 
+				+ (Initial.z * RotMatrix.m33);
+}
+
 // ==============================================================
 // Overloaded callback functions
 // ==============================================================
@@ -1650,8 +2276,7 @@ void Atlantis::clbkSetStateEx (const void *status)
 void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 {
   int action;
-    char *line;
-  double met = 0.0; // mission elapsed time
+  char *line;
   double srbtime = 0.0;
   double sts_sat_x = 0.0;
   double sts_sat_y = 0.0;
@@ -1659,33 +2284,78 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
   while (oapiReadScenario_nextline (scn, line)) {
-    if (!strnicmp (line, "CONFIGURATION", 13)) {
-      sscanf (line+13, "%d", &status);
+        if (!strnicmp (line, "CONFIGURATION", 13)) {
+            sscanf (line+13, "%d", &status);
     } else if (!strnicmp (line, "MET", 3)) {
-      sscanf (line+3, "%lf", &met);
+		sscanf (line+3, "%lf", &met);
     } else if (!strnicmp (line, "SPEEDBRAKE", 10)) {
-      sscanf (line+10, "%d%lf", &action, &spdb_proc);
-      spdb_status = (AnimState::Action)(action+1);
-    } else if (!strnicmp (line, "WING_NAME", 9)) {
-      strncpy(WingName,line+10,256);
+		sscanf (line+10, "%d%lf", &action, &spdb_proc);
+		spdb_status = (AnimState::Action)(action+1);
     } else if (!strnicmp (line, "SRB_IGNITION_TIME", 17)) {
-      sscanf (line+17, "%lf", &srbtime);
+		sscanf (line+17, "%lf", &srbtime);
     } else if (!strnicmp (line, "SAT_OFS_X", 9)) {
-      sscanf (line+9, "%lf", &sts_sat_x);
+		sscanf (line+9, "%lf", &sts_sat_x);
     } else if (!strnicmp (line, "SAT_OFS_Y", 9)) {
-      sscanf (line+9, "%lf", &sts_sat_y);
+		sscanf (line+9, "%lf", &sts_sat_y);
     } else if (!strnicmp (line, "SAT_OFS_Z", 9)) {
-      sscanf (line+9, "%lf", &sts_sat_z);
-    } else if (!strnicmp (line, "CARGO_STATIC_MESH", 17)) {
-      sscanf (line+17, "%s", cargo_static_mesh_name);
-      do_cargostatic = true;
+		sscanf (line+9, "%lf", &sts_sat_z);
+	} else if (!strnicmp (line, "PAYLOAD_MASS", 12)) {
+		sscanf (line+12, "%lf", &pl_mass);
+	} else if (!strnicmp (line, "CARGO_STATIC_MESH", 17)) {
+		sscanf (line+17, "%s", cargo_static_mesh_name);
+		do_cargostatic = true;
     } else if (!strnicmp (line, "CARGO_STATIC_OFS", 16)) {
-      sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-    } else if (!strnicmp (line, "ARM_STATUS", 10)) {
-      sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
-    } else {
+		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
+	} else if (!strnicmp (line, "RMS", 3)) {
+		RMS=true;
+	} else if (!strnicmp(line, "ROLLOUT", 7)) {
+		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
+		SetAnimation(anim_rollout, RMSRollout.pos);
+		if(action==1) {
+			if(RMSRollout.pos!=1.0) RMSRollout.action=AnimState::OPENING;
+			else RMSRollout.action=AnimState::OPEN;
+		}
+		else {
+			if(RMSRollout.pos!=0.0) RMSRollout.action=AnimState::CLOSING;
+			else RMSRollout.action=AnimState::CLOSED;
+		}
+	} else if (!strnicmp (line, "ARM_STATUS", 10)) {
+		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
+	} else if(!strnicmp(line, "OPS", 3)) {
+		sscanf(line+3, "%d", &ops);
+	} else if(!strnicmp(line, "PEG7", 4)) {
+		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
+	} else if(!strnicmp(line, "WT", 2)) {
+		sscanf(line+2, "%lf", &WT);
+	} else if(!strnicmp(line, "TIG", 3)) {
+		sscanf(line+3, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
+	} else if(!strnicmp(line, "ASSIST", 6)) {
+		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
+	} else if(!strnicmp(line, "THROTTLE_BUCKET", 15)) {
+		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
+		Throttle_Bucket[0]=Throttle_Bucket[0]*fps_to_ms;
+		Throttle_Bucket[1]=Throttle_Bucket[1]*fps_to_ms;
+	} else if(!strnicmp(line, "AUTOPILOT", 9)) {
+		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
+		bAutopilot=true;
+	} else if(!strnicmp(line, "ENGINE FAIL", 11)) {
+		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
+		bEngineFail=true;
+	} else if(!strnicmp(line, "TGT_ID", 6)) {
+		sscanf(line+6, "%d", &TGT_ID);
+	} else if(!strnicmp(line, "BODY_VECT", 9)) {
+		sscanf(line+9, "%d", &BODY_VECT);
+	} else if(!strnicmp(line, "ROLL", 4)) {
+		sscanf(line+4, "%lf", &MNVR_OPTION.data[ROLL]);
+	} else if(!strnicmp(line, "PITCH", 5)) {
+		sscanf(line+5, "%lf", &MNVR_OPTION.data[PITCH]);
+	} else if(!strnicmp(line, "YAW", 3)) {
+		sscanf(line+3, "%lf", &MNVR_OPTION.data[YAW]);
+	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
+	  if (c3po->ParseScenarioLine (line)) continue; // offer line to c3po
+	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
       ParseScenarioLineEx (line, vs);
       // unrecognised option - pass to Orbiter's generic parser
     }
@@ -1711,6 +2381,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   }
 
   UpdateMesh ();
+  SetILoads();
 }
 
 // --------------------------------------------------------------
@@ -1728,15 +2399,20 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   if (status == 1)
     oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
+  else oapiWriteScenario_float (scn, "MET", met);
 
   if (spdb_status != AnimState::CLOSED) {
     sprintf (cbuf, "%d %0.4f", spdb_status-1, spdb_proc);
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
 
-  sprintf (cbuf, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
+  if(RMS) oapiWriteLine(scn, "  RMS");
+  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
   oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
-  oapiWriteScenario_string (scn, "WING_NAME", WingName);
+  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
+	  sprintf(cbuf, "1 %f", RMSRollout.pos);
+  else sprintf(cbuf, "0 %f", RMSRollout.pos);
+  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
@@ -1746,11 +2422,37 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
     oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
     if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
       oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
+  } 
+  if(pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
+
+  //GPC
+  oapiWriteScenario_int (scn, "OPS", ops);
+  if(bAutopilot) {
+	  sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
+	  oapiWriteScenario_string(scn, "AUTOPILOT", cbuf);
   }
+  //MNVR
+  if(ops==302 || ops==301 || ops==202 || ops==104 || ops==105) {
+	  oapiWriteScenario_vec(scn, "PEG7", PEG7);
+	  oapiWriteScenario_float(scn, "WT", WT);
+	  sprintf(cbuf, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
+	  oapiWriteScenario_string(scn, "TIG", cbuf);
+  }
+  //DAP
+  oapiWriteScenario_int (scn, "TGT_ID", TGT_ID);
+  oapiWriteScenario_int (scn, "BODY_VECT", BODY_VECT);
+  oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
+  oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
+  oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
+  oapiWriteScenario_float (scn, "P", P);
+  oapiWriteScenario_float (scn, "Y", Y);
+  oapiWriteScenario_float (scn, "OM", OM);
 
   // save bay door operations status
   plop->SaveState (scn);
   gop->SaveState (scn);
+  c3po->SaveState (scn);
+  r2d2->SaveState (scn);
 }
 
 // --------------------------------------------------------------
@@ -1767,9 +2469,60 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
 // --------------------------------------------------------------
 // Simulation time step
 // --------------------------------------------------------------
+
+void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
+{
+	double dThrust;
+	double steerforce, airspeed;
+	int i;
+	/*if(bFirstStep)
+	{
+		if(bAutopilot) InitializeAutopilot();
+		bFirstStep=false;
+	}*/
+	//throttle limits
+	for(i=0;i<2;i++)
+	{
+		if(c3po->OMS_Eng[i]<2) {
+			if(GetThrusterLevel(th_oms[i])>0.0 && GetThrusterLevel(th_oms[i])<1) {
+				SetThrusterLevel(th_oms[i],1.0);
+				dThrust=GetPropellantMass(oms_helium_tank[i])-0.01*simDT;
+				if(dThrust<=0.0) {
+					SetThrusterLevel(th_oms[i],0.0);
+					dThrust=0.0;
+				}
+				SetPropellantMass(oms_helium_tank[i],dThrust);
+			}
+			else if(GetThrusterLevel(th_oms[i])==1.0) {
+				dThrust=GetPropellantMass(oms_helium_tank[i])-0.01*simDT;
+				if(dThrust<=0.0) {
+					SetThrusterLevel(th_oms[i],0.0);
+					dThrust=0.0;
+				}
+				SetPropellantMass(oms_helium_tank[i],dThrust);
+			 }
+		}
+	}
+	if(status==3) {
+		//Nosewheel steering
+		if(GroundContact()) {
+			airspeed=GetAirspeed();
+			if(airspeed<25.0 && airspeed>1.0)
+			{
+				steerforce = (25-airspeed);
+				if(airspeed<6.0) steerforce*=(airspeed/6);
+				steerforce = 250000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
+				AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
+				AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
+			}
+		}
+	}
+}
+
 void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 {
-  double met;
+  //double met;
+  double airspeed;
   int i;
 
   OBJHANDLE hvessel;
@@ -1779,8 +2532,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
       status = 1; // launch
       t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
       RecordEvent ("STATUS", "SRB_IGNITION");
+	  if(bAutopilot) InitializeAutopilot(); //setup autopilot for ascent
   } else {
-      AutoMainGimbal();
+      //AutoMainGimbal();
+	  RateCommand();
   }
     break;
   case 1: // SRB's ignited
@@ -1788,38 +2543,88 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     //sprintf(oapiDebugString(),"met: %f",met);
     if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
       SeparateBoosters (met);
+	  tSRBSep=met;
       bManualSeparate = false;
-    } else {
+	  ops=103;
+	  CalcThrustAngles();
+    }
+	else {
       // extract current thrust level and propellant level as a function of time
     DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
       double thrust_level, prop_level;
       GetSRB_State (met, thrust_level, prop_level);
       for (i = 0; i < 2; i++)
         SetThrusterLevel (th_srb[i], thrust_level);
-      if (met < 0.0) LaunchClamps ();
-      AutoMainGimbal();
+	  if (met < 0.0) {
+		  LaunchClamps ();
+	  }
+	  else if(ops==101) ops=102;
     }
+	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
+	GPC(simdt);
     break;
 
   case 2: // post SRB separation
-    if (GetPropellantMass (ph_tank) < 1.0 && !Playback() || bManualSeparate) {
+	  met+=simdt;
+    if (bManualSeparate) {
+	  SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
+	  bMECO=true;
+	  EnableAllRCS();
       SeparateTank();
       bManualSeparate = false;
+	  bZThrust=false;
+	  //ops=104;
     }
-    if (GetEngineLevel (ENGINE_MAIN) > 0.05) DisableAllRCS(); else EnableAllRCS();
-  SteerGimbal();
+	if (GetEngineLevel (ENGINE_MAIN) > 0.05) {
+		DisableAllRCS();
+	}
+	else if(!bMECO)
+	{
+		bMECO=true;
+		tMECO=met;
+		EnableAllRCS();
+		SetThrusterLevel(th_oms[0], 0.00);
+		SetThrusterLevel(th_oms[1], 0.00);
+	}
+	else EnableAllRCS();
+	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
+	GPC(simdt);
     break;
   case 3: // post tank separation
-    EnableAllRCS();
+	  EnableAllRCS();
     //On entry, start shutting down RCS channels as appropriate
+  if(RollActive && GetDynPressure()>RollOff) {
+    SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
+    SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
+    DelThrusterGroup(THGROUP_ATT_BANKLEFT);
+    DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
+    RollActive=false;
+  }
   if(PitchActive && GetDynPressure()>PitchOff) {
     SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
     SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
-      DelThrusterGroup(THGROUP_ATT_PITCHUP);
-      DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
+    DelThrusterGroup(THGROUP_ATT_PITCHUP);
+    DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
     PitchActive=false;
   }
-  //Leave the roll and yaw on, as autopilot can't use ailerons or elevator
+  if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
+    SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
+    SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
+    DelThrusterGroup(THGROUP_ATT_YAWLEFT);
+    DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
+    YawActive=false;
+  }
+  //Check if Control Surfaces are usable
+  if(ControlSurfacesEnabled && !r2d2->bHydraulicPressure)
+  {
+	  DisableControlSurfaces();
+  }
+  else if(!ControlSurfacesEnabled && r2d2->bHydraulicPressure)
+  {
+	  EnableControlSurfaces();
+  }
+  met+=simdt;
+  GPC(simdt); //perform GPC functions
 
     if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
       DetachChild (sat_attach, 0.1);
@@ -1848,6 +2653,25 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     break;
   }
 
+  //update MET
+  MET[0]=met/86400;
+  MET[1]=(met-86400*MET[0])/3600;
+  MET[2]=(met-86400*MET[0]-3600*MET[1])/60;
+  MET[3]=met-86400*MET[0]-3600*MET[1]-60*MET[2];
+  //sprintf(oapiDebugString(), "%i", last_mfd);
+  //deploy gear
+  if(status==3) {
+		airspeed=GetAirspeed();
+		if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
+		  if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
+		}
+		else if(GetAltitude()<609.6) gop->ArmGear();
+		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
+		{
+		  gop->DamageGear();
+		}
+  }
+
   VESSEL *aVessel;
   VESSELSTATUS vs;
 
@@ -1874,21 +2698,37 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   // Execute payload bay operations
   plop->Step (simt, simdt);
   gop->Step (simt, simdt);
+  c3po->Step (simt, simdt);
+  r2d2->Step (simt, simdt);
 
   // ***** Animate speedbrake *****
 
   if (spdb_status >= AnimState::CLOSING) {
     double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
     if (spdb_status == AnimState::CLOSING) { // retract brake
-      if (spdb_proc > 0.0) spdb_proc = max (0.0, spdb_proc-da);
+      if (spdb_proc > spdb_tgt) spdb_proc = max (spdb_tgt, spdb_proc-da);
       else                 spdb_status = AnimState::CLOSED;
     } else {                           // deploy antenna
-      if (spdb_proc < 1.0) spdb_proc = min (1.0, spdb_proc+da);
+      if (spdb_proc < spdb_tgt) spdb_proc = min (spdb_tgt, spdb_proc+da);
       else                 spdb_status = AnimState::OPEN;
     }
     SetAnimation (anim_spdb, spdb_proc);
   }
 
+  // ***** RMS Rollout *****
+  if(RMSRollout.Moving()) {
+	  double da = simdt*ARM_DEPLOY_SPEED;
+	  if(RMSRollout.Closing()) {
+		  RMSRollout.pos=max(0.0, RMSRollout.pos-da);
+		  if(RMSRollout.pos<=0.0) RMSRollout.action=AnimState::CLOSED;
+	  }
+	  else {
+		  RMSRollout.pos=min(1.0, RMSRollout.pos+da);
+		  if(RMSRollout.pos>=1.0) RMSRollout.action=AnimState::OPEN;
+	  }
+	  SetAnimation(anim_rollout, RMSRollout.pos);
+  }
+  
   // ***** Stow RMS arm *****
 
   if (center_arm) {
@@ -1897,7 +2737,50 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
 
     // work from the wrist down to the shoulder
-    if (da && (arm_wr != 0.5)) {    // zero wrist roll
+	if (da && (arm_wr != 0.5)) {    // zero wrist roll
+      if (da >= fabs(arm_wr-0.5)) // finished
+        arm_wr = 0.5, da -= fabs(arm_wr-0.5);
+      else
+        arm_wr -= (arm_wr > 0.5 ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_wr, arm_wr);
+    }
+    if (da && (arm_wy != 0.5)) {    // zero wrist yaw
+      if (da >= fabs(arm_wy-0.5)) // finished
+        arm_wy = 0.5, da -= fabs(arm_wy-0.5);
+      else
+        arm_wy -= (arm_wy > 0.5 ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_wy, arm_wy);
+    }
+    if (da && (arm_wp != wrist_neutral)) {    // zero wrist pitch
+      if (da >= fabs(arm_wp-wrist_neutral)) // finished
+        arm_wp = wrist_neutral, da -= fabs(arm_wp-wrist_neutral);
+      else
+        arm_wp -= (arm_wp > wrist_neutral ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_wp, arm_wp);
+    }
+    if (da && (arm_ep != elbow_neutral)) {    // zero elbow pitch
+      if (da >= fabs(arm_ep-elbow_neutral)) // finished
+        arm_ep = elbow_neutral, da -= fabs(arm_ep-elbow_neutral);
+      else
+        arm_ep -= (arm_ep > elbow_neutral ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_ep, arm_ep);
+    }
+    if (da && (arm_sy != 0.5)) {    // zero shoulder yaw
+      if (da >= fabs(arm_sy-0.5)) // finished
+        arm_sy = 0.5, da -= fabs(arm_sy-0.5);
+      else
+        arm_sy -= (arm_sy > 0.5 ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_sy, arm_sy);
+    }
+    if (da && (arm_sp != shoulder_neutral)) {    // zero shoulder pitch
+      if (da >= fabs(arm_sp-shoulder_neutral)) // finished
+        arm_sp = shoulder_neutral, da -= fabs(arm_sp-shoulder_neutral);
+      else
+        arm_sp -= (arm_sp > shoulder_neutral ? da:-da), da = 0;
+      SetAnimationArm (anim_arm_sp, arm_sp);
+    }
+	// work from the wrist down to the shoulder
+    /*if (da && (arm_wr != 0.5)) {    // zero wrist roll
       if (da >= fabs(arm_wr-0.5)) // finished
         arm_wr = 0.5, da -= fabs(arm_wr-0.5);
       else
@@ -1938,7 +2821,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
       else
         arm_sp -= (arm_sp > 0.0136 ? da:-da), da = 0;
       SetAnimationArm (anim_arm_sp, arm_sp);
-    }
+    }*/
     center_arm_t = t0;
     if (da) {
       center_arm = false; // finished stowing
@@ -1948,14 +2831,15 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   if (arm_moved) {
-    SetAttachmentParams (rms_attach, orbiter_ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
-
-  // If the current camera mode is the RMS_EFFECTOR move camera position to match
-  // the position and direction of the wrist
-  if (VCMode == 3) {
-    SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-    SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
-  }
+    SetAttachmentParams (rms_attach, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
+	
+	// If the current camera mode is the RMS_EFFECTOR move camera position to match
+	// the position and direction of the wrist
+	if (VCMode == 3) {
+		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
+		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
+	}
 
     arm_moved = false;
   }
@@ -2004,6 +2888,70 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
   return false;
 }
 
+void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
+{
+	//int i;
+	char cbuf[255];
+	VECTOR3 Velocity;
+	double dOut;
+	int commanded, act;
+	// draw the default HUD
+	VESSEL2::clbkDrawHUD (mode, hps, hDC);
+
+	// show gear deployment status
+	if (gop->GetGearAction()==AnimState::OPEN) {
+		TextOut (hDC, 10, (hps->H)/2, "GR-DN", 5);
+	}
+	else if (gop->GetGearAction()==AnimState::OPENING || gop->GetGearAction()==AnimState::CLOSING) {
+		TextOut (hDC, 10, (hps->H)/2, "//GR//", 6);
+	}
+	if(gop->SwitchPush[0]==gop->SW_PUSH)
+	{
+		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
+	}
+	if(c3po->CheckProbesDeployed()==true && GetAltitude()<50000)
+	{
+		GetHorizonAirspeedVector(Velocity);
+		sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
+		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));
+		//dOut=GetAirspeed()*1.943844;
+		const double EAS_EXP = 2.0/7.0;
+		const double P0 = 1.01325E6;
+		dOut = 661.48 * sqrt(5.0 * GetAtmPressure()/ATMP * (pow(GetDynPressure() / GetAtmPressure() + 1, EAS_EXP) - 1.0));
+		sprintf(cbuf, "KEAS:%.0f", dOut);
+		//sprintf(cbuf,"KEAS:%.0f",dOut);
+		TextOut(hDC,hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
+		dOut=(GetAltitude()*3.280833)-17;
+		sprintf(cbuf,"ALT:%.0f",dOut);
+		TextOut(hDC,10,(hps->H)/2-25,cbuf,strlen(cbuf));
+	}
+	//speedbrakes
+	//sprintf(oapiDebugString(), "%f", GetDrag());
+	if(GetAltitude()<50000 && status==3)
+	{
+		//sprintf(oapiDebugString(), "%f", GetDrag());
+		MoveToEx(hDC, (hps->W/2)-25, hps->H-85, NULL);
+		LineTo(hDC, (hps->W/2)+25, hps->H-85);
+		for(int i=-25;i<=25;i+=10)
+		{
+			MoveToEx(hDC, (hps->W/2)+i, hps->H-80, NULL);
+			LineTo(hDC, (hps->W/2)+i, hps->H-90);
+		}
+		commanded=spdb_tgt*50-25;
+		act=spdb_proc*50-25;
+		//actual
+		MoveToEx(hDC, (hps->W/2)+act, hps->H-85, NULL);
+		LineTo(hDC, (hps->W/2)+act-5, hps->H-90);
+		LineTo(hDC, (hps->W/2)+act+5, hps->H-90);
+		LineTo(hDC, (hps->W/2)+act, hps->H-85);
+		//commanded
+		MoveToEx(hDC, (hps->W/2)+commanded, hps->H-85, NULL);
+		LineTo(hDC, (hps->W/2)+commanded-5, hps->H-80);
+		LineTo(hDC, (hps->W/2)+commanded+5, hps->H-80);
+		LineTo(hDC, (hps->W/2)+commanded, hps->H-85);
+	}
+}
+
 // --------------------------------------------------------------
 // Atlantis mesh loaded
 // --------------------------------------------------------------
@@ -2046,7 +2994,9 @@ void Atlantis::clbkAnimate (double simt)
 // --------------------------------------------------------------
 void Atlantis::clbkMFDMode (int mfd, int mode)
 {
-  oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd-MFD_LEFT);
+	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd-MFD_LEFT);
+	last_mfd=mfd;
+	//sprintf(oapiDebugString(), "%i", last_mfd);
 }
 
 // --------------------------------------------------------------
@@ -2196,7 +3146,7 @@ bool Atlantis::clbkLoadVC (int id)
   oapiVCRegisterArea (AID_MFD5_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
-  if (id > 2) {
+  if (id > 2 && id < 9) {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
   } else {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
@@ -2208,7 +3158,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = _V(orbiter_ofs.x-0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969);
-    oapiVCSetNeighbours (-1, 1, -1, 2);
+    oapiVCSetNeighbours (9, 1, 8, 10);
 
   // Default camera rotarion
   SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -2216,6 +3166,7 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CdrMFD (); // activate commander MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
     gop->RegisterVC ();  // register panel F6 interface
+	c3po->RegisterVC();
 
     ok = true;
     break;
@@ -2224,13 +3175,15 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     huds.hudcnt = _V(orbiter_ofs.x+0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969);
-    oapiVCSetNeighbours (0, -1, -1, 2);
+    oapiVCSetNeighbours (0, 2, 8, 10);
 
   // Default camera rotarion
   SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
     RegisterVC_PltMFD (); // activate pilot MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
+	c3po->RegisterVC();
+	r2d2->RegisterVC();
 
     ok = true;
     break;
@@ -2240,7 +3193,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
 
     // Outside cameras neighbours
-    oapiVCSetNeighbours (1, 0, 3, 0);
+	oapiVCSetNeighbours(1, 9, 8, 3);
+    //oapiVCSetNeighbours (1, 0, 3, 0);
 
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -2252,7 +3206,7 @@ bool Atlantis::clbkLoadVC (int id)
   case 3: //RMS End Effector Camera
     SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
     SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
-    oapiVCSetNeighbours (-1, -1, 4, 2);
+    oapiVCSetNeighbours (-1, -1, 9, 4);
 
     // No rotation allowed for RMS wrist camera.
     SetCameraRotationRange(0,0,0,0);
@@ -2263,32 +3217,67 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case 4: //FL Payload Bay Camera
     SetCameraOffset (_V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15));
-    oapiVCSetNeighbours (5, -1, 6, 3);
+    oapiVCSetNeighbours (5, 6, 3, 8);
 
     ok = true;
     break;
   case 5: //FR Payload Bay Camera
     SetCameraOffset (_V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15));
-    oapiVCSetNeighbours (-1, 4, 7, 3);
+    oapiVCSetNeighbours (7, 4, 3, 8);
 
     ok = true;
     break;
   case 6: //BL Payload Bay Camera
     SetCameraOffset (_V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65));
-    oapiVCSetNeighbours (-1, 7, 4, 3);
+    oapiVCSetNeighbours (4, 7, 3, 8);
 
     ok = true;
     break;
   case 7: //BR Payload Bay Camera
     SetCameraOffset (_V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65));
-    oapiVCSetNeighbours (6, -1, 5, 3);
+    oapiVCSetNeighbours (6, 5, 3, 8);
+
+    ok = true;
+    break;
+  case 8: //Docking camera
+	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.44));
+	  oapiVCSetNeighbours(-1, -1, 4, 2);
+	  ok = true;
+	  break;
+  case 9: //Aft Flight Deck
+	SetCameraOffset (_V(orbiter_ofs.x-0.4,orbiter_ofs.y+3.15,orbiter_ofs.z+12.8));
+    SetCameraDefaultDirection (_V(0,0,-1));
+	SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(0,-0.6,0.15), 0, 0);
+    //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(-0.3,-0.3,0.15), -60.0*RAD, -50.0*RAD);
+
+    // Outside cameras neighbours
+	oapiVCSetNeighbours(2, 0, 8, 3);
+
+    // Default camera rotarion
+    SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	ok = true;
+	break;
+  case 10: //MS2/FE
+	SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+2.55,orbiter_ofs.z+13.6));
+    SetCameraDefaultDirection (_V(0,0,1));
+    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    oapiVCSetNeighbours (-1, -1, 0, -1);
+
+	// Default camera rotation
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+    RegisterVC_CdrMFD();
+	RegisterVC_PltMFD (); // activate pilot MFD controls
+    RegisterVC_CntMFD (); // activate central panel MFD controls
+	c3po->RegisterVC();
+	r2d2->RegisterVC();
 
     ok = true;
     break;
   }
 
   // Common action for external payload cameras
-  if (id > 3) {
+  if (id > 3 && id < 9) {
     // Pan and tilt from camera control not from alt + arrow but from the dialog
     SetCameraRotationRange(0,0,0,0);
     // No lean for payload camera
@@ -2304,9 +3293,11 @@ bool Atlantis::clbkLoadVC (int id)
     // register all MFD displays
     for (int i = 0; i < 10; i++)
       oapiRegisterMFD (MFD_LEFT+i, mfds+i);
-    // update panel R13L
+    // update panels
     plop->UpdateVC();
     gop->UpdateVC();
+	c3po->UpdateVC();
+	r2d2->UpdateVC();
   }
   return ok;
 }
@@ -2400,6 +3391,10 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
     return plop->VCMouseEvent (id, event, p);
   case AID_F6:
     return gop->VCMouseEvent (id, event, p);
+  case AID_C3:
+	return c3po->VCMouseEvent (id, event, p);
+  case AID_R2:
+	return r2d2->VCMouseEvent (id, event, p);
   }
   return false;
 }
@@ -2424,10 +3419,14 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
     RedrawPanel_MFDButton (surf, mfd);
     } return true;
   default:
+	if (id >= AID_R2_MIN && id <= AID_R2_MAX)
+	  return r2d2->VCRedrawEvent (id, event, surf);
     if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
       return plop->VCRedrawEvent (id, event, surf);
     if (id >= AID_F6_MIN && id <= AID_F6_MAX)
       return gop->VCRedrawEvent (id, event, surf);
+	if (id >= AID_C3_MIN && id <= AID_C3_MAX)
+		return c3po->VCRedrawEvent (id, event, surf);
     break;
   }
   return false;
@@ -2435,6 +3434,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
 
 VECTOR3 Atlantis::CalcAnimationFKArm() {
   //Do forward kinematics to get the current position of the wrist joint
+  //Return value is in MPM ref. frame
   double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
   double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
   double current_beta_s=linterp(0,-180,1,180,arm_sy);
@@ -2445,14 +3445,16 @@ VECTOR3 Atlantis::CalcAnimationFKArm() {
   double z_w=z_e+ll*sin(RAD*current_phi_l);
   double x_w=rho_w*cos(RAD*current_beta_s);
   double y_w=rho_w*sin(RAD*current_beta_s);
-//  sprintf(oapiDebugString(),"ll %f lu %f arm_sy %f beta_s %f arm_sp %f phi_s %f arm_ep %f phi_e %f FK %f,%f,%f",ll,lu,arm_sy,current_beta_s,arm_sp,current_phi_s,arm_ep,current_phi_e,x_w,y_w,z_w);
   return _V(x_w,y_w,z_w);
 }
 
 void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
+  if(!RMS) return;
+  if(RMSRollout.action!=AnimState::OPEN) return;
   arm_wrist_pos=CalcAnimationFKArm();
   //Candidate position. Calculate the joints on it...
-  VECTOR3 arm_wrist_cpos=arm_wrist_pos+arm_wrist_dpos;
+  VECTOR3 arm_wrist_cpos=arm_wrist_pos+RotateVectorX(arm_wrist_dpos, 18.435);
+  //VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
   double r=length(arm_wrist_cpos);
   double beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
   double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
@@ -2493,28 +3495,41 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
 // --------------------------------------------------------------
-int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate) {
+int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
+{
   if (!down) return 0; // only process keydown events
-  if(gop->ConsumeBufferedKey(key,down,kstate)) {
-    return 1;
-  } else if (KEYMOD_SHIFT (kstate)) {
 
-    switch (key) {
-    case OAPI_KEY_E:
-      if (status != 3) return 1; // Allow MMU only after orbiter has detached from ET
-      return 1;
-    }
-  } else if (KEYMOD_CONTROL (kstate)) {
-    switch (key) {
+    if (KEYMOD_CONTROL (kstate)) {
+	switch (key) {
     case OAPI_KEY_SPACE: // open RMS control dialog
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;
     case OAPI_KEY_B: // deploy/retract speedbrake
       if (!Playback()) RevertSpeedbrake ();
       return 1;
-    }
+	case OAPI_KEY_G:
+		gop->ArmGear();
+		return 1;
+	case OAPI_KEY_X: //temporary
+		if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
+			if(RMSRollout.action==AnimState::CLOSED) {
+				RMSRollout.action=AnimState::OPENING;
+			}
+			else {
+				RMSRollout.action=AnimState::CLOSING;
+			}
+		}
+		return 1;
+	}
   } else { // unmodified keys
     switch (key) {
+	case OAPI_KEY_B:
+	  bAutopilot=false;
+	  return 1;
+	case OAPI_KEY_C:
+	  if(bThrottle) bThrottle=false;
+	  else bThrottle=true;
+	  return 1;
     case OAPI_KEY_J:  // "Jettison"
       if (!Playback()) bManualSeparate = true;
       return 1;
@@ -2527,6 +3542,15 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate) {
     case OAPI_KEY_E:
       do_eva = true;
       return 1;
+	case OAPI_KEY_COMMA:
+		if(!Playback() && r2d2->bHydraulicPressure) SetSpeedbrake(min(1.0, spdb_tgt+0.05));
+		return 1;
+	case OAPI_KEY_PERIOD:
+		if(!Playback() && r2d2->bHydraulicPressure) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
+		return 1;
+	case OAPI_KEY_G:
+		gop->RevertLandingGear();
+		return 1;
     }
   }
   return 0;
@@ -2652,6 +3676,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   case WM_TIMER:
     if (wParam == 1) {
       t1 = oapiGetSimTime();
+	  if(sts->RMSRollout.action!=AnimState::OPEN) break;
       if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
