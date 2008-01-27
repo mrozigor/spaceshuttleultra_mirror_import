@@ -346,6 +346,7 @@ void Atlantis::Throttle(double dt)
 
 void Atlantis::GPC(double dt)
 {
+	int i;
 	switch(ops) {
 		case 101:
 			if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
@@ -389,7 +390,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code (may not be needed)
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -406,7 +407,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code (may not be needed)
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -423,7 +424,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -433,7 +434,7 @@ void Atlantis::GPC(double dt)
 			break;
 		case 201:
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -456,7 +457,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -473,7 +474,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -489,7 +490,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;
@@ -506,7 +507,7 @@ void Atlantis::GPC(double dt)
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 			//add ManeuverinProg code
 			ManeuverinProg=true;
-			for(int i=0;i<4;i++) {
+			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
 					ManeuverinProg=false;
 					break;

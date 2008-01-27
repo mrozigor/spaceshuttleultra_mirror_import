@@ -51,7 +51,7 @@ PanelR2::PanelR2(Atlantis *_sts): sts(_sts)
 	LDoorLatches.Set(AnimState::CLOSED, 0);
 	RDoorLatches.Set(AnimState::CLOSED, 0);
 	
-	for(int i=0;i<3;i++)
+	for(i=0;i<3;i++)
 	{
 		tkbk_state[i]=0;
 	}
