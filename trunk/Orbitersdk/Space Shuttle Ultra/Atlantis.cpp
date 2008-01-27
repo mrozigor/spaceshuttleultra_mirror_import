@@ -16,13 +16,17 @@
 #include "Atlantis.h"
 #include "PlBayOp.h"
 #include "GearOp.h"
+#include "PanelC2.h"
 #include "PanelC3.h"
+#include "PanelF7.h"
 #include "PanelR2.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
 #include "meshres_RMS.h"
 #include "resource.h"
+#include "SubsystemDirector.h"
+#include "MasterTimingUnit.h"
 #include <stdio.h>
 #include <fstream>
 
@@ -320,6 +324,12 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   gop             = new GearOp (this);
   c3po            = new PanelC3(this);
   r2d2            = new PanelR2(this);
+  panelc2		  = new PanelC2(this);
+  panelf7		  = new PanelF7(this);
+
+  psubsystems	  = new SubsystemDirector(this);
+
+  psubsystems->AddSubsystem(pMTU = new MasterTimingUnit(psubsystems));
   status          = 3;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
@@ -365,7 +375,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
-  for(int i=0;i<3;i++) {
+  for(i=0;i<3;i++) {
 	  apu_tank[i] = NULL;
 	  mps_helium_tank[i] = NULL;
   }
@@ -388,7 +398,6 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
   strcpy(WingName,"Atlantis");
-
 
   DefineAnimations();
   center_arm      = false;
@@ -521,11 +530,17 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 // Destructor
 // --------------------------------------------------------------
 Atlantis::~Atlantis () {
-  delete plop;
-  delete gop;
-  delete c3po;
-  delete r2d2;
-  int i;
+	int i;
+
+	delete psubsystems;
+
+	delete plop;
+	delete gop;
+	delete c3po;
+	delete r2d2;
+	delete panelf7;
+	delete panelc2;
+  
   for (i = 0; i < 7; i++) delete rms_anim[i];
   
   delete CameraFLYaw;
@@ -1473,7 +1488,9 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   plop->DefineAnimations (vidx);
   gop->DefineVCAnimations (vidx);
+  panelc2->DefineVCAnimations (vidx);
   c3po->DefineVCAnimations (vidx);
+  panelf7->DefineVCAnimations (vidx);
   r2d2->DefineVCAnimations (vidx);
 }
 
@@ -2289,6 +2306,8 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 {
   if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
     render_cockpit = false;
+
+  psubsystems->SetClassCaps(cfg);
 }
 
 // --------------------------------------------------------------
@@ -2392,6 +2411,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
 	  if (c3po->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
+	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
+	  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
+	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
       ParseScenarioLineEx (line, vs);
       // unrecognised option - pass to Orbiter's generic parser
     }
@@ -2488,8 +2510,13 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   // save bay door operations status
   plop->SaveState (scn);
   gop->SaveState (scn);
+  panelc2->SaveState(scn);
   c3po->SaveState (scn);
+  panelf7->SaveState(scn);
   r2d2->SaveState (scn);
+
+  psubsystems->SaveState(scn);
+  
 }
 
 // --------------------------------------------------------------
@@ -2512,6 +2539,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	double dThrust;
 	double steerforce, airspeed;
 	int i;
+
+	psubsystems->PreStep(simT, simDT);
 	/*if(bFirstStep)
 	{
 		if(bAutopilot) InitializeAutopilot();
@@ -2561,8 +2590,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   //double met;
   double airspeed;
   int i;
-
   OBJHANDLE hvessel;
+
+  psubsystems->PostStep(simt, simdt);
+
   switch (status) {
   case 0: // launch configuration
     if (GetEngineLevel (ENGINE_MAIN) > 0.95) {
@@ -2735,8 +2766,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   // Execute payload bay operations
   plop->Step (simt, simdt);
   gop->Step (simt, simdt);
+  panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
+  panelf7->Step(simt, simdt);
   r2d2->Step (simt, simdt);
+  
+
 
   // ***** Animate speedbrake *****
 
@@ -2920,6 +2955,8 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
   } else if (!stricmp (event_type, "KUBAND")) {
     plop->SetKuAntennaAction (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
+  } else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
+	  return true;
   }
 
   return false;
@@ -3204,6 +3241,8 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CntMFD (); // activate central panel MFD controls
     gop->RegisterVC ();  // register panel F6 interface
 	c3po->RegisterVC();
+	panelc2->RegisterVC();
+	panelf7->RegisterVC();
 
     ok = true;
     break;
@@ -3221,6 +3260,9 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
+	panelc2->RegisterVC();
+	panelf7->RegisterVC();
+
 
     ok = true;
     break;
@@ -3308,7 +3350,8 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
-
+	panelc2->RegisterVC();
+	panelf7->RegisterVC();
     ok = true;
     break;
   }
@@ -3333,7 +3376,9 @@ bool Atlantis::clbkLoadVC (int id)
     // update panels
     plop->UpdateVC();
     gop->UpdateVC();
+	panelc2->UpdateVC();
 	c3po->UpdateVC();
+	panelf7->UpdateVC();
 	r2d2->UpdateVC();
   }
   return ok;
@@ -3428,6 +3473,10 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
     return plop->VCMouseEvent (id, event, p);
   case AID_F6:
     return gop->VCMouseEvent (id, event, p);
+  case AID_F7:
+	return panelf7->VCMouseEvent(id, event, p);
+  case AID_C2:
+	return panelc2->VCMouseEvent(id, event, p);
   case AID_C3:
 	return c3po->VCMouseEvent (id, event, p);
   case AID_R2:
@@ -3462,8 +3511,13 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
       return plop->VCRedrawEvent (id, event, surf);
     if (id >= AID_F6_MIN && id <= AID_F6_MAX)
       return gop->VCRedrawEvent (id, event, surf);
+	if (id >= AID_F7_MIN && id <= AID_F7_MAX)
+      return panelf7->VCRedrawEvent (id, event, surf);
 	if (id >= AID_C3_MIN && id <= AID_C3_MAX)
 		return c3po->VCRedrawEvent (id, event, surf);
+	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
+      return panelc2->VCRedrawEvent (id, event, surf);
+	
     break;
   }
   return false;
@@ -3605,6 +3659,14 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   g_Param.hDLL = hModule;
   oapiRegisterCustomControls (hModule);
   g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
+  g_Param.clock_digits = oapiCreateSurface (LOADBMP (IDB_CLOCKDIGITS));
+  if(g_Param.clock_digits == NULL) {
+	  oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
+  }
+  g_Param.digits_7seg = oapiCreateSurface (LOADBMP (IDB_7SEGDIGITS));
+  if(g_Param.digits_7seg == NULL) {
+	  oapiWriteLog("Loading bitmap \"DIGITS_7SEG\" failed.");
+  }
 
   // allocate GDI resources
   g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
@@ -3613,7 +3675,18 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 DLLCLBK void ExitModule (HINSTANCE hModule)
 {
   oapiUnregisterCustomControls (hModule);
-  oapiDestroySurface (g_Param.tkbk_label);
+  if(g_Param.tkbk_label)
+  {
+	oapiDestroySurface (g_Param.tkbk_label);
+  }
+  if(g_Param.clock_digits)
+  {
+	  oapiDestroySurface (g_Param.clock_digits);
+  }
+  if(g_Param.digits_7seg)
+  {
+	oapiDestroySurface (g_Param.digits_7seg);
+  }
 
   // deallocate GDI resources
   DeleteObject (g_Param.font[0]);
@@ -3899,4 +3972,14 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
   // pointer to vessel instance was passed as dialog context
   return oapiDefDialogProc (hWnd, uMsg, wParam, lParam);
 
+}
+
+DLLCLBK bool gpcReadValue(VESSEL* pVessel, UINT gpc, UINT val_index, DWORD* value)
+{
+	return false;
+}
+
+DLLCLBK bool gpcSetValue(VESSEL* pVessel, UINT gpc, UINT val_index, const DWORD value)
+{
+	return false;
 }

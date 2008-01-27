@@ -283,6 +283,22 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_F6_TKBK2   202
 #define AID_F6_TKBK3   203
 #define AID_F6_MAX     220
+// Panel F7 (event timer and MPS status)
+#define AID_F7_MIN	   270
+#define AID_F7	       270
+#define AID_F7_EVTTMR1 271
+#define AID_F7_EVTTMR2 272
+#define AID_F7_EVTTMR3 273
+#define AID_F7_EVTTMR4 274
+#define AID_F7_MAX	   279
+// Panel C2 (event timer and CRT assignments)
+#define AID_C2_MIN     280
+#define AID_C2		   280
+#define AID_C2_WND0    281
+#define AID_C2_WND1    282
+#define AID_C2_WND2    283
+#define AID_C2_WND3    284
+#define AID_C2_MAX     299
 // Panel C3
 #define AID_C3_MIN     300
 #define AID_C3         300
@@ -300,9 +316,36 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_R2_TKBK8   408
 #define AID_R2_MAX     420
 
+
+#define SWITCH1		0
+#define SWITCH2		1
+#define SWITCH3		2
+#define SWITCH4		3
+#define SWITCH5		4
+#define SWITCH6		5
+#define SWITCH7		6
+#define SWITCH8		7
+#define SWITCH9		8
+#define SWITCH10	9
+#define SWITCH11	10
+#define SWITCH12	11
+#define SWITCH13	12
+#define SWITCH14	13
+#define SWITCH15	14
+#define SWITCH16	15
+#define SWITCH17	16
+#define SWITCH18	17
+#define SWITCH19	18
+#define SWITCH20	19
+
+// time until a switch gets pushed to the next position by a spring for spring-loaded switches
+const double SWITCH_HOLD_TIME = 0.5;
+
 typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE tkbk_label;
+	SURFHANDLE clock_digits;
+	SURFHANDLE digits_7seg;
 	HFONT font[1];
 } GDIParams;
 
@@ -323,6 +366,11 @@ typedef struct {
 
 enum AXIS {PITCH, YAW, ROLL};
 
+class PanelC2;
+class PanelF7;
+class SubsystemDirector;
+class MasterTimingUnit;
+
 // ==========================================================
 // Interface for derived vessel class: Atlantis
 // ==========================================================
@@ -330,7 +378,9 @@ enum AXIS {PITCH, YAW, ROLL};
 class Atlantis: public VESSEL2 {
 	friend class PayloadBayOp;
 	friend class GearOp;
+	friend class PanelC2;
 	friend class PanelC3;
+	friend class PanelF7;
 	friend class PanelR2;
 	friend class CRT;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -427,9 +477,14 @@ public:
 	bool clbkVCMouseEvent (int id, int event, VECTOR3 &p);
 	bool clbkVCRedrawEvent (int id, int event, SURFHANDLE surf);
 
+	SubsystemDirector* psubsystems;
+	MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
+	PanelC2 *panelc2;
 	PanelC3 *c3po; // PanelC3 operations
+	PanelF7 *panelf7;
 	PanelR2 *r2d2; // PanelR2 operations
 	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
@@ -534,7 +589,7 @@ private:
 	}
 	inline bool Eq(const double d1, const double d2)
 	{
-		if(abs(d1-d2)>0.00001) return false;
+		if(fabs(d1-d2)>0.00001) return false;
 		return true;
 	}
 	inline double range(double min, double value, double max)
