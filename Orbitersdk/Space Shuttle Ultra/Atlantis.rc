@@ -13,7 +13,27 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
+// Englisch (USA) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_CLOCKDIGITS         BITMAP  DISCARDABLE     "Bitmaps\\clocknums.bmp"
+IDB_7SEGDIGITS          BITMAP  DISCARDABLE     "Bitmaps\\digits.bmp"
+#endif    // Englisch (USA) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Englisch (GB) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 #ifdef _WIN32
@@ -181,7 +201,7 @@ IDD_CTRL DIALOGEX 0, 0, 104, 54
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Atlantis Control"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Payload Bay Operations",IDC_PLBAYOP,0,0,104,17
     PUSHBUTTON      "RMS Operations",IDC_RMSOP,0,18,104,17
@@ -192,7 +212,7 @@ IDD_PAYLOADCAM DIALOGEX 0, 0, 109, 132
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Payload camera controls"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Camera:",IDC_CAM_SEL,5,4,98,42,WS_GROUP
     CONTROL         "BL",IDC_CAM_BL,"Button",BS_AUTORADIOBUTTON,13,18,37,9
@@ -281,7 +301,7 @@ END
 //
 
 IDB_TKBKLABEL           BITMAP  DISCARDABLE     "Bitmaps\\tkbk_label.bmp"
-#endif    // English (U.K.) resources
+#endif    // Englisch (GB) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
