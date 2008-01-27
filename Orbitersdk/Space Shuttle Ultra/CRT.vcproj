@@ -73,7 +73,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="gdi32.lib user32.lib"
-				OutputFile="..\..\..\Modules\Plugin\CRT.dll"
+				OutputFile="..\..\Modules\Plugin\CRT.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDK\Lib&quot;;&quot;C:\Program Files\Orbiter\Orbiter_SDK\Orbitersdk\lib&quot;"
@@ -107,7 +107,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
