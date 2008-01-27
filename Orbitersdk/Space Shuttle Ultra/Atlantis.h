@@ -366,6 +366,8 @@ public:
 	void SetAnimationArm (UINT anim, double state);
 	void SetAnimationIKArm(VECTOR3 arm_wrist_dpos);
 	VECTOR3 CalcAnimationFKArm();
+    void PaintMarkings (SURFHANDLE tex);
+    char WingName[256];
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;

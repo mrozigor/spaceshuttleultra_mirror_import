@@ -387,6 +387,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hSRBMesh[1]		  = oapiLoadMeshGlobal ("Shuttle_lsrb");
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
+  strcpy(WingName,"Atlantis");
+
 
   DefineAnimations();
   center_arm      = false;
@@ -1079,6 +1081,35 @@ void Atlantis::EnableAllRCS() {
   RCSEnabled=true;
 }
 
+void Atlantis::PaintMarkings (SURFHANDLE tex) {
+	HDC hDC = oapiGetDC (tex);
+	HFONT hFont = CreateFont(47, 0, 1800, 1800, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	HFONT pFont = (HFONT)SelectObject (hDC, hFont);
+	SetTextColor (hDC, 0x202020);
+	SetBkMode (hDC, TRANSPARENT);
+	char cbuf[256];
+//	strncpy (cbuf, "Kwan's Excellent Space Shuttle Adventure", 256);
+	strncpy (cbuf, WingName, 256);
+	int len = strlen(cbuf);
+	TextOut (hDC, 597, 296, cbuf, len);
+	SelectObject (hDC, pFont);
+	DeleteObject (hFont);
+	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	pFont = (HFONT)SelectObject (hDC, hFont);
+	SetTextAlign (hDC, TA_CENTER);
+	TextOut (hDC, 1800, 493, cbuf, len);
+	SelectObject (hDC, pFont);
+	DeleteObject (hFont);
+	hFont = CreateFont(26, 0, 2700, 2700, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	pFont = (HFONT)SelectObject (hDC, hFont);
+	TextOut (hDC, 1400, 493, cbuf, len);
+	SelectObject (hDC, pFont);
+	DeleteObject (hFont);
+	oapiReleaseDC (tex, hDC);
+}
+
+
+
 void Atlantis::DisableControlSurfaces()
 {
 	if(!ControlSurfacesEnabled) return;
@@ -1460,6 +1491,9 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+
+	SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, 2);
+	PaintMarkings (insignia_tex);
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
@@ -2291,6 +2325,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     } else if (!strnicmp (line, "SPEEDBRAKE", 10)) {
 		sscanf (line+10, "%d%lf", &action, &spdb_proc);
 		spdb_status = (AnimState::Action)(action+1);
+    } else if (!strnicmp (line, "WING_NAME", 9)) {
+      strncpy(WingName,line+10,256);
     } else if (!strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
     } else if (!strnicmp (line, "SAT_OFS_X", 9)) {
@@ -2409,6 +2445,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   if(RMS) oapiWriteLine(scn, "  RMS");
   sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
   oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
+  oapiWriteScenario_string (scn, "WING_NAME", WingName);
   if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
 	  sprintf(cbuf, "1 %f", RMSRollout.pos);
   else sprintf(cbuf, "0 %f", RMSRollout.pos);
