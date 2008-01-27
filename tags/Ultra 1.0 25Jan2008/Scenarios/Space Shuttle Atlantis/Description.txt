@@ -1,3 +1,0 @@
-BEGIN_DESC
-WARNING: These scenarios are obsolete and potentially buggy.
-END_DESC
