@@ -1,5 +1,6 @@
 BEGIN_DESC
-Launch Space Shuttle Atlantis from Launch Complex 39B at the Kennedy Space Center for mission STS-101.
+Launch Space Shuttle Intrepid from Launch Complex 39B at the Kennedy Space Center for mission STS-101. 
+Name painted on the wing and sides of fuselage customizable by changing WING_NAME in STS-101 configuration.
 END_DESC
 
 BEGIN_ENVIRONMENT
@@ -74,7 +75,7 @@ STS-101:Atlantis
   CARGODOOR 0 0.0000
   GEAR 0 0.0000
   OPS 101
-  WING_NAME Devastator
+  WING_NAME Intrepid
   KUBAND 0 0.0000
   ;AUTOPILOT 28.65 80.5 103000 7859.7 0.73
   AUTOPILOT 51.60 80.5 105000 7859.7 0.73
