@@ -16,9 +16,9 @@ const UINT EVTTMR_WINDOW_GROUPS[4] = {211, 212, 213, 214};
 
 // ==============================================================
 
-PanelC2::PanelC2(Atlantis *_sts): sts(_sts)
-{
-	for(int i = 0; i<4; i++)
+PanelC2::PanelC2(Atlantis *_sts): sts(_sts) {
+	int i;
+	for(i = 0; i<4; i++)
 	{
 		tgtwheel_state[i] = 0;
 		wheelState[i] = 0.0;
@@ -425,8 +425,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 	return false;
 }
 
-void PanelC2::UpdateVC()
-{
+void PanelC2::UpdateVC() {
+    int i;
 	for(int i = 0; i<4; i++)
 	{
 		sts->SetAnimation(anim_VC_C2Wheel[i], fmod(wheelState[i], 1.0));
