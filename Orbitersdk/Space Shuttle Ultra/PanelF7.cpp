@@ -30,7 +30,7 @@ bool PanelF7::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	
 	if(id == AID_F7_EVTTMR1)
 	{
-		sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent");
+		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent");
 
 		digit[0] = sTimerMinutes / 10;
 		digit[1] = sTimerMinutes % 10;
@@ -39,7 +39,7 @@ bool PanelF7::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 		for(i = 0; i<4; i++)
 		{
-			oapiBlt(surf, g_Param.digits_7seg, i*64, 0, NUMX[digit[i]], NUMY[digit[i]], 63, 63);
+			oapiBlt(surf, g_Param.digits_7seg, i*64, 0, NUMX[digit[i]], NUMY[digit[i]], 64, 64);
 		}
 	}
 	return true;
@@ -47,13 +47,8 @@ bool PanelF7::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 void PanelF7::RegisterVC()
 {
-	//VECTOR3 ofs = sts->orbiter_ofs;
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
-	//oapiVCRegisterArea (AID_C3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-	oapiVCRegisterArea (AID_F7_EVTTMR1, _R(0, 448, 255, 511), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);
-	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.281, 1.684, 14.702)+ofs, _V(0.276, 1.684, 14.702)+ofs, _V(-0.281, 1.619, 14.066)+ofs, _V(0.276, 1.619, 14.066)+ofs);
-	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.0804, 1.667, 14.52)+ofs, _V(-0.111, 1.667, 14.52)+ofs, _V(-0.0804, 1.667, 14.52)+ofs, _V(0.276, 1.618, 14.066)+ofs);
-	//sprintf(oapiDebugString(), "PanelC3 Registered");
+	oapiVCRegisterArea (AID_F7_EVTTMR1, _R(0, 320, 256, 384), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 }
 
 bool PanelF7::VCMouseEvent(int id, int event, VECTOR3 &p)
