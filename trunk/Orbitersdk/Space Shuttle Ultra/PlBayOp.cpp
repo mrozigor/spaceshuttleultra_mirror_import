@@ -375,7 +375,8 @@ void PayloadBayOp::RegisterVC ()
 
 	// register the complete panel for mouse events
 	oapiVCRegisterArea (AID_R13L, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-	oapiVCSetAreaClickmode_Quadrilateral (AID_R13L, _V(1.3543,2.23023,12.8581)+ofs, _V(1.3543,2.23023,12.5486)+ofs, _V(1.0868,2.0547,12.8581)+ofs, _V(1.0868,2.0547,12.5486)+ofs);
+	oapiVCSetAreaClickmode_Quadrilateral (AID_R13L, _V(1.3543,2.23023,12.8581)+ofs, _V(1.3543,2.23023,12.5486)+ofs,
+		_V(1.0868,2.0547,12.8581)+ofs, _V(1.0868,2.0547,12.5486)+ofs);
 
 	// register the talkbacks
 	oapiVCRegisterArea (AID_R13L_TKBK1, _R(  0,0, 32,18), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tkbk_tex);

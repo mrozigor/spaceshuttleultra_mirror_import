@@ -3,6 +3,7 @@
 #include "windows.h"
 #include "orbitersdk.h"
 #include "CRT.h"
+#include <cstdio>
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)

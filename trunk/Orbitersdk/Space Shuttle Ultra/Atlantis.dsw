@@ -23,9 +23,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Atlantis
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -38,9 +35,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Atlantis
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -53,9 +47,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Atlantis
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -68,12 +59,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Atlantis
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name AtlantisConfig
-    End Project Dependency
 }}}
 
 ###############################################################################

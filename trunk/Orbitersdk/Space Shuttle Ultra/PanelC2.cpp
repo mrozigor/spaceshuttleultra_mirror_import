@@ -427,7 +427,7 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 void PanelC2::UpdateVC() {
     int i;
-	for(int i = 0; i<4; i++)
+	for(i = 0; i<4; i++)
 	{
 		sts->SetAnimation(anim_VC_C2Wheel[i], fmod(wheelState[i], 1.0));
 	}

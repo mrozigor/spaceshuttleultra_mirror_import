@@ -16,6 +16,7 @@
 #include "Atlantis.h"
 #include "PlBayOp.h"
 #include "GearOp.h"
+#include "PanelA4.h"
 #include "PanelC2.h"
 #include "PanelC3.h"
 #include "PanelF7.h"
@@ -322,6 +323,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   plop            = new PayloadBayOp (this);
   gop             = new GearOp (this);
+  panela4		  = new PanelA4(this);
   c3po            = new PanelC3(this);
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
@@ -536,6 +538,7 @@ Atlantis::~Atlantis () {
 
 	delete plop;
 	delete gop;
+	delete panela4;
 	delete c3po;
 	delete r2d2;
 	delete panelf7;
@@ -1488,6 +1491,7 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   plop->DefineAnimations (vidx);
   gop->DefineVCAnimations (vidx);
+  panela4->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
   c3po->DefineVCAnimations (vidx);
   panelf7->DefineVCAnimations (vidx);
@@ -2411,6 +2415,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
 	  if (c3po->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
+	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 	  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
 	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
@@ -2510,6 +2515,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   // save bay door operations status
   plop->SaveState (scn);
   gop->SaveState (scn);
+  panela4->SaveState(scn);
   panelc2->SaveState(scn);
   c3po->SaveState (scn);
   panelf7->SaveState(scn);
@@ -2766,6 +2772,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   // Execute payload bay operations
   plop->Step (simt, simdt);
   gop->Step (simt, simdt);
+  panela4->Step(simt, simdt);
   panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
   panelf7->Step(simt, simdt);
@@ -3240,10 +3247,10 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CdrMFD (); // activate commander MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
     gop->RegisterVC ();  // register panel F6 interface
+	panela4->RegisterVC();
 	c3po->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
-
     ok = true;
     break;
   case 1: // pilot position
@@ -3260,6 +3267,7 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
+	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
 
@@ -3280,6 +3288,7 @@ bool Atlantis::clbkLoadVC (int id)
 
     RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
+	panela4->RegisterVC();
     ok = true;
     break;
   case 3: //RMS End Effector Camera
@@ -3334,6 +3343,8 @@ bool Atlantis::clbkLoadVC (int id)
 
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	plop->RegisterVC ();  // register panel R13L interface
+	panela4->RegisterVC();
 	ok = true;
 	break;
   case 10: //MS2/FE
@@ -3348,6 +3359,7 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CdrMFD();
 	RegisterVC_PltMFD (); // activate pilot MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
+	panela4->RegisterVC();
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
 	panelc2->RegisterVC();
@@ -3376,6 +3388,7 @@ bool Atlantis::clbkLoadVC (int id)
     // update panels
     plop->UpdateVC();
     gop->UpdateVC();
+	panela4->UpdateVC();
 	panelc2->UpdateVC();
 	c3po->UpdateVC();
 	panelf7->UpdateVC();
@@ -3471,6 +3484,8 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   // handle panel R13L events (payload bay operations)
   case AID_R13L:
     return plop->VCMouseEvent (id, event, p);
+  case AID_A4:
+	return panela4->VCMouseEvent (id, event, p);
   case AID_F6:
     return gop->VCMouseEvent (id, event, p);
   case AID_F7:
@@ -3505,6 +3520,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
     RedrawPanel_MFDButton (surf, mfd);
     } return true;
   default:
+	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
+	  return panela4->VCRedrawEvent (id, event, surf);
 	if (id >= AID_R2_MIN && id <= AID_R2_MAX)
 	  return r2d2->VCRedrawEvent (id, event, surf);
     if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)

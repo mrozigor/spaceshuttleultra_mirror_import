@@ -13,8 +13,28 @@
 #define GRP_C2b9_VC 222
 #define GRP_C2b10_VC 223
 #define GRP_C2b12_VC 224
+#define GRP_Eventtimer_VC 427
+#define GRP_F7_Event_M10_VC 428
+#define GRP_F7_Event_M_VC 429
+#define GRP_F7_Event_S10_VC 430
+#define GRP_F7_Event_S_VC 431
+#define GRP_Guardb_VC 432
+#define GRP_A4MissionSwitch_VC 433
+#define GRP_A4_Event_S_VC 434
+#define GRP_A4_Event_S10_VC 435
+#define GRP_A4_Event_M_VC 436
+#define GRP_A4_Event_M10_VC 437
+#define GRP_A4_MET_S2_VC 438
+#define GRP_A4_MET_S1_VC 439
+#define GRP_A4_MET_M2_VC 440
+#define GRP_A4_MET_M1_VC 441
+#define GRP_A4_MET_H2_VC 442
+#define GRP_A4_MET_H1_VC 443
+#define GRP_A4_MET_DAY3_VC 444
+#define GRP_A4_MET_DAY2_VC 445
+#define GRP_A4_MET_DAY1_VC 446
+#define GRP_panelA4_VC 447
 
-
-#define TEX_DIGITS_VC 19
+#define TEX_DIGITS_VC 22
 
 

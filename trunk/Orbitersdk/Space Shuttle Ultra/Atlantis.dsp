@@ -110,17 +110,100 @@ SOURCE=..\..\Meshes\Atlantis\AtlantisVC.msh
 SOURCE=..\..\Meshes\Atlantis\RMS.msh
 # End Source File
 # End Group
+# Begin Group "Include"
+
+# PROP Default_Filter "h;hpp"
 # Begin Source File
 
 SOURCE=.\AC_resource.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Atlantis.cpp
+SOURCE=.\Atlantis.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Atlantis.h
+SOURCE=.\AtlantisSubsystem.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicPanel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GearOp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GPCVariables.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MasterTimingUnit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\meshres.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\meshres_vc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\meshres_vc_additions.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Orbitersdk\include\Orbitersdk.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelA4.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelC2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelF7.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelR2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PlBayOp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource_RMS.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SubsystemDirector.h
+# End Source File
+# End Group
+# Begin Group "Logs"
+
+# PROP Default_Filter "log"
+# Begin Source File
+
+SOURCE=..\..\Orbiter.log
+# End Source File
+# End Group
+# Begin Group "Source"
+
+# PROP Default_Filter "cpp"
+# Begin Source File
+
+SOURCE=.\Atlantis.cpp
 # End Source File
 # Begin Source File
 
@@ -132,15 +215,52 @@ SOURCE=.\AtlantisSubsystem.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\AtlantisSubsystem.h
+SOURCE=.\Common.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\GearOp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GPC.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MasterTimingUnit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelA4.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelC2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelC3.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelF7.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelR2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PlBayOp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SubsystemDirector.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\Bitmaps\clocknums.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common.cpp
 # End Source File
 # Begin Source File
 
@@ -149,18 +269,6 @@ SOURCE=.\Bitmaps\digits.bmp
 # Begin Source File
 
 SOURCE=.\down.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\GearOp.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GearOp.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GPC.cpp
 # End Source File
 # Begin Source File
 
@@ -181,86 +289,6 @@ SOURCE=.\ico00004.ico
 # Begin Source File
 
 SOURCE=.\icon1.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\MasterTimingUnit.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\MasterTimingUnit.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\meshres.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\meshres_vc.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\meshres_vc_additions.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Orbiter.log
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\Orbitersdk\include\Orbitersdk.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelC2.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelC2.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelC3.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelF7.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelF7.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelR2.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PanelR2.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PlBayOp.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PlBayOp.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource_RMS.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SubsystemDirector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SubsystemDirector.h
 # End Source File
 # Begin Source File
 

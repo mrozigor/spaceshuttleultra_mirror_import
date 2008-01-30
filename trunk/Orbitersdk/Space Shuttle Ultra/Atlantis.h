@@ -314,7 +314,14 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_R2_TKBK6   406
 #define AID_R2_TKBK7   407
 #define AID_R2_TKBK8   408
-#define AID_R2_MAX     420
+#define AID_R2_MAX     419
+
+#define AID_A4_MIN	   420
+#define AID_A4		   420
+#define AID_A4_EVTTMR  421
+#define AID_A4_METTMR1 422
+#define AID_A4_METTMR2 423
+#define AID_A4_MAX	   430
 
 
 #define SWITCH1		0
@@ -366,6 +373,7 @@ typedef struct {
 
 enum AXIS {PITCH, YAW, ROLL};
 
+class PanelA4;
 class PanelC2;
 class PanelF7;
 class SubsystemDirector;
@@ -378,6 +386,7 @@ class MasterTimingUnit;
 class Atlantis: public VESSEL2 {
 	friend class PayloadBayOp;
 	friend class GearOp;
+	friend class PanelA4;
 	friend class PanelC2;
 	friend class PanelC3;
 	friend class PanelF7;
@@ -482,6 +491,7 @@ public:
 
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
+	PanelA4 *panela4;
 	PanelC2 *panelc2;
 	PanelC3 *c3po; // PanelC3 operations
 	PanelF7 *panelf7;
