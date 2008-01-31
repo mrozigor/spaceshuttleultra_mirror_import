@@ -302,7 +302,14 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 // Panel C3
 #define AID_C3_MIN     300
 #define AID_C3         300
-#define AID_C3_MAX     320
+#define AID_C3_MAX     319
+// Panel O3
+#define AID_O3_MIN	   320
+#define AID_O3		   320
+#define AID_O3_METTMR1 321
+#define AID_O3_METTMR2 322
+#define AID_O3_RCS     323
+#define AID_O3_MAX	   339
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400
@@ -376,6 +383,7 @@ enum AXIS {PITCH, YAW, ROLL};
 class PanelA4;
 class PanelC2;
 class PanelF7;
+class PanelO3;
 class SubsystemDirector;
 class MasterTimingUnit;
 
@@ -390,6 +398,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelC2;
 	friend class PanelC3;
 	friend class PanelF7;
+	friend class PanelO3;
 	friend class PanelR2;
 	friend class CRT;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -495,6 +504,7 @@ public:
 	PanelC2 *panelc2;
 	PanelC3 *c3po; // PanelC3 operations
 	PanelF7 *panelf7;
+	PanelO3 *panelo3;
 	PanelR2 *r2d2; // PanelR2 operations
 	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
