@@ -20,6 +20,7 @@
 #include "PanelC2.h"
 #include "PanelC3.h"
 #include "PanelF7.h"
+#include "PanelO3.h"
 #include "PanelR2.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
@@ -328,6 +329,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
   panelf7		  = new PanelF7(this);
+  panelo3		  = new PanelO3(this);
 
   psubsystems	  = new SubsystemDirector(this);
 
@@ -542,6 +544,7 @@ Atlantis::~Atlantis () {
 	delete c3po;
 	delete r2d2;
 	delete panelf7;
+	delete panelo3;
 	delete panelc2;
   
   for (i = 0; i < 7; i++) delete rms_anim[i];
@@ -2776,6 +2779,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
   panelf7->Step(simt, simdt);
+  panelo3->Step(simt, simdt);
   r2d2->Step (simt, simdt);
   
 
@@ -3251,6 +3255,7 @@ bool Atlantis::clbkLoadVC (int id)
 	c3po->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
+	panelo3->RegisterVC();
     ok = true;
     break;
   case 1: // pilot position
@@ -3270,6 +3275,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
+	panelo3->RegisterVC();
 
 
     ok = true;
@@ -3289,6 +3295,7 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
+	panelo3->RegisterVC();
     ok = true;
     break;
   case 3: //RMS End Effector Camera
@@ -3345,6 +3352,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
+	panelo3->RegisterVC();
 	ok = true;
 	break;
   case 10: //MS2/FE
@@ -3362,6 +3370,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->RegisterVC();
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
+	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
     ok = true;
@@ -3392,6 +3401,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelc2->UpdateVC();
 	c3po->UpdateVC();
 	panelf7->UpdateVC();
+	panelo3->UpdateVC();
 	r2d2->UpdateVC();
   }
   return ok;
@@ -3494,6 +3504,9 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 	return panelc2->VCMouseEvent(id, event, p);
   case AID_C3:
 	return c3po->VCMouseEvent (id, event, p);
+  case AID_O3:
+	return panelo3->VCMouseEvent(id, event, p);
+  
   case AID_R2:
 	return r2d2->VCMouseEvent (id, event, p);
   }
@@ -3534,6 +3547,9 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
 		return c3po->VCRedrawEvent (id, event, surf);
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
       return panelc2->VCRedrawEvent (id, event, surf);
+	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
+      return panelo3->VCRedrawEvent (id, event, surf);
+	
 	
     break;
   }

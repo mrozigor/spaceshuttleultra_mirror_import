@@ -171,6 +171,10 @@ SOURCE=.\PanelF7.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\PanelO3.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\PanelR2.h
 # End Source File
 # Begin Source File
@@ -244,6 +248,10 @@ SOURCE=.\PanelC3.cpp
 # Begin Source File
 
 SOURCE=.\PanelF7.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelO3.cpp
 # End Source File
 # Begin Source File
 
