@@ -28,6 +28,11 @@ PanelO3::PanelO3(Atlantis *_sts): sts(_sts)
 	sMETMinutes = 0;
 	sMETHours = 0;
 	sMETDays = 0;
+
+	for(i = 0; i<3; i++)
+	{
+		sOMSFuel[i] = 99;
+	}
 }
 
 bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
@@ -73,7 +78,7 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	}
 	else if(id == AID_O3_RCS)
 	{
-		digit[0] = sOMSFuel[0]/ 10;
+		digit[0] = sOMSFuel[0] / 10;
 		digit[1] = sOMSFuel[0] % 10;
 		digit[2] = sOMSFuel[1] / 10;
 		digit[3] = sOMSFuel[1] % 10;
