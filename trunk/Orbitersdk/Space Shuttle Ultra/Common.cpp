@@ -58,16 +58,17 @@ double SRB_Prop[SRB_nt]   = { 1,1,1.000,0.951,0.900,0.848,0.796,0.743,0.693,0.64
 //	PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.5,
 //	PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 0.1
 //};
-PARTICLESTREAMSPEC srb_contrail = {
-	0, 12.0, 3, 150.0, 0.2, 8.0, 4, 3.0, PARTICLESTREAMSPEC::DIFFUSE,
+PARTICLESTREAMSPEC srb_contrail = {//DaveS edit: SRB contrail PSTREAM to be more realistic
+	0, 17, 20, 150.0, 0.3, 10, 6, 1.5, PARTICLESTREAMSPEC::DIFFUSE,
 	PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.5,
 	PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 0.1
 };
-PARTICLESTREAMSPEC srb_exhaust = {
-	0, 3.0, 40, 250.0, 0.04, 0.7, 10, 3.0, PARTICLESTREAMSPEC::EMISSIVE,
+PARTICLESTREAMSPEC srb_exhaust = {//DaveS edit: Modified SRB exhaust PSTREAM to be more realistic
+	0, 3, 5000, 100.0, 0.0, 1, 20, 0.0, PARTICLESTREAMSPEC::EMISSIVE,
 	PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 	PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 };
+
 
 // time-dependent calculation of SRB thrust and remaining propellant
 void GetSRB_State (double met, double &thrust_level, double &prop_level)
