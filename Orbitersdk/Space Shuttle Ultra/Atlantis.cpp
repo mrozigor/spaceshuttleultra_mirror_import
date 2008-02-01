@@ -635,8 +635,8 @@ void Atlantis::SetLaunchConfiguration (void)
   for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
   AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(0,1,/*-30*/-135), &srb_contrail); //DaveS edit: Modified Zofs from 50 to 135 to take in account longer exhaust
   AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,1,/*-30*/-135), &srb_contrail); //DaveS edit: Modified Zofs from 50 to 135 to take in account longer exhaust
-  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0.8,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
-  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0.8,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
+  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
+  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
 
   //OMS
   VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.7,-13.8);
