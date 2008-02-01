@@ -11,7 +11,7 @@ void Atlantis::InitializeAutopilot()
 	//calculate heading
 	double latitude, Radius, longitude;
 	GetEquPos(longitude, latitude, Radius);
-	if(cos(TgtInc*RAD)<cos(latitude)) THeading=90.0;
+	if(cos(TgtInc*RAD)>cos(latitude)) THeading=90.0;
 	else {
 		double InHeading = asin(cos(TgtInc*RAD)/cos(latitude));
 		double xVel, yVel;
@@ -159,23 +159,18 @@ void Atlantis::Guide() {
 		target_pitch=(PI/2-acos(fhdotrh))*DEG;
     }
 
-	target_pitch = target_pitch+ThrAngleP; //yaw angle ignored for now
-	CmdPDot=(GetPitch()*DEG-target_pitch)/TMajorCycle;
+	//target_pitch = target_pitch+ThrAngleP; //yaw angle ignored for now
+	CmdPDot=(target_pitch-ThrAngleP*cos(GetBank())-GetPitch()*DEG)/(2*TMajorCycle);
+	//CmdPDot=(target_pitch-ThrAngleP*cos(GetBank())-GetPitch()*DEG)/TMajorCycle;
 }
 
 void Atlantis::RateCommand()
 {
-	//double PitchCommand, YawCommand, RollCommand;
 	double Heading, Slip;
 	if(GetPitch()*DEG>=88.0) {
 		VECTOR3 wingBody=_V(1,0,0);
-		//VECTOR3 tailBody=_V(0,1,0);
-		//VECTOR3 noseBody=_V(0,0,1);
 		VECTOR3 wingHorizon;
-		//VECTOR3 tailHorizon,noseHorizon;
 		HorizonRot(wingBody,wingHorizon);
-		//HorizonRot(noseBody,noseHorizon);
-		//HorizonRot(tailBody,tailHorizon);
 		Heading=atan2(wingHorizon.x,wingHorizon.z)+PI/2;
 		while(Heading<0)Heading+=2*PI;
 	}
@@ -191,7 +186,7 @@ void Atlantis::RateCommand()
 				ReqdRates.data[YAW] = 0.0;
 				ReqdRates.data[ROLL] = 0.0;
 			}
-			else if(GetPitch()*DEG>=88.0) {
+			else if(GetPitch()*DEG>=88.5) {
 				ReqdRates.data[PITCH] = 10.0*(GetPitch()*DEG-TargetPitch);
 				if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
 				ReqdRates.data[YAW]=0.0;
@@ -200,55 +195,20 @@ void Atlantis::RateCommand()
 				else ReqdRates.data[ROLL]=0.0;
 			}
 			else {
-				//ReqdRates.data[PITCH] = (GetPitch()*DEG-TargetPitch);
 				ReqdRates.data[PITCH] = TargetPitch-GetPitch()*DEG;
 				if(ReqdRates.data[PITCH]>2.5) ReqdRates.data[PITCH]=2.5;
 				else if(ReqdRates.data[PITCH]<-2.5) ReqdRates.data[PITCH]=-2.5;
 				if(GetPitch()*DEG>50.0) {
-					ReqdRates.data[YAW] = range(-8.0, 2.5*(Heading-THeading), 8.0);
-					//ReqdRates.data[YAW] = 2.5*(Heading-THeading);
-					/*if(abs(Heading-THeading)<0.5 || abs(abs(GetBank()*DEG)-180.0)<10.0)
-						ReqdRates.data[YAW] = range(-8.0, 2.5*(Heading-THeading), 8.0);
-					else ReqdRates.data[YAW] = 0.0;*/
+					ReqdRates.data[YAW] = range(-4.0, 2.5*(Heading-THeading), 4.0);
 				}
 				else {
 					ReqdRates.data[YAW] = 0.0;
 				}
 				if(GetBank()>0.0) ReqdRates.data[ROLL]=2.5*(GetBank()*DEG-180.0);
 				else ReqdRates.data[ROLL]=2.5*(GetBank()*DEG+180.0);
-				//double T1=ReqdRates.data[PITCH];
-				//double T2=ReqdRates.data[YAW];
-				//double T3=ReqdRates.data[ROLL];
 				ReqdRates=RotateVectorZ(ReqdRates, -GetBank()*DEG);
-				//ReqdRates.data[PITCH] = range(-5.0, ReqdRates.data[PITCH], 5.0);
-				//ReqdRates.data[YAW] = range(-8.0, ReqdRates.data[YAW], 8.0);
 				ReqdRates.data[ROLL] = range(-8.0, ReqdRates.data[ROLL], 8.0);
-				//sprintf(oapiDebugString(), "%f %f %f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], TargetPitch, Heading);
-				/*if(GetPitch()*DEG<=88.0) {
-					if(GetBank()>0) ReqdRates.data[ROLL]=2.5*(GetBank()*DEG-180.0);
-					else ReqdRates.data[ROLL]=2.5*(GetBank()*DEG+180.0);
-				}
-				else ReqdRates.data[ROLL] = 0.0;*/
 			}
-			/*else if(abs(Heading-THeading)>=0.5 && GetPitch()*DEG>=88.0) {
-				ReqdRates.data[PITCH]=0.0;
-				ReqdRates.data[YAW]=0.0;
-				if(Heading-THeading>0.0) ReqdRates.data[ROLL]=15.0;
-				else ReqdRates.data[ROLL]=-15.0;
-			}
-			else {
-				ReqdRates.data[PITCH] = 10.0*(GetPitch()*DEG-TargetPitch);
-				if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
-				else if(ReqdRates.data[PITCH]<-10.0) ReqdRates.data[PITCH]=-10.0;
-				if(GetPitch()*DEG>60.0) ReqdRates.data[YAW] = -2.5*(Heading-THeading);
-				else ReqdRates.data[YAW] = 0.0;
-				if(GetPitch()*DEG<=88.0) {
-					if(GetBank()>0) ReqdRates.data[ROLL]=2.5*(GetBank()*DEG-180.0);
-					else ReqdRates.data[ROLL]=2.5*(GetBank()*DEG+180.0);
-				}
-				else ReqdRates.data[ROLL] = 0.0;
-			}*/
-			//sprintf(oapiDebugString(), "%f %f %f", GetPitch()*DEG, Heading-THeading, GetBank()*DEG);
 		}
 		else {
 			ReqdRates.data[PITCH] = 5.0*(GetManualControlLevel(THGROUP_ATT_PITCHUP, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE) - GetManualControlLevel(THGROUP_ATT_PITCHDOWN, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE));
@@ -259,7 +219,6 @@ void Atlantis::RateCommand()
 	else if(status==2) {
 		if(bAutopilot) {
 			if(met>(TLastMajorCycle+TMajorCycle)) {
-				//UPFG(1, met-TLastMajorCycle);
 				MajorCycle();
 				TLastMajorCycle=met;
 			}
@@ -272,18 +231,29 @@ void Atlantis::RateCommand()
 			else {
 				if(T>TPEGStop) {
 					ReqdRates.data[PITCH] = CmdPDot;
-					ReqdRates.data[YAW] = 2.5*(GetSlipAngle()*DEG);
-					if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
-					else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
+					if(abs(GetBank()*DEG)>90.0) ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
+					else ReqdRates.data[YAW] = range(-2.5, 2.5*(GetSlipAngle()*DEG), 2.5);
+					if(v<RollToHeadsUp) {
+						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
+						else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
+					}
+					else {
+						if(abs(GetBank()*DEG)>5.0) {
+							double tpitch=target_pitch-ThrAngleP*cos(GetBank());
+							ReqdRates.data[PITCH]=tpitch-GetPitch()*DEG;
+							ReqdRates.data[YAW]=0.0;
+						}
+						ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG);
+					}
+					ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
+					ReqdRates=RotateVectorZ(ReqdRates, -GetBank()*DEG);
+					//sprintf(oapiDebugString(), "%f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL]);
 				}
 				else {
 					ReqdRates.data[PITCH] = 0.0;
 					ReqdRates.data[YAW] = 0.0;
 					ReqdRates.data[ROLL] = 0.0;
 				}
-				/*ReqdRates.data[PITCH] = 5.0*(GetManualControlLevel(THGROUP_ATT_PITCHUP, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE) - GetManualControlLevel(THGROUP_ATT_PITCHDOWN, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE));
-				ReqdRates.data[YAW] = 2.5*(GetManualControlLevel(THGROUP_ATT_YAWLEFT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE) - GetManualControlLevel(THGROUP_ATT_YAWRIGHT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE));
-				ReqdRates.data[ROLL] = -10.0*(GetManualControlLevel(THGROUP_ATT_BANKLEFT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE) - GetManualControlLevel(THGROUP_ATT_BANKRIGHT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE));*/
 			}
 		}
 		else {
