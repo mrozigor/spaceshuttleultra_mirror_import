@@ -3,7 +3,6 @@
 #include "windows.h"
 #include "orbitersdk.h"
 #include "CRT.h"
-#include <cstdio>
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)
@@ -104,20 +103,6 @@ void CRT::Update (HDC hDC)
 	if(data!=0) Data(1-data);
 
 	Simtime=oapiGetSimTime();
-	//vessel->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-	//dT=Simtime-Simtime_last;
-	/*vessel->GetGlobalOrientation(InertialOrientationRad);
-	vessel->GetAngularVel(AngularVelocity);
-	vessel->GetGlobalPos(GVesselPos);
-	for(nPos=0;nPos<3;nPos++) {
-		InertialOrientation.data[nPos]=DEG*InertialOrientationRad.data[nPos];
-		if(InertialOrientation.data[nPos]<0.0) InertialOrientation.data[nPos]+=360.0;
-	}*/
-	/*if(MNVR || TRK || ROT) {
-		AttControl();
-		//InvalidateDisplay();
-	}*/
-	//sprintf(oapiDebugString(), "MODE %d OPS %d SPEC %d", mode, ops, spec);
 
 	if(mode==10001) {
 			int n;
@@ -617,71 +602,71 @@ void CRT::UNIVPTG(HDC hDC)
 	
 	sprintf(cbuf, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 		sts->START_TIME[0], sts->START_TIME[1], sts->START_TIME[2], sts->START_TIME[3]);
-	TextOut(hDC, 0, 15, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 18, cbuf, strlen(cbuf));
 	
-	TextOut(hDC, 0, 35, "MNVR OPTION", 11);
+	TextOut(hDC, 0, 36, "MNVR OPTION", 11);
 	sprintf(cbuf,"5 R %6.2f", sts->MNVR_OPTION.data[ROLL]);
 	TextOut(hDC, 0, 45, cbuf, strlen(cbuf));
 	sprintf(cbuf,"6 P %6.2f", sts->MNVR_OPTION.data[PITCH]);
-	TextOut(hDC, 0, 55, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 54, cbuf, strlen(cbuf));
 	sprintf(cbuf,"7 Y %6.2f", sts->MNVR_OPTION.data[YAW]);
-	TextOut(hDC, 0, 65, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 63, cbuf, strlen(cbuf));
 
-	TextOut(hDC, 0, 85, "TRK/ROT OPTIONS", 15);
-	sprintf(cbuf, " 8 TGT ID %3d", sts->TGT_ID);
-	TextOut(hDC, 0, 95, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 81, "TRK/ROT OPTIONS", 15);
+	sprintf(cbuf, " 8 TGT ID %03d", sts->TGT_ID);
+	TextOut(hDC, 0, 90, cbuf, strlen(cbuf));
 
-	TextOut(hDC, 0, 115, " 9  RA", 6);
-	TextOut(hDC, 0, 125, " 10 DEC", 7);
-	TextOut(hDC, 0, 135, " 11 LAT", 7);
-	TextOut(hDC, 0, 145, " 12 LON", 7);
-	TextOut(hDC, 0, 155, " 13 ALT", 7);
+	TextOut(hDC, 0, 108, " 9  RA", 6);
+	TextOut(hDC, 0, 117, " 10 DEC", 7);
+	TextOut(hDC, 0, 126, " 11 LAT", 7);
+	TextOut(hDC, 0, 135, " 12 LON", 7);
+	TextOut(hDC, 0, 144, " 13 ALT", 7);
 
 	sprintf(cbuf, " 14 BODY VECT %d", sts->BODY_VECT);
-	TextOut(hDC, 0, 204, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 198, cbuf, strlen(cbuf));
 	sprintf(cbuf, " 15 P %6.2f", sts->P);
-	TextOut(hDC, 0, 224, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 207, cbuf, strlen(cbuf));
 	sprintf(cbuf, " 16 Y %6.2f", sts->Y);
-	TextOut(hDC, 0, 234, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 216, cbuf, strlen(cbuf));
 	if(sts->OM>=0.0) {
 		sprintf(cbuf, " 17 OM %6.2f", sts->OM);
-		TextOut(hDC, 0, 244, cbuf, strlen(cbuf));
+		TextOut(hDC, 0, 225, cbuf, strlen(cbuf));
 	}
-	else TextOut(hDC, 0, 244, " 17 OM", 6);
+	else TextOut(hDC, 0, 225, " 17 OM", 6);
 
-	TextOut(hDC, 90, 35, "START MNVR 18", 13);
+	TextOut(hDC, 90, 36, "START MNVR 18", 13);
 	TextOut(hDC, 132, 45, "TRK  19", 7);
-	TextOut(hDC, 132, 55, "ROT  20", 7);
-	TextOut(hDC, 125, 65, "CNCL  21", 8);
-	TextOut(hDC, 185, 25, "CUR", 3);
-	TextOut(hDC, 215, 25, "FUT", 3);
+	TextOut(hDC, 132, 54, "ROT  20", 7);
+	TextOut(hDC, 125, 63, "CNCL  21", 8);
+	TextOut(hDC, 185, 27, "CUR", 3);
+	TextOut(hDC, 215, 27, "FUT", 3);
 	if(sts->MNVR) {
-		if(sts->ManeuverinProg) TextOut(hDC, 190, 35, "X", 1);
-		else TextOut(hDC, 222, 35, "X", 1);
+		if(sts->ManeuverinProg) TextOut(hDC, 190, 36, "X", 1);
+		else TextOut(hDC, 222, 36, "X", 1);
 	}
 	else if(sts->TRK) {
 		if(sts->ManeuverinProg) TextOut(hDC, 190, 45, "X", 1);
 		else TextOut(hDC, 222, 45, "X", 1);
 	}
 	else if(sts->ROT) {
-		if(sts->ManeuverinProg) TextOut(hDC, 190, 55, "X", 1);
-		else TextOut(hDC, 222, 55, "X", 1);
+		if(sts->ManeuverinProg) TextOut(hDC, 190, 54, "X", 1);
+		else TextOut(hDC, 222, 54, "X", 1);
 	}
 
-	TextOut(hDC, 125, 85, "ATT MON", 7);
-	TextOut(hDC, 125, 95, "22 MON AXIS", 11);
-	TextOut(hDC, 125, 105, "ERR TOT 23", 10);
-	TextOut(hDC, 125, 115, "ERR DAP 24", 10);
+	TextOut(hDC, 125, 81, "ATT MON", 7);
+	TextOut(hDC, 125, 90, "22 MON AXIS", 11);
+	TextOut(hDC, 125, 99, "ERR TOT 23", 10);
+	TextOut(hDC, 125, 108, "ERR DAP 24", 10);
 
-	TextOut(hDC, 110, 155, "ROLL    PITCH    YAW", 20);
+	TextOut(hDC, 110, 144, "ROLL    PITCH    YAW", 20);
 	sprintf(cbuf, "CUR   %6.2f  %6.2f  %6.2f", InertialOrientation.data[ROLL], InertialOrientation.data[PITCH], InertialOrientation.data[YAW]);
-	TextOut(hDC, 60, 165, cbuf, strlen(cbuf));
+	TextOut(hDC, 60, 153, cbuf, strlen(cbuf));
 	sprintf(cbuf, "REQD  %6.2f  %6.2f  %6.2f", sts->REQD_ATT.data[ROLL], sts->REQD_ATT.data[PITCH], sts->REQD_ATT.data[YAW]);
-	TextOut(hDC, 60, 175, cbuf, strlen(cbuf));
+	TextOut(hDC, 60, 162, cbuf, strlen(cbuf));
 	sprintf(cbuf, "ERR  %+7.2f %+7.2f %+7.2f", sts->PitchYawRoll.data[ROLL], sts->PitchYawRoll.data[PITCH], sts->PitchYawRoll.data[YAW]);
-	TextOut(hDC, 60, 185, cbuf, strlen(cbuf));
+	TextOut(hDC, 60, 171, cbuf, strlen(cbuf));
 	sprintf(cbuf, "RATE %+7.3f %+7.3f %+7.3f", DEG*AngularVelocity.data[ROLL], DEG*AngularVelocity.data[PITCH], DEG*AngularVelocity.data[YAW]);
-	TextOut(hDC, 60, 195, cbuf, strlen(cbuf));
+	TextOut(hDC, 60, 180, cbuf, strlen(cbuf));
 }
 
 void CRT::DAP_CONFIG(HDC hDC)
@@ -796,7 +781,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -804,7 +789,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 105:
@@ -814,7 +799,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -822,7 +807,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 106:
@@ -832,7 +817,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -840,7 +825,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 202:
@@ -851,7 +836,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -859,7 +844,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 301:
@@ -869,7 +854,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -877,7 +862,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 302:
@@ -887,7 +872,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -895,7 +880,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 		case 303:
@@ -905,7 +890,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.PeT/60;
 				seconds=sts->oparam.PeT-(60*minutes);
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
@@ -913,7 +898,7 @@ void CRT::MNVR(HDC hDC)
 				minutes=sts->oparam.ApT/60;
 				seconds=sts->oparam.ApT-(60*minutes);
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				TextOut(hDC, 102, 130, cbuf, strlen(cbuf));
+				TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
 			}
 			break;
 	}
@@ -926,100 +911,96 @@ void CRT::MNVR(HDC hDC)
 		TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
 		TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
 		sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
-		TextOut(hDC, 173, 10, cbuf, strlen(cbuf));
+		TextOut(hDC, 173, 9, cbuf, strlen(cbuf));
 	}
 
-	TextOut(hDC, 0, 10, "OMS BOTH 1", 10);
-	TextOut(hDC, 49, 20, "L 2", 3);
-	TextOut(hDC, 49, 30, "R 3", 3);
-	TextOut(hDC, 0, 40, "RCS SEL  4", 10);
-	/*if(sts->OMS==0) TextOut(hDC, 60, 10, "*");
-	else if(sts->OMS==1)*/
-	TextOut(hDC, 70, 10+10*sts->OMS, "*", 1);
+	TextOut(hDC, 0, 9, "OMS BOTH 1", 10);
+	TextOut(hDC, 49, 18, "L 2", 3);
+	TextOut(hDC, 49, 27, "R 3", 3);
+	TextOut(hDC, 0, 36, "RCS SEL  4", 10);
+	TextOut(hDC, 70, 9+9*sts->OMS, "*", 1);
 
 	sprintf(cbuf, "5 TV ROLL %d", sts->TV_ROLL);
-	TextOut(hDC, 0, 50, cbuf, strlen(cbuf));
-	//TextOut(hDC, 0, 50, "5 TV ROLL", 9);
-	TextOut(hDC, 0, 60, "TRIM LOAD", 9);
+	TextOut(hDC, 0, 45, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 54, "TRIM LOAD", 9);
 	sprintf(cbuf, " 6 P  %+2.1f", sts->Trim.data[0]);
-	TextOut(hDC, 0, 70, cbuf, strlen(cbuf));
-	//TextOut(hDC, 0, 70, " 6 P", 4);
+	TextOut(hDC, 0, 63, cbuf, strlen(cbuf));
 	sprintf(cbuf, " 7 LY %+2.1f", sts->Trim.data[1]);
-	TextOut(hDC, 0, 80, cbuf, strlen(cbuf));
-	//TextOut(hDC, 0, 80, " 7 LY", 5);
+	TextOut(hDC, 0, 72, cbuf, strlen(cbuf));
 	sprintf(cbuf, " 8 RY %+2.1f", sts->Trim.data[2]);
-	TextOut(hDC, 0, 90, cbuf, strlen(cbuf));
-	//TextOut(hDC, 0, 90, " 8 RY", 5);
+	TextOut(hDC, 0, 81, cbuf, strlen(cbuf));
 	sprintf(cbuf, "9 WT %6.0f", sts->WT);
-	TextOut(hDC, 0, 100, cbuf, strlen(cbuf));
-	TextOut(hDC, 0, 110, "10 TIG", 6);
+	TextOut(hDC, 0, 90, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 99, "10 TIG", 6);
 	sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", sts->TIG[0], sts->TIG[1], sts->TIG[2], sts->TIG[3]);
-	TextOut(hDC, 0, 120, cbuf, strlen(cbuf));
+	TextOut(hDC, 0, 108, cbuf, strlen(cbuf));
 	
-	TextOut(hDC, 0, 130, "TGT PEG 4", 9);
-	TextOut(hDC, 0, 140, " 14 C1", 6);
-	TextOut(hDC, 0, 150, " 15 C2", 6);
-	TextOut(hDC, 0, 160, " 16 HT", 6);
-	TextOut(hDC, 0, 170, " 17  T", 6);
-	Ellipse(hDC, 28, 173, 34, 182);
-	MoveToEx(hDC, 28, 177, NULL);
-	LineTo(hDC, 34, 177);
-	TextOut(hDC, 0, 180, " 18 PRPLT", 9);
+	TextOut(hDC, 0, 117, "TGT PEG 4", 9);
+	TextOut(hDC, 0, 126, " 14 C1", 6);
+	TextOut(hDC, 0, 135, " 15 C2", 6);
+	TextOut(hDC, 0, 144, " 16 HT", 6);
+	TextOut(hDC, 0, 153, " 17  T", 6);
+	Ellipse(hDC, 28, 156, 34, 165);
+	MoveToEx(hDC, 28, 160, NULL);
+	LineTo(hDC, 34, 160);
+	TextOut(hDC, 0, 162, " 18 PRPLT", 9);
 	
-	TextOut(hDC, 0, 190, "TGT PEG 7", 9);
-	TextOut(hDC, 0, 200, " 19  VX", 7);
-	DrawDelta(hDC, 30, 204, 27, 33, 210);
-	TextOut(hDC, 0, 210, " 20  VY", 7);
-	DrawDelta(hDC, 30, 214, 27, 33, 220);
-	TextOut(hDC, 0, 220, " 21  VZ", 7);
-	DrawDelta(hDC, 30, 224, 27, 33, 230);
+	TextOut(hDC, 0, 171, "TGT PEG 7", 9);
+	TextOut(hDC, 0, 180, " 19  VX", 7);
+	DrawDelta(hDC, 30, 184, 27, 33, 190);
+	TextOut(hDC, 0, 189, " 20  VY", 7);
+	DrawDelta(hDC, 30, 193, 27, 33, 199);
+	TextOut(hDC, 0, 198, " 21  VZ", 7);
+	DrawDelta(hDC, 30, 202, 27, 33, 208);
 	if(sts->PEG7.x!=0.0 || sts->PEG7.y!=0.0 || sts->PEG7.z!=0.0) {
 		sprintf(cbuf, "%+7.1f", sts->PEG7.x);
-		TextOut(hDC, 49, 200, cbuf, strlen(cbuf));
+		TextOut(hDC, 49, 180, cbuf, strlen(cbuf));
 		sprintf(cbuf, "%+6.1f", sts->PEG7.y);
-		TextOut(hDC, 56, 210, cbuf, strlen(cbuf));
+		TextOut(hDC, 56, 189, cbuf, strlen(cbuf));
 		sprintf(cbuf, "%+6.1f", sts->PEG7.z);
-		TextOut(hDC, 56, 220, cbuf, strlen(cbuf));
+		TextOut(hDC, 56, 198, cbuf, strlen(cbuf));
 	}
 	
 	if(sts->MNVRLOAD) {
-		TextOut(hDC, 0, 240, "LOAD 22/TIMER 23", 16);
+		TextOut(hDC, 0, 216, "LOAD 22/TIMER 23", 16);
 		sprintf(cbuf, "24 R %-3.0f", sts->BurnAtt.data[ROLL]);
-		TextOut(hDC, 100, 30, cbuf, strlen(cbuf));
+		TextOut(hDC, 100, 27, cbuf, strlen(cbuf));
 		sprintf(cbuf, "25 P %-3.0f", sts->BurnAtt.data[PITCH]);
-		TextOut(hDC, 100, 40, cbuf, strlen(cbuf));
+		TextOut(hDC, 100, 36, cbuf, strlen(cbuf));
 		sprintf(cbuf, "26 Y %-3.0f", sts->BurnAtt.data[YAW]);
-		TextOut(hDC, 100, 50, cbuf, strlen(cbuf));
+		TextOut(hDC, 100, 45, cbuf, strlen(cbuf));
 	}
 	else {
-		TextOut(hDC, 0, 240, "     22/TIMER 23", 16);
-		TextOut(hDC, 100, 30, "24 R", 4);
-		TextOut(hDC, 100, 40, "25 P", 4);
-		TextOut(hDC, 100, 50, "26 Y", 4);
+		TextOut(hDC, 0, 216, "     22/TIMER 23", 16);
+		TextOut(hDC, 100, 27, "24 R", 4);
+		TextOut(hDC, 100, 36, "25 P", 4);
+		TextOut(hDC, 100, 45, "26 Y", 4);
 	}
 
 	MoveToEx(hDC, 98, 15, NULL);
-	LineTo(hDC, 98, 240);
+	LineTo(hDC, 98, 218);
 
-	TextOut(hDC, 100, 20, "BURN ATT", 8);
-	if(!sts->TRK) TextOut(hDC, 100, 60, "MNVR 27", 7);
-	else TextOut(hDC, 100, 60, "MNVR 27X", 8);
+	TextOut(hDC, 100, 18, "BURN ATT", 8);
+	if(!sts->TRK) TextOut(hDC, 100, 54, "MNVR 27", 7);
+	else TextOut(hDC, 100, 54, "MNVR 27X", 8);
 
-	TextOut(hDC, 102, 120, "REI", 3);
-	TextOut(hDC, 138, 150, "GMBL", 4);
-	TextOut(hDC, 131, 160, "L    R", 6);
-	TextOut(hDC, 102, 170, "P +0.0 +0.0", 11);
-	TextOut(hDC, 102, 180, "Y +0.0 +0.0", 11);
+	TextOut(hDC, 102, 108, "REI", 3);
+	TextOut(hDC, 138, 135, "GMBL", 4);
+	TextOut(hDC, 131, 144, "L    R", 6);
+	sprintf(cbuf, "P %+02.1f %+02.1f", sts->OMSGimbal[0][0], sts->OMSGimbal[1][0]);
+	TextOut(hDC, 102, 153, cbuf, strlen(cbuf));
+	sprintf(cbuf, "Y %+02.1f %+02.1f", sts->OMSGimbal[0][1], sts->OMSGimbal[1][1]);
+	TextOut(hDC, 102, 162, cbuf, strlen(cbuf));
 
-	TextOut(hDC, 102, 190, "PRI 28  29", 10);
-	TextOut(hDC, 102, 200, "SEC 30  31", 10);
-	TextOut(hDC, 102, 210, "OFF 32  33", 10);
+	TextOut(hDC, 102, 171, "PRI 28  29", 10);
+	TextOut(hDC, 102, 180, "SEC 30  31", 10);
+	TextOut(hDC, 102, 189, "OFF 32  33", 10);
 
-	TextOut(hDC, 102, 230, "GMBL CK 34", 10);
+	TextOut(hDC, 102, 207, "GMBL CK 34", 10);
 
 	MoveToEx(hDC, 156, 15, NULL);
-	LineTo(hDC, 156, 122);
-	LineTo(hDC, 250, 122);
+	LineTo(hDC, 156, 111);
+	LineTo(hDC, 250, 111);
 
 	if(!sts->BurnInProg) {
 		TGO[0]=sts->BurnTime/60;
@@ -1032,32 +1013,32 @@ void CRT::MNVR(HDC hDC)
 	}
 	else TGO[0]=TGO[1]=0;
 	sprintf(cbuf, " VTOT   %6.2f", sts->DeltaVTot);
-	TextOut(hDC, 158, 30, cbuf, strlen(cbuf));
-	DrawDelta(hDC, 161, 34, 158, 164, 40);
+	TextOut(hDC, 158, 27, cbuf, strlen(cbuf));
+	DrawDelta(hDC, 161, 31, 158, 164, 37);
 	sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
-	TextOut(hDC, 158, 40, cbuf, strlen(cbuf));
+	TextOut(hDC, 158, 36, cbuf, strlen(cbuf));
 	sprintf(cbuf, "VGO X %+8.2f", sts->VGO.x);
-	TextOut(hDC, 158, 50, cbuf, strlen(cbuf)); 
+	TextOut(hDC, 158, 45, cbuf, strlen(cbuf)); 
 	sprintf(cbuf, "    Y  %+7.2f", sts->VGO.y);
-	TextOut(hDC, 158, 60, cbuf, strlen(cbuf));
+	TextOut(hDC, 158, 54, cbuf, strlen(cbuf));
 	sprintf(cbuf, "    Z  %+7.2f", sts->VGO.z);
-	TextOut(hDC, 158, 70, cbuf, strlen(cbuf));
-	TextOut(hDC, 165, 90, "    HA     HP", 13);
+	TextOut(hDC, 158, 63, cbuf, strlen(cbuf));
+	TextOut(hDC, 165, 81, "    HA     HP", 13);
 	sprintf(cbuf, "TGT");
-	TextOut(hDC, 158, 100, cbuf, strlen(cbuf));
+	TextOut(hDC, 158, 90, cbuf, strlen(cbuf));
 	sprintf(cbuf, "CUR");
-	TextOut(hDC, 158, 110, cbuf, strlen(cbuf));
+	TextOut(hDC, 158, 99, cbuf, strlen(cbuf));
 
 	sprintf(cbuf, "35 ABORT TGT");
-	TextOut(hDC, 150, 140, cbuf, strlen(cbuf));
+	TextOut(hDC, 150, 126, cbuf, strlen(cbuf));
 	
-	TextOut(hDC, 185, 150, "FWD RCS", 7);
-	TextOut(hDC, 185, 160, "  ARM  36", 9);
-	TextOut(hDC, 185, 170, "  DUMP 37", 9);
-	TextOut(hDC, 185, 180, "  OFF  38", 9);
-	TextOut(hDC, 185, 190, "SURF DRIVE", 10);
-	TextOut(hDC, 185, 200, "  ON   39", 9);
-	TextOut(hDC, 185, 210, "  OFF  40", 9);
+	TextOut(hDC, 185, 135, "FWD RCS", 7);
+	TextOut(hDC, 185, 144, "  ARM  36", 9);
+	TextOut(hDC, 185, 153, "  DUMP 37", 9);
+	TextOut(hDC, 185, 162, "  OFF  38", 9);
+	TextOut(hDC, 185, 171, "SURF DRIVE", 10);
+	TextOut(hDC, 185, 180, "  ON   39", 9);
+	TextOut(hDC, 185, 189, "  OFF  40", 9);
 }
 
 void CRT::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
@@ -1088,26 +1069,25 @@ void CRT::DisableThrusters(const int Thrusters[], int nThrusters)
 
 void CRT::OMSGimbal(VECTOR3 Targets)
 {
-	//double LAngles[2], RAngles[2];
 	VECTOR3 Dir;
-	//VECTOR3 Pos; //for debugging
 	sts->OMSGimbal[0][0]=sts->OMSGimbal[1][0]=-(ORBITER_OMS_PITCH+Targets.data[0]);
 	sts->OMSGimbal[0][1]=ORBITER_OMS_YAW+Targets.data[1];
 	sts->OMSGimbal[1][1]=-ORBITER_OMS_YAW+Targets.data[2];
+	
 	// L OMS Engine
 	Dir.z=sqrt(1-pow(sin(sts->OMSGimbal[0][0]*RAD), 2)-pow(sin(sts->OMSGimbal[0][1]*RAD), 2));
 	Dir.y=sin(sts->OMSGimbal[0][0]*RAD);
 	Dir.x=sin(sts->OMSGimbal[0][1]*RAD);
 	sts->SetThrusterDir(sts->th_oms[0], Dir);
-	//sprintf(oapiDebugString(), "L OMS %f %f %f", Dir.x, Dir.y, Dir.z);
 	// R OMS Engine
 	Dir.z=sqrt(1-pow(sin(sts->OMSGimbal[1][0]*RAD), 2)-pow(sin(sts->OMSGimbal[1][1]*RAD), 2));
 	Dir.y=sin(sts->OMSGimbal[1][0]*RAD);
 	Dir.x=sin(sts->OMSGimbal[1][1]*RAD);
 	sts->SetThrusterDir(sts->th_oms[1], Dir);
-	//sts->GetThrusterRef(sts->th_oms[0], Pos);
-	//sprintf(oapiDebugString(), "%f %f %f %f", sts->OMSGimbal[0][0], sts->OMSGimbal[0][1], sts->OMSGimbal[1][0], sts->OMSGimbal[1][1]);
-	//sprintf(oapiDebugString(), "R OMS %f %f %f %f %f %f", Dir.x, Dir.y, Dir.z, Pos.x, Pos.y, Pos.z);
+
+	sts->OMSGimbal[0][0]=sts->OMSGimbal[1][0]=Targets.data[0];
+	sts->OMSGimbal[0][1]=Targets.data[1];
+	sts->OMSGimbal[1][1]=Targets.data[2];
 	return;
 }
 
@@ -2130,7 +2110,7 @@ bool CRT::Input(int change, char *Name)
 			}
 			else if(item>=6 && item<=8) {
 				dNew=atof(Name);
-				if(abs(dNew)<=6.0) 
+				if(fabs(dNew)<=6.0) 
 				{
 					sts->Trim.data[item-6]=dNew;
 					return true;
@@ -2157,7 +2137,7 @@ bool CRT::Input(int change, char *Name)
 			}
 			else if(item==15 && sts->ops!=202) {
 				dNew=atof(Name);
-				if(abs(dNew)<10.0) {
+				if(fabs(dNew)<10.0) {
 					sts->C2=dNew;
 					return true;
 				}
