@@ -59,7 +59,14 @@ bool SubsystemDirector::SaveState(FILEHANDLE scn)
 
 bool SubsystemDirector::PostStep(double fSimT, double fDeltaT)
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	int i;
+	//Propagate subsystem states to the end of the discrete timestep
+	for(i = 0; i<subsystems.size(); i++)
+	{
+		//
+		subsystems[i]->Propagate(fSimT, fDeltaT);
+	}
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
 		subsystems[i]->PostStep(fSimT, fDeltaT);
@@ -69,7 +76,8 @@ bool SubsystemDirector::PostStep(double fSimT, double fDeltaT)
 
 bool SubsystemDirector::PreStep(double fSimT, double fDeltaT)
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	int i;
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
 		subsystems[i]->PreStep(fSimT, fDeltaT);

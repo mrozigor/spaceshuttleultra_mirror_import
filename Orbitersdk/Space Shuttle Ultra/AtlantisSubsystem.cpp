@@ -37,3 +37,7 @@ void AtlantisSubsystem::PreStep(double fSimT, double fDeltaT)
 {
 
 }
+
+void AtlantisSubsystem::Propagate(double fSimT, double fDeltaT)
+{
+}
