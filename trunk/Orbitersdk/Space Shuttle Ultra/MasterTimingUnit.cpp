@@ -14,15 +14,23 @@ MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 	int i;
 	for(i=0;i<3; i++)
 	{
-		fGMT[i] = 0.0;
-		fMET[i] = 0.0;
+		fGMT[i][0] = 0.0;
+		fGMT[i][1] = 0.0;
+		fMET[i][0] = 0.0;
+		fMET[i][1] = 0.0;
 	}
-	fEvent[0] = 0.0;
-	fEvent[1] = 0.0;
-	event_mode[0] = COUNT_DOWN;
-	event_mode[1] = COUNT_DOWN;
-	event_control[0] = COUNT_STOPPED;
-	event_control[1] = COUNT_STOPPED;
+	fEvent[0][0] = 0.0;
+	fEvent[0][1] = 0.0;
+	fEvent[1][0] = 0.0;
+	fEvent[1][1] = 0.0;
+	event_mode[0][0] = COUNT_DOWN;
+	event_mode[0][1] = COUNT_DOWN;
+	event_mode[1][0] = COUNT_DOWN;
+	event_mode[1][1] = COUNT_DOWN;
+	event_control[0][0] = COUNT_STOPPED;
+	event_control[0][1] = COUNT_STOPPED;
+	event_control[1][0] = COUNT_STOPPED;
+	event_control[1][1] = COUNT_STOPPED;
 }
 
 MasterTimingUnit::~MasterTimingUnit()
@@ -44,22 +52,22 @@ void MasterTimingUnit::SetEventTimer(MTU_EVTTMR_INDEX timer, short Minutes, shor
 {
 	sEventMinutes[timer] = Minutes;
 	sEventSeconds[timer] = Seconds;
-	fEvent[timer] = Minutes * 60.0 + Seconds;
+	fEvent[timer][1] = Minutes * 60.0 + Seconds;
 }
 
 void MasterTimingUnit::StartEventTimer(MTU_EVTTMR_INDEX timer)
 {
-	event_control[timer] = COUNT_STARTED;
+	event_control[timer][1] = COUNT_STARTED;
 }
 
 void MasterTimingUnit::StopEventTimer(MTU_EVTTMR_INDEX timer)
 {
-	event_control[timer] = COUNT_STOPPED;
+	event_control[timer][1] = COUNT_STOPPED;
 }
 	
 void MasterTimingUnit::SetEventTimerMode(MTU_EVTTMR_INDEX timer, EVENT_TIMER_MODE mode)
 {
-	event_mode[timer] = mode;
+	event_mode[timer][1] = mode;
 }
 
 short MasterTimingUnit::GetMETMilli(MTU_ACCU_INDEX accu_index) const
@@ -114,85 +122,64 @@ short MasterTimingUnit::GetGMTDay(MTU_ACCU_INDEX accu_index) const
 
 void MasterTimingUnit::ResetEventTimer(MTU_EVTTMR_INDEX timer)
 {
-	fEvent[timer] = 0.0;
+	fEvent[timer][1] = 0.0;
 }
 
 void MasterTimingUnit::PreStep(double fSimT, double fDeltaT)
 {
 	int timer;
-	long lTime;
-	double fSeconds;
 
 	for(timer=0; timer<3; timer++)
 	{
-		fGMT[timer] += fDeltaT;
-		fMET[timer] += fDeltaT;
+		fGMT[timer][1] = fGMT[timer][0] + fDeltaT;
 
-		if(fGMT[timer] > 34560000.0) {
-			fGMT[timer] -= 34560000.0;
+		if(fGMT[timer][1] > 34560000.0) {
+			fGMT[timer][1] -= 34560000.0;
 		}
 
-		if(fMET[timer] > 34560000.0) {
-			fMET[timer] -= 34560000.0;
+
+		if(fMET_counting[0])
+		{
+			fMET[timer][1] = fMET[timer][0] + fDeltaT;
+			if(fMET[timer][0] > 34560000.0) {
+				fMET[timer][1] -= 34560000.0;
+			}
 		}
+
 		
-		sGMTMillis[timer] = (short)fmod(fGMT[timer] * 1000.0, 1000.0);
-
-		lTime = (long)fGMT[timer];
-		sGMTSeconds[timer] = lTime%60;
-		lTime/=60;
-		sGMTMinutes[timer] = lTime%60;
-		lTime/=60;
-		sGMTHours[timer] = lTime%24;
-		lTime/=24;
-		sGMTDays[timer] = lTime%400 + 1; 
-
-		sMETMillis[timer] = (short)fmod(fMET[timer] * 1000.0, 1000.0);
-
-		lTime = (long)fMET[timer];
-		sMETSeconds[timer] = lTime%60;
-		lTime/=60;
-		sMETMinutes[timer] = lTime%60;
-		lTime/=60;
-		sMETHours[timer] = lTime%24;
-		lTime/=24;
-		sMETDays[timer] = lTime%400;
+		
+		
+		
+		
 	}
 	
 	for(timer = 0; timer<2; timer++)
 	{
 
-		switch(event_control[timer])
+		switch(event_control[timer][0])
 		{
 		case COUNT_STOPPED:
 			break;
 		case COUNT_STARTED:
-			switch(event_mode[timer])
+			switch(event_mode[timer][0])
 			{
 			case COUNT_UP:
-				fEvent[timer] += fDeltaT;
+				fEvent[timer][1] = fEvent[timer][0] + fDeltaT;
 				break;
 			case COUNT_DOWN:
-				if(fEvent[timer] > fDeltaT) {
-					fEvent[timer] -= fDeltaT;
+				if(fEvent[timer][0] > fDeltaT) {
+					fEvent[timer][1] = fEvent[timer][0] - fDeltaT;
 				} else
 				{
-					fEvent[timer] = 0;
-					event_control[timer] = COUNT_STOPPED;
+					fEvent[timer][1] = 0.0;
+					event_control[timer][1] = COUNT_STOPPED;
 				}
 				break;
 			}
 			break;
 		}
 
-		fSeconds = fmod(fEvent[timer], 60.0);
-		sEventMinutes[timer] = (short)(fEvent[timer] - fSeconds)/60.0;
-		sEventSeconds[timer] = fSeconds;
-
-		if(event_mode[timer] == COUNT_TEST) {
-			sEventMinutes[timer] = 88;
-			sEventSeconds[timer] = 88;
-		}
+		
 		
 	}
 	//sprintf(oapiDebugString(), "GMT: %03d:%02d:%02d:%02d.%03d MET: %03d:%02d:%02d:%02d.%03d",
@@ -201,6 +188,62 @@ void MasterTimingUnit::PreStep(double fSimT, double fDeltaT)
 
 	//sprintf(oapiDebugString(), "EVENT TIMER: %02d:%02d",
 	//	sEventMinutes[TIMER_FORWARD], sEventSeconds[TIMER_FORWARD]);
+}
+
+void MasterTimingUnit::Propagate(double fSimT, double fDeltaT)
+{
+	int timer;
+	long lTime;
+	double fSeconds;
+
+	for(timer = 0; timer<3; timer++)
+	{
+		fGMT[timer][0] = fGMT[timer][1];
+		fMET[timer][0] = fMET[timer][1];
+
+		//Update cache variables
+
+		sGMTMillis[timer] = (short)fmod(fGMT[timer][0] * 1000.0, 1000.0);
+
+		lTime = (long)fGMT[timer][0];
+		sGMTSeconds[timer] = lTime%60;
+		lTime/=60;
+		sGMTMinutes[timer] = lTime%60;
+		lTime/=60;
+		sGMTHours[timer] = lTime%24;
+		lTime/=24;
+		sGMTDays[timer] = lTime%400 + 1; 
+
+
+		sMETMillis[timer] = (short)fmod(fMET[timer][0] * 1000.0, 1000.0);
+	
+		lTime = (long)fMET[timer][0];
+		sMETSeconds[timer] = lTime%60;
+		lTime/=60;
+		sMETMinutes[timer] = lTime%60;
+		lTime/=60;
+		sMETHours[timer] = lTime%24;
+		lTime/=24;
+		sMETDays[timer] = lTime%400;
+	}
+
+	for(timer = 0; timer<2; timer++)
+	{
+
+		fEvent[timer][0] = fEvent[timer][1];
+		event_mode[timer][0] = event_mode[timer][1];
+		event_control[timer][0] = event_control[timer][1];
+
+
+		fSeconds = fmod(fEvent[timer][0], 60.0);
+		sEventMinutes[timer] = (short)(fEvent[timer][0] - fSeconds)/60.0;
+		sEventSeconds[timer] = fSeconds;
+
+		if(event_mode[timer][0] == COUNT_TEST) {
+			sEventMinutes[timer] = 88;
+			sEventSeconds[timer] = 88;
+		}
+	}
 }
 
 void MasterTimingUnit::SaveState(FILEHANDLE scn)
@@ -212,7 +255,7 @@ void MasterTimingUnit::SaveState(FILEHANDLE scn)
 	int i;
 	for(i = 0; i<2; i++)
 	{
-		switch(event_mode[i])
+		switch(event_mode[i][0])
 		{
 		case COUNT_DOWN:
 			strcpy(pszTempA, "DOWN");
@@ -225,7 +268,7 @@ void MasterTimingUnit::SaveState(FILEHANDLE scn)
 			break;
 		}
 
-		switch(event_control[i])
+		switch(event_control[i][0])
 		{
 		case COUNT_STARTED:
 			strcpy(pszTempB, "STARTED");
@@ -235,7 +278,7 @@ void MasterTimingUnit::SaveState(FILEHANDLE scn)
 			break;
 		}
 
-		sprintf(pszBuffer, "   EVENT_TIMER%1d %f %s %s", i, fEvent[i], pszTempA, pszTempB);
+		sprintf(pszBuffer, "   EVENT_TIMER%1d %f %s %s", i, fEvent[i][0], pszTempA, pszTempB);
 
 		oapiWriteLine(scn, pszBuffer);
 	}
@@ -254,25 +297,32 @@ bool MasterTimingUnit::ParseLine(const char* line)
 			&iTmpA, &fTmpA, pszTempA, pszTempB);
 		if(iTmpA >=0 && iTmpA < 2)
 		{
-			fEvent[iTmpA] = fTmpA;
+			//fEvent[iTmpA][0] = fTmpA;
+			fEvent[iTmpA][1] = fTmpA;
 			if(!stricmp(pszTempA, "DOWN")) {
-				event_mode[iTmpA] = COUNT_DOWN;
+				event_mode[iTmpA][0] = COUNT_DOWN;
+				event_mode[iTmpA][1] = COUNT_DOWN;
 			} else if(!stricmp(pszTempA, "UP")) {
-				event_mode[iTmpA] = COUNT_UP;
+				event_mode[iTmpA][0] = COUNT_UP;
+				event_mode[iTmpA][1] = COUNT_UP;
 			} else if(!stricmp(pszTempA, "TEST")) {
-				event_mode[iTmpA] = COUNT_TEST;
+				event_mode[iTmpA][0] = COUNT_TEST;
+				event_mode[iTmpA][1] = COUNT_TEST;
 			}
 
 			if(!stricmp(pszTempB, "STARTED")) {
-				event_control[iTmpA] = COUNT_STARTED;
+				event_control[iTmpA][0] = COUNT_STARTED;
+				event_control[iTmpA][1] = COUNT_STARTED;
 			} else if(!stricmp(pszTempB, "STOPPED")) {
-				event_control[iTmpA] = COUNT_STOPPED;
+				event_control[iTmpA][0] = COUNT_STOPPED;
+				event_control[iTmpA][1] = COUNT_STOPPED;
 			}
 
-			sEventMinutes[iTmpA] = ((int)fEvent[iTmpA])/60;
-			sEventSeconds[iTmpA] = ((int)fEvent[iTmpA])%60;
+			sEventMinutes[iTmpA] = ((int)fEvent[iTmpA][0])/60;
+			sEventSeconds[iTmpA] = ((int)fEvent[iTmpA][0])%60;
 		}
 		return true;
 	}
 	return false;
 }
+

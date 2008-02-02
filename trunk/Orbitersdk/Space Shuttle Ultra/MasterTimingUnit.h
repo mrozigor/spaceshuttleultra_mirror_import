@@ -31,9 +31,9 @@ typedef enum {
 
 class MasterTimingUnit : public AtlantisSubsystem  
 {
-	double fGMT[3];
-	double fMET[3];
-	double fEvent[2];	//Accumulator
+	double fGMT[3][2];
+	double fMET[3][2];
+	double fEvent[2][2];	//Accumulator
 	short sEventMinutes[2];
 	short sEventSeconds[2];
 
@@ -49,8 +49,10 @@ class MasterTimingUnit : public AtlantisSubsystem
 	short sMETHours[3];
 	short sMETDays[3];
 	
-	EVENT_TIMER_MODE event_mode[2];
-	EVENT_TIMER_CONTROL event_control[2];
+	EVENT_TIMER_MODE event_mode[2][2];
+	EVENT_TIMER_CONTROL event_control[2][2];
+
+	bool fMET_counting[2];
 public:
 	MasterTimingUnit(SubsystemDirector* _director);
 	virtual ~MasterTimingUnit();
@@ -81,6 +83,7 @@ public:
 	short GetGMTDay(MTU_ACCU_INDEX accu_index) const;
 
 	virtual void PreStep(double fSimT, double fDeltaT);
+	virtual void Propagate(double fSimT, double fDeltaT);
 	virtual void SaveState(FILEHANDLE scn);
 	virtual bool ParseLine(const char* line);
 

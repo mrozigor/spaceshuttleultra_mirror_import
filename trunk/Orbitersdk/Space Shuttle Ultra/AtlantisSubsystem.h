@@ -30,7 +30,7 @@ public:
 	virtual void SaveState(FILEHANDLE scn);
 	virtual void PreStep(double fSimT, double fDeltaT);
 	virtual void PostStep(double fSimT, double fDeltaT);
-	
+	virtual void Propagate(double fSimT, double fDeltaT);
 };
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
