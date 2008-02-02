@@ -236,18 +236,25 @@ void Atlantis::RateCommand()
 					if(v<RollToHeadsUp) {
 						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
 						else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
+						ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
 					}
 					else {
-						if(abs(GetBank()*DEG)>5.0) {
+						ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG);
+						ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
+						if(abs(GetBank()*DEG)>2.5) { //roll in progress
+							VECTOR3 vel;
+							GetHorizonAirspeedVector(vel);
+							double cyaw=-DEG*atan(vel.x/vel.z)+Heading;
 							double tpitch=target_pitch-ThrAngleP*cos(GetBank());
 							ReqdRates.data[PITCH]=tpitch-GetPitch()*DEG;
-							ReqdRates.data[YAW]=0.0;
+							//ReqdRates.data[YAW]=ReqdRates.data[ROLL]*cos(GetBank())*tan(ThrAngleP*RAD);
+							ReqdRates.data[YAW]=-ThrAngleP*sin(GetBank())+cyaw;
+							//sprintf(oapiDebugString(), "%f %f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], cyaw);
 						}
-						ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG);
 					}
-					ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
+					//ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
 					ReqdRates=RotateVectorZ(ReqdRates, -GetBank()*DEG);
-					//sprintf(oapiDebugString(), "%f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL]);
+					//sprintf(oapiDebugString(), "%f %f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], cyaw);
 				}
 				else {
 					ReqdRates.data[PITCH] = 0.0;
