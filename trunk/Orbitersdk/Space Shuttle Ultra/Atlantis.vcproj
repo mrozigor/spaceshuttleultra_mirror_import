@@ -298,6 +298,10 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\AtlantisSubsystem.cpp"
+			>
+		</File>
+		<File
 			RelativePath="Common.cpp"
 			>
 			<FileConfiguration
@@ -360,6 +364,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\MasterTimingUnit.cpp"
+			>
+		</File>
+		<File
 			RelativePath="meshres.h"
 			>
 		</File>
@@ -372,6 +380,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\meshres_vc_additions.h"
+			>
+		</File>
+		<File
 			RelativePath="..\lib\orbiter.lib"
 			>
 		</File>
@@ -380,11 +392,27 @@
 			>
 		</File>
 		<File
+			RelativePath=".\PanelA4.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\PanelC2.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\PanelC3.cpp"
 			>
 		</File>
 		<File
 			RelativePath=".\PanelC3.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PanelF7.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\PanelO3.cpp"
 			>
 		</File>
 		<File
@@ -419,6 +447,10 @@
 		</File>
 		<File
 			RelativePath=".\PlBayOp.h"
+			>
+		</File>
+		<File
+			RelativePath=".\SubsystemDirector.cpp"
 			>
 		</File>
 		<File
