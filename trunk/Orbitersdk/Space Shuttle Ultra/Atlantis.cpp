@@ -417,6 +417,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   cargo_static_ofs   =_V(0,0,0);
 
   // default arm status: deployed
+  DisplayJointAngles=false;
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
   arm_sy = 0.5;
@@ -428,12 +429,6 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   arm_tip[0] = _V(-2.87, 2.03, -6.27);
   arm_tip[1] = _V(-2.87, 2.03, -7.27);
   arm_tip[2] = _V(-2.87, 3.03, -6.27);
-  /*arm_tip[0] = _V(-3.017597, 1.658257, -6.5);
-  arm_tip[1] = _V(-3.017597, 1.658257, -7.5);
-  arm_tip[2] = _V(-3.518236, 2.479725, -6.5);*/
-  /*arm_tip[0] = _V(-2.26,1.71,-6.5);
-  arm_tip[1] = _V(-2.26,1.71,-7.5);
-  arm_tip[2] = _V(-2.26,2.71,-6.5);*/
 
   // default camera positions
   camFLyaw = 0;
@@ -457,6 +452,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   Throttle_Bucket[1]=1174*fps_to_ms;
   OMS_Assist[0]=0.0;
   OMS_Assist[1]=0.0;
+  RollToHeadsUp=100000.0;
   bAutopilot=false;
   bThrottle=true;
   bMECO=false;
@@ -1331,6 +1327,12 @@ void Atlantis::DefineAnimations (void)
   wrist_range=242.8;      //in deg
   wrist_min=wrist_range*-wrist_neutral; //Min angle, deg
   wrist_max=wrist_range*(1-wrist_neutral); //Max angle, deg
+  wrist_yaw_range=242.6; //in deg
+  wrist_yaw_min=wrist_yaw_range*-wrist_neutral; //Min angle, deg
+  wrist_yaw_max=wrist_yaw_range*(1-wrist_neutral); //Max angle, deg
+  wrist_roll_range=894.0; //in deg
+  wrist_roll_min=wrist_roll_range*-wrist_neutral; //Min angle, deg
+  wrist_roll_max=wrist_roll_range*(1-wrist_neutral); //Max angle, deg
   arm_wrist_pos=wrist_pos;
 
   //ANIMATIONCOMPONENT_HANDLE parent;
@@ -1619,6 +1621,9 @@ void Atlantis::SeparateBoosters (double met)
   // reconfigure
   RecordEvent ("JET", "SRB");
   SetOrbiterTankConfiguration();
+  char cbuf[255];
+  sprintf(cbuf, "Boosters separated");
+  oapiWriteLog(cbuf);
 }
 
 void Atlantis::SeparateTank (void)
@@ -2397,6 +2402,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
 		Throttle_Bucket[0]=Throttle_Bucket[0]*fps_to_ms;
 		Throttle_Bucket[1]=Throttle_Bucket[1]*fps_to_ms;
+	} else if(!strnicmp(line, "HEADS_UP", 8)) {
+		sscanf(line+8, "%lf", &RollToHeadsUp);
+		RollToHeadsUp=RollToHeadsUp*fps_to_ms;
 	} else if(!strnicmp(line, "AUTOPILOT", 9)) {
 		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
 		bAutopilot=true;
@@ -2497,6 +2505,13 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   if(bAutopilot) {
 	  sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
 	  oapiWriteScenario_string(scn, "AUTOPILOT", cbuf);
+  }
+  if(status<3) {
+	  sprintf(cbuf, "%f %f", OMS_Assist[0], OMS_Assist[1]);
+	  oapiWriteScenario_string(scn, "ASSIST", cbuf);
+	  sprintf(cbuf, "%f %f", Throttle_Bucket[0]/fps_to_ms, Throttle_Bucket[1]/fps_to_ms);
+	  oapiWriteScenario_string(scn, "THROTTLE_BUCKET", cbuf);
+	  oapiWriteScenario_float(scn, "HEADS_UP", RollToHeadsUp/fps_to_ms);
   }
   //MNVR
   if(ops==302 || ops==301 || ops==202 || ops==104 || ops==105) {
@@ -2645,6 +2660,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  met+=simdt;
     if (bManualSeparate) {
 	  SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
+	  SetThrusterLevel(th_oms[0], 0.00);
+	  SetThrusterLevel(th_oms[1], 0.00);
 	  bMECO=true;
 	  EnableAllRCS();
       SeparateTank();
@@ -2862,49 +2879,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
         arm_sp -= (arm_sp > shoulder_neutral ? da:-da), da = 0;
       SetAnimationArm (anim_arm_sp, arm_sp);
     }
-	// work from the wrist down to the shoulder
-    /*if (da && (arm_wr != 0.5)) {    // zero wrist roll
-      if (da >= fabs(arm_wr-0.5)) // finished
-        arm_wr = 0.5, da -= fabs(arm_wr-0.5);
-      else
-        arm_wr -= (arm_wr > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wr, arm_wr);
-    }
-    if (da && (arm_wy != 0.5)) {    // zero wrist yaw
-      if (da >= fabs(arm_wy-0.5)) // finished
-        arm_wy = 0.5, da -= fabs(arm_wy-0.5);
-      else
-        arm_wy -= (arm_wy > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wy, arm_wy);
-    }
-    if (da && (arm_wp != 0.5)) {    // zero wrist pitch
-      if (da >= fabs(arm_wp-0.5)) // finished
-        arm_wp = 0.5, da -= fabs(arm_wp-0.5);
-      else
-        arm_wp -= (arm_wp > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wp, arm_wp);
-    }
-    if (da && (arm_ep != 0.0123)) {    // zero elbow pitch
-      if (da >= fabs(arm_ep-0.0123)) // finished
-        arm_ep = 0.0123, da -= fabs(arm_ep-0.0123);
-      else
-        arm_ep -= (arm_ep > 0.0123 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_ep, arm_ep);
-    }
-    if (da && (arm_sy != 0.5)) {    // zero shoulder yaw
-      if (da >= fabs(arm_sy-0.5)) // finished
-        arm_sy = 0.5, da -= fabs(arm_sy-0.5);
-      else
-        arm_sy -= (arm_sy > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_sy, arm_sy);
-    }
-    if (da && (arm_sp != 0.0136)) {    // zero shoulder pitch
-      if (da >= fabs(arm_sp-0.0136)) // finished
-        arm_sp = 0.0136, da -= fabs(arm_sp-0.0136);
-      else
-        arm_sp -= (arm_sp > 0.0136 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_sp, arm_sp);
-    }*/
     center_arm_t = t0;
     if (da) {
       center_arm = false; // finished stowing
@@ -2917,15 +2891,28 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     SetAttachmentParams (rms_attach, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
 	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
 	
+	//calculate joint angles
+	sy_angle=360.0*arm_sy-180.0;
+	sp_angle=shoulder_range*arm_sp+shoulder_min;
+	ep_angle=-elbow_range*arm_ep-elbow_min;
+	wp_angle=wrist_range*arm_wp+wrist_min;
+	wy_angle=wrist_yaw_range*arm_wy+wrist_yaw_min;
+	wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;
+	
 	// If the current camera mode is the RMS_EFFECTOR move camera position to match
 	// the position and direction of the wrist
 	if (VCMode == 3) {
-		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
+		double tilt = wr_angle;
+		if(tilt<-180.0) tilt+=360.0;
+		else if(tilt>180.0) tilt-=360.0;
+		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
 	}
 
     arm_moved = false;
   }
+  if(DisplayJointAngles) sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WY:%f WP:%f WR:%f", sy_angle, sp_angle, ep_angle,
+		wy_angle, wp_angle, wr_angle);
 
   // Animate payload bay cameras.
   if (cameraMoved) {
@@ -3208,6 +3195,7 @@ void Atlantis::RegisterVC_AftMFD ()
 bool Atlantis::clbkLoadVC (int id)
 {
   bool ok = false;
+  double tilt = 0.0;
 
     // Get the VC Mode.
   VCMode = id;
@@ -3277,7 +3265,6 @@ bool Atlantis::clbkLoadVC (int id)
 	panelf7->RegisterVC();
 	panelo3->RegisterVC();
 
-
     ok = true;
     break;
   case 2: // Aft Flight Deck
@@ -3299,8 +3286,14 @@ bool Atlantis::clbkLoadVC (int id)
     ok = true;
     break;
   case 3: //RMS End Effector Camera
-    SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-    SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
+	tilt = wr_angle;
+	if(tilt<-180.0) tilt+=360.0;
+	else if(tilt>180.0) tilt-=360.0;
+
+    //SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
+    SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+	//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
+	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
     oapiVCSetNeighbours (-1, -1, 9, 4);
 
     // No rotation allowed for RMS wrist camera.
@@ -3643,6 +3636,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 				RMSRollout.action=AnimState::CLOSING;
 			}
 		}
+		return 1;
+	case OAPI_KEY_1: //temporary
+		if(DisplayJointAngles) DisplayJointAngles=false;
+		else DisplayJointAngles=true;
 		return 1;
 	}
   } else { // unmodified keys
