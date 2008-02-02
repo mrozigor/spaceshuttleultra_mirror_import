@@ -106,7 +106,8 @@ const double ARM_TRANSLATE_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 const double ARM_DEPLOY_SPEED = 0.0294117647;
 // RMS rollout speed
-const VECTOR3 ROLLOUT_AXIS = {-2.589, 0.955, 0.0};
+const VECTOR3 ARM_WRIST_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
+// Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 
 const double DYNP_MAX = 100e3;
 // Max. allowed dynamic pressure [Pa]
@@ -723,8 +724,10 @@ private:
 	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr;
 	UINT anim_rollout;
 	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
+	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
 	AnimState RMSRollout;
 	bool RMS;
+	bool DisplayJointAngles;
 	//IK parameters
 	VECTOR3 arm_wrist_pos;
 	double lu,ll;
@@ -734,6 +737,10 @@ private:
     double elbow_range,elbow_min,elbow_max;
     double wrist_neutral;
     double wrist_range,wrist_min,wrist_max;
+	double wrist_yaw_neutral;
+	double wrist_yaw_range, wrist_yaw_min, wrist_yaw_max;
+	double wrist_roll_neutral;
+	double wrist_roll_range, wrist_roll_min, wrist_roll_max;
 
 	MGROUP_TRANSFORM *sat_anim, *sat_ref;
 
@@ -750,7 +757,7 @@ private:
 	VESSELSTATUS Status;
 
 	//Launch
-	double Throttle_Bucket[2], OMS_Assist[2]; //start/end times
+	double Throttle_Bucket[2], OMS_Assist[2], RollToHeadsUp; //start/end times
 	//targets in SI (angles in degrees)
 	double TgtInc, TgtLAN, TgtSpd, TgtAlt, TgtFPA; //targets for guidance
 	double THeading, TAp, TPe, TTrA, TEcc, TgtRad;
