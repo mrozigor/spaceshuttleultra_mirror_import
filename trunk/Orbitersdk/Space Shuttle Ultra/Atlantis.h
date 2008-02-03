@@ -16,6 +16,14 @@
 #include "orbitersdk.h"
 #include <math.h>
 
+typedef struct {
+	double P;		//Pressure (psig)
+	double T;		//Temperature (°R)
+	double mdot;	//mass flow (lb/s)
+} FLOWSTATE;
+
+const double LBM = 453.59237;
+
 // ==========================================================
 // Some Orbiter-related parameters
 // ==========================================================
@@ -190,8 +198,23 @@ const double SRB_SEPARATION_TIME = 126.6;
 // MET: SRB separation
 const int SRB_nt = 30;
 
-const double SRB_CUTOUT_TIME = 140.0;
+const double SRB_CUTOUT_TIME = 130.0;
+
+const double BSM_MAX_PROPELLANT_MASS = 75.0 * 0.45349;
+const double BSM_THRUST0 = 82.76475E3;
+const double BSM_ISP0 = 2400.0;
+
+
 // MET: engine shutdown
+const double NO_SLAG_TIME = 240.0;
+
+const double SLAG_SPREAD = 0.2;
+
+const double SLAG1_RATE = 5;
+const double SLAG2_RATE = 11.0;
+const double SLAG3_RATE = 49.0;
+
+const VECTOR3 SLAG_DIR = _V(0.0, 0.0, -1.0);
 
 // ==========================================================
 // Unit conversion
@@ -387,6 +410,7 @@ class PanelF7;
 class PanelO3;
 class SubsystemDirector;
 class MasterTimingUnit;
+class OMSSubsystem;
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
@@ -458,6 +482,10 @@ public:
 	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
 	WORD srb_id1, srb_id2;
 
+	//Extended SRB smoke effects
+	double slag1, slag2, slag3;
+	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
+
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
@@ -498,6 +526,7 @@ public:
 
 	SubsystemDirector* psubsystems;
 	MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+	OMSSubsystem* pOMS;
 
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
@@ -868,14 +897,19 @@ public:
 	void clbkPostCreation ();
 
 private:
+	MESHHANDLE hSRBMesh_Left;
+	MESHHANDLE hSRBMesh_Right;
 	double t0;                  // reference time: liftoff
 	double srb_separation_time; // simulation time at which SRB separation was initiated
 	bool bMainEngine;           // main engine firing?
 	bool bSeparationEngine;     // separation thrusters firing?
+	double slag1, slag2, slag3;
 	MESHHANDLE hSRBMesh;
 	PROPELLANT_HANDLE ph_main;  // handle for propellant resource
+	PROPELLANT_HANDLE phBSM;	//separation motor fuel resource
 	THRUSTER_HANDLE th_main;    // engine handle
 	THRUSTER_HANDLE th_bolt;    // separation bolt
+	THRUSTER_HANDLE thBSM[3];	//represent engines by a single logical thruster for each group.
 };
 
 // ==========================================================

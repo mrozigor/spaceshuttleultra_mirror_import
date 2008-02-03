@@ -29,6 +29,9 @@
 #include "resource.h"
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
+#ifdef INCLUDE_OMS_CODE
+#include "OMSSubsystem.h"
+#endif
 #include <stdio.h>
 #include <fstream>
 
@@ -334,6 +337,11 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems	  = new SubsystemDirector(this);
 
   psubsystems->AddSubsystem(pMTU = new MasterTimingUnit(psubsystems));
+#ifdef INCLUDE_OMS_CODE
+  psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));
+#else
+  pOMS = NULL;
+#endif
   status          = 3;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
@@ -350,6 +358,15 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   reset_sat       = false;
   jettison_time   = 0.0;
   render_cockpit  = false;
+
+  //SRB slag effects
+  slag1 = 0.0;
+  slag2 = 0.0;
+  slag3 = 0.0;
+
+  pshSlag1[0] = pshSlag1[1] = NULL;
+  pshSlag2[0] = pshSlag2[1] = NULL;
+  pshSlag3[0] = pshSlag3[1] = NULL;
 
   int mfdgrp[10] = {
     GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
@@ -564,7 +581,7 @@ Atlantis::~Atlantis () {
 void Atlantis::SetLaunchConfiguration (void)
 {
   int i;
-  extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust;
+  extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
 
   // *********************** physical parameters *********************************
 
@@ -633,6 +650,34 @@ void Atlantis::SetLaunchConfiguration (void)
   AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,1,/*-30*/-135), &srb_contrail); //DaveS edit: Modified Zofs from 50 to 135 to take in account longer exhaust
   AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
   AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
+
+  //Add slag effect streams
+  if(pshSlag1[0] == NULL) {
+	pshSlag1[0] = AddParticleStream(&srb_slag1, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag1);
+  }
+  if(pshSlag1[1] == NULL)
+  {
+	pshSlag1[1] = AddParticleStream(&srb_slag1, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag1);
+  }
+
+  //Add slag effect streams
+  if(pshSlag2[0] == NULL) {
+	pshSlag2[0] = AddParticleStream(&srb_slag2, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag2);
+  }
+  if(pshSlag2[1] == NULL)
+  {
+	pshSlag2[1] = AddParticleStream(&srb_slag2, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag2);
+  }
+
+  
+  //Add slag effect streams
+  if(pshSlag3[0] == NULL) {
+	pshSlag3[0] = AddParticleStream(&srb_slag3, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag3);
+  }
+  if(pshSlag3[1] == NULL)
+  {
+	pshSlag3[1] = AddParticleStream(&srb_slag3, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag3);
+  }
 
   //OMS
   VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.7,-13.8);
@@ -1583,6 +1628,7 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
 
 void Atlantis::SeparateBoosters (double met)
 {
+	int i;
   // Create SRB's as individual objects
   VESSELSTATUS2 vs;
   VESSELSTATUS2::FUELSPEC fuel;
@@ -1599,24 +1645,31 @@ void Atlantis::SeparateBoosters (double met)
   vs.thruster->idx = 0;
   GetSRB_State (met, vs.thruster->level, vs.fuel->level);
   Local2Rel (OFS_LAUNCH_RIGHTSRB, vs.rpos);
-  vs.arot.z += 0.25*PI;
+  //vs.arot.z += 0.25*PI;
   vs.status = 0;
   char name[256];
   strcpy (name, GetName()); strcat (name, "-SRB1");
   oapiCreateVesselEx (name, "Atlantis_RSRB", &vs);
   Local2Rel (OFS_LAUNCH_LEFTSRB, vs.rpos);
-  vs.arot.z -= 1.5*PI;
+  //vs.arot.z -= 1.5*PI;
   name[strlen(name)-1] = '2';
   oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);
 
   // Remove SRB's from Shuttle instance
   DelPropellantResource (ph_srb);
   DelThrusterGroup (thg_srb, THGROUP_USER, true);
+  for(i = 0; i<2; i++)
+  {
+	DelExhaustStream(pshSlag1[i]);
+    DelExhaustStream(pshSlag2[i]);
+	DelExhaustStream(pshSlag3[i]);
+  }
 
   // remove srb meshes and shift cg
   DelMesh(mesh_srb[1]);
   DelMesh(mesh_srb[0]);
   ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
+
 
   // reconfigure
   RecordEvent ("JET", "SRB");
@@ -2642,11 +2695,18 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     }
 	else {
       // extract current thrust level and propellant level as a function of time
-    DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
+      DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
       double thrust_level, prop_level;
       GetSRB_State (met, thrust_level, prop_level);
       for (i = 0; i < 2; i++)
         SetThrusterLevel (th_srb[i], thrust_level);
+
+	  if(met > 15.0)
+	  {
+		slag1 = pow(1.0 - thrust_level, 3);
+		slag2 = pow(1.0 - thrust_level, 2);
+		slag3 = 1.0 - thrust_level;
+	  }
 	  if (met < 0.0) {
 		  LaunchClamps ();
 	  }
