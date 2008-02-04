@@ -92,6 +92,10 @@ LINK32=link.exe
 # Name "Atlantis_SRB - Win32 Debug"
 # Begin Source File
 
+SOURCE=.\Atlantis.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Atlantis_SRB.cpp
 # End Source File
 # Begin Source File

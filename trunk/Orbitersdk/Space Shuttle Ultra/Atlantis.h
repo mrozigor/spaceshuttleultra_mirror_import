@@ -174,18 +174,28 @@ const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
 // Some SRB-related parameters
 // ==========================================================
 
-const double SRB_MAX_PROPELLANT_MASS = 502126.0;
+const double SRB_MAX_PROPELLANT_MASS = 502146.0;
 // SRB propellant mass [kg]
+//total impulse is 1.32466E9 Ns
 
-const double SRB_EMPTY_MASS = 87543.0;
+const double SRB_EMPTY_MASS = 87603.65;
 // SRB empty mass [kg]
 
-const double SRB_ISP0 = 3574.68;
-const double SRB_ISP1 = 2859.74;
+//const double SRB_ISP0 = 3574.68;
+const double SRB_ISP0 = 2638.89;
+//const double SRB_ISP1 = 2859.74;
+const double SRB_ISP1 = 2368.79;
 // SRB vacuum and sea-level fuel-specific impulse [m/s]
 
-const double SRB_THRUST = 17064000; //from Jenkins
-// Vacuum SRB thrust per unit [N]
+//const double SRB_THRUST = 17064000; //from Jenkins
+/*
+SRM vacuum thrust as reported by Thiokol in the report "RSRM-13 (360Q013) ballistics mass 
+properties flight designation STS-41"
+*/
+const double SRB_THRUST = 15.12904086E6; // Vacuum SRB thrust per unit [N]
+
+//Lift-off thrust is 15.574012 MN
+//Equals vacuum thrust 17.67824672 MN 
 
 const double MAX_ATT_LAUNCH = 1e-5;
 const double MAX_ROLL_SRB = 2.5e-5;
@@ -194,7 +204,7 @@ const double MAX_ROLL_SRB = 2.5e-5;
 const double SRB_STABILISATION_TIME = 6;
 // MET: -SRB ignition
 
-const double SRB_SEPARATION_TIME = 126.6;
+const double SRB_SEPARATION_TIME = 124.0;
 // MET: SRB separation
 const int SRB_nt = 30;
 
@@ -429,6 +439,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	bool GetLiftOffFlag() const;
 	AnimState::Action spdb_status;
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
@@ -485,6 +496,9 @@ public:
 	//Extended SRB smoke effects
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
+
+	bool bSRBCutoffFlag;
+	bool bLiftOff;
 
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
@@ -878,6 +892,8 @@ private:
 	double* stage1guidance[2];
 	int stage1guidance_size;
 	//double* stage1Vguidance;
+protected:
+	void TriggerLiftOff();
 };
 
 // ==========================================================

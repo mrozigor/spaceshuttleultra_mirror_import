@@ -12,10 +12,14 @@ MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 : AtlantisSubsystem(_director, "MTU")
 {
 	int i;
+
+	double fMJD = oapiGetSimMJD();
+
+	double fSimGMT = (fmod(fMJD - 43874.5, 365)) * 86400.0;
 	for(i=0;i<3; i++)
 	{
-		fGMT[i][0] = 0.0;
-		fGMT[i][1] = 0.0;
+		fGMT[i][0] = fSimGMT;
+		fGMT[i][1] = fSimGMT;
 		fMET[i][0] = 0.0;
 		fMET[i][1] = 0.0;
 	}
@@ -31,6 +35,8 @@ MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 	event_control[0][1] = COUNT_STOPPED;
 	event_control[1][0] = COUNT_STOPPED;
 	event_control[1][1] = COUNT_STOPPED;
+	bMETCounting[1] = false;
+	bMETCounting[0] = false;
 }
 
 MasterTimingUnit::~MasterTimingUnit()
@@ -95,6 +101,18 @@ short MasterTimingUnit::GetMETDay(MTU_ACCU_INDEX accu_index) const
 	return sMETDays[accu_index];
 }
 
+void MasterTimingUnit::ResetMET()
+{
+	fMET[0][1] = 0;
+	fMET[1][1] = 0;
+	fMET[2][1] = 0;
+}
+
+void MasterTimingUnit::StartMET()
+{
+	bMETCounting[1] = true;
+}
+
 short MasterTimingUnit::GetGMTMilli(MTU_ACCU_INDEX accu_index) const
 {
 	return sGMTMillis[accu_index];
@@ -138,7 +156,7 @@ void MasterTimingUnit::PreStep(double fSimT, double fDeltaT)
 		}
 
 
-		if(fMET_counting[0])
+		if(bMETCounting[timer])
 		{
 			fMET[timer][1] = fMET[timer][0] + fDeltaT;
 			if(fMET[timer][0] > 34560000.0) {
@@ -244,6 +262,7 @@ void MasterTimingUnit::Propagate(double fSimT, double fDeltaT)
 			sEventSeconds[timer] = 88;
 		}
 	}
+	bMETCounting[0] = bMETCounting[1];
 }
 
 void MasterTimingUnit::SaveState(FILEHANDLE scn)

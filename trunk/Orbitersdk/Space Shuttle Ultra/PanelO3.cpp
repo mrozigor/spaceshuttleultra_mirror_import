@@ -6,6 +6,7 @@
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "MasterTimingUnit.h"
+#include "Stopwatch.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -41,9 +42,12 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	const int NUMY[10] = {384, 448, 448, 448, 448, 448, 448, 448, 448, 384};
 	int i;
 	int digit[8];
+	Stopwatch st;
 
 	//METTMR1 = Days
 	//METTMR2 = Rest
+
+	st.Start();
 	
 	if(id == AID_O3_METTMR1)
 	{
@@ -94,7 +98,14 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: O3 RCS display");
 	}
 
+	double time_for_O3 = st.Stop();
 
+	if(time_for_O3 > 1000.0)
+	{
+		char buffer[100];
+		sprintf(buffer, "Panel O3 needed for than 1 ms for redraw (T = %f µs)\n", time_for_O3);
+		oapiWriteLog(buffer);
+	}
 
 	return true;
 }
@@ -104,22 +115,21 @@ void PanelO3::RegisterVC()
 	VECTOR3 ofs = sts->orbiter_ofs;
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
 
-	oapiVCSetAreaClickmode_Quadrilateral (AID_O3,  _V(2, 3.07024, 10)+ofs, _V(-2, 3.07024, 10)+ofs, 
-		 _V(2, 0, 10)+ofs, _V(-2, 0, 10)+ofs );
-	
-
 	//Mesh data for this panel
-	//-0.865687 2.87081 12.6344 0.258829 0 0.965923 0.99614 -0.0233488
-	//-0.651648 2.87081 12.5771 0.258829 0 0.965923 0.00344518 -0.0233488
-	//-0.651648 3.07024 12.5771 0.258829 0 0.965923 0.00344518 -0.974144
-	//-0.865687 3.07024 12.6344 0.258829 0 0.965923 0.99614 -0.974144
+	//0.733191 2.68175 14.7204 0 -0.201064 -0.979578 0.997921 -0.523277
+	//0.11316 2.68175 14.7204 0 -0.201064 -0.979578 0.020382 -0.523277
+	//0.11316 2.97098 14.661 0 -0.201064 -0.979578 0.020382 -0.937534
+	//0.733191 2.97098 14.661 0 -0.201064 -0.979578 0.997921 -0.937534
 
-	//oapiVCSetAreaClickmode_Quadrilateral (AID_A4,  _V(-0.865687, 3.07024, 12.6344)+ofs, _V(-0.651648, 3.07024, 12.5771)+ofs, 
-	//	 _V(-0.865687, 2.87081, 12.6344)+ofs, _V(-0.651648, 2.87081, 12.5771)+ofs );
+	oapiVCRegisterArea (AID_O3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
+	oapiVCSetAreaClickmode_Quadrilateral (AID_O3,  _V(0.11316, 2.97098, 14.661)+ofs, _V(0.733191, 2.97098, 14.661)+ofs,
+		  _V(0.11316, 2.68175, 14.720)+ofs , _V(0.733191, 2.68175, 14.7204)+ofs);
 	
 	oapiVCRegisterArea (AID_O3_METTMR1, _R(320, 0, 512, 64), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_METTMR2, _R(0, 64, 384, 128), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_RCS, _R(0, 256, 384, 320), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
+
+	sprintf(oapiDebugString(), "O3 Registered");
 }
 
 bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
@@ -127,29 +137,29 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 	if (id != AID_O3) return false;
 	bool action = false;
 	sprintf(oapiDebugString(), "PANEL O3: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
-/*
-	if(p.x>0.067 && p.x < 0.177)
+
+	if(p.x>0.642 && p.x < 0.693)
 	{
-		if(p.y > 0.171 && p.y < 0.223)
+		if(p.y > 0.703 && p.y < 0.748)
 		{	
-			if(switch_state > 0)
+			if(switch_state[2] > 0)
 			{
-				switch_state--;
-				switch_timer = SWITCH_HOLD_TIME;
+				switch_state[2]--;
+				switch_timer[2] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 		}
-		else if(p.y > 0.223 && p.y < 0.273)
+		else if(p.y > 0.748 && p.y < 0.792)
 		{
-			if(switch_state < 2)
+			if(switch_state[SWITCH12] < 2)
 			{
-				switch_state++;
-				switch_timer = SWITCH_HOLD_TIME;
+				switch_state[2]++;
+				switch_timer[2] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 		}
 	}
-*/
+
 	if(action)
 	{
 		UpdateVC();
@@ -170,7 +180,7 @@ void PanelO3::DefineVCAnimations (UINT vcidx)
 	//_V(-0.214039, 0, 0.0573);	//L=0.221576134
 	static VECTOR3 switch_rot = {-0.96598,0,0.25860};
 /*
-	static UINT VC_A4_METSWITCH_GRP = GRP_A4MissionSwitch_VC;
+	static UINT VC_O4SWITCH_GRP = GRP_A4MissionSwitch_VC;
 
 	static MGROUP_ROTATE VC_A4_METSWITCH (vcidx, &VC_A4_METSWITCH_GRP, 1,
 		_V(-0.816909, 2.90472, 12.6216), switch_rot, (float)(90.0*RAD));
@@ -182,15 +192,18 @@ void PanelO3::DefineVCAnimations (UINT vcidx)
 
 void PanelO3::Step(double t, double dt)
 {
+	bool update = false;
 	//Check forward event timer for changes and update clock if needed
 
-	switch(switch_state[0]) {
+	switch(switch_state[2]) {
 	case 0:
 		if(sts->pMTU->GetGMTDay(0) != sMETDays || 
 			sts->pMTU->GetGMTHour(0) != sMETHours ||
 			sts->pMTU->GetGMTSec(0) != sMETSeconds ||
-			sts->pMTU->GetGMTMin(0) != sMETMinutes) {
-			if(sts->pMTU->GetGMTDay(0) != sMETDays) {
+			sts->pMTU->GetGMTMin(0) != sMETMinutes) 
+		{
+			if(sts->pMTU->GetGMTDay(0) != sMETDays) 
+			{
 				sMETDays = sts->pMTU->GetGMTDay(0);
 				oapiVCTriggerRedrawArea(-1, AID_O3_METTMR1);
 			}
@@ -205,8 +218,10 @@ void PanelO3::Step(double t, double dt)
 		if(sts->pMTU->GetMETDay(0) != sMETDays || 
 			sts->pMTU->GetMETHour(0) != sMETHours ||
 			sts->pMTU->GetMETSec(0) != sMETSeconds ||
-			sts->pMTU->GetMETMin(0) != sMETMinutes) {
-			if(sts->pMTU->GetMETDay(0) != sMETDays) {
+			sts->pMTU->GetMETMin(0) != sMETMinutes) 
+		{
+			if(sts->pMTU->GetMETDay(0) != sMETDays) 
+			{
 				sMETDays = sts->pMTU->GetMETDay(0);
 				oapiVCTriggerRedrawArea(-1, AID_O3_METTMR1);
 			}
@@ -220,19 +235,49 @@ void PanelO3::Step(double t, double dt)
 		}
 		break;
 	case 2:
-		sMETDays = 888;
-		sMETHours = 88;
-		sMETMinutes = 88;
-		sMETSeconds = 88;
-		oapiVCTriggerRedrawArea(-1, AID_O3_METTMR1);
-		oapiVCTriggerRedrawArea(-1, AID_O3_METTMR2);
+		if(sMETDays != 888)
+		{
+			sMETDays = 888;
+			sMETHours = 88;
+			sMETMinutes = 88;
+			sMETSeconds = 88;
+			oapiVCTriggerRedrawArea(-1, AID_O3_METTMR1);
+			oapiVCTriggerRedrawArea(-1, AID_O3_METTMR2);
+		}
 		break;
+	}
+
+	if(switch_state[2] == 2)
+	{
+		switch_timer[2] -= dt;
+		if(switch_timer[2] <=0.0)
+		{
+			switch_state[2] = 1;
+			update = true;
+		}
+	}
+	if(update)
+	{
+		UpdateVC();
 	}
 }
 
 
 void PanelO3::SaveState(FILEHANDLE scn)
 {
+	/*
+	char buffer[150];
+	
+	sprintf(buffer, "PANELO3 %d %d %d %d %d %d %d", 
+		switch_state[0], 
+		switch_state[1], 
+		switch_state[2],
+		switch_state[3],
+		switch_state[4],
+		switch_state[5],
+		switch_state[6]);
+	oapiWriteLine(scn, buffer);
+	*/
 }
 
 bool PanelO3::ParseScenarioLine (char *line)

@@ -1,6 +1,9 @@
 // GPC Code
 #include "Atlantis.h"
 
+#include "Stopwatch.h"
+#include <cstdio>
+
 extern int tpir(const double* list, int n_items, double target);
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 extern double listerp(const double* listx, const double* listy, int n_items, double x);
@@ -218,11 +221,16 @@ void Atlantis::RateCommand()
 	}
 	else if(status==2) {
 		if(bAutopilot) {
-			if(met>(TLastMajorCycle+TMajorCycle)) {
+			if(met>(TLastMajorCycle+TMajorCycle)) 
+			{
 				MajorCycle();
 				TLastMajorCycle=met;
 			}
-			else Navigate();
+			else 
+				Navigate();
+
+
+
 			if(met<=(tSRBSep+4.0)) {
 				ReqdRates.data[PITCH]=0.0;
 				ReqdRates.data[YAW]=0.0;
@@ -324,6 +332,10 @@ void Atlantis::Throttle(double dt)
 void Atlantis::GPC(double dt)
 {
 	int i;
+
+	Stopwatch st;
+	st.Start();
+
 	switch(ops) {
 		case 101:
 			if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
@@ -492,6 +504,15 @@ void Atlantis::GPC(double dt)
 			}
 			AttControl(dt);
 			break;
+	}
+
+	double time_for_GPC = st.Stop();
+
+	if(time_for_GPC > 50000.0)
+	{
+		char buffer[100];
+		sprintf(buffer, "GPC Stopwatch: GPC function needed more than 50 ms for completition (t_GPC = %f µs)\n", time_for_GPC);
+		oapiWriteLog(buffer);
 	}
 	return;
 }

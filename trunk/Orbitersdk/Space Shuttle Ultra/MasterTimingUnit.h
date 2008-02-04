@@ -52,7 +52,7 @@ class MasterTimingUnit : public AtlantisSubsystem
 	EVENT_TIMER_MODE event_mode[2][2];
 	EVENT_TIMER_CONTROL event_control[2][2];
 
-	bool fMET_counting[2];
+	bool bMETCounting[2];
 public:
 	MasterTimingUnit(SubsystemDirector* _director);
 	virtual ~MasterTimingUnit();
@@ -74,7 +74,8 @@ public:
 	short GetMETHour(MTU_ACCU_INDEX accu_index) const;
 	short GetMETDay(MTU_ACCU_INDEX accu_index) const;
 
-	void ResetMET(MTU_ACCU_INDEX accu_index) const;
+	void ResetMET();
+	void StartMET();
 
 	short GetGMTMilli(MTU_ACCU_INDEX accu_index) const;
 	short GetGMTSec(MTU_ACCU_INDEX accu_index) const;
