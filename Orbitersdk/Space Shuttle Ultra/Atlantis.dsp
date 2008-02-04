@@ -155,6 +155,14 @@ SOURCE=.\meshres_vc_additions.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\OMSPod.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OMSSubsystem.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Orbitersdk\include\Orbitersdk.h
 # End Source File
 # Begin Source File
@@ -191,6 +199,10 @@ SOURCE=.\resource_RMS.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Stopwatch.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SubsystemDirector.h
 # End Source File
 # End Group
@@ -219,6 +231,10 @@ SOURCE=.\AtlantisSubsystem.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicPanel.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common.cpp
 # End Source File
 # Begin Source File
@@ -232,6 +248,14 @@ SOURCE=.\GPC.cpp
 # Begin Source File
 
 SOURCE=.\MasterTimingUnit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OMSPod.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OMSSubsystem.cpp
 # End Source File
 # Begin Source File
 
@@ -260,6 +284,10 @@ SOURCE=.\PanelR2.cpp
 # Begin Source File
 
 SOURCE=.\PlBayOp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Stopwatch.cpp
 # End Source File
 # Begin Source File
 

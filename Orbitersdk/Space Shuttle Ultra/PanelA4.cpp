@@ -87,8 +87,9 @@ void PanelA4::RegisterVC()
 	VECTOR3 ofs = sts->orbiter_ofs;
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
 
-	oapiVCSetAreaClickmode_Quadrilateral (AID_A4,  _V(2, 3.07024, 10)+ofs, _V(-2, 3.07024, 10)+ofs, 
-		 _V(2, 0, 10)+ofs, _V(-2, 0, 10)+ofs );
+	oapiVCRegisterArea (AID_A4, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
+	//oapiVCSetAreaClickmode_Quadrilateral (AID_A4,  _V(2, 3.07024, 10)+ofs, _V(-2, 3.07024, 10)+ofs, 
+	//	 _V(2, 0, 10)+ofs, _V(-2, 0, 10)+ofs );
 	
 
 	//Mesh data for this panel
@@ -97,8 +98,8 @@ void PanelA4::RegisterVC()
 	//-0.651648 3.07024 12.5771 0.258829 0 0.965923 0.00344518 -0.974144
 	//-0.865687 3.07024 12.6344 0.258829 0 0.965923 0.99614 -0.974144
 
-	//oapiVCSetAreaClickmode_Quadrilateral (AID_A4,  _V(-0.865687, 3.07024, 12.6344)+ofs, _V(-0.651648, 3.07024, 12.5771)+ofs, 
-	//	 _V(-0.865687, 2.87081, 12.6344)+ofs, _V(-0.651648, 2.87081, 12.5771)+ofs );
+	oapiVCSetAreaClickmode_Quadrilateral (AID_A4,  _V(-0.865687, 3.07024, 12.6344)+ofs, _V(-0.651648, 3.07024, 12.5771)+ofs, 
+		 _V(-0.865687, 2.87081, 12.6344)+ofs, _V(-0.651648, 2.87081, 12.5771)+ofs );
 	oapiVCRegisterArea (AID_A4_EVTTMR, _R(64, 384, 320, 448), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_A4_METTMR1, _R(0, 448, 512, 512), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_A4_METTMR2, _R(0, 384, 64, 448), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
@@ -206,12 +207,15 @@ void PanelA4::Step(double t, double dt)
 		}
 		break;
 	case 2:
-		sMETDays = 888;
-		sMETHours = 88;
-		sMETMinutes = 88;
-		sMETSeconds = 88;
-		oapiVCTriggerRedrawArea(-1, AID_A4_METTMR1);
-		oapiVCTriggerRedrawArea(-1, AID_A4_METTMR2);
+		if(sMETDays != 888)
+		{
+			sMETDays = 888;
+			sMETHours = 88;
+			sMETMinutes = 88;
+			sMETSeconds = 88;
+			oapiVCTriggerRedrawArea(-1, AID_A4_METTMR1);
+			oapiVCTriggerRedrawArea(-1, AID_A4_METTMR2);
+		}
 		break;
 	}
 }

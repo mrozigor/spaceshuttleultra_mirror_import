@@ -35,6 +35,8 @@
 #include <stdio.h>
 #include <fstream>
 
+#include "StopWatch.h"
+
 #ifdef _DEBUG
     // D. Beachy: for BoundsChecker debugging
     extern int GrowStack();
@@ -358,6 +360,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   reset_sat       = false;
   jettison_time   = 0.0;
   render_cockpit  = false;
+  bSRBCutoffFlag  = false;
+  bLiftOff		  = false;
 
   //SRB slag effects
   slag1 = 0.0;
@@ -1629,6 +1633,7 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
 void Atlantis::SeparateBoosters (double met)
 {
 	int i;
+	char buffer[120];
   // Create SRB's as individual objects
   VESSELSTATUS2 vs;
   VESSELSTATUS2::FUELSPEC fuel;
@@ -1654,6 +1659,9 @@ void Atlantis::SeparateBoosters (double met)
   //vs.arot.z -= 1.5*PI;
   name[strlen(name)-1] = '2';
   oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);
+
+  sprintf(buffer, "MG_Atlantis: Residual SRB propellant mass is %f kg\n", GetPropellantMass(ph_srb));
+  oapiWriteLog(buffer);
 
   // Remove SRB's from Shuttle instance
   DelPropellantResource (ph_srb);
@@ -2673,27 +2681,42 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
   switch (status) {
   case 0: // launch configuration
-    if (GetEngineLevel (ENGINE_MAIN) > 0.95) {
+    if (GetEngineLevel (ENGINE_MAIN) > 0.95) 
+	{
       status = 1; // launch
       t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
-      RecordEvent ("STATUS", "SRB_IGNITION");
-	  if(bAutopilot) InitializeAutopilot(); //setup autopilot for ascent
-  } else {
-      //AutoMainGimbal();
-	  RateCommand();
-  }
+      RecordEvent ("STATUS", "SSME_IGNITION");
+	  if(bAutopilot) 
+		  InitializeAutopilot(); //setup autopilot for ascent
+	} else {
+		//AutoMainGimbal();
+		RateCommand();
+	}
     break;
   case 1: // SRB's ignited
     met = simt-t0;
+	if(met >= 0.0 && !GetLiftOffFlag())
+	{
+		TriggerLiftOff();	
+	}
     //sprintf(oapiDebugString(),"met: %f",met);
     if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
       SeparateBoosters (met);
 	  tSRBSep=met;
       bManualSeparate = false;
-	  ops=103;
+	  ops=103;		//Replace by signal to GPC
 	  CalcThrustAngles();
     }
 	else {
+	  if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
+	  {
+		  char buffer[100];
+		  sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
+		  oapiWriteLog(buffer);
+		  bSRBCutoffFlag = true;
+	  }
+
+
       // extract current thrust level and propellant level as a function of time
       DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
       double thrust_level, prop_level;
@@ -3320,11 +3343,10 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
+	panelo3->RegisterVC();
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	panelf7->RegisterVC();
-	panelo3->RegisterVC();
-
     ok = true;
     break;
   case 2: // Aft Flight Deck
@@ -3468,7 +3490,10 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   static bool counting = false;
   static double t0 = 0.0;
 
-  switch (id) {
+  //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+
+  switch (id) 
+  {
   // handle MFD selection buttons
   case AID_CDR1_BUTTONS:
   case AID_CDR2_BUTTONS:
@@ -3497,20 +3522,22 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
     }
     } return true;
 
-    // D. Beachy: handle power buttons
-    case AID_CDR1_PWR:
-    case AID_CDR2_PWR:
+  // D. Beachy: handle power buttons
+  case AID_CDR1_PWR:
+  case AID_CDR2_PWR:
   case AID_PLT1_PWR:
   case AID_PLT2_PWR:
-    case AID_MFD1_PWR:
-    case AID_MFD2_PWR:
-    case AID_MFD3_PWR:
+  case AID_MFD1_PWR:
+  case AID_MFD2_PWR:
+  case AID_MFD3_PWR:
   case AID_MFD4_PWR:
   case AID_MFD5_PWR:
-  case AID_MFDA_PWR: {
+  case AID_MFDA_PWR: 
+	  {
         int mfd = id - AID_CDR1_PWR+MFD_LEFT;
         oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
-        } return true;
+       } 
+	  return true;
 
   // handle MFD brightness buttons
   case AID_CDR1_BRT:
@@ -3522,28 +3549,32 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_MFD3_BRT:
   case AID_MFD4_BRT:
   case AID_MFD5_BRT:
-  case AID_MFDA_BRT: {
-    static double t0, brt0;
-    static bool up;
-    int mfd = id-AID_CDR1_BRT;
-    if (event & PANEL_MOUSE_LBDOWN) {
-      up = (p.x >= 0.5);
-      t0 = oapiGetSysTime();
-      brt0 = mfdbright[mfd];
-    } else if (event & PANEL_MOUSE_LBPRESSED) {
-      double dt = oapiGetSysTime()-t0;
-      double brt, dbrt = dt * 0.2;
-      if (up) brt = min (1.0, brt0 + dbrt);
-      else    brt = max (0.25, brt0 - dbrt);
-      mfdbright[mfd] = brt;
-      if (vis) {
-        MESHHANDLE hMesh = GetMesh (vis, mesh_vc);
-        MATERIAL *mat = oapiMeshMaterial (hMesh, 10+mfd);
-        mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
-      }
-    }
-    } return false;
-
+  case AID_MFDA_BRT: 
+	  {
+		static double t0, brt0;
+		static bool up;
+		int mfd = id-AID_CDR1_BRT;
+		if (event & PANEL_MOUSE_LBDOWN) {
+			up = (p.x >= 0.5);
+			t0 = oapiGetSysTime();
+			brt0 = mfdbright[mfd];
+		} else if (event & PANEL_MOUSE_LBPRESSED) 
+		{
+			double dt = oapiGetSysTime()-t0;
+			double brt, dbrt = dt * 0.2;
+			if (up) 
+				brt = min (1.0, brt0 + dbrt);
+			else    
+				brt = max (0.25, brt0 - dbrt);
+			mfdbright[mfd] = brt;
+			if (vis) {
+				MESHHANDLE hMesh = GetMesh (vis, mesh_vc);
+				MATERIAL *mat = oapiMeshMaterial (hMesh, 10+mfd);
+				mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
+			}
+		}
+	} 
+	return false;
   // handle panel R13L events (payload bay operations)
   case AID_R13L:
     return plop->VCMouseEvent (id, event, p);
@@ -3559,7 +3590,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 	return c3po->VCMouseEvent (id, event, p);
   case AID_O3:
 	return panelo3->VCMouseEvent(id, event, p);
-  
   case AID_R2:
 	return r2d2->VCMouseEvent (id, event, p);
   }
@@ -4072,4 +4102,15 @@ DLLCLBK bool gpcReadValue(VESSEL* pVessel, UINT gpc, UINT val_index, DWORD* valu
 DLLCLBK bool gpcSetValue(VESSEL* pVessel, UINT gpc, UINT val_index, const DWORD value)
 {
 	return false;
+}
+
+bool Atlantis::GetLiftOffFlag() const
+{
+	return bLiftOff;
+}
+
+void Atlantis::TriggerLiftOff()
+{
+	bLiftOff = true;
+	pMTU->StartMET();
 }
