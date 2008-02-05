@@ -4,16 +4,37 @@
 #include "OrbiterAPI.h"
 #include "VesselAPI.h"
 
+const VECTOR3 POS_MPS_SMOKE = _V(0.0, -15.0, -20.0);
+const VECTOR3 POS_SRB_SMOKE = _V(0.0, -15.0, +20.0);
+
+const VECTOR3 DIR_MPS_SMOKE = _V(0.0, 0.0, -1.0);
+const VECTOR3 DIR_SRB_SMOKE = _V(0.0, 0.0, 1.0);
+
+const VECTOR3 HDP_POS = _V(0, -0.86, -4.25);
+
 class MLP: public VESSEL2
 {
 	MESHHANDLE mshMLP;
 public:
+	virtual void SignalGSEStart();
+	virtual void TriggerHDP();
+	virtual void ActivateSSS();
 	MLP(OBJHANDLE hVessel, int iFlightModel);
 	virtual ~MLP();
 
 	virtual void clbkSetClassCaps(FILEHANDLE cfg);
 	virtual void clbkLoadStateEx(FILEHANDLE scn, void* vs);
 	virtual void clbkSaveState(FILEHANDLE scn);
+	virtual void clbkPreStep(double fSimT, double fDeltaT, double mjd);
+private:
+	double fCountdown;
+	bool bStartSequence;
+	void CalculateSteamProduction(double fSimT, double fDeltaT);
+	bool bSSS_Active;
+	double fT_SSSActive;
+	ATTACHMENTHANDLE ahHDP;
+	double fSRBSteam;
+	double fSSMESteam;
 };
 
 #endif
