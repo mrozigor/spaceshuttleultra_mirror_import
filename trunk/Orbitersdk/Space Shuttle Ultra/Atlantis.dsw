@@ -27,6 +27,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Atlantis_MLP"=".\VC6\Atlantis_MLP.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Atlantis_SRB"=".\Atlantis_SRB.dsp" - Package Owner=<4>
 
 Package=<5>
