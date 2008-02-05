@@ -256,6 +256,12 @@ const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.44,10.44 };
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
+const VECTOR3 SSMER_REF = _V(1.50, -0.2, -11.50);
+const VECTOR3 SSMEL_REF = _V(-1.50, -0.2, -11.50);
+const VECTOR3 SSMET_REF = _V(0.0, 2.0, -10.50);
+//const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
+//
+
 // ==========================================================
 // Mesh group indices for some components
 // ==========================================================
@@ -447,6 +453,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	void UpdateSSMEGimbalAnimations();
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
 	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
 	virtual short GetETPropellant(unsigned short usGPCID);
@@ -713,6 +720,16 @@ private:
 	UINT mesh_rms;							   // index for RMS mesh
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
+
+	//SSME GIMBAL ANIMATIONS
+	UINT anim_ssmeTyaw;
+	UINT anim_ssmeTpitch;
+	UINT anim_ssmeRyaw;
+	UINT anim_ssmeRpitch;
+	UINT anim_ssmeLyaw;
+	UINT anim_ssmeLpitch;
+
+
 
 
 	// PAYLOAD CAMERAS ANIMATIONS
