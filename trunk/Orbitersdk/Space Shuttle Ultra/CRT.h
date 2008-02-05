@@ -6,6 +6,12 @@
 #include "orbitersdk.h"
 #include <math.h>
 
+
+typedef struct {
+	HINSTANCE hDLL;
+	HFONT hCRTFont;
+} MFD_GDIPARAM;
+
 const int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
@@ -31,6 +37,10 @@ public:
 	Atlantis *sts;
 
 private:
+	void SetDisplayTitle(const char* pszTitle);
+	unsigned short usPageNumber;
+	unsigned short usDisp;
+	unsigned short usGPCDriver;
 	//Math
 	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	/*VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -75,7 +85,7 @@ private:
 	}
 	inline bool Eq(const double d1, const double d2)
 	{
-		if(abs(d1-d2)>0.000001) return false;
+		if(fabs(d1-d2)>0.000001) return false;
 		return true;
 	}
 
@@ -130,6 +140,13 @@ private:
 		int spec, mode, display;
 		bool bValid;
 	} saveprm;
+
+	
+protected:
+	char cDispTitle[20];
+	void DrawCommonHeader(HDC hdc);
+	void PASSTRAJ(HDC hdc);
+	HFONT hCRTFont;
 };
 
 #endif // !__CRT_H

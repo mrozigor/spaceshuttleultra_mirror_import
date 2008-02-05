@@ -23,6 +23,14 @@ typedef struct {
 } FLOWSTATE;
 
 const double LBM = 453.59237;
+const double MPS2FPS = 3.280839895;
+
+const short VARSTATE_OK = 0;
+const short VARSTATE_MISSING = 1;
+const short VARSTATE_OFFSCALE_LOW = 2;
+const short VARSTATE_LOW = 3;
+const short VARSTATE_HIGH = 4;
+const short VARSTATE_OFFSCALE_HIGH = 5;
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -439,6 +447,9 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
+	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
+	virtual short GetETPropellant(unsigned short usGPCID);
 	bool GetLiftOffFlag() const;
 	AnimState::Action spdb_status;
 	Atlantis (OBJHANDLE hObj, int fmodel);
@@ -537,6 +548,10 @@ public:
 	bool clbkLoadVC (int id);
 	bool clbkVCMouseEvent (int id, int event, VECTOR3 &p);
 	bool clbkVCRedrawEvent (int id, int event, SURFHANDLE surf);
+
+	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
+	virtual short GetSRBChamberPressure(unsigned short which_srb);
+
 
 	SubsystemDirector* psubsystems;
 	MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
@@ -798,6 +813,9 @@ private:
 	double dT;
 	VECTOR3 GVesselPos, GVesselVel;
 	VESSELSTATUS Status;
+
+	//base vectors;
+	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 
 	//Launch
 	double Throttle_Bucket[2], OMS_Assist[2], RollToHeadsUp; //start/end times
