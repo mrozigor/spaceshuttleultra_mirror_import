@@ -6,7 +6,7 @@
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "MasterTimingUnit.h"
-#include "Stopwatch.h"
+//#include "Stopwatch.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -42,12 +42,13 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	const int NUMY[10] = {384, 448, 448, 448, 448, 448, 448, 448, 448, 384};
 	int i;
 	int digit[8];
-	Stopwatch st;
+
+	//Stopwatch st;
 
 	//METTMR1 = Days
 	//METTMR2 = Rest
 
-	st.Start();
+	//st.Start();
 	
 	if(id == AID_O3_METTMR1)
 	{
@@ -98,14 +99,14 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: O3 RCS display");
 	}
 
-	double time_for_O3 = st.Stop();
+//	double time_for_O3 = st.Stop();
 
-	if(time_for_O3 > 1000.0)
-	{
-		char buffer[100];
-		sprintf(buffer, "Panel O3 needed for than 1 ms for redraw (T = %f µs)\n", time_for_O3);
-		oapiWriteLog(buffer);
-	}
+//	if(time_for_O3 > 1000.0)
+//	{
+//		char buffer[100];
+//		sprintf(buffer, "Panel O3 needed for than 1 ms for redraw (T = %f µs)\n", time_for_O3);
+//		oapiWriteLog(buffer);
+//	}
 
 	return true;
 }
