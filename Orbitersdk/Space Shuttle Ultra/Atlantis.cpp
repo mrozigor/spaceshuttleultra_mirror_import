@@ -33,6 +33,9 @@
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
+#ifdef USE_MLP
+#include "MLP/MLP.h"
+#endif
 #include <stdio.h>
 #include <fstream>
 
@@ -440,6 +443,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   vis             = NULL;
   sat_attach      = NULL;
   rms_attach      = NULL;
+  ahHDP			  = NULL;
   cargo_static_ofs   =_V(0,0,0);
 
   // default arm status: deployed
@@ -1670,6 +1674,10 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
     if (which) srb_id1 = id;
     else       srb_id2 = id;
   }
+  if(ahHDP == NULL)
+  {
+	  ahHDP = CreateAttachment(true, POS_HDP, _V(0.0, 0.0, -1.0), _V(0.0, 1.0, 0.0), "XHDP");
+  }
 }
 
 void Atlantis::SeparateBoosters (double met)
@@ -2730,6 +2738,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     if (GetEngineLevel (ENGINE_MAIN) > 0.95) 
 	{
       status = 1; // launch
+	  SignalGSEStart();
       t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
       RecordEvent ("STATUS", "SSME_IGNITION");
 	  if(bAutopilot) 
@@ -2743,6 +2752,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     met = simt-t0;
 	if(met >= 0.0 && !GetLiftOffFlag())
 	{
+		SignalGSEBreakHDP();
 		TriggerLiftOff();	
 	}
     //sprintf(oapiDebugString(),"met: %f",met);
@@ -4328,4 +4338,40 @@ void Atlantis::DefineKUBandAnimations()
   anim_kubeta = CreateAnimation(0.5);
   AddAnimationComponent (anim_kubeta, 0.0, 0.1, &KuBand3, parent);
 
+}
+
+void Atlantis::SignalGSEStart()
+{
+#ifdef USE_MLP
+	if(ahHDP)
+	{
+		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
+		if(hMLP)
+		{
+			VESSEL* pV = oapiGetVesselInterface(hMLP);
+			if(pV && !stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			{
+				static_cast<MLP*>(pV)->SignalGSEStart();
+			}
+		}
+	}
+#endif
+}
+
+void Atlantis::SignalGSEBreakHDP()
+{
+#ifdef USE_MLP
+	if(ahHDP)
+	{
+		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
+		if(hMLP)
+		{
+			VESSEL* pV = oapiGetVesselInterface(hMLP);
+			if(pV && !stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			{
+				static_cast<MLP*>(pV)->TriggerHDP();
+			}
+		}
+	}
+#endif
 }

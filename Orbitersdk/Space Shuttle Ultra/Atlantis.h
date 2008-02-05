@@ -260,6 +260,8 @@ const VECTOR3 SSMER_REF = _V(1.50, -0.2, -11.50);
 const VECTOR3 SSMEL_REF = _V(-1.50, -0.2, -11.50);
 const VECTOR3 SSMET_REF = _V(0.0, 2.0, -10.50);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
+
+const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
 //
 
 // ==========================================================
@@ -536,6 +538,7 @@ public:
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 	ATTACHMENTHANDLE sat_attach, rms_attach;
+	ATTACHMENTHANDLE ahHDP;
 	VECTOR3 arm_tip[3];
 
 	// Overloaded callback functions
@@ -579,6 +582,8 @@ public:
 	OBJHANDLE ThisVessel;
 
 private:
+	void SignalGSEBreakHDP();
+	void SignalGSEStart();
 	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
