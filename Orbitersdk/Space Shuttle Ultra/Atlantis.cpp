@@ -26,6 +26,7 @@
 #include "meshres.h"
 #include "meshres_vc.h"
 #include "meshres_RMS.h"
+#include "meshres_KU.h"
 #include "resource.h"
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
@@ -353,6 +354,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_vc         = MESH_UNDEFINED;
   mesh_tank       = MESH_UNDEFINED;
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
+  mesh_kuband	  = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -362,6 +364,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   render_cockpit  = false;
   bSRBCutoffFlag  = false;
   bLiftOff		  = false;
+  bHasKUBand	  = true;
 
   //SRB slag effects
   slag1 = 0.0;
@@ -417,9 +420,11 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hOrbiterCockpitMesh = oapiLoadMeshGlobal ("Atlantis\\AtlantisCockpit");
   hOrbiterVCMesh      = oapiLoadMeshGlobal ("Atlantis\\AtlantisVC");
   hOrbiterRMSMesh	  = oapiLoadMeshGlobal ("Atlantis\\RMS");
+  hKUBandMesh		  = oapiLoadMeshGlobal ("Atlantis\\KU");
   hTankMesh           = oapiLoadMeshGlobal ("Shuttle_tank");
   hSRBMesh[0]		  = oapiLoadMeshGlobal ("Shuttle_rsrb");
   hSRBMesh[1]		  = oapiLoadMeshGlobal ("Shuttle_lsrb");
+  
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
   strcpy(WingName,"Atlantis");
@@ -945,6 +950,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // ************************ visual parameters **********************************
 
   AddOrbiterVisual (OFS_ZERO);
+  
 
   status = 3;
 }
@@ -1244,23 +1250,7 @@ void Atlantis::DefineAnimations (void)
   gop->DefineAnimations();
   //In GearOp.cpp
 
-  // ***** 3. Ku-band antenna animation *****
-
-  static UINT KuBand1Grp[3] = {GRP_STARTRACKERS,GRP_KUBAND1,GRP_KUBAND2};
-  static MGROUP_ROTATE KuBand1 (midx, KuBand1Grp, 3,
-    _V(2.85, 0.85, 0), _V(0,0,1), (float)(-18*RAD));
-  static UINT KuBand2Grp[1] = {GRP_KUBAND2};
-  static MGROUP_ROTATE KuBand2 (midx, KuBand2Grp, 1,
-    _V(2.78, 1.7, 0), _V(0,0,1), (float)(-90*RAD));
-  static UINT KuBand3Grp[2] = {GRP_KUBAND1,GRP_KUBAND2};
-  static MGROUP_ROTATE KuBand3 (midx, KuBand3Grp, 2,
-    _V(2.75, 2.05, 11.47), _V(0,1,0), (float)(-113*RAD));
-
-  anim_kubd = CreateAnimation (0);
-  AddAnimationComponent (anim_kubd, 0,     0.333, &KuBand1);
-  AddAnimationComponent (anim_kubd, 0.333, 0.667, &KuBand2);
-  AddAnimationComponent (anim_kubd, 0.667, 0.999, &KuBand3);
-
+  DefineKUBandAnimations();
   // ***** 4. Elevator animation of elevons *****
 
   static UINT ElevGrp[4] = {GRP_FLAPR,GRP_FLAPL,GRP_AILERONL,GRP_AILERONR};
@@ -1626,6 +1616,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
+	AddKUBandVisual(ofs);
+
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
 
@@ -1651,6 +1643,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     SetCameraOffset (_V(ofs.x-0.67,ofs.y+2.55,ofs.z+14.4));
     oapiVCRegisterHUD (&huds); // register changes in HUD parameters
+
+	DefineAnimations();
   }
 }
 
@@ -4296,4 +4290,42 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	SetAnimation(anim_ssmeRpitch, fDeflPitch);
 
 	
+}
+
+void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
+{
+	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand) 
+	{
+		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
+	}
+
+}
+
+void Atlantis::DefineKUBandAnimations()
+{
+  UINT kidx = 4;
+	  // ***** 3. Ku-band antenna animation *****
+
+  static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
+  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
+    _V(2.692122, 1.285694, 12.08792), _V(0,1,0), (float)(-118*RAD));
+
+  static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
+  static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
+    _V( 2.621961, 1.931152, 10.7653), _V(0,0,1), (float)(-360*RAD));
+
+
+  static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
+  static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
+    _V( 2.62169, 1.927013,  10.57073), _V(0,1,0), (float)(-162*RAD));
+
+  anim_kubd = CreateAnimation (0);
+  ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     1, &KuBand1);
+
+  anim_kualpha = CreateAnimation(0.5);
+  parent = AddAnimationComponent (anim_kualpha, 0, 1, &KuBand2, parent);
+
+  anim_kubeta = CreateAnimation(0.5);
+  AddAnimationComponent (anim_kubeta, 0.0, 0.1, &KuBand3, parent);
+
 }

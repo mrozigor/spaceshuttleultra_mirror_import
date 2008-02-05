@@ -517,6 +517,7 @@ public:
 
 	bool bSRBCutoffFlag;
 	bool bLiftOff;
+	bool bHasKUBand;
 
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
@@ -532,6 +533,7 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2]; // mesh handles
+	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 	ATTACHMENTHANDLE sat_attach, rms_attach;
 	VECTOR3 arm_tip[3];
@@ -577,6 +579,7 @@ public:
 	OBJHANDLE ThisVessel;
 
 private:
+	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
 	void DisableAllRCS();
@@ -720,6 +723,7 @@ private:
 	UINT mesh_rms;							   // index for RMS mesh
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
+	UINT mesh_kuband;						   // index for KU band antenna mesh
 
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -730,6 +734,9 @@ private:
 	UINT anim_ssmeLpitch;
 
 
+	//
+	UINT anim_kualpha;
+	UINT anim_kubeta;
 
 
 	// PAYLOAD CAMERAS ANIMATIONS
@@ -928,6 +935,7 @@ private:
 	int stage1guidance_size;
 	//double* stage1Vguidance;
 protected:
+	void AddKUBandVisual(const VECTOR3 ofs);
 	void TriggerLiftOff();
 };
 
