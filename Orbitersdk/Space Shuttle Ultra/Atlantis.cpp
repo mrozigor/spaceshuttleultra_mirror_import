@@ -642,7 +642,7 @@ void Atlantis::SetLaunchConfiguration (void)
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
   for(i=0;i<3;i++) {
-	  AddExhaust(th_main[i], 30.0, 2.0, 3.5, tex_main);
+	  AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
 	  r2d2->CheckMPSArmed(i);
   }
 
@@ -792,7 +792,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	//sprintf(oapiDebugString(), "Creating main engines");
     //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
 	for(i=0;i<3;i++) {
-		AddExhaust(th_main[i], 30.0, 2.0, tex_main);
+		AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
 		r2d2->CheckMPSArmed(i);
 	}
   }
