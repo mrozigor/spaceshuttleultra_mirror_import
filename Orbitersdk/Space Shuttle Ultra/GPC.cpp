@@ -333,8 +333,8 @@ void Atlantis::GPC(double dt)
 {
 	int i;
 
-	Stopwatch st;
-	st.Start();
+//	Stopwatch st;
+//	st.Start();
 
 	switch(ops) {
 		case 101:
@@ -506,14 +506,14 @@ void Atlantis::GPC(double dt)
 			break;
 	}
 
-	double time_for_GPC = st.Stop();
-
-	if(time_for_GPC > 50000.0)
-	{
-		char buffer[100];
-		sprintf(buffer, "GPC Stopwatch: GPC function needed more than 50 ms for completition (t_GPC = %f µs)\n", time_for_GPC);
-		oapiWriteLog(buffer);
-	}
+//	double time_for_GPC = st.Stop();
+//
+//	if(time_for_GPC > 50000.0)
+//	{
+//		char buffer[100];
+//		sprintf(buffer, "GPC Stopwatch: GPC function needed more than 50 ms for completition (t_GPC = %f µs)\n", time_for_GPC);
+//		oapiWriteLog(buffer);
+//	}
 	return;
 }
 

@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <fstream>
 
-#include "StopWatch.h"
+//#include "StopWatch.h"
 
 #ifdef _DEBUG
     // D. Beachy: for BoundsChecker debugging
