@@ -624,17 +624,25 @@ void Atlantis::SetLaunchConfiguration (void)
 
   ClearThrusterDefinitions();
 
+  //_V(1.547324, -0.6134227, -11.34648);
+
   // orbiter main thrusters
   /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.13,1), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V( 0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);*/
-  th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  //th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  //th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  //th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  
+  th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  
+  
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
   for(i=0;i<3;i++) {
-	  AddExhaust(th_main[i], 30.0, 2.0, tex_main);
+	  AddExhaust(th_main[i], 30.0, 2.0, 3.5, tex_main);
 	  r2d2->CheckMPSArmed(i);
   }
 
@@ -1210,10 +1218,10 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 1. Cargo door and radiator animations *****
 
-  static UINT RCargoDoorGrp[4] = {GRP_cargodooroutR,GRP_cargodoorinR,GRP_radiatorFR,GRP_radiatorBR};
+  static UINT RCargoDoorGrp[4] = {GRP_CARGODOOROUTR,GRP_CARGODOORINR,GRP_RADIATORFR,GRP_RADIATORBR};
   static MGROUP_ROTATE RCargoDoor (midx, RCargoDoorGrp, 4,
     _V(2.88, 1.3, 0), _V(0,0,1), (float)(-175.5*RAD));
-  static UINT LCargoDoorGrp[4] = {GRP_cargodooroutL,GRP_cargodoorinL,GRP_radiatorFL,GRP_radiatorBL};
+  static UINT LCargoDoorGrp[4] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL,GRP_RADIATORFL,GRP_RADIATORBL};
   static MGROUP_ROTATE LCargoDoor (midx, LCargoDoorGrp, 4,
     _V(-2.88, 1.3, 0), _V(0,0,1), (float)(175.5*RAD));
 
@@ -1221,10 +1229,10 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
   AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
 
-  static UINT RRadiatorGrp[1] = {GRP_radiatorFR};
+  static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   static MGROUP_ROTATE RRadiator (midx, RRadiatorGrp, 1,
     _V(2.88, 1.3, 0), _V(0,0,1), (float)(35.5*RAD));
-  static UINT LRadiatorGrp[1] = {GRP_radiatorFL};
+  static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
   static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
     _V(-2.88, 1.3, 0), _V(0,0,1), (float)(-35.5*RAD));
 
@@ -1238,13 +1246,13 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[3] = {GRP_startrackers,GRP_KUband1,GRP_KUband2};
+  static UINT KuBand1Grp[3] = {GRP_STARTRACKERS,GRP_KUBAND1,GRP_KUBAND2};
   static MGROUP_ROTATE KuBand1 (midx, KuBand1Grp, 3,
     _V(2.85, 0.85, 0), _V(0,0,1), (float)(-18*RAD));
-  static UINT KuBand2Grp[1] = {GRP_KUband2};
+  static UINT KuBand2Grp[1] = {GRP_KUBAND2};
   static MGROUP_ROTATE KuBand2 (midx, KuBand2Grp, 1,
     _V(2.78, 1.7, 0), _V(0,0,1), (float)(-90*RAD));
-  static UINT KuBand3Grp[2] = {GRP_KUband1,GRP_KUband2};
+  static UINT KuBand3Grp[2] = {GRP_KUBAND1,GRP_KUBAND2};
   static MGROUP_ROTATE KuBand3 (midx, KuBand3Grp, 2,
     _V(2.75, 2.05, 11.47), _V(0,1,0), (float)(-113*RAD));
 
@@ -1255,13 +1263,13 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 4. Elevator animation of elevons *****
 
-  static UINT ElevGrp[4] = {GRP_flapR,GRP_flapL,GRP_aileronL,GRP_aileronR};
+  static UINT ElevGrp[4] = {GRP_FLAPR,GRP_FLAPL,GRP_AILERONL,GRP_AILERONR};
   static MGROUP_ROTATE Elevator (midx, ElevGrp, 4,
     _V(0,-2.173,-8.84), _V(1,0,0), (float)(30.0*RAD));
   anim_elev = CreateAnimation (0.5);
   AddAnimationComponent (anim_elev, 0, 1, &Elevator);
 
-  static UINT bfGrp[1] = {GRP_bodyflap};
+  static UINT bfGrp[1] = {GRP_BODYFLAP};
   static MGROUP_ROTATE BodyFlap (midx, bfGrp, 1,
     _V(0,-2.9806,-12.65), _V(1,0,0), (float)(22.5*RAD));
   anim_bf = CreateAnimation (0.5);
@@ -1269,10 +1277,10 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 5. Aileron animation of elevons *****
 
-  static UINT LAileronGrp[2] = {GRP_flapL,GRP_aileronL};
+  static UINT LAileronGrp[2] = {GRP_FLAPL,GRP_AILERONL};
   static MGROUP_ROTATE LAileron (midx, LAileronGrp, 2,
     _V(0,-2.173,-8.84), _V(-1,0,0), (float)(10.0*RAD));
-  static UINT RAileronGrp[2] = {GRP_flapR,GRP_aileronR};
+  static UINT RAileronGrp[2] = {GRP_FLAPR,GRP_AILERONR};
   static MGROUP_ROTATE RAileron (midx, RAileronGrp, 2,
     _V(0,-2.173,-8.84), _V(1,0,0), (float)(10.0*RAD));
   anim_laileron = CreateAnimation (0.5);
@@ -1282,7 +1290,7 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 6. Rudder animation *****
 
-  static UINT RudderGrp[2] = {GRP_rudderR,GRP_rudderL};
+  static UINT RudderGrp[2] = {GRP_RUDDERR,GRP_RUDDERL};
   static MGROUP_ROTATE Rudder (midx, RudderGrp, 2,
     _V(0,5.77,-12.17), _V(0.037,-0.833,0.552), (float)(54.2*RAD));
   anim_rudder = CreateAnimation (0.5);
@@ -1290,10 +1298,10 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 7. Speedbrake animation *****
 
-  static UINT SB1Grp[1] = {GRP_rudderR};
+  static UINT SB1Grp[1] = {GRP_RUDDERR};
   static MGROUP_ROTATE SB1 (midx, SB1Grp, 1,
     _V(0.32,5.77,-12.17), _V(-0.037,0.833,-0.552), (float)(-49.3*RAD));
-  static UINT SB2Grp[1] = {GRP_rudderL};
+  static UINT SB2Grp[1] = {GRP_RUDDERL};
   static MGROUP_ROTATE SB2 (midx, SB2Grp, 1,
     _V(-0.32,5.77,-12.17), _V(0.037,0.833,-0.552), (float)(49.3*RAD));
 
@@ -1471,52 +1479,52 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 9 Payload cameras animation *****
   // FRONT LEFT
-  static UINT camFLYawGrp[1] = {GRP_camerapivotFL};
+  static UINT camFLYawGrp[1] = {GRP_CAMERAPIVOTFL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
     _V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
-  static UINT camFLPitchGrp[1] = {GRP_cameraFL};
+  static UINT camFLPitchGrp[1] = {GRP_CAMERAFL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
     _V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(1,0,0), (float)(340*RAD));
   anim_camFLpitch = CreateAnimation (0.5);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
-  static UINT camFRYawGrp[1] = {GRP_camerapivotFR};
+  static UINT camFRYawGrp[1] = {GRP_CAMERAPIVOTFR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
     _V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
-  static UINT camFRPitchGrp[1] = {GRP_cameraFR};
+  static UINT camFRPitchGrp[1] = {GRP_CAMERAFR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
     _V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
-  static UINT camBLYawGrp[1] = {GRP_camerapivotBL};
+  static UINT camBLYawGrp[1] = {GRP_CAMERAPIVOTBL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
     _V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(0,1,0), (float)(340*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
-  static UINT camBLPitchGrp[1] = {GRP_cameraBL};
+  static UINT camBLPitchGrp[1] = {GRP_CAMERABL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
     _V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
-  static UINT camBRYawGrp[1] = {GRP_camerapivotBR};
+  static UINT camBRYawGrp[1] = {GRP_CAMERAPIVOTBR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
     _V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
-  static UINT camBRPitchGrp[1] = {GRP_cameraBR};
+  static UINT camBRPitchGrp[1] = {GRP_CAMERABR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
     _V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
@@ -1529,8 +1537,8 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_dummy, 0, 1, &Dummy);
 
   // ***** 11 ET Umb Door animation *****
-  static UINT ETUmbLGrp[1] = {GRP_etumbdoorL};
-  static UINT ETUmbRGrp[1] = {GRP_etumbdoorR};
+  static UINT ETUmbLGrp[1] = {GRP_ETUMBDOORL};
+  static UINT ETUmbRGrp[1] = {GRP_ETUMBDOORR};
   static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
 	  _V(-1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(180.0*RAD));
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
@@ -1539,6 +1547,46 @@ void Atlantis::DefineAnimations (void)
   anim_retumbdoor = CreateAnimation(0);
   AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
   AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+
+  // ***** SSME Gimbal Animations *****
+
+
+  static UINT SSMET_Grp[1] = {GRP_SSMET};
+  static UINT SSMEL_Grp[1] = {GRP_SSMEL};
+  static UINT SSMER_Grp[1] = {GRP_SSMER};
+  static VECTOR3 ssmet_dummy_vec;
+  static VECTOR3 ssmer_dummy_vec;
+  static VECTOR3 ssmel_dummy_vec;
+
+  static MGROUP_ROTATE SSMETYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmet_dummy_vec), 1, SSMET_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+  static MGROUP_ROTATE SSMETPitch (midx, SSMET_Grp, 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+
+  anim_ssmeTyaw = CreateAnimation(0.5);
+  anim_ssmeTpitch = CreateAnimation(0.5);
+
+  parent = AddAnimationComponent(anim_ssmeTyaw, 0.0, 1.0, &SSMETYaw, NULL);
+  AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitch, parent);
+
+  static MGROUP_ROTATE SSMELYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmel_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+  static MGROUP_ROTATE SSMELPitch (midx, SSMEL_Grp, 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+
+  anim_ssmeLyaw = CreateAnimation(0.5);
+  anim_ssmeLpitch = CreateAnimation(0.5);
+
+  parent = AddAnimationComponent(anim_ssmeLyaw, 0.0, 1.0, &SSMELYaw, NULL);
+  AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitch, parent);
+
+
+  static MGROUP_ROTATE SSMERYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmer_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+  static MGROUP_ROTATE SSMERPitch (midx, SSMER_Grp, 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+
+  anim_ssmeRyaw = CreateAnimation(0.5);
+  anim_ssmeRpitch = CreateAnimation(0.5);
+
+  parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
+  AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
+
+
 
   // ======================================================
   // VC animation definitions
@@ -1901,6 +1949,8 @@ void Atlantis::SteerGimbal() {
 	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.308046+pitchcorrect.data[0]+rollcorrect.data[0],0.951372)));
 	SetThrusterDir(th_main[1], NormZ(_V( 0.0624+yawcorrect.data[1],-0.1789+pitchcorrect.data[1]+rollcorrect.data[1],0.9819)));
 	SetThrusterDir(th_main[2], NormZ(_V(-0.0624+yawcorrect.data[2],-0.1789+pitchcorrect.data[2]+rollcorrect.data[2],0.9819)));
+
+	UpdateSSMEGimbalAnimations();
 }
 
 void Atlantis::AutoMainGimbal () {
@@ -1933,6 +1983,8 @@ void Atlantis::AutoMainGimbal () {
 	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
 	SetThrusterDir(th_main[1], NormZ(_V( 0.065+yawcorrect.data[1],-0.2447+pitchcorrect.data[1]+rollcorrect.data[1],0.9674)));
 	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));
+
+	UpdateSSMEGimbalAnimations();
 }
 
 double Atlantis::CalcNetThrust()
@@ -4196,4 +4248,52 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 		return VARSTATE_OK;
 	}
 	return VARSTATE_MISSING;
+}
+
+void Atlantis::UpdateSSMEGimbalAnimations()
+{
+
+	const double YAWS = 2 * sin(8.5 * RAD);
+	const double PITCHS = 2 * sin(10 * RAD);
+	const VECTOR3 SSMET_DIR0 = _V(0.0, -sin(16.0*RAD), cos(16.0*RAD));
+	const VECTOR3 SSMEL_DIR0 = _V(sin(3.5*RAD), sin(10.0 * RAD), cos(10 * RAD) * cos(10*RAD));
+	const VECTOR3 SSMER_DIR0 = _V(-sin(3.5*RAD), sin(10.0 * RAD), cos(10 * RAD) * cos(10*RAD));
+
+	VECTOR3 SSME_DIR;
+	double fDeflYaw, fDeflPitch;
+
+	GetThrusterDir(th_main[0], SSME_DIR);
+
+	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMET_DIR0.x + SSME_DIR.z * SSMET_DIR0.z)/
+		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.x, 2) + pow(SSMET_DIR0.z, 2))))/YAWS;
+
+	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
+		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
+	SetAnimation(anim_ssmeTyaw, fDeflYaw);
+	SetAnimation(anim_ssmeTpitch, fDeflPitch);
+
+	GetThrusterDir(th_main[1], SSME_DIR);
+
+	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS;
+
+	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.y, 2) + pow(SSMEL_DIR0.z, 2))))/PITCHS;
+
+	SetAnimation(anim_ssmeLyaw, fDeflYaw);
+	SetAnimation(anim_ssmeLpitch, fDeflPitch);
+
+
+	GetThrusterDir(th_main[2], SSME_DIR);
+
+	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMER_DIR0.x + SSME_DIR.z * SSMER_DIR0.z)/
+		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMER_DIR0.x, 2) + pow(SSMER_DIR0.z, 2))))/YAWS;
+
+	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMER_DIR0.y, 2) + pow(SSMER_DIR0.z, 2))))/PITCHS;
+
+	SetAnimation(anim_ssmeRyaw, fDeflYaw);
+	SetAnimation(anim_ssmeRpitch, fDeflPitch);
+
+	
 }

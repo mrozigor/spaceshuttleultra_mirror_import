@@ -258,22 +258,22 @@ bool GearOp::VCRedrawEvent (int id, int event, SURFHANDLE surf) {
 void GearOp::DefineAnimations () {
   UINT midx = 1; // mesh index for all external animations
 
-  static UINT LNosewheelDoorGrp[1] = {GRP_nosedoorL};
+  static UINT LNosewheelDoorGrp[1] = {GRP_NOSEDOORL};
   static MGROUP_ROTATE LNosewheelDoor (midx, LNosewheelDoorGrp, 1,
     _V(-0.78, -2.15, 17), _V(0, 0.195, 0.981), (float)(-60.0*RAD));
-  static UINT RNosewheelDoorGrp[1] = {GRP_nosedoorR};
+  static UINT RNosewheelDoorGrp[1] = {GRP_NOSEDOORR};
   static MGROUP_ROTATE RNosewheelDoor (midx, RNosewheelDoorGrp, 1,
     _V(0.78, -2.15, 17), _V(0, 0.195, 0.981), (float)(60.0*RAD));
-  static UINT NosewheelGrp[2] = {GRP_nosewheel,GRP_nosegear};
+  static UINT NosewheelGrp[2] = {GRP_NOSEWHEEL,GRP_NOSEGEAR};
   static MGROUP_ROTATE Nosewheel (midx, NosewheelGrp, 2,
     _V(0.0, -2.01, 18.11), _V(1, 0, 0), (float)(94.5*RAD));
-  static UINT RGearDoorGrp[1] = {GRP_geardoorR};
+  static UINT RGearDoorGrp[1] = {GRP_GEARDOORR};
   static MGROUP_ROTATE RGearDoor (midx, RGearDoorGrp, 1,
     _V(4.35, -2.64, -1.69), _V(0, 0.02, 0.9), (float)(96.2*RAD));
-  static UINT LGearDoorGrp[1] = {GRP_geardoorL};
+  static UINT LGearDoorGrp[1] = {GRP_GEARDOORL};
   static MGROUP_ROTATE LGearDoor (midx, LGearDoorGrp, 1,
     _V(-4.35, -2.64, -1.69), _V(0, 0.02, 0.9), (float)(-96.2*RAD));
-  static UINT MainGearGrp[4] = {GRP_wheelR,GRP_gearR,GRP_wheelL,GRP_gearL};
+  static UINT MainGearGrp[4] = {GRP_WHEELR,GRP_GEARR,GRP_WHEELL,GRP_GEARL};
   static MGROUP_ROTATE MainGear (midx, MainGearGrp, 4,
     _V(0, -2.66, -3.68), _V(1, 0, 0), (float)(94.5*RAD));
 
