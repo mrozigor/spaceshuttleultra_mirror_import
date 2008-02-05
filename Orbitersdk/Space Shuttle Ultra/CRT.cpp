@@ -4,6 +4,7 @@
 #include "orbitersdk.h"
 #include "CRT.h"
 #include <cstdio>
+#include "MasterTimingUnit.h"
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)
@@ -23,6 +24,8 @@ int g_MFDmode; // identifier for new MFD mode
 CRT *mfd;
 CRT::SavePrm CRT::saveprm;
 
+MFD_GDIPARAM mfd_gparam;
+
 // ==============================================================
 // API interface
 
@@ -37,12 +40,17 @@ DLLCLBK void InitModule (HINSTANCE hDLL)
 	// Register the new MFD mode with Orbiter
 	g_MFDmode = oapiRegisterMFDMode (spec);
 	mfd = NULL;
+	mfd_gparam.hDLL = hDLL;
+	mfd_gparam.hCRTFont = CreateFont(10,10, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
+		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "System");
+
 }
 
 DLLCLBK void ExitModule (HINSTANCE hDLL)
 {
 	// Unregister the custom MFD mode when the module is unloaded
 	oapiUnregisterMFDMode (g_MFDmode);
+	DeleteObject(mfd_gparam.hCRTFont);	
 }
 
 // ==============================================================
@@ -56,6 +64,10 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	width=w;
 	height=h;
 
+	hCRTFont = CreateFont(8,4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
+		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Courier");
+
+
 	if(strcmp(pV->GetClassName(), "Atlantis")==0) {
 		sts=(Atlantis *)pV;
 		id=sts->last_mfd;
@@ -65,6 +77,9 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 		id=10;
 		mode=10001;
 	}
+	strcpy(cDispTitle, "GPC MEMORY");
+	usPageNumber = 1;
+	usGPCDriver = 1;
 
 	spec=0;
 	mode=0;
@@ -92,6 +107,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 CRT::~CRT ()
 {
+	DeleteObject(hCRTFont);
 	return;
 }
 
@@ -127,6 +143,7 @@ void CRT::Update (HDC hDC)
 		}
 	}
 	else if(mode==1) {
+		DrawCommonHeader(hDC);
 		if(sts->ops==201) {
 			switch(spec) {
 				case 0:
@@ -137,12 +154,13 @@ void CRT::Update (HDC hDC)
 					break;
 			}
 		}
-		else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
+		else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
+			PASSTRAJ(hDC);
+		} else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
 			MNVR(hDC);
 		}
 		else {
-			sprintf(cbuf,"OPS %d", sts->ops);
-			TextOut(hDC, 0, 5, cbuf, strlen(cbuf));
+			DrawCommonHeader(hDC);
 		}
 	}
 	/*if(!sts->GroundContact()) {
@@ -192,6 +210,8 @@ void CRT::OMSMPS(HDC hDC)
 	int nPos, nLoc, EngConvert[3]={1, 0, 2};
 	double dNum;
 	char cbuf[255];
+
+	SelectDefaultFont(hDC, 0);
 
 	HBRUSH GreenBrush=CreateSolidBrush(GREEN);
 	HBRUSH WhiteBrush=CreateSolidBrush(WHITE);
@@ -340,6 +360,7 @@ void CRT::SPI(HDC hDC)
 	double dNum;
 	char cbuf[255];
 	//Elevons
+	SelectDefaultFont(hDC, 0);
 	SetTextColor(hDC, GREEN);
 	TextOut(hDC, 0, 5, "ELEVONS", 7);
 	TextOut(hDC, 12, 15, "DEG", 3);
@@ -588,6 +609,8 @@ void CRT::UNIVPTG(HDC hDC)
 {
 	char cbuf[255];
 
+	SelectDefaultFont(hDC, 0);
+
 	//PitchYawRoll=ToDeg(CalcPitchYawRollAngles());
 	sts->GetAngularVel(AngularVelocity);
 	sts->GetGlobalOrientation(InertialOrientationRad);
@@ -678,6 +701,8 @@ void CRT::DAP_CONFIG(HDC hDC)
 	int lim[3]={3, 5, 5};
 	int i, n;
 
+	SelectDefaultFont(hDC, 0);
+
 	TextOut(hDC, 0, 0, "2011/020/", 9);
 	TextOut(hDC, 80, 0, "DAP CONFIG", 10);
 	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
@@ -767,6 +792,137 @@ void CRT::DAP_CONFIG(HDC hDC)
 		TextOut(hDC, 60+65*i, 216, cbuf, strlen(cbuf));
 	}
 }
+
+void CRT::PASSTRAJ(HDC hdc)
+{
+	float charW = W/50.0;
+	float charH = H/25.0;
+	char cbuf[255];
+	double Ref_hdot = 0.0;
+
+	bool bShowHDot = (sts->GetGPCRefHDot(usGPCDriver, Ref_hdot) == VARSTATE_OK);
+
+	VECTOR3 LVLH_Vel;
+	sts->GetGPCLVLHVel(usGPCDriver, LVLH_Vel);
+	switch(sts->ops)
+	{
+	case 101:
+		SetDisplayTitle("LAUNCH TRAJ");
+		break;
+	case 102:
+	case 103:
+		switch(usPageNumber)
+		{
+		case 1:
+			SetDisplayTitle("ASCENT TRAJ");
+			break;
+		case 2:
+			SetDisplayTitle("   TAL TRAJ");
+			break;
+		case 3:
+			SetDisplayTitle("   ATO TRAJ");
+			break;
+		case 4:
+			SetDisplayTitle("  RTLS TRAJ");
+			break;
+		}
+		break;
+	case 601:
+		SetDisplayTitle("  RTLS TRAJ");
+		break;
+	}
+	DrawCommonHeader(hdc);
+
+	
+	//Nominal ascent line
+	MoveToEx(hdc, 0.7083*W, 0.830*H, NULL);
+	LineTo(hdc, 0.7500*W, 0.6915*H);
+	LineTo(hdc, 0.9125*W, 0.5000*H);
+	LineTo(hdc, W, 0.4574*H);
+
+	//EO at Lift-Off line
+	MoveToEx(hdc, 0.625*W, 0.830*H, NULL);
+	LineTo(hdc, 0.6833*W, 0.5426*H);
+	LineTo(hdc, 0.3042*W, 0.7660*H);
+	LineTo(hdc, 0.2292*W, 0.7872*H);
+	LineTo(hdc, 0.0833*W, 0.6915*H);
+
+	MoveToEx(hdc, 0.7167*W, 0.4681*H, NULL);
+	LineTo(hdc, 0.6917*W, 0.4787*H);
+	LineTo(hdc, 0.3167*W, 0.734*H);
+
+	//Q = 2 line
+	MoveToEx(hdc, 0.150*W, 0.734*H, NULL);
+	LineTo(hdc, 0.0417*W, 0.7021*H);
+
+	//Q = 10 line
+	MoveToEx(hdc, 0.150*W, 0.6702*H, NULL);
+	LineTo(hdc, 0.0417*W, 0.617*H);
+
+	//Hdot indicator
+	MoveToEx(hdc, 0.0667*W, 0.1170*H, NULL);
+	LineTo(hdc, 0.0416*W, 0.1170*H);
+	LineTo(hdc, 0.0416*W, 0.8085*H);
+	LineTo(hdc, 0.0667*W, 0.8085*H);
+	short sHDot_cy = 0.4737*H;
+	short sHDot_cx = 0.0416*W;
+	float HDot_Scale = (0.4737 - 0.1170) * W;
+	MoveToEx(hdc, sHDot_cx, sHDot_cy, NULL);
+	LineTo(hdc, 0.0667*W, sHDot_cy);
+
+	if(bShowHDot)
+	{
+		double HDot_Error = -LVLH_Vel.z - Ref_hdot;
+
+		if(HDot_Error > 200.0)
+		{
+			HDot_Error = 200.0;
+		}
+		else if (HDot_Error < -200.0)
+		{
+			HDot_Error = -200.0;
+		}
+
+		short sHDot_pry = sHDot_cy - (HDot_Error/200.0 * HDot_Scale);
+
+		MoveToEx(hdc, sHDot_cx, sHDot_cy + sHDot_pry, NULL);
+		LineTo(hdc, sHDot_cx-W/50, sHDot_cy + sHDot_pry - W/50);
+		LineTo(hdc, sHDot_cx-W/50, sHDot_cy + sHDot_pry + W/50);
+		LineTo(hdc, sHDot_cx, sHDot_cy + sHDot_pry);
+	}
+
+	//DR indicator
+	short sDR_cy = 0.1064*H;
+	short sDR_by = 0.1383*H;
+
+	MoveToEx(hdc, 0.1*W, sDR_cy, NULL);
+	LineTo(hdc, 0.9667*W, sDR_cy);
+
+	//PD3 Mark
+	MoveToEx(hdc, 0.6417*W, sDR_cy, NULL);
+	LineTo(hdc, 0.6417*W, sDR_by);
+
+	//PD Mark
+	MoveToEx(hdc, 0.5*W, sDR_cy, NULL);
+	LineTo(hdc, 0.5*W, sDR_by);
+
+	//CO Mark
+	MoveToEx(hdc, 0.1833*W, sDR_cy, NULL);
+	LineTo(hdc, 0.1833*W, sDR_by);
+
+
+
+
+	if(sts->ops == 102 && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(0) < 50))
+	{
+		strcpy(cbuf, "PC < 50");
+		TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 9), cbuf, strlen(cbuf));
+	}
+
+	sprintf(cbuf, "PRPLT     %02d", sts->GetETPropellant(usGPCDriver));
+	TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 8), cbuf, strlen(cbuf));
+}
+
 
 void CRT::MNVR(HDC hDC)
 {
@@ -1092,6 +1248,8 @@ void CRT::OMSGimbal(VECTOR3 Targets)
 	return;
 }
 
+
+
 void CRT::LoadManeuver()
 {
 	int i;
@@ -1259,6 +1417,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
   }
   return false;
 }
+
+
 
 bool CRT::ConsumeButton (int bt, int event)
 {
@@ -2289,4 +2449,38 @@ bool cbSpecData(void *id, char *str, void *data)
 {
 	//sprintf(oapiDebugString(), "DATA INPUT");
 	return (((CRT *)data)->Input(4, str));
+}
+
+
+void CRT::DrawCommonHeader(HDC hdc)
+{
+	char cbuf[200];
+	char cdispbuf[4];
+	char cUplink[3];
+	unsigned short usDay, usHour, usMinute, usSecond;
+	strcpy(cUplink, "  ");
+	strcpy(cdispbuf, "   ");
+
+	//this->SelectDefaultFont(hdc, 1);
+	SelectObject(hdc, hCRTFont);
+
+	sts->GetGPCMET(usGPCDriver, usDay, usHour, usMinute, usSecond);
+	
+	//Todo: GPC count their own MET independent of the MTU
+	sprintf(cbuf,"%03d%1d/%03d/ %3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
+		sts->ops, 
+		usPageNumber,
+		0, 
+		cdispbuf, 
+		cDispTitle, 
+		cUplink, 
+		usGPCDriver, 
+		usDay, usHour, usMinute, usSecond);
+	
+	TextOut(hdc, 0, 5, cbuf, strlen(cbuf));
+}
+
+void CRT::SetDisplayTitle(const char *pszTitle)
+{
+	strncpy(cDispTitle, pszTitle, 14);
 }

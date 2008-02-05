@@ -4114,3 +4114,86 @@ void Atlantis::TriggerLiftOff()
 	bLiftOff = true;
 	pMTU->StartMET();
 }
+
+short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
+{
+	if(which_srb < 2 && status < 2)
+	{
+		return (short)(1000 * GetThrusterLevel(th_srb[which_srb]));
+	}
+	else
+		return -1;
+}
+
+unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short &usMin, unsigned short &usSec)
+{
+	usDay = pMTU->GetMETDay(0);
+	usHour = pMTU->GetMETHour(0);
+	usMin = pMTU->GetMETMin(0);
+	usSec = pMTU->GetMETSec(0);
+	return 0;
+}
+
+short Atlantis::GetETPropellant(unsigned short usGPCID)
+{
+	if(status < 3)
+	{
+		return min(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS, 99);
+	} else
+	 return -1;
+}
+
+unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
+{
+	VECTOR3 tmpVel;
+	this->GetRelativeVel(GetGravityRef(), tmpVel);
+	this->GetRelativePos(GetGravityRef(), LVLH_Z);
+	
+	double magVel = length(tmpVel);
+
+	if(magVel != 0.0)
+	{
+		LVLH_X = tmpVel/length(tmpVel);
+		LVLH_Z = -LVLH_Z/length(LVLH_Z);
+	
+		LVLH_Y = crossp(LVLH_X, LVLH_Z);
+
+		vel.x = dotp(LVLH_X,tmpVel) * MPS2FPS;
+		vel.y = dotp(LVLH_Y, tmpVel)* MPS2FPS;
+		vel.z = dotp(LVLH_Z, tmpVel) * MPS2FPS;
+
+		return 0;
+	} else 
+	{
+		return 1;
+	}
+}
+
+short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
+{
+	switch(ops)
+	{
+	case 102:
+		if(met < 30.0)
+		{
+			fRefHDot = met * 21.33;
+		} else if(met < 50.0)
+		{
+			fRefHDot = 640 + (met-30.0) * 16.7;
+		} else if(met < 70.0)
+		{
+			fRefHDot = 974 + (met-50.0) * 21.65;
+		} else if(met < 90)
+		{
+			fRefHDot = 1407 + (met-70.0) * 23.4;
+		} else if (met < 110.0)
+		{
+			fRefHDot = 1875 + (met-90.0) * 15.6;
+		} else {
+			fRefHDot = 2187 + (met-110.0) * 15.6;
+		}
+		//TODO: Generate VSpeed Table.
+		return VARSTATE_OK;
+	}
+	return VARSTATE_MISSING;
+}
