@@ -4254,6 +4254,12 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 	return VARSTATE_MISSING;
 }
 
+inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
+{
+	return acos(dotp(dir, dir0)/
+		(length(dir) * length(dir0)));
+}
+
 void Atlantis::UpdateSSMEGimbalAnimations()
 {
 
@@ -4268,8 +4274,10 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	GetThrusterDir(th_main[0], SSME_DIR);
 
-	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMET_DIR0.x + SSME_DIR.z * SSMET_DIR0.z)/
-		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.x, 2) + pow(SSMET_DIR0.z, 2))))/YAWS;
+	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
+
+	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS;
 
 	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
 		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
@@ -4307,6 +4315,8 @@ void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand) 
 	{
 		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
+		
+		SetMeshVisibilityMode(mesh_kuband, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 }
@@ -4332,7 +4342,7 @@ void Atlantis::DefineKUBandAnimations()
   anim_kubd = CreateAnimation (0);
   ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     1, &KuBand1);
 
-  anim_kualpha = CreateAnimation(0.5);
+  anim_kualpha = CreateAnimation(0.0);
   parent = AddAnimationComponent (anim_kualpha, 0, 1, &KuBand2, parent);
 
   anim_kubeta = CreateAnimation(0.5);

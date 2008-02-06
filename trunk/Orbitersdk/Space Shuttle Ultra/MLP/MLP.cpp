@@ -7,9 +7,13 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	mshMLP = oapiLoadMeshGlobal("Atlantis\\MLP-2_dev");
 	fT_SSSActive = 20.0;	//seconds of water
 
+	fSRBSteam = 0.0;
+	fSSMESteam = 0.0;
+
 	bSSS_Active = false;
 	bStartSequence = false;
 	ahHDP = NULL;
+	fCountdown = 8.0;
 }
 
 MLP::~MLP()
