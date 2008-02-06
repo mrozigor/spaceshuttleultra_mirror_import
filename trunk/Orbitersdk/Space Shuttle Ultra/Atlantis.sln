@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Tank", "Atlantis_T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomMFD", "CRT.vcproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_MLP", "vc6\Atlantis_MLP.vcproj", "{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -41,6 +43,10 @@ Global
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Debug|Win32.Build.0 = Debug|Win32
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Release|Win32.ActiveCfg = Release|Win32
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Release|Win32.Build.0 = Release|Win32
+		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Debug|Win32.ActiveCfg = Debug|Win32
+		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Debug|Win32.Build.0 = Debug|Win32
+		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Release|Win32.ActiveCfg = Release|Win32
+		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
