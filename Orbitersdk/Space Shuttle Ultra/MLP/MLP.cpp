@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "MLP.h"
+#include <cstdio>
 
 MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 : VESSEL2(hVessel, iFlightModel)
@@ -87,6 +88,16 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 			CalculateSteamProduction(fSimT, fDeltaT);
 		}
 	}
+	/*
+	if(bStartSequence)
+	{
+		sprintf(oapiDebugString(), "MLP STATUS: COUNT: %+5.2f | SSS %3s Tw=%+5.2f Pmps=%f Psrb=%f", 
+			fCountdown, bSSS_Active?"ON":"OFF", fT_SSSActive, fSSMESteam, fSRBSteam);
+	} else {
+		sprintf(oapiDebugString(), "MLP STATUS: SSS %3s Tw=%+5.2f Pmps=%f Psrb=%f", 
+			bSSS_Active?"ON":"OFF", fT_SSSActive, fSSMESteam, fSRBSteam);
+	}
+	*/
 }
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
@@ -110,6 +121,7 @@ DLLCLBK void ovcExit(VESSEL* pVessel)
 
 void MLP::ActivateSSS()
 {
+	RecordEvent("MLPGSE", "ACTIVATE SSS");
 	bSSS_Active = true;
 }
 
@@ -137,6 +149,7 @@ void MLP::TriggerHDP()
 		st.rvel = st2.rvel;
 		pV->DefSetStateEx(&st);
 	}
+	RecordEvent("MLPGSE", "GPC TRIGGER HDP");
 
 }
 
@@ -242,5 +255,6 @@ void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 
 void MLP::SignalGSEStart()
 {
+	RecordEvent("MLPGSE", "GPC START COMMAND");
 	bStartSequence = true;
 }
