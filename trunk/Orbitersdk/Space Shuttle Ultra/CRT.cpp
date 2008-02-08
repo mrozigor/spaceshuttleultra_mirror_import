@@ -802,7 +802,7 @@ void CRT::PASSTRAJ(HDC hdc)
 
 	bool bShowHDot = (sts->GetGPCRefHDot(usGPCDriver, Ref_hdot) == VARSTATE_OK);
 
-	VECTOR3 LVLH_Vel;
+	VECTOR3 LVLH_Vel, LVLH_Pos;
 	sts->GetGPCLVLHVel(usGPCDriver, LVLH_Vel);
 	switch(sts->ops)
 	{
@@ -910,7 +910,15 @@ void CRT::PASSTRAJ(HDC hdc)
 	MoveToEx(hdc, 0.1833*W, sDR_cy, NULL);
 	LineTo(hdc, 0.1833*W, sDR_by);
 
+	//Current vehicle state:
+	double VHI = LVLH_Vel.x;
+	double Altitude = sts->GetAltitude() * MPS2FPS;
 
+	if(Altitude > 200.0E3 && VHI < 13.9E3)
+	{
+		//Draw triangle for state vector.
+		short stX = (1.0 - VHI/13.9);
+	}
 
 
 	if(sts->ops == 102 && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(0) < 50))
@@ -919,7 +927,15 @@ void CRT::PASSTRAJ(HDC hdc)
 		TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 9), cbuf, strlen(cbuf));
 	}
 
-	sprintf(cbuf, "PRPLT     %02d", sts->GetETPropellant(usGPCDriver));
+	int iETLevel = sts->GetETPropellant(usGPCDriver);
+
+	if(iETLevel >= 0)
+	{
+		sprintf(cbuf, "PRPLT     %02d", iETLevel);
+	}
+	else {
+		sprintf(cbuf, "PRPLT     00M");
+	}
 	TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 8), cbuf, strlen(cbuf));
 }
 

@@ -130,7 +130,7 @@ void PanelO3::RegisterVC()
 	oapiVCRegisterArea (AID_O3_METTMR2, _R(0, 64, 384, 128), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_RCS, _R(0, 256, 384, 320), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 
-	sprintf(oapiDebugString(), "O3 Registered");
+	//sprintf(oapiDebugString(), "O3 Registered");
 }
 
 bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)

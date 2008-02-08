@@ -1253,8 +1253,9 @@ void Atlantis::DefineAnimations (void)
   // ***** 2. Landing gear animation *****
   gop->DefineAnimations();
   //In GearOp.cpp
-
-  DefineKUBandAnimations();
+  if(bHasKUBand)
+		DefineKUBandAnimations();
+  
   // ***** 4. Elevator animation of elevons *****
 
   static UINT ElevGrp[4] = {GRP_FLAPR,GRP_FLAPL,GRP_AILERONL,GRP_AILERONR};
@@ -1534,7 +1535,7 @@ void Atlantis::DefineAnimations (void)
   static UINT ETUmbLGrp[1] = {GRP_ETUMBDOORL};
   static UINT ETUmbRGrp[1] = {GRP_ETUMBDOORR};
   static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
-	  _V(-1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(180.0*RAD));
+	  _V(-1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(+180.0*RAD));
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
 	  _V(1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(-180.0*RAD));
   anim_letumbdoor = CreateAnimation(0);
@@ -1648,7 +1649,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     SetCameraOffset (_V(ofs.x-0.67,ofs.y+2.55,ofs.z+14.4));
     oapiVCRegisterHUD (&huds); // register changes in HUD parameters
 
-	DefineAnimations();
+//	DefineAnimations();
+
   }
 }
 
@@ -1724,8 +1726,8 @@ void Atlantis::SeparateBoosters (double met)
   }
 
   // remove srb meshes and shift cg
-  DelMesh(mesh_srb[1]);
-  DelMesh(mesh_srb[0]);
+  DelMesh(mesh_srb[1], true);
+  DelMesh(mesh_srb[0], true);
   ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
 
 
@@ -1776,7 +1778,8 @@ void Atlantis::SeparateTank (void)
   DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
 
   // remove tank mesh and shift cg
-  DelMesh (mesh_tank);
+  //Test keeping animations - which are not defined on the ET.
+  DelMesh (mesh_tank, true);
   ShiftCG (OFS_WITHTANK_ORBITER);
 
   // reconfigure
@@ -2090,6 +2093,8 @@ void Atlantis::ClearMeshes ()
 {
   VESSEL::ClearMeshes();
   mesh_orbiter = MESH_UNDEFINED;
+  mesh_kuband  = MESH_UNDEFINED;
+  mesh_rms     = MESH_UNDEFINED;
   mesh_cockpit = MESH_UNDEFINED;
   mesh_vc      = MESH_UNDEFINED;
   mesh_tank    = MESH_UNDEFINED;
@@ -4276,7 +4281,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
 
-	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
+	fDeflYaw = 0.5 + acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
 		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS;
 
 	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
@@ -4286,11 +4291,11 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	GetThrusterDir(th_main[1], SSME_DIR);
 
-	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS;
+	fDeflYaw = 0.5+(acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS);
 
-	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.y, 2) + pow(SSMEL_DIR0.z, 2))))/PITCHS;
+	fDeflPitch = 0.5+(acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
+		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.y, 2) + pow(SSMEL_DIR0.z, 2))))/PITCHS);
 
 	SetAnimation(anim_ssmeLyaw, fDeflYaw);
 	SetAnimation(anim_ssmeLpitch, fDeflPitch);
@@ -4314,9 +4319,11 @@ void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 {
 	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand) 
 	{
+		
 		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
 		
 		SetMeshVisibilityMode(mesh_kuband, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+		
 	}
 
 }

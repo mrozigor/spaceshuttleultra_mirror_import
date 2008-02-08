@@ -85448,7 +85448,7 @@ Atlantis/R2.dds D
 Atlantis/talkback.dds D
 Atlantis/C2.dds
 Atlantis/label.dds D
-Atlantis/clocknums.dds
+Atlantis/clocknums.dds D
 Atlantis/A8bottom.dds
 Atlantis/stsvc01.dds
 Atlantis/stsvc02.dds
@@ -85462,6 +85462,6 @@ Atlantis/panelF8.dds
 Atlantis/digits.dds
 Atlantis/timer.dds
 Atlantis/AftTimer.dds
-Atlantis/digitPOS.dds
+Atlantis/digitPOS.dds D
 Atlantis/O1.dds
 Atlantis/O3.dds
