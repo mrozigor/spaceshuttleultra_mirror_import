@@ -143,6 +143,10 @@ SOURCE=.\GPCVariables.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\KuBandSystem.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\MasterTimingUnit.h
 # End Source File
 # Begin Source File

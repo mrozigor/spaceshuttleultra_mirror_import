@@ -1152,6 +1152,8 @@ void PanelR2::Step(double t, double dt)
 		}
 		sts->SetETUmbDoorPosition(RETUmbDoorStatus.pos, 1);
 	}
+
+	//sprintf(oapiDebugString(), "ET DOORS: %f %f", LETUmbDoorStatus.pos, RETUmbDoorStatus.pos);
 	if(CenterlineLatches.Moving()) {
 		double da=dt*LATCH_OPERATING_SPEED;
 		CenterlineLatches.pos=min(1.0, CenterlineLatches.pos+da);
@@ -1397,6 +1399,7 @@ bool PanelR2::ParseScenarioLine (char *line)
 		if(LETUmbDoorStatus.pos==0.0) LETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(LETUmbDoorStatus.pos==1.0) LETUmbDoorStatus.action=AnimState::OPEN;
 		else LETUmbDoorStatus.action=AnimState::STOPPED;
+
 		sts->SetETUmbDoorPosition(LETUmbDoorStatus.pos, 0);
 		return true;
 	}
@@ -1406,6 +1409,7 @@ bool PanelR2::ParseScenarioLine (char *line)
 		if(RETUmbDoorStatus.pos==0.0) RETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(RETUmbDoorStatus.pos==1.0) RETUmbDoorStatus.action=AnimState::OPEN;
 		else RETUmbDoorStatus.action=AnimState::STOPPED;
+
 		sts->SetETUmbDoorPosition(RETUmbDoorStatus.pos, 1);
 		return true;
 	}
