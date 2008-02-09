@@ -229,6 +229,34 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 	}
+
+	//Second row of switches
+	if(p.x>=0.113359 && p.x<=0.194960) {
+		if(p.y>=0.445173 && p.y<=0.531996) {
+			if(p.x<0.155331) {
+				switch_state[SWITCH7]=0;
+				sts->CRT_SEL[0]=0;
+			}
+			else {
+				switch_state[SWITCH7]=1;
+				sts->CRT_SEL[0]=2;
+			}
+			action=true;
+		}
+	}
+	else if(p.x>=0.839770 && p.x<=0.926774) {
+		if(p.y>=0.430792 && p.y<=0.544745) {
+			if(p.x<0.883762) {
+				switch_state[SWITCH8]=0;
+				sts->CRT_SEL[1]=2;
+			}
+			else {
+				switch_state[SWITCH8]=1;
+				sts->CRT_SEL[1]=1;
+			}
+			action=true;
+		}
+	}
 	
 	//Third row of switches
 	//Switch 9: EVENT TIMER MODE
@@ -339,8 +367,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[0] = tgtwheel_state[0] + 0.25;
-			sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes up.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes up.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 			
 			action = true;
 		}
@@ -349,8 +377,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 			tgtwheel_state[0] -= 0.25;
 			if(tgtwheel_state[0] < 0)
 				tgtwheel_state[0] +=EVTTMR_WHEELMAX[0];
-			sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 
 			action = true;
 		}
@@ -360,8 +388,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[1] = tgtwheel_state[1] + 0.25;
-			sprintf(oapiDebugString(), "PANEL C2: counting 1 minute up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 1 minute up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 			
 			action = true;
 		}
@@ -370,8 +398,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 			tgtwheel_state[1] -= 0.25;
 			if(tgtwheel_state[1] < 0)
 				tgtwheel_state[1] +=EVTTMR_WHEELMAX[1];
-			sprintf(oapiDebugString(), "PANEL C2: counting 1 minute down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 1 minute down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 
 			action = true;
 		}
@@ -381,8 +409,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[2] = tgtwheel_state[2] + 0.25;
-			sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);			
+			//sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);			
 			action = true;
 		}
 		else if(p.y >0.72 && p.y < 0.79)
@@ -390,8 +418,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 			tgtwheel_state[2] -= 0.25;
 			if(tgtwheel_state[2] < 0)
 				tgtwheel_state[2] +=EVTTMR_WHEELMAX[2];
-			sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 
 			action = true;
 		}
@@ -401,8 +429,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[3] = tgtwheel_state[3] + 0.25;
-			sprintf(oapiDebugString(), "PANEL C2: counting 1 second up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 1 second up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 			
 			action = true;
 		}
@@ -411,8 +439,8 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 			tgtwheel_state[3] -= 0.25;
 			if(tgtwheel_state[3] < 0)
 				tgtwheel_state[3] +=EVTTMR_WHEELMAX[3];
-			sprintf(oapiDebugString(), "PANEL C2: counting 1 second down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
+			//sprintf(oapiDebugString(), "PANEL C2: counting 1 second down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
+				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
 
 			action = true;
 		}
@@ -435,7 +463,8 @@ void PanelC2::UpdateVC() {
 	{
 		if(anim_VC_C2[i])
 		{
-			sts->SetAnimation(anim_VC_C2[i], switch_state[i] * 0.5);
+			if(i!=SWITCH7 && i!=SWITCH8) sts->SetAnimation(anim_VC_C2[i], switch_state[i] * 0.5);
+			else sts->SetAnimation(anim_VC_C2[i], switch_state[i]);
 		}
 	}
 	return;
@@ -519,9 +548,18 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 	anim_VC_C2[SWITCH6]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH6], 0, 1, &VC_C2b6);
 
+	static UINT VC_C2b7_Grp = GRP_C2b7_VC;
+	static MGROUP_ROTATE VC_C2b7 (vcidx, &VC_C2b7_Grp, 1,
+		_V(-0.103, 1.789, 14.801), _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
+	anim_VC_C2[SWITCH7]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_C2[SWITCH7], 0, 1, &VC_C2b7);
 
-
-
+	static UINT VC_C2b8_Grp = GRP_C2b8_VC;
+	static MGROUP_ROTATE VC_C2b8 (vcidx, &VC_C2b8_Grp, 1,
+		_V(0.103, 1.790, 14.801), _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
+	anim_VC_C2[SWITCH8]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_C2[SWITCH8], 0, 1, &VC_C2b8);
+	
 	static UINT VC_C2b9_Grp = GRP_C2b9_VC;
 
 	static MGROUP_ROTATE VC_C2b9 (vcidx, &VC_C2b9_Grp, 1,
@@ -725,10 +763,20 @@ void PanelC2::Step(double t, double dt)
 
 void PanelC2::SaveState(FILEHANDLE scn)
 {
-	//char cbuf[256];
+	char cbuf[256];
+	sprintf(cbuf, "%d %d", switch_state[SWITCH7], switch_state[SWITCH8]);
+	oapiWriteScenario_string(scn, "CRT_SEL", cbuf);
 }
 
 bool PanelC2::ParseScenarioLine (char *line)
 {
+	if(!strnicmp(line, "CRT_SEL", 7)) {
+		sscanf(line+7, "%d %d", &switch_state[SWITCH7], &switch_state[SWITCH8]);
+		if(switch_state[SWITCH7]==0) sts->CRT_SEL[0]=0;
+		else sts->CRT_SEL[0]=2;
+		if(switch_state[SWITCH8]==0) sts->CRT_SEL[1]=2;
+		else sts->CRT_SEL[1]=1;
+		return true;
+	}
 	return false;
 }

@@ -552,6 +552,135 @@ void Atlantis::Maneuver(double dt)
 	//else sprintf(oapiDebugString(), "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 }
 
+void Atlantis::GimbalOMS(VECTOR3 Targets)
+{
+	VECTOR3 Dir;
+	OMSGimbal[0][0]=OMSGimbal[1][0]=-(ORBITER_OMS_PITCH+Targets.data[0]);
+	OMSGimbal[0][1]=ORBITER_OMS_YAW+Targets.data[1];
+	OMSGimbal[1][1]=-ORBITER_OMS_YAW+Targets.data[2];
+	
+	// L OMS Engine
+	Dir.z=sqrt(1-pow(sin(OMSGimbal[0][0]*RAD), 2)-pow(sin(OMSGimbal[0][1]*RAD), 2));
+	Dir.y=sin(OMSGimbal[0][0]*RAD);
+	Dir.x=sin(OMSGimbal[0][1]*RAD);
+	SetThrusterDir(th_oms[0], Dir);
+	// R OMS Engine
+	Dir.z=sqrt(1-pow(sin(OMSGimbal[1][0]*RAD), 2)-pow(sin(OMSGimbal[1][1]*RAD), 2));
+	Dir.y=sin(OMSGimbal[1][0]*RAD);
+	Dir.x=sin(OMSGimbal[1][1]*RAD);
+	SetThrusterDir(th_oms[1], Dir);
+
+	OMSGimbal[0][0]=OMSGimbal[1][0]=Targets.data[0];
+	OMSGimbal[0][1]=Targets.data[1];
+	OMSGimbal[1][1]=Targets.data[2];
+	return;
+}
+
+void Atlantis::LoadManeuver()
+{
+	int i;
+	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate;
+	//VECTOR3 ThrustVector;
+	bool bDone=false;
+	MNVRLOAD=true;
+	tig=TIG[0]*86400+TIG[1]*3600+TIG[2]*60+TIG[3];
+	
+	//dV
+	for(i=0;i<3;i++) {
+		DeltaV.data[i]=PEG7.data[i]*fps_to_ms;
+		//sts->VGO.data[i]=sts->PEG7.data[i];
+	}
+	DeltaVTot=length(PEG7);
+	DeltaVTotms=length(DeltaV); //make local variable?
+	GimbalOMS(Trim);
+	
+	//Burn Attitude
+	if(OMS==0) {
+		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0];
+		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
+			if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+			else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		}
+		if(DeltaV.x!=0.0 || DeltaV.y!=0.0)
+			BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))))+Trim.data[1]+Trim.data[2];
+		else BurnAtt.data[YAW]=Trim.data[1]+Trim.data[2];
+		BurnAtt.data[ROLL]=TV_ROLL;
+	}
+	else if(OMS<3) {
+		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0];
+		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
+			if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+			else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		}
+		if(DeltaV.x!=0.0 || DeltaV.y!=0.0)
+			BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))))+Trim.data[OMS-1]+ORBITER_OMS_YAW*pow(-1.0, -OMS);
+		else BurnAtt.data[YAW]=Trim.data[OMS-1]+ORBITER_OMS_YAW*pow(-1.0,- OMS);
+		BurnAtt.data[ROLL]=TV_ROLL;
+	}
+	else {
+		if(DeltaV.z<=0) BurnAtt.data[PITCH]=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		else BurnAtt.data[PITCH]=-DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+		BurnAtt.data[ROLL]=TV_ROLL;
+	}
+	if(TV_ROLL!=0.0) {
+		double dTemp=BurnAtt.data[PITCH];
+		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD));
+		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
+	}
+	//use rocket equation
+	StartWeight=WT/kg_to_pounds;
+	EndWeight=StartWeight/exp(DeltaVTotms/GetThrusterIsp(th_oms[0]));
+	FuelRate=ORBITER_OMS_THRUST/(GetPropellantEfficiency(ph_oms)*GetThrusterIsp(th_oms[0]));
+	if(OMS==0) FuelRate=FuelRate*2.0;
+	BurnTime=(StartWeight-EndWeight)/FuelRate;
+	//TGO[0]=BurnTime/60;
+	//TGO[1]=BurnTime-(TGO[0]*60);
+	VGO.x=DeltaVTot*cos((ORBITER_OMS_PITCH+Trim.data[0])*RAD);
+	VGO.y=DeltaVTot*sin((Trim.data[1]+Trim.data[2])*RAD);
+	VGO.z=DeltaVTot*sin((ORBITER_OMS_PITCH+Trim.data[0])*RAD);
+}
+
+void Atlantis::UpdateDAP()
+{
+	//sprintf(oapiDebugString(), "UpdateDAP() called %f", oapiRand());
+	if(DAPMode[1]==0) {
+		RotRate=DAP[DAPMode[0]].PRI_ROT_RATE;
+		AttDeadband=DAP[DAPMode[0]].PRI_ATT_DB;
+		RateDeadband=DAP[DAPMode[0]].PRI_RATE_DB;
+		if(DAP[DAPMode[0]].PRI_P_OPTION!=0)
+			Torque.data[PITCH]=0.5*ORBITER_PITCH_TORQUE;
+		else Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
+		if(DAP[DAPMode[0]].PRI_Y_OPTION!=0)
+			Torque.data[YAW]=0.5*ORBITER_YAW_TORQUE;
+		else Torque.data[YAW]=ORBITER_YAW_TORQUE;
+		Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
+	}
+	else if(DAPMode[1]==1) {
+		RotRate=DAP[DAPMode[0]].PRI_ROT_RATE;
+		AttDeadband=DAP[DAPMode[0]].PRI_ATT_DB;
+		RateDeadband=DAP[DAPMode[0]].ALT_RATE_DB;
+		if(DAP[DAPMode[0]].ALT_JET_OPT==2) {
+			Torque.data[PITCH]=0.5*ORBITER_PITCH_TORQUE;
+			Torque.data[YAW]=0.5*ORBITER_YAW_TORQUE;
+			Torque.data[ROLL]=0.5*ORBITER_ROLL_TORQUE;
+		}
+		else {
+			Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
+			Torque.data[YAW]=ORBITER_YAW_TORQUE;
+			Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
+		}
+	}
+	else if(DAPMode[1]==2) {
+		RotRate=DAP[DAPMode[0]].VERN_ROT_RATE;
+		AttDeadband=DAP[DAPMode[0]].VERN_ATT_DB;
+		RateDeadband=DAP[DAPMode[0]].VERN_RATE_DB;
+		Torque.data[PITCH]=0.1*ORBITER_PITCH_TORQUE;
+		Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
+		Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
+	}
+}
+
 void Atlantis::AttControl(double SimdT)
 {
 	dT=SimdT;

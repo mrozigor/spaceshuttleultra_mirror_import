@@ -12,7 +12,7 @@
 #ifndef __ATLANTIS_H
 #define __ATLANTIS_H
 
-//#include "CRT.h"
+#include "CRT.h"
 #include "orbitersdk.h"
 #include <math.h>
 
@@ -348,7 +348,10 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_C2_WND1    282
 #define AID_C2_WND2    283
 #define AID_C2_WND3    284
-#define AID_C2_MAX     299
+#define AID_C2_MAX     289
+// Keyboards
+#define AID_KYBD_CDR   290
+#define AID_KYBD_PLT   291
 // Panel C3
 #define AID_C3_MIN     300
 #define AID_C3         300
@@ -428,6 +431,13 @@ typedef struct {
 	int VERN_CNTL_ACC;
 } DAPConfig;
 
+typedef struct {
+	bool OPS, ITEM, SPEC, EXEC, PRO;
+	bool NewEntry; //used by CRT MFD to output scratch pad
+	char input[255];
+	int InputSize; //number of chars used
+} KeyboardInput;
+
 enum AXIS {PITCH, YAW, ROLL};
 
 class PanelA4;
@@ -451,6 +461,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelF7;
 	friend class PanelO3;
 	friend class PanelR2;
+	friend class Keyboard;
 	friend class CRT;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -577,6 +588,8 @@ public:
 	PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	PanelR2 *r2d2; // PanelR2 operations
+	Keyboard *CDRKeyboard;
+	Keyboard *PLTKeyboard;
 	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
 	OBJHANDLE ThisVessel;
@@ -615,8 +628,13 @@ private:
 	void GPC(double dt);
 	void Maneuver(double dt);
 	void SetILoads();
+	bool Input(int mfd, int change, char *Name, char *Data=NULL);
+	//void Test();
 
 	//DAP
+	void GimbalOMS(VECTOR3 Targets);
+	void LoadManeuver();
+	void UpdateDAP(); //updates rot rates, torques
 	void AttControl(double SimdT);
 	void SetRates(VECTOR3 &Rates);
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
@@ -625,6 +643,10 @@ private:
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
 	double NullStartAngle(double Rates, AXIS Axis);
+
+	//Thruster Control
+	void EnableThrusters(const int Thrusters[], int nThrusters);
+	void DisableThrusters(const int Thrusters[], int nThrusters);
 
 	//Math
 	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
@@ -891,7 +913,12 @@ private:
 	//GPC
 	int ops;
 	int last_mfd;
-	bool bFirstStep; //call functions in first timestep
+	//bool bFirstStep; //call functions in first timestep
+	//Data Input
+	KeyboardInput DataInput[3];
+	int CRT_SEL[2]; //0=CDR, 1=PLT
+	CRT* Display[3];
+	CRT* newmfd;
 
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS

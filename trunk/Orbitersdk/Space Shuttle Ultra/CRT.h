@@ -2,7 +2,6 @@
 #define __CRT_H
 
 #include "Atlantis.h"
-#include "PanelR2.h"
 #include "orbitersdk.h"
 #include <math.h>
 
@@ -18,6 +17,7 @@ const int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 class CRT: public MFD {
 	friend class Atlantis;
+	friend class Keyboard;
 public:
 	CRT (DWORD w, DWORD h, VESSEL *vessel);
 	~CRT ();
@@ -96,6 +96,7 @@ private:
 	void UNIVPTG(HDC hDC);
 	void DAP_CONFIG(HDC hDC);
 	void MNVR(HDC hDC);
+	void DisplayScratchPad(HDC hDC);
 	void DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY);
 
 	//Thruster Control

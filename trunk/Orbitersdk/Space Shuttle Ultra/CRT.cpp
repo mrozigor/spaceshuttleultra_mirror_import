@@ -2,6 +2,7 @@
 #define ORBITER_MODULE
 #include "windows.h"
 #include "orbitersdk.h"
+#include "PanelR2.h"
 #include "CRT.h"
 #include <cstdio>
 #include "MasterTimingUnit.h"
@@ -60,6 +61,11 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 : MFD (w, h, v)
 {
 	int i;
+
+	/*char cbuf[255];
+	sprintf(cbuf, "CRT Constructor");
+	oapiWriteLog(cbuf);*/
+
 	vessel=v;
 	width=w;
 	height=h;
@@ -70,11 +76,21 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 	if(strcmp(pV->GetClassName(), "Atlantis")==0) {
 		sts=(Atlantis *)pV;
-		id=sts->last_mfd;
+		//id=sts->last_mfd;
+		/*sprintf(oapiDebugString(), "%d %f", sts->last_mfd, oapiRand());
+		if(sts->last_mfd==4) id=0;
+		else if(sts->last_mfd==7) id=1;
+		else if(sts->last_mfd==6) id=2;
+		else id=-1;
+		if(id!=-1) {
+			sts->Display[id]=this;
+		}*/
+		sts->newmfd=this;
 		mode=0;
 	}
 	else {
-		id=10;
+		//id=10;
+		id=-1;
 		mode=10001;
 	}
 	strcpy(cDispTitle, "GPC MEMORY");
@@ -107,6 +123,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 CRT::~CRT ()
 {
+	if(id!=-1) sts->Display[id]=NULL;
 	DeleteObject(hCRTFont);
 	return;
 }
@@ -118,6 +135,8 @@ void CRT::Update (HDC hDC)
 	int nPos, nLoc, EngConvert[3]={1, 0, 2};*/
 	//sprintf(oapiDebugString(), "%i", id);
 	if(data!=0) Data(1-data);
+
+	//sprintf(oapiDebugString(), "%d", id);
 
 	Simtime=oapiGetSimTime();
 
@@ -143,7 +162,7 @@ void CRT::Update (HDC hDC)
 		}
 	}
 	else if(mode==1) {
-		DrawCommonHeader(hDC);
+		//DrawCommonHeader(hDC);
 		if(sts->ops==201) {
 			switch(spec) {
 				case 0:
@@ -162,6 +181,7 @@ void CRT::Update (HDC hDC)
 		else {
 			DrawCommonHeader(hDC);
 		}
+		DisplayScratchPad(hDC);
 	}
 	/*if(!sts->GroundContact()) {
 		MET[0]=Simtime/86400;
@@ -493,6 +513,7 @@ void CRT::APUHYD(HDC hDC)
 	HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
+	SelectDefaultFont(hDC, 0);
 	SetTextColor(hDC, WHITE);
 	TextOut(hDC, 0, 60, "FUEL", 4);
 	TextOut(hDC, 0, 70, "QTY", 3);
@@ -946,6 +967,9 @@ void CRT::MNVR(HDC hDC)
 	int minutes, seconds;
 	int timeDiff;
 	int TIMER[4];
+
+	SelectDefaultFont(hDC, 0);
+
 	switch(sts->ops) {
 		case 104:
 			TextOut(hDC, 0, 0, "1041/", 5);
@@ -1214,6 +1238,28 @@ void CRT::MNVR(HDC hDC)
 	TextOut(hDC, 185, 189, "  OFF  40", 9);
 }
 
+void CRT::DisplayScratchPad(HDC hDC)
+{
+	char cbuf[255];
+	if(id<0) return;
+	if(sts->DataInput[id].OPS) {
+		if(sts->DataInput[id].PRO) sprintf(cbuf, "OPS %s PRO", sts->DataInput[id].input);
+		else sprintf(cbuf, "OPS %s", sts->DataInput[id].input);
+		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
+	}
+	else if(sts->DataInput[id].SPEC) {
+		if(sts->DataInput[id].PRO) sprintf(cbuf, "SPEC %s PRO", sts->DataInput[id].input);
+		else sprintf(cbuf, "SPEC %s", sts->DataInput[id].input);
+		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
+	}
+	else if(sts->DataInput[id].ITEM) {
+		if(sts->DataInput[id].EXEC) sprintf(cbuf, "ITEM %s EXEC", sts->DataInput[id].input);
+		else sprintf(cbuf, "ITEM %s", sts->DataInput[id].input);
+		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
+	}
+	else TextOut(hDC, 0, 245, sts->DataInput[id].input, strlen(sts->DataInput[id].input));
+}
+
 void CRT::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
 {
 	MoveToEx(hDC, TopX, TopY, NULL);
@@ -1263,8 +1309,6 @@ void CRT::OMSGimbal(VECTOR3 Targets)
 	sts->OMSGimbal[1][1]=Targets.data[2];
 	return;
 }
-
-
 
 void CRT::LoadManeuver()
 {
@@ -1433,8 +1477,6 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
   }
   return false;
 }
-
-
 
 bool CRT::ConsumeButton (int bt, int event)
 {
