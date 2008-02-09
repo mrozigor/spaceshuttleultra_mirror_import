@@ -22,6 +22,7 @@
 #include "PanelF7.h"
 #include "PanelO3.h"
 #include "PanelR2.h"
+#include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
@@ -339,6 +340,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   panelc2		  = new PanelC2(this);
   panelf7		  = new PanelF7(this);
   panelo3		  = new PanelO3(this);
+  CDRKeyboard     = new Keyboard(this, 0);
+  PLTKeyboard     = new Keyboard(this, 1);
 
   psubsystems	  = new SubsystemDirector(this);
 
@@ -476,6 +479,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   pl_mass=0.0;
 
+  newmfd=NULL;
+
   //Launch Guidance
   MaxThrust=104.5; //104.5% thrust
   Throttle_Bucket[0]=834*fps_to_ms;
@@ -494,9 +499,12 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   // gpc
   ops=101;
   last_mfd=0;
-  bFirstStep=true;
+  //bFirstStep=true;
   ThrAngleP=-13.20;
   ThrAngleY=0.0;
+  //Displays
+  CRT_SEL[0]=2; //CRT3
+  CRT_SEL[1]=1; //CRT2
   //MNVR
   MNVRLOAD=false;
   TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
@@ -514,6 +522,17 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  REQD_ATT.data[i]=0.0;
 	  LVLHOrientationReqd.data[i]=0.0;
 	  TargetAtt.data[i]=0.0;
+	  //Initialize Keyboard Input
+	  DataInput[i].OPS=false;
+	  DataInput[i].ITEM=false;
+	  DataInput[i].SPEC=false;
+	  DataInput[i].PRO=false;
+	  DataInput[i].EXEC=false;
+	  DataInput[i].NewEntry=false;
+	  //DataInput[i].input="";
+	  sprintf(DataInput[i].input, "");
+	  DataInput[i].InputSize=0;
+	  Display[i]=NULL;
 	  //Initialize DAP Config
 	  DAP[i].PRI_ROT_RATE=RotRate=1.0;
 	  DAP[i].PRI_ATT_DB=AttDeadband=0.5;
@@ -572,6 +591,8 @@ Atlantis::~Atlantis () {
 	delete panelf7;
 	delete panelo3;
 	delete panelc2;
+	delete CDRKeyboard;
+	delete PLTKeyboard;
   
   for (i = 0; i < 7; i++) delete rms_anim[i];
   
@@ -632,8 +653,6 @@ void Atlantis::SetLaunchConfiguration (void)
   // However the resulting linear force vector has a component in +y ("up") direction
 
   ClearThrusterDefinitions();
-
-  //_V(1.547324, -0.6134227, -11.34648);
 
   // orbiter main thrusters
   /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.13,1), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
@@ -2214,6 +2233,735 @@ void Atlantis::SetAnimationCameras() {
   SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 }
 
+void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
+{
+	for(int i=0;i<nThrusters;i++) {
+		if(Thrusters[i]%2==1)
+			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_oms);
+		else
+			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_frcs);
+	}
+}
+
+void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
+{
+	for(int i=0;i<nThrusters;i++) {
+		SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
+	}
+}
+
+bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
+{
+	int item;
+	int nNew;
+	double dNew;
+	if(change==0) {
+		nNew=atoi(Name);
+		if(nNew==104 && ops==103) {
+			ops=104;
+			WT=GetMass()*kg_to_pounds;
+			BurnInProg=false;
+			BurnCompleted=false;
+			MNVRLOAD=false;
+			Display[mfd]->bTIMER=false;
+		}
+		else if(nNew==105 && ops==104) {
+			ops=105;
+			WT=GetMass()*kg_to_pounds;
+			BurnInProg=false;
+			BurnCompleted=false;
+			MNVRLOAD=false;
+			Display[mfd]->bTIMER=false;
+		}
+		else if(nNew==106 && ops==105) {
+			ops=106;
+		}
+		else if(nNew==201 && (ops==202 || ops==106))
+		{
+			ops=201;
+			MNVR=false;
+			TRK=false;
+			ROT=false;
+		}
+		else if(nNew==202 && ops==201)
+		{
+			ops=202;
+			WT=GetMass()*kg_to_pounds;
+			BurnInProg=false;
+			BurnCompleted=false;
+			MNVRLOAD=false;
+			Display[mfd]->bTIMER=false;
+		}
+		else if(nNew==301 && ops==201)
+		{
+			ops=301;
+			WT=GetMass()*kg_to_pounds;
+			BurnInProg=false;
+			BurnCompleted=false;
+			MNVRLOAD=false;
+			Display[mfd]->bTIMER=false;
+		}
+		else if(nNew==302 && ops==301)
+		{
+			ops=302;
+		}
+		else if(nNew==303 && ops==302)
+		{
+			ops=303;
+		}
+		return true;
+	}
+	else if(change==1) {
+		nNew=atoi(Name);
+		if(ops==201) {
+			switch(Display[mfd]->spec) {
+				case 0:
+					if(nNew<=17) {
+						//item=nNew;
+						return Input(mfd, 3, Name, Data);
+						//data=1;
+						//return true;
+					}
+					else if(nNew==18) {
+						if(MNVR==false) 
+						{
+							MNVR=true;
+							ROT=false;
+							TRK=false;
+							REQD_ATT.x=MNVR_OPTION.x;
+							REQD_ATT.y=MNVR_OPTION.y;
+							REQD_ATT.z=MNVR_OPTION.z;
+							for(int i=0;i<3;i++) {
+								if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
+								else TargetAtt.data[i]=REQD_ATT.data[i];
+							}
+							TargetAtt=ToRad(TargetAtt);
+						}
+						else MNVR=false;
+						Yaw=false;
+						Pitch=false;
+						Roll=false;
+						return true;
+					}
+					else if(nNew==19) {
+						if(TRK==false) {
+							TRK=true;
+							MNVR=false;
+							ROT=false;
+							if(TGT_ID==2) {
+								if(BODY_VECT==1) {
+									LVLHOrientationReqd.data[PITCH]=270.0;
+									LVLHOrientationReqd.data[YAW]=0.0;
+									if((OM)<=0.0) {
+										LVLHOrientationReqd.data[ROLL]=0.0;
+										LVLHRateVector.data[PITCH]=-1.0;
+										LVLHRateVector.data[YAW]=0.0;
+										LVLHRateVector.data[ROLL]=0.0;
+									}
+									else {
+										LVLHOrientationReqd.data[ROLL]=OM;
+										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+										LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
+										LVLHRateVector.data[ROLL]=0.0;
+									}
+								}
+								else if(BODY_VECT==2) {
+									LVLHOrientationReqd.data[PITCH]=90.0;
+									LVLHOrientationReqd.data[YAW]=0.0;
+									if(OM<=0.0) {
+										LVLHOrientationReqd.data[ROLL]=0.0;
+										LVLHRateVector.data[PITCH]=-1.0;
+										LVLHRateVector.data[YAW]=0.0;
+										LVLHRateVector.data[ROLL]=0.0;
+									}
+									else {
+										LVLHOrientationReqd.data[ROLL]=OM;
+										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+										LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
+										LVLHRateVector.data[ROLL]=0.0;
+									}
+								}
+								else if(BODY_VECT==3) {
+									LVLHOrientationReqd.data[PITCH]=180.0;
+									LVLHOrientationReqd.data[ROLL]=0.0;
+									if(OM<=0.0) {
+										LVLHOrientationReqd.data[YAW]=0.0;
+										LVLHRateVector.data[PITCH]=-1.0;
+										LVLHRateVector.data[YAW]=0.0;
+										LVLHRateVector.data[ROLL]=0.0;
+									}
+									else {
+										LVLHOrientationReqd.data[YAW]=OM;
+										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+										LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
+										LVLHRateVector.data[YAW]=0.0;
+									}
+								}
+								else if(BODY_VECT==5) {
+									LVLHOrientationReqd.data[PITCH]=270-P;
+									if(LVLHOrientationReqd.data[PITCH]==0.0)
+									{
+										LVLHOrientationReqd.data[ROLL]=Y;
+										if(OM<=0.0) {
+											LVLHOrientationReqd.data[YAW]=0.0;
+											if(LVLHOrientationReqd.data[ROLL]==0.0) {
+												LVLHRateVector.data[PITCH]=-1.0;
+												LVLHRateVector.data[YAW]=0.0;
+												LVLHRateVector.data[ROLL]=0.0;
+											}
+										}
+										else LVLHOrientationReqd.data[YAW]=OM;
+									}
+									else
+									{
+										LVLHOrientationReqd.data[YAW]=(270.0-P)*sin(RAD*Y);
+										LVLHOrientationReqd.data[ROLL]=Y*cos(RAD*LVLHOrientationReqd.data[PITCH]);
+										if(OM>0.0) LVLHOrientationReqd.data[YAW]+=OM;
+									}
+									LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+									LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
+									LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+								}
+							}
+						}
+						else TRK=false;
+						Yaw=false;
+						Pitch=false;
+						Roll=false;
+						return true;
+					}
+					else if(nNew==20) {
+						if(ROT==false) {
+							ROT=true;
+							MNVR=false;
+							TRK=false;
+						}
+						else ROT=false;
+						return true;
+					}
+					else if(nNew==21) {
+						MNVR=false;
+						ROT=false;
+						TRK=false;
+						SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+						REQD_ATT.x=MNVR_OPTION.x;
+						REQD_ATT.y=MNVR_OPTION.y;
+						REQD_ATT.z=MNVR_OPTION.z;
+						for(int i=0;i<3;i++) {
+							if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
+							else TargetAtt.data[i]=REQD_ATT.data[i];
+						}
+						TargetAtt=ToRad(TargetAtt);
+						return true;
+					}
+					break;
+				case 20:
+					if(nNew==1 || nNew==2) {
+						DAPMode[0]=nNew-1;
+						UpdateDAP();
+						return true;
+					}
+					else if(nNew>=3 && nNew<=5) {
+						DAPMode[1]=nNew-3;
+						UpdateDAP();
+						return true;
+					}
+					else if(nNew==6 || nNew==7) {
+						edit=nNew-5;
+						int i=edit-1;
+						DAP[2].PRI_ROT_RATE=DAP[i].PRI_ROT_RATE;
+						DAP[2].PRI_ATT_DB=DAP[i].PRI_ATT_DB;
+						DAP[2].PRI_RATE_DB=DAP[i].PRI_RATE_DB;
+						DAP[2].PRI_ROT_PLS=DAP[i].PRI_ROT_PLS;
+						DAP[2].PRI_COMP=DAP[i].PRI_COMP;
+						DAP[2].PRI_TRAN_PLS=DAP[i].PRI_TRAN_PLS;
+						DAP[2].PRI_P_OPTION=DAP[i].PRI_P_OPTION;
+						DAP[2].PRI_Y_OPTION=DAP[i].PRI_Y_OPTION;
+						DAP[2].ALT_RATE_DB=DAP[i].ALT_RATE_DB;
+						DAP[2].ALT_ON_TIME=DAP[i].ALT_ON_TIME;
+						DAP[2].ALT_DELAY=DAP[i].ALT_DELAY;
+						DAP[2].ALT_JET_OPT=DAP[i].ALT_JET_OPT;
+						DAP[2].ALT_JETS=DAP[i].ALT_JETS;
+						DAP[2].VERN_ROT_RATE=DAP[i].VERN_ROT_RATE;
+						DAP[2].VERN_ATT_DB=DAP[i].VERN_ATT_DB;
+						DAP[2].VERN_RATE_DB=DAP[i].VERN_RATE_DB;
+						DAP[2].VERN_ROT_PLS=DAP[i].VERN_ROT_PLS;
+						DAP[2].VERN_COMP=DAP[i].VERN_COMP;
+						DAP[2].VERN_CNTL_ACC=DAP[i].VERN_CNTL_ACC;
+						return true;
+					}
+					else if(nNew==8) {
+						int i=edit-1;
+						DAP[i].PRI_ROT_RATE=DAP[2].PRI_ROT_RATE;
+						DAP[i].PRI_ATT_DB=DAP[2].PRI_ATT_DB;
+						DAP[i].PRI_RATE_DB=DAP[2].PRI_RATE_DB;
+						DAP[i].PRI_ROT_PLS=DAP[2].PRI_ROT_PLS;
+						DAP[i].PRI_COMP=DAP[2].PRI_COMP;
+						DAP[i].PRI_TRAN_PLS=DAP[2].PRI_TRAN_PLS;
+						DAP[i].PRI_P_OPTION=DAP[2].PRI_P_OPTION;
+						DAP[i].PRI_Y_OPTION=DAP[2].PRI_Y_OPTION;
+						DAP[i].ALT_RATE_DB=DAP[2].ALT_RATE_DB;
+						DAP[i].ALT_ON_TIME=DAP[2].ALT_ON_TIME;
+						DAP[i].ALT_DELAY=DAP[2].ALT_DELAY;
+						DAP[i].ALT_JET_OPT=DAP[2].ALT_JET_OPT;
+						DAP[i].ALT_JETS=DAP[2].ALT_JETS;
+						DAP[i].VERN_ROT_RATE=DAP[2].VERN_ROT_RATE;
+						DAP[i].VERN_ATT_DB=DAP[2].VERN_ATT_DB;
+						DAP[i].VERN_RATE_DB=DAP[2].VERN_RATE_DB;
+						DAP[i].VERN_ROT_PLS=DAP[2].VERN_ROT_PLS;
+						DAP[i].VERN_COMP=DAP[2].VERN_COMP;
+						DAP[i].VERN_CNTL_ACC=DAP[2].VERN_CNTL_ACC;
+						edit=0;
+						return true;
+					}
+					else if(nNew==15 || nNew==35 || nNew==55) {
+						if(DAP[convert[nNew]].PRI_P_OPTION<2) {
+							DAP[convert[nNew]].PRI_P_OPTION++;
+							if(DAPMode[1]==0) {
+								if(DAP[DAPMode[0]].PRI_P_OPTION==1) {
+									DisableThrusters(AftPitchThrusters, 2);
+									UpdateDAP();
+								}
+								else if(DAP[DAPMode[0]].PRI_P_OPTION==2) {
+									EnableThrusters(AftPitchThrusters, 2);
+									DisableThrusters(NosePitchThrusters, 2);
+									UpdateDAP();
+								}
+							}
+						}
+						else {
+							DAP[convert[nNew]].PRI_P_OPTION=0;
+							if(DAP[DAPMode[0]].PRI_P_OPTION==0) {
+								EnableThrusters(NosePitchThrusters, 2);
+								UpdateDAP();
+							}
+						}
+						return true;
+					}
+					else if(nNew==16 || nNew==36 || nNew==56) {
+						if(DAP[convert[nNew]].PRI_Y_OPTION<2) {
+							DAP[convert[nNew]].PRI_Y_OPTION++;
+							if(DAPMode[1]==0) {
+								if(DAP[DAPMode[0]].PRI_Y_OPTION==1) {
+									DisableThrusters(AftYawThrusters, 2);
+									UpdateDAP();
+								}
+								else if(DAP[DAPMode[0]].PRI_Y_OPTION==2) {
+									EnableThrusters(AftYawThrusters, 2);
+									DisableThrusters(NoseYawThrusters, 2);
+									UpdateDAP();
+								}
+							}
+						}
+						else {
+							DAP[convert[nNew]].PRI_Y_OPTION=0;
+							if(DAP[DAPMode[0]].PRI_Y_OPTION==0) {
+								EnableThrusters(NoseYawThrusters, 2);
+								UpdateDAP();
+							}
+						}
+						return true;
+					}
+					else if(nNew==19 || nNew==39 || nNew==59) {
+						if(DAP[convert[nNew]].ALT_JET_OPT==0) {
+							DAP[convert[nNew]].ALT_JET_OPT=2;
+							if(DAPMode[1]==1) {
+								if(DAP[DAPMode[0]].ALT_JET_OPT==2) {
+									DisableThrusters(NoseRotThrusters, 6);
+									EnableThrusters(AftRotThrusters, 6);
+									UpdateDAP();
+								}
+							}
+						}
+						else {
+							DAP[convert[nNew]].ALT_JET_OPT=0;
+							if(DAPMode[1]==1) {
+								if(DAP[DAPMode[0]].ALT_JET_OPT==0) {
+									EnableThrusters(NoseRotThrusters, 6);
+									UpdateDAP();
+								}
+							}
+						}
+						return true;
+					}
+					else if(nNew>=10 && nNew<=28 || nNew>=30 && nNew<=48 || nNew>=50 && nNew<=68) {
+						//item=nNew;
+						return Input(mfd, 3, Name, Data);
+						//data=1;
+						//return true;
+					}
+					break;
+			}
+		}
+		else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
+			if(nNew>=1 && nNew<=4) {
+				OMS=nNew-1;
+				return true;
+			}
+			else if(nNew>=5 && nNew<=21) {
+				//item=nNew;
+				return Input(mfd, 3, Name, Data);
+				//data=1;
+				//return true;
+			}
+			else if(nNew==22) {
+				LoadManeuver();
+				return true;
+			}
+			else if(nNew==23) {
+				Display[mfd]->bTIMER=true;
+				return true;
+			}
+			else if(nNew==27) {
+				if(!TRK) {
+					TRK=true;
+					MNVR=false;
+					ROT=false;
+					Yaw=false;
+					Pitch=false;
+					Roll=false;
+					TGT_ID=2;
+					if((Eq(BurnAtt.data[YAW], 90.00) || Eq(BurnAtt.data[YAW], -90.00)) && !Eq(BurnAtt.data[PITCH], 0.0)) {
+						LVLHOrientationReqd.data[PITCH]=90.0;
+						LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW]-BurnAtt.data[PITCH];
+						LVLHOrientationReqd.data[ROLL]=BurnAtt.data[YAW]+BurnAtt.data[ROLL];
+					}
+					else {
+						LVLHOrientationReqd.data[PITCH]=BurnAtt.data[PITCH];
+						LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW];
+						LVLHOrientationReqd.data[ROLL]=BurnAtt.data[ROLL];
+					}
+					LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+					LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
+					LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+					AttDeadband=0.05;
+					for(int i=0;i<4;i++) START_TIME[i]=MET[i];
+				}
+				else {
+					MNVR=false;
+					ROT=false;
+					TRK=false;
+					SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+					SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+					SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+					SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+					SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+					SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+				}
+				return true;
+			}
+			return false;
+		}
+	}
+	else if(change==2) {
+		nNew=atoi(Name);
+		if(ops==201) {
+			if(nNew==20 || nNew==0) {
+				Display[mfd]->spec=nNew;
+				//InvalidateDisplay();
+				return true;
+			}
+			else return false;
+		}
+	}
+	else if(change==3) {
+		item=atoi(Name);
+		if(ops==201) {
+			switch(Display[mfd]->spec) {
+				case 0:
+					if(item>=1 && item<=4) {
+						nNew=atoi(Data);
+						if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
+							START_TIME[item-1]=nNew;
+							return true;
+						}
+						return false;
+					}
+					else if(item==5 || item==6) {
+						dNew=atof(Data);
+						if(dNew>=0.0 && dNew<360.0) {
+							if(item==5) MNVR_OPTION.data[ROLL]=dNew;
+							else MNVR_OPTION.data[PITCH]=dNew;
+							return true;
+						}
+						return false;
+					}
+					else if(item==7) {
+						dNew=atof(Data);
+						if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+							MNVR_OPTION.data[YAW]=dNew;
+							return true;
+						}
+						return false;
+					}
+					if(item==8) {
+						nNew=atoi(Data);
+						if(nNew==2 || nNew==5) {
+							TGT_ID=nNew;
+							return true;
+						}
+						return false;
+					}
+					if(item==14) {
+						nNew=atoi(Data);
+						if(nNew>=1 && nNew<=5) {
+							BODY_VECT=nNew;
+							if(BODY_VECT==1) {
+								P=0.0;
+								Y=0.0;
+							}
+							else if(BODY_VECT==2) {
+								P=180.0;
+								Y=0.0;
+							}
+							else if(BODY_VECT==3) {
+								P=90.0;
+								Y=0.0;
+							}
+							return true;
+						}
+						return false;
+					}
+					if(item==15 && BODY_VECT==5) {
+						dNew=atof(Data);
+						if(dNew>=0.0 && dNew<360.0) {
+							P=dNew;
+							return true;
+						}
+						return false;
+					}
+					if(item==16 && BODY_VECT==5) {
+						dNew=atof(Data);
+						if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+							Y=dNew;
+							return true;
+						}
+						return false;
+					}
+					if(item==17) {
+						dNew=atof(Data);
+						if(dNew>=0.0 && dNew<360.0) {
+							OM=dNew;
+							return true;
+						}
+						return false;
+					}
+					return false;
+					break;
+				case 20:
+					if(item==10 || item==30 || item==50) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].PRI_ROT_RATE=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==11 || item==31 || item==51) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<100.0) {
+							DAP[convert[item]].PRI_ATT_DB=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==12 || item==32 || item==52) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].PRI_RATE_DB=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==13 || item==33 || item==53) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].PRI_ROT_PLS=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==14 || item==34 || item==54) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<1.0) {
+							DAP[convert[item]].PRI_COMP=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==17 || item==37 || item==57) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].PRI_ROT_PLS=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==18 || item==38 || item==58) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].ALT_RATE_DB=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==20 || item==40 || item==60) {
+						nNew=atoi(Data);
+						if(nNew>=1 && nNew<=3) {
+							DAP[convert[item]].ALT_JETS=nNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==21 || item==41 || item==61) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].ALT_ON_TIME=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==22 || item==42 || item==62) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<100.0) {
+							DAP[convert[item]].ALT_DELAY=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==23 || item==43 || item==63) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].VERN_ROT_RATE=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==24 || item==44 || item==64) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<100.0) {
+							DAP[convert[item]].VERN_ATT_DB=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==25 || item==45 || item==65) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<1.0) {
+							DAP[convert[item]].VERN_RATE_DB=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==26 || item==46 || item==66) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].VERN_ROT_PLS=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==27 || item==47 || item==67) {
+						dNew=atof(Data);
+						if(dNew>0.0 && dNew<10.0) {
+							DAP[convert[item]].VERN_COMP=dNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					else if(item==28 || item==48 || item==68) {
+						nNew=atoi(Data);
+						if(nNew>=0 && nNew<=9) {
+							DAP[convert[item]].VERN_CNTL_ACC=nNew;
+							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+							return true;
+						}
+						return false;
+					}
+					return false;
+					break;
+			}
+		}
+		else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
+			if(item==5) {
+				TV_ROLL=atoi(Data);
+				return true;
+			}
+			else if(item>=6 && item<=8) {
+				dNew=atof(Data);
+				if(fabs(dNew)<=6.0) 
+				{
+					Trim.data[item-6]=dNew;
+					return true;
+				}
+			}
+			else if(item==9) {
+				//dNew=atof(Data);
+				WT=atof(Data);
+				return true;
+			}
+			else if(item>=10 && item<=13) {
+				if(item==13) dNew=atof(Data);
+				else dNew=atoi(Data);
+				//sprintf(oapiDebugString(), "%f", dNew);
+				if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
+					TIG[item-10]=dNew;
+					return true;
+				}
+				return false;
+			}
+			else if(item==14 && ops!=202) {
+				C1=atof(Data);
+				return true;
+			}
+			else if(item==15 && ops!=202) {
+				dNew=atof(Data);
+				if(fabs(dNew)<10.0) {
+					C2=dNew;
+					return true;
+				}
+			}
+			else if(item==16 && ops!=202) {
+				HT=atof(Data);
+				return true;
+			}
+			else if(item==17 && ops!=202) {
+				ThetaT=atof(Data);
+				return true;
+			}
+			else if(item>=19 && item<=21) {
+				dNew=atof(Data);
+				PEG7.data[item-19]=dNew;
+				return true;
+			}
+			return false;
+		}
+		item=0;
+		return true;
+	}
+	return false;
+}
+
 void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
 {
   HDC hDC = oapiGetDC (surf);
@@ -3211,8 +3959,18 @@ void Atlantis::clbkAnimate (double simt)
 void Atlantis::clbkMFDMode (int mfd, int mode)
 {
 	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd-MFD_LEFT);
-	last_mfd=mfd;
-	//sprintf(oapiDebugString(), "%i", last_mfd);
+	
+	//get pointer to CRT MFD as required
+	if(newmfd!=NULL) {
+		if(mfd==4) newmfd->id=0;
+		else if(mfd==7) newmfd->id=1;
+		else if(mfd==6) newmfd->id=2;
+		else newmfd->id=-1;
+		if(newmfd->id!=-1) {
+			Display[newmfd->id]=newmfd;
+		}
+		newmfd=NULL;
+	}
 }
 
 // --------------------------------------------------------------
@@ -3386,6 +4144,8 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->RegisterVC();
 	c3po->RegisterVC();
 	panelc2->RegisterVC();
+	CDRKeyboard->RegisterVC();
+	PLTKeyboard->RegisterVC();
 	panelf7->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
@@ -3407,6 +4167,8 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
+	CDRKeyboard->RegisterVC();
+	PLTKeyboard->RegisterVC();
 	panelf7->RegisterVC();
     ok = true;
     break;
@@ -3508,6 +4270,8 @@ bool Atlantis::clbkLoadVC (int id)
 	r2d2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
+	CDRKeyboard->RegisterVC();
+	PLTKeyboard->RegisterVC();
 	panelf7->RegisterVC();
     ok = true;
     break;
@@ -3651,6 +4415,11 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 	return c3po->VCMouseEvent (id, event, p);
   case AID_O3:
 	return panelo3->VCMouseEvent(id, event, p);
+  case AID_KYBD_CDR:
+	sprintf(oapiDebugString(), "AID_KYBD_CDR event");
+    return CDRKeyboard->VCMouseEvent(id, event, p);
+  case AID_KYBD_PLT:
+    return PLTKeyboard->VCMouseEvent(id, event, p);
   case AID_R2:
 	return r2d2->VCMouseEvent (id, event, p);
   }
