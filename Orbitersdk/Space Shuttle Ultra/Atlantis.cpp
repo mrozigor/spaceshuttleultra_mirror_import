@@ -2252,7 +2252,7 @@ void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 
 bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 {
-	int item;
+	//int item;
 	int nNew;
 	double dNew;
 	if(change==0) {
@@ -2317,7 +2317,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			switch(Display[mfd]->spec) {
 				case 0:
 					if(nNew<=17) {
-						//item=nNew;
+						item=nNew;
 						return Input(mfd, 3, Name, Data);
 						//data=1;
 						//return true;
@@ -2590,7 +2590,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 						return true;
 					}
 					else if(nNew>=10 && nNew<=28 || nNew>=30 && nNew<=48 || nNew>=50 && nNew<=68) {
-						//item=nNew;
+						item=nNew;
 						return Input(mfd, 3, Name, Data);
 						//data=1;
 						//return true;
@@ -2604,7 +2604,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				return true;
 			}
 			else if(nNew>=5 && nNew<=21) {
-				//item=nNew;
+				item=nNew;
 				return Input(mfd, 3, Name, Data);
 				//data=1;
 				//return true;
@@ -2670,7 +2670,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 		}
 	}
 	else if(change==3) {
-		item=atoi(Name);
+		//item=atoi(Name);
 		if(ops==201) {
 			switch(Display[mfd]->spec) {
 				case 0:
@@ -3047,16 +3047,6 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 }
 
 //Math
-/*double Atlantis::CalcKD(double Torque, double I, double KP)
-{
-  double k=fabs(KP*Torque);
-  double w2=k/I;
-  double beta=2*sqrt(w2);
-  double b=beta*I;
-  double KD=b/Torque*((KP>0)?1:-1);
-  return KD;
-}*/
-
 double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 {
 	double Time, Angle;
@@ -3965,12 +3955,20 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 		if(mfd==4) newmfd->id=0;
 		else if(mfd==7) newmfd->id=1;
 		else if(mfd==6) newmfd->id=2;
-		else newmfd->id=-1;
-		if(newmfd->id!=-1) {
+		else if(mfd==9) newmfd->id=3;
+		else {
+			//newmfd->id=-1;
+			if(mfd<4) newmfd->id=mfd+4;
+			else if(mfd==5) newmfd->id=8;
+			else if(mfd>=8) newmfd->id=mfd+1;
+		}
+		if((newmfd->id)<3) {
 			Display[newmfd->id]=newmfd;
 		}
+		newmfd->UpdateStatus=true;
 		newmfd=NULL;
 	}
+	//sprintf(oapiDebugString(), "%d", mfd);
 }
 
 // --------------------------------------------------------------

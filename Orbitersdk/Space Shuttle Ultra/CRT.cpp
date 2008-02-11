@@ -89,25 +89,27 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 		mode=0;
 	}
 	else {
-		//id=10;
-		id=-1;
 		mode=10001;
 	}
+	id=-1;
 	strcpy(cDispTitle, "GPC MEMORY");
 	usPageNumber = 1;
 	usGPCDriver = 1;
 
 	spec=0;
-	mode=0;
+	//mode=0;
 	item=0;
 	data=0;
 	display=2;
-	if(saveprm.bValid==false) {
+
+	/*if(saveprm.bValid==false) {
 		saveprm.mode=mode;
 		saveprm.display=display;
 		saveprm.spec=spec;
 		saveprm.bValid=true;
-	}
+	}*/
+	//UpdateStatus=true;
+
 	bTIMER=false;
 	//sprintf(oapiDebugString(), "Constructor %f", oapiRand());
 	vessel->GetPMI(PMI);
@@ -123,7 +125,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 CRT::~CRT ()
 {
-	if(id!=-1) sts->Display[id]=NULL;
+	if(id>=0 && id<3) sts->Display[id]=NULL;
 	DeleteObject(hCRTFont);
 	return;
 }
@@ -134,6 +136,12 @@ void CRT::Update (HDC hDC)
 	/*double dNum;
 	int nPos, nLoc, EngConvert[3]={1, 0, 2};*/
 	//sprintf(oapiDebugString(), "%i", id);
+	if(UpdateStatus) {
+		RecallStatus();
+		UpdateStatus=false;
+	}
+	//sprintf(oapiDebugString(), "%d %d %d", mode, display, id);
+
 	if(data!=0) Data(1-data);
 
 	//sprintf(oapiDebugString(), "%d", id);
@@ -1560,18 +1568,29 @@ void CRT::ReadStatus(FILEHANDLE scn)
 
 void CRT::StoreStatus() const
 {
-	saveprm.spec=spec;
-	saveprm.mode=mode;
-	saveprm.display=display;
-	//if(saveprm.bValid) sprintf(oapiDebugString(), "%i %i %i %i", saveprm.spec[id], saveprm.mode[id], saveprm.display[id], id);
+	if(id==-1) {
+		return;
+	}
+	saveprm.spec[id]=spec;
+	saveprm.mode[id]=mode;
+	saveprm.display[id]=display;
+	saveprm.bValid[id]=true;
+	sprintf(oapiDebugString(), "%i %i %i %i", saveprm.spec[id], saveprm.mode[id], saveprm.display[id], id);
 }
 
 void CRT::RecallStatus()
 {
-	spec=saveprm.spec;
-	mode=saveprm.mode;
-	display=saveprm.display;
-	//sprintf(oapiDebugString(), "Recall %f", oapiRand());
+	if(id==-1) {
+		/*spec=0;
+		mode=0;
+		display=2;*/
+		return;
+	}
+	if(!saveprm.bValid[id]) return;
+	spec=saveprm.spec[id];
+	mode=saveprm.mode[id];
+	display=saveprm.display[id];
+	//sprintf(oapiDebugString(), "Recall %f %d %d", oapiRand(), mode, display);
 }
 
 void CRT::Data(int id)

@@ -47,6 +47,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 				char Name[255];
 				for(i=0;i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize;i++) {
 					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
+						if(delim) break;
 						delim=true;
 						j=0;
 					}
@@ -57,6 +58,23 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 					}
 				}
 				sts->Input(sts->CRT_SEL[keyboard], 1, Name, Data);
+				j=0;
+				while(i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize) {
+					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
+						if(j!=0) {
+							sts->item++;
+							sts->Input(sts->CRT_SEL[keyboard], 3, Name, Data);
+						}
+						j=0;
+					}
+					Data[j]=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
+					j++;
+					i++;
+				}
+				if(j!=0) {
+					sts->item++;
+					sts->Input(sts->CRT_SEL[keyboard], 3, Name, Data);
+				}
 			}
 		}
 		else if(p.y>=0.625 && p.y<0.75) {

@@ -917,6 +917,7 @@ private:
 	//Data Input
 	KeyboardInput DataInput[3];
 	int CRT_SEL[2]; //0=CDR, 1=PLT
+	int item;
 	CRT* Display[3];
 	CRT* newmfd;
 
