@@ -42,31 +42,6 @@ private:
 	unsigned short usDisp;
 	unsigned short usGPCDriver;
 	//Math
-	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
-	/*VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
-	VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
-	void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-	void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
-	void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
-	void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
-	void MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result);
-	inline double Mag(const VECTOR3 &a)
-	{
-		return (sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2)));
-	}
-	inline VECTOR3 Normalize(const VECTOR3 &a)
-	{
-		return (a/Mag(a));
-	}
-	inline VECTOR3 CrossProduct(const VECTOR3 &a, const VECTOR3 &b)
-	{
-		VECTOR3 c;
-		c.x = (a.y * b.z - a.z * b.y);
-		c.y = (a.z * b.x - a.x * b.z);
-		c.z = (a.x * b.y - a.y * b.x);
-		return c;
-	}*/
-
 	inline VECTOR3 ToRad(const VECTOR3 &Input)
 	{
 		VECTOR3 Output;
@@ -137,9 +112,10 @@ private:
 	//double C1, C2, HT, ThetaT; // PEG4 Targets
 	//VECTOR3 Trim; // 0=P, 1=LY, 2=RY
 
+	bool UpdateStatus;
 	static struct SavePrm{
-		int spec, mode, display;
-		bool bValid;
+		int spec[10], mode[10], display[10];
+		bool bValid[10];
 	} saveprm;
 
 	
