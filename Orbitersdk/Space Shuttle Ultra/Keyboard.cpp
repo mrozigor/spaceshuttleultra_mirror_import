@@ -1,5 +1,6 @@
 #include "Keyboard.h"
 #include "CRT.h"
+#include <cstdio>
 
 // ==============================================================
 

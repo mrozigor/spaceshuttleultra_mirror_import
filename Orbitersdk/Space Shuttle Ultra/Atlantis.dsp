@@ -143,6 +143,10 @@ SOURCE=.\GPCVariables.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Keyboard.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\KuBandSystem.h
 # End Source File
 # Begin Source File
@@ -256,6 +260,10 @@ SOURCE=.\GearOp.cpp
 # Begin Source File
 
 SOURCE=.\GPC.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Keyboard.cpp
 # End Source File
 # Begin Source File
 
