@@ -412,6 +412,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   for(i=0;i<3;i++) {
 	  apu_tank[i] = NULL;
 	  mps_helium_tank[i] = NULL;
+	  ex_main[i] = NULL;
   }
 
   //Control Surfaces
@@ -668,11 +669,14 @@ void Atlantis::SetLaunchConfiguration (void)
   
   
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
-  SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+  DefineSSMEExhaust();
+  //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
   for(i=0;i<3;i++) {
-	  AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
+	  //AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
 	  r2d2->CheckMPSArmed(i);
   }
+
+
 
   // SRBs
   /*th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
@@ -804,23 +808,29 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   ofs = OFS_WITHTANK_ORBITER;
   if (thg_main) { // main engines already defined - just modify parameters
+	  /*
 	SetThrusterRef (th_main[1], ofs+_V(-1.6,-0.2,-16.0));
     SetThrusterDir (th_main[1], _V( 0.0624,-0.1789,0.9819));
     SetThrusterRef (th_main[2], ofs+_V( 1.6,-0.2,-16.0));
     SetThrusterDir (th_main[2], _V(-0.0624,-0.1789,0.9819));
     SetThrusterRef (th_main[0], ofs+_V( 0.0, 3.2,-15.5));
     SetThrusterDir (th_main[0], _V( 0.0,-0.308046,0.951372));
+	*/
+
+	DefineSSMEExhaust();
   } 
   else {        // create main engines
     th_main[0] = CreateThruster (ofs+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.308046,0.951372), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 	th_main[1] = CreateThruster (ofs+_V(-1.6,-0.2,-16.0), _V( 0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 	th_main[2] = CreateThruster (ofs+_V( 1.6,-0.2,-16.0), _V(-0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 	thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
-    SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+    //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
 	//sprintf(oapiDebugString(), "Creating main engines");
     //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
+
+	DefineSSMEExhaust();
 	for(i=0;i<3;i++) {
-		AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
+		//AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
 		r2d2->CheckMPSArmed(i);
 	}
   }
@@ -924,7 +934,8 @@ void Atlantis::SetOrbiterConfiguration (void)
 	  c3po->EngControl(i);
   }
 
-  for(i=0;i<3;i++) th_main[i]=NULL; //deactivate mains
+  //Don't deactivate main engines... keep them existing for gimbal code
+  //for(i=0;i<3;i++) th_main[i]=NULL; //deactivate mains
 
   /*VECTOR3 L_ENG_POS=_V(-1.6,-0.2,-16.0);
   VECTOR3 R_ENG_POS=_V( 1.6,-0.2,-16.0);
@@ -1748,6 +1759,8 @@ void Atlantis::SeparateBoosters (double met)
   DelMesh(mesh_srb[1], true);
   DelMesh(mesh_srb[0], true);
   ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
+
+  
 
 
   // reconfigure
@@ -5154,4 +5167,19 @@ void Atlantis::SignalGSEBreakHDP()
 		}
 	}
 #endif
+}
+
+void Atlantis::DefineSSMEExhaust()
+{
+	int i;
+
+	SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+  	for(i = 0; i<3; i++)
+	{
+		if(ex_main[i])
+		{
+			DelExhaust(ex_main[i]);
+		}
+		ex_main[i] = AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
+	}
 }

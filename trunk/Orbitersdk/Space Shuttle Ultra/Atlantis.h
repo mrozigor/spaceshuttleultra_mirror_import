@@ -595,6 +595,7 @@ public:
 	OBJHANDLE ThisVessel;
 
 private:
+	void DefineSSMEExhaust();
 	void SignalGSEBreakHDP();
 	void SignalGSEStart();
 	void DefineKUBandAnimations();
