@@ -5037,10 +5037,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	const double YAWS = 2 * sin(8.5 * RAD);
 	const double PITCHS = 2 * sin(10 * RAD);
-	const VECTOR3 SSMET_DIR0 = _V(0.0, -sin(16.0*RAD), cos(16.0*RAD));
-	const VECTOR3 SSMEL_DIR0 = _V(sin(3.5*RAD), sin(10.0 * RAD), cos(10 * RAD) * cos(10*RAD));
-	const VECTOR3 SSMER_DIR0 = _V(-sin(3.5*RAD), sin(10.0 * RAD), cos(10 * RAD) * cos(10*RAD));
-
+	
 	VECTOR3 SSME_DIR;
 	double fDeflYaw, fDeflPitch;
 
@@ -5048,37 +5045,36 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
 
-	fDeflYaw = 0.5 + acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS;
+	//fDeflYaw = acos(SSME_DIR.x);
+	//fDeflPitch = acos(SSME_DIR.y/sin(fDeflYaw));
 
-	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
-		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
-	SetAnimation(anim_ssmeTyaw, fDeflYaw);
-	SetAnimation(anim_ssmeTpitch, fDeflPitch);
+	fDeflPitch = asin(-SSME_DIR.y);
+	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+
+	//sprintf(oapiDebugString(), "SSMET %f° %f° (%f, %f, %f)", fDeflPitch*DEG, fDeflYaw*DEG, SSME_DIR.x, SSME_DIR.y, SSME_DIR.z);
+
+
+	//fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
+	//	(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
+	SetAnimation(anim_ssmeTyaw, fDeflYaw/YAWS + 0.5);
+	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
 
 	GetThrusterDir(th_main[1], SSME_DIR);
 
-	fDeflYaw = 0.5+(acos((SSME_DIR.x * SSMEL_DIR0.x + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.x, 2) + pow(SSMEL_DIR0.z, 2))))/YAWS);
+	fDeflPitch = asin(-SSME_DIR.y);
+	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
 
-	fDeflPitch = 0.5+(acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMEL_DIR0.y, 2) + pow(SSMEL_DIR0.z, 2))))/PITCHS);
-
-	SetAnimation(anim_ssmeLyaw, fDeflYaw);
-	SetAnimation(anim_ssmeLpitch, fDeflPitch);
+	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD)/YAWS + 0.5);
+	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
 
 	GetThrusterDir(th_main[2], SSME_DIR);
 
-	fDeflYaw = 0.5+acos((SSME_DIR.x * SSMER_DIR0.x + SSME_DIR.z * SSMER_DIR0.z)/
-		(sqrt(pow(SSME_DIR.x,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMER_DIR0.x, 2) + pow(SSMER_DIR0.z, 2))))/YAWS;
+	fDeflPitch = asin(-SSME_DIR.y);
+	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
 
-	fDeflPitch = 0.5+acos((SSME_DIR.y * SSMEL_DIR0.y + SSME_DIR.z * SSMEL_DIR0.z)/
-		(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMER_DIR0.y, 2) + pow(SSMER_DIR0.z, 2))))/PITCHS;
-
-	SetAnimation(anim_ssmeRyaw, fDeflYaw);
-	SetAnimation(anim_ssmeRpitch, fDeflPitch);
-
+	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD)/YAWS + 0.5);
+	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 	
 }
 
