@@ -122,6 +122,8 @@ const double ARM_TRANSLATE_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 const double ARM_DEPLOY_SPEED = 0.0294117647;
 // RMS rollout speed
+const double SHOULDER_BRACE_SPEED = 0.11765;
+// shoulder brace speed
 const VECTOR3 ARM_WRIST_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 
@@ -381,7 +383,22 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A4_EVTTMR  421
 #define AID_A4_METTMR1 422
 #define AID_A4_METTMR2 423
-#define AID_A4_MAX	   430
+#define AID_A4_MAX	   429
+// Panel A8
+#define AID_A8_MIN     430
+#define AID_A8         430
+#define AID_A8_TKBK1   431
+#define AID_A8_TKBK2   432
+#define AID_A8_TKBK3   433
+#define AID_A8_TKBK4   434
+#define AID_A8_TKBK5   435
+#define AID_A8_TKBK6   436
+#define AID_A8_TKBK7   437
+#define AID_A8_TKBK8   438
+#define AID_A8_TKBK9   439
+#define AID_A8_TKBK10  440
+#define AID_A8_TKBK11  441
+#define AID_A8_MAX     459
 
 
 #define SWITCH1		0
@@ -469,6 +486,7 @@ class Atlantis: public VESSEL2 {
 	friend class PayloadBayOp;
 	friend class GearOp;
 	friend class PanelA4;
+	friend class PanelA8;
 	friend class PanelC2;
 	friend class PanelC3;
 	friend class PanelF7;
@@ -598,6 +616,7 @@ public:
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
 	PanelA4 *panela4;
+	PanelA8 *panela8;
 	PanelC2 *panelc2;
 	PanelC3 *c3po; // PanelC3 operations
 	PanelF7 *panelf7;
@@ -851,6 +870,7 @@ private:
 	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
 	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
 	AnimState RMSRollout;
+	double shoulder_brace;
 	bool RMS;
 	bool DisplayJointAngles;
 	//IK parameters

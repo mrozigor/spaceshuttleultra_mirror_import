@@ -1,3 +1,14 @@
+#define GRP_A8b1_VC 140
+#define GRP_A8b2_VC 141
+#define GRP_A8b3_VC 142
+#define GRP_A8b4_VC 143
+#define GRP_A8b5_VC 144
+#define GRP_A8b6_VC 145
+#define GRP_A8b7_VC 146
+#define GRP_A8b8_VC 147
+#define GRP_A8b9_VC 148
+#define GRP_A8b10_VC 149
+#define GRP_A8b11_VC 150
 #define GRP_C2b8_VC 205
 #define GRP_C2Evt1SW_VC 207
 #define GRP_C2Evt10SW_VC 208

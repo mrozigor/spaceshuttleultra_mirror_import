@@ -17,6 +17,7 @@
 #include "PlBayOp.h"
 #include "GearOp.h"
 #include "PanelA4.h"
+#include "PanelA8.h"
 #include "PanelC2.h"
 #include "PanelC3.h"
 #include "PanelF7.h"
@@ -335,6 +336,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   plop            = new PayloadBayOp (this);
   gop             = new GearOp (this);
   panela4		  = new PanelA4(this);
+  panela8		  = new PanelA8(this);
   c3po            = new PanelC3(this);
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
@@ -454,6 +456,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   DisplayJointAngles=false;
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
+  shoulder_brace = 0.0; //released
   arm_sy = 0.5;
   arm_sp = 0.0136;
   arm_ep = 0.014688;
@@ -587,6 +590,7 @@ Atlantis::~Atlantis () {
 	delete plop;
 	delete gop;
 	delete panela4;
+	delete panela8;
 	delete c3po;
 	delete r2d2;
 	delete panelf7;
@@ -675,8 +679,6 @@ void Atlantis::SetLaunchConfiguration (void)
 	  //AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
 	  r2d2->CheckMPSArmed(i);
   }
-
-
 
   // SRBs
   /*th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
@@ -1619,6 +1621,7 @@ void Atlantis::DefineAnimations (void)
   plop->DefineAnimations (vidx);
   gop->DefineVCAnimations (vidx);
   panela4->DefineVCAnimations (vidx);
+  panela8->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
   c3po->DefineVCAnimations (vidx);
   panelf7->DefineVCAnimations (vidx);
@@ -1759,8 +1762,6 @@ void Atlantis::SeparateBoosters (double met)
   DelMesh(mesh_srb[1], true);
   DelMesh(mesh_srb[0], true);
   ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
-
-  
 
 
   // reconfigure
@@ -2180,7 +2181,7 @@ void Atlantis::SetSpeedbrake(double tgt)
 void Atlantis::SetAnimationArm (UINT anim, double state)
 {
   if(!RMS) return;
-  if(RMSRollout.action!=AnimState::OPEN) return;
+  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0)) return;
   SetAnimation (anim, state);
   arm_moved = true;
 
@@ -3257,6 +3258,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			if(RMSRollout.pos!=0.0) RMSRollout.action=AnimState::CLOSING;
 			else RMSRollout.action=AnimState::CLOSED;
 		}
+	} else if (!strnicmp (line, "SHOULDER_BRACE", 14)) {
+		sscanf (line+14, "%lf", &shoulder_brace);
 	} else if (!strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
 	} else if(!strnicmp(line, "OPS", 3)) {
@@ -3298,6 +3301,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  if (c3po->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
+	  if (panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 	  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
 	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
@@ -3359,6 +3363,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  sprintf(cbuf, "1 %f", RMSRollout.pos);
   else sprintf(cbuf, "0 %f", RMSRollout.pos);
   oapiWriteScenario_string(scn, "ROLLOUT", cbuf);
+  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
@@ -3405,6 +3410,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   plop->SaveState (scn);
   gop->SaveState (scn);
   panela4->SaveState(scn);
+  panela8->SaveState(scn);
   panelc2->SaveState(scn);
   c3po->SaveState (scn);
   panelf7->SaveState(scn);
@@ -3688,6 +3694,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   plop->Step (simt, simdt);
   gop->Step (simt, simdt);
   panela4->Step(simt, simdt);
+  panela8->Step(simt, simdt);
   panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
   panelf7->Step(simt, simdt);
@@ -3711,22 +3718,28 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   // ***** RMS Rollout *****
-  if(RMSRollout.Moving()) {
+  if(RMSRollout.Moving() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
 	  double da = simdt*ARM_DEPLOY_SPEED;
 	  if(RMSRollout.Closing()) {
 		  RMSRollout.pos=max(0.0, RMSRollout.pos-da);
-		  if(RMSRollout.pos<=0.0) RMSRollout.action=AnimState::CLOSED;
+		  if(RMSRollout.pos<=0.0) {
+			  RMSRollout.action=AnimState::CLOSED;
+			  panela8->UpdateVC();
+		  }
 	  }
 	  else {
 		  RMSRollout.pos=min(1.0, RMSRollout.pos+da);
-		  if(RMSRollout.pos>=1.0) RMSRollout.action=AnimState::OPEN;
+		  if(RMSRollout.pos>=1.0) {
+			  RMSRollout.action=AnimState::OPEN;
+			  panela8->UpdateVC();
+		  }
 	  }
 	  SetAnimation(anim_rollout, RMSRollout.pos);
   }
   
   // ***** Stow RMS arm *****
 
-  if (center_arm) {
+  if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0)) {
     double t0 = oapiGetSimTime();
     double dt = t0 - center_arm_t;       // time step
     double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
@@ -4198,6 +4211,7 @@ bool Atlantis::clbkLoadVC (int id)
     RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
+	panela8->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
     break;
@@ -4261,6 +4275,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
+	panela8->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	break;
@@ -4309,6 +4324,7 @@ bool Atlantis::clbkLoadVC (int id)
     plop->UpdateVC();
     gop->UpdateVC();
 	panela4->UpdateVC();
+	panela8->UpdateVC();
 	panelc2->UpdateVC();
 	c3po->UpdateVC();
 	panelf7->UpdateVC();
@@ -4416,6 +4432,8 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
     return plop->VCMouseEvent (id, event, p);
   case AID_A4:
 	return panela4->VCMouseEvent (id, event, p);
+  case AID_A8:
+	return panela8->VCMouseEvent (id, event, p);
   case AID_F6:
     return gop->VCMouseEvent (id, event, p);
   case AID_F7:
@@ -4427,7 +4445,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_O3:
 	return panelo3->VCMouseEvent(id, event, p);
   case AID_KYBD_CDR:
-	sprintf(oapiDebugString(), "AID_KYBD_CDR event");
+	//sprintf(oapiDebugString(), "AID_KYBD_CDR event");
     return CDRKeyboard->VCMouseEvent(id, event, p);
   case AID_KYBD_PLT:
     return PLTKeyboard->VCMouseEvent(id, event, p);
@@ -4459,6 +4477,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
   default:
 	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
 	  return panela4->VCRedrawEvent (id, event, surf);
+	if (id >= AID_A8_MIN && id <= AID_A8_MAX)
+	  return panela8->VCRedrawEvent (id, event, surf);
 	if (id >= AID_R2_MIN && id <= AID_R2_MAX)
 	  return r2d2->VCRedrawEvent (id, event, surf);
     if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
@@ -4498,7 +4518,7 @@ VECTOR3 Atlantis::CalcAnimationFKArm() {
 
 void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
   if(!RMS) return;
-  if(RMSRollout.action!=AnimState::OPEN) return;
+  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0)) return;
   arm_wrist_pos=CalcAnimationFKArm();
   //Candidate position. Calculate the joints on it...
   VECTOR3 arm_wrist_cpos=arm_wrist_pos+RotateVectorX(arm_wrist_dpos, 18.435);
@@ -4747,7 +4767,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   case WM_TIMER:
     if (wParam == 1) {
       t1 = oapiGetSimTime();
-	  if(sts->RMSRollout.action!=AnimState::OPEN) break;
+	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0) break;
       if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
