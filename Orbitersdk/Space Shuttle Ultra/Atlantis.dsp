@@ -267,6 +267,10 @@ SOURCE=.\Keyboard.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\KuBandSystem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MasterTimingUnit.cpp
 # End Source File
 # Begin Source File
