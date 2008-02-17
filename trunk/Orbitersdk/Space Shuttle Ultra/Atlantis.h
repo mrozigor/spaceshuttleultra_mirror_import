@@ -448,6 +448,19 @@ class SubsystemDirector;
 class MasterTimingUnit;
 class OMSSubsystem;
 
+typedef enum {
+	LT_LATCHED = 0,
+	LT_OPENING,
+	LT_CLOSING,
+	LT_RELEASED
+} LATCH_STATE;
+
+typedef enum {
+	OMS_LEFT = 0,
+	OMS_KIT,
+	OMS_RIGHT
+} OMS_REF;
+
 // ==========================================================
 // Interface for derived vessel class: Atlantis
 // ==========================================================
@@ -466,6 +479,8 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
+	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void UpdateSSMEGimbalAnimations();
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
 	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);

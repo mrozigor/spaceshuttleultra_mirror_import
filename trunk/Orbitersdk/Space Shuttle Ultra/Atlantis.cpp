@@ -5183,3 +5183,18 @@ void Atlantis::DefineSSMEExhaust()
 		ex_main[i] = AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
 	}
 }
+
+void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
+{
+	//No checking of subsystem state or latches, only animation
+	if(bHasKUBand)
+	{
+		SetAnimation(anim_kualpha, fAlpha);
+		SetAnimation(anim_kubeta, fbeta);
+	}
+}
+
+double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
+{
+	return 50.0;
+}
