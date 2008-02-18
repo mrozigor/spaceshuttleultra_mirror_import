@@ -3,6 +3,7 @@
 #include "windows.h"
 #include "orbitersdk.h"
 #include "PanelR2.h"
+#include "PanelC2.h"
 #include "CRT.h"
 #include <cstdio>
 #include "MasterTimingUnit.h"
@@ -171,6 +172,36 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
+		/*if(id>=3 || sts->panelc2->switch_state[SWITCH2+2*id]==0) //GNC
+		{
+			if(sts->ops==201) {
+				switch(spec) {
+					case 0:
+						UNIVPTG(hDC);
+						break;
+					case 20:
+						DAP_CONFIG(hDC);
+						break;
+				}
+			}
+			else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
+				PASSTRAJ(hDC);
+			}
+			else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
+				MNVR(hDC);
+			}
+			else {
+				DrawCommonHeader(hDC);
+			}
+		}
+		else if(sts->panelc2->switch_state[SWITCH2+2*id]==1) //SM
+		{
+			PDRS(hDC);
+		}
+		else //PL
+		{
+			TextOut(hDC, 0, 0, "Does not compute", 16);
+		}*/
 		if(sts->ops==201) {
 			switch(spec) {
 				case 0:
@@ -183,7 +214,8 @@ void CRT::Update (HDC hDC)
 		}
 		else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
 			PASSTRAJ(hDC);
-		} else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
+		}
+		else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
 			MNVR(hDC);
 		}
 		else {
@@ -191,44 +223,6 @@ void CRT::Update (HDC hDC)
 		}
 		DisplayScratchPad(hDC);
 	}
-	/*if(!sts->GroundContact()) {
-		MET[0]=Simtime/86400;
-		MET[1]=(Simtime-86400*MET[0])/3600;
-		MET[2]=(Simtime-86400*MET[0]-3600*MET[1])/60;
-		MET[3]=Simtime-86400*MET[0]-3600*MET[1]-60*MET[2];
-		MET[0]+=MET_Add[0]-Launch_time[0];
-		MET[1]+=MET_Add[1]-Launch_time[1];
-		MET[2]+=MET_Add[2]-Launch_time[2];
-		MET[3]+=MET_Add[3]-Launch_time[3];
-		if(MET[3]>=60) {
-			MET[3]-=60;
-			MET[2]++;
-		}
-		if(MET[2]>=60) {
-			MET[2]-=60;
-			MET[1]++;
-		}
-		if(MET[1]>=24) {
-			MET[1]-=24;
-			MET[0]++;
-		}
-		if(landed) {
-			landed=false;
-			Launch_time[0]=Simtime/86400;
-			Launch_time[1]=(Simtime-86400*Launch_time[0])/3600;
-			Launch_time[2]=(Simtime-86400*Launch_time[0]-3600*Launch_time[1])/60;
-			Launch_time[3]=(Simtime-86400*Launch_time[0]-3600*Launch_time[1]-60*Launch_time[2])/60;
-		}
-	}
-	else {
-		if(!landed) {
-			landed=true;
-			MET[0]=0;
-			MET[1]=0;
-			MET[2]=0;
-			MET[3]=0;
-		}
-	}*/
 	//sprintf(oapiDebugString(), "%f", Simtime-Simtime_last);
 	Simtime_last=Simtime;
 }
@@ -942,15 +936,35 @@ void CRT::PASSTRAJ(HDC hdc)
 	//Current vehicle state:
 	double VHI = LVLH_Vel.x;
 	double Altitude = sts->GetAltitude() * MPS2FPS;
+	sprintf(oapiDebugString(), "%f %f", VHI, Altitude);
 
-	if(Altitude > 200.0E3 && VHI < 13.9E3)
+	/*if(Altitude > 200.0E3 && VHI < 13.9E3)
 	{
 		//Draw triangle for state vector.
-		short stX = (1.0 - VHI/13.9);
+		short stX = width*(VHI/13.9E3 - 1.0);
+		short stY = height*(Altitude/200.0E3 - 1.0);
+		DrawDelta(hdc, stX, stY, stX-3, stX+3, stY+3);
+		sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
+	}*/
+	if(Altitude > 155500 && VHI < 10000)
+	{
+		//Draw triangle for state vector
+		short stY = H*(1.13256 - (Altitude/513955.985));
+		short stX = W*(0.36194 + (VHI/15672.3964));
+		DrawDelta(hdc, stX, stY, stX-6, stX+6, stY+9);
+		sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
 	}
+	/*if(Altitude < 350.0E3 && VHI < 13.9E3)
+	{
+		//Draw triangle for state vector.
+		short stX = width*(1.0 - VHI/13.9E3);
+		short stY = height*(1.0 - Altitude/350.0E3);
+		DrawDelta(hdc, stX, stY, stX-3, stX+3, stY+3);
+		sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
+	}*/
 
 
-	if(sts->ops == 102 && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(0) < 50))
+	if(sts->ops == 102 && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(1) < 50))
 	{
 		strcpy(cbuf, "PC < 50");
 		TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 9), cbuf, strlen(cbuf));
@@ -1246,10 +1260,19 @@ void CRT::MNVR(HDC hDC)
 	TextOut(hDC, 185, 189, "  OFF  40", 9);
 }
 
+void CRT::PDRS(HDC hDC)
+{
+	char cbuf[255];
+
+	TextOut(hDC, 0, 0, "2011/094", 8);
+	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
+	TextOut(hDC, 173, 0, cbuf, strlen(cbuf));
+}
+
 void CRT::DisplayScratchPad(HDC hDC)
 {
 	char cbuf[255];
-	if(id<0) return;
+	if(id>2) return;
 	if(sts->DataInput[id].OPS) {
 		if(sts->DataInput[id].PRO) sprintf(cbuf, "OPS %s PRO", sts->DataInput[id].input);
 		else sprintf(cbuf, "OPS %s", sts->DataInput[id].input);
@@ -1575,7 +1598,7 @@ void CRT::StoreStatus() const
 	saveprm.mode[id]=mode;
 	saveprm.display[id]=display;
 	saveprm.bValid[id]=true;
-	sprintf(oapiDebugString(), "%i %i %i %i", saveprm.spec[id], saveprm.mode[id], saveprm.display[id], id);
+	//sprintf(oapiDebugString(), "%i %i %i %i", saveprm.spec[id], saveprm.mode[id], saveprm.display[id], id);
 }
 
 void CRT::RecallStatus()

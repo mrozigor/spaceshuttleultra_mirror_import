@@ -71,6 +71,9 @@ private:
 	void UNIVPTG(HDC hDC);
 	void DAP_CONFIG(HDC hDC);
 	void MNVR(HDC hDC);
+
+	void PDRS(HDC hDC);
+
 	void DisplayScratchPad(HDC hDC);
 	void DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY);
 
