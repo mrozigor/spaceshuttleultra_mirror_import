@@ -247,20 +247,20 @@ const double kg_to_pounds=2.205;
 // ==========================================================
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
-const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.22,-7.795};
+const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
 const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
 //const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.2,-1.91,-5.68 };
 //const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.2,-1.91,-5.68 };
 const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.88,-1.91,-5.68 };
 const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.88,-1.91,-5.68 };
-const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.79,-9.185};
+const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
 const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
-const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.44,10.44 };
+const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
-const VECTOR3 SSMER_REF = _V(1.50, -0.2, -11.50);
-const VECTOR3 SSMEL_REF = _V(-1.50, -0.2, -11.50);
-const VECTOR3 SSMET_REF = _V(0.0, 2.0, -10.50);
+const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
+const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
+const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
