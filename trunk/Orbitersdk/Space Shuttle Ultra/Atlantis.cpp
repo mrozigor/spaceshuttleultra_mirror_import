@@ -1349,7 +1349,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RMSRolloutGrp[8] = {GRP_MPM_RMS, GRP_base_RMS, GRP_Shoulder_RMS, GRP_Humerus_RMS, GRP_radii_RMS, GRP_wristpitch_RMS, GRP_wristyaw_RMS, GRP_endeffecter_RMS};
   rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 8,
-    _V(-2.69, 1.17, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
+    _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
   anim_rollout = CreateAnimation(1.0);
   AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
 
@@ -1510,56 +1510,56 @@ void Atlantis::DefineAnimations (void)
 
 
   // ***** 9 Payload cameras animation *****
-  // DaveS edit: still to be realigned
+  // DaveS edit: realigned with the scaled down orbiter mesh
   // FRONT LEFT
   static UINT camFLYawGrp[1] = {GRP_CAMERAPIVOTFL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
   static UINT camFLPitchGrp[1] = {GRP_CAMERAFL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(1,0,0), (float)(340*RAD));
   anim_camFLpitch = CreateAnimation (0.5);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
   static UINT camFRYawGrp[1] = {GRP_CAMERAPIVOTFR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
   static UINT camFRPitchGrp[1] = {GRP_CAMERAFR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
   static UINT camBLYawGrp[1] = {GRP_CAMERAPIVOTBL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(0,1,0), (float)(180*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CAMERABL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(1,0,0), (float)(-340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
   static UINT camBRYawGrp[1] = {GRP_CAMERAPIVOTBR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CAMERABR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
@@ -5135,20 +5135,20 @@ void Atlantis::DefineKUBandAnimations()
 {
   UINT kidx = 4;
 	  // ***** 3. Ku-band antenna animation *****
-      // DaveS edit: still to be realigned
+      // DaveS edit: Animations have now been realigned. Someone better doublecheck the gimbal and dish animations though.
 
   static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
-    _V(2.692122, 1.285694, 12.08792), _V(0,1,0), (float)(-118*RAD));
+    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-118*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V( 2.621961, 1.931152, 10.7653), _V(0,0,1), (float)(-360*RAD));
+    _V(2.549,1.878,10.469), _V(0,0,1), (float)(-360*RAD));
 
 
   static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V( 2.62169, 1.927013,  10.57073), _V(0,1,0), (float)(-162*RAD));
+    _V(2.549,1.874,10.280), _V(0,1,0), (float)(-162*RAD));
 
   anim_kubd = CreateAnimation (0);
   ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     1, &KuBand1);
