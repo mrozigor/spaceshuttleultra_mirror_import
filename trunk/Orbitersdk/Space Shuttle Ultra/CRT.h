@@ -123,6 +123,9 @@ private:
 
 	
 protected:
+	bool CRTLine(HDC hdc, short sX1, short sY1, short sX2, short sY2);
+	bool CRTTextOut(HDC hdc, short sCol, short sLine, char* text);
+	void GNCSYSSUMM1(HDC hdc);
 	char cDispTitle[20];
 	void DrawCommonHeader(HDC hdc);
 	void PASSTRAJ(HDC hdc);

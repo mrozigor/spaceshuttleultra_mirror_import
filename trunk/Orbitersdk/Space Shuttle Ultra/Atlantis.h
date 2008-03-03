@@ -264,6 +264,11 @@ const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
+
+const VECTOR3 UMBDOORL_REF = _V(-1.31087, -2.71022, -6.75496);
+const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
+//const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
+const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 //
 
 // ==========================================================
@@ -478,6 +483,8 @@ typedef enum {
 	OMS_RIGHT
 } OMS_REF;
 
+class CommModeHandler;
+
 // ==========================================================
 // Interface for derived vessel class: Atlantis
 // ==========================================================
@@ -497,6 +504,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual bool IsValidSPEC(int gpc, int spec);
 	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void UpdateSSMEGimbalAnimations();
@@ -628,7 +636,11 @@ public:
 
 	OBJHANDLE ThisVessel;
 
+	CommModeHandler* pCommModeHandler;
+
 private:
+	unsigned short usCurrentPlayerChar;
+	bool bCommMode;
 	void DefineSSMEExhaust();
 	void SignalGSEBreakHDP();
 	void SignalGSEStart();

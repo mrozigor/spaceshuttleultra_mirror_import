@@ -35,9 +35,10 @@
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
-#ifdef USE_MLP
+#include "CommModeHandler.h"
+
 #include "MLP/MLP.h"
-#endif
+
 #include <stdio.h>
 #include <fstream>
 
@@ -345,6 +346,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
 
+  pCommModeHandler= new CommModeHandler(this);
+
   psubsystems	  = new SubsystemDirector(this);
 
   psubsystems->AddSubsystem(pMTU = new MasterTimingUnit(psubsystems));
@@ -497,6 +500,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bMECO=false;
   bZThrust=false;
   bEngineFail=false;
+  bCommMode = false;
   tSRBSep=SRB_SEPARATION_TIME;
   TLastMajorCycle=0.0;
 
@@ -577,6 +581,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   //I-loads
   stage1guidance_size=0;
+
+  pCommModeHandler->DefineAnnotations();
 }
 
 // --------------------------------------------------------------
@@ -586,6 +592,7 @@ Atlantis::~Atlantis () {
 	int i;
 
 	delete psubsystems;
+	delete pCommModeHandler;
 
 	delete plop;
 	delete gop;
@@ -1574,9 +1581,9 @@ void Atlantis::DefineAnimations (void)
   static UINT ETUmbLGrp[1] = {GRP_ETUMBDOORL};
   static UINT ETUmbRGrp[1] = {GRP_ETUMBDOORR};
   static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
-	  _V(-1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(+180.0*RAD));
+	  UMBDOORL_REF, UMBDOOR_AXIS, (float)(+180.0*RAD));
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
-	  _V(1.372, -2.886, -7.498), _V(0, -0.05, 0.99875), (float)(-180.0*RAD));
+	  UMBDOORR_REF, UMBDOOR_AXIS, (float)(-180.0*RAD));
   anim_letumbdoor = CreateAnimation(0);
   anim_retumbdoor = CreateAnimation(0);
   AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
@@ -2681,14 +2688,27 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 	}
 	else if(change==2) {
 		nNew=atoi(Name);
-		if(ops==201) {
-			if(nNew==20 || nNew==0) {
-				Display[mfd]->spec=nNew;
-				//InvalidateDisplay();
-				return true;
+		//if(ops==201) {
+
+			if(IsValidSPEC(Display[mfd]->usGPCDriver, nNew))
+			{
+
+				if((nNew / 10) % 10 == 9 || (nNew % 10) >= 6) 
+				{
+					Display[mfd]->display = nNew;
+					return true;
+				}
+				else
+				{
+					Display[mfd]->spec=nNew;
+					//InvalidateDisplay();
+					return true;
+				}
+			} else {
+				//wrong spec
 			}
-			else return false;
-		}
+			return false;
+		//}
 	}
 	else if(change==3) {
 		//item=atoi(Name);
@@ -2979,6 +2999,17 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 		}
 		item=0;
 		return true;
+	} else  if (change == 9)
+	{
+		//Resume key pressed
+		if(Display[mfd]->display >= 0) {
+			Display[mfd]->display = -1;
+			return true;
+		} else if(Display[mfd]->spec >= 0) {
+			Display[mfd]->spec = -1;
+			return true;
+		} else
+			return false;
 	}
 	return false;
 }
@@ -3435,6 +3466,10 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
   if (getfocus) {
     oapiDisableMFDMode (MFD_LANDING);
     // no VTOL MFD mode for Atlantis
+	//Enable communication overlays
+  } else 
+  {
+	  //Disable all Communication overlays
   }
 }
 
@@ -3834,6 +3869,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   SetAnimationCameras();
   cameraMoved = false;
   }
+
+  pCommModeHandler->PostStep(simt, simdt);
 }
 
 // --------------------------------------------------------------
@@ -4574,6 +4611,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 {
   if (!down) return 0; // only process keydown events
 
+  if(pCommModeHandler->IsInCommMode())
+	  return pCommModeHandler->ConsumeBufferedKey(key, down, kstate);
+
     if (KEYMOD_CONTROL (kstate)) {
 	switch (key) {
     case OAPI_KEY_SPACE: // open RMS control dialog
@@ -4602,6 +4642,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	}
   } else { // unmodified keys
     switch (key) {
+	case OAPI_KEY_TAB:
+		pCommModeHandler->EnterCommMode();
+		break;
 	case OAPI_KEY_B:
 	  bAutopilot=false;
 	  return 1;
@@ -5163,7 +5206,6 @@ void Atlantis::DefineKUBandAnimations()
 
 void Atlantis::SignalGSEStart()
 {
-#ifdef USE_MLP
 	if(ahHDP)
 	{
 		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
@@ -5176,12 +5218,11 @@ void Atlantis::SignalGSEStart()
 			}
 		}
 	}
-#endif
 }
 
 void Atlantis::SignalGSEBreakHDP()
 {
-#ifdef USE_MLP
+
 	if(ahHDP)
 	{
 		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
@@ -5194,7 +5235,6 @@ void Atlantis::SignalGSEBreakHDP()
 			}
 		}
 	}
-#endif
 }
 
 void Atlantis::DefineSSMEExhaust()
@@ -5225,4 +5265,139 @@ void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
 double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
 {
 	return 50.0;
+}
+
+bool Atlantis::IsValidSPEC(int gpc, int spec)
+{
+	switch(ops/100)
+	{
+	case 0:
+		switch(spec)
+		{
+		case 1:
+		case 2:
+		case 6:
+			return true;
+		}
+		break;
+	case 1:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 6:
+		case 18:
+		case 23:
+		case 50:
+		case 51:
+		case 53:
+			return true;
+		default:
+			return false;
+		}
+		break;
+	case 2:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 6:
+		case 18:
+		case 19:
+		case 20:
+		case 21:
+		case 22:
+		case 23:
+		case 25:
+		case 33:
+		case 34:
+		case 55:
+			return true;
+		default:
+			return false;
+		}
+		break;
+	case 3:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 6:
+		case 18:
+		case 21:
+		case 22:
+		case 23:
+		case 50:
+		case 51:
+		case 53:
+		case 55:
+			return true;
+		default:
+			return false;
+		}
+		break;
+	case 6:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 6:
+		case 18:
+		case 23:
+		case 50:
+		case 51:
+		case 53:
+			return true;
+		default:
+			return false;
+		}
+		break;
+	case 8:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 6:
+		case 18:
+		case 19:
+		case 23:
+		case 40:
+		case 41:
+		case 42:
+		case 43:
+		case 44:
+		case 45:
+		case 55:
+			return true;
+		default:
+			return false;
+		}
+	case 9:
+		switch(spec)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 6:
+		case 55:
+		case 62:
+		case 100:
+		case 101:
+		case 102:
+		case 104:
+		case 105:
+		case 106:
+		case 112:
+		case 113:
+			return true;
+		default:
+			return false;
+		}
+		break;
+	
+
+	}
+	return false;
 }

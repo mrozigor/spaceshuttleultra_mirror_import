@@ -8,6 +8,8 @@
 // data entry Keyboards
 // ==============================================================
 
+const DEU_KEY_RESUME = 9;
+
 class Keyboard
 {
 	friend class Atlantis;
