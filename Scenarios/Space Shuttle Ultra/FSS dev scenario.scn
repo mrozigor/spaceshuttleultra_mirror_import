@@ -177,7 +177,7 @@ fssb:Spacecraft3
   SEQ 1 -2 0.000223
   SEQ 2 2 0.999607
 END
-MLP:Atlantis_MLP-2
+MLP:Atlantis_MLP
   STATUS Landed Earth
   POS -80.6209000 28.6271540
   HEADING 0.00
