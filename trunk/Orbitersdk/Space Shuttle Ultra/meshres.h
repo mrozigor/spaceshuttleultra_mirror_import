@@ -1,7 +1,6 @@
 // ========================================================
 // Mesh resource file for Atlantis.msh
-// Generated with meshc on Mon Mar 03 19:04:41 2008
-
+// Generated with meshc on Mon Mar 03 19:15:49 2008
 // ========================================================
 
 // Number of mesh groups:
@@ -45,26 +44,26 @@
 #define GRP_probeL 28
 #define GRP_probeR 29
 #define GRP_CARGOBAY 30
-#define GRP_cargodoorinR 31
-#define GRP_cargodoorinL 32
-#define GRP_KUband1 33
-#define GRP_KUband2 34
-#define GRP_camerapivotFL 35
-#define GRP_cameraFL 36
-#define GRP_cameraBL 37
-#define GRP_camerapivotBL 38
-#define GRP_cameraFR 39
-#define GRP_camerapivotFR 40
-#define GRP_camerapivotBR 41
-#define GRP_cameraBR 42
-#define GRP_radiatorFL 43
-#define GRP_radiatorFR 44
-#define GRP_radiatorBR 45
-#define GRP_radiatorBL 46
+#define GRP_CARGODOORINR 31
+#define GRP_CARGODOORINL 32
+#define GRP_KUBAND1 33
+#define GRP_KUBAND2 34
+#define GRP_CAMERAPIVOTFL 35
+#define GRP_CAMERAFL 36
+#define GRP_CAMERABL 37
+#define GRP_CAMERAPIVOTBL 38
+#define GRP_CAMERAFR 39
+#define GRP_CAMERAPIVOTFR 40
+#define GRP_CAMERAPIVOTBR 41
+#define GRP_CAMERABR 42
+#define GRP_RADIATORFL 43
+#define GRP_RADIATORFR 44
+#define GRP_RADIATORBR 45
+#define GRP_RADIATORBL 46
 #define GRP_startrackers 47
 #define GRP_trackerplates 48
-#define GRP_Z-startrackdoor 49
-#define GRP_Y-startrackdoor 50
+#define GRP_Zstartrackdoor 49
+#define GRP_Ystartrackdoor 50
 #define GRP_LeftFlapperIN 51
 #define GRP_LeftFlapperOUT 52
 #define GRP_RightFlapperIN 53
