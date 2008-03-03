@@ -86,6 +86,12 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 			ClearInput();
 			sts->DataInput[sts->CRT_SEL[keyboard]].SPEC=true;
 		}
+		else if(p.y>=0.875 && p.y<1.0) {
+			ClearInput();
+			//sts->DataInput[sts->CRT_SEL[keyboard]].SPEC=true;
+			//Resume key
+			sts->Input(sts->CRT_SEL[keyboard], DEU_KEY_RESUME, NULL, NULL);
+		}
 	}
 
 	//second column of buttons

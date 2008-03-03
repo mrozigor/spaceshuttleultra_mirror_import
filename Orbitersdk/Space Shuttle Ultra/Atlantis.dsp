@@ -135,6 +135,10 @@ SOURCE=.\BasicPanel.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\CommModeHandler.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\GearOp.h
 # End Source File
 # Begin Source File
@@ -251,6 +255,10 @@ SOURCE=.\BasicPanel.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CommModeHandler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common.cpp
 # End Source File
 # Begin Source File
@@ -284,6 +292,10 @@ SOURCE=.\OMSSubsystem.cpp
 # Begin Source File
 
 SOURCE=.\PanelA4.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PanelA8.cpp
 # End Source File
 # Begin Source File
 

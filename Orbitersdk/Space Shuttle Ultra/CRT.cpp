@@ -97,11 +97,11 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	usPageNumber = 1;
 	usGPCDriver = 1;
 
-	spec=0;
+	spec=-1;
 	//mode=0;
 	item=0;
 	data=0;
-	display=2;
+	display=-1;
 
 	/*if(saveprm.bValid==false) {
 		saveprm.mode=mode;
@@ -202,24 +202,35 @@ void CRT::Update (HDC hDC)
 		{
 			TextOut(hDC, 0, 0, "Does not compute", 16);
 		}*/
-		if(sts->ops==201) {
-			switch(spec) {
-				case 0:
+		if(this->display>0)
+		{
+			switch(display)
+			{
+			case 18: 
+				GNCSYSSUMM1(hDC);
+				break;
+			}
+		}
+		else {
+			if(sts->ops==201) {
+				switch(spec) {
+					case 0:
 					UNIVPTG(hDC);
 					break;
 				case 20:
 					DAP_CONFIG(hDC);
 					break;
+				}
 			}
-		}
-		else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
-			PASSTRAJ(hDC);
-		}
-		else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
-			MNVR(hDC);
-		}
-		else {
-			DrawCommonHeader(hDC);
+			else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
+				PASSTRAJ(hDC);
+			}
+			else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
+				MNVR(hDC);
+			}
+			else {
+				DrawCommonHeader(hDC);
+			}
 		}
 		DisplayScratchPad(hDC);
 	}
@@ -1264,9 +1275,12 @@ void CRT::PDRS(HDC hDC)
 {
 	char cbuf[255];
 
-	TextOut(hDC, 0, 0, "2011/094", 8);
-	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
-	TextOut(hDC, 173, 0, cbuf, strlen(cbuf));
+	this->SetDisplayTitle("PDRS");
+	DrawCommonHeader(hDC);
+
+//	TextOut(hDC, 0, 0, "2011/094", 8);
+//	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
+//	TextOut(hDC, 173, 0, cbuf, strlen(cbuf));
 }
 
 void CRT::DisplayScratchPad(HDC hDC)
@@ -2555,11 +2569,24 @@ bool cbSpecData(void *id, char *str, void *data)
 void CRT::DrawCommonHeader(HDC hdc)
 {
 	char cbuf[200];
+	char cspecbuf[4];
 	char cdispbuf[4];
 	char cUplink[3];
 	unsigned short usDay, usHour, usMinute, usSecond;
 	strcpy(cUplink, "  ");
+	strcpy(cspecbuf, "   ");
 	strcpy(cdispbuf, "   ");
+
+	if(spec >= 0)
+	{
+		sprintf(cspecbuf, "%03d", spec);
+	}
+
+
+	if(display >= 0)
+	{
+		sprintf(cdispbuf, "%03d", display);
+	}
 
 	//this->SelectDefaultFont(hdc, 1);
 	SelectObject(hdc, hCRTFont);
@@ -2567,20 +2594,136 @@ void CRT::DrawCommonHeader(HDC hdc)
 	sts->GetGPCMET(usGPCDriver, usDay, usHour, usMinute, usSecond);
 	
 	//Todo: GPC count their own MET independent of the MTU
-	sprintf(cbuf,"%03d%1d/%03d/ %3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
+	sprintf(cbuf,"%03d1/%03s/%3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
 		sts->ops, 
-		usPageNumber,
-		0, 
+		cspecbuf, 
 		cdispbuf, 
 		cDispTitle, 
 		cUplink, 
 		usGPCDriver, 
 		usDay, usHour, usMinute, usSecond);
+
 	
-	TextOut(hdc, 0, 5, cbuf, strlen(cbuf));
+	CRTTextOut(hdc, 1, 1, cbuf);
 }
 
 void CRT::SetDisplayTitle(const char *pszTitle)
 {
 	strncpy(cDispTitle, pszTitle, 14);
+}
+
+void CRT::GNCSYSSUMM1(HDC hdc)
+{
+	SetDisplayTitle("GNC SYS SUMM 1");
+	DrawCommonHeader(hdc);
+
+	CRTLine(hdc, 0, 4, 12, 4);
+	CRTLine(hdc, 0, 9, 12, 9);
+	CRTLine(hdc, 0, 14, 12, 14);
+
+	CRTLine(hdc, 14, 4, 32,4);
+
+	CRTLine(hdc, 16, 16, 28, 16);
+
+	CRTLine(hdc, 34, 4, 50, 4);
+	CRTLine(hdc, 34, 10, 48, 10);
+	CRTLine(hdc, 34, 14, 48, 14);
+
+	CRTLine(hdc, 4, 2, 4, 19);
+	CRTLine(hdc, 8, 2, 8, 19);
+
+	CRTTextOut(hdc, 1, 3, "RCS");
+	CRTTextOut(hdc, 6, 3, "JET");
+	CRTTextOut(hdc, 9, 3, "ISOL");
+	CRTTextOut(hdc, 1, 4, "MANF");
+	CRTTextOut(hdc, 5, 4, "FAIL");
+	CRTTextOut(hdc, 9, 4, "VLV");
+
+	CRTTextOut(hdc, 3, 5, "F1");
+	CRTTextOut(hdc, 4, 6, "2");
+	CRTTextOut(hdc, 4, 7, "3");
+	CRTTextOut(hdc, 4, 8, "4");
+	CRTTextOut(hdc, 4, 9, "5");
+
+	CRTTextOut(hdc, 3, 10, "L1");
+	CRTTextOut(hdc, 4, 11, "2");
+	CRTTextOut(hdc, 4, 12, "3");
+	CRTTextOut(hdc, 4, 13, "4");
+	CRTTextOut(hdc, 4, 14, "5");
+
+	CRTTextOut(hdc, 3, 15, "R1");
+	CRTTextOut(hdc, 4, 16, "2");
+	CRTTextOut(hdc, 4, 17, "3");
+	CRTTextOut(hdc, 4, 18, "4");
+	CRTTextOut(hdc, 4, 19, "5");
+
+	CRTTextOut(hdc, 15, 4, "SURF");
+	CRTTextOut(hdc, 24, 4, "POS");
+	CRTTextOut(hdc, 30, 4, "MOM");
+
+	CRTTextOut(hdc, 15, 5, "L OB");
+	CRTTextOut(hdc, 17, 6, "IB");
+	CRTTextOut(hdc, 15, 7, "R IB");
+	CRTTextOut(hdc, 17, 8, "OB");
+
+	CRTTextOut(hdc, 15, 9, "AIL");
+	CRTTextOut(hdc, 15, 10, "RUD");
+	CRTTextOut(hdc, 15, 11, "SPD BRK");
+	CRTTextOut(hdc, 15, 12, "BDY FLP");
+	
+	CRTTextOut(hdc, 17, 16, "CNTLR  1 2 3");
+	CRTTextOut(hdc, 17, 17, "RHC  L");
+	CRTTextOut(hdc, 22, 18, "R");
+	CRTTextOut(hdc, 22, 19, "A");
+	CRTTextOut(hdc, 17, 20, "THC  L");
+	CRTTextOut(hdc, 22, 21, "A");
+	CRTTextOut(hdc, 22, 22, "SBTC L");
+	CRTTextOut(hdc, 22, 23, "R");
+
+	CRTTextOut(hdc, 35, 4, "DPS");
+	CRTTextOut(hdc, 42, 4, "1 2 3 4 5");
+
+	CRTTextOut(hdc, 38, 5, "GPC");
+	CRTTextOut(hdc, 35, 6, "MDM FF");
+	CRTTextOut(hdc, 39, 7, "FA");
+
+	CRTTextOut(hdc, 35, 10, "FCS CH 1 2 3 4");
+	CRTTextOut(hdc, 35, 14, "NAV    1 2 3 4");
+	CRTTextOut(hdc, 37, 15, "IMU");
+	CRTTextOut(hdc, 37, 16, "ACC");
+	CRTTextOut(hdc, 37, 17, "RGA");
+	CRTTextOut(hdc, 37, 18, "TAC");
+	CRTTextOut(hdc, 37, 19, "MLS");
+	CRTTextOut(hdc, 37, 20, "ADTA");
+	
+}
+
+bool CRT::CRTTextOut(HDC hdc, short sCol, short sLine, char *text)
+{
+	float charW = W/50.0;
+	float charH = H/25.0;
+
+	if(sCol < 1 || sCol > 50 || sLine < 1 || sLine > 25)
+	{
+		return false;
+	}
+
+	TextOut(hdc, charW * (sCol - 1), charH * (sLine - 1), text, strlen(text));
+
+	return true;
+}
+
+bool CRT::CRTLine(HDC hdc, short sX1, short sY1, short sX2, short sY2)
+{
+	float charW = W/50.0;
+	float charH = H/25.0;
+
+	int iX1 = charW * sX1;
+	int iY1 = charH * sY1;
+	int iX2 = charW * sX2;
+	int iY2 = charH * sY2;
+
+	MoveToEx(hdc, iX1, iY2, NULL);
+	LineTo(hdc, iX2, iY2);
+	return true;
 }
