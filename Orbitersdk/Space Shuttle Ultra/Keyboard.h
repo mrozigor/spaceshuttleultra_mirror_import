@@ -8,7 +8,7 @@
 // data entry Keyboards
 // ==============================================================
 
-const DEU_KEY_RESUME = 9;
+const int DEU_KEY_RESUME = 9;
 
 class Keyboard
 {
