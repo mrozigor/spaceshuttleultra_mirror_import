@@ -195,6 +195,10 @@ SOURCE=.\PanelC2.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\PanelC3.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\PanelF7.h
 # End Source File
 # Begin Source File
