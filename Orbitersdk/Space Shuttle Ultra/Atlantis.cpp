@@ -1616,7 +1616,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camFLPitchGrp[1] = {GRP_CAMERAFL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.671,orbiter_ofs.z+11.874), _V(1,0,0), (float)(340*RAD));
   anim_camFLpitch = CreateAnimation (0.5);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
@@ -1629,7 +1629,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camFRPitchGrp[1] = {GRP_CAMERAFR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.671,orbiter_ofs.z+11.874), _V(1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
@@ -1642,7 +1642,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camBLPitchGrp[1] = {GRP_CAMERABL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.822,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
@@ -1655,7 +1655,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camBRPitchGrp[1] = {GRP_CAMERABR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.822,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
