@@ -123,6 +123,10 @@ SOURCE=.\AC_resource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\AirDataProbeSystem.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Atlantis.h
 # End Source File
 # Begin Source File
@@ -135,7 +139,15 @@ SOURCE=.\BasicPanel.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicVCComponent.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\CommModeHandler.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DiscreteBundle.h
 # End Source File
 # Begin Source File
 
@@ -156,6 +168,10 @@ SOURCE=.\KuBandSystem.h
 # Begin Source File
 
 SOURCE=.\MasterTimingUnit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MDM.h
 # End Source File
 # Begin Source File
 
@@ -243,6 +259,10 @@ SOURCE=..\..\Orbiter.log
 # PROP Default_Filter "cpp"
 # Begin Source File
 
+SOURCE=.\AirDataProbeSystem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Atlantis.cpp
 # End Source File
 # Begin Source File
@@ -259,11 +279,19 @@ SOURCE=.\BasicPanel.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicVCComponent.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CommModeHandler.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DiscreteBundle.cpp
 # End Source File
 # Begin Source File
 
@@ -284,6 +312,10 @@ SOURCE=.\KuBandSystem.cpp
 # Begin Source File
 
 SOURCE=.\MasterTimingUnit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MDM.cpp
 # End Source File
 # Begin Source File
 

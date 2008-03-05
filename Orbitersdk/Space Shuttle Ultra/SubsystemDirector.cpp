@@ -89,3 +89,8 @@ bool SubsystemDirector::WriteLog(const AtlantisSubsystem* src, char* message)
 {
 	return true;
 }
+
+Atlantis* SubsystemDirector::STS()
+{
+	return psts;
+}

@@ -33,6 +33,7 @@
 #include "resource.h"
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
+#include "AirDataProbeSystem.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -353,6 +354,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems	  = new SubsystemDirector(this);
 
   psubsystems->AddSubsystem(pMTU = new MasterTimingUnit(psubsystems));
+  psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 #ifdef INCLUDE_OMS_CODE
   psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));
 #else
@@ -1715,6 +1717,22 @@ void Atlantis::DefineAnimations (void)
 
   parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
   AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
+
+  // ======================================================
+  // Air Data Probe Assembly Animations
+  // ======================================================
+
+  static UINT ADPL_Grp[1] = {GRP_PROBEL};
+  static UINT ADPR_Grp[1] = {GRP_PROBER};
+
+  static MGROUP_ROTATE ADPL_Deploy (midx, ADPL_Grp, 1, PROBEL_REF, PROBE_AXIS, (float)(180.0 * RAD));
+  static MGROUP_ROTATE ADPR_Deploy (midx, ADPR_Grp, 1, PROBER_REF, PROBE_AXIS, (float)(-180.0 * RAD));
+
+  anim_adpl = CreateAnimation(1.0);
+  AddAnimationComponent(anim_adpl, 0.0, 1.0, &ADPL_Deploy);
+
+  anim_adpr = CreateAnimation(1.0);
+  AddAnimationComponent(anim_adpr, 0.0, 1.0, &ADPR_Deploy);
 
 
 
@@ -5741,5 +5759,14 @@ void Atlantis::StopAllManifolds()
 		{
 			SetThrusterLevel(thManFRCS5[i], 0.0);
 		}
+	}
+}
+
+void Atlantis::SetAirDataProbeDeployment(int side, double position)
+{
+	if(side == 1) {
+		SetAnimation(anim_adpr, position);
+	} else if(side == 0) {
+		SetAnimation(anim_adpl, position);
 	}
 }

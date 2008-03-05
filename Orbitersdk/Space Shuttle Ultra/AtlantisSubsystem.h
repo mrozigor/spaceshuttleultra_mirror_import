@@ -21,6 +21,7 @@ class SubsystemDirector;
  */
 class AtlantisSubsystem  
 {
+protected:
 	SubsystemDirector* director;
 	string ident;
 public:

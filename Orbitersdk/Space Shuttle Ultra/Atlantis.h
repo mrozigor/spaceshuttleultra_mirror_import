@@ -269,6 +269,11 @@ const VECTOR3 UMBDOORL_REF = _V(-1.31087, -2.71022, -6.75496);
 const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
 //const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
 const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
+
+const VECTOR3 PROBEL_REF = _V(-1.122688, -1.0894815, 19.4175);
+const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
+
+const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 //
 
 //======================================
@@ -574,6 +579,7 @@ class PanelO3;
 class SubsystemDirector;
 class MasterTimingUnit;
 class OMSSubsystem;
+class AirDataProbeSystem;
 
 typedef enum {
 	LT_LATCHED = 0,
@@ -609,6 +615,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual void SetAirDataProbeDeployment(int side, double position);
 
 	int ___iCurrentManifold;
 	virtual bool IsValidSPEC(int gpc, int spec);
@@ -727,6 +734,7 @@ public:
 	SubsystemDirector* psubsystems;
 	MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	OMSSubsystem* pOMS;
+	AirDataProbeSystem* pADPS;
 
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
@@ -923,10 +931,18 @@ private:
 	UINT anim_ssmeLyaw;
 	UINT anim_ssmeLpitch;
 
+	//=======================================================
+	// Air data probe animations
+	//=======================================================
+	UINT anim_adpl;
+	UINT anim_adpr;
 
-	//
+	//=======================================================
+	// KU Band antenna gimbal animations
+	//=======================================================
 	UINT anim_kualpha;
 	UINT anim_kubeta;
+
 
 
 	// PAYLOAD CAMERAS ANIMATIONS

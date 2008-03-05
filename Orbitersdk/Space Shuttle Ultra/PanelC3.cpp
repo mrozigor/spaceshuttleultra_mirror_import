@@ -4,6 +4,7 @@
 #include "meshres_vc.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
+#include "AirDataProbeSystem.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -34,7 +35,11 @@ void PanelC3::RegisterVC()
 	VECTOR3 ofs = sts->orbiter_ofs;
 	//SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
 	oapiVCRegisterArea (AID_C3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-	oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.281, 1.684, 14.702)+ofs, _V(0.276, 1.684, 14.702)+ofs, _V(-0.281, 1.619, 14.066)+ofs, _V(0.276, 1.619, 14.066)+ofs);
+
+	//-.2732771, 1.76045, 14.35651
+	// .2732771 1.69551  13.73551
+	oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.2732771, 1.76045, 14.35651)+ofs, _V(0.2732771, 1.76045, 14.35651)+ofs, 
+		_V(-0.2732771, 1.69551,  13.73551)+ofs, _V(0.2732771, 1.69551,  13.73551)+ofs);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.0804, 1.667, 14.52)+ofs, _V(-0.111, 1.667, 14.52)+ofs, _V(-0.0804, 1.667, 14.52)+ofs, _V(0.276, 1.618, 14.066)+ofs);
 	//sprintf(oapiDebugString(), "PanelC3 Registered");
 }
@@ -187,37 +192,37 @@ void PanelC3::DefineVCAnimations (UINT vcidx)
 
 	static UINT VC_C3b1_Grp = GRP_C3b1_VC;
 	static MGROUP_ROTATE VC_C3b1 (vcidx, &VC_C3b1_Grp, 1,
-		_V(-.225,1.653,14.627), switch_rot, (float)(90.0*RAD));
+		REF_C3S1, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[0]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[0], 0, 1, &VC_C3b1);
 
 	static UINT VC_C3b2_Grp = GRP_C3b2_VC;
 	static MGROUP_ROTATE VC_C3b2 (vcidx, &VC_C3b2_Grp, 1,
-		_V(-.196,1.653,14.627), switch_rot, (float)(90.0*RAD));
+		REF_C3S2, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[1]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[1], 0, 1, &VC_C3b2);
 
 	static UINT VC_C3b10_Grp = GRP_C3b10_VC;
 	static MGROUP_ROTATE VC_C3b10 (vcidx, &VC_C3b10_Grp, 1,
-		_V(-.223,1.642,14.521), switch_rot, (float)(90.0*RAD));
+		REF_C3S19, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[11]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[11], 0, 1, &VC_C3b10);
 
 	static UINT VC_C3b11_Grp = GRP_C3b11_VC;
 	static MGROUP_ROTATE VC_C3b11 (vcidx, &VC_C3b11_Grp, 1,
-		_V(-.188,1.642,14.521), switch_rot, (float)(90.0*RAD));
+		REF_C3S20, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[12]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[12], 0, 1, &VC_C3b11);
 
 	static UINT VC_C3b23_Grp = GRP_C3b23_VC;
 	static MGROUP_ROTATE VC_C3b23 (vcidx, &VC_C3b23_Grp, 1,
-		_V(-.217,1.608,14.186), switch_rot, (float)(90.0*RAD));
+		REF_C3S8, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[22]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[22], 0, 1, &VC_C3b23);
 
 	static UINT VC_C3b24_Grp = GRP_C3b24_VC;
 	static MGROUP_ROTATE VC_C3b24 (vcidx, &VC_C3b24_Grp, 1,
-		_V(-.176,1.608,14.186), switch_rot, (float)(90.0*RAD));
+		REF_C3S9, switch_rot, (float)(90.0*RAD));
 	anim_VC_C3[23]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C3[23], 0, 1, &VC_C3b24);
 	return;
@@ -225,6 +230,7 @@ void PanelC3::DefineVCAnimations (UINT vcidx)
 
 void PanelC3::Step(double t, double dt)
 {
+	/*
 	for(int i=0;i<2;i++) {
 		if(AirDataProbe[i].Moving()) {
 			double da=dt*AIR_DATA_PROBE_SPEED;
@@ -237,13 +243,30 @@ void PanelC3::Step(double t, double dt)
 				if(AirDataProbe[i].pos<=0.0) AirDataProbe[i].Set(AnimState::CLOSED, 0.0);
 			}
 		}
-	}
+	}*/
 	//sprintf(oapiDebugString(), "%f %f", AirDataProbe[0].pos, AirDataProbe[1].pos);
+
+
+	if(Air_Data_Probe[0] <= 1)
+	{
+		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_DEPLOY);
+	} else
+	{
+		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_STOW);
+	}
+
+	if(Air_Data_Probe[1] <= 1)
+	{
+		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_DEPLOY);
+	} else
+	{
+		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_STOW);
+	}
 }
 
 bool PanelC3::CheckProbesDeployed()
 {
-	if(AirDataProbe[0].pos==1.0 || AirDataProbe[1].pos==1.0) return true;
+	if(sts->pADPS->IsDeployed(0) || sts->pADPS->IsDeployed(1)) return true;
 	else return false;
 }
 
@@ -259,6 +282,7 @@ void PanelC3::EngControl(int eng)
 
 void PanelC3::AirDataProbeControl()
 {
+	/*
 	//sprintf(oapiDebugString(), "AirDataProbeControl()");
 	for(int i=0;i<2;i++)
 	{
@@ -273,6 +297,9 @@ void PanelC3::AirDataProbeControl()
 			}
 		}
 	}
+	*/
+
+	
 }
 
 bool PanelC3::CheckOMSArm(int nEng)
