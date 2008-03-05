@@ -29,6 +29,7 @@
 #include "meshres_vc.h"
 #include "meshres_RMS.h"
 #include "meshres_KU.h"
+#include "meshres_vc_additions.h"
 #include "resource.h"
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
@@ -36,6 +37,7 @@
 #include "OMSSubsystem.h"
 #endif
 #include "CommModeHandler.h"
+
 
 #include "MLP/MLP.h"
 
@@ -376,6 +378,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bSRBCutoffFlag  = false;
   bLiftOff		  = false;
   bHasKUBand	  = true;
+  bUseRealRCS	  = false;
+
+  ___iCurrentManifold = 0;
 
   //SRB slag effects
   slag1 = 0.0;
@@ -406,11 +411,38 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   // propellant resources
   ph_oms          = NULL;
   ph_frcs		  = NULL;
+  ph_lrcs		  = NULL;
+  ph_rrcs		  = NULL;
   ph_tank         = NULL;
   ph_srb          = NULL;
   thg_main        = NULL;
   thg_retro		  = NULL;
   thg_srb         = NULL;
+
+
+  for(i=0;i<4;i++)
+  {
+	thManFRCS1[i] = NULL;
+	thManFRCS2[i] = NULL;
+	thManFRCS3[i] = NULL;
+  }
+
+  thManFRCS4[0] = thManFRCS4[1] = NULL;
+  thManFRCS5[0] = thManFRCS5[1] = NULL;
+
+  for(i=0;i<3;i++)
+  {
+	thManLRCS1[i] = NULL;
+	thManLRCS2[i] = NULL;
+	thManLRCS3[i] = NULL;
+	thManLRCS4[i] = NULL;
+	thManRRCS1[i] = NULL;
+	thManRRCS2[i] = NULL;
+	thManRRCS3[i] = NULL;
+	thManRRCS4[i] = NULL;
+  }
+  thManLRCS5[0] = thManLRCS5[1] = NULL;
+  thManRRCS5[0] = thManRRCS5[1] = NULL;
 
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
@@ -436,6 +468,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hTankMesh           = oapiLoadMeshGlobal ("Shuttle_tank");
   hSRBMesh[0]		  = oapiLoadMeshGlobal ("Shuttle_rsrb");
   hSRBMesh[1]		  = oapiLoadMeshGlobal ("Shuttle_lsrb");
+
+   tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
@@ -645,16 +679,12 @@ void Atlantis::SetLaunchConfiguration (void)
 
   // ************************* propellant specs **********************************
 
-  if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
+  
   if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
   if (!ph_srb)  ph_srb  = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
-  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-  for(i=0;i<3;i++) {
-	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-  }
-  for(i=0;i<2;i++) {
-	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
-  }
+  
+  CreateOrbiterTanks();
+  
   SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
@@ -797,15 +827,10 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // ************************* propellant specs **********************************
 
-  if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
   if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
-  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-  for(i=0;i<3;i++) {
-	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-  }
-  for(i=0;i<2;i++) {
-	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
-  }
+
+  CreateOrbiterTanks();
+
   SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
@@ -854,7 +879,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 		c3po->EngControl(i);
 	}
   }
-  if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
+  //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
     CreateAttControls_RCS(ofs);
 
   // ************************* aerodynamics **************************************
@@ -923,15 +948,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   // ************************* propellant specs **********************************
 
-  if (!ph_oms) ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
-  SetDefaultPropellantResource (ph_oms); // display OMS tank level in generic HUD
-  if(!ph_frcs) ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-  for(i=0;i<3;i++) {
-	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-  }
-  for(i=0;i<2;i++) {
-	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
-  }
+  CreateOrbiterTanks();
 
   // *********************** thruster definitions ********************************
 
@@ -1005,12 +1022,30 @@ void Atlantis::SetOrbiterConfiguration (void)
 // Attitude controls (RCS) during orbital phase
 // --------------------------------------------------------------
 void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
-  SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
+ // SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   const double eh = 6.0;             // exhaust length scale
   const double ew1 = 0.4, ew2 = 0.8; // exhaust width scales
+
+  THRUSTER_HANDLE thTmp[10];
   PitchActive=true;
   YawActive=true;
   RollActive=true;
+
+  if(bUseRealRCS)
+  {
+	  CreateFRCS(center);
+	  CreateLeftARCS(center);
+	  CreateRightARCS(center);
+
+	  
+	  thTmp[0] = thManFRCS1[RCS_F1D];
+	  thTmp[1] = thManFRCS1[RCS_F2D];
+	  thTmp[2] = thManFRCS1[RCS_F3D];
+	  thTmp[3] = thManFRCS1[RCS_F4D];
+	  CreateThrusterGroup(thTmp, 4, THGROUP_ATT_PITCHUP);
+
+	  return;
+  }
 
   // set of attitude thrusters (idealised). The arrangement is such that no angular
   // momentum is created in linear mode, and no linear momentum is created in rotational mode.
@@ -1172,26 +1207,36 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
+  
 }
 
 void Atlantis::DisableAllRCS() {
+  if(bUseRealRCS)
+		return;
+
   if(!RCSEnabled) return;
+  
   DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
   DelThrusterGroup(THGROUP_ATT_PITCHUP);
   DelThrusterGroup(THGROUP_ATT_YAWLEFT);
   DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
   DelThrusterGroup(THGROUP_ATT_BANKLEFT);
   DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
+  
   CreateThrusterGroup (th_att_rcs+12,   1, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+13,   1, THGROUP_ATT_PITCHDOWN);
   CreateThrusterGroup (th_att_rcs+14,   1, THGROUP_ATT_YAWLEFT);
   CreateThrusterGroup (th_att_rcs+15,   1, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+16,   1, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+17,   1, THGROUP_ATT_BANKRIGHT);
+  
   RCSEnabled=false;
 }
 
 void Atlantis::EnableAllRCS() {
+  if(bUseRealRCS)
+		return;
+
   if(RCSEnabled) return;
   DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
   DelThrusterGroup(THGROUP_ATT_PITCHUP);
@@ -1199,12 +1244,14 @@ void Atlantis::EnableAllRCS() {
   DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
   DelThrusterGroup(THGROUP_ATT_BANKLEFT);
   DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
+
   CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
   CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
   CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
+  
   RCSEnabled=true;
 }
 
@@ -1637,8 +1684,10 @@ void Atlantis::DefineAnimations (void)
   panela4->DefineVCAnimations (vidx);
   panela8->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
-  c3po->DefineVCAnimations (vidx);
   panelf7->DefineVCAnimations (vidx);
+  panelo3->DefineVCAnimations (vidx);
+  // ======================================================
+  c3po->DefineVCAnimations (vidx);
   r2d2->DefineVCAnimations (vidx);
 }
 
@@ -2263,19 +2312,27 @@ void Atlantis::SetAnimationCameras() {
 
 void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
 {
+	if(bUseRealRCS)
+		return;
+
 	for(int i=0;i<nThrusters;i++) {
 		if(Thrusters[i]%2==1)
 			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_oms);
 		else
 			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_frcs);
 	}
+
 }
 
 void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 {
+	if(bUseRealRCS)
+		return;
+
 	for(int i=0;i<nThrusters;i++) {
 		SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
 	}
+	
 }
 
 bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
@@ -3229,6 +3286,10 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
   if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
     render_cockpit = false;
 
+  if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
+    bUseRealRCS = false;
+
+
   psubsystems->SetClassCaps(cfg);
 }
 
@@ -4173,7 +4234,7 @@ bool Atlantis::clbkLoadVC (int id)
 
   // register MFD function buttons
   // this needs to be done globally, so that the labels are correctly updated from all VC positions
-  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, 7);
+  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_STSVC01_VC);
 
   // commander MFD function buttons
   oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
@@ -4197,10 +4258,10 @@ bool Atlantis::clbkLoadVC (int id)
 
   switch (id) {
   case 0: // commander position
-    SetCameraOffset (_V(orbiter_ofs.x-0.67,orbiter_ofs.y+2.55,orbiter_ofs.z+14.4));
+    SetCameraOffset (orbiter_ofs + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
-    huds.hudcnt = _V(orbiter_ofs.x-0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969);
+    huds.hudcnt = orbiter_ofs + VC_POS_CDR;
     oapiVCSetNeighbours (9, 1, 8, 10);
 
   // Default camera rotarion
@@ -4219,10 +4280,10 @@ bool Atlantis::clbkLoadVC (int id)
     ok = true;
     break;
   case 1: // pilot position
-    SetCameraOffset (_V(orbiter_ofs.x+0.67,orbiter_ofs.y+2.55,orbiter_ofs.z+14.4));
+    SetCameraOffset (orbiter_ofs + VC_POS_PLT);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    huds.hudcnt = _V(orbiter_ofs.x+0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969);
+    huds.hudcnt = orbiter_ofs + VC_POS_PLT;
     oapiVCSetNeighbours (0, 2, 8, 10);
 
   // Default camera rotarion
@@ -4619,6 +4680,8 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     case OAPI_KEY_SPACE: // open RMS control dialog
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;
+	
+
     case OAPI_KEY_B: // deploy/retract speedbrake
       if (!Playback()) RevertSpeedbrake ();
       return 1;
@@ -4638,6 +4701,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_1: //temporary
 		if(DisplayJointAngles) DisplayJointAngles=false;
 		else DisplayJointAngles=true;
+		return 1;
+	case OAPI_KEY_2:
+		FireAllNextManifold();
 		return 1;
 	}
   } else { // unmodified keys
@@ -5400,4 +5466,238 @@ bool Atlantis::IsValidSPEC(int gpc, int spec)
 
 	}
 	return false;
+}
+
+void Atlantis::CreateOrbiterTanks()
+{
+	int i;
+	if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
+	for(i=0;i<3;i++) {
+	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+	}
+	for(i=0;i<2;i++) {
+	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
+	}
+	if(!ph_frcs) 
+		ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+	if(!ph_lrcs) 
+		ph_lrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+	if(!ph_rrcs) 
+		ph_rrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+}
+
+void Atlantis::CreateFRCS(const VECTOR3 &ref_pos)
+{
+	//=================================================================================================
+	// Downwards firing thrusters 
+	//=================================================================================================
+	if(thManFRCS1[RCS_F1D] == NULL) {
+		thManFRCS1[RCS_F1D] = CreateThruster (ref_pos + RCS_F1D_OFS, RCS_F1D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1D]);
+	}
+	if(thManFRCS2[RCS_F2D] == NULL) {
+		thManFRCS2[RCS_F2D] = CreateThruster (ref_pos + RCS_F2D_OFS, RCS_F2D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2D]);
+	}
+	if(thManFRCS3[RCS_F3D] == NULL)	{
+		thManFRCS3[RCS_F3D] = CreateThruster (ref_pos + RCS_F3D_OFS, RCS_F3D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3D]);
+	}
+	if(thManFRCS4[RCS_F4D] == NULL)	{
+		thManFRCS4[RCS_F4D] = CreateThruster (ref_pos + RCS_F4D_OFS, RCS_F4D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS4[RCS_F4D]);
+	}
+	//=================================================================================================
+	// Upwards firing thrusters 
+	//=================================================================================================
+	if(thManFRCS1[RCS_F1U] == NULL) {
+		thManFRCS1[RCS_F1U] = CreateThruster (ref_pos + RCS_F1U_OFS, RCS_F1U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1U]);
+	}
+	if(thManFRCS2[RCS_F2U] == NULL) {
+		thManFRCS2[RCS_F2U] = CreateThruster (ref_pos + RCS_F2U_OFS, RCS_F2U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2U]);
+	}
+	if(thManFRCS3[RCS_F3U] == NULL)	{
+		thManFRCS3[RCS_F3U] = CreateThruster (ref_pos + RCS_F3U_OFS, RCS_F3U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3U]);
+	}
+	//=================================================================================================
+	// Left firing thrusters 
+	//=================================================================================================
+	if(thManFRCS1[RCS_F1L] == NULL) {
+		thManFRCS1[RCS_F1L] = CreateThruster (ref_pos + RCS_F1L_OFS, RCS_F1L_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1L]);
+	}
+	if(thManFRCS2[RCS_F3L] == NULL) {
+		thManFRCS2[RCS_F3L] = CreateThruster (ref_pos + RCS_F3L_OFS, RCS_F3L_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3L]);
+	}
+	//=================================================================================================
+	// Right firing thrusters 
+	//=================================================================================================
+	if(thManFRCS1[RCS_F2R] == NULL) {
+		thManFRCS1[RCS_F2R] = CreateThruster (ref_pos + RCS_F2R_OFS, RCS_F2R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2R]);
+	}
+	if(thManFRCS2[RCS_F4R] == NULL) {
+		thManFRCS2[RCS_F4R] = CreateThruster (ref_pos + RCS_F4R_OFS, RCS_F4R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS4[RCS_F4R]);
+	}
+	//=================================================================================================
+	// Forwards firing thrusters 
+	//=================================================================================================
+	if(thManFRCS1[RCS_F1F] == NULL) {
+		thManFRCS1[RCS_F1F] = CreateThruster (ref_pos + RCS_F1F_OFS, RCS_F1F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1F]);
+	}
+	if(thManFRCS2[RCS_F2F] == NULL) {
+		thManFRCS2[RCS_F2F] = CreateThruster (ref_pos + RCS_F2F_OFS, RCS_F2F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2F]);
+	}
+	if(thManFRCS3[RCS_F3F] == NULL)	{
+		thManFRCS3[RCS_F3F] = CreateThruster (ref_pos + RCS_F3F_OFS, RCS_F3F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
+			ORBITER_RCS_ISP1);
+		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3F]);
+	}
+}
+
+void Atlantis::CreateLeftARCS(const VECTOR3 &ref_pos)
+{
+
+}
+
+void Atlantis::CreateRightARCS(const VECTOR3 &ref_pos)
+{
+
+}
+
+void Atlantis::AddPrimaryRCSExhaust(THRUSTER_HANDLE thX)
+{
+	const double eh = 6.0;             // exhaust length scale
+	const double ew1 = 0.4; // exhaust width scales
+	AddExhaust (thX, eh, ew1, tex_rcs);
+}
+
+void Atlantis::FireAllNextManifold()
+{
+	StopAllManifolds();
+	int i;
+	switch(___iCurrentManifold)
+	{
+	case 0:
+		//Fire none
+		return;
+	case 1:
+		//Fire Manifold 1
+		for(i = 0; i<4; i++)
+		{
+			if(thManFRCS1[i])
+			{
+				SetThrusterLevel(thManFRCS1[i], 1.0);
+			}
+	
+		}
+		___iCurrentManifold++;
+		return;
+	case 2:
+		//Fire manifold 2
+		for(i = 0; i<4; i++)
+		{
+			if(thManFRCS2[i])
+			{
+				SetThrusterLevel(thManFRCS2[i], 1.0);
+			}
+	
+		}
+		___iCurrentManifold++;
+		return;
+	case 3:
+		//Fire manifold 3
+		for(i = 0; i<4; i++)
+		{
+			if(thManFRCS3[i])
+			{
+				SetThrusterLevel(thManFRCS3[i], 1.0);
+			}
+	
+		}
+		___iCurrentManifold++;
+		return;
+	case 4:
+		//Fire manifold 4
+		for(i = 0; i<2; i++)
+		{
+			if(thManFRCS4[i])
+			{
+				SetThrusterLevel(thManFRCS4[i], 1.0);
+			}
+	
+		}
+		___iCurrentManifold++;
+		return;
+	case 5:
+		//Fire manifold 5 (vernier)
+		for(i = 0; i<2; i++)
+		{
+			if(thManFRCS5[i])
+			{
+				SetThrusterLevel(thManFRCS5[i], 1.0);
+			}
+	
+		}
+		___iCurrentManifold++;
+		return;
+	default:
+		___iCurrentManifold = 0;
+		return;
+	}
+}
+
+void Atlantis::StopAllManifolds()
+{
+	int i;
+	for(i = 0; i<4; i++)
+	{
+		if(thManFRCS1[i])
+		{
+			SetThrusterLevel(thManFRCS1[i], 0.0);
+		}
+
+		if(thManFRCS2[i])
+		{
+			SetThrusterLevel(thManFRCS2[i], 0.0);
+		}
+
+		if(thManFRCS3[i])
+		{
+			SetThrusterLevel(thManFRCS3[i], 0.0);
+		}
+
+		
+	}
+	for(i=0; i<2; i++)
+	{
+		if(thManFRCS4[i])
+		{
+			SetThrusterLevel(thManFRCS4[i], 0.0);
+		}
+		if(thManFRCS5[i])
+		{
+			SetThrusterLevel(thManFRCS5[i], 0.0);
+		}
+	}
 }
