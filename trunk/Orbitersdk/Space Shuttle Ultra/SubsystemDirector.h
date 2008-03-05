@@ -15,6 +15,7 @@ protected:
 	Atlantis* psts;
 	vector<AtlantisSubsystem*> subsystems;
 public:
+	virtual Atlantis* STS();
 	SubsystemDirector(Atlantis* _sts);
 	~SubsystemDirector();
 	bool AddSubsystem(AtlantisSubsystem* pSubsys);
