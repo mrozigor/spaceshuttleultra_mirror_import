@@ -22,6 +22,7 @@ PanelO3::PanelO3(Atlantis *_sts): sts(_sts)
 		switch_state[i] = 1;
 		old_switch_state[i] = 1;
 	    switch_timer[i] = 0.0;
+		anim_VC_O3[i] = NULL;
 	}
 	sTimerMinutes = 0;
 	sTimerSeconds = 0;
@@ -117,14 +118,16 @@ void PanelO3::RegisterVC()
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
 
 	//Mesh data for this panel
-	//0.733191 2.68175 14.7204 0 -0.201064 -0.979578 0.997921 -0.523277
-	//0.11316 2.68175 14.7204 0 -0.201064 -0.979578 0.020382 -0.523277
-	//0.11316 2.97098 14.661 0 -0.201064 -0.979578 0.020382 -0.937534
-	//0.733191 2.97098 14.661 0 -0.201064 -0.979578 0.997921 -0.937534
+	
+	//0.110078, 3.0096, 14.3151
+	//0.713058, 3.0096, 14.3151
+	//0.110078, 2.72832, 14.3729
+	//0.713058, 2.72832, 14.3729
+	
 
 	oapiVCRegisterArea (AID_O3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-	oapiVCSetAreaClickmode_Quadrilateral (AID_O3,  _V(0.11316, 2.97098, 14.661)+ofs, _V(0.733191, 2.97098, 14.661)+ofs,
-		  _V(0.11316, 2.68175, 14.720)+ofs , _V(0.733191, 2.68175, 14.7204)+ofs);
+	oapiVCSetAreaClickmode_Quadrilateral (AID_O3,  _V(0.110078, 3.0096, 14.3151)+ofs, _V(0.713058, 3.0096, 14.3151)+ofs,
+		  _V(0.110078, 2.72832, 14.3729)+ofs , _V(0.713058, 2.72832, 14.3729)+ofs);
 	
 	oapiVCRegisterArea (AID_O3_METTMR1, _R(320, 0, 512, 64), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_METTMR2, _R(0, 64, 384, 128), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
@@ -143,19 +146,19 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 	{
 		if(p.y > 0.703 && p.y < 0.748)
 		{	
-			if(switch_state[2] > 0)
+			if(switch_state[SWITCH_O3S12] > 0)
 			{
-				switch_state[2]--;
-				switch_timer[2] = SWITCH_HOLD_TIME;
+				switch_state[SWITCH_O3S12]--;
+				switch_timer[SWITCH_O3S12] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 		}
 		else if(p.y > 0.748 && p.y < 0.792)
 		{
-			if(switch_state[SWITCH12] < 2)
+			if(switch_state[SWITCH_O3S12] < 2)
 			{
-				switch_state[2]++;
-				switch_timer[2] = SWITCH_HOLD_TIME;
+				switch_state[SWITCH_O3S12]++;
+				switch_timer[SWITCH_O3S12] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 		}
@@ -170,7 +173,14 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 void PanelO3::UpdateVC()
 {
-	//sts->SetAnimation(anim_VC_A4, switch_state * 0.5);
+	int i;
+	for(i = 0; i<NUM_O3_SWITCHES; i++)
+	{
+		if(anim_VC_O3[i])
+		{
+			sts->SetAnimation(anim_VC_O3[i], switch_state[i] * 0.5);
+		}
+	}
 	return;
 }
 
@@ -179,15 +189,15 @@ void PanelO3::DefineVCAnimations (UINT vcidx)
 	
 	//_V(-0.651648, 3.07024, 12.5771)+ofs, _V(-0.865687, 3.07024, 12.6344)+ofs
 	//_V(-0.214039, 0, 0.0573);	//L=0.221576134
-	static VECTOR3 switch_rot = {-0.96598,0,0.25860};
-/*
-	static UINT VC_O4SWITCH_GRP = GRP_A4MissionSwitch_VC;
+	static VECTOR3 switch_rot = {-1.0, 0.0, 0.0};
 
-	static MGROUP_ROTATE VC_A4_METSWITCH (vcidx, &VC_A4_METSWITCH_GRP, 1,
-		_V(-0.816909, 2.90472, 12.6216), switch_rot, (float)(90.0*RAD));
-	anim_VC_A4=sts->CreateAnimation (0.5);
-	sts->AddAnimationComponent (anim_VC_A4, 0, 1, &VC_A4_METSWITCH);
-	*/
+	static UINT VC_O3S12_GRP = GRP_O3S12_VC;
+
+	static MGROUP_ROTATE VC_O3S12 (vcidx, &VC_O3S12_GRP, 1,
+		REF_O3S12, switch_rot, (float)(90.0*RAD));
+	anim_VC_O3[SWITCH_O3S12]=sts->CreateAnimation (0.5);
+	sts->AddAnimationComponent (anim_VC_O3[SWITCH_O3S12], 0, 1, &VC_O3S12);
+	
 	return;
 }
 
@@ -196,7 +206,7 @@ void PanelO3::Step(double t, double dt)
 	bool update = false;
 	//Check forward event timer for changes and update clock if needed
 
-	switch(switch_state[2]) {
+	switch(switch_state[SWITCH_O3S12]) {
 	case 0:
 		if(sts->pMTU->GetGMTDay(0) != sMETDays || 
 			sts->pMTU->GetGMTHour(0) != sMETHours ||
@@ -248,12 +258,12 @@ void PanelO3::Step(double t, double dt)
 		break;
 	}
 
-	if(switch_state[2] == 2)
+	if(switch_state[SWITCH_O3S12] == 2)
 	{
-		switch_timer[2] -= dt;
-		if(switch_timer[2] <=0.0)
+		switch_timer[SWITCH_O3S12] -= dt;
+		if(switch_timer[SWITCH_O3S12] <=0.0)
 		{
-			switch_state[2] = 1;
+			switch_state[SWITCH_O3S12] = 1;
 			update = true;
 		}
 	}
@@ -266,9 +276,8 @@ void PanelO3::Step(double t, double dt)
 
 void PanelO3::SaveState(FILEHANDLE scn)
 {
-	/*
-	char buffer[150];
-	
+
+	char buffer[100];
 	sprintf(buffer, "PANELO3 %d %d %d %d %d %d %d", 
 		switch_state[0], 
 		switch_state[1], 
@@ -278,7 +287,6 @@ void PanelO3::SaveState(FILEHANDLE scn)
 		switch_state[5],
 		switch_state[6]);
 	oapiWriteLine(scn, buffer);
-	*/
 }
 
 bool PanelO3::ParseScenarioLine (char *line)

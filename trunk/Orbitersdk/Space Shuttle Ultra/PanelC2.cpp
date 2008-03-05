@@ -76,16 +76,20 @@ void PanelC2::RegisterVC()
 	//SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
 
 	//oapiWriteLog("C2:RegisterVC...");
-	SURFHANDLE digittex = oapiGetTextureHandle(sts->hOrbiterVCMesh, 8);
-	oapiVCRegisterArea (AID_C2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
+	SURFHANDLE digittex = oapiGetTextureHandle(sts->hOrbiterVCMesh, TEX_CLOCKNUMS_VC);
+	oapiVCRegisterArea (AID_C2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED);
 	//oapiWriteLog("1...");
 	oapiVCRegisterArea (AID_C2_WND0, _R(0,0,63,63), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex);
 	oapiVCRegisterArea (AID_C2_WND1, _R(64,0,127,63), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex);
 	oapiVCRegisterArea (AID_C2_WND2, _R(128,0,191,63), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex);
 	oapiVCRegisterArea (AID_C2_WND3, _R(192,0,255,63), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex);
 	
-	oapiVCSetAreaClickmode_Quadrilateral (AID_C2, _V(-0.144, 1.888, 14.894)+ofs, _V(0.135, 1.888, 14.894)+ofs, 
-		_V(-0.144, 1.688, 14.702)+ofs, _V(0.135, 1.688, 14.702)+ofs);
+	//-0.140169
+	//-0.140169, 1.95676, 14.5416 
+	//0.131577, 1.95676, 14.5416 
+	//0.131577, 1.7619, 14.3552
+	oapiVCSetAreaClickmode_Quadrilateral (AID_C2, _V(-0.140169, 1.95676, 14.5416)+ofs, _V(0.131577, 1.95676, 14.5416)+ofs, 
+		_V(-0.140169, 1.7619, 14.3552)+ofs, _V(0.131577, 1.7619, 14.3552)+ofs);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.0804, 1.667, 14.52)+ofs, _V(-0.111, 1.667, 14.52)+ofs, _V(-0.0804, 1.667, 14.52)+ofs, _V(0.276, 1.618, 14.066)+ofs);
 	//sprintf(oapiDebugString(), "PanelC3 Registered");
 	//TODO: Register the 4 event timer setting elements.
@@ -476,94 +480,92 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 	static VECTOR3 switch_rot = {-1,0,0};
 	static VECTOR3 wheel_rot = {1.0, 0, 0};
 
-	static VECTOR3 wheel_ctr = _V(-4.448496E-03, 1.733672, 14.77007);
-
 	static UINT VC_C2Evt10MW_Grp = GRP_C2Evt10MW_VC;
 
 	static MGROUP_ROTATE VC_C2Evt10MW (vcidx, &VC_C2Evt10MW_Grp, 1,
-		wheel_ctr, wheel_rot, (float)(360.0*RAD));
+		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[0]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[0], 0, 1, &VC_C2Evt10MW);
 
 	static UINT VC_C2Evt1MW_Grp = GRP_C2Evt1MW_VC;
 
 	static MGROUP_ROTATE VC_C2Evt1MW (vcidx, &VC_C2Evt1MW_Grp, 1,
-		wheel_ctr, wheel_rot, (float)(360.0*RAD));
+		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[1]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[1], 0, 1, &VC_C2Evt1MW);
 
 	static UINT VC_C2Evt10SW_Grp = GRP_C2Evt10SW_VC;
 
 	static MGROUP_ROTATE VC_C2Evt10SW (vcidx, &VC_C2Evt10SW_Grp, 1,
-		wheel_ctr, wheel_rot, (float)(360.0*RAD));
+		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[2]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[2], 0, 1, &VC_C2Evt10SW);
 
 	static UINT VC_C2Evt1SW_Grp = GRP_C2Evt1SW_VC;
 
 	static MGROUP_ROTATE VC_C2Evt1SW (vcidx, &VC_C2Evt1SW_Grp, 1,
-		wheel_ctr, wheel_rot, (float)(360.0*RAD));
+		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[3]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[3], 0, 1, &VC_C2Evt1SW);
 
 	static UINT VC_C2b1_Grp = GRP_C2b1_VC;
 
 	static MGROUP_ROTATE VC_C2b1 (vcidx, &VC_C2b1_Grp, 1,
-		_V(-0.1105, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S1, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH1]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH1], 0, 1, &VC_C2b1);
 
 	static UINT VC_C2b2_Grp = GRP_C2b2_VC;
 
 	static MGROUP_ROTATE VC_C2b2 (vcidx, &VC_C2b2_Grp, 1,
-		_V(-0.0781, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S2, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH2]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH2], 0, 1, &VC_C2b2);
 
 	static UINT VC_C2b3_Grp = GRP_C2b3_VC;
 
 	static MGROUP_ROTATE VC_C2b3 (vcidx, &VC_C2b3_Grp, 1,
-		_V(-0.0203, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S3, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH3]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH3], 0, 1, &VC_C2b3);
 
 	static UINT VC_C2b4_Grp = GRP_C2b4_VC;
 
 	static MGROUP_ROTATE VC_C2b4 (vcidx, &VC_C2b4_Grp, 1,
-		_V(0.0124, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S4, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH4]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH4], 0, 1, &VC_C2b4);
 
 	static UINT VC_C2b5_Grp = GRP_C2b5_VC;
 
 	static MGROUP_ROTATE VC_C2b5 (vcidx, &VC_C2b5_Grp, 1,
-		_V(0.0701, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S5, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH5]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH5], 0, 1, &VC_C2b5);
 
 	static UINT VC_C2b6_Grp = GRP_C2b6_VC;
 
 	static MGROUP_ROTATE VC_C2b6 (vcidx, &VC_C2b6_Grp, 1,
-		_V(0.1022, 1.8436,  14.8518), switch_rot, (float)(90.0*RAD));
+		REF_C2S6, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH6]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH6], 0, 1, &VC_C2b6);
 
 	static UINT VC_C2b7_Grp = GRP_C2b7_VC;
 	static MGROUP_ROTATE VC_C2b7 (vcidx, &VC_C2b7_Grp, 1,
-		_V(-0.103, 1.789, 14.801), _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
+		REF_C2S7, _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
 	anim_VC_C2[SWITCH7]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_C2[SWITCH7], 0, 1, &VC_C2b7);
 
 	static UINT VC_C2b8_Grp = GRP_C2b8_VC;
 	static MGROUP_ROTATE VC_C2b8 (vcidx, &VC_C2b8_Grp, 1,
-		_V(0.103, 1.790, 14.801), _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
+		REF_C2S8, _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
 	anim_VC_C2[SWITCH8]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_C2[SWITCH8], 0, 1, &VC_C2b8);
 	
 	static UINT VC_C2b9_Grp = GRP_C2b9_VC;
 
 	static MGROUP_ROTATE VC_C2b9 (vcidx, &VC_C2b9_Grp, 1,
-		_V(-0.1046921, 1.731414,  14.74131), switch_rot, (float)(90.0*RAD));
+		REF_C2S9, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH9]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH9], 0, 1, &VC_C2b9);
 
@@ -572,7 +574,7 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 
 	//-0.0736091  
 	static MGROUP_ROTATE VC_C2b10 (vcidx, &VC_C2b10_Grp, 1,
-		_V(-0.0736091,  1.731414,  14.74131), switch_rot, (float)(90.0*RAD));
+		REF_C2S10, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH10]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH10], 0, 1, &VC_C2b10);
 
@@ -580,7 +582,7 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 
 	//-0.0736091  
 	static MGROUP_ROTATE VC_C2b12 (vcidx, &VC_C2b12_Grp, 1,
-		_V( 0.1022747,  1.731414,  14.74131), switch_rot, (float)(90.0*RAD));
+		REF_C2S12, switch_rot, (float)(90.0*RAD));
 	anim_VC_C2[SWITCH12]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH12], 0, 1, &VC_C2b12);
 	

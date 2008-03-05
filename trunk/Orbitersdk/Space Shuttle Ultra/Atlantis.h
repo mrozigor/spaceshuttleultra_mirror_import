@@ -22,7 +22,7 @@ typedef struct {
 	double mdot;	//mass flow (lb/s)
 } FLOWSTATE;
 
-const double LBM = 453.59237;
+const double LBM = 0.45359237;
 const double MPS2FPS = 3.280839895;
 
 const short VARSTATE_OK = 0;
@@ -42,7 +42,7 @@ const double ORBITER_EMPTY_MASS = 81100.0;
 const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
 // Amount of fuel the orbiter can hold in internal OMS tanks
 
-const double ORBITER_FRCS_PROPELLANT_MASS = 1082.0;
+const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
 // Amount of fuel in forward RCS tanks
 
 const double SSME_RATED_THRUST = 2090664.159; //100% thrust
@@ -270,6 +270,111 @@ const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
 //const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
 const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 //
+
+//======================================
+// RCS table indices for each manifold
+//======================================
+//Forward RCS, Manifold 1 indices
+const int RCS_F1L = 0;
+const int RCS_F1U = 1;
+const int RCS_F1D = 2;
+const int RCS_F1F = 3;
+//Forward RCS, Manifold 2 indices
+const int RCS_F2R = 0;
+const int RCS_F2U = 1;
+const int RCS_F2D = 2;
+const int RCS_F2F = 3;
+//Forward RCS, Manifold 3 indices
+const int RCS_F3L = 0;
+const int RCS_F3U = 1;
+const int RCS_F3D = 2;
+const int RCS_F3F = 3;
+//Forward RCS, Manifold 4 indices
+const int RCS_F4R = 0;
+const int RCS_F4D = 1;
+//Forward RCS, Manifold 5(Vernier) indices
+const int RCS_F5L = 0;
+const int RCS_F5R = 1;
+//Left RCS, Manifold 1 indices
+const int RCS_L1L = 0;
+const int RCS_L1U = 1;
+const int RCS_L1A = 2;
+//Left RCS, Manifold 2 indices
+const int RCS_L2L = 0;
+const int RCS_L2U = 1;
+const int RCS_L2D = 2;
+//Left RCS, Manifold 3 indices
+const int RCS_L3L = 0;
+const int RCS_L3D = 1;
+const int RCS_L3A = 2;
+//Left RCS, Manifold 4 indices
+const int RCS_L4L = 0;
+const int RCS_L4U = 1;
+const int RCS_L4D = 2;
+//Right RCS, Manifold 5(vernier) indices
+const int RCS_L5R = 0;
+const int RCS_L5D = 1;
+//Right RCS, Manifold 1 indices
+const int RCS_R1R = 0;
+const int RCS_R1U = 1;
+const int RCS_R1A = 2;
+//Right RCS, Manifold 2 indices
+const int RCS_R2R = 0;
+const int RCS_R2U = 1;
+const int RCS_R2D = 2;
+//Right RCS, Manifold 3 indices
+const int RCS_R3R = 0;
+const int RCS_R3D = 1;
+const int RCS_R3A = 2;
+//Right RCS, Manifold 4 indices
+const int RCS_R4R = 0;
+const int RCS_R4U = 1;
+const int RCS_R4D = 2;
+//Right RCS, Manifold 5(vernier) indices
+const int RCS_R5R = 0;
+const int RCS_R5D = 1;
+
+//==================================================
+// Real RCS thruster offsets and directions
+//==================================================
+
+const VECTOR3 RCS_F1L_OFS = _V(-1.7 ,-0.15, 17.40);
+const VECTOR3 RCS_F1L_DIR = _V(1,0,0);
+const VECTOR3 RCS_F1U_OFS = _V(-0.4 , 1.10, 17.9 );
+const VECTOR3 RCS_F1U_DIR = _V(0, -1,0);
+const VECTOR3 RCS_F1D_OFS = _V(-1.55,-0.20, 18.25);
+const VECTOR3 RCS_F1D_DIR = _V(0.4339,0.8830,0.1793);
+const VECTOR3 RCS_F1F_OFS = _V(-0.4, 0.7, 19.0);
+const VECTOR3 RCS_F1F_DIR = _V(0, -0.0499, -0.9988);
+
+const VECTOR3 RCS_F2R_OFS = _V( 1.75, 0.25, 17.45);
+const VECTOR3 RCS_F2R_DIR = _V(-1,0,0);
+const VECTOR3 RCS_F2U_OFS = _V( 0.4, 1.10, 17.9 );
+const VECTOR3 RCS_F2U_DIR = _V(0, -1,0);
+const VECTOR3 RCS_F2D_OFS = _V( 1.60,-0.20, 18.25);
+const VECTOR3 RCS_F2D_DIR = _V( -0.4339,0.8830,0.1793);
+const VECTOR3 RCS_F2F_OFS = _V( 0.4, 0.7, 19.0 );
+const VECTOR3 RCS_F2F_DIR = _V(0, -0.0499, -0.9988);
+
+const VECTOR3 RCS_F3L_OFS = _V(-1.65, 0.25 , 17.45);
+const VECTOR3 RCS_F3L_DIR = _V(1,0,0);
+const VECTOR3 RCS_F3U_OFS = _V( 0.0 , 1.15, 17.9);
+const VECTOR3 RCS_F3U_DIR = _V(0, -1,0);
+const VECTOR3 RCS_F3D_OFS = _V(-1.63,-0.18, 17.9);
+const VECTOR3 RCS_F3D_DIR = _V(0.4339,0.8830,0.1793);
+const VECTOR3 RCS_F3F_OFS = _V( 0.0 , 0.75, 19.0 );
+const VECTOR3 RCS_F3F_DIR = _V(0, -0.0499, -0.9988);
+
+const VECTOR3 RCS_F4R_OFS = _V( 1.8 ,-0.15, 17.40);
+const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
+const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
+const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
+
+//-.6017438  2.729396 13.8008
+//orbiter_ofs.x-0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
+const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
+//orbiter_ofs.x+0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
+const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 
 // ==========================================================
 // Mesh group indices for some components
@@ -504,6 +609,8 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+
+	int ___iCurrentManifold;
 	virtual bool IsValidSPEC(int gpc, int spec);
 	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
@@ -639,6 +746,15 @@ public:
 	CommModeHandler* pCommModeHandler;
 
 private:
+	SURFHANDLE tex_rcs;
+	void StopAllManifolds();
+	void FireAllNextManifold();
+	void AddPrimaryRCSExhaust(THRUSTER_HANDLE thX);
+	void CreateRightARCS(const VECTOR3& ref_pos);
+	void CreateLeftARCS(const VECTOR3& ref_pos);
+	void CreateFRCS(const VECTOR3& ref_pos);
+	bool bUseRealRCS;
+	void CreateOrbiterTanks();
 	unsigned short usCurrentPlayerChar;
 	bool bCommMode;
 	void DefineSSMEExhaust();
@@ -856,11 +972,63 @@ private:
 	void SetAnimationCameras();
 	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
+	PROPELLANT_HANDLE ph_lrcs, ph_rrcs;
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main (SSME) engines
 	THRUSTER_HANDLE th_oms[2];               // handles for orbiter OMS engines
 	THRUSTER_HANDLE th_srb[2];                 // handles for SRB engines
     THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
 	THRUSTER_HANDLE th_att_lin[10];
+
+	//<<<< Begin new RCS model here
+	//Array collecting all primary jets
+	/** Forward Manifold 1
+	 */
+	THRUSTER_HANDLE thManFRCS1[4];		
+	/** Forward Manifold 2
+	 */
+	THRUSTER_HANDLE thManFRCS2[4];
+	/** Forward Manifold 3
+	 */
+	THRUSTER_HANDLE thManFRCS3[4];		
+	/** Forward Manifold 4
+	 */
+	THRUSTER_HANDLE thManFRCS4[2];
+	/** Forward Manifold 5
+	 */
+	THRUSTER_HANDLE thManFRCS5[2];		
+
+	/** Left Manifold 1
+	 */
+	THRUSTER_HANDLE thManLRCS1[3];		
+	/** Left Manifold 2
+	 */
+	THRUSTER_HANDLE thManLRCS2[3];
+	/** Left Manifold 3
+	 */
+	THRUSTER_HANDLE thManLRCS3[3];		
+	/** Left Manifold 4
+	 */
+	THRUSTER_HANDLE thManLRCS4[3];
+	/** Left Manifold 5
+	 */
+	THRUSTER_HANDLE thManLRCS5[2];
+
+	/** Right Manifold 1
+	 */
+	THRUSTER_HANDLE thManRRCS1[3];		
+	/** Right Manifold 2
+	 */
+	THRUSTER_HANDLE thManRRCS2[3];
+	/** Right Manifold 3
+	 */
+	THRUSTER_HANDLE thManRRCS3[3];		
+	/** Right Manifold 4
+	 */
+	THRUSTER_HANDLE thManRRCS4[3];
+	/** Right Manifold 5
+	 */
+	THRUSTER_HANDLE thManRRCS5[2];
+	//>>>> End of new RCS model
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
 	bool RCSEnabled;

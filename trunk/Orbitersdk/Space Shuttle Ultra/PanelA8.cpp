@@ -27,8 +27,8 @@ void PanelA8::RegisterVC()
 {
 	sprintf(oapiDebugString(), "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
-	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 3);
-	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 9);
+	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
+	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8BOTTOM_VC);
 
 	oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.274, 2.848, 12.567)+ofs, _V(-0.813, 2.848, 12.567)+ofs, _V(-0.277, 2.055, 12.816)+ofs, _V(-0.819, 2.055, 12.816)+ofs);

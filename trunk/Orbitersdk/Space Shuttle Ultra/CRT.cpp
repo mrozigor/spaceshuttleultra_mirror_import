@@ -1315,20 +1315,24 @@ void CRT::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int
 
 void CRT::EnableThrusters(const int Thrusters[], int nThrusters)
 {
+/*
 	for(int i=0;i<nThrusters;i++) {
 		if(Thrusters[i]%2==1)
 			sts->SetThrusterResource(sts->th_att_rcs[Thrusters[i]], sts->ph_oms);
 		else
 			sts->SetThrusterResource(sts->th_att_rcs[Thrusters[i]], sts->ph_frcs);
 	}
+*/
 }
 
 void CRT::DisableThrusters(const int Thrusters[], int nThrusters)
 {
+/*
 	for(int i=0;i<nThrusters;i++) {
 		//vessel->SetThrusterMax0(th_att_rcs[Thrusters[i]], 0.0);
 		sts->SetThrusterResource(sts->th_att_rcs[Thrusters[i]], NULL);
 	}
+*/
 }
 
 void CRT::OMSGimbal(VECTOR3 Targets)

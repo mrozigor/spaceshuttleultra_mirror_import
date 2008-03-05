@@ -1,19 +1,52 @@
 // ========================================================
-// Mesh resource file for C:\AtlantisVC.msh
-// Generated with meshc on Mon Mar 12 21:08:14 2007
+// Mesh resource file for ..\..\meshes\Atlantis\AtlantisVC.msh
+// Generated with meshc on Wed Mar 05 14:31:37 2008
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_VC 427
+#define NGRP_VC 599
 
 // Number of materials:
-#define NMAT_VC 20
+#define NMAT_VC 9
 
 // Number of textures:
-#define NTEX_VC 18
+#define NTEX_VC 24
 
 // Named mesh groups:
+#define GRP_R13L_VC 0
+#define GRP_B_VC 1
+#define GRP_five_VC 2
+#define GRP_six_VC 3
+#define GRP_clear_VC 4
+#define GRP_GPC_VC 5
+#define GRP_three_VC 6
+#define GRP_D_VC 7
+#define GRP_Fault_VC 8
+#define GRP_ACK_VC 9
+#define GRP_C_VC 10
+#define GRP_IOreset_VC 11
+#define GRP_four_VC 12
+#define GRP_F_VC 13
+#define GRP_dot_VC 14
+#define GRP_A_VC 15
+#define GRP_EXEC_VC 16
+#define GRP_OPS_VC 17
+#define GRP_SPEC_VC 18
+#define GRP_one_VC 19
+#define GRP_two_VC 20
+#define GRP_resume_VC 21
+#define GRP_nine_VC 22
+#define GRP_ITEM_VC 23
+#define GRP_E_VC 24
+#define GRP_eight_VC 25
+#define GRP_MSG_VC 26
+#define GRP_seven_VC 27
+#define GRP_Sys_VC 28
+#define GRP_plus_VC 29
+#define GRP_zero_VC 30
+#define GRP_PRO_VC 31
+#define GRP_minus_VC 32
 #define GRP_CDR1_VC 33
 #define GRP_CDR2_VC 34
 #define GRP_PLT1_VC 35
@@ -24,6 +57,22 @@
 #define GRP_MFD4_VC 40
 #define GRP_MFD5_VC 41
 #define GRP_MFD_aft_VC 42
+#define GRP_MFD_VC 43
+#define GRP_CDR1X_VC 44
+#define GRP_CDR2X_VC 45
+#define GRP_PLT1X_VC 46
+#define GRP_PLT2X_VC 47
+#define GRP_MFD1X_VC 48
+#define GRP_MFD2X_VC 49
+#define GRP_MFD3X_VC 50
+#define GRP_MFD4X_VC 51
+#define GRP_MFD5X_VC 52
+#define GRP_aft_VC 53
+#define GRP_080_VC 54
+#define GRP_081_VC 55
+#define GRP_082_VC 56
+#define GRP_146_VC 57
+#define GRP_147_VC 58
 #define GRP_VirtualHUD_VC 59
 #define GRP_SwitchR13L_1_VC 60
 #define GRP_SwitchR13L_2_VC 61
@@ -38,71 +87,84 @@
 #define GRP_SwitchR13L_11_VC 70
 #define GRP_SwitchR13L_12_VC 71
 #define GRP_SwitchR13L_13_VC 72
+#define GRP_Guardb_VC 73
+#define GRP_R2guards_VC 74
 #define GRP_R2panel_VC 75
-#define GRP_R2b37_VC 76 // APU fuel tk vlv 1
-#define GRP_R2b38_VC 77 // APU fuel tk vlv 2
-#define GRP_R2b39_VC 78 // APU fuel tk vlv 3
-#define GRP_R2b43_VC 79 // Boiler Cntlr Pwr/Htr 2
-#define GRP_R2b42_VC 80 // Boiler Cntlr Pwr/Htr 1
-#define GRP_R2b44_VC 81 // Boiler Cntlr Pwr/Htr 3
-#define GRP_R2b45_VC 82 // Boiler Cntlr 1
-#define GRP_R2b47_VC 83 // Boiler Cntlr 3
-#define GRP_R2b46_VC 84 // Boiler Cntlr 2
-#define GRP_R2b54_VC 85 // Boiler N2 Sply 1
-#define GRP_R2b56_VC 86 // Boiler N2 Sply 3
-#define GRP_R2b55_VC 87 // Boiler N2 Sply 2
-#define GRP_R2b53_VC 88 // Right Latch
-#define GRP_R2b52_VC 89 // Right Door
-#define GRP_R2b51_VC 90 // Left Latch
-#define GRP_R2b50_VC 91 // Left Door
-#define GRP_R2b49_VC 92 // Centerline Latch
+#define GRP_R2b37_VC 76
+#define GRP_R2b38_VC 77
+#define GRP_R2b39_VC 78
+#define GRP_R2b43_VC 79
+#define GRP_R2b42_VC 80
+#define GRP_R2b44_VC 81
+#define GRP_R2b45_VC 82
+#define GRP_R2b47_VC 83
+#define GRP_R2b46_VC 84
+#define GRP_R2b54_VC 85
+#define GRP_R2b56_VC 86
+#define GRP_R2b55_VC 87
+#define GRP_R2b53_VC 88
+#define GRP_R2b52_VC 89
+#define GRP_R2b51_VC 90
+#define GRP_R2b50_VC 91
+#define GRP_R2b49_VC 92
 #define GRP_R2b48_VC 93
 #define GRP_R2b30_VC 94
-#define GRP_R2b31_VC 95 // Hyd Circ Pump 1
-#define GRP_R2b32_VC 96 // Hyd Circ Pump 2
-#define GRP_R2b34_VC 97 // APU Cntlr Pwr 1
-#define GRP_R2b33_VC 98 // Hyd Circ Pump 3
-#define GRP_R2b36_VC 99 // APU Cntlr Pwr 3
-#define GRP_R2b35_VC 100 // APU Cntlr Pwr 2
-#define GRP_R2b29_VC 101 // Hyd Main Pump Press 3
-#define GRP_R2b17_VC 102 // APU Control 3
-#define GRP_R2b16_VC 103 // APU Control 2
+#define GRP_R2b31_VC 95
+#define GRP_R2b32_VC 96
+#define GRP_R2b34_VC 97
+#define GRP_R2b33_VC 98
+#define GRP_R2b36_VC 99
+#define GRP_R2b35_VC 100
+#define GRP_R2b29_VC 101
+#define GRP_R2b17_VC 102
+#define GRP_R2b16_VC 103
 #define GRP_R2b40_VC 104
 #define GRP_R2b41_VC 105
 #define GRP_R2b24_VC 106
 #define GRP_R2b25_VC 107
 #define GRP_R2b26_VC 108
-#define GRP_R2b27_VC 109 // Hyn Main Pump Press 1
-#define GRP_R2b28_VC 110 // Hyn Main Pump Press 2
+#define GRP_R2b27_VC 109
+#define GRP_R2b28_VC 110
 #define GRP_R2b18_VC 111
 #define GRP_R2b19_VC 112
-#define GRP_R2b20_VC 113 // APU Spd Sel 1
-#define GRP_R2b21_VC 114 // APU Spd Sel 2
-#define GRP_R2b22_VC 115 // APU Spd Sel 3
-#define GRP_R2b23_VC 116 // APU Auto Shut Down
-#define GRP_R2b15_VC 117 // APU Control 1
-#define GRP_R2b14_VC 118 // He Isol B R
-#define GRP_R2b13_VC 119 // He Isol B C
-#define GRP_R2b12_VC 120 // He Isol B L
-#define GRP_R2b9_VC 121 // He Isol A L
-#define GRP_R2b10_VC 122 // He Isol A C
-#define GRP_R2b11_VC 123 // He Isol A R
-#define GRP_R2b8_VC 124 // MPS Eng Pwr 2 R
-#define GRP_R2b7_VC 125 // MPS Eng Pwr 2 C
-#define GRP_R2b6_VC 126 // MPS Eng Pwr 2 L
-#define GRP_R2b3_VC 127 // MPS Eng Pwr 1 L
-#define GRP_R2b4_VC 128 // MPS Eng Pwr 1 C
-#define GRP_R2b5_VC 129 // MPS Eng Pwr 1 R
+#define GRP_R2b20_VC 113
+#define GRP_R2b21_VC 114
+#define GRP_R2b22_VC 115
+#define GRP_R2b23_VC 116
+#define GRP_R2b15_VC 117
+#define GRP_R2b14_VC 118
+#define GRP_R2b13_VC 119
+#define GRP_R2b12_VC 120
+#define GRP_R2b9_VC 121
+#define GRP_R2b10_VC 122
+#define GRP_R2b11_VC 123
+#define GRP_R2b8_VC 124
+#define GRP_R2b7_VC 125
+#define GRP_R2b6_VC 126
+#define GRP_R2b3_VC 127
+#define GRP_R2b4_VC 128
+#define GRP_R2b5_VC 129
 #define GRP_R2b2_VC 130
 #define GRP_R2b1_VC 131
+#define GRP_A8Guardb_VC 132
+#define GRP_Dial_VC 133
+#define GRP_DialX_VC 134
+#define GRP_Dialsmall_VC 135
+#define GRP_DialsmallX_VC 136
+#define GRP_DialXX_VC 137
+#define GRP_A8bot_VC 138
+#define GRP_A8top_VC 139
+#define GRP_DialXXX_VC 160
 #define GRP_C3cover4_VC 161
 #define GRP_C3cover5_VC 162
 #define GRP_C3cover2_VC 163
 #define GRP_C3cover3_VC 164
+#define GRP_C3_VC 165
 #define GRP_C3Dial_VC 166
-#define GRP_C3b1_VC 167 // LOMS Arm
-#define GRP_C3b2_VC 168 // ROMS Arm
+#define GRP_C3b1_VC 167
+#define GRP_C3b2_VC 168
 #define GRP_C3b3_VC 169
+#define GRP_C3b4_VC 170
 #define GRP_C3b5_VC 171
 #define GRP_C3b6_VC 172
 #define GRP_C3b7_VC 173
@@ -137,6 +199,122 @@
 #define GRP_C3b36_VC 202
 #define GRP_C3b37_VC 203
 #define GRP_C3cover1_VC 204
+#define GRP_C2b8v_VC 205
+#define GRP_C2guards_VC 206
+#define GRP_C2tog4_VC 207
+#define GRP_C2tog3_VC 208
+#define GRP_C2tog2_VC 209
+#define GRP_C2tog1_VC 210
+#define GRP_Clock1_VC 211
+#define GRP_Clock2_VC 212
+#define GRP_Clock3_VC 213
+#define GRP_Clock4_VC 214
+#define GRP_C2b1_VC 215
+#define GRP_C2b7v_VC 216
+#define GRP_C2b2_VC 217
+#define GRP_C2b3_VC 218
+#define GRP_C2b4_VC 219
+#define GRP_C2b5_VC 220
+#define GRP_C2b6_VC 221
+#define GRP_C2b9_VC 222
+#define GRP_C2b10_VC 223
+#define GRP_C2b11_VC 224
+#define GRP_C2_VC 225
+#define GRP_R13talk1_VC 226
+#define GRP_R13talk2_VC 227
+#define GRP_R13talk3_VC 228
+#define GRP_R13talk4_VC 229
+#define GRP_R13talk5_VC 230
+#define GRP_R13talk6_VC 231
+#define GRP_R13talk7_VC 232
+#define GRP_R13talk8_VC 233
+#define GRP_L2panel_VC 234
+#define GRP_L2b11v_VC 235
+#define GRP_L2b17v_VC 236
+#define GRP_L2b12_VC 237
+#define GRP_L2b10_VC 238
+#define GRP_L2b7_VC 239
+#define GRP_L2b9_VC 240
+#define GRP_L2b8_VC 241
+#define GRP_L2b5_VC 242
+#define GRP_L2b6_VC 243
+#define GRP_L2b2_VC 244
+#define GRP_L2b1_VC 245
+#define GRP_L2b4_VC 246
+#define GRP_L2b3_VC 247
+#define GRP_L2b13_VC 248
+#define GRP_L2b14_VC 249
+#define GRP_L2b16_VC 250
+#define GRP_L2b15_VC 251
+#define GRP_L2b24_VC 252
+#define GRP_L2b23_VC 253
+#define GRP_L2b21_VC 254
+#define GRP_L2b18_VC 255
+#define GRP_L2b20_VC 256
+#define GRP_L2b22_VC 257
+#define GRP_L2b19_VC 258
+#define GRP_L2b25_VC 259
+#define GRP_guards_VC 260
+#define GRP_L1dial3_VC 261
+#define GRP_L1dial2_VC 262
+#define GRP_L1dial1_VC 263
+#define GRP_L1b1_VC 264
+#define GRP_L1b2_VC 265
+#define GRP_L1b3_VC 266
+#define GRP_L1b4_VC 267
+#define GRP_L1b5_VC 268
+#define GRP_L1b6_VC 269
+#define GRP_L1b7_VC 270
+#define GRP_L1b8_VC 271
+#define GRP_L1b9_VC 272
+#define GRP_L1b10_VC 273
+#define GRP_L1b11_VC 274
+#define GRP_L1b12_VC 275
+#define GRP_L1b13_VC 276
+#define GRP_L1b14_VC 277
+#define GRP_L1b15_VC 278
+#define GRP_L1b16_VC 279
+#define GRP_L1b17_VC 280
+#define GRP_L1b18_VC 281
+#define GRP_L1b19_VC 282
+#define GRP_L1b20_VC 283
+#define GRP_L1b21_VC 284
+#define GRP_L1b23_VC 285
+#define GRP_L1b24_VC 286
+#define GRP_L1b25_VC 287
+#define GRP_L1b26_VC 288
+#define GRP_L1b27_VC 289
+#define GRP_L1b28_VC 290
+#define GRP_L1b29_VC 291
+#define GRP_L1b30_VC 292
+#define GRP_L1b31_VC 293
+#define GRP_L1b32_VC 294
+#define GRP_L1b34_VC 295
+#define GRP_L1b35_VC 296
+#define GRP_L1b36_VC 297
+#define GRP_L1b37_VC 298
+#define GRP_L1b38_VC 299
+#define GRP_L1b39_VC 300
+#define GRP_L1b40_VC 301
+#define GRP_L1b41_VC 302
+#define GRP_L1b42_VC 303
+#define GRP_L1b43_VC 304
+#define GRP_L1b44_VC 305
+#define GRP_L1b45_VC 306
+#define GRP_L1b46_VC 307
+#define GRP_L1b47_VC 308
+#define GRP_L1Panel_VC 309
+#define GRP_L1cover3_VC 310
+#define GRP_L1cover1_VC 311
+#define GRP_L1cover2_VC 312
+#define GRP_L1b33_VC 314
+#define GRP_L1b22_VC 315
+#define GRP_R1b1_VC 318
+#define GRP_R1b2_VC 319
+#define GRP_R1b3_VC 320
+#define GRP_R1b4_VC 321
+#define GRP_R1b5_VC 322
+#define GRP_Coas_VC 383
 #define GRP_F6panel1_VC 384
 #define GRP_F6Guard_VC 385
 #define GRP_F6TalkBack3_VC 386
@@ -180,3 +358,173 @@
 #define GRP_F8button3_VC 424
 #define GRP_F8cover1_VC 425
 #define GRP_F8cover2_VC 426
+#define GRP_Eventtimer_VC 427
+#define GRP_F7_Event_M10_VC 428
+#define GRP_F7_Event_M_VC 429
+#define GRP_F7_Event_S10_VC 430
+#define GRP_F7_Event_S_VC 431
+#define GRP_A4MissionSwitch_VC 433
+#define GRP_A4_Event_S_VC 434
+#define GRP_A4_Event_S10_VC 435
+#define GRP_A4_Event_M_VC 436
+#define GRP_A4_Event_M10_VC 437
+#define GRP_A4_MET_S2_VC 438
+#define GRP_A4_MET_S1_VC 439
+#define GRP_A4_MET_M2_VC 440
+#define GRP_A4_MET_M1_VC 441
+#define GRP_A4_MET_H2_VC 442
+#define GRP_A4_MET_H1_VC 443
+#define GRP_A4_MET_DAY3_VC 444
+#define GRP_A4_MET_DAY2_VC 445
+#define GRP_A4_MET_DAY1_VC 446
+#define GRP_panelA4_VC 447
+#define GRP_measure_strips_VC 448
+#define GRP_stripbases_VC 449
+#define GRP_O3_guards_VC 450
+#define GRP_cable_VC 451
+#define GRP_O1S1_VC 452
+#define GRP_3_PRPLT_LEFT1_VC 453
+#define GRP_O3_PRPLT_LEFT2_VC 454
+#define GRP_O3_PRPLT_FWD1_VC 455
+#define GRP_O3_PRPLT_FWD2_VC 456
+#define GRP_O3_PRPLT_RIGHT1_VC 457
+#define GRP_O3_PRPLT_RIGHT2_VC 458
+#define GRP_O3_MET_DAY1_VC 459
+#define GRP_O3_MET_DAY2_VC 460
+#define GRP_O3_MET_DAY3_VC 461
+#define GRP_O3_MET_H1_VC 462
+#define GRP_O3_MET_H2_VC 463
+#define GRP_O3_MET_M2_VC 464
+#define GRP_O3_MET_M1_VC 465
+#define GRP_O3_MET_S1_VC 466
+#define GRP_O3_MET_S2_VC 467
+#define GRP_O1S4_VC 468
+#define GRP_O1S3_VC 469
+#define GRP_O1S6_VC 470
+#define GRP_O3S12_VC 471
+#define GRP_O2S9_VC 472
+#define GRP_O3S11_VC 473
+#define GRP_O3S10_VC 474
+#define GRP_O2S8_VC 475
+#define GRP_O2S7_VC 476
+#define GRP_O1S5_VC 477
+#define GRP_O1S2_VC 478
+#define GRP_O2_VC 479
+#define GRP_O3_VC 480
+#define GRP_O1_VC 481
+#define GRP_GPC_Status_VC 482
+#define GRP_O1M1T_VC 483
+#define GRP_O1M1P_VC 484
+#define GRP_O1M2F_VC 485
+#define GRP_O1M2T_VC 486
+#define GRP_O1M3P_VC 487
+#define GRP_O1M3F_VC 488
+#define GRP_O1M4P_VC 489
+#define GRP_O1M4ppo_VC 490
+#define GRP_O2M5T_VC 491
+#define GRP_O2M6P_VC 492
+#define GRP_O2M6Q_VC 493
+#define GRP_O2M7P_VC 494
+#define GRP_O2M7Q_VC 495
+#define GRP_O2M8T_VC 496
+#define GRP_O3M9O_VC 497
+#define GRP_O3M9F_VC 498
+#define GRP_O3M10O_VC 499
+#define GRP_O3M10F_VC 500
+#define GRP_O3M11O_VC 501
+#define GRP_O3M11F_VC 502
+#define GRP_covers_VC 503
+#define GRP_A1RS1_VC 504
+#define GRP_A1RS32_VC 505
+#define GRP_A1RS34_VC 506
+#define GRP_A1RS29_VC 507
+#define GRP_A1RS27_VC 508
+#define GRP_A1RS25_VC 509
+#define GRP_A1RS18_VC 510
+#define GRP_A1RS20_VC 511
+#define GRP_A1RS22_VC 512
+#define GRP_A1RS35_VC 513
+#define GRP_A1RS33_VC 514
+#define GRP_A1RS31_VC 515
+#define GRP_A1RS24_VC 516
+#define GRP_A1RS26_VC 517
+#define GRP_A1RS28_VC 518
+#define GRP_A1RS30_VC 519
+#define GRP_A1RS23_VC 520
+#define GRP_A1RS21_VC 521
+#define GRP_A1RS19_VC 522
+#define GRP_A1RS17_VC 523
+#define GRP_A1RS12_VC 524
+#define GRP_A1RS11_VC 525
+#define GRP_A1RS13_VC 526
+#define GRP_A1RS9_VC 527
+#define GRP_A1RS7_VC 528
+#define GRP_A1RS6_VC 529
+#define GRP_A1RS5_VC 530
+#define GRP_A1RS3_VC 531
+#define GRP_A1RS2_VC 532
+#define GRP_A1RRS15_VC 533
+#define GRP_A1RRS16_VC 534
+#define GRP_A1RRS14_VC 535
+#define GRP_A1RRS10_VC 536
+#define GRP_A1RRS4_VC 537
+#define GRP_A1RRS8_VC 538
+#define GRP_A1R_VC 539
+#define GRP_A1LS17_VC 540
+#define GRP_A1LS4_VC 541
+#define GRP_A1LS15_VC 542
+#define GRP_A1LS14_VC 543
+#define GRP_A1LS13_VC 544
+#define GRP_A1LS1_VC 545
+#define GRP_A1LS2_VC 546
+#define GRP_A1US10_VC 547
+#define GRP_A1LS5_VC 548
+#define GRP_A1LS11_VC 549
+#define GRP_A1LS12_VC 550
+#define GRP_A1LS16_VC 551
+#define GRP_A1LS8_VC 552
+#define GRP_A1LS9_VC 553
+#define GRP_A1LS20_VC 554
+#define GRP_A1LS19_VC 555
+#define GRP_A1LS18_VC 556
+#define GRP_A1LS21_VC 557
+#define GRP_A1LS22_VC 558
+#define GRP_A1LS26_VC 559
+#define GRP_A1LS24_VC 560
+#define GRP_A1LS25_VC 561
+#define GRP_A1LS23_VC 562
+#define GRP_A1LRS6_VC 563
+#define GRP_A1Lpanel_VC 564
+#define GRP_A1URS7_VC 565
+#define GRP_A1URS15_VC 566
+#define GRP_A1URS16_VC 567
+#define GRP_A1US8_VC 568
+#define GRP_A1US12_VC 569
+#define GRP_A1US13_VC 570
+#define GRP_A1US14_VC 571
+#define GRP_A1US18_VC 572
+#define GRP_A1US6_VC 573
+#define GRP_A1US2_VC 574
+#define GRP_A1US3_VC 575
+#define GRP_A1US4_VC 576
+#define GRP_A1US1_VC 577
+#define GRP_A1U_VC 578
+#define GRP_A1UM1_VC 579
+#define GRP_A1Guard_VC 580
+#define GRP_A1_VC 581
+#define GRP_F8HUDbrt_VC 582
+#define GRP_F8HUDtest_VC 583
+#define GRP_F8HUDdim_VC 584
+#define GRP_F3S6_VC 585
+#define GRP_F3S4_VC 586
+#define GRP_F3S5_VC 587
+#define GRP_F3S2_VC 588
+#define GRP_F3S1_VC 589
+#define GRP_F3S3_VC 590
+#define GRP_F6HUDdim_VC 591
+#define GRP_F6HUDtest_VC 592
+#define GRP_F6HUDbrt_VC 593
+#define GRP_F7CW_VC 594
+#define GRP_F6panel_VC 595
+#define GRP_F8panel_VC 596
+#define GRP_Fcovers_VC 598

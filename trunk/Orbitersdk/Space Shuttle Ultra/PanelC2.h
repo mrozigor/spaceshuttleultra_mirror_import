@@ -9,6 +9,21 @@
 // switches on Panel C2
 // ==============================================================
 
+const VECTOR3 REF_C2S1 = _V(-0.10, 1.911417, 14.50198);
+const VECTOR3 REF_C2S2 = _V(-0.07, 1.911417, 14.50198);
+const VECTOR3 REF_C2S3 = _V(-0.02, 1.911417, 14.50198);
+const VECTOR3 REF_C2S4 = _V( 0.01, 1.911417, 14.50198);
+const VECTOR3 REF_C2S5 = _V( 0.07, 1.911417, 14.50198);
+const VECTOR3 REF_C2S6 = _V(-0.10, 1.911417, 14.50198);
+//0.131577,  1.859752,  14.45152
+const VECTOR3 REF_C2S7 = _V( -0.100152, 1.859752, 14.45152);
+const VECTOR3 REF_C2S8 = _V( 0.100152, 1.859752, 14.45152);
+
+const VECTOR3 REF_C2S9 = _V(0.0, 1.801141, 14.3961);
+const VECTOR3 REF_C2S10 = _V(-0.07, 1.801141, 14.3961);
+const VECTOR3 REF_C2S11 = _V(0.131577, 1.80661, 14.42035);
+const VECTOR3 REF_C2S12 = _V(0.0994235, 1.801141, 14.3961);
+ 
 
 class PanelC2 {
 	friend class Atlantis;

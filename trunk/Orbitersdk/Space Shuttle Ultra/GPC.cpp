@@ -239,8 +239,10 @@ void Atlantis::RateCommand()
 			else {
 				if(T>TPEGStop) {
 					ReqdRates.data[PITCH] = CmdPDot;
-					if(abs(GetBank()*DEG)>90.0) ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
-					else ReqdRates.data[YAW] = range(-2.5, 2.5*(GetSlipAngle()*DEG), 2.5);
+					if(abs(GetBank()*DEG)>90.0) 
+						ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
+					else 
+						ReqdRates.data[YAW] = range(-2.5, 2.5*(GetSlipAngle()*DEG), 2.5);
 					if(v<RollToHeadsUp) {
 						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
 						else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
