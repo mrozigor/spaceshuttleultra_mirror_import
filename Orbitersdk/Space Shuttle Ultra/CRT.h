@@ -115,6 +115,9 @@ private:
 	//double C1, C2, HT, ThetaT; // PEG4 Targets
 	//VECTOR3 Trim; // 0=P, 1=LY, 2=RY
 
+	//PDRS Control
+	int RMS_SEL; //0=PORT, 1=STBD
+
 	bool UpdateStatus;
 	static struct SavePrm{
 		int spec[10], mode[10], display[10];

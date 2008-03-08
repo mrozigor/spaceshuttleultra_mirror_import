@@ -380,7 +380,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bSRBCutoffFlag  = false;
   bLiftOff		  = false;
   bHasKUBand	  = true;
-  bUseRealRCS	  = false;
+  bUseRealRCS	  = true;
 
   ___iCurrentManifold = 0;
 
@@ -496,15 +496,29 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
   shoulder_brace = 0.0; //released
+  //MRL[0]=MRL[1] = 0.0; //released
+  for(i=0;i<2;i++) {
+	  MRL[i]=0.0; //released
+	  MRL_FwdMicroswitches[i][0]=MRL_MidMicroswitches[i][0]=MRL_AftMicroswitches[i][0]=0;
+	  MRL_FwdMicroswitches[i][1]=MRL_MidMicroswitches[i][1]=MRL_AftMicroswitches[i][1]=0;
+	  MRL_FwdMicroswitches[i][2]=MRL_MidMicroswitches[i][2]=MRL_AftMicroswitches[i][2]=1;
+	  MPM_Microswitches[i][0]=0;
+	  MPM_Microswitches[i][1]=1;
+  }
   arm_sy = 0.5;
   arm_sp = 0.0136;
   arm_ep = 0.014688;
   arm_wp = 0.5;
   arm_wy = 0.5;
   arm_wr = 0.5;
+  //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
+  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)-_V(0.314338082679218, -0.949311102735849, 0);
+  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
   arm_tip[0] = _V(-2.87, 2.03, -6.27);
   arm_tip[1] = _V(-2.87, 2.03, -7.27);
   arm_tip[2] = _V(-2.87, 3.03, -6.27);
+  arm_ee_dir = _V(1.0, 0.0, 0.0);
+  arm_ee_pos = _V(15.497, 0.0, 0.0);
 
   // default camera positions
   camFLyaw = 0;
@@ -541,6 +555,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   TLastMajorCycle=0.0;
 
   // gpc
+  SMOps=201;
   ops=101;
   last_mfd=0;
   //bFirstStep=true;
@@ -1217,21 +1232,18 @@ void Atlantis::DisableAllRCS() {
 		return;
 
   if(!RCSEnabled) return;
-  
   DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
   DelThrusterGroup(THGROUP_ATT_PITCHUP);
   DelThrusterGroup(THGROUP_ATT_YAWLEFT);
   DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
   DelThrusterGroup(THGROUP_ATT_BANKLEFT);
   DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-  
   CreateThrusterGroup (th_att_rcs+12,   1, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+13,   1, THGROUP_ATT_PITCHDOWN);
   CreateThrusterGroup (th_att_rcs+14,   1, THGROUP_ATT_YAWLEFT);
   CreateThrusterGroup (th_att_rcs+15,   1, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+16,   1, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+17,   1, THGROUP_ATT_BANKRIGHT);
-  
   RCSEnabled=false;
 }
 
@@ -1246,14 +1258,12 @@ void Atlantis::EnableAllRCS() {
   DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
   DelThrusterGroup(THGROUP_ATT_BANKLEFT);
   DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-
   CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
   CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
   CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
-  
   RCSEnabled=true;
 }
 
@@ -1483,12 +1493,14 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RMSEndEffectorGrp[1] = {GRP_endeffecter_RMS};
   rms_anim[5] = new MGROUP_ROTATE (ridx, RMSEndEffectorGrp, 1,
-	  _V(-2.872205, 2.031515, -5.285479), _V(0, 0, 1), (float)(894*RAD));
-  rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-    _V(-2.87, 2.03, -6.27), _V(0,0,1), (float)(894*RAD)); // -447 .. +447
+	  _V(-2.872205, 2.031515, -5.285479), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
   anim_arm_wr = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
-  hAC_arm = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[6], parent);
+
+  rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+    _V(-2.87, 2.03, -6.27), _V(0,0,1), (float)(0.0));
+  anim_arm_ee = CreateAnimation (0.0);
+  hAC_arm = AddAnimationComponent (anim_arm_ee, 0, 1, rms_anim[6], parent);
 
   //IK setup
   /*VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
@@ -1496,12 +1508,22 @@ void Atlantis::DefineAnimations (void)
   VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong*/
   VECTOR3 shoulder_pos=_V(-9.227, -2.87, 2.03);
   VECTOR3 elbow_pos=_V(-2.76, -2.81, 1.86);
+  //VECTOR3 elbow_pos=_V(-2.76, -2.87, 2.03);
   VECTOR3 wrist_pos=_V(4.37, -2.87, 2.03);
+  VECTOR3 wrist_yaw_pos=_V(4.88, -2.87, 2.03);
+  VECTOR3 ee_pos=_V(6.27, -2.87, 2.03);
   elbow_pos-=shoulder_pos;
   wrist_pos-=shoulder_pos;
-  shoulder_pos-=shoulder_pos;
+  wrist_yaw_pos-=shoulder_pos;
+  ee_pos-=shoulder_pos;
+  //shoulder_pos-=shoulder_pos;
   lu=length(elbow_pos);
-  ll=length(elbow_pos-wrist_pos);
+  sp_null=DEG*acos(elbow_pos.x/lu);
+  VECTOR3 temp=wrist_pos-elbow_pos;
+  ll=length(temp);
+  ep_null=DEG*acos(temp.x/ll);
+  wp_wy=length(wrist_yaw_pos-wrist_pos);
+  wy_ee=length(ee_pos-wrist_yaw_pos);
   shoulder_neutral=0.0136; //In anim coordinate
   shoulder_range=147;      //in deg
   shoulder_min=shoulder_range*-shoulder_neutral; //Min angle, deg
@@ -2069,6 +2091,52 @@ bool Atlantis::ArmCradled()
 	return true;
 }
 
+void Atlantis::UpdateMRLMicroswitches()
+{
+	//int i;
+	if(!RMS) return;
+	MRL_FwdMicroswitches[0][2]=MRL_MidMicroswitches[0][2]=MRL_AftMicroswitches[0][2]=0;
+	if(Eq(arm_sy, 0.5) && Eq(arm_sp, shoulder_neutral)) {
+		MRL_FwdMicroswitches[0][2]=1;
+		if(Eq(arm_ep, elbow_neutral)) {
+			MRL_MidMicroswitches[0][2]=1;
+			if(Eq(arm_wp, wrist_neutral) && Eq(arm_wy, wrist_neutral) && Eq(arm_wr, wrist_neutral)) {
+				MRL_AftMicroswitches[0][2]=1;
+			}
+		}
+	}
+
+	if(Eq(MRL[0], 1.0)) {
+		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=1;
+		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=0;
+	}
+	else if(Eq(MRL[0], 0.0)){
+		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=0;
+		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=1;
+	}
+	else {
+		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=0;
+		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=0;
+	}
+}
+
+void Atlantis::UpdateMPMMicroswitches()
+{
+	if(RMSRollout.action==AnimState::OPEN) {
+		MPM_Microswitches[0][0]=0;
+		MPM_Microswitches[0][1]=1;
+	}
+	else if(RMSRollout.action==AnimState::CLOSED) {
+		MPM_Microswitches[0][0]=1;
+		MPM_Microswitches[0][1]=0;
+	}
+	else {
+		MPM_Microswitches[0][0]=0;
+		MPM_Microswitches[0][1]=0;
+	}
+	panela8->UpdateVC();
+}
+
 void Atlantis::SeparateMMU (void)
 {
   // Create Tank as individual object
@@ -2084,6 +2152,8 @@ void Atlantis::SeparateMMU (void)
 }
 
 void Atlantis::SteerGimbal() {
+	int i;
+
   //Use the left and right main engines to steer (after SRBs are gone)
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
@@ -2107,9 +2177,13 @@ void Atlantis::SteerGimbal() {
 		rollcorrect.data[1]=range(-0.18, 0.03*RateDeltas.data[ROLL], 0.18);
 		rollcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[ROLL], 0.18);
 	}
-	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.308046+pitchcorrect.data[0]+rollcorrect.data[0],0.951372)));
-	SetThrusterDir(th_main[1], NormZ(_V( 0.0624+yawcorrect.data[1],-0.1789+pitchcorrect.data[1]+rollcorrect.data[1],0.9819)));
-	SetThrusterDir(th_main[2], NormZ(_V(-0.0624+yawcorrect.data[2],-0.1789+pitchcorrect.data[2]+rollcorrect.data[2],0.9819)));
+	//SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.308046+pitchcorrect.data[0]+rollcorrect.data[0],0.951372)));
+	//SetThrusterDir(th_main[1], NormZ(_V( 0.0624+yawcorrect.data[1],-0.1789+pitchcorrect.data[1]+rollcorrect.data[1],0.9819)));
+	//SetThrusterDir(th_main[2], NormZ(_V(-0.0624+yawcorrect.data[2],-0.1789+pitchcorrect.data[2]+rollcorrect.data[2],0.9819)));
+	for(i=0;i<3;i++) {
+		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+_V(yawcorrect.data[i], pitchcorrect.data[i]+rollcorrect.data[i], 0.0)));
+	}
+	sprintf(oapiDebugString(), "%f %f %f", EngineNullPosition[0].x, EngineNullPosition[0].y, EngineNullPosition[0].z);
 
 	UpdateSSMEGimbalAnimations();
 }
@@ -2118,13 +2192,14 @@ void Atlantis::AutoMainGimbal () {
   //Steer with the SRBs and lower SSMEs
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
+	int i;
 	
 	GetAngularVel(AngularVelocity);
-	for(int i=0;i<3;i++) {
+	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
 	if(!r2d2->bHydraulicPressure) {
-		for(int i=0;i<3;i++) {
+		for(i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
 			rollcorrect.data[i]=0.0;
@@ -2141,9 +2216,12 @@ void Atlantis::AutoMainGimbal () {
 	}
 	SetThrusterDir(th_srb[0], NormZ(_V(0.0+yawcorrect.data[1],0.069338+pitchcorrect.data[1]+rollcorrect.data[1],0.99759)));
 	SetThrusterDir(th_srb[1], NormZ(_V(0.0+yawcorrect.data[2],0.069338+pitchcorrect.data[2]+rollcorrect.data[2],0.99759)));
-	SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
+	for(i=0;i<3;i++) {
+		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+_V(yawcorrect.data[i], pitchcorrect.data[i]+rollcorrect.data[i], 0.0)));
+	}
+	/*SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
 	SetThrusterDir(th_main[1], NormZ(_V( 0.065+yawcorrect.data[1],-0.2447+pitchcorrect.data[1]+rollcorrect.data[1],0.9674)));
-	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));
+	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));*/
 
 	UpdateSSMEGimbalAnimations();
 }
@@ -2233,6 +2311,7 @@ void Atlantis::UpdateMesh ()
   SetAnimationArm (anim_arm_wp, arm_wp);
   SetAnimationArm (anim_arm_wy, arm_wy);
   SetAnimationArm (anim_arm_wr, arm_wr);
+  UpdateRMSPositions();
 
   // update MFD brightness
   if (vis) {
@@ -2304,9 +2383,11 @@ void Atlantis::SetSpeedbrake(double tgt)
 void Atlantis::SetAnimationArm (UINT anim, double state)
 {
   if(!RMS) return;
-  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0)) return;
+  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
   SetAnimation (anim, state);
   arm_moved = true;
+  UpdateMRLMicroswitches();
+  panela8->UpdateVC();
 
   HWND hDlg;
   if (!SatStowed() && (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS))) {
@@ -2381,7 +2462,6 @@ void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
 		else
 			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_frcs);
 	}
-
 }
 
 void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
@@ -2392,7 +2472,6 @@ void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 	for(int i=0;i<nThrusters;i++) {
 		SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
 	}
-	
 }
 
 bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
@@ -2400,723 +2479,9 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 	//int item;
 	int nNew;
 	double dNew;
-	if(change==0) {
-		nNew=atoi(Name);
-		if(nNew==104 && ops==103) {
-			ops=104;
-			WT=GetMass()*kg_to_pounds;
-			BurnInProg=false;
-			BurnCompleted=false;
-			MNVRLOAD=false;
-			Display[mfd]->bTIMER=false;
-		}
-		else if(nNew==105 && ops==104) {
-			ops=105;
-			WT=GetMass()*kg_to_pounds;
-			BurnInProg=false;
-			BurnCompleted=false;
-			MNVRLOAD=false;
-			Display[mfd]->bTIMER=false;
-		}
-		else if(nNew==106 && ops==105) {
-			ops=106;
-		}
-		else if(nNew==201 && (ops==202 || ops==106))
-		{
-			ops=201;
-			MNVR=false;
-			TRK=false;
-			ROT=false;
-		}
-		else if(nNew==202 && ops==201)
-		{
-			ops=202;
-			WT=GetMass()*kg_to_pounds;
-			BurnInProg=false;
-			BurnCompleted=false;
-			MNVRLOAD=false;
-			Display[mfd]->bTIMER=false;
-		}
-		else if(nNew==301 && ops==201)
-		{
-			ops=301;
-			WT=GetMass()*kg_to_pounds;
-			BurnInProg=false;
-			BurnCompleted=false;
-			MNVRLOAD=false;
-			Display[mfd]->bTIMER=false;
-		}
-		else if(nNew==302 && ops==301)
-		{
-			ops=302;
-		}
-		else if(nNew==303 && ops==302)
-		{
-			ops=303;
-		}
-		return true;
-	}
-	else if(change==1) {
-		nNew=atoi(Name);
-		if(ops==201) {
-			switch(Display[mfd]->spec) {
-				case 0:
-					if(nNew<=17) {
-						item=nNew;
-						return Input(mfd, 3, Name, Data);
-						//data=1;
-						//return true;
-					}
-					else if(nNew==18) {
-						if(MNVR==false) 
-						{
-							MNVR=true;
-							ROT=false;
-							TRK=false;
-							REQD_ATT.x=MNVR_OPTION.x;
-							REQD_ATT.y=MNVR_OPTION.y;
-							REQD_ATT.z=MNVR_OPTION.z;
-							for(int i=0;i<3;i++) {
-								if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
-								else TargetAtt.data[i]=REQD_ATT.data[i];
-							}
-							TargetAtt=ToRad(TargetAtt);
-						}
-						else MNVR=false;
-						Yaw=false;
-						Pitch=false;
-						Roll=false;
-						return true;
-					}
-					else if(nNew==19) {
-						if(TRK==false) {
-							TRK=true;
-							MNVR=false;
-							ROT=false;
-							if(TGT_ID==2) {
-								if(BODY_VECT==1) {
-									LVLHOrientationReqd.data[PITCH]=270.0;
-									LVLHOrientationReqd.data[YAW]=0.0;
-									if((OM)<=0.0) {
-										LVLHOrientationReqd.data[ROLL]=0.0;
-										LVLHRateVector.data[PITCH]=-1.0;
-										LVLHRateVector.data[YAW]=0.0;
-										LVLHRateVector.data[ROLL]=0.0;
-									}
-									else {
-										LVLHOrientationReqd.data[ROLL]=OM;
-										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-										LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-										LVLHRateVector.data[ROLL]=0.0;
-									}
-								}
-								else if(BODY_VECT==2) {
-									LVLHOrientationReqd.data[PITCH]=90.0;
-									LVLHOrientationReqd.data[YAW]=0.0;
-									if(OM<=0.0) {
-										LVLHOrientationReqd.data[ROLL]=0.0;
-										LVLHRateVector.data[PITCH]=-1.0;
-										LVLHRateVector.data[YAW]=0.0;
-										LVLHRateVector.data[ROLL]=0.0;
-									}
-									else {
-										LVLHOrientationReqd.data[ROLL]=OM;
-										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-										LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-										LVLHRateVector.data[ROLL]=0.0;
-									}
-								}
-								else if(BODY_VECT==3) {
-									LVLHOrientationReqd.data[PITCH]=180.0;
-									LVLHOrientationReqd.data[ROLL]=0.0;
-									if(OM<=0.0) {
-										LVLHOrientationReqd.data[YAW]=0.0;
-										LVLHRateVector.data[PITCH]=-1.0;
-										LVLHRateVector.data[YAW]=0.0;
-										LVLHRateVector.data[ROLL]=0.0;
-									}
-									else {
-										LVLHOrientationReqd.data[YAW]=OM;
-										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-										LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
-										LVLHRateVector.data[YAW]=0.0;
-									}
-								}
-								else if(BODY_VECT==5) {
-									LVLHOrientationReqd.data[PITCH]=270-P;
-									if(LVLHOrientationReqd.data[PITCH]==0.0)
-									{
-										LVLHOrientationReqd.data[ROLL]=Y;
-										if(OM<=0.0) {
-											LVLHOrientationReqd.data[YAW]=0.0;
-											if(LVLHOrientationReqd.data[ROLL]==0.0) {
-												LVLHRateVector.data[PITCH]=-1.0;
-												LVLHRateVector.data[YAW]=0.0;
-												LVLHRateVector.data[ROLL]=0.0;
-											}
-										}
-										else LVLHOrientationReqd.data[YAW]=OM;
-									}
-									else
-									{
-										LVLHOrientationReqd.data[YAW]=(270.0-P)*sin(RAD*Y);
-										LVLHOrientationReqd.data[ROLL]=Y*cos(RAD*LVLHOrientationReqd.data[PITCH]);
-										if(OM>0.0) LVLHOrientationReqd.data[YAW]+=OM;
-									}
-									LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-									LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-									LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-								}
-							}
-						}
-						else TRK=false;
-						Yaw=false;
-						Pitch=false;
-						Roll=false;
-						return true;
-					}
-					else if(nNew==20) {
-						if(ROT==false) {
-							ROT=true;
-							MNVR=false;
-							TRK=false;
-						}
-						else ROT=false;
-						return true;
-					}
-					else if(nNew==21) {
-						MNVR=false;
-						ROT=false;
-						TRK=false;
-						SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-						SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
-						SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-						SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
-						SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-						SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-						REQD_ATT.x=MNVR_OPTION.x;
-						REQD_ATT.y=MNVR_OPTION.y;
-						REQD_ATT.z=MNVR_OPTION.z;
-						for(int i=0;i<3;i++) {
-							if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
-							else TargetAtt.data[i]=REQD_ATT.data[i];
-						}
-						TargetAtt=ToRad(TargetAtt);
-						return true;
-					}
-					break;
-				case 20:
-					if(nNew==1 || nNew==2) {
-						DAPMode[0]=nNew-1;
-						UpdateDAP();
-						return true;
-					}
-					else if(nNew>=3 && nNew<=5) {
-						DAPMode[1]=nNew-3;
-						UpdateDAP();
-						return true;
-					}
-					else if(nNew==6 || nNew==7) {
-						edit=nNew-5;
-						int i=edit-1;
-						DAP[2].PRI_ROT_RATE=DAP[i].PRI_ROT_RATE;
-						DAP[2].PRI_ATT_DB=DAP[i].PRI_ATT_DB;
-						DAP[2].PRI_RATE_DB=DAP[i].PRI_RATE_DB;
-						DAP[2].PRI_ROT_PLS=DAP[i].PRI_ROT_PLS;
-						DAP[2].PRI_COMP=DAP[i].PRI_COMP;
-						DAP[2].PRI_TRAN_PLS=DAP[i].PRI_TRAN_PLS;
-						DAP[2].PRI_P_OPTION=DAP[i].PRI_P_OPTION;
-						DAP[2].PRI_Y_OPTION=DAP[i].PRI_Y_OPTION;
-						DAP[2].ALT_RATE_DB=DAP[i].ALT_RATE_DB;
-						DAP[2].ALT_ON_TIME=DAP[i].ALT_ON_TIME;
-						DAP[2].ALT_DELAY=DAP[i].ALT_DELAY;
-						DAP[2].ALT_JET_OPT=DAP[i].ALT_JET_OPT;
-						DAP[2].ALT_JETS=DAP[i].ALT_JETS;
-						DAP[2].VERN_ROT_RATE=DAP[i].VERN_ROT_RATE;
-						DAP[2].VERN_ATT_DB=DAP[i].VERN_ATT_DB;
-						DAP[2].VERN_RATE_DB=DAP[i].VERN_RATE_DB;
-						DAP[2].VERN_ROT_PLS=DAP[i].VERN_ROT_PLS;
-						DAP[2].VERN_COMP=DAP[i].VERN_COMP;
-						DAP[2].VERN_CNTL_ACC=DAP[i].VERN_CNTL_ACC;
-						return true;
-					}
-					else if(nNew==8) {
-						int i=edit-1;
-						DAP[i].PRI_ROT_RATE=DAP[2].PRI_ROT_RATE;
-						DAP[i].PRI_ATT_DB=DAP[2].PRI_ATT_DB;
-						DAP[i].PRI_RATE_DB=DAP[2].PRI_RATE_DB;
-						DAP[i].PRI_ROT_PLS=DAP[2].PRI_ROT_PLS;
-						DAP[i].PRI_COMP=DAP[2].PRI_COMP;
-						DAP[i].PRI_TRAN_PLS=DAP[2].PRI_TRAN_PLS;
-						DAP[i].PRI_P_OPTION=DAP[2].PRI_P_OPTION;
-						DAP[i].PRI_Y_OPTION=DAP[2].PRI_Y_OPTION;
-						DAP[i].ALT_RATE_DB=DAP[2].ALT_RATE_DB;
-						DAP[i].ALT_ON_TIME=DAP[2].ALT_ON_TIME;
-						DAP[i].ALT_DELAY=DAP[2].ALT_DELAY;
-						DAP[i].ALT_JET_OPT=DAP[2].ALT_JET_OPT;
-						DAP[i].ALT_JETS=DAP[2].ALT_JETS;
-						DAP[i].VERN_ROT_RATE=DAP[2].VERN_ROT_RATE;
-						DAP[i].VERN_ATT_DB=DAP[2].VERN_ATT_DB;
-						DAP[i].VERN_RATE_DB=DAP[2].VERN_RATE_DB;
-						DAP[i].VERN_ROT_PLS=DAP[2].VERN_ROT_PLS;
-						DAP[i].VERN_COMP=DAP[2].VERN_COMP;
-						DAP[i].VERN_CNTL_ACC=DAP[2].VERN_CNTL_ACC;
-						edit=0;
-						return true;
-					}
-					else if(nNew==15 || nNew==35 || nNew==55) {
-						if(DAP[convert[nNew]].PRI_P_OPTION<2) {
-							DAP[convert[nNew]].PRI_P_OPTION++;
-							if(DAPMode[1]==0) {
-								if(DAP[DAPMode[0]].PRI_P_OPTION==1) {
-									DisableThrusters(AftPitchThrusters, 2);
-									UpdateDAP();
-								}
-								else if(DAP[DAPMode[0]].PRI_P_OPTION==2) {
-									EnableThrusters(AftPitchThrusters, 2);
-									DisableThrusters(NosePitchThrusters, 2);
-									UpdateDAP();
-								}
-							}
-						}
-						else {
-							DAP[convert[nNew]].PRI_P_OPTION=0;
-							if(DAP[DAPMode[0]].PRI_P_OPTION==0) {
-								EnableThrusters(NosePitchThrusters, 2);
-								UpdateDAP();
-							}
-						}
-						return true;
-					}
-					else if(nNew==16 || nNew==36 || nNew==56) {
-						if(DAP[convert[nNew]].PRI_Y_OPTION<2) {
-							DAP[convert[nNew]].PRI_Y_OPTION++;
-							if(DAPMode[1]==0) {
-								if(DAP[DAPMode[0]].PRI_Y_OPTION==1) {
-									DisableThrusters(AftYawThrusters, 2);
-									UpdateDAP();
-								}
-								else if(DAP[DAPMode[0]].PRI_Y_OPTION==2) {
-									EnableThrusters(AftYawThrusters, 2);
-									DisableThrusters(NoseYawThrusters, 2);
-									UpdateDAP();
-								}
-							}
-						}
-						else {
-							DAP[convert[nNew]].PRI_Y_OPTION=0;
-							if(DAP[DAPMode[0]].PRI_Y_OPTION==0) {
-								EnableThrusters(NoseYawThrusters, 2);
-								UpdateDAP();
-							}
-						}
-						return true;
-					}
-					else if(nNew==19 || nNew==39 || nNew==59) {
-						if(DAP[convert[nNew]].ALT_JET_OPT==0) {
-							DAP[convert[nNew]].ALT_JET_OPT=2;
-							if(DAPMode[1]==1) {
-								if(DAP[DAPMode[0]].ALT_JET_OPT==2) {
-									DisableThrusters(NoseRotThrusters, 6);
-									EnableThrusters(AftRotThrusters, 6);
-									UpdateDAP();
-								}
-							}
-						}
-						else {
-							DAP[convert[nNew]].ALT_JET_OPT=0;
-							if(DAPMode[1]==1) {
-								if(DAP[DAPMode[0]].ALT_JET_OPT==0) {
-									EnableThrusters(NoseRotThrusters, 6);
-									UpdateDAP();
-								}
-							}
-						}
-						return true;
-					}
-					else if(nNew>=10 && nNew<=28 || nNew>=30 && nNew<=48 || nNew>=50 && nNew<=68) {
-						item=nNew;
-						return Input(mfd, 3, Name, Data);
-						//data=1;
-						//return true;
-					}
-					break;
-			}
-		}
-		else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
-			if(nNew>=1 && nNew<=4) {
-				OMS=nNew-1;
-				return true;
-			}
-			else if(nNew>=5 && nNew<=21) {
-				item=nNew;
-				return Input(mfd, 3, Name, Data);
-				//data=1;
-				//return true;
-			}
-			else if(nNew==22) {
-				LoadManeuver();
-				return true;
-			}
-			else if(nNew==23) {
-				Display[mfd]->bTIMER=true;
-				return true;
-			}
-			else if(nNew==27) {
-				if(!TRK) {
-					TRK=true;
-					MNVR=false;
-					ROT=false;
-					Yaw=false;
-					Pitch=false;
-					Roll=false;
-					TGT_ID=2;
-					if((Eq(BurnAtt.data[YAW], 90.00) || Eq(BurnAtt.data[YAW], -90.00)) && !Eq(BurnAtt.data[PITCH], 0.0)) {
-						LVLHOrientationReqd.data[PITCH]=90.0;
-						LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW]-BurnAtt.data[PITCH];
-						LVLHOrientationReqd.data[ROLL]=BurnAtt.data[YAW]+BurnAtt.data[ROLL];
-					}
-					else {
-						LVLHOrientationReqd.data[PITCH]=BurnAtt.data[PITCH];
-						LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW];
-						LVLHOrientationReqd.data[ROLL]=BurnAtt.data[ROLL];
-					}
-					LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-					LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-					LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-					AttDeadband=0.05;
-					for(int i=0;i<4;i++) START_TIME[i]=MET[i];
-				}
-				else {
-					MNVR=false;
-					ROT=false;
-					TRK=false;
-					SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-				}
-				return true;
-			}
-			return false;
-		}
-	}
-	else if(change==2) {
-		nNew=atoi(Name);
-		//if(ops==201) {
+	int id=Display[mfd]->id;
 
-			if(IsValidSPEC(Display[mfd]->usGPCDriver, nNew))
-			{
-
-				if((nNew / 10) % 10 == 9 || (nNew % 10) >= 6) 
-				{
-					Display[mfd]->display = nNew;
-					return true;
-				}
-				else
-				{
-					Display[mfd]->spec=nNew;
-					//InvalidateDisplay();
-					return true;
-				}
-			} else {
-				//wrong spec
-			}
-			return false;
-		//}
-	}
-	else if(change==3) {
-		//item=atoi(Name);
-		if(ops==201) {
-			switch(Display[mfd]->spec) {
-				case 0:
-					if(item>=1 && item<=4) {
-						nNew=atoi(Data);
-						if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
-							START_TIME[item-1]=nNew;
-							return true;
-						}
-						return false;
-					}
-					else if(item==5 || item==6) {
-						dNew=atof(Data);
-						if(dNew>=0.0 && dNew<360.0) {
-							if(item==5) MNVR_OPTION.data[ROLL]=dNew;
-							else MNVR_OPTION.data[PITCH]=dNew;
-							return true;
-						}
-						return false;
-					}
-					else if(item==7) {
-						dNew=atof(Data);
-						if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-							MNVR_OPTION.data[YAW]=dNew;
-							return true;
-						}
-						return false;
-					}
-					if(item==8) {
-						nNew=atoi(Data);
-						if(nNew==2 || nNew==5) {
-							TGT_ID=nNew;
-							return true;
-						}
-						return false;
-					}
-					if(item==14) {
-						nNew=atoi(Data);
-						if(nNew>=1 && nNew<=5) {
-							BODY_VECT=nNew;
-							if(BODY_VECT==1) {
-								P=0.0;
-								Y=0.0;
-							}
-							else if(BODY_VECT==2) {
-								P=180.0;
-								Y=0.0;
-							}
-							else if(BODY_VECT==3) {
-								P=90.0;
-								Y=0.0;
-							}
-							return true;
-						}
-						return false;
-					}
-					if(item==15 && BODY_VECT==5) {
-						dNew=atof(Data);
-						if(dNew>=0.0 && dNew<360.0) {
-							P=dNew;
-							return true;
-						}
-						return false;
-					}
-					if(item==16 && BODY_VECT==5) {
-						dNew=atof(Data);
-						if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-							Y=dNew;
-							return true;
-						}
-						return false;
-					}
-					if(item==17) {
-						dNew=atof(Data);
-						if(dNew>=0.0 && dNew<360.0) {
-							OM=dNew;
-							return true;
-						}
-						return false;
-					}
-					return false;
-					break;
-				case 20:
-					if(item==10 || item==30 || item==50) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].PRI_ROT_RATE=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==11 || item==31 || item==51) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<100.0) {
-							DAP[convert[item]].PRI_ATT_DB=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==12 || item==32 || item==52) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].PRI_RATE_DB=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==13 || item==33 || item==53) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].PRI_ROT_PLS=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==14 || item==34 || item==54) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<1.0) {
-							DAP[convert[item]].PRI_COMP=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==17 || item==37 || item==57) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].PRI_ROT_PLS=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==18 || item==38 || item==58) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].ALT_RATE_DB=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==20 || item==40 || item==60) {
-						nNew=atoi(Data);
-						if(nNew>=1 && nNew<=3) {
-							DAP[convert[item]].ALT_JETS=nNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==21 || item==41 || item==61) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].ALT_ON_TIME=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==22 || item==42 || item==62) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<100.0) {
-							DAP[convert[item]].ALT_DELAY=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==23 || item==43 || item==63) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].VERN_ROT_RATE=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==24 || item==44 || item==64) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<100.0) {
-							DAP[convert[item]].VERN_ATT_DB=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==25 || item==45 || item==65) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<1.0) {
-							DAP[convert[item]].VERN_RATE_DB=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==26 || item==46 || item==66) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].VERN_ROT_PLS=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==27 || item==47 || item==67) {
-						dNew=atof(Data);
-						if(dNew>0.0 && dNew<10.0) {
-							DAP[convert[item]].VERN_COMP=dNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					else if(item==28 || item==48 || item==68) {
-						nNew=atoi(Data);
-						if(nNew>=0 && nNew<=9) {
-							DAP[convert[item]].VERN_CNTL_ACC=nNew;
-							if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
-							return true;
-						}
-						return false;
-					}
-					return false;
-					break;
-			}
-		}
-		else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
-			if(item==5) {
-				TV_ROLL=atoi(Data);
-				return true;
-			}
-			else if(item>=6 && item<=8) {
-				dNew=atof(Data);
-				if(fabs(dNew)<=6.0) 
-				{
-					Trim.data[item-6]=dNew;
-					return true;
-				}
-			}
-			else if(item==9) {
-				//dNew=atof(Data);
-				WT=atof(Data);
-				return true;
-			}
-			else if(item>=10 && item<=13) {
-				if(item==13) dNew=atof(Data);
-				else dNew=atoi(Data);
-				//sprintf(oapiDebugString(), "%f", dNew);
-				if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
-					TIG[item-10]=dNew;
-					return true;
-				}
-				return false;
-			}
-			else if(item==14 && ops!=202) {
-				C1=atof(Data);
-				return true;
-			}
-			else if(item==15 && ops!=202) {
-				dNew=atof(Data);
-				if(fabs(dNew)<10.0) {
-					C2=dNew;
-					return true;
-				}
-			}
-			else if(item==16 && ops!=202) {
-				HT=atof(Data);
-				return true;
-			}
-			else if(item==17 && ops!=202) {
-				ThetaT=atof(Data);
-				return true;
-			}
-			else if(item>=19 && item<=21) {
-				dNew=atof(Data);
-				PEG7.data[item-19]=dNew;
-				return true;
-			}
-			return false;
-		}
-		item=0;
-		return true;
-	} else  if (change == 9)
+	if (change == 9)
 	{
 		//Resume key pressed
 		if(Display[mfd]->display >= 0) {
@@ -3127,6 +2492,732 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			return true;
 		} else
 			return false;
+	}
+
+	if(id>2 || (id<2 && panelc2->switch_state[SWITCH2+2*id]==0)) //GNC
+	{
+		if(change==0) {
+			nNew=atoi(Name);
+			if(nNew==104 && ops==103) {
+				ops=104;
+				WT=GetMass()*kg_to_pounds;
+				BurnInProg=false;
+				BurnCompleted=false;
+				MNVRLOAD=false;
+				Display[mfd]->bTIMER=false;
+			}
+			else if(nNew==105 && ops==104) {
+				ops=105;
+				WT=GetMass()*kg_to_pounds;
+				BurnInProg=false;
+				BurnCompleted=false;
+				MNVRLOAD=false;
+				Display[mfd]->bTIMER=false;
+			}
+			else if(nNew==106 && ops==105) {
+				ops=106;
+			}
+			else if(nNew==201 && (ops==202 || ops==106))
+			{
+				ops=201;
+				MNVR=false;
+				TRK=false;
+				ROT=false;
+			}
+			else if(nNew==202 && ops==201)
+			{
+				ops=202;
+				WT=GetMass()*kg_to_pounds;
+				BurnInProg=false;
+				BurnCompleted=false;
+				MNVRLOAD=false;
+				Display[mfd]->bTIMER=false;
+			}
+			else if(nNew==301 && ops==201)
+			{
+				ops=301;
+				WT=GetMass()*kg_to_pounds;
+				BurnInProg=false;
+				BurnCompleted=false;
+				MNVRLOAD=false;
+				Display[mfd]->bTIMER=false;
+			}
+			else if(nNew==302 && ops==301)
+			{
+				ops=302;
+			}
+			else if(nNew==303 && ops==302)
+			{
+				ops=303;
+			}
+			return true;
+		}
+		else if(change==1) {
+			nNew=atoi(Name);
+			if(ops==201) {
+				switch(Display[mfd]->spec) {
+					case 0:
+						if(nNew<=17) {
+							item=nNew;
+							return Input(mfd, 3, Name, Data);
+							//data=1;
+							//return true;
+						}
+						else if(nNew==18) {
+							if(MNVR==false) 
+							{
+								MNVR=true;
+								ROT=false;
+								TRK=false;
+								REQD_ATT.x=MNVR_OPTION.x;
+								REQD_ATT.y=MNVR_OPTION.y;
+								REQD_ATT.z=MNVR_OPTION.z;
+								for(int i=0;i<3;i++) {
+									if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
+									else TargetAtt.data[i]=REQD_ATT.data[i];
+								}
+								TargetAtt=ToRad(TargetAtt);
+							}
+							else MNVR=false;
+							Yaw=false;
+							Pitch=false;
+							Roll=false;
+							return true;
+						}
+						else if(nNew==19) {
+							if(TRK==false) {
+								TRK=true;
+								MNVR=false;
+								ROT=false;
+								if(TGT_ID==2) {
+									if(BODY_VECT==1) {
+										LVLHOrientationReqd.data[PITCH]=270.0;
+										LVLHOrientationReqd.data[YAW]=0.0;
+										if((OM)<=0.0) {
+											LVLHOrientationReqd.data[ROLL]=0.0;
+											LVLHRateVector.data[PITCH]=-1.0;
+											LVLHRateVector.data[YAW]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;
+										}
+										else {
+											LVLHOrientationReqd.data[ROLL]=OM;
+											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
+											LVLHRateVector.data[ROLL]=0.0;
+										}
+									}
+									else if(BODY_VECT==2) {
+										LVLHOrientationReqd.data[PITCH]=90.0;
+										LVLHOrientationReqd.data[YAW]=0.0;
+										if(OM<=0.0) {
+											LVLHOrientationReqd.data[ROLL]=0.0;
+											LVLHRateVector.data[PITCH]=-1.0;
+											LVLHRateVector.data[YAW]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;
+										}
+										else {
+											LVLHOrientationReqd.data[ROLL]=OM;
+											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
+											LVLHRateVector.data[ROLL]=0.0;
+										}
+									}
+									else if(BODY_VECT==3) {
+										LVLHOrientationReqd.data[PITCH]=180.0;
+										LVLHOrientationReqd.data[ROLL]=0.0;
+										if(OM<=0.0) {
+											LVLHOrientationReqd.data[YAW]=0.0;
+											LVLHRateVector.data[PITCH]=-1.0;
+											LVLHRateVector.data[YAW]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;
+										}
+										else {
+											LVLHOrientationReqd.data[YAW]=OM;
+											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
+											LVLHRateVector.data[YAW]=0.0;
+										}
+									}
+									else if(BODY_VECT==5) {
+										LVLHOrientationReqd.data[PITCH]=270-P;
+										if(LVLHOrientationReqd.data[PITCH]==0.0)
+										{
+											LVLHOrientationReqd.data[ROLL]=Y;
+											if(OM<=0.0) {
+												LVLHOrientationReqd.data[YAW]=0.0;
+												if(LVLHOrientationReqd.data[ROLL]==0.0) {
+													LVLHRateVector.data[PITCH]=-1.0;
+													LVLHRateVector.data[YAW]=0.0;
+													LVLHRateVector.data[ROLL]=0.0;
+												}
+											}
+											else LVLHOrientationReqd.data[YAW]=OM;
+										}
+										else
+										{
+											LVLHOrientationReqd.data[YAW]=(270.0-P)*sin(RAD*Y);
+											LVLHOrientationReqd.data[ROLL]=Y*cos(RAD*LVLHOrientationReqd.data[PITCH]);
+											if(OM>0.0) LVLHOrientationReqd.data[YAW]+=OM;
+										}
+										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+										LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
+										LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+									}
+								}
+							}
+							else TRK=false;
+							Yaw=false;
+							Pitch=false;
+							Roll=false;
+							return true;
+						}
+						else if(nNew==20) {
+							if(ROT==false) {
+								ROT=true;
+								MNVR=false;
+								TRK=false;
+							}
+							else ROT=false;
+							return true;
+						}
+						else if(nNew==21) {
+							MNVR=false;
+							ROT=false;
+							TRK=false;
+							SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+							REQD_ATT.x=MNVR_OPTION.x;
+							REQD_ATT.y=MNVR_OPTION.y;
+							REQD_ATT.z=MNVR_OPTION.z;
+							for(int i=0;i<3;i++) {
+								if(REQD_ATT.data[i]>180.0) TargetAtt.data[i]=REQD_ATT.data[i]-360.0;
+								else TargetAtt.data[i]=REQD_ATT.data[i];
+							}
+							TargetAtt=ToRad(TargetAtt);
+							return true;
+						}
+						break;
+					case 20:
+						if(nNew==1 || nNew==2) {
+							DAPMode[0]=nNew-1;
+							UpdateDAP();
+							return true;
+						}
+						else if(nNew>=3 && nNew<=5) {
+							DAPMode[1]=nNew-3;
+							UpdateDAP();
+							return true;
+						}
+						else if(nNew==6 || nNew==7) {
+							edit=nNew-5;
+							int i=edit-1;
+							DAP[2].PRI_ROT_RATE=DAP[i].PRI_ROT_RATE;
+							DAP[2].PRI_ATT_DB=DAP[i].PRI_ATT_DB;
+							DAP[2].PRI_RATE_DB=DAP[i].PRI_RATE_DB;
+							DAP[2].PRI_ROT_PLS=DAP[i].PRI_ROT_PLS;
+							DAP[2].PRI_COMP=DAP[i].PRI_COMP;
+							DAP[2].PRI_TRAN_PLS=DAP[i].PRI_TRAN_PLS;
+							DAP[2].PRI_P_OPTION=DAP[i].PRI_P_OPTION;
+							DAP[2].PRI_Y_OPTION=DAP[i].PRI_Y_OPTION;
+							DAP[2].ALT_RATE_DB=DAP[i].ALT_RATE_DB;
+							DAP[2].ALT_ON_TIME=DAP[i].ALT_ON_TIME;
+							DAP[2].ALT_DELAY=DAP[i].ALT_DELAY;
+							DAP[2].ALT_JET_OPT=DAP[i].ALT_JET_OPT;
+							DAP[2].ALT_JETS=DAP[i].ALT_JETS;
+							DAP[2].VERN_ROT_RATE=DAP[i].VERN_ROT_RATE;
+							DAP[2].VERN_ATT_DB=DAP[i].VERN_ATT_DB;
+							DAP[2].VERN_RATE_DB=DAP[i].VERN_RATE_DB;
+							DAP[2].VERN_ROT_PLS=DAP[i].VERN_ROT_PLS;
+							DAP[2].VERN_COMP=DAP[i].VERN_COMP;
+							DAP[2].VERN_CNTL_ACC=DAP[i].VERN_CNTL_ACC;
+							return true;
+						}
+						else if(nNew==8) {
+							int i=edit-1;
+							DAP[i].PRI_ROT_RATE=DAP[2].PRI_ROT_RATE;
+							DAP[i].PRI_ATT_DB=DAP[2].PRI_ATT_DB;
+							DAP[i].PRI_RATE_DB=DAP[2].PRI_RATE_DB;
+							DAP[i].PRI_ROT_PLS=DAP[2].PRI_ROT_PLS;
+							DAP[i].PRI_COMP=DAP[2].PRI_COMP;
+							DAP[i].PRI_TRAN_PLS=DAP[2].PRI_TRAN_PLS;
+							DAP[i].PRI_P_OPTION=DAP[2].PRI_P_OPTION;
+							DAP[i].PRI_Y_OPTION=DAP[2].PRI_Y_OPTION;
+							DAP[i].ALT_RATE_DB=DAP[2].ALT_RATE_DB;
+							DAP[i].ALT_ON_TIME=DAP[2].ALT_ON_TIME;
+							DAP[i].ALT_DELAY=DAP[2].ALT_DELAY;
+							DAP[i].ALT_JET_OPT=DAP[2].ALT_JET_OPT;
+							DAP[i].ALT_JETS=DAP[2].ALT_JETS;
+							DAP[i].VERN_ROT_RATE=DAP[2].VERN_ROT_RATE;
+							DAP[i].VERN_ATT_DB=DAP[2].VERN_ATT_DB;
+							DAP[i].VERN_RATE_DB=DAP[2].VERN_RATE_DB;
+							DAP[i].VERN_ROT_PLS=DAP[2].VERN_ROT_PLS;
+							DAP[i].VERN_COMP=DAP[2].VERN_COMP;
+							DAP[i].VERN_CNTL_ACC=DAP[2].VERN_CNTL_ACC;
+							edit=0;
+							return true;
+						}
+						else if(nNew==15 || nNew==35 || nNew==55) {
+							if(DAP[convert[nNew]].PRI_P_OPTION<2) {
+								DAP[convert[nNew]].PRI_P_OPTION++;
+								if(DAPMode[1]==0) {
+									if(DAP[DAPMode[0]].PRI_P_OPTION==1) {
+										DisableThrusters(AftPitchThrusters, 2);
+										UpdateDAP();
+									}
+									else if(DAP[DAPMode[0]].PRI_P_OPTION==2) {
+										EnableThrusters(AftPitchThrusters, 2);
+										DisableThrusters(NosePitchThrusters, 2);
+										UpdateDAP();
+									}
+								}
+							}
+							else {
+								DAP[convert[nNew]].PRI_P_OPTION=0;
+								if(DAP[DAPMode[0]].PRI_P_OPTION==0) {
+									EnableThrusters(NosePitchThrusters, 2);
+									UpdateDAP();
+								}
+							}
+							return true;
+						}
+						else if(nNew==16 || nNew==36 || nNew==56) {
+							if(DAP[convert[nNew]].PRI_Y_OPTION<2) {
+								DAP[convert[nNew]].PRI_Y_OPTION++;
+								if(DAPMode[1]==0) {
+									if(DAP[DAPMode[0]].PRI_Y_OPTION==1) {
+										DisableThrusters(AftYawThrusters, 2);
+										UpdateDAP();
+									}
+									else if(DAP[DAPMode[0]].PRI_Y_OPTION==2) {
+										EnableThrusters(AftYawThrusters, 2);
+										DisableThrusters(NoseYawThrusters, 2);
+										UpdateDAP();
+									}
+								}
+							}
+							else {
+								DAP[convert[nNew]].PRI_Y_OPTION=0;
+								if(DAP[DAPMode[0]].PRI_Y_OPTION==0) {
+									EnableThrusters(NoseYawThrusters, 2);
+									UpdateDAP();
+								}
+							}
+							return true;
+						}
+						else if(nNew==19 || nNew==39 || nNew==59) {
+							if(DAP[convert[nNew]].ALT_JET_OPT==0) {
+								DAP[convert[nNew]].ALT_JET_OPT=2;
+								if(DAPMode[1]==1) {
+									if(DAP[DAPMode[0]].ALT_JET_OPT==2) {
+										DisableThrusters(NoseRotThrusters, 6);
+										EnableThrusters(AftRotThrusters, 6);
+										UpdateDAP();
+									}
+								}
+							}
+							else {
+								DAP[convert[nNew]].ALT_JET_OPT=0;
+								if(DAPMode[1]==1) {
+									if(DAP[DAPMode[0]].ALT_JET_OPT==0) {
+										EnableThrusters(NoseRotThrusters, 6);
+										UpdateDAP();
+									}
+								}
+							}
+							return true;
+						}
+						else if(nNew>=10 && nNew<=28 || nNew>=30 && nNew<=48 || nNew>=50 && nNew<=68) {
+							item=nNew;
+							return Input(mfd, 3, Name, Data);
+							//data=1;
+							//return true;
+						}
+						break;
+				}
+			}
+			else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
+				if(nNew>=1 && nNew<=4) {
+					OMS=nNew-1;
+					return true;
+				}
+				else if(nNew>=5 && nNew<=21) {
+					item=nNew;
+					return Input(mfd, 3, Name, Data);
+					//data=1;
+					//return true;
+				}
+				else if(nNew==22) {
+					LoadManeuver();
+					return true;
+				}
+				else if(nNew==23) {
+					Display[mfd]->bTIMER=true;
+					return true;
+				}
+				else if(nNew==27) {
+					if(!TRK) {
+						TRK=true;
+						MNVR=false;
+						ROT=false;
+						Yaw=false;
+						Pitch=false;
+						Roll=false;
+						TGT_ID=2;
+						if((Eq(BurnAtt.data[YAW], 90.00) || Eq(BurnAtt.data[YAW], -90.00)) && !Eq(BurnAtt.data[PITCH], 0.0)) {
+							LVLHOrientationReqd.data[PITCH]=90.0;
+							LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW]-BurnAtt.data[PITCH];
+							LVLHOrientationReqd.data[ROLL]=BurnAtt.data[YAW]+BurnAtt.data[ROLL];
+						}
+						else {
+							LVLHOrientationReqd.data[PITCH]=BurnAtt.data[PITCH];
+							LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW];
+							LVLHOrientationReqd.data[ROLL]=BurnAtt.data[ROLL];
+						}
+						LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+						LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
+						LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+						AttDeadband=0.05;
+						for(int i=0;i<4;i++) START_TIME[i]=MET[i];
+					}
+					else {
+						MNVR=false;
+						ROT=false;
+						TRK=false;
+						SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+						SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+					}
+					return true;
+				}
+				return false;
+			}
+		}
+		else if(change==2) {
+			nNew=atoi(Name);
+			if(ops==201) {
+				if(nNew==20 || nNew==0) {
+					Display[mfd]->spec=nNew;
+					//InvalidateDisplay();
+					return true;
+				}
+				else return false;
+			}
+		}
+		else if(change==3) {
+			//item=atoi(Name);
+			if(ops==201) {
+				switch(Display[mfd]->spec) {
+					case 0:
+						if(item>=1 && item<=4) {
+							nNew=atoi(Data);
+							if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
+								START_TIME[item-1]=nNew;
+								return true;
+							}
+							return false;
+						}
+						else if(item==5 || item==6) {
+							dNew=atof(Data);
+							if(dNew>=0.0 && dNew<360.0) {
+								if(item==5) MNVR_OPTION.data[ROLL]=dNew;
+								else MNVR_OPTION.data[PITCH]=dNew;
+								return true;
+							}
+							return false;
+						}
+						else if(item==7) {
+							dNew=atof(Data);
+							if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+								MNVR_OPTION.data[YAW]=dNew;
+								return true;
+							}
+							return false;
+						}
+						if(item==8) {
+							nNew=atoi(Data);
+							if(nNew==2 || nNew==5) {
+								TGT_ID=nNew;
+								return true;
+							}
+							return false;
+						}
+						if(item==14) {
+							nNew=atoi(Data);
+							if(nNew>=1 && nNew<=5) {
+								BODY_VECT=nNew;
+								if(BODY_VECT==1) {
+									P=0.0;
+									Y=0.0;
+								}
+								else if(BODY_VECT==2) {
+									P=180.0;
+									Y=0.0;
+								}
+								else if(BODY_VECT==3) {
+									P=90.0;
+									Y=0.0;
+								}
+								return true;
+							}
+							return false;
+						}
+						if(item==15 && BODY_VECT==5) {
+							dNew=atof(Data);
+							if(dNew>=0.0 && dNew<360.0) {
+								P=dNew;
+								return true;
+							}
+							return false;
+						}
+						if(item==16 && BODY_VECT==5) {
+							dNew=atof(Data);
+							if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+								Y=dNew;
+								return true;
+							}
+							return false;
+						}
+						if(item==17) {
+							dNew=atof(Data);
+							if(dNew>=0.0 && dNew<360.0) {
+								OM=dNew;
+								return true;
+							}
+							return false;
+						}
+						return false;
+						break;
+					case 20:
+						if(item==10 || item==30 || item==50) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].PRI_ROT_RATE=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==11 || item==31 || item==51) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<100.0) {
+								DAP[convert[item]].PRI_ATT_DB=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==12 || item==32 || item==52) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].PRI_RATE_DB=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==13 || item==33 || item==53) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].PRI_ROT_PLS=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==14 || item==34 || item==54) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<1.0) {
+								DAP[convert[item]].PRI_COMP=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==17 || item==37 || item==57) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].PRI_ROT_PLS=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==18 || item==38 || item==58) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].ALT_RATE_DB=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==20 || item==40 || item==60) {
+							nNew=atoi(Data);
+							if(nNew>=1 && nNew<=3) {
+								DAP[convert[item]].ALT_JETS=nNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==21 || item==41 || item==61) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].ALT_ON_TIME=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==22 || item==42 || item==62) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<100.0) {
+								DAP[convert[item]].ALT_DELAY=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==23 || item==43 || item==63) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].VERN_ROT_RATE=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==24 || item==44 || item==64) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<100.0) {
+								DAP[convert[item]].VERN_ATT_DB=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==25 || item==45 || item==65) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<1.0) {
+								DAP[convert[item]].VERN_RATE_DB=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==26 || item==46 || item==66) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].VERN_ROT_PLS=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==27 || item==47 || item==67) {
+							dNew=atof(Data);
+							if(dNew>0.0 && dNew<10.0) {
+								DAP[convert[item]].VERN_COMP=dNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						else if(item==28 || item==48 || item==68) {
+							nNew=atoi(Data);
+							if(nNew>=0 && nNew<=9) {
+								DAP[convert[item]].VERN_CNTL_ACC=nNew;
+								if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
+								return true;
+							}
+							return false;
+						}
+						return false;
+						break;
+				}
+			}
+			else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
+				if(item==5) {
+					TV_ROLL=atoi(Data);
+					return true;
+				}
+				else if(item>=6 && item<=8) {
+					dNew=atof(Data);
+					if(fabs(dNew)<=6.0) 
+					{
+						Trim.data[item-6]=dNew;
+						return true;
+					}
+				}
+				else if(item==9) {
+					//dNew=atof(Data);
+					WT=atof(Data);
+					return true;
+				}
+				else if(item>=10 && item<=13) {
+					if(item==13) dNew=atof(Data);
+					else dNew=atoi(Data);
+					//sprintf(oapiDebugString(), "%f", dNew);
+					if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
+						TIG[item-10]=dNew;
+						return true;
+					}
+					return false;
+				}
+				else if(item==14 && ops!=202) {
+					C1=atof(Data);
+					return true;
+				}
+				else if(item==15 && ops!=202) {
+					dNew=atof(Data);
+					if(fabs(dNew)<10.0) {
+						C2=dNew;
+						return true;
+					}
+				}
+				else if(item==16 && ops!=202) {
+					HT=atof(Data);
+					return true;
+				}
+				else if(item==17 && ops!=202) {
+					ThetaT=atof(Data);
+					return true;
+				}
+				else if(item>=19 && item<=21) {
+					dNew=atof(Data);
+					PEG7.data[item-19]=dNew;
+					return true;
+				}
+				return false;
+			}
+			item=0;
+			return true;
+		}
+	}
+
+	else if(panelc2->switch_state[SWITCH2+2*id]==1) //SM
+	{
+		sprintf(oapiDebugString(), "SM Item Entry");
+		if(change==1) {
+			nNew=atoi(Name);
+			if(SMOps==201) {
+				if(nNew==1) {
+					Display[mfd]->RMS_SEL=0;
+					return true;
+				}
+				else if(nNew==2) {
+					Display[mfd]->RMS_SEL=1;
+					return true;
+				}
+			}
+		}
 	}
 	return false;
 }
@@ -3417,8 +3508,12 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			if(RMSRollout.pos!=0.0) RMSRollout.action=AnimState::CLOSING;
 			else RMSRollout.action=AnimState::CLOSED;
 		}
+		UpdateMPMMicroswitches();
 	} else if (!strnicmp (line, "SHOULDER_BRACE", 14)) {
 		sscanf (line+14, "%lf", &shoulder_brace);
+	} else if (!strnicmp (line, "MRL", 3)) {
+		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
+		UpdateMRLMicroswitches();
 	} else if (!strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
 	} else if(!strnicmp(line, "OPS", 3)) {
@@ -3513,16 +3608,20 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
     sprintf (cbuf, "%d %0.4f", spdb_status-1, spdb_proc);
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
-
-  if(RMS) oapiWriteLine(scn, "  RMS");
-  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
-  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
-  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
-	  sprintf(cbuf, "1 %f", RMSRollout.pos);
-  else sprintf(cbuf, "0 %f", RMSRollout.pos);
-  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);
-  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
+
+  if(RMS) {
+	  oapiWriteLine(scn, "  RMS");
+	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
+	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
+	  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
+		  sprintf(cbuf, "1 %f", RMSRollout.pos);
+	  else sprintf(cbuf, "0 %f", RMSRollout.pos);
+	  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);
+	  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
+	  sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
+	  oapiWriteScenario_string(scn, "MRL", cbuf);
+  }
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
@@ -3887,22 +3986,23 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  RMSRollout.pos=max(0.0, RMSRollout.pos-da);
 		  if(RMSRollout.pos<=0.0) {
 			  RMSRollout.action=AnimState::CLOSED;
-			  panela8->UpdateVC();
+			  //panela8->UpdateVC();
 		  }
 	  }
 	  else {
 		  RMSRollout.pos=min(1.0, RMSRollout.pos+da);
 		  if(RMSRollout.pos>=1.0) {
 			  RMSRollout.action=AnimState::OPEN;
-			  panela8->UpdateVC();
+			  //panela8->UpdateVC();
 		  }
 	  }
 	  SetAnimation(anim_rollout, RMSRollout.pos);
+	  UpdateMPMMicroswitches();
   }
   
   // ***** Stow RMS arm *****
 
-  if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0)) {
+  if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
     double t0 = oapiGetSimTime();
     double dt = t0 - center_arm_t;       // time step
     double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
@@ -3956,6 +4056,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
       HWND hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS);
       if (hDlg) EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), TRUE);
     }
+	UpdateRMSPositions();
   }
 
   if (arm_moved) {
@@ -3982,8 +4083,22 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
     arm_moved = false;
   }
-  if(DisplayJointAngles) sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WY:%f WP:%f WR:%f", sy_angle, sp_angle, ep_angle,
+  if(DisplayJointAngles) {
+	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WY:%f WP:%f WR:%f", sy_angle, sp_angle, ep_angle,
 		wy_angle, wp_angle, wr_angle);
+	  /*VECTOR3 pos, pos2, dir, dir2;
+	  CalcAnimationFKArm(pos2, dir2);
+	  pos=orbiter_ofs+arm_tip[0];
+	  pos=RotateVectorX(_V(-pos.z, pos.x, pos.y)-shoulder_pos, 18.435);
+	  //pos=CalcAnimationFKArm();
+	  dir=arm_tip[1]-arm_tip[0];
+	  dir=RotateVectorX(_V(-dir.z, dir.x, dir.y), 18.435);
+	  //pos2=RotateVectorX(pos2, -18.435)+shoulder_pos;
+	  //SetAttachmentParams (rms_attach, _V(pos2.y, pos2.z, -pos2.x), Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+	  sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f %f %f %f %f %f %f", pos.x, pos.y, pos.z, pos2.x, pos2.y, pos2.z,
+		  dir.x, dir.y, dir.z, dir2.x, dir2.y, dir2.z, sp_null, ep_null);*/
+
+  }
 
   // Animate payload bay cameras.
   if (cameraMoved) {
@@ -4110,9 +4225,11 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   // clbkVisualCreated, so updating the mesh here is not necessary
 
   // reset grappling point
-  arm_tip[0] = _V(-2.26,1.71,-6.5);
-  arm_tip[1] = _V(-2.26,1.71,-7.5);
-  arm_tip[2] = _V(-2.26,2.71,-6.5);
+  //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
+  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
+  arm_tip[0] = _V(-2.87, 2.03, -6.27);
+  arm_tip[1] = _V(-2.87, 2.03, -7.27);
+  arm_tip[2] = _V(-2.87, 3.03, -6.27);
 
   UpdateMesh ();
 #endif
@@ -4665,6 +4782,30 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
   return false;
 }
 
+void Atlantis::UpdateRMSPositions()
+{
+	CalcAnimationFKArm(arm_ee_pos, arm_ee_dir);
+}
+
+void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
+{
+	double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+	double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
+	double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
+	double current_beta_s=linterp(0,-180,1,180,arm_sy);
+	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
+
+	VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), current_beta_w+current_beta_s);
+	dir=RotateVectorY(temp, current_phi_w-current_phi_e+current_phi_s);
+
+	//sprintf(oapiDebugString(), "%f %f %f %f %f %f", temp.x, temp.y, temp.z, dir.x, dir.y, dir.z);
+	//sprintf(oapiDebugString(), "%f %f %f %f", current_beta_w, current_beta_s, arm_wy, arm_sy);
+
+	temp=RotateVectorY(_V(lu, 0.0, 0.0), current_phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), current_phi_s-current_phi_e+ep_null)
+		+RotateVectorY(_V(wp_wy, 0.0, 0.0), current_phi_w-current_phi_e+current_phi_s);
+	pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;
+}
+
 VECTOR3 Atlantis::CalcAnimationFKArm() {
   //Do forward kinematics to get the current position of the wrist joint
   //Return value is in MPM ref. frame
@@ -4681,22 +4822,56 @@ VECTOR3 Atlantis::CalcAnimationFKArm() {
   return _V(x_w,y_w,z_w);
 }
 
-void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
+void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   if(!RMS) return;
-  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0)) return;
-  arm_wrist_pos=CalcAnimationFKArm();
+  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
+  
+  VECTOR3 rot=arm_tip[2]-arm_tip[0];
+
   //Candidate position. Calculate the joints on it...
-  VECTOR3 arm_wrist_cpos=arm_wrist_pos+RotateVectorX(arm_wrist_dpos, 18.435);
+  VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
+  VECTOR3 arm_wrist_yaw_cpos=arm_cpos-arm_ee_dir*wy_ee;
+  //VECTOR3 dpos=-dir*wy_ee;
+  //sprintf(oapiDebugString(), "%f %f %f", dpos.x, dpos.y, dpos.z);
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", pos.x, pos.y, pos.z, posOrig.x, posOrig.y, posOrig.z);
+
+  //get wrist_pitch boom direction
+  VECTOR3 wrist_rot=RotateVectorX(rot, wr_angle);
+  double phi=DEG*asin(wrist_rot.x/length(wrist_rot));
+  double beta=DEG*asin(wrist_rot.y/length(wrist_rot));
+  //wrist_rot=RotateVectorY(wrist_rot, phi);
+  //wrist_rot=RotateVectorX(wrist_rot, -beta);
+  //VECTOR3 boom_plane = RotateVectorY(Normalize(arm_wrist_yaw_cpos), phi);
+  VECTOR3 boom_plane = Normalize(arm_wrist_yaw_cpos);
+  //boom_plane=RotateVectorZ(boom_plane, -beta);
+  //boom_plane=RotateVectorX(boom_plane, -beta);
+  VECTOR3 wrist_pitch_dir = RotateVectorY(arm_ee_dir, phi);
+  wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, -beta);
+  //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
+  double beta_w=DEG*(asin(boom_plane.y)-asin(arm_ee_dir.y));
+  //sprintf(oapiDebugString(), "%f", beta_w);
+  wrist_pitch_dir=RotateVectorZ(wrist_pitch_dir, beta_w);
+  //wrist_pitch_dir=_V(boom_plane.x, boom_plane.y, wrist_pitch_dir.z);
+  //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
+  wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta);
+  wrist_pitch_dir=RotateVectorY(wrist_pitch_dir, -phi)*wp_wy;
+  //wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta)*wp_wy;
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", wrist_pitch_dir.x, wrist_pitch_dir.y, wrist_pitch_dir.z, dir.x, dir.y, dir.z);
+
+  VECTOR3 arm_wrist_cpos=arm_wrist_yaw_cpos-wrist_pitch_dir;
+  //sprintf(oapiDebugString(), "%f %f %f", arm_cpos.x, arm_cpos.y, arm_cpos.z);
+  //VECTOR3 temp=CalcAnimationFKArm();
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_wrist_cpos.x, arm_wrist_cpos.y, arm_wrist_cpos.z, temp.x, temp.y, temp.z);
   //VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
   double r=length(arm_wrist_cpos);
   double beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
   double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
   double cos_phibar_e=(r*r-lu*lu-ll*ll)/(-2*lu*ll);
   if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
-  double phi_e=180-DEG*acos(cos_phibar_e);
+  double phi_e=180-DEG*acos(cos_phibar_e)+ep_null+sp_null;
   double cos_phi_s2=(ll*ll-lu*lu-r*r)/(-2*lu*r);
   if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
-  double phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2));
+  double phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2))+sp_null;
   double anim_phi_s=linterp(shoulder_min,0,shoulder_max,1,phi_s);
   double anim_phi_e=linterp(elbow_min,0,elbow_max,1,phi_e);
   double anim_beta_s=linterp(-180,0,180,1,beta_s);
@@ -4704,16 +4879,15 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
   if(anim_phi_s<0 || anim_phi_s>1) return;
   if(anim_phi_e<0 || anim_phi_e>1) return;
   //but only keep it and set the joints if no constraints are violated.
+  double phi_w=DEG*asin(wrist_pitch_dir.z/length(wrist_pitch_dir))+phi_e-phi_s;
+  double anim_phi_w=linterp(wrist_min,0,wrist_max,1,phi_w);
+  double anim_beta_w=linterp(wrist_yaw_min,0,wrist_yaw_max,1,beta_w);
+  //sprintf(oapiDebugString(), "%f %f %f %f", anim_phi_w, arm_wp, anim_beta_w, arm_wy);
+  //VECTOR3 temp=Normalize(pos-CalcAnimationFKArm());
+  //VECTOR3 temp=pos-arm_wrist_cpos;
+  //VECTOR3 temp2=dir;
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f", temp.x, temp.y, temp.z, temp2.x, temp2.y, temp2.z, length(temp), wp_wy+wy_ee);
 
-  //Limited IK on the wrist
-  double new_phi_l=phi_s-phi_e;
-  double current_phi_w=linterp(0,wrist_min,1,wrist_max,arm_wp);
-  double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-  double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-  double current_beta_s=linterp(0,-180,1,180,arm_sy);
-  double current_phi_l=current_phi_s-current_phi_e;
-  double new_phi_w=current_phi_w-new_phi_l+current_phi_l;
-  double anim_phi_w=linterp(wrist_min,0,wrist_max,1,new_phi_w);
   arm_sy=anim_beta_s;
   SetAnimationArm(anim_arm_sy,arm_sy);
   arm_sp=anim_phi_s;
@@ -4722,7 +4896,13 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_wrist_dpos) {
   SetAnimationArm(anim_arm_ep,arm_ep);
   arm_wp=anim_phi_w;
   SetAnimationArm(anim_arm_wp,arm_wp);
-  arm_wrist_pos=arm_wrist_cpos;
+  arm_wy=anim_beta_w;
+  SetAnimationArm(anim_arm_wy,arm_wy);
+  arm_ee_pos=arm_cpos;
+
+  //sprintf(oapiDebugString(), "%f %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z, beta_w);
+  //CalcAnimationFKArm(pos, dir);
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", pos.x, pos.y, pos.z, arm_cpos.x, arm_cpos.y, arm_cpos.z);
 }
 
 // --------------------------------------------------------------
@@ -4740,8 +4920,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     case OAPI_KEY_SPACE: // open RMS control dialog
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;
-	
-
     case OAPI_KEY_B: // deploy/retract speedbrake
       if (!Playback()) RevertSpeedbrake ();
       return 1;
@@ -4943,43 +5121,55 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   case WM_TIMER:
     if (wParam == 1) {
       t1 = oapiGetSimTime();
-	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0) break;
+	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0 || sts->MRL[0]!=0.0) break;
       if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
         sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
+		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
       } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {

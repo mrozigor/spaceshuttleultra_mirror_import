@@ -654,8 +654,11 @@ public:
 	void RevertSpeedbrake ();
 	void SetSpeedbrake (double tgt);
 	void SetAnimationArm (UINT anim, double state);
-	void SetAnimationIKArm(VECTOR3 arm_wrist_dpos);
+	void SetAnimationIKArm(VECTOR3 arm_dpos);
 	VECTOR3 CalcAnimationFKArm();
+	void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
+	void UpdateRMSPositions();
+	//VECTOR3 CalcAnimationFKArm2();
     void PaintMarkings (SURFHANDLE tex);
     char WingName[256];
 
@@ -706,6 +709,7 @@ public:
 	ATTACHMENTHANDLE sat_attach, rms_attach;
 	ATTACHMENTHANDLE ahHDP;
 	VECTOR3 arm_tip[3];
+	//VECTOR3 wrist_yaw_joint[2];
 
 	// Overloaded callback functions
 	void clbkSetClassCaps (FILEHANDLE cfg);
@@ -775,7 +779,11 @@ private:
 	void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
+	
+	//RMS
 	bool ArmCradled();
+	void UpdateMPMMicroswitches();
+	void UpdateMRLMicroswitches();
 	bool SatGrappled() const { return GetAttachmentStatus (rms_attach) != 0; }
 	bool SatStowed() const { return GetAttachmentStatus (sat_attach) != 0; }
 	ATTACHMENTHANDLE CanArrest() const;
@@ -866,6 +874,14 @@ private:
 		Output.y=v.y*cos(angle*RAD)+v.z*sin(angle*RAD);
 		return Output;
 	}
+	inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle in Y-axis
+	{
+		VECTOR3 Output;
+		Output.y=v.y;
+		Output.x=v.x*cos(angle*RAD)-v.z*sin(angle*RAD);
+		Output.z=v.z*cos(angle*RAD)+v.x*sin(angle*RAD);
+		return Output;
+	}
 	inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle in Z-axis
 	{
 		VECTOR3 Output;
@@ -942,7 +958,6 @@ private:
 	//=======================================================
 	UINT anim_kualpha;
 	UINT anim_kubeta;
-
 
 
 	// PAYLOAD CAMERAS ANIMATIONS
@@ -1061,17 +1076,24 @@ private:
 	// RMS arm animation status
 	ANIMATIONCOMPONENT_HANDLE hAC_arm, hAC_sat, hAC_satref;
 	MGROUP_TRANSFORM *rms_anim[7], *rms_rollout_anim;
-	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr;
+	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr, anim_arm_ee;
 	UINT anim_rollout;
 	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
 	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
+	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
+	
 	AnimState RMSRollout;
+	int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
 	double shoulder_brace;
+	double MRL[2]; //0=PORT, 1=STBD
+	int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
 	bool DisplayJointAngles;
 	//IK parameters
 	VECTOR3 arm_wrist_pos;
-	double lu,ll;
+	VECTOR3 arm_ee_pos, arm_ee_dir;
+	VECTOR3 arm_tgt_pos, arm_tgt_dir;
+	double lu, ll, wp_wy, wy_ee;
     double shoulder_neutral;
     double shoulder_range,shoulder_min,shoulder_max;
     double elbow_neutral;
@@ -1082,6 +1104,7 @@ private:
 	double wrist_yaw_range, wrist_yaw_min, wrist_yaw_max;
 	double wrist_roll_neutral;
 	double wrist_roll_range, wrist_roll_min, wrist_roll_max;
+	VECTOR3 shoulder_pos;
 
 	MGROUP_TRANSFORM *sat_anim, *sat_ref;
 
@@ -1111,6 +1134,7 @@ private:
 	bool bMECO, bZThrust;
 	double tMECO, tSRBSep; //time(MET)
 	double dV; // used for -Z translation
+	VECTOR3 EngineNullPosition[3];
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
@@ -1143,7 +1167,7 @@ private:
 	double eCurrent;
 
 	//GPC
-	int ops;
+	int ops, SMOps;
 	int last_mfd;
 	//bool bFirstStep; //call functions in first timestep
 	//Data Input
