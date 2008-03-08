@@ -13,6 +13,7 @@
 
 class PayloadBayOp {
 	friend class Atlantis;
+	friend class PanelA8;
 
 public:
 	PayloadBayOp (Atlantis *_sts);

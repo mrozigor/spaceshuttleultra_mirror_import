@@ -97,11 +97,11 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	usPageNumber = 1;
 	usGPCDriver = 1;
 
-	spec=-1;
+	spec=0;
 	//mode=0;
 	item=0;
 	data=0;
-	display=-1;
+	display=2;
 
 	/*if(saveprm.bValid==false) {
 		saveprm.mode=mode;
@@ -114,6 +114,8 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	bTIMER=false;
 	//sprintf(oapiDebugString(), "Constructor %f", oapiRand());
 	vessel->GetPMI(PMI);
+
+	RMS_SEL=0;
 
 	for(i=0;i<4;i++) {
 		Launch_time[i]=0;
@@ -172,12 +174,15 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
-		/*if(id>=3 || sts->panelc2->switch_state[SWITCH2+2*id]==0) //GNC
+		if(id>=3 || sts->panelc2->switch_state[SWITCH2+2*id]==0) //GNC
 		{
 			if(sts->ops==201) {
 				switch(spec) {
 					case 0:
 						UNIVPTG(hDC);
+						break;
+					case 18: 
+						GNCSYSSUMM1(hDC);
 						break;
 					case 20:
 						DAP_CONFIG(hDC);
@@ -201,37 +206,26 @@ void CRT::Update (HDC hDC)
 		else //PL
 		{
 			TextOut(hDC, 0, 0, "Does not compute", 16);
-		}*/
-		if(this->display>0)
-		{
-			switch(display)
-			{
-			case 18: 
-				GNCSYSSUMM1(hDC);
-				break;
-			}
 		}
-		else {
-			if(sts->ops==201) {
-				switch(spec) {
-					case 0:
+		/*if(sts->ops==201) {
+			switch(spec) {
+				case 0:
 					UNIVPTG(hDC);
 					break;
 				case 20:
 					DAP_CONFIG(hDC);
 					break;
-				}
-			}
-			else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
-				PASSTRAJ(hDC);
-			}
-			else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
-				MNVR(hDC);
-			}
-			else {
-				DrawCommonHeader(hDC);
 			}
 		}
+		else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
+			PASSTRAJ(hDC);
+		}
+		else if(sts->ops==104 || sts->ops==105 || sts->ops==106 || sts->ops==202 || sts->ops==301 || sts->ops==302 || sts->ops==303) {
+			MNVR(hDC);
+		}
+		else {
+			DrawCommonHeader(hDC);
+		}*/
 		DisplayScratchPad(hDC);
 	}
 	//sprintf(oapiDebugString(), "%f", Simtime-Simtime_last);
@@ -947,7 +941,7 @@ void CRT::PASSTRAJ(HDC hdc)
 	//Current vehicle state:
 	double VHI = LVLH_Vel.x;
 	double Altitude = sts->GetAltitude() * MPS2FPS;
-	sprintf(oapiDebugString(), "%f %f", VHI, Altitude);
+	//sprintf(oapiDebugString(), "%f %f", VHI, Altitude);
 
 	/*if(Altitude > 200.0E3 && VHI < 13.9E3)
 	{
@@ -963,7 +957,7 @@ void CRT::PASSTRAJ(HDC hdc)
 		short stY = H*(1.13256 - (Altitude/513955.985));
 		short stX = W*(0.36194 + (VHI/15672.3964));
 		DrawDelta(hdc, stX, stY, stX-6, stX+6, stY+9);
-		sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
+		//sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
 	}
 	/*if(Altitude < 350.0E3 && VHI < 13.9E3)
 	{
@@ -1275,12 +1269,48 @@ void CRT::PDRS(HDC hDC)
 {
 	char cbuf[255];
 
-	this->SetDisplayTitle("PDRS");
-	DrawCommonHeader(hDC);
+	TextOut(hDC, 0, 0, "2011/094", 8);
+	TextOut(hDC, 80, 0, "PDRS CONTROL", 12);
+	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
+	TextOut(hDC, 173, 0, cbuf, strlen(cbuf));
 
-//	TextOut(hDC, 0, 0, "2011/094", 8);
-//	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
-//	TextOut(hDC, 173, 0, cbuf, strlen(cbuf));
+	//RMS_SEL=0; //should not have to do this!!
+	if(RMS_SEL==0) TextOut(hDC, 0, 18, "RMS SEL: PORT", 13);
+	else TextOut(hDC, 0, 18, "RMS SEL: STBD", 13);
+	TextOut(hDC, 35, 27, "PORT  1", 7);
+	TextOut(hDC, 35, 36, "STBD  2", 7);
+	TextOut(hDC, 83, 27+9*RMS_SEL, "*", 1);
+	//sprintf(oapiDebugString(), "%d", RMS_SEL);
+
+	TextOut(hDC, 0, 108, "  END POS", 9);
+	sprintf(cbuf, "18 X");
+	TextOut(hDC, 0, 117, cbuf, strlen(cbuf));
+	sprintf(cbuf, "19 Y");
+	TextOut(hDC, 0, 126, cbuf, strlen(cbuf));
+	sprintf(cbuf, "20 Z");
+	TextOut(hDC, 0, 135, cbuf, strlen(cbuf));
+
+	TextOut(hDC, 0, 153, "RMS   STO/DPLY", 14);
+	sprintf(cbuf, " SHLD %d %d %d %d", sts->MPM_Microswitches[0][0], sts->MPM_Microswitches[0][0],
+		sts->MPM_Microswitches[0][1], sts->MPM_Microswitches[0][1]);
+	TextOut(hDC, 0, 162, cbuf, strlen(cbuf));
+	/*if(sts->RMSRollout.pos==0.0) TextOut(hDC, 0, 162, " SHLD 1 1 0 0", 13);
+	else if(sts->RMSRollout.pos==1.0) TextOut(hDC, 0, 162, " SHLD 0 0 1 1", 13);
+	else TextOut(hDC, 0, 162, " SHLD 0 0 0 0", 13);*/
+
+	TextOut(hDC, 0, 180, "RMS  LAT/REL/RDY", 16);
+	sprintf(cbuf, " AFT %d %d %d %d %d %d", sts->MRL_AftMicroswitches[0][0], sts->MRL_AftMicroswitches[0][0],
+		sts->MRL_AftMicroswitches[0][1], sts->MRL_AftMicroswitches[0][1], sts->MRL_AftMicroswitches[0][2], sts->MRL_AftMicroswitches[0][2]);
+	sprintf(oapiDebugString(), "MRL: %d", sts->MRL_FwdMicroswitches[0][0]);
+	TextOut(hDC, 0, 189, cbuf, strlen(cbuf));
+	sprintf(cbuf, " MID %d %d %d %d %d %d", sts->MRL_MidMicroswitches[0][0], sts->MRL_MidMicroswitches[0][0],
+		sts->MRL_MidMicroswitches[0][1], sts->MRL_MidMicroswitches[0][1], sts->MRL_AftMicroswitches[0][2], sts->MRL_MidMicroswitches[0][2]);
+	TextOut(hDC, 0, 198, cbuf, strlen(cbuf));
+	sprintf(cbuf, " FWD %d %d %d %d %d %d", sts->MRL_FwdMicroswitches[0][0], sts->MRL_FwdMicroswitches[0][0],
+		sts->MRL_FwdMicroswitches[0][1], sts->MRL_FwdMicroswitches[0][1], sts->MRL_FwdMicroswitches[0][2], sts->MRL_FwdMicroswitches[0][2]);
+	TextOut(hDC, 0, 207, cbuf, strlen(cbuf));
+	//TextOut(hDC, 0, 198, " MID", 4);
+	//TextOut(hDC, 0, 207, " FWD", 4);
 }
 
 void CRT::DisplayScratchPad(HDC hDC)

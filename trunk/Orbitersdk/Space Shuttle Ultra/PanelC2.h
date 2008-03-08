@@ -27,6 +27,7 @@ const VECTOR3 REF_C2S12 = _V(0.0994235, 1.801141, 14.3961);
 
 class PanelC2 {
 	friend class Atlantis;
+	friend class CRT;
 
 public:
 	PanelC2 (Atlantis *_sts);
