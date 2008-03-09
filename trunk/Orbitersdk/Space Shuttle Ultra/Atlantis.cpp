@@ -34,6 +34,7 @@
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
+#include "PayloadBaySystem.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -731,6 +732,8 @@ void Atlantis::SetLaunchConfiguration (void)
   //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
   for(i=0;i<3;i++) {
 	  //AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
+	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
+	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
 	  r2d2->CheckMPSArmed(i);
   }
 
@@ -883,6 +886,9 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	DefineSSMEExhaust();
 	for(i=0;i<3;i++) {
 		//AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
+		GetThrusterRef(th_main[i], EngineNullPosition[i]);
+		EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
+		SetThrusterDir(th_main[i], EngineNullPosition[i]);
 		r2d2->CheckMPSArmed(i);
 	}
   }
@@ -1544,91 +1550,6 @@ void Atlantis::DefineAnimations (void)
   wrist_roll_max=wrist_roll_range*(1-wrist_neutral); //Max angle, deg
   arm_wrist_pos=wrist_pos;
 
-  //ANIMATIONCOMPONENT_HANDLE parent;
-
-  //static UINT RMSRolloutGrp[9] = {GRP_Shoulder, GRP_Humerus, GRP_radii, GRP_wrist, GRP_endeffecter, GRP_RMScamera, GRP_RMScamera_pivot, GRP_portMPMs, GRP_shouldermount};
-  //rms_rollout_anim = new MGROUP_ROTATE (midx, RMSRolloutGrp, 9,
-  //  _V(-2.589, 0.955, 4.776), _V(0, 0, 1), (float)(49.3517*RAD)); //1.05 or 1.10
-  //anim_rollout = CreateAnimation(0);
-  //AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
-
-  //static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder};
-  /*rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
-    _V(-2.26, 1.5, 10), _V(0, 1, 0), (float)(-360*RAD));*/
-  /*rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
-    _V(-2.26, 1.5, 10), _V(-sin(31.36*RAD), cos(31.36*RAD), 0), (float)(-360*RAD));*/ // -180 .. +180
-  //rms_anim[0] = new MGROUP_ROTATE (midx, RMSShoulderYawGrp, 1,
-  //  _V(-2.9203, 1.49861, 10), _V(-sin(31.36*RAD), cos(31.36*RAD), 0), (float)(-360*RAD)); // -180 .. +180
-  //anim_arm_sy = CreateAnimation (0.5);
-  //parent = AddAnimationComponent (anim_arm_sy, 0, 1, rms_anim[0]);
-
-  //static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
-  ///*rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
-  //  _V(-2.26, 1.8, 10), _V(1, 0, 0), (float)(147*RAD));*/
-  ///*rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
-  //  _V(-3.0609, 1.72932, 10), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(147*RAD));*/
-  //rms_anim[1] = new MGROUP_ROTATE (midx, RMSShoulderPitchGrp, 1,
-  //  _V(-3.012831,1.65044, 10), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(147*RAD)); // -2 .. +145
-  //anim_arm_sp = CreateAnimation (0.0136);
-  //parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
-
-  //static UINT RMSElbowPitchGrp[3] = {GRP_radii,GRP_RMScamera,GRP_RMScamera_pivot};
-  ///*rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
-  //  _V(-2.26,1.7,3.3), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));*/ // -160 .. +2
-  //rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
-  //  _V(-3.012831,1.65044,3.20), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));
-  ///*rms_anim[2] = new MGROUP_ROTATE (midx, RMSElbowPitchGrp, 3,
-  //  _V(-3.012831,1.65044,3.1), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(-162*RAD));*/ // -160 .. +2
-  //anim_arm_ep = CreateAnimation (0.0123);
-  //parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
-
-  //static UINT RMSWristPitchGrp[1] = {GRP_wrist};
-  ///*rms_anim[3] = new MGROUP_ROTATE (midx, RMSWristPitchGrp, 1,
-  //  _V(-2.26,1.7,-3.55), _V(1,0,0), (float)(240*RAD));*/ // -120 .. +120
-  //rms_anim[3] = new MGROUP_ROTATE (midx, RMSWristPitchGrp, 1,
-  //  _V(-3.012831,1.65044,-3.55), _V(cos(31.36*RAD), sin(31.36*RAD), 0), (float)(240*RAD)); // -120 .. +120
-  //anim_arm_wp = CreateAnimation (0.5);
-  //parent = AddAnimationComponent (anim_arm_wp, 0, 1, rms_anim[3], parent);
-
-  //static UINT RMSWristYawGrp[1] = {GRP_endeffecter};
-  ///*rms_anim[4] = new MGROUP_ROTATE (midx, RMSWristYawGrp, 1,
-  //  _V(-2.26,1.7,-4.9), _V(0,1,0), (float)(-240*RAD));*/ // -120 .. +120
-  //rms_anim[4] = new MGROUP_ROTATE (midx, RMSWristYawGrp, 1,
-  //  _V(-3.012831,1.65044,-4.9), _V(-sin(31.36*RAD), cos(31.36*RAD),0), (float)(-240*RAD)); // -120 .. +120
-  //anim_arm_wy = CreateAnimation (0.5);
-  //parent = AddAnimationComponent (anim_arm_wy, 0, 1, rms_anim[4], parent);
-
-  ///*rms_anim[5] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-  //  _V(-2.26,1.7,-6.5), _V(0,0,1), (float)(894*RAD));*/ // -447 .. +447
-  //rms_anim[5] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-  //  _V(-3.012831,1.65044, -6.5), _V(0,0,1), (float)(894*RAD)); // -447 .. +447
-  //anim_arm_wr = CreateAnimation (0.5);
-  //hAC_arm = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
-
-  ////IK setup
-  //VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
-  //VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7); //wrong
-  //VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong
-  //elbow_pos-=shoulder_pos;
-  //wrist_pos-=shoulder_pos;
-  //shoulder_pos-=shoulder_pos;
-  //lu=length(elbow_pos);
-  //ll=length(elbow_pos-wrist_pos);
-  //shoulder_neutral=0.0136; //In anim coordinate
-  //shoulder_range=147;      //in deg
-  //shoulder_min=shoulder_range*-shoulder_neutral; //Min angle, deg
-  //shoulder_max=shoulder_range*(1-shoulder_neutral); //Max angle, deg
-  //elbow_neutral=0.0123;
-  //elbow_range=162;
-  //elbow_min=elbow_range*-elbow_neutral; //Min angle, deg
-  //elbow_max=elbow_range*(1-elbow_neutral); //Max angle, deg
-  //wrist_neutral=0.5; //In anim coordinate
-  //wrist_range=240;      //in deg
-  //wrist_min=wrist_range*-wrist_neutral; //Min angle, deg
-  //wrist_max=wrist_range*(1-wrist_neutral); //Max angle, deg
-  //arm_wrist_pos=wrist_pos;
-
-
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
   // FRONT LEFT
@@ -2183,7 +2104,7 @@ void Atlantis::SteerGimbal() {
 	for(i=0;i<3;i++) {
 		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+_V(yawcorrect.data[i], pitchcorrect.data[i]+rollcorrect.data[i], 0.0)));
 	}
-	sprintf(oapiDebugString(), "%f %f %f", EngineNullPosition[0].x, EngineNullPosition[0].y, EngineNullPosition[0].z);
+	//sprintf(oapiDebugString(), "%f %f %f", EngineNullPosition[0].x, EngineNullPosition[0].y, EngineNullPosition[0].z);
 
 	UpdateSSMEGimbalAnimations();
 }
@@ -4516,31 +4437,31 @@ bool Atlantis::clbkLoadVC (int id)
     ok = true;
     break;
   case 4: //FL Payload Bay Camera
-    SetCameraOffset (_V(orbiter_ofs.x-1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15));
+    SetCameraOffset (_V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
     oapiVCSetNeighbours (5, 6, 3, 8);
 
     ok = true;
     break;
   case 5: //FR Payload Bay Camera
-    SetCameraOffset (_V(orbiter_ofs.x+1.8,orbiter_ofs.y+1.63,orbiter_ofs.z+12.15));
+    SetCameraOffset (_V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
     oapiVCSetNeighbours (7, 4, 3, 8);
 
     ok = true;
     break;
   case 6: //BL Payload Bay Camera
-    SetCameraOffset (_V(orbiter_ofs.x-2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65));
+    SetCameraOffset (_V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
     oapiVCSetNeighbours (4, 7, 3, 8);
 
     ok = true;
     break;
   case 7: //BR Payload Bay Camera
-    SetCameraOffset (_V(orbiter_ofs.x+2.33,orbiter_ofs.y+1.75,orbiter_ofs.z-6.65));
+    SetCameraOffset (_V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
     oapiVCSetNeighbours (6, 5, 3, 8);
 
     ok = true;
     break;
   case 8: //Docking camera
-	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.44));
+	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
 	  oapiVCSetNeighbours(-1, -1, 4, 2);
 	  ok = true;
 	  break;

@@ -28,13 +28,13 @@ void PanelA8::RegisterVC()
 {
 	sprintf(oapiDebugString(), "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
-	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 3);
-	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 9);
+	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
+	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8BOTTOM_VC);
 
 	oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.274, 2.848, 12.567)+ofs, _V(-0.813, 2.848, 12.567)+ofs, _V(-0.277, 2.055, 12.816)+ofs, _V(-0.819, 2.055, 12.816)+ofs);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.813, 2.848, 12.567)+ofs, _V(-0.274, 2.848, 12.567)+ofs, _V(-0.813, 2.3, 12.74)+ofs, _V(-0.274, 2.3, 12.74)+ofs);
-	oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.813, 2.848, 12.567)+ofs, _V(-0.274, 2.848, 12.567)+ofs, _V(-0.813, 2.055, 12.816)+ofs, _V(-0.274, 2.055, 12.816)+ofs);
+	oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.797, 2.892, 12.279)+ofs, _V(-0.266, 2.892, 12.279)+ofs, _V(-0.797, 2.119, 12.522)+ofs, _V(-0.266, 2.119, 12.522)+ofs);
 	
 	oapiVCRegisterArea(AID_A8_TKBK1, _R(895, 900, 927, 918), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	oapiVCRegisterArea(AID_A8_TKBK3, _R(895, 774, 927, 792), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
@@ -116,31 +116,31 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 
 	static UINT VC_A8b5_GRP = GRP_A8b5_VC;
 	static MGROUP_ROTATE VC_A8b5 (vcidx, &VC_A8b5_GRP, 1,
-		_V(-0.713, 2.172, 12.781), switch_rot_vert, (float)(90.0*RAD));
+		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH5]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH5], 0, 1, &VC_A8b5);
 	
 	static UINT VC_A8b6_GRP = GRP_A8b6_VC;
 	static MGROUP_ROTATE VC_A8b6 (vcidx, &VC_A8b6_GRP, 1,
-		_V(-0.665, 2.177, 12.780), switch_rot_vert, (float)(90.0*RAD));
+		_V(-0.647, 2.238, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH6]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH6], 0, 1, &VC_A8b6);
 
 	static UINT VC_A8b9_GRP = GRP_A8b9_VC;
 	static MGROUP_ROTATE VC_A8b9 (vcidx, &VC_A8b9_GRP, 1,
-		_V(-0.665, 2.177, 12.779), switch_rot_vert, (float)(90.0*RAD));
+		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH9]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH9], 0, 1, &VC_A8b9);
 
 	static UINT VC_A8b10_GRP = GRP_A8b10_VC;
 	static MGROUP_ROTATE VC_A8b10 (vcidx, &VC_A8b10_GRP, 1,
-		_V(-0.707, 2.347, 12.727), switch_rot_horz, (float)(90.0*RAD));
+		_V(-0.687, 2.402, 12.434), switch_rot_horz, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH10]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH10], 0, 1, &VC_A8b10);
 
 	static UINT VC_A8b12_GRP = GRP_A8b12_VC;
 	static MGROUP_ROTATE VC_A8b12 (vcidx, &VC_A8b12_GRP, 1,
-		_V(-0.552, 2.236, 12.76), switch_rot_horz, (float)(90.0*RAD));
+		_V(-0.537, 2.294, 12.467), switch_rot_horz, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH12]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH12], 0, 1, &VC_A8b12);
 }
@@ -150,6 +150,7 @@ void PanelA8::UpdateVC()
 	//if(!sts->RMS) return;
 	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH6], switch_state[SWITCH6]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH9], switch_state[SWITCH9]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH12], switch_state[SWITCH12]/2.0);
 	
@@ -170,9 +171,9 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
 
 	if(event == PANEL_MOUSE_LBDOWN) {
-		if(p.x>=0.127522 && p.x<=0.207146) {
-			if(p.y>=0.845544 && p.y<=0.884409) {
-				if(p.y<0.863058) {
+		if(p.x>=0.167373 && p.x<=0.217567) {
+			if(p.y>=0.841234 && p.y<=0.867132) {
+				if(p.y<0.854145) {
 					if(switch_state[SWITCH5]>0) switch_state[SWITCH5]--;
 				}
 				else {
@@ -182,9 +183,9 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 
-		if(p.x>=0.224348 && p.x<=0.298777) {
-			if(p.y>=0.828706 && p.y<=0.877639) {
-				if(p.y<0.853703) {
+		if(p.x>=0.252639 && p.x<=0.305916) {
+			if(p.y>=0.828852 && p.y<=0.863428) {
+				if(p.y<0.848199) {
 					//sprintf(oapiDebugString(), "Deploying PORT MPMs");
 					if(switch_state[SWITCH6]>0) switch_state[SWITCH6]--;
 				}
@@ -215,23 +216,23 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 
-		if(p.x>=0.840619 && p.x<=0.894526) {
-			if(p.y>=0.832063 && p.y<=0.885879) {
-				if(p.y<0.857561) {
-					sprintf(oapiDebugString(), "Deploying STBD MPMs");
+		if(p.x>=0.841143 && p.x<=0.886384) {
+			if(p.y>=0.829965 && p.y<=0.867186) {
+				if(p.y<0.848995) {
+					//sprintf(oapiDebugString(), "Deploying STBD MPMs");
 					if(switch_state[SWITCH9]>0) switch_state[SWITCH9]--;
 				}
 				else {
-					sprintf(oapiDebugString(), "Stowing STBD MPMs");
+					//sprintf(oapiDebugString(), "Stowing STBD MPMs");
 					if(switch_state[SWITCH9]<2) switch_state[SWITCH9]++;
 				}
 				action=true;
 			}
 		}
 
-		if(p.x>=0.138298 && p.x<=0.211856) {
-			if(p.y>=0.619803 && p.y<=0.657381) {
-				if(p.x<0.176970) {
+		if(p.x>=0.170449 && p.x<=0.226497) {
+			if(p.y>=0.618925 && p.y<=0.651137) {
+				if(p.x<0.200508) {
 					if(switch_state[SWITCH10]>0) switch_state[SWITCH10]--;
 				}
 				else {
@@ -242,9 +243,9 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 
-		if(p.x>=0.454343 && p.x<=0.504203) {
-			if(p.y>=0.760613 && p.y<=0.801457) {
-				if(p.x<0.480234) {
+		if(p.x>=0.466754 && p.x<=0.510409) {
+			if(p.y>=0.757090 && p.y<=0.788049) {
+				if(p.x<0.486494) {
 					if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
 				}
 				else {
@@ -256,8 +257,8 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 	}
 
 	else {
-		if( p.x>=0.138298 && p.x<=0.211856) {
-			if(p.y>=0.619803 && p.y<=0.657381) {
+		if(p.x>=0.170449 && p.x<=0.226497) {
+			if(p.y>=0.618925 && p.y<=0.651137) {
 				switch_state[SWITCH10]=1;
 				action=true;
 			}
