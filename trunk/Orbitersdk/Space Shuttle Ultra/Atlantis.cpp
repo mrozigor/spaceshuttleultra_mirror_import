@@ -34,7 +34,6 @@
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
-#include "PayloadBaySystem.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
