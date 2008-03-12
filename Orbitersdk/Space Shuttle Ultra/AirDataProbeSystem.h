@@ -14,6 +14,7 @@
 class AirDataProbeSystem : public AtlantisSubsystem  
 {
 	typedef enum {ADPS_DEPLOYED, ADPS_DEPLOYING, ADPS_STOWING, ADPS_STOWED} DEPLOY_STATE;
+	typedef enum {ADPS_STOW_ENABLE, ADPS_STOW_INHIBIT} STOW_ENABLE_STATE;
 public:
 	virtual void Propagate(double fSimT, double fDeltaT);
 	double GetTotalTemperature(int side) const;
@@ -34,6 +35,8 @@ private:
 	DEPLOY_MODE right_mode[2];
 	DEPLOY_STATE left_state[2];
 	DEPLOY_STATE right_state[2];
+	STOW_ENABLE_STATE left_stow_state[2];
+	STOW_ENABLE_STATE right_stow_state[2];
 };
 
 #endif // !defined(AFX_AIRDATAPROBESYSTEM_H__74A5598A_2DB5_47F6_AC02_B106E9C86F81__INCLUDED_)
