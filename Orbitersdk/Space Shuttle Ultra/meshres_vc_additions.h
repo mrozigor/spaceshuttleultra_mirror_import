@@ -74,6 +74,7 @@ Atlantis\gpc.dds
 Atlantis\r13l.dds
 */
 
+#define TEX_ATLANTIS		1
 
 #define TEX_FPANELS_VC		1
 #define TEX_A1SHADOW_VC		2

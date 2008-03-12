@@ -1280,6 +1280,8 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	SetBkMode (hDC, TRANSPARENT);
 	char cbuf[256];
 //	strncpy (cbuf, "Kwan's Excellent Space Shuttle Adventure", 256);
+	//strncpy (cbuf, this->GetName(), 256);
+	//
 	strncpy (cbuf, WingName, 256);
 	int len = strlen(cbuf);
 	TextOut (hDC, 597, 296, cbuf, len);
@@ -1708,7 +1710,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
-	SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, 2);
+	SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
 	PaintMarkings (insignia_tex);
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
