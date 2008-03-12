@@ -127,6 +127,10 @@ SOURCE=.\AirDataProbeSystem.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\AP101S.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Atlantis.h
 # End Source File
 # Begin Source File
@@ -136,6 +140,10 @@ SOURCE=.\AtlantisSubsystem.h
 # Begin Source File
 
 SOURCE=.\BasicPanel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicSwitch.h
 # End Source File
 # Begin Source File
 
@@ -239,11 +247,19 @@ SOURCE=.\resource_RMS.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ShuttleBus.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stopwatch.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\SubsystemDirector.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreeWaySwitch.h
 # End Source File
 # End Group
 # Begin Group "Logs"
@@ -263,6 +279,10 @@ SOURCE=.\AirDataProbeSystem.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AP101S.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Atlantis.cpp
 # End Source File
 # Begin Source File
@@ -276,6 +296,10 @@ SOURCE=.\AtlantisSubsystem.cpp
 # Begin Source File
 
 SOURCE=.\BasicPanel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BasicSwitch.cpp
 # End Source File
 # Begin Source File
 
@@ -359,11 +383,19 @@ SOURCE=.\PlBayOp.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ShuttleBus.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stopwatch.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\SubsystemDirector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreeWaySwitch.cpp
 # End Source File
 # End Group
 # Begin Source File

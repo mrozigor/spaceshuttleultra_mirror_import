@@ -85,19 +85,22 @@ Atlantis\r13l.dds
 #define TEX_DIGITS_VC		8
 #define TEX_AFTTIMER_VC		9
 #define TEX_TIMER_VC		10
-#define TEX_PANELF8_VC		11
-#define TEX_A8TOP_VC		12
-#define TEX_PANELF6_VC		13
-#define TEX_COAS_VC			14
-#define TEX_R1L1_VC			15
-#define TEX_PANELC3_VC		16
-#define TEX_PANELC2_VC		17
-#define TEX_CLOCKNUMS_VC	18
-#define TEX_A8BOTTOM_VC		19
-#define TEX_STSVC03_VC		20
-#define TEX_STSVC02_VC		21
-#define TEX_STSVC01_VC		22
-#define TEX_GPC_VC			23
-#define TEX_R13L_VC			24
+#define TEX_TALKBACK_VC	    11
+#define TEX_PANELF8_VC		12
+#define TEX_A8TOP_VC		13
+#define TEX_PANELF6_VC		14
+#define TEX_COAS_VC			15
+#define TEX_R1L1_VC			16
+#define TEX_PANELC3_VC		17
+#define TEX_PANELR2_VC		18
+#define TEX_PANELC2_VC		19
+#define TEX_CLOCKNUMS_VC	20
+#define TEX_A8BOTTOM_VC		21
+#define TEX_STSVC03_VC		22
+#define TEX_STSVC02_VC		23
+#define TEX_STSVC01_VC		24
+#define TEX_LABEL_VC		25
+#define TEX_GPC_VC			26
+#define TEX_R13L_VC			27
 
 

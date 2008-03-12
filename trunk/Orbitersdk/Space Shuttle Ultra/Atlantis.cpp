@@ -2078,7 +2078,7 @@ void Atlantis::SteerGimbal() {
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
 	GetAngularVel(AngularVelocity);
-	for(int i=0;i<3;i++) {
+	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
 	if(!r2d2->bHydraulicPressure) {
@@ -4303,7 +4303,7 @@ void Atlantis::RegisterVC_CntMFD ()
 void Atlantis::RegisterVC_AftMFD ()
 {
   // register+activate aft MFD function buttons
-  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, 7);
+  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
   oapiVCRegisterArea (AID_MFDA_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCSetAreaClickmode_Quadrilateral (AID_MFDA_BUTTONS, _V(1.3862,2.2570,13.8686)+orbiter_ofs, _V(1.3862,2.2570,13.6894)+orbiter_ofs, _V(1.3678,2.2452,13.8686)+orbiter_ofs, _V(1.3678,2.2452,13.6894)+orbiter_ofs);
 
@@ -4331,7 +4331,7 @@ bool Atlantis::clbkLoadVC (int id)
 
   // register MFD function buttons
   // this needs to be done globally, so that the labels are correctly updated from all VC positions
-  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_STSVC01_VC);
+  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
 
   // commander MFD function buttons
   oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
