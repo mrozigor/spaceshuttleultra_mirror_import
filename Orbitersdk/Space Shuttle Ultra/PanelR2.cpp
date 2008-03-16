@@ -768,288 +768,288 @@ void PanelR2::DefineVCAnimations (UINT vcidx)
 	//APU Fuel Tank Valves
 	static UINT VC_R2b37_Grp = GRP_R2b37_VC;
 	static MGROUP_ROTATE VC_R2b37 (vcidx, &VC_R2b37_Grp, 1,
-		_V(1.246,1.768,14.401), switch_rot, (float)(90.0*RAD));
+		_V(1.212, 1.841, 14.064), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[36]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[36], 0, 1, &VC_R2b37);
 
 	static UINT VC_R2b38_Grp = GRP_R2b38_VC;
 	static MGROUP_ROTATE VC_R2b38 (vcidx, &VC_R2b38_Grp, 1,
-		_V(1.288,1.780,14.401), switch_rot, (float)(90.0*RAD));
+		_V(1.252, 1.853, 14.062), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[37]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[37], 0, 1, &VC_R2b38);
 
 	static UINT VC_R2b39_Grp = GRP_R2b39_VC;
 	static MGROUP_ROTATE VC_R2b39 (vcidx, &VC_R2b39_Grp, 1,
-		_V(1.329,1.792,14.400), switch_rot, (float)(90.0*RAD));
+		_V(1.293, 1.865, 14.061), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[38]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[38], 0, 1, &VC_R2b39);
 
 	//Boiler Cntlr Pwr/Htr
 	static UINT VC_R2b42_Grp = GRP_R2b42_VC;
 	static MGROUP_ROTATE VC_R2b42 (vcidx, &VC_R2b42_Grp, 1,
-		_V(1.272,1.768,14.335), switch_rot, (float)(90.0*RAD));
+		_V(1.237, 1.84, 13.998), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[41]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[41], 0, 1, &VC_R2b42);
 
 	static UINT VC_R2b43_Grp = GRP_R2b43_VC;
 	static MGROUP_ROTATE VC_R2b43 (vcidx, &VC_R2b43_Grp, 1,
-		_V(1.311,1.780,14.334), switch_rot, (float)(90.0*RAD));
+		_V(1.276, 1.851, 13.997), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[42]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[42], 0, 1, &VC_R2b43);
 
 	static UINT VC_R2b44_Grp = GRP_R2b44_VC;
 	static MGROUP_ROTATE VC_R2b44 (vcidx, &VC_R2b44_Grp, 1,
-		_V(1.351,1.791,14.334), switch_rot, (float)(90.0*RAD));
+		_V(1.314, 1.862, 13.997), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[43]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[43], 0, 1, &VC_R2b44);
 
 	//Boiler Cntlr
 	static UINT VC_R2b45_Grp = GRP_R2b45_VC;
 	static MGROUP_ROTATE VC_R2b45 (vcidx, &VC_R2b45_Grp, 1,
-		_V(1.317,1.773,14.273), switch_rot, (float)(90.0*RAD));
+		_V(1.281, 1.845, 13.938), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[44]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[44], 0, 1, &VC_R2b45);
 
 	static UINT VC_R2b46_Grp = GRP_R2b46_VC;
 	static MGROUP_ROTATE VC_R2b46 (vcidx, &VC_R2b46_Grp, 1,
-		_V(1.345,1.781,14.272), switch_rot, (float)(90.0*RAD));
+		_V(1.308, 1.853, 13.937), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[45]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[45], 0, 1, &VC_R2b46);
 
 	static UINT VC_R2b47_Grp = GRP_R2b47_VC;
 	static MGROUP_ROTATE VC_R2b47 (vcidx, &VC_R2b47_Grp, 1,
-		_V(1.374,1.790,14.272), switch_rot, (float)(90.0*RAD));
+		_V(1.337, 1.861, 13.936), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[46]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[46], 0, 1, &VC_R2b47);
 
 	//Boiler N2 Sply
 	static UINT VC_R2b54_Grp = GRP_R2b54_VC;
 	static MGROUP_ROTATE VC_R2b54 (vcidx, &VC_R2b54_Grp, 1,
-		_V(1.339,1.772,14.213), switch_rot, (float)(90.0*RAD));
+		_V(1.303, 1.844, 13.88), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[53]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[53], 0, 1, &VC_R2b54);
 
 	static UINT VC_R2b55_Grp = GRP_R2b55_VC;
 	static MGROUP_ROTATE VC_R2b55 (vcidx, &VC_R2b55_Grp, 1,
-		_V(1.367,1.780,14.212), switch_rot, (float)(90.0*RAD));
+		_V(1.33, 1.851, 13.878), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[54]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[54], 0, 1, &VC_R2b55);
 
 	static UINT VC_R2b56_Grp = GRP_R2b56_VC;
 	static MGROUP_ROTATE VC_R2b56 (vcidx, &VC_R2b56_Grp, 1,
-		_V(1.397,1.789,14.211), switch_rot, (float)(90.0*RAD));
+		_V(1.358, 1.86, 13.877), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[55]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[55], 0, 1, &VC_R2b56);
 
 	//Hyd Circ Pump
 	static UINT VC_R2b31_Grp = GRP_R2b31_VC;
 	static MGROUP_ROTATE VC_R2b31 (vcidx, &VC_R2b31_Grp, 1,
-		_V(1.127,1.743,14.466), switch_rot, (float)(90.0*RAD));
+		_V(1.096, 1.815, 14.125), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[30]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[30], 0, 1, &VC_R2b31);
 
 	static UINT VC_R2b32_Grp = GRP_R2b32_VC;
 	static MGROUP_ROTATE VC_R2b32 (vcidx, &VC_R2b32_Grp, 1,
-		_V(1.166,1.754,14.465), switch_rot, (float)(90.0*RAD));
+		_V(1.134, 1.826, 14.124), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[31]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[31], 0, 1, &VC_R2b32);
 
 	static UINT VC_R2b33_Grp = GRP_R2b33_VC;
 	static MGROUP_ROTATE VC_R2b33 (vcidx, &VC_R2b33_Grp, 1,
-		_V(1.207,1.766,14.463), switch_rot, (float)(90.0*RAD));
+		_V(1.174, 1.838, 14.123), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[32]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[32], 0, 1, &VC_R2b33);
 
 	//APU Cntlr Pwr
 	static UINT VC_R2b34_Grp = GRP_R2b34_VC;
 	static MGROUP_ROTATE VC_R2b34 (vcidx, &VC_R2b34_Grp, 1,
-		_V(1.242,1.776,14.462), switch_rot, (float)(90.0*RAD));
+		_V(1.209, 1.848, 14.122), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[33]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[33], 0, 1, &VC_R2b34);
 
 	static UINT VC_R2b35_Grp = GRP_R2b35_VC;
 	static MGROUP_ROTATE VC_R2b35 (vcidx, &VC_R2b35_Grp, 1,
-		_V(1.274,1.786,14.462), switch_rot, (float)(90.0*RAD));
+		_V(1.24, 1.857, 14.121), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[34]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[34], 0, 1, &VC_R2b35);
 
 	static UINT VC_R2b36_Grp = GRP_R2b36_VC;
 	static MGROUP_ROTATE VC_R2b36 (vcidx, &VC_R2b36_Grp, 1,
-		_V(1.307,1.795,14.461), switch_rot, (float)(90.0*RAD));
+		_V(1.271, 1.866, 14.12), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[35]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[35], 0, 1, &VC_R2b36);
 
 	//APU Cntrl
 	static UINT VC_R2b15_Grp = GRP_R2b15_VC;
 	static MGROUP_ROTATE VC_R2b15 (vcidx, &VC_R2b15_Grp, 1,
-		_V(1.172,1.781,14.653), switch_rot, (float)(90.0*RAD));
+		_V(1.14, 1.852, 14.307), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[14]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[14], 0, 1, &VC_R2b15);
 
 	static UINT VC_R2b16_Grp = GRP_R2b16_VC;
 	static MGROUP_ROTATE VC_R2b16 (vcidx, &VC_R2b16_Grp, 1,
-		_V(1.202,1.790,14.652), switch_rot, (float)(90.0*RAD));
+		_V(1.169, 1.861, 14.306), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[15]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[15], 0, 1, &VC_R2b16);
 
 	static UINT VC_R2b17_Grp = GRP_R2b17_VC;
 	static MGROUP_ROTATE VC_R2b17 (vcidx, &VC_R2b17_Grp, 1,
-		_V(1.233,1.798,14.651), switch_rot, (float)(90.0*RAD));
+		_V(1.199, 1.869, 14.305), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[16]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[16], 0, 1, &VC_R2b17);
 
 	//Hyd Main Pump Press
 	static UINT VC_R2b27_Grp = GRP_R2b27_VC;
 	static MGROUP_ROTATE VC_R2b27 (vcidx, &VC_R2b27_Grp, 1,
-		_V(1.181,1.766,14.526), switch_rot, (float)(90.0*RAD));
+		_V(1.148, 1.838, 14.184), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[26]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[26], 0, 1, &VC_R2b27);
 
 	static UINT VC_R2b28_Grp = GRP_R2b28_VC;
 	static MGROUP_ROTATE VC_R2b28 (vcidx, &VC_R2b28_Grp, 1,
-		_V(1.230,1.781,14.524), switch_rot, (float)(90.0*RAD));
+		_V(1.197, 1.852, 14.182), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[27]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[27], 0, 1, &VC_R2b28);
 
 	static UINT VC_R2b29_Grp = GRP_R2b29_VC;
 	static MGROUP_ROTATE VC_R2b29 (vcidx, &VC_R2b29_Grp, 1,
-		_V(1.277,1.795,14.523), switch_rot, (float)(90.0*RAD));
+		_V(1.243, 1.866, 14.181), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[28]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[28], 0, 1, &VC_R2b29);
 
 	//APU Spd Sel
 	static UINT VC_R2b20_Grp = GRP_R2b20_VC;
 	static MGROUP_ROTATE VC_R2b20 (vcidx, &VC_R2b20_Grp, 1,
-		_V(1.135,1.762,14.593), switch_rot, (float)(90.0*RAD));
+		_V(1.1045, 1.834, 14.249), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[19]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[19], 0, 1, &VC_R2b20);
 
 	static UINT VC_R2b21_Grp = GRP_R2b21_VC;
 	static MGROUP_ROTATE VC_R2b21 (vcidx, &VC_R2b21_Grp, 1,
-		_V(1.176,1.774,14.592), switch_rot, (float)(90.0*RAD));
+		_V(1.144, 1.845, 14.248), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[20]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[20], 0, 1, &VC_R2b21);
 
 	static UINT VC_R2b22_Grp = GRP_R2b22_VC;
 	static MGROUP_ROTATE VC_R2b22 (vcidx, &VC_R2b22_Grp, 1,
-		_V(1.215,1.785,14.590), switch_rot, (float)(90.0*RAD));
+		_V(1.182, 1.856, 14.246), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[21]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[21], 0, 1, &VC_R2b22);
 
 	//APU Auto Sht Dwn
 	static UINT VC_R2b23_Grp = GRP_R2b23_VC;
 	static MGROUP_ROTATE VC_R2b23 (vcidx, &VC_R2b23_Grp, 1,
-		_V(1.255,1.797,14.589), switch_rot, (float)(90.0*RAD));
+		_V(1.221, 1.868, 14.245), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[22]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[22], 0, 1, &VC_R2b23);
 
 	//He Isol A
 	static UINT VC_R2b9_Grp = GRP_R2b9_VC;
 	static MGROUP_ROTATE VC_R2b9 (vcidx, &VC_R2b9_Grp, 1,
-		_V(1.036,1.749,14.719), switch_rot, (float)(90.0*RAD));
+		_V(1.008, 1.822, 14.372), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[8]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[8], 0, 1, &VC_R2b9);
 
 	static UINT VC_R2b10_Grp = GRP_R2b10_VC;
 	static MGROUP_ROTATE VC_R2b10 (vcidx, &VC_R2b10_Grp, 1,
-		_V(1.078,1.762,14.719), switch_rot, (float)(90.0*RAD));
+		_V(1.049, 1.834, 14.371), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[9]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[9], 0, 1, &VC_R2b10);
 
 	static UINT VC_R2b11_Grp = GRP_R2b11_VC;
 	static MGROUP_ROTATE VC_R2b11 (vcidx, &VC_R2b11_Grp, 1,
-		_V(1.119,1.774,14.717), switch_rot, (float)(90.0*RAD));
+		_V(1.089, 1.845, 14.37), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[10]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[10], 0, 1, &VC_R2b11);
 
 	//He Isol B
 	static UINT VC_R2b12_Grp = GRP_R2b12_VC;
 	static MGROUP_ROTATE VC_R2b12 (vcidx, &VC_R2b12_Grp, 1,
-		_V(1.037,1.742,14.659), switch_rot, (float)(90.0*RAD));
+		_V(1.008, 1.814, 14.313), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[11]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[11], 0, 1, &VC_R2b12);
 
 	static UINT VC_R2b13_Grp = GRP_R2b13_VC;
 	static MGROUP_ROTATE VC_R2b13 (vcidx, &VC_R2b13_Grp, 1,
-		_V(1.077,1.753,14.658), switch_rot, (float)(90.0*RAD));
+		_V(1.048, 1.825, 14.312), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[12]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[12], 0, 1, &VC_R2b13);
 
 	static UINT VC_R2b14_Grp = GRP_R2b14_VC;
 	static MGROUP_ROTATE VC_R2b14 (vcidx, &VC_R2b14_Grp, 1,
-		_V(1.118,1.765,14.656), switch_rot, (float)(90.0*RAD));
+		_V(1.088, 1.837, 14.31), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[13]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[13], 0, 1, &VC_R2b14);
 
 	//MPS Eng Pwr
 	static UINT VC_R2b3_Grp = GRP_R2b3_VC;
 	static MGROUP_ROTATE VC_R2b3 (vcidx, &VC_R2b3_Grp, 1,
-		_V(1.038,1.767,14.846), switch_rot, (float)(90.0*RAD));
+		_V(1.009, 1.838, 14.495), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[2]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[2], 0, 1, &VC_R2b3);
 
 	static UINT VC_R2b4_Grp = GRP_R2b4_VC;
 	static MGROUP_ROTATE VC_R2b4 (vcidx, &VC_R2b4_Grp, 1,
-		_V(1.079,1.779,14.845), switch_rot, (float)(90.0*RAD));
+		_V(1.05, 1.85, 14.494), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[3]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[3], 0, 1, &VC_R2b4);
 
 	static UINT VC_R2b5_Grp = GRP_R2b5_VC;
 	static MGROUP_ROTATE VC_R2b5 (vcidx, &VC_R2b5_Grp, 1,
-		_V(1.119,1.790,14.844), switch_rot, (float)(90.0*RAD));
+		_V(1.088, 1.861, 14.493), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[4]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[4], 0, 1, &VC_R2b5);
 
 	static UINT VC_R2b6_Grp = GRP_R2b6_VC;
 	static MGROUP_ROTATE VC_R2b6 (vcidx, &VC_R2b6_Grp, 1,
-		_V(1.036,1.758,14.788), switch_rot, (float)(90.0*RAD));
+		_V(1.008, 1.83, 14.439), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[5]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[5], 0, 1, &VC_R2b6);
 
 	static UINT VC_R2b7_Grp = GRP_R2b7_VC;
 	static MGROUP_ROTATE VC_R2b7 (vcidx, &VC_R2b7_Grp, 1,
-		_V(1.079,1.771,14.786), switch_rot, (float)(90.0*RAD));
+		_V(1.05, 1.843, 14.437), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[6]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[6], 0, 1, &VC_R2b7);
 
 	static UINT VC_R2b8_Grp = GRP_R2b8_VC;
 	static MGROUP_ROTATE VC_R2b8 (vcidx, &VC_R2b8_Grp, 1,
-		_V(1.122,1.783,14.784), switch_rot, (float)(90.0*RAD));
+		_V(1.091, 1.855, 14.435), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[7]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[7], 0, 1, &VC_R2b8);
 
 	//Centerline Latch
 	static UINT VC_R2b49_Grp = GRP_R2b49_VC;
 	static MGROUP_ROTATE VC_R2b49 (vcidx, &VC_R2b49_Grp, 1,
-		_V(1.091, 1.700, 14.222), switch_rot, (float)(90.0*RAD));
+		_V(1.062, 1.773, 13.888), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[48]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent (anim_VC_R2[48], 0, 1, &VC_R2b49);
 
 	//Left Door
 	static UINT VC_R2b50_Grp = GRP_R2b50_VC;
 	static MGROUP_ROTATE VC_R2b50 (vcidx, &VC_R2b50_Grp, 1,
-		_V(1.141, 1.714, 14.219), switch_rot, (float)(90.0*RAD));
+		_V(1.11, 1.787, 13.885), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[49]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent (anim_VC_R2[49], 0, 1, &VC_R2b50);
 
 	//Left Latch
 	static UINT VC_R2b51_Grp = GRP_R2b51_VC;
 	static MGROUP_ROTATE VC_R2b51 (vcidx, &VC_R2b51_Grp, 1,
-		_V(1.183, 1.726, 14.218), switch_rot, (float)(90.0*RAD));
+		_V(1.151, 1.799, 13.884), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[50]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent (anim_VC_R2[50], 0, 1, &VC_R2b51);
 
 	//Right Door
 	static UINT VC_R2b52_Grp = GRP_R2b52_VC;
 	static MGROUP_ROTATE VC_R2b52 (vcidx, &VC_R2b52_Grp, 1,
-		_V(1.224, 1.738, 14.217), switch_rot, (float)(90.0*RAD));
+		_V(1.19, 1.811, 13.883), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[51]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent (anim_VC_R2[51], 0, 1, &VC_R2b52);
 
 	//Right Latch
 	static UINT VC_R2b53_Grp = GRP_R2b53_VC;
 	static MGROUP_ROTATE VC_R2b53 (vcidx, &VC_R2b53_Grp, 1,
-		_V(1.263, 1.749, 14.215), switch_rot, (float)(90.0*RAD));
+		_V(1.228, 1.822, 13.881), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[52]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent (anim_VC_R2[52], 0, 1, &VC_R2b53);
 	return;
@@ -1400,7 +1400,6 @@ bool PanelR2::ParseScenarioLine (char *line)
 		if(LETUmbDoorStatus.pos==0.0) LETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(LETUmbDoorStatus.pos==1.0) LETUmbDoorStatus.action=AnimState::OPEN;
 		else LETUmbDoorStatus.action=AnimState::STOPPED;
-
 		sts->SetETUmbDoorPosition(LETUmbDoorStatus.pos, 0);
 		return true;
 	}
@@ -1410,7 +1409,6 @@ bool PanelR2::ParseScenarioLine (char *line)
 		if(RETUmbDoorStatus.pos==0.0) RETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(RETUmbDoorStatus.pos==1.0) RETUmbDoorStatus.action=AnimState::OPEN;
 		else RETUmbDoorStatus.action=AnimState::STOPPED;
-
 		sts->SetETUmbDoorPosition(RETUmbDoorStatus.pos, 1);
 		return true;
 	}
