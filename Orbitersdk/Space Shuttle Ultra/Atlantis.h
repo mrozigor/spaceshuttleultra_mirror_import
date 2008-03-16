@@ -1091,7 +1091,7 @@ private:
 	bool DisplayJointAngles;
 	//IK parameters
 	VECTOR3 arm_wrist_pos;
-	VECTOR3 arm_ee_pos, arm_ee_dir;
+	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double lu, ll, wp_wy, wy_ee;
     double shoulder_neutral;
