@@ -34,6 +34,7 @@
 #include "SubsystemDirector.h"
 #include "MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
+//#include "PayloadBaySystem.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -514,11 +515,11 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
   //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)-_V(0.314338082679218, -0.949311102735849, 0);
   //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-  arm_tip[0] = _V(-2.87, 2.03, -6.27);
-  arm_tip[1] = _V(-2.87, 2.03, -7.27);
-  arm_tip[2] = _V(-2.87, 3.03, -6.27);
+  arm_tip[0] = _V(-2.77, 2.13, -6.049);
+  arm_tip[1] = _V(-2.77, 2.13, -7.049);
+  arm_tip[2] = _V(-2.77, 3.13, -6.049);
   arm_ee_dir = _V(1.0, 0.0, 0.0);
-  arm_ee_pos = _V(15.497, 0.0, 0.0);
+  arm_ee_pos = _V(15.069, 0.0, 0.0);
 
   // default camera positions
   camFLyaw = 0;
@@ -1512,7 +1513,7 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
 
   rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-    _V(-2.86, 2.03, -6.27), _V(0,0,1), (float)(0.0));
+    _V(-2.77, 2.13, -6.049), _V(0,0,1), (float)(0.0));
   anim_arm_ee = CreateAnimation (0.0);
   hAC_arm = AddAnimationComponent (anim_arm_ee, 0, 1, rms_anim[6], parent);
 
@@ -1520,12 +1521,12 @@ void Atlantis::DefineAnimations (void)
   /*VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
   VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7); //wrong
   VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong*/
-  VECTOR3 shoulder_pos=_V(-9.227, -2.87, 2.03);
-  VECTOR3 elbow_pos=_V(-2.76, -2.81, 1.86);
+  VECTOR3 shoulder_pos=_V(-9.02, -2.77, 2.13);
+  VECTOR3 elbow_pos=_V(-2.74, -2.71, 1.97);
   //VECTOR3 elbow_pos=_V(-2.76, -2.87, 2.03);
-  VECTOR3 wrist_pos=_V(4.37, -2.87, 2.03);
-  VECTOR3 wrist_yaw_pos=_V(4.88, -2.87, 2.03);
-  VECTOR3 ee_pos=_V(6.27, -2.87, 2.03);
+  VECTOR3 wrist_pos=_V(4.19, -2.77, 2.13);
+  VECTOR3 wrist_yaw_pos=_V(4.69, -2.77, 2.13);
+  VECTOR3 ee_pos=_V(6.049, -2.77, 2.13);
   elbow_pos-=shoulder_pos;
   wrist_pos-=shoulder_pos;
   wrist_yaw_pos-=shoulder_pos;
@@ -2087,7 +2088,7 @@ void Atlantis::SteerGimbal() {
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
 	GetAngularVel(AngularVelocity);
-	for(i=0;i<3;i++) {
+	for(int i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
 	if(!r2d2->bHydraulicPressure) {
@@ -4714,6 +4715,10 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
 void Atlantis::UpdateRMSPositions()
 {
 	CalcAnimationFKArm(arm_ee_pos, arm_ee_dir);
+	arm_ee_rot=arm_tip[2]-arm_tip[0];
+	arm_ee_rot=_V(-arm_ee_rot.z, arm_ee_rot.x, arm_ee_rot.y);
+	//sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+		//arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 }
 
 void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
@@ -4755,10 +4760,15 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   if(!RMS) return;
   if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
   
-  VECTOR3 rot=arm_tip[2]-arm_tip[0];
+  //VECTOR3 rot=arm_tip[2]-arm_tip[0];
+  VECTOR3 rot=arm_ee_rot;
+
+  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+	  //arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
   //Candidate position. Calculate the joints on it...
   VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
+  //VECTOR3 arm_cpos=arm_ee_pos+arm_dpos;
   VECTOR3 arm_wrist_yaw_cpos=arm_cpos-arm_ee_dir*wy_ee;
   //VECTOR3 dpos=-dir*wy_ee;
   //sprintf(oapiDebugString(), "%f %f %f", dpos.x, dpos.y, dpos.z);
@@ -4770,6 +4780,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   double beta=DEG*asin(wrist_rot.y/length(wrist_rot));
   //wrist_rot=RotateVectorY(wrist_rot, phi);
   //wrist_rot=RotateVectorX(wrist_rot, -beta);
+  //sprintf(oapiDebugString(), "%f %f %f", wrist_rot.x, wrist_rot.y, wrist_rot.z);
   //VECTOR3 boom_plane = RotateVectorY(Normalize(arm_wrist_yaw_cpos), phi);
   VECTOR3 boom_plane = Normalize(arm_wrist_yaw_cpos);
   //boom_plane=RotateVectorZ(boom_plane, -beta);
@@ -4778,14 +4789,15 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, -beta);
   //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
   double beta_w=DEG*(asin(boom_plane.y)-asin(arm_ee_dir.y));
-  //sprintf(oapiDebugString(), "%f", beta_w);
+  //sprintf(oapiDebugString(), "%f %f %f", phi, beta, beta_w);
   wrist_pitch_dir=RotateVectorZ(wrist_pitch_dir, beta_w);
   //wrist_pitch_dir=_V(boom_plane.x, boom_plane.y, wrist_pitch_dir.z);
   //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
   wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta);
   wrist_pitch_dir=RotateVectorY(wrist_pitch_dir, -phi)*wp_wy;
   //wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta)*wp_wy;
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", wrist_pitch_dir.x, wrist_pitch_dir.y, wrist_pitch_dir.z, dir.x, dir.y, dir.z);
+  sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f", wrist_pitch_dir.x, wrist_pitch_dir.y, wrist_pitch_dir.z,
+	  phi, beta, wrist_rot.x, wrist_rot.y, wrist_rot.z);
 
   VECTOR3 arm_wrist_cpos=arm_wrist_yaw_cpos-wrist_pitch_dir;
   //sprintf(oapiDebugString(), "%f %f %f", arm_cpos.x, arm_cpos.y, arm_cpos.z);
@@ -4816,6 +4828,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   //VECTOR3 temp=pos-arm_wrist_cpos;
   //VECTOR3 temp2=dir;
   //sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f", temp.x, temp.y, temp.z, temp2.x, temp2.y, temp2.z, length(temp), wp_wy+wy_ee);
+  //sprintf(oapiDebugString(), "%f", DEG*asin(wrist_pitch_dir.z/length(wrist_pitch_dir)));
 
   arm_sy=anim_beta_s;
   SetAnimationArm(anim_arm_sy,arm_sy);
