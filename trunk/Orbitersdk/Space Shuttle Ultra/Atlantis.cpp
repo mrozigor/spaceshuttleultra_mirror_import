@@ -1463,9 +1463,9 @@ void Atlantis::DefineAnimations (void)
 
   ANIMATIONCOMPONENT_HANDLE parent;
 
-  //DaveS edit: Fixed animation
-  static UINT RMSRolloutGrp[8] = {GRP_MPM_RMS, GRP_base_RMS, GRP_Shoulder_RMS, GRP_Humerus_RMS, GRP_radii_RMS, GRP_wristpitch_RMS, GRP_wristyaw_RMS, GRP_endeffecter_RMS};
-  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 8,
+  //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
+  static UINT RMSRolloutGrp[11] = {GRP_MPM_RMS, GRP_base_RMS, GRP_Shoulder_RMS, GRP_Humerus_RMS, GRP_radii_RMS, GRP_elbowcam, GRP_camswivel,GRP_cambase, GRP_wristpitch_RMS, GRP_wristyaw_RMS, GRP_endeffecter_RMS};
+  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 10,
     _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
   anim_rollout = CreateAnimation(1.0);
   AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
@@ -1484,9 +1484,9 @@ void Atlantis::DefineAnimations (void)
   anim_arm_sp = CreateAnimation (0.0136);
   parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
 
-  //DaveS edit: Fixed animation
-  static UINT RMSElbowPitchGrp[1] = {GRP_radii_RMS};
-  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 1,
+  //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
+  static UINT RMSElbowPitchGrp[4] = {GRP_radii_RMS,GRP_elbowcam,GRP_camswivel,GRP_cambase};
+  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 4,
     _V(-2.71,1.97,2.74), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
   anim_arm_ep = CreateAnimation (0.014688);
   parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);

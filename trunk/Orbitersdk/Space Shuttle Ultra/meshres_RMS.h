@@ -5,7 +5,7 @@
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_RMS 8
+#define NGRP_RMS 11
 
 // Number of materials:
 #define NMAT_RMS 2
