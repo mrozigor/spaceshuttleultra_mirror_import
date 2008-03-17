@@ -375,11 +375,31 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
+/**  
+ * list of the VC positions
+ */
+const int VC_CDR = 0;
+const int VC_PLT = 1;
+const int VC_MS1 = 2;
+const int VC_MS2 = 3;
+const int VC_MS3 = 4;
+const int VC_MS4 = 5;
+const int VC_MS5 = 6;
+
+
 //-.6017438  2.729396 13.8008
 //orbiter_ofs.x-0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
 //orbiter_ofs.x+0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
+
+const VECTOR3 VC_POS_MS1 = _V(0.671257, 2.629396, 12.6);
+
+const VECTOR3 VC_POS_MS2 = _V(0.2, 2.629396, 12.6);
+
+
+const VECTOR3 VC_POS_COAS = _V( 0.3506716, 3.17, 12.75528);
+
 
 // ==========================================================
 // Mesh group indices for some components
@@ -1278,3 +1298,4 @@ private:
 };
 
 #endif // !__ATLANTIS_H
+

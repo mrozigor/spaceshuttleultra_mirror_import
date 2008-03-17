@@ -155,7 +155,15 @@ SOURCE=.\CommModeHandler.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DiscreteBundle.h
+SOURCE=.\discsignals\DiscOutPort.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\discsignals\DiscreteBundle.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\discsignals\DiscretePort.h
 # End Source File
 # Begin Source File
 
@@ -164,6 +172,10 @@ SOURCE=.\GearOp.h
 # Begin Source File
 
 SOURCE=.\GPCVariables.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ISubsystem.h
 # End Source File
 # Begin Source File
 
@@ -251,15 +263,15 @@ SOURCE=.\ShuttleBus.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\StandardSwitch.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stopwatch.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\SubsystemDirector.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ThreeWaySwitch.h
 # End Source File
 # End Group
 # Begin Group "Logs"
@@ -315,7 +327,15 @@ SOURCE=.\Common.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DiscreteBundle.cpp
+SOURCE=.\discsignals\DiscOutPort.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\discsignals\DiscreteBundle.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\discsignals\DiscretePort.cpp
 # End Source File
 # Begin Source File
 
@@ -387,15 +407,15 @@ SOURCE=.\ShuttleBus.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StandardSwitch.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stopwatch.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\SubsystemDirector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ThreeWaySwitch.cpp
 # End Source File
 # End Group
 # Begin Source File

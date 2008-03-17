@@ -23,8 +23,8 @@ public:
 	bool ParseScenarioLine(char* line);
 	bool PlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
 	bool SaveState(FILEHANDLE scn);
-	bool PostStep(double fSimT, double fDeltaT);
-	bool PreStep(double fSimT, double fDeltaT);
+	bool PostStep(double fSimT, double fDeltaT, double fMJD);
+	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
 };
 

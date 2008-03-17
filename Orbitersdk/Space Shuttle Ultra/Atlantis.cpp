@@ -2088,7 +2088,7 @@ void Atlantis::SteerGimbal() {
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
 	GetAngularVel(AngularVelocity);
-	for(int i=0;i<3;i++) {
+	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
 	if(!r2d2->bHydraulicPressure) {
@@ -3633,7 +3633,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	double steerforce, airspeed;
 	int i;
 
-	psubsystems->PreStep(simT, simDT);
+	psubsystems->PreStep(simT, simDT, mjd);
 	/*if(bFirstStep)
 	{
 		if(bAutopilot) InitializeAutopilot();
@@ -3685,7 +3685,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   int i;
   OBJHANDLE hvessel;
 
-  psubsystems->PostStep(simt, simdt);
+  psubsystems->PostStep(simt, simdt, mjd);
 
   switch (status) {
   case 0: // launch configuration
