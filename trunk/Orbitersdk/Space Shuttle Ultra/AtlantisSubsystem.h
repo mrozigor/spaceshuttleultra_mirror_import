@@ -11,6 +11,7 @@
 
 #include <string>
 #include "OrbiterAPI.h"
+#include "ISubsystem.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ class SubsystemDirector;
 /**
  * base class for all subsystem simulations. 
  */
-class AtlantisSubsystem  
+class AtlantisSubsystem: public ISubsystem 
 {
 protected:
 	SubsystemDirector* director;
@@ -27,11 +28,20 @@ protected:
 public:
 	AtlantisSubsystem(SubsystemDirector* _director, const string& _ident);
 	virtual ~AtlantisSubsystem();
-	virtual bool ParseLine(const char* line);
-	virtual void SaveState(FILEHANDLE scn);
-	virtual void PreStep(double fSimT, double fDeltaT);
-	virtual void PostStep(double fSimT, double fDeltaT);
-	virtual void Propagate(double fSimT, double fDeltaT);
+	virtual void Realize();
+	virtual bool RegisterComponent(SubsystemComponent* pComponent);
+	virtual bool DelComponent(SubsystemComponent* pComponent);
+	virtual unsigned long CountComponents() const;
+	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
+	virtual bool OnParseLine(const char* line);
+	virtual void OnSaveState(FILEHANDLE scn) const;
+	virtual void OnDumpToLog() const;
+	virtual const string& GetQualifiedIdentifier() const;
+	virtual const string& GetIdentifier() const;
+	virtual bool OnFail(const string& strFailureCode);
 };
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)

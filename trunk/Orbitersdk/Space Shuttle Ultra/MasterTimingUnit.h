@@ -83,10 +83,10 @@ public:
 	short GetGMTHour(MTU_ACCU_INDEX accu_index) const;
 	short GetGMTDay(MTU_ACCU_INDEX accu_index) const;
 
-	virtual void PreStep(double fSimT, double fDeltaT);
-	virtual void Propagate(double fSimT, double fDeltaT);
-	virtual void SaveState(FILEHANDLE scn);
-	virtual bool ParseLine(const char* line);
+	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnSaveState(FILEHANDLE scn) const;
+	virtual bool OnParseLine(const char* line);
 
 };
 

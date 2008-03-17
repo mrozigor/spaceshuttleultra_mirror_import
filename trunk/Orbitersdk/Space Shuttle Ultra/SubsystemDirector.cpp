@@ -34,7 +34,7 @@ bool SubsystemDirector::ParseScenarioLine(char* line)
 	for(int i = 0; i<subsystems.size(); i++)
 	{
 		//
-		if(subsystems[i]->ParseLine(line))
+		if(subsystems[i]->OnParseLine(line))
 		{
 			return true;
 		}
@@ -52,35 +52,35 @@ bool SubsystemDirector::SaveState(FILEHANDLE scn)
 	for(int i = 0; i<subsystems.size(); i++)
 	{
 		//
-		subsystems[i]->SaveState(scn);
+		subsystems[i]->OnSaveState(scn);
 	}
 	return true;
 }
 
-bool SubsystemDirector::PostStep(double fSimT, double fDeltaT)
+bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 {
 	int i;
 	//Propagate subsystem states to the end of the discrete timestep
 	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
-		subsystems[i]->Propagate(fSimT, fDeltaT);
+		subsystems[i]->OnPropagate(fSimT, fDeltaT, fMJD);
 	}
 	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
-		subsystems[i]->PostStep(fSimT, fDeltaT);
+		subsystems[i]->OnPostStep(fSimT, fDeltaT, fMJD);
 	}
 	return true;
 }
 
-bool SubsystemDirector::PreStep(double fSimT, double fDeltaT)
+bool SubsystemDirector::PreStep(double fSimT, double fDeltaT, double fMJD)
 {
 	int i;
 	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
-		subsystems[i]->PreStep(fSimT, fDeltaT);
+		subsystems[i]->OnPreStep(fSimT, fDeltaT, fMJD);
 	}
 	return true;
 }

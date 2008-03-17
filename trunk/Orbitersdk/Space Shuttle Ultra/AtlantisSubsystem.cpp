@@ -19,25 +19,70 @@ AtlantisSubsystem::~AtlantisSubsystem()
 
 }
 
-bool AtlantisSubsystem::ParseLine(const char* line)
+bool AtlantisSubsystem::RegisterComponent(SubsystemComponent* pComponent)
 {
 	return false;
 }
 
-void AtlantisSubsystem::SaveState(FILEHANDLE scn)
+bool AtlantisSubsystem::DelComponent(SubsystemComponent* pComponent)
+{
+	return false;
+}
+
+unsigned long AtlantisSubsystem::CountComponents() const
+{
+	return 0;
+}
+
+void AtlantisSubsystem::Realize()
 {
 }
 
-void AtlantisSubsystem::PostStep(double fSimT, double fDeltaT)
+
+bool AtlantisSubsystem::OnParseLine(const char* line)
+{
+	return false;
+}
+
+void AtlantisSubsystem::OnSaveState(FILEHANDLE scn) const
 {
 
 }
 
-void AtlantisSubsystem::PreStep(double fSimT, double fDeltaT)
+void AtlantisSubsystem::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 {
 
 }
 
-void AtlantisSubsystem::Propagate(double fSimT, double fDeltaT)
+void AtlantisSubsystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 {
+
+}
+
+void AtlantisSubsystem::OnPropagate(double fSimT, double fDeltaT, double fMJD)
+{
+}
+
+void AtlantisSubsystem::OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event)
+{
+}
+
+bool AtlantisSubsystem::OnFail(const string& strFailCode)
+{
+	return false;
+}
+
+void AtlantisSubsystem::OnDumpToLog() const
+{
+}
+
+const string& AtlantisSubsystem::GetIdentifier() const
+{
+	return this->ident;
+}
+
+
+const string& AtlantisSubsystem::GetQualifiedIdentifier() const
+{
+	return GetIdentifier();
 }

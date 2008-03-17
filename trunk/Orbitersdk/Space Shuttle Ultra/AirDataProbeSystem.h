@@ -14,17 +14,19 @@
 class AirDataProbeSystem : public AtlantisSubsystem  
 {
 	typedef enum {ADPS_DEPLOYED, ADPS_DEPLOYING, ADPS_STOWING, ADPS_STOWED} DEPLOY_STATE;
+public:
+	typedef enum {ADPS_DEPLOY, ADPS_STOW} DEPLOY_MODE;
 	typedef enum {ADPS_STOW_ENABLE, ADPS_STOW_INHIBIT} STOW_ENABLE_STATE;
 public:
-	virtual void Propagate(double fSimT, double fDeltaT);
+	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	double GetTotalTemperature(int side) const;
 	double GetDynamicPressure(int side) const;
 	virtual double GetStaticPressure(int side) const;
-	typedef enum {ADPS_DEPLOY, ADPS_STOW} DEPLOY_MODE;
-	virtual void PostStep(double fSimT, double fDeltaT);
+	
+	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 	bool IsDeployed(int side) const;
 	void SetDeployMode(int side, DEPLOY_MODE mode);
-	virtual void PreStep(double fSimT, double fDeltaT);
+	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 	AirDataProbeSystem(SubsystemDirector* _director);
 	virtual ~AirDataProbeSystem();
 

@@ -70,7 +70,8 @@ void PanelR2::RegisterVC ()
 	//SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
 
 	oapiVCRegisterArea (AID_R2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-	oapiVCSetAreaClickmode_Quadrilateral (AID_R2, _V(0.978, 1.767, 15.001)+ofs, _V(1.488, 1.917, 15.001)+ofs, _V(.978, 1.655, 14.136)+ofs, _V(1.488, 1.805, 14.136)+ofs);
+	oapiVCSetAreaClickmode_Quadrilateral (AID_R2, _V(0.9524, 1.8417, 14.6602)+ofs, _V(1.4477, 1.9868, 14.6602)+ofs,
+		_V(.9524, 1.7286, 13.8048)+ofs, _V(1.4477, 1.8755, 13.8048)+ofs);
 
 	// register the talkbacks
 	oapiVCRegisterArea (AID_R2_TKBK1, _R( 451, 706, 483, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);

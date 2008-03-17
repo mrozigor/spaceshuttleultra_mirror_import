@@ -62,6 +62,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 : MFD (w, h, v)
 {
 	int i;
+	char cbuf[200];
 
 	/*char cbuf[255];
 	sprintf(cbuf, "CRT Constructor");
@@ -70,6 +71,9 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	vessel=v;
 	width=w;
 	height=h;
+
+	sprintf(cbuf, "[CRT]:DIMENSIONS: %d %d\n", W, H);
+	oapiWriteLog(cbuf);
 
 	hCRTFont = CreateFont(8,4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Courier");
@@ -143,7 +147,7 @@ void CRT::Update (HDC hDC)
 		RecallStatus();
 		UpdateStatus=false;
 	}
-	//sprintf(oapiDebugString(), "%d %d %d", mode, display, id);
+	
 
 	if(data!=0) Data(1-data);
 

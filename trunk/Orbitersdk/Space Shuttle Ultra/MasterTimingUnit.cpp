@@ -143,7 +143,7 @@ void MasterTimingUnit::ResetEventTimer(MTU_EVTTMR_INDEX timer)
 	fEvent[timer][1] = 0.0;
 }
 
-void MasterTimingUnit::PreStep(double fSimT, double fDeltaT)
+void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 {
 	int timer;
 
@@ -208,7 +208,7 @@ void MasterTimingUnit::PreStep(double fSimT, double fDeltaT)
 	//	sEventMinutes[TIMER_FORWARD], sEventSeconds[TIMER_FORWARD]);
 }
 
-void MasterTimingUnit::Propagate(double fSimT, double fDeltaT)
+void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 {
 	int timer;
 	long lTime;
@@ -265,7 +265,7 @@ void MasterTimingUnit::Propagate(double fSimT, double fDeltaT)
 	bMETCounting[0] = bMETCounting[1];
 }
 
-void MasterTimingUnit::SaveState(FILEHANDLE scn)
+void MasterTimingUnit::OnSaveState(FILEHANDLE scn) const
 {
 	char pszBuffer[128];
 	char pszTempA[40];
@@ -303,7 +303,7 @@ void MasterTimingUnit::SaveState(FILEHANDLE scn)
 	}
 }
 
-bool MasterTimingUnit::ParseLine(const char* line)
+bool MasterTimingUnit::OnParseLine(const char* line)
 {
 	char pszTempA[40] = "";
 	char pszTempB[40] = "";

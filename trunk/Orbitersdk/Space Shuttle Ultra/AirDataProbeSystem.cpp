@@ -28,7 +28,7 @@ AirDataProbeSystem::~AirDataProbeSystem()
 
 }
 
-void AirDataProbeSystem::PreStep(double fSimT, double fDeltaT)
+void AirDataProbeSystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 {
 	double fDeploySpeed = 1.0/15.0;
 	switch(left_state[0])
@@ -105,8 +105,8 @@ void AirDataProbeSystem::PreStep(double fSimT, double fDeltaT)
 		break;
 	}
 
-	sprintf(oapiDebugString(), "ADPS: %f  %d/%d %f %d/%d", left_deploy[0], left_state[0], left_mode[0], 
-		right_deploy[0], right_state[0], right_mode[0]);
+//	sprintf(oapiDebugString(), "ADPS: %f  %d/%d %f %d/%d", left_deploy[0], left_state[0], left_mode[0], 
+//		right_deploy[0], right_state[0], right_mode[0]);
 }
 
 void AirDataProbeSystem::SetDeployMode(int side, DEPLOY_MODE mode)
@@ -131,7 +131,7 @@ bool AirDataProbeSystem::IsDeployed(int side) const
 	return true;
 }
 
-void AirDataProbeSystem::PostStep(double fSimT, double fDeltaT)
+void AirDataProbeSystem::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 {
 	director->STS()->SetAirDataProbeDeployment(0, left_deploy[0]);
 	director->STS()->SetAirDataProbeDeployment(1, right_deploy[0]);
@@ -152,7 +152,7 @@ double AirDataProbeSystem::GetTotalTemperature(int side) const
 	return 0.0;
 }
 
-void AirDataProbeSystem::Propagate(double fSimT, double fDeltaT)
+void AirDataProbeSystem::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 {
 	left_deploy[0] = left_deploy[1];
 	left_state[0] = left_state[1];
