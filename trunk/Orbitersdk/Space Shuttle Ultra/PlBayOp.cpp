@@ -294,9 +294,9 @@ void PayloadBayOp::OpenDialog ()
 void PayloadBayOp::DefineAnimations (UINT vcidx)
 {
 	static VECTOR3 switch_rot = {0,0,1};
-	static VECTOR3 switch_row1 = {1.3068,2.1991,12.7983};
-	static VECTOR3 switch_row2 = {1.2132,2.1377,12.7983};
-	static VECTOR3 switch_row3 = {1.1244,2.0794,12.7983};
+	static VECTOR3 switch_row1 = {1.271, 2.259, 12.501};
+	static VECTOR3 switch_row2 = {1.18, 2.199, 12.504};
+	static VECTOR3 switch_row3 = {1.093, 2.142, 12.503};
 
 	// Animations for switches on panel R13L in the VC
 	static UINT VC_R13L_S1_Grp = GRP_SwitchR13L_1_VC;
