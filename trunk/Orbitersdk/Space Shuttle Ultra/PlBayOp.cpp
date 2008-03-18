@@ -3,6 +3,7 @@
 #include "meshres_vc.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
+#include "meshres_vc_additions.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -371,7 +372,7 @@ void PayloadBayOp::DefineAnimations (UINT vcidx)
 void PayloadBayOp::RegisterVC ()
 {
 	VECTOR3 ofs = sts->orbiter_ofs;
-	SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
+	SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_R13L_VC);
 
 	// register the complete panel for mouse events
 	oapiVCRegisterArea (AID_R13L, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
