@@ -693,7 +693,7 @@ void Atlantis::SetLaunchConfiguration (void)
   SetPMI (_V(179.1,176.8,29.3));
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
-  SetTouchdownPoints (_V(0,-10,-53.3), _V(-7,7,-53.3), _V(7,7,-53.3));
+  SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
 
   // ************************* propellant specs **********************************
 
@@ -1285,7 +1285,7 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	//
 	strncpy (cbuf, WingName, 256);
 	int len = strlen(cbuf);
-	TextOut (hDC, 597, 296, cbuf, len);
+	TextOut (hDC, 566, 296, cbuf, len); //DaveS edit: Fixed incorret location of wing name marking
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
