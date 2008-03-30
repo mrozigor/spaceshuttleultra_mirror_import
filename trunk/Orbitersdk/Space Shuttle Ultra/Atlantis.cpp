@@ -394,11 +394,20 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pshSlag2[0] = pshSlag2[1] = NULL;
   pshSlag3[0] = pshSlag3[1] = NULL;
 
+  /*
   int mfdgrp[10] = {
     GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
     GRP_MFD1_VC, GRP_MFD2_VC, GRP_MFD3_VC, GRP_MFD4_VC, GRP_MFD5_VC,
     GRP_MFD_aft_VC};
-  for (i = 0; i < 10; i++) {
+  */
+
+  int mfdgrp[11] = {
+    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
+    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
+	NULL
+    };
+
+  for (i = 0; i < 11; i++) {
     mfds[i].ngroup   = mfdgrp[i];
     mfds[i].flag     = MFD_SHOWMODELABELS;
     mfds[i].nbt1     = 5;
@@ -406,7 +415,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
     mfds[i].bt_yofs  = 256/6;
     mfds[i].bt_ydist = 256/7;
   }
-  for (i = 0; i < 10; i++)
+  for (i = 0; i < 11; i++)
     mfdbright[i] =  1.0;
   huds.ngroup       = GRP_VirtualHUD_VC;
   huds.size         = 0.176558;
@@ -4292,36 +4301,49 @@ void Atlantis::RegisterVC_PltMFD ()
 void Atlantis::RegisterVC_CntMFD ()
 {
   // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD1_BUTTONS, _V(-0.3579,2.1451,15.0863)+orbiter_ofs, _V(-0.1770,2.1451,15.0863)+orbiter_ofs, _V(-0.3579,2.1241,15.0863)+orbiter_ofs, _V(-0.1770,2.1241,15.0863)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD2_BUTTONS, _V(-0.3579,1.9143,15.0217)+orbiter_ofs, _V(-0.1770,1.9143,15.0217)+orbiter_ofs, _V(-0.3579,1.8933,15.0217)+orbiter_ofs, _V(-0.1770,1.8933,15.0217)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD3_BUTTONS, _V(-0.0888,2.0288,15.0538)+orbiter_ofs, _V(0.0922,2.0288,15.0538)+orbiter_ofs, _V(-0.0888,2.0078,15.0538)+orbiter_ofs, _V(0.0922,2.0078,15.0538)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD4_BUTTONS, _V(0.1795,2.1451,15.0863)+orbiter_ofs, _V(0.3604,2.1451,15.0863)+orbiter_ofs, _V(0.1795,2.1241,15.0863)+orbiter_ofs, _V(0.3604,2.1241,15.0863)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD5_BUTTONS, _V(0.1795,1.9143,15.0217)+orbiter_ofs, _V(0.3604,1.9143,15.0217)+orbiter_ofs, _V(0.1795,1.8933,15.0217)+orbiter_ofs, _V(0.3604,1.8933,15.0217)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT1_BUTTONS, 
+	  _V(-0.346, 2.212, 14.728) + orbiter_ofs, _V(-0.176, 2.212, 14.728) + orbiter_ofs, 
+	  _V(-0.346, 2.2, 14.724) + orbiter_ofs, _V(-0.176, 2.2, 14.724) + orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT2_BUTTONS, 
+	  _V( 0.176, 2.212, 14.728) + orbiter_ofs, _V(0.346, 2.212, 14.728) + orbiter_ofs, 
+	  _V( 0.176, 2.2, 14.724) + orbiter_ofs, _V(0.346, 2.2, 14.724) + orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT3_BUTTONS, 
+	  _V(-0.082, 2.099, 14.696) + orbiter_ofs, _V(0.085, 2.099,14.696) + orbiter_ofs,
+	  _V(-0.082, 2.09, 14.693) + orbiter_ofs, _V(0.085, 2.09, 14.693) + orbiter_ofs);
+
+  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD1_BUTTONS, 
+	  _V(-0.346, 1.987, 14.466)+orbiter_ofs, _V(-0.176, 1.987, 14.466)+orbiter_ofs, 
+	  _V(-0.346, 1.977, 14.462)+orbiter_ofs, _V(-0.176, 1.977, 14.462)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD2_BUTTONS, 
+	  _V( 0.176, 1.987, 14.466) + orbiter_ofs, _V(0.346, 1.987, 14.466) + orbiter_ofs, 
+	  _V( 0.176, 1.977, 14.462) + orbiter_ofs, _V(0.346, 1.977, 14.464) + orbiter_ofs);
 
     // D. Beachy: register+activate MFD power buttons
     const double powerButtonRadius = 0.0075; // radius of power button on each MFD
+  oapiVCRegisterArea (AID_CRT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
+  oapiVCRegisterArea (AID_CRT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
+  oapiVCRegisterArea (AID_CRT3_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_MFD1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_MFD2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD3_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD4_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD5_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_MFD1_PWR, _V(-0.383, 2.153, 15.090)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_MFD2_PWR, _V(-0.383, 1.922, 15.023)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_MFD3_PWR, _V(-0.114, 2.037, 15.058)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_MFD4_PWR, _V( 0.155, 2.153, 15.090)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_MFD5_PWR, _V( 0.155, 1.922, 15.023)+orbiter_ofs, powerButtonRadius);
+
+  oapiVCSetAreaClickmode_Spherical(AID_CRT1_PWR, _V(-0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical(AID_CRT2_PWR, _V( 0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical(AID_CRT3_PWR, _V(-0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical(AID_MFD1_PWR, _V(-0.366, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical(AID_MFD2_PWR, _V( 0.155, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
 
   // register+activate MFD brightness buttons
+  oapiVCRegisterArea (AID_CRT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
+  oapiVCRegisterArea (AID_CRT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
+  oapiVCRegisterArea (AID_CRT3_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_MFD1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_MFD2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD3_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD4_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD5_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD1_BRT, _V(-0.162,2.1605,15.090)+orbiter_ofs, _V(-0.147,2.1605,15.090)+orbiter_ofs, _V(-0.162,2.1455,15.090)+orbiter_ofs, _V(-0.147,2.1455,15.090)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD2_BRT, _V(-0.162,1.9295,15.023)+orbiter_ofs, _V(-0.147,1.9295,15.023)+orbiter_ofs, _V(-0.162,1.9145,15.023)+orbiter_ofs, _V(-0.147,1.9145,15.023)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD3_BRT, _V(0.107,2.0445,15.058)+orbiter_ofs, _V(0.122,2.0445,15.058)+orbiter_ofs, _V(0.107,2.0295,15.058)+orbiter_ofs, _V(0.122,2.0295,15.058)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD4_BRT, _V(0.376,2.1605,15.090)+orbiter_ofs, _V(0.391,2.1605,15.090)+orbiter_ofs, _V(0.376,2.1455,15.090)+orbiter_ofs, _V(0.391,2.1455,15.090)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD5_BRT, _V(0.376,1.9295,15.023)+orbiter_ofs, _V(0.391,1.9295,15.023)+orbiter_ofs, _V(0.376,1.9145,15.023)+orbiter_ofs, _V(0.391,1.9145,15.023)+orbiter_ofs);
+
+  oapiVCSetAreaClickmode_Spherical (AID_CRT1_BRT, _V(-0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_CRT2_BRT, _V(0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_CRT3_BRT, _V(0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_MFD1_BRT, _V(-0.155,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_MFD2_BRT, _V(0.366,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
 }
 
 // --------------------------------------------------------------
@@ -4332,17 +4354,17 @@ void Atlantis::RegisterVC_AftMFD ()
 {
   // register+activate aft MFD function buttons
   SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-  oapiVCRegisterArea (AID_MFDA_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFDA_BUTTONS, _V(1.3862,2.2570,13.8686)+orbiter_ofs, _V(1.3862,2.2570,13.6894)+orbiter_ofs, _V(1.3678,2.2452,13.8686)+orbiter_ofs, _V(1.3678,2.2452,13.6894)+orbiter_ofs);
+  oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT4_BUTTONS, _V(1.3862,2.2570,13.8686)+orbiter_ofs, _V(1.3862,2.2570,13.6894)+orbiter_ofs, _V(1.3678,2.2452,13.8686)+orbiter_ofs, _V(1.3678,2.2452,13.6894)+orbiter_ofs);
 
   // register+activate MFD power button
     const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_MFDA_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_MFDA_PWR, _V(1.3929,2.2632,13.8947)+orbiter_ofs, powerButtonRadius);
+  oapiVCRegisterArea (AID_CRT4_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
+    oapiVCSetAreaClickmode_Spherical(AID_CRT4_PWR, _V(1.3929,2.2632,13.8947)+orbiter_ofs, powerButtonRadius);
 
   // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_MFDA_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFDA_BRT, _V(1.4024,2.2675,13.6736)+orbiter_ofs, _V(1.4024,2.2675,13.6586)+orbiter_ofs, _V(1.3893,2.2590,13.6736)+orbiter_ofs, _V(1.3893,2.2590,13.6586)+orbiter_ofs);
+  oapiVCRegisterArea (AID_CRT4_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT4_BRT, _V(1.4024,2.2675,13.6736)+orbiter_ofs, _V(1.4024,2.2675,13.6586)+orbiter_ofs, _V(1.3893,2.2590,13.6736)+orbiter_ofs, _V(1.3893,2.2590,13.6586)+orbiter_ofs);
 }
 
 // --------------------------------------------------------------
@@ -4360,7 +4382,7 @@ bool Atlantis::clbkLoadVC (int id)
   // register MFD function buttons
   // this needs to be done globally, so that the labels are correctly updated from all VC positions
   SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-
+  
   // commander MFD function buttons
   oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCRegisterArea (AID_CDR2_BUTTONS, _R(0,15,255,28), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
@@ -4368,11 +4390,13 @@ bool Atlantis::clbkLoadVC (int id)
   oapiVCRegisterArea (AID_PLT1_BUTTONS, _R(0,29,255,42), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCRegisterArea (AID_PLT2_BUTTONS, _R(0,43,255,56), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   // central console MFD function buttons
-  oapiVCRegisterArea (AID_MFD1_BUTTONS, _R(0, 57,255, 70), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD2_BUTTONS, _R(0, 71,255, 84), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD3_BUTTONS, _R(0, 85,255, 98), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD4_BUTTONS, _R(0, 99,255,112), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD5_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_CRT1_BUTTONS, _R(0, 57,255, 70), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_CRT2_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_CRT3_BUTTONS, _R(0, 85,255, 98), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0, 99,255,112), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_MFD1_BUTTONS, _R(0, 71,255, 84), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  oapiVCRegisterArea (AID_MFD2_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
   if (id > 2 && id < 9) {
@@ -4581,12 +4605,14 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_CDR2_BUTTONS:
   case AID_PLT1_BUTTONS:
   case AID_PLT2_BUTTONS:
+  case AID_CRT1_BUTTONS:
+  case AID_CRT2_BUTTONS:
+  case AID_CRT3_BUTTONS:
+  case AID_CRT4_BUTTONS:
   case AID_MFD1_BUTTONS:
   case AID_MFD2_BUTTONS:
-  case AID_MFD3_BUTTONS:
-  case AID_MFD4_BUTTONS:
-  case AID_MFD5_BUTTONS:
-  case AID_MFDA_BUTTONS: {
+  case AID_AFD_BUTTONS: 
+	  {
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
     int bt = (int)(p.x*5.99);
     if (bt < 5) oapiProcessMFDButton (mfd, bt, event);
@@ -4610,12 +4636,13 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_CDR2_PWR:
   case AID_PLT1_PWR:
   case AID_PLT2_PWR:
+  case AID_CRT1_PWR:
+  case AID_CRT2_PWR:
+  case AID_CRT3_PWR:
+  case AID_CRT4_PWR:
   case AID_MFD1_PWR:
   case AID_MFD2_PWR:
-  case AID_MFD3_PWR:
-  case AID_MFD4_PWR:
-  case AID_MFD5_PWR:
-  case AID_MFDA_PWR: 
+  case AID_AFD_PWR: 
 	  {
 		
         int mfd = id - AID_CDR1_PWR+MFD_LEFT;
@@ -4629,12 +4656,13 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_CDR2_BRT:
   case AID_PLT1_BRT:
   case AID_PLT2_BRT:
+  case AID_CRT1_BRT:
+  case AID_CRT2_BRT:
+  case AID_CRT3_BRT:
+  case AID_CRT4_BRT:
   case AID_MFD1_BRT:
   case AID_MFD2_BRT:
-  case AID_MFD3_BRT:
-  case AID_MFD4_BRT:
-  case AID_MFD5_BRT:
-  case AID_MFDA_BRT: 
+  case AID_AFD_BRT: 
 	  {
 		static double t0, brt0;
 		static bool up;
@@ -4702,12 +4730,14 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
   case AID_CDR2_BUTTONS:
   case AID_PLT1_BUTTONS:
   case AID_PLT2_BUTTONS:
+  case AID_CRT1_BUTTONS:
+  case AID_CRT2_BUTTONS:
+  case AID_CRT3_BUTTONS:
+  case AID_CRT4_BUTTONS:
   case AID_MFD1_BUTTONS:
   case AID_MFD2_BUTTONS:
-  case AID_MFD3_BUTTONS:
-  case AID_MFD4_BUTTONS:
-  case AID_MFD5_BUTTONS:
-  case AID_MFDA_BUTTONS: {
+  case AID_AFD_BUTTONS:
+   {
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
     RedrawPanel_MFDButton (surf, mfd);
     } return true;
