@@ -416,6 +416,18 @@ const double defaultStage1Guidance[2][8] = {{0.0, 136.855, 219.456, 363.3216, 56
 
 const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 
+const int MDUID_CDR1 = 0;
+const int MDUID_CDR2 = 1;
+const int MDUID_PLT1 = 2;
+const int MDUID_PLT2 = 3;
+const int MDUID_CRT1 = 4;
+const int MDUID_CRT2 = 5;
+const int MDUID_CRT3 = 6;
+const int MDUID_CRT4 = 7;
+const int MDUID_MFD1 = 8;
+const int MDUID_MFD2 = 9;
+const int MDUID_AFD  = 10;
+
 // ==========================================================
 // panel area identifiers
 // ==========================================================
@@ -425,34 +437,37 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_CDR2_BUTTONS   2
 #define AID_PLT1_BUTTONS   3
 #define AID_PLT2_BUTTONS   4
-#define AID_MFD1_BUTTONS   5
-#define AID_MFD2_BUTTONS   6
-#define AID_MFD3_BUTTONS   7
-#define AID_MFD4_BUTTONS   8
-#define AID_MFD5_BUTTONS   9
-#define AID_MFDA_BUTTONS  10
+#define AID_CRT1_BUTTONS   5
+#define AID_CRT2_BUTTONS   6
+#define AID_CRT3_BUTTONS   7
+#define AID_CRT4_BUTTONS   8
+#define AID_MFD1_BUTTONS   9
+#define AID_MFD2_BUTTONS   10
+#define AID_AFD_BUTTONS  11
 // D. Beachy: define power buttons
-#define AID_CDR1_PWR      11
-#define AID_CDR2_PWR      12
-#define AID_PLT1_PWR      13
-#define AID_PLT2_PWR      14
-#define AID_MFD1_PWR      15
-#define AID_MFD2_PWR      16
-#define AID_MFD3_PWR      17
-#define AID_MFD4_PWR      18
-#define AID_MFD5_PWR      19
-#define AID_MFDA_PWR      20
+#define AID_CDR1_PWR      12
+#define AID_CDR2_PWR      13
+#define AID_PLT1_PWR      14
+#define AID_PLT2_PWR      15
+#define AID_CRT1_PWR      16
+#define AID_CRT2_PWR      17
+#define AID_CRT3_PWR      18
+#define AID_CRT4_PWR      19
+#define AID_MFD1_PWR      20
+#define AID_MFD2_PWR      21
+#define AID_AFD_PWR		  22
 // MFD brightness buttons
-#define AID_CDR1_BRT      21
-#define AID_CDR2_BRT      22
-#define AID_PLT1_BRT      23
-#define AID_PLT2_BRT      24
-#define AID_MFD1_BRT      25
-#define AID_MFD2_BRT      26
-#define AID_MFD3_BRT      27
-#define AID_MFD4_BRT      28
-#define AID_MFD5_BRT      29
-#define AID_MFDA_BRT      30
+#define AID_CDR1_BRT      23
+#define AID_CDR2_BRT      24
+#define AID_PLT1_BRT      25
+#define AID_PLT2_BRT      26
+#define AID_CRT1_BRT      27
+#define AID_CRT2_BRT      28
+#define AID_CRT3_BRT      29
+#define AID_CRT4_BRT      30
+#define AID_MFD1_BRT      31
+#define AID_MFD2_BRT      32
+#define AID_AFD_BRT       33
 // Panel R13L (payload bay operations)
 #define AID_R13L_MIN     100
 #define AID_R13L         100
@@ -1133,8 +1148,8 @@ private:
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
-	EXTMFDSPEC mfds[10];
-	double mfdbright[10];
+	EXTMFDSPEC mfds[11];
+	double mfdbright[11];
 	double pl_mass;
 	double dT;
 	VECTOR3 GVesselPos, GVesselVel;
