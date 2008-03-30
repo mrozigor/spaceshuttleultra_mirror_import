@@ -4232,14 +4232,14 @@ void Atlantis::RegisterVC_CdrMFD ()
   //2.121287  14.70349
   // activate MFD function buttons
   oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BUTTONS, 
-	  _V(-0.900,  2.11, 14.70349)+orbiter_ofs, _V(-0.725, 2.11, 14.70349)+orbiter_ofs,  
-	  _V(-0.900, 2.09, 14.70349)+orbiter_ofs, _V(-0.725, 2.09, 14.70349)+orbiter_ofs);
+	  _V(-0.900,  2.11, 14.703)+orbiter_ofs, _V(-0.725, 2.11, 14.703)+orbiter_ofs,  
+	  _V(-0.900, 2.09, 14.703)+orbiter_ofs, _V(-0.725, 2.09, 14.703)+orbiter_ofs);
 
   //-0.6275758
   //-0.4694053
   oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BUTTONS, 
-	  _V(-0.630,2.11,14.70349)+orbiter_ofs,  _V(-0.469, 2.11,14.70349)+orbiter_ofs,
-	  _V(-0.630,2.09,14.70349)+orbiter_ofs, _V(-0.469, 2.09,14.70349)+orbiter_ofs);
+	  _V(-0.630, 2.11, 14.703)+orbiter_ofs,  _V(-0.469, 2.11, 14.703)+orbiter_ofs,
+	  _V(-0.630, 2.09, 14.703)+orbiter_ofs, _V(-0.469, 2.09, 14.703)+orbiter_ofs);
 
     // D. Beachy: register+activate MFD power buttons
   const double powerButtonRadius = 0.0075; // radius of power button on each MFD
@@ -4264,21 +4264,25 @@ void Atlantis::RegisterVC_CdrMFD ()
 void Atlantis::RegisterVC_PltMFD ()
 {
   // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT1_BUTTONS, _V(0.4759,2.0490,15.0595)+orbiter_ofs, _V(0.6568,2.0490,15.0595)+orbiter_ofs,  _V(0.4759,2.0280,15.0595)+orbiter_ofs, _V(0.6568,2.0280,15.0595)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT2_BUTTONS, _V(0.7461,2.0490,15.0595)+orbiter_ofs, _V(0.9271,2.0490,15.0595)+orbiter_ofs,  _V(0.7461,2.0280,15.0595)+orbiter_ofs, _V(0.9271,2.0280,15.0595)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT1_BUTTONS, 
+	  _V(0.469, 2.11, 14.703) + orbiter_ofs, _V(0.630, 2.11, 14.703) + orbiter_ofs, 
+	  _V(0.469, 2.09, 14.703) + orbiter_ofs, _V(0.630, 2.09, 14.703) + orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT2_BUTTONS, 
+	  _V(0.725, 2.11, 14.703) + orbiter_ofs, _V(0.900,  2.11, 14.703) + orbiter_ofs, 
+	  _V(0.725, 2.09, 14.703) + orbiter_ofs, _V(0.900, 2.09, 14.703) + orbiter_ofs);
 
     // D. Beachy: register+activate MFD power buttons
     const double powerButtonRadius = 0.0075; // radius of power button on each MFD
   oapiVCRegisterArea (AID_PLT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_PLT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT1_PWR, _V( 0.450, 2.060, 15.060)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT2_PWR, _V( 0.720, 2.060, 15.060)+orbiter_ofs, powerButtonRadius);
+    oapiVCSetAreaClickmode_Spherical(AID_PLT1_PWR, _V( 0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
+    oapiVCSetAreaClickmode_Spherical(AID_PLT2_PWR, _V( 0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 
   // register+activate MFD brightness buttons
   oapiVCRegisterArea (AID_PLT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_PLT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT1_BRT, _V(0.671,2.0675,15.060)+orbiter_ofs, _V(0.686,2.0675,15.060)+orbiter_ofs, _V(0.671,2.0525,15.060)+orbiter_ofs, _V(0.686,2.0525,15.060)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT2_BRT, _V(0.941,2.0675,15.060)+orbiter_ofs, _V(0.956,2.0675,15.060)+orbiter_ofs, _V(0.941,2.0525,15.060)+orbiter_ofs, _V(0.956,2.0525,15.060)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Spherical (AID_PLT1_BRT, _V(0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_PLT2_BRT, _V(0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 }
 
 // --------------------------------------------------------------
@@ -4598,6 +4602,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
         counting = false;
       }
     }
+	sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
     } return true;
 
   // D. Beachy: handle power buttons
