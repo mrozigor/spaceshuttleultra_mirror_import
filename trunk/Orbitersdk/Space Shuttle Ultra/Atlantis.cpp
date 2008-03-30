@@ -4225,22 +4225,36 @@ bool Atlantis::clbkLoadGenericCockpit ()
 // --------------------------------------------------------------
 void Atlantis::RegisterVC_CdrMFD ()
 {
+
+  // -0.9049484  2.118143 14.7288
+  // -0.8917124  2.114834
+  // -0.7282474  2.104245
+  //2.121287  14.70349
   // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BUTTONS, _V(-0.9239,2.0490,15.0595)+orbiter_ofs, _V(-0.7448,2.0490,15.0595)+orbiter_ofs,  _V(-0.9239,2.0280,15.0595)+orbiter_ofs, _V(-0.7448,2.0280,15.0595)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BUTTONS, _V(-0.6546,2.0490,15.0595)+orbiter_ofs, _V(-0.4736,2.0490,15.0595)+orbiter_ofs,  _V(-0.6546,2.0280,15.0595)+orbiter_ofs, _V(-0.4736,2.0280,15.0595)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BUTTONS, 
+	  _V(-0.900,  2.11, 14.70349)+orbiter_ofs, _V(-0.725, 2.11, 14.70349)+orbiter_ofs,  
+	  _V(-0.900, 2.09, 14.70349)+orbiter_ofs, _V(-0.725, 2.09, 14.70349)+orbiter_ofs);
+
+  //-0.6275758
+  //-0.4694053
+  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BUTTONS, 
+	  _V(-0.630,2.11,14.70349)+orbiter_ofs,  _V(-0.469, 2.11,14.70349)+orbiter_ofs,
+	  _V(-0.630,2.09,14.70349)+orbiter_ofs, _V(-0.469, 2.09,14.70349)+orbiter_ofs);
 
     // D. Beachy: register+activate MFD power buttons
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
+  const double powerButtonRadius = 0.0075; // radius of power button on each MFD
+
   oapiVCRegisterArea (AID_CDR1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_CDR2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_CDR1_PWR, _V(-0.950, 2.060, 15.060)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_CDR2_PWR, _V(-0.680, 2.060, 15.060)+orbiter_ofs, powerButtonRadius);
+
+  oapiVCSetAreaClickmode_Spherical(AID_CDR1_PWR, _V(-0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);	
+  oapiVCSetAreaClickmode_Spherical(AID_CDR2_PWR, _V(-0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 
   // register+activate MFD brightness buttons
   oapiVCRegisterArea (AID_CDR1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
   oapiVCRegisterArea (AID_CDR2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BRT, _V(-0.729,2.0675,15.060)+orbiter_ofs, _V(-0.714,2.0675,15.060)+orbiter_ofs, _V(-0.729,2.0525,15.060)+orbiter_ofs, _V(-0.714,2.0525,15.060)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BRT, _V(-0.459,2.0675,15.060)+orbiter_ofs, _V(-0.444,2.0675,15.060)+orbiter_ofs, _V(-0.459,2.0525,15.060)+orbiter_ofs, _V(-0.444,2.0525,15.060)+orbiter_ofs);
+  oapiVCSetAreaClickmode_Spherical (AID_CDR1_BRT, _V(-0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
+  oapiVCSetAreaClickmode_Spherical (AID_CDR2_BRT, _V(-0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 }
 
 // --------------------------------------------------------------
@@ -4364,7 +4378,7 @@ bool Atlantis::clbkLoadVC (int id)
   }
 
   switch (id) {
-  case 0: // commander position
+  case VC_CDR: // commander position
     SetCameraOffset (orbiter_ofs + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
@@ -4386,7 +4400,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
     ok = true;
     break;
-  case 1: // pilot position
+  case VC_PLT: // pilot position
     SetCameraOffset (orbiter_ofs + VC_POS_PLT);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
@@ -4598,7 +4612,9 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
   case AID_MFD5_PWR:
   case AID_MFDA_PWR: 
 	  {
+		
         int mfd = id - AID_CDR1_PWR+MFD_LEFT;
+		sprintf(oapiDebugString(), "POWER BUTTON %d", mfd);
         oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
        } 
 	  return true;
@@ -4618,6 +4634,9 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 		static double t0, brt0;
 		static bool up;
 		int mfd = id-AID_CDR1_BRT;
+		sprintf(oapiDebugString(), "BRT BUTTON %d", mfd);
+
+		/*
 		if (event & PANEL_MOUSE_LBDOWN) {
 			up = (p.x >= 0.5);
 			t0 = oapiGetSysTime();
@@ -4637,6 +4656,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 				mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
 			}
 		}
+		*/
 	} 
 	return false;
   // handle panel R13L events (payload bay operations)
