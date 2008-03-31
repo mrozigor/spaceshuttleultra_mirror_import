@@ -32,7 +32,7 @@
 #include "meshres_vc_additions.h"
 #include "resource.h"
 #include "SubsystemDirector.h"
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
 //#include "PayloadBaySystem.h"
 #ifdef INCLUDE_OMS_CODE
@@ -354,7 +354,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems	  = new SubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pMTU = new MasterTimingUnit(psubsystems));
+  psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 #ifdef INCLUDE_OMS_CODE
   psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));

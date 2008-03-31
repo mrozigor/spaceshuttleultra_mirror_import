@@ -15,6 +15,7 @@
 #include "CRT.h"
 #include "orbitersdk.h"
 #include <math.h>
+#include "dps/MasterTimingUnit.h"
 
 typedef struct {
 	double P;		//Pressure (psig)
@@ -771,7 +772,7 @@ public:
 
 
 	SubsystemDirector* psubsystems;
-	MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	OMSSubsystem* pOMS;
 	AirDataProbeSystem* pADPS;
 

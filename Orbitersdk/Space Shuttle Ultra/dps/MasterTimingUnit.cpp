@@ -8,6 +8,8 @@
 // Konstruktion/Destruktion
 //////////////////////////////////////////////////////////////////////
 
+namespace dps {
+
 MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 : AtlantisSubsystem(_director, "MTU")
 {
@@ -345,3 +347,5 @@ bool MasterTimingUnit::OnParseLine(const char* line)
 	return false;
 }
 
+
+};

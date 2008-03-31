@@ -1,7 +1,7 @@
 // GPC Code
 #include "Atlantis.h"
 
-#include "Stopwatch.h"
+#include "util/Stopwatch.h"
 #include <cstdio>
 
 extern int tpir(const double* list, int n_items, double target);

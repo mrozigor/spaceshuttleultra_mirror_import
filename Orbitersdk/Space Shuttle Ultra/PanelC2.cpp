@@ -5,7 +5,7 @@
 #include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -288,13 +288,13 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		{
 			switch(switch_state[SWITCH9]) {
 			case 0:
-				sts->pMTU->SetEventTimerMode(TIMER_FORWARD, COUNT_UP);
+				sts->pMTU->SetEventTimerMode(dps::TIMER_FORWARD, dps::COUNT_UP);
 				break;
 			case 1:
-				sts->pMTU->SetEventTimerMode(TIMER_FORWARD, COUNT_DOWN);
+				sts->pMTU->SetEventTimerMode(dps::TIMER_FORWARD, dps::COUNT_DOWN);
 				break;
 			case 2:
-				sts->pMTU->SetEventTimerMode(TIMER_FORWARD, COUNT_TEST);
+				sts->pMTU->SetEventTimerMode(dps::TIMER_FORWARD, dps::COUNT_TEST);
 				break;
 			}
 		}
@@ -325,10 +325,10 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		{
 			switch(switch_state[SWITCH10]) {
 			case 0:
-				sts->pMTU->StartEventTimer(TIMER_FORWARD);
+				sts->pMTU->StartEventTimer(dps::TIMER_FORWARD);
 				break;
 			case 2:
-				sts->pMTU->StopEventTimer(TIMER_FORWARD);
+				sts->pMTU->StopEventTimer(dps::TIMER_FORWARD);
 				break;
 			}
 		}
@@ -358,10 +358,10 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 		{
 			switch(switch_state[SWITCH12]) {
 			case 0:
-				sts->pMTU->SetEventTimer(TIMER_FORWARD, wheelnumber[0]*10+wheelnumber[1], wheelnumber[2]*10 + wheelnumber[3]);
+				sts->pMTU->SetEventTimer(dps::TIMER_FORWARD, wheelnumber[0]*10+wheelnumber[1], wheelnumber[2]*10 + wheelnumber[3]);
 				break;
 			case 2:
-				sts->pMTU->ResetEventTimer(TIMER_FORWARD);
+				sts->pMTU->ResetEventTimer(dps::TIMER_FORWARD);
 				break;
 			}
 		}
@@ -731,7 +731,7 @@ void PanelC2::Step(double t, double dt)
 		if(switch_timer[SWITCH9] <=0.0)
 		{
 			switch_state[SWITCH9] = 1;
-			sts->pMTU->SetEventTimerMode(TIMER_FORWARD, COUNT_DOWN);
+			sts->pMTU->SetEventTimerMode(dps::TIMER_FORWARD, dps::COUNT_DOWN);
 			update = true;
 		}
 	}
