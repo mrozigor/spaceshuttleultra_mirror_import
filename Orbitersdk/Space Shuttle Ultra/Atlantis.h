@@ -33,6 +33,15 @@ const short VARSTATE_LOW = 3;
 const short VARSTATE_HIGH = 4;
 const short VARSTATE_OFFSCALE_HIGH = 5;
 
+const static char* DEFAULT_MESHNAME_VC = "SSU/VC";
+const static char* DEFAULT_MESHNAME_KU = "SSU/KU";
+const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
+const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
+const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
+const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
+const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
+const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
+
 // ==========================================================
 // Some Orbiter-related parameters
 // ==========================================================

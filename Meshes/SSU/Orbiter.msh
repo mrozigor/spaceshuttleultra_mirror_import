@@ -35534,5 +35534,5 @@ MATERIAL glass
 0.9 0.9 0.9 0.6 20
 0 0 0 0.6
 TEXTURES 2
-Atlantis\MGAtlantis.dds D
-Atlantis\cargobay.dds
+SSU\MGAtlantis.dds D
+SSU\cargobay.dds

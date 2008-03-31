@@ -103878,30 +103878,30 @@ MATERIAL ac3dmat5
 0.470588 0.470588 0.470588 1 5
 0.615686 0.615686 0 1
 TEXTURES 27
-Atlantis/Fpanels.dds
-Atlantis/A1shadow.dds
-Atlantis/panelA1U.dds
-Atlantis/panelA1L.dds
-Atlantis/panelA1R.dds
-Atlantis/O1.dds
-Atlantis/O3.dds
-Atlantis/digitPOS.dds	D
-Atlantis/AftTimer.dds
-Atlantis/timer.dds
-Atlantis/talkback.dds	D
-Atlantis/panelF8.dds
-Atlantis/A8top.dds
-Atlantis/panelF6.dds
-Atlantis/COAS.dds
-Atlantis/R1L1.dds
-Atlantis/C3.dds
-Atlantis/R2.dds			D
-Atlantis/C2.dds
-Atlantis/clocknums.dds	D
-Atlantis/A8bottom.dds
-Atlantis/stsvc03.dds
-Atlantis/stsvc02.dds
-Atlantis/stsvc01.dds
-Atlantis/label.dds		D
-Atlantis/gpc.dds
-Atlantis/r13l.dds		D
+SSU/Fpanels.dds
+SSU/A1shadow.dds
+SSU/panelA1U.dds
+SSU/panelA1L.dds
+SSU/panelA1R.dds
+SSU/O1.dds
+SSU/O3.dds
+SSU/digitPOS.dds	D
+SSU/AftTimer.dds
+SSU/timer.dds
+SSU/talkback.dds	D
+SSU/panelF8.dds
+SSU/A8top.dds
+SSU/panelF6.dds
+SSU/COAS.dds
+SSU/R1L1.dds
+SSU/C3.dds
+SSU/R2.dds			D
+SSU/C2.dds
+SSU/clocknums.dds	D
+SSU/A8bottom.dds
+SSU/stsvc03.dds
+SSU/stsvc02.dds
+SSU/stsvc01.dds
+SSU/label.dds		D
+SSU/gpc.dds
+SSU/r13l.dds		D
