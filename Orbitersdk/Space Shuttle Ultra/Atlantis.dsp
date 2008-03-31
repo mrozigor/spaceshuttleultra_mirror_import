@@ -211,6 +211,10 @@ SOURCE=.\meshres_vc_additions.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\mission\Mission.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\OMSPod.h
 # End Source File
 # Begin Source File
