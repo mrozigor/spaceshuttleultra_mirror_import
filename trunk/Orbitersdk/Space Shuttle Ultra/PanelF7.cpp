@@ -5,7 +5,7 @@
 #include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -72,10 +72,10 @@ void PanelF7::Step(double t, double dt)
 {
 	//Check forward event timer for changes and update clock if needed
 
-	if(sts->pMTU->GetEventTimerMin(TIMER_FORWARD) != sTimerMinutes || 
-		sts->pMTU->GetEventTimerSec(TIMER_FORWARD) != sTimerSeconds) {
-		sTimerMinutes = sts->pMTU->GetEventTimerMin(TIMER_FORWARD);
-		sTimerSeconds = sts->pMTU->GetEventTimerSec(TIMER_FORWARD);
+	if(sts->pMTU->GetEventTimerMin(dps::TIMER_FORWARD) != sTimerMinutes || 
+		sts->pMTU->GetEventTimerSec(dps::TIMER_FORWARD) != sTimerSeconds) {
+		sTimerMinutes = sts->pMTU->GetEventTimerMin(dps::TIMER_FORWARD);
+		sTimerSeconds = sts->pMTU->GetEventTimerSec(dps::TIMER_FORWARD);
 		oapiVCTriggerRedrawArea(-1, AID_F7_EVTTMR1);
 	}
 }

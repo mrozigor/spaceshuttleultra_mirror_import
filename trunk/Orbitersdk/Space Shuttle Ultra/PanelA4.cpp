@@ -5,7 +5,7 @@
 #include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -166,10 +166,10 @@ void PanelA4::Step(double t, double dt)
 {
 	//Check forward event timer for changes and update clock if needed
 
-	if(sts->pMTU->GetEventTimerMin(TIMER_AFT) != sTimerMinutes || 
-		sts->pMTU->GetEventTimerSec(TIMER_AFT) != sTimerSeconds) {
-		sTimerMinutes = sts->pMTU->GetEventTimerMin(TIMER_AFT);
-		sTimerSeconds = sts->pMTU->GetEventTimerSec(TIMER_AFT);
+	if(sts->pMTU->GetEventTimerMin(dps::TIMER_AFT) != sTimerMinutes || 
+		sts->pMTU->GetEventTimerSec(dps::TIMER_AFT) != sTimerSeconds) {
+		sTimerMinutes = sts->pMTU->GetEventTimerMin(dps::TIMER_AFT);
+		sTimerSeconds = sts->pMTU->GetEventTimerSec(dps::TIMER_AFT);
 		oapiVCTriggerRedrawArea(-1, AID_A4_EVTTMR);
 	}
 

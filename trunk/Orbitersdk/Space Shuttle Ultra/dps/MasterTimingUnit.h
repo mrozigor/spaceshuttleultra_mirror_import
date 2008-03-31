@@ -9,7 +9,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "AtlantisSubsystem.h"
+#include "..\AtlantisSubsystem.h"
+
+namespace dps {
 
 typedef short MTU_ACCU_INDEX;
 typedef short MTU_EVTTMR_INDEX;
@@ -87,6 +89,8 @@ public:
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual bool OnParseLine(const char* line);
+
+};
 
 };
 

@@ -5,7 +5,7 @@
 #include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 //#include "Stopwatch.h"
 
 extern GDIParams g_Param;
