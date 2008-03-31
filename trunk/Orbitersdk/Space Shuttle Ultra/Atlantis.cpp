@@ -472,14 +472,14 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hraileron	= NULL;
 
   // preload meshes
-  hOrbiterMesh        = oapiLoadMeshGlobal ("Atlantis\\Atlantis");
-  hOrbiterCockpitMesh = oapiLoadMeshGlobal ("Atlantis\\AtlantisCockpit");
-  hOrbiterVCMesh      = oapiLoadMeshGlobal ("Atlantis\\AtlantisVC");
-  hOrbiterRMSMesh	  = oapiLoadMeshGlobal ("Atlantis\\RMS");
-  hKUBandMesh		  = oapiLoadMeshGlobal ("Atlantis\\KU");
-  hTankMesh           = oapiLoadMeshGlobal ("Shuttle_tank");
-  hSRBMesh[0]		  = oapiLoadMeshGlobal ("Shuttle_rsrb");
-  hSRBMesh[1]		  = oapiLoadMeshGlobal ("Shuttle_lsrb");
+  hOrbiterMesh        = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
+  hOrbiterCockpitMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
+  hOrbiterVCMesh      = oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
+  hOrbiterRMSMesh	  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
+  hKUBandMesh		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
+  hTankMesh           = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
+  hSRBMesh[0]		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
+  hSRBMesh[1]		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
