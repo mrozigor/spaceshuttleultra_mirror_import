@@ -6,7 +6,7 @@
 #include "PanelC2.h"
 #include "CRT.h"
 #include <cstdio>
-#include "MasterTimingUnit.h"
+#include "dps/MasterTimingUnit.h"
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)

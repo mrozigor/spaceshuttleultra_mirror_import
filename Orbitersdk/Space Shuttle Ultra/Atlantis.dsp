@@ -95,23 +95,35 @@ LINK32=link.exe
 # PROP Default_Filter "msh"
 # Begin Source File
 
-SOURCE=..\..\Meshes\Atlantis\Atlantis.msh
+SOURCE=..\..\Meshes\SSU\Cockpit.msh
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Meshes\Atlantis\AtlantisCockpit.msh
+SOURCE=..\..\Meshes\SSU\ET125.msh
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Meshes\Atlantis\AtlantisVC.msh
+SOURCE=..\..\Meshes\SSU\KU.msh
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Meshes\Atlantis\KU.msh
+SOURCE=..\..\Meshes\SSU\lsrb.msh
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Meshes\Atlantis\RMS.msh
+SOURCE=..\..\Meshes\SSU\Orbiter.msh
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Meshes\SSU\RMS.msh
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Meshes\SSU\rsrb.msh
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Meshes\SSU\VC.msh
 # End Source File
 # End Group
 # Begin Group "Include"
@@ -127,7 +139,7 @@ SOURCE=.\AirDataProbeSystem.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\AP101S.h
+SOURCE=.\dps\AP101S.h
 # End Source File
 # Begin Source File
 
@@ -139,15 +151,15 @@ SOURCE=.\AtlantisSubsystem.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicPanel.h
+SOURCE=.\vc\BasicPanel.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicSwitch.h
+SOURCE=.\vc\BasicSwitch.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicVCComponent.h
+SOURCE=.\vc\BasicVCComponent.h
 # End Source File
 # Begin Source File
 
@@ -171,7 +183,7 @@ SOURCE=.\GearOp.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\GPCVariables.h
+SOURCE=.\dps\GPCVariables.h
 # End Source File
 # Begin Source File
 
@@ -187,11 +199,11 @@ SOURCE=.\KuBandSystem.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\MasterTimingUnit.h
+SOURCE=.\dps\MasterTimingUnit.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\MDM.h
+SOURCE=.\dps\MDM.h
 # End Source File
 # Begin Source File
 
@@ -267,11 +279,7 @@ SOURCE=.\ShuttleBus.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\StandardSwitch.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Stopwatch.h
+SOURCE=.\vc\StandardSwitch.h
 # End Source File
 # Begin Source File
 
@@ -295,7 +303,7 @@ SOURCE=.\AirDataProbeSystem.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\AP101S.cpp
+SOURCE=.\dps\AP101S.cpp
 # End Source File
 # Begin Source File
 
@@ -311,15 +319,15 @@ SOURCE=.\AtlantisSubsystem.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicPanel.cpp
+SOURCE=.\vc\BasicPanel.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicSwitch.cpp
+SOURCE=.\vc\BasicSwitch.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicVCComponent.cpp
+SOURCE=.\vc\BasicVCComponent.cpp
 # End Source File
 # Begin Source File
 
@@ -359,11 +367,11 @@ SOURCE=.\KuBandSystem.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\MasterTimingUnit.cpp
+SOURCE=.\dps\MasterTimingUnit.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\MDM.cpp
+SOURCE=.\dps\MDM.cpp
 # End Source File
 # Begin Source File
 
@@ -411,11 +419,7 @@ SOURCE=.\ShuttleBus.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StandardSwitch.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Stopwatch.cpp
+SOURCE=.\vc\StandardSwitch.cpp
 # End Source File
 # Begin Source File
 
