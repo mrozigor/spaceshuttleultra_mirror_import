@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Atlantis"
 	ProjectGUID="{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -51,7 +52,7 @@
 				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Microsoft SDK\Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\Release/Atlantis.pch"
 				AssemblerListingLocation=".\Release/"
@@ -108,9 +109,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -149,7 +147,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;D:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include&quot;;..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\Debug/Atlantis.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -177,7 +175,8 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;D:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\lib&quot;"
-				IgnoreDefaultLibraryNames="msvcirt.lib"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="msvcirt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				StackReserveSize="4194304"
@@ -203,9 +202,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -247,31 +243,175 @@
 				</FileConfiguration>
 			</File>
 		</Filter>
+		<Filter
+			Name="Sources"
+			>
+			<File
+				RelativePath=".\AirDataProbeSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AP101S.cpp"
+				>
+			</File>
+			<File
+				RelativePath="Atlantis.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\AtlantisSubsystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\BasicPanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\BasicSwitch.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\BasicVCComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CommModeHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="Common.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\discsignals\DiscOutPort.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\discsignals\DiscreteBundle.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\discsignals\DiscretePort.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GearOp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GPC.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Keyboard.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\MasterTimingUnit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\MDM.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelA4.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelA8.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelC2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelC3.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelF7.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelO3.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelR2.cpp"
+				>
+			</File>
+			<File
+				RelativePath="PlBayOp.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\vc\StandardSwitch.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SubsystemDirector.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="AC_resource.h"
 			>
-		</File>
-		<File
-			RelativePath="Atlantis.cpp"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="Atlantis.h"
@@ -298,30 +438,28 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\AtlantisSubsystem.cpp"
+			RelativePath=".\vc\BasicPanel.h"
 			>
 		</File>
 		<File
-			RelativePath="Common.cpp"
+			RelativePath=".\vc\BasicSwitch.h"
 			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\vc\BasicVCComponent.h"
+			>
+		</File>
+		<File
+			RelativePath=".\discsignals\DiscOutPort.h"
+			>
+		</File>
+		<File
+			RelativePath=".\discsignals\DiscreteBundle.h"
+			>
+		</File>
+		<File
+			RelativePath=".\discsignals\DiscretePort.h"
+			>
 		</File>
 		<File
 			RelativePath="..\lib\DlgCtrl.lib"
@@ -332,15 +470,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\GearOp.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\GearOp.h"
-			>
-		</File>
-		<File
-			RelativePath=".\GPC.cpp"
 			>
 		</File>
 		<File
@@ -361,10 +491,6 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\MasterTimingUnit.cpp"
 			>
 		</File>
 		<File
@@ -392,31 +518,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\PanelA4.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\PanelC2.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\PanelC3.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\PanelC3.h"
-			>
-		</File>
-		<File
-			RelativePath=".\PanelF7.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\PanelO3.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\PanelR2.cpp"
 			>
 		</File>
 		<File
@@ -424,33 +526,11 @@
 			>
 		</File>
 		<File
-			RelativePath="PlBayOp.cpp"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath=".\PlBayOp.h"
 			>
 		</File>
 		<File
-			RelativePath=".\SubsystemDirector.cpp"
+			RelativePath=".\vc\StandardSwitch.h"
 			>
 		</File>
 		<File
