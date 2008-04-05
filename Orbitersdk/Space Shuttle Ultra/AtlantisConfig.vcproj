@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="AtlantisConfig"
 	ProjectGUID="{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -105,9 +106,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine=""
 			/>
@@ -149,7 +147,7 @@
 				AdditionalIncludeDirectories="..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ATLANTISCONFIG_EXPORTS"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/AtlantisConfig.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -175,6 +173,7 @@
 				OutputFile=".\..\..\..\Modules\Plugin/AtlantisConfig.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="msvcirt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\Modules\Plugin/AtlantisConfig.pdb"
 				StackReserveSize="4194304"
@@ -200,9 +199,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
