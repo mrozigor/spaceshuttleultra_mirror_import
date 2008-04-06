@@ -66,7 +66,7 @@ PanelR2::PanelR2(Atlantis *_sts): sts(_sts)
 void PanelR2::RegisterVC ()
 {
 	VECTOR3 ofs = sts->orbiter_ofs;
-	SURFHANDLE panelr2_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_R1L1_VC);
+	SURFHANDLE panelr2_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_PANELR2_VC);
 	//SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
 
 	oapiVCRegisterArea (AID_R2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
