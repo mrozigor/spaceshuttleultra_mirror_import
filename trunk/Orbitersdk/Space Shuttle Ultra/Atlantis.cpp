@@ -644,6 +644,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   stage1guidance_size=0;
 
   pCommModeHandler->DefineAnnotations();
+
+  fTimeCameraLabel = 0.0;
+  nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
+  oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
 }
 
 // --------------------------------------------------------------
@@ -2369,19 +2373,19 @@ void Atlantis::SetAnimationCameras() {
   SetAnimation(anim_camBRpitch, anim_pitch);
 
     switch (VCMode) {
-  case 4:
+  case VC_PLBCAMFL:
     a = ((-camFLyaw+90)*RAD);
     b = ((camFLpitch-90)*RAD);
     break;
-  case 5:
+  case VC_PLBCAMFR:
     a = ((-camFRyaw+90)*RAD);
     b = ((camFRpitch-90)*RAD);
     break;
-  case 6:
+  case VC_PLBCAMBL:
     a = ((-camBLyaw-90)*RAD);
     b = ((camBLpitch-90)*RAD);
     break;
-  case 7:
+  case VC_PLBCAMBR:
     a = ((-camBRyaw-90)*RAD);
     b = ((camBRpitch-90)*RAD);
     break;
@@ -4046,6 +4050,17 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   pCommModeHandler->PostStep(simt, simdt);
+
+  if(fTimeCameraLabel > 0)
+  {
+	  fTimeCameraLabel -= simdt;
+	  if(fTimeCameraLabel < 0)
+		  fTimeCameraLabel = 0;
+	  if(0 == fTimeCameraLabel)
+	  {
+		  oapiAnnotationSetText(nhCameraLabel, NULL);
+	  }
+  }
 }
 
 // --------------------------------------------------------------
@@ -4402,7 +4417,7 @@ bool Atlantis::clbkLoadVC (int id)
   
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
-  if (id > 2 && id < 9) {
+  if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
   } else {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
@@ -4410,11 +4425,12 @@ bool Atlantis::clbkLoadVC (int id)
 
   switch (id) {
   case VC_CDR: // commander position
+    DisplayCameraLabel(VC_LBL_CDR);
     SetCameraOffset (orbiter_ofs + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = orbiter_ofs + VC_POS_CDR;
-    oapiVCSetNeighbours (9, 1, 8, 10);
+    oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS2);
 
   // Default camera rotarion
   SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -4432,11 +4448,12 @@ bool Atlantis::clbkLoadVC (int id)
     ok = true;
     break;
   case VC_PLT: // pilot position
+	DisplayCameraLabel(VC_LBL_PLT);
     SetCameraOffset (orbiter_ofs + VC_POS_PLT);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     huds.hudcnt = orbiter_ofs + VC_POS_PLT;
-    oapiVCSetNeighbours (0, 2, 8, 10);
+    oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
 
   // Default camera rotarion
   SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -4453,13 +4470,14 @@ bool Atlantis::clbkLoadVC (int id)
 	panelf7->RegisterVC();
     ok = true;
     break;
-  case 2: // Aft Flight Deck
-    SetCameraOffset (_V(orbiter_ofs.x+0.4,orbiter_ofs.y+3.15,orbiter_ofs.z+12.8));
-    SetCameraDefaultDirection (_V(0,0,-1));
-    SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
+  case VC_STBDSTATION: 
+	  DisplayCameraLabel(VC_LBL_STBDSTATION);
+    SetCameraOffset (VC_POS_STBDSTATION + orbiter_ofs);
+    SetCameraDefaultDirection (VC_DIR_STBDSTATION);
+    //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
 
     // Outside cameras neighbours
-	oapiVCSetNeighbours(1, 9, 8, 3);
+	oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_PORTSTATION);
     //oapiVCSetNeighbours (1, 0, 3, 0);
 
     // Default camera rotarion
@@ -4472,7 +4490,8 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
     ok = true;
     break;
-  case 3: //RMS End Effector Camera
+  case VC_LEECAM: //RMS End Effector Camera
+	  DisplayCameraLabel(VC_LBL_LEECAM);
 	tilt = wr_angle;
 	if(tilt<-180.0) tilt+=360.0;
 	else if(tilt>180.0) tilt-=360.0;
@@ -4481,7 +4500,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
 	//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
 	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
-    oapiVCSetNeighbours (-1, -1, 9, 4);
+    oapiVCSetNeighbours (-1, -1, -1, VC_RMSSTATION);
 
     // No rotation allowed for RMS wrist camera.
     SetCameraRotationRange(0,0,0,0);
@@ -4490,43 +4509,51 @@ bool Atlantis::clbkLoadVC (int id)
 
     ok = true;
     break;
-  case 4: //FL Payload Bay Camera
+  case VC_PLBCAMFL: //FL Payload Bay Camera
+	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
     SetCameraOffset (_V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
-    oapiVCSetNeighbours (5, 6, 3, 8);
+    oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 
     ok = true;
     break;
-  case 5: //FR Payload Bay Camera
+  case VC_PLBCAMFR: //FR Payload Bay Camera
+	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
     SetCameraOffset (_V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
-    oapiVCSetNeighbours (7, 4, 3, 8);
+    oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 
     ok = true;
     break;
-  case 6: //BL Payload Bay Camera
+  case VC_PLBCAMBL: //BL Payload Bay Camera
+	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
     SetCameraOffset (_V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
-    oapiVCSetNeighbours (4, 7, 3, 8);
+    oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
     ok = true;
     break;
-  case 7: //BR Payload Bay Camera
+  case VC_PLBCAMBR: //BR Payload Bay Camera
+	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
     SetCameraOffset (_V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
-    oapiVCSetNeighbours (6, 5, 3, 8);
+    oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 
     ok = true;
     break;
-  case 8: //Docking camera
+  case VC_DOCKCAM: //Docking camera
+	  DisplayCameraLabel(VC_LBL_DOCKCAM);
 	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
-	  oapiVCSetNeighbours(-1, -1, 4, 2);
+	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0));
+	  SetCameraRotationRange(0, 0, 0, 0);
+	  oapiVCSetNeighbours(-1, -1, VC_AFTPILOT, VC_PLBCAMFL);
 	  ok = true;
 	  break;
-  case 9: //Aft Flight Deck
-	SetCameraOffset (_V(orbiter_ofs.x-0.4,orbiter_ofs.y+3.15,orbiter_ofs.z+12.8));
-    SetCameraDefaultDirection (_V(0,0,-1));
+  case VC_AFTPILOT: //Aft Flight Deck
+	  DisplayCameraLabel(VC_LBL_AFTPILOT);
+	SetCameraOffset (VC_POS_AFTPILOT + orbiter_ofs);
+    SetCameraDefaultDirection (VC_DIR_AFTPILOT);
 	SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(0,-0.6,0.15), 0, 0);
     //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(-0.3,-0.3,0.15), -60.0*RAD, -50.0*RAD);
 
     // Outside cameras neighbours
-	oapiVCSetNeighbours(2, 0, 8, 3);
+	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -4536,11 +4563,62 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
 	ok = true;
 	break;
-  case 10: //MS2/FE
-	SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+2.55,orbiter_ofs.z+13.6));
-    SetCameraDefaultDirection (_V(0,0,1));
+  case VC_RMSSTATION: 
+	  DisplayCameraLabel(VC_LBL_RMSSTATION);
+	SetCameraOffset (orbiter_ofs + VC_POS_RMSSTATION);
+    SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (-1, -1, 0, -1);
+    oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+
+	// Default camera rotation
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	plop->RegisterVC ();  // register panel R13L interface
+	panela4->RegisterVC();
+	panela8->RegisterVC();
+	panelo3->RegisterVC();
+	ok = true;
+	break;
+  case VC_PORTSTATION:
+	  DisplayCameraLabel(VC_LBL_PORTSTATION);
+	SetCameraOffset (orbiter_ofs + VC_POS_PORTSTATION);
+    SetCameraDefaultDirection (VC_DIR_PORTSTATION);
+    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_STBDSTATION);
+
+	// Default camera rotation
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	plop->RegisterVC ();  // register panel R13L interface
+	panela4->RegisterVC();
+	panela8->RegisterVC();
+	panelo3->RegisterVC();
+	ok = true;
+	break;
+  case VC_AFTWORKSTATION:
+	  DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
+	SetCameraOffset (orbiter_ofs + VC_POS_AFTWORKSTATION);
+    SetCameraDefaultDirection (VC_DIR_AFTWORKSTATION);
+    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    oapiVCSetNeighbours (VC_STBDSTATION, VC_MS1, VC_RMSSTATION, VC_PORTSTATION);
+
+	// Default camera rotation
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	plop->RegisterVC ();  // register panel R13L interface
+	panela4->RegisterVC();
+	panela8->RegisterVC();
+	panelo3->RegisterVC();
+	ok = true;
+	break;
+
+  case VC_MS1:
+	 DisplayCameraLabel(VC_LBL_MS1);
+	SetCameraOffset (orbiter_ofs + VC_POS_MS1);
+    SetCameraDefaultDirection (VC_DIR_MS1);
+    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    oapiVCSetNeighbours (VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -4558,10 +4636,33 @@ bool Atlantis::clbkLoadVC (int id)
 	panelf7->RegisterVC();
     ok = true;
     break;
+  case VC_MS2:
+	  DisplayCameraLabel(VC_LBL_MS2);
+	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
+    SetCameraDefaultDirection (VC_DIR_MS2);
+    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    oapiVCSetNeighbours (VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
+
+	// Default camera rotation
+	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+    RegisterVC_CdrMFD();
+	RegisterVC_PltMFD (); // activate pilot MFD controls
+    RegisterVC_CntMFD (); // activate central panel MFD controls
+	panela4->RegisterVC();
+	c3po->RegisterVC();
+	r2d2->RegisterVC();
+	panelo3->RegisterVC();
+	panelc2->RegisterVC();
+	CDRKeyboard->RegisterVC();
+	PLTKeyboard->RegisterVC();
+	panelf7->RegisterVC();
+    ok = true;
+    break;
+
   }
 
   // Common action for external payload cameras
-  if (id > 3 && id < 9) {
+  if (id >= VC_PLBCAMFL && id <= VC_PLBCAMBR) {
     // Pan and tilt from camera control not from alt + arrow but from the dialog
     SetCameraRotationRange(0,0,0,0);
     // No lean for payload camera
@@ -5959,4 +6060,11 @@ void Atlantis::SetAirDataProbeDeployment(int side, double position)
 	} else if(side == 0) {
 		SetAnimation(anim_adpl, position);
 	}
+}
+
+void Atlantis::DisplayCameraLabel(const char* pszLabel)
+{
+	strcpy(pszCameraLabelBuffer, pszLabel);
+	oapiAnnotationSetText(nhCameraLabel, pszCameraLabelBuffer);
+	fTimeCameraLabel = 5.0;
 }

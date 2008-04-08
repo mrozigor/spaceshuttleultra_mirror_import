@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "DiscretePort.h"
+#include <cstdio>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -13,7 +14,12 @@ namespace discsignals
 
 DiscretePort::DiscretePort()
 {
-
+	pBundle = NULL;
+	usLine = 0;
+}
+DiscretePort::DiscretePort(DiscreteBundle* pBundle, int iLine)
+{
+	Connect(pBundle, iLine);
 }
 
 DiscretePort::~DiscretePort()

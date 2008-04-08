@@ -463,6 +463,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\ClassDiagram2.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\ClassDiagram3.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\ClassDiagram4.cd"
+			>
+		</File>
+		<File
 			RelativePath=".\discsignals\DiscOutPort.h"
 			>
 		</File>
@@ -507,6 +523,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\vc\Indicator7Seg.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\vc\Indicator7Seg.h"
+			>
+		</File>
+		<File
 			RelativePath="meshres.h"
 			>
 		</File>
@@ -524,6 +548,10 @@
 		</File>
 		<File
 			RelativePath="..\lib\orbiter.lib"
+			>
+		</File>
+		<File
+			RelativePath="..\include\OrbiterAPI.h"
 			>
 		</File>
 		<File
@@ -548,6 +576,10 @@
 		</File>
 		<File
 			RelativePath="Bitmaps\tkbk_label.bmp"
+			>
+		</File>
+		<File
+			RelativePath="..\include\VesselAPI.h"
 			>
 		</File>
 	</Files>

@@ -395,20 +395,61 @@ const int VC_MS2 = 3;
 const int VC_MS3 = 4;
 const int VC_MS4 = 5;
 const int VC_MS5 = 6;
+const int VC_STBDSTATION = 7;
+const int VC_AFTPILOT = 8;
+const int VC_RMSSTATION = 9;
+const int VC_PORTSTATION = 10;
+const int VC_AFTWORKSTATION = 11;
+const int VC_DOCKCAM = 12;
+const int VC_PLBCAMFL = 13;
+const int VC_PLBCAMFR = 14;
+const int VC_PLBCAMBL = 15;
+const int VC_PLBCAMBR = 16;
+const int VC_LEECAM = 17;
 
-
-//-.6017438  2.729396 13.8008
-//orbiter_ofs.x-0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
+const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
-//orbiter_ofs.x+0.671257, orbiter_ofs.y+2.523535, orbiter_ofs.z+14.969
+const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 
-const VECTOR3 VC_POS_MS1 = _V(0.671257, 2.629396, 12.6);
+const static char* VC_LBL_MS1 = "MS1 seat";
+const VECTOR3 VC_POS_MS1 = _V(0.7, 2.75, 13.2);
+const VECTOR3 VC_DIR_MS1 = _V(0.0, 0, 1.0);
 
+const static char* VC_LBL_MS2 = "MS2 seat";
 const VECTOR3 VC_POS_MS2 = _V(0.2, 2.629396, 12.6);
+const VECTOR3 VC_DIR_MS2 = _V(0.0, 0.0, 1.0);
 
+const static char* VC_LBL_COAS = "COAS";
+const VECTOR3 VC_POS_COAS = _V( 0.4, 3.15, 12.6);
+const VECTOR3 VC_DIR_COAS = _V( 0.0, 0.45399, -0.891007);
 
-const VECTOR3 VC_POS_COAS = _V( 0.3506716, 3.17, 12.75528);
+const static char* VC_LBL_PORTSTATION = "Port workstation";
+const VECTOR3 VC_POS_PORTSTATION = _V(-0.6, 2.95, 13.0);
+const VECTOR3 VC_DIR_PORTSTATION = _V(-1, 0, 0);
+
+const static char* VC_LBL_AFTPILOT = "Aft pilot station";
+const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.5);
+const VECTOR3 VC_DIR_AFTPILOT = _V(0, 0, -1);
+
+const static char* VC_LBL_RMSSTATION = "RMS work station";
+const VECTOR3 VC_POS_RMSSTATION = _V(-0.4, 3.15, 12.5);
+const VECTOR3 VC_DIR_RMSSTATION = _V(0.0, 0.0, -1.0);
+
+const static char* VC_LBL_STBDSTATION = "Starboard workstation";
+const VECTOR3 VC_POS_STBDSTATION = _V(0.6, 2.95, 13.0);
+const VECTOR3 VC_DIR_STBDSTATION = _V(1, 0, 0);
+
+const static char* VC_LBL_AFTWORKSTATION = "Aft Workstation";
+const VECTOR3 VC_POS_AFTWORKSTATION = _V(0.0, 2.95, 13.2);
+const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
+
+const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
+const static char* VC_LBL_LEECAM = "RMS LEE camera";
+const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
+const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
+const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
+const static char* VC_LBL_PLBCAMBR = "Payload bay BR camera";
 
 
 // ==========================================================
@@ -1268,9 +1309,14 @@ private:
 	double* stage1guidance[2];
 	int stage1guidance_size;
 	//double* stage1Vguidance;
+
+	double fTimeCameraLabel;
+	NOTEHANDLE nhCameraLabel;
+	char pszCameraLabelBuffer[80];
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	void TriggerLiftOff();
+	void DisplayCameraLabel(const char* pszLabel);
 };
 
 // ==========================================================
