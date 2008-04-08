@@ -22,6 +22,7 @@ protected:
 public:
 	bool Connect(DiscreteBundle* pBundle, int iLine);
 	DiscretePort();
+	DiscretePort(DiscreteBundle* pBundle, int iLine);
 	virtual ~DiscretePort();
 };
 

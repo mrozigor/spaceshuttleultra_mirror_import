@@ -20,6 +20,7 @@ using namespace std;
 class BasicSwitch : public BasicVCComponent  
 {
 protected:
+	unsigned short usNumPositions;
 	vector<string> labels;
 public:
 	BasicSwitch(Atlantis* _sts);

@@ -15,7 +15,7 @@ void CommModeHandler::DefineAnnotations()
 
 	oapiAnnotationSetPos(nhLastReceived, 0.05, 0.05, 0.75, 0.1);
 
-	oapiAnnotationSetText(nhLastReceived, "[MCC]:Atlantis, Houston, go for launch.");
+	//oapiAnnotationSetText(nhLastReceived, "[MCC]:Atlantis, Houston, go for launch.");
 
 	nhOptionPos = oapiCreateAnnotation(true, 1.0, _V(0.3, 1.0, 0.3));
 
