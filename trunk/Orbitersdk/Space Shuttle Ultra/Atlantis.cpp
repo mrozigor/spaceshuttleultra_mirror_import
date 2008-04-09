@@ -897,13 +897,13 @@ void Atlantis::SetOrbiterTankConfiguration (void)
     //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
 
 	DefineSSMEExhaust();
-	for(i=0;i<3;i++) {
-		//AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
-		GetThrusterRef(th_main[i], EngineNullPosition[i]);
-		EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
-		SetThrusterDir(th_main[i], EngineNullPosition[i]);
-		r2d2->CheckMPSArmed(i);
-	}
+  }
+  for(i=0;i<3;i++) {
+	  //AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
+	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
+	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
+	  SetThrusterDir(th_main[i], EngineNullPosition[i]);
+	  r2d2->CheckMPSArmed(i);
   }
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(th_oms[0]==NULL) {
