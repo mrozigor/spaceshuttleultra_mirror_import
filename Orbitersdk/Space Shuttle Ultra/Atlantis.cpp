@@ -1477,49 +1477,49 @@ void Atlantis::DefineAnimations (void)
   ANIMATIONCOMPONENT_HANDLE parent;
 
   //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
-  static UINT RMSRolloutGrp[11] = {GRP_MPM_RMS, GRP_base_RMS, GRP_Shoulder_RMS, GRP_Humerus_RMS, GRP_radii_RMS, GRP_elbowcam, GRP_camswivel,GRP_cambase, GRP_wristpitch_RMS, GRP_wristyaw_RMS, GRP_endeffecter_RMS};
+  static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
   rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 10,
     _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
   anim_rollout = CreateAnimation(1.0);
   AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
 
   //DaveS edit: Fixed animation
-  static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_RMS};
+  static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
   rms_anim[0] = new MGROUP_ROTATE (ridx, RMSShoulderYawGrp, 1,
     _V(-2.61,1.65,9.02), _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
   anim_arm_sy = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_sy, 0, 1, rms_anim[0]);
 
   //DaveS edit: Fixed animation
-  static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus_RMS};
+  static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
   rms_anim[1] = new MGROUP_ROTATE (ridx, RMSShoulderPitchGrp, 1,
     _V(-2.77,2.13,9.02), _V(0.948683298050514, 0.316227766016838, 0), (float)(147*RAD)); // -2 .. +145
   anim_arm_sp = CreateAnimation (0.0136);
   parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
 
   //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
-  static UINT RMSElbowPitchGrp[4] = {GRP_radii_RMS,GRP_elbowcam,GRP_camswivel,GRP_cambase};
+  static UINT RMSElbowPitchGrp[4] = {GRP_Radii,GRP_elbowcam ,GRP_camswivel, GRP_cambase};
   rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 4,
     _V(-2.71,1.97,2.74), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
   anim_arm_ep = CreateAnimation (0.014688);
   parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
 
   //DaveS edit: Fixed animation
-  static UINT RMSWristPitchGrp[1] = {GRP_wristpitch_RMS};
+  static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
   rms_anim[3] = new MGROUP_ROTATE (ridx, RMSWristPitchGrp, 1,
     _V(-2.77,2.13,-4.19), _V(0.949637404032871, 0.313350922867173, 0), (float)(242.8*RAD)); // -121.4 .. +121.4
   anim_arm_wp = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wp, 0, 1, rms_anim[3], parent);
 
   //DaveS edit: Fixed animation
-  static UINT RMSWristYawGrp[1] = {GRP_wristyaw_RMS};
+  static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
   rms_anim[4] = new MGROUP_ROTATE (ridx, RMSWristYawGrp, 1,
     _V(-2.77,2.13,-4.69), _V(0.314338082679218, -0.949311102735849, 0), (float)(-242.6*RAD)); // -121.3 .. +121.3
   anim_arm_wy = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wy, 0, 1, rms_anim[4], parent);
 
   //DaveS edit: Can't get the animation to line up properly. The coords used below is supposedly good ones from GMAX
-  static UINT RMSEndEffectorGrp[1] = {GRP_endeffecter_RMS};
+  static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
   rms_anim[5] = new MGROUP_ROTATE (ridx, RMSEndEffectorGrp, 1,
 	  _V(-2.77,2.13,-5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
   anim_arm_wr = CreateAnimation (0.5);
