@@ -445,7 +445,7 @@ const VECTOR3 VC_POS_AFTWORKSTATION = _V(0.0, 2.95, 13.2);
 const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 
 const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
-const static char* VC_LBL_LEECAM = "RMS LEE camera";
+const static char* VC_LBL_LEECAM = "RMS EE camera";
 const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
 const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
 const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
