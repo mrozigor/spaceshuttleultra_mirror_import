@@ -1349,6 +1349,8 @@ void Atlantis::DefineAnimations (void)
   UINT vidx = 2; // mesh index for all VC animations
   UINT ridx = 3; // mesh index for all RMS animations
 
+  ANIMATIONCOMPONENT_HANDLE parent;
+
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
@@ -1360,7 +1362,7 @@ void Atlantis::DefineAnimations (void)
     _V(-2.80, 1.39, 0), _V(0,0,1), (float)(175.5*RAD));
 
   anim_door = CreateAnimation (0);
-  AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
+  parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
   AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
 
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
@@ -1373,6 +1375,26 @@ void Atlantis::DefineAnimations (void)
   anim_rad = CreateAnimation (0);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator);
+
+  static UINT CLatch1_4Grp[] = {64};
+  static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  anim_clatch1_4 = CreateAnimation(0);
+  AddAnimationComponent (anim_clatch1_4, 0, 1, &CLatch1_4, parent);
+
+  static UINT CLatch5_8Grp[] = {63};
+  static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  anim_clatch5_8 = CreateAnimation(0);
+  AddAnimationComponent (anim_clatch5_8, 0, 1, &CLatch5_8, parent);
+
+  static UINT CLatch9_12Grp[] = {62};
+  static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  anim_clatch9_12 = CreateAnimation(0);
+  AddAnimationComponent (anim_clatch9_12, 0, 1, &CLatch9_12, parent);
+
+  static UINT CLatch13_16Grp[] = {61};
+  static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  anim_clatch13_16 = CreateAnimation(0);
+  AddAnimationComponent (anim_clatch13_16, 0, 1, &CLatch13_16, parent);
 
   // ***** 2. Landing gear animation *****
   gop->DefineAnimations();
@@ -1473,8 +1495,6 @@ void Atlantis::DefineAnimations (void)
   // ***** 8. RMS arm animation *****
   // Note that the animation components can't be declared static here, since
   // their rotation parameters are modified by the respective parent transforms
-
-  ANIMATIONCOMPONENT_HANDLE parent;
 
   //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
   static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
@@ -4016,7 +4036,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	
 	// If the current camera mode is the RMS_EFFECTOR move camera position to match
 	// the position and direction of the wrist
-	if (VCMode == 3) {
+	if (VCMode == VC_LEECAM) {
 		double tilt = wr_angle;
 		if(tilt<-180.0) tilt+=360.0;
 		else if(tilt>180.0) tilt-=360.0;
@@ -4077,22 +4097,22 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
       bManualSeparate = true;
       return true;
     }
-  } else if (!stricmp (event_type, "STATUS")) {
-    if (!stricmp (event, "SRB_IGNITION")) {
+  } else if (!_stricmp (event_type, "STATUS")) {
+    if (!_stricmp (event, "SRB_IGNITION")) {
       status = 1;
       t0 = event_t + SRB_STABILISATION_TIME;
       return true;
     }
-  } else if (!stricmp (event_type, "CARGODOOR")) {
+  } else if (!_stricmp (event_type, "CARGODOOR")) {
     plop->SetDoorAction (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if (!stricmp (event_type, "GEAR")) {
+  } else if (!_stricmp (event_type, "GEAR")) {
     gop->OperateLandingGear (!stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if (!stricmp (event_type,"SPEEDBRAKE")) {
+  } else if (!_stricmp (event_type,"SPEEDBRAKE")) {
     OperateSpeedbrake (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if (!stricmp (event_type, "KUBAND")) {
+  } else if (!_stricmp (event_type, "KUBAND")) {
     plop->SetKuAntennaAction (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
@@ -4151,8 +4171,8 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 			MoveToEx(hDC, (hps->W/2)+i, hps->H-80, NULL);
 			LineTo(hDC, (hps->W/2)+i, hps->H-90);
 		}
-		commanded=spdb_tgt*50-25;
-		act=spdb_proc*50-25;
+		commanded=(int)(spdb_tgt*50)-25;
+		act=(int)(spdb_proc*50)-25;
 		//actual
 		MoveToEx(hDC, (hps->W/2)+act, hps->H-85, NULL);
 		LineTo(hDC, (hps->W/2)+act-5, hps->H-90);
@@ -4542,22 +4562,21 @@ bool Atlantis::clbkLoadVC (int id)
 	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0));
 	  SetCameraRotationRange(0, 0, 0, 0);
-	  oapiVCSetNeighbours(-1, -1, VC_AFTPILOT, VC_PLBCAMFL);
+	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
 	  ok = true;
 	  break;
   case VC_AFTPILOT: //Aft Flight Deck
 	  DisplayCameraLabel(VC_LBL_AFTPILOT);
 	SetCameraOffset (VC_POS_AFTPILOT + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_AFTPILOT);
-	SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(0,-0.6,0.15), 0, 0);
-    //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.8,0,0), 0, 0, _V(-0.3,-0.3,0.15), -60.0*RAD, -50.0*RAD);
+	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, _V(0.8,0,0), 0, 0, _V(0,-0.6,0.15), 0, 0);
+	// Default camera rotarion
+    SetCameraRotationRange(144*RAD, 144*RAD, 95*RAD, 72*RAD);
 
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 
-    // Default camera rotarion
-    SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-	plop->RegisterVC ();  // register panel R13L interface
+    plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
@@ -4618,7 +4637,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS1);
     SetCameraDefaultDirection (VC_DIR_MS1);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_PLT, VC_DOCKCAM);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -4641,7 +4660,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_CDR, VC_DOCKCAM);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -5466,7 +5485,7 @@ short Atlantis::GetETPropellant(unsigned short usGPCID)
 {
 	if(status < 3)
 	{
-		return min(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS, 99);
+		return min((short)(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS), 99);
 	} else
 	 return -1;
 }
@@ -5629,7 +5648,7 @@ void Atlantis::SignalGSEStart()
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
 			{
 				static_cast<MLP*>(pV)->SignalGSEStart();
 			}
@@ -5646,7 +5665,7 @@ void Atlantis::SignalGSEBreakHDP()
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
 			{
 				static_cast<MLP*>(pV)->TriggerHDP();
 			}

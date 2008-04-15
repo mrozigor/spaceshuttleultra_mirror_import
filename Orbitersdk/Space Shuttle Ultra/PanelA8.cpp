@@ -26,7 +26,7 @@ PanelA8::PanelA8(Atlantis *_sts): sts(_sts)
 
 void PanelA8::RegisterVC()
 {
-	sprintf(oapiDebugString(), "Registering panelA8");
+	sprintf_s(oapiDebugString(), 255, "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
 	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
 	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8BOTTOM_VC);
@@ -165,7 +165,7 @@ void PanelA8::UpdateVC()
 bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	bool action = false;
-	sprintf(oapiDebugString(), "Panel A8 event: %f %f %f %f", p.x, p.y, p.z);
+	sprintf_s(oapiDebugString(), 255, "Panel A8 event: %f %f %f %f", p.x, p.y, p.z);
 	/*if(event & PANEL_MOUSE_LBPRESSED) sprintf(oapiDebugString(), "LBPressed");
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
@@ -238,7 +238,7 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 				else {
 					if(switch_state[SWITCH10]<2) switch_state[SWITCH10]++;
 				}
-				sprintf(oapiDebugString(), "%d", switch_state[SWITCH10]);
+				sprintf_s(oapiDebugString(), 255, "%d", switch_state[SWITCH10]);
 				action=true;
 			}
 		}
@@ -298,8 +298,8 @@ void PanelA8::Step(double t, double dt)
 
 bool PanelA8::ParseScenarioLine(char *line)
 {
-	if(!strnicmp(line, "STBD_RMS", 8)) {
-		sscanf(line+8, "%d", &switch_state[SWITCH6]);
+	if(!_strnicmp(line, "STBD_RMS", 8)) {
+		sscanf_s(line+8, "%d", &switch_state[SWITCH6]);
 		/*if(switch_state[SWITCH6]==0 && sts->RMSRollout.action!=AnimState::OPEN) {
 			sts->RMSRollout.action=AnimState::OPENING;
 		}

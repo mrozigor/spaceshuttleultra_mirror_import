@@ -2765,3 +2765,12 @@ bool CRT::CRTLine(HDC hdc, short sX1, short sY1, short sX2, short sY2)
 	LineTo(hdc, iX2, iY2);
 	return true;
 }
+
+void CRT::RecallCriticalFormat(int iFormatCode)
+{
+	switch (iFormatCode)
+	{
+	case 0:
+	return;
+	}
+}

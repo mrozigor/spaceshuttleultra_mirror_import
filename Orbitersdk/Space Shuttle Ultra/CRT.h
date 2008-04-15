@@ -71,6 +71,7 @@ private:
 	void UNIVPTG(HDC hDC);
 	void DAP_CONFIG(HDC hDC);
 	void MNVR(HDC hDC);
+	void GPCMEMORY(HDC hdc);
 
 	void PDRS(HDC hDC);
 
@@ -132,6 +133,7 @@ protected:
 	char cDispTitle[20];
 	void DrawCommonHeader(HDC hdc);
 	void PASSTRAJ(HDC hdc);
+	void RecallCriticalFormat(int iFormatCode);
 	HFONT hCRTFont;
 };
 

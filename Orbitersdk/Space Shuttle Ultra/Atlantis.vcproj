@@ -523,11 +523,27 @@
 			>
 		</File>
 		<File
+			RelativePath=".\dps\IDP.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\dps\IDP.h"
+			>
+		</File>
+		<File
 			RelativePath=".\vc\Indicator7Seg.cpp"
 			>
 		</File>
 		<File
 			RelativePath=".\vc\Indicator7Seg.h"
+			>
+		</File>
+		<File
+			RelativePath=".\dps\MDU.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\dps\MDU.h"
 			>
 		</File>
 		<File
