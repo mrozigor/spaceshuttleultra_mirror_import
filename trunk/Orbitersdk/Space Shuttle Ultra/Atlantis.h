@@ -793,7 +793,7 @@ public:
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2]; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
-	ATTACHMENTHANDLE sat_attach, rms_attach;
+	ATTACHMENTHANDLE sat_attach, rms_attach, obss_attach;
 	ATTACHMENTHANDLE ahHDP;
 	VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
