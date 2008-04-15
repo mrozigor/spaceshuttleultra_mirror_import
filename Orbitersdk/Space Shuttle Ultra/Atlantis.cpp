@@ -1365,12 +1365,14 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
   AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
 
+  //080415, DaveS edit: Edited the rotation point for the radiator panels to prevent them from
+  //getting disconnected from the payload bay doors.
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   static MGROUP_ROTATE RRadiator (midx, RRadiatorGrp, 1,
-    _V(2.88, 1.39, 0), _V(0,0,1), (float)(35.5*RAD));
+    _V(2.950, 1.100, 0.0), _V(0,0,1), (float)(35.5*RAD));
   static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
   static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
-    _V(-2.88, 1.39, 0), _V(0,0,1), (float)(-35.5*RAD));
+    _V(-2.950, 1.100, 0.0), _V(0,0,1), (float)(-35.5*RAD));
 
   anim_rad = CreateAnimation (0);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator);
