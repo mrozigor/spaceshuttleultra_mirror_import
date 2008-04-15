@@ -1496,9 +1496,9 @@ void Atlantis::DefineAnimations (void)
   // Note that the animation components can't be declared static here, since
   // their rotation parameters are modified by the respective parent transforms
 
-  //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
+  //080415, DaveS edit: Fixed RMS rollout animation as the end effector meshgroup didn't animate.
   static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
-  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 10,
+  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 11,
     _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
   anim_rollout = CreateAnimation(1.0);
   AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
