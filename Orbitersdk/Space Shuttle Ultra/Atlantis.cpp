@@ -4439,7 +4439,9 @@ bool Atlantis::clbkLoadVC (int id)
   
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
-  if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
+  // 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
+  // Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
+  if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
   } else {
   SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
