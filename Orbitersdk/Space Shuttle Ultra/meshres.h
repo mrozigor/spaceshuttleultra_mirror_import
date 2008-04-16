@@ -1,13 +1,14 @@
 // ========================================================
-// Mesh resource file for Atlantis.msh
-// Generated with meshc on Mon Mar 03 19:15:49 2008
+// Mesh resource file for Orbiter.msh
+// Generated with meshc on Tue Apr 15 20:41:17 2008
+
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP 58
+#define NGRP 68
 
 // Number of materials:
-#define NMAT 5
+#define NMAT 6
 
 // Number of textures:
 #define NTEX 2
@@ -68,6 +69,16 @@
 #define GRP_LEFTFLAPPEROUT 52
 #define GRP_RIGHTFLAPPERIN 53
 #define GRP_RIGHTFLAPPEROUT 54
-#define GRP_HUDL 55
-#define GRP_HUDR 56
-#define GRP_WINDOWS 57
+#define GRP_PORTPUSH_ROD 55
+#define GRP_PORT_CLAMP 56
+#define GRP_PORTDOOR_PULL 57
+#define GRP_STBDPUSH_ROD 58
+#define GRP_STBD_CLAMP 59
+#define GRP_STBDDOOR_PULL 60
+#define GRP_AFT_HOOKS 61
+#define GRP_MID_AFT_HOOKS 62
+#define GRP_MID_FWD_HOOKS 63
+#define GRP_FWD_HOOKS 64
+#define GRP_HUDL 65
+#define GRP_HUDR 66
+#define GRP_WINDOWS 67
