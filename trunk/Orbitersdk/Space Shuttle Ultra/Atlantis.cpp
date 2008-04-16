@@ -1356,49 +1356,48 @@ void Atlantis::DefineAnimations (void)
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
-  static UINT RCargoDoorGrp[4] = {GRP_CARGODOOROUTR,GRP_CARGODOORINR,GRP_RADIATORFR,GRP_RADIATORBR};
-  static MGROUP_ROTATE RCargoDoor (midx, RCargoDoorGrp, 4,
-    _V(2.80, 1.39, 0), _V(0,0,1), (float)(-175.5*RAD));
-  static UINT LCargoDoorGrp[4] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL,GRP_RADIATORFL,GRP_RADIATORBL};
-  static MGROUP_ROTATE LCargoDoor (midx, LCargoDoorGrp, 4,
-    _V(-2.80, 1.39, 0), _V(0,0,1), (float)(175.5*RAD));
+  static UINT RCargoDoorGrp[3] = {GRP_CARGODOOROUTR, GRP_CARGODOORINR, GRP_RADIATORBR};
+  static MGROUP_ROTATE RCargoDoor (midx, RCargoDoorGrp, 3,
+    _V(2.82, 1.39, 0), _V(0, 0, 1), (float)(-170.5*RAD));
+  static UINT LCargoDoorGrp[3] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL, GRP_RADIATORBL};
+  static MGROUP_ROTATE LCargoDoor (midx, LCargoDoorGrp, 3,
+    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(170.5*RAD));
 
-  anim_door = CreateAnimation (0);
-  parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
-  AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
-
-  //080415, DaveS edit: Edited the rotation point for the radiator panels to prevent them from
-  //getting disconnected from the payload bay doors.
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   static MGROUP_ROTATE RRadiator (midx, RRadiatorGrp, 1,
-    _V(2.950, 1.100, 0.0), _V(0,0,1), (float)(35.5*RAD));
+    _V(2.71, 1.7, 0), _V(0, 0, 1), (float)(35.5*RAD));
   static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
   static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
-    _V(-2.950, 1.100, 0.0), _V(0,0,1), (float)(-35.5*RAD));
-
-  anim_rad = CreateAnimation (0);
-  AddAnimationComponent (anim_rad, 0, 1, &RRadiator);
-  AddAnimationComponent (anim_rad, 0, 1, &LRadiator);
+    _V(-2.71, 1.7, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
   static UINT CLatch1_4Grp[] = {64};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
-  anim_clatch1_4 = CreateAnimation(0);
-  AddAnimationComponent (anim_clatch1_4, 0, 1, &CLatch1_4, parent);
 
   static UINT CLatch5_8Grp[] = {63};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
-  anim_clatch5_8 = CreateAnimation(0);
-  AddAnimationComponent (anim_clatch5_8, 0, 1, &CLatch5_8, parent);
 
   static UINT CLatch9_12Grp[] = {62};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
-  anim_clatch9_12 = CreateAnimation(0);
-  AddAnimationComponent (anim_clatch9_12, 0, 1, &CLatch9_12, parent);
 
   static UINT CLatch13_16Grp[] = {61};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+
+  anim_door = CreateAnimation (0);
+  anim_rad = CreateAnimation (0);
+  anim_clatch1_4 = CreateAnimation(0);
+  anim_clatch5_8 = CreateAnimation(0);
+  anim_clatch9_12 = CreateAnimation(0);
   anim_clatch13_16 = CreateAnimation(0);
+  //right side
+  parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
+  AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
+  AddAnimationComponent (anim_clatch1_4, 0, 1, &CLatch1_4, parent);
+  AddAnimationComponent (anim_clatch5_8, 0, 1, &CLatch5_8, parent);
+  AddAnimationComponent (anim_clatch9_12, 0, 1, &CLatch9_12, parent);
   AddAnimationComponent (anim_clatch13_16, 0, 1, &CLatch13_16, parent);
+  //left side
+  parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
+  AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
 
   // ***** 2. Landing gear animation *****
   gop->DefineAnimations();
