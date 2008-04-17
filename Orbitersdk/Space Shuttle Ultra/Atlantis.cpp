@@ -1787,7 +1787,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     if (!sat_attach) sat_attach = CreateAttachment (false, ofs+ofs_sts_sat, _V(0,1,0), _V(0,0,1), "X");
 	//080415, DaveS add: Added temporary OBSS MPM attachment point
-	if (!obss_attach) obss_attach = CreateAttachment (false, _V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
+	if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
     if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 
     // ***** Cockpit camera definition
