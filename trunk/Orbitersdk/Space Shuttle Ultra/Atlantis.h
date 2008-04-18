@@ -105,6 +105,10 @@ const double DOOR_OPERATING_SPEED = 0.007353;
 // This contains the door opening sequence (63 sec for each door) and an
 // interval of 10 sec between the two door operations
 
+const double DOORLATCH_OPERATING_SPEED = 0.05;
+// Opening/closing speed of payload bay door latch gang (1/sec)
+// 20 sec for each gang
+
 const double RAD_OPERATING_SPEED = 0.023255814;
 // Deployment/stowing speed of radiators (1/sec)
 // => radiator cycle = 43 sec
@@ -733,6 +737,7 @@ public:
 	void UpdateMesh ();
 	void ClearMeshes ();
 	void SetBayDoorPosition (double pos);
+	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetKuAntennaPosition (double pos);
@@ -1008,10 +1013,11 @@ private:
 
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad;                             // handle for radiator animation
-	UINT anim_clatch1_4;					   // handle for center line latches 1-4
+	UINT anim_clatch[4];					   // handle for center line latch gangs
+	/*UINT anim_clatch1_4;					   // handle for center line latches 1-4
 	UINT anim_clatch5_8;						// handle for center line latches 5-8
 	UINT anim_clatch9_12;						// handle for center line latches 9-12
-	UINT anim_clatch13_16;						// handle for center line latches 13-16
+	UINT anim_clatch13_16;						// handle for center line latches 13-16*/
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
 	UINT anim_elev;                            // handle for elevator animation
