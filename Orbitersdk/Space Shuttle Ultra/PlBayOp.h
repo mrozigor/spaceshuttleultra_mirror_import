@@ -27,6 +27,7 @@ public:
 	void Step (double t, double dt);
 	inline AnimState::Action GetDoorAction () const { return BayDoorStatus.action; }
 	void SetDoorAction (AnimState::Action action);
+	void AutoDoorSequenceControl(); //controls automatic door sequence; used to start next animation in sequence
 	//void RevertDoorAction (); // simplified operation
 
 	inline AnimState::Action GetRadiatorAction () const { return RadiatorStatus.action; }
@@ -63,6 +64,7 @@ private:
 
 	// physical status
 	AnimState BayDoorStatus;
+	AnimState CLBayDoorLatch[4]; //1_4, 5_8, 9_12, 13_16
 	AnimState RadiatorStatus;
 	AnimState RadLatchStatus;
 	AnimState KuAntennaStatus;

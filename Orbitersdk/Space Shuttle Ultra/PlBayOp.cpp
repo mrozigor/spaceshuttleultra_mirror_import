@@ -25,6 +25,7 @@ PayloadBayOp::PayloadBayOp (Atlantis *_sts): sts(_sts)
 	for (i = 0; i < 2; i++) BayDoor[i] = BD_DISABLE;
 	BayDoorOp = BDO_STOP;
 	BayDoorStatus.Set (AnimState::CLOSED, 0);
+	for(i = 0; i < 4; i++) CLBayDoorLatch[i].Set(AnimState::CLOSED, 0);
 
 	// Radiators
 	for (i = 0; i < 2; i++) MechPwr[i] = MP_OFF;
@@ -44,18 +45,45 @@ PayloadBayOp::PayloadBayOp (Atlantis *_sts): sts(_sts)
 void PayloadBayOp::Step (double t, double dt)
 {
 	// Operate cargo doors
+	for(int i=0;i<4;i++) {
+		//animate centerline door latches
+		if(CLBayDoorLatch[i].Moving()) {
+			double da=dt*DOORLATCH_OPERATING_SPEED;
+			if(CLBayDoorLatch[i].Closing()) {
+				if(CLBayDoorLatch[i].pos > 0.0)
+					CLBayDoorLatch[i].pos=max(0.0, CLBayDoorLatch[i].pos-da);
+				else {
+					CLBayDoorLatch[i].action=AnimState::CLOSED;
+					AutoDoorSequenceControl();
+				}
+			}
+			else {
+				if(CLBayDoorLatch[i].pos < 1.0)
+					CLBayDoorLatch[i].pos=min(1.0, CLBayDoorLatch[i].pos+da);
+				else {
+					CLBayDoorLatch[i].action=AnimState::OPEN;
+					AutoDoorSequenceControl();
+				}
+			}
+			sts->SetBayDoorLatchPosition(i, CLBayDoorLatch[i].pos);
+		}
+	}
 	if (BayDoorStatus.Moving()) {
 		double da = dt * DOOR_OPERATING_SPEED;
 		if (BayDoorStatus.Closing()) {
 			if (BayDoorStatus.pos > 0.0)
 				BayDoorStatus.pos = max (0.0, BayDoorStatus.pos-da);
-			else
+			else {
 				SetDoorAction (AnimState::CLOSED);
+				AutoDoorSequenceControl();
+			}
 		} else { // door opening
 			if (BayDoorStatus.pos < 1.0)
 				BayDoorStatus.pos = min (1.0, BayDoorStatus.pos+da);
-			else
+			else {
 				SetDoorAction (AnimState::OPEN);
+				AutoDoorSequenceControl();
+			}
 		}
 		sts->SetBayDoorPosition (BayDoorStatus.pos);
 	}
@@ -122,13 +150,13 @@ void PayloadBayOp::SetDoorAction (AnimState::Action action)
 {
 	int i;
 
-	if (KuAntennaStatus.action != AnimState::CLOSED) return;
+	//if (KuAntennaStatus.action != AnimState::CLOSED) return;
 	// operate payload bay doors only if Ku-band antenna is stowed
 
-	if (RadiatorStatus.action != AnimState::CLOSED) return;
+	//if (RadiatorStatus.action != AnimState::CLOSED) return;
 	// operate payload bay doors only if radiators are stowed
 
-	if(sts->RMSRollout.action != AnimState::CLOSED && sts->RMS) return;
+	//if(sts->RMSRollout.action != AnimState::CLOSED && sts->RMS) return;
 	// RMS must be stowed
 
 	for (i = 0; i < 2; i++)
@@ -143,6 +171,26 @@ void PayloadBayOp::SetDoorAction (AnimState::Action action)
 
 	UpdateVC();
 	if (hDlg) UpdateDialog (hDlg);
+}
+
+// ==============================================================
+
+void PayloadBayOp::AutoDoorSequenceControl()
+{
+	if(BayDoorOp==BDO_OPEN) {
+		if(!CLBayDoorLatch[1].Open()) CLBayDoorLatch[1].action=AnimState::OPENING;
+		else if(!CLBayDoorLatch[2].Open()) CLBayDoorLatch[2].action=AnimState::OPENING;
+		else if(!CLBayDoorLatch[0].Open()) CLBayDoorLatch[0].action=AnimState::OPENING;
+		else if(!CLBayDoorLatch[3].Open()) CLBayDoorLatch[3].action=AnimState::OPENING;
+		else if(!BayDoorStatus.Open()) SetDoorAction(AnimState::OPENING);
+	}
+	else if(BayDoorOp==BDO_CLOSE) {
+		if(!BayDoorStatus.Closed()) SetDoorAction(AnimState::CLOSING);
+		else if(!CLBayDoorLatch[0].Closed()) CLBayDoorLatch[0].action=AnimState::CLOSING;
+		else if(!CLBayDoorLatch[3].Closed()) CLBayDoorLatch[3].action=AnimState::CLOSING;
+		else if(!CLBayDoorLatch[1].Closed()) CLBayDoorLatch[1].action=AnimState::CLOSING;
+		else if(!CLBayDoorLatch[2].Closed()) CLBayDoorLatch[2].action=AnimState::CLOSING;
+	}
 }
 
 // ==============================================================
@@ -264,6 +312,10 @@ bool PayloadBayOp::ParseScenarioLine (char *line)
 	} else if (!strnicmp (line, "KUBAND", 6)) {
 		sscan_state (line+6, KuAntennaStatus);
 		return true;
+	} else if (!strnicmp (line, "BAYDOORLATCH", 12)) {
+		int latch;
+		sscanf (line+12, "%d", &latch);
+		sscan_state (line+13, CLBayDoorLatch[latch]);
 	}
 	return false;
 }
@@ -272,6 +324,8 @@ bool PayloadBayOp::ParseScenarioLine (char *line)
 
 void PayloadBayOp::SaveState (FILEHANDLE scn)
 {
+	char cbuf[255];
+
 	if (!BayDoorStatus.Closed())
 		WriteScenario_state (scn, "CARGODOOR", BayDoorStatus);
 	if (!RadiatorStatus.Closed())
@@ -280,6 +334,10 @@ void PayloadBayOp::SaveState (FILEHANDLE scn)
 		WriteScenario_state (scn, "RADLATCH", RadLatchStatus);
 	if (!KuAntennaStatus.Closed())
 		WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
+	for(int i=0;i<4;i++) {
+		sprintf(cbuf, "BAYDOORLATCH%d", i);
+		if(!CLBayDoorLatch[i].Closed()) WriteScenario_state (scn, cbuf, CLBayDoorLatch[i]);
+	}
 }
 
 // ==============================================================
@@ -475,7 +533,8 @@ bool PayloadBayOp::VCMouseEvent (int id, int event, VECTOR3 &p)
 		bool up = (p.y < 0.5303);
 		if (p.x >= 0.125 && p.x <= 0.2539) {
 			BayDoorOp = (up ? (BayDoorOp == BDO_STOP ? BDO_OPEN : BDO_STOP) : BayDoorOp == BDO_STOP ? BDO_CLOSE : BDO_STOP);
-			SetDoorAction (BayDoorOp == BDO_OPEN ? AnimState::OPENING : BayDoorOp == BDO_CLOSE ? AnimState::CLOSING : AnimState::STOPPED);
+			//SetDoorAction (BayDoorOp == BDO_OPEN ? AnimState::OPENING : BayDoorOp == BDO_CLOSE ? AnimState::CLOSING : AnimState::STOPPED);
+			AutoDoorSequenceControl();
 			action = true;
 		} else if (p.x >= 0.2832 && p.x <= 0.4082) {
 			RadLatchCtrl[0] = (up ? (RadLatchCtrl[0] == LC_OFF ? LC_RELEASE : LC_OFF) : RadLatchCtrl[0] == LC_OFF ? LC_LATCH : LC_OFF);

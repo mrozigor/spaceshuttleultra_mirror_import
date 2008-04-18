@@ -34,7 +34,6 @@
 #include "SubsystemDirector.h"
 #include "dps/MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
-//#include "PayloadBaySystem.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -1370,31 +1369,35 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
     _V(-2.71, 1.7, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
-  static UINT CLatch1_4Grp[] = {64};
-  static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
+  static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
+	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
 
-  static UINT CLatch5_8Grp[] = {63};
-  static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
+  static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
+	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
 
-  static UINT CLatch9_12Grp[] = {62};
-  static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
+  static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
+	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
 
-  static UINT CLatch13_16Grp[] = {61};
-  static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1, _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+  static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
+  static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
+	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
 
   anim_door = CreateAnimation (0);
   anim_rad = CreateAnimation (0);
-  anim_clatch1_4 = CreateAnimation(0);
-  anim_clatch5_8 = CreateAnimation(0);
-  anim_clatch9_12 = CreateAnimation(0);
-  anim_clatch13_16 = CreateAnimation(0);
+  anim_clatch[0] = CreateAnimation(0);
+  anim_clatch[1] = CreateAnimation(0);
+  anim_clatch[2] = CreateAnimation(0);
+  anim_clatch[3] = CreateAnimation(0);
   //right side
   parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
-  AddAnimationComponent (anim_clatch1_4, 0, 1, &CLatch1_4, parent);
-  AddAnimationComponent (anim_clatch5_8, 0, 1, &CLatch5_8, parent);
-  AddAnimationComponent (anim_clatch9_12, 0, 1, &CLatch9_12, parent);
-  AddAnimationComponent (anim_clatch13_16, 0, 1, &CLatch13_16, parent);
+  AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
+  AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
+  AddAnimationComponent (anim_clatch[2], 0, 1, &CLatch9_12, parent);
+  AddAnimationComponent (anim_clatch[3], 0, 1, &CLatch13_16, parent);
   //left side
   parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
@@ -2270,6 +2273,7 @@ void Atlantis::UpdateMesh ()
   gop->UpdateMesh();
   SetAnimation (anim_spdb, spdb_proc);
   SetAnimation (anim_door, plop->BayDoorStatus.pos);
+  for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
 
@@ -2309,6 +2313,11 @@ void Atlantis::SetBayDoorPosition (double pos)
   SetAnimation (anim_door, pos);
   rdoor_drag = sqrt (min (1.0, pos*3.0));
   ldoor_drag = sqrt (min (1.0, max(0.0, pos-0.3656)*3.0));
+}
+
+void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
+{
+	SetAnimation(anim_clatch[gang], pos);
 }
 
 void Atlantis::SetRadiatorPosition (double pos)
@@ -5064,7 +5073,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		}
 		return 1;
 	case OAPI_KEY_1: //temporary
-		if(DisplayJointAngles) DisplayJointAngles=false;
+		if(DisplayJointAngles) {
+			DisplayJointAngles=false;
+			sprintf(oapiDebugString(), "");
+		}
 		else DisplayJointAngles=true;
 		return 1;
 	case OAPI_KEY_2:
