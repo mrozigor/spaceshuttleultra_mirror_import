@@ -317,51 +317,51 @@ void PanelC3::SaveState(FILEHANDLE scn)
 	oapiWriteScenario_int (scn, "RPROBE", Air_Data_Probe[1]);
 	oapiWriteScenario_int (scn, "LOMS", OMS_Eng[0]);
 	oapiWriteScenario_int (scn, "ROMS", OMS_Eng[1]);
-	sprintf(cbuf, "%f %f", AirDataProbe[0].pos, AirDataProbe[1].pos);
+	sprintf_s(cbuf, 255, "%f %f", AirDataProbe[0].pos, AirDataProbe[1].pos);
 	oapiWriteScenario_string (scn, "AIR_DATA_PROBES", cbuf);
 }
 bool PanelC3::ParseScenarioLine (char *line)
 {
 	int nNum;
-	if (!strnicmp (line, "LPROBEARM", 9)) 
+	if (!_strnicmp (line, "LPROBEARM", 9)) 
 	{
-		sscanf (line+9, "%d", &nNum);
+		sscanf_s (line+9, "%d", &nNum);
 		Air_Data_Stow[0]=nNum;
 		return true;
 	} 
-	else if (!strnicmp (line, "RPROBEARM", 9))
+	else if (!_strnicmp (line, "RPROBEARM", 9))
 	{
-		sscanf (line+9, "%d", &nNum);
+		sscanf_s (line+9, "%d", &nNum);
 		Air_Data_Stow[1]=nNum;
 		return true;
 	} 
-	else if (!strnicmp (line, "LPROBE", 6)) 
+	else if (!_strnicmp (line, "LPROBE", 6)) 
 	{
-		sscanf (line+6, "%d", &nNum);
+		sscanf_s (line+6, "%d", &nNum);
 		Air_Data_Probe[0]=nNum;
 		return true;
 	} 
-	else if (!strnicmp (line, "RPROBE", 6)) 
+	else if (!_strnicmp (line, "RPROBE", 6)) 
 	{
-		sscanf (line+6, "%d", &nNum);
+		sscanf_s (line+6, "%d", &nNum);
 		Air_Data_Probe[1]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "LOMS", 4)) 
+	else if (!_strnicmp (line, "LOMS", 4)) 
 	{
-		sscanf (line+4, "%d", &nNum);
+		sscanf_s (line+4, "%d", &nNum);
 		OMS_Eng[0]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "ROMS", 4)) 
+	else if (!_strnicmp (line, "ROMS", 4)) 
 	{
-		sscanf (line+4, "%d", &nNum);
+		sscanf_s (line+4, "%d", &nNum);
 		OMS_Eng[1]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "AIR_DATA_PROBES", 15))
+	else if (!_strnicmp (line, "AIR_DATA_PROBES", 15))
 	{
-		sscanf (line+15, "%lf%lf", &AirDataProbe[0].pos, &AirDataProbe[1].pos);
+		sscanf_s (line+15, "%lf%lf", &AirDataProbe[0].pos, &AirDataProbe[1].pos);
 		AirDataProbeControl();
 		return true;
 	}
