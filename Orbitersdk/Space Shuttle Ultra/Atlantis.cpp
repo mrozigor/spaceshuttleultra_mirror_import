@@ -441,8 +441,12 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   thManFRCS4[0] = thManFRCS4[1] = NULL;
   thManFRCS5[0] = thManFRCS5[1] = NULL;
 
+  
+
   for(i=0;i<3;i++)
   {
+	th_ssme_gox[i] = NULL;
+	th_ssme_loxdump[i] = NULL;
 	thManLRCS1[i] = NULL;
 	thManLRCS2[i] = NULL;
 	thManLRCS3[i] = NULL;
@@ -1398,7 +1402,13 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
   AddAnimationComponent (anim_clatch[2], 0, 1, &CLatch9_12, parent);
   AddAnimationComponent (anim_clatch[3], 0, 1, &CLatch13_16, parent);
-  //left side
+  // **************************************************************************************
+  //left(port) side
+  // **************************************************************************************
+
+//Torque shaft and push pull rod
+//  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortTorqueShaft);
+//  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortPushPullRod, parent);
   parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
 
@@ -2313,6 +2323,7 @@ void Atlantis::SetBayDoorPosition (double pos)
   SetAnimation (anim_door, pos);
   rdoor_drag = sqrt (min (1.0, pos*3.0));
   ldoor_drag = sqrt (min (1.0, max(0.0, pos-0.3656)*3.0));
+  SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
 }
 
 void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
@@ -3448,33 +3459,33 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
   while (oapiReadScenario_nextline (scn, line)) {
-        if (!strnicmp (line, "CONFIGURATION", 13)) {
+        if (!_strnicmp (line, "CONFIGURATION", 13)) {
             sscanf (line+13, "%d", &status);
-    } else if (!strnicmp (line, "MET", 3)) {
+    } else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
-    } else if (!strnicmp (line, "SPEEDBRAKE", 10)) {
+    } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
 		sscanf (line+10, "%d%lf", &action, &spdb_proc);
 		spdb_status = (AnimState::Action)(action+1);
-    } else if (!strnicmp (line, "WING_NAME", 9)) {
+    } else if (!_strnicmp (line, "WING_NAME", 9)) {
       strncpy(WingName,line+10,256);
-    } else if (!strnicmp (line, "SRB_IGNITION_TIME", 17)) {
+    } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
-    } else if (!strnicmp (line, "SAT_OFS_X", 9)) {
+    } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_x);
-    } else if (!strnicmp (line, "SAT_OFS_Y", 9)) {
+    } else if (!_strnicmp (line, "SAT_OFS_Y", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_y);
-    } else if (!strnicmp (line, "SAT_OFS_Z", 9)) {
+    } else if (!_strnicmp (line, "SAT_OFS_Z", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_z);
-	} else if (!strnicmp (line, "PAYLOAD_MASS", 12)) {
+	} else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
 		sscanf (line+12, "%lf", &pl_mass);
-	} else if (!strnicmp (line, "CARGO_STATIC_MESH", 17)) {
+	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
 		sscanf (line+17, "%s", cargo_static_mesh_name);
 		do_cargostatic = true;
-    } else if (!strnicmp (line, "CARGO_STATIC_OFS", 16)) {
+    } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
 		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if (!strnicmp (line, "RMS", 3)) {
+	} else if (!_strnicmp (line, "RMS", 3)) {
 		RMS=true;
-	} else if (!strnicmp(line, "ROLLOUT", 7)) {
+	} else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
 		SetAnimation(anim_rollout, RMSRollout.pos);
 		if(action==1) {
@@ -3486,45 +3497,45 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			else RMSRollout.action=AnimState::CLOSED;
 		}
 		UpdateMPMMicroswitches();
-	} else if (!strnicmp (line, "SHOULDER_BRACE", 14)) {
+	} else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
 		sscanf (line+14, "%lf", &shoulder_brace);
-	} else if (!strnicmp (line, "MRL", 3)) {
+	} else if (!_strnicmp (line, "MRL", 3)) {
 		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
 		UpdateMRLMicroswitches();
-	} else if (!strnicmp (line, "ARM_STATUS", 10)) {
+	} else if (!_strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
-	} else if(!strnicmp(line, "OPS", 3)) {
+	} else if(!_strnicmp(line, "OPS", 3)) {
 		sscanf(line+3, "%d", &ops);
-	} else if(!strnicmp(line, "PEG7", 4)) {
+	} else if(!_strnicmp(line, "PEG7", 4)) {
 		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
-	} else if(!strnicmp(line, "WT", 2)) {
+	} else if(!_strnicmp(line, "WT", 2)) {
 		sscanf(line+2, "%lf", &WT);
-	} else if(!strnicmp(line, "TIG", 3)) {
+	} else if(!_strnicmp(line, "TIG", 3)) {
 		sscanf(line+3, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
-	} else if(!strnicmp(line, "ASSIST", 6)) {
+	} else if(!_strnicmp(line, "ASSIST", 6)) {
 		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
-	} else if(!strnicmp(line, "THROTTLE_BUCKET", 15)) {
+	} else if(!_strnicmp(line, "THROTTLE_BUCKET", 15)) {
 		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
 		Throttle_Bucket[0]=Throttle_Bucket[0]*fps_to_ms;
 		Throttle_Bucket[1]=Throttle_Bucket[1]*fps_to_ms;
-	} else if(!strnicmp(line, "HEADS_UP", 8)) {
+	} else if(!_strnicmp(line, "HEADS_UP", 8)) {
 		sscanf(line+8, "%lf", &RollToHeadsUp);
 		RollToHeadsUp=RollToHeadsUp*fps_to_ms;
-	} else if(!strnicmp(line, "AUTOPILOT", 9)) {
+	} else if(!_strnicmp(line, "AUTOPILOT", 9)) {
 		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
 		bAutopilot=true;
-	} else if(!strnicmp(line, "ENGINE FAIL", 11)) {
+	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
 		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
 		bEngineFail=true;
-	} else if(!strnicmp(line, "TGT_ID", 6)) {
+	} else if(!_strnicmp(line, "TGT_ID", 6)) {
 		sscanf(line+6, "%d", &TGT_ID);
-	} else if(!strnicmp(line, "BODY_VECT", 9)) {
+	} else if(!_strnicmp(line, "BODY_VECT", 9)) {
 		sscanf(line+9, "%d", &BODY_VECT);
-	} else if(!strnicmp(line, "ROLL", 4)) {
+	} else if(!_strnicmp(line, "ROLL", 4)) {
 		sscanf(line+4, "%lf", &MNVR_OPTION.data[ROLL]);
-	} else if(!strnicmp(line, "PITCH", 5)) {
+	} else if(!_strnicmp(line, "PITCH", 5)) {
 		sscanf(line+5, "%lf", &MNVR_OPTION.data[PITCH]);
-	} else if(!strnicmp(line, "YAW", 3)) {
+	} else if(!_strnicmp(line, "YAW", 3)) {
 		sscanf(line+3, "%lf", &MNVR_OPTION.data[YAW]);
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
@@ -3888,10 +3899,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   //update MET
-  MET[0]=met/86400;
-  MET[1]=(met-86400*MET[0])/3600;
-  MET[2]=(met-86400*MET[0]-3600*MET[1])/60;
-  MET[3]=met-86400*MET[0]-3600*MET[1]-60*MET[2];
+  MET[0]=(int)(met/86400);
+  MET[1]=(int)((met-86400*MET[0])/3600);
+  MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
+  MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
   //sprintf(oapiDebugString(), "%i", last_mfd);
   //deploy gear
   if(status==3) {
@@ -4102,12 +4113,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 // --------------------------------------------------------------
 bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event)
 {
-  if (!stricmp (event_type, "JET")) {
-    if (!stricmp (event, "SRB")) {
+  if (!_stricmp (event_type, "JET")) {
+    if (!_stricmp (event, "SRB")) {
       bManualSeparate = true;
       return true;
     }
-    else if (!stricmp (event, "ET")) {
+    else if (!_stricmp (event, "ET")) {
       bManualSeparate = true;
       return true;
     }
@@ -4118,16 +4129,16 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
       return true;
     }
   } else if (!_stricmp (event_type, "CARGODOOR")) {
-    plop->SetDoorAction (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
+    plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type, "GEAR")) {
-    gop->OperateLandingGear (!stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
+    gop->OperateLandingGear (!_stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type,"SPEEDBRAKE")) {
-    OperateSpeedbrake (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
+    OperateSpeedbrake (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type, "KUBAND")) {
-    plop->SetKuAntennaAction (!stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
+    plop->SetKuAntennaAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
 	  return true;
@@ -4244,22 +4255,25 @@ void Atlantis::clbkAnimate (double simt)
 // --------------------------------------------------------------
 void Atlantis::clbkMFDMode (int mfd, int mode)
 {
-	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd-MFD_LEFT);
+	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd);
 	
 	//get pointer to CRT MFD as required
 	if(newmfd!=NULL) {
-		if(mfd==4) newmfd->id=0;
-		else if(mfd==7) newmfd->id=1;
-		else if(mfd==6) newmfd->id=2;
-		else if(mfd==9) newmfd->id=3;
-		else {
-			//newmfd->id=-1;
-			if(mfd<4) newmfd->id=mfd+4;
-			else if(mfd==5) newmfd->id=8;
-			else if(mfd>=8) newmfd->id=mfd+1;
-		}
-		if((newmfd->id)<3) {
-			Display[newmfd->id]=newmfd;
+
+		//if(mfd==4) newmfd->id=0;
+		//else if(mfd==7) newmfd->id=1;
+		//else if(mfd==6) newmfd->id=2;
+		//else if(mfd==9) newmfd->id=3;
+		//else {
+		//	//newmfd->id=-1;
+		//	if(mfd<4) newmfd->id=mfd+4;
+		//	else if(mfd==5) newmfd->id=8;
+		//	else if(mfd>=8) newmfd->id=mfd+1;
+		//}
+
+		newmfd->id = mfd;
+		if(newmfd->id >= MDUID_CRT1 && newmfd->id <= MDUID_CRT4) {
+			Display[newmfd->id - MDUID_CRT1]=newmfd;
 		}
 		newmfd->UpdateStatus=true;
 		newmfd=NULL;

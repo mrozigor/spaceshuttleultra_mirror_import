@@ -16,9 +16,20 @@ BasicVCComponent::BasicVCComponent(Atlantis* _sts)
 
 }
 
+BasicVCComponent::BasicVCComponent(Atlantis* _sts, const string& _ident)
+: sts(_sts), ident(_ident)
+{
+
+}
+
 BasicVCComponent::~BasicVCComponent()
 {
 
+}
+
+const string& BasicVCComponent::Ident() const
+{
+	return ident;
 }
 
 void BasicVCComponent::Realize()

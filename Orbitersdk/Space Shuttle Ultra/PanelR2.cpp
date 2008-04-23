@@ -1091,42 +1091,54 @@ void PanelR2::Step(double t, double dt)
 			else {
 				APU_Speed[i]+=0.75*(oapiRand()-0.5);
 			}
-			if(Fuel_Press[i]<1400) Fuel_Press[i]+=200*dt;
-			else if(Fuel_Press[i]>1500) Fuel_Press[i]-=200*dt;
+			if(Fuel_Press[i]<1400) 
+				Fuel_Press[i]+=(int)(200*dt);
+			else if(Fuel_Press[i]>1500) 
+				Fuel_Press[i]-=(int)(200*dt);
 			else if(Fuel_Press[i]<1425 || Fuel_Press[i]>1480)
-				Fuel_Press[i]=1455-(10*oapiRand());
-			else Fuel_Press[i]+=2*double(oapiRand()-0.5)+0.5;
+				Fuel_Press[i]=1455 - (int)(10.0 * oapiRand());
+			else 
+				Fuel_Press[i] += (int)(2.0 * oapiRand() - 1.0);
+
 			if(HYD_MAIN_PUMP_PRESS[i]==0) {
 				if(Hydraulic_Press[i]<2950) {
-					if(Hydraulic_Press[i]>2900) Hydraulic_Press[i]=3000.0-(10*oapiRand());
-					else Hydraulic_Press[i]+=200*(dt);
+					if(Hydraulic_Press[i]>2900) 
+						Hydraulic_Press[i]=3000-(int)(10*oapiRand());
+					else 
+						Hydraulic_Press[i]+=(int)(200*dt);
 				}
 				else if(Hydraulic_Press[i]>3050)
-					Hydraulic_Press[i]-=200*(dt);
+					Hydraulic_Press[i]-=(int)(200*dt);
 				else
-					Hydraulic_Press[i]+=2*double(oapiRand()-0.5)+0.5;
+					Hydraulic_Press[i]+=(int)(2.0 * oapiRand() - 1.0);
 			}
 			else {
 				if(Hydraulic_Press[i]<850) {
-					if(Hydraulic_Press[i]>800) Hydraulic_Press[i]=900.0-(10*oapiRand());
-					else Hydraulic_Press[i]+=200*(dt);
+					if(Hydraulic_Press[i]>800) 
+						Hydraulic_Press[i] = 900-(int)(10*oapiRand());
+					else Hydraulic_Press[i] += (int)(200*dt);
 				}
 				else if(Hydraulic_Press[i]>950)
-					Hydraulic_Press[i]-=200*(dt);
+					Hydraulic_Press[i]-=(int)(200*dt);
 				else {
-					Hydraulic_Press[i]+=2*double(oapiRand()-0.5)+0.5;
+					Hydraulic_Press[i]+=(int)(2.0*oapiRand() - 1.0);
 				}
 			}
 			if(Hydraulic_Press[i]>2700) bHydraulicPressure=true;
 		}
 		else {
-			if(APU_Speed[i]>5) APU_Speed[i]-=15.0*dt;
-			else APU_Speed[i]=0;
-			if(Fuel_Press[i]>25) Fuel_Press[i]-=200*dt;
-			else Fuel_Press[i]=0;
+			if(APU_Speed[i]>5) 
+				APU_Speed[i]-=15.0*dt;
+			else 
+				APU_Speed[i]=0;
+			if(Fuel_Press[i]>25) 
+				Fuel_Press[i] -= (int)(200*dt);
+			else 
+				Fuel_Press[i] = 0;
 			if(Hydraulic_Press[i]>50)
-				Hydraulic_Press[i]-=200*(dt);
-			else Hydraulic_Press[i]=0;
+				Hydraulic_Press[i] -= (int)(200*dt);
+			else 
+				Hydraulic_Press[i] = 0;
 		}
 	}
 	//sprintf(oapiDebugString(), "%f %f %f %i %i %i", APU_Speed[0], APU_Speed[1], APU_Speed[2], Fuel_Press[0], Fuel_Press[1], Fuel_Press[2]);
@@ -1268,154 +1280,154 @@ bool PanelR2::ParseScenarioLine (char *line)
 {
 	int nNum, nSwitch;
 	//char cbuf[255];
-	if (!strnicmp (line, "BOILERN2SPLY", 12)) 
+	if (!_strnicmp (line, "BOILERN2SPLY", 12)) 
 	{
-		sscanf (line+12, "%d", &nSwitch);
-		sscanf (line+13, "%d", &nNum);
+		sscanf_s (line+12, "%d", &nSwitch);
+		sscanf_s (line+13, "%d", &nNum);
 		if(nSwitch<3) BOILER_N2_SUPPLY[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "BOILERCNTLR", 11)) 
+	else if (!_strnicmp (line, "BOILERCNTLR", 11)) 
 	{
-		sscanf (line+11, "%d", &nSwitch);
-		sscanf (line+12, "%d", &nNum);
+		sscanf_s (line+11, "%d", &nSwitch);
+		sscanf_s (line+12, "%d", &nNum);
 		if(nSwitch<3) BOILER_CNTLR[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "BOILERHTR", 9)) 
+	else if (!_strnicmp (line, "BOILERHTR", 9)) 
 	{
-		sscanf (line+9, "%d", &nSwitch);
-		sscanf (line+10, "%d", &nNum);
+		sscanf_s (line+9, "%d", &nSwitch);
+		sscanf_s (line+10, "%d", &nNum);
 		if(nSwitch<3) BOILER_CNTLRHTR[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APUFUTKVLV", 10)) 
+	else if (!_strnicmp (line, "APUFUTKVLV", 10)) 
 	{
-		sscanf (line+10, "%d", &nSwitch);
-		sscanf (line+11, "%d", &nNum);
+		sscanf_s (line+10, "%d", &nSwitch);
+		sscanf_s (line+11, "%d", &nNum);
 		if(nSwitch<3) APU_FUEL_TK_VLV[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APUCNTLRPWR", 11)) 
+	else if (!_strnicmp (line, "APUCNTLRPWR", 11)) 
 	{
-		sscanf (line+11, "%d", &nSwitch);
-		sscanf (line+12, "%d", &nNum);
+		sscanf_s (line+11, "%d", &nSwitch);
+		sscanf_s (line+12, "%d", &nNum);
 		if(nSwitch<3) APU_CNTLR_PWR[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "HYDCIRCPUMP", 11)) 
+	else if (!_strnicmp (line, "HYDCIRCPUMP", 11)) 
 	{
-		sscanf (line+11, "%d", &nSwitch);
-		sscanf (line+12, "%d", &nNum);
+		sscanf_s (line+11, "%d", &nSwitch);
+		sscanf_s (line+12, "%d", &nNum);
 		if(nSwitch<3) HYD_CIRC_PUMP[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APUAUTOSHTDN", 12)) 
+	else if (!_strnicmp (line, "APUAUTOSHTDN", 12)) 
 	{
-		sscanf (line+12, "%d", &nNum);
+		sscanf_s (line+12, "%d", &nNum);
 		APU_AUTO_SHUT_DOWN=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APUSPDSEL", 9)) 
+	else if (!_strnicmp (line, "APUSPDSEL", 9)) 
 	{
-		sscanf (line+9, "%d", &nSwitch);
-		sscanf (line+10, "%d", &nNum);
+		sscanf_s (line+9, "%d", &nSwitch);
+		sscanf_s (line+10, "%d", &nNum);
 		if(nSwitch<3) APU_SPEED_SELECT[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APUCNTRL", 8)) 
+	else if (!_strnicmp (line, "APUCNTRL", 8)) 
 	{
-		sscanf (line+8, "%d", &nSwitch);
-		sscanf (line+9, "%d", &nNum);
+		sscanf_s (line+8, "%d", &nSwitch);
+		sscanf_s (line+9, "%d", &nNum);
 		if(nSwitch<3) APU_CONTROL[nSwitch]=nNum;
 		/*sprintf(cbuf, "APUCNTRL %i %i", nSwitch, nNum);
 		oapiWriteLog(cbuf);*/
 		return true;
 	}
-	else if (!strnicmp (line, "HYDMNPMPPRESS", 13)) 
+	else if (!_strnicmp (line, "HYDMNPMPPRESS", 13)) 
 	{
-		sscanf (line+13, "%d", &nSwitch);
-		sscanf (line+14, "%d", &nNum);
+		sscanf_s (line+13, "%d", &nSwitch);
+		sscanf_s (line+14, "%d", &nNum);
 		if(nSwitch<3) HYD_MAIN_PUMP_PRESS[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "MPSENGPWR0", 10)) 
+	else if (!_strnicmp (line, "MPSENGPWR0", 10)) 
 	{
-		sscanf (line+10, "%d", &nSwitch);
-		sscanf (line+11, "%d", &nNum);
+		sscanf_s (line+10, "%d", &nSwitch);
+		sscanf_s (line+11, "%d", &nNum);
 		if(nSwitch<3) MPS_ENGINE_POWER[0][nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "MPSENGPWR1", 10)) 
+	else if (!_strnicmp (line, "MPSENGPWR1", 10)) 
 	{
-		sscanf (line+10, "%d", &nSwitch);
-		sscanf (line+11, "%d", &nNum);
+		sscanf_s (line+10, "%d", &nSwitch);
+		sscanf_s (line+11, "%d", &nNum);
 		if(nSwitch<3) MPS_ENGINE_POWER[1][nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "HEISOLA", 7)) 
+	else if (!_strnicmp (line, "HEISOLA", 7)) 
 	{
-		sscanf (line+7, "%d", &nSwitch);
-		sscanf (line+8, "%d", &nNum);
+		sscanf_s (line+7, "%d", &nSwitch);
+		sscanf_s (line+8, "%d", &nNum);
 		if(nSwitch<3) HE_ISOLATION_A[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "HEISOLB", 7)) 
+	else if (!_strnicmp (line, "HEISOLB", 7)) 
 	{
-		sscanf (line+7, "%d", &nSwitch);
-		sscanf (line+8, "%d", &nNum);
+		sscanf_s (line+7, "%d", &nSwitch);
+		sscanf_s (line+8, "%d", &nNum);
 		if(nSwitch<3) HE_ISOLATION_B[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "APU", 3)) 
+	else if (!_strnicmp (line, "APU", 3)) 
 	{
-		sscanf (line+3, "%d", &nSwitch);
-		sscanf (line+4, "%d", &nNum);
+		sscanf_s (line+3, "%d", &nSwitch);
+		sscanf_s (line+4, "%d", &nNum);
 		if(nSwitch<3) APU_STATE[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "HYDRAULIC_PRESS", 15)) 
+	else if (!_strnicmp (line, "HYDRAULIC_PRESS", 15)) 
 	{
-		sscanf (line+15, "%d", &nSwitch);
-		sscanf (line+16, "%d", &nNum);
+		sscanf_s (line+15, "%d", &nSwitch);
+		sscanf_s (line+16, "%d", &nNum);
 		if(nSwitch<3) Hydraulic_Press[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "FUEL_PRESS", 10)) 
+	else if (!_strnicmp (line, "FUEL_PRESS", 10)) 
 	{
-		sscanf (line+10, "%d", &nSwitch);
-		sscanf (line+11, "%d", &nNum);
+		sscanf_s (line+10, "%d", &nSwitch);
+		sscanf_s (line+11, "%d", &nNum);
 		if(nSwitch<3) Fuel_Press[nSwitch]=nNum;
 		return true;
 	}
-	else if (!strnicmp (line, "MPS", 3)) 
+	else if (!_strnicmp (line, "MPS", 3)) 
 	{
-		sscanf (line+3, "%d", &nSwitch);
-		sscanf (line+4, "%d", &nNum);
+		sscanf_s (line+3, "%d", &nSwitch);
+		sscanf_s (line+4, "%d", &nNum);
 		if(nSwitch<3) MPS_STATE[nSwitch]=nNum;
 		return true;
 	}
-	else if(!strnicmp(line, "L_ET_UMB_DOOR", 13))
+	else if(!_strnicmp(line, "L_ET_UMB_DOOR", 13))
 	{
-		sscanf (line+13, "%lf", &LETUmbDoorStatus.pos);
+		sscanf_s (line+13, "%lf", &LETUmbDoorStatus.pos);
 		if(LETUmbDoorStatus.pos==0.0) LETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(LETUmbDoorStatus.pos==1.0) LETUmbDoorStatus.action=AnimState::OPEN;
 		else LETUmbDoorStatus.action=AnimState::STOPPED;
 		sts->SetETUmbDoorPosition(LETUmbDoorStatus.pos, 0);
 		return true;
 	}
-	else if(!strnicmp(line, "R_ET_UMB_DOOR", 13))
+	else if(!_strnicmp(line, "R_ET_UMB_DOOR", 13))
 	{
-		sscanf (line+13, "%lf", &RETUmbDoorStatus.pos);
+		sscanf_s (line+13, "%lf", &RETUmbDoorStatus.pos);
 		if(RETUmbDoorStatus.pos==0.0) RETUmbDoorStatus.action=AnimState::CLOSED;
 		else if(RETUmbDoorStatus.pos==1.0) RETUmbDoorStatus.action=AnimState::OPEN;
 		else RETUmbDoorStatus.action=AnimState::STOPPED;
 		sts->SetETUmbDoorPosition(RETUmbDoorStatus.pos, 1);
 		return true;
 	}
-	else if(!strnicmp(line, "ET_DOOR_LATCHES", 15))
+	else if(!_strnicmp(line, "ET_DOOR_LATCHES", 15))
 	{
-		sscanf(line+15, "%lf%lf%lf", &CenterlineLatches.pos, &LDoorLatches.pos, &RDoorLatches.pos);
+		sscanf_s(line+15, "%lf%lf%lf", &CenterlineLatches.pos, &LDoorLatches.pos, &RDoorLatches.pos);
 		if(CenterlineLatches.pos==0.0) CenterlineLatches.action=AnimState::CLOSED;
 		else if(CenterlineLatches.pos==1.0) CenterlineLatches.action=AnimState::OPEN;
 		else CenterlineLatches.action=AnimState::STOPPED;
@@ -1433,7 +1445,7 @@ bool PanelR2::ParseScenarioLine (char *line)
 
 void PanelR2::SaveState (FILEHANDLE scn)
 {
-	char cbuf[255];
+	char cbuf[256];
 	/*for(int i=0;i<3;i++) {
 		if(APU_STATE[i]!=0) {
 			sprintf(cbuf, "%i %i %i", i, Hydraulic_Press[i], Fuel_Press[i]);
@@ -1494,6 +1506,6 @@ void PanelR2::SaveState (FILEHANDLE scn)
 	oapiWriteScenario_int (scn, "MPS2", MPS_STATE[2]);
 	oapiWriteScenario_float (scn, "L_ET_UMB_DOOR", LETUmbDoorStatus.pos);
 	oapiWriteScenario_float (scn, "R_ET_UMB_DOOR", RETUmbDoorStatus.pos);
-	sprintf(cbuf, "%f %f %f", CenterlineLatches.pos, LDoorLatches.pos, RDoorLatches.pos);
+	sprintf_s(cbuf, 255, "%f %f %f", CenterlineLatches.pos, LDoorLatches.pos, RDoorLatches.pos);
 	oapiWriteScenario_string (scn, "ET_DOOR_LATCHES", cbuf);
 }

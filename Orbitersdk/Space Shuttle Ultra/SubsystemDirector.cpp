@@ -9,7 +9,8 @@ SubsystemDirector::SubsystemDirector(Atlantis* _sts)
 
 SubsystemDirector::~SubsystemDirector()
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	unsigned long i;
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		delete subsystems[i];
 	}
@@ -23,15 +24,18 @@ bool SubsystemDirector::AddSubsystem(AtlantisSubsystem* pSubsys)
 
 void SubsystemDirector::SetClassCaps(FILEHANDLE cfg)
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	unsigned long i;
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
+		//subsystems[i]->OnSetClassCaps();
 	}
 }
 
 bool SubsystemDirector::ParseScenarioLine(char* line)
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	unsigned long i;
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
 		if(subsystems[i]->OnParseLine(line))
@@ -49,7 +53,8 @@ bool SubsystemDirector::PlaybackEvent(double fSimT, double fEventT, const char* 
 
 bool SubsystemDirector::SaveState(FILEHANDLE scn)
 {
-	for(int i = 0; i<subsystems.size(); i++)
+	unsigned long i;
+	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
 		subsystems[i]->OnSaveState(scn);
@@ -59,7 +64,7 @@ bool SubsystemDirector::SaveState(FILEHANDLE scn)
 
 bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 {
-	int i;
+	unsigned long i;
 	//Propagate subsystem states to the end of the discrete timestep
 	for(i = 0; i<subsystems.size(); i++)
 	{
@@ -76,7 +81,7 @@ bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 
 bool SubsystemDirector::PreStep(double fSimT, double fDeltaT, double fMJD)
 {
-	int i;
+	unsigned long i;
 	for(i = 0; i<subsystems.size(); i++)
 	{
 		//

@@ -178,7 +178,8 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
-		if(id>=3 || sts->panelc2->switch_state[SWITCH2+2*id]==0) //GNC
+		if( (id>=MDUID_CRT1 && id<=MDUID_CRT4) || 
+			sts->panelc2->switch_state[SWITCH2+2*(id - MDUID_CRT1)]==0) //GNC
 		{
 			if(sts->ops==201) {
 				switch(spec) {
@@ -193,6 +194,9 @@ void CRT::Update (HDC hDC)
 						break;
 				}
 			}
+			else if(sts->ops == 0) {
+				GPCMEMORY(hDC);
+			}
 			else if(sts->ops==101 || sts->ops==102 || sts->ops==103) {
 				PASSTRAJ(hDC);
 			}
@@ -203,13 +207,19 @@ void CRT::Update (HDC hDC)
 				DrawCommonHeader(hDC);
 			}
 		}
-		else if(sts->panelc2->switch_state[SWITCH2+2*id]==1) //SM
+		else if(sts->panelc2->switch_state[SWITCH2+2*(id - MDUID_CRT1)]==1) //SM
 		{
-			PDRS(hDC);
+			if(sts->ops == 0) {
+				GPCMEMORY(hDC);
+			}
+			else
+			{
+				PDRS(hDC);
+			}
 		}
 		else //PL
 		{
-			TextOut(hDC, 0, 0, "Does not compute", 16);
+				GPCMEMORY(hDC);	
 		}
 		/*if(sts->ops==201) {
 			switch(spec) {
@@ -2773,4 +2783,47 @@ void CRT::RecallCriticalFormat(int iFormatCode)
 	case 0:
 	return;
 	}
+}
+
+void CRT::GPCMEMORY(HDC hdc)
+{
+	SetDisplayTitle("GPC MEMORY");
+	DrawCommonHeader(hdc);
+
+	CRTLine(hdc, 16, 3, 16, 22);
+	CRTLine(hdc, 10, 7, 10, 22);
+	CRTLine(hdc, 1, 22, 16, 22);
+	CRTLine(hdc, 16, 14, 50, 14);
+	CRTLine(hdc, 16, 20, 50, 20);
+	CRTLine(hdc, 19, 14, 19, 24);
+
+	CRTTextOut(hdc, 1, 3, "MEM/BUS CONFIG");
+	CRTTextOut(hdc, 1, 4, "1 CONFIG");
+	CRTTextOut(hdc, 1, 5, "2 GPC");
+	CRTTextOut(hdc, 2, 7, "STRING 1");
+	CRTTextOut(hdc, 9, 8, "2");
+	CRTTextOut(hdc, 9, 9, "3");
+	CRTTextOut(hdc, 9, 10, "4");
+	CRTTextOut(hdc, 4, 11, "PL 1/2");
+	CRTTextOut(hdc, 5, 13, "CRT 1");
+	CRTTextOut(hdc, 9, 14, "2");
+	CRTTextOut(hdc, 9, 15, "3");
+	CRTTextOut(hdc, 9, 16, "4");
+	CRTTextOut(hdc, 2, 18, "LAUNCH 1");
+	CRTTextOut(hdc, 9, 19, "2");
+	CRTTextOut(hdc, 6, 20, "MM 1");
+	CRTTextOut(hdc, 9, 21, "2");
+
+	
+
+	CRTTextOut(hdc, 18, 3, "READ/WRITE");
+	CRTTextOut(hdc, 19, 4, "DATA 20");
+	CRTTextOut(hdc, 29, 4, "BIT SET 22");
+	CRTTextOut(hdc, 42, 4, "SEQ ID 24");
+	CRTTextOut(hdc, 19, 5, "CODE 21");
+	CRTTextOut(hdc, 29, 5, "BIT RST 23");
+	CRTTextOut(hdc, 42, 5, "WRITE 25");
+	CRTTextOut(hdc, 19, 6, "26 ENG UNITS");
+
+
 }

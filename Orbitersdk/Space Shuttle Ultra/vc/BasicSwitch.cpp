@@ -21,4 +21,10 @@ BasicSwitch::~BasicSwitch()
 
 }
 
+bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
+{
+	return false;
+}
+
+
 };

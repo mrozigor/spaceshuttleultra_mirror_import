@@ -121,8 +121,8 @@ private:
 
 	bool UpdateStatus;
 	static struct SavePrm{
-		int spec[10], mode[10], display[10];
-		bool bValid[10];
+		int spec[11], mode[11], display[11];
+		bool bValid[11];
 	} saveprm;
 
 	

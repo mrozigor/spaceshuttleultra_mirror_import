@@ -300,21 +300,21 @@ void PayloadBayOp::RevertKuAntennaAction ()
 
 bool PayloadBayOp::ParseScenarioLine (char *line)
 {
-	if (!strnicmp (line, "CARGODOOR", 9)) {
+	if (!_strnicmp (line, "CARGODOOR", 9)) {
 		sscan_state (line+9, BayDoorStatus);
 		return true;
-	} else if (!strnicmp (line, "RADIATOR", 8)) {
+	} else if (!_strnicmp (line, "RADIATOR", 8)) {
 		sscan_state (line+8, RadiatorStatus);
 		return true;
-	} else if (!strnicmp (line, "RADLATCH", 8)) {
+	} else if (!_strnicmp (line, "RADLATCH", 8)) {
 		sscan_state (line+8, RadLatchStatus);
 		return true;
-	} else if (!strnicmp (line, "KUBAND", 6)) {
+	} else if (!_strnicmp (line, "KUBAND", 6)) {
 		sscan_state (line+6, KuAntennaStatus);
 		return true;
-	} else if (!strnicmp (line, "BAYDOORLATCH", 12)) {
+	} else if (!_strnicmp (line, "BAYDOORLATCH", 12)) {
 		int latch;
-		sscanf (line+12, "%d", &latch);
+		sscanf_s (line+12, "%d", &latch);
 		sscan_state (line+13, CLBayDoorLatch[latch]);
 	}
 	return false;
@@ -324,7 +324,7 @@ bool PayloadBayOp::ParseScenarioLine (char *line)
 
 void PayloadBayOp::SaveState (FILEHANDLE scn)
 {
-	char cbuf[255];
+	char cbuf[256];
 
 	if (!BayDoorStatus.Closed())
 		WriteScenario_state (scn, "CARGODOOR", BayDoorStatus);
@@ -335,7 +335,7 @@ void PayloadBayOp::SaveState (FILEHANDLE scn)
 	if (!KuAntennaStatus.Closed())
 		WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
 	for(int i=0;i<4;i++) {
-		sprintf(cbuf, "BAYDOORLATCH%d", i);
+		sprintf_s(cbuf, 255, "BAYDOORLATCH%d", i);
 		if(!CLBayDoorLatch[i].Closed()) WriteScenario_state (scn, cbuf, CLBayDoorLatch[i]);
 	}
 }
@@ -606,7 +606,7 @@ void PayloadBayOp::UpdateDialog (HWND hWnd)
 {
 	char cbuf[256];
 	int i;
-	sprintf (cbuf, "Atlantis %s: Payload Bay Operation", sts->GetName());
+	sprintf_s (cbuf, 256, "Atlantis %s: Payload Bay Operation", sts->GetName());
 	SetWindowText (hWnd, cbuf);
 	for (i = 0; i < 2; i++) {
 		int plbd_ctrl[2] = {IDC_PLBD1, IDC_PLBD2};

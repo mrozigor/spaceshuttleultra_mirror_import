@@ -298,6 +298,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\basicswitch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicSwitch.cpp"
 				>
 			</File>
@@ -352,6 +356,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\IDP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\Indicator7Seg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Keyboard.cpp"
 				>
 			</File>
@@ -361,6 +373,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\MDM.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\MDU.cpp"
 				>
 			</File>
 			<File
@@ -523,15 +539,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\dps\IDP.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\dps\IDP.h"
-			>
-		</File>
-		<File
-			RelativePath=".\vc\Indicator7Seg.cpp"
 			>
 		</File>
 		<File
@@ -539,11 +547,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\dps\MDU.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\dps\MDU.h"
+			RelativePath=".\vc\MDU.h"
 			>
 		</File>
 		<File
@@ -592,6 +596,10 @@
 		</File>
 		<File
 			RelativePath="Bitmaps\tkbk_label.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\vc\vc_defs.h"
 			>
 		</File>
 		<File
