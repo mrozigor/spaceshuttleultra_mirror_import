@@ -441,7 +441,7 @@ const VECTOR3 VC_DIR_COAS = _V( 0.0, 0.45399, -0.891007);
 
 const static char* VC_LBL_PORTSTATION = "Port workstation";
 const VECTOR3 VC_POS_PORTSTATION = _V(-0.6, 2.95, 13.0);
-const VECTOR3 VC_DIR_PORTSTATION = _V(-1, 0, 0);
+const VECTOR3 VC_DIR_PORTSTATION = _V(-cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
 const static char* VC_LBL_AFTPILOT = "Aft pilot station";
 const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.5);
@@ -454,7 +454,7 @@ const VECTOR3 VC_DIR_RMSSTATION = _V(0.0, 0.0, -1.0);
 
 const static char* VC_LBL_STBDSTATION = "Starboard workstation";
 const VECTOR3 VC_POS_STBDSTATION = _V(0.6, 2.95, 13.0);
-const VECTOR3 VC_DIR_STBDSTATION = _V(1, 0, 0);
+const VECTOR3 VC_DIR_STBDSTATION = _V(cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
 const static char* VC_LBL_AFTWORKSTATION = "Aft Workstation";
 const VECTOR3 VC_POS_AFTWORKSTATION = _V(0.0, 2.95, 13.2);
