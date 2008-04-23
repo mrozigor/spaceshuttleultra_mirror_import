@@ -20,6 +20,7 @@ using namespace std;
 class BasicSwitch : public BasicVCComponent  
 {
 protected:
+	bool bOrientation;
 	unsigned short usNumPositions;
 	vector<string> labels;
 public:
@@ -27,6 +28,7 @@ public:
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
 
+	virtual bool OnMouseEvent(int _event, float x, float y);
 };
 
 };

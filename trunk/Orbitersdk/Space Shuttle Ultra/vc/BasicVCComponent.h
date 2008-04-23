@@ -9,22 +9,23 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "vc_defs.h"
 #include "../Atlantis.h"
 #include "../ISubsystem.h"
+#include <string>
 
 class Atlantis;
 
 namespace vc {
 
-typedef struct{
-	float x, y;
-} VCMOUSEEVENTPOINT;
+	using namespace std;
 
 
 
 class BasicVCComponent: public ISubsystem
 {
 	Atlantis* sts;
+	string ident;
 	VECTOR3 reference;
 	VECTOR3 dir;
 	VCMOUSEEVENTPOINT p_a, p_b, p_c, p_d;
@@ -39,12 +40,19 @@ protected:
 	
 public:
 	BasicVCComponent(Atlantis* _sts);
+	BasicVCComponent(Atlantis* _sts, const string& _ident);
 	virtual ~BasicVCComponent();
 
 	bool SetMouseRegion(VCMOUSEEVENTPOINT _a, VCMOUSEEVENTPOINT _b, VCMOUSEEVENTPOINT _c, VCMOUSEEVENTPOINT _d);
 
+	/**
+	 * Get identification of this component
+	 * @return The identification string, used for locating this component inside a panel
+	 */
+	const string& Ident() const;
+
 	virtual void DefineAnimations(UINT vc_idx);
-	virtual bool OnMouseEvent(int event, float x, float y);
+	virtual bool OnMouseEvent(int _event, float x, float y);
 	virtual double GetState() const;
 	virtual const VECTOR3& GetReference() const;
 	virtual const VECTOR3& GetDirection() const;

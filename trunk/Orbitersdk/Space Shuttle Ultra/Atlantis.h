@@ -16,6 +16,7 @@
 #include "orbitersdk.h"
 #include <math.h>
 #include "dps/MasterTimingUnit.h"
+#include "vc/vc_defs.h"
 
 typedef struct {
 	double P;		//Pressure (psig)
@@ -276,6 +277,10 @@ const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
 const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
 const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
+
+const VECTOR3 SSMER_GOX_REF = SSMER_REF + _V(1.0, 0.0, -2.0);
+const VECTOR3 SSMEL_GOX_REF = SSMEL_REF + _V(1.0, 0.0, -2.0);
+const VECTOR3 SSMET_GOX_REF = SSMET_REF + _V(1.0, 0.0, -2.0);
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
 
@@ -668,7 +673,6 @@ class PanelC2;
 class PanelF7;
 class PanelO3;
 class SubsystemDirector;
-class MasterTimingUnit;
 class OMSSubsystem;
 class AirDataProbeSystem;
 
@@ -686,6 +690,8 @@ typedef enum {
 } OMS_REF;
 
 class CommModeHandler;
+
+
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
@@ -1011,6 +1017,9 @@ private:
 		return cn(TT,n-1)*tau-Isp*pow(TT,n+1)/(n*(n+1));
 	}
 
+	// *******************************************************************************
+	// Animations
+	// *******************************************************************************
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad;                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
@@ -1018,6 +1027,8 @@ private:
 	UINT anim_clatch5_8;						// handle for center line latches 5-8
 	UINT anim_clatch9_12;						// handle for center line latches 9-12
 	UINT anim_clatch13_16;						// handle for center line latches 13-16*/
+
+	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
 	UINT anim_elev;                            // handle for elevator animation
@@ -1107,6 +1118,15 @@ private:
 	THRUSTER_HANDLE th_srb[2];                 // handles for SRB engines
     THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
 	THRUSTER_HANDLE th_att_lin[10];
+
+	/**
+	 * Used for the preflight GOX venting of the SSMEs.
+	 */
+	THRUSTER_HANDLE th_ssme_gox[3];
+	/**
+	 * To be used for visualizing the LOX MPS dump after MECO. 
+	 */
+	THRUSTER_HANDLE th_ssme_loxdump[3];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets
@@ -1274,6 +1294,8 @@ private:
 	int item;
 	CRT* Display[3];
 	CRT* newmfd;
+	
+	vc::MDU* mdus[11];
 
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
