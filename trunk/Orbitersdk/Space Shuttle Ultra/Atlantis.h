@@ -278,9 +278,9 @@ const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
 const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
-const VECTOR3 SSMER_GOX_REF = SSMER_REF + _V(1.0, 0.0, -2.0);
-const VECTOR3 SSMEL_GOX_REF = SSMEL_REF + _V(1.0, 0.0, -2.0);
-const VECTOR3 SSMET_GOX_REF = SSMET_REF + _V(1.0, 0.0, -2.0);
+const VECTOR3 SSMER_GOX_REF = _V(-2.615, 0.239, -14.665);
+const VECTOR3 SSMEL_GOX_REF = _V(1.754, 1.274, -14.471);
+const VECTOR3 SSMET_GOX_REF = _V(-1.149, 3.166, -13.91);
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
 
@@ -293,6 +293,12 @@ const VECTOR3 PROBEL_REF = _V(-1.122688, -1.0894815, 19.4175);
 const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
+
+const int STATE_PRELAUNCH = 0;
+const int STATE_STAGE1 = 1;	//SRBs ignited
+const int STATE_STAGE2 = 2;	//ET only
+const int STATE_ORBITER = 3; //post ET separation
+const int STATE_DESTROYED = 99;	//don't use!
 //
 
 //======================================
@@ -863,6 +869,7 @@ private:
 	void CreateRightARCS(const VECTOR3& ref_pos);
 	void CreateLeftARCS(const VECTOR3& ref_pos);
 	void CreateFRCS(const VECTOR3& ref_pos);
+	void CreateMPSGOXVents(const VECTOR3& ref_pos);
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
 	unsigned short usCurrentPlayerChar;
@@ -1184,6 +1191,13 @@ private:
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	bool ControlSurfacesEnabled;
+
+	bool bSSMEGOXVent;
+
+	//CLR
+	VECTOR3 SSMET_GOX_REF1;
+	VECTOR3 SSMEL_GOX_REF1;
+	VECTOR3 SSMER_GOX_REF1;
 
 	// APU Fuel Tanks
 	PROPELLANT_HANDLE apu_tank[3], oms_helium_tank[2], mps_helium_tank[3];

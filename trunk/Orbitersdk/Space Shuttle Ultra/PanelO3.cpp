@@ -140,7 +140,7 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	if (id != AID_O3) return false;
 	bool action = false;
-	sprintf(oapiDebugString(), "PANEL O3: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+	sprintf_s(oapiDebugString(),255, "PANEL O3: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 
 	if(p.x>0.642 && p.x < 0.693)
 	{
@@ -278,7 +278,7 @@ void PanelO3::SaveState(FILEHANDLE scn)
 {
 
 	char buffer[100];
-	sprintf(buffer, "PANELO3 %d %d %d %d %d %d %d", 
+	sprintf_s(buffer, 99, "PANELO3 %d %d %d %d %d %d %d", 
 		switch_state[0], 
 		switch_state[1], 
 		switch_state[2],

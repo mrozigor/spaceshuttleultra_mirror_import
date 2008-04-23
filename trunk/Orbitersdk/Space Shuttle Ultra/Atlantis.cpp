@@ -566,6 +566,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bZThrust=false;
   bEngineFail=false;
   bCommMode = false;
+  bSSMEGOXVent = false;
   tSRBSep=SRB_SEPARATION_TIME;
   TLastMajorCycle=0.0;
 
@@ -699,6 +700,8 @@ void Atlantis::SetLaunchConfiguration (void)
   int i;
   extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
 
+ 
+  
   // *********************** physical parameters *********************************
 
   SetSize (30.0);
@@ -743,7 +746,8 @@ void Atlantis::SetLaunchConfiguration (void)
   th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  
+
+  CreateMPSGOXVents(OFS_LAUNCH_ORBITER);
   
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   DefineSSMEExhaust();
@@ -828,7 +832,7 @@ void Atlantis::SetLaunchConfiguration (void)
   AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
-  status = 0;
+  status = STATE_PRELAUNCH;
 }
 
 // --------------------------------------------------------------
@@ -838,7 +842,7 @@ void Atlantis::SetPostLaunchConfiguration (double met)
 {
   SetLaunchConfiguration();
   t0 = -met; // reference time (liftoff)
-  status = 1;
+  status = STATE_STAGE1;
 }
 
 // --------------------------------------------------------------
@@ -897,6 +901,9 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	th_main[1] = CreateThruster (ofs+_V(-1.6,-0.2,-16.0), _V( 0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 	th_main[2] = CreateThruster (ofs+_V( 1.6,-0.2,-16.0), _V(-0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 	thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
+
+	CreateMPSGOXVents(ofs);
+
     //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
 	//sprintf(oapiDebugString(), "Creating main engines");
     //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
@@ -936,7 +943,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   AddOrbiterVisual (OFS_WITHTANK_ORBITER);
   AddTankVisual    (OFS_WITHTANK_TANK);
 
-  status = 2;
+  status = STATE_STAGE2;
 }
 
 // --------------------------------------------------------------
@@ -1003,6 +1010,8 @@ void Atlantis::SetOrbiterConfiguration (void)
 	  AddExhaust (th_oms[i], 0.0, 0.5);
 	  c3po->EngControl(i);
   }
+
+  CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
 
   //Don't deactivate main engines... keep them existing for gimbal code
   //for(i=0;i<3;i++) th_main[i]=NULL; //deactivate mains
@@ -1375,19 +1384,19 @@ void Atlantis::DefineAnimations (void)
 
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), 90 * RAD);
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   anim_rad = CreateAnimation (0);
@@ -1691,33 +1700,45 @@ void Atlantis::DefineAnimations (void)
   static VECTOR3 ssmer_dummy_vec;
   static VECTOR3 ssmel_dummy_vec;
 
+  SSMET_GOX_REF1 = SSMET_GOX_REF;
+  SSMEL_GOX_REF1 = SSMEL_GOX_REF;
+  SSMER_GOX_REF1 = SSMER_GOX_REF;
+
   static MGROUP_ROTATE SSMETYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmet_dummy_vec), 1, SSMET_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
   static MGROUP_ROTATE SSMETPitch (midx, SSMET_Grp, 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+  static MGROUP_ROTATE SSMETPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMET_GOX_REF1), 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeTyaw = CreateAnimation(0.5);
   anim_ssmeTpitch = CreateAnimation(0.5);
 
   parent = AddAnimationComponent(anim_ssmeTyaw, 0.0, 1.0, &SSMETYaw, NULL);
   AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitch, parent);
+  AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitchV, parent);
+
 
   static MGROUP_ROTATE SSMELYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmel_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
   static MGROUP_ROTATE SSMELPitch (midx, SSMEL_Grp, 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+  //Virtual animations
+  static MGROUP_ROTATE SSMELPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMEL_GOX_REF1), 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeLyaw = CreateAnimation(0.5);
   anim_ssmeLpitch = CreateAnimation(0.5);
 
   parent = AddAnimationComponent(anim_ssmeLyaw, 0.0, 1.0, &SSMELYaw, NULL);
   AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitch, parent);
+  AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitchV, parent);
 
 
   static MGROUP_ROTATE SSMERYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmer_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
   static MGROUP_ROTATE SSMERPitch (midx, SSMER_Grp, 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+  static MGROUP_ROTATE SSMERPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMER_GOX_REF1), 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeRyaw = CreateAnimation(0.5);
   anim_ssmeRpitch = CreateAnimation(0.5);
 
   parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
   AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
+  AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitchV, parent);
 
   // ======================================================
   // Air Data Probe Assembly Animations
@@ -3537,6 +3558,10 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf(line+5, "%lf", &MNVR_OPTION.data[PITCH]);
 	} else if(!_strnicmp(line, "YAW", 3)) {
 		sscanf(line+3, "%lf", &MNVR_OPTION.data[YAW]);
+	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
+		action = 0;
+		sscanf(line+10, "%d", &action);
+		bSSMEGOXVent = (action != 0);
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
@@ -3652,6 +3677,11 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_float (scn, "Y", Y);
   oapiWriteScenario_float (scn, "OM", OM);
 
+  if(bSSMEGOXVent)
+  {
+	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
+  }
+
   // save bay door operations status
   plop->SaveState (scn);
   gop->SaveState (scn);
@@ -3746,22 +3776,58 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   psubsystems->PostStep(simt, simdt, mjd);
 
   switch (status) {
-  case 0: // launch configuration
-    if (GetEngineLevel (ENGINE_MAIN) > 0.95) 
+  case STATE_PRELAUNCH: // launch configuration
+    if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
 	{
-      status = 1; // launch
+      status = STATE_STAGE1; // launch
 	  SignalGSEStart();
       t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
       RecordEvent ("STATUS", "SSME_IGNITION");
 	  if(bAutopilot) 
 		  InitializeAutopilot(); //setup autopilot for ascent
-	} else {
+	} 
+	else if(GetThrusterGroupLevel(THGROUP_MAIN) == 0.0)
+	{
+		RateCommand();
+		if(bSSMEGOXVent)
+		{
+			for(i = 0; i<3; i++)
+			{
+				if(th_ssme_gox[i] != NULL) {
+					SetThrusterLevel(th_ssme_gox[i], 1.0);
+				}
+			}
+		}
+		else
+		{
+			for(i = 0; i<3; i++)
+			{
+				if(th_ssme_gox[i] != NULL) {
+					SetThrusterLevel(th_ssme_gox[i], 0.0);
+				}
+			}
+		}
+	}
+	else {
 		//AutoMainGimbal();
 		RateCommand();
+		bSSMEGOXVent = false;
+		for(i = 0; i<3; i++)
+		{
+			if(th_ssme_gox[i] != NULL) {
+				SetThrusterLevel(th_ssme_gox[i], 0.0);
+			}
+		}
 	}
     break;
-  case 1: // SRB's ignited
+  case STATE_STAGE1: // SRB's ignited
     met = simt-t0;
+	for(i = 0; i<3; i++)
+	{
+		if(th_ssme_gox[i] != NULL) {
+			SetThrusterLevel(th_ssme_gox[i], 0.0);
+		}
+	}
 	if(met >= 0.0 && !GetLiftOffFlag())
 	{
 		SignalGSEBreakHDP();
@@ -3807,7 +3873,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	GPC(simdt);
     break;
 
-  case 2: // post SRB separation
+  case STATE_STAGE2: // post SRB separation
 	  met+=simdt;
     if (bManualSeparate) {
 	  SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
@@ -3835,7 +3901,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 	GPC(simdt);
     break;
-  case 3: // post tank separation
+  case STATE_ORBITER: // post tank separation
 	  EnableAllRCS();
     //On entry, start shutting down RCS channels as appropriate
   if(RollActive && GetDynPressure()>RollOff) {
@@ -3905,7 +3971,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
   //sprintf(oapiDebugString(), "%i", last_mfd);
   //deploy gear
-  if(status==3) {
+  if(status==STATE_ORBITER) {
 		airspeed=GetAirspeed();
 		if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
 		  if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
@@ -5077,12 +5143,19 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		gop->ArmGear();
 		return 1;
 	case OAPI_KEY_X: //temporary
-		if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
-			if(RMSRollout.action==AnimState::CLOSED) {
-				RMSRollout.action=AnimState::OPENING;
-			}
-			else {
-				RMSRollout.action=AnimState::CLOSING;
+		if(status == STATE_PRELAUNCH)
+		{
+			bSSMEGOXVent = !bSSMEGOXVent;
+		}
+		else if(status == STATE_ORBITER)
+		{
+			if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
+				if(RMSRollout.action==AnimState::CLOSED) {
+					RMSRollout.action=AnimState::OPENING;
+				}
+				else {
+					RMSRollout.action=AnimState::CLOSING;
+				}
 			}
 		}
 		return 1;
@@ -5594,7 +5667,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	double fDeflYaw, fDeflPitch;
 
 	GetThrusterDir(th_main[0], SSME_DIR);
-
+	
 	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
 
 	//fDeflYaw = acos(SSME_DIR.x);
@@ -5611,7 +5684,18 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	SetAnimation(anim_ssmeTyaw, fDeflYaw/YAWS + 0.5);
 	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
 
+	if(th_ssme_gox[0] != NULL) {
+		SetThrusterDir(th_ssme_gox[0], SSME_DIR);
+		SetThrusterRef(th_ssme_gox[0], SSMET_GOX_REF1);
+	}
+
+
 	GetThrusterDir(th_main[1], SSME_DIR);
+	
+	if(th_ssme_gox[1] != NULL) {
+		SetThrusterDir(th_ssme_gox[1], SSME_DIR);
+		SetThrusterRef(th_ssme_gox[1], SSMEL_GOX_REF1);
+	}
 
 	fDeflPitch = asin(-SSME_DIR.y);
 	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
@@ -5622,11 +5706,21 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	GetThrusterDir(th_main[2], SSME_DIR);
 
+	
 	fDeflPitch = asin(-SSME_DIR.y);
 	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
+
+	if(th_ssme_gox[2] != NULL) {
+		SetThrusterDir(th_ssme_gox[2], SSME_DIR);
+		SetThrusterRef(th_ssme_gox[2], SSMER_GOX_REF1);
+	}
+
+	
+	
+	
 	
 }
 
@@ -6119,4 +6213,44 @@ void Atlantis::DisplayCameraLabel(const char* pszLabel)
 	strcpy(pszCameraLabelBuffer, pszLabel);
 	oapiAnnotationSetText(nhCameraLabel, pszCameraLabelBuffer);
 	fTimeCameraLabel = 5.0;
+}
+
+
+void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)
+{
+	int i;
+	 /*SRCSIZE=0.06
+SRCRATE=140
+V0=10
+SRCSPREAD=0
+LIFETIME=1.25
+GROWTHRATE=1.1
+ATMSLOWDOWN=1.25
+LTYPE=EMISSIVE
+LEVELMAP=LVL_SQRT
+LMIN=0
+LMAX=1
+ATMSMAP=ATM_PLOG
+AMIN=1e-1140
+AMAX=1
+TEX=Contrail1*/
+
+	static PARTICLESTREAMSPEC gox_stream = {
+	  0, 0.06, 140, 10, 0.025, 1.25, 1.1, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
+	  };
+
+	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
+
+
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0.0, -0.37489, 0.92707), 5.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0.065, -0.2447, 0.9674), 5.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(-0.065, -0.2447, 0.9674), 5.0, ph_tank, 250.0, 100.0);
+	
+	for(i = 0; i<3; i++)
+	{
+		AddExhaustStream(th_ssme_gox[i], &gox_stream);
+	}
+	
 }
