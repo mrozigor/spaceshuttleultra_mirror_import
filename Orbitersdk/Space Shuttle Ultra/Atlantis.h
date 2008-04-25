@@ -618,6 +618,18 @@ const int MDUID_AFD  = 10;
 #define AID_A8_TKBK11  441
 #define AID_A8_MAX     459
 
+#define AID_MDU_CDR1	1000
+#define AID_MDU_CDR2	1001
+#define AID_MDU_CRT1	1002
+#define AID_MDU_CRT2	1003
+#define AID_MDU_CRT3	1004
+#define AID_MDU_CRT4	1005
+#define AID_MDU_MFD1	1006
+#define AID_MDU_MFD2	1007
+#define AID_MDU_PLT1	1008
+#define AID_MDU_PLT2	1009
+#define AID_MDU_AFD1	1010
+
 
 #define SWITCH1		0
 #define SWITCH2		1
