@@ -4549,7 +4549,7 @@ bool Atlantis::clbkLoadVC (int id)
     oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS2);
 
   // Default camera rotarion
-  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
 
     RegisterVC_CdrMFD (); // activate commander MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
@@ -4572,7 +4572,7 @@ bool Atlantis::clbkLoadVC (int id)
     oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
 
   // Default camera rotarion
-  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
 
     RegisterVC_PltMFD (); // activate pilot MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
