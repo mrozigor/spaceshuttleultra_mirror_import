@@ -3302,6 +3302,7 @@ VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
 
 VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 {
+	//assumes TargetAtt in AttitudeMFD frame
 	RefPoints GlobalPts, LocalPts;
 	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
 	RotateVector(PitchUnit, RelAttitude, PitchUnit);
@@ -3313,6 +3314,142 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
 	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
 	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+}
+
+VECTOR3 Atlantis::CalcPitchYawRollAngles()
+{
+	//assumes TargetAtt in M50 frame
+	RefPoints GlobalPts, LocalPts;
+	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
+	VECTOR3 TargetAttitude=ConvertAnglesFromOrbiterToM50(TargetAtt);
+	//RotateVector(PitchUnit, RelAttitude, PitchUnit);
+	//RotateVector(YawRollUnit, RelAttitude, YawRollUnit);
+	RotateVector(PitchUnit, TargetAttitude, GlobalPts.Pitch);
+	RotateVector(YawRollUnit, TargetAttitude, GlobalPts.Yaw);
+	GlobalPts.Pitch = GVesselPos + GlobalPts.Pitch;
+	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
+	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
+	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
+	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+}
+
+VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
+{
+	VECTOR3 Output=_V(0, 0, 0);
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	MATRIX3 M50, RotMatrixM50;
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
+	GetRotMatrixY(90*RAD, RotMatrixM50);
+	M50=mul(RotMatrixM50, M50);
+	
+	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
+	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
+	RotMatrix=mul(M50, RotMatrix);
+	//sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f %f", X.x, X.y, X.z, Y.x, Y.y, Y.z, Z.x, Z.y, Z.z);
+	
+	//get angles
+	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	Output.data[YAW]=-asin(RotMatrix.m13);
+	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+	return Output;
+}
+
+VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radians
+{
+	VECTOR3 Output=_V(0, 0, 0);
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	MATRIX3 M50, RotMatrixM50, LocalToGlobal;
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+	GetRotationMatrix(LocalToGlobal);
+	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
+	GetRotMatrixY(90*RAD, RotMatrixM50);
+	M50=mul(M50, LocalToGlobal);
+	M50=mul(RotMatrixM50, M50);
+	
+	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
+	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
+	RotMatrix=mul(M50, RotMatrix);
+	//sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f %f", X.x, X.y, X.z, Y.x, Y.y, Y.z, Z.x, Z.y, Z.z);
+	
+	//get angles
+	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	Output.data[YAW]=-asin(RotMatrix.m13);
+	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+	return Output;
+}
+
+VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
+{
+	VECTOR3 Output;
+	Output.x=Input.x;
+	Output.y=cos(AXIS_TILT)*Input.z-sin(AXIS_TILT)*Input.y;
+	Output.z=cos(AXIS_TILT)*Input.y+sin(AXIS_TILT)*Input.z;
+	RotateVectorZ(Output, 90.0); //check sign of angle
+	return Output;
+	//return Input;
+}
+
+VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in radians
+{
+	VECTOR3 Output;
+	VECTOR3 HorizonAngles, HorizonX, LocalX, HorizonY, LocalY, HorizonZ, LocalZ;
+	//VECTOR3 GlobalAttitude, M50AttitudePY, M50AttitudeR;
+	VECTOR3 GVel, HVel, LocVel;
+	MATRIX3 GlobalToLocal, LocalToGlobal;
+
+	GetRotationMatrix(LocalToGlobal);
+	GetRelativeVel(GetGravityRef(), GVel);
+	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
+	HorizonRot(LocVel, HVel);
+
+	HorizonAngles=Input;
+	double VVAngle=atan2(HVel.z, HVel.x)*DEG;
+	//sprintf(oapiDebugString(), "HorzAtt: %f %f %f", HorizonAngles.data[PITCH]*DEG, HorizonAngles.data[YAW]*DEG,
+		//HorizonAngles.data[ROLL]*DEG);
+
+	RotateVectorPYR(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
+	HorizonX=RotateVectorY(HorizonX, VVAngle);
+	HorizonInvRot(HorizonX, LocalX);
+	
+	RotateVectorPYR(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
+	HorizonY=RotateVectorY(HorizonY, VVAngle);
+	HorizonInvRot(HorizonY, LocalY);
+	
+	RotateVectorPYR(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
+	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
+	HorizonInvRot(HorizonZ, LocalZ);
+
+	MATRIX3 RotMatrix = _M(LocalX.x, LocalX.y, LocalX.z,
+							LocalY.x, LocalY.y, LocalY.z,
+							LocalZ.x, LocalZ.y, LocalZ.z);
+	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	Output.data[YAW]=-asin(RotMatrix.m13);
+	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+
+	//HorizonAttitude=HA1;
+	//HorizonAttitude=H;
+	//HorizonZ=crossp(HorizonX, HorizonY);
+	sprintf(oapiDebugString(), "P: %f Y: %f R: %f  %f %f %f  %f %f %f  %f %f %f", Input.data[PITCH]*DEG, Input.data[YAW]*DEG,
+		Input.data[ROLL]*DEG, HorizonX.x, HorizonX.y, HorizonX.z, HorizonY.x, HorizonY.y, HorizonY.z,
+		HorizonZ.x, HorizonZ.y, HorizonZ.z);
+	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f  %f %f %f  %f %f %f  %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
+		//Output.data[ROLL]*DEG, HorizonX.x, HorizonX.y, HorizonX.z, HorizonY.x, HorizonY.y, HorizonY.z,
+		//HorizonZ.x, HorizonZ.y, HorizonZ.z);
+	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f  %f %f %f  %f %f %f  %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
+		//Output.data[ROLL]*DEG, H.x, H.y, H.z, M50AttitudeR.x, M50AttitudeR.y, M50AttitudeR.z,
+		//M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z);
+
+	Output=ConvertLocalAnglesToM50(Output);
+	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
+		//Output.data[ROLL]*DEG, HorizonAttitude.x, HorizonAttitude.y, HorizonAttitude.z);
+	return Output;
 }
 
 //Math
@@ -3373,9 +3510,37 @@ void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTO
 	GetRotMatrixY(Angles.y, RotMatrixY);
 	GetRotMatrixZ(Angles.z, RotMatrixZ);
 	
-	MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
+	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
 	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);
+	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
+	AfterZ=mul(RotMatrixZ, Initial);
+	AfterZY=mul(RotMatrixY, AfterZ);
+	Result=mul(RotMatrixX, AfterZY);
+}
+
+void Atlantis::RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
+{
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, RotMatrix;
+	VECTOR3 AfterP, AfterPY;					// Temporary variables
+
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+	
+	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
+	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
+	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
+	AfterP=mul(RotMatrixX, Initial);
+	AfterPY=mul(RotMatrixY, AfterP);
+	Result=mul(RotMatrixZ, AfterPY);
+	/*AfterP=mul(RotMatrixZ, Initial);
+	AfterPY=mul(RotMatrixY, AfterP);
+	Result=mul(RotMatrixX, AfterPY);*/
+	/*RotMatrix=mul(RotMatrixX, RotMatrixY);
+	RotMatrix=mul(RotMatrix, RotMatrixZ);
+	Result=mul(RotMatrix, Initial);*/
+	//Result=AfterPY;
 }
 
 // Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
@@ -4118,7 +4283,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
 	
 	//calculate joint angles
-	sy_angle=360.0*arm_sy-180.0;
+	sy_angle=-360.0*arm_sy+180.0;
 	sp_angle=shoulder_range*arm_sp+shoulder_min;
 	ep_angle=-elbow_range*arm_ep-elbow_min;
 	wp_angle=wrist_range*arm_wp+wrist_min;
@@ -4138,7 +4303,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     arm_moved = false;
   }
   if(DisplayJointAngles) {
-	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WY:%f WP:%f WR:%f", sy_angle, sp_angle, ep_angle,
+	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, ep_angle,
 		wy_angle, wp_angle, wr_angle);
 	  /*VECTOR3 pos, pos2, dir, dir2;
 	  CalcAnimationFKArm(pos2, dir2);

@@ -655,11 +655,11 @@ void CRT::UNIVPTG(HDC hDC)
 
 	//PitchYawRoll=ToDeg(CalcPitchYawRollAngles());
 	sts->GetAngularVel(AngularVelocity);
-	sts->GetGlobalOrientation(InertialOrientationRad);
-	for(int nPos=0;nPos<3;nPos++) {
+	//sts->GetGlobalOrientation(InertialOrientationRad);
+	/*for(int nPos=0;nPos<3;nPos++) {
 		InertialOrientation.data[nPos]=DEG*InertialOrientationRad.data[nPos];
 		if(InertialOrientation.data[nPos]<0.0) InertialOrientation.data[nPos]+=360.0;
-	}
+	}*/
 
 	TextOut(hDC, 0, 0, "2011/    /", 10);
 	TextOut(hDC, 100, 0, "UNIV PTG", 8);
@@ -725,7 +725,7 @@ void CRT::UNIVPTG(HDC hDC)
 	TextOut(hDC, 125, 108, "ERR DAP 24", 10);
 
 	TextOut(hDC, 110, 144, "ROLL    PITCH    YAW", 20);
-	sprintf(cbuf, "CUR   %6.2f  %6.2f  %6.2f", InertialOrientation.data[ROLL], InertialOrientation.data[PITCH], InertialOrientation.data[YAW]);
+	sprintf(cbuf, "CUR   %6.2f  %6.2f  %6.2f", DEG*sts->CurrentAttitude.data[ROLL], DEG*sts->CurrentAttitude.data[PITCH], DEG*sts->CurrentAttitude.data[YAW]);
 	TextOut(hDC, 60, 153, cbuf, strlen(cbuf));
 	sprintf(cbuf, "REQD  %6.2f  %6.2f  %6.2f", sts->REQD_ATT.data[ROLL], sts->REQD_ATT.data[PITCH], sts->REQD_ATT.data[YAW]);
 	TextOut(hDC, 60, 162, cbuf, strlen(cbuf));

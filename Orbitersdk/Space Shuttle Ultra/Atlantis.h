@@ -180,6 +180,10 @@ const int AftRollThrusters[2] = {9, 11};
 const double TMajorCycle = 1.0000;
 const double TPEGStop = 7.000; //40?
 
+//Attitude ref. frame conversion
+const double AXIS_TILT = 23.4458878*RAD;
+//tilt of Earth's axis (radians)
+
 // ==========================================================
 // Some Tank-related parameters
 // ==========================================================
@@ -937,7 +941,16 @@ private:
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcLVLHAttitude(VECTOR3 &Output);
+	//change ref. frames
+	VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles);
+	VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
+	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
+	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
+	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
+	//calc attitude/attitude error
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
+	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
+	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
 	double NullStartAngle(double Rates, AXIS Axis);
 
@@ -946,10 +959,10 @@ private:
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 
 	//Math
-	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
 	VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
 	void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
+	void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 	void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 	void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 	void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
@@ -1350,8 +1363,9 @@ private:
 	double P, Y, OM;
 	bool MNVR, TRK, ROT;
 	bool Pitch, Yaw, Roll;
-	VECTOR3 InertialOrientation, InertialOrientationRad, AngularVelocity;
-	VECTOR3 LVLHOrientation, LVLHOrientationLast, LVLHOrientationReqd, LVLHError, LVLHRateVector;
+	VECTOR3 InertialOrientationRad, AngularVelocity;
+	VECTOR3 CurrentAttitude;
+	VECTOR3 LVLHOrientationLast, LVLHOrientationReqd, LVLHError, LVLHRateVector;
 	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT, PitchYawRoll, PitchYawRollLast, TargetAtt, ReqdRates, TrackRates;
 	ORBITPARAM oparam;
 	ELEMENTS el;

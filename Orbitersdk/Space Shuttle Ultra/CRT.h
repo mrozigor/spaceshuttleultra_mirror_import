@@ -105,7 +105,7 @@ private:
 	int Hydraulic_Press[3];
 	double APU_Fuel_Last[3], APU_Fuel_Rate, Simtime_last, Simtime;
 
-	VECTOR3 InertialOrientation, InertialOrientationRad, AngularVelocity;
+	VECTOR3 /*InertialOrientation, InertialOrientationRad,*/ AngularVelocity;
 	int edit; //0=Blank, 1=A, 2=B
 	VECTOR3 PMI;
 
