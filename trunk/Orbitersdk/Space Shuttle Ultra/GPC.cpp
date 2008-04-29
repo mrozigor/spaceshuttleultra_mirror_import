@@ -424,6 +424,11 @@ void Atlantis::GPC(double dt)
 			AttControl(dt);
 			break;
 		case 201:
+			GetGlobalOrientation(InertialOrientationRad);
+			CurrentAttitude=ConvertAnglesFromOrbiterToM50(InertialOrientationRad);
+			//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
+			if(TRK) REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd)*DEG;
+			//REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*-RAD)*DEG;
 			ManeuverinProg=true;
 			for(i=0;i<4;i++) {
 				if(MET[i]<START_TIME[i]) {
@@ -432,7 +437,6 @@ void Atlantis::GPC(double dt)
 				}
 			}
 			if(ManeuverinProg) {
-				GetGlobalOrientation(InertialOrientationRad);
 				GetAngularVel(AngularVelocity);
 				GetGlobalPos(GVesselPos);
 				GetStatus(Status);
@@ -598,7 +602,7 @@ void Atlantis::LoadManeuver()
 	
 	//Burn Attitude
 	if(OMS==0) {
-		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0];
+		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0]; //no Z DV component
 		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
 			if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 			else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
@@ -701,7 +705,8 @@ void Atlantis::AttControl(double SimdT)
 				}
 			}
 		}
-		else PitchYawRoll=ToDeg(CalcPitchYawRollAngles(_V(0.0, 0.0, 0.0)));
+		//else PitchYawRoll=ToDeg(CalcPitchYawRollAngles(_V(0.0, 0.0, 0.0)));
+		else PitchYawRoll=ToDeg(CalcPitchYawRollAngles());
 		CalcRequiredRates(ReqdRates);
 		//sprintf(oapiDebugString(), "%f %f %f %f %f %f %f", LVLHError.data[PITCH], LVLHError.data[YAW],
 			//LVLHError.data[ROLL], ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], dT);
