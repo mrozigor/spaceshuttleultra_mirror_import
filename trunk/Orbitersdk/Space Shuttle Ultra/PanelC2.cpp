@@ -766,14 +766,14 @@ void PanelC2::Step(double t, double dt)
 void PanelC2::SaveState(FILEHANDLE scn)
 {
 	char cbuf[256];
-	sprintf(cbuf, "%d %d", switch_state[SWITCH7], switch_state[SWITCH8]);
+	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH7], switch_state[SWITCH8]);
 	oapiWriteScenario_string(scn, "CRT_SEL", cbuf);
 }
 
 bool PanelC2::ParseScenarioLine (char *line)
 {
-	if(!strnicmp(line, "CRT_SEL", 7)) {
-		sscanf(line+7, "%d %d", &switch_state[SWITCH7], &switch_state[SWITCH8]);
+	if(!_strnicmp(line, "CRT_SEL", 7)) {
+		sscanf_s(line+7, "%d %d", &switch_state[SWITCH7], &switch_state[SWITCH8]);
 		if(switch_state[SWITCH7]==0) sts->CRT_SEL[0]=0;
 		else sts->CRT_SEL[0]=2;
 		if(switch_state[SWITCH8]==0) sts->CRT_SEL[1]=2;

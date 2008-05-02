@@ -109,7 +109,7 @@ bool PanelA4::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	if (id != AID_A4) return false;
 	bool action = false;
-	sprintf(oapiDebugString(), "PANEL A4: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+	sprintf_s(oapiDebugString(), 255, "PANEL A4: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 
 	if(p.x>0.067 && p.x < 0.177)
 	{

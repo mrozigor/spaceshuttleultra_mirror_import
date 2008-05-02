@@ -9,19 +9,23 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "../discsignals/DiscreteBundle.h"
+#include "../discsignals/DiscOutPort.h"
 #include "BasicSwitch.h"
 
 namespace vc {
+
+	using class ::discsignals::DiscreteBundle;
+	using class ::discsignals::DiscOutPort;
 
 class StandardSwitch : public BasicSwitch  
 {
 	UINT grpIndex;
 	MGROUP_ROTATE* pswitchrot;
 
-	UINT anim_switch;
-	
+	UINT anim_switch;	
 public:
-	StandardSwitch(Atlantis* _sts);
+	StandardSwitch(Atlantis* psts, unsigned short usNumPositions, const string& _ident);
 	virtual ~StandardSwitch();
 
 	void DefineSwitchGroup(UINT _grpIndex);
@@ -30,7 +34,34 @@ public:
 
 	virtual void Realize();
 
+	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+
 };
+
+class StdSwitch2: public StandardSwitch
+{
+protected:
+	DiscOutPort outPort;
+public:
+	StdSwitch2(Atlantis* _sts, const string& _ident);
+	virtual ~StdSwitch2();
+
+	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+	
+};
+
+class StdSwitch3: public StandardSwitch
+{
+protected:
+	DiscOutPort outPortA;	//Connection Position A
+	DiscOutPort outPortB;	//Connection Position B
+public:
+	StdSwitch3(Atlantis* _sts, const string& _ident);
+	virtual ~StdSwitch3();
+
+	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+};
+
 
 };
 

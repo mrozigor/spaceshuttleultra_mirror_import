@@ -24,7 +24,7 @@ protected:
 	unsigned short usNumPositions;
 	vector<string> labels;
 public:
-	BasicSwitch(Atlantis* _sts);
+	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
 
