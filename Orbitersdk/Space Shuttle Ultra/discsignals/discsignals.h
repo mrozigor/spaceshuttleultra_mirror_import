@@ -1,0 +1,5 @@
+#include "DiscreteBundle.h"
+#include "DiscreteBundleManager.h"
+#include "DiscretePort.h"
+#include "DiscOutPort.h"
+//#include "DiscInPort.h"
