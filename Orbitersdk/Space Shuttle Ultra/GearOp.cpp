@@ -68,13 +68,13 @@ void GearOp::SetGearParameters (double state) {
 
 bool GearOp::ParseScenarioLine (char *line) {
   int action, damage;
-  if (!strnicmp (line, "GEAR", 4)) {
-    sscanf (line+4, "%d%lf", &action, &gear_proc);
+  if (!_strnicmp (line, "GEAR", 4)) {
+    sscanf_s (line+4, "%d%lf", &action, &gear_proc);
     gear_status = (AnimState::Action)(action+1);
 	return true;
   }	
-  else if (!strnicmp (line, "GDAMAGE", 7)) {
-	  sscanf (line+7, "%d", &damage);
+  else if (!_strnicmp (line, "GDAMAGE", 7)) {
+	  sscanf_s (line+7, "%d", &damage);
 	  if(damage==1) {
 		  GearDamaged=true;
 		  DamageGear();
@@ -88,7 +88,7 @@ bool GearOp::ParseScenarioLine (char *line) {
 
 void GearOp::SaveState (FILEHANDLE scn) {
   char cbuf[256];
-  sprintf (cbuf, "%d %0.4f", max(gear_status-1, 0), gear_proc); //if gear_status==0, set gear to closed state
+  sprintf_s (cbuf, "%d %0.4f", max(gear_status-1, 0), gear_proc); //if gear_status==0, set gear to closed state
   oapiWriteScenario_string (scn, "GEAR", cbuf);
   if(GearDamaged) oapiWriteScenario_int (scn, "GDAMAGE", 1);
 }

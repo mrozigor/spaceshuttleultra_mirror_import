@@ -349,6 +349,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
 
+  bundleManager = new DiscreteBundleManager();
   pCommModeHandler= new CommModeHandler(this);
 
   psubsystems	  = new SubsystemDirector(this);
@@ -687,6 +688,8 @@ Atlantis::~Atlantis () {
   delete CameraBLPitch;
   delete CameraBRYaw;
   delete CameraBRPitch;
+
+  delete bundleManager;
 
   delete [] stage1guidance[0];
   delete [] stage1guidance[1];
@@ -1059,6 +1062,10 @@ void Atlantis::SetOrbiterConfiguration (void)
   // RCS (Reaction Control System)
   CreateAttControls_RCS (_V(0,0,0));
   EnableAllRCS();
+
+  discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
+  delete pBundle;
+  
 
   // ************************ visual parameters **********************************
 

@@ -10,10 +10,10 @@
 
 namespace vc {
 
-BasicSwitch::BasicSwitch(Atlantis* _sts)
-: BasicVCComponent(_sts)
+BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
+: BasicVCComponent(_sts, _ident)
 {
-
+	this->usNumPositions = usNumPositions;
 }
 
 BasicSwitch::~BasicSwitch()

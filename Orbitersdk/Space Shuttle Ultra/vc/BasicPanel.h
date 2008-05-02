@@ -5,11 +5,16 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "ISubsystem.h"
+#include "vc_defs.h"
+//#include "../ISubsystem.h"
+
+namespace vc 
+{
 
 using namespace std;
 
 class BasicVCComponent;
+class BasicSwitch;
 
 class BasicPanel
 {
@@ -33,18 +38,20 @@ public:
 	virtual void DefineVC() = 0;
 	
 	virtual void Realize();
-	virtual bool OnVCMouseEvent (int id, int event, VECTOR3 &p);
-	virtual bool OnVCRedrawEvent (int id, int event, SURFHANDLE surf);
+	virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
+	virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	virtual void OnPreStep (double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPostStep (double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual bool OnParseLine (char *line);
 	virtual void OnSaveState (FILEHANDLE scn);
 	
-	virtual const string& GetIdentfier() const;
-	virtual const string& GetQualifiedIdentfier() const;
+	virtual const string& GetIdentifier() const;
+	virtual const string& GetQualifiedIdentifier() const;
 
 	virtual bool HasSwitch(const string& switchID);
+};
+
 };
 
 #endif

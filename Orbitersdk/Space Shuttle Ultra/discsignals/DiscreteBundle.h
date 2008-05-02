@@ -9,8 +9,11 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include <string>
+
 namespace discsignals
 {
+	using namespace std;
 
 	class DiscretePort;
 
@@ -23,6 +26,7 @@ namespace discsignals
  */
 class DiscreteBundle  
 {
+	string ident;
 	short snLines;
 	float fState;
 	float fLines[16];
@@ -31,13 +35,15 @@ class DiscreteBundle
 	 */
 	bool bBrokenLine[16];
 public:
+	DiscreteBundle(const string& _ident, int nLines = 16);
+	virtual ~DiscreteBundle();
+
 	/**
 	 * Set the mode how the Discrete bundle class handles logging information
 	 */
 	void SetLogMode(int iMode);
 	float GetVoltage(int iIndex);
-	DiscreteBundle(int nLines = 16);
-	virtual ~DiscreteBundle();
+	const string& GetIdentity() const;
 	void SetDiscrete(int iIndex, float fVoltage);
 };
 

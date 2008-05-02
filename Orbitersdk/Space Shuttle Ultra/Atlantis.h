@@ -17,6 +17,7 @@
 #include <math.h>
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
+#include "discsignals/Discsignals.h"
 
 typedef struct {
 	double P;		//Pressure (psig)
@@ -713,7 +714,7 @@ typedef enum {
 } OMS_REF;
 
 class CommModeHandler;
-
+using discsignals::DiscreteBundleManager;
 
 
 // ==========================================================
@@ -1334,6 +1335,8 @@ private:
 	int item;
 	CRT* Display[3];
 	CRT* newmfd;
+
+	DiscreteBundleManager* bundleManager;
 	
 	vc::MDU* mdus[11];
 

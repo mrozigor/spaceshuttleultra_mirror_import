@@ -12,15 +12,21 @@
 namespace discsignals
 {
 
-DiscreteBundle::DiscreteBundle(int nLines)
+DiscreteBundle::DiscreteBundle(const string& _ident, int nLines)
 {
 	assert(nLines <= 16);
 	snLines = nLines;
+	ident = _ident;
 }
 
 DiscreteBundle::~DiscreteBundle()
 {
 
+}
+
+const string& DiscreteBundle::GetIdentity() const
+{
+	return ident;
 }
 
 void DiscreteBundle::SetDiscrete(int iIndex, float fVoltage)
