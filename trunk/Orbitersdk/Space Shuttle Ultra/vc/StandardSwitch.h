@@ -11,12 +11,14 @@
 
 #include "../discsignals/DiscreteBundle.h"
 #include "../discsignals/DiscOutPort.h"
+#include "../discsignals/DiscInPort.h"
 #include "BasicSwitch.h"
 
 namespace vc {
 
 	using class ::discsignals::DiscreteBundle;
 	using class ::discsignals::DiscOutPort;
+	using class ::discsignals::DiscInPort;
 
 class StandardSwitch : public BasicSwitch  
 {
@@ -24,6 +26,7 @@ class StandardSwitch : public BasicSwitch
 	MGROUP_ROTATE* pswitchrot;
 
 	UINT anim_switch;	
+	DiscInPort input;
 public:
 	StandardSwitch(Atlantis* psts, unsigned short usNumPositions, const string& _ident);
 	virtual ~StandardSwitch();

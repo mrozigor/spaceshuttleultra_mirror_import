@@ -18,6 +18,7 @@ class DiscOutPort : public DiscretePort
 {
 public:
 	void SetLine();
+	void SetLine(float fVoltage);
 	void ResetLine();
 	DiscOutPort();
 	virtual ~DiscOutPort();

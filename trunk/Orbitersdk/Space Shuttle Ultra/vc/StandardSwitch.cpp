@@ -38,6 +38,10 @@ void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 
 bool StandardSwitch::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle *pBundle, unsigned short usLine)
 {
+	if(usPort == 0)
+	{
+		return input.Connect(pBundle, usLine);
+	}
 	return false;
 }
 
@@ -52,7 +56,12 @@ StdSwitch2::~StdSwitch2()
 
 bool StdSwitch2::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle *pBundle, unsigned short usLine)
 {
-	return false;
+	if(usPort == 1)
+	{
+		return outPort.Connect(pBundle, usLine);	
+	} else {
+		return StandardSwitch::ConnectPort(usPort, pBundle, usLine);
+	}
 }
 
 
@@ -67,7 +76,14 @@ StdSwitch3::~StdSwitch3()
 
 bool StdSwitch3::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle *pBundle, unsigned short usLine)
 {
-	return false;
+	if(usPort == 1)
+	{
+		return outPortA.Connect(pBundle, usLine);	
+	} else if (usPort == 2) {
+		return outPortB.Connect(pBundle, usLine);
+	} else {
+		return StandardSwitch::ConnectPort(usPort, pBundle, usLine);
+	}
 }
 
 };

@@ -333,6 +333,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\discsignals\DiscInPort.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\discsignals\DiscOutPort.cpp"
 				>
 			</File>
@@ -461,6 +465,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\BasicVCComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\discsignals\DiscInPort.h"
 				>
 			</File>
 			<File
