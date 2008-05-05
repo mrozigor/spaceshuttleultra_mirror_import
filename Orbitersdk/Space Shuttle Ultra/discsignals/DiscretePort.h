@@ -21,6 +21,7 @@ protected:
 	unsigned short usLine;
 public:
 	bool Connect(DiscreteBundle* pBundle, int iLine);
+	bool Disconnect();
 	DiscretePort();
 	DiscretePort(DiscreteBundle* pBundle, int iLine);
 	virtual ~DiscretePort();

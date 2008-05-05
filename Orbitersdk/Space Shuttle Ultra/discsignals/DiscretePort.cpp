@@ -34,4 +34,11 @@ bool DiscretePort::Connect(DiscreteBundle *pBundle, int iLine)
 	return true;
 }
 
+bool DiscretePort::Disconnect()
+{
+	pBundle = NULL;
+	usLine = 0;
+	return true;
+}
+
 };
