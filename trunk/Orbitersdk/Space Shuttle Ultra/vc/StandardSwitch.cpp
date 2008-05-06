@@ -26,7 +26,7 @@ StandardSwitch::~StandardSwitch()
 
 void StandardSwitch::Realize()
 {
-
+	//Don't add anything for Orbiter, use existing meshes
 }
 
 void StandardSwitch::DefineVCAnimations(UINT vc_idx)

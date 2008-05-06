@@ -27,8 +27,12 @@ public:
 	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
+	void SetOrientation(bool bHorizontal);
 
 	virtual bool OnMouseEvent(int _event, float x, float y);
+
+	virtual void OnPositionUp();
+	virtual void OnPositionDown();
 };
 
 };
