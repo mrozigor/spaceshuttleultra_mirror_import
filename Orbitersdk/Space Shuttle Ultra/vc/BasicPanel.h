@@ -8,6 +8,8 @@
 #include "vc_defs.h"
 //#include "../ISubsystem.h"
 
+class Atlantis;
+
 namespace vc 
 {
 
@@ -18,10 +20,14 @@ class BasicSwitch;
 
 class BasicPanel
 {
+	Atlantis* psts;
+	unsigned long own_aid;
 	string name;
 	set<int> availableForRendering;
 	set<int> availableForMouse;
 	vector<BasicVCComponent*> components;
+
+	bool bHasOwnVCMesh;
 protected:
 	//bool AddSwitch(BasicSwitch* pSwitch);
 	BasicSwitch* CreateSwitch2(const string& _name, const VECTOR3& _RefPos, UINT _GrpNum, RECT _r);
@@ -30,13 +36,18 @@ protected:
 
 	virtual void DefinePanelMouseArea();
 	virtual void DefineSwitches();
+	void SetHasOwnVCMesh() {bHasOwnVCMesh = true;};
 public:
 	BasicPanel(Atlantis* sts, const string& _name);
 	virtual ~BasicPanel();
+	Atlantis* STS() const;
 	virtual void DefineVCAnimations (UINT vcidx);
 	virtual void RegisterVC();
 	virtual void DefineVC() = 0;
+
+	void SetAID(unsigned long aid) {own_aid = aid;};
 	
+	virtual void AddMeshes(const VECTOR3& ofs) {};
 	virtual void Realize();
 	virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
 	virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
@@ -50,6 +61,8 @@ public:
 	virtual const string& GetQualifiedIdentifier() const;
 
 	virtual bool HasSwitch(const string& switchID);
+
+	bool HasOwnVCMesh() const {return bHasOwnVCMesh;};
 };
 
 };

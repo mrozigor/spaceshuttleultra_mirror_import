@@ -17,7 +17,9 @@
 #include <math.h>
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
+#include "vc/BasicPanel.h"
 #include "discsignals/Discsignals.h"
+
 
 typedef struct {
 	double P;		//Pressure (psig)
@@ -43,6 +45,7 @@ const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
 const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
+const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -804,6 +807,8 @@ public:
 	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
 	WORD srb_id1, srb_id2;
 
+	//mission::Mission* the_mission;
+
 	//Extended SRB smoke effects
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
@@ -811,6 +816,11 @@ public:
 	bool bSRBCutoffFlag;
 	bool bLiftOff;
 	bool bHasKUBand;
+
+	/**
+	 * Pointer to the A7A8 custom panel region
+	 */
+	vc::BasicPanel* pA7A8Panel;
 
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)

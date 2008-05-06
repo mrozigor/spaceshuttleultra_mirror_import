@@ -34,6 +34,7 @@
 #include "SubsystemDirector.h"
 #include "dps/MasterTimingUnit.h"
 #include "AirDataProbeSystem.h"
+#include "vc/PanelA7A8ODS.h"
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -361,6 +362,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 #else
   pOMS = NULL;
 #endif
+
+  pA7A8Panel = new vc::PanelA7A8ODS(this);
+
   status          = 3;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
@@ -677,6 +681,10 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
+
+	if(pA7A8Panel)
+		delete pA7A8Panel;
+
   
   for (i = 0; i < 7; i++) delete rms_anim[i];
   
@@ -1807,6 +1815,14 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	}
 
 	AddKUBandVisual(ofs);
+
+	/* Add optional A7A3/A8A3 panel meshes
+	*/
+	if(pA7A8Panel)
+	{
+		pA7A8Panel->AddMeshes(ofs);
+		pA7A8Panel->Realize();
+	}
 
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
