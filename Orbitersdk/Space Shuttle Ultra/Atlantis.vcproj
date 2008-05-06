@@ -625,6 +625,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ClassDiagram5.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\ClassDiagram6.cd"
+			>
+		</File>
+		<File
 			RelativePath="..\lib\DlgCtrl.lib"
 			>
 		</File>
