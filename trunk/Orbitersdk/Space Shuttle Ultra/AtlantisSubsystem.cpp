@@ -19,6 +19,10 @@ AtlantisSubsystem::~AtlantisSubsystem()
 
 }
 
+void AtlantisSubsystem::AddMeshes(const VECTOR3& ofs)
+{
+}
+
 bool AtlantisSubsystem::RegisterComponent(SubsystemComponent* pComponent)
 {
 	return false;

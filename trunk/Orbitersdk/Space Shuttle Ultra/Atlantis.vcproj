@@ -241,6 +241,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Meshes\SSU\ODS.msh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Meshes\SSU\ODSVC.msh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Meshes\SSU\Orbiter.msh"
 				>
 			</File>
@@ -292,6 +300,10 @@
 			</File>
 			<File
 				RelativePath=".\AtlantisSubsystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\eva_docking\BasicExtAirlock.cpp"
 				>
 			</File>
 			<File
@@ -460,6 +472,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eva_docking\BasicExtAirlock.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicPanel.h"
 				>
 			</File>
@@ -496,6 +512,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eva_docking\ExtAirlock.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GearOp.h"
 				>
 			</File>
@@ -529,6 +549,10 @@
 			</File>
 			<File
 				RelativePath=".\meshres_vc_additions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\eva_docking\ODS.h"
 				>
 			</File>
 			<File

@@ -23,11 +23,12 @@ class BasicPanel
 	Atlantis* psts;
 	unsigned long own_aid;
 	string name;
-	set<int> availableForRendering;
-	set<int> availableForMouse;
+	set<UINT> availableForRendering;
+	set<UINT> availableForMouse;
 	vector<BasicVCComponent*> components;
 
 	bool bHasOwnVCMesh;
+	bool bCoordinateDisplayMode;
 protected:
 	//bool AddSwitch(BasicSwitch* pSwitch);
 	BasicSwitch* CreateSwitch2(const string& _name, const VECTOR3& _RefPos, UINT _GrpNum, RECT _r);
@@ -37,6 +38,8 @@ protected:
 	virtual void DefinePanelMouseArea();
 	virtual void DefineSwitches();
 	void SetHasOwnVCMesh() {bHasOwnVCMesh = true;};
+	void AddAIDToMouseEventList(UINT aid);
+	void AddAIDToRedrawEventList(UINT aid);
 public:
 	BasicPanel(Atlantis* sts, const string& _name);
 	virtual ~BasicPanel();
@@ -63,6 +66,11 @@ public:
 	virtual bool HasSwitch(const string& switchID);
 
 	bool HasOwnVCMesh() const {return bHasOwnVCMesh;};
+
+
+	bool EnableCoordinateDisplayMode() {bCoordinateDisplayMode = true; return true;};
+	bool DisableCoordinateDisplayMode() {bCoordinateDisplayMode = false; return true;};
+	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
 };
 
 };

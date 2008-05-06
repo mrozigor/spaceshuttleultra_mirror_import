@@ -4,7 +4,7 @@
 namespace vc {
 
 	PanelA7A8ODS::PanelA7A8ODS(Atlantis* _sts)
-		: BasicPanel(_sts, "A7A3_A8A3"),
+		: BasicPanel(_sts, "A7A3/A8A3"),
 		SystemPowerMNA(_sts, "SYSTEM POWER MNA"),
 		SystemPowerMNB(_sts, "SYSTEM POWER MNB"),
 		PyroPowerMNA(_sts, "PYRO POWER MNA"),
@@ -46,6 +46,15 @@ namespace vc {
 	void PanelA7A8ODS::DefineVC()
 	{
 		//Define VC regions
+		AddAIDToMouseEventList(AID_A7A3);
+		AddAIDToMouseEventList(AID_A8A3);
+		//first is A7A3, second region A8A3. 
+
+		//Panel A8A3
+		//-0.265916, 2.5048, 12.399
+		//0.254716, 2.12746, 12.5175
+		//register mouse event regions in BasicPanel
+
 	}
 
 	void PanelA7A8ODS::DefineVCAnimations(UINT vc_idx)

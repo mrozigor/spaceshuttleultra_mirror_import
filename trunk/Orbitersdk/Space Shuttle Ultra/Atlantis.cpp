@@ -350,6 +350,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
 
+  pExtAirlock = NULL;
+
   bundleManager = new DiscreteBundleManager();
   pCommModeHandler= new CommModeHandler(this);
 
@@ -357,6 +359,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+
+
+
 #ifdef INCLUDE_OMS_CODE
   psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));
 #else
@@ -3425,7 +3430,8 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	VECTOR3 HorizonAngles, HorizonX, LocalX, HorizonY, LocalY, HorizonZ, LocalZ;
 	//VECTOR3 GlobalAttitude, M50AttitudePY, M50AttitudeR;
 	VECTOR3 GVel, HVel, LocVel;
-	MATRIX3 GlobalToLocal, LocalToGlobal;
+	MATRIX3 LocalToGlobal;
+	//MATRIX3 GlobalToLocal, LocalToGlobal;
 
 	GetRotationMatrix(LocalToGlobal);
 	GetRelativeVel(GetGravityRef(), GVel);
@@ -3543,7 +3549,8 @@ void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTO
 
 void Atlantis::RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, RotMatrix;
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	//MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, RotMatrix;
 	VECTOR3 AfterP, AfterPY;					// Temporary variables
 
 
@@ -4998,7 +5005,7 @@ bool Atlantis::clbkLoadVC (int id)
 // --------------------------------------------------------------
 // Respond to virtual cockpit mouse event
 // --------------------------------------------------------------
-bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
+bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 {
   static bool counting = false;
   static double t0 = 0.0;
@@ -5022,15 +5029,15 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 	  {
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
     int bt = (int)(p.x*5.99);
-    if (bt < 5) oapiProcessMFDButton (mfd, bt, event);
+    if (bt < 5) oapiProcessMFDButton (mfd, bt, _event);
     else {
-      if (event & PANEL_MOUSE_LBDOWN) {
+      if (_event & PANEL_MOUSE_LBDOWN) {
         t0 = oapiGetSysTime();
         counting = true;
-      } else if ((event & PANEL_MOUSE_LBUP) && counting) {
+      } else if ((_event & PANEL_MOUSE_LBUP) && counting) {
         oapiSendMFDKey (mfd, OAPI_KEY_F2);
         counting = false;
-      } else if ((event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
+      } else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
         oapiSendMFDKey (mfd, OAPI_KEY_F1);
         counting = false;
       }
@@ -5101,29 +5108,36 @@ bool Atlantis::clbkVCMouseEvent (int id, int event, VECTOR3 &p)
 	return false;
   // handle panel R13L events (payload bay operations)
   case AID_R13L:
-    return plop->VCMouseEvent (id, event, p);
+    return plop->VCMouseEvent (id, _event, p);
   case AID_A4:
-	return panela4->VCMouseEvent (id, event, p);
+	return panela4->VCMouseEvent (id, _event, p);
   case AID_A8:
-	return panela8->VCMouseEvent (id, event, p);
+	return panela8->VCMouseEvent (id, _event, p);
   case AID_F6:
-    return gop->VCMouseEvent (id, event, p);
+    return gop->VCMouseEvent (id, _event, p);
   case AID_F7:
-	return panelf7->VCMouseEvent(id, event, p);
+	return panelf7->VCMouseEvent(id, _event, p);
   case AID_C2:
-	return panelc2->VCMouseEvent(id, event, p);
+	return panelc2->VCMouseEvent(id, _event, p);
   case AID_C3:
-	return c3po->VCMouseEvent (id, event, p);
+	return c3po->VCMouseEvent (id, _event, p);
   case AID_O3:
-	return panelo3->VCMouseEvent(id, event, p);
+	return panelo3->VCMouseEvent(id, _event, p);
   case AID_KYBD_CDR:
 	//sprintf(oapiDebugString(), "AID_KYBD_CDR event");
-    return CDRKeyboard->VCMouseEvent(id, event, p);
+    return CDRKeyboard->VCMouseEvent(id, _event, p);
   case AID_KYBD_PLT:
-    return PLTKeyboard->VCMouseEvent(id, event, p);
+    return PLTKeyboard->VCMouseEvent(id, _event, p);
   case AID_R2:
-	return r2d2->VCMouseEvent (id, event, p);
+	return r2d2->VCMouseEvent (id, _event, p);
   }
+
+  if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
+  {
+	  if(pA7A8Panel)
+		  pA7A8Panel->OnVCMouseEvent(id, _event, p);
+  }
+
   return false;
 }
 
@@ -5321,6 +5335,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 
     if (KEYMOD_CONTROL (kstate)) {
 	switch (key) {
+	
     case OAPI_KEY_SPACE: // open RMS control dialog
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;
@@ -5356,6 +5371,12 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		return 1;
 	case OAPI_KEY_2:
 		FireAllNextManifold();
+		return 1;
+	case OAPI_KEY_3:
+		if(pA7A8Panel)
+		{
+			pA7A8Panel->ToggleCoordinateDisplayMode();
+		}
 		return 1;
 	}
   } else { // unmodified keys

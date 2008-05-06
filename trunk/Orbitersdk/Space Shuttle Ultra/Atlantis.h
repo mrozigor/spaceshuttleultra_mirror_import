@@ -19,6 +19,7 @@
 #include "vc/vc_defs.h"
 #include "vc/BasicPanel.h"
 #include "discsignals/Discsignals.h"
+#include "eva_docking/BasicExtAirlock.h"
 
 
 typedef struct {
@@ -638,6 +639,12 @@ const int MDUID_AFD  = 10;
 #define AID_MDU_PLT2	1009
 #define AID_MDU_AFD1	1010
 
+const UINT AID_CUSTOM_PANELS_MIN = 10000;
+const UINT AID_CUSTOM_PANELS_MAX = 30000;
+
+const UINT AID_A7A3 = 11000;
+const UINT AID_A8A3 = 11010;
+
 
 #define SWITCH1		0
 #define SWITCH2		1
@@ -870,6 +877,10 @@ public:
 	SubsystemDirector* psubsystems;
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	OMSSubsystem* pOMS;
+	/**
+	 * Strategy pattern for the external airlock subsystem
+	 */
+	eva_docking::BasicExternalAirlock* pExtAirlock;
 	AirDataProbeSystem* pADPS;
 
 	PayloadBayOp *plop; // control and status of payload bay operations

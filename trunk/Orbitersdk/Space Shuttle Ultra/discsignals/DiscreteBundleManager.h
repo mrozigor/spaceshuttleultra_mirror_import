@@ -18,6 +18,8 @@ public:
 	unsigned long CountBundles() const;
 	bool AddBundle(DiscreteBundle* bBundle);
 	bool RemoveBundle(DiscreteBundle* pBundle);
+	bool ExistsBundle(const string& _ident) const;
+	DiscreteBundle* FindBundle(const string& _ident) const;
 
 	DiscreteBundle* GetBundleByIndex(unsigned long ulIndex) const;
 	DiscreteBundle* CreateBundle(const string& _ident, unsigned short usLines);
