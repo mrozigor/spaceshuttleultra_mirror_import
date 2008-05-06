@@ -43,7 +43,18 @@ public:
 	BasicVCComponent(Atlantis* _sts, const string& _ident);
 	virtual ~BasicVCComponent();
 
-	bool SetMouseRegion(VCMOUSEEVENTPOINT _a, VCMOUSEEVENTPOINT _b, VCMOUSEEVENTPOINT _c, VCMOUSEEVENTPOINT _d);
+	
+	//bool SetMouseRegion(VCMOUSEEVENTPOINT _a, VCMOUSEEVENTPOINT _b, VCMOUSEEVENTPOINT _c, VCMOUSEEVENTPOINT _d);
+
+	/**
+	 * Set the mouse region of the switch inside the area. 
+	 * Only allows rectangular regions currently. 
+	 * @param xmin The x coordinate of the left side
+	 * @param xmax The x coordinate of the right side
+	 * @param ymin The y coordinate of the top side
+	 * @param ymax The y coordinate of the bottom side.
+	 */
+	bool SetMouseRegion(float xmin, float ymin, float xmax, float ymax);
 
 	/**
 	 * Get identification of this component

@@ -41,6 +41,35 @@ Atlantis* BasicVCComponent::STS() const
 	return sts;
 }
 
+bool BasicVCComponent::SetMouseRegion(float xmin, float ymin, float xmax, float ymax)
+{
+	p_a.x = xmin;
+	p_a.y = ymin;
+	p_d.x = xmax;
+	p_d.y = ymax;
+	return true;
+}
+
+bool BasicVCComponent::IsPointOver(float x, float y) const
+{
+	if(p_a.x <= x && p_d.x >= x && p_a.y <= y && p_d.y >= y) {
+		return true;
+	}
+	else 
+		return false;
+}
+
+bool BasicVCComponent::ProjectMouse(float x, float y, float &mx, float &my) const
+{
+	if(IsPointOver(x, y))
+	{
+		mx = (x - p_a.x) /(p_d.x - p_a.x);
+		my = (y - p_a.y) /(p_d.y - p_a.y);
+		return true;
+	}
+	return false;
+}
+
 const VECTOR3& BasicVCComponent::GetReference() const
 {
 	return reference;
