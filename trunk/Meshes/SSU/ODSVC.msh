@@ -20254,6 +20254,6 @@ MATERIAL ac3dmat0
 0 0 0 1 68
 0.211765 0.211765 0.211765 1
 TEXTURES 3
-panelA7A8.dds
-panelA7A8.dds
-ODSbuttons.dds
+SSU/panelA7A8.dds
+SSU/panelA7A8.dds
+SSU/ODSbuttons.dds D
