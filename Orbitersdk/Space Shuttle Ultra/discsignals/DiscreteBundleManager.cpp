@@ -23,6 +23,10 @@ bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 
 DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, unsigned short usLines)
 {
+	if(ExistsBundle(_ident))
+	{
+		return FindBundle(_ident);
+	}
 	DiscreteBundle* pR = new DiscreteBundle(_ident, usLines);
 	if(AddBundle(pR))
 	{
@@ -33,5 +37,25 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 		return NULL;
 	}
 }
+
+bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
+	for(int i = 0; i<bundles.size(); i++)
+	{
+		if(bundles.at(i)->GetIdentity() == _ident)
+			return true;
+	}
+	return false;
+};
+
+DiscreteBundle* DiscreteBundleManager::FindBundle(const std::string &_ident) const {
+	for(int i = 0; i<bundles.size(); i++)
+	{
+		if(bundles.at(i)->GetIdentity() == _ident)
+			return bundles.at(i);
+	}
+	return NULL;
+};
+
+
 
 };

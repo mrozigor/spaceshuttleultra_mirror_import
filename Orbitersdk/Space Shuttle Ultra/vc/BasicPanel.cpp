@@ -9,6 +9,7 @@ namespace vc {
 	{
 		name = _name;
 		psts = sts;
+		bCoordinateDisplayMode = false;
 	}
 
 	BasicPanel::~BasicPanel()
@@ -59,8 +60,14 @@ namespace vc {
 
 	bool BasicPanel::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 	{
-		if(id == own_aid)
+		if(availableForMouse.find(id) != availableForMouse.end())
 		{
+			if(bCoordinateDisplayMode)
+			{
+				sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f)",
+					name.c_str(), _event, p.x, p.y, p.z);
+				return true;
+			}
 			return true;
 		}
 		else {
@@ -97,13 +104,26 @@ namespace vc {
 	const string& BasicPanel::GetIdentifier() const
 	{
 		static string null = "";
-		return null;
+		return name;
 	}
 
 	const string& BasicPanel::GetQualifiedIdentifier() const
 	{
 		static string null = "";
 		return null;
+	}
+
+	void BasicPanel::AddAIDToMouseEventList(UINT aid)
+	{
+		if(availableForMouse.empty())
+		{
+			availableForMouse.insert(aid);
+			return;
+		}
+		if(availableForMouse.find(aid) == availableForMouse.end())
+		{
+			availableForMouse.insert(aid);
+		}
 	}
 
 };

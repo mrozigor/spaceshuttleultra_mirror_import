@@ -28,6 +28,7 @@ protected:
 public:
 	AtlantisSubsystem(SubsystemDirector* _director, const string& _ident);
 	virtual ~AtlantisSubsystem();
+	virtual void AddMeshes(const VECTOR3& ofs);
 	virtual void Realize();
 	virtual bool RegisterComponent(SubsystemComponent* pComponent);
 	virtual bool DelComponent(SubsystemComponent* pComponent);
@@ -42,6 +43,7 @@ public:
 	virtual const string& GetQualifiedIdentifier() const;
 	virtual const string& GetIdentifier() const;
 	virtual bool OnFail(const string& strFailureCode);
+	virtual double GetSubsystemEmptyMass() const {return 0.0;};
 };
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
