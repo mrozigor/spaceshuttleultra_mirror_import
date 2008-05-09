@@ -235,7 +235,7 @@ const double MAX_ATT_LAUNCH = 1e-5;
 const double MAX_ROLL_SRB = 2.5e-5;
 // Max attitude thrust during launch phase (temporary)
 
-const double SRB_STABILISATION_TIME = 6;
+const double SRB_STABILISATION_TIME = 6.6;
 // MET: -SRB ignition
 
 const double SRB_SEPARATION_TIME = 124.0;
@@ -438,11 +438,11 @@ const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 
 const static char* VC_LBL_MS1 = "MS1 seat";
-const VECTOR3 VC_POS_MS1 = _V(0.2, 2.629396, 12.6);
+const VECTOR3 VC_POS_MS1 = _V(0.2, 2.629396, 13.5); //0804025, DaveS edit: Moved position forward to a more correct position
 const VECTOR3 VC_DIR_MS1 = _V(0.0, 0, 1.0);
 
 const static char* VC_LBL_MS2 = "MS2 seat";
-const VECTOR3 VC_POS_MS2 = _V(0.7, 2.75, 12.6);
+const VECTOR3 VC_POS_MS2 = _V(0.7, 2.75, 13.5); //0804025, DaveS edit: Moved position forward to a more correct position
 const VECTOR3 VC_DIR_MS2 = _V(0.0, 0.0, 1.0);
 
 const static char* VC_LBL_COAS = "COAS";
@@ -454,12 +454,12 @@ const VECTOR3 VC_POS_PORTSTATION = _V(-0.6, 2.95, 13.0);
 const VECTOR3 VC_DIR_PORTSTATION = _V(-cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
 const static char* VC_LBL_AFTPILOT = "Aft pilot station";
-const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.5);
+const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.7); //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
 const VECTOR3 VC_DIR_AFTPILOT = _V(0, 0, -1);
 const VECTOR3 VC_OFSFWD_AFTPILOT = VC_POS_COAS - VC_POS_AFTPILOT;
 
-const static char* VC_LBL_RMSSTATION = "RMS work station";
-const VECTOR3 VC_POS_RMSSTATION = _V(-0.4, 3.15, 12.5);
+const static char* VC_LBL_RMSSTATION = "RMS work station"; //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
+const VECTOR3 VC_POS_RMSSTATION = _V(-0.4, 3.15, 12.7);
 const VECTOR3 VC_DIR_RMSSTATION = _V(0.0, 0.0, -1.0);
 
 const static char* VC_LBL_STBDSTATION = "Starboard workstation";
