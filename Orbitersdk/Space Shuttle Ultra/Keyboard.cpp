@@ -14,14 +14,16 @@ void Keyboard::RegisterVC()
 
 	if(keyboard==0) {
 		oapiVCRegisterArea (AID_KYBD_CDR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-		oapiVCSetAreaClickmode_Quadrilateral (AID_KYBD_CDR, _V(-0.26, 1.868, 14.877)+ofs, _V(-0.158, 1.868, 14.877)+ofs, 
-			_V(-0.26, 1.696, 14.711)+ofs, _V(-0.158, 1.696, 14.711)+ofs);
+		oapiVCSetAreaClickmode_Quadrilateral (AID_KYBD_CDR, _V(-0.252, 1.937, 14.525)+ofs, _V(-0.154, 1.937, 14.525)+ofs, 
+			_V(-0.252, 1.769, 14.365)+ofs, _V(-0.154, 1.769, 14.365)+ofs);
+		//oapiVCSetAreaClickmode_Quadrilateral (AID_KYBD_CDR, _V(-0.26, 1.868, 14.877)+ofs, _V(-0.158, 1.868, 14.877)+ofs, 
+			//_V(-0.26, 1.696, 14.711)+ofs, _V(-0.158, 1.696, 14.711)+ofs);
 	}
 
 	else if(keyboard==1) {
 		oapiVCRegisterArea (AID_KYBD_PLT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
-		oapiVCSetAreaClickmode_Quadrilateral (AID_KYBD_PLT, _V(0.151, 1.868, 14.877)+ofs, _V(0.252, 1.868, 14.877)+ofs, 
-			_V(0.151, 1.696, 14.711)+ofs, _V(0.252, 1.696, 14.711)+ofs);
+		oapiVCSetAreaClickmode_Quadrilateral (AID_KYBD_PLT, _V(0.146, 1.937, 14.525)+ofs, _V(0.245, 1.937, 14.525)+ofs, 
+			_V(0.146, 1.769, 14.365)+ofs, _V(0.245, 1.769, 14.365)+ofs);
 	}
 }
 
