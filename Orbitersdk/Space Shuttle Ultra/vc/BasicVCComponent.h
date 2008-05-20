@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "vc_defs.h"
+#include "BasicPanel.h"
 #include "../Atlantis.h"
 #include "../ISubsystem.h"
 #include <string>
@@ -25,6 +26,7 @@ namespace vc {
 class BasicVCComponent: public ISubsystem
 {
 	Atlantis* sts;
+	BasicPanel* pParent;
 	string ident;
 	VECTOR3 reference;
 	VECTOR3 dir;
@@ -56,11 +58,8 @@ public:
 	 */
 	bool SetMouseRegion(float xmin, float ymin, float xmax, float ymax);
 
-	/**
-	 * Get identification of this component
-	 * @return The identification string, used for locating this component inside a panel
-	 */
-	const string& Ident() const;
+
+	void SetParentPanel(BasicPanel* pPanel);
 
 	virtual void DefineAnimations(UINT vc_idx);
 	virtual bool OnMouseEvent(int _event, float x, float y);
@@ -94,6 +93,10 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual void OnDumpToLog() const;
 	virtual const string& GetQualifiedIdentifier() const;
+	/**
+	 * Get identification of this component
+	 * @return The identification string, used for locating this component inside a panel
+	 */
 	virtual const string& GetIdentifier() const;
 	virtual bool OnFail(const string& strFailureCode);
 };

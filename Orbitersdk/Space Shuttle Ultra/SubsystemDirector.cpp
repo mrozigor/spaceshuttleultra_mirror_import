@@ -22,6 +22,10 @@ bool SubsystemDirector::AddSubsystem(AtlantisSubsystem* pSubsys)
 	return true;
 }
 
+DiscreteBundleManager* SubsystemDirector::BundleManager() const {
+	return psts->BundleManager();
+}
+
 void SubsystemDirector::SetClassCaps(FILEHANDLE cfg)
 {
 	unsigned long i;

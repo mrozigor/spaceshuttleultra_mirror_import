@@ -11,13 +11,12 @@ namespace vc {
 //////////////////////////////////////////////////////////////////////
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts)
-: sts(_sts)
+: sts(_sts), pParent(NULL)
 {
-
 }
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts, const string& _ident)
-: sts(_sts), ident(_ident)
+: sts(_sts), ident(_ident), pParent(NULL)
 {
 
 }
@@ -27,11 +26,6 @@ BasicVCComponent::~BasicVCComponent()
 
 }
 
-const string& BasicVCComponent::Ident() const
-{
-	return ident;
-}
-
 void BasicVCComponent::Realize()
 {
 }
@@ -39,6 +33,9 @@ void BasicVCComponent::Realize()
 Atlantis* BasicVCComponent::STS() const
 {
 	return sts;
+}
+
+void BasicVCComponent::SetParentPanel(BasicPanel* pPanel) {
 }
 
 bool BasicVCComponent::SetMouseRegion(float xmin, float ymin, float xmax, float ymax)
@@ -124,12 +121,19 @@ void BasicVCComponent::DefineAnimations(UINT vc_idx)
 
 const string& BasicVCComponent::GetIdentifier() const
 {
-	return "";
+	return ident;
 }
 
 const string& BasicVCComponent::GetQualifiedIdentifier() const
 {
-	return "";
+	if(pParent != NULL)
+	{
+		return pParent->GetQualifiedIdentifier() + "::" + ident;
+	} 
+	else 
+	{
+		return ident;
+	}
 }
 
 bool BasicVCComponent::OnFail(const string& strFailureCode)

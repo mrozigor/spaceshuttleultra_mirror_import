@@ -16,7 +16,7 @@ namespace vc {
 
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
-		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", Ident().c_str(), _event, x, y);
+		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
 		return true;
 	}
 

@@ -4,26 +4,26 @@
 namespace vc {
 
 	PanelA7A8ODS::PanelA7A8ODS(Atlantis* _sts)
-		: BasicPanel(_sts, "A7A3/A8A3"),
-		SystemPowerMNA(_sts, "SYSTEM POWER MNA"),
-		SystemPowerMNB(_sts, "SYSTEM POWER MNB"),
-		PyroPowerMNA(_sts, "PYRO POWER MNA"),
-		PyroPowerMNC(_sts, "PYRO POWER MNC"),
-		Sys1VentIsol(_sts, "SYS1 VENT ISOL"),
-		Sys1Vent(_sts, "SYS1 VENT"),
-		Sys2VentIsol(_sts, "SYS2 VENT ISOL"),
-		Sys2Vent(_sts, "SYS2 VENT"),
-		PSUPowerMNA(_sts, "PSU POWER MNA"),
-		PSUPowerMNB(_sts, "PSU POWER MNB"),
-		LightsAirlock14(_sts, "LIGHTS AIRLOCK 1-4"),
-		LightsAirlock23(_sts, "LIGHTS AIRLOCK 2-3"),
-		LightsDockingFWD(_sts, "LIGHTS DOCKING TRUSS FWD"),
-		LightsDockingAFT(_sts, "LIGHTS DOCKING TRUSS AFT"),
-		ARLKTNLFanA(_sts, "ARLK/TNL FAN A"),
-		ARLKTNLFanB(_sts, "ARLK/TNL FAN B"),
-		LightsCLVestPORT(_sts, "LIGHTS C/L VESTIBULE PORT"),
-		LightsCLVestSTBD(_sts, "LIGHTS C/L VESTIBULE STBD")
+		: BasicPanel(_sts, "A7A3/A8A3")
 	{
+		Add(pSystemPowerMNA		= new StdSwitch3(_sts, "SYSTEM POWER MNA"));
+		Add(pSystemPowerMNB		= new StdSwitch3(_sts, "SYSTEM POWER MNB"));
+		Add(pPyroPowerMNA		= new StdSwitch2(_sts, "PYRO POWER MNA"));
+		Add(pPyroPowerMNC		= new StdSwitch2(_sts, "PYRO POWER MNC"));
+		Add(pSys1VentIsol		= new StdSwitch3(_sts, "SYS1 VENT ISOL"));
+		Add(pSys1Vent			= new StdSwitch3(_sts, "SYS1 VENT"));
+		Add(pSys2VentIsol		= new StdSwitch3(_sts, "SYS2 VENT ISOL"));
+		Add(pSys2Vent			= new StdSwitch3(_sts, "SYS2 VENT"));
+		Add(pPSUPowerMNA		= new StdSwitch2(_sts, "PSU POWER MNA"));
+		Add(pPSUPowerMNB		= new StdSwitch2(_sts, "PSU POWER MNB"));
+		Add(pLightsAirlock14	= new StdSwitch2(_sts, "LIGHTS AIRLOCK 1-4"));
+		Add(pLightsAirlock23	= new StdSwitch2(_sts, "LIGHTS AIRLOCK 2-3"));
+		Add(pLightsDockingFWD	= new StdSwitch2(_sts, "LIGHTS DOCKING TRUSS FWD"));
+		Add(pLightsDockingAFT	= new StdSwitch2(_sts, "LIGHTS DOCKING TRUSS AFT"));
+		Add(pARLKTNLFanA		= new StdSwitch2(_sts, "ARLK/TNL FAN A"));
+		Add(pARLKTNLFanB		= new StdSwitch2(_sts, "ARLK/TNL FAN B"));
+		Add(pLightsCLVestPORT	= new StdSwitch2(_sts, "LIGHTS C/L VESTIBULE PORT"));
+		Add(pLightsCLVestSTBD	= new StdSwitch2(_sts, "LIGHTS C/L VESTIBULE STBD"));
 	}
 
 	PanelA7A8ODS::~PanelA7A8ODS()

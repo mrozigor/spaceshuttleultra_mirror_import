@@ -746,6 +746,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual DiscreteBundleManager* BundleManager() const;
 	virtual void SetAirDataProbeDeployment(int side, double position);
 
 	int ___iCurrentManifold;
