@@ -5,7 +5,7 @@
 MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 : VESSEL2(hVessel, iFlightModel)
 {
-	mshMLP = oapiLoadMeshGlobal("Atlantis\\MLP-2_dev");
+	mshMLP = oapiLoadMeshGlobal("SSU\\MLP-2");
 	fT_SSSActive = 20.0;	//seconds of water
 
 	fSRBSteam = 0.0;
@@ -19,6 +19,15 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 
 MLP::~MLP()
 {
+}
+
+bool MLP::clbkLoadVC(int id) {
+	switch(id)
+	{
+	case 0:
+		break;
+	}
+	return true;
 }
 
 void MLP::clbkSetClassCaps(FILEHANDLE cfg)

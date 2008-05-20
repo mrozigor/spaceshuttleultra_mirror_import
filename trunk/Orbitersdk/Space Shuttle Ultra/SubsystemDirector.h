@@ -3,11 +3,14 @@
 
 #include <vector>
 #include "OrbiterAPI.h"
+#include "discsignals/DiscreteBundleManager.h"
 
 using namespace std;
 
 class Atlantis;
 class AtlantisSubsystem;
+
+using discsignals::DiscreteBundleManager;
 
 class SubsystemDirector
 {
@@ -26,6 +29,7 @@ public:
 	bool PostStep(double fSimT, double fDeltaT, double fMJD);
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
+	virtual DiscreteBundleManager* BundleManager() const;
 };
 
 #endif

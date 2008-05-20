@@ -9,5 +9,6 @@ namespace eva_docking {
 	public:
 		ExtAirlock(SubsystemDirector* pdirect, const string& _ident = "External Airlock");
 		virtual ~ExtAirlock();
+		virtual void AddMeshes(const VECTOR3& ofs);
 	};
 };

@@ -24,6 +24,7 @@ public:
 
 	virtual void clbkSetClassCaps(FILEHANDLE cfg);
 	virtual void clbkLoadStateEx(FILEHANDLE scn, void* vs);
+	virtual bool clbkLoadVC(int id);
 	virtual void clbkSaveState(FILEHANDLE scn);
 	virtual void clbkPreStep(double fSimT, double fDeltaT, double mjd);
 private:

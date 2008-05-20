@@ -40,6 +40,7 @@ protected:
 	void SetHasOwnVCMesh() {bHasOwnVCMesh = true;};
 	void AddAIDToMouseEventList(UINT aid);
 	void AddAIDToRedrawEventList(UINT aid);
+	void DeleteAllComponents();
 public:
 	BasicPanel(Atlantis* sts, const string& _name);
 	virtual ~BasicPanel();
@@ -47,8 +48,11 @@ public:
 	virtual void DefineVCAnimations (UINT vcidx);
 	virtual void RegisterVC();
 	virtual void DefineVC() = 0;
+	virtual void ReplaceComponent(unsigned long ulIndex, BasicVCComponent* pReplacement);
 
 	void SetAID(unsigned long aid) {own_aid = aid;};
+
+	virtual BasicVCComponent* Add(BasicVCComponent* pNew);
 	
 	virtual void AddMeshes(const VECTOR3& ofs) {};
 	virtual void Realize();

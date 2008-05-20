@@ -14,6 +14,22 @@ namespace vc {
 
 	BasicPanel::~BasicPanel()
 	{
+		DeleteAllComponents();
+	}
+
+	BasicVCComponent* BasicPanel::Add(BasicVCComponent* pNew)
+	{
+		components.push_back(pNew);
+		return pNew;
+	}
+
+	void BasicPanel::DeleteAllComponents() 
+	{
+		unsigned long i = 0;
+		for(; i<components.size(); i++)
+		{
+			delete components.at(i);
+		}
 	}
 
 	Atlantis* BasicPanel::STS() const
@@ -111,6 +127,14 @@ namespace vc {
 	{
 		static string null = "";
 		return null;
+	}
+
+	void BasicPanel::ReplaceComponent(unsigned long ulIndex, BasicVCComponent* pReplacement)
+	{
+		if(ulIndex < components.size())
+		{
+			components.at(ulIndex) = pReplacement;
+		}
 	}
 
 	void BasicPanel::AddAIDToMouseEventList(UINT aid)

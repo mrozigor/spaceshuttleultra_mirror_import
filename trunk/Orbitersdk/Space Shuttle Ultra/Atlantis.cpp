@@ -708,6 +708,11 @@ Atlantis::~Atlantis () {
   delete [] stage1guidance[1];
 }
 
+DiscreteBundleManager* Atlantis::BundleManager() const
+{
+	return bundleManager;
+}
+
 // --------------------------------------------------------------
 // launch configuration setup (orbiter + tank + SRB)
 // --------------------------------------------------------------

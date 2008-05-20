@@ -365,6 +365,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eva_docking\ExtAirlock.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GearOp.cpp"
 				>
 			</File>
@@ -476,6 +480,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\BasicLight.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicPanel.h"
 				>
 			</File>
@@ -577,6 +585,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SubsystemDirector.h"
 				>
 			</File>
 			<File

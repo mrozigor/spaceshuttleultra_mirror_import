@@ -8,24 +8,24 @@ namespace vc {
 	 */
 	class PanelA7A8ODS: public BasicPanel
 	{
-		StdSwitch3 SystemPowerMNA;
-		StdSwitch3 SystemPowerMNB;
-		StdSwitch2 PyroPowerMNA;
-		StdSwitch2 PyroPowerMNC;
-		StdSwitch3 Sys1VentIsol;
-		StdSwitch3 Sys1Vent;
-		StdSwitch3 Sys2VentIsol;
-		StdSwitch3 Sys2Vent;
-		StdSwitch2 PSUPowerMNA;
-		StdSwitch2 PSUPowerMNB;
-		StdSwitch2 LightsAirlock14;
-		StdSwitch2 LightsAirlock23;
-		StdSwitch2 LightsDockingFWD;
-		StdSwitch2 LightsDockingAFT;
-		StdSwitch2 ARLKTNLFanA;
-		StdSwitch2 ARLKTNLFanB;
-		StdSwitch2 LightsCLVestPORT;
-		StdSwitch2 LightsCLVestSTBD;
+		StdSwitch3* pSystemPowerMNA;
+		StdSwitch3* pSystemPowerMNB;
+		StdSwitch2* pPyroPowerMNA;
+		StdSwitch2* pPyroPowerMNC;
+		StdSwitch3* pSys1VentIsol;
+		StdSwitch3* pSys1Vent;
+		StdSwitch3* pSys2VentIsol;
+		StdSwitch3* pSys2Vent;
+		StdSwitch2* pPSUPowerMNA;
+		StdSwitch2* pPSUPowerMNB;
+		StdSwitch2* pLightsAirlock14;
+		StdSwitch2* pLightsAirlock23;
+		StdSwitch2* pLightsDockingFWD;
+		StdSwitch2* pLightsDockingAFT;
+		StdSwitch2* pARLKTNLFanA;
+		StdSwitch2* pARLKTNLFanB;
+		StdSwitch2* pLightsCLVestPORT;
+		StdSwitch2* pLightsCLVestSTBD;
 
 		UINT midx_odspanel;
 	public:
