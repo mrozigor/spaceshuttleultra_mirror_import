@@ -31,9 +31,19 @@ void StandardSwitch::Realize()
 
 void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 {
-	pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference(), GetDirection(), (float)(45 * RAD));
-	anim_switch = STS()->CreateAnimation(0.5);
-	STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
+	char pszBuffer[256];
+	//oapiWriteLog("*");
+	if(bHasReference && bHasDirection)
+	{
+		sprintf_s(pszBuffer, 255, "STANDARD SWITCH[%s]:\tDefine VC Animations()", 
+			GetQualifiedIdentifier().c_str());
+		oapiWriteLog(pszBuffer);
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+		pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() + ofs, GetDirection(), (float)(90 * RAD));
+		anim_switch = STS()->CreateAnimation(InitialAnimState());
+		STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
+		VerifyAnimations();
+	}
 }
 
 bool StandardSwitch::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle *pBundle, unsigned short usLine)
@@ -44,6 +54,18 @@ bool StandardSwitch::ConnectPort(unsigned short usPort, discsignals::DiscreteBun
 	}
 	return false;
 }
+
+void StandardSwitch::DefineSwitchGroup(UINT _grpIndex)
+{
+	grpIndex = _grpIndex;
+}
+
+
+void StandardSwitch::OnPositionChange(unsigned short usNewPosition)
+{
+	SetAnimation(anim_switch, usNewPosition/(usNumPositions - 1));
+}
+
 
 StdSwitch2::StdSwitch2(Atlantis *_sts, const std::string &_ident)
 : StandardSwitch(_sts, 2, _ident)

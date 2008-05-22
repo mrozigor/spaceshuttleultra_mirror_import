@@ -30,6 +30,7 @@ class BasicVCComponent: public ISubsystem
 	string ident;
 	VECTOR3 reference;
 	VECTOR3 dir;
+	double fInitialAnimState;
 	VCMOUSEEVENTPOINT p_a, p_b, p_c, p_d;
 
 	mutable float cache_lastx;
@@ -37,10 +38,19 @@ class BasicVCComponent: public ISubsystem
 	mutable float cache_mx;
 	mutable float cache_my;
 protected:
+	bool bHasReference;
+	bool bHasDirection;
+	bool bHasAnimations;
+	
+	
+	double InitialAnimState() const {return fInitialAnimState;};
+	bool SetAnimation(UINT anim, double fState);
 	Atlantis* STS() const;
+	bool VerifyAnimations();
 	bool WriteScenarioString(FILEHANDLE scn, const string& key, const string& value) const;
 	bool WriteScenarioInt(FILEHANDLE scn, const string& key, const int iValue) const;
 	bool WriteScenarioVector(FILEHANDLE scn, const string& key, const VECTOR3& vector) const;
+	
 	
 public:
 	BasicVCComponent(Atlantis* _sts);
@@ -63,7 +73,8 @@ public:
 
 	void SetParentPanel(BasicPanel* pPanel);
 
-	virtual void DefineAnimations(UINT vc_idx);
+	virtual void SetInitialAnimState(double fState = 0.0);
+	virtual void DefineVCAnimations(UINT vc_idx);
 	virtual bool OnMouseEvent(int _event, float x, float y);
 	virtual double GetState() const;
 	virtual const VECTOR3& GetReference() const;

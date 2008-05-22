@@ -761,6 +761,7 @@ public:
 	AnimState::Action spdb_status;
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
+	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	void SetLaunchConfiguration (void);
 	void SetPostLaunchConfiguration (double srbtime);
 	void SetOrbiterTankConfiguration (void);

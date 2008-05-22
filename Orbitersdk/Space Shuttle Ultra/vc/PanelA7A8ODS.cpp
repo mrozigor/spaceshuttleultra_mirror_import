@@ -1,5 +1,6 @@
 #include "PanelA7A8ODS.h"
 #include "../Atlantis.h"
+#include "../meshres_odsvc.h"
 
 namespace vc {
 
@@ -27,9 +28,9 @@ namespace vc {
 		Add(pControlPanelPowerA = new StdSwitch2(_sts, "CNTL PNL PWR A"));
 		Add(pControlPanelPowerB = new StdSwitch2(_sts, "CNTL PNL PWR B"));
 		Add(pControlPanelPowerC = new StdSwitch2(_sts, "CNTL PNL PWR C"));
-		Add(pPyrosAp = new StdSwitch2(_sts, "PYROS Ap"));
-		Add(pPyrosBp = new StdSwitch2(_sts, "PYROS Bp"));
-		Add(pPyrosCp = new StdSwitch2(_sts, "PYROS Cp"));
+		Add(pPyrosAp			= new StdSwitch2(_sts, "PYROS Ap"));
+		Add(pPyrosBp			= new StdSwitch2(_sts, "PYROS Bp"));
+		Add(pPyrosCp			= new StdSwitch2(_sts, "PYROS Cp"));
 	}
 
 	PanelA7A8ODS::~PanelA7A8ODS()
@@ -39,8 +40,13 @@ namespace vc {
 	void PanelA7A8ODS::AddMeshes(const VECTOR3& ofs)
 	{
 		SetHasOwnVCMesh();
-		midx_odspanel = STS()->AddMesh(ODSPANEL_MESHNAME);
+		midx_odspanel = STS()->AddMesh(ODSPANEL_MESHNAME, &ofs);
 		STS()->SetMeshVisibilityMode(midx_odspanel, MESHVIS_VC);
+	}
+
+	UINT PanelA7A8ODS::GetVCMeshIndex() const
+	{
+		return midx_odspanel;
 	}
 
 	void PanelA7A8ODS::Realize()
@@ -51,6 +57,7 @@ namespace vc {
 
 	void PanelA7A8ODS::DefineVC()
 	{
+		oapiWriteLog("Panel A7/A8:\tDefine VC");
 		//Define VC regions
 		AddAIDToMouseEventList(AID_A7A3);
 		AddAIDToMouseEventList(AID_A8A3);
@@ -61,13 +68,26 @@ namespace vc {
 		//0.254716, 2.12746, 12.5175
 		//register mouse event regions in BasicPanel
 
+		//0.262413  2.443722  12.41595
+
 		pControlPanelPowerA->SetMouseRegion(0.081f, 0.124f, 0.094f, 0.197f);
+		pControlPanelPowerA->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
+		pControlPanelPowerA->DefineSwitchGroup(GRP_A8A3S1_ODSVC);
 		pControlPanelPowerB->SetMouseRegion(0.177f, 0.124f, 0.194f, 0.197f);
+		pControlPanelPowerB->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
+		pControlPanelPowerB->DefineSwitchGroup(GRP_A8A3S2_ODSVC);
 		pControlPanelPowerC->SetMouseRegion(0.274f, 0.124f, 0.286f, 0.197f);
+		pControlPanelPowerC->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
+		pControlPanelPowerC->DefineSwitchGroup(GRP_A8A3S3_ODSVC);
+		
 		
 		pPyrosAp->SetMouseRegion(0.709f, 0.124f, 0.725f, 0.197f);
+		pPyrosAp->SetReference(_V(0.0, 2.443722, 12.41595), _V(1.0, 0.0, 0.0));
 		pPyrosBp->SetMouseRegion(0.803f, 0.124f, 0.825f, 0.197f);
+		pPyrosBp->SetReference(_V(0.0, 2.443722, 12.41595), _V(1.0, 0.0, 0.0));
 		pPyrosCp->SetMouseRegion(0.902f, 0.124f, 0.920f, 0.197f);
+		pPyrosCp->SetReference(_V(0.0, 2.443722, 12.41595), _V(1.0, 0.0, 0.0));
+
 	}
 
 	void PanelA7A8ODS::RegisterVC()
@@ -81,6 +101,7 @@ namespace vc {
 
 	void PanelA7A8ODS::DefineVCAnimations(UINT vc_idx)
 	{
+		oapiWriteLog("PANEL A7/A8:\tDefine VC Animations");
 		BasicPanel::DefineVCAnimations(midx_odspanel);
 	}
 		
