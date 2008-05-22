@@ -11,12 +11,14 @@ namespace vc {
 //////////////////////////////////////////////////////////////////////
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts)
-: sts(_sts), pParent(NULL)
+: sts(_sts), pParent(NULL), bHasReference(false), bHasDirection(false),
+	fInitialAnimState(0.0)
 {
 }
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts, const string& _ident)
-: sts(_sts), ident(_ident), pParent(NULL)
+: sts(_sts), ident(_ident), pParent(NULL), bHasReference(false), 
+	bHasDirection(false), fInitialAnimState(0.0)
 {
 
 }
@@ -115,9 +117,9 @@ void BasicVCComponent::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	//Do nothing - switches propagate by user events.
 }
 
-void BasicVCComponent::DefineAnimations(UINT vc_idx)
+void BasicVCComponent::DefineVCAnimations(UINT vc_idx)
 {
-
+	oapiWriteLog("BasicVCComponent:\tDefine VC Animations");
 }
 
 const string& BasicVCComponent::GetIdentifier() const
@@ -165,6 +167,42 @@ void BasicVCComponent::OnPlaybackEvent(double fSimT, double fEventT, const char*
 unsigned long BasicVCComponent::CountComponents() const
 {
 	return 0;
+}
+
+bool BasicVCComponent::SetAnimation(UINT anim, double fState)
+{
+	if(bHasAnimations)
+	{
+		sprintf_s(oapiDebugString(), 255, "SET ANIMATION");
+		STS()->SetAnimation(anim, fState);
+		return true;
+	}
+	return false;
+}
+
+void BasicVCComponent::SetInitialAnimState(double fState)
+{
+	fInitialAnimState = fState;
+}
+
+void BasicVCComponent::SetReference(const VECTOR3& ref) 
+{
+	bHasReference = true;
+	reference = ref;
+}
+
+void BasicVCComponent::SetReference(const VECTOR3& ref, const VECTOR3& dir) 
+{
+	bHasReference = true;
+	bHasDirection = true;
+	reference = ref;
+	this->dir = dir;
+}
+
+bool BasicVCComponent::VerifyAnimations()
+{
+	bHasAnimations = true;
+	return true;
 }
 
 bool BasicVCComponent::WriteScenarioInt(FILEHANDLE scn, const std::string &key, const int iValue) const

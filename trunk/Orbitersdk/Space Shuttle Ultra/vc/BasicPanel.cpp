@@ -44,18 +44,30 @@ namespace vc {
 
 	void BasicPanel::DefineVCAnimations(UINT vcidx)
 	{
+		char pszBuffer[256];
+		sprintf_s(pszBuffer, 255, "BasicPanel[%s]:\tDefine VC Animations. %d components", 
+			GetQualifiedIdentifier().c_str(), components.size());
+		//local_vcidx = vcidx;
+		oapiWriteLog(pszBuffer);
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			//oapiWriteLog("+");
+			(*iter)->DefineVCAnimations(vcidx);
+			iter++;
+		}
 	}
 
 	bool BasicPanel::DistributeMouseEvent(int _event, const VECTOR3& p)
 	{
-		int i;
+		unsigned long i;
 		float mx = 0, my = 0;
 		for(i = 0; i<components.size(); i++)
 		{
 			BasicVCComponent* currentElement = components.at(i);
-			if(currentElement->IsPointOver(p.x, p.y))
+			if(currentElement->IsPointOver((float)p.x, (float)p.y))
 			{
-				currentElement->ProjectMouse(p.x, p.y, mx, my);	
+				currentElement->ProjectMouse((float)p.x, (float)p.y, mx, my);	
 				if(currentElement->OnMouseEvent(_event, mx, my))
 					return true;
 			}
@@ -65,17 +77,22 @@ namespace vc {
 
 	bool BasicPanel::FindComponent(const VECTOR3& p, BasicVCComponent** foundElement) const
 	{
-		int i;
+		unsigned long i;
 		for(i = 0; i<components.size(); i++)
 		{
 			BasicVCComponent* currentElement = components.at(i);
-			if(currentElement->IsPointOver(p.x, p.y))
+			if(currentElement->IsPointOver((float)p.x, (float)p.y))
 			{
 				*foundElement = currentElement;
 				return true;
 			}
 		}
 		return false;
+	}
+
+	UINT BasicPanel::GetVCMeshIndex() const
+	{
+		return local_vcidx;
 	}
 
 	void BasicPanel::RegisterVC()

@@ -33,6 +33,7 @@ namespace vc {
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;
+		
 
 		//Use a paint buffer for storing primitives?
 	public:

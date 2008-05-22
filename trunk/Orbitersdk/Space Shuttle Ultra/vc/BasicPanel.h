@@ -20,6 +20,7 @@ class BasicSwitch;
 
 class BasicPanel
 {
+	UINT local_vcidx;
 	Atlantis* psts;
 	unsigned long own_aid;
 	string name;
@@ -50,11 +51,13 @@ public:
 	virtual void DefineVCAnimations (UINT vcidx);
 	virtual void RegisterVC();
 	virtual void DefineVC() = 0;
+	virtual UINT GetVCMeshIndex() const;
 	virtual void ReplaceComponent(unsigned long ulIndex, BasicVCComponent* pReplacement);
 
 	void SetAID(unsigned long aid) {own_aid = aid;};
 
 	virtual BasicVCComponent* Add(BasicVCComponent* pNew);
+	
 	
 	virtual void AddMeshes(const VECTOR3& ofs) {};
 	virtual void Realize();

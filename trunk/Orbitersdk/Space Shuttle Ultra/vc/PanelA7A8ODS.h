@@ -40,9 +40,10 @@ namespace vc {
 		PanelA7A8ODS(Atlantis* _sts);
 		virtual ~PanelA7A8ODS();
 		virtual void AddMeshes(const VECTOR3& ofs);
-		virtual void Realize();
 		virtual void DefineVCAnimations (UINT vcidx);
 		virtual void DefineVC();
+		virtual UINT GetVCMeshIndex() const;
+		virtual void Realize();
 		virtual void RegisterVC();
 	};
 };

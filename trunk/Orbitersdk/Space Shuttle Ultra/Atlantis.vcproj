@@ -548,6 +548,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\meshres_odsvc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\meshres_RMS.h"
 				>
 			</File>

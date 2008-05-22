@@ -35,6 +35,8 @@ public:
 
 	virtual void DefineVCAnimations(UINT vc_idx);
 
+	virtual void OnPositionChange(unsigned short usNewPosition);
+
 	virtual void Realize();
 
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);

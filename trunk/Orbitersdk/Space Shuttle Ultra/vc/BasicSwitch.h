@@ -30,10 +30,13 @@ public:
 	const string& GetLabel(int iPosition) const;
 	void SetOrientation(bool bHorizontal);
 
+	virtual void DefineVCAnimations(UINT vc_idx);
+
 	virtual bool OnMouseEvent(int _event, float x, float y);
 
 	virtual void OnPositionUp();
 	virtual void OnPositionDown();
+	virtual void OnPositionChange(unsigned short usNewPosition);
 
 	virtual void OnSaveState(FILEHANDLE scn) const;
 };

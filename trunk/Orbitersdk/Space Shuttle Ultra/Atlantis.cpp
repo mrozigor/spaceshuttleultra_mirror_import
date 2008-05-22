@@ -370,6 +370,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   pA7A8Panel = new vc::PanelA7A8ODS(this);
 
+  
+
   status          = 3;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
@@ -664,6 +666,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   fTimeCameraLabel = 0.0;
   nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
   oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
+
+ 
 }
 
 // --------------------------------------------------------------
@@ -711,6 +715,11 @@ Atlantis::~Atlantis () {
 DiscreteBundleManager* Atlantis::BundleManager() const
 {
 	return bundleManager;
+}
+
+const VECTOR3& Atlantis::GetOrbiterCoGOffset() const 
+{
+	return orbiter_ofs;
 }
 
 // --------------------------------------------------------------
@@ -1793,6 +1802,7 @@ void Atlantis::DefineAnimations (void)
   panelc2->DefineVCAnimations (vidx);
   panelf7->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
+  
   // ======================================================
   c3po->DefineVCAnimations (vidx);
   r2d2->DefineVCAnimations (vidx);
@@ -1832,6 +1842,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	{
 		pA7A8Panel->AddMeshes(ofs);
 		pA7A8Panel->DefineVC();
+		pA7A8Panel->DefineVCAnimations(mesh_vc);
 		pA7A8Panel->Realize();
 	}
 
@@ -3652,6 +3663,11 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 
 
   psubsystems->SetClassCaps(cfg);
+
+  if(pA7A8Panel) 
+  {
+	  
+  }
 }
 
 // --------------------------------------------------------------
