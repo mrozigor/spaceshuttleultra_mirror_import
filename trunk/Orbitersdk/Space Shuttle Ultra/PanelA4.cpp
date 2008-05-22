@@ -76,9 +76,6 @@ bool PanelA4::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 		oapiBlt(surf, g_Param.digits_7seg, 0, 0, NUMX[digit[0]], NUMY[digit[0]], 64, 64);
 		
 	}
-
-
-
 	return true;
 }
 

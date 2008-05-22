@@ -26,7 +26,7 @@ PanelA8::PanelA8(Atlantis *_sts): sts(_sts)
 
 void PanelA8::RegisterVC()
 {
-	sprintf_s(oapiDebugString(), 255, "Registering panelA8");
+	//sprintf_s(oapiDebugString(), 255, "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
 	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
 	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8BOTTOM_VC);

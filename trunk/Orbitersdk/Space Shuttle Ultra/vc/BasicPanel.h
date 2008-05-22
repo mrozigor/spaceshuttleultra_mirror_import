@@ -41,6 +41,8 @@ protected:
 	void AddAIDToMouseEventList(UINT aid);
 	void AddAIDToRedrawEventList(UINT aid);
 	void DeleteAllComponents();
+	bool DistributeMouseEvent(int _event, const VECTOR3& p);
+	bool FindComponent(const VECTOR3& p, BasicVCComponent** foundElement) const;
 public:
 	BasicPanel(Atlantis* sts, const string& _name);
 	virtual ~BasicPanel();
