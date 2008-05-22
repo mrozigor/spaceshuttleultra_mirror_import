@@ -36,6 +36,7 @@ Atlantis* BasicVCComponent::STS() const
 }
 
 void BasicVCComponent::SetParentPanel(BasicPanel* pPanel) {
+	pParent = pPanel;
 }
 
 bool BasicVCComponent::SetMouseRegion(float xmin, float ymin, float xmax, float ymax)
@@ -126,9 +127,11 @@ const string& BasicVCComponent::GetIdentifier() const
 
 const string& BasicVCComponent::GetQualifiedIdentifier() const
 {
+	static string result;
 	if(pParent != NULL)
 	{
-		return pParent->GetQualifiedIdentifier() + "::" + ident;
+		result = pParent->GetQualifiedIdentifier() + "::" + ident;
+		return result;
 	} 
 	else 
 	{
@@ -162,6 +165,21 @@ void BasicVCComponent::OnPlaybackEvent(double fSimT, double fEventT, const char*
 unsigned long BasicVCComponent::CountComponents() const
 {
 	return 0;
+}
+
+bool BasicVCComponent::WriteScenarioInt(FILEHANDLE scn, const std::string &key, const int iValue) const
+{
+	return false;
+}
+
+bool BasicVCComponent::WriteScenarioString(FILEHANDLE scn, const std::string &key, const std::string &value) const
+{
+	return false;
+}
+
+bool BasicVCComponent::WriteScenarioVector(FILEHANDLE scn, const std::string &key, const VECTOR3 &vector) const
+{
+	return false;
 }
 
 };

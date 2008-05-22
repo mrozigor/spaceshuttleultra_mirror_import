@@ -38,7 +38,9 @@ class BasicVCComponent: public ISubsystem
 	mutable float cache_my;
 protected:
 	Atlantis* STS() const;
-	
+	bool WriteScenarioString(FILEHANDLE scn, const string& key, const string& value) const;
+	bool WriteScenarioInt(FILEHANDLE scn, const string& key, const int iValue) const;
+	bool WriteScenarioVector(FILEHANDLE scn, const string& key, const VECTOR3& vector) const;
 	
 public:
 	BasicVCComponent(Atlantis* _sts);

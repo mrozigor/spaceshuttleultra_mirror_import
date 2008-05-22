@@ -1831,6 +1831,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	if(pA7A8Panel)
 	{
 		pA7A8Panel->AddMeshes(ofs);
+		pA7A8Panel->DefineVC();
 		pA7A8Panel->Realize();
 	}
 
@@ -4865,10 +4866,12 @@ bool Atlantis::clbkLoadVC (int id)
 	  DisplayCameraLabel(VC_LBL_AFTPILOT);
 	SetCameraOffset (VC_POS_AFTPILOT + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_AFTPILOT);
-	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, _V(0.8,0,0), 0, 0, _V(0,-0.6,0.15), 0, 0);
+	
 	// Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 95*RAD, 72*RAD);
-
+	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, 
+		_V(0.4, 0.0, 0.0), 0, 0, 
+		_V(-0.4, 0.0, 0.0), 0, 0);
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 
@@ -4876,6 +4879,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->RegisterVC();
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
+	pA7A8Panel->RegisterVC();
 	ok = true;
 	break;
   case VC_RMSSTATION: 
@@ -4884,14 +4888,19 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+	
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, 
+		_V(0.4,0,0), 0, 0, 
+		_V(0,-0.3,0.15), 0, 0);
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
+	pA7A8Panel->RegisterVC();
 	ok = true;
 	break;
   case VC_PORTSTATION:
@@ -4925,6 +4934,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->RegisterVC();
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
+	pA7A8Panel->RegisterVC();
 	ok = true;
 	break;
 

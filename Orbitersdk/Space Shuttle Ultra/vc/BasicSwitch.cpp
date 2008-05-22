@@ -50,5 +50,9 @@ void BasicSwitch::OnPositionDown()
 {
 }
 
+void BasicSwitch::OnSaveState(FILEHANDLE scn) const
+{
+	
+}
 
 };

@@ -24,6 +24,12 @@ namespace vc {
 		Add(pARLKTNLFanB		= new StdSwitch2(_sts, "ARLK/TNL FAN B"));
 		Add(pLightsCLVestPORT	= new StdSwitch2(_sts, "LIGHTS C/L VESTIBULE PORT"));
 		Add(pLightsCLVestSTBD	= new StdSwitch2(_sts, "LIGHTS C/L VESTIBULE STBD"));
+		Add(pControlPanelPowerA = new StdSwitch2(_sts, "CNTL PNL PWR A"));
+		Add(pControlPanelPowerB = new StdSwitch2(_sts, "CNTL PNL PWR B"));
+		Add(pControlPanelPowerC = new StdSwitch2(_sts, "CNTL PNL PWR C"));
+		Add(pPyrosAp = new StdSwitch2(_sts, "PYROS Ap"));
+		Add(pPyrosBp = new StdSwitch2(_sts, "PYROS Bp"));
+		Add(pPyrosCp = new StdSwitch2(_sts, "PYROS Cp"));
 	}
 
 	PanelA7A8ODS::~PanelA7A8ODS()
@@ -55,6 +61,22 @@ namespace vc {
 		//0.254716, 2.12746, 12.5175
 		//register mouse event regions in BasicPanel
 
+		pControlPanelPowerA->SetMouseRegion(0.081f, 0.124f, 0.094f, 0.197f);
+		pControlPanelPowerB->SetMouseRegion(0.177f, 0.124f, 0.194f, 0.197f);
+		pControlPanelPowerC->SetMouseRegion(0.274f, 0.124f, 0.286f, 0.197f);
+		
+		pPyrosAp->SetMouseRegion(0.709f, 0.124f, 0.725f, 0.197f);
+		pPyrosBp->SetMouseRegion(0.803f, 0.124f, 0.825f, 0.197f);
+		pPyrosCp->SetMouseRegion(0.902f, 0.124f, 0.920f, 0.197f);
+	}
+
+	void PanelA7A8ODS::RegisterVC()
+	{
+		VECTOR3 ofs = STS()->orbiter_ofs;
+		oapiVCRegisterArea(AID_A8A3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
+		oapiVCSetAreaClickmode_Quadrilateral (AID_A8A3, 
+			_V(0.254716, 2.5048, 12.399)+ofs, _V(-0.265916, 2.5048, 12.399)+ofs,
+			_V(0.254716, 2.12746, 12.5175)+ofs, _V(-0.265916, 2.12746, 12.5175) + ofs);
 	}
 
 	void PanelA7A8ODS::DefineVCAnimations(UINT vc_idx)

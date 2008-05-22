@@ -26,6 +26,14 @@ namespace vc {
 		StdSwitch2* pARLKTNLFanB;
 		StdSwitch2* pLightsCLVestPORT;
 		StdSwitch2* pLightsCLVestSTBD;
+		StdSwitch2* pControlPanelPowerA;
+		StdSwitch2* pControlPanelPowerB;
+		StdSwitch2* pControlPanelPowerC;
+
+		StdSwitch2* pPyrosAp;
+		StdSwitch2* pPyrosBp;
+		StdSwitch2* pPyrosCp;
+
 
 		UINT midx_odspanel;
 	public:
@@ -35,5 +43,6 @@ namespace vc {
 		virtual void Realize();
 		virtual void DefineVCAnimations (UINT vcidx);
 		virtual void DefineVC();
+		virtual void RegisterVC();
 	};
 };

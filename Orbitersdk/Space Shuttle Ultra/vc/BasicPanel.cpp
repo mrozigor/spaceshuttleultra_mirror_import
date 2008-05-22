@@ -19,6 +19,7 @@ namespace vc {
 
 	BasicVCComponent* BasicPanel::Add(BasicVCComponent* pNew)
 	{
+		pNew->SetParentPanel(this);
 		components.push_back(pNew);
 		return pNew;
 	}
@@ -43,6 +44,38 @@ namespace vc {
 
 	void BasicPanel::DefineVCAnimations(UINT vcidx)
 	{
+	}
+
+	bool BasicPanel::DistributeMouseEvent(int _event, const VECTOR3& p)
+	{
+		int i;
+		float mx = 0, my = 0;
+		for(i = 0; i<components.size(); i++)
+		{
+			BasicVCComponent* currentElement = components.at(i);
+			if(currentElement->IsPointOver(p.x, p.y))
+			{
+				currentElement->ProjectMouse(p.x, p.y, mx, my);	
+				if(currentElement->OnMouseEvent(_event, mx, my))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	bool BasicPanel::FindComponent(const VECTOR3& p, BasicVCComponent** foundElement) const
+	{
+		int i;
+		for(i = 0; i<components.size(); i++)
+		{
+			BasicVCComponent* currentElement = components.at(i);
+			if(currentElement->IsPointOver(p.x, p.y))
+			{
+				*foundElement = currentElement;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void BasicPanel::RegisterVC()
@@ -80,9 +113,21 @@ namespace vc {
 		{
 			if(bCoordinateDisplayMode)
 			{
-				sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f)",
-					name.c_str(), _event, p.x, p.y, p.z);
-				return true;
+				BasicVCComponent* foundElement;
+				if(FindComponent(p, &foundElement))
+				{
+					sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f) FOR %s",
+						name.c_str(), _event, p.x, p.y, p.z,
+						foundElement->GetQualifiedIdentifier().c_str());
+				} else 
+				{
+					sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f)",
+						name.c_str(), _event, p.x, p.y, p.z);
+				}
+				return DistributeMouseEvent(_event, p);
+			} else {
+				
+				return DistributeMouseEvent(_event, p);
 			}
 			return true;
 		}
@@ -119,14 +164,14 @@ namespace vc {
 
 	const string& BasicPanel::GetIdentifier() const
 	{
-		static string null = "";
+		//static string null = "";
 		return name;
 	}
 
 	const string& BasicPanel::GetQualifiedIdentifier() const
 	{
-		static string null = "";
-		return null;
+		//static string null = "";
+		return name;
 	}
 
 	void BasicPanel::ReplaceComponent(unsigned long ulIndex, BasicVCComponent* pReplacement)

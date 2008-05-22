@@ -23,6 +23,7 @@ protected:
 	bool bOrientation;
 	unsigned short usNumPositions;
 	vector<string> labels;
+	unsigned short usCurrentPosition;
 public:
 	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
 	virtual ~BasicSwitch();
@@ -33,6 +34,8 @@ public:
 
 	virtual void OnPositionUp();
 	virtual void OnPositionDown();
+
+	virtual void OnSaveState(FILEHANDLE scn) const;
 };
 
 };
