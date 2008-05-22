@@ -41,7 +41,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	SetSize(25.0);
 	SetEmptyMass(4.1957075E6);
 	AddMesh(mshMLP);
-	SetTouchdownPoints(_V(0.0, -28.5, 25.0), _V(-25.0, -28.5, -25.0), _V(25.0, -28.5, -25.0));
+	SetTouchdownPoints(_V(0.0, -30.65, 25.0), _V(-25.0, -30.65, -25.0), _V(25.0, -30.65, -25.0)); //080522, DaveS edit: Corrected MLP height so it sits correctly on the MLP stands on the hardstand
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
