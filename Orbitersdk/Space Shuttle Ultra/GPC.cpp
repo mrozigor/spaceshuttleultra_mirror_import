@@ -424,25 +424,7 @@ void Atlantis::GPC(double dt)
 			AttControl(dt);
 			break;
 		case 201:
-			GetGlobalOrientation(InertialOrientationRad);
-			CurrentAttitude=ConvertAnglesFromOrbiterToM50(InertialOrientationRad);
-			//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
-			if(TRK) REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd)*DEG;
-			//REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*-RAD)*DEG;
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}
-			if(ManeuverinProg) {
-				GetAngularVel(AngularVelocity);
-				GetGlobalPos(GVesselPos);
-				GetStatus(Status);
-				GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-				AttControl(dt);
-			}
+			AttControl(dt);
 			break;
 		case 202:
 			GetGlobalOrientation(InertialOrientationRad);
@@ -687,7 +669,7 @@ void Atlantis::UpdateDAP()
 	}
 }
 
-void Atlantis::AttControl(double SimdT)
+/*void Atlantis::AttControl(double SimdT)
 {
 	dT=SimdT;
 	if(MNVR || TRK || ROT) {
@@ -714,6 +696,137 @@ void Atlantis::AttControl(double SimdT)
 			//LVLHError.data[ROLL], LVLHError.data[PITCH], LVLHError.data[YAW]);
 		SetRates(ReqdRates);
 		//sprintf(oapiDebugString(), "%f", AngularVelocity.data[PITCH]);
+	}
+}*/
+
+void Atlantis::AttControl(double SimdT)
+{
+	VECTOR3 LastReqdAtt;
+
+	GetGlobalOrientation(InertialOrientationRad);
+	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
+	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
+
+	if(MNVR || TRK || ROT) {
+		static VECTOR3 NullRates, NullRatesLocal;
+		if(TRK) {
+			LastReqdAtt=REQD_ATT;
+			REQD_ATT=ConvertLVLHAnglesToM50(-LVLHOrientationReqd*RAD)*DEG;
+			//REQD_ATT=ConvertLocalAnglesToM50(_V(90, 0, 0)*RAD)*DEG;
+			//sprintf(oapiDebugString(), "LVLHOReqd: %f %f %f Check: %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z, oapiRand());
+			//sprintf(oapiDebugString(), "AttControl: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
+		}
+		//REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*-RAD)*DEG;
+		if(!ManeuverinProg) {
+			ManeuverinProg=true;
+			for(int i=0;i<4;i++) {
+				if(MET[i]<START_TIME[i]) {
+					ManeuverinProg=false;
+					break;
+				}
+			}
+			if(ManeuverinProg) {
+				sprintf(oapiDebugString(), "Starting maneuver %f", oapiRand());
+				//ManeuverStart=true;
+				ManeuverStatus=MNVR_STARTING;
+				sprintf_s(oapiDebugString(), 255, "MNVR STARTING");
+				ManeuverComplete=false;
+			}
+		}
+
+		if(ManeuverinProg) {
+			GetAngularVel(AngularVelocity);
+			GetGlobalPos(GVesselPos);
+			GetStatus(Status);
+			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
+		}
+		else return; //no need for further calculations
+
+		if(TRK || ROT) {
+			VECTOR3 TargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
+			VECTOR3 LastTargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(LastReqdAtt*RAD, true);
+			VECTOR3 LastNullRates=NullRates;
+			//NullRates=(TargAttOrbiter-LastTargAttOrbiter)/SimdT;
+			//NullRatesDiff=(-LastNullRates+NullRates)/SimdT;
+			//for(int i=0;i<3;i++) NullRatesDiff.data[i]=abs(NullRatesDiff.data[i]);
+			//NullRates.data[YAW]=-NullRates.data[YAW];
+			NullRatesLocal=(ConvertOrbiterAnglesToLocal(TargAttOrbiter)-ConvertOrbiterAnglesToLocal(LastTargAttOrbiter))/SimdT;
+			double NullRatesMag=abs(NullRatesLocal.x)+abs(NullRatesLocal.y)+abs(NullRatesLocal.z);
+			//double NullRatesMag=abs(NullRates.x)+abs(NullRates.y)+abs(NullRates.z);
+			if(NullRatesMag>10.0) {
+				//error; rates should not be this high
+				return;
+			}
+			/*NullRatesMag=abs(NullRatesDiff.x)+abs(NullRatesDiff.y)+abs(NullRatesDiff.z);
+			if(NullRatesMag>10.0) {
+				//error; rates should not be this high
+				return;
+			}*/
+
+			if(ManeuverStatus==MNVR_STARTING) {
+				NullRates=(TargAttOrbiter-LastTargAttOrbiter)/SimdT;
+				CalcManeuverTargets(NullRates);
+				ManeuverStatus=MNVR_IN_PROGRESS;
+				sprintf_s(oapiDebugString(), 255, "MNVR IN PROGRESS");
+				//sprintf(oapiDebugString(), "Rates calculated %f", oapiRand());
+				//oapiWriteLog(oapiDebugString());
+			}
+			else if(ManeuverStatus==MNVR_COMPLETE) {
+				TargetAttOrbiter=TargAttOrbiter;
+				MNVR_TIME=0.0;
+			}
+			else {
+				MNVR_TIME-=SimdT;
+				sprintf_s(oapiDebugString(), 255, "MNVR IN PROGRESS: %f", MNVR_TIME);
+			}
+		}
+		else NullRates=NullRatesLocal=_V(0, 0, 0);
+		//sprintf(oapiDebugString(), "%f %f %f", NullRates.x, NullRates.y, NullRates.z);
+		
+		PitchYawRoll=CalcPitchYawRollAngles()*DEG;
+		CalcRequiredRates(ReqdRates, NullRatesLocal*DEG);
+		SetRates(ReqdRates);
+	}
+}
+
+void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitude and time to reach attitude
+{
+	int counter=0;
+	double LastMnvrTime;
+	VECTOR3 PYR;
+	VECTOR3 REQDATTOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
+	TargetAttOrbiter=REQDATTOrbiter;
+	PYR=CalcPitchYawRollAngles()*DEG;
+	MNVR_TIME=RotRate*(abs(PYR.x)+abs(PYR.y)+abs(PYR.z));
+	sprintf_s(oapiDebugString(), 255, "Initial MNVR TIME: %f", MNVR_TIME);
+	oapiWriteLog(oapiDebugString());
+	do {
+		counter++;
+		LastMnvrTime=MNVR_TIME;
+		if(MNVR_TIME<0) {
+			MNVR_TIME=0.0;
+			//break;
+		}
+		TargetAttOrbiter=REQDATTOrbiter+NullRates*MNVR_TIME; //check TargetAtt frame
+		//double TargetAttMag=0.0;
+		//for(int i=0;i<3;i++) TargetAttMag+=DEG*abs(TargetAttOrbiter.data[i]);
+		PYR=CalcPitchYawRollAngles()*DEG;
+		MNVR_TIME=RotRate*(abs(PYR.x)+abs(PYR.y)+abs(PYR.z));
+		//sprintf(oapiDebugString(), "Iterating: %d %f", counter, MNVR_TIME);
+		sprintf(oapiDebugString(), "Iterating: %d %f %f %f", counter, MNVR_TIME, NullRates.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG);
+		//oapiWriteLog(oapiDebugString());
+	}while(abs(MNVR_TIME-LastMnvrTime)>0.05 && counter<50);
+	if(counter>=50) {
+		TargetAttOrbiter=REQDATTOrbiter;
+		sprintf_s(oapiDebugString(), 255, "ERROR: Targets could not be calculated");
+		oapiWriteLog(oapiDebugString());
+	}
+	else {
+		TargetAttOrbiter=REQDATTOrbiter+NullRates*MNVR_TIME;
+		sprintf_s(oapiDebugString(), 255, "Target Attitude: %f %f %f NR: %f %f %f Time: %f", TargetAttOrbiter.data[PITCH]*DEG,
+			TargetAttOrbiter.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG, NullRates.data[PITCH]*DEG,
+			NullRates.data[YAW]*DEG, NullRates.data[ROLL]*DEG, MNVR_TIME);
+		oapiWriteLog(oapiDebugString());
 	}
 }
 
@@ -1011,5 +1124,93 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 			//sprintf(oapiDebugString(), "%f %f %f %f %f %f", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW],
 				//LVLHError.data[ROLL], LVLHError.data[PITCH], LVLHError.data[YAW]);
 		}
+	}
+}
+
+void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vectors in degrees
+{
+	VECTOR3 CurrentRates;
+	CurrentRates=AngularVelocity*DEG;
+	//sprintf(oapiDebugString(), "AttControl");
+	Mass=GetMass();
+	GetPMI(PMI);
+	Rates.data[PITCH]=0.0;
+	Rates.data[YAW]=0.0;
+	Rates.data[ROLL]=0.0;
+	if(MNVR || TRK || ROT) {
+		if(!Yaw && !Pitch && (Roll || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
+			if(abs(PitchYawRoll.data[ROLL])<0.05) Roll=false;
+			else Roll=true;
+			if(Roll) {
+				//sprintf(oapiDebugString(), "%f %f %f", abs(PitchYawRoll.data[ROLL]), 
+				//	NullStartAngle(abs(AngularVelocity.data[ROLL]), ORBITER_ROLL_TORQUE, ROLL), PMI.data[ROLL]);
+				if(abs(PitchYawRoll.data[ROLL])<=NullStartAngle(abs(AngularVelocity.data[ROLL]), ROLL)) {
+					Rates.data[ROLL]=0.0;
+					//nRoll=1;
+					//Roll=false;
+				}
+				else {
+					if(PitchYawRoll.data[ROLL]>0)
+						Rates.data[ROLL]=-RotRate;
+					else Rates.data[ROLL]=RotRate;
+				}
+			}
+			else Rates.data[ROLL]=0.0;
+		}
+		else Rates.data[ROLL]=0.0;
+
+		if(!Roll && !Pitch && (Yaw || abs(PitchYawRoll.data[YAW])>AttDeadband)) {
+			if(abs(PitchYawRoll.data[YAW])<0.05) Yaw=false;
+			else Yaw=true;
+			if(Yaw) {
+				if(abs(PitchYawRoll.data[YAW])<=NullStartAngle(abs(AngularVelocity.data[YAW]), YAW)) {
+					Rates.data[YAW]=0.0;
+					//Pitch=false;
+				}
+				else {
+					if(PitchYawRoll.data[YAW]>0)
+						Rates.data[YAW]=-RotRate;
+					else Rates.data[YAW]=RotRate;
+				}
+			}
+			else Rates.data[YAW]=0.0;
+			//sprintf(oapiDebugString(), "AttControl");
+			//sprintf(oapiDebugString(), "%f", Rates.data[YAW]);
+			//sprintf(oapiDebugString(), "roll %f", Torque.data[YAW]);
+		}
+		else Rates.data[YAW]=0.0;
+
+		if(!Roll && !Yaw && (Pitch || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
+			if(abs(PitchYawRoll.data[PITCH])<0.05) {
+				Pitch=false;
+				ManeuverComplete=true;
+				sprintf(oapiDebugString(), "Maneuver completed");
+			}
+			else Pitch=true;
+			if(Pitch) {
+				if(abs(PitchYawRoll.data[PITCH])<=NullStartAngle(abs(AngularVelocity.data[PITCH]), PITCH)) {
+					//sprintf(oapiDebugString(), "%f %f", abs(PitchYawRoll.data[PITCH]), NullStartAngle(abs(AngularVelocity.data[PITCH]), ORBITER_PITCH_TORQUE, PITCH));
+					Rates.data[PITCH]=0.00000;
+					//Pitch=false;
+				}
+				else {
+					if(PitchYawRoll.data[PITCH]>0)
+						Rates.data[PITCH]=-RotRate;
+					else Rates.data[PITCH]=RotRate;
+				}
+			}
+			else Rates.data[PITCH]=0.0000000;
+			//sprintf(oapiDebugString(), "AttControl");
+			//sprintf(oapiDebugString(), "%f", Rates.data[PITCH]);
+			//sprintf(oapiDebugString(), "roll %f", Torque.data[PITCH]);
+		}
+		else Rates.data[PITCH]=0.0000;
+		//sprintf(oapiDebugString(), "%f %f %f %i", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW], DAPMode[1]);
+		if(!Pitch && !Yaw && !Roll) {
+			ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
+			sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
+		}
+
+		if(ManeuverStatus==MNVR_COMPLETE) Rates=Rates+NullRates;
 	}
 }

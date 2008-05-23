@@ -961,13 +961,18 @@ private:
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
 	void AttControl(double SimdT);
+	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(VECTOR3 &Rates);
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
+	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	void CalcLVLHAttitude(VECTOR3 &Output);
 	//change ref. frames
-	VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles);
+	VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
+	VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
+	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
 	VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
+	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
 	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
@@ -1045,9 +1050,9 @@ private:
 		Output.z=v.z;
 		return Output;
 	}
-	inline bool Eq(const double d1, const double d2)
+	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
 	{
-		if(fabs(d1-d2)>0.00001) return false;
+		if(fabs(d1-d2)>dDiff) return false;
 		return true;
 	}
 	inline double range(double min, double value, double max)
@@ -1298,7 +1303,7 @@ private:
 	EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;
-	double dT;
+	//double dT;
 	VECTOR3 GVesselPos, GVesselVel;
 	VESSELSTATUS Status;
 
@@ -1383,7 +1388,12 @@ private:
 	double OMSGimbal[2][2];
 
 	//DAP
-	bool ManeuverinProg;
+	bool ManeuverinProg, ManeuverComplete;
+	//ManueverinProg is true if attitude is controlled by autopilot
+	//ManeuverComplete is true if shuttle is in target attitude
+	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
+	//ManeuverStatus is used to set autopilot actions
+	double MNVR_TIME;
 	int START_TIME[4]; // day,hour,min,sec
 	int TGT_ID, BODY_VECT;
 	double P, Y, OM;
@@ -1391,8 +1401,9 @@ private:
 	bool Pitch, Yaw, Roll;
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
-	VECTOR3 LVLHOrientationLast, LVLHOrientationReqd, LVLHError, LVLHRateVector;
-	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT, PitchYawRoll, PitchYawRollLast, TargetAtt, ReqdRates, TrackRates;
+	VECTOR3 LVLHOrientationReqd, LVLHError, LVLHRateVector;
+	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT;
+	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates, TrackRates;
 	ORBITPARAM oparam;
 	ELEMENTS el;
 	double TrkRate;	
