@@ -147,7 +147,7 @@ void CRT::Update (HDC hDC)
 		RecallStatus();
 		UpdateStatus=false;
 	}
-	
+	//sprintf(oapiDebugString(), "%d %d %d", mode, display, id);
 
 	if(data!=0) Data(1-data);
 
@@ -1803,10 +1803,11 @@ bool CRT::Input(int change, char *Name)
 							sts->REQD_ATT.y=sts->MNVR_OPTION.y;
 							sts->REQD_ATT.z=sts->MNVR_OPTION.z;
 							for(int i=0;i<3;i++) {
-								if(sts->REQD_ATT.data[i]>180.0) sts->TargetAtt.data[i]=sts->REQD_ATT.data[i]-360.0;
-								else sts->TargetAtt.data[i]=sts->REQD_ATT.data[i];
+								if(sts->REQD_ATT.data[i]>180.0) sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i]-360.0;
+								else sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i];
 							}
-							sts->TargetAtt=ToRad(sts->TargetAtt);
+							sts->TargetAttM50=sts->TargetAttM50*RAD;
+							sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
 						}
 						else sts->MNVR=false;
 						sts->Yaw=false;
@@ -1816,9 +1817,11 @@ bool CRT::Input(int change, char *Name)
 					}
 					else if(nNew==19) {
 						if(sts->TRK==false) {
+							sts->MNVR_TIME=0.0; //guess
 							sts->TRK=true;
 							sts->MNVR=false;
 							sts->ROT=false;
+							sts->ManeuverinProg=false;
 							/*if(sts->DAPMode[1]==0) {
 								sts->RotRate=sts->DAP[sts->DAPMode[0]].PRI_ROT_RATE;
 								sts->AttDeadband=sts->DAP[sts->DAPMode[0]].PRI_ATT_DB;
@@ -1976,10 +1979,11 @@ bool CRT::Input(int change, char *Name)
 						sts->REQD_ATT.y=sts->MNVR_OPTION.y;
 						sts->REQD_ATT.z=sts->MNVR_OPTION.z;
 						for(int i=0;i<3;i++) {
-							if(sts->REQD_ATT.data[i]>180.0) sts->TargetAtt.data[i]=sts->REQD_ATT.data[i]-360.0;
-							else sts->TargetAtt.data[i]=sts->REQD_ATT.data[i];
+							if(sts->REQD_ATT.data[i]>180.0) sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i]-360.0;
+							else sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i];
 						}
-						sts->TargetAtt=ToRad(sts->TargetAtt);
+						sts->TargetAttM50=sts->TargetAttM50*RAD;
+						sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
 						return true;
 					}
 					break;
