@@ -1,24 +1,19 @@
-#if !defined(___SPACE_SHUTTLE_ULTRA_DPS_IDP_H_INCLUDED___)
-#define ___SPACE_SHUTTLE_ULTRA_DPS_IDP_H_INCLUDED___
+#pragma once
 
 #include <vector>
-#include "../Keyboard.h"
 #include "../vc/vc_defs.h"
+#include "../Keyboard.h"
+
+namespace dps {
+	class IDP;
+};
 
 namespace dps {	
 	using class ::Keyboard;
+	
+	class IDP;
 
-	typedef enum {
-		GNC = 0,
-		SM = 1,
-		PL = 2
-	} MAJORFUNCTION;
-
-	typedef struct {
-		char cSymbol;
-		char cAttr;
-	} DEUCHAR;
-
+	
 	
 	const char DEUATT_NORMAL = 0;
 	const char DEUATT_OVERBRIGHT = 1;
@@ -30,7 +25,7 @@ namespace dps {
 	 * MDUs. 
  	 */
 	class IDP : public AtlantisSubsystem {
-		vc::MDU* mdu_list[7];
+		vc::PMDU mdu_list[7];
 		MAJORFUNCTION majfunc;
 		unsigned short usOPS;
 		unsigned short usSPEC;
@@ -43,9 +38,7 @@ namespace dps {
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident);
 		virtual ~IDP();
-		void ConnectToMDU(vc::MDU* pMDU, bool bPrimary = true);
+		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
 		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 	};
 };
-
-#endif

@@ -520,6 +520,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\dps_defs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ExtAirlock.h"
 				>
 			</File>
@@ -577,6 +581,10 @@
 			</File>
 			<File
 				RelativePath=".\PanelC3.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelF7.h"
 				>
 			</File>
 			<File

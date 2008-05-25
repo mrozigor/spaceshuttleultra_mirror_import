@@ -4749,8 +4749,8 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 		//}
 
 		newmfd->id = mfd;
-		if(newmfd->id >= MDUID_CRT1 && newmfd->id <= MDUID_CRT4) {
-			Display[newmfd->id - MDUID_CRT1]=newmfd;
+		if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
+			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
 		}
 		newmfd->UpdateStatus=true;
 		newmfd=NULL;
@@ -4978,12 +4978,14 @@ bool Atlantis::clbkLoadVC (int id)
 	DisplayCameraLabel(VC_LBL_PLT);
     SetCameraOffset (orbiter_ofs + VC_POS_PLT);
     SetCameraDefaultDirection (_V(0,0,1));
-    SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+    SetCameraMovement (_V(0,0,0.3), 0, 0,		//Upwards/forward
+		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
+		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
     huds.hudcnt = orbiter_ofs + VC_POS_PLT;
     oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
 
   // Default camera rotarion
-	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
+	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
 
     RegisterVC_PltMFD (); // activate pilot MFD controls
     RegisterVC_CntMFD (); // activate central panel MFD controls
@@ -5411,6 +5413,22 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
     break;
   }
   return false;
+}
+
+bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
+{
+	if(usMDUID < 11)
+	{
+		if(mdus[usMDUID] != NULL)
+		{
+			return false;
+		} else {
+			mdus[usMDUID] = pMDU;
+			return true;
+		}
+	} else {
+		return false;
+	}
 }
 
 void Atlantis::UpdateRMSPositions()

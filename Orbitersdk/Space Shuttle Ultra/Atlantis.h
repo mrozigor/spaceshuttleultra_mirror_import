@@ -18,8 +18,10 @@
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
 #include "vc/BasicPanel.h"
+#include "vc/PanelF7.h"
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
+
 
 
 typedef struct {
@@ -493,17 +495,7 @@ const double defaultStage1Guidance[2][8] = {{0.0, 136.855, 219.456, 363.3216, 56
 
 const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 
-const int MDUID_CDR1 = 0;
-const int MDUID_CDR2 = 1;
-const int MDUID_PLT1 = 2;
-const int MDUID_PLT2 = 3;
-const int MDUID_CRT1 = 4;
-const int MDUID_CRT2 = 5;
-const int MDUID_CRT3 = 6;
-const int MDUID_CRT4 = 7;
-const int MDUID_MFD1 = 8;
-const int MDUID_MFD2 = 9;
-const int MDUID_AFD  = 10;
+
 
 // ==========================================================
 // panel area identifiers
@@ -874,7 +866,7 @@ public:
 
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
-
+	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
 
 	SubsystemDirector* psubsystems;
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
