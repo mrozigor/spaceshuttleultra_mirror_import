@@ -1,10 +1,15 @@
+#include "../Atlantis.h"
 #include "MDU.h"
 
 namespace vc {
 
-	MDU::MDU(Atlantis* _sts, const string& _ident, bool _bUseCRTMFD)
-		: BasicVCComponent(_sts, _ident), bUseCRTMFD(_bUseCRTMFD)
+	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
+		: BasicVCComponent(_sts, _ident), usMDUID(_usMDUID),
+		bUseCRTMFD(_bUseCRTMFD),
+		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
+		bInverseX(false)
 	{
+		_sts->RegisterMDU(_usMDUID, this);
 		//Clear text buffer
 		//Create display buffer
 		//Clear display buffer
@@ -14,17 +19,45 @@ namespace vc {
 	{
 	}
 
+	void MDU::DefineVCAnimations(UINT vc_idx) 
+	{
+
+	}
+
+	const string& MDU::GetEdgekeyMenu() const
+	{
+		return "MAIN MENU";
+	}
+
+	char* MDU::GetEdgeKeyMenuLabel(int iButton)
+	{
+		return NULL;
+	}
+
+	short MDU::GetPortConfig() const
+	{
+		return 0;
+	}
+
+	bool MDU::GetSelectedPort() const
+	{
+		return bUseSecondaryPort;
+	}
+
+	bool MDU::GetViewAngle() const
+	{
+		return bInverseX;
+	}
+
+	
+
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
 		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
 		return true;
 	}
 
-	char* MDU::GetEdgeKeyMenu(int iButton)
-	{
-		return NULL;
-	}
-
+	
 	bool MDU::Paint(HDC hdc)
 	{
 		return false;
@@ -35,11 +68,26 @@ namespace vc {
 		return false;
 	}
 
+	bool MDU::RealizeMFD()
+	{
+		RegisterMFDContext();
+		return false;
+	}
+
+	void MDU::RegisterMFDContext()
+	{
+	}
+
+
+	
+
+	/*
 	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
 		const VECTOR3& bottom_left, const VECTOR3& bottom_right)
 	{
 		//Create VC definitions for creating a independent MDU
 		return NULL;
 	}
+	*/
 
 };

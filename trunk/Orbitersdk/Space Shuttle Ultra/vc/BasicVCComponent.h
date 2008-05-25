@@ -11,7 +11,6 @@
 
 #include "vc_defs.h"
 #include "BasicPanel.h"
-#include "../Atlantis.h"
 #include "../ISubsystem.h"
 #include <string>
 
@@ -20,7 +19,7 @@ class Atlantis;
 namespace vc {
 
 	using namespace std;
-
+	using class ::Atlantis;
 
 
 class BasicVCComponent: public ISubsystem
