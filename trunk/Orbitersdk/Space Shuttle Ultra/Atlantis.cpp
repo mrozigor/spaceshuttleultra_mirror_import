@@ -658,7 +658,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   Torque.data[YAW]=ORBITER_YAW_TORQUE;
   Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
   ManeuverinProg=false;
-  ManeuverComplete=false;
+  //ManeuverComplete=false;
   ManeuverStatus=MNVR_OFF;
   MNVR_TIME=0;
 
@@ -3387,7 +3387,7 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles()
 	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
 }
 
-VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
+/*VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -3410,9 +3410,9 @@ VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 	return Output;
-}
+}*/
 
-VECTOR3 Atlantis::ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles)
+/*VECTOR3 Atlantis::ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles)
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -3434,16 +3434,16 @@ VECTOR3 Atlantis::ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles)
 	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
 	RotMatrix=mul(M50, RotMatrix);
 	//transpose matrix
-	/*RotMatrix=_M(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31,
+	RotMatrix=_M(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31,
 				 RotMatrix.m12, RotMatrix.m22, RotMatrix.m32,
-				 RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);*/
+				 RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
 	
 	//get angles
 	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 	return Output;
-}
+}*/
 
 VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {
@@ -3476,7 +3476,7 @@ VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool 
 	return Output;
 }
 
-VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radians
+/*VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radians
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -3504,7 +3504,7 @@ VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radi
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
 	return Output;
-}
+}*/
 
 VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
 {
@@ -3675,21 +3675,21 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 
 	//sprintf_s(oapiDebugString(), 255, "VECTORS: %f %f %f %f %f %f", LocalX.x, LocalX.y, LocalX.z, GlobalX.x, GlobalX.y, GlobalX.z);
 	
-	MATRIX3 RotMatrix = _M(LocalX.x, LocalX.y, LocalX.z,
-							LocalY.x, LocalY.y, LocalY.z,
-							LocalZ.x, LocalZ.y, LocalZ.z);
 	//debugging
-	VECTOR3 Local;
+	/*MATRIX3 RotMatrix = _M(LocalX.x, LocalX.y, LocalX.z,
+							LocalY.x, LocalY.y, LocalY.z,
+							LocalZ.x, LocalZ.y, LocalZ.z);*/
+	/*VECTOR3 Local;
 	Local.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Local.data[YAW]=-asin(RotMatrix.m13);
-	Local.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+	Local.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);*/
 
 	/*RotMatrix = _M(GlobalX.x, GlobalX.y, GlobalX.z,
 					GlobalY.x, GlobalY.y, GlobalY.z,
 					GlobalZ.x, GlobalZ.y, GlobalZ.z);*/
-	RotMatrix = _M(GlobalX.x, GlobalY.x, GlobalZ.x,
-					GlobalX.y, GlobalY.y, GlobalZ.y,
-					GlobalX.z, GlobalY.z, GlobalZ.z);
+	MATRIX3 RotMatrix = _M(GlobalX.x, GlobalY.x, GlobalZ.x,
+							GlobalX.y, GlobalY.y, GlobalZ.y,
+							GlobalX.z, GlobalY.z, GlobalZ.z);
 	
 	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);

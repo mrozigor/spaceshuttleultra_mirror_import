@@ -960,10 +960,10 @@ private:
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	void CalcLVLHAttitude(VECTOR3 &Output);
 	//change ref. frames
-	VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
-	VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
+	//VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
+	//VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
 	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
-	VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
+	//VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
@@ -1380,7 +1380,7 @@ private:
 	double OMSGimbal[2][2];
 
 	//DAP
-	bool ManeuverinProg, ManeuverComplete;
+	bool ManeuverinProg;
 	//ManueverinProg is true if attitude is controlled by autopilot
 	//ManeuverComplete is true if shuttle is in target attitude
 	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
