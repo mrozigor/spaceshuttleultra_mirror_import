@@ -333,8 +333,6 @@ void Atlantis::Throttle(double dt)
 
 void Atlantis::GPC(double dt)
 {
-	int i;
-
 //	Stopwatch st;
 //	st.Start();
 
@@ -374,7 +372,7 @@ void Atlantis::GPC(double dt)
 			break;
 		case 104:
 			//GetThrustVector(Thrust);
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -386,12 +384,12 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 105:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -403,12 +401,12 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 106:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -420,14 +418,14 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			break;
 		case 201:
 			AttControl(dt);
 			break;
 		case 202:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -439,12 +437,12 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 301:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -456,11 +454,11 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			break;
 		case 302:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -472,12 +470,12 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 303:
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
@@ -489,7 +487,7 @@ void Atlantis::GPC(double dt)
 					ManeuverinProg=false;
 					break;
 				}
-			}
+			}*/
 			AttControl(dt);
 			break;
 	}
@@ -701,14 +699,14 @@ void Atlantis::UpdateDAP()
 
 void Atlantis::AttControl(double SimdT)
 {
-	VECTOR3 LastReqdAtt;
-
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
 
 	if(MNVR || TRK || ROT) {
-		static VECTOR3 NullRates, NullRatesLocal;
+		VECTOR3 LastReqdAtt;
+		//static VECTOR3 NullRates, NullRatesLocal;
+		VECTOR3 NullRates, NullRatesLocal;
 		if(TRK) {
 			LastReqdAtt=REQD_ATT;
 			REQD_ATT=ConvertLVLHAnglesToM50(-LVLHOrientationReqd*RAD)*DEG;
@@ -730,7 +728,6 @@ void Atlantis::AttControl(double SimdT)
 				//ManeuverStart=true;
 				ManeuverStatus=MNVR_STARTING;
 				sprintf_s(oapiDebugString(), 255, "MNVR STARTING");
-				ManeuverComplete=false;
 			}
 		}
 
@@ -1134,9 +1131,7 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 	//sprintf(oapiDebugString(), "AttControl");
 	Mass=GetMass();
 	GetPMI(PMI);
-	Rates.data[PITCH]=0.0;
-	Rates.data[YAW]=0.0;
-	Rates.data[ROLL]=0.0;
+	Rates=_V(0, 0, 0);
 	if(MNVR || TRK || ROT) {
 		if(!Yaw && !Pitch && (Roll || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
 			if(abs(PitchYawRoll.data[ROLL])<0.05) Roll=false;
@@ -1150,9 +1145,14 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					//Roll=false;
 				}
 				else {
-					if(PitchYawRoll.data[ROLL]>0)
-						Rates.data[ROLL]=-RotRate;
-					else Rates.data[ROLL]=RotRate;
+					if(PitchYawRoll.data[ROLL]>0) {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=max(-RotRate, -PitchYawRoll.data[ROLL]/10.0);
+						else Rates.data[ROLL]=-RotRate;
+					}
+					else {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=min(RotRate, -PitchYawRoll.data[ROLL]/10.0);
+						else Rates.data[ROLL]=RotRate;
+					}
 				}
 			}
 			else Rates.data[ROLL]=0.0;
@@ -1168,9 +1168,14 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					//Pitch=false;
 				}
 				else {
-					if(PitchYawRoll.data[YAW]>0)
-						Rates.data[YAW]=-RotRate;
-					else Rates.data[YAW]=RotRate;
+					if(PitchYawRoll.data[YAW]>0) {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=max(-RotRate, -PitchYawRoll.data[YAW]/10.0);
+						else Rates.data[YAW]=-RotRate;
+					}
+					else {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=min(RotRate, -PitchYawRoll.data[YAW]/10.0);
+						else Rates.data[YAW]=RotRate;
+					}
 				}
 			}
 			else Rates.data[YAW]=0.0;
@@ -1183,7 +1188,7 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 		if(!Roll && !Yaw && (Pitch || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
 			if(abs(PitchYawRoll.data[PITCH])<0.05) {
 				Pitch=false;
-				ManeuverComplete=true;
+				//ManeuverComplete=true;
 				sprintf(oapiDebugString(), "Maneuver completed");
 			}
 			else Pitch=true;
@@ -1194,9 +1199,14 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					//Pitch=false;
 				}
 				else {
-					if(PitchYawRoll.data[PITCH]>0)
-						Rates.data[PITCH]=-RotRate;
-					else Rates.data[PITCH]=RotRate;
+					if(PitchYawRoll.data[PITCH]>0) {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=max(-RotRate, -PitchYawRoll.data[PITCH]/10.0);
+						else Rates.data[PITCH]=-RotRate;
+					}
+					else {
+						if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=min(RotRate, -PitchYawRoll.data[PITCH]/10.0);
+						else Rates.data[PITCH]=RotRate;
+					}
 				}
 			}
 			else Rates.data[PITCH]=0.0000000;
