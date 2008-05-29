@@ -2393,7 +2393,7 @@ void Atlantis::SetBayDoorPosition (double pos)
   SetAnimation (anim_door, pos);
   rdoor_drag = sqrt (min (1.0, pos*3.0));
   ldoor_drag = sqrt (min (1.0, max(0.0, pos-0.3656)*3.0));
-  SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
+  //SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
 }
 
 void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
