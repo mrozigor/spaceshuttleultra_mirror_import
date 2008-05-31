@@ -35,6 +35,7 @@ namespace vc {
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;
+		UINT myGroup;
 		EXTMFDSPEC mfdspec;
 		double fBrightness;
 		bool bPower;
@@ -52,11 +53,37 @@ namespace vc {
 		virtual char* GetEdgeKeyMenuLabel(int iButton);
 		bool SetPrimaryIDP(dps::IDP* idp);
 		bool SetSecondaryIDP(dps::IDP* idp);
+		/**
+		 * Does nothing as it currently has no animations.
+		 * @sa BasicVCComponent::DefineVCAnimations
+		 */
 		virtual void DefineVCAnimations(UINT vc_idx);
+		/**
+		 * handle mouse events
+		 * @sa BasicVCComponent::OnMouseEvent
+		 */
 		virtual bool OnMouseEvent(int _event, float x, float y);
+		/** 
+		 * Paint the contents of the MDU on a device context.
+		 */
 		virtual bool Paint(HDC hdc);
+		/** 
+		 * Paint the edge menu area on this DC.
+		 */
 		virtual bool PaintEdgeMenu(HDC hdc);
+		/**
+		 * Register the MFD area for Orbiter. Does nothing when MFD rendering 
+		 * is bypassed.
+		 */
 		virtual bool RealizeMFD();
+		virtual bool DefineVCGroup(UINT mgrp);
+		/**
+		 * Links to label texture, when used in conjunction with CRTMFD, expects texture 
+		 * for drawing full MDU when not.
+		 * @return false, if failed.
+		 */
+		virtual bool DefineVCTexture(SURFHANDLE tex);
+		virtual bool IsCRTBufferEnabled() const;
 
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
 		//	const VECTOR3& bottom_right);

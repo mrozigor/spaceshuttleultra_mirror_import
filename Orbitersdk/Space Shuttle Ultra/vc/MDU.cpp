@@ -21,7 +21,8 @@ namespace vc {
 
 	void MDU::DefineVCAnimations(UINT vc_idx) 
 	{
-
+		mfdspec.nmesh = vc_idx;
+		mfdspec.ngroup = myGroup;
 	}
 
 	const string& MDU::GetEdgekeyMenu() const
@@ -76,10 +77,26 @@ namespace vc {
 
 	void MDU::RegisterMFDContext()
 	{
+		mfdspec.nbt1 = 6;
+		mfdspec.nbt2 = 6;
+		oapiRegisterMFD (usMDUID, &mfdspec);
 	}
 
+	bool MDU::DefineVCGroup(UINT mgrp)
+	{
+		myGroup = mgrp;
+		return true;
+	}
 
+	bool MDU::DefineVCTexture(SURFHANDLE tex)
+	{
+		return false;
+	}
 	
+	bool MDU::IsCRTBufferEnabled() const
+	{
+		return false;
+	}
 
 	/*
 	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
