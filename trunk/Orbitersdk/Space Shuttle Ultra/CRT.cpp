@@ -178,8 +178,8 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
-		if( (id>=MDUID_CRT1 && id<=MDUID_CRT4) || 
-			sts->panelc2->switch_state[SWITCH2+2*(id - MDUID_CRT1)]==0) //GNC
+		if( (id>=vc::MDUID_CRT1 && id<=vc::MDUID_CRT4) || 
+			sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==0) //GNC
 		{
 			if(sts->ops==201) {
 				switch(spec) {
@@ -207,7 +207,7 @@ void CRT::Update (HDC hDC)
 				DrawCommonHeader(hDC);
 			}
 		}
-		else if(sts->panelc2->switch_state[SWITCH2+2*(id - MDUID_CRT1)]==1) //SM
+		else if(sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==1) //SM
 		{
 			if(sts->ops == 0) {
 				GPCMEMORY(hDC);
@@ -1807,7 +1807,7 @@ bool CRT::Input(int change, char *Name)
 								else sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i];
 							}
 							sts->TargetAttM50=sts->TargetAttM50*RAD;
-							sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
+							//sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
 						}
 						else sts->MNVR=false;
 						sts->Yaw=false;
@@ -1983,7 +1983,7 @@ bool CRT::Input(int change, char *Name)
 							else sts->TargetAttM50.data[i]=sts->REQD_ATT.data[i];
 						}
 						sts->TargetAttM50=sts->TargetAttM50*RAD;
-						sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
+						//sts->TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(sts->TargetAttM50, true);
 						return true;
 					}
 					break;
