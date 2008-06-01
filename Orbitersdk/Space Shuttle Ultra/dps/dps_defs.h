@@ -8,6 +8,14 @@ namespace dps {
 	class MDMIOModule;
 	class MasterTimingUnit;
 	class ShuttleBus;
+	/**
+	 * Connection between Shuttle Bus and subsystems.
+	 */
+	class BIU;
+	/**
+	 * Class representing a random access memory with 16 bit words. 
+	 */
+	class RAM16;
 
 	typedef enum {
 		GNC = 0,
