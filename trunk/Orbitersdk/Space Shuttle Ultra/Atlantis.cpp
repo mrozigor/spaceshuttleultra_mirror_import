@@ -33,6 +33,7 @@
 #include "resource.h"
 #include "SubsystemDirector.h"
 #include "dps/MasterTimingUnit.h"
+#include "dps/IDP.h"
 #include "AirDataProbeSystem.h"
 #include "vc/PanelA7A8ODS.h"
 #ifdef INCLUDE_OMS_CODE
@@ -358,7 +359,12 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems	  = new SubsystemDirector(this);
 
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
+  psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1"));
+  psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2"));
+  psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3"));
+  psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4"));
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+
 
 
 

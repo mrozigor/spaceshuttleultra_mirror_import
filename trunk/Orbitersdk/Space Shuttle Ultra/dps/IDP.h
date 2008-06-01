@@ -3,6 +3,7 @@
 #include <vector>
 #include "../vc/vc_defs.h"
 #include "../Keyboard.h"
+#include "../discsignals/DiscInPort.h"
 
 namespace dps {
 	class IDP;
@@ -10,6 +11,7 @@ namespace dps {
 
 namespace dps {	
 	using class ::Keyboard;
+	using class discsignals::DiscInPort;
 	
 	class IDP;
 
@@ -25,6 +27,7 @@ namespace dps {
 	 * MDUs. 
  	 */
 	class IDP : public AtlantisSubsystem {
+		unsigned short usIDPID;
 		vc::PMDU mdu_list[7];
 		MAJORFUNCTION majfunc;
 		unsigned short usOPS;
@@ -35,6 +38,12 @@ namespace dps {
 		bool bUseKeyboardA;
 		char cScratchPadLine[120];
 		short sScratchPadLength;
+		unsigned short usGPCDriver;
+		unsigned short usSelectedFC;
+		DiscInPort KeybSelectA;
+		DiscInPort KeybSelectB;
+		DiscInPort MajorFuncGNC;
+		DiscInPort MajorFuncPL;
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident);
 		virtual ~IDP();

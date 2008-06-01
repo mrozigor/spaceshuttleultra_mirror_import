@@ -14,6 +14,7 @@ namespace eva_docking {
 		double fRingState;
 		double fHookState;
 		double fLatchState;
+		double fVestPressure[2];
 	public:
 		ODS(SubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();

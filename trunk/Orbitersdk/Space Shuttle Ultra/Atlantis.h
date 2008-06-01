@@ -15,6 +15,7 @@
 #include "CRT.h"
 #include "orbitersdk.h"
 #include <math.h>
+#include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
 #include "vc/BasicPanel.h"
@@ -870,6 +871,7 @@ public:
 
 	SubsystemDirector* psubsystems;
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+	dps::IDP* pIDP[4];
 	OMSSubsystem* pOMS;
 	/**
 	 * Strategy pattern for the external airlock subsystem
