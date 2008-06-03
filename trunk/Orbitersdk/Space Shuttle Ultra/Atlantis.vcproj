@@ -425,6 +425,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelGroup.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PanelO3.cpp"
 				>
 			</File>
@@ -589,6 +593,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF7.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelGroup.h"
 				>
 			</File>
 			<File

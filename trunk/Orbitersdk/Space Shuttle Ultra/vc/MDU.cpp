@@ -107,4 +107,9 @@ namespace vc {
 	}
 	*/
 
+	unsigned short MDU::GetDrivingIDP() const
+	{
+		return 0;
+	}
+
 };

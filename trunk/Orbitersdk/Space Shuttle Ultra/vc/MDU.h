@@ -92,6 +92,12 @@ namespace vc {
 		virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
 		virtual bool GetSelectedPort() const;
+
+		/**
+		 * Return the identification of the IDP driving this
+		 * display. 
+		 * @return 0 if not connected to IDP or IDP failed
+		 */
 		virtual unsigned short GetDrivingIDP() const;
 	};
 

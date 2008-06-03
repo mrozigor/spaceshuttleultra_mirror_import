@@ -1,5 +1,6 @@
 #pragma once
 
+#include "OrbiterAPI.h"
 #include <vector>
 #include "vc_defs.h"
 
