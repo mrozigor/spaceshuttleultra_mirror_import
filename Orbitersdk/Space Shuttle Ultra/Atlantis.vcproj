@@ -455,6 +455,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\dps\ShuttleBus.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardSwitch.cpp"
 				>
 			</File>
@@ -593,6 +597,10 @@
 			</File>
 			<File
 				RelativePath=".\PlBayOp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\ShuttleBus.h"
 				>
 			</File>
 			<File

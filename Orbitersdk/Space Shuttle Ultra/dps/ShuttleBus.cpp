@@ -8,8 +8,9 @@
 // Konstruktion/Destruktion
 //////////////////////////////////////////////////////////////////////
 
-ShuttleBus::ShuttleBus(SubsystemDirector* _director, const string& _ident)
-: AtlantisSubsystem(_director, _ident)
+namespace dps {
+
+ShuttleBus::ShuttleBus(const string& _ident)
 {
 
 }
@@ -18,3 +19,5 @@ ShuttleBus::~ShuttleBus()
 {
 
 }
+
+};

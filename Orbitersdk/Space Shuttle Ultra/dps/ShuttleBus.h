@@ -9,13 +9,19 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "AtlantisSubsystem.h"
+#include <string>
 
-class ShuttleBus : public AtlantisSubsystem  
+namespace dps {
+
+	using namespace std;
+
+class ShuttleBus
 {
 public:
-	ShuttleBus(SubsystemDirector* _director, const string& _ident);
+	ShuttleBus(const string& _ident);
 	virtual ~ShuttleBus();
+
+};
 
 };
 
