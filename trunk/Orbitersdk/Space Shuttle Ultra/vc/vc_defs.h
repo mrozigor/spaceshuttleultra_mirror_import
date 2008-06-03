@@ -21,6 +21,8 @@ namespace vc {
 	class MDU;
 	class BasicVCComponent;
 	class BasicSwitch;
+	class BasicPanel;
+	class PanelGroup;
 
 	typedef struct {
 		float x, y;

@@ -92,6 +92,7 @@ namespace vc {
 		virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
 		virtual bool GetSelectedPort() const;
+		virtual unsigned short GetDrivingIDP() const;
 	};
 
 };
