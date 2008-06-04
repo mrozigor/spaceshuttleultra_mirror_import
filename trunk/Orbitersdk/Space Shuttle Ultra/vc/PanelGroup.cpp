@@ -11,6 +11,12 @@ namespace vc {
 	{
 	}
 
+	bool PanelGroup::AddPanel(BasicPanel* pPanel)
+	{
+		panels.push_back(pPanel);
+		return true;
+	}
+
 	void PanelGroup::DefineVCAnimations(UINT vcidx)
 	{
 		for(int i = 0; i<panels.size(); i++)
