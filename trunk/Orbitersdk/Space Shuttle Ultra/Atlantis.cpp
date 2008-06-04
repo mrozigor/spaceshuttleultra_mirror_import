@@ -1356,7 +1356,7 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	//
 	strncpy (cbuf, WingName, 256);
 	int len = strlen(cbuf);
-	TextOut (hDC, 566, 296, cbuf, len); //DaveS edit: Fixed incorret location of wing name marking
+	TextOut (hDC, 595, 296, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
