@@ -18,6 +18,7 @@
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
+#include "vc/PanelGroup.h"
 #include "vc/BasicPanel.h"
 #include "vc/PanelF7.h"
 #include "discsignals/Discsignals.h"
@@ -823,6 +824,15 @@ public:
 	 * Pointer to the A7A8 custom panel region
 	 */
 	vc::BasicPanel* pA7A8Panel;
+
+	vc::PanelGroup pgForward;
+	vc::PanelGroup pgLeft;
+	vc::PanelGroup pgCenter;
+	vc::PanelGroup pgRight;
+	vc::PanelGroup pgOverhead;
+	vc::PanelGroup pgAftOOS;
+	vc::PanelGroup pgAftPSS;
+	vc::PanelGroup pgAftMSS;
 
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)

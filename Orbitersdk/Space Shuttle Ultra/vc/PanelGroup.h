@@ -12,6 +12,8 @@ namespace vc {
 	public:
 		PanelGroup();
 		virtual ~PanelGroup();
+
+		virtual bool AddPanel(BasicPanel* pPanel);
 		virtual void DefineVCAnimations (UINT vcidx);
 		virtual void DefineVC();
 		virtual void Realize();
