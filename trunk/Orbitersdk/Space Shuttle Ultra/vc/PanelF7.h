@@ -8,11 +8,11 @@ namespace vc {
 
 	class PanelF7: public BasicPanel
 	{
-		MDU* CRT1;
-		MDU* CRT2;
-		MDU* CRT3;
-		MDU* MFD1;
-		MDU* MFD2;
+		MDU* pCRT1;
+		MDU* pCRT2;
+		MDU* pCRT3;
+		MDU* pMFD1;
+		MDU* pMFD2;
 
 		//Event timer class
 		//C&W warning lights
@@ -20,5 +20,7 @@ namespace vc {
 		PanelF7(Atlantis* _sts);
 		virtual ~PanelF7();
 		virtual void DefineVC();
+		virtual void RegisterVC();
+		
 	};
 };

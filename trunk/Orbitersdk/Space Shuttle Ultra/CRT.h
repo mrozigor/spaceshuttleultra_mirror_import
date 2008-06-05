@@ -5,6 +5,8 @@
 #include "orbitersdk.h"
 #include <math.h>
 
+static const char* STD_CLASS_NAME = "SpaceShuttleUltra";
+
 
 typedef struct {
 	HINSTANCE hDLL;
@@ -41,6 +43,7 @@ private:
 	unsigned short usPageNumber;
 	unsigned short usDisp;
 	unsigned short usGPCDriver;
+	unsigned short usMDU;
 	//Math
 	inline VECTOR3 ToRad(const VECTOR3 &Input)
 	{

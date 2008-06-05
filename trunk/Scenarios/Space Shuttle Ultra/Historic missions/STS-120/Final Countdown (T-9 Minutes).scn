@@ -12,20 +12,14 @@ BEGIN_FOCUS
 END_FOCUS
 
 BEGIN_CAMERA
-  TARGET MLP
-  MODE Extern
-  POS 2.89 -0.65 -3.17
-  TRACKMODE TargetRelative
+  TARGET Atlantis
+  MODE Cockpit
   FOV 50.00
   BEGIN_PRESET
     Track:ISS:50.00:RELATIVE 4.000 0.000 0.000
     Track:ISS:50.00:RELATIVE 4.000 0.000 0.000
   END_PRESET
 END_CAMERA
-
-BEGIN_HUD
-  TYPE Surface
-END_HUD
 
 BEGIN_MFD Left
   TYPE Surface
@@ -39,6 +33,23 @@ BEGIN_MFD Right
   REF Earth
 END_MFD
 
+BEGIN_MFD 3
+  TYPE User
+  MODE CRT
+  Mode2 10001
+  Display 2
+  Spec 0
+END_MFD
+
+BEGIN_MFD 4
+  TYPE Orbit
+  PROJ Ship
+  FRAME Ecliptic
+  REF Earth
+END_MFD
+
+BEGIN_VC
+END_VC
 
 BEGIN_SHIPS
 ISS:ProjectAlpha_ISS

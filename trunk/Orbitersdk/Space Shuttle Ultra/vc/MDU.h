@@ -10,6 +10,8 @@ namespace vc {
 
 	class MDU: public BasicVCComponent
 	{	
+		double t0;
+		bool counting;
 	public:
 		typedef enum {
 			MDU_ADI_AVVI,
@@ -44,6 +46,7 @@ namespace vc {
 		//Use a paint buffer for storing primitives?
 	protected:
 		virtual void RegisterMFDContext();
+		virtual void SwitchMFDMode();
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);
 		virtual ~MDU();
