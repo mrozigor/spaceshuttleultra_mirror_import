@@ -170,6 +170,10 @@ unsigned long BasicVCComponent::CountComponents() const
 	return 0;
 }
 
+void BasicVCComponent::RegisterVC()
+{
+}
+
 bool BasicVCComponent::SetAnimation(UINT anim, double fState)
 {
 	if(bHasAnimations)

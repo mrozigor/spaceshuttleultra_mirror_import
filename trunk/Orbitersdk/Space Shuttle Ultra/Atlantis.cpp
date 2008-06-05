@@ -5031,6 +5031,10 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
 
+	pgCenter.RegisterVC();
+	pgForward.RegisterVC();
+	pgOverhead.RegisterVC();
+
     //RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
@@ -5055,6 +5059,10 @@ bool Atlantis::clbkLoadVC (int id)
 
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+	pgAftOOS.RegisterVC();
 
     //RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
@@ -5131,6 +5139,12 @@ bool Atlantis::clbkLoadVC (int id)
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+	pgAftOOS.RegisterVC();
+	pgAftPSS.RegisterVC();
+
+
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
@@ -5152,6 +5166,12 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(0.4,0,0), 0, 0, 
 		_V(0,-0.3,0.15), 0, 0);
 
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+	pgAftOOS.RegisterVC();
+	pgAftPSS.RegisterVC();
+
+
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
@@ -5168,6 +5188,11 @@ bool Atlantis::clbkLoadVC (int id)
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	pgOverhead.RegisterVC();
+	pgAftOOS.RegisterVC();
+	pgAftPSS.RegisterVC();
+
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
@@ -5186,6 +5211,13 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+	pgAftOOS.RegisterVC();
+	pgAftPSS.RegisterVC();
+
+		
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
@@ -5203,6 +5235,11 @@ bool Atlantis::clbkLoadVC (int id)
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	pgCenter.RegisterVC();
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+
 
     //RegisterVC_CdrMFD();
 	//RegisterVC_PltMFD (); // activate pilot MFD controls
@@ -5226,6 +5263,11 @@ bool Atlantis::clbkLoadVC (int id)
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	pgCenter.RegisterVC();
+	pgOverhead.RegisterVC();
+	pgAftMSS.RegisterVC();
+
     //RegisterVC_CdrMFD();
 	//RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
@@ -6111,6 +6153,13 @@ short Atlantis::GetETPropellant(unsigned short usGPCID)
 		return min((short)(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS), 99);
 	} else
 	 return -1;
+}
+
+dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
+{
+	if(usIDPNumber == 0 || usIDPNumber > 4)
+		return NULL;
+	return pIDP[usIDPNumber-1];
 }
 
 unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)

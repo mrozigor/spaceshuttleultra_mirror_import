@@ -18,7 +18,10 @@ SubsystemDirector::~SubsystemDirector()
 
 bool SubsystemDirector::AddSubsystem(AtlantisSubsystem* pSubsys)
 {
+	char pszBuffer[256];
 	subsystems.push_back(pSubsys);
+	sprintf_s(pszBuffer, 256, "Added subsystem %s.", pSubsys->GetQualifiedIdentifier().c_str());
+	oapiWriteLog(pszBuffer);
 	return true;
 }
 

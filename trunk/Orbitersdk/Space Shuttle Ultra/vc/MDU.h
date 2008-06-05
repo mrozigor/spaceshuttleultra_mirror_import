@@ -32,6 +32,7 @@ namespace vc {
 		unsigned short usMDUID;
 		bool bUseCRTMFD;
 		SURFHANDLE shBackGround;
+		SURFHANDLE shLabelTex;
 		dps::DEUCHAR textBuffer[51][26];
 		dps::IDP* prim_idp;
 		dps::IDP* sec_idp;
@@ -79,6 +80,8 @@ namespace vc {
 		 * is bypassed.
 		 */
 		virtual bool RealizeMFD();
+
+		virtual void RegisterVC();
 		virtual bool DefineVCGroup(UINT mgrp);
 		/**
 		 * Links to label texture, when used in conjunction with CRTMFD, expects texture 

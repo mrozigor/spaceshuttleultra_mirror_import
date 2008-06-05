@@ -92,6 +92,8 @@ namespace vc {
 
 	void PanelA7A8ODS::RegisterVC()
 	{
+		BasicPanel::RegisterVC();
+
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_A8A3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_A8A3, 
