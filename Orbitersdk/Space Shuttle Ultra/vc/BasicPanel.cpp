@@ -97,6 +97,12 @@ namespace vc {
 
 	void BasicPanel::RegisterVC()
 	{
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			(*iter)->RegisterVC();
+			iter++;
+		}
 	}
 
 	void BasicPanel::Realize()

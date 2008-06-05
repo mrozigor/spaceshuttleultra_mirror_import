@@ -95,6 +95,7 @@ public:
 	
 	virtual void Realize();
 	virtual bool RegisterComponent(SubsystemComponent* pComponent);
+	virtual void RegisterVC();
 	virtual bool DelComponent(SubsystemComponent* pComponent);
 	virtual unsigned long CountComponents() const;
 	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);

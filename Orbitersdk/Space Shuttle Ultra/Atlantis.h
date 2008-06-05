@@ -751,60 +751,107 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
-	virtual short GetLastCreatedMFD() const;
-	void SetLastCreatedMFD(unsigned short usMDU);
-	virtual DiscreteBundleManager* BundleManager() const;
-	virtual void SetAirDataProbeDeployment(int side, double position);
-
-	int ___iCurrentManifold;
-	virtual bool IsValidSPEC(int gpc, int spec);
-	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
-	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
-	void UpdateSSMEGimbalAnimations();
-	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
-	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
-	virtual short GetETPropellant(unsigned short usGPCID);
-	bool GetLiftOffFlag() const;
 	AnimState::Action spdb_status;
-	Atlantis (OBJHANDLE hObj, int fmodel);
-	~Atlantis();
-	virtual const VECTOR3& GetOrbiterCoGOffset() const;
-	void SetLaunchConfiguration (void);
-	void SetPostLaunchConfiguration (double srbtime);
-	void SetOrbiterTankConfiguration (void);
-	void SetOrbiterConfiguration (void);
-	void DefineAnimations (void);
-	void AddOrbiterVisual (const VECTOR3 &ofs);
-	void AddTankVisual (const VECTOR3 &ofs);
-	void AddSRBVisual (int which, const VECTOR3 &ofs);
-	void SeparateBoosters (double srb_time);
-	void SeparateTank (void);
-	void SeparateMMU (void);
-	void ToggleGrapple (void);
-	void ToggleArrest (void);
-	void Jettison ();
-	void UpdateMesh ();
-	void ClearMeshes ();
-	void SetBayDoorPosition (double pos);
-	void SetBayDoorLatchPosition (int gang, double pos);
-	void SetRadiatorPosition (double pos);
-	void SetRadLatchPosition (double pos) {}
-	void SetKuAntennaPosition (double pos);
-	void SetETUmbDoorPosition(double pos, int door);
-	void OperateSpeedbrake (AnimState::Action action);
-	void RevertSpeedbrake ();
-	void SetSpeedbrake (double tgt);
-	void SetAnimationArm (UINT anim, double state);
-	void SetAnimationIKArm(VECTOR3 arm_dpos);
-	VECTOR3 CalcAnimationFKArm();
-	void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
-	void UpdateRMSPositions();
-	//VECTOR3 CalcAnimationFKArm2();
-    void PaintMarkings (SURFHANDLE tex);
+	int ___iCurrentManifold;
     char WingName[256];
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
+	/**
+	 * Structural configuration
+	 * - 0 launch configuration
+	 * - 1 SRB's engaged
+	 * - 2 SRB's separated
+	 * - 3 Tank separated/orbiter only
+	 */
+	int status;  
+	bool bManualSeparate; // flag for user-induced booster or tank separation
+
+	double t0;          // reference time: designated liftoff time
+	double met;
+	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
+	WORD srb_id1, srb_id2;
+
+public:
+	//**********************************************************
+	//* public methods
+	//**********************************************************
+	Atlantis (OBJHANDLE hObj, int fmodel);
+	~Atlantis();
+	void AddOrbiterVisual (const VECTOR3 &ofs);
+	void AddSRBVisual (int which, const VECTOR3 &ofs);
+	void AddTankVisual (const VECTOR3 &ofs);
+	virtual DiscreteBundleManager* BundleManager() const;
+	VECTOR3 CalcAnimationFKArm();
+	void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
+	// Overloaded callback functions
+	void clbkAnimate (double simt);
+	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
+	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
+	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
+	bool clbkLoadGenericCockpit ();
+	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
+	bool clbkLoadVC (int id);
+	void clbkMFDMode (int mfd, int mode);
+	bool clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event);
+	void clbkPostStep (double simt, double simdt, double mjd);
+	void clbkPreStep (double simT, double simDT, double mjd);
+	void clbkSaveState (FILEHANDLE scn);
+	void clbkSetClassCaps (FILEHANDLE cfg);
+	void clbkSetStateEx (const void *status);
+	bool clbkVCMouseEvent (int id, int event, VECTOR3 &p);
+	bool clbkVCRedrawEvent (int id, int event, SURFHANDLE surf);
+	void clbkVisualCreated (VISHANDLE vis, int refcount);
+	void clbkVisualDestroyed (VISHANDLE vis, int refcount);
+	void ClearMeshes ();
+	void DefineAnimations (void);
+	/* **********************************************************
+	 * Getters
+	 * **********************************************************/
+	virtual short GetETPropellant(unsigned short usGPCID);
+	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
+	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
+	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
+	virtual dps::IDP* GetIDP(unsigned short usIDPNumber) const;
+	virtual short GetLastCreatedMFD() const;
+	virtual bool GetLiftOffFlag() const;
+	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
+	virtual const VECTOR3& GetOrbiterCoGOffset() const;
+	virtual short GetSRBChamberPressure(unsigned short which_srb);
+	virtual bool IsValidSPEC(int gpc, int spec);
+	void Jettison ();
+	void OperateSpeedbrake (AnimState::Action action);
+	void PaintMarkings (SURFHANDLE tex);
+	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
+	void RevertSpeedbrake ();
+	void SeparateBoosters (double srb_time);
+	void SeparateMMU (void);
+	void SeparateTank (void);
+	/* ***************************************************************
+	 * Setters
+	 *****************************************************************/
+	virtual void SetAirDataProbeDeployment(int side, double position);
+	void SetAnimationArm (UINT anim, double state);
+	void SetAnimationIKArm(VECTOR3 arm_dpos);
+	void SetBayDoorLatchPosition (int gang, double pos);
+	void SetBayDoorPosition (double pos);
+	void SetETUmbDoorPosition(double pos, int door);
+	void SetKuAntennaPosition (double pos);
+	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
+	void SetLastCreatedMFD(unsigned short usMDU);
+	void SetLaunchConfiguration (void);
+	void SetOrbiterConfiguration (void);
+	void SetOrbiterTankConfiguration (void);
+	void SetPostLaunchConfiguration (double srbtime);
+	void SetRadiatorPosition (double pos);
+	void SetRadLatchPosition (double pos) {}
+	void SetSpeedbrake (double tgt);
+	void ToggleGrapple (void);
+	void ToggleArrest (void);
+	void UpdateMesh ();
+	void UpdateRMSPositions();
+	void UpdateSSMEGimbalAnimations();
+	//VECTOR3 CalcAnimationFKArm2();
 
 	/*
 	void RegisterVC_CdrMFD ();
@@ -814,41 +861,17 @@ public:
 	void RedrawPanel_MFDButton (SURFHANDLE surf, int mfd);
 	*/
 
-	int status; // 0=launch configuration
-	            // 1=SRB's engaged
-	            // 2=SRB's separated
-	            // 3=Tank separated (orbiter only)
-	bool bManualSeparate; // flag for user-induced booster or tank separation
-
-	double t0;          // reference time: designated liftoff time
-	double met;
-	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
-	WORD srb_id1, srb_id2;
-
+	
 	//mission::Mission* the_mission;
 
 	//Extended SRB smoke effects
-	double slag1, slag2, slag3;
-	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
-
-	bool bSRBCutoffFlag;
-	bool bLiftOff;
-	bool bHasKUBand;
-
+	
 	/**
 	 * Pointer to the A7A8 custom panel region
 	 */
 	vc::BasicPanel* pA7A8Panel;
 	
 
-	vc::PanelGroup pgForward;
-	vc::PanelGroup pgLeft;
-	vc::PanelGroup pgCenter;
-	vc::PanelGroup pgRight;
-	vc::PanelGroup pgOverhead;
-	vc::PanelGroup pgAftOOS;
-	vc::PanelGroup pgAftPSS;
-	vc::PanelGroup pgAftMSS;
 
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
@@ -871,40 +894,12 @@ public:
 	VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
 
-	// Overloaded callback functions
-	void clbkSetClassCaps (FILEHANDLE cfg);
-	void clbkSetStateEx (const void *status);
-	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
-	void clbkSaveState (FILEHANDLE scn);
-	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
-	void clbkPreStep (double simT, double simDT, double mjd);
-	void clbkPostStep (double simt, double simdt, double mjd);
-	bool clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event);
-	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
-	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
-	void clbkVisualCreated (VISHANDLE vis, int refcount);
-	void clbkVisualDestroyed (VISHANDLE vis, int refcount);
-	void clbkAnimate (double simt);
-	void clbkMFDMode (int mfd, int mode);
-	bool clbkLoadGenericCockpit ();
-	bool clbkLoadVC (int id);
-	bool clbkVCMouseEvent (int id, int event, VECTOR3 &p);
-	bool clbkVCRedrawEvent (int id, int event, SURFHANDLE surf);
+	
 
-	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
-	virtual short GetSRBChamberPressure(unsigned short which_srb);
-	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
+	
 
 	SubsystemDirector* psubsystems;
-	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
-	dps::IDP* pIDP[4];
-	OMSSubsystem* pOMS;
-	/**
-	 * Strategy pattern for the external airlock subsystem
-	 */
-	eva_docking::BasicExternalAirlock* pExtAirlock;
-	AirDataProbeSystem* pADPS;
-
+	
 	PayloadBayOp *plop; // control and status of payload bay operations
 	GearOp *gop; // control and status of landing gear
 	PanelA4 *panela4;
@@ -920,9 +915,43 @@ public:
 
 	OBJHANDLE ThisVessel;
 
-	CommModeHandler* pCommModeHandler;
+	
 
 private:
+	double slag1, slag2, slag3;
+	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
+
+	bool bSRBCutoffFlag;
+	bool bLiftOff;
+	bool bHasKUBand;
+
+	CommModeHandler* pCommModeHandler;
+
+	/* *************************************************
+	 * Panel groups
+	 * *************************************************/
+	vc::PanelGroup pgForward;
+	vc::PanelGroup pgLeft;
+	vc::PanelGroup pgCenter;
+	vc::PanelGroup pgRight;
+	vc::PanelGroup pgOverhead;
+	vc::PanelGroup pgAftOOS;
+	vc::PanelGroup pgAftPSS;
+	vc::PanelGroup pgAftMSS;
+
+	/* **************************************************
+	 * Subsystem short cuts
+	 * **************************************************/
+	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+	dps::IDP* pIDP[4];
+	OMSSubsystem* pOMS;
+	/**
+	 * Strategy pattern for the external airlock subsystem
+	 */
+	eva_docking::BasicExternalAirlock* pExtAirlock;
+	AirDataProbeSystem* pADPS;
+
+
 	SURFHANDLE tex_rcs;
 	void StopAllManifolds();
 	void FireAllNextManifold();

@@ -512,6 +512,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\BIU.h"
+				>
+			</File>
+			<File
 				RelativePath=".\discsignals\DiscInPort.h"
 				>
 			</File>
@@ -537,6 +541,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\dps_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\EventTimer.h"
 				>
 			</File>
 			<File

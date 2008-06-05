@@ -13,6 +13,7 @@ namespace vc {
 		//Clear text buffer
 		//Create display buffer
 		//Clear display buffer
+		shLabelTex = NULL;
 	}
 
 	MDU::~MDU()
@@ -63,6 +64,7 @@ namespace vc {
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
 					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+					STS()->SetLastCreatedMFD(usMDUID);
 					oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
 				}
 			}
@@ -125,6 +127,7 @@ namespace vc {
 					counting = false;
 				} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
 					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+					STS()->SetLastCreatedMFD(usMDUID);
 					oapiSendMFDKey (usMDUID, OAPI_KEY_F1);
 					counting = false;		
 				}
@@ -150,6 +153,33 @@ namespace vc {
 
 	bool MDU::PaintEdgeMenu(HDC hdc)
 	{
+		/*
+		HDC hDC = oapiGetDC (surf);
+
+  // D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
+    if (oapiGetMFDMode(mfd) == MFD_NONE) {
+        RECT r = { 0,0,255,13 };
+        FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
+    } else {   // MFD powered on
+    HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
+    SetTextColor (hDC, RGB(0,255,216));
+    SetTextAlign (hDC, TA_CENTER);
+    SetBkMode (hDC, TRANSPARENT);
+    const char *label;
+    int x = 24;
+
+    for (int bt = 0; bt < 5; bt++) {
+      if (label = oapiMFDButtonLabel (mfd, bt)) {
+        TextOut (hDC, x, 1, label, strlen(label));
+        x += 42;
+      } else break;
+    }
+    TextOut (hDC, 234, 1, "PG", 2);
+    SelectObject (hDC, pFont);
+  }
+
+  oapiReleaseDC (surf, hDC);
+  */
 		return false;
 	}
 
@@ -174,9 +204,15 @@ namespace vc {
 		mfdspec.nbt2 = 0;
 		mfdspec.bt_yofs  = 256/6;
 		mfdspec.bt_ydist = 256/7;
+		STS()->SetLastCreatedMFD(usMDUID);
 		oapiRegisterMFD (usMDUID, &mfdspec);
 		sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);
 		oapiWriteLog(pszBuffer);
+	}
+
+	void MDU::RegisterVC()
+	{
+
 	}
 
 	bool MDU::DefineVCGroup(UINT mgrp)
@@ -187,7 +223,8 @@ namespace vc {
 
 	bool MDU::DefineVCTexture(SURFHANDLE tex)
 	{
-		return false;
+		shLabelTex = tex;
+		return true;
 	}
 	
 	bool MDU::IsCRTBufferEnabled() const
