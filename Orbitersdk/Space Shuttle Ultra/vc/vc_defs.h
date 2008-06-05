@@ -23,6 +23,7 @@ namespace vc {
 	class BasicSwitch;
 	class BasicPanel;
 	class PanelGroup;
+	class PanelF7;
 
 	typedef struct {
 		float x, y;

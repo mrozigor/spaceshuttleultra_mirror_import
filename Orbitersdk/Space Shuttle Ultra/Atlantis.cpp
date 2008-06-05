@@ -20,7 +20,7 @@
 #include "PanelA8.h"
 #include "PanelC2.h"
 #include "PanelC3.h"
-#include "PanelF7.h"
+//#include "PanelF7.h"
 #include "PanelO3.h"
 #include "PanelR2.h"
 #include "Keyboard.h"
@@ -36,6 +36,10 @@
 #include "dps/IDP.h"
 #include "AirDataProbeSystem.h"
 #include "vc/PanelA7A8ODS.h"
+#include "vc/PanelF6.h"
+#include "vc/PanelF7.h"
+#include "vc/PanelF8.h"
+
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -346,7 +350,13 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   c3po            = new PanelC3(this);
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
-  panelf7		  = new PanelF7(this);
+  //panelf7		  = new PanelF7(this);
+
+  pgForward.AddPanel(new vc::PanelF6(this));
+  pgForward.AddPanel(new vc::PanelF7(this));
+  pgForward.AddPanel(new vc::PanelF8(this));
+  
+
   panelo3		  = new PanelO3(this);
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
@@ -375,6 +385,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 #endif
 
   pA7A8Panel = new vc::PanelA7A8ODS(this);
+
 
   
 
@@ -695,7 +706,7 @@ Atlantis::~Atlantis () {
 	delete panela8;
 	delete c3po;
 	delete r2d2;
-	delete panelf7;
+	//delete panelf7;
 	delete panelo3;
 	delete panelc2;
 	delete CDRKeyboard;
@@ -1810,7 +1821,7 @@ void Atlantis::DefineAnimations (void)
   panela4->DefineVCAnimations (vidx);
   panela8->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
-  panelf7->DefineVCAnimations (vidx);
+  //panelf7->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
   
   // ======================================================
@@ -1855,6 +1866,18 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		pA7A8Panel->DefineVCAnimations(mesh_vc);
 		pA7A8Panel->Realize();
 	}
+
+	pgForward.DefineVC();
+	pgForward.DefineVCAnimations(mesh_vc);
+	
+	pgLeft.DefineVC();
+	pgLeft.DefineVCAnimations(mesh_vc);
+
+	pgCenter.DefineVC();
+	pgCenter.DefineVCAnimations(mesh_vc);
+
+	pgRight.DefineVC();
+	pgRight.DefineVCAnimations(mesh_vc);
 
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
@@ -3291,7 +3314,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 	}
 	return false;
 }
-
+/*
 void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
 {
   HDC hDC = oapiGetDC (surf);
@@ -3320,6 +3343,7 @@ void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
 
   oapiReleaseDC (surf, hDC);
 }
+*/
 
 void Atlantis::SetILoads()
 {
@@ -3999,7 +4023,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
-	  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
+	//  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
 	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
       ParseScenarioLineEx (line, vs);
       // unrecognised option - pass to Orbiter's generic parser
@@ -4118,7 +4142,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   panela8->SaveState(scn);
   panelc2->SaveState(scn);
   c3po->SaveState (scn);
-  panelf7->SaveState(scn);
+//  panelf7->SaveState(scn);
   r2d2->SaveState (scn);
 
   psubsystems->SaveState(scn);
@@ -4442,7 +4466,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   panela8->Step(simt, simdt);
   panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
-  panelf7->Step(simt, simdt);
+//  panelf7->Step(simt, simdt);
   panelo3->Step(simt, simdt);
   r2d2->Step (simt, simdt);
   
@@ -4778,6 +4802,7 @@ bool Atlantis::clbkLoadGenericCockpit ()
 // register VC buttons for the 2 commander MFDs
 // (accessible from commander position only)
 // --------------------------------------------------------------
+/*
 void Atlantis::RegisterVC_CdrMFD ()
 {
 
@@ -4811,11 +4836,13 @@ void Atlantis::RegisterVC_CdrMFD ()
   oapiVCSetAreaClickmode_Spherical (AID_CDR1_BRT, _V(-0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
   oapiVCSetAreaClickmode_Spherical (AID_CDR2_BRT, _V(-0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 }
+*/
 
 // --------------------------------------------------------------
 // register VC buttons for the 2 pilot MFDs
 // (accessible from pilot position only)
 // --------------------------------------------------------------
+/*
 void Atlantis::RegisterVC_PltMFD ()
 {
   // activate MFD function buttons
@@ -4839,11 +4866,13 @@ void Atlantis::RegisterVC_PltMFD ()
   oapiVCSetAreaClickmode_Spherical (AID_PLT1_BRT, _V(0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
   oapiVCSetAreaClickmode_Spherical (AID_PLT2_BRT, _V(0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
 }
+*/
 
 // --------------------------------------------------------------
 // register VC buttons for the 5 MFDs on the central panel
 // (accessible from commander and pilot positions)
 // --------------------------------------------------------------
+/*
 void Atlantis::RegisterVC_CntMFD ()
 {
   // activate MFD function buttons
@@ -4891,11 +4920,13 @@ void Atlantis::RegisterVC_CntMFD ()
   oapiVCSetAreaClickmode_Spherical (AID_MFD1_BRT, _V(-0.155,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
   oapiVCSetAreaClickmode_Spherical (AID_MFD2_BRT, _V(0.366,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
 }
+*/
 
 // --------------------------------------------------------------
 // register VC buttons for the aft MFD at the starbord panel
 // (accessible from payload control position only)
 // --------------------------------------------------------------
+/*
 void Atlantis::RegisterVC_AftMFD ()
 {
   // register+activate aft MFD function buttons
@@ -4915,6 +4946,7 @@ void Atlantis::RegisterVC_AftMFD ()
   oapiVCRegisterArea (AID_CRT4_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
   oapiVCSetAreaClickmode_Spherical (AID_CRT4_BRT, _V(1.356, 2.321,13.35)+orbiter_ofs, powerButtonRadius);
 }
+*/
 
 // --------------------------------------------------------------
 // Load virtual cockpit mode
@@ -4932,6 +4964,7 @@ bool Atlantis::clbkLoadVC (int id)
   // this needs to be done globally, so that the labels are correctly updated from all VC positions
   SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
   
+  /*
   // commander MFD function buttons
   oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCRegisterArea (AID_CDR2_BUTTONS, _R(0,15,255,28), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
@@ -4945,6 +4978,7 @@ bool Atlantis::clbkLoadVC (int id)
   oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCRegisterArea (AID_MFD1_BUTTONS, _R(0, 71,255, 84), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
   oapiVCRegisterArea (AID_MFD2_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
+  */
   
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
@@ -4968,15 +5002,19 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
 
-    RegisterVC_CdrMFD (); // activate commander MFD controls
-    RegisterVC_CntMFD (); // activate central panel MFD controls
+	pgCenter.RegisterVC();
+	pgForward.RegisterVC();
+	pgOverhead.RegisterVC();
+
+    //RegisterVC_CdrMFD (); // activate commander MFD controls
+    //RegisterVC_CntMFD (); // activate central panel MFD controls
     gop->RegisterVC ();  // register panel F6 interface
 	panela4->RegisterVC();
 	c3po->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-	panelf7->RegisterVC();
+//	panelf7->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
     break;
@@ -4993,8 +5031,8 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
 
-    RegisterVC_PltMFD (); // activate pilot MFD controls
-    RegisterVC_CntMFD (); // activate central panel MFD controls
+    //RegisterVC_PltMFD (); // activate pilot MFD controls
+    //RegisterVC_CntMFD (); // activate central panel MFD controls
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
 	panelo3->RegisterVC();
@@ -5002,7 +5040,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-	panelf7->RegisterVC();
+//	panelf7->RegisterVC();
     ok = true;
     break;
   case VC_STBDSTATION: 
@@ -5018,7 +5056,7 @@ bool Atlantis::clbkLoadVC (int id)
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-    RegisterVC_AftMFD (); // activate aft MFD controls
+    //RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panela8->RegisterVC();
@@ -5122,7 +5160,7 @@ bool Atlantis::clbkLoadVC (int id)
 	ok = true;
 	break;
   case VC_PORTSTATION:
-	  DisplayCameraLabel(VC_LBL_PORTSTATION);
+	DisplayCameraLabel(VC_LBL_PORTSTATION);
 	SetCameraOffset (orbiter_ofs + VC_POS_PORTSTATION);
     SetCameraDefaultDirection (VC_DIR_PORTSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
@@ -5166,9 +5204,9 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-    RegisterVC_CdrMFD();
-	RegisterVC_PltMFD (); // activate pilot MFD controls
-    RegisterVC_CntMFD (); // activate central panel MFD controls
+    //RegisterVC_CdrMFD();
+	//RegisterVC_PltMFD (); // activate pilot MFD controls
+    //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
@@ -5176,7 +5214,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-	panelf7->RegisterVC();
+//	panelf7->RegisterVC();
     ok = true;
     break;
   case VC_MS2:
@@ -5188,9 +5226,9 @@ bool Atlantis::clbkLoadVC (int id)
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-    RegisterVC_CdrMFD();
-	RegisterVC_PltMFD (); // activate pilot MFD controls
-    RegisterVC_CntMFD (); // activate central panel MFD controls
+    //RegisterVC_CdrMFD();
+	//RegisterVC_PltMFD (); // activate pilot MFD controls
+    //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	c3po->RegisterVC();
 	r2d2->RegisterVC();
@@ -5198,7 +5236,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-	panelf7->RegisterVC();
+//	panelf7->RegisterVC();
     ok = true;
     break;
 
@@ -5220,7 +5258,13 @@ bool Atlantis::clbkLoadVC (int id)
     oapiVCRegisterHUD (&huds);
     // register all MFD displays
     for (int i = 0; i < 10; i++)
-      oapiRegisterMFD (MFD_LEFT+i, mfds+i);
+	{
+      //oapiRegisterMFD (MFD_LEFT+i, mfds+i);
+		if(mdus[i])
+		{
+			mdus[i]->RealizeMFD();
+		}
+	}
     // update panels
     plop->UpdateVC();
     gop->UpdateVC();
@@ -5228,7 +5272,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela8->UpdateVC();
 	panelc2->UpdateVC();
 	c3po->UpdateVC();
-	panelf7->UpdateVC();
+//	panelf7->UpdateVC();
 	panelo3->UpdateVC();
 	r2d2->UpdateVC();
   }
@@ -5245,6 +5289,12 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 
   //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 
+  pgForward.OnVCMouseEvent(id, _event, p);
+  pgLeft.OnVCMouseEvent(id, _event, p);
+  pgRight.OnVCMouseEvent(id, _event, p);
+  pgCenter.OnVCMouseEvent(id, _event, p);
+  pgOverhead.OnVCMouseEvent(id, _event, p);
+
   switch (id) 
   {
   // handle MFD selection buttons
@@ -5260,6 +5310,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_MFD2_BUTTONS:
   case AID_AFD_BUTTONS: 
 	  {
+		  /*
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
     int bt = (int)(p.x*5.99);
     if (bt < 5) oapiProcessMFDButton (mfd, bt, _event);
@@ -5276,6 +5327,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
       }
     }
 	sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
+	*/
     } return true;
 
   // D. Beachy: handle power buttons
@@ -5294,7 +5346,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 		
         int mfd = id - AID_CDR1_PWR+MFD_LEFT;
 		sprintf(oapiDebugString(), "POWER BUTTON %d", mfd);
-        oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
+        //oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
        } 
 	  return true;
 
@@ -5349,7 +5401,8 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_F6:
     return gop->VCMouseEvent (id, _event, p);
   case AID_F7:
-	return panelf7->VCMouseEvent(id, _event, p);
+//	return panelf7->VCMouseEvent(id, _event, p);
+	  return false;
   case AID_C2:
 	return panelc2->VCMouseEvent(id, _event, p);
   case AID_C3:
@@ -5393,7 +5446,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
   case AID_AFD_BUTTONS:
    {
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-    RedrawPanel_MFDButton (surf, mfd);
+    //RedrawPanel_MFDButton (surf, mfd);
     } return true;
   default:
 	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
@@ -5407,7 +5460,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
     if (id >= AID_F6_MIN && id <= AID_F6_MAX)
       return gop->VCRedrawEvent (id, event, surf);
 	if (id >= AID_F7_MIN && id <= AID_F7_MAX)
-      return panelf7->VCRedrawEvent (id, event, surf);
+//     return panelf7->VCRedrawEvent (id, event, surf);
+	return false;
 	if (id >= AID_C3_MIN && id <= AID_C3_MAX)
 		return c3po->VCRedrawEvent (id, event, surf);
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
@@ -5626,6 +5680,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		{
 			pA7A8Panel->ToggleCoordinateDisplayMode();
 		}
+		pgForward.ToggleCoordinateDisplayMode();
+		pgCenter.ToggleCoordinateDisplayMode();
+		pgRight.ToggleCoordinateDisplayMode();
+		pgLeft.ToggleCoordinateDisplayMode();
+		pgOverhead.ToggleCoordinateDisplayMode();
 		return 1;
 	}
   } else { // unmodified keys
@@ -6673,6 +6732,15 @@ void Atlantis::DisplayCameraLabel(const char* pszLabel)
 	fTimeCameraLabel = 5.0;
 }
 
+void Atlantis::SetLastCreatedMFD(unsigned short usMDU)
+{
+	usLastMDUID = usMDU;
+}
+
+short Atlantis::GetLastCreatedMFD() const
+{
+	return usLastMDUID;
+}
 
 void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)
 {

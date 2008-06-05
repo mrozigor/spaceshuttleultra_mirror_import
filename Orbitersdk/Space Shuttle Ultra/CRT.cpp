@@ -45,7 +45,7 @@ DLLCLBK void InitModule (HINSTANCE hDLL)
 	mfd_gparam.hDLL = hDLL;
 	mfd_gparam.hCRTFont = CreateFont(10,10, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "System");
-
+	
 }
 
 DLLCLBK void ExitModule (HINSTANCE hDLL)
@@ -71,6 +71,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	vessel=v;
 	width=w;
 	height=h;
+	usMDU = 11;
 
 	sprintf(cbuf, "[CRT]:DIMENSIONS: %d %d\n", W, H);
 	oapiWriteLog(cbuf);
@@ -79,7 +80,8 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Courier");
 
 
-	if(strcmp(pV->GetClassName(), "Atlantis")==0) {
+	if(!strcmp(pV->GetClassName(), "Atlantis") || 
+		!stricmp(pV->GetClassName(), STD_CLASS_NAME)) {
 		sts=(Atlantis *)pV;
 		//id=sts->last_mfd;
 		/*sprintf(oapiDebugString(), "%d %f", sts->last_mfd, oapiRand());
@@ -91,6 +93,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 			sts->Display[id]=this;
 		}*/
 		sts->newmfd=this;
+		usMDU = sts->GetLastCreatedMFD();
 		mode=0;
 	}
 	else {
@@ -1599,6 +1602,7 @@ void CRT::WriteStatus(FILEHANDLE scn) const
 	oapiWriteScenario_int (scn, "Display", display);
 	//oapiWriteScenario_int (scn, "OPS", ops);
 	oapiWriteScenario_int (scn, "Spec", spec);
+	oapiWriteScenario_int (scn, "MDU", usMDU);
 	/*oapiWriteScenario_int (scn, "MET0", MET[0]);
 	oapiWriteScenario_int (scn, "MET1", MET[1]);
 	oapiWriteScenario_int (scn, "MET2", MET[2]);

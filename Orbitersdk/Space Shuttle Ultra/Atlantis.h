@@ -15,6 +15,7 @@
 #include "CRT.h"
 #include "orbitersdk.h"
 #include <math.h>
+#include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
 #include "vc/vc_defs.h"
@@ -488,6 +489,12 @@ const static char* VC_LBL_PLBCAMBR = "Payload bay BR camera";
 
 const UINT MESH_UNDEFINED = (UINT)-1;
 
+ const int MFDGROUPS[11] = {
+    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
+    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
+	NULL
+    };
+
 // ==========================================================
 // I-Loaded values
 // ==========================================================
@@ -621,6 +628,10 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A8_TKBK11  441
 #define AID_A8_MAX     459
 
+#define AID_F8_MIN	   460
+#define AID_F8		   460
+#define AID_F8_MAX	   470
+
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
 #define AID_MDU_CRT1	1002
@@ -698,7 +709,7 @@ enum AXIS {PITCH, YAW, ROLL};
 
 class PanelA4;
 class PanelC2;
-class PanelF7;
+//class PanelF7;
 class PanelO3;
 class SubsystemDirector;
 class OMSSubsystem;
@@ -732,7 +743,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelA8;
 	friend class PanelC2;
 	friend class PanelC3;
-	friend class PanelF7;
+	//friend class PanelF7;
 	friend class PanelO3;
 	friend class PanelR2;
 	friend class Keyboard;
@@ -740,6 +751,8 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	virtual short GetLastCreatedMFD() const;
+	void SetLastCreatedMFD(unsigned short usMDU);
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual void SetAirDataProbeDeployment(int side, double position);
 
@@ -793,11 +806,13 @@ public:
 	// Actual Virtual Cockpit Mode
 	int VCMode;
 
+	/*
 	void RegisterVC_CdrMFD ();
 	void RegisterVC_PltMFD ();
 	void RegisterVC_CntMFD ();
 	void RegisterVC_AftMFD ();
 	void RedrawPanel_MFDButton (SURFHANDLE surf, int mfd);
+	*/
 
 	int status; // 0=launch configuration
 	            // 1=SRB's engaged
@@ -824,6 +839,7 @@ public:
 	 * Pointer to the A7A8 custom panel region
 	 */
 	vc::BasicPanel* pA7A8Panel;
+	
 
 	vc::PanelGroup pgForward;
 	vc::PanelGroup pgLeft;
@@ -895,7 +911,7 @@ public:
 	PanelA8 *panela8;
 	PanelC2 *panelc2;
 	PanelC3 *c3po; // PanelC3 operations
-	PanelF7 *panelf7;
+	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	PanelR2 *r2d2; // PanelR2 operations
 	Keyboard *CDRKeyboard;
@@ -1304,6 +1320,7 @@ private:
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
+	unsigned short usLastMDUID;
 	EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;

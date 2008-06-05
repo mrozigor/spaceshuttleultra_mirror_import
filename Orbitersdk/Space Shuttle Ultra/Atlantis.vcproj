@@ -421,7 +421,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PanelF7.cpp"
+				RelativePath=".\vc\PanelF6.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelF7.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelF8.cpp"
 				>
 			</File>
 			<File
@@ -592,7 +600,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelF6.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelF7.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelF8.h"
 				>
 			</File>
 			<File

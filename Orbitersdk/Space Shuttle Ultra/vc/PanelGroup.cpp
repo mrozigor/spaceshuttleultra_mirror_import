@@ -29,6 +29,12 @@ namespace vc {
 			panels.at(i)->DefineVC();
 	}
 
+	void PanelGroup::RegisterVC()
+	{
+		for(int i = 0; i<panels.size(); i++)
+			panels.at(i)->RegisterVC();
+	}
+
 	void PanelGroup::Realize()
 	{
 		for(int i = 0; i<panels.size(); i++)
@@ -83,6 +89,27 @@ namespace vc {
 		for(int i = 0; i<panels.size(); i++)
 			r |= panels.at(i)->OnVCRedrawEvent(id, _event, surf);
 		return r;
+	}
+
+	bool PanelGroup::EnableCoordinateDisplayMode()
+	{
+		for(int i = 0; i<panels.size(); i++)
+			panels.at(i)->EnableCoordinateDisplayMode();
+		return true;
+	}
+
+	bool PanelGroup::DisableCoordinateDisplayMode()
+	{
+		for(int i = 0; i<panels.size(); i++)
+			panels.at(i)->DisableCoordinateDisplayMode();
+		return true;
+	}
+
+	bool PanelGroup::ToggleCoordinateDisplayMode()
+	{
+		for(int i = 0; i<panels.size(); i++)
+			panels.at(i)->ToggleCoordinateDisplayMode();
+		return true;
 	}
 
 };
