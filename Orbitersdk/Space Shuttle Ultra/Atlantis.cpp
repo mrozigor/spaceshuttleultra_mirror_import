@@ -51,7 +51,7 @@
 #include <stdio.h>
 #include <fstream>
 
-//#include "StopWatch.h"
+#include "util/StopWatch.h"
 
 #ifdef _DEBUG
     // D. Beachy: for BoundsChecker debugging
@@ -6310,6 +6310,15 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 		return VARSTATE_OK;
 	}
 	return VARSTATE_MISSING;
+}
+
+vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
+{
+	if(usMDUID >= 0 && usMDUID < 11)
+	{
+		return mdus[usMDUID];
+	} else 
+		return NULL;
 }
 
 inline double angle(const VECTOR3 dir, const VECTOR3 dir0)

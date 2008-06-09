@@ -29,6 +29,11 @@ BasicVCComponent::~BasicVCComponent()
 
 }
 
+void BasicVCComponent::AddAIDToRedrawEventList(UINT aid)
+{
+	availableForRendering.insert(aid);
+}
+
 void BasicVCComponent::Realize()
 {
 }
@@ -49,6 +54,14 @@ bool BasicVCComponent::SetMouseRegion(float xmin, float ymin, float xmax, float 
 	p_d.x = xmax;
 	p_d.y = ymax;
 	return true;
+}
+
+bool BasicVCComponent::IsOwnRegion(UINT aid) const
+{
+	if(availableForRendering.find(aid) != availableForRendering.end())
+		return true;
+	else
+		return false;
 }
 
 bool BasicVCComponent::IsPointOver(float x, float y) const
@@ -165,6 +178,11 @@ void BasicVCComponent::OnPlaybackEvent(double fSimT, double fEventT, const char*
 {
 }
 
+bool BasicVCComponent::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
+{
+	return false;
+}
+
 unsigned long BasicVCComponent::CountComponents() const
 {
 	return 0;
@@ -212,6 +230,7 @@ bool BasicVCComponent::VerifyAnimations()
 
 bool BasicVCComponent::WriteScenarioInt(FILEHANDLE scn, const std::string &key, const int iValue) const
 {
+	
 	return false;
 }
 

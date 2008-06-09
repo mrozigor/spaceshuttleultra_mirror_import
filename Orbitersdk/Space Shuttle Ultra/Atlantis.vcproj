@@ -475,6 +475,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\util\Stopwatch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SubsystemDirector.cpp"
 				>
 			</File>
@@ -629,6 +633,10 @@
 			</File>
 			<File
 				RelativePath=".\PlBayOp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\RAM16.h"
 				>
 			</File>
 			<File

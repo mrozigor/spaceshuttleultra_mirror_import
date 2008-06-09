@@ -24,7 +24,7 @@ class BasicPanel
 	Atlantis* psts;
 	unsigned long own_aid;
 	string name;
-	set<UINT> availableForRendering;
+	
 	set<UINT> availableForMouse;
 	vector<BasicVCComponent*> components;
 
@@ -40,7 +40,7 @@ protected:
 	virtual void DefineSwitches();
 	void SetHasOwnVCMesh() {bHasOwnVCMesh = true;};
 	void AddAIDToMouseEventList(UINT aid);
-	void AddAIDToRedrawEventList(UINT aid);
+	
 	void DeleteAllComponents();
 	bool DistributeMouseEvent(int _event, const VECTOR3& p);
 	bool FindComponent(const VECTOR3& p, BasicVCComponent** foundElement) const;
@@ -80,6 +80,8 @@ public:
 	bool EnableCoordinateDisplayMode() {bCoordinateDisplayMode = true; return true;};
 	bool DisableCoordinateDisplayMode() {bCoordinateDisplayMode = false; return true;};
 	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
+
+
 };
 
 };
