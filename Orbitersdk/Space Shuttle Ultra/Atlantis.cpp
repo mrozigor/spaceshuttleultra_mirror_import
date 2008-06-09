@@ -5577,7 +5577,102 @@ VECTOR3 Atlantis::CalcAnimationFKArm() {
   return _V(x_w,y_w,z_w);
 }
 
-void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
+void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
+{
+	if(!RMS) return;
+	if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
+
+	Stopwatch st;
+	st.Start();
+
+	//Candidate position. Calculate the joints on it...
+	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
+	int iterations=0;
+	do
+	{
+		double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
+		double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
+		double current_beta_s=linterp(0,-180,1,180,arm_sy);
+		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
+
+		VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), current_beta_s);
+		VECTOR3 arm_wp_dir=RotateVectorY(temp, current_phi_w-current_phi_e+current_phi_s);
+
+		/*temp=RotateVectorY(_V(lu, 0.0, 0.0), current_phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), current_phi_s-current_phi_e+ep_null)
+			+RotateVectorY(_V(wp_wy, 0.0, 0.0), current_phi_w-current_phi_e+current_phi_s);
+		pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;*/
+
+		VECTOR3 arm_wrist_cpos=arm_cpos-arm_ee_dir*wy_ee-arm_wp_dir*wp_wy;
+		//VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
+		double r=length(arm_wrist_cpos);
+		double beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
+		double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
+		double cos_phibar_e=(r*r-lu*lu-ll*ll)/(-2*lu*ll);
+		if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
+		double phi_e=180-DEG*acos(cos_phibar_e);
+		double cos_phi_s2=(ll*ll-lu*lu-r*r)/(-2*lu*r);
+		if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
+		double phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2));
+		double anim_phi_s=linterp(shoulder_min,0,shoulder_max,1,phi_s);
+		double anim_phi_e=linterp(elbow_min,0,elbow_max,1,phi_e);
+		double anim_beta_s=linterp(-180,0,180,1,beta_s);
+		if(anim_beta_s<0 || anim_beta_s>1) return;
+		if(anim_phi_s<0 || anim_phi_s>1) return;
+		if(anim_phi_e<0 || anim_phi_e>1) return;
+		//but only keep it and set the joints if no constraints are violated.
+
+		//Limited IK on the wrist
+		double new_phi_l=phi_s-phi_e;
+		/*double current_phi_w=linterp(0,wrist_min,1,wrist_max,arm_wp);
+		double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
+		double current_beta_s=linterp(0,-180,1,180,arm_sy);
+		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*/
+		double current_phi_l=current_phi_s-current_phi_e;
+		double new_phi_w=current_phi_w-new_phi_l+current_phi_l;
+		double anim_phi_w=linterp(wrist_min,0,wrist_max,1,new_phi_w);
+
+		//wrist yaw
+		//VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), beta_s);
+		//VECTOR3 c_ee_dir=RotateVectorY(temp, new_phi_w-phi_e+phi_s);
+		//VECTOR3 temp=RotateVectorY(_V(lu, 0.0, 0.0), phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), phi_s-phi_e+ep_null)
+			//+RotateVectorY(_V(wp_wy, 0.0, 0.0), new_phi_w-phi_e+phi_s);
+		//VECTOR3 calc_wrist_pos=RotateVectorZ(temp, beta_s);
+		//VECTOR3 wy_dir=arm_cpos-calc_wrist_pos;
+		//wy_dir=wy_dir/length(wy_dir);
+		//double beta_w=DEG*asin(length(crossp(arm_ee_dir, c_ee_dir)));
+		double beta_w=current_beta_w+beta_s-current_beta_s;
+		//double beta_w=DEG*acos(dotp(wy_dir, arm_ee_dir));
+		sprintf_s(oapiDebugString(), 255, "%f", beta_w);
+		double anim_beta_w=linterp(wrist_yaw_min, 0, wrist_yaw_max, 1, beta_w);
+
+		arm_sy=anim_beta_s;
+		arm_sp=anim_phi_s;
+		arm_ep=anim_phi_e;
+		arm_wp=anim_phi_w;
+		arm_wy=anim_beta_w;
+
+		iterations++;
+	}while(iterations<3);
+
+	//arm_sy=anim_beta_s;
+	SetAnimationArm(anim_arm_sy,arm_sy);
+	//arm_sp=anim_phi_s;
+	SetAnimationArm(anim_arm_sp,arm_sp);
+	//arm_ep=anim_phi_e;
+	SetAnimationArm(anim_arm_ep,arm_ep);
+	//arm_wp=anim_phi_w;
+	SetAnimationArm(anim_arm_wp,arm_wp);
+	//arm_wy=anim_beta_w;
+	SetAnimationArm(anim_arm_wy, arm_wy);
+	arm_ee_pos=arm_cpos;
+
+	double Time=st.Stop();
+	sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
+}
+
+/*void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   if(!RMS) return;
   if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
   
@@ -5666,7 +5761,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
   //sprintf(oapiDebugString(), "%f %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z, beta_w);
   //CalcAnimationFKArm(pos, dir);
   //sprintf(oapiDebugString(), "%f %f %f %f %f %f", pos.x, pos.y, pos.z, arm_cpos.x, arm_cpos.y, arm_cpos.z);
-}
+}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
