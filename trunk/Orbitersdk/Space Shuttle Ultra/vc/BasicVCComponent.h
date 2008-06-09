@@ -36,6 +36,8 @@ class BasicVCComponent: public ISubsystem
 	mutable float cache_lasty;
 	mutable float cache_mx;
 	mutable float cache_my;
+
+	set<UINT> availableForRendering;
 protected:
 	bool bHasReference;
 	bool bHasDirection;
@@ -55,6 +57,8 @@ public:
 	BasicVCComponent(Atlantis* _sts);
 	BasicVCComponent(Atlantis* _sts, const string& _ident);
 	virtual ~BasicVCComponent();
+
+	void AddAIDToRedrawEventList(UINT aid);
 
 	
 	//bool SetMouseRegion(VCMOUSEEVENTPOINT _a, VCMOUSEEVENTPOINT _b, VCMOUSEEVENTPOINT _c, VCMOUSEEVENTPOINT _d);
@@ -78,6 +82,7 @@ public:
 	virtual double GetState() const;
 	virtual const VECTOR3& GetReference() const;
 	virtual const VECTOR3& GetDirection() const;
+	bool IsOwnRegion(UINT aid) const;
 	bool IsPointOver(float x, float y) const;
 	bool ProjectMouse(float x, float y, float &mx, float &my) const;
 
@@ -102,6 +107,7 @@ public:
 	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
+	virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual void OnDumpToLog() const;

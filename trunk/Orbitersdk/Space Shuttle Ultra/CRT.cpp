@@ -94,6 +94,11 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 		}*/
 		sts->newmfd=this;
 		usMDU = sts->GetLastCreatedMFD();
+		if(sts->GetMDU(usMDU))
+		{
+			vc::MDU* pMDU = sts->GetMDU(usMDU); 
+			pMDU->ConnectToCRTMFD();
+		}
 		mode=0;
 	}
 	else {

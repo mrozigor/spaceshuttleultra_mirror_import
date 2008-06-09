@@ -42,6 +42,7 @@ namespace vc {
 		EXTMFDSPEC mfdspec;
 		double fBrightness;
 		bool bPower;
+		bool bIsConnectedToCRTMFD;
 		
 
 		//Use a paint buffer for storing primitives?
@@ -82,6 +83,11 @@ namespace vc {
 		virtual bool RealizeMFD();
 
 		virtual void RegisterVC();
+		/**
+		 * define the Area ID of the MDU screen inside the VC. when in 
+		 * CRTMFD mode, it paints only the edge key menu area. 
+		 */
+		virtual bool DefineRegionAID(UINT aid);
 		virtual bool DefineVCGroup(UINT mgrp);
 		/**
 		 * Links to label texture, when used in conjunction with CRTMFD, expects texture 
@@ -89,6 +95,7 @@ namespace vc {
 		 * @return false, if failed.
 		 */
 		virtual bool DefineVCTexture(SURFHANDLE tex);
+		
 		virtual bool IsCRTBufferEnabled() const;
 
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
@@ -105,6 +112,13 @@ namespace vc {
 		 * @return 0 if not connected to IDP or IDP failed
 		 */
 		virtual unsigned short GetDrivingIDP() const;
+
+		/**
+		 * Called by CRTMFD or compatible, when registering special functions.
+		 * Disables the old MFD menu and replaces it by the MDU menus.
+		 * Gets disabled when the MDU gets reset.
+		 */
+		virtual void ConnectToCRTMFD();
 	};
 
 };

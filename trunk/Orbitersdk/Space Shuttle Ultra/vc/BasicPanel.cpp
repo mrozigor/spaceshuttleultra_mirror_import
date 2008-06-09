@@ -161,6 +161,16 @@ namespace vc {
 
 	bool BasicPanel::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	{
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			BasicVCComponent* comp = (*iter);
+			if(comp->IsOwnRegion(id)) {
+				comp->OnVCRedrawEvent(id, _event, surf);
+			}
+
+			iter++;
+		}
 		return false;
 	}
 

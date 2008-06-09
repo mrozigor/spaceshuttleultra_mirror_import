@@ -14,11 +14,24 @@ namespace vc {
 		//Create display buffer
 		//Clear display buffer
 		shLabelTex = NULL;
+		bIsConnectedToCRTMFD = false;
 	}
 
 	MDU::~MDU()
 	{
 	}
+
+	void MDU::ConnectToCRTMFD()
+	{
+		bIsConnectedToCRTMFD = true;
+	}
+
+	bool MDU::DefineRegionAID(UINT aid)
+	{
+		AddAIDToRedrawEventList(aid);
+		return true;	
+	}
+
 
 	void MDU::DefineVCAnimations(UINT vc_idx) 
 	{
@@ -65,6 +78,7 @@ namespace vc {
 				{
 					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
 					STS()->SetLastCreatedMFD(usMDUID);
+					bIsConnectedToCRTMFD = false;
 					oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
 				}
 			}
@@ -127,6 +141,7 @@ namespace vc {
 					counting = false;
 				} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
 					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+					bIsConnectedToCRTMFD = false;
 					STS()->SetLastCreatedMFD(usMDUID);
 					oapiSendMFDKey (usMDUID, OAPI_KEY_F1);
 					counting = false;		
@@ -205,6 +220,7 @@ namespace vc {
 		mfdspec.bt_yofs  = 256/6;
 		mfdspec.bt_ydist = 256/7;
 		STS()->SetLastCreatedMFD(usMDUID);
+		bIsConnectedToCRTMFD = false;
 		oapiRegisterMFD (usMDUID, &mfdspec);
 		sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);
 		oapiWriteLog(pszBuffer);
