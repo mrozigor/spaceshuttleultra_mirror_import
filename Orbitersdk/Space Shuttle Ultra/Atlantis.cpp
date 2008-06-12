@@ -5514,6 +5514,22 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
 	
     break;
   }
+  if(pgForward.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgCenter.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgOverhead.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgLeft.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgRight.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgAftMSS.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgAftOOS.OnVCRedrawEvent(id, event, surf))
+	  return true;
+  if(pgAftPSS.OnVCRedrawEvent(id, event, surf))
+	  return true;
   return false;
 }
 
