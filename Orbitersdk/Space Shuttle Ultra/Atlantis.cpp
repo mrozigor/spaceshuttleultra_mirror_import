@@ -3414,7 +3414,15 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles()
 	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
 	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
 	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
-	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+	if(MNVR) return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+
+	//test method
+	VECTOR3 Output;
+	Output.data[PITCH]=-asin(LocalPts.Pitch.y);
+	Output.data[YAW]=atan2(LocalPts.Pitch.x, LocalPts.Pitch.z);
+	VECTOR3 Roll=crossp(LocalPts.Pitch, LocalPts.Yaw);
+	Output.data[ROLL]=-asin(Roll.x);
+	return Output;
 }
 
 /*VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
@@ -3655,7 +3663,7 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	VECTOR3 Output, HorizonAngles;
 	VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
 	VECTOR3 GVel, HVel, LocVel;
-	MATRIX3 GlobalToLocal, LocalToGlobal;
+	MATRIX3 LocalToGlobal;
 
 	GetRotationMatrix(LocalToGlobal);
 	GetRelativeVel(GetGravityRef(), GVel);
@@ -3739,13 +3747,9 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 {
 	double Time, Angle;
-	//TorqueReq = -(Mass * PMI.data[Axis] * Rate) / TimeStep;
 	if(Rates!=0.0) {
 		Time = (Mass*PMI.data[Axis]*Rates)/Torque.data[Axis];
-		//Acceleration=Rates/Time;
-		//Angle=Acceleration*Time*Time;
 		Angle=0.5*Rates*Time;
-		//if(Axis==YAW) sprintf(oapiDebugString(), "%f %f %f", Rates, Angle, PMI.data[Axis]);
 		return DEG*Angle;
 	}
 	else return 0.0;
@@ -3803,7 +3807,7 @@ void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTO
 
 void Atlantis::RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, RotMatrix;
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
 	VECTOR3 AfterP, AfterPY;					// Temporary variables
 
 
@@ -4592,7 +4596,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
   if(DisplayJointAngles) {
 	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, ep_angle,
-		wy_angle, wp_angle, wr_angle);
+		wp_angle, wy_angle, wr_angle);
   }
 
   // Animate payload bay cameras.
