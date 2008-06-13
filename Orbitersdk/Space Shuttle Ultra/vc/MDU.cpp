@@ -161,8 +161,49 @@ namespace vc {
 	}
 
 	
-	bool MDU::Paint(HDC hdc)
+	bool MDU::Paint(HDC hDC)
 	{
+		//oapiWriteLog("Paint called 1");
+		UpdateTextBuffer();
+		//HGDIOBJ DefaultFont;
+		HFONT DefaultFont;
+		DefaultFont=CreateFont(13, 7, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, 
+								ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
+								DEFAULT_QUALITY, FIXED_PITCH|FF_MODERN, "Courier New");
+		//DefaultFont=GetStockObject(ANSI_FIXED_FONT);
+		if(DefaultFont==NULL) return false;
+
+		int Save=SaveDC(hDC);
+		SelectObject(hDC, DefaultFont);
+		/*char cbuf[255];
+		GetTextFace(hDC, 255, cbuf);
+		oapiWriteLog(cbuf);*/
+
+		//draw stuff
+		for(int i=0;i<51;i++) {
+			for(int j=0;j<26;j++) {
+				char cbuf[2];
+				if(textBuffer[i][j].cSymbol>='!') {
+					sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
+					//sprintf_s(oapiDebugString(), 2, "%c", textBuffer[i][j].cSymbol);
+					//oapiWriteLog(cbuf);
+					TextOut(hDC, i*5, j*9, cbuf, 1);
+				}
+			}
+		}
+
+		//TextOut(hDC, 5, 5, "TEST", 4);
+		//for(int i=0;i<26;i++) TextOut(hDC, 0, i*9, "TEST", 4);
+		//TextOut(hDC, 1, 1, "ABCDEFGHIJKLMNOPQRSTUWXYZ", 26);
+		/*char cbuf[255];
+		for(int i=0;i<51;i++) {
+			sprintf_s(cbuf, 255, "%d", i+1);
+			TextOut(hDC, i*5, 1, cbuf, 1);
+		}*/
+
+		RestoreDC(hDC, Save);
+		DeleteObject(DefaultFont);
+		//oapiWriteLog("Paint called 2");
 		return false;
 	}
 
@@ -247,6 +288,100 @@ namespace vc {
 	{
 		return false;
 	}
+
+	void MDU::UpdateTextBuffer()
+	{
+		char cbuf[255];
+
+		for(int i=0;i<51;i++) {
+			for(int j=0;j<26;j++) {
+				textBuffer[i][j].cSymbol=0;
+			}
+		}
+
+		if(STS()->ops==201) {
+			PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
+			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
+				STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
+			PrintToBuffer(cbuf, strlen(cbuf), 0, 2, 0);
+			
+			PrintToBuffer("MNVR OPTION", 11, 0, 4, 0);
+			sprintf_s(cbuf, 255, "5 R %6.2f", STS()->MNVR_OPTION.data[ROLL]);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
+			sprintf_s(cbuf, 255, "6 P %6.2f", STS()->MNVR_OPTION.data[PITCH]);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 6, 0);
+			sprintf_s(cbuf, 255, "7 Y %6.2f", STS()->MNVR_OPTION.data[YAW]);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 7, 0);
+
+			PrintToBuffer("TRK/ROT OPTIONS", 15, 0, 9, 0);
+			sprintf_s(cbuf, 255, "8 TGT ID %03d", STS()->TGT_ID);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
+
+			PrintToBuffer("9  RA", 5, 1, 12, 0);
+			PrintToBuffer("10 DEC", 6, 1, 13, 0);
+			PrintToBuffer("11 LAT", 6, 1, 14, 0);
+			PrintToBuffer("12 LON", 6, 1, 15, 0);
+			PrintToBuffer("13 ALT", 6, 1, 16, 0);
+
+			sprintf_s(cbuf, 255, "14 BODY VECT %d", STS()->BODY_VECT);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 18, 0);
+			sprintf_s(cbuf, 255, "15 P %6.2f", STS()->P);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 20, 0);
+			sprintf_s(cbuf, 255, "16 Y %6.2f", STS()->Y);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
+			if(STS()->OM>=0.0) {
+				sprintf_s(cbuf, 255, " 17 OM %6.2f", STS()->OM);
+				PrintToBuffer(cbuf, strlen(cbuf), 1, 22, 0);
+			}
+			else PrintToBuffer("17 OM", 6, 1, 22, 0);
+
+			PrintToBuffer("START MNVR 18", 13, 14, 4, 0);
+			PrintToBuffer("TRK  19", 7, 20, 5, 0);
+			PrintToBuffer("ROT  20", 7, 20, 6, 0);
+			PrintToBuffer("CNCL  21", 8, 19, 7, 0);
+			PrintToBuffer("CUR", 3, 28, 3, 0);
+			PrintToBuffer("FUT", 3, 32, 3, 0);
+			if(STS()->MNVR) {
+				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 4, 0);
+				else PrintToBuffer("X", 1, 33, 4, 0);
+			}
+			else if(STS()->TRK) {
+				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 5, 29, 0);
+				else PrintToBuffer("X", 1, 5, 33, 0);
+			}
+			else if(STS()->ROT) {
+				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 6, 29, 0);
+				else PrintToBuffer("X", 1, 6, 33, 0);
+			}
+
+			PrintToBuffer("ATT MON", 7, 19, 9, 0);
+			PrintToBuffer("22 MON AXIS", 11, 20, 10, 0);
+			PrintToBuffer("ERR TOT 23", 10, 20, 11, 0);
+			PrintToBuffer("ERR DAP 24", 10, 20, 11, 0);
+
+			/*TextOut(hDC, 110, 144, "ROLL    PITCH    YAW", 20);
+			sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", DEG*STS()->CurrentAttitude.data[ROLL], DEG*STS()->CurrentAttitude.data[PITCH], DEG*STS()->CurrentAttitude.data[YAW]);
+			TextOut(hDC, 60, 153, cbuf, strlen(cbuf));
+			sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", STS()->REQD_ATT.data[ROLL], STS()->REQD_ATT.data[PITCH], STS()->REQD_ATT.data[YAW]);
+			TextOut(hDC, 60, 162, cbuf, strlen(cbuf));
+			sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", STS()->PitchYawRoll.data[ROLL], STS()->PitchYawRoll.data[PITCH], STS()->PitchYawRoll.data[YAW]);
+			TextOut(hDC, 60, 171, cbuf, strlen(cbuf));
+			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*AngularVelocity.data[ROLL], DEG*AngularVelocity.data[PITCH], DEG*AngularVelocity.data[YAW]);
+			TextOut(hDC, 60, 180, cbuf, strlen(cbuf));*/
+		}
+		return;
+	}
+
+	void MDU::PrintToBuffer(char* string, int length, int col, int row, char attributes)
+	{
+		for(int i=0;i<length;i++) {
+			textBuffer[col+i][row].cSymbol=string[i];
+		}
+		//oapiWriteLog(string);
+	}
+
+
+	
 
 	/*
 	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
