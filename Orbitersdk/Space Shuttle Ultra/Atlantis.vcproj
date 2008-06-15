@@ -496,6 +496,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\ATVC.h"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\BasicExtAirlock.h"
 				>
 			</File>
@@ -548,6 +552,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\EIU.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\EventTimer.h"
 				>
 			</File>
@@ -593,6 +601,10 @@
 			</File>
 			<File
 				RelativePath=".\meshres_vc_additions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\MPS.h"
 				>
 			</File>
 			<File
@@ -644,6 +656,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\SSME.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardSwitch.h"
 				>
 			</File>
@@ -681,6 +697,10 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\mps\ATVC.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>
 		</File>
@@ -713,6 +733,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\mps\EIU.cpp"
+			>
+		</File>
+		<File
 			RelativePath="ico00001.ico"
 			>
 		</File>
@@ -733,11 +757,19 @@
 			>
 		</File>
 		<File
+			RelativePath=".\mps\MPS.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\lib\orbiter.lib"
 			>
 		</File>
 		<File
 			RelativePath="..\lib\Orbitersdk.lib"
+			>
+		</File>
+		<File
+			RelativePath=".\mps\SSME.cpp"
 			>
 		</File>
 		<File
