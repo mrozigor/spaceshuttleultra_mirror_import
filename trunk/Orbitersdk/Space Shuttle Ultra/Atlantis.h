@@ -46,6 +46,7 @@ const short VARSTATE_OFFSCALE_HIGH = 5;
 const static char* DEFAULT_MESHNAME_VC = "SSU/VC";
 const static char* DEFAULT_MESHNAME_KU = "SSU/KU";
 const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
+const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
 const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
 const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
@@ -253,6 +254,12 @@ const double BSM_MAX_PROPELLANT_MASS = 75.0 * 0.45349;
 const double BSM_THRUST0 = 82.76475E3;
 const double BSM_ISP0 = 2400.0;
 
+const UINT MIDX_ORBITER = 0;
+const UINT MIDX_COCKPIT = 1;
+const UINT MIDX_VC = 2;
+const UINT MIDX_RMS = 3;
+const UINT MIDX_MIDDECK = 4;
+const UINT MIDX_KU_ANTENNA = 5;
 
 // MET: engine shutdown
 const double NO_SLAG_TIME = 240.0;
@@ -436,6 +443,10 @@ const int VC_PLBCAMFR = 14;
 const int VC_PLBCAMBL = 15;
 const int VC_PLBCAMBR = 16;
 const int VC_LEECAM = 17;
+//Beginning of Mid deck positions
+const int VC_MIDDECK = 100;
+//Beginning of external airlock positions
+const int VC_EXT_AL = 200;
 
 const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
@@ -481,6 +492,10 @@ const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
 const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
 const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
 const static char* VC_LBL_PLBCAMBR = "Payload bay BR camera";
+
+const static char* VC_LBL_MIDDECK = "Mid Deck";
+const VECTOR3 VC_POS_MIDDECK = _V(0.0, 0.0, 13.2);
+const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 
 // ==========================================================
@@ -772,6 +787,26 @@ public:
 	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
 	WORD srb_id1, srb_id2;
 
+	enum {
+		VCM_FLIGHTDECK = 0,
+		VCM_MIDDECK,
+		VCM_AIRLOCK
+	} vcDeckMode;
+
+	/* **************************************************************
+	 * Mesh indices for use in objects  
+	 ****************************************************************/
+
+	UINT mesh_orbiter;                         // index for orbiter mesh
+	UINT mesh_cockpit;                         // index for cockpit mesh for external view
+	UINT mesh_vc;                              // index for virtual cockpit mesh
+	UINT mesh_middeck;                         // index for mid deck mesh
+	UINT mesh_rms;							   // index for RMS mesh
+	UINT mesh_tank;                            // index for external tank mesh
+	UINT mesh_srb[2];                          // index for SRB meshes
+	UINT mesh_kuband;						   // index for KU band antenna mesh
+
+
 public:
 	//**********************************************************
 	//* public methods
@@ -819,6 +854,7 @@ public:
 	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
+	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec);
 	void Jettison ();
 	void OperateSpeedbrake (AnimState::Action action);
@@ -887,7 +923,8 @@ public:
 	VECTOR3 ofs_sts_sat;
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
-	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2]; // mesh handles
+	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
+		hMidDeckMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2]; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 	ATTACHMENTHANDLE sat_attach, rms_attach, obss_attach;
@@ -975,6 +1012,12 @@ private:
 	void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
+
+	/**
+	 * React on Key "V", switching the view from flight deck to Mid Deck
+	 * and back.
+	 */
+	void ToggleVCMode();
 	
 	//RMS
 	bool ArmCradled();
@@ -1152,14 +1195,7 @@ private:
 	UINT anim_dummy;						   // handle for dummy animation
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
-	UINT mesh_orbiter;                         // index for orbiter mesh
-	UINT mesh_cockpit;                         // index for cockpit mesh for external view
-	UINT mesh_vc;                              // index for virtual cockpit mesh
-	UINT mesh_rms;							   // index for RMS mesh
-	UINT mesh_tank;                            // index for external tank mesh
-	UINT mesh_srb[2];                          // index for SRB meshes
-	UINT mesh_kuband;						   // index for KU band antenna mesh
-
+	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
 	UINT anim_ssmeTpitch;
