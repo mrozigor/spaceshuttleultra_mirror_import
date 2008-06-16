@@ -67,6 +67,17 @@ public:
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
 };
 
+class RussianCB: public StandardSwitch
+{
+protected:
+	//Connect to Power bus
+public:
+	RussianCB(Atlantis* _sts, const string& _ident);
+	virtual ~RussianCB();
+
+	virtual void DefineVCAnimations(UINT vc_idx);
+};
+
 
 };
 

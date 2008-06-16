@@ -19,6 +19,7 @@ namespace eva_docking {
 		ODS(SubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();
 		virtual void AddMeshes(const VECTOR3& ofs);
+		virtual double GetSubsystemEmptyMass() const;
 	};
 
 };
