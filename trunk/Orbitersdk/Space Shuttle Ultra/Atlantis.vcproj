@@ -560,6 +560,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eps\eps_defs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\EventTimer.h"
 				>
 			</File>
