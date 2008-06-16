@@ -53,6 +53,7 @@ const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
+const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -254,12 +255,21 @@ const double BSM_MAX_PROPELLANT_MASS = 75.0 * 0.45349;
 const double BSM_THRUST0 = 82.76475E3;
 const double BSM_ISP0 = 2400.0;
 
-const UINT MIDX_ORBITER = 0;
-const UINT MIDX_COCKPIT = 1;
-const UINT MIDX_VC = 2;
-const UINT MIDX_RMS = 3;
-const UINT MIDX_MIDDECK = 4;
-const UINT MIDX_KU_ANTENNA = 5;
+const UINT MIDX_ORBITER = 1;
+const UINT MIDX_COCKPIT = 2;
+const UINT MIDX_VC = 3;
+const UINT MIDX_RMS = 4;
+const UINT MIDX_MIDDECK = 5;
+const UINT MIDX_KU_ANTENNA = 6;
+const UINT MIDX_ET = 7;
+const UINT MIDX_LSRB = 8;
+const UINT MIDX_RSRB = 9;
+const UINT MIDX_ODS = 10;
+const UINT MIDX_ODS_VC = 11;
+const UINT MIDX_PLPANEL_A7 = 12;
+const UINT MIDX_PLPANEL_A8 = 13;
+const UINT MIDX_PLPANEL_A9 = 14;
+
 
 // MET: engine shutdown
 const double NO_SLAG_TIME = 240.0;
@@ -422,6 +432,8 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
+const VECTOR3 ODS_POS = _V(0.0, 0.0, 10.1529);
+
 /**  
  * list of the VC positions
  */
@@ -494,8 +506,13 @@ const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
 const static char* VC_LBL_PLBCAMBR = "Payload bay BR camera";
 
 const static char* VC_LBL_MIDDECK = "Mid Deck";
-const VECTOR3 VC_POS_MIDDECK = _V(0.0, 0.0, 13.2);
+const VECTOR3 VC_POS_MIDDECK = _V(-1.44, 0.0, 13.353);
 const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
+
+
+const static char* VC_LBL_EXT_AL = "External Airlock";
+const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.3, 0.25);
+const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 
 // ==========================================================
@@ -805,6 +822,7 @@ public:
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
+	UINT mesh_ods;							   // index for	ODS outside mesh
 
 
 public:
@@ -924,7 +942,8 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2]; // mesh handles
+		hMidDeckMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2],
+		hODSMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 	ATTACHMENTHANDLE sat_attach, rms_attach, obss_attach;
@@ -962,6 +981,8 @@ private:
 	bool bSRBCutoffFlag;
 	bool bLiftOff;
 	bool bHasKUBand;
+	bool bHasODS;
+	bool bMidDeckVisible;
 
 	CommModeHandler* pCommModeHandler;
 
@@ -1005,6 +1026,10 @@ private:
 	void DefineSSMEExhaust();
 	void SignalGSEBreakHDP();
 	void SignalGSEStart();
+	//-----------------------------------
+	void ShowMidDeck();
+	void HideMidDeck();
+	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
