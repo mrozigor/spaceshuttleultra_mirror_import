@@ -823,7 +823,7 @@ public:
 	UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
-
+	UINT mesh_cargo_static;					   // index for static cargo mesh
 
 public:
 	//**********************************************************
@@ -1029,6 +1029,8 @@ private:
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
+	void ShowODS();
+	void HideODS();
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
