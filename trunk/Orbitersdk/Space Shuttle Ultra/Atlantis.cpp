@@ -401,6 +401,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
+  mesh_cargo_static = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -1903,7 +1904,13 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     if (do_cargostatic) {
       VECTOR3 cofs = ofs + cargo_static_ofs;
-      AddMesh (cargo_static_mesh_name, &cofs);
+	  if(mesh_cargo_static  == MESH_UNDEFINED)
+	  {
+		mesh_cargo_static = AddMesh (cargo_static_mesh_name, &cofs);
+	  } else {
+		InsertMesh(cargo_static_mesh_name, mesh_cargo_static, &cofs);
+	  }
+	  SetMeshVisibilityMode(mesh_cargo_static, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
     }
     if (do_plat) {
       VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
@@ -3995,6 +4002,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
             sscanf (line+13, "%d", &status);
     } else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
+	} else if(!_strnicmp(line, "ODS", 3)) {
+		bHasODS = true;
     } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
 		sscanf (line+10, "%d%lf", &action, &spdb_proc);
 		spdb_status = (AnimState::Action)(action+1);
@@ -4107,6 +4116,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     break;
   }
 
+  if(bHasODS)
+	  ShowODS();
+  else
+	  HideODS();
+
   UpdateMesh ();
   SetILoads();
 }
@@ -4123,6 +4137,11 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   // custom parameters
   oapiWriteScenario_int (scn, "CONFIGURATION", status);
+
+  if(bHasODS)
+  {
+	  oapiWriteLine(scn, "ODS");
+  }
 
   if (status == 1)
     oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
@@ -5997,6 +6016,16 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     }
   }
   return 0;
+}
+
+void Atlantis::ShowODS()
+{
+	SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+}
+
+void Atlantis::HideODS()
+{
+	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 }
 
 // ==============================================================
