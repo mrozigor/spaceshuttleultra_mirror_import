@@ -400,6 +400,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_tank       = MESH_UNDEFINED;
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
+  mesh_ods		  = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -516,6 +517,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
   hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
   hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
+  hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
@@ -600,6 +602,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bEngineFail=false;
   bCommMode = false;
   bSSMEGOXVent = false;
+  bHasODS = false;
+  bMidDeckVisible = false;
   tSRBSep=SRB_SEPARATION_TIME;
   TLastMajorCycle=0.0;
 
@@ -1861,10 +1865,16 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
 	AddKUBandVisual(ofs);
 
+	if(mesh_ods == MESH_UNDEFINED) {
+		VECTOR3 x = ofs + ODS_POS;
+		mesh_ods = AddMesh(hODSMesh, &x);
+		SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	}
+
 	mesh_middeck = AddMesh(hMidDeckMesh, &ofs);
 	//Only make visible when actually inside the mid deck
-	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
-	SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
+	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
+	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
 
 	/* Add optional A7A3/A8A3 panel meshes
 	*/
@@ -1899,6 +1909,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
       VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
       AddMesh("shuttle_eva_plat", &plat_ofs);
     }
+
+	
 
     // ***** Docking definitions
 
@@ -2428,6 +2440,24 @@ void Atlantis::UpdateMesh ()
     }
   }
 }
+
+void Atlantis::ShowMidDeck()
+{
+	if(!bMidDeckVisible)
+	{
+		SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
+		bMidDeckVisible = true;
+	}
+}
+void Atlantis::HideMidDeck()
+{
+	if(bMidDeckVisible)
+	{
+		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
+		bMidDeckVisible = false;
+	}
+}
+	
 
 void Atlantis::ClearMeshes ()
 {
@@ -5013,9 +5043,9 @@ bool Atlantis::clbkLoadVC (int id)
   // 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
   // Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
   if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-  SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
+	SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
   } else {
-  SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
+	SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
   }
 
   switch (id) {
@@ -5029,6 +5059,8 @@ bool Atlantis::clbkLoadVC (int id)
 
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
+
+	HideMidDeck();
 
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
@@ -5059,6 +5091,8 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
 
+	HideMidDeck();
+
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
 	pgOverhead.RegisterVC();
@@ -5088,6 +5122,8 @@ bool Atlantis::clbkLoadVC (int id)
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
+	HideMidDeck();
+
 	pgOverhead.RegisterVC();
 	pgAftMSS.RegisterVC();
 	pgAftOOS.RegisterVC();
@@ -5116,6 +5152,8 @@ bool Atlantis::clbkLoadVC (int id)
     // No lean for RMS wrist camera
     SetCameraMovement (_V(0,0,0), 0, 0, _V(0,0,0), 0, 0, _V(0,0,0), 0, 0);
 
+	HideMidDeck();
+
     ok = true;
     break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
@@ -5123,12 +5161,17 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
     oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 
+	HideMidDeck();
+
     ok = true;
+
     break;
   case VC_PLBCAMFR: //FR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
     SetCameraOffset (_V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
     oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
+
+	HideMidDeck();
 
     ok = true;
     break;
@@ -5137,12 +5180,16 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
     oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
+	HideMidDeck();
+
     ok = true;
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
     SetCameraOffset (_V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
     oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
+
+	HideMidDeck();
 
     ok = true;
     break;
@@ -5152,6 +5199,9 @@ bool Atlantis::clbkLoadVC (int id)
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0));
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
+
+	  HideMidDeck();
+
 	  ok = true;
 	  break;
   case VC_AFTPILOT: //Aft Flight Deck
@@ -5166,6 +5216,8 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(-0.4, 0.0, 0.0), 0, 0);
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+
+	HideMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAftMSS.RegisterVC();
@@ -5194,6 +5246,8 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(0.4,0,0), 0, 0, 
 		_V(0,-0.3,0.15), 0, 0);
 
+	ShowMidDeck();
+
 	pgOverhead.RegisterVC();
 	pgAftMSS.RegisterVC();
 	pgAftOOS.RegisterVC();
@@ -5217,6 +5271,8 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
+	ShowMidDeck();
+
 	pgOverhead.RegisterVC();
 	pgAftOOS.RegisterVC();
 	pgAftPSS.RegisterVC();
@@ -5238,7 +5294,7 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+	ShowMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAftMSS.RegisterVC();
@@ -5263,6 +5319,8 @@ bool Atlantis::clbkLoadVC (int id)
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	HideMidDeck();
 
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
@@ -5292,6 +5350,8 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
+	HideMidDeck();
+
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
 	pgAftMSS.RegisterVC();
@@ -5316,7 +5376,7 @@ bool Atlantis::clbkLoadVC (int id)
      SetCameraDefaultDirection (VC_DIR_MIDDECK);
      //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
      
-
+	 ShowMidDeck();
 	 // Default camera rotation
 	 if(HasExternalAirlock())
 	 {
@@ -5337,6 +5397,8 @@ bool Atlantis::clbkLoadVC (int id)
 	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
 	  oapiVCSetNeighbours (NULL, NULL, VC_MIDDECK, VC_DOCKCAM);
+
+	  ShowMidDeck();
      
 	  ok=true;
 	break;
