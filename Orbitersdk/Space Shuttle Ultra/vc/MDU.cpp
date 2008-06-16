@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "MDU.h"
+#include "../dps/IDP.h"
 
 namespace vc {
 
@@ -299,6 +300,7 @@ namespace vc {
 			}
 		}
 
+		/*
 		if(STS()->ops==201) {
 			PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
 			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
@@ -368,7 +370,7 @@ namespace vc {
 			TextOut(hDC, 60, 171, cbuf, strlen(cbuf));
 			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*AngularVelocity.data[ROLL], DEG*AngularVelocity.data[PITCH], DEG*AngularVelocity.data[YAW]);
 			TextOut(hDC, 60, 180, cbuf, strlen(cbuf));*/
-		}
+		//}
 		return;
 	}
 
@@ -394,7 +396,23 @@ namespace vc {
 
 	unsigned short MDU::GetDrivingIDP() const
 	{
-		return 0;
+		if(this->bUseSecondaryPort)
+		{
+			if(sec_idp)
+			{
+				return sec_idp->GetIDPID();
+			} else {
+				return 0;
+			}
+		} else {
+			if(prim_idp)
+			{
+				return prim_idp->GetIDPID();
+			} else {
+				return 0;
+			}
+		}
+		
 	}
 
 	void MDU::SwitchMFDMode()

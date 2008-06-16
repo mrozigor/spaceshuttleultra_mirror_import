@@ -488,6 +488,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\gnc\AA.h"
+				>
+			</File>
+			<File
 				RelativePath="AC_resource.h"
 				>
 			</File>

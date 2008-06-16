@@ -369,10 +369,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems	  = new SubsystemDirector(this);
 
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
-  psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1"));
-  psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2"));
-  psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3"));
-  psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4"));
+  psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1", 1));
+  psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2", 2));
+  psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3", 3));
+  psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4", 4));
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
 
@@ -396,6 +396,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_orbiter    = MESH_UNDEFINED;
   mesh_cockpit    = MESH_UNDEFINED;
   mesh_vc         = MESH_UNDEFINED;
+  mesh_middeck    = MESH_UNDEFINED;
   mesh_tank       = MESH_UNDEFINED;
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
@@ -410,6 +411,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   bLiftOff		  = false;
   bHasKUBand	  = true;
   bUseRealRCS	  = true;
+
+  vcDeckMode = VCM_FLIGHTDECK;
 
   ___iCurrentManifold = 0;
 
@@ -504,14 +507,15 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hraileron	= NULL;
 
   // preload meshes
-  hOrbiterMesh        = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
-  hOrbiterCockpitMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
-  hOrbiterVCMesh      = oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
-  hOrbiterRMSMesh	  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
-  hKUBandMesh		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
-  hTankMesh           = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
-  hSRBMesh[0]		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
-  hSRBMesh[1]		  = oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
+  hOrbiterMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
+  hOrbiterCockpitMesh	= oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
+  hOrbiterVCMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
+  hMidDeckMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MIDDECK);
+  hOrbiterRMSMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
+  hKUBandMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
+  hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
+  hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
+  hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
@@ -1857,6 +1861,11 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
 	AddKUBandVisual(ofs);
 
+	mesh_middeck = AddMesh(hMidDeckMesh, &ofs);
+	//Only make visible when actually inside the mid deck
+	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
+	SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
+
 	/* Add optional A7A3/A8A3 panel meshes
 	*/
 	if(pA7A8Panel)
@@ -2135,6 +2144,21 @@ void Atlantis::ToggleArrest (void)
   } else if (CanArrest()) {           // try to arrest satellite
     ToggleGrapple();
   }
+}
+
+void Atlantis::ToggleVCMode()
+{
+	switch(vcDeckMode)
+	{
+	case VCM_FLIGHTDECK:
+		oapiSetPanel(VC_MIDDECK);
+		vcDeckMode = VCM_MIDDECK;
+		break;
+	case VCM_MIDDECK:
+		oapiSetPanel(VC_PORTSTATION);
+		vcDeckMode = VCM_FLIGHTDECK;
+		break;
+	} 
 }
 
 // check whether the currently grappled object can be stowed in the cargo bay
@@ -5058,7 +5082,7 @@ bool Atlantis::clbkLoadVC (int id)
     //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
 
     // Outside cameras neighbours
-	oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_PORTSTATION);
+	oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
     //oapiVCSetNeighbours (1, 0, 3, 0);
 
     // Default camera rotarion
@@ -5188,7 +5212,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_PORTSTATION);
     SetCameraDefaultDirection (VC_DIR_PORTSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_STBDSTATION);
+    oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -5259,7 +5283,7 @@ bool Atlantis::clbkLoadVC (int id)
     ok = true;
     break;
   case VC_MS2:
-	  DisplayCameraLabel(VC_LBL_MS2);
+	DisplayCameraLabel(VC_LBL_MS2);
 	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
@@ -5285,6 +5309,37 @@ bool Atlantis::clbkLoadVC (int id)
 //	panelf7->RegisterVC();
     ok = true;
     break;
+  case VC_MIDDECK:
+
+	 DisplayCameraLabel(VC_LBL_MIDDECK);
+	 SetCameraOffset (orbiter_ofs + VC_POS_MIDDECK);
+     SetCameraDefaultDirection (VC_DIR_MIDDECK);
+     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+     
+
+	 // Default camera rotation
+	 if(HasExternalAirlock())
+	 {
+		oapiVCSetNeighbours (NULL, NULL, VC_PORTSTATION, VC_EXT_AL);	
+	 } else {
+		 oapiVCSetNeighbours (NULL, NULL, VC_PORTSTATION, NULL);
+	 }
+
+	 SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	 ok = true;
+	 break;
+  case VC_EXT_AL:
+	  DisplayCameraLabel(VC_LBL_EXT_AL);
+	  SetCameraOffset (orbiter_ofs + VC_POS_EXT_AL);
+      SetCameraDefaultDirection (VC_DIR_EXT_AL);
+
+	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+
+	  oapiVCSetNeighbours (NULL, NULL, VC_MIDDECK, VC_DOCKCAM);
+     
+	  ok=true;
+	break;
 
   }
 
@@ -6339,6 +6394,11 @@ vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
 		return mdus[usMDUID];
 	} else 
 		return NULL;
+}
+
+bool Atlantis::HasExternalAirlock() const
+{
+	return true;
 }
 
 inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
