@@ -5700,21 +5700,21 @@ void Atlantis::UpdateRMSPositions()
 
 void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
 {
-	double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+	/*double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
 	double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
 	double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
 	double current_beta_s=linterp(0,-180,1,180,arm_sy);
-	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
+	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*/
 
-	VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), current_beta_w+current_beta_s);
-	dir=RotateVectorY(temp, current_phi_w-current_phi_e+current_phi_s);
+	VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), wy_angle+sy_angle);
+	dir=RotateVectorY(temp, wp_angle-ep_angle+sp_angle);
 
 	//sprintf(oapiDebugString(), "%f %f %f %f %f %f", temp.x, temp.y, temp.z, dir.x, dir.y, dir.z);
 	//sprintf(oapiDebugString(), "%f %f %f %f", current_beta_w, current_beta_s, arm_wy, arm_sy);
 
-	temp=RotateVectorY(_V(lu, 0.0, 0.0), current_phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), current_phi_s-current_phi_e+ep_null)
-		+RotateVectorY(_V(wp_wy, 0.0, 0.0), current_phi_w-current_phi_e+current_phi_s);
-	pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;
+	temp=RotateVectorY(_V(lu, 0.0, 0.0), sp_angle-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), sp_angle-ep_angle+ep_null)
+		+RotateVectorY(_V(wp_wy, 0.0, 0.0), wp_angle-ep_angle+sp_angle);
+	pos=RotateVectorZ(temp, sy_angle)+dir*wy_ee;
 }
 
 VECTOR3 Atlantis::CalcAnimationFKArm() {
@@ -5738,8 +5738,8 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 	if(!RMS) return;
 	if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
 
-	Stopwatch st;
-	st.Start();
+	//Stopwatch st;
+	//st.Start();
 
 	//Candidate position. Calculate the joints on it...
 	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
@@ -5824,8 +5824,8 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 	SetAnimationArm(anim_arm_wy, arm_wy);
 	arm_ee_pos=arm_cpos;
 
-	double Time=st.Stop();
-	sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
+	//double Time=st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
 }
 
 /*void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
