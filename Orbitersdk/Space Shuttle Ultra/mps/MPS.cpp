@@ -1,9 +1,13 @@
 #include "MPS.h"
 
+
 namespace mps
 {
 	MPS::MPS( SubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsMPS" )
 	{
+		//ptrPV1 = new BasicValve( 1, 50 );
+		//ptrPV2 = new BasicValve( 1, 50 );
+		//ptrPV3 = new BasicValve( 1, 50 );
 		// mostly speculation...
 		posPV1 = true;
 		posPV2 = true;
@@ -32,6 +36,9 @@ namespace mps
 
 	MPS::~MPS( void )
 	{
+		//delete ptrPV1;
+		//delete ptrPV2;
+		//delete ptrPV3;
 		// end
 	}
 
@@ -40,6 +47,7 @@ namespace mps
 		switch (vlv)
 		{
 			case PV1:
+				//ptrPV1->Open();
 				posPV1 = true;
 				return true;
 			case PV2:
@@ -237,6 +245,9 @@ namespace mps
 
 	void MPS::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
+		//ptrPV1->tmestp( fSimT );
+		//ptrPV2->tmestp( fSimT );
+		//ptrPV3->tmestp( fSimT );
 		return;
 	}
 }

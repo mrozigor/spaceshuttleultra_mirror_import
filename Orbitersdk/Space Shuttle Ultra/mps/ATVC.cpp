@@ -1,5 +1,6 @@
 #include "ATVC.h"
 
+
 namespace mps
 {
 	ATVC::ATVC( SubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsATVC" )
