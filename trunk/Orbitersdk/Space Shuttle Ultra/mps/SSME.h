@@ -1,39 +1,13 @@
 #ifndef _mps_SSME_H_
 #define _mps_SSME_H_
 
+
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-//#include "MPS.h"
+
 
 namespace mps
 {
-	const VECTOR3 SSME1_POS = _V( 0.0, 1.945, -10.76250 );
-	const VECTOR3 SSME2_POS = _V( -1.458, -0.194, -11.7875 );
-	const VECTOR3 SSME3_POS = _V( 1.458, -0.194, -11.7875 );
-
-	const VECTOR3 SSME1_DIR = _V( 0.0, -0.37489, 0.92707 );
-	const VECTOR3 SSME2_DIR = _V( 0.065, -0.2447, 0.9674 );
-	const VECTOR3 SSME3_DIR = _V( -0.065, -0.2447, 0.9674 );
-
-	const VECTOR3 OFS_LAUNCH_ORBITER = _V( 0.0, 6.04, -7.989 );
-
-	const double RPL_THRUST = 2090664.159; //100% thrust
-	//const double NPL_THRUST = 2170732.15; //Nominal "104%" thrust
-	const double FPL_THRUST = 2275094.273; //109% thrust
-
-	const double ISP0 = 453*9.80665;
-	const double ISP1 = 363*9.80665;
-
-	typedef enum _ENGINE_MODEL
-	{
-		FMOF,
-		PHASE_I,
-		PHASE_II,
-		BLOCK_I,
-		BLOCK_IIA,
-		BLOCK_II
-	} ENGINE_MODEL;
-
 	typedef enum _ENGINE_STATUS
 	{
 		// CHECKOUT
@@ -127,75 +101,75 @@ namespace mps
 
 	class SSME:public AtlantisSubsystem
 	{
-	private:
+	protected:
 		VESSEL *OV;
+		int ID;
 
 		// internal data
-		THRUSTER_HANDLE thSSME[3];
-		ENGINE_MODEL model[3];
-		double MPL[3];// 65 or 67
-		double FPL[3];// 100, (?102?), 104, (?106?), (?107?) or 109
-		double COtimecoef[3];
-		double OPOV_pos_CO[3];
-		double FPOV_pos_CO[3];
-		double PSN4time[3];// temp
+		THRUSTER_HANDLE thSSME;
 
+		double COtimecoef;
+		double OPOV_pos_CO;
+		double FPOV_pos_CO;
+		double PSN4time;// temp
 
-		ENGINE_STATUS cmdSTATUS[3];
+		int MPL;// %
+		int FPL;// %
+
+		ENGINE_STATUS cmdSTATUS;
 		DATA_TABLE* SSME_DATA_TABLE;
-
 		
-		DCU activeDCU[3];// inside table??????
+		DCU activeDCU;// inside table??????
 
-		//double PCfromOSFStoSTS( double, int );
-		double PCfromSTStoOSFS( double, int );
-		//double PCfromPCTtoPSI( double );
+		void Ignition( double );
+		void Shutdown( double );
+		void Throttling( double );
+		void SetCOTime( void );
 
-		void Ignition( int, double );
-		void Shutdown( int, double );
-		void Throttling( int, double );
-		void SetCOTime( int );
+
+		double PCfromOSFStoSTS( double );
+		double PCfromSTStoOSFS( double );
+		double PCfromPCTtoPSI( double );
 
 		// data cookup fncts
-		double dcPC_ESC( double );
-		double dcMOV_ESC( double );
-		double dcMFV_ESC( double );
-		double dcCCV_ESC( double );
-		double dcFPOV_ESC( double );
-		double dcOPOV_ESC( double );
+		virtual double dcPC_ESC( double ) = 0;
+		virtual double dcMOV_ESC( double ) = 0;
+		virtual double dcMFV_ESC( double ) = 0;
+		virtual double dcCCV_ESC( double ) = 0;
+		virtual double dcFPOV_ESC( double ) = 0;
+		virtual double dcOPOV_ESC( double ) = 0;
 		
-		double dcPC_CO( double );
-		double dcMOV_CO( double );
-		double dcMFV_CO( double );
-		double dcCCV_CO( double );
-		double dcFPOV_CO( double, double );
-		double dcOPOV_CO( double, double );
+		virtual double dcPC_CO( double ) = 0;
+		virtual double dcMOV_CO( double ) = 0;
+		virtual double dcMFV_CO( double ) = 0;
+		virtual double dcCCV_CO( double ) = 0;
+		virtual double dcFPOV_CO( double, double ) = 0;
+		virtual double dcOPOV_CO( double, double ) = 0;
 
-		double dcPC_MS( double, int );
-		double dcCCV_MS( double );
-		double dcFPOV_MS( double );
-		double dcOPOV_MS( double );
+		virtual double dcPC_MS( double ) = 0;
+		virtual double dcCCV_MS( double ) = 0;
+		virtual double dcFPOV_MS( double ) = 0;
+		virtual double dcOPOV_MS( double ) = 0;	
 
 	public:
 		// EIU only
 		// command
-		bool cmdPurgeSequence1( int );
-		bool cmdPurgeSequence2( int );
-		bool cmdPurgeSequence3( int );
-		bool cmdPurgeSequence4( int );
-		bool cmdStart( int );
-		bool cmdThrottle( int, double );
-		bool cmdShutdown( int );
-		bool cmdStartEnable( int );
-		bool cmdShutdownEnable( int );
-		bool cmdOxidizerDump( int );
-		bool cmdTerminateSequence( int );
+		bool cmdPurgeSequence1( void );
+		bool cmdPurgeSequence2( void );
+		bool cmdPurgeSequence3( void );
+		bool cmdPurgeSequence4( void );
+		bool cmdStart( void );
+		virtual bool cmdThrottle( double ) = 0;
+		bool cmdShutdown( void );
+		bool cmdStartEnable( void );
+		bool cmdShutdownEnable( void );
+		bool cmdOxidizerDump( void );
+		bool cmdTerminateSequence( void );
 		
 		// data
-		int dataDataTable( int, DATA_TABLE* );
+		int dataDataTable( DATA_TABLE* );
 
-
-		SSME( SubsystemDirector*, VESSEL*, PROPELLANT_HANDLE );
+		SSME( SubsystemDirector*, const string&, int, VESSEL*, PROPELLANT_HANDLE, VECTOR3, VECTOR3, double, double, double );
 		~SSME( void );
 
 		// heart beat
@@ -203,10 +177,11 @@ namespace mps
 		//void OnPreStep( double, double, double );
 		//void OnPropagate( double, double, double );
 
-		void OnSaveState( FILEHANDLE );
-		bool OnParseLine( const char* );
+		virtual void OnSaveState( FILEHANDLE ) const = 0;
+		virtual bool OnParseLine( const char* ) = 0;
 		};
-};
+}
+
 
 #endif// _mps_SSME_H_
 

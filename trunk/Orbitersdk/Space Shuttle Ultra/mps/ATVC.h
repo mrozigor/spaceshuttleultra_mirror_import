@@ -1,8 +1,9 @@
 #ifndef _mps_ATVC_H_
 #define _mps_ATVC_H_
 
+
 #include "..\AtlantisSubsystem.h"
-//#include "MPS.h"
+
 
 namespace mps
 {
@@ -16,6 +17,7 @@ namespace mps
 		// heart beat
 		virtual void OnPostStep( double, double, double );
 	};
-};
+}
+
 
 #endif// _mps_ATVC_H_

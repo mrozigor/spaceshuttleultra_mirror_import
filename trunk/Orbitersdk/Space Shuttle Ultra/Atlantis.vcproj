@@ -319,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\BLOCK_II.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CommModeHandler.cpp"
 				>
 			</File>
@@ -528,6 +532,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\BLOCK_II.h"
+				>
+			</File>
+			<File
 				RelativePath=".\discsignals\DiscInPort.h"
 				>
 			</File>
@@ -589,6 +597,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\MDU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MechActuator.h"
 				>
 			</File>
 			<File

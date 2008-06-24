@@ -1,8 +1,11 @@
 #ifndef _mps_MPS_H_
 #define _mps_MPS_H_
 
+
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
+//#include "..\BasicValve.h"
+
 
 namespace mps
 {
@@ -36,6 +39,10 @@ namespace mps
 	{
 	private:
 		// PV
+		//BasicValve* ptrPV1;// ME-1 LOX prevalve
+		//BasicValve* ptrPV2;// ME-2 LOX prevalve
+		//BasicValve* ptrPV3;// ME-3 LOX prevalve
+
 		bool posPV1;// ME-1 LOX prevalve
 		bool posPV2;// ME-2 LOX prevalve
 		bool posPV3;// ME-3 LOX prevalve
@@ -77,6 +84,7 @@ namespace mps
 		// heart beat
 		virtual void OnPostStep( double, double, double );
 	};
-};
+}
+
 
 #endif// _mps_MPS_H_
