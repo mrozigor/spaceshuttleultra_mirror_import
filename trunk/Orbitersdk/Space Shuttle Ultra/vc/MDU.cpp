@@ -2,7 +2,18 @@
 #include "MDU.h"
 #include "../dps/IDP.h"
 
+extern GDIParams g_Param;
+
 namespace vc {
+
+	//find location on bitmap of letter
+	void BitmapLocation(char ch, int &x, int &y)
+	{
+		int row=ch/16;
+		int col=ch-(16*row);
+		x=1+5*col;
+		y=1+9*row;
+	}
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
 		: BasicVCComponent(_sts, _ident), usMDUID(_usMDUID),
@@ -166,19 +177,13 @@ namespace vc {
 	{
 		//oapiWriteLog("Paint called 1");
 		UpdateTextBuffer();
-		//HGDIOBJ DefaultFont;
-		HFONT DefaultFont;
-		DefaultFont=CreateFont(13, 7, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, 
-								ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
-								DEFAULT_QUALITY, FIXED_PITCH|FF_MODERN, "Courier New");
-		//DefaultFont=GetStockObject(ANSI_FIXED_FONT);
-		if(DefaultFont==NULL) return false;
-
+		
 		int Save=SaveDC(hDC);
-		SelectObject(hDC, DefaultFont);
-		/*char cbuf[255];
-		GetTextFace(hDC, 255, cbuf);
-		oapiWriteLog(cbuf);*/
+		HDC CompatibleDC=CreateCompatibleDC(hDC);
+		HDC BitmapDC=CreateCompatibleDC(hDC);
+		SelectObject(BitmapDC, g_Param.deu_characters);
+		HBITMAP BMP=CreateCompatibleBitmap(hDC, 816, 806);
+		SelectObject(CompatibleDC, BMP);
 
 		//draw stuff
 		for(int i=0;i<51;i++) {
@@ -186,25 +191,21 @@ namespace vc {
 				char cbuf[2];
 				if(textBuffer[i][j].cSymbol>='!') {
 					sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-					//sprintf_s(oapiDebugString(), 2, "%c", textBuffer[i][j].cSymbol);
+					//sprintf_s(oapiDebugString(), 255, "Blitting: %c", textBuffer[i][j].cSymbol);
 					//oapiWriteLog(cbuf);
-					TextOut(hDC, i*5, j*9, cbuf, 1);
+					//TextOut(hDC, i*5, j*9, cbuf, 1);
+					int x, y;
+					vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, x, y, SRCCOPY);
 				}
 			}
 		}
-
-		//TextOut(hDC, 5, 5, "TEST", 4);
-		//for(int i=0;i<26;i++) TextOut(hDC, 0, i*9, "TEST", 4);
-		//TextOut(hDC, 1, 1, "ABCDEFGHIJKLMNOPQRSTUWXYZ", 26);
-		/*char cbuf[255];
-		for(int i=0;i<51;i++) {
-			sprintf_s(cbuf, 255, "%d", i+1);
-			TextOut(hDC, i*5, 1, cbuf, 1);
-		}*/
+		BitBlt(hDC, 0, 0, 256, 256, CompatibleDC, 0, 0, SRCCOPY);
 
 		RestoreDC(hDC, Save);
-		DeleteObject(DefaultFont);
-		//oapiWriteLog("Paint called 2");
+		DeleteDC(CompatibleDC);
+		DeleteDC(BitmapDC);
+		DeleteObject(BMP);
 		return false;
 	}
 
@@ -300,7 +301,6 @@ namespace vc {
 			}
 		}
 
-		/*
 		if(STS()->ops==201) {
 			PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
 			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
@@ -348,12 +348,12 @@ namespace vc {
 				else PrintToBuffer("X", 1, 33, 4, 0);
 			}
 			else if(STS()->TRK) {
-				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 5, 29, 0);
-				else PrintToBuffer("X", 1, 5, 33, 0);
+				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 5, 0);
+				else PrintToBuffer("X", 1, 33, 5, 0);
 			}
 			else if(STS()->ROT) {
-				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 6, 29, 0);
-				else PrintToBuffer("X", 1, 6, 33, 0);
+				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 6, 0);
+				else PrintToBuffer("X", 1, 33, 6, 0);
 			}
 
 			PrintToBuffer("ATT MON", 7, 19, 9, 0);
@@ -361,16 +361,16 @@ namespace vc {
 			PrintToBuffer("ERR TOT 23", 10, 20, 11, 0);
 			PrintToBuffer("ERR DAP 24", 10, 20, 11, 0);
 
-			/*TextOut(hDC, 110, 144, "ROLL    PITCH    YAW", 20);
+			PrintToBuffer("ROLL    PITCH    YAW", 20, 26, 14, 0);
 			sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", DEG*STS()->CurrentAttitude.data[ROLL], DEG*STS()->CurrentAttitude.data[PITCH], DEG*STS()->CurrentAttitude.data[YAW]);
-			TextOut(hDC, 60, 153, cbuf, strlen(cbuf));
+			PrintToBuffer(cbuf, strlen(cbuf), 19, 15, 0);
 			sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", STS()->REQD_ATT.data[ROLL], STS()->REQD_ATT.data[PITCH], STS()->REQD_ATT.data[YAW]);
-			TextOut(hDC, 60, 162, cbuf, strlen(cbuf));
+			PrintToBuffer(cbuf, strlen(cbuf), 19, 16, 0);
 			sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", STS()->PitchYawRoll.data[ROLL], STS()->PitchYawRoll.data[PITCH], STS()->PitchYawRoll.data[YAW]);
-			TextOut(hDC, 60, 171, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*AngularVelocity.data[ROLL], DEG*AngularVelocity.data[PITCH], DEG*AngularVelocity.data[YAW]);
-			TextOut(hDC, 60, 180, cbuf, strlen(cbuf));*/
-		//}
+			PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
+			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
+			PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
+		}
 		return;
 	}
 
