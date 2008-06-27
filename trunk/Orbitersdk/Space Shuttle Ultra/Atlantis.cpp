@@ -6056,7 +6056,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   //HBITMAP BMP=CreateCompatibleBitmap(Temp1DC, 816, 806);
   //SelectObject(g_Param.DeuCharBitmapDC, BMP);
   SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
-  SetStretchBltMode(g_Param.DeuCharBitmapDC, COLORONCOLOR);
+  SetStretchBltMode(g_Param.DeuCharBitmapDC, HALFTONE);
   StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528 , SRCCOPY);
   //DeleteDC(TempDC);
   DeleteDC(Temp1DC);
