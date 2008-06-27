@@ -712,6 +712,8 @@ typedef struct {
 	SURFHANDLE tkbk_label;
 	SURFHANDLE clock_digits;
 	SURFHANDLE digits_7seg;
+	HBITMAP deu_characters;
+	HDC DeuCharBitmapDC;
 	HFONT font[1];
 } GDIParams;
 
@@ -780,6 +782,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelR2;
 	friend class Keyboard;
 	friend class CRT;
+	friend class vc::MDU;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
