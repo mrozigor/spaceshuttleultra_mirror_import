@@ -6048,6 +6048,18 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   if(g_Param.digits_7seg == NULL) {
 	  oapiWriteLog("Loading bitmap \"DIGITS_7SEG\" failed.");
   }
+  g_Param.deu_characters = LOADBMP (IDB_DEUCHARACTERS);
+  
+  HDC Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
+  //HDC TempDC=CreateCompatibleDC(Temp1DC);
+  g_Param.DeuCharBitmapDC=CreateCompatibleDC(Temp1DC);
+  //HBITMAP BMP=CreateCompatibleBitmap(Temp1DC, 816, 806);
+  //SelectObject(g_Param.DeuCharBitmapDC, BMP);
+  SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
+  SetStretchBltMode(g_Param.DeuCharBitmapDC, COLORONCOLOR);
+  StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528 , SRCCOPY);
+  //DeleteDC(TempDC);
+  DeleteDC(Temp1DC);
 
   // allocate GDI resources
   g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
@@ -6056,6 +6068,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 DLLCLBK void ExitModule (HINSTANCE hModule)
 {
   oapiUnregisterCustomControls (hModule);
+  DeleteDC(g_Param.DeuCharBitmapDC);
   if(g_Param.tkbk_label)
   {
 	oapiDestroySurface (g_Param.tkbk_label);
@@ -6067,6 +6080,10 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
   if(g_Param.digits_7seg)
   {
 	oapiDestroySurface (g_Param.digits_7seg);
+  }
+  if(g_Param.deu_characters)
+  {
+	  DeleteObject(g_Param.deu_characters);
   }
 
   // deallocate GDI resources
