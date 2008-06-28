@@ -3,7 +3,7 @@
 
 namespace mps
 {
-	BLOCK_II::BLOCK_II( SubsystemDirector* _director, const string& _ident, int nID, VESSEL* Vessel, PROPELLANT_HANDLE phET, VECTOR3 pos, VECTOR3 dir ):SSME( _director, _ident, nID, Vessel, phET, pos, dir, BLOCK_II_ISP0, BLOCK_II_ISP1, BLOCK_II_FPL_THRUST )
+	BLOCK_II::BLOCK_II( SubsystemDirector* _director, const string& _ident, int nID, PROPELLANT_HANDLE phET, VECTOR3 pos, VECTOR3 dir ):SSME( _director, _ident, nID, phET, pos, dir, BLOCK_II_ISP0, BLOCK_II_ISP1, BLOCK_II_FPL_THRUST )
 	{
 		MPL = 67;
 		FPL = 109;

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-
+class Atlantis;
 class SubsystemDirector;
 /**
  * base class for all subsystem simulations. 
@@ -28,6 +28,7 @@ protected:
 public:
 	AtlantisSubsystem(SubsystemDirector* _director, const string& _ident);
 	virtual ~AtlantisSubsystem();
+	Atlantis* STS();
 	virtual void AddMeshes(const VECTOR3& ofs);
 	virtual void Realize();
 	virtual bool RegisterComponent(SubsystemComponent* pComponent);

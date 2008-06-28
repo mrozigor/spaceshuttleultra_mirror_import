@@ -687,6 +687,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //ManeuverComplete=false;
   ManeuverStatus=MNVR_OFF;
   MNVR_TIME=0;
+  NullRates = _V(0.0, 0.0, 0.0);
 
   //I-loads
   stage1guidance_size=0;

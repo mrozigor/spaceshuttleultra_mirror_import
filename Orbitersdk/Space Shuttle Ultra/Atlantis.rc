@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -26,15 +26,15 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Bitmap
 //
 
-IDB_CLOCKDIGITS         BITMAP  DISCARDABLE     "Bitmaps\\clocknums.bmp"
-IDB_7SEGDIGITS          BITMAP  DISCARDABLE     "Bitmaps\\digits.bmp"
-IDB_DEUCHARACTERS       BITMAP  DISCARDABLE     "Bitmaps\\DEU_Raw.bmp"
-#endif    // Englisch (USA) resources
+IDB_CLOCKDIGITS         BITMAP                  "Bitmaps\\clocknums.bmp"
+IDB_7SEGDIGITS          BITMAP                  "Bitmaps\\digits.bmp"
+IDB_DEUCHARACTERS       BITMAP                  "Bitmaps\\DEU_Raw.bmp"
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (GB) resources
+// English (U.K.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 #ifdef _WIN32
@@ -44,11 +44,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Bitmap
+//
+
+IDB_TKBKLABEL           BITMAP                  "Bitmaps\\tkbk_label.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 
 IDD_RMS DIALOGEX 0, 0, 109, 273
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "RMS Control"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
@@ -77,15 +84,14 @@ BEGIN
     PUSHBUTTON      "-x",IDC_TRANS_MX,84,163,16,14
     PUSHBUTTON      "Stow",IDC_STOW,8,202,46,14
     PUSHBUTTON      "Grapple",IDC_GRAPPLE,56,202,46,14
-    CONTROL         "Show grapple points",IDC_SHOWGRAPPLE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,3,258,80,10
+    CONTROL         "Show grapple points",IDC_SHOWGRAPPLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,258,80,10
     GROUPBOX        "RMS",IDC_STATIC,4,191,101,31
     PUSHBUTTON      "Purge",IDC_PAYLOAD,8,235,94,14
     GROUPBOX        "Payload",IDC_STATIC,4,221,101,31
 END
 
 IDD_PLBAY DIALOGEX 0, 0, 238, 305
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "PL BAY OP"
 FONT 6, "Small Fonts", 0, 0, 0x1
@@ -94,19 +100,14 @@ BEGIN
     LTEXT           "SYS 2",IDC_STATIC,162,16,21,8
     LTEXT           "SYS A",IDC_STATIC,67,143,22,8
     LTEXT           "SYS B",IDC_STATIC,115,143,22,8
-    CTEXT           "\\\\\\\\\\",IDC_PLBD_TLKBK,17,103,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
-    CTEXT           "LAT",IDC_LATCHS_TLKBK,64,103,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
+    CTEXT           "\\\\\\\\\\",IDC_PLBD_TLKBK,17,103,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
+    CTEXT           "LAT",IDC_LATCHS_TLKBK,64,103,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
     LTEXT           "STBD",IDC_STATIC,68,86,20,8
-    CTEXT           "LAT",IDC_LATCHP_TLKBK,111,103,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
+    CTEXT           "LAT",IDC_LATCHP_TLKBK,111,103,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
     LTEXT           "PORT",IDC_STATIC,114,86,21,8
-    CTEXT           "STO",IDC_RADS_TLKBK,157,103,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
+    CTEXT           "STO",IDC_RADS_TLKBK,157,103,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
     LTEXT           "STBD",IDC_STATIC,160,86,20,8
-    CTEXT           "STO",IDC_RADP_TLKBK,202,103,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
+    CTEXT           "STO",IDC_RADP_TLKBK,202,103,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
     LTEXT           "PORT",IDC_STATIC,205,86,21,8
     GROUPBOX        "",IDC_STATIC,14,92,32,32,BS_FLAT
     GROUPBOX        "",IDC_STATIC,62,92,32,32,BS_FLAT
@@ -179,8 +180,7 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,161,154,11,1
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,201,189,16,1
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,161,189,16,1
-    CTEXT           "LAT",IDC_KU_TLKBK,64,227,27,14,SS_CENTERIMAGE | 
-                    SS_SUNKEN | WS_BORDER
+    CTEXT           "LAT",IDC_KU_TLKBK,64,227,27,14,SS_CENTERIMAGE | SS_SUNKEN | WS_BORDER
     GROUPBOX        "",IDC_STATIC,62,216,32,32,BS_FLAT
     CONTROL         "",IDC_KU,"OrbiterCtrl_Switch",0x0,66,262,23,29
     CONTROL         "",IDC_KU_DIRECT,"OrbiterCtrl_Switch",0x0,17,262,23,29
@@ -194,12 +194,11 @@ BEGIN
     CTEXT           "G\r\nN\r\nD",IDC_STATIC,57,264,8,24
     CTEXT           "DIRECT\r\nSTOW\r\nON",IDC_STATIC,13,239,32,26
     LTEXT           "OFF",IDC_STATIC,22,290,14,8
-    CTEXT           "R13L",IDC_STATIC,206,287,25,11,SS_CENTERIMAGE,
-                    WS_EX_STATICEDGE
+    CTEXT           "R13L",IDC_STATIC,206,287,25,11,SS_CENTERIMAGE,WS_EX_STATICEDGE
 END
 
 IDD_CTRL DIALOGEX 0, 0, 104, 54
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Atlantis Control"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
@@ -210,7 +209,7 @@ BEGIN
 END
 
 IDD_PAYLOADCAM DIALOGEX 0, 0, 109, 132
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Payload camera controls"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
@@ -225,10 +224,8 @@ BEGIN
     PUSHBUTTON      "U",IDC_CAM_UP,45,63,16,14
     PUSHBUTTON      "D",IDC_CAM_DOWN,45,79,16,14
     PUSHBUTTON      "R",IDC_CAM_RIGHT,64,71,16,14
-    CONTROL         "Low Rate",IDC_CAM_LOWRATE,"Button",BS_AUTORADIOBUTTON,
-                    11,101,89,9
-    CONTROL         "High Rate",IDC_CAM_HIGHRATE,"Button",BS_AUTORADIOBUTTON,
-                    11,113,89,8
+    CONTROL         "Low Rate",IDC_CAM_LOWRATE,"Button",BS_AUTORADIOBUTTON,11,101,89,9
+    CONTROL         "High Rate",IDC_CAM_HIGHRATE,"Button",BS_AUTORADIOBUTTON,11,113,89,8
 END
 
 
@@ -238,18 +235,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -265,12 +262,12 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_UP                  ICON    DISCARDABLE     "icon1.ico"
-IDI_DOWN                ICON    DISCARDABLE     "down.ico"
-IDI_LEFT                ICON    DISCARDABLE     "ico00001.ico"
-IDI_RIGHT               ICON    DISCARDABLE     "ico00002.ico"
-IDI_RRIGHT              ICON    DISCARDABLE     "ico00003.ico"
-IDI_RLEFT               ICON    DISCARDABLE     "ico00004.ico"
+IDI_UP                  ICON                    "icon1.ico"
+IDI_DOWN                ICON                    "down.ico"
+IDI_LEFT                ICON                    "ico00001.ico"
+IDI_RIGHT               ICON                    "ico00002.ico"
+IDI_RRIGHT              ICON                    "ico00003.ico"
+IDI_RLEFT               ICON                    "ico00004.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -278,7 +275,7 @@ IDI_RLEFT               ICON    DISCARDABLE     "ico00004.ico"
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_PLBAY, DIALOG
     BEGIN
@@ -295,14 +292,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_TKBKLABEL           BITMAP  DISCARDABLE     "Bitmaps\\tkbk_label.bmp"
-#endif    // Englisch (GB) resources
+#endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
