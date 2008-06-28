@@ -3,12 +3,14 @@
 
 namespace mps
 {
-	SSME::SSME( SubsystemDirector* _director, const string& _ident, int nID, VESSEL* Vessel, PROPELLANT_HANDLE phET, VECTOR3 pos, VECTOR3 dir, double ISP0, double ISP1, double FPL_THRUST ):AtlantisSubsystem( _director, _ident )
+	SSME::SSME( SubsystemDirector* _director, const string& _ident, 
+		int nID, PROPELLANT_HANDLE phET, VECTOR3 pos, 
+		VECTOR3 dir, double ISP0, double ISP1, double FPL_THRUST )
+		:AtlantisSubsystem( _director, _ident )
 	{
 		ID = nID;
-		OV = Vessel;
 
-		thSSME = OV->CreateThruster( pos, dir, FPL_THRUST, phET, ISP0, ISP1 );
+		//thSSME = STS()->CreateThruster( pos, dir, FPL_THRUST, phET, ISP0, ISP1 );
 		activeDCU = DCU_A;
 
 		SSME_DATA_TABLE = new DATA_TABLE;

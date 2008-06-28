@@ -20,28 +20,38 @@ namespace vc {
 	using class ::discsignals::DiscOutPort;
 	using class ::discsignals::DiscInPort;
 
-class StandardSwitch : public BasicSwitch  
-{
-	UINT grpIndex;
-	MGROUP_ROTATE* pswitchrot;
+	class LockableLever: public BasicSwitch 
+	{
+		UINT grpIndex;
+		MGROUP_ROTATE* pswitchrot;
+		MGROUP_TRANSLATE* pswitchpull;
+		bool bIsPulled;
+		double fInitialMousePos;
+		UINT anim_switch;
+		DiscInPort input;
+	public:
+		LockableLever(Atlantis* psts, unsigned short usNumPositions, 
+			const string& _ident);
+		virtual ~LockableLever();
 
-	UINT anim_switch;	
-	DiscInPort input;
-public:
-	StandardSwitch(Atlantis* psts, unsigned short usNumPositions, const string& _ident);
-	virtual ~StandardSwitch();
+	};
 
-	void DefineSwitchGroup(UINT _grpIndex);
+	class StandardSwitch : public BasicSwitch  
+	{
+		UINT grpIndex;
+		MGROUP_ROTATE* pswitchrot;
 
-	virtual void DefineVCAnimations(UINT vc_idx);
-
-	virtual void OnPositionChange(unsigned short usNewPosition);
-
-	virtual void Realize();
-
-	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
-
-};
+		UINT anim_switch;	
+		DiscInPort input;
+	public:
+		StandardSwitch(Atlantis* psts, unsigned short usNumPositions, const string& _ident);
+		virtual ~StandardSwitch();
+		void DefineSwitchGroup(UINT _grpIndex);
+		virtual void DefineVCAnimations(UINT vc_idx);
+		virtual void OnPositionChange(unsigned short usNewPosition);
+		virtual void Realize();
+		virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+	};
 
 class StdSwitch2: public StandardSwitch
 {

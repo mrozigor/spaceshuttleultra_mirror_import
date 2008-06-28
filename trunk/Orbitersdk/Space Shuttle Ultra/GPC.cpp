@@ -699,14 +699,17 @@ void Atlantis::UpdateDAP()
 
 void Atlantis::AttControl(double SimdT)
 {
+	VECTOR3 LastReqdAtt = _V(0.0, 0.0, 0.0);
+	//VECTOR3 NullRates = _V(0.0, 0.0, 0.0);
+	VECTOR3 NullRatesLocal = _V(0.0, 0.0, 0.0);
+
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
 
 	if(MNVR || TRK || ROT) {
-		VECTOR3 LastReqdAtt;
 		//static VECTOR3 NullRates, NullRatesLocal;
-		VECTOR3 NullRates, NullRatesLocal;
+
 		if(TRK) {
 			LastReqdAtt=REQD_ATT;
 			REQD_ATT=ConvertLVLHAnglesToM50(-LVLHOrientationReqd*RAD)*DEG;

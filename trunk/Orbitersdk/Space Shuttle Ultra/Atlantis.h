@@ -1485,6 +1485,8 @@ private:
 	
 	vc::MDU* mdus[11];
 
+	VECTOR3 NullRates;
+
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
 	double tig; // TIG in seconds 

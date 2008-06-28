@@ -23,22 +23,25 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			ExcludeBuckets="3"
+			ExcludeBuckets="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				ExecutionBucket="2"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+				ExecutionBucket="3"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
+				ExecutionBucket="4"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
@@ -47,7 +50,15 @@
 				HeaderFileName=""
 			/>
 			<Tool
+				Name="VCResourceCompilerTool"
+				ExecutionBucket="5"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="2057"
+				AdditionalIncludeDirectories="&quot;c:\Program Files\Microsoft SDK\include\Win64\mfc&quot;;&quot;c:\Program Files\Microsoft SDK\Include\mfc&quot;;&quot;c:\Program Files\Microsoft SDK\Include&quot;"
+			/>
+			<Tool
 				Name="VCCLCompilerTool"
+				ExecutionBucket="6"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Microsoft SDK\Include&quot;"
@@ -64,18 +75,15 @@
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="2057"
-				AdditionalIncludeDirectories="&quot;c:\Program Files\Microsoft SDK\include\Win64\mfc&quot;;&quot;c:\Program Files\Microsoft SDK\Include\mfc&quot;;&quot;c:\Program Files\Microsoft SDK\Include&quot;"
+				ExecutionBucket="7"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
+				ExecutionBucket="8"
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				ExecutionBucket="9"
 				AdditionalDependencies="user32.lib gdi32.lib"
 				OutputFile="..\..\Modules\MG_Atlantis.dll"
 				LinkIncremental="1"
@@ -89,28 +97,34 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
+				ExecutionBucket="10"
 			/>
 			<Tool
 				Name="VCManifestTool"
+				ExecutionBucket="11"
 				EmbedManifest="true"
 				VerboseOutput="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
+				ExecutionBucket="12"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				ExecutionBucket="13"
 				SuppressStartupBanner="true"
 				OutputFile=".\..\..\..\Modules/Atlantis.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
+				ExecutionBucket="14"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				ExecutionBucket="15"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -504,6 +518,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AtlantisSubsystem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\ATVC.h"
 				>
 			</File>
@@ -672,6 +690,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\ShuttleBus.h"
 				>
 			</File>
@@ -742,6 +764,18 @@
 		</File>
 		<File
 			RelativePath=".\ClassDiagram6.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\Bitmaps\clocknums.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\Bitmaps\DEU_Raw.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\Bitmaps\digits.bmp"
 			>
 		</File>
 		<File

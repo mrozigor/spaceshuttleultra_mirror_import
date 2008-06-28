@@ -45,7 +45,7 @@ namespace mps
 		// command
 		bool cmdThrottle( double );
 
-		BLOCK_II( SubsystemDirector*, const string&, int, VESSEL*, PROPELLANT_HANDLE, VECTOR3, VECTOR3 );
+		BLOCK_II( SubsystemDirector*, const string&, int, PROPELLANT_HANDLE, VECTOR3, VECTOR3 );
 		~BLOCK_II( void );
 
 		// heart beat

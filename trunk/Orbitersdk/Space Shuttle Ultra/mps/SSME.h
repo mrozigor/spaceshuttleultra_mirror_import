@@ -169,7 +169,7 @@ namespace mps
 		// data
 		int dataDataTable( DATA_TABLE* );
 
-		SSME( SubsystemDirector*, const string&, int, VESSEL*, PROPELLANT_HANDLE, VECTOR3, VECTOR3, double, double, double );
+		SSME( SubsystemDirector*, const string&, int, PROPELLANT_HANDLE, VECTOR3, VECTOR3, double, double, double );
 		~SSME( void );
 
 		// heart beat

@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AtlantisSubsystem.h"
+#include "SubsystemDirector.h"
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -89,4 +90,9 @@ const string& AtlantisSubsystem::GetIdentifier() const
 const string& AtlantisSubsystem::GetQualifiedIdentifier() const
 {
 	return GetIdentifier();
+}
+
+Atlantis* AtlantisSubsystem::STS()
+{
+	return director->STS();
 }
