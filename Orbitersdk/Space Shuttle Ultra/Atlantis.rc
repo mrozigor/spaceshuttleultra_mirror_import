@@ -28,6 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDB_CLOCKDIGITS         BITMAP  DISCARDABLE     "Bitmaps\\clocknums.bmp"
 IDB_7SEGDIGITS          BITMAP  DISCARDABLE     "Bitmaps\\digits.bmp"
+IDB_DEUCHARACTERS       BITMAP  DISCARDABLE     "Bitmaps\\DEU_Raw.bmp"
 #endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
 
