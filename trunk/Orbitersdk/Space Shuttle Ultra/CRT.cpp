@@ -4,6 +4,8 @@
 #include "orbitersdk.h"
 #include "PanelR2.h"
 #include "PanelC2.h"
+#include "vc/MDU.h"
+#include "vc/vc_defs.h"
 #include "CRT.h"
 #include <cstdio>
 #include "dps/MasterTimingUnit.h"
@@ -658,6 +660,13 @@ void CRT::APUHYD(HDC hDC)
 void CRT::UNIVPTG(HDC hDC)
 {
 	char cbuf[255];
+
+	//oapiWriteLog("Calling Paint 1");
+	vc::MDU* mdu=sts->GetMDU(id);
+	//oapiWriteLog("Calling Paint 2");
+	if(mdu) mdu->Paint(hDC);
+	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
+	return;
 
 	SelectDefaultFont(hDC, 0);
 
@@ -1572,9 +1581,10 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
 	  InvalidateDisplay();
       return true;
     case OAPI_KEY_I:
-	  oapiOpenInputBox("ITEM", cbItem, 0, 20, (void *)this);
+	  return false; //disable item input
+	  /*oapiOpenInputBox("ITEM", cbItem, 0, 20, (void *)this);
 	  InvalidateDisplay();
-      return true;
+      return true;*/
   }
   return false;
 }
