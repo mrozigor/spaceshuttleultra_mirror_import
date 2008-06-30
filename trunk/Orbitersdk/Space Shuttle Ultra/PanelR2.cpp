@@ -625,7 +625,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 	else if(p.y>0.885751 && p.y<0.920420 && p.x>=0.292763 && p.x<=0.351700)
 	{
 		if(p.y<0.902700) {
-			if(LEFT_DOOR<=1) LEFT_DOOR=0; //open door
+			if(LEFT_DOOR<=1) {
+				LEFT_DOOR=0; //open door
+				SetETUmbDoorAction(AnimState::OPENING, 0);
+			}
 			else {
 				LEFT_DOOR=1;
 				if(LETUmbDoorStatus.Moving())
@@ -672,7 +675,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 	else if(p.y>0.889641 && p.y<0.923580 && p.x>=0.455335 && p.x<=0.513106)
 	{
 		if(p.y<0.907640) {
-			if(RIGHT_DOOR<=1) RIGHT_DOOR=0; //open door
+			if(RIGHT_DOOR<=1) {
+				RIGHT_DOOR=0; //open door
+				SetETUmbDoorAction(AnimState::OPENING, 1);
+			}
 			else {
 				RIGHT_DOOR=1;
 				if(RETUmbDoorStatus.Moving())
