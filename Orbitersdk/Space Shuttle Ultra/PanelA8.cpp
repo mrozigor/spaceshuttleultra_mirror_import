@@ -143,6 +143,20 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 		_V(-0.537, 2.294, 12.467), switch_rot_horz, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH12]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH12], 0, 1, &VC_A8b12);
+
+	//MAN CONTR
+	static UINT VC_A8b16_GRP = GRP_A8b16_VC;
+	static MGROUP_ROTATE VC_A8b16 (vcidx, &VC_A8b16_GRP, 1,
+		_V(-0.654, 2.709, 12.337), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8[SWITCH16]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH16], 0, 1, &VC_A8b16);
+
+	//MODE
+	static UINT VC_A8b17_GRP = GRP_A8b17_VC;
+	static MGROUP_ROTATE VC_A8b17 (vcidx, &VC_A8b17_GRP, 1,
+		_V(-0.625, 2.709, 12.337), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8[SWITCH17]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH17], 0, 1, &VC_A8b17);
 }
 
 void PanelA8::UpdateVC()
@@ -153,6 +167,8 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH9], switch_state[SWITCH9]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH12], switch_state[SWITCH12]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH17], switch_state[SWITCH17]/2.0);
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
@@ -254,12 +270,45 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 				action=true;
 			}
 		}
+
+		if(p.x>=0.243867 && p.x<=0.288102) {
+			if(p.y>=0.22259 && p.y<=0.252219) {
+				if(p.y<0.2374045) {
+					if(switch_state[SWITCH16]>0) switch_state[SWITCH16]--;
+					//sprintf_s(oapiDebugString(), 255, "SWITCH16");
+				}
+				else {
+					if(switch_state[SWITCH16]<2) switch_state[SWITCH16]++;
+				}
+				action=true;
+			}
+		}
+
+		if(p.x>=0.298233 && p.x<=0.346051) {
+			if(p.y>=0.2227635 && p.y<=0.250502) {
+				if(p.y<0.23663275) {
+					if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
+					//sprintf_s(oapiDebugString(), 255, "SWITCH16");
+				}
+				else {
+					if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
+				}
+				action=true;
+			}
+		}
 	}
 
-	else {
+	else { //reset spring-loaded switches
 		if(p.x>=0.170449 && p.x<=0.226497) {
 			if(p.y>=0.618925 && p.y<=0.651137) {
 				switch_state[SWITCH10]=1;
+				action=true;
+			}
+		}
+
+		if(p.x>=0.243867 && p.x<=0.288102) {
+			if(p.y>=0.22259 && p.y<=0.252219) {
+				switch_state[SWITCH16]=1;
 				action=true;
 			}
 		}
@@ -310,6 +359,9 @@ bool PanelA8::ParseScenarioLine(char *line)
 			sts->RMSRollout.action=AnimState::CLOSING;
 		}*/
 	}
+	else if(!_strnicmp(line, "EE MODE", 7)) {
+		sscanf_s(line+7, "%d", &switch_state[SWITCH17]);
+	}
 	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
 		sscanf(line+22, "%d", &switch_state[SWITCH10]);
 	}*/
@@ -319,6 +371,7 @@ bool PanelA8::ParseScenarioLine(char *line)
 void PanelA8::SaveState(FILEHANDLE scn)
 {
 	oapiWriteScenario_int(scn, "STBD_RMS", switch_state[SWITCH6]);
+	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH17]);
 	//oapiWriteScenario_int(scn, "SHOULDER_BRACE_RELEASE", switch_state[SWITCH10]);
 	return;
 }
