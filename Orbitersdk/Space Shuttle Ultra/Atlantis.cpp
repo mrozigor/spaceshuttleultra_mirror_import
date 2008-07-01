@@ -556,6 +556,12 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  MPM_Microswitches[i][0]=0;
 	  MPM_Microswitches[i][1]=1;
   }
+  EEGrappleMode=0;
+  bGrappleInProgress=false;
+  bReleaseInProgress=false;
+  Grapple.Set(AnimState::OPEN, 1);
+  Rigidize.Set(AnimState::OPEN, 1);
+  Extend.Set(AnimState::OPEN, 1);
   arm_sy = 0.5;
   arm_sp = 0.0136;
   arm_ep = 0.014688;
@@ -2140,7 +2146,7 @@ void Atlantis::ToggleGrapple (void)
               DetachChild (sat_attach);
             AttachChild (hV, rms_attach, hAtt);
             if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-              SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
+              //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
               EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
             }
             return;
@@ -4039,6 +4045,12 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			else RMSRollout.action=AnimState::CLOSED;
 		}
 		UpdateMPMMicroswitches();
+	} else if (!_strnicmp (line, "GRAPPLE", 7)) {
+		sscan_state(line+7, Grapple);
+	} else if (!_strnicmp (line, "EXTEND", 6)) {
+		sscan_state(line+6, Extend);
+	} else if (!_strnicmp (line, "RIGIDIZE", 8)) {
+		sscan_state(line+8, Rigidize);
 	} else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
 		sscanf (line+14, "%lf", &shoulder_brace);
 	} else if (!_strnicmp (line, "MRL", 3)) {
@@ -4165,6 +4177,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
 	  sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
 	  oapiWriteScenario_string(scn, "MRL", cbuf);
+	  WriteScenario_state(scn, "GRAPPLE", Grapple);
+	  WriteScenario_state(scn, "RIGIDIZE", Rigidize);
+	  WriteScenario_state(scn, "EXTEND", Extend);
   }
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
@@ -4584,6 +4599,63 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  SetAnimation(anim_rollout, RMSRollout.pos);
 	  UpdateMPMMicroswitches();
   }
+
+  //Grapple sequence
+  if(bGrappleInProgress) {
+	  if(!Grapple.Closed()) {
+		  /*Grapple.pos=min(0.0, Grapple.pos-simdt*ARM_GRAPPLE_SPEED);
+		  if(Grapple.pos<=0.0) {
+			  Grapple.action=AnimState::CLOSED;
+			  ToggleGrapple();
+		  }*/
+		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
+		  if(Grapple.Closed()) {
+			  ToggleGrapple();
+			  Extend.action=AnimState::CLOSING;
+			  panela8->UpdateVC();
+		  }
+	  }
+	  else if(!Extend.Closed()) {
+		  Extend.Move(simdt*ARM_EXTEND_SPEED);
+		  if(Extend.Closed()) {
+			  Rigidize.action=AnimState::CLOSING;
+			  panela8->UpdateVC();
+		  }
+	  }
+	  else if(!Rigidize.Closed()) {
+		  Rigidize.Move(simdt*ARM_RIGID_SPEED);
+		  if(Rigidize.Closed()) {
+			  bGrappleInProgress=false;
+			  sprintf_s(oapiDebugString(), 255, "Grapple sequence completed");
+			  panela8->UpdateVC();
+		  }
+	  }
+  }
+  else if(bReleaseInProgress) {
+	  if(!Rigidize.Open()) {
+		  Rigidize.Move(simdt*ARM_RIGID_SPEED);
+		  if(Rigidize.Open()) {
+			  Grapple.action=AnimState::OPENING;
+			  panela8->UpdateVC();
+		  }
+	  }
+	  else if(!Grapple.Open()) {
+		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
+		  if(Grapple.Open()) {
+			  ToggleGrapple();
+			  Extend.action=AnimState::OPENING;
+			  panela8->UpdateVC();
+		  }
+	  }
+	  else if(!Extend.Open()) {
+		  Extend.Move(simdt*ARM_EXTEND_SPEED);
+		  if(Extend.Open()) {
+			  bReleaseInProgress=false;
+			  sprintf_s(oapiDebugString(), 255, "Release sequence completed");
+			  panela8->UpdateVC();
+		  }
+	  }
+  }
   
   // ***** Stow RMS arm *****
 
@@ -4861,7 +4933,7 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
 		}
 		newmfd->UpdateStatus=true;
-		newmfd=NULL;
+		newmfd=NULL; //reset newmfd so it can be used by next new instance of CRT MFD
 	}
 	//sprintf(oapiDebugString(), "%d", mfd);
 }
@@ -5699,6 +5771,65 @@ void Atlantis::UpdateRMSPositions()
 		//arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 }
 
+void Atlantis::AutoGrappleSequence()
+{
+	sprintf_s(oapiDebugString(), 255, "AutoGrapple: %d", EEGrappleMode);
+	if(!bGrappleInProgress) {
+		bGrappleInProgress=true;
+		bReleaseInProgress=false;
+		if(!Grapple.Closed()) {
+			Grapple.action=AnimState::CLOSING;
+			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
+			if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
+		}
+		else {
+			if(!Extend.Closed()) {
+				Extend.action=AnimState::CLOSING;
+				if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
+			}
+			else {
+				Rigidize.action=AnimState::CLOSING;
+			}
+		}
+	}
+	else {
+		bGrappleInProgress=false;
+		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
+		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
+		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
+	}
+	panela8->UpdateVC();
+}
+
+void Atlantis::AutoReleaseSequence()
+{
+	if(!bReleaseInProgress) {
+		bReleaseInProgress=true;
+		bGrappleInProgress=false;
+		if(!Rigidize.Open()) {
+			Rigidize.action=AnimState::OPENING;
+			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
+			if(Grapple.Moving()) Rigidize.action=AnimState::STOPPED;
+		}
+		else {
+			if(!Grapple.Open()) {
+				Grapple.action=AnimState::OPENING;
+				if(Extend.Moving()) Extend.action=AnimState::STOPPED;
+			}
+			else {
+				Extend.action=AnimState::OPENING;
+			}
+		}
+	}
+	else {
+		bReleaseInProgress=false;
+		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
+		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
+		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
+	}
+	panela8->UpdateVC();
+}
+
 void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
 {
 	/*double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
@@ -6263,8 +6394,12 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       }
       return 0;
     case IDC_GRAPPLE:
-      sts->ToggleGrapple();
+		//sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
+		if(sts->EEGrappleMode==2) sts->AutoGrappleSequence();
       return 0;
+	case IDC_RELEASE:
+		if(sts->EEGrappleMode==2) sts->AutoReleaseSequence();
+		return 0;
     case IDC_PAYLOAD:
       sts->ToggleArrest();
       return 0;

@@ -41,7 +41,13 @@ void PanelA8::RegisterVC()
 	oapiVCRegisterArea(AID_A8_TKBK5, _R(895, 647, 927, 665), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	oapiVCRegisterArea(AID_A8_TKBK6, _R(806, 650, 838, 668), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	oapiVCRegisterArea(AID_A8_TKBK7, _R(717, 648, 749, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK9, _R(914, 334, 946, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	oapiVCRegisterArea(AID_A8_TKBK10, _R(914, 400, 946, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	oapiVCRegisterArea(AID_A8_TKBK11, _R(901, 931, 933, 949), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	oapiVCRegisterArea(AID_A8_TKBK14, _R(868, 334, 900, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	oapiVCRegisterArea(AID_A8_TKBK15, _R(868, 400, 900, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	oapiVCRegisterArea(AID_A8_TKBK16, _R(819, 334, 851, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	oapiVCRegisterArea(AID_A8_TKBK17, _R(819, 400, 851, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	//oapiVCRegisterArea(AID_A8_TKBK7, _R(614, 617, 646, 635), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 }
 
@@ -87,9 +93,35 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			else if(sts->MPM_Microswitches[0][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
+		case AID_A8_TKBK9:
+			//if(sts->Extend.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			//else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
+			if(sts->GetAttachmentStatus(sts->rms_attach)) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
+		case AID_A8_TKBK10:
+			if(sts->Extend.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
 		case AID_A8_TKBK11:
 			if(sts->shoulder_brace==0.0 && switch_state[SWITCH12]==0)
 				return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
+		case AID_A8_TKBK14:
+			if(sts->Grapple.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
+		case AID_A8_TKBK15:
+			if(sts->Grapple.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
+		case AID_A8_TKBK16:
+			if(sts->Rigidize.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			break;
+		case AID_A8_TKBK17:
+			if(sts->Rigidize.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 	}
@@ -175,7 +207,13 @@ void PanelA8::UpdateVC()
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK5);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK6);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK7);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK9);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK10);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK11);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK14);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK15);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK16);
+	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK17);
 }
 
 bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
@@ -293,6 +331,14 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 				else {
 					if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
 				}
+				if(switch_state[SWITCH17]==1) {
+					sts->EEGrappleMode=0;
+					//stop grapple/release sequences
+					if(sts->bGrappleInProgress) sts->AutoGrappleSequence();
+					else if(sts->bReleaseInProgress) sts->AutoReleaseSequence();
+				}
+				else if(switch_state[SWITCH17]==2) sts->EEGrappleMode=1;
+				else sts->EEGrappleMode=2;
 				action=true;
 			}
 		}
@@ -361,6 +407,9 @@ bool PanelA8::ParseScenarioLine(char *line)
 	}
 	else if(!_strnicmp(line, "EE MODE", 7)) {
 		sscanf_s(line+7, "%d", &switch_state[SWITCH17]);
+		if(switch_state[SWITCH17]==1) sts->EEGrappleMode=0;
+		else if(switch_state[SWITCH17]==2) sts->EEGrappleMode=1;
+		else sts->EEGrappleMode=2;
 	}
 	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
 		sscanf(line+22, "%d", &switch_state[SWITCH10]);
