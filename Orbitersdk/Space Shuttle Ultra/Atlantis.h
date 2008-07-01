@@ -922,6 +922,7 @@ public:
 	void ToggleArrest (void);
 	void UpdateMesh ();
 	void UpdateRMSPositions();
+	void UpdateRMSAngles();
 	void UpdateSSMEGimbalAnimations();
 	//VECTOR3 CalcAnimationFKArm2();
 
