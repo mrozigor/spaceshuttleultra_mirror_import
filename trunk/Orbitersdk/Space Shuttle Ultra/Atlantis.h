@@ -149,6 +149,12 @@ const double ARM_TRANSLATE_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 const double ARM_DEPLOY_SPEED = 0.0294117647;
 // RMS rollout speed
+const double ARM_GRAPPLE_SPEED = 0.4;
+// Time to fully grapple an object (1/s)
+const double ARM_RIGID_SPEED = 0.25;
+// Time to regidize/derigidize arm (1/s)
+const double ARM_EXTEND_SPEED = 0.142857;
+// Time to extend/retract EE (1/s)
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed
 const VECTOR3 ARM_WRIST_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
@@ -658,6 +664,12 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A8_TKBK9   439
 #define AID_A8_TKBK10  440
 #define AID_A8_TKBK11  441
+#define AID_A8_TKBK12  442
+#define AID_A8_TKBK13  443
+#define AID_A8_TKBK14  444
+#define AID_A8_TKBK15  445
+#define AID_A8_TKBK16  446
+#define AID_A8_TKBK17  447
 #define AID_A8_MAX     459
 
 #define AID_F8_MIN	   460
@@ -905,6 +917,8 @@ public:
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
 	void ToggleGrapple (void);
+	void AutoGrappleSequence();
+	void AutoReleaseSequence();
 	void ToggleArrest (void);
 	void UpdateMesh ();
 	void UpdateRMSPositions();
@@ -1385,13 +1399,18 @@ private:
 	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
 	
+	//RMS
 	AnimState RMSRollout;
 	int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
 	double shoulder_brace;
 	double MRL[2]; //0=PORT, 1=STBD
 	int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
-	bool DisplayJointAngles;
+	bool DisplayJointAngles;	
+	//Grapple/Release sequences
+	bool bGrappleInProgress, bReleaseInProgress;
+	AnimState Grapple, Rigidize, Extend;
+	int EEGrappleMode; //0=OFF, 1=MAN, 2=AUTO
 	//IK parameters
 	VECTOR3 arm_wrist_pos;
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
