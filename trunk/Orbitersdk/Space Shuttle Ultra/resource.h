@@ -32,6 +32,7 @@
 #define IDC_STOW                        1007
 #define IDC_GRAPPLE                     1008
 #define IDC_SHOWGRAPPLE                 1009
+#define IDC_RELEASE                     1010
 #define IDC_PAYLOAD                     1011
 #define IDC_BUTTON9                     1024
 #define IDC_ELBOW_PITCHUP               1024
