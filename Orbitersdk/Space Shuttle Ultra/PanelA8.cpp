@@ -388,7 +388,47 @@ void PanelA8::Step(double t, double dt)
 		sts->shoulder_brace=max(0.0, sts->shoulder_brace-da);
 		UpdateVC();
 	}
-	return;
+	
+	if(switch_state[SWITCH17]==2 && switch_state[SWITCH16]==0) {
+		//rigidize
+		if(!sts->Extend.Closed()) {
+			sts->Extend.action=AnimState::CLOSING;
+			sts->Extend.Move(dt*ARM_EXTEND_SPEED);
+			if(sts->Extend.Closed()) {
+				sts->Rigidize.action=AnimState::CLOSING;
+			}
+			UpdateVC();
+		}
+		else if(!sts->Rigidize.Closed()) {
+			sts->Rigidize.action=AnimState::CLOSING;
+			sts->Rigidize.Move(dt*ARM_RIGID_SPEED);
+			if(sts->Rigidize.Closed()) {
+				sts->bGrappleInProgress=false;
+				sprintf_s(oapiDebugString(), 255, "Rigidize sequence completed");
+				UpdateVC();
+			}
+		}
+	}
+	else if(switch_state[SWITCH17]==2 && switch_state[SWITCH16]==2) {
+		//derigidize
+		if(!sts->Rigidize.Open()) {
+			sts->Rigidize.action=AnimState::OPENING;
+			sts->Rigidize.Move(dt*ARM_RIGID_SPEED);
+			if(sts->Rigidize.Open()) {
+				sts->Extend.action=AnimState::OPENING;
+				UpdateVC();
+			}
+		}
+		else if(!sts->Extend.Open()) {
+			sts->Extend.action=AnimState::OPENING;
+			sts->Extend.Move(dt*ARM_EXTEND_SPEED);
+			if(sts->Extend.Open()) {
+				sts->bReleaseInProgress=false;
+				sprintf_s(oapiDebugString(), 255, "Derigidize sequence completed");
+			}
+			UpdateVC();
+		}
+	}
 }
 
 bool PanelA8::ParseScenarioLine(char *line)

@@ -4620,8 +4620,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  Extend.Move(simdt*ARM_EXTEND_SPEED);
 		  if(Extend.Closed()) {
 			  Rigidize.action=AnimState::CLOSING;
-			  panela8->UpdateVC();
 		  }
+		  panela8->UpdateVC();
 	  }
 	  else if(!Rigidize.Closed()) {
 		  Rigidize.Move(simdt*ARM_RIGID_SPEED);
@@ -4653,8 +4653,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  if(Extend.Open()) {
 			  bReleaseInProgress=false;
 			  sprintf_s(oapiDebugString(), 255, "Release sequence completed");
-			  panela8->UpdateVC();
 		  }
+		  panela8->UpdateVC();
 	  }
   }
   
@@ -6401,7 +6401,31 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
       } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
-    }
+	  } else if (SendDlgItemMessage (hWnd, IDC_GRAPPLE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		  sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
+		  if(sts->EEGrappleMode==1) {
+			  if(!sts->Grapple.Closed()) {
+				  sts->Grapple.action=AnimState::CLOSING;
+				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
+				  if(sts->Grapple.Closed() && !sts->GetAttachmentStatus(sts->rms_attach)) {
+					  sts->ToggleGrapple();
+					  sts->panela8->UpdateVC();
+				  }
+			  }
+		  }
+	  } else if (SendDlgItemMessage (hWnd, IDC_RELEASE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		  //sprintf_s(oapiDebugString(), 255, "RELEASE pressed");
+		  if(sts->EEGrappleMode==1) {
+			  if(!sts->Grapple.Open()) {
+				  sts->Grapple.action=AnimState::OPENING;
+				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
+				  if(sts->Grapple.Closed() && sts->GetAttachmentStatus(sts->rms_attach)) {
+					  sts->ToggleGrapple();
+					  sts->panela8->UpdateVC();
+				  }
+			  }
+		  }
+	  }
       t0 = t1;
     }
     if (!sts->center_arm) EnableWindow (GetDlgItem (hWnd, IDC_GRAPPLE), TRUE);
