@@ -179,6 +179,8 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 
 const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling
+const double MAX_GRAPPLING_ANGLE = 0.087266;
+// max angle between EE and grapple for successful grappling (radians)
 
 const double CAM_HIGHRATE_SPEED = 12;
 const double CAM_LOWRATE_SPEED = 1.2;

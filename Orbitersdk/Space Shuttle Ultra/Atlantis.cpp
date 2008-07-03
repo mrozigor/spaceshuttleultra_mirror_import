@@ -2122,8 +2122,9 @@ void Atlantis::ToggleGrapple (void)
 
   } else {             // grapple satellite
 
-    VECTOR3 gpos, grms, pos, dir, rot;
+    VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
     Local2Global (orbiter_ofs+arm_tip[0], grms);  // global position of RMS tip
+	GlobalRot(arm_tip[1]-arm_tip[0], grmsdir);
 
     // Search the complete vessel list for a grappling candidate.
     // Not very scalable ...
@@ -2140,16 +2141,20 @@ void Atlantis::ToggleGrapple (void)
           if (strncmp (id, "GS", 2)) continue; // attachment point not compatible
           v->GetAttachmentParams (hAtt, pos, dir, rot);
           v->Local2Global (pos, gpos);
-          if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { // found one!
-            // check whether satellite is currently clamped into payload bay
-            if (hV == GetAttachmentStatus (sat_attach))
-              DetachChild (sat_attach);
-            AttachChild (hV, rms_attach, hAtt);
-            if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-              //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
-              EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
-            }
-            return;
+          if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
+			  v->GlobalRot(dir, gdir);
+			  //sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
+			  if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
+				  // check whether satellite is currently clamped into payload bay
+				  if (hV == GetAttachmentStatus (sat_attach))
+					  DetachChild (sat_attach);
+				  AttachChild (hV, rms_attach, hAtt);
+				  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
+					  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
+					  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
+				  }
+				  return;
+			  }
           }
         }
       }
