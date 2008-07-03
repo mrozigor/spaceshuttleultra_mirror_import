@@ -4616,7 +4616,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  }*/
 		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 		  if(Grapple.Closed()) {
-			  ToggleGrapple();
+			  if(!GetAttachmentStatus(rms_attach)) ToggleGrapple();
 			  Extend.action=AnimState::CLOSING;
 			  panela8->UpdateVC();
 		  }
@@ -4648,7 +4648,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  else if(!Grapple.Open()) {
 		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 		  if(Grapple.Open()) {
-			  ToggleGrapple();
+			  if(GetAttachmentStatus(rms_attach)) ToggleGrapple();
 			  Extend.action=AnimState::OPENING;
 			  panela8->UpdateVC();
 		  }
