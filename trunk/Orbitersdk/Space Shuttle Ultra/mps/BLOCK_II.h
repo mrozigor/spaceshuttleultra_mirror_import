@@ -41,11 +41,7 @@ namespace mps
 		double dcOPOV_MS( double );
 
 	public:
-		// EIU only
-		// command
-		bool cmdThrottle( double );
-
-		BLOCK_II( SubsystemDirector*, const string&, int, PROPELLANT_HANDLE, VECTOR3, VECTOR3 );
+		BLOCK_II( SubsystemDirector*, const string&, int);
 		~BLOCK_II( void );
 
 		// heart beat

@@ -1,14 +1,21 @@
 #include "BLOCK_II.h"
+#include "../Atlantis.h"
 
 
 namespace mps
 {
-	BLOCK_II::BLOCK_II( SubsystemDirector* _director, const string& _ident, int nID, PROPELLANT_HANDLE phET, VECTOR3 pos, VECTOR3 dir ):SSME( _director, _ident, nID, phET, pos, dir, BLOCK_II_ISP0, BLOCK_II_ISP1, BLOCK_II_FPL_THRUST )
+	BLOCK_II::BLOCK_II( SubsystemDirector* _director, const string& _ident, 
+		int nID )
+		:SSME( _director, _ident, nID )
 	{
 		MPL = 67;
 		FPL = 109;
 
-		cmdSTATUS = STARTPREPARATION_PURGESEQUENCE3;
+		FPL_THRUST = BLOCK_II_FPL_THRUST;
+		ISP0 = BLOCK_II_ISP0;
+		ISP1 = BLOCK_II_ISP1;
+
+		PSN4time = -1;
 
 		SSME_DATA_TABLE->cmdPC = 0;
 		SSME_DATA_TABLE->StartEnable = false;
@@ -45,7 +52,6 @@ namespace mps
 		int idata2 = 0;
 		int idata3 = 0;
 		int idata4 = 0;
-		int idata5 = 0;
 
 		char IDstr[6];
 
@@ -53,15 +59,14 @@ namespace mps
 
 		if (!_strnicmp( line, IDstr, 5 ))
 		{
-			sscanf( line + 5, "%f %d %d %f %f %d %d %d %f %f %f %f %f %f %f",
+			sscanf( line + 5, "%f %d %f %f %d %d %d %f %f %f %f %f %f %f",
 				&SSME_DATA_TABLE->timeTAG,
 				&idata1,
-				&idata2,
 				&SSME_DATA_TABLE->powerlevel,
 				&SSME_DATA_TABLE->cmdPC,
+				&idata2,
 				&idata3,
 				&idata4,
-				&idata5,
 				&SSME_DATA_TABLE->timeESC,
 				&SSME_DATA_TABLE->timeCO,
 				&SSME_DATA_TABLE->posOPOV, 
@@ -71,12 +76,11 @@ namespace mps
 				&SSME_DATA_TABLE->posCCV );
 
 			SSME_DATA_TABLE->STATUS = (ENGINE_STATUS)idata1;
-			cmdSTATUS = (ENGINE_STATUS)idata2;
-			if (idata3 == 1) SSME_DATA_TABLE->ShutdownEnable = true;
-			if (idata4 == 1) SSME_DATA_TABLE->StartEnable = true;
-			activeDCU = (DCU)idata5;
+			if (idata2 == 1) SSME_DATA_TABLE->ShutdownEnable = true;
+			if (idata3 == 1) SSME_DATA_TABLE->StartEnable = true;
+			activeDCU = (DCU)idata4;
 
-			OV->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+			STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
 			return true;
 		}
 		return false;
@@ -86,11 +90,10 @@ namespace mps
 	{
 		char sdata[128];
 
-		sprintf( sdata, "  SSME%d %f %d %d %f %f %d %d %d %f %f %f %f %f %f %f",
+		sprintf( sdata, "  SSME%d %f %d %f %f %d %d %d %f %f %f %f %f %f %f",
 			ID,
 			SSME_DATA_TABLE->timeTAG, 
 			SSME_DATA_TABLE->STATUS,
-			cmdSTATUS,
 			SSME_DATA_TABLE->powerlevel,
 			SSME_DATA_TABLE->cmdPC, 
 			SSME_DATA_TABLE->ShutdownEnable,
@@ -125,16 +128,6 @@ namespace mps
 		return ((pcPCT * 3000) / FPL);
 	}*/
 
-	// EIU cmd
-	bool BLOCK_II::cmdThrottle( double itgtPC )
-	{
-		if ((SSME_DATA_TABLE->STATUS == STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL) && (itgtPC <= FPL) && (itgtPC >= MPL))
-		{
-			SSME_DATA_TABLE->cmdPC = itgtPC;
-			return true;
-		}
-		return false;
-	}
 
 	// data cookup
 	// ESC

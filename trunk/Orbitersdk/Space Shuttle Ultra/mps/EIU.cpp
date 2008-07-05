@@ -41,9 +41,11 @@ namespace mps
 				if (engine->cmdStart() == true) return 1;
 				return 2;
 			case 7:
-				break;
+				if (engine->cmdControllerReset() == true) return 1;
+				return 2;
 			case 8:
-				break;
+				if (engine->cmdCheckoutStandby() == true) return 1;
+				return 2;
 			case 9:
 				if (engine->cmdTerminateSequence() == true) return 1;
 				return 2;
@@ -54,20 +56,27 @@ namespace mps
 				if (engine->cmdShutdown() == true) return 1;
 				return 2;
 			case 12:
-				break;
+				if (engine->cmdFRT1() == true) return 1;
+				return 2;
 			case 13:
 				if (engine->cmdOxidizerDump() == true) return 1;
 				return 2;
 			case 14:
-				break;
+				if (engine->cmdExitPROM() == true) return 1;
+				return 2;
 			case 15:
-				break;
+				if (engine->cmdPowerOn() == true) return 1;
+				return 2;
 			case 16:
-				break;
+				if (engine->cmdChannelReset() == true) return 1;
+				return 2;
 			case 17:
 				if (engine->cmdThrottle( data ) == true) return 1;
 				return 2;
 			case 18:
+				if (engine->cmdPowerOff() == true) return 1;
+				return 2;
+			case 19:
 				break;
 		}
 

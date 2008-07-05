@@ -4,7 +4,7 @@
 
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-//#include "..\BasicValve.h"
+#include "..\ValveTypeBool.h"
 
 
 namespace mps
@@ -39,29 +39,25 @@ namespace mps
 	{
 	private:
 		// PV
-		//BasicValve* ptrPV1;// ME-1 LOX prevalve
-		//BasicValve* ptrPV2;// ME-2 LOX prevalve
-		//BasicValve* ptrPV3;// ME-3 LOX prevalve
-
-		bool posPV1;// ME-1 LOX prevalve
-		bool posPV2;// ME-2 LOX prevalve
-		bool posPV3;// ME-3 LOX prevalve
-		bool posPV4;// ME-1 LH2 prevalve
-		bool posPV5;// ME-2 LH2 prevalve
-		bool posPV6;// ME-3 LH2 prevalve
-		bool posPV7;// LOX Fdln Rlf
-		bool posPV8;// LH2 Fdln Rlf
-		bool posPV9;// LOX O/B F/D
-		bool posPV10;// LOX I/B F/D
-		bool posPV11;// LH2 O/B F/D
-		bool posPV12;// LH2 I/B F/D
-		bool posPV13;// LH2 topping
-		bool posPV17;// LH2 B/U Inbd DV
-		bool posPV18;// LH2 B/U Otbd DV
-		bool posPV19;// LOX Ovbd B/V
-		bool posPV20;// LOX POGO Recrc 1
-		bool posPV21;// LOX POGO Recrc 2
-		bool posPV22;// LH2 Hi Pt Bl
+		ValveTypeBool* ptrPV1;// ME-1 LOX prevalve
+		ValveTypeBool* ptrPV2;// ME-2 LOX prevalve
+		ValveTypeBool* ptrPV3;// ME-3 LOX prevalve
+		ValveTypeBool* ptrPV4;// ME-1 LH2 prevalve
+		ValveTypeBool* ptrPV5;// ME-2 LH2 prevalve
+		ValveTypeBool* ptrPV6;// ME-3 LH2 prevalve
+		ValveTypeBool* ptrPV7;// LOX Fdln Rlf
+		ValveTypeBool* ptrPV8;// LH2 Fdln Rlf
+		ValveTypeBool* ptrPV9;// LOX O/B F/D
+		ValveTypeBool* ptrPV10;// LOX I/B F/D
+		ValveTypeBool* ptrPV11;// LH2 O/B F/D
+		ValveTypeBool* ptrPV12;// LH2 I/B F/D
+		ValveTypeBool* ptrPV13;// LH2 topping
+		ValveTypeBool* ptrPV17;// LH2 B/U Inbd DV
+		ValveTypeBool* ptrPV18;// LH2 B/U Otbd DV
+		ValveTypeBool* ptrPV19;// LOX Ovbd B/V
+		ValveTypeBool* ptrPV20;// LOX POGO Recrc 1
+		ValveTypeBool* ptrPV21;// LOX POGO Recrc 2
+		ValveTypeBool* ptrPV22;// LH2 Hi Pt Bl
 
 		// PD
 		bool posPD1;// LOX 17in Disc
@@ -79,10 +75,13 @@ namespace mps
 		// vlv ops
 		bool MPSValveOpen( MPS_VALVE );
 		bool MPSValveClose( MPS_VALVE );
-		bool MPSValveStatus( MPS_VALVE );
+		double MPSValveStatus( MPS_VALVE );
 
 		// heart beat
 		virtual void OnPostStep( double, double, double );
+
+		void OnSaveState( FILEHANDLE ) const;
+		bool OnParseLine( const char* );
 	};
 }
 

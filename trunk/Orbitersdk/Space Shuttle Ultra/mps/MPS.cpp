@@ -5,29 +5,27 @@ namespace mps
 {
 	MPS::MPS( SubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsMPS" )
 	{
-		//ptrPV1 = new BasicValve( 1, 50 );
-		//ptrPV2 = new BasicValve( 1, 50 );
-		//ptrPV3 = new BasicValve( 1, 50 );
 		// mostly speculation...
-		posPV1 = true;
-		posPV2 = true;
-		posPV3 = true;
-		posPV4 = true;
-		posPV5 = true;
-		posPV6 = true;
-		posPV7 = false;
-		posPV8 = false;
-		posPV9 = true;
-		posPV10 = true;
-		posPV11 = true;
-		posPV12 = true;
-		posPV13 = true;
-		posPV17 = false;
-		posPV18 = false;
-		posPV19 = false;
-		posPV20 = true;
-		posPV21 = true;
-		posPV22 = false;
+		ptrPV1 = new ValveTypeBool( true, 50 );
+		ptrPV2 = new ValveTypeBool( true, 50 );
+		ptrPV3 = new ValveTypeBool( true, 50 );
+		ptrPV4 = new ValveTypeBool( true, 50 );
+		ptrPV5 = new ValveTypeBool( true, 50 );
+		ptrPV6 = new ValveTypeBool( true, 50 );
+		ptrPV7 = new ValveTypeBool( true, 50 );
+		ptrPV8 = new ValveTypeBool( true, 50 );
+		ptrPV9 = new ValveTypeBool( true, 50 );
+		ptrPV10 = new ValveTypeBool( true, 50 );
+		ptrPV11 = new ValveTypeBool( true, 50 );
+		ptrPV12 = new ValveTypeBool( true, 50 );
+		ptrPV13 = new ValveTypeBool( true, 50 );
+		ptrPV17 = new ValveTypeBool( false, 50 );
+		ptrPV18 = new ValveTypeBool( false, 50 );
+		ptrPV19 = new ValveTypeBool( false, 50 );
+		ptrPV20 = new ValveTypeBool( true, 50 );
+		ptrPV21 = new ValveTypeBool( true, 50 );
+		ptrPV22 = new ValveTypeBool( false, 50 );
+
 		posPD1 = true;
 		posPD2 = true;
 		posPD3 = true;
@@ -36,10 +34,106 @@ namespace mps
 
 	MPS::~MPS( void )
 	{
-		//delete ptrPV1;
-		//delete ptrPV2;
-		//delete ptrPV3;
-		// end
+		delete ptrPV1;
+		delete ptrPV2;
+		delete ptrPV3;
+		delete ptrPV4;
+		delete ptrPV5;
+		delete ptrPV6;
+		delete ptrPV7;
+		delete ptrPV8;
+		delete ptrPV9;
+		delete ptrPV10;
+		delete ptrPV11;
+		delete ptrPV12;
+		delete ptrPV13;
+		delete ptrPV17;
+		delete ptrPV18;
+		delete ptrPV19;
+		delete ptrPV20;
+		delete ptrPV21;
+		delete ptrPV22;
+		// the end
+	}
+
+	bool MPS::OnParseLine( const char* line )// TODO val checks
+	{
+		double fdata1 = 0;
+		double fdata2 = 0;
+		double fdata3 = 0;
+		double fdata4 = 0;
+		double fdata5 = 0;
+		double fdata6 = 0;
+		double fdata7 = 0;
+		double fdata8 = 0;
+		double fdata9 = 0;
+		double fdata10 = 0;
+		double fdata11 = 0;
+		double fdata12 = 0;
+		double fdata13 = 0;
+		double fdata14 = 0;
+		double fdata15 = 0;
+		double fdata16 = 0;
+		double fdata17 = 0;
+		double fdata18 = 0;
+		double fdata19 = 0;
+
+		if (!_strnicmp( line, "MPS", 3 ))
+		{
+			sscanf( line + 3, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+				&fdata1,
+				&fdata2,
+				&fdata3,
+				&fdata4,
+				&fdata5,
+				&fdata6,
+				&fdata7,
+				&fdata8,
+				&fdata9,
+				&fdata10,
+				&fdata11,
+				&fdata12,
+				&fdata13,
+				&fdata14,
+				&fdata15,
+				&fdata16,
+				&fdata17,
+				&fdata18,
+				&fdata19 );
+
+			// TODO set vlv pos using back door
+
+			return true;
+		}
+		return false;
+	}
+
+	void MPS::OnSaveState( FILEHANDLE scn ) const
+	{
+		char sdata[256];
+
+		sprintf( sdata, "  MPS %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+			(double)ptrPV1->GetPos(),
+			(double)ptrPV2->GetPos(), 
+			(double)ptrPV3->GetPos(),
+			(double)ptrPV4->GetPos(),
+			(double)ptrPV5->GetPos(), 
+			(double)ptrPV6->GetPos(),
+			(double)ptrPV7->GetPos(),
+			(double)ptrPV8->GetPos(), 
+			(double)ptrPV9->GetPos(),
+			(double)ptrPV10->GetPos(),
+			(double)ptrPV11->GetPos(), 
+			(double)ptrPV12->GetPos(),
+			(double)ptrPV13->GetPos(),
+			(double)ptrPV17->GetPos(), 
+			(double)ptrPV18->GetPos(),
+			(double)ptrPV19->GetPos(),
+			(double)ptrPV20->GetPos(),
+			(double)ptrPV21->GetPos(),
+			(double)ptrPV22->GetPos() );
+		oapiWriteLine( scn, sdata );
+		return;
 	}
 
 	bool MPS::MPSValveOpen( MPS_VALVE vlv )
@@ -47,63 +141,43 @@ namespace mps
 		switch (vlv)
 		{
 			case PV1:
-				//ptrPV1->Open();
-				posPV1 = true;
-				return true;
+				return ptrPV1->Open();
 			case PV2:
-				posPV2 = true;
-				return true;
+				return ptrPV2->Open();
 			case PV3:
-				posPV3 = true;
-				return true;
+				return ptrPV3->Open();
 			case PV4:
-				posPV4 = true;
-				return true;
+				return ptrPV4->Open();
 			case PV5:
-				posPV5 = true;
-				return true;
+				return ptrPV5->Open();
 			case PV6:
-				posPV6 = true;
-				return true;
+				return ptrPV6->Open();
 			case PV7:
-				posPV7 = true;
-				return true;
+				return ptrPV7->Open();
 			case PV8:
-				posPV8 = true;
-				return true;
+				return ptrPV8->Open();
 			case PV9:
-				posPV9 = true;
-				return true;
+				return ptrPV9->Open();
 			case PV10:
-				posPV10 = true;
-				return true;
+				return ptrPV10->Open();
 			case PV11:
-				posPV11 = true;
-				return true;
+				return ptrPV11->Open();
 			case PV12:
-				posPV12 = true;
-				return true;
+				return ptrPV12->Open();
 			case PV13:
-				posPV13 = true;
-				return true;
+				return ptrPV13->Open();
 			case PV17:
-				posPV17 = true;
-				return true;
+				return ptrPV17->Open();
 			case PV18:
-				posPV18 = true;
-				return true;
+				return ptrPV18->Open();
 			case PV19:
-				posPV19 = true;
-				return true;
+				return ptrPV19->Open();
 			case PV20:
-				posPV20 = true;
-				return true;
+				return ptrPV20->Open();
 			case PV21:
-				posPV21 = true;
-				return true;
+				return ptrPV21->Open();
 			case PV22:
-				posPV22 = true;
-				return true;
+				return ptrPV22->Open();
 			case PD1:
 				posPD1 = true;
 				return true;
@@ -122,62 +196,43 @@ namespace mps
 		switch (vlv)
 		{
 			case PV1:
-				posPV1 = false;
-				return true;
+				return ptrPV1->Close();
 			case PV2:
-				posPV2 = false;
-				return true;
+				return ptrPV2->Close();
 			case PV3:
-				posPV3 = false;
-				return true;
+				return ptrPV3->Close();
 			case PV4:
-				posPV4 = false;
-				return true;
+				return ptrPV4->Close();
 			case PV5:
-				posPV5 = false;
-				return true;
+				return ptrPV5->Close();
 			case PV6:
-				posPV6 = false;
-				return true;
+				return ptrPV6->Close();
 			case PV7:
-				posPV7 = false;
-				return true;
+				return ptrPV7->Close();
 			case PV8:
-				posPV8 = false;
-				return true;
+				return ptrPV8->Close();
 			case PV9:
-				posPV9 = false;
-				return true;
+				return ptrPV9->Close();
 			case PV10:
-				posPV10 = false;
-				return true;
+				return ptrPV10->Close();
 			case PV11:
-				posPV11 = false;
-				return true;
+				return ptrPV11->Close();
 			case PV12:
-				posPV12 = false;
-				return true;
+				return ptrPV12->Close();
 			case PV13:
-				posPV13 = false;
-				return true;
+				return ptrPV13->Close();
 			case PV17:
-				posPV17 = false;
-				return true;
+				return ptrPV17->Close();
 			case PV18:
-				posPV18 = false;
-				return true;
+				return ptrPV18->Close();
 			case PV19:
-				posPV19 = false;
-				return true;
+				return ptrPV19->Close();
 			case PV20:
-				posPV20 = false;
-				return true;
+				return ptrPV20->Close();
 			case PV21:
-				posPV21 = false;
-				return true;
+				return ptrPV21->Close();
 			case PV22:
-				posPV22 = false;
-				return true;
+				return ptrPV22->Close();
 			case PD1:
 				posPD1 = false;
 				return true;
@@ -191,48 +246,48 @@ namespace mps
 		return false;
 	}
 
-	bool MPS::MPSValveStatus( MPS_VALVE vlv )
+	double MPS::MPSValveStatus( MPS_VALVE vlv )
 	{
 		switch (vlv)
 		{
 			case PV1:
-				return posPV1;
+				return (double)ptrPV1->GetPos();
 			case PV2:
-				return posPV2;
+				return (double)ptrPV2->GetPos();
 			case PV3:
-				return posPV3;
+				return (double)ptrPV3->GetPos();
 			case PV4:
-				return posPV4;
+				return (double)ptrPV4->GetPos();
 			case PV5:
-				return posPV5;
+				return (double)ptrPV5->GetPos();
 			case PV6:
-				return posPV6;
+				return (double)ptrPV6->GetPos();
 			case PV7:
-				return posPV7;
+				return (double)ptrPV7->GetPos();
 			case PV8:
-				return posPV8;
+				return (double)ptrPV8->GetPos();
 			case PV9:
-				return posPV9;
+				return (double)ptrPV9->GetPos();
 			case PV10:
-				return posPV10;
+				return (double)ptrPV10->GetPos();
 			case PV11:
-				return posPV11;
+				return (double)ptrPV11->GetPos();
 			case PV12:
-				return posPV12;
+				return (double)ptrPV12->GetPos();
 			case PV13:
-				return posPV13;
+				return (double)ptrPV13->GetPos();
 			case PV17:
-				return posPV17;
+				return (double)ptrPV17->GetPos();
 			case PV18:
-				return posPV18;
+				return (double)ptrPV18->GetPos();
 			case PV19:
-				return posPV19;
+				return (double)ptrPV19->GetPos();
 			case PV20:
-				return posPV20;
+				return (double)ptrPV20->GetPos();
 			case PV21:
-				return posPV21;
+				return (double)ptrPV21->GetPos();
 			case PV22:
-				return posPV22;
+				return (double)ptrPV22->GetPos();
 			case PD1:
 				return posPD1;
 			case PD2:
@@ -245,9 +300,25 @@ namespace mps
 
 	void MPS::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
-		//ptrPV1->tmestp( fSimT );
-		//ptrPV2->tmestp( fSimT );
-		//ptrPV3->tmestp( fSimT );
+		ptrPV1->tmestp( fSimT );
+		ptrPV2->tmestp( fSimT );
+		ptrPV3->tmestp( fSimT );
+		ptrPV4->tmestp( fSimT );
+		ptrPV5->tmestp( fSimT );
+		ptrPV6->tmestp( fSimT );
+		ptrPV7->tmestp( fSimT );
+		ptrPV8->tmestp( fSimT );
+		ptrPV9->tmestp( fSimT );
+		ptrPV10->tmestp( fSimT );
+		ptrPV11->tmestp( fSimT );
+		ptrPV12->tmestp( fSimT );
+		ptrPV13->tmestp( fSimT );
+		ptrPV17->tmestp( fSimT );
+		ptrPV18->tmestp( fSimT );
+		ptrPV19->tmestp( fSimT );
+		ptrPV20->tmestp( fSimT );
+		ptrPV21->tmestp( fSimT );
+		ptrPV22->tmestp( fSimT );
 		return;
 	}
 }

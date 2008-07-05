@@ -542,6 +542,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BasicValve.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicVCComponent.h"
 				>
 			</File>
@@ -710,6 +714,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ValveTypeBool.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\vc_defs.h"
 				>
 			</File>
@@ -740,6 +748,10 @@
 		</File>
 		<File
 			RelativePath=".\mps\ATVC.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\BasicValve.cpp"
 			>
 		</File>
 		<File
@@ -828,6 +840,10 @@
 		</File>
 		<File
 			RelativePath="Bitmaps\tkbk_label.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\ValveTypeBool.cpp"
 			>
 		</File>
 	</Files>
