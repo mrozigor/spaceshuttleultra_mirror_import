@@ -35,6 +35,7 @@
 #include "dps/MasterTimingUnit.h"
 #include "dps/IDP.h"
 #include "AirDataProbeSystem.h"
+#include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
@@ -368,7 +369,15 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems	  = new SubsystemDirector(this);
 
+  psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_L", 
+	  1));
+  psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_C", 
+	  2));
+  psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 
+	  3));
+  
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
+
   psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1", 1));
   psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2", 2));
   psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3", 3));

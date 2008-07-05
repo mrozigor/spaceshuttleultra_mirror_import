@@ -102,21 +102,29 @@ namespace mps
 	class SSME:public AtlantisSubsystem
 	{
 	protected:
-		VESSEL *OV;
+		// TODO use class for vlvs
+		//VESSEL *OV;
 		int ID;
 
 		// internal data
 		THRUSTER_HANDLE thSSME;
 
+		PROPELLANT_HANDLE phET; 
+
+		VECTOR3 pos;
+		VECTOR3 dir;
+		double ISP0;
+		double ISP1;
+		double FPL_THRUST;
+
 		double COtimecoef;
 		double OPOV_pos_CO;
 		double FPOV_pos_CO;
-		double PSN4time;// temp
+		double PSN4time;
 
 		int MPL;// %
 		int FPL;// %
 
-		ENGINE_STATUS cmdSTATUS;
 		DATA_TABLE* SSME_DATA_TABLE;
 		
 		DCU activeDCU;// inside table??????
@@ -158,19 +166,46 @@ namespace mps
 		bool cmdPurgeSequence2( void );
 		bool cmdPurgeSequence3( void );
 		bool cmdPurgeSequence4( void );
-		bool cmdStart( void );
-		virtual bool cmdThrottle( double ) = 0;
-		bool cmdShutdown( void );
 		bool cmdStartEnable( void );
-		bool cmdShutdownEnable( void );
-		bool cmdOxidizerDump( void );
+		bool cmdStart( void );
+		bool cmdControllerReset( void );
+		bool cmdCheckoutStandby( void );
 		bool cmdTerminateSequence( void );
+		bool cmdShutdownEnable( void );
+		bool cmdShutdown( void );
+		bool cmdFRT1( void );
+		bool cmdOxidizerDump( void );
+		bool cmdExitPROM( void );
+		bool cmdPowerOn( void );
+		bool cmdChannelReset( void );
+		bool cmdThrottle( double );
+		bool cmdPowerOff( void );
+		//bool cmdDeactivateAllValves( void );//
 		
 		// data
 		int dataDataTable( DATA_TABLE* );
 
-		SSME( SubsystemDirector*, const string&, int, PROPELLANT_HANDLE, VECTOR3, VECTOR3, double, double, double );
+		/**
+		 * Create a new SSME object.
+		 * @param _director reference to the subsystem director
+		 * @param _ident identification of the subsystem inside the model
+		 * @param nID  identification number of the SSME
+		 */
+		SSME( SubsystemDirector* _director, const string& _ident, 
+		int nID /*, PROPELLANT_HANDLE _phET, 
+		const VECTOR3& _pos, const VECTOR3& _dir, 
+		double ISP0, double ISP1, double FPL_THRUST  */ );
+
 		~SSME( void );
+
+		/** 
+		 * Create the thruster reference of the SSME 
+		 * and link the cable connections of the SSME.
+		 * @sa AtlantisSubsystem::Realize
+		 */
+		virtual void Realize();
+
+		virtual THRUSTER_HANDLE GetHandle() const;
 
 		// heart beat
 		void OnPostStep( double, double, double );
@@ -195,8 +230,68 @@ respond to MPS ENGINE POWER -> OFF (R2)
 */
 
 /*
-EIU:: converts ME-1 to 0, ME-2 to 1, ME-3 to 2 for use in SSME::
+-->VDT DWs
+
+ID word 2
+
+SSMEC failure ID word (DW 5)
+MCC Pc average word six
+
+PBP Disch Temp Ch A DW 11
+
+HPFT Coolant Press Ch B DW14
+HPFT Coolant Press Ch B DW15
+
+HPOT I-SEAL PGE P CH A DW 20
+HPOT I-SEAL PGE P CH B DW 21
+
+HPFTP Disch Pressure DW 29
+HPOTP Disch Pressure DW 30
+
+Fuel Flowrate Sensor A1 DW 34
+
+HPFT Disch Temp Ch A2 DW 45
+HPFT Disch Temp Ch B2 DW 46
+HPOT Disch Temp Ch A2 DW 47
+HPOT Disch Temp Ch B2 DW 48
+
+Fuel Sys Prg Pr Ch A DW53
+Fuel Sys Prg Pr Ch B DW54
+PBP Disch Temp Ch B DW 55
+
+MOV Hyd Temp Ch A DW 59
+MOV Hyd Temp Ch B DW 60
+MFV Hyd Temp Ch A DW 61
+MFV Hyd Temp Ch B DW 62
+POGO Recirn Isln V Pos DW 63
+HPFT Disch Temp Ch A3 DW 64
+Oxid Bleed Vlv Position DW 65
+Fuel Bleed Vlv Position DW 65
+
+Anti-Flood Vlv Posn Ch A DW68
+Anti-Flood Vlv Posn Ch B DW68
+HPFT Disch Temp Ch B3 DW 69
+LPOT Disch Press Ch A DW 70
+LPOT Disch Press Ch B DW 71
+Emerg Sht Dn Press Ch A DW 72
+Emerg Sht Dn Press Ch B DW 73
+Fuel Preburn Pge Press DW 74
+Oxid Prebnr Pge Press DW 75
+
+Fuel Flowrate Sensor B1 DW 89
+
+LPFP Disch Press Ch A DW 92
+LPFP Disch Temp Ch A DW 93
+
+HPOT Disch Temp Ch A3 DW 122
+HPOT Disch Temp Ch B3 DW 123
+Fuel Flowrate Sensor A2 DW124
+Fuel Flowrate Sensor B2 DW125
+
+LPFP Disch Press Ch B DW 127
+LPFP Disch Temp Ch B DW 128
 */
+
 
 /*
 redlines

@@ -18,6 +18,7 @@
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
+#include "mps/SSME.h"
 #include "vc/vc_defs.h"
 #include "vc/PanelGroup.h"
 #include "vc/BasicPanel.h"
@@ -1024,6 +1025,7 @@ private:
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	dps::IDP* pIDP[4];
 	OMSSubsystem* pOMS;
+	mps::SSME* pSSME[3];
 	/**
 	 * Strategy pattern for the external airlock subsystem
 	 */
