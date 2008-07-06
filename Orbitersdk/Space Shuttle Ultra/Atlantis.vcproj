@@ -606,6 +606,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hydraulics\HydActuator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\IDP.h"
 				>
 			</File>
