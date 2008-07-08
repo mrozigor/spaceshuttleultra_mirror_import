@@ -1085,6 +1085,7 @@ private:
 	void InitializeAutopilot();
 	double CalcNetThrust();
 	void CalcThrustAngles();
+	double CalculateAzimuth();
 	//PEG
 	void MajorCycle();
 	void Navigate();
@@ -1478,6 +1479,8 @@ private:
 	VECTOR3 rh,thetah,hh;
 	VECTOR3 posMoon,velMoon,rmh;
 	double vr,vtheta,vh;
+	//Azimuth
+	double Radius, SidDay;
 
 	double fh;
 	double pitch,yaw,roll;

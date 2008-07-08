@@ -12,7 +12,7 @@ extern double tableterp(const double* table, const double* listrow, int n_row, c
 void Atlantis::InitializeAutopilot()
 {
 	//calculate heading
-	double latitude, Radius, longitude;
+	double latitude, /*Radius,*/ longitude;
 	GetEquPos(longitude, latitude, Radius);
 	if(cos(TgtInc*RAD)>cos(latitude)) THeading=90.0;
 	else {
@@ -20,10 +20,11 @@ void Atlantis::InitializeAutopilot()
 		double xVel, yVel;
 		xVel = TgtSpd*cos(TgtFPA*RAD)*sin(InHeading)-464.581*cos(latitude);
 		yVel = TgtSpd*cos(TgtFPA*RAD)*cos(InHeading);
-		THeading=atan2(xVel, yVel)*DEG;
+		THeading=atan2(xVel, yVel);
 	}
 
 	mu=GGRAV*oapiGetMass(GetGravityRef());
+	SidDay = oapiGetPlanetPeriod(GetGravityRef());
 	//calculate apogee/perigee
 	Radius = oapiGetSize(GetGravityRef());
 	TgtRad = TgtAlt+Radius;
@@ -59,9 +60,57 @@ void Atlantis::InitializeAutopilot()
 	//D=0.0;
 }
 
+double Atlantis::CalculateAzimuth()
+{
+	double true_azimuth=0;
+	double latitude, longitude;
+	double azimuth,equator_v/*,target_radius*/;
+	double tgt_orbit_v[2],lnch_v[2],current_vel[2]; //vectors
+	VECTOR3 vel, horizonvel;
+	double temp;
+
+	// removed DEG to RAD conversion
+	GetEquPos(longitude, latitude, temp);
+	//the following lines may be incorrect
+	//GetRelativePos (hRef, pos);
+	GetRelativeVel (GetGravityRef(), vel);
+	MATRIX3 rot;
+	GetRotationMatrix (rot);
+	//oapiGetRotationMatrix(GetGravityRef(), &rot);
+	//pos = tmul (rot, pos);
+	vel = tmul (rot, vel);
+	HorizonRot(vel, horizonvel);
+	//Crt2Pol (pos, vel); // translate pos. and vel. from cartesian to polar
+	//m_pvVessel->GetEquPos(m_dLongitude,m_dLatitude,m_dRadius);
+	current_vel[1]= horizonvel.data[0]; //East
+	current_vel[0]= horizonvel.data[2];  // North
+	sprintf_s(oapiDebugString(), 255, "current_vel: %f %f", current_vel[0], current_vel[1]);
+
+
+	azimuth= asin(cos(TgtInc*RAD)/cos(latitude));  // this equ doesn't take rotation into accout
+	equator_v=Radius*(2*PI/SidDay);   //equator velocity
+	// removed DEG to RAD conversion
+	//base_v[1]= equator_v * cos (m_dLatitude);   // base velocity vector item (east)
+	//target_radius= Radius + m_dAlt;
+	//mi=GGRAV*bodyPhys.mass;  //gravitational parameter
+	tgt_orbit_v[0]=sqrt(mu/TgtRad)*cos(azimuth); // northern velocity
+	tgt_orbit_v[1]=sqrt(mu/TgtRad)*sin(azimuth); // eastern velocity
+	//for(int i=0; i<2; i++) lnch_v[i]=tgt_orbit_v[i]-abs(current_vel[i]); // taking launch site rotation into accout 
+	//final_vel_norm= sqrt(tgt_orbit_v[0]*tgt_orbit_v[0] + tgt_orbit_v[1]*tgt_orbit_v[1]);
+	lnch_v[0]= tgt_orbit_v[0] - fabs(current_vel[0]); // taking current velocity into accout for CC (North)
+	lnch_v[1]= tgt_orbit_v[1] - (current_vel[1]); // taking current velocity into accout for CC (East)
+	//lnch_v_norm=sqrt(lnch_v[0]*lnch_v[0] + lnch_v[1]*lnch_v[1]); // normalizing launch vector
+
+	if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
+	true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
+
+	return true_azimuth;
+}
+
 void Atlantis::MajorCycle()
 {
 	Navigate();
+	THeading=CalculateAzimuth();
 	Estimate();
 	Guide();
 }
@@ -169,7 +218,7 @@ void Atlantis::Guide() {
 
 void Atlantis::RateCommand()
 {
-	double Heading, Slip;
+	double Heading/*, Slip*/;
 	if(GetPitch()*DEG>=88.0) {
 		VECTOR3 wingBody=_V(1,0,0);
 		VECTOR3 wingHorizon;
@@ -178,8 +227,8 @@ void Atlantis::RateCommand()
 		while(Heading<0)Heading+=2*PI;
 	}
 	else oapiGetHeading(GetHandle(), &Heading);
-	Heading*=DEG;
-	Slip=GetSlipAngle()*DEG;
+	//Heading*=DEG;
+	//Slip=GetSlipAngle()*DEG;
 
 	if(status==1) {
 		double TargetPitch=listerp(stage1guidance[0], stage1guidance[1], stage1guidance_size, GetAirspeed());
@@ -226,8 +275,7 @@ void Atlantis::RateCommand()
 				MajorCycle();
 				TLastMajorCycle=met;
 			}
-			else 
-				Navigate();
+			else Navigate();
 
 
 
@@ -240,9 +288,10 @@ void Atlantis::RateCommand()
 				if(T>TPEGStop) {
 					ReqdRates.data[PITCH] = CmdPDot;
 					if(abs(GetBank()*DEG)>90.0) 
-						ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
-					else 
-						ReqdRates.data[YAW] = range(-2.5, 2.5*(GetSlipAngle()*DEG), 2.5);
+						ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
+						//ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
+					else ReqdRates.data[YAW] = range(-2.5, 2.5*DEG*(THeading-Heading), 2.5);
+
 					if(v<RollToHeadsUp) {
 						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
 						else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
