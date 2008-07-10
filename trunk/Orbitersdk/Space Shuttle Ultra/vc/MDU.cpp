@@ -11,8 +11,8 @@ namespace vc {
 	{
 		int row=ch/16;
 		int col=ch-(16*row);
-		x=1+5*col;
-		y=1+9*row;
+		x=1+18*col;
+		y=1+33*row;
 	}
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
@@ -196,7 +196,7 @@ namespace vc {
 					//TextOut(hDC, i*5, j*9, cbuf, 1);
 					int x, y;
 					vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
-					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, x, y, SRCCOPY);
+					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, x*0.278, y*0.272, SRCCOPY);
 				}
 			}
 		}
@@ -370,6 +370,292 @@ namespace vc {
 			PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
 			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
 			PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
+		}
+
+		else if(STS()->ops==104 || STS()->ops==105 || STS()->ops==106 || STS()->ops==202)
+		{
+			//char cbuf[255];
+			int minutes, seconds;
+			int timeDiff;
+			int TIMER[4];
+			int TGO[2];
+
+			switch(STS()->ops) {
+			case 104:
+				PrintToBuffer("1041/", 5, 1, 0, 0);
+				PrintToBuffer("OMS 1 MNVR EXEC", 15, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
+				}
+				break;
+			case 105:
+				PrintToBuffer("1051/", 5, 1, 0, 0);
+				PrintToBuffer("OMS 2 MNVR EXEC", 15, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			case 106:
+				PrintToBuffer("1061/", 5, 1, 0, 0);
+				PrintToBuffer("OMS 2 MNVR COAST", 16, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			case 202:
+				PrintToBuffer("2021/", 5, 1, 0, 0);
+				PrintToBuffer("ORBIT MNVR EXEC", 15, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			case 301:
+				PrintToBuffer("3011/", 5, 1, 0, 0);
+				PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			case 302:
+				PrintToBuffer("3021/", 5, 1, 0, 0);
+				PrintToBuffer("DEORB MNVR EXEC", 15, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			case 303:
+				PrintToBuffer("3031/", 5, 1, 0, 0);
+				PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
+				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
+					minutes=STS()->oparam.PeT/60;
+					seconds=STS()->oparam.PeT-(60*minutes);
+					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
+					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
+				}
+				else {
+					minutes=STS()->oparam.ApT/60;
+					seconds=STS()->oparam.ApT-(60*minutes);
+					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
+					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
+				}
+				break;
+			}
+
+			sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
+			PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
+			if(false) {
+				timeDiff=STS()->tig-STS()->met+1;
+				TIMER[0]=timeDiff/86400;
+				TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
+				TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
+				TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
+				sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
+				PrintToBuffer(cbuf, strlen(cbuf), 18, 1, 0);
+			}
+
+			PrintToBuffer("OMS BOTH 1", 10, 1, 1, 0);
+			PrintToBuffer("L 2", 3, 8, 2, 0);
+			PrintToBuffer("R 3", 3, 8, 3, 0);
+			PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
+			PrintToBuffer("*", 1, STS()->OMS+1, 11, 0);
+
+			sprintf(cbuf, "5 TV ROLL %d", STS()->TV_ROLL);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
+			PrintToBuffer("TRIM LOAD", 9, 1, 6, 0);
+			sprintf(cbuf, "6 P  %+2.1f", STS()->Trim.data[0]);
+			PrintToBuffer(cbuf, strlen(cbuf), 2, 7, 0);
+			sprintf(cbuf, "7 LY %+2.1f", STS()->Trim.data[1]);
+			PrintToBuffer(cbuf, strlen(cbuf), 2, 8, 0);
+			sprintf(cbuf, "8 RY %+2.1f", STS()->Trim.data[2]);
+			PrintToBuffer(cbuf, strlen(cbuf), 2, 9, 0);
+			sprintf(cbuf, "9 WT %6.0f", STS()->WT);
+			PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
+			PrintToBuffer("10 TIG", 6, 0, 11, 0);
+			sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", STS()->TIG[0], STS()->TIG[1], STS()->TIG[2], STS()->TIG[3]);
+			PrintToBuffer(cbuf, strlen(cbuf), 3, 12, 0);
+
+			PrintToBuffer("TGT PEG 4", 9, 0, 13, 0);
+			PrintToBuffer("14 C1", 5, 1, 14, 0);
+			PrintToBuffer("15 C2", 5, 1, 15, 0);
+			PrintToBuffer("16 HT", 5, 1, 16, 0);
+			PrintToBuffer("17  T", 5, 1, 17, 0); //theta symbol should be before T
+			//TextOut(hDC, 0, 153, " 17  T", 6);
+			//Ellipse(hDC, 28, 156, 34, 165);
+			//MoveToEx(hDC, 28, 160, NULL);
+			//LineTo(hDC, 34, 160);
+			PrintToBuffer("18 PRPLT", 5, 1, 18, 0);
+
+			PrintToBuffer("TGT PEG 7", 9, 0, 19, 0);
+			PrintToBuffer("19  VX", 6, 1, 20, 0);
+			PrintToBuffer("20  VY", 6, 1, 21, 0);
+			PrintToBuffer("21  VZ", 6, 1, 22, 0);
+			//TextOut(hDC, 0, 171, "TGT PEG 7", 9);
+			//TextOut(hDC, 0, 180, " 19  VX", 7);
+			//DrawDelta(hDC, 30, 184, 27, 33, 190);
+			//TextOut(hDC, 0, 189, " 20  VY", 7);
+			//DrawDelta(hDC, 30, 193, 27, 33, 199);
+			//TextOut(hDC, 0, 198, " 21  VZ", 7);
+			//DrawDelta(hDC, 30, 202, 27, 33, 208);
+			if(STS()->PEG7.x!=0.0 || STS()->PEG7.y!=0.0 || STS()->PEG7.z!=0.0) {
+				sprintf(cbuf, "%+7.1f", STS()->PEG7.x);
+				PrintToBuffer(cbuf, strlen(cbuf), 8, 20, 0);
+				sprintf(cbuf, "%+6.1f", STS()->PEG7.y);
+				PrintToBuffer(cbuf, strlen(cbuf), 8, 21, 0);
+				sprintf(cbuf, "%+6.1f", STS()->PEG7.z);
+				PrintToBuffer(cbuf, strlen(cbuf), 8, 22, 0);
+			}
+
+			if(STS()->MNVRLOAD) {
+				PrintToBuffer("LOAD 22/TIMER 23", 16, 0, 23, 0);
+				sprintf(cbuf, "24 R %-3.0f", STS()->BurnAtt.data[ROLL]);
+				PrintToBuffer(cbuf, strlen(cbuf), 21, 3, 0);
+				sprintf(cbuf, "25 P %-3.0f", STS()->BurnAtt.data[PITCH]);
+				PrintToBuffer(cbuf, strlen(cbuf), 21, 4, 0);
+				sprintf(cbuf, "26 Y %-3.0f", STS()->BurnAtt.data[YAW]);
+				PrintToBuffer(cbuf, strlen(cbuf), 21, 5, 0);
+			}
+			else {
+				PrintToBuffer("     22/TIMER 23", 16, 0, 23, 0);
+				PrintToBuffer("24 R", 4, 21, 3, 0);
+				PrintToBuffer("25 P", 4, 21, 4, 0);
+				PrintToBuffer("26 Y", 4, 21, 5, 0);
+			}
+
+			//MoveToEx(hDC, 98, 15, NULL);
+			//LineTo(hDC, 98, 218);
+
+			PrintToBuffer("BURN ATT", 8, 20, 2, 0);
+			if(!STS()->TRK) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
+			else PrintToBuffer("MNVR 27X", 8, 20, 6, 0);
+
+			PrintToBuffer("REI", 3, 20, 8, 0);
+			PrintToBuffer("GMBL", 4, 25, 10, 0);
+			PrintToBuffer("L", 1, 24, 11, 0);
+			PrintToBuffer("R", 1, 30, 11, 0);
+			sprintf(cbuf, "P %+02.1f %+02.1f", STS()->OMSGimbal[0][0], STS()->OMSGimbal[1][0]);
+			PrintToBuffer(cbuf, strlen(cbuf), 20, 12, 0);
+			sprintf(cbuf, "Y %+02.1f %+02.1f", STS()->OMSGimbal[0][1], STS()->OMSGimbal[1][1]);
+			PrintToBuffer(cbuf, strlen(cbuf), 20, 13, 0);
+
+			PrintToBuffer("PRI 28   29", 11, 20, 15, 0);
+			PrintToBuffer("SEC 30   31", 11, 20, 16, 0);
+			PrintToBuffer("OFF 32   33", 11, 20, 17, 0);
+			PrintToBuffer("GMBL CK  34", 11, 20, 18, 0);
+
+			//MoveToEx(hDC, 156, 15, NULL);
+			//LineTo(hDC, 156, 111);
+			//LineTo(hDC, 250, 111);
+
+			if(!STS()->BurnInProg) {
+				TGO[0]=STS()->BurnTime/60;
+				TGO[1]=STS()->BurnTime-(TGO[0]*60);
+			}
+			else if(!STS()->BurnCompleted) {
+				double btRemaining=STS()->IgnitionTime+STS()->BurnTime-STS()->met;
+				TGO[0]=(int)btRemaining/60;
+				TGO[1]=(int)btRemaining%60;
+			}
+			else TGO[0]=TGO[1]=0;
+			sprintf(cbuf, "VTOT   %6.2f", STS()->DeltaVTot);
+			PrintToBuffer(cbuf, strlen(cbuf), 37, 3, 0);
+			//DrawDelta(hDC, 161, 31, 158, 164, 37);
+			sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
+			PrintToBuffer(cbuf, strlen(cbuf), 36, 4, 0);
+			sprintf(cbuf, "VGO X %+8.2f", STS()->VGO.x);
+			PrintToBuffer(cbuf, strlen(cbuf), 36, 6, 0);
+			sprintf(cbuf, "Y  %+7.2f", STS()->VGO.y);
+			PrintToBuffer(cbuf, strlen(cbuf), 40, 7, 0);
+			sprintf(cbuf, "Z  %+7.2f", STS()->VGO.z);
+			PrintToBuffer(cbuf, strlen(cbuf), 40, 8, 0);
+			PrintToBuffer("HA     HP", 9, 40, 10, 0);
+			sprintf(cbuf, "TGT");
+			PrintToBuffer(cbuf, strlen(cbuf), 36, 11, 0);
+			//TextOut(hDC, 158, 90, cbuf, strlen(cbuf));
+			sprintf(cbuf, "CUR");
+			PrintToBuffer(cbuf, strlen(cbuf), 36, 12, 0);
+			//TextOut(hDC, 158, 99, cbuf, strlen(cbuf));
+
+			sprintf(cbuf, "35 ABORT TGT");
+			PrintToBuffer(cbuf, strlen(cbuf), 35, 15, 0);
+			//TextOut(hDC, 150, 126, cbuf, strlen(cbuf));
+
+			//TextOut(hDC, 185, 135, "FWD RCS", 7);
+			//TextOut(hDC, 185, 144, "  ARM  36", 9);
+			//TextOut(hDC, 185, 153, "  DUMP 37", 9);
+			//TextOut(hDC, 185, 162, "  OFF  38", 9);
+			//TextOut(hDC, 185, 171, "SURF DRIVE", 10);
+			//TextOut(hDC, 185, 180, "  ON   39", 9);
+			//TextOut(hDC, 185, 189, "  OFF  40", 9);
 		}
 		return;
 	}
