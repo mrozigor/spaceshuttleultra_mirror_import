@@ -317,6 +317,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\ATVC.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\BasicExtAirlock.cpp"
 				>
 			</File>
@@ -326,6 +330,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\BasicSwitch.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BasicValve.cpp"
 				>
 			</File>
 			<File
@@ -383,6 +391,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\EIU.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ExtAirlock.cpp"
 				>
 			</File>
@@ -416,6 +428,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\MDU.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\MPS.cpp"
 				>
 			</File>
 			<File
@@ -489,6 +505,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\SSME.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardSwitch.cpp"
 				>
 			</File>
@@ -498,6 +518,10 @@
 			</File>
 			<File
 				RelativePath=".\SubsystemDirector.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ValveTypeBool.cpp"
 				>
 			</File>
 		</Filter>
@@ -511,6 +535,10 @@
 			</File>
 			<File
 				RelativePath="AC_resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AP101S.h"
 				>
 			</File>
 			<File
@@ -751,14 +779,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\mps\ATVC.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\BasicValve.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>
 		</File>
@@ -803,10 +823,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\mps\EIU.cpp"
-			>
-		</File>
-		<File
 			RelativePath="ico00001.ico"
 			>
 		</File>
@@ -827,10 +843,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\mps\MPS.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\lib\orbiter.lib"
 			>
 		</File>
@@ -839,15 +851,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\mps\SSME.cpp"
-			>
-		</File>
-		<File
 			RelativePath="Bitmaps\tkbk_label.bmp"
-			>
-		</File>
-		<File
-			RelativePath=".\ValveTypeBool.cpp"
 			>
 		</File>
 	</Files>
