@@ -1026,6 +1026,13 @@ void CRT::MNVR(HDC hDC)
 	int timeDiff;
 	int TIMER[4];
 
+	//oapiWriteLog("Calling Paint 1");
+	vc::MDU* mdu=sts->GetMDU(id);
+	//oapiWriteLog("Calling Paint 2");
+	if(mdu) mdu->Paint(hDC);
+	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
+	return;
+
 	SelectDefaultFont(hDC, 0);
 
 	switch(sts->ops) {
@@ -2508,110 +2515,6 @@ bool CRT::Input(int change, char *Name)
 	}
 	return false;
 }
-
-//Math
-/*VECTOR3 CRT::GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
-
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(CrossProduct(Pitch, YawRoll));
-
-	Res.data[YAW] = -asin(YawRoll.z);
-
-	Res.data[ROLL] = atan2(YawRoll.y, YawRoll.x);
-
-	Res.data[PITCH] = atan2(H.z, Pitch.z);
-
-	return Res;
-
-}
-
-VECTOR3 CRT::GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(CrossProduct(Pitch, YawRoll));
-	Res.data[YAW] = -asin(Pitch.x);
-	Res.data[ROLL] = atan2(H.x, YawRoll.x);
-	Res.data[PITCH] = atan2(Pitch.y, Pitch.z);
-	return Res;
-}
-
-void CRT::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
-{
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	VECTOR3 AfterZ, AfterZY;					// Temporary variables
-
-
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	
-	MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
-	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
-void CRT::GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX)
-{
-	RotMatrixX.m11 = 1;
-	RotMatrixX.m12 = 0;
-	RotMatrixX.m13 = 0;
-	RotMatrixX.m21 = 0;
-	RotMatrixX.m22 = cos(Angle);
-	RotMatrixX.m23 = sin(Angle);
-	RotMatrixX.m31 = 0;
-	RotMatrixX.m32 = -sin(Angle);
-	RotMatrixX.m33 = cos(Angle);
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the Y axis (Yaw)
-void CRT::GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY)
-{
-	RotMatrixY.m11 = cos(Angle);
-	RotMatrixY.m12 = 0;
-	RotMatrixY.m13 = -sin(Angle);
-	RotMatrixY.m21 = 0;
-	RotMatrixY.m22 = 1;
-	RotMatrixY.m23 = 0;
-	RotMatrixY.m31 = sin(Angle);
-	RotMatrixY.m32 = 0;
-	RotMatrixY.m33 = cos(Angle);
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the Z axis (Roll)
-void CRT::GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
-{
-	RotMatrixZ.m11 = cos(Angle);
-	RotMatrixZ.m12 = sin(Angle);
-	RotMatrixZ.m13 = 0;
-	RotMatrixZ.m21 = -sin(Angle);
-	RotMatrixZ.m22 = cos(Angle);
-	RotMatrixZ.m23 = 0;
-	RotMatrixZ.m31 = 0;
-	RotMatrixZ.m32 = 0;
-	RotMatrixZ.m33 = 1;
-}
-
-void CRT::MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result)
-{
-
-	Result.x =	(Initial.x * RotMatrix.m11) 
-				+ (Initial.y * RotMatrix.m12) 
-				+ (Initial.z * RotMatrix.m13);	
-	Result.y =	(Initial.x * RotMatrix.m21) 
-				+ (Initial.y * RotMatrix.m22) 
-				+ (Initial.z * RotMatrix.m23);	
-	Result.z =	(Initial.x * RotMatrix.m31) 
-				+ (Initial.y * RotMatrix.m32) 
-				+ (Initial.z * RotMatrix.m33);
-}*/
 
 bool cbChangeOps(void *id, char *str, void *data)
 {
