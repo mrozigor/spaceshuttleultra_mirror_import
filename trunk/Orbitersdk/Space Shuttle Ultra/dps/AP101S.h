@@ -15,6 +15,7 @@ namespace dps {
 
 class AP101S : public AtlantisSubsystem  
 {
+	
 	// ===================================================
 	// Random access memory
 	// Important variables are stored inside the lower 
@@ -45,9 +46,14 @@ class AP101S : public AtlantisSubsystem
 	// IOP software is storing data in the memory and
 	// transmits data half words from the memory over 
 	// the MIAs. 
+protected:
+	void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
+	void LoadSoftware(const GPCSoftware* pSoftware);
 public:
 	AP101S(SubsystemDirector* _director, const string& _ident);
 	virtual ~AP101S();
+	
+	
 
 };
 
