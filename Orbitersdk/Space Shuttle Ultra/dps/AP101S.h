@@ -13,26 +13,29 @@
 
 namespace dps {
 
-class AP101S : public AtlantisSubsystem  
-{
+	class GPCMemoryConfiguration;
+	class GPCSoftware;
+
+	class AP101S : public AtlantisSubsystem  
+	{
 	
 	// ===================================================
 	// Random access memory
 	// Important variables are stored inside the lower 
 	// 64 KB (SECTION 0) of the memory
 	// ===================================================
-	long lMemory[262144];
+		long lMemory[262144];
 #if defined(DO_AP101S_EMULATION)
 	// ===================================================
 	// Emulation registers and memory
 	// not needed as we don't do a emulation yet
 	// ===================================================
 	
-	long lR[16];	//GP registers
-	double fF[8];	//Floating Point registers
-	long LX;	//Index register
-	long lB;	//Base register
-	long lPSW[2];
+		long lR[16];	//GP registers
+		double fF[8];	//Floating Point registers
+		long LX;	//Index register
+		long lB;	//Base register
+		long lPSW[2];
 #else
 	// ===================================================
 	// Simulation variables
@@ -46,16 +49,13 @@ class AP101S : public AtlantisSubsystem
 	// IOP software is storing data in the memory and
 	// transmits data half words from the memory over 
 	// the MIAs. 
-protected:
-	void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
-	void LoadSoftware(const GPCSoftware* pSoftware);
-public:
-	AP101S(SubsystemDirector* _director, const string& _ident);
-	virtual ~AP101S();
-	
-	
-
-};
+	protected:
+		void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
+		void LoadSoftware(const GPCSoftware* pSoftware);
+	public:
+		AP101S(SubsystemDirector* _director, const string& _ident);
+		virtual ~AP101S();
+	};
 
 };
 
