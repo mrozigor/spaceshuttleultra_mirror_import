@@ -79,5 +79,9 @@ namespace dps {
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
 		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;
+		unsigned short GetSpec() const;
+		unsigned short GetDisp() const;
+		void SetSpec(unsigned short spec);
+		void SetDisp(unsigned short disp);
 	};
 };
