@@ -49,6 +49,15 @@ namespace vc {
 	protected:
 		virtual void RegisterMFDContext();
 		virtual void SwitchMFDMode();
+		
+		inline void MDU::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
+		{
+			MoveToEx(hDC, TopX, TopY, NULL);
+			LineTo(hDC, LBottomX, BottomY);
+			LineTo(hDC, RBottomX, BottomY);
+			LineTo(hDC, TopX, TopY);
+		}
+
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);
 		virtual ~MDU();
@@ -122,6 +131,15 @@ namespace vc {
 		 * Gets disabled when the MDU gets reset.
 		 */
 		virtual void ConnectToCRTMFD();
+
+		/**
+		 * Display functions
+		 * Update text buffer with appropriate data for display
+		 */
+		void UNIVPTG();
+		void DAP_CONFIG();
+		void MNVR();
+		//void GPCMEMORY(HDC hdc);
 	};
 
 };

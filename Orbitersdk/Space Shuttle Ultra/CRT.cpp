@@ -760,6 +760,13 @@ void CRT::DAP_CONFIG(HDC hDC)
 	int lim[3]={3, 5, 5};
 	int i, n;
 
+	//oapiWriteLog("Calling Paint 1");
+	vc::MDU* mdu=sts->GetMDU(id);
+	//oapiWriteLog("Calling Paint 2");
+	if(mdu) mdu->Paint(hDC);
+	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
+	return;
+
 	SelectDefaultFont(hDC, 0);
 
 	TextOut(hDC, 0, 0, "2011/020/", 9);
