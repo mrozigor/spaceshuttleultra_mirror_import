@@ -6,6 +6,8 @@ namespace dps {
 		unsigned short _usIDPID)
 		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID)
 	{
+		usSPEC=0;
+		usDISP=0;
 	}
 
 	IDP::~IDP()
@@ -14,5 +16,33 @@ namespace dps {
 
 	unsigned short IDP::GetIDPID() const {
 		return usIDPID;
+	}
+
+	unsigned short IDP::GetDisp() const
+	{
+		return usDISP;
+	}
+
+	unsigned short IDP::GetSpec() const
+	{
+		return usSPEC;
+	}
+
+	void IDP::SetDisp(unsigned short disp)
+	{
+		usDISP=disp;
+	}
+
+	void IDP::SetSpec(unsigned short spec)
+	{
+		usSPEC=spec;
+	}
+
+	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
+	{
+		if(pMDU) {
+			if(bPrimary) pMDU->SetPrimaryIDP(this);
+			else pMDU->SetSecondaryIDP(this);
+		}
 	}
 };
