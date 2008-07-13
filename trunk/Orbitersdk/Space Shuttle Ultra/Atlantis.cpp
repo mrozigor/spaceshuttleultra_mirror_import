@@ -395,6 +395,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   pA7A8Panel = new vc::PanelA7A8ODS(this);
 
+  //connect CRT MDUs to IDPs
+  for (i=0;i<3;i++) {
+	  pIDP[i]->ConnectToMDU(mdus[i+4]);
+  }
 
   
 
@@ -3080,6 +3084,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			if(ops==201) {
 				if(nNew==20 || nNew==0) {
 					Display[mfd]->spec=nNew;
+					pIDP[mfd]->SetSpec((unsigned short)nNew);
 					//InvalidateDisplay();
 					return true;
 				}
