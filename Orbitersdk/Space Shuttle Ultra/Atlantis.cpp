@@ -706,7 +706,6 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //ManeuverComplete=false;
   ManeuverStatus=MNVR_OFF;
   MNVR_TIME=0;
-  NullRates = _V(0.0, 0.0, 0.0);
 
   //I-loads
   stage1guidance_size=0;
@@ -7098,7 +7097,7 @@ void Atlantis::CreateFRCS(const VECTOR3 &ref_pos)
 	if(thManFRCS2[RCS_F3L] == NULL) {
 		thManFRCS2[RCS_F3L] = CreateThruster (ref_pos + RCS_F3L_OFS, RCS_F3L_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
 			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3L]);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F3L]);
 	}
 	//=================================================================================================
 	// Right firing thrusters 
@@ -7106,12 +7105,12 @@ void Atlantis::CreateFRCS(const VECTOR3 &ref_pos)
 	if(thManFRCS1[RCS_F2R] == NULL) {
 		thManFRCS1[RCS_F2R] = CreateThruster (ref_pos + RCS_F2R_OFS, RCS_F2R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
 			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2R]);
+		AddPrimaryRCSExhaust(thManFRCS1[RCS_F2R]);
 	}
 	if(thManFRCS2[RCS_F4R] == NULL) {
 		thManFRCS2[RCS_F4R] = CreateThruster (ref_pos + RCS_F4R_OFS, RCS_F4R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
 			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS4[RCS_F4R]);
+		AddPrimaryRCSExhaust(thManFRCS2[RCS_F4R]);
 	}
 	//=================================================================================================
 	// Forwards firing thrusters 
