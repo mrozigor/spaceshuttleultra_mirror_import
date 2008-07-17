@@ -158,6 +158,12 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 	anim_VC_A8[SWITCH6]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH6], 0, 1, &VC_A8b6);
 
+	static UINT VC_A8b8_GRP = GRP_A8b8_VC;
+	static MGROUP_ROTATE VC_A8b8 (vcidx, &VC_A8b8_GRP, 1,
+		_V(-0.384, 2.233, 12.487), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8[SWITCH8]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH8], 0, 1, &VC_A8b8);
+
 	static UINT VC_A8b9_GRP = GRP_A8b9_VC;
 	static MGROUP_ROTATE VC_A8b9 (vcidx, &VC_A8b9_GRP, 1,
 		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
@@ -196,6 +202,7 @@ void PanelA8::UpdateVC()
 	//if(!sts->RMS) return;
 	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH6], switch_state[SWITCH6]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH8], switch_state[SWITCH8]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH9], switch_state[SWITCH9]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH12], switch_state[SWITCH12]/2.0);
@@ -267,6 +274,19 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 					RMSRollout.action=AnimState::CLOSING;
 				}*/
 				action=true;
+			}
+		}
+
+		if(p.x>=0.755850 && p.x<=0.801863) {
+			if(p.y>=0.842015 && p.y<=0.880786) {
+				if(p.y<0.861401 && switch_state[SWITCH8]>0) {
+					switch_state[SWITCH8]--;
+					action=true;
+				}
+				else if (switch_state[SWITCH8]<2) {
+					switch_state[SWITCH8]++;
+					action=true;
+				}
 			}
 		}
 
