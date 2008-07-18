@@ -1416,6 +1416,7 @@ private:
 	double MRL[2]; //0=PORT, 1=STBD
 	int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
+	bool STBDMPM;
 	bool DisplayJointAngles;	
 	//Grapple/Release sequences
 	bool bGrappleInProgress, bReleaseInProgress;
