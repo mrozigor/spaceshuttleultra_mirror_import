@@ -106,7 +106,7 @@ namespace mps
 			SSME_DATA_TABLE->posMFV,
 			SSME_DATA_TABLE->posMOV, 
 			SSME_DATA_TABLE->posCCV );
-		oapiWriteLine( scn, sdata );
+		//oapiWriteLine( scn, sdata );
 		return;
 	}
 
