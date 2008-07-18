@@ -557,6 +557,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   cargo_static_ofs   =_V(0,0,0);
 
   // default arm status: deployed
+  STBDMPM=false;
   DisplayJointAngles=false;
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
@@ -1882,7 +1883,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	if(RMS) {
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-
+	}
+	if(STBDMPM) {
 		mesh_mpm = AddMesh (hOBSSMPMMesh, &(ofs+STBDMPM_REF));
 		SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
@@ -4056,6 +4058,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
 	} else if (!_strnicmp (line, "RMS", 3)) {
 		RMS=true;
+	} else if (!_strnicmp (line, "MPM", 3)) {
+		STBDMPM=true;
 	} else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
 		SetAnimation(anim_rollout, RMSRollout.pos);
@@ -4176,7 +4180,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   if(bHasODS)
   {
-	  oapiWriteLine(scn, "ODS");
+	  oapiWriteLine(scn, "  ODS");
   }
 
   if (status == 1)
@@ -4189,6 +4193,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   }
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
 
+  if(STBDMPM) oapiWriteLine(scn, "  MPM"); 
   if(RMS) {
 	  oapiWriteLine(scn, "  RMS");
 	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
