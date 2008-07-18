@@ -49,6 +49,7 @@ const static char* DEFAULT_MESHNAME_KU = "SSU/KU";
 const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
 const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
 const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
+const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
 const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
@@ -329,6 +330,8 @@ const VECTOR3 UMBDOORL_REF = _V(-1.31087, -2.71022, -6.75496);
 const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
 //const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
 const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
+
+const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
 const VECTOR3 PROBEL_REF = _V(-1.122688, -1.0894815, 19.4175);
 const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
@@ -837,6 +840,7 @@ public:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
 	UINT mesh_rms;							   // index for RMS mesh
+	UINT mesh_mpm;							   // index for STBD MPM mesh
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
@@ -963,7 +967,7 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, hOrbiterRMSMesh, hTankMesh, hSRBMesh[2],
+		hMidDeckMesh, hOrbiterRMSMesh, hOBSSMPMMesh, hTankMesh, hSRBMesh[2],
 		hODSMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
