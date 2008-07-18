@@ -527,6 +527,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hOrbiterVCMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
   hMidDeckMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MIDDECK);
   hOrbiterRMSMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
+  hOBSSMPMMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MPM);
   hKUBandMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
   hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
   hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
@@ -584,9 +585,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
   //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)-_V(0.314338082679218, -0.949311102735849, 0);
   //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-  arm_tip[0] = _V(-2.77, 2.13, -6.049);
-  arm_tip[1] = _V(-2.77, 2.13, -7.049);
-  arm_tip[2] = _V(-2.77, 3.13, -6.049);
+  arm_tip[0] = _V(-2.84, 2.13, -6.049);
+  arm_tip[1] = _V(-2.84, 2.13, -7.049);
+  arm_tip[2] = _V(-2.84, 3.13, -6.049);
   arm_ee_dir = _V(1.0, 0.0, 0.0);
   arm_ee_pos = _V(15.069, 0.0, 0.0);
 
@@ -1881,6 +1882,9 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	if(RMS) {
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+
+		mesh_mpm = AddMesh (hOBSSMPMMesh, &(ofs+STBDMPM_REF));
+		SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 	AddKUBandVisual(ofs);
@@ -3501,7 +3505,7 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles()
 	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
 	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
 	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
-	if(MNVR) return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
 
 	//test method
 	VECTOR3 Output;
