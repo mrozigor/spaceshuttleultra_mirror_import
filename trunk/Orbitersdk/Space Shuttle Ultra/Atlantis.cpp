@@ -547,7 +547,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   strcpy(WingName,"Atlantis");
 
-  DefineAnimations();
+  //DefineAnimations();
   center_arm      = false;
   arm_moved       = false;
   bManualSeparate = false;
@@ -2208,7 +2208,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     SetCameraOffset (_V(ofs.x-0.67,ofs.y+2.55,ofs.z+14.4));
     oapiVCRegisterHUD (&huds); // register changes in HUD parameters
 
-//	DefineAnimations();
+	DefineAnimations();
 
   }
 }
@@ -2708,6 +2708,7 @@ void Atlantis::UpdateMesh ()
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
 
+  SetAnimation(anim_rollout, RMSRollout.pos);
   SetAnimationArm (anim_arm_sy, arm_sy);
   SetAnimationArm (anim_arm_sp, arm_sp);
   SetAnimationArm (anim_arm_ep, arm_ep);
@@ -4313,7 +4314,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		STBDMPM=true;
 	} else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
-		SetAnimation(anim_rollout, RMSRollout.pos);
 		if(action==1) {
 			if(RMSRollout.pos!=1.0) RMSRollout.action=AnimState::OPENING;
 			else RMSRollout.action=AnimState::OPEN;
