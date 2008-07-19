@@ -96,7 +96,8 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 		case AID_A8_TKBK9:
 			//if(sts->Extend.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			//else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
-			if(sts->GetAttachmentStatus(sts->rms_attach)) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
+			if(sts->GetAttachmentStatus(sts->ahRMS)) 
+				return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK10:

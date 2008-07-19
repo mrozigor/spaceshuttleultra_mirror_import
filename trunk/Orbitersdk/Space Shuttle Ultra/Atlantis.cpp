@@ -400,6 +400,13 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  pIDP[i]->ConnectToMDU(mdus[i+4]);
   }
 
+  for(int i = 0; i<16; i++)
+  {
+	fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
+	fPayloadMass[i] = 0.0;
+	usPayloadType[i] = 0;
+  }
+
   
 
   status          = 3;
@@ -549,11 +556,29 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   do_plat         = false;
   do_cargostatic  = false;
   vis             = NULL;
-  sat_attach      = NULL;
-  rms_attach      = NULL;
+  ahHDP			= NULL;
+  ahTow			= NULL;
+  ahRMS			= NULL;
+  ahOBSS		= NULL;
+  ahDockAux		= NULL;
+  ahMMU[0]		= NULL;
+  ahMMU[1]		= NULL;
+  ahExtAL[0]    = NULL;
+  ahExtAL[1]    = NULL;
+
+  for(int i = 0; i<3; i++)
+  {
+	ahCenterActive[i] = NULL;
+	ahCenterPassive[i] = NULL;
+  }
+  for(int i = 0; i<4; i++)
+  {
+	ahPortPL[i] = NULL;
+	ahStbdPL[i] = NULL;
+  }
   //080415, DaveS add: Added temporary OBSS MPM attachment point
-  obss_attach     = NULL;
-  ahHDP			  = NULL;
+  //obss_attach     = NULL;
+  
   cargo_static_ofs   =_V(0,0,0);
 
   // default arm status: deployed
@@ -1859,6 +1884,225 @@ void Atlantis::DefineAnimations (void)
   r2d2->DefineVCAnimations (vidx);
 }
 
+void Atlantis::DefineAttachments (const VECTOR3& ofs0)
+{
+
+	if(ahHDP)
+	{
+		//when without ET, turn this into a ferry attachment "XFERRY"
+		SetAttachmentParams(ahHDP,POS_HDP, _V(0.0, 0.0, -1.0), 
+			_V(0.0, 1.0, 0.0));
+	}
+	else 
+	{
+	  ahHDP = CreateAttachment(true, POS_HDP, _V(0.0, 0.0, -1.0), 
+		  _V(0.0, 1.0, 0.0), "XHDP");
+	}
+	if(ahTow)
+	{
+		//Update position
+		SetAttachmentParams(ahTow, POS_TOW, _V(0.0, 0.0, 1.0), 
+			_V(0.0, -1.0, 0.0));
+	}
+	else {
+		//create new attachment
+		ahTow = CreateAttachment(true, POS_TOW, _V(0.0, 0.0, 1.0), 
+		  _V(0.0, -1.0, 0.0), "XTOW");
+	}
+
+	
+
+		/*
+	Fixed:
+0. RMS End-effector
+1. OBSS
+2. MMU1 (historic, do we need them?)
+3. MMU2
+4. Docking port Aux (allow us simulating soft docking)
+*/
+
+		//if (!obss_attach) obss_attach = 
+    //if (!rms_attach) rms_attach = 
+
+
+	//Separate into UpdateRMSAttachment
+	if(ahRMS) //replace with ahRMSLEE?
+	{
+		//Update position
+		SetAttachmentParams(ahRMS, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], 
+			arm_tip[2]-arm_tip[0]);
+	}
+	else {
+		//create new attachment
+		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+	}
+
+	//Separate into UpdateOBSSAttachment
+	if(ahOBSS)
+	{
+		SetAttachmentParams(ahOBSS, ofs0+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1));
+	}
+	else {
+		ahOBSS = CreateAttachment (false, ofs0+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
+	}
+
+
+	//Without MMU, make this port airlock payload 
+	if(ahMMU[0])
+	{
+		
+	}
+	else 
+	{
+		ahMMU[0] = CreateAttachment (false, ofs0 + OFS_PORTMMU, _V(1,0,0), _V(0,0,1), "XS");
+	}
+
+	//Without MMU, make this stbd airlock payload 
+	if(ahMMU[1])
+	{	
+	}
+	else
+	{
+		ahMMU[1] = CreateAttachment (false, ofs0 + OFS_STBDMMU, _V(-1,0,0), _V(0,0,1), "XS");
+	}
+
+
+
+	//Move to UpdateDockAuxAttach(), include animation of docking port.
+	//reject attaching when no docking port available
+	if(ahDockAux)
+	{
+		SetAttachmentParams(ahDockAux, ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0),
+			_V(0.0, 0.0, 1.0));
+	} else {
+		ahDockAux = CreateAttachment(false, ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0),
+			_V(0.0, 0.0, 1.0), "ODS");
+	}
+
+/*
+dynamic centerline payloads, controlled by the payload 1-3 interfaces
+
+5. Payload 1
+6. Payload 2
+7. Payload 3.
+
+*/
+
+	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
+	for(int i = 0; i<3; i++)
+	{
+		if(ahCenterActive[i])
+		{
+			//update
+			vPayloadPos.z = fPayloadZPos[i];
+			SetAttachmentParams(ahCenterActive[i], vPayloadPos, DIR_CENTERPL, 
+				ROT_CENTERPL);
+		}
+		else 
+		{
+			vPayloadPos.z = fPayloadZPos[i];
+			//create
+			ahCenterActive[i] = CreateAttachment(false, vPayloadPos, DIR_CENTERPL, 
+				ROT_CENTERPL, "XS");
+		}
+	}
+
+		/*
+		Static centerline Payloads:
+	
+		8. Static C/L payload 1
+		9.	Static C/L payload 2
+		10. Static C/L payload 3.
+		*/
+	vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
+	
+	for(int i = 0; i<4; i++)
+	{
+		if(ahCenterPassive[i])
+		{
+			//update
+			vPayloadPos.z = fPayloadZPos[i+3];
+			SetAttachmentParams(ahCenterPassive[i], vPayloadPos, DIR_CENTERPL, 
+				ROT_CENTERPL);
+		}
+		else 
+		{
+			vPayloadPos.z = fPayloadZPos[i+3];
+			//create
+			ahCenterPassive[i] = CreateAttachment(false, vPayloadPos, DIR_CENTERPL, 
+				ROT_CENTERPL, "XS");
+		}
+	}
+
+/*
+
+Pseudo static Port sill payloads (Are static inside the Shuttle, but can later get separated by EVA)
+
+11. Port static 1
+12. Port Static 2
+13. Port Static 3
+
+The same starboard
+
+14. Starboard Static 1
+15. Starboard Static 2
+16. Starboard Static 3
+	*/
+
+	vPayloadPos = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 0.0);
+	
+	for(int i = 0; i<4; i++)
+	{
+		if(ahPortPL[i])
+		{
+			//update
+			vPayloadPos.z = fPayloadZPos[i+7];
+			SetAttachmentParams(ahPortPL[i], vPayloadPos, DIR_PORTPL, 
+				ROT_PORTPL);
+		}
+		else 
+		{
+			vPayloadPos.z = fPayloadZPos[i+7];
+			//create
+			ahPortPL[i] = CreateAttachment(false, vPayloadPos, DIR_PORTPL, 
+				ROT_PORTPL, "XS");
+		}
+	}
+
+	vPayloadPos = _V(PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 0.0);
+	
+	for(int i = 0; i<4; i++)
+	{
+		if(ahStbdPL[i])
+		{
+			//update
+			vPayloadPos.z = fPayloadZPos[i+11];
+			SetAttachmentParams(ahStbdPL[i], vPayloadPos, DIR_STBDPL, 
+				ROT_STBDPL);
+		}
+		else 
+		{
+			vPayloadPos.z = fPayloadZPos[i+11];
+			//create
+			ahStbdPL[i] = CreateAttachment(false, vPayloadPos, DIR_STBDPL, 
+				ROT_STBDPL, "XS");
+		}
+	}
+	
+
+}
+
+bool Atlantis::SatStowed() const
+{
+	for(int i = 0; i<3; i++)
+	{
+		if(GetAttachmentStatus(ahCenterActive[i]) != NULL)
+			return true;
+	}
+
+	return false;
+}
+
 void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 {
   orbiter_ofs = ofs;
@@ -1950,10 +2194,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     // ***** Attachment definitions
 
-    if (!sat_attach) sat_attach = CreateAttachment (false, ofs+ofs_sts_sat, _V(0,1,0), _V(0,0,1), "X");
+    //if (!sat_attach) sat_attach = CreateAttachment (false, ofs+ofs_sts_sat, _V(0,1,0), _V(0,0,1), "X");
 	//080415, DaveS add: Added temporary OBSS MPM attachment point
-	if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
-    if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+	//if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
+    //if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+
+	DefineAttachments(ofs);
 
     // ***** Cockpit camera definition
 
@@ -1987,10 +2233,7 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
     if (which) srb_id1 = id;
     else       srb_id2 = id;
   }
-  if(ahHDP == NULL)
-  {
-	  ahHDP = CreateAttachment(true, POS_HDP, _V(0.0, 0.0, -1.0), _V(0.0, 1.0, 0.0), "XHDP");
-  }
+  
 }
 
 void Atlantis::SeparateBoosters (double met)
@@ -2101,18 +2344,19 @@ void Atlantis::SeparateTank (void)
 void Atlantis::ToggleGrapple (void)
 {
   HWND hDlg;
-  OBJHANDLE hV = GetAttachmentStatus (rms_attach);
+  OBJHANDLE hV = GetAttachmentStatus (ahRMS);
 
   if(!RMS) return; //no arm
   if (hV) {  // release satellite
 
     ATTACHMENTHANDLE hAtt = CanArrest();
-    DetachChild (rms_attach);
+    DetachChild (ahRMS);
     if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
       SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Grapple");
       EnableWindow (GetDlgItem (hDlg, IDC_STOW), TRUE);
     }
     // check whether the object being ungrappled is ready to be clamped into the payload bay
+	/*
     if (hAtt) {
       AttachChild (hV, sat_attach, hAtt);
       if (hDlg) {
@@ -2120,6 +2364,7 @@ void Atlantis::ToggleGrapple (void)
         EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), TRUE);
       }
     }
+	*/
 
 #ifdef UNDEF
     VECTOR3 pos, dir, rot, gbay, gpos;
@@ -2156,7 +2401,8 @@ void Atlantis::ToggleGrapple (void)
         for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
           ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
           const char *id = v->GetAttachmentId (hAtt);
-          if (strncmp (id, "GS", 2)) continue; // attachment point not compatible
+          if (strncmp (id, "GS", 2)) 
+			  continue; // attachment point not compatible
           v->GetAttachmentParams (hAtt, pos, dir, rot);
           v->Local2Global (pos, gpos);
           if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
@@ -2164,9 +2410,9 @@ void Atlantis::ToggleGrapple (void)
 			  //sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
 			  if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
 				  // check whether satellite is currently clamped into payload bay
-				  if (hV == GetAttachmentStatus (sat_attach))
-					  DetachChild (sat_attach);
-				  AttachChild (hV, rms_attach, hAtt);
+				  //if (hV == GetAttachmentStatus (sat_attach))
+				  //	  DetachChild (sat_attach);
+				  AttachChild (hV, ahRMS, hAtt);
 				  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
 					  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
 					  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
@@ -2185,7 +2431,8 @@ void Atlantis::ToggleArrest (void)
 {
   HWND hDlg;
   if (SatStowed()) { // purge satellite
-    DetachChild (sat_attach, 0.1);
+    //DetachChild (sat_attach, 0.1);
+    //Detach selected payload, if possible
     if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
       SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
       EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), CanArrest() ? TRUE:FALSE);
@@ -2213,12 +2460,12 @@ void Atlantis::ToggleVCMode()
 // check whether the currently grappled object can be stowed in the cargo bay
 ATTACHMENTHANDLE Atlantis::CanArrest (void) const
 {
-  OBJHANDLE hV = GetAttachmentStatus (rms_attach);
+  OBJHANDLE hV = GetAttachmentStatus (ahRMS);
   if (!hV) return 0;
   VESSEL *v = oapiGetVesselInterface (hV);
   DWORD nAttach = v->AttachmentCount (true);
   VECTOR3 pos, dir, rot, gpos, gbay;
-  GetAttachmentParams (sat_attach, pos, dir, rot);
+  //GetAttachmentParams (sat_attach, pos, dir, rot);
   Local2Global (pos, gbay);
   for (DWORD j = 0; j < nAttach; j++) {
     ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
@@ -2569,10 +2816,12 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   panela8->UpdateVC();
 
   HWND hDlg;
+  /*
   if (!SatStowed() && (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS))) {
     SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
     EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), CanArrest() ? TRUE : FALSE);
   }
+  */
   //CalcAnimationFKArm();
 }
 
@@ -4122,6 +4371,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		action = 0;
 		sscanf(line+10, "%d", &action);
 		bSSMEGOXVent = (action != 0);
+	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
+		ParsePayloadLine(line);
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
@@ -4251,6 +4502,8 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_float (scn, "Y", Y);
   oapiWriteScenario_float (scn, "OM", OM);
 
+  SavePayloadState(scn);
+
   if(bSSMEGOXVent)
   {
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
@@ -4268,6 +4521,104 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   psubsystems->SaveState(scn);
   
+}
+
+void Atlantis::SavePayloadState(FILEHANDLE scn) const
+{
+	char pszBuffer[256];
+	for(int i = 0; i<3; i++)
+	{
+		sprintf_s(pszBuffer, 256, "   PAYLOAD CACTIVE%1d %f %f %d",
+			i+1, fPayloadZPos[i], fPayloadMass[i], usPayloadType[i]);
+		oapiWriteLine(scn, pszBuffer);
+	}
+	for(int i = 0; i<4; i++)
+	{
+		sprintf_s(pszBuffer, 256, "   PAYLOAD CPASSIVE%1d %f %f %d",
+			i+1, fPayloadZPos[3+i], fPayloadMass[3+i], usPayloadType[3+i]);
+		oapiWriteLine(scn, pszBuffer);
+	}
+
+	for(int i = 0; i<4; i++)
+	{
+		sprintf_s(pszBuffer, 256, "   PAYLOAD PORT%1d %f %f %d",
+			i+1, fPayloadZPos[7+i], fPayloadMass[7+i], usPayloadType[7+i]);
+		oapiWriteLine(scn, pszBuffer);
+	}
+	for(int i = 0; i<4; i++)
+	{
+		sprintf_s(pszBuffer, 256, "   PAYLOAD STBD%1d %f %f %d",
+			i+1, fPayloadZPos[11+i], fPayloadMass[11+i], usPayloadType[11+i]);
+		oapiWriteLine(scn, pszBuffer);
+	}
+}
+
+bool Atlantis::ParsePayloadLine(const char* pszLine)
+{
+	char pszKey[100];
+	char pszBuffer[256];
+	float zpos = 0.0, mass = 0.0;
+	int x = 0.0;
+	sscanf_s(pszLine + 8, "%s",
+		pszKey);
+
+	sscanf_s(pszLine + 9 + strlen(pszKey), "%f %f %d",
+		&zpos, &mass, &x);
+
+
+	sprintf_s(pszBuffer, 256, "PAYLOAD %s %f %f %d",
+		pszKey, zpos, mass, x);
+	oapiWriteLog(pszBuffer);
+	
+
+	if(!_strnicmp(pszKey, "CACTIVE", 7))
+	{
+		int i = atoi(pszKey+7) - 1;
+		
+		if(i>=0 && i<4)
+		{
+			fPayloadZPos[i] = zpos;
+			fPayloadMass[i] = mass;
+			usPayloadType[i] = (unsigned short)(x);
+		}
+	}
+	else if(!_strnicmp(pszKey, "CPASSIVE", 8))
+	{
+		int i = atoi(pszKey+8) - 1;
+		
+		if(i>=0 && i<4)
+		{
+			fPayloadZPos[i+3] = zpos;
+			fPayloadMass[i+3] = mass;
+			usPayloadType[i+3] = (unsigned short)(x);
+		}
+	}
+	else if(!_strnicmp(pszKey, "PORT", 4))
+	{
+		int i = atoi(pszKey+4) - 1;
+		
+		if(i>=0 && i<5)
+		{
+			fPayloadZPos[i+7] = zpos;
+			fPayloadMass[i+7] = mass;
+			usPayloadType[i+7] = (unsigned short)(x);
+		}
+	}
+	else if(!_strnicmp(pszKey, "STBD", 4))
+	{
+		int i = atoi(pszKey+4) - 1;
+		if(i>=0 && i<5)
+		{
+			fPayloadZPos[i+11] = zpos;
+			fPayloadMass[i+11] = mass;
+			usPayloadType[i+11] = (unsigned short)(x);
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }
 
 // --------------------------------------------------------------
@@ -4510,11 +4861,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
   met+=simdt;
   GPC(simdt); //perform GPC functions
-
+/*
     if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
       DetachChild (sat_attach, 0.1);
       bManualSeparate = false;
     }
+	*/
 
     if (do_eva) {
       char name[256];
@@ -4638,7 +4990,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  }*/
 		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 		  if(Grapple.Closed()) {
-			  if(!GetAttachmentStatus(rms_attach)) ToggleGrapple();
+			  if(!GetAttachmentStatus(ahRMS)) ToggleGrapple();
 			  Extend.action=AnimState::CLOSING;
 			  panela8->UpdateVC();
 		  }
@@ -4670,7 +5022,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  else if(!Grapple.Open()) {
 		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 		  if(Grapple.Open()) {
-			  if(GetAttachmentStatus(rms_attach)) ToggleGrapple();
+			  if(GetAttachmentStatus(ahRMS)) 
+				  ToggleGrapple();
 			  Extend.action=AnimState::OPENING;
 			  panela8->UpdateVC();
 		  }
@@ -4745,7 +5098,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   if (arm_moved) {
-    SetAttachmentParams (rms_attach, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+    SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
 	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
 	
 	//calculate joint angles
@@ -6344,7 +6697,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     SendDlgItemMessage (hWnd, IDC_SHOWGRAPPLE, BM_SETCHECK, oapiGetShowGrapplePoints() ? BST_CHECKED:BST_UNCHECKED, 0);
     SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE), sts->SatGrappled() ? "Release" : "Grapple");
     EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
-    SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
+    //SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
     EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
     SetTimer (hWnd, 1, 50, NULL);
     t0 = oapiGetSimTime();
@@ -6434,7 +6787,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			  if(!sts->Grapple.Closed()) {
 				  sts->Grapple.action=AnimState::CLOSING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
-				  if(sts->Grapple.Closed() && !sts->GetAttachmentStatus(sts->rms_attach)) {
+				  if(sts->Grapple.Closed() && !sts->GetAttachmentStatus(sts->ahRMS)) {
 					  sts->ToggleGrapple();
 					  sts->panela8->UpdateVC();
 				  }
@@ -6446,7 +6799,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			  if(!sts->Grapple.Open()) {
 				  sts->Grapple.action=AnimState::OPENING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
-				  if(sts->Grapple.Closed() && sts->GetAttachmentStatus(sts->rms_attach)) {
+				  if(sts->Grapple.Closed() && sts->GetAttachmentStatus(sts->ahRMS)) {
 					  sts->ToggleGrapple();
 					  sts->panela8->UpdateVC();
 				  }

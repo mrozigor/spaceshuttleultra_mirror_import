@@ -54,7 +54,7 @@ IDB_TKBKLABEL           BITMAP                  "Bitmaps\\tkbk_label.bmp"
 // Dialog
 //
 
-IDD_RMS DIALOGEX 0, 0, 109, 294
+IDD_RMS DIALOGEX 0, 0, 109, 324
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "RMS Control"
@@ -84,11 +84,12 @@ BEGIN
     PUSHBUTTON      "-x",IDC_TRANS_MX,84,163,16,14
     PUSHBUTTON      "Stow",IDC_STOW,31,218,46,14
     PUSHBUTTON      "Grapple",IDC_GRAPPLE,56,202,46,14
-    CONTROL         "Show grapple points",IDC_SHOWGRAPPLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,282,80,10
+    CONTROL         "Show grapple points",IDC_SHOWGRAPPLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,2,311,80,10
     GROUPBOX        "RMS",IDC_STATIC,4,191,101,45
-    PUSHBUTTON      "Purge",IDC_PAYLOAD,8,259,94,14
-    GROUPBOX        "Payload",IDC_STATIC,4,245,101,31
+    PUSHBUTTON      "Purge",IDC_PAYLOAD,7,289,94,14
+    GROUPBOX        "Payload",IDC_STATIC,4,245,101,61
     PUSHBUTTON      "Release",IDC_RELEASE,8,202,46,14
+    COMBOBOX        IDC_PAYLOADCOMBO,11,257,87,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_PLBAY DIALOGEX 0, 0, 238, 305
@@ -278,6 +279,11 @@ IDI_RLEFT               ICON                    "ico00004.ico"
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO 
 BEGIN
+    IDD_RMS, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 294
+    END
+
     IDD_PLBAY, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -292,6 +298,29 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_RMS DLGINIT
+BEGIN
+    IDC_PAYLOADCOMBO, 0x403, 2, 0
+0x0031, 
+    IDC_PAYLOADCOMBO, 0x403, 10, 0
+0x4f4d, 0x494e, 0x4f54, 0x2052, 0x0031, 
+    IDC_PAYLOADCOMBO, 0x403, 2, 0
+0x0032, 
+    IDC_PAYLOADCOMBO, 0x403, 10, 0
+0x4f4d, 0x494e, 0x4f54, 0x2052, 0x0032, 
+    IDC_PAYLOADCOMBO, 0x403, 2, 0
+0x0033, 
+    IDC_PAYLOADCOMBO, 0x403, 10, 0
+0x4f4d, 0x494e, 0x4f54, 0x2052, 0x0033, 
+    0
+END
 
 #endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
