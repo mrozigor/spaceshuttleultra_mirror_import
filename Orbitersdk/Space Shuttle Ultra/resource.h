@@ -84,14 +84,16 @@
 #define IDC_PAYCAM                      1063
 #define IDC_CAM_LOWRATE                 1064
 #define IDC_CAM_HIGHRATE                1065
+#define IDC_COMBO1                      1066
+#define IDC_PAYLOADCOMBO                1066
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        118
+#define _APS_NEXT_RESOURCE_VALUE        119
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1066
+#define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

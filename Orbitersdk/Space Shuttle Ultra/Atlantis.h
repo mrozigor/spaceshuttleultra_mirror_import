@@ -314,6 +314,8 @@ const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
+
+
 const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
 const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
 const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
@@ -325,6 +327,7 @@ const VECTOR3 SSMER_GOX_REF = _V(2.615, 0.239, -14.665);
 
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
+const VECTOR3 POS_TOW = _V(0.0, -1.91, 25.8);
 
 const VECTOR3 UMBDOORL_REF = _V(-1.31087, -2.71022, -6.75496);
 const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
@@ -512,6 +515,7 @@ const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 
 const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
 const static char* VC_LBL_LEECAM = "RMS EE camera";
+const static char* VC_LBL_ELLBOWCAM = "RMS Elbow camera";
 const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
 const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
 const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
@@ -526,6 +530,33 @@ const static char* VC_LBL_EXT_AL = "External Airlock";
 const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.3, 0.25);
 const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
+const double PL_ATTACH_CENTER_Y = -1.80;
+const double PL_ATTACH_SIDE_Y = 0.80;
+const double PL_ATTACH_SIDE_X = 2.45;
+
+const VECTOR3 DIR_CENTERPL = _V(0.0, 1.0, 0.0);
+const VECTOR3 ROT_CENTERPL = _V(0.0, 0.0, 1.0);
+
+
+const VECTOR3 DIR_PORTPL = _V(1.0, 0.0, 0.0);
+const VECTOR3 ROT_PORTPL = _V(0.0, -1.0, 0.0);
+
+const VECTOR3 DIR_STBDPL = _V(-1.0, 0.0, 0.0);
+const VECTOR3 ROT_STBDPL = _V(0.0, -1.0, 0.0);
+
+const VECTOR3 OFS_PORTMMU = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
+const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
+
+
+static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
+	"XS1A", "XS3A", "XS5A"};
+
+const double DEFAULT_PAYLOAD_ZPOS[16] = 
+{ 8.0, 0.0, -8.0,		//Center active
+  4.0, 2.0, -6.0,		//Center passive
+  7.0, 3.0, -2.0, -8.0,	//Port
+  7.0, 3.0, -2.0, -8.0,	//Starboard
+  0.0, 0.0};			//spare
 
 // ==========================================================
 // Mesh group indices for some components
@@ -880,6 +911,7 @@ public:
 	void clbkVisualDestroyed (VISHANDLE vis, int refcount);
 	void ClearMeshes ();
 	void DefineAnimations (void);
+	void DefineAttachments (const VECTOR3& ofs0);
 	/* **********************************************************
 	 * Getters
 	 * **********************************************************/
@@ -971,8 +1003,26 @@ public:
 		hODSMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
-	ATTACHMENTHANDLE sat_attach, rms_attach, obss_attach;
+
+	double fPayloadZPos[16];
+	double fPayloadMass[16];
+	unsigned short usPayloadType[16];
+	//C-P attachments
 	ATTACHMENTHANDLE ahHDP;
+	ATTACHMENTHANDLE ahTow;
+	//P-C attachments
+	/**
+	 * @deprecated
+	 */
+	ATTACHMENTHANDLE ahRMS, ahOBSS;
+	ATTACHMENTHANDLE ahMMU[2];
+	ATTACHMENTHANDLE ahDockAux;
+	ATTACHMENTHANDLE ahExtAL[2];
+	ATTACHMENTHANDLE ahCenterActive[3];
+	ATTACHMENTHANDLE ahCenterPassive[4];
+	ATTACHMENTHANDLE ahStbdPL[4];
+	ATTACHMENTHANDLE ahPortPL[4];
+	
 	VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
 
@@ -1066,6 +1116,10 @@ private:
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 
+	//
+	void SavePayloadState(FILEHANDLE scn) const;
+	bool ParsePayloadLine(const char* pszLine);
+
 	/**
 	 * React on Key "V", switching the view from flight deck to Mid Deck
 	 * and back.
@@ -1076,8 +1130,8 @@ private:
 	bool ArmCradled();
 	void UpdateMPMMicroswitches();
 	void UpdateMRLMicroswitches();
-	bool SatGrappled() const { return GetAttachmentStatus (rms_attach) != 0; }
-	bool SatStowed() const { return GetAttachmentStatus (sat_attach) != 0; }
+	bool SatGrappled() const { return GetAttachmentStatus (ahRMS) != 0; }
+	bool SatStowed() const;
 	ATTACHMENTHANDLE CanArrest() const;
 
 	//Launch
