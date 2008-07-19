@@ -2128,10 +2128,6 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
-	if(STBDMPM) {
-		//mesh_mpm = AddMesh (hOBSSMPMMesh, &(ofs+STBDMPM_REF));
-		//SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	}
 
 	AddKUBandVisual(ofs);
 
@@ -2185,6 +2181,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
       VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
       AddMesh("shuttle_eva_plat", &plat_ofs);
     }
+
+	if(STBDMPM) {
+		VECTOR3 pos=ofs+STBDMPM_REF;
+		mesh_mpm = AddMesh (hOBSSMPMMesh, &pos);
+		SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	}
 
 	
 
