@@ -1885,8 +1885,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 	if(STBDMPM) {
-		mesh_mpm = AddMesh (hOBSSMPMMesh, &(ofs+STBDMPM_REF));
-		SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+		//mesh_mpm = AddMesh (hOBSSMPMMesh, &(ofs+STBDMPM_REF));
+		//SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 	AddKUBandVisual(ofs);
