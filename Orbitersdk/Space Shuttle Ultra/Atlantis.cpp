@@ -550,6 +550,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //DefineAnimations();
   center_arm      = false;
   arm_moved       = false;
+  mpm_moved		  = false;
   bManualSeparate = false;
   ofs_sts_sat     = _V(0,0,0);
   do_eva          = false;
@@ -583,6 +584,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   // default arm status: deployed
   STBDMPM=false;
+  StbdMPMRollout.Set(AnimState::OPEN, 1);
   DisplayJointAngles=false;
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
@@ -1471,7 +1473,8 @@ void Atlantis::DefineAnimations (void)
 {
   UINT midx = 1; // mesh index for all external animations
   UINT vidx = 2; // mesh index for all VC animations
-  UINT ridx = 3; // mesh index for all RMS animations
+  UINT ridx = mesh_rms; // mesh index for all RMS animations
+  UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
 
@@ -1727,6 +1730,20 @@ void Atlantis::DefineAnimations (void)
   wrist_roll_max=wrist_roll_range*(1-wrist_neutral); //Max angle, deg
   arm_wrist_pos=wrist_pos;
 
+  // STBD MPM animation
+  static UINT STBDMPMGrp[1] = {0}; //only group in mesh
+  static MGROUP_ROTATE MPMAnim (sidx, STBDMPMGrp, 1,
+	  _V(-0.164, -0.356, 0), _V(0, 0, 1), (float)(-31.36*RAD));
+  anim_stbd_mpm=CreateAnimation(1.0);
+  parent = AddAnimationComponent(anim_stbd_mpm, 0, 1, &MPMAnim);
+
+  obss_attach_point[0]=_V(0.06, 0.28, 1.457);
+  obss_attach_point[1]=_V(0.06, 1.28, 1.457);
+
+  static MGROUP_ROTATE MPMAttachment (LOCALVERTEXLIST, MAKEGROUPARRAY(obss_attach_point), 2,
+    _V(2.87, 1.90, 3.15), _V(0,0,1), (float)(0.0));
+  parent = AddAnimationComponent (anim_stbd_mpm, 0, 1, &MPMAttachment, parent);
+
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
   // FRONT LEFT
@@ -1940,10 +1957,10 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	//Separate into UpdateOBSSAttachment
 	if(ahOBSS)
 	{
-		SetAttachmentParams(ahOBSS, ofs0+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1));
+		SetAttachmentParams(ahOBSS, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1));
 	}
 	else {
-		ahOBSS = CreateAttachment (false, ofs0+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
+		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
 	}
 
 
@@ -2708,15 +2725,20 @@ void Atlantis::UpdateMesh ()
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
 
-  SetAnimation(anim_rollout, RMSRollout.pos);
-  SetAnimationArm (anim_arm_sy, arm_sy);
-  SetAnimationArm (anim_arm_sp, arm_sp);
-  SetAnimationArm (anim_arm_ep, arm_ep);
-  SetAnimationArm (anim_arm_wp, arm_wp);
-  SetAnimationArm (anim_arm_wy, arm_wy);
-  SetAnimationArm (anim_arm_wr, arm_wr);
-  UpdateRMSAngles();
-  UpdateRMSPositions();
+  if(STBDMPM) {
+	  SetStbdMPMPosition(StbdMPMRollout.pos);
+  }
+  if(RMS) {
+	  SetAnimation(anim_rollout, RMSRollout.pos);
+	  SetAnimationArm (anim_arm_sy, arm_sy);
+	  SetAnimationArm (anim_arm_sp, arm_sp);
+	  SetAnimationArm (anim_arm_ep, arm_ep);
+	  SetAnimationArm (anim_arm_wp, arm_wp);
+	  SetAnimationArm (anim_arm_wy, arm_wy);
+	  SetAnimationArm (anim_arm_wr, arm_wr);
+	  UpdateRMSAngles();
+	  UpdateRMSPositions();
+  }
 
   // update MFD brightness
   if (vis) {
@@ -2788,6 +2810,14 @@ void Atlantis::SetETUmbDoorPosition (double pos, int door)
 	else SetAnimation (anim_retumbdoor, pos);
 }
 
+void Atlantis::SetStbdMPMPosition(double pos)
+{
+	if(STBDMPM) {
+		SetAnimation(anim_stbd_mpm, pos);
+		mpm_moved=true;
+	}
+}
+
 void Atlantis::OperateSpeedbrake (AnimState::Action action)
 {
   spdb_status = action;
@@ -2818,7 +2848,7 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   UpdateMRLMicroswitches();
   panela8->UpdateVC();
 
-  HWND hDlg;
+  //HWND hDlg;
   /*
   if (!SatStowed() && (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS))) {
     SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
@@ -4312,6 +4342,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		RMS=true;
 	} else if (!_strnicmp (line, "MPM", 3)) {
 		STBDMPM=true;
+	} else if (!_strnicmp (line, "STBD_MPM", 8)) {
+		sscan_state (line+8, StbdMPMRollout);
 	} else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
 		if(action==1) {
@@ -4446,7 +4478,10 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   }
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
 
-  if(STBDMPM) oapiWriteLine(scn, "  MPM"); 
+  if(STBDMPM) {
+	  oapiWriteLine(scn, "  MPM"); 
+	  WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
+  }
   if(RMS) {
 	  oapiWriteLine(scn, "  RMS");
 	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
@@ -4981,6 +5016,26 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  SetAnimation(anim_rollout, RMSRollout.pos);
 	  UpdateMPMMicroswitches();
   }
+   if(StbdMPMRollout.Moving() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && plop->BayDoorStatus.pos==1.0) {
+	  double da = simdt*ARM_DEPLOY_SPEED;
+	  if(StbdMPMRollout.Closing()) {
+		  StbdMPMRollout.pos=max(0.0, StbdMPMRollout.pos-da);
+		  if(StbdMPMRollout.pos<=0.0) {
+			  StbdMPMRollout.action=AnimState::CLOSED;
+			  //panela8->UpdateVC();
+		  }
+	  }
+	  else {
+		  StbdMPMRollout.pos=min(1.0, StbdMPMRollout.pos+da);
+		  if(StbdMPMRollout.pos>=1.0) {
+			  StbdMPMRollout.action=AnimState::OPEN;
+			  //panela8->UpdateVC();
+		  }
+	  }
+	  sprintf_s(oapiDebugString(), 255, "STBD MPM POS: %f", StbdMPMRollout.pos);
+	  SetStbdMPMPosition(StbdMPMRollout.pos);
+	  //UpdateMPMMicroswitches();
+  }
 
   //Grapple sequence
   if(bGrappleInProgress) {
@@ -5038,6 +5093,36 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		  }
 		  panela8->UpdateVC();
 	  }
+  }
+
+  if (arm_moved) {
+    SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
+	
+	//calculate joint angles
+	/*sy_angle=linterp(0,-180,1,180,arm_sy);
+	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+	ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
+	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
+	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
+	wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;*/
+	
+	// If the current camera mode is the RMS_EFFECTOR move camera position to match
+	// the position and direction of the wrist
+	if (VCMode == VC_LEECAM) {
+		double tilt = wr_angle;
+		if(tilt<-180.0) tilt+=360.0;
+		else if(tilt>180.0) tilt-=360.0;
+		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+	}
+
+    arm_moved = false;
+  }
+  if(mpm_moved) {
+	VECTOR3 pos=obss_attach_point[0]+STBDMPM_REF;
+	SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
+	mpm_moved=false;
   }
   
   // ***** Stow RMS arm *****
@@ -5099,17 +5184,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	UpdateRMSPositions();
   }
 
-  if (arm_moved) {
+  /*if (arm_moved) {
     SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
 	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
-	
-	//calculate joint angles
-	/*sy_angle=linterp(0,-180,1,180,arm_sy);
-	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-	ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
-	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-	wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;*/
 	
 	// If the current camera mode is the RMS_EFFECTOR move camera position to match
 	// the position and direction of the wrist
@@ -5122,7 +5199,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	}
 
     arm_moved = false;
-  }
+  }*/
   if(DisplayJointAngles) {
 	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, ep_angle,
 		wp_angle, wy_angle, wr_angle);
