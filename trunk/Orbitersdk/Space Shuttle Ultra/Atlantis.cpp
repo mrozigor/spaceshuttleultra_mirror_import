@@ -2847,6 +2847,7 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   arm_moved = true;
   UpdateMRLMicroswitches();
   panela8->UpdateVC();
+  sprintf_s(oapiDebugString(), 255, "Moving arm");
 
   //HWND hDlg;
   /*
