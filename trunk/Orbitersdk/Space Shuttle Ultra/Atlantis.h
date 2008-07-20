@@ -945,6 +945,7 @@ public:
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
+	void SetStbdMPMPosition(double pos);
 	void SetKuAntennaPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void SetLastCreatedMFD(unsigned short usMDU);
@@ -1459,18 +1460,21 @@ private:
 	MGROUP_TRANSFORM *rms_anim[7], *rms_rollout_anim;
 	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr, anim_arm_ee;
 	UINT anim_rollout;
+	UINT anim_stbd_mpm;
+	VECTOR3 obss_attach_point[2];
 	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
 	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
 	
 	//RMS
-	AnimState RMSRollout;
+	AnimState RMSRollout, StbdMPMRollout;
 	int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
 	double shoulder_brace;
 	double MRL[2]; //0=PORT, 1=STBD
 	int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
 	bool STBDMPM;
+	bool mpm_moved;
 	bool DisplayJointAngles;	
 	//Grapple/Release sequences
 	bool bGrappleInProgress, bReleaseInProgress;

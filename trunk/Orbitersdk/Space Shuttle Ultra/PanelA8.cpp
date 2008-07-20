@@ -227,7 +227,7 @@ void PanelA8::UpdateVC()
 bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	bool action = false;
-	sprintf_s(oapiDebugString(), 255, "Panel A8 event: %f %f %f %f", p.x, p.y, p.z);
+	//sprintf_s(oapiDebugString(), 255, "Panel A8 event: %f %f %f %f", p.x, p.y, p.z);
 	/*if(event & PANEL_MOUSE_LBPRESSED) sprintf(oapiDebugString(), "LBPressed");
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
@@ -302,6 +302,20 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 					if(switch_state[SWITCH9]<2) switch_state[SWITCH9]++;
 				}
 				action=true;
+
+				if(switch_state[SWITCH9]==0) {
+					if(sts->StbdMPMRollout.action!=AnimState::OPEN) {
+						sts->StbdMPMRollout.action=AnimState::OPENING;
+					}
+				}
+				else if(switch_state[SWITCH9]==1) {
+					if(sts->StbdMPMRollout.Moving()) sts->StbdMPMRollout.action=AnimState::STOPPED;
+				}
+				else {
+					if(sts->StbdMPMRollout.action!=AnimState::CLOSED) {
+						sts->StbdMPMRollout.action=AnimState::CLOSING;
+					}
+				}
 			}
 		}
 
