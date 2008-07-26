@@ -527,7 +527,7 @@ const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 
 const static char* VC_LBL_EXT_AL = "External Airlock";
-const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.3, 0.25);
+const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.1, 0.25);
 const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 const double PL_ATTACH_CENTER_Y = -1.80;
