@@ -2141,10 +2141,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	if(RMS) {
-		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
-		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	}
+	
 
 	AddKUBandVisual(ofs);
 
@@ -2228,6 +2225,16 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	DefineAnimations();
 
   }
+
+	if(mesh_rms == MESH_UNDEFINED)
+	{
+		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
+	}
+	if(RMS) {
+		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	} else {
+		SetMeshVisibilityMode (mesh_rms, MESHVIS_NEVER);
+	}
 }
 
 void Atlantis::AddTankVisual (const VECTOR3 &ofs)
@@ -5584,6 +5591,8 @@ bool Atlantis::clbkLoadVC (int id)
 
     // Get the VC Mode.
   VCMode = id;
+  //Reset Clip Radius settings
+  SetClipRadius(0.0);
 
 
   // register MFD function buttons
