@@ -448,7 +448,7 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
-const VECTOR3 ODS_POS = _V(0.0, 0.0, 10.1529);
+const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 /**  
  * list of the VC positions
