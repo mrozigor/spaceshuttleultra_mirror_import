@@ -256,7 +256,7 @@ bool GearOp::VCRedrawEvent (int id, int event, SURFHANDLE surf) {
 }
 
 void GearOp::DefineAnimations () {
-  UINT midx = 1; // mesh index for all external animations
+  UINT midx = sts->mesh_orbiter; // mesh index for all external animations
   //DaveS edit: Fixed animations so they align correctly with the scaled down orbiter mesh
 
   static UINT LNosewheelDoorGrp[1] = {GRP_NOSEDOORL};

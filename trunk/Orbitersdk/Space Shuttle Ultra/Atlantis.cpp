@@ -1471,8 +1471,8 @@ void Atlantis::EnableControlSurfaces()
 // --------------------------------------------------------------
 void Atlantis::DefineAnimations (void)
 {
-  UINT midx = 1; // mesh index for all external animations
-  UINT vidx = 2; // mesh index for all VC animations
+  UINT midx = mesh_orbiter; // mesh index for all external animations
+  UINT vidx = mesh_vc; // mesh index for all VC animations
   UINT ridx = mesh_rms; // mesh index for all RMS animations
   UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
@@ -1689,9 +1689,6 @@ void Atlantis::DefineAnimations (void)
   hAC_arm = AddAnimationComponent (anim_arm_ee, 0, 1, rms_anim[6], parent);
 
   //IK setup
-  /*VECTOR3 shoulder_pos=_V(-10,-2.26,1.8); //wrong
-  VECTOR3 elbow_pos=_V(-3.3,-2.26,1.7); //wrong
-  VECTOR3 wrist_pos=_V(3.55,-2.26,1.7); //wrong*/
   VECTOR3 shoulder_pos=_V(-9.02, -2.77, 2.13);
   VECTOR3 elbow_pos=_V(-2.74, -2.71, 1.97);
   //VECTOR3 elbow_pos=_V(-2.76, -2.87, 2.03);
@@ -3038,7 +3035,8 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 		else if(change==1) {
 			nNew=atoi(Name);
 			if(ops==201) {
-				switch(Display[mfd]->spec) {
+				//switch(Display[mfd]->spec) {
+				switch(pIDP[mfd]->GetSpec()) {
 					case 0:
 						if(nNew<=17) {
 							item=nNew;
@@ -3403,7 +3401,8 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 		else if(change==3) {
 			//item=atoi(Name);
 			if(ops==201) {
-				switch(Display[mfd]->spec) {
+				//switch(Display[mfd]->spec) {
+				switch(pIDP[mfd]->GetSpec()) {
 					case 0:
 						if(item>=1 && item<=4) {
 							nNew=atoi(Data);
@@ -6437,7 +6436,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 		arm_wy=anim_beta_w;
 
 		iterations++;
-	}while(iterations<3);
+	}while(iterations<5);
 
 	//arm_sy=anim_beta_s;
 	SetAnimationArm(anim_arm_sy,arm_sy);
@@ -7265,7 +7264,7 @@ void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 
 void Atlantis::DefineKUBandAnimations()
 {
-  UINT kidx = 4;
+  UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
       // DaveS edit: Animations have now been realigned. Someone better doublecheck the gimbal and dish animations though.
 
