@@ -56,6 +56,7 @@ const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
+const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -873,6 +874,7 @@ public:
 	UINT mesh_orbiter;                         // index for orbiter mesh
 	UINT mesh_cockpit;                         // index for cockpit mesh for external view
 	UINT mesh_vc;                              // index for virtual cockpit mesh
+	UINT mesh_panela8;						   // index for Panel A8 mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
 	UINT mesh_rms;							   // index for RMS mesh
 	UINT mesh_mpm;							   // index for STBD MPM mesh
@@ -1005,7 +1007,7 @@ public:
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
 		hMidDeckMesh, hOrbiterRMSMesh, hOBSSMPMMesh, hTankMesh, hSRBMesh[2],
-		hODSMesh; // mesh handles
+		hODSMesh, hPanelA8Mesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 
