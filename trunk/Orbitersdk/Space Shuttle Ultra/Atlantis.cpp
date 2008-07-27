@@ -420,8 +420,11 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_tank       = MESH_UNDEFINED;
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
+  mesh_rms        = MESH_UNDEFINED;
+  mesh_mpm        = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
   mesh_cargo_static = MESH_UNDEFINED;
+  mesh_panela8	  = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -540,6 +543,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
   hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
+  hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
@@ -2138,8 +2142,6 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	
-
 	AddKUBandVisual(ofs);
 
 	if(mesh_ods == MESH_UNDEFINED) {
@@ -2229,6 +2231,10 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	}
 	if(RMS) {
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+
+		//add panelA8
+		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
+		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
 	} else {
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_NEVER);
 	}
