@@ -2,7 +2,8 @@
 #include "PlBayOp.h"
 #include "resource.h"
 //#include "meshres.h"
-#include "meshres_vc.h"
+//#include "meshres_vc.h"
+#include "meshres_vc_a8.h"
 #include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
@@ -26,11 +27,12 @@ PanelA8::PanelA8(Atlantis *_sts): sts(_sts)
 
 void PanelA8::RegisterVC()
 {
-	//sprintf_s(oapiDebugString(), 255, "Registering panelA8");
+	if(!sts->RMS) return;
+	sprintf_s(oapiDebugString(), 255, "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
-	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
+	//SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hPanelA8Mesh, TEX_A8TOP_VC);
 	//! TODO: Fix RMS panel animations, should be optional by now.
-	//SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8BOTTOM_VC);
+	//SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hPanelA8Mesh, TEX_A8BOTTOM_VC);
 
 	oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.274, 2.848, 12.567)+ofs, _V(-0.813, 2.848, 12.567)+ofs, _V(-0.277, 2.055, 12.816)+ofs, _V(-0.819, 2.055, 12.816)+ofs);
@@ -43,13 +45,13 @@ void PanelA8::RegisterVC()
 	//oapiVCRegisterArea(AID_A8_TKBK6, _R(806, 650, 838, 668), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	//oapiVCRegisterArea(AID_A8_TKBK7, _R(717, 648, 749, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	//oapiVCRegisterArea(AID_A8_TKBK10, _R(120, 648, 152, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
-	oapiVCRegisterArea(AID_A8_TKBK11, _R(914, 334, 946, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK12, _R(914, 400, 946, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK13, _R(901, 931, 933, 949), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK16, _R(868, 334, 900, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK17, _R(868, 400, 900, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK18, _R(819, 334, 851, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-	oapiVCRegisterArea(AID_A8_TKBK19, _R(819, 400, 851, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK11, _R(914, 334, 946, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK12, _R(914, 400, 946, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK13, _R(901, 931, 933, 949), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK16, _R(868, 334, 900, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK17, _R(868, 400, 900, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK18, _R(819, 334, 851, 352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+	//oapiVCRegisterArea(AID_A8_TKBK19, _R(819, 400, 851, 418), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	//oapiVCRegisterArea(AID_A8_TKBK7, _R(614, 617, 646, 635), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 }
 
@@ -113,7 +115,7 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK13:
-			if(sts->shoulder_brace==0.0 && switch_state[SWITCH12]==0)
+			if(sts->shoulder_brace==0.0 && switch_state[SWITCH11]==0)
 				return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
@@ -155,77 +157,82 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 	static VECTOR3 switch_rot_vert=_V(1.0, 0.0, 0.0);
 	static VECTOR3 switch_rot_horz=_V(0.0, 0.793, -0.249);
 
-	static UINT VC_A8b5_GRP = GRP_A8b5_VC;
-	static MGROUP_ROTATE VC_A8b5 (vcidx, &VC_A8b5_GRP, 1,
+	//PORT RMS RETENTION LATCHES
+	static UINT VC_A8S18_GRP = GRP_A8S18_VC;
+	static MGROUP_ROTATE VC_A8S18 (vcidx, &VC_A8S18_GRP, 1,
 		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH5]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH5], 0, 1, &VC_A8b5);
+	anim_VC_A8[SWITCH18]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH18], 0, 1, &VC_A8S18);
 	
-	static UINT VC_A8b6_GRP = GRP_A8b6_VC;
-	static MGROUP_ROTATE VC_A8b6 (vcidx, &VC_A8b6_GRP, 1,
+	//PORT MPM DEPLOY
+	static UINT VC_A8S17_GRP = GRP_A8S17_VC;
+	static MGROUP_ROTATE VC_A8S17 (vcidx, &VC_A8S17_GRP, 1,
 		_V(-0.647, 2.238, 12.486), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH6]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH6], 0, 1, &VC_A8b6);
+	anim_VC_A8[SWITCH17]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH17], 0, 1, &VC_A8S17);
 
 	//RMS POWER
-	static UINT VC_A8b7_GRP = GRP_A8b7_VC;
-	static MGROUP_ROTATE VC_A8b7 (vcidx, &VC_A8b7_GRP, 1,
+	static UINT VC_A8S16_GRP = GRP_A8S16_VC;
+	static MGROUP_ROTATE VC_A8S16 (vcidx, &VC_A8S16_GRP, 1,
 		_V(-0.647, 2.238, 12.486), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH7]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH7], 0, 1, &VC_A8b7);
+	anim_VC_A8[SWITCH16]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH16], 0, 1, &VC_A8S16);
 
-	static UINT VC_A8b8_GRP = GRP_A8b8_VC;
-	static MGROUP_ROTATE VC_A8b8 (vcidx, &VC_A8b8_GRP, 1,
+	//STBD RMS RETENTION LATCHES
+	static UINT VC_A8S13_GRP = GRP_A8S13_VC;
+	static MGROUP_ROTATE VC_A8S13 (vcidx, &VC_A8S13_GRP, 1,
 		_V(-0.384, 2.233, 12.487), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH8]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH8], 0, 1, &VC_A8b8);
+	anim_VC_A8[SWITCH13]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH13], 0, 1, &VC_A8S13);
 
-	static UINT VC_A8b9_GRP = GRP_A8b9_VC;
-	static MGROUP_ROTATE VC_A8b9 (vcidx, &VC_A8b9_GRP, 1,
+	//STBD MPM DEPLOY
+	static UINT VC_A8S12_GRP = GRP_A8S12_VC;
+	static MGROUP_ROTATE VC_A8S12 (vcidx, &VC_A8S12_GRP, 1,
 		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH9]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH9], 0, 1, &VC_A8b9);
+	anim_VC_A8[SWITCH12]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH12], 0, 1, &VC_A8S12);
 
-	static UINT VC_A8b10_GRP = GRP_A8b10_VC;
-	static MGROUP_ROTATE VC_A8b10 (vcidx, &VC_A8b10_GRP, 1,
+	//SHOULDER BRACE
+	static UINT VC_A8S10_GRP = GRP_A8S10_VC;
+	static MGROUP_ROTATE VC_A8S10 (vcidx, &VC_A8S10_GRP, 1,
 		_V(-0.687, 2.402, 12.434), switch_rot_horz, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH10]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH10], 0, 1, &VC_A8b10);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH10], 0, 1, &VC_A8S10);
 
 	//RMS SELECT
-	static UINT VC_A8b12_GRP = GRP_A8b12_VC;
-	static MGROUP_ROTATE VC_A8b12 (vcidx, &VC_A8b12_GRP, 1,
+	static UINT VC_A8S11_GRP = GRP_A8S11_VC;
+	static MGROUP_ROTATE VC_A8S11 (vcidx, &VC_A8S11_GRP, 1,
 		_V(-0.537, 2.294, 12.467), switch_rot_horz, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH12]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH12], 0, 1, &VC_A8b12);
+	anim_VC_A8[SWITCH11]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH11], 0, 1, &VC_A8S11);
 
 	//MAN CONTR
-	static UINT VC_A8b16_GRP = GRP_A8b16_VC;
-	static MGROUP_ROTATE VC_A8b16 (vcidx, &VC_A8b16_GRP, 1,
+	static UINT VC_A8S5_GRP = GRP_A8S5_VC;
+	static MGROUP_ROTATE VC_A8S5 (vcidx, &VC_A8S5_GRP, 1,
 		_V(-0.654, 2.709, 12.337), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH16]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH16], 0, 1, &VC_A8b16);
+	anim_VC_A8[SWITCH5]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH5], 0, 1, &VC_A8S5);
 
 	//MODE
-	static UINT VC_A8b17_GRP = GRP_A8b17_VC;
-	static MGROUP_ROTATE VC_A8b17 (vcidx, &VC_A8b17_GRP, 1,
+	static UINT VC_A8S4_GRP = GRP_A8S4_VC;
+	static MGROUP_ROTATE VC_A8S4 (vcidx, &VC_A8S4_GRP, 1,
 		_V(-0.625, 2.709, 12.337), switch_rot_vert, (float)(90.0*RAD));
-	anim_VC_A8[SWITCH17]=sts->CreateAnimation(0.5);
-	sts->AddAnimationComponent(anim_VC_A8[SWITCH17], 0, 1, &VC_A8b17);
+	anim_VC_A8[SWITCH4]=sts->CreateAnimation(0.5);
+	sts->AddAnimationComponent(anim_VC_A8[SWITCH4], 0, 1, &VC_A8S4);
 }
 
 void PanelA8::UpdateVC()
 {
-	//if(!sts->RMS) return;
-	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH6], switch_state[SWITCH6]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH7], switch_state[SWITCH7]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH8], switch_state[SWITCH8]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH9], switch_state[SWITCH9]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH12], switch_state[SWITCH12]/2.0);
-	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
+	if(!sts->RMS) return;
+	sts->SetAnimation(anim_VC_A8[SWITCH18], switch_state[SWITCH18]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH17], switch_state[SWITCH17]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH13], switch_state[SWITCH13]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH12], switch_state[SWITCH12]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH11], switch_state[SWITCH11]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
+	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
@@ -254,10 +261,10 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.167373 && p.x<=0.217567) {
 			if(p.y>=0.841234 && p.y<=0.867132) {
 				if(p.y<0.854145) {
-					if(switch_state[SWITCH5]>0) switch_state[SWITCH5]--;
+					if(switch_state[SWITCH18]>0) switch_state[SWITCH18]--;
 				}
 				else {
-					if(switch_state[SWITCH5]<2) switch_state[SWITCH5]++;
+					if(switch_state[SWITCH18]<2) switch_state[SWITCH18]++;
 				}
 				action=true;
 			}
@@ -266,19 +273,19 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.252639 && p.x<=0.305916) {
 			if(p.y>=0.828852 && p.y<=0.863428) {
 				if(p.y<0.848199) {
-					//sprintf(oapiDebugString(), "Deploying PORT MPMs");
-					if(switch_state[SWITCH6]>0) switch_state[SWITCH6]--;
+					sprintf(oapiDebugString(), "Deploying STBD MPMs");
+					if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
 				}
 				else {
-					//sprintf(oapiDebugString(), "Stowing PORT MPMs");
-					if(switch_state[SWITCH6]<2) switch_state[SWITCH6]++;
+					sprintf(oapiDebugString(), "Stowing STBD MPMs");
+					if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
 				}
-				if(switch_state[SWITCH6]==0) {
+				if(switch_state[SWITCH17]==0) {
 					if(sts->RMSRollout.action!=AnimState::OPEN) {
 						sts->RMSRollout.action=AnimState::OPENING;
 					}
 				}
-				else if(switch_state[SWITCH6]==1) {
+				else if(switch_state[SWITCH17]==1) {
 					if(sts->RMSRollout.Moving()) sts->RMSRollout.action=AnimState::STOPPED;
 				}
 				else {
@@ -299,14 +306,14 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.4649455 && p.x<=0.508725) {
 			if(p.y>=0.8319185 && p.y<=0.877751) {
 				if(p.y<0.854939) {
-					if(switch_state[SWITCH7]>0) {
-						switch_state[SWITCH7]--;
+					if(switch_state[SWITCH16]>0) {
+						switch_state[SWITCH16]--;
 						action=true;
 					}
 				}
 				else {
-					if(switch_state[SWITCH7]<2) {
-						switch_state[SWITCH7]++;
+					if(switch_state[SWITCH16]<2) {
+						switch_state[SWITCH16]++;
 						action=true;
 					}
 				}
@@ -316,14 +323,14 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.755850 && p.x<=0.801863) {
 			if(p.y>=0.842015 && p.y<=0.880786) {
 				if(p.y<0.861401) {
-					if(switch_state[SWITCH8]>0) {
-						switch_state[SWITCH8]--;
+					if(switch_state[SWITCH13]>0) {
+						switch_state[SWITCH13]--;
 						action=true;
 					}
 				}
 				else {
-					if (switch_state[SWITCH8]<2) {
-						switch_state[SWITCH8]++;
+					if (switch_state[SWITCH13]<2) {
+						switch_state[SWITCH13]++;
 						action=true;
 					}
 				}
@@ -334,20 +341,20 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 			if(p.y>=0.829965 && p.y<=0.867186) {
 				if(p.y<0.848995) {
 					//sprintf(oapiDebugString(), "Deploying STBD MPMs");
-					if(switch_state[SWITCH9]>0) switch_state[SWITCH9]--;
+					if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
 				}
 				else {
 					//sprintf(oapiDebugString(), "Stowing STBD MPMs");
-					if(switch_state[SWITCH9]<2) switch_state[SWITCH9]++;
+					if(switch_state[SWITCH12]<2) switch_state[SWITCH12]++;
 				}
 				action=true;
 
-				if(switch_state[SWITCH9]==0) {
+				if(switch_state[SWITCH12]==0) {
 					if(sts->StbdMPMRollout.action!=AnimState::OPEN) {
 						sts->StbdMPMRollout.action=AnimState::OPENING;
 					}
 				}
-				else if(switch_state[SWITCH9]==1) {
+				else if(switch_state[SWITCH12]==1) {
 					if(sts->StbdMPMRollout.Moving()) sts->StbdMPMRollout.action=AnimState::STOPPED;
 				}
 				else {
@@ -374,10 +381,10 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.466754 && p.x<=0.510409) {
 			if(p.y>=0.757090 && p.y<=0.788049) {
 				if(p.x<0.486494) {
-					if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
+					if(switch_state[SWITCH11]>0) switch_state[SWITCH11]--;
 				}
 				else {
-					if(switch_state[SWITCH12]<2) switch_state[SWITCH12]++;
+					if(switch_state[SWITCH11]<2) switch_state[SWITCH11]++;
 				}
 				action=true;
 			}
@@ -386,11 +393,11 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.243867 && p.x<=0.288102) {
 			if(p.y>=0.22259 && p.y<=0.252219) {
 				if(p.y<0.2374045) {
-					if(switch_state[SWITCH16]>0) switch_state[SWITCH16]--;
-					//sprintf_s(oapiDebugString(), 255, "SWITCH16");
+					if(switch_state[SWITCH5]>0) switch_state[SWITCH5]--;
+					sprintf_s(oapiDebugString(), 255, "SWITCH5");
 				}
 				else {
-					if(switch_state[SWITCH16]<2) switch_state[SWITCH16]++;
+					if(switch_state[SWITCH5]<2) switch_state[SWITCH5]++;
 				}
 				action=true;
 			}
@@ -399,19 +406,19 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		if(p.x>=0.298233 && p.x<=0.346051) {
 			if(p.y>=0.2227635 && p.y<=0.250502) {
 				if(p.y<0.23663275) {
-					if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
+					if(switch_state[SWITCH4]>0) switch_state[SWITCH4]--;
 					//sprintf_s(oapiDebugString(), 255, "SWITCH16");
 				}
 				else {
-					if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
+					if(switch_state[SWITCH4]<2) switch_state[SWITCH4]++;
 				}
-				if(switch_state[SWITCH17]==1) {
+				if(switch_state[SWITCH4]==1) {
 					sts->EEGrappleMode=0;
 					//stop grapple/release sequences
 					if(sts->bGrappleInProgress) sts->AutoGrappleSequence();
 					else if(sts->bReleaseInProgress) sts->AutoReleaseSequence();
 				}
-				else if(switch_state[SWITCH17]==2) sts->EEGrappleMode=1;
+				else if(switch_state[SWITCH4]==2) sts->EEGrappleMode=1;
 				else sts->EEGrappleMode=2;
 				action=true;
 			}
@@ -428,7 +435,7 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 		if(p.x>=0.243867 && p.x<=0.288102) {
 			if(p.y>=0.22259 && p.y<=0.252219) {
-				switch_state[SWITCH16]=1;
+				switch_state[SWITCH5]=1;
 				action=true;
 			}
 		}
@@ -444,13 +451,13 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 void PanelA8::Step(double t, double dt)
 {
 	//if(!sts->RMS) return;
-	if(switch_state[SWITCH5]==0 && sts->ArmCradled() && switch_state[SWITCH7]!=1) {
+	if(switch_state[SWITCH18]==0 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
 		double da = dt*SHOULDER_BRACE_SPEED;
 		sts->MRL[0]=max(0.0, sts->MRL[0]-da);
 		sts->UpdateMRLMicroswitches();
 		UpdateVC();
 	}
-	else if(switch_state[SWITCH5]==2 && sts->ArmCradled() && switch_state[SWITCH7]!=1) {
+	else if(switch_state[SWITCH18]==2 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
 		double da = dt*SHOULDER_BRACE_SPEED;
 		sts->MRL[0]=min(1.0, sts->MRL[0]+da);
 		sts->UpdateMRLMicroswitches();
@@ -463,7 +470,7 @@ void PanelA8::Step(double t, double dt)
 		UpdateVC();
 	}
 	
-	if(switch_state[SWITCH17]==2 && switch_state[SWITCH16]==0) {
+	if(switch_state[SWITCH4]==2 && switch_state[SWITCH5]==0) {
 		//rigidize
 		if(!sts->Extend.Closed()) {
 			sts->Extend.action=AnimState::CLOSING;
@@ -483,7 +490,7 @@ void PanelA8::Step(double t, double dt)
 			}
 		}
 	}
-	else if(switch_state[SWITCH17]==2 && switch_state[SWITCH16]==2) {
+	else if(switch_state[SWITCH4]==2 && switch_state[SWITCH5]==2) {
 		//derigidize
 		if(!sts->Rigidize.Open()) {
 			sts->Rigidize.action=AnimState::OPENING;
@@ -507,22 +514,13 @@ void PanelA8::Step(double t, double dt)
 
 bool PanelA8::ParseScenarioLine(char *line)
 {
-	if(!_strnicmp(line, "STBD_RMS", 8)) {
-		sscanf_s(line+8, "%d", &switch_state[SWITCH6]);
-		/*if(switch_state[SWITCH6]==0 && sts->RMSRollout.action!=AnimState::OPEN) {
-			sts->RMSRollout.action=AnimState::OPENING;
-		}
-		else if(switch_state[SWITCH6]==1 && sts->RMSRollout.Moving()) {
-			sts->RMSRollout.action=AnimState::STOPPED;
-		}
-		else if(sts->RMSRollout.action!=AnimState::CLOSED) {
-			sts->RMSRollout.action=AnimState::CLOSING;
-		}*/
-	}
-	else if(!_strnicmp(line, "EE MODE", 7)) {
-		sscanf_s(line+7, "%d", &switch_state[SWITCH17]);
-		if(switch_state[SWITCH17]==1) sts->EEGrappleMode=0;
-		else if(switch_state[SWITCH17]==2) sts->EEGrappleMode=1;
+	/*if(!_strnicmp(line, "STBD_RMS", 8)) {
+		sscanf_s(line+8, "%d", &switch_state[SWITCH17]);
+	}*/
+	if(!_strnicmp(line, "EE MODE", 7)) {
+		sscanf_s(line+7, "%d", &switch_state[SWITCH4]);
+		if(switch_state[SWITCH4]==1) sts->EEGrappleMode=0;
+		else if(switch_state[SWITCH4]==2) sts->EEGrappleMode=1;
 		else sts->EEGrappleMode=2;
 	}
 	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
@@ -533,8 +531,8 @@ bool PanelA8::ParseScenarioLine(char *line)
 
 void PanelA8::SaveState(FILEHANDLE scn)
 {
-	oapiWriteScenario_int(scn, "STBD_RMS", switch_state[SWITCH6]);
-	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH17]);
+	//oapiWriteScenario_int(scn, "STBD_RMS", switch_state[SWITCH17]);
+	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
 	//oapiWriteScenario_int(scn, "SHOULDER_BRACE_RELEASE", switch_state[SWITCH10]);
 	return;
 }
