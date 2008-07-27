@@ -203,6 +203,8 @@ namespace vc {
 		HBITMAP BMP=CreateCompatibleBitmap(hDC, 816, 806);
 		SelectObject(CompatibleDC, BMP);
 
+		//sprintf_s(oapiDebugString(), 255, "IDP: %d", GetDrivingIDP());
+
 		//draw stuff
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
@@ -708,14 +710,14 @@ namespace vc {
 			{
 				return sec_idp->GetIDPID();
 			} else {
-				return 0;
+				return 100;
 			}
 		} else {
 			if(prim_idp)
 			{
 				return prim_idp->GetIDPID();
 			} else {
-				return 0;
+				return 100;
 			}
 		}
 		
@@ -1136,7 +1138,7 @@ namespace vc {
 		PrintToBuffer("DELAY", 5, 0, 16, 0);
 		//TextOut(hDC, 0, 153, "DELAY", 5);
 
-		PrintToBuffer("VERN", 4, 0, 17, 0);
+		PrintToBuffer("VERN", 4, 4, 17, 0);
 		//TextOut(hDC, 14, 162, "5 VERN", 6);
 		PrintToBuffer("ROT RATE", 8, 0, 18, 0);
 		//TextOut(hDC, 0, 171, "ROT RATE", 8);
