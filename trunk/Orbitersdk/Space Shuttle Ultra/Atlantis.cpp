@@ -5025,7 +5025,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   }
 
   // ***** MPM Rollout *****
-  if(RMSRollout.Moving() && panela8->switch_state[SWITCH7]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
+  if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
 	  double da = simdt*ARM_DEPLOY_SPEED;
 	  if(RMSRollout.Closing()) {
 		  RMSRollout.pos=max(0.0, RMSRollout.pos-da);
@@ -5044,7 +5044,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  SetAnimation(anim_rollout, RMSRollout.pos);
 	  UpdateMPMMicroswitches();
   }
-   if(StbdMPMRollout.Moving() && panela8->switch_state[SWITCH7]!=1 && plop->BayDoorStatus.pos==1.0) {
+   if(StbdMPMRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && plop->BayDoorStatus.pos==1.0) {
 	  double da = simdt*ARM_DEPLOY_SPEED;
 	  if(StbdMPMRollout.Closing()) {
 		  StbdMPMRollout.pos=max(0.0, StbdMPMRollout.pos-da);
