@@ -45,6 +45,7 @@ void ValveTypeBool::tmestp( double dtme )
 
 void ValveTypeBool::_backdoor( bool ipos )
 {
+	pos = ipos;
 	vlv->_backdoor( (double)ipos );
 	return;
 }

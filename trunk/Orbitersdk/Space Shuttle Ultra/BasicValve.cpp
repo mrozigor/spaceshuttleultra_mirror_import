@@ -85,6 +85,7 @@ void BasicValve::tmestp( double dtme )
 	}
 	return;
 }
+
 void BasicValve::_backdoor( double ipos )
 {
 	mpos = ipos;
