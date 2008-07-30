@@ -8,6 +8,7 @@ namespace dps {
 	class MDMIOModule;
 	class MasterTimingUnit;
 	class ShuttleBus;
+	class TimeBus;
 	/**
 	 * Connection between Shuttle Bus and subsystems.
 	 */
@@ -27,5 +28,29 @@ namespace dps {
 		char cSymbol;
 		char cAttr;
 	} DEUCHAR;
+
+	/**
+	 * @brief IRIG-B compatible time frame
+	 * 
+	 * Format used for transmitting GMT and MET over serial lines in
+	 * the shuttle. One such frame requires 1 second to be transmitted,
+	 * so millisecond timing comes from other time sources, such as the 
+	 * pulses used for transmitting this frame.
+	 * It takes half a second to send to actual time in 5 pulse coded bytes
+	 * The other 5 bytes of the time are not used but get transmitted anyway.
+	 */
+	typedef struct {
+		unsigned int uSeconds:7;
+		unsigned int uMinutes:7;
+		unsigned int uHours:6;
+		unsigned int uDays:9;
+		unsigned char uP5:8;
+		unsigned char uP6:8;
+		unsigned char uP7:8;
+		unsigned char uP8:8;
+		unsigned char uP9:8;
+	} IRIGB_FRAME;
+
+	
 
 };

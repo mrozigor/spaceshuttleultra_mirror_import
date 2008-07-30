@@ -9,6 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "dps_defs.h"
 #include "..\AtlantisSubsystem.h"
 
 namespace dps {
@@ -29,6 +30,23 @@ typedef enum {
 	COUNT_STOPPED,
 	COUNT_STARTED
 } EVENT_TIMER_CONTROL;
+
+class TimePort {
+	unsigned short usPulseCount;
+	unsigned short usPulsesPerTimeStep;
+	IRIGB_FRAME fdat;
+public:
+	TimePort();
+	unsigned short GetDay() const;
+	unsigned short GetHours() const;
+	unsigned short GetMinutes() const; 
+	unsigned short GetSeconds() const;
+};
+
+class TimeBus {
+public:
+	TimeBus(MasterTimingUnit* pMTU, TimePort* pTarget);
+};
 
 
 class MasterTimingUnit : public AtlantisSubsystem  

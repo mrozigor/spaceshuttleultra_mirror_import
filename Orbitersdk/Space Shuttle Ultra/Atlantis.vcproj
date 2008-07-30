@@ -650,6 +650,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\MasterTimingUnit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\MDU.h"
 				>
 			</File>
