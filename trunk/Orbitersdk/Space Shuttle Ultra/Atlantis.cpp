@@ -6661,6 +6661,17 @@ void Atlantis::HideODS()
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 }
 
+bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
+{
+	return true;
+}
+
+bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
+{
+
+	return true;
+}
+
 // ==============================================================
 // API callback interface
 // ==============================================================

@@ -30,6 +30,20 @@ public:
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
 	virtual DiscreteBundleManager* BundleManager() const;
+	/**
+	 * @param usMPSNo numerical ID of the SSME
+	 * @param fThrust0 Vacuum thrust
+	 * @param fISP0 Vacuum ISP
+	 * @param fISP1 Sealevel ISP
+	 * @return false for failure, true for success
+	 */
+	bool SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1);
+	/**
+	 * @param usMPSNo numerical ID of the SSME
+	 * @param dir direction vector of the SSME force vector
+	 * @return false for failure, true for success
+	 */
+	bool SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir);
 };
 
 #endif

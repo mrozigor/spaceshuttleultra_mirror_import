@@ -316,6 +316,11 @@ const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
 
+const unsigned short MPS_SSME_NONE = 0;
+const unsigned short MPS_SSME_CENTER = 1;
+const unsigned short MPS_SSME_LEFT = 2;
+const unsigned short MPS_SSME_RIGHT = 3;
+const unsigned short MPS_SSME_ALL = 6;
 
 const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
 const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
@@ -962,6 +967,21 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
+	/**
+	 * @param usMPSNo numerical ID of the SSME
+	 * @param fThrust0 Vacuum thrust
+	 * @param fISP0 Vacuum ISP
+	 * @param fISP1 Sealevel ISP
+	 * @return false for failure, true for success
+	 */
+	bool SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1);
+	/**
+	 * @param usMPSNo numerical ID of the SSME
+	 * @param dir direction vector of the SSME force vector
+	 * @return false for failure, true for success
+	 */
+	bool SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir);
+
 	void ToggleGrapple (void);
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();

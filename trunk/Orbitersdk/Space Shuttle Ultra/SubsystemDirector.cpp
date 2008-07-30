@@ -97,6 +97,17 @@ bool SubsystemDirector::PreStep(double fSimT, double fDeltaT, double fMJD)
 	return true;
 }
 
+bool SubsystemDirector::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
+{
+
+	return psts->SetSSMEParams(usMPSNo, fThrust0, fISP0, fISP1);
+}
+
+bool SubsystemDirector::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
+{
+	return psts->SetSSMEDir(usMPSNo, dir);
+}
+
 bool SubsystemDirector::WriteLog(const AtlantisSubsystem* src, char* message)
 {
 	return true;
