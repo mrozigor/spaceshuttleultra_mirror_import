@@ -41,9 +41,11 @@ namespace dps {
 	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
 	{
 		if(pMDU) {
-			if(bPrimary) pMDU->SetPrimaryIDP(this);
+			if(bPrimary) {
+				pMDU->SetPrimaryIDP(this);
+				oapiWriteLog("IDP connected to MDU");
+			}
 			else pMDU->SetSecondaryIDP(this);
-			oapiWriteLog("IDP connected to MDU");
 		}
 		else oapiWriteLog("ERROR: IDP unable to connect to MDU");
 	}
