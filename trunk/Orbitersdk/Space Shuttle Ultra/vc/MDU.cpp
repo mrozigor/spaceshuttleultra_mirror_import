@@ -78,7 +78,7 @@ namespace vc {
 
 	bool MDU::SetPrimaryIDP(dps::IDP *idp)
 	{
-		if(idp) {
+		if(idp && !prim_idp) {
 			if(prim_idp) oapiWriteLog("PRIM IDP changed");
 			prim_idp=idp;
 			return true;
