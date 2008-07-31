@@ -322,8 +322,11 @@ namespace vc {
 		}
 
 		if(STS()->ops==201) {
-			if(prim_idp->GetSpec()==0) UNIVPTG();
-			else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+			if(prim_idp) {
+				if(prim_idp->GetSpec()==0) UNIVPTG();
+				else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+			}
+			else PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 			/*PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
 			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 				STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
@@ -760,7 +763,7 @@ namespace vc {
 		sprintf_s(cbuf, 255, "16 Y %6.2f", STS()->Y);
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
 		if(STS()->OM>=0.0) {
-			sprintf_s(cbuf, 255, " 17 OM %6.2f", STS()->OM);
+			sprintf_s(cbuf, 255, "17 OM %6.2f", STS()->OM);
 			PrintToBuffer(cbuf, strlen(cbuf), 1, 22, 0);
 		}
 		else PrintToBuffer("17 OM", 6, 1, 22, 0);
