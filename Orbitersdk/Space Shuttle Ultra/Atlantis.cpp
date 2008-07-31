@@ -397,7 +397,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   //connect CRT MDUs to IDPs
   for (i=0;i<3;i++) {
-	  pIDP[i]->ConnectToMDU(mdus[i+4]);
+	  pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
   }
 
   for(int i = 0; i<16; i++)
