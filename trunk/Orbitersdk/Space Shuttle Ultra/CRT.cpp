@@ -1879,15 +1879,15 @@ bool CRT::Input(int change, char *Name)
 									sts->LVLHOrientationReqd.data[YAW]=0.0;
 									if((sts->OM)<=0.0) {
 										sts->LVLHOrientationReqd.data[ROLL]=0.0;
-										sts->LVLHRateVector.data[PITCH]=-1.0;
+										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;
+										sts->LVLHRateVector.data[ROLL]=0.0;*/
 									}
 									else {
 										sts->LVLHOrientationReqd.data[ROLL]=sts->OM;
-										sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
+										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[ROLL]=0.0;
+										sts->LVLHRateVector.data[ROLL]=0.0;*/
 									}
 								}
 								else if(sts->BODY_VECT==2) {
@@ -1895,15 +1895,15 @@ bool CRT::Input(int change, char *Name)
 									sts->LVLHOrientationReqd.data[YAW]=0.0;
 									if(sts->OM<=0.0) {
 										sts->LVLHOrientationReqd.data[ROLL]=0.0;
-										sts->LVLHRateVector.data[PITCH]=-1.0;
+										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;
+										sts->LVLHRateVector.data[ROLL]=0.0;*/
 									}
 									else {
 										sts->LVLHOrientationReqd.data[ROLL]=sts->OM;
-										sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
+										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[ROLL]=0.0;
+										sts->LVLHRateVector.data[ROLL]=0.0;*/
 									}
 								}
 								else if(sts->BODY_VECT==3) {
@@ -1911,15 +1911,15 @@ bool CRT::Input(int change, char *Name)
 									sts->LVLHOrientationReqd.data[ROLL]=0.0;
 									if((sts->OM)<=0.0) {
 										sts->LVLHOrientationReqd.data[YAW]=0.0;
-										sts->LVLHRateVector.data[PITCH]=-1.0;
+										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;
+										sts->LVLHRateVector.data[ROLL]=0.0;*/
 									}
 									else {
 										sts->LVLHOrientationReqd.data[YAW]=sts->OM;
-										sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
+										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[YAW]=0.0;
+										sts->LVLHRateVector.data[YAW]=0.0;*/
 									}
 								}
 								else if(sts->BODY_VECT==5) {
@@ -1943,11 +1943,11 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[ROLL]=sts->Y;
 										if(sts->OM<=0.0) {
 											sts->LVLHOrientationReqd.data[YAW]=0.0;
-											if(sts->LVLHOrientationReqd.data[ROLL]==0.0) {
+											/*if(sts->LVLHOrientationReqd.data[ROLL]==0.0) {
 												sts->LVLHRateVector.data[PITCH]=-1.0;
 												sts->LVLHRateVector.data[YAW]=0.0;
 												sts->LVLHRateVector.data[ROLL]=0.0;
-											}
+											}*/
 										}
 										else sts->LVLHOrientationReqd.data[YAW]=sts->OM;
 									}
@@ -1957,9 +1957,9 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[ROLL]=sts->Y*cos(RAD*sts->LVLHOrientationReqd.data[PITCH]);
 										if(sts->OM>0.0) sts->LVLHOrientationReqd.data[YAW]+=sts->OM;
 									}
-									sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
+									/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
 									sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->LVLHOrientationReqd.data[YAW]);
-									sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
+									sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);*/
 									/*else if(sts->OM>=0.0)
 									{
 										sts->LVLHOrientationReqd.data[ROLL]=sts->Y*cos(RAD*sts->LVLHOrientationReqd.data[PITCH])
@@ -2194,9 +2194,9 @@ bool CRT::Input(int change, char *Name)
 						sts->LVLHOrientationReqd.data[YAW]=sts->BurnAtt.data[YAW];
 						sts->LVLHOrientationReqd.data[ROLL]=sts->BurnAtt.data[ROLL];
 					}
-					sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
+					/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
 					sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->LVLHOrientationReqd.data[YAW]);
-					sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);
+					sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);*/
 					/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->BurnAtt.data[YAW]);
 					sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->BurnAtt.data[YAW]);
 					sts->LVLHRateVector.data[YAW]=1.0*sin(RAD*sts->BurnAtt.data[PITCH]);*/
