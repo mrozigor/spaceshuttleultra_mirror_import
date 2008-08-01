@@ -399,6 +399,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   for (i=0;i<3;i++) {
 	  //pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
 	  mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
+	  if(pIDP[i]) {
+		  mdus[i+vc::MDUID_CRT1]->prim_idp3=pIDP[i];
+		  oapiWriteLog("MDU connected to IDP");
+	  }
   }
 
   for(int i = 0; i<16; i++)
