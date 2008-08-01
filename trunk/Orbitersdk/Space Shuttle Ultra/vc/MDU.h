@@ -13,7 +13,7 @@ namespace vc {
 		double t0;
 		bool counting;
 	public:
-		dps::IDP* prim_idp2;
+		dps::IDP* prim_idp3;
 		typedef enum {
 			MDU_ADI_AVVI,
 			MDU_HSI_AMI,
