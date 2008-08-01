@@ -332,6 +332,7 @@ namespace vc {
 			else {
 				PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 				if(prim_idp!=prim_idp2) PrintToBuffer("ERROR: PRIM_IDP MODIFIED", 24, 0, 5, 0);
+				if(!prim_idp2) PrintToBuffer("ERROR: IDP DOES NOT EXIST", 25, 0, 10, 0);
 			}
 			/*PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
 			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
