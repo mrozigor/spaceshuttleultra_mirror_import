@@ -686,6 +686,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  TRKROT_OPTION.data[i]=0.0;
 	  REQD_ATT.data[i]=0.0;
 	  LVLHOrientationReqd.data[i]=0.0;
+	  RotationAxis.data[i]=0.0;
 	  TargetAttOrbiter.data[i]=0.0;
 	  TargetAttM50.data[i]=0.0;
 	  //Initialize Keyboard Input
@@ -720,6 +721,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  DAP[i].VERN_COMP=0.0;
 	  DAP[i].VERN_CNTL_ACC=0;
   }
+  RotationAngle=0.0;
   TGT_ID=2;
   BODY_VECT=1;
   P=0;
@@ -1892,7 +1894,7 @@ void Atlantis::DefineAnimations (void)
   plop->DefineAnimations (vidx);
   gop->DefineVCAnimations (vidx);
   panela4->DefineVCAnimations (vidx);
-  panela8->DefineVCAnimations (vidx);
+  if(RMS) panela8->DefineVCAnimations (mesh_panela8);
   panelc2->DefineVCAnimations (vidx);
   //panelf7->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
@@ -3083,15 +3085,15 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 										LVLHOrientationReqd.data[YAW]=0.0;
 										if((OM)<=0.0) {
 											LVLHOrientationReqd.data[ROLL]=0.0;
-											LVLHRateVector.data[PITCH]=-1.0;
+											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;*/
 										}
 										else {
 											LVLHOrientationReqd.data[ROLL]=OM;
-											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;*/
 										}
 									}
 									else if(BODY_VECT==2) {
@@ -3099,15 +3101,15 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 										LVLHOrientationReqd.data[YAW]=0.0;
 										if(OM<=0.0) {
 											LVLHOrientationReqd.data[ROLL]=0.0;
-											LVLHRateVector.data[PITCH]=-1.0;
+											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;*/
 										}
 										else {
 											LVLHOrientationReqd.data[ROLL]=OM;
-											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;*/
 										}
 									}
 									else if(BODY_VECT==3) {
@@ -3115,15 +3117,15 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 										LVLHOrientationReqd.data[ROLL]=0.0;
 										if(OM<=0.0) {
 											LVLHOrientationReqd.data[YAW]=0.0;
-											LVLHRateVector.data[PITCH]=-1.0;
+											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;
+											LVLHRateVector.data[ROLL]=0.0;*/
 										}
 										else {
 											LVLHOrientationReqd.data[YAW]=OM;
-											LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
+											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
-											LVLHRateVector.data[YAW]=0.0;
+											LVLHRateVector.data[YAW]=0.0;*/
 										}
 									}
 									else if(BODY_VECT==5) {
@@ -3133,11 +3135,11 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 											LVLHOrientationReqd.data[ROLL]=Y;
 											if(OM<=0.0) {
 												LVLHOrientationReqd.data[YAW]=0.0;
-												if(LVLHOrientationReqd.data[ROLL]==0.0) {
+												/*if(LVLHOrientationReqd.data[ROLL]==0.0) {
 													LVLHRateVector.data[PITCH]=-1.0;
 													LVLHRateVector.data[YAW]=0.0;
 													LVLHRateVector.data[ROLL]=0.0;
-												}
+												}*/
 											}
 											else LVLHOrientationReqd.data[YAW]=OM;
 										}
@@ -3147,9 +3149,9 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 											LVLHOrientationReqd.data[ROLL]=Y*cos(RAD*LVLHOrientationReqd.data[PITCH]);
 											if(OM>0.0) LVLHOrientationReqd.data[YAW]+=OM;
 										}
-										LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-										LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-										LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+										//LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+										//LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
+										//LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
 									}
 								}
 							}
@@ -3370,9 +3372,9 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW];
 							LVLHOrientationReqd.data[ROLL]=BurnAtt.data[ROLL];
 						}
-						LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+						/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
 						LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-						LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
+						LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);*/
 						AttDeadband=0.05;
 						for(int i=0;i<4;i++) START_TIME[i]=MET[i];
 					}
@@ -3803,6 +3805,29 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 	return GetPYR(GlobalPts.Pitch, GlobalPts.Yaw);
 }
 
+MATRIX3 Atlantis::CalcPitchYawRollRotMatrix()
+{
+	//uses angles in orbiter coordinate-frame
+	RefPoints GlobalPts, LocalPts;
+	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
+	//RotateVector(PitchUnit, RelAttitude, PitchUnit);
+	//RotateVector(YawRollUnit, RelAttitude, YawRollUnit);
+	RotateVector(PitchUnit, TargetAttOrbiter, GlobalPts.Pitch);
+	RotateVector(YawRollUnit, TargetAttOrbiter, GlobalPts.Yaw);
+	GlobalPts.Pitch = GVesselPos + GlobalPts.Pitch;
+	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
+	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
+	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
+	//return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+
+	VECTOR3 Pitch = Normalize(LocalPts.Pitch);
+	VECTOR3 YawRoll = Normalize(LocalPts.Yaw);
+	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
+	return _M(YawRoll.x, YawRoll.y, YawRoll.z,
+			  H.x, H.y, H.z,
+			  Pitch.x, Pitch.y, Pitch.z);
+}
+
 VECTOR3 Atlantis::CalcPitchYawRollAngles()
 {
 	//uses angles in orbiter coordinate-frame
@@ -4189,6 +4214,41 @@ VECTOR3 Atlantis::GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll)
 	return Res;
 }
 
+double Atlantis::CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis)
+{
+	double Angle;
+	MATRIX3 RotMatrix;
+	RotMatrix=mul(RefAngles, TargetAngles);
+	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
+	Angle=acos(0.5*(Trace-1));
+	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
+	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
+	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
+	return Angle;
+}
+
+double Atlantis::CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis)
+{
+	double Angle;
+	MATRIX3 RotMatrix, Ref, Target;
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	GetRotMatrixX(RefAngles.x, RotMatrixX);
+	GetRotMatrixY(RefAngles.y, RotMatrixY);
+	GetRotMatrixZ(RefAngles.z, RotMatrixZ);
+	Ref=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
+	GetRotMatrixX(TargetAngles.x, RotMatrixX);
+	GetRotMatrixY(TargetAngles.y, RotMatrixY);
+	GetRotMatrixZ(TargetAngles.z, RotMatrixZ);
+	Target=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
+	RotMatrix=mul(Ref, Target);
+	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
+	Angle=acos(0.5*(Trace-1));
+	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
+	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
+	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
+	return Angle;
+}
+
 void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -4230,6 +4290,15 @@ void Atlantis::RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VE
 	RotMatrix=mul(RotMatrix, RotMatrixZ);
 	Result=mul(RotMatrix, Initial);*/
 	//Result=AfterPY;
+}
+
+VECTOR3 Atlantis::GetAnglesFromMatrix(MATRIX3 RotMatrix)
+{
+	VECTOR3 Angles;
+	Angles.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	Angles.data[YAW]=-asin(RotMatrix.m13);
+	Angles.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+	return Angles;
 }
 
 // Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
@@ -6432,7 +6501,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 		//double beta_w=DEG*asin(length(crossp(arm_ee_dir, c_ee_dir)));
 		double beta_w=current_beta_w+beta_s-current_beta_s;
 		//double beta_w=DEG*acos(dotp(wy_dir, arm_ee_dir));
-		sprintf_s(oapiDebugString(), 255, "%f", beta_w);
+		//sprintf_s(oapiDebugString(), 255, "%f", beta_w);
 		double anim_beta_w=linterp(wrist_yaw_min, 0, wrist_yaw_max, 1, beta_w);
 
 		arm_sy=anim_beta_s;

@@ -34,6 +34,10 @@ typedef struct {
 	double mdot;	//mass flow (lb/s)
 } FLOWSTATE;
 
+const MATRIX3 IdentityMatrix = _M(1, 0, 0,
+								  0, 1, 0,
+								  0, 0, 1);
+
 const double LBM = 0.45359237;
 const double MPS2FPS = 3.280839895;
 
@@ -1207,6 +1211,7 @@ private:
 	//calc attitude/attitude error
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
+	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
 	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
 	double NullStartAngle(double Rates, AXIS Axis);
@@ -1218,8 +1223,12 @@ private:
 	//Math
 	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
 	VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
+	//returns rotation axis and angle of rotation (in radians)
+	double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis);
+	double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis);
 	void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 	void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
+	VECTOR3 GetAnglesFromMatrix(MATRIX3 RotMatrix); //returns angles in radians
 	void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 	void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 	void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
@@ -1625,7 +1634,6 @@ private:
 	//DAP
 	bool ManeuverinProg;
 	//ManueverinProg is true if attitude is controlled by autopilot
-	//ManeuverComplete is true if shuttle is in target attitude
 	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	//ManeuverStatus is used to set autopilot actions
 	double MNVR_TIME;
@@ -1636,9 +1644,12 @@ private:
 	bool Pitch, Yaw, Roll;
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
-	VECTOR3 LVLHOrientationReqd, LVLHError, LVLHRateVector;
+	VECTOR3 LVLHOrientationReqd, LVLHError/*, LVLHRateVector*/;
+	VECTOR3 RotationAxis;
+	double RotationAngle;
 	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT;
-	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates, TrackRates;
+	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates/*, TrackRates*/;
+	MATRIX3 PitchYawRollMatrix;
 	ORBITPARAM oparam;
 	ELEMENTS el;
 	double TrkRate;	
