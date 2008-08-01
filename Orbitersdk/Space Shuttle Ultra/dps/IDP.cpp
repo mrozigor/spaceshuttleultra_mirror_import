@@ -42,11 +42,9 @@ namespace dps {
 	{
 		if(pMDU) {
 			if(bPrimary) {
-				bool Success=pMDU->SetPrimaryIDP(this);
-				if(Success) oapiWriteLog("IDP connected to MDU");
+				pMDU->SetPrimaryIDP(this);
 			}
 			else pMDU->SetSecondaryIDP(this);
 		}
-		else oapiWriteLog("ERROR: IDP unable to connect to MDU");
 	}
 };
