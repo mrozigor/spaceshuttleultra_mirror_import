@@ -35,6 +35,7 @@ namespace vc {
 		SURFHANDLE shLabelTex;
 		dps::DEUCHAR textBuffer[51][26];
 		dps::IDP* prim_idp;
+		dps::IDP* prim_idp2;
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;

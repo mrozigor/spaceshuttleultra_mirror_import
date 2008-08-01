@@ -27,6 +27,7 @@ namespace vc {
 		//Clear display buffer
 		shLabelTex = NULL;
 		bIsConnectedToCRTMFD = false;
+		prim_idp2=NULL;
 	}
 
 	MDU::~MDU()
@@ -81,6 +82,7 @@ namespace vc {
 		if(idp && !prim_idp) {
 			if(prim_idp) oapiWriteLog("PRIM IDP changed");
 			prim_idp=idp;
+			prim_idp2=idp;
 			return true;
 		}
 		else return false;
@@ -326,8 +328,12 @@ namespace vc {
 			if(prim_idp) {
 				if(prim_idp->GetSpec()==0) UNIVPTG();
 				else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+				else UNIVPTG();
 			}
-			else PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
+			else {
+				PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
+				if(prim_idp!=prim_idp2) PrintToBuffer("ERROR: PRIM_IDP MODIFIED", 24, 0, 5, 0);
+			}
 			/*PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
 			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 				STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
