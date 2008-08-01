@@ -13,6 +13,7 @@ namespace vc {
 		double t0;
 		bool counting;
 	public:
+		dps::IDP* prim_idp2;
 		typedef enum {
 			MDU_ADI_AVVI,
 			MDU_HSI_AMI,
@@ -35,7 +36,6 @@ namespace vc {
 		SURFHANDLE shLabelTex;
 		dps::DEUCHAR textBuffer[51][26];
 		dps::IDP* prim_idp;
-		dps::IDP* prim_idp2;
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;
