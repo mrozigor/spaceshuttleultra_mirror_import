@@ -1724,6 +1724,14 @@ public:
 
 private:
 	MESHHANDLE hTankMesh;
+
+	//////////////////////// ET vent ////////////////////////
+	PROPELLANT_HANDLE phLOXtank;
+	THRUSTER_HANDLE thLOXvent;
+	double timer;
+	short counter;
+	double pos;
+	//////////////////////// ET vent ////////////////////////
 };
 
 #endif // !__ATLANTIS_H

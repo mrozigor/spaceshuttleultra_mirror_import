@@ -369,12 +369,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems	  = new SubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_L", 
-	  1));
-  psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_C", 
-	  2));
-  psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 
-	  3));
+  //psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
+  //psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
+  //psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
   
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
 
@@ -2332,7 +2329,8 @@ void Atlantis::SeparateTank (void)
   memset (&vs, 0, sizeof (vs));
   vs.version = 2;
   GetStatusEx (&vs);
-  vs.flag = VS_FUELRESET | VS_THRUSTRESET;
+  //vs.flag = VS_FUELRESET | VS_THRUSTRESET;
+	vs.flag = VS_THRUSTRESET;
   VECTOR3 ofs = OFS_WITHTANK_TANK;
   if (Playback()) // necessary because during playback the CG shift occurs before separation
     ofs -= OFS_WITHTANK_ORBITER;
