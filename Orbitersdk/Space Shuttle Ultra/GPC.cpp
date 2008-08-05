@@ -14,7 +14,7 @@ void Atlantis::InitializeAutopilot()
 	//calculate heading
 	double latitude, /*Radius,*/ longitude;
 	GetEquPos(longitude, latitude, Radius);
-	if(cos(TgtInc*RAD)>cos(latitude)) THeading=90.0;
+	if(cos(TgtInc*RAD)>cos(latitude)) THeading=PI/2;
 	else {
 		double InHeading = asin(cos(TgtInc*RAD)/cos(latitude));
 		double xVel, yVel;
@@ -242,8 +242,8 @@ void Atlantis::RateCommand()
 				ReqdRates.data[PITCH] = 10.0*(GetPitch()*DEG-TargetPitch);
 				if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
 				ReqdRates.data[YAW]=0.0;
-				if(Heading-THeading>1.0) ReqdRates.data[ROLL]=8.0;
-				else if(Heading-THeading<-1.0) ReqdRates.data[ROLL]=-8.0;
+				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=8.0;
+				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-8.0;
 				else ReqdRates.data[ROLL]=0.0;
 			}
 			else {
@@ -251,7 +251,7 @@ void Atlantis::RateCommand()
 				if(ReqdRates.data[PITCH]>2.5) ReqdRates.data[PITCH]=2.5;
 				else if(ReqdRates.data[PITCH]<-2.5) ReqdRates.data[PITCH]=-2.5;
 				if(GetPitch()*DEG>50.0) {
-					ReqdRates.data[YAW] = range(-4.0, 2.5*(Heading-THeading), 4.0);
+					ReqdRates.data[YAW] = range(-8.0, 2.5*DEG*(Heading-THeading), 8.0);
 				}
 				else {
 					ReqdRates.data[YAW] = 0.0;
@@ -287,10 +287,11 @@ void Atlantis::RateCommand()
 			else {
 				if(T>TPEGStop) {
 					ReqdRates.data[PITCH] = CmdPDot;
-					if(abs(GetBank()*DEG)>90.0) 
+					ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
+					/*if(abs(GetBank()*DEG)>90.0) 
 						ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
 						//ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
-					else ReqdRates.data[YAW] = range(-2.5, 2.5*DEG*(THeading-Heading), 2.5);
+					else ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);*/
 
 					if(v<RollToHeadsUp) {
 						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
@@ -303,7 +304,7 @@ void Atlantis::RateCommand()
 						if(abs(GetBank()*DEG)>2.5) { //roll in progress
 							VECTOR3 vel;
 							GetHorizonAirspeedVector(vel);
-							double cyaw=-DEG*atan(vel.x/vel.z)+Heading;
+							double cyaw=-DEG*atan(vel.x/vel.z)+DEG*Heading;
 							double tpitch=target_pitch-ThrAngleP*cos(GetBank());
 							ReqdRates.data[PITCH]=tpitch-GetPitch()*DEG;
 							//ReqdRates.data[YAW]=ReqdRates.data[ROLL]*cos(GetBank())*tan(ThrAngleP*RAD);
