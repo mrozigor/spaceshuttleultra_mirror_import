@@ -1,9 +1,9 @@
 #include "ATVC.h"
 
 
-namespace mps
+namespace gnc
 {
-	ATVC::ATVC( SubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsATVC" )
+	ATVC::ATVC( SubsystemDirector* _director ):AtlantisSubsystem( _director, "gncATVC" )
 	{
 		return;
 	}

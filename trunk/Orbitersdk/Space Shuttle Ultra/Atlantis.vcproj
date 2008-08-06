@@ -317,7 +317,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mps\ATVC.cpp"
+				RelativePath=".\gnc\ATVC.cpp"
 				>
 			</File>
 			<File
@@ -550,7 +550,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mps\ATVC.h"
+				RelativePath=".\gnc\ATVC.h"
 				>
 			</File>
 			<File
