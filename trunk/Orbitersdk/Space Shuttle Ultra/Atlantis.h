@@ -38,6 +38,12 @@ const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 								  0, 1, 0,
 								  0, 0, 1);
 
+
+//Z
+//-.5216187842e-1*sin(beta)+.5609219446*cos(alpha)
+//-.2802319446*cos(alpha)*cos(beta)+.9135110136*sin(alpha)
+//+.9417727780e-2*sin(alpha)*cos(beta)
+
 const double LBM = 0.45359237;
 const double MPS2FPS = 3.280839895;
 

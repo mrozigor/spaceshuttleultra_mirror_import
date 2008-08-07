@@ -3,40 +3,46 @@
 
 
 #include "..\AtlantisSubsystem.h"
+#include "..\discsignals\DiscInPort.h"
+#include "..\discsignals\DiscOutPort.h"
 
 
 namespace gnc
 {
+	using class discsignals::DiscInPort;
+	using class discsignals::DiscOutPort;
+
 	class ATVC:public AtlantisSubsystem
 	{
-	private:
-		DiscInPort _1P;
-		DiscInPort _1Y;
-		DiscInPort _2P;
-		DiscInPort _2Y;
-		DiscInPort _3P;
-		DiscInPort _3Y;
-		DiscInPort LSRBT;
-		DiscInPort LSRBR;
-		DiscInPort RSRBT;
-		DiscInPort RSRBR;
-
-		DiscOutPort _1P;
-		DiscOutPort _1Y;
-		DiscOutPort _2P;
-		DiscOutPort _2Y;
-		DiscOutPort _3P;
-		DiscOutPort _3Y;
-		DiscOutPort LSRBT;
-		DiscOutPort LSRBR;
-		DiscOutPort RSRBT;
-		DiscOutPort RSRBR;
 	public:
-		ATVC( SubsystemDirector* );
+		//Ports are public
+		DiscInPort in_1P;
+		DiscInPort in_1Y;
+		DiscInPort in_2P;
+		DiscInPort in_2Y;
+		DiscInPort in_3P;
+		DiscInPort in_3Y;
+		DiscInPort in_LSRBT;
+		DiscInPort in_LSRBR;
+		DiscInPort in_RSRBT;
+		DiscInPort in_RSRBR;
+
+		DiscOutPort out_1P;
+		DiscOutPort out_1Y;
+		DiscOutPort out_2P;
+		DiscOutPort out_2Y;
+		DiscOutPort out_3P;
+		DiscOutPort out_3Y;
+		DiscOutPort out_LSRBT;
+		DiscOutPort out_LSRBR;
+		DiscOutPort out_RSRBT;
+		DiscOutPort out_RSRBR;
+	public:
+		ATVC( SubsystemDirector* director, const string& ident);
 		~ATVC( void );
 
 		// heart beat
-		virtual void OnPostStep( double, double, double );
+		virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD);
 	};
 }
 
