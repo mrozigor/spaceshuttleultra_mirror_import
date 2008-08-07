@@ -17,11 +17,32 @@ namespace discsignals
 class DiscOutPort : public DiscretePort  
 {
 public:
-	void SetLine();
-	void SetLine(float fVoltage);
-	void ResetLine();
 	DiscOutPort();
 	virtual ~DiscOutPort();
+	void Propagate(double fSimT, double fDeltaT, double fMJD);
+	virtual void ResetLine();
+	void SetLine();
+	void SetLine(float fVoltage);
+	
+};
+
+class DiscMultiplex {
+public:
+	DiscMultiplex();
+	virtual ~DiscMultiplex();
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
+};
+
+class DiscMultiplex16: public DiscMultiplex {
+protected:
+	unsigned short usLatch;
+public:
+	DiscOutPort r[16];
+public:
+	DiscMultiplex16();
+	virtual ~DiscMultiplex16();
+	void Set(unsigned short usNewLatch);
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 };
 
 };

@@ -3,7 +3,7 @@
 
 namespace gnc
 {
-	ATVC::ATVC( SubsystemDirector* _director ):AtlantisSubsystem( _director, "gncATVC" )
+	ATVC::ATVC( SubsystemDirector* _director, const string& _ident ):AtlantisSubsystem( _director, _ident )
 	{
 		return;
 	}
