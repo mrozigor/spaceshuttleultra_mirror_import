@@ -758,7 +758,11 @@ void Atlantis::AttControl(double SimdT)
 		VECTOR3 NullRates, NullRatesLocal;
 		if(TRK) {
 			LastReqdAtt=REQD_ATT;
-			REQD_ATT=ConvertLVLHAnglesToM50(-LVLHOrientationReqd*RAD)*DEG;
+			REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*RAD)*DEG;
+
+			MATRIX3 Test=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
+			VECTOR3 Test2=GetAnglesFromMatrix(Test)*DEG;
+			sprintf_s(oapiDebugString(), 255, "TEST: %f %f %f", Test2.data[PITCH], Test2.data[YAW], Test2.data[ROLL]);
 			//REQD_ATT=ConvertLocalAnglesToM50(_V(90, 0, 0)*RAD)*DEG;
 			//sprintf(oapiDebugString(), "LVLHOReqd: %f %f %f Check: %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z, oapiRand());
 			//sprintf(oapiDebugString(), "AttControl: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);

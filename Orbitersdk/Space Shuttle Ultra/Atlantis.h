@@ -1209,10 +1209,12 @@ private:
 	//VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
 	//VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
 	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
+	MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
 	//VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
+	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
 	//calc attitude/attitude error
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
@@ -1650,7 +1652,8 @@ private:
 	bool Pitch, Yaw, Roll;
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
-	VECTOR3 LVLHOrientationReqd, LVLHError/*, LVLHRateVector*/;
+	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector*/;
+	MATRIX3 LVLHTgtOrientationMatrix;
 	VECTOR3 RotationAxis;
 	double RotationAngle;
 	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT;

@@ -762,9 +762,9 @@ namespace vc {
 
 		sprintf_s(cbuf, 255, "14 BODY VECT %d", STS()->BODY_VECT);
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 18, 0);
-		sprintf_s(cbuf, 255, "15 P %6.2f", STS()->P);
+		sprintf_s(cbuf, 255, "15 P  %6.2f", STS()->P);
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 20, 0);
-		sprintf_s(cbuf, 255, "16 Y %6.2f", STS()->Y);
+		sprintf_s(cbuf, 255, "16 Y  %6.2f", STS()->Y);
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
 		if(STS()->OM>=0.0) {
 			sprintf_s(cbuf, 255, "17 OM %6.2f", STS()->OM);

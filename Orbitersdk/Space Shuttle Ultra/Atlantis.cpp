@@ -3079,20 +3079,41 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 								MNVR=false;
 								ROT=false;
 								if(TGT_ID==2) {
-									if(BODY_VECT==1) {
+									MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
+									if(OM<=0.0) RotMatrixOM=IdentityMatrix;
+									else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
+									GetRotMatrixX(P*RAD, RotMatrixP);
+									GetRotMatrixY(Y*RAD, RotMatrixY);
+									GetRotMatrixX(270*RAD, RotMatrix270);
+									Temp=mul(RotMatrixOM, RotMatrixP);
+									Temp=mul(Temp, RotMatrixY);
+									//LVLHTgtOrientationMatrix=mul(RotMatrixOM, RotMatrixP);
+									//LVLHTgtOrientationMatrix=mul(LVLHTgtOrientationMatrix, RotMatrixY);
+									LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+																Temp.m12, Temp.m22, Temp.m32,
+																Temp.m13, Temp.m23, Temp.m33);
+									LVLHTgtOrientationMatrix=mul(RotMatrix270, LVLHTgtOrientationMatrix);
+									//LVLHTgtOrientationMatrix=mul(RotMatrixOM, LVLHTgtOrientationMatrix);
+									LVLHOrientationReqd=GetAnglesFromMatrix(LVLHTgtOrientationMatrix)*DEG;
+									sprintf_s(oapiDebugString(), 255, "TGT Angles: %f %f %f",
+										LVLHOrientationReqd.data[PITCH], LVLHOrientationReqd.data[YAW], LVLHOrientationReqd.data[ROLL]);
+									//sprintf_s(oapiDebugString(), 255, "TGT Matrix: %f %f %f \n %f %f %f \n %f %f %f", LVLHTgtOrientationMatrix.m11, LVLHTgtOrientationMatrix.m12, LVLHTgtOrientationMatrix.m13,
+										//LVLHTgtOrientationMatrix.m21, LVLHTgtOrientationMatrix.m22, LVLHTgtOrientationMatrix.m23, LVLHTgtOrientationMatrix.m31, LVLHTgtOrientationMatrix.m32, LVLHTgtOrientationMatrix.m33);
+									oapiWriteLog(oapiDebugString());
+									/*if(BODY_VECT==1) {
 										LVLHOrientationReqd.data[PITCH]=270.0;
 										LVLHOrientationReqd.data[YAW]=0.0;
 										if((OM)<=0.0) {
 											LVLHOrientationReqd.data[ROLL]=0.0;
 											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*/
+											LVLHRateVector.data[ROLL]=0.0;*=/
 										}
 										else {
 											LVLHOrientationReqd.data[ROLL]=OM;
 											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;*/
+											LVLHRateVector.data[ROLL]=0.0;*=/
 										}
 									}
 									else if(BODY_VECT==2) {
@@ -3102,13 +3123,13 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 											LVLHOrientationReqd.data[ROLL]=0.0;
 											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*/
+											LVLHRateVector.data[ROLL]=0.0;*=/
 										}
 										else {
 											LVLHOrientationReqd.data[ROLL]=OM;
 											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;*/
+											LVLHRateVector.data[ROLL]=0.0;*=/
 										}
 									}
 									else if(BODY_VECT==3) {
@@ -3118,13 +3139,13 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 											LVLHOrientationReqd.data[YAW]=0.0;
 											/*LVLHRateVector.data[PITCH]=-1.0;
 											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*/
+											LVLHRateVector.data[ROLL]=0.0;*=/
 										}
 										else {
 											LVLHOrientationReqd.data[YAW]=OM;
 											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
 											LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
-											LVLHRateVector.data[YAW]=0.0;*/
+											LVLHRateVector.data[YAW]=0.0;*=/
 										}
 									}
 									else if(BODY_VECT==5) {
@@ -3151,7 +3172,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 										//LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
 										//LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
 										//LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-									}
+									}*/
 								}
 							}
 							else TRK=false;
@@ -3940,6 +3961,25 @@ VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool 
 	return Output;
 }
 
+MATRIX3 Atlantis::ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter)
+{
+	MATRIX3 Output;
+	MATRIX3 M50, RotMatrixM50;
+
+	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
+	GetRotMatrixY(90*RAD, RotMatrixM50);
+	M50=mul(RotMatrixM50, M50);
+	if(ToOrbiter) {
+		//transpose matrix
+		M50=_M( M50.m11, M50.m21, M50.m31,
+				M50.m12, M50.m22, M50.m32,
+				M50.m13, M50.m23, M50.m33);
+	}
+
+	Output=mul(M50, RotMatrix);
+	return Output;
+}
+
 /*VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radians
 {
 	VECTOR3 Output=_V(0, 0, 0);
@@ -4096,78 +4136,126 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
 	HorizonRot(LocVel, HVel);
 
-	HorizonAngles=Input;
+	HorizonAngles=-Input;
 	double VVAngle=atan2(HVel.z, HVel.x)*DEG;
 	//sprintf(oapiDebugString(), "HorzAtt: %f %f %f", HorizonAngles.data[PITCH]*DEG, HorizonAngles.data[YAW]*DEG,
 		//HorizonAngles.data[ROLL]*DEG);
 
-	//RotateVectorPYR(_V(0, 0, 1), HorizonAngles, HorizonAttitude); //check initial vector
-	/*HorizonX=RotateVectorZ(_V(0, 0, -1), -HorizonAngles.data[PITCH]*DEG); //local X-vector in Horizon frame
-	HorizonX=RotateVectorY(HorizonX, HorizonAngles.data[YAW]*DEG);
-	HorizonX=RotateVectorX(HorizonX, HorizonAngles.data[ROLL]*DEG);*/
 	RotateVectorPYR(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
 	HorizonX=RotateVectorY(HorizonX, VVAngle);
 	HorizonInvRot(HorizonX, LocalX);
 	GlobalRot(LocalX, GlobalX);
-	//GlobalX=tmul(LocalToGlobal, LocalX);
-	//GlobalAttitude=mul(LocalToGlobal, LocalAttitude);
-	//GlobalAttitude=LocalAttitude;
-	//sprintf(oapiDebugString(), "LA: %f %f %f", LocalAttitude.x, LocalAttitude.y, LocalAttitude.z);
-
-	//RotateVector(_V(0, 1, 0), HorizonAngles, HorizonAttitude); //check initial vector
-	//RotateVector(_V(1, 0, 0), _V(HorizonAngles.x, HorizonAngles.y, 0), HorizonAttitude); //check initial vector
-	/*HorizonY=RotateVectorZ(_V(0, 1, 0), -HorizonAngles.data[PITCH]*DEG);
-	HorizonY=RotateVectorY(HorizonY, HorizonAngles.data[YAW]*DEG);
-	HorizonY=RotateVectorX(HorizonY, HorizonAngles.data[ROLL]*DEG);*/
+	
 	RotateVectorPYR(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
 	HorizonY=RotateVectorY(HorizonY, VVAngle);
 	HorizonInvRot(HorizonY, LocalY);
 	GlobalRot(LocalY, GlobalY);
-	//GlobalY=tmul(LocalToGlobal, LocalY);
-	//GlobalAttitude=mul(LocalToGlobal, LocalAttitude);
-	//GlobalAttitude=LocalAttitude;
-	//sprintf(oapiDebugString(), "LA: %f %f %f", LocalAttitude.x, LocalAttitude.y, LocalAttitude.z);
 
-	/*HorizonZ=RotateVectorZ(_V(1, 0, 0), -HorizonAngles.data[PITCH]*DEG);
-	HorizonZ=RotateVectorY(HorizonZ, HorizonAngles.data[YAW]*DEG);
-	HorizonZ=RotateVectorX(HorizonZ, HorizonAngles.data[ROLL]*DEG);*/
 	RotateVectorPYR(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
 	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
 	HorizonInvRot(HorizonZ, LocalZ);
 	GlobalRot(LocalZ, GlobalZ);
-	//GlobalZ=tmul(LocalToGlobal, LocalZ);
 
-	//sprintf_s(oapiDebugString(), 255, "VECTORS: %f %f %f %f %f %f", LocalX.x, LocalX.y, LocalX.z, GlobalX.x, GlobalX.y, GlobalX.z);
-	
-	//debugging
-	/*MATRIX3 RotMatrix = _M(LocalX.x, LocalX.y, LocalX.z,
-							LocalY.x, LocalY.y, LocalY.z,
-							LocalZ.x, LocalZ.y, LocalZ.z);*/
-	/*VECTOR3 Local;
-	Local.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Local.data[YAW]=-asin(RotMatrix.m13);
-	Local.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);*/
-
-	/*RotMatrix = _M(GlobalX.x, GlobalX.y, GlobalX.z,
-					GlobalY.x, GlobalY.y, GlobalY.z,
-					GlobalZ.x, GlobalZ.y, GlobalZ.z);*/
 	MATRIX3 RotMatrix = _M(GlobalX.x, GlobalY.x, GlobalZ.x,
 							GlobalX.y, GlobalY.y, GlobalZ.y,
 							GlobalX.z, GlobalY.z, GlobalZ.z);
+	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
 	
 	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 
-	//sprintf_s(oapiDebugString(), 255, "Out: P: %f Y: %f R: %f Loc: P: %f Y: %f R: %f", 
-		//Output.data[PITCH]*DEG, Output.data[YAW]*DEG, Output.data[ROLL]*DEG,
-		//Local.data[PITCH]*DEG, Local.data[YAW]*DEG, Local.data[ROLL]*DEG);
-	//Output=ConvertLocalAnglesToM50(Output);
-	Output=ConvertAnglesBetweenM50AndOrbiter(Output);
-	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
-		//Output.data[ROLL]*DEG, HorizonAttitude.x, HorizonAttitude.y, HorizonAttitude.z);
+	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
 	return Output;
 }
+
+MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
+{
+	VECTOR3 HorizonAngles;
+	VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
+	VECTOR3 GVel, HVel, LocVel;
+	MATRIX3 LocalToGlobal;
+
+	GetRotationMatrix(LocalToGlobal);
+	GetRelativeVel(GetGravityRef(), GVel);
+	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
+	HorizonRot(LocVel, HVel);
+
+	HorizonAngles=-Input;
+	double VVAngle=atan2(HVel.z, HVel.x)*DEG;
+
+	RotateVectorPYR(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
+	HorizonX=RotateVectorY(HorizonX, VVAngle);
+	HorizonInvRot(HorizonX, LocalX);
+	GlobalRot(LocalX, GlobalX);
+	
+	RotateVectorPYR(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
+	HorizonY=RotateVectorY(HorizonY, VVAngle);
+	HorizonInvRot(HorizonY, LocalY);
+	GlobalRot(LocalY, GlobalY);
+
+	RotateVectorPYR(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
+	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
+	HorizonInvRot(HorizonZ, LocalZ);
+	GlobalRot(LocalZ, GlobalZ);
+
+	MATRIX3 RotMatrix = _M(GlobalX.x, GlobalY.x, GlobalZ.x,
+							GlobalX.y, GlobalY.y, GlobalZ.y,
+							GlobalX.z, GlobalY.z, GlobalZ.z);
+	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
+
+	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
+	return RotMatrix;	
+}
+
+//Backup
+/*MATRIX3 Atlantis::ConvertLVLHMatrixToM50(MATRIX3 Input)
+{
+	MATRIX3 Output;
+	MATRIX3 HorizonMatrix, RotMatrix;
+	//VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
+	VECTOR3 Horizon[3], Local[3], Global[3];
+	VECTOR3 GVel, HVel, LocVel;
+	MATRIX3 LocalToGlobal;
+
+	GetRotationMatrix(LocalToGlobal);
+	GetRelativeVel(GetGravityRef(), GVel);
+	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
+	HorizonRot(LocVel, HVel);
+
+	//HorizonAngles=Input;
+	double VVAngle=atan2(HVel.z, HVel.x);
+	GetRotMatrixY(-VVAngle, HorizonMatrix);
+
+	RotMatrix=mul(Input, HorizonMatrix);
+	//RotMatrix=mul(HorizonMatrix, Input);
+
+	for(int i=0;i<3;i++) {
+
+		Horizon[0].data[i]=RotMatrix.data[i];
+		Horizon[1].data[i]=RotMatrix.data[i+3];
+		Horizon[2].data[i]=RotMatrix.data[i+6];
+	}
+	for(int i=0;i<3;i++) {
+		HorizonInvRot(Horizon[i], Local[i]);
+		//GlobalRot(Local[i], Global[i]);
+		//Global[i]=Local[i];
+		Global[i]=_V(Local[i].x, Local[i].y, -Local[i].z);
+		//Global[i]=_V(-Local[i].z, Local[i].y, -Local[i].x);
+	}
+	for(int i=0;i<3;i++) {
+
+		RotMatrix.data[i]=Global[0].data[i];
+		RotMatrix.data[i+3]=Global[1].data[i];
+		RotMatrix.data[i+6]=Global[2].data[i];
+	}
+
+	//RotMatrix=mul(RotMatrix, LocalToGlobal);
+	//Output=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
+	Output=RotMatrix;
+
+	return Output;
+}*/
 
 //Math
 double Atlantis::NullStartAngle(double Rates, AXIS Axis)
@@ -4491,6 +4579,12 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf(line+6, "%d", &TGT_ID);
 	} else if(!_strnicmp(line, "BODY_VECT", 9)) {
 		sscanf(line+9, "%d", &BODY_VECT);
+	} else if(!_strnicmp(line, "P_ANGLE", 7)) {
+		sscanf(line+7, "%lf", &P);
+	} else if(!_strnicmp(line, "Y_ANGLE", 7)) {
+		sscanf(line+7, "%lf", &Y);
+	} else if(!_strnicmp(line, "OM_ANGLE", 8)) {
+		sscanf(line+8, "%lf", &OM);
 	} else if(!_strnicmp(line, "ROLL", 4)) {
 		sscanf(line+4, "%lf", &MNVR_OPTION.data[ROLL]);
 	} else if(!_strnicmp(line, "PITCH", 5)) {
@@ -4631,9 +4725,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
   oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
   oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
-  oapiWriteScenario_float (scn, "P", P);
-  oapiWriteScenario_float (scn, "Y", Y);
-  oapiWriteScenario_float (scn, "OM", OM);
+  oapiWriteScenario_float (scn, "P_ANGLE", P);
+  oapiWriteScenario_float (scn, "Y_ANGLE", Y);
+  oapiWriteScenario_float (scn, "OM_ANGLE", OM);
 
   SavePayloadState(scn);
 
