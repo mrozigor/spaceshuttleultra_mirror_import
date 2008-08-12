@@ -3087,92 +3087,11 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 									GetRotMatrixX(270*RAD, RotMatrix270);
 									Temp=mul(RotMatrixOM, RotMatrixP);
 									Temp=mul(Temp, RotMatrixY);
-									//LVLHTgtOrientationMatrix=mul(RotMatrixOM, RotMatrixP);
-									//LVLHTgtOrientationMatrix=mul(LVLHTgtOrientationMatrix, RotMatrixY);
 									LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
 																Temp.m12, Temp.m22, Temp.m32,
 																Temp.m13, Temp.m23, Temp.m33);
 									LVLHTgtOrientationMatrix=mul(RotMatrix270, LVLHTgtOrientationMatrix);
-									//LVLHTgtOrientationMatrix=mul(RotMatrixOM, LVLHTgtOrientationMatrix);
 									LVLHOrientationReqd=GetAnglesFromMatrix(LVLHTgtOrientationMatrix)*DEG;
-									sprintf_s(oapiDebugString(), 255, "TGT Angles: %f %f %f",
-										LVLHOrientationReqd.data[PITCH], LVLHOrientationReqd.data[YAW], LVLHOrientationReqd.data[ROLL]);
-									//sprintf_s(oapiDebugString(), 255, "TGT Matrix: %f %f %f \n %f %f %f \n %f %f %f", LVLHTgtOrientationMatrix.m11, LVLHTgtOrientationMatrix.m12, LVLHTgtOrientationMatrix.m13,
-										//LVLHTgtOrientationMatrix.m21, LVLHTgtOrientationMatrix.m22, LVLHTgtOrientationMatrix.m23, LVLHTgtOrientationMatrix.m31, LVLHTgtOrientationMatrix.m32, LVLHTgtOrientationMatrix.m33);
-									oapiWriteLog(oapiDebugString());
-									/*if(BODY_VECT==1) {
-										LVLHOrientationReqd.data[PITCH]=270.0;
-										LVLHOrientationReqd.data[YAW]=0.0;
-										if((OM)<=0.0) {
-											LVLHOrientationReqd.data[ROLL]=0.0;
-											/*LVLHRateVector.data[PITCH]=-1.0;
-											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*=/
-										}
-										else {
-											LVLHOrientationReqd.data[ROLL]=OM;
-											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;*=/
-										}
-									}
-									else if(BODY_VECT==2) {
-										LVLHOrientationReqd.data[PITCH]=90.0;
-										LVLHOrientationReqd.data[YAW]=0.0;
-										if(OM<=0.0) {
-											LVLHOrientationReqd.data[ROLL]=0.0;
-											/*LVLHRateVector.data[PITCH]=-1.0;
-											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*=/
-										}
-										else {
-											LVLHOrientationReqd.data[ROLL]=OM;
-											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-											LVLHRateVector.data[YAW]=-1.0*sin(RAD*OM);
-											LVLHRateVector.data[ROLL]=0.0;*=/
-										}
-									}
-									else if(BODY_VECT==3) {
-										LVLHOrientationReqd.data[PITCH]=180.0;
-										LVLHOrientationReqd.data[ROLL]=0.0;
-										if(OM<=0.0) {
-											LVLHOrientationReqd.data[YAW]=0.0;
-											/*LVLHRateVector.data[PITCH]=-1.0;
-											LVLHRateVector.data[YAW]=0.0;
-											LVLHRateVector.data[ROLL]=0.0;*=/
-										}
-										else {
-											LVLHOrientationReqd.data[YAW]=OM;
-											/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*OM);
-											LVLHRateVector.data[ROLL]=1.0*sin(RAD*OM);
-											LVLHRateVector.data[YAW]=0.0;*=/
-										}
-									}
-									else if(BODY_VECT==5) {
-										LVLHOrientationReqd.data[PITCH]=270-P;
-										if(LVLHOrientationReqd.data[PITCH]==0.0)
-										{
-											LVLHOrientationReqd.data[ROLL]=Y;
-											if(OM<=0.0) {
-												LVLHOrientationReqd.data[YAW]=0.0;
-												/*if(LVLHOrientationReqd.data[ROLL]==0.0) {
-													LVLHRateVector.data[PITCH]=-1.0;
-													LVLHRateVector.data[YAW]=0.0;
-													LVLHRateVector.data[ROLL]=0.0;
-												}*/
-											}
-											else LVLHOrientationReqd.data[YAW]=OM;
-										}
-										else
-										{
-											LVLHOrientationReqd.data[YAW]=(270.0-P)*sin(RAD*Y);
-											LVLHOrientationReqd.data[ROLL]=Y*cos(RAD*LVLHOrientationReqd.data[PITCH]);
-											if(OM>0.0) LVLHOrientationReqd.data[YAW]+=OM;
-										}
-										//LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-										//LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-										//LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-									}*/
 								}
 							}
 							else TRK=false;
