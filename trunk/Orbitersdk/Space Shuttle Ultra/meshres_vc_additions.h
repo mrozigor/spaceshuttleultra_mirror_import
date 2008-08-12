@@ -86,6 +86,7 @@ Atlantis\r13l.dds
 #define TEX_STSVC03_VC		3
 #define TEX_LABEL_VC		4
 #define TEX_PANELF9_VC		5
+#define TEX_A8BOTTOM_VC		5
 #define TEX_TIMER_VC		6
 #define TEX_PANELA2_VC		7
 #define TEX_PANELA6A7_VC	8
