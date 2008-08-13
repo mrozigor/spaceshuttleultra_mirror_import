@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for ..\..\Meshes\SSU\VC.msh
-// Generated with meshc on Sun Aug 03 12:04:45 2008
+// Generated with meshc on Tue Aug 12 21:20:03 2008
 
 // ========================================================
 
@@ -17,28 +17,28 @@
 #define GRP_080_VC 0
 #define GRP_081_VC 1
 #define GRP_082_VC 2
-#define GRP_CDR1_VC 3
-#define GRP_CDR2_VC 4
-#define GRP_PLT1_VC 5
-#define GRP_PLT2_VC 6
-#define GRP_MFD1_VC 7
-#define GRP_MFD2_VC 8
-#define GRP_MFD3_VC 9
-#define GRP_MFD4_VC 10
-#define GRP_MFD5_VC 11
-#define GRP_AFD_VC 12
-#define GRP_AFDLABEL_VC 13
-#define GRP_CDR1LABEL_VC 14
-#define GRP_CDR2LABEL_VC 15
-#define GRP_PLT1LABEL_VC 16
-#define GRP_PLT2LABEL_VC 17
-#define GRP_MFD1LABEL_VC 18
-#define GRP_MFD2LABEL_VC 19
-#define GRP_MFD3LABEL_VC 20
-#define GRP_MFD5LABEL_VC 21
+#define GRP_CDR1labels_VC 3
+#define GRP_CDR2labels_VC 4
+#define GRP_PLT1labels_VC 5
+#define GRP_PLT2labels_VC 6
+#define GRP_MFD1labels_VC 7
+#define GRP_MFD2labels_VC 8
+#define GRP_MFD3labels_VC 9
+#define GRP_MFD4labels_VC 10
+#define GRP_MFD5labels_VC 11
+#define GRP_aftMFDlabels_VC 12
+#define GRP_aftMFD2labels_VC 13
+#define GRP_CDR1_VC 14
+#define GRP_CDR2_VC 15
+#define GRP_PLT1_VC 16
+#define GRP_PLT2_VC 17
+#define GRP_MFD1_VC 18
+#define GRP_MFD2_VC 19
+#define GRP_MFD3_VC 20
+#define GRP_MFD5_VC 21
 #define GRP_MFD_aft_VC 22
 #define GRP_MFD11_VC 23
-#define GRP_MFD4LABEL_VC 24
+#define GRP_MFD4_VC 24
 #define GRP_B_VC 25
 #define GRP_five_VC 26
 #define GRP_six_VC 27
