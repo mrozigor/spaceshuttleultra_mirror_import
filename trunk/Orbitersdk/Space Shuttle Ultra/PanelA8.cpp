@@ -30,7 +30,7 @@ void PanelA8::RegisterVC()
 	if(!sts->RMS) return;
 	sprintf_s(oapiDebugString(), 255, "Registering panelA8");
 	VECTOR3 ofs=sts->orbiter_ofs;
-	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_A8TOP_VC);
+	SURFHANDLE panela8t_tex = oapiGetTextureHandle (sts->hPanelA8Mesh, TEX_A8TOP_VC);
 	//! TODO: Fix RMS panel animations, should be optional by now.
 	SURFHANDLE panela8b_tex = oapiGetTextureHandle (sts->hPanelA8Mesh, TEX_A8BOTTOM_VC);
 
