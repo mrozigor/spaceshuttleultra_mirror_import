@@ -23,6 +23,10 @@ PanelA8::PanelA8(Atlantis *_sts): sts(_sts)
 		switch_state[i]=1;
 		tkbk_state[i]=0;
 	}
+	for(i=0;i<7;i++) {
+		anim_VC_A8_cover[i]=NULL;
+		cover_state[i]=1;
+	}
 }
 
 void PanelA8::RegisterVC()
@@ -176,6 +180,12 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 		_V(-0.647, 2.238, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH16]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH16], 0, 1, &VC_A8S16);
+	//RMS POWER switch cover
+	static UINT VC_A8Scover4_GRP=GRP_A8Scover4_VC;
+	static MGROUP_ROTATE VC_A8Scover4 (vcidx, &VC_A8Scover4_GRP, 1,
+		_V(-0.537, 2.256, 12.478), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8_cover[SWITCH4]=sts->CreateAnimation(1);
+	sts->AddAnimationComponent(anim_VC_A8_cover[SWITCH4], 0, 1, &VC_A8Scover4);
 
 	//STBD RMS RETENTION LATCHES
 	static UINT VC_A8S13_GRP = GRP_A8S13_VC;
@@ -232,6 +242,8 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
+
+	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
@@ -303,19 +315,32 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 		}
 
 		if(p.x>=0.4649455 && p.x<=0.508725) {
-			if(p.y>=0.8319185 && p.y<=0.877751) {
-				if(p.y<0.854939) {
-					if(switch_state[SWITCH16]>0) {
-						switch_state[SWITCH16]--;
-						action=true;
+			//if(p.y>=0.8319185 && p.y<=0.877751) {
+			if(p.y>=0.8375 && p.y<=0.877751) {
+				if(cover_state[SWITCH4]==0) { //if cover is open, change switch position
+					if(p.y<0.854939) {
+						if(switch_state[SWITCH16]>0) {
+							switch_state[SWITCH16]--;
+							action=true;
+						}
+					}
+					else {
+						if(switch_state[SWITCH16]<2) {
+							switch_state[SWITCH16]++;
+							action=true;
+						}
 					}
 				}
-				else {
-					if(switch_state[SWITCH16]<2) {
-						switch_state[SWITCH16]++;
-						action=true;
-					}
+				else { //lift switch cover
+					cover_state[SWITCH4]=0;
+					action=true;
 				}
+			}
+		}
+		if(cover_state[SWITCH4]==0 && p.x>=0.454365 && p.x<=0.504558) {
+			if(p.y>=0.808621 && p.y<=0.834) {
+				cover_state[SWITCH4]=1;
+				action=true;
 			}
 		}
 

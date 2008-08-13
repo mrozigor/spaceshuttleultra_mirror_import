@@ -37,7 +37,9 @@ private:
 
 	// VC switch animations
 	UINT anim_VC_A8[20];
+	UINT anim_VC_A8_cover[7]; //switch cover animations
 	int switch_state[20];
+	int cover_state[7];
 	int tkbk_state[20];
 };
 
