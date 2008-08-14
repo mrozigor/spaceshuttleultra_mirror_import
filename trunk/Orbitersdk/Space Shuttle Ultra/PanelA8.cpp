@@ -263,7 +263,7 @@ void PanelA8::UpdateVC()
 bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	bool action = false;
-	//sprintf_s(oapiDebugString(), 255, "Panel A8 event: %f %f %f %f", p.x, p.y, p.z);
+	sprintf_s(oapiDebugString(), 255, "Panel A8 event: X: %f Y: %f Z: %f", p.x, p.y, p.z);
 	/*if(event & PANEL_MOUSE_LBPRESSED) sprintf(oapiDebugString(), "LBPressed");
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
