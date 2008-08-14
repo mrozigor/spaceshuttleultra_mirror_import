@@ -63,7 +63,7 @@ Luna-OB1:Wheel
   AROT 0.00 0.00 142.88
   VROT 0 0 10
 END
-STS-101:Atlantis
+STS-101:SpaceShuttleUltra
   STATUS Landed Earth
   ;BASE Cape Canaveral:11
   POS -80.6232502 28.6197342
