@@ -200,6 +200,12 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 		_V(-0.693, 2.233, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH12]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH12], 0, 1, &VC_A8S12);
+	//STBD MPM DEPLOY switch cover
+	static UINT VC_A8Scover1_GRP=GRP_A8Scover1_VC;
+	static MGROUP_ROTATE VC_A8Scover1 (vcidx, &VC_A8Scover1_GRP, 1,
+		_V(-0.339, 2.257, 12.479), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8_cover[SWITCH1]=sts->CreateAnimation(1);
+	sts->AddAnimationComponent(anim_VC_A8_cover[SWITCH1], 0, 1, &VC_A8Scover1);
 
 	//SHOULDER BRACE
 	static UINT VC_A8S10_GRP = GRP_A8S10_VC;
@@ -243,6 +249,7 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
 
+	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
@@ -304,12 +311,6 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 						sts->RMSRollout.action=AnimState::CLOSING;
 					}
 				}
-				/*if(RMSRollout.action==AnimState::CLOSED) {
-					RMSRollout.action=AnimState::OPENING;
-				}
-				else {
-					RMSRollout.action=AnimState::CLOSING;
-				}*/
 				action=true;
 			}
 		}
@@ -364,29 +365,32 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 		if(p.x>=0.841143 && p.x<=0.886384) {
 			if(p.y>=0.829965 && p.y<=0.867186) {
-				if(p.y<0.848995) {
-					//sprintf(oapiDebugString(), "Deploying STBD MPMs");
-					if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
-				}
-				else {
-					//sprintf(oapiDebugString(), "Stowing STBD MPMs");
-					if(switch_state[SWITCH12]<2) switch_state[SWITCH12]++;
-				}
-				action=true;
+				if(cover_state[SWITCH1]==0) {
+					if(p.y<0.848995) {
+						//sprintf(oapiDebugString(), "Deploying STBD MPMs");
+						if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
+					}
+					else {
+						//sprintf(oapiDebugString(), "Stowing STBD MPMs");
+						if(switch_state[SWITCH12]<2) switch_state[SWITCH12]++;
+					}
 
-				if(switch_state[SWITCH12]==0) {
-					if(sts->StbdMPMRollout.action!=AnimState::OPEN) {
-						sts->StbdMPMRollout.action=AnimState::OPENING;
+					if(switch_state[SWITCH12]==0) {
+						if(sts->StbdMPMRollout.action!=AnimState::OPEN) {
+							sts->StbdMPMRollout.action=AnimState::OPENING;
+						}
+					}
+					else if(switch_state[SWITCH12]==1) {
+						if(sts->StbdMPMRollout.Moving()) sts->StbdMPMRollout.action=AnimState::STOPPED;
+					}
+					else {
+						if(sts->StbdMPMRollout.action!=AnimState::CLOSED) {
+							sts->StbdMPMRollout.action=AnimState::CLOSING;
+						}
 					}
 				}
-				else if(switch_state[SWITCH12]==1) {
-					if(sts->StbdMPMRollout.Moving()) sts->StbdMPMRollout.action=AnimState::STOPPED;
-				}
-				else {
-					if(sts->StbdMPMRollout.action!=AnimState::CLOSED) {
-						sts->StbdMPMRollout.action=AnimState::CLOSING;
-					}
-				}
+				else cover_state[SWITCH1]=0;
+				action=true;
 			}
 		}
 
@@ -539,14 +543,18 @@ void PanelA8::Step(double t, double dt)
 
 bool PanelA8::ParseScenarioLine(char *line)
 {
-	/*if(!_strnicmp(line, "STBD_RMS", 8)) {
-		sscanf_s(line+8, "%d", &switch_state[SWITCH17]);
-	}*/
 	if(!_strnicmp(line, "EE MODE", 7)) {
 		sscanf_s(line+7, "%d", &switch_state[SWITCH4]);
 		if(switch_state[SWITCH4]==1) sts->EEGrappleMode=0;
 		else if(switch_state[SWITCH4]==2) sts->EEGrappleMode=1;
 		else sts->EEGrappleMode=2;
+		return true;
+	}
+	if(!_strnicmp(line, "SWITCH_RMS_POWER", 16)) {
+		sscanf_s(line+16, "%d", &switch_state[SWITCH16]);
+		sprintf_s(oapiDebugString(), 255, "RMS POWER switch updated %d", switch_state[SWITCH16]);
+		oapiWriteLog(oapiDebugString());
+		return true;
 	}
 	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
 		sscanf(line+22, "%d", &switch_state[SWITCH10]);
@@ -556,8 +564,8 @@ bool PanelA8::ParseScenarioLine(char *line)
 
 void PanelA8::SaveState(FILEHANDLE scn)
 {
-	//oapiWriteScenario_int(scn, "STBD_RMS", switch_state[SWITCH17]);
 	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
+	oapiWriteScenario_int(scn, "SWITCH_RMS_POWER", switch_state[SWITCH16]);
 	//oapiWriteScenario_int(scn, "SHOULDER_BRACE_RELEASE", switch_state[SWITCH10]);
 	return;
 }

@@ -2766,6 +2766,7 @@ void Atlantis::UpdateMesh ()
 	  SetAnimationArm (anim_arm_wr, arm_wr);
 	  UpdateRMSAngles();
 	  UpdateRMSPositions();
+	  panela8->UpdateVC();
   }
 
   // update MFD brightness
@@ -5088,7 +5089,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   plop->Step (simt, simdt);
   gop->Step (simt, simdt);
   panela4->Step(simt, simdt);
-  panela8->Step(simt, simdt);
+  if(RMS) panela8->Step(simt, simdt);
   panelc2->Step(simt, simdt);
   c3po->Step (simt, simdt);
 //  panelf7->Step(simt, simdt);
@@ -6101,7 +6102,7 @@ bool Atlantis::clbkLoadVC (int id)
     plop->UpdateVC();
     gop->UpdateVC();
 	panela4->UpdateVC();
-	panela8->UpdateVC();
+	if(RMS) panela8->UpdateVC();
 	panelc2->UpdateVC();
 	c3po->UpdateVC();
 //	panelf7->UpdateVC();
