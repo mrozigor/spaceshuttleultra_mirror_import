@@ -2750,6 +2750,8 @@ void Atlantis::UpdateMesh ()
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
+  SetAnimation(anim_letumbdoor, r2d2->LETUmbDoorStatus.pos);
+  SetAnimation(anim_retumbdoor, r2d2->RETUmbDoorStatus.pos);
 
   if(STBDMPM) {
 	  SetStbdMPMPosition(StbdMPMRollout.pos);
@@ -3399,6 +3401,10 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 								else if(BODY_VECT==3) {
 									P=90.0;
 									Y=0.0;
+								}
+								else if(BODY_VECT==4) {
+									P=90.0;
+									Y=280.57;
 								}
 								return true;
 							}

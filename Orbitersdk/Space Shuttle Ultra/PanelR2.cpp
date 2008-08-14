@@ -92,40 +92,40 @@ bool PanelR2::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	case AID_R2_TKBK2:
 	case AID_R2_TKBK3:
 		if(APU_READY[id-AID_R2_TKBK1] || (APU_STATE[id-AID_R2_TKBK1]==1 && APU_Speed[id-AID_R2_TKBK1]<80))
-			return VCDrawTalkback (surf, id-AID_R2_TKBK1, 1);
+			return VCDrawTalkback (surf, id-AID_R2_TKBK1, 8);
 		else return VCDrawTalkback (surf, id-AID_R2_TKBK1, 0);
 		break;
 	case AID_R2_TKBK4:
 		if(CenterlineLatches.action==AnimState::OPEN) //OPEN(1)=stowed
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 2);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 1);
 		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
 		break;
 	case AID_R2_TKBK5:
 		if(LETUmbDoorStatus.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
 		else if(LETUmbDoorStatus.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 5);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
 		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
 		break;
 	case AID_R2_TKBK6:
 		if(LDoorLatches.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 2);
 		else if(LDoorLatches.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 5);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 10);
 		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
 		break;
 	case AID_R2_TKBK7:
 		if(RETUmbDoorStatus.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
 		else if(RETUmbDoorStatus.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 5);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
 		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
 		break;
 	case AID_R2_TKBK8:
 		if(RDoorLatches.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 2);
 		else if(RDoorLatches.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 5);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 10);
 		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
 		break;
 	}
@@ -138,8 +138,8 @@ bool PanelR2::VCDrawTalkback (SURFHANDLE surf, int idx, int label)
 	if (tkbk_state[idx] == label) return false; // nothing to do
 	//sprintf(oapiDebugString(), "idx %d label %d tkbk_state %d", idx, label, tkbk_state[idx]);
 	tkbk_state[idx] = label;
-	if(label<=1) oapiBlt (surf, g_Param.tkbk_label, 0, 0, 0, label*18, 32, 18);
-	else oapiBlt (surf, g_Param.tkbk_label, 0, 0, (label-1)*32, 0, 32, 18);
+	if(label<8) oapiBlt (surf, g_Param.tkbk_label, 0, 0, label*32, 0, 32, 18);
+	else oapiBlt (surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, 32, 18);
 	//if(idx<3) sprintf(oapiDebugString(), "2: %d %d %f", tkbk_state[idx], label, oapiRand());
 	return true;
 }
