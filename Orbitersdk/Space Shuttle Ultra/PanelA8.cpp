@@ -267,7 +267,7 @@ void PanelA8::UpdateVC()
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK19);
 }
 
-bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
+bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 {
 	bool action = false;
 	sprintf_s(oapiDebugString(), 255, "Panel A8 event: X: %f Y: %f Z: %f", p.x, p.y, p.z);
@@ -275,7 +275,7 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
 
-	if(event == PANEL_MOUSE_LBDOWN) {
+	if(nEvent == PANEL_MOUSE_LBDOWN) {
 		if(p.x>=0.167373 && p.x<=0.217567) {
 			if(p.y>=0.841234 && p.y<=0.867132) {
 				if(p.y<0.854145) {

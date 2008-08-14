@@ -24,7 +24,7 @@ public:
 	void UpdateVC ();
 	//void CreateVisual(VISHANDLE hVisual);
 	void UpdateMesh();
-	bool VCMouseEvent (int id, int event, VECTOR3 &p);
+	bool VCMouseEvent (int id, int nEvent, VECTOR3 &p);
 	bool VCRedrawEvent (int id, int event, SURFHANDLE surf);
 	void Step (double t, double dt);
 	bool ParseScenarioLine (char *line);
