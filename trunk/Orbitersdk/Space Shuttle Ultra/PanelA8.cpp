@@ -332,6 +332,7 @@ bool PanelA8::VCMouseEvent(int id, int event, VECTOR3 &p)
 					}
 				}
 				else { //lift switch cover
+					sprintf_s(oapiDebugString(), 255, "RMS POWER switch cover raised");
 					cover_state[SWITCH4]=0;
 					action=true;
 				}
