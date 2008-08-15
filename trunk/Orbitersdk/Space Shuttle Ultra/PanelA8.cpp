@@ -239,6 +239,8 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 void PanelA8::UpdateVC()
 {
 	if(!sts->RMS) return;
+	sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
+	oapiWriteLog(oapiDebugString());
 	sts->SetAnimation(anim_VC_A8[SWITCH18], switch_state[SWITCH18]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH17], switch_state[SWITCH17]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
@@ -275,7 +277,7 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
 
-	if(nEvent == PANEL_MOUSE_LBDOWN) {
+	if(nEvent == PANEL_MOUSE_LBDOWN || nEvent != PANEL_MOUSE_LBDOWN) {
 		if(p.x>=0.167373 && p.x<=0.217567) {
 			if(p.y>=0.841234 && p.y<=0.867132) {
 				if(p.y<0.854145) {
@@ -551,9 +553,9 @@ bool PanelA8::ParseScenarioLine(char *line)
 		return true;
 	}
 	if(!_strnicmp(line, "SWITCH_RMS_POWER", 16)) {
-		sscanf_s(line+16, "%d", &switch_state[SWITCH16]);
-		sprintf_s(oapiDebugString(), 255, "RMS POWER switch updated %d", switch_state[SWITCH16]);
-		oapiWriteLog(oapiDebugString());
+		sscanf_s(line+16, "%d %d", &switch_state[SWITCH16], &cover_state[SWITCH4]);
+		//sprintf_s(oapiDebugString(), 255, "RMS POWER switch updated %d", switch_state[SWITCH16]);
+		//oapiWriteLog(oapiDebugString());
 		return true;
 	}
 	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
@@ -564,8 +566,10 @@ bool PanelA8::ParseScenarioLine(char *line)
 
 void PanelA8::SaveState(FILEHANDLE scn)
 {
+	char cbuf[255];
 	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
-	oapiWriteScenario_int(scn, "SWITCH_RMS_POWER", switch_state[SWITCH16]);
+	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
+	oapiWriteScenario_string(scn, "SWITCH_RMS_POWER", cbuf);
 	//oapiWriteScenario_int(scn, "SHOULDER_BRACE_RELEASE", switch_state[SWITCH10]);
 	return;
 }
