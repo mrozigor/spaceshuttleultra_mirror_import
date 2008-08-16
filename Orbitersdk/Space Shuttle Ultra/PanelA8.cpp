@@ -255,7 +255,7 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
 
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
-	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
+	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], 0);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH5], cover_state[SWITCH5]);
 	if(anim_VC_A8_cover[SWITCH4]) {
 		char cbuf[255];
