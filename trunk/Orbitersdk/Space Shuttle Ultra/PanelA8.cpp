@@ -172,6 +172,12 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 		_V(-0.647, 2.238, 12.486), switch_rot_vert, (float)(90.0*RAD));
 	anim_VC_A8[SWITCH17]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_A8[SWITCH17], 0, 1, &VC_A8S17);
+	//PORT MPM DEPLOY switch cover
+	static UINT VC_A8Scover5_GRP = GRP_A8Scover5_VC;
+	static MGROUP_ROTATE VC_A8Scover5 (vcidx, &VC_A8Scover5_GRP, 1,
+		_V(-0.646, 2.257, 12.478), switch_rot_vert, (float)(90.0*RAD));
+	anim_VC_A8_cover[SWITCH5]=sts->CreateAnimation(1);
+	sts->AddAnimationComponent(anim_VC_A8_cover[SWITCH5], 0, 1, &VC_A8Scover5);
 
 	//RMS POWER
 	static UINT VC_A8S16_GRP = GRP_A8S16_VC;
@@ -237,7 +243,7 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 
 void PanelA8::UpdateVC()
 {
-	if(!sts->RMS) return;
+	if(!(sts->RMS)) return;
 	sts->SetAnimation(anim_VC_A8[SWITCH18], switch_state[SWITCH18]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH17], switch_state[SWITCH17]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
@@ -247,9 +253,11 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH10], switch_state[SWITCH10]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH5], switch_state[SWITCH5]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
+	oapiWriteLog("Switch positions updated");
 
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
+	sts->SetAnimation(anim_VC_A8_cover[SWITCH5], cover_state[SWITCH5]);
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
@@ -274,7 +282,7 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	else if(event == PANEL_MOUSE_LBUP) sprintf(oapiDebugString(), "LBUp");
 	else if(event & PANEL_MOUSE_LBDOWN) sprintf(oapiDebugString(), "LBDown");*/
 
-	if(nEvent == PANEL_MOUSE_LBDOWN || nEvent != PANEL_MOUSE_LBDOWN) {
+	if(nEvent == PANEL_MOUSE_LBDOWN) {
 		if(p.x>=0.167373 && p.x<=0.217567) {
 			if(p.y>=0.841234 && p.y<=0.867132) {
 				if(p.y<0.854145) {
@@ -363,15 +371,19 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 		}
 
 		if(p.x>=0.841143 && p.x<=0.886384) {
-			if(p.y>=0.829965 && p.y<=0.867186) {
-				if(cover_state[SWITCH1]==0) {
+			if(cover_state[SWITCH1]==0) {
+				if(p.y>=0.836290 && p.y<=0.867186) { //switch clicked on
 					if(p.y<0.848995) {
-						//sprintf(oapiDebugString(), "Deploying STBD MPMs");
-						if(switch_state[SWITCH12]>0) switch_state[SWITCH12]--;
+						if(switch_state[SWITCH12]>0) {
+							switch_state[SWITCH12]--;
+							action=true;
+						}
 					}
 					else {
-						//sprintf(oapiDebugString(), "Stowing STBD MPMs");
-						if(switch_state[SWITCH12]<2) switch_state[SWITCH12]++;
+						if(switch_state[SWITCH12]<2) {
+							switch_state[SWITCH12]++;
+							action=true;
+						}
 					}
 
 					if(switch_state[SWITCH12]==0) {
@@ -388,7 +400,13 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 						}
 					}
 				}
-				else cover_state[SWITCH1]=0;
+				else if(p.y>=0.808047 && p.y<=0.836290) { //cover clicked on
+					cover_state[SWITCH1]=1;
+					action=true;
+				}
+			}
+			else if(p.y>=0.829965 && p.y<=0.867186) {
+				cover_state[SWITCH1]=0;
 				action=true;
 			}
 		}
@@ -470,8 +488,8 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	}
 
 	if(action) {
-		sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
-		oapiWriteLog(oapiDebugString());
+		//sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
+		//oapiWriteLog(oapiDebugString());
 		sprintf_s(oapiDebugString(), 255, "SWITCH16: %d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
 		oapiWriteLog(oapiDebugString());
 		UpdateVC();
