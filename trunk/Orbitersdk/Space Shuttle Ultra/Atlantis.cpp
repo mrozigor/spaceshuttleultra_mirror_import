@@ -6925,12 +6925,12 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+        //sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
 		sts->UpdateRMSAngles();
 		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
         sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+        //sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
 		sts->UpdateRMSAngles();
 		sts->UpdateRMSPositions();
       } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
