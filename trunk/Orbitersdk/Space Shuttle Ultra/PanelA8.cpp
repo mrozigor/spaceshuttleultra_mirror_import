@@ -101,7 +101,6 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK10:
-			sprintf_s(oapiDebugString(), 255, "AID_A8_TKBK10: %d", sts->MPM_Microswitches[1][0]);
 			if(sts->MPM_Microswitches[1][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 1);
 			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
@@ -239,8 +238,6 @@ void PanelA8::DefineVCAnimations(UINT vcidx)
 void PanelA8::UpdateVC()
 {
 	if(!sts->RMS) return;
-	sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
-	oapiWriteLog(oapiDebugString());
 	sts->SetAnimation(anim_VC_A8[SWITCH18], switch_state[SWITCH18]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH17], switch_state[SWITCH17]/2.0);
 	sts->SetAnimation(anim_VC_A8[SWITCH16], switch_state[SWITCH16]/2.0);
@@ -473,6 +470,10 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	}
 
 	if(action) {
+		sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
+		oapiWriteLog(oapiDebugString());
+		sprintf_s(oapiDebugString(), 255, "SWITCH16: %d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
+		oapiWriteLog(oapiDebugString());
 		UpdateVC();
 		return true;
 	}
