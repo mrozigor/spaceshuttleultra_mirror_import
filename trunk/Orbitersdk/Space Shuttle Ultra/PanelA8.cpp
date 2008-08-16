@@ -255,7 +255,7 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8[SWITCH4], switch_state[SWITCH4]/2.0);
 
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
-	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], 0);
+	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH5], cover_state[SWITCH5]);
 	if(anim_VC_A8_cover[SWITCH4]) {
 		char cbuf[255];
@@ -300,28 +300,40 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 		}
 
 		if(p.x>=0.252639 && p.x<=0.305916) {
-			if(p.y>=0.828852 && p.y<=0.863428) {
-				if(p.y<0.848199) {
-					sprintf(oapiDebugString(), "Deploying STBD MPMs");
-					if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
-				}
-				else {
-					sprintf(oapiDebugString(), "Stowing STBD MPMs");
-					if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
-				}
-				if(switch_state[SWITCH17]==0) {
-					if(sts->RMSRollout.action!=AnimState::OPEN) {
-						sts->RMSRollout.action=AnimState::OPENING;
+			if(cover_state[SWITCH5]==0) {
+				if(p.y>=0.834143 && p.y<=0.863428) {
+					if(p.y<0.848199) {
+						sprintf(oapiDebugString(), "Deploying STBD MPMs");
+						if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
 					}
-				}
-				else if(switch_state[SWITCH17]==1) {
-					if(sts->RMSRollout.Moving()) sts->RMSRollout.action=AnimState::STOPPED;
-				}
-				else {
-					if(sts->RMSRollout.action!=AnimState::CLOSED) {
-						sts->RMSRollout.action=AnimState::CLOSING;
+					else {
+						sprintf(oapiDebugString(), "Stowing STBD MPMs");
+						if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
 					}
+					if(switch_state[SWITCH17]==0) {
+						if(sts->RMSRollout.action!=AnimState::OPEN) {
+							sts->RMSRollout.action=AnimState::OPENING;
+						}
+					}
+					else if(switch_state[SWITCH17]==1) {
+						if(sts->RMSRollout.Moving()) sts->RMSRollout.action=AnimState::STOPPED;
+					}
+					else {
+						if(sts->RMSRollout.action!=AnimState::CLOSED) {
+							sts->RMSRollout.action=AnimState::CLOSING;
+						}
+					}
+					action=true;
 				}
+			}
+			else if(p.y>=0.828852 && p.y<=0.863428) {
+				cover_state[SWITCH5]=0;
+				action=true;
+			}
+		}
+		if(p.x>=0.235794 && p.x<=0.298074) {
+			if(p.y>=0.804317 && p.y<=0.834143 && cover_state[SWITCH5]==0) {
+				cover_state[SWITCH5]=1;
 				action=true;
 			}
 		}
@@ -344,7 +356,6 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 					}
 				}
 				else { //lift switch cover
-					sprintf_s(oapiDebugString(), 255, "RMS POWER switch cover raised");
 					cover_state[SWITCH4]=0;
 					action=true;
 				}
