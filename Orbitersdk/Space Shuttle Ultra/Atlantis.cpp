@@ -2868,10 +2868,10 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
 {
   if(!RMS) return;
   if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
-  //SetAnimation (anim, state);
+  SetAnimation (anim, state);
   arm_moved = true;
   UpdateMRLMicroswitches();
-  panela8->UpdateVC();
+  //panela8->UpdateVC();
 
   //HWND hDlg;
   /*
