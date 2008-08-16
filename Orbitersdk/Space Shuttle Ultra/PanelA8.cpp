@@ -257,7 +257,11 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH5], cover_state[SWITCH5]);
-	if(anim_VC_A8_cover[SWITCH4]) oapiWriteLog("Cover positions updated");
+	if(anim_VC_A8_cover[SWITCH4]) {
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "Cover positions updated %f", cover_state[SWITCH4]);
+		oapiWriteLog(cbuf);
+	}
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
