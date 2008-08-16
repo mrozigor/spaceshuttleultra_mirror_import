@@ -2142,18 +2142,14 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	if(mesh_rms == MESH_UNDEFINED)
+	if(mesh_rms == MESH_UNDEFINED && RMS)
 	{
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
-	}
-	if(RMS) {
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
 		//add panelA8
 		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
 		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
-	} else {
-		SetMeshVisibilityMode (mesh_rms, MESHVIS_NEVER);
 	}
 
 	AddKUBandVisual(ofs);
