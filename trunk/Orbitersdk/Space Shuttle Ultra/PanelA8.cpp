@@ -257,11 +257,6 @@ void PanelA8::UpdateVC()
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH1], cover_state[SWITCH1]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH4], cover_state[SWITCH4]);
 	sts->SetAnimation(anim_VC_A8_cover[SWITCH5], cover_state[SWITCH5]);
-	if(anim_VC_A8_cover[SWITCH4]) {
-		char cbuf[255];
-		sprintf_s(cbuf, 255, "Cover positions updated %f", cover_state[SWITCH4]);
-		oapiWriteLog(cbuf);
-	}
 	
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK1);
 	oapiVCTriggerRedrawArea(-1, AID_A8_TKBK3);
@@ -303,11 +298,9 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 			if(cover_state[SWITCH5]==0) {
 				if(p.y>=0.834143 && p.y<=0.863428) {
 					if(p.y<0.848199) {
-						sprintf(oapiDebugString(), "Deploying STBD MPMs");
 						if(switch_state[SWITCH17]>0) switch_state[SWITCH17]--;
 					}
 					else {
-						sprintf(oapiDebugString(), "Stowing STBD MPMs");
 						if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
 					}
 					if(switch_state[SWITCH17]==0) {
@@ -434,7 +427,6 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 				else {
 					if(switch_state[SWITCH10]<2) switch_state[SWITCH10]++;
 				}
-				sprintf_s(oapiDebugString(), 255, "%d", switch_state[SWITCH10]);
 				action=true;
 			}
 		}
@@ -455,7 +447,6 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 			if(p.y>=0.22259 && p.y<=0.252219) {
 				if(p.y<0.2374045) {
 					if(switch_state[SWITCH5]>0) switch_state[SWITCH5]--;
-					sprintf_s(oapiDebugString(), 255, "SWITCH5");
 				}
 				else {
 					if(switch_state[SWITCH5]<2) switch_state[SWITCH5]++;
@@ -468,7 +459,6 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 			if(p.y>=0.2227635 && p.y<=0.250502) {
 				if(p.y<0.23663275) {
 					if(switch_state[SWITCH4]>0) switch_state[SWITCH4]--;
-					//sprintf_s(oapiDebugString(), 255, "SWITCH16");
 				}
 				else {
 					if(switch_state[SWITCH4]<2) switch_state[SWITCH4]++;
@@ -503,10 +493,6 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	}
 
 	if(action) {
-		//sprintf_s(oapiDebugString(), 255, "Updating PanelA8");
-		//oapiWriteLog(oapiDebugString());
-		sprintf_s(oapiDebugString(), 255, "SWITCH16: %d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
-		oapiWriteLog(oapiDebugString());
 		UpdateVC();
 		return true;
 	}
@@ -588,22 +574,26 @@ bool PanelA8::ParseScenarioLine(char *line)
 	}
 	if(!_strnicmp(line, "SWITCH_RMS_POWER", 16)) {
 		sscanf_s(line+16, "%d %d", &switch_state[SWITCH16], &cover_state[SWITCH4]);
-		//sprintf_s(oapiDebugString(), 255, "RMS POWER switch updated %d", switch_state[SWITCH16]);
-		//oapiWriteLog(oapiDebugString());
 		return true;
 	}
-	/*else if(!strnicmp(line, "SHOULDER_BRACE_RELEASE", 22)) {
-		sscanf(line+22, "%d", &switch_state[SWITCH10]);
-	}*/
+	if(!_strnicmp(line, "SWITCH_STBD_MPM_DPLY", 20)) {
+		sscanf_s(line+20, "%d %d", &switch_state[SWITCH12], &cover_state[SWITCH1]);
+	}
+	if(!_strnicmp(line, "SWITCH_PORT_MPM_DPLY", 20)) {
+		sscanf_s(line+20, "%d %d", &switch_state[SWITCH17], &cover_state[SWITCH5]);
+	}
 	return false;
 }
 
 void PanelA8::SaveState(FILEHANDLE scn)
 {
 	char cbuf[255];
-	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
+	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH17], cover_state[SWITCH5]);
+	oapiWriteScenario_string(scn, "SWITCH_PORT_MPM_DPLY", cbuf);
 	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
 	oapiWriteScenario_string(scn, "SWITCH_RMS_POWER", cbuf);
-	//oapiWriteScenario_int(scn, "SHOULDER_BRACE_RELEASE", switch_state[SWITCH10]);
+	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH12], cover_state[SWITCH1]);
+	oapiWriteScenario_string(scn, "SWITCH_STBD_MPM_DPLY", cbuf);
+	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
 	return;
 }
