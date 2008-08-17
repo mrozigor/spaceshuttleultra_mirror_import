@@ -2871,7 +2871,7 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   SetAnimation (anim, state);
   arm_moved = true;
   UpdateMRLMicroswitches();
-  //panela8->UpdateVC();
+  if(panela8) panela8->UpdateVC();
 
   //HWND hDlg;
   /*
