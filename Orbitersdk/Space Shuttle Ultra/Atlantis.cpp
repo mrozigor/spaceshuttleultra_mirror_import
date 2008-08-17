@@ -2871,7 +2871,13 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   SetAnimation (anim, state);
   arm_moved = true;
   UpdateMRLMicroswitches();
-  if(panela8) panela8->UpdateVC();
+  if(panela8) {
+	  panela8->UpdateVC();
+  }
+  else {
+	  sprintf_s(oapiDebugString(), 255, "ERROR: PanelA8 not initialized");
+	  oapiWriteLog(oapiDebugString());
+  }
 
   //HWND hDlg;
   /*
@@ -3401,7 +3407,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 								}
 								else if(BODY_VECT==4) {
 									P=90.0;
-									Y=280.57;
+									Y=79.333;
 								}
 								return true;
 							}
