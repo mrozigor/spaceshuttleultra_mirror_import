@@ -15,13 +15,13 @@
 #define GRP_A8b15_VC 154
 #define GRP_A8b16_VC 155
 #define GRP_A8b17_VC 156
-#define GRP_C2b8_VC 205
-#define GRP_C2Evt1SW_VC 207
-#define GRP_C2Evt10SW_VC 208
-#define GRP_C2Evt1MW_VC 209
-#define GRP_C2Evt10MW_VC 210
+//#define GRP_C2b8_VC 205
+//#define GRP_C2Evt1SW_VC 207
+//#define GRP_C2Evt10SW_VC 208
+//#define GRP_C2Evt1MW_VC 209
+//#define GRP_C2Evt10MW_VC 210
 //#define GRP_C2b1_VC 215
-#define GRP_C2b7_VC 216
+//#define GRP_C2b7_VC 216
 //#define GRP_C2b2_VC 217
 //#define GRP_C2b3_VC 218
 //#define GRP_C2b4_VC 219
@@ -29,7 +29,7 @@
 //#define GRP_C2b6_VC 221
 //#define GRP_C2b9_VC 222
 //#define GRP_C2b10_VC 223
-#define GRP_C2b12_VC 224
+//#define GRP_C2b12_VC 224
 //#define GRP_Eventtimer_VC 427
 //#define GRP_F7_Event_M10_VC 428
 //#define GRP_F7_Event_M_VC 429
@@ -129,6 +129,7 @@ Atlantis\r13l.dds
 #define TEX_STSVC02_VC		2
 #define TEX_STSVC03_VC		3
 #define TEX_LABEL_VC		4
+#define TEX_A8TOP_VC		4
 #define TEX_PANELF9_VC		5
 #define TEX_A8BOTTOM_VC		5
 #define TEX_TIMER_VC		6
@@ -151,7 +152,6 @@ Atlantis\r13l.dds
 #define TEX_PANELC3_VC		23
 #define TEX_PANELC2_VC		24
 #define TEX_GPC_VC			25
-#define TEX_A8TOP_VC		26
 #define TEX_PANELO8_VC		27
 #define TEX_PANELO6_VC		28
 #define TEX_PANELO7_VC		29

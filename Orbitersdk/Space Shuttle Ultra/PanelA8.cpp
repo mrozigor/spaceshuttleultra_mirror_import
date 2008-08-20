@@ -576,24 +576,41 @@ bool PanelA8::ParseScenarioLine(char *line)
 		sscanf_s(line+16, "%d %d", &switch_state[SWITCH16], &cover_state[SWITCH4]);
 		return true;
 	}
-	if(!_strnicmp(line, "SWITCH_STBD_MPM_DPLY", 20)) {
+	if(!_strnicmp(line, "SWITCH_MPM_DPLY", 15)) {
+		sscanf_s(line+15, "%d %d %d %d", &switch_state[SWITCH17], &cover_state[SWITCH5], &switch_state[SWITCH12], &cover_state[SWITCH1]);
+	}
+	/*if(!_strnicmp(line, "SWITCH_STBD_MPM_DPLY", 20)) {
 		sscanf_s(line+20, "%d %d", &switch_state[SWITCH12], &cover_state[SWITCH1]);
+	}*/
+	if(!_strnicmp(line, "SWITCH_RMS_RET_LATCH", 20)) {
+		sscanf_s(line+20, "%d %d", &switch_state[SWITCH13], &switch_state[SWITCH18]);
 	}
-	if(!_strnicmp(line, "SWITCH_PORT_MPM_DPLY", 20)) {
+	/*if(!_strnicmp(line, "SWITCH_PORT_MPM_DPLY", 20)) {
 		sscanf_s(line+20, "%d %d", &switch_state[SWITCH17], &cover_state[SWITCH5]);
-	}
+	}*/
 	return false;
 }
 
 void PanelA8::SaveState(FILEHANDLE scn)
 {
 	char cbuf[255];
-	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH17], cover_state[SWITCH5]);
-	oapiWriteScenario_string(scn, "SWITCH_PORT_MPM_DPLY", cbuf);
+	
+	//sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH17], cover_state[SWITCH5]);
+	//oapiWriteScenario_string(scn, "SWITCH_PORT_MPM_DPLY", cbuf);
+	
+	sprintf_s(cbuf, 255, "%d %d %d %d", switch_state[SWITCH17], cover_state[SWITCH5], switch_state[SWITCH12], cover_state[SWITCH1]);
+	oapiWriteScenario_string(scn, "SWITCH_MPM_DPLY", cbuf);
+	
 	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH16], cover_state[SWITCH4]);
 	oapiWriteScenario_string(scn, "SWITCH_RMS_POWER", cbuf);
-	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH12], cover_state[SWITCH1]);
-	oapiWriteScenario_string(scn, "SWITCH_STBD_MPM_DPLY", cbuf);
+	
+	//sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH12], cover_state[SWITCH1]);
+	//oapiWriteScenario_string(scn, "SWITCH_STBD_MPM_DPLY", cbuf);
+	
+	sprintf_s(cbuf, 255, "%d %d", switch_state[SWITCH13], switch_state[SWITCH18]);
+	oapiWriteScenario_string(scn, "SWITCH_RMS_RET_LATCH", cbuf);
+	
 	oapiWriteScenario_int(scn, "EE MODE", switch_state[SWITCH4]);
+	
 	return;
 }
