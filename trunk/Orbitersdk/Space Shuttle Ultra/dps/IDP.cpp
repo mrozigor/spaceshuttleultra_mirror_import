@@ -47,4 +47,24 @@ namespace dps {
 			else pMDU->SetSecondaryIDP(this);
 		}
 	}
+
+	void IDP::OnSaveState(FILEHANDLE scn) const
+	{
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "IDP%d SPEC", usIDPID);
+		oapiWriteScenario_int(scn, cbuf, usSPEC);
+	}
+
+	bool IDP::OnParseLine(const char* line)
+	{
+		char IDP[10];
+		sprintf_s(IDP, 10, "IDP%d", usIDPID);
+		if(!_strnicmp(IDP, line, 4)) {
+			if(!_strnicmp(line+5, "SPEC", 4)) {
+				sscanf(line+9, "%d", &usSPEC);
+				return true;
+			}
+		}
+		return false;
+	}
 };
