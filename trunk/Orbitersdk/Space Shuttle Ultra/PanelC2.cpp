@@ -337,26 +337,26 @@ bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
 	{
 		if(p.y > 0.736 && p.y < 0.789)
 		{
-			if(switch_state[SWITCH12] > 0)
+			if(switch_state[SWITCH11] > 0)
 			{
-				switch_state[SWITCH12]--;
-				switch_timer[SWITCH12] = SWITCH_HOLD_TIME;
+				switch_state[SWITCH11]--;
+				switch_timer[SWITCH11] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 		}
 		else if(p.y > 0.789 && p.y < 0.841)
 		{
-			if(switch_state[SWITCH12] < 2)
+			if(switch_state[SWITCH11] < 2)
 			{
-				switch_state[SWITCH12]++;
-				switch_timer[SWITCH12] = SWITCH_HOLD_TIME;
+				switch_state[SWITCH11]++;
+				switch_timer[SWITCH11] = SWITCH_HOLD_TIME;
 				action = true;
 			}
 
 		}
 		if(action)
 		{
-			switch(switch_state[SWITCH12]) {
+			switch(switch_state[SWITCH11]) {
 			case 0:
 				sts->pMTU->SetEventTimer(dps::TIMER_FORWARD, wheelnumber[0]*10+wheelnumber[1], wheelnumber[2]*10 + wheelnumber[3]);
 				break;
@@ -480,28 +480,28 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 	static VECTOR3 switch_rot = {-1,0,0};
 	static VECTOR3 wheel_rot = {1.0, 0, 0};
 
-	static UINT VC_C2Evt10MW_Grp = GRP_C2Evt10MW_VC;
+	static UINT VC_C2Evt10MW_Grp = GRP_C2tog1_VC;
 
 	static MGROUP_ROTATE VC_C2Evt10MW (vcidx, &VC_C2Evt10MW_Grp, 1,
 		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[0]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[0], 0, 1, &VC_C2Evt10MW);
 
-	static UINT VC_C2Evt1MW_Grp = GRP_C2Evt1MW_VC;
+	static UINT VC_C2Evt1MW_Grp = GRP_C2tog2_VC;
 
 	static MGROUP_ROTATE VC_C2Evt1MW (vcidx, &VC_C2Evt1MW_Grp, 1,
 		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[1]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[1], 0, 1, &VC_C2Evt1MW);
 
-	static UINT VC_C2Evt10SW_Grp = GRP_C2Evt10SW_VC;
+	static UINT VC_C2Evt10SW_Grp = GRP_C2tog3_VC;
 
 	static MGROUP_ROTATE VC_C2Evt10SW (vcidx, &VC_C2Evt10SW_Grp, 1,
 		REF_C2S11, wheel_rot, (float)(360.0*RAD));
 	anim_VC_C2Wheel[2]=sts->CreateAnimation (0.0);
 	sts->AddAnimationComponent (anim_VC_C2Wheel[2], 0, 1, &VC_C2Evt10SW);
 
-	static UINT VC_C2Evt1SW_Grp = GRP_C2Evt1SW_VC;
+	static UINT VC_C2Evt1SW_Grp = GRP_C2tog4_VC;
 
 	static MGROUP_ROTATE VC_C2Evt1SW (vcidx, &VC_C2Evt1SW_Grp, 1,
 		REF_C2S11, wheel_rot, (float)(360.0*RAD));
@@ -550,13 +550,13 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 	anim_VC_C2[SWITCH6]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH6], 0, 1, &VC_C2b6);
 
-	static UINT VC_C2b7_Grp = GRP_C2b7_VC;
+	static UINT VC_C2b7_Grp = GRP_C2b7v_VC;
 	static MGROUP_ROTATE VC_C2b7 (vcidx, &VC_C2b7_Grp, 1,
 		REF_C2S7, _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
 	anim_VC_C2[SWITCH7]=sts->CreateAnimation(0.5);
 	sts->AddAnimationComponent(anim_VC_C2[SWITCH7], 0, 1, &VC_C2b7);
 
-	static UINT VC_C2b8_Grp = GRP_C2b8_VC;
+	static UINT VC_C2b8_Grp = GRP_C2b8v_VC;
 	static MGROUP_ROTATE VC_C2b8 (vcidx, &VC_C2b8_Grp, 1,
 		REF_C2S8, _V(0, -sin(45.0*RAD), -cos(45.0*RAD)), (float)(90.0*RAD));
 	anim_VC_C2[SWITCH8]=sts->CreateAnimation(0.5);
@@ -578,13 +578,13 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 	anim_VC_C2[SWITCH10]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_C2[SWITCH10], 0, 1, &VC_C2b10);
 
-	static UINT VC_C2b12_Grp = GRP_C2b12_VC;
+	static UINT VC_C2b11_Grp = GRP_C2b11_VC;
 
 	//-0.0736091  
-	static MGROUP_ROTATE VC_C2b12 (vcidx, &VC_C2b12_Grp, 1,
+	static MGROUP_ROTATE VC_C2b11 (vcidx, &VC_C2b11_Grp, 1,
 		REF_C2S12, switch_rot, (float)(90.0*RAD));
-	anim_VC_C2[SWITCH12]=sts->CreateAnimation (0.5);
-	sts->AddAnimationComponent (anim_VC_C2[SWITCH12], 0, 1, &VC_C2b12);
+	anim_VC_C2[SWITCH11]=sts->CreateAnimation (0.5);
+	sts->AddAnimationComponent (anim_VC_C2[SWITCH11], 0, 1, &VC_C2b11);
 	
 	
 
@@ -747,12 +747,12 @@ void PanelC2::Step(double t, double dt)
 		
 	}
 
-	if(switch_state[SWITCH12] != 1)
+	if(switch_state[SWITCH11] != 1)
 	{
-		switch_timer[SWITCH12] -= dt;
-		if(switch_timer[SWITCH12] <=0.0)
+		switch_timer[SWITCH11] -= dt;
+		if(switch_timer[SWITCH11] <=0.0)
 		{
-			switch_state[SWITCH12] = 1;
+			switch_state[SWITCH11] = 1;
 			update = true;
 		}
 		
