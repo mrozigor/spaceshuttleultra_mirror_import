@@ -83,5 +83,7 @@ namespace dps {
 		unsigned short GetDisp() const;
 		void SetSpec(unsigned short spec);
 		void SetDisp(unsigned short disp);
+		virtual void OnSaveState(FILEHANDLE scn) const;
+		virtual bool OnParseLine(const char* line);
 	};
 };
