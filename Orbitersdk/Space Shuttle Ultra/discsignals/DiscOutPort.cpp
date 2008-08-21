@@ -26,6 +26,11 @@ void DiscOutPort::SetLine()
 	pBundle->SetDiscrete(usLine, 5.0f);
 }
 
+void DiscOutPort::SetLine( float fVoltage )
+{
+	pBundle->SetDiscrete( usLine, fVoltage );
+}
+
 void DiscOutPort::ResetLine()
 {
 	pBundle->SetDiscrete(usLine, 0.0f);

@@ -12,8 +12,10 @@
 #include <string>
 #include "OrbiterAPI.h"
 #include "ISubsystem.h"
+#include "discsignals\DiscreteBundleManager.h"
 
 using namespace std;
+using namespace discsignals;
 
 class Atlantis;
 class SubsystemDirector;
@@ -136,6 +138,8 @@ public:
 	 * @return The subsystem dry mass in kg.
 	 */
 	virtual double GetSubsystemEmptyMass() const {return 0.0;};
+
+	DiscreteBundleManager* BundleManager() const;
 };
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
