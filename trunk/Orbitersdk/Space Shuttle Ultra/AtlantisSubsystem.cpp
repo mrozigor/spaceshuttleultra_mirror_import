@@ -96,3 +96,9 @@ Atlantis* AtlantisSubsystem::STS()
 {
 	return director->STS();
 }
+
+
+DiscreteBundleManager* AtlantisSubsystem::BundleManager() const
+{
+	return director->BundleManager();
+}
