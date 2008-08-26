@@ -26,6 +26,7 @@ namespace vc {
 	class BasicPanel;
 	class PanelGroup;
 	class PanelF7;
+	class DAPControl;
 
 	typedef struct {
 		float x, y;
