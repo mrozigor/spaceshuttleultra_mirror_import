@@ -10,6 +10,13 @@ extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
 extern char *ActionString[5];
 
+//bounding box for DAP Block1
+const VECTOR3 DAP1ULCorner=_V(0.0721105, 0.4188465, 0); // Upper Left
+const VECTOR3 DAP1LRCorner=_V(0.376816, 0.461075, 0); // Lower Right
+//bounding box for DAP Block2
+const VECTOR3 DAP2ULCorner=_V(0.073854, 0.5236025, 0); // Upper Left
+const VECTOR3 DAP2LRCorner=_V(0.376923, 0.6617365, 0); // Lower Right
+
 // ==============================================================
 
 PanelC3::PanelC3(Atlantis *_sts): sts(_sts)
@@ -44,12 +51,13 @@ void PanelC3::RegisterVC()
 	//sprintf(oapiDebugString(), "PanelC3 Registered");
 }
 
-bool PanelC3::VCMouseEvent(int id, int event, VECTOR3 &p)
+bool PanelC3::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 {
 	if (id != AID_C3) return false;
 	bool action = false;
 	int eng=-1;
-	//sprintf(oapiDebugString(), "id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+	sprintf_s(oapiDebugString(), 255, "id %d event %d p %f %f %f",id,nEvent,p.x,p.y,p.z);
+	
 	if(p.y> 0.753680 && p.y< 0.864232 && p.x>=0.080556 && p.x<=0.208679)
 	{
 		if(p.y>0.80366)
@@ -165,11 +173,28 @@ bool PanelC3::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 	}
+	else if(p.x>=DAP1ULCorner.x && p.x<=DAP1LRCorner.x && p.y>=DAP1ULCorner.y && p.y<=DAP1LRCorner.y) {
+		//top row of DAP PBIs clicked
+		VECTOR3 pos;
+		pos.x=(p.x-DAP1ULCorner.x)/(DAP1LRCorner.x-DAP1ULCorner.x);
+		pos.y=(p.y-DAP1ULCorner.y)/(DAP1LRCorner.y-DAP1ULCorner.y);
+		pos.z=0.0;
+		if(sts->dapcontrol->VCMouseEvent(1, nEvent, pos)) action=true;
+	}
+	else if(p.x>=DAP2ULCorner.x && p.x<=DAP2LRCorner.x && p.y>=DAP2ULCorner.y && p.y<=DAP2LRCorner.y) {
+		//second block of DAP PBIs clicked
+		VECTOR3 pos;
+		pos.x=(p.x-DAP2ULCorner.x)/(DAP2LRCorner.x-DAP2ULCorner.x);
+		pos.y=(p.y-DAP2ULCorner.y)/(DAP2LRCorner.y-DAP2ULCorner.y);
+		pos.z=0.0;
+		if(sts->dapcontrol->VCMouseEvent(2, nEvent, pos)) action=true;
+	}
+
 	if(action)
 	{
 		UpdateVC();
 		if(eng>=0) EngControl(eng);
-		else AirDataProbeControl();
+		//else AirDataProbeControl();
 	}
 	return false;
 }

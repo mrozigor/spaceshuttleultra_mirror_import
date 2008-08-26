@@ -351,6 +351,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   c3po            = new PanelC3(this);
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
+  dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
 
   pgForward.AddPanel(new vc::PanelF6(this));
@@ -4477,7 +4478,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf (line+14, "%lf", &shoulder_brace);
 	} else if (!_strnicmp (line, "MRL", 3)) {
 		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
-		UpdateMRLMicroswitches();
 	} else if (!_strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
 	} else if(!_strnicmp(line, "OPS", 3)) {
@@ -4565,6 +4565,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  HideODS();
 
   UpdateMesh ();
+  if(RMS) UpdateMRLMicroswitches();
   SetILoads();
 }
 
@@ -5300,6 +5301,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
       if (hDlg) EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), TRUE);
     }
 	UpdateRMSPositions();
+	UpdateRMSAngles();
   }
 
   /*if (arm_moved) {
@@ -5319,7 +5321,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
     arm_moved = false;
   }*/
   if(DisplayJointAngles) {
-	  sprintf(oapiDebugString(), "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, ep_angle,
+	  sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, -ep_angle,
 		wp_angle, wy_angle, wr_angle);
   }
 
@@ -6551,97 +6553,6 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 	//sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
 }
 
-/*void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos) {
-  if(!RMS) return;
-  if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
-  
-  //VECTOR3 rot=arm_tip[2]-arm_tip[0];
-  VECTOR3 rot=arm_ee_rot;
-
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
-	  //arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
-
-  //Candidate position. Calculate the joints on it...
-  VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
-  //VECTOR3 arm_cpos=arm_ee_pos+arm_dpos;
-  VECTOR3 arm_wrist_yaw_cpos=arm_cpos-arm_ee_dir*wy_ee;
-  //VECTOR3 dpos=-dir*wy_ee;
-  //sprintf(oapiDebugString(), "%f %f %f", dpos.x, dpos.y, dpos.z);
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", pos.x, pos.y, pos.z, posOrig.x, posOrig.y, posOrig.z);
-
-  //get wrist_pitch boom direction
-  VECTOR3 wrist_rot=RotateVectorX(rot, wr_angle);
-  double phi=DEG*asin(wrist_rot.x/length(wrist_rot));
-  double beta=DEG*asin(wrist_rot.y/length(wrist_rot));
-  //wrist_rot=RotateVectorY(wrist_rot, phi);
-  //wrist_rot=RotateVectorX(wrist_rot, -beta);
-  //sprintf(oapiDebugString(), "%f %f %f", wrist_rot.x, wrist_rot.y, wrist_rot.z);
-  //VECTOR3 boom_plane = RotateVectorY(Normalize(arm_wrist_yaw_cpos), phi);
-  VECTOR3 boom_plane = Normalize(arm_wrist_yaw_cpos);
-  //boom_plane=RotateVectorZ(boom_plane, -beta);
-  //boom_plane=RotateVectorX(boom_plane, -beta);
-  VECTOR3 wrist_pitch_dir = RotateVectorY(arm_ee_dir, phi);
-  wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, -beta);
-  //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
-  double beta_w=DEG*(asin(boom_plane.y)-asin(arm_ee_dir.y));
-  //sprintf(oapiDebugString(), "%f %f %f", phi, beta, beta_w);
-  wrist_pitch_dir=RotateVectorZ(wrist_pitch_dir, beta_w);
-  //wrist_pitch_dir=_V(boom_plane.x, boom_plane.y, wrist_pitch_dir.z);
-  //sprintf(oapiDebugString(), "%f %f", length(boom_plane), length(wrist_pitch_dir));
-  wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta);
-  wrist_pitch_dir=RotateVectorY(wrist_pitch_dir, -phi)*wp_wy;
-  //wrist_pitch_dir=RotateVectorX(wrist_pitch_dir, beta)*wp_wy;
-  sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f", wrist_pitch_dir.x, wrist_pitch_dir.y, wrist_pitch_dir.z,
-	  phi, beta, wrist_rot.x, wrist_rot.y, wrist_rot.z);
-
-  VECTOR3 arm_wrist_cpos=arm_wrist_yaw_cpos-wrist_pitch_dir;
-  //sprintf(oapiDebugString(), "%f %f %f", arm_cpos.x, arm_cpos.y, arm_cpos.z);
-  //VECTOR3 temp=CalcAnimationFKArm();
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_wrist_cpos.x, arm_wrist_cpos.y, arm_wrist_cpos.z, temp.x, temp.y, temp.z);
-  //VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
-  double r=length(arm_wrist_cpos);
-  double beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
-  double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
-  double cos_phibar_e=(r*r-lu*lu-ll*ll)/(-2*lu*ll);
-  if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
-  double phi_e=180-DEG*acos(cos_phibar_e)+ep_null+sp_null;
-  double cos_phi_s2=(ll*ll-lu*lu-r*r)/(-2*lu*r);
-  if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
-  double phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2))+sp_null;
-  double anim_phi_s=linterp(shoulder_min,0,shoulder_max,1,phi_s);
-  double anim_phi_e=linterp(elbow_min,0,elbow_max,1,phi_e);
-  double anim_beta_s=linterp(-180,0,180,1,beta_s);
-  if(anim_beta_s<0 || anim_beta_s>1) return;
-  if(anim_phi_s<0 || anim_phi_s>1) return;
-  if(anim_phi_e<0 || anim_phi_e>1) return;
-  //but only keep it and set the joints if no constraints are violated.
-  double phi_w=DEG*asin(wrist_pitch_dir.z/length(wrist_pitch_dir))+phi_e-phi_s;
-  double anim_phi_w=linterp(wrist_min,0,wrist_max,1,phi_w);
-  double anim_beta_w=linterp(wrist_yaw_min,0,wrist_yaw_max,1,beta_w);
-  //sprintf(oapiDebugString(), "%f %f %f %f", anim_phi_w, arm_wp, anim_beta_w, arm_wy);
-  //VECTOR3 temp=Normalize(pos-CalcAnimationFKArm());
-  //VECTOR3 temp=pos-arm_wrist_cpos;
-  //VECTOR3 temp2=dir;
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f", temp.x, temp.y, temp.z, temp2.x, temp2.y, temp2.z, length(temp), wp_wy+wy_ee);
-  //sprintf(oapiDebugString(), "%f", DEG*asin(wrist_pitch_dir.z/length(wrist_pitch_dir)));
-
-  arm_sy=anim_beta_s;
-  SetAnimationArm(anim_arm_sy,arm_sy);
-  arm_sp=anim_phi_s;
-  SetAnimationArm(anim_arm_sp,arm_sp);
-  arm_ep=anim_phi_e;
-  SetAnimationArm(anim_arm_ep,arm_ep);
-  arm_wp=anim_phi_w;
-  SetAnimationArm(anim_arm_wp,arm_wp);
-  arm_wy=anim_beta_w;
-  SetAnimationArm(anim_arm_wy,arm_wy);
-  arm_ee_pos=arm_cpos;
-
-  //sprintf(oapiDebugString(), "%f %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z, beta_w);
-  //CalcAnimationFKArm(pos, dir);
-  //sprintf(oapiDebugString(), "%f %f %f %f %f %f", pos.x, pos.y, pos.z, arm_cpos.x, arm_cpos.y, arm_cpos.z);
-}*/
-
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
 // --------------------------------------------------------------
@@ -6999,20 +6910,20 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
 				  if(sts->Grapple.Closed() && !sts->GetAttachmentStatus(sts->ahRMS)) {
 					  sts->ToggleGrapple();
-					  sts->panela8->UpdateVC();
 				  }
+				  sts->panela8->UpdateVC();
 			  }
 		  }
 	  } else if (SendDlgItemMessage (hWnd, IDC_RELEASE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
 		  //sprintf_s(oapiDebugString(), 255, "RELEASE pressed");
 		  if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Open()) {
-				  sts->Grapple.action=AnimState::OPENING;
-				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
 				  if(sts->Grapple.Closed() && sts->GetAttachmentStatus(sts->ahRMS)) {
 					  sts->ToggleGrapple();
-					  sts->panela8->UpdateVC();
 				  }
+				  sts->Grapple.action=AnimState::OPENING;
+				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
+				  sts->panela8->UpdateVC();
 			  }
 		  }
 	  }

@@ -33,14 +33,24 @@ public:
 private:
 	Atlantis *sts; // vessel instance pointer
 
+	//draws entire talkback with single bitmap
 	bool VCDrawTalkback (SURFHANDLE surf, int idx, int label);
+	//draws upper portion of talkback
+	bool VCDrawUpperTalkback (SURFHANDLE surf, int idx, int label);
+	//draws lower portion of talkback
+	bool VCDrawLowerTalkback (SURFHANDLE surf, int idx, int label);
 
 	// VC switch animations
 	UINT anim_VC_A8[20];
 	UINT anim_VC_A8_cover[7]; //switch cover animations
 	int switch_state[20];
 	int cover_state[7];
-	int tkbk_state[20];
+	/**
+	 * current bitmap displayed by talkback
+	 * [0][idx] used for upper half, or whole talkback where applicable
+	 * [1][idx] used for lower half
+	 */
+	int tkbk_state[2][20];
 };
 
 #endif  // !__PANELA8_H
