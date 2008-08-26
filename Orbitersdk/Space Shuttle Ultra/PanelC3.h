@@ -29,7 +29,7 @@ public:
 	void RegisterVC ();
 	void UpdateVC ();
 	void UpdateMesh();
-	bool VCMouseEvent (int id, int event, VECTOR3 &p);
+	bool VCMouseEvent (int id, int nEvent, VECTOR3 &p);
 	bool VCRedrawEvent (int id, int event, SURFHANDLE surf);
 	bool CheckProbesDeployed();
 	bool CheckOMSArm(int nEng);

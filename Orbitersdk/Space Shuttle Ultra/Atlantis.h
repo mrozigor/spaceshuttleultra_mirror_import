@@ -23,6 +23,7 @@
 #include "vc/PanelGroup.h"
 #include "vc/BasicPanel.h"
 #include "vc/PanelF7.h"
+#include "vc/DAPControl.h"
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 
@@ -852,6 +853,7 @@ class Atlantis: public VESSEL2 {
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
+	friend class vc::DAPControl;
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
@@ -1078,6 +1080,7 @@ public:
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	PanelR2 *r2d2; // PanelR2 operations
+	vc::DAPControl *dapcontrol;
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;
 	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
