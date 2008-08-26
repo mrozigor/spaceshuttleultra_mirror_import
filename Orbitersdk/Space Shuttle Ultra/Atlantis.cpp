@@ -773,6 +773,7 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
+	delete dapcontrol;
 
 	if(pA7A8Panel)
 		delete pA7A8Panel;
