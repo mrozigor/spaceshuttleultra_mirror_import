@@ -480,6 +480,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   ph_frcs		  = NULL;
   ph_lrcs		  = NULL;
   ph_rrcs		  = NULL;
+  ph_controller	  = NULL;
   ph_tank         = NULL;
   ph_srb          = NULL;
   thg_main        = NULL;
@@ -514,6 +515,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   }
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
+
+  thg_pitchup=thg_pitchdown = NULL;
+  thg_yawleft=thg_yawright = NULL;
+  thg_rollleft=thg_rollright = NULL;
 
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
@@ -719,6 +724,11 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  DAP[i].VERN_ROT_PLS=0.1;
 	  DAP[i].VERN_COMP=0.0;
 	  DAP[i].VERN_CNTL_ACC=0;
+	  //DAP settings
+	  RotMode[i]=0;
+	  TransMode[i]=0;
+	  RHCInput.data[i]=0.0;
+	  THCInput.data[i]=0.0;
   }
   RotationAngle=0.0;
   TGT_ID=2;
@@ -1215,6 +1225,20 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  return;
   }
 
+  //create dummy thrusters
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_PITCHUP);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_PITCHDOWN);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_YAWLEFT);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_YAWRIGHT);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_BANKLEFT);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_BANKRIGHT);
+
   // set of attitude thrusters (idealised). The arrangement is such that no angular
   // momentum is created in linear mode, and no linear momentum is created in rotational mode.
   th_att_rcs[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1369,12 +1393,18 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddExhaust (th_att_lin[9], eh, ew1, center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F, fixed
   AddExhaust (th_att_lin[9], eh, ew1, center+_V( 0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F, fixed
   RCSEnabled=true;
-  CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
+  /*CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
   CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
   CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
   CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
+  CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);*/
+  thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);
+  thg_pitchdown = CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_USER);
+  thg_yawleft = CreateThrusterGroup (th_att_rcs+4, 2, THGROUP_USER);
+  thg_yawright = CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_USER);
+  thg_rollleft = CreateThrusterGroup (th_att_rcs+8, 2, THGROUP_USER);
+  thg_rollright = CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_USER);
   
 }
 
@@ -4520,6 +4550,12 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf(line+5, "%lf", &MNVR_OPTION.data[PITCH]);
 	} else if(!_strnicmp(line, "YAW", 3)) {
 		sscanf(line+3, "%lf", &MNVR_OPTION.data[YAW]);
+	} else if(!_strnicmp(line, "DAP MODE", 8)) {
+		sscanf(line+8, "%d %d", &DAPMode[0], &DAPMode[1]);
+	} else if(!_strnicmp(line, "ROT MODE", 8)) {
+		sscanf(line+8, "%d %d %d", &RotMode[0], &RotMode[1], &RotMode[2]);
+	} else if(!_strnicmp(line, "TRANS MODE", 10)) {
+		sscanf(line+10, "%d %d %d", &TransMode[0], &TransMode[1], &TransMode[2]);
 	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
 		action = 0;
 		sscanf(line+10, "%d", &action);
@@ -4658,6 +4694,12 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_float (scn, "P_ANGLE", P);
   oapiWriteScenario_float (scn, "Y_ANGLE", Y);
   oapiWriteScenario_float (scn, "OM_ANGLE", OM);
+  sprintf_s(cbuf, 256, "%d %d", DAPMode[0], DAPMode[1]);
+  oapiWriteScenario_string (scn, "DAP MODE", cbuf);
+  sprintf_s(cbuf, 256, "%d %d %d", RotMode[0], RotMode[1], RotMode[2]);
+  oapiWriteScenario_string (scn, "ROT MODE", cbuf);
+  sprintf_s(cbuf, 256, "%d %d %d", TransMode[0], TransMode[1], TransMode[2]);
+  oapiWriteScenario_string (scn, "TRANS MODE", cbuf);
 
   SavePayloadState(scn);
 
@@ -5017,6 +5059,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	  EnableControlSurfaces();
   }
   met+=simdt;
+  //get THC and RHC input
+  RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
+  RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+  RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
+  sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
   GPC(simdt); //perform GPC functions
 /*
     if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
@@ -7525,6 +7572,8 @@ void Atlantis::CreateOrbiterTanks()
 		ph_lrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
 	if(!ph_rrcs) 
 		ph_rrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
+	if(!ph_controller)
+		ph_controller = CreatePropellantResource(0.01); //dummy tank for controller input
 }
 
 void Atlantis::CreateFRCS(const VECTOR3 &ref_pos)
