@@ -749,20 +749,66 @@ void Atlantis::UpdateDAP()
 
 void Atlantis::AttControl(double SimdT)
 {
+	GetAngularVel(AngularVelocity);
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
 
-	if(MNVR || TRK || ROT) {
-		VECTOR3 LastReqdAtt;
+	ReqdRates=AngularVelocity*DEG;
+	if(!Eq(RHCInput.x, 0.0, 0.01) || !Eq(RHCInput.y, 0.0, 0.01) || !Eq(RHCInput.z, 0.0, 0.01)) {
+		TRK=ROT=false;
+		MNVR=true;
+		TargetAttOrbiter=InertialOrientationRad;
+		//MNVR=TRK=ROT=false; //turn off autopilots (temporary code)
+
+		if(RHCInput.data[PITCH]>0.01) {
+			if(RHCInput.data[PITCH]>0.75) ReqdRates.data[PITCH]=1000;
+			else ReqdRates.data[PITCH]=RotRate;
+		}
+		else if(RHCInput.data[PITCH]<-0.01) {
+			if(RHCInput.data[PITCH]<-0.75) ReqdRates.data[PITCH]=-1000;
+			else ReqdRates.data[PITCH]=-RotRate;
+		}
+		else ReqdRates.data[PITCH]=AngularVelocity.data[PITCH]*DEG;
+		if(RHCInput.data[YAW]>0.01) {
+			if(RHCInput.data[YAW]>0.75) ReqdRates.data[YAW]=-1000;
+			else ReqdRates.data[YAW]=-RotRate;
+		}
+		else if(RHCInput.data[YAW]<-0.01) {
+			if(RHCInput.data[YAW]<-0.75) ReqdRates.data[YAW]=1000;
+			else ReqdRates.data[YAW]=RotRate;
+		}
+		else ReqdRates.data[YAW]=AngularVelocity.data[YAW]*DEG;
+		if(RHCInput.data[ROLL]>0.01) {
+			if(RHCInput.data[ROLL]>0.75) ReqdRates.data[ROLL]=1000;
+			else ReqdRates.data[ROLL]=RotRate;
+		}
+		else if(RHCInput.data[ROLL]<-0.01) {
+			if(RHCInput.data[ROLL]<-0.75) ReqdRates.data[ROLL]=-1000;
+			else ReqdRates.data[ROLL]=-RotRate;
+		}
+		else ReqdRates.data[ROLL]=AngularVelocity.data[ROLL]*DEG;
+		sprintf_s(oapiDebugString(), 255, "Rates: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
+		/*if(RHCInput.data[PITCH]>0.01) SetThrusterGroupLevel(thg_pitchup, 1.0);
+		else if(RHCInput.data[PITCH]<-0.01) SetThrusterGroupLevel(thg_pitchdown, 1.0);
+		if(RHCInput.data[YAW]>0.01) SetThrusterGroupLevel(thg_yawright, 1.0);
+		else if(RHCInput.data[YAW]<-0.01) SetThrusterGroupLevel(thg_yawleft, 1.0);
+		if(RHCInput.data[ROLL]>0.01) SetThrusterGroupLevel(thg_rollright, 1.0);
+		else if(RHCInput.data[ROLL]<-0.01) SetThrusterGroupLevel(thg_rollleft, 1.0);*/
+	}
+	else if(MNVR || TRK || ROT) {
+		MATRIX3 LastReqdAttMatrix;
 		VECTOR3 NullRates, NullRatesLocal;
 		if(TRK) {
-			LastReqdAtt=REQD_ATT;
-			REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*RAD)*DEG;
+			//LastReqdAtt=REQD_ATT;
+			LastReqdAttMatrix=ReqdAttMatrix;
+			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
+			REQD_ATT=GetAnglesFromMatrix(ReqdAttMatrix)*DEG;
+			/*REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*RAD)*DEG;
 
 			MATRIX3 Test=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
 			VECTOR3 Test2=GetAnglesFromMatrix(Test)*DEG;
-			sprintf_s(oapiDebugString(), 255, "TEST: %f %f %f", Test2.data[PITCH], Test2.data[YAW], Test2.data[ROLL]);
+			sprintf_s(oapiDebugString(), 255, "TEST: %f %f %f", Test2.data[PITCH], Test2.data[YAW], Test2.data[ROLL]);*/
 			//REQD_ATT=ConvertLocalAnglesToM50(_V(90, 0, 0)*RAD)*DEG;
 			//sprintf(oapiDebugString(), "LVLHOReqd: %f %f %f Check: %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z, oapiRand());
 			//sprintf(oapiDebugString(), "AttControl: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
@@ -785,7 +831,6 @@ void Atlantis::AttControl(double SimdT)
 		}
 
 		if(ManeuverinProg) {
-			GetAngularVel(AngularVelocity);
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
@@ -793,13 +838,13 @@ void Atlantis::AttControl(double SimdT)
 		else return; //no need for further calculations
 
 		if(TRK || ROT) {
-			VECTOR3 TargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
-			VECTOR3 LastTargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(LastReqdAtt*RAD, true);
-			//VECTOR3 LastNullRates=NullRates;
-			//NullRates=(TargAttOrbiter-LastTargAttOrbiter)/SimdT;
-			//NullRatesDiff=(-LastNullRates+NullRates)/SimdT;
-			//for(int i=0;i<3;i++) NullRatesDiff.data[i]=abs(NullRatesDiff.data[i]);
-			//NullRates.data[YAW]=-NullRates.data[YAW];
+			//VECTOR3 TargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
+			MATRIX3 TargAttMatrix=ConvertMatrixBetweenM50AndOrbiter(ReqdAttMatrix, true);
+			VECTOR3 TargAttOrbiter=GetAnglesFromMatrix(TargAttMatrix);
+			//VECTOR3 LastTargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(LastReqdAtt*RAD, true);
+			MATRIX3 LastTargAttMatrix=ConvertMatrixBetweenM50AndOrbiter(LastReqdAttMatrix, true);
+			VECTOR3 LastTargAttOrbiter=GetAnglesFromMatrix(LastTargAttMatrix);
+
 			NullRatesLocal=(ConvertOrbiterAnglesToLocal(TargAttOrbiter)-ConvertOrbiterAnglesToLocal(LastTargAttOrbiter))/SimdT;
 			double NullRatesMag=abs(NullRatesLocal.x)+abs(NullRatesLocal.y)+abs(NullRatesLocal.z);
 			//double NullRatesMag=abs(NullRates.x)+abs(NullRates.y)+abs(NullRates.z);
@@ -841,13 +886,8 @@ void Atlantis::AttControl(double SimdT)
 		//sprintf(oapiDebugString(), "NR: %f %f %f", DEG*NullRatesLocal.x, DEG*NullRatesLocal.y, DEG*NullRatesLocal.z);
 		if(ManeuverStatus==MNVR_COMPLETE) CalcRequiredRates(ReqdRates, NullRatesLocal*DEG);
 		else CalcRequiredRates(ReqdRates);
-		//sprintf(oapiDebugString(), "%f %f %f %f %f %f %f", LVLHError.data[PITCH], LVLHError.data[YAW],
-			//LVLHError.data[ROLL], ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], dT);
-		//sprintf(oapiDebugString(), "%f %f %f %f %f %f", ReqdRates.data[ROLL], ReqdRates.data[PITCH], ReqdRates.data[YAW],
-			//LVLHError.data[ROLL], LVLHError.data[PITCH], LVLHError.data[YAW]);
-		//sprintf(oapiDebugString(), "Rates: %f %f %f %f", ReqdRates.data[PITCH], ReqdRates.data[YAW], ReqdRates.data[ROLL], MNVR_TIME);
-		SetRates(ReqdRates);
 	}
+	SetRates(ReqdRates);
 }
 
 void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitude and time to reach attitude
@@ -910,84 +950,84 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 {
 	double dDiff;
 	VECTOR3 CurrentRates;
-	CurrentRates=ToDeg(AngularVelocity);
+	CurrentRates=AngularVelocity*DEG;
 	//sprintf(oapiDebugString(), "%f", CurrentRates.data[PITCH]);
 	if(DAPMode[1]==0) {
 		dDiff=Rates.data[PITCH]-CurrentRates.data[PITCH];
 		if(abs(dDiff)>0.05) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 1.0);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+				SetThrusterGroupLevel(thg_pitchup, 1.0);
+				SetThrusterGroupLevel(thg_pitchdown, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 1.0);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+				SetThrusterGroupLevel(thg_pitchdown, 1.0);
+				SetThrusterGroupLevel(thg_pitchup, 0.0);
 			}
 		}
 		else if(abs(dDiff)>0.0009) {
 			//sprintf(oapiDebugString(), "%f", dDiff);
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+				SetThrusterGroupLevel(thg_pitchup, 0.1);
+				SetThrusterGroupLevel(thg_pitchdown, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+				SetThrusterGroupLevel(thg_pitchup, 0.0);
+				SetThrusterGroupLevel(thg_pitchdown, 0.1);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
 		dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
 		if(abs(dDiff)>0.05) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 1.0);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+				SetThrusterGroupLevel(thg_yawleft, 1.0);
+				SetThrusterGroupLevel(thg_yawright, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 1.0);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+				SetThrusterGroupLevel(thg_yawright, 1.0);
+				SetThrusterGroupLevel(thg_yawleft, 0.0);
 			}
 		}
 		else if(abs(dDiff)>0.0009) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+				SetThrusterGroupLevel(thg_yawleft, 0.1);
+				SetThrusterGroupLevel(thg_yawright, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+				SetThrusterGroupLevel(thg_yawright, 0.1);
+				SetThrusterGroupLevel(thg_yawleft, 0.0);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 		dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
 		if(abs(dDiff)>0.05) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 1.0);
+				SetThrusterGroupLevel(thg_rollright, 1.0);
+				SetThrusterGroupLevel(thg_rollleft, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 1.0);
+				SetThrusterGroupLevel(thg_rollleft, 1.0);
+				SetThrusterGroupLevel(thg_rollright, 0.0);
 			}
 		}
 		else if(abs(dDiff)>0.0009) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.1);
+				SetThrusterGroupLevel(thg_rollright, 0.1);
+				SetThrusterGroupLevel(thg_rollleft, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.1);
+				SetThrusterGroupLevel(thg_rollleft, 0.1);
+				SetThrusterGroupLevel(thg_rollright, 0.0);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
 	}
 	else if(DAPMode[1]==2) {
@@ -995,47 +1035,47 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 		if(abs(dDiff)>0.00009) {
 			//sprintf(oapiDebugString(), "%f", dDiff);
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+				SetThrusterGroupLevel(thg_pitchup, 0.1);
+				SetThrusterGroupLevel(thg_pitchdown, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+				SetThrusterGroupLevel(thg_pitchdown, 0.1);
+				SetThrusterGroupLevel(thg_pitchup, 0.0);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
 		dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
 		if(abs(dDiff)>0.00009) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+				SetThrusterGroupLevel(thg_yawleft, 0.1);
+				SetThrusterGroupLevel(thg_yawright, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.1);
-				SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+				SetThrusterGroupLevel(thg_yawright, 0.1);
+				SetThrusterGroupLevel(thg_yawleft, 0.0);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
+			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
 		dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
 		if(abs(dDiff)>0.00009) {
 			if(dDiff>0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.1);
+				SetThrusterGroupLevel(thg_rollright, 0.1);
+				SetThrusterGroupLevel(thg_rollleft, 0.0);
 			}
 			else if(dDiff<0) {
-				SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-				SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.1);
+				SetThrusterGroupLevel(thg_rollleft, 0.1);
+				SetThrusterGroupLevel(thg_rollright, 0.0);
 			}
 		}
 		else {
-			SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
+			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
 	}
 }

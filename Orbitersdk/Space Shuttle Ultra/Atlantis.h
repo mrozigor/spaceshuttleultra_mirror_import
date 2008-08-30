@@ -1415,7 +1415,7 @@ private:
 	void SetAnimationCameras();
 	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
-	PROPELLANT_HANDLE ph_lrcs, ph_rrcs;
+	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main (SSME) engines
 	THRUSTER_HANDLE th_oms[2];               // handles for orbiter OMS engines
 	THRUSTER_HANDLE th_srb[2];                 // handles for SRB engines
@@ -1481,6 +1481,7 @@ private:
 	 */
 	THRUSTER_HANDLE thManRRCS5[2];
 	//>>>> End of new RCS model
+	THGROUP_HANDLE thg_pitchup, thg_pitchdown, thg_yawleft, thg_yawright, thg_rollleft, thg_rollright;
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
 	bool RCSEnabled;
@@ -1660,6 +1661,7 @@ private:
 	VECTOR3 RotationAxis;
 	double RotationAngle;
 	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT;
+	MATRIX3 ReqdAttMatrix;
 	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates/*, TrackRates*/;
 	MATRIX3 PitchYawRollMatrix;
 	ORBITPARAM oparam;
@@ -1671,6 +1673,8 @@ private:
 	DAPConfig DAP[3]; //0=A, 1=B, 2=Edit
 	int edit; //0=Blank, 1=A, 2=B
 	int DAPMode[2]; //0=A, 1=B && 0=PRI, 1=ALT, 2=VERN
+	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
+	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
 	double RotRate, AttDeadband, RateDeadband;
 	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
 	int JetsEnabled;
