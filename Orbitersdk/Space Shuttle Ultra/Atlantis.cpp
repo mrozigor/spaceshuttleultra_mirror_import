@@ -1430,7 +1430,7 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	//
 	strncpy (cbuf, WingName, 256);
 	int len = strlen(cbuf);
-	TextOut (hDC, 595, 296, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
+	TextOut (hDC, 564, 300, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
@@ -5233,7 +5233,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		double tilt = wr_angle;
 		if(tilt<-180.0) tilt+=360.0;
 		else if(tilt>180.0) tilt-=360.0;
-		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+		SetCameraOffset (_V(orbiter_ofs.x-0.3,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
 		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
 	}
 
@@ -5817,7 +5817,7 @@ bool Atlantis::clbkLoadVC (int id)
 	else if(tilt>180.0) tilt-=360.0;
 
     //SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-    SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+    SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
 	//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
 	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
     oapiVCSetNeighbours (-1, -1, -1, VC_RMSSTATION);
