@@ -1544,6 +1544,9 @@ private:
 	double wrist_roll_range, wrist_roll_min, wrist_roll_max;
 	VECTOR3 shoulder_pos;
 
+	//Hand controller input
+	VECTOR3 THCInput, RHCInput;
+
 	MGROUP_TRANSFORM *sat_anim, *sat_ref;
 
 	bool reset_mmu, reset_sat;
