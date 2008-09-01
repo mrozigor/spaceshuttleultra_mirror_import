@@ -708,7 +708,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  DAP[i].PRI_ROT_RATE=RotRate=1.0;
 	  DAP[i].PRI_ATT_DB=AttDeadband=0.5;
 	  DAP[i].PRI_RATE_DB=RateDeadband=0.1;
-	  DAP[i].PRI_ROT_PLS=0.1;
+	  DAP[i].PRI_ROT_PLS=RotPls=0.1;
 	  DAP[i].PRI_COMP=0.0;
   	  DAP[i].PRI_TRAN_PLS=0.2;
 	  DAP[i].PRI_P_OPTION=0;
@@ -729,6 +729,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  TransMode[i]=0;
 	  RHCInput.data[i]=0.0;
 	  THCInput.data[i]=0.0;
+	  RotPulseInProg[i]=false;
+	  TransPulseInProg[i]=false;
   }
   RotationAngle=0.0;
   TGT_ID=2;
@@ -739,6 +741,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   MNVR=false;
   ROT=false;
   TRK=false;
+  ControlMode=FREE;
   JetsEnabled=3;
   Thrusters=true;
   NoseThrusters=true;

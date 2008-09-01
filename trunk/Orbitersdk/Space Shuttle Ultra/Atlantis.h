@@ -1678,7 +1678,9 @@ private:
 	int DAPMode[2]; //0=A, 1=B && 0=PRI, 1=ALT, 2=VERN
 	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
 	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
-	double RotRate, AttDeadband, RateDeadband;
+	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
+	bool RotPulseInProg[3], TransPulseInProg[3];
+	double RotRate, AttDeadband, RateDeadband, RotPls;
 	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
 	int JetsEnabled;
 
