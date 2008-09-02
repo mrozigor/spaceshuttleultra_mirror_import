@@ -16,6 +16,7 @@
 #define IDB_CLOCKDIGITS                 115
 #define IDB_7SEGDIGITS                  116
 #define IDB_DEUCHARACTERS               117
+#define IDB_PBILIGHTS                   118
 #define IDC_BUTTON1                     1000
 #define IDC_WRIST_ROLLRIGHT             1000
 #define IDC_PLBAYOP                     1000
