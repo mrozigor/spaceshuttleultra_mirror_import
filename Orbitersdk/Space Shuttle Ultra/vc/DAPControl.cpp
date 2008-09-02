@@ -1,5 +1,7 @@
 #include "DAPControl.h"
 
+extern GDIParams g_Param;
+
 // ==============================================================
 
 namespace vc {
@@ -129,5 +131,41 @@ namespace vc {
 		}
 
 		return bRet;
+	}
+
+	bool DAPControl::UpdatePBI(SURFHANDLE surf, int id, bool &bState)
+	{
+		switch(id) {
+			case 0: //A
+				return DrawPBILight(surf, bState, (sts->DAPMode[0]==0));
+				break;
+			case 1: //B
+				return DrawPBILight(surf, bState, (sts->DAPMode[0]==1));
+				break;
+			case 2: //AUTO
+				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::AUTO));
+				break;
+			case 3: //INRTL
+				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::INRTL));
+				break;
+			case 4: //LVLH
+				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::LVLH));
+				break;
+			case 5: //FREE
+				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::FREE));
+				break;
+		}
+		return false;
+	}
+
+	bool DAPControl::DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn)
+	{
+		if(bState==bOn) return false; //nothing to do here
+		else {
+			if(bOn) oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 0, 42, 14);
+			else oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 14, 42, 14);
+			bState=bOn;
+		}
+		return true;
 	}
 };
