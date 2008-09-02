@@ -21,8 +21,15 @@ namespace vc {
 		 * Returns 1 if light is ON; 0 otherwise.
 		 */
 		int LightStatus(int ButtonID);
+		/**
+		 * Draws PBI and updates state
+		 * Return true if blitting operation performed
+		 */
+		bool UpdatePBI(SURFHANDLE surf, int id, bool &bState);
 
 	private:
+		bool DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn);
+
 		Atlantis* sts;
 	};
 };
