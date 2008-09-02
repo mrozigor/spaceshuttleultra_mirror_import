@@ -36,38 +36,10 @@ PanelC3::PanelC3(Atlantis *_sts): sts(_sts)
 bool PanelC3::VCRedrawEvent(int id, int nEvent, SURFHANDLE surf)
 {
 	//sprintf_s(oapiDebugString(), 255, "VCRedrawEvent");
-	switch(id) {
-		case AID_C3_PBI1: //A
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->DAPMode[0]==0));
-			break;
-		case AID_C3_PBI2: //B
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->DAPMode[0]==1));
-			break;
-		case AID_C3_PBI3: //AUTO
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::AUTO));
-			break;
-		case AID_C3_PBI4: //INRTL
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::INRTL));
-			break;
-		case AID_C3_PBI5: //LVLH
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::LVLH));
-			break;
-		case AID_C3_PBI6: //FREE
-			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::FREE));
-			break;
+	if(id>=AID_C3_PBI1 && id<=AID_C3_PBI24) {
+		return sts->dapcontrol->UpdatePBI(surf, id-AID_C3_PBI1, PBI_Lights[id-AID_C3_PBI1]);
 	}
 	return false;
-}
-
-bool PanelC3::VCDrawPBILight(SURFHANDLE surf, int idx, bool bOn)
-{
-	if(PBI_Lights[idx]==bOn) return false; //nothing to do here
-	else {
-		if(bOn) oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 0, 42, 14);
-		else oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 14, 42, 14);
-		PBI_Lights[idx]=bOn;
-	}
-	return true;
 }
 
 void PanelC3::RegisterVC()

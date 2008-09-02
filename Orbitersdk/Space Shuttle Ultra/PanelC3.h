@@ -38,7 +38,6 @@ public:
 	void SaveState (FILEHANDLE scn);
 
 private:
-	bool VCDrawPBILight(SURFHANDLE surf, int idx, bool bOn);
 
 	Atlantis *sts; // vessel instance pointer
 	void EngControl(int eng);
