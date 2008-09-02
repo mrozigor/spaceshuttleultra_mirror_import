@@ -1,7 +1,8 @@
 #include "PanelC3.h"
 #include "resource.h"
-#include "meshres.h"
+//#include "meshres.h"
 #include "meshres_vc.h"
+#include "meshres_vc_additions.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "AirDataProbeSystem.h"
@@ -29,18 +30,50 @@ PanelC3::PanelC3(Atlantis *_sts): sts(_sts)
 		OMS_Eng[i]=2;
 		AirDataProbe[i].Set(AnimState::CLOSED, 0.0);
 	}
+	for(i=0;i<24;i++) PBI_Lights[i]=false;
 }
 
-bool PanelC3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
+bool PanelC3::VCRedrawEvent(int id, int nEvent, SURFHANDLE surf)
 {
-	//sprintf(oapiDebugString(), "VCRedrawEvent");
+	//sprintf_s(oapiDebugString(), 255, "VCRedrawEvent");
+	switch(id) {
+		case AID_C3_PBI1: //A
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->DAPMode[0]==0));
+			break;
+		case AID_C3_PBI2: //B
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->DAPMode[0]==1));
+			break;
+		case AID_C3_PBI3: //AUTO
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::AUTO));
+			break;
+		case AID_C3_PBI4: //INRTL
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::INRTL));
+			break;
+		case AID_C3_PBI5: //LVLH
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::LVLH));
+			break;
+		case AID_C3_PBI6: //FREE
+			return VCDrawPBILight(surf, id-AID_C3_PBI1, (sts->ControlMode==Atlantis::FREE));
+			break;
+	}
 	return false;
+}
+
+bool PanelC3::VCDrawPBILight(SURFHANDLE surf, int idx, bool bOn)
+{
+	if(PBI_Lights[idx]==bOn) return false; //nothing to do here
+	else {
+		if(bOn) oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 0, 42, 14);
+		else oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 14, 42, 14);
+		PBI_Lights[idx]=bOn;
+	}
+	return true;
 }
 
 void PanelC3::RegisterVC()
 {
 	VECTOR3 ofs = sts->orbiter_ofs;
-	//SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, 5);
+	SURFHANDLE panelc3_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_PANELC3_VC);
 	oapiVCRegisterArea (AID_C3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
 
 	//-.2732771, 1.76045, 14.35651
@@ -48,7 +81,32 @@ void PanelC3::RegisterVC()
 	oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.2732771, 1.76045, 14.35651)+ofs, _V(0.2732771, 1.76045, 14.35651)+ofs, 
 		_V(-0.2732771, 1.69551,  13.73551)+ofs, _V(0.2732771, 1.69551,  13.73551)+ofs);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.0804, 1.667, 14.52)+ofs, _V(-0.111, 1.667, 14.52)+ofs, _V(-0.0804, 1.667, 14.52)+ofs, _V(0.276, 1.618, 14.066)+ofs);
-	//sprintf(oapiDebugString(), "PanelC3 Registered");
+	
+	//register DAP PBIs
+	//A
+	oapiVCRegisterArea(AID_C3_PBI1, _R(155, 888, 197, 902), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//B
+	oapiVCRegisterArea(AID_C3_PBI2, _R(250, 887, 292, 901), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//AUTO
+	oapiVCRegisterArea(AID_C3_PBI3, _R(344, 888, 386, 902), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//INRTL
+	oapiVCRegisterArea(AID_C3_PBI4, _R(434, 889, 476, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//LVLH
+	oapiVCRegisterArea(AID_C3_PBI5, _R(527, 889, 569, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//FREE
+	oapiVCRegisterArea(AID_C3_PBI6, _R(622, 889, 664, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//TRANS X
+	//oapiVCRegisterArea(AID_C3_PBI7, _R(157, 1089, 199, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//LOW Z
+	//oapiVCRegisterArea(AID_C3_PBI8, _R(247, 1089, 289, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//HIGH Z
+	//oapiVCRegisterArea(AID_C3_PBI9, _R(339, 1090, 381, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//PRI
+	oapiVCRegisterArea(AID_C3_PBI10, _R(440, 1089, 482, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//ALT
+	oapiVCRegisterArea(AID_C3_PBI11, _R(531, 1090, 573, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+	//VERN
+	oapiVCRegisterArea(AID_C3_PBI12, _R(623, 1090, 665, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
 }
 
 bool PanelC3::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
@@ -208,6 +266,8 @@ void PanelC3::UpdateVC()
 		sts->SetAnimation(anim_VC_C3[11+i],Air_Data_Stow[i]);
 		sts->SetAnimation(anim_VC_C3[i],double(OMS_Eng[i])/2.0);
 	}
+
+	for(i=0;i<24;i++) oapiVCTriggerRedrawArea(-1, AID_C3_PBI1+i);
 	return;
 }
 

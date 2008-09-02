@@ -30,7 +30,7 @@ public:
 	void UpdateVC ();
 	void UpdateMesh();
 	bool VCMouseEvent (int id, int nEvent, VECTOR3 &p);
-	bool VCRedrawEvent (int id, int event, SURFHANDLE surf);
+	bool VCRedrawEvent (int id, int nEvent, SURFHANDLE surf);
 	bool CheckProbesDeployed();
 	bool CheckOMSArm(int nEng);
 	void Step (double t, double dt);
@@ -38,6 +38,8 @@ public:
 	void SaveState (FILEHANDLE scn);
 
 private:
+	bool VCDrawPBILight(SURFHANDLE surf, int idx, bool bOn);
+
 	Atlantis *sts; // vessel instance pointer
 	void EngControl(int eng);
 	void AirDataProbeControl();
@@ -48,6 +50,8 @@ private:
 
 	// VC switch animations
 	UINT anim_VC_C3[37];
+	//PBI lights
+	bool PBI_Lights[24]; //true if light on
 
 	AnimState AirDataProbe[2]; //0=Left, 1=Right
 };

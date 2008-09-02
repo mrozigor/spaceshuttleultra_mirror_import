@@ -677,14 +677,38 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 // Panel C3
 #define AID_C3_MIN     300
 #define AID_C3         300
-#define AID_C3_MAX     319
+#define AID_C3_PBI1	   301
+#define AID_C3_PBI2	   302
+#define AID_C3_PBI3	   303
+#define AID_C3_PBI4	   304
+#define AID_C3_PBI5	   305
+#define AID_C3_PBI6	   306
+#define AID_C3_PBI7	   307
+#define AID_C3_PBI8	   308
+#define AID_C3_PBI9	   309
+#define AID_C3_PBI10   310
+#define AID_C3_PBI11   311
+#define AID_C3_PBI12   312
+#define AID_C3_PBI13   313
+#define AID_C3_PBI14   314
+#define AID_C3_PBI15   315
+#define AID_C3_PBI16   316
+#define AID_C3_PBI17   317
+#define AID_C3_PBI18   318
+#define AID_C3_PBI19   319
+#define AID_C3_PBI20   320
+#define AID_C3_PBI21   321
+#define AID_C3_PBI22   322
+#define AID_C3_PBI23   323
+#define AID_C3_PBI24   324
+#define AID_C3_MAX     329
 // Panel O3
-#define AID_O3_MIN	   320
-#define AID_O3		   320
-#define AID_O3_METTMR1 321
-#define AID_O3_METTMR2 322
-#define AID_O3_RCS     323
-#define AID_O3_MAX	   339
+#define AID_O3_MIN	   330
+#define AID_O3		   330
+#define AID_O3_METTMR1 331
+#define AID_O3_METTMR2 332
+#define AID_O3_RCS     333
+#define AID_O3_MAX	   349
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400
@@ -779,6 +803,7 @@ const double SWITCH_HOLD_TIME = 0.5;
 
 typedef struct {
 	HINSTANCE hDLL;
+	SURFHANDLE pbi_lights;
 	SURFHANDLE tkbk_label;
 	SURFHANDLE clock_digits;
 	SURFHANDLE digits_7seg;
