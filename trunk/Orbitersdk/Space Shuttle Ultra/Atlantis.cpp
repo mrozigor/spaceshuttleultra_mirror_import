@@ -6736,6 +6736,10 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   g_Param.hDLL = hModule;
   oapiRegisterCustomControls (hModule);
   g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
+  g_Param.pbi_lights = oapiCreateSurface (LOADBMP (IDB_PBILIGHTS));
+  if(g_Param.pbi_lights == NULL) {
+	  oapiWriteLog("Loading bitmap \"PBI_LIGHTS\" failed.");
+  }
   g_Param.clock_digits = oapiCreateSurface (LOADBMP (IDB_CLOCKDIGITS));
   if(g_Param.clock_digits == NULL) {
 	  oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
@@ -6768,6 +6772,10 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
   if(g_Param.tkbk_label)
   {
 	oapiDestroySurface (g_Param.tkbk_label);
+  }
+  if(g_Param.pbi_lights)
+  {
+	  oapiDestroySurface (g_Param.pbi_lights);
   }
   if(g_Param.clock_digits)
   {
