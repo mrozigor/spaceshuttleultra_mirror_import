@@ -1204,7 +1204,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 // --------------------------------------------------------------
 void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
  // SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
-  const double eh = 6.0;             // exhaust length scale
+  const double eh = 9.0, eh2 = 12.0; // exhaust length scales, 080902, DaveS edit: Increased length for both side, fore/aft and laterally firing jets
   const double ew1 = 0.4, ew2 = 0.8; // exhaust width scales
 
   THRUSTER_HANDLE thTmp[10];
@@ -1257,55 +1257,55 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   CreateThrusterGroup (th_att_lin+2, 2, THGROUP_ATT_DOWN);
 
   // DaveS edit: Fixed RCS exhaust defs to line up with nozzles on the scaled down orbiter mesh
-  AddExhaust (th_att_rcs[0], eh, ew1, center+_V( 1.60,-0.20, 18.25), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D, fixed
-  AddExhaust (th_att_rcs[0], eh, ew1, center+_V( 1.68,-0.18, 17.9), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D, fixed
-  AddExhaust (th_att_rcs[0], eh, ew1, center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D, fixed
-  AddExhaust (th_att_rcs[0], eh, ew1, center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D, fixed
+  AddExhaust (th_att_rcs[0], eh2, ew1, center+_V( 1.60,-0.20, 18.25), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D, fixed
+  AddExhaust (th_att_rcs[0], eh2, ew1, center+_V( 1.68,-0.18, 17.9), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D, fixed
+  AddExhaust (th_att_rcs[0], eh2, ew1, center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D, fixed
+  AddExhaust (th_att_rcs[0], eh2, ew1, center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D, fixed
 
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V(-3.46, 3.20,-11.9), _V(0, 1,0), tex_rcs);//L4U, fixed
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V(-3.46, 3.20,-12.3), _V(0, 1,0), tex_rcs);//L2U, fixed
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V(-3.46, 3.20,-12.7), _V(0, 1,0), tex_rcs);//L1U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V(-3.46, 3.20,-11.9), _V(0, 1,0), tex_rcs);//L4U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V(-3.46, 3.20,-12.3), _V(0, 1,0), tex_rcs);//L2U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V(-3.46, 3.20,-12.7), _V(0, 1,0), tex_rcs);//L1U, fixed
 
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V( 3.43, 3.20,-11.9), _V(0, 1,0), tex_rcs);//R4U, fixed
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V( 3.43, 3.20,-12.3), _V(0, 1,0), tex_rcs);//R2U, fixed
-  AddExhaust (th_att_rcs[1], eh, ew1, center+_V( 3.43, 3.20,-12.7), _V(0, 1,0), tex_rcs);//R1U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V( 3.43, 3.20,-11.9), _V(0, 1,0), tex_rcs);//R4U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V( 3.43, 3.20,-12.3), _V(0, 1,0), tex_rcs);//R2U, fixed
+  AddExhaust (th_att_rcs[1], eh2, ew1, center+_V( 3.43, 3.20,-12.7), _V(0, 1,0), tex_rcs);//R1U, fixed
 
-  AddExhaust (th_att_rcs[2], eh, ew1, center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F1U, fixed
-  AddExhaust (th_att_rcs[2], eh, ew1, center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0), tex_rcs);//F3U, fixed
-  AddExhaust (th_att_rcs[2], eh, ew1, center+_V( 0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F2U, fixed
+  AddExhaust (th_att_rcs[2], eh2, ew1, center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F1U, fixed
+  AddExhaust (th_att_rcs[2], eh2, ew1, center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0), tex_rcs);//F3U, fixed
+  AddExhaust (th_att_rcs[2], eh2, ew1, center+_V( 0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F2U, fixed
 
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V(-3.1 , 1.55,-12.08), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D, fixed
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V(-3.1 , 1.6 ,-12.43 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D, fixed
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V(-3.1 , 1.65,-12.78), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V(-3.1 , 1.55,-12.08), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V(-3.1 , 1.6 ,-12.43 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V(-3.1 , 1.65,-12.78), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D, fixed
 
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V( 3.15, 1.55,-12.08), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D, fixed
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V( 3.15, 1.6 ,-12.43 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D, fixed
-  AddExhaust (th_att_rcs[3], eh, ew1, center+_V( 3.15, 1.65,-12.78), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V( 3.15, 1.55,-12.08), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V( 3.15, 1.6 ,-12.43 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D, fixed
+  AddExhaust (th_att_rcs[3], eh2, ew1, center+_V( 3.15, 1.65,-12.78), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D, fixed
 
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 1.60,-0.20, 18.25), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D, fixed
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V( 1.68,-0.18, 17.9), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D, fixed
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D, fixed
-  AddExhaust (th_att_lin[0], eh, ew1, center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D, fixed
+  AddExhaust (th_att_lin[0], eh2, ew1, center+_V( 1.60,-0.20, 18.25), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D, fixed
+  AddExhaust (th_att_lin[0], eh2, ew1, center+_V( 1.68,-0.18, 17.9), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D, fixed
+  AddExhaust (th_att_lin[0], eh2, ew1, center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D, fixed
+  AddExhaust (th_att_lin[0], eh2, ew1, center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D, fixed
 
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-11.9), _V(0, 1,0), tex_rcs);//L4U, fixed
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-12.3), _V(0, 1,0), tex_rcs);//L2U, fixed
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V(-3.46, 3.20,-12.7), _V(0, 1,0), tex_rcs);//L1U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V(-3.46, 3.20,-11.9), _V(0, 1,0), tex_rcs);//L4U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V(-3.46, 3.20,-12.3), _V(0, 1,0), tex_rcs);//L2U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V(-3.46, 3.20,-12.7), _V(0, 1,0), tex_rcs);//L1U, fixed
 
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-11.9), _V(0, 1,0), tex_rcs);//R4U, fixed
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-12.3), _V(0, 1,0), tex_rcs);//R2U, fixed
-  AddExhaust (th_att_lin[3], eh, ew1, center+_V( 3.43, 3.20,-12.7), _V(0, 1,0), tex_rcs);//R1U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V( 3.43, 3.20,-11.9), _V(0, 1,0), tex_rcs);//R4U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V( 3.43, 3.20,-12.3), _V(0, 1,0), tex_rcs);//R2U, fixed
+  AddExhaust (th_att_lin[3], eh2, ew1, center+_V( 3.43, 3.20,-12.7), _V(0, 1,0), tex_rcs);//R1U, fixed
 
-  AddExhaust (th_att_lin[2], eh, ew1, center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F1U, fixed
-  AddExhaust (th_att_lin[2], eh, ew1, center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0), tex_rcs);//F3U, fixed
-  AddExhaust (th_att_lin[2], eh, ew1, center+_V( 0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F2U, fixed
+  AddExhaust (th_att_lin[2], eh2, ew1, center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F1U, fixed
+  AddExhaust (th_att_lin[2], eh2, ew1, center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0), tex_rcs);//F3U, fixed
+  AddExhaust (th_att_lin[2], eh2, ew1, center+_V( 0.4 , 1.10, 17.9 ), _V(0, 1,0), tex_rcs);//F2U, fixed
 
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.55,-12.08), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D, fixed
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.6 ,-12.43 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D, fixed
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V(-3.1 , 1.65,-12.78), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V(-3.1 , 1.55,-12.08), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V(-3.1 , 1.6 ,-12.43 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V(-3.1 , 1.65,-12.78), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D, fixed
 
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.55,-12.08), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D, fixed
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.6 ,-12.43 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D, fixed
-  AddExhaust (th_att_lin[1], eh, ew1, center+_V( 3.15, 1.65,-12.78), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V( 3.15, 1.55,-12.08), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V( 3.15, 1.6 ,-12.43 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D, fixed
+  AddExhaust (th_att_lin[1], eh2, ew1, center+_V( 3.15, 1.65,-12.78), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D, fixed
 
   th_att_rcs[4] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_rcs[5] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1361,40 +1361,40 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   th_att_rcs[16] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_rcs[17] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
-  AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 1.60,-0.20, 18.78), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D
-  AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 1.68,-0.18, 18.40), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D
-  AddExhaust (th_att_rcs[10], eh, ew1, center+_V(-1.55,-0.20, 18.78), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D
-  AddExhaust (th_att_rcs[10], eh, ew1, center+_V(-1.63,-0.18, 18.40), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D
+  AddExhaust (th_att_rcs[8], eh2, ew1, center+_V( 1.60,-0.20, 18.78), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D
+  AddExhaust (th_att_rcs[8], eh2, ew1, center+_V( 1.68,-0.18, 18.40), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F4D
+  AddExhaust (th_att_rcs[10], eh2, ew1, center+_V(-1.55,-0.20, 18.78), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F1D
+  AddExhaust (th_att_rcs[10], eh2, ew1, center+_V(-1.63,-0.18, 18.40), _V(-0.4339,-0.8830,-0.1793), tex_rcs);//F3D
 
-  AddExhaust (th_att_rcs[9], eh, ew1, center+_V(-3.46, 3.20,-12.30), _V(0, 1,0), tex_rcs);//L4U
-  AddExhaust (th_att_rcs[9], eh, ew1, center+_V(-3.46, 3.20,-12.70), _V(0, 1,0), tex_rcs);//L2U
-  AddExhaust (th_att_rcs[9], eh, ew1, center+_V(-3.46, 3.20,-13.10), _V(0, 1,0), tex_rcs);//L1U
+  AddExhaust (th_att_rcs[9], eh2, ew1, center+_V(-3.46, 3.20,-12.30), _V(0, 1,0), tex_rcs);//L4U
+  AddExhaust (th_att_rcs[9], eh2, ew1, center+_V(-3.46, 3.20,-12.70), _V(0, 1,0), tex_rcs);//L2U
+  AddExhaust (th_att_rcs[9], eh2, ew1, center+_V(-3.46, 3.20,-13.10), _V(0, 1,0), tex_rcs);//L1U
 
-  AddExhaust (th_att_rcs[11], eh, ew1, center+_V( 3.43, 3.20,-12.30), _V(0, 1,0), tex_rcs);//R4U
-  AddExhaust (th_att_rcs[11], eh, ew1, center+_V( 3.43, 3.20,-12.70), _V(0, 1,0), tex_rcs);//R2U
-  AddExhaust (th_att_rcs[11], eh, ew1, center+_V( 3.43, 3.20,-13.10), _V(0, 1,0), tex_rcs);//R1U
+  AddExhaust (th_att_rcs[11], eh2, ew1, center+_V( 3.43, 3.20,-12.30), _V(0, 1,0), tex_rcs);//R4U
+  AddExhaust (th_att_rcs[11], eh2, ew1, center+_V( 3.43, 3.20,-12.70), _V(0, 1,0), tex_rcs);//R2U
+  AddExhaust (th_att_rcs[11], eh2, ew1, center+_V( 3.43, 3.20,-13.10), _V(0, 1,0), tex_rcs);//R1U
 
-  AddExhaust (th_att_rcs[10], eh, ew1, center+_V(-3.1 , 1.55,-12.45), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D
-  AddExhaust (th_att_rcs[10], eh, ew1, center+_V(-3.1 , 1.6 ,-12.8 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D
-  AddExhaust (th_att_rcs[10], eh, ew1, center+_V(-3.1 , 1.65,-13.15), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D
+  AddExhaust (th_att_rcs[10], eh2, ew1, center+_V(-3.1 , 1.55,-12.45), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L4D
+  AddExhaust (th_att_rcs[10], eh2, ew1, center+_V(-3.1 , 1.6 ,-12.8 ), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L2D
+  AddExhaust (th_att_rcs[10], eh2, ew1, center+_V(-3.1 , 1.65,-13.15), _V(-0.2844,-0.9481,-0.1422), tex_rcs);//L3D
 
-  AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 3.15, 1.55,-12.45), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D
-  AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 3.15, 1.6 ,-12.8 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D
-  AddExhaust (th_att_rcs[8], eh, ew1, center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D
+  AddExhaust (th_att_rcs[8], eh2, ew1, center+_V( 3.15, 1.55,-12.45), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R4D
+  AddExhaust (th_att_rcs[8], eh2, ew1, center+_V( 3.15, 1.6 ,-12.8 ), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R2D
+  AddExhaust (th_att_rcs[8], eh2, ew1, center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422), tex_rcs);//R3D
 
   th_att_lin[8] = CreateThruster (center+_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[9] = CreateThruster (center+_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   CreateThrusterGroup (th_att_lin+8, 1, THGROUP_ATT_FORWARD);
   CreateThrusterGroup (th_att_lin+9, 1, THGROUP_ATT_BACK);
 
-  AddExhaust (th_att_lin[8], eh, ew1, center+_V(-3.59, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L1A, fixed
-  AddExhaust (th_att_lin[8], eh, ew1, center+_V(-3.27, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L3A, fixed
-  AddExhaust (th_att_lin[8], eh, ew1, center+_V( 3.64, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//R1A, fixed
-  AddExhaust (th_att_lin[8], eh, ew1, center+_V( 3.27, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//R3A, fixed
+  AddExhaust (th_att_lin[8], eh2, ew1, center+_V(-3.59, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L1A, fixed
+  AddExhaust (th_att_lin[8], eh2, ew1, center+_V(-3.27, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L3A, fixed
+  AddExhaust (th_att_lin[8], eh2, ew1, center+_V( 3.64, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//R1A, fixed
+  AddExhaust (th_att_lin[8], eh2, ew1, center+_V( 3.27, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//R3A, fixed
 
-  AddExhaust (th_att_lin[9], eh, ew1, center+_V( 0.0 , 0.75, 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F3F, fixed
-  AddExhaust (th_att_lin[9], eh, ew1, center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F, fixed
-  AddExhaust (th_att_lin[9], eh, ew1, center+_V( 0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F, fixed
+  AddExhaust (th_att_lin[9], eh2, ew1, center+_V( 0.0 , 0.75, 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F3F, fixed
+  AddExhaust (th_att_lin[9], eh2, ew1, center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F, fixed
+  AddExhaust (th_att_lin[9], eh2, ew1, center+_V( 0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F, fixed
   RCSEnabled=true;
   /*CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
   CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
