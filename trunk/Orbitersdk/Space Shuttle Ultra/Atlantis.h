@@ -955,6 +955,7 @@ public:
 	bool clbkLoadVC (int id);
 	void clbkMFDMode (int mfd, int mode);
 	bool clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event);
+	void clbkPostCreation ();
 	void clbkPostStep (double simt, double simdt, double mjd);
 	void clbkPreStep (double simT, double simDT, double mjd);
 	void clbkSaveState (FILEHANDLE scn);

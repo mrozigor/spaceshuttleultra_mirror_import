@@ -4923,6 +4923,22 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
 }
 
 // --------------------------------------------------------------
+// Before first timestep
+// --------------------------------------------------------------
+void Atlantis::clbkPostCreation ()
+{
+	VESSEL2::clbkPostCreation(); //may not be necessary
+
+	if(ControlMode==INRTL) {
+		GetGlobalOrientation(InertialOrientationRad);
+		CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
+		TargetAttOrbiter=InertialOrientationRad;
+		TargetAttM50=CurrentAttitude;
+		REQD_ATT=CurrentAttitude*DEG;
+	}
+}
+
+// --------------------------------------------------------------
 // Simulation time step
 // --------------------------------------------------------------
 
