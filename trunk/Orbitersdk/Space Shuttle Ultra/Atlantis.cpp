@@ -348,7 +348,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   gop             = new GearOp (this);
   panela4		  = new PanelA4(this);
   panela8		  = new PanelA8(this);
-  c3po            = new PanelC3(this);
+  panelc3         = new PanelC3(this);
   r2d2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
   dapcontrol	  = new vc::DAPControl(this);
@@ -738,10 +738,14 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   P=0;
   Y=0;
   OM=-1;
+  CurManeuver.Type=AttManeuver::OFF;
+  FutManeuver.Type=AttManeuver::OFF;
   MNVR=false;
   ROT=false;
   TRK=false;
-  ControlMode=FREE;
+  ControlMode=INRTL;
+  DAPMode[0]=0; //A
+  DAPMode[1]=0; //PRI
   JetsEnabled=3;
   Thrusters=true;
   NoseThrusters=true;
@@ -779,7 +783,7 @@ Atlantis::~Atlantis () {
 	delete gop;
 	delete panela4;
 	delete panela8;
-	delete c3po;
+	delete panelc3;
 	delete r2d2;
 	//delete panelf7;
 	delete panelo3;
@@ -938,7 +942,7 @@ void Atlantis::SetLaunchConfiguration (void)
   th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
   for(i=0;i<2;i++) {
 	  AddExhaust (th_oms[i], 0.0, 0.5);
-	  c3po->EngControl(i);
+	  panelc3->EngControl(i);
   }
 
   // attitude
@@ -1051,7 +1055,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	for(i=0;i<2;i++) {
 		AddExhaust (th_oms[i], 0.0, 0.5);
-		c3po->EngControl(i);
+		panelc3->EngControl(i);
 	}
   }
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
@@ -1135,7 +1139,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
   for(i=0;i<2;i++) {
 	  AddExhaust (th_oms[i], 0.0, 0.5);
-	  c3po->EngControl(i);
+	  panelc3->EngControl(i);
   }
 
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
@@ -1180,7 +1184,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   thg_retro = CreateThrusterGroup (th_retro, 2, THGROUP_RETRO);
   for(i=0;i<2;i++) {
 	  AddExhaust (th_retro[i], 4.0, 0.5);
-	  c3po->EngControl(i);
+	  panelc3->EngControl(i);
   }*/
 
   // RCS (Reaction Control System)
@@ -1933,7 +1937,7 @@ void Atlantis::DefineAnimations (void)
   panelo3->DefineVCAnimations (vidx);
   
   // ======================================================
-  c3po->DefineVCAnimations (vidx);
+  panelc3->DefineVCAnimations (vidx);
   r2d2->DefineVCAnimations (vidx);
 }
 
@@ -3092,7 +3096,26 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							//return true;
 						}
 						else if(nNew==18) {
-							if(MNVR==false) 
+							MNVR=true;
+							TRK=ROT=false;
+							if(CurManeuver.Type==AttManeuver::OFF) {
+								CurManeuver.Type=AttManeuver::MNVR;
+								for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
+								for(int i=0;i<3;i++) {
+									CurManeuver.TargetAttM50.data[i]=MNVR_OPTION.data[i];
+									CurManeuver.TargetAttM50.data[i]*=RAD;
+								}
+							}
+							else {
+								FutManeuver.Type=AttManeuver::MNVR;
+								for(int i=0;i<4;i++) FutManeuver.START_TIME[i]=START_TIME[i];
+								for(int i=0;i<3;i++) {
+									FutManeuver.TargetAttM50.data[i]=MNVR_OPTION.data[i];
+									FutManeuver.TargetAttM50.data[i]*=RAD;
+								}
+							}
+							if(ControlMode==AUTO) StartAttManeuver();
+							/*if(MNVR==false) 
 							{
 								MNVR=true;
 								ROT=false;
@@ -3110,11 +3133,41 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							else MNVR=false;
 							Yaw=false;
 							Pitch=false;
-							Roll=false;
+							Roll=false;*/
 							return true;
 						}
 						else if(nNew==19) {
-							if(TRK==false) {
+							MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
+							if(TGT_ID==2) {
+								if(OM<=0.0) RotMatrixOM=IdentityMatrix;
+								else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
+								GetRotMatrixX(P*RAD, RotMatrixP);
+								GetRotMatrixY(Y*RAD, RotMatrixY);
+								GetRotMatrixX(270*RAD, RotMatrix270);
+								Temp=mul(RotMatrixOM, RotMatrixP);
+								Temp=mul(Temp, RotMatrixY);
+								if(CurManeuver.Type==AttManeuver::OFF) {
+									CurManeuver.Type=AttManeuver::TRK;
+									for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
+									CurManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+																			Temp.m12, Temp.m22, Temp.m32,
+																			Temp.m13, Temp.m23, Temp.m33);
+									CurManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, CurManeuver.LVLHTgtOrientationMatrix);
+								}
+								else {
+									FutManeuver.Type=AttManeuver::TRK;
+									for(int i=0;i<4;i++) FutManeuver.START_TIME[i]=START_TIME[i];
+									FutManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+																			Temp.m12, Temp.m22, Temp.m32,
+																			Temp.m13, Temp.m23, Temp.m33);
+									FutManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, FutManeuver.LVLHTgtOrientationMatrix);
+								}
+
+								TRK=true;
+								MNVR=ROT=false;
+								if(ControlMode==AUTO) StartAttManeuver();
+							}
+							/*if(TRK==false) {
 								TRK=true;
 								MNVR=false;
 								ROT=false;
@@ -3137,7 +3190,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							else TRK=false;
 							Yaw=false;
 							Pitch=false;
-							Roll=false;
+							Roll=false;*/
 							return true;
 						}
 						else if(nNew==20) {
@@ -3150,20 +3203,24 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							return true;
 						}
 						else if(nNew==21) {
+							ControlMode=INRTL;
+							panelc3->UpdateVC(); //update PBIs
 							MNVR=false;
 							ROT=false;
 							TRK=false;
-							ManeuverStatus=MNVR_OFF;
+							ManeuverStatus=MNVR_COMPLETE;
 							Yaw=false;
 							Pitch=false;
 							Roll=false;
 							ManeuverinProg=false;
-							SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+							CurManeuver.Type=AttManeuver::OFF;
+							FutManeuver.Type=AttManeuver::OFF;
+							/*SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
 							SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
 							SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
 							SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
 							SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-							SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+							SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);*/
 							REQD_ATT.x=MNVR_OPTION.x;
 							REQD_ATT.y=MNVR_OPTION.y;
 							REQD_ATT.z=MNVR_OPTION.z;
@@ -3744,7 +3801,7 @@ void Atlantis::SetILoads()
 	return;
 }
 
-void Atlantis::CalcLVLHAttitude(VECTOR3 &Output)
+/*void Atlantis::CalcLVLHAttitude(VECTOR3 &Output)
 {
 	VECTOR3 H;
 	H = crossp(Status.rpos, Status.rvel);
@@ -3753,6 +3810,33 @@ void Atlantis::CalcLVLHAttitude(VECTOR3 &Output)
 	//Output=CalcPitchYawRollAngles(ToRad(LVLHOrientationReqd));
 	Output=CalcPitchYawRollAngles(_V(0.0, 0.0, 0.0));
 	return;
+}*/
+
+VECTOR3 Atlantis::CalcLVLHAttitude()
+{
+	RefPoints GlobalPts, LocalPts;
+	MATRIX3 LocalToGlobal;
+	VECTOR3 LocVel, HVel;
+	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
+	VECTOR3 H = crossp(Status.rpos, Status.rvel);
+	VECTOR3 RefAttitude = GetPYR2(Status.rvel, H);
+
+	RotateVector(PitchUnit, RefAttitude, GlobalPts.Pitch);
+	RotateVector(YawRollUnit, RefAttitude, GlobalPts.Yaw);
+	GlobalPts.Pitch = GVesselPos + GlobalPts.Pitch;
+	GlobalPts.Yaw = GVesselPos + GlobalPts.Yaw;	
+	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
+	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
+	
+	VECTOR3 LVLHAngles=GetPYR(LocalPts.Pitch, LocalPts.Yaw);
+
+	GetRotationMatrix(LocalToGlobal);
+	LocVel=tmul(LocalToGlobal, Status.rvel); //multiply rvel by transpose(inverse) of rotation matrix
+	HorizonRot(LocVel, HVel);
+	double VVAngle=asin(HVel.y/length(HVel));
+	
+	LVLHAngles.data[PITCH]+=VVAngle;
+	return LVLHAngles;
 }
 
 VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
@@ -4568,7 +4652,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
-	  if (c3po->ParseScenarioLine (line)) continue; // offer line to c3po
+	  if (panelc3->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panela8->ParseScenarioLine (line)) continue;
@@ -4717,7 +4801,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   panela4->SaveState(scn);
   panela8->SaveState(scn);
   panelc2->SaveState(scn);
-  c3po->SaveState (scn);
+  panelc3->SaveState (scn);
 //  panelf7->SaveState(scn);
   r2d2->SaveState (scn);
 
@@ -4857,7 +4941,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	//throttle limits
 	for(i=0;i<2;i++)
 	{
-		if(c3po->OMS_Eng[i]<2) {
+		if(panelc3->OMS_Eng[i]<2) {
 			if(GetThrusterLevel(th_oms[i])>0.0 && GetThrusterLevel(th_oms[i])<1) {
 				SetThrusterLevel(th_oms[i],1.0);
 				dThrust=GetPropellantMass(oms_helium_tank[i])-0.01*simDT;
@@ -5066,7 +5150,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
   RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
   RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-  sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
+  //sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
   GPC(simdt); //perform GPC functions
 /*
     if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
@@ -5145,7 +5229,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   panela4->Step(simt, simdt);
   if(RMS) panela8->Step(simt, simdt);
   panelc2->Step(simt, simdt);
-  c3po->Step (simt, simdt);
+  panelc3->Step (simt, simdt);
 //  panelf7->Step(simt, simdt);
   panelo3->Step(simt, simdt);
   r2d2->Step (simt, simdt);
@@ -5456,7 +5540,7 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 	{
 		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
 	}
-	if(c3po->CheckProbesDeployed()==true && GetAltitude()<50000)
+	if(panelc3->CheckProbesDeployed()==true && GetAltitude()<50000)
 	{
 		GetHorizonAirspeedVector(Velocity);
 		sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
@@ -5795,7 +5879,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_CntMFD (); // activate central panel MFD controls
     gop->RegisterVC ();  // register panel F6 interface
 	panela4->RegisterVC();
-	c3po->RegisterVC();
+	panelc3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -5824,7 +5908,7 @@ bool Atlantis::clbkLoadVC (int id)
 
     //RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
-	c3po->RegisterVC();
+	panelc3->RegisterVC();
 	r2d2->RegisterVC();
 	panelo3->RegisterVC();
 	panela4->RegisterVC();
@@ -6056,7 +6140,7 @@ bool Atlantis::clbkLoadVC (int id)
 	//RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
-	c3po->RegisterVC();
+	panelc3->RegisterVC();
 	r2d2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
@@ -6085,7 +6169,7 @@ bool Atlantis::clbkLoadVC (int id)
 	//RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
-	c3po->RegisterVC();
+	panelc3->RegisterVC();
 	r2d2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
@@ -6159,7 +6243,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela4->UpdateVC();
 	if(RMS) panela8->UpdateVC();
 	panelc2->UpdateVC();
-	c3po->UpdateVC();
+	panelc3->UpdateVC();
 //	panelf7->UpdateVC();
 	panelo3->UpdateVC();
 	r2d2->UpdateVC();
@@ -6294,7 +6378,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_C2:
 	return panelc2->VCMouseEvent(id, _event, p);
   case AID_C3:
-	return c3po->VCMouseEvent (id, _event, p);
+	return panelc3->VCMouseEvent (id, _event, p);
   case AID_O3:
 	return panelo3->VCMouseEvent(id, _event, p);
   case AID_KYBD_CDR:
@@ -6351,7 +6435,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
 //     return panelf7->VCRedrawEvent (id, event, surf);
 	return false;
 	if (id >= AID_C3_MIN && id <= AID_C3_MAX)
-		return c3po->VCRedrawEvent (id, event, surf);
+		return panelc3->VCRedrawEvent (id, event, surf);
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
       return panelc2->VCRedrawEvent (id, event, surf);
 	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
