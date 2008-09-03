@@ -828,6 +828,13 @@ typedef struct {
 } DAPConfig;
 
 typedef struct {
+	int START_TIME[4]; // day,hour,min,sec
+	VECTOR3 TargetAttM50;
+	MATRIX3 LVLHTgtOrientationMatrix;
+	enum {OFF, MNVR, TRK, ROT} Type;
+} AttManeuver;
+
+typedef struct {
 	bool OPS, ITEM, SPEC, EXEC, PRO;
 	bool NewEntry; //used by CRT MFD to output scratch pad
 	char input[255];
@@ -1101,7 +1108,7 @@ public:
 	PanelA4 *panela4;
 	PanelA8 *panela8;
 	PanelC2 *panelc2;
-	PanelC3 *c3po; // PanelC3 operations
+	PanelC3 *panelc3; // PanelC3 operations
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	PanelR2 *r2d2; // PanelR2 operations
@@ -1226,13 +1233,13 @@ private:
 	void GimbalOMS(VECTOR3 Targets);
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
+	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
 	void AttControl(double SimdT);
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(VECTOR3 &Rates);
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
-	void CalcLVLHAttitude(VECTOR3 &Output);
 	//change ref. frames
 	//VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
 	//VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
@@ -1245,6 +1252,8 @@ private:
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
 	//calc attitude/attitude error
+	//void CalcLVLHAttitude(VECTOR3 &Output);
+	VECTOR3 CalcLVLHAttitude();
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
@@ -1676,6 +1685,7 @@ private:
 	//ManueverinProg is true if attitude is controlled by autopilot
 	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	//ManeuverStatus is used to set autopilot actions
+	AttManeuver CurManeuver, FutManeuver;
 	double MNVR_TIME;
 	int START_TIME[4]; // day,hour,min,sec
 	int TGT_ID, BODY_VECT;

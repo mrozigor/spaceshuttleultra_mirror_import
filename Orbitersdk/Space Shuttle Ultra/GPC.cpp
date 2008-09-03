@@ -1,5 +1,6 @@
 // GPC Code
 #include "Atlantis.h"
+#include "PanelC3.h"
 
 #include "util/Stopwatch.h"
 #include <cstdio>
@@ -720,6 +721,31 @@ void Atlantis::UpdateDAP()
 	}
 }
 
+void Atlantis::StartAttManeuver()
+{
+	int i;
+	if(CurManeuver.Type!=AttManeuver::OFF) {
+		oapiWriteLog("StartAttManeuver() called");
+		for(i=0;i<4;i++) START_TIME[i]=CurManeuver.START_TIME[i];
+		if(CurManeuver.Type==AttManeuver::MNVR) {
+			TargetAttM50=REQD_ATT=CurManeuver.TargetAttM50;
+			for(i=0;i<3;i++) {
+				if(TargetAttM50.data[i]>PI) TargetAttM50.data[i]-=2*PI;
+			}
+			REQD_ATT=REQD_ATT*DEG;
+			TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(TargetAttM50, true);
+		}
+		else if(CurManeuver.Type==AttManeuver::TRK) {
+			LVLHTgtOrientationMatrix=CurManeuver.LVLHTgtOrientationMatrix;
+			LVLHOrientationReqd=GetAnglesFromMatrix(LVLHTgtOrientationMatrix)*DEG;
+		}
+		Yaw=false;
+		Pitch=false;
+		Roll=false;
+		ManeuverinProg=false;
+	}
+}
+
 void Atlantis::AttControl(double SimdT)
 {
 	int i;
@@ -729,6 +755,10 @@ void Atlantis::AttControl(double SimdT)
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
 
+	GetGlobalPos(GVesselPos);
+	GetStatus(Status);
+	GetElements(NULL, el, &oparam, 0, FRAME_EQU);
+
 	for(i=0;i<3;i++) {
 		if(!RotPulseInProg[i]) ReqdRates.data[i]=AngularVelocity.data[i]*DEG;
 	}
@@ -736,9 +766,19 @@ void Atlantis::AttControl(double SimdT)
 	if(!Eq(RHCInput.x, 0.0, 0.01) || !Eq(RHCInput.y, 0.0, 0.01) || !Eq(RHCInput.z, 0.0, 0.01)) {
 		//TRK=ROT=false;
 		//MNVR=true;
-		if(ControlMode==AUTO) ControlMode=INRTL;
-		TargetAttOrbiter=InertialOrientationRad;
-		REQD_ATT=TargetAttM50=CurrentAttitude;
+		if(ControlMode==AUTO) {
+			ControlMode=INRTL;
+			panelc3->UpdateVC(); //update PBI lights to reflect change in mode
+		}
+		if(ControlMode==INRTL) {
+			TargetAttOrbiter=InertialOrientationRad;
+			TargetAttM50=CurrentAttitude;
+			REQD_ATT=CurrentAttitude*DEG;
+		}
+		else if(ControlMode==LVLH) {
+			LVLHOrientationReqd=CalcLVLHAttitude()*DEG;
+			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
+		}
 		ManeuverinProg=true;
 		ManeuverStatus=MNVR_COMPLETE; //(check value set here)
 
@@ -771,7 +811,7 @@ void Atlantis::AttControl(double SimdT)
 	else if(ControlMode!=FREE) {
 		MATRIX3 LastReqdAttMatrix;
 		VECTOR3 NullRates, NullRatesLocal;
-		if(ControlMode==AUTO && TRK) {
+		if((ControlMode==AUTO && TRK) || ControlMode==LVLH) {
 			//LastReqdAtt=REQD_ATT;
 			LastReqdAttMatrix=ReqdAttMatrix;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
@@ -802,12 +842,13 @@ void Atlantis::AttControl(double SimdT)
 			}
 		}
 
-		if(ManeuverinProg) {
+		/*if(ManeuverinProg) {
 			GetGlobalPos(GVesselPos);
 			GetStatus(Status);
 			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 		}
-		else return; //no need for further calculations
+		else return; //no need for further calculations*/
+		if(!ManeuverinProg) return; //no need for further calculations
 
 		if(ControlMode==LVLH || ((TRK || ROT) && ControlMode==AUTO)) {
 			//VECTOR3 TargAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
@@ -844,11 +885,9 @@ void Atlantis::AttControl(double SimdT)
 			}
 			else {
 				MNVR_TIME-=SimdT;
-				sprintf_s(oapiDebugString(), 255, "MNVR IN PROGRESS: %f", MNVR_TIME);
 			}
 		}
 		else NullRates=NullRatesLocal=_V(0, 0, 0); //MNVR or ControlMode==INRTL
-		//sprintf(oapiDebugString(), "%f %f %f", NullRates.x, NullRates.y, NullRates.z);
 		
 		//PitchYawRoll=CalcPitchYawRollAngles()*DEG;
 		PitchYawRollMatrix=CalcPitchYawRollRotMatrix();
@@ -1185,7 +1224,6 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 		sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
 	}
 	if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RATES1: %f %f %f %i", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW], DAPMode[1]);
-	else oapiWriteLog("CalcReqdRates1 called");
 }
 
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vectors in degrees
@@ -1293,8 +1331,6 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 			else Rates.data[PITCH]=0.0000;
 		}
 
-		if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RATES2: %f %f %f %i", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW], DAPMode[1]);
-		else oapiWriteLog("CalcReqdRates2 called");
 		if(!Pitch && !Yaw && !Roll) {
 			ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
 			//sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
