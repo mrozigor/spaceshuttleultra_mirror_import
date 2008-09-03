@@ -18,10 +18,6 @@ namespace vc {
 		 */
 		bool VCMouseEvent(int block, int nEvent, const VECTOR3 &p);
 		/**
-		 * Returns 1 if light is ON; 0 otherwise.
-		 */
-		int LightStatus(int ButtonID);
-		/**
 		 * Draws PBI and updates state
 		 * Return true if blitting operation performed
 		 */
