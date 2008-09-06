@@ -1234,8 +1234,9 @@ private:
 	void GimbalOMS(VECTOR3 Targets);
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
-	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
+	void TransControl(double SimdT);
 	void AttControl(double SimdT);
+	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(VECTOR3 &Rates);
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
@@ -1265,6 +1266,8 @@ private:
 	//Thruster Control
 	void EnableThrusters(const int Thrusters[], int nThrusters);
 	void DisableThrusters(const int Thrusters[], int nThrusters);
+	void UpdateTranslationForces();
+	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg);
 
 	//Math
 	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -1517,6 +1520,8 @@ private:
 	THRUSTER_HANDLE thManRRCS5[2];
 	//>>>> End of new RCS model
 	THGROUP_HANDLE thg_pitchup, thg_pitchdown, thg_yawleft, thg_yawright, thg_rollleft, thg_rollright;
+	THGROUP_HANDLE thg_transfwd, thg_transaft, thg_transup, thg_transdown, thg_transright, thg_transleft;
+	VECTOR3 TransForce[2]; //force provided by translation groups; 0=plus-axis
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
 	bool RCSEnabled;
@@ -1716,7 +1721,8 @@ private:
 	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
 	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
 	bool RotPulseInProg[3], TransPulseInProg[3];
-	double RotRate, AttDeadband, RateDeadband, RotPls;
+	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
+	double RotRate, AttDeadband, RateDeadband, RotPls, TranPls;
 	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
 	int JetsEnabled;
 

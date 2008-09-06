@@ -519,6 +519,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   thg_pitchup=thg_pitchdown = NULL;
   thg_yawleft=thg_yawright = NULL;
   thg_rollleft=thg_rollright = NULL;
+  thg_transfwd=thg_transaft=NULL;
+  thg_transleft=thg_transright=NULL;
+  thg_transup=thg_transdown=NULL;
 
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
@@ -705,10 +708,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  DataInput[i].InputSize=0;
 	  Display[i]=NULL;
 	  //Initialize DAP Config
-	  DAP[i].PRI_ROT_RATE=RotRate=1.0;
-	  DAP[i].PRI_ATT_DB=AttDeadband=0.5;
-	  DAP[i].PRI_RATE_DB=RateDeadband=0.1;
-	  DAP[i].PRI_ROT_PLS=RotPls=0.1;
+	  DAP[i].PRI_ROT_RATE=1.0;
+	  DAP[i].PRI_ATT_DB=0.5;
+	  DAP[i].PRI_RATE_DB=0.1;
+	  DAP[i].PRI_ROT_PLS=0.1;
 	  DAP[i].PRI_COMP=0.0;
   	  DAP[i].PRI_TRAN_PLS=0.2;
 	  DAP[i].PRI_P_OPTION=0;
@@ -731,7 +734,14 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  THCInput.data[i]=0.0;
 	  RotPulseInProg[i]=false;
 	  TransPulseInProg[i]=false;
+	  TransPulseDV.data[i]=0.0;
+	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
   }
+  RotRate=DAP[0].PRI_ROT_RATE;
+  AttDeadband=DAP[0].PRI_ATT_DB;
+  RateDeadband=DAP[0].PRI_RATE_DB;
+  RotPls=DAP[0].PRI_ROT_PLS;
+  TranPls=DAP[0].PRI_TRAN_PLS*fps_to_ms;
   RotationAngle=0.0;
   TGT_ID=2;
   BODY_VECT=1;
@@ -1233,6 +1243,7 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   }
 
   //create dummy thrusters
+  //rotation
   thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
   CreateThrusterGroup(thTmp, 1, THGROUP_ATT_PITCHUP);
   thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
@@ -1245,6 +1256,19 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   CreateThrusterGroup(thTmp, 1, THGROUP_ATT_BANKLEFT);
   thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
   CreateThrusterGroup(thTmp, 1, THGROUP_ATT_BANKRIGHT);
+  //translation
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_FORWARD);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_BACK);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_UP);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_DOWN);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_LEFT);
+  thTmp[0]=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+  CreateThrusterGroup(thTmp, 1, THGROUP_ATT_RIGHT);
 
   // set of attitude thrusters (idealised). The arrangement is such that no angular
   // momentum is created in linear mode, and no linear momentum is created in rotational mode.
@@ -1257,8 +1281,8 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   th_att_lin[3] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[1] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  CreateThrusterGroup (th_att_lin,   2, THGROUP_ATT_UP);
-  CreateThrusterGroup (th_att_lin+2, 2, THGROUP_ATT_DOWN);
+  thg_transup = CreateThrusterGroup (th_att_lin,   2, THGROUP_USER);
+  thg_transdown = CreateThrusterGroup (th_att_lin+2, 2, THGROUP_USER);
 
   // DaveS edit: Fixed RCS exhaust defs to line up with nozzles on the scaled down orbiter mesh
   AddExhaust (th_att_rcs[0], eh2, ew1, center+_V( 1.60,-0.20, 18.25), _V( 0.4339,-0.8830,-0.1793), tex_rcs);//F2D, fixed
@@ -1320,8 +1344,8 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   th_att_lin[7] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[6] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[5] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  CreateThrusterGroup (th_att_lin+4,   2, THGROUP_ATT_LEFT);
-  CreateThrusterGroup (th_att_lin+6, 2, THGROUP_ATT_RIGHT);
+  thg_transleft = CreateThrusterGroup (th_att_lin+4,   2, THGROUP_USER);
+  thg_transright = CreateThrusterGroup (th_att_lin+6, 2, THGROUP_USER);
 
   AddExhaust (th_att_rcs[4], eh, ew2, center+_V( 1.8 ,-0.15 , 17.40 ), _V( 1,0,0), tex_rcs);//F4R, fixed
   AddExhaust (th_att_rcs[4], eh, ew2, center+_V( 1.75, 0.25 , 17.45), _V( 1,0,0), tex_rcs);//F2R, fixed
@@ -1388,8 +1412,8 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 
   th_att_lin[8] = CreateThruster (center+_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
   th_att_lin[9] = CreateThruster (center+_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  CreateThrusterGroup (th_att_lin+8, 1, THGROUP_ATT_FORWARD);
-  CreateThrusterGroup (th_att_lin+9, 1, THGROUP_ATT_BACK);
+  thg_transfwd = CreateThrusterGroup (th_att_lin+8, 1, THGROUP_USER);
+  thg_transaft = CreateThrusterGroup (th_att_lin+9, 1, THGROUP_USER);
 
   AddExhaust (th_att_lin[8], eh2, ew1, center+_V(-3.59, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L1A, fixed
   AddExhaust (th_att_lin[8], eh2, ew1, center+_V(-3.27, 2.8 ,-13.4 ), _V(0,0,-1), tex_rcs);//L3A, fixed
@@ -1413,6 +1437,7 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   thg_rollleft = CreateThrusterGroup (th_att_rcs+8, 2, THGROUP_USER);
   thg_rollright = CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_USER);
   
+  UpdateTranslationForces();
 }
 
 void Atlantis::DisableAllRCS() {
@@ -3003,6 +3028,27 @@ void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 	for(int i=0;i<nThrusters;i++) {
 		SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
 	}
+}
+
+void Atlantis::UpdateTranslationForces()
+{
+	TransForce[0].x=GetThrusterGroupMaxThrust(thg_transfwd);
+	TransForce[1].x=GetThrusterGroupMaxThrust(thg_transaft);
+	TransForce[0].y=GetThrusterGroupMaxThrust(thg_transright);
+	TransForce[1].y=GetThrusterGroupMaxThrust(thg_transleft);
+	TransForce[0].z=GetThrusterGroupMaxThrust(thg_transdown);
+	TransForce[1].z=GetThrusterGroupMaxThrust(thg_transup);
+}
+
+double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg)
+{
+	VECTOR3 Total=_V(0.0, 0.0, 0.0), Dir;
+	for(DWORD i=0;i<GetGroupThrusterCount(thg);i++) {
+		THRUSTER_HANDLE th=GetGroupThruster(thg, i);
+		GetThrusterDir(th, Dir);
+		Total+=Dir*GetThrusterMax0(th);
+	}
+	return length(Total);
 }
 
 bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
@@ -5166,6 +5212,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
   RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
   RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
+  THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+  THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
+  THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
   //sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
   GPC(simdt); //perform GPC functions
 /*
