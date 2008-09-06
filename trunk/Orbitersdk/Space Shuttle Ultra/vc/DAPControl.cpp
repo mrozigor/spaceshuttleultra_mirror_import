@@ -90,11 +90,38 @@ namespace vc {
 					bRet=true;
 				}
 			}
+			//X NORM
+			else if(p.x>=0.003083 && p.x<=0.129235 && p.y>=0.368609 && p.y<=0.628432) {
+				if(sts->TransMode[0]!=0) {
+					sts->TransMode[0]=0;
+					sts->TransPulseInProg[0]=false;
+					sts->TransPulseDV.x=0.0;
+					bRet=true;
+				}
+			}
+			//Y NORM
+			else if(p.x>=0.172048 && p.x<=0.301167 && p.y>=0.36579 && p.y<=0.630109) {
+				if(sts->TransMode[1]!=0) {
+					sts->TransMode[1]=0;
+					sts->TransPulseInProg[1]=false;
+					sts->TransPulseDV.y=0.0;
+					bRet=true;
+				}
+			}
+			//Z NORM
+			else if(p.x>=0.337985 && p.x<=0.467041 && p.y>=0.373341 && p.y<=0.628341) {
+				if(sts->TransMode[2]!=0) {
+					sts->TransMode[2]=0;
+					sts->TransPulseInProg[2]=false;
+					sts->TransPulseDV.z=0.0;
+					bRet=true;
+				}
+			}
 			//DISC RATE (ROLL)
 			else if(p.x>=0.523584 && p.x<=0.656069 && p.y>=0.369307 && p.y<=0.635155) {
 				if(sts->RotMode[ROLL]!=0) {
 					sts->RotMode[ROLL]=0;
-					sprintf_s(oapiDebugString(), 255, "Update RCS settings");
+					sts->RotPulseInProg[ROLL]=false;
 					bRet=true;
 				}
 			}
@@ -102,7 +129,7 @@ namespace vc {
 			else if(p.x>=0.694456 && p.x<=0.821347 && p.y>=0.364444 && p.y<=0.631278) {
 				if(sts->RotMode[PITCH]!=0) {
 					sts->RotMode[PITCH]=0;
-					sprintf_s(oapiDebugString(), 255, "Update RCS settings");
+					sts->RotPulseInProg[PITCH]=false;
 					bRet=true;
 				}
 			}
@@ -110,7 +137,28 @@ namespace vc {
 			else if(p.x>=0.865548 && p.x<=0.996359 && p.y>=0.374009 && p.y<=0.625811) {
 				if(sts->RotMode[YAW]!=0) {
 					sts->RotMode[YAW]=0;
-					sprintf_s(oapiDebugString(), 255, "Update RCS settings");
+					sts->RotPulseInProg[YAW]=false;
+					bRet=true;
+				}
+			}
+			//X PULSE
+			else if(p.x>=0.003433 && p.x<=0.126946 && p.y>=0.736736 && p.y<=0.992645) {
+				if(sts->TransMode[0]!=1) {
+					sts->TransMode[0]=1;
+					bRet=true;
+				}
+			}
+			//Y PULSE
+			else if(p.x>=0.169533 && p.x<=0.295239 && p.y>=0.739643 && p.y<=0.989427) {
+				if(sts->TransMode[1]!=1) {
+					sts->TransMode[1]=1;
+					bRet=true;
+				}
+			}
+			//Z PULSE
+			else if(p.x>=0.337445 && p.x<=0.465086 && p.y>=0.735088 && p.y<=0.990598) {
+				if(sts->TransMode[2]!=1) {
+					sts->TransMode[2]=1;
 					bRet=true;
 				}
 			}

@@ -474,6 +474,7 @@ void Atlantis::GPC(double dt)
 			break;
 		case 201:
 			AttControl(dt);
+			TransControl(dt);
 			break;
 		case 202:
 			/*GetGlobalOrientation(InertialOrientationRad);
@@ -490,6 +491,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 301:
@@ -507,6 +509,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			break;
 		case 302:
 			/*GetGlobalOrientation(InertialOrientationRad);
@@ -523,6 +526,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 303:
@@ -540,6 +544,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			break;
 	}
 
@@ -681,6 +686,7 @@ void Atlantis::LoadManeuver()
 void Atlantis::UpdateDAP()
 {
 	//sprintf(oapiDebugString(), "UpdateDAP() called %f", oapiRand());
+	TranPls=DAP[DAPMode[0]].PRI_TRAN_PLS*fps_to_ms; //same for all modes
 	if(DAPMode[1]==0) {
 		RotRate=DAP[DAPMode[0]].PRI_ROT_RATE;
 		AttDeadband=DAP[DAPMode[0]].PRI_ATT_DB;
@@ -698,7 +704,7 @@ void Atlantis::UpdateDAP()
 		RotRate=DAP[DAPMode[0]].PRI_ROT_RATE;
 		AttDeadband=DAP[DAPMode[0]].PRI_ATT_DB;
 		RateDeadband=DAP[DAPMode[0]].ALT_RATE_DB;
-		RotRate=DAP[DAPMode[0]].PRI_ROT_PLS;
+		RotPls=DAP[DAPMode[0]].PRI_ROT_PLS;
 		if(DAP[DAPMode[0]].ALT_JET_OPT==2) {
 			Torque.data[PITCH]=0.5*ORBITER_PITCH_TORQUE;
 			Torque.data[YAW]=0.5*ORBITER_YAW_TORQUE;
@@ -743,6 +749,108 @@ void Atlantis::StartAttManeuver()
 		Pitch=false;
 		Roll=false;
 		ManeuverinProg=false;
+	}
+}
+
+void Atlantis::TransControl(double SimdT)
+{
+	VECTOR3 ThrusterLevel=_V(0.0, 0.0, 0.0);
+
+	for(int i=0;i<3;i++) {
+		if(abs(THCInput.data[i])>0.01) {
+			if(TransMode[i]==0) { //NORM
+				if(THCInput.data[i]>0.0) ThrusterLevel.data[i]=1.0;
+				else ThrusterLevel.data[i]=-1.0;
+			}
+			else if(TransMode[i]==1 && !TransPulseInProg[i]) { //PULSE
+				TransPulseInProg[i]=true;
+				if(THCInput.data[i]>0.0) TransPulseDV.data[i]=TranPls;
+				else TransPulseDV.data[i]=-TranPls;
+			}
+		}
+
+		if(TransPulseInProg[i]) {
+			if(!Eq(TransPulseDV.data[i], 0.0, 0.001)) {
+				if(TransPulseDV.data[i]>0.0) ThrusterLevel.data[i]=1.0;
+				else ThrusterLevel.data[i]=-1.0;
+			}
+			//if THC is in detent and pulse is complete, allow further pulses
+			else if(abs(THCInput.data[i])<0.01) TransPulseInProg[i]=false;
+		}
+	}
+
+	//fire appropriate sets of thrusters
+	if(ThrusterLevel.x>0.05) {
+		SetThrusterGroupLevel(thg_transfwd, 1.0);
+		SetThrusterGroupLevel(thg_transaft, 0.0);
+		if(TransPulseInProg[0]) {
+			TransPulseDV.x-=TransForce[0].x*SimdT;
+			if(TransPulseDV.x<=(TransForce[0].x*SimdT/2.0)) { //minimize error
+				TransPulseDV.x=0.000;
+			}
+		}
+	}
+	else if(ThrusterLevel.x<-0.05) {
+		SetThrusterGroupLevel(thg_transaft, 1.0);
+		SetThrusterGroupLevel(thg_transfwd, 0.0);
+		if(TransPulseInProg[0]) {
+			TransPulseDV.x+=TransForce[1].x*SimdT;
+			if(TransPulseDV.x>0.0 || -TransPulseDV.x<=(TransForce[1].x*SimdT/2.0)) { //minimize error
+				TransPulseDV.x=0.000;
+			}
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transfwd, 0.0);
+		SetThrusterGroupLevel(thg_transaft, 0.0);
+	}
+	if(ThrusterLevel.y>0.05) {
+		SetThrusterGroupLevel(thg_transright, 1.0);
+		SetThrusterGroupLevel(thg_transleft, 0.0);
+		if(TransPulseInProg[1]) {
+			TransPulseDV.y-=TransForce[0].y*SimdT;
+			if(TransPulseDV.y<=(TransForce[0].y*SimdT/2.0)) { //minimize error
+				TransPulseDV.y=0.000;
+			}
+		}
+	}
+	else if(ThrusterLevel.y<-0.05) {
+		SetThrusterGroupLevel(thg_transleft, 1.0);
+		SetThrusterGroupLevel(thg_transright, 0.0);
+		if(TransPulseInProg[1]) {
+			TransPulseDV.y+=TransForce[1].y*SimdT;
+			if(TransPulseDV.y>0.0 || -TransPulseDV.y<=(TransForce[1].y*SimdT/2.0)) { //minimize error
+				TransPulseDV.y=0.000;
+			}
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transleft, 0.0);
+		SetThrusterGroupLevel(thg_transright, 0.0);
+	}
+	if(ThrusterLevel.z>0.05) {
+		SetThrusterGroupLevel(thg_transdown, 1.0);
+		SetThrusterGroupLevel(thg_transup, 0.0);
+		if(TransPulseInProg[2]) {
+			TransPulseDV.z-=TransForce[0].z*SimdT;
+			if(TransPulseDV.z<=(TransForce[0].z*SimdT/2.0)) { //minimize error
+				TransPulseDV.z=0.000;
+			}
+		}
+	}
+	else if(ThrusterLevel.z<-0.05) {
+		SetThrusterGroupLevel(thg_transup, 1.0);
+		SetThrusterGroupLevel(thg_transdown, 0.0);
+		if(TransPulseInProg[2]) {
+			TransPulseDV.z+=TransForce[1].z*SimdT;
+			if(TransPulseDV.z>0.0 || -TransPulseDV.z<=(TransForce[1].z*SimdT/2.0)) { //minimize error
+				TransPulseDV.z=0.000;
+			}
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transup, 0.0);
+		SetThrusterGroupLevel(thg_transdown, 0.0);
 	}
 }
 
