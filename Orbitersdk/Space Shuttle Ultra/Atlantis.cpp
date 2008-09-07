@@ -5169,6 +5169,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		EnableAllRCS();
 		SetThrusterLevel(th_oms[0], 0.00);
 		SetThrusterLevel(th_oms[1], 0.00);
+		//initiate attitude hold
+		GetGlobalOrientation(InertialOrientationRad);
+		CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
+		ControlMode=INRTL;
+		TargetAttOrbiter=InertialOrientationRad;
+		TargetAttM50=CurrentAttitude;
+		REQD_ATT=CurrentAttitude*DEG;
 	}
 	else EnableAllRCS();
 	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
