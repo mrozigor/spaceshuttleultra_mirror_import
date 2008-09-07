@@ -143,21 +143,21 @@ namespace vc {
 			}
 			//X PULSE
 			else if(p.x>=0.003433 && p.x<=0.126946 && p.y>=0.736736 && p.y<=0.992645) {
-				if(sts->TransMode[0]!=1) {
+				if(sts->TransMode[0]!=1 && (sts->ops==201 || sts->ops==202)) {
 					sts->TransMode[0]=1;
 					bRet=true;
 				}
 			}
 			//Y PULSE
 			else if(p.x>=0.169533 && p.x<=0.295239 && p.y>=0.739643 && p.y<=0.989427) {
-				if(sts->TransMode[1]!=1) {
+				if(sts->TransMode[1]!=1 && (sts->ops==201 || sts->ops==202)) {
 					sts->TransMode[1]=1;
 					bRet=true;
 				}
 			}
 			//Z PULSE
 			else if(p.x>=0.337445 && p.x<=0.465086 && p.y>=0.735088 && p.y<=0.990598) {
-				if(sts->TransMode[2]!=1) {
+				if(sts->TransMode[2]!=1 && (sts->ops==201 || sts->ops==202)) {
 					sts->TransMode[2]=1;
 					bRet=true;
 				}

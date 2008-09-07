@@ -401,24 +401,29 @@ void Atlantis::GPC(double dt)
 				SteerGimbal();
 				Throttle(dt);
 			}
-			else {
-				if(status==2 && !bZThrust && tMECO+ET_SEP_TIME<=met)
+			else { //post MECO
+				if(status==2 && !TransPulseInProg[2] && tMECO+ET_SEP_TIME<=met)
 				{
 					SeparateTank();
 					bManualSeparate = false;
-					bZThrust=true;
-					dV=0.0;
-					SetThrusterGroupLevel(THGROUP_ATT_UP, 1.00);
+					TransPulseInProg[2]=true;
+					TransPulseDV.z=-ET_SEP_RATE;
+					//dV=0.0;
+					//SetThrusterGroupLevel(THGROUP_ATT_UP, 1.00);
+					//SetThrusterGroupLevel(thg_transup, 1.00);
 				}
-				else if(bZThrust) {
-					GetThrustVector(Thrust);
+				else if(status==3 && Eq(TransPulseDV.z, 0.0, 0.001)) { //Z thrusting complete
+					ops=104;
+					/*GetThrustVector(Thrust);
 					dV+=(Thrust.y/GetMass())*dt;
 					if(dV>=ET_SEP_RATE) {
 						SetThrusterGroupLevel(THGROUP_ATT_UP, 0.00);
 						bZThrust=false;
 						ops=104;
-					}
+					}*/
 				}
+				AttControl(dt);
+				TransControl(dt);
 			}
 			break;
 		case 104:
@@ -437,6 +442,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 105:
@@ -454,6 +460,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 106:
@@ -471,6 +478,7 @@ void Atlantis::GPC(double dt)
 				}
 			}*/
 			AttControl(dt);
+			TransControl(dt);
 			break;
 		case 201:
 			AttControl(dt);
@@ -784,8 +792,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transfwd, 1.0);
 		SetThrusterGroupLevel(thg_transaft, 0.0);
 		if(TransPulseInProg[0]) {
-			TransPulseDV.x-=TransForce[0].x*SimdT;
-			if(TransPulseDV.x<=(TransForce[0].x*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[0].x/GetMass())*SimdT;
+			TransPulseDV.x-=acc;
+			if(TransPulseDV.x<=(acc/2.0)) { //minimize error
 				TransPulseDV.x=0.000;
 			}
 		}
@@ -794,8 +803,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transaft, 1.0);
 		SetThrusterGroupLevel(thg_transfwd, 0.0);
 		if(TransPulseInProg[0]) {
-			TransPulseDV.x+=TransForce[1].x*SimdT;
-			if(TransPulseDV.x>0.0 || -TransPulseDV.x<=(TransForce[1].x*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[1].x/GetMass())*SimdT;
+			TransPulseDV.x+=acc;
+			if(TransPulseDV.x>0.0 || -TransPulseDV.x<=(acc/2.0)) { //minimize error
 				TransPulseDV.x=0.000;
 			}
 		}
@@ -808,8 +818,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transright, 1.0);
 		SetThrusterGroupLevel(thg_transleft, 0.0);
 		if(TransPulseInProg[1]) {
-			TransPulseDV.y-=TransForce[0].y*SimdT;
-			if(TransPulseDV.y<=(TransForce[0].y*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[0].y/GetMass())*SimdT;
+			TransPulseDV.y-=acc;
+			if(TransPulseDV.y<=(acc/2.0)) { //minimize error
 				TransPulseDV.y=0.000;
 			}
 		}
@@ -818,8 +829,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transleft, 1.0);
 		SetThrusterGroupLevel(thg_transright, 0.0);
 		if(TransPulseInProg[1]) {
-			TransPulseDV.y+=TransForce[1].y*SimdT;
-			if(TransPulseDV.y>0.0 || -TransPulseDV.y<=(TransForce[1].y*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[1].y/GetMass())*SimdT;
+			TransPulseDV.y+=acc;
+			if(TransPulseDV.y>0.0 || -TransPulseDV.y<=(acc/2.0)) { //minimize error
 				TransPulseDV.y=0.000;
 			}
 		}
@@ -832,8 +844,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transdown, 1.0);
 		SetThrusterGroupLevel(thg_transup, 0.0);
 		if(TransPulseInProg[2]) {
-			TransPulseDV.z-=TransForce[0].z*SimdT;
-			if(TransPulseDV.z<=(TransForce[0].z*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[0].z/GetMass())*SimdT;
+			TransPulseDV.z-=acc;
+			if(TransPulseDV.z<=(acc/2.0)) { //minimize error
 				TransPulseDV.z=0.000;
 			}
 		}
@@ -842,8 +855,9 @@ void Atlantis::TransControl(double SimdT)
 		SetThrusterGroupLevel(thg_transup, 1.0);
 		SetThrusterGroupLevel(thg_transdown, 0.0);
 		if(TransPulseInProg[2]) {
-			TransPulseDV.z+=TransForce[1].z*SimdT;
-			if(TransPulseDV.z>0.0 || -TransPulseDV.z<=(TransForce[1].z*SimdT/2.0)) { //minimize error
+			double acc=(TransForce[1].z/GetMass())*SimdT;
+			TransPulseDV.z+=acc;
+			if(TransPulseDV.z>0.0 || -TransPulseDV.z<=(acc/2.0)) { //minimize error
 				TransPulseDV.z=0.000;
 			}
 		}
