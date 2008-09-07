@@ -36,7 +36,7 @@ END_MFD
 BEGIN_MFD 3
   TYPE User
   MODE CRT
-  Mode2 10001
+  Mode2 0
   Display 2
   Spec 0
 END_MFD
