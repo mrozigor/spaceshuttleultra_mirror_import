@@ -371,6 +371,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\vc\DAPControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\discsignals\DiscInPort.cpp"
 				>
 			</File>
@@ -395,10 +399,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\eva_docking\ExtAirlock.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\GearOp.cpp"
 				>
 			</File>
@@ -407,11 +407,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dps\IDP.cpp"
+				RelativePath=".\hydraulics\HydActuator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\vc\Indicator7Seg.cpp"
+				RelativePath=".\dps\IDP.cpp"
 				>
 			</File>
 			<File
@@ -586,6 +586,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\DAPControl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\discsignals\DiscInPort.h"
 				>
 			</File>
@@ -639,10 +643,6 @@
 			</File>
 			<File
 				RelativePath=".\dps\IDP.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vc\Indicator7Seg.h"
 				>
 			</File>
 			<File
