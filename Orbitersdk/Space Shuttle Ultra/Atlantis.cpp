@@ -40,6 +40,7 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelA6.h"
 
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
@@ -357,6 +358,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
+
+  pgAftPSS.AddPanel(new vc::PanelA6(this));
   
 
   panelo3		  = new PanelO3(this);
@@ -6338,6 +6341,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   pgRight.OnVCMouseEvent(id, _event, p);
   pgCenter.OnVCMouseEvent(id, _event, p);
   pgOverhead.OnVCMouseEvent(id, _event, p);
+  pgAftPSS.OnVCMouseEvent(id, _event, p);
 
   switch (id) 
   {

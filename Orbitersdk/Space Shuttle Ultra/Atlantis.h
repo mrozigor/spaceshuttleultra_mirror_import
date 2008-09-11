@@ -758,6 +758,34 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_F8		   460
 #define AID_F8_MAX	   470
 
+#define AID_A6_MIN     500
+#define AID_A6         500
+#define AID_A6_PBI1	   501
+#define AID_A6_PBI2	   502
+#define AID_A6_PBI3	   503
+#define AID_A6_PBI4	   504
+#define AID_A6_PBI5	   505
+#define AID_A6_PBI6	   506
+#define AID_A6_PBI7	   507
+#define AID_A6_PBI8	   508
+#define AID_A6_PBI9	   509
+#define AID_A6_PBI10   510
+#define AID_A6_PBI11   511
+#define AID_A6_PBI12   512
+#define AID_A6_PBI13   513
+#define AID_A6_PBI14   514
+#define AID_A6_PBI15   515
+#define AID_A6_PBI16   516
+#define AID_A6_PBI17   517
+#define AID_A6_PBI18   518
+#define AID_A6_PBI19   519
+#define AID_A6_PBI20   520
+#define AID_A6_PBI21   521
+#define AID_A6_PBI22   522
+#define AID_A6_PBI23   523
+#define AID_A6_PBI24   524
+#define AID_A6_MAX     529
+
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
 #define AID_MDU_CRT1	1002
@@ -1664,8 +1692,6 @@ private:
 	DiscreteBundleManager* bundleManager;
 	
 	vc::MDU* mdus[11];
-
-	//VECTOR3 NullRates;
 
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
