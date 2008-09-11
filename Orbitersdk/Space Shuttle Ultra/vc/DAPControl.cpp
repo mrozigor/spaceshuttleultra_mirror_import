@@ -191,9 +191,85 @@ namespace vc {
 		return bRet;
 	}
 
-	bool DAPControl::UpdatePBI(SURFHANDLE surf, int id, bool &bState)
+	bool DAPControl::GetPBIState(int id)
 	{
 		switch(id) {
+			case 0: //A
+				return (sts->DAPMode[0]==0);
+				break;
+			case 1: //B
+				return (sts->DAPMode[0]==1);
+				break;
+			case 2: //AUTO
+				return (sts->ControlMode==Atlantis::AUTO);
+				break;
+			case 3: //INRTL
+				return (sts->ControlMode==Atlantis::INRTL);
+				break;
+			case 4: //LVLH
+				return (sts->ControlMode==Atlantis::LVLH);
+				break;
+			case 5: //FREE
+				return (sts->ControlMode==Atlantis::FREE);
+				break;
+			case 6: //TRANS X
+				break;
+			case 7: //LOW Z
+				break;
+			case 8: //HIGH Z
+				break;
+			case 9: //PRI
+				return (sts->DAPMode[1]==0);
+				break;
+			case 10: //ALT
+				return (sts->DAPMode[1]==1);
+				break;
+			case 11: //VERN
+				return (sts->DAPMode[1]==2);
+				break;
+			case 12: //TRANS X NORM
+				return (sts->TransMode[0]==0);
+				break;
+			case 13: //TRANS Y NORM
+				return (sts->TransMode[1]==0);
+				break;
+			case 14: //TRANS Z NORM
+				return (sts->TransMode[2]==0);
+				break;
+			case 15: //ROT ROLL DISC RATE
+				return (sts->RotMode[ROLL]==0);
+				break;
+			case 16: //ROT PITCH DISC RATE
+				return (sts->RotMode[PITCH]==0);
+				break;
+			case 17: //ROT YAW DISC RATE
+				return (sts->RotMode[YAW]==0);
+				break;
+			case 18: //TRANS X PULSE
+				return (sts->TransMode[0]==1);
+				break;
+			case 19: //TRANS Y PULSE
+				return (sts->TransMode[1]==1);
+				break;
+			case 20: //TRANS Z PULSE
+				return (sts->TransMode[2]==1);
+				break;
+			case 21: //ROT ROLL PULSE
+				return (sts->RotMode[ROLL]==1);
+				break;
+			case 22: //ROT PITCH PULSE
+				return (sts->RotMode[PITCH]==1);
+				break;
+			case 23: //ROT YAW PULSE
+				return (sts->RotMode[YAW]==1);
+				break;
+		}
+		return false;
+	}
+
+	/*bool DAPControl::UpdatePBI(SURFHANDLE surf, int id, bool &bState)
+	{
+		/*switch(id) {
 			case 0: //A
 				return DrawPBILight(surf, bState, (sts->DAPMode[0]==0));
 				break;
@@ -264,7 +340,9 @@ namespace vc {
 				return DrawPBILight(surf, bState, (sts->RotMode[YAW]==1));
 				break;
 		}
-		return false;
+		if(id>=0 && id<=24)
+			return DrawPBILight(surf, bState, GetPBIState(id));
+		else return false;
 	}
 
 	bool DAPControl::DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn)
@@ -276,5 +354,5 @@ namespace vc {
 			bState=bOn;
 		}
 		return true;
-	}
+	}*/
 };

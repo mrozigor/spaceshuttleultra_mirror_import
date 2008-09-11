@@ -18,13 +18,17 @@ namespace vc {
 		 */
 		bool VCMouseEvent(int block, int nEvent, const VECTOR3 &p);
 		/**
+		 * Returns true if PBI on
+		 */
+		bool GetPBIState(int id);
+		/**
 		 * Draws PBI and updates state
 		 * Return true if blitting operation performed
 		 */
-		bool UpdatePBI(SURFHANDLE surf, int id, bool &bState);
+		//bool UpdatePBI(SURFHANDLE surf, int id, bool &bState);
 
 	private:
-		bool DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn);
+		//bool DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn);
 
 		Atlantis* sts;
 	};
