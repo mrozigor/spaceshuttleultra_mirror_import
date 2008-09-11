@@ -9,6 +9,11 @@ namespace vc {
 
 	PanelGroup::~PanelGroup()
 	{
+		while(!panels.empty()) {
+			BasicPanel* panel=panels.back();
+			if(panel) delete panel;
+			panels.pop_back();
+		}
 	}
 
 	bool PanelGroup::AddPanel(BasicPanel* pPanel)
