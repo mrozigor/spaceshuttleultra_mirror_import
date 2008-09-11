@@ -439,6 +439,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelA6.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelA7A8ODS.cpp"
 				>
 			</File>
@@ -691,6 +695,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OrbiterAPI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelA6.h"
 				>
 			</File>
 			<File

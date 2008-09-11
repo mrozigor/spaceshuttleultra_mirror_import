@@ -37,10 +37,22 @@ bool PanelC3::VCRedrawEvent(int id, int nEvent, SURFHANDLE surf)
 {
 	//sprintf_s(oapiDebugString(), 255, "VCRedrawEvent");
 	if(id>=AID_C3_PBI1 && id<=AID_C3_PBI24) {
-		return sts->dapcontrol->UpdatePBI(surf, id-AID_C3_PBI1, PBI_Lights[id-AID_C3_PBI1]);
+		//return sts->dapcontrol->UpdatePBI(surf, id-AID_C3_PBI1, PBI_Lights[id-AID_C3_PBI1]);
+		return DrawPBILight(surf, id-AID_C3_PBI1, sts->dapcontrol->GetPBIState(id-AID_C3_PBI1));
 	}
 	return false;
 }
+
+bool PanelC3::DrawPBILight(SURFHANDLE surf, int id, bool bOn)
+	{
+		if(PBI_Lights[id]==bOn) return false; //nothing to do
+		else {
+			if(bOn) oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 0, 42, 14);
+			else oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 14, 42, 14);
+			PBI_Lights[id]=bOn;
+		}
+		return true;
+	}
 
 void PanelC3::RegisterVC()
 {
