@@ -417,7 +417,8 @@ void Atlantis::GPC(double dt)
 					/*GetThrustVector(Thrust);
 					dV+=(Thrust.y/GetMass())*dt;
 					if(dV>=ET_SEP_RATE) {
-						SetThrusterGroupLevel(THGROUP_ATT_UP, 0.00);
+						//SetThrusterGroupLevel(THGROUP_ATT_UP, 0.00);
+						SetThrusterGroupLevel(thg_transup, 0.00);
 						bZThrust=false;
 						ops=104;
 					}*/
@@ -926,7 +927,7 @@ void Atlantis::AttControl(double SimdT)
 					}
 				}
 			}	
-			if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "Rates: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
+			//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "Rates: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
 		}
 	}
 	//else if(MNVR || TRK || ROT) {
@@ -1084,29 +1085,32 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 	double dDiff;
 	VECTOR3 CurrentRates;
 	CurrentRates=AngularVelocity*DEG;
-	//sprintf(oapiDebugString(), "%f", CurrentRates.data[PITCH]);
-	//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "REQD RATES: %f %f %f",
-		//Rates.x, Rates.y, Rates.z);
+	VECTOR3 PriLimits, VernLimits;
+	PriLimits=_V(0.05, 0.05, 0.05);
+	VernLimits=_V(0.0015, 0.0015, 0.0015);
+	double dTimeAcc=oapiGetTimeAcceleration();
+	//sprintf_s(oapiDebugString(), 255, "%s Limits: %f %f %f", oapiDebugString(), VernLimits.x, VernLimits.y, VernLimits.z);
+
 	dDiff=Rates.data[PITCH]-CurrentRates.data[PITCH];
-	if(DAPMode[1]!=2 && abs(dDiff)>0.05) {
+	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[PITCH]) {
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_pitchup, 1.0);
+			SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
 		else if(dDiff<0) {
-			SetThrusterGroupLevel(thg_pitchdown, 1.0);
+			SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchup, 0.0);
 		}
 	}
-	else if(abs(dDiff)>0.0009) {
+	else if(abs(dDiff)>VernLimits.data[PITCH]) {
 		//sprintf(oapiDebugString(), "%f", dDiff);
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_pitchup, 0.1);
+			SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
 		else if(dDiff<0) {
 			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.1);
+			SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
 		}
 	}
 	else {
@@ -1117,23 +1121,23 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 	}
 
 	dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
-	if(DAPMode[1]!=2 && abs(dDiff)>0.05) {
+	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[YAW]) {
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_yawleft, 1.0);
+			SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
 		else if(dDiff<0) {
-			SetThrusterGroupLevel(thg_yawright, 1.0);
+			SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 	}
-	else if(abs(dDiff)>0.0009) {
+	else if(abs(dDiff)>VernLimits.data[YAW]) {
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_yawleft, 0.1);
+			SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
 		else if(dDiff<0) {
-			SetThrusterGroupLevel(thg_yawright, 0.1);
+			SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 	}
@@ -1144,23 +1148,23 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 	}
 
 	dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
-	if(DAPMode[1]!=2 && abs(dDiff)>0.05) {
+	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[ROLL]) {
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_rollright, 1.0);
+			SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
 		else if(dDiff<0) {
-			SetThrusterGroupLevel(thg_rollleft, 1.0);
+			SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
 	}
-	else if(abs(dDiff)>0.0009) {
+	else if(abs(dDiff)>VernLimits.data[ROLL]) {
 		if(dDiff>0) {
-			SetThrusterGroupLevel(thg_rollright, 0.1);
+			SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
 		else if(dDiff<0) {
-			SetThrusterGroupLevel(thg_rollleft, 0.1);
+			SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
 	}
@@ -1309,9 +1313,6 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 {
 	//convert rotation around RotationAxis to rates around x,y,z axes
 
-	VECTOR3 CurrentRates;
-	CurrentRates=ToDeg(AngularVelocity);
-	//sprintf(oapiDebugString(), "AttControl");
 	Mass=GetMass();
 	GetPMI(PMI);
 	//Rates.data[PITCH]=0.0;
@@ -1343,23 +1344,21 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 
 	if(!Pitch && !Yaw && !Roll) {
 		ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
-		sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
+		//sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
 	}
-	if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RATES1: %f %f %f %i", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW], DAPMode[1]);
+	//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RATES1: %f %f %f %i", Rates.data[ROLL], Rates.data[PITCH], Rates.data[YAW], DAPMode[1]);
 }
 
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vectors in degrees
 {
-	VECTOR3 CurrentRates;
-	CurrentRates=AngularVelocity*DEG;
+	//CurrentRates=AngularVelocity*DEG;
 	//sprintf(oapiDebugString(), "AttControl");
 	Mass=GetMass();
 	GetPMI(PMI);
-	//Rates=_V(0, 0, 0);
-	//if(MNVR || TRK || ROT) {
+
 	if(ControlMode!=FREE) {
 		if(ControlMode==AUTO || RotMode[ROLL]==0) {
-			if(!Yaw && !Pitch && (Roll || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
+			if(/*!Yaw && !Pitch &&*/ (Roll || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
 				if(abs(PitchYawRoll.data[ROLL])<0.05) Roll=false;
 				else {
 					Roll=true;
@@ -1374,11 +1373,13 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					}
 					else {
 						if(PitchYawRoll.data[ROLL]>0) {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=max(-RotRate, -PitchYawRoll.data[ROLL]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=max(-RotRate, -PitchYawRoll.data[ROLL]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=-range(RotRate/10.0, PitchYawRoll.data[ROLL]/5.0, RotRate);
 							else Rates.data[ROLL]=-RotRate;
 						}
 						else {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=min(RotRate, -PitchYawRoll.data[ROLL]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=min(RotRate, -PitchYawRoll.data[ROLL]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[ROLL]=range(RotRate/10.0, -PitchYawRoll.data[ROLL]/5.0, RotRate);
 							else Rates.data[ROLL]=RotRate;
 						}
 					}
@@ -1389,7 +1390,7 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 		}
 
 		if(ControlMode==AUTO || RotMode[YAW]==0) {
-			if(!Roll && !Pitch && (Yaw || abs(PitchYawRoll.data[YAW])>AttDeadband)) {
+			if(/*!Roll && !Pitch &&*/ (Yaw || abs(PitchYawRoll.data[YAW])>AttDeadband)) {
 				if(abs(PitchYawRoll.data[YAW])<0.05) Yaw=false;
 				else {
 					Yaw=true;
@@ -1401,11 +1402,13 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					}
 					else {
 						if(PitchYawRoll.data[YAW]>0) {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=max(-RotRate, -PitchYawRoll.data[YAW]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=max(-RotRate, -PitchYawRoll.data[YAW]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=-range(RotRate/10.0, PitchYawRoll.data[YAW]/5.0, RotRate);
 							else Rates.data[YAW]=-RotRate;
 						}
 						else {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=min(RotRate, -PitchYawRoll.data[YAW]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=min(RotRate, -PitchYawRoll.data[YAW]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[YAW]=range(RotRate/10.0, -PitchYawRoll.data[YAW]/5.0, RotRate);
 							else Rates.data[YAW]=RotRate;
 						}
 					}
@@ -1419,7 +1422,7 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 		}
 
 		if(ControlMode==AUTO || RotMode[PITCH]==0) {
-			if(!Roll && !Yaw && (Pitch || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
+			if(/*!Roll && !Yaw &&*/ (Pitch || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
 				if(abs(PitchYawRoll.data[PITCH])<0.05) {
 					Pitch=false;
 					//ManeuverComplete=true;
@@ -1436,11 +1439,13 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 					}
 					else {
 						if(PitchYawRoll.data[PITCH]>0) {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=max(-RotRate, -PitchYawRoll.data[PITCH]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=max(-RotRate, -PitchYawRoll.data[PITCH]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=-range(RotRate/10.0, PitchYawRoll.data[PITCH]/5.0, RotRate);
 							else Rates.data[PITCH]=-RotRate;
 						}
 						else {
-							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=min(RotRate, -PitchYawRoll.data[PITCH]/10.0);
+							//if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=min(RotRate, -PitchYawRoll.data[PITCH]/5.0);
+							if(ManeuverStatus==MNVR_COMPLETE) Rates.data[PITCH]=range(RotRate/10.0, -PitchYawRoll.data[PITCH]/5.0, RotRate);
 							else Rates.data[PITCH]=RotRate;
 						}
 					}
@@ -1458,6 +1463,11 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 			//sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
 		}
 
+		if(oapiGetTimeAcceleration()>10.0)
+		{
+			Rates=Rates/(2.0*oapiGetTimeAcceleration()/10.0);
+		}
+		
 		if(ManeuverStatus==MNVR_COMPLETE) {
 			//Rates=Rates+NullRates;
 			for(int i=0;i<3;i++) {
