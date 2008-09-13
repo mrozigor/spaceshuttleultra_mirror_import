@@ -4357,7 +4357,7 @@ MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 {
 	double Time, Angle;
-	if(Rates!=0.0) {
+	if(!Eq(Rates, 0.0)) {
 		Time = (Mass*PMI.data[Axis]*Rates)/Torque.data[Axis];
 		Angle=0.5*Rates*Time;
 		return DEG*Angle;
@@ -5706,18 +5706,6 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 	
 	//get pointer to CRT MFD as required
 	if(newmfd!=NULL) {
-
-		//if(mfd==4) newmfd->id=0;
-		//else if(mfd==7) newmfd->id=1;
-		//else if(mfd==6) newmfd->id=2;
-		//else if(mfd==9) newmfd->id=3;
-		//else {
-		//	//newmfd->id=-1;
-		//	if(mfd<4) newmfd->id=mfd+4;
-		//	else if(mfd==5) newmfd->id=8;
-		//	else if(mfd>=8) newmfd->id=mfd+1;
-		//}
-
 		newmfd->id = mfd;
 		if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
 			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
@@ -6837,6 +6825,14 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	  if(bThrottle) bThrottle=false;
 	  else bThrottle=true;
 	  return 1;
+	case OAPI_KEY_D:
+		IlluminateMesh(mesh_orbiter);
+		if(status==STATE_PRELAUNCH) {
+			IlluminateMesh(mesh_tank);
+			IlluminateMesh(mesh_srb[0]);
+			IlluminateMesh(mesh_srb[1]);
+		}
+		return 1;
     case OAPI_KEY_J:  // "Jettison"
       if (!Playback()) bManualSeparate = true;
       return 1;
@@ -6871,6 +6867,22 @@ void Atlantis::ShowODS()
 void Atlantis::HideODS()
 {
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
+}
+
+void Atlantis::IlluminateMesh(UINT idx)
+{
+	MATERIAL* material=NULL;
+	MESHHANDLE mesh=GetMesh(vis, idx);
+
+	DWORD materialCount = oapiMeshMaterialCount(mesh);
+    for (DWORD mi = 0; mi < materialCount; mi++) {
+        material = oapiMeshMaterial(mesh, mi);
+        if (material->emissive.g <= 0.1) {
+            material->emissive.r = 0.5;
+            material->emissive.g = 0.5;
+            material->emissive.b = 0.5;
+        }
+    }
 }
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)

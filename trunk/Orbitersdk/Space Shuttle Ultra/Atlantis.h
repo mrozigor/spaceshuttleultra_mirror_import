@@ -1208,6 +1208,7 @@ private:
 	void HideMidDeck();
 	void ShowODS();
 	void HideODS();
+	void IlluminateMesh(UINT idx);
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
