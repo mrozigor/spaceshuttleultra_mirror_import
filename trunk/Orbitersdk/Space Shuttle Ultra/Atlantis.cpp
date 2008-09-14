@@ -6831,9 +6831,12 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		if(!bIlluminated) {
 			IlluminateMesh(mesh_orbiter);
 			if(status==STATE_PRELAUNCH) {
-				vector<DWORD> ExcludeTank(7, 8);
+				vector<DWORD> ExcludeTank;
+				ExcludeTank.push_back(7);
+				ExcludeTank.push_back(8);
 				IlluminateMesh(mesh_tank, ExcludeTank);
-				vector<DWORD> ExcludeSRB(2);
+				vector<DWORD> ExcludeSRB;
+				ExcludeSRB.push_back(2);
 				IlluminateMesh(mesh_srb[0], ExcludeSRB);
 				IlluminateMesh(mesh_srb[1], ExcludeSRB);
 			}
@@ -6917,7 +6920,7 @@ void Atlantis::IlluminateMesh(UINT idx, vector<DWORD> vExclude)
 				material->emissive.b = 0.5;
 			}
 		}
-		else ExCounter++;
+		else if(ExCounter<(vExclude.size()-1)) ExCounter++;
     }
 }
 
