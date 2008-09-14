@@ -15,6 +15,7 @@
 #include "CRT.h"
 #include "orbitersdk.h"
 #include <math.h>
+#include <vector>
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
@@ -1209,6 +1210,7 @@ private:
 	void ShowODS();
 	void HideODS();
 	void IlluminateMesh(UINT idx);
+	void IlluminateMesh(UINT idx, vector<DWORD> vExclude); //NOTE: vExclude MUST be in ascending order
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
