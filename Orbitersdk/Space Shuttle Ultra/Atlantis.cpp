@@ -6828,9 +6828,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_D:
 		IlluminateMesh(mesh_orbiter);
 		if(status==STATE_PRELAUNCH) {
-			IlluminateMesh(mesh_tank);
-			IlluminateMesh(mesh_srb[0]);
-			IlluminateMesh(mesh_srb[1]);
+			vector<DWORD> ExcludeTank(7, 8);
+			IlluminateMesh(mesh_tank, ExcludeTank);
+			vector<DWORD> ExcludeSRB(2);
+			IlluminateMesh(mesh_srb[0], ExcludeSRB);
+			IlluminateMesh(mesh_srb[1], ExcludeSRB);
 		}
 		return 1;
     case OAPI_KEY_J:  // "Jettison"
@@ -6882,6 +6884,26 @@ void Atlantis::IlluminateMesh(UINT idx)
             material->emissive.g = 0.5;
             material->emissive.b = 0.5;
         }
+    }
+}
+
+void Atlantis::IlluminateMesh(UINT idx, vector<DWORD> vExclude)
+{
+	MATERIAL* material=NULL;
+	MESHHANDLE mesh=GetMesh(vis, idx);
+	int ExCounter=0;
+
+	DWORD materialCount = oapiMeshMaterialCount(mesh);
+    for (DWORD mi = 0; mi < materialCount; mi++) {
+		if(vExclude[ExCounter]!=mi) {
+			material = oapiMeshMaterial(mesh, mi);
+			if (material->emissive.g <= 0.1) {
+				material->emissive.r = 0.5;
+				material->emissive.g = 0.5;
+				material->emissive.b = 0.5;
+			}
+		}
+		else ExCounter++;
     }
 }
 
