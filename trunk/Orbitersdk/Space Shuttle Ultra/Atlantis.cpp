@@ -555,6 +555,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
 
+  bIlluminated=false;
+
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
   
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
@@ -6826,13 +6828,25 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	  else bThrottle=true;
 	  return 1;
 	case OAPI_KEY_D:
-		IlluminateMesh(mesh_orbiter);
-		if(status==STATE_PRELAUNCH) {
-			vector<DWORD> ExcludeTank(7, 8);
-			IlluminateMesh(mesh_tank, ExcludeTank);
-			vector<DWORD> ExcludeSRB(2);
-			IlluminateMesh(mesh_srb[0], ExcludeSRB);
-			IlluminateMesh(mesh_srb[1], ExcludeSRB);
+		if(!bIlluminated) {
+			IlluminateMesh(mesh_orbiter);
+			if(status==STATE_PRELAUNCH) {
+				vector<DWORD> ExcludeTank(7, 8);
+				IlluminateMesh(mesh_tank, ExcludeTank);
+				vector<DWORD> ExcludeSRB(2);
+				IlluminateMesh(mesh_srb[0], ExcludeSRB);
+				IlluminateMesh(mesh_srb[1], ExcludeSRB);
+			}
+			bIlluminated=true;
+		}
+		else {
+			DisableIllumination(mesh_orbiter, hOrbiterMesh);
+			if(status==STATE_PRELAUNCH) {
+				DisableIllumination(mesh_tank, hTankMesh);
+				DisableIllumination(mesh_srb[0], hSRBMesh[0]);
+				DisableIllumination(mesh_srb[1], hSRBMesh[1]);
+			}
+			bIlluminated=false;
 		}
 		return 1;
     case OAPI_KEY_J:  // "Jettison"
@@ -6904,6 +6918,23 @@ void Atlantis::IlluminateMesh(UINT idx, vector<DWORD> vExclude)
 			}
 		}
 		else ExCounter++;
+    }
+}
+
+void Atlantis::DisableIllumination(UINT idx, MESHHANDLE GlobalMesh)
+{
+	MATERIAL* MeshMaterial=NULL;
+	MATERIAL* DefaultMaterial=NULL;
+	MESHHANDLE mesh=GetMesh(vis, idx);
+
+	DWORD materialCount = oapiMeshMaterialCount(mesh);
+    for (DWORD mi = 0; mi < materialCount; mi++) {
+        MeshMaterial = oapiMeshMaterial(mesh, mi);
+		DefaultMaterial = oapiMeshMaterial(GlobalMesh, mi);
+        
+		MeshMaterial->emissive.r=DefaultMaterial->emissive.r;
+		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
+		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
     }
 }
 

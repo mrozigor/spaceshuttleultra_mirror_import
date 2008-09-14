@@ -1211,6 +1211,7 @@ private:
 	void HideODS();
 	void IlluminateMesh(UINT idx);
 	void IlluminateMesh(UINT idx, vector<DWORD> vExclude); //NOTE: vExclude MUST be in ascending order
+	void DisableIllumination(UINT idx, MESHHANDLE GlobalMesh);
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
@@ -1763,6 +1764,8 @@ private:
 	double fTimeCameraLabel;
 	NOTEHANDLE nhCameraLabel;
 	char pszCameraLabelBuffer[80];
+
+	bool bIlluminated;
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	void TriggerLiftOff();
