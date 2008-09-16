@@ -1845,26 +1845,26 @@ void Atlantis::DefineAnimations (void)
   // BACK LEFT
   static UINT camBLYawGrp[1] = {GRP_CAMERAPIVOTBL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(0,1,0), (float)(180*RAD));
+    _V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.688,orbiter_ofs.z-6.413), _V(0,1,0), (float)(180*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CAMERABL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.822,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.97,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
   static UINT camBRYawGrp[1] = {GRP_CAMERAPIVOTBR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.688,orbiter_ofs.z-6.413), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CAMERABR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.822,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.97,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
@@ -6051,7 +6051,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
-    SetCameraOffset (_V(orbiter_ofs.x-2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
+    SetCameraOffset (_V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.955,orbiter_ofs.z-6.167));
     oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -6060,7 +6060,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
-    SetCameraOffset (_V(orbiter_ofs.x+2.263,orbiter_ofs.y+1.656,orbiter_ofs.z-6.42));
+    SetCameraOffset (_V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.955,orbiter_ofs.z-6.167));
     oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -6897,9 +6897,9 @@ void Atlantis::IlluminateMesh(UINT idx)
     for (DWORD mi = 0; mi < materialCount; mi++) {
         material = oapiMeshMaterial(mesh, mi);
         if (material->emissive.g <= 0.1) {
-            material->emissive.r = 0.5;
-            material->emissive.g = 0.5;
-            material->emissive.b = 0.5;
+            material->emissive.r = 0.3;
+            material->emissive.g = 0.3;
+            material->emissive.b = 0.3;
         }
     }
 }
