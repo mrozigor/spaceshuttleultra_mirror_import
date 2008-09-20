@@ -146,7 +146,7 @@ void MLP::TurnOnPadLights()
 	MESHHANDLE mesh=GetMesh(vis, msh_idx);
 	IlluminateMesh(mesh);
 	Atlantis* sts=GetShuttleOnPad();
-	sts->TurnOnPadLights();
+	if(sts) sts->TurnOnPadLights();
 	bPadLightsOn=true;
 }
 
@@ -155,15 +155,15 @@ void MLP::TurnOffPadLights()
 	MESHHANDLE mesh=GetMesh(vis, msh_idx);
 	DisableIllumination(mesh, mshMLP);
 	Atlantis* sts=GetShuttleOnPad();
-	sts->TurnOffPadLights();
+	if(sts) sts->TurnOffPadLights();
 	bPadLightsOn=false;
 }
 
 Atlantis* MLP::GetShuttleOnPad()
 {
 	OBJHANDLE Handle=GetAttachmentStatus(ahHDP);
-	VESSEL* vessel=oapiGetVesselInterface(Handle);
-	if(vessel) {
+	if(Handle) {
+		VESSEL* vessel=oapiGetVesselInterface(Handle);
 		if(!strcmp(vessel->GetClassName(), "Atlantis") || !strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
 			Atlantis* sts=(Atlantis*)vessel;
 			return sts;
