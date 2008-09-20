@@ -6829,27 +6829,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	  return 1;
 	case OAPI_KEY_D:
 		if(!bIlluminated) {
-			IlluminateMesh(mesh_orbiter);
-			if(status==STATE_PRELAUNCH) {
-				vector<DWORD> ExcludeTank;
-				ExcludeTank.push_back(7);
-				ExcludeTank.push_back(8);
-				IlluminateMesh(mesh_tank, ExcludeTank);
-				vector<DWORD> ExcludeSRB;
-				ExcludeSRB.push_back(2);
-				IlluminateMesh(mesh_srb[0], ExcludeSRB);
-				IlluminateMesh(mesh_srb[1], ExcludeSRB);
-			}
-			bIlluminated=true;
+			TurnOnPadLights();
 		}
 		else {
-			DisableIllumination(mesh_orbiter, hOrbiterMesh);
-			if(status==STATE_PRELAUNCH) {
-				DisableIllumination(mesh_tank, hTankMesh);
-				DisableIllumination(mesh_srb[0], hSRBMesh[0]);
-				DisableIllumination(mesh_srb[1], hSRBMesh[1]);
-			}
-			bIlluminated=false;
+			TurnOffPadLights();
 		}
 		return 1;
     case OAPI_KEY_J:  // "Jettison"
@@ -6888,7 +6871,47 @@ void Atlantis::HideODS()
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 }
 
-void Atlantis::IlluminateMesh(UINT idx)
+void Atlantis::TurnOnPadLights()
+{
+	if(status==STATE_PRELAUNCH) {
+		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
+		IlluminateMesh(OrbiterMesh);
+
+		vector<int> ExcludeTank;
+		ExcludeTank.push_back(7);
+		ExcludeTank.push_back(8);
+		MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
+		IlluminateMesh(TankMesh, ExcludeTank);
+
+		vector<int> ExcludeSRB;
+		ExcludeSRB.push_back(2);
+		for(int i=0;i<2;i++) {
+			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
+			IlluminateMesh(SrbMesh, ExcludeSRB);
+		}
+
+		bIlluminated=true;
+	}
+}
+
+void Atlantis::TurnOffPadLights()
+{
+	if(status==STATE_PRELAUNCH) {
+		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
+		DisableIllumination(OrbiterMesh, hOrbiterMesh);
+		
+		MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
+		DisableIllumination(TankMesh, hTankMesh);
+		
+		for(int i=0;i<2;i++) {
+			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
+			DisableIllumination(SrbMesh, hSRBMesh[i]);
+		}
+		bIlluminated=false;
+	}
+}
+
+/*void Atlantis::IlluminateMesh(UINT idx)
 {
 	MATERIAL* material=NULL;
 	MESHHANDLE mesh=GetMesh(vis, idx);
@@ -6939,7 +6962,7 @@ void Atlantis::DisableIllumination(UINT idx, MESHHANDLE GlobalMesh)
 		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
 		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
     }
-}
+}*/
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
 {
