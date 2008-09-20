@@ -1056,6 +1056,8 @@ public:
 	 */
 	bool SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir);
 
+	virtual void TurnOnPadLights();
+	virtual void TurnOffPadLights();
 	void ToggleGrapple (void);
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();
@@ -1209,9 +1211,9 @@ private:
 	void HideMidDeck();
 	void ShowODS();
 	void HideODS();
-	void IlluminateMesh(UINT idx);
+	/*void IlluminateMesh(UINT idx);
 	void IlluminateMesh(UINT idx, vector<DWORD> vExclude); //NOTE: vExclude MUST be in ascending order
-	void DisableIllumination(UINT idx, MESHHANDLE GlobalMesh);
+	void DisableIllumination(UINT idx, MESHHANDLE GlobalMesh);*/
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
@@ -1828,6 +1830,57 @@ private:
 	double pos;
 	//////////////////////// ET vent ////////////////////////
 };
+
+//mesh illumination functions
+static void IlluminateMesh(MESHHANDLE mesh)
+{
+	MATERIAL* material=NULL;
+
+	DWORD materialCount = oapiMeshMaterialCount(mesh);
+    for (DWORD mi = 0; mi < materialCount; mi++) {
+        material = oapiMeshMaterial(mesh, mi);
+        if (material->emissive.g <= 0.1) {
+            material->emissive.r = 0.5;
+            material->emissive.g = 0.5;
+            material->emissive.b = 0.5;
+        }
+    }
+}
+
+static void IlluminateMesh(MESHHANDLE mesh, vector<int> vExclude)
+{
+	MATERIAL* material=NULL;
+	unsigned int ExCounter=0;
+
+	int materialCount = oapiMeshMaterialCount(mesh);
+    for (int mi = 0; mi < materialCount; mi++) {
+		if(vExclude[ExCounter]!=mi) {
+			material = oapiMeshMaterial(mesh, mi);
+			if (material->emissive.g <= 0.1) {
+				material->emissive.r = 0.5;
+				material->emissive.g = 0.5;
+				material->emissive.b = 0.5;
+			}
+		}
+		else if(ExCounter<(vExclude.size()-1)) ExCounter++;
+    }
+}
+
+static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
+{
+	MATERIAL* MeshMaterial=NULL;
+	MATERIAL* DefaultMaterial=NULL;
+
+	DWORD materialCount = oapiMeshMaterialCount(mesh);
+    for (DWORD mi = 0; mi < materialCount; mi++) {
+        MeshMaterial = oapiMeshMaterial(mesh, mi);
+		DefaultMaterial = oapiMeshMaterial(GlobalMesh, mi);
+        
+		MeshMaterial->emissive.r=DefaultMaterial->emissive.r;
+		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
+		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
+    }
+}
 
 #endif // !__ATLANTIS_H
 
