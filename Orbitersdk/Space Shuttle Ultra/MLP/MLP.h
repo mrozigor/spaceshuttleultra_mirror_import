@@ -27,6 +27,8 @@ public:
 	virtual bool clbkLoadVC(int id);
 	virtual void clbkSaveState(FILEHANDLE scn);
 	virtual void clbkPreStep(double fSimT, double fDeltaT, double mjd);
+	virtual void clbkVisualCreated(VISHANDLE _vis, int refcount);
+	virtual void clbkVisualDestroyed(VISHANDLE _vis, int refcount);
 private:
 	double fCountdown;
 	bool bStartSequence;
@@ -36,6 +38,16 @@ private:
 	ATTACHMENTHANDLE ahHDP;
 	double fSRBSteam;
 	double fSSMESteam;
+
+	double dTimer;
+	bool bPadLightsOn;
+	UINT msh_idx;
+	VISHANDLE vis;
+
+	void TurnOnPadLights();
+	void TurnOffPadLights();
+
+	Atlantis* GetShuttleOnPad();
 };
 
 #endif

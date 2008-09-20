@@ -15,6 +15,10 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	bStartSequence = false;
 	ahHDP = NULL;
 	fCountdown = 8.0;
+
+	dTimer=0.0;
+	bPadLightsOn=false;
+	vis=NULL;
 }
 
 MLP::~MLP()
@@ -40,7 +44,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 
 	SetSize(25.0);
 	SetEmptyMass(4.1957075E6);
-	AddMesh(mshMLP);
+	msh_idx=AddMesh(mshMLP);
 	SetTouchdownPoints(_V(0.0, -30.65, 25.0), _V(-25.0, -30.65, -25.0), _V(25.0, -30.65, -25.0)); //080522, DaveS edit: Corrected MLP height so it sits correctly on the MLP stands on the hardstand
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
@@ -69,6 +73,24 @@ void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
 
 void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 {
+	if(dTimer>=fSimT) {
+		dTimer=fSimT+300.0;
+
+		OBJHANDLE Sun=NULL;
+		int count=(int)oapiGetGbodyCount();
+		for(int i=0;i<count;i++) {
+			Sun=oapiGetGbodyByIndex(i);
+			if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
+		}
+		if(Sun) {
+			VECTOR3 SunPosGlobal, SunPos;
+			oapiGetGlobalPos(Sun, &SunPosGlobal);
+			Global2Local(SunPosGlobal, SunPos);
+			double angle=acos(SunPos.y/length(SunPos))*DEG;
+			if(angle>85.0 && !bPadLightsOn) TurnOnPadLights();
+			else if(angle<85.0 && bPadLightsOn) TurnOffPadLights();
+		}
+	}
 
 	if(bStartSequence)
 	{
@@ -107,6 +129,47 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 			bSSS_Active?"ON":"OFF", fT_SSSActive, fSSMESteam, fSRBSteam);
 	}
 	*/
+}
+
+void MLP::clbkVisualCreated(VISHANDLE _vis, int refcount)
+{
+	vis=_vis;
+}
+
+void MLP::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
+{
+	if(vis==_vis) vis=NULL;
+}
+
+void MLP::TurnOnPadLights()
+{
+	MESHHANDLE mesh=GetMesh(vis, msh_idx);
+	IlluminateMesh(mesh);
+	Atlantis* sts=GetShuttleOnPad();
+	sts->TurnOnPadLights();
+	bPadLightsOn=true;
+}
+
+void MLP::TurnOffPadLights()
+{
+	MESHHANDLE mesh=GetMesh(vis, msh_idx);
+	DisableIllumination(mesh, mshMLP);
+	Atlantis* sts=GetShuttleOnPad();
+	sts->TurnOffPadLights();
+	bPadLightsOn=false;
+}
+
+Atlantis* MLP::GetShuttleOnPad()
+{
+	OBJHANDLE Handle=GetAttachmentStatus(ahHDP);
+	VESSEL* vessel=oapiGetVesselInterface(Handle);
+	if(vessel) {
+		if(!strcmp(vessel->GetClassName(), "Atlantis") || !strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
+			Atlantis* sts=(Atlantis*)vessel;
+			return sts;
+		}
+	}
+	return NULL;
 }
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
