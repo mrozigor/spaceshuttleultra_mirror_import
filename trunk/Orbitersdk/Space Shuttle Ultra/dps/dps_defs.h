@@ -3,6 +3,7 @@
 namespace dps {
 	class IDP;
 	class GPC;
+	class GNCSoftware;
 	class MMU;
 	class MDM;
 	class MDMIOModule;
