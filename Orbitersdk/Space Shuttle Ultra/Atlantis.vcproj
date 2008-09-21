@@ -528,6 +528,14 @@
 				RelativePath=".\ValveTypeBool.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\dps\GPCSoftware.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\GNCSoftware.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Includes"
@@ -639,6 +647,14 @@
 			</File>
 			<File
 				RelativePath=".\GearOp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\GPCSoftware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\GNCSoftware.h"
 				>
 			</File>
 			<File
