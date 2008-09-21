@@ -73,7 +73,7 @@ void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
 
 void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 {
-	if(dTimer>=fSimT) {
+	if(dTimer<=fSimT) {
 		dTimer=fSimT+300.0;
 
 		OBJHANDLE Sun=NULL;
