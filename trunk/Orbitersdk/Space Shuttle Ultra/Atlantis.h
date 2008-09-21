@@ -915,6 +915,7 @@ class Atlantis: public VESSEL2 {
 	friend class CRT;
 	friend class vc::MDU;
 	friend class vc::DAPControl;
+	friend class dps::GNCSoftware; //temporary
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
@@ -1190,6 +1191,8 @@ private:
 	eva_docking::BasicExternalAirlock* pExtAirlock;
 	AirDataProbeSystem* pADPS;
 
+	//GPC programs
+	dps::GNCSoftware *gncsoftware;
 
 	SURFHANDLE tex_rcs;
 	void StopAllManifolds();
@@ -1840,9 +1843,9 @@ static void IlluminateMesh(MESHHANDLE mesh)
     for (DWORD mi = 0; mi < materialCount; mi++) {
         material = oapiMeshMaterial(mesh, mi);
         if (material->emissive.g <= 0.1) {
-            material->emissive.r = 0.5;
-            material->emissive.g = 0.5;
-            material->emissive.b = 0.5;
+            material->emissive.r = 0.3f;
+            material->emissive.g = 0.3f;
+            material->emissive.b = 0.3f;
         }
     }
 }
@@ -1857,9 +1860,9 @@ static void IlluminateMesh(MESHHANDLE mesh, vector<int> vExclude)
 		if(vExclude[ExCounter]!=mi) {
 			material = oapiMeshMaterial(mesh, mi);
 			if (material->emissive.g <= 0.1) {
-				material->emissive.r = 0.5;
-				material->emissive.g = 0.5;
-				material->emissive.b = 0.5;
+				material->emissive.r = 0.3f;
+				material->emissive.g = 0.3f;
+				material->emissive.b = 0.3f;
 			}
 		}
 		else if(ExCounter<(vExclude.size()-1)) ExCounter++;

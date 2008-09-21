@@ -428,56 +428,16 @@ void Atlantis::GPC(double dt)
 			}
 			break;
 		case 104:
-			//GetThrustVector(Thrust);
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code (may not be needed)
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 105:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code (may not be needed)
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 106:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			break;
@@ -486,72 +446,20 @@ void Atlantis::GPC(double dt)
 			TransControl(dt);
 			break;
 		case 202:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 301:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			break;
 		case 302:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 303:
-			/*GetGlobalOrientation(InertialOrientationRad);
-			GetAngularVel(AngularVelocity);
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-			//add ManeuverinProg code
-			ManeuverinProg=true;
-			for(i=0;i<4;i++) {
-				if(MET[i]<START_TIME[i]) {
-					ManeuverinProg=false;
-					break;
-				}
-			}*/
 			AttControl(dt);
 			TransControl(dt);
 			break;
@@ -879,8 +787,6 @@ void Atlantis::AttControl(double SimdT)
 	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
 
 	GetGlobalPos(GVesselPos);
-	GetStatus(Status);
-	GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 
 	for(i=0;i<3;i++) {
 		if(!RotPulseInProg[i]) ReqdRates.data[i]=AngularVelocity.data[i]*DEG;
@@ -899,6 +805,7 @@ void Atlantis::AttControl(double SimdT)
 			REQD_ATT=CurrentAttitude*DEG;
 		}
 		else if(ControlMode==LVLH) {
+			GetStatus(Status);
 			LVLHOrientationReqd=CalcLVLHAttitude()*DEG;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
 		}
@@ -926,15 +833,15 @@ void Atlantis::AttControl(double SimdT)
 						RotPulseInProg[i]=true;
 					}
 				}
-			}	
+			}
 			//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "Rates: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
 		}
 	}
-	//else if(MNVR || TRK || ROT) {
 	else if(ControlMode!=FREE) {
 		MATRIX3 LastReqdAttMatrix;
 		VECTOR3 NullRates, NullRatesLocal;
 		if((ControlMode==AUTO && TRK) || ControlMode==LVLH) {
+			GetStatus(Status); //
 			//LastReqdAtt=REQD_ATT;
 			LastReqdAttMatrix=ReqdAttMatrix;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
@@ -983,16 +890,10 @@ void Atlantis::AttControl(double SimdT)
 
 			NullRatesLocal=(ConvertOrbiterAnglesToLocal(TargAttOrbiter)-ConvertOrbiterAnglesToLocal(LastTargAttOrbiter))/SimdT;
 			double NullRatesMag=abs(NullRatesLocal.x)+abs(NullRatesLocal.y)+abs(NullRatesLocal.z);
-			//double NullRatesMag=abs(NullRates.x)+abs(NullRates.y)+abs(NullRates.z);
 			if(NullRatesMag>10.0) {
 				//error; rates should not be this high
 				return;
 			}
-			/*NullRatesMag=abs(NullRatesDiff.x)+abs(NullRatesDiff.y)+abs(NullRatesDiff.z);
-			if(NullRatesMag>10.0) {
-				//error; rates should not be this high
-				return;
-			}*/
 
 			if(ManeuverStatus==MNVR_STARTING) {
 				NullRates=(TargAttOrbiter-LastTargAttOrbiter)/SimdT;
@@ -1174,140 +1075,6 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 		if(abs(RHCInput.data[ROLL])<0.01) RotPulseInProg[ROLL]=false;
 	}
 }
-
-/*void Atlantis::SetRates(VECTOR3 &Rates)
-{
-	double dDiff;
-	VECTOR3 CurrentRates;
-	CurrentRates=AngularVelocity*DEG;
-	//sprintf(oapiDebugString(), "%f", CurrentRates.data[PITCH]);
-	if(DAPMode[1]==0) {
-		dDiff=Rates.data[PITCH]-CurrentRates.data[PITCH];
-		if(abs(dDiff)>0.05) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_pitchup, 1.0);
-				SetThrusterGroupLevel(thg_pitchdown, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_pitchdown, 1.0);
-				SetThrusterGroupLevel(thg_pitchup, 0.0);
-			}
-		}
-		else if(abs(dDiff)>0.0009) {
-			//sprintf(oapiDebugString(), "%f", dDiff);
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_pitchup, 0.1);
-				SetThrusterGroupLevel(thg_pitchdown, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_pitchup, 0.0);
-				SetThrusterGroupLevel(thg_pitchdown, 0.1);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		}
-		dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
-		if(abs(dDiff)>0.05) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_yawleft, 1.0);
-				SetThrusterGroupLevel(thg_yawright, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_yawright, 1.0);
-				SetThrusterGroupLevel(thg_yawleft, 0.0);
-			}
-		}
-		else if(abs(dDiff)>0.0009) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_yawleft, 0.1);
-				SetThrusterGroupLevel(thg_yawright, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_yawright, 0.1);
-				SetThrusterGroupLevel(thg_yawleft, 0.0);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_yawright, 0.0);
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
-		}
-		dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
-		if(abs(dDiff)>0.05) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_rollright, 1.0);
-				SetThrusterGroupLevel(thg_rollleft, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_rollleft, 1.0);
-				SetThrusterGroupLevel(thg_rollright, 0.0);
-			}
-		}
-		else if(abs(dDiff)>0.0009) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_rollright, 0.1);
-				SetThrusterGroupLevel(thg_rollleft, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_rollleft, 0.1);
-				SetThrusterGroupLevel(thg_rollright, 0.0);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_rollright, 0.0);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-		}
-	}
-	else if(DAPMode[1]==2) {
-		dDiff=Rates.data[PITCH]-CurrentRates.data[PITCH];
-		if(abs(dDiff)>0.00009) {
-			//sprintf(oapiDebugString(), "%f", dDiff);
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_pitchup, 0.1);
-				SetThrusterGroupLevel(thg_pitchdown, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_pitchdown, 0.1);
-				SetThrusterGroupLevel(thg_pitchup, 0.0);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		}
-		dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
-		if(abs(dDiff)>0.00009) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_yawleft, 0.1);
-				SetThrusterGroupLevel(thg_yawright, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_yawright, 0.1);
-				SetThrusterGroupLevel(thg_yawleft, 0.0);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
-			SetThrusterGroupLevel(thg_yawright, 0.0);
-		}
-		dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
-		if(abs(dDiff)>0.00009) {
-			if(dDiff>0) {
-				SetThrusterGroupLevel(thg_rollright, 0.1);
-				SetThrusterGroupLevel(thg_rollleft, 0.0);
-			}
-			else if(dDiff<0) {
-				SetThrusterGroupLevel(thg_rollleft, 0.1);
-				SetThrusterGroupLevel(thg_rollright, 0.0);
-			}
-		}
-		else {
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-			SetThrusterGroupLevel(thg_rollright, 0.0);
-		}
-	}
-}*/
 
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 {

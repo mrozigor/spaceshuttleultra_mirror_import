@@ -34,6 +34,7 @@
 #include "SubsystemDirector.h"
 #include "dps/MasterTimingUnit.h"
 #include "dps/IDP.h"
+#include "dps/GNCSoftware.h"
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
@@ -354,6 +355,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   panelc2		  = new PanelC2(this);
   dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
+
+  gncsoftware	= new dps::GNCSoftware(this);
 
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
@@ -806,26 +809,27 @@ Atlantis::~Atlantis () {
 	delete CDRKeyboard;
 	delete PLTKeyboard;
 	delete dapcontrol;
+	delete gncsoftware;
 
 	if(pA7A8Panel)
 		delete pA7A8Panel;
 
   
-  for (i = 0; i < 7; i++) delete rms_anim[i];
-  
-  delete CameraFLYaw;
-  delete CameraFLPitch;
-  delete CameraFRYaw;
-  delete CameraFRPitch;
-  delete CameraBLYaw;
-  delete CameraBLPitch;
-  delete CameraBRYaw;
-  delete CameraBRPitch;
+	for (i = 0; i < 7; i++) delete rms_anim[i];
+	  
+	delete CameraFLYaw;
+	delete CameraFLPitch;
+	delete CameraFRYaw;
+	delete CameraFRPitch;
+	delete CameraBLYaw;
+	delete CameraBLPitch;
+	delete CameraBRYaw;
+	delete CameraBRPitch;
 
-  delete bundleManager;
+	delete bundleManager;
 
-  delete [] stage1guidance[0];
-  delete [] stage1guidance[1];
+	delete [] stage1guidance[0];
+	delete [] stage1guidance[1];
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -5051,6 +5055,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
   int i;
   OBJHANDLE hvessel;
 
+  gncsoftware->OnPostStep(simt, simdt, mjd);
   psubsystems->PostStep(simt, simdt, mjd);
 
   switch (status) {
