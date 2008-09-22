@@ -1406,8 +1406,6 @@ private:
 	// Animations
 	// *******************************************************************************
 	UINT anim_door;                            // handle for cargo door animation
-	UINT anim_doorR_mechs;
-	UINT anim_doorL_mechs;
 	UINT anim_rad;                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
 	/*UINT anim_clatch1_4;					   // handle for center line latches 1-4
