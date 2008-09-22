@@ -1563,7 +1563,7 @@ void Atlantis::DefineAnimations (void)
     _V(2.82, 1.39, 0), _V(0, 0, 1), (float)(-170.5*RAD));
   static UINT LCargoDoorGrp[3] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL, GRP_RADIATORBL};
   static MGROUP_ROTATE LCargoDoor (midx, LCargoDoorGrp, 3,
-    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(170.5*RAD));
+    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(170.5*RAD)); 
 
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   static MGROUP_ROTATE RRadiator (midx, RRadiatorGrp, 1,
@@ -1571,6 +1571,26 @@ void Atlantis::DefineAnimations (void)
   static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
   static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
     _V(-2.71, 1.7, 0), _V(0, 0, 1), (float)(-35.5*RAD));
+
+  //080922, DaveS add: Added the pushrod animations to each door.
+  static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
+  static MGROUP_TRANSLATE StbdRod (midx, PORTPUSH_RODGrp, 1,
+	  _V(0,1,0));
+
+  //080922, DaveS add: Added the pushrod animations to each door.
+  static UINT PORT_CLAMPGrp[2] = {GRP_PORT_CLAMP, GRP_PORTDOOR_PULL};
+  static MGROUP_ROTATE PORT_CLAMP (midx, PORT_CLAMPGrp, 2,
+	  _V(2.724,1.266,2.937), _V(0,0,1), (float)(100 * RAD));
+  
+  //080922, DaveS add: Added the pushrod animations to each door.
+  static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
+  static MGROUP_TRANSLATE STBDRod (midx, STBDPUSH_RODGrp, 1,
+	  _V(0,1,0));
+
+  //080922, DaveS add: Added the pushrod animations to each door.
+  static UINT STBD_CLAMPGrp[2] = {GRP_STBD_CLAMP, GRP_STBDDOOR_PULL};
+  static MGROUP_ROTATE STBD_CLAMP (midx, STBD_CLAMPGrp, 2,
+	  _V(-2.724,1.266,2.937), _V(0,0,1), (float)(100 * RAD));
 
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
@@ -1589,6 +1609,8 @@ void Atlantis::DefineAnimations (void)
 	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
+  anim_doorR_mechs = CreateAnimation (0);
+  anim_doorL_mechs = CreateAnimation (0);
   anim_rad = CreateAnimation (0);
   anim_clatch[0] = CreateAnimation(0);
   anim_clatch[1] = CreateAnimation(0);
@@ -1596,6 +1618,8 @@ void Atlantis::DefineAnimations (void)
   anim_clatch[3] = CreateAnimation(0);
   //right side
   parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
+  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBDRod, parent);
+  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBD_CLAMP, parent);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
   AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
   AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
