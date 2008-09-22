@@ -67,7 +67,7 @@ const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
-const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
+const static char* DEFAULT_MESHNAME_ODS = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 
 // ==========================================================
@@ -1406,6 +1406,8 @@ private:
 	// Animations
 	// *******************************************************************************
 	UINT anim_door;                            // handle for cargo door animation
+	UINT anim_doorR_mechs;
+	UINT anim_doorL_mechs;
 	UINT anim_rad;                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
 	/*UINT anim_clatch1_4;					   // handle for center line latches 1-4
