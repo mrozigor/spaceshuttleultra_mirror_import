@@ -1574,7 +1574,7 @@ void Atlantis::DefineAnimations (void)
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
-  static MGROUP_TRANSLATE StbdRod (midx, PORTPUSH_RODGrp, 1,
+  static MGROUP_TRANSLATE PORTRod (midx, PORTPUSH_RODGrp, 1,
 	  _V(0,1,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
@@ -1618,8 +1618,8 @@ void Atlantis::DefineAnimations (void)
   anim_clatch[3] = CreateAnimation(0);
   //right side
   parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
-  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBDRod, parent);
-  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBD_CLAMP, parent);
+  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBDRod);
+  AddAnimationComponent (anim_doorR_mechs, 0, 0.4632, &STBD_CLAMP);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
   AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
   AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
@@ -1633,6 +1633,8 @@ void Atlantis::DefineAnimations (void)
 //  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortTorqueShaft);
 //  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortPushPullRod, parent);
   parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
+  AddAnimationComponent (anim_doorL_mechs, 0, 0.4632, &PORTRod);
+  AddAnimationComponent (anim_doorL_mechs, 0, 0.4632, &PORT_CLAMP);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
 
   // ***** 2. Landing gear animation *****
