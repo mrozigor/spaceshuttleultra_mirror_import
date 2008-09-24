@@ -2284,6 +2284,9 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	pgRight.DefineVC();
 	pgRight.DefineVCAnimations(mesh_vc);
 
+	pgAftPSS.DefineVC();
+	pgAftPSS.DefineVCAnimations(mesh_vc);
+
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
 
@@ -3175,7 +3178,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 							//return true;
 						}
 						else if(nNew==18) {
-							MNVR=true;
+							/*MNVR=true;
 							TRK=ROT=false;
 							if(CurManeuver.Type==AttManeuver::OFF) {
 								CurManeuver.Type=AttManeuver::MNVR;
@@ -3193,31 +3196,14 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 									FutManeuver.TargetAttM50.data[i]*=RAD;
 								}
 							}
-							if(ControlMode==AUTO) StartAttManeuver();
-							/*if(MNVR==false) 
-							{
-								MNVR=true;
-								ROT=false;
-								TRK=false;
-								REQD_ATT.x=MNVR_OPTION.x;
-								REQD_ATT.y=MNVR_OPTION.y;
-								REQD_ATT.z=MNVR_OPTION.z;
-								for(int i=0;i<3;i++) {
-									if(REQD_ATT.data[i]>180.0) TargetAttM50.data[i]=REQD_ATT.data[i]-360.0;
-									else TargetAttM50.data[i]=REQD_ATT.data[i];
-								}
-								TargetAttM50=TargetAttM50*RAD;
-								TargetAttOrbiter=ConvertAnglesBetweenM50AndOrbiter(TargetAttM50, true);
-							}
-							else MNVR=false;
-							Yaw=false;
-							Pitch=false;
-							Roll=false;*/
+							if(ControlMode==AUTO) StartAttManeuver();*/
+							LoadInertialManeuver();
 							return true;
 						}
 						else if(nNew==19) {
-							MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
+							/*MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
 							if(TGT_ID==2) {
+								GetStatus(Status);
 								if(OM<=0.0) RotMatrixOM=IdentityMatrix;
 								else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
 								GetRotMatrixX(P*RAD, RotMatrixP);
@@ -3245,40 +3231,18 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 								TRK=true;
 								MNVR=ROT=false;
 								if(ControlMode==AUTO) StartAttManeuver();
-							}
-							/*if(TRK==false) {
-								TRK=true;
-								MNVR=false;
-								ROT=false;
-								if(TGT_ID==2) {
-									MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
-									if(OM<=0.0) RotMatrixOM=IdentityMatrix;
-									else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
-									GetRotMatrixX(P*RAD, RotMatrixP);
-									GetRotMatrixY(Y*RAD, RotMatrixY);
-									GetRotMatrixX(270*RAD, RotMatrix270);
-									Temp=mul(RotMatrixOM, RotMatrixP);
-									Temp=mul(Temp, RotMatrixY);
-									LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
-																Temp.m12, Temp.m22, Temp.m32,
-																Temp.m13, Temp.m23, Temp.m33);
-									LVLHTgtOrientationMatrix=mul(RotMatrix270, LVLHTgtOrientationMatrix);
-									LVLHOrientationReqd=GetAnglesFromMatrix(LVLHTgtOrientationMatrix)*DEG;
-								}
-							}
-							else TRK=false;
-							Yaw=false;
-							Pitch=false;
-							Roll=false;*/
+							}*/
+							LoadTrackManeuver();
 							return true;
 						}
 						else if(nNew==20) {
-							if(ROT==false) {
+							/*if(ROT==false) {
 								ROT=true;
 								MNVR=false;
 								TRK=false;
 							}
-							else ROT=false;
+							else ROT=false;*/
+							LoadRotationManeuver();
 							return true;
 						}
 						else if(nNew==21) {
@@ -3837,6 +3801,75 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 	}
 	return false;
 }
+
+void Atlantis::LoadInertialManeuver()
+{
+	MNVR=true;
+	TRK=ROT=false;
+	if(CurManeuver.Type==AttManeuver::OFF) {
+		CurManeuver.Type=AttManeuver::MNVR;
+		for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
+		for(int i=0;i<3;i++) {
+			CurManeuver.TargetAttM50.data[i]=MNVR_OPTION.data[i];
+			CurManeuver.TargetAttM50.data[i]*=RAD;
+		}
+	}
+	else {
+		FutManeuver.Type=AttManeuver::MNVR;
+		for(int i=0;i<4;i++) FutManeuver.START_TIME[i]=START_TIME[i];
+		for(int i=0;i<3;i++) {
+			FutManeuver.TargetAttM50.data[i]=MNVR_OPTION.data[i];
+			FutManeuver.TargetAttM50.data[i]*=RAD;
+		}
+	}
+	if(ControlMode==AUTO) StartAttManeuver();
+}
+
+void Atlantis::LoadTrackManeuver()
+{
+	MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
+	if(TGT_ID==2) {
+		GetStatus(Status);
+		if(OM<=0.0) RotMatrixOM=IdentityMatrix;
+		else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
+		GetRotMatrixX(P*RAD, RotMatrixP);
+		GetRotMatrixY(Y*RAD, RotMatrixY);
+		GetRotMatrixX(270*RAD, RotMatrix270);
+		Temp=mul(RotMatrixOM, RotMatrixP);
+		Temp=mul(Temp, RotMatrixY);
+		if(CurManeuver.Type==AttManeuver::OFF) {
+			CurManeuver.Type=AttManeuver::TRK;
+			for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
+			CurManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+				Temp.m12, Temp.m22, Temp.m32,
+				Temp.m13, Temp.m23, Temp.m33);
+			CurManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, CurManeuver.LVLHTgtOrientationMatrix);
+		}
+		else {
+			FutManeuver.Type=AttManeuver::TRK;
+			for(int i=0;i<4;i++) FutManeuver.START_TIME[i]=START_TIME[i];
+			FutManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+				Temp.m12, Temp.m22, Temp.m32,
+				Temp.m13, Temp.m23, Temp.m33);
+			FutManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, FutManeuver.LVLHTgtOrientationMatrix);
+		}
+
+		TRK=true;
+		MNVR=ROT=false;
+		if(ControlMode==AUTO) StartAttManeuver();
+	}
+}
+
+void Atlantis::LoadRotationManeuver()
+{
+	if(ROT==false) {
+		ROT=true;
+		MNVR=false;
+		TRK=false;
+	}
+	else ROT=false;
+}
+
 /*
 void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
 {
@@ -4722,6 +4755,14 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf(line+8, "%d %d %d", &RotMode[0], &RotMode[1], &RotMode[2]);
 	} else if(!_strnicmp(line, "TRANS MODE", 10)) {
 		sscanf(line+10, "%d %d %d", &TransMode[0], &TransMode[1], &TransMode[2]);
+	} else if(!_strnicmp(line, "CONTROL MODE", 12)) {
+		sscanf(line+12, "%d", &ControlMode);
+	} else if(!_strnicmp (line, "CUR_MNVR", 8)) {
+		int flag;
+		sscanf(line+8, "%d", &flag);
+		if(flag==1) MNVR=true;
+		else if(flag==2) TRK=true;
+		else if(flag==3) ROT=true;
 	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
 		action = 0;
 		sscanf(line+10, "%d", &action);
@@ -4866,6 +4907,14 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_string (scn, "ROT MODE", cbuf);
   sprintf_s(cbuf, 256, "%d %d %d", TransMode[0], TransMode[1], TransMode[2]);
   oapiWriteScenario_string (scn, "TRANS MODE", cbuf);
+  sprintf_s(cbuf, 256, "%d", ControlMode);
+  oapiWriteScenario_string (scn, "CONTROL MODE", cbuf);
+  if(MNVR || TRK || ROT) {
+	  //use ints for ID
+	  if(MNVR) oapiWriteScenario_int(scn, "CUR_MNVR", 1);
+	  else if(TRK) oapiWriteScenario_int(scn, "CUR_MNVR", 2);
+	  else oapiWriteScenario_int(scn, "CUR_MNVR", 3);
+  }
 
   SavePayloadState(scn);
 
@@ -5008,13 +5057,14 @@ void Atlantis::clbkPostCreation ()
 {
 	VESSEL2::clbkPostCreation(); //may not be necessary
 
-	if(ControlMode==INRTL) {
-		GetGlobalOrientation(InertialOrientationRad);
-		CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
-		TargetAttOrbiter=InertialOrientationRad;
-		TargetAttM50=CurrentAttitude;
-		REQD_ATT=CurrentAttitude*DEG;
-	}
+	GetGlobalOrientation(InertialOrientationRad);
+	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
+
+	if(MNVR) LoadInertialManeuver();
+	else if(TRK) LoadTrackManeuver();
+	else if(ROT) LoadRotationManeuver();
+
+	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
 }
 
 // --------------------------------------------------------------
@@ -5074,39 +5124,48 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 {
-  //double met;
-  double airspeed;
-  int i;
-  OBJHANDLE hvessel;
+	//double met;
+	double airspeed;
+	int i;
+	OBJHANDLE hvessel;
 
-  gncsoftware->OnPostStep(simt, simdt, mjd);
-  psubsystems->PostStep(simt, simdt, mjd);
+	gncsoftware->OnPostStep(simt, simdt, mjd);
+	psubsystems->PostStep(simt, simdt, mjd);
 
-  switch (status) {
-  case STATE_PRELAUNCH: // launch configuration
-    if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
-	{
-      status = STATE_STAGE1; // launch
-	  SignalGSEStart();
-      t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
-      RecordEvent ("STATUS", "SSME_IGNITION");
-	  if(bAutopilot) 
-		  InitializeAutopilot(); //setup autopilot for ascent
-	} 
-	else if(GetThrusterGroupLevel(THGROUP_MAIN) == 0.0)
-	{
-		RateCommand();
-		if(bSSMEGOXVent)
+	switch (status) {
+	case STATE_PRELAUNCH: // launch configuration
+		if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
 		{
-			for(i = 0; i<3; i++)
+			status = STATE_STAGE1; // launch
+			SignalGSEStart();
+			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
+			RecordEvent ("STATUS", "SSME_IGNITION");
+			if(bAutopilot) 
+				InitializeAutopilot(); //setup autopilot for ascent
+		} 
+		else if(GetThrusterGroupLevel(THGROUP_MAIN) == 0.0)
+		{
+			if(bSSMEGOXVent)
 			{
-				if(th_ssme_gox[i] != NULL) {
-					SetThrusterLevel(th_ssme_gox[i], 1.0);
+				for(i = 0; i<3; i++)
+				{
+					if(th_ssme_gox[i] != NULL) {
+						SetThrusterLevel(th_ssme_gox[i], 1.0);
+					}
+				}
+			}
+			else
+			{
+				for(i = 0; i<3; i++)
+				{
+					if(th_ssme_gox[i] != NULL) {
+						SetThrusterLevel(th_ssme_gox[i], 0.0);
+					}
 				}
 			}
 		}
-		else
-		{
+		else {
+			bSSMEGOXVent = false;
 			for(i = 0; i<3; i++)
 			{
 				if(th_ssme_gox[i] != NULL) {
@@ -5114,476 +5173,465 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				}
 			}
 		}
-	}
-	else {
-		//AutoMainGimbal();
-		RateCommand();
-		bSSMEGOXVent = false;
+		//GPC(simdt);
+		break;
+	case STATE_STAGE1: // SRB's ignited
+		met = simt-t0;
 		for(i = 0; i<3; i++)
 		{
 			if(th_ssme_gox[i] != NULL) {
 				SetThrusterLevel(th_ssme_gox[i], 0.0);
 			}
 		}
-	}
-    break;
-  case STATE_STAGE1: // SRB's ignited
-    met = simt-t0;
-	for(i = 0; i<3; i++)
-	{
-		if(th_ssme_gox[i] != NULL) {
-			SetThrusterLevel(th_ssme_gox[i], 0.0);
+		if(met >= 0.0 && !GetLiftOffFlag())
+		{
+			SignalGSEBreakHDP();
+			TriggerLiftOff();	
 		}
-	}
-	if(met >= 0.0 && !GetLiftOffFlag())
-	{
-		SignalGSEBreakHDP();
-		TriggerLiftOff();	
-	}
-    //sprintf(oapiDebugString(),"met: %f",met);
-    if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
-      SeparateBoosters (met);
-	  tSRBSep=met;
-      bManualSeparate = false;
-	  ops=103;		//Replace by signal to GPC
-	  CalcThrustAngles();
-    }
-	else {
-	  if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
-	  {
-		  char buffer[100];
-		  sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
-		  oapiWriteLog(buffer);
-		  bSRBCutoffFlag = true;
-	  }
+		//sprintf(oapiDebugString(),"met: %f",met);
+		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
+			SeparateBoosters (met);
+			tSRBSep=met;
+			bManualSeparate = false;
+			ops=103;		//Replace by signal to GPC
+			CalcThrustAngles();
+		}
+		else {
+			if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
+			{
+				char buffer[100];
+				sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
+				oapiWriteLog(buffer);
+				bSRBCutoffFlag = true;
+			}
 
 
-      // extract current thrust level and propellant level as a function of time
-      DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
-      double thrust_level, prop_level;
-      GetSRB_State (met, thrust_level, prop_level);
-      for (i = 0; i < 2; i++)
-        SetThrusterLevel (th_srb[i], thrust_level);
+			// extract current thrust level and propellant level as a function of time
+			DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
+			double thrust_level, prop_level;
+			GetSRB_State (met, thrust_level, prop_level);
+			for (i = 0; i < 2; i++)
+				SetThrusterLevel (th_srb[i], thrust_level);
 
-	  if(met > 15.0)
-	  {
-		slag1 = pow(1.0 - thrust_level, 3);
-		slag2 = pow(1.0 - thrust_level, 2);
-		slag3 = 1.0 - thrust_level;
-	  }
-	  if (met < 0.0) {
-		  LaunchClamps ();
-	  }
-	  else if(ops==101) ops=102;
-    }
-	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-	GPC(simdt);
-    break;
+			if(met > 15.0)
+			{
+				slag1 = pow(1.0 - thrust_level, 3);
+				slag2 = pow(1.0 - thrust_level, 2);
+				slag3 = 1.0 - thrust_level;
+			}
+			if (met < 0.0) {
+				LaunchClamps ();
+			}
+			else if(ops==101) ops=102;
+		}
+		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
+		//GPC(simdt);
+		break;
 
-  case STATE_STAGE2: // post SRB separation
-	  met+=simdt;
-    if (bManualSeparate) {
-	  SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
-	  SetThrusterLevel(th_oms[0], 0.00);
-	  SetThrusterLevel(th_oms[1], 0.00);
-	  bMECO=true;
-	  EnableAllRCS();
-      SeparateTank();
-      bManualSeparate = false;
-	  bZThrust=false;
-	  //ops=104;
-    }
-	if (GetEngineLevel (ENGINE_MAIN) > 0.05) {
-		DisableAllRCS();
-	}
-	else if(!bMECO)
-	{
-		bMECO=true;
-		tMECO=met;
+	case STATE_STAGE2: // post SRB separation
+		met+=simdt;
+		if (bManualSeparate) {
+			SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
+			SetThrusterLevel(th_oms[0], 0.00);
+			SetThrusterLevel(th_oms[1], 0.00);
+			bMECO=true;
+			EnableAllRCS();
+			SeparateTank();
+			bManualSeparate = false;
+			bZThrust=false;
+			//ops=104;
+		}
+		if (GetEngineLevel (ENGINE_MAIN) > 0.05) {
+			DisableAllRCS();
+		}
+		else if(!bMECO)
+		{
+			bMECO=true;
+			tMECO=met;
+			EnableAllRCS();
+			SetThrusterLevel(th_oms[0], 0.00);
+			SetThrusterLevel(th_oms[1], 0.00);
+			//initiate attitude hold
+			GetGlobalOrientation(InertialOrientationRad);
+			CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
+			ControlMode=INRTL;
+			TargetAttOrbiter=InertialOrientationRad;
+			TargetAttM50=CurrentAttitude;
+			REQD_ATT=CurrentAttitude*DEG;
+		}
+		else EnableAllRCS();
+		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
+		//GPC(simdt);
+		break;
+	case STATE_ORBITER: // post tank separation
 		EnableAllRCS();
-		SetThrusterLevel(th_oms[0], 0.00);
-		SetThrusterLevel(th_oms[1], 0.00);
-		//initiate attitude hold
-		GetGlobalOrientation(InertialOrientationRad);
-		CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
-		ControlMode=INRTL;
-		TargetAttOrbiter=InertialOrientationRad;
-		TargetAttM50=CurrentAttitude;
-		REQD_ATT=CurrentAttitude*DEG;
+		//On entry, start shutting down RCS channels as appropriate
+		if(RollActive && GetDynPressure()>RollOff) {
+			SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
+			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
+			DelThrusterGroup(THGROUP_ATT_BANKLEFT);
+			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
+			RollActive=false;
+		}
+		if(PitchActive && GetDynPressure()>PitchOff) {
+			SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
+			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
+			DelThrusterGroup(THGROUP_ATT_PITCHUP);
+			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
+			PitchActive=false;
+		}
+		if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
+			SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
+			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
+			DelThrusterGroup(THGROUP_ATT_YAWLEFT);
+			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
+			YawActive=false;
+		}
+		//Check if Control Surfaces are usable
+		if(ControlSurfacesEnabled && !r2d2->bHydraulicPressure)
+		{
+			DisableControlSurfaces();
+		}
+		else if(!ControlSurfacesEnabled && r2d2->bHydraulicPressure)
+		{
+			EnableControlSurfaces();
+		}
+		met+=simdt;
+		//get THC and RHC input
+		RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
+		RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+		RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
+		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
+		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+		//sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
+		/*
+		if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
+		DetachChild (sat_attach, 0.1);
+		bManualSeparate = false;
+		}
+		*/
+
+		if (do_eva) {
+			char name[256];
+			strcpy (name, GetName()); strcat (name, "-MMU");
+			hvessel=oapiGetVesselByName(name);
+			if (hvessel == 0)
+			{
+				SeparateMMU();
+				hvessel=oapiGetVesselByName(name);
+				if (hvessel != 0)
+					oapiSetFocusObject(hvessel);
+			}
+			else
+			{
+				hvessel=oapiGetVesselByName(name);
+				if (hvessel != 0)
+					oapiSetFocusObject(hvessel);
+			};
+			do_eva = false;
+		};
+		break;
 	}
-	else EnableAllRCS();
-	if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-	GPC(simdt);
-    break;
-  case STATE_ORBITER: // post tank separation
-	  EnableAllRCS();
-    //On entry, start shutting down RCS channels as appropriate
-  if(RollActive && GetDynPressure()>RollOff) {
-    SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
-    SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
-    DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-    DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-    RollActive=false;
-  }
-  if(PitchActive && GetDynPressure()>PitchOff) {
-    SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
-    SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
-    DelThrusterGroup(THGROUP_ATT_PITCHUP);
-    DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
-    PitchActive=false;
-  }
-  if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
-    SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
-    SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
-    DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-    DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
-    YawActive=false;
-  }
-  //Check if Control Surfaces are usable
-  if(ControlSurfacesEnabled && !r2d2->bHydraulicPressure)
-  {
-	  DisableControlSurfaces();
-  }
-  else if(!ControlSurfacesEnabled && r2d2->bHydraulicPressure)
-  {
-	  EnableControlSurfaces();
-  }
-  met+=simdt;
-  //get THC and RHC input
-  RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-  RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-  RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-  THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-  THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-  THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-  //sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
-  GPC(simdt); //perform GPC functions
-/*
-    if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
-      DetachChild (sat_attach, 0.1);
-      bManualSeparate = false;
-    }
-	*/
+	GPC(simdt); //perform GPC functions
 
-    if (do_eva) {
-      char name[256];
-      strcpy (name, GetName()); strcat (name, "-MMU");
-      hvessel=oapiGetVesselByName(name);
-      if (hvessel == 0)
-      {
-        SeparateMMU();
-        hvessel=oapiGetVesselByName(name);
-        if (hvessel != 0)
-          oapiSetFocusObject(hvessel);
-      }
-      else
-      {
-        hvessel=oapiGetVesselByName(name);
-        if (hvessel != 0)
-          oapiSetFocusObject(hvessel);
-      };
-      do_eva = false;
-    };
-    break;
-  }
-
-  //update MET
-  MET[0]=(int)(met/86400);
-  MET[1]=(int)((met-86400*MET[0])/3600);
-  MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
-  MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
-  //sprintf(oapiDebugString(), "%i", last_mfd);
-  //deploy gear
-  if(status==STATE_ORBITER) {
+	//update MET
+	MET[0]=(int)(met/86400);
+	MET[1]=(int)((met-86400*MET[0])/3600);
+	MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
+	MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
+	//sprintf(oapiDebugString(), "%i", last_mfd);
+	//deploy gear
+	if(status==STATE_ORBITER) {
 		airspeed=GetAirspeed();
 		if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
-		  if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
+			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
 		}
 		else if(GetAltitude()<609.6) gop->ArmGear();
 		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
 		{
-		  gop->DamageGear();
+			gop->DamageGear();
 		}
-  }
+	}
 
-  VESSEL *aVessel;
-  VESSELSTATUS vs;
+	VESSEL *aVessel;
+	VESSELSTATUS vs;
 
-  if (reset_mmu && simt-jettison_time > .01)
-  {
-    GetStatus(vs);
-    vs.eng_main = vs.eng_hovr = 0.0;
-    VECTOR3 ofs = OFS_ZERO;
-    ofs.x += OFS_MMU.x;
-    ofs.y += OFS_MMU.y;
-    ofs.z += OFS_MMU.z;
-    VECTOR3 rofs, rvel = {vs.rvel.x, vs.rvel.y, vs.rvel.z};
-    VECTOR3 vel = {0,0,0};
-    Local2Rel (ofs, vs.rpos);
-    GlobalRot (vel, rofs);
-    vs.rvel.x = rvel.x+rofs.x;
-    vs.rvel.y = rvel.y+rofs.y;
-    vs.rvel.z = rvel.z+rofs.z;
-    aVessel = new VESSEL (hMMU, 1);
-    aVessel->DefSetState(&vs);
-    reset_mmu=false;
-  }
+	if (reset_mmu && simt-jettison_time > .01)
+	{
+		GetStatus(vs);
+		vs.eng_main = vs.eng_hovr = 0.0;
+		VECTOR3 ofs = OFS_ZERO;
+		ofs.x += OFS_MMU.x;
+		ofs.y += OFS_MMU.y;
+		ofs.z += OFS_MMU.z;
+		VECTOR3 rofs, rvel = {vs.rvel.x, vs.rvel.y, vs.rvel.z};
+		VECTOR3 vel = {0,0,0};
+		Local2Rel (ofs, vs.rpos);
+		GlobalRot (vel, rofs);
+		vs.rvel.x = rvel.x+rofs.x;
+		vs.rvel.y = rvel.y+rofs.y;
+		vs.rvel.z = rvel.z+rofs.z;
+		aVessel = new VESSEL (hMMU, 1);
+		aVessel->DefSetState(&vs);
+		reset_mmu=false;
+	}
 
-  // Execute payload bay operations
-  plop->Step (simt, simdt);
-  gop->Step (simt, simdt);
-  panela4->Step(simt, simdt);
-  if(RMS) panela8->Step(simt, simdt);
-  panelc2->Step(simt, simdt);
-  panelc3->Step (simt, simdt);
-//  panelf7->Step(simt, simdt);
-  panelo3->Step(simt, simdt);
-  r2d2->Step (simt, simdt);
-  
+	// Execute payload bay operations
+	plop->Step (simt, simdt);
+	gop->Step (simt, simdt);
+	panela4->Step(simt, simdt);
+	if(RMS) panela8->Step(simt, simdt);
+	panelc2->Step(simt, simdt);
+	panelc3->Step (simt, simdt);
+	//  panelf7->Step(simt, simdt);
+	panelo3->Step(simt, simdt);
+	r2d2->Step (simt, simdt);
 
 
-  // ***** Animate speedbrake *****
 
-  if (spdb_status >= AnimState::CLOSING) {
-    double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
-    if (spdb_status == AnimState::CLOSING) { // retract brake
-      if (spdb_proc > spdb_tgt) spdb_proc = max (spdb_tgt, spdb_proc-da);
-      else                 spdb_status = AnimState::CLOSED;
-    } else {                           // deploy antenna
-      if (spdb_proc < spdb_tgt) spdb_proc = min (spdb_tgt, spdb_proc+da);
-      else                 spdb_status = AnimState::OPEN;
-    }
-    SetAnimation (anim_spdb, spdb_proc);
-  }
+	// ***** Animate speedbrake *****
 
-  // ***** MPM Rollout *****
-  if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
-	  double da = simdt*ARM_DEPLOY_SPEED;
-	  if(RMSRollout.Closing()) {
-		  RMSRollout.pos=max(0.0, RMSRollout.pos-da);
-		  if(RMSRollout.pos<=0.0) {
-			  RMSRollout.action=AnimState::CLOSED;
-			  //panela8->UpdateVC();
-		  }
-	  }
-	  else {
-		  RMSRollout.pos=min(1.0, RMSRollout.pos+da);
-		  if(RMSRollout.pos>=1.0) {
-			  RMSRollout.action=AnimState::OPEN;
-			  //panela8->UpdateVC();
-		  }
-	  }
-	  SetAnimation(anim_rollout, RMSRollout.pos);
-	  UpdateMPMMicroswitches();
-  }
-   if(StbdMPMRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && plop->BayDoorStatus.pos==1.0) {
-	  double da = simdt*ARM_DEPLOY_SPEED;
-	  if(StbdMPMRollout.Closing()) {
-		  StbdMPMRollout.pos=max(0.0, StbdMPMRollout.pos-da);
-		  if(StbdMPMRollout.pos<=0.0) {
-			  StbdMPMRollout.action=AnimState::CLOSED;
-			  //panela8->UpdateVC();
-		  }
-	  }
-	  else {
-		  StbdMPMRollout.pos=min(1.0, StbdMPMRollout.pos+da);
-		  if(StbdMPMRollout.pos>=1.0) {
-			  StbdMPMRollout.action=AnimState::OPEN;
-			  //panela8->UpdateVC();
-		  }
-	  }
-	  sprintf_s(oapiDebugString(), 255, "STBD MPM POS: %f", StbdMPMRollout.pos);
-	  SetStbdMPMPosition(StbdMPMRollout.pos);
-	  UpdateMPMMicroswitches();
-  }
+	if (spdb_status >= AnimState::CLOSING) {
+		double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
+		if (spdb_status == AnimState::CLOSING) { // retract brake
+			if (spdb_proc > spdb_tgt) spdb_proc = max (spdb_tgt, spdb_proc-da);
+			else                 spdb_status = AnimState::CLOSED;
+		} else {                           // deploy antenna
+			if (spdb_proc < spdb_tgt) spdb_proc = min (spdb_tgt, spdb_proc+da);
+			else                 spdb_status = AnimState::OPEN;
+		}
+		SetAnimation (anim_spdb, spdb_proc);
+	}
 
-  //Grapple sequence
-  if(bGrappleInProgress) {
-	  if(!Grapple.Closed()) {
-		  /*Grapple.pos=min(0.0, Grapple.pos-simdt*ARM_GRAPPLE_SPEED);
-		  if(Grapple.pos<=0.0) {
-			  Grapple.action=AnimState::CLOSED;
-			  ToggleGrapple();
-		  }*/
-		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
-		  if(Grapple.Closed()) {
-			  if(!GetAttachmentStatus(ahRMS)) ToggleGrapple();
-			  Extend.action=AnimState::CLOSING;
-			  panela8->UpdateVC();
-		  }
-	  }
-	  else if(!Extend.Closed()) {
-		  Extend.Move(simdt*ARM_EXTEND_SPEED);
-		  if(Extend.Closed()) {
-			  Rigidize.action=AnimState::CLOSING;
-		  }
-		  panela8->UpdateVC();
-	  }
-	  else if(!Rigidize.Closed()) {
-		  Rigidize.Move(simdt*ARM_RIGID_SPEED);
-		  if(Rigidize.Closed()) {
-			  bGrappleInProgress=false;
-			  sprintf_s(oapiDebugString(), 255, "Grapple sequence completed");
-			  panela8->UpdateVC();
-		  }
-	  }
-  }
-  else if(bReleaseInProgress) {
-	  if(!Rigidize.Open()) {
-		  Rigidize.Move(simdt*ARM_RIGID_SPEED);
-		  if(Rigidize.Open()) {
-			  Grapple.action=AnimState::OPENING;
-			  panela8->UpdateVC();
-		  }
-	  }
-	  else if(!Grapple.Open()) {
-		  Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
-		  if(Grapple.Open()) {
-			  if(GetAttachmentStatus(ahRMS)) 
-				  ToggleGrapple();
-			  Extend.action=AnimState::OPENING;
-			  panela8->UpdateVC();
-		  }
-	  }
-	  else if(!Extend.Open()) {
-		  Extend.Move(simdt*ARM_EXTEND_SPEED);
-		  if(Extend.Open()) {
-			  bReleaseInProgress=false;
-			  sprintf_s(oapiDebugString(), 255, "Release sequence completed");
-		  }
-		  panela8->UpdateVC();
-	  }
-  }
+	// ***** MPM Rollout *****
+	if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
+		double da = simdt*ARM_DEPLOY_SPEED;
+		if(RMSRollout.Closing()) {
+			RMSRollout.pos=max(0.0, RMSRollout.pos-da);
+			if(RMSRollout.pos<=0.0) {
+				RMSRollout.action=AnimState::CLOSED;
+				//panela8->UpdateVC();
+			}
+		}
+		else {
+			RMSRollout.pos=min(1.0, RMSRollout.pos+da);
+			if(RMSRollout.pos>=1.0) {
+				RMSRollout.action=AnimState::OPEN;
+				//panela8->UpdateVC();
+			}
+		}
+		SetAnimation(anim_rollout, RMSRollout.pos);
+		UpdateMPMMicroswitches();
+	}
+	if(StbdMPMRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && plop->BayDoorStatus.pos==1.0) {
+		double da = simdt*ARM_DEPLOY_SPEED;
+		if(StbdMPMRollout.Closing()) {
+			StbdMPMRollout.pos=max(0.0, StbdMPMRollout.pos-da);
+			if(StbdMPMRollout.pos<=0.0) {
+				StbdMPMRollout.action=AnimState::CLOSED;
+				//panela8->UpdateVC();
+			}
+		}
+		else {
+			StbdMPMRollout.pos=min(1.0, StbdMPMRollout.pos+da);
+			if(StbdMPMRollout.pos>=1.0) {
+				StbdMPMRollout.action=AnimState::OPEN;
+				//panela8->UpdateVC();
+			}
+		}
+		sprintf_s(oapiDebugString(), 255, "STBD MPM POS: %f", StbdMPMRollout.pos);
+		SetStbdMPMPosition(StbdMPMRollout.pos);
+		UpdateMPMMicroswitches();
+	}
 
-  if (arm_moved) {
-    SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+	//Grapple sequence
+	if(bGrappleInProgress) {
+		if(!Grapple.Closed()) {
+			/*Grapple.pos=min(0.0, Grapple.pos-simdt*ARM_GRAPPLE_SPEED);
+			if(Grapple.pos<=0.0) {
+			Grapple.action=AnimState::CLOSED;
+			ToggleGrapple();
+			}*/
+			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
+			if(Grapple.Closed()) {
+				if(!GetAttachmentStatus(ahRMS)) ToggleGrapple();
+				Extend.action=AnimState::CLOSING;
+				panela8->UpdateVC();
+			}
+		}
+		else if(!Extend.Closed()) {
+			Extend.Move(simdt*ARM_EXTEND_SPEED);
+			if(Extend.Closed()) {
+				Rigidize.action=AnimState::CLOSING;
+			}
+			panela8->UpdateVC();
+		}
+		else if(!Rigidize.Closed()) {
+			Rigidize.Move(simdt*ARM_RIGID_SPEED);
+			if(Rigidize.Closed()) {
+				bGrappleInProgress=false;
+				sprintf_s(oapiDebugString(), 255, "Grapple sequence completed");
+				panela8->UpdateVC();
+			}
+		}
+	}
+	else if(bReleaseInProgress) {
+		if(!Rigidize.Open()) {
+			Rigidize.Move(simdt*ARM_RIGID_SPEED);
+			if(Rigidize.Open()) {
+				Grapple.action=AnimState::OPENING;
+				panela8->UpdateVC();
+			}
+		}
+		else if(!Grapple.Open()) {
+			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
+			if(Grapple.Open()) {
+				if(GetAttachmentStatus(ahRMS)) 
+					ToggleGrapple();
+				Extend.action=AnimState::OPENING;
+				panela8->UpdateVC();
+			}
+		}
+		else if(!Extend.Open()) {
+			Extend.Move(simdt*ARM_EXTEND_SPEED);
+			if(Extend.Open()) {
+				bReleaseInProgress=false;
+				sprintf_s(oapiDebugString(), 255, "Release sequence completed");
+			}
+			panela8->UpdateVC();
+		}
+	}
+
+	if (arm_moved) {
+		SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+		//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
+
+		//calculate joint angles
+		/*sy_angle=linterp(0,-180,1,180,arm_sy);
+		sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
+		ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
+		wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
+		wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
+		wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;*/
+
+		// If the current camera mode is the RMS_EFFECTOR move camera position to match
+		// the position and direction of the wrist
+		if (VCMode == VC_LEECAM) {
+			double tilt = wr_angle;
+			if(tilt<-180.0) tilt+=360.0;
+			else if(tilt>180.0) tilt-=360.0;
+			SetCameraOffset (_V(orbiter_ofs.x-0.3,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+		}
+
+		arm_moved = false;
+	}
+	if(mpm_moved) {
+		VECTOR3 pos=obss_attach_point[0]+STBDMPM_REF;
+		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
+		mpm_moved=false;
+	}
+
+	// ***** Stow RMS arm *****
+
+	if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
+		double t0 = oapiGetSimTime();
+		double dt = t0 - center_arm_t;       // time step
+		double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
+
+		// work from the wrist down to the shoulder
+		if (da && (arm_wr != 0.5)) {    // zero wrist roll
+			if (da >= fabs(arm_wr-0.5)) // finished
+				arm_wr = 0.5, da -= fabs(arm_wr-0.5);
+			else
+				arm_wr -= (arm_wr > 0.5 ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_wr, arm_wr);
+		}
+		if (da && (arm_wy != 0.5)) {    // zero wrist yaw
+			if (da >= fabs(arm_wy-0.5)) // finished
+				arm_wy = 0.5, da -= fabs(arm_wy-0.5);
+			else
+				arm_wy -= (arm_wy > 0.5 ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_wy, arm_wy);
+		}
+		if (da && (arm_wp != wrist_neutral)) {    // zero wrist pitch
+			if (da >= fabs(arm_wp-wrist_neutral)) // finished
+				arm_wp = wrist_neutral, da -= fabs(arm_wp-wrist_neutral);
+			else
+				arm_wp -= (arm_wp > wrist_neutral ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_wp, arm_wp);
+		}
+		if (da && (arm_ep != elbow_neutral)) {    // zero elbow pitch
+			if (da >= fabs(arm_ep-elbow_neutral)) // finished
+				arm_ep = elbow_neutral, da -= fabs(arm_ep-elbow_neutral);
+			else
+				arm_ep -= (arm_ep > elbow_neutral ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_ep, arm_ep);
+		}
+		if (da && (arm_sy != 0.5)) {    // zero shoulder yaw
+			if (da >= fabs(arm_sy-0.5)) // finished
+				arm_sy = 0.5, da -= fabs(arm_sy-0.5);
+			else
+				arm_sy -= (arm_sy > 0.5 ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_sy, arm_sy);
+		}
+		if (da && (arm_sp != shoulder_neutral)) {    // zero shoulder pitch
+			if (da >= fabs(arm_sp-shoulder_neutral)) // finished
+				arm_sp = shoulder_neutral, da -= fabs(arm_sp-shoulder_neutral);
+			else
+				arm_sp -= (arm_sp > shoulder_neutral ? da:-da), da = 0;
+			SetAnimationArm (anim_arm_sp, arm_sp);
+		}
+		center_arm_t = t0;
+		if (da) {
+			center_arm = false; // finished stowing
+			HWND hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS);
+			if (hDlg) EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), TRUE);
+		}
+		UpdateRMSPositions();
+		UpdateRMSAngles();
+	}
+
+	/*if (arm_moved) {
+	SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
 	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
-	
-	//calculate joint angles
-	/*sy_angle=linterp(0,-180,1,180,arm_sy);
-	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-	ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
-	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-	wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;*/
-	
+
 	// If the current camera mode is the RMS_EFFECTOR move camera position to match
 	// the position and direction of the wrist
 	if (VCMode == VC_LEECAM) {
-		double tilt = wr_angle;
-		if(tilt<-180.0) tilt+=360.0;
-		else if(tilt>180.0) tilt-=360.0;
-		SetCameraOffset (_V(orbiter_ofs.x-0.3,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+	double tilt = wr_angle;
+	if(tilt<-180.0) tilt+=360.0;
+	else if(tilt>180.0) tilt-=360.0;
+	SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
 	}
 
-    arm_moved = false;
-  }
-  if(mpm_moved) {
-	VECTOR3 pos=obss_attach_point[0]+STBDMPM_REF;
-	SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
-	mpm_moved=false;
-  }
-  
-  // ***** Stow RMS arm *****
-
-  if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
-    double t0 = oapiGetSimTime();
-    double dt = t0 - center_arm_t;       // time step
-    double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
-
-    // work from the wrist down to the shoulder
-	if (da && (arm_wr != 0.5)) {    // zero wrist roll
-      if (da >= fabs(arm_wr-0.5)) // finished
-        arm_wr = 0.5, da -= fabs(arm_wr-0.5);
-      else
-        arm_wr -= (arm_wr > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wr, arm_wr);
-    }
-    if (da && (arm_wy != 0.5)) {    // zero wrist yaw
-      if (da >= fabs(arm_wy-0.5)) // finished
-        arm_wy = 0.5, da -= fabs(arm_wy-0.5);
-      else
-        arm_wy -= (arm_wy > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wy, arm_wy);
-    }
-    if (da && (arm_wp != wrist_neutral)) {    // zero wrist pitch
-      if (da >= fabs(arm_wp-wrist_neutral)) // finished
-        arm_wp = wrist_neutral, da -= fabs(arm_wp-wrist_neutral);
-      else
-        arm_wp -= (arm_wp > wrist_neutral ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_wp, arm_wp);
-    }
-    if (da && (arm_ep != elbow_neutral)) {    // zero elbow pitch
-      if (da >= fabs(arm_ep-elbow_neutral)) // finished
-        arm_ep = elbow_neutral, da -= fabs(arm_ep-elbow_neutral);
-      else
-        arm_ep -= (arm_ep > elbow_neutral ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_ep, arm_ep);
-    }
-    if (da && (arm_sy != 0.5)) {    // zero shoulder yaw
-      if (da >= fabs(arm_sy-0.5)) // finished
-        arm_sy = 0.5, da -= fabs(arm_sy-0.5);
-      else
-        arm_sy -= (arm_sy > 0.5 ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_sy, arm_sy);
-    }
-    if (da && (arm_sp != shoulder_neutral)) {    // zero shoulder pitch
-      if (da >= fabs(arm_sp-shoulder_neutral)) // finished
-        arm_sp = shoulder_neutral, da -= fabs(arm_sp-shoulder_neutral);
-      else
-        arm_sp -= (arm_sp > shoulder_neutral ? da:-da), da = 0;
-      SetAnimationArm (anim_arm_sp, arm_sp);
-    }
-    center_arm_t = t0;
-    if (da) {
-      center_arm = false; // finished stowing
-      HWND hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS);
-      if (hDlg) EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), TRUE);
-    }
-	UpdateRMSPositions();
-	UpdateRMSAngles();
-  }
-
-  /*if (arm_moved) {
-    SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
-	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
-	
-	// If the current camera mode is the RMS_EFFECTOR move camera position to match
-	// the position and direction of the wrist
-	if (VCMode == VC_LEECAM) {
-		double tilt = wr_angle;
-		if(tilt<-180.0) tilt+=360.0;
-		else if(tilt>180.0) tilt-=360.0;
-		SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-		SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+	arm_moved = false;
+	}*/
+	if(DisplayJointAngles) {
+		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, -ep_angle,
+			wp_angle, wy_angle, wr_angle);
 	}
 
-    arm_moved = false;
-  }*/
-  if(DisplayJointAngles) {
-	  sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, -ep_angle,
-		wp_angle, wy_angle, wr_angle);
-  }
+	// Animate payload bay cameras.
+	if (cameraMoved) {
+		SetAnimationCameras();
+		cameraMoved = false;
+	}
 
-  // Animate payload bay cameras.
-  if (cameraMoved) {
-  SetAnimationCameras();
-  cameraMoved = false;
-  }
+	pCommModeHandler->PostStep(simt, simdt);
 
-  pCommModeHandler->PostStep(simt, simdt);
-
-  if(fTimeCameraLabel > 0)
-  {
-	  fTimeCameraLabel -= simdt;
-	  if(fTimeCameraLabel < 0)
-		  fTimeCameraLabel = 0;
-	  if(0 == fTimeCameraLabel)
-	  {
-		  oapiAnnotationSetText(nhCameraLabel, NULL);
-	  }
-  }
+	if(fTimeCameraLabel > 0)
+	{
+		fTimeCameraLabel -= simdt;
+		if(fTimeCameraLabel < 0)
+			fTimeCameraLabel = 0;
+		if(0 == fTimeCameraLabel)
+		{
+			oapiAnnotationSetText(nhCameraLabel, NULL);
+		}
+	}
 }
 
 // --------------------------------------------------------------
@@ -6842,6 +6890,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgRight.ToggleCoordinateDisplayMode();
 		pgLeft.ToggleCoordinateDisplayMode();
 		pgOverhead.ToggleCoordinateDisplayMode();
+		pgAftPSS.ToggleCoordinateDisplayMode();
 		return 1;
 	}
   } else { // unmodified keys
