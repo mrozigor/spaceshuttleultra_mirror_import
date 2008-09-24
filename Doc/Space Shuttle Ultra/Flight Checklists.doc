@@ -1,289 +1,303 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\froman\fcharset0 Times New Roman;}{\f1\froman\fcharset161{\*\fname Times New Roman;}Times New Roman Greek;}{\f2\fnil\fcharset128 SymbolMT;}{\f3\froman\fprq2\fcharset0 Times New Roman;}{\f4\fswiss\fcharset0 ArialMT;}}
-{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;}
-{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\qc\b\f0\fs48 Space Shuttle Ultra Flight Checklists\par
-\par
-\pard\qj\fs24 1 Introduction\par
-\b0 This manual provides checklists for various phases of flight.\par
-\par
-\b 2 Launch\par
-2.1 MPS Arming (performed at T-16:00)\par
-\b0 Panel R2:\par
-\pard\fi720\qj Check MPS ENGINE POWER (all six)-AC\par
-MPS He ISOLATION A/B (all six)-OPEN\par
-\pard\qj\par
-\b 2.2 APU Prestart (performed at T-6:15)\par
-\b0 Panel R2:\par
-\tab Check BOILER N2 SUPPLY (all three)-ON\par
-\pard\fi720\qj Check BOILER CNTLR (all three)-ON\par
-Check BOILER CNTLR PWR/HTR (all three)-A\par
-Check HYD CIRC PUMP (all three)-GPC\par
-Check APU FUEL TK VLV (all three)-CLOSE\par
-Check APU AUTO SHUT DOWN-ENABLE\par
-Check APU SPEED SELECT (all three)-NORM\par
-Check APU CONTROL (all three)-OFF\par
-HYD MAIN PUMP PRESS (all three)-LOW\par
-APU CNTLR PWR (all three)-ON\par
-APU FUEL TK VLV (all three)-OPEN\par
-Check APU/HYD READY TO START tb (all three)-black\par
-\pard\qj\b\par
-2.3 APU Start (performed at T-5:00)\par
-\b0 Panel R2:\par
-\tab APU CONTROL (all three)-START/RUN\par
-\pard\fi720\qj Check APU/HYD READY TO START tb (all three)-barberpole (striped)\par
-\pard\qj APU/HYD Display:\par
-\pard\fi720\qj Check HYDRAULIC PRESS (all three) ~900\par
-\pard\qj Panel R2:\par
-\pard\fi720\qj HYD MAIN PUMP PRESS (all three)-NORM\par
-\pard\qj APU/HYD Display:\par
-\pard\fi720\qj Check HYDRAULIC PRESS (all three) ~3000\par
-\pard\qj Panel R2:\par
-\tab HYD CIRC PUMP (all three)-OFF\par
-\b\par
-2.4 Launch/Ascent (T-0:10 to T+10:00)\par
-\b0 At T-0:06: ignite SSMEs (tap + on numpad)\par
-T-0:00: Liftoff\par
-If enabled in scenario file, ascent will be flown be autopilot. If enabled in scenario file, an OMS Assist burn will occur.\par
-MECO: Press * on numpad for manual MECO.\par
-MECO+20s: ET Sep (automatic). \endash Z Translation (automatic)\par
--Z Translation End: Transition from OPS 103 to OPS 104\par
-OPS 104 Transition +2s: Manual 11 sec +X Translation (press 6 key on numpad for 11 seconds)\par
-\par
-\b 2.5 APU/HYD Shutdown\par
-\b0 Panel R2:\par
-\pard\fi720\qj Check APU AUTO SHUT DOWN-ENABLE\par
-BOILER CNTLR (all three)-OFF\par
-BOILER N2 SUPPLY (all three)-OFF\par
-APU CONTROL (1, 2, 3; 5 sec interval)-OFF\par
-APU FUEL TK VLV (all three)-CLOSE\par
-\pard\qj APU/HYD Display:\par
-\pard\fi720\qj Check HYDRAULIC PRESS (all three) <200\par
-\pard\qj Panel R2:\par
-\pard\fi720\qj APU CNTLR PWR (all three)-OFF\par
-Check HYD MAIN PUMP PRESS (all three)-NORM\par
-\pard\qj\par
-\b 2.6 Transition to OPS 105\par
-\b0 CRT MFD:\par
-\tab Press OPS button\par
-\tab Enter \lquote 105\rquote\par
-\par
-\b 2.7 MPS Powerdown\par
-\b0 Panel R2:\par
-\pard\fi720\qj MPS ENGINE POWER (all six)-OFF\par
-MPS He ISOLATION A/B (all six)-GPC\par
-\pard\qj\par
-\b 2.8 ET Umbilical Door Closure\par
-\b0 Panel R2:\par
-\tab ET UMBILICAL DOOR CENTERLINE LATCH-STOW\par
-\tab When CENTERLINE LATCH tb-STO (after ~6 sec)\par
-\tab ET UMBILICAL DOOR CENTERLINE LATCH-GND\par
-\tab ET UMBILICAL DOOR L, R DOOR (both)-CLOSE\par
-\tab Check L, R DOOR tb (both)-barberpole\par
-\tab When L, R DOOR tb (both)-CLO (after ~24 sec)\par
-\tab\tab ET UMBILICAL DOOR L, R LATCH (both)-LATCH\par
-\tab Check L, R LATCH tb (both)-barberpole\par
-\tab When L, R LATCH tb(both)-LAT (after ~6 sec)\par
-\tab\tab ET UMBILICAL DOOR L, R DOOR (both)-OFF\par
-\tab ET UMBILICAL DOOR L, R LATCH (both)-OFF\par
-\par
-\b 3 On-orbit\par
-3.1 OMS Burn (using CRT MFD)\par
-3.1.1 Setup\par
-\b0 If in OPS 201:\par
-\tab Enter ITEM 21\par
-\tab Enter OPS 202\par
-Select engines\par
-Load \f1\'c4V (ITEMs 19-21)\par
-\f0 Load TIG (ITEM 10-13)\par
-Load TRIM (ITEMs 6-8)\par
-\tab If single engine: P=0.0, LY=+5.2, RY=-5.2\par
-\tab If  both engines: P=0.0, LY=-5.7, RY=+5.7\par
-Enter ITEM 22 (load targets)\par
-Enter ITEM 23\par
-\b 3.1.2 Burn\par
-\b0 About 10-15 minutes before TIG:\par
-\pard\fi720\qj Enter ITEM 27 (maneuver to burn attitude)\par
-\pard\qj Shortly before ignition:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-ARM/PRESS\par
-After engine shutdown:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-OFF\par
-Enter OPS 201\par
-\par
-\b 3.2 OMS Burn (manual)\par
-\b0 If in OPS 201:\b\par
-\b0\tab Enter ITEM 21\par
-\tab Enter OPS 202\par
-Load TRIM (ITEMs 6-8)\par
-\tab If single engine: P=0.0, LY=+5.2, RY=-5.2\par
-\tab If  both engines: P=0.0, LY=-5.7, RY=+5.7\par
-Enter ITEM 22\par
-\par
-Shortly before ignition:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-ARM/PRESS\par
-Perform burn\par
-After engine shutdown:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-OFF\par
-Enter OPS 201\par
-\par
-\b 3.3 Payload Bay Door Opening\par
-\b0 Panel 13L:\par
-\tab Check PL BAY DOOR-STOP\par
-\pard\fi720\qj PL BAY DOOR SYS (both)-ENABLE\par
-PL BAY DOOR-OPEN\par
-Check PL BAY DOOR tb-barberpole\par
-When PL BAY DOOR tb-OP:\par
-\tab PL BAY DOOR-STOP\par
-PL BAY DOOR SYS (both)-DISABLE\par
-\pard\qj\par
-\b 3.4 Payload Bay Door Closing\par
-\b0 Panel 13L:\par
-\tab Check PL BAY DOOR-STOP\par
-\pard\fi720\qj PL BAY DOOR SYS (both)-ENABLE\par
-PL BAY DOOR-CLOSE\par
-Check PL BAY DOOR tb-barberpole\par
-When PL BAY DOOR tb-CL:\par
-\tab PL BAY DOOR-STOP\par
-PL BAY DOOR SYS (both)-DISABLE\par
-\pard\qj\b\par
-3.5 Ku-band Antenna Deploy\par
-\b0 Panel 13L:\par
-\tab Check KU ANTENNA DIRECT STOW-OFF\par
-\pard\fi720\qj PL BAY MECH PWR SYS (both)-ON\par
-KU ANTENNA-DEPLOY\par
-Check KU ANTENNA tb-barberpole\par
-When KU ANTENNA tb-OP:\par
-\tab KU ANTENNA-GND\par
-PL BAY MECH PWR SYS (both)-OFF\par
-\pard\qj\par
-\b 3.6 Ku-band Antenna Stow\par
-\b0 Panel 13L:\par
-\pard\fi720\qj Check PL BAY MECH PWR SYS (both)-OFF\par
-KU ANTENNA-STOW\par
-PL BAY MECH PWR SYS (both)-ON\par
-Check KU ANTENNA tb-barberpole\par
-When KU ANTENNA tb-STO:\par
-\tab PL BAY MECH PWR SYS (both)-OFF\par
-KU ANTENNA-GND\par
-\pard\qj\par
-\b 3.7 Radiator Deploy\par
-\b0 Panel 13L:\par
-\tab Check RADIATOR LATCH CONTROL SYS (both)-OFF\par
-\pard\fi720\qj Check RADIATOR CONTROL SYS (both)-OFF\par
-PL BAY MECH PWR SYS (both)-ON\par
-RADIATOR LATCH CONTROL SYS (both)-RELEASE\par
-Check RADIATOR LATCH tb (both)-barberpole\par
-When RADIATOR LATCH tb (both)-OP (~30 sec):\par
-\tab RADIATOR LATCH CONTROL SYS (both)-OFF\par
-RADIATOR CONTROL SYS (both)-DEPLOY\par
-Check RADIATOR tb (both)-barberpole\par
-When RADIATOR tb (both)-OP (~50 sec):\par
-\tab RADIATOR CONTROL SYS (both)-OFF\par
-PL BAY MECH PWR SYS (both)-OFF\par
-\pard\qj\par
-\b 3.8 Radiator Stow\par
-\b0 Panel 13L:\par
-\tab Check RADIATOR LATCH CONTROL SYS (both)-OFF\par
-\pard\fi720\qj Check RADIATOR CONTROL SYS (both)-OFF\par
-PL BAY MECH PWR SYS (both)-ON\par
-RADIATOR CONTROL SYS (both)-STOW\par
-Check RADIATOR tb (both)-barberpole\par
-When RADIATOR tb (both)-STO (~50 sec):\par
-\tab RADIATOR CONTROL SYS (both)-OFF\par
-RADIATOR LATCH CONTROL SYS (both)-LATCH\par
-Check RADIATOR LATCH tb (both)-barberpole\par
-When RADIATOR LATCH tb (both)-LAT (~30 sec):\par
-\tab RADIATOR LATCH CONTROL SYS (both)-OFF\par
-PL BAY MECH PWR SYS (both)-OFF\par
-\pard\qj\b\par
-3.9 RMS Deploy/Stow\par
-\b0 Panel 13L:\par
-\pard\fi720\qj PL BAY MECH PWR SYS (both)-ON\par
-\pard\qj Keyboard: Press Ctrl+X\par
-Panel 13L:\par
-\pard\fi720\qj When motion stops: PL BAY MECH PWR SYS (both)-OFF\par
-\pard\qj\par
-\b\par
-4 Deorbit/Entry\par
-4.1 Deorbit burn Setup\par
-\b0 If in OPS 201: Enter ITEM 21\par
-Enter OPS 301\par
-Load \f1\'c4V (ITEMs 19-21)\par
-\f0 Load TIG (ITEM 10-13)\par
-Load TRIM (ITEMs 6-8): P=0.0, LY=-5.7, RY=+5.7\par
-Enter ITEM 22 (load targets)\par
-Enter ITEM 23\par
-Enter OPS 302\par
-\b\par
-4.2 APU Prestart (performed before deorbit burn)\par
-\b0 Panel R2:\par
-\tab Check BOILER N2 SUPPLY (all three)-ON\par
-\pard\fi720\qj Check BOILER CNTLR (all three)-ON\par
-Check BOILER CNTLR PWR/HTR (all three)-B\par
-Check APU FUEL TK VLV (all three)-CLOSE\par
-Check APU AUTO SHUT DOWN-ENABLE\par
-Check APU SPEED SELECT (all three)-NORM\par
-Check APU CONTROL (all three)-OFF\par
-HYD MAIN PUMP PRESS (all three)-LOW\par
-APU CNTLR PWR (all three)-ON\par
-APU FUEL TK VLV (all three)-OPEN\par
-Check APU/HYD READY TO START tb (all three)-black\par
-APU FUEL TK VLV (all three)-CLOSE\par
-\pard\qj\par
-\b 4.3 Single APU Start (performed 5 minutes before deorbit burn)\par
-\b0 Panel R2:\par
-\pard\fi720\qj APU FUEL TK VLV (one APU)-OPEN\par
-APU CONTROL (one APU)-START/RUN\par
-\pard\qj\tx2355 APU/HYD Display:\tab\par
-\pard\fi720\qj Check HYDRAULIC PRESS (one APU) ~900\par
-\pard\qj Panel R2:\par
-\tab Check HYD CIRC PUMP (all three)-OFF\par
-\par
-\b 4.4 Deorbit Burn\par
-\b0 About 10-15 minutes before TIG:\par
-\pard\fi720\qj Enter ITEM 27 (maneuver to burn attitude)\par
-\pard\qj Shortly before ignition:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-ARM/PRESS\par
-After engine shutdown:\par
-\tab Panel C3:\par
-\tab\tab OMS ENG (1 or both, as reqd)-OFF\par
-\b\par
-4.5 Remaining APU Start (performed 13 min before Entry Interface)\par
-\b0 Panel R2:\par
-\pard\fi720\qj APU FUEL TK VLV (two)-OPEN\par
-Check APU/HYD READY TO START tb (two)-black\par
-APU CONTROL (two)-START/RUN\par
-\pard\qj\tx2355 APU/HYD Display:\tab\par
-\pard\fi720\qj Check HYDRAULIC PRESS (two) ~900\par
-\pard\qj Panel R2:\par
-\pard\fi720\qj Check APU/HYD READY TO START tb (two)-barberpole\par
-HYD MAIN PUMP PRESS (all three)-NORM\par
-\pard\qj\tx2355 APU/HYD Display:\tab\par
-\pard\fi720\qj Check HYDRAULIC PRESS (three) ~3000\par
-\pard\qj\par
-\b 4.6 Air Data Probe Deploy (performed when v=5000 fps)\par
-\b0 Panel C3:\par
-\pard\fi720\qj AIR DATA PROBE STOW (both)-ENABLE \par
-AIR DATA PROBE (both)-DEPLOY\par
-\pard\qj\b\par
-4.7 Landing Gear Deploy\par
-\b0 Panel F6:\par
-\tab At 2000 ft: LDG ARM button (left)-PUSH (press CTRL+G)\par
-\tab At 300 ft: LDG DEPLOY button (right)-PUSH (press G)\par
-NOTE: Gear deploy should occur automatically\par
-\par
-\b 5 Post-landing procedures\par
-5.4 APU/HYD SHUTDN\par
-\b0 Panel R2:\par
-         BLR PWR(3) - OFF\par
-         N2 SPLY(3) - OFF\par
-         APU OPER\par
-         (1,2,3; 5-sec interval) - OFF\par
-        APU FU TK VLV (3) - CL\par
-\pard        \cf1\f2\fs22\'81\'e3\f3\fs24 Shutdn (HYD PRESS < 200)\f4\fs22\par
-\pard\qj\cf2 APU \cf1\f3\fs24 CNTLR PWR (three) \endash  OFF\cf0\f0\par
-}
- 
+{\rtf1\ansi\ansicpg1252\uc1\deff0\stshfdbch0\stshfloch0\stshfhich0\stshfbi0\deflang1033\deflangfe1033{\fonttbl{\f0\froman\fcharset0\fprq2{\*\panose 02020603050405020304}Times New Roman;}
+{\f36\fnil\fcharset128\fprq0{\*\panose 00000000000000000000}SymbolMT{\*\falt Arial Unicode MS};}{\f37\fswiss\fcharset0\fprq2{\*\panose 00000000000000000000}ArialMT;}{\f184\fnil\fcharset128\fprq0{\*\panose 00000000000000000000}@SymbolMT;}
+{\f185\froman\fcharset238\fprq2 Times New Roman CE;}{\f186\froman\fcharset204\fprq2 Times New Roman Cyr;}{\f188\froman\fcharset161\fprq2 Times New Roman Greek;}{\f189\froman\fcharset162\fprq2 Times New Roman Tur;}
+{\f190\froman\fcharset177\fprq2 Times New Roman (Hebrew);}{\f191\froman\fcharset178\fprq2 Times New Roman (Arabic);}{\f192\froman\fcharset186\fprq2 Times New Roman Baltic;}{\f193\froman\fcharset163\fprq2 Times New Roman (Vietnamese);}}
+{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;
+\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red128\green128\blue128;\red192\green192\blue192;}{\stylesheet{\ql \li0\ri0\widctlpar\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 
+\fs24\lang1033\langfe1033\cgrid\langnp1033\langfenp1033 \snext0 Normal;}{\*\cs10 \additive \ssemihidden Default Paragraph Font;}{\*
+\ts11\tsrowd\trftsWidthB3\trpaddl108\trpaddr108\trpaddfl3\trpaddft3\trpaddfb3\trpaddfr3\tscellwidthfts0\tsvertalt\tsbrdrt\tsbrdrl\tsbrdrb\tsbrdrr\tsbrdrdgl\tsbrdrdgr\tsbrdrh\tsbrdrv 
+\ql \li0\ri0\widctlpar\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \fs20\lang1024\langfe1024\cgrid\langnp1024\langfenp1024 \snext11 \ssemihidden Normal Table;}}{\*\latentstyles\lsdstimax156\lsdlockeddef0}{\*\rsidtbl \rsid9991606}{\*\generator Micro
+soft Word 11.0.5604;}{\info{\author User}{\operator User}{\creatim\yr2008\mo8\dy26\hr16\min22}{\revtim\yr2008\mo8\dy26\hr16\min31}{\version2}{\edmins6}{\nofpages7}{\nofwords1114}{\nofchars6353}{\nofcharsws7453}{\vern24689}}
+\widowctrl\ftnbj\aenddoc\noxlattoyen\expshrtn\noultrlspc\dntblnsbdb\nospaceforul\hyphcaps0\horzdoc\dghspace120\dgvspace120\dghorigin1701\dgvorigin1984\dghshow0\dgvshow3\jcompress\viewkind1\viewscale100\nolnhtadjtbl\rsidroot9991606 \fet0\sectd 
+\linex0\sectdefaultcl\sftnbj {\*\pnseclvl1\pnucrm\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl2\pnucltr\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl3\pndec\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl4
+\pnlcltr\pnstart1\pnindent720\pnhang {\pntxta )}}{\*\pnseclvl5\pndec\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl6\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl7\pnlcrm\pnstart1\pnindent720\pnhang {\pntxtb (}
+{\pntxta )}}{\*\pnseclvl8\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl9\pnlcrm\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}\pard\plain \qc \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 
+\fs24\lang1033\langfe1033\cgrid\langnp1033\langfenp1033 {\b\fs48\insrsid9991606 Space Shuttle Ultra Flight Checklists
+\par 
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\b\insrsid9991606 1 Introduction
+\par }{\insrsid9991606 This manual provides checklists for various phases of flight.}{\insrsid9991606  The }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\fs22\cf1\dbch\af36\insrsid9991606 
+\hich\af0\dbch\af36\loch\f0 sym\hich\af0\dbch\af36\loch\f0 b\hich\af0\dbch\af36\loch\f0 ol\hich\af0\dbch\af36\loch\f0  indicates that a certain value of switch setting should be verified.}{\insrsid9991606\charrsid9991606 
+\par }{\insrsid9991606 
+\par }{\b\insrsid9991606 2 Launch
+\par 2.1 MPS Arming (performed at T-16:00)
+\par }{\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 MPS ENGINE POWER (all six)-AC
+\par MPS He ISOLATION A/B (all six)-OPEN
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 2.2 APU Prestart (performed at T-6:15)
+\par }{\insrsid9991606 Panel R2:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER N2 SUPPLY (all three)-ON
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER CNTLR (all three)-ON
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER CNTLR PWR/HTR (all three)-A
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYD CIRC PUMP (all three)-GPC
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU FUEL TK VLV (all three)-CLOSE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU AUTO SHUT DOWN-ENABLE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU SPEED SELECT (all three)-NORM
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU CONTROL (all three)-OFF
+\par HYD MAIN PUMP PRESS (all three)-LOW
+\par APU CNTLR PWR (all three)-ON
+\par APU FUEL TK VLV (all three)-OPEN
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606  APU/HYD READY TO START tb (all three)-}{\insrsid9991606 grey}{\insrsid9991606 
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\b\insrsid9991606 
+\par 2.3 APU Start (performed at T-5:00)
+\par }{\insrsid9991606 Panel R2:
+\par \tab APU CONTROL (all three)-START/RUN
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU/HYD READY TO START tb (all three)-barberpole (striped)
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (all three) ~900
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 HYD MAIN PUMP PRESS (all three)-NORM
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (all three) ~3000
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Panel R2:
+\par \tab HYD CIRC PUMP (all three)-OFF
+\par }{\b\insrsid9991606 
+\par 2.4 Launch/Ascent (T-0:10 to T+10:00)
+\par }{\insrsid9991606 At T-0:06: ignite SSMEs (tap + on numpad)
+\par T-0:00: Liftoff
+\par If enabled in scenario file, ascent will be flown be autopilot. If enabled in scenario file, an OMS Assist burn will occur.
+\par MECO: Press * on numpad for manual MECO.
+\par MECO+20s: ET Sep (automatic). \endash Z Translation (automatic)
+\par -Z Translation End: Transition from OPS 103 to OPS 104
+\par OPS 104 Transition +2s: Manual 11 sec +X Translation (press 6 key on numpad for 11 seconds)
+\par 
+\par }{\b\insrsid9991606 2.5 APU/HYD Shutdown
+\par }{\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU AUTO SHUT DOWN-ENABLE
+\par BOILER CNTLR (all three)-OFF
+\par BOILER N2 SUPPLY (all three)-OFF
+\par APU CONTROL (1, 2, 3; 5 sec interval)-OFF
+\par APU FUEL TK VLV (all three)-CLOSE
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (all three) <200
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU CNTLR PWR (all three)-OFF
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYD MAIN PUMP PRESS (all three)-NORM
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 2.6 Transition to OPS 105
+\par }{\insrsid9991606 CRT MFD:
+\par \tab Press OPS button
+\par \tab Enter \lquote 105\rquote 
+\par 
+\par }{\b\insrsid9991606 2.7 MPS Powerdown
+\par }{\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 MPS ENGINE POWER (all six)-OFF
+\par MPS He ISOLATION A/B (all six)-GPC
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 2.8 ET Umbilical Door Closure
+\par }{\insrsid9991606 Panel R2:
+\par \tab ET UMBILICAL DOOR CENTERLINE LATCH-STOW
+\par \tab When CENTERLINE LATCH tb-STO (after ~6 sec)
+\par \tab ET UMBILICAL DOOR CENTERLINE LATCH-GND
+\par \tab ET UMBILICAL DOOR L, R DOOR (both)-CLOSE
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 L, R DOOR tb (both)-barberpole
+\par \tab When L, R DOOR tb (both)-CLO (after ~24 sec)
+\par \tab \tab ET UMBILICAL DOOR L, R LATCH (both)-LATCH
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 L, R LATCH tb (both)-barberpole
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 L, R LATCH tb(both)-LAT (after ~6 sec)
+\par \tab \tab ET UMBILICAL DOOR L, R DOOR (both)-OFF
+\par \tab ET UMBILICAL DOOR L, R LATCH (both)-OFF
+\par 
+\par }{\b\insrsid9991606 3 On-orbit
+\par 3.1 OMS Burn (using CRT MFD)
+\par 3.1.1 Setup
+\par }{\insrsid9991606 If in OPS 201:
+\par \tab Enter ITEM 21
+\par \tab Enter OPS 202
+\par Select engines
+\par }{\f188\insrsid9991606 Load \'c4V (ITEMs 19-21)
+\par }{\insrsid9991606 Load TIG (ITEM 10-13)
+\par Load TRIM (ITEMs 6-8)
+\par \tab If single engine: P=0.0, LY=+5.2, RY=-5.2
+\par \tab If  both engines: P=0.0, LY=-5.7, RY=+5.7
+\par Enter ITEM 22 (load targets)
+\par Enter ITEM 23
+\par }{\b\insrsid9991606 3.1.2 Burn
+\par }{\insrsid9991606 About 10-15 minutes before TIG:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Enter ITEM 27 (maneuver to burn attitude)
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Shortly before ignition:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-ARM/PRESS
+\par After engine shutdown:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-OFF
+\par Enter OPS 201
+\par 
+\par }{\b\insrsid9991606 3.2 OMS Burn (manual)
+\par }{\insrsid9991606 If in OPS 201:}{\b\insrsid9991606 
+\par }{\insrsid9991606 \tab Enter ITEM 21
+\par \tab Enter OPS 202
+\par Load TRIM (ITEMs 6-8)
+\par \tab If single engine: P=0.0, LY=+5.2, RY=-5.2
+\par \tab If  both engines: P=0.0, LY=-5.7, RY=+5.7
+\par Enter ITEM 22
+\par 
+\par Shortly before ignition:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-ARM/PRESS
+\par Perform burn
+\par After engine shutdown:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-OFF
+\par Enter OPS 201
+\par 
+\par }{\b\insrsid9991606 3.3 Payload Bay Door Opening
+\par }{\insrsid9991606 Panel 13L:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 PL BAY DOOR-STOP
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 PL BAY DOOR SYS (both)-ENABLE
+\par PL BAY DOOR-OPEN
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 PL BAY DOOR tb-barberpole
+\par When PL BAY DOOR tb-OP:
+\par \tab PL BAY DOOR-STOP
+\par PL BAY DOOR SYS (both)-DISABLE
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 3.4 Payload Bay Door Closing
+\par }{\insrsid9991606 Panel 13L:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 PL BAY DOOR-STOP
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 PL BAY DOOR SYS (both)-ENABLE
+\par PL BAY DOOR-CLOSE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 PL BAY DOOR tb-barberpole
+\par When PL BAY DOOR tb-CL:
+\par \tab PL BAY DOOR-STOP
+\par PL BAY DOOR SYS (both)-DISABLE
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\b\insrsid9991606 
+\par 3.5 Ku-band Antenna Deploy
+\par }{\insrsid9991606 Panel 13L:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 KU ANTENNA DIRECT STOW-OFF
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 PL BAY MECH PWR SYS (both)-ON
+\par KU ANTENNA-DEPLOY
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 KU ANTENNA tb-barberpole
+\par When KU ANTENNA tb-OP:
+\par \tab KU ANTENNA-GND
+\par PL BAY MECH PWR SYS (both)-OFF
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 3.6 Ku-band Antenna Stow
+\par }{\insrsid9991606 Panel 13L:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 PL BAY MECH PWR SYS (both)-OFF
+\par KU ANTENNA-STOW
+\par PL BAY MECH PWR SYS (both)-ON
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 KU ANTENNA tb-barberpole
+\par When KU ANTENNA tb-STO:
+\par \tab PL BAY MECH PWR SYS (both)-OFF
+\par KU ANTENNA-GND
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 3.7 Radiator Deploy
+\par }{\insrsid9991606 Panel 13L:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR LATCH CONTROL SYS (both)-OFF
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR CONTROL SYS (both)-OFF
+\par PL BAY MECH PWR SYS (both)-ON
+\par RADIATOR LATCH CONTROL SYS (both)-RELEASE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR LATCH tb (both)-barberpole
+\par When RADIATOR LATCH tb (both)-OP (~30 sec):
+\par \tab RADIATOR LATCH CONTROL SYS (both)-OFF
+\par RADIATOR CONTROL SYS (both)-DEPLOY
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR tb (both)-barberpole
+\par When RADIATOR tb (both)-OP (~50 sec):
+\par \tab RADIATOR CONTROL SYS (both)-OFF
+\par PL BAY MECH PWR SYS (both)-OFF
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 3.8 Radiator Stow
+\par }{\insrsid9991606 Panel 13L:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR LATCH CONTROL SYS (both)-OFF
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR CONTROL SYS (both)-OFF
+\par PL BAY MECH PWR SYS (both)-ON
+\par RADIATOR CONTROL SYS (both)-STOW
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR tb (both)-barberpole
+\par When RADIATOR tb (both)-STO (~50 sec):
+\par \tab RADIATOR CONTROL SYS (both)-OFF
+\par RADIATOR LATCH CONTROL SYS (both)-LATCH
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 RADIATOR LATCH tb (both)-barberpole
+\par When RADIATOR LATCH tb (both)-LAT (~30 sec):
+\par \tab RADIATOR LATCH CONTROL SYS (both)-OFF
+\par PL BAY MECH PWR SYS (both)-OFF
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\b\insrsid9991606 
+\par 3.9 RMS Deploy/Stow
+\par }{\insrsid9991606 Panel 13L:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 PL BAY MECH PWR SYS (both)-ON
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Keyboard: Press Ctrl+X
+\par Panel 13L:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 When motion stops: PL BAY MECH PWR SYS (both)-OFF
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 
+\par 4 Deorbit/Entry
+\par 4.1 Deorbit burn Setup
+\par }{\insrsid9991606 If in OPS 201: Enter ITEM 21
+\par Enter OPS 301
+\par }{\f188\insrsid9991606 Load \'c4}{\insrsid9991606 V (ITEMs 19-21)
+\par Load TIG (ITEM 10-13)
+\par Load TRIM (ITEMs 6-8): P=0.0, LY=-5.7, RY=+5.7
+\par Enter ITEM 22 (load targets)
+\par Enter ITEM 23
+\par Enter OPS 302
+\par }{\b\insrsid9991606 
+\par 4.2 APU Prestart (performed before deorbit burn)
+\par }{\insrsid9991606 Panel R2:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER N2 SUPPLY (all three)-ON
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER CNTLR (all three)-ON
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 BOILER CNTLR PWR/HTR (all three)-B
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU FUEL TK VLV (all three)-CLOSE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU AUTO SHUT DOWN-ENABLE
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU SPEED SELECT (all three)-NORM
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU CONTROL (all three)-OFF
+\par HYD MAIN PUMP PRESS (all three)-LOW
+\par APU CNTLR PWR (all three)-ON
+\par APU FUEL TK VLV (all three)-OPEN
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU/HYD READY TO START tb (all three)-black
+\par APU FUEL TK VLV (all three)-CLOSE
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 4.3 Single APU Start (performed 5 minutes before deorbit burn)
+\par }{\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU FUEL TK VLV (one APU)-OPEN
+\par APU CONTROL (one APU)-START/RUN
+\par }\pard \qj \li0\ri0\nowidctlpar\tx2355\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:\tab 
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (one APU) ~900
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Panel R2:
+\par \tab }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYD CIRC PUMP (all three)-OFF
+\par 
+\par }{\b\insrsid9991606 4.4 Deorbit Burn
+\par }{\insrsid9991606 About 10-15 minutes before TIG:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Enter ITEM 27 (maneuver to burn attitude)
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Shortly before ignition:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-ARM/PRESS
+\par After engine shutdown:
+\par \tab Panel C3:
+\par \tab \tab OMS ENG (1 or both, as reqd)-OFF
+\par }{\b\insrsid9991606 
+\par 4.5 Remaining APU Start (performed 13 min before Entry Interface)
+\par }{\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 APU FUEL TK VLV (two)-OPEN
+\par }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU/HYD READY TO START tb (two)-black
+\par APU CONTROL (two)-START/RUN
+\par }\pard \qj \li0\ri0\nowidctlpar\tx2355\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:\tab 
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (two) ~900
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 Panel R2:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 APU/HYD READY TO START tb (two)-barberpole
+\par HYD MAIN PUMP PRESS (all three)-NORM
+\par }\pard \qj \li0\ri0\nowidctlpar\tx2355\faauto\rin0\lin0\itap0 {\insrsid9991606 APU/HYD Display:\tab 
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\insrsid9991606 HYDRAULIC PRESS (three) ~3000
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 
+\par }{\b\insrsid9991606 4.6 Air Data Probe Deploy (performed when v=5000 fps)
+\par }{\insrsid9991606 Panel C3:
+\par }\pard \qj \fi720\li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606 AIR DATA PROBE STOW (both)-ENABLE 
+\par AIR DATA PROBE (both)-DEPLOY
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\b\insrsid9991606 
+\par 4.7 Landing Gear Deploy
+\par }{\insrsid9991606 Panel F6:
+\par \tab At 2000 ft: LDG ARM button (left)-PUSH (press CTRL+G)
+\par \tab At 300 ft: LDG DEPLOY button (right)-PUSH (press G)
+\par NOTE: Gear deploy should occur automatically
+\par 
+\par }{\b\insrsid9991606 5 Post-landing procedures
+\par 5.4 APU/HYD SHUTDN
+\par }{\insrsid9991606 Panel R2:
+\par          BLR PWR(3) - OFF
+\par          N2 SPLY(3) - OFF
+\par          APU OPER
+\par          (1,2,3; 5-sec interval) - OFF
+\par         APU FU TK VLV (3) - CL
+\par }\pard \ql \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\insrsid9991606        }{\fs22\cf1\loch\af36\dbch\af36\insrsid9991606 \loch\af36\hich\af0\dbch\f36 \uc2\u8730\'81\'e3}{\cf1\dbch\af36\insrsid9991606 \hich\af0\dbch\af36\loch\f0 
+Shutdn (HYD PRESS < 200)}{\fs22\cf1\loch\af37\hich\af37\dbch\af36\insrsid9991606 
+\par }\pard \qj \li0\ri0\nowidctlpar\faauto\rin0\lin0\itap0 {\fs22\cf8\loch\af37\hich\af37\dbch\af36\insrsid9991606 \hich\af37\dbch\af36\loch\f37 APU }{\cf1\dbch\af36\insrsid9991606 \hich\af0\dbch\af36\loch\f0 CNTLR PWR (three) \hich\f0 \endash \loch\f0  OFF}{
+\dbch\af36\insrsid9991606 
+\par }}
