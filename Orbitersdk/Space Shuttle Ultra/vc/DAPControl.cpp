@@ -32,7 +32,7 @@ namespace vc {
 			if(p.x>=0.351384 && p.x<=0.480228 && p.y>=0.058962 && p.y<=0.899763) {
 				sts->ControlMode=Atlantis::AUTO;
 				//add extra initialization
-				sts->StartAttManeuver();
+				InitializeControlMode();
 				bRet=true;
 			}
 			//INRTL
@@ -40,28 +40,31 @@ namespace vc {
 				sts->ControlMode=Atlantis::INRTL;
 				sprintf_s(oapiDebugString(), 255, "INRTL");
 				//add extra initialization
-				sts->TargetAttOrbiter=sts->InertialOrientationRad;
+				InitializeControlMode();
+				/*sts->TargetAttOrbiter=sts->InertialOrientationRad;
 				sts->TargetAttM50=sts->CurrentAttitude;
 				sts->REQD_ATT=sts->CurrentAttitude*DEG;
 				sts->ManeuverinProg=true;
-				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE; //(check value set here)
+				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE; //(check value set here)*/
 				bRet=true;
 			}
 			//LVLH
 			if(p.x>=0.685939 && p.x<=0.815357 && p.y>=0.041121 && p.y<=0.901168) {
 				sts->ControlMode=Atlantis::LVLH;
 				//add extra initialization
+				InitializeControlMode();
+				/*sts->GetStatus(sts->Status);
 				sts->LVLHOrientationReqd=sts->CalcLVLHAttitude()*DEG;
 				sts->ReqdAttMatrix=sts->ConvertLVLHAnglesToM50Matrix(sts->LVLHOrientationReqd*RAD);
 				sts->ManeuverinProg=true;
-				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE;
+				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE;*/
 				bRet=true;
 			}
 			//FREE
 			if(p.x>=0.863466 && p.x<=0.99105 && p.y>=0.037412 && p.y<=0.88139) {
 				sts->ControlMode=Atlantis::FREE;
 				//add extra initialization
-				for(int i=0;i<3;i++) sts->RotMode[i]=1;
+				InitializeControlMode();
 				bRet=true;
 			}
 		}
@@ -267,92 +270,29 @@ namespace vc {
 		return false;
 	}
 
-	/*bool DAPControl::UpdatePBI(SURFHANDLE surf, int id, bool &bState)
+	void DAPControl::InitializeControlMode()
 	{
-		/*switch(id) {
-			case 0: //A
-				return DrawPBILight(surf, bState, (sts->DAPMode[0]==0));
+		switch(sts->ControlMode) {
+			case Atlantis::AUTO:
+				sts->StartAttManeuver();
 				break;
-			case 1: //B
-				return DrawPBILight(surf, bState, (sts->DAPMode[0]==1));
+			case Atlantis::INRTL:
+				sts->TargetAttOrbiter=sts->InertialOrientationRad;
+				sts->TargetAttM50=sts->CurrentAttitude;
+				sts->REQD_ATT=sts->CurrentAttitude*DEG;
+				sts->ManeuverinProg=true;
+				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE; //(check value set here)
 				break;
-			case 2: //AUTO
-				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::AUTO));
+			case Atlantis::LVLH:
+				sts->GetStatus(sts->Status);
+				sts->LVLHOrientationReqd=sts->CalcLVLHAttitude()*DEG;
+				sts->ReqdAttMatrix=sts->ConvertLVLHAnglesToM50Matrix(sts->LVLHOrientationReqd*RAD);
+				sts->ManeuverinProg=true;
+				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE;
 				break;
-			case 3: //INRTL
-				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::INRTL));
-				break;
-			case 4: //LVLH
-				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::LVLH));
-				break;
-			case 5: //FREE
-				return DrawPBILight(surf, bState, (sts->ControlMode==Atlantis::FREE));
-				break;
-			case 6: //TRANS X
-				break;
-			case 7: //LOW Z
-				break;
-			case 8: //HIGH Z
-				break;
-			case 9: //PRI
-				return DrawPBILight(surf, bState, (sts->DAPMode[1]==0));
-				break;
-			case 10: //ALT
-				return DrawPBILight(surf, bState, (sts->DAPMode[1]==1));
-				break;
-			case 11: //VERN
-				return DrawPBILight(surf, bState, (sts->DAPMode[1]==2));
-				break;
-			case 12: //TRANS X NORM
-				return DrawPBILight(surf, bState, (sts->TransMode[0]==0));
-				break;
-			case 13: //TRANS Y NORM
-				return DrawPBILight(surf, bState, (sts->TransMode[1]==0));
-				break;
-			case 14: //TRANS Z NORM
-				return DrawPBILight(surf, bState, (sts->TransMode[2]==0));
-				break;
-			case 15: //ROT ROLL DISC RATE
-				return DrawPBILight(surf, bState, (sts->RotMode[ROLL]==0));
-				break;
-			case 16: //ROT PITCH DISC RATE
-				return DrawPBILight(surf, bState, (sts->RotMode[PITCH]==0));
-				break;
-			case 17: //ROT YAW DISC RATE
-				return DrawPBILight(surf, bState, (sts->RotMode[YAW]==0));
-				break;
-			case 18: //TRANS X PULSE
-				return DrawPBILight(surf, bState, (sts->TransMode[0]==1));
-				break;
-			case 19: //TRANS Y PULSE
-				return DrawPBILight(surf, bState, (sts->TransMode[1]==1));
-				break;
-			case 20: //TRANS Z PULSE
-				return DrawPBILight(surf, bState, (sts->TransMode[2]==1));
-				break;
-			case 21: //ROT ROLL PULSE
-				return DrawPBILight(surf, bState, (sts->RotMode[ROLL]==1));
-				break;
-			case 22: //ROT PITCH PULSE
-				return DrawPBILight(surf, bState, (sts->RotMode[PITCH]==1));
-				break;
-			case 23: //ROT YAW PULSE
-				return DrawPBILight(surf, bState, (sts->RotMode[YAW]==1));
+			case Atlantis::FREE:
+				for(int i=0;i<3;i++) sts->RotMode[i]=1;
 				break;
 		}
-		if(id>=0 && id<=24)
-			return DrawPBILight(surf, bState, GetPBIState(id));
-		else return false;
 	}
-
-	bool DAPControl::DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn)
-	{
-		if(bState==bOn) return false; //nothing to do here
-		else {
-			if(bOn) oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 0, 42, 14);
-			else oapiBlt(surf, g_Param.pbi_lights, 0, 0, 0, 14, 42, 14);
-			bState=bOn;
-		}
-		return true;
-	}*/
 };
