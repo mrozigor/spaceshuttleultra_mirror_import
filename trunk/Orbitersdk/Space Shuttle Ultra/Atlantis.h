@@ -1274,6 +1274,9 @@ private:
 	void TransControl(double SimdT);
 	void AttControl(double SimdT);
 	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
+	void LoadInertialManeuver();
+	void LoadTrackManeuver();
+	void LoadRotationManeuver();
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(VECTOR3 &Rates);
 	//VECTOR3 ConvertAxes(VECTOR3 Rates);
