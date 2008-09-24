@@ -21,11 +21,11 @@ namespace vc {
 		 * Returns true if PBI on
 		 */
 		bool GetPBIState(int id);
-		/**
-		 * Draws PBI and updates state
-		 * Return true if blitting operation performed
+		/*
+		 * Called after control mode is changed
+		 * Adds extra initialization
 		 */
-		//bool UpdatePBI(SURFHANDLE surf, int id, bool &bState);
+		void InitializeControlMode();
 
 	private:
 		//bool DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn);
