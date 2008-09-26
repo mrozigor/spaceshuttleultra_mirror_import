@@ -1578,9 +1578,17 @@ void Atlantis::DefineAnimations (void)
 	  _V(0,0.25,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT PORT_CLAMPGrp[2] = {GRP_PORT_CLAMP, GRP_PORTDOOR_PULL};
-  static MGROUP_ROTATE PORT_CLAMP (midx, PORT_CLAMPGrp, 2,
-	  _V(-2.75,1.28,0), _V(0,0,1), (float)(100 * RAD));
+  static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
+  static MGROUP_ROTATE PORT_CLAMP1 (midx, PORT_CLAMPGrp, 1,
+	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(13 * RAD));
+  static MGROUP_ROTATE PORT_CLAMP2 (midx, PORT_CLAMPGrp, 1,
+	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(67.5 * RAD));
+
+  static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
+  static MGROUP_ROTATE PORTPullRod1 (midx, PORT_PullRodGrp, 1,
+	  _V(-2.501652, 1.462607, 0), _V(0, 0, 1), (float)(-13.3*RAD));
+  static MGROUP_ROTATE PORTPullRod2 (midx, PORT_PullRodGrp, 1,
+	  _V(-2.542652, 1.488807, 0), _V(0, 0, 1), (float)(30.5*RAD));
   
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
@@ -1588,10 +1596,19 @@ void Atlantis::DefineAnimations (void)
 	  _V(0,0.25,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT STBD_CLAMPGrp[2] = {GRP_STBD_CLAMP, GRP_STBDDOOR_PULL};
-  static MGROUP_ROTATE STBD_CLAMP (midx, STBD_CLAMPGrp, 2,
-	  _V(2.75,1.28,0), _V(0,0,-1), (float)(100 * RAD));
+  static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
+  static MGROUP_ROTATE STBD_CLAMP1 (midx, STBD_CLAMPGrp, 1,
+	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(13 * RAD));
+  static MGROUP_ROTATE STBD_CLAMP2 (midx, STBD_CLAMPGrp, 1,
+	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(67.5 * RAD));
 
+  static UINT STBD_PullRodGrp[1] = {GRP_STBDDOOR_PULL};
+  static MGROUP_ROTATE STBDPullRod1 (midx, STBD_PullRodGrp, 1,
+	  _V(2.501652, 1.462607, 0), _V(0, 0, 1), (float)(13.3*RAD));
+  static MGROUP_ROTATE STBDPullRod2 (midx, STBD_PullRodGrp, 1,
+	  _V(2.542652, 1.488807, 0), _V(0, 0, 1), (float)(-30.5*RAD));
+
+  //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
 	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
@@ -1616,13 +1633,18 @@ void Atlantis::DefineAnimations (void)
   anim_clatch[3] = CreateAnimation(0);
   //right side
   parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
-  AddAnimationComponent (anim_door, 0, 0.4632, &STBDRod);
-  AddAnimationComponent (anim_door, 0, 0.4632, &STBD_CLAMP);
   AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
+  //latches
   AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
   AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
   AddAnimationComponent (anim_clatch[2], 0, 1, &CLatch9_12, parent);
   AddAnimationComponent (anim_clatch[3], 0, 1, &CLatch13_16, parent);
+  //right push/pull rods
+  AddAnimationComponent (anim_door, 0, 0.4632, &STBDRod);
+  parent = AddAnimationComponent (anim_door, 0, 0.1181, &STBD_CLAMP1);
+  AddAnimationComponent (anim_door, 0, 0.1200, &STBDPullRod1, parent);
+  parent = AddAnimationComponent (anim_door, 0.1181, 0.4632, &STBD_CLAMP2, parent);
+  AddAnimationComponent (anim_door, 0.2687, 0.4632, &STBDPullRod2, parent);
   // **************************************************************************************
   //left(port) side
   // **************************************************************************************
@@ -1631,9 +1653,13 @@ void Atlantis::DefineAnimations (void)
 //  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortTorqueShaft);
 //  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortPushPullRod, parent);
   parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
-  AddAnimationComponent (anim_door, 0.5368, 1.0, &PORTRod);
-  AddAnimationComponent (anim_door, 0.5368, 1.0, &PORT_CLAMP);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
+  //left push/pull rods
+  AddAnimationComponent (anim_door, 0.5368, 1.0, &PORTRod);
+  parent = AddAnimationComponent (anim_door, 0.5368, 0.6549, &PORT_CLAMP1);
+  AddAnimationComponent (anim_door, 0.5368, 0.6568, &PORTPullRod1, parent);
+  parent = AddAnimationComponent (anim_door, 0.6549, 1.0, &PORT_CLAMP2, parent);
+  AddAnimationComponent (anim_door, 0.8055, 1.0, &PORTPullRod2, parent);
 
   // ***** 2. Landing gear animation *****
   gop->DefineAnimations();
