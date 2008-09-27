@@ -576,6 +576,9 @@ const double DEFAULT_PAYLOAD_ZPOS[16] =
   7.0, 3.0, -2.0, -8.0,	//Starboard
   0.0, 0.0};			//spare
 
+//Sound IDs
+const int RCS_SOUND = 1;
+
 // ==========================================================
 // Mesh group indices for some components
 // ==========================================================
@@ -1307,6 +1310,7 @@ private:
 	void EnableThrusters(const int Thrusters[], int nThrusters);
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
+	bool RCSThrustersFiring();
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg);
 
 	//Math
@@ -1774,6 +1778,9 @@ private:
 	char pszCameraLabelBuffer[80];
 
 	bool bIlluminated;
+
+	//sound
+	int SoundID;
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	void TriggerLiftOff();

@@ -14,6 +14,7 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "Atlantis.h"
+#include "OrbiterSoundSDK35.h"
 #include "PlBayOp.h"
 #include "GearOp.h"
 #include "PanelA4.h"
@@ -785,7 +786,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
   oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
 
- 
+  SoundID=-1;
 }
 
 // --------------------------------------------------------------
@@ -3092,6 +3093,25 @@ void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 	}
 }
 
+bool Atlantis::RCSThrustersFiring()
+{
+	if(!Eq(GetThrusterGroupLevel(thg_pitchup), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_pitchdown), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_yawleft), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_yawright), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_rollleft), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_rollright), 0.0, 0.01)) return true;
+	
+	if(!Eq(GetThrusterGroupLevel(thg_transup), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_transdown), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_transright), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_transleft), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_transfwd), 0.0, 0.01)) return true;
+	if(!Eq(GetThrusterGroupLevel(thg_transaft), 0.0, 0.01)) return true;
+
+	return false;
+}
+
 void Atlantis::UpdateTranslationForces()
 {
 	TransForce[0].x=GetThrusterGroupMaxThrust(thg_transfwd);
@@ -5083,6 +5103,12 @@ void Atlantis::clbkPostCreation ()
 {
 	VESSEL2::clbkPostCreation(); //may not be necessary
 
+	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
+	if(SoundID!=-1) {
+		SoundOptionOnOff3(SoundID, PLAYATTITUDETHRUST, FALSE);
+		RequestLoadVesselWave3(SoundID, RCS_SOUND, "Sound\\Vessel\\attsustain.wav", INTERNAL_ONLY);
+	}
+
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 
@@ -5366,6 +5392,17 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	MET[1]=(int)((met-86400*MET[0])/3600);
 	MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
 	MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
+
+	//play RCS sounds
+	if(SoundID!=-1) {
+		if(RCSThrustersFiring()) {
+			if(!IsPlaying3(SoundID, RCS_SOUND)) PlayVesselWave3(SoundID, RCS_SOUND, LOOP);
+		}
+		else {
+			if(IsPlaying3(SoundID, RCS_SOUND)) StopVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+
 	//sprintf(oapiDebugString(), "%i", last_mfd);
 	//deploy gear
 	if(status==STATE_ORBITER) {
