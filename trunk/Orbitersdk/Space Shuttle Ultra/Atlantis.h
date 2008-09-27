@@ -487,7 +487,8 @@ const int VC_PLBCAMFL = 13;
 const int VC_PLBCAMFR = 14;
 const int VC_PLBCAMBL = 15;
 const int VC_PLBCAMBR = 16;
-const int VC_LEECAM = 17;
+const int VC_RMSCAM = 17;
+const int VC_LEECAM = 18;
 //Beginning of Mid deck positions
 const int VC_MIDDECK = 100;
 //Beginning of external airlock positions
@@ -533,7 +534,7 @@ const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 
 const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
 const static char* VC_LBL_LEECAM = "RMS EE camera";
-const static char* VC_LBL_ELLBOWCAM = "RMS Elbow camera";
+const static char* VC_LBL_ELBOWCAM = "RMS Elbow camera";
 const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
 const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
 const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
@@ -1282,7 +1283,6 @@ private:
 	void LoadRotationManeuver();
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(VECTOR3 &Rates);
-	//VECTOR3 ConvertAxes(VECTOR3 Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	//change ref. frames
@@ -1297,7 +1297,6 @@ private:
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
 	//calc attitude/attitude error
-	//void CalcLVLHAttitude(VECTOR3 &Output);
 	VECTOR3 CalcLVLHAttitude();
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
@@ -1463,6 +1462,8 @@ private:
 	UINT anim_camBLpitch;					   // handle for back-left payload camera pitch animation 
 	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
 	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
+	UINT anim_camRMSElbowPan;
+	UINT anim_camRMSElbowTilt;
 	
 	// PAYLOAD CAMERAS ROTATION (-170 to 170 degrees)
 	double camFLyaw;
@@ -1473,6 +1474,9 @@ private:
 	double camBLpitch;
 	double camBRyaw;
 	double camBRpitch;
+	double camRMSElbowPan, camRMSElbowTilt;
+	//RMS Camera rot/direction
+	VECTOR3 camRMSElbowLoc[2];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -1481,7 +1485,7 @@ private:
 	bool cameraMoved;
 	
 	// Selected camera for control
-	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR
+	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR 4:RMS Elbow
 	
 	// Transform for the cameras
 	MGROUP_TRANSFORM *CameraFLYaw;

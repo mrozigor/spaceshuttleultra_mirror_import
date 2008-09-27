@@ -638,6 +638,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   arm_tip[2] = _V(-2.84, 3.13, -6.049);
   arm_ee_dir = _V(1.0, 0.0, 0.0);
   arm_ee_pos = _V(15.069, 0.0, 0.0);
+  //RMS elbow camera
+  camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
+  camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
 
   // default camera positions
   camFLyaw = 0;
@@ -1784,11 +1787,26 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
 
   //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
-  static UINT RMSElbowPitchGrp[4] = {GRP_Radii,GRP_elbowcam ,GRP_camswivel, GRP_cambase};
-  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 4,
+  static UINT RMSElbowPitchGrp[2] = {GRP_Radii,/*GRP_elbowcam ,GRP_camswivel,*/ GRP_cambase};
+  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 2,
     _V(-2.71,1.97,2.74), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
   anim_arm_ep = CreateAnimation (0.014688);
   parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
+
+  //RMS elbow camera
+  static UINT RMSElbowCamGrp[2] = {GRP_elbowcam, GRP_camswivel};
+  static MGROUP_ROTATE RMSElbowCamPan (ridx, RMSElbowCamGrp+1, 1,
+	  _V(-2.765, 2.373, 2.073), _V(0.2974, 0.95475, 0), (float)(340*RAD));
+  ANIMATIONCOMPONENT_HANDLE parent2;
+  anim_camRMSElbowPan=CreateAnimation(0.5);
+  parent2 = AddAnimationComponent (anim_camRMSElbowPan, 0, 1, &RMSElbowCamPan, parent);
+  static MGROUP_ROTATE RMSElbowCamTilt (ridx, RMSElbowCamGrp, 1,
+	  _V(-2.68, 2.64, 2.073), _V(0.9513, -0.3082, 0), (float)(340*RAD));
+  anim_camRMSElbowTilt=CreateAnimation(0.5);
+  parent2 = AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamTilt, parent2);
+  static MGROUP_ROTATE RMSElbowCamLoc (LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
+	  _V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
+  AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamLoc, parent2);
 
   //DaveS edit: Fixed animation
   static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
@@ -1924,10 +1942,10 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
   // ***** 10 Dummy animation *****
-  static MGROUP_ROTATE Dummy (midx, ElevGrp_up, 4,
+  /*static MGROUP_ROTATE Dummy (midx, ElevGrp_up, 4,
     _V(-3.058,-2.137,-8.776), _V(1,0,0), (float)(0.0*RAD));
   anim_dummy = CreateAnimation (0.5);
-  AddAnimationComponent (anim_dummy, 0, 1, &Dummy);
+  AddAnimationComponent (anim_dummy, 0, 1, &Dummy);*/
 
   // ***** 11 ET Umb Door animation *****
   // DaveS edit: still to be realigned
@@ -3017,57 +3035,69 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
 }
 
 void Atlantis::SetAnimationCameras() {
-  double a = 0;
-  double b = 0;
+	double a = 0;
+	double b = 0;
 
-  // FRONT LEFT
-  double anim_yaw = linterp(-170, 0, 170, 1, camFLyaw);
-  SetAnimation(anim_camFLyaw, anim_yaw);
+	// FRONT LEFT
+	double anim_yaw = linterp(-170, 0, 170, 1, camFLyaw);
+	SetAnimation(anim_camFLyaw, anim_yaw);
 
-    double anim_pitch = linterp(-170, 0, 170, 1, camFLpitch);
-  SetAnimation(anim_camFLpitch, anim_pitch);
+	double anim_pitch = linterp(-170, 0, 170, 1, camFLpitch);
+	SetAnimation(anim_camFLpitch, anim_pitch);
 
-  // FRONT RIGHT
-    anim_yaw = linterp(-170, 0, 170, 1, camFRyaw);
-  SetAnimation(anim_camFRyaw, anim_yaw);
+	// FRONT RIGHT
+	anim_yaw = linterp(-170, 0, 170, 1, camFRyaw);
+	SetAnimation(anim_camFRyaw, anim_yaw);
 
-    anim_pitch = linterp(-170, 0, 170, 1, camFRpitch);
-  SetAnimation(anim_camFRpitch, anim_pitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camFRpitch);
+	SetAnimation(anim_camFRpitch, anim_pitch);
 
-  // BACK LEFT
-    anim_yaw = linterp(-170, 0, 170, 1, camBLyaw);
-  SetAnimation(anim_camBLyaw, anim_yaw);
+	// BACK LEFT
+	anim_yaw = linterp(-170, 0, 170, 1, camBLyaw);
+	SetAnimation(anim_camBLyaw, anim_yaw);
 
-    anim_pitch = linterp(-170, 0, 170, 1, camBLpitch);
-  SetAnimation(anim_camBLpitch, anim_pitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camBLpitch);
+	SetAnimation(anim_camBLpitch, anim_pitch);
 
-  // BACK RIGHT
-    anim_yaw = linterp(-170, 0, 170, 1, camBRyaw);
-  SetAnimation(anim_camBRyaw, anim_yaw);
+	// BACK RIGHT
+	anim_yaw = linterp(-170, 0, 170, 1, camBRyaw);
+	SetAnimation(anim_camBRyaw, anim_yaw);
 
-    anim_pitch = linterp(-170, 0, 170, 1, camBRpitch);
-  SetAnimation(anim_camBRpitch, anim_pitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camBRpitch);
+	SetAnimation(anim_camBRpitch, anim_pitch);
 
-    switch (VCMode) {
-  case VC_PLBCAMFL:
-    a = ((-camFLyaw+90)*RAD);
-    b = ((camFLpitch-90)*RAD);
-    break;
-  case VC_PLBCAMFR:
-    a = ((-camFRyaw+90)*RAD);
-    b = ((camFRpitch-90)*RAD);
-    break;
-  case VC_PLBCAMBL:
-    a = ((-camBLyaw-90)*RAD);
-    b = ((camBLpitch-90)*RAD);
-    break;
-  case VC_PLBCAMBR:
-    a = ((-camBRyaw-90)*RAD);
-    b = ((camBRpitch-90)*RAD);
-    break;
-    }
+	//RMS Elbow
+	anim_yaw=linterp(-170, 0, 170, 1, camRMSElbowPan);
+	SetAnimation(anim_camRMSElbowPan, anim_yaw);
+	anim_pitch=linterp(-170, 0, 170, 1, camRMSElbowTilt);
+	SetAnimation(anim_camRMSElbowTilt, anim_pitch);
 
-  SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+	switch (VCMode) {
+	case VC_PLBCAMFL:
+		a = ((-camFLyaw+90)*RAD);
+		b = ((camFLpitch-90)*RAD);
+		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		break;
+	case VC_PLBCAMFR:
+		a = ((-camFRyaw+90)*RAD);
+		b = ((camFRpitch-90)*RAD);
+		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		break;
+	case VC_PLBCAMBL:
+		a = ((-camBLyaw-90)*RAD);
+		b = ((camBLpitch-90)*RAD);
+		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		break;
+	case VC_PLBCAMBR:
+		a = ((-camBRyaw-90)*RAD);
+		b = ((camBRpitch-90)*RAD);
+		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		break;
+	case VC_RMSCAM:
+		SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+		SetCameraOffset(camRMSElbowLoc[0]);
+		break;
+	}
 }
 
 void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
@@ -5587,6 +5617,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetCameraOffset (_V(orbiter_ofs.x-0.3,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
 			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
 		}
+		else if(VCMode==VC_RMSCAM) {
+			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+			SetCameraOffset(camRMSElbowLoc[0]);
+		}
 
 		arm_moved = false;
 	}
@@ -6056,7 +6090,8 @@ bool Atlantis::clbkLoadVC (int id)
   // VC Cockpit not visible from Payload cameras or RMS camera.
   // 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
   // Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-  if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
+  //if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
+  if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
 	SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
   } else {
 	SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
@@ -6159,17 +6194,21 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
 	//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
 	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
-    oapiVCSetNeighbours (-1, -1, -1, VC_RMSSTATION);
-
-    // No rotation allowed for RMS wrist camera.
-    SetCameraRotationRange(0,0,0,0);
-    // No lean for RMS wrist camera
-    SetCameraMovement (_V(0,0,0), 0, 0, _V(0,0,0), 0, 0, _V(0,0,0), 0, 0);
+    oapiVCSetNeighbours (VC_RMSCAM, -1, -1, VC_RMSSTATION);
 
 	HideMidDeck();
 
     ok = true;
     break;
+  case VC_RMSCAM:
+		DisplayCameraLabel(VC_LBL_ELBOWCAM);
+		SetCameraOffset(camRMSElbowLoc[0]);
+		SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+
+		oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
+		HideMidDeck();
+		ok=true;
+		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
     SetCameraOffset (_V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
@@ -6420,7 +6459,7 @@ bool Atlantis::clbkLoadVC (int id)
   }
 
   // Common action for external payload cameras
-  if (id >= VC_PLBCAMFL && id <= VC_PLBCAMBR) {
+  if (id >= VC_PLBCAMFL && id <= VC_LEECAM) {
     // Pan and tilt from camera control not from alt + arrow but from the dialog
     SetCameraRotationRange(0,0,0,0);
     // No lean for payload camera
@@ -7447,6 +7486,8 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
       case 3:
       SendDlgItemMessage (hWnd, IDC_CAM_BR, BM_SETCHECK, BST_CHECKED, 0);
       break;
+	  case 4:
+      SendDlgItemMessage (hWnd, IDC_CAM_RMS, BM_SETCHECK, BST_CHECKED, 0);
 
     }
 
@@ -7479,6 +7520,11 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
       sts->cameraControl = 3;
       camYaw =& sts->camBRyaw;
       camPitch =& sts->camBRpitch;
+    }
+	if (SendDlgItemMessage (hWnd, IDC_CAM_RMS, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+      sts->cameraControl = 4;
+	  camYaw =&(sts->camRMSElbowPan);
+      camPitch =&(sts->camRMSElbowTilt);
     }
 
     // Set Atlantis camera Rate from dialog
