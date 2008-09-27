@@ -714,6 +714,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\OrbiterSoundSDK35.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelA6.h"
 				>
 			</File>
@@ -876,6 +880,10 @@
 		</File>
 		<File
 			RelativePath="..\lib\Orbitersdk.lib"
+			>
+		</File>
+		<File
+			RelativePath="..\..\lib\OrbiterSoundSDK35.lib"
 			>
 		</File>
 		<File
