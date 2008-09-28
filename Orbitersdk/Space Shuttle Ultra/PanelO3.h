@@ -13,10 +13,15 @@
 #define NUM_O3_ANIMATIONS	10
 
 const VECTOR3 REF_O3S12 = _V(0.5121638,  2.799416,  14.35993);
+const VECTOR3 REF_O3S11 = _V(0.365, 2.799416, 14.35993);
 
 // .3651996 2.796465  14.35028
 
 const int SWITCH_O3S12 = 0;
+const int SWITCH_O3S11 = 1;
+
+const int O3_NUM_POSITIONS[20]={3, 5, 3, 4, 5, 6, 7, 8, 9, 10,
+								11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
 class PanelO3 {
 	friend class Atlantis;

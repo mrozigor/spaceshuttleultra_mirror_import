@@ -163,6 +163,13 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 			}
 		}
 	}
+	if(p.x>=0.391509 && p.x<=0.455177 && p.y>=0.685045 && p.y<=0.868811) {
+		UINT x=(UINT)(O3_NUM_POSITIONS[SWITCH_O3S11]*(p.x-0.391509)/(0.455177-0.391509));
+		//switch_state[SWITCH_O3S11]=2;
+		if(x<switch_state[SWITCH_O3S11]) switch_state[SWITCH_O3S11]--;
+		else if(x>switch_state[SWITCH_O3S11]) switch_state[SWITCH_O3S11]++;
+		action=true;
+	}
 
 	if(action)
 	{
@@ -178,7 +185,8 @@ void PanelO3::UpdateVC()
 	{
 		if(anim_VC_O3[i])
 		{
-			sts->SetAnimation(anim_VC_O3[i], switch_state[i] * 0.5);
+			//sts->SetAnimation(anim_VC_O3[i], switch_state[i] * 0.5);
+			sts->SetAnimation(anim_VC_O3[i], switch_state[i]/((double)O3_NUM_POSITIONS[i]-1));
 		}
 	}
 	return;
@@ -197,6 +205,12 @@ void PanelO3::DefineVCAnimations (UINT vcidx)
 		REF_O3S12, switch_rot, (float)(90.0*RAD));
 	anim_VC_O3[SWITCH_O3S12]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_O3[SWITCH_O3S12], 0, 1, &VC_O3S12);
+
+	static UINT VC_O3S11_GRP = GRP_O3S11_VC;
+	static MGROUP_ROTATE VC_O3S11 (vcidx, &VC_O3S11_GRP, 1,
+		REF_O3S11, _V(0, 0.1984, 0.9801), (float)(100.0*RAD));
+	anim_VC_O3[SWITCH_O3S11]=sts->CreateAnimation(0.75);
+	sts->AddAnimationComponent(anim_VC_O3[SWITCH_O3S11], 0, 1, &VC_O3S11);
 	
 	return;
 }
