@@ -1018,6 +1018,8 @@ public:
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
 	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec);
+	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg);
+	double GetPropellantLevel(PROPELLANT_HANDLE ph);
 	void Jettison ();
 	void OperateSpeedbrake (AnimState::Action action);
 	void PaintMarkings (SURFHANDLE tex);
@@ -1310,7 +1312,6 @@ private:
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
 	bool RCSThrustersFiring();
-	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg);
 
 	//Math
 	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
