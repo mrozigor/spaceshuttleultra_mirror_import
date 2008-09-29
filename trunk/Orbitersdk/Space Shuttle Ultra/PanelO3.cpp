@@ -166,8 +166,10 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 	if(p.x>=0.391509 && p.x<=0.455177 && p.y>=0.685045 && p.y<=0.868811) {
 		UINT x=(UINT)(O3_NUM_POSITIONS[SWITCH_O3S11]*(p.x-0.391509)/(0.455177-0.391509));
 		//switch_state[SWITCH_O3S11]=2;
-		if(x<switch_state[SWITCH_O3S11]) switch_state[SWITCH_O3S11]--;
-		else if(x>switch_state[SWITCH_O3S11]) switch_state[SWITCH_O3S11]++;
+		if(x<switch_state[SWITCH_O3S11] && switch_state[SWITCH_O3S11]>0)
+			switch_state[SWITCH_O3S11]--;
+		else if(x>switch_state[SWITCH_O3S11] && switch_state[SWITCH_O3S11]<4)
+			switch_state[SWITCH_O3S11]++;
 		action=true;
 	}
 
@@ -218,6 +220,8 @@ void PanelO3::DefineVCAnimations (UINT vcidx)
 void PanelO3::Step(double t, double dt)
 {
 	bool update = false;
+	bool UpdateRCSgauge=false;
+	short fuel;
 	//Check forward event timer for changes and update clock if needed
 
 	switch(switch_state[SWITCH_O3S12]) {
@@ -268,6 +272,40 @@ void PanelO3::Step(double t, double dt)
 			sMETSeconds = 88;
 			oapiVCTriggerRedrawArea(-1, AID_O3_METTMR1);
 			oapiVCTriggerRedrawArea(-1, AID_O3_METTMR2);
+		}
+		break;
+	}
+
+	switch(switch_state[SWITCH_O3S11]) {
+	case 0: //RCS OXID
+	case 1: //RCS FUEL
+		fuel=min(99, sts->GetPropellantLevel(sts->ph_lrcs));
+		if(sOMSFuel[0]!=fuel) {
+			sOMSFuel[0]=fuel;
+			UpdateRCSgauge=true;
+		}
+		fuel=min(99, sts->GetPropellantLevel(sts->ph_frcs));
+		if(sOMSFuel[1]!=fuel) {
+			sOMSFuel[1]=fuel;
+			UpdateRCSgauge=true;
+		}
+		fuel=min(99, sts->GetPropellantLevel(sts->ph_rrcs));
+		if(sOMSFuel[2]!=fuel) {
+			sOMSFuel[2]=fuel;
+			UpdateRCSgauge=true;
+		}
+		if(UpdateRCSgauge) oapiVCTriggerRedrawArea(-1, AID_O3_RCS);
+		break;
+	case 2: //LOWEST
+		break;
+	case 3: //OMS OXID
+	case 4: //OMS FUEL
+		fuel=min(99, sts->GetPropellantLevel(sts->ph_oms));
+		if(sOMSFuel[0]!=fuel || sOMSFuel[1]!=0 || sOMSFuel[2]!=fuel) {
+			sOMSFuel[0]=fuel;
+			sOMSFuel[1]=0;
+			sOMSFuel[2]=fuel;
+			oapiVCTriggerRedrawArea(-1, AID_O3_RCS);
 		}
 		break;
 	}

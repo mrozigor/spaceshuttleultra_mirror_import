@@ -3163,6 +3163,11 @@ double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg)
 	return length(Total);
 }
 
+double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph)
+{
+	return 100.0*(GetPropellantMass(ph)/GetPropellantMaxMass(ph));
+}
+
 bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 {
 	//int item;
