@@ -17,7 +17,11 @@ MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 
 	double fMJD = oapiGetSimMJD();
 
-	double fSimGMT = (fmod(fMJD - 43874.5, 365)) * 86400.0;
+	//SiameseCat edit: calculate GMT; leap year calculation accurate from 1970 to 2097 (I think)
+	double fSimGMT = (fmod(fMJD-40587.0, 365))*86400.0; //MJD 40952 == Jan. 1, 1970, 00:00:00
+	int Days=(int)(fMJD-40587.0);
+	fSimGMT-=(Days/1460)*86400.0; //compensate for leap years
+
 	for(i=0;i<3; i++)
 	{
 		fGMT[i][0] = fSimGMT;
