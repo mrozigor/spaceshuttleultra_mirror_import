@@ -775,19 +775,19 @@ void PanelR2::DefineVCAnimations (UINT vcidx)
 	//APU Fuel Tank Valves
 	static UINT VC_R2b37_Grp = GRP_R2b37_VC;
 	static MGROUP_ROTATE VC_R2b37 (vcidx, &VC_R2b37_Grp, 1,
-		_V(1.212, 1.841, 14.064), switch_rot, (float)(90.0*RAD));
+		_V(1.2136, 1.8363, 14.064), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[36]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[36], 0, 1, &VC_R2b37);
 
 	static UINT VC_R2b38_Grp = GRP_R2b38_VC;
 	static MGROUP_ROTATE VC_R2b38 (vcidx, &VC_R2b38_Grp, 1,
-		_V(1.252, 1.853, 14.062), switch_rot, (float)(90.0*RAD));
+		_V(1.2536, 1.8483, 14.062), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[37]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[37], 0, 1, &VC_R2b38);
 
 	static UINT VC_R2b39_Grp = GRP_R2b39_VC;
 	static MGROUP_ROTATE VC_R2b39 (vcidx, &VC_R2b39_Grp, 1,
-		_V(1.293, 1.865, 14.061), switch_rot, (float)(90.0*RAD));
+		_V(1.2946, 1.8603, 14.061), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[38]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[38], 0, 1, &VC_R2b39);
 
@@ -870,57 +870,57 @@ void PanelR2::DefineVCAnimations (UINT vcidx)
 	//APU Cntlr Pwr
 	static UINT VC_R2b34_Grp = GRP_R2b34_VC;
 	static MGROUP_ROTATE VC_R2b34 (vcidx, &VC_R2b34_Grp, 1,
-		_V(1.209, 1.848, 14.122), switch_rot, (float)(90.0*RAD));
+		_V(1.2106, 1.8433, 14.122), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[33]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[33], 0, 1, &VC_R2b34);
 
 	static UINT VC_R2b35_Grp = GRP_R2b35_VC;
 	static MGROUP_ROTATE VC_R2b35 (vcidx, &VC_R2b35_Grp, 1,
-		_V(1.24, 1.857, 14.121), switch_rot, (float)(90.0*RAD));
+		_V(1.2416, 1.8523, 14.121), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[34]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[34], 0, 1, &VC_R2b35);
 
 	static UINT VC_R2b36_Grp = GRP_R2b36_VC;
 	static MGROUP_ROTATE VC_R2b36 (vcidx, &VC_R2b36_Grp, 1,
-		_V(1.271, 1.866, 14.12), switch_rot, (float)(90.0*RAD));
+		_V(1.2726, 1.8613, 14.12), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[35]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[35], 0, 1, &VC_R2b36);
 
 	//APU Cntrl
 	static UINT VC_R2b15_Grp = GRP_R2b15_VC;
 	static MGROUP_ROTATE VC_R2b15 (vcidx, &VC_R2b15_Grp, 1,
-		_V(1.14, 1.852, 14.307), switch_rot, (float)(90.0*RAD));
+		_V(1.1416, 1.8473, 14.307), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[14]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[14], 0, 1, &VC_R2b15);
 
 	static UINT VC_R2b16_Grp = GRP_R2b16_VC;
 	static MGROUP_ROTATE VC_R2b16 (vcidx, &VC_R2b16_Grp, 1,
-		_V(1.169, 1.861, 14.306), switch_rot, (float)(90.0*RAD));
+		_V(1.1706, 1.8563, 14.306), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[15]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[15], 0, 1, &VC_R2b16);
 
 	static UINT VC_R2b17_Grp = GRP_R2b17_VC;
 	static MGROUP_ROTATE VC_R2b17 (vcidx, &VC_R2b17_Grp, 1,
-		_V(1.199, 1.869, 14.305), switch_rot, (float)(90.0*RAD));
+		_V(1.2006, 1.8643, 14.305), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[16]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[16], 0, 1, &VC_R2b17);
 
 	//Hyd Main Pump Press
 	static UINT VC_R2b27_Grp = GRP_R2b27_VC;
 	static MGROUP_ROTATE VC_R2b27 (vcidx, &VC_R2b27_Grp, 1,
-		_V(1.148, 1.838, 14.184), switch_rot, (float)(90.0*RAD));
+		_V(1.1496, 1.8333, 14.184), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[26]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[26], 0, 1, &VC_R2b27);
 
 	static UINT VC_R2b28_Grp = GRP_R2b28_VC;
 	static MGROUP_ROTATE VC_R2b28 (vcidx, &VC_R2b28_Grp, 1,
-		_V(1.197, 1.852, 14.182), switch_rot, (float)(90.0*RAD));
+		_V(1.1986, 1.8473, 14.182), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[27]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[27], 0, 1, &VC_R2b28);
 
 	static UINT VC_R2b29_Grp = GRP_R2b29_VC;
 	static MGROUP_ROTATE VC_R2b29 (vcidx, &VC_R2b29_Grp, 1,
-		_V(1.243, 1.866, 14.181), switch_rot, (float)(90.0*RAD));
+		_V(1.2446, 1.8613, 14.181), switch_rot, (float)(90.0*RAD));
 	anim_VC_R2[28]=sts->CreateAnimation (0.5);
 	sts->AddAnimationComponent (anim_VC_R2[28], 0, 1, &VC_R2b29);
 
