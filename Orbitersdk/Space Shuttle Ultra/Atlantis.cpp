@@ -5218,6 +5218,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	gncsoftware->OnPostStep(simt, simdt, mjd);
 	psubsystems->PostStep(simt, simdt, mjd);
+	pgForward.OnPostStep(simt, simdt, mjd);
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
@@ -6652,65 +6653,62 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 // --------------------------------------------------------------
 // Respond to virtual cockpit area redraw request
 // --------------------------------------------------------------
-bool Atlantis::clbkVCRedrawEvent (int id, int event, SURFHANDLE surf)
+bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
-  switch (id) {
-  case AID_CDR1_BUTTONS:
-  case AID_CDR2_BUTTONS:
-  case AID_PLT1_BUTTONS:
-  case AID_PLT2_BUTTONS:
-  case AID_CRT1_BUTTONS:
-  case AID_CRT2_BUTTONS:
-  case AID_CRT3_BUTTONS:
-  case AID_CRT4_BUTTONS:
-  case AID_MFD1_BUTTONS:
-  case AID_MFD2_BUTTONS:
-  case AID_AFD_BUTTONS:
-   {
-    int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-    //RedrawPanel_MFDButton (surf, mfd);
-    } return true;
-  default:
-	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
-	  return panela4->VCRedrawEvent (id, event, surf);
-	if (id >= AID_A8_MIN && id <= AID_A8_MAX)
-	  return panela8->VCRedrawEvent (id, event, surf);
-	if (id >= AID_R2_MIN && id <= AID_R2_MAX)
-	  return r2d2->VCRedrawEvent (id, event, surf);
-    if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
-      return plop->VCRedrawEvent (id, event, surf);
-    if (id >= AID_F6_MIN && id <= AID_F6_MAX)
-      return gop->VCRedrawEvent (id, event, surf);
-	if (id >= AID_F7_MIN && id <= AID_F7_MAX)
-//     return panelf7->VCRedrawEvent (id, event, surf);
+	switch (id) {
+		case AID_CDR1_BUTTONS:
+		case AID_CDR2_BUTTONS:
+		case AID_PLT1_BUTTONS:
+		case AID_PLT2_BUTTONS:
+		case AID_CRT1_BUTTONS:
+		case AID_CRT2_BUTTONS:
+		case AID_CRT3_BUTTONS:
+		case AID_CRT4_BUTTONS:
+		case AID_MFD1_BUTTONS:
+		case AID_MFD2_BUTTONS:
+		case AID_AFD_BUTTONS:
+			//int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
+			//RedrawPanel_MFDButton (surf, mfd);
+			return true;
+		default:
+			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
+				return panela4->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_A8_MIN && id <= AID_A8_MAX)
+				return panela8->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_R2_MIN && id <= AID_R2_MAX)
+				return r2d2->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
+				return plop->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_F6_MIN && id <= AID_F6_MAX)
+				return gop->VCRedrawEvent (id, _event, surf);
+			//if (id >= AID_F7_MIN && id <= AID_F7_MAX)
+			//	return panelf7->VCRedrawEvent (id, event, surf);
+			//return false;
+			if (id >= AID_C3_MIN && id <= AID_C3_MAX)
+				return panelc3->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_C2_MIN && id <= AID_C2_MAX)
+				return panelc2->VCRedrawEvent (id, _event, surf);
+			if (id >= AID_O3_MIN && id <= AID_O3_MAX)
+				return panelo3->VCRedrawEvent (id, _event, surf);		
+			break;
+	}
+	if(pgForward.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgCenter.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgOverhead.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgLeft.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgRight.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgAftMSS.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgAftOOS.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgAftPSS.OnVCRedrawEvent(id, _event, surf))
+		return true;
 	return false;
-	if (id >= AID_C3_MIN && id <= AID_C3_MAX)
-		return panelc3->VCRedrawEvent (id, event, surf);
-	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
-      return panelc2->VCRedrawEvent (id, event, surf);
-	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
-      return panelo3->VCRedrawEvent (id, event, surf);
-	
-	
-    break;
-  }
-  if(pgForward.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgCenter.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgOverhead.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgLeft.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgRight.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgAftMSS.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgAftOOS.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  if(pgAftPSS.OnVCRedrawEvent(id, event, surf))
-	  return true;
-  return false;
 }
 
 bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)

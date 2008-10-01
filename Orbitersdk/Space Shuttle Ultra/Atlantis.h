@@ -912,7 +912,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelA8;
 	friend class PanelC2;
 	friend class PanelC3;
-	//friend class PanelF7;
+	friend class vc::PanelF7;
 	friend class PanelO3;
 	friend class PanelR2;
 	friend class Keyboard;
