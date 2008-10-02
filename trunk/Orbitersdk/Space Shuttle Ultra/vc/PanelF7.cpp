@@ -90,7 +90,9 @@ namespace vc {
 			{
 				oapiBlt(surf, g_Param.digits_7seg, i*64, 0, NUMX[digit[i]], NUMY[digit[i]], 64, 64);
 			}
+			return true;
 		}
-		return true;
+
+		return false;
 	}
 };
