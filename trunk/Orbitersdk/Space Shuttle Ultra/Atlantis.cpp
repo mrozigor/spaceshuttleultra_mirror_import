@@ -505,8 +505,6 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   thManFRCS4[0] = thManFRCS4[1] = NULL;
   thManFRCS5[0] = thManFRCS5[1] = NULL;
 
-  
-
   for(i=0;i<3;i++)
   {
 	th_ssme_gox[i] = NULL;
@@ -854,8 +852,6 @@ void Atlantis::SetLaunchConfiguration (void)
   int i;
   extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
 
- 
-  
   // *********************** physical parameters *********************************
 
   SetSize (30.0);
@@ -2461,6 +2457,9 @@ void Atlantis::SeparateBoosters (double met)
   char cbuf[255];
   sprintf(cbuf, "Boosters separated");
   oapiWriteLog(cbuf);
+
+  //stop playing sound
+  StopVesselWave3(SoundID, SSME_RUNNING);
 }
 
 void Atlantis::SeparateTank (void)
@@ -5141,7 +5140,17 @@ void Atlantis::clbkPostCreation ()
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
 	if(SoundID!=-1) {
 		SoundOptionOnOff3(SoundID, PLAYATTITUDETHRUST, FALSE);
-		RequestLoadVesselWave3(SoundID, RCS_SOUND, "Sound\\Vessel\\attsustain.wav", INTERNAL_ONLY);
+		RequestLoadVesselWave3(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
+
+		//SSME sounds
+		SoundOptionOnOff3(SoundID, PLAYMAINTHRUST, FALSE);
+		RequestLoadVesselWave3(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+
+		//APU sounds
+		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, BOTHVIEW_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
 	}
 
 	GetGlobalOrientation(InertialOrientationRad);
@@ -5228,6 +5237,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SignalGSEStart();
 			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
 			RecordEvent ("STATUS", "SSME_IGNITION");
+			//play sounds
+			PlayVesselWave3(SoundID, SSME_START, NOLOOP);
 			if(bAutopilot) 
 				InitializeAutopilot(); //setup autopilot for ascent
 		} 
@@ -5265,6 +5276,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 	case STATE_STAGE1: // SRB's ignited
 		met = simt-t0;
+		//play sounds
+		if(!IsPlaying3(SoundID, SSME_START))
+			PlayVesselWave3(SoundID, SSME_RUNNING, LOOP);
 		for(i = 0; i<3; i++)
 		{
 			if(th_ssme_gox[i] != NULL) {
