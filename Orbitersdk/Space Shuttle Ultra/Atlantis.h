@@ -579,6 +579,19 @@ const double DEFAULT_PAYLOAD_ZPOS[16] =
 
 //Sound IDs
 const int RCS_SOUND = 1;
+const static char* RCS_SOUND_FILE = "Sound\\Vessel\\attsustain.wav";
+const int MASTER_ALARM = 2;
+const static char* MASTER_ALARM_FILE = "Sound\\ShuttleUltra\\Master_Alarm.wav";
+const int APU_START = 3;
+const static char* APU_START_FILE = "Sound\\ShuttleUltra\\APU_start_up.wav";
+const int APU_RUNNING = 4;
+const static char* APU_RUNNING_FILE = "Sound\\ShuttleUltra\\APU_continues.wav";
+const int APU_SHUTDOWN = 5;
+const static char* APU_SHUTDOWN_FILE = "Sound\\ShuttleUltra\\APU_shut_down.wav";
+const int SSME_START = 6;
+const static char* SSME_START_FILE = "Sound\\ShuttleUltra\\SSME_ignition.wav";
+const int SSME_RUNNING = 7;
+const static char* SSME_RUNNING_FILE = "Sound\\ShuttleUltra\\SSME_sustain.wav";
 
 // ==========================================================
 // Mesh group indices for some components
