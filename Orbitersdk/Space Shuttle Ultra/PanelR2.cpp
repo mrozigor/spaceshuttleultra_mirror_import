@@ -1,4 +1,5 @@
 #include "PanelR2.h"
+#include "OrbiterSoundSDK35.h"
 #include "resource.h"
 #include "meshres.h"
 #include "meshres_vc.h"
@@ -416,7 +417,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[0]!=1 && APU_READY[0]) APU_STATE[0]=1;
+			if(APU_CONTROL[0]!=1 && APU_READY[0]) {
+				APU_STATE[0]=1;
+				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}
 		}
 		else if(p.x>0.472092) {
 			if(p.y<0.404556) {
@@ -431,7 +435,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[2]!=1 && APU_READY[2]) APU_STATE[2]=1;
+			if(APU_CONTROL[2]!=1 && APU_READY[2]) {
+				APU_STATE[2]=1;
+				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}
 		}
 		else {
 			if(p.y<0.404556) {
@@ -446,7 +453,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[1]!=1 && APU_READY[1]) APU_STATE[1]=1;
+			if(APU_CONTROL[1]!=1 && APU_READY[1]) {
+				APU_STATE[1]=1;
+				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}
 		}
 	}
 	else if(p.y>0.453919 && p.y<0.492724 && p.x>=0.281316 && p.x<=0.499178) {
@@ -1065,6 +1075,7 @@ void PanelR2::DefineVCAnimations (UINT vcidx)
 void PanelR2::Step(double t, double dt)
 {
 	double dMass;
+	bool bAPURunning=false;
 	bHydraulicPressure=false;
 	//sprintf(oapiDebugString(), "%f %f %f", CenterlineLatches.pos, LETUmbDoorStatus.pos, RETUmbDoorStatus.pos);
 	//sprintf(oapiDebugString(), "%f %f", LDoorLatches.pos, RDoorLatches.pos);
@@ -1072,11 +1083,10 @@ void PanelR2::Step(double t, double dt)
 	{
 		if(APU_STATE[i]!=0)
 		{
-			//dMass=0;
-			//sprintf(oapiDebugString(), "tank %d fuel %f", i, dMass);
+			bAPURunning=true;
+
 			dMass=sts->GetPropellantMass(sts->apu_tank[i]);
 			dMass-=APU_FUEL_TANK_FLOWRATE[HYD_MAIN_PUMP_PRESS[i]]*dt;
-			//sprintf(oapiDebugString(), "tank %d fuel %f", i, dMass);
 			if(dMass<=0.0) {
 				APU_STATE[i]=0;
 				sts->SetPropellantMass(sts->apu_tank[i], 0.0);
@@ -1090,7 +1100,9 @@ void PanelR2::Step(double t, double dt)
 					APU_Speed[i]=103.0+(1.0*oapiRand())-(1.0*oapiRand());
 					APU_STATE[i]=2;
 				}
-				else APU_Speed[i]+=15.0*dt;
+				else {
+					APU_Speed[i]+=15.0*dt;
+				}
 				oapiVCTriggerRedrawArea (-1, AID_R2_TKBK1+i);
 				//UpdateVC();
 			}
@@ -1133,8 +1145,9 @@ void PanelR2::Step(double t, double dt)
 			if(Hydraulic_Press[i]>2700) bHydraulicPressure=true;
 		}
 		else {
-			if(APU_Speed[i]>5) 
-				APU_Speed[i]-=15.0*dt;
+			if(APU_Speed[i]>5) {
+				APU_Speed[i]=max(APU_Speed[i]-15.0*dt, 0.0);
+			}
 			else 
 				APU_Speed[i]=0;
 			if(Fuel_Press[i]>25) 
@@ -1147,7 +1160,12 @@ void PanelR2::Step(double t, double dt)
 				Hydraulic_Press[i] = 0;
 		}
 	}
-	//sprintf(oapiDebugString(), "%f %f %f %i %i %i", APU_Speed[0], APU_Speed[1], APU_Speed[2], Fuel_Press[0], Fuel_Press[1], Fuel_Press[2]);
+	//APU sounds
+	if(bAPURunning && !IsPlaying3(sts->SoundID, APU_START))
+		PlayVesselWave3(sts->SoundID, APU_RUNNING, LOOP);
+	else if(!bAPURunning && IsPlaying3(sts->SoundID, APU_RUNNING))
+		StopVesselWave3(sts->SoundID, APU_RUNNING);
+
 	if(LETUmbDoorStatus.Moving()) {
 		double da=dt*ET_UMB_DOOR_OPERATING_SPEED;
 		if(LETUmbDoorStatus.Closing()) {
@@ -1260,12 +1278,19 @@ void PanelR2::CheckAPUReadytoStart()
 void PanelR2::CheckAPUShutdown()
 {
 	int i;
+	bool bAPUShutdown=false;
 	for(i=0;i<3;i++)
 	{
-		if(APU_CONTROL[i]==1 || APU_FUEL_TK_VLV[i]==1 || APU_CNTLR_PWR[i]==1)
-			APU_STATE[i]=0;
-		else if(APU_STATE[i]==1 && HYD_MAIN_PUMP_PRESS[i]==0) APU_STATE[i]=0;
+		if(APU_STATE[i]!=0) {
+			if(APU_CONTROL[i]==1 || APU_FUEL_TK_VLV[i]==1 || APU_CNTLR_PWR[i]==1
+				|| (APU_STATE[i]==1 && HYD_MAIN_PUMP_PRESS[i]==0))
+			{
+				APU_STATE[i]=0;
+				bAPUShutdown=true;
+			}
+		}
 	}
+	if(bAPUShutdown) PlayVesselWave3(sts->SoundID, APU_SHUTDOWN, NOLOOP);
 }
 
 void PanelR2::SetETUmbDoorAction(AnimState::Action action, int door)
