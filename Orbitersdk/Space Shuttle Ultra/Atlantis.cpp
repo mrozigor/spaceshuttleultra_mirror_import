@@ -43,6 +43,8 @@
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
 #include "vc/PanelA6.h"
+#include "vc/PanelR11.h"
+#include "vc/AftMDU.h"
 
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
@@ -363,7 +365,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
 
-  pgAftPSS.AddPanel(new vc::PanelA6(this));
+  pgAft.AddPanel(new vc::PanelA6(this));
+  //pgAft.AddPanel(new vc::AftMDU(this));
+
+  pgAftStbd.AddPanel(new vc::PanelR11(this));
   
 
   panelo3		  = new PanelO3(this);
@@ -403,7 +408,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //connect CRT MDUs to IDPs
   for (i=0;i<3;i++) {
 	  //pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
-	  mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
+	  if(mdus[i+vc::MDUID_CRT1]) mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
   }
 
   for(int i = 0; i<16; i++)
@@ -2325,8 +2330,14 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	pgRight.DefineVC();
 	pgRight.DefineVCAnimations(mesh_vc);
 
-	pgAftPSS.DefineVC();
-	pgAftPSS.DefineVCAnimations(mesh_vc);
+	pgAft.DefineVC();
+	pgAft.DefineVCAnimations(mesh_vc);
+
+	pgAftStbd.DefineVC();
+	pgAftStbd.DefineVCAnimations(mesh_vc);
+
+	pgAftPort.DefineVC();
+	pgAftPort.DefineVCAnimations(mesh_vc);
 
     for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
@@ -3015,13 +3026,7 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
   SetAnimation (anim, state);
   arm_moved = true;
   UpdateMRLMicroswitches();
-  if(panela8) {
-	  panela8->UpdateVC();
-  }
-  else {
-	  sprintf_s(oapiDebugString(), 255, "ERROR: PanelA8 not initialized");
-	  oapiWriteLog(oapiDebugString());
-  }
+  panela8->UpdateVC();
 
   //HWND hDlg;
   /*
@@ -4283,7 +4288,6 @@ VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
 	Output.z=cos(AXIS_TILT)*Input.y+sin(AXIS_TILT)*Input.z;
 	RotateVectorZ(Output, 90.0); //check sign of angle
 	return Output;
-	//return Input;
 }
 
 /*VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in radians
@@ -6194,8 +6198,8 @@ bool Atlantis::clbkLoadVC (int id)
 	HideMidDeck();
 
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
-	pgAftOOS.RegisterVC();
+	pgAftStbd.RegisterVC();
+	pgAft.RegisterVC();
 
     //RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
@@ -6293,9 +6297,9 @@ bool Atlantis::clbkLoadVC (int id)
 	HideMidDeck();
 
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
-	pgAftOOS.RegisterVC();
-	pgAftPSS.RegisterVC();
+	pgAftStbd.RegisterVC();
+	pgAft.RegisterVC();
+	pgAftPort.RegisterVC();
 
 
     plop->RegisterVC ();  // register panel R13L interface
@@ -6311,7 +6315,6 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-	
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6322,9 +6325,9 @@ bool Atlantis::clbkLoadVC (int id)
 	ShowMidDeck();
 
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
-	pgAftOOS.RegisterVC();
-	pgAftPSS.RegisterVC();
+	pgAft.RegisterVC();
+	pgAftStbd.RegisterVC();
+	pgAftPort.RegisterVC();
 
 
 	plop->RegisterVC ();  // register panel R13L interface
@@ -6347,8 +6350,8 @@ bool Atlantis::clbkLoadVC (int id)
 	ShowMidDeck();
 
 	pgOverhead.RegisterVC();
-	pgAftOOS.RegisterVC();
-	pgAftPSS.RegisterVC();
+	pgAft.RegisterVC();
+	pgAftPort.RegisterVC();
 
 
 	plop->RegisterVC ();  // register panel R13L interface
@@ -6370,9 +6373,9 @@ bool Atlantis::clbkLoadVC (int id)
 	ShowMidDeck();
 
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
-	pgAftOOS.RegisterVC();
-	pgAftPSS.RegisterVC();
+	pgAft.RegisterVC();
+	pgAftStbd.RegisterVC();
+	pgAftPort.RegisterVC();
 
 		
 	plop->RegisterVC ();  // register panel R13L interface
@@ -6397,7 +6400,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
+	pgAft.RegisterVC();
 
 
     //RegisterVC_CdrMFD();
@@ -6427,7 +6430,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
-	pgAftMSS.RegisterVC();
+	pgAftStbd.RegisterVC();
 
     //RegisterVC_CdrMFD();
 	//RegisterVC_PltMFD (); // activate pilot MFD controls
@@ -6489,30 +6492,30 @@ bool Atlantis::clbkLoadVC (int id)
     SetAnimationCameras();
   }
 
-  if (ok) {
-    // register the HUDs (synced)
-    oapiVCRegisterHUD (&huds);
-    // register all MFD displays
-    for (int i = 0; i < 10; i++)
-	{
-      //oapiRegisterMFD (MFD_LEFT+i, mfds+i);
-		if(mdus[i])
+	if (ok) {
+		// register the HUDs (synced)
+		oapiVCRegisterHUD (&huds);
+		// register all MFD displays
+		for (int i = 0; i < 10; i++)
 		{
-			mdus[i]->RealizeMFD();
+			//oapiRegisterMFD (MFD_LEFT+i, mfds+i);
+			if(mdus[i])
+			{
+				mdus[i]->RealizeMFD();
+			}
 		}
+		// update panels
+		plop->UpdateVC();
+		gop->UpdateVC();
+		panela4->UpdateVC();
+		if(RMS) panela8->UpdateVC();
+		panelc2->UpdateVC();
+		panelc3->UpdateVC();
+		//	panelf7->UpdateVC();
+		panelo3->UpdateVC();
+		r2d2->UpdateVC();
 	}
-    // update panels
-    plop->UpdateVC();
-    gop->UpdateVC();
-	panela4->UpdateVC();
-	if(RMS) panela8->UpdateVC();
-	panelc2->UpdateVC();
-	panelc3->UpdateVC();
-//	panelf7->UpdateVC();
-	panelo3->UpdateVC();
-	r2d2->UpdateVC();
-  }
-  return ok;
+	return ok;
 }
 
 // --------------------------------------------------------------
@@ -6520,17 +6523,19 @@ bool Atlantis::clbkLoadVC (int id)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 {
+	bool bRet=false;
   static bool counting = false;
   static double t0 = 0.0;
 
   //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 
-  pgForward.OnVCMouseEvent(id, _event, p);
-  pgLeft.OnVCMouseEvent(id, _event, p);
-  pgRight.OnVCMouseEvent(id, _event, p);
-  pgCenter.OnVCMouseEvent(id, _event, p);
-  pgOverhead.OnVCMouseEvent(id, _event, p);
-  pgAftPSS.OnVCMouseEvent(id, _event, p);
+  bRet=pgForward.OnVCMouseEvent(id, _event, p);
+  bRet=pgLeft.OnVCMouseEvent(id, _event, p);
+  bRet=pgRight.OnVCMouseEvent(id, _event, p);
+  bRet=pgCenter.OnVCMouseEvent(id, _event, p);
+  bRet=pgOverhead.OnVCMouseEvent(id, _event, p);
+  bRet=pgAft.OnVCMouseEvent(id, _event, p);
+  bRet=pgAftStbd.OnVCMouseEvent(id, _event, p);
 
   switch (id) 
   {
@@ -6661,7 +6666,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 		  pA7A8Panel->OnVCMouseEvent(id, _event, p);
   }
 
-  return false;
+  return bRet;
 }
 
 // --------------------------------------------------------------
@@ -6716,11 +6721,11 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 		return true;
 	if(pgRight.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAftMSS.OnVCRedrawEvent(id, _event, surf))
+	if(pgAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAftOOS.OnVCRedrawEvent(id, _event, surf))
+	if(pgAftStbd.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAftPSS.OnVCRedrawEvent(id, _event, surf))
+	if(pgAftPort.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	return false;
 }
@@ -7009,7 +7014,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgRight.ToggleCoordinateDisplayMode();
 		pgLeft.ToggleCoordinateDisplayMode();
 		pgOverhead.ToggleCoordinateDisplayMode();
-		pgAftPSS.ToggleCoordinateDisplayMode();
+		pgAft.ToggleCoordinateDisplayMode();
+		pgAftStbd.ToggleCoordinateDisplayMode();
+		pgAftPort.ToggleCoordinateDisplayMode();
 		return 1;
 	}
   } else { // unmodified keys

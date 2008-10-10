@@ -283,6 +283,10 @@
 			Name="Sources"
 			>
 			<File
+				RelativePath=".\vc\AftMDU.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\AirDataProbeSystem.cpp"
 				>
 			</File>
@@ -479,6 +483,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelR11.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PanelR2.cpp"
 				>
 			</File>
@@ -547,6 +555,10 @@
 			</File>
 			<File
 				RelativePath="AC_resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\AftMDU.h"
 				>
 			</File>
 			<File
@@ -743,6 +755,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelGroup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelR11.h"
 				>
 			</File>
 			<File
