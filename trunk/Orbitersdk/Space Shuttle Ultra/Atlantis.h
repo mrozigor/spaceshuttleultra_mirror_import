@@ -602,7 +602,7 @@ const UINT MESH_UNDEFINED = (UINT)-1;
  const int MFDGROUPS[11] = {
     GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
     GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
-	NULL
+	GRP_MFD11_VC
     };
 
 // ==========================================================
@@ -803,6 +803,10 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A6_PBI23   523
 #define AID_A6_PBI24   524
 #define AID_A6_MAX     529
+
+#define AID_R11_MIN		540
+#define AID_R11			540
+#define AID_R11_MAX		560
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
@@ -1193,9 +1197,9 @@ private:
 	vc::PanelGroup pgCenter;
 	vc::PanelGroup pgRight;
 	vc::PanelGroup pgOverhead;
-	vc::PanelGroup pgAftOOS;
-	vc::PanelGroup pgAftPSS;
-	vc::PanelGroup pgAftMSS;
+	vc::PanelGroup pgAftStbd;
+	vc::PanelGroup pgAft;
+	vc::PanelGroup pgAftPort;
 
 	/* **************************************************
 	 * Subsystem short cuts
