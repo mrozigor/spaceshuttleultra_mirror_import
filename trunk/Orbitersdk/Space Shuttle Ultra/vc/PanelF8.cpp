@@ -20,8 +20,8 @@ namespace vc {
 	{
 		AddAIDToMouseEventList(AID_F8);
 
-		//pCDR1->SetMouseRegion(0.0f, 0.0f, 0.330f, 0.5136f);
-		//pCDR2->SetMouseRegion(0.0f, 0.0f, 0.330f, 0.5136f);
+		pPLT1->SetMouseRegion(0.0f, 0.0f, 0.491582f, 0.609860f);
+		pPLT2->SetMouseRegion(0.511129f, 0.0f, 1.0f, 0.611175f);
 		
 		pPLT1->DefineVCGroup(MFDGROUPS[MDUID_PLT1]);
 		pPLT2->DefineVCGroup(MFDGROUPS[MDUID_PLT2]);
@@ -33,8 +33,8 @@ namespace vc {
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_F8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F8, 
-			_V(0.421, 2.349, 14.787)+ofs, _V(0.948, 2.349, 14.787)+ofs,
-			_V(0.421, 1.951, 14.68)+ofs, _V(0.948, 1.951, 14.68) + ofs);
+			_V(0.416, 2.312, 14.755)+ofs, _V(0.942, 2.312, 14.755)+ofs,
+			_V(0.416, 1.949, 14.673)+ofs, _V(0.942, 1.949, 14.673) + ofs);
 	}
 		
 };

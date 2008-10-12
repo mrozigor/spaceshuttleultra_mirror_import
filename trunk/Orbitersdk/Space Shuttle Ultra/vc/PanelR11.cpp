@@ -26,9 +26,11 @@ namespace vc
 	{
 		BasicPanel::RegisterVC();
 
+		VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
+
 		oapiVCRegisterArea(AID_R11, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_R11,
-			_V(1.539, 2.431, 13.608), _V(1.539, 2.433, 13.086),
-			_V(1.047, 2.109, 13.608), _V(1.047, 2.110, 13.086));
+			_V(1.539, 2.431, 13.608)+ofs, _V(1.539, 2.433, 13.086)+ofs,
+			_V(1.047, 2.109, 13.608)+ofs, _V(1.047, 2.110, 13.086)+ofs);
 	}
 };
