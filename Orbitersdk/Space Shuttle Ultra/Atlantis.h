@@ -1160,7 +1160,7 @@ public:
 	SubsystemDirector* psubsystems;
 	
 	PayloadBayOp *plop; // control and status of payload bay operations
-	GearOp *gop; // control and status of landing gear
+	//GearOp *gop; // control and status of landing gear
 	PanelA4 *panela4;
 	PanelA8 *panela8;
 	PanelC2 *panelc2;

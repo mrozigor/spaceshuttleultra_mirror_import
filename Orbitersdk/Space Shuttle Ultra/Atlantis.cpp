@@ -350,7 +350,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   int i;
 
   plop            = new PayloadBayOp (this);
-  gop             = new GearOp (this);
+  //gop             = new GearOp (this);
   panela4		  = new PanelA4(this);
   panela8		  = new PanelA8(this);
   panelc3         = new PanelC3(this);
@@ -805,7 +805,7 @@ Atlantis::~Atlantis () {
 	delete pCommModeHandler;
 
 	delete plop;
-	delete gop;
+	//delete gop;
 	delete panela4;
 	delete panela8;
 	delete panelc3;
@@ -976,7 +976,7 @@ void Atlantis::SetLaunchConfiguration (void)
 
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, OFS_LAUNCH_ORBITER+_V(0, 7.5, -14)); // speedbrake drag
-  CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
+  //CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, OFS_LAUNCH_ORBITER+_V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, OFS_LAUNCH_ORBITER+_V(-2.9,0,10));  // right cargo door drag
 
@@ -1089,7 +1089,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, ofs+_V(0, 7.5, -14)); // speedbrake drag
-  CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
+  //CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, ofs+_V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, ofs+_V(-2.9,0,10));  // right cargo door drag
 
@@ -1118,7 +1118,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetTrimScale (0.05);
   SetCW (ORBITER_CW[0], ORBITER_CW[1], ORBITER_CW[2], ORBITER_CW[3]);
   SetCrossSections (ORBITER_CS);
-  gop->SetGearParameters(gop->gear_proc);
+  //gop->SetGearParameters(gop->gear_proc);
 
   // ************************* aerodynamics **************************************
 
@@ -1135,7 +1135,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 12, _V(0, 7.5, -14)); // speedbrake drag
-  CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
+  //CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
 
@@ -1667,7 +1667,7 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_door, 0.8055, 1.0, &PORTPullRod2, parent);
 
   // ***** 2. Landing gear animation *****
-  gop->DefineAnimations();
+  //gop->DefineAnimations();
   //In GearOp.cpp
   if(bHasKUBand)
 		DefineKUBandAnimations();
@@ -2033,7 +2033,7 @@ void Atlantis::DefineAnimations (void)
   // VC animation definitions
   // ======================================================
   plop->DefineAnimations (vidx);
-  gop->DefineVCAnimations (vidx);
+  //gop->DefineVCAnimations (vidx);
   panela4->DefineVCAnimations (vidx);
   if(RMS) panela8->DefineVCAnimations (mesh_panela8);
   panelc2->DefineVCAnimations (vidx);
@@ -2895,7 +2895,7 @@ void Atlantis::Jettison ()
 void Atlantis::UpdateMesh ()
 {
   // update animation states
-  gop->UpdateMesh();
+  //gop->UpdateMesh();
   SetAnimation (anim_spdb, spdb_proc);
   SetAnimation (anim_door, plop->BayDoorStatus.pos);
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
@@ -4855,7 +4855,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		ParsePayloadLine(line);
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
-      if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
+      //if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
 	  if (panelc3->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
@@ -5009,7 +5009,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   // save bay door operations status
   plop->SaveState (scn);
-  gop->SaveState (scn);
+  //gop->SaveState (scn);
   panela4->SaveState(scn);
   panela8->SaveState(scn);
   panelc2->SaveState(scn);
@@ -5461,14 +5461,14 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//deploy gear
 	if(status==STATE_ORBITER) {
 		airspeed=GetAirspeed();
-		if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
+		/*if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
 			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
 		}
 		else if(GetAltitude()<609.6) gop->ArmGear();
 		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
 		{
 			gop->DamageGear();
-		}
+		}*/
 	}
 
 	VESSEL *aVessel;
@@ -5496,7 +5496,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	// Execute payload bay operations
 	plop->Step (simt, simdt);
-	gop->Step (simt, simdt);
+	//gop->Step (simt, simdt);
 	panela4->Step(simt, simdt);
 	if(RMS) panela8->Step(simt, simdt);
 	panelc2->Step(simt, simdt);
@@ -5779,7 +5779,7 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
     plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type, "GEAR")) {
-    gop->OperateLandingGear (!_stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
+    //gop->OperateLandingGear (!_stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type,"SPEEDBRAKE")) {
     OperateSpeedbrake (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
@@ -5805,7 +5805,7 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 	VESSEL2::clbkDrawHUD (mode, hps, hDC);
 
 	// show gear deployment status
-	if (gop->GetGearAction()==AnimState::OPEN) {
+	/*if (gop->GetGearAction()==AnimState::OPEN) {
 		TextOut (hDC, 10, (hps->H)/2, "GR-DN", 5);
 	}
 	else if (gop->GetGearAction()==AnimState::OPENING || gop->GetGearAction()==AnimState::CLOSING) {
@@ -5814,7 +5814,7 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 	if(gop->SwitchPush[0]==gop->SW_PUSH)
 	{
 		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
-	}
+	}*/
 	if(panelc3->CheckProbesDeployed()==true && GetAltitude()<50000)
 	{
 		GetHorizonAirspeedVector(Velocity);
@@ -6141,7 +6141,7 @@ bool Atlantis::clbkLoadVC (int id)
 
     //RegisterVC_CdrMFD (); // activate commander MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
-    gop->RegisterVC ();  // register panel F6 interface
+    //gop->RegisterVC ();  // register panel F6 interface
 	panela4->RegisterVC();
 	panelc3->RegisterVC();
 	panelc2->RegisterVC();
@@ -6506,7 +6506,7 @@ bool Atlantis::clbkLoadVC (int id)
 		}
 		// update panels
 		plop->UpdateVC();
-		gop->UpdateVC();
+		//gop->UpdateVC();
 		panela4->UpdateVC();
 		if(RMS) panela8->UpdateVC();
 		panelc2->UpdateVC();
@@ -6640,8 +6640,8 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 	return panela4->VCMouseEvent (id, _event, p);
   case AID_A8:
 	return panela8->VCMouseEvent (id, _event, p);
-  case AID_F6:
-    return gop->VCMouseEvent (id, _event, p);
+  //case AID_F6:
+    //return gop->VCMouseEvent (id, _event, p);
   case AID_F7:
 //	return panelf7->VCMouseEvent(id, _event, p);
 	  return false;
@@ -6699,7 +6699,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
 				return plop->VCRedrawEvent (id, _event, surf);
 			if (id >= AID_F6_MIN && id <= AID_F6_MAX)
-				return gop->VCRedrawEvent (id, _event, surf);
+				//return gop->VCRedrawEvent (id, _event, surf);
 			//if (id >= AID_F7_MIN && id <= AID_F7_MAX)
 			//	return panelf7->VCRedrawEvent (id, event, surf);
 			//return false;
@@ -6975,7 +6975,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       if (!Playback()) RevertSpeedbrake ();
       return 1;
 	case OAPI_KEY_G:
-		gop->ArmGear();
+		//gop->ArmGear();
 		return 1;
 	case OAPI_KEY_X: //temporary
 		if(status == STATE_PRELAUNCH)
@@ -7058,7 +7058,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		if(!Playback() && r2d2->bHydraulicPressure) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
 		return 1;
 	case OAPI_KEY_G:
-		gop->RevertLandingGear();
+		//gop->RevertLandingGear();
 		return 1;
     }
   }
