@@ -4819,6 +4819,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		spdb_status = (AnimState::Action)(action+1);
     } else if (!_strnicmp (line, "WING_NAME", 9)) {
       strncpy(WingName,line+10,256);
+	} else if (!_strnicmp (line, "GEAR", 4)) {
+		sscanf(line+4, "%d%lf", &(gear_status.action), &(gear_status.pos));
     } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
     } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
@@ -4994,6 +4996,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
+  WriteScenario_state(scn, "GEAR", gear_status);
 
   if(STBDMPM) {
 	  oapiWriteLine(scn, "  MPM"); 

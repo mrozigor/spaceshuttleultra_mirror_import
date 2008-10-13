@@ -463,6 +463,9 @@ void Atlantis::GPC(double dt)
 			AttControl(dt);
 			TransControl(dt);
 			break;
+		case 304:
+			AerojetDAP(dt);
+			break;
 	}
 
 //	double time_for_GPC = st.Stop();
@@ -474,6 +477,35 @@ void Atlantis::GPC(double dt)
 //		oapiWriteLog(buffer);
 //	}
 	return;
+}
+
+void Atlantis::AerojetDAP(double SimdT)
+{
+	//for the moment, use RHC input to control thruster firings
+	if(PitchActive) {
+		if(RHCInput.data[PITCH]>0.01) SetThrusterGroupLevel(thg_pitchup, 1.0);
+		else {
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+			if(RHCInput.data[PITCH]<-0.01) SetThrusterGroupLevel(thg_pitchdown, 1.0);
+			else SetThrusterGroupLevel(thg_pitchdown, 0.0);
+		}
+	}
+	if(YawActive) {
+		if(RHCInput.data[YAW]>0.01) SetThrusterGroupLevel(thg_yawright, 1.0);
+		else {
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+			if(RHCInput.data[YAW]<-0.01) SetThrusterGroupLevel(thg_yawleft, 1.0);
+			else SetThrusterGroupLevel(thg_yawleft, 0.0);
+		}
+	}
+	if(RollActive) {
+		if(RHCInput.data[ROLL]>0.01) SetThrusterGroupLevel(thg_rollright, 1.0);
+		else {
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+			if(RHCInput.data[ROLL]<-0.01) SetThrusterGroupLevel(thg_rollleft, 1.0);
+			else SetThrusterGroupLevel(thg_rollleft, 0.0);
+		}
+	}
 }
 
 void Atlantis::Maneuver(double dt)
