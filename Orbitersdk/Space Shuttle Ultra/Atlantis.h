@@ -1249,6 +1249,13 @@ private:
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 
+	//Landing Gear
+	void DeployLandingGear();
+	void RetractLandingGear();
+	void ArmGear();
+	void DefineTouchdownPoints();
+	bool GearArmed();
+
 	//
 	void SavePayloadState(FILEHANDLE scn) const;
 	bool ParsePayloadLine(const char* pszLine);
@@ -1449,6 +1456,7 @@ private:
 	UINT anim_dummy;						   // handle for dummy animation
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
+	UINT anim_gear;                            // handle for landing gear animation
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -1517,6 +1525,9 @@ private:
 	
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();
+
+	AnimState gear_status;
+	bool gear_armed;
 	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
