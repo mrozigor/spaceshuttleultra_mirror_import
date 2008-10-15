@@ -10,7 +10,7 @@ const VECTOR3 POS_SRB_SMOKE = _V(0.0, -15.0, +20.0);
 const VECTOR3 DIR_MPS_SMOKE = _V(0.0, 0.0, -1.0);
 const VECTOR3 DIR_SRB_SMOKE = _V(0.0, 0.0, 1.0);
 
-const VECTOR3 HDP_POS = _V(0, -0.86, -4.25);
+const VECTOR3 HDP_POS = _V(0, -0.91, -4.05);
 
 class MLP: public VESSEL2
 {
