@@ -436,6 +436,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_ods		  = MESH_UNDEFINED;
   mesh_cargo_static = MESH_UNDEFINED;
   mesh_panela8	  = MESH_UNDEFINED;
+  mesh_dragchute  = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -561,6 +562,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
+  hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
 
   bIlluminated=false;
 
@@ -647,6 +649,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   gear_status.Set(AnimState::CLOSED, 0.0);
   gear_armed=false;
+  DragChuteState=STOWED;
+  DragChuteSize=0.0;
 
   // default camera positions
   camFLyaw = 0;
@@ -1140,11 +1144,12 @@ void Atlantis::SetOrbiterConfiguration (void)
   ControlSurfacesEnabled=true;
 
   ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 12, _V(0, 7.5, -14)); // speedbrake drag
+  CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
+  CreateVariableDragElement (&DragChuteSize, 45, _V(0, 4.6, -12.03));
 
   SetADCtrlMode (7);
 
@@ -2936,6 +2941,7 @@ void Atlantis::UpdateMesh ()
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
   SetAnimation(anim_letumbdoor, r2d2->LETUmbDoorStatus.pos);
   SetAnimation(anim_retumbdoor, r2d2->RETUmbDoorStatus.pos);
+  SetAnimation(anim_gear, gear_status.pos);
 
   if(STBDMPM) {
 	  SetStbdMPMPosition(StbdMPMRollout.pos);
@@ -3002,9 +3008,29 @@ void Atlantis::ArmGear()
 	gear_armed=true;
 }
 
-bool Atlantis::GearArmed()
+bool Atlantis::GearArmed() const
 {
 	return gear_armed;
+}
+
+void Atlantis::DeployDragChute()
+{
+	VECTOR3 ofs=orbiter_ofs+_V(0, 4.6, -12.03);
+	mesh_dragchute=AddMesh(hDragChuteMesh, &ofs);
+
+	DragChuteState=REEFED;
+	DragChuteSize=0.4;
+}
+
+void Atlantis::JettisonDragChute()
+{
+	DelMesh(mesh_dragchute, false);
+	mesh_dragchute=MESH_UNDEFINED;
+
+	DragChuteState=JETTISONED;
+	DragChuteSize=0.0;
+
+	//add chute vessel
 }
 
 void Atlantis::DefineTouchdownPoints()
@@ -3318,6 +3344,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			{
 				ops=303;
 			}
+			else if(nNew==304 && ops==303) ops=304;
 			return true;
 		}
 		else if(change==1) {
@@ -4820,7 +4847,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     } else if (!_strnicmp (line, "WING_NAME", 9)) {
       strncpy(WingName,line+10,256);
 	} else if (!_strnicmp (line, "GEAR", 4)) {
-		sscanf(line+4, "%d%lf", &(gear_status.action), &(gear_status.pos));
+		sscan_state(line+4, gear_status);
+		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
     } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
     } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
@@ -5491,6 +5519,43 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		*/
 
+		//deploy gear
+		sprintf_s(oapiDebugString(), 255, "Gear: %f", gear_status.pos);
+		airspeed=GetAirspeed();
+		if(GetAltitude()<92.44 && gear_status.action==AnimState::CLOSED) {
+			DeployLandingGear();
+		}
+		else if(GetAltitude()<609.6) ArmGear();
+		/*else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
+		{
+			gop->DamageGear();
+		}*/
+		/*if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
+			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
+		}
+		else if(GetAltitude()<609.6) gop->ArmGear();
+		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
+		{
+			gop->DamageGear();
+		}*/
+
+		//drag chute
+		if(GroundContact()) {
+			SetSpeedbrake(1.0);
+			if(DragChuteState==STOWED && GetAirspeed()<=CHUTE_DEPLOY_SPEED) {
+				DragChuteState=DEPLOYING;
+				DragChuteDeployTime=met;
+			}
+			else if(DragChuteState==DEPLOYING && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
+				DeployDragChute();
+			else if(DragChuteState==REEFED && (met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
+				DragChuteSize=1.0;
+				DragChuteState=INFLATED;
+			}
+			else if(DragChuteState==INFLATED && GetAirspeed()<CHUTE_JETTISON_SPEED)
+				JettisonDragChute();
+		}
+
 		if (do_eva) {
 			char name[256];
 			strcpy (name, GetName()); strcat (name, "-MMU");
@@ -5531,26 +5596,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	}
 
 	//sprintf(oapiDebugString(), "%i", last_mfd);
-	//deploy gear
-	if(status==STATE_ORBITER) {
-		airspeed=GetAirspeed();
-		if(GetAltitude()<92.44 && gear_status.action==AnimState::CLOSED) {
-			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) DeployLandingGear();
-		}
-		else if(GetAltitude()<609.6) ArmGear();
-		/*else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
-		{
-			gop->DamageGear();
-		}*/
-		/*if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
-			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
-		}
-		else if(GetAltitude()<609.6) gop->ArmGear();
-		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
-		{
-			gop->DamageGear();
-		}*/
-	}
 
 	VESSEL *aVessel;
 	VESSELSTATUS vs;

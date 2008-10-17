@@ -48,6 +48,7 @@ const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 
 const double LBM = 0.45359237;
 const double MPS2FPS = 3.280839895;
+const double MPS2KTS = 1.943844492;
 
 const short VARSTATE_OK = 0;
 const short VARSTATE_MISSING = 1;
@@ -69,6 +70,7 @@ const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
+const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -123,6 +125,15 @@ const double APU_FUEL_TANK_MASS = 325.0*0.45359237;
 // Max APU Fuel tank mass
 const double APU_FUEL_TANK_FLOWRATE[2] = {(3.25*0.45359237)/60.0, (1.5*0.45359237)/60.0};
 // APU fuel consumption rate(kg/sec)
+
+const double CHUTE_DEPLOY_TIME = 2.5;
+// Time from chute deploy command to deployment of reefed chute (s)
+const double CHUTE_INFLATE_TIME = 6.3;
+// Time from chute deploy command to full inflation of chute (s)
+const double CHUTE_DEPLOY_SPEED = 195.0/MPS2KTS;
+// Speed at which chute is deployed (m/s)
+const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;
+// Speed at which chute is jettisoned (m/s)
 
 const double GEAR_OPERATING_SPEED = 0.3;
 // Opening/closing speed of landing gear (1/sec)
@@ -983,6 +994,7 @@ public:
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
 	UINT mesh_cargo_static;					   // index for static cargo mesh
+	UINT mesh_dragchute;					   // index for drag chute mesh
 
 public:
 	//**********************************************************
@@ -1127,7 +1139,7 @@ public:
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
 		hMidDeckMesh, hOrbiterRMSMesh, hOBSSMPMMesh, hTankMesh, hSRBMesh[2],
-		hODSMesh, hPanelA8Mesh; // mesh handles
+		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	char cargo_static_mesh_name[256];
 
@@ -1254,7 +1266,9 @@ private:
 	void RetractLandingGear();
 	void ArmGear();
 	void DefineTouchdownPoints();
-	bool GearArmed();
+	bool GearArmed() const;
+	void DeployDragChute();
+	void JettisonDragChute();
 
 	//
 	void SavePayloadState(FILEHANDLE scn) const;
@@ -1303,6 +1317,7 @@ private:
 	void UpdateDAP(); //updates rot rates, torques
 	void TransControl(double SimdT);
 	void AttControl(double SimdT);
+	void AerojetDAP(double SimdT);
 	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
 	void LoadInertialManeuver();
 	void LoadTrackManeuver();
@@ -1528,6 +1543,9 @@ private:
 
 	AnimState gear_status;
 	bool gear_armed;
+	enum{STOWED, DEPLOYING, REEFED, INFLATED, JETTISONED} DragChuteState;
+	double DragChuteDeployTime; //time at which deploy command was received
+	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
 	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
