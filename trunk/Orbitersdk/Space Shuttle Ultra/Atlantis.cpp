@@ -2377,7 +2377,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	pgAftPort.DefineVC();
 	pgAftPort.DefineVCAnimations(mesh_vc);
 
-    for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
+    //for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
 
     if (do_cargostatic) {
@@ -3032,15 +3032,16 @@ void Atlantis::JettisonDragChute()
 
 	//add chute vessel
 	VESSELSTATUS2 vs;
+	memset(&vs, 0, sizeof(vs));
 	vs.version=2;
 	GetStatusEx(&vs);
+	vs.status=0;
 	VECTOR3 chute_ofs;
-	//chute_ofs=CHUTE_ATTACH_POINT;
 	Local2Rel(CHUTE_ATTACH_POINT, chute_ofs);
 	vs.rpos=chute_ofs;
 	char name[255];
-	strcpy_s(name, 255, GetName()); 
-	strcat_s(name, 255, "-Chute");
+	strcpy_s(name, GetName()); 
+	strcat_s(name, "-Chute");
 	oapiCreateVesselEx(name, "SSU_Chute", &vs);
 }
 
