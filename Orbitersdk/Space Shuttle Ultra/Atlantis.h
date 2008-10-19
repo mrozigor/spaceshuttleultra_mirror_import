@@ -370,6 +370,8 @@ const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 
+const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 4.6, -12.03);
+
 const int STATE_PRELAUNCH = 0;
 const int STATE_STAGE1 = 1;	//SRBs ignited
 const int STATE_STAGE2 = 2;	//ET only
