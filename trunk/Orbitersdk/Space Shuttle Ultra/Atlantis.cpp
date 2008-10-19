@@ -3015,7 +3015,7 @@ bool Atlantis::GearArmed() const
 
 void Atlantis::DeployDragChute()
 {
-	VECTOR3 ofs=orbiter_ofs+_V(0, 4.6, -12.03);
+	VECTOR3 ofs=orbiter_ofs+CHUTE_ATTACH_POINT;
 	mesh_dragchute=AddMesh(hDragChuteMesh, &ofs);
 
 	DragChuteState=REEFED;
@@ -3031,6 +3031,17 @@ void Atlantis::JettisonDragChute()
 	DragChuteSize=0.0;
 
 	//add chute vessel
+	VESSELSTATUS2 vs;
+	vs.version=2;
+	GetStatusEx(&vs);
+	VECTOR3 chute_ofs;
+	//chute_ofs=CHUTE_ATTACH_POINT;
+	Local2Rel(CHUTE_ATTACH_POINT, chute_ofs);
+	vs.rpos=chute_ofs;
+	char name[255];
+	strcpy_s(name, 255, GetName()); 
+	strcat_s(name, 255, "-Chute");
+	oapiCreateVesselEx(name, "SSU_Chute", &vs);
 }
 
 void Atlantis::DefineTouchdownPoints()
@@ -5541,8 +5552,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		//drag chute
 		if(GroundContact()) {
-			SetSpeedbrake(1.0);
-			if(DragChuteState==STOWED && GetAirspeed()<=CHUTE_DEPLOY_SPEED) {
+			if(GetAirspeed()>1.0) SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
+
+			if(DragChuteState==STOWED && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
 				DragChuteState=DEPLOYING;
 				DragChuteDeployTime=met;
 			}
