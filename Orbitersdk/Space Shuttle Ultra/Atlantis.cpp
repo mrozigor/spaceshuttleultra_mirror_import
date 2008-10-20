@@ -366,7 +366,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pgForward.AddPanel(new vc::PanelF8(this));
 
   pgAft.AddPanel(new vc::PanelA6(this));
-  //pgAft.AddPanel(new vc::AftMDU(this));
+  pgAft.AddPanel(new vc::AftMDU(this));
 
   pgAftStbd.AddPanel(new vc::PanelR11(this));
   
@@ -476,12 +476,14 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
     };
 
   for (i = 0; i < 11; i++) {
-    mfds[i].ngroup   = mfdgrp[i];
+    /*mfds[i].ngroup   = mfdgrp[i];
     mfds[i].flag     = MFD_SHOWMODELABELS;
     mfds[i].nbt1     = 5;
     mfds[i].nbt2     = 0;
     mfds[i].bt_yofs  = 256/6;
-    mfds[i].bt_ydist = 256/7;
+    mfds[i].bt_ydist = 256/7;*/
+
+	mfds[i]=-1;
   }
   for (i = 0; i < 11; i++)
     mfdbright[i] =  1.0;
@@ -728,7 +730,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  //DataInput[i].input="";
 	  sprintf(DataInput[i].input, "");
 	  DataInput[i].InputSize=0;
-	  Display[i]=NULL;
+	  //Display[i]=NULL;
 	  //Initialize DAP Config
 	  DAP[i].PRI_ROT_RATE=1.0;
 	  DAP[i].PRI_ATT_DB=0.5;
@@ -910,6 +912,7 @@ void Atlantis::SetLaunchConfiguration (void)
   th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 
   CreateMPSGOXVents(OFS_LAUNCH_ORBITER);
+  
   
   thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   DefineSSMEExhaust();
@@ -3280,27 +3283,30 @@ double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph)
 	return 100.0*(GetPropellantMass(ph)/GetPropellantMaxMass(ph));
 }
 
-bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
+bool Atlantis::Input(int idp, int change, char *Name, char *Data)
 {
 	//int item;
 	int nNew;
 	double dNew;
-	int id=Display[mfd]->id;
+	//int id=Display[mfd]->id;
 
 	if (change == 9)
 	{
 		//Resume key pressed
-		if(Display[mfd]->display >= 0) {
-			Display[mfd]->display = -1;
+		if(pIDP[idp]->GetDisp() > 0) {
+			//Display[mfd]->display = -1;
+			pIDP[idp]->SetDisp(0);
 			return true;
-		} else if(Display[mfd]->spec >= 0) {
-			Display[mfd]->spec = -1;
+		}
+		else if(pIDP[idp]->GetSpec() > 0) {
+			//Display[mfd]->spec = -1;
+			pIDP[idp]->SetSpec(0);
 			return true;
-		} else
-			return false;
+		}
+		else return false;
 	}
 
-	if(id>2 || (id<2 && panelc2->switch_state[SWITCH2+2*id]==0)) //GNC
+	if(pIDP[idp]->GetMajfunc()==dps::GNC) //GNC
 	{
 		if(change==0) {
 			nNew=atoi(Name);
@@ -3310,7 +3316,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
-				Display[mfd]->bTIMER=false;
+				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==105 && ops==104) {
 				ops=105;
@@ -3318,7 +3324,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
-				Display[mfd]->bTIMER=false;
+				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==106 && ops==105) {
 				ops=106;
@@ -3337,7 +3343,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
-				Display[mfd]->bTIMER=false;
+				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==301 && ops==201)
 			{
@@ -3346,7 +3352,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
-				Display[mfd]->bTIMER=false;
+				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==302 && ops==301)
 			{
@@ -3363,11 +3369,11 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			nNew=atoi(Name);
 			if(ops==201) {
 				//switch(Display[mfd]->spec) {
-				switch(pIDP[mfd]->GetSpec()) {
+				switch(pIDP[idp]->GetSpec()) {
 					case 0:
 						if(nNew<=17) {
 							item=nNew;
-							return Input(mfd, 3, Name, Data);
+							return Input(idp, 3, Name, Data);
 							//data=1;
 							//return true;
 						}
@@ -3600,7 +3606,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 						}
 						else if(nNew>=10 && nNew<=28 || nNew>=30 && nNew<=48 || nNew>=50 && nNew<=68) {
 							item=nNew;
-							return Input(mfd, 3, Name, Data);
+							return Input(idp, 3, Name, Data);
 							//data=1;
 							//return true;
 						}
@@ -3614,7 +3620,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 				}
 				else if(nNew>=5 && nNew<=21) {
 					item=nNew;
-					return Input(mfd, 3, Name, Data);
+					return Input(idp, 3, Name, Data);
 					//data=1;
 					//return true;
 				}
@@ -3623,7 +3629,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 					return true;
 				}
 				else if(nNew==23) {
-					Display[mfd]->bTIMER=true;
+					//Display[mfd]->bTIMER=true;
 					return true;
 				}
 				else if(nNew==27) {
@@ -3671,8 +3677,8 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			nNew=atoi(Name);
 			if(ops==201) {
 				if(nNew==20 || nNew==0) {
-					Display[mfd]->spec=nNew;
-					pIDP[mfd]->SetSpec((unsigned short)nNew);
+					//Display[mfd]->spec=nNew;
+					pIDP[idp]->SetSpec((unsigned short)nNew);
 					//InvalidateDisplay();
 					return true;
 				}
@@ -3683,7 +3689,7 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			//item=atoi(Name);
 			if(ops==201) {
 				//switch(Display[mfd]->spec) {
-				switch(pIDP[mfd]->GetSpec()) {
+				switch(pIDP[idp]->GetSpec()) {
 					case 0:
 						if(item>=1 && item<=4) {
 							nNew=atoi(Data);
@@ -3975,21 +3981,20 @@ bool Atlantis::Input(int mfd, int change, char *Name, char *Data)
 			return true;
 		}
 	}
-
-	else if(panelc2->switch_state[SWITCH2+2*id]==1) //SM
+	else if(pIDP[idp]->GetMajfunc()==dps::SM) //SM
 	{
 		sprintf(oapiDebugString(), "SM Item Entry");
 		if(change==1) {
 			nNew=atoi(Name);
 			if(SMOps==201) {
-				if(nNew==1) {
+				/*if(nNew==1) {
 					Display[mfd]->RMS_SEL=0;
 					return true;
 				}
 				else if(nNew==2) {
 					Display[mfd]->RMS_SEL=1;
 					return true;
-				}
+				}*/
 			}
 		}
 	}
@@ -5532,7 +5537,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		*/
 
 		//deploy gear
-		sprintf_s(oapiDebugString(), 255, "Gear: %f", gear_status.pos);
 		airspeed=GetAirspeed();
 		if(GetAltitude()<92.44 && gear_status.action==AnimState::CLOSED) {
 			DeployLandingGear();
@@ -6077,11 +6081,12 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd);
 	
 	//get pointer to CRT MFD as required
-	if(newmfd!=NULL) {
-		newmfd->id = mfd;
-		if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
+	if(newmfd!=NULL && mode!=MFD_REFRESHBUTTONS) {
+		//newmfd->id = mfd;
+		newmfd->id=mfds[mfd]; //index of MDU associated with MFD
+		/*if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
 			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
-		}
+		}*/
 		newmfd->UpdateStatus=true;
 		newmfd=NULL; //reset newmfd so it can be used by next new instance of CRT MFD
 	}
@@ -6255,6 +6260,7 @@ bool Atlantis::clbkLoadVC (int id)
 {
   bool ok = false;
   double tilt = 0.0;
+  std::set<int> InactiveMDUs;
 
     // Get the VC Mode.
   VCMode = id;
@@ -6301,6 +6307,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = orbiter_ofs + VC_POS_CDR;
     oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS2);
+	InactiveMDUs.insert(vc::MDUID_AFD);
+	InactiveMDUs.insert(vc::MDUID_CRT4);
 
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
@@ -6332,6 +6340,8 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
     huds.hudcnt = orbiter_ofs + VC_POS_PLT;
     oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
+	InactiveMDUs.insert(vc::MDUID_AFD);
+	InactiveMDUs.insert(vc::MDUID_CRT4);
 
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
@@ -6359,6 +6369,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (VC_POS_STBDSTATION + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_STBDSTATION);
     //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
+	InactiveMDUs.insert(vc::MDUID_CDR1);
+	InactiveMDUs.insert(vc::MDUID_CDR2);
 
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
@@ -6394,7 +6406,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    ok = true;
+    //ok = true;
     break;
   case VC_RMSCAM:
 		DisplayCameraLabel(VC_LBL_ELBOWCAM);
@@ -6403,7 +6415,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 		oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
 		HideMidDeck();
-		ok=true;
+		//ok=true;
 		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
@@ -6412,7 +6424,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    ok = true;
+    //ok = true;
 
     break;
   case VC_PLBCAMFR: //FR Payload Bay Camera
@@ -6422,7 +6434,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    ok = true;
+    //ok = true;
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
@@ -6431,7 +6443,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    ok = true;
+    //ok = true;
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
@@ -6440,7 +6452,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    ok = true;
+    //ok = true;
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
@@ -6451,12 +6463,14 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  HideMidDeck();
 
-	  ok = true;
+	  //ok = true;
 	  break;
   case VC_AFTPILOT: //Aft Flight Deck
 	  DisplayCameraLabel(VC_LBL_AFTPILOT);
 	SetCameraOffset (VC_POS_AFTPILOT + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_AFTPILOT);
+	InactiveMDUs.insert(vc::MDUID_CDR1);
+	InactiveMDUs.insert(vc::MDUID_CDR2);
 	
 	// Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 95*RAD, 72*RAD);
@@ -6487,6 +6501,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+	InactiveMDUs.insert(vc::MDUID_PLT1);
+	InactiveMDUs.insert(vc::MDUID_PLT2);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6515,6 +6531,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_PORTSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
+	InactiveMDUs.insert(vc::MDUID_PLT1);
+	InactiveMDUs.insert(vc::MDUID_PLT2);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6538,6 +6556,8 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_AFTWORKSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_STBDSTATION, VC_MS1, VC_RMSSTATION, VC_PORTSTATION);
+	InactiveMDUs.insert(vc::MDUID_CDR1);
+	InactiveMDUs.insert(vc::MDUID_CDR2);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6564,6 +6584,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_MS1);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_PLT, VC_DOCKCAM);
+	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6594,6 +6615,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_CDR, VC_DOCKCAM);
+	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
@@ -6635,7 +6657,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	 SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	 ok = true;
+	 //ok = true;
 	 break;
   case VC_EXT_AL:
 	  DisplayCameraLabel(VC_LBL_EXT_AL);
@@ -6648,7 +6670,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  ShowMidDeck();
      
-	  ok=true;
+	  //ok=true;
 	break;
 
   }
@@ -6668,14 +6690,22 @@ bool Atlantis::clbkLoadVC (int id)
 		// register the HUDs (synced)
 		oapiVCRegisterHUD (&huds);
 		// register all MFD displays
-		for (int i = 0; i < 10; i++)
+		for (int i = 0, counter=0; i < 11; i++)
 		{
 			//oapiRegisterMFD (MFD_LEFT+i, mfds+i);
+			mfds[i]=-1;
 			if(mdus[i])
 			{
-				mdus[i]->RealizeMFD();
+				if(InactiveMDUs.find(i)==InactiveMDUs.end()) {
+					mdus[i]->RealizeMFD(counter);
+					mfds[i]=counter;
+					counter++;
+				}
+				else mdus[i]->RealizeMFD(-1); //MDU not used
 			}
 		}
+		sprintf_s(oapiDebugString(), 255, "Inactive MDUs: %d", InactiveMDUs.size());
+		oapiWriteLog(oapiDebugString());
 		// update panels
 		plop->UpdateVC();
 		//gop->UpdateVC();

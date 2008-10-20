@@ -22,6 +22,10 @@ namespace dps {
 	const char DEUATT_FLASHING = 2;
 	const char DEUATT_UNDERLINED = 4;
 
+	/**
+	 * Generic class for IDP display. 
+	 * Each display should implement it's own functions for drawing and input. 
+ 	 */
 	class IDPSoftware {
 		IDP* pIDP;
 	public:
@@ -79,10 +83,13 @@ namespace dps {
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
 		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;
+		unsigned short GetOps() const;
 		unsigned short GetSpec() const;
 		unsigned short GetDisp() const;
+		MAJORFUNCTION GetMajfunc() const;
 		void SetSpec(unsigned short spec);
 		void SetDisp(unsigned short disp);
+		void SetMajFunc(MAJORFUNCTION func);
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual bool OnParseLine(const char* line);
 	};

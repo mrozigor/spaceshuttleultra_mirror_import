@@ -8,6 +8,7 @@ namespace dps {
 	{
 		usSPEC=0;
 		usDISP=0;
+		majfunc=GNC;
 	}
 
 	IDP::~IDP()
@@ -23,9 +24,19 @@ namespace dps {
 		return usDISP;
 	}
 
+	unsigned short IDP::GetOps() const
+	{
+		return usOPS;
+	}
+
 	unsigned short IDP::GetSpec() const
 	{
 		return usSPEC;
+	}
+
+	MAJORFUNCTION IDP::GetMajfunc() const
+	{
+		return majfunc;
 	}
 
 	void IDP::SetDisp(unsigned short disp)
@@ -36,6 +47,11 @@ namespace dps {
 	void IDP::SetSpec(unsigned short spec)
 	{
 		usSPEC=spec;
+	}
+
+	void IDP::SetMajFunc(MAJORFUNCTION func)
+	{
+		majfunc=func;
 	}
 
 	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
@@ -61,7 +77,7 @@ namespace dps {
 		sprintf_s(IDP, 10, "IDP%d", usIDPID);
 		if(!_strnicmp(IDP, line, 4)) {
 			if(!_strnicmp(line+5, "SPEC", 4)) {
-				sscanf(line+9, "%d", &usSPEC);
+				sscanf_s(line+9, "%d", &usSPEC);
 				return true;
 			}
 		}
