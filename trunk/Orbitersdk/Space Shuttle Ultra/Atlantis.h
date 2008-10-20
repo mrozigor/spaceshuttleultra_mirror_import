@@ -1692,7 +1692,7 @@ private:
 	bool render_cockpit;
 	VCHUDSPEC huds;
 	unsigned short usLastMDUID;
-	EXTMFDSPEC mfds[11];
+	//EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;
 	//double dT;
@@ -1755,12 +1755,13 @@ private:
 	KeyboardInput DataInput[3];
 	int CRT_SEL[2]; //0=CDR, 1=PLT
 	int item;
-	CRT* Display[3];
+	//CRT* Display[3];
 	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
 	
 	vc::MDU* mdus[11];
+	UINT mfds[11]; //MFD index for corresponding MDUID
 
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS

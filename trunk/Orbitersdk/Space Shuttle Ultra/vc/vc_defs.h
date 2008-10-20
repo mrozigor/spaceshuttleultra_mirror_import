@@ -6,6 +6,18 @@
  * Define the public contents of the VC namespace.
  */
 namespace vc {
+	const int TB_BARBERPOLE = 0;
+	const int TB_STO = 1;
+	const int TB_LAT = 2;
+	const int TB_CLO = 3;
+	const int TB_OP = 4;
+	const int TB_ON = 5;
+	const int TB_OFF = 6;
+	const int TB_X = 7;
+	const int TB_10= 8;
+	const int TB_GRAY = 9;
+	const int TB_DPY = 10;
+	const int TB_REL = 11;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

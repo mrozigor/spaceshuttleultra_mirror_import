@@ -262,13 +262,14 @@ namespace vc {
 		return false;
 	}
 
-	bool MDU::RealizeMFD()
+	bool MDU::RealizeMFD(int id)
 	{
-		RegisterMFDContext();
+		//MFDID=id;
+		if(id>=0) RegisterMFDContext(id);
 		return false;
 	}
 
-	void MDU::RegisterMFDContext()
+	void MDU::RegisterMFDContext(int id)
 	{
 		/*
 		mfds[i].ngroup   = mfdgrp[i];
@@ -285,9 +286,10 @@ namespace vc {
 		mfdspec.bt_ydist = 256/7;
 		STS()->SetLastCreatedMFD(usMDUID);
 		bIsConnectedToCRTMFD = false;
-		oapiRegisterMFD (usMDUID, &mfdspec);
-		sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);
-		oapiWriteLog(pszBuffer);
+		//oapiRegisterMFD (usMDUID, &mfdspec);
+		oapiRegisterMFD (id, &mfdspec);
+		//sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);
+		//oapiWriteLog(pszBuffer);
 	}
 
 	void MDU::RegisterVC()
@@ -401,7 +403,8 @@ namespace vc {
 			PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);*/
 		}
 
-		else if(STS()->ops==104 || STS()->ops==105 || STS()->ops==106 || STS()->ops==202)
+		else if(STS()->ops==104 || STS()->ops==105 || STS()->ops==106 || STS()->ops==202 
+			|| STS()->ops==301 || STS()->ops==302 || STS()->ops==303)
 		{
 			MNVR();
 			/*//char cbuf[255];
@@ -948,7 +951,7 @@ namespace vc {
 
 		sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
 		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-		if(false) {
+		if(true) { //for the moment, timer will always be drawn; this will change next version
 			timeDiff=STS()->tig-STS()->met+1;
 			TIMER[0]=timeDiff/86400;
 			TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
@@ -1110,6 +1113,7 @@ namespace vc {
 		//TextOut(hDC, 84, 9, "1 A", 3);
 		//TextOut(hDC, 149, 9, "2 B", 3);
 		//TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
+		PrintToBuffer("*", 1, 7, 2+9*STS()->DAPMode[1], 0);
 		//TextOut(hDC, 200, 9, Edit[edit], strlen(Edit[edit]));
 		//TextOut(hDC, 200, 18, "8 LOAD", 6);
 
