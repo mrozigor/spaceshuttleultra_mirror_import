@@ -31,7 +31,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	if(keyboard==0 && id!=AID_KYBD_CDR) return false;
 	else if(keyboard==1 && id!=AID_KYBD_PLT) return false;
-	else if(sts->Display[sts->CRT_SEL[keyboard]]==NULL) return false;
+	//else if(sts->Display[sts->CRT_SEL[keyboard]]==NULL) return false;
 	sprintf(oapiDebugString(), "Keyboard: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 	
 	//first column of buttons
@@ -129,7 +129,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 				if(sts->DataInput[sts->CRT_SEL[keyboard]].InputSize>0) {
 					sts->DataInput[sts->CRT_SEL[keyboard]].InputSize--;
 					sts->DataInput[sts->CRT_SEL[keyboard]].input[sts->DataInput[sts->CRT_SEL[keyboard]].InputSize]='\0';
-					sprintf(oapiDebugString(), "%s %d", sts->DataInput[sts->CRT_SEL[keyboard]].input, sts->DataInput[sts->CRT_SEL[keyboard]].InputSize);
+					//sprintf(oapiDebugString(), "%s %d", sts->DataInput[sts->CRT_SEL[keyboard]].input, sts->DataInput[sts->CRT_SEL[keyboard]].InputSize);
 				}
 				else ClearInput();
 			}
