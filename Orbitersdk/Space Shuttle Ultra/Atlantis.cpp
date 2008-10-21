@@ -6701,11 +6701,9 @@ bool Atlantis::clbkLoadVC (int id)
 					mfds[i]=counter;
 					counter++;
 				}
-				else mdus[i]->RealizeMFD(-1); //MDU not used
+				else mdus[i]->RealizeMFD(-1);
 			}
 		}
-		sprintf_s(oapiDebugString(), 255, "Inactive MDUs: %d", InactiveMDUs.size());
-		oapiWriteLog(oapiDebugString());
 		// update panels
 		plop->UpdateVC();
 		//gop->UpdateVC();

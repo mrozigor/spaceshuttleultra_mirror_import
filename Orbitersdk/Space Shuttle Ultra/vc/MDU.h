@@ -30,6 +30,7 @@ namespace vc {
 		} MDU_MODE;
 	protected:
 		unsigned short usMDUID;
+		int MFDID;
 		bool bUseCRTMFD;
 		SURFHANDLE shBackGround;
 		SURFHANDLE shLabelTex;
@@ -47,7 +48,7 @@ namespace vc {
 
 		//Use a paint buffer for storing primitives?
 	protected:
-		virtual void RegisterMFDContext();
+		virtual void RegisterMFDContext(int id);
 		virtual void SwitchMFDMode();
 		
 		inline void MDU::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
@@ -89,7 +90,7 @@ namespace vc {
 		 * Register the MFD area for Orbiter. Does nothing when MFD rendering 
 		 * is bypassed.
 		 */
-		virtual bool RealizeMFD();
+		virtual bool RealizeMFD(int id);
 
 		virtual void RegisterVC();
 		/**
@@ -104,7 +105,6 @@ namespace vc {
 		 * @return false, if failed.
 		 */
 		virtual bool DefineVCTexture(SURFHANDLE tex);
-		
 		virtual bool IsCRTBufferEnabled() const;
 
 		virtual void UpdateTextBuffer();
