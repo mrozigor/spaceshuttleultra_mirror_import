@@ -19,6 +19,7 @@ namespace vc
 	{
 		AddAIDToMouseEventList(AID_MDU_AFD1);
 
+		pAFD->SetMouseRegion(0.0, 0.0, 1.0, 1.0);
 		pAFD->DefineVCGroup(MFDGROUPS[MDUID_AFD]);
 	}
 
@@ -31,7 +32,7 @@ namespace vc
 		oapiVCRegisterArea(AID_MDU_AFD1, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		
 		oapiVCSetAreaClickmode_Quadrilateral (AID_MDU_AFD1,
-			_V(0.756, 3.120, 12.432)+ofs, _V(0.594, 3.108, 12.364)+ofs,
-			_V(0.755, 3.111, 12.431)+ofs, _V(0.595, 3.099, 12.363) + ofs);
+			_V(0.764, 3.328, 12.450)+ofs, _V(0.555, 3.313, 12.361)+ofs,
+			_V(0.784, 3.090, 12.439)+ofs, _V(0.575, 3.074, 12.353)+ofs);
 	}
 };

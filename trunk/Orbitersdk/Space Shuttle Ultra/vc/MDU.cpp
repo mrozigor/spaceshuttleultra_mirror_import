@@ -16,7 +16,7 @@ namespace vc {
 	}
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
-		: BasicVCComponent(_sts, _ident), usMDUID(_usMDUID),
+		: BasicVCComponent(_sts, _ident), usMDUID(_usMDUID), MFDID(-1),
 		bUseCRTMFD(_bUseCRTMFD),
 		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
 		bInverseX(false), counting(false)
@@ -101,93 +101,87 @@ namespace vc {
 	{
 		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
 
-		if(y >= 0.8350 && y<= 0.9144)
-		{
-			if( x >= 0.038 && x <= 0.099)
+		if(MFDID!=-1) {
+			if(y >= 0.8350 && y<= 0.9144)
 			{
-				if(_event & PANEL_MOUSE_LBDOWN)
+				if( x >= 0.038 && x <= 0.099)
 				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
-					STS()->SetLastCreatedMFD(usMDUID);
-					bIsConnectedToCRTMFD = false;
-					oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+						STS()->SetLastCreatedMFD(usMDUID);
+						bIsConnectedToCRTMFD = false;
+						//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+						oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
+					}
+				}
+				else if( x >= 0.9257 && x <= 0.9929)
+				{
+					sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
 				}
 			}
-			else if( x >= 0.9257 && x <= 0.9929)
+			else if (y >= 0.9185 && y <= 0.9601)
 			{
-				sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+				if( x >= 0.2237 && x <= 0.2624)
+				{
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
+						oapiProcessMFDButton (MFDID, 0, _event);
+					}
+				}
+				else if( x >= 0.3285 && x <= 0.3687)
+				{
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
+						oapiProcessMFDButton (MFDID, 1, _event);
+					}
+				}
+				else if( x >= 0.4356 && x <= 0.4724)
+				{
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
+						oapiProcessMFDButton (MFDID, 2, _event);
+					}
+				} 
+				else if( x >= 0.5477 && x <= 0.5821)
+				{
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
+						oapiProcessMFDButton (MFDID, 3, _event);
+					}
+				}
+				else if( x >= 0.6487 && x <= 0.6865)
+				{
+					if(_event & PANEL_MOUSE_LBDOWN)
+					{
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
+						oapiProcessMFDButton (MFDID, 4, _event);
+					}
+				}
+				else if( x >= 0.7558 && x <= 0.7939)
+				{
+					if (_event & PANEL_MOUSE_LBDOWN) {
+						t0 = oapiGetSysTime();
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
+						counting = true;
+					} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
+						oapiSendMFDKey (MFDID, OAPI_KEY_F2);
+						counting = false;
+					} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
+						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+						bIsConnectedToCRTMFD = false;
+						STS()->SetLastCreatedMFD(usMDUID);
+						oapiSendMFDKey (MFDID, OAPI_KEY_F1);
+						counting = false;		
+					}
+				}
 			}
 		}
-		else if (y >= 0.9185 && y <= 0.9601)
-		{
-			if( x >= 0.2237 && x <= 0.2624)
-			{
-				if(_event & PANEL_MOUSE_LBDOWN)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
-					oapiProcessMFDButton (usMDUID, 0, _event);
-				}
-			}
-			else if( x >= 0.3285 && x <= 0.3687)
-			{
-				if(_event & PANEL_MOUSE_LBDOWN)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
-					oapiProcessMFDButton (usMDUID, 1, _event);
-				}
-			}
-			else if( x >= 0.4356 && x <= 0.4724)
-			{
-				if(_event & PANEL_MOUSE_LBDOWN)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
-					oapiProcessMFDButton (usMDUID, 2, _event);
-				}
-			} 
-			else if( x >= 0.5477 && x <= 0.5821)
-			{
-				if(_event & PANEL_MOUSE_LBDOWN)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
-					oapiProcessMFDButton (usMDUID, 3, _event);
-				}
-			}
-			else if( x >= 0.6487 && x <= 0.6865)
-			{
-				if(_event & PANEL_MOUSE_LBDOWN)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
-					oapiProcessMFDButton (usMDUID, 4, _event);
-				}
-			}
-			else if( x >= 0.7558 && x <= 0.7939)
-			{
-				if (_event & PANEL_MOUSE_LBDOWN) {
-					t0 = oapiGetSysTime();
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
-					counting = true;
-				} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
-					oapiSendMFDKey (usMDUID, OAPI_KEY_F2);
-					counting = false;
-				} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-					sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
-					bIsConnectedToCRTMFD = false;
-					STS()->SetLastCreatedMFD(usMDUID);
-					oapiSendMFDKey (usMDUID, OAPI_KEY_F1);
-					counting = false;		
-				}
-			}
-		}
-		/*
-		int bt = (int)(p.x*5.99);
-		if (bt < 5) 
-		else {
-		  
-		}
-		}
-		sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
-		*/
 		return true;
 	}
 
@@ -264,7 +258,7 @@ namespace vc {
 
 	bool MDU::RealizeMFD(int id)
 	{
-		//MFDID=id;
+		MFDID=id;
 		if(id>=0) RegisterMFDContext(id);
 		return false;
 	}
