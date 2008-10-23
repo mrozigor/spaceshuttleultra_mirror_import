@@ -126,10 +126,14 @@ const double APU_FUEL_TANK_MASS = 325.0*0.45359237;
 const double APU_FUEL_TANK_FLOWRATE[2] = {(3.25*0.45359237)/60.0, (1.5*0.45359237)/60.0};
 // APU fuel consumption rate(kg/sec)
 
-const double CHUTE_DEPLOY_TIME = 2.5;
-// Time from chute deploy command to deployment of reefed chute (s)
+const double CHUTE_DEPLOY_TIME = 1.5;
+// Time from chute deploy command to deployment of chute (s)
 const double CHUTE_INFLATE_TIME = 6.3;
 // Time from chute deploy command to full inflation of chute (s)
+const double CHUTE_DEPLOY_RATE = 0.25;
+// Rate at which chute deploys to reefed state (1/s)
+const double CHUTE_INFLATE_RATE = 1.0;
+// Rate at which chute inflates (1/s)
 const double CHUTE_DEPLOY_SPEED = 195.0/MPS2KTS;
 // Speed at which chute is deployed (m/s)
 const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;
@@ -509,8 +513,10 @@ const int VC_EXT_AL = 200;
 
 const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
+const VECTOR3 VC_HUDPOS_CDR = _V(-0.653, 2.589, 14.614);
 const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
+const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
 
 const static char* VC_LBL_MS1 = "MS1 seat";
 const VECTOR3 VC_POS_MS1 = _V(0.2, 2.629396, 13.5); //0804025, DaveS edit: Moved position forward to a more correct position
@@ -1329,16 +1335,12 @@ private:
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	//change ref. frames
-	//VECTOR3 ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles); //delete
-	//VECTOR3 ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles); //delete
 	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
 	MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
-	//VECTOR3 ConvertLocalAnglesToM50(const VECTOR3 &Angles);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
-	//VECTOR3 ConvertM50ToOrbiter(const VECTOR3 &Input);
 	//calc attitude/attitude error
 	VECTOR3 CalcLVLHAttitude();
 	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
@@ -1474,6 +1476,7 @@ private:
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
 	UINT anim_gear;                            // handle for landing gear animation
+	UINT anim_chute_deploy;					   // handle for drag chute
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -1545,6 +1548,7 @@ private:
 
 	AnimState gear_status;
 	bool gear_armed;
+	bool DragChuteDeploying; //used to command drag chute deploy
 	enum{STOWED, DEPLOYING, REEFED, INFLATED, JETTISONED} DragChuteState;
 	double DragChuteDeployTime; //time at which deploy command was received
 	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)

@@ -651,6 +651,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   gear_status.Set(AnimState::CLOSED, 0.0);
   gear_armed=false;
+  DragChuteDeploying=false;
   DragChuteState=STOWED;
   DragChuteSize=0.0;
 
@@ -1712,6 +1713,18 @@ void Atlantis::DefineAnimations (void)
 
   if(bHasKUBand)
 		DefineKUBandAnimations();
+
+  //drag chute
+  static UINT ChuteCords[1] = {0};
+  static MGROUP_SCALE ScaleCords(mesh_dragchute, ChuteCords, 1, _V(0.0, 0.0, -11.53), _V(0.5, 0.5, 1.1));
+  static UINT Chute[3] = {1, 2, 3};
+  static MGROUP_SCALE ScaleChute(mesh_dragchute, Chute, 3, _V(0.0, 0.0, -29.03), _V(0.5, 0.5, 1.2));
+  static UINT DragChute[4] = {0, 1, 2, 3};
+  static MGROUP_SCALE ScaleAll(mesh_dragchute, DragChute, 4, _V(0.0, 0.0, 0.0), _V(0.01, 0.01, 0.01));
+  anim_chute_deploy = CreateAnimation(0.0);
+  AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleCords);
+  AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleChute);
+  AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
   
   // ***** 4. Elevator animation of elevons *****
 
@@ -2348,6 +2361,10 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	//Only make visible when actually inside the mid deck
 	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
+
+	VECTOR3 chute_ofs=orbiter_ofs+CHUTE_ATTACH_POINT;
+	mesh_dragchute=AddMesh(hDragChuteMesh, &chute_ofs);
+	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
 
 	/* Add optional A7A3/A8A3 panel meshes
 	*/
@@ -3018,11 +3035,12 @@ bool Atlantis::GearArmed() const
 
 void Atlantis::DeployDragChute()
 {
-	VECTOR3 ofs=orbiter_ofs+CHUTE_ATTACH_POINT;
-	mesh_dragchute=AddMesh(hDragChuteMesh, &ofs);
+	SetAnimation(anim_chute_deploy, 0.0);
+	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_EXTERNAL);	
 
-	DragChuteState=REEFED;
-	DragChuteSize=0.4;
+	//DragChuteState=REEFED;
+	DragChuteState=DEPLOYING;
+	DragChuteSize=0.0;
 }
 
 void Atlantis::JettisonDragChute()
@@ -5558,19 +5576,31 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//drag chute
 		if(GroundContact()) {
 			if(GetAirspeed()>1.0) SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
-
-			if(DragChuteState==STOWED && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
-				DragChuteState=DEPLOYING;
+			//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
+			if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
+				DragChuteDeploying=true;
 				DragChuteDeployTime=met;
 			}
-			else if(DragChuteState==DEPLOYING && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
+			else if(DragChuteState==STOWED && DragChuteDeploying && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
 				DeployDragChute();
-			else if(DragChuteState==REEFED && (met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
-				DragChuteSize=1.0;
-				DragChuteState=INFLATED;
+			else if(DragChuteState==DEPLOYING) {
+				DragChuteSize=min(0.4, DragChuteSize+CHUTE_DEPLOY_RATE*simdt);
+				SetAnimation(anim_chute_deploy, 1-DragChuteSize);
+				sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
+				if(Eq(DragChuteSize, 0.4, 0.001)) DragChuteState=REEFED;
 			}
-			else if(DragChuteState==INFLATED && GetAirspeed()<CHUTE_JETTISON_SPEED)
-				JettisonDragChute();
+			else if(DragChuteState==REEFED) {
+				if((met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
+					DragChuteState=INFLATED;
+				}
+			}
+			else if(DragChuteState==INFLATED)
+				if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
+				else if(DragChuteSize<1.0) {
+					DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
+					SetAnimation(anim_chute_deploy, 1-DragChuteSize);
+					sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
+				}
 		}
 
 		if (do_eva) {
@@ -5981,16 +6011,6 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 	{
 		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
 	}
-	/*if (gop->GetGearAction()==AnimState::OPEN) {
-		TextOut (hDC, 10, (hps->H)/2, "GR-DN", 5);
-	}
-	else if (gop->GetGearAction()==AnimState::OPENING || gop->GetGearAction()==AnimState::CLOSING) {
-		TextOut (hDC, 10, (hps->H)/2, "//GR//", 6);
-	}
-	if(gop->SwitchPush[0]==gop->SW_PUSH)
-	{
-		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
-	}*/
 	if(panelc3->CheckProbesDeployed()==true && GetAltitude()<50000)
 	{
 		GetHorizonAirspeedVector(Velocity);
@@ -6305,7 +6325,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (orbiter_ofs + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
-    huds.hudcnt = orbiter_ofs + VC_POS_CDR;
+    huds.hudcnt = orbiter_ofs + VC_HUDPOS_CDR;
     oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS2);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -6338,7 +6358,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraMovement (_V(0,0,0.3), 0, 0,		//Upwards/forward
 		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
 		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
-    huds.hudcnt = orbiter_ofs + VC_POS_PLT;
+    huds.hudcnt = orbiter_ofs + VC_HUDPOS_PLT;
     oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -6727,7 +6747,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   static bool counting = false;
   static double t0 = 0.0;
 
-  //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+  //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
 
   bRet=pgForward.OnVCMouseEvent(id, _event, p);
   bRet=pgLeft.OnVCMouseEvent(id, _event, p);

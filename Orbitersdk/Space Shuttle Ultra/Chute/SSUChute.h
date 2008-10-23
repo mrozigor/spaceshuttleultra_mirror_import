@@ -5,8 +5,8 @@
 
 #include "orbitersdk.h"
 
-const double CHUTE_DEFLATE_TIME = 0.25;
-// chute will deflate in 4 seconds
+const double CHUTE_DEFLATE_TIME = 0.4;
+// chute will deflate in 2.5 seconds
 
 class SSUChute: public VESSEL2
 {
