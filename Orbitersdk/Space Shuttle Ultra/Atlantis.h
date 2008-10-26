@@ -1476,7 +1476,8 @@ private:
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
 	UINT anim_gear;                            // handle for landing gear animation
-	UINT anim_chute_deploy;					   // handle for drag chute
+	UINT anim_chute_deploy;					   // handle for drag chute deploy animation
+	UINT anim_chute_spin;					   // handle for chute spinning
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -1546,12 +1547,14 @@ private:
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();
 
+	//gear/drag chute
 	AnimState gear_status;
 	bool gear_armed;
 	bool DragChuteDeploying; //used to command drag chute deploy
 	enum{STOWED, DEPLOYING, REEFED, INFLATED, JETTISONED} DragChuteState;
 	double DragChuteDeployTime; //time at which deploy command was received
 	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
+	AnimState DragChuteSpin;
 	
 	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
