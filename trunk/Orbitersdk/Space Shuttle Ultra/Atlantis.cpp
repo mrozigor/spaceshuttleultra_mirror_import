@@ -654,6 +654,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   DragChuteDeploying=false;
   DragChuteState=STOWED;
   DragChuteSize=0.0;
+  DragChuteSpin.Set(AnimState::OPENING, 0.0);
 
   // default camera positions
   camFLyaw = 0;
@@ -1724,7 +1725,14 @@ void Atlantis::DefineAnimations (void)
   anim_chute_deploy = CreateAnimation(0.0);
   AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleCords);
   AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleChute);
-  AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
+  parent=AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
+  anim_chute_spin = CreateAnimation(0.0);
+  static MGROUP_ROTATE SpinChute1(mesh_dragchute, DragChute, 4,
+	  _V(0, 0, 0), _V(0.00609621, -0.0146035, -0.999875), (float)(400.0*RAD));
+  AddAnimationComponent(anim_chute_spin, 0.0, 0.5, &SpinChute1, parent);
+  static MGROUP_ROTATE SpinChute2(mesh_dragchute, DragChute, 4,
+	  _V(0, 0, 0), _V(-0.00965286, -0.00698363, -0.999929), (float)(400.0*RAD));
+  AddAnimationComponent(anim_chute_spin, 0.5, 1.0, &SpinChute2, parent);
   
   // ***** 4. Elevator animation of elevons *****
 
@@ -2093,7 +2101,6 @@ void Atlantis::DefineAnimations (void)
   panelc2->DefineVCAnimations (vidx);
   //panelf7->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
-  
   // ======================================================
   panelc3->DefineVCAnimations (vidx);
   r2d2->DefineVCAnimations (vidx);
@@ -2339,8 +2346,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	if(mesh_rms == MESH_UNDEFINED && RMS)
-	{
+	if(RMS) {
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
 		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
@@ -4877,7 +4883,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "ODS", 3)) {
 		bHasODS = true;
     } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
-		sscanf (line+10, "%d%lf", &action, &spdb_proc);
+		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
 		spdb_status = (AnimState::Action)(action+1);
     } else if (!_strnicmp (line, "WING_NAME", 9)) {
       strncpy(WingName,line+10,256);
@@ -5055,7 +5061,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   else oapiWriteScenario_float (scn, "MET", met);
 
   if (spdb_status != AnimState::CLOSED) {
-    sprintf (cbuf, "%d %0.4f", spdb_status-1, spdb_proc);
+    sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
@@ -5594,13 +5600,28 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 					DragChuteState=INFLATED;
 				}
 			}
-			else if(DragChuteState==INFLATED)
+			else if(DragChuteState==INFLATED) {
 				if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
 				else if(DragChuteSize<1.0) {
 					DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
 					SetAnimation(anim_chute_deploy, 1-DragChuteSize);
 					sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
 				}
+			}
+
+			//spin chute
+			if(DragChuteState>=DEPLOYING && DragChuteState<JETTISONED) {
+				if(DragChuteSpin.Opening()) {
+					DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+0.5*simdt);
+					if(Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action=AnimState::CLOSING;
+				}
+				else {
+					DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-0.5*simdt);
+					if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
+				}
+				SetAnimation(anim_chute_spin, DragChuteSpin.pos);
+				sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
+			}
 		}
 
 		if (do_eva) {
@@ -6279,6 +6300,7 @@ void Atlantis::RegisterVC_AftMFD ()
 bool Atlantis::clbkLoadVC (int id)
 {
   bool ok = false;
+  bool bUpdateVC = false;
   double tilt = 0.0;
   std::set<int> InactiveMDUs;
 
@@ -6350,6 +6372,7 @@ bool Atlantis::clbkLoadVC (int id)
 //	panelf7->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
+	bUpdateVC=true;
     break;
   case VC_PLT: // pilot position
 	DisplayCameraLabel(VC_LBL_PLT);
@@ -6383,6 +6406,7 @@ bool Atlantis::clbkLoadVC (int id)
 	PLTKeyboard->RegisterVC();
 //	panelf7->RegisterVC();
     ok = true;
+	bUpdateVC=true;
     break;
   case VC_STBDSTATION: 
 	  DisplayCameraLabel(VC_LBL_STBDSTATION);
@@ -6411,6 +6435,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
+	bUpdateVC=true;
     break;
   case VC_LEECAM: //RMS End Effector Camera
 	  DisplayCameraLabel(VC_LBL_LEECAM);
@@ -6426,7 +6451,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    //ok = true;
+    ok = true;
     break;
   case VC_RMSCAM:
 		DisplayCameraLabel(VC_LBL_ELBOWCAM);
@@ -6435,7 +6460,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 		oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
 		HideMidDeck();
-		//ok=true;
+		ok=true;
 		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
@@ -6444,7 +6469,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    //ok = true;
+    ok = true;
 
     break;
   case VC_PLBCAMFR: //FR Payload Bay Camera
@@ -6454,7 +6479,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    //ok = true;
+    ok = true;
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
@@ -6463,7 +6488,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    //ok = true;
+    ok = true;
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
@@ -6472,7 +6497,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
-    //ok = true;
+    ok = true;
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
@@ -6483,7 +6508,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  HideMidDeck();
 
-	  //ok = true;
+	  ok = true;
 	  break;
   case VC_AFTPILOT: //Aft Flight Deck
 	  DisplayCameraLabel(VC_LBL_AFTPILOT);
@@ -6514,6 +6539,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
 	pA7A8Panel->RegisterVC();
 	ok = true;
+	bUpdateVC=true;
 	break;
   case VC_RMSSTATION: 
 	  DisplayCameraLabel(VC_LBL_RMSSTATION);
@@ -6544,6 +6570,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
 	pA7A8Panel->RegisterVC();
 	ok = true;
+	bUpdateVC=true;
 	break;
   case VC_PORTSTATION:
 	DisplayCameraLabel(VC_LBL_PORTSTATION);
@@ -6569,6 +6596,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panela8->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
+	bUpdateVC=true;
 	break;
   case VC_AFTWORKSTATION:
 	  DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
@@ -6596,6 +6624,7 @@ bool Atlantis::clbkLoadVC (int id)
 	panelo3->RegisterVC();
 	pA7A8Panel->RegisterVC();
 	ok = true;
+	bUpdateVC=true;
 	break;
 
   case VC_MS1:
@@ -6628,6 +6657,7 @@ bool Atlantis::clbkLoadVC (int id)
 	PLTKeyboard->RegisterVC();
 //	panelf7->RegisterVC();
     ok = true;
+	bUpdateVC=true;
     break;
   case VC_MS2:
 	DisplayCameraLabel(VC_LBL_MS2);
@@ -6658,6 +6688,7 @@ bool Atlantis::clbkLoadVC (int id)
 	PLTKeyboard->RegisterVC();
 //	panelf7->RegisterVC();
     ok = true;
+	bUpdateVC=true;
     break;
   case VC_MIDDECK:
 
@@ -6670,14 +6701,14 @@ bool Atlantis::clbkLoadVC (int id)
 	 // Default camera rotation
 	 if(HasExternalAirlock())
 	 {
-		oapiVCSetNeighbours (NULL, NULL, VC_PORTSTATION, VC_EXT_AL);	
+		oapiVCSetNeighbours (-1, -1, VC_PORTSTATION, VC_EXT_AL);	
 	 } else {
-		 oapiVCSetNeighbours (NULL, NULL, VC_PORTSTATION, NULL);
+		 oapiVCSetNeighbours (-1, -1, VC_PORTSTATION, -1);
 	 }
 
 	 SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	 //ok = true;
+	 ok = true;
 	 break;
   case VC_EXT_AL:
 	  DisplayCameraLabel(VC_LBL_EXT_AL);
@@ -6686,11 +6717,11 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	  oapiVCSetNeighbours (NULL, NULL, VC_MIDDECK, VC_DOCKCAM);
+	  oapiVCSetNeighbours (-1, -1, VC_MIDDECK, VC_DOCKCAM);
 
 	  ShowMidDeck();
      
-	  //ok=true;
+	  ok=true;
 	break;
 
   }
@@ -6706,7 +6737,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetAnimationCameras();
   }
 
-	if (ok) {
+	if (bUpdateVC) {
 		// register the HUDs (synced)
 		oapiVCRegisterHUD (&huds);
 		// register all MFD displays
@@ -6805,7 +6836,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_MFD2_PWR:
   case AID_AFD_PWR: 
 	  {
-		
         int mfd = id - AID_CDR1_PWR+MFD_LEFT;
 		sprintf(oapiDebugString(), "POWER BUTTON %d", mfd);
         //oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
@@ -7952,7 +7982,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	double fDeflYaw, fDeflPitch;
 
 	GetThrusterDir(th_main[0], SSME_DIR);
-	
+
 	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
 
 	//fDeflYaw = acos(SSME_DIR.x);
@@ -7991,7 +8021,6 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	GetThrusterDir(th_main[2], SSME_DIR);
 
-	
 	fDeflPitch = asin(-SSME_DIR.y);
 	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
 

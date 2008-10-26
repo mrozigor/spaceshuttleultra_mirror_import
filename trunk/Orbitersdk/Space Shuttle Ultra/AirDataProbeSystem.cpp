@@ -162,3 +162,31 @@ void AirDataProbeSystem::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	right_state[0] = right_state[1];
 	right_mode[0] = right_mode[1];
 }
+
+bool AirDataProbeSystem::OnParseLine(const char *line)
+{
+	if(!_strnicmp(line, "LEFT_AIRDATAPROBE", 17)) {
+		sscanf_s(line+17, "%d%d%lf", &left_mode[1], &left_state[1], &left_deploy[1]);
+		left_deploy[0] = left_deploy[1];
+		left_state[0] = left_state[1];
+		left_mode[0] = left_mode[1];
+		return true;
+	}
+	if(!_strnicmp(line, "RIGHT_AIRDATAPROBE", 18)) {
+		sscanf_s(line+18, "%d%d%lf", &right_mode[1], &right_state[1], &right_deploy[1]);
+		right_deploy[0] = right_deploy[1];
+		right_state[0] = right_state[1];
+		right_mode[0] = right_mode[1];
+		return true;
+	}
+	return false;
+}
+
+void AirDataProbeSystem::OnSaveState(FILEHANDLE scn) const
+{
+	char cbuf[255];
+	sprintf_s(cbuf, 255, "%d %d %f", left_mode[0], left_state[0], left_deploy[0]);
+	oapiWriteScenario_string(scn, "LEFT_AIRDATAPROBE", cbuf);
+	sprintf_s(cbuf, 255, "%d %d %f", right_mode[0], right_state[0], right_deploy[0]);
+	oapiWriteScenario_string(scn, "RIGHT_AIRDATAPROBE", cbuf);
+}

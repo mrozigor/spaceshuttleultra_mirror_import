@@ -28,7 +28,7 @@ PanelC3::PanelC3(Atlantis *_sts): sts(_sts)
 		Air_Data_Probe[i]=2;
 		Air_Data_Stow[i]=1;
 		OMS_Eng[i]=2;
-		AirDataProbe[i].Set(AnimState::CLOSED, 0.0);
+		//AirDataProbe[i].Set(AnimState::CLOSED, 0.0);
 	}
 	for(i=0;i<24;i++) PBI_Lights[i]=false;
 }
@@ -260,7 +260,7 @@ bool PanelC3::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 	{
 		UpdateVC();
 		if(eng>=0) EngControl(eng);
-		//else AirDataProbeControl();
+		else AirDataProbeControl();
 	}
 	return false;
 }
@@ -338,23 +338,6 @@ void PanelC3::Step(double t, double dt)
 		}
 	}*/
 	//sprintf(oapiDebugString(), "%f %f", AirDataProbe[0].pos, AirDataProbe[1].pos);
-
-
-	if(Air_Data_Probe[0] <= 1)
-	{
-		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_DEPLOY);
-	} else
-	{
-		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_STOW);
-	}
-
-	if(Air_Data_Probe[1] <= 1)
-	{
-		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_DEPLOY);
-	} else
-	{
-		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_STOW);
-	}
 }
 
 bool PanelC3::CheckProbesDeployed()
@@ -375,6 +358,22 @@ void PanelC3::EngControl(int eng)
 
 void PanelC3::AirDataProbeControl()
 {
+	if(Air_Data_Probe[0] <= 1)
+	{
+		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_DEPLOY);
+	} else
+	{
+		sts->pADPS->SetDeployMode(0, AirDataProbeSystem::ADPS_STOW);
+	}
+
+	if(Air_Data_Probe[1] <= 1)
+	{
+		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_DEPLOY);
+	} else
+	{
+		sts->pADPS->SetDeployMode(1, AirDataProbeSystem::ADPS_STOW);
+	}
+
 	/*
 	//sprintf(oapiDebugString(), "AirDataProbeControl()");
 	for(int i=0;i<2;i++)
@@ -410,8 +409,6 @@ void PanelC3::SaveState(FILEHANDLE scn)
 	oapiWriteScenario_int (scn, "RPROBE", Air_Data_Probe[1]);
 	oapiWriteScenario_int (scn, "LOMS", OMS_Eng[0]);
 	oapiWriteScenario_int (scn, "ROMS", OMS_Eng[1]);
-	sprintf_s(cbuf, 255, "%f %f", AirDataProbe[0].pos, AirDataProbe[1].pos);
-	oapiWriteScenario_string (scn, "AIR_DATA_PROBES", cbuf);
 }
 bool PanelC3::ParseScenarioLine (char *line)
 {
