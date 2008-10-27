@@ -5864,8 +5864,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		arm_moved = false;
 	}
 	if(mpm_moved) {
-		VECTOR3 pos=obss_attach_point[0]+STBDMPM_REF;
-		SetAttachmentParams(ahOBSS, pos, orbiter_ofs+obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
+		VECTOR3 pos=orbiter_ofs+obss_attach_point[0]+STBDMPM_REF;
+		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
 		mpm_moved=false;
 	}
 
