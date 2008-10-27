@@ -134,6 +134,8 @@ const double CHUTE_DEPLOY_RATE = 0.25;
 // Rate at which chute deploys to reefed state (1/s)
 const double CHUTE_INFLATE_RATE = 1.0;
 // Rate at which chute inflates (1/s)
+const double CHUTE_SPIN_RATE = 0.5;
+// Rate at which chute spins (1/s)
 const double CHUTE_DEPLOY_SPEED = 195.0/MPS2KTS;
 // Speed at which chute is deployed (m/s)
 const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;

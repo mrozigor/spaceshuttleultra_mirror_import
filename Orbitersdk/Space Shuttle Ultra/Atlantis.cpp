@@ -5612,11 +5612,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			//spin chute
 			if(DragChuteState>=DEPLOYING && DragChuteState<JETTISONED) {
 				if(DragChuteSpin.Opening()) {
-					DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+0.5*simdt);
+					DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+CHUTE_SPIN_RATE*simdt);
 					if(Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action=AnimState::CLOSING;
 				}
 				else {
-					DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-0.5*simdt);
+					DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-CHUTE_SPIN_RATE*simdt);
 					if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
 				}
 				SetAnimation(anim_chute_spin, DragChuteSpin.pos);
@@ -5865,7 +5865,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	}
 	if(mpm_moved) {
 		VECTOR3 pos=obss_attach_point[0]+STBDMPM_REF;
-		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
+		SetAttachmentParams(ahOBSS, pos, orbiter_ofs+obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
 		mpm_moved=false;
 	}
 
@@ -8001,7 +8001,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	if(th_ssme_gox[0] != NULL) {
 		SetThrusterDir(th_ssme_gox[0], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[0], SSMET_GOX_REF1);
+		SetThrusterRef(th_ssme_gox[0], orbiter_ofs+SSMET_GOX_REF1);
 	}
 
 
@@ -8009,7 +8009,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	
 	if(th_ssme_gox[1] != NULL) {
 		SetThrusterDir(th_ssme_gox[1], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[1], SSMEL_GOX_REF1);
+		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
 	}
 
 	fDeflPitch = asin(-SSME_DIR.y);
@@ -8029,7 +8029,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	if(th_ssme_gox[2] != NULL) {
 		SetThrusterDir(th_ssme_gox[2], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[2], SSMER_GOX_REF1);
+		SetThrusterRef(th_ssme_gox[2], orbiter_ofs+SSMER_GOX_REF1);
 	}
 
 	
