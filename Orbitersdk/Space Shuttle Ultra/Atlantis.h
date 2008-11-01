@@ -68,7 +68,8 @@ const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
-const static char* DEFAULT_MESHNAME_ODS = "SSU/ExtAL";
+const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
+const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 
@@ -304,11 +305,12 @@ const UINT MIDX_KU_ANTENNA = 6;
 const UINT MIDX_ET = 7;
 const UINT MIDX_LSRB = 8;
 const UINT MIDX_RSRB = 9;
-const UINT MIDX_ODS = 10;
-const UINT MIDX_ODS_VC = 11;
-const UINT MIDX_PLPANEL_A7 = 12;
-const UINT MIDX_PLPANEL_A8 = 13;
-const UINT MIDX_PLPANEL_A9 = 14;
+const UINT MIDX_EXTAL = 10;
+const UINT MIDX_ODS = 11;
+const UINT MIDX_ODS_VC = 12;
+const UINT MIDX_PLPANEL_A7 = 13;
+const UINT MIDX_PLPANEL_A8 = 14;
+const UINT MIDX_PLPANEL_A9 = 15;
 
 
 // MET: engine shutdown
@@ -1021,6 +1023,7 @@ public:
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
+	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
@@ -1106,6 +1109,7 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
+	virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
 	 * @param fThrust0 Vacuum thrust
@@ -1170,6 +1174,7 @@ public:
 		hMidDeckMesh, hOrbiterRMSMesh, hOBSSMPMMesh, hTankMesh, hSRBMesh[2],
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
+	MESHHANDLE hExtALMesh;
 	char cargo_static_mesh_name[256];
 
 	double fPayloadZPos[16];

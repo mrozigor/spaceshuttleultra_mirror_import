@@ -1,6 +1,7 @@
 #include "SubsystemDirector.h"
 #include "Atlantis.h"
 #include "AtlantisSubsystem.h"
+#include <algorithm>
 
 SubsystemDirector::SubsystemDirector(Atlantis* _sts)
 : psts(_sts)
@@ -23,6 +24,32 @@ bool SubsystemDirector::AddSubsystem(AtlantisSubsystem* pSubsys)
 	sprintf_s(pszBuffer, 256, "Added subsystem %s.", pSubsys->GetQualifiedIdentifier().c_str());
 	oapiWriteLog(pszBuffer);
 	return true;
+}
+
+AtlantisSubsystem* SubsystemDirector::ReplaceSubsystem(AtlantisSubsystem* pCurrentSubsys, AtlantisSubsystem* pBySubsys) {
+	char pszBuffer[256];
+
+	vector<AtlantisSubsystem*>::iterator iter = std::find(subsystems.begin(),
+		subsystems.end(), pCurrentSubsys);
+
+	if(iter != subsystems.end()) {
+
+		pCurrentSubsys->UnloadSubsystem();
+		*iter = pBySubsys;
+		pBySubsys->AddMeshes(psts->orbiter_ofs);
+	
+		sprintf_s(pszBuffer, 256, "Replaced subsystem %s by subsystem %s.", 
+			pCurrentSubsys->GetQualifiedIdentifier().c_str(),
+			pBySubsys->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(pszBuffer);
+
+		delete pCurrentSubsys;
+
+		sprintf_s(pszBuffer, 256, "Finished clean up.");
+		oapiWriteLog(pszBuffer);
+		return pBySubsys;
+	}
+	return pCurrentSubsys;
 }
 
 DiscreteBundleManager* SubsystemDirector::BundleManager() const {

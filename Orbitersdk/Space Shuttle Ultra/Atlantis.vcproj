@@ -678,6 +678,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\IDPSoftware.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ISubsystem.h"
 				>
 			</File>
@@ -884,6 +888,10 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\dps\IDP_Software.cpp"
 			>
 		</File>
 		<File

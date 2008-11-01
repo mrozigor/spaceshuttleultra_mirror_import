@@ -31,7 +31,8 @@ namespace dps {
 	public:
 		IDPSoftware(IDP* hardware);
 		virtual ~IDPSoftware();
-		virtual void Run(double fSimT, double fDeltaT);
+		virtual void Run(double fSimT, double fDeltaT) = 0;
+		virtual void PaintMDU(vc::MDU* pmdu) = 0;
 	};
 
 	/**
@@ -39,9 +40,18 @@ namespace dps {
 	 * MDUs. 
  	 */
 	class IDP : public AtlantisSubsystem {
+	public:
+		typedef enum __memory_state {
+			MS_EMPTY = 0,
+			MS_IPL,
+			MS_OPERATIONAL
+		} MEMORY_STATE;
+	private:
 		unsigned short usIDPID;
 		vc::PMDU mdu_list[7];
 		MAJORFUNCTION majfunc;
+		MEMORY_STATE memstate;
+
 		unsigned short usOPS;
 		unsigned short usSPEC;
 		unsigned short usDISP;
@@ -59,6 +69,8 @@ namespace dps {
 
 		vector<IDPSoftware*> software_storage;
 
+		IDPSoftware* pOTP;
+
 		map<unsigned short, IDPSoftware*> ipl_software;
 
 		map<unsigned short, IDPSoftware*> gnc_ops;
@@ -72,6 +84,8 @@ namespace dps {
 
 		map<unsigned short, IDPSoftware*> bfs_ops;
 		map<unsigned short, IDPSoftware*> bfs_specdisp;
+
+		void CreateSoftware();
 
 		void AppendScratchPadLine(char cKey);
 		void ClearScratchPadLine();
@@ -89,12 +103,7 @@ namespace dps {
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
 		virtual ~IDP();
-		/**
-		 * Perform a initial software load.
-		 * Basically just reset software configuration to basic and 
-		 * request critical format data from assigned GPC.
-		 */
-		void IPL();
+		
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
 		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;
@@ -105,6 +114,13 @@ namespace dps {
 		MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
 		virtual const char* GetScratchPadLineScan() const;
+		/**
+		 * Perform a initial program load.
+		 * Basically just reset software configuration to basic and 
+		 * request critical format data from assigned GPC.
+		 */
+		
+		virtual void IPL();
 		bool IsBFS() const;
 		virtual bool PutKey(unsigned short usKeyboardID, char cKey);
 		void SetSpec(unsigned short spec);
@@ -119,6 +135,8 @@ namespace dps {
 		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCIDP);};
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
+
+		virtual bool OnPaint(vc::MDU* pMDU);
 		
 	};
 };

@@ -102,3 +102,15 @@ DiscreteBundleManager* AtlantisSubsystem::BundleManager() const
 {
 	return director->BundleManager();
 }
+
+void AtlantisSubsystem::UnloadSubsystem() {
+	
+}
+
+
+EmptySubsystem::EmptySubsystem(SubsystemDirector* _director)
+: AtlantisSubsystem(_director, "[Empty]") {
+}
+
+EmptySubsystem::~EmptySubsystem() {
+}

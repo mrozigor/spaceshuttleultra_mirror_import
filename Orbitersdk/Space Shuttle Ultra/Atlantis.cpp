@@ -433,6 +433,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   mesh_kuband	  = MESH_UNDEFINED;
   mesh_rms        = MESH_UNDEFINED;
   mesh_mpm        = MESH_UNDEFINED;
+  mesh_extal	  = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
   mesh_cargo_static = MESH_UNDEFINED;
   mesh_panela8	  = MESH_UNDEFINED;
@@ -562,6 +563,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
   hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
   hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
+  hExtALMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_EXTAL);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
   hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
@@ -2356,6 +2358,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	}
 
 	AddKUBandVisual(ofs);
+
+	if(mesh_extal == MESH_UNDEFINED) {
+		VECTOR3 x = ofs + ODS_POS;
+		mesh_extal = AddMesh(hExtALMesh, &x);
+		SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	}
 
 	if(mesh_ods == MESH_UNDEFINED) {
 		VECTOR3 x = ofs + ODS_POS;
@@ -8578,4 +8586,14 @@ TEX=Contrail1*/
 		AddExhaustStream(th_ssme_gox[i], &gox_stream);
 	}
 	
+}
+
+void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
+	if(fExtAl) {
+	} else {
+	}
+
+	if(fODS) {
+	} else {
+	}
 }

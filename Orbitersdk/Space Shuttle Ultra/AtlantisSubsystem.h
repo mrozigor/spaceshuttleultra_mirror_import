@@ -139,7 +139,18 @@ public:
 	 */
 	virtual double GetSubsystemEmptyMass() const {return 0.0;};
 
+	/**
+	 * Remove subsystem from Shuttle and visual
+	 */
+	virtual void UnloadSubsystem();
+
 	DiscreteBundleManager* BundleManager() const;
+};
+
+class EmptySubsystem: AtlantisSubsystem {
+public:
+	EmptySubsystem(SubsystemDirector* _director);
+	virtual ~EmptySubsystem();
 };
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)

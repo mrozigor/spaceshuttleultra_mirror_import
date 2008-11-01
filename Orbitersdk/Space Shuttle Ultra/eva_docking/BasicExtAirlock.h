@@ -19,4 +19,10 @@ namespace eva_docking {
 		virtual void OnDumpToLog() const;
 	};
 
+	class NoExtAirlock: public BasicExternalAirlock {
+	public:
+		NoExtAirlock(SubsystemDirector* pdirect);
+		virtual ~NoExtAirlock();
+	};
+
 };
