@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="user32.lib gdi32.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib"
 				OutputFile="..\..\Modules\MG_Atlantis.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib gdi32.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSKD35.lib"
 				OutputFile="..\..\..\Modules\MG_Atlantis.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -407,7 +407,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\GNCSoftware.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GPC.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\GPCSoftware.cpp"
 				>
 			</File>
 			<File
@@ -536,14 +544,6 @@
 				RelativePath=".\ValveTypeBool.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\dps\GPCSoftware.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\dps\GNCSoftware.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Includes"
@@ -662,11 +662,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dps\GPCSoftware.h"
+				RelativePath=".\dps\GNCSoftware.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dps\GNCSoftware.h"
+				RelativePath=".\dps\GPCSoftware.h"
 				>
 			</File>
 			<File
@@ -863,10 +863,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\lib\DlgCtrl.lib"
-			>
-		</File>
-		<File
 			RelativePath="down.ico"
 			>
 		</File>
@@ -888,18 +884,6 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
-			>
-		</File>
-		<File
-			RelativePath="..\lib\orbiter.lib"
-			>
-		</File>
-		<File
-			RelativePath="..\lib\Orbitersdk.lib"
-			>
-		</File>
-		<File
-			RelativePath="..\..\lib\OrbiterSoundSDK35.lib"
 			>
 		</File>
 		<File

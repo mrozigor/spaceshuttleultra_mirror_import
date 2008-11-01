@@ -9,6 +9,7 @@ namespace dps {
 		usSPEC=0;
 		usDISP=0;
 		majfunc=GNC;
+		cScratchPadLine[0] = '\0';
 	}
 
 	IDP::~IDP()
@@ -37,6 +38,32 @@ namespace dps {
 	MAJORFUNCTION IDP::GetMajfunc() const
 	{
 		return majfunc;
+	}
+
+	bool IDP::IsBFS() const {
+		return false;
+	}
+
+	bool IDP::IsCompleteLine() const {
+		return false;
+	}
+
+	bool IDP::PutKey(unsigned short usKeyboardID, char cKey) {
+		
+		//TODO: Implement checking of active keyboard
+		switch(cKey) {
+			case SSU_KEY_CLEAR:
+				OnClear();
+				break;
+			case SSU_KEY_EXEC:
+				OnExec();
+				break;
+		}
+		AppendScratchPadLine(cKey);
+		sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
+			usIDPID, usKeyboardID, cKey, 
+			this->GetScratchPadLineString());
+		return true;
 	}
 
 	void IDP::SetDisp(unsigned short disp)
@@ -82,5 +109,156 @@ namespace dps {
 			}
 		}
 		return false;
+	}
+
+	void IDP::OnAck() {
+	}
+
+	void IDP::OnClear() {
+
+		if(IsCompleteLine()) {
+			ClearScratchPadLine();
+		} else {
+			DelFromScratchPadLine();
+		}
+		
+	}
+
+	void IDP::OnExec() {
+
+	}
+
+	void IDP::OnFaultSummary() {
+	}
+
+
+	void IDP::OnMMChange(unsigned short usMM) {
+		ClearScratchPadLine();
+	}
+
+	void IDP::OnSysSummary() {
+	}
+
+
+	void IDP::OnMsgReset() {
+	}
+
+	
+	void IDP::ClearScratchPadLine() {
+		cScratchPadLine[0] = '\0';
+	}
+
+	const char* IDP::GetScratchPadLineScan() const {
+		return cScratchPadLine;
+	}
+
+	void IDP::AppendScratchPadLine(char cKey) {
+		unsigned short i = 0;
+		while(cScratchPadLine[i] != '\0' && i < 119) 
+			i++;
+		cScratchPadLine[i] = cKey;
+		cScratchPadLine[i+1] = '\0';
+		
+	}
+
+	void IDP::DelFromScratchPadLine() {
+		unsigned short i = 0;
+		while(cScratchPadLine[i] != '\0' && i < 119) 
+			i++;
+		if(i>0) {
+			cScratchPadLine[i-1] = '\0';
+		}
+	}
+
+	const char* IDP::GetScratchPadLineString() const {
+		static char pszBuffer[250];
+
+		pszBuffer[0] = '\0';
+
+		unsigned short i = 0;
+		while(cScratchPadLine[i] != '\0' && i<120) {
+			switch(cScratchPadLine[i]) {
+				case SSU_KEY_ITEM:
+					strcat_s(pszBuffer, "ITEM");
+					break;
+				case SSU_KEY_GPCIDP:
+					strcat_s(pszBuffer, "GPC/IDP");
+					break;
+				case SSU_KEY_OPS:
+					strcat_s(pszBuffer, "OPS");
+					break;
+				case SSU_KEY_A:
+					strcat_s(pszBuffer, "A");
+					break;
+				case SSU_KEY_B:
+					strcat_s(pszBuffer, "B");
+					break;
+				case SSU_KEY_C:
+					strcat_s(pszBuffer, "C");
+					break;
+				case SSU_KEY_D:
+					strcat_s(pszBuffer, "D");
+					break;
+				case SSU_KEY_E:
+					strcat_s(pszBuffer, "E");
+					break;
+				case SSU_KEY_F:
+					strcat_s(pszBuffer, "F");
+					break;
+				case SSU_KEY_1:
+					strcat_s(pszBuffer, "1");
+					break;
+				case SSU_KEY_2:
+					strcat_s(pszBuffer, "2");
+					break;
+				case SSU_KEY_3:
+					strcat_s(pszBuffer, "3");
+					break;
+				case SSU_KEY_4:
+					strcat_s(pszBuffer, "4");
+					break;
+				case SSU_KEY_5:
+					strcat_s(pszBuffer, "5");
+					break;
+				case SSU_KEY_6:
+					strcat_s(pszBuffer, "6");
+					break;
+				case SSU_KEY_7:
+					strcat_s(pszBuffer, "7");
+					break;
+				case SSU_KEY_8:
+					strcat_s(pszBuffer, "8");
+					break;
+				case SSU_KEY_9:
+					strcat_s(pszBuffer, "9");
+					break;
+				case SSU_KEY_0:
+					strcat_s(pszBuffer, "0");
+					break;
+				case SSU_KEY_DOT:
+					strcat_s(pszBuffer, ".");
+					break;
+				case SSU_KEY_PLUS:
+					strcat_s(pszBuffer, "+");
+					break;
+				case SSU_KEY_MINUS:
+					strcat_s(pszBuffer, "-");
+					break;
+				case SSU_KEY_EXEC:
+					strcat_s(pszBuffer, "EXEC");
+					break;
+				case SSU_KEY_ACK:
+					strcat_s(pszBuffer, "ACK");
+					break;
+				case SSU_KEY_IORESET:
+					strcat_s(pszBuffer, "I/O RESET");
+					break;
+				default:
+					break;
+			}
+			i++;
+		}
+
+		return pszBuffer;
 	}
 };

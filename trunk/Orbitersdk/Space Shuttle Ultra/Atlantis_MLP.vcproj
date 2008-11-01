@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Atlantis_MLP"
 	ProjectGUID="{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}"
+	RootNamespace="Atlantis_MLP"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -72,12 +74,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				AdditionalDependencies="orbiter.lib orbiterSDK.lib DlgCtrl.lib"
 				OutputFile=".\Debug/Atlantis_MLP.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/Atlantis_MLP.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/Atlantis_MLP.lib"
 				TargetMachine="1"
 			/>
@@ -100,9 +104,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -168,13 +169,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib gdi32.lib"
+				AdditionalDependencies="orbiter.lib orbiterSDK.lib DlgCtrl.lib"
 				OutputFile=".\..\..\Modules\Atlantis_MLP.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Lib&quot;;..\..\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 				ProgramDatabaseFile=".\Release/Atlantis_MLP.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/Atlantis_MLP.lib"
 				TargetMachine="1"
 			/>
@@ -199,9 +202,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -218,19 +218,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\lib\DlgCtrl.lib"
-			>
-		</File>
-		<File
-			RelativePath="..\MLP\MLP.cpp"
+			RelativePath=".\MLP\MLP.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\MLP\MLP.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\lib\orbiter.lib"
 			>
 		</File>
 		<File
@@ -239,10 +231,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Orbitersdk.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\lib\Orbitersdk.lib"
 			>
 		</File>
 		<File

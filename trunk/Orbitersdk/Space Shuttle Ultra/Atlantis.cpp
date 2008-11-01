@@ -14,7 +14,7 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "Atlantis.h"
-#include "OrbiterSoundSDK35.h"
+#include <OrbiterSoundSDK35.h>
 #include "PlBayOp.h"
 //#include "GearOp.h"
 #include "PanelA4.h"

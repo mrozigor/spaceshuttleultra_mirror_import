@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="CustomMFD"
 	ProjectGUID="{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -79,6 +80,8 @@
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDK\Lib&quot;;&quot;C:\Program Files\Orbiter\Orbiter_SDK\Orbitersdk\lib&quot;"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/CustomMFD.lib"
 				TargetMachine="1"
 			/>
@@ -101,9 +104,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -174,6 +174,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/CustomMFD.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/CustomMFD.lib"
 				TargetMachine="1"
 			/>
@@ -196,9 +198,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

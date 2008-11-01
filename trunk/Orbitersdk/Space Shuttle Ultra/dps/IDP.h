@@ -57,6 +57,8 @@ namespace dps {
 		DiscInPort MajorFuncGNC;
 		DiscInPort MajorFuncPL;
 
+		vector<IDPSoftware*> software_storage;
+
 		map<unsigned short, IDPSoftware*> ipl_software;
 
 		map<unsigned short, IDPSoftware*> gnc_ops;
@@ -70,6 +72,19 @@ namespace dps {
 
 		map<unsigned short, IDPSoftware*> bfs_ops;
 		map<unsigned short, IDPSoftware*> bfs_specdisp;
+
+		void AppendScratchPadLine(char cKey);
+		void ClearScratchPadLine();
+		void DelFromScratchPadLine();
+	protected:
+		virtual void OnMMChange(unsigned short usNewMM);
+		virtual void OnSysSummary();
+		virtual void OnFaultSummary();
+		virtual void OnMsgReset();
+		virtual void OnAck();
+		virtual void OnClear();
+		virtual void OnExec();
+
 		
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
@@ -86,11 +101,24 @@ namespace dps {
 		unsigned short GetOps() const;
 		unsigned short GetSpec() const;
 		unsigned short GetDisp() const;
+		unsigned short GetKeyboardSelection() const;
 		MAJORFUNCTION GetMajfunc() const;
+		virtual const char* GetScratchPadLineString() const;
+		virtual const char* GetScratchPadLineScan() const;
+		bool IsBFS() const;
+		virtual bool PutKey(unsigned short usKeyboardID, char cKey);
 		void SetSpec(unsigned short spec);
 		void SetDisp(unsigned short disp);
 		void SetMajFunc(MAJORFUNCTION func);
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual bool OnParseLine(const char* line);
+		//
+		inline bool IsOPSLine() const {return (cScratchPadLine[0] == SSU_KEY_OPS);};
+		inline bool IsSPECLine() const {return (cScratchPadLine[0] == SSU_KEY_SPEC);};
+		inline bool IsITEMLine() const {return (cScratchPadLine[0] == SSU_KEY_ITEM);};
+		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCIDP);};
+		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
+		bool IsCompleteLine() const;
+		
 	};
 };
