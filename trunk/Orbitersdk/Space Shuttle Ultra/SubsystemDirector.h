@@ -22,6 +22,9 @@ public:
 	SubsystemDirector(Atlantis* _sts);
 	~SubsystemDirector();
 	bool AddSubsystem(AtlantisSubsystem* pSubsys);
+	AtlantisSubsystem* ReplaceSubsystem(AtlantisSubsystem* pCurrentSubsys, AtlantisSubsystem* pBySubsys);
+
+
 	void SetClassCaps(FILEHANDLE cfg);
 	bool ParseScenarioLine(char* line);
 	bool PlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);

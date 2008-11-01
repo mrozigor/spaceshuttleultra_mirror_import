@@ -1,4 +1,5 @@
 #include "IDP.h"
+#include "IDPSoftware.h"
 
 namespace dps {
 
@@ -10,10 +11,24 @@ namespace dps {
 		usDISP=0;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
+		CreateSoftware();
 	}
 
 	IDP::~IDP()
 	{
+		for(int i = 0; i<software_storage.size(); i++) {
+			delete software_storage[i];
+		}
+		software_storage.clear();
+	}
+
+	void IDP::CreateSoftware() {
+		IDPSoftware* pSoftware;
+
+		pSoftware = new IDP_OTP(this);
+		software_storage.push_back(pSoftware);
+		pOTP = pSoftware;
+		
 	}
 
 	unsigned short IDP::GetIDPID() const {
@@ -38,6 +53,14 @@ namespace dps {
 	MAJORFUNCTION IDP::GetMajfunc() const
 	{
 		return majfunc;
+	}
+
+	void IDP::IPL() {
+
+		memstate = MS_IPL;
+
+		//clear all data tables
+		//rebuild all data tables
 	}
 
 	bool IDP::IsBFS() const {
@@ -134,6 +157,13 @@ namespace dps {
 
 	void IDP::OnMMChange(unsigned short usMM) {
 		ClearScratchPadLine();
+	}
+
+	bool IDP::OnPaint(vc::MDU* pMDU) {
+
+		//Clear text buffer, if needed
+		//delegate painting to software
+		return true;
 	}
 
 	void IDP::OnSysSummary() {

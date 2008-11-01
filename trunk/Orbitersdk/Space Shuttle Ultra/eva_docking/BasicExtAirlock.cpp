@@ -42,4 +42,12 @@ namespace eva_docking {
 
 	}
 
+	NoExtAirlock::NoExtAirlock(SubsystemDirector *pdirect) 
+		: BasicExternalAirlock(pdirect, "[Empty]")
+	{
+	}
+
+	NoExtAirlock::~NoExtAirlock() {
+	}
+
 };
