@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="Atlantis_SRB"
 	ProjectGUID="{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}"
+	RootNamespace="Atlantis_SRB"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -73,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib gdi32.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
 				OutputFile=".\..\..\Modules/Atlantis_SRB.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -164,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
 				OutputFile=".\..\..\..\Modules/Atlantis_SRB.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -245,14 +246,6 @@
 					PreprocessorDefinitions=""
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\lib\orbiter.lib"
-			>
-		</File>
-		<File
-			RelativePath="..\lib\Orbitersdk.lib"
-			>
 		</File>
 	</Files>
 	<Globals>

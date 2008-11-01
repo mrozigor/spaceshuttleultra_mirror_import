@@ -20,11 +20,16 @@ public:
 	void RegisterVC();
 	bool VCMouseEvent (int id, int event, VECTOR3 &p);
 	void ClearInput();
-
 private:
 	Atlantis *sts; // vessel instance pointer
 
 	int keyboard; //0=CDR, 1=PLT
+
+	/**
+	 * Push keyboard presses to connected IDPs
+	 * @param key scan code of the key, use constants SSU_KEY_xxx
+	 */
+	void PutKey(char key);
 };
 
 #endif //__KEYBOARD_H

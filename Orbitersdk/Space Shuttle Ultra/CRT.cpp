@@ -8,6 +8,7 @@
 #include "vc/vc_defs.h"
 #include "CRT.h"
 #include <cstdio>
+#include "dps/IDP.h"
 #include "dps/MasterTimingUnit.h"
 
 #define RED RGB(255, 0, 0)
@@ -75,7 +76,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	height=h;
 	usMDU = 11;
 
-	sprintf(cbuf, "[CRT]:DIMENSIONS: %d %d\n", W, H);
+	sprintf_s(cbuf, 200, "[CRT]:DIMENSIONS: %d %d\n", W, H);
 	oapiWriteLog(cbuf);
 
 	hCRTFont = CreateFont(8,4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
@@ -142,7 +143,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 CRT::~CRT ()
 {
-	if(id>=0 && id<3) sts->Display[id]=NULL;
+	//if(id>=0 && id<3) sts->Display[id]=NULL;
 	DeleteObject(hCRTFont);
 	return;
 }
@@ -1361,7 +1362,7 @@ void CRT::PDRS(HDC hDC)
 void CRT::DisplayScratchPad(HDC hDC)
 {
 	char cbuf[255];
-	if(id>2) return;
+	/*
 	if(sts->DataInput[id].OPS) {
 		if(sts->DataInput[id].PRO) sprintf(cbuf, "OPS %s PRO", sts->DataInput[id].input);
 		else sprintf(cbuf, "OPS %s", sts->DataInput[id].input);
@@ -1378,6 +1379,19 @@ void CRT::DisplayScratchPad(HDC hDC)
 		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
 	}
 	else TextOut(hDC, 0, 245, sts->DataInput[id].input, strlen(sts->DataInput[id].input));
+
+	*/
+
+	/*
+	unsigned short usIDP = sts->GetMDU(usMDU)->GetDrivingIDP();
+
+	if(usIDP<100) {
+
+		const char* pszSL = sts->GetIDP(usIDP)->GetScratchPadLineString();
+
+		TextOut(hDC, 0, 245, pszSL, strlen(pszSL));
+	}
+	*/
 }
 
 void CRT::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
@@ -2554,19 +2568,19 @@ void CRT::DrawCommonHeader(HDC hdc)
 	char cdispbuf[4];
 	char cUplink[3];
 	unsigned short usDay, usHour, usMinute, usSecond;
-	strcpy(cUplink, "  ");
-	strcpy(cspecbuf, "   ");
-	strcpy(cdispbuf, "   ");
+	strcpy_s(cUplink, "  ");
+	strcpy_s(cspecbuf, "   ");
+	strcpy_s(cdispbuf, "   ");
 
 	if(spec >= 0)
 	{
-		sprintf(cspecbuf, "%03d", spec);
+		sprintf_s(cspecbuf, 4, "%03d", spec);
 	}
 
 
 	if(display >= 0)
 	{
-		sprintf(cdispbuf, "%03d", display);
+		sprintf_s(cdispbuf, 4, "%03d", display);
 	}
 
 	//this->SelectDefaultFont(hdc, 1);
@@ -2699,10 +2713,10 @@ bool CRT::CRTLine(HDC hdc, short sX1, short sY1, short sX2, short sY2)
 	float charW = W/50.0;
 	float charH = H/25.0;
 
-	int iX1 = charW * sX1;
-	int iY1 = charH * sY1;
-	int iX2 = charW * sX2;
-	int iY2 = charH * sY2;
+	int iX1 = (int)(charW * sX1);
+	int iY1 = (int)(charH * sY1);
+	int iX2 = (int)(charW * sX2);
+	int iY2 = (int)(charH * sY2);
 
 	MoveToEx(hdc, iX1, iY2, NULL);
 	LineTo(hdc, iX2, iY2);

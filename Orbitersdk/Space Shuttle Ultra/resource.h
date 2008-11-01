@@ -86,7 +86,8 @@
 #define IDC_CAM_LOWRATE                 1064
 #define IDC_CAM_HIGHRATE                1065
 #define IDC_COMBO1                      1066
-#define IDC_PAYLOADCOMBO                1066
+#define IDC_PAYLOADCOMBO                1067
+#define IDC_CAM_RMS						1068
 
 // Next default values for new objects
 // 

@@ -1,5 +1,38 @@
 #pragma once
 
+#define SSU_KEY_FAULTSUMM 0
+#define SSU_KEY_SYSSUMM 1
+#define SSU_KEY_MSGRESET 2
+#define SSU_KEY_ACK 3
+#define SSU_KEY_GPCIDP 4
+#define SSU_KEY_A 5
+#define SSU_KEY_B 6
+#define SSU_KEY_C 7
+#define SSU_KEY_IORESET 8
+#define SSU_KEY_D 9
+#define SSU_KEY_E 10
+#define SSU_KEY_F 11
+#define SSU_KEY_ITEM 12
+#define SSU_KEY_1 13
+#define SSU_KEY_2 14
+#define SSU_KEY_3 15
+#define SSU_KEY_EXEC 16
+#define SSU_KEY_4 17
+#define SSU_KEY_5 18
+#define SSU_KEY_6 19
+#define SSU_KEY_OPS 20
+#define SSU_KEY_7 21
+#define SSU_KEY_8 22
+#define SSU_KEY_9 23
+#define SSU_KEY_SPEC 24
+#define SSU_KEY_MINUS 25
+#define SSU_KEY_0 26
+#define SSU_KEY_PLUS 27
+#define SSU_KEY_RESUME 28
+#define SSU_KEY_CLEAR 29
+#define SSU_KEY_DOT 30
+#define SSU_KEY_PRO 31
+
 namespace dps {
 	class IDP;
 	class GPC;

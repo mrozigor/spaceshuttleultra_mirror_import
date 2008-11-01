@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Atlantis_Chute"
 	ProjectGUID="{66D11E71-6424-4736-B0B9-5198C3123337}"
+	RootNamespace="Atlantis_Chute"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -72,12 +74,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				AdditionalDependencies="orbiter.lib orbiterSDK.lib OrbiterSoundSDK35.lib"
 				OutputFile="..\..\\Modules\SSUChute.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/SSUChute.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/SSUChute.lib"
 				TargetMachine="1"
 			/>
@@ -100,9 +104,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -168,13 +169,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib gdi32.lib"
+				AdditionalDependencies="orbiter.lib orbiterSDK.lib OrbiterSoundSDK35.lib"
 				OutputFile="..\..\Modules\SSUChute.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Lib&quot;;..\..\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 				ProgramDatabaseFile=".\Release/SSUChute.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/SSUChute.lib"
 				TargetMachine="1"
 			/>
@@ -199,9 +202,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -210,15 +210,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\lib\orbiter.lib"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\Orbitersdk.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\lib\Orbitersdk.lib"
 			>
 		</File>
 		<File

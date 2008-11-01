@@ -14,7 +14,7 @@ namespace dps
 		sts->oparam.PeT-=DeltaT;
 
 		GPCSoftware::OnPostStep(SimT, DeltaT, MJD);
-		sprintf_s(oapiDebugString(), 255, "Elements: %f %f", sts->el.a, sts->oparam.ApT);
+		//sprintf_s(oapiDebugString(), 255, "Elements: %f %f", sts->el.a, sts->oparam.ApT);
 	}
 
 	void GNCSoftware::UpdateElements(Atlantis* sts)

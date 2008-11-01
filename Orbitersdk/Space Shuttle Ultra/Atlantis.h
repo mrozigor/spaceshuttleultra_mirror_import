@@ -872,6 +872,12 @@ const UINT AID_A8A3 = 11010;
 // time until a switch gets pushed to the next position by a spring for spring-loaded switches
 const double SWITCH_HOLD_TIME = 0.5;
 
+
+
+
+
+
+
 typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE pbi_lights;
@@ -961,6 +967,19 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	/* **************************************************
+	 * Subsystem short cuts
+	 * **************************************************/
+	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
+	dps::IDP* pIDP[4];
+	OMSSubsystem* pOMS;
+	mps::SSME* pSSME[3];
+	/**
+	 * Strategy pattern for the external airlock subsystem
+	 */
+	eva_docking::BasicExternalAirlock* pExtAirlock;
+	AirDataProbeSystem* pADPS;
+
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
     char WingName[256];
@@ -1223,18 +1242,6 @@ private:
 	vc::PanelGroup pgAft;
 	vc::PanelGroup pgAftPort;
 
-	/* **************************************************
-	 * Subsystem short cuts
-	 * **************************************************/
-	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
-	dps::IDP* pIDP[4];
-	OMSSubsystem* pOMS;
-	mps::SSME* pSSME[3];
-	/**
-	 * Strategy pattern for the external airlock subsystem
-	 */
-	eva_docking::BasicExternalAirlock* pExtAirlock;
-	AirDataProbeSystem* pADPS;
 
 	//GPC programs
 	dps::GNCSoftware *gncsoftware;
