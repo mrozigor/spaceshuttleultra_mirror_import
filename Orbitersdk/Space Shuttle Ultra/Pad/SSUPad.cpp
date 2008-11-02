@@ -37,7 +37,7 @@ void SSUPad::DefineAnimations()
 	static UINT GVAGrp[5] = {GRP_GOX_Cylinder06, GRP_GOX_Cylinder342,
 		GRP_GOX_vent_arm_truss, GRP_North_GN2_vent_pipe, GRP_South_GN2_vent_pipe};
 	static MGROUP_ROTATE GVA(mesh_idx, GVAGrp, 5,
-		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.0*RAD));
+		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
 
 	//GOX hood
