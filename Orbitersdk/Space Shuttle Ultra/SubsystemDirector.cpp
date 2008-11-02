@@ -99,6 +99,34 @@ bool SubsystemDirector::SaveState(FILEHANDLE scn)
 bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 {
 	unsigned long i;
+	const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
+	
+
+	//Subsampling pass
+	double t0 = fSimT;
+	long lSubCount = 0;
+	while(t0 < fSimT + fDeltaT) {
+		double dt = min(SUBSAMPLING_DELTAT, fSimT + fDeltaT - t0);
+		for(i = 0; i<subsystems.size(); i++)
+		{	
+			subsystems[i]->OnSubPreStep(t0, dt, fMJD);
+		}
+		for(i = 0; i<subsystems.size(); i++)
+		{
+			//
+			subsystems[i]->OnSubPropagate(t0, dt, fMJD);
+		}
+
+		for(i = 0; i<subsystems.size(); i++)
+		{	
+			subsystems[i]->OnSubPostStep(t0, dt, fMJD);
+		}
+		t0 += SUBSAMPLING_DELTAT;
+		lSubCount ++;
+	}
+
+	//sprintf_s(oapiDebugString(), 255, "%d SUBSAMPLING STEPS", lSubCount);
+
 	//Propagate subsystem states to the end of the discrete timestep
 	for(i = 0; i<subsystems.size(); i++)
 	{

@@ -110,6 +110,11 @@ public:
 	 * Save the state of the subsystem
 	 */
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	//Callbacks used for subsampling 
+	virtual void OnSubPreStep(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnSubPropagate(double fSimT, double fDeltaT, double fMJD);
+	virtual void OnSubPostStep(double fSimT, double fDeltaT, double fMJD);
 	/**
 	 * Dump the current state and error conditions into the Orbiter.log or 
 	 * a special SSU.log. Don't modificate state.

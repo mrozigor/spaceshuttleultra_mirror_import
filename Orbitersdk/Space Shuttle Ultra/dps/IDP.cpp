@@ -104,6 +104,10 @@ namespace dps {
 		majfunc=func;
 	}
 
+	void IDP::ClearScratchPadLine() {
+		cScratchPadLine[0] = '\0';
+	}
+
 	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
 	{
 		if(pMDU) {
@@ -162,7 +166,11 @@ namespace dps {
 	bool IDP::OnPaint(vc::MDU* pMDU) {
 
 		//Clear text buffer, if needed
+
+		PrintTime(pMDU);
 		//delegate painting to software
+
+
 		return true;
 	}
 
@@ -174,9 +182,20 @@ namespace dps {
 	}
 
 	
-	void IDP::ClearScratchPadLine() {
-		cScratchPadLine[0] = '\0';
+	void IDP::PrintTime(vc::MDU* mdu) {
+		char pszBuffer[15];
+
+		sprintf_s(pszBuffer, 15, "%03d/%02d:%02d:%02d",
+			usGPCDay, usGPCHour, usGPCMinute, usGPCSecond);
+		mdu->PrintToBuffer(pszBuffer, 12, 39, 1, 0);
+
+		if(bGPCTimerActive) {
+			sprintf_s(pszBuffer, 15, "%03d/%02d:%02d:%02d",
+				usTimerDay, usTimerHour, usTimerMinute, usTimerSecond);
+			mdu->PrintToBuffer(pszBuffer, 12, 39, 2, 0);
+		}
 	}
+
 
 	const char* IDP::GetScratchPadLineScan() const {
 		return cScratchPadLine;

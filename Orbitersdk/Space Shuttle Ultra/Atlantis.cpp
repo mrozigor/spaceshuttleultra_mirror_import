@@ -8590,10 +8590,14 @@ TEX=Contrail1*/
 
 void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
 	if(fExtAl) {
+		SetMeshVisibilityMode(mesh_extal, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
 	} else {
+		SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
 	}
 
 	if(fODS) {
+		SetMeshVisibilityMode(mesh_ods, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
 	} else {
+		SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 	}
 }

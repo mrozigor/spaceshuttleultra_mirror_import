@@ -11,7 +11,7 @@
 namespace dps {
 
 AP101S::AP101S(SubsystemDirector* _director, const string& _ident)
-:AtlantisSubsystem(_director, _ident)
+:GPC(_director, _ident)
 {
 
 }

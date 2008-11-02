@@ -52,6 +52,18 @@ namespace dps {
 		MAJORFUNCTION majfunc;
 		MEMORY_STATE memstate;
 
+		unsigned short usGPCDay;
+		unsigned short usGPCHour;
+		unsigned short usGPCMinute;
+		unsigned short usGPCSecond;
+
+		bool bGPCTimerActive;
+
+		unsigned short usTimerDay;
+		unsigned short usTimerHour;
+		unsigned short usTimerMinute;
+		unsigned short usTimerSecond;
+
 		unsigned short usOPS;
 		unsigned short usSPEC;
 		unsigned short usDISP;
@@ -99,6 +111,7 @@ namespace dps {
 		virtual void OnClear();
 		virtual void OnExec();
 
+		void PrintTime(vc::MDU* mdu);
 		
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
