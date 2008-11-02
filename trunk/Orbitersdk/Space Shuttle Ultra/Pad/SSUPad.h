@@ -20,6 +20,12 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 	void clbkLoadStateEx(FILEHANDLE scn, void *status);
 	int clbkConsumeBufferedKey(DWORD key, bool down, char *keystate);
+
+	//communication with LCC
+	virtual void MoveOrbiterAccessArm(AnimState::Action action);
+	virtual void MoveGOXArm(AnimState::Action action);
+	virtual AnimState::Action GetAccessArmState();
+	virtual AnimState::Action GetGOXArmState();
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
