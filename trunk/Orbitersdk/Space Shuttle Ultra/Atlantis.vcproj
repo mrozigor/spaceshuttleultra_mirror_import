@@ -411,7 +411,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GPC.cpp"
+				RelativePath=".\dps\GPC.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GPC_old.cpp"
 				>
 			</File>
 			<File
@@ -663,6 +667,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\GNCSoftware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\GPC.h"
 				>
 			</File>
 			<File

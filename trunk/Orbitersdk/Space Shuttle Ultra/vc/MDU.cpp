@@ -684,6 +684,9 @@ namespace vc {
 			//TextOut(hDC, 185, 180, "  ON   39", 9);
 			//TextOut(hDC, 185, 189, "  OFF  40", 9);*/
 		}
+		else {
+			prim_idp->OnPaint(this);
+		}
 	}
 
 	void MDU::PrintToBuffer(char* string, int length, int col, int row, char attributes)

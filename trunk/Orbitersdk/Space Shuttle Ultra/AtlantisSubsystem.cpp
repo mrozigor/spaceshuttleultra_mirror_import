@@ -68,6 +68,20 @@ void AtlantisSubsystem::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 {
 }
 
+void AtlantisSubsystem::OnSubPostStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+void AtlantisSubsystem::OnSubPreStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+void AtlantisSubsystem::OnSubPropagate(double fSimT, double fDeltaT, double fMJD)
+{
+}
+
 void AtlantisSubsystem::OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event)
 {
 }

@@ -10,13 +10,14 @@
 #endif // _MSC_VER > 1000
 
 #include "..\AtlantisSubsystem.h"
+#include "GPC.h"
 
 namespace dps {
 
 	class GPCMemoryConfiguration;
 	class GPCSoftware;
 
-	class AP101S : public AtlantisSubsystem  
+	class AP101S : public GPC  
 	{
 	
 	// ===================================================
@@ -41,6 +42,8 @@ namespace dps {
 	// Simulation variables
 	// software modules and their scheduling
 	// ===================================================
+
+		vector<GPCSoftware*> software;
 #endif
 	// ===================================================
 	// General submodules: IOP
@@ -50,6 +53,7 @@ namespace dps {
 	// transmits data half words from the memory over 
 	// the MIAs. 
 	protected:
+		
 		void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
 		void LoadSoftware(const GPCSoftware* pSoftware);
 	public:
