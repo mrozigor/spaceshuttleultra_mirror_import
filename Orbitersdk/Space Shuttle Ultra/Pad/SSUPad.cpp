@@ -49,6 +49,20 @@ void SSUPad::DefineAnimations()
 	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
 }
 
+void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
+{
+	if(action==AnimState::OPENING || action==AnimState::CLOSING)
+		AccessArmState.action=action;
+}
+
+void SSUPad::MoveGOXArm(AnimState::Action action)
+{
+	if(action==AnimState::OPENING || action==AnimState::CLOSING) {
+		GOXArmAction=action;
+		GOXArmSequence();
+	}
+}
+
 void SSUPad::GOXArmSequence()
 {
 	if(GOXArmAction==AnimState::OPENING) {
@@ -81,8 +95,20 @@ void SSUPad::GOXArmSequence()
 	}
 }
 
+AnimState::Action SSUPad::GetAccessArmState()
+{
+	return AccessArmState.action;
+}
+
+AnimState::Action SSUPad::GetGOXArmState()
+{
+	return GOXArmAction;
+}
+
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 {
+	VESSEL2::clbkPreStep(simt, simdt, mjd);
+
 	if(AccessArmState.Moving()) {
 		double dp=simdt*ORBITER_ACCESS_ARM_RATE;
 		AccessArmState.Move(dp);
