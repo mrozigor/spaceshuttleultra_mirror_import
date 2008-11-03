@@ -116,7 +116,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib gdi32.lib"
-				OutputFile="..\..\..\Modules\SSULCC.dll"
+				OutputFile="..\..\Modules\SSULCC.dll"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 			/>
 			<Tool
