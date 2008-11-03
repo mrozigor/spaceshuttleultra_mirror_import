@@ -35,6 +35,7 @@
 #include "SubsystemDirector.h"
 #include "dps/MasterTimingUnit.h"
 #include "dps/IDP.h"
+#include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
@@ -392,6 +393,13 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2", 2));
   psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3", 3));
   psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4", 4));
+
+  psubsystems->AddSubsystem(pGPC[0] = new dps::AP101S(psubsystems, "GPC1", 1));
+  psubsystems->AddSubsystem(pGPC[1] = new dps::AP101S(psubsystems, "GPC2", 2));
+  psubsystems->AddSubsystem(pGPC[2] = new dps::AP101S(psubsystems, "GPC3", 3));
+  psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
+  psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
+
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
 

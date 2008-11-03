@@ -43,6 +43,7 @@ namespace dps {
 	class MasterTimingUnit;
 	class ShuttleBus;
 	class TimeBus;
+	class AP101S;
 	/**
 	 * Connection between Shuttle Bus and subsystems.
 	 */

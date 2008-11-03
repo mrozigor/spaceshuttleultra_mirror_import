@@ -12,9 +12,10 @@ namespace dps {
 	 */
 	class GPC:public AtlantisSubsystem {
 	protected:
+		unsigned short usGPCID;
 		virtual void OnIOPPrestep(double fSimT, double fDeltaT, double fMJD);
 	public:
-		GPC(SubsystemDirector* _direct, const string& _ident);
+		GPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
 		virtual ~GPC();
 		virtual void IPL();
 		virtual void LoadMemoryConfiguration(unsigned short usMemConfig);

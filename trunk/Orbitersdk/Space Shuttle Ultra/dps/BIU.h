@@ -5,15 +5,19 @@
 namespace dps {
 
 	class BIU {
-		RAM16* pRAMBuffer;
+		unsigned short usReceiveBuffer[1024];
+		unsigned short usTransmitBuffer[1024];
 		ShuttleBus* pBus;
 		bool bIsBusMaster;
 	public:
-		BIU(RAM16* pRAMBuffer, bool bIsMaster = false);
+		BIU(bool bIsMaster = false);
 		virtual ~BIU();
-		void ConnectToBus(ShuttleBus* pBus);
+		void Connect(ShuttleBus* pBus);
 		void MakeBusMaster();
 		void Listen();
 		virtual void OnNewMessage();
+		virtual void SendFloat(float fValue);
+		virtual void SendWord(short sValue);
+		//virtual void Transmit();
 	};
 };

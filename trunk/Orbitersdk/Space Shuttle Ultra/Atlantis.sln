@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis", "Atlantis.vcproj", "{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtlantisConfig", "AtlantisConfig.vcproj", "{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}"
@@ -11,11 +11,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Tank", "Atlantis_T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HALFC", "HALFC\HALFC.vcproj", "{29FF9529-2231-4F21-AA18-37C7A7EA9933}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRT", "CRT.vcproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomMFD", "CRT.vcproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_MLP", "Atlantis_MLP.vcproj", "{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Chute", "Atlantis_Chute.vcproj", "{66D11E71-6424-4736-B0B9-5198C3123337}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_LCC", "SSU_LCC.vcproj", "{6AA00238-939E-4767-8C58-7DC86CEBC891}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_Pad", "SSU_Pad.vcproj", "{863D8238-BF90-4D45-A9A6-EC74E8D17928}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,14 @@ Global
 		{66D11E71-6424-4736-B0B9-5198C3123337}.Debug|Win32.Build.0 = Debug|Win32
 		{66D11E71-6424-4736-B0B9-5198C3123337}.Release|Win32.ActiveCfg = Release|Win32
 		{66D11E71-6424-4736-B0B9-5198C3123337}.Release|Win32.Build.0 = Release|Win32
+		{6AA00238-939E-4767-8C58-7DC86CEBC891}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6AA00238-939E-4767-8C58-7DC86CEBC891}.Debug|Win32.Build.0 = Debug|Win32
+		{6AA00238-939E-4767-8C58-7DC86CEBC891}.Release|Win32.ActiveCfg = Release|Win32
+		{6AA00238-939E-4767-8C58-7DC86CEBC891}.Release|Win32.Build.0 = Release|Win32
+		{863D8238-BF90-4D45-A9A6-EC74E8D17928}.Debug|Win32.ActiveCfg = Debug|Win32
+		{863D8238-BF90-4D45-A9A6-EC74E8D17928}.Debug|Win32.Build.0 = Debug|Win32
+		{863D8238-BF90-4D45-A9A6-EC74E8D17928}.Release|Win32.ActiveCfg = Release|Win32
+		{863D8238-BF90-4D45-A9A6-EC74E8D17928}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

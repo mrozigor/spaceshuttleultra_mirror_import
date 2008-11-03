@@ -10,14 +10,26 @@
 
 namespace dps {
 
-ShuttleBus::ShuttleBus(const string& _ident)
-{
+	ShuttleBus::ShuttleBus(const string& _ident)
+	{
+	
+	}
 
-}
+	ShuttleBus::~ShuttleBus()
+	{
+	
+	}
 
-ShuttleBus::~ShuttleBus()
-{
+	void ShuttleBus::Connect(BIU* pTarget) {
+		connections.insert(pTarget);
+	}
 
-}
+	const string& ShuttleBus::GetIdent() const {
+		return ident;
+	}
+
+	long ShuttleBus::Transmit(unsigned short usNumData, unsigned short usData[]) {
+		return 0;
+	}
 
 };
