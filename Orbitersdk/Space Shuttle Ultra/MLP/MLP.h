@@ -14,9 +14,10 @@ const VECTOR3 HDP_POS = _V(0, -0.91, -4.05);
 
 class MLP: public VESSEL2
 {
-	MESHHANDLE mshMLP;
+	
 public:
 	virtual void SignalGSEStart();
+	virtual void OnT0();
 	virtual void TriggerHDP();
 	virtual void ActivateSSS();
 	MLP(OBJHANDLE hVessel, int iFlightModel);
@@ -30,6 +31,7 @@ public:
 	virtual void clbkVisualCreated(VISHANDLE _vis, int refcount);
 	virtual void clbkVisualDestroyed(VISHANDLE _vis, int refcount);
 private:
+	MESHHANDLE mshMLP;
 	double fCountdown;
 	bool bStartSequence;
 	void CalculateSteamProduction(double fSimT, double fDeltaT);
@@ -44,10 +46,20 @@ private:
 	UINT msh_idx;
 	VISHANDLE vis;
 
+	UINT anim_t0umb;			//T0 umbilical animation
+
 	void TurnOnPadLights();
 	void TurnOffPadLights();
 
 	Atlantis* GetShuttleOnPad();
+
+	double CalculateThrustPower(
+		const VECTOR3& vtx_lt,
+		const VECTOR3& vtx_rt,
+		const VECTOR3& vtx_lb,
+		const VECTOR3& vtx_rb);
+
+	void DefineAnimations();
 };
 
 #endif

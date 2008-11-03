@@ -36,7 +36,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 
 	if(pFSS) {
 		double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
-		sprintf_s(oapiDebugString(), 255, "LCC: %f %f", launch_mjd, timeToLaunch);
+		//sprintf_s(oapiDebugString(), 255, "LCC: %f %f", launch_mjd, timeToLaunch);
 		if(timeToLaunch<=450.0 && lastTTL>=450.0) //retract orbiter access arm
 		{
 			pFSS->MoveOrbiterAccessArm(AnimState::CLOSING);
