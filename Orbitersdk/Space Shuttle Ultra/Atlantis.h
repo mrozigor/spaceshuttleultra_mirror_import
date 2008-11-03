@@ -974,6 +974,7 @@ public:
 	 * **************************************************/
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	dps::IDP* pIDP[4];
+	dps::GPC* pGPC[5];
 	OMSSubsystem* pOMS;
 	mps::SSME* pSSME[3];
 	/**
