@@ -5391,6 +5391,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	psubsystems->PostStep(simt, simdt, mjd);
 	pgForward.OnPostStep(simt, simdt, mjd);
 
+	//sprintf_s(oapiDebugString(), 255, "ORBITER STATUS %d", status);
+
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
 		if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
@@ -7334,11 +7336,13 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 
 void Atlantis::ShowODS()
 {
+	SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 }
 
 void Atlantis::HideODS()
 {
+	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 }
 
