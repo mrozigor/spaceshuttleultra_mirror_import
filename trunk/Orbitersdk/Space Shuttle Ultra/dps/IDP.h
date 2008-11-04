@@ -124,7 +124,7 @@ namespace dps {
 		unsigned short GetSpec() const;
 		unsigned short GetDisp() const;
 		unsigned short GetKeyboardSelection() const;
-		MAJORFUNCTION GetMajfunc() const;
+		virtual MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
 		virtual const char* GetScratchPadLineScan() const;
 		/**

@@ -189,8 +189,11 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
-		if( (id>=vc::MDUID_CRT1 && id<=vc::MDUID_CRT4) || 
-			sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==0) //GNC
+		vc::MDU* pMDU=sts->GetMDU(usMDU);
+		dps::IDP* pIDP=sts->GetIDP(pMDU->GetDrivingIDP());
+		/*if( (id>=vc::MDUID_CRT1 && id<=vc::MDUID_CRT4) || 
+			sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==0) //GNC*/
+		if(pIDP->GetMajfunc()==dps::GNC)
 		{
 			if(sts->ops==201) {
 				switch(spec) {
@@ -218,7 +221,8 @@ void CRT::Update (HDC hDC)
 				DrawCommonHeader(hDC);
 			}
 		}
-		else if(sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==1) //SM
+		//else if(sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==1) //SM
+		else if(pIDP->GetMajfunc()==dps::SM)
 		{
 			if(sts->ops == 0) {
 				GPCMEMORY(hDC);
@@ -660,204 +664,18 @@ void CRT::APUHYD(HDC hDC)
 
 void CRT::UNIVPTG(HDC hDC)
 {
-	char cbuf[255];
-
-	//oapiWriteLog("Calling Paint 1");
 	vc::MDU* mdu=sts->GetMDU(id);
-	//oapiWriteLog("Calling Paint 2");
 	if(mdu) mdu->Paint(hDC);
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
 	return;
-
-	SelectDefaultFont(hDC, 0);
-
-	//PitchYawRoll=ToDeg(CalcPitchYawRollAngles());
-	sts->GetAngularVel(AngularVelocity);
-	//sts->GetGlobalOrientation(InertialOrientationRad);
-	/*for(int nPos=0;nPos<3;nPos++) {
-		InertialOrientation.data[nPos]=DEG*InertialOrientationRad.data[nPos];
-		if(InertialOrientation.data[nPos]<0.0) InertialOrientation.data[nPos]+=360.0;
-	}*/
-
-	TextOut(hDC, 0, 0, "2011/    /", 10);
-	TextOut(hDC, 100, 0, "UNIV PTG", 8);
-	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
-	TextOut(hDC, 170, 0, cbuf, strlen(cbuf));
-	
-	sprintf(cbuf, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
-		sts->START_TIME[0], sts->START_TIME[1], sts->START_TIME[2], sts->START_TIME[3]);
-	TextOut(hDC, 0, 18, cbuf, strlen(cbuf));
-	
-	TextOut(hDC, 0, 36, "MNVR OPTION", 11);
-	sprintf(cbuf,"5 R %6.2f", sts->MNVR_OPTION.data[ROLL]);
-	TextOut(hDC, 0, 45, cbuf, strlen(cbuf));
-	sprintf(cbuf,"6 P %6.2f", sts->MNVR_OPTION.data[PITCH]);
-	TextOut(hDC, 0, 54, cbuf, strlen(cbuf));
-	sprintf(cbuf,"7 Y %6.2f", sts->MNVR_OPTION.data[YAW]);
-	TextOut(hDC, 0, 63, cbuf, strlen(cbuf));
-
-	TextOut(hDC, 0, 81, "TRK/ROT OPTIONS", 15);
-	sprintf(cbuf, " 8 TGT ID %03d", sts->TGT_ID);
-	TextOut(hDC, 0, 90, cbuf, strlen(cbuf));
-
-	TextOut(hDC, 0, 108, " 9  RA", 6);
-	TextOut(hDC, 0, 117, " 10 DEC", 7);
-	TextOut(hDC, 0, 126, " 11 LAT", 7);
-	TextOut(hDC, 0, 135, " 12 LON", 7);
-	TextOut(hDC, 0, 144, " 13 ALT", 7);
-
-	sprintf(cbuf, " 14 BODY VECT %d", sts->BODY_VECT);
-	TextOut(hDC, 0, 198, cbuf, strlen(cbuf));
-	sprintf(cbuf, " 15 P %6.2f", sts->P);
-	TextOut(hDC, 0, 207, cbuf, strlen(cbuf));
-	sprintf(cbuf, " 16 Y %6.2f", sts->Y);
-	TextOut(hDC, 0, 216, cbuf, strlen(cbuf));
-	if(sts->OM>=0.0) {
-		sprintf(cbuf, " 17 OM %6.2f", sts->OM);
-		TextOut(hDC, 0, 225, cbuf, strlen(cbuf));
-	}
-	else TextOut(hDC, 0, 225, " 17 OM", 6);
-
-	TextOut(hDC, 90, 36, "START MNVR 18", 13);
-	TextOut(hDC, 132, 45, "TRK  19", 7);
-	TextOut(hDC, 132, 54, "ROT  20", 7);
-	TextOut(hDC, 125, 63, "CNCL  21", 8);
-	TextOut(hDC, 185, 27, "CUR", 3);
-	TextOut(hDC, 215, 27, "FUT", 3);
-	if(sts->MNVR) {
-		if(sts->ManeuverinProg) TextOut(hDC, 190, 36, "X", 1);
-		else TextOut(hDC, 222, 36, "X", 1);
-	}
-	else if(sts->TRK) {
-		if(sts->ManeuverinProg) TextOut(hDC, 190, 45, "X", 1);
-		else TextOut(hDC, 222, 45, "X", 1);
-	}
-	else if(sts->ROT) {
-		if(sts->ManeuverinProg) TextOut(hDC, 190, 54, "X", 1);
-		else TextOut(hDC, 222, 54, "X", 1);
-	}
-
-	TextOut(hDC, 125, 81, "ATT MON", 7);
-	TextOut(hDC, 125, 90, "22 MON AXIS", 11);
-	TextOut(hDC, 125, 99, "ERR TOT 23", 10);
-	TextOut(hDC, 125, 108, "ERR DAP 24", 10);
-
-	TextOut(hDC, 110, 144, "ROLL    PITCH    YAW", 20);
-	sprintf(cbuf, "CUR   %6.2f  %6.2f  %6.2f", DEG*sts->CurrentAttitude.data[ROLL], DEG*sts->CurrentAttitude.data[PITCH], DEG*sts->CurrentAttitude.data[YAW]);
-	TextOut(hDC, 60, 153, cbuf, strlen(cbuf));
-	sprintf(cbuf, "REQD  %6.2f  %6.2f  %6.2f", sts->REQD_ATT.data[ROLL], sts->REQD_ATT.data[PITCH], sts->REQD_ATT.data[YAW]);
-	TextOut(hDC, 60, 162, cbuf, strlen(cbuf));
-	sprintf(cbuf, "ERR  %+7.2f %+7.2f %+7.2f", sts->PitchYawRoll.data[ROLL], sts->PitchYawRoll.data[PITCH], sts->PitchYawRoll.data[YAW]);
-	TextOut(hDC, 60, 171, cbuf, strlen(cbuf));
-	sprintf(cbuf, "RATE %+7.3f %+7.3f %+7.3f", DEG*AngularVelocity.data[ROLL], DEG*AngularVelocity.data[PITCH], DEG*AngularVelocity.data[YAW]);
-	TextOut(hDC, 60, 180, cbuf, strlen(cbuf));
 }
 
 void CRT::DAP_CONFIG(HDC hDC)
 {
-	char cbuf[255];
-	char *strings[3]={"ALL", "NOSE", "TAIL"};
-	char *Edit[3]={"6/7 EDIT", "EDIT A", "EDIT B"};
-	int lim[3]={3, 5, 5};
-	int i, n;
-
-	//oapiWriteLog("Calling Paint 1");
 	vc::MDU* mdu=sts->GetMDU(id);
-	//oapiWriteLog("Calling Paint 2");
 	if(mdu) mdu->Paint(hDC);
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
 	return;
-
-	SelectDefaultFont(hDC, 0);
-
-	TextOut(hDC, 0, 0, "2011/020/", 9);
-	TextOut(hDC, 80, 0, "DAP CONFIG", 10);
-	sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", sts->MET[0], sts->MET[1], sts->MET[2], sts->MET[3]);
-	TextOut(hDC, 170, 0, cbuf, strlen(cbuf));
-
-	TextOut(hDC, 84, 9, "1 A", 3);
-	TextOut(hDC, 149, 9, "2 B", 3);
-	TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
-	TextOut(hDC, 200, 9, Edit[edit], strlen(Edit[edit]));
-	TextOut(hDC, 200, 18, "8 LOAD", 6);
-
-	TextOut(hDC, 14, 27, "3 PRI", 5);
-	TextOut(hDC, 0, 36, "ROT RATE", 8);
-	TextOut(hDC, 0, 45, "ATT DB", 6);
-	TextOut(hDC, 0, 54, "RATE DB", 7);
-	TextOut(hDC, 0, 63, "ROT PLS", 7);
-	TextOut(hDC, 0, 72, "COMP", 4);
-	TextOut(hDC, 0, 81, "P OPTION", 8);
-	TextOut(hDC, 0, 90, "Y OPTION", 8);
-	TextOut(hDC, 0, 99, "TRAN PLS", 8);
-
-	TextOut(hDC, 14, 108, "4 ALT", 5);
-	TextOut(hDC, 0, 117, "RATE DB", 7);
-	TextOut(hDC, 0, 126, "JET OPT", 7);
-	TextOut(hDC, 0, 135, "# JETS", 6);
-	TextOut(hDC, 0, 144, "ON TIME", 7);
-	TextOut(hDC, 0, 153, "DELAY", 5);
-
-	TextOut(hDC, 14, 162, "5 VERN", 6);
-	TextOut(hDC, 0, 171, "ROT RATE", 8);
-	TextOut(hDC, 0, 180, "ATT DB", 6);
-	TextOut(hDC, 0, 189, "RATE DB", 7);
-	TextOut(hDC, 0, 198, "ROT PLS", 7);
-	TextOut(hDC, 0, 207, "COMP", 4);
-	TextOut(hDC, 0, 216, "CNTL ACC", 8);
-	if(sts->DAPMode[1]==0) TextOut(hDC, 20, 27, "*", 1);
-	else if(sts->DAPMode[1]==1) TextOut(hDC, 20, 108, "*", 1);
-	else TextOut(hDC, 20, 162, "*", 1);
-
-	MoveToEx(hDC, 59, 38, NULL);
-	LineTo (hDC, 59, 229);
-	MoveToEx(hDC, 124, 38, NULL);
-	LineTo (hDC, 124, 229);
-	MoveToEx(hDC, 189, 38, NULL);
-	LineTo (hDC, 189, 229);
-
-	for(n=1, i=0;n<=lim[edit];n+=2, i++) {
-		sprintf(cbuf, "%d %.4f", 10*n, sts->DAP[i].PRI_ROT_RATE);
-		TextOut(hDC, 60+65*i, 36, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+1, sts->DAP[i].PRI_ATT_DB);
-		TextOut(hDC, 60+65*i, 45, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+2, sts->DAP[i].PRI_RATE_DB);
-		TextOut(hDC, 60+65*i, 54, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+3, sts->DAP[i].PRI_ROT_PLS);
-		TextOut(hDC, 60+65*i, 63, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.3f", 10*n+4, sts->DAP[i].PRI_COMP);
-		TextOut(hDC, 60+65*i, 72, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %s", 10*n+5, strings[sts->DAP[i].PRI_P_OPTION]);
-		TextOut(hDC, 60+65*i, 81, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %s", 10*n+6, strings[sts->DAP[i].PRI_Y_OPTION]);
-		TextOut(hDC, 60+65*i, 90, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+7, sts->DAP[i].PRI_TRAN_PLS);
-		TextOut(hDC, 60+65*i, 99, cbuf, strlen(cbuf));
-
-		sprintf(cbuf, "%d %.2f", 10*n+8, sts->DAP[i].ALT_RATE_DB);
-		TextOut(hDC, 60+65*i, 117, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %s", 10*n+9, strings[sts->DAP[i].ALT_JET_OPT]);
-		TextOut(hDC, 60+65*i, 126, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %d", 10*n+10, sts->DAP[i].ALT_JETS);
-		TextOut(hDC, 60+65*i, 135, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+11, sts->DAP[i].ALT_ON_TIME);
-		TextOut(hDC, 60+65*i, 144, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+12, sts->DAP[i].ALT_DELAY);
-		TextOut(hDC, 60+65*i, 153, cbuf, strlen(cbuf));
-
-		sprintf(cbuf, "%d %.4f", 10*n+13, sts->DAP[i].VERN_ROT_RATE);
-		TextOut(hDC, 60+65*i, 171, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+14, sts->DAP[i].VERN_ATT_DB);
-		TextOut(hDC, 60+65*i, 180, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.3f", 10*n+15, sts->DAP[i].VERN_RATE_DB);
-		TextOut(hDC, 60+65*i, 189, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.2f", 10*n+16, sts->DAP[i].VERN_ROT_PLS);
-		TextOut(hDC, 60+65*i, 198, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %.3f", 10*n+17, sts->DAP[i].VERN_COMP);
-		TextOut(hDC, 60+65*i, 207, cbuf, strlen(cbuf));
-		sprintf(cbuf, "%d %d", 10*n+18, sts->DAP[i].VERN_CNTL_ACC);
-		TextOut(hDC, 60+65*i, 216, cbuf, strlen(cbuf));
-	}
 }
 
 void CRT::PASSTRAJ(HDC hdc)

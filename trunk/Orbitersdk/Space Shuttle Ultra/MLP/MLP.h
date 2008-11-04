@@ -47,6 +47,7 @@ private:
 	VISHANDLE vis;
 
 	UINT anim_t0umb;			//T0 umbilical animation
+	AnimState T0UmbilicalState;
 
 	void TurnOnPadLights();
 	void TurnOffPadLights();
