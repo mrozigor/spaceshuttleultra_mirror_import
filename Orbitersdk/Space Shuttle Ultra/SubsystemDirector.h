@@ -33,6 +33,7 @@ public:
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
 	virtual DiscreteBundleManager* BundleManager() const;
+	bool RealizeAll();
 	/**
 	 * @param usMPSNo numerical ID of the SSME
 	 * @param fThrust0 Vacuum thrust

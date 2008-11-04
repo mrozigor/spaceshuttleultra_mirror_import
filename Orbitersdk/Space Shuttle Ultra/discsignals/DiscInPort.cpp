@@ -20,4 +20,15 @@ namespace discsignals {
 		return 0.0;
 	}
 
+
+	DiscDemultiplex16::DiscDemultiplex16() {
+
+	}
+
+	DiscDemultiplex16::~DiscDemultiplex16() {
+	}
+
+	void DiscDemultiplex16::Propagate(double fSimT, double fDeltaT, double fMJD) {
+	}
+
 };

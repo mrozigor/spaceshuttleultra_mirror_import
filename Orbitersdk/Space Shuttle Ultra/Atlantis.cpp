@@ -383,9 +383,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems	  = new SubsystemDirector(this);
 
-  //psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
-  //psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
-  //psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
+  psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
+  psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
+  psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
   
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
 
@@ -4876,6 +4876,8 @@ void Atlantis::clbkSetStateEx (const void *status)
   // reset vessel-specific parameters to defaults
   //status = 3;
   SetOrbiterConfiguration();
+
+  psubsystems->RealizeAll();
 }
 
 // --------------------------------------------------------------
@@ -5214,7 +5216,7 @@ bool Atlantis::ParsePayloadLine(const char* pszLine)
 	char pszKey[100];
 	char pszBuffer[256];
 	float zpos = 0.0, mass = 0.0;
-	int x = 0.0;
+	int x = 0;
 	sscanf_s(pszLine + 8, "%s",
 		pszKey);
 
@@ -5314,6 +5316,8 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
 		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
 	}
+
+	
 
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
@@ -7229,7 +7233,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
   if (!down) return 0; // only process keydown events
 
   if(pCommModeHandler->IsInCommMode())
+  {
 	  return pCommModeHandler->ConsumeBufferedKey(key, down, kstate);
+  }
 
     if (KEYMOD_CONTROL (kstate)) {
 	switch (key) {
@@ -7327,7 +7333,12 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		//gop->RevertLandingGear();
 		DeployLandingGear();
 		return 1;
-    }
+	/*case OAPI_KEY_NUMPADENTER:
+		for(int i = 0; i<3; i++) {
+			SetThrusterLevel(th_main[i], 1.0);
+		}
+		return 1;*/
+	}
   }
   return 0;
 }
@@ -7439,12 +7450,57 @@ void Atlantis::DisableIllumination(UINT idx, MESHHANDLE GlobalMesh)
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
 {
+	if(usMPSNo == 0) {
+		//Set all
+		return SetSSMEParams(1, fThrust0, fISP0, fISP1) &&
+			SetSSMEParams(2, fThrust0, fISP0, fISP1) &&
+			SetSSMEParams(3, fThrust0, fISP0, fISP1);
+	} else if(usMPSNo>3) {
+		//error
+		return false;
+	} else {
+		if(th_main[usMPSNo-1] == NULL)
+			return false;
+
+		SetThrusterMax0(th_main[usMPSNo-1], fThrust0);
+		SetThrusterIsp(th_main[usMPSNo-1], fISP0, fISP1);
+		return true;
+	}
 	return true;
 }
 
 bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 {
+	if(usMPSNo == 0) {
+		//Set all
+		return SetSSMEDir(1, dir) &&
+			SetSSMEDir(2, dir) &&
+			SetSSMEDir(3, dir);
+	} else if(usMPSNo>3) {
+		//error
+		return false;
+	} else {
+		if(th_main[usMPSNo-1] == NULL)
+			return false;
+		SetThrusterDir(th_main[usMPSNo-1], dir);
+	}
+	return true;
+}
 
+bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
+	if(usMPSNo == 0) {
+		//Set all
+		return SetSSMEThrustLevel(1, fThrustLevel) &&
+			SetSSMEThrustLevel(2, fThrustLevel) &&
+			SetSSMEThrustLevel(3, fThrustLevel);
+	} else if(usMPSNo>3) {
+		//error
+		return false;
+	} else {
+		if(th_main[usMPSNo-1] == NULL)
+			return false;
+		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel);
+	}
 	return true;
 }
 

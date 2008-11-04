@@ -15,7 +15,7 @@ namespace mps
 	{
 		ID = nID;
 		//OV = Vessel;
-		thSSME = NULL;
+		//thSSME = NULL;
 
 		dir = _V(0.0, 0.0, 1.0);
 
@@ -47,7 +47,8 @@ namespace mps
 
 	void SSME::Realize()
 	{
-		thSSME = STS()->CreateThruster( pos, dir, FPL_THRUST, phET, ISP0, ISP1);
+		//thSSME = STS()->CreateThruster( pos, dir, FPL_THRUST, phET, ISP0, ISP1);
+		STS()->SetSSMEParams(ID, FPL_THRUST, ISP0, ISP1);
 	}
 
 	double SSME::PCfromOSFStoSTS( double pcOSFS )
@@ -120,7 +121,8 @@ namespace mps
 				else
 				{
 					// keep same pc as before
-					STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+					//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+					STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
 				}
 				break;
 			case STARTMAINSTAGE_FIXEDDENSITY:
@@ -144,7 +146,8 @@ namespace mps
 				}
 				Shutdown( fSimT );
 				// TODO check when all vlvs are closed
-				if (SSME_DATA_TABLE->powerlevel == 0) SSME_DATA_TABLE->STATUS = SHUTDOWN_PROPELLANTVALVESCLOSED;
+				if (SSME_DATA_TABLE->powerlevel == 0) 
+					SSME_DATA_TABLE->STATUS = SHUTDOWN_PROPELLANTVALVESCLOSED;
 				break;
 			case SHUTDOWN_PROPELLANTVALVESCLOSED:
 				// TODO keep running down TPs...
@@ -420,10 +423,11 @@ namespace mps
 		return 0;
 	}
 
+	/*
 	THRUSTER_HANDLE SSME::GetHandle() const
 	{
 		return thSSME;
-	}
+	}*/
 
 // PRIVATE
 
@@ -436,7 +440,8 @@ namespace mps
 		SSME_DATA_TABLE->posMFV = dcMFV_ESC( time - SSME_DATA_TABLE->timeESC );
 		SSME_DATA_TABLE->posCCV = dcCCV_ESC( time - SSME_DATA_TABLE->timeESC );
 
-		STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
 		SSME_DATA_TABLE->powerlevel = pc;
 		return;
 	}
@@ -450,7 +455,8 @@ namespace mps
 		SSME_DATA_TABLE->posMFV = dcMFV_CO( time - SSME_DATA_TABLE->timeCO );
 		SSME_DATA_TABLE->posCCV = dcCCV_CO( time - SSME_DATA_TABLE->timeCO + COtimecoef );
 
-		STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
 		SSME_DATA_TABLE->powerlevel = pc;
 		return;
 	}
@@ -465,7 +471,8 @@ namespace mps
 		//SSME_DATA_TABLE->posMFV = 1;// redundant
 		SSME_DATA_TABLE->posCCV = dcCCV_MS( pc );
 
-		STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
+		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
 		SSME_DATA_TABLE->powerlevel = pc;
 		return;
 	}

@@ -14,4 +14,17 @@ namespace discsignals {
 
 		float GetVoltage() const;
 	};
+
+	class DiscDemultiplex16: public DiscMultiplex {
+	/*protected:
+		unsigned short usLatch;*/
+	public:
+		DiscInPort r[16];
+	public:
+		DiscDemultiplex16();
+		virtual ~DiscDemultiplex16();
+		unsigned short GetValue() const;
+		unsigned short GetValueBCD() const;
+		virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
+	};
 };

@@ -37,5 +37,17 @@ void DiscOutPort::ResetLine()
 }
 
 
+//
+
+	DiscMultiplex16::DiscMultiplex16() {
+
+	}
+
+	DiscMultiplex16::~DiscMultiplex16() {
+	}
+
+	void DiscMultiplex16::Propagate(double fSimT, double fDeltaT, double fMJD) {
+	}
+
 };
 

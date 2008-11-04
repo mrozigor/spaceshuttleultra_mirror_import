@@ -28,7 +28,7 @@ namespace dps {
 		return ident;
 	}
 
-	long ShuttleBus::Transmit(unsigned short usNumData, unsigned short usData[]) {
+	long ShuttleBus::Transmit(unsigned short usTarget, unsigned short usNumData, unsigned short usData[]) {
 		return 0;
 	}
 

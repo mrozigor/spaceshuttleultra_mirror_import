@@ -16,7 +16,7 @@ namespace dps {
 
 	IDP::~IDP()
 	{
-		for(int i = 0; i<software_storage.size(); i++) {
+		for(unsigned int i = 0; i<software_storage.size(); i++) {
 			delete software_storage[i];
 		}
 		software_storage.clear();

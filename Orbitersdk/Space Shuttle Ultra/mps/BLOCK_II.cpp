@@ -80,7 +80,8 @@ namespace mps
 			if (idata3 == 1) SSME_DATA_TABLE->StartEnable = true;
 			activeDCU = (DCU)idata4;
 
-			STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+			//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+			STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
 			return true;
 		}
 		return false;

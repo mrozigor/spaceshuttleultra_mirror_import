@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dps_def.h"
+#include "dps_defs.h"
 
 namespace dps {
 
@@ -9,15 +9,18 @@ namespace dps {
 		unsigned short usTransmitBuffer[1024];
 		ShuttleBus* pBus;
 		bool bIsBusMaster;
+		bool bDontListen;
+		unsigned short usTerminalID;
 	public:
-		BIU(bool bIsMaster = false);
+		BIU();
+		BIU(unsigned short usTerminalID, bool bIsMaster = false);
 		virtual ~BIU();
 		void Connect(ShuttleBus* pBus);
 		void MakeBusMaster();
-		void Listen();
+		void Listen(bool fEnable = true);
 		virtual void OnNewMessage();
-		virtual void SendFloat(float fValue);
-		virtual void SendWord(short sValue);
+		virtual void SendFloat(unsigned short usTarget, float fValue);
+		virtual void SendWord(unsigned short usTarget, short sValue);
 		//virtual void Transmit();
 	};
 };

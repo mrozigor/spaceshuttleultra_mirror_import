@@ -56,6 +56,16 @@ DiscreteBundleManager* SubsystemDirector::BundleManager() const {
 	return psts->BundleManager();
 }
 
+bool SubsystemDirector::RealizeAll() {
+	unsigned long i;
+	for(i = 0; i<subsystems.size(); i++)
+	{
+		//
+		subsystems[i]->Realize();
+	}
+	return true;
+}
+
 void SubsystemDirector::SetClassCaps(FILEHANDLE cfg)
 {
 	unsigned long i;

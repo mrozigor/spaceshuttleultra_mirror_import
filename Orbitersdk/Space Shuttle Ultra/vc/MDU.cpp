@@ -53,7 +53,8 @@ namespace vc {
 
 	const string& MDU::GetEdgekeyMenu() const
 	{
-		return "MAIN MENU";
+		static string r = "MAIN MENU";
+		return r;
 	}
 
 	char* MDU::GetEdgeKeyMenuLabel(int iButton)
@@ -211,7 +212,7 @@ namespace vc {
 					//TextOut(hDC, i*5, j*9, cbuf, 1);
 					int x, y;
 					vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
-					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, x*0.278, y*0.272, SRCCOPY);
+					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
 				}
 			}
 		}
@@ -273,7 +274,7 @@ namespace vc {
 		mfds[i].bt_yofs  = 256/6;
 		mfds[i].bt_ydist = 256/7;
 		*/
-		char pszBuffer[256];
+//		char pszBuffer[256];
 		mfdspec.nbt1 = 5;
 		mfdspec.nbt2 = 0;
 		mfdspec.bt_yofs  = 256/6;
@@ -820,8 +821,8 @@ namespace vc {
 			PrintToBuffer("1041/", 5, 1, 0, 0);
 			PrintToBuffer("OMS 1 MNVR EXEC", 15, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
@@ -829,8 +830,8 @@ namespace vc {
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
@@ -840,16 +841,16 @@ namespace vc {
 			PrintToBuffer("1051/", 5, 1, 0, 0);
 			PrintToBuffer("OMS 2 MNVR EXEC", 15, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -858,16 +859,16 @@ namespace vc {
 			PrintToBuffer("1061/", 5, 1, 0, 0);
 			PrintToBuffer("OMS 2 MNVR COAST", 16, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -876,16 +877,16 @@ namespace vc {
 			PrintToBuffer("2021/", 5, 1, 0, 0);
 			PrintToBuffer("ORBIT MNVR EXEC", 15, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -894,16 +895,16 @@ namespace vc {
 			PrintToBuffer("3011/", 5, 1, 0, 0);
 			PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -912,16 +913,16 @@ namespace vc {
 			PrintToBuffer("3021/", 5, 1, 0, 0);
 			PrintToBuffer("DEORB MNVR EXEC", 15, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -930,16 +931,16 @@ namespace vc {
 			PrintToBuffer("3031/", 5, 1, 0, 0);
 			PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
-				minutes=STS()->oparam.PeT/60;
-				seconds=STS()->oparam.PeT-(60*minutes);
+				minutes=(int)(STS()->oparam.PeT/60);
+				seconds=(int)(STS()->oparam.PeT-(60*minutes));
 				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
 				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
 			}
 			else {
-				minutes=STS()->oparam.ApT/60;
-				seconds=STS()->oparam.ApT-(60*minutes);
+				minutes=(int)(STS()->oparam.ApT/60);
+				seconds=(int)(STS()->oparam.ApT-(60*minutes));
 				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
 				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
 			}
@@ -949,7 +950,7 @@ namespace vc {
 		sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
 		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
 		if(true) { //for the moment, timer will always be drawn; this will change next version
-			timeDiff=STS()->tig-STS()->met+1;
+			timeDiff=(int)(STS()->tig-STS()->met+1);
 			TIMER[0]=timeDiff/86400;
 			TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
 			TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
@@ -1052,8 +1053,8 @@ namespace vc {
 		//LineTo(hDC, 250, 111);
 
 		if(!STS()->BurnInProg) {
-			TGO[0]=STS()->BurnTime/60;
-			TGO[1]=STS()->BurnTime-(TGO[0]*60);
+			TGO[0]=(int)(STS()->BurnTime/60);
+			TGO[1]=(int)(STS()->BurnTime-(TGO[0]*60));
 		}
 		else if(!STS()->BurnCompleted) {
 			double btRemaining=STS()->IgnitionTime+STS()->BurnTime-STS()->met;
