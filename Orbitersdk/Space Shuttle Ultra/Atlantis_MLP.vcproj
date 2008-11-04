@@ -217,6 +217,10 @@
 			RelativePath="..\..\include\DlgCtrl.h"
 			>
 		</File>
+		<File>
+			RelativePath="..\MLP\meshres_MLP.h"
+			>
+		</File>
 		<File
 			RelativePath=".\MLP\MLP.cpp"
 			>

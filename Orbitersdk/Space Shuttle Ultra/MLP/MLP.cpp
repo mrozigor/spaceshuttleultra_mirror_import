@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "MLP.h"
+#include "meshres_MLP.h"
 #include <cstdio>
 
 MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
@@ -64,6 +65,8 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 void MLP::clbkSaveState(FILEHANDLE scn)
 {
 	SaveDefaultState(scn);
+
+	WriteScenario_state(scn, "T0_UMB", T0UmbilicalState);
 }
 
 void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
@@ -71,7 +74,11 @@ void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
 	char* line;
 	while(oapiReadScenario_nextline(scn, line))
 	{
-		ParseScenarioLineEx(line, vs);
+		if(!_strnicmp(line, "T0_UMB", 6)) {
+			sscan_state(line+6, T0UmbilicalState);
+			SetAnimation(anim_t0umb, T0UmbilicalState.pos);
+		}
+		else ParseScenarioLineEx(line, vs);
 	}
 }
 
@@ -133,6 +140,12 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 			bSSS_Active?"ON":"OFF", fT_SSSActive, fSSMESteam, fSRBSteam);
 	}
 	*/
+
+	if(T0UmbilicalState.Moving()) {
+		double dp=fDeltaT;
+		T0UmbilicalState.Move(dp);
+		SetAnimation(anim_t0umb, T0UmbilicalState.pos);
+	}
 }
 
 void MLP::clbkVisualCreated(VISHANDLE _vis, int refcount)
@@ -146,7 +159,10 @@ void MLP::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
 }
 
 void MLP::OnT0() {
+	TriggerHDP();
+
 	//Trigger T0 animation
+	T0UmbilicalState.action=AnimState::OPENING;
 }
 
 void MLP::TurnOnPadLights()
@@ -421,7 +437,20 @@ void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 	}
 }
 
-void MLP::DefineAnimations() {
+void MLP::DefineAnimations()
+{
+	T0UmbilicalState.Set(AnimState::CLOSED, 0.0);
+	anim_t0umb=CreateAnimation(1.0);
+
+	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
+	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
+		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(18.0*RAD));
+	AddAnimationComponent(anim_t0umb, 0, 1, &LeftT0Umb);
+
+	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
+	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
+		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(18.0*RAD));
+	AddAnimationComponent(anim_t0umb, 0, 1, &RightT0Umb);
 }
 
 void MLP::SignalGSEStart()

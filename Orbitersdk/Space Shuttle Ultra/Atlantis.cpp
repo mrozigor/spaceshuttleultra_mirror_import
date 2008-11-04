@@ -4529,7 +4529,7 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	MATRIX3 LocalToGlobal;
 
 	GetRotationMatrix(LocalToGlobal);
-	GetRelativeVel(GetGravityRef(), GVel);
+	GetRelativeVel(GetSurfaceRef(), GVel);
 	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
 	HorizonRot(LocVel, HVel);
 
@@ -4574,7 +4574,7 @@ MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 	MATRIX3 LocalToGlobal;
 
 	GetRotationMatrix(LocalToGlobal);
-	GetRelativeVel(GetGravityRef(), GVel);
+	GetRelativeVel(GetSurfaceRef(), GVel);
 	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
 	HorizonRot(LocVel, HVel);
 
@@ -5390,8 +5390,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	gncsoftware->OnPostStep(simt, simdt, mjd);
 	psubsystems->PostStep(simt, simdt, mjd);
 	pgForward.OnPostStep(simt, simdt, mjd);
-
-	//sprintf_s(oapiDebugString(), 255, "ORBITER STATUS %d", status);
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
@@ -7920,8 +7918,8 @@ dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
 unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
 {
 	VECTOR3 tmpVel;
-	this->GetRelativeVel(GetGravityRef(), tmpVel);
-	this->GetRelativePos(GetGravityRef(), LVLH_Z);
+	this->GetRelativeVel(GetSurfaceRef(), tmpVel);
+	this->GetRelativePos(GetSurfaceRef(), LVLH_Z);
 	
 	double magVel = length(tmpVel);
 
@@ -8128,7 +8126,8 @@ void Atlantis::SignalGSEBreakHDP()
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
 			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
 			{
-				static_cast<MLP*>(pV)->TriggerHDP();
+				//static_cast<MLP*>(pV)->TriggerHDP();
+				static_cast<MLP*>(pV)->OnT0();
 			}
 		}
 	}
