@@ -41,4 +41,13 @@ bool DiscretePort::Disconnect()
 	return true;
 }
 
+	DiscMultiplex::DiscMultiplex() {	
+	}
+
+	DiscMultiplex::~DiscMultiplex() {
+	}
+
+	void DiscMultiplex::Propagate(double fSimT, double fDeltaT, double fMJD) {
+	}
+
 };

@@ -1,8 +1,14 @@
 #pragma once 
 
 #include "../AtlantisSubsystem.h"
+#include "../discsignals/DiscInPort.h"
+#include "../discsignals/DiscOutPort.h"
+#include "BIU.h"
 
 namespace dps {
+
+	using class discsignals::DiscDemultiplex16;
+	using class discsignals::DiscMultiplex16;
 
 	class GPCSoftware;
 
@@ -21,7 +27,13 @@ namespace dps {
 		virtual void LoadMemoryConfiguration(unsigned short usMemConfig);
 	
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
+		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
+	public:
+		//@todo: Number is not unknown, needs research!
+		DiscDemultiplex16 disc_in[4];
+		DiscMultiplex16 disc_out;
+		BIU channel[24];
 	};
 
 };

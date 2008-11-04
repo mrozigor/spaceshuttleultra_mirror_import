@@ -223,7 +223,7 @@ void MLP::ActivateSSS()
 
 void MLP::TriggerHDP()
 {
-	VECTOR3 ownRV;
+//	VECTOR3 ownRV;
 	//Reset Vessel Status if needed
 	VESSELSTATUS2 st;
 	st.version = 2;
@@ -255,7 +255,7 @@ double MLP::CalculateThrustPower(
 		const VECTOR3& vtx_lb,
 		const VECTOR3& vtx_rb) {
 
-	VECTOR3 F, D, DG, B, BG;
+	VECTOR3 D, DG, B, BG;
 	VECTOR3 E1, E2, VP;
 	VECTOR3 T, P, Q;
 	VECTOR3 TUV;
@@ -325,13 +325,9 @@ double MLP::CalculateThrustPower(
 
 void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 {
-	VECTOR3 F, D, DG, B, BG;
-	VECTOR3 M0, M1, M2, M3, MP1, MP2;  //MPS Hole
-	VECTOR3 L0, L1, L2, L3, LP1, LP2;	//Left SRB Hole
-	VECTOR3 R0, R1, R2, R3, RP1, RP2;	//Right SRB Hole
-	VECTOR3 E1, E2, VP;
-	VECTOR3 T, P, Q;
-	VECTOR3 TUV;
+	VECTOR3 M0, M1, M2, M3;  //MPS Hole
+	VECTOR3 L0, L1, L2, L3;	//Left SRB Hole
+	VECTOR3 R0, R1, R2, R3;	//Right SRB Hole
 
 	bool bHitSSME = false;
 	bool bHitSRB = false;

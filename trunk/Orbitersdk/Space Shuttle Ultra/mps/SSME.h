@@ -107,7 +107,7 @@ namespace mps
 		int ID;
 
 		// internal data
-		THRUSTER_HANDLE thSSME;
+		//THRUSTER_HANDLE thSSME;
 
 		PROPELLANT_HANDLE phET; 
 
@@ -205,7 +205,7 @@ namespace mps
 		 */
 		virtual void Realize();
 
-		virtual THRUSTER_HANDLE GetHandle() const;
+		//virtual THRUSTER_HANDLE GetHandle() const;
 
 		// heart beat
 		void OnPostStep( double, double, double );

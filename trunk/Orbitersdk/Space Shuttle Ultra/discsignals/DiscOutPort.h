@@ -26,10 +26,17 @@ public:
 	
 };
 
-class DiscMultiplex {
+
+
+class DiscMultiplex4: public DiscMultiplex {
+protected:
+	unsigned char ucLatch;
 public:
-	DiscMultiplex();
-	virtual ~DiscMultiplex();
+	DiscOutPort r[4];
+public:
+	DiscMultiplex4();
+	virtual ~DiscMultiplex4();
+	void Set(unsigned char ucNewLatch);
 	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 };
 

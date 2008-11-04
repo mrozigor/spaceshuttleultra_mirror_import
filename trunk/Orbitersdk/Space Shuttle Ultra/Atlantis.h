@@ -1126,6 +1126,11 @@ public:
 	 */
 	bool SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir);
 
+	/** 
+	 *	@param fThrustLevel Thrust level from 0.0 to 1.0
+	 */
+	bool SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel);
+
 	virtual void TurnOnPadLights();
 	virtual void TurnOffPadLights();
 	void ToggleGrapple (void);

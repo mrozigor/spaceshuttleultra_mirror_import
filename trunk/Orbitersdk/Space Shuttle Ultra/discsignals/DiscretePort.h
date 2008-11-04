@@ -27,6 +27,13 @@ public:
 	virtual ~DiscretePort();
 };
 
+class DiscMultiplex {
+public:
+	DiscMultiplex();
+	virtual ~DiscMultiplex();
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
+};
+
 };
 
 #endif // !defined(AFX_DISCRETEPORT_H__18D00C82_9652_493D_8A1D_D1CFF223A0B8__INCLUDED_)

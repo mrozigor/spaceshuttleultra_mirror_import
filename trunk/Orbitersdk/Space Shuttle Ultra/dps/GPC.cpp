@@ -27,6 +27,14 @@ namespace dps {
 
 	}
 
+	void GPC::OnPropagate(double fSimT, double fDeltaT, double fMJD) {
+		disc_in[0].Propagate(fSimT, fDeltaT, fMJD);
+		disc_in[1].Propagate(fSimT, fDeltaT, fMJD);
+		disc_in[2].Propagate(fSimT, fDeltaT, fMJD);
+		disc_in[3].Propagate(fSimT, fDeltaT, fMJD);
+		disc_out.Propagate(fSimT, fDeltaT, fMJD);
+	}
+
 	void GPC::OnPostStep(double fSimT, double fDeltaT, double fMJD) {
 
 	}

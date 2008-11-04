@@ -26,7 +26,7 @@ namespace dps {
 		virtual ~ShuttleBus();
 		virtual const string& GetIdent() const;
 		virtual void Connect(BIU* pTarget);
-		virtual long Transmit(unsigned short usNumData, unsigned short usData[]);
+		virtual long Transmit(unsigned short usTarget, unsigned short usNumData, unsigned short usData[]);
 	};
 
 	class BusManager {

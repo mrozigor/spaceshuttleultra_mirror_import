@@ -30,6 +30,7 @@ bool CommModeHandler::ConsumeBufferedKey(DWORD key, bool pressed, char* keymap)
 
 	if(KEYMOD_CONTROL(keymap))
 	{
+		return false;
 	}
 	else if(KEYMOD_ALT(keymap))
 	{

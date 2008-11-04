@@ -345,6 +345,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\BIU.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\BLOCK_II.cpp"
 				>
 			</File>
