@@ -56,83 +56,341 @@ namespace mps
 		// the end
 	}
 
-	bool MPS::OnParseLine( const char* line )// TODO val checks
+	bool MPS::OnParseLine( const char* line )// waiting for .scn format standard
 	{
-		double fdata1 = 0;
-		double fdata2 = 0;
-		double fdata3 = 0;
-		double fdata4 = 0;
-		double fdata5 = 0;
-		double fdata6 = 0;
-		double fdata7 = 0;
-		double fdata8 = 0;
-		double fdata9 = 0;
-		double fdata10 = 0;
-		double fdata11 = 0;
-		double fdata12 = 0;
-		double fdata13 = 0;
-		double fdata14 = 0;
-		double fdata15 = 0;
-		double fdata16 = 0;
-		double fdata17 = 0;
-		double fdata18 = 0;
-		double fdata19 = 0;
+		/*bool pos = true;// open
 
-		if (!_strnicmp( line, "MPS", 3 ))
+		if (strncmp( line, "mpsPV1 ", 7 ) == 0)
 		{
-			sscanf( line + 3, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
-				&fdata1,
-				&fdata2,
-				&fdata3,
-				&fdata4,
-				&fdata5,
-				&fdata6,
-				&fdata7,
-				&fdata8,
-				&fdata9,
-				&fdata10,
-				&fdata11,
-				&fdata12,
-				&fdata13,
-				&fdata14,
-				&fdata15,
-				&fdata16,
-				&fdata17,
-				&fdata18,
-				&fdata19 );
-
-			// TODO set vlv pos using back door
-
+			if (strcmp( line, "mpsPV1 CL" ) == 0) pos = false;
+			ptrPV1->_backdoor( pos );
 			return true;
 		}
+		else if (strncmp( line, "mpsPV2 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV2 CL" ) == 0) pos = false;
+			ptrPV2->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV3 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV3 CL" ) == 0) pos = false;
+			ptrPV3->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV4 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV4 CL" ) == 0) pos = false;
+			ptrPV4->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV5 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV5 CL" ) == 0) pos = false;
+			ptrPV5->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV6 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV6 CL" ) == 0) pos = false;
+			ptrPV6->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV7 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV7 CL" ) == 0) pos = false;
+			ptrPV7->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV8 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV8 CL" ) == 0) pos = false;
+			ptrPV8->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV9 ", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV9 CL" ) == 0) pos = false;
+			ptrPV9->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV10", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV10 CL" ) == 0) pos = false;
+			ptrPV10->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV11", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV11 CL" ) == 0) pos = false;
+			ptrPV11->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV12", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV12 CL" ) == 0) pos = false;
+			ptrPV12->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV13", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV13 CL" ) == 0) pos = false;
+			ptrPV13->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV17", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV17 CL" ) == 0) pos = false;
+			ptrPV17->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV18", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV18 CL" ) == 0) pos = false;
+			ptrPV18->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV19", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV19 CL" ) == 0) pos = false;
+			ptrPV19->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV20", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV20 CL" ) == 0) pos = false;
+			ptrPV20->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV21", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV21 CL" ) == 0) pos = false;
+			ptrPV21->_backdoor( pos );
+			return true;
+		}
+		else if (strncmp( line, "mpsPV22", 7 ) == 0)
+		{
+			if (strcmp( line, "mpsPV22 CL" ) == 0) pos = false;
+			ptrPV22->_backdoor( pos );
+			return true;
+		}*/
+
 		return false;
 	}
 
-	void MPS::OnSaveState( FILEHANDLE scn ) const
+	void MPS::OnSaveState( FILEHANDLE scn ) const// waiting for .scn format standard
 	{
-		char sdata[256];
+		/*char line[16];
 
-		sprintf( sdata, "  MPS %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
-			(double)ptrPV1->GetPos(),
-			(double)ptrPV2->GetPos(), 
-			(double)ptrPV3->GetPos(),
-			(double)ptrPV4->GetPos(),
-			(double)ptrPV5->GetPos(), 
-			(double)ptrPV6->GetPos(),
-			(double)ptrPV7->GetPos(),
-			(double)ptrPV8->GetPos(), 
-			(double)ptrPV9->GetPos(),
-			(double)ptrPV10->GetPos(),
-			(double)ptrPV11->GetPos(), 
-			(double)ptrPV12->GetPos(),
-			(double)ptrPV13->GetPos(),
-			(double)ptrPV17->GetPos(), 
-			(double)ptrPV18->GetPos(),
-			(double)ptrPV19->GetPos(),
-			(double)ptrPV20->GetPos(),
-			(double)ptrPV21->GetPos(),
-			(double)ptrPV22->GetPos() );
-		oapiWriteLine( scn, sdata );
+		strcpy( line, "  mpsPV1 " );
+		if (ptrPV1->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV2 " );
+		if (ptrPV2->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV3 " );
+		if (ptrPV3->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV4 " );
+		if (ptrPV4->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV5 " );
+		if (ptrPV5->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV6 " );
+		if (ptrPV6->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV7 " );
+		if (ptrPV7->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV8 " );
+		if (ptrPV8->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV9 " );
+		if (ptrPV9->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV10 " );
+		if (ptrPV10->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV11 " );
+		if (ptrPV11->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV12 " );
+		if (ptrPV12->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV13 " );
+		if (ptrPV13->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV17 " );
+		if (ptrPV17->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV18 " );
+		if (ptrPV18->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV19 " );
+		if (ptrPV19->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV20 " );
+		if (ptrPV20->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV21 " );
+		if (ptrPV21->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );
+
+		strcpy( line, "  mpsPV22 " );
+		if (ptrPV22->GetPos() == true)
+		{
+			strcat( line, "OP" );
+		}
+		else
+		{
+			strcat( line, "CL" );
+		}
+		oapiWriteLine( scn, line );*/
+
 		return;
 	}
 
@@ -300,25 +558,25 @@ namespace mps
 
 	void MPS::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
-		ptrPV1->tmestp( fSimT );
-		ptrPV2->tmestp( fSimT );
-		ptrPV3->tmestp( fSimT );
-		ptrPV4->tmestp( fSimT );
-		ptrPV5->tmestp( fSimT );
-		ptrPV6->tmestp( fSimT );
-		ptrPV7->tmestp( fSimT );
-		ptrPV8->tmestp( fSimT );
-		ptrPV9->tmestp( fSimT );
-		ptrPV10->tmestp( fSimT );
-		ptrPV11->tmestp( fSimT );
-		ptrPV12->tmestp( fSimT );
-		ptrPV13->tmestp( fSimT );
-		ptrPV17->tmestp( fSimT );
-		ptrPV18->tmestp( fSimT );
-		ptrPV19->tmestp( fSimT );
-		ptrPV20->tmestp( fSimT );
-		ptrPV21->tmestp( fSimT );
-		ptrPV22->tmestp( fSimT );
+		ptrPV1->tmestp( fDeltaT );
+		ptrPV2->tmestp( fDeltaT );
+		ptrPV3->tmestp( fDeltaT );
+		ptrPV4->tmestp( fDeltaT );
+		ptrPV5->tmestp( fDeltaT );
+		ptrPV6->tmestp( fDeltaT );
+		ptrPV7->tmestp( fDeltaT );
+		ptrPV8->tmestp( fDeltaT );
+		ptrPV9->tmestp( fDeltaT );
+		ptrPV10->tmestp( fDeltaT );
+		ptrPV11->tmestp( fDeltaT );
+		ptrPV12->tmestp( fDeltaT );
+		ptrPV13->tmestp( fDeltaT );
+		ptrPV17->tmestp( fDeltaT );
+		ptrPV18->tmestp( fDeltaT );
+		ptrPV19->tmestp( fDeltaT );
+		ptrPV20->tmestp( fDeltaT );
+		ptrPV21->tmestp( fDeltaT );
+		ptrPV22->tmestp( fDeltaT );
 		return;
 	}
 }
