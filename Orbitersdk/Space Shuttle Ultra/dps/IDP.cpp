@@ -12,6 +12,12 @@ namespace dps {
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
 		CreateSoftware();
+
+		dk_channel.Init(this, "DK", 10, false);
+		fc_channel[0].Init(this, "FC1", 9+usIDPID, false);
+		fc_channel[1].Init(this, "FC2", 9+usIDPID, false);
+		fc_channel[2].Init(this, "FC3", 9+usIDPID, false);
+		fc_channel[3].Init(this, "FC4", 9+usIDPID, false);
 	}
 
 	IDP::~IDP()

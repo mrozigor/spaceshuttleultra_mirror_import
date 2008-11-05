@@ -1,4 +1,5 @@
 #include "GPC.h"
+#include <sstream>
 
 namespace dps {
 
@@ -6,6 +7,14 @@ namespace dps {
 		: AtlantisSubsystem(_direct, _ident)
 	{
 		this->usGPCID = usGPCID;
+
+		ostringstream sbuf;
+
+		for(int i = 0; i<24; i++) {
+			sbuf.str("");
+			sbuf << "MIA" << i + 1;
+			channel[i].Init(this, sbuf.str(), usGPCID, false);
+		}
 	}
 
 	GPC::~GPC() {

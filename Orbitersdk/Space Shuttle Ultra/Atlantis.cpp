@@ -8769,6 +8769,10 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[19]));
 	pBus->ConnectTo(&(pGPC[3]->channel[19]));
 	pBus->ConnectTo(&(pGPC[4]->channel[19]));
+	pBus->ConnectTo(&(pIDP[0]->fc_channel[0]));
+	pBus->ConnectTo(&(pIDP[1]->fc_channel[0]));
+	pBus->ConnectTo(&(pIDP[2]->fc_channel[0]));
+	pBus->ConnectTo(&(pIDP[3]->fc_channel[0]));
 
 	pBus = BusManager()->GetBus("FC2");
 	pBus->ConnectTo(&(pGPC[0]->channel[20]));
@@ -8776,20 +8780,35 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[20]));
 	pBus->ConnectTo(&(pGPC[3]->channel[20]));
 	pBus->ConnectTo(&(pGPC[4]->channel[20]));
+	pBus->ConnectTo(&(pIDP[0]->fc_channel[1]));
+	pBus->ConnectTo(&(pIDP[1]->fc_channel[1]));
+	pBus->ConnectTo(&(pIDP[2]->fc_channel[1]));
+	pBus->ConnectTo(&(pIDP[3]->fc_channel[1]));
+
 
 	pBus = BusManager()->GetBus("FC3");
-	pBus->ConnectTo(&(pGPC[0]->channel[23]));
-	pBus->ConnectTo(&(pGPC[1]->channel[23]));
-	pBus->ConnectTo(&(pGPC[2]->channel[23]));
-	pBus->ConnectTo(&(pGPC[3]->channel[23]));
-	pBus->ConnectTo(&(pGPC[4]->channel[23]));
+	pBus->ConnectTo(&(pGPC[0]->channel[21]));
+	pBus->ConnectTo(&(pGPC[1]->channel[21]));
+	pBus->ConnectTo(&(pGPC[2]->channel[21]));
+	pBus->ConnectTo(&(pGPC[3]->channel[21]));
+	pBus->ConnectTo(&(pGPC[4]->channel[21]));
+	pBus->ConnectTo(&(pIDP[0]->fc_channel[2]));
+	pBus->ConnectTo(&(pIDP[1]->fc_channel[2]));
+	pBus->ConnectTo(&(pIDP[2]->fc_channel[2]));
+	pBus->ConnectTo(&(pIDP[3]->fc_channel[2]));
+
 
 	pBus = BusManager()->GetBus("FC4");
-	pBus->ConnectTo(&(pGPC[0]->channel[24]));
-	pBus->ConnectTo(&(pGPC[1]->channel[24]));
-	pBus->ConnectTo(&(pGPC[2]->channel[24]));
-	pBus->ConnectTo(&(pGPC[3]->channel[24]));
-	pBus->ConnectTo(&(pGPC[4]->channel[24]));
+	pBus->ConnectTo(&(pGPC[0]->channel[22]));
+	pBus->ConnectTo(&(pGPC[1]->channel[22]));
+	pBus->ConnectTo(&(pGPC[2]->channel[22]));
+	pBus->ConnectTo(&(pGPC[3]->channel[22]));
+	pBus->ConnectTo(&(pGPC[4]->channel[22]));
+	pBus->ConnectTo(&(pIDP[0]->fc_channel[3]));
+	pBus->ConnectTo(&(pIDP[1]->fc_channel[3]));
+	pBus->ConnectTo(&(pIDP[2]->fc_channel[3]));
+	pBus->ConnectTo(&(pIDP[3]->fc_channel[3]));
+
 
 	pBus = BusManager()->GetBus("FC5");
 	pBus->ConnectTo(&(pGPC[0]->channel[13]));
@@ -8832,6 +8851,20 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[10]));
 	pBus->ConnectTo(&(pGPC[3]->channel[10]));
 	pBus->ConnectTo(&(pGPC[4]->channel[10]));
+
+	pBus = BusManager()->GetBus("LB1");
+	pBus->ConnectTo(&(pGPC[0]->channel[11]));
+	pBus->ConnectTo(&(pGPC[1]->channel[11]));
+	pBus->ConnectTo(&(pGPC[2]->channel[11]));
+	pBus->ConnectTo(&(pGPC[3]->channel[11]));
+	pBus->ConnectTo(&(pGPC[4]->channel[11]));
+
+	pBus = BusManager()->GetBus("LB2");
+	pBus->ConnectTo(&(pGPC[0]->channel[12]));
+	pBus->ConnectTo(&(pGPC[1]->channel[12]));
+	pBus->ConnectTo(&(pGPC[2]->channel[12]));
+	pBus->ConnectTo(&(pGPC[3]->channel[12]));
+	pBus->ConnectTo(&(pGPC[4]->channel[12]));
 
 }
 

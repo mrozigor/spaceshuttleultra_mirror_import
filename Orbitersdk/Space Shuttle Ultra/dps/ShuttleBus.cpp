@@ -5,6 +5,7 @@
 #include <OrbiterAPI.h>
 #include "ShuttleBus.h"
 #include "BIU.h"
+#include "../AtlantisSubsystem.h"
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -25,10 +26,20 @@ namespace dps {
 
 	void ShuttleBus::ConnectTo(BIU* pTarget) {
 		char pszBuffer[255];
+		char pszBIABuffer[255];
 		pTarget->ConnectTo(this);
 		connections.insert(pTarget);
-		sprintf_s(pszBuffer, 255, "ShuttleBus::ConnectTo(): Connect bus \"%s\"",
-			GetIdent().c_str());
+		if(pTarget->GetParent() != NULL) {
+			sprintf_s(pszBIABuffer, 255, "%s-%s", 
+				pTarget->GetParent()->GetQualifiedIdentifier().c_str(),
+				pTarget->GetLabel().c_str());
+		} else {
+			sprintf_s(pszBIABuffer, 255, "%s", 
+				pTarget->GetLabel().c_str());
+		}
+		sprintf_s(pszBuffer, 255, "ShuttleBus::ConnectTo(): Connect bus \"%s\" to \"%s\"",
+			GetIdent().c_str(),
+			pszBIABuffer);
 		oapiWriteLog(pszBuffer);		
 	}
 
