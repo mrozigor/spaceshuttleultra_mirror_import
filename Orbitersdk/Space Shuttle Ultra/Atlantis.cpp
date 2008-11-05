@@ -388,6 +388,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
   psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
   psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
+
+  psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
+  psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
+  psubsystems->AddSubsystem(pEIU[2] = new mps::EIU(psubsystems, "EIU3", 3, pSSME[2]));
   
   psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
 
@@ -8816,6 +8820,10 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[13]));
 	pBus->ConnectTo(&(pGPC[3]->channel[13]));
 	pBus->ConnectTo(&(pGPC[4]->channel[13]));
+	pBus->ConnectTo(&(pEIU[0]->mia[0]));
+	pBus->ConnectTo(&(pEIU[1]->mia[0]));
+	pBus->ConnectTo(&(pEIU[2]->mia[0]));
+
 
 	pBus = BusManager()->GetBus("FC6");
 	pBus->ConnectTo(&(pGPC[0]->channel[14]));
@@ -8823,6 +8831,10 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[14]));
 	pBus->ConnectTo(&(pGPC[3]->channel[14]));
 	pBus->ConnectTo(&(pGPC[4]->channel[14]));
+	pBus->ConnectTo(&(pEIU[0]->mia[1]));
+	pBus->ConnectTo(&(pEIU[1]->mia[1]));
+	pBus->ConnectTo(&(pEIU[2]->mia[1]));
+
 
 	pBus = BusManager()->GetBus("FC7");
 	pBus->ConnectTo(&(pGPC[0]->channel[15]));
@@ -8830,6 +8842,10 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[15]));
 	pBus->ConnectTo(&(pGPC[3]->channel[15]));
 	pBus->ConnectTo(&(pGPC[4]->channel[15]));
+	pBus->ConnectTo(&(pEIU[0]->mia[2]));
+	pBus->ConnectTo(&(pEIU[1]->mia[2]));
+	pBus->ConnectTo(&(pEIU[2]->mia[2]));
+
 
 	pBus = BusManager()->GetBus("FC8");
 	pBus->ConnectTo(&(pGPC[0]->channel[16]));
@@ -8837,6 +8853,10 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[16]));
 	pBus->ConnectTo(&(pGPC[3]->channel[16]));
 	pBus->ConnectTo(&(pGPC[4]->channel[16]));
+	pBus->ConnectTo(&(pEIU[0]->mia[3]));
+	pBus->ConnectTo(&(pEIU[1]->mia[3]));
+	pBus->ConnectTo(&(pEIU[2]->mia[3]));
+
 
 	pBus = BusManager()->GetBus("PL1");
 	pBus->ConnectTo(&(pGPC[0]->channel[9]));

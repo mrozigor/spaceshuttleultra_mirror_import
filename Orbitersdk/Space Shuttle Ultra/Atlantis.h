@@ -20,6 +20,7 @@
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
 #include "mps/SSME.h"
+#include "mps/EIU.h"
 #include "vc/vc_defs.h"
 #include "vc/PanelGroup.h"
 #include "vc/BasicPanel.h"
@@ -980,6 +981,7 @@ public:
 	dps::GPC* pGPC[5];
 	OMSSubsystem* pOMS;
 	mps::SSME* pSSME[3];
+	mps::EIU* pEIU[3];
 	/**
 	 * Strategy pattern for the external airlock subsystem
 	 */

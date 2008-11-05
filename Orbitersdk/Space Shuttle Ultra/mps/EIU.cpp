@@ -13,6 +13,11 @@ namespace mps
 
 		engine->dataGetPrimaryData( PrimaryData );
 		engine->dataGetSecondaryData( SecondaryData );
+
+		mia[0].Init(this, "MIA1", 14+ID, false);
+		mia[1].Init(this, "MIA2", 14+ID, false);
+		mia[2].Init(this, "MIA3", 14+ID, false);
+		mia[3].Init(this, "MIA4", 14+ID, false);
 		return;
 	}
 
