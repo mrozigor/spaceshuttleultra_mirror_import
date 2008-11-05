@@ -14,13 +14,25 @@ namespace mps
 	private:
 		int ID;
 		SSME* engine;
-		DATA_TABLE* BUFFER_SSME_DATA_TABLE;
+		VDT_32* PrimaryData;
+		VDT_6* SecondaryData;
 	public:
 		EIU( SubsystemDirector*, const string&, int, SSME* );
 		~EIU( void );
 
 		// GPCs only
-		int RequestDATA( DATA_TABLE* );
+
+		/**
+		 * Return primary data
+		 * @param ptrPrimaryData pointer to primary data structure VDT_32
+		 */
+		int RequestPrimaryData( VDT_32* ptrPrimaryData );
+
+		/**
+		 * Return secondary data
+		 * @param ptrSecondaryData pointer to secondary data structure VDT_6
+		 */
+		int RequestSecondaryData( VDT_6* ptrSecondaryData );
 		int RequestCMD( int, double );
 
 		// heart beat
@@ -34,11 +46,3 @@ namespace mps
 
 
 #endif// _mps_EIU_H_
-
-/*
-***EIU
-stores data table in buffer
-at req. send data to GPC
-at req. send cmds to SSME
-shut up if power lost
-*/
