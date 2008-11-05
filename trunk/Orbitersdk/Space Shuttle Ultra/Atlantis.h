@@ -930,6 +930,8 @@ class SubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
 
+
+
 typedef enum {
 	LT_LATCHED = 0,
 	LT_OPENING,
@@ -944,8 +946,9 @@ typedef enum {
 } OMS_REF;
 
 class CommModeHandler;
-using discsignals::DiscreteBundleManager;
 
+using class discsignals::DiscreteBundleManager;
+using class dps::ShuttleBusManager;
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
@@ -1039,6 +1042,7 @@ public:
 	void AddSRBVisual (int which, const VECTOR3 &ofs);
 	void AddTankVisual (const VECTOR3 &ofs);
 	virtual DiscreteBundleManager* BundleManager() const;
+	virtual ShuttleBusManager* BusManager() const;
 	VECTOR3 CalcAnimationFKArm();
 	void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
 	// Overloaded callback functions
@@ -1303,6 +1307,8 @@ private:
 	bool GearArmed() const;
 	void DeployDragChute();
 	void JettisonDragChute();
+
+	void RealizeSubsystemConnections();
 
 	//
 	void SavePayloadState(FILEHANDLE scn) const;
@@ -1792,6 +1798,7 @@ private:
 	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
+	dps::ShuttleBusManager* busManager;
 	
 	vc::MDU* mdus[11];
 	UINT mfds[11]; //MFD index for corresponding MDUID
@@ -1868,6 +1875,8 @@ private:
 
 	//sound
 	int SoundID;
+
+	mutable bool fSSMEHandleErrorFlag;
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	void TriggerLiftOff();

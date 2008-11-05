@@ -37,6 +37,7 @@
 #include "dps/IDP.h"
 #include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
+#include "dps/ShuttleBus.h"
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
@@ -379,6 +380,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pExtAirlock = NULL;
 
   bundleManager = new DiscreteBundleManager();
+  busManager = new dps::ShuttleBusManager();
   pCommModeHandler= new CommModeHandler(this);
 
   psubsystems	  = new SubsystemDirector(this);
@@ -402,7 +404,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
-
+	RealizeSubsystemConnections();
 
 
 #ifdef INCLUDE_OMS_CODE
@@ -814,6 +816,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
 
   SoundID=-1;
+  fSSMEHandleErrorFlag = false;
 }
 
 // --------------------------------------------------------------
@@ -854,6 +857,7 @@ Atlantis::~Atlantis () {
 	delete CameraBRYaw;
 	delete CameraBRPitch;
 
+	delete busManager;
 	delete bundleManager;
 
 	delete [] stage1guidance[0];
@@ -863,6 +867,10 @@ Atlantis::~Atlantis () {
 DiscreteBundleManager* Atlantis::BundleManager() const
 {
 	return bundleManager;
+}
+
+ShuttleBusManager* Atlantis::BusManager() const {
+	return busManager;
 }
 
 const VECTOR3& Atlantis::GetOrbiterCoGOffset() const 
@@ -7460,14 +7468,19 @@ bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fIS
 		return false;
 	} else {
 		if(th_main[usMPSNo-1] == NULL) {
-			oapiWriteLog("Atlantis::SetSSMEParams : No SSME handle ready");
+			if(!fSSMEHandleErrorFlag) {
+				oapiWriteLog("Atlantis::SetSSMEParams : No SSME handle ready");
+				fSSMEHandleErrorFlag = true;
+			}
 			return false;
 		}
 
 		SetThrusterMax0(th_main[usMPSNo-1], fThrust0);
 		SetThrusterIsp(th_main[usMPSNo-1], fISP0, fISP1);
+		fSSMEHandleErrorFlag = false;
 		return true;
 	}
+	fSSMEHandleErrorFlag = false;
 	return true;
 }
 
@@ -7483,11 +7496,15 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 		return false;
 	} else {
 		if(th_main[usMPSNo-1] == NULL) {
-			oapiWriteLog("Atlantis::SetSSMEDir : No SSME handle ready");
+			if(!fSSMEHandleErrorFlag) {
+				oapiWriteLog("Atlantis::SetSSMEDir : No SSME handle ready");
+				fSSMEHandleErrorFlag = true;
+			}
 			return false;
 		}
 		SetThrusterDir(th_main[usMPSNo-1], dir);
 	}
+	fSSMEHandleErrorFlag = false;
 	return true;
 }
 
@@ -7503,11 +7520,15 @@ bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
 		return false;
 	} else {
 		if(th_main[usMPSNo-1] == NULL) {
-			oapiWriteLog("Atlantis::SetSSMEThrustLevel : No SSME handle ready");
+			if(!fSSMEHandleErrorFlag) {
+				oapiWriteLog("Atlantis::SetSSMEThrustLevel : No SSME handle ready");
+				fSSMEHandleErrorFlag = true;
+			}
 			return false;
 		}
 		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel);
 	}
+	fSSMEHandleErrorFlag = false;
 	return true;
 }
 
@@ -7515,9 +7536,13 @@ double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
 {
 	if (th_main[usMPSNo - 1] == NULL)
 	{
-		oapiWriteLog( "Atlantis::GetSSMEThrustLevel: No SSME handle ready" );
+		if(!fSSMEHandleErrorFlag) {
+			oapiWriteLog( "Atlantis::GetSSMEThrustLevel: No SSME handle ready" );
+			fSSMEHandleErrorFlag = true;
+		}
 		return -1;
 	}
+	fSSMEHandleErrorFlag = false;
 	return GetThrusterLevel( th_main[usMPSNo - 1] );
 }
 
@@ -8670,6 +8695,144 @@ TEX=Contrail1*/
 		AddExhaustStream(th_ssme_gox[i], &gox_stream);
 	}
 	
+}
+
+void Atlantis::RealizeSubsystemConnections() {
+	dps::ShuttleBus* pBus = BusManager()->GetBus("DK1");
+	pBus->ConnectTo(&(pIDP[0]->dk_channel));
+	pBus->ConnectTo(&(pGPC[0]->channel[5]));
+	pBus->ConnectTo(&(pGPC[1]->channel[5]));
+	pBus->ConnectTo(&(pGPC[2]->channel[5]));
+	pBus->ConnectTo(&(pGPC[3]->channel[5]));
+	pBus->ConnectTo(&(pGPC[4]->channel[5]));	
+
+	pBus = BusManager()->GetBus("DK2");
+	pBus->ConnectTo(&(pIDP[1]->dk_channel));
+	pBus->ConnectTo(&(pGPC[0]->channel[6]));
+	pBus->ConnectTo(&(pGPC[1]->channel[6]));
+	pBus->ConnectTo(&(pGPC[2]->channel[6]));
+	pBus->ConnectTo(&(pGPC[3]->channel[6]));
+	pBus->ConnectTo(&(pGPC[4]->channel[6]));
+
+	pBus = BusManager()->GetBus("DK3");
+	pBus->ConnectTo(&(pIDP[2]->dk_channel));
+	pBus->ConnectTo(&(pGPC[0]->channel[7]));
+	pBus->ConnectTo(&(pGPC[1]->channel[7]));
+	pBus->ConnectTo(&(pGPC[2]->channel[7]));
+	pBus->ConnectTo(&(pGPC[3]->channel[7]));
+	pBus->ConnectTo(&(pGPC[4]->channel[7]));
+
+	pBus = BusManager()->GetBus("DK4");
+	pBus->ConnectTo(&(pIDP[3]->dk_channel));
+	pBus->ConnectTo(&(pGPC[0]->channel[8]));
+	pBus->ConnectTo(&(pGPC[1]->channel[8]));
+	pBus->ConnectTo(&(pGPC[2]->channel[8]));
+	pBus->ConnectTo(&(pGPC[3]->channel[8]));
+	pBus->ConnectTo(&(pGPC[4]->channel[8]));
+
+	
+	pBus = BusManager()->GetBus("IC1");
+	pBus->ConnectTo(&(pGPC[0]->channel[0]));
+	pBus->ConnectTo(&(pGPC[1]->channel[0]));
+	pBus->ConnectTo(&(pGPC[2]->channel[0]));
+	pBus->ConnectTo(&(pGPC[3]->channel[0]));
+	pBus->ConnectTo(&(pGPC[4]->channel[0]));
+	pBus = BusManager()->GetBus("IC2");
+	pBus->ConnectTo(&(pGPC[0]->channel[1]));
+	pBus->ConnectTo(&(pGPC[1]->channel[1]));
+	pBus->ConnectTo(&(pGPC[2]->channel[1]));
+	pBus->ConnectTo(&(pGPC[3]->channel[1]));
+	pBus->ConnectTo(&(pGPC[4]->channel[1]));
+	pBus = BusManager()->GetBus("IC3");
+	pBus->ConnectTo(&(pGPC[0]->channel[2]));
+	pBus->ConnectTo(&(pGPC[1]->channel[2]));
+	pBus->ConnectTo(&(pGPC[2]->channel[2]));
+	pBus->ConnectTo(&(pGPC[3]->channel[2]));
+	pBus->ConnectTo(&(pGPC[4]->channel[2]));
+	pBus = BusManager()->GetBus("IC4");
+	pBus->ConnectTo(&(pGPC[0]->channel[3]));
+	pBus->ConnectTo(&(pGPC[1]->channel[3]));
+	pBus->ConnectTo(&(pGPC[2]->channel[3]));
+	pBus->ConnectTo(&(pGPC[3]->channel[3]));
+	pBus->ConnectTo(&(pGPC[4]->channel[3]));
+	
+	pBus = BusManager()->GetBus("IC5");
+	pBus->ConnectTo(&(pGPC[0]->channel[4]));
+	pBus->ConnectTo(&(pGPC[1]->channel[4]));
+	pBus->ConnectTo(&(pGPC[2]->channel[4]));
+	pBus->ConnectTo(&(pGPC[3]->channel[4]));
+	pBus->ConnectTo(&(pGPC[4]->channel[4]));
+
+	pBus = BusManager()->GetBus("FC1");
+	pBus->ConnectTo(&(pGPC[0]->channel[19]));
+	pBus->ConnectTo(&(pGPC[1]->channel[19]));
+	pBus->ConnectTo(&(pGPC[2]->channel[19]));
+	pBus->ConnectTo(&(pGPC[3]->channel[19]));
+	pBus->ConnectTo(&(pGPC[4]->channel[19]));
+
+	pBus = BusManager()->GetBus("FC2");
+	pBus->ConnectTo(&(pGPC[0]->channel[20]));
+	pBus->ConnectTo(&(pGPC[1]->channel[20]));
+	pBus->ConnectTo(&(pGPC[2]->channel[20]));
+	pBus->ConnectTo(&(pGPC[3]->channel[20]));
+	pBus->ConnectTo(&(pGPC[4]->channel[20]));
+
+	pBus = BusManager()->GetBus("FC3");
+	pBus->ConnectTo(&(pGPC[0]->channel[23]));
+	pBus->ConnectTo(&(pGPC[1]->channel[23]));
+	pBus->ConnectTo(&(pGPC[2]->channel[23]));
+	pBus->ConnectTo(&(pGPC[3]->channel[23]));
+	pBus->ConnectTo(&(pGPC[4]->channel[23]));
+
+	pBus = BusManager()->GetBus("FC4");
+	pBus->ConnectTo(&(pGPC[0]->channel[24]));
+	pBus->ConnectTo(&(pGPC[1]->channel[24]));
+	pBus->ConnectTo(&(pGPC[2]->channel[24]));
+	pBus->ConnectTo(&(pGPC[3]->channel[24]));
+	pBus->ConnectTo(&(pGPC[4]->channel[24]));
+
+	pBus = BusManager()->GetBus("FC5");
+	pBus->ConnectTo(&(pGPC[0]->channel[13]));
+	pBus->ConnectTo(&(pGPC[1]->channel[13]));
+	pBus->ConnectTo(&(pGPC[2]->channel[13]));
+	pBus->ConnectTo(&(pGPC[3]->channel[13]));
+	pBus->ConnectTo(&(pGPC[4]->channel[13]));
+
+	pBus = BusManager()->GetBus("FC6");
+	pBus->ConnectTo(&(pGPC[0]->channel[14]));
+	pBus->ConnectTo(&(pGPC[1]->channel[14]));
+	pBus->ConnectTo(&(pGPC[2]->channel[14]));
+	pBus->ConnectTo(&(pGPC[3]->channel[14]));
+	pBus->ConnectTo(&(pGPC[4]->channel[14]));
+
+	pBus = BusManager()->GetBus("FC7");
+	pBus->ConnectTo(&(pGPC[0]->channel[15]));
+	pBus->ConnectTo(&(pGPC[1]->channel[15]));
+	pBus->ConnectTo(&(pGPC[2]->channel[15]));
+	pBus->ConnectTo(&(pGPC[3]->channel[15]));
+	pBus->ConnectTo(&(pGPC[4]->channel[15]));
+
+	pBus = BusManager()->GetBus("FC8");
+	pBus->ConnectTo(&(pGPC[0]->channel[16]));
+	pBus->ConnectTo(&(pGPC[1]->channel[16]));
+	pBus->ConnectTo(&(pGPC[2]->channel[16]));
+	pBus->ConnectTo(&(pGPC[3]->channel[16]));
+	pBus->ConnectTo(&(pGPC[4]->channel[16]));
+
+	pBus = BusManager()->GetBus("PL1");
+	pBus->ConnectTo(&(pGPC[0]->channel[9]));
+	pBus->ConnectTo(&(pGPC[1]->channel[9]));
+	pBus->ConnectTo(&(pGPC[2]->channel[9]));
+	pBus->ConnectTo(&(pGPC[3]->channel[9]));
+	pBus->ConnectTo(&(pGPC[4]->channel[9]));
+
+	pBus = BusManager()->GetBus("PL2");
+	pBus->ConnectTo(&(pGPC[0]->channel[10]));
+	pBus->ConnectTo(&(pGPC[1]->channel[10]));
+	pBus->ConnectTo(&(pGPC[2]->channel[10]));
+	pBus->ConnectTo(&(pGPC[3]->channel[10]));
+	pBus->ConnectTo(&(pGPC[4]->channel[10]));
+
 }
 
 void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {

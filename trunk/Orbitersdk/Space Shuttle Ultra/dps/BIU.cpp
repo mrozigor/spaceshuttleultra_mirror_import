@@ -25,4 +25,10 @@ namespace dps {
 
 	void BIU::SendWord(unsigned short usTarget, short sWord) {
 	}
+
+	void BIU::ConnectTo(ShuttleBus* _pBus) {
+		//char pszBuffer[255];
+		pBus = _pBus;
+		
+	}
 };

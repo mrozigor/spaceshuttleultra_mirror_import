@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "OrbiterAPI.h"
+#include "dps/dps_defs.h"
 #include "discsignals/DiscreteBundleManager.h"
 
 using namespace std;
@@ -10,7 +11,8 @@ using namespace std;
 class Atlantis;
 class AtlantisSubsystem;
 
-using discsignals::DiscreteBundleManager;
+using class discsignals::DiscreteBundleManager;
+using class dps::ShuttleBusManager;
 
 class SubsystemDirector
 {
@@ -33,6 +35,13 @@ public:
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
 	virtual DiscreteBundleManager* BundleManager() const;
+
+
+	virtual dps::ShuttleBusManager* BusManager() const;
+	
+	/**
+	 * 
+	 */
 	bool RealizeAll();
 	/**
 	 * @param usMPSNo numerical ID of the SSME

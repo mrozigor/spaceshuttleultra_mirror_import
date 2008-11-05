@@ -3,13 +3,10 @@
 #include <vector>
 #include "../vc/vc_defs.h"
 #include "dps_defs.h"
+#include "BIU.h"
 #include "../Keyboard.h"
 #include "../discsignals/DiscInPort.h"
 #include <map>
-
-namespace dps {
-	class IDP;
-};
 
 namespace dps {	
 	using class ::Keyboard;
@@ -46,6 +43,9 @@ namespace dps {
 			MS_IPL,
 			MS_OPERATIONAL
 		} MEMORY_STATE;
+
+		BIU dk_channel;
+		BIU fc_channel[4];
 	private:
 		unsigned short usIDPID;
 		vc::PMDU mdu_list[7];

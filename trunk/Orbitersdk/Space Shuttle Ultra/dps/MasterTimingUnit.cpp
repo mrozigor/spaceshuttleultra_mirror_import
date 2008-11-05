@@ -260,8 +260,8 @@ void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 
 
 		fSeconds = fmod(fEvent[timer][0], 60.0);
-		sEventMinutes[timer] = (short)(fEvent[timer][0] - fSeconds)/60.0;
-		sEventSeconds[timer] = fSeconds;
+		sEventMinutes[timer] = (short)((fEvent[timer][0] - fSeconds)/60.0);
+		sEventSeconds[timer] = (short)fSeconds;
 
 		if(event_mode[timer][0] == COUNT_TEST) {
 			sEventMinutes[timer] = 88;
@@ -293,23 +293,23 @@ void MasterTimingUnit::OnSaveState(FILEHANDLE scn) const
 		switch(event_mode[i][0])
 		{
 		case COUNT_DOWN:
-			strcpy(pszTempA, "DOWN");
+			strcpy_s(pszTempA, "DOWN");
 			break;
 		case COUNT_UP:
-			strcpy(pszTempA, "UP");
+			strcpy_s(pszTempA, "UP");
 			break;
 		case COUNT_TEST:
-			strcpy(pszTempA, "TEST");
+			strcpy_s(pszTempA, "TEST");
 			break;
 		}
 
 		switch(event_control[i][0])
 		{
 		case COUNT_STARTED:
-			strcpy(pszTempB, "STARTED");
+			strcpy_s(pszTempB, "STARTED");
 			break;
 		case COUNT_STOPPED:
-			strcpy(pszTempB, "STOPPED");
+			strcpy_s(pszTempB, "STOPPED");
 			break;
 		}
 
