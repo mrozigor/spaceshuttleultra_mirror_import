@@ -1,61 +1,75 @@
 #include "SSME.h"
-#include "../Atlantis.h"
+#include "..\Atlantis.h"
 
 
 namespace mps
 {
-	SSME::SSME( SubsystemDirector* _director, const string& _ident, 
-		int nID /*, PROPELLANT_HANDLE _phET, 
-		const VECTOR3& _pos, const VECTOR3& _dir, 
-		double ISP0, double ISP1, double FPL_THRUST*/ )
-		:AtlantisSubsystem( _director, _ident )
-		/*,
-		pos(_pos), dir(_dir), phET(_phET), fFPL_THRUST(FPL_THRUST), 
-		fISP0(ISP0), fISP1(ISP1)*/
+	SSME::SSME( SubsystemDirector* _director, const string& _ident, int nID ):AtlantisSubsystem( _director, _ident )
 	{
 		ID = nID;
-		//OV = Vessel;
+		VDT = new VDT_128;
+		activeDCU = DCU_A;
 		//thSSME = NULL;
 
-		dir = _V(0.0, 0.0, 1.0);
+		STATUSWORD = STARTPREPARATION_PURGESEQUENCE3;
+		PSN4time = -1;
+		ESCtime = -1;
+		COtime = -1;
+		StartEnable = false;
+		ShutdownEnable = false;
 
-		switch(ID)
+		ThrottleCmdTme = -1;
+
+		PC_REF = 0;
+		PC_CMD = 0;
+
+		//dir = _V( 0.0, 0.0, 1.0 );
+
+		/*switch (ID)
 		{
-		case 0:
-		case 1:
-			pos = SSMEL_REF;
-			break;
-		case 2: 
-			pos = SSMET_REF;
-			break;
-		case 3:
-			pos = SSMER_REF;
-		}
-		
-		activeDCU = DCU_A;
+			case 1:
+				pos = SSMET_REF;
+				break;
+			case 2: 
+				pos = SSMEL_REF;
+				break;
+			case 3:
+				pos = SSMER_REF;
+		}*/
 
-		SSME_DATA_TABLE = new DATA_TABLE;
-
+		ptrCCV = new BasicValve( 0, 120 );// DONO max rate
+		ptrMOV = new BasicValve( 0, 120 );// DONO max rate
+		ptrMFV = new BasicValve( 0, 150 );// DONO max rate
+		ptrFPOV = new BasicValve( 0, 170 );// DONO max rate
+		ptrOPOV = new BasicValve( 0, 210 );// DONO max rate
+		ptrOBV = new ValveTypeBool( 1, 50 );// DONO max rate
+		ptrFBV = new ValveTypeBool( 1, 50 );// DONO max rate
 		return;
 	}
 
 	SSME::~SSME( void )
 	{
-		delete SSME_DATA_TABLE;
+		delete ptrCCV;
+		delete ptrMOV;
+		delete ptrMFV;
+		delete ptrFPOV;
+		delete ptrOPOV;
+		delete ptrOBV;
+		delete ptrFBV;
+
+		delete VDT;
 		// the end
 	}
 
 	void SSME::Realize()
 	{
-		//thSSME = STS()->CreateThruster( pos, dir, FPL_THRUST, phET, ISP0, ISP1);
-		STS()->SetSSMEParams(ID, FPL_THRUST, ISP0, ISP1);
+		STS()->SetSSMEParams( ID, FPL_THRUST, ISP0, ISP1 );
 	}
 
 	double SSME::PCfromOSFStoSTS( double pcOSFS )
 	{
 		return (pcOSFS * FPL);
 	}
-
 
 	double SSME::PCfromSTStoOSFS( double pcSTS )
 	{
@@ -64,13 +78,41 @@ namespace mps
 
 	double SSME::PCfromPCTtoPSI( double pcPCT )
 	{
-		// TODO PCT psi
-		return ((pcPCT * 3000) / 109);
+		return ((pcPCT * RPL_PC_PRESS) / 100);
+	}
+
+	double SSME::PCfromPSItoPCT( double pcPSI )
+	{
+		return ((pcPSI * 100) / RPL_PC_PRESS);
+	}
+
+	void SSME::ReadSensors( void )
+	{
+		// MCC press
+		// TODO cookup variations (within redlines... for now...)
+		double pcread = STS()->GetSSMEThrustLevel( ID );
+		pcread = PCfromPCTtoPSI( PCfromOSFStoSTS( pcread ) );
+		PRESS_MCC_A1 = pcread;
+		PRESS_MCC_A2 = pcread;
+		PRESS_MCC_B1 = pcread;
+		PRESS_MCC_B2 = pcread;
+		return;
 	}
 
 	void SSME::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		// valves first
+		ptrCCV->tmestp( fDeltaT );
+		ptrMOV->tmestp( fDeltaT );
+		ptrMFV->tmestp( fDeltaT );
+		ptrFPOV->tmestp( fDeltaT );
+		ptrOPOV->tmestp( fDeltaT );
+		ptrOBV->tmestp( fDeltaT );
+		ptrFBV->tmestp( fDeltaT );
+
+		ReadSensors();
+
+		switch (STATUSWORD)
 		{
 			// CHECKOUT
 			case CHECKOUT_STANDBY:
@@ -83,46 +125,44 @@ namespace mps
 			case STARTPREPARATION_PURGESEQUENCE2:
 				break;
 			case STARTPREPARATION_PURGESEQUENCE3:
+				ptrOBV->Open();
+				ptrFBV->Open();
 				break;
 			case STARTPREPARATION_PURGESEQUENCE4:
-				if (PSN4time == -1)// first run, setup
-				{
-					PSN4time = fSimT;
-					break;
-				}
 				// from T-235 to T-117 ???
-				if ((fSimT - PSN4time) > 118) SSME_DATA_TABLE->STATUS = STARTPREPARATION_ENGINEREADY;
+				if ((fSimT - PSN4time) > 118) STATUSWORD = STARTPREPARATION_ENGINEREADY;
 				break;
 			case STARTPREPARATION_ENGINEREADY:
-				SSME_DATA_TABLE->posCCV = 1;// TODO put vlv motion
-				// TODO close bleed vlvs
+				ptrCCV->Open();// DONO rate
+				ptrOBV->Close();
+				ptrFBV->Close();
 				break;
 			// START/MAINSTAGE
 			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:
-				if (SSME_DATA_TABLE->timeESC == -1)// first run, setup
+				if (ESCtime == -1)// first run, setup
 				{
-					SSME_DATA_TABLE->cmdPC = 100;
-					SSME_DATA_TABLE->timeESC = fSimT;
+					PC_CMD = PCfromPCTtoPSI( 100 );
+					ESCtime = fSimT;
 					break;
 				}
 				Ignition( fSimT );
-				if ((fSimT - SSME_DATA_TABLE->timeESC) > 2.4) SSME_DATA_TABLE->STATUS = STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP;
+				if ((fSimT - ESCtime) > 2.4) STATUSWORD = STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP;
 				break;
 			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
 				Ignition( fSimT );
-				if (SSME_DATA_TABLE->powerlevel == 100) SSME_DATA_TABLE->STATUS = STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL;
+				if (PCfromPSItoPCT( PRESS_MCC_A1 ) == 100) STATUSWORD = STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL;
 				break;
 			case STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL:
 				// enter at ESC+3.8 ????
-				if (SSME_DATA_TABLE->cmdPC != SSME_DATA_TABLE->powerlevel)// use diff instead???
+				if (PC_CMD != PRESS_MCC_A1)// TODO think about a margin in here....
 				{
-					Throttling( fDeltaT );
+					Throttling( fDeltaT, fSimT );
 				}
 				else
 				{
 					// keep same pc as before
-					//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
-					STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( SSME_DATA_TABLE->powerlevel ) );
+					ThrottleCmdTme = -1;
+					STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( PCfromPSItoPCT( PC_CMD ) ) );
 				}
 				break;
 			case STARTMAINSTAGE_FIXEDDENSITY:
@@ -135,62 +175,66 @@ namespace mps
 				break;
 			// SHUTDOWN
 			case SHUTDOWN_THROTTLINGTOZEROTHRUST:
-				if (SSME_DATA_TABLE->timeCO == -1)// first run, setup
+				if (COtime == -1)// first run, setup
 				{
-					SSME_DATA_TABLE->cmdPC = 0;
+					PC_CMD = PCfromPCTtoPSI( 0 );
 					SetCOTime();
-					OPOV_pos_CO = SSME_DATA_TABLE->posOPOV * 100;
-					FPOV_pos_CO = SSME_DATA_TABLE->posFPOV * 100;
-					SSME_DATA_TABLE->timeCO = fSimT;
+					COtime = fSimT;
 					break;
 				}
 				Shutdown( fSimT );
-				// TODO check when all vlvs are closed
-				if (SSME_DATA_TABLE->powerlevel == 0) 
-					SSME_DATA_TABLE->STATUS = SHUTDOWN_PROPELLANTVALVESCLOSED;
+				// after all vlvs are closed move on
+				if ((ptrCCV->GetPos() + ptrMOV->GetPos() + ptrMFV->GetPos() + ptrFPOV->GetPos() + ptrOPOV->GetPos()) == 0) STATUSWORD = SHUTDOWN_PROPELLANTVALVESCLOSED;
 				break;
 			case SHUTDOWN_PROPELLANTVALVESCLOSED:
 				// TODO keep running down TPs...
-				if ((fSimT - SSME_DATA_TABLE->timeCO) > 7)// ???time???
+				if ((fSimT - COtime) > 8)// ???time???
 				{
-					SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_STANDBY;
+					STATUSWORD = POSTSHUTDOWN_STANDBY;
 				}
 				break;
 			case SHUTDOWN_FAILSAFEPNEUMATIC:
 				// TODO kill the engine
-				SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_STANDBY;
+				STATUSWORD = POSTSHUTDOWN_STANDBY;
 				break;
 			// POST SHUTDOWN
 			case POSTSHUTDOWN_STANDBY:
 				break;
 			case POSTSHUTDOWN_OXIDIZERDUMP:
-				SSME_DATA_TABLE->posMOV = 1;// TODO put vlv motion
+				ptrMOV->Open();// DONO rate
 				break;
-			case POSTSHUTDOWN_TERMINATESEQUENCE:
-				SSME_DATA_TABLE->posMOV = 0;// TODO put vlv motion
-				SSME_DATA_TABLE->posCCV = 0;// TODO put vlv motion
-				SSME_DATA_TABLE->posMFV = 0;// TODO put vlv motion
-				SSME_DATA_TABLE->posOPOV = 0;// TODO put vlv motion
-				SSME_DATA_TABLE->posFPOV = 0;// TODO put vlv motion
-				SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_STANDBY;
+			case POSTSHUTDOWN_TERMINATESEQUENCE:// DONO wait until all vlvs are closed???
+				ptrCCV->Close();// DONO rate
+				ptrMOV->Close();// DONO rate
+				ptrMFV->Close();// DONO rate
+				ptrFPOV->Close();// DONO rate
+				ptrOPOV->Close();// DONO rate
+				ptrOBV->Close();// DONO close this too???
+				ptrFBV->Close();// DONO close this too???
+				STATUSWORD = POSTSHUTDOWN_STANDBY;
 				break;
 			// PROM
 			case PROM_STANDBY:
 				break;
 		}
-		// update table time tag
-		SSME_DATA_TABLE->timeTAG = fSimT;
+
+		VDTUpdate( fSimT );
 		return;
 	}
 
 	// EIU cmd
 	bool SSME::cmdPurgeSequence1( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case CHECKOUT_STANDBY:
 			case STARTPREPARATION_PURGESEQUENCE2:
-				SSME_DATA_TABLE->STATUS = STARTPREPARATION_PURGESEQUENCE1;
+				STATUSWORD = STARTPREPARATION_PURGESEQUENCE1;
 				return true;
 		}
 		return false;
@@ -198,9 +242,14 @@ namespace mps
 
 	bool SSME::cmdPurgeSequence2( void )
 	{
-		if (SSME_DATA_TABLE->STATUS == STARTPREPARATION_PURGESEQUENCE1)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		if (STATUSWORD == STARTPREPARATION_PURGESEQUENCE1)
 		{
-			SSME_DATA_TABLE->STATUS = STARTPREPARATION_PURGESEQUENCE2;
+			STATUSWORD = STARTPREPARATION_PURGESEQUENCE2;
 			return true;
 		}
 		return false;
@@ -208,11 +257,16 @@ namespace mps
 
 	bool SSME::cmdPurgeSequence3( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case STARTPREPARATION_PURGESEQUENCE2:
 			case STARTPREPARATION_PURGESEQUENCE4:
-				SSME_DATA_TABLE->STATUS = STARTPREPARATION_PURGESEQUENCE3;
+				STATUSWORD = STARTPREPARATION_PURGESEQUENCE3;
 				return true;
 		}
 		return false;
@@ -220,12 +274,17 @@ namespace mps
 
 	bool SSME::cmdPurgeSequence4( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case STARTPREPARATION_PURGESEQUENCE3:
 			case STARTPREPARATION_ENGINEREADY:
-				PSN4time = -1;
-				SSME_DATA_TABLE->STATUS = STARTPREPARATION_PURGESEQUENCE4;
+				PSN4time = VDT->DW1;
+				STATUSWORD = STARTPREPARATION_PURGESEQUENCE4;
 				return true;
 		}
 		return false;
@@ -233,15 +292,23 @@ namespace mps
 
 	bool SSME::cmdStartEnable( void )// TODO checks like in bool SSME::cmdStart( void )
 	{
-		SSME_DATA_TABLE->StartEnable = true;
+		/////// remove shutdown enable ///////
+		ShutdownEnable = false;
+		/////// remove shutdown enable ///////
+
+		StartEnable = true;
 		return true;
 	}
 
 	bool SSME::cmdStart( void )
 	{
-		if ((SSME_DATA_TABLE->STATUS == STARTPREPARATION_ENGINEREADY) && (SSME_DATA_TABLE->StartEnable == true))
+		/////// remove shutdown enable ///////
+		ShutdownEnable = false;
+		/////// remove shutdown enable ///////
+
+		if ((STATUSWORD == STARTPREPARATION_ENGINEREADY) && (StartEnable == true))
 		{
-			SSME_DATA_TABLE->STATUS = STARTMAINSTAGE_STARTPHASESTARTINITIATION;
+			STATUSWORD = STARTMAINSTAGE_STARTPHASESTARTINITIATION;
 			return true;
 		}
 		return false;
@@ -249,7 +316,12 @@ namespace mps
 
 	bool SSME::cmdControllerReset( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case CHECKOUT_STANDBY:
 			case CHECKOUT_COMPONENTCHECKOUT:
@@ -261,7 +333,7 @@ namespace mps
 			case POSTSHUTDOWN_STANDBY:
 			case POSTSHUTDOWN_OXIDIZERDUMP:
 			case POSTSHUTDOWN_TERMINATESEQUENCE:
-				SSME_DATA_TABLE->STATUS = CHECKOUT_STANDBY;
+				STATUSWORD = CHECKOUT_STANDBY;
 				return true;
 			default:
 				return false;
@@ -271,7 +343,12 @@ namespace mps
 
 	bool SSME::cmdCheckoutStandby( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case CHECKOUT_STANDBY:
 			case CHECKOUT_COMPONENTCHECKOUT:
@@ -283,7 +360,7 @@ namespace mps
 			case POSTSHUTDOWN_STANDBY:
 			case POSTSHUTDOWN_OXIDIZERDUMP:
 			case POSTSHUTDOWN_TERMINATESEQUENCE:
-				SSME_DATA_TABLE->STATUS = CHECKOUT_STANDBY;
+				STATUSWORD = CHECKOUT_STANDBY;
 				return true;
 			default:
 				return false;
@@ -293,7 +370,12 @@ namespace mps
 
 	bool SSME::cmdTerminateSequence( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case CHECKOUT_STANDBY:
 			case CHECKOUT_COMPONENTCHECKOUT:
@@ -304,7 +386,7 @@ namespace mps
 			case STARTPREPARATION_ENGINEREADY:
 			case POSTSHUTDOWN_STANDBY:
 			case POSTSHUTDOWN_OXIDIZERDUMP:
-				SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_TERMINATESEQUENCE;
+				STATUSWORD = POSTSHUTDOWN_TERMINATESEQUENCE;
 				return true;
 			default:
 				return false;
@@ -314,30 +396,42 @@ namespace mps
 
 	bool SSME::cmdShutdownEnable( void )// TODO checks like in bool SSME::cmdShutdown( void )
 	{
-		SSME_DATA_TABLE->ShutdownEnable = true;
+		/////// remove start enable ///////
+		StartEnable = false;
+		/////// remove start enable ///////
+
+		ShutdownEnable = true;
 		return true;
 	}
 
 	bool SSME::cmdShutdown( void )
 	{
-		if (SSME_DATA_TABLE->ShutdownEnable == false) return false;
+		/////// remove start enable ///////
+		StartEnable = false;
+		/////// remove start enable ///////
 
-		switch (SSME_DATA_TABLE->STATUS)
+		if (ShutdownEnable == false) return false;
+
+		switch (STATUSWORD)
 		{
 			case STARTPREPARATION_PURGESEQUENCE1:
 			case STARTPREPARATION_PURGESEQUENCE2:
 			case STARTPREPARATION_PURGESEQUENCE3:
 			case STARTPREPARATION_PURGESEQUENCE4:
 			case STARTPREPARATION_ENGINEREADY:
-			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:
 			case STARTMAINSTAGE_THRUSTLIMITING:
 			case STARTMAINSTAGE_HYDRAULICLOCKUP:
-				SSME_DATA_TABLE->STATUS = SHUTDOWN_FAILSAFEPNEUMATIC;
+				STATUSWORD = SHUTDOWN_FAILSAFEPNEUMATIC;
 				return true;
-			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
 			case STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL:
+				ValveShutdownTableUpdate( PCfromPSItoPCT( VDT->DW6 ) );
+				STATUSWORD = SHUTDOWN_THROTTLINGTOZEROTHRUST;
+				return true;
+			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:// DONO goto SHUTDOWN_FAILSAFEPNEUMATIC ????
+			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
+				// TODO new valve schedule update for the 2 above????
 			case STARTMAINSTAGE_FIXEDDENSITY:
-				SSME_DATA_TABLE->STATUS = SHUTDOWN_THROTTLINGTOZEROTHRUST;
+				STATUSWORD = SHUTDOWN_THROTTLINGTOZEROTHRUST;
 				return true;
 			default:
 				return false;
@@ -346,7 +440,12 @@ namespace mps
 
 	bool SSME::cmdFRT1( void )
 	{
-		switch (SSME_DATA_TABLE->STATUS)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		switch (STATUSWORD)
 		{
 			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:
 			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
@@ -355,7 +454,7 @@ namespace mps
 			case STARTMAINSTAGE_THRUSTLIMITING:
 			case STARTMAINSTAGE_ELECTRICALLOCKUP:
 			case STARTMAINSTAGE_HYDRAULICLOCKUP:
-				SSME_DATA_TABLE->STATUS = SHUTDOWN_FAILSAFEPNEUMATIC;
+				STATUSWORD = SHUTDOWN_FAILSAFEPNEUMATIC;
 				return true;
 			default:
 				return false;
@@ -364,9 +463,14 @@ namespace mps
 
 	bool SSME::cmdOxidizerDump( void )
 	{
-		if (SSME_DATA_TABLE->STATUS == POSTSHUTDOWN_STANDBY)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		if (STATUSWORD == POSTSHUTDOWN_STANDBY)
 		{
-			SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_OXIDIZERDUMP;
+			STATUSWORD = POSTSHUTDOWN_OXIDIZERDUMP;
 			return true;
 		}
 		return false;
@@ -374,9 +478,14 @@ namespace mps
 
 	bool SSME::cmdExitPROM( void )
 	{
-		if (SSME_DATA_TABLE->STATUS == PROM_STANDBY)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		if (STATUSWORD == PROM_STANDBY)
 		{
-			SSME_DATA_TABLE->STATUS = POSTSHUTDOWN_STANDBY;
+			STATUSWORD = POSTSHUTDOWN_STANDBY;
 			return true;
 		}
 		return false;
@@ -384,21 +493,37 @@ namespace mps
 
 	bool SSME::cmdPowerOn( void )// TODO check if dead...
 	{
-		SSME_DATA_TABLE->STATUS = PROM_STANDBY;
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		STATUSWORD = PROM_STANDBY;
 		return true;
 	}
 
 	bool SSME::cmdChannelReset( void )
 	{
-		SSME_DATA_TABLE->STATUS = PROM_STANDBY;
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		STATUSWORD = PROM_STANDBY;
 		return true;
 	}
 
 	bool SSME::cmdThrottle( double itgtPC )
 	{
-		if ((SSME_DATA_TABLE->STATUS == STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL) && (itgtPC <= FPL) && (itgtPC >= MPL))
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		if ((STATUSWORD == STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL) && (itgtPC <= FPL) && (itgtPC >= MPL))
 		{
-			SSME_DATA_TABLE->cmdPC = itgtPC;
+			PC_CMD = itgtPC;
+			ThrottleCmdTme = VDT->DW1;
 			return true;
 		}
 		return false;
@@ -406,7 +531,12 @@ namespace mps
 
 	bool SSME::cmdPowerOff( void )
 	{
-		if (SSME_DATA_TABLE->STATUS == POSTSHUTDOWN_STANDBY)
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		if (STATUSWORD == POSTSHUTDOWN_STANDBY)
 		{
 			// shutdown...
 			return true;
@@ -414,17 +544,29 @@ namespace mps
 		return false;
 	}
 
-	//bool cmdDeactivateAllValves( void );
-
-
-	int SSME::dataDataTable( DATA_TABLE* ptrDataTable )
+	/*bool SSME::cmdDeactivateAllValves( void )
 	{
-		memcpy( ptrDataTable, SSME_DATA_TABLE, sizeof(DATA_TABLE) );
+		/////// remove start/shutdown enable ///////
+		StartEnable = false;
+		ShutdownEnable = false;
+		/////// remove start/shutdown enable ///////
+
+		return true;
+	}*/
+
+	int SSME::dataGetPrimaryData( VDT_32* PrimaryData )
+	{
+		memcpy( PrimaryData, VDT, sizeof(VDT_32) );
 		return 0;
 	}
 
-	/*
-	THRUSTER_HANDLE SSME::GetHandle() const
+	int SSME::dataGetSecondaryData( VDT_6* SecondaryData )
+	{
+		memcpy( SecondaryData, VDT, sizeof(VDT_6) );
+		return 0;
+	}
+
+	/*THRUSTER_HANDLE SSME::GetHandle( void ) const
 	{
 		return thSSME;
 	}*/
@@ -433,47 +575,37 @@ namespace mps
 
 	void SSME::Ignition( double time )
 	{
-		double pc = dcPC_ESC( time - SSME_DATA_TABLE->timeESC );
-		SSME_DATA_TABLE->posOPOV = dcOPOV_ESC( time - SSME_DATA_TABLE->timeESC );
-		SSME_DATA_TABLE->posFPOV = dcFPOV_ESC( time - SSME_DATA_TABLE->timeESC );
-		SSME_DATA_TABLE->posMOV = dcMOV_ESC( time - SSME_DATA_TABLE->timeESC );
-		SSME_DATA_TABLE->posMFV = dcMFV_ESC( time - SSME_DATA_TABLE->timeESC );
-		SSME_DATA_TABLE->posCCV = dcCCV_ESC( time - SSME_DATA_TABLE->timeESC );
+		double pc = dcPC_ESC( time - ESCtime );
+		
+		ValveScheduleIgnition( time - ESCtime );
 
-		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
-		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
-		SSME_DATA_TABLE->powerlevel = pc;
+		STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+		//PC_REF = PCfromPCTtoPSI( pc );
 		return;
 	}
 
 	void SSME::Shutdown( double time )
 	{
-		double pc = dcPC_CO( time - SSME_DATA_TABLE->timeCO + COtimecoef );
-		SSME_DATA_TABLE->posOPOV = dcOPOV_CO( time - SSME_DATA_TABLE->timeCO, OPOV_pos_CO );
-		SSME_DATA_TABLE->posFPOV = dcFPOV_CO( time - SSME_DATA_TABLE->timeCO, FPOV_pos_CO );
-		SSME_DATA_TABLE->posMOV = dcMOV_CO( time - SSME_DATA_TABLE->timeCO );
-		SSME_DATA_TABLE->posMFV = dcMFV_CO( time - SSME_DATA_TABLE->timeCO );
-		SSME_DATA_TABLE->posCCV = dcCCV_CO( time - SSME_DATA_TABLE->timeCO + COtimecoef );
+		double pc = dcPC_CO( time - COtime + COtimecoef );
+		
+		ValveScheduleShutdown( time - COtime );
 
-		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
-		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
-		SSME_DATA_TABLE->powerlevel = pc;
+		STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+		//PC_REF = PCfromPCTtoPSI( pc );
 		return;
 	}
 
-	void SSME::Throttling( double dtime )
+	void SSME::Throttling( double dtime, double time )
 	{
-		double pc = dcPC_MS( dtime );
+		ValveScheduleThrottle( PCfromPSItoPCT( PC_CMD ) );
 
-		SSME_DATA_TABLE->posOPOV = dcOPOV_MS( pc );
-		SSME_DATA_TABLE->posFPOV = dcFPOV_MS( pc );
-		//SSME_DATA_TABLE->posMOV = 1;// redundant
-		//SSME_DATA_TABLE->posMFV = 1;// redundant
-		SSME_DATA_TABLE->posCCV = dcCCV_MS( pc );
-
-		//STS()->SetThrusterLevel( thSSME, PCfromSTStoOSFS( pc ) );
-		STS()->SetSSMEThrustLevel(ID, PCfromSTStoOSFS( pc ) );
-		SSME_DATA_TABLE->powerlevel = pc;
+		if (((time - ThrottleCmdTme) <= 0.2) || (ThrottleCmdTme == -1))
+		{
+			// 200ms delay in pc change, also protect for outside pc changes
+			double pc = dcPC_MS( dtime );
+			STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+		}
+		//PC_REF = PCfromPCTtoPSI( pc );
 		return;
 	}
 
@@ -482,21 +614,154 @@ namespace mps
 		// pc > 100% -> < 0
 		// pc = 100% -> = 0
 		// pc < 100% -> > 0
-		if (SSME_DATA_TABLE->powerlevel >= 39)
+		if (PCfromPSItoPCT( PRESS_MCC_A1 ) >= 39)
 		{
-			COtimecoef = (100 - SSME_DATA_TABLE->powerlevel) / 122;
+			COtimecoef = (100 - PCfromPSItoPCT( PRESS_MCC_A1 )) / 122;
 		}
 		else
 		{
-			if (SSME_DATA_TABLE->powerlevel >= 8)
+			if (PCfromPSItoPCT( PRESS_MCC_A1 ) >= 8)
 			{
-				COtimecoef = ((50.92 - SSME_DATA_TABLE->powerlevel) * 2.6) / 62;
+				COtimecoef = ((50.92 - PCfromPSItoPCT( PRESS_MCC_A1 )) * 2.6) / 62;
 			}
 			else
 			{
-				COtimecoef = ((11.43 - SSME_DATA_TABLE->powerlevel) * 4.2) / 8;
+				COtimecoef = ((11.43 - PCfromPSItoPCT( PRESS_MCC_A1 )) * 4.2) / 8;
 			}
 		}
+		return;
+	}
+
+	// Valve Schedules
+	void SSME::ValveScheduleIgnition( double time )// TODO act upon vlv cmd failure
+	{
+		short index = 0;
+
+		// move CCV
+		do
+		{
+			if ((CCVScheduleIgnition_Time[index] <= time) && (CCVScheduleIgnition_Time[index + 1] > time))
+			{
+				ptrCCV->Move( CCVScheduleIgnition_Position[index], CCVScheduleIgnition_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *CCVSIindex);
+
+		// move MOV
+		index = 0;
+		do
+		{
+			if ((MOVScheduleIgnition_Time[index] <= time) && (MOVScheduleIgnition_Time[index + 1] > time))
+			{
+				ptrMOV->Move( MOVScheduleIgnition_Position[index], MOVScheduleIgnition_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *MOVSIindex);
+
+		// move MFV
+		index = 0;
+		do
+		{
+			if ((MFVScheduleIgnition_Time[index] <= time) && (MFVScheduleIgnition_Time[index + 1] > time))
+			{
+				ptrMFV->Move( MFVScheduleIgnition_Position[index], MFVScheduleIgnition_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *MFVSIindex);
+
+		// move FPOV
+		index = 0;
+		do
+		{
+			if ((FPOVScheduleIgnition_Time[index] <= time) && (FPOVScheduleIgnition_Time[index + 1] > time))
+			{
+				ptrFPOV->Move( FPOVScheduleIgnition_Position[index], FPOVScheduleIgnition_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *FPOVSIindex);
+
+		// move OPOV
+		index = 0;
+		do
+		{
+			if ((OPOVScheduleIgnition_Time[index] <= time) && (OPOVScheduleIgnition_Time[index + 1] > time))
+			{
+				ptrOPOV->Move( OPOVScheduleIgnition_Position[index], OPOVScheduleIgnition_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *OPOVSIindex);
+
+		return;
+	}
+
+	void SSME::ValveScheduleShutdown( double time )// TODO act upon vlv cmd failure
+	{
+		short index = 0;
+
+		// move CCV
+		do
+		{
+			if ((CCVScheduleShutdown_Time[index] <= time) && (CCVScheduleShutdown_Time[index + 1] > time))
+			{
+				ptrCCV->Move( CCVScheduleShutdown_Position[index], CCVScheduleShutdown_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *CCVSSindex);
+
+		// move MOV
+		index = 0;
+		do
+		{
+			if ((MOVScheduleShutdown_Time[index] <= time) && (MOVScheduleShutdown_Time[index + 1] > time))
+			{
+				ptrMOV->Move( MOVScheduleShutdown_Position[index], MOVScheduleShutdown_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *MOVSSindex);
+
+		// move MFV
+		index = 0;
+		do
+		{
+			if ((MFVScheduleShutdown_Time[index] <= time) && (MFVScheduleShutdown_Time[index + 1] > time))
+			{
+				ptrMFV->Move( MFVScheduleShutdown_Position[index], MFVScheduleShutdown_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *MFVSSindex);
+
+		// move OPOV
+		index = 0;
+		do
+		{
+			if ((OPOVScheduleShutdown_Time[index] <= time) && (OPOVScheduleShutdown_Time[index + 1] > time))
+			{
+				ptrOPOV->Move( OPOVScheduleShutdown_Position[index], OPOVScheduleShutdown_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *OPOVSSindex);
+
+		// move FPOV
+		index = 0;
+		do
+		{
+			if ((FPOVScheduleShutdown_Time[index] <= time) && (FPOVScheduleShutdown_Time[index + 1] > time))
+			{
+				ptrFPOV->Move( FPOVScheduleShutdown_Position[index], FPOVScheduleShutdown_Rate[index] );
+				break;
+			}
+			index++;
+		} while (index < *FPOVSSindex);
+
 		return;
 	}
 }

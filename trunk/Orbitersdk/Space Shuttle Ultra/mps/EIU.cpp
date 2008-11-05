@@ -7,14 +7,19 @@ namespace mps
 	{
 		ID = nID;
 		engine = ptr;
-		BUFFER_SSME_DATA_TABLE = new DATA_TABLE;
-		RequestDATA( BUFFER_SSME_DATA_TABLE );
+
+		PrimaryData = new VDT_32;
+		SecondaryData = new VDT_6;
+
+		engine->dataGetPrimaryData( PrimaryData );
+		engine->dataGetSecondaryData( SecondaryData );
 		return;
 	}
 
 	EIU::~EIU( void )
 	{
-		delete BUFFER_SSME_DATA_TABLE;
+		delete PrimaryData;
+		delete SecondaryData;
 		// the end
 	}
 
@@ -83,16 +88,23 @@ namespace mps
 		return 0;
 	}
 
-	int EIU::RequestDATA( DATA_TABLE* ptrDataTable )
+	int EIU::RequestPrimaryData( VDT_32* ptrPrimaryData )
 	{
-		memcpy( ptrDataTable, BUFFER_SSME_DATA_TABLE, sizeof(DATA_TABLE) );
+		memcpy( ptrPrimaryData, PrimaryData, sizeof(VDT_32) );
+		return 0;
+	}
+
+	int EIU::RequestSecondaryData( VDT_6* ptrSecondaryData )
+	{
+		memcpy( ptrSecondaryData, SecondaryData, sizeof(VDT_6) );
 		return 0;
 	}
 
 
 	void EIU::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
-		engine->dataDataTable( BUFFER_SSME_DATA_TABLE );
+		engine->dataGetPrimaryData( PrimaryData );
+		engine->dataGetSecondaryData( SecondaryData );
 		return;
 	}
 }
