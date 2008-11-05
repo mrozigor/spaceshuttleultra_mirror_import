@@ -117,6 +117,10 @@ DiscreteBundleManager* AtlantisSubsystem::BundleManager() const
 	return director->BundleManager();
 }
 
+ShuttleBusManager* AtlantisSubsystem::BusManager() const {
+	return director->BusManager();
+}
+
 void AtlantisSubsystem::UnloadSubsystem() {
 	
 }

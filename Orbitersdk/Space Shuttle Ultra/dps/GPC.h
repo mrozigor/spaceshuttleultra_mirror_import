@@ -9,6 +9,7 @@ namespace dps {
 
 	using class discsignals::DiscDemultiplex16;
 	using class discsignals::DiscMultiplex16;
+	using class discsignals::DiscInPort;
 
 	class GPCSoftware;
 
@@ -34,6 +35,7 @@ namespace dps {
 		DiscDemultiplex16 disc_in[4];
 		DiscMultiplex16 disc_out;
 		BIU channel[24];
+		DiscInPort power_on;
 	};
 
 };

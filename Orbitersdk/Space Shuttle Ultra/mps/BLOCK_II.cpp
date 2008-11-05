@@ -424,13 +424,13 @@ namespace mps
 
 	void BLOCK_II::VDTUpdate( double time )
 	{
-		VDT->DW1 = time;
-		VDT->DW2 = ID;
-		VDT->DW3 = STATUSWORD;
+		VDT->DW1 = (float)time;
+		VDT->DW2 = (float)ID;
+		VDT->DW3 = (float)STATUSWORD;
 		//VDT->DW4 = 0;
 		//VDT->DW5 = 0;
-		VDT->DW6 = (PRESS_MCC_A1 + PRESS_MCC_A1) / 2;
-		VDT->DW7 = PRESS_MCC_B1;
+		VDT->DW6 = (float)((PRESS_MCC_A1 + PRESS_MCC_A1) / 2);
+		VDT->DW7 = (float)PRESS_MCC_B1;
 		//VDT->DW8 = 0;
 		//VDT->DW9 = 0;
 		//VDT->DW10 = 0;

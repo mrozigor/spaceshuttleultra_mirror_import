@@ -56,6 +56,10 @@ DiscreteBundleManager* SubsystemDirector::BundleManager() const {
 	return psts->BundleManager();
 }
 
+ShuttleBusManager* SubsystemDirector::BusManager() const {
+	return psts->BusManager();
+}
+
 bool SubsystemDirector::RealizeAll() {
 	unsigned long i;
 	for(i = 0; i<subsystems.size(); i++)

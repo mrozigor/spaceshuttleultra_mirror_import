@@ -12,10 +12,12 @@
 #include <string>
 #include "OrbiterAPI.h"
 #include "ISubsystem.h"
+#include "dps/dps_defs.h"
 #include "discsignals\DiscreteBundleManager.h"
 
 using namespace std;
 using namespace discsignals;
+using class dps::ShuttleBusManager;
 
 class Atlantis;
 class SubsystemDirector;
@@ -149,7 +151,16 @@ public:
 	 */
 	virtual void UnloadSubsystem();
 
+	/** 
+	 * Return the currently used discrete bundle managing object. 
+	 * @return pointer to the bundle manager
+	 */
 	DiscreteBundleManager* BundleManager() const;
+	/** 
+	 * Return the currently used data bus managing object. 
+	 * @return pointer to the bus manager
+	 */
+	ShuttleBusManager* BusManager() const;
 };
 
 class EmptySubsystem: AtlantisSubsystem {

@@ -15,7 +15,7 @@ namespace dps {
 		BIU();
 		BIU(unsigned short usTerminalID, bool bIsMaster = false);
 		virtual ~BIU();
-		void Connect(ShuttleBus* pBus);
+		void ConnectTo(ShuttleBus* pBus);
 		void MakeBusMaster();
 		void Listen(bool fEnable = true);
 		virtual void OnNewMessage();

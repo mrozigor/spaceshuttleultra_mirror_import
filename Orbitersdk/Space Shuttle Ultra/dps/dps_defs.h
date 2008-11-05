@@ -42,6 +42,7 @@ namespace dps {
 	class MDMIOModule;
 	class MasterTimingUnit;
 	class ShuttleBus;
+	class ShuttleBusManager;
 	class TimeBus;
 	class AP101S;
 	/**

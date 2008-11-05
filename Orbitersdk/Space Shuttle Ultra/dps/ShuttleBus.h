@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include <string>
+#include <vector>
 #include <set>
 #include "dps_defs.h"
 
@@ -25,13 +26,17 @@ namespace dps {
 		ShuttleBus(const string& _ident);
 		virtual ~ShuttleBus();
 		virtual const string& GetIdent() const;
-		virtual void Connect(BIU* pTarget);
+		virtual void ConnectTo(BIU* pTarget);
 		virtual long Transmit(unsigned short usTarget, unsigned short usNumData, unsigned short usData[]);
 	};
 
-	class BusManager {
+	class ShuttleBusManager {
+		vector<ShuttleBus*> busses;
 	public:
-		BusManager();
+		ShuttleBusManager();
+		virtual ~ShuttleBusManager();
+		ShuttleBus* CreateBus(const string& _ident);
+		ShuttleBus* FindBus(const string& _ident) const;
 		ShuttleBus* GetBus(const string& _ident);
 	};
 
