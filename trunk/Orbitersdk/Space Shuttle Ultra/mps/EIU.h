@@ -5,6 +5,7 @@
 #include "SSME.h"
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
+#include "..\dps\BIU.h"
 
 
 namespace mps
@@ -41,6 +42,8 @@ namespace mps
 		//void OnPropagate( double, double, double );
 
 		// TODO power swicth -> O17
+
+		dps::BIU mia[4];
 	};
 }
 
