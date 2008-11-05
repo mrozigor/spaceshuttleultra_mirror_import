@@ -7511,6 +7511,16 @@ bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
 	return true;
 }
 
+double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
+{
+	if (th_main[usMPSNo - 1] == NULL)
+	{
+		oapiWriteLog( "Atlantis::GetSSMEThrustLevel: No SSME handle ready" );
+		return -1;
+	}
+	return GetThrusterLevel( th_main[usMPSNo - 1] );
+}
+
 // ==============================================================
 // API callback interface
 // ==============================================================

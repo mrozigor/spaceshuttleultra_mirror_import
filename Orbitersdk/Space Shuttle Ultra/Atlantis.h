@@ -1131,6 +1131,12 @@ public:
 	 */
 	bool SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel);
 
+	/**
+	 * @param usMPSNo numerical ID of the SSME
+	 * @return 0 < SSME PC < 1
+	 */
+	double GetSSMEThrustLevel( unsigned short usMPSNo );
+
 	virtual void TurnOnPadLights();
 	virtual void TurnOffPadLights();
 	void ToggleGrapple (void);
