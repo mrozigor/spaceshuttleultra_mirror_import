@@ -7459,8 +7459,10 @@ bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fIS
 		//error
 		return false;
 	} else {
-		if(th_main[usMPSNo-1] == NULL)
+		if(th_main[usMPSNo-1] == NULL) {
+			oapiWriteLog("Atlantis::SetSSMEParams : No SSME handle ready");
 			return false;
+		}
 
 		SetThrusterMax0(th_main[usMPSNo-1], fThrust0);
 		SetThrusterIsp(th_main[usMPSNo-1], fISP0, fISP1);
@@ -7480,8 +7482,10 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 		//error
 		return false;
 	} else {
-		if(th_main[usMPSNo-1] == NULL)
+		if(th_main[usMPSNo-1] == NULL) {
+			oapiWriteLog("Atlantis::SetSSMEDir : No SSME handle ready");
 			return false;
+		}
 		SetThrusterDir(th_main[usMPSNo-1], dir);
 	}
 	return true;
@@ -7495,10 +7499,13 @@ bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
 			SetSSMEThrustLevel(3, fThrustLevel);
 	} else if(usMPSNo>3) {
 		//error
+		oapiWriteLog("Atlantis::SetSSMEThrustLevel : Wrong MPS ID");
 		return false;
 	} else {
-		if(th_main[usMPSNo-1] == NULL)
+		if(th_main[usMPSNo-1] == NULL) {
+			oapiWriteLog("Atlantis::SetSSMEThrustLevel : No SSME handle ready");
 			return false;
+		}
 		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel);
 	}
 	return true;
