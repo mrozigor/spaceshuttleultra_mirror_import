@@ -12,6 +12,8 @@ const VECTOR3 DIR_SRB_SMOKE = _V(0.0, 0.0, 1.0);
 
 const VECTOR3 HDP_POS = _V(0, -0.91, -4.05);
 
+const double TSM_UMBILICAL_RETRACT_SPEED = 1.5;
+
 class MLP: public VESSEL2
 {
 	
