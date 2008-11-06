@@ -5,6 +5,9 @@
 #include "orbitersdk.h"
 #include "../Pad/SSUPad.h"
 
+const double ACCESS_ARM_RETRACT_TIME = 450.0;
+const double GOX_ARM_RETRACT_TIME = 150.0;
+
 class SSULCC: public VESSEL2
 {
 public:

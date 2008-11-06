@@ -142,7 +142,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 	*/
 
 	if(T0UmbilicalState.Moving()) {
-		double dp=fDeltaT;
+		double dp=fDeltaT*TSM_UMBILICAL_RETRACT_SPEED;
 		T0UmbilicalState.Move(dp);
 		SetAnimation(anim_t0umb, T0UmbilicalState.pos);
 	}
@@ -189,7 +189,7 @@ Atlantis* MLP::GetShuttleOnPad()
 	if(Handle) {
 		VESSEL* vessel=oapiGetVesselInterface(Handle);
 		if(!strcmp(vessel->GetClassName(), "Atlantis") || !strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
-			Atlantis* sts=(Atlantis*)vessel;
+			Atlantis* sts=static_cast<Atlantis*>(vessel);
 			return sts;
 		}
 	}
@@ -441,12 +441,22 @@ void MLP::DefineAnimations()
 	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
 	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
 		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(18.0*RAD));
-	AddAnimationComponent(anim_t0umb, 0, 1, &LeftT0Umb);
+	AddAnimationComponent(anim_t0umb, 0, 0.5, &LeftT0Umb);
 
 	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
 	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
 		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(18.0*RAD));
-	AddAnimationComponent(anim_t0umb, 0, 1, &RightT0Umb);
+	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
+
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_cover};
+	static MGROUP_ROTATE LeftT0UmbCover(msh_idx, LeftT0UmbCoverGrp, 1,
+		_V(-6.267, 6.527, -14.216), _V(0, 0, -1), (float)(90.0*RAD));
+	AddAnimationComponent(anim_t0umb, 0.45, 1, &LeftT0UmbCover);
+
+	static UINT RightT0UmbCoverGrp[1] = {GRP_RH_TSM_cover};
+	static MGROUP_ROTATE RightT0UmbCover(msh_idx, RightT0UmbCoverGrp, 1,
+		_V(6.164, 6.527, -14.216), _V(0, 0, 1), (float)(90.0*RAD));
+	AddAnimationComponent(anim_t0umb, 0.45, 1, &RightT0UmbCover);
 }
 
 void MLP::SignalGSEStart()

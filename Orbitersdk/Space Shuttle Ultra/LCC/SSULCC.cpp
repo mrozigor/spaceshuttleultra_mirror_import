@@ -36,12 +36,11 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 
 	if(pFSS) {
 		double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
-		//sprintf_s(oapiDebugString(), 255, "LCC: %f %f", launch_mjd, timeToLaunch);
-		if(timeToLaunch<=450.0 && lastTTL>=450.0) //retract orbiter access arm
+		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
 		{
 			pFSS->MoveOrbiterAccessArm(AnimState::CLOSING);
 		}
-		else if(timeToLaunch<=150.0 && lastTTL>=150.0) //retract GOX arm
+		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>=GOX_ARM_RETRACT_TIME) //retract GOX arm
 		{
 			pFSS->MoveGOXArm(AnimState::CLOSING);
 		}
