@@ -34,6 +34,26 @@ namespace vc {
 			panels.at(i)->DefineVC();
 	}
 
+	bool PanelGroup::HasPanel(const string& panelname) const {
+		for(int i = 0; i<panels.size(); i++) {
+			if(panels.at(i)->GetIdentifier() == panelname) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool PanelGroup::ParsePanelBlock(const string& panelname, FILEHANDLE scn) {
+		
+		for(int i = 0; i<panels.size(); i++) {
+			if(panels.at(i)->GetIdentifier() == panelname) {
+				return panels.at(i)->OnReadState(scn);
+			}
+		}
+		oapiWriteLog("\tNo Panel found here!");
+		return false;
+	}
+
 	void PanelGroup::RegisterVC()
 	{
 		for(int i = 0; i<panels.size(); i++)
@@ -76,8 +96,17 @@ namespace vc {
 
 	void PanelGroup::OnSaveState(FILEHANDLE scn)
 	{
-		for(int i = 0; i<panels.size(); i++)
+		char pszBuffer[256];
+		if(panels.empty()) {
+			oapiWriteLog("\tNo panels to be saved here...");
+			return;
+		}
+		for(int i = 0; i<panels.size(); i++) {
+			sprintf_s(pszBuffer, 255, "\tSave panel \"%s\" ...",
+				panels.at(i)->GetQualifiedIdentifier());
+			oapiWriteLog(pszBuffer);
 			panels.at(i)->OnSaveState(scn);
+		}
 	}
 
 	bool PanelGroup::OnVCMouseEvent(int id, int _event, VECTOR3 &p)

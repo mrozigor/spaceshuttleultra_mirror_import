@@ -87,6 +87,32 @@ namespace dps {
 		unsigned char uP9:8;
 	} IRIGB_FRAME;
 
+	typedef struct {
+		unsigned int uSeconds:7;
+		unsigned int uMinutes:7;
+		unsigned int uHours:6;
+		unsigned int uDays:9;
+	} GPC_TIME_RECORD;
+
+	typedef struct {
+		unsigned char ucGPCID;
+		unsigned short ucMajorFunction;
+		short sOPS;
+		short sSPEC;
+		short sDISP;
+		GPC_TIME_RECORD gpc_time;
+		GPC_TIME_RECORD crt_time;
+		short sDataPage;
+		long lData[16];
+	} DEU_COMMAND;
+
+	typedef struct {
+		unsigned char ucMajorFunction;
+		unsigned long ulKeyMap;
+		unsigned short usDataSize;
+		long lData[32];
+	} DEU_DATA;
+
 	
 
 };

@@ -17,7 +17,7 @@ namespace vc
 	PanelA6::PanelA6(Atlantis* _sts)
 		:BasicPanel(_sts, "A6")
 	{
-		Add(pSense=new StdSwitch2(_sts, "A6_Sense"));
+		Add(pSense=new StdSwitch2(_sts, "SENSE"));
 
 		for(int i=0;i<24;i++) PBI_Lights[i]=false;
 	}

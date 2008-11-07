@@ -33,7 +33,7 @@ void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 {
 	char pszBuffer[256];
 	//oapiWriteLog("*");
-	if(bHasReference && bHasDirection)
+	if(bHasReference && bHasDirection && !bHasAnimations)
 	{
 		sprintf_s(pszBuffer, 255, "STANDARD SWITCH[%s]:\tDefine VC Animations()", 
 			GetQualifiedIdentifier().c_str());
@@ -44,6 +44,8 @@ void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 		STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
 		VerifyAnimations();
 	}
+
+	OnPositionChange(usCurrentPosition);
 }
 
 bool StandardSwitch::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle *pBundle, unsigned short usLine)
@@ -63,7 +65,10 @@ void StandardSwitch::DefineSwitchGroup(UINT _grpIndex)
 
 void StandardSwitch::OnPositionChange(unsigned short usNewPosition)
 {
-	SetAnimation(anim_switch, usNewPosition/(usNumPositions - 1));
+	if(bHasAnimations)
+	{
+		SetAnimation(anim_switch, usNewPosition/(usNumPositions - 1));
+	}
 }
 
 

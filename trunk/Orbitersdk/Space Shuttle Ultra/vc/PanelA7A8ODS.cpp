@@ -31,6 +31,13 @@ namespace vc {
 		Add(pPyrosAp			= new StdSwitch2(_sts, "PYROS Ap"));
 		Add(pPyrosBp			= new StdSwitch2(_sts, "PYROS Bp"));
 		Add(pPyrosCp			= new StdSwitch2(_sts, "PYROS Cp"));
+
+		pControlPanelPowerA->SetLabel(0, "OFF");
+		pControlPanelPowerA->SetLabel(1, "ON");
+		pControlPanelPowerB->SetLabel(0, "OFF");
+		pControlPanelPowerB->SetLabel(1, "ON");
+		pControlPanelPowerC->SetLabel(0, "OFF");
+		pControlPanelPowerC->SetLabel(1, "ON");
 	}
 
 	PanelA7A8ODS::~PanelA7A8ODS()
