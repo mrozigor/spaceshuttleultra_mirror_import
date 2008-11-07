@@ -28,17 +28,21 @@ public:
 	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
+	void SetLabel(int iPosition, const string& _label);
 	void SetOrientation(bool bHorizontal);
 
 	virtual void DefineVCAnimations(UINT vc_idx);
+	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
 
 	virtual bool OnMouseEvent(int _event, float x, float y);
 
+	virtual bool OnParseLine(const char* line);
 	virtual void OnPositionUp();
 	virtual void OnPositionDown();
 	virtual void OnPositionChange(unsigned short usNewPosition);
 
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
 };
 
 };

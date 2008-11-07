@@ -60,6 +60,7 @@ public:
 	
 	
 	virtual void AddMeshes(const VECTOR3& ofs) {};
+	virtual BasicVCComponent* GetSwitch(const string& switchID) const;
 	virtual void Realize();
 	virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
 	virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
@@ -67,6 +68,7 @@ public:
 	virtual void OnPostStep (double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual bool OnParseLine (char *line);
+	virtual bool OnReadState (FILEHANDLE scn);
 	virtual void OnSaveState (FILEHANDLE scn);
 	
 	virtual const string& GetIdentifier() const;

@@ -17,6 +17,8 @@ namespace vc {
 		void RegisterVC();
 		void DefineVCAnimations (UINT vcidx);
 		void DefineVC();
+		bool HasPanel(const string& panelname) const;
+		bool ParsePanelBlock(const string& panelname, FILEHANDLE scn);
 		void Realize();
 		bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
 		bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);

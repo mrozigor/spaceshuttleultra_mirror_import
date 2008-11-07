@@ -79,9 +79,18 @@ public:
 	virtual void SetInitialAnimState(double fState = 0.0);
 	virtual void DefineVCAnimations(UINT vc_idx);
 	virtual bool OnMouseEvent(int _event, float x, float y);
-	virtual double GetState() const;
-	virtual const VECTOR3& GetReference() const;
 	virtual const VECTOR3& GetDirection() const;
+	virtual const VECTOR3& GetReference() const;
+	virtual double GetState() const;
+	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
+
+	/**
+	 * @return true if the object uses multiple lines for saving it's
+	 * state. 
+	 */
+	virtual bool IsMultiLineSaveState() const;
+
+
 	bool IsOwnRegion(UINT aid) const;
 	bool IsPointOver(float x, float y) const;
 	bool ProjectMouse(float x, float y, float &mx, float &my) const;
@@ -96,6 +105,8 @@ public:
 	 */
 	void SetReference(const VECTOR3& _ref, const VECTOR3& dir);
 	void SetDirection(const VECTOR3& _ref);
+
+	
 	
 	
 	virtual void Realize();
@@ -109,9 +120,13 @@ public:
 	virtual void OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
 	virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 	virtual bool OnParseLine(const char* line);
+	virtual bool OnParseLine(const char* keyword, const char* line);
+	virtual bool OnReadState (FILEHANDLE scn);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+	
 	virtual void OnDumpToLog() const;
 	virtual const string& GetQualifiedIdentifier() const;
+	
 	/**
 	 * Get identification of this component
 	 * @return The identification string, used for locating this component inside a panel

@@ -417,7 +417,9 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pOMS = NULL;
 #endif
 
-  pA7A8Panel = new vc::PanelA7A8ODS(this);
+  //pA7A8Panel = new vc::PanelA7A8ODS(this);
+
+  pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 
   //connect CRT MDUs to IDPs
   for (i=0;i<3;i++) {
@@ -4899,6 +4901,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 {
   int action;
   char *line;
+  char pszBuffer[256];
   double srbtime = 0.0;
   double sts_sat_x = 0.0;
   double sts_sat_y = 0.0;
@@ -5024,6 +5027,39 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		bSSMEGOXVent = (action != 0);
 	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
 		ParsePayloadLine(line);
+	} else if (!_strnicmp(line, "@PANEL", 6)) {
+		char pszPanelName[30];
+		sscanf_s(line+6, "%s", pszPanelName);
+		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
+			pszPanelName, line);
+		oapiWriteLog(pszBuffer);
+		//bool bFound = false;
+
+		if(pgLeft.HasPanel(pszPanelName))
+			pgLeft.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgForward.HasPanel(pszPanelName))
+			pgForward.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgRight.HasPanel(pszPanelName))
+			pgRight.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgCenter.HasPanel(pszPanelName)) 
+			pgCenter.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgOverhead.HasPanel(pszPanelName))
+			pgOverhead.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgAftStbd.HasPanel(pszPanelName))
+			pgAftStbd.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgAft.HasPanel(pszPanelName))
+			pgAft.ParsePanelBlock(pszPanelName, scn);
+
+		if(pgAftPort.HasPanel(pszPanelName)) 
+			pgAftPort.ParsePanelBlock(pszPanelName, scn);
+
+		oapiWriteLog("\tLeave @PANEL block.");
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       //if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
@@ -5188,9 +5224,22 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   panelc3->SaveState (scn);
 //  panelf7->SaveState(scn);
   r2d2->SaveState (scn);
+	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
+	oapiWriteLog("\tForward flight deck");
+  pgLeft.OnSaveState(scn);
+  pgForward.OnSaveState(scn);
+  pgRight.OnSaveState(scn);
+  pgCenter.OnSaveState(scn);
+  pgOverhead.OnSaveState(scn);
+  oapiWriteLog("\tAft flight deck");
+  pgAftStbd.OnSaveState(scn);
+  pgAft.OnSaveState(scn);
+  pgAftPort.OnSaveState(scn);
 
+	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
-  
+
+	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
 }
 
 void Atlantis::SavePayloadState(FILEHANDLE scn) const
@@ -8600,6 +8649,14 @@ void Atlantis::FireAllNextManifold()
 		return;
 	}
 }
+
+double Atlantis::GetETGOXMassFlow() const {
+	return 0.0;
+}
+double Atlantis::GetETGH2MassFlow() const {
+	return 0.0;
+}
+	
 
 void Atlantis::StopAllManifolds()
 {

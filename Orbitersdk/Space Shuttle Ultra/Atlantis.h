@@ -1073,6 +1073,8 @@ public:
 	/* **********************************************************
 	 * Getters
 	 * **********************************************************/
+	virtual double GetETGOXMassFlow() const;
+	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant(unsigned short usGPCID);
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);

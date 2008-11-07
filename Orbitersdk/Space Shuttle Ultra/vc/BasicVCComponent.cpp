@@ -34,6 +34,10 @@ void BasicVCComponent::AddAIDToRedrawEventList(UINT aid)
 	availableForRendering.insert(aid);
 }
 
+bool BasicVCComponent::GetStateString(unsigned long ulBufferSize, char* pszBuffer) {
+	return false;
+}
+
 void BasicVCComponent::Realize()
 {
 }
@@ -55,6 +59,10 @@ bool BasicVCComponent::SetMouseRegion(float xmin, float ymin, float xmax, float 
 	p_d.y = ymax;
 	return true;
 }
+
+bool BasicVCComponent::IsMultiLineSaveState() const {
+	return false;
+};
 
 bool BasicVCComponent::IsOwnRegion(UINT aid) const
 {
@@ -164,19 +172,49 @@ void BasicVCComponent::OnDumpToLog() const
 {
 }
 
-void BasicVCComponent::OnSaveState(FILEHANDLE scn) const
-{
-	
-}
-
 bool BasicVCComponent::OnParseLine(const char* line)
 {
+	return true;
+}
+
+bool BasicVCComponent::OnParseLine(const char* keyword, const char* line) {
 	return true;
 }
 
 void BasicVCComponent::OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event)
 {
 }
+
+bool BasicVCComponent::OnReadState(FILEHANDLE scn) {
+	char* line;
+	char pszKey[256];
+	while(oapiReadScenario_nextline(scn, line)) {
+		if(!_strnicmp(line, "@ENDOBJECT", 10)) {
+			return true;
+		} else if (!_strnicmp(line, "@ENDPANEL", 9)) {
+			return false;
+		} else {
+			unsigned long i = 0;
+			while(*line != ' ' || *line != '\0') {
+				pszKey[i++] = *line;
+				line++;
+			}
+			pszKey[++i] = '\0';
+			if(*line != '\0') {
+				OnParseLine(pszKey, line);
+			} else {
+				OnParseLine(pszKey, NULL);
+			}
+		}
+	}
+	return false;
+}
+
+void BasicVCComponent::OnSaveState(FILEHANDLE scn) const
+{
+	
+}
+
 
 bool BasicVCComponent::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
