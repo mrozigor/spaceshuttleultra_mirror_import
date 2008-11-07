@@ -188,6 +188,7 @@ namespace mps
 				break;
 			case SHUTDOWN_PROPELLANTVALVESCLOSED:
 				// TODO keep running down TPs...
+				Shutdown( fSimT );
 				if ((fSimT - COtime) > 8)// ???time???
 				{
 					STATUSWORD = POSTSHUTDOWN_STANDBY;
@@ -522,7 +523,7 @@ namespace mps
 
 		if ((STATUSWORD == STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL) && (itgtPC <= FPL) && (itgtPC >= MPL))
 		{
-			PC_CMD = itgtPC;
+			PC_CMD = PCfromPCTtoPSI( itgtPC );
 			ThrottleCmdTme = VDT->DW1;
 			return true;
 		}
@@ -599,9 +600,14 @@ namespace mps
 	{
 		ValveScheduleThrottle( PCfromPSItoPCT( PC_CMD ) );
 
-		if (((time - ThrottleCmdTme) <= 0.2) || (ThrottleCmdTme == -1))
+		if (ThrottleCmdTme == -1)
 		{
-			// 200ms delay in pc change, also protect for outside pc changes
+			ThrottleCmdTme = time;
+			return;
+		}
+
+		if ((time - ThrottleCmdTme) >= 0.2)// 200ms delay in pc change
+		{
 			double pc = dcPC_MS( dtime );
 			STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
 		}
