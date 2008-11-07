@@ -11,9 +11,14 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	mesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_FSS);
 	mesh_idx=AddMesh(mesh, &mesh_ofs);
 	//SetTouchdownPoints(_V(0.0, 1.0, 1.0), _V(-1.0, 1.0, -1.0), _V(1.0, 1.0, -1.0));
-	SetTouchdownPoints(_V(1.0, 1.0, 0.0), _V(-1.0, 1.0, 1.0), _V(-1.0, 1.0, -1.0));
+	SetTouchdownPoints(_V(1.0, -1.0, 0.0), _V(-1.0, -1.0, 1.0), _V(-1.0, -1.0, -1.0));
+
+	phGOXVent = NULL;
 
 	GOXArmAction=AnimState::STOPPED;
+	vtx_goxvent[0] = FSS_POS_GOXVENTL;
+	vtx_goxvent[1] = FSS_POS_GOXVENTR;
+	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
 	DefineAnimations();
 }
 
@@ -38,7 +43,12 @@ void SSUPad::DefineAnimations()
 		GRP_GOX_vent_arm_truss, GRP_North_GN2_vent_pipe, GRP_South_GN2_vent_pipe};
 	static MGROUP_ROTATE GVA(mesh_idx, GVAGrp, 5,
 		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
+
+	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
+		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
+
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
+	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
 
 	//GOX hood
 	VentHoodState.Set(AnimState::OPEN, 1.0);
@@ -128,6 +138,23 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_venthood, VentHoodState.pos);
 		if(GOXArmAction>=AnimState::CLOSING && !VentHoodState.Moving()) GOXArmSequence();
 	}
+
+	UpdateGOXVentThrusters();
+	
+	double fGOXMass = GetPropellantMass(phGOXVent);
+	if(fGOXMass > 0.0) {
+		//Make vent level lag behind 
+		double fFlow = max(fGOXMass/5.0, 0.01);
+		SetThrusterLevel(thGOXVent[0], fFlow);
+		SetThrusterLevel(thGOXVent[1], fFlow);
+
+		if(fGOXMass > 0.0005) {
+			SetPropellantMass(phGOXVent, max(fGOXMass - 5.0 * fFlow * simdt, 0.0));
+		} else {
+			SetPropellantMass(phGOXVent, 0.0);
+		}
+		
+	}
 }
 
 void SSUPad::clbkSaveState(FILEHANDLE scn)
@@ -162,6 +189,8 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		}
 		else ParseScenarioLineEx(line, status);
 	}
+
+	CreateGOXVentThrusters();
 }
 
 int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
@@ -174,6 +203,10 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 			else AccessArmState.action=AnimState::OPENING;
 			return 1;
 			break;
+		case OAPI_KEY_O:
+			//Recharge GOX_Vent .. test
+			SetPropellantMass(phGOXVent, 5.0);
+			return 1;
 		case OAPI_KEY_G:
 			//if(GVAState.Open() || GVAState.Opening()) GVAState.action=AnimState::CLOSING;
 			//else GVAState.action=AnimState::OPENING;
@@ -185,6 +218,48 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 			break;
 	}
 	return 0;
+}
+
+void SSUPad::CreateGOXVentThrusters() {
+
+	static PARTICLESTREAMSPEC gox_stream = {
+	  0, 0.6, 140, 10, 0.025, 1.0, 1.1, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
+	  };
+
+	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
+
+
+	VECTOR3 dir = (vtx_goxvent[2] - vtx_goxvent[0]);
+	dir = dir/length(dir);
+
+	if(phGOXVent == NULL) {
+		phGOXVent = CreatePropellantResource(5.0);
+		thGOXVent[0] = CreateThruster(vtx_goxvent[0], dir, 0.0, phGOXVent, 10.0, 8.0);
+		thGOXVent[1] = CreateThruster(vtx_goxvent[1], dir, 0.0, phGOXVent, 10.0, 8.0);
+		AddExhaustStream(thGOXVent[0], &gox_stream);
+		AddExhaustStream(thGOXVent[1], &gox_stream);
+	} else {
+		UpdateGOXVentThrusters();
+	}
+}
+
+void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
+	SetEmptyMass(6500000.0);
+	SetSize(39.0);
+	CreateGOXVentThrusters();
+}
+
+void SSUPad::UpdateGOXVentThrusters() {
+	VECTOR3 dir = (vtx_goxvent[2] - vtx_goxvent[0]);
+	dir = dir/length(dir);
+	
+	for(int i = 0; i<2; i++) {
+		SetThrusterRef(thGOXVent[i], vtx_goxvent[i]);
+		SetThrusterDir(thGOXVent[i], dir);
+	}
+
 }
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
