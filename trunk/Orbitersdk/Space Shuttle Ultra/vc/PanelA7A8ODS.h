@@ -29,6 +29,16 @@ namespace vc {
 		StdSwitch2* pControlPanelPowerA;
 		StdSwitch2* pControlPanelPowerB;
 		StdSwitch2* pControlPanelPowerC;
+		
+		StdSwitch2* pHeatersDCUPowerH1;
+		StdSwitch2* pHeatersDCUPowerH2;
+		StdSwitch2* pHeatersDCUPowerH3;
+
+		StdSwitch2* pAPDSPowerA;
+		StdSwitch2* pAPDSPowerB;
+		StdSwitch2* pAPDSPowerC;
+		
+		
 
 		StdSwitch2* pPyrosAp;
 		StdSwitch2* pPyrosBp;

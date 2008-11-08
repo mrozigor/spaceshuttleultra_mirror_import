@@ -15,6 +15,7 @@ StandardSwitch::StandardSwitch(Atlantis* _sts, unsigned short usNumPositions, co
 : BasicSwitch(_sts, usNumPositions, _ident)
 {
 	pswitchrot = NULL;
+	anim_switch = NULL;
 }
 
 StandardSwitch::~StandardSwitch()

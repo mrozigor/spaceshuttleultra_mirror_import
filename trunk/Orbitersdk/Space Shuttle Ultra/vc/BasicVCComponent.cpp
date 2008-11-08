@@ -74,7 +74,8 @@ bool BasicVCComponent::IsOwnRegion(UINT aid) const
 
 bool BasicVCComponent::IsPointOver(float x, float y) const
 {
-	if(p_a.x <= x && p_d.x >= x && p_a.y <= y && p_d.y >= y) {
+	if(p_a.x <= x && p_d.x >= x && 
+		p_a.y <= y && p_d.y >= y) {
 		return true;
 	}
 	else 

@@ -7341,10 +7341,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		FireAllNextManifold();
 		return 1;
 	case OAPI_KEY_3:
-		if(pA7A8Panel)
-		{
-			pA7A8Panel->ToggleCoordinateDisplayMode();
-		}
+		//if(pA7A8Panel)
+		//{
+		//	pA7A8Panel->ToggleCoordinateDisplayMode();
+		//}
 		pgForward.ToggleCoordinateDisplayMode();
 		pgCenter.ToggleCoordinateDisplayMode();
 		pgRight.ToggleCoordinateDisplayMode();

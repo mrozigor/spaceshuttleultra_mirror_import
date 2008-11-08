@@ -1,17 +1,17 @@
 // ========================================================
-// Mesh resource file for ..\..\meshes\SSU\ODSVC.msh
-// Generated with meshc on Thu May 22 18:29:48 2008
+// Mesh resource file for ..\..\Meshes\SSU\ODSVC.msh
+// Generated with meshc on Sat Nov 08 22:41:59 2008
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRPODSVC 87
+#define NGRP_ODSVC 87
 
 // Number of materials:
-#define NMATODSVC 4
+#define NMAT_ODSVC 4
 
 // Number of textures:
-#define NTEXODSVC 2
+#define NTEX_ODSVC 2
 
 // Named mesh groups:
 #define GRP_OPEN_Hooks_ODSVC 0
@@ -63,7 +63,7 @@
 #define GRP_BDS_ODSVC 46
 #define GRP_CDS_ODSVC 47
 #define GRP_LampTest_ODSVC 48
-#define GRP_guards_ODSVC 49
+#define GRP_gaurds_ODSVC 49
 #define GRP_plateguard2_ODSVC 50
 #define GRP_plateguard1_ODSVC 51
 #define GRP_A8A3panel_ODSVC 52
@@ -100,4 +100,4 @@
 #define GRP_A7A3CB14_ODSVC 83
 #define GRP_A7A3CB15_ODSVC 84
 #define GRP_A7A3CB16_ODSVC 85
-#define GRP_A7A3Guard_ODSVC 86
+#define GRP_A73Guard_ODSVC 86
