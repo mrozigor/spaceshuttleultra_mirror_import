@@ -44,6 +44,7 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelO6.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
@@ -366,6 +367,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
+
+  pgOverhead.AddPanel(new vc::PanelO6(this));
 
   pgAft.AddPanel(new vc::PanelA6(this));
   pgAft.AddPanel(new vc::AftMDU(this));

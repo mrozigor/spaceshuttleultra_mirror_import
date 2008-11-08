@@ -26,6 +26,8 @@ namespace dps
 
 		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 		virtual void OnPostStep(double SimT, double DeltaT, double MJD);
+
+		static GPCSoftware* CreateSoftware(const string& _softname);
 	protected:
 		Atlantis* sts;
 

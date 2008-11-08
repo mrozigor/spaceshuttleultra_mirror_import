@@ -26,25 +26,6 @@ namespace dps {
 	// 64 KB (SECTION 0) of the memory
 	// ===================================================
 		long lMemory[262144];
-#if defined(DO_AP101S_EMULATION)
-	// ===================================================
-	// Emulation registers and memory
-	// not needed as we don't do a emulation yet
-	// ===================================================
-	
-		long lR[16];	//GP registers
-		double fF[8];	//Floating Point registers
-		long LX;	//Index register
-		long lB;	//Base register
-		long lPSW[2];
-#else
-	// ===================================================
-	// Simulation variables
-	// software modules and their scheduling
-	// ===================================================
-
-		vector<GPCSoftware*> software;
-#endif
 	// ===================================================
 	// General submodules: IOP
 	// ===================================================
@@ -53,9 +34,9 @@ namespace dps {
 	// transmits data half words from the memory over 
 	// the MIAs. 
 	protected:
-		
-		void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
-		void LoadSoftware(const GPCSoftware* pSoftware);
+		virtual void GeneratePROMData();
+		//void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
+		//void LoadSoftware(const GPCSoftware* pSoftware);
 	public:
 		AP101S(SubsystemDirector* _director, const string& _ident, unsigned short usGPCID);
 		virtual ~AP101S();
