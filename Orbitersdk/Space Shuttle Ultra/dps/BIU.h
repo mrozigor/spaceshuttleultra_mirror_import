@@ -9,6 +9,44 @@ namespace dps {
 
 	using namespace std;
 
+	class FastQueue {
+		unsigned short usBuffer[1024];
+		unsigned short usTailPtr;
+		unsigned short usHeadPtr;
+	public:
+		FastQueue() {
+			usTailPtr = 0;
+			usHeadPtr = 0;
+		};
+
+
+		inline unsigned short front() const {
+			return usBuffer[usHeadPtr];
+		};
+
+		inline void Pop() {
+			if(usHeadPtr != usTailPtr) {
+				usHeadPtr = (usHeadPtr + 1) % 1024;
+			}
+		};
+
+		inline void Push(unsigned short usVal) {
+			if((usTailPtr + 1) % 1024 != usHeadPtr) {
+				usBuffer[usTailPtr] = usVal;
+				usTailPtr = (usTailPtr + 1) % 1024;
+			}
+		};
+
+		inline void Purge() {
+			usTailPtr = 0;
+			usHeadPtr = 0;
+		};
+
+		inline bool IsEmpty() const {
+			return usTailPtr == usHeadPtr;
+		}
+	};
+
 	class BIU {
 		AtlantisSubsystem* pParent;
 		string label;

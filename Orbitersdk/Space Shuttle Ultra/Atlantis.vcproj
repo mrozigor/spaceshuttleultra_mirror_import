@@ -499,6 +499,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelO6.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelR11.cpp"
 				>
 			</File>
@@ -730,6 +734,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\MMU.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\MPS.h"
 				>
 			</File>
@@ -771,6 +779,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelGroup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelO6.h"
 				>
 			</File>
 			<File

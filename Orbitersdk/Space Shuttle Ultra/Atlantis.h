@@ -751,6 +751,10 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_O3_METTMR2 332
 #define AID_O3_RCS     333
 #define AID_O3_MAX	   349
+
+#define AID_O6_MIN	   350
+#define AID_O6		   350
+#define AID_O6_MAX	   359
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400

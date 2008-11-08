@@ -20,6 +20,10 @@ namespace discsignals {
 		return 0.0;
 	}
 
+	bool DiscInPort::IsSet() const {
+		return (pBundle->GetVoltage(usLine) > 4.7);
+	}
+
 
 	DiscDemultiplex16::DiscDemultiplex16() {
 
@@ -30,5 +34,7 @@ namespace discsignals {
 
 	void DiscDemultiplex16::Propagate(double fSimT, double fDeltaT, double fMJD) {
 	}
+
+	
 
 };

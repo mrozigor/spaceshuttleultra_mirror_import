@@ -21,4 +21,8 @@ AP101S::~AP101S()
 
 }
 
+void AP101S::GeneratePROMData() {
+
+}
+
 };
