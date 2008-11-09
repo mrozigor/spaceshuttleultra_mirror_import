@@ -48,6 +48,7 @@ protected:
 	bool SetAnimation(UINT anim, double fState);
 	Atlantis* STS() const;
 	bool VerifyAnimations();
+	bool TriggerRedraw();
 	bool WriteScenarioString(FILEHANDLE scn, const string& key, const string& value) const;
 	bool WriteScenarioInt(FILEHANDLE scn, const string& key, const int iValue) const;
 	bool WriteScenarioVector(FILEHANDLE scn, const string& key, const VECTOR3& vector) const;
@@ -58,6 +59,9 @@ public:
 	BasicVCComponent(Atlantis* _sts, const string& _ident);
 	virtual ~BasicVCComponent();
 
+	/**
+	 * Add an area ID to the redraw event list
+	 */
 	void AddAIDToRedrawEventList(UINT aid);
 
 	

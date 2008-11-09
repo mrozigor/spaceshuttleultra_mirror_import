@@ -2,6 +2,7 @@
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
 #include "PushButton.h"
+#include "StandardLight.h"
 
 namespace vc {
 	/**
@@ -9,6 +10,32 @@ namespace vc {
 	 */
 	class PanelA7A8ODS: public BasicPanel
 	{
+
+		StandardLight* plADS;
+		StandardLight* plBDS;
+		StandardLight* plCDS;
+		StandardLight* plPowerOn;
+		StandardLight* plAPDSProtectCircOff;
+		StandardLight* plRingAligned;
+		StandardLight* plRingInitialPos;
+		StandardLight* plFixersOff;
+		StandardLight* plHooks1Open;
+		StandardLight* plHooks2Open;
+		StandardLight* plLatchesClosed;
+		StandardLight* plUndockComplete;
+		StandardLight* plInitialContact;
+		StandardLight* plCapture;
+		StandardLight* plRingForward;
+		StandardLight* plReadyToHook;
+		StandardLight* plInterpSealed;
+		StandardLight* plHooks1Closed;
+		StandardLight* plHooks2Closed;
+		StandardLight* plLatchesOpen;
+		StandardLight* plRingFinal;
+		StandardLight* plAp;
+		StandardLight* plBp;
+		StandardLight* plCp;
+
 		StdSwitch3* pSystemPowerMNA;
 		StdSwitch3* pSystemPowerMNB;
 		StdSwitch2* pPyroPowerMNA;
@@ -55,6 +82,7 @@ namespace vc {
 
 
 		UINT midx_odspanel;
+		MESHHANDLE mesh_odspanel;
 	public:
 		PanelA7A8ODS(Atlantis* _sts);
 		virtual ~PanelA7A8ODS();

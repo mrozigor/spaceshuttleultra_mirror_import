@@ -39,7 +39,7 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 }
 
 bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
-	for(int i = 0; i<bundles.size(); i++)
+	for(unsigned int i = 0; i<bundles.size(); i++)
 	{
 		if(bundles.at(i)->GetIdentity() == _ident)
 			return true;
@@ -48,7 +48,7 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 };
 
 DiscreteBundle* DiscreteBundleManager::FindBundle(const std::string &_ident) const {
-	for(int i = 0; i<bundles.size(); i++)
+	for(unsigned int i = 0; i<bundles.size(); i++)
 	{
 		if(bundles.at(i)->GetIdentity() == _ident)
 			return bundles.at(i);

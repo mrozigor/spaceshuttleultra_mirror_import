@@ -305,14 +305,32 @@ namespace vc {
 
 	void BasicPanel::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			(*iter)->OnPreStep(fSimT, fDeltaT, fMJD);
+			iter++;
+		}
 	}
 
 	void BasicPanel::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			(*iter)->OnPostStep(fSimT, fDeltaT, fMJD);
+			iter++;
+		}
 	}
 
 	void BasicPanel::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	{
+		vector<BasicVCComponent*>::iterator iter = components.begin();
+		while(iter != components.end())
+		{
+			(*iter)->OnPropagate(fSimT, fDeltaT, fMJD);
+			iter++;
+		}
 	}
 
 	bool BasicPanel::HasSwitch(const string& id)

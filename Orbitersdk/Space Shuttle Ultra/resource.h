@@ -17,6 +17,8 @@
 #define IDB_7SEGDIGITS                  116
 #define IDB_DEUCHARACTERS               117
 #define IDB_PBILIGHTS                   118
+#define IDB_BITMAP1                     120
+#define IDB_ODSBUTTONS                  120
 #define IDC_BUTTON1                     1000
 #define IDC_WRIST_ROLLRIGHT             1000
 #define IDC_PLBAYOP                     1000
@@ -87,13 +89,13 @@
 #define IDC_CAM_HIGHRATE                1065
 #define IDC_COMBO1                      1066
 #define IDC_PAYLOADCOMBO                1067
-#define IDC_CAM_RMS						1068
+#define IDC_CAM_RMS                     1068
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        119
+#define _APS_NEXT_RESOURCE_VALUE        121
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           101
