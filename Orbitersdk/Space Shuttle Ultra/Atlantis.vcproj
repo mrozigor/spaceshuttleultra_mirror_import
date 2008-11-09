@@ -798,6 +798,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PushButton.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\RAM16.h"
 				>
 			</File>
@@ -916,6 +920,10 @@
 		</File>
 		<File
 			RelativePath=".\dps\IDP_Software.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\vc\PushButton.cpp"
 			>
 		</File>
 		<File

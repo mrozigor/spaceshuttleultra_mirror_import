@@ -1,6 +1,7 @@
 #pragma once
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
+#include "PushButton.h"
 
 namespace vc {
 	/**
@@ -38,11 +39,19 @@ namespace vc {
 		StdSwitch2* pAPDSPowerB;
 		StdSwitch2* pAPDSPowerC;
 		
-		
-
 		StdSwitch2* pPyrosAp;
 		StdSwitch2* pPyrosBp;
 		StdSwitch2* pPyrosCp;
+
+		PushButton* pLampTest;
+		PushButton* pPowerOn;
+		PushButton* pPowerOff;
+		PushButton* pRingOut;
+		PushButton* pRingIn;
+		PushButton* pAPDSCircProtOff;
+		PushButton* pCloseHooks;
+		PushButton* pCloseLatches;
+		PushButton* pFixerOff;
 
 
 		UINT midx_odspanel;
