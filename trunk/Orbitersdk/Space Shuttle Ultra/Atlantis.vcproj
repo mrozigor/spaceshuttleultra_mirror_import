@@ -533,6 +533,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\dps\RSLS.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\ShuttleBus.cpp"
 				>
 			</File>
@@ -807,6 +811,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\RSLS.h"
 				>
 			</File>
 			<File
