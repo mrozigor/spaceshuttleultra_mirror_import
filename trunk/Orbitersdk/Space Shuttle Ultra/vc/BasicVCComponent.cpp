@@ -267,6 +267,16 @@ void BasicVCComponent::SetReference(const VECTOR3& ref, const VECTOR3& dir)
 	this->dir = dir;
 }
 
+bool BasicVCComponent::TriggerRedraw() {
+
+	set<UINT>::iterator iter = availableForRendering.begin();
+	while(iter != availableForRendering.end()) {
+		oapiVCTriggerRedrawArea( -1, *iter);
+		iter++;
+	}
+	return true;
+}
+
 bool BasicVCComponent::VerifyAnimations()
 {
 	bHasAnimations = true;

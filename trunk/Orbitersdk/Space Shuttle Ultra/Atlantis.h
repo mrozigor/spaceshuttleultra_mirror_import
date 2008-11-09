@@ -852,6 +852,7 @@ const UINT AID_CUSTOM_PANELS_MIN = 10000;
 const UINT AID_CUSTOM_PANELS_MAX = 30000;
 
 const UINT AID_A7A3 = 11000;
+const UINT AID_ODSLIGHTS = 11001;
 const UINT AID_A8A3 = 11010;
 
 
@@ -891,6 +892,7 @@ typedef struct {
 	SURFHANDLE tkbk_label;
 	SURFHANDLE clock_digits;
 	SURFHANDLE digits_7seg;
+	SURFHANDLE odslights;
 	HBITMAP deu_characters;
 	HDC DeuCharBitmapDC;
 	HFONT font[1];

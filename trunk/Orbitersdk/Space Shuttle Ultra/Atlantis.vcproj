@@ -818,6 +818,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\StandardLight.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardSwitch.h"
 				>
 			</File>
@@ -857,6 +861,14 @@
 					PreprocessorDefinitions=""
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\vc\BasicLight.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Bitmaps\bitmap1.bmp"
+			>
 		</File>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
@@ -923,7 +935,19 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Bitmaps\ODSbuttons.bmp"
+			>
+		</File>
+		<File
+			RelativePath=".\Bitmaps\OrbitDAP_PBI_lights.bmp"
+			>
+		</File>
+		<File
 			RelativePath=".\vc\PushButton.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\vc\StandardLight.cpp"
 			>
 		</File>
 		<File

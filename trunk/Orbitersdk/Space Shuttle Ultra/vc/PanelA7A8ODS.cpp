@@ -2,11 +2,20 @@
 #include "../Atlantis.h"
 #include "../meshres_odsvc.h"
 
+extern GDIParams g_Param;
+
 namespace vc {
 
 	PanelA7A8ODS::PanelA7A8ODS(Atlantis* _sts)
 		: BasicPanel(_sts, "A7A3/A8A3")
 	{
+
+		mesh_odspanel = oapiLoadMeshGlobal(ODSPANEL_MESHNAME);
+
+		Add(plADS				= new StandardLight(_sts, "ADS"));
+		Add(plBDS				= new StandardLight(_sts, "BDS"));
+		Add(plCDS				= new StandardLight(_sts, "CDS"));
+
 		Add(pSystemPowerMNA		= new StdSwitch3(_sts, "SYSTEM POWER MNA"));
 		Add(pSystemPowerMNB		= new StdSwitch3(_sts, "SYSTEM POWER MNB"));
 		Add(pPyroPowerMNA		= new StdSwitch2(_sts, "PYRO POWER MNA"));
@@ -52,6 +61,7 @@ namespace vc {
 		Add(pCloseLatches		= new PushButton(_sts, "CLOSE LATCHES"));
 		Add(pFixerOff			= new PushButton(_sts, "FIXER OFF"));
 
+
 		pControlPanelPowerA->SetLabel(0, "OFF");
 		pControlPanelPowerA->SetLabel(1, "ON");
 		
@@ -86,7 +96,8 @@ namespace vc {
 	void PanelA7A8ODS::AddMeshes(const VECTOR3& ofs)
 	{
 		SetHasOwnVCMesh();
-		midx_odspanel = STS()->AddMesh(ODSPANEL_MESHNAME, &ofs);
+		
+		midx_odspanel = STS()->AddMesh(mesh_odspanel, &ofs);
 		STS()->SetMeshVisibilityMode(midx_odspanel, MESHVIS_VC);
 	}
 
@@ -107,6 +118,7 @@ namespace vc {
 		//Define VC regions
 		AddAIDToMouseEventList(AID_A7A3);
 		AddAIDToMouseEventList(AID_A8A3);
+		
 		//first is A7A3, second region A8A3. 
 
 		//Panel A8A3
@@ -115,6 +127,28 @@ namespace vc {
 		//register mouse event regions in BasicPanel
 
 		//0.262413  2.443722  12.41595
+
+		plADS->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plADS->SetSourceImage(g_Param.odslights);
+		//plADS->SetBase(17, 559);
+		plADS->SetBase(150, 150);
+		plADS->SetSourceCoords(true, 17, 559);
+		plADS->SetSourceCoords(false, 368, 559);
+		plADS->SetDimensions(68, 43);
+
+		plBDS->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plBDS->SetSourceImage(g_Param.odslights);
+		plBDS->SetBase(93, 559);
+		plBDS->SetSourceCoords(true, 93, 559);
+		plBDS->SetSourceCoords(false, 445, 559);
+		plBDS->SetDimensions(68, 43);
+
+		plCDS->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plCDS->SetBase(172, 559);
+		plCDS->SetSourceImage(g_Param.odslights);
+		plCDS->SetSourceCoords(true, 172, 559);
+		plCDS->SetSourceCoords(false, 524, 559);
+		plCDS->SetDimensions(68, 43);
 
 		pControlPanelPowerA->SetMouseRegion(0.081f, 0.124f, 0.094f, 0.197f);
 		pControlPanelPowerA->SetReference(_V(0.0, 2.443722, 12.41595),
@@ -222,6 +256,16 @@ namespace vc {
 		oapiVCSetAreaClickmode_Quadrilateral (AID_A8A3, 
 			_V(0.254716, 2.5048, 12.399)+ofs, _V(-0.265916, 2.5048, 12.399)+ofs,
 			_V(0.254716, 2.12746, 12.5175)+ofs, _V(-0.265916, 2.12746, 12.5175) + ofs);
+
+
+		SURFHANDLE shODSButtons = oapiGetTextureHandle(mesh_odspanel, 2);
+		oapiVCRegisterArea(AID_ODSLIGHTS, 
+			_R(0, 0, 334, 609), 
+			PANEL_REDRAW_USER, 
+			PANEL_MOUSE_IGNORE, 
+			PANEL_MAP_NONE, 
+			shODSButtons);
+
 	}
 
 	void PanelA7A8ODS::DefineVCAnimations(UINT vc_idx)

@@ -7626,6 +7626,12 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   if(g_Param.digits_7seg == NULL) {
 	  oapiWriteLog("Loading bitmap \"DIGITS_7SEG\" failed.");
   }
+
+  g_Param.odslights = oapiCreateSurface (LOADBMP (IDB_ODSBUTTONS));
+  if(g_Param.odslights == NULL) {
+	  oapiWriteLog("Loading bitmap \"ODSBUTTONS\" failed.");
+  }
+
   g_Param.deu_characters = LOADBMP (IDB_DEUCHARACTERS);
   
   HDC Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
@@ -7663,6 +7669,11 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
   {
 	oapiDestroySurface (g_Param.digits_7seg);
   }
+  if(g_Param.odslights)
+  {
+	oapiDestroySurface (g_Param.odslights);
+  }
+
   if(g_Param.deu_characters)
   {
 	  DeleteObject(g_Param.deu_characters);
