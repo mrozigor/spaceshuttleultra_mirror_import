@@ -37,6 +37,7 @@
 #include "dps/IDP.h"
 #include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
+#include "dps/RSLS.h"
 #include "dps/ShuttleBus.h"
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
@@ -363,6 +364,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //panelf7		  = new PanelF7(this);
 
   gncsoftware	= new dps::GNCSoftware(this);
+  rsls			= new dps::RSLS(this);
 
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
@@ -850,6 +852,7 @@ Atlantis::~Atlantis () {
 	delete PLTKeyboard;
 	delete dapcontrol;
 	delete gncsoftware;
+	delete rsls;
 
 	if(pA7A8Panel)
 		delete pA7A8Panel;
@@ -2627,10 +2630,14 @@ void Atlantis::ToggleGrapple (void)
   if(!RMS) return; //no arm
   if (hV) {  // release satellite
 
-    ATTACHMENTHANDLE hAtt = CanArrest();
+    //ATTACHMENTHANDLE hAtt = CanArrest();
+    //reduce mass of shuttle
+    pl_mass-=oapiGetMass(hV);
+	if(pl_mass<0.0) pl_mass=0.0;
+	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
+
     DetachChild (ahRMS);
     if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-      SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Grapple");
       EnableWindow (GetDlgItem (hDlg, IDC_STOW), TRUE);
     }
     // check whether the object being ungrappled is ready to be clamped into the payload bay
@@ -2691,6 +2698,10 @@ void Atlantis::ToggleGrapple (void)
 				  //if (hV == GetAttachmentStatus (sat_attach))
 				  //	  DetachChild (sat_attach);
 				  AttachChild (hV, ahRMS, hAtt);
+				  //increase mass of shuttle
+				  pl_mass+=oapiGetMass(hV);
+				  oapiWriteLog("pl_mass increased");
+				  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
 				  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
 					  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
 					  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
@@ -5461,6 +5472,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
+		rsls->OnPostStep(simt, simdt, mjd);
 		if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
 		{
 			status = STATE_STAGE1; // launch
@@ -5515,11 +5527,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				SetThrusterLevel(th_ssme_gox[i], 0.0);
 			}
 		}
-		if(met >= 0.0 && !GetLiftOffFlag())
+		/*if(met >= 0.0 && !GetLiftOffFlag())
 		{
 			SignalGSEBreakHDP();
 			TriggerLiftOff();	
-		}
+		}*/
+		if(!GetLiftOffFlag()) rsls->OnPostStep(simt, simdt, mjd);
 		//sprintf(oapiDebugString(),"met: %f",met);
 		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
 			SeparateBoosters (met);
@@ -5529,32 +5542,35 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			CalcThrustAngles();
 		}
 		else {
-			if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
-			{
-				char buffer[100];
-				sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
-				oapiWriteLog(buffer);
-				bSRBCutoffFlag = true;
+			if(met>0.0) {
+				if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
+				{
+					char buffer[100];
+					sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
+					oapiWriteLog(buffer);
+					bSRBCutoffFlag = true;
+				}
+
+
+				// extract current thrust level and propellant level as a function of time
+				DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
+				double thrust_level, prop_level;
+				GetSRB_State (met, thrust_level, prop_level);
+				for (i = 0; i < 2; i++)
+					SetThrusterLevel (th_srb[i], thrust_level);
+
+				if(met > 15.0)
+				{
+					slag1 = pow(1.0 - thrust_level, 3);
+					slag2 = pow(1.0 - thrust_level, 2);
+					slag3 = 1.0 - thrust_level;
+				}
 			}
-
-
-			// extract current thrust level and propellant level as a function of time
-			DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
-			double thrust_level, prop_level;
-			GetSRB_State (met, thrust_level, prop_level);
-			for (i = 0; i < 2; i++)
-				SetThrusterLevel (th_srb[i], thrust_level);
-
-			if(met > 15.0)
-			{
-				slag1 = pow(1.0 - thrust_level, 3);
-				slag2 = pow(1.0 - thrust_level, 2);
-				slag3 = 1.0 - thrust_level;
-			}
-			if (met < 0.0) {
+			else {
 				LaunchClamps ();
 			}
-			else if(ops==101) ops=102;
+			
+			if(ops==101) ops=102;
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -7602,6 +7618,15 @@ double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
 	return GetThrusterLevel( th_main[usMPSNo - 1] );
 }
 
+void Atlantis::IgniteSRBs()
+{
+	double thrust_level, prop_level;
+	GetSRB_State (0.0, thrust_level, prop_level);
+		for (int i = 0; i < 2; i++)
+			SetThrusterLevel (th_srb[i], thrust_level);
+}
+
+
 // ==============================================================
 // API callback interface
 // ==============================================================
@@ -7764,7 +7789,6 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     hIcon = LoadIcon (g_Param.hDLL, MAKEINTRESOURCE(IDI_RLEFT));
     SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
     SendDlgItemMessage (hWnd, IDC_SHOWGRAPPLE, BM_SETCHECK, oapiGetShowGrapplePoints() ? BST_CHECKED:BST_UNCHECKED, 0);
-    SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE), sts->SatGrappled() ? "Release" : "Grapple");
     EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
     //SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
     EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
@@ -8042,6 +8066,7 @@ bool Atlantis::GetLiftOffFlag() const
 void Atlantis::TriggerLiftOff()
 {
 	bLiftOff = true;
+	t0=oapiGetSimTime(); //update t0 value to actual (instead of planned) liftoff time
 	pMTU->StartMET();
 }
 
@@ -8971,4 +8996,14 @@ void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
 	} else {
 		SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 	}
+}
+
+void Atlantis::SynchronizeCountdown(double launch_mjd)
+{
+	rsls->SychronizeCountdown(launch_mjd);
+}
+
+void Atlantis::StartRSLSSequence()
+{
+	rsls->StartRSLSSequence();
 }

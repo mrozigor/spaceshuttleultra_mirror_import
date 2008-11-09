@@ -1,4 +1,5 @@
 #include "SSULCC.h"
+#include "../Atlantis.h"
 
 #define ORBITER_MODULE
 
@@ -8,7 +9,10 @@ SSULCC::SSULCC(OBJHANDLE hVessel, int flightmodel)
 	launch_mjd=-1.0;
 	lastTTL=-1.0;
 	pFSS=NULL;
+	pSSU=NULL;
+
 	sprintf_s(PadName, 256, "");
+	sprintf_s(ShuttleName, 256, "");
 }
 
 SSULCC::~SSULCC()
@@ -28,14 +32,24 @@ void SSULCC::clbkPostCreation()
 		}
 		else pFSS=NULL;
 	}
+
+	//set launch_mjd of shuttle
+	OBJHANDLE hSSU=oapiGetVesselByName(ShuttleName);
+	if(hSSU) {
+		VESSEL* pVessel=oapiGetVesselInterface(hSSU);
+		if(pVessel && !_stricmp(pVessel->GetClassNameA(), "SpaceShuttleUltra")) {
+			pSSU=static_cast<Atlantis*>(pVessel);
+		}
+	}
 }
 
 void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 {
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
+	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
+
 	if(pFSS) {
-		double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
 		{
 			pFSS->MoveOrbiterAccessArm(AnimState::CLOSING);
@@ -44,8 +58,17 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		{
 			pFSS->MoveGOXArm(AnimState::CLOSING);
 		}
-		lastTTL=timeToLaunch;
 	}
+	if(pSSU) {
+		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
+		{
+			oapiWriteLog("LCC: T-31");
+			pSSU->SynchronizeCountdown(launch_mjd);
+			pSSU->StartRSLSSequence();
+		}
+	}
+
+	lastTTL=timeToLaunch;
 }
 
 void SSULCC::clbkSaveState(FILEHANDLE scn)
@@ -58,6 +81,7 @@ void SSULCC::clbkSaveState(FILEHANDLE scn)
 	sprintf_s(cbuf, 255, "%f", launch_mjd);
 	oapiWriteScenario_string(scn, "LAUNCH_MJD", cbuf);
 	oapiWriteScenario_string(scn, "PAD_NAME", PadName);
+	oapiWriteScenario_string(scn, "SHUTTLE_NAME", ShuttleName);
 }
 
 void SSULCC::clbkLoadStateEx(FILEHANDLE scn, void *status)
@@ -70,6 +94,9 @@ void SSULCC::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		}
 		else if(!_strnicmp(line, "PAD_NAME", 8)) {
 			sscanf_s(line+8, "%s", PadName);
+		}
+		else if(!_strnicmp(line, "SHUTTLE_NAME", 12)) {
+			sscanf_s(line+12, "%s", ShuttleName);
 		}
 		else ParseScenarioLineEx(line, status);
 	}

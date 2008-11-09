@@ -1151,6 +1151,15 @@ public:
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
 
+	void IgniteSRBs();	
+	void SignalGSEBreakHDP();
+	void TriggerLiftOff();
+
+
+	//Communication with LCC
+	virtual void SynchronizeCountdown(double launch_mjd);
+	virtual void StartRSLSSequence();
+
 	virtual void TurnOnPadLights();
 	virtual void TurnOffPadLights();
 	void ToggleGrapple (void);
@@ -1276,6 +1285,7 @@ private:
 
 	//GPC programs
 	dps::GNCSoftware *gncsoftware;
+	dps::RSLS *rsls;
 
 	SURFHANDLE tex_rcs;
 	void StopAllManifolds();
@@ -1290,7 +1300,7 @@ private:
 	unsigned short usCurrentPlayerChar;
 	bool bCommMode;
 	void DefineSSMEExhaust();
-	void SignalGSEBreakHDP();
+	//void SignalGSEBreakHDP();
 	void SignalGSEStart();
 	//-----------------------------------
 	void ShowMidDeck();
@@ -1889,7 +1899,7 @@ private:
 	mutable bool fSSMEHandleErrorFlag;
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
-	void TriggerLiftOff();
+	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);
 };
 
