@@ -253,6 +253,12 @@ void BasicVCComponent::SetReference(const VECTOR3& ref)
 	reference = ref;
 }
 
+void BasicVCComponent::SetDirection(const VECTOR3& _dir) 
+{
+	bHasDirection = true;
+	dir = _dir;
+}
+
 void BasicVCComponent::SetReference(const VECTOR3& ref, const VECTOR3& dir) 
 {
 	bHasReference = true;

@@ -42,6 +42,16 @@ namespace vc {
 		Add(pPyrosBp			= new StdSwitch2(_sts, "PYROS Bp"));
 		Add(pPyrosCp			= new StdSwitch2(_sts, "PYROS Cp"));
 
+		Add(pLampTest			= new PushButton(_sts, "LAMP TEST"));
+		Add(pPowerOn			= new PushButton(_sts, "POWER ON"));
+		Add(pPowerOff			= new PushButton(_sts, "POWER OFF"));
+		Add(pRingOut			= new PushButton(_sts, "RING OUT"));
+		Add(pRingIn				= new PushButton(_sts, "RING IN"));
+		Add(pAPDSCircProtOff	= new PushButton(_sts, "APDS CIRC PROT OFF"));
+		Add(pCloseHooks			= new PushButton(_sts, "CLOSE HOOKS"));
+		Add(pCloseLatches		= new PushButton(_sts, "CLOSE LATCHES"));
+		Add(pFixerOff			= new PushButton(_sts, "FIXER OFF"));
+
 		pControlPanelPowerA->SetLabel(0, "OFF");
 		pControlPanelPowerA->SetLabel(1, "ON");
 		
@@ -65,6 +75,8 @@ namespace vc {
 		pAPDSPowerB->SetLabel(1, "ON");
 		pAPDSPowerC->SetLabel(0, "OFF");
 		pAPDSPowerC->SetLabel(1, "ON");
+
+		
 	}
 
 	PanelA7A8ODS::~PanelA7A8ODS()
@@ -162,6 +174,43 @@ namespace vc {
 			_V(-1.0, 0.0, 0.0));
 		pPyrosCp->DefineSwitchGroup(GRP_A8A3S12_ODSVC);
 
+		const VECTOR3 PB_VECTOR = _V(0.0, -9.21E-04, -3.990E-03);
+
+		pLampTest->SetMouseRegion(0.143f, 0.792f, 0.225f, 0.853f);
+		pLampTest->DefineGroup(GRP_LampTest_ODSVC);
+		pLampTest->SetDirection(PB_VECTOR);
+
+		pPowerOn->SetMouseRegion(0.625f, 0.787f, 0.708f, 0.851f);
+		pPowerOn->DefineGroup(GRP_APDSCC_PowerOn_ODSVC);
+		pPowerOn->SetDirection(PB_VECTOR);
+
+		pPowerOff->SetMouseRegion(0.708f, 0.787f, 0.7875f, 0.851f);
+		pPowerOff->DefineGroup(GRP_APDSCC_PowerOff_ODSVC);
+		pPowerOff->SetDirection(PB_VECTOR);
+
+		pRingOut->SetMouseRegion(0.7875f, 0.787f, 0.8674f, 0.851f);
+		pRingOut->DefineGroup(GRP_APDSCC_RingOut_ODSVC);
+		pRingOut->SetDirection(PB_VECTOR);
+
+		pRingIn->SetMouseRegion(0.8674f, 0.787f, 0.949f, 0.851f);
+		pRingIn->DefineGroup(GRP_APDSCC_RingIn_ODSVC);
+		pRingIn->SetDirection(PB_VECTOR);
+	
+		pAPDSCircProtOff->SetMouseRegion(0.625f, 0.903f, 0.708f, 0.962f);
+		pAPDSCircProtOff->DefineGroup(GRP_APDSCC_APDS_Circ_Prot_OFF_ODSVC);
+		pAPDSCircProtOff->SetDirection(PB_VECTOR);
+		
+		pCloseHooks->SetMouseRegion(0.708f, 0.903f, 0.7875f, 0.962f);
+		pCloseHooks->DefineGroup(GRP_APDSCC_CloseHooks_ODSVC);
+		pCloseHooks->SetDirection(PB_VECTOR);
+
+		pCloseLatches->SetMouseRegion(0.7875f, 0.903f, 0.8674f, 0.962f);
+		pCloseLatches->DefineGroup(GRP_APDSCC_CloseLatches_ODSVC);
+		pCloseLatches->SetDirection(PB_VECTOR);
+
+		pFixerOff->SetMouseRegion(0.8674f, 0.903f, 0.949f, 0.962f);
+		pFixerOff->DefineGroup(GRP_APDSCC_FixerOff_ODSVC);
+		pFixerOff->SetDirection(PB_VECTOR);
 	}
 
 	void PanelA7A8ODS::RegisterVC()
