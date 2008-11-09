@@ -5415,14 +5415,14 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	int i;
 
 	psubsystems->PreStep(simT, simDT, mjd);
-	pgLeft.OnPreStep(simt, simdt, mjd);
-	pgForward.OnPreStep(simt, simdt, mjd);
-	pgRight.OnPreStep(simt, simdt, mjd);
-	pgCenter.OnPreStep(simt, simdt, mjd);
-	pgOverhead.OnPreStep(simt, simdt, mjd);
-	pgAftStbd.OnPreStep(simt, simdt, mjd);
-	pgAft.OnPreStep(simt, simdt, mjd);
-	pgAftPort.OnPreStep(simt, simdt, mjd);
+	pgLeft.OnPreStep(simT, simDT, mjd);
+	pgForward.OnPreStep(simT, simDT, mjd);
+	pgRight.OnPreStep(simT, simDT, mjd);
+	pgCenter.OnPreStep(simT, simDT, mjd);
+	pgOverhead.OnPreStep(simT, simDT, mjd);
+	pgAftStbd.OnPreStep(simT, simDT, mjd);
+	pgAft.OnPreStep(simT, simDT, mjd);
+	pgAftPort.OnPreStep(simT, simDT, mjd);
 	/*if(bFirstStep)
 	{
 		if(bAutopilot) InitializeAutopilot();
