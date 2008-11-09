@@ -40,21 +40,22 @@ namespace vc {
 		
 		if(bCurrentState) {
 			//oapiWriteLog("StandardLight::OnVCRedrawEvent::On");
-			
+			//oapiColourFill(surf, 0xFF0000);
 			oapiBlt(surf, shSource, redrawBase.x, redrawBase.y, 
 				sourceOn.x, sourceOn.y, usWidth, usHeight);
-			//sprintf_s(pszBuffer, 255, "\toapiBlt(%08X, %08X, %d, %d, %d, %d, %d, %d)",
-			//	surf, shSource, redrawBase.x, redrawBase.y, 
-			//	sourceOn.x, sourceOn.y, usWidth, usHeight);
-			//oapiWriteLog(pszBuffer);
+			/*sprintf_s(pszBuffer, 255, "\toapiBlt(%08X, %08X, %d, %d, %d, %d, %d, %d)",
+				surf, shSource, redrawBase.x, redrawBase.y, 
+				sourceOn.x, sourceOn.y, usWidth, usHeight);
+			oapiWriteLog(pszBuffer);*/
 		} else {
 			//oapiWriteLog("StandardLight::OnVCRedrawEvent::Off");
+			//oapiColourFill(surf, 0x000000);
 			oapiBlt(surf, shSource, redrawBase.x, redrawBase.y, 
 				sourceOff.x, sourceOff.y, usWidth, usHeight);
-			//sprintf_s(pszBuffer, 255, "\toapiBlt(%08X, %08X, %d, %d, %d, %d, %d, %d)",
-			//	surf, shSource, redrawBase.x, redrawBase.y, 
-			//	sourceOff.x, sourceOff.y, usWidth, usHeight);
-			//oapiWriteLog(pszBuffer);
+			/*sprintf_s(pszBuffer, 255, "\toapiBlt(%08X, %08X, %d, %d, %d, %d, %d, %d)",
+				surf, shSource, redrawBase.x, redrawBase.y, 
+				sourceOff.x, sourceOff.y, usWidth, usHeight);
+			oapiWriteLog(pszBuffer);*/
 		}
 		return true;
 	}

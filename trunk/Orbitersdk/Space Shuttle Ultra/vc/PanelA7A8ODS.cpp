@@ -1,10 +1,14 @@
 #include "PanelA7A8ODS.h"
 #include "../Atlantis.h"
+#include "../discsignals/DiscreteBundleManager.h"
 #include "../meshres_odsvc.h"
 
 extern GDIParams g_Param;
 
 namespace vc {
+
+	using class discsignals::DiscreteBundleManager;
+	using class discsignals::DiscreteBundle;
 
 	PanelA7A8ODS::PanelA7A8ODS(Atlantis* _sts)
 		: BasicPanel(_sts, "A7A3/A8A3")
@@ -110,6 +114,18 @@ namespace vc {
 	{	
 		//Define switch connections
 		BasicPanel::Realize();
+
+		oapiWriteLog("Panel A7/A8:\tRealize()");
+
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
+
+		plADS->input.Connect(pBundle, 0);
+		plBDS->input.Connect(pBundle, 1);
+		plCDS->input.Connect(pBundle, 2);
+
+		pAPDSPowerA->output.Connect(pBundle, 0);		
+		pAPDSPowerB->output.Connect(pBundle, 1);
+		pAPDSPowerC->output.Connect(pBundle, 2);
 	}
 
 	void PanelA7A8ODS::DefineVC()
@@ -130,8 +146,8 @@ namespace vc {
 
 		plADS->AddAIDToRedrawEventList(AID_ODSLIGHTS);
 		plADS->SetSourceImage(g_Param.odslights);
-		//plADS->SetBase(17, 559);
-		plADS->SetBase(150, 150);
+		plADS->SetBase(17, 559);
+		//plADS->SetBase(150, 150);
 		plADS->SetSourceCoords(true, 17, 559);
 		plADS->SetSourceCoords(false, 368, 559);
 		plADS->SetDimensions(68, 43);
@@ -259,11 +275,12 @@ namespace vc {
 
 
 		SURFHANDLE shODSButtons = oapiGetTextureHandle(mesh_odspanel, 2);
+
 		oapiVCRegisterArea(AID_ODSLIGHTS, 
 			_R(0, 0, 334, 609), 
 			PANEL_REDRAW_USER, 
 			PANEL_MOUSE_IGNORE, 
-			PANEL_MAP_NONE, 
+			PANEL_MAP_BACKGROUND, 
 			shODSButtons);
 
 	}
