@@ -86,9 +86,22 @@ bool StdSwitch2::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle 
 {
 	if(usPort == 1)
 	{
-		return outPort.Connect(pBundle, usLine);	
+		return output.Connect(pBundle, usLine);	
 	} else {
 		return StandardSwitch::ConnectPort(usPort, pBundle, usLine);
+	}
+}
+
+void StdSwitch2::OnPositionChange(unsigned short usNewPosition)
+{
+	StandardSwitch::OnPositionChange(usNewPosition);
+	switch(usNewPosition) {
+	case 0:
+		output.ResetLine();
+		break;
+	case 1:
+		output.SetLine();
+		break;
 	}
 }
 
@@ -106,11 +119,31 @@ bool StdSwitch3::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle 
 {
 	if(usPort == 1)
 	{
-		return outPortA.Connect(pBundle, usLine);	
+		return outputA.Connect(pBundle, usLine);	
 	} else if (usPort == 2) {
-		return outPortB.Connect(pBundle, usLine);
+		return outputB.Connect(pBundle, usLine);
 	} else {
 		return StandardSwitch::ConnectPort(usPort, pBundle, usLine);
+	}
+}
+
+void StdSwitch3::OnPositionChange(unsigned short usNewPosition)
+{
+	StandardSwitch::OnPositionChange(usNewPosition);
+
+	switch(usNewPosition) {
+	case 0:
+		outputA.SetLine();
+		outputB.ResetLine();
+		break;
+	case 1:
+		outputA.ResetLine();
+		outputB.ResetLine();
+		break;
+	case 2:
+		outputA.ResetLine();
+		outputB.SetLine();
+		break;
 	}
 }
 

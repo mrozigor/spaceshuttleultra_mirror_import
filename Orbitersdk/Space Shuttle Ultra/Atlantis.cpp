@@ -5415,6 +5415,14 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	int i;
 
 	psubsystems->PreStep(simT, simDT, mjd);
+	pgLeft.OnPreStep(simt, simdt, mjd);
+	pgForward.OnPreStep(simt, simdt, mjd);
+	pgRight.OnPreStep(simt, simdt, mjd);
+	pgCenter.OnPreStep(simt, simdt, mjd);
+	pgOverhead.OnPreStep(simt, simdt, mjd);
+	pgAftStbd.OnPreStep(simt, simdt, mjd);
+	pgAft.OnPreStep(simt, simdt, mjd);
+	pgAftPort.OnPreStep(simt, simdt, mjd);
 	/*if(bFirstStep)
 	{
 		if(bAutopilot) InitializeAutopilot();
@@ -5468,7 +5476,17 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	gncsoftware->OnPostStep(simt, simdt, mjd);
 	psubsystems->PostStep(simt, simdt, mjd);
+	//Panel groups
+	pgLeft.OnPostStep(simt, simdt, mjd);
 	pgForward.OnPostStep(simt, simdt, mjd);
+	pgRight.OnPostStep(simt, simdt, mjd);
+	pgCenter.OnPostStep(simt, simdt, mjd);
+	pgOverhead.OnPostStep(simt, simdt, mjd);
+	pgAftStbd.OnPostStep(simt, simdt, mjd);
+	pgAft.OnPostStep(simt, simdt, mjd);
+	pgAftPort.OnPostStep(simt, simdt, mjd);
+	
+	
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration

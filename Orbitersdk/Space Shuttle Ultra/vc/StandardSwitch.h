@@ -56,25 +56,28 @@ namespace vc {
 class StdSwitch2: public StandardSwitch
 {
 protected:
-	DiscOutPort outPort;
 public:
 	StdSwitch2(Atlantis* _sts, const string& _ident);
 	virtual ~StdSwitch2();
-
+	virtual void OnPositionChange(unsigned short usNewPosition);
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+
+	DiscOutPort output;
 	
 };
 
 class StdSwitch3: public StandardSwitch
 {
 protected:
-	DiscOutPort outPortA;	//Connection Position A
-	DiscOutPort outPortB;	//Connection Position B
+	
 public:
 	StdSwitch3(Atlantis* _sts, const string& _ident);
 	virtual ~StdSwitch3();
-
+	virtual void OnPositionChange(unsigned short usNewPosition);
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+
+	DiscOutPort outputA;	//Connection Position A
+	DiscOutPort outputB;	//Connection Position B
 };
 
 class RussianCB: public StandardSwitch
@@ -84,7 +87,7 @@ protected:
 public:
 	RussianCB(Atlantis* _sts, const string& _ident);
 	virtual ~RussianCB();
-
+	
 	virtual void DefineVCAnimations(UINT vc_idx);
 };
 
