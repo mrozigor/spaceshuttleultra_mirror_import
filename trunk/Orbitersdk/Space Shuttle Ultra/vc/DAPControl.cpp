@@ -284,6 +284,7 @@ namespace vc {
 				sts->ManeuverStatus=Atlantis::MNVR_COMPLETE; //(check value set here)
 				break;
 			case Atlantis::LVLH:
+				sts->GetGlobalPos(sts->GVesselPos);
 				sts->GetStatus(sts->Status);
 				sts->LVLHOrientationReqd=sts->CalcLVLHAttitude()*DEG;
 				sts->ReqdAttMatrix=sts->ConvertLVLHAnglesToM50Matrix(sts->LVLHOrientationReqd*RAD);
