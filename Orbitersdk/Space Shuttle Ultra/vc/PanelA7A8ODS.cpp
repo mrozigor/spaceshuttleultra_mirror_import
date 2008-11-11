@@ -20,6 +20,26 @@ namespace vc {
 		Add(plBDS				= new StandardLight(_sts, "BDS"));
 		Add(plCDS				= new StandardLight(_sts, "CDS"));
 
+		Add(plPowerOn			= new StandardLight(_sts, "POWER ON(light)"));
+		Add(plAPDSProtectCircOff= new StandardLight(_sts, "APDS CIRCUIT PROTECT OFF(light)"));
+		Add(plRingAligned		= new StandardLight(_sts, "RING ALIGNED"));
+		Add(plRingInitialPos	= new StandardLight(_sts, "RING INITIAL POSITION"));
+		Add(plFixersOff			= new StandardLight(_sts, "FIXERS OFF"));
+		Add(plHooks1Open		= new StandardLight(_sts, "HOOKS 1 OPEN"));
+		Add(plHooks2Open		= new StandardLight(_sts, "HOOKS 2 OPEN"));
+		Add(plLatchesClosed		= new StandardLight(_sts, "LATCHES CLOSED"));
+		Add(plUndockComplete	= new StandardLight(_sts, "UNDOCK COMPLET"));
+
+		Add(plInitialContact	= new StandardLight(_sts, "INITIAL CONTACT"));
+		Add(plCapture			= new StandardLight(_sts, "CAPTURE CAPTURE"));
+		Add(plRingForward		= new StandardLight(_sts, "RING FORWARD"));
+		Add(plReadyToHook		= new StandardLight(_sts, "READY TO HOOK"));
+		Add(plInterpSealed		= new StandardLight(_sts, "INTERP SEALED"));
+		Add(plHooks1Closed		= new StandardLight(_sts, "HOOKS 1 CLOSED"));
+		Add(plHooks2Closed		= new StandardLight(_sts, "HOOKS 2 CLOSED"));
+		Add(plLatchesOpen		= new StandardLight(_sts, "LATCHES OPEN"));
+		Add(plRingFinal			= new StandardLight(_sts, "RING FINAL POSITION"));
+
 		Add(pSystemPowerMNA		= new StdSwitch3(_sts, "SYSTEM POWER MNA"));
 		Add(pSystemPowerMNB		= new StdSwitch3(_sts, "SYSTEM POWER MNB"));
 		Add(pPyroPowerMNA		= new StdSwitch2(_sts, "PYRO POWER MNA"));
@@ -123,9 +143,33 @@ namespace vc {
 		plBDS->input.Connect(pBundle, 1);
 		plCDS->input.Connect(pBundle, 2);
 
+
+		plPowerOn->input.Connect(pBundle, 3);
+		plAPDSProtectCircOff->input.Connect(pBundle, 3);
+		plRingAligned->input.Connect(pBundle, 3);
+		plRingInitialPos->input.Connect(pBundle, 3);
+		plFixersOff->input.Connect(pBundle, 3);
+		plHooks1Open->input.Connect(pBundle, 3);
+		plHooks2Open->input.Connect(pBundle, 3);
+		plLatchesClosed->input.Connect(pBundle, 3);
+		plUndockComplete->input.Connect(pBundle, 3);
+
+		plInitialContact->input.Connect(pBundle, 3);
+		plCapture->input.Connect(pBundle, 3);
+		plRingForward->input.Connect(pBundle, 3);
+		plReadyToHook->input.Connect(pBundle, 3);
+		plInterpSealed->input.Connect(pBundle, 3);
+		plHooks1Closed->input.Connect(pBundle, 3);
+		plHooks2Closed->input.Connect(pBundle, 3);
+		plLatchesOpen->input.Connect(pBundle, 3);
+		plRingFinal->input.Connect(pBundle, 3);
+
 		pAPDSPowerA->output.Connect(pBundle, 0);		
 		pAPDSPowerB->output.Connect(pBundle, 1);
 		pAPDSPowerC->output.Connect(pBundle, 2);
+
+		pLampTest->output.Connect(pBundle, 3);
+		
 	}
 
 	void PanelA7A8ODS::DefineVC()
@@ -165,6 +209,144 @@ namespace vc {
 		plCDS->SetSourceCoords(true, 172, 559);
 		plCDS->SetSourceCoords(false, 524, 559);
 		plCDS->SetDimensions(68, 43);
+
+
+
+		plPowerOn->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plPowerOn->SetBase(17, 21);
+		plPowerOn->SetSourceImage(g_Param.odslights);
+		plPowerOn->SetSourceCoords(true, 17, 21);
+		plPowerOn->SetSourceCoords(false, 367, 21);
+		plPowerOn->SetDimensions(148, 46);
+
+		plAPDSProtectCircOff->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plAPDSProtectCircOff->SetBase(17, 79);
+		plAPDSProtectCircOff->SetSourceImage(g_Param.odslights);
+		plAPDSProtectCircOff->SetSourceCoords(true, 17, 79);
+		plAPDSProtectCircOff->SetSourceCoords(false, 367, 79);
+		plAPDSProtectCircOff->SetDimensions(148, 46);
+
+		//Y=138
+		plRingAligned->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plRingAligned->SetBase(17, 138);
+		plRingAligned->SetSourceImage(g_Param.odslights);
+		plRingAligned->SetSourceCoords(true, 17, 138);
+		plRingAligned->SetSourceCoords(false, 367, 138);
+		plRingAligned->SetDimensions(148, 46);
+
+		//plRingInitialPos
+		plRingInitialPos->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plRingInitialPos->SetBase(17, 196);
+		plRingInitialPos->SetSourceImage(g_Param.odslights);
+		plRingInitialPos->SetSourceCoords(true, 17, 196);
+		plRingInitialPos->SetSourceCoords(false, 367, 196);
+		plRingInitialPos->SetDimensions(148, 46);
+
+		plFixersOff->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plFixersOff->SetBase(17, 253);
+		plFixersOff->SetSourceImage(g_Param.odslights);
+		plFixersOff->SetSourceCoords(true, 17, 253);
+		plFixersOff->SetSourceCoords(false, 367, 253);
+		plFixersOff->SetDimensions(148, 46);
+
+		plHooks1Open->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plHooks1Open->SetBase(17, 311);
+		plHooks1Open->SetSourceImage(g_Param.odslights);
+		plHooks1Open->SetSourceCoords(true, 17, 311);
+		plHooks1Open->SetSourceCoords(false, 367, 311);
+		plHooks1Open->SetDimensions(148, 46);
+
+		plHooks2Open->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plHooks2Open->SetBase(17, 369);
+		plHooks2Open->SetSourceImage(g_Param.odslights);
+		plHooks2Open->SetSourceCoords(true, 17, 369);
+		plHooks2Open->SetSourceCoords(false, 367, 369);
+		plHooks2Open->SetDimensions(148, 46);
+
+		plLatchesClosed->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plLatchesClosed->SetBase(17, 428);
+		plLatchesClosed->SetSourceImage(g_Param.odslights);
+		plLatchesClosed->SetSourceCoords(true, 17, 428);
+		plLatchesClosed->SetSourceCoords(false, 367, 428);
+		plLatchesClosed->SetDimensions(148, 46);
+
+		plUndockComplete->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plUndockComplete->SetBase(17, 484);
+		plUndockComplete->SetSourceImage(g_Param.odslights);
+		plUndockComplete->SetSourceCoords(true, 17, 484);
+		plUndockComplete->SetSourceCoords(false, 367, 484);
+		plUndockComplete->SetDimensions(148, 46);
+
+		//--------------------------------------------------
+		// SECOND COLUMN OF LIGHTS
+		//On: X=175
+		//Off: X=527 
+		//--------------------------------------------------
+
+		plInitialContact->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plInitialContact->SetBase(175, 21);
+		plInitialContact->SetSourceImage(g_Param.odslights);
+		plInitialContact->SetSourceCoords(true, 175, 21);
+		plInitialContact->SetSourceCoords(false, 527, 21);
+		plInitialContact->SetDimensions(148, 46);
+
+		plCapture->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plCapture->SetBase(175, 79);
+		plCapture->SetSourceImage(g_Param.odslights);
+		plCapture->SetSourceCoords(true, 175, 79);
+		plCapture->SetSourceCoords(false, 527, 79);
+		plCapture->SetDimensions(148, 46);
+
+		//Y=138
+		plRingForward->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plRingForward->SetBase(175, 138);
+		plRingForward->SetSourceImage(g_Param.odslights);
+		plRingForward->SetSourceCoords(true, 175, 138);
+		plRingForward->SetSourceCoords(false, 527, 138);
+		plRingForward->SetDimensions(148, 46);
+
+		//plRingInitialPos
+		plReadyToHook->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plReadyToHook->SetBase(175, 196);
+		plReadyToHook->SetSourceImage(g_Param.odslights);
+		plReadyToHook->SetSourceCoords(true, 175, 196);
+		plReadyToHook->SetSourceCoords(false, 527, 196);
+		plReadyToHook->SetDimensions(148, 46);
+
+		plInterpSealed->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plInterpSealed->SetBase(175, 253);
+		plInterpSealed->SetSourceImage(g_Param.odslights);
+		plInterpSealed->SetSourceCoords(true, 175, 253);
+		plInterpSealed->SetSourceCoords(false, 527, 253);
+		plInterpSealed->SetDimensions(148, 46);
+
+		plHooks1Closed->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plHooks1Closed->SetBase(175, 311);
+		plHooks1Closed->SetSourceImage(g_Param.odslights);
+		plHooks1Closed->SetSourceCoords(true, 175, 311);
+		plHooks1Closed->SetSourceCoords(false, 527, 311);
+		plHooks1Closed->SetDimensions(148, 46);
+
+		plHooks2Closed->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plHooks2Closed->SetBase(175, 369);
+		plHooks2Closed->SetSourceImage(g_Param.odslights);
+		plHooks2Closed->SetSourceCoords(true, 175, 369);
+		plHooks2Closed->SetSourceCoords(false, 527, 369);
+		plHooks2Closed->SetDimensions(148, 46);
+
+		plLatchesOpen->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plLatchesOpen->SetBase(175, 428);
+		plLatchesOpen->SetSourceImage(g_Param.odslights);
+		plLatchesOpen->SetSourceCoords(true, 175, 428);
+		plLatchesOpen->SetSourceCoords(false, 527, 428);
+		plLatchesOpen->SetDimensions(148, 46);
+
+		plRingFinal->AddAIDToRedrawEventList(AID_ODSLIGHTS);
+		plRingFinal->SetBase(175, 484);
+		plRingFinal->SetSourceImage(g_Param.odslights);
+		plRingFinal->SetSourceCoords(true, 175, 484);
+		plRingFinal->SetSourceCoords(false, 527, 484);
+		plRingFinal->SetDimensions(148, 46);
 
 		pControlPanelPowerA->SetMouseRegion(0.081f, 0.124f, 0.094f, 0.197f);
 		pControlPanelPowerA->SetReference(_V(0.0, 2.443722, 12.41595),
