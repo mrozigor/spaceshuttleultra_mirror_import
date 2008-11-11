@@ -1,17 +1,17 @@
 // ========================================================
 // Mesh resource file for ..\..\Meshes\SSU\VC.msh
-// Generated with meshc on Tue Aug 12 21:20:03 2008
+// Generated with meshc on Tue Nov 11 23:12:51 2008
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_VC 1269
+#define NGRP_VC 1281
 
 // Number of materials:
 #define NMAT_VC 12
 
 // Number of textures:
-#define NTEX_VC 42
+#define NTEX_VC 43
 
 // Named mesh groups:
 #define GRP_080_VC 0
@@ -365,7 +365,7 @@
 //#define GRP_A6UGuardb_VC 348
 #define GRP_F6panel_VC 349
 #define GRP_F6panel1_VC 350
-//#define GRP_F6Guard_VC 351
+#define GRP_F6Guard_VC 351
 #define GRP_F6TalkBack3_VC 352
 #define GRP_F6TalkBack2_VC 353
 #define GRP_F6TalkBack1_VC 354
@@ -1283,3 +1283,15 @@
 #define GRP_A6Utog2_VC 1266
 #define GRP_A6Utog3_VC 1267
 #define GRP_A6Utog4_VC 1268
+#define GRP_O6talkback2_VC 1269
+#define GRP_O6talkback1_VC 1270
+#define GRP_O6talkback3_VC 1271
+#define GRP_O6talkback4_VC 1272
+#define GRP_O6talkback5_VC 1273
+#define GRP_O6talkback6_VC 1274
+#define GRP_O6talkback7_VC 1275
+#define GRP_O6talkback8_VC 1276
+#define GRP_O6talkback9_VC 1277
+#define GRP_O6talkback10_VC 1278
+#define GRP_O6talkback11_VC 1279
+#define GRP_O6talkback12_VC 1280
