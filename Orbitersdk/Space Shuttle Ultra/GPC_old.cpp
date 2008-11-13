@@ -5,13 +5,14 @@
 #include "util/Stopwatch.h"
 #include <cstdio>
 
-extern int tpir(const double* list, int n_items, double target);
-extern double linterp(double x0, double y0, double x1, double y1, double x);
-extern double listerp(const double* listx, const double* listy, int n_items, double x);
-extern double tableterp(const double* table, const double* listrow, int n_row, const double* listcol, int n_col, double rowlookup, double collookup);
+//extern int tpir(const double* list, int n_items, double target);
+//extern double linterp(double x0, double y0, double x1, double y1, double x);
+extern double listerp(const vector<double> &listx, const vector<double> &listy, double x);
+//extern double tableterp(const double* table, const double* listrow, int n_row, const double* listcol, int n_col, double rowlookup, double collookup);
 
 void Atlantis::InitializeAutopilot()
 {
+	OBJHANDLE hRef=GetSurfaceRef();
 	//calculate heading
 	double latitude, /*Radius,*/ longitude;
 	GetEquPos(longitude, latitude, Radius);
@@ -24,10 +25,10 @@ void Atlantis::InitializeAutopilot()
 		THeading=atan2(xVel, yVel);
 	}
 
-	mu=GGRAV*oapiGetMass(GetGravityRef());
-	SidDay = oapiGetPlanetPeriod(GetGravityRef());
+	mu=GGRAV*oapiGetMass(hRef);
+	SidDay = oapiGetPlanetPeriod(hRef);
 	//calculate apogee/perigee
-	Radius = oapiGetSize(GetGravityRef());
+	Radius = oapiGetSize(hRef);
 	TgtRad = TgtAlt+Radius;
 	double C = (2*mu)/(TgtRad*TgtSpd*TgtSpd);
 	double det = C*C + (4*(1-C)*pow(cos(TgtFPA*RAD), 2));
@@ -53,7 +54,7 @@ void Atlantis::InitializeAutopilot()
 	//p=aOrbit*(1-TEcc*TEcc);
 
 	//PEG
-	GetRelativePos(GetGravityRef(),rh0);
+	GetRelativePos(hRef,rh0);
 	rh0=rh0*(1/length(rh0));
 	A=0.0;
 	B=0.0;
@@ -117,8 +118,8 @@ void Atlantis::MajorCycle()
 }
 
 void Atlantis::Navigate() {
-	GetRelativePos(GetGravityRef(),rv);
-	GetRelativeVel(GetGravityRef(),vv);
+	GetRelativePos(GetSurfaceRef(),rv);
+	GetRelativeVel(GetSurfaceRef(),vv);
 	r=length(rv);
 	v=length(vv);
 	hv=crossp(rv,vv);
@@ -232,7 +233,7 @@ void Atlantis::RateCommand()
 	//Slip=GetSlipAngle()*DEG;
 
 	if(status==1) {
-		double TargetPitch=listerp(stage1guidance[0], stage1guidance[1], stage1guidance_size, GetAirspeed());
+		double TargetPitch=listerp(stage1guidance[0], stage1guidance[1], GetAirspeed());
 		if(bAutopilot) {
 			if(GetAirspeed()<32.00) {
 				ReqdRates.data[PITCH] = 0.0;
@@ -383,7 +384,7 @@ void Atlantis::Throttle(double dt)
 	return;
 }
 
-void Atlantis::GPC(double dt)
+void Atlantis::GPC(double simt, double dt)
 {
 //	Stopwatch st;
 //	st.Start();
@@ -425,44 +426,44 @@ void Atlantis::GPC(double dt)
 					}*/
 				}
 				AttControl(dt);
-				TransControl(dt);
+				TransControl(simt, dt);
 			}
 			break;
 		case 104:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 105:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 106:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			break;
 		case 201:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			break;
 		case 202:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 301:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			break;
 		case 302:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
 		case 303:
 			AttControl(dt);
-			TransControl(dt);
+			TransControl(simt, dt);
 			break;
 		case 304:
 			AerojetDAP(dt);
@@ -702,12 +703,15 @@ void Atlantis::StartAttManeuver()
 	}
 }
 
-void Atlantis::TransControl(double SimdT)
+void Atlantis::TransControl(double SimT, double SimdT)
 {
 	VECTOR3 ThrusterLevel=_V(0.0, 0.0, 0.0);
 
 	for(int i=0;i<3;i++) {
 		if(abs(THCInput.data[i])>0.01) {
+			//if PCT is in progress, disable it when THC is moved out of detent
+			if(PostContactThrusting[1]) TogglePCT();
+
 			if(TransMode[i]==0) { //NORM
 				if(THCInput.data[i]>0.0) ThrusterLevel.data[i]=1.0;
 				else ThrusterLevel.data[i]=-1.0;
@@ -727,6 +731,11 @@ void Atlantis::TransControl(double SimdT)
 			//if THC is in detent and pulse is complete, allow further pulses
 			else if(abs(THCInput.data[i])<0.01) TransPulseInProg[i]=false;
 		}
+	}
+
+	if(PostContactThrusting[1]) {
+		PCTControl(SimT);
+		return; // thruster levels already set
 	}
 
 	//fire appropriate sets of thrusters
@@ -810,6 +819,27 @@ void Atlantis::TransControl(double SimdT)
 	}
 }
 
+void Atlantis::PCTControl(double SimT)
+{
+	double dT=SimT-PCTStartTime;
+
+	//prevent translation thrusters except (up group) from firing
+	SetThrusterGroupLevel(thg_transdown, 0.0);
+	SetThrusterGroupLevel(thg_transfwd, 0.0);
+	SetThrusterGroupLevel(thg_transaft, 0.0);
+	SetThrusterGroupLevel(thg_transleft, 0.0);
+	SetThrusterGroupLevel(thg_transright, 0.0);
+
+	//fire thrusters as appropriate
+	if(dT<=PCT_STAGE1) SetThrusterGroupLevel(thg_transup, 0.5);
+	else if(dT<=PCT_STAGE2) SetThrusterGroupLevel(thg_transup, 0.0);
+	else if(dT<=PCT_STAGE3) SetThrusterGroupLevel(thg_transup, 0.5);
+	else {
+		SetThrusterGroupLevel(thg_transup, 0.0);
+		TogglePCT();
+	}
+}
+
 void Atlantis::AttControl(double SimdT)
 {
 	int i;
@@ -825,7 +855,11 @@ void Atlantis::AttControl(double SimdT)
 		if(!RotPulseInProg[i]) ReqdRates.data[i]=AngularVelocity.data[i]*DEG;
 	}
 
-	if(!Eq(RHCInput.x, 0.0, 0.01) || !Eq(RHCInput.y, 0.0, 0.01) || !Eq(RHCInput.z, 0.0, 0.01)) {
+	//if(!Eq(RHCInput.x, 0.0, 0.01) || !Eq(RHCInput.y, 0.0, 0.01) || !Eq(RHCInput.z, 0.0, 0.01)) {
+	if(!Eq(RHCInput, _V(0.0, 0.0, 0.0), 0.01)) {
+		//if PCT is in progress, disable it when RHC is moved out of detent
+		if(PostContactThrusting[1]) TogglePCT();
+
 		//TRK=ROT=false;
 		//MNVR=true;
 		if(ControlMode==AUTO) {
@@ -867,7 +901,6 @@ void Atlantis::AttControl(double SimdT)
 					}
 				}
 			}
-			//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "Rates: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
 		}
 	}
 	else if(ControlMode!=FREE) {
@@ -879,16 +912,9 @@ void Atlantis::AttControl(double SimdT)
 			LastReqdAttMatrix=ReqdAttMatrix;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
 			REQD_ATT=GetAnglesFromMatrix(ReqdAttMatrix)*DEG;
-			/*REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*RAD)*DEG;
-
-			MATRIX3 Test=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
-			VECTOR3 Test2=GetAnglesFromMatrix(Test)*DEG;
-			sprintf_s(oapiDebugString(), 255, "TEST: %f %f %f", Test2.data[PITCH], Test2.data[YAW], Test2.data[ROLL]);*/
-			//REQD_ATT=ConvertLocalAnglesToM50(_V(90, 0, 0)*RAD)*DEG;
-			//sprintf(oapiDebugString(), "LVLHOReqd: %f %f %f Check: %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z, oapiRand());
-			//sprintf(oapiDebugString(), "AttControl: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
+			sprintf_s(oapiDebugString(), 255, "LVLH REQD: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
 		}
-		//REQD_ATT=ConvertLVLHAnglesToM50(LVLHOrientationReqd*-RAD)*DEG;
+		
 		if(!ManeuverinProg) {
 			ManeuverinProg=true;
 			for(int i=0;i<4;i++) {
@@ -899,18 +925,10 @@ void Atlantis::AttControl(double SimdT)
 			}
 			if(ManeuverinProg) {
 				sprintf(oapiDebugString(), "Starting maneuver %f", oapiRand());
-				//ManeuverStart=true;
 				ManeuverStatus=MNVR_STARTING;
 				sprintf_s(oapiDebugString(), 255, "MNVR STARTING");
 			}
 		}
-
-		/*if(ManeuverinProg) {
-			GetGlobalPos(GVesselPos);
-			GetStatus(Status);
-			GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-		}
-		else return; //no need for further calculations*/
 		if(!ManeuverinProg) return; //no need for further calculations
 
 		if(ControlMode==LVLH || ((TRK || ROT) && ControlMode==AUTO)) {
@@ -933,8 +951,6 @@ void Atlantis::AttControl(double SimdT)
 				CalcManeuverTargets(NullRates);
 				ManeuverStatus=MNVR_IN_PROGRESS;
 				sprintf_s(oapiDebugString(), 255, "MNVR IN PROGRESS");
-				//sprintf(oapiDebugString(), "Rates calculated %f", oapiRand());
-				//oapiWriteLog(oapiDebugString());
 			}
 			else if(ManeuverStatus==MNVR_COMPLETE) {
 				TargetAttOrbiter=TargAttOrbiter;
@@ -949,9 +965,7 @@ void Atlantis::AttControl(double SimdT)
 		//PitchYawRoll=CalcPitchYawRollAngles()*DEG;
 		PitchYawRollMatrix=CalcPitchYawRollRotMatrix();
 		PitchYawRoll=GetAnglesFromMatrix(PitchYawRollMatrix)*DEG;
-		//NullRates=ConvertOrbiterAnglesToLocal(NullRates);
-		//sprintf(oapiDebugString(), "NR: %f %f %f", DEG*NullRatesDiff.x, DEG*NullRatesDiff.y, DEG*NullRatesDiff.z);
-		//sprintf(oapiDebugString(), "NR: %f %f %f", DEG*NullRatesLocal.x, DEG*NullRatesLocal.y, DEG*NullRatesLocal.z);
+		//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RatesN: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);
 		if(ManeuverStatus==MNVR_COMPLETE) CalcRequiredRates(ReqdRates, NullRatesLocal*DEG);
 		else CalcRequiredRates(ReqdRates);
 	}

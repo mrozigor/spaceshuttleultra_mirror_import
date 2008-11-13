@@ -100,6 +100,27 @@ extern void GetSRB_State (double met, double &thrust_level, double &prop_level);
 
 // 1. vertical lift component (wings and body)
 
+int tpir(const vector<double> &list, double target) {
+ // char buf[64];
+  if(target<list[0]) return 0;
+  if(target>=list[list.size()-1]) return list.size()-2;
+//  sprintf(oapiDebugString(),"target %f n_items %d ",target,n_items);
+  for(unsigned int i=1;i<list.size();i++) {
+	  //if(i>10) {
+	  //    sprintf(buf,"list[%d] %.2f ",i,list[i]);
+	  //  strcat(oapiDebugString(),buf);
+	  //}
+	  if(list[i]>=target) {
+		  //sprintf(buf,"result %d",i-1);
+		//strcat(oapiDebugString(),buf);
+		return i-1;
+	  }
+  }
+ // sprintf(buf,"result %d",-46);
+ // strcat(oapiDebugString(),buf);
+  return -46;
+}
+
 int tpir(const double* list, int n_items, double target) {
  // char buf[64];
   if(target<list[0]) return 0;
@@ -124,6 +145,12 @@ int tpir(const double* list, int n_items, double target) {
 double linterp(double x0, double y0, double x1, double y1, double x) {
   double t=(x-x0)/(x1-x0);
   return y0*(1-t)+y1*t;
+}
+
+double listerp(const vector<double> &listx, const vector<double> &listy, double x) {
+  int i=tpir(listx,x);
+//  sprintf(oapiDebugString(),"i %d x0 %f y0 %f x1 %f y1 %f x %f",i,listx[i],listy[i],listx[i+1],listy[i+1],x);
+  return linterp(listx[i],listy[i],listx[i+1],listy[i+1],x);
 }
 
 double listerp(const double* listx, const double* listy, int n_items, double x) {
@@ -816,9 +843,13 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   //ManeuverComplete=false;
   ManeuverStatus=MNVR_OFF;
   MNVR_TIME=0;
+  //Post Contact Thrusting
+  PostContactThrusting[0]=true; //for the moment, always armed
+  PostContactThrusting[1]=false;
+  PCTStartTime=0.0;
 
   //I-loads
-  stage1guidance_size=0;
+  //stage1guidance_size=0;
 
   pCommModeHandler->DefineAnnotations();
 
@@ -872,8 +903,8 @@ Atlantis::~Atlantis () {
 	delete busManager;
 	delete bundleManager;
 
-	delete [] stage1guidance[0];
-	delete [] stage1guidance[1];
+	//delete [] stage1guidance[0];
+	//delete [] stage1guidance[1];
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -4170,13 +4201,15 @@ void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
 
 void Atlantis::SetILoads()
 {
-	stage1guidance[0]=new double[8];
-	stage1guidance[1]=new double[8];
+	//stage1guidance[0]=new double[8];
+	//stage1guidance[1]=new double[8];
 	for(int i=0;i<8;i++) {
-		stage1guidance[0][i]=defaultStage1Guidance[0][i];
-		stage1guidance[1][i]=defaultStage1Guidance[1][i];
+		//stage1guidance[0][i]=defaultStage1Guidance[0][i];
+		//stage1guidance[1][i]=defaultStage1Guidance[1][i];
+		stage1guidance[0].push_back(defaultStage1Guidance[0][i]);
+		stage1guidance[1].push_back(defaultStage1Guidance[1][i]);
 	}
-	stage1guidance_size=8;
+	//stage1guidance_size=8;
 	return;
 }
 
@@ -5763,7 +5796,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		};
 		break;
 	}
-	GPC(simdt); //perform GPC functions
+	GPC(simt, simdt); //perform GPC functions
 
 	//update MET
 	MET[0]=(int)(met/86400);
@@ -9024,4 +9057,28 @@ void Atlantis::SynchronizeCountdown(double launch_mjd)
 void Atlantis::StartRSLSSequence()
 {
 	rsls->StartRSLSSequence();
+}
+
+void Atlantis::TogglePCT()
+{
+	if(!PostContactThrusting[0]) return;
+
+	if(!PostContactThrusting[1]) {
+		PostContactThrusting[1]=true;
+		PCTStartTime=oapiGetSimTime();
+		DAPMode[1]=0; //PRI
+		ControlMode=FREE;
+		dapcontrol->InitializeControlMode();
+	}
+	else {
+		PostContactThrusting[1]=false;
+		DAPMode[0]=0; //A
+		DAPMode[1]=2; //VERN
+		// TODO: mode to A9/B9 DAP CONFIGs
+
+		//stop firing RCS jets
+		SetThrusterGroupLevel(thg_transup, 0.0);
+
+		panelc3->UpdateVC();
+	}
 }

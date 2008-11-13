@@ -69,8 +69,15 @@ namespace vc {
 			}
 		}
 		else if(block==2) {
+			//PCT
+			if(sts->PostContactThrusting[0]) {
+				if(p.x>=0.025329 && p.x<=0.158726 && p.y>=0.02142 && p.y<=0.286954) {
+					sts->TogglePCT();
+					bRet=true;
+				}
+			}
 			//PRI
-			if(p.x>=0.5279445 && p.x<=0.6480245 && p.y>=0.012412 && p.y<=0.261399) {
+			else if(p.x>=0.5279445 && p.x<=0.6480245 && p.y>=0.012412 && p.y<=0.261399) {
 				if(sts->DAPMode[1]!=0) {
 					sts->DAPMode[1]=0;
 					sts->UpdateDAP();
@@ -215,7 +222,8 @@ namespace vc {
 			case 5: //FREE
 				return (sts->ControlMode==Atlantis::FREE);
 				break;
-			case 6: //TRANS X
+			case 6: //PCT
+				return (sts->PostContactThrusting[1]);
 				break;
 			case 7: //LOW Z
 				break;
