@@ -220,6 +220,14 @@ const double CAM_HIGHRATE_SPEED = 12;
 const double CAM_LOWRATE_SPEED = 1.2;
 // Payload camera speed rates (deg/sec)
 
+//Post Contact Thrusting
+const double PCT_STAGE1 = 0.56;
+//period (s) for initial jet firing
+const double PCT_STAGE2 = 1.52;
+//period (s) between jet firings
+const double PCT_STAGE3 = 2.40;
+//period (s) for second jet firing
+
 const int NoseRotThrusters[6] = {0, 2, 4, 6, 8, 10};
 const int NosePitchThrusters[2] = {0, 2};
 const int NoseYawThrusters[2] = {4, 6};
@@ -1365,7 +1373,7 @@ private:
 	void Guide();
 
 	//GPC
-	void GPC(double dt);
+	void GPC(double simt, double dt);
 	void Maneuver(double dt);
 	void SetILoads();
 	bool Input(int mfd, int change, char *Name, char *Data=NULL);
@@ -1375,9 +1383,11 @@ private:
 	void GimbalOMS(VECTOR3 Targets);
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
-	void TransControl(double SimdT);
+	void TransControl(double SimT, double SimdT);
 	void AttControl(double SimdT);
 	void AerojetDAP(double SimdT);
+	void PCTControl(double simt);
+	void TogglePCT();
 	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
 	void LoadInertialManeuver();
 	void LoadTrackManeuver();
@@ -1474,11 +1484,6 @@ private:
 		Output.y=v.x*sin(angle*RAD)+v.y*cos(angle*RAD);
 		Output.z=v.z;
 		return Output;
-	}
-	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
-	{
-		if(fabs(d1-d2)>dDiff) return false;
-		return true;
 	}
 	inline double range(double min, double value, double max)
 	{
@@ -1875,6 +1880,9 @@ private:
 	int DAPMode[2]; //0=A, 1=B && 0=PRI, 1=ALT, 2=VERN
 	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
 	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
+	//PCT
+	bool PostContactThrusting[2]; //0=armed, 1=active
+	double PCTStartTime;
 	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
 	bool RotPulseInProg[3], TransPulseInProg[3];
 	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
@@ -1883,8 +1891,9 @@ private:
 	int JetsEnabled;
 
 	//I-Loads
-	double* stage1guidance[2];
-	int stage1guidance_size;
+	//double* stage1guidance[2];
+	vector<double> stage1guidance[2];
+	//int stage1guidance_size;
 	//double* stage1Vguidance;
 
 	double fTimeCameraLabel;
@@ -1959,6 +1968,20 @@ private:
 	double pos;
 	//////////////////////// ET vent ////////////////////////
 };
+
+static inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
+{
+	if(fabs(d1-d2)>dDiff) return false;
+	return true;
+}
+
+static inline bool Eq(const VECTOR3 v1, const VECTOR3 v2, double dDiff=0.00001)
+{
+	for(int i=0;i<3;i++) {
+		if(fabs(v1.data[i]-v2.data[i])>dDiff) return false;
+	}
+	return true;
+}
 
 //mesh illumination functions
 static void IlluminateMesh(MESHHANDLE mesh)
