@@ -8374,6 +8374,22 @@ void Atlantis::SignalGSEBreakHDP()
 	}
 }
 
+void Atlantis::StartROFIs()
+{
+	if(ahHDP)
+	{
+		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
+		if(hMLP)
+		{
+			VESSEL* pV = oapiGetVesselInterface(hMLP);
+			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			{
+				static_cast<MLP*>(pV)->TriggerROFIs();
+			}
+		}
+	}
+}
+
 void Atlantis::DefineSSMEExhaust()
 {
 	int i;

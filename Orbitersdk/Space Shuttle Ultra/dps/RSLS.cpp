@@ -19,6 +19,9 @@ namespace dps
 		timeToLaunch=(launch_mjd-mjd)*86400.0;
 
 		if(Active) {
+			if(timeToLaunch<=10.0 && lastTTL>=10.0)
+				sts->StartROFIs();
+
 			if(timeToLaunch<=6.60 && lastTTL>=6.60)
 				sts->SetSSMEThrustLevel(3, 1.0);
 			if(timeToLaunch<=6.48 && lastTTL>=6.48)

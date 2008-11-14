@@ -20,6 +20,9 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	dTimer=0.0;
 	bPadLightsOn=false;
 	vis=NULL;
+
+	ROFILevel=0.0;
+	ROFIStartTime=0.0;
 }
 
 MLP::~MLP()
@@ -43,6 +46,12 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
 
+	static PARTICLESTREAMSPEC ROFI_Stream = {
+		0, 0.1, 300.0, 17.5, 0.1, 0.30, 0, 0.5, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
+	};
+
 	SetSize(25.0);
 	SetEmptyMass(4.1957075E6);
 	msh_idx=AddMesh(mshMLP);
@@ -52,6 +61,13 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
+
+	AddParticleStream(&ROFI_Stream, FWD_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
+	AddParticleStream(&ROFI_Stream, FWD_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
+	AddParticleStream(&ROFI_Stream, AFT_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
+	AddParticleStream(&ROFI_Stream, AFT_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
+	AddParticleStream(&ROFI_Stream, AFT_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
+	AddParticleStream(&ROFI_Stream, AFT_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
 
 	if(!ahHDP)
 	{
@@ -84,22 +100,25 @@ void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
 
 void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 {
-	if(dTimer<=fSimT) {
-		dTimer=fSimT+300.0;
+	//if this is the first step, wait a little so all visuals are created
+	if(fSimT>0.5) {
+		if(dTimer<=fSimT) {
+			dTimer=fSimT+300.0;
 
-		OBJHANDLE Sun=NULL;
-		int count=(int)oapiGetGbodyCount();
-		for(int i=0;i<count;i++) {
-			Sun=oapiGetGbodyByIndex(i);
-			if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
-		}
-		if(Sun) {
-			VECTOR3 SunPosGlobal, SunPos;
-			oapiGetGlobalPos(Sun, &SunPosGlobal);
-			Global2Local(SunPosGlobal, SunPos);
-			double angle=acos(SunPos.y/length(SunPos))*DEG;
-			if(angle>85.0 && !bPadLightsOn) TurnOnPadLights();
-			else if(angle<85.0 && bPadLightsOn) TurnOffPadLights();
+			OBJHANDLE Sun=NULL;
+			int count=(int)oapiGetGbodyCount();
+			for(int i=0;i<count;i++) {
+				Sun=oapiGetGbodyByIndex(i);
+				if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
+			}
+			if(Sun) {
+				VECTOR3 SunPosGlobal, SunPos;
+				oapiGetGlobalPos(Sun, &SunPosGlobal);
+				Global2Local(SunPosGlobal, SunPos);
+				double angle=acos(SunPos.y/length(SunPos))*DEG;
+				if(angle>85.0 && !bPadLightsOn) TurnOnPadLights();
+				else if(angle<85.0 && bPadLightsOn) TurnOffPadLights();
+			}
 		}
 	}
 
@@ -130,6 +149,8 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 			CalculateSteamProduction(fSimT, fDeltaT);
 		}
 	}
+
+	if(ROFILevel>0.01 && (fSimT-ROFIStartTime)>10.0) ROFILevel=0.0;
 	/*
 	if(bStartSequence)
 	{
@@ -167,6 +188,8 @@ void MLP::OnT0() {
 
 void MLP::TurnOnPadLights()
 {
+	if(!vis) return;
+
 	MESHHANDLE mesh=GetMesh(vis, msh_idx);
 	IlluminateMesh(mesh);
 	Atlantis* sts=GetShuttleOnPad();
@@ -176,6 +199,8 @@ void MLP::TurnOnPadLights()
 
 void MLP::TurnOffPadLights()
 {
+	if(!vis) return;
+
 	MESHHANDLE mesh=GetMesh(vis, msh_idx);
 	DisableIllumination(mesh, mshMLP);
 	Atlantis* sts=GetShuttleOnPad();
@@ -247,6 +272,12 @@ void MLP::TriggerHDP()
 	}
 	RecordEvent("MLPGSE", "GPC TRIGGER HDP");
 
+}
+
+void MLP::TriggerROFIs()
+{
+	ROFILevel=1.0;
+	ROFIStartTime=oapiGetSimTime();
 }
 
 double MLP::CalculateThrustPower(
