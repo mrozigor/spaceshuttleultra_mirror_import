@@ -1162,6 +1162,7 @@ public:
 	void IgniteSRBs();	
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
+	void StartROFIs();
 
 
 	//Communication with LCC
