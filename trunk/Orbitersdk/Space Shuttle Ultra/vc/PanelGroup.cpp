@@ -103,7 +103,7 @@ namespace vc {
 		}
 		for(unsigned int i = 0; i<panels.size(); i++) {
 			sprintf_s(pszBuffer, 255, "\tSave panel \"%s\" ...",
-				panels.at(i)->GetQualifiedIdentifier());
+				panels.at(i)->GetQualifiedIdentifier().c_str());
 			oapiWriteLog(pszBuffer);
 			panels.at(i)->OnSaveState(scn);
 		}
