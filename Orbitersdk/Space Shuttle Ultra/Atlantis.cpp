@@ -39,6 +39,7 @@
 #include "dps/GNCSoftware.h"
 #include "dps/RSLS.h"
 #include "dps/ShuttleBus.h"
+#include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
@@ -437,6 +438,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   psubsystems->AddSubsystem(pGPC[2] = new dps::AP101S(psubsystems, "GPC3", 3));
   psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
   psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
+
+  psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
@@ -2515,6 +2518,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     oapiVCRegisterHUD (&huds); // register changes in HUD parameters
 
 	DefineAnimations();
+
+	if(pExtAirlock) {
+		oapiWriteLog("Create External Airlock animations");
+		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, ofs);
+		oapiWriteLog("\tDONE.");
+	}
 
   }
 }
@@ -4934,11 +4943,11 @@ void Atlantis::clbkSetStateEx (const void *status)
   // default parameter initialisation
   DefSetStateEx (status);
 
+  oapiWriteLog("(ssu)Set Orbiter configuration.");
   // reset vessel-specific parameters to defaults
   //status = 3;
   SetOrbiterConfiguration();
-
-  psubsystems->RealizeAll();
+  
 }
 
 // --------------------------------------------------------------
@@ -5435,6 +5444,9 @@ void Atlantis::clbkPostCreation ()
 	else if(ROT) LoadRotationManeuver();
 
 	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
+
+	oapiWriteLog("(ssu)Realize all subsystems");
+	psubsystems->RealizeAll();
 }
 
 // --------------------------------------------------------------

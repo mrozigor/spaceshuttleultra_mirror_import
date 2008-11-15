@@ -407,6 +407,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eva_docking\ExtAirlock.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GearOp.cpp"
 				>
 			</File>
@@ -722,6 +726,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\meshres_ods.h"
+				>
+			</File>
+			<File
 				RelativePath=".\meshres_odsvc.h"
 				>
 			</File>
@@ -940,6 +948,10 @@
 		</File>
 		<File
 			RelativePath=".\dps\IDP_Software.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\eva_docking\ODS.cpp"
 			>
 		</File>
 		<File

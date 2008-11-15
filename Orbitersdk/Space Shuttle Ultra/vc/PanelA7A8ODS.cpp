@@ -169,6 +169,10 @@ namespace vc {
 		pAPDSPowerC->output.Connect(pBundle, 2);
 
 		pLampTest->output.Connect(pBundle, 3);
+
+		pBundle = STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
+		pRingOut->output.Connect(pBundle, 3);
+		pRingIn->output.Connect(pBundle, 4);
 		
 	}
 
