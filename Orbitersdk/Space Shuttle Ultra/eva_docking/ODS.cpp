@@ -5,7 +5,9 @@
 namespace eva_docking {
 
 	ODS::ODS(SubsystemDirector* pdirect, const string& _ident)
-		: ExtAirlock(pdirect, _ident)
+		: ExtAirlock(pdirect, _ident),
+		bPowerRelay(false),
+		bCircuitProtectionOff(false)
 	{
 		anim_ring = NULL;
 		pRingAnim = NULL;
@@ -48,37 +50,67 @@ namespace eva_docking {
 
 	void ODS::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		
-		if(dscu_RingOut.IsSet()) {
-			RingState.action = AnimState::OPENING;
-		}
-		
 
-		if(dscu_RingIn.IsSet()) {
-			RingState.action = AnimState::CLOSING;
-		}
-		
+		if(dscu_PowerOn.IsSet()) {
+			sprintf_s(oapiDebugString(), 255, "POWER ON");
+			bPowerRelay = true;
+			bCircuitProtectionOff = false;
+		} 
 
-		if(RingState.Moving()) {
-			RingState.Move(0.0039815 * fDeltaT);
-			STS()->SetAnimation(anim_ring, RingState.pos);
+		if(dscu_PowerOff.IsSet()) {
+			sprintf_s(oapiDebugString(), 255, "POWER OFF");
+			bPowerRelay = false;
 		}
 
-		if(RingState.pos < 0.0631944) {
-			dscu_RingFinalLight.SetLine();
+		if(bPowerRelay) {
+
+			dscu_PowerOnLight.SetLine();
+
+			if(dscu_CircProtectionOff.IsSet()) {
+				bCircuitProtectionOff = true;
+			}
+
+			if(bCircuitProtectionOff) {
+				dscu_CircProtectLight.SetLine();
+			}
+
+			if(dscu_RingOut.IsSet() && bCircuitProtectionOff) {
+				RingState.action = AnimState::OPENING;
+			}
+
+
+			if(dscu_RingIn.IsSet() && bCircuitProtectionOff) {
+				RingState.action = AnimState::CLOSING;
+			}
+
+
+			if(RingState.Moving() && bPowerRelay) {
+				RingState.Move(0.0039815 * fDeltaT);
+				STS()->SetAnimation(anim_ring, RingState.pos);
+			}
+
+			if(RingState.pos < 0.0631944) {
+				dscu_RingFinalLight.SetLine();
+			} else {
+				dscu_RingFinalLight.ResetLine();
+			}
+
+			if(RingState.pos >= 0.7229167&& RingState.pos < 0.7493056) {
+				dscu_RingInitialLight.SetLine();
+			} else {
+				dscu_RingInitialLight.ResetLine();
+			}
+
+			if(RingState.pos >= 0.9868056) {
+				dscu_RingForwardLight.SetLine();
+			} else {
+				dscu_RingForwardLight.ResetLine();
+			}
 		} else {
+			dscu_PowerOnLight.ResetLine();
+			dscu_CircProtectLight.ResetLine();
 			dscu_RingFinalLight.ResetLine();
-		}
-
-		if(RingState.pos >= 0.7229167&& RingState.pos < 0.7493056) {
-			dscu_RingInitialLight.SetLine();
-		} else {
 			dscu_RingInitialLight.ResetLine();
-		}
-
-		if(RingState.pos >= 0.9868056) {
-			dscu_RingForwardLight.SetLine();
-		} else {
 			dscu_RingForwardLight.ResetLine();
 		}
 	}
@@ -95,9 +127,14 @@ namespace eva_docking {
 			STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
 		
 		dscu_PowerOn.Connect(pBundle, 0);
-		dscu_PowerOff.Connect(pBundle, 0);
+		dscu_PowerOff.Connect(pBundle, 1);
 		dscu_RingOut.Connect(pBundle, 2);
 		dscu_RingIn.Connect(pBundle, 3);
+		dscu_CircProtectionOff.Connect(pBundle, 4);
+		dscu_CloseHooks.Connect(pBundle, 5);
+		dscu_CloseLatches.Connect(pBundle, 6);
+		dscu_FixerOff.Connect(pBundle, 7);
+		dscu_LampTest.Connect(pBundle, 8);
 
 		DiscreteBundle* pBundleA = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);

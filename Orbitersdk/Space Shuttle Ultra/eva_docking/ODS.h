@@ -37,6 +37,9 @@ namespace eva_docking {
 		MGROUP_ROTATE*		pRod2RAnim[3];
 		MGROUP_ROTATE*		pRod3RAnim[3];
 
+		bool bPowerRelay;
+		bool bCircuitProtectionOff;
+
 	public:
 		ODS(SubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();
