@@ -137,42 +137,51 @@ namespace vc {
 
 		oapiWriteLog("Panel A7/A8:\tRealize()");
 
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
+		DiscreteBundle* pBundle = 
+			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
 
-		plADS->input.Connect(pBundle, 0);
-		plBDS->input.Connect(pBundle, 1);
-		plCDS->input.Connect(pBundle, 2);
-
-
-		plPowerOn->input.Connect(pBundle, 3);
-		plAPDSProtectCircOff->input.Connect(pBundle, 3);
-		plRingAligned->input.Connect(pBundle, 3);
+		plPowerOn->input.Connect(pBundle, 0);
+		plAPDSProtectCircOff->input.Connect(pBundle, 1);
+		plRingAligned->input.Connect(pBundle, 2);
 		plRingInitialPos->input.Connect(pBundle, 3);
-		plFixersOff->input.Connect(pBundle, 3);
-		plHooks1Open->input.Connect(pBundle, 3);
-		plHooks2Open->input.Connect(pBundle, 3);
-		plLatchesClosed->input.Connect(pBundle, 3);
-		plUndockComplete->input.Connect(pBundle, 3);
+		plFixersOff->input.Connect(pBundle, 4);
+		plHooks1Open->input.Connect(pBundle, 5);
+		plHooks2Open->input.Connect(pBundle, 6);
+		plLatchesClosed->input.Connect(pBundle, 7);
+		plUndockComplete->input.Connect(pBundle, 8);
 
-		plInitialContact->input.Connect(pBundle, 3);
-		plCapture->input.Connect(pBundle, 3);
-		plRingForward->input.Connect(pBundle, 3);
+		plADS->input.Connect(pBundle, 9);
+		plBDS->input.Connect(pBundle, 10);
+		plCDS->input.Connect(pBundle, 11);
+
+		pBundle = 
+			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
+
+		plInitialContact->input.Connect(pBundle, 0);
+		plCapture->input.Connect(pBundle, 1);
+		plRingForward->input.Connect(pBundle, 2);
 		plReadyToHook->input.Connect(pBundle, 3);
-		plInterpSealed->input.Connect(pBundle, 3);
-		plHooks1Closed->input.Connect(pBundle, 3);
-		plHooks2Closed->input.Connect(pBundle, 3);
-		plLatchesOpen->input.Connect(pBundle, 3);
-		plRingFinal->input.Connect(pBundle, 3);
+		plInterpSealed->input.Connect(pBundle, 4);
+		plHooks1Closed->input.Connect(pBundle, 5);
+		plHooks2Closed->input.Connect(pBundle, 6);
+		plLatchesOpen->input.Connect(pBundle, 7);
+		plRingFinal->input.Connect(pBundle, 8);
 
-		pAPDSPowerA->output.Connect(pBundle, 0);		
-		pAPDSPowerB->output.Connect(pBundle, 1);
-		pAPDSPowerC->output.Connect(pBundle, 2);
 
-		pLampTest->output.Connect(pBundle, 3);
 
+		
 		pBundle = STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
-		pRingOut->output.Connect(pBundle, 3);
-		pRingIn->output.Connect(pBundle, 4);
+		pPowerOn->output.Connect(pBundle, 0);
+		pPowerOff->output.Connect(pBundle, 1);
+		pRingOut->output.Connect(pBundle, 2);
+		pRingIn->output.Connect(pBundle, 3);
+
+		pAPDSPowerA->output.Connect(pBundle, 8);		
+		pAPDSPowerB->output.Connect(pBundle, 9);
+		pAPDSPowerC->output.Connect(pBundle, 10);
+
+		pLampTest->output.Connect(pBundle, 11);
+
 		
 	}
 

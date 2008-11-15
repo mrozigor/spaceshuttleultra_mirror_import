@@ -63,6 +63,24 @@ namespace eva_docking {
 			RingState.Move(0.0039815 * fDeltaT);
 			STS()->SetAnimation(anim_ring, RingState.pos);
 		}
+
+		if(RingState.pos < 0.0631944) {
+			dscu_RingFinalLight.SetLine();
+		} else {
+			dscu_RingFinalLight.ResetLine();
+		}
+
+		if(RingState.pos >= 0.7229167&& RingState.pos < 0.7493056) {
+			dscu_RingInitialLight.SetLine();
+		} else {
+			dscu_RingInitialLight.ResetLine();
+		}
+
+		if(RingState.pos >= 0.9868056) {
+			dscu_RingForwardLight.SetLine();
+		} else {
+			dscu_RingForwardLight.ResetLine();
+		}
 	}
 
 	void ODS::OnPropagate(double fSimT, double fDeltaT, double fMJD)
@@ -73,11 +91,27 @@ namespace eva_docking {
 		oapiWriteLog("(ssu)Realize ODS...");
 		STS()->SetExternalAirlockVisual(true, true);
 
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
+		DiscreteBundle* pBundle = 
+			STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
 		
-		dscu_RingOut.Connect(pBundle, 3);
-		dscu_RingIn.Connect(pBundle, 4);
+		dscu_PowerOn.Connect(pBundle, 0);
+		dscu_PowerOff.Connect(pBundle, 0);
+		dscu_RingOut.Connect(pBundle, 2);
+		dscu_RingIn.Connect(pBundle, 3);
 
+		DiscreteBundle* pBundleA = 
+			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
+
+		dscu_PowerOnLight.Connect(pBundleA, 0);
+		dscu_CircProtectLight.Connect(pBundleA, 1);
+		dscu_RingAlignedLight.Connect(pBundleA, 2);
+		dscu_RingInitialLight.Connect(pBundleA, 3);
+
+		DiscreteBundle* pBundleB = 
+			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
+
+		dscu_RingForwardLight.Connect(pBundleB, 2);
+		dscu_RingFinalLight.Connect(pBundleB, 8);
 	}
 
 	void ODS::DefineAirlockAnimations(UINT midx_extal, 
