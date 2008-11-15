@@ -15,4 +15,9 @@ namespace eva_docking {
 
 	}
 
+	void ExtAirlock::DefineAirlockAnimations(UINT midx_extal, 
+		UINT midx_ods, const VECTOR3& ofs) {
+			//No animations
+	}
+
 };

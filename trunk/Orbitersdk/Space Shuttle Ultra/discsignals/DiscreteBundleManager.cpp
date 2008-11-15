@@ -1,4 +1,5 @@
 #include "DiscreteBundleManager.h"
+#include <OrbiterAPI.h>
 
 namespace discsignals {
 
@@ -23,16 +24,20 @@ bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 
 DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, unsigned short usLines)
 {
+	//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Enter");
 	if(ExistsBundle(_ident))
 	{
+		//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Found Bundle");
 		return FindBundle(_ident);
 	}
 	DiscreteBundle* pR = new DiscreteBundle(_ident, usLines);
 	if(AddBundle(pR))
 	{
+		//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Added new bundle");
 		return pR;
 	}
 	else {
+		//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Failed to create new bundle");
 		delete pR;
 		return NULL;
 	}
