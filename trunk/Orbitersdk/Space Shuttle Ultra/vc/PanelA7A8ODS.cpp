@@ -171,14 +171,20 @@ namespace vc {
 
 		
 		pBundle = STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
+
 		pPowerOn->output.Connect(pBundle, 0);
 		pPowerOff->output.Connect(pBundle, 1);
 		pRingOut->output.Connect(pBundle, 2);
 		pRingIn->output.Connect(pBundle, 3);
+		pAPDSCircProtOff->output.Connect(pBundle, 4);
+		pCloseHooks->output.Connect(pBundle, 5);
+		pCloseLatches->output.Connect(pBundle, 6);
+		pFixerOff->output.Connect(pBundle, 7);
+		pLampTest->output.Connect(pBundle, 8);
 
-		pAPDSPowerA->output.Connect(pBundle, 8);		
-		pAPDSPowerB->output.Connect(pBundle, 9);
-		pAPDSPowerC->output.Connect(pBundle, 10);
+		pAPDSPowerA->output.Connect(pBundle, 9);		
+		pAPDSPowerB->output.Connect(pBundle, 10);
+		pAPDSPowerC->output.Connect(pBundle, 11);
 
 		pLampTest->output.Connect(pBundle, 11);
 
