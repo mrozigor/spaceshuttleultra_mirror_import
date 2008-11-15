@@ -145,7 +145,7 @@ namespace eva_docking {
 				_V(0.0, 0.45, 0.0));
 
 			pCoilAnim = new MGROUP_SCALE(midx_ods, grps_coil, 3, 
-				_V(0,1.369,0) + ofs, _V(1,2.46,1));
+				_V(0,1.00,0) + ofs, _V(1,1.9,1));
 
 			pRod1LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1l0, 1, 
 				_V(-0.569,1.662,0.197) + ofs, _V(-0.866,0,0.5), (float)(22.0f * RAD));
