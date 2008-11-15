@@ -2278,14 +2278,14 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		{
 			//update
 			vPayloadPos.z = fPayloadZPos[i];
-			SetAttachmentParams(ahCenterActive[i], vPayloadPos, DIR_CENTERPL, 
+			SetAttachmentParams(ahCenterActive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL);
 		}
 		else 
 		{
 			vPayloadPos.z = fPayloadZPos[i];
 			//create
-			ahCenterActive[i] = CreateAttachment(false, vPayloadPos, DIR_CENTERPL, 
+			ahCenterActive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL, "XS");
 		}
 	}
@@ -2305,14 +2305,14 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		{
 			//update
 			vPayloadPos.z = fPayloadZPos[i+3];
-			SetAttachmentParams(ahCenterPassive[i], vPayloadPos, DIR_CENTERPL, 
+			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL);
 		}
 		else 
 		{
 			vPayloadPos.z = fPayloadZPos[i+3];
 			//create
-			ahCenterPassive[i] = CreateAttachment(false, vPayloadPos, DIR_CENTERPL, 
+			ahCenterPassive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL, "XS");
 		}
 	}
@@ -2340,14 +2340,14 @@ The same starboard
 		{
 			//update
 			vPayloadPos.z = fPayloadZPos[i+7];
-			SetAttachmentParams(ahPortPL[i], vPayloadPos, DIR_PORTPL, 
+			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL);
 		}
 		else 
 		{
 			vPayloadPos.z = fPayloadZPos[i+7];
 			//create
-			ahPortPL[i] = CreateAttachment(false, vPayloadPos, DIR_PORTPL, 
+			ahPortPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL, "XS");
 		}
 	}
@@ -2360,14 +2360,14 @@ The same starboard
 		{
 			//update
 			vPayloadPos.z = fPayloadZPos[i+11];
-			SetAttachmentParams(ahStbdPL[i], vPayloadPos, DIR_STBDPL, 
+			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL);
 		}
 		else 
 		{
 			vPayloadPos.z = fPayloadZPos[i+11];
 			//create
-			ahStbdPL[i] = CreateAttachment(false, vPayloadPos, DIR_STBDPL, 
+			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL, "XS");
 		}
 	}

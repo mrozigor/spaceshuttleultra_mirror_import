@@ -169,6 +169,22 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 	}
 }
 
+int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
+{
+	if(down) {
+		if(KEYMOD_CONTROL(keystate)) {
+			switch(key) {
+				//for debugging ROFIs
+				case OAPI_KEY_X:
+					ROFILevel=1.0-ROFILevel;
+					ROFIStartTime=oapiGetSimTime()+1000.0; //let ROFIs rin for 1010.0 seconds
+					return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 void MLP::clbkVisualCreated(VISHANDLE _vis, int refcount)
 {
 	vis=_vis;

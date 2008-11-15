@@ -28,6 +28,7 @@ public:
 	virtual void TriggerHDP();
 	virtual void TriggerROFIs();
 	virtual void ActivateSSS();
+
 	MLP(OBJHANDLE hVessel, int iFlightModel);
 	virtual ~MLP();
 
@@ -38,6 +39,7 @@ public:
 	virtual void clbkPreStep(double fSimT, double fDeltaT, double mjd);
 	virtual void clbkVisualCreated(VISHANDLE _vis, int refcount);
 	virtual void clbkVisualDestroyed(VISHANDLE _vis, int refcount);
+	virtual int clbkConsumeBufferedKey(DWORD key, bool down, char* keystate);
 private:
 	MESHHANDLE mshMLP;
 	double fCountdown;
