@@ -8368,6 +8368,7 @@ void Atlantis::SignalGSEBreakHDP()
 			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
 			{
 				//static_cast<MLP*>(pV)->TriggerHDP();
+				oapiWriteLog("Atlantis: Calling MLP::OnT0()");
 				static_cast<MLP*>(pV)->OnT0();
 			}
 		}
