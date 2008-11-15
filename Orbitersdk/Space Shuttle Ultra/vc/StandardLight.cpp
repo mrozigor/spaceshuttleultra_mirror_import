@@ -22,7 +22,7 @@ namespace vc {
 	
 	void StandardLight::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		bCurrentState = input.IsSet();
+		bCurrentState = input.IsSet() || test.IsSet();
 		if(bCurrentState != bOldState) {
 
 			//oapiTriggerRedrawArea(-1, -1, AID_ODSLIGHTS);

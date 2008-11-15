@@ -27,6 +27,14 @@ namespace eva_docking {
 
 		AnimState RingState;
 
+		typedef enum ___extend_goal {
+			EXTEND_TO_INITIAL,
+			EXTEND_TO_FINAL,
+			RETRACT_TO_FINAL
+		} EXTEND_GOAL;
+
+		EXTEND_GOAL extend_goal;
+
 		UINT anim_ring;
 		MGROUP_TRANSLATE*	pRingAnim;
 		MGROUP_SCALE*		pCoilAnim;
@@ -39,6 +47,16 @@ namespace eva_docking {
 
 		bool bPowerRelay;
 		bool bCircuitProtectionOff;
+		bool bFixersOn;
+		bool bLatchesOpen;
+		bool bLatchesClosed;
+		bool bHooks1Open;
+		bool bHooks1Closed;
+		bool bHooks2Open;
+		bool bHooks2Closed;
+
+		bool HasDSCUPower() const;
+
 
 	public:
 		ODS(SubsystemDirector* pdirect, const string& _ident);
@@ -59,7 +77,6 @@ namespace eva_docking {
 		DiscInPort dscu_CloseHooks;
 		DiscInPort dscu_CloseLatches;
 		DiscInPort dscu_FixerOff;
-		DiscInPort dscu_LampTest;
 
 		DiscOutPort dscu_PowerA;
 		DiscOutPort dscu_PowerB;

@@ -30,5 +30,6 @@ namespace vc {
 		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 
 		DiscInPort input;
+		DiscInPort test;
 	};
 }

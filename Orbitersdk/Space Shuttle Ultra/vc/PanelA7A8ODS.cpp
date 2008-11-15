@@ -137,38 +137,86 @@ namespace vc {
 
 		oapiWriteLog("Panel A7/A8:\tRealize()");
 
+		DiscreteBundle* pInternalA7 = 
+			STS()->BundleManager()->CreateBundle("PANELA7", 16);
+
+		if(!pInternalA7)
+		{
+			oapiWriteLog("Panel A7/A8:\tError creating internal cables.");
+			exit(0);
+		}
+
 		DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
 
 		plPowerOn->input.Connect(pBundle, 0);
+		plPowerOn->test.Connect(pInternalA7, 0);
+
 		plAPDSProtectCircOff->input.Connect(pBundle, 1);
+		plAPDSProtectCircOff->test.Connect(pInternalA7, 0);
+
 		plRingAligned->input.Connect(pBundle, 2);
+		plRingAligned->test.Connect(pInternalA7, 0);
+
 		plRingInitialPos->input.Connect(pBundle, 3);
+		plRingInitialPos->test.Connect(pInternalA7, 0);
+
 		plFixersOff->input.Connect(pBundle, 4);
+		plFixersOff->test.Connect(pInternalA7, 0);
+
 		plHooks1Open->input.Connect(pBundle, 5);
+		plHooks1Open->test.Connect(pInternalA7, 0);
+
 		plHooks2Open->input.Connect(pBundle, 6);
+		plHooks2Open->test.Connect(pInternalA7, 0);
+
 		plLatchesClosed->input.Connect(pBundle, 7);
+		plLatchesClosed->test.Connect(pInternalA7, 0);
+
 		plUndockComplete->input.Connect(pBundle, 8);
+		plUndockComplete->test.Connect(pInternalA7, 0);
+
 
 		plADS->input.Connect(pBundle, 9);
+		plADS->test.Connect(pInternalA7, 0);
+
 		plBDS->input.Connect(pBundle, 10);
+		plBDS->test.Connect(pInternalA7, 0);
+
 		plCDS->input.Connect(pBundle, 11);
+		plCDS->test.Connect(pInternalA7, 0);
 
 		pBundle = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
 
 		plInitialContact->input.Connect(pBundle, 0);
+		plInitialContact->test.Connect(pInternalA7, 0);
+
 		plCapture->input.Connect(pBundle, 1);
+		plCapture->test.Connect(pInternalA7, 0);
+
 		plRingForward->input.Connect(pBundle, 2);
+		plRingForward->test.Connect(pInternalA7, 0);
+
 		plReadyToHook->input.Connect(pBundle, 3);
+		plReadyToHook->test.Connect(pInternalA7, 0);
+
 		plInterpSealed->input.Connect(pBundle, 4);
+		plInterpSealed->test.Connect(pInternalA7, 0);
+
 		plHooks1Closed->input.Connect(pBundle, 5);
+		plHooks1Closed->test.Connect(pInternalA7, 0);
+
 		plHooks2Closed->input.Connect(pBundle, 6);
+		plHooks2Closed->test.Connect(pInternalA7, 0);
+
 		plLatchesOpen->input.Connect(pBundle, 7);
+		plLatchesOpen->test.Connect(pInternalA7, 0);
+
 		plRingFinal->input.Connect(pBundle, 8);
+		plRingFinal->test.Connect(pInternalA7, 0);
 
-
-
+		pLampTest->output.Connect(pInternalA7, 0);
 		
 		pBundle = STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
 
@@ -180,15 +228,15 @@ namespace vc {
 		pCloseHooks->output.Connect(pBundle, 5);
 		pCloseLatches->output.Connect(pBundle, 6);
 		pFixerOff->output.Connect(pBundle, 7);
-		pLampTest->output.Connect(pBundle, 8);
+		
 
 		pAPDSPowerA->output.Connect(pBundle, 9);		
 		pAPDSPowerB->output.Connect(pBundle, 10);
 		pAPDSPowerC->output.Connect(pBundle, 11);
 
-		pLampTest->output.Connect(pBundle, 11);
+		//pLampTest->output.Connect(pBundle, 11);
 
-		
+		oapiWriteLog("Panel A7/A8:\tRealize done.");
 	}
 
 	void PanelA7A8ODS::DefineVC()

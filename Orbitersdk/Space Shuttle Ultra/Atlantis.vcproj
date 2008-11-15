@@ -329,6 +329,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\BasicLight.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicPanel.cpp"
 				>
 			</File>
@@ -439,6 +443,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\IDP_Software.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Keyboard.cpp"
 				>
 			</File>
@@ -456,6 +464,10 @@
 			</File>
 			<File
 				RelativePath=".\mps\MPS.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\eva_docking\ODS.cpp"
 				>
 			</File>
 			<File
@@ -537,6 +549,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\vc\PushButton.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\RSLS.cpp"
 				>
 			</File>
@@ -546,6 +562,10 @@
 			</File>
 			<File
 				RelativePath=".\mps\SSME.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\StandardLight.cpp"
 				>
 			</File>
 			<File
@@ -879,10 +899,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\vc\BasicLight.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\Bitmaps\bitmap1.bmp"
 			>
 		</File>
@@ -947,27 +963,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\dps\IDP_Software.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\eva_docking\ODS.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\Bitmaps\ODSbuttons.bmp"
 			>
 		</File>
 		<File
 			RelativePath=".\Bitmaps\OrbitDAP_PBI_lights.bmp"
-			>
-		</File>
-		<File
-			RelativePath=".\vc\PushButton.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\vc\StandardLight.cpp"
 			>
 		</File>
 		<File
