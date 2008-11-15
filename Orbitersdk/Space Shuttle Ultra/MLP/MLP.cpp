@@ -196,6 +196,8 @@ void MLP::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
 }
 
 void MLP::OnT0() {
+	oapiWriteLog("MLP::OnT0() called");
+
 	TriggerHDP();
 
 	//Trigger T0 animation
