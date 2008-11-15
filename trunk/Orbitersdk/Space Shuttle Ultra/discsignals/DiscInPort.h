@@ -13,6 +13,10 @@ namespace discsignals {
 		bool IsSet(float fThreshold) const;
 
 		float GetVoltage() const;
+
+		inline operator bool() const {
+			return IsSet();
+		};
 	};
 
 	class DiscDemultiplex16: public DiscMultiplex {

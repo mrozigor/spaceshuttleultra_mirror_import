@@ -7,7 +7,15 @@ namespace eva_docking {
 	ODS::ODS(SubsystemDirector* pdirect, const string& _ident)
 		: ExtAirlock(pdirect, _ident),
 		bPowerRelay(false),
-		bCircuitProtectionOff(false)
+		bCircuitProtectionOff(false),
+		extend_goal(RETRACT_TO_FINAL),
+		bLatchesOpen(false),
+		bLatchesClosed(true),
+		bHooks1Open(true),
+		bHooks1Closed(false),
+		bHooks2Open(true),
+		bHooks2Closed(false),
+		bFixersOn(true)
 	{
 		anim_ring = NULL;
 		pRingAnim = NULL;
@@ -52,40 +60,73 @@ namespace eva_docking {
 	{
 
 		if(dscu_PowerOn.IsSet()) {
-			sprintf_s(oapiDebugString(), 255, "POWER ON");
+			//sprintf_s(oapiDebugString(), 255, "POWER ON");
 			bPowerRelay = true;
 			bCircuitProtectionOff = false;
 		} 
 
 		if(dscu_PowerOff.IsSet()) {
-			sprintf_s(oapiDebugString(), 255, "POWER OFF");
+			//sprintf_s(oapiDebugString(), 255, "POWER OFF");
 			bPowerRelay = false;
 		}
 
-		if(bPowerRelay) {
+		
+
+		if(HasDSCUPower()) {
 
 			dscu_PowerOnLight.SetLine();
+			dscu_RingAlignedLight.SetLine();
 
 			if(dscu_CircProtectionOff.IsSet()) {
 				bCircuitProtectionOff = true;
 			}
 
+			if(dscu_FixerOff) {
+				bFixersOn = false;
+			}
+
 			if(bCircuitProtectionOff) {
 				dscu_CircProtectLight.SetLine();
+			} else {
+				dscu_CircProtectLight.ResetLine();
+			}
+
+			if(!bFixersOn) {
+				dscu_FixersOffLight.SetLine();
+			} else {
+				dscu_FixersOffLight.ResetLine();
 			}
 
 			if(dscu_RingOut.IsSet() && bCircuitProtectionOff) {
 				RingState.action = AnimState::OPENING;
+				extend_goal = EXTEND_TO_INITIAL;
+				if(RingState.pos >= 0.7229167) {
+					extend_goal = EXTEND_TO_FINAL;
+				}
+				bFixersOn = true;
 			}
 
 
 			if(dscu_RingIn.IsSet() && bCircuitProtectionOff) {
 				RingState.action = AnimState::CLOSING;
+				extend_goal = RETRACT_TO_FINAL;
+				bFixersOn = true;
 			}
 
 
 			if(RingState.Moving() && bPowerRelay) {
 				RingState.Move(0.0039815 * fDeltaT);
+
+				if(RingState.pos >= 0.7361111 && 
+					extend_goal == EXTEND_TO_INITIAL) {
+					RingState.action = AnimState::STOPPED;
+				}
+
+				if(RingState.pos >= 1.0 && 
+					extend_goal == EXTEND_TO_FINAL) {
+					RingState.action = AnimState::STOPPED;
+				}
+
 				STS()->SetAnimation(anim_ring, RingState.pos);
 			}
 
@@ -95,23 +136,74 @@ namespace eva_docking {
 				dscu_RingFinalLight.ResetLine();
 			}
 
-			if(RingState.pos >= 0.7229167&& RingState.pos < 0.7493056) {
+			if((RingState.pos >= 0.7229167&& RingState.pos < 0.7493056)) {
 				dscu_RingInitialLight.SetLine();
 			} else {
 				dscu_RingInitialLight.ResetLine();
 			}
 
-			if(RingState.pos >= 0.9868056) {
+			if(RingState.pos >= 0.9868056 ) {
 				dscu_RingForwardLight.SetLine();
 			} else {
 				dscu_RingForwardLight.ResetLine();
 			}
+
+			if(bLatchesClosed) {
+				dscu_LatchesClosedLight.SetLine();
+			} else {
+				dscu_LatchesClosedLight.ResetLine();
+			}
+
+			if(bLatchesOpen) {
+				dscu_LatchesOpenLight.SetLine();
+			} else {
+				dscu_LatchesOpenLight.ResetLine();
+			}
+
+			if(bHooks1Open) {
+				dscu_Hooks1OpenLight.SetLine();
+			} else {
+				dscu_Hooks1OpenLight.ResetLine();
+			}
+
+			if(bHooks2Open) {
+				dscu_Hooks2OpenLight.SetLine();
+			} else {
+				dscu_Hooks2OpenLight.ResetLine();
+			}
+
+			if(bHooks1Closed) {
+				dscu_Hooks1ClosedLight.SetLine();
+			} else {
+				dscu_Hooks1ClosedLight.ResetLine();
+			}
+
+			if(bHooks2Closed) {
+				dscu_Hooks2ClosedLight.SetLine();
+			} else {
+				dscu_Hooks2ClosedLight.ResetLine();
+			}
+
 		} else {
 			dscu_PowerOnLight.ResetLine();
 			dscu_CircProtectLight.ResetLine();
-			dscu_RingFinalLight.ResetLine();
+			dscu_RingAlignedLight.ResetLine();
+			dscu_FixersOffLight.ResetLine();
 			dscu_RingInitialLight.ResetLine();
+			dscu_Hooks1OpenLight.ResetLine();
+			dscu_Hooks2OpenLight.ResetLine();
+			dscu_LatchesClosedLight.ResetLine();
+			dscu_UndockCompleteLight.ResetLine();
+
+			dscu_InitialContactLight.ResetLine();
+			dscu_CaptureLight.ResetLine();
 			dscu_RingForwardLight.ResetLine();
+			dscu_ReadyToHookLight.ResetLine();
+			dscu_InterfSealedLight.ResetLine();
+			dscu_Hooks1ClosedLight.ResetLine();
+			dscu_Hooks2ClosedLight.ResetLine();
+			dscu_LatchesOpenLight.ResetLine();
+			dscu_RingFinalLight.ResetLine();
 		}
 	}
 
@@ -134,7 +226,6 @@ namespace eva_docking {
 		dscu_CloseHooks.Connect(pBundle, 5);
 		dscu_CloseLatches.Connect(pBundle, 6);
 		dscu_FixerOff.Connect(pBundle, 7);
-		dscu_LampTest.Connect(pBundle, 8);
 
 		DiscreteBundle* pBundleA = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
@@ -143,11 +234,18 @@ namespace eva_docking {
 		dscu_CircProtectLight.Connect(pBundleA, 1);
 		dscu_RingAlignedLight.Connect(pBundleA, 2);
 		dscu_RingInitialLight.Connect(pBundleA, 3);
+		dscu_FixersOffLight.Connect(pBundleA, 4);
+		dscu_Hooks1OpenLight.Connect(pBundleA, 5);
+		dscu_Hooks2OpenLight.Connect(pBundleA, 6);
+		dscu_LatchesClosedLight.Connect(pBundleA, 7);
 
 		DiscreteBundle* pBundleB = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
 
 		dscu_RingForwardLight.Connect(pBundleB, 2);
+		dscu_Hooks1ClosedLight.Connect(pBundleB, 5);
+		dscu_Hooks2ClosedLight.Connect(pBundleB, 6);
+		dscu_LatchesOpenLight.Connect(pBundleB, 7);
 		dscu_RingFinalLight.Connect(pBundleB, 8);
 	}
 
@@ -294,6 +392,10 @@ namespace eva_docking {
 		}
 
 
+	}
+
+	bool ODS::HasDSCUPower() const {
+		return bPowerRelay;
 	}
 
 };
