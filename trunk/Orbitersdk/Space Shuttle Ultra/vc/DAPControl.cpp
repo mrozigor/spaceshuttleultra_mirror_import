@@ -63,6 +63,7 @@ namespace vc {
 			//FREE
 			if(p.x>=0.863466 && p.x<=0.99105 && p.y>=0.037412 && p.y<=0.88139) {
 				sts->ControlMode=Atlantis::FREE;
+				if(sts->PostContactThrusting[1]) sts->TogglePCT();
 				//add extra initialization
 				InitializeControlMode();
 				bRet=true;
@@ -70,8 +71,8 @@ namespace vc {
 		}
 		else if(block==2) {
 			//PCT
-			if(sts->PostContactThrusting[0]) {
-				if(p.x>=0.025329 && p.x<=0.158726 && p.y>=0.02142 && p.y<=0.286954) {
+			if(p.x>=0.025329 && p.x<=0.158726 && p.y>=0.02142 && p.y<=0.286954) {
+				if(sts->PostContactThrusting[0]) {
 					sts->TogglePCT();
 					bRet=true;
 				}
