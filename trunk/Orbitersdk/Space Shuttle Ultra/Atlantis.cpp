@@ -5290,7 +5290,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteLog("\tAft flight deck");
   pgAftStbd.OnSaveState(scn);
   pgAft.OnSaveState(scn);
-  //pgAftPort.OnSaveState(scn);
+  pgAftPort.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
