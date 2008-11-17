@@ -29,6 +29,13 @@ namespace vc
 	void PanelA6::DefineVC()
 	{
 		oapiWriteLog("PanelA6: DefineVC called");
+
+		AddAIDToMouseEventList(AID_A6);
+
+		pSense->DefineSwitchGroup(GRP_A6U1_VC);
+		pSense->SetInitialAnimState(0.5);
+		pSense->SetReference(_V(0.728, 2.780, 12.313), _V(-1.00, 0.0, 0.0));
+		pSense->SetMouseRegion(0.863499f, 0.262889f, 0.924675f, 0.332972f);
 	}
 
 	void PanelA6::RegisterVC()
@@ -93,6 +100,14 @@ namespace vc
 		oapiVCRegisterArea(AID_A6_PBI23, _R(1023, 1496, 1060, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//ROT YAW PULSE
 		oapiVCRegisterArea(AID_A6_PBI24, _R(1102, 1496, 1139, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+	}
+
+	void PanelA6::Realize()
+	{
+		BasicPanel::Realize();
+
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("A6", 16);
+		pSense->output.Connect(pBundle, 0);
 	}
 
 	bool PanelA6::OnVCMouseEvent(int id, int _event, VECTOR3 &p)

@@ -13,6 +13,7 @@ namespace vc
 
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void Realize();
 
 		virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
 		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
