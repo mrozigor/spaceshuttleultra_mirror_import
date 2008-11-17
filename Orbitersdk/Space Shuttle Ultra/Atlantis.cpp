@@ -5447,6 +5447,14 @@ void Atlantis::clbkPostCreation ()
 
 	oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
+	pgForward.Realize();
+	pgLeft.Realize();
+	pgRight.Realize();
+	pgCenter.Realize();
+	pgOverhead.Realize();
+	pgAftPort.Realize();
+	pgAft.Realize();
+	pgAftStbd.Realize();
 }
 
 // --------------------------------------------------------------
@@ -5709,13 +5717,42 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		met+=simdt;
 		//get THC and RHC input
-		RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-		RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-		RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-		//sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
+		if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
+			RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
+			RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+			RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
+			THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+			THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
+			THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+		}
+		else { //aft RHC/THC
+			DiscreteBundle* pBundle=bundleManager->CreateBundle("A6", 16);
+			if(pBundle) {
+				DiscInPort Sense;
+				Sense.Connect(pBundle, 0);
+				if(Sense) { //-Z
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
+					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+				}
+				else { //-X
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+				}
+			}
+			//else sprintf_s(oapiDebugString(), 255, "ERROR: Could not find bundle");
+		}
+		sprintf_s(oapiDebugString(), 255, "RHC Input: %f %f %f", RHCInput.x, RHCInput.y, RHCInput.z);
+		
 		/*
 		if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
 		DetachChild (sat_attach, 0.1);
@@ -5729,18 +5766,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			DeployLandingGear();
 		}
 		else if(GetAltitude()<609.6) ArmGear();
-		/*else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
-		{
-			gop->DamageGear();
-		}*/
-		/*if(GetAltitude()<92.44 && gop->GetGearAction()==AnimState::CLOSED) {
-			if(GetAltitude()<10 || airspeed<=GEAR_MAX_DEPLOY_SPEED-75) gop->RevertLandingGear();
-		}
-		else if(GetAltitude()<609.6) gop->ArmGear();
-		else if(gop->GetGearAction()!=AnimState::CLOSED && airspeed>GEAR_MAX_DEPLOY_SPEED && GetDynPressure()>10000.0)
-		{
-			gop->DamageGear();
-		}*/
 
 		//drag chute
 		if(GroundContact()) {
