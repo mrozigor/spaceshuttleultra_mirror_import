@@ -2256,14 +2256,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 
 	//Move to UpdateDockAuxAttach(), include animation of docking port.
 	//reject attaching when no docking port available
-	if(ahDockAux)
-	{
-		SetAttachmentParams(ahDockAux, ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0),
-			_V(0.0, 0.0, 1.0));
-	} else {
-		ahDockAux = CreateAttachment(false, ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0),
-			_V(0.0, 0.0, 1.0), "ODS");
-	}
+	UpdateODSAttachment(ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0), _V(0.0,0.0,1.0));
 
 /*
 dynamic centerline payloads, controlled by the payload 1-3 interfaces
@@ -6690,7 +6683,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
 	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
-	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0));
+	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
 
@@ -9134,4 +9127,17 @@ void Atlantis::TogglePCT()
 
 		panelc3->UpdateVC();
 	}
+}
+
+void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
+	if(ahDockAux)
+	{
+		SetAttachmentParams(ahDockAux, pos, dir, up);
+	} else {
+		ahDockAux = CreateAttachment(false, pos, dir, up, "APAS");
+	}
+}
+
+ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
+	return ahDockAux;
 }

@@ -1159,6 +1159,9 @@ public:
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
 
+	virtual void UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up);
+	virtual ATTACHMENTHANDLE GetODSAttachment() const;
+
 	void IgniteSRBs();	
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
@@ -2036,4 +2039,5 @@ static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
 }
 
 #endif // !__ATLANTIS_H
+
 
