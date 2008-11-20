@@ -113,7 +113,8 @@ bool SubsystemDirector::SaveState(FILEHANDLE scn)
 bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 {
 	unsigned long i;
-	const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
+	//const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
+	const double SUBSAMPLING_DELTAT = 0.04;	//40 ms
 	
 
 	//Subsampling pass
