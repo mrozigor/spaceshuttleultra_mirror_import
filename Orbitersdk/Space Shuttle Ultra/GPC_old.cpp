@@ -912,7 +912,7 @@ void Atlantis::AttControl(double SimdT)
 			LastReqdAttMatrix=ReqdAttMatrix;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
 			REQD_ATT=GetAnglesFromMatrix(ReqdAttMatrix)*DEG;
-			sprintf_s(oapiDebugString(), 255, "LVLH REQD: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
+			//sprintf_s(oapiDebugString(), 255, "LVLH REQD: %f %f %f", LVLHOrientationReqd.x, LVLHOrientationReqd.y, LVLHOrientationReqd.z);
 		}
 		
 		if(!ManeuverinProg) {

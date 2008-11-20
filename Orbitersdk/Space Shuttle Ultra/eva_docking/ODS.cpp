@@ -15,16 +15,22 @@ namespace eva_docking {
 		bHooks1Closed(false),
 		bHooks2Open(true),
 		bHooks2Closed(false),
-		bFixersOn(true)
+		bFixersOn(true),
+		bTargetInCone(false)
 	{
 		anim_ring = NULL;
 		pRingAnim = NULL;
 		RingState.Set(AnimState::STOPPED, 0.0);
+		odsAttachVec[0] = ORBITER_DOCKPOS;
+		odsAttachVec[1] = _V(0.0, 1.0, 0.0);
+		odsAttachVec[2] = _V(0.0, 0.0, 1.0);
+		target_pos = _V(0.0, 2000.0, 0.0);
 	}
 
 	ODS::~ODS() {
 		if(pRingAnim) {
 			delete pRingAnim;
+			delete pRingAnimV;
 			delete pCoilAnim;
 			delete pRod1LAnim[0];
 			delete pRod1LAnim[1];
@@ -47,6 +53,110 @@ namespace eva_docking {
 		}
 	}
 
+	void ODS::AnalyseVessel(OBJHANDLE hVessel) {
+
+		VESSEL* pV = oapiGetVesselInterface(hVessel);
+		bool bHasOneAPASPort = false;
+
+		for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
+			ATTACHMENTHANDLE ahX = 	pV->GetAttachmentHandle(true, j);
+
+			if(!strnicmp(pV->GetAttachmentId(ahX), "APAS", 4)) {
+				bHasOneAPASPort = true;
+			}
+		}
+
+		known_objects.insert(hVessel);
+		if(!bHasOneAPASPort) {
+			non_apas_objects.insert(hVessel);
+		}
+	}
+
+	bool ODS::FindClosestDockingRing(OBJHANDLE hVessel) {
+		VECTOR3 gpos;
+		VECTOR3 lpos, lpos_remote;
+		VECTOR3 ring_dir, ring_up;
+		VECTOR3 rel_vel;
+		
+
+		
+		//calculate CG/CG distance
+		oapiGetGlobalPos (hVessel, &gpos);
+		STS()->Global2Local(gpos, lpos);
+		//Check distance and hemisphere
+		if(length(lpos) <= 609.6 && lpos.y >= 0) {
+			//Gather attachment points of target
+			VESSEL* pV = oapiGetVesselInterface(hVessel);
+
+			for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
+				ATTACHMENTHANDLE ahX = 
+					pV->GetAttachmentHandle(true, j);
+				
+				if(strnicmp(pV->GetAttachmentId(ahX), "APAS", 4))
+					//Proceed with next attachment
+					continue;
+
+				
+				STS()->GetRelativeVel(hVessel, rel_vel);
+
+
+
+				pV->GetAttachmentParams(ahX, lpos_remote, 
+					ring_dir, ring_up);
+				pV->Local2Global(lpos_remote, gpos);
+				STS()->Global2Local(gpos, lpos_remote);
+				if(length(lpos_remote - odsAttachVec[0]) <= 76.2) {
+					bTargetInCone = true;
+					ahTarget = ahX;
+					ohTarget = hVessel;
+					target_pos = lpos_remote - odsAttachVec[0];
+					target_vel.x = dotp(rel_vel, eX);
+					target_vel.y = dotp(rel_vel, eY);
+					target_vel.z = dotp(rel_vel, eZ);
+					//bFoundAtLeastOne = true;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ODS::FindClosestDockingRing() {
+
+		/* VECTOR3 gpos;
+		VECTOR3 lpos, lpos_remote;
+		VECTOR3 ring_dir, ring_up; */
+		//bool bFoundAtLeastOne = false;
+		//Scan surrounding vessels, maximum range 2000 ft (609.6 m) CG-CG
+		bTargetInCone = false;		//Cheat.
+
+		if(bTargetInCone) {
+			//Abort, this function is not for updates, but for initial search
+			return false;
+		}
+
+		bool bOneValidTarget = false;
+
+		for(DWORD i = 0; i<oapiGetVesselCount(); i++) {
+
+			OBJHANDLE hVessel = oapiGetVesselByIndex(i);
+			//If it is not our own handle and not known to be without 
+			//APAS
+			if(hVessel != STS()->GetHandle()) {
+				if(known_objects.find(hVessel) == known_objects.end()) {
+					AnalyseVessel(hVessel);
+				}
+
+				if(known_objects.find(hVessel) != known_objects.end() &&
+					non_apas_objects.find(hVessel) == non_apas_objects.end()) 
+				{
+					bOneValidTarget |= FindClosestDockingRing(hVessel);
+				}
+			}
+		}
+		return bOneValidTarget;
+	}
+
 	double ODS::GetSubsystemEmptyMass() const {
 		return 0.0;
 	}
@@ -58,6 +168,42 @@ namespace eva_docking {
 
 	void ODS::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
+		const double FEET = 1.0/0.3048;
+		const double INCH = 1.0/0.0254;
+		char pszBuffer[256];
+
+		STS()->GlobalRot(_V(1,0,0),eX);
+		STS()->GlobalRot(_V(0,1,0),eY);
+		STS()->GlobalRot(_V(0,0,1),eZ);
+
+		//If no target captured
+		//Locate and update objects in 2m cylinder, closest wins
+		if(FindClosestDockingRing())
+		{
+			VESSEL* pV;
+			oapiGetObjectName(ohTarget, pszBuffer, 255);
+			int iD = 0;
+
+			pV = oapiGetVesselInterface(ohTarget);
+			iD = pV->GetAttachmentIndex(ahTarget);
+
+			sprintf_s(oapiDebugString(), 255, 
+				"ODS: LOCK %s:%d | %5.2f\" %5.2f' %5.2f\" | %5.2f %5.2f %5.2f", 
+				pszBuffer, iD, target_pos.x * INCH, 
+				target_pos.y * FEET, target_pos.z * INCH,
+				target_vel.x * FEET, target_vel.y * FEET, 
+				target_vel.z * FEET);
+		} else {
+			sprintf_s(oapiDebugString(), 255, "ODS: NUM KNOWN %d (%d W/O APAS)",
+				known_objects.size(), non_apas_objects.size());
+		}
+
+		//If target in range:
+		//Calculate contacts and trigger initial contact signal.
+		//If all latches matching and overcoming resistence, capture.
+
+		//if captured
+		//simulate oscillations of structure
 
 		if(dscu_PowerOn.IsSet()) {
 			//sprintf_s(oapiDebugString(), 255, "POWER ON");
@@ -128,6 +274,9 @@ namespace eva_docking {
 				}
 
 				STS()->SetAnimation(anim_ring, RingState.pos);
+				STS()->UpdateODSAttachment(odsAttachVec[0], 
+					odsAttachVec[1]-odsAttachVec[0], 
+					odsAttachVec[2]-odsAttachVec[0]);
 			}
 
 			if(RingState.pos < 0.0631944) {
@@ -275,8 +424,15 @@ namespace eva_docking {
 			midx_ods, ofs);
 
 		if(!pRingAnim) {
+
+			odsAttachVec[0] = ORBITER_DOCKPOS + ofs;
+			odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
+			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 			
 			pRingAnim = new MGROUP_TRANSLATE(midx_ods, grps_ring, 1, 
+				_V(0.0, 0.45, 0.0));
+
+			pRingAnimV = new MGROUP_TRANSLATE(LOCALVERTEXLIST, MAKEGROUPARRAY(odsAttachVec), 3, 
 				_V(0.0, 0.45, 0.0));
 
 			pCoilAnim = new MGROUP_SCALE(midx_ods, grps_coil, 3, 
@@ -341,6 +497,9 @@ namespace eva_docking {
 			ANIMATIONCOMPONENT_HANDLE parent = 
 				STS()->AddAnimationComponent(anim_ring, 
 				0.05, 1.0, pRingAnim);
+
+			STS()->AddAnimationComponent(anim_ring, 
+				0.05, 1.0, pRingAnimV);
 
 			STS()->AddAnimationComponent(anim_ring, 0.05, 1.0, 
 				pCoilAnim);
