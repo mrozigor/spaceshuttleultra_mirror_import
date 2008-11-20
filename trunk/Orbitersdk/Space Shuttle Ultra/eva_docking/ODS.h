@@ -2,6 +2,7 @@
 #include "ExtAirlock.h"
 #include "../discsignals/DiscOutPort.h"
 #include "../discsignals/DiscInPort.h"
+#include <set>
 
 const static char* ODS_MESHNAME = "ODS";
 
@@ -13,19 +14,37 @@ namespace eva_docking {
 	using class discsignals::DiscInPort;
 	using class discsignals::DiscOutPort;
 
+	using namespace std;
+
 	class ODS: public ExtAirlock {
 	protected:
 		//UINT midxODS;
 		double fRingState;
 		double fHookState;
 		double fLatchState;
-		double fVestPressure[2];
-		double fInterfAtmPressure[2];
+		//double fVestPressure[2];
+		double fInterfAtmP[2];
+		double fInterfAtmT[2];
 		double fInterfAtmMass[2];
 
 		bool bDSCUPower;
 
 		AnimState RingState;
+
+		//Target data
+		bool bTargetInCone;
+		bool bTargetCaptured;
+		OBJHANDLE ohTarget;
+		ATTACHMENTHANDLE ahTarget;
+		VECTOR3 target_pos;
+		VECTOR3 target_vel;	//Use also for relative speed in captured case.
+		VECTOR3 target_dir;
+		VECTOR3 target_up;
+		VECTOR3 target_avel;
+		VECTOR3 eX, eY, eZ;
+
+		set<OBJHANDLE> known_objects;			//list of known vessels
+		set<OBJHANDLE> non_apas_objects;		//Black list
 
 		typedef enum ___extend_goal {
 			EXTEND_TO_INITIAL,
@@ -37,6 +56,7 @@ namespace eva_docking {
 
 		UINT anim_ring;
 		MGROUP_TRANSLATE*	pRingAnim;
+		MGROUP_TRANSLATE*	pRingAnimV;
 		MGROUP_SCALE*		pCoilAnim;
 		MGROUP_ROTATE*		pRod1LAnim[3];
 		MGROUP_ROTATE*		pRod2LAnim[3];
@@ -55,7 +75,13 @@ namespace eva_docking {
 		bool bHooks2Open;
 		bool bHooks2Closed;
 
+		VECTOR3 odsAttachVec[3];
+
 		bool HasDSCUPower() const;
+		bool FindClosestDockingRing();
+		bool FindClosestDockingRing(OBJHANDLE hVessel);
+		void AnalyseVessel(OBJHANDLE hVessel);
+		
 
 
 	public:
