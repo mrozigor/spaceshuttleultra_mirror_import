@@ -6490,7 +6490,7 @@ bool Atlantis::clbkLoadVC (int id)
 
   // register MFD function buttons
   // this needs to be done globally, so that the labels are correctly updated from all VC positions
-  SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
+  //SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
   
   /*
   // commander MFD function buttons

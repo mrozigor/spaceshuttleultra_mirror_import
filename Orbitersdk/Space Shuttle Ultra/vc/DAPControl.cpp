@@ -36,6 +36,10 @@ namespace vc {
 	{
 		for(int i=0;i<24;i++) {
 			if(input[i] && !oldValues[i]) ButtonPress(i);
+
+			oldValues[i]=GetPBIState(i);
+			if(oldValues[i]) output[i].SetLine();
+			else output[i].ResetLine();
 		}
 	}
 
@@ -399,11 +403,11 @@ namespace vc {
 				break;
 		}
 
-		for(int i=0;i<24;i++) {
+		/*for(int i=0;i<24;i++) {
 			oldValues[i]=GetPBIState(i);
 			if(oldValues[i]) output[i].SetLine();
 			else output[i].ResetLine();
-		}
+		}*/
 	}
 
 	void DAPControl::InitializeControlMode()
