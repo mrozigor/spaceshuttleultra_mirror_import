@@ -1,7 +1,10 @@
 #ifndef __DAP_H
 #define __DAP_H
+#pragma once
 
 #include "../Atlantis.h"
+#include "../discsignals/DiscOutPort.h"
+#include "../discsignals/DiscInPort.h"
 
 // ==============================================================
 // DAPControl class
@@ -9,6 +12,9 @@
 // ==============================================================
 
 namespace vc {
+	using class discsignals::DiscInPort;
+	using class discsignals::DiscOutPort;
+
 	class DAPControl {
 	public:
 		DAPControl(Atlantis *_sts);
@@ -26,11 +32,19 @@ namespace vc {
 		 * Adds extra initialization
 		 */
 		void InitializeControlMode();
+		void OnPostStep(double SimT, double DeltaT, double MJD);
+
+		void Realize();
 
 	private:
+		void ButtonPress(int id);
 		//bool DrawPBILight(SURFHANDLE surf, bool &bState, bool bOn);
 
 		Atlantis* sts;
+
+		DiscInPort input[24];
+		DiscOutPort output[24];
+		bool oldValues[24];
 	};
 };
 
