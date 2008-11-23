@@ -1260,7 +1260,7 @@ public:
 	PanelC3 *panelc3; // PanelC3 operations
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
-	PanelR2 *r2d2; // PanelR2 operations
+	PanelR2 *panelr2; // PanelR2 operations
 	vc::DAPControl *dapcontrol;
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;

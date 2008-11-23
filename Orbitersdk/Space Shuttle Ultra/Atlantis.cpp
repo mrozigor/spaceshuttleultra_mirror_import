@@ -386,7 +386,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   panela4		  = new PanelA4(this);
   panela8		  = new PanelA8(this);
   panelc3         = new PanelC3(this);
-  r2d2            = new PanelR2(this);
+  panelr2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
   dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
@@ -878,7 +878,7 @@ Atlantis::~Atlantis () {
 	delete panela4;
 	delete panela8;
 	delete panelc3;
-	delete r2d2;
+	delete panelr2;
 	//delete panelf7;
 	delete panelo3;
 	delete panelc2;
@@ -987,7 +987,7 @@ void Atlantis::SetLaunchConfiguration (void)
 	  //AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
 	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
 	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
-	  r2d2->CheckMPSArmed(i);
+	  panelr2->CheckMPSArmed(i);
   }
 
   // SRBs
@@ -1147,7 +1147,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
 	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
 	  SetThrusterDir(th_main[i], EngineNullPosition[i]);
-	  r2d2->CheckMPSArmed(i);
+	  panelr2->CheckMPSArmed(i);
   }
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(th_oms[0]==NULL) {
@@ -1734,10 +1734,6 @@ void Atlantis::DefineAnimations (void)
   // **************************************************************************************
   //left(port) side
   // **************************************************************************************
-
-//Torque shaft and push pull rod
-//  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortTorqueShaft);
-//  parent = AddAnimationComponent (anim_portTS, 0.0, 1.0, &PortPushPullRod, parent);
   parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
   AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
   //left push/pull rods
@@ -2167,7 +2163,7 @@ void Atlantis::DefineAnimations (void)
   panelo3->DefineVCAnimations (vidx);
   // ======================================================
   panelc3->DefineVCAnimations (vidx);
-  r2d2->DefineVCAnimations (vidx);
+  panelr2->DefineVCAnimations (vidx);
 }
 
 void Atlantis::DefineAttachments (const VECTOR3& ofs0)
@@ -2898,7 +2894,7 @@ void Atlantis::SteerGimbal() {
 	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
-	if(!r2d2->bHydraulicPressure) {
+	if(!panelr2->bHydraulicPressure) {
 		for(int i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
@@ -2935,7 +2931,7 @@ void Atlantis::AutoMainGimbal () {
 	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
-	if(!r2d2->bHydraulicPressure) {
+	if(!panelr2->bHydraulicPressure) {
 		for(i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
@@ -3042,8 +3038,8 @@ void Atlantis::UpdateMesh ()
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
-  SetAnimation(anim_letumbdoor, r2d2->LETUmbDoorStatus.pos);
-  SetAnimation(anim_retumbdoor, r2d2->RETUmbDoorStatus.pos);
+  SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
+  SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
   if(STBDMPM) {
@@ -5113,7 +5109,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       //if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
 	  if (panelc3->ParseScenarioLine (line)) continue; // offer line to c3po
-	  if (r2d2->ParseScenarioLine (line)) continue; // offer line to r2d2
+	  if (panelr2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
@@ -5272,7 +5268,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   panelc2->SaveState(scn);
   panelc3->SaveState (scn);
 //  panelf7->SaveState(scn);
-  r2d2->SaveState (scn);
+  panelr2->SaveState (scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
   pgLeft.OnSaveState(scn);
@@ -5427,7 +5423,7 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
 	}
 
-	
+	dapcontrol->Realize();
 
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
@@ -5520,6 +5516,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	int i;
 	OBJHANDLE hvessel;
 
+	dapcontrol->OnPostStep(simt, simdt, mjd);
 	gncsoftware->OnPostStep(simt, simdt, mjd);
 	psubsystems->PostStep(simt, simdt, mjd);
 	//Panel groups
@@ -5700,11 +5697,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			YawActive=false;
 		}
 		//Check if Control Surfaces are usable
-		if(ControlSurfacesEnabled && !r2d2->bHydraulicPressure)
+		if(ControlSurfacesEnabled && !panelr2->bHydraulicPressure)
 		{
 			DisableControlSurfaces();
 		}
-		else if(!ControlSurfacesEnabled && r2d2->bHydraulicPressure)
+		else if(!ControlSurfacesEnabled && panelr2->bHydraulicPressure)
 		{
 			EnableControlSurfaces();
 		}
@@ -5878,7 +5875,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	panelc3->Step (simt, simdt);
 	//  panelf7->Step(simt, simdt);
 	panelo3->Step(simt, simdt);
-	r2d2->Step (simt, simdt);
+	panelr2->Step (simt, simdt);
 
 
 
@@ -6579,7 +6576,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panelc3->RegisterVC();
-	r2d2->RegisterVC();
+	panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
@@ -6831,7 +6828,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	panelc3->RegisterVC();
-	r2d2->RegisterVC();
+	panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -6862,7 +6859,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	panelc3->RegisterVC();
-	r2d2->RegisterVC();
+	panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -6945,7 +6942,7 @@ bool Atlantis::clbkLoadVC (int id)
 		panelc3->UpdateVC();
 		//	panelf7->UpdateVC();
 		panelo3->UpdateVC();
-		r2d2->UpdateVC();
+		panelr2->UpdateVC();
 	}
 	return ok;
 }
@@ -7088,7 +7085,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_KYBD_PLT:
     return PLTKeyboard->VCMouseEvent(id, _event, p);
   case AID_R2:
-	return r2d2->VCMouseEvent (id, _event, p);
+	return panelr2->VCMouseEvent (id, _event, p);
   }
 
   if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
@@ -7126,7 +7123,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			if (id >= AID_A8_MIN && id <= AID_A8_MAX)
 				return panela8->VCRedrawEvent (id, _event, surf);
 			if (id >= AID_R2_MIN && id <= AID_R2_MAX)
-				return r2d2->VCRedrawEvent (id, _event, surf);
+				return panelr2->VCRedrawEvent (id, _event, surf);
 			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
 				return plop->VCRedrawEvent (id, _event, surf);
 			//if (id >= AID_F6_MIN && id <= AID_F6_MAX)
@@ -7485,10 +7482,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       do_eva = true;
       return 1;
 	case OAPI_KEY_COMMA:
-		if(!Playback() && r2d2->bHydraulicPressure) SetSpeedbrake(min(1.0, spdb_tgt+0.05));
+		if(!Playback() && panelr2->bHydraulicPressure) SetSpeedbrake(min(1.0, spdb_tgt+0.05));
 		return 1;
 	case OAPI_KEY_PERIOD:
-		if(!Playback() && r2d2->bHydraulicPressure) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
+		if(!Playback() && panelr2->bHydraulicPressure) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
 		return 1;
 	case OAPI_KEY_G:
 		//gop->RevertLandingGear();

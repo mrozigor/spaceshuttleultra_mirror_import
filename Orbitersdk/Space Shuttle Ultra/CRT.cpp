@@ -444,7 +444,7 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, 68, nPos, NULL);
 		LineTo(hDC, 65, nPos);
 	}
-	if(sts->r2d2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
+	if(sts->panelr2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
 	else dNum=dNum*-20;
@@ -483,7 +483,7 @@ void CRT::SPI(HDC hDC)
 	LineTo (hDC, 103, 94);
 	LineTo (hDC, 103, 102);
 	LineTo (hDC, 95, 98);
-	if(sts->r2d2->bHydraulicPressure)dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
+	if(sts->panelr2->bHydraulicPressure)dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
 	else dNum=dNum*-65;
@@ -505,7 +505,7 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, nPos, 57, NULL);
 		LineTo(hDC, nPos, 60);
 	}
-	if(sts->r2d2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+	if(sts->panelr2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 	else dNum=0.0;
 	nPos=190+dNum*-54.2;
 	MoveToEx(hDC, nPos, 64, NULL);
@@ -526,7 +526,7 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, nPos, 132, NULL);
 		LineTo(hDC, nPos, 135);
 	}
-	if(sts->r2d2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
+	if(sts->panelr2->bHydraulicPressure) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
 	else dNum=0.0;
 	dNum=dNum*10.0;
 	if(dNum>5.0) dNum=5.0;
@@ -645,16 +645,16 @@ void CRT::APUHYD(HDC hDC)
 			Rectangle(hDC, 29+30*nPos, 91-0.38*dNum, 50+30*nPos, 91);
 		}
 		//Hydraulic Press
-		sprintf(cbuf, "%d", sts->r2d2->Hydraulic_Press[nPos]);
+		sprintf(cbuf, "%d", sts->panelr2->Hydraulic_Press[nPos]);
 		TextOut(hDC, 159+33*nPos, 182, cbuf, strlen(cbuf));
-		if(sts->r2d2->Hydraulic_Press[nPos]>=1) {
-			Rectangle(hDC, 162+33*nPos, 241-0.01*sts->r2d2->Hydraulic_Press[nPos], 183+33*nPos, 241);
+		if(sts->panelr2->Hydraulic_Press[nPos]>=1) {
+			Rectangle(hDC, 162+33*nPos, 241-0.01*sts->panelr2->Hydraulic_Press[nPos], 183+33*nPos, 241);
 		}
 		//Fuel P
-		sprintf(cbuf, "%d", sts->r2d2->Fuel_Press[nPos]);
+		sprintf(cbuf, "%d", sts->panelr2->Fuel_Press[nPos]);
 		TextOut(hDC, 159+33*nPos, 32, cbuf, strlen(cbuf));
-		if(sts->r2d2->Fuel_Press[nPos]>0) {
-			Rectangle(hDC, 162+33*nPos, 91-0.026* sts->r2d2->Fuel_Press[nPos], 183+33*nPos, 91);
+		if(sts->panelr2->Fuel_Press[nPos]>0) {
+			Rectangle(hDC, 162+33*nPos, 91-0.026* sts->panelr2->Fuel_Press[nPos], 183+33*nPos, 91);
 		}
 	}
 	DeleteObject(GreenBrush);
