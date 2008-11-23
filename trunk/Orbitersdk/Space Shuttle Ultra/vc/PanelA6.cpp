@@ -17,9 +17,18 @@ namespace vc
 	PanelA6::PanelA6(Atlantis* _sts)
 		:BasicPanel(_sts, "A6")
 	{
+		char cbuf[255];
+
 		Add(pSense=new StdSwitch2(_sts, "SENSE"));
 
-		for(int i=0;i<24;i++) PBI_Lights[i]=false;
+		for(int i=0;i<24;i++) {
+			//PBI_Lights[i]=false;
+
+			sprintf_s(cbuf, 255, "%d", i+1);
+			std::string name="A6_PBI";
+			name+=cbuf;
+			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));
+		}
 	}
 
 	PanelA6::~PanelA6()
@@ -36,6 +45,39 @@ namespace vc
 		pSense->SetInitialAnimState(0.5);
 		pSense->SetReference(_V(0.728, 2.780, 12.313), _V(-1.00, 0.0, 0.0));
 		pSense->SetMouseRegion(0.863499f, 0.262889f, 0.924675f, 0.332972f);
+
+		for(int i=0;i<24;i++) {
+			pPBIs[i]->AddAIDToRedrawEventList(AID_A6_PBI1+i);
+			pPBIs[i]->SetSourceImage(g_Param.pbi_lights);
+			pPBIs[i]->SetBase(0, 0);
+			pPBIs[i]->SetSourceCoords(true, 0, 0);
+			pPBIs[i]->SetSourceCoords(false, 0, 14);
+			pPBIs[i]->SetDimensions(37, 11);
+		}
+
+		//mouse regions
+		pPBIs[0]->SetMouseRegion(0.659691f, 0.112755f, 0.705132f, 0.174825f); //A
+		pPBIs[1]->SetMouseRegion(0.60511f, 0.114699f, 0.649507f, 0.172828f); //B
+		pPBIs[2]->SetMouseRegion(0.550367f, 0.115484f, 0.595548f, 0.176009f); //AUTO
+		pPBIs[3]->SetMouseRegion(0.493128f, 0.114615f, 0.540278f, 0.176737f); //INRTL
+		pPBIs[4]->SetMouseRegion(0.437027f, 0.114202f, 0.484483f, 0.175445f); //LVLH
+		pPBIs[5]->SetMouseRegion(0.379574f, 0.116267f, 0.42722f, 0.175610f); //FREE
+		pPBIs[6]->SetMouseRegion(0.653568f, 0.271157f, 0.699381f, 0.331649f); //PCT
+		pPBIs[9]->SetMouseRegion(0.486053f, 0.272087f, 0.532732f, 0.331215f); //PRI
+		pPBIs[10]->SetMouseRegion(0.431093f, 0.27408f, 0.476635f, 0.331248f); //ALT
+		pPBIs[11]->SetMouseRegion(0.37393f, 0.270786f, 0.421151f, 0.333474f); //VERN
+		pPBIs[12]->SetMouseRegion(0.651264f, 0.3451f, 0.698885f, 0.407937f); //X NORM
+		pPBIs[13]->SetMouseRegion(0.596782f, 0.347135f, 0.643202f, 0.407219f); //Y NORM
+		pPBIs[14]->SetMouseRegion(0.543387f, 0.348282f, 0.588769f, 0.408374f); //Z NORM
+		pPBIs[15]->SetMouseRegion(0.486485f, 0.347593f, 0.533187f, 0.408542f); //ROLL DISC RATE
+		pPBIs[16]->SetMouseRegion(0.428891f, 0.347792f, 0.476103f, 0.408729f); //PITCH DISC RATE
+		pPBIs[17]->SetMouseRegion(0.37329f, 0.346197f, 0.421186f, 0.40707f); //YAW DISC RATE
+		pPBIs[18]->SetMouseRegion(0.651442f, 0.423913f, 0.697746f, 0.48492f); //X PULSE
+		pPBIs[19]->SetMouseRegion(0.595887f, 0.424997f, 0.644165f, 0.485769f); //Y PULSE
+		pPBIs[20]->SetMouseRegion(0.54198f, 0.423774f, 0.588723f, 0.485417f); //Z PULSE
+		pPBIs[21]->SetMouseRegion(0.486516f, 0.4234f, 0.532259f, 0.486258f); //ROLL PULSE
+		pPBIs[22]->SetMouseRegion(0.429934f, 0.424362f, 0.475646f, 0.485086f); //PITCH PULSE
+		pPBIs[23]->SetMouseRegion(0.374104f, 0.424197f, 0.420746f, 0.486088f); //YAW PULSE
 	}
 
 	void PanelA6::RegisterVC()
@@ -64,12 +106,12 @@ namespace vc
 		oapiVCRegisterArea(AID_A6_PBI5, _R(1012, 1180, 1049, 1191), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//FREE
 		oapiVCRegisterArea(AID_A6_PBI6, _R(1092, 1181, 1129, 1192), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		//TRANS X
-		oapiVCRegisterArea(AID_A6_PBI7, _R(157, 1089, 199, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		//PCT
+		oapiVCRegisterArea(AID_A6_PBI7, _R(713, 1341, 750, 1352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//LOW Z
-		//oapiVCRegisterArea(AID_A6_PBI8, _R(247, 1089, 289, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		//oapiVCRegisterArea(AID_A6_PBI8, _R(792, 1341, 829, 1352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//HIGH Z
-		//oapiVCRegisterArea(AID_A6_PBI9, _R(339, 1090, 381, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		//oapiVCRegisterArea(AID_A6_PBI9, _R(868, 1341, 905, 1352), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//PRI
 		oapiVCRegisterArea(AID_A6_PBI10, _R(943, 1340, 980, 1351), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//ALT
@@ -108,9 +150,22 @@ namespace vc
 
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("A6", 16);
 		pSense->output.Connect(pBundle, 0);
+
+		pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS1", 16);
+		for(int i=0;i<16;i++) {
+			pPBIs[i]->input.Connect(pBundle, i);
+			pPBIs[i]->output.Connect(pBundle, i);
+			pPBIs[i]->test.Connect(pBundle, i);
+		}
+		pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS2", 16);
+		for(int i=16;i<24;i++) {
+			pPBIs[i]->input.Connect(pBundle, i-16);
+			pPBIs[i]->output.Connect(pBundle, i-16);
+			pPBIs[i]->test.Connect(pBundle, i-16);
+		}
 	}
 
-	bool PanelA6::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
+	/*bool PanelA6::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 	{
 		bool bRet=BasicPanel::OnVCMouseEvent(id, _event, p);
 
@@ -142,9 +197,9 @@ namespace vc
 		}
 
 		return bRet;
-	}
+	}*/
 
-	bool PanelA6::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
+	/*bool PanelA6::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	{
 		bool bRet=BasicPanel::OnVCRedrawEvent(id, _event, surf);
 
@@ -175,5 +230,5 @@ namespace vc
 	void PanelA6::UpdatePBIs()
 	{
 		for(int i=0;i<24;i++) oapiVCTriggerRedrawArea(-1, AID_A6_PBI1+i);
-	}
+	}*/
 };

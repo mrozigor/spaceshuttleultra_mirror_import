@@ -553,6 +553,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PushButtonIndicator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\RSLS.cpp"
 				>
 			</File>
@@ -831,6 +835,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PushButton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PushButtonIndicator.h"
 				>
 			</File>
 			<File
