@@ -457,10 +457,21 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 
   //connect CRT MDUs to IDPs
-  for (i=0;i<3;i++) {
+  mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
+  mdus[vc::MDUID_CDR2]->SetPrimaryIDP(pIDP[0]);
+  mdus[vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[0]);
+  mdus[vc::MDUID_CRT2]->SetPrimaryIDP(pIDP[1]);
+  mdus[vc::MDUID_CRT3]->SetPrimaryIDP(pIDP[2]);
+  mdus[vc::MDUID_CRT4]->SetPrimaryIDP(pIDP[3]);
+  mdus[vc::MDUID_MFD1]->SetPrimaryIDP(pIDP[1]);
+  mdus[vc::MDUID_MFD2]->SetPrimaryIDP(pIDP[0]);
+  mdus[vc::MDUID_PLT1]->SetPrimaryIDP(pIDP[1]);
+  mdus[vc::MDUID_PLT2]->SetPrimaryIDP(pIDP[2]);
+  mdus[vc::MDUID_AFD]->SetPrimaryIDP(pIDP[3]);
+  /*for (i=0;i<3;i++) {
 	  //pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
 	  if(mdus[i+vc::MDUID_CRT1]) mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
-  }
+  }*/
 
   for(int i = 0; i<16; i++)
   {
