@@ -13,11 +13,10 @@ namespace vc {
 	const int TB_OP = 4;
 	const int TB_ON = 5;
 	const int TB_OFF = 6;
-	const int TB_X = 7;
-	const int TB_10= 8;
-	const int TB_GRAY = 9;
-	const int TB_DPY = 10;
-	const int TB_REL = 11;
+	const int TB_X10 = 7;
+	const int TB_GRAY = 8;
+	const int TB_DPY = 9;
+	const int TB_REL = 10;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

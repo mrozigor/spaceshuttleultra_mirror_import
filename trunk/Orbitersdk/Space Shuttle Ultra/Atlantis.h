@@ -844,6 +844,16 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_R11			540
 #define AID_R11_MAX		560
 
+#define AID_F2_MIN		580
+#define AID_F2			580
+#define AID_F2_BF_AUTO	581
+#define AID_F2_BF_MAN	582
+#define AID_F2_ST_AUTO	583
+#define AID_F2_ST_MAN	584
+#define AID_F2_P_CSS	585
+#define AID_F2_RY_CSS	586
+#define AID_F2_MAX		600
+
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
 #define AID_MDU_CRT1	1002
@@ -1910,6 +1920,12 @@ private:
 	int SoundID;
 
 	mutable bool fSSMEHandleErrorFlag;
+
+	//DiscPorts
+	DiscInPort SpdbkThrotAutoIn;
+	DiscOutPort SpdbkThrotAutoOut;
+	DiscInPort BodyFlapAutoIn;
+	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
