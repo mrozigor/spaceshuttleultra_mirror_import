@@ -24,6 +24,9 @@ namespace discsignals {
 		return (pBundle->GetVoltage(usLine) > 4.7);
 	}
 
+	bool DiscInPort::IsSet(float fThreshold) const {
+		return (pBundle->GetVoltage(usLine) > fThreshold);
+	}
 
 	DiscDemultiplex16::DiscDemultiplex16() {
 

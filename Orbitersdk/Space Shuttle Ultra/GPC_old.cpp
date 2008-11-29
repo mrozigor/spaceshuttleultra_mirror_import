@@ -73,17 +73,11 @@ double Atlantis::CalculateAzimuth()
 
 	// removed DEG to RAD conversion
 	GetEquPos(longitude, latitude, temp);
-	//the following lines may be incorrect
-	//GetRelativePos (hRef, pos);
-	GetRelativeVel (GetGravityRef(), vel);
+	GetRelativeVel (GetSurfaceRef(), vel);
 	MATRIX3 rot;
 	GetRotationMatrix (rot);
-	//oapiGetRotationMatrix(GetGravityRef(), &rot);
-	//pos = tmul (rot, pos);
 	vel = tmul (rot, vel);
 	HorizonRot(vel, horizonvel);
-	//Crt2Pol (pos, vel); // translate pos. and vel. from cartesian to polar
-	//m_pvVessel->GetEquPos(m_dLongitude,m_dLatitude,m_dRadius);
 	current_vel[1]= horizonvel.data[0]; //East
 	current_vel[0]= horizonvel.data[2];  // North
 	sprintf_s(oapiDebugString(), 255, "current_vel: %f %f", current_vel[0], current_vel[1]);
@@ -91,20 +85,17 @@ double Atlantis::CalculateAzimuth()
 
 	azimuth= asin(cos(TgtInc*RAD)/cos(latitude));  // this equ doesn't take rotation into accout
 	equator_v=Radius*(2*PI/SidDay);   //equator velocity
-	// removed DEG to RAD conversion
-	//base_v[1]= equator_v * cos (m_dLatitude);   // base velocity vector item (east)
-	//target_radius= Radius + m_dAlt;
-	//mi=GGRAV*bodyPhys.mass;  //gravitational parameter
 	tgt_orbit_v[0]=sqrt(mu/TgtRad)*cos(azimuth); // northern velocity
 	tgt_orbit_v[1]=sqrt(mu/TgtRad)*sin(azimuth); // eastern velocity
-	//for(int i=0; i<2; i++) lnch_v[i]=tgt_orbit_v[i]-abs(current_vel[i]); // taking launch site rotation into accout 
-	//final_vel_norm= sqrt(tgt_orbit_v[0]*tgt_orbit_v[0] + tgt_orbit_v[1]*tgt_orbit_v[1]);
 	lnch_v[0]= tgt_orbit_v[0] - fabs(current_vel[0]); // taking current velocity into accout for CC (North)
 	lnch_v[1]= tgt_orbit_v[1] - (current_vel[1]); // taking current velocity into accout for CC (East)
-	//lnch_v_norm=sqrt(lnch_v[0]*lnch_v[0] + lnch_v[1]*lnch_v[1]); // normalizing launch vector
 
-	if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
-	true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
+	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
+	if(lnch_v[0]==0.0) { //div by zero protection
+		if(lnch_v[1]>0) true_azimuth=PI/2;
+		else true_azimuth=-PI/2;
+	}
+	else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
 
 	return true_azimuth;
 }

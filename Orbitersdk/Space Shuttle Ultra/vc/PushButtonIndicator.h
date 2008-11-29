@@ -17,6 +17,7 @@ namespace vc
 		UINT anim_pb;
 		UINT uiGroup;
 		MGROUP_TRANSLATE* pPushDown;
+		bool bAllowReset;
 	public:
 		PushButtonIndicator(Atlantis* _sts, const string& _ident);
 		~PushButtonIndicator();
@@ -26,6 +27,12 @@ namespace vc
 		virtual bool OnMouseEvent(int _event, float x, float y);
 		virtual void OnPress();
 		virtual void OnRelease();
+
+		void ConnectAll(DiscreteBundle* pBundle, int line);
+		/**
+		 * True if pressing PBI when output line is set will reset line
+		 */
+		void AllowReset(bool allow);
 
 		DiscOutPort output; //generally same as input port
 	};

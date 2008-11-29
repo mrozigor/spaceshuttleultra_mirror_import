@@ -8,6 +8,7 @@ namespace vc
 		anim_pb = NULL;
 		pPushDown = NULL;
 		uiGroup = 0xFFFF;
+		bAllowReset=false;
 	}
 
 	PushButtonIndicator::~PushButtonIndicator()
@@ -36,6 +37,18 @@ namespace vc
 		}
 	}*/
 
+	void PushButtonIndicator::ConnectAll(DiscreteBundle *pBundle, int line)
+	{
+		input.Connect(pBundle, line);
+		output.Connect(pBundle, line);
+		test.Connect(pBundle, line);
+	}
+
+	void PushButtonIndicator::AllowReset(bool allow)
+	{
+		bAllowReset=allow;
+	}
+
 	bool PushButtonIndicator::OnMouseEvent(int _event, float x, float y) {
 		switch(_event) {
 			case PANEL_MOUSE_LBDOWN:
@@ -56,7 +69,8 @@ namespace vc
 		{
 			SetAnimation(anim_pb, 1.0);
 		}
-		output.SetLine();
+		if(bAllowReset && input) output.ResetLine();
+		else output.SetLine();
 	}
 
 	void PushButtonIndicator::OnRelease()

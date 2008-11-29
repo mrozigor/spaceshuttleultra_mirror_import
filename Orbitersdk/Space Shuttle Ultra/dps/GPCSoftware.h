@@ -15,7 +15,15 @@ namespace dps
 	private:
 		GPCSCHEDULEDFUNC function;
 		Atlantis* sts;
-		double CallTime, period;
+
+		/**
+		 * Sim time at which to call function
+		 */
+		double CallTime;
+		/**
+		 * Period between function calls
+		 */
+		double period;
 	};
 
 	class GPCSoftware

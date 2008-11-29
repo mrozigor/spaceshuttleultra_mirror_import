@@ -43,6 +43,7 @@
 #include "AirDataProbeSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
+#include "vc/PanelF2.h"
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
@@ -394,6 +395,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   gncsoftware	= new dps::GNCSoftware(this);
   rsls			= new dps::RSLS(this);
 
+  pgForward.AddPanel(new vc::PanelF2(this));
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
@@ -5455,6 +5457,15 @@ void Atlantis::clbkPostCreation ()
 	pgAftPort.Realize();
 	pgAft.Realize();
 	pgAftStbd.Realize();
+
+	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
+	BodyFlapAutoIn.Connect(pBundle, 0);
+	BodyFlapAutoOut.Connect(pBundle, 0);
+	BodyFlapManOut.Connect(pBundle, 1);
+
+	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+	SpdbkThrotAutoIn.Connect(pBundle, 0);
+	SpdbkThrotAutoOut.Connect(pBundle, 0);
 }
 
 // --------------------------------------------------------------
@@ -5832,6 +5843,30 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			};
 			do_eva = false;
 		};
+
+		//Speedbrake/Throttle PBIs
+		PostContactThrusting[0]=SpdbkThrotAutoIn.IsSet();
+		if(PostContactThrusting[1] && !PostContactThrusting[0]) TogglePCT();
+
+		//handle body flap PBIs
+		if((int)(ops/100)==3) //Entry
+		{
+			//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
+			if(BodyFlapAutoIn) BodyFlapManOut.ResetLine();
+			else BodyFlapManOut.SetLine();
+		}
+		else if((int)(ops/100)==2) //ORBIT
+		{
+			if(BodyFlapAutoIn.IsSet()!=PostContactThrusting[1]) {
+				TogglePCT();
+			}
+		}
+		else //LAUNCH
+		{
+			BodyFlapAutoOut.ResetLine();
+			BodyFlapManOut.ResetLine();
+		}
+
 		break;
 	}
 	GPC(simt, simdt); //perform GPC functions
@@ -9115,14 +9150,16 @@ void Atlantis::StartRSLSSequence()
 
 void Atlantis::TogglePCT()
 {
-	if(!PostContactThrusting[0]) return;
-
-	if(!PostContactThrusting[1]) {
+	if(!PostContactThrusting[1] && PostContactThrusting[0]) {
 		PostContactThrusting[1]=true;
 		PCTStartTime=oapiGetSimTime();
 		DAPMode[1]=0; //PRI
 		ControlMode=FREE;
 		dapcontrol->InitializeControlMode();
+
+		//set Body Flap PBIs
+		BodyFlapAutoOut.SetLine();
+		BodyFlapManOut.SetLine();
 	}
 	else {
 		PostContactThrusting[1]=false;
@@ -9134,6 +9171,10 @@ void Atlantis::TogglePCT()
 		SetThrusterGroupLevel(thg_transup, 0.0);
 
 		panelc3->UpdateVC();
+
+		//set Body Flap PBIs
+		BodyFlapAutoOut.ResetLine();
+		BodyFlapManOut.ResetLine();
 	}
 }
 
