@@ -30,7 +30,8 @@ namespace vc
 
 		void ConnectAll(DiscreteBundle* pBundle, int line);
 		/**
-		 * True if pressing PBI when output line is set will reset line
+		 * If true, pressing PBI will set output line to opposite of input line (if input line is set, output line will be reset)
+		 * If false, output line will be set every time PBI is pushed
 		 */
 		void AllowReset(bool allow);
 

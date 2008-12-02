@@ -875,6 +875,10 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 
   SoundID=-1;
   fSSMEHandleErrorFlag = false;
+
+  psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
+  psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
+  psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
 }
 
 // --------------------------------------------------------------
@@ -2907,7 +2911,7 @@ void Atlantis::SteerGimbal() {
 	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
-	if(!panelr2->bHydraulicPressure) {
+	if(!panelr2->HydraulicPressure()) {
 		for(int i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
@@ -2944,7 +2948,7 @@ void Atlantis::AutoMainGimbal () {
 	for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
 	}
-	if(!panelr2->bHydraulicPressure) {
+	if(!panelr2->HydraulicPressure()) {
 		for(i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
@@ -3377,7 +3381,7 @@ void Atlantis::UpdateTranslationForces()
 	TransForce[1].z=GetThrusterGroupMaxThrust(thg_transup);
 }
 
-double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg)
+double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const
 {
 	VECTOR3 Total=_V(0.0, 0.0, 0.0), Dir;
 	for(DWORD i=0;i<GetGroupThrusterCount(thg);i++) {
@@ -3388,7 +3392,7 @@ double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg)
 	return length(Total);
 }
 
-double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph)
+double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 {
 	return 100.0*(GetPropellantMass(ph)/GetPropellantMaxMass(ph));
 }
@@ -5457,6 +5461,7 @@ void Atlantis::clbkPostCreation ()
 	pgAftPort.Realize();
 	pgAft.Realize();
 	pgAftStbd.Realize();
+	panelr2->Realize();
 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 	BodyFlapAutoIn.Connect(pBundle, 0);
@@ -5719,11 +5724,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			YawActive=false;
 		}
 		//Check if Control Surfaces are usable
-		if(ControlSurfacesEnabled && !panelr2->bHydraulicPressure)
+		if(ControlSurfacesEnabled && !panelr2->HydraulicPressure())
 		{
 			DisableControlSurfaces();
 		}
-		else if(!ControlSurfacesEnabled && panelr2->bHydraulicPressure)
+		else if(!ControlSurfacesEnabled && panelr2->HydraulicPressure())
 		{
 			EnableControlSurfaces();
 		}
@@ -5877,14 +5882,20 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
 	MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
 
-	//play RCS sounds
 	if(SoundID!=-1) {
+		//play RCS sounds
 		if(RCSThrustersFiring()) {
 			if(!IsPlaying3(SoundID, RCS_SOUND)) PlayVesselWave3(SoundID, RCS_SOUND, LOOP);
 		}
 		else {
 			if(IsPlaying3(SoundID, RCS_SOUND)) StopVesselWave3(SoundID, RCS_SOUND);
 		}
+		//APU sounds
+		//STOP/START sounds are handled by APU instance; RUN sound applies to all 3 APUs and is handled here
+		if(pAPU[0]->IsRunning() || pAPU[1]->IsRunning() || pAPU[2]->IsRunning()) {
+			PlayVesselWave3(SoundID, APU_RUNNING, LOOP);
+		}
+		else StopVesselWave3(SoundID, APU_RUNNING); //all 3 APUs are off, so stop sound
 	}
 
 	//sprintf(oapiDebugString(), "%i", last_mfd);
@@ -7410,7 +7421,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 		arm_wy=anim_beta_w;
 
 		iterations++;
-	}while(iterations<5);
+	}while(iterations<15);
 
 	//arm_sy=anim_beta_s;
 	SetAnimationArm(anim_arm_sy,arm_sy);
@@ -7528,10 +7539,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       do_eva = true;
       return 1;
 	case OAPI_KEY_COMMA:
-		if(!Playback() && panelr2->bHydraulicPressure) SetSpeedbrake(min(1.0, spdb_tgt+0.05));
+		if(!Playback() && panelr2->HydraulicPressure()) SetSpeedbrake(min(1.0, spdb_tgt+0.05));
 		return 1;
 	case OAPI_KEY_PERIOD:
-		if(!Playback() && panelr2->bHydraulicPressure) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
+		if(!Playback() && panelr2->HydraulicPressure()) SetSpeedbrake(max(0.0, spdb_tgt-0.05));
 		return 1;
 	case OAPI_KEY_G:
 		//gop->RevertLandingGear();
@@ -8493,7 +8504,7 @@ double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
 	return 50.0;
 }
 
-bool Atlantis::IsValidSPEC(int gpc, int spec)
+bool Atlantis::IsValidSPEC(int gpc, int spec) const
 {
 	switch(ops/100)
 	{
@@ -8633,7 +8644,8 @@ void Atlantis::CreateOrbiterTanks()
 	int i;
 	if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
 	for(i=0;i<3;i++) {
-	  if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+	  //if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
+		pAPU[i]->CreateTanks();
 	}
 	for(i=0;i<2;i++) {
 	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
@@ -9189,4 +9201,8 @@ void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
 	return ahDockAux;
+}
+
+int Atlantis::GetSoundID() const {
+	return SoundID;
 }
