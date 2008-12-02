@@ -1,5 +1,5 @@
 #include "PanelR2.h"
-#include <OrbiterSoundSDK35.h>
+//#include <OrbiterSoundSDK35.h>
 #include "resource.h"
 #include "meshres.h"
 #include "meshres_vc.h"
@@ -32,13 +32,13 @@ PanelR2::PanelR2(Atlantis *_sts): sts(_sts)
 		MPS_ENGINE_POWER[1][i]=1;
 		HE_ISOLATION_A[i]=1;
 		HE_ISOLATION_B[i]=1;
-		APU_STATE[i]=0;
+		//APU_STATE[i]=0;
 		MPS_STATE[i]=0;
-		APU_READY[i]=false;
+		/*APU_READY[i]=false;
 
 		Hydraulic_Press[i]=0;
 		APU_Speed[i]=0;
-		Fuel_Press[i]=0;
+		Fuel_Press[i]=0;*/
 	}
 	APU_AUTO_SHUT_DOWN=0;
 	CENTERLINE_LATCH=0;
@@ -46,7 +46,7 @@ PanelR2::PanelR2(Atlantis *_sts): sts(_sts)
 	LEFT_LATCH=1;
 	RIGHT_DOOR=1;
 	RIGHT_LATCH=1;
-	bHydraulicPressure=false;
+	//bHydraulicPressure=false;
 	CenterlineLatches.Set(AnimState::OPEN, 1);
 	LETUmbDoorStatus.Set(AnimState::CLOSED, 0);
 	RETUmbDoorStatus.Set(AnimState::CLOSED, 0);
@@ -62,6 +62,11 @@ PanelR2::PanelR2(Atlantis *_sts): sts(_sts)
 	tkbk_state[5]=3;
 	tkbk_state[6]=5;
 	tkbk_state[7]=3;
+}
+
+bool PanelR2::HydraulicPressure()
+{
+	return (APU_HydraulicPressure[0].IsSet(2.8f) || APU_HydraulicPressure[1].IsSet(2.8f) || APU_HydraulicPressure[2].IsSet(2.8f));
 }
 
 void PanelR2::RegisterVC ()
@@ -92,42 +97,44 @@ bool PanelR2::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	case AID_R2_TKBK1:
 	case AID_R2_TKBK2:
 	case AID_R2_TKBK3:
-		if(APU_READY[id-AID_R2_TKBK1] || (APU_STATE[id-AID_R2_TKBK1]==1 && APU_Speed[id-AID_R2_TKBK1]<80))
+		/*if(APU_READY[id-AID_R2_TKBK1] || (APU_STATE[id-AID_R2_TKBK1]==1 && APU_Speed[id-AID_R2_TKBK1]<80))
 			return VCDrawTalkback (surf, id-AID_R2_TKBK1, 8);
-		else return VCDrawTalkback (surf, id-AID_R2_TKBK1, 0);
+		else return VCDrawTalkback (surf, id-AID_R2_TKBK1, 0);*/
+		if(APU_ReadyToStart[id-AID_R2_TKBK1].IsSet()) return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_GRAY);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	case AID_R2_TKBK4:
 		if(CenterlineLatches.action==AnimState::OPEN) //OPEN(1)=stowed
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 1);
-		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_STO);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	case AID_R2_TKBK5:
 		if(LETUmbDoorStatus.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_CLO);
 		else if(LETUmbDoorStatus.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
-		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_OP);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	case AID_R2_TKBK6:
 		if(LDoorLatches.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 2);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_LAT);
 		else if(LDoorLatches.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 10);
-		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_REL);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	case AID_R2_TKBK7:
 		if(RETUmbDoorStatus.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 3);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_CLO);
 		else if(RETUmbDoorStatus.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 4);
-		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_OP);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	case AID_R2_TKBK8:
 		if(RDoorLatches.action==AnimState::CLOSED)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 2);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_LAT);
 		else if(RDoorLatches.action==AnimState::OPEN)
-			return VCDrawTalkback(surf, id-AID_R2_TKBK1, 10);
-		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, 0);
+			return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_REL);
+		else return VCDrawTalkback(surf, id-AID_R2_TKBK1, vc::TB_BARBERPOLE);
 		break;
 	}
 	return false;
@@ -417,10 +424,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[0]!=1 && APU_READY[0]) {
+			/*if(APU_CONTROL[0]!=1 && APU_READY[0]) {
 				APU_STATE[0]=1;
-				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
-			}
+				//PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}*/
 		}
 		else if(p.x>0.472092) {
 			if(p.y<0.404556) {
@@ -435,10 +442,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[2]!=1 && APU_READY[2]) {
+			/*if(APU_CONTROL[2]!=1 && APU_READY[2]) {
 				APU_STATE[2]=1;
-				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
-			}
+				//PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}*/
 		}
 		else {
 			if(p.y<0.404556) {
@@ -453,10 +460,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 					action=true;
 				}
 			}
-			if(APU_CONTROL[1]!=1 && APU_READY[1]) {
+			/*if(APU_CONTROL[1]!=1 && APU_READY[1]) {
 				APU_STATE[1]=1;
-				PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
-			}
+				//PlayVesselWave3(sts->SoundID, APU_START, NOLOOP);
+			}*/
 		}
 	}
 	else if(p.y>0.453919 && p.y<0.492724 && p.x>=0.281316 && p.x<=0.499178) {
@@ -737,10 +744,10 @@ bool PanelR2::VCMouseEvent(int id, int event, VECTOR3 &p)
 	{
 		//sprintf(oapiDebugString(), "Switch click");
 		if(eng>=0) CheckMPSArmed(eng);
-		else {
+		/*else {
 			CheckAPUReadytoStart();
 			CheckAPUShutdown();
-		}
+		}*/
 		UpdateVC();
 	}
 	return false;
@@ -767,6 +774,17 @@ void PanelR2::UpdateVC()
 		sts->SetAnimation(anim_VC_R2[2+eng[i]],MPS_ENGINE_POWER[0][i]);
 		sts->SetAnimation(anim_VC_R2[5+eng[i]],MPS_ENGINE_POWER[1][i]);
 		//oapiVCTriggerRedrawArea (-1, AID_R2_TKBK1+i);
+
+		//discsignals
+		oapiWriteLog("PanelR2: Getting signals");
+		if(APU_CONTROL[i]==0) APU_Run[i].SetLine();
+		else APU_Run[i].ResetLine();
+		if(APU_CNTLR_PWR[i]==0) APU_CntlrPwr[i].SetLine();
+		else APU_CntlrPwr[i].ResetLine();
+		if(APU_FUEL_TK_VLV[i]==0) APU_FuelTankValves[i].SetLine();
+		else APU_FuelTankValves[i].ResetLine();
+		if(HYD_MAIN_PUMP_PRESS[i]==0) APU_HydPumpPress[i].SetLine();
+		else APU_HydPumpPress[i].ResetLine();
 	}
 	sts->SetAnimation(anim_VC_R2[22],APU_AUTO_SHUT_DOWN);
 	sts->SetAnimation(anim_VC_R2[48],CENTERLINE_LATCH);
@@ -1072,100 +1090,27 @@ void PanelR2::DefineVCAnimations (UINT vcidx)
 	return;
 }
 
+void PanelR2::Realize()
+{
+	char cbuf[255];
+
+	for(int i=0;i<3;i++) {
+		sprintf_s(cbuf, 255, "R2_To_APU%d", i+1);
+		DiscreteBundle *pBundle=sts->BundleManager()->CreateBundle(cbuf, 16);
+
+		APU_Run[i].Connect(pBundle, 0);
+		APU_CntlrPwr[i].Connect(pBundle, 1);
+		APU_FuelTankValves[i].Connect(pBundle, 2);
+		APU_HydPumpPress[i].Connect(pBundle, 3);
+		APU_HydraulicPressure[i].Connect(pBundle, 4);
+		APU_ReadyToStart[i].Connect(pBundle, 5);
+	}
+
+	UpdateVC();
+}
+
 void PanelR2::Step(double t, double dt)
 {
-	double dMass;
-	bool bAPURunning=false;
-	bHydraulicPressure=false;
-	//sprintf(oapiDebugString(), "%f %f %f", CenterlineLatches.pos, LETUmbDoorStatus.pos, RETUmbDoorStatus.pos);
-	//sprintf(oapiDebugString(), "%f %f", LDoorLatches.pos, RDoorLatches.pos);
-	for(int i=0;i<3;i++)
-	{
-		if(APU_STATE[i]!=0)
-		{
-			bAPURunning=true;
-
-			dMass=sts->GetPropellantMass(sts->apu_tank[i]);
-			dMass-=APU_FUEL_TANK_FLOWRATE[HYD_MAIN_PUMP_PRESS[i]]*dt;
-			if(dMass<=0.0) {
-				APU_STATE[i]=0;
-				sts->SetPropellantMass(sts->apu_tank[i], 0.0);
-				UpdateVC();
-				break;
-			}
-			//else if(sts->apu_tank[i]) sts->SetPropellantMass(sts->apu_tank[i], dMass);
-			else sts->SetPropellantMass(sts->apu_tank[i], dMass);
-			if(APU_STATE[i]==1) {
-				if(APU_Speed[i]>=95.0) {
-					APU_Speed[i]=103.0+(1.0*oapiRand())-(1.0*oapiRand());
-					APU_STATE[i]=2;
-				}
-				else {
-					APU_Speed[i]+=15.0*dt;
-				}
-				oapiVCTriggerRedrawArea (-1, AID_R2_TKBK1+i);
-				//UpdateVC();
-			}
-			else {
-				APU_Speed[i]+=0.75*(oapiRand()-0.5);
-			}
-			if(Fuel_Press[i]<1400) 
-				Fuel_Press[i]+=(int)(200*dt);
-			else if(Fuel_Press[i]>1500) 
-				Fuel_Press[i]-=(int)(200*dt);
-			else if(Fuel_Press[i]<1425 || Fuel_Press[i]>1480)
-				Fuel_Press[i]=1455 - (int)(10.0 * oapiRand());
-			else 
-				Fuel_Press[i] += (int)(2.0 * oapiRand() - 1.0);
-
-			if(HYD_MAIN_PUMP_PRESS[i]==0) {
-				if(Hydraulic_Press[i]<2950) {
-					if(Hydraulic_Press[i]>2900) 
-						Hydraulic_Press[i]=3000-(int)(10*oapiRand());
-					else 
-						Hydraulic_Press[i]+=(int)(200*dt);
-				}
-				else if(Hydraulic_Press[i]>3050)
-					Hydraulic_Press[i]-=(int)(200*dt);
-				else
-					Hydraulic_Press[i]+=(int)(2.0 * oapiRand() - 1.0);
-			}
-			else {
-				if(Hydraulic_Press[i]<850) {
-					if(Hydraulic_Press[i]>800) 
-						Hydraulic_Press[i] = 900-(int)(10*oapiRand());
-					else Hydraulic_Press[i] += (int)(200*dt);
-				}
-				else if(Hydraulic_Press[i]>950)
-					Hydraulic_Press[i]-=(int)(200*dt);
-				else {
-					Hydraulic_Press[i]+=(int)(2.0*oapiRand() - 1.0);
-				}
-			}
-			if(Hydraulic_Press[i]>2700) bHydraulicPressure=true;
-		}
-		else {
-			if(APU_Speed[i]>5) {
-				APU_Speed[i]=max(APU_Speed[i]-15.0*dt, 0.0);
-			}
-			else 
-				APU_Speed[i]=0;
-			if(Fuel_Press[i]>25) 
-				Fuel_Press[i] -= (int)(200*dt);
-			else 
-				Fuel_Press[i] = 0;
-			if(Hydraulic_Press[i]>50)
-				Hydraulic_Press[i] -= (int)(200*dt);
-			else 
-				Hydraulic_Press[i] = 0;
-		}
-	}
-	//APU sounds
-	if(bAPURunning && !IsPlaying3(sts->SoundID, APU_START))
-		PlayVesselWave3(sts->SoundID, APU_RUNNING, LOOP);
-	else if(!bAPURunning && IsPlaying3(sts->SoundID, APU_RUNNING))
-		StopVesselWave3(sts->SoundID, APU_RUNNING);
-
 	if(LETUmbDoorStatus.Moving()) {
 		double da=dt*ET_UMB_DOOR_OPERATING_SPEED;
 		if(LETUmbDoorStatus.Closing()) {
@@ -1234,7 +1179,12 @@ void PanelR2::Step(double t, double dt)
 			}
 		}
 	}
-	return;
+	
+
+	//redraw APU talkbacks as required
+	for(int i=0;i<3;i++) {
+		if((tkbk_state[i]==vc::TB_GRAY) != APU_ReadyToStart[i].IsSet()) oapiVCTriggerRedrawArea(-1, AID_R2_TKBK1+i);
+	}
 }
 
 void PanelR2::CheckMPSArmed(int eng)
@@ -1256,7 +1206,7 @@ void PanelR2::CheckMPSArmed(int eng)
 	}
 }
 
-void PanelR2::CheckAPUReadytoStart()
+/*void PanelR2::CheckAPUReadytoStart()
 {
 	int i;
 	for(i=0;i<3;i++)
@@ -1273,9 +1223,9 @@ void PanelR2::CheckAPUReadytoStart()
 			}
 		}
 	}
-}
+}*/
 
-void PanelR2::CheckAPUShutdown()
+/*void PanelR2::CheckAPUShutdown()
 {
 	int i;
 	bool bAPUShutdown=false;
@@ -1291,7 +1241,7 @@ void PanelR2::CheckAPUShutdown()
 		}
 	}
 	if(bAPUShutdown) PlayVesselWave3(sts->SoundID, APU_SHUTDOWN, NOLOOP);
-}
+}*/
 
 void PanelR2::SetETUmbDoorAction(AnimState::Action action, int door)
 {
@@ -1410,7 +1360,7 @@ bool PanelR2::ParseScenarioLine (char *line)
 		if(nSwitch<3) HE_ISOLATION_B[nSwitch]=nNum;
 		return true;
 	}
-	else if (!_strnicmp (line, "APU", 3)) 
+	/*else if (!_strnicmp (line, "APU", 3)) 
 	{
 		sscanf_s (line+3, "%d", &nSwitch);
 		sscanf_s (line+4, "%d", &nNum);
@@ -1430,7 +1380,7 @@ bool PanelR2::ParseScenarioLine (char *line)
 		sscanf_s (line+11, "%d", &nNum);
 		if(nSwitch<3) Fuel_Press[nSwitch]=nNum;
 		return true;
-	}
+	}*/
 	else if (!_strnicmp (line, "MPS", 3)) 
 	{
 		sscanf_s (line+3, "%d", &nSwitch);
@@ -1523,7 +1473,7 @@ void PanelR2::SaveState (FILEHANDLE scn)
 	oapiWriteScenario_int (scn, "HEISOLB0", HE_ISOLATION_B[0]);
 	oapiWriteScenario_int (scn, "HEISOLB1", HE_ISOLATION_B[1]);
 	oapiWriteScenario_int (scn, "HEISOLB2", HE_ISOLATION_B[2]);
-	oapiWriteScenario_int (scn, "APU0", APU_STATE[0]);
+	/*oapiWriteScenario_int (scn, "APU0", APU_STATE[0]);
 	oapiWriteScenario_int (scn, "APU1", APU_STATE[1]);
 	oapiWriteScenario_int (scn, "APU2", APU_STATE[2]);
 	oapiWriteScenario_int (scn, "HYDRAULIC_PRESS0", Hydraulic_Press[0]);
@@ -1531,7 +1481,7 @@ void PanelR2::SaveState (FILEHANDLE scn)
 	oapiWriteScenario_int (scn, "HYDRAULIC_PRESS2", Hydraulic_Press[2]);
 	oapiWriteScenario_int (scn, "FUEL_PRESS0", Fuel_Press[0]);
 	oapiWriteScenario_int (scn, "FUEL_PRESS1", Fuel_Press[1]);
-	oapiWriteScenario_int (scn, "FUEL_PRESS2", Fuel_Press[2]);
+	oapiWriteScenario_int (scn, "FUEL_PRESS2", Fuel_Press[2]);*/
 	oapiWriteScenario_int (scn, "MPS0", MPS_STATE[0]);
 	oapiWriteScenario_int (scn, "MPS1", MPS_STATE[1]);
 	oapiWriteScenario_int (scn, "MPS2", MPS_STATE[2]);

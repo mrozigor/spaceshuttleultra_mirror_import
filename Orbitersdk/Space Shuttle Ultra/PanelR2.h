@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include "Atlantis.h"
+#include "discsignals/discsignals.h"
 
 // ==============================================================
 // class Panel R2
@@ -16,7 +17,7 @@ class PanelR2 {
 public:
 	PanelR2 (Atlantis *_sts);
 	//int nAPUOn();
-	//bool bHydraulicPressure();
+	virtual bool HydraulicPressure();
 	void DefineAnimations ();
 	void DefineVCAnimations (UINT vcidx);
 	void RegisterVC ();
@@ -27,14 +28,14 @@ public:
 	void Step (double t, double dt);
 	bool ParseScenarioLine (char *line);
 	void SaveState (FILEHANDLE scn);
-
+	void Realize();
 private:
 	Atlantis *sts; // vessel instance pointer
 
 	bool VCDrawTalkback (SURFHANDLE surf, int idx, int label);
 	void CheckMPSArmed(int eng);
-	void CheckAPUReadytoStart();
-	void CheckAPUShutdown();
+	//void CheckAPUReadytoStart();
+	//void CheckAPUShutdown();
 
 	void SetETUmbDoorAction(AnimState::Action action, int door);
 
@@ -59,17 +60,17 @@ private:
 	int RIGHT_DOOR; //0=OPEN, 1=OFF, 2=CLOSE
 	int RIGHT_LATCH; //0=RELEASE, 1=OFF, 2=LATCH
 	
-	int APU_STATE[3]; // APU ON(2)/OFF(0)/START(1);
+	//int APU_STATE[3]; // APU ON(2)/OFF(0)/START(1);
 	int MPS_STATE[3]; // Engines Armed(1)/Safe(0);
-	bool APU_READY[3];
+	/*bool APU_READY[3];
 	double APU_FUEL[3];
 	int Hydraulic_Press[3];
 	double APU_Speed[3]; //Speed in percent
-	int Fuel_Press[3]; //psi
+	int Fuel_Press[3]; //psi*/
 
 	int tkbk_state[8];
 
-	bool bHydraulicPressure;
+	//bool bHydraulicPressure;
 
 	// VC switch animations
 	UINT anim_VC_R2[56];
@@ -80,6 +81,11 @@ private:
 	AnimState CenterlineLatches; //OPEN(1)=stowed, CLOSED(0)=latched
 	AnimState LDoorLatches; //OPEN(1)=unlatched, CLOSED(0)=latched
 	AnimState RDoorLatches; //OPEN(1)=unlatched, CLOSED(0)=latched
+
+	//APU Disc Ports
+	DiscOutPort APU_Run[3], APU_HydPumpPress[3];
+	DiscOutPort APU_CntlrPwr[3], APU_FuelTankValves[3];
+	DiscInPort APU_ReadyToStart[3], APU_HydraulicPressure[3];
 };
 
 #endif  // !__PANELR2_H

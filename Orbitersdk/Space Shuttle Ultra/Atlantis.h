@@ -26,6 +26,7 @@
 #include "vc/BasicPanel.h"
 #include "vc/PanelF7.h"
 #include "vc/DAPControl.h"
+#include "APU.h"
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 
@@ -1006,6 +1007,7 @@ public:
 	OMSSubsystem* pOMS;
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
+	APU* pAPU[3];
 	/**
 	 * Strategy pattern for the external airlock subsystem
 	 */
@@ -1111,9 +1113,10 @@ public:
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
 	virtual bool HasExternalAirlock() const;
-	virtual bool IsValidSPEC(int gpc, int spec);
-	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg);
-	double GetPropellantLevel(PROPELLANT_HANDLE ph);
+	virtual bool IsValidSPEC(int gpc, int spec) const;
+	int GetSoundID() const;
+	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
+	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
 	void Jettison ();
 	void OperateSpeedbrake (AnimState::Action action);
 	void PaintMarkings (SURFHANDLE tex);
