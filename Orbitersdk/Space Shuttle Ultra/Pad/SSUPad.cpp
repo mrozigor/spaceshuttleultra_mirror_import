@@ -6,41 +6,57 @@
 
 
 VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
-	_V(-6.0, 20.06, 31.55),
-	_V(-6.0, 26.25, 31.55),
-	_V(-6.0, 32.65, 31.55),
-	_V(-6.0, 37.05, 31.55),
-	_V(-6.0, 43.45, 31.55),
+	_V(-4.5, 20.06, 32.55),
+	_V(-4.5, 26.25, 32.55),
+	_V(-4.5, 32.65, 32.55),
+	_V(-4.5, 37.05, 32.55),
+	_V(-4.5, 43.45, 32.55),
 
-	_V(-6.0, 50.70, 31.55),
-	_V(-6.0, 56.70, 31.55),
-	_V(-6.0, 62.70, 31.55),
-	_V(-6.0, 68.70, 31.55),
-	_V(-6.0, 74.70, 31.55),
+	_V(-4.5, 50.70, 32.55),
+	_V(-4.5, 56.70, 32.55),
+	_V(-4.5, 62.70, 32.55),
+	_V(-4.5, 68.70, 32.55),
+	_V(-4.5, 74.70, 32.55),
 
-	_V(-6.0, 80.70, 31.55),
-	_V(-2.33, 20.06, 31.55),
-	_V(-2.33, 26.25, 31.55),
-	_V(-2.33, 32.65, 31.55),
-	_V(-2.33, 37.05, 31.55),
+	_V(-4.5, 80.70, 32.55),
+	_V(-0.85, 20.06, 32.55),
+	_V(-0.85, 26.25, 32.55),
+	_V(-0.85, 32.65, 32.55),
+	_V(-0.85, 37.05, 32.55),
 
-	_V(-2.33, 43.45, 31.55),
-	_V(-2.33, 50.70, 31.55),
-	_V(-2.33, 56.70, 31.55),
-	_V(-2.33, 62.70, 31.55),
-	_V(-2.33, 68.70, 31.55),
+	_V(-0.85, 43.45, 32.55),
+	_V(-0.85, 50.70, 32.55),
+	_V(-0.85, 56.70, 32.55),
+	_V(-0.85, 62.70, 32.55),
+	_V(-0.85, 68.70, 32.55),
 
-	_V(-2.33, 74.70, 31.55),
-	_V(-2.33, 80.70, 31.55),
-	_V(0.0, 30.0, 0.0),
-	_V(0.0, 40.0, 0.0),
-	_V(0.0, 50.0, 0.0),
+	_V(-0.85, 74.70, 32.55),
+	_V(-0.85, 80.70, 32.55),
+	_V(-4.5, 20.06, 27.55),
+	_V(-4.5, 26.25, 27.55),
+	_V(-4.5, 32.65, 27.55),
 
-	_V(0.0, 10.0, 0.0),
-	_V(0.0, 20.0, 0.0),
-	_V(0.0, 30.0, 0.0),
-	_V(0.0, 40.0, 0.0),
-	_V(0.0, 50.0, 0.0)};
+	_V(-4.5, 37.05, 27.55),
+	_V(-4.5, 43.45, 27.55),
+	_V(-4.5, 50.70, 27.55),
+	_V(-4.5, 56.70, 27.55),
+	_V(-4.5, 62.70, 27.55),
+	_V(-4.5, 68.70, 27.55),
+	_V(-4.5, 74.70, 27.55),
+	_V(-4.5, 80.70, 27.55),
+	
+	_V(-0.85, 20.06, 27.55),
+	_V(-0.85, 26.25, 27.55),
+	_V(-0.85, 32.65, 27.55),
+
+	_V(-0.85, 37.05, 27.55),
+	_V(-0.85, 43.45, 27.55),
+	_V(-0.85, 50.70, 27.55),
+	_V(-0.85, 56.70, 27.55),
+	_V(-0.85, 62.70, 27.55),
+	_V(-0.85, 68.70, 27.55),
+	_V(-0.85, 74.70, 27.55),
+	_V(-0.85, 80.70, 27.55)};
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	: VESSEL2(hVessel, flightmodel),
@@ -68,14 +84,14 @@ SSUPad::~SSUPad()
 }
 
 void SSUPad::CreateLights() {
-	static VECTOR3& light_color = _V(1.0, 1.0, 1.0);
+	static VECTOR3& light_color = _V(1.0, 0.972, 0.219);
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].duration = 0;
 		lights[i].period = 0;
 		lights[i].pos = &FSS_POS_LIGHT[i];
 		lights[i].col = &light_color;
-		lights[i].size = 0.05;
-		lights[i].shape = BEACONSHAPE_COMPACT;
+		lights[i].size = 0.2;
+		lights[i].shape = BEACONSHAPE_DIFFUSE;
 		lights[i].falloff = 0.8;
 		lights[i].active = false;
 
@@ -313,7 +329,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 			break;
 		case OAPI_KEY_O:
 			//Recharge GOX_Vent .. test
-			SetPropellantMass(phGOXVent, 5.0);
+			SetPropellantMass(phGOXVent, 8000000000000000.0);
 			return 1;
 		case OAPI_KEY_G:
 			//if(GVAState.Open() || GVAState.Opening()) GVAState.action=AnimState::CLOSING;
@@ -331,7 +347,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.6, 140, 10, 0.025, 1.0, 1.1, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.6, 140, 5, 0.7, 0.25, 1.6, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
 	  };
