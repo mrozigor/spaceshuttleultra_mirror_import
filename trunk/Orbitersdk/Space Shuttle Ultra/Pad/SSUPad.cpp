@@ -3,8 +3,48 @@
 
 #define ORBITER_MODULE
 
+
+
+VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
+	_V(-6.0, 20.06, 31.55),
+	_V(-6.0, 26.25, 31.55),
+	_V(-6.0, 32.65, 31.55),
+	_V(-6.0, 37.05, 31.55),
+	_V(-6.0, 43.45, 31.55),
+
+	_V(-6.0, 50.70, 31.55),
+	_V(-6.0, 56.70, 31.55),
+	_V(-6.0, 62.70, 31.55),
+	_V(-6.0, 68.70, 31.55),
+	_V(-6.0, 74.70, 31.55),
+
+	_V(-6.0, 80.70, 31.55),
+	_V(-2.33, 20.06, 31.55),
+	_V(-2.33, 26.25, 31.55),
+	_V(-2.33, 32.65, 31.55),
+	_V(-2.33, 37.05, 31.55),
+
+	_V(-2.33, 43.45, 31.55),
+	_V(-2.33, 50.70, 31.55),
+	_V(-2.33, 56.70, 31.55),
+	_V(-2.33, 62.70, 31.55),
+	_V(-2.33, 68.70, 31.55),
+
+	_V(-2.33, 74.70, 31.55),
+	_V(-2.33, 80.70, 31.55),
+	_V(0.0, 30.0, 0.0),
+	_V(0.0, 40.0, 0.0),
+	_V(0.0, 50.0, 0.0),
+
+	_V(0.0, 10.0, 0.0),
+	_V(0.0, 20.0, 0.0),
+	_V(0.0, 30.0, 0.0),
+	_V(0.0, 40.0, 0.0),
+	_V(0.0, 50.0, 0.0)};
+
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
-	: VESSEL2(hVessel, flightmodel)
+	: VESSEL2(hVessel, flightmodel),
+	fLightsOn(false)
 {
 	//add mesh
 	VECTOR3 mesh_ofs=_V(0, 0, 0);
@@ -14,6 +54,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	SetTouchdownPoints(_V(1.0, -1.0, 0.0), _V(-1.0, -1.0, 1.0), _V(-1.0, -1.0, -1.0));
 
 	phGOXVent = NULL;
+	fNextLightUpdate = -20.0;
 
 	GOXArmAction=AnimState::STOPPED;
 	vtx_goxvent[0] = FSS_POS_GOXVENTL;
@@ -24,6 +65,22 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 
 SSUPad::~SSUPad()
 {
+}
+
+void SSUPad::CreateLights() {
+	static VECTOR3& light_color = _V(1.0, 1.0, 1.0);
+	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
+		lights[i].duration = 0;
+		lights[i].period = 0;
+		lights[i].pos = &FSS_POS_LIGHT[i];
+		lights[i].col = &light_color;
+		lights[i].size = 0.05;
+		lights[i].shape = BEACONSHAPE_COMPACT;
+		lights[i].falloff = 0.8;
+		lights[i].active = false;
+
+		AddBeacon(&lights[i]);
+	}
 }
 
 void SSUPad::DefineAnimations()
@@ -57,6 +114,46 @@ void SSUPad::DefineAnimations()
 	static MGROUP_ROTATE VentHood(mesh_idx, VentHoodGrp, 1,
 		_V(-17.19, 83.344, 21.278), _V(0, 0, 1), (float)(41.0*RAD));
 	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
+}
+
+void SSUPad::DisableLights() {
+	fLightsOn = true;
+	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
+		lights[i].active = false;
+
+		fLightsOn = fLightsOn && lights[i].active;
+	}
+}
+
+void SSUPad::EnableLights() {
+	fLightsOn = true;
+
+	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
+		lights[i].active = true;
+
+		fLightsOn = fLightsOn && lights[i].active;
+	}
+}
+
+
+
+bool SSUPad::IsDawn() const {
+	
+	OBJHANDLE Sun=NULL;
+	int count=(int)oapiGetGbodyCount();
+	for(int i=0;i<count;i++) {
+		Sun=oapiGetGbodyByIndex(i);
+		if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
+	}
+	if(Sun) {
+		VECTOR3 SunPosGlobal, SunPos;
+		oapiGetGlobalPos(Sun, &SunPosGlobal);
+		Global2Local(SunPosGlobal, SunPos);
+		double angle=acos(SunPos.y/length(SunPos))*DEG;
+		if(angle>85.0)
+			return true;
+	}
+	return false;
 }
 
 void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
@@ -118,6 +215,17 @@ AnimState::Action SSUPad::GetGOXArmState()
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 {
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
+
+	if(simt > fNextLightUpdate) {
+		fNextLightUpdate = simt + 300.0;
+
+		if(fLightsOn && !IsDawn()) {
+			DisableLights();
+		} 
+		else if(!fLightsOn && IsDawn()) {
+			EnableLights();
+		}
+	}
 
 	if(AccessArmState.Moving()) {
 		double dp=simdt*ORBITER_ACCESS_ARM_RATE;
@@ -249,6 +357,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetEmptyMass(6500000.0);
 	SetSize(39.0);
 	CreateGOXVentThrusters();
+	CreateLights();
 }
 
 void SSUPad::UpdateGOXVentThrusters() {
