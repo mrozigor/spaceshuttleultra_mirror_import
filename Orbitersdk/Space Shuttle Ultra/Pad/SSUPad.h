@@ -11,9 +11,13 @@ const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 
+const unsigned int FSS_NUM_LIGHTS = 30;
+
 const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.85047, 20.18538);
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.85047, 22.48279);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
+
+
 
 class SSUPad: public VESSEL2
 {
@@ -41,6 +45,9 @@ private:
 	PROPELLANT_HANDLE phGOXVent;
 	THRUSTER_HANDLE thGOXVent[2];
 
+	bool fLightsOn;
+	BEACONLIGHTSPEC lights[FSS_NUM_LIGHTS];
+
 	MESHHANDLE mesh;
 	UINT mesh_idx;
 
@@ -51,6 +58,8 @@ private:
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
 
+	double fNextLightUpdate;
+
 	AnimState AccessArmState, GVAState, VentHoodState;
 	AnimState::Action GOXArmAction;
 
@@ -59,6 +68,12 @@ private:
 		if(fabs(d1-d2)>dDiff) return false;
 		return true;
 	}
+
+	void CreateLights();
+	void EnableLights();
+	void DisableLights();
+	bool IsDawn() const;
 };
 
 #endif //__SSUPAD_H
+
