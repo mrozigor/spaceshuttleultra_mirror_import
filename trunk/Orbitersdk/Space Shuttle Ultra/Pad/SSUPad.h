@@ -11,7 +11,7 @@ const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 
-const unsigned int FSS_NUM_LIGHTS = 30;
+const unsigned int FSS_NUM_LIGHTS = 44;
 
 const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.85047, 20.18538);
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.85047, 22.48279);
