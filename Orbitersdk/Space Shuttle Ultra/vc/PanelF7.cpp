@@ -93,6 +93,6 @@ namespace vc {
 			return true;
 		}
 
-		return false;
+		return BasicPanel::OnVCRedrawEvent(id, _event, surf);
 	}
 };

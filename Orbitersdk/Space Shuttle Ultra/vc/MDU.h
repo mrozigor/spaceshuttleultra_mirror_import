@@ -92,6 +92,8 @@ namespace vc {
 		 */
 		virtual bool RealizeMFD(int id);
 
+		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
+
 		virtual void RegisterVC();
 		/**
 		 * define the Area ID of the MDU screen inside the VC. when in 

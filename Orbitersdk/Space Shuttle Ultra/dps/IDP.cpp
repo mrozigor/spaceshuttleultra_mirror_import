@@ -7,8 +7,8 @@ namespace dps {
 		unsigned short _usIDPID)
 		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID)
 	{
-		usSPEC=0;
-		usDISP=0;
+		usSPEC=MODE_UNDEFINED;
+		usDISP=MODE_UNDEFINED;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
 		CreateSoftware();

@@ -1,6 +1,7 @@
 #include "../Atlantis.h"
 #include "MDU.h"
 #include "../dps/IDP.h"
+#include "../meshres_vc_additions.h"
 
 extern GDIParams g_Param;
 
@@ -225,35 +226,36 @@ namespace vc {
 		return false;
 	}
 
-	bool MDU::PaintEdgeMenu(HDC hdc)
+	bool MDU::PaintEdgeMenu(HDC hDC)
 	{
-		/*
-		HDC hDC = oapiGetDC (surf);
+		
+		//HDC hDC = oapiGetDC (surf);
 
-  // D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
-    if (oapiGetMFDMode(mfd) == MFD_NONE) {
-        RECT r = { 0,0,255,13 };
-        FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
-    } else {   // MFD powered on
-    HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
-    SetTextColor (hDC, RGB(0,255,216));
-    SetTextAlign (hDC, TA_CENTER);
-    SetBkMode (hDC, TRANSPARENT);
-    const char *label;
-    int x = 24;
+		// D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
+		if (oapiGetMFDMode(MFDID) == MFD_NONE) {
+			RECT r = {0, 0, 255, 13};
+			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
+		} else {   // MFD powered on
+			HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
+			SetTextColor (hDC, RGB(0,255,216));
+			SetTextAlign (hDC, TA_CENTER);
+			SetBkMode (hDC, TRANSPARENT);
+			const char *label;
+			int x = 25;
 
-    for (int bt = 0; bt < 5; bt++) {
-      if (label = oapiMFDButtonLabel (mfd, bt)) {
-        TextOut (hDC, x, 1, label, strlen(label));
-        x += 42;
-      } else break;
-    }
-    TextOut (hDC, 234, 1, "PG", 2);
-    SelectObject (hDC, pFont);
-  }
+			for (int bt = 0; bt < 5; bt++) {
+				if (label = oapiMFDButtonLabel (MFDID, bt)) {
+					TextOut (hDC, x, 23, label, strlen(label));
+					oapiWriteLog((char*)label);
+					x += 40;
+				} else break;
+			}
+			TextOut (hDC, 224, 23, "PG", 2);
+			SelectObject (hDC, pFont);
+		}
 
-  oapiReleaseDC (surf, hDC);
-  */
+		//oapiReleaseDC (surf, hDC);
+
 		return false;
 	}
 
@@ -277,6 +279,7 @@ namespace vc {
 //		char pszBuffer[256];
 		mfdspec.nbt1 = 5;
 		mfdspec.nbt2 = 0;
+		mfdspec.flag = MFD_SHOWMODELABELS;
 		mfdspec.bt_yofs  = 256/6;
 		mfdspec.bt_ydist = 256/7;
 		STS()->SetLastCreatedMFD(usMDUID);
@@ -289,7 +292,55 @@ namespace vc {
 
 	void MDU::RegisterVC()
 	{
+		AddAIDToRedrawEventList(AID_CDR1_LABEL+usMDUID);
+		//register lower label texture for redrawing
+		SURFHANDLE label_tex;
+		if(usMDUID==MDUID_PLT2 || usMDUID==MDUID_CRT4 || usMDUID==MDUID_AFD) label_tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_LABEL2_VC);
+		else label_tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_LABEL_VC);
 
+		RECT labelArea;
+		switch(usMDUID) {
+			case MDUID_CDR1:
+			case MDUID_PLT2:
+				labelArea=_R(0, 0, 256, 41);
+				break;
+			case MDUID_CDR2:
+			case MDUID_CRT4:
+				labelArea=_R(0, 61, 256, 102);
+				break;
+			case MDUID_CRT1:
+			case MDUID_AFD:
+				labelArea=_R(0, 121, 256, 162);
+				break;
+			case MDUID_CRT2:
+				labelArea=_R(0, 180, 256, 221);
+				break;
+			case MDUID_CRT3:
+				labelArea=_R(0, 247, 256, 288);
+				break;
+			case MDUID_MFD1:
+				labelArea=_R(0, 308, 256, 349);
+				break;
+			case MDUID_MFD2:
+				labelArea=_R(0, 368, 256, 409);
+				break;
+			case MDUID_PLT1:
+				labelArea=_R(0, 427, 256, 468);
+				break;
+		}
+
+		oapiVCRegisterArea(AID_CDR1_LABEL+usMDUID, labelArea, PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_BACKGROUND, label_tex);
+	}
+
+	bool MDU::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
+	{
+		if(id==(AID_CDR1_LABEL+usMDUID)) {
+			HDC hDC=oapiGetDC(surf);
+			PaintEdgeMenu(hDC);
+			oapiReleaseDC(surf, hDC);
+			return true;
+		}
+		return false;
 	}
 
 	bool MDU::DefineVCGroup(UINT mgrp)
@@ -321,9 +372,12 @@ namespace vc {
 
 		if(STS()->ops==201) {
 			if(prim_idp) {
-				if(prim_idp->GetSpec()==0) UNIVPTG();
-				else if(prim_idp->GetSpec()==20) DAP_CONFIG();
-				else UNIVPTG();
+				//if DISP is not set, show appropriate SPEC/default display
+				if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
+					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
+					else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+				}
+				//else UNIVPTG();
 			}
 			else {
 				PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
