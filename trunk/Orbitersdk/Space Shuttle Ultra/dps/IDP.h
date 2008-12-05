@@ -20,6 +20,11 @@ namespace dps {
 	const char DEUATT_UNDERLINED = 4;
 
 	/**
+	 * Used to set IDP SPEC/DISP to undefined (not set)
+	 */
+	const unsigned short MODE_UNDEFINED = -1;
+
+	/**
 	 * Generic class for IDP display. 
 	 * Each display should implement it's own functions for drawing and input. 
  	 */

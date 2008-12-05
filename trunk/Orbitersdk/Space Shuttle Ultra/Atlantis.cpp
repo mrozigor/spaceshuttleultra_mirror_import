@@ -3407,14 +3407,14 @@ bool Atlantis::Input(int idp, int change, char *Name, char *Data)
 	if (change == 9)
 	{
 		//Resume key pressed
-		if(pIDP[idp]->GetDisp() > 0) {
-			//Display[mfd]->display = -1;
-			pIDP[idp]->SetDisp(0);
+		if(pIDP[idp]->GetDisp() != dps::MODE_UNDEFINED) {
+			//pIDP[idp]->SetDisp(0);
+			pIDP[idp]->SetDisp(dps::MODE_UNDEFINED);
 			return true;
 		}
-		else if(pIDP[idp]->GetSpec() > 0) {
-			//Display[mfd]->spec = -1;
-			pIDP[idp]->SetSpec(0);
+		else if(pIDP[idp]->GetSpec() != dps::MODE_UNDEFINED) {
+			//pIDP[idp]->SetSpec(0);
+			pIDP[idp]->SetSpec(dps::MODE_UNDEFINED);
 			return true;
 		}
 		else return false;
@@ -6354,7 +6354,7 @@ void Atlantis::clbkAnimate (double simt)
 // --------------------------------------------------------------
 void Atlantis::clbkMFDMode (int mfd, int mode)
 {
-	oapiVCTriggerRedrawArea (-1, AID_CDR1_BUTTONS+mfd);
+	oapiVCTriggerRedrawArea (-1, AID_CDR1_LABEL+mfds[mfd]);
 	
 	//get pointer to CRT MFD as required
 	if(newmfd!=NULL && mode!=MFD_REFRESHBUTTONS) {
@@ -7026,7 +7026,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   switch (id) 
   {
   // handle MFD selection buttons
-  case AID_CDR1_BUTTONS:
+  /*case AID_CDR1_BUTTONS:
   case AID_CDR2_BUTTONS:
   case AID_PLT1_BUTTONS:
   case AID_PLT2_BUTTONS:
@@ -7038,7 +7038,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_MFD2_BUTTONS:
   case AID_AFD_BUTTONS: 
 	  {
-		  /*
+		  
     int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
     int bt = (int)(p.x*5.99);
     if (bt < 5) oapiProcessMFDButton (mfd, bt, _event);
@@ -7055,7 +7055,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
       }
     }
 	sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
-	*/
+	
     } return true;
 
   // D. Beachy: handle power buttons
@@ -7115,9 +7115,9 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 				mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
 			}
 		}
-		*/
+		
 	} 
-	return false;
+	return false;*/
   // handle panel R13L events (payload bay operations)
   case AID_R13L:
     return plop->VCMouseEvent (id, _event, p);
@@ -7160,7 +7160,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
 	switch (id) {
-		case AID_CDR1_BUTTONS:
+		/*case AID_CDR1_BUTTONS:
 		case AID_CDR2_BUTTONS:
 		case AID_PLT1_BUTTONS:
 		case AID_PLT2_BUTTONS:
@@ -7173,7 +7173,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 		case AID_AFD_BUTTONS:
 			//int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
 			//RedrawPanel_MFDButton (surf, mfd);
-			return true;
+			return true;*/
 		default:
 			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
 				return panela4->VCRedrawEvent (id, _event, surf);

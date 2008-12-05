@@ -654,7 +654,7 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 // ==========================================================
 
 // define MFD function buttons
-#define AID_CDR1_BUTTONS   1
+/*#define AID_CDR1_BUTTONS   1
 #define AID_CDR2_BUTTONS   2
 #define AID_PLT1_BUTTONS   3
 #define AID_PLT2_BUTTONS   4
@@ -664,7 +664,18 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_CRT4_BUTTONS   8
 #define AID_MFD1_BUTTONS   9
 #define AID_MFD2_BUTTONS   10
-#define AID_AFD_BUTTONS  11
+#define AID_AFD_BUTTONS  11*/
+#define AID_CDR1_LABEL		1
+#define AID_CDR2_LABEL		2
+#define AID_CRT1_LABEL		3
+#define AID_CRT2_LABEL		4
+#define AID_CRT3_LABEL		5
+#define AID_MFD1_LABEL		6
+#define AID_MFD2_LABEL		7
+#define AID_PLT1_LABEL		8
+#define AID_PLT2_LABEL		9
+#define AID_CRT4_LABEL		10
+#define AID_AFD_LABEL		11
 // D. Beachy: define power buttons
 #define AID_CDR1_PWR      12
 #define AID_CDR2_PWR      13

@@ -124,6 +124,8 @@ Atlantis\r13l.dds
 #define TEX_STSVC03_VC		40
 #define TEX_STSVC02_VC		41
 #define TEX_STSVC01_VC		42
+#define TEX_O6TALKBACKS_VC	43
+#define TEX_LABEL2_VC		44
 
 /*#define TEX_STSVC01_VC		1
 #define TEX_STSVC02_VC		2
