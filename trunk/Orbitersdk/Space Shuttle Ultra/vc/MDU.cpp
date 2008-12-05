@@ -233,7 +233,7 @@ namespace vc {
 
 		// D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
 		if (oapiGetMFDMode(MFDID) == MFD_NONE) {
-			RECT r = {0, 0, 255, 13};
+			RECT r = {0, 0, 256, 41};
 			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		} else {   // MFD powered on
 			HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
