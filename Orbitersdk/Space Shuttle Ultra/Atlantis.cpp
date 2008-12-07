@@ -8938,9 +8938,9 @@ TEX=Contrail1*/
 	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
 
 
-	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0.0, -0.37489, 0.92707), 5.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0.065, -0.2447, 0.9674), 5.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(-0.065, -0.2447, 0.9674), 5.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0.0, -0.37489, 0.92707), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0.065, -0.2447, 0.9674), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(-0.065, -0.2447, 0.9674), 0.0, ph_tank, 250.0, 100.0);
 	
 	for(i = 0; i<3; i++)
 	{
