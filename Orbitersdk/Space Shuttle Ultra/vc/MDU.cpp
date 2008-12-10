@@ -81,7 +81,6 @@ namespace vc {
 	bool MDU::SetPrimaryIDP(dps::IDP *idp)
 	{
 		if(idp) {
-			if(prim_idp) oapiWriteLog("PRIM IDP changed");
 			prim_idp=idp;
 			return true;
 		}
@@ -246,7 +245,6 @@ namespace vc {
 			for (int bt = 0; bt < 5; bt++) {
 				if (label = oapiMFDButtonLabel (MFDID, bt)) {
 					TextOut (hDC, x, 23, label, strlen(label));
-					oapiWriteLog((char*)label);
 					x += 40;
 				} else break;
 			}

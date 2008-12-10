@@ -503,6 +503,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelF4.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelF6.cpp"
 				>
 			</File>
@@ -815,6 +819,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelF4.h"
 				>
 			</File>
 			<File

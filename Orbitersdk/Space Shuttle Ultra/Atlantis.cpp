@@ -44,6 +44,7 @@
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
+#include "vc/PanelF4.h"
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
@@ -396,6 +397,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
   rsls			= new dps::RSLS(this);
 
   pgForward.AddPanel(new vc::PanelF2(this));
+  pgForward.AddPanel(new vc::PanelF4(this));
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
@@ -824,6 +826,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 	  TransMode[i]=0;
 	  RHCInput.data[i]=0.0;
 	  THCInput.data[i]=0.0;
+	  RotationCommand.data[i]=0.0;
+	  TranslationCommand.data[i]=0.0; 
 	  RotPulseInProg[i]=false;
 	  TransPulseInProg[i]=false;
 	  TransPulseDV.data[i]=0.0;
@@ -5426,6 +5430,7 @@ void Atlantis::clbkPostCreation ()
 
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
 	if(SoundID!=-1) {
+		//NOTE: (char*) casts in RequestLoadVesselWave3 calls should be safe; I think this function just stores the file names (SiameseCat)
 		SoundOptionOnOff3(SoundID, PLAYATTITUDETHRUST, FALSE);
 		RequestLoadVesselWave3(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
 
@@ -5884,12 +5889,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	if(SoundID!=-1) {
 		//play RCS sounds
-		if(RCSThrustersFiring()) {
+		/*if(RCSThrustersFiring()) {
 			if(!IsPlaying3(SoundID, RCS_SOUND)) PlayVesselWave3(SoundID, RCS_SOUND, LOOP);
 		}
 		else {
 			if(IsPlaying3(SoundID, RCS_SOUND)) StopVesselWave3(SoundID, RCS_SOUND);
-		}
+		}*/
+
 		//APU sounds
 		//STOP/START sounds are handled by APU instance; RUN sound applies to all 3 APUs and is handled here
 		if(pAPU[0]->IsRunning() || pAPU[1]->IsRunning() || pAPU[2]->IsRunning()) {
@@ -7469,7 +7475,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		{
 			bSSMEGOXVent = !bSSMEGOXVent;
 		}
-		else if(status == STATE_ORBITER)
+		/*else if(status == STATE_ORBITER)
 		{
 			if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
 				if(RMSRollout.action==AnimState::CLOSED) {
@@ -7479,7 +7485,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 					RMSRollout.action=AnimState::CLOSING;
 				}
 			}
-		}
+		}*/
 		return 1;
 	case OAPI_KEY_1: //temporary
 		if(DisplayJointAngles) {
