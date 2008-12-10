@@ -612,7 +612,7 @@ const double DEFAULT_PAYLOAD_ZPOS[16] =
 
 //Sound IDs
 const int RCS_SOUND = 1;
-const static char* RCS_SOUND_FILE = "Sound\\Vessel\\attsustain.wav";
+const static char* RCS_SOUND_FILE = "Sound\\ShuttleUltra\\RCS_Jet_Fire.wav";
 const int MASTER_ALARM = 2;
 const static char* MASTER_ALARM_FILE = "Sound\\ShuttleUltra\\Master_Alarm.wav";
 const int APU_START = 3;
@@ -864,7 +864,18 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_F2_ST_MAN	584
 #define AID_F2_P_CSS	585
 #define AID_F2_RY_CSS	586
-#define AID_F2_MAX		600
+#define AID_F2_MAX		599
+
+#define AID_F4_MIN		600
+#define AID_F4			600		
+#define AID_F4_BF_AUTO	601
+#define AID_F4_BF_MAN	602
+#define AID_F4_ST_AUTO	603
+#define AID_F4_ST_MAN	604
+#define AID_F4_P_CSS	605
+#define AID_F4_RY_CSS	606
+#define AID_F4_MAX		620
+
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
@@ -1775,6 +1786,8 @@ private:
 
 	//Hand controller input
 	VECTOR3 THCInput, RHCInput;
+	//Thruster commands
+	VECTOR3 TranslationCommand, RotationCommand;
 
 	MGROUP_TRANSFORM *sat_anim, *sat_ref;
 

@@ -3,6 +3,7 @@
 #include "PanelC3.h"
 
 #include "util/Stopwatch.h"
+#include <OrbiterSoundSDK35.h>
 #include <cstdio>
 
 //extern int tpir(const double* list, int n_items, double target);
@@ -729,6 +730,18 @@ void Atlantis::TransControl(double SimT, double SimdT)
 		return; // thruster levels already set
 	}
 
+	//play RCS sounds
+	if(!IsPlaying3(SoundID, RCS_SOUND)) {
+		for(int i=0;i<3;i++) {
+			if(!Eq(abs(ThrusterLevel.data[i]), 0.00, 0.001) && Eq(abs(TranslationCommand.data[i]), 0.0, 0.001)) {
+				PlayVesselWave3(SoundID, RCS_SOUND, NOLOOP);
+				break;
+			}
+		}
+	}
+	//store thruster commands
+	TranslationCommand=ThrusterLevel;
+
 	//fire appropriate sets of thrusters
 	if(ThrusterLevel.x>0.05) {
 		SetThrusterGroupLevel(thg_transfwd, 1.0);
@@ -1021,7 +1034,8 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 
 void Atlantis::SetRates(VECTOR3 &Rates)
 {
-	double dDiff;
+	//double dDiff;
+	VECTOR3 ThrusterLevel;
 	VECTOR3 CurrentRates;
 	CurrentRates=AngularVelocity*DEG;
 	VECTOR3 PriLimits, VernLimits;
@@ -1030,24 +1044,24 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 	double dTimeAcc=oapiGetTimeAcceleration();
 	//sprintf_s(oapiDebugString(), 255, "%s Limits: %f %f %f", oapiDebugString(), VernLimits.x, VernLimits.y, VernLimits.z);
 
-	dDiff=Rates.data[PITCH]-CurrentRates.data[PITCH];
-	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[PITCH]) {
-		if(dDiff>0) {
+	ThrusterLevel.data[PITCH]=Rates.data[PITCH]-CurrentRates.data[PITCH];
+	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[PITCH])>PriLimits.data[PITCH]) {
+		if(ThrusterLevel.data[PITCH]>0) {
 			SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[PITCH]<0) {
 			SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchup, 0.0);
 		}
 	}
-	else if(abs(dDiff)>VernLimits.data[PITCH]) {
+	else if(abs(ThrusterLevel.data[PITCH])>VernLimits.data[PITCH]) {
 		//sprintf(oapiDebugString(), "%f", dDiff);
-		if(dDiff>0) {
+		if(ThrusterLevel.data[PITCH]>0) {
 			SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[PITCH]<0) {
 			SetThrusterGroupLevel(thg_pitchup, 0.0);
 			SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
 		}
@@ -1059,23 +1073,23 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 		if(abs(RHCInput.data[PITCH])<0.01) RotPulseInProg[PITCH]=false;
 	}
 
-	dDiff=Rates.data[YAW]-CurrentRates.data[YAW];
-	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[YAW]) {
-		if(dDiff>0) {
+	ThrusterLevel.data[YAW]=Rates.data[YAW]-CurrentRates.data[YAW];
+	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[YAW])>PriLimits.data[YAW]) {
+		if(ThrusterLevel.data[YAW]>0) {
 			SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[YAW]<0) {
 			SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 	}
-	else if(abs(dDiff)>VernLimits.data[YAW]) {
-		if(dDiff>0) {
+	else if(abs(ThrusterLevel.data[YAW])>VernLimits.data[YAW]) {
+		if(ThrusterLevel.data[YAW]>0) {
 			SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[YAW]<0) {
 			SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
@@ -1086,23 +1100,23 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 		if(abs(RHCInput.data[YAW])<0.01) RotPulseInProg[YAW]=false;
 	}
 
-	dDiff=Rates.data[ROLL]-CurrentRates.data[ROLL];
-	if(DAPMode[1]!=2 && abs(dDiff)>PriLimits.data[ROLL]) {
-		if(dDiff>0) {
+	ThrusterLevel.data[ROLL]=Rates.data[ROLL]-CurrentRates.data[ROLL];
+	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[ROLL])>PriLimits.data[ROLL]) {
+		if(ThrusterLevel.data[ROLL]>0) {
 			SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[ROLL]<0) {
 			SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
 	}
-	else if(abs(dDiff)>VernLimits.data[ROLL]) {
-		if(dDiff>0) {
+	else if(abs(ThrusterLevel.data[ROLL])>VernLimits.data[ROLL]) {
+		if(ThrusterLevel.data[ROLL]>0) {
 			SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
-		else if(dDiff<0) {
+		else if(ThrusterLevel.data[ROLL]<0) {
 			SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
 			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
@@ -1112,6 +1126,18 @@ void Atlantis::SetRates(VECTOR3 &Rates)
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
 		if(abs(RHCInput.data[ROLL])<0.01) RotPulseInProg[ROLL]=false;
 	}
+
+	//play RCS sounds
+	if(!IsPlaying3(SoundID, RCS_SOUND)) {
+		for(int i=0;i<3;i++) {
+			if(!Eq(abs(ThrusterLevel.data[i]), 0.00, 0.001) && Eq(abs(RotationCommand.data[i]), 0.0, 0.001)) {
+				PlayVesselWave3(SoundID, RCS_SOUND, NOLOOP);
+				break;
+			}
+		}
+	}
+	//store thruster commands
+	RotationCommand=ThrusterLevel;
 }
 
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
