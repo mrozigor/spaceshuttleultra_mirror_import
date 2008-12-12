@@ -7,8 +7,8 @@ namespace dps {
 		unsigned short _usIDPID)
 		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID)
 	{
-		usSPEC=MODE_UNDEFINED;
-		usDISP=MODE_UNDEFINED;
+		usSPEC=dps::MODE_UNDEFINED;
+		usDISP=dps::MODE_UNDEFINED;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
 		CreateSoftware();
@@ -129,6 +129,8 @@ namespace dps {
 		char cbuf[255];
 		sprintf_s(cbuf, 255, "IDP%d SPEC", usIDPID);
 		oapiWriteScenario_int(scn, cbuf, usSPEC);
+		sprintf_s(cbuf, 255, "IDP%d DISP", usIDPID);
+		oapiWriteScenario_int(scn, cbuf, usDISP);
 	}
 
 	bool IDP::OnParseLine(const char* line)
@@ -138,6 +140,10 @@ namespace dps {
 		if(!_strnicmp(IDP, line, 4)) {
 			if(!_strnicmp(line+5, "SPEC", 4)) {
 				sscanf_s(line+9, "%d", &usSPEC);
+				return true;
+			}
+			else if(!_strnicmp(line+5, "DISP", 4)) {
+				sscanf_s(line+9, "%d", &usDISP);
 				return true;
 			}
 		}

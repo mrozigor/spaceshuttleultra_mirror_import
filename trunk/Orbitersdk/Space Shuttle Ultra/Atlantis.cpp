@@ -3401,7 +3401,7 @@ double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 	return 100.0*(GetPropellantMass(ph)/GetPropellantMaxMass(ph));
 }
 
-bool Atlantis::Input(int idp, int change, char *Name, char *Data)
+bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 {
 	//int item;
 	int nNew;
@@ -3488,7 +3488,7 @@ bool Atlantis::Input(int idp, int change, char *Name, char *Data)
 			if(ops==201) {
 				//switch(Display[mfd]->spec) {
 				switch(pIDP[idp]->GetSpec()) {
-					case 0:
+					case dps::MODE_UNDEFINED:
 						if(nNew<=17) {
 							item=nNew;
 							return Input(idp, 3, Name, Data);
@@ -3808,7 +3808,7 @@ bool Atlantis::Input(int idp, int change, char *Name, char *Data)
 			if(ops==201) {
 				//switch(Display[mfd]->spec) {
 				switch(pIDP[idp]->GetSpec()) {
-					case 0:
+					case dps::MODE_UNDEFINED:
 						if(item>=1 && item<=4) {
 							nNew=atoi(Data);
 							if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
