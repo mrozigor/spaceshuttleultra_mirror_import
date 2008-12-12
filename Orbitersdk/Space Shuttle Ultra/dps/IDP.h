@@ -22,7 +22,7 @@ namespace dps {
 	/**
 	 * Used to set IDP SPEC/DISP to undefined (not set)
 	 */
-	const unsigned short MODE_UNDEFINED = -1;
+	const unsigned short MODE_UNDEFINED = (unsigned short)-1;
 
 	/**
 	 * Generic class for IDP display. 

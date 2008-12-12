@@ -30,7 +30,7 @@ public:
 	void Update (HDC hDC);
 	static int MsgProc (UINT msg, UINT mfd, WPARAM wparam, LPARAM lparam);
 	bool Input(int change, char *Name);
-	void Data(int id);
+	//void Data(int id);
 	void WriteStatus (FILEHANDLE scn) const;
 	void ReadStatus (FILEHANDLE scn);
 	void StoreStatus() const;
@@ -96,7 +96,7 @@ private:
 
 	int width, height;
 	int ops, item, spec, mode, display;
-	int data;
+	//int data;
 	int id;
 
 	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec

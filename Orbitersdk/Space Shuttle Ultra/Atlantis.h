@@ -1415,7 +1415,7 @@ private:
 	void GPC(double simt, double dt);
 	void Maneuver(double dt);
 	void SetILoads();
-	bool Input(int mfd, int change, char *Name, char *Data=NULL);
+	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
 	//void Test();
 
 	//DAP

@@ -1,6 +1,7 @@
 #include "Keyboard.h"
 #include "CRT.h"
 #include <cstdio>
+#include <string>
 #include "dps/dps_defs.h"
 #include "dps/IDP.h"
 
@@ -50,39 +51,35 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 			if(sts->DataInput[sts->CRT_SEL[keyboard]].ITEM) {
 				//parse entry
-				int i, j;
+				int i;
 				bool delim=false;
-				char Data[255];
-				char Name[255];
+				string Data, Name;
 				for(i=0;i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize;i++) {
 					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
 						if(delim) break;
 						delim=true;
-						j=0;
 					}
-					if(!delim) Name[i]=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
+					if(!delim) Name+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
 					else {
-						Data[j]=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
-						j++;
+						Data+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
 					}
 				}
-				sts->Input(sts->CRT_SEL[keyboard], 1, Name, Data);
-				j=0;
+				sts->Input(sts->CRT_SEL[keyboard], 1, Name.c_str(), Data.c_str());
+				Data=""; //clear string
 				while(i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize) {
 					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
-						if(j!=0) {
+						if(Data.length()>0) {
 							sts->item++;
-							sts->Input(sts->CRT_SEL[keyboard], 3, Name, Data);
+							sts->Input(sts->CRT_SEL[keyboard], 3, Name.c_str(), Data.c_str());
 						}
-						j=0;
+						Data=""; //clear string
 					}
-					Data[j]=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
-					j++;
+					Data+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
 					i++;
 				}
-				if(j!=0) {
+				if(Data.length()>0) {
 					sts->item++;
-					sts->Input(sts->CRT_SEL[keyboard], 3, Name, Data);
+					sts->Input(sts->CRT_SEL[keyboard], 3, Name.c_str(), Data.c_str());
 				}
 			}
 		}

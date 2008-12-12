@@ -116,7 +116,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	spec=0;
 	//mode=0;
 	item=0;
-	data=0;
+	//data=0;
 	display=2;
 
 	/*if(saveprm.bValid==false) {
@@ -161,7 +161,7 @@ void CRT::Update (HDC hDC)
 	}
 	//sprintf(oapiDebugString(), "%d %d %d", mode, display, id);
 
-	if(data!=0) Data(1-data);
+	//if(data!=0) Data(1-data);
 
 	//sprintf(oapiDebugString(), "%d", id);
 
@@ -191,10 +191,11 @@ void CRT::Update (HDC hDC)
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
 		vc::MDU* pMDU=sts->GetMDU(usMDU);
-		dps::IDP* pIDP=sts->GetIDP(pMDU->GetDrivingIDP());
+		pMDU->Paint(hDC);
+		//dps::IDP* pIDP=sts->GetIDP(pMDU->GetDrivingIDP());
 		/*if( (id>=vc::MDUID_CRT1 && id<=vc::MDUID_CRT4) || 
 			sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==0) //GNC*/
-		if(pIDP->GetMajfunc()==dps::GNC)
+		/*if(pIDP->GetMajfunc()==dps::GNC)
 		{
 			if(sts->ops==201) {
 				switch(spec) {
@@ -236,7 +237,7 @@ void CRT::Update (HDC hDC)
 		else //PL
 		{
 				GPCMEMORY(hDC);	
-		}
+		}*/
 		/*if(sts->ops==201) {
 			switch(spec) {
 				case 0:
@@ -1378,7 +1379,7 @@ void CRT::UpdateDAP()
 char *CRT::ButtonLabel (int bt)
 {
 	static char *label[2][4] = {{"UP", "OMS", "HYD", "SPI"},
-	{"UP", "OPS", "SPC", "ITM"}};
+	{"UP", "", "", ""}};
 	return (bt < 4 ? label[mode][bt] : 0);
 }
 
@@ -1423,7 +1424,7 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
 	  display=3;
 	  InvalidateDisplay();
 	  return true;
-    case OAPI_KEY_O:
+    /*case OAPI_KEY_O:
 	  oapiOpenInputBox("OPS", cbChangeOps, 0, 20, (void *)this);
 	  InvalidateDisplay();
       return true;
@@ -1433,7 +1434,7 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
       return true;
     case OAPI_KEY_I:
 	  return false; //disable item input
-	  /*oapiOpenInputBox("ITEM", cbItem, 0, 20, (void *)this);
+	  oapiOpenInputBox("ITEM", cbItem, 0, 20, (void *)this);
 	  InvalidateDisplay();
       return true;*/
   }
@@ -1465,9 +1466,9 @@ void CRT::WriteStatus(FILEHANDLE scn) const
 {
 	//char cbuf[255];
 	oapiWriteScenario_int (scn, "Mode2", mode);
-	oapiWriteScenario_int (scn, "Display", display);
+	//oapiWriteScenario_int (scn, "Display", display);
 	//oapiWriteScenario_int (scn, "OPS", ops);
-	oapiWriteScenario_int (scn, "Spec", spec);
+	//oapiWriteScenario_int (scn, "Spec", spec);
 	oapiWriteScenario_int (scn, "MDU", usMDU);
 	/*oapiWriteScenario_int (scn, "MET0", MET[0]);
 	oapiWriteScenario_int (scn, "MET1", MET[1]);
@@ -1487,15 +1488,15 @@ void CRT::ReadStatus(FILEHANDLE scn)
 		if (!strnicmp (line, "Mode2", 5)) {
 			sscanf (line+5, "%d", &mode);
 		}
-		else if(!strnicmp(line, "Display", 7)) {
+		/*else if(!strnicmp(line, "Display", 7)) {
 			sscanf(line+7, "%d", &display);
 		}
-		/*else if(!strnicmp(line, "OPS", 3)) {
+		else if(!strnicmp(line, "OPS", 3)) {
 			sscanf(line+3, "%d", &ops);
-		}*/
+		}
 		else if(!strnicmp(line, "Spec", 4)) {
 			sscanf(line+4, "%d", &spec);
-		}
+		}*/
 		/*else if(!strnicmp(line, "TIG", 3)) {
 			sscanf(line+3, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
 		}*/
@@ -1548,7 +1549,7 @@ void CRT::RecallStatus()
 	//sprintf(oapiDebugString(), "Recall %f %d %d", oapiRand(), mode, display);
 }
 
-void CRT::Data(int id)
+/*void CRT::Data(int id)
 {
 	bool cbItemData(void *id, char *str, void *data);
 	bool cbSpecData(void *id, char *str, void *data);
@@ -1556,9 +1557,9 @@ void CRT::Data(int id)
 	data=0;
 	if(id==0) oapiOpenInputBox("DATA", cbItemData, 0, 20, (void *)this);
 	else if(id==1) oapiOpenInputBox("DATA", cbSpecData, 0, 20, (void *)this);
-}
+}*/
 
-bool CRT::Input(int change, char *Name)
+/*bool CRT::Input(int change, char *Name)
 {
 	int nNew;
 	double dNew;
@@ -1668,7 +1669,7 @@ bool CRT::Input(int change, char *Name)
 								sts->Torque.data[PITCH]=0.1*ORBITER_PITCH_TORQUE;
 								sts->Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
 								sts->Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
-							}*/
+							}
 							sts->REQD_ATT.x=sts->MNVR_OPTION.x;
 							sts->REQD_ATT.y=sts->MNVR_OPTION.y;
 							sts->REQD_ATT.z=sts->MNVR_OPTION.z;
@@ -1706,11 +1707,11 @@ bool CRT::Input(int change, char *Name)
 								sts->RotRate=sts->DAP[sts->DAPMode[0]].VERN_ROT_RATE;
 								sts->AttDeadband=sts->DAP[sts->DAPMode[0]].VERN_ATT_DB;
 								sts->RateDeadband=sts->DAP[sts->DAPMode[0]].VERN_RATE_DB;
-							}*/
+							}
 							if(sts->TGT_ID==2) {
 								/*sts->LVLHRateVector.data[PITCH]=0.0;
 								sts->LVLHRateVector.data[YAW]=0.0;
-								sts->LVLHRateVector.data[ROLL]=0.0;*/
+								sts->LVLHRateVector.data[ROLL]=0.0;*
 								if(sts->BODY_VECT==1) {
 									sts->LVLHOrientationReqd.data[PITCH]=270.0;
 									sts->LVLHOrientationReqd.data[YAW]=0.0;
@@ -1718,13 +1719,13 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[ROLL]=0.0;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;*/
+										sts->LVLHRateVector.data[ROLL]=0.0;*
 									}
 									else {
 										sts->LVLHOrientationReqd.data[ROLL]=sts->OM;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[ROLL]=0.0;*/
+										sts->LVLHRateVector.data[ROLL]=0.0;
 									}
 								}
 								else if(sts->BODY_VECT==2) {
@@ -1734,13 +1735,13 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[ROLL]=0.0;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;*/
+										sts->LVLHRateVector.data[ROLL]=0.0;
 									}
 									else {
 										sts->LVLHOrientationReqd.data[ROLL]=sts->OM;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[ROLL]=0.0;*/
+										sts->LVLHRateVector.data[ROLL]=0.0;
 									}
 								}
 								else if(sts->BODY_VECT==3) {
@@ -1750,13 +1751,13 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[YAW]=0.0;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0;
 										sts->LVLHRateVector.data[YAW]=0.0;
-										sts->LVLHRateVector.data[ROLL]=0.0;*/
+										sts->LVLHRateVector.data[ROLL]=0.0;
 									}
 									else {
 										sts->LVLHOrientationReqd.data[YAW]=sts->OM;
 										/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->OM);
 										sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->OM);
-										sts->LVLHRateVector.data[YAW]=0.0;*/
+										sts->LVLHRateVector.data[YAW]=0.0;
 									}
 								}
 								else if(sts->BODY_VECT==5) {
@@ -1774,7 +1775,7 @@ bool CRT::Input(int change, char *Name)
 											sts->LVLHRateVector.data[YAW]=0.0;
 										}
 									}
-									else sts->LVLHOrientationReqd.data[YAW]=sts->OM;*/
+									else sts->LVLHOrientationReqd.data[YAW]=sts->OM;*
 									if(sts->LVLHOrientationReqd.data[PITCH]==0.0)
 									{
 										sts->LVLHOrientationReqd.data[ROLL]=sts->Y;
@@ -1784,7 +1785,7 @@ bool CRT::Input(int change, char *Name)
 												sts->LVLHRateVector.data[PITCH]=-1.0;
 												sts->LVLHRateVector.data[YAW]=0.0;
 												sts->LVLHRateVector.data[ROLL]=0.0;
-											}*/
+											}*
 										}
 										else sts->LVLHOrientationReqd.data[YAW]=sts->OM;
 									}
@@ -1816,7 +1817,7 @@ bool CRT::Input(int change, char *Name)
 										sts->LVLHOrientationReqd.data[PITCH]-=180.0;
 										sts->LVLHOrientationReqd.data[ROLL]+=180.0;
 										sts->LVLHOrientationReqd.data[YAW]-=180.0;
-									}*/
+									}*
 								}
 							}
 						}
@@ -2036,7 +2037,7 @@ bool CRT::Input(int change, char *Name)
 					sts->LVLHRateVector.data[YAW]=-1.0*sin(RAD*sts->LVLHOrientationReqd.data[ROLL])*cos(RAD*sts->LVLHOrientationReqd.data[YAW]);*/
 					/*sts->LVLHRateVector.data[PITCH]=-1.0*cos(RAD*sts->BurnAtt.data[YAW]);
 					sts->LVLHRateVector.data[ROLL]=1.0*sin(RAD*sts->BurnAtt.data[YAW]);
-					sts->LVLHRateVector.data[YAW]=1.0*sin(RAD*sts->BurnAtt.data[PITCH]);*/
+					sts->LVLHRateVector.data[YAW]=1.0*sin(RAD*sts->BurnAtt.data[PITCH]);*
 					sts->AttDeadband=0.05;
 					for(int i=0;i<4;i++) sts->START_TIME[i]=MET[i];
 				}
@@ -2381,7 +2382,7 @@ bool cbSpecData(void *id, char *str, void *data)
 {
 	//sprintf(oapiDebugString(), "DATA INPUT");
 	return (((CRT *)data)->Input(4, str));
-}
+}*/
 
 
 void CRT::DrawCommonHeader(HDC hdc)
