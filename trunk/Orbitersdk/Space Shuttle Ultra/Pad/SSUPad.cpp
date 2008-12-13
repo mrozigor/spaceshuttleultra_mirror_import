@@ -1,5 +1,6 @@
 #include "SSUPad.h"
 #include "meshres_FSS.h"
+#include "meshres_RSS.h"
 
 #define ORBITER_MODULE
 
@@ -62,11 +63,13 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	: VESSEL2(hVessel, flightmodel),
 	fLightsOn(false)
 {
-	//add mesh
-	VECTOR3 mesh_ofs=_V(0, 0, 0);
-	mesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_FSS);
-	mesh_idx=AddMesh(mesh, &mesh_ofs);
-	//SetTouchdownPoints(_V(0.0, 1.0, 1.0), _V(-1.0, 1.0, -1.0), _V(1.0, 1.0, -1.0));
+	//add meshes
+	FSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_FSS);
+	fss_mesh_idx=AddMesh(FSSMesh);
+	VECTOR3 rss_ofs=_V(0.0, 1.0, 1.5);
+	RSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_RSS);
+	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
+
 	SetTouchdownPoints(_V(1.0, -1.0, 0.0), _V(-1.0, -1.0, 1.0), _V(-1.0, -1.0, -1.0));
 
 	phGOXVent = NULL;
@@ -76,6 +79,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	vtx_goxvent[0] = FSS_POS_GOXVENTL;
 	vtx_goxvent[1] = FSS_POS_GOXVENTR;
 	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
+
 	DefineAnimations();
 }
 
@@ -103,7 +107,7 @@ void SSUPad::DefineAnimations()
 {
 	//orbiter access arm
 	static UINT AccessArmGrp[3] = {GRP_Orbiter_Access_Arm, GRP_White_Room_Mat, GRP_White_Room};
-	static MGROUP_ROTATE AccessArm(mesh_idx, AccessArmGrp, 3,
+	static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 3,
 		_V(-3.722, 63.144, 21.516), _V(0, -1, 0), (float)(72.0*RAD));
 	AccessArmState.Set(AnimState::OPEN, 1.0);
 	anim_accessarm=CreateAnimation(1.0);
@@ -114,7 +118,7 @@ void SSUPad::DefineAnimations()
 	anim_gva=CreateAnimation(0.0);
 	static UINT GVAGrp[5] = {GRP_GOX_Cylinder06, GRP_GOX_Cylinder342,
 		GRP_GOX_vent_arm_truss, GRP_North_GN2_vent_pipe, GRP_South_GN2_vent_pipe};
-	static MGROUP_ROTATE GVA(mesh_idx, GVAGrp, 5,
+	static MGROUP_ROTATE GVA(fss_mesh_idx, GVAGrp, 5,
 		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
 
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
@@ -127,9 +131,32 @@ void SSUPad::DefineAnimations()
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	anim_venthood=CreateAnimation(1.0);
 	static UINT VentHoodGrp[1] = {GRP_Vent_hood};
-	static MGROUP_ROTATE VentHood(mesh_idx, VentHoodGrp, 1,
+	static MGROUP_ROTATE VentHood(fss_mesh_idx, VentHoodGrp, 1,
 		_V(-17.19, 83.344, 21.278), _V(0, 0, 1), (float)(41.0*RAD));
 	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
+
+	//RSS rotation
+	//parent=NULL;
+
+	//RSS OWP
+	RSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
+	static UINT RSS_Y_OWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box06};
+	static MGROUP_TRANSLATE RSS_Y_OWP(rss_mesh_idx, RSS_Y_OWPGrp, 2, _V(0.0, 0.0, 10.0));
+	anim_rss_y_owp=CreateAnimation(0.0);
+	AddAnimationComponent(anim_rss_y_owp, 0.0, 1.0, &RSS_Y_OWP);
+	//SetAnimation(anim_rss_y_owp, 1.0);
+
+	//FSS OWP
+	FSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
+	static UINT FSS_Y_OWPRotGrp[3] = {GRP_Inner_FSS_WPS_panel_track, GRP_Outer_WPS_panel, GRP_Y_FSS_WPS_struts};
+	static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 3,
+		_V(-6.645, 0, 22.463), _V(0, 1.0, 0.0), (float)(PI/2));
+	anim_fss_y_owp=CreateAnimation(0.0);
+	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
+	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
+	static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 1, _V(10.0, 0.0, 0.0));
+	AddAnimationComponent(anim_fss_y_owp, 0.5, 1.0, &FSS_Y_OWPTrans, parent);
+	//SetAnimation(anim_fss_y_owp, 1.0);
 }
 
 void SSUPad::DisableLights() {
@@ -262,6 +289,16 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_venthood, VentHoodState.pos);
 		if(GOXArmAction>=AnimState::CLOSING && !VentHoodState.Moving()) GOXArmSequence();
 	}
+	if(RSS_Y_OWP_State.Moving()) {
+		double dp=simdt*RSS_Y_OWP_RATE;
+		RSS_Y_OWP_State.Move(dp);
+		SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
+	}
+	if(FSS_Y_OWP_State.Moving()) {
+		double dp=simdt*FSS_Y_OWP_RATE;
+		FSS_Y_OWP_State.Move(dp);
+		SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+	}
 
 	UpdateGOXVentThrusters();
 	
@@ -288,6 +325,8 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
 	WriteScenario_state(scn, "GVA", GVAState);
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
+	WriteScenario_state(scn, "FSS_OWP", FSS_Y_OWP_State);
+	WriteScenario_state(scn, "RSS_OWP", RSS_Y_OWP_State);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 }
 
@@ -311,6 +350,14 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if(!_strnicmp(line, "GOX_SEQUENCE", 12)) {
 			sscanf(line+12, "%d", &GOXArmAction);
 		}
+		else if (!_strnicmp(line, "FSS_OWP", 7)) {
+			sscan_state(line+7, &FSS_Y_OWP_State);
+			SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+		}
+		else if (!_strnicmp(line, "RSS_OWP", 7)) {
+			sscan_state(line+7, &RSS_Y_OWP_State);
+			SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
+		}
 		else ParseScenarioLineEx(line, status);
 	}
 
@@ -320,6 +367,21 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 {
 	if(!down) return 0; //only handle keydown events
+
+	if(KEYMOD_CONTROL(keystate)) {
+		switch(key) {
+			case OAPI_KEY_X:
+				if(RSS_Y_OWP_State.Closing() || RSS_Y_OWP_State.Closed()) RSS_Y_OWP_State.action=AnimState::OPENING;
+				else RSS_Y_OWP_State.action=AnimState::CLOSING;
+				return 1;
+				break;
+			case OAPI_KEY_Y:
+				if(FSS_Y_OWP_State.Closing() || FSS_Y_OWP_State.Closed()) FSS_Y_OWP_State.action=AnimState::OPENING;
+				else FSS_Y_OWP_State.action=AnimState::CLOSING;
+				return 1;
+				break;
+		}
+	}
 
 	switch(key) {
 		case OAPI_KEY_K:

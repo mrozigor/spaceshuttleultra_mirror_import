@@ -214,6 +214,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Pad\meshres_RSS.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Orbitersdk.h"
 			>
 		</File>
