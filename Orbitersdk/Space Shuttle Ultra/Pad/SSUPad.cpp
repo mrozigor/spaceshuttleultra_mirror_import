@@ -351,11 +351,11 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			sscanf(line+12, "%d", &GOXArmAction);
 		}
 		else if (!_strnicmp(line, "FSS_OWP", 7)) {
-			sscan_state(line+7, &FSS_Y_OWP_State);
+			sscan_state(line+7, FSS_Y_OWP_State);
 			SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
 		}
 		else if (!_strnicmp(line, "RSS_OWP", 7)) {
-			sscan_state(line+7, &RSS_Y_OWP_State);
+			sscan_state(line+7, RSS_Y_OWP_State);
 			SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
 		}
 		else ParseScenarioLineEx(line, status);
