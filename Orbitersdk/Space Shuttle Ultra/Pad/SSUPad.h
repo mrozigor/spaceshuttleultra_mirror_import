@@ -10,6 +10,8 @@ static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
+const double RSS_Y_OWP_RATE = 0.01666666667;
+const double FSS_Y_OWP_RATE = 0.01666666667;
 
 const unsigned int FSS_NUM_LIGHTS = 44;
 
@@ -48,12 +50,13 @@ private:
 	bool fLightsOn;
 	BEACONLIGHTSPEC lights[FSS_NUM_LIGHTS];
 
-	MESHHANDLE mesh;
-	UINT mesh_idx;
+	MESHHANDLE FSSMesh, RSSMesh;
+	UINT fss_mesh_idx, rss_mesh_idx;
 
 	//animations; 0.0, CLOSED corresponds to state at t0
 	UINT anim_accessarm;
 	UINT anim_gva, anim_venthood;
+	UINT anim_rss_y_owp, anim_fss_y_owp;
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -61,6 +64,7 @@ private:
 	double fNextLightUpdate;
 
 	AnimState AccessArmState, GVAState, VentHoodState;
+	AnimState RSS_Y_OWP_State, FSS_Y_OWP_State;
 	AnimState::Action GOXArmAction;
 
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
