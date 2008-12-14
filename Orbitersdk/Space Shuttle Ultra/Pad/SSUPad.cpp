@@ -140,8 +140,8 @@ void SSUPad::DefineAnimations()
 
 	//RSS OWP
 	RSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
-	static UINT RSS_Y_OWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box06};
-	static MGROUP_TRANSLATE RSS_Y_OWP(rss_mesh_idx, RSS_Y_OWPGrp, 2, _V(0.0, 0.0, 10.0));
+	static UINT RSS_Y_OWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
+	static MGROUP_TRANSLATE RSS_Y_OWP(rss_mesh_idx, RSS_Y_OWPGrp, 2, _V(0.0, 0.0, 11.7));
 	anim_rss_y_owp=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss_y_owp, 0.0, 1.0, &RSS_Y_OWP);
 	//SetAnimation(anim_rss_y_owp, 1.0);
@@ -154,7 +154,7 @@ void SSUPad::DefineAnimations()
 	anim_fss_y_owp=CreateAnimation(0.0);
 	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
 	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
-	static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 1, _V(10.0, 0.0, 0.0));
+	static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 1, _V(10.7, 0.0, 0.0));
 	AddAnimationComponent(anim_fss_y_owp, 0.5, 1.0, &FSS_Y_OWPTrans, parent);
 	//SetAnimation(anim_fss_y_owp, 1.0);
 }
