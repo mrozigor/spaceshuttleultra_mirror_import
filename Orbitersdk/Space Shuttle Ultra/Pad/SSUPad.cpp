@@ -138,7 +138,7 @@ void SSUPad::DefineAnimations()
 	//RSS rotation
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
-		_V(-15.848, 0, 23.122), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+		_V(-15.8, 0, 21.5), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
 	anim_rss=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss, 0.0, 1.0, &RSS_Retract);
 	//SetAnimation(anim_rss, 1.0);
