@@ -66,7 +66,7 @@ const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
 const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
 const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
-const static char* DEFAULT_MESHNAME_ET = "SSU/ET125";
+const static char* DEFAULT_MESHNAME_ET = "SSU/ET129";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
 const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
@@ -368,9 +368,9 @@ const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
 const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
-const VECTOR3 SSMET_GOX_REF = _V(1.149, 3.166, -13.91);
-const VECTOR3 SSMEL_GOX_REF = _V(-1.754, 1.274, -14.471);
-const VECTOR3 SSMER_GOX_REF = _V(2.615, 0.239, -14.665);
+const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
+const VECTOR3 SSMEL_GOX_REF = _V(-1.57, 1.385, -14.456);
+const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
 
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
