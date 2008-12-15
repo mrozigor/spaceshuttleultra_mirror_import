@@ -5,13 +5,13 @@
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP 49
+#define NGRP_RSS 49
 
 // Number of materials:
-#define NMAT 7
+#define NMAT_RSS 7
 
 // Number of textures:
-#define NTEX 1
+#define NTEX_RSS 1
 
 // Named mesh groups:
 #define GRP_Cylinder01 0

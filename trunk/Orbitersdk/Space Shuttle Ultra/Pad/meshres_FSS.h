@@ -5,13 +5,13 @@
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP 65
+#define NGRP_FSS 65
 
 // Number of materials:
-#define NMAT 3
+#define NMAT_FSS 3
 
 // Number of textures:
-#define NTEX 1
+#define NTEX_FSS 1
 
 // Named mesh groups:
 #define GRP_Elevator_shaft 0
