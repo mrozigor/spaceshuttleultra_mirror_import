@@ -109,8 +109,8 @@ void SSUPad::DefineAnimations()
 	static UINT AccessArmGrp[3] = {GRP_Orbiter_Access_Arm, GRP_White_Room_Mat, GRP_White_Room};
 	static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 3,
 		_V(-3.722, 63.144, 21.516), _V(0, -1, 0), (float)(72.0*RAD));
-	AccessArmState.Set(AnimState::OPEN, 1.0);
-	anim_accessarm=CreateAnimation(1.0);
+	AccessArmState.Set(AnimState::CLOSED, 0.0);
+	anim_accessarm=CreateAnimation(0.0);
 	AddAnimationComponent(anim_accessarm, 0.0, 1.0, &AccessArm);
 
 	//GOX arm
@@ -136,7 +136,12 @@ void SSUPad::DefineAnimations()
 	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
 
 	//RSS rotation
-	//parent=NULL;
+	RSS_State.Set(AnimState::CLOSED, 0.0);
+	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
+		_V(-15.848, 0, 23.122), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+	anim_rss=CreateAnimation(0.0);
+	AddAnimationComponent(anim_rss, 0.0, 1.0, &RSS_Retract);
+	//SetAnimation(anim_rss, 1.0);
 
 	//RSS OWP
 	RSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
@@ -150,13 +155,18 @@ void SSUPad::DefineAnimations()
 	FSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_Y_OWPRotGrp[3] = {GRP_Inner_FSS_WPS_panel_track, GRP_Outer_WPS_panel, GRP_Y_FSS_WPS_struts};
 	static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 3,
-		_V(-6.645, 0, 22.463), _V(0, 1.0, 0.0), (float)(PI/2));
+		_V(-6.645, 0.0, 22.463), _V(0, 1.0, 0.0), (float)(PI/2));
 	anim_fss_y_owp=CreateAnimation(0.0);
 	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
 	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
 	static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 1, _V(10.7, 0.0, 0.0));
 	AddAnimationComponent(anim_fss_y_owp, 0.5, 1.0, &FSS_Y_OWPTrans, parent);
 	//SetAnimation(anim_fss_y_owp, 1.0);
+	static UINT FSS_Y_OWPStrutGrp[1] = {GRP_FSS_WPS_Z_bracket};
+	static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
+		_V(6.342, 0.0, 22.463), _V(0.0, 1.0, 0.0), (float)(PI));
+	anim_fss_y_owp_strut=CreateAnimation(0.5);
+	AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
 }
 
 void SSUPad::DisableLights() {
@@ -245,12 +255,12 @@ void SSUPad::GOXArmSequence()
 	}
 }
 
-AnimState::Action SSUPad::GetAccessArmState()
+AnimState::Action SSUPad::GetAccessArmState() const
 {
 	return AccessArmState.action;
 }
 
-AnimState::Action SSUPad::GetGOXArmState()
+AnimState::Action SSUPad::GetGOXArmState() const
 {
 	return GOXArmAction;
 }
@@ -298,6 +308,20 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		double dp=simdt*FSS_Y_OWP_RATE;
 		FSS_Y_OWP_State.Move(dp);
 		SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+
+		//animate struts
+		double angle=(PI/2)*(min(FSS_Y_OWP_State.pos, 0.5)/0.5);
+		double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
+		double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
+		double pos=(88.482-StrutAngle*DEG)/180.0 + 0.5;
+		pos=min(1, max(0, pos)); //make sure pos value is within limits
+		SetAnimation(anim_fss_y_owp_strut, pos);
+		//sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, acos((13.465-YPos)/FSS_OWP_STRUT_LENGTH)*DEG, angle*DEG, pos);
+	}
+	if(RSS_State.Moving()) {
+		double dp=simdt*RSS_RATE;
+		RSS_State.Move(dp);
+		SetAnimation(anim_rss, RSS_State.pos);
 	}
 
 	UpdateGOXVentThrusters();
@@ -370,16 +394,20 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 
 	if(KEYMOD_CONTROL(keystate)) {
 		switch(key) {
-			case OAPI_KEY_X:
-				if(RSS_Y_OWP_State.Closing() || RSS_Y_OWP_State.Closed()) RSS_Y_OWP_State.action=AnimState::OPENING;
-				else RSS_Y_OWP_State.action=AnimState::CLOSING;
+			case OAPI_KEY_K:
+				if(RSS_State.Closing() || RSS_State.Closed()) RSS_State.action=AnimState::OPENING;
+				else RSS_State.action=AnimState::CLOSING;
 				return 1;
-				break;
+			case OAPI_KEY_X:
+				if(RSS_State.Closed()) {
+					if(RSS_Y_OWP_State.Closing() || RSS_Y_OWP_State.Closed()) RSS_Y_OWP_State.action=AnimState::OPENING;
+					else RSS_Y_OWP_State.action=AnimState::CLOSING;
+				}
+				return 1;
 			case OAPI_KEY_Y:
 				if(FSS_Y_OWP_State.Closing() || FSS_Y_OWP_State.Closed()) FSS_Y_OWP_State.action=AnimState::OPENING;
 				else FSS_Y_OWP_State.action=AnimState::CLOSING;
 				return 1;
-				break;
 		}
 	}
 

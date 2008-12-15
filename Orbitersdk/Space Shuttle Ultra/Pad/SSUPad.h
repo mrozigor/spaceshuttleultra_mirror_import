@@ -12,6 +12,11 @@ const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_Y_OWP_RATE = 0.01666666667;
 const double FSS_Y_OWP_RATE = 0.01666666667;
+const double RSS_RATE = 0.00066666667;
+
+const double FSS_OWP_BRACKET_LENGTH = 12.987; //used for OWP strut animation
+const double FSS_OWP_STRUT_LENGTH = 18.044;
+const double FSS_OWP_STRUT_OFFSET = 13.465;
 
 const unsigned int FSS_NUM_LIGHTS = 44;
 
@@ -36,8 +41,8 @@ public:
 	//communication with LCC
 	virtual void MoveOrbiterAccessArm(AnimState::Action action);
 	virtual void MoveGOXArm(AnimState::Action action);
-	virtual AnimState::Action GetAccessArmState();
-	virtual AnimState::Action GetGOXArmState();
+	virtual AnimState::Action GetAccessArmState() const;
+	virtual AnimState::Action GetGOXArmState() const;
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
@@ -56,7 +61,9 @@ private:
 	//animations; 0.0, CLOSED corresponds to state at t0
 	UINT anim_accessarm;
 	UINT anim_gva, anim_venthood;
-	UINT anim_rss_y_owp, anim_fss_y_owp;
+	UINT anim_rss_y_owp;
+	UINT anim_fss_y_owp, anim_fss_y_owp_strut;
+	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -65,6 +72,7 @@ private:
 
 	AnimState AccessArmState, GVAState, VentHoodState;
 	AnimState RSS_Y_OWP_State, FSS_Y_OWP_State;
+	AnimState RSS_State;
 	AnimState::Action GOXArmAction;
 
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
