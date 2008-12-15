@@ -351,6 +351,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
 	WriteScenario_state(scn, "FSS_OWP", FSS_Y_OWP_State);
 	WriteScenario_state(scn, "RSS_OWP", RSS_Y_OWP_State);
+	WriteScenario_state(scn, "RSS", RSS_State);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 }
 
@@ -381,6 +382,10 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if (!_strnicmp(line, "RSS_OWP", 7)) {
 			sscan_state(line+7, RSS_Y_OWP_State);
 			SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
+		}
+		else if (!_strnicmp(line, "RSS", 3)) {
+			sscan_state(line+3, RSS_State);
+			SetAnimation(anim_rss, RSS_State.pos);
 		}
 		else ParseScenarioLineEx(line, status);
 	}
