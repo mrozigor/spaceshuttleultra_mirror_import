@@ -1867,7 +1867,7 @@ private:
 	dps::ShuttleBusManager* busManager;
 	
 	vc::MDU* mdus[11];
-	UINT mfds[11]; //MFD index for corresponding MDUID
+	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	//MNVR
 	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS

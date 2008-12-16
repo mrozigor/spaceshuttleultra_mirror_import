@@ -6881,6 +6881,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	HideMidDeck();
 
+	pgForward.RegisterVC();
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
 	pgAft.RegisterVC();
@@ -6990,11 +6991,13 @@ bool Atlantis::clbkLoadVC (int id)
 			{
 				if(InactiveMDUs.find(i)==InactiveMDUs.end()) {
 					mdus[i]->RealizeMFD(counter);
-					mfds[i]=counter;
+					//mfds[i]=counter;
+					mfds[counter]=i;
 					counter++;
 				}
 				else mdus[i]->RealizeMFD(-1);
 			}
+			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL+i);
 		}
 		// update panels
 		plop->UpdateVC();
