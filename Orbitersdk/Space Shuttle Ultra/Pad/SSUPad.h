@@ -10,7 +10,7 @@ static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
-const double RSS_Y_OWP_RATE = 0.01666666667;
+const double RSS_Y_OWP_RATE = 0.0025;
 const double FSS_Y_OWP_RATE = 0.01666666667;
 const double RSS_RATE = 0.00066666667;
 
@@ -20,7 +20,7 @@ const double FSS_OWP_STRUT_LENGTH = 18.3203;
 const double FSS_OWP_STRUT_OFFSET = 13.427;
 const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
 
-const unsigned int FSS_NUM_LIGHTS = 44;
+const unsigned int FSS_NUM_LIGHTS = 45;
 
 const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.85047, 20.18538);
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.85047, 22.48279);
