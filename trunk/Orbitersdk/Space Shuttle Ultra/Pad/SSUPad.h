@@ -15,10 +15,10 @@ const double FSS_Y_OWP_RATE = 0.01666666667;
 const double RSS_RATE = 0.00066666667;
 
 //FSS OWP strut animation constants
-const double FSS_OWP_BRACKET_LENGTH = 13.423;
+const double FSS_OWP_BRACKET_LENGTH = 12.212;
 const double FSS_OWP_STRUT_LENGTH = 18.3203;
-const double FSS_OWP_STRUT_OFFSET = 14.637;
-const double FSS_OWP_STRUT_NULL_ANGLE = 86.2; //angle in degrees
+const double FSS_OWP_STRUT_OFFSET = 13.427;
+const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 44;
 

@@ -158,7 +158,7 @@ void SSUPad::DefineAnimations()
 	FSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_Y_OWPRotGrp[3] = {GRP_Inner_FSS_WPS_panel_track, GRP_Outer_WPS_panel, GRP_Y_FSS_WPS_struts};
 	static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 3,
-		_V(-7.898, 0.0, 22.614), _V(0, 1.0, 0.0), (float)(PI/2));
+		_V(-6.688, 0.0, 22.614), _V(0, 1.0, 0.0), (float)(PI/2));
 	anim_fss_y_owp=CreateAnimation(0.0);
 	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
 	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
