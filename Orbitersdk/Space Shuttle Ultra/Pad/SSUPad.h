@@ -14,9 +14,11 @@ const double RSS_Y_OWP_RATE = 0.01666666667;
 const double FSS_Y_OWP_RATE = 0.01666666667;
 const double RSS_RATE = 0.00066666667;
 
-const double FSS_OWP_BRACKET_LENGTH = 12.169; //used for OWP strut animation
-const double FSS_OWP_STRUT_LENGTH = 18.044;
-const double FSS_OWP_STRUT_OFFSET = 13.465;
+//FSS OWP strut animation constants
+const double FSS_OWP_BRACKET_LENGTH = 13.423;
+const double FSS_OWP_STRUT_LENGTH = 18.3203;
+const double FSS_OWP_STRUT_OFFSET = 14.637;
+const double FSS_OWP_STRUT_NULL_ANGLE = 86.2; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 44;
 
@@ -24,7 +26,8 @@ const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.85047, 20.18538);
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.85047, 22.48279);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
-
+const int RSS_ROTATE_SOUND = 1;
+static const char* RSS_ROTATE_SOUND_FILE = "Sound\\ShuttleUltra\\RSS_Rotation.wav";
 
 class SSUPad: public VESSEL2
 {
@@ -32,6 +35,7 @@ public:
 	SSUPad(OBJHANDLE hVessel, int flightmodel);
 	~SSUPad();
 
+	void clbkPostCreation();
 	void clbkPreStep(double simt, double simdt, double mjd);
 	void clbkSetClassCaps(FILEHANDLE cfg);
 	void clbkSaveState(FILEHANDLE scn);
@@ -86,6 +90,8 @@ private:
 	void EnableLights();
 	void DisableLights();
 	bool IsDawn() const;
+
+	int SoundID;
 };
 
 #endif //__SSUPAD_H

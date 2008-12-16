@@ -1,6 +1,7 @@
 #include "SSUPad.h"
 #include "meshres_FSS.h"
 #include "meshres_RSS.h"
+#include <OrbiterSoundSDK35.h>
 
 #define ORBITER_MODULE
 
@@ -80,6 +81,8 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	vtx_goxvent[1] = FSS_POS_GOXVENTR;
 	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
 
+	SoundID=-1;
+
 	DefineAnimations();
 }
 
@@ -155,7 +158,7 @@ void SSUPad::DefineAnimations()
 	FSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_Y_OWPRotGrp[3] = {GRP_Inner_FSS_WPS_panel_track, GRP_Outer_WPS_panel, GRP_Y_FSS_WPS_struts};
 	static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 3,
-		_V(-6.645, 0.0, 22.463), _V(0, 1.0, 0.0), (float)(PI/2));
+		_V(-7.898, 0.0, 22.614), _V(0, 1.0, 0.0), (float)(PI/2));
 	anim_fss_y_owp=CreateAnimation(0.0);
 	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
 	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
@@ -270,10 +273,18 @@ void SSUPad::AnimateFSSOWPStrut()
 	double angle=(PI/2)*(min(FSS_Y_OWP_State.pos, 0.5)/0.5);
 	double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
 	double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
-	double pos=(88.482-StrutAngle*DEG)/180.0 + 0.5;
+	double pos=(FSS_OWP_STRUT_NULL_ANGLE-StrutAngle*DEG)/180.0 + 0.5;
 	pos=min(1, max(0, pos)); //make sure pos value is within limits
 	SetAnimation(anim_fss_y_owp_strut, pos);
-	//sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, acos((13.465-YPos)/FSS_OWP_STRUT_LENGTH)*DEG, angle*DEG, pos);
+	sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, StrutAngle*DEG, angle*DEG, pos);
+}
+
+void SSUPad::clbkPostCreation()
+{
+	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
+	if(SoundID!=-1) {
+		RequestLoadVesselWave3(SoundID, RSS_ROTATE_SOUND, (char*)RSS_ROTATE_SOUND_FILE, BOTHVIEW_FADED_FAR);
+	}
 }
 
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
@@ -326,7 +337,9 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		double dp=simdt*RSS_RATE;
 		RSS_State.Move(dp);
 		SetAnimation(anim_rss, RSS_State.pos);
+		PlayVesselWave3(SoundID, RSS_ROTATE_SOUND, LOOP);
 	}
+	else StopVesselWave3(SoundID, RSS_ROTATE_SOUND);
 
 	UpdateGOXVentThrusters();
 	
