@@ -58,6 +58,7 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-0.85, 62.70, 27.55),
 	_V(-0.85, 68.70, 27.55),
 	_V(-0.85, 74.70, 27.55),
+	_V(-6.422, 50.917, -5.50),//RSS test light
 	_V(-0.85, 80.70, 27.55)};
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
@@ -122,10 +123,10 @@ void SSUPad::DefineAnimations()
 	static UINT GVAGrp[5] = {GRP_GOX_Cylinder06, GRP_GOX_Cylinder342,
 		GRP_GOX_vent_arm_truss, GRP_North_GN2_vent_pipe, GRP_South_GN2_vent_pipe};
 	static MGROUP_ROTATE GVA(fss_mesh_idx, GVAGrp, 5,
-		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
+		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(75.5*RAD));
 
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
-		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(74.5*RAD));
+		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(75.5*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
 	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
@@ -148,10 +149,14 @@ void SSUPad::DefineAnimations()
 
 	//RSS OWP
 	RSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
-	static UINT RSS_Y_OWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
-	static MGROUP_TRANSLATE RSS_Y_OWP(rss_mesh_idx, RSS_Y_OWPGrp, 2, _V(0.0, 0.0, 11.7));
+	static UINT RSS_Y_LOWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
+	static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 11.7));
+	static UINT RSS_Y_UOWPGrp[3] = {GRP_Box64, GRP_Box40, GRP_Box283};
+	static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 3,
+		_V(-0, 49.85, -7), _V(-1, 0, 0), (float)(33.0*RAD));
 	anim_rss_y_owp=CreateAnimation(0.0);
-	AddAnimationComponent(anim_rss_y_owp, 0.0, 1.0, &RSS_Y_OWP);
+	AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
+	AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
 	//SetAnimation(anim_rss_y_owp, 1.0);
 
 	//FSS OWP
@@ -350,8 +355,8 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetThrusterLevel(thGOXVent[0], fFlow);
 		SetThrusterLevel(thGOXVent[1], fFlow);
 
-		if(fGOXMass > 0.0005) {
-			SetPropellantMass(phGOXVent, max(fGOXMass - 5.0 * fFlow * simdt, 0.0));
+		if(fGOXMass > 0.1) {
+			SetPropellantMass(phGOXVent, max(fGOXMass - 5.0 * fFlow * simdt, 1.0));
 		} else {
 			SetPropellantMass(phGOXVent, 0.0);
 		}
@@ -473,8 +478,8 @@ void SSUPad::CreateGOXVentThrusters() {
 
 	if(phGOXVent == NULL) {
 		phGOXVent = CreatePropellantResource(5.0);
-		thGOXVent[0] = CreateThruster(vtx_goxvent[0], dir, 0.0, phGOXVent, 10.0, 8.0);
-		thGOXVent[1] = CreateThruster(vtx_goxvent[1], dir, 0.0, phGOXVent, 10.0, 8.0);
+		thGOXVent[0] = CreateThruster(vtx_goxvent[0], dir, 0, phGOXVent, 250, 100);
+		thGOXVent[1] = CreateThruster(vtx_goxvent[1], dir, 0, phGOXVent, 250, 100);
 		AddExhaustStream(thGOXVent[0], &gox_stream);
 		AddExhaustStream(thGOXVent[1], &gox_stream);
 	} else {
