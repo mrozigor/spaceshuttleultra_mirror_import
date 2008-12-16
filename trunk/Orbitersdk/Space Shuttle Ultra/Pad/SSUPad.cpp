@@ -58,7 +58,7 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-0.85, 62.70, 27.55),
 	_V(-0.85, 68.70, 27.55),
 	_V(-0.85, 74.70, 27.55),
-	_V(-6.422, 50.917, -5.50),//RSS test light
+	_V(-6.5, 63.5, 3.75),//RSS test light
 	_V(-0.85, 80.70, 27.55)};
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
@@ -143,8 +143,14 @@ void SSUPad::DefineAnimations()
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
 		_V(-15.8, 0, 21.5), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+	static UINT RSS_DoorGrp[1] = {GRP_Box281};
+	static MGROUP_SCALE RSS_door1(rss_mesh_idx, RSS_DoorGrp, 1, _V(-7.32,69.38,-1.82), _V(1,0.01,1));
+	static UINT RSS_DoorGrp2[1] = {GRP_Box281};
+	static MGROUP_SCALE RSS_door2(rss_mesh_idx, RSS_DoorGrp2, 1, _V(-7.32,69.38,-1.82), _V(1,100,1));
 	anim_rss=CreateAnimation(0.0);
-	AddAnimationComponent(anim_rss, 0.0, 1.0, &RSS_Retract);
+	AddAnimationComponent(anim_rss, 0, 0.05, &RSS_door1);
+	AddAnimationComponent(anim_rss, 0.06, 0.95, &RSS_Retract);
+	AddAnimationComponent(anim_rss, 0.96, 1.00, &RSS_door2);
 	//SetAnimation(anim_rss, 1.0);
 
 	//RSS OWP
@@ -154,8 +160,16 @@ void SSUPad::DefineAnimations()
 	static UINT RSS_Y_UOWPGrp[3] = {GRP_Box64, GRP_Box40, GRP_Box283};
 	static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 3,
 		_V(-0, 49.85, -7), _V(-1, 0, 0), (float)(33.0*RAD));
+	static UINT RSS_flip_upperGrp[1] = {GRP_Upper_triple_flip};
+	static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
+		_V(0, 62.5, 2.45), _V(1, 0, 0), (float)(90.0*RAD));
+	static UINT RSS_flip_lowerGrp[1] = {GRP_Lower_triple_flip};
+	static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 1,
+		_V(-7.286, 62.5, 4.21), _V(0, 1, 0), (float)(108.0*RAD));
 	anim_rss_y_owp=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
+	AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_flip_upper);
+	AddAnimationComponent(anim_rss_y_owp, 0.05, 0.35, &RSS_flip_lower);
 	AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
 	//SetAnimation(anim_rss_y_owp, 1.0);
 
