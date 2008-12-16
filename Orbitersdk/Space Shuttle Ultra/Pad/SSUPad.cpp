@@ -164,7 +164,7 @@ void SSUPad::DefineAnimations()
 	//SetAnimation(anim_fss_y_owp, 1.0);
 	static UINT FSS_Y_OWPStrutGrp[1] = {GRP_FSS_WPS_Z_bracket};
 	static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
-		_V(6.342, 0.0, 22.463), _V(0.0, 1.0, 0.0), (float)(PI));
+		_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
 	anim_fss_y_owp_strut=CreateAnimation(0.5);
 	AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
 }
@@ -265,6 +265,17 @@ AnimState::Action SSUPad::GetGOXArmState() const
 	return GOXArmAction;
 }
 
+void SSUPad::AnimateFSSOWPStrut()
+{
+	double angle=(PI/2)*(min(FSS_Y_OWP_State.pos, 0.5)/0.5);
+	double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
+	double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
+	double pos=(88.482-StrutAngle*DEG)/180.0 + 0.5;
+	pos=min(1, max(0, pos)); //make sure pos value is within limits
+	SetAnimation(anim_fss_y_owp_strut, pos);
+	//sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, acos((13.465-YPos)/FSS_OWP_STRUT_LENGTH)*DEG, angle*DEG, pos);
+}
+
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 {
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
@@ -309,14 +320,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		FSS_Y_OWP_State.Move(dp);
 		SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
 
-		//animate struts
-		double angle=(PI/2)*(min(FSS_Y_OWP_State.pos, 0.5)/0.5);
-		double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
-		double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
-		double pos=(88.482-StrutAngle*DEG)/180.0 + 0.5;
-		pos=min(1, max(0, pos)); //make sure pos value is within limits
-		SetAnimation(anim_fss_y_owp_strut, pos);
-		//sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, acos((13.465-YPos)/FSS_OWP_STRUT_LENGTH)*DEG, angle*DEG, pos);
+		if(FSS_Y_OWP_State.pos<=0.5) AnimateFSSOWPStrut();
 	}
 	if(RSS_State.Moving()) {
 		double dp=simdt*RSS_RATE;
@@ -378,6 +382,7 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if (!_strnicmp(line, "FSS_OWP", 7)) {
 			sscan_state(line+7, FSS_Y_OWP_State);
 			SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+			AnimateFSSOWPStrut();
 		}
 		else if (!_strnicmp(line, "RSS_OWP", 7)) {
 			sscan_state(line+7, RSS_Y_OWP_State);

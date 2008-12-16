@@ -14,7 +14,7 @@ const double RSS_Y_OWP_RATE = 0.01666666667;
 const double FSS_Y_OWP_RATE = 0.01666666667;
 const double RSS_RATE = 0.00066666667;
 
-const double FSS_OWP_BRACKET_LENGTH = 12.987; //used for OWP strut animation
+const double FSS_OWP_BRACKET_LENGTH = 12.169; //used for OWP strut animation
 const double FSS_OWP_STRUT_LENGTH = 18.044;
 const double FSS_OWP_STRUT_OFFSET = 13.465;
 
@@ -46,6 +46,7 @@ public:
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
+	void AnimateFSSOWPStrut();
 	void CreateGOXVentThrusters();
 	void UpdateGOXVentThrusters();
 

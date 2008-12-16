@@ -231,7 +231,7 @@ namespace vc {
 		//HDC hDC = oapiGetDC (surf);
 
 		// D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
-		if (oapiGetMFDMode(MFDID) == MFD_NONE) {
+		if (MFDID==-1 || oapiGetMFDMode(MFDID) == MFD_NONE) {
 			RECT r = {0, 0, 256, 41};
 			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		} else {   // MFD powered on
