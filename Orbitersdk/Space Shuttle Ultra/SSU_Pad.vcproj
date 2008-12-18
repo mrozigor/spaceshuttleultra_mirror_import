@@ -144,7 +144,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include&quot;;..\..\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft SDK\Include&quot;;&quot;C:\Program Files\Microsoft Platform SDK\Include&quot;;..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -163,6 +163,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
+				AdditionalIncludeDirectories="&quot;c:\Program Files\Microsoft SDK\Include\mfc&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -173,8 +174,8 @@
 				OutputFile="..\..\Modules\SSUPad.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Lib&quot;;..\..\lib"
-				IgnoreDefaultLibraryNames="msvcirt.lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDK\Lib&quot;;..\..\lib"
+				IgnoreDefaultLibraryNames="msvcirt.lib;MSVCRTD.lib;msvcrt.lib"
 				ProgramDatabaseFile=".\Release/SSUPad.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -209,6 +210,10 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath="..\include\DlgCtrl.h"
+			>
+		</File>
 		<File
 			RelativePath=".\Pad\meshres_FSS.h"
 			>
