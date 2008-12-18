@@ -1,0 +1,106 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "Pad_Resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "Pad_Resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ANIMCTRL DIALOGEX 0, 0, 186, 134
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "RSS",IDC_GROUP_RSS,7,7,172,40
+    PUSHBUTTON      "Open",IDC_RSS_OPEN,14,21,49,14,WS_GROUP
+    PUSHBUTTON      "Stop",IDC_RSS_STOP,67,21,49,14
+    PUSHBUTTON      "Close",IDC_RSS_CLOSE,122,21,49,14
+    GROUPBOX        "OWP",IDC_GROUP_OWP,7,58,172,60
+    PUSHBUTTON      "Open",IDC_RSSOWP_OPEN,42,71,49,14,WS_GROUP
+    PUSHBUTTON      "Close",IDC_RSSOWP_CLOSE,95,71,49,14
+    LTEXT           "RSS:",IDC_LABEL1,15,71,26,14,SS_CENTERIMAGE
+    PUSHBUTTON      "Open",IDC_FSSOWP_OPEN,42,92,49,14,WS_GROUP
+    PUSHBUTTON      "Close",IDC_FSSOWP_CLOSE,95,92,49,14
+    LTEXT           "FSS:",IDC_LABEL2,15,92,26,14,SS_CENTERIMAGE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ANIMCTRL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 127
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

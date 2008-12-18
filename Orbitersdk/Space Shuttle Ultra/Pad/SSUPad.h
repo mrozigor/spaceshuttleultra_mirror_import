@@ -10,8 +10,8 @@ static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
-const double RSS_Y_OWP_RATE = 0.0025;
-const double FSS_Y_OWP_RATE = 0.01666666667;
+const double RSS_OWP_RATE = 0.002381;
+const double FSS_OWP_RATE = 0.00128205;
 const double RSS_RATE = 0.00066666667;
 
 //FSS OWP strut animation constants
@@ -47,6 +47,9 @@ public:
 	virtual void MoveGOXArm(AnimState::Action action);
 	virtual AnimState::Action GetAccessArmState() const;
 	virtual AnimState::Action GetGOXArmState() const;
+	void MoveRSS_OWP(AnimState::Action action);
+	void MoveFSS_OWP(AnimState::Action action);
+	void MoveRSS(AnimState::Action action);
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
@@ -76,7 +79,7 @@ private:
 	double fNextLightUpdate;
 
 	AnimState AccessArmState, GVAState, VentHoodState;
-	AnimState RSS_Y_OWP_State, FSS_Y_OWP_State;
+	AnimState RSS_OWP_State, FSS_OWP_State;
 	AnimState RSS_State;
 	AnimState::Action GOXArmAction;
 
