@@ -1,10 +1,13 @@
+#define ORBITER_MODULE
 #include "SSUPad.h"
+#include "Pad_Resource.h"
 #include "meshres_FSS.h"
 #include "meshres_RSS.h"
+#include <dlgctrl.h>
 #include <OrbiterSoundSDK35.h>
 
-#define ORBITER_MODULE
-
+//global dll handle
+HINSTANCE hPad_DLL;
 
 
 VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
@@ -60,6 +63,64 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-0.85, 74.70, 27.55),
 	_V(-6.5, 63.5, 3.75),//RSS test light
 	_V(-0.85, 80.70, 27.55)};
+
+//global functions
+DLLCLBK void InitModule(HINSTANCE hDLL)
+{
+	hPad_DLL=hDLL;
+	oapiRegisterCustomControls(hDLL);
+}
+
+DLLCLBK void ExitModule(HINSTANCE hDLL)
+{
+	oapiUnregisterCustomControls(hDLL);
+}
+
+DLLCLBK VESSEL* ovcInit(OBJHANDLE hVessel, int iFlightModel)
+{
+	return new SSUPad(hVessel, iFlightModel);
+}
+
+DLLCLBK void ovcExit(VESSEL* pVessel)
+{
+	delete static_cast<SSUPad*>(pVessel);
+}
+
+BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(uMsg==WM_COMMAND) {
+		SSUPad* pad=static_cast<SSUPad*>(oapiGetDialogContext(hWnd));
+		switch(LOWORD(wParam)) {
+			case IDCANCEL:
+				oapiCloseDialog(hWnd);
+				return TRUE;
+			case IDC_RSS_OPEN:
+				pad->MoveRSS(AnimState::OPENING);
+				return TRUE;
+			case IDC_RSS_STOP:
+				pad->MoveRSS(AnimState::STOPPED);
+				return TRUE;
+			case IDC_RSS_CLOSE:
+				pad->MoveRSS(AnimState::CLOSING);
+				return TRUE;
+			case IDC_FSSOWP_OPEN:
+				pad->MoveFSS_OWP(AnimState::OPENING);
+				return TRUE;
+			case IDC_FSSOWP_CLOSE:
+				pad->MoveFSS_OWP(AnimState::CLOSING);
+				return TRUE;
+			case IDC_RSSOWP_OPEN:
+				pad->MoveRSS_OWP(AnimState::OPENING);
+				return TRUE;
+			case IDC_RSSOWP_CLOSE:
+				pad->MoveRSS_OWP(AnimState::CLOSING);
+				return TRUE;
+		}
+	}
+
+	//if message has not been handled in this function, perform default action
+	return oapiDefDialogProc(hWnd, uMsg, wParam, lParam);
+}
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	: VESSEL2(hVessel, flightmodel),
@@ -154,7 +215,7 @@ void SSUPad::DefineAnimations()
 	//SetAnimation(anim_rss, 1.0);
 
 	//RSS OWP
-	RSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
+	RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
 	static UINT RSS_Y_LOWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
 	static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 11.7));
 	static UINT RSS_Y_UOWPGrp[3] = {GRP_Box64, GRP_Box40, GRP_Box283};
@@ -174,16 +235,15 @@ void SSUPad::DefineAnimations()
 	//SetAnimation(anim_rss_y_owp, 1.0);
 
 	//FSS OWP
-	FSS_Y_OWP_State.Set(AnimState::CLOSED, 0.0);
+	FSS_OWP_State.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_Y_OWPRotGrp[3] = {GRP_Inner_FSS_WPS_panel_track, GRP_Outer_WPS_panel, GRP_Y_FSS_WPS_struts};
 	static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 3,
 		_V(-6.688, 0.0, 22.614), _V(0, 1.0, 0.0), (float)(PI/2));
 	anim_fss_y_owp=CreateAnimation(0.0);
-	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.5, &FSS_Y_OWPRot);
+	parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.769, &FSS_Y_OWPRot);
 	static UINT FSS_Y_OWPTransGrp[1] = {GRP_Inner_WPS_panel};
 	static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 1, _V(10.7, 0.0, 0.0));
-	AddAnimationComponent(anim_fss_y_owp, 0.5, 1.0, &FSS_Y_OWPTrans, parent);
-	//SetAnimation(anim_fss_y_owp, 1.0);
+	AddAnimationComponent(anim_fss_y_owp, 0.769, 1.0, &FSS_Y_OWPTrans, parent);
 	static UINT FSS_Y_OWPStrutGrp[1] = {GRP_FSS_WPS_Z_bracket};
 	static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
 		_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
@@ -245,6 +305,24 @@ void SSUPad::MoveGOXArm(AnimState::Action action)
 	}
 }
 
+void SSUPad::MoveFSS_OWP(AnimState::Action action)
+{
+	if(action==AnimState::OPENING || action==AnimState::CLOSING)
+		FSS_OWP_State.action=action;
+}
+
+void SSUPad::MoveRSS_OWP(AnimState::Action action)
+{
+	if(RSS_State.Closed() && (action==AnimState::OPENING || action==AnimState::CLOSING))
+		RSS_OWP_State.action=action;
+}
+
+void SSUPad::MoveRSS(AnimState::Action action)
+{
+	if(RSS_OWP_State.Closed())
+		RSS_State.action=action;
+}
+
 void SSUPad::GOXArmSequence()
 {
 	if(GOXArmAction==AnimState::OPENING) {
@@ -289,13 +367,14 @@ AnimState::Action SSUPad::GetGOXArmState() const
 
 void SSUPad::AnimateFSSOWPStrut()
 {
-	double angle=(PI/2)*(min(FSS_Y_OWP_State.pos, 0.5)/0.5);
+	double angle=(PI/2)*(min(FSS_OWP_State.pos, 0.769)/0.769);
+	//calculate horizontal distance between FSS strut attachment (to OWP bracket) and FSS bracket attachment (to FSS)
 	double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
+	//calculate angle between struts and OWP bracket
 	double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
 	double pos=(FSS_OWP_STRUT_NULL_ANGLE-StrutAngle*DEG)/180.0 + 0.5;
 	pos=min(1, max(0, pos)); //make sure pos value is within limits
 	SetAnimation(anim_fss_y_owp_strut, pos);
-	sprintf_s(oapiDebugString(), 255, "Strut angle: %f %f %f %f", (pos-0.5)*180.0, StrutAngle*DEG, angle*DEG, pos);
 }
 
 void SSUPad::clbkPostCreation()
@@ -340,17 +419,17 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_venthood, VentHoodState.pos);
 		if(GOXArmAction>=AnimState::CLOSING && !VentHoodState.Moving()) GOXArmSequence();
 	}
-	if(RSS_Y_OWP_State.Moving()) {
-		double dp=simdt*RSS_Y_OWP_RATE;
-		RSS_Y_OWP_State.Move(dp);
-		SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
+	if(RSS_OWP_State.Moving()) {
+		double dp=simdt*RSS_OWP_RATE;
+		RSS_OWP_State.Move(dp);
+		SetAnimation(anim_rss_y_owp, RSS_OWP_State.pos);
 	}
-	if(FSS_Y_OWP_State.Moving()) {
-		double dp=simdt*FSS_Y_OWP_RATE;
-		FSS_Y_OWP_State.Move(dp);
-		SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+	if(FSS_OWP_State.Moving()) {
+		double dp=simdt*FSS_OWP_RATE;
+		FSS_OWP_State.Move(dp);
+		SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 
-		if(FSS_Y_OWP_State.pos<=0.5) AnimateFSSOWPStrut();
+		if(FSS_OWP_State.pos<=0.5) AnimateFSSOWPStrut();
 	}
 	if(RSS_State.Moving()) {
 		double dp=simdt*RSS_RATE;
@@ -385,8 +464,8 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
 	WriteScenario_state(scn, "GVA", GVAState);
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
-	WriteScenario_state(scn, "FSS_OWP", FSS_Y_OWP_State);
-	WriteScenario_state(scn, "RSS_OWP", RSS_Y_OWP_State);
+	WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
+	WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
 	WriteScenario_state(scn, "RSS", RSS_State);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 }
@@ -412,13 +491,13 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			sscanf(line+12, "%d", &GOXArmAction);
 		}
 		else if (!_strnicmp(line, "FSS_OWP", 7)) {
-			sscan_state(line+7, FSS_Y_OWP_State);
-			SetAnimation(anim_fss_y_owp, FSS_Y_OWP_State.pos);
+			sscan_state(line+7, FSS_OWP_State);
+			SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 			AnimateFSSOWPStrut();
 		}
 		else if (!_strnicmp(line, "RSS_OWP", 7)) {
-			sscan_state(line+7, RSS_Y_OWP_State);
-			SetAnimation(anim_rss_y_owp, RSS_Y_OWP_State.pos);
+			sscan_state(line+7, RSS_OWP_State);
+			SetAnimation(anim_rss_y_owp, RSS_OWP_State.pos);
 		}
 		else if (!_strnicmp(line, "RSS", 3)) {
 			sscan_state(line+3, RSS_State);
@@ -436,19 +515,24 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 
 	if(KEYMOD_CONTROL(keystate)) {
 		switch(key) {
+			case OAPI_KEY_SPACE:
+				if(oapiOpenDialogEx(hPad_DLL, IDD_ANIMCTRL, SSUPad_DlgProc, DLG_CAPTIONCLOSE, this))
+					oapiWriteLog("SSU Pad: Dialog opened");
+				else if(hPad_DLL) sprintf_s(oapiDebugString(), 255, "Error: %d", GetLastError());
+				return 1;
 			case OAPI_KEY_K:
 				if(RSS_State.Closing() || RSS_State.Closed()) RSS_State.action=AnimState::OPENING;
 				else RSS_State.action=AnimState::CLOSING;
 				return 1;
 			case OAPI_KEY_X:
 				if(RSS_State.Closed()) {
-					if(RSS_Y_OWP_State.Closing() || RSS_Y_OWP_State.Closed()) RSS_Y_OWP_State.action=AnimState::OPENING;
-					else RSS_Y_OWP_State.action=AnimState::CLOSING;
+					if(RSS_OWP_State.Closing() || RSS_OWP_State.Closed()) RSS_OWP_State.action=AnimState::OPENING;
+					else RSS_OWP_State.action=AnimState::CLOSING;
 				}
 				return 1;
 			case OAPI_KEY_Y:
-				if(FSS_Y_OWP_State.Closing() || FSS_Y_OWP_State.Closed()) FSS_Y_OWP_State.action=AnimState::OPENING;
-				else FSS_Y_OWP_State.action=AnimState::CLOSING;
+				if(FSS_OWP_State.Closing() || FSS_OWP_State.Closed()) FSS_OWP_State.action=AnimState::OPENING;
+				else FSS_OWP_State.action=AnimState::CLOSING;
 				return 1;
 		}
 	}
@@ -517,22 +601,4 @@ void SSUPad::UpdateGOXVentThrusters() {
 		SetThrusterDir(thGOXVent[i], dir);
 	}
 
-}
-
-DLLCLBK void InitModule(HINSTANCE hDLL)
-{
-}
-
-DLLCLBK void ExitModule(HINSTANCE hDLL)
-{
-}
-
-DLLCLBK VESSEL* ovcInit(OBJHANDLE hVessel, int iFlightModel)
-{
-	return new SSUPad(hVessel, iFlightModel);
-}
-
-DLLCLBK void ovcExit(VESSEL* pVessel)
-{
-	delete static_cast<SSUPad*>(pVessel);
 }
