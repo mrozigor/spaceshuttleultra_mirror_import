@@ -1969,12 +1969,12 @@ void Atlantis::DefineAnimations (void)
   //DaveS edit: Can't get the animation to line up properly. The coords used below is supposedly good ones from GMAX
   static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
   rms_anim[5] = new MGROUP_ROTATE (ridx, RMSEndEffectorGrp, 1,
-	  _V(-2.77,2.13,-5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
+	  _V(-2.844, 2.133, -5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
   anim_arm_wr = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
 
   rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-    _V(-2.77, 2.13, -6.049), _V(0,0,1), (float)(0.0));
+    _V(-2.844, 2.133, -6.049), _V(0,0,1), (float)(0.0));
   anim_arm_ee = CreateAnimation (0.0);
   hAC_arm = AddAnimationComponent (anim_arm_ee, 0, 1, rms_anim[6], parent);
 
@@ -7892,7 +7892,7 @@ BOOL CALLBACK Atlantis_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
   case IDC_PAYCAM:
       oapiOpenDialogEx (g_Param.hDLL, IDD_PAYLOADCAM, PAYCAM_DlgProc, DLG_CAPTIONCLOSE, sts);
       break;
-    }
+	}
     break;
   }
   return oapiDefDialogProc (hWnd, uMsg, wParam, lParam);
