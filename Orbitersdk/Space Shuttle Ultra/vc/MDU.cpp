@@ -740,9 +740,13 @@ namespace vc {
 		else {
 			prim_idp->OnPaint(this);
 		}
+		
+		//print Scratch Pad line
+		const char* scratch_pad=prim_idp->GetScratchPadLineString();
+		PrintToBuffer(scratch_pad, strlen(scratch_pad), 0, 25, 0);
 	}
 
-	void MDU::PrintToBuffer(char* string, int length, int col, int row, char attributes)
+	void MDU::PrintToBuffer(const char* string, int length, int col, int row, char attributes)
 	{
 		for(int i=0;i<length;i++) {
 			textBuffer[col+i][row].cSymbol=string[i];

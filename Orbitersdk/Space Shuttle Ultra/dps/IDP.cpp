@@ -74,6 +74,12 @@ namespace dps {
 	}
 
 	bool IDP::IsCompleteLine() const {
+		unsigned short i=0;
+		while(i < 120 && cScratchPadLine[i] != '\0') 
+			i++;
+		if(i>0) {
+			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || cScratchPadLine[i-1]==SSU_KEY_PRO) return true;
+		}
 		return false;
 	}
 
@@ -86,9 +92,10 @@ namespace dps {
 				break;
 			case SSU_KEY_EXEC:
 				OnExec();
+			default:
+				AppendScratchPadLine(cKey);
 				break;
 		}
-		AppendScratchPadLine(cKey);
 		sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
 			usIDPID, usKeyboardID, cKey, 
 			this->GetScratchPadLineString());
@@ -240,13 +247,13 @@ namespace dps {
 		while(cScratchPadLine[i] != '\0' && i<120) {
 			switch(cScratchPadLine[i]) {
 				case SSU_KEY_ITEM:
-					strcat_s(pszBuffer, "ITEM");
+					strcat_s(pszBuffer, "ITEM ");
 					break;
 				case SSU_KEY_GPCIDP:
-					strcat_s(pszBuffer, "GPC/IDP");
+					strcat_s(pszBuffer, "GPC/IDP ");
 					break;
 				case SSU_KEY_OPS:
-					strcat_s(pszBuffer, "OPS");
+					strcat_s(pszBuffer, "OPS ");
 					break;
 				case SSU_KEY_A:
 					strcat_s(pszBuffer, "A");
@@ -306,7 +313,10 @@ namespace dps {
 					strcat_s(pszBuffer, "-");
 					break;
 				case SSU_KEY_EXEC:
-					strcat_s(pszBuffer, "EXEC");
+					strcat_s(pszBuffer, " EXEC");
+					break;
+				case SSU_KEY_PRO:
+					strcat_s(pszBuffer, " PRO");
 					break;
 				case SSU_KEY_ACK:
 					strcat_s(pszBuffer, "ACK");
