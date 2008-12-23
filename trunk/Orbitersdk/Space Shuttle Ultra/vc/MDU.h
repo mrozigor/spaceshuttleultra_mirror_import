@@ -110,7 +110,7 @@ namespace vc {
 		virtual bool IsCRTBufferEnabled() const;
 
 		virtual void UpdateTextBuffer();
-		virtual void PrintToBuffer(char* string, int length, int col, int row, char attributes);
+		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
 		//	const VECTOR3& bottom_right);

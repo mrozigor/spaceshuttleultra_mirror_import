@@ -258,13 +258,17 @@ void Keyboard::ClearInput()
 
 void Keyboard::PutKey(char ckey) {
 	switch(keyboard) {
-		case 0:
+		/*case 0:
 			sts->GetIDP(1)->PutKey(keyboard, ckey);
 			sts->GetIDP(3)->PutKey(keyboard, ckey);
 			return;
 		case 1:
 			sts->GetIDP(2)->PutKey(keyboard, ckey);
 			sts->GetIDP(3)->PutKey(keyboard, ckey);
+			return;*/
+		case 0:
+		case 1:
+			sts->GetIDP(sts->CRT_SEL[keyboard]+1)->PutKey(keyboard, ckey);
 			return;
 		case 2:
 			sts->GetIDP(4)->PutKey(keyboard, ckey);
