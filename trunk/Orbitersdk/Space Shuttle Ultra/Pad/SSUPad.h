@@ -13,6 +13,7 @@ const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
 const double FSS_OWP_RATE = 0.00128205;
 const double RSS_RATE = 0.00066666667;
+const double FSS_GH2_ARM_RATE = 2.0;
 
 //FSS OWP strut animation constants
 const double FSS_OWP_BRACKET_LENGTH = 12.212;
@@ -43,6 +44,7 @@ public:
 	int clbkConsumeBufferedKey(DWORD key, bool down, char *keystate);
 
 	//communication with LCC
+	virtual void OnT0();
 	virtual void MoveOrbiterAccessArm(AnimState::Action action);
 	virtual void MoveGOXArm(AnimState::Action action);
 	virtual AnimState::Action GetAccessArmState() const;
@@ -72,6 +74,7 @@ private:
 	UINT anim_rss_y_owp;
 	UINT anim_fss_y_owp, anim_fss_y_owp_strut;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
+	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -81,6 +84,7 @@ private:
 	AnimState AccessArmState, GVAState, VentHoodState;
 	AnimState RSS_OWP_State, FSS_OWP_State;
 	AnimState RSS_State;
+	AnimState FSS_GH2_VentArmState;
 	AnimState::Action GOXArmAction;
 
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
