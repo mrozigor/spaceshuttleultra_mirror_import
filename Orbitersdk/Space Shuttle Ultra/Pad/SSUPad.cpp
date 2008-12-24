@@ -249,6 +249,14 @@ void SSUPad::DefineAnimations()
 		_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
 	anim_fss_y_owp_strut=CreateAnimation(0.5);
 	AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
+
+	//GH2 Vent Arm
+	FSS_GH2_VentArmState.Set(AnimState::CLOSED, 0.0);
+	static UINT FSS_GH2_Arm[2] = {GRP_GH2_vent_pipe, GRP_GUCP};
+	static MGROUP_ROTATE FSS_GH2_ArmRot(fss_mesh_idx, FSS_GH2_Arm, 2,
+		_V(5.123, 65.803, 9.541), _V(-0.80134, 0.0, 0.59821), (float)(85.0*RAD));
+	anim_fss_gh2_ventarm=CreateAnimation(0.0);
+	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, &FSS_GH2_ArmRot);
 }
 
 void SSUPad::DisableLights() {
@@ -289,6 +297,11 @@ bool SSUPad::IsDawn() const {
 			return true;
 	}
 	return false;
+}
+
+void SSUPad::OnT0()
+{
+	FSS_GH2_VentArmState.action=AnimState::OPENING;
 }
 
 void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
@@ -431,6 +444,11 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 
 		if(FSS_OWP_State.pos<=0.5) AnimateFSSOWPStrut();
 	}
+	if(FSS_GH2_VentArmState.Moving()) {
+		double dp=simdt*FSS_GH2_ARM_RATE;
+		FSS_GH2_VentArmState.Move(dp);
+		SetAnimation(anim_fss_gh2_ventarm, FSS_GH2_VentArmState.pos);
+	}
 	if(RSS_State.Moving()) {
 		double dp=simdt*RSS_RATE;
 		RSS_State.Move(dp);
@@ -467,6 +485,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
 	WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
 	WriteScenario_state(scn, "RSS", RSS_State);
+	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 }
 
@@ -502,6 +521,10 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if (!_strnicmp(line, "RSS", 3)) {
 			sscan_state(line+3, RSS_State);
 			SetAnimation(anim_rss, RSS_State.pos);
+		}
+		else if (!_strnicmp(line, "FSS_GH2", 7)) {
+			sscan_state(line+7, FSS_GH2_VentArmState);
+			SetAnimation(anim_fss_gh2_ventarm, FSS_GH2_VentArmState.pos);
 		}
 		else ParseScenarioLineEx(line, status);
 	}

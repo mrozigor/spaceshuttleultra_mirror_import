@@ -58,6 +58,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		{
 			pFSS->MoveGOXArm(AnimState::CLOSING);
 		}
+		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
 	}
 	if(pSSU) {
 		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
