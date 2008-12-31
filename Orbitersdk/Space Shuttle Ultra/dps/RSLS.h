@@ -20,8 +20,10 @@ namespace dps
 		bool SychronizeCountdown(double mjd);
 		void StartRSLSSequence();
 	private:
-		double launch_mjd, timeToLaunch, lastTTL;
-		bool Active;
+		double launch_mjd, timeToLaunch, lastTTL, RSLSAbortTime;
+		bool Active,Aborted;
+		char* RSLSAbortCause;
+		int RSLSAbortData;
 	};
 };
 

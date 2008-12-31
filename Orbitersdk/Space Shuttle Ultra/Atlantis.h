@@ -1209,6 +1209,8 @@ public:
 
 	virtual void TurnOnPadLights();
 	virtual void TurnOffPadLights();
+    virtual bool HydraulicsOK();
+
 	void ToggleGrapple (void);
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();

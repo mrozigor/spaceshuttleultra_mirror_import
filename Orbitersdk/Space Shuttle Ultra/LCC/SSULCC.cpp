@@ -48,6 +48,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
 	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
+	if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
 
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm

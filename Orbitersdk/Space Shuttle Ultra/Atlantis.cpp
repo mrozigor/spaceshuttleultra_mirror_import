@@ -342,10 +342,10 @@ void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, doubl
 
   }
 //  sprintf(oapiDebugString(),"P%d Y%d R%d TableM: %f TableAoA: %f Table Cl: %f AFCS Cl: %f Table Cd: %f AFCS Cd: %f",v->PitchActive,v->YawActive,v->RollActive,M,aoa*180.0/PI,Tablecl,*cl,Tablecd,*cd);
-  else {
+//  else {
 	*cl=Tablecl;
 	*cd=Tablecd;
-  }
+//  }
 //    *cm=tableterp(&cmBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
 //  *cm+=tableterp(&cmTrim[0][0], trimExt, n_trimExt, mach, n_mach, bfDeploy,M);
 }
@@ -2903,6 +2903,10 @@ void Atlantis::SeparateMMU (void)
   reset_mmu = true;
   // Remove Tank from shuttle instance
   SetOrbiterConfiguration ();
+}
+
+bool Atlantis::HydraulicsOK() {
+  return panelr2->HydraulicPressure();
 }
 
 void Atlantis::SteerGimbal() {
