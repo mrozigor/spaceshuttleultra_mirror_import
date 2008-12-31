@@ -69,13 +69,25 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	AddParticleStream(&ROFI_Stream, AFT_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, AFT_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
 
-	if(!ahHDP)
-	{
+	if(!ahHDP)	{
 		ahHDP = CreateAttachment(false, HDP_POS, _V(0.0, 1.0, 0.0), _V(0.0, 0.0, -1.0), "XHDP");
 	}
 
 	
 }
+
+void MLP::Twang(double TMinus) {
+  double twangParam=(1.0-TMinus/6.0);
+//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f",TMinus,twangParam);
+  if(twangParam<0 || twangParam>1) return;
+  double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
+//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
+  double c=cos(twangAngle);
+  double s=sin(twangAngle);
+  SetAttachmentParams(ahHDP, HDP_POS, _V(0, c, s), _V(0.0, s, -c));
+
+}
+
 
 
 void MLP::clbkSaveState(FILEHANDLE scn)
@@ -143,6 +155,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 		}
 		//Gather incoming exhaust energy
 		//Use a general approach instead of only working for the SSU?
+		Twang(fCountdown);
 
 		if(oapiGetVesselCount() > 1)
 		{

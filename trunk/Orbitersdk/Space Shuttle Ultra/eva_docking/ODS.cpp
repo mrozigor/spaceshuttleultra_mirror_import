@@ -187,15 +187,16 @@ namespace eva_docking {
 			pV = oapiGetVesselInterface(ohTarget);
 			iD = pV->GetAttachmentIndex(ahTarget);
 
-			sprintf_s(oapiDebugString(), 255, 
+/*			sprintf_s(oapiDebugString(), 255, 
 				"ODS: LOCK %s:%d | %5.2f\" %5.2f' %5.2f\" | %5.2f %5.2f %5.2f", 
 				pszBuffer, iD, target_pos.x * INCH, 
 				target_pos.y * FEET, target_pos.z * INCH,
 				target_vel.x * FEET, target_vel.y * FEET, 
-				target_vel.z * FEET);
+				target_vel.z * FEET); */
 		} else {
+			/*
 			sprintf_s(oapiDebugString(), 255, "ODS: NUM KNOWN %d (%d W/O APAS)",
-				known_objects.size(), non_apas_objects.size());
+				known_objects.size(), non_apas_objects.size()); */
 		}
 
 		//If target in range:

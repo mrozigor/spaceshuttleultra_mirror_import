@@ -6,6 +6,7 @@
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
+static const char* DEFAULT_MESHNAME_HARDSTAND="SSU/LC39A_hardstand";
 
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
@@ -65,8 +66,8 @@ private:
 	bool fLightsOn;
 	BEACONLIGHTSPEC lights[FSS_NUM_LIGHTS];
 
-	MESHHANDLE FSSMesh, RSSMesh;
-	UINT fss_mesh_idx, rss_mesh_idx;
+	MESHHANDLE FSSMesh, RSSMesh, HardStandMesh;
+	UINT fss_mesh_idx, rss_mesh_idx, hs_mesh_idx;
 
 	//animations; 0.0, CLOSED corresponds to state at t0
 	UINT anim_accessarm;
