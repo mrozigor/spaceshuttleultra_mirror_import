@@ -98,6 +98,24 @@ double Atlantis::CalculateAzimuth()
 	}
 	else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
 
+	/*VECTOR3 pos;
+	GetRelativeVel(GetSurfaceRef(), vel);
+	GetRelativePos(GetSurfaceRef(), pos);
+	oapiGetPlanetObliquityMatrix(GetSurfaceRef(), &rot);
+	vel=mul(rot, vel);
+	pos=mul(rot, vel);
+	temp=vel.y;
+	vel.y=vel.z;
+	vel.z=temp;
+	temp=pos.y;
+	pos.y=pos.z;
+	pos.z=temp;
+
+	VECTOR3 h=crossp(pos, vel);
+	VECTOR3 n=_V(-h.y, h.x, 0);
+	double LAN=acos(n.x/length(n));
+	sprintf_s(oapiDebugString(), 255, "LAN: %f", LAN*DEG);*/
+
 	return true_azimuth;
 }
 
@@ -381,9 +399,10 @@ void Atlantis::GPC(double simt, double dt)
 //	Stopwatch st;
 //	st.Start();
 
-	switch(ops) {
+	/*switch(ops) {
 		case 101:
 			if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
+			break;
 		case 102:
 			Throttle(dt);
 			RateCommand();
@@ -415,7 +434,7 @@ void Atlantis::GPC(double simt, double dt)
 						SetThrusterGroupLevel(thg_transup, 0.00);
 						bZThrust=false;
 						ops=104;
-					}*/
+					}*
 				}
 				AttControl(dt);
 				TransControl(simt, dt);
@@ -453,6 +472,56 @@ void Atlantis::GPC(double simt, double dt)
 			TransControl(simt, dt);
 			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
 			break;
+		case 303:
+			AttControl(dt);
+			TransControl(simt, dt);
+			break;
+		case 304:
+			AerojetDAP(dt);
+			break;
+	}*/
+
+	switch(ops) {
+		case 101:
+			if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
+			break;
+		case 102:
+			Throttle(dt);
+			RateCommand();
+			AutoMainGimbal();
+			break;
+		case 103:
+			if(!bMECO && status==2) {
+				RateCommand();
+				SteerGimbal();
+				Throttle(dt);
+			}
+			else { //post MECO
+				if(status==2 && !TransPulseInProg[2] && tMECO+ET_SEP_TIME<=met)
+				{
+					SeparateTank();
+					bManualSeparate = false;
+					TransPulseInProg[2]=true;
+					TransPulseDV.z=-ET_SEP_RATE;
+				}
+				else if(status==3 && Eq(TransPulseDV.z, 0.0, 0.001)) { //Z thrusting complete
+					ops=104;
+				}
+				AttControl(dt);
+				TransControl(simt, dt);
+			}
+			break;
+		case 104:
+		case 105:
+		case 202:
+		case 302:
+			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
+			/*AttControl(dt);
+			TransControl(simt, dt);
+			break;*/
+		case 106:
+		case 201:
+		case 301:
 		case 303:
 			AttControl(dt);
 			TransControl(simt, dt);
@@ -512,14 +581,11 @@ void Atlantis::Maneuver(double dt)
 			//sprintf(oapiDebugString(), "Shutdown");
 			SetThrusterGroupLevel(thg_main, 0.00);
 			BurnCompleted=true;
+			BurnInProg=false;
 		}
 		else {
 			GetThrustVector(ThrustVector); //inefficient
-			//sprintf(oapiDebugString(), "%f %f %f", ThrustVector.z, ThrustVector.y, ThrustVector.x);
-			/*for(int i=0;i<3;i++)
-			{
-				VGO.data[2-i]-=((ThrustVector.data[i]/GetMass())*dt)/fps_to_ms;
-			}*/
+			//only shows errors caused by burn timing
 			VGO.x-=((ThrustVector.z/GetMass())*dt)/fps_to_ms;
 			VGO.y-=((ThrustVector.x/GetMass())*dt)/fps_to_ms;
 			VGO.z+=((ThrustVector.y/GetMass())*dt)/fps_to_ms;
@@ -527,17 +593,45 @@ void Atlantis::Maneuver(double dt)
 	}
 	else if(met>=tig)
 	{
-		//sprintf(oapiDebugString(), "Burning");
-		BurnInProg=true;
-		IgnitionTime=met;
-		//ignite engines
-		if(OMS==0) SetThrusterGroupLevel(thg_main, 1.00);
-		else if(OMS!=3) SetThrusterLevel(th_oms[OMS-1], 1.00);
+		if(OMS!=3) {
+			//sprintf(oapiDebugString(), "Burning");
+			BurnInProg=true;
+			IgnitionTime=met;
+			//ignite engines
+			if(OMS==0) SetThrusterGroupLevel(thg_main, 1.00);
+			else SetThrusterLevel(th_oms[OMS-1], 1.00);
+		}
 	}
 	//else sprintf(oapiDebugString(), "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 }
 
-void Atlantis::GimbalOMS(VECTOR3 Targets)
+void Atlantis::OMSTVC(const VECTOR3 &Rates)
+{
+	VECTOR3 CurrentRates=AngularVelocity*DEG;
+	double pitchDelta=Rates.data[PITCH]-CurrentRates.data[PITCH]; //if positive, vessel is pitching down
+	double yawDelta=Rates.data[YAW]-CurrentRates.data[YAW]; //if positive, vessel is rotating to right
+	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
+	bool RCSWraparound=false;
+
+	if(OMS!=2) //left OMS engine burning
+	{
+		double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
+		if(OMS==0) dPitch+=rollDelta;
+		if(!GimbalOMS(0, Trim.data[0]+dPitch, Trim.data[1]+dYaw)) RCSWraparound=true;
+	}
+	if(OMS!=1) //right OMS engine burning
+	{
+		double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
+		if(OMS==0) dPitch-=rollDelta;
+		if(!GimbalOMS(1, Trim.data[0]+dPitch, Trim.data[2]+dYaw)) RCSWraparound=true;
+	}
+	sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
+
+	if(RCSWraparound) SetRates(Rates);
+	else if(OMS!=0) SetRates(_V(0.0, 0.0, Rates.data[ROLL])); //for single-engine burns, use RCS for roll control
+}
+
+/*void Atlantis::GimbalOMS(const VECTOR3 &Targets)
 {
 	VECTOR3 Dir;
 	OMSGimbal[0][0]=OMSGimbal[1][0]=-(ORBITER_OMS_PITCH+Targets.data[0]);
@@ -558,13 +652,12 @@ void Atlantis::GimbalOMS(VECTOR3 Targets)
 	OMSGimbal[0][0]=OMSGimbal[1][0]=Targets.data[0];
 	OMSGimbal[0][1]=Targets.data[1];
 	OMSGimbal[1][1]=Targets.data[2];
-	return;
-}
+}*/
 
 void Atlantis::LoadManeuver()
 {
 	int i;
-	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate;
+	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
 	//VECTOR3 ThrustVector;
 	bool bDone=false;
 	MNVRLOAD=true;
@@ -573,62 +666,58 @@ void Atlantis::LoadManeuver()
 	//dV
 	for(i=0;i<3;i++) {
 		DeltaV.data[i]=PEG7.data[i]*fps_to_ms;
-		//sts->VGO.data[i]=sts->PEG7.data[i];
 	}
 	DeltaVTot=length(PEG7);
-	DeltaVTotms=length(DeltaV); //make local variable?
-	GimbalOMS(Trim);
+	double DeltaVTotms=length(DeltaV);
+	//GimbalOMS(Trim);
+	GimbalOMS(0, Trim.data[0], Trim.data[1]);
+	GimbalOMS(1, Trim.data[0], Trim.data[2]);
+
+	VECTOR3 ThrustDir; //direction of net thrust (in Orbiter frame)
+	if(OMS==0) {
+		VECTOR3 temp1, temp2;
+		GetThrusterDir(th_oms[0], temp1);
+		GetThrusterDir(th_oms[1], temp2);
+		ThrustDir=temp1+temp2;
+		ThrustFactor=length(ThrustDir); //get thrust produced by engines
+		ThrustDir=ThrustDir/ThrustFactor; //normalize vector
+	}
+	else if(OMS==1 || OMS==2) {
+		GetThrusterDir(th_oms[OMS-1], ThrustDir);
+	}
+	else ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
+
+	BurnAtt.data[PITCH]=-asin(ThrustDir.y)*DEG;
+	BurnAtt.data[YAW]=asin(ThrustDir.x)*DEG; //check signs here
 	
 	//Burn Attitude
-	if(OMS==0) {
-		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0]; //no Z DV component
-		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
-			if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-			else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		}
-		if(DeltaV.x!=0.0 || DeltaV.y!=0.0)
-			BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))))+Trim.data[1]+Trim.data[2];
-		else BurnAtt.data[YAW]=Trim.data[1]+Trim.data[2];
-		BurnAtt.data[ROLL]=TV_ROLL;
+	if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
+		if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 	}
-	else if(OMS<3) {
-		BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+Trim.data[0];
-		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
-			if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-			else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		}
-		if(DeltaV.x!=0.0 || DeltaV.y!=0.0)
-			BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))))+Trim.data[OMS-1]+ORBITER_OMS_YAW*pow(-1.0, -OMS);
-		else BurnAtt.data[YAW]=Trim.data[OMS-1]+ORBITER_OMS_YAW*pow(-1.0,- OMS);
-		BurnAtt.data[ROLL]=TV_ROLL;
-	}
-	else {
-		if(DeltaV.z<=0) BurnAtt.data[PITCH]=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		else BurnAtt.data[PITCH]=-DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		BurnAtt.data[YAW]=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
-		BurnAtt.data[ROLL]=TV_ROLL;
-	}
+	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) BurnAtt.data[YAW]-=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+	BurnAtt.data[ROLL]=TV_ROLL;
 	if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 	}
-	//use rocket equation
+
+	//use rocket equation (TODO: Check math/formulas here)
 	StartWeight=WT/kg_to_pounds;
 	EndWeight=StartWeight/exp(DeltaVTotms/GetThrusterIsp(th_oms[0]));
 	FuelRate=ORBITER_OMS_THRUST/(GetPropellantEfficiency(ph_oms)*GetThrusterIsp(th_oms[0]));
-	if(OMS==0) FuelRate=FuelRate*2.0;
+	FuelRate*=ThrustFactor; //if two-engine burn, compensate for # of engines; TODO: Make sure this is valid; we're calculating fuel, not thrust (SiameseCat)
 	BurnTime=(StartWeight-EndWeight)/FuelRate;
 	//TGO[0]=BurnTime/60;
 	//TGO[1]=BurnTime-(TGO[0]*60);
-	VGO.x=DeltaVTot*cos((ORBITER_OMS_PITCH+Trim.data[0])*RAD);
-	VGO.y=DeltaVTot*sin((Trim.data[1]+Trim.data[2])*RAD);
-	VGO.z=DeltaVTot*sin((ORBITER_OMS_PITCH+Trim.data[0])*RAD);
+	VGO.x=DeltaVTot*ThrustDir.z;
+	VGO.y=DeltaVTot*ThrustDir.x;
+	VGO.z=-DeltaVTot*ThrustDir.y;
 }
 
 void Atlantis::UpdateDAP()
 {
-	//sprintf(oapiDebugString(), "UpdateDAP() called %f", oapiRand());
 	TranPls=DAP[DAPMode[0]].PRI_TRAN_PLS*fps_to_ms; //same for all modes
 	if(DAPMode[1]==0) {
 		RotRate=DAP[DAPMode[0]].PRI_ROT_RATE;
@@ -973,7 +1062,8 @@ void Atlantis::AttControl(double SimdT)
 		if(ManeuverStatus==MNVR_COMPLETE) CalcRequiredRates(ReqdRates, NullRatesLocal*DEG);
 		else CalcRequiredRates(ReqdRates);
 	}
-	SetRates(ReqdRates);
+	if(!BurnInProg) SetRates(ReqdRates);
+	else OMSTVC(ReqdRates); //OMS burn is going on, so use OMS TVC for control
 }
 
 void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitude and time to reach attitude
@@ -1032,7 +1122,7 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 	}
 }
 
-void Atlantis::SetRates(VECTOR3 &Rates)
+void Atlantis::SetRates(const VECTOR3 &Rates)
 {
 	//double dDiff;
 	VECTOR3 ThrusterLevel;

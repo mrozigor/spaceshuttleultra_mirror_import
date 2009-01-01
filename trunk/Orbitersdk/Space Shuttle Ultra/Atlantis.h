@@ -112,10 +112,6 @@ const double ORBITER_RCS_ISP0 = ORBITER_OMS_ISP0;
 const double ORBITER_RCS_ISP1 = ORBITER_RCS_ISP0*0.75;
 // Vacuum and sea-level fuel-specific impulse for Reaction Control System [m/s]
 
-const double ORBITER_OMS_PITCH = 15.0089;
-const double ORBITER_OMS_YAW = 5.7000;
-// Null position of OMS engines
-
 const double ORBITER_PITCH_TORQUE = 239900.00;
 const double ORBITER_YAW_TORQUE = 239900.00;
 const double ORBITER_ROLL_TORQUE = 41800.00;
@@ -389,6 +385,15 @@ const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 
 const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 4.6, -12.03);
+
+//const VECTOR3 L_OMS_REF = _V(-2.311, 3.297, -11.967);
+//const VECTOR3 R_OMS_REF = _V(2.311, 3.297, -11.967);
+const VECTOR3 L_OMS_REF = _V(-2.464, 3.595, -13.11);
+const VECTOR3 R_OMS_REF = _V(2.464, 3.595, -13.11);
+//const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.2708080775, 0.955953983);
+//const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.2708080775, 0.955953983);
+const VECTOR3 L_OMS_DIR = _V(0.108917, -0.272560, 0.955954);
+const VECTOR3 R_OMS_DIR = _V(-0.108917, -0.272560, 0.955954);
 
 const int STATE_PRELAUNCH = 0;
 const int STATE_STAGE1 = 1;	//SRBs ignited
@@ -1420,8 +1425,19 @@ private:
 	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
 	//void Test();
 
+	//OMS
+	/**
+	 * @param engine 0 for Left, 1 for Right
+	 * @param pitch angle in degrees (relative to null position)
+	 * @param yaw angle in degrees (relative to null position)
+	 * @return false if gimbal values are out of range, true otherwise
+	 */
+	bool GimbalOMS(int engine, double pitch, double yaw);
+	void OMSTVC(const VECTOR3 &Rates);
+	//void GimbalOMS(const VECTOR3 &Targets);
+
 	//DAP
-	void GimbalOMS(VECTOR3 Targets);
+	//void GimbalOMS(VECTOR3 Targets);
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
 	void TransControl(double SimT, double SimdT);
@@ -1434,7 +1450,7 @@ private:
 	void LoadTrackManeuver();
 	void LoadRotationManeuver();
 	void CalcManeuverTargets(VECTOR3 NullRates);
-	void SetRates(VECTOR3 &Rates);
+	void SetRates(const VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	//change ref. frames
@@ -1502,7 +1518,7 @@ private:
 		o.z=sqrt(1.0-pow(v.x,2)-pow(v.y,2));
 		return o;
 	}
-	inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle in X-axis
+	inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
 	{
 		VECTOR3 Output;
 		Output.x=v.x;
@@ -1510,7 +1526,7 @@ private:
 		Output.y=v.y*cos(angle*RAD)+v.z*sin(angle*RAD);
 		return Output;
 	}
-	inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle in Y-axis
+	inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Y-axis
 	{
 		VECTOR3 Output;
 		Output.y=v.y;
@@ -1518,7 +1534,7 @@ private:
 		Output.z=v.z*cos(angle*RAD)+v.x*sin(angle*RAD);
 		return Output;
 	}
-	inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle in Z-axis
+	inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Z-axis
 	{
 		VECTOR3 Output;
 		Output.x=v.x*cos(angle*RAD)-v.y*sin(angle*RAD);
@@ -1882,13 +1898,13 @@ private:
 	double C1, C2, HT, ThetaT; // PEG4 Targets
 	VECTOR3 Trim; // 0=P, 1=LY, 2=RY
 	int TV_ROLL;
-	double DeltaVTot, DeltaVTotms;
+	double DeltaVTot;
 	double BurnTime;
 	VECTOR3 VGO;
 	double vgoTot;
 	bool MNVRLOAD;
 	VECTOR3 BurnAtt;
-	double OMSGimbal[2][2];
+	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 
 	//DAP
 	bool ManeuverinProg;
