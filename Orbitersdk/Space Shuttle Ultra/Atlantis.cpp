@@ -1058,9 +1058,11 @@ void Atlantis::SetLaunchConfiguration (void)
 
   //OMS
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.55,-13.04);
-  th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.55,-13.04);
+  //th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_oms[0] = CreateThruster (OFS_LAUNCH_ORBITER+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  th_oms[1] = CreateThruster (OFS_LAUNCH_ORBITER+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
   for(i=0;i<2;i++) {
 	  AddExhaust (th_oms[i], 0.0, 0.5);
 	  panelc3->EngControl(i);
@@ -1172,9 +1174,11 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   }
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(th_oms[0]==NULL) {
-    VECTOR3 OMS_POS=ofs+_V(0,3.55,-13.04);
-	th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+    //VECTOR3 OMS_POS=ofs+_V(0,3.55,-13.04);
+	//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[0] = CreateThruster (ofs+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[1] = CreateThruster (ofs+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	for(i=0;i<2;i++) {
 		AddExhaust (th_oms[i], 0.0, 0.5);
 		panelc3->EngControl(i);
@@ -1259,9 +1263,13 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   // OMS (Orbital Manouevering System)
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  VECTOR3 OMS_POS=_V(0,3.55,-13.04);
-  th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  //VECTOR3 OMS_POS=_V(0,3.55,-13.04);
+  if(th_oms[0]==NULL) {
+	//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+  }
   thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
   for(i=0;i<2;i++) {
 	  AddExhaust (th_oms[i], 0.0, 0.5);
@@ -2982,6 +2990,29 @@ void Atlantis::AutoMainGimbal () {
 	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));*/
 
 	UpdateSSMEGimbalAnimations();
+}
+
+bool Atlantis::GimbalOMS(int engine, double pitch, double yaw)
+{
+	if(abs(pitch)<6.0 && abs(yaw)<7.0) {
+		OMSGimbal[engine][0]=pitch;
+		OMSGimbal[engine][1]=yaw;
+
+		VECTOR3 dir;
+		if(engine==0) dir=L_OMS_DIR;
+		else dir=R_OMS_DIR;
+
+		dir=RotateVectorX(dir, -pitch); //positive OMS gimbal directs thrust downwards
+		dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
+
+		SetThrusterDir(th_oms[engine], dir);
+
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "OMS DIR: %d %f %f %f", engine, dir.x, dir.y, dir.z);
+		oapiWriteLog(cbuf);
+		return true;
+	}
+	else return false;
 }
 
 double Atlantis::CalcNetThrust()

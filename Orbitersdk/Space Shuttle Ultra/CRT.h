@@ -85,9 +85,7 @@ private:
 	//void EnableAllThrusters();
 	void EnableThrusters(const int Thrusters[], int nThrusters);
 	void DisableThrusters(const int Thrusters[], int nThrusters);
-	
-	void OMSGimbal(VECTOR3 Targets);
-	void LoadManeuver();
+
 	void UpdateDAP(); //updates rot rates, torques
 
 	VESSEL *vessel;

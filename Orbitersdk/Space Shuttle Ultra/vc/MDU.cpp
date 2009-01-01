@@ -1012,7 +1012,7 @@ namespace vc {
 			TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
 			TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
 			sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
-			PrintToBuffer(cbuf, strlen(cbuf), 18, 1, 0);
+			PrintToBuffer(cbuf, strlen(cbuf), 38, 1, 0);
 		}
 
 		PrintToBuffer("OMS BOTH 1", 10, 1, 1, 0);
@@ -1108,7 +1108,7 @@ namespace vc {
 		//LineTo(hDC, 156, 111);
 		//LineTo(hDC, 250, 111);
 
-		if(!STS()->BurnInProg) {
+		if(!STS()->BurnInProg && !STS()->BurnCompleted) {
 			TGO[0]=(int)(STS()->BurnTime/60);
 			TGO[1]=(int)(STS()->BurnTime-(TGO[0]*60));
 		}

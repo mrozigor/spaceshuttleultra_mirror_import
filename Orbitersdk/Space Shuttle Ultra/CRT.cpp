@@ -1096,7 +1096,7 @@ void CRT::MNVR(HDC hDC)
 	LineTo(hDC, 156, 111);
 	LineTo(hDC, 250, 111);
 
-	if(!sts->BurnInProg) {
+	if(!sts->BurnInProg && !sts->BurnCompleted) {
 		TGO[0]=sts->BurnTime/60;
 		TGO[1]=sts->BurnTime-(TGO[0]*60);
 	}
@@ -1246,94 +1246,6 @@ void CRT::DisableThrusters(const int Thrusters[], int nThrusters)
 		sts->SetThrusterResource(sts->th_att_rcs[Thrusters[i]], NULL);
 	}
 */
-}
-
-void CRT::OMSGimbal(VECTOR3 Targets)
-{
-	VECTOR3 Dir;
-	sts->OMSGimbal[0][0]=sts->OMSGimbal[1][0]=-(ORBITER_OMS_PITCH+Targets.data[0]);
-	sts->OMSGimbal[0][1]=ORBITER_OMS_YAW+Targets.data[1];
-	sts->OMSGimbal[1][1]=-ORBITER_OMS_YAW+Targets.data[2];
-	
-	// L OMS Engine
-	Dir.z=sqrt(1-pow(sin(sts->OMSGimbal[0][0]*RAD), 2)-pow(sin(sts->OMSGimbal[0][1]*RAD), 2));
-	Dir.y=sin(sts->OMSGimbal[0][0]*RAD);
-	Dir.x=sin(sts->OMSGimbal[0][1]*RAD);
-	sts->SetThrusterDir(sts->th_oms[0], Dir);
-	// R OMS Engine
-	Dir.z=sqrt(1-pow(sin(sts->OMSGimbal[1][0]*RAD), 2)-pow(sin(sts->OMSGimbal[1][1]*RAD), 2));
-	Dir.y=sin(sts->OMSGimbal[1][0]*RAD);
-	Dir.x=sin(sts->OMSGimbal[1][1]*RAD);
-	sts->SetThrusterDir(sts->th_oms[1], Dir);
-
-	sts->OMSGimbal[0][0]=sts->OMSGimbal[1][0]=Targets.data[0];
-	sts->OMSGimbal[0][1]=Targets.data[1];
-	sts->OMSGimbal[1][1]=Targets.data[2];
-	return;
-}
-
-void CRT::LoadManeuver()
-{
-	int i;
-	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate;
-	//VECTOR3 ThrustVector;
-	bool bDone=false;
-	sts->MNVRLOAD=true;
-	//sts->BurnCompleted=false;
-	sts->tig=sts->TIG[0]*86400+sts->TIG[1]*3600+sts->TIG[2]*60+sts->TIG[3];
-	//dV
-	for(i=0;i<3;i++) {
-		sts->DeltaV.data[i]=sts->PEG7.data[i]*fps_to_ms;
-		//sts->VGO.data[i]=sts->PEG7.data[i];
-	}
-	sts->DeltaVTot=length(sts->PEG7);
-	sts->DeltaVTotms=length(sts->DeltaV); //make local variable?
-	OMSGimbal(sts->Trim);
-	//Burn Attitude
-	if(sts->OMS==0) {
-		sts->BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+sts->Trim.data[0];
-		if(sts->DeltaV.x!=0.0 || sts->DeltaV.z!=0.0) {
-			if(sts->DeltaV.z<=0) sts->BurnAtt.data[PITCH]+=DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-			else sts->BurnAtt.data[PITCH]-=DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-		}
-		if(sts->DeltaV.x!=0.0 || sts->DeltaV.y!=0.0)
-			sts->BurnAtt.data[YAW]=DEG*asin(sts->DeltaV.y/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.y, 2))))+sts->Trim.data[1]+sts->Trim.data[2];
-		else sts->BurnAtt.data[YAW]=sts->Trim.data[1]+sts->Trim.data[2];
-		sts->BurnAtt.data[ROLL]=sts->TV_ROLL;
-	}
-	else if(sts->OMS<3) {
-		sts->BurnAtt.data[PITCH]=ORBITER_OMS_PITCH+sts->Trim.data[0];
-		if(sts->DeltaV.x!=0.0 || sts->DeltaV.z!=0.0) {
-			if(sts->DeltaV.z<=0) sts->BurnAtt.data[PITCH]+=DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-			else sts->BurnAtt.data[PITCH]-=DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-		}
-		if(sts->DeltaV.x!=0.0 || sts->DeltaV.y!=0.0)
-			sts->BurnAtt.data[YAW]=DEG*asin(sts->DeltaV.y/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.y, 2))))+sts->Trim.data[sts->OMS-1]+ORBITER_OMS_YAW*pow(-1.0,-sts->OMS);
-		else sts->BurnAtt.data[YAW]=sts->Trim.data[sts->OMS-1]+ORBITER_OMS_YAW*pow(-1.0,-sts->OMS);
-		sts->BurnAtt.data[ROLL]=sts->TV_ROLL;
-	}
-	else {
-		if(sts->DeltaV.z<=0) sts->BurnAtt.data[PITCH]=DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-		else sts->BurnAtt.data[PITCH]=-DEG*acos(sts->DeltaV.x/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.z, 2))));
-		sts->BurnAtt.data[YAW]=DEG*asin(sts->DeltaV.y/sqrt((pow(sts->DeltaV.x, 2)+pow(sts->DeltaV.y, 2))));
-		sts->BurnAtt.data[ROLL]=sts->TV_ROLL;
-	}
-	if(sts->TV_ROLL!=0.0) {
-		double dTemp=sts->BurnAtt.data[PITCH];
-		sts->BurnAtt.data[PITCH]-=sts->BurnAtt.data[PITCH]*(1.0-cos(sts->TV_ROLL*RAD));
-		sts->BurnAtt.data[YAW]+=sts->BurnAtt.data[YAW]*(1.0-sin(sts->TV_ROLL*RAD));
-	}
-	//use rocket equation
-	StartWeight=sts->WT/kg_to_pounds;
-	EndWeight=StartWeight/exp(sts->DeltaVTotms/sts->GetThrusterIsp(sts->th_oms[0]));
-	FuelRate=ORBITER_OMS_THRUST/(sts->GetPropellantEfficiency(sts->ph_oms)*sts->GetThrusterIsp(sts->th_oms[0]));
-	if(sts->OMS==0) FuelRate=FuelRate*2.0;
-	sts->BurnTime=(StartWeight-EndWeight)/FuelRate;
-	TGO[0]=sts->BurnTime/60;
-	TGO[1]=sts->BurnTime-(TGO[0]*60);
-	sts->VGO.x=sts->DeltaVTot*cos((ORBITER_OMS_PITCH+sts->Trim.data[0])*RAD);
-	sts->VGO.y=sts->DeltaVTot*sin((sts->Trim.data[1]+sts->Trim.data[2])*RAD);
-	sts->VGO.z=sts->DeltaVTot*sin((ORBITER_OMS_PITCH+sts->Trim.data[0])*RAD);
 }
 
 void CRT::UpdateDAP()
