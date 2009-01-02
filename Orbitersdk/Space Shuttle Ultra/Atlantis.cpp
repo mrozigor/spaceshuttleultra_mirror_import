@@ -5115,7 +5115,13 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "TRANS MODE", 10)) {
 		sscanf(line+10, "%d %d %d", &TransMode[0], &TransMode[1], &TransMode[2]);
 	} else if(!_strnicmp(line, "CONTROL MODE", 12)) {
-		sscanf(line+12, "%d", &ControlMode);
+		//sscanf(line+12, "%d", &ControlMode);
+		int nTemp;
+		sscanf(line+12, "%d", &nTemp);
+		if(nTemp==0) ControlMode=AUTO;
+		else if(nTemp==1) ControlMode=INRTL;
+		else if(nTemp==2) ControlMode=LVLH;
+		else if(nTemp==3) ControlMode=FREE;
 	} else if(!_strnicmp (line, "CUR_MNVR", 8)) {
 		int flag;
 		sscanf(line+8, "%d", &flag);
