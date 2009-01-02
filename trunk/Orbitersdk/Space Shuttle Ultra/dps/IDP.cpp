@@ -92,6 +92,10 @@ namespace dps {
 				break;
 			case SSU_KEY_EXEC:
 				OnExec();
+			case SSU_KEY_ITEM:
+			case SSU_KEY_SPEC:
+			case SSU_KEY_OPS:
+				if(IsCompleteLine()) ClearScratchPadLine();
 			default:
 				AppendScratchPadLine(cKey);
 				break;
@@ -254,6 +258,9 @@ namespace dps {
 					break;
 				case SSU_KEY_OPS:
 					strcat_s(pszBuffer, "OPS ");
+					break;
+				case SSU_KEY_SPEC:
+					strcat_s(pszBuffer, "SPEC ");
 					break;
 				case SSU_KEY_A:
 					strcat_s(pszBuffer, "A");
