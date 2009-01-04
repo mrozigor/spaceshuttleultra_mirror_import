@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for Orbiter.msh
-// Generated with meshc on Tue Apr 15 20:41:17 2008
+// Generated with meshc on Sat Dec 13 00:11:28 2008
 
 // ========================================================
 
@@ -8,7 +8,7 @@
 #define NGRP 68
 
 // Number of materials:
-#define NMAT 6
+#define NMAT 9
 
 // Number of textures:
 #define NTEX 2
@@ -49,14 +49,14 @@
 #define GRP_CARGODOORINL 32
 #define GRP_KUBAND1 33
 #define GRP_KUBAND2 34
-#define GRP_CAMERAPIVOTFL 35
-#define GRP_CAMERAFL 36
-#define GRP_CAMERABL 37
-#define GRP_CAMERAPIVOTBL 38
-#define GRP_CAMERAFR 39
-#define GRP_CAMERAPIVOTFR 40
-#define GRP_CAMERAPIVOTBR 41
-#define GRP_CAMERABR 42
+#define GRP_PanTilt_FL 35
+#define GRP_CCTV_FL 36
+#define GRP_CCTV_BL 37
+#define GRP_PanTilt_BL 38
+#define GRP_CCTV_FR 39
+#define GRP_PanTilt_FR 40
+#define GRP_PanTilt_BR 41
+#define GRP_CCTV_BR 42
 #define GRP_RADIATORFL 43
 #define GRP_RADIATORFR 44
 #define GRP_RADIATORBR 45

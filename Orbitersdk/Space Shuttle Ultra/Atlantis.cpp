@@ -1020,13 +1020,13 @@ void Atlantis::SetLaunchConfiguration (void)
   th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0.0, 0.069338, 0.99759), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
-  srb_exhaust.tex = oapiRegisterParticleTexture ("Contrail2");
-  srb_contrail.tex = oapiRegisterParticleTexture ("Contrail4");
+  srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
+  srb_contrail.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
   for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
-  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(0,1,/*-30*/-135), &srb_contrail); //DaveS edit: Modified Zofs from 50 to 135 to take in account longer exhaust
-  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,1,/*-30*/-135), &srb_contrail); //DaveS edit: Modified Zofs from 50 to 135 to take in account longer exhaust
-  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
-  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23), &srb_exhaust); //DaveS edit: Modified Zofs from -25 to -23 to better line up the exhaust PSTREAM with SRB nozzle, also corrected xofs and yofs to fix alignment issue
+  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0,1,-23), &srb_exhaust); 
+  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,1,-23), &srb_exhaust);
+  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(0,1,/*-30*/-135), &srb_contrail);
+  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,1,/*-30*/-135), &srb_contrail);
 
   //Add slag effect streams
   if(pshSlag1[0] == NULL) {
@@ -1223,6 +1223,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetCrossSections (ORBITER_CS);
   //gop->SetGearParameters(gop->gear_proc);
   DefineTouchdownPoints();
+  SetMaxWheelbrakeForce(250000);
 
   // ************************* aerodynamics **************************************
 
@@ -1616,7 +1617,7 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	//
 	strncpy (cbuf, WingName, 256);
 	int len = strlen(cbuf);
-	TextOut (hDC, 564, 300, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
+	TextOut (hDC, 570, 290, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
@@ -2042,54 +2043,54 @@ void Atlantis::DefineAnimations (void)
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
   // FRONT LEFT
-  static UINT camFLYawGrp[1] = {GRP_CAMERAPIVOTFL};
+  static UINT camFLYawGrp[1] = {GRP_PanTilt_FL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
-  static UINT camFLPitchGrp[1] = {GRP_CAMERAFL};
+  static UINT camFLPitchGrp[1] = {GRP_CCTV_FL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.671,orbiter_ofs.z+11.874), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87), _V(1,0,0), (float)(340*RAD));
   anim_camFLpitch = CreateAnimation (0.5);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
-  static UINT camFRYawGrp[1] = {GRP_CAMERAPIVOTFR};
+  static UINT camFRYawGrp[1] = {GRP_PanTilt_FR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
-  static UINT camFRPitchGrp[1] = {GRP_CAMERAFR};
+  static UINT camFRPitchGrp[1] = {GRP_CCTV_FR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.671,orbiter_ofs.z+11.874), _V(1,0,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87), _V(1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
-  static UINT camBLYawGrp[1] = {GRP_CAMERAPIVOTBL};
+  static UINT camBLYawGrp[1] = {GRP_PanTilt_BL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.688,orbiter_ofs.z-6.413), _V(0,1,0), (float)(180*RAD));
+    _V(orbiter_ofs.x-2.31,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(180*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
-  static UINT camBLPitchGrp[1] = {GRP_CAMERABL};
+  static UINT camBLPitchGrp[1] = {GRP_CCTV_BL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.97,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31), _V(1,0,0), (float)(-340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
-  static UINT camBRYawGrp[1] = {GRP_CAMERAPIVOTBR};
+  static UINT camBRYawGrp[1] = {GRP_PanTilt_BR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.688,orbiter_ofs.z-6.413), _V(0,1,0), (float)(340*RAD));
+    _V(orbiter_ofs.x+2.29,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
-  static UINT camBRPitchGrp[1] = {GRP_CAMERABR};
+  static UINT camBRPitchGrp[1] = {GRP_CCTV_BR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.97,orbiter_ofs.z-6.413), _V(1,0,0), (float)(-340*RAD));
+    _V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31), _V(1,0,0), (float)(-340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
@@ -3204,8 +3205,8 @@ void Atlantis::JettisonDragChute()
 void Atlantis::DefineTouchdownPoints()
 {
 	if (gear_status.action==AnimState::OPEN) { // gear fully deployed
-		SetTouchdownPoints (_V(0,-4,17), _V(-3.96,-5.6,-4.3), _V(3.96,-5.6,-4.3)); // gear wheel tips
-		SetSurfaceFrictionCoeff (0.05, 0.4);
+		SetTouchdownPoints (_V(0,-3.8,17), _V(-3.96,-5.1,-4.3), _V(3.96,-5.1,-4.3)); // gear wheel tips
+		SetSurfaceFrictionCoeff (0.035, 0.5);
 	}
 	else {
 		SetTouchdownPoints (_V(0,-2.5,14), _V(-8,-2.8,-9), _V(8,-2.8,-9)); // belly landing
@@ -5481,9 +5482,9 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
 
 		//APU sounds
-		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, BOTHVIEW_FADED_MEDIUM);
-		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
-		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, BOTHVIEW_FADED_FAR);
+		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, BOTHVIEW_FADED_FAR);
+		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_FAR);
 	}
 
 	dapcontrol->Realize();
@@ -5570,11 +5571,11 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		//Nosewheel steering
 		if(GroundContact()) {
 			airspeed=GetAirspeed();
-			if(airspeed<25.0 && airspeed>1.0)
+			if(airspeed<395.0 && airspeed>1.0)
 			{
-				steerforce = (25-airspeed);
+				steerforce = (95-airspeed);
 				if(airspeed<6.0) steerforce*=(airspeed/6);
-				steerforce = 250000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
+				steerforce = 275000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
 				AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
 				AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
 			}
@@ -6305,20 +6306,20 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 
 	// show gear deployment status
 	if (gear_status.action==AnimState::OPEN) {
-		TextOut (hDC, 10, (hps->H)/2, "GR-DN", 5);
+		TextOut (hDC, 300, (hps->H)/2, "GR-DN", 5);
 	}
 	else if (gear_status.action==AnimState::OPENING || gear_status.action==AnimState::CLOSING) {
-		TextOut (hDC, 10, (hps->H)/2, "//GR//", 6);
+		TextOut (hDC, 300, (hps->H)/2, "//GR//", 6);
 	}
 	if(GearArmed())
 	{
-		TextOut(hDC, hps->W-25, (hps->H)/2, "ARM", 3);
+		TextOut(hDC, 300, 400, "ARM", 3);
 	}
 	if(panelc3->CheckProbesDeployed()==true && GetAltitude()<50000)
 	{
 		GetHorizonAirspeedVector(Velocity);
-		sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
-		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));
+		/*sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
+		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));*/
 		//dOut=GetAirspeed()*1.943844;
 		const double EAS_EXP = 2.0/7.0;
 		const double P0 = 1.01325E6;
@@ -6746,7 +6747,7 @@ bool Atlantis::clbkLoadVC (int id)
 		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
-    SetCameraOffset (_V(orbiter_ofs.x-1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
+    SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
     oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -6756,7 +6757,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMFR: //FR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
-    SetCameraOffset (_V(orbiter_ofs.x+1.759,orbiter_ofs.y+1.656,orbiter_ofs.z+11.902));
+    SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
     oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -6765,7 +6766,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
-    SetCameraOffset (_V(orbiter_ofs.x-2.368,orbiter_ofs.y+1.955,orbiter_ofs.z-6.167));
+    SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
     oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -6774,7 +6775,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
-    SetCameraOffset (_V(orbiter_ofs.x+2.368,orbiter_ofs.y+1.955,orbiter_ofs.z-6.167));
+    SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
     oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 
 	HideMidDeck();
@@ -7558,9 +7559,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	}
   } else { // unmodified keys
     switch (key) {
-	case OAPI_KEY_TAB:
+	/*case OAPI_KEY_TAB:
 		pCommModeHandler->EnterCommMode();
-		break;
+		break;*/
 	case OAPI_KEY_B:
 	  bAutopilot=false;
 	  return 1;
@@ -8963,7 +8964,7 @@ short Atlantis::GetLastCreatedMFD() const
 void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)
 {
 	int i;
-	 /*SRCSIZE=0.06
+/*SRCSIZE=0.06
 SRCRATE=140
 V0=10
 SRCSPREAD=0
@@ -8980,7 +8981,7 @@ AMAX=1
 TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0.025, 1.25, 1.1, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.06, 140, 10, 0, 1.25, 1.2, 1.35, PARTICLESTREAMSPEC::EMISSIVE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
 	  };
@@ -8988,9 +8989,9 @@ TEX=Contrail1*/
 	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
 
 
-	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0.0, -0.37489, 0.92707), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0.065, -0.2447, 0.9674), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(-0.065, -0.2447, 0.9674), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
 	
 	for(i = 0; i<3; i++)
 	{

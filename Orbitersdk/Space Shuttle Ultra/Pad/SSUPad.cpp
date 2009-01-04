@@ -61,7 +61,6 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-0.85, 62.70, 27.55),
 	_V(-0.85, 68.70, 27.55),
 	_V(-0.85, 74.70, 27.55),
-	_V(-6.5, 63.5, 3.75),//RSS test light
 	_V(-0.85, 80.70, 27.55)};
 
 //global functions
@@ -133,7 +132,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	RSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_RSS);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
 
-	VECTOR3 hs_ofs=_V(-60.0, 0.0, 44.5);
+	VECTOR3 hs_ofs=_V(-60.4, -0.75, 45.25);
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 
