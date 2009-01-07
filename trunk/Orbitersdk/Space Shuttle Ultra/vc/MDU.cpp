@@ -1019,7 +1019,7 @@ namespace vc {
 		PrintToBuffer("L 2", 3, 8, 2, 0);
 		PrintToBuffer("R 3", 3, 8, 3, 0);
 		PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
-		PrintToBuffer("*", 1, STS()->OMS+1, 11, 0);
+		PrintToBuffer("*", 1, 11, STS()->OMS+1, 0);
 
 		sprintf(cbuf, "5 TV ROLL %d", STS()->TV_ROLL);
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
@@ -1088,7 +1088,7 @@ namespace vc {
 
 		PrintToBuffer("BURN ATT", 8, 20, 2, 0);
 		if(!STS()->TRK) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
-		else PrintToBuffer("MNVR 27X", 8, 20, 6, 0);
+		else PrintToBuffer("MNVR 27*", 8, 20, 6, 0);
 
 		PrintToBuffer("REI", 3, 20, 8, 0);
 		PrintToBuffer("GMBL", 4, 25, 10, 0);
@@ -1167,11 +1167,14 @@ namespace vc {
 		//TextOut(hDC, 84, 9, "1 A", 3);
 		//TextOut(hDC, 149, 9, "2 B", 3);
 		//TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
-		PrintToBuffer("*", 1, 7, 2+9*STS()->DAPMode[1], 0);
+		//PrintToBuffer("*", 1, 7, 2+9*STS()->DAPMode[1], 0);
 		//TextOut(hDC, 200, 9, Edit[edit], strlen(Edit[edit]));
 		//TextOut(hDC, 200, 18, "8 LOAD", 6);
 
 		PrintToBuffer("PRI", 3, 4, 2, 0);
+		PrintToBuffer("1 DAP A", 7, 9, 2, 0);
+		PrintToBuffer("2 DAP B", 7, 20, 2, 0);
+		PrintToBuffer("PRI", 3, 33, 2, 0);
 		//TextOut(hDC, 14, 27, "3 PRI", 5);
 		PrintToBuffer("ROT RATE", 8, 0, 3, 0);
 		//TextOut(hDC, 0, 36, "ROT RATE", 8);
@@ -1191,6 +1194,7 @@ namespace vc {
 		//TextOut(hDC, 0, 99, "TRAN PLS", 8);
 
 		PrintToBuffer("ALT", 3, 4, 11, 0);
+		PrintToBuffer("ALT", 3, 33, 11, 0);
 		//TextOut(hDC, 14, 108, "4 ALT", 5);
 		PrintToBuffer("RATE DB", 7, 0, 12, 0);
 		//TextOut(hDC, 0, 117, "RATE DB", 7);
@@ -1204,6 +1208,7 @@ namespace vc {
 		//TextOut(hDC, 0, 153, "DELAY", 5);
 
 		PrintToBuffer("VERN", 4, 4, 17, 0);
+		PrintToBuffer("VERN", 4, 33, 17, 0);
 		//TextOut(hDC, 14, 162, "5 VERN", 6);
 		PrintToBuffer("ROT RATE", 8, 0, 18, 0);
 		//TextOut(hDC, 0, 171, "ROT RATE", 8);
