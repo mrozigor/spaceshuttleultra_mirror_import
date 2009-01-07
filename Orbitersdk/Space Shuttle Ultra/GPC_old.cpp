@@ -254,8 +254,8 @@ void Atlantis::RateCommand()
 				ReqdRates.data[PITCH] = 10.0*(GetPitch()*DEG-TargetPitch);
 				if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
 				ReqdRates.data[YAW]=0.0;
-				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=8.0;
-				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-8.0;
+				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=12.0;
+				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-12.0;
 				else ReqdRates.data[ROLL]=0.0;
 			}
 			else {
@@ -605,25 +605,30 @@ void Atlantis::Maneuver(double dt)
 	//else sprintf(oapiDebugString(), "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 }
 
-void Atlantis::OMSTVC(const VECTOR3 &Rates)
+void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
 {
 	VECTOR3 CurrentRates=AngularVelocity*DEG;
 	double pitchDelta=Rates.data[PITCH]-CurrentRates.data[PITCH]; //if positive, vessel is pitching down
 	double yawDelta=Rates.data[YAW]-CurrentRates.data[YAW]; //if positive, vessel is rotating to right
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
-	bool RCSWraparound=false;
+	bool RCSWraparound=(abs(rollDelta)<0.5 && abs(pitchDelta)<0.25 && abs(yawDelta)<0.25);
+
+	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
+	double dYaw=OMSTVCControlY.Step(yawDelta, SimDT);
 
 	if(OMS!=2) //left OMS engine burning
 	{
-		double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
-		if(OMS==0) dPitch+=rollDelta;
-		if(!GimbalOMS(0, Trim.data[0]+dPitch, Trim.data[1]+dYaw)) RCSWraparound=true;
+		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
+		double Pitch=Trim.data[0]+dPitch, Yaw=Trim.data[1]+dYaw;
+		if(OMS==0) Pitch+=rollDelta;
+		if(!GimbalOMS(0, Pitch, Yaw)) RCSWraparound=true;
 	}
 	if(OMS!=1) //right OMS engine burning
 	{
-		double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
-		if(OMS==0) dPitch-=rollDelta;
-		if(!GimbalOMS(1, Trim.data[0]+dPitch, Trim.data[2]+dYaw)) RCSWraparound=true;
+		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
+		double Pitch=Trim.data[0]+dPitch, Yaw=Trim.data[2]+dYaw;
+		if(OMS==0) Pitch-=rollDelta;
+		if(!GimbalOMS(1, Pitch, Yaw)) RCSWraparound=true;
 	}
 	sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
 
@@ -672,6 +677,9 @@ void Atlantis::LoadManeuver()
 	//GimbalOMS(Trim);
 	GimbalOMS(0, Trim.data[0], Trim.data[1]);
 	GimbalOMS(1, Trim.data[0], Trim.data[2]);
+
+	OMSTVCControlP.Reset();
+	OMSTVCControlY.Reset();
 
 	VECTOR3 ThrustDir; //direction of net thrust (in Orbiter frame)
 	if(OMS==0) {
@@ -1063,7 +1071,7 @@ void Atlantis::AttControl(double SimdT)
 		else CalcRequiredRates(ReqdRates);
 	}
 	if(!BurnInProg) SetRates(ReqdRates);
-	else OMSTVC(ReqdRates); //OMS burn is going on, so use OMS TVC for control
+	else OMSTVC(ReqdRates, SimdT); //OMS burn is going on, so use OMS TVC for control
 }
 
 void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitude and time to reach attitude

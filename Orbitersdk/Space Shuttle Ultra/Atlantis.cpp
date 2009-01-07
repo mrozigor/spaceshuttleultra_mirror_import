@@ -375,7 +375,8 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
 // Constructor
 // --------------------------------------------------------------
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
-: VESSEL2 (hObj, fmodel)
+: VESSEL2 (hObj, fmodel),
+OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
 {
 #ifdef _DEBUG
         // D. Beachy: for BoundsChecker debugging
@@ -2962,9 +2963,10 @@ void Atlantis::AutoMainGimbal () {
 	int i;
 	
 	GetAngularVel(AngularVelocity);
-	for(i=0;i<3;i++) {
+	RateDeltas=ReqdRates-(AngularVelocity*DEG);
+	/*for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
-	}
+	}*/
 	if(!panelr2->HydraulicPressure()) {
 		for(i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
@@ -2973,13 +2975,15 @@ void Atlantis::AutoMainGimbal () {
 		}
 	}
 	else {
-		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[PITCH], 0.18);
-		pitchcorrect.data[0]=range(-0.18, -0.06*RateDeltas.data[PITCH], 0.18);
-		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.15, 0.03*RateDeltas.data[YAW], 0.15);
-		yawcorrect.data[0]=range(-0.15, 0.07*RateDeltas.data[YAW], 0.15);
+		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.005*RateDeltas.data[PITCH], 0.18);
+		pitchcorrect.data[0]=range(-0.18, -0.005*RateDeltas.data[PITCH], 0.18);
+
+		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.18, 0.005*RateDeltas.data[YAW], 0.18);		
+		yawcorrect.data[0]=range(-0.15, 0.005*RateDeltas.data[YAW], 0.15);
+		
 		rollcorrect.data[0]=0.0;
-		rollcorrect.data[1]=range(-0.18, 0.03*RateDeltas.data[ROLL], 0.18);
-		rollcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[ROLL], 0.18);
+		rollcorrect.data[1]=range(-0.18, 0.009*RateDeltas.data[ROLL], 0.18);
+		rollcorrect.data[2]=-rollcorrect.data[1];
 	}
 	SetThrusterDir(th_srb[0], NormZ(_V(0.0+yawcorrect.data[1],0.069338+pitchcorrect.data[1]+rollcorrect.data[1],0.99759)));
 	SetThrusterDir(th_srb[1], NormZ(_V(0.0+yawcorrect.data[2],0.069338+pitchcorrect.data[2]+rollcorrect.data[2],0.99759)));
@@ -4159,7 +4163,15 @@ void Atlantis::LoadInertialManeuver()
 {
 	MNVR=true;
 	TRK=ROT=false;
-	if(CurManeuver.Type==AttManeuver::OFF) {
+
+	bool Current=true;
+	for(int i=0;i<4;i++) {
+		if(CurManeuver.START_TIME[i]>START_TIME[i]) {
+			Current=false;
+			break;
+		}
+	}
+	if(Current) {
 		CurManeuver.Type=AttManeuver::MNVR;
 		for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
 		for(int i=0;i<3;i++) {
@@ -4190,7 +4202,15 @@ void Atlantis::LoadTrackManeuver()
 		GetRotMatrixX(270*RAD, RotMatrix270);
 		Temp=mul(RotMatrixOM, RotMatrixP);
 		Temp=mul(Temp, RotMatrixY);
-		if(CurManeuver.Type==AttManeuver::OFF) {
+
+		bool Current=true;
+		for(int i=0;i<4;i++) {
+			if(CurManeuver.START_TIME[i]>START_TIME[i]) {
+				Current=false;
+				break;
+			}
+		}
+		if(Current) {
 			CurManeuver.Type=AttManeuver::TRK;
 			for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
 			CurManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,

@@ -539,6 +539,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PIDControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath="PlBayOp.cpp"
 				>
 				<FileConfiguration
@@ -851,6 +855,10 @@
 			</File>
 			<File
 				RelativePath=".\PanelR2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDControl.h"
 				>
 			</File>
 			<File

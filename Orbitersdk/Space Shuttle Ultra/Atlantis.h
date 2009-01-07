@@ -29,6 +29,7 @@
 #include "APU.h"
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
+#include "PIDControl.h"
 
 
 
@@ -1433,7 +1434,7 @@ private:
 	 * @return false if gimbal values are out of range, true otherwise
 	 */
 	bool GimbalOMS(int engine, double pitch, double yaw);
-	void OMSTVC(const VECTOR3 &Rates);
+	void OMSTVC(const VECTOR3 &Rates, double SimDT);
 	//void GimbalOMS(const VECTOR3 &Targets);
 
 	//DAP
@@ -1905,6 +1906,7 @@ private:
 	bool MNVRLOAD;
 	VECTOR3 BurnAtt;
 	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
+	PIDControl OMSTVCControlP, OMSTVCControlY;
 
 	//DAP
 	bool ManeuverinProg;
