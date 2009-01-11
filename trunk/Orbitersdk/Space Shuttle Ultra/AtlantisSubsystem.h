@@ -42,7 +42,7 @@ public:
 	 * Get a reference to the Space Shuttle external physical model.
 	 * @return reference to the space shuttle object. If possible.
 	 */
-	Atlantis* STS();
+	Atlantis* STS() const;
 	/**
 	 * Add new meshes to the visual. 
 	 * @deprecated Don't use, instead, use Realize() to tell the Atlantis 

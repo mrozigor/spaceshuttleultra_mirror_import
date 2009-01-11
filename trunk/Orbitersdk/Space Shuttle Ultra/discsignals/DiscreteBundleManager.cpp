@@ -9,6 +9,10 @@ DiscreteBundleManager::DiscreteBundleManager(void)
 
 DiscreteBundleManager::~DiscreteBundleManager(void)
 {
+	for(int i=0;i<bundles.size();i++) {
+		DiscreteBundle* pBundle=bundles[i];
+		delete pBundle;
+	}
 }
 
 void DiscreteBundleManager::DumpToLog() const

@@ -106,7 +106,7 @@ const string& AtlantisSubsystem::GetQualifiedIdentifier() const
 	return GetIdentifier();
 }
 
-Atlantis* AtlantisSubsystem::STS()
+Atlantis* AtlantisSubsystem::STS() const
 {
 	return director->STS();
 }

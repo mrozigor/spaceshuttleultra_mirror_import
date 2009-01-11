@@ -1,17 +1,11 @@
 #include "PanelA8.h"
 #include "PlBayOp.h"
-#include "resource.h"
-//#include "meshres.h"
-//#include "meshres_vc.h"
 #include "meshres_vc_a8.h"
 #include "meshres_vc_additions.h"
-#include "DlgCtrl.h"
+#include "RMSSystem.h"
 #include <stdio.h>
-//#include "MasterTimingUnit.h"
 
 extern GDIParams g_Param;
-extern HELPCONTEXT g_hc;
-extern char *ActionString[5];
 
 // ==============================================================
 
@@ -102,8 +96,8 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			return (bUpper|bLower);
 			break;
 		case AID_A8_TKBK6:
-			if(sts->MRL[0]==0.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 10);
-			else if(sts->MRL[0]==1.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 2);
+			if(sts->MRL[0]==0.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_REL);
+			else if(sts->MRL[0]==1.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_LAT);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK7:
@@ -124,7 +118,7 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			//if(sts->Extend.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			//else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
 			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->GetAttachmentStatus(sts->ahRMS)) 
+			if(sts->pRMS && sts->pRMS->Grappled()) 
 				bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
 			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
 			return (bUpper|bLower);
@@ -569,16 +563,35 @@ void PanelA8::Step(double t, double dt)
 	//if(!sts->RMS) return;
 	bool bUpdate=false;
 	if(switch_state[SWITCH18]==0 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
-		double da = dt*SHOULDER_BRACE_SPEED;
+		double da = dt*MPM_MRL_SPEED;
 		sts->MRL[0]=max(0.0, sts->MRL[0]-da);
 		sts->UpdateMRLMicroswitches();
 		bUpdate=true;
 	}
 	else if(switch_state[SWITCH18]==2 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
-		double da = dt*SHOULDER_BRACE_SPEED;
+		double da = dt*MPM_MRL_SPEED;
 		sts->MRL[0]=min(1.0, sts->MRL[0]+da);
 		sts->UpdateMRLMicroswitches();
 		bUpdate=true;
+	}
+
+	if(switch_state[SWITCH13]==0 && switch_state[SWITCH16]!=1) {
+		if(!Eq(sts->MRL[1], 0.00000)) {
+			double da = dt*MPM_MRL_SPEED;
+			sts->MRL[1]=max(0.0, sts->MRL[1]-da);
+			sts->UpdateMRLMicroswitches();
+			if(Eq(sts->MRL[1], 0.0)) sts->DetachOBSS();
+			bUpdate=true;
+		}
+	}
+	else if(switch_state[SWITCH13]==2 && switch_state[SWITCH16]!=1) {
+		if(!Eq(sts->MRL[1], 1.0000)) {
+			double da = dt*MPM_MRL_SPEED;
+			sts->MRL[1]=min(1.0, sts->MRL[1]+da);
+			sts->UpdateMRLMicroswitches();
+			if(Eq(sts->MRL[1], 1.00)) sts->AttachOBSS();
+			bUpdate=true;
+		}
 	}
 
 	if(switch_state[SWITCH10]==0) {
