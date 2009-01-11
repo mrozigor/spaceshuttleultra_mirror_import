@@ -188,7 +188,9 @@ const double ARM_RIGID_SPEED = 0.25;
 const double ARM_EXTEND_SPEED = 0.142857;
 // Time to extend/retract EE (1/s)
 const double SHOULDER_BRACE_SPEED = 0.11765;
-// shoulder brace speed
+// shoulder brace speed (8.5 seconds)
+const double MPM_MRL_SPEED = 0.11765;
+// speed of MPM latches (8.5 seconds)
 const VECTOR3 ARM_WRIST_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 
@@ -983,6 +985,7 @@ class PanelO3;
 class SubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
+class RMSSystem;
 
 
 
@@ -1041,6 +1044,7 @@ public:
 	 */
 	eva_docking::BasicExternalAirlock* pExtAirlock;
 	AirDataProbeSystem* pADPS;
+	RMSSystem* pRMS;
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
@@ -1396,12 +1400,17 @@ private:
 	void ToggleVCMode();
 	
 	//RMS
-	bool ArmCradled();
+	bool ArmCradled() const;
 	void UpdateMPMMicroswitches();
 	void UpdateMRLMicroswitches();
 	bool SatGrappled() const { return GetAttachmentStatus (ahRMS) != 0; }
 	bool SatStowed() const;
 	ATTACHMENTHANDLE CanArrest() const;
+	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
+
+	//OBSS
+	void AttachOBSS() const;
+	void DetachOBSS() const;
 
 	//Launch
 	void AutoMainGimbal();

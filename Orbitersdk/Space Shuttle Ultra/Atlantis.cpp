@@ -41,6 +41,7 @@
 #include "dps/ShuttleBus.h"
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
+#include "RMSSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
@@ -447,6 +448,8 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+
+  pRMS=NULL; //don't create RMS unless it is used on the shuttle
 
 	RealizeSubsystemConnections();
 
@@ -915,6 +918,7 @@ Atlantis::~Atlantis () {
 
   
 	for (i = 0; i < 7; i++) delete rms_anim[i];
+	delete rms_rollout_anim;
 	  
 	delete CameraFLYaw;
 	delete CameraFLPitch;
@@ -2248,6 +2252,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	else {
 		//create new attachment
 		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+		if(pRMS) pRMS->DefineEndEffector(ahRMS);
 	}
 
 	//Separate into UpdateOBSSAttachment
@@ -2696,7 +2701,8 @@ void Atlantis::ToggleGrapple (void)
 	if(pl_mass<0.0) pl_mass=0.0;
 	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
 
-    DetachChild (ahRMS);
+    //DetachChild (ahRMS);
+	pRMS->Ungrapple();
     if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
       EnableWindow (GetDlgItem (hDlg, IDC_STOW), TRUE);
     }
@@ -2757,7 +2763,8 @@ void Atlantis::ToggleGrapple (void)
 				  // check whether satellite is currently clamped into payload bay
 				  //if (hV == GetAttachmentStatus (sat_attach))
 				  //	  DetachChild (sat_attach);
-				  AttachChild (hV, ahRMS, hAtt);
+				  //AttachChild (hV, ahRMS, hAtt);
+				  pRMS->Grapple(v, hAtt);
 				  //increase mass of shuttle
 				  pl_mass+=oapiGetMass(hV);
 				  oapiWriteLog("pl_mass increased");
@@ -2828,7 +2835,7 @@ ATTACHMENTHANDLE Atlantis::CanArrest (void) const
   return 0;
 }
 
-bool Atlantis::ArmCradled()
+bool Atlantis::ArmCradled() const
 {
 	if(!RMS) return true;
 	if(!Eq(arm_sy, 0.5)) return false;
@@ -2838,6 +2845,71 @@ bool Atlantis::ArmCradled()
 	if(!Eq(arm_wy, wrist_neutral)) return false;
 	if(!Eq(arm_wr, wrist_neutral)) return false;
 	return true;
+}
+
+ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel) const
+{
+	VECTOR3 gpos, gdir, gatt, pos, dir, rot, gattdir;
+	GetAttachmentParams(attachment, pos, dir, rot);
+    Local2Global(pos, gatt);  // global position of SSU attachment point
+	GlobalRot(dir, gattdir);
+
+	// Code copied from ToggleGrapple() function
+	// ToggleGrapple() function should be modified to use this.
+	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
+		OBJHANDLE hV = oapiGetVesselByIndex (i);
+		if (hV == GetHandle()) continue; // we don't want to grapple ourselves ...
+
+		oapiGetGlobalPos (hV, &gpos);
+		if (dist (gpos, gatt) < oapiGetSize (hV)) { // in range
+			VESSEL *v = oapiGetVesselInterface (hV);
+			DWORD nAttach = v->AttachmentCount (true);
+			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
+				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
+				if(v->GetAttachmentStatus(hAtt)) continue; //attachment is attached to something else
+
+				//check attachment ID
+				const char *id = v->GetAttachmentId (hAtt);
+				if (strncmp (id, id_string, strlen(id_string))) continue; // attachment point not compatible
+
+				//check attachment point position/direction
+				v->GetAttachmentParams (hAtt, pos, dir, rot);
+				v->Local2Global (pos, gpos);
+				if (dist (gpos, gatt) < MAX_GRAPPLING_DIST) { 
+					v->GlobalRot(dir, gdir);
+					//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
+					if(fabs(PI-acos(dotp(gdir, gattdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
+						oapiWriteLog("Found attachment");
+						if(vessel) *vessel=hV;
+						return hAtt;
+					}
+				}
+			}
+		}
+	}
+	//if we haven't found a target, return NULL and leave OBJHANDLE* unchanged
+	return NULL;
+}
+
+
+void Atlantis::AttachOBSS() const
+{
+	if(Eq(MRL[1], 1.00)) {
+		OBJHANDLE vessel;
+		ATTACHMENTHANDLE obss_attach=GetAttachmentTarget(ahOBSS, "OS", &vessel);
+		oapiWriteLog("GetAttachmentTarget called");
+		if(obss_attach) {
+			pRMS->Detach(oapiGetVesselInterface(vessel));
+			AttachChild(vessel, ahOBSS, obss_attach);
+		}
+	}
+}
+
+void Atlantis::DetachOBSS() const
+{
+	if(Eq(MRL[1], 0.000)) {
+		DetachChild(ahOBSS);
+	}
 }
 
 void Atlantis::UpdateMRLMicroswitches()
@@ -5062,6 +5134,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
 	} else if (!_strnicmp (line, "RMS", 3)) {
 		RMS=true;
+		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
 	} else if (!_strnicmp (line, "MPM", 3)) {
 		STBDMPM=true;
 	} else if (!_strnicmp (line, "STBD_MPM", 8)) {
@@ -6122,8 +6195,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		else if(!Grapple.Open()) {
 			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 			if(Grapple.Open()) {
-				if(GetAttachmentStatus(ahRMS)) 
-					ToggleGrapple();
+				if(GetAttachmentStatus(ahRMS)) ToggleGrapple();
+				else if(pRMS) pRMS->Ungrapple();
 				Extend.action=AnimState::OPENING;
 				panela8->UpdateVC();
 			}
@@ -8007,80 +8080,83 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   case WM_TIMER:
     if (wParam == 1) {
       t1 = oapiGetSimTime();
-	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0 || sts->MRL[0]!=0.0) break;
-      if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
-        sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
-		sts->UpdateRMSAngles();
-		sts->UpdateRMSPositions();
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(0,+1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(0,0,+1)*(t1-t0)*ARM_TRANSLATE_SPEED);
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(-1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
-      } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-        sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
-	  } else if (SendDlgItemMessage (hWnd, IDC_GRAPPLE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0 || sts->MRL[0]!=0.0 || sts->pRMS==NULL) break;
+	  if(sts->pRMS->Movable()) {
+		  if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
+			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
+			sts->UpdateRMSAngles();
+			sts->UpdateRMSPositions();
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(0,+1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(0,0,+1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(-1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+			sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+		  }
+	  }
+	  if (SendDlgItemMessage (hWnd, IDC_GRAPPLE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
 		  sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
 		  if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Closed()) {
@@ -8096,8 +8172,9 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		  //sprintf_s(oapiDebugString(), 255, "RELEASE pressed");
 		  if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Open()) {
-				  if(sts->Grapple.Closed() && sts->GetAttachmentStatus(sts->ahRMS)) {
-					  sts->ToggleGrapple();
+				  if(sts->Grapple.Closed()) {
+					  if(sts->GetAttachmentStatus(sts->ahRMS)) sts->ToggleGrapple();
+					  else if(sts->pRMS) sts->pRMS->Ungrapple();
 				  }
 				  sts->Grapple.action=AnimState::OPENING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);

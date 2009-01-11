@@ -573,6 +573,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RMSSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\RSLS.cpp"
 				>
 			</File>
@@ -879,6 +883,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RMSSystem.h"
 				>
 			</File>
 			<File
