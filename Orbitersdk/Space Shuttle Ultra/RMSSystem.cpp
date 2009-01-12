@@ -59,6 +59,9 @@ void RMSSystem::Detach(VESSEL* target)
 bool RMSSystem::PayloadIsFree() const
 {
 	if(payload) {
+		//if we are attached to payload, it must be 'free'
+		if(STS()->GetAttachmentStatus(end_effector)) return true;
+		//otherwise, loop through all attachment points on payload and check if any of them are in use
 		DWORD count=payload->AttachmentCount(true);
 		for(DWORD i=0;i<count;i++) {
 			ATTACHMENTHANDLE att=payload->GetAttachmentHandle(true, i);
