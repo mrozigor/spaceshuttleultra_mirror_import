@@ -1528,36 +1528,6 @@ private:
 		o.z=sqrt(1.0-pow(v.x,2)-pow(v.y,2));
 		return o;
 	}
-	inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
-	{
-		VECTOR3 Output;
-		Output.x=v.x;
-		Output.z=v.z*cos(angle*RAD)-v.y*sin(angle*RAD);
-		Output.y=v.y*cos(angle*RAD)+v.z*sin(angle*RAD);
-		return Output;
-	}
-	inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Y-axis
-	{
-		VECTOR3 Output;
-		Output.y=v.y;
-		Output.x=v.x*cos(angle*RAD)-v.z*sin(angle*RAD);
-		Output.z=v.z*cos(angle*RAD)+v.x*sin(angle*RAD);
-		return Output;
-	}
-	inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Z-axis
-	{
-		VECTOR3 Output;
-		Output.x=v.x*cos(angle*RAD)-v.y*sin(angle*RAD);
-		Output.y=v.x*sin(angle*RAD)+v.y*cos(angle*RAD);
-		Output.z=v.z;
-		return Output;
-	}
-	inline double range(double min, double value, double max)
-	{
-		if(value<min) return min;
-		if(value>max) return max;
-		return value;
-	}
 	inline double a(double t) {
 		return a0/(1-t/tau);
 	}
@@ -2059,6 +2029,13 @@ static inline bool Eq(const VECTOR3 v1, const VECTOR3 v2, double dDiff=0.00001)
 	return true;
 }
 
+static inline double range(double min, double value, double max)
+{
+	if(value<min) return min;
+	if(value>max) return max;
+	return value;
+}
+
 //mesh illumination functions
 static void IlluminateMesh(MESHHANDLE mesh)
 {
@@ -2108,6 +2085,31 @@ static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
 		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
 		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
     }
+}
+
+static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
+{
+	VECTOR3 Output;
+	Output.x=v.x;
+	Output.z=v.z*cos(angle*RAD)-v.y*sin(angle*RAD);
+	Output.y=v.y*cos(angle*RAD)+v.z*sin(angle*RAD);
+	return Output;
+}
+static inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Y-axis
+{
+	VECTOR3 Output;
+	Output.y=v.y;
+	Output.x=v.x*cos(angle*RAD)-v.z*sin(angle*RAD);
+	Output.z=v.z*cos(angle*RAD)+v.x*sin(angle*RAD);
+	return Output;
+}
+static inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Z-axis
+{
+	VECTOR3 Output;
+	Output.x=v.x*cos(angle*RAD)-v.y*sin(angle*RAD);
+	Output.y=v.x*sin(angle*RAD)+v.y*cos(angle*RAD);
+	Output.z=v.z;
+	return Output;
 }
 
 #endif // !__ATLANTIS_H
