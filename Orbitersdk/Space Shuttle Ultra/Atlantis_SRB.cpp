@@ -25,8 +25,8 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 : VESSEL2(hObj)
 {
 	// preload mesh
-	hSRBMesh_Left = oapiLoadMeshGlobal ("Shuttle_lsrb");
-	hSRBMesh_Right = oapiLoadMeshGlobal ("Shuttle_rsrb");
+	hSRBMesh_Left = oapiLoadMeshGlobal ("SSU/LSRB");
+	hSRBMesh_Right = oapiLoadMeshGlobal ("SSU/RSRB");
 	slag1 = 1.0;
 	slag2 = 1.0;
 	slag3 = 1.0;
@@ -121,12 +121,14 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	//BSM
 	if(Left)
 	{
-		thBSM[0] = CreateThruster(_V(0.752, 2.06, -20.5), _V(-0.22, -0.604, 0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(0.752, 2.06, -20.5), _V(-0.22, -0.604, 0.766), 3*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(1.194, 2.896, -19.328), _V(0.339, 0.9347, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[2] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	} else 
 	{
-		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 3*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(-1.194, 2.896, -19.328), _V(0.9347, 0.339, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[2] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	}
 	// for simplicity, the separation bolts directly use SRB propellant. We give
 	// them an insanely high ISP to avoid significant propellant drainage
