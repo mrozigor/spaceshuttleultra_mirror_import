@@ -28,7 +28,7 @@ const double RMS_SP_NULL_ANGLE = DEG * acos((RMS_SP_JOINT.z-RMS_EP_JOINT.z)/RMS_
 const double RMS_EP_NULL_ANGLE = DEG * acos((RMS_EP_JOINT.z-RMS_WP_JOINT.z)/RMS_EP_WP_DIST);
 // effective angle (degrees) of elbow boom in null position
 
-const double RMS_JOINT_LIMTS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -447.0},
+const double RMS_JOINT_LIMITS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -447.0},
 									{+180.0, +145.0, +2.4, +121.4, +121.3, +447.0}};
 const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6, -442.0},
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
@@ -84,6 +84,7 @@ private:
 
 	void Translate(const VECTOR3 &dPos);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
+	void SetJointPos(RMS_JOINT joint, double pos);
 
 	VESSEL* payload;
 	ATTACHMENTHANDLE grapple, end_effector;

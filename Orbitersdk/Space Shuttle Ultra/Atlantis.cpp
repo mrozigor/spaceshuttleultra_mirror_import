@@ -5161,9 +5161,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf (line+14, "%lf", &shoulder_brace);
 	} else if (!_strnicmp (line, "MRL", 3)) {
 		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
-	} else if (!_strnicmp (line, "ARM_STATUS", 10)) {
+	} /*else if (!_strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
-	} else if(!_strnicmp(line, "OPS", 3)) {
+	}*/ else if(!_strnicmp(line, "OPS", 3)) {
 		sscanf(line+3, "%d", &ops);
 	} else if(!_strnicmp(line, "PEG7", 4)) {
 		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
@@ -5339,9 +5339,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
   }
   if(RMS) {
-	  oapiWriteLine(scn, "  RMS");
+	  /*oapiWriteLine(scn, "  RMS");
 	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
-	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
+	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);*/
 	  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
 		  sprintf(cbuf, "1 %f", RMSRollout.pos);
 	  else sprintf(cbuf, "0 %f", RMSRollout.pos);

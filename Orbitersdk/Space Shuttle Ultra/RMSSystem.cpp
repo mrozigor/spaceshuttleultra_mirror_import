@@ -122,6 +122,16 @@ void RMSSystem::CreateArm()
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddAnimationComponent (anim_rms_ee, 0, 1, &rms_ee_anim, parent);
+
+	//if joint angles were loaded from scenario file, 
+	if(arm_moved) {
+		SetJointPos(SHOULDER_YAW, joint_pos[SHOULDER_YAW]);
+		SetJointPos(SHOULDER_PITCH, joint_pos[SHOULDER_PITCH]);
+		SetJointPos(ELBOW_PITCH, joint_pos[ELBOW_PITCH]);
+		SetJointPos(WRIST_PITCH, joint_pos[WRIST_PITCH]);
+		SetJointPos(WRIST_YAW, joint_pos[WRIST_YAW]);
+		SetJointPos(WRIST_ROLL, joint_pos[WRIST_ROLL]);
+	}
 }
 
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -183,12 +193,31 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 bool RMSSystem::OnParseLine(const char* line)
 {
+	if(!_strnicmp(line, "ARM_STATUS", 10)) {
+		sscanf_s(line+10, "%lf%lf%lf%lf%lf%lf", &joint_pos[SHOULDER_YAW], &joint_pos[SHOULDER_PITCH], &joint_pos[ELBOW_PITCH], 
+			&joint_pos[WRIST_PITCH], &joint_pos[WRIST_YAW], &joint_pos[WRIST_ROLL]);
+		arm_moved=true;
+		update_data=true;
+		//oapiWriteLog("Read ARM_STATUS line");
+	}
+
 	return MPMSystem::OnParseLine(line);
 }
 
 void RMSSystem::OnSaveState(FILEHANDLE scn) const
 {
 	MPMSystem::OnSaveState(scn);
+
+	char cbuf[255];
+
+	oapiWriteLine(scn, "  RMS");
+	sprintf_s(cbuf, 255, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", joint_pos[SHOULDER_YAW], joint_pos[SHOULDER_PITCH], joint_pos[ELBOW_PITCH], 
+		joint_pos[WRIST_PITCH], joint_pos[WRIST_YAW], joint_pos[WRIST_ROLL]);
+	oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
+	/*oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
+	WriteScenario_state(scn, "GRAPPLE", Grapple);
+	WriteScenario_state(scn, "RIGIDIZE", Rigidize);
+	WriteScenario_state(scn, "EXTEND", Extend);*/
 }
 
 void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)
@@ -331,20 +360,31 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 	joint_angle[WRIST_PITCH]=phi_w;
 	joint_angle[WRIST_YAW]=0.0;*/
 
-	/*arm_ee_pos=arm_cpos;
-	VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
+	arm_ee_pos=arm_cpos;
+
+	/*VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
 	temp=_V(temp.z, -temp.x, -temp.y);*/
 	//sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f Error: %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z, length(arm_ee_pos-temp));
 }
 
 void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 {
-	double pos=linterp(RMS_JOINT_LIMTS[0][joint], 0.0, RMS_JOINT_LIMTS[1][joint], 1.0, angle);
+	double pos=linterp(RMS_JOINT_LIMITS[0][joint], 0.0, RMS_JOINT_LIMITS[1][joint], 1.0, angle);
 	//sprintf_s(oapiDebugString(), 255, "Joint Angle: %f %f", angle, pos);
 	if(pos>=0.0 && pos<=1.0) {
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=angle;
+		arm_moved=true;
+	}
+}
+
+void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
+{
+	if(pos>=0.0 && pos<=1.0) {
+		STS()->SetAnimation(anim_joint[joint], pos);
+		joint_pos[joint]=pos;
+		joint_angle[joint]=linterp(0.0, RMS_JOINT_LIMITS[0][joint], 1.0, RMS_JOINT_LIMITS[1][joint], pos);
 		arm_moved=true;
 	}
 }
