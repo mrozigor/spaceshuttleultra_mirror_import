@@ -2437,7 +2437,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
 	if(RMS) {
 		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
-		SetMeshVisibilityMode (mesh_rms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+		SetMeshVisibilityMode (mesh_rms, MESHVIS_NEVER);
 
 		//add panelA8
 		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
@@ -5132,7 +5132,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		do_cargostatic = true;
     } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
 		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if (!_strnicmp (line, "RMS", 3)) {
+	} else if (!RMS && !_strnicmp (line, "RMS", 3)) {
 		RMS=true;
 		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
 	} else if (!_strnicmp (line, "MPM", 3)) {
@@ -5602,6 +5602,7 @@ void Atlantis::clbkPostCreation ()
 	pgAft.Realize();
 	pgAftStbd.Realize();
 	panelr2->Realize();
+	panela8->Realize();
 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 	BodyFlapAutoIn.Connect(pBundle, 0);
@@ -7387,11 +7388,18 @@ void Atlantis::UpdateRMSAngles()
 
 void Atlantis::UpdateRMSPositions()
 {
+	VECTOR3 old=arm_ee_pos;
 	CalcAnimationFKArm(arm_ee_pos, arm_ee_dir);
 	arm_ee_rot=arm_tip[2]-arm_tip[0];
 	arm_ee_rot=_V(-arm_ee_rot.z, arm_ee_rot.x, arm_ee_rot.y);
-	//sprintf(oapiDebugString(), "%f %f %f %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
-		//arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
+	VECTOR3 calc=arm_ee_pos;
+
+	//arm_ee_dir=arm_tip[1]-arm_tip[0];
+	arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
+	arm_ee_pos=_V(arm_ee_pos.z, -arm_ee_pos.x, -arm_ee_pos.y);
+	sprintf(oapiDebugString(), "%f %f %f %f %f %f", old.x, old.y, old.z,
+		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+	oapiWriteLog(oapiDebugString());
 }
 
 void Atlantis::AutoGrappleSequence()
@@ -8083,77 +8091,95 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0 || sts->MRL[0]!=0.0 || sts->pRMS==NULL) break;
 	  if(sts->pRMS->Movable()) {
 		  if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_YAW, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_YAW, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::ELBOW_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::ELBOW_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_YAW, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_YAW, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_ROLL, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
+			/*sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
 			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
 			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();
+			sts->UpdateRMSPositions();*/
+			sts->pRMS->RotateJoint(RMSSystem::WRIST_ROLL, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(1.0, 0.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(0,+1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(0,+1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(0.0, -1.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(0,0,+1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(0,0,+1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(0.0, 0.0, 1.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(-1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(-1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(-1.0, 0.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(0.0, 1.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			//sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
+			  sts->pRMS->TranslateEE(_V(0.0, 0.0, -1.0));
 		  }
 	  }
 	  if (SendDlgItemMessage (hWnd, IDC_GRAPPLE, BM_GETSTATE, 0, 0) & BST_PUSHED) {

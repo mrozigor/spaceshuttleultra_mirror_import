@@ -2,7 +2,7 @@
 #define __RMSSUBSYSTEM_H
 #pragma once
 
-#include "AtlantisSubsystem.h"
+#include "MPMSystems.h"
 #include "Atlantis.h"
 
 const static char* RMS_MESHNAME = "SSU/RMS";
@@ -33,13 +33,12 @@ const double RMS_JOINT_LIMTS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -44
 const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6, -442.0},
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
 
-const double RMS_JOINT_ROTATION_SPEED = 0.5;
+const double RMS_JOINT_ROTATION_SPEED = 1.5;
 // RMS arm joint rotation speed (deg/sec)
 const double RMS_EE_TRANSLATION_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 
-//for the moment, this class handles grappling 
-class RMSSystem : public AtlantisSubsystem
+class RMSSystem : public MPMSystem
 {
 public:
 	typedef enum {SHOULDER_YAW=0, SHOULDER_PITCH=1, ELBOW_PITCH=2, WRIST_PITCH=3, WRIST_YAW=4, WRIST_ROLL=5} RMS_JOINT;
@@ -48,6 +47,7 @@ public:
 	virtual ~RMSSystem();
 
 	virtual void Realize();
+	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
@@ -90,12 +90,8 @@ private:
 	//true if RMS is still grappled, but Orbiter should not fromally attach the RMS to the payload.
 	bool detached;
 
-	UINT mesh_index;
-	MESHHANDLE hRMSMesh;
-
 	UINT anim_camRMSElbowPan, anim_camRMSElbowTilt;
 	UINT anim_joint[6], anim_rms_ee;
-	UINT anim_rollout;
 
 	//RMS Camera rot/direction
 	double camRMSElbowPan, camRMSElbowTilt;
@@ -104,10 +100,19 @@ private:
 	//EE and IK parameters
 	VECTOR3 arm_tip[3];
 	VECTOR3 arm_wrist_pos;
+	/** Refence frame for internal calculations:
+	 * +X: Towards tail
+	 * +Y: towards port side (right from aft windows)
+	 * +Z: Up
+	 * Frame corresponds to negative version of frame used by real shuttle
+	 */
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6];
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
+
+	bool arm_moved;
+	bool update_data;
 
 	int joint_motion[6];
 	int ee_translation[3];

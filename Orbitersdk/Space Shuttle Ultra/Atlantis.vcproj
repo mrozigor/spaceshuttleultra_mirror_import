@@ -467,6 +467,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MPMSystems.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\MPS.cpp"
 				>
 			</File>
@@ -798,6 +802,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MPMSystems.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\MPS.h"
 				>
 			</File>
@@ -819,6 +827,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelA7A8ODS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PanelA8.h"
 				>
 			</File>
 			<File

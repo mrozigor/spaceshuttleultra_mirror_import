@@ -4,10 +4,10 @@
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 
 RMSSystem::RMSSystem(SubsystemDirector *_director)
-	: AtlantisSubsystem(_director, "RMS")
+	: MPMSystem(_director, "RMS", RMS_MESHNAME)
 {
-	hRMSMesh=oapiLoadMeshGlobal(RMS_MESHNAME);
-	mesh_index=MESH_UNDEFINED;
+	//hRMSMesh=oapiLoadMeshGlobal(RMS_MESHNAME);
+	//mesh_index=MESH_UNDEFINED;
 
 	payload=NULL;
 	grapple=NULL;
@@ -21,7 +21,7 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	joint_pos[WRIST_YAW] = 0.5;
 	joint_pos[WRIST_ROLL] = 0.5;
 	arm_tip[0] = RMS_EE_POS;
-	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, 1.0);
+	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // -Z coordinate of attachment point is negative, so subtract 1 here
 	arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
@@ -29,6 +29,8 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
 	camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
 
+	arm_moved=false;
+	update_data=false;
 	for(int i=0;i<6;i++) joint_motion[i]=0;
 	for(int i=0;i<3;i++) ee_translation[i]=0;
 }
@@ -39,22 +41,25 @@ RMSSystem::~RMSSystem()
 
 void RMSSystem::Realize()
 {
+	MPMSystem::Realize();
+
 	CreateArm();
+	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 }
 
 void RMSSystem::CreateArm()
 {
 	//add RMS mesh
-	VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
+	/*VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
 	mesh_index=STS()->AddMesh(hRMSMesh, &ofs);
-	STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);*/
 
 	//rollout animation
 	static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
 	static MGROUP_ROTATE rms_rollout_anim(mesh_index, RMSRolloutGrp, 11,
 		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
-	anim_rollout = STS()->CreateAnimation(1.0);
-	STS()->AddAnimationComponent(anim_rollout, 0, 1, &rms_rollout_anim);
+	anim_mpm = STS()->CreateAnimation(1.0);
+	STS()->AddAnimationComponent(anim_mpm, 0, 1, &rms_rollout_anim);
 
 	//shoulder yaw
 	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
@@ -114,13 +119,15 @@ void RMSSystem::CreateArm()
 	parent = STS()->AddAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, &rms_wr_anim, parent);
 
 	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-		_V(-2.844, 2.133, -6.049), _V(0,0,1), (float)(0.0));
+		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddAnimationComponent (anim_rms_ee, 0, 1, &rms_ee_anim, parent);
 }
 
-void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
+void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
+
 	if(!detached && payload!=NULL && !STS()->GetAttachmentStatus(end_effector)) {
 		if(PayloadIsFree()) STS()->AttachChild(payload->GetHandle(), end_effector, grapple);
 	}
@@ -131,6 +138,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
 				SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEED*DeltaT*joint_motion[i]);
+				update_data=true;
 				joint_motion[i]=0;
 			}
 		}
@@ -148,13 +156,39 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	}
 }
 
+void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
+{
+	MPMSystem::OnPostStep(SimT, DeltaT, MJD);
+
+	if(arm_moved) {
+		if(end_effector) STS()->SetAttachmentParams(end_effector, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		if(update_data) {
+			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -18.435);
+			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
+			sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
+
+			arm_ee_rot=RotateVectorZ(arm_tip[2]-arm_tip[0], -18.435);
+			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
+			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+
+			arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
+			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
+			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+
+			update_data=false;
+		}
+		arm_moved=false;
+	}
+}
+
 bool RMSSystem::OnParseLine(const char* line)
 {
-	return false;
+	return MPMSystem::OnParseLine(line);
 }
 
 void RMSSystem::OnSaveState(FILEHANDLE scn) const
 {
+	MPMSystem::OnSaveState(scn);
 }
 
 void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)
@@ -172,24 +206,18 @@ void RMSSystem::TranslateEE(const VECTOR3 &direction)
 	}
 }
 
-void RMSSystem::Translate(const VECTOR3 &dPos)
+/*void RMSSystem::Translate(const VECTOR3 &dPos)
 {
 	double beta_s=joint_angle[SHOULDER_YAW], beta_w=joint_angle[WRIST_YAW];
 	double phi_s=joint_angle[SHOULDER_PITCH], phi_e=joint_angle[ELBOW_PITCH], phi_w=joint_angle[WRIST_PITCH];
 
 	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(dPos, 18.435);
-	//arm_cpos=_V(15.069, 0.0, 0.0);
-	int iterations=0;
-	do
+	// iteratively calculate joint angles
+	// TODO: check iteration for convergence after each iteration
+	for(int i=0;i<10;i++)
 	{
-		/*double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-		double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-		double current_beta_s=linterp(0,-180,1,180,arm_sy);
-		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*/
-
-		VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), beta_s);
-		VECTOR3 arm_wp_dir=RotateVectorY(temp, phi_w+phi_e+phi_s);
+		VECTOR3 arm_wp_dir=RotateVectorZ(_V(1.0, 0.0, 0.0), beta_s);
+		arm_wp_dir=RotateVectorY(arm_wp_dir, phi_w+phi_e+phi_s);
 
 		VECTOR3 arm_wrist_cpos=arm_cpos-arm_ee_dir*RMS_WY_EE_DIST-arm_wp_dir*RMS_WP_WY_DIST;
 		double r=length(arm_wrist_cpos);
@@ -201,36 +229,96 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 		double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
 		if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
 		phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
-		/*double anim_phi_s=linterp(shoulder_min,0,shoulder_max,1,phi_s);
-		double anim_phi_e=linterp(elbow_min,0,elbow_max,1,phi_e);
-		double anim_beta_s=linterp(-180,0,180,1,beta_s);
-		if(anim_beta_s<0 || anim_beta_s>1) return;
-		if(anim_phi_s<0 || anim_phi_s>1) return;
-		if(anim_phi_e<0 || anim_phi_e>1) return;*/
 
 		//make sure values calculated are within bounds
-		//if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return;
-		//if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return;
-		//if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return;
+		if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return;
+		if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return;
+		if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return;
 
-		//Limited IK on the wrist
+		//wrist pitch IK
 		double new_phi_l=phi_s+phi_e;
 		double current_phi_l=joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH];
 		phi_w=joint_angle[WRIST_PITCH]-new_phi_l+current_phi_l;
-		//double anim_phi_w=linterp(wrist_min,0,wrist_max,1,new_phi_w);
-
+		
 		//wrist yaw
 		beta_w=joint_angle[WRIST_YAW]+beta_s-joint_angle[SHOULDER_YAW];
 		//double anim_beta_w=linterp(wrist_yaw_min, 0, wrist_yaw_max, 1, beta_w);
 
-		/*arm_sy=anim_beta_s;
-		arm_sp=anim_phi_s;
-		arm_ep=anim_phi_e;
-		arm_wp=anim_phi_w;
-		arm_wy=anim_beta_w;*/
+		//check values are within bounds
+		if(phi_w<RMS_JOINT_SOFTSTOPS[0][WRIST_PITCH] || phi_w>RMS_JOINT_SOFTSTOPS[1][WRIST_PITCH]) return;
+		if(beta_w<RMS_JOINT_SOFTSTOPS[0][WRIST_YAW] || beta_w>RMS_JOINT_SOFTSTOPS[1][WRIST_YAW]) return;
+	}
 
-		iterations++;
-	}while(iterations<1);
+	SetJointAngle(SHOULDER_YAW, beta_s);
+	SetJointAngle(SHOULDER_PITCH, phi_s);
+	SetJointAngle(ELBOW_PITCH, phi_e);
+	SetJointAngle(WRIST_PITCH, phi_w);
+	SetJointAngle(WRIST_YAW, beta_w);
+	/*joint_angle[SHOULDER_YAW]=0.0;
+	joint_angle[SHOULDER_PITCH]=phi_s;
+	joint_angle[ELBOW_PITCH]=phi_e;
+	joint_angle[WRIST_PITCH]=phi_w;
+	joint_angle[WRIST_YAW]=0.0;*
+
+	arm_ee_pos=arm_cpos;
+	VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
+	temp=_V(temp.z, -temp.x, -temp.y);
+	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+}*/
+
+void RMSSystem::Translate(const VECTOR3 &dPos)
+{
+	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(dPos, -18.435);
+	VECTOR3 arm_wy_cpos=arm_cpos-arm_ee_dir*RMS_WY_EE_DIST;
+	double yaw_angle=atan2(arm_wy_cpos.y, arm_wy_cpos.x);
+
+	VECTOR3 boom_plane=_V(cos(yaw_angle), sin(yaw_angle), 0.0);
+	//find vector in XY plane and perpendicular to arm booms
+	VECTOR3 normal=crossp(boom_plane, _V(0.0, 0.0, 1.0));
+	normal/=length(normal);
+	//sprintf_s(oapiDebugString(), 255, "Normal: %f %f %f Boom Plane: %f %f %f", normal.x, normal.y, normal.z, boom_plane.x, boom_plane.y, boom_plane.z);
+
+	double beta_w;
+	if((arm_ee_dir.z>normal.z && arm_ee_dir.z<boom_plane.z) || (arm_ee_dir.z<normal.z && arm_ee_dir.z>boom_plane.z))
+		beta_w=-DEG*acos(dotp(normal, arm_ee_dir))+90.0;
+	else beta_w=-90.0+DEG*acos(dotp(normal, arm_ee_dir));
+
+	//find vector in same plane as arm booms and perpendicular to EE direction
+	VECTOR3 wp_normal=crossp(normal, arm_ee_dir);
+	wp_normal/=length(wp_normal);
+	//double phi=90.0-DEG*acos(dotp(wp_normal, boom_plane));
+	double phi=DEG*acos(wp_normal.z);
+	if(arm_ee_dir.z<0.0) phi=-phi;
+	sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
+		phi, beta_w);
+
+	//VECTOR3 arm_wp_dir=RotateVectorY(boom_plane, phi);
+	VECTOR3 arm_wp_dir=crossp(wp_normal, normal);
+	VECTOR3 arm_wp_cpos=arm_wy_cpos-arm_wp_dir*RMS_WP_WY_DIST;
+	double r=length(arm_wp_cpos);
+
+	double beta_s=-DEG*yaw_angle;
+	double rho=sqrt(arm_wp_cpos.x*arm_wp_cpos.x+arm_wp_cpos.y*arm_wp_cpos.y);
+	double cos_phibar_e=(r*r-RMS_SP_EP_DIST*RMS_SP_EP_DIST-RMS_EP_WP_DIST*RMS_EP_WP_DIST)/(-2*RMS_SP_EP_DIST*RMS_EP_WP_DIST);
+	if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
+	double phi_e=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
+	double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
+	if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
+	double phi_s=DEG*(atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
+
+	//sprintf_s(oapiDebugString(), 255, "Angles: %f %f %f %f %f", beta_s, phi_s, phi_e, phi-phi_s-phi_e, beta_w);
+
+	//make sure values calculated are within bounds
+	if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return;
+	if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return;
+	if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return;
+
+	//wrist pitch
+	double phi_w=phi-phi_s-phi_e;
+
+	//check values are within bounds
+	if(phi_w<RMS_JOINT_SOFTSTOPS[0][WRIST_PITCH] || phi_w>RMS_JOINT_SOFTSTOPS[1][WRIST_PITCH]) return;
+	if(beta_w<RMS_JOINT_SOFTSTOPS[0][WRIST_YAW] || beta_w>RMS_JOINT_SOFTSTOPS[1][WRIST_YAW]) return;
 
 	SetJointAngle(SHOULDER_YAW, beta_s);
 	SetJointAngle(SHOULDER_PITCH, phi_s);
@@ -243,20 +331,21 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 	joint_angle[WRIST_PITCH]=phi_w;
 	joint_angle[WRIST_YAW]=0.0;*/
 
-	arm_ee_pos=arm_cpos;
+	/*arm_ee_pos=arm_cpos;
 	VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-	temp=_V(temp.z, -temp.x, -temp.y);
-	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+	temp=_V(temp.z, -temp.x, -temp.y);*/
+	//sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f Error: %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z, length(arm_ee_pos-temp));
 }
 
 void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 {
 	double pos=linterp(RMS_JOINT_LIMTS[0][joint], 0.0, RMS_JOINT_LIMTS[1][joint], 1.0, angle);
-	sprintf_s(oapiDebugString(), 255, "Joint Angle: %f %f", angle, pos);
+	//sprintf_s(oapiDebugString(), 255, "Joint Angle: %f %f", angle, pos);
 	if(pos>=0.0 && pos<=1.0) {
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=angle;
+		arm_moved=true;
 	}
 }
 
