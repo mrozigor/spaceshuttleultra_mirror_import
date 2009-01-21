@@ -64,49 +64,44 @@ void PanelA8::RegisterVC()
 	oapiVCRegisterArea(AID_A8_TKBK19, _R(821, 392, 848, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 }
 
-bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
+void PanelA8::Realize()
 {
-	bool bUpper, bLower;
+	DiscreteBundle* pBundle=sts->BundleManager()->CreateBundle("RMS", 16);
+	PortMPMDeploy.Connect(pBundle, 0);
+	PortMPMStow.Connect(pBundle, 1);
+
+	pBundle=sts->BundleManager()->CreateBundle("RMS_MRL", 16);
+	PortMRLRelease.Connect(pBundle, 0);
+	PortMRLLatch.Connect(pBundle, 1);
+	PortMRL_Released.Connect(pBundle, 11);
+	PortMRL_Latched.Connect(pBundle, 12);
+}
+
+bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
+{
+	//bool bUpper, bLower;
 	switch(id) {
 		case AID_A8_TKBK1:
-			/*if(sts->Eq(sts->arm_sy, 0.5) && sts->Eq(sts->arm_sp, sts->shoulder_neutral))
-				return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
-			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);*/
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->MRL_FwdMicroswitches[0][2]==1) {
-				bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			}
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->MRL_FwdMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK3:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->MRL_MidMicroswitches[0][2]==1) {
-				bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			}
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->MRL_MidMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK5:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->MRL_AftMicroswitches[0][2]==1) {
-				bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			}
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->MRL_AftMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK6:
-			if(sts->MRL[0]==0.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_REL);
-			else if(sts->MRL[0]==1.0) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_LAT);
+			if(PortMRL_Released) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_REL);
+			else if(PortMRL_Latched) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_LAT);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK7:
 			if(sts->MPM_Microswitches[0][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 1);
 			else if(sts->MPM_Microswitches[0][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
-			/*tgt=_R(0, 0, 32, 9);
-			src=_R(32, 18, 64, 36);
-			oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);*/
 			return true;
 			break;
 		case AID_A8_TKBK10:
@@ -114,50 +109,40 @@ bool PanelA8::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
+		//CAPTURE
 		case AID_A8_TKBK11:
-			//if(sts->Extend.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
-			//else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->pRMS && sts->pRMS->Grappled()) 
-				bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->pRMS && sts->pRMS->Grappled()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		//EXTEND
 		case AID_A8_TKBK12:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->Extend.Open()) bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->Extend.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		//SHOULDER BRACE
 		case AID_A8_TKBK13:
 			if(sts->shoulder_brace==0.0 && switch_state[SWITCH11]==0)
 				return VCDrawTalkback(surf, id-AID_A8_TKBK1, 8);
-			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_BARBERPOLE);
 			break;
+		//CLOSE
 		case AID_A8_TKBK16:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->Grapple.Closed()) bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->Grapple.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		//OPEN
 		case AID_A8_TKBK17:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->Grapple.Open()) bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
+			if(sts->Grapple.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		//RIGID
 		case AID_A8_TKBK18:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->Rigidize.Closed()) bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
-			break;
+			if(sts->Rigidize.Closed()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
+		//DERIGID
 		case AID_A8_TKBK19:
-			bUpper=VCDrawUpperTalkback(surf, id-AID_A8_TKBK1, 8);
-			if(sts->Rigidize.Open()) bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 8);
-			else bLower=VCDrawLowerTalkback(surf, id-AID_A8_TKBK1, 0);
-			return (bUpper|bLower);
-			break;
+			if(sts->Rigidize.Open()) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 	}
 	return false;
 }
@@ -175,40 +160,24 @@ bool PanelA8::VCDrawTalkback(SURFHANDLE surf, int idx, int label)
 	return true;
 }
 
-bool PanelA8::VCDrawUpperTalkback(SURFHANDLE surf, int idx, int label)
+bool PanelA8::VCDrawTalkback(SURFHANDLE surf, int idx, int upper_label, int lower_label)
 {
 	RECT tgt, src;
-	if (tkbk_state[0][idx] == label) return false; // nothing to do
-	//sprintf(oapiDebugString(), "Panel A8 Talkback: %d %d %d", idx, label, tkbk_state[idx]);
-	tkbk_state[0][idx] = label;
-	tgt=_R(0, 0, 27, 14);
-	if(label<8) {
-		//oapiBlt (surf, g_Param.tkbk_label, 0, 0, label*32, 0, 32, 18);
-		src=_R(label*32, 0, (label+1)*32, 18);
-	}
-	else {
-		//oapiBlt (surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, 32, 18);
-		src=_R((label-8)*32, 18, (label-7)*32, 36);
-	}
-	oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
-	return true;
-}
 
-bool PanelA8::VCDrawLowerTalkback(SURFHANDLE surf, int idx, int label)
-{
-	RECT tgt, src;
-	if (tkbk_state[1][idx] == label) return false; // nothing to do
-	//sprintf(oapiDebugString(), "Panel A8 Talkback: %d %d %d", idx, label, tkbk_state[idx]);
-	tkbk_state[1][idx] = label;
+	if (tkbk_state[0][idx] == upper_label && tkbk_state[1][idx] == lower_label) return false; // nothing to do
+	tkbk_state[0][idx] = upper_label;
+	tkbk_state[1][idx] = lower_label;
+
+	//draw upper segment
+	tgt=_R(0, 0, 27, 14);
+	if(upper_label<8) src=_R(upper_label*32, 0, (upper_label+1)*32, 18);
+	else src=_R((upper_label-8)*32, 18, (upper_label-7)*32, 36);
+	oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
+
+	//draw lower segment
 	tgt=_R(0, 14, 27, 28);
-	if(label<8) {
-		//oapiBlt (surf, g_Param.tkbk_label, 0, 0, label*32, 0, 32, 18);
-		src=_R(label*32, 0, (label+1)*32, 18);
-	}
-	else {
-		//oapiBlt (surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, 32, 18);
-		src=_R((label-8)*32, 18, (label-7)*32, 36);
-	}
+	if(lower_label<8) src=_R(lower_label*32, 0, (lower_label+1)*32, 18);
+	else src=_R((lower_label-8)*32, 18, (lower_label-7)*32, 36);
 	oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
 	return true;
 }
@@ -349,6 +318,18 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 				else {
 					if(switch_state[SWITCH18]<2) switch_state[SWITCH18]++;
 				}
+				if(switch_state[SWITCH18]==0) {
+					PortMRLRelease.SetLine();
+					PortMRLLatch.ResetLine();
+				}
+				else if(switch_state[SWITCH18]==1) {
+					PortMRLRelease.ResetLine();
+					PortMRLLatch.ResetLine();
+				}
+				else {
+					PortMRLRelease.ResetLine();
+					PortMRLLatch.SetLine();
+				}
 				action=true;
 			}
 		}
@@ -363,17 +344,24 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 						if(switch_state[SWITCH17]<2) switch_state[SWITCH17]++;
 					}
 					if(switch_state[SWITCH17]==0) {
-						if(sts->RMSRollout.action!=AnimState::OPEN) {
+						/*if(sts->RMSRollout.action!=AnimState::OPEN) {
 							sts->RMSRollout.action=AnimState::OPENING;
-						}
+						}*/
+						PortMPMDeploy.SetLine();
+						PortMPMStow.ResetLine();
 					}
 					else if(switch_state[SWITCH17]==1) {
-						if(sts->RMSRollout.Moving()) sts->RMSRollout.action=AnimState::STOPPED;
+						//if(sts->RMSRollout.Moving()) sts->RMSRollout.action=AnimState::STOPPED;
+						PortMPMDeploy.ResetLine();
+						PortMPMStow.ResetLine();
 					}
 					else {
-						if(sts->RMSRollout.action!=AnimState::CLOSED) {
+						/*if(sts->RMSRollout.action!=AnimState::CLOSED) {
 							sts->RMSRollout.action=AnimState::CLOSING;
-						}
+						}*/
+						PortMPMDeploy.ResetLine();
+						PortMPMStow.SetLine();
+						//oapiWriteLog("Stowing port MPMs");
 					}
 					action=true;
 				}
@@ -562,7 +550,7 @@ void PanelA8::Step(double t, double dt)
 {
 	//if(!sts->RMS) return;
 	bool bUpdate=false;
-	if(switch_state[SWITCH18]==0 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
+	/*if(switch_state[SWITCH18]==0 && sts->ArmCradled() && switch_state[SWITCH16]!=1) {
 		double da = dt*MPM_MRL_SPEED;
 		sts->MRL[0]=max(0.0, sts->MRL[0]-da);
 		sts->UpdateMRLMicroswitches();
@@ -573,7 +561,7 @@ void PanelA8::Step(double t, double dt)
 		sts->MRL[0]=min(1.0, sts->MRL[0]+da);
 		sts->UpdateMRLMicroswitches();
 		bUpdate=true;
-	}
+	}*/
 
 	if(switch_state[SWITCH13]==0 && switch_state[SWITCH16]!=1) {
 		if(!Eq(sts->MRL[1], 0.00000)) {

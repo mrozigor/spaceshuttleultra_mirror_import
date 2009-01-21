@@ -1,8 +1,10 @@
 #ifndef __PANELA8_H
 #define __PANELA8_H
 
-#include <windows.h>
 #include "Atlantis.h"
+#include "discsignals/discsignals.h"
+
+using namespace discsignals;
 
 // ==============================================================
 // class Panel A8
@@ -25,20 +27,19 @@ public:
 	//void CreateVisual(VISHANDLE hVisual);
 	void UpdateMesh();
 	bool VCMouseEvent (int id, int nEvent, VECTOR3 &p);
-	bool VCRedrawEvent (int id, int event, SURFHANDLE surf);
+	bool VCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	void Step (double t, double dt);
 	bool ParseScenarioLine (char *line);
 	void SaveState (FILEHANDLE scn);
 
+	void Realize();
 private:
 	Atlantis *sts; // vessel instance pointer
 
 	//draws entire talkback with single bitmap
 	bool VCDrawTalkback (SURFHANDLE surf, int idx, int label);
-	//draws upper portion of talkback
-	bool VCDrawUpperTalkback (SURFHANDLE surf, int idx, int label);
-	//draws lower portion of talkback
-	bool VCDrawLowerTalkback (SURFHANDLE surf, int idx, int label);
+	//draws 2-segment talkback
+	bool VCDrawTalkback (SURFHANDLE surf, int idx, int upper_label, int lower_label);
 
 	// VC switch animations
 	UINT anim_VC_A8[20];
@@ -51,6 +52,9 @@ private:
 	 * [1][idx] used for lower half
 	 */
 	int tkbk_state[2][20];
+
+	DiscOutPort PortMPMDeploy, PortMPMStow, PortMRLRelease, PortMRLLatch;
+	DiscInPort PortMPMDeployed, PortMPMStowed, PortMRL_Released, PortMRL_Latched;
 };
 
 #endif  // !__PANELA8_H
