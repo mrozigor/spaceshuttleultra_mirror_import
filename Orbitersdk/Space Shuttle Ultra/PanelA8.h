@@ -54,7 +54,7 @@ private:
 	int tkbk_state[2][20];
 
 	DiscOutPort PortMPMDeploy, PortMPMStow, PortMRLRelease, PortMRLLatch;
-	DiscInPort PortMPMDeployed, PortMPMStowed, PortMRL_Released, PortMRL_Latched;
+	DiscInPort PortMPMDeployed, PortMPMStowed, PortMRL_Released, PortMRL_Latched, PortMRL_RTL[3];
 };
 
 #endif  // !__PANELA8_H

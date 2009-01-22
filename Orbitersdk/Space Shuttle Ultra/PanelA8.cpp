@@ -39,13 +39,13 @@ void PanelA8::RegisterVC()
 	oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.797, 2.892, 12.279)+ofs, _V(-0.266, 2.892, 12.279)+ofs, _V(-0.797, 2.119, 12.522)+ofs, _V(-0.266, 2.119, 12.522)+ofs);
 	
 	// PORT MPM RTL
-	oapiVCRegisterArea(AID_A8_TKBK1, _R(895, 894, 922, 922), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
-	oapiVCRegisterArea(AID_A8_TKBK3, _R(895, 769, 922, 797), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
-	oapiVCRegisterArea(AID_A8_TKBK5, _R(895, 642, 922, 670), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK1, _R(895, 894, 922, 922), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK3, _R(895, 769, 922, 797), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK5, _R(895, 642, 922, 670), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// PORT MPM LATCH
-	oapiVCRegisterArea(AID_A8_TKBK6, _R(806, 650, 838, 668), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK6, _R(806, 650, 838, 668), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// PORT MPM DPY
-	oapiVCRegisterArea(AID_A8_TKBK7, _R(717, 648, 749, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK7, _R(717, 648, 749, 666), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// STBD MPM DPY
 	oapiVCRegisterArea(AID_A8_TKBK10, _R(120, 648, 152, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// EE CAPTURE
@@ -69,10 +69,13 @@ void PanelA8::Realize()
 	DiscreteBundle* pBundle=sts->BundleManager()->CreateBundle("RMS", 16);
 	PortMPMDeploy.Connect(pBundle, 0);
 	PortMPMStow.Connect(pBundle, 1);
+	PortMPMDeployed.Connect(pBundle, 2);
+	PortMPMStowed.Connect(pBundle, 3);
 
 	pBundle=sts->BundleManager()->CreateBundle("RMS_MRL", 16);
 	PortMRLRelease.Connect(pBundle, 0);
 	PortMRLLatch.Connect(pBundle, 1);
+	for(int i=0;i<3;i++) PortMRL_RTL[i].Connect(pBundle, i+5);
 	PortMRL_Released.Connect(pBundle, 11);
 	PortMRL_Latched.Connect(pBundle, 12);
 }
@@ -82,15 +85,15 @@ bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
 	//bool bUpper, bLower;
 	switch(id) {
 		case AID_A8_TKBK1:
-			if(sts->MRL_FwdMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			if(PortMRL_RTL[0]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK3:
-			if(sts->MRL_MidMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			if(PortMRL_RTL[1]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK5:
-			if(sts->MRL_AftMicroswitches[0][2]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			if(PortMRL_RTL[2]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
 		case AID_A8_TKBK6:
@@ -99,14 +102,14 @@ bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		case AID_A8_TKBK7:
-			if(sts->MPM_Microswitches[0][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 1);
-			else if(sts->MPM_Microswitches[0][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
+			if(PortMPMStowed) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_STO);
+			else if(PortMPMDeployed) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_DPY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			return true;
 			break;
 		case AID_A8_TKBK10:
-			if(sts->MPM_Microswitches[1][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 1);
-			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, 9);
+			if(sts->MPM_Microswitches[1][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_STO);
+			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_DPY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		//CAPTURE
