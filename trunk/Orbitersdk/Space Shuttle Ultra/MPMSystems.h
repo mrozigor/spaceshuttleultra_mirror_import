@@ -36,6 +36,8 @@ protected:
 	AnimState MPMRollout, MRLLatches;
 	DiscOutPort MRL_Rel_Microswitches[3], MRL_Lat_Microswitches[3], MRL_RTL_Microswitches[3];
 	DiscOutPort MRL_Latched, MRL_Released;
+
+	DiscOutPort MPM_Stowed, MPM_Deployed;
 private:
 	void AddMesh();
 	

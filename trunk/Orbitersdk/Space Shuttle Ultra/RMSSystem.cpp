@@ -44,6 +44,7 @@ void RMSSystem::Realize()
 	MPMSystem::Realize();
 
 	CreateArm();
+	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 }
 
@@ -175,7 +176,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		if(update_data) {
 			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -18.435);
 			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
-			sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
+			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
 			arm_ee_rot=RotateVectorZ(arm_tip[2]-arm_tip[0], -18.435);
 			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
@@ -187,6 +188,20 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 			update_data=false;
 		}
+
+		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
+		if(Eq(joint_angle[SHOULDER_YAW], 0.0, 0.1) && Eq(joint_angle[SHOULDER_PITCH], 0.0, 0.1)) {
+			MRL_RTL_Microswitches[0].SetLine();
+
+			if(Eq(joint_angle[ELBOW_PITCH], 0.0, 0.1)) {
+				MRL_RTL_Microswitches[1].SetLine();
+
+				if(Eq(joint_angle[WRIST_PITCH], 0.0, 0.1) && Eq(joint_angle[WRIST_YAW], 0.0, 0.1) && Eq(joint_angle[WRIST_ROLL], 0.0, 0.1)) {
+					MRL_RTL_Microswitches[2].SetLine();
+				}
+			}
+		}
+
 		arm_moved=false;
 	}
 }
@@ -196,6 +211,7 @@ bool RMSSystem::OnParseLine(const char* line)
 	if(!_strnicmp(line, "ARM_STATUS", 10)) {
 		sscanf_s(line+10, "%lf%lf%lf%lf%lf%lf", &joint_pos[SHOULDER_YAW], &joint_pos[SHOULDER_PITCH], &joint_pos[ELBOW_PITCH], 
 			&joint_pos[WRIST_PITCH], &joint_pos[WRIST_YAW], &joint_pos[WRIST_ROLL]);
+		joint_pos[ELBOW_PITCH]=1.0-joint_pos[ELBOW_PITCH];
 		arm_moved=true;
 		update_data=true;
 		//oapiWriteLog("Read ARM_STATUS line");
@@ -206,18 +222,18 @@ bool RMSSystem::OnParseLine(const char* line)
 
 void RMSSystem::OnSaveState(FILEHANDLE scn) const
 {
-	MPMSystem::OnSaveState(scn);
-
 	char cbuf[255];
 
 	oapiWriteLine(scn, "  RMS");
-	sprintf_s(cbuf, 255, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", joint_pos[SHOULDER_YAW], joint_pos[SHOULDER_PITCH], joint_pos[ELBOW_PITCH], 
+	sprintf_s(cbuf, 255, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", joint_pos[SHOULDER_YAW], joint_pos[SHOULDER_PITCH], 1.0-joint_pos[ELBOW_PITCH], 
 		joint_pos[WRIST_PITCH], joint_pos[WRIST_YAW], joint_pos[WRIST_ROLL]);
 	oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
 	/*oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
 	WriteScenario_state(scn, "GRAPPLE", Grapple);
 	WriteScenario_state(scn, "RIGIDIZE", Rigidize);
 	WriteScenario_state(scn, "EXTEND", Extend);*/
+
+	MPMSystem::OnSaveState(scn);
 }
 
 void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)

@@ -47,19 +47,40 @@ void MPMSystem::Realize()
 	pBundle=BundleManager()->CreateBundle(GetIdentifier(), 16);
 	Deploy.Connect(pBundle, 0);
 	Stow.Connect(pBundle, 1);
+	MPM_Deployed.Connect(pBundle, 2);
+	MPM_Stowed.Connect(pBundle, 3);
+
+	if(MPMRollout.Open()) {
+		MPM_Deployed.SetLine();
+		MPM_Stowed.ResetLine();
+	}
+	else if(MPMRollout.Closed()) {
+		MPM_Deployed.ResetLine();
+		MPM_Stowed.SetLine();
+	}
 }
 
 void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	if(Deploy && !MPMRollout.Open()) {
-		if(!MPMRollout.Opening()) MPMRollout.action=AnimState::OPENING;
+		if(!MPMRollout.Opening()) {
+			MPMRollout.action=AnimState::OPENING;
+			MPM_Stowed.ResetLine();
+		}
 		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED);
 		STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+		if(MPMRollout.Open()) {
+			MPM_Deployed.SetLine();
+		}
 	}
 	else if(Stow && !MPMRollout.Closed()) {
-		if(!MPMRollout.Closing()) MPMRollout.action=AnimState::CLOSING;
+		if(!MPMRollout.Closing()) {
+			MPMRollout.action=AnimState::CLOSING;
+			MPM_Deployed.ResetLine();
+		}
 		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED);
 		STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+		if(MPMRollout.Closed()) MPM_Stowed.SetLine();
 	}
 
 	if(Release && !MRLLatches.Open()) {
