@@ -94,6 +94,8 @@ void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(MRLLatches.Open()) {
 			for(int i=0;i<3;i++) MRL_Rel_Microswitches[i].SetLine();
 			MRL_Released.SetLine();
+
+			OnMRLReleased();
 		}
 	}
 	else if(Latch && !MRLLatches.Closed()) {
@@ -107,6 +109,8 @@ void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(MRLLatches.Closed()) {
 			for(int i=0;i<3;i++) MRL_Lat_Microswitches[i].SetLine();
 			MRL_Latched.SetLine();
+
+			OnMRLLatched();
 		}
 	}
 }
@@ -143,4 +147,12 @@ void MPMSystem::AddMesh()
 	VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
 	mesh_index=STS()->AddMesh(hMesh, &ofs);
 	STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+}
+
+void MPMSystem::OnMRLLatched()
+{
+}
+
+void MPMSystem::OnMRLReleased()
+{
 }

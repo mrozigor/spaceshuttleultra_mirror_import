@@ -191,8 +191,6 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 const double MPM_MRL_SPEED = 0.11765;
 // speed of MPM latches (8.5 seconds)
-const VECTOR3 ARM_WRIST_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
-// Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 
 const double DYNP_MAX = 100e3;
 // Max. allowed dynamic pressure [Pa]

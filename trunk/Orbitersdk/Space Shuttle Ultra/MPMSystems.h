@@ -9,6 +9,8 @@
 const double MPM_DEPLOY_SPEED = 0.0294117647;
 const double MRL_LATCH_SPEED = 0.11765;
 // speed of MPM latches (8.5 seconds)
+const double MRL_MAX_ANGLE_ERROR = 0.1;
+// max angular misalignment (in degrees) between MPM and OBSS/RMS to allow latching
 
 using namespace discsignals;
 
@@ -29,6 +31,9 @@ public:
 	bool Released() const {return MRLLatches.Open();};
 	bool Latched() const {return MRLLatches.Closed();};
 protected:
+	virtual void OnMRLLatched();
+	virtual void OnMRLReleased();
+
 	UINT mesh_index;
 	// all animations should be added by derived classes
 	UINT anim_mpm;

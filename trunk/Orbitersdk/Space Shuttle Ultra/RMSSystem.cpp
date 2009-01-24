@@ -4,7 +4,7 @@
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 
 RMSSystem::RMSSystem(SubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME), RMSCameraMode(NONE), camLowSpeed(false)
 {
 	//hRMSMesh=oapiLoadMeshGlobal(RMS_MESHNAME);
 	//mesh_index=MESH_UNDEFINED;
@@ -23,11 +23,15 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	arm_tip[0] = RMS_EE_POS;
 	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // -Z coordinate of attachment point is negative, so subtract 1 here
 	arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
+	arm_tip[3] = RMS_EE_POS+RMS_EE_CAM_OFFSET;
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
+
 	//RMS elbow camera
-	camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
+	camRMSElbowLoc[0]=RMS_ELBOW_CAM_POS;
 	camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
+	camRMSElbow_rotation[0]=camRMSElbow_rotation[1]=0;
+	camera_moved=false;
 
 	arm_moved=false;
 	update_data=false;
@@ -88,15 +92,15 @@ void RMSSystem::CreateArm()
 	static MGROUP_ROTATE RMSElbowCamPan (mesh_index, RMSElbowCamGrp+1, 1,
 		_V(-2.765, 2.373, 2.073), _V(0.2974, 0.95475, 0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
-	anim_camRMSElbowPan=STS()->CreateAnimation(0.5);
-	parent2 = STS()->AddAnimationComponent (anim_camRMSElbowPan, 0, 1, &RMSElbowCamPan, parent);
+	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
+	parent2 = STS()->AddAnimationComponent (anim_camRMSElbow[PAN], 0, 1, &RMSElbowCamPan, parent);
 	static MGROUP_ROTATE RMSElbowCamTilt (mesh_index, RMSElbowCamGrp, 1,
 		_V(-2.68, 2.64, 2.073), _V(0.9513, -0.3082, 0), (float)(340*RAD));
-	anim_camRMSElbowTilt=STS()->CreateAnimation(0.5);
-	parent2 = STS()->AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamTilt, parent2);
+	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
+	parent2 = STS()->AddAnimationComponent(anim_camRMSElbow[TILT], 0, 1, &RMSElbowCamTilt, parent2);
 	static MGROUP_ROTATE RMSElbowCamLoc (LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
 		_V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
-	STS()->AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamLoc, parent2);
+	STS()->AddAnimationComponent(anim_camRMSElbow[TILT], 0, 1, &RMSElbowCamLoc, parent2);
 
 	//wrist pitch
 	static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
@@ -119,7 +123,7 @@ void RMSSystem::CreateArm()
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, &rms_wr_anim, parent);
 
-	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 4,
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddAnimationComponent (anim_rms_ee, 0, 1, &rms_ee_anim, parent);
@@ -132,6 +136,12 @@ void RMSSystem::CreateArm()
 		SetJointPos(WRIST_PITCH, joint_pos[WRIST_PITCH]);
 		SetJointPos(WRIST_YAW, joint_pos[WRIST_YAW]);
 		SetJointPos(WRIST_ROLL, joint_pos[WRIST_ROLL]);
+	}
+	if(camera_moved) {
+		for(int i=0;i<2;i++) {
+			double anim=linterp(-170, 0, 170, 1, camRMSElbow[i]);
+			STS()->SetAnimation(anim_camRMSElbow[i], anim);
+		}
 	}
 }
 
@@ -165,6 +175,19 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		if(translate) Translate(translation);
 	}
+
+	for(int i=0;i<2;i++) {
+		if(camRMSElbow_rotation[i]!=0) {
+			if(camLowSpeed) camRMSElbow[i]+=camRMSElbow_rotation[i]*PTU_LOWRATE_SPEED*DeltaT;
+			else camRMSElbow[i]+=camRMSElbow_rotation[i]*PTU_HIGHRATE_SPEED*DeltaT;
+
+			double anim=linterp(-170, 0, 170, 1, camRMSElbow[i]);
+			STS()->SetAnimation(anim_camRMSElbow[i], anim);
+
+			camera_moved=true;
+			camRMSElbow_rotation[i]=0;
+		}
+	}
 }
 
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -190,19 +213,26 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		}
 
 		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
-		if(Eq(joint_angle[SHOULDER_YAW], 0.0, 0.1) && Eq(joint_angle[SHOULDER_PITCH], 0.0, 0.1)) {
+		if(Eq(joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
 			MRL_RTL_Microswitches[0].SetLine();
 
-			if(Eq(joint_angle[ELBOW_PITCH], 0.0, 0.1)) {
+			if(Eq(joint_angle[ELBOW_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
 				MRL_RTL_Microswitches[1].SetLine();
 
-				if(Eq(joint_angle[WRIST_PITCH], 0.0, 0.1) && Eq(joint_angle[WRIST_YAW], 0.0, 0.1) && Eq(joint_angle[WRIST_ROLL], 0.0, 0.1)) {
+				if(Eq(joint_angle[WRIST_PITCH], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[WRIST_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[WRIST_ROLL], 0.0, MRL_MAX_ANGLE_ERROR)) {
 					MRL_RTL_Microswitches[2].SetLine();
 				}
 			}
 		}
 
+		if(RMSCameraMode==EE) UpdateEECamView();
+		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
+
 		arm_moved=false;
+	}
+	else if(camera_moved && RMSCameraMode==ELBOW) {
+		UpdateElbowCamView();
+		camera_moved=false;
 	}
 }
 
@@ -215,6 +245,12 @@ bool RMSSystem::OnParseLine(const char* line)
 		arm_moved=true;
 		update_data=true;
 		//oapiWriteLog("Read ARM_STATUS line");
+		return true;
+	}
+	else if(!_strnicmp(line, "RMS_ELBOW_CAM", 13)) {
+		sscanf_s(line+13, "%lf%lf", &camRMSElbow[PAN], &camRMSElbow[TILT]);
+		camera_moved=true;
+		return true;
 	}
 
 	return MPMSystem::OnParseLine(line);
@@ -232,6 +268,8 @@ void RMSSystem::OnSaveState(FILEHANDLE scn) const
 	WriteScenario_state(scn, "GRAPPLE", Grapple);
 	WriteScenario_state(scn, "RIGIDIZE", Rigidize);
 	WriteScenario_state(scn, "EXTEND", Extend);*/
+	sprintf_s(cbuf, 255, "%0.4f %0.4f", camRMSElbow[PAN], camRMSElbow[TILT]);
+	oapiWriteScenario_string(scn, "RMS_ELBOW_CAM", cbuf);
 
 	MPMSystem::OnSaveState(scn);
 }
@@ -249,6 +287,17 @@ void RMSSystem::TranslateEE(const VECTOR3 &direction)
 		else if(direction.data[i]<-0.25) ee_translation[i]=-1;
 		else ee_translation[i]=0;
 	}
+}
+
+void RMSSystem::RotateElbowCam(int pitch, int yaw)
+{
+	camRMSElbow_rotation[PAN]=yaw;
+	camRMSElbow_rotation[TILT]=pitch;
+}
+
+void RMSSystem::SetElbowCamRotSpeed(bool low)
+{
+	camLowSpeed=low;
 }
 
 /*void RMSSystem::Translate(const VECTOR3 &dPos)
@@ -405,12 +454,55 @@ void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
 	}
 }
 
+OBJHANDLE RMSSystem::Grapple()
+{
+	oapiWriteLog("Grappling satellite");
+
+	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
+	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+arm_tip[0], grms);  // global position of RMS tip
+	STS()->GlobalRot(arm_tip[1]-arm_tip[0], grmsdir);
+
+	// Search the complete vessel list for a grappling candidate.
+	// Not very scalable ...
+	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
+		OBJHANDLE hV = oapiGetVesselByIndex (i);
+		if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
+		oapiGetGlobalPos (hV, &gpos);
+		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
+			VESSEL *v = oapiGetVesselInterface (hV);
+			DWORD nAttach = v->AttachmentCount (true);
+			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
+				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
+				const char *id = v->GetAttachmentId (hAtt);
+				if (strncmp (id, "GS", 2)) 
+					continue; // attachment point not compatible
+				v->GetAttachmentParams (hAtt, pos, dir, rot);
+				v->Local2Global (pos, gpos);
+				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
+				oapiWriteLog(oapiDebugString());
+				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
+					v->GlobalRot(dir, gdir);
+					//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
+					if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
+						// check whether satellite is currently clamped into payload bay
+						Grapple(v, hAtt);
+						return hV;
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
 void RMSSystem::Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment)
 {
 	//for the moment, assume attachment passed is completely valid
 	grapple=attachment;
 	payload=vessel;
 	detached=false;
+	sprintf_s(oapiDebugString(), 255, "pRMS->Grapple called");
+	oapiWriteLog("pRMS->Grapple called");
 }
 
 void RMSSystem::Ungrapple()
@@ -428,6 +520,24 @@ void RMSSystem::Detach(VESSEL* target)
 	}
 }
 
+void RMSSystem::OnMRLLatched()
+{
+	if(ArmStowed()) {
+		for(int i=0;i<6;i++) SetJointAngle((RMS_JOINT)i, 0.0);
+	}
+}
+
+bool RMSSystem::ArmStowed() const
+{
+	if(!Eq(joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	if(!Eq(joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	if(!Eq(joint_angle[ELBOW_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	if(!Eq(joint_angle[WRIST_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	if(!Eq(joint_angle[WRIST_YAW], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	if(!Eq(joint_angle[WRIST_ROLL], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
+	return true;
+}
+
 bool RMSSystem::PayloadIsFree() const
 {
 	if(payload) {
@@ -441,4 +551,37 @@ bool RMSSystem::PayloadIsFree() const
 		}
 	}
 	return true;
+}
+
+void RMSSystem::SetEECameraView(bool Active)
+{
+	if(Active) {
+		RMSCameraMode=EE;
+		UpdateEECamView();
+	}
+	else if(RMSCameraMode==EE) RMSCameraMode=NONE;
+}
+
+void RMSSystem::SetElbowCamView(bool Active)
+{
+	if(Active) {
+		RMSCameraMode=ELBOW;
+		UpdateElbowCamView();
+	}
+	else if(RMSCameraMode==ELBOW) RMSCameraMode=NONE;
+}
+
+void RMSSystem::UpdateEECamView() const
+{
+	double tilt = joint_angle[WRIST_ROLL];
+	if(tilt<-180.0) tilt+=360.0;
+	else if(tilt>180.0) tilt-=360.0;
+	STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[3]);
+	STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+}
+
+void RMSSystem::UpdateElbowCamView() const
+{
+	STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+	STS()->SetCameraOffset(camRMSElbowLoc[0]);
 }

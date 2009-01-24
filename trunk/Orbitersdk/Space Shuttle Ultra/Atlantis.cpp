@@ -2243,7 +2243,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 
 
 	//Separate into UpdateRMSAttachment
-	if(ahRMS) //replace with ahRMSLEE?
+	if(ahRMS && !pRMS) //replace with ahRMSLEE?
 	{
 		//Update position
 		SetAttachmentParams(ahRMS, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], 
@@ -2735,6 +2735,19 @@ void Atlantis::ToggleGrapple (void)
 #endif
 
   } else {             // grapple satellite
+	  hV=pRMS->Grapple();
+	  if(hV) {
+		  //increase mass of shuttle
+		  pl_mass+=oapiGetMass(hV);
+		  //oapiWriteLog("pl_mass increased");
+		  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
+		  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
+			  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
+			  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
+		  }
+	  }
+
+	  /*oapiWriteLog("Grappling satellite");
 
     VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
     Local2Global (orbiter_ofs+arm_tip[0], grms);  // global position of RMS tip
@@ -2778,7 +2791,7 @@ void Atlantis::ToggleGrapple (void)
           }
         }
       }
-    }
+    }*/
 
   }
 }
@@ -3362,7 +3375,7 @@ void Atlantis::SetSpeedbrake(double tgt)
 
 void Atlantis::SetAnimationArm (UINT anim, double state)
 {
-  if(!RMS) return;
+  if(!RMS || pRMS) return;
   if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
   SetAnimation (anim, state);
   arm_moved = true;
@@ -3412,10 +3425,10 @@ void Atlantis::SetAnimationCameras() {
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
 	//RMS Elbow
-	anim_yaw=linterp(-170, 0, 170, 1, camRMSElbowPan);
+	/*anim_yaw=linterp(-170, 0, 170, 1, camRMSElbowPan);
 	SetAnimation(anim_camRMSElbowPan, anim_yaw);
 	anim_pitch=linterp(-170, 0, 170, 1, camRMSElbowTilt);
-	SetAnimation(anim_camRMSElbowTilt, anim_pitch);
+	SetAnimation(anim_camRMSElbowTilt, anim_pitch);*/
 
 	switch (VCMode) {
 	case VC_PLBCAMFL:
@@ -3438,10 +3451,10 @@ void Atlantis::SetAnimationCameras() {
 		b = ((camBRpitch-90)*RAD);
 		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		break;
-	case VC_RMSCAM:
+	/*case VC_RMSCAM:
 		SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
 		SetCameraOffset(camRMSElbowLoc[0]);
-		break;
+		break;*/
 	}
 }
 
@@ -6226,7 +6239,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		// If the current camera mode is the RMS_EFFECTOR move camera position to match
 		// the position and direction of the wrist
-		if (VCMode == VC_LEECAM) {
+		/*if (VCMode == VC_LEECAM) {
 			double tilt = wr_angle;
 			if(tilt<-180.0) tilt+=360.0;
 			else if(tilt>180.0) tilt-=360.0;
@@ -6236,7 +6249,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		else if(VCMode==VC_RMSCAM) {
 			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
 			SetCameraOffset(camRMSElbowLoc[0]);
-		}
+		}*/
 
 		arm_moved = false;
 	}
@@ -6718,6 +6731,11 @@ bool Atlantis::clbkLoadVC (int id)
 	SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
   }
 
+  if(pRMS) {
+	if(id!=VC_LEECAM) pRMS->SetEECameraView(false);
+	if(id!=VC_RMSCAM) pRMS->SetElbowCamView(false);
+  }
+
   switch (id) {
   case VC_CDR: // commander position
     DisplayCameraLabel(VC_LBL_CDR);
@@ -6815,29 +6833,37 @@ bool Atlantis::clbkLoadVC (int id)
 	bUpdateVC=true;
     break;
   case VC_LEECAM: //RMS End Effector Camera
-	  DisplayCameraLabel(VC_LBL_LEECAM);
-	tilt = wr_angle;
-	if(tilt<-180.0) tilt+=360.0;
-	else if(tilt>180.0) tilt-=360.0;
+		if(pRMS) {
+			DisplayCameraLabel(VC_LBL_LEECAM);
+			/*tilt = wr_angle;
+			if(tilt<-180.0) tilt+=360.0;
+			else if(tilt>180.0) tilt-=360.0;
 
-    //SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-    SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-	//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
-	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
-    oapiVCSetNeighbours (VC_RMSCAM, -1, -1, VC_RMSSTATION);
+			//SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
+			SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
+			//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
+			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);*/
+			pRMS->SetEECameraView(true);
+			oapiVCSetNeighbours (VC_RMSCAM, -1, -1, VC_RMSSTATION);
 
-	HideMidDeck();
+			HideMidDeck();
 
-    ok = true;
-    break;
+			ok = true;
+		}
+		else ok=false;
+		break;
   case VC_RMSCAM:
-		DisplayCameraLabel(VC_LBL_ELBOWCAM);
-		SetCameraOffset(camRMSElbowLoc[0]);
-		SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+		if(pRMS) {
+			DisplayCameraLabel(VC_LBL_ELBOWCAM);
+			/*SetCameraOffset(camRMSElbowLoc[0]);
+			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);*/
+			pRMS->SetElbowCamView(true);
 
-		oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
-		HideMidDeck();
-		ok=true;
+			oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
+			HideMidDeck();
+			ok=true;
+		}
+		else ok=false;
 		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
@@ -8321,26 +8347,48 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     // Set Atlantis camera Rate from dialog
     if (SendDlgItemMessage (hWnd, IDC_CAM_LOWRATE, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraLowRate = true;
+	  if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(true);
       rate = CAM_LOWRATE_SPEED;
     } else {
       sts->cameraLowRate = false;
+	  if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(false);
       rate = CAM_HIGHRATE_SPEED;
     }
 
     // Sets the current selected camera orientation and flag camera moved;
-        if (SendDlgItemMessage (hWnd, IDC_CAM_LEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-          *camYaw = max(-170, *camYaw - (t1-t0)*rate);
-      sts->cameraMoved = true;
-    } else if (SendDlgItemMessage (hWnd, IDC_CAM_RIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-      *camYaw = min(170, *camYaw + (t1-t0)*rate);
-      sts->cameraMoved = true;
-        } else if (SendDlgItemMessage (hWnd, IDC_CAM_UP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-      *camPitch = min(170, *camPitch + (t1-t0)*rate);
-      sts->cameraMoved = true;
-    } else if (SendDlgItemMessage (hWnd, IDC_CAM_DOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-      *camPitch = max(-170, *camPitch - (t1-t0)*rate);
-      sts->cameraMoved = true;
-    }
+	if (SendDlgItemMessage (hWnd, IDC_CAM_LEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		if(sts->cameraControl == 4) {
+			if(sts->pRMS) sts->pRMS->RotateElbowCam(0, -1);
+		}
+		else {
+			*camYaw = max(-170, *camYaw - (t1-t0)*rate);
+			sts->cameraMoved = true;
+		}
+	} else if (SendDlgItemMessage (hWnd, IDC_CAM_RIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		if(sts->cameraControl == 4) {
+			if(sts->pRMS) sts->pRMS->RotateElbowCam(0, 1);
+		}
+		else {
+			*camYaw = min(170, *camYaw + (t1-t0)*rate);
+			sts->cameraMoved = true;
+		}
+	} else if (SendDlgItemMessage (hWnd, IDC_CAM_UP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		if(sts->cameraControl == 4) {
+			if(sts->pRMS) sts->pRMS->RotateElbowCam(1, 0);
+		}
+		else {
+			*camPitch = min(170, *camPitch + (t1-t0)*rate);
+			sts->cameraMoved = true;
+		}
+	} else if (SendDlgItemMessage (hWnd, IDC_CAM_DOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+		if(sts->cameraControl == 4) {
+			if(sts->pRMS) sts->pRMS->RotateElbowCam(-1, 0);
+		}
+		else {
+			*camPitch = max(-170, *camPitch - (t1-t0)*rate);
+			sts->cameraMoved = true;
+		}
+	}
 
     t0 = t1;
       }
