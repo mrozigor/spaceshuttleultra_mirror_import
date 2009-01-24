@@ -38,10 +38,19 @@ const double RMS_JOINT_ROTATION_SPEED = 1.5;
 const double RMS_EE_TRANSLATION_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 
+const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
+// Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.681, 2.641, 1.806);
+
+const double PTU_HIGHRATE_SPEED = 12.0;
+const double PTU_LOWRATE_SPEED = 1.2;
+// Payload camera speed rates (deg/sec)
+
 class RMSSystem : public MPMSystem
 {
 public:
 	typedef enum {SHOULDER_YAW=0, SHOULDER_PITCH=1, ELBOW_PITCH=2, WRIST_PITCH=3, WRIST_YAW=4, WRIST_ROLL=5} RMS_JOINT;
+	typedef enum {PAN=0, TILT=1} CAMERA_MOTION;
 
 	RMSSystem(SubsystemDirector* _director);
 	virtual ~RMSSystem();
@@ -61,9 +70,16 @@ public:
 	void RotateJoint(RMS_JOINT joint, bool positive);
 	void TranslateEE(const VECTOR3 &direction);
 
+	void RotateElbowCam(int pitch, int yaw);
+	void SetElbowCamRotSpeed(bool low);
+
+	void SetEECameraView(bool Active);
+	void SetElbowCamView(bool Active);
+
 	//temporary function: used only until RMSSystem class is responsible for EE attachment creation
 	void DefineEndEffector(ATTACHMENTHANDLE attachment) {end_effector=attachment;};
 
+	OBJHANDLE Grapple();
 	void Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void Ungrapple();
 	/**
@@ -77,29 +93,39 @@ public:
 	 * Returns true if arm is free to move.
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
-	bool Movable() const {return (grapple==NULL || PayloadIsFree());};
+	bool Movable() const { return ((MRLLatches.Open() || !ArmStowed()) && (grapple==NULL || PayloadIsFree())); };
+protected:
+	virtual void OnMRLLatched();
 private:
 	void CreateArm();
+
+	bool ArmStowed() const;
 	bool PayloadIsFree() const;
 
 	void Translate(const VECTOR3 &dPos);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
 
+	void UpdateEECamView() const;
+	void UpdateElbowCamView() const;
+
 	VESSEL* payload;
 	ATTACHMENTHANDLE grapple, end_effector;
 	//true if RMS is still grappled, but Orbiter should not fromally attach the RMS to the payload.
 	bool detached;
 
-	UINT anim_camRMSElbowPan, anim_camRMSElbowTilt;
+	UINT anim_camRMSElbow[2];
 	UINT anim_joint[6], anim_rms_ee;
 
 	//RMS Camera rot/direction
-	double camRMSElbowPan, camRMSElbowTilt;
+	double camRMSElbow[2];
+	bool camLowSpeed;
+	int camRMSElbow_rotation[2];
 	VECTOR3 camRMSElbowLoc[2];
+	bool camera_moved;
 
 	//EE and IK parameters
-	VECTOR3 arm_tip[3];
+	VECTOR3 arm_tip[4];
 	VECTOR3 arm_wrist_pos;
 	/** Refence frame for internal calculations:
 	 * +X: Towards tail
@@ -117,6 +143,8 @@ private:
 
 	int joint_motion[6];
 	int ee_translation[3];
+
+	enum {NONE, EE, ELBOW} RMSCameraMode;
 };
 
 #endif //__RMSSUBSYSTEM_H
