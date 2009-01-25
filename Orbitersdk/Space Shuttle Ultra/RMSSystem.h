@@ -8,9 +8,10 @@
 const static char* RMS_MESHNAME = "SSU/RMS";
 
 // RMS joint positions
-const VECTOR3 RMS_SY_JOINT = _V(-2.61,1.65,9.02);
+//const VECTOR3 RMS_SY_JOINT = _V(-2.61,1.65,9.02);
+const VECTOR3 RMS_SY_JOINT = _V(-2.6855, 1.6515, 9.017);
 const VECTOR3 RMS_SP_JOINT = _V(-2.844, 2.1315, 9.018);
-const VECTOR3 RMS_EP_JOINT = _V(-2.7345, 1.97, 2.742);
+const VECTOR3 RMS_EP_JOINT = _V(-2.787, 1.9705, 2.742);
 const VECTOR3 RMS_WP_JOINT = _V(-2.89, 2.133, -4.191);
 const VECTOR3 RMS_WY_JOINT = _V(-2.845, 2.1325, -4.689);
 const VECTOR3 RMS_EE_POS = _V(-2.84382, 2.13334, -6.049);
