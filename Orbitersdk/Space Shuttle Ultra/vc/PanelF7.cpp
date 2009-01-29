@@ -52,8 +52,11 @@ namespace vc {
 		oapiVCRegisterArea(AID_F7_EVTTMR1, _R(0, 320, 256, 384), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 		
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F7, 
-			_V(-0.389, 2.407, 14.804)+ofs, _V(0.385, 2.407, 14.805)+ofs,
-			_V(-0.389, 1.962, 14.678)+ofs, _V(0.385, 1.962, 14.678) + ofs);
+			 
+			_V(- 0.389, 2.4112365, 14.790174)+ ofs, 
+			_V(0.385, 2.4112365, 14.791174) + ofs,
+			_V(- 0.389, 1.9662365, 14.664174)+ ofs, 
+			_V(0.385, 1.9662365, 14.664174) + ofs);
 	}
 	
 	void PanelF7::OnPostStep(double fSimT, double fDeltaT, double fMJD)
