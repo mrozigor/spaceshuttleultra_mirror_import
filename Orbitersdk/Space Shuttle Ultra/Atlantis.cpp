@@ -42,6 +42,7 @@
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
 #include "RMSSystem.h"
+#include "StbdMPMSystem.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
@@ -450,6 +451,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
+  pMPMs=NULL;
 
 	RealizeSubsystemConnections();
 
@@ -887,6 +889,20 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
   psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
   psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
+
+  for(int i=0;i<2;i++) {
+	  SRBGimbal[i][PITCH].SetGains(-0.005, 0.0, 0.0);
+	  SRBGimbal[i][YAW].SetGains(0.005, 0.0, 0.0);
+  }
+  SRBGimbal[0][ROLL].SetGains(0.009, 0.0, 0.0);
+  SRBGimbal[1][ROLL].SetGains(-0.009, 0.0, 0.0);
+  for(int i=0;i<3;i++) {
+	  SSMEGimbal[i][PITCH].SetGains(-0.005, 0.0, 0.0);
+	  SSMEGimbal[i][YAW].SetGains(-0.005, 0.0, 0.0);
+  }
+  SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
+  SSMEGimbal[1][ROLL].SetGains(0.0, 0.009, 0.0);
+  SSMEGimbal[2][ROLL].SetGains(0.0, -0.009, 0.0);
 }
 
 // --------------------------------------------------------------
@@ -1021,8 +1037,8 @@ void Atlantis::SetLaunchConfiguration (void)
   th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);*/
   //th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   //th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(-0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0.0, 0.069338, 0.99759), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0.0, 0.069338, 0.99759), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
   srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
@@ -1672,7 +1688,7 @@ void Atlantis::DefineAnimations (void)
   UINT midx = mesh_orbiter; // mesh index for all external animations
   UINT vidx = mesh_vc; // mesh index for all VC animations
   UINT ridx = mesh_rms; // mesh index for all RMS animations
-  UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
+  //UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
 
@@ -2032,7 +2048,7 @@ void Atlantis::DefineAnimations (void)
   arm_wrist_pos=wrist_pos;
 
   // STBD MPM animation
-  static UINT STBDMPMGrp[1] = {0}; //only group in mesh
+ /* static UINT STBDMPMGrp[1] = {0}; //only group in mesh
   static MGROUP_ROTATE MPMAnim (sidx, STBDMPMGrp, 1,
 	  _V(-0.164, -0.356, 0), _V(0, 0, 1), (float)(-31.36*RAD));
   anim_stbd_mpm=CreateAnimation(1.0);
@@ -2043,7 +2059,7 @@ void Atlantis::DefineAnimations (void)
 
   static MGROUP_ROTATE MPMAttachment (LOCALVERTEXLIST, MAKEGROUPARRAY(obss_attach_point), 2,
     _V(2.87, 1.90, 3.15), _V(0,0,1), (float)(0.0));
-  parent = AddAnimationComponent (anim_stbd_mpm, 0, 1, &MPMAttachment, parent);
+  parent = AddAnimationComponent (anim_stbd_mpm, 0, 1, &MPMAttachment, parent);*/
 
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
@@ -2252,7 +2268,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	else {
 		//create new attachment
 		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
-		if(pRMS) pRMS->DefineEndEffector(ahRMS);
+		if(pRMS) pRMS->DefineAttachmentPoint(ahRMS);
 	}
 
 	//Separate into UpdateOBSSAttachment
@@ -2262,6 +2278,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	}
 	else {
 		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
+		if(pMPMs) pMPMs->DefineAttachmentPoint(ahOBSS);
 	}
 
 
@@ -2519,7 +2536,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	if(STBDMPM) {
 		VECTOR3 pos=ofs+STBDMPM_REF;
 		mesh_mpm = AddMesh (hOBSSMPMMesh, &pos);
-		SetMeshVisibilityMode (mesh_mpm, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+		SetMeshVisibilityMode (mesh_mpm, MESHVIS_NEVER);
 	}
 
 	
@@ -2912,8 +2929,8 @@ void Atlantis::AttachOBSS() const
 		ATTACHMENTHANDLE obss_attach=GetAttachmentTarget(ahOBSS, "OS", &vessel);
 		oapiWriteLog("GetAttachmentTarget called");
 		if(obss_attach) {
-			pRMS->Detach(oapiGetVesselInterface(vessel));
-			AttachChild(vessel, ahOBSS, obss_attach);
+			//pRMS->Detach(oapiGetVesselInterface(vessel));
+			//AttachChild(vessel, ahOBSS, obss_attach);
 		}
 	}
 }
@@ -2921,7 +2938,7 @@ void Atlantis::AttachOBSS() const
 void Atlantis::DetachOBSS() const
 {
 	if(Eq(MRL[1], 0.000)) {
-		DetachChild(ahOBSS);
+		//DetachChild(ahOBSS);
 	}
 }
 
@@ -3041,7 +3058,7 @@ void Atlantis::SteerGimbal() {
 	UpdateSSMEGimbalAnimations();
 }
 
-void Atlantis::AutoMainGimbal () {
+void Atlantis::AutoMainGimbal (double DeltaT) {
   //Steer with the SRBs and lower SSMEs
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
@@ -3051,7 +3068,7 @@ void Atlantis::AutoMainGimbal () {
 	RateDeltas=ReqdRates-(AngularVelocity*DEG);
 	/*for(i=0;i<3;i++) {
 		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
-	}*/
+	}*
 	if(!panelr2->HydraulicPressure()) {
 		for(i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
@@ -3078,6 +3095,17 @@ void Atlantis::AutoMainGimbal () {
 	/*SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
 	SetThrusterDir(th_main[1], NormZ(_V( 0.065+yawcorrect.data[1],-0.2447+pitchcorrect.data[1]+rollcorrect.data[1],0.9674)));
 	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));*/
+
+	for(i=0;i<2;i++) {
+		VECTOR3 deflection=_V(SRBGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
+			SRBGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SRBGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
+		SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
+	}
+	for(i=0;i<3;i++) {
+		VECTOR3 deflection=_V(SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
+			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
+		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
+	}
 
 	UpdateSSMEGimbalAnimations();
 }
@@ -5150,10 +5178,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
 	} else if (!_strnicmp (line, "MPM", 3)) {
 		STBDMPM=true;
-	} else if (!_strnicmp (line, "STBD_MPM", 8)) {
+		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+	} /*else if (!_strnicmp (line, "STBD_MPM", 8)) {
 		sscan_state (line+8, StbdMPMRollout);
 		UpdateMPMMicroswitches();
-	} else if (!_strnicmp(line, "ROLLOUT", 7)) {
+	}*/ else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
 		if(action==1) {
 			if(RMSRollout.pos!=1.0) RMSRollout.action=AnimState::OPENING;
@@ -6254,8 +6283,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		arm_moved = false;
 	}
 	if(mpm_moved) {
-		VECTOR3 pos=orbiter_ofs+obss_attach_point[0]+STBDMPM_REF;
-		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
+		/*VECTOR3 pos=orbiter_ofs+obss_attach_point[0]+STBDMPM_REF;
+		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));*/
 		mpm_moved=false;
 	}
 
@@ -7660,11 +7689,12 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		}*/
 		return 1;
 	case OAPI_KEY_1: //temporary
-		if(DisplayJointAngles) {
+		/*if(DisplayJointAngles) {
 			DisplayJointAngles=false;
 			sprintf(oapiDebugString(), "");
 		}
-		else DisplayJointAngles=true;
+		else DisplayJointAngles=true;*/
+		if(pRMS) pRMS->ToggleJointAngleDisplay();
 		return 1;
 	case OAPI_KEY_2:
 		FireAllNextManifold();

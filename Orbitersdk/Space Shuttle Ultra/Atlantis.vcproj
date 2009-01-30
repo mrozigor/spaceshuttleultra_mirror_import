@@ -601,6 +601,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StbdMPMSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\util\Stopwatch.cpp"
 				>
 			</File>
@@ -919,6 +923,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StbdMPMSystem.h"
 				>
 			</File>
 			<File

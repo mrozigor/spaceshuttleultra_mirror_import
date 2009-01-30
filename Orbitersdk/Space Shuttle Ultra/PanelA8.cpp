@@ -42,10 +42,16 @@ void PanelA8::RegisterVC()
 	oapiVCRegisterArea(AID_A8_TKBK1, _R(895, 894, 922, 922), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	oapiVCRegisterArea(AID_A8_TKBK3, _R(895, 769, 922, 797), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	oapiVCRegisterArea(AID_A8_TKBK5, _R(895, 642, 922, 670), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	// STBD MPM RTL
+	oapiVCRegisterArea(AID_A8_TKBK2, _R(297, 896, 324, 924), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK4, _R(297, 770, 324, 798), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	oapiVCRegisterArea(AID_A8_TKBK8, _R(297, 643, 324, 671), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// PORT MPM LATCH
 	oapiVCRegisterArea(AID_A8_TKBK6, _R(806, 650, 838, 668), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// PORT MPM DPY
 	oapiVCRegisterArea(AID_A8_TKBK7, _R(717, 648, 749, 666), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
+	// STBD MPM LATCH
+	oapiVCRegisterArea(AID_A8_TKBK9, _R(210, 651, 242, 669), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// STBD MPM DPY
 	oapiVCRegisterArea(AID_A8_TKBK10, _R(120, 648, 152, 666), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8b_tex);
 	// EE CAPTURE
@@ -78,20 +84,46 @@ void PanelA8::Realize()
 	for(int i=0;i<3;i++) PortMRL_RTL[i].Connect(pBundle, i+5);
 	PortMRL_Released.Connect(pBundle, 11);
 	PortMRL_Latched.Connect(pBundle, 12);
+
+	pBundle=sts->BundleManager()->CreateBundle("STBD_MPM", 16);
+	StbdMPMDeploy.Connect(pBundle, 0);
+	StbdMPMStow.Connect(pBundle, 1);
+	StbdMPMDeployed.Connect(pBundle, 2);
+	StbdMPMStowed.Connect(pBundle, 3);
+
+	pBundle=sts->BundleManager()->CreateBundle("STBD_MPM_MRL", 16);
+	StbdMRLRelease.Connect(pBundle, 0);
+	StbdMRLLatch.Connect(pBundle, 1);
+	for(int i=0;i<3;i++) StbdMRL_RTL[i].Connect(pBundle, i+5);
+	StbdMRL_Released.Connect(pBundle, 11);
+	StbdMRL_Latched.Connect(pBundle, 12);
 }
 
 bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
 	//bool bUpper, bLower;
 	switch(id) {
+		// PORT MPM FWD RTL
 		case AID_A8_TKBK1:
 			if(PortMRL_RTL[0]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		// STBD MPM FWD RTL
+		case AID_A8_TKBK2:
+			if(StbdMRL_RTL[0]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
+			break;
+		// PORT MPM MID RTL
 		case AID_A8_TKBK3:
 			if(PortMRL_RTL[1]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
 			break;
+		// STBD MPM MID RTL
+		case AID_A8_TKBK4:
+			if(StbdMRL_RTL[1]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
+			break;
+		// PORT MPM AFT RTL
 		case AID_A8_TKBK5:
 			if(PortMRL_RTL[2]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
@@ -107,6 +139,16 @@ bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			return true;
 			break;
+		// STBD MPM AFT RTL
+		case AID_A8_TKBK8:
+			if(StbdMRL_RTL[2]) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_GRAY);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_GRAY, vc::TB_BARBERPOLE);
+			break;
+		// STBD MPM LATCH
+		case AID_A8_TKBK9:
+			if(StbdMRL_Released) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_REL);
+			else if(StbdMRL_Latched) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_LAT);
+			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 		case AID_A8_TKBK10:
 			if(sts->MPM_Microswitches[1][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_STO);
 			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_DPY);
@@ -425,6 +467,19 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 						action=true;
 					}
 				}
+				if(switch_state[SWITCH13]==0) {
+					oapiWriteLog("Stbd MRL Release set.");
+					StbdMRLRelease.SetLine();
+					StbdMRLLatch.ResetLine();
+				}
+				else if(switch_state[SWITCH13]==1) {
+					StbdMRLRelease.ResetLine();
+					StbdMRLLatch.ResetLine();
+				}
+				else {
+					StbdMRLRelease.ResetLine();
+					StbdMRLLatch.SetLine();
+				}
 			}
 		}
 
@@ -445,17 +500,16 @@ bool PanelA8::VCMouseEvent(int id, int nEvent, VECTOR3 &p)
 					}
 
 					if(switch_state[SWITCH12]==0) {
-						if(sts->StbdMPMRollout.action!=AnimState::OPEN) {
-							sts->StbdMPMRollout.action=AnimState::OPENING;
-						}
+						StbdMPMDeploy.SetLine();
+						StbdMPMStow.ResetLine();
 					}
 					else if(switch_state[SWITCH12]==1) {
-						if(sts->StbdMPMRollout.Moving()) sts->StbdMPMRollout.action=AnimState::STOPPED;
+						StbdMPMDeploy.ResetLine();
+						StbdMPMStow.ResetLine();
 					}
 					else {
-						if(sts->StbdMPMRollout.action!=AnimState::CLOSED) {
-							sts->StbdMPMRollout.action=AnimState::CLOSING;
-						}
+						StbdMPMDeploy.ResetLine();
+						StbdMPMStow.SetLine();
 					}
 				}
 				else if(p.y>=0.808047 && p.y<=0.836290) { //cover clicked on
@@ -566,7 +620,7 @@ void PanelA8::Step(double t, double dt)
 		bUpdate=true;
 	}*/
 
-	if(switch_state[SWITCH13]==0 && switch_state[SWITCH16]!=1) {
+	/*if(switch_state[SWITCH13]==0 && switch_state[SWITCH16]!=1) {
 		if(!Eq(sts->MRL[1], 0.00000)) {
 			double da = dt*MPM_MRL_SPEED;
 			sts->MRL[1]=max(0.0, sts->MRL[1]-da);
@@ -583,7 +637,7 @@ void PanelA8::Step(double t, double dt)
 			if(Eq(sts->MRL[1], 1.00)) sts->AttachOBSS();
 			bUpdate=true;
 		}
-	}
+	}*/
 
 	if(switch_state[SWITCH10]==0) {
 		double da = dt*SHOULDER_BRACE_SPEED;
