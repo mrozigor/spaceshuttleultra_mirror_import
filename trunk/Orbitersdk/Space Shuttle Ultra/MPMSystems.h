@@ -17,7 +17,7 @@ using namespace discsignals;
 class MPMSystem : public AtlantisSubsystem
 {
 public:
-	MPMSystem(SubsystemDirector* _director, const string& _ident, const char* _meshname);
+	MPMSystem(SubsystemDirector* _director, const string& _ident, const char* _meshname, const VECTOR3& _meshOffset);
 	virtual ~MPMSystem();
 
 	virtual void Realize();
@@ -26,27 +26,53 @@ public:
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
-	bool Deployed() const {return MPMRollout.Open();};
+	/*bool Deployed() const {return MPMRollout.Open();};
 	bool Stowed() const {return MPMRollout.Closed();};
 	bool Released() const {return MRLLatches.Open();};
-	bool Latched() const {return MRLLatches.Closed();};
+	bool Latched() const {return MRLLatches.Closed();};*/
+
+	/**
+	 * If vessel is NULL or same as attached payload,
+	 * attachment between hAttach and hPayloadAttachment is destroyed.
+	 * MPM remains logically 'attached' to payload
+	 */
+	void Detach(VESSEL* vessel);
+
+	//temporary function: used only until MPMSystem classes are responsible for attachment creation
+	void DefineAttachmentPoint(ATTACHMENTHANDLE attachment) {hAttach=attachment;};
 protected:
 	virtual void OnMRLLatched();
 	virtual void OnMRLReleased();
+
+	void AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment);
+	void DetachPayload();
+
+	bool PayloadIsFree() const;
 
 	UINT mesh_index;
 	// all animations should be added by derived classes
 	UINT anim_mpm;
 
+	VESSEL* attachedPayload;
+	ATTACHMENTHANDLE hPayloadAttachment;
+	ATTACHMENTHANDLE hAttach;
+
+	//true if MPM was moved this timestep
+	bool mpm_moved;
+
 	AnimState MPMRollout, MRLLatches;
 	DiscOutPort MRL_Rel_Microswitches[3], MRL_Lat_Microswitches[3], MRL_RTL_Microswitches[3];
 	DiscOutPort MRL_Latched, MRL_Released;
-
 	DiscOutPort MPM_Stowed, MPM_Deployed;
 private:
 	void AddMesh();
+	void CheckForAttachedObjects();
 	
 	MESHHANDLE hMesh;
+	VECTOR3 mesh_offset;
+
+	bool firstStep;
+	bool detached;
 
 	DiscInPort Release, Latch;
 	DiscInPort Deploy, Stow;

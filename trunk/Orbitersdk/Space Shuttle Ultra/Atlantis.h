@@ -369,6 +369,8 @@ const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
 const VECTOR3 SSMEL_GOX_REF = _V(-1.57, 1.385, -14.456);
 const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
 
+const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
+
 
 const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
 const VECTOR3 POS_TOW = _V(0.0, -1.91, 25.8);
@@ -984,6 +986,7 @@ class SubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
+class StbdMPMSystem;
 
 
 
@@ -1043,6 +1046,7 @@ public:
 	eva_docking::BasicExternalAirlock* pExtAirlock;
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
+	StbdMPMSystem* pMPMs;
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
@@ -1411,7 +1415,7 @@ private:
 	void DetachOBSS() const;
 
 	//Launch
-	void AutoMainGimbal();
+	void AutoMainGimbal(double DeltaT);
 	void SteerGimbal();
 	void RateCommand();
 	void Throttle(double dt);
@@ -1808,6 +1812,7 @@ private:
 	//targets in SI (angles in degrees)
 	double TgtInc, TgtLAN, TgtSpd, TgtAlt, TgtFPA; //targets for guidance
 	double THeading, TAp, TPe, TTrA, TEcc, TgtRad;
+	PIDControl SSMEGimbal[3][3], SRBGimbal[2][3];
 
 	double MaxThrust;
 	bool bAutopilot, bThrottle;

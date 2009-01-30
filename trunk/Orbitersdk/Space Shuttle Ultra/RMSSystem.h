@@ -39,7 +39,8 @@ const double RMS_JOINT_ROTATION_SPEED = 1.5;
 const double RMS_EE_TRANSLATION_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 
-const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
+//const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
+const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.681, 2.641, 1.806);
 
@@ -77,31 +78,28 @@ public:
 	void SetEECameraView(bool Active);
 	void SetElbowCamView(bool Active);
 
-	//temporary function: used only until RMSSystem class is responsible for EE attachment creation
-	void DefineEndEffector(ATTACHMENTHANDLE attachment) {end_effector=attachment;};
+	void ToggleJointAngleDisplay();
 
 	OBJHANDLE Grapple();
-	void Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment);
-	void Ungrapple();
+	//void Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment);
+	void Ungrapple() {DetachPayload();};
 	/**
 	 * Destroys attachment to currently grappled vessel, but remains 'grappled'.
 	 * @param target in not null, payload is detached only if target pointer matches grappled vessel.
 	 */
-	void Detach(VESSEL* target=NULL);
+	//void Detach(VESSEL* target=NULL);
 
-	bool Grappled() const {return (grapple!=NULL);};
+	bool Grappled() const {return (hPayloadAttachment!=NULL);};
 	/**
 	 * Returns true if arm is free to move.
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
-	bool Movable() const { return ((MRLLatches.Open() || !ArmStowed()) && (grapple==NULL || PayloadIsFree())); };
+	bool Movable() const { return ((MRLLatches.Open() || !ArmStowed()) && (hPayloadAttachment==NULL || PayloadIsFree())); };
 protected:
 	virtual void OnMRLLatched();
 private:
 	void CreateArm();
-
 	bool ArmStowed() const;
-	bool PayloadIsFree() const;
 
 	void Translate(const VECTOR3 &dPos);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
@@ -110,10 +108,8 @@ private:
 	void UpdateEECamView() const;
 	void UpdateElbowCamView() const;
 
-	VESSEL* payload;
-	ATTACHMENTHANDLE grapple, end_effector;
 	//true if RMS is still grappled, but Orbiter should not fromally attach the RMS to the payload.
-	bool detached;
+	//bool detached;
 
 	UINT anim_camRMSElbow[2];
 	UINT anim_joint[6], anim_rms_ee;
@@ -138,12 +134,13 @@ private:
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6];
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
+	int joint_motion[6];
+	int ee_translation[3];
 
 	bool arm_moved;
 	bool update_data;
 
-	int joint_motion[6];
-	int ee_translation[3];
+	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
 };

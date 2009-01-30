@@ -55,6 +55,8 @@ private:
 
 	DiscOutPort PortMPMDeploy, PortMPMStow, PortMRLRelease, PortMRLLatch;
 	DiscInPort PortMPMDeployed, PortMPMStowed, PortMRL_Released, PortMRL_Latched, PortMRL_RTL[3];
+	DiscOutPort StbdMPMDeploy, StbdMPMStow, StbdMRLRelease, StbdMRLLatch;
+	DiscInPort StbdMPMDeployed, StbdMPMStowed, StbdMRL_Released, StbdMRL_Latched, StbdMRL_RTL[3];
 };
 
 #endif  // !__PANELA8_H

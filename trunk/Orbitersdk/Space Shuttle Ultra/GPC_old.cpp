@@ -488,7 +488,7 @@ void Atlantis::GPC(double simt, double dt)
 		case 102:
 			Throttle(dt);
 			RateCommand();
-			AutoMainGimbal();
+			AutoMainGimbal(dt);
 			break;
 		case 103:
 			if(!bMECO && status==2) {

@@ -4,16 +4,8 @@
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 
 RMSSystem::RMSSystem(SubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME), RMSCameraMode(NONE), camLowSpeed(false)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0)), RMSCameraMode(NONE), camLowSpeed(false)
 {
-	//hRMSMesh=oapiLoadMeshGlobal(RMS_MESHNAME);
-	//mesh_index=MESH_UNDEFINED;
-
-	payload=NULL;
-	grapple=NULL;
-	end_effector=NULL;
-	detached=false;
-
 	joint_pos[SHOULDER_YAW] = 0.5;
 	joint_pos[SHOULDER_PITCH] = 0.0136;
 	joint_pos[ELBOW_PITCH] = 0.985312;
@@ -37,6 +29,8 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	update_data=false;
 	for(int i=0;i<6;i++) joint_motion[i]=0;
 	for(int i=0;i<3;i++) ee_translation[i]=0;
+
+	display_angles=false;
 }
 
 RMSSystem::~RMSSystem()
@@ -54,11 +48,6 @@ void RMSSystem::Realize()
 
 void RMSSystem::CreateArm()
 {
-	//add RMS mesh
-	/*VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
-	mesh_index=STS()->AddMesh(hRMSMesh, &ofs);
-	STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);*/
-
 	//rollout animation
 	static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
 	static MGROUP_ROTATE rms_rollout_anim(mesh_index, RMSRolloutGrp, 11,
@@ -149,10 +138,6 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
 
-	if(!detached && payload!=NULL && !STS()->GetAttachmentStatus(end_effector)) {
-		if(PayloadIsFree()) STS()->AttachChild(payload->GetHandle(), end_effector, grapple);
-	}
-
 	//rotate joints
 	if(Movable()) {
 		//rotation
@@ -188,6 +173,11 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			camRMSElbow_rotation[i]=0;
 		}
 	}
+
+	if(display_angles) {
+		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
+			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
+	}
 }
 
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -195,7 +185,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	MPMSystem::OnPostStep(SimT, DeltaT, MJD);
 
 	if(arm_moved) {
-		if(end_effector) STS()->SetAttachmentParams(end_effector, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 		if(update_data) {
 			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -18.435);
 			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
@@ -300,66 +290,6 @@ void RMSSystem::SetElbowCamRotSpeed(bool low)
 {
 	camLowSpeed=low;
 }
-
-/*void RMSSystem::Translate(const VECTOR3 &dPos)
-{
-	double beta_s=joint_angle[SHOULDER_YAW], beta_w=joint_angle[WRIST_YAW];
-	double phi_s=joint_angle[SHOULDER_PITCH], phi_e=joint_angle[ELBOW_PITCH], phi_w=joint_angle[WRIST_PITCH];
-
-	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(dPos, 18.435);
-	// iteratively calculate joint angles
-	// TODO: check iteration for convergence after each iteration
-	for(int i=0;i<10;i++)
-	{
-		VECTOR3 arm_wp_dir=RotateVectorZ(_V(1.0, 0.0, 0.0), beta_s);
-		arm_wp_dir=RotateVectorY(arm_wp_dir, phi_w+phi_e+phi_s);
-
-		VECTOR3 arm_wrist_cpos=arm_cpos-arm_ee_dir*RMS_WY_EE_DIST-arm_wp_dir*RMS_WP_WY_DIST;
-		double r=length(arm_wrist_cpos);
-		beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
-		double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
-		double cos_phibar_e=(r*r-RMS_SP_EP_DIST*RMS_SP_EP_DIST-RMS_EP_WP_DIST*RMS_EP_WP_DIST)/(-2*RMS_SP_EP_DIST*RMS_EP_WP_DIST);
-		if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
-		phi_e=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
-		double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
-		if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
-		phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
-
-		//make sure values calculated are within bounds
-		if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return;
-		if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return;
-		if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return;
-
-		//wrist pitch IK
-		double new_phi_l=phi_s+phi_e;
-		double current_phi_l=joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH];
-		phi_w=joint_angle[WRIST_PITCH]-new_phi_l+current_phi_l;
-		
-		//wrist yaw
-		beta_w=joint_angle[WRIST_YAW]+beta_s-joint_angle[SHOULDER_YAW];
-		//double anim_beta_w=linterp(wrist_yaw_min, 0, wrist_yaw_max, 1, beta_w);
-
-		//check values are within bounds
-		if(phi_w<RMS_JOINT_SOFTSTOPS[0][WRIST_PITCH] || phi_w>RMS_JOINT_SOFTSTOPS[1][WRIST_PITCH]) return;
-		if(beta_w<RMS_JOINT_SOFTSTOPS[0][WRIST_YAW] || beta_w>RMS_JOINT_SOFTSTOPS[1][WRIST_YAW]) return;
-	}
-
-	SetJointAngle(SHOULDER_YAW, beta_s);
-	SetJointAngle(SHOULDER_PITCH, phi_s);
-	SetJointAngle(ELBOW_PITCH, phi_e);
-	SetJointAngle(WRIST_PITCH, phi_w);
-	SetJointAngle(WRIST_YAW, beta_w);
-	/*joint_angle[SHOULDER_YAW]=0.0;
-	joint_angle[SHOULDER_PITCH]=phi_s;
-	joint_angle[ELBOW_PITCH]=phi_e;
-	joint_angle[WRIST_PITCH]=phi_w;
-	joint_angle[WRIST_YAW]=0.0;*
-
-	arm_ee_pos=arm_cpos;
-	VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-	temp=_V(temp.z, -temp.x, -temp.y);
-	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
-}*/
 
 void RMSSystem::Translate(const VECTOR3 &dPos)
 {
@@ -484,9 +414,8 @@ OBJHANDLE RMSSystem::Grapple()
 				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
 					v->GlobalRot(dir, gdir);
 					//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
-					if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
-						// check whether satellite is currently clamped into payload bay
-						Grapple(v, hAtt);
+					if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {
+						AttachPayload(v, hAtt);
 						return hV;
 					}
 				}
@@ -496,30 +425,13 @@ OBJHANDLE RMSSystem::Grapple()
 	return NULL;
 }
 
-void RMSSystem::Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment)
-{
-	//for the moment, assume attachment passed is completely valid
-	grapple=attachment;
-	payload=vessel;
-	detached=false;
-	sprintf_s(oapiDebugString(), 255, "pRMS->Grapple called");
-	oapiWriteLog("pRMS->Grapple called");
-}
-
-void RMSSystem::Ungrapple()
-{
-	grapple=NULL;
-	payload=NULL;
-	STS()->DetachChild(end_effector);
-}
-
-void RMSSystem::Detach(VESSEL* target)
+/*void RMSSystem::Detach(VESSEL* target)
 {
 	if(!target || target==payload) {
-		STS()->DetachChild(end_effector);
+		STS()->DetachChild(hAttach);
 		detached=true;
 	}
-}
+}*/
 
 void RMSSystem::OnMRLLatched()
 {
@@ -536,21 +448,6 @@ bool RMSSystem::ArmStowed() const
 	if(!Eq(joint_angle[WRIST_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
 	if(!Eq(joint_angle[WRIST_YAW], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
 	if(!Eq(joint_angle[WRIST_ROLL], 0.0, MRL_MAX_ANGLE_ERROR)) return false;
-	return true;
-}
-
-bool RMSSystem::PayloadIsFree() const
-{
-	if(payload) {
-		//if we are attached to payload, it must be 'free'
-		if(STS()->GetAttachmentStatus(end_effector)) return true;
-		//otherwise, loop through all attachment points on payload and check if any of them are in use
-		DWORD count=payload->AttachmentCount(true);
-		for(DWORD i=0;i<count;i++) {
-			ATTACHMENTHANDLE att=payload->GetAttachmentHandle(true, i);
-			if(payload->GetAttachmentStatus(att)) return false;
-		}
-	}
 	return true;
 }
 
@@ -578,11 +475,17 @@ void RMSSystem::UpdateEECamView() const
 	if(tilt<-180.0) tilt+=360.0;
 	else if(tilt>180.0) tilt-=360.0;
 	STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[3]);
-	STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
+	STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], 0.0);
 }
 
 void RMSSystem::UpdateElbowCamView() const
 {
 	STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
 	STS()->SetCameraOffset(camRMSElbowLoc[0]);
+}
+
+void RMSSystem::ToggleJointAngleDisplay()
+{
+	display_angles=!display_angles;
+	if(!display_angles) sprintf_s(oapiDebugString(), 255, "");
 }

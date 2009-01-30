@@ -3,9 +3,7 @@
 PIDControl::PIDControl(double pGain, double dGain, double iGain)
 	: integral(0.0), lastValue(0.0), firstStep(true)
 {
-	proportionalGain=pGain;
-	derivativeGain=dGain;
-	integralGain=iGain;
+	SetGains(pGain, dGain, iGain);
 }
 
 PIDControl::~PIDControl()
@@ -34,4 +32,11 @@ double PIDControl::Step(double value, double DeltaT)
 
 	double output=proportionalGain*value+derivativeGain*derivative+integralGain*integral;
 	return output;
+}
+
+void PIDControl::SetGains(double pGain, double dGain, double iGain)
+{
+	proportionalGain=pGain;
+	derivativeGain=dGain;
+	integralGain=iGain;
 }
