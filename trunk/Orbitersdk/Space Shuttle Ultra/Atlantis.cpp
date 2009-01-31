@@ -3099,12 +3099,12 @@ void Atlantis::AutoMainGimbal (double DeltaT) {
 	for(i=0;i<2;i++) {
 		VECTOR3 deflection=_V(SRBGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
 			SRBGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SRBGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		//SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
+		SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
 	}
 	for(i=0;i<3;i++) {
 		VECTOR3 deflection=_V(SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
 			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		//SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
+		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
 	}
 
 	//UpdateSSMEGimbalAnimations();
