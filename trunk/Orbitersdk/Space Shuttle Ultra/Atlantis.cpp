@@ -3107,7 +3107,7 @@ void Atlantis::AutoMainGimbal (double DeltaT) {
 		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
 	}
 
-	//UpdateSSMEGimbalAnimations();
+	UpdateSSMEGimbalAnimations();
 }
 
 bool Atlantis::GimbalOMS(int engine, double pitch, double yaw)
