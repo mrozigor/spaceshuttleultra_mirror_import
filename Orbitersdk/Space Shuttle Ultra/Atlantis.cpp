@@ -891,18 +891,18 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
 
   for(int i=0;i<2;i++) {
-	  SRBGimbal[i][PITCH].SetGains(-0.005, 0.0, 0.0);
-	  SRBGimbal[i][YAW].SetGains(0.005, 0.0, 0.0);
+	  SRBGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
+	  SRBGimbal[i][YAW].SetGains(0.005, 0.001, 0.0);
   }
-  SRBGimbal[0][ROLL].SetGains(0.009, 0.0, 0.0);
-  SRBGimbal[1][ROLL].SetGains(-0.009, 0.0, 0.0);
+  SRBGimbal[0][ROLL].SetGains(0.009, 0.002, 0.0);
+  SRBGimbal[1][ROLL].SetGains(-0.009, -0.002, 0.0);
   for(int i=0;i<3;i++) {
-	  SSMEGimbal[i][PITCH].SetGains(-0.005, 0.0, 0.0);
-	  SSMEGimbal[i][YAW].SetGains(-0.005, 0.0, 0.0);
+	  SSMEGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
+	  SSMEGimbal[i][YAW].SetGains(-0.005, -0.001, 0.0);
   }
   SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
-  SSMEGimbal[1][ROLL].SetGains(0.0, 0.009, 0.0);
-  SSMEGimbal[2][ROLL].SetGains(0.0, -0.009, 0.0);
+  SSMEGimbal[1][ROLL].SetGains(0.009, 0.002, 0.0);
+  SSMEGimbal[2][ROLL].SetGains(-0.009, -0.002, 0.0);
 }
 
 // --------------------------------------------------------------
@@ -3059,6 +3059,7 @@ void Atlantis::SteerGimbal() {
 }
 
 void Atlantis::AutoMainGimbal (double DeltaT) {
+	return;
   //Steer with the SRBs and lower SSMEs
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
