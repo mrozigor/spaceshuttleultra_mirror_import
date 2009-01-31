@@ -3059,7 +3059,6 @@ void Atlantis::SteerGimbal() {
 }
 
 void Atlantis::AutoMainGimbal (double DeltaT) {
-	return;
   //Steer with the SRBs and lower SSMEs
 	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
@@ -3100,15 +3099,15 @@ void Atlantis::AutoMainGimbal (double DeltaT) {
 	for(i=0;i<2;i++) {
 		VECTOR3 deflection=_V(SRBGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
 			SRBGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SRBGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
+		//SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
 	}
 	for(i=0;i<3;i++) {
 		VECTOR3 deflection=_V(SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
 			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
+		//SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
 	}
 
-	UpdateSSMEGimbalAnimations();
+	//UpdateSSMEGimbalAnimations();
 }
 
 bool Atlantis::GimbalOMS(int engine, double pitch, double yaw)
@@ -5667,6 +5666,9 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	double steerforce, airspeed;
 	int i;
 
+	//Stopwatch st;
+	//st.Start();
+
 	psubsystems->PreStep(simT, simDT, mjd);
 	pgLeft.OnPreStep(simT, simDT, mjd);
 	pgForward.OnPreStep(simT, simDT, mjd);
@@ -5718,6 +5720,10 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			}
 		}
 	}
+
+	//double time=st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
+	//oapiWriteLog(oapiDebugString());
 }
 
 void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
@@ -5726,6 +5732,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	double airspeed;
 	int i;
 	OBJHANDLE hvessel;
+
+	//Stopwatch st;
+	//st.Start();
 
 	dapcontrol->OnPostStep(simt, simdt, mjd);
 	gncsoftware->OnPostStep(simt, simdt, mjd);
@@ -6388,6 +6397,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			oapiAnnotationSetText(nhCameraLabel, NULL);
 		}
 	}
+
+	//double time=st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
+	//oapiWriteLog(oapiDebugString());
 }
 
 // --------------------------------------------------------------
