@@ -230,6 +230,8 @@ void Atlantis::Guide() {
 
 void Atlantis::RateCommand()
 {
+	VECTOR3 oldRates=ReqdRates;
+
 	double Heading/*, Slip*/;
 	if(GetPitch()*DEG>=88.0) {
 		VECTOR3 wingBody=_V(1,0,0);
@@ -251,8 +253,8 @@ void Atlantis::RateCommand()
 				ReqdRates.data[ROLL] = 0.0;
 			}
 			else if(GetPitch()*DEG>=88.5) {
-				ReqdRates.data[PITCH] = 10.0*(GetPitch()*DEG-TargetPitch);
-				if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
+				ReqdRates.data[PITCH] = range(-10.0, 10.0*(GetPitch()*DEG-TargetPitch), 10.0);
+				//if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
 				ReqdRates.data[YAW]=0.0;
 				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=12.0;
 				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-12.0;
@@ -341,7 +343,8 @@ void Atlantis::RateCommand()
 			ReqdRates.data[ROLL] = -10.0*(GetManualControlLevel(THGROUP_ATT_BANKLEFT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE) - GetManualControlLevel(THGROUP_ATT_BANKRIGHT, MANCTRL_ANYMODE, MANCTRL_ANYDEVICE));
 		}
 	}
-	return;
+	// make sure rates change gradually, to avoid PID bugs
+	for(int i=0;i<3;i++) ReqdRates.data[i]=range(oldRates.data[i]-1, ReqdRates.data[i], oldRates.data[i]+1);
 }
 
 void Atlantis::Throttle(double dt)
