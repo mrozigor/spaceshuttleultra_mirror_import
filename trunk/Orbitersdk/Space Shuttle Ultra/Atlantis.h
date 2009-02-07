@@ -1527,12 +1527,12 @@ private:
 	inline VECTOR3 NormZ(VECTOR3 &v)
 	{
 		// error checking
-		if((pow(v.x,2)-pow(v.y,2))>0.1) {
+		/*if((pow(v.x,2)-pow(v.y,2))>0.1) {
 			sprintf_s(oapiDebugString(), 255, "NormZ ERROR: Vector %f %f %f passed at T: %f",
 				v.x, v.y, v.z, met);
 			oapiWriteLog(oapiDebugString());
 			return _V(0, 0, 1);
-		}
+		}*/
 		VECTOR3 o=v;
 		o.z=sqrt(1.0-pow(v.x,2)-pow(v.y,2));
 		return o;

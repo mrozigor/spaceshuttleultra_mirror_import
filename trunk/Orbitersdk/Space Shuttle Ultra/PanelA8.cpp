@@ -150,8 +150,8 @@ bool PanelA8::VCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			else if(StbdMRL_Latched) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_LAT);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 		case AID_A8_TKBK10:
-			if(sts->MPM_Microswitches[1][0]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_STO);
-			else if(sts->MPM_Microswitches[1][1]==1) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_DPY);
+			if(StbdMPMStowed) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_STO);
+			else if(StbdMPMDeployed) return VCDrawTalkback(surf, id-AID_A8_TKBK1, vc::TB_DPY);
 			else return VCDrawTalkback(surf, id-AID_A8_TKBK1, 0);
 			break;
 		//CAPTURE
