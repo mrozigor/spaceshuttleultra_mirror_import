@@ -254,26 +254,26 @@ void Atlantis::RateCommand()
 			}
 			else if(GetPitch()*DEG>=88.5) {
 				ReqdRates.data[PITCH] = range(-10.0, 10.0*(GetPitch()*DEG-TargetPitch), 10.0);
-				//if(ReqdRates.data[PITCH]>10.0) ReqdRates.data[PITCH]=10.0;
 				ReqdRates.data[YAW]=0.0;
-				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=12.0;
-				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-12.0;
+				if((Heading-THeading)>RAD) ReqdRates.data[ROLL]=8.0;
+				else if((Heading-THeading)<-RAD) ReqdRates.data[ROLL]=-8.0;
 				else ReqdRates.data[ROLL]=0.0;
+				ReqdRates=RotateVectorZ(ReqdRates, (THeading-Heading)*DEG);
 			}
 			else {
 				ReqdRates.data[PITCH] = TargetPitch-GetPitch()*DEG;
 				if(ReqdRates.data[PITCH]>2.5) ReqdRates.data[PITCH]=2.5;
 				else if(ReqdRates.data[PITCH]<-2.5) ReqdRates.data[PITCH]=-2.5;
 				if(GetPitch()*DEG>50.0) {
-					ReqdRates.data[YAW] = range(-8.0, 2.5*DEG*(Heading-THeading), 8.0);
+					ReqdRates.data[YAW] = range(-8.0, 0.25*DEG*(Heading-THeading), 8.0);
 				}
 				else {
 					ReqdRates.data[YAW] = 0.0;
 				}
-				if(GetBank()>0.0) ReqdRates.data[ROLL]=2.5*(GetBank()*DEG-180.0);
-				else ReqdRates.data[ROLL]=2.5*(GetBank()*DEG+180.0);
+				if(GetBank()>0.0) ReqdRates.data[ROLL]=0.5*(GetBank()*DEG-180.0);
+				else ReqdRates.data[ROLL]=0.5*(GetBank()*DEG+180.0);
 				ReqdRates=RotateVectorZ(ReqdRates, -GetBank()*DEG);
-				ReqdRates.data[ROLL] = range(-8.0, ReqdRates.data[ROLL], 8.0);
+				ReqdRates.data[ROLL] = range(-12.0, ReqdRates.data[ROLL], 12.0);
 			}
 		}
 		else {

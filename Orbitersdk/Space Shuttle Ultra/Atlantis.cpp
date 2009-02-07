@@ -5176,13 +5176,13 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if (!RMS && !_strnicmp (line, "RMS", 3)) {
 		RMS=true;
 		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-	} else if (!_strnicmp (line, "MPM", 3)) {
+	} else if (!STBDMPM && !_strnicmp (line, "STBD_MPM", 8)) {
 		STBDMPM=true;
 		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
 	} /*else if (!_strnicmp (line, "STBD_MPM", 8)) {
 		sscan_state (line+8, StbdMPMRollout);
 		UpdateMPMMicroswitches();
-	}*/ else if (!_strnicmp(line, "ROLLOUT", 7)) {
+	}* else if (!_strnicmp(line, "ROLLOUT", 7)) {
 		sscanf(line+7, "%d%lf", &action, &RMSRollout.pos);
 		if(action==1) {
 			if(RMSRollout.pos!=1.0) RMSRollout.action=AnimState::OPENING;
@@ -5193,7 +5193,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			else RMSRollout.action=AnimState::CLOSED;
 		}
 		UpdateMPMMicroswitches();
-	} else if (!_strnicmp (line, "GRAPPLE", 7)) {
+	}*/ else if (!_strnicmp (line, "GRAPPLE", 7)) {
 		sscan_state(line+7, Grapple);
 	} else if (!_strnicmp (line, "EXTEND", 6)) {
 		sscan_state(line+6, Extend);
@@ -5376,21 +5376,21 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
   WriteScenario_state(scn, "GEAR", gear_status);
 
-  if(STBDMPM) {
+  /*if(STBDMPM) {
 	  oapiWriteLine(scn, "  MPM"); 
 	  WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
-  }
+  }*/
   if(RMS) {
 	  /*oapiWriteLine(scn, "  RMS");
 	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
-	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);*/
+	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
 	  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
 		  sprintf(cbuf, "1 %f", RMSRollout.pos);
 	  else sprintf(cbuf, "0 %f", RMSRollout.pos);
-	  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);
+	  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);*/
 	  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
-	  sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
-	  oapiWriteScenario_string(scn, "MRL", cbuf);
+	  /*sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
+	  oapiWriteScenario_string(scn, "MRL", cbuf);*/
 	  WriteScenario_state(scn, "GRAPPLE", Grapple);
 	  WriteScenario_state(scn, "RIGIDIZE", Rigidize);
 	  WriteScenario_state(scn, "EXTEND", Extend);
