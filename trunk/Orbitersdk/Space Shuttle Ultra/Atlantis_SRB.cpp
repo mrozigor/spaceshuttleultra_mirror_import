@@ -127,7 +127,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	} else 
 	{
 		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 3*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(-1.194, 2.896, -19.328), _V(0.9347, 0.339, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(-1.194, 2.896, -19.328),  _V(-0.339, 0.9347, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
 		thBSM[2] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	}
 	// for simplicity, the separation bolts directly use SRB propellant. We give
@@ -198,10 +198,9 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 
 			if(srb_dt < 1.2)
 			{
-				SetThrusterLevel (thBSM[0], 1.0-srb_dt * 0.583);
-				SetThrusterLevel (thBSM[1], 1.0-srb_dt * 0.583);
-			} else if (srb_dt < 30.0) {
-				//show residual clouds
+				for(int i=0;i<3;i++) SetThrusterLevel(thBSM[i], 1.0-(srb_dt*0.583));
+			} else {
+				for(int i=0;i<3;i++) SetThrusterLevel(thBSM[i], 0.0);
 			}
 			/*
 			if (srb_dt > bolt_t) {
