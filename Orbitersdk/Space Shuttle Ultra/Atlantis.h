@@ -1407,7 +1407,7 @@ private:
 	void UpdateMRLMicroswitches();
 	bool SatGrappled() const { return GetAttachmentStatus (ahRMS) != 0; }
 	bool SatStowed() const;
-	ATTACHMENTHANDLE CanArrest() const;
+	//ATTACHMENTHANDLE CanArrest() const;
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
 
 	//OBSS
@@ -1416,7 +1416,7 @@ private:
 
 	//Launch
 	void AutoMainGimbal(double DeltaT);
-	void SteerGimbal();
+	void SteerGimbal(double DeltaT);
 	void RateCommand();
 	void Throttle(double dt);
 	void FailEngine(int engine);

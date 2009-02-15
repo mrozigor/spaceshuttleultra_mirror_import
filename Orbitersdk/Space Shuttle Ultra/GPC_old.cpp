@@ -88,7 +88,7 @@ double Atlantis::CalculateAzimuth()
 	equator_v=Radius*(2*PI/SidDay);   //equator velocity
 	tgt_orbit_v[0]=sqrt(mu/TgtRad)*cos(azimuth); // northern velocity
 	tgt_orbit_v[1]=sqrt(mu/TgtRad)*sin(azimuth); // eastern velocity
-	lnch_v[0]= tgt_orbit_v[0] - fabs(current_vel[0]); // taking current velocity into accout for CC (North)
+	lnch_v[0]= tgt_orbit_v[0] - (current_vel[0]); // taking current velocity into accout for CC (North)
 	lnch_v[1]= tgt_orbit_v[1] - (current_vel[1]); // taking current velocity into accout for CC (East)
 
 	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
@@ -264,7 +264,7 @@ void Atlantis::RateCommand()
 				ReqdRates.data[PITCH] = TargetPitch-GetPitch()*DEG;
 				if(ReqdRates.data[PITCH]>2.5) ReqdRates.data[PITCH]=2.5;
 				else if(ReqdRates.data[PITCH]<-2.5) ReqdRates.data[PITCH]=-2.5;
-				if(GetPitch()*DEG>50.0) {
+				if(GetPitch()*DEG>60.0) {
 					ReqdRates.data[YAW] = range(-8.0, 0.25*DEG*(Heading-THeading), 8.0);
 				}
 				else {
@@ -301,7 +301,7 @@ void Atlantis::RateCommand()
 			else {
 				if(T>TPEGStop) {
 					ReqdRates.data[PITCH] = CmdPDot;
-					ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
+					ReqdRates.data[YAW] = range(-2.5, 0.5*DEG*(Heading-THeading), 2.5);
 					/*if(abs(GetBank()*DEG)>90.0) 
 						ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
 						//ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
@@ -496,7 +496,7 @@ void Atlantis::GPC(double simt, double dt)
 		case 103:
 			if(!bMECO && status==2) {
 				RateCommand();
-				SteerGimbal();
+				SteerGimbal(dt);
 				Throttle(dt);
 			}
 			else { //post MECO
