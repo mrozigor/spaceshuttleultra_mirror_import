@@ -702,9 +702,6 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   EEGrappleMode=0;
   bGrappleInProgress=false;
   bReleaseInProgress=false;
-  Grapple.Set(AnimState::OPEN, 1);
-  Rigidize.Set(AnimState::OPEN, 1);
-  Extend.Set(AnimState::OPEN, 1);
   arm_sy = 0.5;
   arm_sp = 0.0136;
   arm_ep = 0.014688;
@@ -1207,6 +1204,15 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   }
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
     CreateAttControls_RCS(ofs);
+
+	// set SSME gains
+	for(int i=0;i<3;i++) {
+		SSMEGimbal[i][PITCH].SetGains(-0.03, -0.001, 0.0);
+		SSMEGimbal[i][YAW].SetGains(0.02, 0.0, 0.0);
+	}
+	SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
+	SSMEGimbal[1][ROLL].SetGains(0.009, 0.002, 0.0);
+	SSMEGimbal[2][ROLL].SetGains(-0.009, -0.002, 0.0);
 
   // ************************* aerodynamics **************************************
 
@@ -2650,6 +2656,10 @@ void Atlantis::SeparateBoosters (double met)
   char cbuf[255];
   sprintf(cbuf, "Boosters separated");
   oapiWriteLog(cbuf);
+  //reset SSME PID controllers
+  for(int i=0;i<3;i++) {
+	  for(int j=0;j>3;j++) SSMEGimbal[i][j].Reset();
+  }
 
   //stop playing sound
   StopVesselWave3(SoundID, SSME_RUNNING);
@@ -2815,7 +2825,7 @@ void Atlantis::ToggleGrapple (void)
 
 void Atlantis::ToggleArrest (void)
 {
-  HWND hDlg;
+  /*HWND hDlg;
   if (SatStowed()) { // purge satellite
     //DetachChild (sat_attach, 0.1);
     //Detach selected payload, if possible
@@ -2825,7 +2835,7 @@ void Atlantis::ToggleArrest (void)
     }
   } else if (CanArrest()) {           // try to arrest satellite
     ToggleGrapple();
-  }
+  }*/
 }
 
 void Atlantis::ToggleVCMode()
@@ -2844,7 +2854,7 @@ void Atlantis::ToggleVCMode()
 }
 
 // check whether the currently grappled object can be stowed in the cargo bay
-ATTACHMENTHANDLE Atlantis::CanArrest (void) const
+/*ATTACHMENTHANDLE Atlantis::CanArrest (void) const
 {
   OBJHANDLE hV = GetAttachmentStatus (ahRMS);
   if (!hV) return 0;
@@ -2863,7 +2873,7 @@ ATTACHMENTHANDLE Atlantis::CanArrest (void) const
     }
   }
   return 0;
-}
+}*/
 
 bool Atlantis::ArmCradled() const
 {
@@ -3021,17 +3031,15 @@ bool Atlantis::HydraulicsOK() {
   return panelr2->HydraulicPressure();
 }
 
-void Atlantis::SteerGimbal() {
+void Atlantis::SteerGimbal(double DeltaT) {
 	int i;
 
   //Use the left and right main engines to steer (after SRBs are gone)
-	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+	//VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
 	GetAngularVel(AngularVelocity);
-	for(i=0;i<3;i++) {
-		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
-	}
-	if(!panelr2->HydraulicPressure()) {
+	RateDeltas=ReqdRates-(AngularVelocity*DEG);
+	/*if(!panelr2->HydraulicPressure()) {
 		for(int i=0;i<3;i++) {
 			pitchcorrect.data[i]=0.0;
 			yawcorrect.data[i]=0.0;
@@ -3055,12 +3063,21 @@ void Atlantis::SteerGimbal() {
 	}
 	//sprintf(oapiDebugString(), "%f %f %f", EngineNullPosition[0].x, EngineNullPosition[0].y, EngineNullPosition[0].z);
 
+	UpdateSSMEGimbalAnimations();*/
+
+	for(i=0;i<3;i++) {
+		VECTOR3 deflection=_V(range(-0.1, SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 0.1),
+			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
+		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
+	}
+	//sprintf_s(oapiDebugString(), 255, "Yaw Rate: %f THeading: %f", ReqdRates.data[YAW], THeading*DEG);
+
 	UpdateSSMEGimbalAnimations();
 }
 
 void Atlantis::AutoMainGimbal (double DeltaT) {
   //Steer with the SRBs and lower SSMEs
-	VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+	//VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
 	VECTOR3 RateDeltas;
 	int i;
 	
@@ -8148,7 +8165,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     SendDlgItemMessage (hWnd, IDC_SHOWGRAPPLE, BM_SETCHECK, oapiGetShowGrapplePoints() ? BST_CHECKED:BST_UNCHECKED, 0);
     EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
     //SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
-    EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
+    //EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
     SetTimer (hWnd, 1, 50, NULL);
     t0 = oapiGetSimTime();
     return FALSE;

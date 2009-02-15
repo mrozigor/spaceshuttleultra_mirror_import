@@ -19,6 +19,10 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
 
+	Grapple_State.Set(AnimState::OPEN, 1);
+	Rigid_State.Set(AnimState::OPEN, 1);
+	Extend_State.Set(AnimState::OPEN, 1);
+
 	//RMS elbow camera
 	camRMSElbowLoc[0]=RMS_ELBOW_CAM_POS;
 	camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
@@ -44,6 +48,14 @@ void RMSSystem::Realize()
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+
+	DiscreteBundle* pBundle=BundleManager()->CreateBundle("RMS_EE", 16);
+	EEGrapple.Connect(pBundle, 0);
+	EERelease.Connect(pBundle, 1);
+	EEAuto.Connect(pBundle, 2);
+	EEMan.Connect(pBundle, 3);
+	EERigid.Connect(pBundle, 4);
+	EEDerigid.Connect(pBundle, 5);
 }
 
 void RMSSystem::CreateArm()
@@ -159,6 +171,51 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 		if(translate) Translate(translation);
+	}
+
+	if(EEAuto || EEMan) {
+		//Grapple sequence
+		if(EEGrapple) {
+			// if grapple is set, always try to close grapple
+			if(!Grapple_State.Closed()) {
+				Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
+				if(Grapple_State.Closed()) {
+					if(!STS()->GetAttachmentStatus(hAttach)) Grapple();
+					if(EEAuto) Extend_State.action=AnimState::CLOSING;
+				}
+			}
+		}
+		else if(EERigid || (EEGrapple && EEAuto)) {
+			if(!Extend_State.Closed()) {
+				Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);
+				if(Extend_State.Closed() && EEAuto) {
+					Rigid_State.action=AnimState::CLOSING;
+				}
+			}
+			else if(!Rigid_State.Closed()) {
+				Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
+			}
+		}
+		else if(EERelease) {
+			if(!Grapple_State.Open()) {
+				Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
+				if(Grapple_State.Open()) {
+					if(STS()->GetAttachmentStatus(hAttach)) Ungrapple();
+					if(EEAuto) Extend_State.action=AnimState::OPENING;
+				}
+			}
+		}
+		else if(EEDerigid || (EERelease && EEAuto)) {
+			if(!Rigid_State.Open()) {
+				Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
+				if(Rigid_State.Open() && EEAuto) {
+					Grapple_State.action=AnimState::OPENING;
+				}
+			}
+			else if(!Extend_State.Open()) {
+				Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);;
+			}
+		}
 	}
 
 	for(int i=0;i<2;i++) {

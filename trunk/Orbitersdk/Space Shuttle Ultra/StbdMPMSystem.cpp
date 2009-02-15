@@ -6,7 +6,6 @@ StbdMPMSystem::StbdMPMSystem(SubsystemDirector *_director)
 {
 	obss_attach_point[0]=OBSS_ATTACHMENT_POINT;
 	obss_attach_point[1]=OBSS_ATTACHMENT_POINT+_V(0.00, 1.00, 0.00);
-	oapiWriteLog("StbdMPM Created");
 }
 
 StbdMPMSystem::~StbdMPMSystem()
@@ -46,7 +45,8 @@ void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
 
-	if(mpm_moved) {
+	// check for SimT is needed to ensure OBSS attachment point is positioned correctly
+	if(mpm_moved || SimT<0.25) {
 		STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+obss_attach_point[0]+MPM_MESH_OFFSET, 
 			obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));
 	}

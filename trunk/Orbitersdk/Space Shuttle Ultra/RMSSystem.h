@@ -137,6 +137,9 @@ private:
 	int joint_motion[6];
 	int ee_translation[3];
 
+	AnimState Grapple_State, Rigid_State, Extend_State;
+	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
+
 	bool arm_moved;
 	bool update_data;
 
