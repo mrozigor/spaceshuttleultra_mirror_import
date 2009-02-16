@@ -455,6 +455,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Latch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\MasterTimingUnit.cpp"
 				>
 			</File>
@@ -763,6 +767,10 @@
 			</File>
 			<File
 				RelativePath=".\ISubsystem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Latch.h"
 				>
 			</File>
 			<File

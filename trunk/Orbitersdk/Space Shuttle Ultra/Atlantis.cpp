@@ -660,8 +660,8 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   vis             = NULL;
   ahHDP			= NULL;
   ahTow			= NULL;
-  ahRMS			= NULL;
-  ahOBSS		= NULL;
+  //ahRMS			= NULL;
+  //ahOBSS		= NULL;
   ahDockAux		= NULL;
   ahMMU[0]		= NULL;
   ahMMU[1]		= NULL;
@@ -2265,7 +2265,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 
 
 	//Separate into UpdateRMSAttachment
-	if(ahRMS && !pRMS) //replace with ahRMSLEE?
+	/*if(ahRMS && !pRMS) //replace with ahRMSLEE?
 	{
 		//Update position
 		SetAttachmentParams(ahRMS, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], 
@@ -2275,17 +2275,19 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 		//create new attachment
 		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 		if(pRMS) pRMS->DefineAttachmentPoint(ahRMS);
-	}
+	}*/
+	pRMS->CreateAttachment();
 
 	//Separate into UpdateOBSSAttachment
-	if(ahOBSS)
+	/*if(ahOBSS)
 	{
 		SetAttachmentParams(ahOBSS, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1));
 	}
 	else {
 		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
 		if(pMPMs) pMPMs->DefineAttachmentPoint(ahOBSS);
-	}
+	}*/
+	pMPMs->CreateAttachment();
 
 
 	//Without MMU, make this port airlock payload 
@@ -2717,16 +2719,16 @@ void Atlantis::SeparateTank (void)
 void Atlantis::ToggleGrapple (void)
 {
   HWND hDlg;
-  OBJHANDLE hV = GetAttachmentStatus (ahRMS);
+  //OBJHANDLE hV = GetAttachmentStatus (ahRMS);
 
   if(!RMS) return; //no arm
-  if (hV) {  // release satellite
+  if (pRMS->Grappled()) {  // release satellite
 
     //ATTACHMENTHANDLE hAtt = CanArrest();
     //reduce mass of shuttle
-    pl_mass-=oapiGetMass(hV);
+    /*pl_mass-=oapiGetMass(hV);
 	if(pl_mass<0.0) pl_mass=0.0;
-	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
+	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 
     //DetachChild (ahRMS);
 	pRMS->Ungrapple();
@@ -2762,12 +2764,12 @@ void Atlantis::ToggleGrapple (void)
 #endif
 
   } else {             // grapple satellite
-	  hV=pRMS->Grapple();
+	  ATTACHMENTHANDLE hV=pRMS->Grapple();
 	  if(hV) {
 		  //increase mass of shuttle
-		  pl_mass+=oapiGetMass(hV);
+		  /*pl_mass+=oapiGetMass(hV);
 		  //oapiWriteLog("pl_mass increased");
-		  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
+		  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 		  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
 			  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
 			  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
@@ -2934,7 +2936,7 @@ ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, cons
 
 void Atlantis::AttachOBSS() const
 {
-	if(Eq(MRL[1], 1.00)) {
+	/*if(Eq(MRL[1], 1.00)) {
 		OBJHANDLE vessel;
 		ATTACHMENTHANDLE obss_attach=GetAttachmentTarget(ahOBSS, "OS", &vessel);
 		oapiWriteLog("GetAttachmentTarget called");
@@ -2942,7 +2944,7 @@ void Atlantis::AttachOBSS() const
 			//pRMS->Detach(oapiGetVesselInterface(vessel));
 			//AttachChild(vessel, ahOBSS, obss_attach);
 		}
-	}
+	}*/
 }
 
 void Atlantis::DetachOBSS() const
@@ -6233,7 +6235,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}*/
 			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 			if(Grapple.Closed()) {
-				if(!GetAttachmentStatus(ahRMS)) ToggleGrapple();
+				if(!pRMS->Grappled()) ToggleGrapple();
 				Extend.action=AnimState::CLOSING;
 				panela8->UpdateVC();
 			}
@@ -6265,7 +6267,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		else if(!Grapple.Open()) {
 			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 			if(Grapple.Open()) {
-				if(GetAttachmentStatus(ahRMS)) ToggleGrapple();
+				if(pRMS->Grappled()) ToggleGrapple();
 				else if(pRMS) pRMS->Ungrapple();
 				Extend.action=AnimState::OPENING;
 				panela8->UpdateVC();
@@ -6282,7 +6284,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	}
 
 	if (arm_moved) {
-		SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
+		//SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
 		//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
 
 		//calculate joint angles
@@ -8163,7 +8165,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     hIcon = LoadIcon (g_Param.hDLL, MAKEINTRESOURCE(IDI_RLEFT));
     SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
     SendDlgItemMessage (hWnd, IDC_SHOWGRAPPLE, BM_SETCHECK, oapiGetShowGrapplePoints() ? BST_CHECKED:BST_UNCHECKED, 0);
-    EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
+    //EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
     //SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
     //EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
     SetTimer (hWnd, 1, 50, NULL);
@@ -8275,7 +8277,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			  if(!sts->Grapple.Closed()) {
 				  sts->Grapple.action=AnimState::CLOSING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
-				  if(sts->Grapple.Closed() && !sts->GetAttachmentStatus(sts->ahRMS)) {
+				  if(sts->Grapple.Closed() && !sts->pRMS->Grappled()) {
 					  sts->ToggleGrapple();
 				  }
 				  sts->panela8->UpdateVC();
@@ -8286,7 +8288,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		  if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Open()) {
 				  if(sts->Grapple.Closed()) {
-					  if(sts->GetAttachmentStatus(sts->ahRMS)) sts->ToggleGrapple();
+					  if(sts->pRMS->Grappled()) sts->ToggleGrapple();
 					  else if(sts->pRMS) sts->pRMS->Ungrapple();
 				  }
 				  sts->Grapple.action=AnimState::OPENING;

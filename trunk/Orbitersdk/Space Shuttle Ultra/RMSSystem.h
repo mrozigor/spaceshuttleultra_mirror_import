@@ -65,6 +65,8 @@ public:
 
 	virtual double GetSubsystemEmptyMass() const {return 0.0;};
 
+	virtual void CreateAttachment();
+
 	/**
 	 * Rotates individual joint.
 	 * @param positive true if joint should rotate in positive direction

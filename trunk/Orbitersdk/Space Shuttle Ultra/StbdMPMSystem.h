@@ -26,6 +26,8 @@ public:
 	/*virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 	virtual bool OnParseLine(const char* line);*/
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	virtual void CreateAttachment();
 protected:
 	virtual void OnMRLLatched();
 	virtual void OnMRLReleased();

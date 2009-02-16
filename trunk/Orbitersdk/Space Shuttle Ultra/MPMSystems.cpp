@@ -1,7 +1,7 @@
 #include "MPMSystems.h"
 
-MPMSystem::MPMSystem(SubsystemDirector *_director, const std::string &_ident, const char* _meshname, const VECTOR3& _meshOffset)
-	: AtlantisSubsystem(_director, _ident)
+MPMSystem::MPMSystem(SubsystemDirector *_director, const std::string &_ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID)
+	: LatchSystem(_director, _ident, _attachID)
 {
 	mesh_index=MESH_UNDEFINED;
 	hMesh=oapiLoadMeshGlobal(_meshname);
@@ -15,9 +15,6 @@ MPMSystem::MPMSystem(SubsystemDirector *_director, const std::string &_ident, co
 
 	MPMRollout.Set(AnimState::OPEN, 1.0);
 	MRLLatches.Set(AnimState::OPEN, 1.0);
-
-	detached=false;
-	firstStep=true;
 }
 
 MPMSystem::~MPMSystem()
@@ -53,6 +50,10 @@ void MPMSystem::Realize()
 		MRL_Released.SetLine();
 		MRL_Latched.ResetLine();
 	}
+	else {
+		MRL_Released.ResetLine();
+		MRL_Latched.ResetLine();
+	}
 
 	pBundle=BundleManager()->CreateBundle(GetIdentifier(), 16);
 	Deploy.Connect(pBundle, 0);
@@ -68,18 +69,15 @@ void MPMSystem::Realize()
 		MPM_Deployed.ResetLine();
 		MPM_Stowed.SetLine();
 	}
+	else {
+		MPM_Deployed.ResetLine();
+		MPM_Stowed.ResetLine();
+	}
 }
 
 void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	if(firstStep) {
-		CheckForAttachedObjects();
-		firstStep=false;
-	}
-
-	if(!detached && attachedPayload!=NULL && !STS()->GetAttachmentStatus(hAttach)) {
-		if(PayloadIsFree()) STS()->AttachChild(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
-	}
+	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
 
 	if(Deploy && !MPMRollout.Open()) {
 		if(!MPMRollout.Opening()) {
@@ -168,67 +166,10 @@ void MPMSystem::AddMesh()
 	STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 }
 
-void MPMSystem::CheckForAttachedObjects()
-{
-	if(hAttach) {
-		OBJHANDLE hV=STS()->GetAttachmentStatus(hAttach);
-		if(hV) {
-			attachedPayload=oapiGetVesselInterface(hV);
-			// find handle of attachment point on payload
-			for(DWORD i=0;i<attachedPayload->AttachmentCount(true);i++) {
-				ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(true, i);
-				if(attachedPayload->GetAttachmentStatus(hAtt)==STS()->GetHandle()) {
-					hPayloadAttachment=hAtt;
-					return;
-				}
-			}
-		}
-	}
-}
-
 void MPMSystem::OnMRLLatched()
 {
 }
 
 void MPMSystem::OnMRLReleased()
 {
-}
-
-void MPMSystem::AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment)
-{
-	//for the moment, assume attachment passed is completely valid
-	hPayloadAttachment=attachment;
-	attachedPayload=vessel;
-
-	detached=false;
-}
-
-void MPMSystem::DetachPayload()
-{
-	hPayloadAttachment=NULL;
-	attachedPayload=NULL;
-	STS()->DetachChild(hAttach);
-}
-
-void MPMSystem::Detach(VESSEL* vessel)
-{
-	if(vessel==NULL || vessel==attachedPayload) {
-		STS()->DetachChild(hAttach);
-		detached=true;
-	}
-}
-
-bool MPMSystem::PayloadIsFree() const
-{
-	if(attachedPayload) {
-		//if we are attached to payload, it must be 'free'
-		if(STS()->GetAttachmentStatus(hAttach)) return true;
-		//otherwise, loop through all attachment points on payload and check if any of them are in use
-		DWORD count=attachedPayload->AttachmentCount(true);
-		for(DWORD i=0;i<count;i++) {
-			ATTACHMENTHANDLE att=attachedPayload->GetAttachmentHandle(true, i);
-			if(attachedPayload->GetAttachmentStatus(att)) return false;
-		}
-	}
-	return true;
 }

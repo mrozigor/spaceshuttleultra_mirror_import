@@ -2,7 +2,7 @@
 #include "RMSSystem.h"
 
 StbdMPMSystem::StbdMPMSystem(SubsystemDirector *_director)
-	: MPMSystem(_director, "STBD_MPM", MPM_MESHNAME, MPM_MESH_OFFSET)
+	: MPMSystem(_director, "STBD_MPM", MPM_MESHNAME, MPM_MESH_OFFSET, "OBSS")
 {
 	obss_attach_point[0]=OBSS_ATTACHMENT_POINT;
 	obss_attach_point[1]=OBSS_ATTACHMENT_POINT+_V(0.00, 1.00, 0.00);
@@ -29,6 +29,11 @@ void StbdMPMSystem::Realize()
 
 	if(hAttach && STS()->GetAttachmentStatus(hAttach)) MRLLatches.Set(AnimState::CLOSED, 0.0);
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+}
+
+void StbdMPMSystem::CreateAttachment()
+{
+	hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+OBSS_ATTACHMENT_POINT, _V(0,1,0), _V(0,0,1), "OBSS");
 }
 
 void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
