@@ -1283,7 +1283,7 @@ public:
 	/**
 	 * @deprecated
 	 */
-	ATTACHMENTHANDLE ahRMS, ahOBSS;
+	//ATTACHMENTHANDLE ahRMS, ahOBSS;
 	ATTACHMENTHANDLE ahMMU[2];
 	ATTACHMENTHANDLE ahDockAux;
 	ATTACHMENTHANDLE ahExtAL[2];
@@ -1405,7 +1405,7 @@ private:
 	bool ArmCradled() const;
 	void UpdateMPMMicroswitches();
 	void UpdateMRLMicroswitches();
-	bool SatGrappled() const { return GetAttachmentStatus (ahRMS) != 0; }
+	//bool SatGrappled() const { return (pRMS && pRMS->Grappled()); }
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;

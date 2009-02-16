@@ -16,6 +16,10 @@ public:
 	PIDControl(double pGain=0.0, double dGain=0.0, double iGain=0.0);
 	~PIDControl();
 
+	/**
+	 * Resets lastValue and integral variables from previous timesteps.
+	 * Generally called after gains are changed.
+	 */
 	void Reset();
 	/**
 	 * Returns control output for the current step.

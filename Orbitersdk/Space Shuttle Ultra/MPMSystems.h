@@ -2,7 +2,7 @@
 #define __MPMSUBSYSTEMS_H
 #pragma once
 
-#include "AtlantisSubsystem.h"
+#include "Latch.h"
 #include "discsignals/discsignals.h"
 #include "Atlantis.h"
 
@@ -14,10 +14,10 @@ const double MRL_MAX_ANGLE_ERROR = 0.1;
 
 using namespace discsignals;
 
-class MPMSystem : public AtlantisSubsystem
+class MPMSystem : public LatchSystem
 {
 public:
-	MPMSystem(SubsystemDirector* _director, const string& _ident, const char* _meshname, const VECTOR3& _meshOffset);
+	MPMSystem(SubsystemDirector* _director, const string& _ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID);
 	virtual ~MPMSystem();
 
 	virtual void Realize();
@@ -30,32 +30,13 @@ public:
 	bool Stowed() const {return MPMRollout.Closed();};
 	bool Released() const {return MRLLatches.Open();};
 	bool Latched() const {return MRLLatches.Closed();};*/
-
-	/**
-	 * If vessel is NULL or same as attached payload,
-	 * attachment between hAttach and hPayloadAttachment is destroyed.
-	 * MPM remains logically 'attached' to payload
-	 */
-	void Detach(VESSEL* vessel);
-
-	//temporary function: used only until MPMSystem classes are responsible for attachment creation
-	void DefineAttachmentPoint(ATTACHMENTHANDLE attachment) {hAttach=attachment;};
 protected:
 	virtual void OnMRLLatched();
 	virtual void OnMRLReleased();
 
-	void AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment);
-	void DetachPayload();
-
-	bool PayloadIsFree() const;
-
 	UINT mesh_index;
 	// all animations should be added by derived classes
 	UINT anim_mpm;
-
-	VESSEL* attachedPayload;
-	ATTACHMENTHANDLE hPayloadAttachment;
-	ATTACHMENTHANDLE hAttach;
 
 	//true if MPM was moved this timestep
 	bool mpm_moved;
@@ -66,13 +47,9 @@ protected:
 	DiscOutPort MPM_Stowed, MPM_Deployed;
 private:
 	void AddMesh();
-	void CheckForAttachedObjects();
 	
 	MESHHANDLE hMesh;
 	VECTOR3 mesh_offset;
-
-	bool firstStep;
-	bool detached;
 
 	DiscInPort Release, Latch;
 	DiscInPort Deploy, Stow;

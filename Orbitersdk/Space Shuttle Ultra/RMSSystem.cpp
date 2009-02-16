@@ -4,7 +4,7 @@
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 
 RMSSystem::RMSSystem(SubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0)), RMSCameraMode(NONE), camLowSpeed(false)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE), camLowSpeed(false)
 {
 	joint_pos[SHOULDER_YAW] = 0.5;
 	joint_pos[SHOULDER_PITCH] = 0.0136;
@@ -144,6 +144,11 @@ void RMSSystem::CreateArm()
 			STS()->SetAnimation(anim_camRMSElbow[i], anim);
 		}
 	}
+}
+
+void RMSSystem::CreateAttachment()
+{
+	hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 }
 
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -444,7 +449,7 @@ void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
 
 OBJHANDLE RMSSystem::Grapple()
 {
-	oapiWriteLog("Grappling satellite");
+	/*oapiWriteLog("Grappling satellite");
 
 	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
 	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+arm_tip[0], grms);  // global position of RMS tip
@@ -479,6 +484,13 @@ OBJHANDLE RMSSystem::Grapple()
 			}
 		}
 	}
+	return NULL;*/
+
+	VESSEL* pVessel=NULL;
+	ATTACHMENTHANDLE hAtt=FindPayload(&pVessel);
+	if(hAtt) AttachPayload(pVessel, hAtt);
+
+	if(pVessel) return pVessel->GetHandle();
 	return NULL;
 }
 
