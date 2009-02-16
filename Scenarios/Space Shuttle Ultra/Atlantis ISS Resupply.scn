@@ -64,6 +64,6 @@ STS-101:SpaceShuttleUltra
 END
 Leonardo:Leonardo_mplm
   STATUS Orbiting Earth
-  ATTACHED 0:0,STS-101
+  ATTACHED 0:6,STS-101
 END
 END_SHIPS
