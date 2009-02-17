@@ -2276,7 +2276,9 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 		if(pRMS) pRMS->DefineAttachmentPoint(ahRMS);
 	}*/
-	pRMS->CreateAttachment();
+	if(pRMS) pRMS->CreateAttachment();
+	// if RMS does not exist, create a placeholder attachment
+	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
 	//Separate into UpdateOBSSAttachment
 	/*if(ahOBSS)
@@ -2287,7 +2289,9 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
 		if(pMPMs) pMPMs->DefineAttachmentPoint(ahOBSS);
 	}*/
-	pMPMs->CreateAttachment();
+	if(pMPMs) pMPMs->CreateAttachment();
+	// if MPMs are not used, create a placeholder attachment
+	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
 
 	//Without MMU, make this port airlock payload 
