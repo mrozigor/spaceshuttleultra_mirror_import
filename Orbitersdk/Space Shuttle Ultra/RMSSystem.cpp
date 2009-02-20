@@ -370,17 +370,25 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 		beta_w=-DEG*acos(dotp(normal, arm_ee_dir))+90.0;
 	else beta_w=-90.0+DEG*acos(dotp(normal, arm_ee_dir));
 
+	double phi;
 	//find vector in same plane as arm booms and perpendicular to EE direction
 	VECTOR3 wp_normal=crossp(normal, arm_ee_dir);
-	wp_normal/=length(wp_normal);
-	//double phi=90.0-DEG*acos(dotp(wp_normal, boom_plane));
-	double phi=DEG*acos(wp_normal.z);
-	if(arm_ee_dir.z<0.0) phi=-phi;
+	if(Eq(length(wp_normal), 0.0, 0.001)) //check if arm_ee_dir is perpendicular to arm booms
+	{
+		// use same phi angle as for previous position
+		phi=joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH]+joint_angle[WRIST_PITCH];
+		wp_normal=RotateVectorZ(boom_plane, phi+90.0);
+	}
+	else {
+		wp_normal/=length(wp_normal);
+		phi=DEG*acos(wp_normal.z);
+		if(arm_ee_dir.z<0.0) phi=-phi;
+	}
 	sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
 		phi, beta_w);
 
 	//VECTOR3 arm_wp_dir=RotateVectorY(boom_plane, phi);
-	VECTOR3 arm_wp_dir=crossp(wp_normal, normal);
+	VECTOR3 arm_wp_dir=crossp(wp_normal, normal); // wp_normal and normal vectors are perpendicular
 	VECTOR3 arm_wp_cpos=arm_wy_cpos-arm_wp_dir*RMS_WP_WY_DIST;
 	double r=length(arm_wp_cpos);
 

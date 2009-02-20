@@ -28,7 +28,7 @@ public:
 	 * attachment between hAttach and hPayloadAttachment is destroyed.
 	 * Remains logically 'attached' to payload
 	 */
-	void Detach(VESSEL* vessel);
+	//void Detach(VESSEL* vessel);
 protected:
 	void AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void DetachPayload();
@@ -45,7 +45,7 @@ private:
 	void CheckForAttachedObjects();
 
 	bool firstStep;
-	bool detached;
+	//bool detached;
 };
 
 #endif //__LATCH_H

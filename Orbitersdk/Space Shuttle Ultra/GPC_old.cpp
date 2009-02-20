@@ -508,6 +508,7 @@ void Atlantis::GPC(double simt, double dt)
 					TransPulseDV.z=-ET_SEP_RATE;
 				}
 				else if(status==3 && Eq(TransPulseDV.z, 0.0, 0.001)) { //Z thrusting complete
+					WT=GetMass()*kg_to_pounds;
 					ops=104;
 				}
 				AttControl(dt);
@@ -518,7 +519,7 @@ void Atlantis::GPC(double simt, double dt)
 		case 105:
 		case 202:
 		case 302:
-			if(!BurnCompleted && MNVRLOAD) Maneuver(dt);
+			if(!BurnCompleted && MNVRLOAD && MnvrExecute) Maneuver(dt);
 			/*AttControl(dt);
 			TransControl(simt, dt);
 			break;*/
@@ -614,7 +615,7 @@ void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	double pitchDelta=Rates.data[PITCH]-CurrentRates.data[PITCH]; //if positive, vessel is pitching down
 	double yawDelta=Rates.data[YAW]-CurrentRates.data[YAW]; //if positive, vessel is rotating to right
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
-	bool RCSWraparound=(abs(rollDelta)<0.5 && abs(pitchDelta)<0.25 && abs(yawDelta)<0.25);
+	bool RCSWraparound=(abs(rollDelta)>0.5 || abs(pitchDelta)>0.25 || abs(yawDelta)>0.25);
 
 	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
 	double dYaw=OMSTVCControlY.Step(yawDelta, SimDT);
@@ -623,14 +624,14 @@ void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	{
 		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
 		double Pitch=Trim.data[0]+dPitch, Yaw=Trim.data[1]+dYaw;
-		if(OMS==0) Pitch+=rollDelta;
+		if(OMS==0) Pitch-=rollDelta;
 		if(!GimbalOMS(0, Pitch, Yaw)) RCSWraparound=true;
 	}
 	if(OMS!=1) //right OMS engine burning
 	{
 		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
 		double Pitch=Trim.data[0]+dPitch, Yaw=Trim.data[2]+dYaw;
-		if(OMS==0) Pitch-=rollDelta;
+		if(OMS==0) Pitch+=rollDelta;
 		if(!GimbalOMS(1, Pitch, Yaw)) RCSWraparound=true;
 	}
 	sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);

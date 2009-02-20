@@ -1892,7 +1892,7 @@ private:
 	double BurnTime;
 	VECTOR3 VGO;
 	double vgoTot;
-	bool MNVRLOAD;
+	bool MNVRLOAD, MnvrExecute;
 	VECTOR3 BurnAtt;
 	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 	PIDControl OMSTVCControlP, OMSTVCControlY;
