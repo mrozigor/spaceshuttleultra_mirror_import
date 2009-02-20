@@ -65,7 +65,7 @@ void StbdMPMSystem::OnSaveState(FILEHANDLE scn) const
 
 void StbdMPMSystem::OnMRLLatched()
 {
-	AttachOBSS();
+	if(!hPayloadAttachment) AttachOBSS();
 }
 
 void StbdMPMSystem::OnMRLReleased()
@@ -79,7 +79,7 @@ void StbdMPMSystem::AttachOBSS()
 		int index=FindOBSS();
 		if(index!=-1) {
 			// if OBSS is attached to RMS, detach it so it can be attached to MPM
-			STS()->pRMS->Detach(vpOBSS[index]);
+			//STS()->pRMS->Detach(vpOBSS[index]);
 			AttachPayload(vpOBSS[index], vhOBSSAttach[index]);
 		}
 	}

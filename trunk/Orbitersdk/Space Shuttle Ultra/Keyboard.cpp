@@ -82,6 +82,12 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 					sts->Input(sts->CRT_SEL[keyboard], 3, Name.c_str(), Data.c_str());
 				}
 			}
+			else {
+				const char* scratchPad=sts->GetIDP(sts->CRT_SEL[keyboard]+1)->GetScratchPadLineScan();
+				sprintf_s(oapiDebugString(), 255, "Scratch Pad: %s %d", scratchPad, strlen(scratchPad));
+				if(strlen(scratchPad)==1) sts->Input(sts->CRT_SEL[keyboard], 10, NULL);
+			}
+			ClearInput();
 		}
 		else if(p.y>=0.625 && p.y<0.75) {
 			ClearInput();

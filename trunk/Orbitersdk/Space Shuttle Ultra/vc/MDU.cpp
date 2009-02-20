@@ -200,19 +200,23 @@ namespace vc {
 		SelectObject(CompatibleDC, BMP);
 
 		//sprintf_s(oapiDebugString(), 255, "IDP: %d", GetDrivingIDP());
+		int SimT=(int)oapiGetSimTime();
+		bool flash=(SimT%2)==1;
 
 		//draw stuff
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
 				char cbuf[2];
 				if(textBuffer[i][j].cSymbol>='!') {
-					sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-					//sprintf_s(oapiDebugString(), 255, "Blitting: %c", textBuffer[i][j].cSymbol);
-					//oapiWriteLog(cbuf);
-					//TextOut(hDC, i*5, j*9, cbuf, 1);
-					int x, y;
-					vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
-					BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
+					switch(textBuffer[i][j].cAttr) {
+						case dps::DEUATT_FLASHING:
+							if(!flash) break;
+						default:
+							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
+							int x, y;
+							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
+					}
 				}
 			}
 		}
@@ -750,8 +754,8 @@ namespace vc {
 	{
 		for(int i=0;i<length;i++) {
 			textBuffer[col+i][row].cSymbol=string[i];
+			textBuffer[col+i][row].cAttr=attributes;
 		}
-		//oapiWriteLog(string);
 	}
 
 
@@ -1005,8 +1009,8 @@ namespace vc {
 
 		sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
 		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
+		timeDiff=(int)(STS()->tig-STS()->met+1);
 		if(true) { //for the moment, timer will always be drawn; this will change next version
-			timeDiff=(int)(STS()->tig-STS()->met+1);
 			TIMER[0]=timeDiff/86400;
 			TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
 			TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
@@ -1075,6 +1079,7 @@ namespace vc {
 			PrintToBuffer(cbuf, strlen(cbuf), 21, 4, 0);
 			sprintf(cbuf, "26 Y %-3.0f", STS()->BurnAtt.data[YAW]);
 			PrintToBuffer(cbuf, strlen(cbuf), 21, 5, 0);
+			if(!STS()->MnvrExecute && timeDiff<=15.0) PrintToBuffer("EXEC", 4, 46, 2, dps::DEUATT_FLASHING);
 		}
 		else {
 			PrintToBuffer("     22/TIMER 23", 16, 0, 23, 0);

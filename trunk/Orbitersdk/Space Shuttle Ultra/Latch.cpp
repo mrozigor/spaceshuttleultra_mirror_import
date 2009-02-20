@@ -7,7 +7,7 @@ LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident
 	hPayloadAttachment=NULL;
 	hAttach=NULL;
 
-	detached=false;
+	//detached=false;
 	firstStep=true;
 }
 
@@ -22,8 +22,12 @@ void LatchSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		firstStep=false;
 	}
 
-	if(!detached && attachedPayload!=NULL && !STS()->GetAttachmentStatus(hAttach)) {
-		if(PayloadIsFree()) STS()->AttachChild(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
+	if(attachedPayload!=NULL && !STS()->GetAttachmentStatus(hAttach)) {
+		if(PayloadIsFree()) {
+			STS()->AttachChild(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
+			double mass=STS()->GetEmptyMass()+attachedPayload->GetMass();
+			STS()->SetEmptyMass(mass);
+		}
 	}
 }
 
@@ -33,23 +37,28 @@ void LatchSystem::AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment)
 	hPayloadAttachment=attachment;
 	attachedPayload=vessel;
 
-	detached=false;
+	//detached=false;
 }
 
 void LatchSystem::DetachPayload()
 {
+	if(attachedPayload) {
+		// remove mass of released payload
+		double mass=STS()->GetEmptyMass()-attachedPayload->GetMass();
+		STS()->SetEmptyMass(mass);
+	}
 	hPayloadAttachment=NULL;
 	attachedPayload=NULL;
 	STS()->DetachChild(hAttach);
 }
 
-void LatchSystem::Detach(VESSEL* vessel)
+/*void LatchSystem::Detach(VESSEL* vessel)
 {
 	if(vessel==NULL || vessel==attachedPayload) {
 		STS()->DetachChild(hAttach);
 		detached=true;
 	}
-}
+}*/
 
 ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 {
@@ -112,6 +121,8 @@ void LatchSystem::CheckForAttachedObjects()
 		OBJHANDLE hV=STS()->GetAttachmentStatus(hAttach);
 		if(hV) {
 			attachedPayload=oapiGetVesselInterface(hV);
+			double mass=STS()->GetEmptyMass()+attachedPayload->GetMass();
+			STS()->SetEmptyMass(mass);
 			// find handle of attachment point on payload
 			for(DWORD i=0;i<attachedPayload->AttachmentCount(true);i++) {
 				ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(true, i);

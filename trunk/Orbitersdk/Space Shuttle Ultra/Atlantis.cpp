@@ -776,6 +776,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   CRT_SEL[1]=1; //CRT2
   //MNVR
   MNVRLOAD=false;
+  MnvrExecute=false;
   TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
   OMSGimbal[0][0]=OMSGimbal[0][1]=0;
   OMSGimbal[1][0]=OMSGimbal[1][1]=0;
@@ -3599,6 +3600,14 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 		}
 		else return false;
 	}
+	else if(change==10) // EXEC pressed (no input)
+	{
+		sprintf_s(oapiDebugString(), 255, "EXEC pressed");
+		if(ops==104 || ops==105 || ops==106 || ops==202 || 
+			ops==301 || ops==302 || ops==303) {
+			if(MNVRLOAD && !MnvrExecute && tig-met<=15.0) MnvrExecute=true;
+		}
+	}
 
 	if(pIDP[idp]->GetMajfunc()==dps::GNC) //GNC
 	{
@@ -3610,6 +3619,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
+				MnvrExecute=false;
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==105 && ops==104) {
@@ -3618,6 +3628,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
+				MnvrExecute=false;
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==106 && ops==105) {
@@ -3637,6 +3648,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
+				MnvrExecute=false;
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==301 && ops==201)
@@ -3646,6 +3658,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
+				MnvrExecute=false;
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==302 && ops==301)
@@ -3907,7 +3920,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 						break;
 				}
 			}
-			else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
+			else if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
 				if(nNew>=1 && nNew<=4) {
 					OMS=nNew-1;
 					return true;
