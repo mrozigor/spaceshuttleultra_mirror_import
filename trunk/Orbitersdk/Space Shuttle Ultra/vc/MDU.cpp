@@ -1025,7 +1025,7 @@ namespace vc {
 		PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
 		PrintToBuffer("*", 1, 11, STS()->OMS+1, 0);
 
-		sprintf(cbuf, "5 TV ROLL %d", STS()->TV_ROLL);
+		sprintf(cbuf, "5 TV ROLL %d", (int)(STS()->TV_ROLL));
 		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
 		PrintToBuffer("TRIM LOAD", 9, 1, 6, 0);
 		sprintf(cbuf, "6 P  %+2.1f", STS()->Trim.data[0]);
@@ -1092,7 +1092,7 @@ namespace vc {
 		//LineTo(hDC, 98, 218);
 
 		PrintToBuffer("BURN ATT", 8, 20, 2, 0);
-		if(!STS()->TRK) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
+		if(!STS()->MnvrToBurnAtt) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
 		else PrintToBuffer("MNVR 27*", 8, 20, 6, 0);
 
 		PrintToBuffer("REI", 3, 20, 8, 0);

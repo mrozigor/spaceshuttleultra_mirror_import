@@ -953,14 +953,40 @@ typedef struct {
 	VECTOR3 Roll;			
 } RefPoints;
 
-typedef struct {
+struct DAPConfig {
 	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
 	int PRI_P_OPTION, PRI_Y_OPTION; //0=ALL, 1=NOSE, 2=TAIL
 	double ALT_RATE_DB, ALT_ON_TIME, ALT_DELAY;
 	int ALT_JET_OPT, ALT_JETS;
 	double VERN_ROT_RATE, VERN_ATT_DB, VERN_RATE_DB, VERN_ROT_PLS, VERN_COMP;
 	int VERN_CNTL_ACC;
-} DAPConfig;
+
+	DAPConfig& operator = (const DAPConfig& rhs) {
+		// copy all values from other config into this one
+		PRI_ROT_RATE=rhs.PRI_ROT_RATE;
+		PRI_ATT_DB=rhs.PRI_ATT_DB;
+		PRI_RATE_DB=rhs.PRI_RATE_DB;
+		PRI_ROT_PLS=rhs.PRI_ROT_PLS;
+		PRI_COMP=rhs.PRI_COMP;
+		PRI_TRAN_PLS=rhs.PRI_TRAN_PLS;
+		PRI_P_OPTION=rhs.PRI_P_OPTION;
+		PRI_Y_OPTION=rhs.PRI_Y_OPTION;
+		ALT_RATE_DB=rhs.ALT_RATE_DB;
+		ALT_ON_TIME=rhs.ALT_ON_TIME;
+		ALT_DELAY=rhs.ALT_DELAY;
+		ALT_JET_OPT=rhs.ALT_JET_OPT;
+		ALT_JETS=rhs.ALT_JETS;
+		VERN_ROT_RATE=rhs.VERN_ROT_RATE;
+		VERN_ATT_DB=rhs.VERN_ATT_DB;
+		VERN_RATE_DB=rhs.VERN_RATE_DB;
+		VERN_ROT_PLS=rhs.VERN_ROT_PLS;
+		VERN_COMP=rhs.VERN_COMP;
+		VERN_CNTL_ACC=rhs.VERN_CNTL_ACC;
+
+		return *this;
+	}
+
+};
 
 typedef struct {
 	int START_TIME[4]; // day,hour,min,sec
@@ -1214,6 +1240,8 @@ public:
 	void TriggerLiftOff();
 	void StartROFIs();
 
+	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
+	void ItemInput(int idp, int item, const char* Data=NULL);
 
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
@@ -1434,7 +1462,6 @@ private:
 	void GPC(double simt, double dt);
 	void Maneuver(double dt);
 	void SetILoads();
-	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
 	//void Test();
 
 	//OMS
@@ -1461,6 +1488,8 @@ private:
 	void LoadInertialManeuver();
 	void LoadTrackManeuver();
 	void LoadRotationManeuver();
+	void LoadBurnAttManeuver();
+	void TerminateManeuver();
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(const VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
@@ -1887,12 +1916,12 @@ private:
 	VECTOR3 PEG7, DeltaV;
 	double C1, C2, HT, ThetaT; // PEG4 Targets
 	VECTOR3 Trim; // 0=P, 1=LY, 2=RY
-	int TV_ROLL;
+	double TV_ROLL;
 	double DeltaVTot;
 	double BurnTime;
 	VECTOR3 VGO;
 	double vgoTot;
-	bool MNVRLOAD, MnvrExecute;
+	bool MNVRLOAD, MnvrExecute, MnvrToBurnAtt;
 	VECTOR3 BurnAtt;
 	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 	PIDControl OMSTVCControlP, OMSTVCControlY;

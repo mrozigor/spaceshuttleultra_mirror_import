@@ -100,9 +100,9 @@ namespace dps {
 				AppendScratchPadLine(cKey);
 				break;
 		}
-		sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
+		/*sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
 			usIDPID, usKeyboardID, cKey, 
-			this->GetScratchPadLineString());
+			this->GetScratchPadLineString());*/
 		return true;
 	}
 
@@ -175,7 +175,54 @@ namespace dps {
 	}
 
 	void IDP::OnExec() {
+		// check if EXEC was pressed without any ITEM input
+		if(cScratchPadLine[0]=='\0' || IsCompleteLine()) {
+			STS()->Input(GetIDPID(), 10, NULL);
+		}
+		else {
+			std::string scratchPad=GetScratchPadLineString();
+			int ITEM=scratchPad.find("ITEM ");
+			int OPS=scratchPad.find("OPS ");
+			int SPEC=scratchPad.find("SPEC ");
 
+			if(ITEM!=string::npos) {
+				scratchPad=scratchPad.erase(ITEM, 5);
+
+				//parse entry
+				int i;
+				bool delim=false;
+				string Data, Name;
+				for(i=0;i<scratchPad.length();i++) {
+					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
+						if(delim) break;
+						delim=true;
+					}
+					if(!delim) Name+=scratchPad[i];
+					else {
+						Data+=scratchPad[i];
+					}
+				}
+				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
+				int item=atoi(Name.c_str());
+				STS()->ItemInput(GetIDPID(), item, Data.c_str());
+				Data=""; //clear string
+				while(i<scratchPad.length()) {
+					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
+						if(Data.length()>0) {
+							item++;
+							STS()->ItemInput(GetIDPID(), item, Data.c_str());
+						}
+						Data=""; //clear string
+					}
+					Data+=scratchPad[i];
+					i++;
+				}
+				if(Data.length()>0) {
+					item++;
+					STS()->ItemInput(GetIDPID(), item, Data.c_str());
+				}
+			}
+		}
 	}
 
 	void IDP::OnFaultSummary() {
