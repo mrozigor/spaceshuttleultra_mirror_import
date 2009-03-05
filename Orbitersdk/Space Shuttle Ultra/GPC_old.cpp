@@ -697,23 +697,33 @@ void Atlantis::LoadManeuver()
 	else if(OMS==1 || OMS==2) {
 		GetThrusterDir(th_oms[OMS-1], ThrustDir);
 	}
-	else ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
+	else {
+		ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
+	}
+	ThrustDir=RotateVectorZ(ThrustDir, TV_ROLL);
 
+	sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
 	BurnAtt.data[PITCH]=-asin(ThrustDir.y)*DEG;
-	BurnAtt.data[YAW]=asin(ThrustDir.x)*DEG; //check signs here
+	BurnAtt.data[YAW]=-asin(ThrustDir.x)*DEG; //check signs here
+	// compensate for roll
+	/*if(TV_ROLL!=0.0) {
+		double dTemp=BurnAtt.data[PITCH];
+		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
+		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-abs(cos(TV_ROLL*RAD)));
+	}*/
 	
 	//Burn Attitude
 	if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
 		if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 		else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 	}
-	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) BurnAtt.data[YAW]-=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) BurnAtt.data[YAW]+=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
 	BurnAtt.data[ROLL]=TV_ROLL;
-	if(TV_ROLL!=0.0) {
+	/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
-		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD));
-		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
-	}
+		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
+		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-cos(TV_ROLL*RAD));
+	}*/
 
 	//use rocket equation (TODO: Check math/formulas here)
 	StartWeight=WT/kg_to_pounds;
@@ -775,7 +785,6 @@ void Atlantis::StartAttManeuver()
 {
 	int i;
 	if(CurManeuver.Type!=AttManeuver::OFF) {
-		oapiWriteLog("StartAttManeuver() called");
 		for(i=0;i<4;i++) START_TIME[i]=CurManeuver.START_TIME[i];
 		if(CurManeuver.Type==AttManeuver::MNVR) {
 			TargetAttM50=REQD_ATT=CurManeuver.TargetAttM50;

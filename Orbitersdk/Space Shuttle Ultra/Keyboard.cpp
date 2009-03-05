@@ -40,7 +40,9 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 	//first column of buttons
 	if(p.x>=0.0 && p.x<0.25) {
 		if(p.y>=0.375 && p.y<0.5) {
-			ClearInput();
+			if(sts->DataInput[sts->CRT_SEL[keyboard]].PRO || sts->DataInput[sts->CRT_SEL[keyboard]].EXEC)
+				ClearInput();
+
 			sts->DataInput[sts->CRT_SEL[keyboard]].ITEM=true;
 			PutKey(SSU_KEY_ITEM);
 		}
@@ -49,7 +51,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 			PutKey(SSU_KEY_EXEC);
 
-			if(sts->DataInput[sts->CRT_SEL[keyboard]].ITEM) {
+			/*if(sts->DataInput[sts->CRT_SEL[keyboard]].ITEM) {
 				//parse entry
 				int i;
 				bool delim=false;
@@ -86,7 +88,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 				const char* scratchPad=sts->GetIDP(sts->CRT_SEL[keyboard]+1)->GetScratchPadLineScan();
 				sprintf_s(oapiDebugString(), 255, "Scratch Pad: %s %d", scratchPad, strlen(scratchPad));
 				if(strlen(scratchPad)==1) sts->Input(sts->CRT_SEL[keyboard], 10, NULL);
-			}
+			}*/
 			ClearInput();
 		}
 		else if(p.y>=0.625 && p.y<0.75) {
