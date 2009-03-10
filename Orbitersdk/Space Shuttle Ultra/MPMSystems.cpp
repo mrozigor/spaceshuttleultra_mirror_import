@@ -7,11 +7,8 @@ MPMSystem::MPMSystem(SubsystemDirector *_director, const std::string &_ident, co
 	hMesh=oapiLoadMeshGlobal(_meshname);
 	mesh_offset=_meshOffset;
 
-	attachedPayload=NULL;
-	hPayloadAttachment=NULL;
-	hAttach=NULL;
-
 	mpm_moved=false;
+	doubleAttached=false;
 
 	MPMRollout.Set(AnimState::OPEN, 1.0);
 	MRLLatches.Set(AnimState::OPEN, 1.0);
@@ -172,4 +169,13 @@ void MPMSystem::OnMRLLatched()
 
 void MPMSystem::OnMRLReleased()
 {
+}
+
+void MPMSystem::OnAttach()
+{
+}
+
+void MPMSystem::OnDetach()
+{
+	doubleAttached=false;
 }

@@ -37,6 +37,8 @@
 #define IDC_SHOWGRAPPLE                 1009
 #define IDC_RELEASE                     1010
 #define IDC_PAYLOAD                     1011
+#define IDC_GRAPPLE2                    1011
+#define IDC_PAYLOADRELEASE              1012
 #define IDC_BUTTON9                     1024
 #define IDC_ELBOW_PITCHUP               1024
 #define IDC_BUTTON10                    1025
@@ -90,6 +92,7 @@
 #define IDC_COMBO1                      1066
 #define IDC_PAYLOADCOMBO                1067
 #define IDC_CAM_RMS                     1068
+#define IDC_PAYLOADLATCH                1068
 
 // Next default values for new objects
 // 
@@ -97,7 +100,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        121
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1067
+#define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

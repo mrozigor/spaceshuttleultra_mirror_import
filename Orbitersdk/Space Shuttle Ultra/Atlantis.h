@@ -1013,6 +1013,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class ActiveLatch;
 
 
 
@@ -1131,8 +1132,8 @@ public:
 	void AddTankVisual (const VECTOR3 &ofs);
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual ShuttleBusManager* BusManager() const;
-	VECTOR3 CalcAnimationFKArm();
-	void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
+	//VECTOR3 CalcAnimationFKArm();
+	//void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
@@ -1190,7 +1191,7 @@ public:
 	 *****************************************************************/
 	virtual void SetAirDataProbeDeployment(int side, double position);
 	void SetAnimationArm (UINT anim, double state);
-	void SetAnimationIKArm(VECTOR3 arm_dpos);
+	//void SetAnimationIKArm(VECTOR3 arm_dpos);
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
@@ -1256,7 +1257,7 @@ public:
 	void AutoReleaseSequence();
 	void ToggleArrest (void);
 	void UpdateMesh ();
-	void UpdateRMSPositions();
+	//void UpdateRMSPositions();
 	void UpdateRMSAngles();
 	void UpdateSSMEGimbalAnimations();
 	//VECTOR3 CalcAnimationFKArm2();
@@ -1371,6 +1372,8 @@ private:
 	vc::PanelGroup pgAft;
 	vc::PanelGroup pgAftPort;
 
+
+	std::vector<ActiveLatch*> pActiveLatches;
 
 	//GPC programs
 	dps::GNCSoftware *gncsoftware;
