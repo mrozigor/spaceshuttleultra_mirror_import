@@ -65,6 +65,10 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	switch(State) {
 		case SHUTDOWN:
+			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_SHUTDOWN)) {
+				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
+				else PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP, 0);
+			}
 		case OFF:
 			if(APUSpeed[1]>5) APUSpeed[1]=max(APUSpeed[1]-15.0*DeltaT, 0.0);
 			else {
@@ -86,6 +90,10 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			break;
 		case START:
+			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_START)) {
+				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
+				else PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP, 0);
+			}
 		case ON:
 			if(FuelLevel[0]<=0.0) State=SHUTDOWN;
 			if(!APU_Run) {

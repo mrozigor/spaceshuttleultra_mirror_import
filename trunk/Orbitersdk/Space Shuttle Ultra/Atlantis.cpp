@@ -41,6 +41,7 @@
 #include "dps/ShuttleBus.h"
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
+#include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
 #include "mps/BLOCK_II.h"
@@ -2331,9 +2332,9 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 */
 
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	for(int i = 0; i<3; i++)
+	for(int i = 0; i<pActiveLatches.size(); i++)
 	{
-		if(ahCenterActive[i])
+		/*if(ahCenterActive[i])
 		{
 			//update
 			vPayloadPos.z = fPayloadZPos[i];
@@ -2346,7 +2347,8 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 			//create
 			ahCenterActive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL, "XS");
-		}
+		}*/
+		pActiveLatches[i]->CreateAttachment();
 	}
 
 		/*
@@ -3241,7 +3243,7 @@ void Atlantis::UpdateMesh ()
   SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
-  if(STBDMPM) {
+  /*if(STBDMPM) {
 	  SetStbdMPMPosition(StbdMPMRollout.pos);
   }
   if(RMS) {
@@ -3255,7 +3257,7 @@ void Atlantis::UpdateMesh ()
 	  UpdateRMSAngles();
 	  UpdateRMSPositions();
 	  panela8->UpdateVC();
-  }
+  }*/
 
   // update MFD brightness
   if (vis) {
@@ -5866,6 +5868,18 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   ofs_sts_sat.y=sts_sat_y;
   ofs_sts_sat.z=sts_sat_z;
 
+  // create active payload latches
+  VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
+  ActiveLatch* pLatch;
+  for(int i=0;i<3;i++) {
+	  char cbuf[255];
+	  sprintf_s(cbuf, 255, "LATCH%d", i);
+	  vPayloadPos.z=fPayloadZPos[i];
+
+	  psubsystems->AddSubsystem(pLatch = new ActiveLatch(psubsystems, cbuf, vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+	  pActiveLatches.push_back(pLatch);
+  }
+
   ClearMeshes();
   switch (status) {
   case 0:
@@ -6155,7 +6169,7 @@ void Atlantis::clbkPostCreation ()
 
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
 	if(SoundID!=-1) {
-		//NOTE: (char*) casts in RequestLoadVesselWave3 calls should be safe; I think this function just stores the file names (SiameseCat)
+		//NOTE: (char*) casts in RequestLoadVesselWave3 calls should be safe; I think RequestLoadVesselWave3 function just stores the file names (SiameseCat)
 		SoundOptionOnOff3(SoundID, PLAYATTITUDETHRUST, FALSE);
 		RequestLoadVesselWave3(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
 
@@ -6165,9 +6179,9 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
 
 		//APU sounds
-		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, BOTHVIEW_FADED_FAR);
-		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, BOTHVIEW_FADED_FAR);
-		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, BOTHVIEW_FADED_FAR);
+		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 	}
 
 	dapcontrol->Realize();
@@ -6856,7 +6870,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	// ***** Stow RMS arm *****
 
-	if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
+	/*if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
 		double t0 = oapiGetSimTime();
 		double dt = t0 - center_arm_t;       // time step
 		double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
@@ -6912,7 +6926,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		UpdateRMSPositions();
 		UpdateRMSAngles();
-	}
+	}*/
 
 	/*if (arm_moved) {
 	SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
@@ -8011,7 +8025,7 @@ void Atlantis::UpdateRMSAngles()
 	wr_angle=linterp(0, wrist_roll_min, 1, wrist_roll_max, arm_wr);
 }
 
-void Atlantis::UpdateRMSPositions()
+/*void Atlantis::UpdateRMSPositions()
 {
 	VECTOR3 old=arm_ee_pos;
 	CalcAnimationFKArm(arm_ee_pos, arm_ee_dir);
@@ -8025,7 +8039,7 @@ void Atlantis::UpdateRMSPositions()
 	sprintf(oapiDebugString(), "%f %f %f %f %f %f", old.x, old.y, old.z,
 		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 	oapiWriteLog(oapiDebugString());
-}
+}*/
 
 void Atlantis::AutoGrappleSequence()
 {
@@ -8086,13 +8100,13 @@ void Atlantis::AutoReleaseSequence()
 	panela8->UpdateVC();
 }
 
-void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
+/*void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
 {
 	/*double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
 	double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
 	double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
 	double current_beta_s=linterp(0,-180,1,180,arm_sy);
-	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*/
+	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*
 
 	VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), wy_angle+sy_angle);
 	dir=RotateVectorY(temp, wp_angle-ep_angle+sp_angle);
@@ -8145,7 +8159,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 
 		/*temp=RotateVectorY(_V(lu, 0.0, 0.0), current_phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), current_phi_s-current_phi_e+ep_null)
 			+RotateVectorY(_V(wp_wy, 0.0, 0.0), current_phi_w-current_phi_e+current_phi_s);
-		pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;*/
+		pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;*
 
 		VECTOR3 arm_wrist_cpos=arm_cpos-arm_ee_dir*wy_ee-arm_wp_dir*wp_wy;
 		//VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
@@ -8172,7 +8186,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 		double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
 		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
 		double current_beta_s=linterp(0,-180,1,180,arm_sy);
-		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*/
+		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*
 		double current_phi_l=current_phi_s-current_phi_e;
 		double new_phi_w=current_phi_w-new_phi_l+current_phi_l;
 		double anim_phi_w=linterp(wrist_min,0,wrist_max,1,new_phi_w);
@@ -8215,7 +8229,7 @@ void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
 
 	//double Time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
-}
+}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
@@ -8387,59 +8401,6 @@ void Atlantis::TurnOffPadLights()
 		bIlluminated=false;
 	}
 }
-
-/*void Atlantis::IlluminateMesh(UINT idx)
-{
-	MATERIAL* material=NULL;
-	MESHHANDLE mesh=GetMesh(vis, idx);
-
-	DWORD materialCount = oapiMeshMaterialCount(mesh);
-    for (DWORD mi = 0; mi < materialCount; mi++) {
-        material = oapiMeshMaterial(mesh, mi);
-        if (material->emissive.g <= 0.1) {
-            material->emissive.r = 0.3;
-            material->emissive.g = 0.3;
-            material->emissive.b = 0.3;
-        }
-    }
-}
-
-void Atlantis::IlluminateMesh(UINT idx, vector<DWORD> vExclude)
-{
-	MATERIAL* material=NULL;
-	MESHHANDLE mesh=GetMesh(vis, idx);
-	int ExCounter=0;
-
-	DWORD materialCount = oapiMeshMaterialCount(mesh);
-    for (DWORD mi = 0; mi < materialCount; mi++) {
-		if(vExclude[ExCounter]!=mi) {
-			material = oapiMeshMaterial(mesh, mi);
-			if (material->emissive.g <= 0.1) {
-				material->emissive.r = 0.5;
-				material->emissive.g = 0.5;
-				material->emissive.b = 0.5;
-			}
-		}
-		else if(ExCounter<(vExclude.size()-1)) ExCounter++;
-    }
-}
-
-void Atlantis::DisableIllumination(UINT idx, MESHHANDLE GlobalMesh)
-{
-	MATERIAL* MeshMaterial=NULL;
-	MATERIAL* DefaultMaterial=NULL;
-	MESHHANDLE mesh=GetMesh(vis, idx);
-
-	DWORD materialCount = oapiMeshMaterialCount(mesh);
-    for (DWORD mi = 0; mi < materialCount; mi++) {
-        MeshMaterial = oapiMeshMaterial(mesh, mi);
-		DefaultMaterial = oapiMeshMaterial(GlobalMesh, mi);
-        
-		MeshMaterial->emissive.r=DefaultMaterial->emissive.r;
-		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
-		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
-    }
-}*/
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
 {
@@ -8705,6 +8666,14 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     //EnableWindow (GetDlgItem (hWnd, IDC_STOW), sts->SatGrappled() ? FALSE : TRUE);
     //SetWindowText (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() ? "Purge" : "Arrest");
     //EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
+
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"1");
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 1");
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"2");
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 2");
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"3");
+	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 3");
+
     SetTimer (hWnd, 1, 50, NULL);
     t0 = oapiGetSimTime();
     return FALSE;

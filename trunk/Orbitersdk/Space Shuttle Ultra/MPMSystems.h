@@ -26,6 +26,8 @@ public:
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
+	void CheckDoubleAttach(VESSEL* vessel) { if(attachedPayload && attachedPayload==vessel) doubleAttached=true; };
+
 	/*bool Deployed() const {return MPMRollout.Open();};
 	bool Stowed() const {return MPMRollout.Closed();};
 	bool Released() const {return MRLLatches.Open();};
@@ -34,12 +36,17 @@ protected:
 	virtual void OnMRLLatched();
 	virtual void OnMRLReleased();
 
+	virtual void OnAttach();
+	virtual void OnDetach();
+
 	UINT mesh_index;
 	// all animations should be added by derived classes
 	UINT anim_mpm;
 
 	//true if MPM was moved this timestep
 	bool mpm_moved;
+	// true if MPM is attached to object that is attached to something else
+	bool doubleAttached;
 
 	AnimState MPMRollout, MRLLatches;
 	DiscOutPort MRL_Rel_Microswitches[3], MRL_Lat_Microswitches[3], MRL_RTL_Microswitches[3];

@@ -1,4 +1,6 @@
 #include "Latch.h"
+#include "RMSSystem.h"
+#include "StbdMPMSystem.h"
 
 LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)
 	: AtlantisSubsystem(_director, _ident)
@@ -6,6 +8,8 @@ LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident
 	attachedPayload=NULL;
 	hPayloadAttachment=NULL;
 	hAttach=NULL;
+
+	AttachID=_attachID;
 
 	//detached=false;
 	firstStep=true;
@@ -37,7 +41,12 @@ void LatchSystem::AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment)
 	hPayloadAttachment=attachment;
 	attachedPayload=vessel;
 
+	// needed to prevent RMS and MPMs from moving when payload they are attached to is latched to something else
+	if(STS()->pRMS && STS()->pRMS!=this) STS()->pRMS->CheckDoubleAttach(vessel);
+	if(STS()->pMPMs && STS()->pMPMs!=this) STS()->pMPMs->CheckDoubleAttach(vessel);
 	//detached=false;
+
+	OnAttach();
 }
 
 void LatchSystem::DetachPayload()
@@ -50,6 +59,8 @@ void LatchSystem::DetachPayload()
 	hPayloadAttachment=NULL;
 	attachedPayload=NULL;
 	STS()->DetachChild(hAttach);
+
+	OnDetach();
 }
 
 /*void LatchSystem::Detach(VESSEL* vessel)
@@ -133,4 +144,41 @@ void LatchSystem::CheckForAttachedObjects()
 			}
 		}
 	}
+}
+
+//////////////////////////////////////////////////////////////
+// ActiveLatch class
+//////////////////////////////////////////////////////////////
+
+ActiveLatch::ActiveLatch(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
+	: LatchSystem(_director, _ident, "XS")
+{
+	pos=_pos;
+	dir=_dir;
+	rot=_rot;
+}
+
+ActiveLatch::~ActiveLatch()
+{
+}
+
+void ActiveLatch::CreateAttachment()
+{
+	if(!hAttach)
+		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+pos, dir, rot, AttachID.c_str());
+	else STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+pos, dir, rot);
+}
+
+void ActiveLatch::OnAttach()
+{
+	char cbuf[255];
+	sprintf_s(cbuf, 255, "%s latched", GetIdentifier().c_str());
+	oapiWriteLog(cbuf);
+}
+
+void ActiveLatch::OnDetach()
+{
+	char cbuf[255];
+	sprintf_s(cbuf, 255, "%s released", GetIdentifier().c_str());
+	oapiWriteLog(cbuf);
 }

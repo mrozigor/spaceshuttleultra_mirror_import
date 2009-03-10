@@ -33,6 +33,9 @@ protected:
 	void AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void DetachPayload();
 
+	virtual void OnAttach() = 0;
+	virtual void OnDetach() = 0;
+
 	ATTACHMENTHANDLE FindPayload(VESSEL** pVessel=NULL) const;
 	bool PayloadIsFree() const;
 
@@ -46,6 +49,23 @@ private:
 
 	bool firstStep;
 	//bool detached;
+};
+
+/**
+ * Class for PLBD latches that can be operated on-orbit
+ */
+class ActiveLatch : public LatchSystem
+{
+public:
+	ActiveLatch(SubsystemDirector* _director, const string& _ident, const VECTOR3& _pos, const VECTOR3& _dir, const VECTOR3& _rot);
+	virtual ~ActiveLatch();
+
+	virtual void CreateAttachment();
+protected:
+	virtual void OnAttach();
+	virtual void OnDetach();
+private:
+	VECTOR3 pos, dir, rot;
 };
 
 #endif //__LATCH_H

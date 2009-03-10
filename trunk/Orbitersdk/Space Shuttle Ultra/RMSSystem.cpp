@@ -148,7 +148,8 @@ void RMSSystem::CreateArm()
 
 void RMSSystem::CreateAttachment()
 {
-	hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+	if(!hAttach)
+		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 }
 
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
