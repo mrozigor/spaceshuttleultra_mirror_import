@@ -61,6 +61,9 @@ public:
 	virtual ~ActiveLatch();
 
 	virtual void CreateAttachment();
+
+	void Latch();
+	void Release();
 protected:
 	virtual void OnAttach();
 	virtual void OnDetach();

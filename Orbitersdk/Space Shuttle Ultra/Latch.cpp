@@ -169,6 +169,20 @@ void ActiveLatch::CreateAttachment()
 	else STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+pos, dir, rot);
 }
 
+void ActiveLatch::Latch()
+{
+	ATTACHMENTHANDLE hTarget=NULL;
+	VESSEL* pTarget=NULL;
+	hTarget=FindPayload(&pTarget);
+	if(hTarget && pTarget) AttachPayload(pTarget, hTarget);
+	sprintf_s(oapiDebugString(), 55, "%s", AttachID.c_str());
+}
+
+void ActiveLatch::Release()
+{
+	DetachPayload();
+}
+
 void ActiveLatch::OnAttach()
 {
 	char cbuf[255];
