@@ -613,7 +613,6 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
   for(i=0;i<3;i++) {
-	  apu_tank[i] = NULL;
 	  mps_helium_tank[i] = NULL;
 	  ex_main[i] = NULL;
   }
@@ -8025,22 +8024,6 @@ void Atlantis::UpdateRMSAngles()
 	wr_angle=linterp(0, wrist_roll_min, 1, wrist_roll_max, arm_wr);
 }
 
-/*void Atlantis::UpdateRMSPositions()
-{
-	VECTOR3 old=arm_ee_pos;
-	CalcAnimationFKArm(arm_ee_pos, arm_ee_dir);
-	arm_ee_rot=arm_tip[2]-arm_tip[0];
-	arm_ee_rot=_V(-arm_ee_rot.z, arm_ee_rot.x, arm_ee_rot.y);
-	VECTOR3 calc=arm_ee_pos;
-
-	//arm_ee_dir=arm_tip[1]-arm_tip[0];
-	arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-	arm_ee_pos=_V(arm_ee_pos.z, -arm_ee_pos.x, -arm_ee_pos.y);
-	sprintf(oapiDebugString(), "%f %f %f %f %f %f", old.x, old.y, old.z,
-		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
-	oapiWriteLog(oapiDebugString());
-}*/
-
 void Atlantis::AutoGrappleSequence()
 {
 	sprintf_s(oapiDebugString(), 255, "AutoGrapple: %d", EEGrappleMode);
@@ -8099,137 +8082,6 @@ void Atlantis::AutoReleaseSequence()
 	}
 	panela8->UpdateVC();
 }
-
-/*void Atlantis::CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir)
-{
-	/*double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-	double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-	double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-	double current_beta_s=linterp(0,-180,1,180,arm_sy);
-	double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*
-
-	VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), wy_angle+sy_angle);
-	dir=RotateVectorY(temp, wp_angle-ep_angle+sp_angle);
-
-	//sprintf(oapiDebugString(), "%f %f %f %f %f %f", temp.x, temp.y, temp.z, dir.x, dir.y, dir.z);
-	//sprintf(oapiDebugString(), "%f %f %f %f", current_beta_w, current_beta_s, arm_wy, arm_sy);
-
-	temp=RotateVectorY(_V(lu, 0.0, 0.0), sp_angle-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), sp_angle-ep_angle+ep_null)
-		+RotateVectorY(_V(wp_wy, 0.0, 0.0), wp_angle-ep_angle+sp_angle);
-	pos=RotateVectorZ(temp, sy_angle)+dir*wy_ee;
-}
-
-VECTOR3 Atlantis::CalcAnimationFKArm() {
-  //Do forward kinematics to get the current position of the wrist joint
-  //Return value is in MPM ref. frame
-  double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-  double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-  double current_beta_s=linterp(0,-180,1,180,arm_sy);
-  double current_phi_l=current_phi_s-current_phi_e;
-  double rho_e=lu*cos(RAD*current_phi_s);
-  double z_e=lu*sin(RAD*current_phi_s);
-  double rho_w=rho_e+ll*cos(RAD*current_phi_l);
-  double z_w=z_e+ll*sin(RAD*current_phi_l);
-  double x_w=rho_w*cos(RAD*current_beta_s);
-  double y_w=rho_w*sin(RAD*current_beta_s);
-  return _V(x_w,y_w,z_w);
-}
-
-void Atlantis::SetAnimationIKArm(VECTOR3 arm_dpos)
-{
-	if(!RMS) return;
-	if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
-
-	//Stopwatch st;
-	//st.Start();
-
-	//Candidate position. Calculate the joints on it...
-	VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(arm_dpos, 18.435);
-	int iterations=0;
-	do
-	{
-		double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-		double current_phi_w=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-		double current_beta_s=linterp(0,-180,1,180,arm_sy);
-		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-
-		VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), current_beta_s);
-		VECTOR3 arm_wp_dir=RotateVectorY(temp, current_phi_w-current_phi_e+current_phi_s);
-
-		/*temp=RotateVectorY(_V(lu, 0.0, 0.0), current_phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), current_phi_s-current_phi_e+ep_null)
-			+RotateVectorY(_V(wp_wy, 0.0, 0.0), current_phi_w-current_phi_e+current_phi_s);
-		pos=RotateVectorZ(temp, current_beta_s)+dir*wy_ee;*
-
-		VECTOR3 arm_wrist_cpos=arm_cpos-arm_ee_dir*wy_ee-arm_wp_dir*wp_wy;
-		//VECTOR3 temp=RotateVectorX(arm_wrist_dpos, 18.435);
-		double r=length(arm_wrist_cpos);
-		double beta_s=DEG*atan2(arm_wrist_cpos.y,arm_wrist_cpos.x);
-		double rho=sqrt(arm_wrist_cpos.x*arm_wrist_cpos.x+arm_wrist_cpos.y*arm_wrist_cpos.y);
-		double cos_phibar_e=(r*r-lu*lu-ll*ll)/(-2*lu*ll);
-		if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
-		double phi_e=180-DEG*acos(cos_phibar_e);
-		double cos_phi_s2=(ll*ll-lu*lu-r*r)/(-2*lu*r);
-		if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
-		double phi_s=DEG*(atan2(arm_wrist_cpos.z,rho)+acos(cos_phi_s2));
-		double anim_phi_s=linterp(shoulder_min,0,shoulder_max,1,phi_s);
-		double anim_phi_e=linterp(elbow_min,0,elbow_max,1,phi_e);
-		double anim_beta_s=linterp(-180,0,180,1,beta_s);
-		if(anim_beta_s<0 || anim_beta_s>1) return;
-		if(anim_phi_s<0 || anim_phi_s>1) return;
-		if(anim_phi_e<0 || anim_phi_e>1) return;
-		//but only keep it and set the joints if no constraints are violated.
-
-		//Limited IK on the wrist
-		double new_phi_l=phi_s-phi_e;
-		/*double current_phi_w=linterp(0,wrist_min,1,wrist_max,arm_wp);
-		double current_phi_s=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-		double current_phi_e=linterp(0,elbow_min,1,elbow_max,arm_ep);
-		double current_beta_s=linterp(0,-180,1,180,arm_sy);
-		double current_beta_w=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);*
-		double current_phi_l=current_phi_s-current_phi_e;
-		double new_phi_w=current_phi_w-new_phi_l+current_phi_l;
-		double anim_phi_w=linterp(wrist_min,0,wrist_max,1,new_phi_w);
-
-		//wrist yaw
-		//VECTOR3 temp=RotateVectorZ(_V(1.0, 0.0, 0.0), beta_s);
-		//VECTOR3 c_ee_dir=RotateVectorY(temp, new_phi_w-phi_e+phi_s);
-		//VECTOR3 temp=RotateVectorY(_V(lu, 0.0, 0.0), phi_s-sp_null)+RotateVectorY(_V(ll, 0.0, 0.0), phi_s-phi_e+ep_null)
-			//+RotateVectorY(_V(wp_wy, 0.0, 0.0), new_phi_w-phi_e+phi_s);
-		//VECTOR3 calc_wrist_pos=RotateVectorZ(temp, beta_s);
-		//VECTOR3 wy_dir=arm_cpos-calc_wrist_pos;
-		//wy_dir=wy_dir/length(wy_dir);
-		//double beta_w=DEG*asin(length(crossp(arm_ee_dir, c_ee_dir)));
-		double beta_w=current_beta_w+beta_s-current_beta_s;
-		//double beta_w=DEG*acos(dotp(wy_dir, arm_ee_dir));
-		//sprintf_s(oapiDebugString(), 255, "%f", beta_w);
-		double anim_beta_w=linterp(wrist_yaw_min, 0, wrist_yaw_max, 1, beta_w);
-
-		arm_sy=anim_beta_s;
-		arm_sp=anim_phi_s;
-		arm_ep=anim_phi_e;
-		arm_wp=anim_phi_w;
-		arm_wy=anim_beta_w;
-
-		iterations++;
-	}while(iterations<15);
-
-	//arm_sy=anim_beta_s;
-	SetAnimationArm(anim_arm_sy,arm_sy);
-	//arm_sp=anim_phi_s;
-	SetAnimationArm(anim_arm_sp,arm_sp);
-	//arm_ep=anim_phi_e;
-	SetAnimationArm(anim_arm_ep,arm_ep);
-	//arm_wp=anim_phi_w;
-	SetAnimationArm(anim_arm_wp,arm_wp);
-	//arm_wy=anim_beta_w;
-	SetAnimationArm(anim_arm_wy, arm_wy);
-	arm_ee_pos=arm_cpos;
-	UpdateRMSAngles();
-
-	//double Time=st.Stop();
-	//sprintf_s(oapiDebugString(), 255, "Function took %f microseconds to run", Time);
-}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
@@ -8641,6 +8493,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   static double t0;
   double t1;
   HICON hIcon;
+  int result;
 
   switch (uMsg) {
   case WM_INITDIALOG:
@@ -8668,11 +8521,11 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     //EnableWindow (GetDlgItem (hWnd, IDC_PAYLOAD), sts->SatStowed() || sts->CanArrest() ? TRUE:FALSE);
 
 	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"1");
-	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 1");
+	//SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 1");
 	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"2");
-	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 2");
+	//SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 2");
 	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"3");
-	SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 3");
+	//SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_ADDSTRING, 0, (LPARAM)"MONITOR 3");
 
     SetTimer (hWnd, 1, 50, NULL);
     t0 = oapiGetSimTime();
@@ -8683,97 +8536,43 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   case WM_TIMER:
     if (wParam == 1) {
       t1 = oapiGetSimTime();
-	  if(sts->RMSRollout.action!=AnimState::OPEN || sts->shoulder_brace!=0.0 || sts->MRL[0]!=0.0 || sts->pRMS==NULL) break;
+	  if(sts->pRMS==NULL) break;
 	  if(sts->pRMS->Movable()) {
 		  if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_sy = min (1.0, sts->arm_sy + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_YAW, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_sy = max (0.0, sts->arm_sy - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_sy, sts->arm_sy);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_YAW, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_sp = min (1.0, sts->arm_sp + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_SHOULDER_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_sp = max (0.0, sts->arm_sp - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_sp, sts->arm_sp);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::SHOULDER_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_ep = max (0.0, sts->arm_ep - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::ELBOW_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_ELBOW_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_ep = min (1.0, sts->arm_ep + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_ep, sts->arm_ep);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::ELBOW_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHUP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wp = min (1.0, sts->arm_wp + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_PITCH, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_PITCHDOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wp = max (0.0, sts->arm_wp - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wp, sts->arm_wp);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_PITCH, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wy = min (1.0, sts->arm_wy + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_YAW, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_YAWRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wy = max (0.0, sts->arm_wy - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wy, sts->arm_wy);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_YAW, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLLEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wr = max (0.0, sts->arm_wr - (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_ROLL, false);
 		  } else if (SendDlgItemMessage (hWnd, IDC_WRIST_ROLLRIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			/*sts->arm_wr = min (1.0, sts->arm_wr + (t1-t0)*ARM_OPERATING_SPEED);
-			sts->SetAnimationArm (sts->anim_arm_wr, sts->arm_wr);
-			sts->UpdateRMSAngles();
-			sts->UpdateRMSPositions();*/
 			sts->pRMS->RotateJoint(RMSSystem::WRIST_ROLL, true);
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(+1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(1.0, 0.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(0,+1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(0.0, -1.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_PZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(0,0,+1)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(0.0, 0.0, 1.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(-1,0,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(-1.0, 0.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(0,-1,0)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(0.0, 1.0, 0.0));
 		  } else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-			//sts->SetAnimationIKArm (_V(0,0,-1)*(t1-t0)*ARM_TRANSLATE_SPEED);
 			  sts->pRMS->TranslateEE(_V(0.0, 0.0, -1.0));
 		  }
 	  }
@@ -8812,12 +8611,12 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case IDCANCEL:
       oapiCloseDialog (hWnd);
       return TRUE;
-    case IDC_STOW:
+    /*case IDC_STOW:
       if (sts->center_arm = !sts->center_arm) {
         sts->center_arm_t = oapiGetSimTime();
         EnableWindow (GetDlgItem (hWnd, IDC_GRAPPLE), FALSE);
       }
-      return 0;
+      return 0;*/
     case IDC_GRAPPLE:
 		//sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
 		if(sts->EEGrappleMode==2) sts->AutoGrappleSequence();
@@ -8825,9 +8624,17 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case IDC_RELEASE:
 		if(sts->EEGrappleMode==2) sts->AutoReleaseSequence();
 		return 0;
-    case IDC_PAYLOAD:
+    /*case IDC_PAYLOAD:
       sts->ToggleArrest();
-      return 0;
+      return 0;*/
+	case IDC_PAYLOADLATCH:
+	case IDC_PAYLOADRELEASE:
+		result=SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_GETCURSEL, 0, 0);
+		if(result!=CB_ERR && result<sts->pActiveLatches.size()) {
+			if(LOWORD(wParam)==IDC_PAYLOADLATCH) sts->pActiveLatches[result]->Latch();
+			else sts->pActiveLatches[result]->Release();
+		}
+		return 0;
     case IDC_SHOWGRAPPLE:
       oapiSetShowGrapplePoints (SendDlgItemMessage (hWnd, IDC_SHOWGRAPPLE, BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
       return 0;

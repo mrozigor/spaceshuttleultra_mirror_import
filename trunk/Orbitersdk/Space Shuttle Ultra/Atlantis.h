@@ -1775,8 +1775,8 @@ private:
 	VECTOR3 SSMEL_GOX_REF1;
 	VECTOR3 SSMER_GOX_REF1;
 
-	// APU Fuel Tanks
-	PROPELLANT_HANDLE apu_tank[3], oms_helium_tank[2], mps_helium_tank[3];
+	// Helium Tanks
+	PROPELLANT_HANDLE oms_helium_tank[2], mps_helium_tank[3];
 	int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
 	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
 	int Hydraulic_Press[3];
