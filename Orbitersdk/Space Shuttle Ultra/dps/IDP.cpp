@@ -177,7 +177,7 @@ namespace dps {
 	void IDP::OnExec() {
 		// check if EXEC was pressed without any ITEM input
 		if(cScratchPadLine[0]=='\0' || IsCompleteLine()) {
-			STS()->Input(GetIDPID(), 10, NULL);
+			STS()->Input(GetIDPID()-1, 10, NULL);
 		}
 		else {
 			std::string scratchPad=GetScratchPadLineString();
@@ -191,7 +191,7 @@ namespace dps {
 				//parse entry
 				int i;
 				bool delim=false;
-				string Data, Name;
+				string Data="", Name="";
 				for(i=0;i<scratchPad.length();i++) {
 					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
 						if(delim) break;
@@ -204,13 +204,13 @@ namespace dps {
 				}
 				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
 				int item=atoi(Name.c_str());
-				STS()->ItemInput(GetIDPID(), item, Data.c_str());
+				STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 				Data=""; //clear string
 				while(i<scratchPad.length()) {
 					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
 						if(Data.length()>0) {
 							item++;
-							STS()->ItemInput(GetIDPID(), item, Data.c_str());
+							STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 						}
 						Data=""; //clear string
 					}
@@ -219,7 +219,7 @@ namespace dps {
 				}
 				if(Data.length()>0) {
 					item++;
-					STS()->ItemInput(GetIDPID(), item, Data.c_str());
+					STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 				}
 			}
 		}
