@@ -76,6 +76,9 @@ const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 
+const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/ET-125_detailtex_launch.dds";
+const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ETburntex.dds";
+
 // ==========================================================
 // Some Orbiter-related parameters
 // ==========================================================
@@ -386,6 +389,16 @@ const VECTOR3 PROBEL_REF = _V(-1.122688, -1.0894815, 19.4175);
 const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
+
+// ============================================================
+// Star Tracker Door Animation Constants
+// ============================================================
+const VECTOR3 STZD_REF = _V(-1.11,1.74,15.85);
+const VECTOR3 STZD_AXIS = _V(0.375937,-0.859628,-0.345993);
+const VECTOR3 STYD_REF = _V(-1.75,1.32,15.75);
+const VECTOR3 STYD_AXIS = _V(0.720496,-0.63336,-0.282385);
+const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(-110.0 * RAD);
+
 
 const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 4.6, -12.03);
 
@@ -1309,6 +1322,9 @@ public:
 	MESHHANDLE hExtALMesh;
 	char cargo_static_mesh_name[256];
 
+	SURFHANDLE texScorchedET;
+	SURFHANDLE texNormalET;
+
 	double fPayloadZPos[16];
 	double fPayloadMass[16];
 	unsigned short usPayloadType[16];
@@ -1525,6 +1541,8 @@ private:
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
 	bool RCSThrustersFiring();
+	void UpdateOrbiterTexture();
+	void UpdateETTexture();
 
 	//Math
 	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -1620,6 +1638,8 @@ private:
 	UINT anim_gear;                            // handle for landing gear animation
 	UINT anim_chute_deploy;					   // handle for drag chute deploy animation
 	UINT anim_chute_spin;					   // handle for chute spinning
+	UINT anim_stzd;							   // handle for +Z Star Tracker Door animation
+	UINT anim_styd;							   // handle for -Y Star Tracker Door animation
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;

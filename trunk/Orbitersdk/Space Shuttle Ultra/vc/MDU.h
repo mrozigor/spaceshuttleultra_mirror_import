@@ -78,6 +78,8 @@ namespace vc {
 		 * @sa BasicVCComponent::OnMouseEvent
 		 */
 		virtual bool OnMouseEvent(int _event, float x, float y);
+
+		//virtual bool OnMFDModeChange(...);
 		/** 
 		 * Paint the contents of the MDU on a device context.
 		 */

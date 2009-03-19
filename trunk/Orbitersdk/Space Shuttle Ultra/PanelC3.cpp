@@ -402,7 +402,7 @@ bool PanelC3::CheckOMSArm(int nEng)
 
 void PanelC3::SaveState(FILEHANDLE scn)
 {
-	char cbuf[256];
+//	char cbuf[256];
 	oapiWriteScenario_int (scn, "LPROBEARM", Air_Data_Stow[0]);
 	oapiWriteScenario_int (scn, "LPROBE", Air_Data_Probe[0]);
 	oapiWriteScenario_int (scn, "RPROBEARM", Air_Data_Stow[1]);

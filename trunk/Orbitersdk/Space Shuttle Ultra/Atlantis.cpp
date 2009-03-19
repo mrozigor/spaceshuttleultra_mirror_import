@@ -640,9 +640,20 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   //hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
   hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
 
+
   bIlluminated=false;
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
+   texScorchedET = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+   
+   if(texScorchedET == NULL) {
+	   oapiWriteLog("[SpaceShuttleUltra]Failed loading scorched ET texture.");
+   }
+   texNormalET = oapiLoadTexture(DEFAULT_NORMAL_ET_TEXTURE);
+   if(texNormalET == NULL) {
+	   oapiWriteLog("[SpaceShuttleUltra]Failed loading normal ET texture.");
+   }
+   
   
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
 
@@ -2072,7 +2083,7 @@ void Atlantis::DefineAnimations (void)
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
   // FRONT LEFT
-  static UINT camFLYawGrp[1] = {GRP_PanTilt_FL};
+  static UINT camFLYawGrp[1] = {GRP_PANTILT_FL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
     _V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
@@ -2085,7 +2096,7 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
-  static UINT camFRYawGrp[1] = {GRP_PanTilt_FR};
+  static UINT camFRYawGrp[1] = {GRP_PANTILT_FR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
     _V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
@@ -2098,7 +2109,7 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
-  static UINT camBLYawGrp[1] = {GRP_PanTilt_BL};
+  static UINT camBLYawGrp[1] = {GRP_PANTILT_BL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
     _V(orbiter_ofs.x-2.31,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(180*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
@@ -2111,7 +2122,7 @@ void Atlantis::DefineAnimations (void)
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
-  static UINT camBRYawGrp[1] = {GRP_PanTilt_BR};
+  static UINT camBRYawGrp[1] = {GRP_PANTILT_BR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
     _V(orbiter_ofs.x+2.29,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
@@ -2196,6 +2207,8 @@ void Atlantis::DefineAnimations (void)
   // Air Data Probe Assembly Animations
   // ======================================================
 
+  
+
   static UINT ADPL_Grp[1] = {GRP_PROBEL};
   static UINT ADPR_Grp[1] = {GRP_PROBER};
 
@@ -2208,7 +2221,21 @@ void Atlantis::DefineAnimations (void)
   anim_adpr = CreateAnimation(1.0);
   AddAnimationComponent(anim_adpr, 0.0, 1.0, &ADPR_Deploy);
 
+  // ======================================================
+  // Star tracker door animation
+  // ======================================================
 
+  static UINT STZD_Grp[1] = {GRP_Z_STARTRACKDOOR};
+  static UINT STYD_Grp[1] = {GRP_Y_STARTRACKDOOR};
+
+  static MGROUP_ROTATE STZD_Open (midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
+  static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
+
+  anim_stzd = CreateAnimation(1.0);
+  AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
+
+  anim_styd = CreateAnimation(1.0);
+  AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
 
   // ======================================================
   // VC animation definitions
@@ -2331,7 +2358,7 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 */
 
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	for(int i = 0; i<pActiveLatches.size(); i++)
+	for(unsigned int i = 0; i<pActiveLatches.size(); i++)
 	{
 		/*if(ahCenterActive[i])
 		{
@@ -2591,6 +2618,7 @@ void Atlantis::AddTankVisual (const VECTOR3 &ofs)
     // ***** Load mesh
     mesh_tank = AddMesh (hTankMesh, &ofs);
     SetMeshVisibilityMode (mesh_tank, MESHVIS_ALWAYS|MESHVIS_EXTPASS);
+	//UpdateETTexture();
   }
 }
 
@@ -3127,8 +3155,11 @@ void Atlantis::AutoMainGimbal (double DeltaT) {
 		SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
 	}
 	for(i=0;i<3;i++) {
-		VECTOR3 deflection=_V(SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
-			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
+		VECTOR3 deflection=_V(
+			SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
+			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)
+				+ SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 
+			0.0);
 		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
 	}
 
@@ -7107,6 +7138,8 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 
   UpdateMesh ();
 #endif
+  UpdateOrbiterTexture();
+  UpdateETTexture();
 }
 
 // --------------------------------------------------------------
@@ -7952,7 +7985,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
-	switch (id) {
+	//switch (id) {
 		/*case AID_CDR1_BUTTONS:
 		case AID_CDR2_BUTTONS:
 		case AID_PLT1_BUTTONS:
@@ -7967,7 +8000,7 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 			//int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
 			//RedrawPanel_MFDButton (surf, mfd);
 			return true;*/
-		default:
+	//	default:
 			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
 				return panela4->VCRedrawEvent (id, _event, surf);
 			/*if (id >= AID_A8_MIN && id <= AID_A8_MAX && panela8)
@@ -7987,8 +8020,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 				return panelc2->VCRedrawEvent (id, _event, surf);
 			if (id >= AID_O3_MIN && id <= AID_O3_MAX)
 				return panelo3->VCRedrawEvent (id, _event, surf);		
-			break;
-	}
+			//break;
+	//}
 	if(pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgCenter.OnVCRedrawEvent(id, _event, surf))
@@ -8647,7 +8680,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case IDC_PAYLOADLATCH:
 	case IDC_PAYLOADRELEASE:
 		result=SendDlgItemMessage(hWnd, IDC_PAYLOADCOMBO, CB_GETCURSEL, 0, 0);
-		if(result!=CB_ERR && result<sts->pActiveLatches.size()) {
+		if(result!=CB_ERR && result<static_cast<int>(sts->pActiveLatches.size())) {
 			if(LOWORD(wParam)==IDC_PAYLOADLATCH) sts->pActiveLatches[result]->Latch();
 			else sts->pActiveLatches[result]->Release();
 		}
@@ -9811,6 +9844,21 @@ void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const
 		SetAttachmentParams(ahDockAux, pos, dir, up);
 	} else {
 		ahDockAux = CreateAttachment(false, pos, dir, up, "APAS");
+	}
+}
+
+void Atlantis::UpdateOrbiterTexture() {
+	
+}
+
+void Atlantis::UpdateETTexture() {
+	if(status < 3)
+	{
+		MESHHANDLE hET = GetMesh(vis, mesh_tank);
+		if(!oapiSetTexture(hET, 1, texScorchedET)) {
+			oapiWriteLog("[SpaceShuttleUltra]Can't set ET texture.");
+		}
+		//oapiSetTexture(hET, 1, texNormalET);
 	}
 }
 

@@ -5,13 +5,13 @@
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_VC 41
+#define NGRP_A8 41
 
 // Number of materials:
-#define NMAT_VC 3
+#define NMAT_A8 3
 
 // Number of textures:
-#define NTEX_VC 6
+#define NTEX_A8 6
 
 // Named mesh groups:
 #define GRP_A8RS2_VC 0
@@ -49,8 +49,8 @@
 #define GRP_A8Scover7_VC 32
 #define GRP_transRMSboot_VC 33
 #define GRP_transRMS_VC 34
-#define GRP_transguard_VC 35
-#define GRP_A2panel_VC 36
+#define GRP_transguard_A8 35
+#define GRP_A8panel_VC 36
 #define GRP_081_VC 37
 #define GRP_A8S1_VC 38
 #define GRP_A8S6_VC 39

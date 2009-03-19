@@ -818,6 +818,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mission\Mission.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\MMU.h"
 				>
 			</File>
