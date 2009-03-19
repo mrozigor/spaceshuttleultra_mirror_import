@@ -189,7 +189,7 @@ namespace dps {
 				scratchPad=scratchPad.erase(ITEM, 5);
 
 				//parse entry
-				int i;
+				unsigned int i;
 				bool delim=false;
 				string Data="", Name="";
 				for(i=0;i<scratchPad.length();i++) {
@@ -203,7 +203,7 @@ namespace dps {
 					}
 				}
 				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
-				int item=atoi(Name.c_str());
+				unsigned int item=atoi(Name.c_str());
 				STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 				Data=""; //clear string
 				while(i<scratchPad.length()) {

@@ -22,16 +22,17 @@ double PIDControl::Step(double value, double DeltaT)
 	double derivative=0.0;
 	
 	if(!firstStep) {
-		derivative=(value-lastValue)/DeltaT;
+		derivative = (value-lastValue)/DeltaT;
 		//for the moment, use trapezoidal rule to calculate integral
-		integral+=DeltaT*((value+lastValue)/2.0);
+		integral += DeltaT*((value+lastValue)/2.0);
 	}
 	else firstStep=false;
 	//store value for next timestep
 	lastValue=value;
 
-	double output=proportionalGain*value+derivativeGain*derivative+integralGain*integral;
-	return output;
+	return proportionalGain * value 
+		+ derivativeGain * derivative
+		+ integralGain * integral;
 }
 
 void PIDControl::SetGains(double pGain, double dGain, double iGain)

@@ -115,7 +115,7 @@ int StbdMPMSystem::FindOBSS() const
 	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+obss_attach_point[0]+MPM_MESH_OFFSET, gattach);  // global position of attachment point
 	STS()->GlobalRot(obss_attach_point[1]-obss_attach_point[0], gattachdir);
 	//loop through OBSS attachments and check each one
-	for(int i=0;i<vhOBSSAttach.size();i++) {
+	for(unsigned int i=0;i<vhOBSSAttach.size();i++) {
 		VESSEL* v=vpOBSS[i];
 		v->GetAttachmentParams (vhOBSSAttach[i], pos, dir, rot);
 		v->Local2Global (pos, gpos);

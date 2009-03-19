@@ -279,17 +279,17 @@ void PanelO3::Step(double t, double dt)
 	switch(switch_state[SWITCH_O3S11]) {
 	case 0: //RCS OXID
 	case 1: //RCS FUEL
-		fuel=min(99, sts->GetPropellantLevel(sts->ph_lrcs));
+		fuel=min(99, static_cast<short>(sts->GetPropellantLevel(sts->ph_lrcs)));
 		if(sOMSFuel[0]!=fuel) {
 			sOMSFuel[0]=fuel;
 			UpdateRCSgauge=true;
 		}
-		fuel=min(99, sts->GetPropellantLevel(sts->ph_frcs));
+		fuel=min(99, static_cast<short>(sts->GetPropellantLevel(sts->ph_frcs)));
 		if(sOMSFuel[1]!=fuel) {
 			sOMSFuel[1]=fuel;
 			UpdateRCSgauge=true;
 		}
-		fuel=min(99, sts->GetPropellantLevel(sts->ph_rrcs));
+		fuel=min(99, static_cast<short>(sts->GetPropellantLevel(sts->ph_rrcs)));
 		if(sOMSFuel[2]!=fuel) {
 			sOMSFuel[2]=fuel;
 			UpdateRCSgauge=true;
@@ -300,7 +300,7 @@ void PanelO3::Step(double t, double dt)
 		break;
 	case 3: //OMS OXID
 	case 4: //OMS FUEL
-		fuel=min(99, sts->GetPropellantLevel(sts->ph_oms));
+		fuel=min(99, static_cast<short>(sts->GetPropellantLevel(sts->ph_oms)));
 		if(sOMSFuel[0]!=fuel || sOMSFuel[1]!=0 || sOMSFuel[2]!=fuel) {
 			sOMSFuel[0]=fuel;
 			sOMSFuel[1]=0;

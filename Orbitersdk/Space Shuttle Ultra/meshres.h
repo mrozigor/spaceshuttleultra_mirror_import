@@ -1,20 +1,22 @@
 // ========================================================
-// Mesh resource file for Orbiter.msh
-// Generated with meshc on Sat Dec 13 00:11:28 2008
+// MESH RESOURCE FILE FOR ..\..\MESHES\SSU\ORBITER.MSH
+// GENERATED WITH MESHC ON THU MAR 19 22:28:06 2009
 
 // ========================================================
 
-// Number of mesh groups:
+#pragma once
+
+// NUMBER OF MESH GROUPS:
 #define NGRP 68
 
-// Number of materials:
-#define NMAT 9
+// NUMBER OF MATERIALS:
+#define NMAT 8
 
-// Number of textures:
+// NUMBER OF TEXTURES:
 #define NTEX 2
 
-// Named mesh groups:
-#define GRP_FUSELAGE 0
+// NAMED MESH GROUPS:
+#define GRP_OBJECT 0
 #define GRP_BODYFLAP 1
 #define GRP_CARGODOOROUTR 2
 #define GRP_CARGODOOROUTL 3
@@ -49,13 +51,13 @@
 #define GRP_CARGODOORINL 32
 #define GRP_KUBAND1 33
 #define GRP_KUBAND2 34
-#define GRP_PanTilt_FL 35
+#define GRP_PANTILT_FL 35
 #define GRP_CCTV_FL 36
 #define GRP_CCTV_BL 37
-#define GRP_PanTilt_BL 38
+#define GRP_PANTILT_BL 38
 #define GRP_CCTV_FR 39
-#define GRP_PanTilt_FR 40
-#define GRP_PanTilt_BR 41
+#define GRP_PANTILT_FR 40
+#define GRP_PANTILT_BR 41
 #define GRP_CCTV_BR 42
 #define GRP_RADIATORFL 43
 #define GRP_RADIATORFR 44
@@ -63,8 +65,8 @@
 #define GRP_RADIATORBL 46
 #define GRP_STARTRACKERS 47
 #define GRP_TRACKERPLATES 48
-#define GRP_ZSTARTRACKDOOR 49
-#define GRP_YSTARTRACKDOOR 50
+#define GRP_Z_STARTRACKDOOR 49
+#define GRP_Y_STARTRACKDOOR 50
 #define GRP_LEFTFLAPPERIN 51
 #define GRP_LEFTFLAPPEROUT 52
 #define GRP_RIGHTFLAPPERIN 53

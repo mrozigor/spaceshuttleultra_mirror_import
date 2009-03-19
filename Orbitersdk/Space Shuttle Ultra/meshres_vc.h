@@ -4,6 +4,8 @@
 
 // ========================================================
 
+#pragma once
+
 // Number of mesh groups:
 #define NGRP_VC 1281
 
@@ -15,7 +17,7 @@
 
 // Named mesh groups:
 #define GRP_080_VC 0
-#define GRP_081_VC 1
+//#define GRP_081_VC 1
 #define GRP_082_VC 2
 #define GRP_CDR1labels_VC 3
 #define GRP_CDR2labels_VC 4
@@ -312,8 +314,8 @@
 #define GRP_A2U2_VC 295
 #define GRP_transguard_VC 296
 #define GRP_A6UGuardb_VC 297
-#define GRP_transRMS_VC 298
-#define GRP_transRMSboot_VC 299
+//#define GRP_transRMS_VC 298
+//#define GRP_transRMSboot_VC 299
 #define GRP_A2AZH_VC 300
 #define GRP_A2ELH_VC 301
 #define GRP_A2ELV_VC 302

@@ -233,14 +233,19 @@ void Atlantis::RateCommand()
 	VECTOR3 oldRates=ReqdRates;
 
 	double Heading/*, Slip*/;
-	if(GetPitch()*DEG>=88.0) {
+	if(GetPitch()*DEG>=88.0) 
+	{
 		VECTOR3 wingBody=_V(1,0,0);
 		VECTOR3 wingHorizon;
 		HorizonRot(wingBody,wingHorizon);
 		Heading=atan2(wingHorizon.x,wingHorizon.z)+PI/2;
-		while(Heading<0)Heading+=2*PI;
+		if(Heading >= 2 * PI)
+			Heading -= 2 * PI;
 	}
-	else oapiGetHeading(GetHandle(), &Heading);
+	else 
+	{
+		oapiGetHeading(GetHandle(), &Heading);
+	}
 	//Heading*=DEG;
 	//Slip=GetSlipAngle()*DEG;
 
@@ -262,8 +267,11 @@ void Atlantis::RateCommand()
 			}
 			else {
 				ReqdRates.data[PITCH] = TargetPitch-GetPitch()*DEG;
-				if(ReqdRates.data[PITCH]>2.5) ReqdRates.data[PITCH]=2.5;
-				else if(ReqdRates.data[PITCH]<-2.5) ReqdRates.data[PITCH]=-2.5;
+				if(ReqdRates.data[PITCH]>2.5) 
+					ReqdRates.data[PITCH]=2.5;
+				else if(ReqdRates.data[PITCH]<-2.5) 
+					ReqdRates.data[PITCH]=-2.5;
+
 				if(GetPitch()*DEG>60.0) {
 					ReqdRates.data[YAW] = range(-8.0, 0.25*DEG*(Heading-THeading), 8.0);
 				}
@@ -299,15 +307,17 @@ void Atlantis::RateCommand()
 				ReqdRates.data[ROLL]=0.0;
 			}
 			else {
-				if(T>TPEGStop) {
+				if(T>TPEGStop) 
+				{
 					ReqdRates.data[PITCH] = CmdPDot;
 					ReqdRates.data[YAW] = range(-2.5, 0.5*DEG*(Heading-THeading), 2.5);
 					/*if(abs(GetBank()*DEG)>90.0) 
-						ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
-						//ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
+					ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);
+					//ReqdRates.data[YAW] = range(-2.5, -2.5*(GetSlipAngle()*DEG), 2.5);
 					else ReqdRates.data[YAW] = range(-2.5, -2.5*DEG*(THeading-Heading), 2.5);*/
 
-					if(v<RollToHeadsUp) {
+					if(v<RollToHeadsUp) 
+					{
 						if(GetBank()>0) ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG-180.0);
 						else ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG+180.0);
 						ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
@@ -315,7 +325,8 @@ void Atlantis::RateCommand()
 					else {
 						ReqdRates.data[ROLL] = 2.5*(GetBank()*DEG);
 						ReqdRates.data[ROLL]=range(-5.0, ReqdRates.data[ROLL], 5.0);
-						if(abs(GetBank()*DEG)>2.5) { //roll in progress
+						if(abs(GetBank()*DEG)>2.5) 
+						{ //roll in progress
 							VECTOR3 vel;
 							GetHorizonAirspeedVector(vel);
 							double cyaw=-DEG*atan(vel.x/vel.z)+DEG*Heading;
