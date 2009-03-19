@@ -495,7 +495,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PanelA8.cpp"
+				RelativePath=".\vc\PanelA8.cpp"
 				>
 			</File>
 			<File
@@ -602,6 +602,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitch.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\StandardSwitchCover.cpp"
 				>
 			</File>
 			<File
@@ -846,7 +850,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PanelA8.h"
+				RelativePath=".\vc\PanelA8.h"
 				>
 			</File>
 			<File
@@ -935,6 +939,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\StandardSwitchCover.h"
 				>
 			</File>
 			<File

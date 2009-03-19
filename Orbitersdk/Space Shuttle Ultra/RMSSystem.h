@@ -85,11 +85,6 @@ public:
 	OBJHANDLE Grapple();
 	//void Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void Ungrapple() {DetachPayload();};
-	/**
-	 * Destroys attachment to currently grappled vessel, but remains 'grappled'.
-	 * @param target in not null, payload is detached only if target pointer matches grappled vessel.
-	 */
-	//void Detach(VESSEL* target=NULL);
 
 	bool Grappled() const {return (hPayloadAttachment!=NULL);};
 	/**
@@ -99,6 +94,9 @@ public:
 	bool Movable() const { return ((MRLLatches.Open() || !ArmStowed()) && (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree()))); };
 protected:
 	virtual void OnMRLLatched();
+
+	virtual void OnAttach();
+	virtual void OnDetach();
 private:
 	void CreateArm();
 	bool ArmStowed() const;
@@ -109,6 +107,9 @@ private:
 
 	void UpdateEECamView() const;
 	void UpdateElbowCamView() const;
+
+	void AutoGrappleSequence();
+	void AutoReleaseSequence();
 
 	//true if RMS is still grappled, but Orbiter should not fromally attach the RMS to the payload.
 	//bool detached;
@@ -139,8 +140,12 @@ private:
 	int joint_motion[6];
 	int ee_translation[3];
 
+	double shoulder_brace;
+
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
+	DiscOutPort EECapture, EEExtended, EEClosed, EEOpened, EERigidized, EEDerigidized;
+	bool bAutoGrapple, bAutoRelease;
 
 	bool arm_moved;
 	bool update_data;

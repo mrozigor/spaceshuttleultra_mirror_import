@@ -11,7 +11,7 @@
 namespace vc {
 
 BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
-: BasicVCComponent(_sts, _ident), bOrientation(false)
+: BasicVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false)
 {
 	this->usNumPositions = usNumPositions;
 	labels.resize(usNumPositions);
@@ -56,26 +56,37 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 
 	*/
 
-	if(_event != PANEL_MOUSE_LBDOWN)
+	// only process mouse down events (and mouse up events if this is a spring loaded switch)
+	if(_event != PANEL_MOUSE_LBDOWN && (!bSpringLoaded || _event != PANEL_MOUSE_LBUP))
 		return false;
 
 	if(bOrientation) {
 		if(x > 0.6) {
-			OnPositionDown();
+			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
+			else OnPositionUp();
 			return true;
 		}
 		else if(x < 0.4) {
-			OnPositionUp();
+			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
+			else OnPositionDown();
 			return true;
 		}
 	}
 	else {
 		if(y > 0.6) {
-			OnPositionDown();
+			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
+			else {
+				OnPositionUp();
+				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier());
+			}
 			return true;
 		}
 		else if( y < 0.4) {
-			OnPositionUp();
+			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
+			else {
+				OnPositionDown();
+				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier());
+			}
 			return true;
 		}
 	}
@@ -135,6 +146,11 @@ void BasicSwitch::OnSaveState(FILEHANDLE scn) const
 
 void BasicSwitch::SetLabel(int iPosition, const string& _label) {
 	labels.at(iPosition) = _label;
+}
+
+void BasicSwitch::SetStringLoaded(bool IsSpringLoaded)
+{
+	bSpringLoaded=IsSpringLoaded;
 }
 
 };

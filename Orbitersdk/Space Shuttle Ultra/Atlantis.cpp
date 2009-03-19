@@ -18,7 +18,7 @@
 #include "PlBayOp.h"
 //#include "GearOp.h"
 #include "PanelA4.h"
-#include "PanelA8.h"
+#include "vc/PanelA8.h"
 #include "PanelC2.h"
 #include "PanelC3.h"
 //#include "PanelF7.h"
@@ -390,7 +390,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   plop            = new PayloadBayOp (this);
   //gop             = new GearOp (this);
   panela4		  = new PanelA4(this);
-  panela8		  = new PanelA8(this);
+  //panela8		  = new PanelA8(this);
   panelc3         = new PanelC3(this);
   panelr2            = new PanelR2(this);
   panelc2		  = new PanelC2(this);
@@ -637,7 +637,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
   hExtALMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_EXTAL);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
-  hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
+  //hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
   hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
 
   bIlluminated=false;
@@ -686,23 +686,23 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   // default arm status: deployed
   STBDMPM=false;
   StbdMPMRollout.Set(AnimState::OPEN, 1);
-  DisplayJointAngles=false;
+  //DisplayJointAngles=false;
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
   shoulder_brace = 0.0; //released
   //MRL[0]=MRL[1] = 0.0; //released
-  for(i=0;i<2;i++) {
+  /*for(i=0;i<2;i++) {
 	  MRL[i]=0.0; //released
 	  MRL_FwdMicroswitches[i][0]=MRL_MidMicroswitches[i][0]=MRL_AftMicroswitches[i][0]=0;
 	  MRL_FwdMicroswitches[i][1]=MRL_MidMicroswitches[i][1]=MRL_AftMicroswitches[i][1]=0;
 	  MRL_FwdMicroswitches[i][2]=MRL_MidMicroswitches[i][2]=MRL_AftMicroswitches[i][2]=1;
 	  MPM_Microswitches[i][0]=0;
 	  MPM_Microswitches[i][1]=1;
-  }
+  }*
   EEGrappleMode=0;
   bGrappleInProgress=false;
   bReleaseInProgress=false;
-  arm_sy = 0.5;
+  /*arm_sy = 0.5;
   arm_sp = 0.0136;
   arm_ep = 0.014688;
   arm_wp = 0.5;
@@ -715,7 +715,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   arm_tip[1] = _V(-2.84, 2.13, -7.049);
   arm_tip[2] = _V(-2.84, 3.13, -6.049);
   arm_ee_dir = _V(1.0, 0.0, 0.0);
-  arm_ee_pos = _V(15.069, 0.0, 0.0);
+  arm_ee_pos = _V(15.069, 0.0, 0.0);*/
   //RMS elbow camera
   camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
   camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
@@ -916,7 +916,7 @@ Atlantis::~Atlantis () {
 	delete plop;
 	//delete gop;
 	delete panela4;
-	delete panela8;
+	//delete panela8;
 	delete panelc3;
 	delete panelr2;
 	//delete panelf7;
@@ -928,8 +928,8 @@ Atlantis::~Atlantis () {
 	delete gncsoftware;
 	delete rsls;
 
-	if(pA7A8Panel)
-		delete pA7A8Panel;
+	//if(pA7A8Panel)
+		//delete pA7A8Panel;
 
   
 	for (i = 0; i < 7; i++) delete rms_anim[i];
@@ -1948,7 +1948,7 @@ void Atlantis::DefineAnimations (void)
   // their rotation parameters are modified by the respective parent transforms
 
   //080415, DaveS edit: Fixed RMS rollout animation as the end effector meshgroup didn't animate.
-  static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
+  /*static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
   rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 11,
     _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
   anim_rollout = CreateAnimation(1.0);
@@ -1969,7 +1969,7 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
 
   //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
-  static UINT RMSElbowPitchGrp[2] = {GRP_Radii,/*GRP_elbowcam ,GRP_camswivel,*/ GRP_cambase};
+  static UINT RMSElbowPitchGrp[2] = {GRP_Radii,/*GRP_elbowcam ,GRP_camswivel,* GRP_cambase};
   rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 2,
     _V(-2.71,1.97,2.74), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
   anim_arm_ep = CreateAnimation (0.014688);
@@ -2216,7 +2216,7 @@ void Atlantis::DefineAnimations (void)
   plop->DefineAnimations (vidx);
   //gop->DefineVCAnimations (vidx);
   panela4->DefineVCAnimations (vidx);
-  if(RMS) panela8->DefineVCAnimations (mesh_panela8);
+  //if(RMS && panela8) panela8->DefineVCAnimations (mesh_panela8);
   panelc2->DefineVCAnimations (vidx);
   //panelf7->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
@@ -2467,14 +2467,11 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	if(RMS) {
-		mesh_rms = AddMesh (hOrbiterRMSMesh, &ofs);
-		SetMeshVisibilityMode (mesh_rms, MESHVIS_NEVER);
-
+	/*if(RMS) {
 		//add panelA8
 		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
 		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
-	}
+	}*/
 
 	AddKUBandVisual(ofs);
 
@@ -2504,10 +2501,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	if(pA7A8Panel)
 	{
 		pA7A8Panel->AddMeshes(ofs);
-		pA7A8Panel->DefineVC();
+		// functions below should be called by panel group
+		/*pA7A8Panel->DefineVC();
 		pA7A8Panel->DefineVCAnimations(mesh_vc);
-		pA7A8Panel->Realize();
+		pA7A8Panel->Realize();*/
 	}
+	if(pPanelA8) pPanelA8->AddMeshes(ofs);
 
 	pgForward.DefineVC();
 	pgForward.DefineVCAnimations(mesh_vc);
@@ -2884,7 +2883,7 @@ void Atlantis::ToggleVCMode()
   return 0;
 }*/
 
-bool Atlantis::ArmCradled() const
+/*bool Atlantis::ArmCradled() const
 {
 	if(!RMS) return true;
 	if(!Eq(arm_sy, 0.5)) return false;
@@ -2894,7 +2893,7 @@ bool Atlantis::ArmCradled() const
 	if(!Eq(arm_wy, wrist_neutral)) return false;
 	if(!Eq(arm_wr, wrist_neutral)) return false;
 	return true;
-}
+}*/
 
 ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel) const
 {
@@ -2941,9 +2940,9 @@ ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, cons
 }
 
 
-void Atlantis::AttachOBSS() const
+/*void Atlantis::AttachOBSS() const
 {
-	/*if(Eq(MRL[1], 1.00)) {
+	if(Eq(MRL[1], 1.00)) {
 		OBJHANDLE vessel;
 		ATTACHMENTHANDLE obss_attach=GetAttachmentTarget(ahOBSS, "OS", &vessel);
 		oapiWriteLog("GetAttachmentTarget called");
@@ -2951,17 +2950,17 @@ void Atlantis::AttachOBSS() const
 			//pRMS->Detach(oapiGetVesselInterface(vessel));
 			//AttachChild(vessel, ahOBSS, obss_attach);
 		}
-	}*/
-}
+	}
+}*/
 
-void Atlantis::DetachOBSS() const
+/*void Atlantis::DetachOBSS() const
 {
 	if(Eq(MRL[1], 0.000)) {
 		//DetachChild(ahOBSS);
 	}
-}
+}*/
 
-void Atlantis::UpdateMRLMicroswitches()
+/*void Atlantis::UpdateMRLMicroswitches()
 {
 	//int i;
 	if(!RMS) return;
@@ -3020,7 +3019,7 @@ void Atlantis::UpdateMPMMicroswitches()
 		MPM_Microswitches[1][1]=0;
 	}
 	panela8->UpdateVC();
-}
+}*/
 
 void Atlantis::SeparateMMU (void)
 {
@@ -3427,7 +3426,7 @@ void Atlantis::SetSpeedbrake(double tgt)
 	else if(spdb_tgt>spdb_proc) OperateSpeedbrake(AnimState::OPENING);
 }
 
-void Atlantis::SetAnimationArm (UINT anim, double state)
+/*void Atlantis::SetAnimationArm (UINT anim, double state)
 {
   if(!RMS || pRMS) return;
   if(RMSRollout.action!=AnimState::OPEN || !Eq(shoulder_brace, 0.0) || !Eq(MRL[0], 0.0)) return;
@@ -3442,9 +3441,9 @@ void Atlantis::SetAnimationArm (UINT anim, double state)
     SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
     EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), CanArrest() ? TRUE : FALSE);
   }
-  */
+  *
   //CalcAnimationFKArm();
-}
+}*/
 
 void Atlantis::SetAnimationCameras() {
 	double a = 0;
@@ -4329,6 +4328,7 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 
 	sprintf_s(oapiDebugString(), 255, "Item Input: %d %s", item, Data);
 
+	// NOTE: idp parameter should be betwen 0 and 3
 	if(pIDP[idp]->GetMajfunc()==dps::GNC) //GNC
 	{
 		switch(ops) {
@@ -5718,9 +5718,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if (!RMS && !_strnicmp (line, "RMS", 3)) {
 		RMS=true;
 		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 	} else if (!STBDMPM && !_strnicmp (line, "STBD_MPM", 8)) {
 		STBDMPM=true;
 		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 	} /*else if (!_strnicmp (line, "STBD_MPM", 8)) {
 		sscan_state (line+8, StbdMPMRollout);
 		UpdateMPMMicroswitches();
@@ -5735,17 +5737,17 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			else RMSRollout.action=AnimState::CLOSED;
 		}
 		UpdateMPMMicroswitches();
-	}*/ else if (!_strnicmp (line, "GRAPPLE", 7)) {
+	} else if (!_strnicmp (line, "GRAPPLE", 7)) {
 		sscan_state(line+7, Grapple);
 	} else if (!_strnicmp (line, "EXTEND", 6)) {
 		sscan_state(line+6, Extend);
 	} else if (!_strnicmp (line, "RIGIDIZE", 8)) {
 		sscan_state(line+8, Rigidize);
-	} else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
+	}*/ else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
 		sscanf (line+14, "%lf", &shoulder_brace);
-	} else if (!_strnicmp (line, "MRL", 3)) {
+	} /*else if (!_strnicmp (line, "MRL", 3)) {
 		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
-	} /*else if (!_strnicmp (line, "ARM_STATUS", 10)) {
+	}*/ /*else if (!_strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
 	}*/ else if(!_strnicmp(line, "OPS", 3)) {
 		sscanf(line+3, "%d", &ops);
@@ -5855,7 +5857,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  if (panelc3->ParseScenarioLine (line)) continue; // offer line to c3po
 	  if (panelr2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
-	  if (panela8->ParseScenarioLine (line)) continue;
+	  //if (panela8 && panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 	//  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
 	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
@@ -5901,7 +5903,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  HideODS();
 
   UpdateMesh ();
-  if(RMS) UpdateMRLMicroswitches();
+  //if(RMS) UpdateMRLMicroswitches();
   SetILoads();
 }
 
@@ -5949,9 +5951,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
 	  /*sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
 	  oapiWriteScenario_string(scn, "MRL", cbuf);*/
-	  WriteScenario_state(scn, "GRAPPLE", Grapple);
+	  /*WriteScenario_state(scn, "GRAPPLE", Grapple);
 	  WriteScenario_state(scn, "RIGIDIZE", Rigidize);
-	  WriteScenario_state(scn, "EXTEND", Extend);
+	  WriteScenario_state(scn, "EXTEND", Extend);*/
   }
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
@@ -6019,11 +6021,14 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
   }
 
+  oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
+  psubsystems->SaveState(scn);
+
   // save bay door operations status
   plop->SaveState (scn);
   //gop->SaveState (scn);
   panela4->SaveState(scn);
-  panela8->SaveState(scn);
+  //if(panela8) panela8->SaveState(scn);
   panelc2->SaveState(scn);
   panelc3->SaveState (scn);
 //  panelf7->SaveState(scn);
@@ -6040,8 +6045,8 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   pgAft.OnSaveState(scn);
   pgAftPort.OnSaveState(scn);
 
-	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  psubsystems->SaveState(scn);
+	//oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
+  //psubsystems->SaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
 }
@@ -6213,7 +6218,7 @@ void Atlantis::clbkPostCreation ()
 	pgAft.Realize();
 	pgAftStbd.Realize();
 	panelr2->Realize();
-	panela8->Realize();
+	//if(panela8) panela8->Realize();
 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 	BodyFlapAutoIn.Connect(pBundle, 0);
@@ -6223,6 +6228,10 @@ void Atlantis::clbkPostCreation ()
 	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
 	SpdbkThrotAutoOut.Connect(pBundle, 0);
+
+	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
+	RMSGrapple.Connect(pBundle, 0);
+	RMSRelease.Connect(pBundle, 1);
 }
 
 // --------------------------------------------------------------
@@ -6690,7 +6699,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	plop->Step (simt, simdt);
 	//gop->Step (simt, simdt);
 	panela4->Step(simt, simdt);
-	if(RMS) panela8->Step(simt, simdt);
+	//if(RMS && panela8) panela8->Step(simt, simdt);
 	panelc2->Step(simt, simdt);
 	panelc3->Step (simt, simdt);
 	//  panelf7->Step(simt, simdt);
@@ -6735,7 +6744,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	}
 
 	// ***** MPM Rollout *****
-	if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
+	/*if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
 		double da = simdt*ARM_DEPLOY_SPEED;
 		if(RMSRollout.Closing()) {
 			RMSRollout.pos=max(0.0, RMSRollout.pos-da);
@@ -6773,21 +6782,21 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		sprintf_s(oapiDebugString(), 255, "STBD MPM POS: %f", StbdMPMRollout.pos);
 		SetStbdMPMPosition(StbdMPMRollout.pos);
 		UpdateMPMMicroswitches();
-	}
+	}*/
 
 	//Grapple sequence
-	if(bGrappleInProgress) {
+	/*if(bGrappleInProgress) {
 		if(!Grapple.Closed()) {
 			/*Grapple.pos=min(0.0, Grapple.pos-simdt*ARM_GRAPPLE_SPEED);
 			if(Grapple.pos<=0.0) {
 			Grapple.action=AnimState::CLOSED;
 			ToggleGrapple();
-			}*/
+			}*
 			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
 			if(Grapple.Closed()) {
 				if(!pRMS->Grappled()) ToggleGrapple();
 				Extend.action=AnimState::CLOSING;
-				panela8->UpdateVC();
+				if(panela8) panela8->UpdateVC();
 			}
 		}
 		else if(!Extend.Closed()) {
@@ -6795,14 +6804,14 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			if(Extend.Closed()) {
 				Rigidize.action=AnimState::CLOSING;
 			}
-			panela8->UpdateVC();
+			if(panela8) panela8->UpdateVC();
 		}
 		else if(!Rigidize.Closed()) {
 			Rigidize.Move(simdt*ARM_RIGID_SPEED);
 			if(Rigidize.Closed()) {
 				bGrappleInProgress=false;
 				sprintf_s(oapiDebugString(), 255, "Grapple sequence completed");
-				panela8->UpdateVC();
+				if(panela8) panela8->UpdateVC();
 			}
 		}
 	}
@@ -6811,7 +6820,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			Rigidize.Move(simdt*ARM_RIGID_SPEED);
 			if(Rigidize.Open()) {
 				Grapple.action=AnimState::OPENING;
-				panela8->UpdateVC();
+				if(panela8) panela8->UpdateVC();
 			}
 		}
 		else if(!Grapple.Open()) {
@@ -6820,7 +6829,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				if(pRMS->Grappled()) ToggleGrapple();
 				else if(pRMS) pRMS->Ungrapple();
 				Extend.action=AnimState::OPENING;
-				panela8->UpdateVC();
+				if(panela8) panela8->UpdateVC();
 			}
 		}
 		else if(!Extend.Open()) {
@@ -6829,9 +6838,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				bReleaseInProgress=false;
 				sprintf_s(oapiDebugString(), 255, "Release sequence completed");
 			}
-			panela8->UpdateVC();
+			if(panela8) panela8->UpdateVC();
 		}
-	}
+	}*/
 
 	if (arm_moved) {
 		//SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
@@ -6943,10 +6952,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	arm_moved = false;
 	}*/
-	if(DisplayJointAngles) {
+	/*if(DisplayJointAngles) {
 		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, -ep_angle,
 			wp_angle, wy_angle, wr_angle);
-	}
+	}*/
 
 	// Animate payload bay cameras.
 	if (cameraMoved) {
@@ -7439,7 +7448,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	panela8->RegisterVC();
+	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
@@ -7550,9 +7559,9 @@ bool Atlantis::clbkLoadVC (int id)
 
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	panela8->RegisterVC();
+	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	pA7A8Panel->RegisterVC();
+	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -7581,9 +7590,9 @@ bool Atlantis::clbkLoadVC (int id)
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	panela8->RegisterVC();
+	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	pA7A8Panel->RegisterVC();
+	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -7608,7 +7617,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	panela8->RegisterVC();
+	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -7635,9 +7644,9 @@ bool Atlantis::clbkLoadVC (int id)
 		
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	panela8->RegisterVC();
+	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	pA7A8Panel->RegisterVC();
+	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -7777,7 +7786,7 @@ bool Atlantis::clbkLoadVC (int id)
 		plop->UpdateVC();
 		//gop->UpdateVC();
 		panela4->UpdateVC();
-		if(RMS) panela8->UpdateVC();
+		//if(RMS && panela8) panela8->UpdateVC();
 		panelc2->UpdateVC();
 		panelc3->UpdateVC();
 		//	panelf7->UpdateVC();
@@ -7906,8 +7915,9 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
     return plop->VCMouseEvent (id, _event, p);
   case AID_A4:
 	return panela4->VCMouseEvent (id, _event, p);
-  case AID_A8:
-	return panela8->VCMouseEvent (id, _event, p);
+  /*case AID_A8:
+	if(panela8) return panela8->VCMouseEvent (id, _event, p);
+	else break;*/
   //case AID_F6:
     //return gop->VCMouseEvent (id, _event, p);
   case AID_F7:
@@ -7960,8 +7970,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 		default:
 			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
 				return panela4->VCRedrawEvent (id, _event, surf);
-			if (id >= AID_A8_MIN && id <= AID_A8_MAX)
-				return panela8->VCRedrawEvent (id, _event, surf);
+			/*if (id >= AID_A8_MIN && id <= AID_A8_MAX && panela8)
+				return panela8->VCRedrawEvent (id, _event, surf);*/
 			if (id >= AID_R2_MIN && id <= AID_R2_MAX)
 				return panelr2->VCRedrawEvent (id, _event, surf);
 			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
@@ -8014,7 +8024,7 @@ bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
 	}
 }
 
-void Atlantis::UpdateRMSAngles()
+/*void Atlantis::UpdateRMSAngles()
 {
 	sy_angle=linterp(0,-180,1,180,arm_sy);
 	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
@@ -8022,9 +8032,9 @@ void Atlantis::UpdateRMSAngles()
 	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
 	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
 	wr_angle=linterp(0, wrist_roll_min, 1, wrist_roll_max, arm_wr);
-}
+}*/
 
-void Atlantis::AutoGrappleSequence()
+/*void Atlantis::AutoGrappleSequence()
 {
 	sprintf_s(oapiDebugString(), 255, "AutoGrapple: %d", EEGrappleMode);
 	if(!bGrappleInProgress) {
@@ -8051,7 +8061,7 @@ void Atlantis::AutoGrappleSequence()
 		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
 		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
 	}
-	panela8->UpdateVC();
+	if(panela8) panela8->UpdateVC();
 }
 
 void Atlantis::AutoReleaseSequence()
@@ -8080,8 +8090,8 @@ void Atlantis::AutoReleaseSequence()
 		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
 		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
 	}
-	panela8->UpdateVC();
-}
+	if(panela8) panela8->UpdateVC();
+}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
@@ -8577,20 +8587,22 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		  }
 	  }
 	  if (SendDlgItemMessage (hWnd, IDC_GRAPPLE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-		  sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
-		  if(sts->EEGrappleMode==1) {
+		  //sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
+		  /*if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Closed()) {
 				  sts->Grapple.action=AnimState::CLOSING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
 				  if(sts->Grapple.Closed() && !sts->pRMS->Grappled()) {
 					  sts->ToggleGrapple();
 				  }
-				  sts->panela8->UpdateVC();
+				  if(sts->panela8) sts->panela8->UpdateVC();
 			  }
-		  }
+		  }*/
+		  sts->RMSGrapple.SetLine();
+		  sts->RMSRelease.ResetLine();
 	  } else if (SendDlgItemMessage (hWnd, IDC_RELEASE, BM_GETSTATE, 0, 0) & BST_PUSHED) {
 		  //sprintf_s(oapiDebugString(), 255, "RELEASE pressed");
-		  if(sts->EEGrappleMode==1) {
+		  /*if(sts->EEGrappleMode==1) {
 			  if(!sts->Grapple.Open()) {
 				  if(sts->Grapple.Closed()) {
 					  if(sts->pRMS->Grappled()) sts->ToggleGrapple();
@@ -8598,9 +8610,14 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				  }
 				  sts->Grapple.action=AnimState::OPENING;
 				  sts->Grapple.Move((t1-t0)*ARM_GRAPPLE_SPEED);
-				  sts->panela8->UpdateVC();
+				  if(sts->panela8) sts->panela8->UpdateVC();
 			  }
-		  }
+		  }*/
+		  sts->RMSGrapple.ResetLine();
+		  sts->RMSRelease.SetLine();
+	  } else {
+		  sts->RMSGrapple.ResetLine();
+		  sts->RMSRelease.ResetLine();
 	  }
       t0 = t1;
     }
@@ -8617,13 +8634,13 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         EnableWindow (GetDlgItem (hWnd, IDC_GRAPPLE), FALSE);
       }
       return 0;*/
-    case IDC_GRAPPLE:
-		//sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed");
+    /*case IDC_GRAPPLE:
+		sprintf_s(oapiDebugString(), 255, "GRAPPLE pressed %f", oapiRand());
 		if(sts->EEGrappleMode==2) sts->AutoGrappleSequence();
       return 0;
 	case IDC_RELEASE:
 		if(sts->EEGrappleMode==2) sts->AutoReleaseSequence();
-		return 0;
+		return 0;*/
     /*case IDC_PAYLOAD:
       sts->ToggleArrest();
       return 0;*/

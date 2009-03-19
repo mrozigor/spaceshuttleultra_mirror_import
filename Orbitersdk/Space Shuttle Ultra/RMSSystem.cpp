@@ -19,9 +19,15 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
 
+	// default EE to grapple open and derigidized
 	Grapple_State.Set(AnimState::OPEN, 1);
 	Rigid_State.Set(AnimState::OPEN, 1);
 	Extend_State.Set(AnimState::OPEN, 1);
+
+	bAutoGrapple=false;
+	bAutoRelease=false;
+
+	shoulder_brace=0.0; // released
 
 	//RMS elbow camera
 	camRMSElbowLoc[0]=RMS_ELBOW_CAM_POS;
@@ -56,23 +62,37 @@ void RMSSystem::Realize()
 	EEMan.Connect(pBundle, 3);
 	EERigid.Connect(pBundle, 4);
 	EEDerigid.Connect(pBundle, 5);
+	EECapture.Connect(pBundle, 6);
+	EEExtended.Connect(pBundle, 7);
+	EEClosed.Connect(pBundle, 8);
+	EEOpened.Connect(pBundle, 9);
+	EERigidized.Connect(pBundle, 10);
+	EEDerigidized.Connect(pBundle, 11);
+
+	// set lines
+	if(Grappled()) EECapture.SetLine();
+	if(Extend_State.Open()) EEExtended.SetLine();
+	if(Grapple_State.Open()) EEOpened.SetLine();
+	else if(Grapple_State.Closed()) EEClosed.SetLine();
+	if(Rigid_State.Closed()) EERigidized.SetLine();
+	else if(Rigid_State.Open()) EEDerigidized.SetLine();
 }
 
 void RMSSystem::CreateArm()
 {
 	//rollout animation
-	static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
-	static MGROUP_ROTATE rms_rollout_anim(mesh_index, RMSRolloutGrp, 11,
+	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMs, GRP_base};
+	static MGROUP_ROTATE rms_rollout_anim(mesh_index, RMSRolloutGrp, 2,
 		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
 	anim_mpm = STS()->CreateAnimation(1.0);
-	STS()->AddAnimationComponent(anim_mpm, 0, 1, &rms_rollout_anim);
+	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent(anim_mpm, 0, 1, &rms_rollout_anim);
 
 	//shoulder yaw
 	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
 	static MGROUP_ROTATE rms_sy_anim(mesh_index, RMSShoulderYawGrp, 1,
 		RMS_SY_JOINT, _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
 	anim_joint[SHOULDER_YAW] = STS()->CreateAnimation (0.5);
-	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, &rms_sy_anim);
+	parent = STS()->AddAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, &rms_sy_anim, parent);
 
 	//shoulder pitch
 	static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
@@ -180,48 +200,84 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 	if(EEAuto || EEMan) {
-		//Grapple sequence
-		if(EEGrapple) {
-			// if grapple is set, always try to close grapple
-			if(!Grapple_State.Closed()) {
-				Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
-				if(Grapple_State.Closed()) {
-					if(!STS()->GetAttachmentStatus(hAttach)) Grapple();
-					if(EEAuto) Extend_State.action=AnimState::CLOSING;
-				}
+		if(Grapple_State.Moving()) {
+			Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
+
+			if(Grapple_State.Closed()) {
+				if(!STS()->GetAttachmentStatus(hAttach)) Grapple();
+				EEClosed.SetLine();
+				if(EEAuto) AutoGrappleSequence();
+			}
+			else if(Grapple_State.Open()) {
+				EEOpened.SetLine();
+				if(EEAuto) AutoReleaseSequence();
+			}
+			else {
+				if(Grappled()) Ungrapple();
+				EEClosed.ResetLine();
+				EEOpened.ResetLine();
 			}
 		}
-		else if(EERigid || (EEGrapple && EEAuto)) {
-			if(!Extend_State.Closed()) {
-				Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);
-				if(Extend_State.Closed() && EEAuto) {
-					Rigid_State.action=AnimState::CLOSING;
-				}
+		if(Extend_State.Moving()) {
+			Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);
+			if(Extend_State.Open()) {
+				EEExtended.SetLine();
+				if(EEAuto) AutoReleaseSequence();
 			}
-			else if(!Rigid_State.Closed()) {
-				Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
+			else if(Extend_State.Closed() && EEAuto) AutoGrappleSequence();
+			else EEExtended.ResetLine();
+		}
+		if(Rigid_State.Moving()) {
+			Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
+			if(Rigid_State.Open()) {
+				EEDerigidized.SetLine();
+				if(EEAuto) AutoReleaseSequence();
+			}
+			else if(Rigid_State.Closed()) {
+				EERigidized.SetLine();
+				if(EEAuto) AutoGrappleSequence();
+			}
+			else {
+				EEDerigidized.ResetLine();
+				EERigidized.ResetLine();
 			}
 		}
-		else if(EERelease) {
-			if(!Grapple_State.Open()) {
-				Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
-				if(Grapple_State.Open()) {
-					if(STS()->GetAttachmentStatus(hAttach)) Ungrapple();
-					if(EEAuto) Extend_State.action=AnimState::OPENING;
-				}
+
+		if(EEAuto) {
+			if(EEGrapple) {
+				bAutoGrapple=true;
+				bAutoRelease=false;
+				AutoGrappleSequence();
+			}
+			else if(EERelease) {
+				bAutoRelease=true;
+				bAutoGrapple=false;
+				AutoReleaseSequence();
 			}
 		}
-		else if(EEDerigid || (EERelease && EEAuto)) {
-			if(!Rigid_State.Open()) {
-				Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
-				if(Rigid_State.Open() && EEAuto) {
-					Grapple_State.action=AnimState::OPENING;
-				}
+		else { //EEMan must be set
+			if(EEGrapple) Grapple_State.action=AnimState::CLOSING;
+			else if(EERelease) Grapple_State.action=AnimState::OPENING;
+			else if(Grapple_State.Moving()) Grapple_State.action=AnimState::STOPPED;
+
+			if(EERigid) {
+				if(!Extend_State.Closed()) Extend_State.action=AnimState::CLOSING;
+				else if(!Rigid_State.Closed()) Rigid_State.action=AnimState::CLOSING;
 			}
-			else if(!Extend_State.Open()) {
-				Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);;
+			else if(EEDerigid) {
+				if(!Rigid_State.Open()) Rigid_State.action=AnimState::OPENING;
+				else if(!Extend_State.Open()) Extend_State.action=AnimState::OPENING;
+			}
+			else {
+				if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
+				if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
 			}
 		}
+	}
+	else {
+		if(Grapple_State.Moving()) Grapple_State.action=AnimState::STOPPED;
+		if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
+		if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
 	}
 
 	for(int i=0;i<2;i++) {
@@ -318,10 +374,10 @@ void RMSSystem::OnSaveState(FILEHANDLE scn) const
 	sprintf_s(cbuf, 255, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", joint_pos[SHOULDER_YAW], joint_pos[SHOULDER_PITCH], 1.0-joint_pos[ELBOW_PITCH], 
 		joint_pos[WRIST_PITCH], joint_pos[WRIST_YAW], joint_pos[WRIST_ROLL]);
 	oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
-	/*oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
-	WriteScenario_state(scn, "GRAPPLE", Grapple);
-	WriteScenario_state(scn, "RIGIDIZE", Rigidize);
-	WriteScenario_state(scn, "EXTEND", Extend);*/
+	oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
+	WriteScenario_state(scn, "GRAPPLE", Grapple_State);
+	WriteScenario_state(scn, "RIGIDIZE", Rigid_State);
+	WriteScenario_state(scn, "EXTEND", Extend_State);
 	sprintf_s(cbuf, 255, "%0.4f %0.4f", camRMSElbow[PAN], camRMSElbow[TILT]);
 	oapiWriteScenario_string(scn, "RMS_ELBOW_CAM", cbuf);
 
@@ -458,43 +514,6 @@ void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
 
 OBJHANDLE RMSSystem::Grapple()
 {
-	/*oapiWriteLog("Grappling satellite");
-
-	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+arm_tip[0], grms);  // global position of RMS tip
-	STS()->GlobalRot(arm_tip[1]-arm_tip[0], grmsdir);
-
-	// Search the complete vessel list for a grappling candidate.
-	// Not very scalable ...
-	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
-		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
-		oapiGetGlobalPos (hV, &gpos);
-		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
-			VESSEL *v = oapiGetVesselInterface (hV);
-			DWORD nAttach = v->AttachmentCount (true);
-			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-				const char *id = v->GetAttachmentId (hAtt);
-				if (strncmp (id, "GS", 2)) 
-					continue; // attachment point not compatible
-				v->GetAttachmentParams (hAtt, pos, dir, rot);
-				v->Local2Global (pos, gpos);
-				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
-				oapiWriteLog(oapiDebugString());
-				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
-					v->GlobalRot(dir, gdir);
-					//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
-					if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {
-						AttachPayload(v, hAtt);
-						return hV;
-					}
-				}
-			}
-		}
-	}
-	return NULL;*/
-
 	VESSEL* pVessel=NULL;
 	ATTACHMENTHANDLE hAtt=FindPayload(&pVessel);
 	if(hAtt) AttachPayload(pVessel, hAtt);
@@ -516,6 +535,16 @@ void RMSSystem::OnMRLLatched()
 	if(ArmStowed()) {
 		for(int i=0;i<6;i++) SetJointAngle((RMS_JOINT)i, 0.0);
 	}
+}
+
+void RMSSystem::OnAttach()
+{
+	EECapture.SetLine();
+}
+
+void RMSSystem::OnDetach()
+{
+	EECapture.ResetLine();
 }
 
 bool RMSSystem::ArmStowed() const
@@ -566,4 +595,39 @@ void RMSSystem::ToggleJointAngleDisplay()
 {
 	display_angles=!display_angles;
 	if(!display_angles) sprintf_s(oapiDebugString(), 255, "");
+}
+
+void RMSSystem::AutoGrappleSequence()
+{
+	if(bAutoGrapple) {
+		if(!Grapple_State.Closed()) {
+			Grapple_State.action=AnimState::CLOSING;
+			if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
+			if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
+			sprintf_s(oapiDebugString(), 255, "Grappling");
+		}
+		else if(!Extend_State.Closed()) {
+			Extend_State.action=AnimState::CLOSING;
+			if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
+		}
+		else if(!Rigid_State.Closed()) Rigid_State.action=AnimState::CLOSING;
+		else bAutoGrapple=false;
+	}
+}
+
+void RMSSystem::AutoReleaseSequence()
+{
+	if(bAutoRelease) {
+		if(!Rigid_State.Open()) {
+			Rigid_State.action=AnimState::OPENING;
+			if(Grapple_State.Moving()) Grapple_State.action=AnimState::STOPPED;
+			if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
+		}
+		else if(!Grapple_State.Open()) {
+			Grapple_State.action=AnimState::OPENING;
+			if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
+		}
+		else if(!Extend_State.Open()) Extend_State.action=AnimState::OPENING;
+		else bAutoRelease=false;
+	}
 }

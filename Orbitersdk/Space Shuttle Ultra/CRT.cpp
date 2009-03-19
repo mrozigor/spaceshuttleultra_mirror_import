@@ -76,6 +76,8 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	width=w;
 	height=h;
 	usMDU = 11;
+	
+	id=-1;
 
 	sprintf_s(cbuf, 200, "[CRT]:DIMENSIONS: %d %d\n", W, H);
 	oapiWriteLog(cbuf);
@@ -108,7 +110,6 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	else {
 		mode=10001;
 	}
-	id=-1;
 	strcpy(cDispTitle, "GPC MEMORY");
 	usPageNumber = 1;
 	usGPCDriver = 1;
@@ -1135,7 +1136,7 @@ void CRT::MNVR(HDC hDC)
 	TextOut(hDC, 185, 189, "  OFF  40", 9);
 }
 
-void CRT::PDRS(HDC hDC)
+/*void CRT::PDRS(HDC hDC)
 {
 	char cbuf[255];
 
@@ -1166,7 +1167,7 @@ void CRT::PDRS(HDC hDC)
 	TextOut(hDC, 0, 162, cbuf, strlen(cbuf));
 	/*if(sts->RMSRollout.pos==0.0) TextOut(hDC, 0, 162, " SHLD 1 1 0 0", 13);
 	else if(sts->RMSRollout.pos==1.0) TextOut(hDC, 0, 162, " SHLD 0 0 1 1", 13);
-	else TextOut(hDC, 0, 162, " SHLD 0 0 0 0", 13);*/
+	else TextOut(hDC, 0, 162, " SHLD 0 0 0 0", 13);*
 
 	TextOut(hDC, 0, 180, "RMS  LAT/REL/RDY", 16);
 	sprintf(cbuf, " AFT %d %d %d %d %d %d", sts->MRL_AftMicroswitches[0][0], sts->MRL_AftMicroswitches[0][0],
@@ -1181,7 +1182,7 @@ void CRT::PDRS(HDC hDC)
 	TextOut(hDC, 0, 207, cbuf, strlen(cbuf));
 	//TextOut(hDC, 0, 198, " MID", 4);
 	//TextOut(hDC, 0, 207, " FWD", 4);
-}
+}*/
 
 void CRT::DisplayScratchPad(HDC hDC)
 {
