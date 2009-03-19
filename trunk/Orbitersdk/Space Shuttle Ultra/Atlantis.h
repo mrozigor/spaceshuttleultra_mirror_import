@@ -931,6 +931,9 @@ const double SWITCH_HOLD_TIME = 0.5;
 
 
 
+const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
 
 
 
@@ -1190,7 +1193,7 @@ public:
 	 * Setters
 	 *****************************************************************/
 	virtual void SetAirDataProbeDeployment(int side, double position);
-	void SetAnimationArm (UINT anim, double state);
+	//void SetAnimationArm (UINT anim, double state);
 	//void SetAnimationIKArm(VECTOR3 arm_dpos);
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
@@ -1253,12 +1256,12 @@ public:
     virtual bool HydraulicsOK();
 
 	void ToggleGrapple (void);
-	void AutoGrappleSequence();
-	void AutoReleaseSequence();
+	//void AutoGrappleSequence();
+	//void AutoReleaseSequence();
 	void ToggleArrest (void);
 	void UpdateMesh ();
 	//void UpdateRMSPositions();
-	void UpdateRMSAngles();
+	//void UpdateRMSAngles();
 	void UpdateSSMEGimbalAnimations();
 	//VECTOR3 CalcAnimationFKArm2();
 
@@ -1279,6 +1282,10 @@ public:
 	 * Pointer to the A7A8 custom panel region
 	 */
 	vc::BasicPanel* pA7A8Panel;
+	/**
+	 * Pointer to the A8 (RMS) panel region
+	 */
+	vc::BasicPanel* pPanelA8;
 	
 
 
@@ -1333,7 +1340,7 @@ public:
 	PayloadBayOp *plop; // control and status of payload bay operations
 	//GearOp *gop; // control and status of landing gear
 	PanelA4 *panela4;
-	PanelA8 *panela8;
+	//PanelA8 *panela8;
 	PanelC2 *panelc2;
 	PanelC3 *panelc3; // PanelC3 operations
 	//PanelF7 *panelf7;
@@ -1433,17 +1440,17 @@ private:
 	void ToggleVCMode();
 	
 	//RMS
-	bool ArmCradled() const;
-	void UpdateMPMMicroswitches();
-	void UpdateMRLMicroswitches();
+	//bool ArmCradled() const;
+	//void UpdateMPMMicroswitches();
+	//void UpdateMRLMicroswitches();
 	//bool SatGrappled() const { return (pRMS && pRMS->Grappled()); }
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
 
 	//OBSS
-	void AttachOBSS() const;
-	void DetachOBSS() const;
+	//void AttachOBSS() const;
+	//void DetachOBSS() const;
 
 	//Launch
 	void AutoMainGimbal(double DeltaT);
@@ -1794,20 +1801,20 @@ private:
 	
 	//RMS
 	AnimState RMSRollout, StbdMPMRollout;
-	int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
+	//int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
 	double shoulder_brace;
-	double MRL[2]; //0=PORT, 1=STBD
-	int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
+	//double MRL[2]; //0=PORT, 1=STBD
+	//int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
 	bool STBDMPM;
 	bool mpm_moved;
-	bool DisplayJointAngles;	
+	//bool DisplayJointAngles;	
 	//Grapple/Release sequences
-	bool bGrappleInProgress, bReleaseInProgress;
-	AnimState Grapple, Rigidize, Extend;
-	int EEGrappleMode; //0=OFF, 1=MAN, 2=AUTO
+	//bool bGrappleInProgress, bReleaseInProgress;
+	//AnimState Grapple, Rigidize, Extend;
+	//int EEGrappleMode; //0=OFF, 1=MAN, 2=AUTO
 	//IK parameters
-	VECTOR3 arm_wrist_pos;
+	/*VECTOR3 arm_wrist_pos;
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double lu, ll, wp_wy, wy_ee;
@@ -1821,7 +1828,7 @@ private:
 	double wrist_yaw_range, wrist_yaw_min, wrist_yaw_max;
 	double wrist_roll_neutral;
 	double wrist_roll_range, wrist_roll_min, wrist_roll_max;
-	VECTOR3 shoulder_pos;
+	VECTOR3 shoulder_pos;*/
 
 	//Hand controller input
 	VECTOR3 THCInput, RHCInput;
@@ -1994,6 +2001,7 @@ private:
 	DiscOutPort SpdbkThrotAutoOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
+	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 protected:
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();

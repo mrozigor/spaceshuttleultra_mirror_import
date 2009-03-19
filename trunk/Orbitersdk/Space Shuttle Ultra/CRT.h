@@ -13,10 +13,6 @@ typedef struct {
 	HFONT hCRTFont;
 } MFD_GDIPARAM;
 
-const int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-
 class CRT: public MFD {
 	friend class Atlantis;
 	friend class Keyboard;
@@ -76,7 +72,7 @@ private:
 	void MNVR(HDC hDC);
 	void GPCMEMORY(HDC hdc);
 
-	void PDRS(HDC hDC);
+	//void PDRS(HDC hDC);
 
 	void DisplayScratchPad(HDC hDC);
 	void DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY);

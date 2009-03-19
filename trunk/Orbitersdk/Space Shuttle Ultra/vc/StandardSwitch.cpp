@@ -68,7 +68,7 @@ void StandardSwitch::OnPositionChange(unsigned short usNewPosition)
 {
 	if(bHasAnimations)
 	{
-		SetAnimation(anim_switch, usNewPosition/(usNumPositions - 1));
+		SetAnimation(anim_switch, (double)(usNewPosition)/(usNumPositions - 1));
 	}
 }
 
@@ -109,6 +109,7 @@ void StdSwitch2::OnPositionChange(unsigned short usNewPosition)
 StdSwitch3::StdSwitch3(Atlantis *_sts, const std::string &_ident)
 : StandardSwitch(_sts, 3, _ident)
 {
+	usCurrentPosition = 1; // true for most meshes
 }
 
 StdSwitch3::~StdSwitch3()

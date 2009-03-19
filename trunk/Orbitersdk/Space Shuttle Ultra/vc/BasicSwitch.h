@@ -21,6 +21,7 @@ class BasicSwitch : public BasicVCComponent
 {
 protected:
 	bool bOrientation;
+	bool bSpringLoaded;
 	unsigned short usNumPositions;
 	vector<string> labels;
 	unsigned short usCurrentPosition;
@@ -30,6 +31,7 @@ public:
 	const string& GetLabel(int iPosition) const;
 	void SetLabel(int iPosition, const string& _label);
 	void SetOrientation(bool bHorizontal);
+	void SetStringLoaded(bool IsSpringLoaded);
 
 	virtual void DefineVCAnimations(UINT vc_idx);
 	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
