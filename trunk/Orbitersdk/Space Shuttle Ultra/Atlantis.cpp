@@ -6220,7 +6220,7 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 	}
 
-	dapcontrol->Realize();
+	/*dapcontrol->Realize();
 
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
@@ -6237,7 +6237,7 @@ void Atlantis::clbkPostCreation ()
 		else if(ROT) LoadRotationManeuver();
 	}
 
-	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
+	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();*/
 
 	oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
@@ -6348,7 +6348,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//Stopwatch st;
 	//st.Start();
 
-	oapiWriteLog("In clbkPreStep");
+	oapiWriteLog("In clbkPostStep");
 
 	dapcontrol->OnPostStep(simt, simdt, mjd);
 	gncsoftware->OnPostStep(simt, simdt, mjd);
