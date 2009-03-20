@@ -6200,6 +6200,7 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
 // --------------------------------------------------------------
 void Atlantis::clbkPostCreation ()
 {
+	oapiWriteLog("In clbkPostCreation");
 	VESSEL2::clbkPostCreation(); //may not be necessary
 
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
@@ -6275,6 +6276,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	double steerforce, airspeed;
 	int i;
 
+	oapiWriteLog("In clbkPreStep");
+
 	//Stopwatch st;
 	//st.Start();
 
@@ -6344,6 +6347,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	//Stopwatch st;
 	//st.Start();
+
+	oapiWriteLog("In clbkPreStep");
 
 	dapcontrol->OnPostStep(simt, simdt, mjd);
 	gncsoftware->OnPostStep(simt, simdt, mjd);
@@ -8259,7 +8264,7 @@ void Atlantis::HideODS()
 
 void Atlantis::TurnOnPadLights()
 {
-	if(status==STATE_PRELAUNCH) {
+	if(status==STATE_PRELAUNCH && !bIlluminated) {
 		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
 		IlluminateMesh(OrbiterMesh);
 
@@ -8282,7 +8287,7 @@ void Atlantis::TurnOnPadLights()
 
 void Atlantis::TurnOffPadLights()
 {
-	if(status==STATE_PRELAUNCH) {
+	if(status==STATE_PRELAUNCH && bIlluminated) {
 		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
 		DisableIllumination(OrbiterMesh, hOrbiterMesh);
 		
@@ -8851,6 +8856,7 @@ void Atlantis::TriggerLiftOff()
 	bLiftOff = true;
 	t0=oapiGetSimTime(); //update t0 value to actual (instead of planned) liftoff time
 	pMTU->StartMET();
+	TurnOffPadLights();
 }
 
 short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
