@@ -22,7 +22,8 @@ void DiscreteBundleManager::DumpToLog() const
 
 bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 {
-	bundles.push_back(pBundle);
+	if(pBundle)
+		bundles.push_back(pBundle);
 	return true;
 }
 
@@ -44,12 +45,16 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 	}
 	else {
 		oapiWriteLog("(DiscreteBundleManager::CreateBundle) Failed to create new bundle");
-		delete pR;
+		if(pR)
+			delete pR;
 		return NULL;
 	}
 }
 
 bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
+	char pszBuffer[400];
+	sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) Enter \"%s\"", _ident.c_str());
+	oapiWriteLog(pszBuffer);
 	for(unsigned int i = 0; i<bundles.size(); i++)
 	{
 		if(bundles.at(i)->GetIdentity() == _ident)
