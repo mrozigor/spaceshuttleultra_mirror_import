@@ -6220,9 +6220,9 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 	}
 
-	/*dapcontrol->Realize();
+	dapcontrol->Realize();
 
-	GetGlobalOrientation(InertialOrientationRad);
+	/*GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 
 	if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {

@@ -13,9 +13,13 @@ namespace vc {
 
 	void DAPControl::Realize()
 	{
+		oapiWriteLog("DAPControl: Creating Bundle");
 		DiscreteBundle* pBundle=sts->BundleManager()->CreateBundle("DAP_PBIS1", 16);
+		oapiWriteLog("Bundle created");
 		for(int i=0;i<16;i++) {
+			oapiWriteLog("Connecting DiscPort");
 			input[i].Connect(pBundle, i);
+			oapiWriteLog("DiscPort connected");
 			output[i].Connect(pBundle, i);
 		}
 
