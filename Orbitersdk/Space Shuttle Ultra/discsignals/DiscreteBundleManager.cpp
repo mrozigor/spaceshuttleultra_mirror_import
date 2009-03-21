@@ -22,9 +22,14 @@ void DiscreteBundleManager::DumpToLog() const
 
 bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 {
-	if(pBundle)
+	if(pBundle) {
 		bundles.push_back(pBundle);
-	return true;
+		return true;
+	} else {
+		oapiWriteLog("(DiscreteBundleManager::AddBundle) Attempt to add NULL pointer.");
+		return false;
+	}
+	
 }
 
 DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, unsigned short usLines)
@@ -55,22 +60,37 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 	char pszBuffer[400];
 	sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) Enter \"%s\"", _ident.c_str());
 	oapiWriteLog(pszBuffer);
-	for(unsigned int i = 0; i<bundles.size(); i++)
-	{
-		if(bundles.at(i) && bundles.at(i)->GetIdentity() == _ident)
+	try {
+		for(unsigned int i = 0; i<bundles.size(); i++)
 		{
-			oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
-			return true;
+			if(bundles.at(i) && bundles.at(i)->GetIdentity() == _ident)
+			{
+				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
+				return true;
+			}
 		}
 	}
+	catch(...)
+	{
+		oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Uncaught exception.");
+		return false;
+	}
+	oapiWriteLog("(DiscreteBundleManager::ExistsBundle) No such bundle found.");
 	return false;
 };
 
 DiscreteBundle* DiscreteBundleManager::FindBundle(const std::string &_ident) const {
-	for(unsigned int i = 0; i<bundles.size(); i++)
+	try {
+		for(unsigned int i = 0; i<bundles.size(); i++)
+		{
+			if(bundles.at(i)->GetIdentity() == _ident)
+				return bundles.at(i);
+		}
+	}
+	catch(...)
 	{
-		if(bundles.at(i)->GetIdentity() == _ident)
-			return bundles.at(i);
+		oapiWriteLog("(DiscreteBundleManager::FindBundle) Uncaught exception.");
+		return NULL;
 	}
 	return NULL;
 };
