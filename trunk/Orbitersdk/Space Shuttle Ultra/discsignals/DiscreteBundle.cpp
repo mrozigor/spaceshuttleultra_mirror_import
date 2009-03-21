@@ -25,7 +25,11 @@ DiscreteBundle::DiscreteBundle(const string& _ident, int nLines)
 
 DiscreteBundle::~DiscreteBundle()
 {
-
+	char pszBuffer[400];
+	sprintf_s(pszBuffer, 400, "(DiscreteBundle::~DiscreteBundle) destructor called for %s:%d",
+		ident.c_str(),
+		snLines);
+	oapiWriteLog(pszBuffer);
 }
 
 const string& DiscreteBundle::GetIdentity() const
