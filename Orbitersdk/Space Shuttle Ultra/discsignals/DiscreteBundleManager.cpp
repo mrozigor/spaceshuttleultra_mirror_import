@@ -4,6 +4,7 @@
 namespace discsignals {
 
 DiscreteBundleManager::DiscreteBundleManager(void)
+: bundles()
 {
 }
 
@@ -75,9 +76,9 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 		for(unsigned int i = 0; i<bundles.size(); i++)
 		{
 
-			oapiWriteLog("A1");
+			//oapiWriteLog("A1");
 			DiscreteBundle* pB = bundles.at(i);
-			oapiWriteLog("B1");
+			//oapiWriteLog("B1");
 			/*
 			sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) iteration %d.", i+1);
 			oapiWriteLog(pszBuffer);
@@ -90,7 +91,7 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 
 			if(pB->GetIdentity() == _ident)
 			{
-				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
+				//oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
 				return true;
 			}
 		}
@@ -100,7 +101,7 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 		oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Uncaught exception.");
 		return false;
 	}
-	oapiWriteLog("(DiscreteBundleManager::ExistsBundle) No such bundle found.");
+	//oapiWriteLog("(DiscreteBundleManager::ExistsBundle) No such bundle found.");
 	return false;
 };
 
