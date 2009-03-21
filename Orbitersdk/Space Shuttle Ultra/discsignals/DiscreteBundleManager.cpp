@@ -44,19 +44,19 @@ bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 
 DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, unsigned short usLines)
 {
-	char pszBuffer[400];
-	DumpToLog();
-	sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::CreateBundle) Enter \"%s\"", _ident.c_str());
-	oapiWriteLog(pszBuffer);
+	//char pszBuffer[400];
+	//DumpToLog();
+	//sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::CreateBundle) Enter \"%s\"", _ident.c_str());
+	//oapiWriteLog(pszBuffer);
 	if(ExistsBundle(_ident))
 	{
-		oapiWriteLog("(DiscreteBundleManager::CreateBundle) Found Bundle");
+		//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Found Bundle");
 		return FindBundle(_ident);
 	}
 	DiscreteBundle* pR = new DiscreteBundle(_ident, usLines);
 	if(AddBundle(pR))
 	{
-		oapiWriteLog("(DiscreteBundleManager::CreateBundle) Added new bundle");
+		//oapiWriteLog("(DiscreteBundleManager::CreateBundle) Added new bundle");
 		return pR;
 	}
 	else {
@@ -70,8 +70,8 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 
 bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 	char pszBuffer[400];
-	sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) Enter \"%s\"", _ident.c_str());
-	oapiWriteLog(pszBuffer);
+	//sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) Enter \"%s\"", _ident.c_str());
+	//oapiWriteLog(pszBuffer);
 	try {
 		for(unsigned int i = 0; i<bundles.size(); i++)
 		{

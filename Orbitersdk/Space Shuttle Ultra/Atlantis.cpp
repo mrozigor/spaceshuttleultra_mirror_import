@@ -1367,8 +1367,8 @@ void Atlantis::SetOrbiterConfiguration (void)
   EnableAllRCS();
 
   discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
-  delete pBundle;
-  
+  pBundle = bundleManager->CreateBundle("C2_TO_IDP2", 16);
+  pBundle = bundleManager->CreateBundle("C2_TO_IDP3", 16);
 
   // ************************ visual parameters **********************************
 
