@@ -143,6 +143,7 @@ namespace vc {
 		void UNIVPTG();
 		void DAP_CONFIG();
 		void MNVR();
+		void ORBIT_TGT();
 		//void GPCMEMORY(HDC hdc);
 	};
 
