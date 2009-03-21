@@ -38,6 +38,7 @@ public:
 	DiscreteBundle(const string& _ident, int nLines = 16);
 	virtual ~DiscreteBundle();
 
+	unsigned int CountLines() const throw();
 	/**
 	 * Set the mode how the Discrete bundle class handles logging information
 	 */

@@ -13,11 +13,20 @@ DiscreteBundleManager::~DiscreteBundleManager(void)
 		DiscreteBundle* pBundle=bundles[i];
 		delete pBundle;
 	}
+	bundles.clear();
 }
 
 void DiscreteBundleManager::DumpToLog() const
 {
+	char pszBuffer[400];
+	oapiWriteLog("(DiscreteBundleManager) Bundle dump:");
 	//Dump all registered Bundles to the orbiter log
+	for(unsigned int i=0;i<bundles.size();i++) {
+		sprintf_s(pszBuffer, 400, "%d\t:\t%s\t:\t%d", 
+			i+1, bundles.at(i)->GetIdentity().c_str(),
+			bundles.at(i)->CountLines());
+		oapiWriteLog(pszBuffer);
+	}
 }
 
 bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
@@ -35,6 +44,7 @@ bool DiscreteBundleManager::AddBundle(discsignals::DiscreteBundle *pBundle)
 DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, unsigned short usLines)
 {
 	char pszBuffer[400];
+	DumpToLog();
 	sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::CreateBundle) Enter \"%s\"", _ident.c_str());
 	oapiWriteLog(pszBuffer);
 	if(ExistsBundle(_ident))
@@ -50,6 +60,7 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 	}
 	else {
 		oapiWriteLog("(DiscreteBundleManager::CreateBundle) Failed to create new bundle");
+		DumpToLog();
 		if(pR)
 			delete pR;
 		return NULL;
@@ -63,15 +74,21 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 	try {
 		for(unsigned int i = 0; i<bundles.size(); i++)
 		{
+
+			oapiWriteLog("A1");
+			DiscreteBundle* pB = bundles.at(i);
+			oapiWriteLog("B1");
+			/*
 			sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) iteration %d.", i+1);
 			oapiWriteLog(pszBuffer);
-			if(!bundles.at(i))
+			*/
+			if(!pB)
 			{
 				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) encountered empty bundle.");
 				continue;
 			}
 
-			if(bundles.at(i)->GetIdentity() == _ident)
+			if(pB->GetIdentity() == _ident)
 			{
 				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
 				return true;
