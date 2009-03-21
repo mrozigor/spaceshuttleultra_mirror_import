@@ -58,4 +58,9 @@ void DiscreteBundle::SetLogMode(int iMode)
 
 }
 
+unsigned int DiscreteBundle::CountLines() const throw() 
+{
+	return snLines;
+}
+
 };
