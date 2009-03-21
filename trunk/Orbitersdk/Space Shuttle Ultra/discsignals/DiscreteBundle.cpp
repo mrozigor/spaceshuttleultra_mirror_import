@@ -4,6 +4,7 @@
 
 #include "DiscreteBundle.h"
 #include <cassert>
+#include <OrbiterAPI.h>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -14,6 +15,9 @@ namespace discsignals
 
 DiscreteBundle::DiscreteBundle(const string& _ident, int nLines)
 {
+	if(nLines>16) {
+		oapiWriteLog("ERROR: too many lines in bundle");
+	}
 	assert(nLines <= 16);
 	snLines = nLines;
 	ident = _ident;
