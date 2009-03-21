@@ -1301,4 +1301,17 @@ namespace vc {
 			//TextOut(hDC, 60+65*i, 216, cbuf, strlen(cbuf));
 		}
 	}
+
+
+	void MDU::ORBIT_TGT()
+	{
+		char cbuf[256];
+		PrintToBuffer("2011/034/", 9, 1, 0, 0);
+		PrintToBuffer("ORBIT TGT", 10, 18, 0, 0);
+		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
+		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
+	
+	}
+
 };
+

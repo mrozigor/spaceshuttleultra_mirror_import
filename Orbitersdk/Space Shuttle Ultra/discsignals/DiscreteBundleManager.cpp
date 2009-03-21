@@ -63,7 +63,15 @@ bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
 	try {
 		for(unsigned int i = 0; i<bundles.size(); i++)
 		{
-			if(bundles.at(i) && bundles.at(i)->GetIdentity() == _ident)
+			sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) iteration %d.", i+1);
+			oapiWriteLog(pszBuffer);
+			if(!bundles.at(i))
+			{
+				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) encountered empty bundle.");
+				continue;
+			}
+
+			if(bundles.at(i)->GetIdentity() == _ident)
 			{
 				oapiWriteLog("(DiscreteBundleManager::ExistsBundle) Found.");
 				return true;
