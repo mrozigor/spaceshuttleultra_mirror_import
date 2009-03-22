@@ -6226,7 +6226,7 @@ void Atlantis::clbkPostCreation ()
 
 	dapcontrol->Realize();
 
-	/*GetGlobalOrientation(InertialOrientationRad);
+	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 
 	if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
@@ -6241,7 +6241,7 @@ void Atlantis::clbkPostCreation ()
 		else if(ROT) LoadRotationManeuver();
 	}
 
-	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();*/
+	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
 
 	oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
@@ -8291,7 +8291,7 @@ void Atlantis::TurnOnPadLights()
 
 void Atlantis::TurnOffPadLights()
 {
-	if(status==STATE_PRELAUNCH && bIlluminated) {
+	if(status==STATE_PRELAUNCH || status==STATE_STAGE1 && bIlluminated) {
 		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
 		DisableIllumination(OrbiterMesh, hOrbiterMesh);
 		
