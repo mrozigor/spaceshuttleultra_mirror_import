@@ -705,32 +705,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   RMS=false;
   RMSRollout.Set(AnimState::OPEN, 1);
   shoulder_brace = 0.0; //released
-  //MRL[0]=MRL[1] = 0.0; //released
-  /*for(i=0;i<2;i++) {
-	  MRL[i]=0.0; //released
-	  MRL_FwdMicroswitches[i][0]=MRL_MidMicroswitches[i][0]=MRL_AftMicroswitches[i][0]=0;
-	  MRL_FwdMicroswitches[i][1]=MRL_MidMicroswitches[i][1]=MRL_AftMicroswitches[i][1]=0;
-	  MRL_FwdMicroswitches[i][2]=MRL_MidMicroswitches[i][2]=MRL_AftMicroswitches[i][2]=1;
-	  MPM_Microswitches[i][0]=0;
-	  MPM_Microswitches[i][1]=1;
-  }*
-  EEGrappleMode=0;
-  bGrappleInProgress=false;
-  bReleaseInProgress=false;
-  /*arm_sy = 0.5;
-  arm_sp = 0.0136;
-  arm_ep = 0.014688;
-  arm_wp = 0.5;
-  arm_wy = 0.5;
-  arm_wr = 0.5;
-  //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
-  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)-_V(0.314338082679218, -0.949311102735849, 0);
-  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-  arm_tip[0] = _V(-2.84, 2.13, -6.049);
-  arm_tip[1] = _V(-2.84, 2.13, -7.049);
-  arm_tip[2] = _V(-2.84, 3.13, -6.049);
-  arm_ee_dir = _V(1.0, 0.0, 0.0);
-  arm_ee_pos = _V(15.069, 0.0, 0.0);*/
+  
   //RMS elbow camera
   camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
   camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
@@ -1020,14 +995,6 @@ void Atlantis::SetLaunchConfiguration (void)
   // However the resulting linear force vector has a component in +y ("up") direction
 
   ClearThrusterDefinitions();
-
-  // orbiter main thrusters
-  /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.13,1), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V( 0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.04994,0.0,0.99875), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);*/
-  //th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 0.0, 3.2,-15.5), _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  //th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER+_V(-1.6,-0.2,-16.0), _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  //th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER+_V( 1.6,-0.2,-16.0), _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   
   th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
@@ -1323,49 +1290,6 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
 
-  //Don't deactivate main engines... keep them existing for gimbal code
-  //for(i=0;i<3;i++) th_main[i]=NULL; //deactivate mains
-
-  /*VECTOR3 L_ENG_POS=_V(-1.6,-0.2,-16.0);
-  VECTOR3 R_ENG_POS=_V( 1.6,-0.2,-16.0);
-  VECTOR3 C_ENG_POS=_V( 0.0, 3.2,-15.5);
-  /*th_main[0] = CreateThruster (_V(-1.6,-0.2,-16.0), _V( 0.099496, 0.012437, 0.99496), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_main[1] = CreateThruster (_V( 1.6,-0.2,-16.0), _V(-0.099496, 0.012437, 0.99496), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_main[2] = CreateThruster (_V( 0.0, 3.2,-15.5), _V( 0.0, -0.20219, 0.97935), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);*/
-  //th_main[0] = CreateThruster (C_ENG_POS, -C_ENG_POS/length(C_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_main[1] = CreateThruster (L_ENG_POS, -L_ENG_POS/length(L_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_main[2] = CreateThruster (R_ENG_POS, -R_ENG_POS/length(R_ENG_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  /*th_main[0] = CreateThruster (C_ENG_POS, -C_ENG_POS/length(C_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_main[1] = CreateThruster (L_ENG_POS, -L_ENG_POS/length(L_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_main[2] = CreateThruster (R_ENG_POS, -R_ENG_POS/length(R_ENG_POS), ORBITER_OMS_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_main[0] = CreateThruster (_V(-1.6,-0.2,-16.0), _V(0.0995, 0.0124, 0.9950), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_main[1] = CreateThruster (_V( 0.0, 3.2,-15.5), _V( 0.0, -0.0248, 0.9997), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_main[2] = CreateThruster (_V( 1.6,-0.2,-16.0), _V(-0.0995, 0.0124, 0.9950), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
-  SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-  for(i=0;i<3;i++) {
-	  AddExhaust(th_main[i], 30.0, 2.0, tex_main);
-	  r2d2->CheckMPSArmed(i);
-  }
-  //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-  //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
-  //AddExhaust (th_main[0], 30.0, 2.0, _V( 0.0, 3.2,-15.5), _V( 0.0, 0.308046,-0.951372), tex_main); 
-  //AddExhaust (th_main[1], 30.0, 2.0, _V(-1.6,-0.2,-16.0), _V( -0.0624,0.1789,-0.9819), tex_main);
-  //AddExhaust (th_main[2], 30.0, 2.0, _V( 1.6,-0.2,-16.0), _V(0.0624,0.1789,-0.9819), tex_main);
-  
-  //Retro (OMS)
-  VECTOR3 L_OMS_POS=_V(-2.7,3.7,-13.8);
-  VECTOR3 R_OMS_POS=_V(2.7,3.7,-13.8);
-  //th_retro[0] = CreateThruster (OMS_POS-_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_RETRO_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_retro[1] = CreateThruster (OMS_POS+_V(2.7,0,0), -OMS_POS/length(OMS_POS), ORBITER_RETRO_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_retro[0] = CreateThruster (L_OMS_POS, -L_OMS_POS/length(L_OMS_POS), ORBITER_RETRO_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  th_retro[1] = CreateThruster (R_OMS_POS, -R_OMS_POS/length(R_OMS_POS), ORBITER_RETRO_THRUST, NULL, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  thg_retro = CreateThrusterGroup (th_retro, 2, THGROUP_RETRO);
-  for(i=0;i<2;i++) {
-	  AddExhaust (th_retro[i], 4.0, 0.5);
-	  panelc3->EngControl(i);
-  }*/
-
   // RCS (Reaction Control System)
   CreateAttControls_RCS (_V(0,0,0));
   EnableAllRCS();
@@ -1593,12 +1517,6 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddExhaust (th_att_lin[9], eh2, ew1, center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F1F, fixed
   AddExhaust (th_att_lin[9], eh2, ew1, center+_V( 0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs);//F2F, fixed
   RCSEnabled=true;
-  /*CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
-  CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
-  CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
-  CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
-  CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);*/
   thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);
   thg_pitchdown = CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_USER);
   thg_yawleft = CreateThrusterGroup (th_att_rcs+4, 2, THGROUP_USER);
@@ -1962,127 +1880,6 @@ void Atlantis::DefineAnimations (void)
   // Note that the animation components can't be declared static here, since
   // their rotation parameters are modified by the respective parent transforms
 
-  //080415, DaveS edit: Fixed RMS rollout animation as the end effector meshgroup didn't animate.
-  /*static UINT RMSRolloutGrp[11] = {GRP_RMS_MPMs, GRP_base, GRP_Shoulder_Yaw, GRP_Humerus, GRP_Radii, GRP_elbowcam, GRP_camswivel, GRP_cambase, GRP_Wristpitch, GRP_Wrist_Yaw, GRP_Endeffector};
-  rms_rollout_anim = new MGROUP_ROTATE (ridx, RMSRolloutGrp, 11,
-    _V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
-  anim_rollout = CreateAnimation(1.0);
-  AddAnimationComponent(anim_rollout, 0, 1, rms_rollout_anim);
-
-  //DaveS edit: Fixed animation
-  static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
-  rms_anim[0] = new MGROUP_ROTATE (ridx, RMSShoulderYawGrp, 1,
-    _V(-2.61,1.65,9.02), _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
-  anim_arm_sy = CreateAnimation (0.5);
-  parent = AddAnimationComponent (anim_arm_sy, 0, 1, rms_anim[0]);
-
-  //DaveS edit: Fixed animation
-  static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
-  rms_anim[1] = new MGROUP_ROTATE (ridx, RMSShoulderPitchGrp, 1,
-    _V(-2.77,2.13,9.02), _V(0.948683298050514, 0.316227766016838, 0), (float)(147*RAD)); // -2 .. +145
-  anim_arm_sp = CreateAnimation (0.0136);
-  parent = AddAnimationComponent (anim_arm_sp, 0, 1, rms_anim[1], parent);
-
-  //DaveS edit: Fixed animation. 080317 edit: Added elbow camera meshgroups
-  static UINT RMSElbowPitchGrp[2] = {GRP_Radii,/*GRP_elbowcam ,GRP_camswivel,* GRP_cambase};
-  rms_anim[2] = new MGROUP_ROTATE (ridx, RMSElbowPitchGrp, 2,
-    _V(-2.71,1.97,2.74), _V(0.948683598, 0.316226863954669, 0), (float)(-163.4*RAD));
-  anim_arm_ep = CreateAnimation (0.014688);
-  parent = AddAnimationComponent (anim_arm_ep, 0, 1, rms_anim[2], parent);
-
-  //RMS elbow camera
-  static UINT RMSElbowCamGrp[2] = {GRP_elbowcam, GRP_camswivel};
-  static MGROUP_ROTATE RMSElbowCamPan (ridx, RMSElbowCamGrp+1, 1,
-	  _V(-2.765, 2.373, 2.073), _V(0.2974, 0.95475, 0), (float)(340*RAD));
-  ANIMATIONCOMPONENT_HANDLE parent2;
-  anim_camRMSElbowPan=CreateAnimation(0.5);
-  parent2 = AddAnimationComponent (anim_camRMSElbowPan, 0, 1, &RMSElbowCamPan, parent);
-  static MGROUP_ROTATE RMSElbowCamTilt (ridx, RMSElbowCamGrp, 1,
-	  _V(-2.68, 2.64, 2.073), _V(0.9513, -0.3082, 0), (float)(340*RAD));
-  anim_camRMSElbowTilt=CreateAnimation(0.5);
-  parent2 = AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamTilt, parent2);
-  static MGROUP_ROTATE RMSElbowCamLoc (LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
-	  _V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
-  AddAnimationComponent(anim_camRMSElbowTilt, 0, 1, &RMSElbowCamLoc, parent2);
-
-  //DaveS edit: Fixed animation
-  static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
-  rms_anim[3] = new MGROUP_ROTATE (ridx, RMSWristPitchGrp, 1,
-    _V(-2.77,2.13,-4.19), _V(0.949637404032871, 0.313350922867173, 0), (float)(242.8*RAD)); // -121.4 .. +121.4
-  anim_arm_wp = CreateAnimation (0.5);
-  parent = AddAnimationComponent (anim_arm_wp, 0, 1, rms_anim[3], parent);
-
-  //DaveS edit: Fixed animation
-  static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
-  rms_anim[4] = new MGROUP_ROTATE (ridx, RMSWristYawGrp, 1,
-    _V(-2.77,2.13,-4.69), _V(0.314338082679218, -0.949311102735849, 0), (float)(-242.6*RAD)); // -121.3 .. +121.3
-  anim_arm_wy = CreateAnimation (0.5);
-  parent = AddAnimationComponent (anim_arm_wy, 0, 1, rms_anim[4], parent);
-
-  //DaveS edit: Can't get the animation to line up properly. The coords used below is supposedly good ones from GMAX
-  static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
-  rms_anim[5] = new MGROUP_ROTATE (ridx, RMSEndEffectorGrp, 1,
-	  _V(-2.844, 2.133, -5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
-  anim_arm_wr = CreateAnimation (0.5);
-  parent = AddAnimationComponent (anim_arm_wr, 0, 1, rms_anim[5], parent);
-
-  rms_anim[6] = new MGROUP_ROTATE (LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-    _V(-2.844, 2.133, -6.049), _V(0,0,1), (float)(0.0));
-  anim_arm_ee = CreateAnimation (0.0);
-  hAC_arm = AddAnimationComponent (anim_arm_ee, 0, 1, rms_anim[6], parent);
-
-  //IK setup
-  VECTOR3 shoulder_pos=_V(-9.02, -2.77, 2.13);
-  VECTOR3 elbow_pos=_V(-2.74, -2.71, 1.97);
-  //VECTOR3 elbow_pos=_V(-2.76, -2.87, 2.03);
-  VECTOR3 wrist_pos=_V(4.19, -2.77, 2.13);
-  VECTOR3 wrist_yaw_pos=_V(4.69, -2.77, 2.13);
-  VECTOR3 ee_pos=_V(6.049, -2.77, 2.13);
-  elbow_pos-=shoulder_pos;
-  wrist_pos-=shoulder_pos;
-  wrist_yaw_pos-=shoulder_pos;
-  ee_pos-=shoulder_pos;
-  //shoulder_pos-=shoulder_pos;
-  lu=length(elbow_pos);
-  sp_null=DEG*acos(elbow_pos.x/lu);
-  VECTOR3 temp=wrist_pos-elbow_pos;
-  ll=length(temp);
-  ep_null=DEG*acos(temp.x/ll);
-  wp_wy=length(wrist_yaw_pos-wrist_pos);
-  wy_ee=length(ee_pos-wrist_yaw_pos);
-  shoulder_neutral=0.0136; //In anim coordinate
-  shoulder_range=147;      //in deg
-  shoulder_min=shoulder_range*-shoulder_neutral; //Min angle, deg
-  shoulder_max=shoulder_range*(1-shoulder_neutral); //Max angle, deg
-  elbow_neutral=0.014688;
-  elbow_range=163.4;
-  elbow_min=elbow_range*-elbow_neutral; //Min angle, deg
-  elbow_max=elbow_range*(1-elbow_neutral); //Max angle, deg
-  wrist_neutral=0.5; //In anim coordinate
-  wrist_range=242.8;      //in deg
-  wrist_min=wrist_range*-wrist_neutral; //Min angle, deg
-  wrist_max=wrist_range*(1-wrist_neutral); //Max angle, deg
-  wrist_yaw_range=242.6; //in deg
-  wrist_yaw_min=wrist_yaw_range*-wrist_neutral; //Min angle, deg
-  wrist_yaw_max=wrist_yaw_range*(1-wrist_neutral); //Max angle, deg
-  wrist_roll_range=894.0; //in deg
-  wrist_roll_min=wrist_roll_range*-wrist_neutral; //Min angle, deg
-  wrist_roll_max=wrist_roll_range*(1-wrist_neutral); //Max angle, deg
-  arm_wrist_pos=wrist_pos;
-
-  // STBD MPM animation
- /* static UINT STBDMPMGrp[1] = {0}; //only group in mesh
-  static MGROUP_ROTATE MPMAnim (sidx, STBDMPMGrp, 1,
-	  _V(-0.164, -0.356, 0), _V(0, 0, 1), (float)(-31.36*RAD));
-  anim_stbd_mpm=CreateAnimation(1.0);
-  parent = AddAnimationComponent(anim_stbd_mpm, 0, 1, &MPMAnim);
-
-  obss_attach_point[0]=_V(0.06, 0.28, 1.457);
-  obss_attach_point[1]=_V(0.06, 1.28, 1.457);
-
-  static MGROUP_ROTATE MPMAttachment (LOCALVERTEXLIST, MAKEGROUPARRAY(obss_attach_point), 2,
-    _V(2.87, 1.90, 3.15), _V(0,0,1), (float)(0.0));
-  parent = AddAnimationComponent (anim_stbd_mpm, 0, 1, &MPMAttachment, parent);*/
 
   // ***** 9 Payload cameras animation *****
   // DaveS edit: realigned with the scaled down orbiter mesh
@@ -2364,20 +2161,6 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
 	for(unsigned int i = 0; i<pActiveLatches.size(); i++)
 	{
-		/*if(ahCenterActive[i])
-		{
-			//update
-			vPayloadPos.z = fPayloadZPos[i];
-			SetAttachmentParams(ahCenterActive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
-				ROT_CENTERPL);
-		}
-		else 
-		{
-			vPayloadPos.z = fPayloadZPos[i];
-			//create
-			ahCenterActive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
-				ROT_CENTERPL, "XS");
-		}*/
 		pActiveLatches[i]->CreateAttachment();
 	}
 
@@ -2813,69 +2596,11 @@ void Atlantis::ToggleGrapple (void)
 			  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
 		  }
 	  }
-
-	  /*oapiWriteLog("Grappling satellite");
-
-    VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
-    Local2Global (orbiter_ofs+arm_tip[0], grms);  // global position of RMS tip
-	GlobalRot(arm_tip[1]-arm_tip[0], grmsdir);
-
-    // Search the complete vessel list for a grappling candidate.
-    // Not very scalable ...
-    for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
-      OBJHANDLE hV = oapiGetVesselByIndex (i);
-      if (hV == GetHandle()) continue; // we don't want to grapple ourselves ...
-      oapiGetGlobalPos (hV, &gpos);
-      if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
-        VESSEL *v = oapiGetVesselInterface (hV);
-        DWORD nAttach = v->AttachmentCount (true);
-        for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-          ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-          const char *id = v->GetAttachmentId (hAtt);
-          if (strncmp (id, "GS", 2)) 
-			  continue; // attachment point not compatible
-          v->GetAttachmentParams (hAtt, pos, dir, rot);
-          v->Local2Global (pos, gpos);
-          if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
-			  v->GlobalRot(dir, gdir);
-			  //sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
-			  if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
-				  // check whether satellite is currently clamped into payload bay
-				  //if (hV == GetAttachmentStatus (sat_attach))
-				  //	  DetachChild (sat_attach);
-				  //AttachChild (hV, ahRMS, hAtt);
-				  pRMS->Grapple(v, hAtt);
-				  //increase mass of shuttle
-				  pl_mass+=oapiGetMass(hV);
-				  oapiWriteLog("pl_mass increased");
-				  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);
-				  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-					  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
-					  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
-				  }
-				  return;
-			  }
-          }
-        }
-      }
-    }*/
-
   }
 }
 
 void Atlantis::ToggleArrest (void)
 {
-  /*HWND hDlg;
-  if (SatStowed()) { // purge satellite
-    //DetachChild (sat_attach, 0.1);
-    //Detach selected payload, if possible
-    if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-      SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Arrest");
-      EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), CanArrest() ? TRUE:FALSE);
-    }
-  } else if (CanArrest()) {           // try to arrest satellite
-    ToggleGrapple();
-  }*/
 }
 
 void Atlantis::ToggleVCMode()
@@ -2892,40 +2617,6 @@ void Atlantis::ToggleVCMode()
 		break;
 	} 
 }
-
-// check whether the currently grappled object can be stowed in the cargo bay
-/*ATTACHMENTHANDLE Atlantis::CanArrest (void) const
-{
-  OBJHANDLE hV = GetAttachmentStatus (ahRMS);
-  if (!hV) return 0;
-  VESSEL *v = oapiGetVesselInterface (hV);
-  DWORD nAttach = v->AttachmentCount (true);
-  VECTOR3 pos, dir, rot, gpos, gbay;
-  //GetAttachmentParams (sat_attach, pos, dir, rot);
-  Local2Global (pos, gbay);
-  for (DWORD j = 0; j < nAttach; j++) {
-    ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-    if (strncmp (v->GetAttachmentId (hAtt), "XS", 2)) continue; // attachment point not compatible
-    v->GetAttachmentParams (hAtt, pos, dir, rot);
-    v->Local2Global (pos, gpos);
-    if (dist (gpos, gbay) < MAX_GRAPPLING_DIST) {
-      return hAtt;
-    }
-  }
-  return 0;
-}*/
-
-/*bool Atlantis::ArmCradled() const
-{
-	if(!RMS) return true;
-	if(!Eq(arm_sy, 0.5)) return false;
-	if(!Eq(arm_sp, shoulder_neutral)) return false;
-	if(!Eq(arm_ep, elbow_neutral)) return false;
-	if(!Eq(arm_wp, wrist_neutral)) return false;
-	if(!Eq(arm_wy, wrist_neutral)) return false;
-	if(!Eq(arm_wr, wrist_neutral)) return false;
-	return true;
-}*/
 
 ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel) const
 {
@@ -2971,91 +2662,9 @@ ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, cons
 	return NULL;
 }
 
-
-/*void Atlantis::AttachOBSS() const
-{
-	if(Eq(MRL[1], 1.00)) {
-		OBJHANDLE vessel;
-		ATTACHMENTHANDLE obss_attach=GetAttachmentTarget(ahOBSS, "OS", &vessel);
-		oapiWriteLog("GetAttachmentTarget called");
-		if(obss_attach) {
-			//pRMS->Detach(oapiGetVesselInterface(vessel));
-			//AttachChild(vessel, ahOBSS, obss_attach);
-		}
-	}
-}*/
-
-/*void Atlantis::DetachOBSS() const
-{
-	if(Eq(MRL[1], 0.000)) {
-		//DetachChild(ahOBSS);
-	}
-}*/
-
-/*void Atlantis::UpdateMRLMicroswitches()
-{
-	//int i;
-	if(!RMS) return;
-	MRL_FwdMicroswitches[0][2]=MRL_MidMicroswitches[0][2]=MRL_AftMicroswitches[0][2]=0;
-	if(Eq(arm_sy, 0.5) && Eq(arm_sp, shoulder_neutral)) {
-		MRL_FwdMicroswitches[0][2]=1;
-		if(Eq(arm_ep, elbow_neutral)) {
-			MRL_MidMicroswitches[0][2]=1;
-			if(Eq(arm_wp, wrist_neutral) && Eq(arm_wy, wrist_neutral) && Eq(arm_wr, wrist_neutral)) {
-				MRL_AftMicroswitches[0][2]=1;
-			}
-		}
-	}
-
-	if(Eq(MRL[0], 1.0)) {
-		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=1;
-		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=0;
-	}
-	else if(Eq(MRL[0], 0.0)){
-		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=0;
-		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=1;
-	}
-	else {
-		MRL_FwdMicroswitches[0][0]=MRL_MidMicroswitches[0][0]=MRL_AftMicroswitches[0][0]=0;
-		MRL_FwdMicroswitches[0][1]=MRL_MidMicroswitches[0][1]=MRL_AftMicroswitches[0][1]=0;
-	}
-}
-
-void Atlantis::UpdateMPMMicroswitches()
-{
-	//PORT
-	if(RMSRollout.action==AnimState::OPEN) {
-		MPM_Microswitches[0][0]=0;
-		MPM_Microswitches[0][1]=1;
-	}
-	else if(RMSRollout.action==AnimState::CLOSED) {
-		MPM_Microswitches[0][0]=1;
-		MPM_Microswitches[0][1]=0;
-	}
-	else {
-		MPM_Microswitches[0][0]=0;
-		MPM_Microswitches[0][1]=0;
-	}
-
-	//STBD
-	if(StbdMPMRollout.action==AnimState::OPEN) {
-		MPM_Microswitches[1][0]=0;
-		MPM_Microswitches[1][1]=1;
-	}
-	else if(StbdMPMRollout.action==AnimState::CLOSED) {
-		MPM_Microswitches[1][0]=1;
-		MPM_Microswitches[1][1]=0;
-	}
-	else {
-		MPM_Microswitches[1][0]=0;
-		MPM_Microswitches[1][1]=0;
-	}
-	panela8->UpdateVC();
-}*/
-
 void Atlantis::SeparateMMU (void)
 {
-  // Create Tank as individual object
+  // Create MMU as individual object
   VESSELSTATUS vs;
   GetStatus (vs);
   char name[256];
@@ -3063,7 +2672,7 @@ void Atlantis::SeparateMMU (void)
   hMMU = VESSEL::Create (name, "Nasa_MMU", vs);
   jettison_time = oapiGetSimTime();
   reset_mmu = true;
-  // Remove Tank from shuttle instance
+  // Remove MMU from shuttle instance
   SetOrbiterConfiguration ();
 }
 
@@ -3074,84 +2683,27 @@ bool Atlantis::HydraulicsOK() {
 void Atlantis::SteerGimbal(double DeltaT) {
 	int i;
 
-  //Use the left and right main engines to steer (after SRBs are gone)
-	//VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+   //Use the left and right main engines to steer (after SRBs are gone)
 	VECTOR3 RateDeltas;
 	GetAngularVel(AngularVelocity);
 	RateDeltas=ReqdRates-(AngularVelocity*DEG);
-	/*if(!panelr2->HydraulicPressure()) {
-		for(int i=0;i<3;i++) {
-			pitchcorrect.data[i]=0.0;
-			yawcorrect.data[i]=0.0;
-			rollcorrect.data[i]=0.0;
-		}
-	}
-	else {
-		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[PITCH], 0.18);
-		pitchcorrect.data[0]=range(-0.18, -0.06*RateDeltas.data[PITCH], 0.18);
-		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.15, 0.03*RateDeltas.data[YAW], 0.15);
-		yawcorrect.data[0]=range(-0.15, 0.07*RateDeltas.data[YAW], 0.15);
-		rollcorrect.data[0]=0.0;
-		rollcorrect.data[1]=range(-0.18, 0.03*RateDeltas.data[ROLL], 0.18);
-		rollcorrect.data[2]=range(-0.18, -0.03*RateDeltas.data[ROLL], 0.18);
-	}
-	//SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.308046+pitchcorrect.data[0]+rollcorrect.data[0],0.951372)));
-	//SetThrusterDir(th_main[1], NormZ(_V( 0.0624+yawcorrect.data[1],-0.1789+pitchcorrect.data[1]+rollcorrect.data[1],0.9819)));
-	//SetThrusterDir(th_main[2], NormZ(_V(-0.0624+yawcorrect.data[2],-0.1789+pitchcorrect.data[2]+rollcorrect.data[2],0.9819)));
-	for(i=0;i<3;i++) {
-		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+_V(yawcorrect.data[i], pitchcorrect.data[i]+rollcorrect.data[i], 0.0)));
-	}
-	//sprintf(oapiDebugString(), "%f %f %f", EngineNullPosition[0].x, EngineNullPosition[0].y, EngineNullPosition[0].z);
-
-	UpdateSSMEGimbalAnimations();*/
 
 	for(i=0;i<3;i++) {
 		VECTOR3 deflection=_V(range(-0.1, SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 0.1),
 			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
 		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
 	}
-	//sprintf_s(oapiDebugString(), 255, "Yaw Rate: %f THeading: %f", ReqdRates.data[YAW], THeading*DEG);
 
 	UpdateSSMEGimbalAnimations();
 }
 
 void Atlantis::AutoMainGimbal (double DeltaT) {
-  //Steer with the SRBs and lower SSMEs
-	//VECTOR3 pitchcorrect, yawcorrect, rollcorrect;
+    //Steer with the SRBs and lower SSMEs
 	VECTOR3 RateDeltas;
 	int i;
 	
 	GetAngularVel(AngularVelocity);
 	RateDeltas=ReqdRates-(AngularVelocity*DEG);
-	/*for(i=0;i<3;i++) {
-		RateDeltas.data[i]=ReqdRates.data[i]-(DEG*AngularVelocity.data[i]);
-	}*
-	if(!panelr2->HydraulicPressure()) {
-		for(i=0;i<3;i++) {
-			pitchcorrect.data[i]=0.0;
-			yawcorrect.data[i]=0.0;
-			rollcorrect.data[i]=0.0;
-		}
-	}
-	else {
-		pitchcorrect.data[1]=pitchcorrect.data[2]=range(-0.18, -0.005*RateDeltas.data[PITCH], 0.18);
-		pitchcorrect.data[0]=range(-0.18, -0.005*RateDeltas.data[PITCH], 0.18);
-
-		yawcorrect.data[1]=yawcorrect.data[2]=range(-0.18, 0.005*RateDeltas.data[YAW], 0.18);		
-		yawcorrect.data[0]=range(-0.15, 0.005*RateDeltas.data[YAW], 0.15);
-		
-		rollcorrect.data[0]=0.0;
-		rollcorrect.data[1]=range(-0.18, 0.009*RateDeltas.data[ROLL], 0.18);
-		rollcorrect.data[2]=-rollcorrect.data[1];
-	}
-	SetThrusterDir(th_srb[0], NormZ(_V(0.0+yawcorrect.data[1],0.069338+pitchcorrect.data[1]+rollcorrect.data[1],0.99759)));
-	SetThrusterDir(th_srb[1], NormZ(_V(0.0+yawcorrect.data[2],0.069338+pitchcorrect.data[2]+rollcorrect.data[2],0.99759)));
-	for(i=0;i<3;i++) {
-		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+_V(yawcorrect.data[i], pitchcorrect.data[i]+rollcorrect.data[i], 0.0)));
-	}
-	/*SetThrusterDir(th_main[0], NormZ(_V( 0.0+yawcorrect.data[0],-0.37489+pitchcorrect.data[0]+rollcorrect.data[0],0.92707)));
-	SetThrusterDir(th_main[1], NormZ(_V( 0.065+yawcorrect.data[1],-0.2447+pitchcorrect.data[1]+rollcorrect.data[1],0.9674)));
-	SetThrusterDir(th_main[2], NormZ(_V(-0.065+yawcorrect.data[2],-0.2447+pitchcorrect.data[2]+rollcorrect.data[2],0.9674)));*/
 
 	for(i=0;i<2;i++) {
 		VECTOR3 deflection=_V(SRBGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
@@ -3276,21 +2828,6 @@ void Atlantis::UpdateMesh ()
   SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
-  /*if(STBDMPM) {
-	  SetStbdMPMPosition(StbdMPMRollout.pos);
-  }
-  if(RMS) {
-	  SetAnimation(anim_rollout, RMSRollout.pos);
-	  SetAnimationArm (anim_arm_sy, arm_sy);
-	  SetAnimationArm (anim_arm_sp, arm_sp);
-	  SetAnimationArm (anim_arm_ep, arm_ep);
-	  SetAnimationArm (anim_arm_wp, arm_wp);
-	  SetAnimationArm (anim_arm_wy, arm_wy);
-	  SetAnimationArm (anim_arm_wr, arm_wr);
-	  UpdateRMSAngles();
-	  UpdateRMSPositions();
-	  panela8->UpdateVC();
-  }*/
 
   // update MFD brightness
   if (vis) {
@@ -3985,29 +3522,6 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				}
 				else if(nNew==27) {
 					if(!MnvrToBurnAtt) {
-						/*sprintf_s(oapiDebugString(), 255, "Starting OMS burn MNVR");
-						TRK=true;
-						MNVR=false;
-						ROT=false;
-						Yaw=false;
-						Pitch=false;
-						Roll=false;
-						TGT_ID=2;
-						if((Eq(BurnAtt.data[YAW], 90.00) || Eq(BurnAtt.data[YAW], -90.00)) && !Eq(BurnAtt.data[PITCH], 0.0)) {
-							LVLHOrientationReqd.data[PITCH]=90.0;
-							LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW]-BurnAtt.data[PITCH];
-							LVLHOrientationReqd.data[ROLL]=BurnAtt.data[YAW]+BurnAtt.data[ROLL];
-						}
-						else {
-							LVLHOrientationReqd.data[PITCH]=BurnAtt.data[PITCH];
-							LVLHOrientationReqd.data[YAW]=BurnAtt.data[YAW];
-							LVLHOrientationReqd.data[ROLL]=BurnAtt.data[ROLL];
-						}
-						/*LVLHRateVector.data[PITCH]=-1.0*cos(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);
-						LVLHRateVector.data[ROLL]=1.0*sin(RAD*LVLHOrientationReqd.data[YAW]);
-						LVLHRateVector.data[YAW]=-1.0*sin(RAD*LVLHOrientationReqd.data[ROLL])*cos(RAD*LVLHOrientationReqd.data[YAW]);*
-						AttDeadband=0.05;
-						for(int i=0;i<4;i++) START_TIME[i]=MET[i];*/
 						LoadBurnAttManeuver();
 					}
 					else {
@@ -4342,14 +3856,6 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 		if(change==1) {
 			nNew=atoi(Name);
 			if(SMOps==201) {
-				/*if(nNew==1) {
-					Display[mfd]->RMS_SEL=0;
-					return true;
-				}
-				else if(nNew==2) {
-					Display[mfd]->RMS_SEL=1;
-					return true;
-				}*/
 			}
 		}
 	}
@@ -4479,46 +3985,8 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 				else if(item==6 || item==7) {
 					edit=item-5;
 					DAP[2]=DAP[edit-1];
-					/*DAP[2].PRI_ROT_RATE=DAP[i].PRI_ROT_RATE;
-					DAP[2].PRI_ATT_DB=DAP[i].PRI_ATT_DB;
-					DAP[2].PRI_RATE_DB=DAP[i].PRI_RATE_DB;
-					DAP[2].PRI_ROT_PLS=DAP[i].PRI_ROT_PLS;
-					DAP[2].PRI_COMP=DAP[i].PRI_COMP;
-					DAP[2].PRI_TRAN_PLS=DAP[i].PRI_TRAN_PLS;
-					DAP[2].PRI_P_OPTION=DAP[i].PRI_P_OPTION;
-					DAP[2].PRI_Y_OPTION=DAP[i].PRI_Y_OPTION;
-					DAP[2].ALT_RATE_DB=DAP[i].ALT_RATE_DB;
-					DAP[2].ALT_ON_TIME=DAP[i].ALT_ON_TIME;
-					DAP[2].ALT_DELAY=DAP[i].ALT_DELAY;
-					DAP[2].ALT_JET_OPT=DAP[i].ALT_JET_OPT;
-					DAP[2].ALT_JETS=DAP[i].ALT_JETS;
-					DAP[2].VERN_ROT_RATE=DAP[i].VERN_ROT_RATE;
-					DAP[2].VERN_ATT_DB=DAP[i].VERN_ATT_DB;
-					DAP[2].VERN_RATE_DB=DAP[i].VERN_RATE_DB;
-					DAP[2].VERN_ROT_PLS=DAP[i].VERN_ROT_PLS;
-					DAP[2].VERN_COMP=DAP[i].VERN_COMP;
-					DAP[2].VERN_CNTL_ACC=DAP[i].VERN_CNTL_ACC;*/
 				}
 				else if(item==8) {
-					/*DAP[i].PRI_ROT_RATE=DAP[2].PRI_ROT_RATE;
-					DAP[i].PRI_ATT_DB=DAP[2].PRI_ATT_DB;
-					DAP[i].PRI_RATE_DB=DAP[2].PRI_RATE_DB;
-					DAP[i].PRI_ROT_PLS=DAP[2].PRI_ROT_PLS;
-					DAP[i].PRI_COMP=DAP[2].PRI_COMP;
-					DAP[i].PRI_TRAN_PLS=DAP[2].PRI_TRAN_PLS;
-					DAP[i].PRI_P_OPTION=DAP[2].PRI_P_OPTION;
-					DAP[i].PRI_Y_OPTION=DAP[2].PRI_Y_OPTION;
-					DAP[i].ALT_RATE_DB=DAP[2].ALT_RATE_DB;
-					DAP[i].ALT_ON_TIME=DAP[2].ALT_ON_TIME;
-					DAP[i].ALT_DELAY=DAP[2].ALT_DELAY;
-					DAP[i].ALT_JET_OPT=DAP[2].ALT_JET_OPT;
-					DAP[i].ALT_JETS=DAP[2].ALT_JETS;
-					DAP[i].VERN_ROT_RATE=DAP[2].VERN_ROT_RATE;
-					DAP[i].VERN_ATT_DB=DAP[2].VERN_ATT_DB;
-					DAP[i].VERN_RATE_DB=DAP[2].VERN_RATE_DB;
-					DAP[i].VERN_ROT_PLS=DAP[2].VERN_ROT_PLS;
-					DAP[i].VERN_COMP=DAP[2].VERN_COMP;
-					DAP[i].VERN_CNTL_ACC=DAP[2].VERN_CNTL_ACC;*/
 					DAP[edit-1]=DAP[2];
 					edit=0;
 				}
@@ -4765,15 +4233,6 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 					LoadBurnAttManeuver();
 				}
 				else {
-					/*MNVR=false;
-					ROT=false;
-					TRK=false;
-					SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-					SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);*/
 					TerminateManeuver();
 					MnvrToBurnAtt=false;
 				}
@@ -4933,37 +4392,6 @@ void Atlantis::TerminateManeuver()
 	dapcontrol->InitializeControlMode();
 }
 
-/*
-void Atlantis::RedrawPanel_MFDButton (SURFHANDLE surf, int mfd)
-{
-  HDC hDC = oapiGetDC (surf);
-
-  // D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
-    if (oapiGetMFDMode(mfd) == MFD_NONE) {
-        RECT r = { 0,0,255,13 };
-        FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
-    } else {   // MFD powered on
-    HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
-    SetTextColor (hDC, RGB(0,255,216));
-    SetTextAlign (hDC, TA_CENTER);
-    SetBkMode (hDC, TRANSPARENT);
-    const char *label;
-    int x = 24;
-
-    for (int bt = 0; bt < 5; bt++) {
-      if (label = oapiMFDButtonLabel (mfd, bt)) {
-        TextOut (hDC, x, 1, label, strlen(label));
-        x += 42;
-      } else break;
-    }
-    TextOut (hDC, 234, 1, "PG", 2);
-    SelectObject (hDC, pFont);
-  }
-
-  oapiReleaseDC (surf, hDC);
-}
-*/
-
 void Atlantis::SetILoads()
 {
 	//stage1guidance[0]=new double[8];
@@ -4977,17 +4405,6 @@ void Atlantis::SetILoads()
 	//stage1guidance_size=8;
 	return;
 }
-
-/*void Atlantis::CalcLVLHAttitude(VECTOR3 &Output)
-{
-	VECTOR3 H;
-	H = crossp(Status.rpos, Status.rvel);
-	TargetAttOrbiter=GetPYR2(Status.rvel, H);
-	sprintf(oapiDebugString(), "Warning: CalcLVLHAttitude called");
-	//Output=CalcPitchYawRollAngles(ToRad(LVLHOrientationReqd));
-	Output=CalcPitchYawRollAngles(_V(0.0, 0.0, 0.0));
-	return;
-}*/
 
 VECTOR3 Atlantis::CalcLVLHAttitude()
 {
@@ -5096,64 +4513,6 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles()
 	return Output;
 }
 
-/*VECTOR3 Atlantis::ConvertAnglesFromOrbiterToM50(const VECTOR3 &Angles)
-{
-	VECTOR3 Output=_V(0, 0, 0);
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	MATRIX3 M50, RotMatrixM50;
-
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
-	GetRotMatrixY(90*RAD, RotMatrixM50);
-	M50=mul(RotMatrixM50, M50);
-	
-	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
-	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
-	RotMatrix=mul(M50, RotMatrix);
-	//sprintf(oapiDebugString(), "%f %f %f %f %f %f %f %f %f", X.x, X.y, X.z, Y.x, Y.y, Y.z, Z.x, Z.y, Z.z);
-	
-	//get angles
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Output.data[YAW]=-asin(RotMatrix.m13);
-	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Output;
-}*/
-
-/*VECTOR3 Atlantis::ConvertAnglesFromM50ToOrbiter(const VECTOR3 &Angles)
-{
-	VECTOR3 Output=_V(0, 0, 0);
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	MATRIX3 M50, RotMatrixM50;
-
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-
-	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
-	GetRotMatrixY(90*RAD, RotMatrixM50);
-	M50=mul(RotMatrixM50, M50);
-	//transpose matrix
-	M50=_M( M50.m11, M50.m21, M50.m31,
-			M50.m12, M50.m22, M50.m32,
-			M50.m13, M50.m23, M50.m33);
-	
-	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
-	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
-	RotMatrix=mul(M50, RotMatrix);
-	//transpose matrix
-	RotMatrix=_M(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31,
-				 RotMatrix.m12, RotMatrix.m22, RotMatrix.m32,
-				 RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
-	
-	//get angles
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Output.data[YAW]=-asin(RotMatrix.m13);
-	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Output;
-}*/
-
 VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {
 	VECTOR3 Output=_V(0, 0, 0);
@@ -5204,36 +4563,6 @@ MATRIX3 Atlantis::ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bo
 	return Output;
 }
 
-/*VECTOR3 Atlantis::ConvertLocalAnglesToM50(const VECTOR3 &Angles) //input in radians
-{
-	VECTOR3 Output=_V(0, 0, 0);
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	MATRIX3 M50, RotMatrixM50, LocalToGlobal;
-
-	GetRotationMatrix(LocalToGlobal);
-	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
-	GetRotMatrixY(90*RAD, RotMatrixM50);
-	//M50=mul(M50, LocalToGlobal);
-	M50=mul(LocalToGlobal, M50);
-	M50=mul(RotMatrixM50, M50);
-	M50=LocalToGlobal;
-	
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
-	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
-	//RotMatrix=mul(M50, RotMatrix);
-	RotMatrix=mul(RotMatrix, M50);
-	
-	//get angles
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Output.data[YAW]=-asin(RotMatrix.m13);
-	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
-	return Output;
-}*/
-
 VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
 {
 	VECTOR3 Output=_V(0, 0, 0);
@@ -5269,83 +4598,6 @@ VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
 	RotateVectorZ(Output, 90.0); //check sign of angle
 	return Output;
 }
-
-/*VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in radians
-{
-	VECTOR3 Output;
-	VECTOR3 HorizonAngles, HorizonAttitude, LocalAttitude;
-	VECTOR3 GlobalAttitude, M50AttitudePY, M50AttitudeR;
-	VECTOR3 GVel, HVel, LocVel;
-	MATRIX3 GlobalToLocal, LocalToGlobal;
-
-	GetRotationMatrix(LocalToGlobal);
-	GetRelativeVel(GetGravityRef(), GVel);
-	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
-	HorizonRot(LocVel, HVel);
-
-	HorizonAngles=Input;
-	HorizonAngles.data[YAW]-=atan2(HVel.z, HVel.x); //check signs
-	//sprintf(oapiDebugString(), "HorzAtt: %f %f %f", HorizonAngles.data[PITCH]*DEG, HorizonAngles.data[YAW]*DEG,
-		//HorizonAngles.data[ROLL]*DEG);
-
-	//RotateVectorPYR(_V(0, 0, 1), HorizonAngles, HorizonAttitude); //check initial vector
-	HorizonAttitude=RotateVectorX(_V(0, 0, 1), -HorizonAngles.data[PITCH]*DEG);
-	HorizonAttitude=RotateVectorY(HorizonAttitude, -HorizonAngles.data[YAW]*DEG);
-	HorizonAttitude=RotateVectorZ(HorizonAttitude, -HorizonAngles.data[ROLL]*DEG);
-	HorizonInvRot(HorizonAttitude, LocalAttitude);
-	//GlobalAttitude=mul(LocalToGlobal, LocalAttitude);
-	//GlobalAttitude=LocalAttitude;
-	VECTOR3 HA1=HorizonAttitude;
-	GlobalRot(LocalAttitude, GlobalAttitude);
-	M50AttitudePY=LocalAttitude;
-	//sprintf(oapiDebugString(), "LA: %f %f %f", LocalAttitude.x, LocalAttitude.y, LocalAttitude.z);
-
-	//RotateVector(_V(0, 1, 0), HorizonAngles, HorizonAttitude); //check initial vector
-	//RotateVector(_V(1, 0, 0), _V(HorizonAngles.x, HorizonAngles.y, 0), HorizonAttitude); //check initial vector
-	HorizonAttitude=RotateVectorX(_V(0, -1, 0), -HorizonAngles.data[PITCH]*DEG);
-	HorizonAttitude=RotateVectorY(HorizonAttitude, -HorizonAngles.data[YAW]*DEG);
-	HorizonAttitude=RotateVectorZ(HorizonAttitude, -HorizonAngles.data[ROLL]*DEG);
-	HorizonInvRot(HorizonAttitude, LocalAttitude);
-	//GlobalAttitude=mul(LocalToGlobal, LocalAttitude);
-	//GlobalAttitude=LocalAttitude;
-	GlobalRot(LocalAttitude, GlobalAttitude);
-	M50AttitudeR=LocalAttitude;
-	//sprintf(oapiDebugString(), "LA: %f %f %f", LocalAttitude.x, LocalAttitude.y, LocalAttitude.z);
-
-	VECTOR3 H=crossp(M50AttitudePY, M50AttitudeR);
-	/*MATRIX3 RotMatrix = _M(M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z,
-						   M50AttitudeR.x, M50AttitudeR.y, M50AttitudeR.z,
-						   H.x, H.y, H.z);*/
-	/*MATRIX3 RotMatrix = _M(H.x, H.y, H.z,
-						   M50AttitudeR.x, M50AttitudeR.y, M50AttitudeR.z,
-						   M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z);
-	MATRIX3 RotMatrix = _M(M50AttitudeR.x, M50AttitudeR.y, M50AttitudeR.z,
-						   H.x, H.y, H.z,
-						   M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z);
-	/*MATRIX3 RotMatrix = _M(M50AttitudePY.x, M50AttitudeR.x, H.x,
-						   M50AttitudePY.y, M50AttitudeR.y, H.y,
-						   M50AttitudePY.z, M50AttitudeR.z, H.z);
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Output.data[YAW]=-asin(RotMatrix.m13);
-	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-
-	//HorizonAttitude=HA1;
-	//HorizonAttitude=H;
-	H=crossp(HA1, HorizonAttitude);
-	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
-		//Output.data[ROLL]*DEG, M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z);
-	sprintf(oapiDebugString(), "P: %f Y: %f R: %f  %f %f %f  %f %f %f  %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
-		Output.data[ROLL]*DEG, HorizonAttitude.x, HorizonAttitude.y, HorizonAttitude.z, H.x, H.y, H.z,
-		HA1.x, HA1.y, HA1.z);
-	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f  %f %f %f  %f %f %f  %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
-		//Output.data[ROLL]*DEG, H.x, H.y, H.z, M50AttitudeR.x, M50AttitudeR.y, M50AttitudeR.z,
-		//M50AttitudePY.x, M50AttitudePY.y, M50AttitudePY.z);
-
-	Output=ConvertLocalAnglesToM50(Output);
-	//sprintf(oapiDebugString(), "P: %f Y: %f R: %f %f %f %f", Output.data[PITCH]*DEG, Output.data[YAW]*DEG,
-		//Output.data[ROLL]*DEG, HorizonAttitude.x, HorizonAttitude.y, HorizonAttitude.z);
-	return Output;
-}*/
 
 VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in radians
 {
@@ -5430,55 +4682,6 @@ MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
 	return RotMatrix;	
 }
-
-//Backup
-/*MATRIX3 Atlantis::ConvertLVLHMatrixToM50(MATRIX3 Input)
-{
-	MATRIX3 Output;
-	MATRIX3 HorizonMatrix, RotMatrix;
-	//VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
-	VECTOR3 Horizon[3], Local[3], Global[3];
-	VECTOR3 GVel, HVel, LocVel;
-	MATRIX3 LocalToGlobal;
-
-	GetRotationMatrix(LocalToGlobal);
-	GetRelativeVel(GetGravityRef(), GVel);
-	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
-	HorizonRot(LocVel, HVel);
-
-	//HorizonAngles=Input;
-	double VVAngle=atan2(HVel.z, HVel.x);
-	GetRotMatrixY(-VVAngle, HorizonMatrix);
-
-	RotMatrix=mul(Input, HorizonMatrix);
-	//RotMatrix=mul(HorizonMatrix, Input);
-
-	for(int i=0;i<3;i++) {
-
-		Horizon[0].data[i]=RotMatrix.data[i];
-		Horizon[1].data[i]=RotMatrix.data[i+3];
-		Horizon[2].data[i]=RotMatrix.data[i+6];
-	}
-	for(int i=0;i<3;i++) {
-		HorizonInvRot(Horizon[i], Local[i]);
-		//GlobalRot(Local[i], Global[i]);
-		//Global[i]=Local[i];
-		Global[i]=_V(Local[i].x, Local[i].y, -Local[i].z);
-		//Global[i]=_V(-Local[i].z, Local[i].y, -Local[i].x);
-	}
-	for(int i=0;i<3;i++) {
-
-		RotMatrix.data[i]=Global[0].data[i];
-		RotMatrix.data[i+3]=Global[1].data[i];
-		RotMatrix.data[i+6]=Global[2].data[i];
-	}
-
-	//RotMatrix=mul(RotMatrix, LocalToGlobal);
-	//Output=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
-	Output=RotMatrix;
-
-	return Output;
-}*/
 
 //Math
 double Atlantis::NullStartAngle(double Rates, AXIS Axis)
@@ -6280,7 +5483,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	double steerforce, airspeed;
 	int i;
 
-	oapiWriteLog("In clbkPreStep");
+	//oapiWriteLog("In clbkPreStep");
 
 	//Stopwatch st;
 	//st.Start();
@@ -6294,11 +5497,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	pgAftStbd.OnPreStep(simT, simDT, mjd);
 	pgAft.OnPreStep(simT, simDT, mjd);
 	pgAftPort.OnPreStep(simT, simDT, mjd);
-	/*if(bFirstStep)
-	{
-		if(bAutopilot) InitializeAutopilot();
-		bFirstStep=false;
-	}*/
 	//throttle limits
 	for(i=0;i<2;i++)
 	{
@@ -6340,7 +5538,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
 	//oapiWriteLog(oapiDebugString());
-}
+
+}	//Atlantis::clbkPreStep
 
 void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 {
@@ -6352,7 +5551,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//Stopwatch st;
 	//st.Start();
 
-	oapiWriteLog("In clbkPostStep");
+	//oapiWriteLog("In clbkPostStep");
 
 	dapcontrol->OnPostStep(simt, simdt, mjd);
 	gncsoftware->OnPostStep(simt, simdt, mjd);
@@ -6783,228 +5982,30 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		SetAnimation (anim_gear, gear_status.pos);
 	}
 
-	// ***** MPM Rollout *****
-	/*if(RMSRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && ArmCradled() && plop->BayDoorStatus.pos==1.0) {
-		double da = simdt*ARM_DEPLOY_SPEED;
-		if(RMSRollout.Closing()) {
-			RMSRollout.pos=max(0.0, RMSRollout.pos-da);
-			if(RMSRollout.pos<=0.0) {
-				RMSRollout.action=AnimState::CLOSED;
-				//panela8->UpdateVC();
-			}
-		}
-		else {
-			RMSRollout.pos=min(1.0, RMSRollout.pos+da);
-			if(RMSRollout.pos>=1.0) {
-				RMSRollout.action=AnimState::OPEN;
-				//panela8->UpdateVC();
-			}
-		}
-		SetAnimation(anim_rollout, RMSRollout.pos);
-		UpdateMPMMicroswitches();
-	}
-	if(StbdMPMRollout.Moving() && panela8->switch_state[SWITCH16]!=1 && plop->BayDoorStatus.pos==1.0) {
-		double da = simdt*ARM_DEPLOY_SPEED;
-		if(StbdMPMRollout.Closing()) {
-			StbdMPMRollout.pos=max(0.0, StbdMPMRollout.pos-da);
-			if(StbdMPMRollout.pos<=0.0) {
-				StbdMPMRollout.action=AnimState::CLOSED;
-				//panela8->UpdateVC();
-			}
-		}
-		else {
-			StbdMPMRollout.pos=min(1.0, StbdMPMRollout.pos+da);
-			if(StbdMPMRollout.pos>=1.0) {
-				StbdMPMRollout.action=AnimState::OPEN;
-				//panela8->UpdateVC();
-			}
-		}
-		sprintf_s(oapiDebugString(), 255, "STBD MPM POS: %f", StbdMPMRollout.pos);
-		SetStbdMPMPosition(StbdMPMRollout.pos);
-		UpdateMPMMicroswitches();
-	}*/
-
-	//Grapple sequence
-	/*if(bGrappleInProgress) {
-		if(!Grapple.Closed()) {
-			/*Grapple.pos=min(0.0, Grapple.pos-simdt*ARM_GRAPPLE_SPEED);
-			if(Grapple.pos<=0.0) {
-			Grapple.action=AnimState::CLOSED;
-			ToggleGrapple();
-			}*
-			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
-			if(Grapple.Closed()) {
-				if(!pRMS->Grappled()) ToggleGrapple();
-				Extend.action=AnimState::CLOSING;
-				if(panela8) panela8->UpdateVC();
-			}
-		}
-		else if(!Extend.Closed()) {
-			Extend.Move(simdt*ARM_EXTEND_SPEED);
-			if(Extend.Closed()) {
-				Rigidize.action=AnimState::CLOSING;
-			}
-			if(panela8) panela8->UpdateVC();
-		}
-		else if(!Rigidize.Closed()) {
-			Rigidize.Move(simdt*ARM_RIGID_SPEED);
-			if(Rigidize.Closed()) {
-				bGrappleInProgress=false;
-				sprintf_s(oapiDebugString(), 255, "Grapple sequence completed");
-				if(panela8) panela8->UpdateVC();
-			}
-		}
-	}
-	else if(bReleaseInProgress) {
-		if(!Rigidize.Open()) {
-			Rigidize.Move(simdt*ARM_RIGID_SPEED);
-			if(Rigidize.Open()) {
-				Grapple.action=AnimState::OPENING;
-				if(panela8) panela8->UpdateVC();
-			}
-		}
-		else if(!Grapple.Open()) {
-			Grapple.Move(simdt*ARM_GRAPPLE_SPEED);
-			if(Grapple.Open()) {
-				if(pRMS->Grappled()) ToggleGrapple();
-				else if(pRMS) pRMS->Ungrapple();
-				Extend.action=AnimState::OPENING;
-				if(panela8) panela8->UpdateVC();
-			}
-		}
-		else if(!Extend.Open()) {
-			Extend.Move(simdt*ARM_EXTEND_SPEED);
-			if(Extend.Open()) {
-				bReleaseInProgress=false;
-				sprintf_s(oapiDebugString(), 255, "Release sequence completed");
-			}
-			if(panela8) panela8->UpdateVC();
-		}
-	}*/
-
 	if (arm_moved) {
-		//SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
-		//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
-
-		//calculate joint angles
-		/*sy_angle=linterp(0,-180,1,180,arm_sy);
-		sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-		ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
-		wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-		wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-		wr_angle=wrist_roll_range*arm_wr+wrist_roll_min;*/
-
-		// If the current camera mode is the RMS_EFFECTOR move camera position to match
-		// the position and direction of the wrist
-		/*if (VCMode == VC_LEECAM) {
-			double tilt = wr_angle;
-			if(tilt<-180.0) tilt+=360.0;
-			else if(tilt>180.0) tilt-=360.0;
-			SetCameraOffset (_V(orbiter_ofs.x-0.3,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
-		}
-		else if(VCMode==VC_RMSCAM) {
-			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-			SetCameraOffset(camRMSElbowLoc[0]);
-		}*/
-
 		arm_moved = false;
 	}
 	if(mpm_moved) {
-		/*VECTOR3 pos=orbiter_ofs+obss_attach_point[0]+STBDMPM_REF;
-		SetAttachmentParams(ahOBSS, pos, obss_attach_point[1]-obss_attach_point[0], _V(0, 0, 1));*/
 		mpm_moved=false;
 	}
 
-	// ***** Stow RMS arm *****
-
-	/*if (center_arm && RMSRollout.action==AnimState::OPEN && Eq(shoulder_brace, 0.0) && Eq(MRL[0], 0.0)) {
-		double t0 = oapiGetSimTime();
-		double dt = t0 - center_arm_t;       // time step
-		double da = ARM_OPERATING_SPEED*dt;  // total rotation angle
-
-		// work from the wrist down to the shoulder
-		if (da && (arm_wr != 0.5)) {    // zero wrist roll
-			if (da >= fabs(arm_wr-0.5)) // finished
-				arm_wr = 0.5, da -= fabs(arm_wr-0.5);
-			else
-				arm_wr -= (arm_wr > 0.5 ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_wr, arm_wr);
-		}
-		if (da && (arm_wy != 0.5)) {    // zero wrist yaw
-			if (da >= fabs(arm_wy-0.5)) // finished
-				arm_wy = 0.5, da -= fabs(arm_wy-0.5);
-			else
-				arm_wy -= (arm_wy > 0.5 ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_wy, arm_wy);
-		}
-		if (da && (arm_wp != wrist_neutral)) {    // zero wrist pitch
-			if (da >= fabs(arm_wp-wrist_neutral)) // finished
-				arm_wp = wrist_neutral, da -= fabs(arm_wp-wrist_neutral);
-			else
-				arm_wp -= (arm_wp > wrist_neutral ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_wp, arm_wp);
-		}
-		if (da && (arm_ep != elbow_neutral)) {    // zero elbow pitch
-			if (da >= fabs(arm_ep-elbow_neutral)) // finished
-				arm_ep = elbow_neutral, da -= fabs(arm_ep-elbow_neutral);
-			else
-				arm_ep -= (arm_ep > elbow_neutral ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_ep, arm_ep);
-		}
-		if (da && (arm_sy != 0.5)) {    // zero shoulder yaw
-			if (da >= fabs(arm_sy-0.5)) // finished
-				arm_sy = 0.5, da -= fabs(arm_sy-0.5);
-			else
-				arm_sy -= (arm_sy > 0.5 ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_sy, arm_sy);
-		}
-		if (da && (arm_sp != shoulder_neutral)) {    // zero shoulder pitch
-			if (da >= fabs(arm_sp-shoulder_neutral)) // finished
-				arm_sp = shoulder_neutral, da -= fabs(arm_sp-shoulder_neutral);
-			else
-				arm_sp -= (arm_sp > shoulder_neutral ? da:-da), da = 0;
-			SetAnimationArm (anim_arm_sp, arm_sp);
-		}
-		center_arm_t = t0;
-		if (da) {
-			center_arm = false; // finished stowing
-			HWND hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS);
-			if (hDlg) EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), TRUE);
-		}
-		UpdateRMSPositions();
-		UpdateRMSAngles();
-	}*/
-
-	/*if (arm_moved) {
-	SetAttachmentParams (ahRMS, orbiter_ofs+arm_tip[0], Normalize(arm_tip[1]-arm_tip[0]), Normalize(arm_tip[2]-arm_tip[0]));
-	//sprintf(oapiDebugString(), "%f %f", length(arm_tip[1]-arm_tip[0]), length(arm_tip[2]-arm_tip[0]));
-
-	// If the current camera mode is the RMS_EFFECTOR move camera position to match
-	// the position and direction of the wrist
-	if (VCMode == VC_LEECAM) {
-	double tilt = wr_angle;
-	if(tilt<-180.0) tilt+=360.0;
-	else if(tilt>180.0) tilt-=360.0;
-	SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-	SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);
-	}
-
-	arm_moved = false;
-	}*/
-	/*if(DisplayJointAngles) {
-		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", sy_angle, sp_angle, -ep_angle,
-			wp_angle, wy_angle, wr_angle);
-	}*/
-
+	// ----------------------------------------------------------
 	// Animate payload bay cameras.
+	// ----------------------------------------------------------
 	if (cameraMoved) {
 		SetAnimationCameras();
 		cameraMoved = false;
 	}
 
+	// ----------------------------------------------------------
+	// Communication mode handler
+	// ----------------------------------------------------------
+
 	pCommModeHandler->PostStep(simt, simdt);
 
+	// ----------------------------------------------------------
+	// VC position label display
+	// ----------------------------------------------------------
 	if(fTimeCameraLabel > 0)
 	{
 		fTimeCameraLabel -= simdt;
@@ -7019,7 +6020,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
 	//oapiWriteLog(oapiDebugString());
-}
+}   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
 // Respond to playback event
