@@ -105,10 +105,11 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 {
 	if (id != AID_C2) return false;
 	bool action = false;
-	//sprintf(oapiDebugString(), "PANEL C2: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+	
 
-	if(_event != PANEL_MOUSE_LBUP)
+	if((_event & PANEL_MOUSE_DOWN) == 0)
 	{
+		//sprintf_s(oapiDebugString(), 255, "PANEL C2: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
 		return false;
 	}
 
