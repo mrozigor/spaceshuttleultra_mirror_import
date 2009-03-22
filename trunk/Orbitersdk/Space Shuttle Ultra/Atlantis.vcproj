@@ -862,6 +862,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PanelC2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PanelC3.h"
 				>
 			</File>
