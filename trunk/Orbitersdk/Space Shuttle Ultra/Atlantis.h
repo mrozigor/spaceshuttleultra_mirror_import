@@ -28,6 +28,7 @@
 #include "vc/PanelF7.h"
 #include "vc/DAPControl.h"
 #include "APU.h"
+#include "MechActuator.h"
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
@@ -1085,6 +1086,8 @@ public:
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	APU* pAPU[3];
+	MechActuator* pSTYDoorMotor;
+	MechActuator* pSTZDoorMotor;
 	/**
 	 * Strategy pattern for the external airlock subsystem
 	 */
@@ -1348,11 +1351,6 @@ public:
 	
 	VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
-
-	
-
-	
-
 	SubsystemDirector* psubsystems;
 	
 	PayloadBayOp *plop; // control and status of payload bay operations

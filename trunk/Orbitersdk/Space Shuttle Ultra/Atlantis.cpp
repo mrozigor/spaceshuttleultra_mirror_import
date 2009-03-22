@@ -386,6 +386,13 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
         GrowStack();
 #endif
   int i;
+  
+  //----------------------------------------------------
+  // Make these first, for avoiding CTDs
+  //----------------------------------------------------
+  bundleManager = new DiscreteBundleManager();
+  busManager = new dps::ShuttleBusManager();
+  pCommModeHandler= new CommModeHandler(this);
 
   plop            = new PayloadBayOp (this);
   //gop             = new GearOp (this);
@@ -420,9 +427,6 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
 
   pExtAirlock = NULL;
 
-  bundleManager = new DiscreteBundleManager();
-  busManager = new dps::ShuttleBusManager();
-  pCommModeHandler= new CommModeHandler(this);
 
   psubsystems	  = new SubsystemDirector(this);
 
@@ -454,6 +458,9 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+  
+  psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-Y Star Tracker Door Motor", 8.0));
+  psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-Z Star Tracker Door Motor", 8.0));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
@@ -8792,6 +8799,20 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[12]));
 	pBus->ConnectTo(&(pGPC[3]->channel[12]));
 	pBus->ConnectTo(&(pGPC[4]->channel[12]));
+
+	discsignals::DiscreteBundle* pBundle = 
+		BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
+	
+	pSTYDoorMotor->CmdDriveFwd.Connect(pBundle, 0);
+	pSTYDoorMotor->CmdDriveRwd.Connect(pBundle, 1);
+	pSTYDoorMotor->PosLimit0.Connect(pBundle, 2);
+	pSTYDoorMotor->PosLimit1.Connect(pBundle, 3);
+
+	pSTZDoorMotor->CmdDriveFwd.Connect(pBundle, 4);
+	pSTZDoorMotor->CmdDriveRwd.Connect(pBundle, 5);
+	pSTZDoorMotor->PosLimit0.Connect(pBundle, 6);
+	pSTZDoorMotor->PosLimit1.Connect(pBundle, 7);
+
 
 }
 

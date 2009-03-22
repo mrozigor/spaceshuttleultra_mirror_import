@@ -57,6 +57,7 @@ namespace vc {
 		virtual ~PanelO6();
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void Realize();
 
 	};
 };
