@@ -774,6 +774,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gnc\IMU.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ISubsystem.h"
 				>
 			</File>
@@ -1056,6 +1060,10 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\gnc\IMU.cpp"
 			>
 		</File>
 		<File
