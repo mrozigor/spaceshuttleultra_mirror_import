@@ -44,6 +44,7 @@ namespace vc
 		virtual void Realize();
 
 		virtual void AddMeshes(const VECTOR3& ofs);
+		virtual void SetMeshVisibility(bool visible);
 		virtual UINT GetVCMeshIndex() const;
 	private:
 		MESHHANDLE hPanelMesh;

@@ -60,6 +60,7 @@ public:
 	
 	
 	virtual void AddMeshes(const VECTOR3& ofs) {};
+	virtual void SetMeshVisibility(bool visible) {};
 	virtual BasicVCComponent* GetSwitch(const string& switchID) const;
 	virtual void Realize();
 	virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);

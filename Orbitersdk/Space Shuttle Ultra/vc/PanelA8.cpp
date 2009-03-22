@@ -73,6 +73,12 @@ namespace vc
 		STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_VC);
 	}
 
+	void PanelA8::SetMeshVisibility(bool visible)
+	{
+		if(visible) STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_VC);
+		else STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_NEVER);
+	}
+
 	UINT PanelA8::GetVCMeshIndex() const
 	{
 		return mesh_index;
