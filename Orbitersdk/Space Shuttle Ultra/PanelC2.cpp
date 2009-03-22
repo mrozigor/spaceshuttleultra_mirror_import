@@ -101,11 +101,16 @@ void PanelC2::CreateVisual(VISHANDLE hVisual)
 	
 }
 
-bool PanelC2::VCMouseEvent(int id, int event, VECTOR3 &p)
+bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 {
 	if (id != AID_C2) return false;
 	bool action = false;
 	//sprintf(oapiDebugString(), "PANEL C2: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
+
+	if(_event != PANEL_MOUSE_LBUP)
+	{
+		return false;
+	}
 
 	if(p.x>0.067 && p.x < 0.177)
 	{

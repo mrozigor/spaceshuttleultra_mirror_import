@@ -2,11 +2,11 @@
 
 namespace gnc {
 
-	IMU::IMU(SubsystemDirector* _direct, const std::string& _name)
+	IMU::IMU(SubsystemDirector* _direct, const std::string& _name, unsigned short usTerminalID)
 	: AtlantisSubsystem(_direct, _name),
-	fc_connect(5)
+	fc_connect()
 	{
-	
+		fc_connect.Init(this, _name + "-FC", usTerminalID, false);
 	}
 
 	IMU::~IMU()
@@ -28,6 +28,45 @@ namespace gnc {
 	bool IMU::OnParseLine(const char* line)
 	{
 		return false;
+	}
+
+	bool IMU::Cage()
+	{
+		return false;
+	}
+
+
+	bool IMU::Uncage()
+	{
+		return false;
+	}
+
+	const VECTOR3& IMU::GetM50Position() const
+	{
+		static VECTOR3 x;
+		x = _V(0.0, 0.0, 0.0);
+		return x;
+	}
+	
+	const VECTOR3& IMU::GetM50Velocity() const
+	{
+		static VECTOR3 x;
+		x = _V(0.0, 0.0, 0.0);
+		return x;
+	}
+		
+	const VECTOR3& IMU::GetM50Acceleration() const
+	{
+		static VECTOR3 x;
+		x = _V(0.0, 0.0, 0.0);
+		return x;
+	}
+	
+	const VECTOR3& IMU::GetM50Attitude() const
+	{
+		static VECTOR3 x;
+		x = _V(0.0, 0.0, 0.0);
+		return x;
 	}
 
 };

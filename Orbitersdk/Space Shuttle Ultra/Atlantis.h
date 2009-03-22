@@ -19,6 +19,7 @@
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
+#include "gnc/IMU.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "vc/vc_defs.h"
@@ -1080,6 +1081,7 @@ public:
 	dps::IDP* pIDP[4];
 	dps::GPC* pGPC[5];
 	OMSSubsystem* pOMS;
+	gnc::IMU* pIMU[3];
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	APU* pAPU[3];
