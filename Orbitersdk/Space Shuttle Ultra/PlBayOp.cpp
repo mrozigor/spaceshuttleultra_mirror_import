@@ -1,6 +1,7 @@
 #include "PlBayOp.h"
 #include "resource.h"
 #include "meshres_vc.h"
+#include "vc\vc_defs.h"
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "meshres_vc_additions.h"
@@ -584,16 +585,16 @@ bool PayloadBayOp::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 		}
 	case AID_R13L_TKBK2:
 	case AID_R13L_TKBK3: {
-		static int label[5] = {0,2,4,0,0};
+		static int label[5] = {0,vc::TB_LAT,vc::TB_REL,0,0};
 		return VCDrawTalkback (surf, id-AID_R13L_TKBK1, label[RadLatchStatus.action]);
 		}
 	case AID_R13L_TKBK4:
 	case AID_R13L_TKBK5: {
-		static int label[5] = {0,1,4,0,0};
+		static int label[5] = {0,vc::TB_STO,vc::TB_DPY,0,0};
 		return VCDrawTalkback (surf, id-AID_R13L_TKBK1, label[RadiatorStatus.action]);
 		}
 	case AID_R13L_TKBK6: {
-		static int label[5] = {0,1,4,0,0};
+		static int label[5] = {0,vc::TB_STO,vc::TB_DPY,0,0};
 		return VCDrawTalkback (surf, id-AID_R13L_TKBK1, label[KuAntennaStatus.action]);
 		}
 	}
