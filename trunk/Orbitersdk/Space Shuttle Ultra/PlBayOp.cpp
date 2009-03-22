@@ -487,7 +487,8 @@ bool PayloadBayOp::VCDrawTalkback (SURFHANDLE surf, int idx, int label)
 {
 	if (tkbk_state[idx] == label) return false; // nothing to do
 	tkbk_state[idx] = label;
-	oapiBlt (surf, g_Param.tkbk_label, 0, 0, label*32, 0, 32, 18);
+	if(label<8) oapiBlt (surf, g_Param.tkbk_label, 0, 0, label*32, 0, 32, 18);
+	else oapiBlt (surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, 32, 18);
 	return true;
 }
 
