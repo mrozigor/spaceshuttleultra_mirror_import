@@ -3551,7 +3551,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 		else if(change==2) {
 			nNew=atoi(Name);
 			if(ops==201) {
-				if(nNew==20 || nNew==0) {
+				if(nNew==20) {
 					//Display[mfd]->spec=nNew;
 					pIDP[idp]->SetSpec((unsigned short)nNew);
 					//InvalidateDisplay();
@@ -6810,7 +6810,11 @@ bool Atlantis::clbkLoadVC (int id)
 
     // Refresh camera meshes and view positions
     SetAnimationCameras();
+
+	// hide panels
+	pgAft.HidePanels();
   }
+  else pgAft.ShowPanels();
 
 	if (bUpdateVC) {
 		// register the HUDs (synced)

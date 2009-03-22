@@ -376,7 +376,7 @@ namespace vc {
 			if(prim_idp) {
 				//if DISP is not set, show appropriate SPEC/default display
 				if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
+					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED || prim_idp->GetSpec()==0) UNIVPTG();
 					else if(prim_idp->GetSpec()==20) DAP_CONFIG();
 				}
 				//else UNIVPTG();

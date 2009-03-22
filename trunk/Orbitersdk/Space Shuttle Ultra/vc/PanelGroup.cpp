@@ -146,4 +146,16 @@ namespace vc {
 		return true;
 	}
 
+	void PanelGroup::HidePanels()
+	{
+		for(unsigned int i=0;i<panels.size();i++)
+			panels.at(i)->SetMeshVisibility(false);
+	}
+
+	void PanelGroup::ShowPanels()
+	{
+		for(unsigned int i=0;i<panels.size();i++)
+			panels.at(i)->SetMeshVisibility(true);
+	}
+
 };

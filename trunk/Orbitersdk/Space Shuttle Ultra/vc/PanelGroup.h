@@ -30,5 +30,7 @@ namespace vc {
 		bool EnableCoordinateDisplayMode();
 		bool DisableCoordinateDisplayMode();
 		bool ToggleCoordinateDisplayMode();
+		void HidePanels();
+		void ShowPanels();
 	};
 };

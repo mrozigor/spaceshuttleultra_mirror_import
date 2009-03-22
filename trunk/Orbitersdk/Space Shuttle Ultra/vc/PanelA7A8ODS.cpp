@@ -125,6 +125,12 @@ namespace vc {
 		STS()->SetMeshVisibilityMode(midx_odspanel, MESHVIS_VC);
 	}
 
+	void PanelA7A8ODS::SetMeshVisibility(bool visible)
+	{
+		if(visible) STS()->SetMeshVisibilityMode(midx_odspanel, MESHVIS_VC);
+		else STS()->SetMeshVisibilityMode(midx_odspanel, MESHVIS_NEVER);
+	}
+
 	UINT PanelA7A8ODS::GetVCMeshIndex() const
 	{
 		return midx_odspanel;
