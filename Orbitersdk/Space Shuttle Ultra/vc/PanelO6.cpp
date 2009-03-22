@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "PanelO6.h"
+#include "../meshres_vc.h"
 
 
 namespace vc {
@@ -7,20 +8,29 @@ namespace vc {
 	PanelO6::PanelO6(Atlantis* _sts) 
 		: BasicPanel(_sts, "O6") {
 
+			oapiWriteLog("(PanelO6::PanelO6) Enter constructor.");
+
 		Add(pLGlareShieldFlood	= new StdSwitch3(_sts, "L GLRSHLD FLOOD"));	
 		pLGlareShieldFlood->SetLabel(0, "OFF");
 		pLGlareShieldFlood->SetLabel(1, "VAR");
 		pLGlareShieldFlood->SetLabel(2, "BRIGHT");
 
+
 		Add(pSTRKDoorControlSys1	= new StdSwitch3(_sts, "S TRK DR CNTL SYS1"));		 
 		pSTRKDoorControlSys1->SetLabel(0, "CLOSE");
 		pSTRKDoorControlSys1->SetLabel(1, "OFF");
 		pSTRKDoorControlSys1->SetLabel(2, "OPEN");
-
+		pSTRKDoorControlSys1->DefineSwitchGroup(GRP_O6S2_VC);
+		//-0.382601  3.152154  13.74688
+		pSTRKDoorControlSys1->SetReference(_V(-0.0, 3.152154, 13.74688), _V(1.0, 0.0, 0.0));
+		
 		Add(pSTRKDoorControlSys2	= new StdSwitch3(_sts, "S TRK DR CNTL SYS2"));		 
 		pSTRKDoorControlSys2->SetLabel(0, "CLOSE");
 		pSTRKDoorControlSys2->SetLabel(1, "OFF");
 		pSTRKDoorControlSys2->SetLabel(2, "OPEN");
+		pSTRKDoorControlSys2->DefineSwitchGroup(GRP_O6S3_VC);
+		pSTRKDoorControlSys2->SetReference(_V(-0.0, 3.152154, 13.74688), _V(1.0, 0.0, 0.0));
+		
 		
 		/*		
 		StdSwitch2* pSTRKPowerNY;
@@ -66,7 +76,7 @@ namespace vc {
 		StdSwitch3* pGPC4Mode;
 		StdSwitch3* pGPC5Mode;
 		*/
-
+		oapiWriteLog("(PanelO6::PanelO6) Leave constructor.");
 	}
 
 	PanelO6::~PanelO6() {
@@ -77,18 +87,33 @@ namespace vc {
 		oapiWriteLog("Panel O6:\tDefine VC");
 		//Define VC regions
 		//AddAIDToMouseEventList(AID_A7A3);
-		//AddAIDToMouseEventList(AID_A8A3);
+		AddAIDToMouseEventList(AID_O6);
+	}
+
+	void PanelO6::Realize()
+	{
+		//Warning: This is not correct, panel should talk to FMCA
+		discsignals::DiscreteBundle* pBundle = 
+			STS()->BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
+
+		pSTRKDoorControlSys1->outputA.Connect(pBundle, 0);
+		pSTRKDoorControlSys1->outputB.Connect(pBundle, 1);
+
+		pSTRKDoorControlSys2->outputA.Connect(pBundle, 4);
+		pSTRKDoorControlSys2->outputB.Connect(pBundle, 5);
+		
 	}
 
 	void PanelO6::RegisterVC()
 	{
+		oapiWriteLog("(PanelO6::RegisterVC) Begin registration.");
 		BasicPanel::RegisterVC();
 		VECTOR3 ofs = STS()->orbiter_ofs;
 
 		oapiVCRegisterArea(AID_O6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
-		//oapiVCSetAreaClickmode_Quadrilateral (AID_O6, 
-			//_V(0.254716, 2.5048, 12.399)+ofs, _V(-0.265916, 2.5048, 12.399)+ofs,
-			//_V(0.254716, 2.12746, 12.5175)+ofs, _V(-0.265916, 2.12746, 12.5175) + ofs);
+		oapiVCSetAreaClickmode_Quadrilateral (AID_O6, 
+			_V(-0.726224, 3.18582, 13.6082)+ofs, _V(-0.217782, 3.18582, 13.6082)+ofs, 
+			_V(-0.726224, 3.01496, 14.3133) + ofs, _V(-0.217782, 3.01496, 14.3133)+ofs);
 	}
 
 };
