@@ -78,9 +78,20 @@ namespace vc
 		if(label==tkbk_state) return false;
 		tkbk_state=label;
 
-		if(label<8) oapiBlt(surf, g_Param.tkbk_label, 0, 0, label*32, 0, usWidth, usHeight);
-		else oapiBlt(surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, usWidth, usHeight);
-		return true;
+		if(usWidth == 32)
+		{
+			if(label<8) 
+				oapiBlt(surf, g_Param.tkbk_label, 0, 0, label*32, 0, usWidth, usHeight);
+			else 
+				oapiBlt(surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, usWidth, usHeight);
+		} else {
+			sprintf_s(oapiDebugString(), 255, "StandardTalkback::UpdateTalkback");
+			if(label<5) 
+				oapiBlt(surf, g_Param.tkbk_label, 0, 0, label*50, 35, usWidth, usHeight);
+			else 
+				oapiBlt(surf, g_Param.tkbk_label, 0, 0, (label-5)*50, 65, usWidth, usHeight);
+		}
+			return true;
 	}
 
 	Std2SegTalkback::Std2SegTalkback(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs)
@@ -149,14 +160,36 @@ namespace vc
 		RECT tgt, src;
 		//draw upper segment
 		tgt=_R(0, 0, usWidth, usHeight/2);
-		if(upper_label<8) src=_R(upper_label*32, 0, (upper_label+1)*32, 18);
-		else src=_R((upper_label-8)*32, 18, (upper_label-7)*32, 36);
+		
+		if(usWidth == 50)
+		{
+			if(upper_label<5) 
+				src=_R(upper_label*50, 35, (upper_label+1)*50, 66);
+			else 
+				src=_R((upper_label-5)*50, 66, (upper_label-4)*50, 97);
+		} 
+		else {
+			if(upper_label<8) src=_R(upper_label*32, 0, (upper_label+1)*32, 18);
+			else src=_R((upper_label-8)*32, 18, (upper_label-7)*32, 36);
+		}
+
+
 		oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
 
 		//draw lower segment
 		tgt=_R(0, usHeight/2, usWidth, usHeight);
-		if(lower_label<8) src=_R(lower_label*32, 0, (lower_label+1)*32, 18);
-		else src=_R((lower_label-8)*32, 18, (lower_label-7)*32, 36);
+
+		if(usWidth == 50)
+		{
+			if(lower_label<5) 
+				src=_R(lower_label*50, 35, (lower_label+1)*50, 66);
+			else 
+				src=_R((lower_label-5)*50, 66, (lower_label-4)*50, 97);
+		} 
+		else {
+			if(lower_label<8) src=_R(lower_label*32, 0, (lower_label+1)*32, 18);
+			else src=_R((lower_label-8)*32, 18, (lower_label-7)*32, 36);
+		}
 		oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
 		
 		return true;

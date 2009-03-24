@@ -17,6 +17,14 @@ namespace vc {
 		pLGlareShieldFlood->SetLabel(1, "VAR");
 		pLGlareShieldFlood->SetLabel(2, "BRIGHT");
 
+		Add(pSTYDoorPosition = new Std2SegTalkback(_sts, "STAR TRACKER -Y DOOR POSITION (tb)", 3));
+		pSTYDoorPosition->AddAIDToRedrawEventList(AID_O6_DS1);
+		pSTYDoorPosition->SetDimensions(50, 31);
+		pSTYDoorPosition->SetTalkbackLocation(0, 0);
+		Add(pSTZDoorPosition = new Std2SegTalkback(_sts, "STAR TRACKER -Z DOOR POSITION (tb)", 3));
+		pSTZDoorPosition->AddAIDToRedrawEventList(AID_O6_DS2);
+		pSTZDoorPosition->SetDimensions(50, 31);
+		pSTZDoorPosition->SetTalkbackLocation(0, 0);
 
 		Add(pSTRKDoorControlSys1	= new StdSwitch3(_sts, "S TRK DR CNTL SYS1"));		 
 		pSTRKDoorControlSys1->SetLabel(0, "CLOSE");
@@ -98,9 +106,6 @@ namespace vc {
 		pGPCPowerCover[4]->SetMouseRegion(1, 0.7538f, 0.4808f, 0.8021f, 0.5008f);
 		pGPCPowerCover[4]->DefineCoverGroup(GRP_O6Scover5_VC);
 		pGPCPowerCover[4]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
-
-
-		
 		/*
 		_V(0.0, 3.09556, 13.98215)
 		StdSwitch2* pGPC1Pwr;
@@ -149,6 +154,31 @@ namespace vc {
 		pGPC5Pwr->DefineSwitchGroup(GRP_O6S34_VC);
 		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC5Pwr->SetInitialAnimState(0.5f);
+
+		Add(pGPCOutput[0] = new StandardTalkback(_sts, "GPC Output 1 (tb)", 0));
+		pGPCOutput[0]->AddAIDToRedrawEventList(AID_O6_DS3);
+		pGPCOutput[0]->SetDimensions(50, 31);
+		pGPCOutput[0]->SetTalkbackLocation(0, 0);
+		
+		Add(pGPCOutput[1] = new StandardTalkback(_sts, "GPC Output 2 (tb)", 0));
+		pGPCOutput[1]->AddAIDToRedrawEventList(AID_O6_DS4);
+		pGPCOutput[1]->SetDimensions(50, 31);
+		pGPCOutput[1]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCOutput[2] = new StandardTalkback(_sts, "GPC Output 3 (tb)", 0));
+		pGPCOutput[2]->AddAIDToRedrawEventList(AID_O6_DS5);
+		pGPCOutput[2]->SetDimensions(50, 31);
+		pGPCOutput[2]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCOutput[3] = new StandardTalkback(_sts, "GPC Output 4 (tb)", 0));
+		pGPCOutput[3]->AddAIDToRedrawEventList(AID_O6_DS6);
+		pGPCOutput[3]->SetDimensions(50, 31);
+		pGPCOutput[3]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCOutput[4] = new StandardTalkback(_sts, "GPC Output 5 (tb)", 0));
+		pGPCOutput[4]->AddAIDToRedrawEventList(AID_O6_DS7);
+		pGPCOutput[4]->SetDimensions(50, 31);
+		pGPCOutput[4]->SetTalkbackLocation(0, 0);
 
 		//_V(-0.0, 3.075613, 14.06777)
 
@@ -260,6 +290,31 @@ namespace vc {
 		pIPL4->SetMouseRegion(0.6905f, 0.7365f, 0.7396f, 0.7741f);
 		Add(pIPL5 = new PushButton(_sts, "IPL5"));
 		pIPL5->SetMouseRegion(0.7554f, 0.7365f, 0.8026f, 0.7741f);
+
+		Add(pGPCMode[0] = new Std2SegTalkback(_sts, "GPC MODE 1 (tb)", 2));
+		pGPCMode[0]->AddAIDToRedrawEventList(AID_O6_DS8);
+		pGPCMode[0]->SetDimensions(50, 31);
+		pGPCMode[0]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCMode[1] = new Std2SegTalkback(_sts, "GPC MODE 2 (tb)", 2));
+		pGPCMode[1]->AddAIDToRedrawEventList(AID_O6_DS9);
+		pGPCMode[1]->SetDimensions(50, 31);
+		pGPCMode[1]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCMode[2] = new Std2SegTalkback(_sts, "GPC MODE 3 (tb)", 2));
+		pGPCMode[2]->AddAIDToRedrawEventList(AID_O6_DS10);
+		pGPCMode[2]->SetDimensions(50, 31);
+		pGPCMode[2]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCMode[3] = new Std2SegTalkback(_sts, "GPC MODE 4 (tb)", 2));
+		pGPCMode[3]->AddAIDToRedrawEventList(AID_O6_DS11);
+		pGPCMode[3]->SetDimensions(50, 31);
+		pGPCMode[3]->SetTalkbackLocation(0, 0);
+
+		Add(pGPCMode[4] = new Std2SegTalkback(_sts, "GPC MODE 5 (tb)", 2));
+		pGPCMode[4]->AddAIDToRedrawEventList(AID_O6_DS12);
+		pGPCMode[4]->SetDimensions(50, 31);
+		pGPCMode[4]->SetTalkbackLocation(0, 0);
 
 		//0.0,  3.033531,  14.23673
 		Add(pGPC1Mode = new StdSwitch3(_sts, "GPC MODE 1"));
@@ -389,6 +444,24 @@ namespace vc {
 		oapiVCSetAreaClickmode_Quadrilateral (AID_O6, 
 			_V(-0.726224, 3.18582, 13.6082)+ofs, _V(-0.217782, 3.18582, 13.6082)+ofs, 
 			_V(-0.726224, 3.01496, 14.3133) + ofs, _V(-0.217782, 3.01496, 14.3133)+ofs);
+
+		SURFHANDLE o6talkbacks_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, 42);
+
+		oapiVCRegisterArea(AID_O6_DS1, _R(0, 0, 50, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS2, _R(51, 0, 101, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		
+		oapiVCRegisterArea(AID_O6_DS3, _R(101, 0, 151, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS4, _R(151, 0, 201, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS5, _R(201, 0, 251, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS6, _R(0, 32, 50, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS7, _R(51, 32, 101, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+
+		oapiVCRegisterArea(AID_O6_DS8, _R(101, 32, 151, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS9, _R(151, 32, 201, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS10, _R(201, 32, 251, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS11, _R(0, 61, 50, 92), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+		oapiVCRegisterArea(AID_O6_DS12, _R(51, 61, 101, 92), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
+
 	}
 
 };

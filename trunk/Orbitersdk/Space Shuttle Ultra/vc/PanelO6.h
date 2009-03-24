@@ -4,12 +4,15 @@
 #include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
 #include "PushButton.h"
+#include "Talkback.h"
 
 namespace vc {
 
 	class PanelO6 : public BasicPanel {
 	private:
 		StdSwitch3* pLGlareShieldFlood;
+		Std2SegTalkback* pSTYDoorPosition;
+		Std2SegTalkback* pSTZDoorPosition;
 		StdSwitch3* pSTRKDoorControlSys1;
 		StdSwitch3* pSTRKDoorControlSys2;
 		StdSwitch2* pSTRKPowerNY;
@@ -47,6 +50,8 @@ namespace vc {
 		StdSwitch2* pGPC4Pwr;
 		StdSwitch2* pGPC5Pwr;
 
+		StandardTalkback* pGPCOutput[5];
+
 		StandardSwitchCover* pGPCOutputCover[5];
 
 		StdSwitch3* pGPC1Output;
@@ -54,12 +59,16 @@ namespace vc {
 		StdSwitch3* pGPC3Output;
 		StdSwitch3* pGPC4Output;
 		StdSwitch3* pGPC5Output;
+
 		StdSwitch3* pIPLSource;
 		PushButton* pIPL1;
 		PushButton* pIPL2;
 		PushButton* pIPL3;
 		PushButton* pIPL4;
 		PushButton* pIPL5;
+
+		Std2SegTalkback* pGPCMode[5];
+
 		StdSwitch3* pGPC1Mode;
 		StdSwitch3* pGPC2Mode;
 		StdSwitch3* pGPC3Mode;
