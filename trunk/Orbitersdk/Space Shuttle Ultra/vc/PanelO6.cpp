@@ -65,12 +65,90 @@ namespace vc {
 		StdSwitch2* pMDMFF2;
 		StdSwitch2* pMDMFF2;
 		StdSwitch2* pMDMFF2;
+		*/
+
+		//_V(0.0, 3.099385, 13.96612)
+
+		Add(pGPCPowerCover[0] = new StandardSwitchCover(_sts, "GPC_POWER_1_COVER"));
+		pGPCPowerCover[0]->SetMouseRegion(0, 0.4798f, 0.5008f, 0.5473f, 0.5570f);
+		pGPCPowerCover[0]->SetMouseRegion(1, 0.4798f, 0.4808f, 0.5473f, 0.5008f);
+		pGPCPowerCover[0]->DefineCoverGroup(GRP_O6Scover1_VC);
+		pGPCPowerCover[0]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		
+		Add(pGPCPowerCover[1] = new StandardSwitchCover(_sts, "GPC_POWER_2_COVER"));
+		pGPCPowerCover[1]->SetMouseRegion(0, 0.5587f, 0.5008f, 0.6032f, 0.5570f);
+		pGPCPowerCover[1]->SetMouseRegion(1, 0.5587f, 0.4808f, 0.6032f, 0.5008f);
+		pGPCPowerCover[1]->DefineCoverGroup(GRP_O6Scover2_VC);
+		pGPCPowerCover[1]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		
+		Add(pGPCPowerCover[2] = new StandardSwitchCover(_sts, "GPC_POWER_3_COVER"));
+		pGPCPowerCover[2]->SetMouseRegion(0, 0.6212f, 0.5008f, 0.6657f, 0.5570f);
+		pGPCPowerCover[2]->SetMouseRegion(1, 0.6212f, 0.4808f, 0.6657f, 0.5008f);
+		pGPCPowerCover[2]->DefineCoverGroup(GRP_O6Scover3_VC);
+		pGPCPowerCover[2]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		
+		Add(pGPCPowerCover[3] = new StandardSwitchCover(_sts, "GPC_POWER_4_COVER"));
+		pGPCPowerCover[3]->SetMouseRegion(0, 0.6828f, 0.5008f, 0.7375f, 0.5570f);
+		pGPCPowerCover[3]->SetMouseRegion(1, 0.6828f, 0.4808f, 0.7375f, 0.5008f);
+		pGPCPowerCover[3]->DefineCoverGroup(GRP_O6Scover4_VC);
+		pGPCPowerCover[3]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+
+		Add(pGPCPowerCover[4] = new StandardSwitchCover(_sts, "GPC_POWER_5_COVER"));
+		pGPCPowerCover[4]->SetMouseRegion(0, 0.7538f, 0.5008f, 0.8021f, 0.5570f);
+		pGPCPowerCover[4]->SetMouseRegion(1, 0.7538f, 0.4808f, 0.8021f, 0.5008f);
+		pGPCPowerCover[4]->DefineCoverGroup(GRP_O6Scover5_VC);
+		pGPCPowerCover[4]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+
+
+		
+		/*
+		_V(0.0, 3.09556, 13.98215)
 		StdSwitch2* pGPC1Pwr;
 		StdSwitch2* pGPC2Pwr;
 		StdSwitch2* pGPC3Pwr;
 		StdSwitch2* pGPC4Pwr;
 		StdSwitch2* pGPC5Pwr;
 		*/
+
+		Add(pGPC1Pwr = new StdSwitch2(_sts, "GPC POWER 1"));
+		pGPC1Pwr->SetLabel(0, "ON");
+		pGPC1Pwr->SetLabel(1, "OFF");
+		pGPC1Pwr->SetMouseRegion(0.4798f, 0.5008f, 0.5473f, 0.5570f);
+		pGPC1Pwr->DefineSwitchGroup(GRP_O6S30_VC);
+		pGPC1Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
+		pGPC1Pwr->SetInitialAnimState(0.5f);
+
+		Add(pGPC2Pwr = new StdSwitch2(_sts, "GPC POWER 2"));
+		pGPC2Pwr->SetLabel(0, "ON");
+		pGPC2Pwr->SetLabel(1, "OFF");
+		pGPC2Pwr->SetMouseRegion(0.5587f, 0.5008f, 0.6032f, 0.5570f);
+		pGPC2Pwr->DefineSwitchGroup(GRP_O6S31_VC);
+		pGPC2Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
+		pGPC2Pwr->SetInitialAnimState(0.5f);
+
+		Add(pGPC3Pwr = new StdSwitch2(_sts, "GPC POWER 3"));
+		pGPC3Pwr->SetLabel(0, "ON");
+		pGPC3Pwr->SetLabel(1, "OFF");
+		pGPC3Pwr->SetMouseRegion(0.6212f, 0.5008f, 0.6657f, 0.5570f);
+		pGPC3Pwr->DefineSwitchGroup(GRP_O6S32_VC);
+		pGPC3Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
+		pGPC3Pwr->SetInitialAnimState(0.5f);
+
+		Add(pGPC4Pwr = new StdSwitch2(_sts, "GPC POWER 4"));
+		pGPC4Pwr->SetLabel(0, "ON");
+		pGPC4Pwr->SetLabel(1, "OFF");
+		pGPC4Pwr->SetMouseRegion(0.6828f, 0.5008f, 0.7375f, 0.5570f);
+		pGPC4Pwr->DefineSwitchGroup(GRP_O6S33_VC);
+		pGPC4Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
+		pGPC4Pwr->SetInitialAnimState(0.5f);
+
+		Add(pGPC5Pwr = new StdSwitch2(_sts, "GPC POWER 5"));
+		pGPC5Pwr->SetLabel(0, "ON");
+		pGPC5Pwr->SetLabel(1, "OFF");
+		pGPC5Pwr->SetMouseRegion(0.7538f, 0.5008f, 0.8021f, 0.5570f);
+		pGPC5Pwr->DefineSwitchGroup(GRP_O6S34_VC);
+		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
+		pGPC5Pwr->SetInitialAnimState(0.5f);
 
 		//_V(-0.0, 3.075613, 14.06777)
 
@@ -160,8 +238,17 @@ namespace vc {
 
 
 		/*
+		_V(0.0, 3.056848, 14.14088)
 		StdSwitch3* pIPLSource;
 		*/
+
+		Add(pIPLSource = new StdSwitch3(_sts, "IPL SOURCE"));
+		pIPLSource->SetLabel(0, "MMU1");
+		pIPLSource->SetLabel(1, "OFF");
+		pIPLSource->SetLabel(2, "MMU2");
+		pIPLSource->SetMouseRegion(0.8518f, 0.7391f, 0.8936f, 0.7720f);
+		pIPLSource->DefineSwitchGroup(GRP_O6S45_VC);
+		pIPLSource->SetReference(_V(0.0, 3.056848, 14.14088), SWITCH_VERTICAL);
 
 		Add(pIPL1 = new PushButton(_sts, "IPL1"));
 		pIPL1->SetMouseRegion(0.4949f, 0.7365f, 0.5439f, 0.7741f);
@@ -244,6 +331,51 @@ namespace vc {
 
 		pSTRKDoorControlSys2->outputA.Connect(pBundle, 4);
 		pSTRKDoorControlSys2->outputB.Connect(pBundle, 5);
+
+		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC1", 16);
+		pGPC1Pwr->output.Connect(pBundle, 0);
+		pGPC1Output->outputA.Connect(pBundle, 1);
+		pGPC1Output->outputB.Connect(pBundle, 2);
+		pIPL1->output.Connect(pBundle, 3);
+		pGPC1Mode->outputA.Connect(pBundle, 4);
+		pGPC1Mode->outputB.Connect(pBundle, 5);
+		
+		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC2", 16);
+		pGPC2Pwr->output.Connect(pBundle, 0);
+		pGPC2Output->outputA.Connect(pBundle, 1);
+		pGPC2Output->outputB.Connect(pBundle, 2);
+		pIPL2->output.Connect(pBundle, 3);
+		pGPC2Mode->outputA.Connect(pBundle, 4);
+		pGPC2Mode->outputB.Connect(pBundle, 5);
+		
+		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC3", 16);
+		pGPC3Pwr->output.Connect(pBundle, 0);
+		pGPC3Output->outputA.Connect(pBundle, 1);
+		pGPC3Output->outputB.Connect(pBundle, 2);
+		pIPL3->output.Connect(pBundle, 3);
+		pGPC3Mode->outputA.Connect(pBundle, 4);
+		pGPC3Mode->outputB.Connect(pBundle, 5);
+
+		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC4", 16);
+		pGPC4Pwr->output.Connect(pBundle, 0);
+		pGPC4Output->outputA.Connect(pBundle, 1);
+		pGPC4Output->outputB.Connect(pBundle, 2);
+		pIPL4->output.Connect(pBundle, 3);
+		pGPC4Mode->outputA.Connect(pBundle, 4);
+		pGPC4Mode->outputB.Connect(pBundle, 5);
+		
+		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC5", 16);
+		pGPC5Pwr->output.Connect(pBundle, 0);
+		pGPC5Output->outputA.Connect(pBundle, 1);
+		pGPC5Output->outputB.Connect(pBundle, 2);
+		pIPL5->output.Connect(pBundle, 3);
+		pGPC5Mode->outputA.Connect(pBundle, 4);
+		pGPC5Mode->outputB.Connect(pBundle, 5);
+
+		pBundle = STS()->BundleManager()->CreateBundle("O6_IPL", 16);
+		pIPLSource->outputA.Connect(pBundle, 0);
+		pIPLSource->outputB.Connect(pBundle, 1);
+		
 		
 	}
 
