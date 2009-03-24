@@ -2351,6 +2351,10 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	pgCenter.DefineVC();
 	pgCenter.DefineVCAnimations(mesh_vc);
 
+	pgOverhead.DefineVC();
+	pgOverhead.DefineVCAnimations(mesh_vc);
+
+
 	pgRight.DefineVC();
 	pgRight.DefineVCAnimations(mesh_vc);
 
@@ -6872,7 +6876,7 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   static bool counting = false;
   static double t0 = 0.0;
 
-  //sprintf(oapiDebugString(), "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
+  //sprintf_s(oapiDebugString(), 255, "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
 
   bRet=pgForward.OnVCMouseEvent(id, _event, p);
   bRet=pgLeft.OnVCMouseEvent(id, _event, p);
@@ -7225,6 +7229,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgAft.ToggleCoordinateDisplayMode();
 		pgAftStbd.ToggleCoordinateDisplayMode();
 		pgAftPort.ToggleCoordinateDisplayMode();
+		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 		return 1;
 	}
   } else { // unmodified keys

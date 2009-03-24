@@ -2,6 +2,8 @@
 
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
+#include "StandardSwitchCover.h"
+#include "PushButton.h"
 
 namespace vc {
 
@@ -41,12 +43,20 @@ namespace vc {
 		StdSwitch2* pGPC3Pwr;
 		StdSwitch2* pGPC4Pwr;
 		StdSwitch2* pGPC5Pwr;
+
+		StandardSwitchCover* pGPCOutputCover[5];
+
 		StdSwitch3* pGPC1Output;
 		StdSwitch3* pGPC2Output;
 		StdSwitch3* pGPC3Output;
 		StdSwitch3* pGPC4Output;
 		StdSwitch3* pGPC5Output;
 		StdSwitch3* pIPLSource;
+		PushButton* pIPL1;
+		PushButton* pIPL2;
+		PushButton* pIPL3;
+		PushButton* pIPL4;
+		PushButton* pIPL5;
 		StdSwitch3* pGPC1Mode;
 		StdSwitch3* pGPC2Mode;
 		StdSwitch3* pGPC3Mode;
