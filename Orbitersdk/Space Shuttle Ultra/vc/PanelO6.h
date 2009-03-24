@@ -38,6 +38,9 @@ namespace vc {
 		StdSwitch2* pMDMFF2;
 		StdSwitch2* pMDMFF3;
 		StdSwitch2* pMDMFF4;
+
+		StandardSwitchCover* pGPCPowerCover[5];
+
 		StdSwitch2* pGPC1Pwr;
 		StdSwitch2* pGPC2Pwr;
 		StdSwitch2* pGPC3Pwr;
