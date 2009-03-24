@@ -794,6 +794,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MCA.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\MDU.h"
 				>
 			</File>
@@ -1072,6 +1076,10 @@
 		</File>
 		<File
 			RelativePath=".\gnc\IMU.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\MCA.cpp"
 			>
 		</File>
 		<File

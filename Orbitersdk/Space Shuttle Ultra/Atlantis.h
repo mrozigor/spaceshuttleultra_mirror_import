@@ -1032,6 +1032,7 @@ class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
 class ActiveLatch;
+class MCA;
 
 
 
@@ -1086,6 +1087,17 @@ public:
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	APU* pAPU[3];
+	MCA* pFMC1;
+	MCA* pFMC2;
+	MCA* pFMC3;
+	MCA* pMMC1;
+	MCA* pMMC2;
+	MCA* pMMC3;
+	MCA* pMMC4;
+	MCA* pAMC1;
+	MCA* pAMC2;
+	MCA* pAMC3;
+
 	MechActuator* pSTYDoorMotor;
 	MechActuator* pSTZDoorMotor;
 	/**
