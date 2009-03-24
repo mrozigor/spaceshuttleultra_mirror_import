@@ -7,7 +7,7 @@
 #pragma once
 
 // NUMBER OF MESH GROUPS:
-#define NGRP 68
+#define NGRP 74
 
 // NUMBER OF MATERIALS:
 #define NMAT 8
@@ -84,3 +84,9 @@
 #define GRP_HUDL 65
 #define GRP_HUDR 66
 #define GRP_WINDOWS 67
+#define GRP_Port_VentDoor3 68
+#define GRP_Port_VentDoor5 69
+#define GRP_Port_VentDoor6 70
+#define GRP_STBD_VentDoor3 71
+#define GRP_STBD_VentDoor5 72
+#define GRP_STBD_VentDoor6 73
