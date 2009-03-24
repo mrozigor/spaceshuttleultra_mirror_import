@@ -797,7 +797,19 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 
 #define AID_O6_MIN	   350
 #define AID_O6		   350
-#define AID_O6_MAX	   359
+#define AID_O6_DS1	   351
+#define AID_O6_DS2	   352
+#define AID_O6_DS3	   353
+#define AID_O6_DS4	   354
+#define AID_O6_DS5	   355
+#define AID_O6_DS6	   356
+#define AID_O6_DS7	   357
+#define AID_O6_DS8	   358
+#define AID_O6_DS9	   359
+#define AID_O6_DS10	   360
+#define AID_O6_DS11	   361
+#define AID_O6_DS12	   362
+#define AID_O6_MAX	   362
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400
