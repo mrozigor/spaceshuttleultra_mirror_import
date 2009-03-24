@@ -41,6 +41,7 @@
 #include "dps/ShuttleBus.h"
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
+#include "MCA.h"
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
@@ -433,6 +434,18 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
   psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
   psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
+
+  psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
+  psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
+  psubsystems->AddSubsystem(pFMC3 = new MCA(psubsystems, "FMC3"));
+  psubsystems->AddSubsystem(pMMC1 = new MCA(psubsystems, "MMC1"));
+  psubsystems->AddSubsystem(pMMC2 = new MCA(psubsystems, "MMC2"));
+  psubsystems->AddSubsystem(pMMC3 = new MCA(psubsystems, "MMC3"));
+  psubsystems->AddSubsystem(pMMC4 = new MCA(psubsystems, "MMC4"));
+  psubsystems->AddSubsystem(pAMC1 = new MCA(psubsystems, "AMC1"));
+  psubsystems->AddSubsystem(pAMC2 = new MCA(psubsystems, "AMC2"));
+  psubsystems->AddSubsystem(pAMC3 = new MCA(psubsystems, "AMC3"));
+  
 
   psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
   psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
