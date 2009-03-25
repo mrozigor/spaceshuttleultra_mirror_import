@@ -376,8 +376,12 @@ namespace vc {
 			if(prim_idp) {
 				//if DISP is not set, show appropriate SPEC/default display
 				if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED || prim_idp->GetSpec()==0) UNIVPTG();
+					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
 					else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+					else {
+						char cbuf[55];
+						sprintf_s(cbuf, 55, "Spec: %d Disp: %d", (float)prim_idp->GetSpec(), (float)prim_idp->GetDisp());
+					}
 				}
 				//else UNIVPTG();
 			}
