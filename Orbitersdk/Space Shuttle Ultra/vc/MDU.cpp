@@ -380,8 +380,12 @@ namespace vc {
 					else if(prim_idp->GetSpec()==20) DAP_CONFIG();
 					else {
 						char cbuf[55];
-						sprintf_s(cbuf, 55, "Spec: %d Disp: %d", (float)prim_idp->GetSpec(), (float)prim_idp->GetDisp());
+						sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
 					}
+				}
+				else {
+					char cbuf[55];
+					sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
 				}
 				//else UNIVPTG();
 			}
