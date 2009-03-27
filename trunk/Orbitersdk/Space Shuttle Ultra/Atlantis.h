@@ -192,8 +192,6 @@ const double ARM_RIGID_SPEED = 0.25;
 // Time to regidize/derigidize arm (1/s)
 const double ARM_EXTEND_SPEED = 0.142857;
 // Time to extend/retract EE (1/s)
-const double SHOULDER_BRACE_SPEED = 0.11765;
-// shoulder brace speed (8.5 seconds)
 const double MPM_MRL_SPEED = 0.11765;
 // speed of MPM latches (8.5 seconds)
 

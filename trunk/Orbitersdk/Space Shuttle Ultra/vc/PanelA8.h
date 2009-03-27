@@ -17,6 +17,8 @@ namespace vc
 		StdSwitch3* pStbdMRL;
 		StdSwitch3* pPortMPM;
 		StdSwitch3* pStbdMPM;
+		StdSwitch3* pRMSSelect;
+		StdSwitch3* pShoulderBrace;
 
 		StandardSwitchCover* pPortMPMCover;
 		StandardSwitchCover* pStbdMPMCover;
@@ -34,6 +36,7 @@ namespace vc
 		Std2SegTalkback* pEEOpen;
 		Std2SegTalkback* pEERigid;
 		Std2SegTalkback* pEEDerigid;
+		Std2SegTalkback* pShoulderBraceTb;
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();

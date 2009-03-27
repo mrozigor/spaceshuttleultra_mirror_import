@@ -69,6 +69,12 @@ void RMSSystem::Realize()
 	EERigidized.Connect(pBundle, 10);
 	EEDerigidized.Connect(pBundle, 11);
 
+	pBundle=BundleManager()->CreateBundle("RMS", 16);
+	ShoulderBrace.Connect(pBundle, 4);
+	ShoulderBraceReleased.Connect(pBundle, 5);
+	RMSSelectPort.Connect(pBundle, 6);
+	// reserve line 7 for RMS Select STBD
+
 	// set lines
 	if(Grappled()) EECapture.SetLine();
 	if(Extend_State.Open()) EEExtended.SetLine();
@@ -76,6 +82,8 @@ void RMSSystem::Realize()
 	else if(Grapple_State.Closed()) EEClosed.SetLine();
 	if(Rigid_State.Closed()) EERigidized.SetLine();
 	else if(Rigid_State.Open()) EEDerigidized.SetLine();
+	if(Eq(shoulder_brace, 0.0, 0.01)) ShoulderBraceReleased.SetLine();
+	else ShoulderBraceReleased.ResetLine();
 }
 
 void RMSSystem::CreateArm()
@@ -175,6 +183,9 @@ void RMSSystem::CreateAttachment()
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
+
+	// make sure RMS is powered and can be operated
+	if(!RMSSelectPort) return;
 
 	//rotate joints
 	if(Movable()) {
@@ -280,6 +291,13 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
 	}
 
+	if(ShoulderBrace) {
+		if(shoulder_brace>0.0) {
+			shoulder_brace=max(shoulder_brace-DeltaT*SHOULDER_BRACE_SPEED, 0.0);
+			if(Eq(shoulder_brace, 0.0, 0.01)) ShoulderBraceReleased.SetLine();
+		}
+	}
+
 	for(int i=0;i<2;i++) {
 		if(camRMSElbow_rotation[i]!=0) {
 			if(camLowSpeed) camRMSElbow[i]+=camRMSElbow_rotation[i]*PTU_LOWRATE_SPEED*DeltaT;
@@ -292,16 +310,16 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			camRMSElbow_rotation[i]=0;
 		}
 	}
-
-	if(display_angles) {
-		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
-			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
-	}
 }
 
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPostStep(SimT, DeltaT, MJD);
+
+	if(display_angles) {
+		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
+			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
+	}
 
 	if(arm_moved) {
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
@@ -360,6 +378,22 @@ bool RMSSystem::OnParseLine(const char* line)
 	else if(!_strnicmp(line, "RMS_ELBOW_CAM", 13)) {
 		sscanf_s(line+13, "%lf%lf", &camRMSElbow[PAN], &camRMSElbow[TILT]);
 		camera_moved=true;
+		return true;
+	}
+	else if(!_strnicmp(line, "GRAPPLE", 7)) {
+		sscan_state((char*)line+7, Grapple_State);
+		return true;
+	}
+	else if(!_strnicmp(line, "RIGIDIZE", 8)) {
+		sscan_state((char*)line+8, Rigid_State);
+		return true;
+	}
+	else if(!_strnicmp(line, "EXTEND", 6)) {
+		sscan_state((char*)line+6, Extend_State);
+		return true;
+	}
+	else if(!_strnicmp(line, "SHOULDER_BRACE", 14)) {
+		sscanf_s(line+14, "%lf", &shoulder_brace);
 		return true;
 	}
 

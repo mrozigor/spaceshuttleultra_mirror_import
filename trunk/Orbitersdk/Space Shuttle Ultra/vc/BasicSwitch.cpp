@@ -63,12 +63,18 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 	if(bOrientation) {
 		if(x > 0.6) {
 			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
-			else OnPositionUp();
+			else {
+				OnPositionUp();
+				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
+			}
 			return true;
 		}
 		else if(x < 0.4) {
 			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
-			else OnPositionDown();
+			else {
+				OnPositionDown();
+				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
+			}
 			return true;
 		}
 	}
@@ -77,7 +83,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier());
+				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -85,7 +91,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier());
+				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -146,6 +152,11 @@ void BasicSwitch::OnSaveState(FILEHANDLE scn) const
 
 void BasicSwitch::SetLabel(int iPosition, const string& _label) {
 	labels.at(iPosition) = _label;
+}
+
+void BasicSwitch::SetOrientation(bool bHorizontal)
+{
+	bOrientation = bHorizontal;
 }
 
 void BasicSwitch::SetStringLoaded(bool IsSpringLoaded)

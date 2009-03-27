@@ -5005,7 +5005,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscan_state(line+6, Extend);
 	} else if (!_strnicmp (line, "RIGIDIZE", 8)) {
 		sscan_state(line+8, Rigidize);
-	}*/ else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
+	}* else if (!_strnicmp (line, "SHOULDER_BRACE", 14)) {
 		sscanf (line+14, "%lf", &shoulder_brace);
 	} /*else if (!_strnicmp (line, "MRL", 3)) {
 		sscanf (line+3, "%lf%lf", &MRL[0], &MRL[1]);
