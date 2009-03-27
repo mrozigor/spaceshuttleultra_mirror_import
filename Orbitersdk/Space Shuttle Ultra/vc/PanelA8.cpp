@@ -20,6 +20,8 @@ namespace vc
 		Add(pStbdMPM = new StdSwitch3(_sts, "Stbd MPM Deploy"));
 		Add(pEEMode = new StdSwitch3(_sts, "EE Mode"));
 		Add(pEEManContr = new StdSwitch3(_sts, "EE Man Contr"));
+		Add(pShoulderBrace = new StdSwitch3(_sts, "Shoulder Brace Release"));
+		Add(pRMSSelect = new StdSwitch3(_sts, "RMS SELECT"));
 
 		Add(pPortMRLTb = new StandardTalkback(_sts, "Port MRL Talkback", 2));
 		Add(pStbdMRLTb = new StandardTalkback(_sts, "Stbd MRL Talkback", 2));
@@ -38,6 +40,7 @@ namespace vc
 		Add(pEEOpen = new Std2SegTalkback(_sts, "EE Open", 1));
 		Add(pEERigid = new Std2SegTalkback(_sts, "EE Rigid", 1));
 		Add(pEEDerigid = new Std2SegTalkback(_sts, "EE Derigid", 1));
+		Add(pShoulderBraceTb = new Std2SegTalkback(_sts, "Shoulder Brace", 1));
 
 		pPortMRL->SetLabel(2, "REL");
 		pPortMRL->SetLabel(1, "OFF");
@@ -57,6 +60,12 @@ namespace vc
 		pEEManContr->SetLabel(2, "RIGID");
 		pEEManContr->SetLabel(1, "OFF");
 		pEEManContr->SetLabel(0, "DERIGID");
+		pShoulderBrace->SetLabel(2, "PORT");
+		pShoulderBrace->SetLabel(1, "OFF");
+		pShoulderBrace->SetLabel(0, "STBD");
+		pRMSSelect->SetLabel(2, "PORT");
+		pRMSSelect->SetLabel(1, "OFF");
+		pRMSSelect->SetLabel(0, "STBD");
 
 		EnableCoordinateDisplayMode();
 	}
@@ -118,7 +127,7 @@ namespace vc
 		// EE EXTEND
 		oapiVCRegisterArea(AID_A8_TKBK12, _R(917, 392, 944, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// SHOULDER BRACE
-		//oapiVCRegisterArea(AID_A8_TKBK13, _R(901, 931, 933, 949), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_TKBK13, _R(902, 922, 929, 950), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// EE CLOSE
 		oapiVCRegisterArea(AID_A8_TKBK16, _R(869, 327, 896, 355), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// EE OPEN
@@ -132,7 +141,7 @@ namespace vc
 	void PanelA8::DefineVC()
 	{
 		const VECTOR3 switch_rot_vert=_V(-1.0, 0.0, 0.0);
-		const VECTOR3 switch_rot_horz=_V(0.0, 0.793, -0.249);
+		const VECTOR3 switch_rot_horz=_V(0.0, -0.793, 0.249);
 
 		AddAIDToMouseEventList(AID_A8);
 
@@ -177,6 +186,19 @@ namespace vc
 		pEEManContr->SetInitialAnimState(0.5f);
 		pEEManContr->SetStringLoaded(true);
 
+		pShoulderBrace->SetMouseRegion(0.170449f, 0.618925f, 0.226497f, 0.651137f);
+		pShoulderBrace->SetReference(_V(-0.687, 2.402, 12.434), switch_rot_horz);
+		pShoulderBrace->DefineSwitchGroup(GRP_A8S10_VC);
+		pShoulderBrace->SetInitialAnimState(0.5f);
+		pShoulderBrace->SetOrientation(true);
+		pShoulderBrace->SetStringLoaded(true);
+
+		pRMSSelect->SetMouseRegion(0.466754f, 0.757090f, 0.510409f, 0.788049f);
+		pRMSSelect->SetReference(_V(-0.537, 2.294, 12.467), switch_rot_horz);
+		pRMSSelect->DefineSwitchGroup(GRP_A8S11_VC);
+		pRMSSelect->SetInitialAnimState(0.5f);
+		pRMSSelect->SetOrientation(true);
+
 		pPortMRLTb->AddAIDToRedrawEventList(AID_A8_TKBK6);
 		pPortMRLTb->SetDimensions(32, 18);
 		pPortMRLTb->SetTalkbackLocation(0, 0);
@@ -206,6 +228,11 @@ namespace vc
 			pStbdMRL_RTL[i]->SetTalkbackLocation(0, 0);
 			pStbdMRL_RTL[i]->SetInactiveSegment(0, TB_GRAY);
 		}
+
+		pShoulderBraceTb->AddAIDToRedrawEventList(AID_A8_TKBK13);
+		pShoulderBraceTb->SetDimensions(27, 28);
+		pShoulderBraceTb->SetTalkbackLocation(0, 0);
+		pShoulderBraceTb->SetInactiveSegment(0, TB_GRAY);
 
 		pEECapture->AddAIDToRedrawEventList(AID_A8_TKBK11);
 		pEECapture->SetDimensions(27, 28);
@@ -251,6 +278,10 @@ namespace vc
 		pPortMPM->outputA.Connect(pBundle, 1);
 		pPortMPMTb->SetInput(0, pBundle, 2, TB_DPY);
 		pPortMPMTb->SetInput(1, pBundle, 3, TB_STO);
+		// for the moment, ignore STBD connections for shoulder brace
+		pShoulderBrace->outputB.Connect(pBundle, 4);
+		pShoulderBraceTb->SetInput(0, pBundle, 5, TB_GRAY);
+		pRMSSelect->outputB.Connect(pBundle, 6);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MRL", 16);
 		pPortMRL->outputB.Connect(pBundle, 0);
@@ -283,5 +314,7 @@ namespace vc
 		for(int i=0;i<3;i++) pStbdMRL_RTL[i]->SetInput(0, pBundle, i+5, TB_GRAY);
 		pStbdMRLTb->SetInput(0, pBundle, 11, TB_REL);
 		pStbdMRLTb->SetInput(1, pBundle, 12, TB_LAT);
+
+		BasicPanel::Realize();
 	}
 };

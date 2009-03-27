@@ -28,6 +28,9 @@ StandardSwitch::~StandardSwitch()
 void StandardSwitch::Realize()
 {
 	//Don't add anything for Orbiter, use existing meshes
+
+	// set animations and DiscPorts
+	OnPositionChange(usCurrentPosition);
 }
 
 void StandardSwitch::DefineVCAnimations(UINT vc_idx)

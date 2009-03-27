@@ -39,6 +39,9 @@ const double RMS_JOINT_ROTATION_SPEED = 1.5;
 const double RMS_EE_TRANSLATION_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 
+const double SHOULDER_BRACE_SPEED = 0.11765;
+// shoulder brace speed (8.5 seconds)
+
 //const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
 const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
@@ -91,7 +94,10 @@ public:
 	 * Returns true if arm is free to move.
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
-	bool Movable() const { return ((MRLLatches.Open() || !ArmStowed()) && (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree()))); };
+	bool Movable() const { 
+		return ( RMSSelectPort && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 
+			&& (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree())) );
+	};
 protected:
 	virtual void OnMRLLatched();
 
@@ -111,8 +117,7 @@ private:
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();
 
-	//true if RMS is still grappled, but Orbiter should not fromally attach the RMS to the payload.
-	//bool detached;
+	DiscInPort RMSSelectPort;
 
 	UINT anim_camRMSElbow[2];
 	UINT anim_joint[6], anim_rms_ee;
@@ -141,6 +146,8 @@ private:
 	int ee_translation[3];
 
 	double shoulder_brace;
+	DiscInPort ShoulderBrace;
+	DiscOutPort ShoulderBraceReleased;
 
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
