@@ -1,6 +1,9 @@
 #include "MechActuator.h"
 #include "Atlantis.h"
 
+
+
+
 MechActuator::MechActuator(SubsystemDirector *_pDirect, 
 						   const std::string &_ident, 
 						   double fStandardTime)
@@ -14,6 +17,7 @@ MechActuator::MechActuator(SubsystemDirector *_pDirect,
 	fHardStopMax = 0.995;
 	fAccConstant = 1.0;
 	fMaxSpeed = 0.05;
+	fMechMI = 1.0;
 	object_anim = 0xFFFF;
 	fSingleMotorFlag = false;
 	if(fStandardTime != 0.0)
@@ -47,20 +51,7 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	oapiWriteLog("(MechActuator::OnPropagate) Enter.");
 #endif
 
-	if(CmdDriveFwd && CmdDriveRwd)
-	{
-		cCP = '0';
-	}
-	else if(CmdDriveFwd.IsSet())
-	{
-		cCP = '+';
-		fAcceleration += fAccConstant;
-	} 
-	else if(CmdDriveRwd.IsSet())
-	{
-		cCP = '-';
-		fAcceleration -= fAccConstant;
-	} 
+	
 #ifdef DEBUG_PROPAGATE
 	oapiWriteLog("(MechActuator::OnPropagate) Line 59");
 #endif
@@ -109,6 +100,13 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 		fOutPos = 0.0;
 		fSpeed = 0.0;
 	}
+
+	double fL1 = system1.GetTorque(system1.GetSpeed());
+	double fL2 = system1.GetTorque(system1.GetSpeed() + 0.5 * fDeltaT * fL1/fMechMI);
+	double fL3 = system1.GetTorque(system1.GetSpeed() + 0.5 * fDeltaT * fL2/fMechMI);
+	double fL4 = system1.GetTorque(system1.GetSpeed() + fDeltaT * fL3/fMechMI);
+
+	double fL = 1/6.0 * (fL1 + 2*fL2 + 2*fL3 + fL4);
 
 	// -------------------------------------------------------
 	// Set output discretes

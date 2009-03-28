@@ -2,6 +2,7 @@
 #include "Atlantis.h"
 
 MCAModule::MCAModule()
+: mc("MC")
 {
 }
 
@@ -9,14 +10,12 @@ MCAModule::~MCAModule()
 {
 }
 
-void MCAModule::OnPropagate()
+void MCAModule::OnPropagate(double fSimT, double fDeltaT)
 {
 	//oapiWriteLog("(MCAModule::OnPropagate) Enter.");
 	if(!CmdLogic.IsSet()) {
 		OutPos0.ResetLine();
 		OutPos1.ResetLine();
-		MotorFwd.ResetLine();
-		MotorRwd.ResetLine();
 	} else { 
 
 		if(MotorInPos0.IsSet())
@@ -29,18 +28,9 @@ void MCAModule::OnPropagate()
 			OutPos1.SetLine();
 		else
 			OutPos1.ResetLine();
-
-		if(CmdFwdA || CmdFwdB)
-			MotorFwd.SetLine();
-		else
-			MotorFwd.ResetLine();
-
-		if(CmdRwdA || CmdRwdB)
-			MotorRwd.SetLine();
-		else
-			MotorRwd.ResetLine();
 	}
 	//oapiWriteLog("(MCAModule::OnPropagate) Exit.");
+	mc.acPropagate(fSimT, fDeltaT);
 }
 
 MCA::MCA(SubsystemDirector *_direct, const std::string &name)
@@ -64,8 +54,10 @@ void MCA::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	//sprintf_s(pszBuffer, 400, "(MCA{%s}::OnPropagate) Enter.",
 	//	this->GetQualifiedIdentifier().c_str());
 	//oapiWriteLog(pszBuffer);
-	for(unsigned int i = 0; i<8; i++)
-		module[i].OnPropagate();
+	for(unsigned int i = 0; i<8; i++) {
+		module[i].OnPropagate(fSimT, fDeltaT);
+		
+	}
 	//oapiWriteLog("(MCA::OnPropagate) Exit.");
 }
 

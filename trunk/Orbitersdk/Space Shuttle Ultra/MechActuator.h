@@ -3,13 +3,9 @@
 #include "AtlantisSubsystem.h"
 #include "discsignals/DiscInPort.h"
 #include "discsignals/DiscOutPort.h"
+#include "eps/eps_defs.h"
 
-class ACMotor {
-	double fMotorSpeed;
-public:
-	ACMotor();
-	double GetTorque(double fSpeed);
-};
+
 
 class MechActuator: public AtlantisSubsystem
 {
@@ -23,6 +19,7 @@ class MechActuator: public AtlantisSubsystem
 
 	double fMaxSpeed;
 	double fAccConstant;
+	double fMechMI;
 	
 	UINT object_anim;
 	bool fSingleMotorFlag;
@@ -50,8 +47,9 @@ public:
 
 	discsignals::DiscOutPort PosLimit0;
 	discsignals::DiscOutPort PosLimit1;
-	discsignals::DiscInPort CmdDriveFwd;
-	discsignals::DiscInPort CmdDriveRwd;
 	
 	discsignals::DiscInPort LogicPwrOn;
+
+	eps::ACMotor system1;
+	eps::ACMotor system2;
 };

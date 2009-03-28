@@ -476,6 +476,11 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-Y Star Tracker Door Motor", 8.0));
   psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-Z Star Tracker Door Motor", 8.0));
 
+  psubsystems->AddSubsystem(pACBusSystem = new eps::ACBusSystem(psubsystems));
+  psubsystems->AddSubsystem(pInverter[0] = new eps::Inverter(psubsystems, "INVERTER1"));
+  psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
+  psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
+
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
 
@@ -8829,18 +8834,31 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[4]->channel[12]));
 
 	discsignals::DiscreteBundle* pBundle = 
-		BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
+		BundleManager()->CreateBundle("FMC1_STARTRACKER", 16);
 	
-	pSTYDoorMotor->CmdDriveFwd.Connect(pBundle, 0);
-	pSTYDoorMotor->CmdDriveRwd.Connect(pBundle, 1);
+	//pSTYDoorMotor->CmdDriveFwd.Connect(pBundle, 0);
+	//pSTYDoorMotor->CmdDriveRwd.Connect(pBundle, 1);
 	pSTYDoorMotor->PosLimit0.Connect(pBundle, 2);
 	pSTYDoorMotor->PosLimit1.Connect(pBundle, 3);
 
-	pSTZDoorMotor->CmdDriveFwd.Connect(pBundle, 4);
-	pSTZDoorMotor->CmdDriveRwd.Connect(pBundle, 5);
+	//pSTZDoorMotor->CmdDriveFwd.Connect(pBundle, 4);
+	//pSTZDoorMotor->CmdDriveRwd.Connect(pBundle, 5);
 	pSTZDoorMotor->PosLimit0.Connect(pBundle, 6);
 	pSTZDoorMotor->PosLimit1.Connect(pBundle, 7);
 
+	eps::ACBus* pACBus = pACBusSystem->GetBus("AC1");
+	pACBus->ConnectToSource(pInverter[0]);
+	//ST Doors System 1
+	pFMC1->module[0].mc.ConnectToSource(pACBus);
+	pFMC1->module[1].mc.ConnectToSource(pACBus);
+	pFMC3->module[0].mc.ConnectToSource(pACBus);
+
+	pACBus = pACBusSystem->GetBus("AC2");
+	pACBus->ConnectToSource(pInverter[1]);
+	
+	pACBus = pACBusSystem->GetBus("AC3");
+	pACBus->ConnectToSource(pInverter[2]);
+	
 }
 
 void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {

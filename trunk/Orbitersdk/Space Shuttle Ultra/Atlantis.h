@@ -19,6 +19,7 @@
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
+#include "eps/eps_defs.h"
 #include "gnc/IMU.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
@@ -1090,6 +1091,7 @@ public:
 	/* **************************************************
 	 * Subsystem short cuts
 	 * **************************************************/
+	eps::ACBusSystem *pACBusSystem;
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	dps::IDP* pIDP[4];
 	dps::GPC* pGPC[5];
@@ -1097,6 +1099,7 @@ public:
 	gnc::IMU* pIMU[3];
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
+	eps::Inverter* pInverter[3];
 	APU* pAPU[3];
 	MCA* pFMC1;
 	MCA* pFMC2;

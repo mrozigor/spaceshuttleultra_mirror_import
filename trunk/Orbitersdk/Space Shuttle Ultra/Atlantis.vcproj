@@ -283,6 +283,10 @@
 			Name="Sources"
 			>
 			<File
+				RelativePath=".\eps\ACMotor.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\AftMDU.cpp"
 				>
 			</File>
@@ -999,6 +1003,18 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\eps\ACBus.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\eps\ACBusSystem.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\eps\ACMotorController.cpp"
+			>
+		</File>
+		<File
 			RelativePath="Atlantis.rc"
 			>
 			<FileConfiguration
@@ -1080,6 +1096,10 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
+			>
+		</File>
+		<File
+			RelativePath=".\eps\Inverter.cpp"
 			>
 		</File>
 		<File

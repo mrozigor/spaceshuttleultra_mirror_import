@@ -2,6 +2,8 @@
 
 #include "AtlantisSubsystem.h"
 #include "discsignals\discsignals.h"
+#include "eps\eps_defs.h"
+
 
 
 class MCAModule {
@@ -9,12 +11,8 @@ public:
 	MCAModule();
 	~MCAModule();
 
-	void OnPropagate();
+	void OnPropagate(double fSimT, double fDeltaT);
 
-	discsignals::DiscInPort CmdFwdA;
-	discsignals::DiscInPort CmdRwdA;
-	discsignals::DiscInPort CmdFwdB;
-	discsignals::DiscInPort CmdRwdB;
 	discsignals::DiscInPort CmdLogic;
 	discsignals::DiscOutPort OutPos0;
 	discsignals::DiscOutPort OutPos1;
@@ -23,10 +21,7 @@ public:
 	discsignals::DiscInPort MotorInPos0;
 	discsignals::DiscInPort MotorInPos1;
 
-	//@todo replace these discretes by AC power lines
-	discsignals::DiscOutPort MotorFwd;
-	discsignals::DiscOutPort MotorRwd;
-	
+	eps::ACMotorController mc;
 };
 
 class MCA: public AtlantisSubsystem 
@@ -38,6 +33,7 @@ public:
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 	//@todo Add AC power interface for all modules
+
 	MCAModule module[8];
 	
 	discsignals::DiscInPort logic;

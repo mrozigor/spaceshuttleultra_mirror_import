@@ -61,7 +61,7 @@ namespace eva_docking {
 		for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
 			ATTACHMENTHANDLE ahX = 	pV->GetAttachmentHandle(true, j);
 
-			if(!strnicmp(pV->GetAttachmentId(ahX), "APAS", 4)) {
+			if(!_strnicmp(pV->GetAttachmentId(ahX), "APAS", 4)) {
 				bHasOneAPASPort = true;
 			}
 		}
@@ -92,7 +92,7 @@ namespace eva_docking {
 				ATTACHMENTHANDLE ahX = 
 					pV->GetAttachmentHandle(true, j);
 				
-				if(strnicmp(pV->GetAttachmentId(ahX), "APAS", 4))
+				if(_strnicmp(pV->GetAttachmentId(ahX), "APAS", 4))
 					//Proceed with next attachment
 					continue;
 
