@@ -14,13 +14,41 @@ MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
 : AtlantisSubsystem(_director, "MTU")
 {
 	int i;
+	char pszBuffer[400];
+	memset(pszBuffer, 0, 400);
 
 	double fMJD = oapiGetSimMJD();
 
 	//SiameseCat edit: calculate GMT; leap year calculation accurate from 1970 to 2097 (I think)
-	double fSimGMT = (fmod(fMJD-40587.0, 365))*86400.0; //MJD 40952 == Jan. 1, 1970, 00:00:00
-	int Days=(int)(fMJD-40587.0);
-	fSimGMT-=(Days/1460)*86400.0; //compensate for leap years
+	//41317 = 1.1.1972
+	double fSimGMT = (fmod(fMJD-41317, 365))*86400.0; //MJD 40952 == Jan. 1, 1970, 00:00:00
+	int Days=(int)(fMJD-41317.0);
+	int leap_days = Days/1460 + 1;
+	fSimGMT-=leap_days*86400.0; //compensate for leap years
+	
+#ifdef ALT_GMT_CALCULATION
+	//Alternative algorithm
+
+	double fSimGMT2 = (fMJD-40587.0)*86400;
+	int year = 1970;
+	while(fSimGMT2 > 366*86400)
+	{
+		if(year%4 == 0)
+		{
+			fSimGMT2 -= 366 * 86400;
+		} else {
+			fSimGMT2 -= 365 * 86400;
+		}
+		year++;
+	}
+
+
+
+
+	sprintf_s(pszBuffer, 400, "(MasterTimingUnit::MasterTimingUnit) GMT Calculation: %f / %f",
+		fSimGMT, fSimGMT2);
+	oapiWriteLog(pszBuffer);
+#endif
 
 	for(i=0;i<3; i++)
 	{

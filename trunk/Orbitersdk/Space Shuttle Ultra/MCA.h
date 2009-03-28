@@ -11,8 +11,10 @@ public:
 
 	void OnPropagate();
 
-	discsignals::DiscInPort CmdFwd;
-	discsignals::DiscInPort CmdRwd;
+	discsignals::DiscInPort CmdFwdA;
+	discsignals::DiscInPort CmdRwdA;
+	discsignals::DiscInPort CmdFwdB;
+	discsignals::DiscInPort CmdRwdB;
 	discsignals::DiscInPort CmdLogic;
 	discsignals::DiscOutPort OutPos0;
 	discsignals::DiscOutPort OutPos1;

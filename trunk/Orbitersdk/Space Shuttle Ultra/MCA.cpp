@@ -30,12 +30,12 @@ void MCAModule::OnPropagate()
 		else
 			OutPos1.ResetLine();
 
-		if(CmdFwd.IsSet())
+		if(CmdFwdA || CmdFwdB)
 			MotorFwd.SetLine();
 		else
 			MotorFwd.ResetLine();
 
-		if(CmdRwd.IsSet())
+		if(CmdRwdA || CmdRwdB)
 			MotorRwd.SetLine();
 		else
 			MotorRwd.ResetLine();
