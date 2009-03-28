@@ -45,6 +45,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "MechActuator.h"
 #include "mps/BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
@@ -2055,8 +2056,12 @@ void Atlantis::DefineAnimations (void)
   anim_stzd = CreateAnimation(1.0);
   AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
 
+  pSTZDoorMotor->SetObjectAnim(anim_stzd);
+
   anim_styd = CreateAnimation(1.0);
   AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
+
+  pSTYDoorMotor->SetObjectAnim(anim_styd);
 
   // ======================================================
   // VC animation definitions
@@ -5548,7 +5553,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		//Nosewheel steering
 		if(GroundContact()) {
 			airspeed=GetAirspeed();
-			if(airspeed<395.0 && airspeed>1.0)
+			//if(airspeed<395.0 && airspeed>1.0)
+			if(airspeed<95.0 && airspeed>1.0)
 			{
 				steerforce = (95-airspeed);
 				if(airspeed<6.0) steerforce*=(airspeed/6);
@@ -8834,7 +8840,6 @@ void Atlantis::RealizeSubsystemConnections() {
 	pSTZDoorMotor->CmdDriveRwd.Connect(pBundle, 5);
 	pSTZDoorMotor->PosLimit0.Connect(pBundle, 6);
 	pSTZDoorMotor->PosLimit1.Connect(pBundle, 7);
-
 
 }
 

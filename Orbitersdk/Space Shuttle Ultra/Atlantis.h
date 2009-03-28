@@ -28,7 +28,7 @@
 #include "vc/PanelF7.h"
 #include "vc/DAPControl.h"
 #include "APU.h"
-#include "MechActuator.h"
+
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
@@ -1043,6 +1043,7 @@ class RMSSystem;
 class StbdMPMSystem;
 class ActiveLatch;
 class MCA;
+class MechActuator;
 
 
 
@@ -1164,7 +1165,6 @@ public:
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
 
-public:
 	//**********************************************************
 	//* public methods
 	//**********************************************************
@@ -2044,7 +2044,7 @@ private:
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
-protected:
+
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);

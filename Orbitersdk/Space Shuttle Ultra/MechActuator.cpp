@@ -41,15 +41,29 @@ void MechActuator::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 {
 	double fAcceleration = 0.0;
-	if(CmdDriveFwd.IsSet())
+	char cCP = ' ';
+
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Enter.");
+#endif
+
+	if(CmdDriveFwd && CmdDriveRwd)
 	{
+		cCP = '0';
+	}
+	else if(CmdDriveFwd.IsSet())
+	{
+		cCP = '+';
 		fAcceleration += fAccConstant;
 	} 
-
-	if(CmdDriveRwd.IsSet())
+	else if(CmdDriveRwd.IsSet())
 	{
+		cCP = '-';
 		fAcceleration -= fAccConstant;
-	}
+	} 
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Line 59");
+#endif
 
 	if(fSpeed >= fMaxSpeed)
 	{
@@ -63,7 +77,7 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 
 	if(fSpeed < 0 && fOutPos <= fHardStopMin)
 	{
-		fAcceleration = (fSpeed * fSpeed / (2 * fOutPos));
+		fAcceleration = (pow(fSpeed,2) / (2 * fOutPos));
 	}
 
 	if(fSpeed > 0 && fOutPos >= fHardStopMax)
@@ -82,6 +96,10 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 
 	fOutPos = (fOldSpeed + 0.5 * fAcceleration * fDeltaT) * fDeltaT;
 
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Line 92");
+#endif
+
 	if(fOutPos >= 1.0) {
 		fOutPos = 1.0;
 		fSpeed = 0.0;
@@ -96,16 +114,36 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	// Set output discretes
 	// -------------------------------------------------------
 
-	if(fOutPos <= fLimit0Max) 
+	char cP0 = ' ', cP1 = ' ';
+
+	if(fOutPos <= fLimit0Max)
+	{
+		cP0 ='X';
 		PosLimit0.SetLine();
+	}
 	else
 		PosLimit0.ResetLine();
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Line 118");
+#endif
 
 	if(fOutPos >= fLimit1Min) 
+	{
+		cP1 = 'X';
 		PosLimit1.SetLine();
+	}
 	else
 		PosLimit1.ResetLine();
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Line 128");
+#endif
 
+	sprintf_s(oapiDebugString(), 255, "(MCA{%s}::OnPropagate) POS: %5.2f%% SPEED: %5.2f%%/s (%c [%c %c])",
+		GetQualifiedIdentifier().c_str(), fOutPos*100.0, fSpeed * 100.0,
+		cCP, cP0, cP1);
+#ifdef DEBUG_PROPAGATE
+	oapiWriteLog("(MechActuator::OnPropagate) Exit.");
+#endif
 }
 
 void MechActuator::SetMicroSwitchPositions(double fLimit0, double fLimit1)

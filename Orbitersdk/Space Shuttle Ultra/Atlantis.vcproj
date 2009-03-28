@@ -451,6 +451,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gnc\IMU.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Keyboard.cpp"
 				>
 			</File>
@@ -460,6 +464,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\MasterTimingUnit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MCA.cpp"
 				>
 			</File>
 			<File
@@ -1072,14 +1080,6 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\gnc\IMU.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\MCA.cpp"
 			>
 		</File>
 		<File

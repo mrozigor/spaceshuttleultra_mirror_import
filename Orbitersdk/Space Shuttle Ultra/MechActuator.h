@@ -4,6 +4,13 @@
 #include "discsignals/DiscInPort.h"
 #include "discsignals/DiscOutPort.h"
 
+class ACMotor {
+	double fMotorSpeed;
+public:
+	ACMotor();
+	double GetTorque(double fSpeed);
+};
+
 class MechActuator: public AtlantisSubsystem
 {
 	double fOutPos; //Output position 0 ... 1
