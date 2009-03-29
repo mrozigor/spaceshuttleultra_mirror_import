@@ -11,8 +11,10 @@ LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident
 
 	AttachID=_attachID;
 
-	//detached=false;
 	firstStep=true;
+
+	payloadName="";
+	attachmentIndex=-1;
 }
 
 LatchSystem::~LatchSystem()
@@ -35,6 +37,34 @@ void LatchSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 }
 
+bool LatchSystem::OnParseLine(const char* line)
+{
+	const std::string label = GetIdentifier()+"_ATTACHED_PAYLOAD ";
+	if(!_strnicmp(line, label.c_str(), label.length())) {
+		std::string temp=line+label.length();
+		int index=temp.find(' ');
+		payloadName=temp.substr(0, index);
+		std::string num=temp.substr(index+1);
+		attachmentIndex=atoi(num.c_str());
+		
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "%s payload: %s %d", GetIdentifier().c_str(), payloadName.c_str(), attachmentIndex);
+		oapiWriteLog(cbuf);
+		return true;
+	}
+	return false;
+}
+
+void LatchSystem::OnSaveState(FILEHANDLE scn) const
+{
+	if(hPayloadAttachment) {
+		char pData[55], pIdent[55];
+		sprintf_s(pData, 55, "%s %d", attachedPayload->GetName(), attachedPayload->GetAttachmentIndex(hPayloadAttachment));
+		sprintf_s(pIdent, 55, "%s_ATTACHED_PAYLOAD", GetIdentifier().c_str());
+		oapiWriteScenario_string(scn, pIdent, pData);
+	}
+}
+
 void LatchSystem::AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment)
 {
 	//for the moment, assume attachment passed is completely valid
@@ -42,8 +72,8 @@ void LatchSystem::AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment)
 	attachedPayload=vessel;
 
 	// needed to prevent RMS and MPMs from moving when payload they are attached to is latched to something else
-	if(STS()->pRMS && STS()->pRMS!=this) STS()->pRMS->CheckDoubleAttach(vessel);
-	if(STS()->pMPMs && STS()->pMPMs!=this) STS()->pMPMs->CheckDoubleAttach(vessel);
+	if(STS()->pRMS && STS()->pRMS!=this) STS()->pRMS->CheckDoubleAttach(vessel, true);
+	if(STS()->pMPMs && STS()->pMPMs!=this) STS()->pMPMs->CheckDoubleAttach(vessel, true);
 	//detached=false;
 
 	OnAttach();
@@ -55,6 +85,10 @@ void LatchSystem::DetachPayload()
 		// remove mass of released payload
 		double mass=STS()->GetEmptyMass()-attachedPayload->GetMass();
 		STS()->SetEmptyMass(mass);
+
+		// signal to RMS and MPMs that payload they are attached to has been unlatched
+		if(STS()->pRMS && STS()->pRMS!=this) STS()->pRMS->CheckDoubleAttach(attachedPayload, false);
+		if(STS()->pMPMs && STS()->pMPMs!=this) STS()->pMPMs->CheckDoubleAttach(attachedPayload, false);
 	}
 	hPayloadAttachment=NULL;
 	attachedPayload=NULL;
@@ -139,7 +173,18 @@ void LatchSystem::CheckForAttachedObjects()
 				ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(true, i);
 				if(attachedPayload->GetAttachmentStatus(hAtt)==STS()->GetHandle()) {
 					hPayloadAttachment=hAtt;
+					OnAttach();
 					return;
+				}
+			}
+		}
+		else { // check data loaded from scenario
+			if(attachmentIndex!=-1 && !payloadName.empty()) {
+				OBJHANDLE hV=oapiGetVesselByName((char*)payloadName.c_str());
+				if(hV) {
+					VESSEL* v=oapiGetVesselInterface(hV);
+					ATTACHMENTHANDLE attach=v->GetAttachmentHandle(true, attachmentIndex);
+					AttachPayload(v, attach);
 				}
 			}
 		}

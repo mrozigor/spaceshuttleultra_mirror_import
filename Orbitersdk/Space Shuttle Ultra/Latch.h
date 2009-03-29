@@ -16,6 +16,8 @@ public:
 	virtual ~LatchSystem();
 
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+	virtual bool OnParseLine(const char* line);
+	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	/**
 	 * Creates ATTACHMENTHANDLE associated with latch(es)
@@ -48,7 +50,10 @@ private:
 	void CheckForAttachedObjects();
 
 	bool firstStep;
-	//bool detached;
+
+	// used only for loading attachments from scenario
+	std::string payloadName;
+	int attachmentIndex;
 };
 
 /**

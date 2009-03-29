@@ -41,8 +41,8 @@ private:
 	 */
 	int FindOBSS() const;
 
-	//NOTE: any item in vpOBSS MUST have a corresponding entry in vhOBSSAttach at the same index
-	vector<VESSEL*> vpOBSS; //OBSS vessels in scenario
+	//NOTE: any item in vhOBSS MUST have a corresponding entry in vhOBSSAttach at the same index
+	vector<OBJHANDLE> vhOBSS; // OBSS vessels in scenario
 	vector<ATTACHMENTHANDLE> vhOBSSAttach; //attchment point on OBSS(s) that attaches to MPM
 
 	VECTOR3 obss_attach_point[2];

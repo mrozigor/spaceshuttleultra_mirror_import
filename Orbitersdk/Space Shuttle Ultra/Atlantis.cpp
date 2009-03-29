@@ -4372,8 +4372,8 @@ void Atlantis::LoadBurnAttManeuver()
 	GetRotMatrixZ(LVLHOrientation.data[ROLL]*RAD, RotMatrixR);
 	GetRotMatrixX(-LVLHOrientation.data[PITCH]*RAD, RotMatrixP);
 	GetRotMatrixY(LVLHOrientation.data[YAW]*RAD, RotMatrixY);
-	Temp=mul(RotMatrixR, RotMatrixY);
-	Temp=mul(Temp, RotMatrixP);
+	Temp=mul(RotMatrixR, RotMatrixP);
+	Temp=mul(Temp, RotMatrixY);
 
 	CurManeuver.Type=AttManeuver::TRK;
 	for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=MET[i];

@@ -147,13 +147,15 @@ bool MPMSystem::OnParseLine(const char* line)
 		oapiWriteLog((char*)latches.c_str());
 		return true;
 	}
-	return false;
+	return LatchSystem::OnParseLine(line);
 }
 
 void MPMSystem::OnSaveState(FILEHANDLE scn) const
 {
 	WriteScenario_state(scn, (char*)(GetIdentifier()+"_ROLLOUT").c_str(), MPMRollout);
 	WriteScenario_state(scn, (char*)(GetIdentifier()+"_LATCHES").c_str(), MRLLatches);
+
+	LatchSystem::OnSaveState(scn);
 }
 
 void MPMSystem::AddMesh()
