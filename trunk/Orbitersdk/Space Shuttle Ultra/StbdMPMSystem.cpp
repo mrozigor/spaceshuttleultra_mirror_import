@@ -81,7 +81,7 @@ void StbdMPMSystem::AttachOBSS()
 		if(index!=-1) {
 			// if OBSS is attached to RMS, detach it so it can be attached to MPM
 			//STS()->pRMS->Detach(vpOBSS[index]);
-			AttachPayload(vpOBSS[index], vhOBSSAttach[index]);
+			AttachPayload(oapiGetVesselInterface(vhOBSS[index]), vhOBSSAttach[index]);
 		}
 	}
 	//if(index!=-1) STS()->AttachChild(vpOBSS[index]->GetHandle(), hAttach, vhOBSSAttach[index]);
@@ -101,7 +101,7 @@ void StbdMPMSystem::FindOBSSAttachments()
 				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
 				const char *id = v->GetAttachmentId (hAtt);
 				if(!_strnicmp(id, "OS", 2)) {
-					vpOBSS.push_back(v);
+					vhOBSS.push_back(hV);
 					vhOBSSAttach.push_back(hAtt);
 				}
 			}
@@ -116,7 +116,8 @@ int StbdMPMSystem::FindOBSS() const
 	STS()->GlobalRot(obss_attach_point[1]-obss_attach_point[0], gattachdir);
 	//loop through OBSS attachments and check each one
 	for(unsigned int i=0;i<vhOBSSAttach.size();i++) {
-		VESSEL* v=vpOBSS[i];
+		//VESSEL* v=vpOBSS[i];
+		VESSEL* v=oapiGetVesselInterface(vhOBSS[i]);
 		v->GetAttachmentParams (vhOBSSAttach[i], pos, dir, rot);
 		v->Local2Global (pos, gpos);
 		sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));

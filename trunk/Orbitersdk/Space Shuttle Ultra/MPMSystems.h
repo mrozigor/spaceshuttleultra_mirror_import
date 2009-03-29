@@ -26,7 +26,9 @@ public:
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
-	void CheckDoubleAttach(VESSEL* vessel) { if(attachedPayload && attachedPayload==vessel) doubleAttached=true; };
+	void CheckDoubleAttach(VESSEL* vessel, bool attached) { 
+		if((attachedPayload && attachedPayload==vessel) || (hAttach && vessel->GetHandle()==STS()->GetAttachmentStatus(hAttach))) doubleAttached=attached; 
+	};
 
 	/*bool Deployed() const {return MPMRollout.Open();};
 	bool Stowed() const {return MPMRollout.Closed();};
