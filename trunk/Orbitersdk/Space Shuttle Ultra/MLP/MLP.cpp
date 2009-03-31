@@ -502,12 +502,12 @@ void MLP::DefineAnimations()
 
 	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
 	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
-		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(18.0*RAD));
+		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &LeftT0Umb);
 
 	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
 	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
-		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(18.0*RAD));
+		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
 
 	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_cover};
