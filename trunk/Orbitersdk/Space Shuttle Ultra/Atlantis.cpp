@@ -1680,7 +1680,7 @@ void Atlantis::DefineAnimations (void)
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
   static MGROUP_TRANSLATE PORTRod (midx, PORTPUSH_RODGrp, 1,
-	  _V(0,0.25,0));
+	  _V(0,0.175,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
@@ -1698,7 +1698,7 @@ void Atlantis::DefineAnimations (void)
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
   static MGROUP_TRANSLATE STBDRod (midx, STBDPUSH_RODGrp, 1,
-	  _V(0,0.25,0));
+	  _V(0,0.175,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
@@ -8933,7 +8933,7 @@ void Atlantis::UpdateETTexture() {
 	if(status < 3)
 	{
 		MESHHANDLE hET = GetMesh(vis, mesh_tank);
-		if(!oapiSetTexture(hET, 1, texScorchedET)) {
+		if(!oapiSetTexture(hET, 3, texScorchedET)) {
 			oapiWriteLog("[SpaceShuttleUltra]Can't set ET texture.");
 		}
 		//oapiSetTexture(hET, 1, texNormalET);

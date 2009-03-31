@@ -79,8 +79,8 @@ const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 
-const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/ET-125_detailtex_launch.dds";
-const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ETburntex.dds";
+const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/ET-129_exterior_launch.dds";
+const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ET-129_exterior_scorched.dds";
 
 // ==========================================================
 // Some Orbiter-related parameters
