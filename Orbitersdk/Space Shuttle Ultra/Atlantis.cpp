@@ -1236,10 +1236,13 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // ************************ visual parameters **********************************
 
+  // status has to be updated before AddTankVisual is called to update ET texture
+  status = STATE_STAGE2;
+
   AddOrbiterVisual (OFS_WITHTANK_ORBITER);
   AddTankVisual    (OFS_WITHTANK_TANK);
 
-  status = STATE_STAGE2;
+  //status = STATE_STAGE2;
 }
 
 // --------------------------------------------------------------
@@ -2442,6 +2445,8 @@ void Atlantis::AddTankVisual (const VECTOR3 &ofs)
     SetMeshVisibilityMode (mesh_tank, MESHVIS_ALWAYS|MESHVIS_EXTPASS);
 	//UpdateETTexture();
   }
+  // if this is post SRB sep, use scorched texture
+  if(status>=STATE_STAGE2) UpdateETTexture();
 }
 
 void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
@@ -6185,7 +6190,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   UpdateMesh ();
 #endif
   UpdateOrbiterTexture();
-  UpdateETTexture();
+  //UpdateETTexture();
 }
 
 // --------------------------------------------------------------
@@ -8936,6 +8941,7 @@ void Atlantis::UpdateETTexture() {
 		if(!oapiSetTexture(hET, 3, texScorchedET)) {
 			oapiWriteLog("[SpaceShuttleUltra]Can't set ET texture.");
 		}
+		else oapiWriteLog("Texture updated");
 		//oapiSetTexture(hET, 1, texNormalET);
 	}
 }
