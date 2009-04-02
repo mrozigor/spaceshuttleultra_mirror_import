@@ -95,7 +95,7 @@ public:
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
 	bool Movable() const { 
-		return ( RMSSelectPort && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 
+		return ( RMSSelect && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 
 			&& (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree())) );
 	};
 protected:
@@ -117,7 +117,7 @@ private:
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();
 
-	DiscInPort RMSSelectPort;
+	DiscInPort RMSSelect;
 
 	UINT anim_camRMSElbow[2];
 	UINT anim_joint[6], anim_rms_ee;
@@ -160,6 +160,9 @@ private:
 	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
+
+	// for LED displays on panel A8
+	DiscOutPort JointAngles[6], EEPosition[3], EEAttitude[3];
 };
 
 #endif //__RMSSUBSYSTEM_H

@@ -3,6 +3,8 @@
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 
+extern GDIParams g_Param;
+
 namespace vc
 {
 	PanelA8::PanelA8(Atlantis* _sts)
@@ -93,6 +95,48 @@ namespace vc
 		return mesh_index;
 	}
 
+	bool PanelA8::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
+	{
+		// draw LED displays
+		if(id>=AID_A8_LED1 && id<=AID_A8_LED3) {
+			static const int NUMX[10] = {64, 0, 64, 128, 192, 256, 320, 384, 448, 0};
+			static const int NUMY[10] = {384, 448, 448, 448, 448, 448, 448, 448, 448, 384};
+
+			RECT tgt_rect, src_rect;
+			char ledOut[9];
+			short nValue, pointPos=-1;
+			double dTest= 1999.8*RMSJointAngles[id-AID_A8_LED1].GetVoltage();
+
+			sprintf_s(ledOut, 9, "%.4f", abs(dTest));
+			for(int i=1, counter=0;i<5, counter<9;i++, counter++) {
+				// don't print decimal point as a number
+				if(ledOut[counter]=='.') {
+					pointPos=counter;
+					counter++;
+				}
+				nValue = ledOut[counter]-'0';
+				src_rect = _R(NUMX[nValue], NUMY[nValue], NUMX[nValue]+64, NUMY[nValue]+64);
+				tgt_rect = _R(22*i, 0, 22*(i+1), 22);
+				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
+			}
+			// print sign
+			if(dTest>=0.0) src_rect = _R(0, 0, 64, 64);
+			else src_rect = _R(64, 0, 128, 64);
+			tgt_rect = _R(0, 0, 22, 22);
+			oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
+			// print decimal point
+			if(pointPos!=-1) {
+				src_rect = _R(184, 56, 192, 64);
+				tgt_rect = _R(22*(pointPos+1)-3, 19, 22*(pointPos+1), 22);
+				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
+			}
+
+			return true;
+		}
+
+		return BasicPanel::OnVCRedrawEvent(id, _event, surf);
+	}
+
 	void PanelA8::RegisterVC()
 	{
 		oapiWriteLog("PanelA8::RegisterVC() called");
@@ -136,6 +180,11 @@ namespace vc
 		oapiVCRegisterArea(AID_A8_TKBK18, _R(821, 327, 848, 355), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// EE DERIGID
 		oapiVCRegisterArea(AID_A8_TKBK19, _R(821, 392, 848, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		// LED displays
+		//oapiVCRegisterArea(AID_A8_LED1, _R(230, 506, 252, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	}
 
 	void PanelA8::DefineVC()
@@ -282,6 +331,7 @@ namespace vc
 		pShoulderBrace->outputB.Connect(pBundle, 4);
 		pShoulderBraceTb->SetInput(0, pBundle, 5, TB_GRAY);
 		pRMSSelect->outputB.Connect(pBundle, 6);
+		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i+7);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MRL", 16);
 		pPortMRL->outputB.Connect(pBundle, 0);
