@@ -51,10 +51,6 @@ void RMSSystem::Realize()
 {
 	MPMSystem::Realize();
 
-	CreateArm();
-	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
-	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
-
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("RMS_EE", 16);
 	EEGrapple.Connect(pBundle, 0);
 	EERelease.Connect(pBundle, 1);
@@ -69,11 +65,15 @@ void RMSSystem::Realize()
 	EERigidized.Connect(pBundle, 10);
 	EEDerigidized.Connect(pBundle, 11);
 
-	pBundle=BundleManager()->CreateBundle("RMS", 16);
+	pBundle=BundleManager()->CreateBundle(GetIdentifier(), 16);
 	ShoulderBrace.Connect(pBundle, 4);
 	ShoulderBraceReleased.Connect(pBundle, 5);
-	RMSSelectPort.Connect(pBundle, 6);
-	// reserve line 7 for RMS Select STBD
+	RMSSelect.Connect(pBundle, 6);
+	for(int i=0;i<6;i++) JointAngles[i].Connect(pBundle, i+7);
+
+	CreateArm();
+	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
+	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 
 	// set lines
 	if(Grappled()) EECapture.SetLine();
@@ -185,7 +185,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
 
 	// make sure RMS is powered and can be operated
-	if(!RMSSelectPort) return;
+	if(!RMSSelect) return;
 
 	//rotate joints
 	if(Movable()) {
@@ -532,6 +532,7 @@ void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=angle;
+		JointAngles[joint].SetLine(5.0*joint_angle[joint]/9999.0);
 		arm_moved=true;
 	}
 }
@@ -542,6 +543,7 @@ void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=linterp(0.0, RMS_JOINT_LIMITS[0][joint], 1.0, RMS_JOINT_LIMITS[1][joint], pos);
+		JointAngles[joint].SetLine(5.0*joint_angle[joint]/9999.0);
 		arm_moved=true;
 	}
 }

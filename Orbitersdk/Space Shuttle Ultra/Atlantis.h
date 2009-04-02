@@ -852,6 +852,9 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A8_TKBK19  449
 #define AID_A8_TKBK20  451
 #define AID_A8_TKBK21  452
+#define AID_A8_LED1	   453
+#define AID_A8_LED2	   454
+#define AID_A8_LED3	   455
 #define AID_A8_MAX     459
 
 #define AID_F8_MIN	   460

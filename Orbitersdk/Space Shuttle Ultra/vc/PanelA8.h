@@ -41,6 +41,8 @@ namespace vc
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();
 
+		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
+
 		virtual void RegisterVC();
 		virtual void DefineVC();
 		virtual void DefineVCAnimations(UINT vcidx);
@@ -52,6 +54,8 @@ namespace vc
 	private:
 		MESHHANDLE hPanelMesh;
 		UINT mesh_index;
+
+		DiscInPort RMSJointAngles[6];
 	};
 };
 
