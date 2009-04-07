@@ -345,6 +345,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\BasicRotarySwitch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\BasicSwitch.cpp"
 				>
 			</File>
@@ -617,6 +621,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\StandardRotarySwitch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardSwitch.cpp"
 				>
 			</File>
@@ -691,6 +699,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\BasicPanel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\BasicRotarySwitch.h"
 				>
 			</File>
 			<File
@@ -967,6 +979,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardLight.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\StandardRotarySwitch.h"
 				>
 			</File>
 			<File
