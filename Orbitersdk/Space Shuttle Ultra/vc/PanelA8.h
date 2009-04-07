@@ -5,6 +5,7 @@
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
+#include "StandardRotarySwitch.h"
 #include "Talkback.h"
 
 namespace vc
@@ -37,6 +38,9 @@ namespace vc
 		Std2SegTalkback* pEERigid;
 		Std2SegTalkback* pEEDerigid;
 		Std2SegTalkback* pShoulderBraceTb;
+
+		RotaryDemuxSwitch* pLEDParameter;
+		RotaryDemuxSwitch* pLEDJoint;
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();

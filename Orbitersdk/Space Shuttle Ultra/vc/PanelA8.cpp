@@ -44,6 +44,9 @@ namespace vc
 		Add(pEEDerigid = new Std2SegTalkback(_sts, "EE Derigid", 1));
 		Add(pShoulderBraceTb = new Std2SegTalkback(_sts, "Shoulder Brace", 1));
 
+		Add(pLEDParameter = new RotaryDemuxSwitch(_sts, "Parameter", 8));
+		Add(pLEDJoint = new RotaryDemuxSwitch(_sts, "Joint", 8));
+
 		pPortMRL->SetLabel(2, "REL");
 		pPortMRL->SetLabel(1, "OFF");
 		pPortMRL->SetLabel(0, "LAT");
@@ -191,6 +194,7 @@ namespace vc
 	{
 		const VECTOR3 switch_rot_vert=_V(-1.0, 0.0, 0.0);
 		const VECTOR3 switch_rot_horz=_V(0.0, -0.793, 0.249);
+		const VECTOR3 rotary_switch_rot = _V(0.0, -0.249, -0.793);
 
 		AddAIDToMouseEventList(AID_A8);
 
@@ -312,6 +316,18 @@ namespace vc
 		pEEDerigid->SetDimensions(27, 28);
 		pEEDerigid->SetTalkbackLocation(0, 0);
 		pEEDerigid->SetInactiveSegment(0, TB_GRAY);
+
+		pLEDParameter->SetMouseRegion(0.45049f, 0.440562f, 0.531691f, 0.494226f);
+		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_VC);
+		pLEDParameter->SetReference(_V(-0.536, 2.534, 12.401), rotary_switch_rot);
+		pLEDParameter->SetInitialAnimState(1.0f);
+		pLEDParameter->DefineRotationAngle(250.0f);
+
+		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
+		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
+		pLEDJoint->SetReference(_V(-0.699, 2.533, 12.401), rotary_switch_rot);
+		pLEDJoint->SetInitialAnimState(1.0f);
+		pLEDJoint->DefineRotationAngle(250.0f);
 	}
 
 	void PanelA8::DefineVCAnimations(UINT vcidx)
