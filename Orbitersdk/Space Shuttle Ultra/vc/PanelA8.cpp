@@ -2,6 +2,7 @@
 #include "../meshres_vc_a8.h"
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
+#include "../RMSSystem.h"
 
 extern GDIParams g_Param;
 
@@ -72,7 +73,26 @@ namespace vc
 		pRMSSelect->SetLabel(1, "OFF");
 		pRMSSelect->SetLabel(0, "STBD");
 
+		pLEDParameter->SetLabel(7, "TEST");
+		pLEDParameter->SetLabel(6, "POSITION");
+		pLEDParameter->SetLabel(5, "ATTITUDE");
+		pLEDParameter->SetLabel(4, "JOINT_ANGLE");
+		pLEDParameter->SetLabel(3, "VEL");
+		pLEDParameter->SetLabel(2, "RATE");
+		pLEDParameter->SetLabel(1, "PORT_TEMP");
+		pLEDParameter->SetLabel(0, "STBD_TEMP");
+		pLEDJoint->SetLabel(7, "SHOULDER_YAW");
+		pLEDJoint->SetLabel(6, "SHOULDER_PITCH");
+		pLEDJoint->SetLabel(5, "ELBOW");
+		pLEDJoint->SetLabel(4, "WRIST_PITCH");
+		pLEDJoint->SetLabel(3, "WRIST_YAW");
+		pLEDJoint->SetLabel(2, "WRIST_ROLL");
+		pLEDJoint->SetLabel(1, "EE_TEMP");
+		pLEDJoint->SetLabel(0, "CRIT_TEMP");
+
 		EnableCoordinateDisplayMode();
+
+		for(int i=0;i<3;i++) LEDValues[i]=0.0;
 	}
 
 	PanelA8::~PanelA8()
@@ -83,8 +103,10 @@ namespace vc
 	{
 		SetHasOwnVCMesh();
 
-		mesh_index=STS()->AddMesh(hPanelMesh, &ofs);
-		STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_VC);
+		if(mesh_index==MESH_UNDEFINED) {
+			mesh_index=STS()->AddMesh(hPanelMesh, &ofs);
+			STS()->SetMeshVisibilityMode(mesh_index, MESHVIS_VC);
+		}
 	}
 
 	void PanelA8::SetMeshVisibility(bool visible)
@@ -98,6 +120,53 @@ namespace vc
 		return mesh_index;
 	}
 
+	void PanelA8::OnPreStep(double SimT, double DeltaT, double MJD)
+	{
+		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+
+		double NewLEDValues[3];
+
+		if(LED_ParameterSelect[7].IsSet()) { // TEST
+			for(int i=0;i<3;i++) NewLEDValues[i]=8888.0;
+		}
+		else if(LED_ParameterSelect[4].IsSet()) { // JOINT ANGLE
+			if(LED_JointSelect[7].IsSet()) { // SHOULDER YAW
+				NewLEDValues[1]=RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;
+				NewLEDValues[0]=NewLEDValues[2]=0.0;
+			}
+			else if(LED_JointSelect[6].IsSet()) { // SHOULDER PITCH
+				NewLEDValues[0]=RMSJointAngles[RMSSystem::SHOULDER_PITCH].GetVoltage()*1999.8;
+				NewLEDValues[1]=NewLEDValues[2]=0.0;
+			}
+			else if(LED_JointSelect[5].IsSet()) { // ELBOW
+				NewLEDValues[0]=RMSJointAngles[RMSSystem::ELBOW_PITCH].GetVoltage()*1999.8;
+				NewLEDValues[1]=NewLEDValues[2]=0.0;
+			}
+			else if(LED_JointSelect[4].IsSet()) { // WRIST PITCH
+				NewLEDValues[0]=RMSJointAngles[RMSSystem::WRIST_PITCH].GetVoltage()*1999.8;
+				NewLEDValues[1]=NewLEDValues[2]=0.0;
+			}
+			if(LED_JointSelect[3].IsSet()) { // WRIST YAW
+				NewLEDValues[1]=RMSJointAngles[RMSSystem::WRIST_YAW].GetVoltage()*1999.8;
+				NewLEDValues[0]=NewLEDValues[2]=0.0;
+			}
+			if(LED_JointSelect[2].IsSet()) { // WRIST ROLL
+				NewLEDValues[2]=RMSJointAngles[RMSSystem::WRIST_ROLL].GetVoltage()*1999.8;
+				NewLEDValues[0]=NewLEDValues[1]=0.0;
+			}
+		}
+		else {
+			for(int i=0;i<3;i++) NewLEDValues[i]=RMSJointAngles[i].GetVoltage()*1999.8;
+		}
+
+		for(int i=0;i<3;i++) {
+			if(!Eq(LEDValues[i], NewLEDValues[i], 0.001)) {
+				LEDValues[i]=NewLEDValues[i];
+				oapiVCTriggerRedrawArea(-1, AID_A8_LED1+i);
+			}
+		}
+	}
+
 	bool PanelA8::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	{
 		// draw LED displays
@@ -106,12 +175,11 @@ namespace vc
 			static const int NUMY[10] = {384, 448, 448, 448, 448, 448, 448, 448, 448, 384};
 
 			RECT tgt_rect, src_rect;
-			char ledOut[9];
+			char ledOut[10];
 			short nValue, pointPos=-1;
-			double dTest= 1999.8*RMSJointAngles[id-AID_A8_LED1].GetVoltage();
 
-			sprintf_s(ledOut, 9, "%.4f", abs(dTest));
-			for(int i=1, counter=0;i<5, counter<9;i++, counter++) {
+			sprintf_s(ledOut, 10, "%.4f", abs(LEDValues[id-AID_A8_LED1]));
+			for(int i=1, counter=0;i<5, counter<10;i++, counter++) {
 				// don't print decimal point as a number
 				if(ledOut[counter]=='.') {
 					pointPos=counter;
@@ -123,12 +191,12 @@ namespace vc
 				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
 			}
 			// print sign
-			if(dTest>=0.0) src_rect = _R(0, 0, 64, 64);
+			if(LEDValues[id-AID_A8_LED1]>=0.0) src_rect = _R(0, 0, 64, 64);
 			else src_rect = _R(64, 0, 128, 64);
 			tgt_rect = _R(0, 0, 22, 22);
 			oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
 			// print decimal point
-			if(pointPos!=-1) {
+			if(pointPos!=-1 && pointPos<4) {
 				src_rect = _R(184, 56, 192, 64);
 				tgt_rect = _R(22*(pointPos+1)-3, 19, 22*(pointPos+1), 22);
 				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
@@ -380,6 +448,14 @@ namespace vc
 		for(int i=0;i<3;i++) pStbdMRL_RTL[i]->SetInput(0, pBundle, i+5, TB_GRAY);
 		pStbdMRLTb->SetInput(0, pBundle, 11, TB_REL);
 		pStbdMRLTb->SetInput(1, pBundle, 12, TB_LAT);
+
+		pBundle=STS()->BundleManager()->CreateBundle("A8_LED", 16);
+		for(int i=0;i<8;i++) {
+			LED_ParameterSelect[i].Connect(pBundle, i);
+			pLEDParameter->ConnectOutputSignal(i, pBundle, i);
+			LED_JointSelect[i].Connect(pBundle, i+8);
+			pLEDJoint->ConnectOutputSignal(i, pBundle, i+8);
+		}
 
 		BasicPanel::Realize();
 	}
