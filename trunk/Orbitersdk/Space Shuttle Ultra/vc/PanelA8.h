@@ -45,6 +45,7 @@ namespace vc
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();
 
+		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 
 		virtual void RegisterVC();
@@ -60,6 +61,9 @@ namespace vc
 		UINT mesh_index;
 
 		DiscInPort RMSJointAngles[6];
+		DiscInPort LED_JointSelect[8], LED_ParameterSelect[8];
+
+		double LEDValues[3];
 	};
 };
 

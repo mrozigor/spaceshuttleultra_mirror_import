@@ -15,6 +15,11 @@ namespace vc
 		delete pSwitchRot;
 	}
 
+	void BasicRotarySwitch::Realize()
+	{
+		OnPositionChange(usCurrentPosition);
+	}
+
 	const string& BasicRotarySwitch::GetLabel(int iPosition) const
 	{
 		return labels.at(iPosition);
@@ -58,7 +63,7 @@ namespace vc
 			VerifyAnimations();
 		}
 
-		OnPositionChange(usCurrentPosition);
+		//OnPositionChange(usCurrentPosition);
 	}
 
 	bool BasicRotarySwitch::GetStateString(unsigned long ulBufferSize, char* pszBuffer)
@@ -77,14 +82,14 @@ namespace vc
 	{
 		if(line[0] == '[') {
 			usCurrentPosition = atoi(line+1);
-			OnPositionChange(usCurrentPosition);
+			//OnPositionChange(usCurrentPosition);
 			return true;
 		} else {
 			for(unsigned short i = 0; i<usNumPositions; i++) {
 				if(labels.at(i) == line) 
 				{
 					usCurrentPosition = i;
-					OnPositionChange(usCurrentPosition);
+					//OnPositionChange(usCurrentPosition);
 					return true;
 				}
 			}

@@ -27,12 +27,12 @@ namespace vc
 	{
 		BasicRotarySwitch::OnPositionChange(usNewPosition);
 
-		/*bool bOutput=true;
+		bool bOutput=true;
 		if(bInputConnected) bOutput=inputSignal.IsSet();
 
 		for(unsigned short i=0;i<usNumPositions;i++) {
 			if(i==usNewPosition && bOutput) outputSignals.at(i).SetLine();
 			else outputSignals.at(i).ResetLine();
-		}*/
+		}
 	}
 };

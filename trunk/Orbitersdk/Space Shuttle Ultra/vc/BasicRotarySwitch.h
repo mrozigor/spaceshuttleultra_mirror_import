@@ -28,10 +28,12 @@ namespace vc
 		void DefineSwitchGroup(UINT _grpIndex);
 		void DefineRotationAngle(float _rotAngle); // angle measured in degrees
 		virtual void SetInitialAnimState(double fState = 0.0);
+
 		virtual void DefineVCAnimations(UINT vc_idx);
 		virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
 		virtual bool OnParseLine(const char* line);
 		virtual bool OnMouseEvent(int _event, float x, float y);
+		virtual void Realize();
 
 		virtual void OnRotateLeft();
 		virtual void OnRotateRight();
