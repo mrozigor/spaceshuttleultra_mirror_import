@@ -3991,6 +3991,11 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 					LoadRotationManeuver();
 				}
 				else if(item==21) {
+					if(ControlMode!=AUTO) {
+						REQD_ATT.x=MNVR_OPTION.x;
+						REQD_ATT.y=MNVR_OPTION.y;
+						REQD_ATT.z=MNVR_OPTION.z;
+					}
 					ControlMode=INRTL;
 					panelc3->UpdateVC(); //update PBIs
 					MNVR=false;
@@ -4003,9 +4008,6 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 					ManeuverinProg=false;
 					CurManeuver.Type=AttManeuver::OFF;
 					FutManeuver.Type=AttManeuver::OFF;
-					REQD_ATT.x=MNVR_OPTION.x;
-					REQD_ATT.y=MNVR_OPTION.y;
-					REQD_ATT.z=MNVR_OPTION.z;
 					for(int i=0;i<3;i++) {
 						if(REQD_ATT.data[i]>180.0) TargetAttM50.data[i]=REQD_ATT.data[i]-360.0;
 						else TargetAttM50.data[i]=REQD_ATT.data[i];
@@ -4032,35 +4034,35 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 				}
 				if(item==10 || item==30 || item==50) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.05 && dNew<=2.0) {
 						DAP[convert[item]].PRI_ROT_RATE=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
 				}
 				else if(item==11 || item==31 || item==51) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<100.0) {
+					if(dNew>0.10 && dNew<=40.0) {
 						DAP[convert[item]].PRI_ATT_DB=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
 				}
 				else if(item==12 || item==32 || item==52) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.10 && dNew<=5.0) {
 						DAP[convert[item]].PRI_RATE_DB=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
 				}
 				else if(item==13 || item==33 || item==53) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.04 && dNew<=1.0) {
 						DAP[convert[item]].PRI_ROT_PLS=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
 				}
 				else if(item==14 || item==34 || item==54) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<1.0) {
+					if(dNew>=0.0 && dNew<=0.999) {
 						DAP[convert[item]].PRI_COMP=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
@@ -4113,14 +4115,14 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 				}
 				else if(item==17 || item==37 || item==57) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
-						DAP[convert[item]].PRI_ROT_PLS=dNew;
+					if(dNew>=0.01 && dNew<=5.0) {
+						DAP[convert[item]].PRI_TRAN_PLS=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==0) UpdateDAP();
 					}
 				}
 				else if(item==18 || item==38 || item==58) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.05 && dNew<=5.0) {
 						DAP[convert[item]].ALT_RATE_DB=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
 					}
@@ -4155,49 +4157,49 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 				}
 				else if(item==21 || item==41 || item==61) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.08 && dNew<=9.99) {
 						DAP[convert[item]].ALT_ON_TIME=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
 					}
 				}
 				else if(item==22 || item==42 || item==62) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<100.0) {
+					if(dNew>=0.0 && dNew<=99.99) {
 						DAP[convert[item]].ALT_DELAY=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==1) UpdateDAP();
 					}
 				}
 				else if(item==23 || item==43 || item==63) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.002 && dNew<=1.0) {
 						DAP[convert[item]].VERN_ROT_RATE=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
 					}
 				}
 				else if(item==24 || item==44 || item==64) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<100.0) {
+					if(dNew>=0.01 && dNew<=40.0) {
 						DAP[convert[item]].VERN_ATT_DB=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
 					}
 				}
 				else if(item==25 || item==45 || item==65) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<1.0) {
+					if(dNew>=0.01 && dNew<=0.5) {
 						DAP[convert[item]].VERN_RATE_DB=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
 					}
 				}
 				else if(item==26 || item==46 || item==66) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.001 && dNew<=0.5) {
 						DAP[convert[item]].VERN_ROT_PLS=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
 					}
 				}
 				else if(item==27 || item==47 || item==67) {
 					dNew=atof(Data);
-					if(dNew>0.0 && dNew<10.0) {
+					if(dNew>=0.0 && dNew<=0.999) {
 						DAP[convert[item]].VERN_COMP=dNew;
 						if(convert[item]==DAPMode[0] && DAPMode[1]==2) UpdateDAP();
 					}
