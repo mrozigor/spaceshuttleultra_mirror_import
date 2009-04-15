@@ -261,8 +261,8 @@ namespace vc
 	void PanelA8::DefineVC()
 	{
 		const VECTOR3 switch_rot_vert=_V(-1.0, 0.0, 0.0);
-		const VECTOR3 switch_rot_horz=_V(0.0, -0.793, 0.249);
-		const VECTOR3 rotary_switch_rot = _V(0.0, -0.249, -0.793);
+		const VECTOR3 switch_rot_horz=_V(0.0, -0.9499, 0.3126);
+		const VECTOR3 rotary_switch_rot = _V(0.0, -0.3126, -0.9499);
 
 		AddAIDToMouseEventList(AID_A8);
 
@@ -389,13 +389,13 @@ namespace vc
 		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_VC);
 		pLEDParameter->SetReference(_V(-0.536, 2.534, 12.401), rotary_switch_rot);
 		pLEDParameter->SetInitialAnimState(1.0f);
-		pLEDParameter->DefineRotationAngle(250.0f);
+		pLEDParameter->DefineRotationAngle(210.0f);
 
 		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
 		pLEDJoint->SetReference(_V(-0.699, 2.533, 12.401), rotary_switch_rot);
 		pLEDJoint->SetInitialAnimState(1.0f);
-		pLEDJoint->DefineRotationAngle(250.0f);
+		pLEDJoint->DefineRotationAngle(210.0f);
 	}
 
 	void PanelA8::DefineVCAnimations(UINT vcidx)
