@@ -17,6 +17,7 @@ namespace vc
 
 	void BasicRotarySwitch::Realize()
 	{
+		if(usCurrentPosition==usNumPositions) usCurrentPosition=0;
 		OnPositionChange(usCurrentPosition);
 	}
 
@@ -50,15 +51,14 @@ namespace vc
 	void BasicRotarySwitch::DefineVCAnimations(UINT vc_idx)
 	{
 		char pszBuffer[256];
-		if(bHasReference && bHasDirection && !bHasAnimations)
+		if(bHasReference && bHasDirection && !bHasAnimations && !pSwitchRot)
 		{
 			sprintf_s(pszBuffer, 255, "BASIC ROTARY SWITCH[%s]:\tDefine VC Animations()", 
 				GetQualifiedIdentifier().c_str());
 			oapiWriteLog(pszBuffer);
 			VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
-			pSwitchRot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(rotAngle*RAD));
-			//anim_switch = STS()->CreateAnimation(InitialAnimState());
-			anim_switch = STS()->CreateAnimation(1.0);
+			pSwitchRot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() + ofs, GetDirection(), (float)(rotAngle*RAD));
+			anim_switch = STS()->CreateAnimation(InitialAnimState());
 			STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pSwitchRot);
 			VerifyAnimations();
 		}
