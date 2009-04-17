@@ -50,6 +50,5 @@ public:
 	
 	discsignals::DiscInPort LogicPwrOn;
 
-	eps::ACMotor system1;
-	eps::ACMotor system2;
+	eps::ACMotor system[2];
 };

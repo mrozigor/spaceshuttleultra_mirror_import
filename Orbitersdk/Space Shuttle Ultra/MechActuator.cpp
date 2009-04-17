@@ -101,12 +101,35 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 		fSpeed = 0.0;
 	}
 
-	double fL1 = system1.GetTorque(system1.GetSpeed());
-	double fL2 = system1.GetTorque(system1.GetSpeed() + 0.5 * fDeltaT * fL1/fMechMI);
-	double fL3 = system1.GetTorque(system1.GetSpeed() + 0.5 * fDeltaT * fL2/fMechMI);
-	double fL4 = system1.GetTorque(system1.GetSpeed() + fDeltaT * fL3/fMechMI);
+	double fL1 = 0;
+	double fL2 = 0;
+	double fL3 = 0;
+	double fL4 = 0;
+	double fL = 0;
 
-	double fL = 1/6.0 * (fL1 + 2*fL2 + 2*fL3 + fL4);
+
+	for(int i = 0; i<2; ++i)
+	{
+		fL1 += system[i].GetTorque(system[i].GetSpeed());
+	}
+
+	for(int i = 0; i<2; ++i)
+	{
+		fL2 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL1/fMechMI);
+	}
+
+	for(int i = 0; i<2; ++i)
+	{
+		fL3 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL2/fMechMI);
+	}
+	for(int i = 0; i<2; ++i)
+	{
+		fL4 += system[i].GetTorque(system[i].GetSpeed() + fDeltaT * fL3/fMechMI);
+	}
+
+
+	fL += 1/6.0 * (fL1 + 2*fL2 + 2*fL3 + fL4);
+	
 
 	// -------------------------------------------------------
 	// Set output discretes

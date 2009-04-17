@@ -134,6 +134,9 @@ namespace eps {
 		discsignals::DiscInPort CmdRwd;
 	};
 
+	/** 
+	 *
+	 */
 	class ACMotor: public IACElement 
 	{
 		IACElement* pACSource;
@@ -160,7 +163,13 @@ namespace eps {
 
 		void SetSpeed(double fNewSpeed, double fTorque0, double fTorque1, double fDeltaT);
 		double GetSpeed() const;
-
+		
+		/**
+		 * Calculate the torque of a AC Motor
+		 * 
+		 * If powered: release brakes. 
+		 * If not powered: brakes apply.
+		 */
 		double GetTorque(double fSpeed) const;
 	};
 

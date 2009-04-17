@@ -94,10 +94,7 @@ public:
 	 * Returns true if arm is free to move.
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
-	bool Movable() const { 
-		return ( RMSSelect && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 
-			&& (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree())) );
-	};
+	bool Movable() const;
 protected:
 	virtual void OnMRLLatched();
 

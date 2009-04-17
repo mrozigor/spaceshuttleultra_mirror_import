@@ -1,5 +1,6 @@
 #include "RMSSystem.h"
 #include "meshres_RMS.h"
+#include "SSUMath.h"
 
 extern double linterp(double x0, double y0, double x1, double y1, double x);
 
@@ -178,6 +179,12 @@ void RMSSystem::CreateAttachment()
 {
 	if(!hAttach)
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+}
+
+bool RMSSystem::Movable() const 
+{ 
+	return ( RMSSelect && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 
+		&& (hPayloadAttachment==NULL || (!doubleAttached && PayloadIsFree())) );
 }
 
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -532,7 +539,7 @@ void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=angle;
-		JointAngles[joint].SetLine(5.0*joint_angle[joint]/9999.0);
+		JointAngles[joint].SetLine(static_cast<float>(5.0*joint_angle[joint]/9999.0));
 		arm_moved=true;
 	}
 }
@@ -543,7 +550,7 @@ void RMSSystem::SetJointPos(RMS_JOINT joint, double pos)
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
 		joint_angle[joint]=linterp(0.0, RMS_JOINT_LIMITS[0][joint], 1.0, RMS_JOINT_LIMITS[1][joint], pos);
-		JointAngles[joint].SetLine(5.0*joint_angle[joint]/9999.0);
+		JointAngles[joint].SetLine(static_cast<float>(5.0*joint_angle[joint]/9999.0));
 		arm_moved=true;
 	}
 }

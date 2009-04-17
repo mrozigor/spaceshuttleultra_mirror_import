@@ -69,6 +69,12 @@ namespace eps {
 		double fT = pACSource->GetVoltage(PHASE1) * MOTOR_TORQUE_CONSTANT;
 		fT *= (1.0 - fSpeed/fMaxSpeed);
 
+		//Brake torque
+		if(length(_V(pACSource->GetVoltage(PHASE1), pACSource->GetVoltage(PHASE2), pACSource->GetVoltage(PHASE3))) < 50.0) 
+		{
+
+		}
+
 		return fT;
 	}
 
