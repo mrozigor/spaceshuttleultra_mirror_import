@@ -57,6 +57,7 @@
 #include "vc/PanelA6.h"
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
+#include "SSUMath.h"
 
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
@@ -392,6 +393,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   //----------------------------------------------------
   // Make these first, for avoiding CTDs
   //----------------------------------------------------
+  pMission = NULL;			//No mission selected
   bundleManager = new DiscreteBundleManager();
   busManager = new dps::ShuttleBusManager();
   pCommModeHandler= new CommModeHandler(this);
@@ -4737,180 +4739,7 @@ double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 	else return 0.0;
 }
 
-VECTOR3 Atlantis::GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
 
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
-
-	Res.data[YAW] = -asin(YawRoll.z);
-
-	Res.data[ROLL] = atan2(YawRoll.y, YawRoll.x);
-
-	Res.data[PITCH] = atan2(H.z, Pitch.z);
-
-	return Res;
-
-}
-
-VECTOR3 Atlantis::GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
-	Res.data[YAW] = -asin(Pitch.x);
-	Res.data[ROLL] = atan2(H.x, YawRoll.x);
-	Res.data[PITCH] = atan2(Pitch.y, Pitch.z);
-	return Res;
-}
-
-double Atlantis::CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis)
-{
-	double Angle;
-	MATRIX3 RotMatrix;
-	RotMatrix=mul(RefAngles, TargetAngles);
-	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
-	Angle=acos(0.5*(Trace-1));
-	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
-	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
-	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
-	return Angle;
-}
-
-double Atlantis::CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis)
-{
-	double Angle;
-	MATRIX3 RotMatrix, Ref, Target;
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	GetRotMatrixX(RefAngles.x, RotMatrixX);
-	GetRotMatrixY(RefAngles.y, RotMatrixY);
-	GetRotMatrixZ(RefAngles.z, RotMatrixZ);
-	Ref=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
-	GetRotMatrixX(TargetAngles.x, RotMatrixX);
-	GetRotMatrixY(TargetAngles.y, RotMatrixY);
-	GetRotMatrixZ(TargetAngles.z, RotMatrixZ);
-	Target=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
-	RotMatrix=mul(Ref, Target);
-	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
-	Angle=acos(0.5*(Trace-1));
-	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
-	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
-	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
-	return Angle;
-}
-
-void Atlantis::RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
-{
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	VECTOR3 AfterZ, AfterZY;					// Temporary variables
-
-
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	
-	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
-	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
-	AfterZ=mul(RotMatrixZ, Initial);
-	AfterZY=mul(RotMatrixY, AfterZ);
-	Result=mul(RotMatrixX, AfterZY);
-}
-
-void Atlantis::RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
-{
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	VECTOR3 AfterP, AfterPY;					// Temporary variables
-
-
-	GetRotMatrixX(Angles.x, RotMatrixX);
-	GetRotMatrixY(Angles.y, RotMatrixY);
-	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	
-	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
-	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
-	AfterP=mul(RotMatrixX, Initial);
-	AfterPY=mul(RotMatrixY, AfterP);
-	Result=mul(RotMatrixZ, AfterPY);
-	/*AfterP=mul(RotMatrixZ, Initial);
-	AfterPY=mul(RotMatrixY, AfterP);
-	Result=mul(RotMatrixX, AfterPY);*/
-	/*RotMatrix=mul(RotMatrixX, RotMatrixY);
-	RotMatrix=mul(RotMatrix, RotMatrixZ);
-	Result=mul(RotMatrix, Initial);*/
-	//Result=AfterPY;
-}
-
-VECTOR3 Atlantis::GetAnglesFromMatrix(MATRIX3 RotMatrix)
-{
-	VECTOR3 Angles;
-	Angles.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Angles.data[YAW]=-asin(RotMatrix.m13);
-	Angles.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Angles;
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
-void Atlantis::GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX)
-{
-	RotMatrixX.m11 = 1;
-	RotMatrixX.m12 = 0;
-	RotMatrixX.m13 = 0;
-	RotMatrixX.m21 = 0;
-	RotMatrixX.m22 = cos(Angle);
-	RotMatrixX.m23 = sin(Angle);
-	RotMatrixX.m31 = 0;
-	RotMatrixX.m32 = -sin(Angle);
-	RotMatrixX.m33 = cos(Angle);
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the Y axis (Yaw)
-void Atlantis::GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY)
-{
-	RotMatrixY.m11 = cos(Angle);
-	RotMatrixY.m12 = 0;
-	RotMatrixY.m13 = -sin(Angle);
-	RotMatrixY.m21 = 0;
-	RotMatrixY.m22 = 1;
-	RotMatrixY.m23 = 0;
-	RotMatrixY.m31 = sin(Angle);
-	RotMatrixY.m32 = 0;
-	RotMatrixY.m33 = cos(Angle);
-}
-
-// Returns the rotation matrix for a rotation of a given angle around the Z axis (Roll)
-void Atlantis::GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
-{
-	RotMatrixZ.m11 = cos(Angle);
-	RotMatrixZ.m12 = sin(Angle);
-	RotMatrixZ.m13 = 0;
-	RotMatrixZ.m21 = -sin(Angle);
-	RotMatrixZ.m22 = cos(Angle);
-	RotMatrixZ.m23 = 0;
-	RotMatrixZ.m31 = 0;
-	RotMatrixZ.m32 = 0;
-	RotMatrixZ.m33 = 1;
-}
-
-void Atlantis::MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result)
-{
-
-	Result.x =	(Initial.x * RotMatrix.m11) 
-				+ (Initial.y * RotMatrix.m12) 
-				+ (Initial.z * RotMatrix.m13);	
-	Result.y =	(Initial.x * RotMatrix.m21) 
-				+ (Initial.y * RotMatrix.m22) 
-				+ (Initial.z * RotMatrix.m23);	
-	Result.z =	(Initial.x * RotMatrix.m31) 
-				+ (Initial.y * RotMatrix.m32) 
-				+ (Initial.z * RotMatrix.m33);
-}
 
 // ==============================================================
 // Overloaded callback functions
@@ -4966,9 +4795,12 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
   while (oapiReadScenario_nextline (scn, line)) {
-        if (!_strnicmp (line, "CONFIGURATION", 13)) {
+      if (!_strnicmp (line, "CONFIGURATION", 13)) {
             sscanf (line+13, "%d", &status);
-    } else if (!_strnicmp (line, "MET", 3)) {
+    } else if (!_strnicmp (line, "MISSION", 7)) {
+		strncpy(pszBuffer, line+8, 255);
+		pMission = ssuGetMission(pszBuffer);
+	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
 	} else if(!_strnicmp(line, "ODS", 3)) {
 		bHasODS = true;
@@ -5196,6 +5028,12 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   // default vessel parameters
   VESSEL2::clbkSaveState (scn);
+
+  if(pMission != NULL) 
+  {
+	  strcpy(cbuf, pMission->GetMissionName().c_str());
+	  oapiWriteScenario_string(scn, "MISSION", cbuf);
+  }
 
   // custom parameters
   oapiWriteScenario_int (scn, "CONFIGURATION", status);
@@ -7503,6 +7341,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
 {
+  ClearMissionManagementMemory();
   oapiUnregisterCustomControls (hModule);
   DeleteDC(g_Param.DeuCharBitmapDC);
   if(g_Param.tkbk_label)

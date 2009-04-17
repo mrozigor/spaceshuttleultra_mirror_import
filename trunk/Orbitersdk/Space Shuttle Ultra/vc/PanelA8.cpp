@@ -3,6 +3,7 @@
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 #include "../RMSSystem.h"
+#include "../SSUMath.h"
 
 extern GDIParams g_Param;
 

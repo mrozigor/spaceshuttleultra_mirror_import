@@ -1,5 +1,6 @@
 #include "StbdMPMSystem.h"
 #include "RMSSystem.h"
+#include "SSUMath.h"
 
 StbdMPMSystem::StbdMPMSystem(SubsystemDirector *_director)
 	: MPMSystem(_director, "STBD_MPM", MPM_MESHNAME, MPM_MESH_OFFSET, "OBSS")

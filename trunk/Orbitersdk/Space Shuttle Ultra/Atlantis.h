@@ -21,6 +21,7 @@
 #include "dps/MasterTimingUnit.h"
 #include "eps/eps_defs.h"
 #include "gnc/IMU.h"
+#include "mission/Mission.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "vc/vc_defs.h"
@@ -29,6 +30,7 @@
 #include "vc/PanelF7.h"
 #include "vc/DAPControl.h"
 #include "APU.h"
+#include "SSUEngConst.h"
 
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
@@ -42,9 +44,7 @@ typedef struct {
 	double mdot;	//mass flow (lb/s)
 } FLOWSTATE;
 
-const MATRIX3 IdentityMatrix = _M(1, 0, 0,
-								  0, 1, 0,
-								  0, 0, 1);
+
 
 
 //Z
@@ -52,9 +52,7 @@ const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 //-.2802319446*cos(alpha)*cos(beta)+.9135110136*sin(alpha)
 //+.9417727780e-2*sin(alpha)*cos(beta)
 
-const double LBM = 0.45359237;
-const double MPS2FPS = 3.280839895;
-const double MPS2KTS = 1.943844492;
+
 
 const short VARSTATE_OK = 0;
 const short VARSTATE_MISSING = 1;
@@ -1034,7 +1032,7 @@ typedef struct {
 	int InputSize; //number of chars used
 } KeyboardInput;
 
-enum AXIS {PITCH, YAW, ROLL};
+
 
 class PanelA4;
 class PanelC2;
@@ -1092,6 +1090,10 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
 	/* **************************************************
+	 * Mission data reference
+	 * **************************************************/
+	mission::Mission* pMission;
+	/* **************************************************
 	 * Subsystem short cuts
 	 * **************************************************/
 	eps::ACBusSystem *pACBusSystem;
@@ -1114,6 +1116,8 @@ public:
 	MCA* pAMC1;
 	MCA* pAMC2;
 	MCA* pAMC3;
+
+	
 
 	MechActuator* pSTYDoorMotor;
 	MechActuator* pSTZDoorMotor;
@@ -1572,56 +1576,8 @@ private:
 	void UpdateOrbiterTexture();
 	void UpdateETTexture();
 
-	//Math
-	VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
-	VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
-	//returns rotation axis and angle of rotation (in radians)
-	double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis);
-	double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis);
-	void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-	void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-	VECTOR3 GetAnglesFromMatrix(MATRIX3 RotMatrix); //returns angles in radians
-	void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
-	void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
-	void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
-	void MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result);
-	inline VECTOR3 Normalize(const VECTOR3 &a)
-	{
-		return (a/length(a));
-	}
-	inline VECTOR3 Projection(const VECTOR3 &u, const VECTOR3 &v) //Proj u onto v
-	{
-		return v*(dotp(u, v)/dotp(v, v));
-	}
-	inline VECTOR3 ToRad(const VECTOR3 &Input)
-	{
-		VECTOR3 Output;
-		for(int i=0;i<3;i++) {
-			Output.data[i]=Input.data[i]*RAD;
-		}
-		return Output;
-	}
-	inline VECTOR3 ToDeg(const VECTOR3 &Input)
-	{
-		VECTOR3 Output;
-		for(int i=0;i<3;i++) {
-			Output.data[i]=Input.data[i]*DEG;
-		}
-		return Output;
-	}
-	inline VECTOR3 NormZ(VECTOR3 &v)
-	{
-		// error checking
-		/*if((pow(v.x,2)-pow(v.y,2))>0.1) {
-			sprintf_s(oapiDebugString(), 255, "NormZ ERROR: Vector %f %f %f passed at T: %f",
-				v.x, v.y, v.z, met);
-			oapiWriteLog(oapiDebugString());
-			return _V(0, 0, 1);
-		}*/
-		VECTOR3 o=v;
-		o.z=sqrt(1.0-pow(v.x,2)-pow(v.y,2));
-		return o;
-	}
+	
+
 	inline double a(double t) {
 		return a0/(1-t/tau);
 	}
@@ -2113,26 +2069,7 @@ private:
 	//////////////////////// ET vent ////////////////////////
 };
 
-static inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
-{
-	if(fabs(d1-d2)>dDiff) return false;
-	return true;
-}
 
-static inline bool Eq(const VECTOR3 v1, const VECTOR3 v2, double dDiff=0.00001)
-{
-	for(int i=0;i<3;i++) {
-		if(fabs(v1.data[i]-v2.data[i])>dDiff) return false;
-	}
-	return true;
-}
-
-static inline double range(double min, double value, double max)
-{
-	if(value<min) return min;
-	if(value>max) return max;
-	return value;
-}
 
 //mesh illumination functions
 static void IlluminateMesh(MESHHANDLE mesh)
@@ -2185,30 +2122,10 @@ static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
     }
 }
 
-static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
-{
-	VECTOR3 Output;
-	Output.x=v.x;
-	Output.z=v.z*cos(angle*RAD)-v.y*sin(angle*RAD);
-	Output.y=v.y*cos(angle*RAD)+v.z*sin(angle*RAD);
-	return Output;
-}
-static inline VECTOR3 RotateVectorY(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Y-axis
-{
-	VECTOR3 Output;
-	Output.y=v.y;
-	Output.x=v.x*cos(angle*RAD)-v.z*sin(angle*RAD);
-	Output.z=v.z*cos(angle*RAD)+v.x*sin(angle*RAD);
-	return Output;
-}
-static inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in Z-axis
-{
-	VECTOR3 Output;
-	Output.x=v.x*cos(angle*RAD)-v.y*sin(angle*RAD);
-	Output.y=v.x*sin(angle*RAD)+v.y*cos(angle*RAD);
-	Output.z=v.z;
-	return Output;
-}
+
+
+DLLCLBK mission::Mission* ssuGetMission(const std::string& filename);
+void ClearMissionManagementMemory();
 
 #endif // !__ATLANTIS_H
 

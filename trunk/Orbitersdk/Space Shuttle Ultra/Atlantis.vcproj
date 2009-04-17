@@ -283,7 +283,19 @@
 			Name="Sources"
 			>
 			<File
+				RelativePath=".\eps\ACBus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\eps\ACBusSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eps\ACMotor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\eps\ACMotorController.cpp"
 				>
 			</File>
 			<File
@@ -463,6 +475,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eps\Inverter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Keyboard.cpp"
 				>
 			</File>
@@ -488,6 +504,14 @@
 			</File>
 			<File
 				RelativePath=".\MechActuator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mission\Mission.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MissionFileManagement.cpp"
 				>
 			</File>
 			<File
@@ -614,6 +638,10 @@
 			</File>
 			<File
 				RelativePath=".\mps\SSME.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SSUMath.cpp"
 				>
 			</File>
 			<File
@@ -978,6 +1006,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SSUEngConst.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SSUMath.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\StandardLight.h"
 				>
 			</File>
@@ -1018,18 +1054,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\eps\ACBus.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\eps\ACBusSystem.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\eps\ACMotorController.cpp"
-			>
-		</File>
 		<File
 			RelativePath="Atlantis.rc"
 			>
@@ -1112,10 +1136,6 @@
 		</File>
 		<File
 			RelativePath="icon1.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\eps\Inverter.cpp"
 			>
 		</File>
 		<File
