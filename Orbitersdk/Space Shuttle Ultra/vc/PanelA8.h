@@ -84,7 +84,7 @@ namespace vc
 		MESHHANDLE hPanelMesh;
 		UINT mesh_index;
 
-		DiscInPort RMSJointAngles[6];
+		DiscInPort RMSJointAngles[6], EEPosition[3], EEAttitude[3];
 		DiscInPort LED_JointSelect[8], LED_ParameterSelect[8];
 
 		double LEDValues[3];
