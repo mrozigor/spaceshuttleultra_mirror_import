@@ -155,6 +155,12 @@ namespace vc
 		if(LED_ParameterSelect[7].IsSet()) { // TEST
 			for(int i=0;i<3;i++) NewLEDValues[i]=8888.0;
 		}
+		else if(LED_ParameterSelect[6].IsSet()) { // POSITION
+			for(int i=0;i<3;i++) NewLEDValues[i]=EEPosition[i].GetVoltage()*2000.0;
+		}
+		else if(LED_ParameterSelect[5].IsSet()) { // ATTTITUDE
+			for(int i=0;i<3;i++) NewLEDValues[i]=EEAttitude[i].GetVoltage()*2000.0;
+		}
 		else if(LED_ParameterSelect[4].IsSet()) { // JOINT ANGLE
 			if(LED_JointSelect[7].IsSet()) { // SHOULDER YAW
 				NewLEDValues[1]=RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;
@@ -441,7 +447,13 @@ namespace vc
 		pShoulderBrace->outputB.Connect(pBundle, 4);
 		pShoulderBraceTb->SetInput(0, pBundle, 5, TB_GRAY);
 		pRMSSelect->outputB.Connect(pBundle, 6);
-		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i+7);
+
+		pBundle=STS()->BundleManager()->CreateBundle("RMS_DATA", 16);
+		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i);
+		for(int i=0;i<3;i++) {
+			EEPosition[i].Connect(pBundle, i+6);
+			EEAttitude[i].Connect(pBundle, i+9);
+		}
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MRL", 16);
 		pPortMRL->outputB.Connect(pBundle, 0);

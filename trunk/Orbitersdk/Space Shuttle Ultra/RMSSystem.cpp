@@ -70,7 +70,13 @@ void RMSSystem::Realize()
 	ShoulderBrace.Connect(pBundle, 4);
 	ShoulderBraceReleased.Connect(pBundle, 5);
 	RMSSelect.Connect(pBundle, 6);
-	for(int i=0;i<6;i++) JointAngles[i].Connect(pBundle, i+7);
+
+	pBundle=BundleManager()->CreateBundle(GetIdentifier()+"_DATA", 16);
+	for(int i=0;i<6;i++) JointAngles[i].Connect(pBundle, i);
+	for(int i=0;i<3;i++) {
+		EEPosition[i].Connect(pBundle, i+6);
+		EEAttitude[i].Connect(pBundle, i+9);
+	}
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
@@ -362,6 +368,28 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		if(RMSCameraMode==EE) UpdateEECamView();
 		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
+
+		/*** Update output lines to LEDs ***/
+		// calculate position
+		VECTOR3 ee_pos_output=(arm_tip[0]-RMS_SP_JOINT)*12/fps_to_ms;
+		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
+		// calculate attitude
+		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
+		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
+		arm_ee_dir_orb[1]=arm_tip[0]-arm_tip[2];
+		//for(int i=0;i<2;i++) arm_ee_dir_orb[i]=_V(arm_ee_dir_orb[i].x, arm_ee_dir_orb[i].z, arm_ee_dir_orb[i].y);
+		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[0], arm_ee_dir_orb[1]);
+		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
+									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
+									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
+		VECTOR3 ee_att_output = GetAnglesFromMatrix(arm_ee_dir_mat)*DEG;
+		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH]; // reference frame is a bit odd here, so we need this to get the math to work
+		for(int i=0;i<3;i++) 
+			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=360.0;
+		for(int i=0;i<3;i++) {
+			EEPosition[i].SetLine((float)(ee_pos_output.data[i]/2000.0));
+			EEAttitude[i].SetLine((float)(ee_att_output.data[i]/2000.0));
+		}
 
 		arm_moved=false;
 	}
