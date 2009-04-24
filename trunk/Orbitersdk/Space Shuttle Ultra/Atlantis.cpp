@@ -5351,6 +5351,12 @@ void Atlantis::clbkPostCreation ()
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
 	RMSRelease.Connect(pBundle, 1);
+
+	pBundle=bundleManager->CreateBundle("RMS_HC_INPUT", 16);
+	for(int i=0;i<3;i++) {
+		RMS_RHCInput[i].Connect(pBundle, i);
+		RMS_THCInput[i].Connect(pBundle, i+3);
+	}
 }
 
 // --------------------------------------------------------------
@@ -5632,6 +5638,18 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
 			THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
 			THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+		}
+		else if(VCMode==VC_RMSSTATION || VCMode==VC_RMSCAM || VCMode==VC_LEECAM) { // use RHC/THC input to control RMS
+			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
+			RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
+			RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
+			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
+			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
+			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP)));
+			for(int i=0;i<3;i++) {
+				RHCInput.data[i]=0.0;
+				THCInput.data[i]=0.0;
+			}
 		}
 		else { //aft RHC/THC
 			DiscreteBundle* pBundle=bundleManager->CreateBundle("A6", 16);

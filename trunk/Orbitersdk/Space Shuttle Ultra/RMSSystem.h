@@ -165,6 +165,7 @@ private:
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
 	int joint_motion[6];
 	int ee_translation[3];
+	DiscInPort RHCInput[3], THCInput[3];
 
 	double shoulder_brace;
 	DiscInPort ShoulderBrace;

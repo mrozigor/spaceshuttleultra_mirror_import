@@ -78,6 +78,12 @@ void RMSSystem::Realize()
 		EEAttitude[i].Connect(pBundle, i+9);
 	}
 
+	pBundle=BundleManager()->CreateBundle("RMS_HC_INPUT", 16);
+	for(int i=0;i<3;i++) {
+		RHCInput[i].Connect(pBundle, i);
+		THCInput[i].Connect(pBundle, i+3);
+	}
+
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
@@ -214,7 +220,11 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		VECTOR3 translation=_V(0.0, 0.0, 0.0);
 		bool translate=false;
 		for(int i=0;i<3;i++) {
-			if(ee_translation[i]!=0) {
+			if(!Eq(THCInput[i].GetVoltage(), 0.0, 0.05)) {
+				translation.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
+				translate=true;
+			}
+			else if(ee_translation[i]!=0) {
 				translation.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
 				ee_translation[i]=0;
 				translate=true;
@@ -377,7 +387,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
 		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
 		arm_ee_dir_orb[1]=arm_tip[0]-arm_tip[2];
-		//for(int i=0;i<2;i++) arm_ee_dir_orb[i]=_V(arm_ee_dir_orb[i].x, arm_ee_dir_orb[i].z, arm_ee_dir_orb[i].y);
 		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[0], arm_ee_dir_orb[1]);
 		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
 									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
