@@ -1838,27 +1838,6 @@ private:
 	bool RMS;
 	bool STBDMPM;
 	bool mpm_moved;
-	//bool DisplayJointAngles;	
-	//Grapple/Release sequences
-	//bool bGrappleInProgress, bReleaseInProgress;
-	//AnimState Grapple, Rigidize, Extend;
-	//int EEGrappleMode; //0=OFF, 1=MAN, 2=AUTO
-	//IK parameters
-	/*VECTOR3 arm_wrist_pos;
-	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
-	VECTOR3 arm_tgt_pos, arm_tgt_dir;
-	double lu, ll, wp_wy, wy_ee;
-    double shoulder_neutral;
-    double shoulder_range,shoulder_min,shoulder_max;
-    double elbow_neutral;
-    double elbow_range,elbow_min,elbow_max;
-    double wrist_neutral;
-    double wrist_range,wrist_min,wrist_max;
-	double wrist_yaw_neutral;
-	double wrist_yaw_range, wrist_yaw_min, wrist_yaw_max;
-	double wrist_roll_neutral;
-	double wrist_roll_range, wrist_roll_min, wrist_roll_max;
-	VECTOR3 shoulder_pos;*/
 
 	//Hand controller input
 	VECTOR3 THCInput, RHCInput;
@@ -2009,11 +1988,7 @@ private:
 	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
 	int JetsEnabled;
 
-	//I-Loads
-	//double* stage1guidance[2];
 	vector<double> stage1guidance[2];
-	//int stage1guidance_size;
-	//double* stage1Vguidance;
 
 	double fTimeCameraLabel;
 	NOTEHANDLE nhCameraLabel;
@@ -2032,6 +2007,7 @@ private:
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
+	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
