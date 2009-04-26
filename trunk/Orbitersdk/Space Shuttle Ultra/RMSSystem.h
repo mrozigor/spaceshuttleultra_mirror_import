@@ -60,6 +60,8 @@ const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6,
 
 const double RMS_JOINT_ROTATION_SPEED = 1.5;
 // RMS arm joint rotation speed (deg/sec)
+const double RMS_EE_ROTATION_SPEED = 1.0*RAD;
+// RMS IK rotation speed (rad/sec)
 const double RMS_EE_TRANSLATION_SPEED = 0.1;
 // RMS IK translation speed (m/s)
 
@@ -129,8 +131,12 @@ private:
 	bool ArmStowed() const;
 
 	void Translate(const VECTOR3 &dPos);
+	void Rotate(const VECTOR3 &dAngles); // angles in radians
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
+
+	int GetSelectedJoint() const;
 
 	void UpdateEECamView() const;
 	void UpdateElbowCamView() const;
@@ -165,6 +171,7 @@ private:
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
 	int joint_motion[6];
 	int ee_translation[3];
+	DiscInPort JointSelect[6], DirectDrivePlus, DirectDriveMinus;
 	DiscInPort RHCInput[3], THCInput[3];
 
 	double shoulder_brace;

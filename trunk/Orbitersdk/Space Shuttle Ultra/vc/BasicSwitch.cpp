@@ -159,7 +159,7 @@ void BasicSwitch::SetOrientation(bool bHorizontal)
 	bOrientation = bHorizontal;
 }
 
-void BasicSwitch::SetStringLoaded(bool IsSpringLoaded)
+void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded)
 {
 	bSpringLoaded=IsSpringLoaded;
 }
