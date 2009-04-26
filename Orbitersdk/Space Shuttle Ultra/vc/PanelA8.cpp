@@ -51,6 +51,7 @@ namespace vc
 		Add(pEEManContr = new StdSwitch3(_sts, "EE Man Contr"));
 		Add(pShoulderBrace = new StdSwitch3(_sts, "Shoulder Brace Release"));
 		Add(pRMSSelect = new StdSwitch3(_sts, "RMS SELECT"));
+		Add(pSingleDirectDrive = new StdSwitch3(_sts, "Single/Direct Drive"));
 
 		Add(pPortMRLTb = new StandardTalkback(_sts, "Port MRL Talkback", 2));
 		Add(pStbdMRLTb = new StandardTalkback(_sts, "Stbd MRL Talkback", 2));
@@ -98,6 +99,9 @@ namespace vc
 		pRMSSelect->SetLabel(2, "PORT");
 		pRMSSelect->SetLabel(1, "OFF");
 		pRMSSelect->SetLabel(0, "STBD");
+		pSingleDirectDrive->SetLabel(2, "+");
+		pSingleDirectDrive->SetLabel(1, "OFF");
+		pSingleDirectDrive->SetLabel(0, "-");
 
 		pLEDParameter->SetLabel(7, "TEST");
 		pLEDParameter->SetLabel(6, "POSITION");
@@ -337,14 +341,20 @@ namespace vc
 		pEEManContr->SetReference(_V(-0.654, 2.709, 12.337), switch_rot_vert);
 		pEEManContr->DefineSwitchGroup(GRP_A8S5_VC);
 		pEEManContr->SetInitialAnimState(0.5f);
-		pEEManContr->SetStringLoaded(true);
+		pEEManContr->SetSpringLoaded(true);
 
 		pShoulderBrace->SetMouseRegion(0.170449f, 0.618925f, 0.226497f, 0.651137f);
 		pShoulderBrace->SetReference(_V(-0.687, 2.402, 12.434), switch_rot_horz);
 		pShoulderBrace->DefineSwitchGroup(GRP_A8S10_VC);
 		pShoulderBrace->SetInitialAnimState(0.5f);
 		pShoulderBrace->SetOrientation(true);
-		pShoulderBrace->SetStringLoaded(true);
+		pShoulderBrace->SetSpringLoaded(true);
+
+		pSingleDirectDrive->SetMouseRegion(0.142212f, 0.547297f, 0.208286f, 0.581384f);
+		pSingleDirectDrive->SetReference(_V(-0.698, 2.458, 12.417), switch_rot_vert);
+		pSingleDirectDrive->DefineSwitchGroup(GRP_A8S9_VC);
+		pSingleDirectDrive->SetInitialAnimState(0.5f);
+		pSingleDirectDrive->SetSpringLoaded(true);
 
 		pRMSSelect->SetMouseRegion(0.466754f, 0.757090f, 0.510409f, 0.788049f);
 		pRMSSelect->SetReference(_V(-0.537, 2.294, 12.467), switch_rot_horz);
@@ -491,9 +501,15 @@ namespace vc
 		for(int i=0;i<8;i++) {
 			LED_ParameterSelect[i].Connect(pBundle, i);
 			pLEDParameter->ConnectOutputSignal(i, pBundle, i);
-			LED_JointSelect[i].Connect(pBundle, i+8);
-			pLEDJoint->ConnectOutputSignal(i, pBundle, i+8);
 		}
+
+		pBundle=STS()->BundleManager()->CreateBundle("RMS_SINGLE_JOINT", 16);
+		for(int i=0;i<8;i++) {
+			LED_JointSelect[i].Connect(pBundle, 7-i);
+			pLEDJoint->ConnectOutputSignal(i, pBundle, 7-i);
+		}
+		pSingleDirectDrive->outputB.Connect(pBundle, 8);
+		pSingleDirectDrive->outputA.Connect(pBundle, 9);
 
 		BasicPanel::Realize();
 	}
