@@ -35,12 +35,17 @@ const string& BasicSwitch::GetLabel(int iPosition) const {
 
 bool BasicSwitch::GetStateString(unsigned long ulBufferSize, char* pszBuffer) {
 
-	if(labels.at(usCurrentPosition).compare("")) {
-		sprintf_s(pszBuffer, ulBufferSize, "%s", 
-			labels.at(usCurrentPosition).c_str());
-	} else {
-		sprintf_s(pszBuffer, ulBufferSize, "[%d]", 
-			usCurrentPosition);
+	try {
+		if(labels.at(usCurrentPosition).compare("")) {
+			sprintf_s(pszBuffer, ulBufferSize, "%s", 
+				labels.at(usCurrentPosition).c_str());
+		} else {
+			sprintf_s(pszBuffer, ulBufferSize, "[%d]", 
+				usCurrentPosition);
+		}
+	}
+	catch(...) {
+		sprintf_s(pszBuffer, ulBufferSize, "Switch %s: exception thrown", GetIdentifier().c_str());
 	}
 	return true;
 }
