@@ -1342,7 +1342,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 // Attitude controls (RCS) during orbital phase
 // --------------------------------------------------------------
 void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
- // SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
+  SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
   const double eh = 9.0, eh2 = 12.0; // exhaust length scales, 080902, DaveS edit: Increased length for both side, fore/aft and laterally firing jets
   const double ew1 = 0.4, ew2 = 0.8; // exhaust width scales
 
