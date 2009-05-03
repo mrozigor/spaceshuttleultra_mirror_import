@@ -31,6 +31,9 @@
 
 const static char* RMS_MESHNAME = "SSU/RMS";
 
+const double RMS_ROLLOUT_ANGLE=18.435;
+// angle between RMS and vertical when RMS is deployed (in degrees)
+
 // RMS joint positions
 //const VECTOR3 RMS_SY_JOINT = _V(-2.61,1.65,9.02);
 const VECTOR3 RMS_SY_JOINT = _V(-2.6855, 1.6515, 9.017);
@@ -132,7 +135,7 @@ private:
 
 	void Translate(const VECTOR3 &dPos);
 	void Rotate(const VECTOR3 &dAngles); // angles in radians
-	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt);
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
 
@@ -157,8 +160,7 @@ private:
 	bool camera_moved;
 
 	//EE and IK parameters
-	VECTOR3 arm_tip[4];
-	VECTOR3 arm_wrist_pos;
+	VECTOR3 arm_tip[5];
 	/** Refence frame for internal calculations:
 	 * +X: Towards tail
 	 * +Y: towards port side (right from aft windows)
