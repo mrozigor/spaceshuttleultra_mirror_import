@@ -88,7 +88,8 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 	if(!strcmp(pV->GetClassName(), "Atlantis") || 
 		!stricmp(pV->GetClassName(), STD_CLASS_NAME)) {
-		sts=(Atlantis *)pV;
+		//sts=(Atlantis *)pV;
+		sts=static_cast<Atlantis*>(pV);
 		//id=sts->last_mfd;
 		/*sprintf(oapiDebugString(), "%d %f", sts->last_mfd, oapiRand());
 		if(sts->last_mfd==4) id=0;

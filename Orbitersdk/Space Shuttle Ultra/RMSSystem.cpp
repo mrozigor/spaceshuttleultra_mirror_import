@@ -16,9 +16,11 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	arm_tip[0] = RMS_EE_POS;
 	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // -Z coordinate of attachment point is negative, so subtract 1 here
 	arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
-	arm_tip[3] = RMS_EE_POS+RMS_EE_CAM_OFFSET;
+	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
+	arm_tip[4] = RMS_EE_POS+RMS_EE_CAM_OFFSET;
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
+	arm_ee_rot = _V(0.0, 1.0, 0.0);
 
 	// default EE to grapple open and derigidized
 	Grapple_State.Set(AnimState::OPEN, 1);
@@ -173,7 +175,7 @@ void RMSSystem::CreateArm()
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, &rms_wr_anim, parent);
 
-	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 4,
+	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddAnimationComponent (anim_rms_ee, 0, 1, &rms_ee_anim, parent);
@@ -237,7 +239,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		// EE rotation
 		VECTOR3 change=_V(0.0, 0.0, 0.0);
 		bool moveEE=false;
-		for(int i=0;i<2;i++) { // for moment, ignore roll axis
+		for(int i=0;i<3;i++) {
 			if(!Eq(RHCInput[i].GetVoltage(), 0.0, 0.05)) {
 				change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
 				moveEE=true;
@@ -375,16 +377,16 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	if(arm_moved) {
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 		if(update_data) {
-			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -18.435);
+			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
-			arm_ee_rot=RotateVectorZ(arm_tip[2]-arm_tip[0], -18.435);
+			arm_ee_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 
 			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -18.435);
+			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
@@ -414,15 +416,15 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		// calculate attitude
 		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
 		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=arm_tip[0]-arm_tip[2];
+		arm_ee_dir_orb[1]=arm_tip[0]-arm_tip[3];
 		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[0], arm_ee_dir_orb[1]);
 		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
 									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
 									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
 		VECTOR3 ee_att_output = GetAnglesFromMatrix(arm_ee_dir_mat)*DEG;
-		//ee_att_output.data[PITCH]=-ee_att_output.data[PITCH]; // reference frame is a bit odd here, so we need this to get the math to work
 		// reference frame is a bit odd here, so we need this to get the math to work
-		ee_att_output=_V(-ee_att_output.data[PITCH], ee_att_output.data[ROLL], ee_att_output.data[YAW]);
+		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
+		//ee_att_output=_V(-ee_att_output.data[PITCH], ee_att_output.data[ROLL], ee_att_output.data[YAW]);
 		for(int i=0;i<3;i++) 
 			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=360.0;
 		for(int i=0;i<3;i++) {
@@ -592,25 +594,35 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 	temp=_V(temp.z, temp.x, -temp.y);
 	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f Error: %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z, length(arm_ee_pos-temp));*/
 
-	MoveEE(arm_ee_pos+RotateVectorX(dPos, -18.435), arm_ee_dir);
+	MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
 }
 
 void RMSSystem::Rotate(const VECTOR3 &dAngles)
 {
-	VECTOR3 newDir;
-	VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, 18.435);
+	VECTOR3 newDir, newRot;
+
+	VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 	// NOTE: for math to work, we need to swap yaw and pitch angles
-	RotateVector(ee_dir, _V(dAngles.data[YAW], dAngles.data[PITCH], dAngles.data[ROLL]), newDir);
-	newDir=RotateVectorX(newDir, -18.435);
-	sprintf_s(oapiDebugString(), 255, "old dir: %f %f %f new dir: %f %f %f", ee_dir.x, ee_dir.y, ee_dir.z,
+	RotateVector(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+	newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
+
+	VECTOR3 ee_rot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
+	RotateVector(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+	newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
+
+	/*sprintf_s(oapiDebugString(), 255, "old dir: %f %f %f new dir: %f %f %f", ee_dir.x, ee_dir.y, ee_dir.z,
 		newDir.x, newDir.y, newDir.z);
-	oapiWriteLog(oapiDebugString());
-	MoveEE(arm_ee_pos, newDir);
+	oapiWriteLog(oapiDebugString());*/
+
+	MoveEE(arm_ee_pos, newDir, newRot);
 }
 
-bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt)
+bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
 {
-	VECTOR3 arm_wy_cpos=newPos-newAtt*RMS_WY_EE_DIST;
+	// NOTE: for cross products, |a x b|=|a||b|sin(theta)
+	// all vectors obtained as cross products should be normalized
+
+	VECTOR3 arm_wy_cpos=newPos-newDir*RMS_WY_EE_DIST;
 	double yaw_angle=atan2(arm_wy_cpos.y, arm_wy_cpos.x);
 
 	VECTOR3 boom_plane=_V(cos(yaw_angle), sin(yaw_angle), 0.0);
@@ -619,13 +631,13 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt)
 	normal/=length(normal);
 
 	double beta_w;
-	if((newAtt.z>normal.z && newAtt.z<boom_plane.z) || (newAtt.z<normal.z && newAtt.z>boom_plane.z))
-		beta_w=-DEG*acos(dotp(normal, newAtt))+90.0;
-	else beta_w=-90.0+DEG*acos(dotp(normal, newAtt));
+	if((newDir.z>normal.z && newDir.z<boom_plane.z) || (newDir.z<normal.z && newDir.z>boom_plane.z))
+		beta_w=-DEG*acos(dotp(normal, newDir))+90.0;
+	else beta_w=-90.0+DEG*acos(dotp(normal, newDir));
 
 	double phi;
 	//find vector in same plane as arm booms and perpendicular to EE direction
-	VECTOR3 wp_normal=crossp(normal, newAtt);
+	VECTOR3 wp_normal=crossp(normal, newDir);
 	if(Eq(length(wp_normal), 0.0, 0.001)) //check if newAtt is perpendicular to arm booms
 	{
 		// use same phi angle as for previous position
@@ -635,10 +647,17 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt)
 	else {
 		wp_normal/=length(wp_normal);
 		phi=DEG*acos(wp_normal.z);
-		if(newAtt.z<0.0) phi=-phi;
+		if(newDir.z<0.0) phi=-phi;
 	}
-	sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
-		phi, beta_w);
+	/*sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
+		phi, beta_w);*/
+
+	double theta_w; // wrist roll
+	theta_w=acos(dotp(wp_normal, newRot))*DEG;
+	//if((newRot.x>wp_normal.x && newRot.y<wp_normal.y) || (newRot.x<wp_normal.x && newRot.y>wp_normal.y))
+	VECTOR3 cross_product=crossp(wp_normal, newRot);
+	if(Eq(1.0, dotp(cross_product/length(cross_product), newDir), 0.05))
+		theta_w=-theta_w;
 
 	VECTOR3 arm_wp_dir=crossp(wp_normal, normal); // wp_normal and normal vectors are perpendicular
 	VECTOR3 arm_wp_cpos=arm_wy_cpos-arm_wp_dir*RMS_WP_WY_DIST;
@@ -670,9 +689,11 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newAtt)
 	SetJointAngle(ELBOW_PITCH, phi_e);
 	SetJointAngle(WRIST_PITCH, phi_w);
 	SetJointAngle(WRIST_YAW, beta_w);
+	SetJointAngle(WRIST_ROLL, theta_w);
 
 	arm_ee_pos=newPos;
-	arm_ee_dir=newAtt;
+	arm_ee_dir=newDir;
+	arm_ee_rot=newRot;
 
 	return true;
 }
@@ -718,14 +739,6 @@ OBJHANDLE RMSSystem::Grapple()
 	if(pVessel) return pVessel->GetHandle();
 	return NULL;
 }
-
-/*void RMSSystem::Detach(VESSEL* target)
-{
-	if(!target || target==payload) {
-		STS()->DetachChild(hAttach);
-		detached=true;
-	}
-}*/
 
 void RMSSystem::OnMRLLatched()
 {
@@ -778,7 +791,7 @@ void RMSSystem::UpdateEECamView() const
 	double tilt = joint_angle[WRIST_ROLL];
 	if(tilt<-180.0) tilt+=360.0;
 	else if(tilt>180.0) tilt-=360.0;
-	STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[3]);
+	STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]);
 	STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], 0.0);
 }
 
