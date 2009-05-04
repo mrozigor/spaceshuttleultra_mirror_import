@@ -51,6 +51,7 @@ namespace mission {
 		
 		bool bUseRMS;
 		bool bUseOMSAssist;
+		unsigned short usExtAirlockMode;
 
 		
 	public:

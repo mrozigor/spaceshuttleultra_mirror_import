@@ -16,6 +16,10 @@
 #define IDC_RSS_CLOSE3                  1010
 #define IDC_FSSOWP_CLOSE                1010
 #define IDC_LABEL2                      1011
+#define IDC_IAA_DEPLOY                  1012
+#define IDC_IAA_RETRACT                 1013
+#define IDC_BUTTON4                     1014
+#define IDC_IAA_HALT                    1014
 
 // Next default values for new objects
 // 
@@ -23,7 +27,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

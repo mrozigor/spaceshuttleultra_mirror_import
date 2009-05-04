@@ -33,7 +33,7 @@ namespace vc {
 
 	bool StandardLight::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	{
-		char pszBuffer[256];
+		//char pszBuffer[256];
 		if(!bHasSourceImage) {
 			return false;
 		}

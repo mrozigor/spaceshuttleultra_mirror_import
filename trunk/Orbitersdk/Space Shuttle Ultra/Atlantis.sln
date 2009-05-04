@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_Pad", "SSU_Pad.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_MLP", "Atlantis_MLP.vcproj", "{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssumeshc", "ssumeshc\ssumeshc.vcproj", "{3343BD03-0738-4D55-8FBA-206D6309793F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -67,6 +69,10 @@ Global
 		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Debug|Win32.Build.0 = Debug|Win32
 		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Release|Win32.ActiveCfg = Release|Win32
 		{36625AF0-5E8C-48F1-B6CC-26C39C4DB203}.Release|Win32.Build.0 = Release|Win32
+		{3343BD03-0738-4D55-8FBA-206D6309793F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3343BD03-0738-4D55-8FBA-206D6309793F}.Debug|Win32.Build.0 = Debug|Win32
+		{3343BD03-0738-4D55-8FBA-206D6309793F}.Release|Win32.ActiveCfg = Release|Win32
+		{3343BD03-0738-4D55-8FBA-206D6309793F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
