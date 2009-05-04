@@ -15,6 +15,7 @@ const double RSS_OWP_RATE = 0.002381;
 const double FSS_OWP_RATE = 0.00128205;
 const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
+const double FSS_IAA_RATE = 1.0/200.0;
 
 //FSS OWP strut animation constants
 const double FSS_OWP_BRACKET_LENGTH = 12.212;
@@ -53,6 +54,9 @@ public:
 	void MoveRSS_OWP(AnimState::Action action);
 	void MoveFSS_OWP(AnimState::Action action);
 	void MoveRSS(AnimState::Action action);
+	void DeployIAA();
+	void HaltIAA();
+	void RetractIAA();
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
@@ -74,6 +78,7 @@ private:
 	UINT anim_gva, anim_venthood;
 	UINT anim_rss_y_owp;
 	UINT anim_fss_y_owp, anim_fss_y_owp_strut;
+	UINT anim_iaa;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
 
@@ -83,6 +88,13 @@ private:
 	double fNextLightUpdate;
 
 	AnimState AccessArmState, GVAState, VentHoodState;
+	/**
+	 * Intertank Access Arm animation state
+	 * 0 = retracted
+	 * 1 = deployed
+	 */
+	AnimState IAA_State;
+	
 	AnimState RSS_OWP_State, FSS_OWP_State;
 	AnimState RSS_State;
 	AnimState FSS_GH2_VentArmState;

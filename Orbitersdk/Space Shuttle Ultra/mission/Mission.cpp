@@ -39,6 +39,17 @@ namespace mission {
 			strOrbiter = buffer;
 		}
 
+		if(!oapiReadItem_float(hFile, "LTime", fLTimeMJD))
+		{
+			fLTimeMJD = -1.0;
+		}
+
+		
+		if(!oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD))
+		{
+			fLandTimeMJD = -1.0;
+		}
+
 		if(!oapiReadItem_float(hFile, "TargetInc", fTargetInc))
 			fTargetInc = 28.5;
 

@@ -95,7 +95,7 @@ void WriteHeaderFile()
 		existing_symbols.insert(tmp);
 
 		tmp.append(constant_suffix);
-		hfile << "#define " << tmp << " " << labels[i].group_num; 
+		hfile << "const unsigned int " << tmp << "\t=\t" << labels[i].group_num << ";"; 
 		hfile << "\t//" << labels[i].label;
 		hfile << std::endl;
 	}
