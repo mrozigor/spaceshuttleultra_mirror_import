@@ -83,40 +83,61 @@ void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result
 	AfterZ=mul(RotMatrixZ, Initial);
 	AfterZY=mul(RotMatrixY, AfterZ);
 	Result=mul(RotMatrixX, AfterZY);
+
+	/*MATRIX3 RotMatrix=mul(RotMatrixZ, RotMatrixY);
+	RotMatrix=mul(RotMatrix, RotMatrixX);
+	Result=mul(RotMatrix, Initial);*/
 }
 
 void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	VECTOR3 AfterP, AfterPY;					// Temporary variables
-
 
 	GetRotMatrixX(Angles.x, RotMatrixX);
 	GetRotMatrixY(Angles.y, RotMatrixY);
 	GetRotMatrixZ(Angles.z, RotMatrixZ);
-	
-	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
-	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
+
+	MATRIX3 RotMatrix=mul(RotMatrixX, RotMatrixY);
+	RotMatrix=mul(RotMatrix, RotMatrixZ);
+	Result=mul(RotMatrix, Initial);
+}
+
+void RotateVectorPYR2(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
+{
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	VECTOR3 AfterP, AfterPY;					// Temporary variables
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
 	AfterP=mul(RotMatrixX, Initial);
 	AfterPY=mul(RotMatrixY, AfterP);
 	Result=mul(RotMatrixZ, AfterPY);
-	/*AfterP=mul(RotMatrixZ, Initial);
-	AfterPY=mul(RotMatrixY, AfterP);
-	Result=mul(RotMatrixX, AfterPY);*/
-	/*RotMatrix=mul(RotMatrixX, RotMatrixY);
-	RotMatrix=mul(RotMatrix, RotMatrixZ);
-	Result=mul(RotMatrix, Initial);*/
-	//Result=AfterPY;
 }
 
-VECTOR3 GetAnglesFromMatrix(MATRIX3 RotMatrix)
+VECTOR3 GetAnglesFromMatrix(const MATRIX3 &RotMatrix)
 {
 	VECTOR3 Angles;
 	Angles.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Angles.data[YAW]=-asin(RotMatrix.m13);
 	Angles.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 	return Angles;
+}
+
+VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
+{
+	VECTOR3 Angles;
+	Angles.data[PITCH]=atan2(RotMatrix.m32, RotMatrix.m33);
+	Angles.data[YAW]=-asin(RotMatrix.m31);
+	Angles.data[ROLL]=atan2(RotMatrix.m21, RotMatrix.m11);
+	return Angles;
+	/*const MATRIX3 mat=_M(0.0, 0.0, -1.0,
+						0.0, 1.0, 0.0,
+						1.0, 0.0, 0.0);
+	MATRIX3 RM2=mul(mat, RotMatrix);
+	sprintf_s(oapiDebugString(), 255, "X: %f %f %f Y: %f %f %f Z: %f %f %f", RM2.m11, RM2.m12, RM2.m13,
+			RM2.m21, RM2.m22, RM2.m23, RM2.m31, RM2.m32, RM2.m33);
+	return GetAnglesFromMatrix(mul(mat, RotMatrix));*/
 }
 
 // Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
@@ -159,18 +180,4 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
 	RotMatrixZ.m31 = 0;
 	RotMatrixZ.m32 = 0;
 	RotMatrixZ.m33 = 1;
-}
-
-void MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result)
-{
-
-	Result.x =	(Initial.x * RotMatrix.m11) 
-				+ (Initial.y * RotMatrix.m12) 
-				+ (Initial.z * RotMatrix.m13);	
-	Result.y =	(Initial.x * RotMatrix.m21) 
-				+ (Initial.y * RotMatrix.m22) 
-				+ (Initial.z * RotMatrix.m23);	
-	Result.z =	(Initial.x * RotMatrix.m31) 
-				+ (Initial.y * RotMatrix.m32) 
-				+ (Initial.z * RotMatrix.m33);
 }

@@ -168,6 +168,7 @@ private:
 	 * Frame corresponds to negative version of frame used by real shuttle
 	 */
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
+	VECTOR3 arm_ee_angles; // angles in radians
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6];
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms

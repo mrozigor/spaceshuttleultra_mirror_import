@@ -40,11 +40,12 @@ double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VEC
 double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis);
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-VECTOR3 GetAnglesFromMatrix(MATRIX3 RotMatrix); //returns angles in radians
+void RotateVectorPYR2(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
+VECTOR3 GetAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
+VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
-void MultiplyByMatrix(const VECTOR3 &Initial, const MATRIX3 &RotMatrix, VECTOR3 &Result);
 	
 static inline VECTOR3 Normalize(const VECTOR3 &a)
 {
