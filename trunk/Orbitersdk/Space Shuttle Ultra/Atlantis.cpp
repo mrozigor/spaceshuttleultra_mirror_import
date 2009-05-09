@@ -4660,17 +4660,17 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	//sprintf(oapiDebugString(), "HorzAtt: %f %f %f", HorizonAngles.data[PITCH]*DEG, HorizonAngles.data[YAW]*DEG,
 		//HorizonAngles.data[ROLL]*DEG);
 
-	RotateVectorPYR(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
+	RotateVectorPYR2(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
 	HorizonX=RotateVectorY(HorizonX, VVAngle);
 	HorizonInvRot(HorizonX, LocalX);
 	GlobalRot(LocalX, GlobalX);
 	
-	RotateVectorPYR(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
+	RotateVectorPYR2(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
 	HorizonY=RotateVectorY(HorizonY, VVAngle);
 	HorizonInvRot(HorizonY, LocalY);
 	GlobalRot(LocalY, GlobalY);
 
-	RotateVectorPYR(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
+	RotateVectorPYR2(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
 	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
 	HorizonInvRot(HorizonZ, LocalZ);
 	GlobalRot(LocalZ, GlobalZ);
@@ -4703,17 +4703,17 @@ MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 	HorizonAngles=-Input;
 	double VVAngle=atan2(HVel.z, HVel.x)*DEG;
 
-	RotateVectorPYR(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
+	RotateVectorPYR2(_V(0, 0, -1), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonX);
 	HorizonX=RotateVectorY(HorizonX, VVAngle);
 	HorizonInvRot(HorizonX, LocalX);
 	GlobalRot(LocalX, GlobalX);
 	
-	RotateVectorPYR(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
+	RotateVectorPYR2(_V(0, 1, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonY);
 	HorizonY=RotateVectorY(HorizonY, VVAngle);
 	HorizonInvRot(HorizonY, LocalY);
 	GlobalRot(LocalY, GlobalY);
 
-	RotateVectorPYR(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
+	RotateVectorPYR2(_V(1, 0, 0), _V(-HorizonAngles.z, -HorizonAngles.y, HorizonAngles.x), HorizonZ);
 	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
 	HorizonInvRot(HorizonZ, LocalZ);
 	GlobalRot(LocalZ, GlobalZ);

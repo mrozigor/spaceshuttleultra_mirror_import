@@ -21,6 +21,7 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(15.069, 0.0, 0.0);
 	arm_ee_rot = _V(0.0, 1.0, 0.0);
+	arm_ee_angles = _V(0.0, 0.0, 0.0);
 
 	// default EE to grapple open and derigidized
 	Grapple_State.Set(AnimState::OPEN, 1);
@@ -376,22 +377,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 	if(arm_moved) {
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
-		if(update_data) {
-			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
-
-			arm_ee_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
-
-			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
-
-			update_data=false;
-		}
 
 		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
 		if(Eq(joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
@@ -413,23 +398,42 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		// calculate position
 		VECTOR3 ee_pos_output=(arm_tip[0]-RMS_SP_JOINT)*12/fps_to_ms;
 		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
+
 		// calculate attitude
 		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
 		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=arm_tip[0]-arm_tip[3];
-		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[0], arm_ee_dir_orb[1]);
+		arm_ee_dir_orb[1]=-arm_tip[0]+arm_tip[2];
+		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[1], arm_ee_dir_orb[0]);
 		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
 									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
 									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
-		VECTOR3 ee_att_output = GetAnglesFromMatrix(arm_ee_dir_mat)*DEG;
+		VECTOR3 ee_att_output = GetPYRAnglesFromMatrix(arm_ee_dir_mat);
 		// reference frame is a bit odd here, so we need this to get the math to work
 		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
-		//ee_att_output=_V(-ee_att_output.data[PITCH], ee_att_output.data[ROLL], ee_att_output.data[YAW]);
-		for(int i=0;i<3;i++) 
-			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=360.0;
 		for(int i=0;i<3;i++) {
+			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=2*PI;
+
 			EEPosition[i].SetLine((float)(ee_pos_output.data[i]/2000.0));
-			EEAttitude[i].SetLine((float)(ee_att_output.data[i]/2000.0));
+			EEAttitude[i].SetLine((float)(DEG*ee_att_output.data[i]/2000.0));
+		}
+
+		if(update_data) {
+			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
+			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
+
+			arm_ee_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
+			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+
+			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
+			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
+			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+
+			arm_ee_angles=ee_att_output;
+
+			update_data=false;
 		}
 
 		arm_moved=false;
@@ -522,99 +526,42 @@ void RMSSystem::SetElbowCamRotSpeed(bool low)
 
 void RMSSystem::Translate(const VECTOR3 &dPos)
 {
-	/*VECTOR3 arm_cpos=arm_ee_pos+RotateVectorX(dPos, -18.435);
-	VECTOR3 arm_wy_cpos=arm_cpos-arm_ee_dir*RMS_WY_EE_DIST;
-	double yaw_angle=atan2(arm_wy_cpos.y, arm_wy_cpos.x);
-
-	VECTOR3 boom_plane=_V(cos(yaw_angle), sin(yaw_angle), 0.0);
-	//find vector in XY plane and perpendicular to arm booms
-	VECTOR3 normal=crossp(boom_plane, _V(0.0, 0.0, 1.0));
-	normal/=length(normal);
-	//sprintf_s(oapiDebugString(), 255, "Normal: %f %f %f Boom Plane: %f %f %f", normal.x, normal.y, normal.z, boom_plane.x, boom_plane.y, boom_plane.z);
-
-	double beta_w;
-	if((arm_ee_dir.z>normal.z && arm_ee_dir.z<boom_plane.z) || (arm_ee_dir.z<normal.z && arm_ee_dir.z>boom_plane.z))
-		beta_w=-DEG*acos(dotp(normal, arm_ee_dir))+90.0;
-	else beta_w=-90.0+DEG*acos(dotp(normal, arm_ee_dir));
-
-	double phi;
-	//find vector in same plane as arm booms and perpendicular to EE direction
-	VECTOR3 wp_normal=crossp(normal, arm_ee_dir);
-	if(Eq(length(wp_normal), 0.0, 0.001)) //check if arm_ee_dir is perpendicular to arm booms
-	{
-		// use same phi angle as for previous position
-		phi=joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH]+joint_angle[WRIST_PITCH];
-		wp_normal=RotateVectorZ(boom_plane, phi+90.0);
-	}
-	else {
-		wp_normal/=length(wp_normal);
-		phi=DEG*acos(wp_normal.z);
-		if(arm_ee_dir.z<0.0) phi=-phi;
-	}
-	sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
-		phi, beta_w);
-
-	//VECTOR3 arm_wp_dir=RotateVectorY(boom_plane, phi);
-	VECTOR3 arm_wp_dir=crossp(wp_normal, normal); // wp_normal and normal vectors are perpendicular
-	VECTOR3 arm_wp_cpos=arm_wy_cpos-arm_wp_dir*RMS_WP_WY_DIST;
-	double r=length(arm_wp_cpos);
-
-	double beta_s=-DEG*yaw_angle;
-	double rho=sqrt(arm_wp_cpos.x*arm_wp_cpos.x+arm_wp_cpos.y*arm_wp_cpos.y);
-	double cos_phibar_e=(r*r-RMS_SP_EP_DIST*RMS_SP_EP_DIST-RMS_EP_WP_DIST*RMS_EP_WP_DIST)/(-2*RMS_SP_EP_DIST*RMS_EP_WP_DIST);
-	if (fabs(cos_phibar_e)>1) return;//Can't reach new point with the elbow
-	double phi_e=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
-	double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
-	if(fabs(cos_phi_s2)>1) return; //Can't reach with shoulder
-	double phi_s=DEG*(atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
-
-	//sprintf_s(oapiDebugString(), 255, "Angles: %f %f %f %f %f", beta_s, phi_s, phi_e, phi-phi_s-phi_e, beta_w);
-
-	//make sure values calculated are within bounds
-	if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return;
-	if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return;
-	if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return;
-
-	//wrist pitch
-	double phi_w=phi-phi_s-phi_e;
-
-	//check values are within bounds
-	if(phi_w<RMS_JOINT_SOFTSTOPS[0][WRIST_PITCH] || phi_w>RMS_JOINT_SOFTSTOPS[1][WRIST_PITCH]) return;
-	if(beta_w<RMS_JOINT_SOFTSTOPS[0][WRIST_YAW] || beta_w>RMS_JOINT_SOFTSTOPS[1][WRIST_YAW]) return;
-
-	SetJointAngle(SHOULDER_YAW, beta_s);
-	SetJointAngle(SHOULDER_PITCH, phi_s);
-	SetJointAngle(ELBOW_PITCH, phi_e);
-	SetJointAngle(WRIST_PITCH, phi_w);
-	SetJointAngle(WRIST_YAW, beta_w);
-
-	arm_ee_pos=arm_cpos;
-
-	VECTOR3 temp=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-	temp=_V(temp.z, temp.x, -temp.y);
-	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Calc: %f %f %f Error: %f", temp.x, temp.y, temp.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z, length(arm_ee_pos-temp));*/
-
 	MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
 }
 
 void RMSSystem::Rotate(const VECTOR3 &dAngles)
 {
+	static const VECTOR3 inDir=_V(0.0, 0.0, -1.0);
+	static const VECTOR3 inRot=RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
 	VECTOR3 newDir, newRot;
 
-	VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
+	// END EFF mode
+	/*VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 	// NOTE: for math to work, we need to swap yaw and pitch angles
-	RotateVector(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+	RotateVectorPYR(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
 	newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 
 	VECTOR3 ee_rot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
-	RotateVector(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+	RotateVectorPYR(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+	newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);*/
+
+	VECTOR3 newAngles=arm_ee_angles+dAngles;
+	RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
+	RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
+	newDir=_V(-newDir.z, -newDir.x, newDir.y);
+	newRot=_V(-newRot.z, -newRot.x, newRot.y);
+	newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 	newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
+
+	sprintf_s(oapiDebugString(), 255, "newDir: %f %f %f newRot: %f %f %f angles: %f %f %f dotp: %f", newDir.x, newDir.y, newDir.z, newRot.x, newRot.y, newRot.z,
+		arm_ee_angles.data[PITCH]*DEG, arm_ee_angles.data[YAW]*DEG, arm_ee_angles.data[ROLL]*DEG, dotp(newDir, newRot));
 
 	/*sprintf_s(oapiDebugString(), 255, "old dir: %f %f %f new dir: %f %f %f", ee_dir.x, ee_dir.y, ee_dir.z,
 		newDir.x, newDir.y, newDir.z);
 	oapiWriteLog(oapiDebugString());*/
 
-	MoveEE(arm_ee_pos, newDir, newRot);
+	if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
+	//else sprintf_s(oapiDebugString(), 255, "%s ERROR: MoveEE returned false", oapiDebugString());
 }
 
 bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
