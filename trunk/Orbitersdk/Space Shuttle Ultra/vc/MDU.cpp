@@ -806,10 +806,16 @@ namespace vc {
 	void MDU::UNIVPTG()
 	{
 		char cbuf[255];
-		PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
+		//PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
+		PrintToBuffer("2011/   /", 9, 1, 0, 0);
+		PrintToBuffer("UNIV PTG", 8, 19, 0, 0);
+		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
+		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
+
+		PrintToBuffer("CUR MNVR COMPL", 14, 3, 2, 0);
 		sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 			STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 0, 2, 0);
+		PrintToBuffer(cbuf, strlen(cbuf), 1, 2, 0);
 		
 		PrintToBuffer("MNVR OPTION", 11, 0, 4, 0);
 		sprintf_s(cbuf, 255, "5 R %6.2f", STS()->MNVR_OPTION.data[ROLL]);

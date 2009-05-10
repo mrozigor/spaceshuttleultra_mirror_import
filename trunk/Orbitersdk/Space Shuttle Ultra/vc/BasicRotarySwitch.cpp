@@ -1,11 +1,12 @@
 #include "BasicRotarySwitch.h"
+#include "../SSUMath.h"
 #include "../Atlantis.h"
 
 namespace vc
 {
 	BasicRotarySwitch::BasicRotarySwitch(Atlantis *_sts, unsigned short _usNumPositions, const std::string &_ident)
 		: BasicVCComponent(_sts, _ident), labels(_usNumPositions, ""), usNumPositions(_usNumPositions), usCurrentPosition(_usNumPositions), 
-		rotAngle(0.0)
+		rotAngle(0.0), rotOffset(0.0), allowWraparound(false)
 	{
 		pSwitchRot = NULL;
 	}
@@ -41,11 +42,21 @@ namespace vc
 		rotAngle = _rotAngle;
 	}
 
+	void BasicRotarySwitch::SetOffset(float fOffset)
+	{
+		rotOffset=fOffset; // get angle from horizontal
+	}
+
 	void BasicRotarySwitch::SetInitialAnimState(double fState)
 	{
 		BasicVCComponent::SetInitialAnimState(fState);
 		if(usCurrentPosition==usNumPositions) 
 			usCurrentPosition = static_cast<unsigned short>(fState*(usNumPositions-1));
+	}
+
+	void BasicRotarySwitch::SetWraparound(bool _allowWraparound)
+	{
+		allowWraparound=_allowWraparound;
 	}
 
 	void BasicRotarySwitch::DefineVCAnimations(UINT vc_idx)
@@ -101,11 +112,19 @@ namespace vc
 	{
 		if(_event != PANEL_MOUSE_LBDOWN) return false;
 
-		if(x<0.4) {
+		float fPosition=static_cast<float>(usCurrentPosition);
+		float fNumPositions=static_cast<float>(usNumPositions-1);
+		float fAngle=rotOffset+fPosition*(rotAngle/fNumPositions); // angle between x-axis and switch label
+
+		VECTOR3 curRot=RotateVectorZ(_V(0.0, 1.0, 0.0), fAngle);
+		VECTOR3 cross_product=crossp(curRot, _V(x-0.5, y-0.5, 0.0));
+		sprintf_s(oapiDebugString(), 255, "Angle: %f cp: %f", fAngle, cross_product.z);
+
+		if(cross_product.z>0.05) {
 			OnRotateLeft();
 			return true;
 		}
-		else if(x>0.6) {
+		else if(cross_product.z<-0.05) {
 			OnRotateRight();
 			return true;
 		}
@@ -119,12 +138,20 @@ namespace vc
 			usCurrentPosition--;
 			OnPositionChange(usCurrentPosition);
 		}
+		else if(allowWraparound && usCurrentPosition==0) {
+			usCurrentPosition=usNumPositions-1;
+			OnPositionChange(usCurrentPosition);
+		}
 	}
 
 	void BasicRotarySwitch::OnRotateRight()
 	{
 		if(usCurrentPosition < usNumPositions-1) {
 			usCurrentPosition++;
+			OnPositionChange(usCurrentPosition);
+		}
+		else if(allowWraparound && usCurrentPosition==usNumPositions-1) {
+			usCurrentPosition=0;
 			OnPositionChange(usCurrentPosition);
 		}
 	}
@@ -135,9 +162,9 @@ namespace vc
 		{
 			if(usNewPosition>=0 && usNewPosition<usNumPositions) {
 				SetAnimation(anim_switch, (double)(usNewPosition)/(usNumPositions - 1));
-				sprintf_s(oapiDebugString(), 255, "%s: animation %f %f", GetIdentifier().c_str(), rotAngle, (double)(usNewPosition)/(usNumPositions - 1));
+				//sprintf_s(oapiDebugString(), 255, "%s: animation %f %f", GetIdentifier().c_str(), rotAngle, (double)(usNewPosition)/(usNumPositions - 1));
 			}
-			else sprintf_s(oapiDebugString(), 255, "%s: invalid switch position %d", GetIdentifier().c_str(), static_cast<int>(usNewPosition));
+			//else sprintf_s(oapiDebugString(), 255, "%s: invalid switch position %d", GetIdentifier().c_str(), static_cast<int>(usNewPosition));
 		}
 	}
 };

@@ -40,7 +40,8 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	camera_moved=false;
 
 	arm_moved=false;
-	update_data=false;
+	update_vectors=false;
+	update_angles=false;
 	for(int i=0;i<6;i++) joint_motion[i]=0;
 	for(int i=0;i<3;i++) ee_translation[i]=0;
 
@@ -94,6 +95,9 @@ void RMSSystem::Realize()
 	// indexes 6 and 7 and used for temps
 	DirectDrivePlus.Connect(pBundle, 8);
 	DirectDriveMinus.Connect(pBundle, 9);
+
+	pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
+	for(int i=0;i<12;i++) RMSMode[i].Connect(pBundle, i);
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
@@ -223,17 +227,17 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(DirectDrivePlus) {
 			int joint=GetSelectedJoint();
 			if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEED*DeltaT);
-			update_data=true;
+			update_vectors=true;
 		}
 		else if(DirectDriveMinus) {
 			int joint=GetSelectedJoint();
 			if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEED*DeltaT);
-			update_data=true;
+			update_vectors=true;
 		}
 		for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
 				SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEED*DeltaT*joint_motion[i]);
-				update_data=true;
+				update_vectors=true;
 				joint_motion[i]=0;
 			}
 		}
@@ -416,8 +420,12 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 			EEPosition[i].SetLine((float)(ee_pos_output.data[i]/2000.0));
 			EEAttitude[i].SetLine((float)(DEG*ee_att_output.data[i]/2000.0));
 		}
+		if(update_angles) {
+			arm_ee_angles=ee_att_output;
+			update_angles=false;
+		}
 
-		if(update_data) {
+		if(update_vectors) {
 			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
@@ -431,9 +439,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
-			arm_ee_angles=ee_att_output;
-
-			update_data=false;
+			update_vectors=false;
 		}
 
 		arm_moved=false;
@@ -451,7 +457,8 @@ bool RMSSystem::OnParseLine(const char* line)
 			&joint_pos[WRIST_PITCH], &joint_pos[WRIST_YAW], &joint_pos[WRIST_ROLL]);
 		joint_pos[ELBOW_PITCH]=1.0-joint_pos[ELBOW_PITCH];
 		arm_moved=true;
-		update_data=true;
+		update_vectors=true;
+		update_angles=true;
 		//oapiWriteLog("Read ARM_STATUS line");
 		return true;
 	}
@@ -526,7 +533,19 @@ void RMSSystem::SetElbowCamRotSpeed(bool low)
 
 void RMSSystem::Translate(const VECTOR3 &dPos)
 {
-	MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
+	if(RMSMode[5].IsSet()) { // END EFF
+		/*VECTOR3 change=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE)*dPos.x;
+		change+=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE)*dPos.z;
+		change+=RotateVectorX(crossp(arm_ee_rot, arm_ee_dir), RMS_ROLLOUT_ANGLE)*dPos.y;
+		//RotateVectorX(change, -RMS_ROLLOUT_ANGLE);*/
+
+		VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
+		VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
+		MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
+	}
+	else if(RMSMode[6].IsSet()) { // ORB LD
+		MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
+	}
 }
 
 void RMSSystem::Rotate(const VECTOR3 &dAngles)
@@ -535,33 +554,32 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles)
 	static const VECTOR3 inRot=RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
 	VECTOR3 newDir, newRot;
 
-	// END EFF mode
-	/*VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
-	// NOTE: for math to work, we need to swap yaw and pitch angles
-	RotateVectorPYR(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
-	newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
+	if(RMSMode[5].IsSet()) { // END EFF mode
+		VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
+		// NOTE: for math to work, we need to swap yaw and pitch angles
+		RotateVectorPYR(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 
-	VECTOR3 ee_rot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
-	RotateVectorPYR(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
-	newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);*/
+		VECTOR3 ee_rot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
+		RotateVectorPYR(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
 
-	VECTOR3 newAngles=arm_ee_angles+dAngles;
-	RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
-	RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
-	newDir=_V(-newDir.z, -newDir.x, newDir.y);
-	newRot=_V(-newRot.z, -newRot.x, newRot.y);
-	newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
-	newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
+		MoveEE(arm_ee_pos, newDir, newRot);
+		update_angles=true;
+	}
 
-	sprintf_s(oapiDebugString(), 255, "newDir: %f %f %f newRot: %f %f %f angles: %f %f %f dotp: %f", newDir.x, newDir.y, newDir.z, newRot.x, newRot.y, newRot.z,
-		arm_ee_angles.data[PITCH]*DEG, arm_ee_angles.data[YAW]*DEG, arm_ee_angles.data[ROLL]*DEG, dotp(newDir, newRot));
+	else if(RMSMode[6].IsSet()) { // ORB LD
+		VECTOR3 newAngles=arm_ee_angles+dAngles;
+		RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
+		RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
+		newDir=_V(-newDir.z, -newDir.x, newDir.y);
+		newRot=_V(-newRot.z, -newRot.x, newRot.y);
+		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
 
-	/*sprintf_s(oapiDebugString(), 255, "old dir: %f %f %f new dir: %f %f %f", ee_dir.x, ee_dir.y, ee_dir.z,
-		newDir.x, newDir.y, newDir.z);
-	oapiWriteLog(oapiDebugString());*/
-
-	if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
-	//else sprintf_s(oapiDebugString(), 255, "%s ERROR: MoveEE returned false", oapiDebugString());
+		if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
+		//else sprintf_s(oapiDebugString(), 255, "%s ERROR: MoveEE returned false", oapiDebugString());
+	}
 }
 
 bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
