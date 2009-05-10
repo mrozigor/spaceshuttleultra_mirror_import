@@ -5639,7 +5639,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
 			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
 			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP)));
+			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
 			for(int i=0;i<3;i++) {
 				RHCInput.data[i]=0.0;
 				THCInput.data[i]=0.0;
