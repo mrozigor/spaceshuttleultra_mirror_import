@@ -66,6 +66,7 @@ namespace vc
 
 		RotaryDemuxSwitch* pLEDParameter;
 		RotaryDemuxSwitch* pLEDJoint;
+		RotaryDemuxSwitch* pRMSMode;
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();

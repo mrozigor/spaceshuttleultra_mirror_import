@@ -176,6 +176,7 @@ private:
 	int ee_translation[3];
 	DiscInPort JointSelect[6], DirectDrivePlus, DirectDriveMinus;
 	DiscInPort RHCInput[3], THCInput[3];
+	DiscInPort RMSMode[12];
 
 	double shoulder_brace;
 	DiscInPort ShoulderBrace;
@@ -187,7 +188,7 @@ private:
 	bool bAutoGrapple, bAutoRelease;
 
 	bool arm_moved;
-	bool update_data;
+	bool update_vectors, update_angles;
 
 	bool display_angles;
 

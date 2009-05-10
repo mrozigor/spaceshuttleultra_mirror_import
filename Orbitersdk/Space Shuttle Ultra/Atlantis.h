@@ -672,6 +672,9 @@ const static char* SSME_START_FILE = "Sound\\ShuttleUltra\\SSME_ignition.wav";
 const int SSME_RUNNING = 7;
 const static char* SSME_RUNNING_FILE = "Sound\\ShuttleUltra\\SSME_sustain.wav";
 
+const static char* TEXT_RCSCONTROL = "Controlling RCS";
+const static char* TEXT_RMSCONTROL = "Controlling RMS";
+
 // ==========================================================
 // Mesh group indices for some components
 // ==========================================================
@@ -1839,6 +1842,7 @@ private:
 	bool STBDMPM;
 	bool mpm_moved;
 
+	bool ControlRMS;
 	//Hand controller input
 	VECTOR3 THCInput, RHCInput;
 	//Thruster commands

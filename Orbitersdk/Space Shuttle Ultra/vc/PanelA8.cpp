@@ -74,6 +74,7 @@ namespace vc
 
 		Add(pLEDParameter = new RotaryDemuxSwitch(_sts, "Parameter", 8));
 		Add(pLEDJoint = new RotaryDemuxSwitch(_sts, "Joint", 8));
+		Add(pRMSMode = new RotaryDemuxSwitch(_sts, "RMS Mode", 12));
 
 		pPortMRL->SetLabel(2, "REL");
 		pPortMRL->SetLabel(1, "OFF");
@@ -119,6 +120,10 @@ namespace vc
 		pLEDJoint->SetLabel(2, "WRIST_ROLL");
 		pLEDJoint->SetLabel(1, "EE_TEMP");
 		pLEDJoint->SetLabel(0, "CRIT_TEMP");
+		pRMSMode->SetLabel(11, "OPR_CMD");
+		pRMSMode->SetLabel(6, "ORB_UNL");
+		pRMSMode->SetLabel(5, "END_EE");
+		pRMSMode->SetLabel(4, "ORB_LD");
 
 		EnableCoordinateDisplayMode();
 
@@ -432,12 +437,22 @@ namespace vc
 		pLEDParameter->SetReference(_V(-0.536, 2.534, 12.401), rotary_switch_rot);
 		pLEDParameter->SetInitialAnimState(1.0f);
 		pLEDParameter->DefineRotationAngle(210.0f);
+		pLEDParameter->SetOffset(-90.0f);
 
 		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
 		pLEDJoint->SetReference(_V(-0.699, 2.533, 12.401), rotary_switch_rot);
 		pLEDJoint->SetInitialAnimState(1.0f);
 		pLEDJoint->DefineRotationAngle(210.0f);
+		pLEDJoint->SetOffset(-150.0f);
+
+		pRMSMode->SetMouseRegion(0.77292f, 0.177526f, 0.855731f, 0.234343f);
+		pRMSMode->DefineSwitchGroup(GRP_A8RS1_VC);
+		pRMSMode->SetReference(_V(-0.364, 2.736, 12.337), rotary_switch_rot);
+		pRMSMode->SetInitialAnimState(1.0f);
+		pRMSMode->SetWraparound(true);
+		pRMSMode->DefineRotationAngle(330.0f);
+		pRMSMode->SetOffset(-180.0f);
 	}
 
 	void PanelA8::DefineVCAnimations(UINT vcidx)
@@ -457,6 +472,9 @@ namespace vc
 		pShoulderBrace->outputB.Connect(pBundle, 4);
 		pShoulderBraceTb->SetInput(0, pBundle, 5, TB_GRAY);
 		pRMSSelect->outputB.Connect(pBundle, 6);
+
+		pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
+		for(unsigned short i=0;i<12;i++) pRMSMode->ConnectOutputSignal(i, pBundle, i);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_DATA", 16);
 		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i);

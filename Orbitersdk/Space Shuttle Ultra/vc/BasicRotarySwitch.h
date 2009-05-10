@@ -39,7 +39,10 @@ namespace vc
 		vector<string> labels;
 		unsigned short usCurrentPosition;
 
-		float rotAngle;
+		bool allowWraparound;
+
+		float rotOffset; // angle in radians
+		float rotAngle; // angle in radians
 		MGROUP_ROTATE* pSwitchRot;
 		UINT anim_switch;
 		UINT grpIndex;
@@ -52,6 +55,12 @@ namespace vc
 		void DefineSwitchGroup(UINT _grpIndex);
 		void DefineRotationAngle(float _rotAngle); // angle measured in degrees
 		virtual void SetInitialAnimState(double fState = 0.0);
+		/**
+		 * Angles (in degreees) between 12-o'clock position and initial (usCurrentPosition=0) position
+		 * Used for mouse click handling
+		 */
+		void SetOffset(float fOffset = 0.0);
+		void SetWraparound(bool _allowWraparound);
 
 		virtual void DefineVCAnimations(UINT vc_idx);
 		virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
