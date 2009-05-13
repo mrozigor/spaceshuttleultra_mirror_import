@@ -224,15 +224,17 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	//rotate joints
 	if(Movable()) {
 		// single joint rotation
-		if(DirectDrivePlus) {
-			int joint=GetSelectedJoint();
-			if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEED*DeltaT);
-			update_vectors=true;
-		}
-		else if(DirectDriveMinus) {
-			int joint=GetSelectedJoint();
-			if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEED*DeltaT);
-			update_vectors=true;
+		if(RMSMode[1] || RMSMode[2]) {
+			if(DirectDrivePlus) {
+				int joint=GetSelectedJoint();
+				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEED*DeltaT);
+				update_vectors=true;
+			}
+			else if(DirectDriveMinus) {
+				int joint=GetSelectedJoint();
+				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEED*DeltaT);
+				update_vectors=true;
+			}
 		}
 		for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
