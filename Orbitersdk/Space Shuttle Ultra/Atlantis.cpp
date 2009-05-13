@@ -4327,11 +4327,22 @@ void Atlantis::LoadTrackManeuver()
 		GetStatus(Status);
 		if(OM<=0.0) RotMatrixOM=IdentityMatrix;
 		else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
-		GetRotMatrixX(P*RAD, RotMatrixP);
+		GetRotMatrixX(-P*RAD, RotMatrixP);
 		GetRotMatrixY(Y*RAD, RotMatrixY);
 		GetRotMatrixX(270*RAD, RotMatrix270);
-		Temp=mul(RotMatrixOM, RotMatrixP);
+		
+		Temp=mul(RotMatrix270, RotMatrixOM);
 		Temp=mul(Temp, RotMatrixY);
+		Temp=mul(Temp, RotMatrixP);
+		sprintf_s(oapiDebugString(), 255, "Temp Matrix: %f %f %f    %f %f %f    %f %f %f",
+				Temp.m11, Temp.m12, Temp.m13,
+				Temp.m21, Temp.m22, Temp.m23,
+				Temp.m31, Temp.m32, Temp.m33);
+		oapiWriteLog(oapiDebugString());
+		/*MATRIX3 Final=_M(Temp.m11, Temp.m21, Temp.m31,
+						Temp.m12, Temp.m22, Temp.m32,
+						Temp.m13, Temp.m23, Temp.m33);*/
+		MATRIX3 Final=Temp;
 
 		bool Current=true;
 		for(int i=0;i<4;i++) {
@@ -4343,18 +4354,25 @@ void Atlantis::LoadTrackManeuver()
 		if(Current) {
 			CurManeuver.Type=AttManeuver::TRK;
 			for(int i=0;i<4;i++) CurManeuver.START_TIME[i]=START_TIME[i];
-			CurManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+			/*CurManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
 				Temp.m12, Temp.m22, Temp.m32,
 				Temp.m13, Temp.m23, Temp.m33);
-			CurManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, CurManeuver.LVLHTgtOrientationMatrix);
+			CurManeuver.LVLHTgtOrientationMatrix=mul(CurManeuver.LVLHTgtOrientationMatrix, RotMatrix270);*/
+			CurManeuver.LVLHTgtOrientationMatrix=Final;
+			sprintf_s(oapiDebugString(), 255, "LVLH Tgt Matrix: %f %f %f    %f %f %f    %f %f %f",
+				CurManeuver.LVLHTgtOrientationMatrix.m11, CurManeuver.LVLHTgtOrientationMatrix.m12, CurManeuver.LVLHTgtOrientationMatrix.m13,
+				CurManeuver.LVLHTgtOrientationMatrix.m21, CurManeuver.LVLHTgtOrientationMatrix.m22, CurManeuver.LVLHTgtOrientationMatrix.m23,
+				CurManeuver.LVLHTgtOrientationMatrix.m31, CurManeuver.LVLHTgtOrientationMatrix.m32, CurManeuver.LVLHTgtOrientationMatrix.m33);
+			oapiWriteLog(oapiDebugString());
 		}
 		else {
 			FutManeuver.Type=AttManeuver::TRK;
 			for(int i=0;i<4;i++) FutManeuver.START_TIME[i]=START_TIME[i];
-			FutManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
+			/*FutManeuver.LVLHTgtOrientationMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
 				Temp.m12, Temp.m22, Temp.m32,
 				Temp.m13, Temp.m23, Temp.m33);
-			FutManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, FutManeuver.LVLHTgtOrientationMatrix);
+			FutManeuver.LVLHTgtOrientationMatrix=mul(RotMatrix270, FutManeuver.LVLHTgtOrientationMatrix);*/
+			FutManeuver.LVLHTgtOrientationMatrix=Final;
 		}
 
 		TRK=true;
