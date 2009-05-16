@@ -4497,7 +4497,7 @@ VECTOR3 Atlantis::CalcLVLHAttitude()
 	return LVLHAngles;
 }
 
-VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
+/*VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
 {
 	RefPoints GlobalPts, LocalPts;
 	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
@@ -4513,7 +4513,7 @@ VECTOR3 Atlantis::CalcRelLVLHAttitude(VECTOR3 &Target)
 	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
 	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
 	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
-}
+}*/
 
 VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 {
@@ -4665,7 +4665,7 @@ VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
 
 VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in radians
 {
-	VECTOR3 Output, HorizonAngles;
+	/*VECTOR3 Output, HorizonAngles;
 	VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
 	VECTOR3 GVel, HVel, LocVel;
 	MATRIX3 LocalToGlobal;
@@ -4705,7 +4705,10 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 
 	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
-	return Output;
+	return Output;*/
+
+	MATRIX3 RotMatrix=ConvertLVLHAnglesToM50Matrix(Input);
+	return GetAnglesFromMatrix(RotMatrix);
 }
 
 MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
@@ -5655,9 +5658,16 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
 			RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
 			RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
-			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
-			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
+			if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+				RMS_THCInput[0].SetLine(5.0f*(float)(AltKybdInput.x));
+				RMS_THCInput[1].SetLine(5.0f*(float)(AltKybdInput.y));
+				RMS_THCInput[2].SetLine(5.0f*(float)(-AltKybdInput.z));
+			}
+			else {
+				RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
+				RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
+				RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
+			}
 			for(int i=0;i<3;i++) {
 				RHCInput.data[i]=0.0;
 				THCInput.data[i]=0.0;
@@ -5668,9 +5678,14 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
 				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-				THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-				THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+					for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
+				}
+				else {
+					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
+					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+				}
 			}
 			else { //aft RHC/THC
 				DiscreteBundle* pBundle=bundleManager->CreateBundle("A6", 16);
@@ -5682,18 +5697,32 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 						RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 						RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
 						RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
+						if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+							THCInput.z=-AltKybdInput.x;
+							THCInput.y=-AltKybdInput.y;
+							THCInput.x=-AltKybdInput.z;
+						}
+						else {
+							THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+							THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+							THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
+						}
 					}
 					else { //-X
 						//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
 						RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 						RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 						RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+						if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+							THCInput.x=-AltKybdInput.x;
+							THCInput.y=-AltKybdInput.y;
+							THCInput.z=AltKybdInput.z;
+						}
+						else {
+							THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+							THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+							THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+						}
 					}
 				}
 				//else sprintf_s(oapiDebugString(), 255, "ERROR: Could not find bundle");
@@ -6334,7 +6363,7 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
@@ -6368,7 +6397,7 @@ bool Atlantis::clbkLoadVC (int id)
   // Default camera rotarion
 	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
@@ -6402,7 +6431,7 @@ bool Atlantis::clbkLoadVC (int id)
     // Default camera rotarion
     SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAftStbd.RegisterVC();
@@ -6430,7 +6459,7 @@ bool Atlantis::clbkLoadVC (int id)
 			pRMS->SetEECameraView(true);
 			oapiVCSetNeighbours (VC_RMSCAM, -1, -1, VC_RMSSTATION);
 
-			HideMidDeck();
+			//HideMidDeck();
 
 			ok = true;
 		}
@@ -6444,7 +6473,7 @@ bool Atlantis::clbkLoadVC (int id)
 			pRMS->SetElbowCamView(true);
 
 			oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
-			HideMidDeck();
+			//HideMidDeck();
 			ok=true;
 		}
 		else ok=false;
@@ -6454,7 +6483,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
     oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 
-	HideMidDeck();
+	//HideMidDeck();
 
     ok = true;
 
@@ -6464,7 +6493,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
     oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 
-	HideMidDeck();
+	//HideMidDeck();
 
     ok = true;
     break;
@@ -6473,7 +6502,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
     oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
-	HideMidDeck();
+	//HideMidDeck();
 
     ok = true;
     break;
@@ -6482,7 +6511,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
     oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 
-	HideMidDeck();
+	//HideMidDeck();
 
     ok = true;
     break;
@@ -6493,7 +6522,7 @@ bool Atlantis::clbkLoadVC (int id)
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
 
-	  HideMidDeck();
+	  //HideMidDeck();
 
 	  ok = true;
 	  break;
@@ -6512,7 +6541,7 @@ bool Atlantis::clbkLoadVC (int id)
     // Outside cameras neighbours
 	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAftStbd.RegisterVC();
@@ -6543,7 +6572,7 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(0.4,0,0), 0, 0, 
 		_V(0,-0.3,0.15), 0, 0);
 
-	ShowMidDeck();
+	//ShowMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAft.RegisterVC();
@@ -6571,7 +6600,7 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	ShowMidDeck();
+	//ShowMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAft.RegisterVC();
@@ -6597,7 +6626,7 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	ShowMidDeck();
+	//ShowMidDeck();
 
 	pgOverhead.RegisterVC();
 	pgAft.RegisterVC();
@@ -6625,7 +6654,7 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgForward.RegisterVC();
 	pgCenter.RegisterVC();
@@ -6658,7 +6687,7 @@ bool Atlantis::clbkLoadVC (int id)
 	// Default camera rotation
 	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	HideMidDeck();
+	//HideMidDeck();
 
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
@@ -6685,7 +6714,7 @@ bool Atlantis::clbkLoadVC (int id)
      SetCameraDefaultDirection (VC_DIR_MIDDECK);
      //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
      
-	 ShowMidDeck();
+	 //ShowMidDeck();
 	 // Default camera rotation
 	 if(HasExternalAirlock())
 	 {
@@ -6707,7 +6736,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  oapiVCSetNeighbours (-1, -1, VC_MIDDECK, VC_DOCKCAM);
 
-	  ShowMidDeck();
+	  //ShowMidDeck();
      
 	  ok=true;
 	break;
@@ -6715,7 +6744,7 @@ bool Atlantis::clbkLoadVC (int id)
   }
 
   // Common action for external payload cameras
-  if (id >= VC_PLBCAMFL && id <= VC_LEECAM) {
+  if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
     // Pan and tilt from camera control not from alt + arrow but from the dialog
     SetCameraRotationRange(0,0,0,0);
     // No lean for payload camera
@@ -6725,9 +6754,13 @@ bool Atlantis::clbkLoadVC (int id)
     SetAnimationCameras();
 
 	// hide panels
+	HideMidDeck();
 	pgAft.HidePanels();
   }
-  else pgAft.ShowPanels();
+  else {
+	  ShowMidDeck();
+	  pgAft.ShowPanels();
+  }
 
 	if (bUpdateVC) {
 		// register the HUDs (synced)
@@ -7065,7 +7098,24 @@ void Atlantis::AutoReleaseSequence()
 // --------------------------------------------------------------
 int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 {
-  if (!down) return 0; // only process keydown events
+  if (!down) {
+		switch(key) {
+			case OAPI_KEY_LEFT:
+			case OAPI_KEY_RIGHT:
+				AltKybdInput.y=0.0;
+				return 1;
+			case OAPI_KEY_INSERT:
+			case OAPI_KEY_DELETE:
+				AltKybdInput.x=0.0;
+				return 1;
+			case OAPI_KEY_UP:
+			case OAPI_KEY_DOWN:
+				AltKybdInput.z=0.0;
+				return 1;
+			default:
+				return 0;
+		}
+  }
 
   if(pCommModeHandler->IsInCommMode())
   {
@@ -7132,7 +7182,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 		return 1;
 	}
-  } else { // unmodified keys
+  } else if(!KEYMOD_SHIFT(kstate) && !KEYMOD_ALT(kstate)) { // unmodified keys
     switch (key) {
 	/*case OAPI_KEY_TAB:
 		pCommModeHandler->EnterCommMode();
@@ -7173,6 +7223,24 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_G:
 		//gop->RevertLandingGear();
 		DeployLandingGear();
+		return 1;
+	case OAPI_KEY_LEFT:
+		AltKybdInput.y=-1.0;
+		return 1;
+	case OAPI_KEY_RIGHT:
+		AltKybdInput.y=1.0;
+		return 1;
+	case OAPI_KEY_INSERT:
+		AltKybdInput.x=-1.0;
+		return 1;
+	case OAPI_KEY_DELETE:
+		AltKybdInput.x=1.0;
+		return 1;
+	case OAPI_KEY_UP:
+		AltKybdInput.z=1.0;
+		return 1;
+	case OAPI_KEY_DOWN:
+		AltKybdInput.z=-1.0;
 		return 1;
 	/*case OAPI_KEY_NUMPADENTER:
 		for(int i = 0; i<3; i++) {
