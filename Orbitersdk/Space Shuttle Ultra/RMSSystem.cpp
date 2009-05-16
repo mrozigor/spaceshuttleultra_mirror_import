@@ -224,7 +224,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	//rotate joints
 	if(Movable()) {
 		// single joint rotation
-		if(RMSMode[1] || RMSMode[2]) {
+		if(RMSMode[1] || RMSMode[2]) { // make sure RMS is in SINGLE or DIRECT mode
 			if(DirectDrivePlus) {
 				int joint=GetSelectedJoint();
 				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEED*DeltaT);

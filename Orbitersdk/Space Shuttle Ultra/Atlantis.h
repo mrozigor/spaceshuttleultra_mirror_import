@@ -1590,7 +1590,7 @@ private:
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//calc attitude/attitude error
 	VECTOR3 CalcLVLHAttitude();
-	VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
+	//VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
 	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
@@ -1845,6 +1845,7 @@ private:
 	bool ControlRMS;
 	//Hand controller input
 	VECTOR3 THCInput, RHCInput;
+	VECTOR3 AltKybdInput; // uses arrow,PgUp/PgDn keys to provide translation inputs; axes correspond to RCS FWD SENSE
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 

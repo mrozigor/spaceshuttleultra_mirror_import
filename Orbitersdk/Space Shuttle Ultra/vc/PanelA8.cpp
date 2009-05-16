@@ -124,6 +124,9 @@ namespace vc
 		pRMSMode->SetLabel(6, "ORB_UNL");
 		pRMSMode->SetLabel(5, "END_EE");
 		pRMSMode->SetLabel(4, "ORB_LD");
+		pRMSMode->SetLabel(2, "SINGLE");
+		pRMSMode->SetLabel(1, "DIRECT");
+		pRMSMode->SetLabel(0, "TEST");
 
 		EnableCoordinateDisplayMode();
 
