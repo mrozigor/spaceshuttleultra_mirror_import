@@ -61,11 +61,12 @@ const double RMS_JOINT_LIMITS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -4
 const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6, -442.0},
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
 
-const double RMS_JOINT_ROTATION_SPEED = 1.5;
+//const double RMS_JOINT_ROTATION_SPEED = 1.5;
+const double RMS_JOINT_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64};
 // RMS arm joint rotation speed (deg/sec)
-const double RMS_EE_ROTATION_SPEED = 1.0*RAD;
+const double RMS_EE_ROTATION_SPEED = 4.7*RAD;
 // RMS IK rotation speed (rad/sec)
-const double RMS_EE_TRANSLATION_SPEED = 0.1;
+const double RMS_EE_TRANSLATION_SPEED = 2.0*fps_to_ms;
 // RMS IK translation speed (m/s)
 
 const double SHOULDER_BRACE_SPEED = 0.11765;

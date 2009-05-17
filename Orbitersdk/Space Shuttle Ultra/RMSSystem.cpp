@@ -227,18 +227,18 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(RMSMode[1] || RMSMode[2]) { // make sure RMS is in SINGLE or DIRECT mode
 			if(DirectDrivePlus) {
 				int joint=GetSelectedJoint();
-				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEED*DeltaT);
+				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEEDS[joint]*DeltaT);
 				update_vectors=true;
 			}
 			else if(DirectDriveMinus) {
 				int joint=GetSelectedJoint();
-				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEED*DeltaT);
+				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEEDS[joint]*DeltaT);
 				update_vectors=true;
 			}
 		}
 		for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
-				SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEED*DeltaT*joint_motion[i]);
+				SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
 				update_vectors=true;
 				joint_motion[i]=0;
 			}
