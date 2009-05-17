@@ -2013,6 +2013,8 @@ private:
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3];
+	DiscInPort RMSSpeedIn;
+	DiscOutPort RMSSpeedOut;
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();

@@ -62,11 +62,14 @@ const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6,
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
 
 //const double RMS_JOINT_ROTATION_SPEED = 1.5;
-const double RMS_JOINT_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64};
+const double RMS_JOINT_COARSE_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64};
+const double RMS_JOINT_VERN_ROTATION_SPEEDS[6] = {0.42, 0.42, 0.59, 0.88, 0.88, 0.88};
 // RMS arm joint rotation speed (deg/sec)
-const double RMS_EE_ROTATION_SPEED = 4.7*RAD;
+const double RMS_EE_COARSE_ROTATION_SPEED = 4.7*RAD;
+const double RMS_EE_VERN_ROTATION_SPEED = 4.7*RAD;
 // RMS IK rotation speed (rad/sec)
-const double RMS_EE_TRANSLATION_SPEED = 2.0*fps_to_ms;
+const double RMS_EE_COARSE_TRANSLATION_SPEED = 2.0*fps_to_ms;
+const double RMS_EE_VERN_TRANSLATION_SPEED = 0.35*fps_to_ms;
 // RMS IK translation speed (m/s)
 
 const double SHOULDER_BRACE_SPEED = 0.11765;
@@ -178,6 +181,7 @@ private:
 	DiscInPort JointSelect[6], DirectDrivePlus, DirectDriveMinus;
 	DiscInPort RHCInput[3], THCInput[3];
 	DiscInPort RMSMode[12];
+	DiscInPort RMSSpeed; // VERN if set, COARSE otherwise
 
 	double shoulder_brace;
 	DiscInPort ShoulderBrace;

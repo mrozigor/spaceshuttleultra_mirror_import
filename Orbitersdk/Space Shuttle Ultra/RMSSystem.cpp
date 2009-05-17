@@ -98,6 +98,7 @@ void RMSSystem::Realize()
 
 	pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
 	for(int i=0;i<12;i++) RMSMode[i].Connect(pBundle, i);
+	RMSSpeed.Connect(pBundle, 12);
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
@@ -227,18 +228,26 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(RMSMode[1] || RMSMode[2]) { // make sure RMS is in SINGLE or DIRECT mode
 			if(DirectDrivePlus) {
 				int joint=GetSelectedJoint();
-				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_ROTATION_SPEEDS[joint]*DeltaT);
+				if(joint!=-1) {
+					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+				}
 				update_vectors=true;
 			}
 			else if(DirectDriveMinus) {
 				int joint=GetSelectedJoint();
-				if(joint!=-1) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_ROTATION_SPEEDS[joint]*DeltaT);
+				if(joint!=-1) {
+					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+				}
 				update_vectors=true;
 			}
 		}
 		for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
-				SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
+				//SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
+				if(!RMSSpeed) SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_COARSE_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
+				else SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_VERN_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
 				update_vectors=true;
 				joint_motion[i]=0;
 			}
@@ -248,7 +257,9 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		bool moveEE=false;
 		for(int i=0;i<3;i++) {
 			if(!Eq(RHCInput[i].GetVoltage(), 0.0, 0.05)) {
-				change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
+				//change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
+				if(!RMSSpeed) change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_ROTATION_SPEED;
+				else change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_ROTATION_SPEED;
 				moveEE=true;
 			}
 		}
@@ -258,11 +269,15 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		moveEE=false;
 		for(int i=0;i<3;i++) {
 			if(!Eq(THCInput[i].GetVoltage(), 0.0, 0.05)) {
-				change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
+				//change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
+				if(!RMSSpeed) change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
+				else change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
 				moveEE=true;
 			}
 			else if(ee_translation[i]!=0) {
-				change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
+				//change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
+				if(!RMSSpeed) change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
+				else change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
 				ee_translation[i]=0;
 				moveEE=true;
 			}

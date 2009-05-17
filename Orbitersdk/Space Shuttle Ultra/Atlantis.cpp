@@ -5380,6 +5380,10 @@ void Atlantis::clbkPostCreation ()
 		RMS_RHCInput[i].Connect(pBundle, i);
 		RMS_THCInput[i].Connect(pBundle, i+3);
 	}
+
+	pBundle=bundleManager->CreateBundle("RMS_MODE", 16);
+	RMSSpeedIn.Connect(pBundle, 12);
+	RMSSpeedOut.Connect(pBundle, 12);
 }
 
 // --------------------------------------------------------------
@@ -7112,6 +7116,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 			case OAPI_KEY_DOWN:
 				AltKybdInput.z=0.0;
 				return 1;
+			case OAPI_KEY_RETURN:
+			case OAPI_KEY_BACK:
+				RMSGrapple.ResetLine();
+				RMSRelease.ResetLine();
+				return 1;
 			default:
 				return 0;
 		}
@@ -7134,10 +7143,23 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		//gop->ArmGear();
 		ArmGear();
 		return 1;
-	case OAPI_KEY_SLASH:
+	case OAPI_KEY_A:
 		ControlRMS=!ControlRMS;
 		if(ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
 		else DisplayCameraLabel(TEXT_RCSCONTROL);
+		return 1;
+	case OAPI_KEY_O:
+		if(RMSSpeedIn) RMSSpeedOut.ResetLine();
+		else RMSSpeedOut.SetLine();
+		return 1;
+	case OAPI_KEY_RETURN:
+		RMSGrapple.SetLine();
+		RMSRelease.ResetLine();
+		return 1;
+	case OAPI_KEY_BACK:
+		RMSGrapple.ResetLine();
+		RMSRelease.SetLine();
+		return 1;
 	case OAPI_KEY_X: //temporary
 		if(status == STATE_PRELAUNCH)
 		{
