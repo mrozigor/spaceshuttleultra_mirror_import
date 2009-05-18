@@ -27,7 +27,7 @@
 #pragma once
 
 #include "MPMSystems.h"
-#include "Atlantis.h"
+#include "SSUEngConst.h"
 
 const static char* RMS_MESHNAME = "SSU/RMS";
 

@@ -710,6 +710,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Atlantis_vc_defs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AtlantisSubsystem.h"
 				>
 			</File>
