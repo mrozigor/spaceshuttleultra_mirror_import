@@ -1129,29 +1129,31 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 		//PYR=CalcPitchYawRollAngles()*DEG;
 		PYR=CalcPitchYawRollRotMatrix();
 		Angle=CalcEulerAngle(IdentityMatrix, PYR, Axis);
-		MNVR_TIME=RotRate*Angle*DEG;
+		MNVR_TIME=(Angle*DEG)/RotRate;
 		//MNVR_TIME=RotRate*(abs(PYR.x)+abs(PYR.y)+abs(PYR.z));
 		//sprintf(oapiDebugString(), "Iterating: %d %f", counter, MNVR_TIME);
 		sprintf(oapiDebugString(), "Iterating: %d %f %f %f", counter, MNVR_TIME, NullRates.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG);
 		//oapiWriteLog(oapiDebugString());
-	}while(abs(MNVR_TIME-LastMnvrTime)>0.05 && counter<50);
+	}while(abs(MNVR_TIME-LastMnvrTime)>0.05 && counter<100);
 	if(counter>=50) {
 		//TargetAttOrbiter=REQDATTOrbiter;
 		//VECTOR3 Axis;
 		//double Angle=CalcEulerAngle(_V(0, 0, 0), PYR*RAD, Axis);
 		//sprintf_s(oapiDebugString(), 255, "Axis: %f %f %f Angle: %f", Axis.x, Axis.y, Axis.z, Angle);
-		sprintf_s(oapiDebugString(), 255, "ERROR: Targets could not be calculated");
+		sprintf_s(oapiDebugString(), 255, "ERROR: Targets could not be calculated: %f %f", MNVR_TIME, LastMnvrTime);
 		oapiWriteLog(oapiDebugString());
 	}
 	else {
 		TargetAttOrbiter=REQDATTOrbiter+NullRates*MNVR_TIME;
 		RotationAxis=Axis;
 		RotationAngle=Angle;
+
 		/*sprintf_s(oapiDebugString(), 255, "Target Attitude: %f %f %f NR: %f %f %f Time: %f", TargetAttOrbiter.data[PITCH]*DEG,
 			TargetAttOrbiter.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG, NullRates.data[PITCH]*DEG,
-			NullRates.data[YAW]*DEG, NullRates.data[ROLL]*DEG, MNVR_TIME);*/
-		sprintf_s(oapiDebugString(), 255, "Axis: %f %f %f Angle: %f", Axis.x, Axis.y, Axis.z, Angle*DEG);
+			NullRates.data[YAW]*DEG, NullRates.data[ROLL]*DEG, MNVR_TIME);
 		oapiWriteLog(oapiDebugString());
+		sprintf_s(oapiDebugString(), 255, "Axis: %f %f %f Angle: %f", Axis.x, Axis.y, Axis.z, Angle*DEG);
+		oapiWriteLog(oapiDebugString());*/
 	}
 }
 
@@ -1168,25 +1170,27 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 	//sprintf_s(oapiDebugString(), 255, "%s Limits: %f %f %f", oapiDebugString(), VernLimits.x, VernLimits.y, VernLimits.z);
 
 	ThrusterLevel.data[PITCH]=Rates.data[PITCH]-CurrentRates.data[PITCH];
-	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[PITCH])>PriLimits.data[PITCH]) {
-		if(ThrusterLevel.data[PITCH]>0) {
-			SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
+	if(abs(ThrusterLevel.data[PITCH])>PriLimits.data[PITCH]) {
+		if(DAPMode[1]!=2) { // PRI/ALT
+			if(ThrusterLevel.data[PITCH]>0) {
+				SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_pitchdown, 0.0);
+			}
+			else if(ThrusterLevel.data[PITCH]<0) {
+				SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_pitchup, 0.0);
+			}
 		}
-		else if(ThrusterLevel.data[PITCH]<0) {
-			SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-		}
-	}
-	else if(abs(ThrusterLevel.data[PITCH])>VernLimits.data[PITCH]) {
-		//sprintf(oapiDebugString(), "%f", dDiff);
-		if(ThrusterLevel.data[PITCH]>0) {
-			SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		}
-		else if(ThrusterLevel.data[PITCH]<0) {
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
+		else { // VERN
+			//sprintf(oapiDebugString(), "%f", dDiff);
+			if(ThrusterLevel.data[PITCH]>0) {
+				SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
+				SetThrusterGroupLevel(thg_pitchdown, 0.0);
+			}
+			else if(ThrusterLevel.data[PITCH]<0) {
+				SetThrusterGroupLevel(thg_pitchup, 0.0);
+				SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
+			}
 		}
 	}
 	else {
@@ -1197,24 +1201,26 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 	}
 
 	ThrusterLevel.data[YAW]=Rates.data[YAW]-CurrentRates.data[YAW];
-	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[YAW])>PriLimits.data[YAW]) {
-		if(ThrusterLevel.data[YAW]>0) {
-			SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_yawright, 0.0);
+	if(abs(ThrusterLevel.data[YAW])>PriLimits.data[YAW]) {
+		if(DAPMode[1]!=2) { // PRI/ALT
+			if(ThrusterLevel.data[YAW]>0) {
+				SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_yawright, 0.0);
+			}
+			else if(ThrusterLevel.data[YAW]<0) {
+				SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_yawleft, 0.0);
+			}
 		}
-		else if(ThrusterLevel.data[YAW]<0) {
-			SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
-		}
-	}
-	else if(abs(ThrusterLevel.data[YAW])>VernLimits.data[YAW]) {
-		if(ThrusterLevel.data[YAW]>0) {
-			SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
-			SetThrusterGroupLevel(thg_yawright, 0.0);
-		}
-		else if(ThrusterLevel.data[YAW]<0) {
-			SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
+		else { // VERN
+			if(ThrusterLevel.data[YAW]>0) {
+				SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
+				SetThrusterGroupLevel(thg_yawright, 0.0);
+			}
+			else if(ThrusterLevel.data[YAW]<0) {
+				SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
+				SetThrusterGroupLevel(thg_yawleft, 0.0);
+			}
 		}
 	}
 	else {
@@ -1224,24 +1230,26 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 	}
 
 	ThrusterLevel.data[ROLL]=Rates.data[ROLL]-CurrentRates.data[ROLL];
-	if(DAPMode[1]!=2 && abs(ThrusterLevel.data[ROLL])>PriLimits.data[ROLL]) {
-		if(ThrusterLevel.data[ROLL]>0) {
-			SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
+	if(abs(ThrusterLevel.data[ROLL])>PriLimits.data[ROLL]) {
+		if(DAPMode[1]!=2) { // PRI/ALT
+			if(ThrusterLevel.data[ROLL]>0) {
+				SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_rollleft, 0.0);
+			}
+			else if(ThrusterLevel.data[ROLL]<0) {
+				SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
+				SetThrusterGroupLevel(thg_rollright, 0.0);
+			}
 		}
-		else if(ThrusterLevel.data[ROLL]<0) {
-			SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
-			SetThrusterGroupLevel(thg_rollright, 0.0);
-		}
-	}
-	else if(abs(ThrusterLevel.data[ROLL])>VernLimits.data[ROLL]) {
-		if(ThrusterLevel.data[ROLL]>0) {
-			SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-		}
-		else if(ThrusterLevel.data[ROLL]<0) {
-			SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
-			SetThrusterGroupLevel(thg_rollright, 0.0);
+		else { // VERN
+			if(ThrusterLevel.data[ROLL]>0) {
+				SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
+				SetThrusterGroupLevel(thg_rollleft, 0.0);
+			}
+			else if(ThrusterLevel.data[ROLL]<0) {
+				SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
+				SetThrusterGroupLevel(thg_rollright, 0.0);
+			}
 		}
 	}
 	else {
