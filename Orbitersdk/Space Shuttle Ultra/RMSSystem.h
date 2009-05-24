@@ -35,7 +35,6 @@ const double RMS_ROLLOUT_ANGLE=18.435;
 // angle between RMS and vertical when RMS is deployed (in degrees)
 
 // RMS joint positions
-//const VECTOR3 RMS_SY_JOINT = _V(-2.61,1.65,9.02);
 const VECTOR3 RMS_SY_JOINT = _V(-2.6855, 1.6515, 9.017);
 const VECTOR3 RMS_SP_JOINT = _V(-2.844, 2.1315, 9.018);
 const VECTOR3 RMS_EP_JOINT = _V(-2.787, 1.9705, 2.742);
@@ -71,6 +70,13 @@ const double RMS_EE_VERN_ROTATION_SPEED = 4.7*RAD;
 const double RMS_EE_COARSE_TRANSLATION_SPEED = 2.0*fps_to_ms;
 const double RMS_EE_VERN_TRANSLATION_SPEED = 0.35*fps_to_ms;
 // RMS IK translation speed (m/s)
+
+const double RMS_GRAPPLE_SPEED = 0.4;
+// Time to fully grapple an object (1/s)
+const double RMS_RIGID_SPEED = 0.25;
+// Time to regidize/derigidize arm (1/s)
+const double RMS_EXTEND_SPEED = 0.142857;
+// Time to extend/retract EE (1/s)
 
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
