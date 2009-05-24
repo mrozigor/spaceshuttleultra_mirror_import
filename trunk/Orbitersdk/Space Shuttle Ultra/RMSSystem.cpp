@@ -287,7 +287,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 
 	if(EEAuto || EEMan) {
 		if(Grapple_State.Moving()) {
-			Grapple_State.Move(DeltaT*ARM_GRAPPLE_SPEED);
+			Grapple_State.Move(DeltaT*RMS_GRAPPLE_SPEED);
 
 			if(Grapple_State.Closed()) {
 				if(!STS()->GetAttachmentStatus(hAttach)) Grapple();
@@ -305,7 +305,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 		if(Extend_State.Moving()) {
-			Extend_State.Move(DeltaT*ARM_EXTEND_SPEED);
+			Extend_State.Move(DeltaT*RMS_EXTEND_SPEED);
 			if(Extend_State.Open()) {
 				EEExtended.SetLine();
 				if(EEAuto) AutoReleaseSequence();
@@ -314,7 +314,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			else EEExtended.ResetLine();
 		}
 		if(Rigid_State.Moving()) {
-			Rigid_State.Move(DeltaT*ARM_RIGID_SPEED);
+			Rigid_State.Move(DeltaT*RMS_RIGID_SPEED);
 			if(Rigid_State.Open()) {
 				EEDerigidized.SetLine();
 				if(EEAuto) AutoReleaseSequence();

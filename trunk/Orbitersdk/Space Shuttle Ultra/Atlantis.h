@@ -91,8 +91,8 @@ const static char* DEFAULT_MESHNAME_VC = "SSU/VC";
 const static char* DEFAULT_MESHNAME_KU = "SSU/KU";
 const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
 const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
-const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
-const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
+//const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
+//const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
 const static char* DEFAULT_MESHNAME_ET = "SSU/ET129";
 const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
@@ -204,21 +204,6 @@ const double ET_UMB_DOOR_OPERATING_SPEED = 0.0416667;
 const double LATCH_OPERATING_SPEED = 0.166666667;
 
 const double AIR_DATA_PROBE_SPEED = 0.06666667;
-
-const double ARM_OPERATING_SPEED = 0.005;
-// RMS arm joint rotation speed (rad/sec)
-const double ARM_TRANSLATE_SPEED = 0.1;
-// RMS IK translation speed (m/s)
-const double ARM_DEPLOY_SPEED = 0.0294117647;
-// RMS rollout speed
-const double ARM_GRAPPLE_SPEED = 0.4;
-// Time to fully grapple an object (1/s)
-const double ARM_RIGID_SPEED = 0.25;
-// Time to regidize/derigidize arm (1/s)
-const double ARM_EXTEND_SPEED = 0.142857;
-// Time to extend/retract EE (1/s)
-const double MPM_MRL_SPEED = 0.11765;
-// speed of MPM latches (8.5 seconds)
 
 const double DYNP_MAX = 100e3;
 // Max. allowed dynamic pressure [Pa]
@@ -402,7 +387,7 @@ const VECTOR3 UMBDOORR_REF = _V(1.31087, -2.71022, -6.75496);
 //const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
 const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 
-const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
+//const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
 const VECTOR3 PROBEL_REF = _V(-1.122688, -1.0894815, 19.4175);
 const VECTOR3 PROBER_REF = _V( 1.122688, -1.0894815, 19.4175);
@@ -1102,8 +1087,8 @@ public:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_panela8;						   // index for Panel A8 mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
-	UINT mesh_rms;							   // index for RMS mesh
-	UINT mesh_mpm;							   // index for STBD MPM mesh
+	//UINT mesh_rms;							   // index for RMS mesh
+	//UINT mesh_mpm;							   // index for STBD MPM mesh
 	UINT mesh_tank;                            // index for external tank mesh
 	UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
@@ -1185,7 +1170,7 @@ public:
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
-	void SetStbdMPMPosition(double pos);
+	//void SetStbdMPMPosition(double pos);
 	void SetKuAntennaPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void SetLastCreatedMFD(unsigned short usMDU);
@@ -1279,8 +1264,8 @@ public:
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
-	bool center_arm;
-	bool arm_moved;
+	//bool center_arm;
+	//bool arm_moved;
 	double center_arm_t;
 	bool do_eva;
 	bool do_plat;
@@ -1290,7 +1275,7 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, hOrbiterRMSMesh, hOBSSMPMMesh, hTankMesh, hSRBMesh[2],
+		hMidDeckMesh, /*hOrbiterRMSMesh,*/ /*hOBSSMPMMesh,*/ hTankMesh, hSRBMesh[2],
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
@@ -1318,7 +1303,7 @@ public:
 	ATTACHMENTHANDLE ahStbdPL[4];
 	ATTACHMENTHANDLE ahPortPL[4];
 	
-	VECTOR3 arm_tip[3];
+	//VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
 	SubsystemDirector* psubsystems;
 	
@@ -1592,8 +1577,8 @@ private:
 	UINT anim_camBLpitch;					   // handle for back-left payload camera pitch animation 
 	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
 	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
-	UINT anim_camRMSElbowPan;
-	UINT anim_camRMSElbowTilt;
+	//UINT anim_camRMSElbowPan;
+	//UINT anim_camRMSElbowTilt;
 	
 	// PAYLOAD CAMERAS ROTATION (-170 to 170 degrees)
 	double camFLyaw;
@@ -1604,9 +1589,9 @@ private:
 	double camBLpitch;
 	double camBRyaw;
 	double camBRpitch;
-	double camRMSElbowPan, camRMSElbowTilt;
+	//double camRMSElbowPan, camRMSElbowTilt;
 	//RMS Camera rot/direction
-	VECTOR3 camRMSElbowLoc[2];
+	//VECTOR3 camRMSElbowLoc[2];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -1730,7 +1715,7 @@ private:
 	int Hydraulic_Press[3];
 
 	// RMS arm animation status
-	ANIMATIONCOMPONENT_HANDLE hAC_arm, hAC_sat, hAC_satref;
+	/*ANIMATIONCOMPONENT_HANDLE hAC_arm, hAC_sat, hAC_satref;
 	MGROUP_TRANSFORM *rms_anim[7], *rms_rollout_anim;
 	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr, anim_arm_ee;
 	UINT anim_rollout;
@@ -1748,7 +1733,8 @@ private:
 	//int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
 	bool RMS;
 	bool STBDMPM;
-	bool mpm_moved;
+	bool mpm_moved;*/
+	bool RMS, STBDMPM;
 
 	bool ControlRMS;
 	//Hand controller input

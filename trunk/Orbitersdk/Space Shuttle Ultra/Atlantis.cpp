@@ -537,8 +537,8 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   mesh_tank       = MESH_UNDEFINED;
   mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
-  mesh_rms        = MESH_UNDEFINED;
-  mesh_mpm        = MESH_UNDEFINED;
+  //mesh_rms        = MESH_UNDEFINED;
+  //mesh_mpm        = MESH_UNDEFINED;
   mesh_extal	  = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
   mesh_cargo_static = MESH_UNDEFINED;
@@ -662,8 +662,8 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   hOrbiterCockpitMesh	= oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
   hOrbiterVCMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
   hMidDeckMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MIDDECK);
-  hOrbiterRMSMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
-  hOBSSMPMMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MPM);
+  //hOrbiterRMSMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
+  //hOBSSMPMMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MPM);
   hKUBandMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
   hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
   hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
@@ -694,9 +694,9 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   strcpy(WingName,"Atlantis");
 
   //DefineAnimations();
-  center_arm      = false;
-  arm_moved       = false;
-  mpm_moved		  = false;
+  //center_arm      = false;
+  //arm_moved       = false;
+  //mpm_moved		  = false;
   bManualSeparate = false;
   ofs_sts_sat     = _V(0,0,0);
   do_eva          = false;
@@ -730,15 +730,15 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
 
   // default arm status: deployed
   STBDMPM=false;
-  StbdMPMRollout.Set(AnimState::OPEN, 1);
+  //StbdMPMRollout.Set(AnimState::OPEN, 1);
   //DisplayJointAngles=false;
   RMS=false;
-  RMSRollout.Set(AnimState::OPEN, 1);
-  shoulder_brace = 0.0; //released
+  //RMSRollout.Set(AnimState::OPEN, 1);
+  //shoulder_brace = 0.0; //released
   
   //RMS elbow camera
-  camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
-  camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
+  //camRMSElbowLoc[0]=_V(-2.681, 2.641, 1.806);
+  //camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
 
   gear_status.Set(AnimState::CLOSED, 0.0);
   gear_armed=false;
@@ -930,7 +930,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
 // Destructor
 // --------------------------------------------------------------
 Atlantis::~Atlantis () {
-	int i;
+	//int i;
 
 	delete psubsystems;
 	delete pCommModeHandler;
@@ -954,8 +954,8 @@ Atlantis::~Atlantis () {
 		//delete pA7A8Panel;
 
   
-	for (i = 0; i < 7; i++) delete rms_anim[i];
-	delete rms_rollout_anim;
+	//for (i = 0; i < 7; i++) delete rms_anim[i];
+	//delete rms_rollout_anim;
 	  
 	delete CameraFLYaw;
 	delete CameraFLPitch;
@@ -1663,7 +1663,7 @@ void Atlantis::DefineAnimations (void)
 {
   UINT midx = mesh_orbiter; // mesh index for all external animations
   UINT vidx = mesh_vc; // mesh index for all VC animations
-  UINT ridx = mesh_rms; // mesh index for all RMS animations
+  //UINT ridx = mesh_rms; // mesh index for all RMS animations
   //UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
@@ -2404,11 +2404,11 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
       AddMesh("shuttle_eva_plat", &plat_ofs);
     }
 
-	if(STBDMPM) {
+	/*if(STBDMPM) {
 		VECTOR3 pos=ofs+STBDMPM_REF;
 		mesh_mpm = AddMesh (hOBSSMPMMesh, &pos);
 		SetMeshVisibilityMode (mesh_mpm, MESHVIS_NEVER);
-	}
+	}*/
 
 	
 
@@ -2978,7 +2978,7 @@ void Atlantis::ClearMeshes ()
   VESSEL::ClearMeshes();
   mesh_orbiter = MESH_UNDEFINED;
   mesh_kuband  = MESH_UNDEFINED;
-  mesh_rms     = MESH_UNDEFINED;
+  //mesh_rms     = MESH_UNDEFINED;
   mesh_cockpit = MESH_UNDEFINED;
   mesh_vc      = MESH_UNDEFINED;
   mesh_tank    = MESH_UNDEFINED;
@@ -3014,13 +3014,13 @@ void Atlantis::SetETUmbDoorPosition (double pos, int door)
 	else SetAnimation (anim_retumbdoor, pos);
 }
 
-void Atlantis::SetStbdMPMPosition(double pos)
+/*void Atlantis::SetStbdMPMPosition(double pos)
 {
 	if(STBDMPM) {
 		SetAnimation(anim_stbd_mpm, pos);
 		mpm_moved=true;
 	}
-}
+}*/
 
 void Atlantis::OperateSpeedbrake (AnimState::Action action)
 {
@@ -5081,7 +5081,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   /*if(STBDMPM) {
 	  oapiWriteLine(scn, "  MPM"); 
 	  WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
-  }*/
+  }*
   if(RMS) {
 	  /*oapiWriteLine(scn, "  RMS");
 	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
@@ -5089,14 +5089,14 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
 		  sprintf(cbuf, "1 %f", RMSRollout.pos);
 	  else sprintf(cbuf, "0 %f", RMSRollout.pos);
-	  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);*/
-	  oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
+	  oapiWriteScenario_string(scn, "ROLLOUT", cbuf);*
+	  //oapiWriteScenario_float(scn, "SHOULDER_BRACE", shoulder_brace);
 	  /*sprintf(cbuf, "%f %f", MRL[0], MRL[1]);
-	  oapiWriteScenario_string(scn, "MRL", cbuf);*/
+	  oapiWriteScenario_string(scn, "MRL", cbuf);*
 	  /*WriteScenario_state(scn, "GRAPPLE", Grapple);
 	  WriteScenario_state(scn, "RIGIDIZE", Rigidize);
-	  WriteScenario_state(scn, "EXTEND", Extend);*/
-  }
+	  WriteScenario_state(scn, "EXTEND", Extend);*
+  }*/
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
@@ -5936,12 +5936,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		SetAnimation (anim_gear, gear_status.pos);
 	}
 
-	if (arm_moved) {
+	/*if (arm_moved) {
 		arm_moved = false;
 	}
 	if(mpm_moved) {
 		mpm_moved=false;
-	}
+	}*/
 
 	// ----------------------------------------------------------
 	// Animate payload bay cameras.
@@ -6361,7 +6361,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = orbiter_ofs + VC_HUDPOS_CDR;
-    oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS2);
+    oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS1);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
 
@@ -6395,7 +6395,7 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
 		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
     huds.hudcnt = orbiter_ofs + VC_HUDPOS_PLT;
-    oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
+    oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
 
@@ -6486,7 +6486,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
     SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
-    oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 
 	//HideMidDeck();
 
@@ -6496,7 +6496,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMFR: //FR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
     SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
-    oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 
 	//HideMidDeck();
 
@@ -6505,7 +6505,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
     SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
-    oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 
 	//HideMidDeck();
 
@@ -6514,7 +6514,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
     SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
-    oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 
 	//HideMidDeck();
 
@@ -6624,7 +6624,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_AFTWORKSTATION);
     SetCameraDefaultDirection (VC_DIR_AFTWORKSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_STBDSTATION, VC_MS1, VC_RMSSTATION, VC_PORTSTATION);
+	oapiVCSetNeighbours (VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
 	InactiveMDUs.insert(vc::MDUID_CDR1);
 	InactiveMDUs.insert(vc::MDUID_CDR2);
 
@@ -6653,7 +6653,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS1);
     SetCameraDefaultDirection (VC_DIR_MS1);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_PLT, VC_DOCKCAM);
+	oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
@@ -6686,7 +6686,7 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_CDR, VC_DOCKCAM);
+    oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
 	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
@@ -7231,9 +7231,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     case OAPI_KEY_8:
       ToggleGrapple();
       return 1;
-    case OAPI_KEY_9:
+    /*case OAPI_KEY_9:
       center_arm = true;
-      return 1;
+      return 1;*/
     case OAPI_KEY_E:
       do_eva = true;
       return 1;
@@ -7685,7 +7685,7 @@ BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	  }
       t0 = t1;
     }
-    if (!sts->center_arm) EnableWindow (GetDlgItem (hWnd, IDC_GRAPPLE), TRUE);
+    //if (!sts->center_arm) EnableWindow (GetDlgItem (hWnd, IDC_GRAPPLE), TRUE);
     break;
   case WM_COMMAND:
     switch (LOWORD(wParam)) {
@@ -7797,8 +7797,9 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     }
 	if (SendDlgItemMessage (hWnd, IDC_CAM_RMS, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 4;
-	  camYaw =&(sts->camRMSElbowPan);
-      camPitch =&(sts->camRMSElbowTilt);
+	  camYaw=camPitch=NULL;
+	  //camYaw =&(sts->camRMSElbowPan);
+      //camPitch =&(sts->camRMSElbowTilt);
     }
 
     // Set Atlantis camera Rate from dialog
