@@ -1027,6 +1027,7 @@ void Atlantis::AttControl(double SimdT)
 					}
 				}
 			}
+			else ReqdRates.data[i]=0.0;
 		}
 	}
 	else if(ControlMode!=FREE) {
@@ -1072,18 +1073,24 @@ void Atlantis::AttControl(double SimdT)
 				return;
 			}
 
-			if(ManeuverStatus==MNVR_STARTING) {
+			if(ManeuverStatus==MNVR_STARTING || (ManeuverStatus==MNVR_IN_PROGRESS && TimeSinceTgtUpdate>=60.0)) {
+				// when maneuver starts (and at 60-sec intervals) calculate inertial attitude at mnvr completion
+				if(ManeuverStatus==MNVR_STARTING) MNVR_TIME=0.0;
 				NullRates=(TargAttOrbiter-LastTargAttOrbiter)/SimdT;
 				CalcManeuverTargets(NullRates);
 				ManeuverStatus=MNVR_IN_PROGRESS;
+				TimeSinceTgtUpdate=0.0;
 				sprintf_s(oapiDebugString(), 255, "MNVR IN PROGRESS");
 			}
 			else if(ManeuverStatus==MNVR_COMPLETE) {
 				TargetAttOrbiter=TargAttOrbiter;
 				MNVR_TIME=0.0;
+				TimeSinceTgtUpdate=0.0;
 			}
 			else {
+				// mnvr in progress; update timers
 				MNVR_TIME-=SimdT;
+				TimeSinceTgtUpdate+=SimdT;
 			}
 		}
 		else NullRates=NullRatesLocal=_V(0, 0, 0); //MNVR or ControlMode==INRTL
@@ -1105,16 +1112,15 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 	double LastMnvrTime;
 	double Angle;
 	MATRIX3 PYR;
-	//VECTOR3 PYR, Axis;
 	VECTOR3 Axis;
 	VECTOR3 REQDATTOrbiter=ConvertAnglesBetweenM50AndOrbiter(REQD_ATT*RAD, true);
-	TargetAttOrbiter=REQDATTOrbiter;
+	/*TargetAttOrbiter=REQDATTOrbiter;
 	//PYR=CalcPitchYawRollAngles()*DEG;
 	PYR=CalcPitchYawRollRotMatrix();
 	//MNVR_TIME=RotRate*(abs(PYR.x)+abs(PYR.y)+abs(PYR.z));
 	Angle=CalcEulerAngle(IdentityMatrix, PYR, Axis);
-	MNVR_TIME=RotRate*Angle*DEG;
-	sprintf_s(oapiDebugString(), 255, "Initial MNVR TIME: %f", MNVR_TIME);
+	MNVR_TIME=R(Angle*DEG)/RotRate;
+	sprintf_s(oapiDebugString(), 255, "Initial MNVR TIME: %f", MNVR_TIME);*/
 	//oapiWriteLog(oapiDebugString());
 	do {
 		counter++;
@@ -1124,18 +1130,15 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 			//break;
 		}
 		TargetAttOrbiter=REQDATTOrbiter+NullRates*MNVR_TIME; //check TargetAtt frame
-		//double TargetAttMag=0.0;
-		//for(int i=0;i<3;i++) TargetAttMag+=DEG*abs(TargetAttOrbiter.data[i]);
-		//PYR=CalcPitchYawRollAngles()*DEG;
 		PYR=CalcPitchYawRollRotMatrix();
 		Angle=CalcEulerAngle(IdentityMatrix, PYR, Axis);
 		MNVR_TIME=(Angle*DEG)/RotRate;
-		//MNVR_TIME=RotRate*(abs(PYR.x)+abs(PYR.y)+abs(PYR.z));
+
 		//sprintf(oapiDebugString(), "Iterating: %d %f", counter, MNVR_TIME);
 		sprintf(oapiDebugString(), "Iterating: %d %f %f %f", counter, MNVR_TIME, NullRates.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG);
 		//oapiWriteLog(oapiDebugString());
-	}while(abs(MNVR_TIME-LastMnvrTime)>0.05 && counter<100);
-	if(counter>=50) {
+	}while(abs(MNVR_TIME-LastMnvrTime)>0.05 && counter<50);
+	if(counter>=50 && abs(MNVR_TIME-LastMnvrTime)>1.0) {
 		//TargetAttOrbiter=REQDATTOrbiter;
 		//VECTOR3 Axis;
 		//double Angle=CalcEulerAngle(_V(0, 0, 0), PYR*RAD, Axis);
@@ -1148,12 +1151,12 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 		RotationAxis=Axis;
 		RotationAngle=Angle;
 
-		/*sprintf_s(oapiDebugString(), 255, "Target Attitude: %f %f %f NR: %f %f %f Time: %f", TargetAttOrbiter.data[PITCH]*DEG,
+		sprintf_s(oapiDebugString(), 255, "Target Attitude: %f %f %f NR: %f %f %f Time: %f", TargetAttOrbiter.data[PITCH]*DEG,
 			TargetAttOrbiter.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG, NullRates.data[PITCH]*DEG,
 			NullRates.data[YAW]*DEG, NullRates.data[ROLL]*DEG, MNVR_TIME);
 		oapiWriteLog(oapiDebugString());
 		sprintf_s(oapiDebugString(), 255, "Axis: %f %f %f Angle: %f", Axis.x, Axis.y, Axis.z, Angle*DEG);
-		oapiWriteLog(oapiDebugString());*/
+		oapiWriteLog(oapiDebugString());
 	}
 }
 

@@ -887,7 +887,8 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   ManeuverinProg=false;
   //ManeuverComplete=false;
   ManeuverStatus=MNVR_OFF;
-  MNVR_TIME=0;
+  MNVR_TIME = 0.0;
+  TimeSinceTgtUpdate = 0.0;
   //Post Contact Thrusting
   PostContactThrusting[0]=true; //for the moment, always armed
   PostContactThrusting[1]=false;
