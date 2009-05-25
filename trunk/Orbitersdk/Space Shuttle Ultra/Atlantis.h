@@ -1850,7 +1850,7 @@ private:
 	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	//ManeuverStatus is used to set autopilot actions
 	AttManeuver CurManeuver, FutManeuver;
-	double MNVR_TIME;
+	double MNVR_TIME, TimeSinceTgtUpdate;
 	int START_TIME[4]; // day,hour,min,sec
 	int TGT_ID, BODY_VECT;
 	double P, Y, OM;

@@ -42,6 +42,10 @@ double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VEC
 	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
 	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
 	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
+	if(Angle>PI) {
+		Angle=2*PI-Angle;
+		Axis=-Axis;
+	}
 	return Angle;
 }
 
