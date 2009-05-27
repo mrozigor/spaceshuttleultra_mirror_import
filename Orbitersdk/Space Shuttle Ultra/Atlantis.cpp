@@ -2219,7 +2219,12 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		if(ahCenterPassive[i])
 		{
 			//update
-			vPayloadPos.z = fPayloadZPos[i+3];
+			//vPayloadPos.z = fPayloadZPos[i+3];
+			if(pMission)
+				vPayloadPos.z = pMission->GetPayloadZPos(i+3);
+			else
+				vPayloadPos.z = fPayloadZPos[i+3];
+
 			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL);
 		}
@@ -2254,13 +2259,23 @@ The same starboard
 		if(ahPortPL[i])
 		{
 			//update
-			vPayloadPos.z = fPayloadZPos[i+7];
+			//vPayloadPos.z = fPayloadZPos[i+7];
+			if(pMission)
+				vPayloadPos.z = pMission->GetPayloadZPos(i+7);
+			else
+				vPayloadPos.z = fPayloadZPos[i+7];
+
 			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL);
 		}
 		else 
 		{
-			vPayloadPos.z = fPayloadZPos[i+7];
+			//vPayloadPos.z = fPayloadZPos[i+7];
+			if(pMission)
+				vPayloadPos.z = pMission->GetPayloadZPos(i+7);
+			else
+				vPayloadPos.z = fPayloadZPos[i+7];
+
 			//create
 			ahPortPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL, "XS");
@@ -2274,13 +2289,21 @@ The same starboard
 		if(ahStbdPL[i])
 		{
 			//update
-			vPayloadPos.z = fPayloadZPos[i+11];
+			if(pMission)
+				vPayloadPos.z = pMission->GetPayloadZPos(i+11);
+			else
+				vPayloadPos.z = fPayloadZPos[i+11];
+			//vPayloadPos.z = fPayloadZPos[i+11];
 			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL);
 		}
 		else 
 		{
-			vPayloadPos.z = fPayloadZPos[i+11];
+			//vPayloadPos.z = fPayloadZPos[i+11];
+			if(pMission)
+				vPayloadPos.z = pMission->GetPayloadZPos(i+11);
+			else
+				vPayloadPos.z = fPayloadZPos[i+11];
 			//create
 			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL, "XS");

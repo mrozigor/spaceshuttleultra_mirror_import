@@ -27,6 +27,13 @@
 
 #include <string>
 
+const double DEFAULT_PAYLOAD_ZPOS[16] = 
+{ 8.0, 0.0, -8.0,		//Center active
+  4.0, 2.0, -6.0,		//Center passive
+  7.0, 3.0, -2.0, -8.0,	//Port
+  7.0, 3.0, -2.0, -8.0,	//Starboard
+  0.0, 0.0};			//spare
+
 /**
  * Contains all class definitions related to Mission Data Files and 
  * handling mission data in the simulation
@@ -52,6 +59,8 @@ namespace mission {
 		bool bUseRMS;
 		bool bUseOMSAssist;
 		unsigned short usExtAirlockMode;
+
+		double fPayloadZPos[16];
 
 		
 	public:
@@ -91,10 +100,14 @@ namespace mission {
 		
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
+		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual bool HasKuBandAntenna() const;
+		
 
 		virtual bool UseDirectAscent() const;
 		virtual bool UseOMSAssist() const;
+
+		
 	};
 
 };
