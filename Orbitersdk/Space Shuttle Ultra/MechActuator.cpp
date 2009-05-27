@@ -159,9 +159,13 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	oapiWriteLog("(MechActuator::OnPropagate) Line 128");
 #endif
 
+if(STS()->AreMCADebugMessagesEnabled())
+{
 	sprintf_s(oapiDebugString(), 255, "(MCA{%s}::OnPropagate) POS: %5.2f%% SPEED: %5.2f%%/s (%c [%c %c])",
 		GetQualifiedIdentifier().c_str(), fOutPos*100.0, fSpeed * 100.0,
 		cCP, cP0, cP1);
+}
+
 #ifdef DEBUG_PROPAGATE
 	oapiWriteLog("(MechActuator::OnPropagate) Exit.");
 #endif

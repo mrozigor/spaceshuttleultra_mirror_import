@@ -52,6 +52,32 @@ AtlantisSubsystem* SubsystemDirector::ReplaceSubsystem(AtlantisSubsystem* pCurre
 	return pCurrentSubsys;
 }
 
+bool SubsystemDirector::ExistsSubsystem(const std::string& name) const
+{
+	std::vector<AtlantisSubsystem*>::const_iterator iter = subsystems.begin();
+	while(iter != subsystems.end())
+	{
+		if((*iter)->GetIdentifier() == name) {
+			return true;
+		}
+		iter++;
+	}
+	return false;
+}
+
+AtlantisSubsystem* SubsystemDirector::GetSubsystemByName(const std::string& name) const
+{
+	std::vector<AtlantisSubsystem*>::const_iterator iter = subsystems.begin();
+	while(iter != subsystems.end())
+	{
+		if((*iter)->GetIdentifier() == name) {
+			return (*iter);
+		}
+		iter++;
+	}
+	return NULL;
+}
+
 DiscreteBundleManager* SubsystemDirector::BundleManager() const {
 	return psts->BundleManager();
 }
@@ -76,19 +102,50 @@ void SubsystemDirector::SetClassCaps(FILEHANDLE cfg)
 	for(i = 0; i<subsystems.size(); i++)
 	{
 		//
-		//subsystems[i]->OnSetClassCaps();
+		subsystems[i]->OnSetClassCaps();
 	}
 }
 
-bool SubsystemDirector::ParseScenarioLine(char* line)
+bool SubsystemDirector::ParseScenarioLine(FILEHANDLE scn, char* line)
 {
 	unsigned long i;
-	for(i = 0; i<subsystems.size(); i++)
-	{
-		//
-		if(subsystems[i]->OnParseLine(line))
+	char pszBuffer[400];
+	if(!_strnicmp(line, "@SUBSYSTEM", 10)) {
+		oapiWriteLog(line);
+		*line += 10;
+		unsigned long i = 0;
+		bool bStringFlag = false;
+		while((*line != '\0' && *line != ' ') || bStringFlag) {
+			if(*line == '\"') {
+				bStringFlag = !bStringFlag;
+			} else {
+				pszBuffer[i] = *line;
+				i++;
+			}
+			line++;
+		}
+
+		pszBuffer[i] = '\0';
+
+		if(ExistsSubsystem(pszBuffer)) {
+			AtlantisSubsystem* pT = GetSubsystemByName(pszBuffer);
+			pT->OnReadState(scn);
+		} else {
+			//skip block
+			oapiWriteLog("Skip block");
+			while(oapiReadScenario_nextline(scn, line)) {
+				if(!_strnicmp(line, "@ENDSUBSYSTEM", 13))
+					break;
+			}
+		}
+	} else {
+		for(i = 0; i<subsystems.size(); i++)
 		{
-			return true;
+			//
+			if(subsystems[i]->OnParseLine(line))
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -102,10 +159,18 @@ bool SubsystemDirector::PlaybackEvent(double fSimT, double fEventT, const char* 
 bool SubsystemDirector::SaveState(FILEHANDLE scn)
 {
 	unsigned long i;
+	char pszBuffer[400];
 	for(i = 0; i<subsystems.size(); i++)
 	{
-		//
+		sprintf_s(pszBuffer,"@SUBSYSTEM %s", subsystems[i]->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(pszBuffer);
+		oapiWriteLine(scn, pszBuffer);
+
 		subsystems[i]->OnSaveState(scn);
+
+		sprintf_s(pszBuffer,"@ENDSUBSYSTEM\t\t;%s", subsystems[i]->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(pszBuffer);
+		oapiWriteLine(scn, pszBuffer);
 	}
 	return true;
 }

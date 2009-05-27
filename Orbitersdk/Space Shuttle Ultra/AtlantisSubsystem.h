@@ -182,6 +182,10 @@ public:
 	 * @return pointer to the bus manager
 	 */
 	ShuttleBusManager* BusManager() const;
+
+	virtual bool OnParseLine(const char* keyword, const char* line);
+	virtual bool OnReadState (FILEHANDLE scn);
+	virtual void OnSetClassCaps();
 };
 
 class EmptySubsystem: AtlantisSubsystem {

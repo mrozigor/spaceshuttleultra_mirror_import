@@ -49,10 +49,11 @@ public:
 	~SubsystemDirector();
 	bool AddSubsystem(AtlantisSubsystem* pSubsys);
 	AtlantisSubsystem* ReplaceSubsystem(AtlantisSubsystem* pCurrentSubsys, AtlantisSubsystem* pBySubsys);
-
+	bool ExistsSubsystem(const std::string& name) const;
+	AtlantisSubsystem* GetSubsystemByName(const std::string& name) const;
 
 	void SetClassCaps(FILEHANDLE cfg);
-	bool ParseScenarioLine(char* line);
+	bool ParseScenarioLine(FILEHANDLE scn, char* line);
 	bool PlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
 	bool SaveState(FILEHANDLE scn);
 	bool PostStep(double fSimT, double fDeltaT, double fMJD);

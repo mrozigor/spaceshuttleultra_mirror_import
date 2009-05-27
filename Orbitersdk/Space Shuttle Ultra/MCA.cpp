@@ -36,7 +36,7 @@ void MCAModule::OnPropagate(double fSimT, double fDeltaT)
 MCA::MCA(SubsystemDirector *_direct, const std::string &name)
 : AtlantisSubsystem(_direct, name)
 {
-
+	oapiWriteLog("(MCA::MCA)");
 }
 
 MCA::~MCA()
