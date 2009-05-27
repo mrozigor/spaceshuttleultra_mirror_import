@@ -542,12 +542,12 @@ const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
 	"XS1A", "XS3A", "XS5A"};
 
-const double DEFAULT_PAYLOAD_ZPOS[16] = 
-{ 8.0, 0.0, -8.0,		//Center active
-  4.0, 2.0, -6.0,		//Center passive
-  7.0, 3.0, -2.0, -8.0,	//Port
-  7.0, 3.0, -2.0, -8.0,	//Starboard
-  0.0, 0.0};			//spare
+//const double DEFAULT_PAYLOAD_ZPOS[16] = 
+//{ 8.0, 0.0, -8.0,		//Center active
+//  4.0, 2.0, -6.0,		//Center passive
+//  7.0, 3.0, -2.0, -8.0,	//Port
+//  7.0, 3.0, -2.0, -8.0,	//Starboard
+//  0.0, 0.0};			//spare
 
 //Sound IDs
 const int RCS_SOUND = 1;

@@ -73,6 +73,18 @@ namespace mission {
 			bUseRMS = false;
 		}
 
+		for(int i = 0; i<16; i++)
+		{
+			double x;
+			sprintf_s(buffer, "PayloadZPos%d", i);
+			if(!oapiReadItem_float(hFile, buffer, x))
+			{
+				fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
+			} else {
+				fPayloadZPos[i] = x;
+			}
+		}
+
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
 	}
@@ -128,6 +140,14 @@ namespace mission {
 	unsigned int Mission::GetNumberOfOMSBurns() const
 	{
 		return 0;
+	}
+
+	double Mission::GetPayloadZPos(unsigned int iIndex) const
+	{
+		if(iIndex > 15)
+			return 0.0;
+		else
+			return fPayloadZPos[iIndex];
 	}
 		
 	const std::string& Mission::GetOrbiter() const
