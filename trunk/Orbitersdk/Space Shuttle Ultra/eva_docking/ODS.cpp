@@ -1,6 +1,7 @@
 #include "../Atlantis.h"
 #include "../meshres_ods.h"
 #include "ODS.h"
+#include "VesselAPI.h"
 
 namespace eva_docking {
 
@@ -399,6 +400,12 @@ namespace eva_docking {
 		dscu_RingFinalLight.Connect(pBundleB, 8);
 	}
 
+	void ODS::OnSaveState(FILEHANDLE scn) const
+	{
+		WriteScenario_state(scn, "RING_STATE", RingState);
+		return ExtAirlock::OnSaveState(scn);
+	}
+
 	void ODS::DefineAirlockAnimations(UINT midx_extal, 
 		UINT midx_ods, const VECTOR3& ofs) {
 
@@ -556,6 +563,17 @@ namespace eva_docking {
 
 	bool ODS::HasDSCUPower() const {
 		return bPowerRelay;
+	}
+
+	bool ODS::OnParseLine(const char* keyword, const char* line)
+	{
+		if(!_strnicmp(keyword, "RING_STATE", 10))
+		{
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 };

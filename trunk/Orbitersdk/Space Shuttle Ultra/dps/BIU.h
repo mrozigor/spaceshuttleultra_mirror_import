@@ -80,6 +80,8 @@ namespace dps {
 		bool bIsBusMaster;
 		bool bDontListen;
 		unsigned short usTerminalID;
+		void notifyReceived(unsigned long ulChannel);
+		void executeTransmitProgram(unsigned long ulChannel);
 	public:
 		BIU();
 		BIU(unsigned short usTerminalID, bool bIsMaster = false);

@@ -1208,6 +1208,8 @@ public:
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
 
+	bool AreMCADebugMessagesEnabled() const throw();
+
 	virtual void UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up);
 	virtual ATTACHMENTHANDLE GetODSAttachment() const;
 
@@ -1777,6 +1779,7 @@ private:
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
+	bool bEnableMCADebug;
 	VECTOR3 Thrust;
 	//PEG
 	double target_pitch,last_target_pitch,CmdPDot;

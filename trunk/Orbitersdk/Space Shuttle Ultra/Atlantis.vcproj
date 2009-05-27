@@ -1059,6 +1059,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\..\Scenarios\(Current state).scn"
+			>
+		</File>
+		<File
 			RelativePath="Atlantis.rc"
 			>
 			<FileConfiguration
@@ -1148,6 +1152,10 @@
 		</File>
 		<File
 			RelativePath=".\Bitmaps\OrbitDAP_PBI_lights.bmp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\Orbiter.log"
 			>
 		</File>
 		<File

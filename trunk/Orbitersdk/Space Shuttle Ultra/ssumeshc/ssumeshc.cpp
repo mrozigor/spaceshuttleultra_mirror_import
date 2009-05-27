@@ -63,6 +63,9 @@ void WriteHeaderFile()
 	hfile << std::endl;
 	hfile << "#pragma once" << std::endl;
 	hfile << std::endl;
+	hfile << "const unsigned int NUMGRP" << constant_suffix 
+		<< " = " << labels.size() << ";" << std::endl
+		<< std::endl;
 	for(unsigned int i = 0; i<labels.size(); i++) {
 		
 		std::string tmp;

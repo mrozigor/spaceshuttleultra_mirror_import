@@ -555,6 +555,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   bLiftOff		  = false;
   bHasKUBand	  = true;
   bUseRealRCS	  = true;
+  bEnableMCADebug = false;
 
   vcDeckMode = VCM_FLIGHTDECK;
 
@@ -4997,7 +4998,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	  //if (panela8 && panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 	//  if (panelf7->ParseScenarioLine (line)) continue; // offer line to panel F7
-	  if (psubsystems->ParseScenarioLine(line)) continue; // offer line to subsystem simulation
+	  if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
       ParseScenarioLineEx (line, vs);
       // unrecognised option - pass to Orbiter's generic parser
     }
@@ -8929,4 +8930,9 @@ ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
 
 int Atlantis::GetSoundID() const {
 	return SoundID;
+}
+
+bool Atlantis::AreMCADebugMessagesEnabled() const throw()
+{
+	return bEnableMCADebug;
 }

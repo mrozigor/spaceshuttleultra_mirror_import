@@ -5,6 +5,7 @@ namespace eps {
 	const double FIELD_SPEED_CONSTANT = 2.0/8.0;
 	const double MOTOR_SPEED_CONSTANT = 0.25;
 	const double MOTOR_TORQUE_CONSTANT = 4.0;
+	const double MOTOR_BRAKE_CONSTANT = 50.0;
 
 	ACMotor::ACMotor()
 		: pACSource(NULL)
@@ -72,7 +73,7 @@ namespace eps {
 		//Brake torque
 		if(length(_V(pACSource->GetVoltage(PHASE1), pACSource->GetVoltage(PHASE2), pACSource->GetVoltage(PHASE3))) < 50.0) 
 		{
-
+			fT = -fSpeed * MOTOR_BRAKE_CONSTANT;
 		}
 
 		return fT;

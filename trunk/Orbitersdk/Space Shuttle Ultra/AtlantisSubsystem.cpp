@@ -12,7 +12,10 @@
 AtlantisSubsystem::AtlantisSubsystem(SubsystemDirector* _director, const string& _ident)
 : director(_director), ident(_ident)
 {
-
+	char pszBuffer[300];
+	oapiWriteLog("(AtlantisSubsystem::AtlantisSubsystem)");
+	sprintf_s(pszBuffer, 300, "(AtlantisSubsystem) Create subsystem %s.", ident.c_str());
+	oapiWriteLog(pszBuffer);
 }
 
 AtlantisSubsystem::~AtlantisSubsystem()
@@ -45,6 +48,11 @@ void AtlantisSubsystem::Realize()
 
 
 bool AtlantisSubsystem::OnParseLine(const char* line)
+{
+	return false;
+}
+
+bool AtlantisSubsystem::OnParseLine(const char* key, const char* line)
 {
 	return false;
 }
@@ -125,6 +133,32 @@ void AtlantisSubsystem::UnloadSubsystem() {
 	
 }
 
+bool AtlantisSubsystem::OnReadState (FILEHANDLE scn) {
+	char* line;
+	char pszKey[256];
+	while(oapiReadScenario_nextline(scn, line)) {
+		if(!_strnicmp(line, "@ENDSUBSYSTEM", 13)) {
+			return true;
+		} else {
+			unsigned long i = 0;
+			while(*line != ' ' || *line != '\0') {
+				pszKey[i++] = *line;
+				line++;
+			}
+			pszKey[++i] = '\0';
+			if(*line != '\0') {
+				OnParseLine(pszKey, line);
+			} else {
+				OnParseLine(pszKey, NULL);
+			}
+		}
+	}
+	return false;
+}
+
+void AtlantisSubsystem::OnSetClassCaps()
+{
+}
 
 EmptySubsystem::EmptySubsystem(SubsystemDirector* _director)
 : AtlantisSubsystem(_director, "[Empty]") {

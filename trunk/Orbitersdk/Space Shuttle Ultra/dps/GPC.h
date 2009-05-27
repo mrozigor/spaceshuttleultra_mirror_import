@@ -69,6 +69,14 @@ namespace dps {
 		unsigned short usMajorCount;
 		unsigned short usMinorCount;
 
+		float fGPCSeconds;
+		short usGPCMinutes;
+
+		unsigned long ulRTC;
+
+		unsigned long ulManualRTC;
+		
+
 		virtual void OnIOPPrestep(double fSimT, double fDeltaT, double fMJD);
 		virtual void MinorCycle(double fSimT, double fDeltaT, double fMJD);
 		virtual void MajorCycle(double fSimT, double fDeltaT, double fMJD);

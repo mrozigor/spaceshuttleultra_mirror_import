@@ -114,10 +114,12 @@ namespace eva_docking {
 		virtual void Realize();
 		//virtual void AddMeshes(const VECTOR3& ofs);
 		virtual double GetSubsystemEmptyMass() const;
+		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
+		virtual bool OnParseLine(const char* keyword, const char* line);
 
 		DiscInPort dscu_PowerOn;
 		DiscInPort dscu_PowerOff;
