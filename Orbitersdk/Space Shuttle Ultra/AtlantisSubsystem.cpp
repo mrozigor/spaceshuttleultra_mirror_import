@@ -140,16 +140,20 @@ bool AtlantisSubsystem::OnReadState (FILEHANDLE scn) {
 		if(!_strnicmp(line, "@ENDSUBSYSTEM", 13)) {
 			return true;
 		} else {
-			unsigned long i = 0;
-			while(*line != ' ' || *line != '\0') {
-				pszKey[i++] = *line;
-				line++;
-			}
-			pszKey[++i] = '\0';
-			if(*line != '\0') {
-				OnParseLine(pszKey, line);
-			} else {
-				OnParseLine(pszKey, NULL);
+			if(SingleParamParseLine())
+				OnParseLine(line);
+			else {
+				unsigned long i = 0;
+				while(*line != ' ' || *line != '\0') {
+					pszKey[i++] = *line;
+					line++;
+				}
+				pszKey[++i] = '\0';
+				if(*line != '\0') {
+					OnParseLine(pszKey, line);
+				} else {
+					OnParseLine(pszKey, NULL);
+				}
 			}
 		}
 	}

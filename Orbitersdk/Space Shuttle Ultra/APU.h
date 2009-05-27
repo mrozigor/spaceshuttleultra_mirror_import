@@ -44,6 +44,7 @@ public:
 	virtual double GetFuelPressure() const;
 	virtual double GetAPUSpeed() const;
 	bool IsRunning() const;
+	virtual bool SingleParamParseLine() const {return true;};
 
 	void CreateTanks();
 	virtual void Realize();

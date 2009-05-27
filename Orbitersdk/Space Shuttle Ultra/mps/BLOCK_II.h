@@ -70,6 +70,7 @@ namespace mps
 		//void OnPropagate( double, double, double );
 
 		void OnSaveState( FILEHANDLE ) const;
+		virtual bool SingleParamParseLine() const {return true;};
 		bool OnParseLine( const char* );
 		};
 }
