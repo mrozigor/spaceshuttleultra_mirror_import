@@ -383,7 +383,8 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
 // --------------------------------------------------------------
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 : VESSEL2 (hObj, fmodel),
-OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
+OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
+pActiveLatches(3, NULL)
 {
 #ifdef _DEBUG
         // D. Beachy: for BoundsChecker debugging
@@ -912,6 +913,13 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75)
   psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
   psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
   psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
+
+  // latch instances need to be created before scenario is loaded
+  // latch positions are set in DefineAttachments() function
+  VECTOR3 vPayloadPos=_V(0.0, PL_ATTACH_CENTER_Y, 0.0);
+  psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatch(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+  psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatch(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+  psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatch(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
 
   for(int i=0;i<2;i++) {
 	  SRBGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
@@ -2200,18 +2208,13 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 */
 
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	ActiveLatch* pLatch=NULL;
-	for(int i = 0; i<3; i++)
+	for(unsigned int i = 0; i<3; i++)
 	{
-		char pszName[50];
-		sprintf_s(pszName, 50, "LATCH%d", i);
-
 		if(pMission) vPayloadPos.z=pMission->GetPayloadZPos(i);
 		else vPayloadPos.z=fPayloadZPos[i];
 
-		psubsystems->AddSubsystem(pLatch = new ActiveLatch(psubsystems, pszName, vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-		pActiveLatches.push_back(pLatch);
-		pLatch->CreateAttachment();
+		pActiveLatches[i]->SetAttachmentParams(vPayloadPos, DIR_CENTERPL, ROT_CENTERPL);
+		pActiveLatches[i]->CreateAttachment();
 	}
 
 		/*

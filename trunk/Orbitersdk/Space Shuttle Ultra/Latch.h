@@ -91,6 +91,8 @@ public:
 
 	virtual void CreateAttachment();
 
+	void SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot);
+
 	void Latch();
 	void Release();
 protected:

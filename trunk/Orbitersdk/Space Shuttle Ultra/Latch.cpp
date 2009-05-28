@@ -198,9 +198,7 @@ void LatchSystem::CheckForAttachedObjects()
 ActiveLatch::ActiveLatch(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
 	: LatchSystem(_director, _ident, "XS")
 {
-	pos=_pos;
-	dir=_dir;
-	rot=_rot;
+	SetAttachmentParams(_pos, _dir, _rot);
 }
 
 ActiveLatch::~ActiveLatch()
@@ -212,6 +210,14 @@ void ActiveLatch::CreateAttachment()
 	if(!hAttach)
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+pos, dir, rot, AttachID.c_str());
 	else STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+pos, dir, rot);
+}
+
+void ActiveLatch::SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
+{
+	pos=_pos;
+	dir=_dir;
+	rot=_rot;
+	if(hAttach) CreateAttachment(); // update attachment
 }
 
 void ActiveLatch::Latch()
