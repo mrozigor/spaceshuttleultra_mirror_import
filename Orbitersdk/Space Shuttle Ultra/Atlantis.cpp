@@ -2200,9 +2200,18 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 */
 
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	for(unsigned int i = 0; i<pActiveLatches.size(); i++)
+	ActiveLatch* pLatch=NULL;
+	for(int i = 0; i<3; i++)
 	{
-		pActiveLatches[i]->CreateAttachment();
+		char pszName[50];
+		sprintf_s(pszName, 50, "LATCH%d", i);
+
+		if(pMission) vPayloadPos.z=pMission->GetPayloadZPos(i);
+		else vPayloadPos.z=fPayloadZPos[i];
+
+		psubsystems->AddSubsystem(pLatch = new ActiveLatch(psubsystems, pszName, vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+		pActiveLatches.push_back(pLatch);
+		pLatch->CreateAttachment();
 	}
 
 		/*
@@ -5029,18 +5038,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   ofs_sts_sat.x=sts_sat_x;
   ofs_sts_sat.y=sts_sat_y;
   ofs_sts_sat.z=sts_sat_z;
-
-  // create active payload latches
-  VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-  ActiveLatch* pLatch;
-  for(int i=0;i<3;i++) {
-	  char cbuf[255];
-	  sprintf_s(cbuf, 255, "LATCH%d", i);
-	  vPayloadPos.z=fPayloadZPos[i];
-
-	  psubsystems->AddSubsystem(pLatch = new ActiveLatch(psubsystems, cbuf, vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-	  pActiveLatches.push_back(pLatch);
-  }
 
   ClearMeshes();
   switch (status) {
