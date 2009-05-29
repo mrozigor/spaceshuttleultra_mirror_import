@@ -26,6 +26,7 @@
 
 #include "OrbiterAPI.h"
 #include <cmath>
+#include <vector>
 #include "SSUEngConst.h"
 
 const MATRIX3 IdentityMatrix = _M(1, 0, 0,
@@ -46,6 +47,13 @@ VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in ra
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
+//interpolation
+int tpir(const std::vector<double> &list, double target);
+int tpir(const double* list, int n_items, double target);
+double linterp(double x0, double y0, double x1, double y1, double x);
+double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x);
+double listerp(const double* listx, const double* listy, int n_items, double x);
+double tableterp(const double* table, const double* listrow, int n_row, const double* listcol, int n_col, double rowlookup, double collookup);
 	
 static inline VECTOR3 Normalize(const VECTOR3 &a)
 {

@@ -9,7 +9,7 @@
 
 //extern int tpir(const double* list, int n_items, double target);
 //extern double linterp(double x0, double y0, double x1, double y1, double x);
-extern double listerp(const vector<double> &listx, const vector<double> &listy, double x);
+//extern double listerp(const vector<double> &listx, const vector<double> &listy, double x);
 //extern double tableterp(const double* table, const double* listrow, int n_row, const double* listcol, int n_col, double rowlookup, double collookup);
 
 void Atlantis::InitializeAutopilot()
