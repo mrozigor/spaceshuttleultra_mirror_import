@@ -2,8 +2,6 @@
 #include "meshres_RMS.h"
 #include "SSUMath.h"
 
-extern double linterp(double x0, double y0, double x1, double y1, double x);
-
 RMSSystem::RMSSystem(SubsystemDirector *_director)
 	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE), camLowSpeed(false)
 {
