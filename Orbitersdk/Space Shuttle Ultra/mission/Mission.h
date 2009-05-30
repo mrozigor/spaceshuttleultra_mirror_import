@@ -92,6 +92,10 @@ namespace mission {
 		 */
 		virtual unsigned int GetLaunchSite() const;
 
+		/**
+		 * @return target equ inclination at MECO in radians
+		 */
+		virtual double GetMECOInc() const;
 		virtual double GetMECOAlt() const;
 		virtual double GetMECOVel() const;
 		virtual double GetMECOFPA() const;
