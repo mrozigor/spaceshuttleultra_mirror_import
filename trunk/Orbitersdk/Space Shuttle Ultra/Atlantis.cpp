@@ -4805,6 +4805,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
     } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
+	} else if (!_strnicmp (line, "PLBD_CAM", 8)) {
+		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camFLpitch, &camFLyaw, &camFRpitch, &camFRyaw, &camBLpitch, &camBLyaw, &camBRpitch, &camBRyaw);
+		cameraMoved=true;
     } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_x);
     } else if (!_strnicmp (line, "SAT_OFS_Y", 9)) {
@@ -5117,6 +5120,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   {
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
   }
+
+  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camFLpitch, camFLyaw, camFRpitch, camFRyaw, camBLpitch, camBLyaw, camBRpitch, camBRyaw);
+  oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
 
   oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
