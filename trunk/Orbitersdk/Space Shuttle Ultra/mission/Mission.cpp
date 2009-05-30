@@ -122,6 +122,11 @@ namespace mission {
 		return 0;
 	}
 
+	double Mission::GetMECOInc() const
+	{
+		return fTargetInc*RAD;
+	}
+
 	double Mission::GetMECOAlt() const
 	{
 		return fMECOAlt;

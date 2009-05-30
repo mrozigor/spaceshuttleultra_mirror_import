@@ -14,6 +14,14 @@
 
 void Atlantis::InitializeAutopilot()
 {
+	// if there is a mission file, it overrrides values in scn file
+	if(pMission) {
+		TgtInc=pMission->GetMECOInc()*DEG;
+		TgtFPA=pMission->GetMECOFPA()*DEG;
+		TgtAlt=pMission->GetMECOAlt();
+		TgtSpd=pMission->GetMECOVel();
+	}
+
 	OBJHANDLE hRef=GetSurfaceRef();
 	//calculate heading
 	double latitude, /*Radius,*/ longitude;

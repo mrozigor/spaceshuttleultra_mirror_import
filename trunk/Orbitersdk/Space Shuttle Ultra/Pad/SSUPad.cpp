@@ -244,7 +244,7 @@ void SSUPad::DefineAnimations()
 	IAA_State.Set(AnimState::CLOSED, 0.0);
 	static UINT IAAGrp[1] = {GRP_INTERTANKARM_FSS};
 	static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 1, _V( 8.821483, 63.7142, 13.60194), 
-		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
+		_V(0.0, 1.0, 0.0), static_cast<float>(215.0 * RAD));
 	anim_iaa = CreateAnimation(0.0);
 	AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
 
