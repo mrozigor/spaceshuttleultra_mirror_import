@@ -61,7 +61,10 @@ namespace mission {
 		}
 
 		if(!oapiReadItem_float(hFile, "TargetInc", fTargetInc))
+		{
+			oapiWriteLog("(Mission) MECO inclination not found, using default value.");
 			fTargetInc = 28.5;
+		}
 
 		if(!oapiReadItem_float(hFile, "MECOAlt", fMECOAlt))
 			fMECOAlt = 105000;
