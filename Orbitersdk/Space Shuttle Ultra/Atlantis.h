@@ -2027,6 +2027,7 @@ static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
 
 DLLCLBK mission::Mission* ssuGetMission(const std::string& filename);
 void ClearMissionManagementMemory();
+void InitMissionManagementMemory();
 
 #endif // !__ATLANTIS_H
 

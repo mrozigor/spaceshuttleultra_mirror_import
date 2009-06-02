@@ -1159,6 +1159,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\Config\Vessels\SpaceShuttleUltra.cfg"
+			>
+		</File>
+		<File
 			RelativePath="Bitmaps\tkbk_label.bmp"
 			>
 		</File>

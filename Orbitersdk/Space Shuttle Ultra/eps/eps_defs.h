@@ -195,6 +195,7 @@ namespace eps {
 		 * If not powered: brakes apply.
 		 */
 		double GetTorque(double fSpeed) const;
+		double GetMotorMomentOfInertia() const;
 	};
 
 	class Inverter : public IACElement, public AtlantisSubsystem

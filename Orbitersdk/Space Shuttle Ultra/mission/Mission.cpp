@@ -12,6 +12,7 @@ namespace mission {
 	{
 		if(!LoadMission(strMission))
 		{
+			oapiWriteLog("(Mission) failed creating mission from loaded file.");
 		}
 	}
 
@@ -24,10 +25,19 @@ namespace mission {
 		char buffer[800];
 		std::string filename;
 		filename = "Missions\\SSU\\" + strMission + ".cfg";
+
+		sprintf_s(buffer, 800, "(Mission) Loading mission %s from file %s",
+			strMission.c_str(), filename.c_str());
+		oapiWriteLog(buffer);
 		FILEHANDLE hFile = oapiOpenFile(filename.c_str(), FILE_IN);
 
+	
+
 		if(hFile == NULL)
+		{
+			oapiWriteLog("(Mission) ERROR: Can't open file.");
 			return false;
+		}
 
 		if(oapiReadItem_string(hFile, "Name", buffer))
 		{
