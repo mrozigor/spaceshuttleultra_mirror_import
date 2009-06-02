@@ -61,7 +61,7 @@ void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 
 void StbdMPMSystem::OnSaveState(FILEHANDLE scn) const
 {
-	oapiWriteLine(scn, "  STBD_MPM");
+	//oapiWriteLine(scn, "  STBD_MPM");
 	MPMSystem::OnSaveState(scn);
 }
 

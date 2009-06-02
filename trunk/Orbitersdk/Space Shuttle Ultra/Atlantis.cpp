@@ -5036,13 +5036,13 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_string (scn, "WING_NAME", WingName);
   WriteScenario_state(scn, "GEAR", gear_status);
 
-  /*if(STBDMPM) {
+  if(STBDMPM) {
 	  oapiWriteLine(scn, "  MPM"); 
-	  WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
-  }*
+	  //WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
+  }
   if(RMS) {
-	  /*oapiWriteLine(scn, "  RMS");
-	  sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
+	  oapiWriteLine(scn, "  RMS");
+	  /*sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
 	  oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
 	  if(RMSRollout.action==AnimState::OPEN || RMSRollout.action==AnimState::OPENING)
 		  sprintf(cbuf, "1 %f", RMSRollout.pos);
@@ -5053,8 +5053,8 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_string(scn, "MRL", cbuf);*
 	  /*WriteScenario_state(scn, "GRAPPLE", Grapple);
 	  WriteScenario_state(scn, "RIGIDIZE", Rigidize);
-	  WriteScenario_state(scn, "EXTEND", Extend);*
-  }*/
+	  WriteScenario_state(scn, "EXTEND", Extend);*/
+  }
 
   oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);

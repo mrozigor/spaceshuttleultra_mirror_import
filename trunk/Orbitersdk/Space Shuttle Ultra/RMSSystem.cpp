@@ -506,7 +506,7 @@ void RMSSystem::OnSaveState(FILEHANDLE scn) const
 {
 	char cbuf[255];
 
-	oapiWriteLine(scn, "  RMS");
+	//oapiWriteLine(scn, "  RMS");
 	sprintf_s(cbuf, 255, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", joint_pos[SHOULDER_YAW], joint_pos[SHOULDER_PITCH], 1.0-joint_pos[ELBOW_PITCH], 
 		joint_pos[WRIST_PITCH], joint_pos[WRIST_YAW], joint_pos[WRIST_ROLL]);
 	oapiWriteScenario_string (scn, "ARM_STATUS", cbuf);
