@@ -112,7 +112,7 @@ bool SubsystemDirector::ParseScenarioLine(FILEHANDLE scn, char* line)
 	char pszBuffer[400];
 	if(!_strnicmp(line, "@SUBSYSTEM", 10)) {
 		oapiWriteLog(line);
-		*line += 10;
+		line += 11;
 		unsigned long i = 0;
 		bool bStringFlag = false;
 		while((*line != '\0' && *line != ' ') || bStringFlag) {
@@ -132,6 +132,7 @@ bool SubsystemDirector::ParseScenarioLine(FILEHANDLE scn, char* line)
 			pT->OnReadState(scn);
 		} else {
 			//skip block
+			//oapiWriteLog(pszBuffer);
 			oapiWriteLog("Skip block");
 			while(oapiReadScenario_nextline(scn, line)) {
 				if(!_strnicmp(line, "@ENDSUBSYSTEM", 13))
