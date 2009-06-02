@@ -107,30 +107,44 @@ void MechActuator::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	double fL4 = 0;
 	double fL = 0;
 
+	double fMI = fMechMI * fAccConstant;
+	
+	
 
 	for(int i = 0; i<2; ++i)
 	{
+		fMI += system[i].GetMotorMomentOfInertia();
 		fL1 += system[i].GetTorque(system[i].GetSpeed());
 	}
 
 	for(int i = 0; i<2; ++i)
 	{
-		fL2 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL1/fMechMI);
+		fL2 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL1/fMI);
 	}
 
 	for(int i = 0; i<2; ++i)
 	{
-		fL3 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL2/fMechMI);
+		fL3 += system[i].GetTorque(system[i].GetSpeed() + 0.5 * fDeltaT * fL2/fMI);
 	}
 	for(int i = 0; i<2; ++i)
 	{
-		fL4 += system[i].GetTorque(system[i].GetSpeed() + fDeltaT * fL3/fMechMI);
+		fL4 += system[i].GetTorque(system[i].GetSpeed() + fDeltaT * fL3/fMI);
 	}
 
 
-	fL += 1/6.0 * (fL1 + 2*fL2 + 2*fL3 + fL4);
+	fL = 1/6.0 * (fL1 + 2*fL2 + 2*fL3 + fL4);
+
+
+	double fSpeed1 = fSpeed;
+	double fSpeed2 = fSpeed + fSpeed1 * 0.5 * fDeltaT;
+	double fSpeed3 = fSpeed + fSpeed2 * 0.5 * fDeltaT;
+	double fSpeed4 = fSpeed + fSpeed3 * fDeltaT;
+
+	fSpeed = (fSpeed1 + 2 * fSpeed2 + 2* fSpeed3 + fSpeed)/6.0;
+	system[0].SetSpeed(fSpeed * fAccConstant, 0, 0, fDeltaT);
+	system[1].SetSpeed(fSpeed * fAccConstant, 0, 0, fDeltaT);
+
 	
-
 	// -------------------------------------------------------
 	// Set output discretes
 	// -------------------------------------------------------

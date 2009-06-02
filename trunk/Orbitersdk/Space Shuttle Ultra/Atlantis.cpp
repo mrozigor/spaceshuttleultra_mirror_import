@@ -4747,6 +4747,10 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
   if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
     bUseRealRCS = false;
 
+  if(!oapiReadItem_bool (cfg, "EnableMCADebug", bEnableMCADebug))
+	  bEnableMCADebug = false;
+  
+
 
   psubsystems->SetClassCaps(cfg);
 
@@ -4779,6 +4783,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   int action;
   char *line;
   char pszBuffer[256];
+  char pszLogBuffer[256];
   double srbtime = 0.0;
   double sts_sat_x = 0.0;
   double sts_sat_y = 0.0;
@@ -4790,6 +4795,10 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
             sscanf (line+13, "%d", &status);
     } else if (!_strnicmp (line, "MISSION", 7)) {
 		strncpy(pszBuffer, line+8, 255);
+		
+		sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
+		oapiWriteLog(pszLogBuffer);
+		
 		pMission = ssuGetMission(pszBuffer);
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
@@ -7398,6 +7407,8 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 {
   g_Param.hDLL = hModule;
   oapiRegisterCustomControls (hModule);
+
+  InitMissionManagementMemory();
   g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
   g_Param.pbi_lights = oapiCreateSurface (LOADBMP (IDB_PBILIGHTS));
   if(g_Param.pbi_lights == NULL) {

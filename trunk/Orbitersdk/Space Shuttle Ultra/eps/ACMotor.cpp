@@ -6,6 +6,7 @@ namespace eps {
 	const double MOTOR_SPEED_CONSTANT = 0.25;
 	const double MOTOR_TORQUE_CONSTANT = 4.0;
 	const double MOTOR_BRAKE_CONSTANT = 50.0;
+	const double MOTOR_MOMENT_OF_INERTIA = 0.5;
 
 	ACMotor::ACMotor()
 		: pACSource(NULL)
@@ -97,5 +98,9 @@ namespace eps {
 		return fMotorSpeed;
 	}
 
+	double ACMotor::GetMotorMomentOfInertia() const 
+	{
+		return MOTOR_MOMENT_OF_INERTIA;
+	}
 
 };
