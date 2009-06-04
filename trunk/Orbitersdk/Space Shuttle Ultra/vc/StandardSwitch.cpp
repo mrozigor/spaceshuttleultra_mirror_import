@@ -42,8 +42,8 @@ void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 		sprintf_s(pszBuffer, 255, "STANDARD SWITCH[%s]:\tDefine VC Animations()", 
 			GetQualifiedIdentifier().c_str());
 		oapiWriteLog(pszBuffer);
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
-		pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() + ofs, GetDirection(), (float)(90 * RAD));
+		//VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+		pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(90 * RAD));
 		anim_switch = STS()->CreateAnimation(InitialAnimState());
 		STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
 		VerifyAnimations();

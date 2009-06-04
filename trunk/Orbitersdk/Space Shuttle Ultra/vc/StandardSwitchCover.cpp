@@ -20,8 +20,8 @@ namespace vc
 	{
 		if(bHasReference && bHasDirection && !bHasAnimations)
 		{
-			VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
-			pcoverrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() + ofs, GetDirection(), (float)(90 * RAD));
+			//VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+			pcoverrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(90 * RAD));
 			anim_cover = STS()->CreateAnimation(InitialAnimState());
 			STS()->AddAnimationComponent(anim_cover, 0.0, 1.0, pcoverrot, NULL);
 			VerifyAnimations();

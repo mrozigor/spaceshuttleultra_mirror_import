@@ -137,7 +137,7 @@ namespace mission {
 
 	double Mission::GetMECOInc() const
 	{
-		return fTargetInc*RAD;
+		return fTargetInc;
 	}
 
 	double Mission::GetMECOAlt() const

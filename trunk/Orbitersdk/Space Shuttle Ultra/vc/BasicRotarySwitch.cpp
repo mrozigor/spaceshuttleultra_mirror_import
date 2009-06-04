@@ -67,8 +67,8 @@ namespace vc
 			sprintf_s(pszBuffer, 255, "BASIC ROTARY SWITCH[%s]:\tDefine VC Animations()", 
 				GetQualifiedIdentifier().c_str());
 			oapiWriteLog(pszBuffer);
-			VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
-			pSwitchRot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() + ofs, GetDirection(), (float)(rotAngle*RAD));
+			//VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+			pSwitchRot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(rotAngle*RAD));
 			anim_switch = STS()->CreateAnimation(InitialAnimState());
 			STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pSwitchRot);
 			VerifyAnimations();
