@@ -47,8 +47,8 @@ public:
 
 	virtual void Realize();
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-	/*virtual void OnPostStep(double SimT, double DeltaT, double MJD);
-	virtual bool OnParseLine(const char* line);*/
+	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
+	/*virtual bool OnParseLine(const char* line);*/
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	virtual void CreateAttachment();
