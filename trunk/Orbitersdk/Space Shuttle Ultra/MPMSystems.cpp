@@ -140,6 +140,7 @@ bool MPMSystem::OnParseLine(const char* line)
 	if(!_strnicmp(line, rollout.c_str(), rollout.length())) {
 		sscan_state((char*)(line+rollout.length()), MPMRollout);
 		oapiWriteLog((char*)(rollout+line).c_str());
+		mpm_moved=true;
 		return true;
 	}
 	else if(!_strnicmp(line, latches.c_str(), latches.length())) {
