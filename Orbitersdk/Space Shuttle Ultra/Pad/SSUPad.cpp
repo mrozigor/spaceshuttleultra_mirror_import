@@ -166,7 +166,7 @@ SSUPad::~SSUPad()
 }
 
 void SSUPad::CreateLights() {
-	static VECTOR3& light_color = _V(1.0, 0.972, 0.219);
+	static VECTOR3& light_color = _V(1.0, 0.25, 0.25);
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].duration = 0;
 		lights[i].period = 0;
@@ -174,7 +174,7 @@ void SSUPad::CreateLights() {
 		lights[i].col = &light_color;
 		lights[i].size = 0.2;
 		lights[i].shape = BEACONSHAPE_DIFFUSE;
-		lights[i].falloff = 0.8;
+		lights[i].falloff = 0.4;
 		lights[i].active = false;
 
 		AddBeacon(&lights[i]);
@@ -625,12 +625,12 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.6, 140, 5, 0.7, 0.25, 1.6, 1.25, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.2, 100, 1.15, 0.25, 1.03, 1.6, 6.0, PARTICLESTREAMSPEC::EMISSIVE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
 	  };
 
-	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
+	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
 
 
 	VECTOR3 dir = (vtx_goxvent[2] - vtx_goxvent[0]);
