@@ -98,7 +98,7 @@ void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		mpm_moved=true;
 		if(MPMRollout.Closed()) MPM_Stowed.SetLine();
 	}
-	else mpm_moved=false;
+	//else mpm_moved=false;
 
 	if(Release && !MRLLatches.Open()) {
 		if(!MRLLatches.Opening()) {
