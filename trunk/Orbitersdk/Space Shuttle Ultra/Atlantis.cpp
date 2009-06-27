@@ -5046,7 +5046,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   WriteScenario_state(scn, "GEAR", gear_status);
 
   if(STBDMPM) {
-	  oapiWriteLine(scn, "  MPM"); 
+	  oapiWriteLine(scn, "  STBD_MPM"); 
 	  //WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
   }
   if(RMS) {

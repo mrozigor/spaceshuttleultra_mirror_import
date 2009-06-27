@@ -35,7 +35,7 @@ void StbdMPMSystem::Realize()
 void StbdMPMSystem::CreateAttachment()
 {
 	if(!hAttach)
-		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+OBSS_ATTACHMENT_POINT, _V(0,1,0), _V(0,0,1), "OBSS");
+		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+OBSS_ATTACHMENT_POINT+MPM_MESH_OFFSET, _V(0,1,0), _V(0,0,1), "OBSS");
 }
 
 void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
