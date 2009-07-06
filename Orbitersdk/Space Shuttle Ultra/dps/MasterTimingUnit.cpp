@@ -307,12 +307,12 @@ void MasterTimingUnit::OnSaveState(FILEHANDLE scn) const
 
 	int i;
 
-	oapiWriteScenario_int(scn, "MTU_MET_RUNNING", bMETCounting[0]?1:0);
+	oapiWriteScenario_int(scn, "MET_RUNNING", bMETCounting[0]?1:0);
 
 
 	for(i = 0; i<3; i++)
 	{
-		sprintf_s(pszBuffer, "MTU_MET%01d", i);
+		sprintf_s(pszBuffer, "MET%01d", i);
 		oapiWriteScenario_float(scn, pszBuffer, fMET[i][0]);
 	}
 
@@ -341,41 +341,41 @@ void MasterTimingUnit::OnSaveState(FILEHANDLE scn) const
 			break;
 		}
 
-		sprintf_s(pszBuffer, 127, "   EVENT_TIMER%1d %f %s %s", i, fEvent[i][0], pszTempA, pszTempB);
+		sprintf_s(pszBuffer, 127, "EVENT_TIMER%1d %f %s %s", i, fEvent[i][0], pszTempA, pszTempB);
 
 		oapiWriteLine(scn, pszBuffer);
 	}
 }
 
-bool MasterTimingUnit::OnParseLine(const char* line)
+bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 {
 	char pszTempA[40] = "";
 	char pszTempB[40] = "";
 	int iTmpA = 0, iTmpB = 0;
 	float fTmpA = 0.0;
 
-	//strcpy(pszTempA, line);
-	//oapiWriteLog(pszTempA);
+	strcpy(pszTempA, line);
+	oapiWriteLog(pszTempA);
 
-	if(!_strnicmp(line, "MTU_MET_RUNNING", 15)) {
+	if(!_stricmp(keyword, "RUNNING")) {
 		
-		sscanf_s(line+15, "%d", &iTmpA);
+		sscanf_s(line, "%d", &iTmpA);
 		
 		bMETCounting[0] = bMETCounting[1] = (iTmpA != 0);
 		
 		
 		return true;
-	} else if(!_strnicmp(line, "MTU_MET", 7)) {
-		sscanf_s(line+7, "%d %f",
-			&iTmpA, &fTmpA);
+	} else if(!_strnicmp(keyword, "MET", 3)) {
+		sscanf_s(keyword+3, "%d", &iTmpA);
+		sscanf_s(line, "%f", &fTmpA);
 		if(iTmpA >=0 && iTmpA < 3)
 		{
 			fMET[iTmpA][1] = fMET[iTmpA][0] = fTmpA;
 			oapiWriteLog("B");
 		}
 		return true;
-	} else if(!_strnicmp(line, "EVENT_TIMER", 11)) {
-		const char* pLine2 = line+11;
+	} else if(!_stricmp(keyword, "EVENT_TIMER")) {
+		const char* pLine2 = line;
 		strcpy(pszTempA, line);
 		oapiWriteLog(pszTempA);
 		sscanf_s(pLine2, "%d %f %s %s",
