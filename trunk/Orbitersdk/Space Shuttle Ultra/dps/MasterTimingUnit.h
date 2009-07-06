@@ -126,7 +126,7 @@ public:
 	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnSaveState(FILEHANDLE scn) const;
-	virtual bool OnParseLine(const char* line);
+	virtual bool OnParseLine(const char* keyword, const char* line);
 
 };
 
