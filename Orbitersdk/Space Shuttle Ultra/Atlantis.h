@@ -1208,6 +1208,13 @@ public:
 	virtual void UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up);
 	virtual ATTACHMENTHANDLE GetODSAttachment() const;
 
+	/**
+	 * Wrapper for AddAnimationComponent
+	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by Atlantis destructor
+	 */
+	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
+		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
+
 	void IgniteSRBs();	
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
@@ -1346,6 +1353,10 @@ private:
 	vc::PanelGroup pgAft;
 	vc::PanelGroup pgAftPort;
 
+	/**
+	 * all animations that need to be deleted in destructor
+	 */
+	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
 	std::vector<ActiveLatch*> pActiveLatches;
 

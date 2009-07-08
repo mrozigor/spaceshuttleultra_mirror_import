@@ -896,6 +896,8 @@ Atlantis::~Atlantis () {
   
 	//for (i = 0; i < 7; i++) delete rms_anim[i];
 	//delete rms_rollout_anim;
+
+	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 	  
 	delete CameraFLYaw;
 	delete CameraFLPitch;
@@ -1612,53 +1614,53 @@ void Atlantis::DefineAnimations (void)
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
   static UINT RCargoDoorGrp[3] = {GRP_CARGODOOROUTR, GRP_CARGODOORINR, GRP_RADIATORBR};
-  static MGROUP_ROTATE RCargoDoor (midx, RCargoDoorGrp, 3,
+  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 3,
     _V(2.82, 1.39, 0), _V(0, 0, 1), (float)(-170.5*RAD));
   static UINT LCargoDoorGrp[3] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL, GRP_RADIATORBL};
-  static MGROUP_ROTATE LCargoDoor (midx, LCargoDoorGrp, 3,
+  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 3,
     _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(170.5*RAD)); 
 
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
-  static MGROUP_ROTATE RRadiator (midx, RRadiatorGrp, 1,
+  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 1,
     _V(2.71, 1.7, 0), _V(0, 0, 1), (float)(35.5*RAD));
   static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
-  static MGROUP_ROTATE LRadiator (midx, LRadiatorGrp, 1,
+  MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 1,
     _V(-2.71, 1.7, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
-  static MGROUP_TRANSLATE PORTRod (midx, PORTPUSH_RODGrp, 1,
+  MGROUP_TRANSLATE* pPORTRod = new MGROUP_TRANSLATE(midx, PORTPUSH_RODGrp, 1,
 	  _V(0,0.175,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
-  static MGROUP_ROTATE PORT_CLAMP1 (midx, PORT_CLAMPGrp, 1,
+  MGROUP_ROTATE* pPORT_CLAMP1 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
 	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(13 * RAD));
-  static MGROUP_ROTATE PORT_CLAMP2 (midx, PORT_CLAMPGrp, 1,
+  MGROUP_ROTATE* pPORT_CLAMP2 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
 	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(67.5 * RAD));
 
   static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
-  static MGROUP_ROTATE PORTPullRod1 (midx, PORT_PullRodGrp, 1,
+  MGROUP_ROTATE* pPORTPullRod1 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
 	  _V(-2.501652, 1.462607, 0), _V(0, 0, 1), (float)(-13.3*RAD));
-  static MGROUP_ROTATE PORTPullRod2 (midx, PORT_PullRodGrp, 1,
+  MGROUP_ROTATE* pPORTPullRod2 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
 	  _V(-2.542652, 1.488807, 0), _V(0, 0, 1), (float)(30.5*RAD));
   
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
-  static MGROUP_TRANSLATE STBDRod (midx, STBDPUSH_RODGrp, 1,
+  MGROUP_TRANSLATE* pSTBDRod = new MGROUP_TRANSLATE(midx, STBDPUSH_RODGrp, 1,
 	  _V(0,0.175,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
-  static MGROUP_ROTATE STBD_CLAMP1 (midx, STBD_CLAMPGrp, 1,
+  MGROUP_ROTATE* pSTBD_CLAMP1 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
 	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(13 * RAD));
-  static MGROUP_ROTATE STBD_CLAMP2 (midx, STBD_CLAMPGrp, 1,
+  MGROUP_ROTATE* pSTBD_CLAMP2 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
 	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(67.5 * RAD));
 
   static UINT STBD_PullRodGrp[1] = {GRP_STBDDOOR_PULL};
-  static MGROUP_ROTATE STBDPullRod1 (midx, STBD_PullRodGrp, 1,
+  MGROUP_ROTATE* pSTBDPullRod1 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
 	  _V(2.501652, 1.462607, 0), _V(0, 0, 1), (float)(13.3*RAD));
-  static MGROUP_ROTATE STBDPullRod2 (midx, STBD_PullRodGrp, 1,
+  MGROUP_ROTATE* pSTBDPullRod2 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
 	  _V(2.542652, 1.488807, 0), _V(0, 0, 1), (float)(-30.5*RAD));
 
   //latches
@@ -1684,31 +1686,33 @@ void Atlantis::DefineAnimations (void)
   anim_clatch[1] = CreateAnimation(0);
   anim_clatch[2] = CreateAnimation(0);
   anim_clatch[3] = CreateAnimation(0);
-  //right side
-  parent = AddAnimationComponent (anim_door, 0.0, 0.4632, &RCargoDoor);
-  AddAnimationComponent (anim_rad, 0, 1, &RRadiator, parent);
+  // **************************************************************************************
+  //right (starboard) side
+  // **************************************************************************************
+  parent = AddManagedAnimationComponent (anim_door, 0.0, 0.4632, pRCargoDoor);
+  AddManagedAnimationComponent (anim_rad, 0, 1, pRRadiator, parent);
   //latches
   AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
   AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
   AddAnimationComponent (anim_clatch[2], 0, 1, &CLatch9_12, parent);
   AddAnimationComponent (anim_clatch[3], 0, 1, &CLatch13_16, parent);
   //right push/pull rods
-  AddAnimationComponent (anim_door, 0, 0.4632, &STBDRod);
-  parent = AddAnimationComponent (anim_door, 0, 0.1181, &STBD_CLAMP1);
-  AddAnimationComponent (anim_door, 0, 0.1200, &STBDPullRod1, parent);
-  parent = AddAnimationComponent (anim_door, 0.1181, 0.4632, &STBD_CLAMP2, parent);
-  AddAnimationComponent (anim_door, 0.2687, 0.4632, &STBDPullRod2, parent);
+  AddManagedAnimationComponent (anim_door, 0, 0.4632, pSTBDRod);
+  parent = AddManagedAnimationComponent (anim_door, 0, 0.1181, pSTBD_CLAMP1);
+  AddManagedAnimationComponent (anim_door, 0, 0.1200, pSTBDPullRod1, parent);
+  parent = AddManagedAnimationComponent (anim_door, 0.1181, 0.4632, pSTBD_CLAMP2, parent);
+  AddManagedAnimationComponent (anim_door, 0.2687, 0.4632, pSTBDPullRod2, parent);
   // **************************************************************************************
   //left(port) side
   // **************************************************************************************
-  parent = AddAnimationComponent (anim_door, 0.5368, 1.0, &LCargoDoor);
-  AddAnimationComponent (anim_rad, 0, 1, &LRadiator, parent);
+  parent = AddManagedAnimationComponent (anim_door, 0.5368, 1.0, pLCargoDoor);
+  AddManagedAnimationComponent (anim_rad, 0, 1, pLRadiator, parent);
   //left push/pull rods
-  AddAnimationComponent (anim_door, 0.5368, 1.0, &PORTRod);
-  parent = AddAnimationComponent (anim_door, 0.5368, 0.6549, &PORT_CLAMP1);
-  AddAnimationComponent (anim_door, 0.5368, 0.6568, &PORTPullRod1, parent);
-  parent = AddAnimationComponent (anim_door, 0.6549, 1.0, &PORT_CLAMP2, parent);
-  AddAnimationComponent (anim_door, 0.8055, 1.0, &PORTPullRod2, parent);
+  AddManagedAnimationComponent (anim_door, 0.5368, 1.0, pPORTRod);
+  parent = AddManagedAnimationComponent (anim_door, 0.5368, 0.6549, pPORT_CLAMP1);
+  AddManagedAnimationComponent (anim_door, 0.5368, 0.6568, pPORTPullRod1, parent);
+  parent = AddManagedAnimationComponent (anim_door, 0.6549, 1.0, pPORT_CLAMP2, parent);
+  AddManagedAnimationComponent (anim_door, 0.8055, 1.0, pPORTPullRod2, parent);
 
   // ***** 2. Landing gear animation *****
   //gop->DefineAnimations();
@@ -8905,4 +8909,11 @@ int Atlantis::GetSoundID() const {
 bool Atlantis::AreMCADebugMessagesEnabled() const throw()
 {
 	return bEnableMCADebug;
+}
+
+ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, double state0, double state1,
+		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent)
+{
+	vpAnimations.push_back(trans);
+	return AddAnimationComponent(anim, state0, state1, trans, parent);
 }
