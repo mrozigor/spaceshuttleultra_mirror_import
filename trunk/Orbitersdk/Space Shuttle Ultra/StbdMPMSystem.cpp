@@ -19,14 +19,14 @@ void StbdMPMSystem::Realize()
 
 	// MPM animation
 	static UINT STBDMPMGrp[1] = {0}; //only group in mesh
-	static MGROUP_ROTATE MPMAnim (mesh_index, STBDMPMGrp, 1,
+	MGROUP_ROTATE* pMPMAnim = new MGROUP_ROTATE(mesh_index, STBDMPMGrp, 1,
 		_V(-0.164, -0.356, 0), _V(0, 0, 1), (float)(-31.36*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
-	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent(anim_mpm, 0, 1, &MPMAnim);
+	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pMPMAnim);
 
-	static MGROUP_ROTATE MPMAttachment (LOCALVERTEXLIST, MAKEGROUPARRAY(obss_attach_point), 2,
+	MGROUP_ROTATE* pMPMAttachment = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(obss_attach_point), 2,
 		_V(2.87, 1.90, 3.15), _V(0,0,1), (float)(0.0));
-	parent = STS()->AddAnimationComponent(anim_mpm, 0, 1, &MPMAttachment, parent);
+	parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pMPMAttachment, parent);
 
 	if(hAttach && STS()->GetAttachmentStatus(hAttach)) MRLLatches.Set(AnimState::CLOSED, 0.0);
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);

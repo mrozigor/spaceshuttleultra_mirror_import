@@ -115,74 +115,76 @@ void RMSSystem::Realize()
 
 void RMSSystem::CreateArm()
 {
+	//NOTE: all MGROUP_ROTATEs will be deleted by Atlantis class
+
 	//rollout animation
 	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMs, GRP_base};
-	static MGROUP_ROTATE rms_rollout_anim(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD)); //1.05 or 1.10
+	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
+		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
-	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent(anim_mpm, 0, 1, &rms_rollout_anim);
+	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
 	//shoulder yaw
 	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
-	static MGROUP_ROTATE rms_sy_anim(mesh_index, RMSShoulderYawGrp, 1,
+	MGROUP_ROTATE* pRMS_sy_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderYawGrp, 1,
 		RMS_SY_JOINT, _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
 	anim_joint[SHOULDER_YAW] = STS()->CreateAnimation (0.5);
-	parent = STS()->AddAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, &rms_sy_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, pRMS_sy_anim, parent);
 
 	//shoulder pitch
 	static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
-	static MGROUP_ROTATE rms_sp_anim(mesh_index, RMSShoulderPitchGrp, 1,
+	MGROUP_ROTATE* pRMS_sp_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderPitchGrp, 1,
 		RMS_SP_JOINT, _V(0.948683298050514, 0.316227766016838, 0), (float)(147.0*RAD)); // -2 .. +145
 	anim_joint[SHOULDER_PITCH] = STS()->CreateAnimation (0.0136);
-	parent = STS()->AddAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, &rms_sp_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, pRMS_sp_anim, parent);
 
 	//elbow pitch
 	static UINT RMSElbowPitchGrp[2] = {GRP_Radii, GRP_cambase};
-	static MGROUP_ROTATE rms_ep_anim(mesh_index, RMSElbowPitchGrp, 2,
+	MGROUP_ROTATE* pRMS_ep_anim = new MGROUP_ROTATE(mesh_index, RMSElbowPitchGrp, 2,
 		RMS_EP_JOINT, _V(0.948683598, 0.316226863954669, 0), (float)(163.4*RAD));
 	anim_joint[ELBOW_PITCH] = STS()->CreateAnimation (0.985312);
-	parent = STS()->AddAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, &rms_ep_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, pRMS_ep_anim, parent);
 
 	//RMS elbow camera
 	static UINT RMSElbowCamGrp[2] = {GRP_elbowcam, GRP_camswivel};
-	static MGROUP_ROTATE RMSElbowCamPan (mesh_index, RMSElbowCamGrp+1, 1,
+	MGROUP_ROTATE* pRMSElbowCamPan = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp+1, 1,
 		_V(-2.765, 2.373, 2.073), _V(0.2974, 0.95475, 0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
-	parent2 = STS()->AddAnimationComponent (anim_camRMSElbow[PAN], 0, 1, &RMSElbowCamPan, parent);
-	static MGROUP_ROTATE RMSElbowCamTilt (mesh_index, RMSElbowCamGrp, 1,
+	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
+	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
 		_V(-2.68, 2.64, 2.073), _V(0.9513, -0.3082, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
-	parent2 = STS()->AddAnimationComponent(anim_camRMSElbow[TILT], 0, 1, &RMSElbowCamTilt, parent2);
-	static MGROUP_ROTATE RMSElbowCamLoc (LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
+	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
+	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
 		_V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
-	STS()->AddAnimationComponent(anim_camRMSElbow[TILT], 0, 1, &RMSElbowCamLoc, parent2);
+	STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamLoc, parent2);
 
 	//wrist pitch
 	static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
-	static MGROUP_ROTATE rms_wp_anim(mesh_index, RMSWristPitchGrp, 1,
+	MGROUP_ROTATE* pRMS_wp_anim = new MGROUP_ROTATE(mesh_index, RMSWristPitchGrp, 1,
 		RMS_WP_JOINT, _V(0.949637404032871, 0.313350922867173, 0), (float)(242.8*RAD)); // -121.4 .. +121.4
 	anim_joint[WRIST_PITCH] = STS()->CreateAnimation (0.5);
-	parent = STS()->AddAnimationComponent (anim_joint[WRIST_PITCH], 0, 1, &rms_wp_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_PITCH], 0, 1, pRMS_wp_anim, parent);
 
 	//wrist yaw
 	static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
-	static MGROUP_ROTATE rms_wy_anim(mesh_index, RMSWristYawGrp, 1,
+	MGROUP_ROTATE* pRMS_wy_anim = new MGROUP_ROTATE(mesh_index, RMSWristYawGrp, 1,
 		RMS_WY_JOINT, _V(0.314338082679218, -0.949311102735849, 0), (float)(-242.6*RAD)); // -121.3 .. +121.3
 	anim_joint[WRIST_YAW] = STS()->CreateAnimation (0.5);
-	parent = STS()->AddAnimationComponent (anim_joint[WRIST_YAW], 0, 1, &rms_wy_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_YAW], 0, 1, pRMS_wy_anim, parent);
 
 	//wrist roll
 	static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
-	static MGROUP_ROTATE rms_wr_anim(mesh_index, RMSEndEffectorGrp, 1,
+	MGROUP_ROTATE* pRMS_wr_anim = new MGROUP_ROTATE(mesh_index, RMSEndEffectorGrp, 1,
 		_V(-2.844, 2.133, -5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
-	parent = STS()->AddAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, &rms_wr_anim, parent);
+	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, pRMS_wr_anim, parent);
 
-	static MGROUP_ROTATE rms_ee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
+	MGROUP_ROTATE* pRMS_ee_anim = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
-	STS()->AddAnimationComponent (anim_rms_ee, 0, 1, &rms_ee_anim, parent);
+	STS()->AddManagedAnimationComponent (anim_rms_ee, 0, 1, pRMS_ee_anim, parent);
 
 	//if joint angles were loaded from scenario file, 
 	if(arm_moved) {
