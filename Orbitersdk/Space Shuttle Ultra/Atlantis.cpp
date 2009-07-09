@@ -1562,12 +1562,12 @@ void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
 	pFont = (HFONT)SelectObject (hDC, hFont);
 	SetTextAlign (hDC, TA_CENTER);
-	TextOut (hDC, 1800, 493, cbuf, len);
+	TextOut (hDC, 1795, 493, cbuf, len);
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	hFont = CreateFont(26, 0, 2700, 2700, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
 	pFont = (HFONT)SelectObject (hDC, hFont);
-	TextOut (hDC, 1400, 493, cbuf, len);
+	TextOut (hDC, 1405, 493, cbuf, len);
 	SelectObject (hDC, pFont);
 	DeleteObject (hFont);
 	oapiReleaseDC (tex, hDC);
@@ -8056,10 +8056,13 @@ void Atlantis::DefineKUBandAnimations()
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
       // DaveS edit: Animations have now been realigned. Someone better doublecheck the gimbal and dish animations though.
+      // DaveS July 9 2009 edit: Did some research and measurements in GMAX and the deploy/stow rotation angle was seriously off!
+      // Previous was 118°s, while the correct angle is 150°s. This using a chart found in the SCOM and camparing views with a video of OV-103's
+      // KU antenna being deployed at the beginning of the STS-95 mission.
 
   static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
-    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-118*RAD));
+    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-150*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
