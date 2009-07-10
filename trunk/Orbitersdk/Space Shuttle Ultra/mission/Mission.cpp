@@ -85,6 +85,10 @@ namespace mission {
 		{
 			bUseRMS = false;
 		}
+		if(!oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs))
+		{
+			bHasMPMs = false;
+		}
 
 		for(int i = 0; i<16; i++)
 		{
@@ -181,6 +185,16 @@ namespace mission {
 	bool Mission::HasKuBandAntenna() const
 	{
 		return true;
+	}
+
+	bool Mission::HasRMS() const
+	{
+		return bUseRMS;
+	}
+
+	bool Mission::HasSTBDMPMs() const
+	{
+		return bHasMPMs;
 	}
 
 	bool Mission::UseDirectAscent() const
