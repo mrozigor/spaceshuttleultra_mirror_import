@@ -4804,6 +4804,21 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		oapiWriteLog(pszLogBuffer);
 		
 		pMission = ssuGetMission(pszBuffer);
+
+		if(pMission) {
+			// add additional components defined in Mission file
+			RMS = pMission->HasRMS();
+			STBDMPM = pMission->HasSTBDMPMs();
+
+			if(RMS) {
+				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+				if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+			if(STBDMPM) {
+				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+				if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+		}
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
 	} else if(!_strnicmp(line, "ODS", 3)) {
