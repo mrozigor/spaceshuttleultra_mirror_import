@@ -57,6 +57,8 @@ namespace mission {
 		double fTargetInc;
 		
 		bool bUseRMS;
+		bool bHasMPMs;
+
 		bool bUseOMSAssist;
 		unsigned short usExtAirlockMode;
 
@@ -105,7 +107,10 @@ namespace mission {
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
+		
 		virtual bool HasKuBandAntenna() const;
+		virtual bool HasRMS() const;
+		virtual bool HasSTBDMPMs() const;
 		
 
 		virtual bool UseDirectAscent() const;
