@@ -45,15 +45,58 @@ namespace vc {
 		UINT grpIndex;
 		MGROUP_ROTATE* pswitchrot;
 		MGROUP_TRANSLATE* pswitchpull;
-		bool bIsPulled;
-		double fInitialMousePos;
 		UINT anim_switch;
+		UINT anim_pull;
+		VECTOR3 dummy_vec; // needed to create animation
+
+		VECTOR3 pullDir;
+		bool bHasPullDir;
+
+		bool bIsPulled;
+		unsigned short usInitialSwitchPos;
+		double fInitialMousePos;
 		DiscInPort input;
 	public:
 		LockableLever(Atlantis* psts, unsigned short usNumPositions, 
 			const string& _ident);
 		virtual ~LockableLever();
 
+		void DefineSwitchGroup(UINT _grpIndex);
+		/**
+		 * @param _pullDir Normalized vector in direction along which lever can be pulled
+		 */
+		void SetReference(const VECTOR3& _ref, const VECTOR3& _dir, const VECTOR3& _pullDir);
+		void SetPullDirection(VECTOR3 _pullDir);
+
+		virtual void Realize();
+		virtual void DefineVCAnimations(UINT vc_idx);
+		virtual bool OnMouseEvent(int _event, float x, float y);
+		virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+		virtual void OnPositionChange(unsigned short usNewPosition);
+		virtual void OnPull();
+		virtual void OnRelease();
+	};
+
+	class LockableLever2 : public LockableLever
+	{
+		DiscOutPort output;
+	public:
+		LockableLever2(Atlantis* psts, const string& _ident);
+		virtual ~LockableLever2();
+
+		virtual void OnPositionChange(unsigned short usNewPosition);
+		virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+	};
+
+	class LockableLever3 : public LockableLever
+	{
+		DiscOutPort outputA, outputB;
+	public:
+		LockableLever3(Atlantis* psts, const string& _ident);
+		virtual ~LockableLever3();
+
+		virtual void OnPositionChange(unsigned short usNewPosition);
+		virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
 	};
 
 	class StandardSwitch : public BasicSwitch  
