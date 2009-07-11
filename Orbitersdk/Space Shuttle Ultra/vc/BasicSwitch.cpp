@@ -62,12 +62,12 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 	*/
 
 	// only process mouse down events (and mouse up events if this is a spring loaded switch)
-	if(_event != PANEL_MOUSE_LBDOWN && (!bSpringLoaded || _event != PANEL_MOUSE_LBUP))
+	if(!(_event & PANEL_MOUSE_LBDOWN) && (!bSpringLoaded || !(_event & PANEL_MOUSE_LBUP)))
 		return false;
 
 	if(bOrientation) {
 		if(x > 0.6) {
-			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
+			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else {
 				OnPositionUp();
 				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
@@ -75,7 +75,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			return true;
 		}
 		else if(x < 0.4) {
-			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
+			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else {
 				OnPositionDown();
 				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
@@ -85,7 +85,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 	}
 	else {
 		if(y > 0.6) {
-			if(_event == PANEL_MOUSE_LBDOWN) OnPositionDown();
+			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else {
 				OnPositionUp();
 				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
@@ -93,7 +93,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			return true;
 		}
 		else if( y < 0.4) {
-			if(_event == PANEL_MOUSE_LBDOWN) OnPositionUp();
+			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else {
 				OnPositionDown();
 				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());

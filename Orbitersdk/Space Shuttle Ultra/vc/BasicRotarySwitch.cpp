@@ -110,7 +110,7 @@ namespace vc
 
 	bool BasicRotarySwitch::OnMouseEvent(int _event, float x, float y)
 	{
-		if(_event != PANEL_MOUSE_LBDOWN) return false;
+		if(!(_event & PANEL_MOUSE_LBDOWN)) return false;
 
 		float fPosition=static_cast<float>(usCurrentPosition);
 		float fNumPositions=static_cast<float>(usNumPositions-1);

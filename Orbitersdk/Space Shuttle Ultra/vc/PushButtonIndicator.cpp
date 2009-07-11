@@ -50,7 +50,7 @@ namespace vc
 	}
 
 	bool PushButtonIndicator::OnMouseEvent(int _event, float x, float y) {
-		switch(_event) {
+		/*switch(_event) {
 			case PANEL_MOUSE_LBDOWN:
 				OnPress();
 				break;
@@ -60,7 +60,16 @@ namespace vc
 			default:
 				return false;
 		}
-		return true;
+		return true;*/
+		if(_event & PANEL_MOUSE_LBDOWN) {
+			OnPress();
+			return true;
+		}
+		else if(_event & PANEL_MOUSE_LBUP) {
+			OnRelease();
+			return true;
+		}
+		return false;
 	}
 
 	void PushButtonIndicator::OnPress()

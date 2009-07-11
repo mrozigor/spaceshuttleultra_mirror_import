@@ -32,7 +32,7 @@ namespace vc
 
 	bool StandardSwitchCover::OnMouseEvent(int _event, float x, float y)
 	{
-		if(_event != PANEL_MOUSE_LBDOWN)
+		if(!(_event & PANEL_MOUSE_LBDOWN))
 			return false;
 
 		usCurrentPosition=1-usCurrentPosition;
