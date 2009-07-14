@@ -2,7 +2,7 @@
 #define ORBITER_MODULE
 #include "windows.h"
 #include "orbitersdk.h"
-#include "PanelR2.h"
+#include "vc/PanelR2.h"
 #include "APU.h"
 #include "PanelC2.h"
 #include "vc/MDU.h"

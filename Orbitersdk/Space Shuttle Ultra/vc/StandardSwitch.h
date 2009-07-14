@@ -53,7 +53,6 @@ namespace vc {
 		bool bHasPullDir;
 
 		bool bIsPulled;
-		unsigned short usInitialSwitchPos;
 		double fInitialMousePos;
 		DiscInPort input;
 	public:
