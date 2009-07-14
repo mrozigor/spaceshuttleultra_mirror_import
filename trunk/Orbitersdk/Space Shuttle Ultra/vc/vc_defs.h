@@ -61,6 +61,7 @@ namespace vc {
 	class BasicPanel;
 	class PanelGroup;
 	class PanelF7;
+	class PanelR2;
 	class DAPControl;
 
 	typedef struct {

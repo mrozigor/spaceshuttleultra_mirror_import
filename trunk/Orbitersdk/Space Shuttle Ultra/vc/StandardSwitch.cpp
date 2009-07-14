@@ -84,15 +84,23 @@ namespace vc {
 					OnPositionUp();
 					fInitialMousePos = x;
 				}
+				if(x>0.99 || x<0.01) { // if mouse is about to go out-of-bounds, release switch
+					bIsPulled=false;
+					OnRelease();
+				}
 			}
 			else { //vertical
 				if((y-fInitialMousePos) > 0.2) {
-					OnPositionUp();
+					OnPositionDown();
 					fInitialMousePos = y;
 				}
 				else if((y-fInitialMousePos) < -0.2) {
-					OnPositionDown();
+					OnPositionUp();
 					fInitialMousePos = y;
+				}
+				if(y>0.99 || y<0.01) { // if mouse is about to go out-of-bounds, release switch
+					bIsPulled=false;
+					OnRelease();
 				}
 			}
 
@@ -100,7 +108,6 @@ namespace vc {
 		}
 		else if((_event & PANEL_MOUSE_LBDOWN) && !bIsPulled) { // switch pulled
 			bIsPulled=true;
-			usInitialSwitchPos=usCurrentPosition;
 			if(bOrientation) { // horizontal
 				fInitialMousePos=x;
 			}

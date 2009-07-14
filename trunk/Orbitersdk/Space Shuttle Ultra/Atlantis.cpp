@@ -24,7 +24,8 @@
 #include "PanelC3.h"
 //#include "PanelF7.h"
 #include "PanelO3.h"
-#include "PanelR2.h"
+//#include "PanelR2.h"
+#include "vc/PanelR2.h"
 #include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
@@ -335,7 +336,7 @@ pActiveLatches(3, NULL)
   panela4		  = new PanelA4(this);
   //panela8		  = new PanelA8(this);
   panelc3         = new PanelC3(this);
-  panelr2            = new PanelR2(this);
+  //panelr2       = new PanelR2(this);
   panelc2		  = new PanelC2(this);
   dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
@@ -348,6 +349,8 @@ pActiveLatches(3, NULL)
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
+
+  pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
 
   pgOverhead.AddPanel(new vc::PanelO6(this));
 
@@ -880,7 +883,7 @@ Atlantis::~Atlantis () {
 	delete panela4;
 	//delete panela8;
 	delete panelc3;
-	delete panelr2;
+	//delete panelr2;
 	//delete panelf7;
 	delete panelo3;
 	delete panelc2;
@@ -2033,7 +2036,7 @@ void Atlantis::DefineAnimations (void)
   panelo3->DefineVCAnimations (vidx);
   // ======================================================
   panelc3->DefineVCAnimations (vidx);
-  panelr2->DefineVCAnimations (vidx);
+  //panelr2->DefineVCAnimations (vidx);
 }
 
 void Atlantis::DefineAttachments (const VECTOR3& ofs0)
@@ -2840,8 +2843,8 @@ void Atlantis::UpdateMesh ()
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
-  SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
-  SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
+  //SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
+  //SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
 
@@ -4989,7 +4992,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
       //if (gop->ParseScenarioLine (line)) continue; // offer the line to gear operations
 	  if (panelc3->ParseScenarioLine (line)) continue; // offer line to c3po
-	  if (panelr2->ParseScenarioLine (line)) continue; // offer line to r2d2
+	  //if (panelr2->ParseScenarioLine (line)) continue; // offer line to r2d2
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  //if (panela8 && panela8->ParseScenarioLine (line)) continue;
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
@@ -5163,7 +5166,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   panelc2->SaveState(scn);
   panelc3->SaveState (scn);
 //  panelf7->SaveState(scn);
-  panelr2->SaveState (scn);
+  //panelr2->SaveState (scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
   pgLeft.OnSaveState(scn);
@@ -5349,7 +5352,7 @@ void Atlantis::clbkPostCreation ()
 	pgAftPort.Realize();
 	pgAft.Realize();
 	pgAftStbd.Realize();
-	panelr2->Realize();
+	//panelr2->Realize();
 	//if(panela8) panela8->Realize();
 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
@@ -5886,7 +5889,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	panelc3->Step (simt, simdt);
 	//  panelf7->Step(simt, simdt);
 	panelo3->Step(simt, simdt);
-	panelr2->Step (simt, simdt);
+	//panelr2->Step (simt, simdt);
 
 
 
@@ -6361,6 +6364,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
+	pgLeft.RegisterVC();
 	pgOverhead.RegisterVC();
 
     //RegisterVC_CdrMFD (); // activate commander MFD controls
@@ -6395,12 +6399,13 @@ bool Atlantis::clbkLoadVC (int id)
 
 	pgCenter.RegisterVC();
 	pgForward.RegisterVC();
+	pgRight.RegisterVC();
 	pgOverhead.RegisterVC();
 
     //RegisterVC_PltMFD (); // activate pilot MFD controls
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panelc3->RegisterVC();
-	panelr2->RegisterVC();
+	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
@@ -6661,7 +6666,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	panelc3->RegisterVC();
-	panelr2->RegisterVC();
+	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -6692,7 +6697,7 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
 	panelc3->RegisterVC();
-	panelr2->RegisterVC();
+	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -6785,7 +6790,7 @@ bool Atlantis::clbkLoadVC (int id)
 		panelc3->UpdateVC();
 		//	panelf7->UpdateVC();
 		panelo3->UpdateVC();
-		panelr2->UpdateVC();
+		//panelr2->UpdateVC();
 	}
 	return ok;
 }
@@ -6928,8 +6933,8 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
     return CDRKeyboard->VCMouseEvent(id, _event, p);
   case AID_KYBD_PLT:
     return PLTKeyboard->VCMouseEvent(id, _event, p);
-  case AID_R2:
-	return panelr2->VCMouseEvent (id, _event, p);
+  //case AID_R2:
+	//return panelr2->VCMouseEvent (id, _event, p);
   }
 
   if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
@@ -6966,8 +6971,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 				return panela4->VCRedrawEvent (id, _event, surf);
 			/*if (id >= AID_A8_MIN && id <= AID_A8_MAX && panela8)
 				return panela8->VCRedrawEvent (id, _event, surf);*/
-			if (id >= AID_R2_MIN && id <= AID_R2_MAX)
-				return panelr2->VCRedrawEvent (id, _event, surf);
+			/*if (id >= AID_R2_MIN && id <= AID_R2_MAX)
+				return panelr2->VCRedrawEvent (id, _event, surf);*/
 			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
 				return plop->VCRedrawEvent (id, _event, surf);
 			//if (id >= AID_F6_MIN && id <= AID_F6_MAX)

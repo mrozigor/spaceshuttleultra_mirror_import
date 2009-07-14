@@ -997,7 +997,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelC3;
 	friend class vc::PanelF7;
 	friend class PanelO3;
-	friend class PanelR2;
+	//friend class vc::PanelR2; // temporary
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
@@ -1319,7 +1319,7 @@ public:
 	PanelC3 *panelc3; // PanelC3 operations
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
-	PanelR2 *panelr2; // PanelR2 operations
+	vc::PanelR2 *panelr2; // temporary
 	vc::DAPControl *dapcontrol;
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;
