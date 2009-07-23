@@ -27,6 +27,38 @@ namespace vc
 		Add(pAPUReadyToStart[0] = new StandardTalkback(psts, "APU1 Ready to Start", 1));
 		Add(pAPUReadyToStart[1] = new StandardTalkback(psts, "APU2 Ready to Start", 1));
 		Add(pAPUReadyToStart[2] = new StandardTalkback(psts, "APU3 Ready to Start", 1));
+
+		Add(pCenterlineLatch = new StdSwitch2(psts, "ET Umb Centerline Latch"));
+		Add(pLeftUmbDoor = new StdSwitch3(psts, "ET Umb Left Door"));
+		Add(pLeftUmbDoorLatch = new StdSwitch3(psts, "ET Umb Left Door Latch"));
+		Add(pRightUmbDoor = new StdSwitch3(psts, "ET Umb Right Door"));
+		Add(pRightUmbDoorLatch = new StdSwitch3(psts, "ET Umb Right Door Latch"));
+
+		Add(pMPSPower[0][0] = new StdSwitch2(psts, "MPS Pwr Left AC2"));
+		Add(pMPSPower[0][1] = new StdSwitch2(psts, "MPS Pwr Ctr AC1"));
+		Add(pMPSPower[0][2] = new StdSwitch2(psts, "MPS Pwr Right AC3"));
+		Add(pMPSPower[1][0] = new StdSwitch2(psts, "MPS Pwr Left AC3"));
+		Add(pMPSPower[1][1] = new StdSwitch2(psts, "MPS Pwr Ctr AC2"));
+		Add(pMPSPower[1][2] = new StdSwitch2(psts, "MPS Pwr Right AC1"));
+
+		Add(pMPSHeIsolA[0] = new StdSwitch3(psts, "MPS He Isol A Left"));
+		Add(pMPSHeIsolA[1] = new StdSwitch3(psts, "MPS He Isol A Ctr"));
+		Add(pMPSHeIsolA[2] = new StdSwitch3(psts, "MPS He Isol A Right"));
+		Add(pMPSHeIsolB[0] = new StdSwitch3(psts, "MPS He Isol B Left"));
+		Add(pMPSHeIsolB[1] = new StdSwitch3(psts, "MPS He Isol B Ctr"));
+		Add(pMPSHeIsolB[2] = new StdSwitch3(psts, "MPS He Isol B Right"));
+
+		for(int i=0;i<3;i++) {
+			pAPUControl[i]->SetLabel(0, "START ORIDE/RUN");
+			pAPUControl[i]->SetLabel(1, "OFF");
+			pAPUControl[i]->SetLabel(2, "START/RUN");
+			pHydPumpPress[i]->SetLabel(0, "LOW");
+			pHydPumpPress[i]->SetLabel(1, "NORM");
+			pAPUCntlrPwr[i]->SetLabel(0, "OFF");
+			pAPUCntlrPwr[i]->SetLabel(1, "ON");
+			pAPUFuelTkVlv[i]->SetLabel(0, "CLOSE");
+			pAPUFuelTkVlv[i]->SetLabel(1, "OPEN");
+		}
 	}
 
 	PanelR2::~PanelR2()
@@ -132,6 +164,95 @@ namespace vc
 			pAPUReadyToStart[i]->SetDimensions(32, 18);
 			pAPUReadyToStart[i]->SetTalkbackLocation(0, 0);
 		}
+
+		/**** ET Umbilical Doors ****/
+		pCenterlineLatch->SetMouseRegion(0.193928f, 0.884566f, 0.253453f, 0.916514f);
+		pCenterlineLatch->SetReference(_V(1.062, 1.773, 13.888), switch_rot);
+		pCenterlineLatch->DefineSwitchGroup(GRP_R2b49_VC);
+		pCenterlineLatch->SetInitialAnimState(0.5f);
+
+		pLeftUmbDoor->SetMouseRegion(0.292763f, 0.885751f, 0.351700f, 0.920420f);
+		pLeftUmbDoor->SetReference(_V(1.11, 1.787, 13.885), switch_rot);
+		pLeftUmbDoor->DefineSwitchGroup(GRP_R2b50_VC);
+		pLeftUmbDoor->SetInitialAnimState(0.5f);
+
+		pLeftUmbDoorLatch->SetMouseRegion(0.375219f, 0.887672f, 0.433632f, 0.922404f);
+		pLeftUmbDoorLatch->SetReference(_V(1.151, 1.799, 13.884), switch_rot);
+		pLeftUmbDoorLatch->DefineSwitchGroup(GRP_R2b51_VC);
+		pLeftUmbDoorLatch->SetInitialAnimState(0.5f);
+
+		pRightUmbDoor->SetMouseRegion(0.455335f, 0.889641f, 0.513106f, 0.923580f);
+		pRightUmbDoor->SetReference(_V(1.19, 1.811, 13.883), switch_rot);
+		pRightUmbDoor->DefineSwitchGroup(GRP_R2b52_VC);
+		pRightUmbDoor->SetInitialAnimState(0.5f);
+
+		pRightUmbDoorLatch->SetMouseRegion(0.53287f, 0.890511f, 0.590665f, 0.925481f);
+		pRightUmbDoorLatch->SetReference(_V(1.228, 1.822, 13.881), switch_rot);
+		pRightUmbDoorLatch->DefineSwitchGroup(GRP_R2b53_VC);
+		pRightUmbDoorLatch->SetInitialAnimState(0.5f);
+
+		/**** MPS He Isol A ****/
+		pMPSHeIsolA[0]->SetMouseRegion(0.081538f, 0.322382f, 0.157321f, 0.352672f);
+		pMPSHeIsolA[0]->SetReference(_V(1.008, 1.822, 14.372), switch_rot);
+		pMPSHeIsolA[0]->DefineSwitchGroup(GRP_R2b9_VC);
+		pMPSHeIsolA[0]->SetInitialAnimState(0.5f);
+
+		pMPSHeIsolA[1]->SetMouseRegion(0.157321f, 0.323196f, 0.239897f, 0.354704f);
+		pMPSHeIsolA[1]->SetReference(_V(1.049, 1.834, 14.371), switch_rot);
+		pMPSHeIsolA[1]->DefineSwitchGroup(GRP_R2b10_VC);
+		pMPSHeIsolA[1]->SetInitialAnimState(0.5f);
+
+		pMPSHeIsolA[2]->SetMouseRegion(0.239897f, 0.323704f, 0.312041f, 0.354271f);
+		pMPSHeIsolA[2]->SetReference(_V(1.089, 1.845, 14.37), switch_rot);
+		pMPSHeIsolA[2]->DefineSwitchGroup(GRP_R2b11_VC);
+		pMPSHeIsolA[2]->SetInitialAnimState(0.5f);
+
+		/**** MPS He Isol B ****/
+		pMPSHeIsolB[0]->SetMouseRegion(0.085931f, 0.391285f, 0.159351f, 0.422357f);
+		pMPSHeIsolB[0]->SetReference(_V(1.008, 1.814, 14.313), switch_rot);
+		pMPSHeIsolB[0]->DefineSwitchGroup(GRP_R2b12_VC);
+		pMPSHeIsolB[0]->SetInitialAnimState(0.5f);
+
+		pMPSHeIsolB[1]->SetMouseRegion(0.159351f, 0.389469f, 0.238773f, 0.424157f);
+		pMPSHeIsolB[1]->SetReference(_V(1.048, 1.825, 14.312), switch_rot);
+		pMPSHeIsolB[1]->DefineSwitchGroup(GRP_R2b13_VC);
+		pMPSHeIsolB[1]->SetInitialAnimState(0.5f);
+
+		pMPSHeIsolB[2]->SetMouseRegion(0.238773f, 0.390728f, 0.310743f, 0.425303f);
+		pMPSHeIsolB[2]->SetReference(_V(1.088, 1.837, 14.31), switch_rot);
+		pMPSHeIsolB[2]->DefineSwitchGroup(GRP_R2b14_VC);
+		pMPSHeIsolB[2]->SetInitialAnimState(0.5f);
+
+		/**** MPS Engine Power ****/
+		pMPSPower[0][0]->SetMouseRegion(0.091011f, 0.177120f, 0.159388f, 0.207124f);
+		pMPSPower[0][0]->SetReference(_V(1.009, 1.838, 14.495), switch_rot);
+		pMPSPower[0][0]->DefineSwitchGroup(GRP_R2b3_VC);
+		pMPSPower[0][0]->SetInitialAnimState(0.5f);
+
+		pMPSPower[0][1]->SetMouseRegion(0.159388f, 0.178765f, 0.239655f, 0.208946f);
+		pMPSPower[0][1]->SetReference(_V(1.05, 1.85, 14.494), switch_rot);
+		pMPSPower[0][1]->DefineSwitchGroup(GRP_R2b4_VC);
+		pMPSPower[0][1]->SetInitialAnimState(0.5f);
+
+		pMPSPower[0][2]->SetMouseRegion(0.239655f, 0.179134f, 0.313464f, 0.208574f);
+		pMPSPower[0][2]->SetReference(_V(1.088, 1.861, 14.493), switch_rot);
+		pMPSPower[0][2]->DefineSwitchGroup(GRP_R2b5_VC);
+		pMPSPower[0][2]->SetInitialAnimState(0.5f);
+
+		pMPSPower[1][0]->SetMouseRegion(0.089520f, 0.244445f, 0.159198f, 0.272745f);
+		pMPSPower[1][0]->SetReference(_V(1.008, 1.83, 14.439), switch_rot);
+		pMPSPower[1][0]->DefineSwitchGroup(GRP_R2b6_VC);
+		pMPSPower[1][0]->SetInitialAnimState(0.5f);
+
+		pMPSPower[1][1]->SetMouseRegion(0.159198f, 0.246158f, 0.240562f, 0.276445f);
+		pMPSPower[1][1]->SetReference(_V(1.05, 1.843, 14.437), switch_rot);
+		pMPSPower[1][1]->DefineSwitchGroup(GRP_R2b7_VC);
+		pMPSPower[1][1]->SetInitialAnimState(0.5f);
+
+		pMPSPower[1][2]->SetMouseRegion(0.240562f, 0.247841f, 0.316475f, 0.276847f);
+		pMPSPower[1][2]->SetReference(_V(1.091, 1.855, 14.435), switch_rot);
+		pMPSPower[1][2]->DefineSwitchGroup(GRP_R2b8_VC);
+		pMPSPower[1][2]->SetInitialAnimState(0.5f);
 	}
 
 	void PanelR2::Realize()
@@ -156,6 +277,17 @@ namespace vc
 			APU_HydraulicPress[i].Connect(pBundle, 4);
 			pAPUReadyToStart[i]->SetInput(0, pBundle, 5, TB_GRAY);
 		}
+
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("ETUmbDoors", 16);
+		pLeftUmbDoor->outputA.Connect(pBundle, 0); // close door
+		pLeftUmbDoor->outputB.Connect(pBundle, 1); // open door
+		pLeftUmbDoorLatch->outputA.Connect(pBundle, 2); // latch
+		pLeftUmbDoorLatch->outputB.Connect(pBundle, 3); // release
+		pRightUmbDoor->outputA.Connect(pBundle, 4); // close door
+		pRightUmbDoor->outputB.Connect(pBundle, 5); // open door
+		pRightUmbDoorLatch->outputA.Connect(pBundle, 6); // latch
+		pRightUmbDoorLatch->outputB.Connect(pBundle, 7); // release
+		pCenterlineLatch->output.Connect(pBundle, 8);
 
 		BasicPanel::Realize();
 	}
