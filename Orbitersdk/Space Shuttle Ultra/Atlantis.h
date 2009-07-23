@@ -200,9 +200,6 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 // Deployment speed of the speedbrake (1/sec)
 // cycle is 4.93 sec
 
-const double ET_UMB_DOOR_OPERATING_SPEED = 0.0416667;
-const double LATCH_OPERATING_SPEED = 0.166666667;
-
 const double AIR_DATA_PROBE_SPEED = 0.06666667;
 
 const double DYNP_MAX = 100e3;

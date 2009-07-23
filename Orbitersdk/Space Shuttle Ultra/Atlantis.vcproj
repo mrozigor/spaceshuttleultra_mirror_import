@@ -435,6 +435,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ETUmbDoorSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ExtAirlock.cpp"
 				>
 			</File>
@@ -795,6 +799,10 @@
 			</File>
 			<File
 				RelativePath=".\eps\eps_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ETUmbDoorSystem.h"
 				>
 			</File>
 			<File

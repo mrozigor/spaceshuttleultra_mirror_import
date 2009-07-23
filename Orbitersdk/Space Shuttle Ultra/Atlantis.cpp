@@ -43,6 +43,7 @@
 #include "dps/ShuttleBus.h"
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
+#include "ETUmbDoorSystem.h"
 #include "MCA.h"
 #include "Latch.h"
 #include "RMSSystem.h"
@@ -409,6 +410,8 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+
+  psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
   
   psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-Y Star Tracker Door Motor", 8.0));
   psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-Z Star Tracker Door Motor", 8.0));

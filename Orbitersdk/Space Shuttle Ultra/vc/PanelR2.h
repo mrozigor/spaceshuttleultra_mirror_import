@@ -16,6 +16,16 @@ namespace vc
 		LockableLever2* pAPUFuelTkVlv[3];
 		StdSwitch2* pAPUSpeedSelect[3];
 
+		StdSwitch2* pCenterlineLatch;
+		StdSwitch3* pLeftUmbDoor;
+		StdSwitch3* pLeftUmbDoorLatch;
+		StdSwitch3* pRightUmbDoor;
+		StdSwitch3* pRightUmbDoorLatch;
+
+		StdSwitch2* pMPSPower[2][3];
+		StdSwitch3* pMPSHeIsolA[3];
+		StdSwitch3* pMPSHeIsolB[3];
+
 		StandardTalkback* pAPUReadyToStart[3];
 
 		DiscInPort APU_HydraulicPress[3];
