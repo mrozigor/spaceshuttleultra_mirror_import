@@ -17,14 +17,14 @@ namespace vc
 	PanelA6::PanelA6(Atlantis* _sts)
 		:BasicPanel(_sts, "A6")
 	{
-		char cbuf[255];
+		char cbuf[5];
 
 		Add(pSense=new StdSwitch2(_sts, "SENSE"));
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
 
-			sprintf_s(cbuf, 255, "%d", i+1);
+			sprintf_s(cbuf, 5, "%d", i+1);
 			std::string name="A6_PBI";
 			name+=cbuf;
 			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));

@@ -50,6 +50,11 @@ public:
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
 	void SetLabel(int iPosition, const string& _label);
+	/**
+	 * Sets initial position of switch
+	 * Has to be called in DefineVC function
+	 */
+	void SetInitialPosition(unsigned short usInPos);
 	void SetOrientation(bool bHorizontal);
 	void SetSpringLoaded(bool IsSpringLoaded);
 

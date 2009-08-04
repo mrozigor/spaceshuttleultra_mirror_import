@@ -118,11 +118,14 @@ namespace vc {
 class StdSwitch2: public StandardSwitch
 {
 protected:
+	unsigned short usOnPosition; // position at which output DiscPort is set
 public:
 	StdSwitch2(Atlantis* _sts, const string& _ident);
 	virtual ~StdSwitch2();
 	virtual void OnPositionChange(unsigned short usNewPosition);
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+
+	void SetOnPosition(unsigned short _usPos);
 
 	DiscOutPort output;
 	

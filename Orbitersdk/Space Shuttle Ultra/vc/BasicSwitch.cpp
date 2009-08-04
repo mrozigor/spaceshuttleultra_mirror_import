@@ -159,6 +159,11 @@ void BasicSwitch::SetLabel(int iPosition, const string& _label) {
 	labels.at(iPosition) = _label;
 }
 
+void BasicSwitch::SetInitialPosition(unsigned short usPos)
+{
+	usCurrentPosition=usPos;
+}
+
 void BasicSwitch::SetOrientation(bool bHorizontal)
 {
 	bOrientation = bHorizontal;
