@@ -289,7 +289,7 @@ void StandardSwitch::OnPositionChange(unsigned short usNewPosition)
 
 
 StdSwitch2::StdSwitch2(Atlantis *_sts, const std::string &_ident)
-: StandardSwitch(_sts, 2, _ident)
+: StandardSwitch(_sts, 2, _ident), usOnPosition(1)
 {
 }
 
@@ -310,16 +310,22 @@ bool StdSwitch2::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle 
 void StdSwitch2::OnPositionChange(unsigned short usNewPosition)
 {
 	StandardSwitch::OnPositionChange(usNewPosition);
-	switch(usNewPosition) {
+	/*switch(usNewPosition) {
 	case 0:
 		output.ResetLine();
 		break;
 	case 1:
 		output.SetLine();
 		break;
-	}
+	}*/
+	if(usNewPosition == usOnPosition) output.SetLine();
+	else output.ResetLine();
 }
 
+void StdSwitch2::SetOnPosition(unsigned short _usPos)
+{
+	usOnPosition=_usPos;
+}
 
 StdSwitch3::StdSwitch3(Atlantis *_sts, const std::string &_ident)
 : StandardSwitch(_sts, 3, _ident)
