@@ -37,19 +37,18 @@ void ETUmbDoorSystem::Realize()
 	RUmbDoorOpened.Connect(pBundle, 5);
 	RUmbDoorLatched.Connect(pBundle, 6);
 	RUmbDoorReleased.Connect(pBundle, 7);
-	CenterlineLatched.Connect(pBundle, 8);
-	CenterlineReleased.Connect(pBundle, 9);
+	CenterlineReleased.Connect(pBundle, 8);
 }
 
 void ETUmbDoorSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	if(LUmbDoorClose) {
-		if(!Eq(LDoorPos[0], 1.0, 0.05) || !Eq(CLLatchPos[0], 0.0)) {
+		if(!Eq(LDoorPos[0], 1.0, 0.05) || CLLatchPos[0]>0.95) {
 			LDoorPos[1] = max(0.0, LDoorPos[0]-ET_UMB_DOOR_OPERATING_SPEED*DeltaT);
 		}
 	}
 	else if(LUmbDoorOpen) {
-		if(!Eq(LDoorPos[0], 0.0, 0.05) || !Eq(LLatchPos[0], 0.0)) {
+		if(!Eq(LDoorPos[0], 0.0, 0.05) || LLatchPos[0]>0.95) {
 			LDoorPos[1] = min(1.0, LDoorPos[0]+ET_UMB_DOOR_OPERATING_SPEED*DeltaT);
 		}
 	}
@@ -61,12 +60,12 @@ void ETUmbDoorSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 	if(RUmbDoorClose) {
-		if(!Eq(RDoorPos[0], 1.0, 0.05) || !Eq(CLLatchPos[0], 0.0)) {
+		if(!Eq(RDoorPos[0], 1.0, 0.05) || CLLatchPos[0]>0.95) {
 			RDoorPos[1] = max(0.0, RDoorPos[0]-ET_UMB_DOOR_OPERATING_SPEED*DeltaT);
 		}
 	}
 	else if(RUmbDoorOpen) {
-		if(!Eq(RDoorPos[0], 0.0, 0.05) || !Eq(RLatchPos[0], 0.0)) {
+		if(!Eq(RDoorPos[0], 0.0, 0.05) || RLatchPos[0]>0.95) {
 			RDoorPos[1] = min(1.0, RDoorPos[0]+ET_UMB_DOOR_OPERATING_SPEED*DeltaT);
 		}
 	}
@@ -76,12 +75,71 @@ void ETUmbDoorSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	else if(RUmbDoorRelease) {
 		RLatchPos[1] = min(1.0, RLatchPos[0]+LATCH_OPERATING_SPEED*DeltaT);
 	}
+
+	if(CenterlineRelease) {
+		CLLatchPos[1] = min(1.0, CLLatchPos[0]+LATCH_OPERATING_SPEED*DeltaT);
+	}
 }
 
 void ETUmbDoorSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 {
 	STS()->SetETUmbDoorPosition(LDoorPos[0], 0);
 	STS()->SetETUmbDoorPosition(RDoorPos[0], 1);
+
+	if(Eq(LDoorPos[0], 0.0, 0.01)) {
+		LUmbDoorClosed.SetLine();
+		LUmbDoorOpened.ResetLine();
+	}
+	else if(Eq(LDoorPos[0], 1.0, 0.01)) {
+		LUmbDoorClosed.ResetLine();
+		LUmbDoorOpened.SetLine();
+	}
+	else {
+		LUmbDoorClosed.ResetLine();
+		LUmbDoorOpened.ResetLine();
+	}
+
+	if(Eq(RDoorPos[0], 0.0, 0.01)) {
+		RUmbDoorClosed.SetLine();
+		RUmbDoorOpened.ResetLine();
+	}
+	else if(Eq(RDoorPos[0], 1.0, 0.01)) {
+		RUmbDoorClosed.ResetLine();
+		RUmbDoorOpened.SetLine();
+	}
+	else {
+		RUmbDoorClosed.ResetLine();
+		RUmbDoorOpened.ResetLine();
+	}
+
+	if(Eq(LLatchPos[0], 0.0, 0.01)) {
+		LUmbDoorLatched.SetLine();
+		LUmbDoorReleased.ResetLine();
+	}
+	else if(Eq(LLatchPos[0], 1.0, 0.01)) {
+		LUmbDoorLatched.ResetLine();
+		LUmbDoorReleased.SetLine();
+	}
+	else {
+		LUmbDoorLatched.ResetLine();
+		LUmbDoorReleased.ResetLine();
+	}
+
+	if(Eq(RLatchPos[0], 0.0, 0.01)) {
+		RUmbDoorLatched.SetLine();
+		RUmbDoorReleased.ResetLine();
+	}
+	else if(Eq(RLatchPos[0], 1.0, 0.01)) {
+		RUmbDoorLatched.ResetLine();
+		RUmbDoorReleased.SetLine();
+	}
+	else {
+		RUmbDoorLatched.ResetLine();
+		RUmbDoorReleased.ResetLine();
+	}
+
+	if(Eq(CLLatchPos[0], 1.0, 0.01)) CenterlineReleased.SetLine();
+	else CenterlineReleased.ResetLine();
 }
 
 void ETUmbDoorSystem::OnPropagate(double SimT, double DeltaT, double MJD)

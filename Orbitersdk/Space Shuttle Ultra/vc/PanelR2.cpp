@@ -34,6 +34,12 @@ namespace vc
 		Add(pRightUmbDoor = new StdSwitch3(psts, "ET Umb Right Door"));
 		Add(pRightUmbDoorLatch = new StdSwitch3(psts, "ET Umb Right Door Latch"));
 
+		Add(pETUmbLDoor = new StandardTalkback(psts, "ET Umb Left Door Tb", 2));
+		Add(pETUmbRDoor = new StandardTalkback(psts, "ET Umb Right Door Tb", 2));
+		Add(pETUmbDoorCLLatch = new StandardTalkback(psts, "ET Umb Door CL Latch Tb", 1));
+		Add(pETUmbLLatch = new StandardTalkback(psts, "ET Umb Left Door Latch Tb", 2));
+		Add(pETUmbRLatch = new StandardTalkback(psts, "ET Umb Right Door Latch Tb", 2));
+
 		Add(pMPSPower[0][0] = new StdSwitch2(psts, "MPS Pwr Left AC2"));
 		Add(pMPSPower[0][1] = new StdSwitch2(psts, "MPS Pwr Ctr AC1"));
 		Add(pMPSPower[0][2] = new StdSwitch2(psts, "MPS Pwr Right AC3"));
@@ -58,6 +64,13 @@ namespace vc
 			pAPUCntlrPwr[i]->SetLabel(1, "ON");
 			pAPUFuelTkVlv[i]->SetLabel(0, "CLOSE");
 			pAPUFuelTkVlv[i]->SetLabel(1, "OPEN");
+
+			pMPSHeIsolA[i]->SetLabel(0, "CLOSE");
+			pMPSHeIsolA[i]->SetLabel(1, "GPC");
+			pMPSHeIsolA[i]->SetLabel(2, "OPEN");
+			pMPSHeIsolB[i]->SetLabel(0, "CLOSE");
+			pMPSHeIsolB[i]->SetLabel(1, "GPC");
+			pMPSHeIsolB[i]->SetLabel(2, "OPEN");
 		}
 	}
 
@@ -82,11 +95,11 @@ namespace vc
 		oapiVCRegisterArea (AID_R2_TKBK1, _R( 451, 706, 483, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
 		oapiVCRegisterArea (AID_R2_TKBK2, _R( 525, 706, 557, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
 		oapiVCRegisterArea (AID_R2_TKBK3, _R( 598, 706, 630, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		//oapiVCRegisterArea (AID_R2_TKBK4, _R( 253, 1723, 285, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		//oapiVCRegisterArea (AID_R2_TKBK5, _R( 379, 1723, 411, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		//oapiVCRegisterArea (AID_R2_TKBK6, _R( 480, 1723, 512, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		//oapiVCRegisterArea (AID_R2_TKBK7, _R( 574, 1723, 606, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		//oapiVCRegisterArea (AID_R2_TKBK8, _R( 672, 1726, 704, 1744), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		oapiVCRegisterArea (AID_R2_TKBK4, _R( 253, 1723, 285, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		oapiVCRegisterArea (AID_R2_TKBK5, _R( 379, 1723, 411, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		oapiVCRegisterArea (AID_R2_TKBK6, _R( 480, 1723, 512, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		oapiVCRegisterArea (AID_R2_TKBK7, _R( 574, 1723, 606, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		oapiVCRegisterArea (AID_R2_TKBK8, _R( 672, 1726, 704, 1744), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
 	}
 
 	void PanelR2::DefineVC()
@@ -170,6 +183,8 @@ namespace vc
 		pCenterlineLatch->SetReference(_V(1.062, 1.773, 13.888), switch_rot);
 		pCenterlineLatch->DefineSwitchGroup(GRP_R2b49_VC);
 		pCenterlineLatch->SetInitialAnimState(0.5f);
+		pCenterlineLatch->SetOnPosition(0);
+		pCenterlineLatch->SetInitialPosition(1);
 
 		pLeftUmbDoor->SetMouseRegion(0.292763f, 0.885751f, 0.351700f, 0.920420f);
 		pLeftUmbDoor->SetReference(_V(1.11, 1.787, 13.885), switch_rot);
@@ -190,6 +205,26 @@ namespace vc
 		pRightUmbDoorLatch->SetReference(_V(1.228, 1.822, 13.881), switch_rot);
 		pRightUmbDoorLatch->DefineSwitchGroup(GRP_R2b53_VC);
 		pRightUmbDoorLatch->SetInitialAnimState(0.5f);
+
+		pETUmbDoorCLLatch->AddAIDToRedrawEventList(AID_R2_TKBK4);
+		pETUmbDoorCLLatch->SetDimensions(32, 18);
+		pETUmbDoorCLLatch->SetTalkbackLocation(0, 0);
+
+		pETUmbLDoor->AddAIDToRedrawEventList(AID_R2_TKBK5);
+		pETUmbLDoor->SetDimensions(32, 18);
+		pETUmbLDoor->SetTalkbackLocation(0, 0);
+
+		pETUmbLLatch->AddAIDToRedrawEventList(AID_R2_TKBK6);
+		pETUmbLLatch->SetDimensions(32, 18);
+		pETUmbLLatch->SetTalkbackLocation(0, 0);
+
+		pETUmbRDoor->AddAIDToRedrawEventList(AID_R2_TKBK7);
+		pETUmbRDoor->SetDimensions(32, 18);
+		pETUmbRDoor->SetTalkbackLocation(0, 0);
+
+		pETUmbRLatch->AddAIDToRedrawEventList(AID_R2_TKBK8);
+		pETUmbRLatch->SetDimensions(32, 18);
+		pETUmbRLatch->SetTalkbackLocation(0, 0);
 
 		/**** MPS He Isol A ****/
 		pMPSHeIsolA[0]->SetMouseRegion(0.081538f, 0.322382f, 0.157321f, 0.352672f);
@@ -287,7 +322,37 @@ namespace vc
 		pRightUmbDoor->outputB.Connect(pBundle, 5); // open door
 		pRightUmbDoorLatch->outputA.Connect(pBundle, 6); // latch
 		pRightUmbDoorLatch->outputB.Connect(pBundle, 7); // release
-		pCenterlineLatch->output.Connect(pBundle, 8);
+		pCenterlineLatch->output.Connect(pBundle, 8); // stow
+
+		pBundle=STS()->BundleManager()->CreateBundle("ETUmbDoor microswitches", 16);
+		pETUmbLDoor->SetInput(0, pBundle, 0, TB_CLO);
+		pETUmbLDoor->SetInput(1, pBundle, 1, TB_OP);
+		pETUmbLLatch->SetInput(0, pBundle, 2, TB_LAT);
+		pETUmbLLatch->SetInput(1, pBundle, 3, TB_REL);
+		pETUmbRDoor->SetInput(0, pBundle, 4, TB_CLO);
+		pETUmbRDoor->SetInput(1, pBundle, 5, TB_OP);
+		pETUmbRLatch->SetInput(0, pBundle, 6, TB_LAT);
+		pETUmbRLatch->SetInput(1, pBundle, 7, TB_REL);
+		pETUmbDoorCLLatch->SetInput(0, pBundle, 8, TB_STO);
+
+		/**** TEMPORARY HACK: needed to enable.disable MPS as appropriate ****/
+		pBundle=STS()->BundleManager()->CreateBundle("SSMEC_R2_SWITCHES", 4);
+		pMPSPower[0][1]->output.Connect(pBundle, 0);
+		pMPSPower[1][1]->output.Connect(pBundle, 1);
+		pMPSHeIsolA[1]->outputB.Connect(pBundle, 2); // ignore GPC and CLOSE positions 
+		pMPSHeIsolB[1]->outputB.Connect(pBundle, 3);
+
+		pBundle=STS()->BundleManager()->CreateBundle("SSMEL_R2_SWITCHES", 4);
+		pMPSPower[0][0]->output.Connect(pBundle, 0);
+		pMPSPower[1][0]->output.Connect(pBundle, 1);
+		pMPSHeIsolA[0]->outputB.Connect(pBundle, 2); // ignore GPC and CLOSE positions 
+		pMPSHeIsolB[0]->outputB.Connect(pBundle, 3);
+
+		pBundle=STS()->BundleManager()->CreateBundle("SSMER_R2_SWITCHES", 4);
+		pMPSPower[0][2]->output.Connect(pBundle, 0);
+		pMPSPower[1][2]->output.Connect(pBundle, 1);
+		pMPSHeIsolA[2]->outputB.Connect(pBundle, 2); // ignore GPC and CLOSE positions 
+		pMPSHeIsolB[2]->outputB.Connect(pBundle, 3);
 
 		BasicPanel::Realize();
 	}
@@ -295,9 +360,5 @@ namespace vc
 	bool PanelR2::HydraulicPressure() const
 	{
 		return (APU_HydraulicPress[0].IsSet(2.8f) || APU_HydraulicPress[1].IsSet(2.8f) || APU_HydraulicPress[2].IsSet(2.8f));
-	}
-
-	void PanelR2::CheckMPSArmed(int eng) const
-	{
 	}
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Panel R2 VC Component
+  Panel C3 VC Component
 
 
 
@@ -22,53 +22,31 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef __VC_PANEL_R2_H_12F72432_EB9D_4b53_BC9D_4BCD6DD61C17
-#define __VC_PANEL_R2_H_12F72432_EB9D_4b53_BC9D_4BCD6DD61C17
+#ifndef __VC_PANEL_C3_H_8B69A84E_82D7_49e2_BE5D_B389A8E2B914
+#define __VC_PANEL_C3_H_8B69A84E_82D7_49e2_BE5D_B389A8E2B914
 #pragma once
 
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
-#include "Talkback.h"
+#include "PushbuttonIndicator.h"
 
 namespace vc
 {
-	class PanelR2 : public BasicPanel
+	class PanelC3 : public BasicPanel
 	{
-		LockableLever3* pAPUControl[3];
-		LockableLever2* pHydPumpPress[3];
-		LockableLever2* pAPUCntlrPwr[3];
-		LockableLever2* pAPUFuelTkVlv[3];
-		StdSwitch2* pAPUSpeedSelect[3];
-
-		StdSwitch2* pCenterlineLatch;
-		StdSwitch3* pLeftUmbDoor;
-		StdSwitch3* pLeftUmbDoorLatch;
-		StdSwitch3* pRightUmbDoor;
-		StdSwitch3* pRightUmbDoorLatch;
-
-		StdSwitch2* pMPSPower[2][3];
-		StdSwitch3* pMPSHeIsolA[3];
-		StdSwitch3* pMPSHeIsolB[3];
-
-		StandardTalkback* pAPUReadyToStart[3];
-
-		StandardTalkback* pETUmbDoorCLLatch;
-		StandardTalkback* pETUmbLDoor;
-		StandardTalkback* pETUmbLLatch;
-		StandardTalkback* pETUmbRDoor;
-		StandardTalkback* pETUmbRLatch;
-
-		DiscInPort APU_HydraulicPress[3];
 	public:
-		PanelR2(Atlantis* psts);
-		virtual ~PanelR2();
+		PanelC3(Atlantis* _sts);
+		virtual ~PanelC3();
 
-		virtual void RegisterVC();
 		virtual void DefineVC();
+		virtual void RegisterVC();
 		virtual void Realize();
+	private:
+		//DAP PBIs
+		PushButtonIndicator* pPBIs[24];
 
-		virtual bool HydraulicPressure() const;
+		LockableLever3* pOMSArm[2];
 	};
 };
 
-#endif //__VC_PANEL_R2_H_12F72432_EB9D_4b53_BC9D_4BCD6DD61C17
+#endif //__VC_PANEL_C3_H_8B69A84E_82D7_49e2_BE5D_B389A8E2B914

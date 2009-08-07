@@ -998,7 +998,7 @@ void Atlantis::AttControl(double SimdT)
 		//MNVR=true;
 		if(ControlMode==AUTO) {
 			ControlMode=INRTL;
-			panelc3->UpdateVC(); //update PBI lights to reflect change in mode
+			//panelc3->UpdateVC(); //update PBI lights to reflect change in mode
 		}
 		if(ControlMode==INRTL) {
 			TargetAttOrbiter=InertialOrientationRad;
