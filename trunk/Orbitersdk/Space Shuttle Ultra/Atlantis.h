@@ -991,7 +991,7 @@ class Atlantis: public VESSEL2 {
 	friend class PanelA4;
 	friend class PanelA8;
 	friend class PanelC2;
-	friend class PanelC3;
+	//friend class PanelC3;
 	friend class vc::PanelF7;
 	friend class PanelO3;
 	//friend class vc::PanelR2; // temporary
@@ -1313,7 +1313,7 @@ public:
 	PanelA4 *panela4;
 	//PanelA8 *panela8;
 	PanelC2 *panelc2;
-	PanelC3 *panelc3; // PanelC3 operations
+	//PanelC3 *panelc3; // PanelC3 operations
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary
@@ -1362,6 +1362,10 @@ private:
 	dps::RSLS *rsls;
 
 	SURFHANDLE tex_rcs;
+
+	void SSMEEngControl(unsigned short usEng) const;
+	void OMSEngControl(unsigned short usEng) const;
+
 	void StopAllManifolds();
 	void FireAllNextManifold();
 	void AddPrimaryRCSExhaust(THRUSTER_HANDLE thX);
@@ -1915,6 +1919,7 @@ private:
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3];
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
+	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();

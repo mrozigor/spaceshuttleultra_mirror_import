@@ -1,3 +1,27 @@
+/****************************************************************************
+  This file is part of Space Shuttle Ultra
+
+  ET Umbilical Door Component
+
+
+
+  Space Shuttle Ultra is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Space Shuttle Ultra is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Space Shuttle Ultra; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+  See http://spaceshuttleultra.sourceforge.net/license/ for more details.
+
+  **************************************************************************/
 #ifndef _ETUMBDOORSYSTEM_2DC6F882_ECF3_4c68_B922_62BB3F035441
 #define _ETUMBDOORSYSTEM_2DC6F882_ECF3_4c68_B922_62BB3F035441
 #pragma once
@@ -31,7 +55,7 @@ private:
 
 	DiscOutPort LUmbDoorClosed, LUmbDoorOpened, LUmbDoorLatched, LUmbDoorReleased;
 	DiscOutPort RUmbDoorClosed, RUmbDoorOpened, RUmbDoorLatched, RUmbDoorReleased;
-	DiscOutPort CenterlineLatched, CenterlineReleased;
+	DiscOutPort CenterlineReleased;
 
 	// at some point replace these with MechActuators
 	double LDoorPos[2], RDoorPos[2];
