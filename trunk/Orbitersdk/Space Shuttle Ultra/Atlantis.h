@@ -976,6 +976,11 @@ typedef enum {
 	OMS_RIGHT
 } OMS_REF;
 
+typedef enum {
+	LEFT = 0,
+	RIGHT
+} SIDE;
+
 class CommModeHandler;
 
 using class discsignals::DiscreteBundleManager;
@@ -1920,6 +1925,7 @@ private:
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
 	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
+	DiscInPort OMSArm[2], OMSArmPress[2];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
