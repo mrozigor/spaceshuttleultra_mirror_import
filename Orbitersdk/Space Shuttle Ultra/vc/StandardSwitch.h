@@ -89,13 +89,17 @@ namespace vc {
 
 	class LockableLever3 : public LockableLever
 	{
+	private:
 		DiscOutPort outputA, outputB;
+		unsigned short usA, usB;
 	public:
 		LockableLever3(Atlantis* psts, const string& _ident);
 		virtual ~LockableLever3();
 
 		virtual void OnPositionChange(unsigned short usNewPosition);
 		virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+
+		bool ConnectSwitchPosition(unsigned short usPos, unsigned short usPort);
 	};
 
 	class StandardSwitch : public BasicSwitch  

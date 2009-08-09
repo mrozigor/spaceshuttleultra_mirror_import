@@ -19,8 +19,26 @@ namespace vc
 			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));
 		}
 
-		Add(pOMSArm[0] = new LockableLever3(_sts, "LOMS Arm"));
-		Add(pOMSArm[1] = new LockableLever3(_sts, "ROMS Arm"));
+		Add(pOMSArm[LEFT] = new LockableLever3(_sts, "LOMS Arm"));
+		Add(pOMSArm[RIGHT] = new LockableLever3(_sts, "ROMS Arm"));
+
+		Add(pAirDataProbeEnable[LEFT] = new StdSwitch2(_sts, "LADP Enable"));
+		Add(pAirDataProbeEnable[RIGHT] = new StdSwitch2(_sts, "RADP Enable"));
+		Add(pAirDataProbeDeploy[LEFT] = new LockableLever3(_sts, "LADP Deploy"));
+		Add(pAirDataProbeDeploy[RIGHT] = new LockableLever3(_sts, "RADP Deploy"));
+
+		for(int i=0;i<2;i++) {
+			pOMSArm[i]->SetLabel(0, "OFF");
+			pOMSArm[i]->SetLabel(1, "ARM/PRESS");
+			pOMSArm[i]->SetLabel(2, "ARM");
+
+			pAirDataProbeEnable[i]->SetLabel(0, "INHIBIT");
+			pAirDataProbeEnable[i]->SetLabel(1, "ENABLE");
+
+			pAirDataProbeDeploy[i]->SetLabel(0, "STOW");
+			pAirDataProbeDeploy[i]->SetLabel(1, "DEPLOY");
+			pAirDataProbeDeploy[i]->SetLabel(2, "DEPLOY/HEAT");
+		}
 	}
 
 	PanelC3::~PanelC3()
@@ -132,21 +150,41 @@ namespace vc
 		pPBIs[22]->SetMouseRegion(0.284747f, 0.627472f, 0.318325f, 0.661340f); //PITCH PULSE
 		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
 
-		pOMSArm[0]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
-		pOMSArm[0]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot, pull_dir);
-		pOMSArm[0]->DefineSwitchGroup(GRP_C3b1_VC);
-		pOMSArm[0]->SetInitialAnimState(0.5f);
+		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
+		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot, pull_dir);
+		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3b1_VC);
+		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
+		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
-		pOMSArm[1]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
-		pOMSArm[1]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot, pull_dir);
-		pOMSArm[1]->DefineSwitchGroup(GRP_C3b2_VC);
-		pOMSArm[1]->SetInitialAnimState(0.5f);
+		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
+		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot, pull_dir);
+		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3b2_VC);
+		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
+		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
+
+		pAirDataProbeEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
+		pAirDataProbeEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeEnable[LEFT]->DefineSwitchGroup(GRP_C3b10_VC);
+		pAirDataProbeEnable[LEFT]->SetInitialAnimState(0.5f);
+
+		pAirDataProbeEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
+		pAirDataProbeEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeEnable[RIGHT]->DefineSwitchGroup(GRP_C3b11_VC);
+		pAirDataProbeEnable[RIGHT]->SetInitialAnimState(0.5f);
+
+		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
+		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot, pull_dir);
+		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
+		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
+
+		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
+		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot, pull_dir);
+		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
+		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
 	}
 
 	void PanelC3::Realize()
 	{
-		BasicPanel::Realize();
-
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS1", 16);
 		for(int i=0;i<16;i++) {
 			pPBIs[i]->input.Connect(pBundle, i);
@@ -159,5 +197,15 @@ namespace vc
 			pPBIs[i]->output.Connect(pBundle, i-16);
 			pPBIs[i]->test.Connect(pBundle, i-16);
 		}
+
+		pBundle=STS()->BundleManager()->CreateBundle("LOMS", 2);
+		pOMSArm[LEFT]->ConnectPort(1, pBundle, 0); // ARM
+		pOMSArm[LEFT]->ConnectPort(2, pBundle, 1); // ARM/PRESS
+		pBundle=STS()->BundleManager()->CreateBundle("ROMS", 2);
+		pOMSArm[RIGHT]->ConnectPort(1, pBundle, 0); // ARM
+		pOMSArm[RIGHT]->ConnectPort(2, pBundle, 1); // ARM/PRESS
+
+		// VC component DiscPorts need to be connected before Realize() is called
+		BasicPanel::Realize();
 	}
 };

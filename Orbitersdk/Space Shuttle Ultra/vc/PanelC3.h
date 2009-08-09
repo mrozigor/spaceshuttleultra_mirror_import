@@ -46,6 +46,9 @@ namespace vc
 		PushButtonIndicator* pPBIs[24];
 
 		LockableLever3* pOMSArm[2];
+
+		StdSwitch2* pAirDataProbeEnable[2];
+		LockableLever3* pAirDataProbeDeploy[2];
 	};
 };
 

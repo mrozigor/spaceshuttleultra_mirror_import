@@ -5404,6 +5404,13 @@ void Atlantis::clbkPostCreation ()
 	MPSPwr[1][2].Connect(pBundle, 1);
 	MPSHeIsolA[2].Connect(pBundle, 2);
 	MPSHeIsolB[2].Connect(pBundle, 2);
+
+	pBundle=bundleManager->CreateBundle("LOMS", 2);
+	OMSArm[LEFT].Connect(pBundle, 0);
+	OMSArmPress[LEFT].Connect(pBundle, 1);
+	pBundle=bundleManager->CreateBundle("ROMS", 2);
+	OMSArm[RIGHT].Connect(pBundle, 0);
+	OMSArmPress[RIGHT].Connect(pBundle, 1);
 }
 
 // --------------------------------------------------------------
@@ -5468,6 +5475,9 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			}
 		}
 	}*/
+
+	OMSEngControl(LEFT);
+	OMSEngControl(RIGHT);
 
 	switch(status) {
 		case STATE_PRELAUNCH:
@@ -8993,10 +9003,10 @@ ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, doub
 
 void Atlantis::OMSEngControl(unsigned short usEng) const
 {
-	if(GetPropellantMass(oms_helium_tank[usEng])>0.0 && /*OMS_Eng[eng]<2*/ false) {
+	if(GetPropellantMass(oms_helium_tank[usEng])>0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], ph_oms);
 	}
-	else if(GetPropellantMass(oms_helium_tank[usEng])<=0.0 || /*OMS_Eng[eng]==2*/ true) {
+	else if(GetPropellantMass(oms_helium_tank[usEng])<=0.0 || (!OMSArm[usEng] && !OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], NULL);
 	}
 }

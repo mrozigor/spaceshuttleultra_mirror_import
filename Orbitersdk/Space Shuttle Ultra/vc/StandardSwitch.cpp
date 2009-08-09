@@ -183,6 +183,9 @@ namespace vc {
 		: LockableLever(psts, 3, _ident)
 	{
 		usCurrentPosition = 1; // true for most switch
+
+		usA=0;
+		usB=2;
 	}
 
 	LockableLever3::~LockableLever3()
@@ -192,19 +195,32 @@ namespace vc {
 	void LockableLever3::OnPositionChange(unsigned short usNewPosition)
 	{
 		LockableLever::OnPositionChange(usNewPosition);
-		switch(usNewPosition) {
+		/*switch(usNewPosition) {
 		case 0:
 			outputA.SetLine();
 			outputB.ResetLine();
 			break;
 		case 1:
 			outputA.ResetLine();
-			outputB.ResetLine();
-			break;
-		case 2:
-			outputA.ResetLine();
 			outputB.SetLine();
 			break;
+		default:
+			outputA.ResetLine();
+			outputB.ResetLine();
+			break;
+		}*/
+
+		if(usNewPosition == usA) {
+			outputA.SetLine();
+			outputB.ResetLine();
+		}
+		else if(usNewPosition == usB) {
+			outputA.ResetLine();
+			outputB.SetLine();
+		}
+		else {
+			outputA.ResetLine();
+			outputB.ResetLine();
 		}
 	}
 
@@ -220,6 +236,20 @@ namespace vc {
 			return outputB.Connect(pBundle, usLine);
 		default:
 			return false;
+		}
+	}
+
+	bool LockableLever3::ConnectSwitchPosition(unsigned short usPos, unsigned short usPort)
+	{
+		switch(usPort) {
+			case 1:
+				usA=usPos;
+				return true;
+			case 2:
+				usB=usPos;
+				return true;
+			default:
+				return false;
 		}
 	}
 
