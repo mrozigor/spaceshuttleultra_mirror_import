@@ -28,6 +28,19 @@ AirDataProbeSystem::~AirDataProbeSystem()
 
 }
 
+void AirDataProbeSystem::Realize()
+{
+	DiscreteBundle* pBundle = BundleManager()->CreateBundle("LADP", 3);
+	StowEnable[LEFT].Connect(pBundle, 0);
+	Deploy[LEFT].Connect(pBundle, 1);
+	DeployHeat[LEFT].Connect(pBundle, 2);
+
+	pBundle = BundleManager()->CreateBundle("RADP", 3);
+	StowEnable[RIGHT].Connect(pBundle, 0);
+	Deploy[RIGHT].Connect(pBundle, 1);
+	DeployHeat[RIGHT].Connect(pBundle, 2);
+}
+
 void AirDataProbeSystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 {
 	double fDeploySpeed = 1.0/15.0;
@@ -68,6 +81,9 @@ void AirDataProbeSystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 		break;
 	}
 
+	if(Deploy[LEFT] || DeployHeat[LEFT]) left_mode[1] = ADPS_DEPLOY;
+	else if(StowEnable[LEFT]) left_mode[1] = ADPS_STOW;
+
 	switch(right_state[0])
 	{
 	case ADPS_DEPLOYING:
@@ -105,11 +121,14 @@ void AirDataProbeSystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 		break;
 	}
 
+	if(Deploy[RIGHT] || DeployHeat[RIGHT]) right_mode[1] = ADPS_DEPLOY;
+	else if(StowEnable[RIGHT]) right_mode[1] = ADPS_STOW;
+
 //	sprintf(oapiDebugString(), "ADPS: %f  %d/%d %f %d/%d", left_deploy[0], left_state[0], left_mode[0], 
 //		right_deploy[0], right_state[0], right_mode[0]);
 }
 
-void AirDataProbeSystem::SetDeployMode(int side, DEPLOY_MODE mode)
+/*void AirDataProbeSystem::SetDeployMode(int side, DEPLOY_MODE mode)
 {
 	switch(side)
 	{
@@ -120,7 +139,7 @@ void AirDataProbeSystem::SetDeployMode(int side, DEPLOY_MODE mode)
 		right_mode[1] = mode;
 		break;
 	}
-}
+}*/
 
 bool AirDataProbeSystem::IsDeployed(int side) const
 {
