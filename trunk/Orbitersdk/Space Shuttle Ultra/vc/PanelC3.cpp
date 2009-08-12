@@ -22,8 +22,8 @@ namespace vc
 		Add(pOMSArm[LEFT] = new LockableLever3(_sts, "LOMS Arm"));
 		Add(pOMSArm[RIGHT] = new LockableLever3(_sts, "ROMS Arm"));
 
-		Add(pAirDataProbeEnable[LEFT] = new StdSwitch2(_sts, "LADP Enable"));
-		Add(pAirDataProbeEnable[RIGHT] = new StdSwitch2(_sts, "RADP Enable"));
+		Add(pAirDataProbeStowEnable[LEFT] = new StdSwitch2(_sts, "LADP Stow Enable"));
+		Add(pAirDataProbeStowEnable[RIGHT] = new StdSwitch2(_sts, "RADP Stow Enable"));
 		Add(pAirDataProbeDeploy[LEFT] = new LockableLever3(_sts, "LADP Deploy"));
 		Add(pAirDataProbeDeploy[RIGHT] = new LockableLever3(_sts, "RADP Deploy"));
 
@@ -32,8 +32,8 @@ namespace vc
 			pOMSArm[i]->SetLabel(1, "ARM/PRESS");
 			pOMSArm[i]->SetLabel(2, "ARM");
 
-			pAirDataProbeEnable[i]->SetLabel(0, "INHIBIT");
-			pAirDataProbeEnable[i]->SetLabel(1, "ENABLE");
+			pAirDataProbeStowEnable[i]->SetLabel(0, "INHIBIT");
+			pAirDataProbeStowEnable[i]->SetLabel(1, "ENABLE");
 
 			pAirDataProbeDeploy[i]->SetLabel(0, "STOW");
 			pAirDataProbeDeploy[i]->SetLabel(1, "DEPLOY");
@@ -162,24 +162,26 @@ namespace vc
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
-		pAirDataProbeEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
-		pAirDataProbeEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeEnable[LEFT]->DefineSwitchGroup(GRP_C3b10_VC);
-		pAirDataProbeEnable[LEFT]->SetInitialAnimState(0.5f);
+		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
+		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3b10_VC);
+		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
-		pAirDataProbeEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
-		pAirDataProbeEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeEnable[RIGHT]->DefineSwitchGroup(GRP_C3b11_VC);
-		pAirDataProbeEnable[RIGHT]->SetInitialAnimState(0.5f);
+		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
+		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3b11_VC);
+		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
 		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot, pull_dir);
 		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
+		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot, pull_dir);
 		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
+		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
 	}
 
@@ -199,11 +201,21 @@ namespace vc
 		}
 
 		pBundle=STS()->BundleManager()->CreateBundle("LOMS", 2);
-		pOMSArm[LEFT]->ConnectPort(1, pBundle, 0); // ARM
-		pOMSArm[LEFT]->ConnectPort(2, pBundle, 1); // ARM/PRESS
+		pOMSArm[LEFT]->ConnectPort(2, pBundle, 0); // ARM
+		pOMSArm[LEFT]->ConnectPort(1, pBundle, 1); // ARM/PRESS
 		pBundle=STS()->BundleManager()->CreateBundle("ROMS", 2);
-		pOMSArm[RIGHT]->ConnectPort(1, pBundle, 0); // ARM
-		pOMSArm[RIGHT]->ConnectPort(2, pBundle, 1); // ARM/PRESS
+		pOMSArm[RIGHT]->ConnectPort(2, pBundle, 0); // ARM
+		pOMSArm[RIGHT]->ConnectPort(1, pBundle, 1); // ARM/PRESS
+
+		pBundle=STS()->BundleManager()->CreateBundle("LADP", 3);
+		pAirDataProbeStowEnable[LEFT]->output.Connect(pBundle, 0);
+		pAirDataProbeDeploy[LEFT]->ConnectPort(2, pBundle, 1); // DEPLOY
+		pAirDataProbeDeploy[LEFT]->ConnectPort(1, pBundle, 2); // DEPLOY/HEAT
+
+		pBundle=STS()->BundleManager()->CreateBundle("RADP", 3);
+		pAirDataProbeStowEnable[RIGHT]->output.Connect(pBundle, 0);
+		pAirDataProbeDeploy[RIGHT]->ConnectPort(2, pBundle, 1); // DEPLOY
+		pAirDataProbeDeploy[RIGHT]->ConnectPort(1, pBundle, 2); // DEPLOY/HEAT
 
 		// VC component DiscPorts need to be connected before Realize() is called
 		BasicPanel::Realize();

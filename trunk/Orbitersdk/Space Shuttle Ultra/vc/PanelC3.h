@@ -47,7 +47,7 @@ namespace vc
 
 		LockableLever3* pOMSArm[2];
 
-		StdSwitch2* pAirDataProbeEnable[2];
+		StdSwitch2* pAirDataProbeStowEnable[2];
 		LockableLever3* pAirDataProbeDeploy[2];
 	};
 };
