@@ -62,6 +62,8 @@ private:
 	UINT anim_t0umb;			//T0 umbilical animation
 	AnimState T0UmbilicalState;
 
+	ATTACHMENTHANDLE ahBase; // used to attach to crawler/LC39/VAB
+
 	void TurnOnPadLights();
 	void TurnOffPadLights();
 

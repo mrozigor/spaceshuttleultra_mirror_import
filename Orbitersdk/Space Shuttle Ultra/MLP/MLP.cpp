@@ -15,6 +15,7 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	bSSS_Active = false;
 	bStartSequence = false;
 	ahHDP = NULL;
+	ahBase = NULL;
 	fCountdown = 8.0;
 
 	dTimer=0.0;
@@ -73,7 +74,9 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 		ahHDP = CreateAttachment(false, HDP_POS, _V(0.0, 1.0, 0.0), _V(0.0, 0.0, -1.0), "XHDP");
 	}
 
-	
+	if(!ahBase) {
+		ahBase = CreateAttachment(true, _V(0, -8.2, 0), _V(0, 1, 0), _V(1, 0, 0), "XMLP");
+	}
 }
 
 void MLP::Twang(double TMinus) {
