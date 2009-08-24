@@ -98,6 +98,13 @@ static inline VECTOR3 NormZ(VECTOR3 &v)
 	return o;
 }
 
+static inline MATRIX3 Transpose(const MATRIX3& m)
+{
+	return _M(m.m11, m.m21, m.m31,
+			  m.m12, m.m22, m.m32,
+			  m.m13, m.m23, m.m33);
+}
+
 static inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
 {
 	if(fabs(d1-d2)>dDiff) return false;
