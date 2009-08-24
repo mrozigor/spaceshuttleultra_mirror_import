@@ -131,7 +131,7 @@
 //#include "soundlib.h"
 //#include "tracer.h"
 
-//#include "../SSUMath.h"
+#include "../SSUMath.h"
 #include "Crawler.h"
 /*#include "nasspdefs.h"
 #include "toggleswitch.h"
@@ -426,6 +426,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 	lastLat = lat;
 	lastLong = lon;
+	lastHead = vs.surf_hdg;
 	lastLatLongSet = true;
 	targetHeading = lastHead;
 
@@ -983,12 +984,18 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 
 	if(dist < 395.0) // ramp to LC39 starts 395m from pad
 	{
-		double height = 15.4;
+		const double ramp_slope = 15.4 / (395.0-131.5);
+		//double height = 15.4;
+		double height = range(0.0, (395.0-dist)*ramp_slope, 15.4);
 		SetTouchdownPoints(_V(0, height,  10), _V(-10, height, -10), _V(10, height, -10));
 		//ShiftCG(_V(0, -16, 0));
 		curHeight=height;
+		//sprintf_s(oapiDebugString(), 255, "Calc Height: %f", (dist-395.0)*ramp_slope);
 		return true;
 	}
-	else SetTouchdownPoints(_V(0, 0,  10), _V(-10, 0, -10), _V(10, 0, -10));
+	else {
+		SetTouchdownPoints(_V(0, 0,  10), _V(-10, 0, -10), _V(10, 0, -10));
+		curHeight=0;
+	}
 	return false;
 }
