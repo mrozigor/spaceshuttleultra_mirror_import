@@ -8,6 +8,18 @@ namespace vc
 	PanelR2::PanelR2(Atlantis* psts)
 		: BasicPanel(psts, "R2")
 	{
+		Add(pBlrN2Supply[0] = new StdSwitch2(psts, "Boiler1 N2 Supply"));
+		Add(pBlrN2Supply[1] = new StdSwitch2(psts, "Boiler2 N2 Supply"));
+		Add(pBlrN2Supply[2] = new StdSwitch2(psts, "Boiler3 N2 Supply"));
+
+		Add(pBlrCntlr[0] = new StdSwitch2(psts, "Boiler1 Cntlr"));
+		Add(pBlrCntlr[1] = new StdSwitch2(psts, "Boiler2 Cntlr"));
+		Add(pBlrCntlr[2] = new StdSwitch2(psts, "Boiler3 Cntlr"));
+
+		Add(pBlrCntlrPwrHtr[0] = new StdSwitch3(psts, "Boiler1 Cntlr Pwr/Htr"));
+		Add(pBlrCntlrPwrHtr[1] = new StdSwitch3(psts, "Boiler2 Cntlr Pwr/Htr"));
+		Add(pBlrCntlrPwrHtr[2] = new StdSwitch3(psts, "Boiler3 Cntlr Pwr/Htr"));
+
 		Add(pAPUControl[0] = new LockableLever3(psts, "APU1 Run"));
 		Add(pAPUControl[1] = new LockableLever3(psts, "APU2 Run"));
 		Add(pAPUControl[2] = new LockableLever3(psts, "APU3 Run"));
@@ -71,7 +83,32 @@ namespace vc
 			pMPSHeIsolB[i]->SetLabel(0, "CLOSE");
 			pMPSHeIsolB[i]->SetLabel(1, "GPC");
 			pMPSHeIsolB[i]->SetLabel(2, "OPEN");
+
+			pBlrCntlrPwrHtr[i]->SetLabel(2, "A");
+			pBlrCntlrPwrHtr[i]->SetLabel(1, "OFF");
+			pBlrCntlrPwrHtr[i]->SetLabel(0, "B");
+			pBlrCntlr[i]->SetLabel(1, "ON");
+			pBlrCntlr[i]->SetLabel(0, "OFF");
+			pBlrN2Supply[i]->SetLabel(1, "ON");
+			pBlrN2Supply[i]->SetLabel(0, "OFF");
 		}
+
+		pCenterlineLatch->SetLabel(0, "STOW");
+		pCenterlineLatch->SetLabel(1, "GND");
+
+		pLeftUmbDoor->SetLabel(0, "CLOSE");
+		pLeftUmbDoor->SetLabel(1, "OFF");
+		pLeftUmbDoor->SetLabel(2, "OPEN");
+		pLeftUmbDoorLatch->SetLabel(0, "LATCH");
+		pLeftUmbDoorLatch->SetLabel(1, "OFF");
+		pLeftUmbDoorLatch->SetLabel(2, "RELEASE");
+
+		pRightUmbDoor->SetLabel(0, "CLOSE");
+		pRightUmbDoor->SetLabel(1, "OFF");
+		pRightUmbDoor->SetLabel(2, "OPEN");
+		pRightUmbDoorLatch->SetLabel(0, "LATCH");
+		pRightUmbDoorLatch->SetLabel(1, "OFF");
+		pRightUmbDoorLatch->SetLabel(2, "RELEASE");
 	}
 
 	PanelR2::~PanelR2()
@@ -288,6 +325,54 @@ namespace vc
 		pMPSPower[1][2]->SetReference(_V(1.091, 1.855, 14.435), switch_rot);
 		pMPSPower[1][2]->DefineSwitchGroup(GRP_R2b8_VC);
 		pMPSPower[1][2]->SetInitialAnimState(0.5f);
+
+		/**** WSB 1 ****/
+		pBlrCntlrPwrHtr[0]->SetMouseRegion(0.547575f, 0.754219f, 0.625464f, 0.788508f);
+		pBlrCntlrPwrHtr[0]->SetReference(_V(1.237, 1.84, 13.998), switch_rot);
+		pBlrCntlrPwrHtr[0]->DefineSwitchGroup(GRP_R2b42_VC);
+		pBlrCntlrPwrHtr[0]->SetInitialAnimState(0.5f);
+
+		pBlrCntlr[0]->SetMouseRegion(0.633620f, 0.821740f, 0.697079f, 0.862008f);
+		pBlrCntlr[0]->SetReference(_V(1.281, 1.845, 13.938), switch_rot);
+		pBlrCntlr[0]->DefineSwitchGroup(GRP_R2b45_VC);
+		pBlrCntlr[0]->SetInitialAnimState(0.5f);
+
+		pBlrN2Supply[0]->SetMouseRegion(0.671214f, 0.890886f, 0.741418f, 0.934839f);
+		pBlrN2Supply[0]->SetReference(_V(1.303, 1.844, 13.88), switch_rot);
+		pBlrN2Supply[0]->DefineSwitchGroup(GRP_R2b54_VC);
+		pBlrN2Supply[0]->SetInitialAnimState(0.5f);
+
+		/**** WSB 2 ****/
+		pBlrCntlrPwrHtr[1]->SetMouseRegion(0.625464f, 0.754219f, 0.693698f, 0.788508f);
+		pBlrCntlrPwrHtr[1]->SetReference(_V(1.276, 1.851, 13.997), switch_rot);
+		pBlrCntlrPwrHtr[1]->DefineSwitchGroup(GRP_R2b43_VC);
+		pBlrCntlrPwrHtr[1]->SetInitialAnimState(0.5f);
+
+		pBlrCntlr[1]->SetMouseRegion(0.697079f, 0.821740f, 0.755268f, 0.862008f);
+		pBlrCntlr[1]->SetReference(_V(1.308, 1.853, 13.937), switch_rot);
+		pBlrCntlr[1]->DefineSwitchGroup(GRP_R2b46_VC);
+		pBlrCntlr[1]->SetInitialAnimState(0.5f);
+
+		pBlrN2Supply[1]->SetMouseRegion(0.741418f, 0.890886f, 0.798522f, 0.934839f);
+		pBlrN2Supply[1]->SetReference(_V(1.33, 1.851, 13.878), switch_rot);
+		pBlrN2Supply[1]->DefineSwitchGroup(GRP_R2b55_VC);
+		pBlrN2Supply[1]->SetInitialAnimState(0.5f);
+
+		/**** WSB 3 ****/
+		pBlrCntlrPwrHtr[2]->SetMouseRegion(0.693698f, 0.754219f, 0.769339f, 0.788508f);
+		pBlrCntlrPwrHtr[2]->SetReference(_V(1.314, 1.862, 13.997), switch_rot);
+		pBlrCntlrPwrHtr[2]->DefineSwitchGroup(GRP_R2b44_VC);
+		pBlrCntlrPwrHtr[2]->SetInitialAnimState(0.5f);
+
+		pBlrCntlr[2]->SetMouseRegion(0.755268f, 0.821740f, 0.816670f, 0.862008f);
+		pBlrCntlr[2]->SetReference(_V(1.337, 1.861, 13.936), switch_rot);
+		pBlrCntlr[2]->DefineSwitchGroup(GRP_R2b47_VC);
+		pBlrCntlr[2]->SetInitialAnimState(0.5f);
+
+		pBlrN2Supply[2]->SetMouseRegion(0.798522f, 0.890886f, 0.875479f, 0.934839f);
+		pBlrN2Supply[2]->SetReference(_V(1.358, 1.86, 13.877), switch_rot);
+		pBlrN2Supply[2]->DefineSwitchGroup(GRP_R2b56_VC);
+		pBlrN2Supply[2]->SetInitialAnimState(0.5f);
 	}
 
 	void PanelR2::Realize()
