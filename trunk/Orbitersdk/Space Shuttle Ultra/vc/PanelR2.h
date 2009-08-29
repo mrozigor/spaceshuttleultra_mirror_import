@@ -34,6 +34,10 @@ namespace vc
 {
 	class PanelR2 : public BasicPanel
 	{
+		StdSwitch3* pBlrCntlrPwrHtr[3];
+		StdSwitch2* pBlrCntlr[3];
+		StdSwitch2* pBlrN2Supply[3];
+
 		LockableLever3* pAPUControl[3];
 		LockableLever2* pHydPumpPress[3];
 		LockableLever2* pAPUCntlrPwr[3];

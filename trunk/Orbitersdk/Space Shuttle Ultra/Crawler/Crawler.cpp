@@ -181,7 +181,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 
 	velocity = 0;
 	velocityStop = false;
-	targetHeading = 0;
+	//targetHeading = 0;
 	wheeldeflect = 0;
 	viewPos = VIEWPOS_FRONTCABIN;
 	firstTimestepDone = false;
@@ -337,7 +337,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	//double tph = -0.01;
 	//SetTouchdownPoints(_V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
 	//VSSetTouchdownPoints(GetHandle(), _V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
-	SetTouchdownPoints(_V(  0, 0,  10), _V(-10, 0, -10), _V( 10, 0, -10));
+	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
 	//ShiftCG(_V(0, -16, 0));
 }
 
@@ -428,7 +428,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	lastLong = lon;
 	lastHead = vs.surf_hdg;
 	lastLatLongSet = true;
-	targetHeading = lastHead;
+	//targetHeading = lastHead;
 
 	// check distance from pads; adjust touchdown points to simulate going up ramp
 	for(unsigned int i=0; i<vhLC39.size(); i++) {
@@ -500,7 +500,7 @@ void Crawler::DoFirstTimestep() {
 	FindLaunchpads();
 	hEarth = GetGravityRef();
 
-	oapiGetHeading(GetHandle(), &targetHeading);
+	//oapiGetHeading(GetHandle(), &targetHeading);
 	
 	// Turn off pretty much everything that Orbitersound does by default.
 	/*soundlib.SoundOptionOnOff(PLAYCOUNTDOWNWHENTAKEOFF, FALSE);
@@ -539,9 +539,9 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	while (oapiReadScenario_nextline (scn, line)) {
 		if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf (line + 8, "%lf", &velocity);
-		} else if (!_strnicmp (line, "TARGETHEADING", 13)) {
+		} /*else if (!_strnicmp (line, "TARGETHEADING", 13)) {
 			sscanf (line + 13, "%lf", &targetHeading);
-		} else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
+		}*/ else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
 			sscanf (line + 12, "%lf", &wheeldeflect);
 		} else if (!_strnicmp (line, "VIEWPOS", 7)) {
 			sscanf (line + 7, "%i", &viewPos);
@@ -568,14 +568,14 @@ void Crawler::clbkSaveState(FILEHANDLE scn) {
 	char cbuf[255];
 
 	oapiWriteScenario_float(scn, "VELOCITY", velocity);
-	oapiWriteScenario_float(scn, "TARGETHEADING", targetHeading);
+	//oapiWriteScenario_float(scn, "TARGETHEADING", targetHeading);
 	oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);	
 	oapiWriteScenario_float(scn, "HEIGHT", curHeight);
 	oapiWriteScenario_int(scn, "VIEWPOS", viewPos);
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
 	if (LVName[0])
 		oapiWriteScenario_string(scn, "LVNAME", LVName);
-	sprintf_s(cbuf, 255, "%f %f %f", lastLat, lastLong, lastHead);
+	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
 }
 
@@ -981,21 +981,32 @@ bool Crawler::clbkLoadGenericCockpit() {
 bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 {
 	double dist=length(relPos);
+	double front_dist = dist-20.0;
+	double back_dist = dist+20.0;
 
-	if(dist < 395.0) // ramp to LC39 starts 395m from pad
+	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
+	if(front_dist < 395.0 && abs(relPos.y)<10.0)
 	{
-		const double ramp_slope = 15.4 / (395.0-131.5);
-		//double height = 15.4;
+		static const double ramp_slope = 15.4 / (395.0-131.5);
+
 		double height = range(0.0, (395.0-dist)*ramp_slope, 15.4);
-		SetTouchdownPoints(_V(0, height,  10), _V(-10, height, -10), _V(10, height, -10));
-		//ShiftCG(_V(0, -16, 0));
+		double front_height = range(0.0, (395.0-front_dist)*ramp_slope, 15.4);
+		double back_height = range(0.0, (395.0-back_dist)*ramp_slope, 15.4);
+
+		// needed to prevent treads from appearing to sink into lover segment of ramp
+		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
+		back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
+		//if(front_height<9.0 && front_height>0.1) front_height+=0.25;
+		//if(back_height<9.0 && back_height>0.1) back_height+=0.25;
+		
+		SetTouchdownPoints(_V(0, back_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
 		curHeight=height;
-		//sprintf_s(oapiDebugString(), 255, "Calc Height: %f", (dist-395.0)*ramp_slope);
+		//sprintf_s(oapiDebugString(), 255, "Calc Heights: %f %f", front_height, back_height);
 		return true;
 	}
 	else {
-		SetTouchdownPoints(_V(0, 0,  10), _V(-10, 0, -10), _V(10, 0, -10));
-		curHeight=0;
+		SetTouchdownPoints(_V(0, 0.01, 20.0), _V(-10, 0.01, -20.0), _V(10, 0.01, -20.0));
+		curHeight=0.01;
 	}
 	return false;
 }
