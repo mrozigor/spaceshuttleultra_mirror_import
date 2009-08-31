@@ -42,7 +42,7 @@ bool MLP::clbkLoadVC(int id) {
 void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 {
 	static PARTICLESTREAMSPEC sss_steam = {
-		0, 17, 20, 250.0, 0.3, 15, 6, 1.0, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 5, 20, 250.0, 0.3, 15, 6, 5, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
@@ -58,7 +58,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	msh_idx=AddMesh(mshMLP);
 	DefineAnimations();
 
-	SetTouchdownPoints(_V(0.0, -30.65, 25.0), _V(-25.0, -30.65, -25.0), _V(25.0, -30.65, -25.0)); //080522, DaveS edit: Corrected MLP height so it sits correctly on the MLP stands on the hardstand
+	SetTouchdownPoints(_V(0.0, -30.65, 25.0), _V(-25.0, -30.65, -25.0), _V(25.0, -30.65, -25.0)); //-30.65 on y for pad, -16.25 for VAB
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
@@ -75,7 +75,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	}
 
 	if(!ahBase) {
-		ahBase = CreateAttachment(true, _V(0, -8.2, 0), _V(0, 1, 0), _V(1, 0, 0), "XMLP");
+		ahBase = CreateAttachment(true, _V(0, -8.2, 0), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
 	}
 }
 
@@ -503,12 +503,12 @@ void MLP::DefineAnimations()
 	T0UmbilicalState.Set(AnimState::CLOSED, 0.0);
 	anim_t0umb=CreateAnimation(1.0);
 
-	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
+	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilical};
 	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
 		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &LeftT0Umb);
 
-	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
+	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilical};
 	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
 		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
