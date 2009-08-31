@@ -86,6 +86,9 @@ const double DRIVETRACK_Z_OFFSET = 13.439;
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 2.534);
 const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 
+const double JACKING_MAX_HEIGHT = 2.0;
+// max distance the crawler platform can be jacked up from the drivetrucks
+
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 5.869, 0.0);
 //const VECTOR3 MLP_ATTACH_POS = _V(0.0, 10.869, 0.0);
 
@@ -131,6 +134,12 @@ private:
 	 * @returns true if touchdown points were changed
 	 */
 	bool UpdateTouchdownPoints(const VECTOR3 &relPos);
+	/**
+	 * Wrapper for AddAnimationComponent function
+	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by destructor
+	 */
+	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
+		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
 	double velocity;
 	bool velocityStop;
@@ -143,7 +152,7 @@ private:
 	double MissionTime;
 
 	double curHeight; // height above ground (m)
-	double curAngle; // angle rel. to horizontal (deg)
+	double curAngle; // angle rel. to horizontal (rad)
 
 	bool lastLatLongSet;
 	double lastLat;
@@ -173,6 +182,10 @@ private:
 	int meshidxTruck4;
     //int meshidxPanel;
 	//int meshidxPanelReverse;
+	UINT anim_truck_trans[4];
+	UINT anim_truck_rot[4];
+
+	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
 	//SoundLib soundlib;
 	//Sound soundEngine;
