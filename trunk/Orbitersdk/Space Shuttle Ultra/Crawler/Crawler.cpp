@@ -226,6 +226,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 }
 
 Crawler::~Crawler() {
+	// delete MGROUP_TRANSFORMs
+	for(unsigned short i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 }
 
 void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
@@ -325,6 +327,35 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	meshoffset = crawler_meshoffset + _V(-12.657, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
     meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
+
+	VECTOR3 dummy_vec[4];
+	MGROUP_ROTATE* Rot_Truck1 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[0]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[0] = CreateAnimation(0.5);
+	ANIMATIONCOMPONENT_HANDLE parent = AddManagedAnimationComponent(anim_truck_rot[0], 0.0, 1.0, Rot_Truck1);
+	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	anim_truck_trans[0] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
+
+	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[1] = CreateAnimation(0.5);
+	AddManagedAnimationComponent(anim_truck_rot[1], 0.0, 1.0, Rot_Truck2);
+	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	anim_truck_trans[1] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
+
+	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[2] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[2], 0.0, 1.0, Rot_Truck3);
+	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	anim_truck_trans[2] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
+
+	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[3] = CreateAnimation(0.5);
+	AddManagedAnimationComponent(anim_truck_rot[3], 0.0, 1.0, Rot_Truck4);
+	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	anim_truck_trans[3] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
 
 	// Panel position test
 	// panelMeshoffset = meshoffset;
@@ -550,6 +581,9 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 		} else if (!_strnicmp (line, "HEIGHT", 6)) {
 			sscanf (line+6, "%lf", &curHeight);
 			SetTouchdownPoints(_V(0, curHeight,  10), _V(-10, curHeight, -10), _V(10, curHeight, -10));
+		} else if (!_strnicmp (line, "ANGLE", 5)) {
+			sscanf (line+5, "%lf", &curAngle);
+			curAngle*=RAD; // angle is saved as degrees, so convert back to radians
 		} else if (!_strnicmp (line, "GROUND_POS", 10)) {
 			sscanf (line + 10, "%lf%lf%lf", &lastLat, &lastLong, &lastHead);
 			lastLatLongSet=true;
@@ -571,6 +605,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn) {
 	//oapiWriteScenario_float(scn, "TARGETHEADING", targetHeading);
 	oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);	
 	oapiWriteScenario_float(scn, "HEIGHT", curHeight);
+	oapiWriteScenario_float(scn, "ANGLE", DEG*curAngle);
 	oapiWriteScenario_int(scn, "VIEWPOS", viewPos);
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
 	if (LVName[0])
@@ -980,33 +1015,65 @@ bool Crawler::clbkLoadGenericCockpit() {
 
 bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 {
+	double front_dist, back_dist;
 	double dist=length(relPos);
-	double front_dist = dist-20.0;
-	double back_dist = dist+20.0;
+	double dCos = cos(lastHead);
+	unsigned short usFwdIndex; // indicates which tracks are at 'front' of crawler
+
+	if(dCos >= 0.0) {
+		front_dist = dist-20.0*abs(dCos);
+		back_dist = dist+20.0*abs(dCos);
+		usFwdIndex = 2;
+	}
+	else {
+		front_dist = dist-20.0*abs(dCos);
+		back_dist = dist+20.0*abs(dCos);
+		usFwdIndex = 0;
+	}
 
 	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
 	if(front_dist < 395.0 && abs(relPos.y)<10.0)
 	{
 		static const double ramp_slope = 15.4 / (395.0-131.5);
 
-		double height = range(0.0, (395.0-dist)*ramp_slope, 15.4);
+		//double height = range(0.0, (395.0-dist)*ramp_slope, 15.4);
+		//double height = range(0.0, (395.0-front_dist)*ramp_slope, 15.4);
 		double front_height = range(0.0, (395.0-front_dist)*ramp_slope, 15.4);
 		double back_height = range(0.0, (395.0-back_dist)*ramp_slope, 15.4);
 
 		// needed to prevent treads from appearing to sink into lover segment of ramp
 		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
-		//if(front_height<9.0 && front_height>0.1) front_height+=0.25;
-		//if(back_height<9.0 && back_height>0.1) back_height+=0.25;
 		
-		SetTouchdownPoints(_V(0, back_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
-		curHeight=height;
-		//sprintf_s(oapiDebugString(), 255, "Calc Heights: %f %f", front_height, back_height);
+		curHeight=front_height;
+		curAngle=atan((front_height-back_height)/40.0);
+
+		//SetTouchdownPoints(_V(0, back_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
+		SetTouchdownPoints(_V(0, front_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
+
+		double rot_anim_pos = curAngle/(20*RAD); // animation has range of +/10 degress; divide by 20 to get result in correct range
+		if(usFwdIndex==0) rot_anim_pos = -rot_anim_pos;
+		for(int i=0;i<4;i++) SetAnimation(anim_truck_rot[i], 0.5 + rot_anim_pos);
+		SetAnimation(anim_truck_trans[usFwdIndex], min(JACKING_MAX_HEIGHT, front_height-back_height));
+		SetAnimation(anim_truck_trans[usFwdIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height));
+
+		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
 		return true;
 	}
 	else {
 		SetTouchdownPoints(_V(0, 0.01, 20.0), _V(-10, 0.01, -20.0), _V(10, 0.01, -20.0));
+		for(int i=0;i<4;i++) {
+			SetAnimation(anim_truck_rot[i], 0.5);
+			SetAnimation(anim_truck_trans[i], 0.0);
+		}
 		curHeight=0.01;
 	}
 	return false;
+}
+
+ANIMATIONCOMPONENT_HANDLE Crawler::AddManagedAnimationComponent(UINT anim, double state0, double state1,
+		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent)
+{
+	vpAnimations.push_back(trans);
+	return AddAnimationComponent(anim, state0, state1, trans, parent);
 }
