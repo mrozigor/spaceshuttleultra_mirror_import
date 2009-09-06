@@ -181,6 +181,37 @@ STS-101:SpaceShuttleUltra
   @ENDPANEL 
   @PANEL F8
   @ENDPANEL 
+  @PANEL R2
+  "APU1 Run" START/RUN
+  "APU2 Run" START/RUN
+  "APU3 Run" START/RUN
+  "Hyd Main Pump Press 1" NORM
+  "Hyd Main Pump Press 2" NORM
+  "Hyd Main Pump Press 3" NORM
+  "APU1 Cntlr Pwr " ON
+  "APU2 Cntlr Pwr " ON
+  "APU3 Cntlr Pwr " ON
+  "APU1 Fuel Tank Valve" OPEN
+  "APU2 Fuel Tank Valve" OPEN
+  "APU3 Fuel Tank Valve" OPEN
+  "ET Umb Centerline Latch" [1]
+  "ET Umb Left Door" [1]
+  "ET Umb Left Door Latch" [1]
+  "ET Umb Right Door" [1]
+  "ET Umb Right Door Latch" [1]
+  "MPS Pwr Left AC2" [0]
+  "MPS Pwr Ctr AC1" [0]
+  "MPS Pwr Right AC3" [0]
+  "MPS Pwr Left AC3" [0]
+  "MPS Pwr Ctr AC2" [0]
+  "MPS Pwr Right AC1" [0]
+  "MPS He Isol A Left" [1]
+  "MPS He Isol A Ctr" [1]
+  "MPS He Isol A Right" [1]
+  "MPS He Isol B Left" [1]
+  "MPS He Isol B Ctr" [1]
+  "MPS He Isol B Right" [1]
+  @ENDPANEL
   @PANEL O6
   "L GLRSHLD FLOOD" OFF
   "S TRK DR CNTL SYS1" CLOSE

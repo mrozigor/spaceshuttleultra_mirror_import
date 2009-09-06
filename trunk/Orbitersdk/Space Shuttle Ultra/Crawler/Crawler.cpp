@@ -328,34 +328,56 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
     meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
 
+	// initialize array of groups needed for drivetruck translation animation
+	for(int i=0, j=0 ; i<NGRP ; i++) {
+		if(i!=GRP_JEL1 && i!=GRP_JEL2) {
+			DrivetruckGrpList[j]=i;
+			j++;
+		}
+	}
+	DrivetruckGrpList[NGRP-2]=GRP_JEL1;
+	DrivetruckGrpList[NGRP-1]=GRP_JEL2;
+
 	VECTOR3 dummy_vec[4];
 	MGROUP_ROTATE* Rot_Truck1 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[0]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
 	anim_truck_rot[0] = CreateAnimation(0.5);
 	ANIMATIONCOMPONENT_HANDLE parent = AddManagedAnimationComponent(anim_truck_rot[0], 0.0, 1.0, Rot_Truck1);
-	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	//MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[0] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
+	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 
 	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
 	anim_truck_rot[1] = CreateAnimation(0.5);
 	AddManagedAnimationComponent(anim_truck_rot[1], 0.0, 1.0, Rot_Truck2);
-	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	//MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[1] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
+	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 
 	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
 	anim_truck_rot[2] = CreateAnimation(0.5);
 	parent = AddManagedAnimationComponent(anim_truck_rot[2], 0.0, 1.0, Rot_Truck3);
-	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	//MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[2] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
+	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP-2], 1,_V(0, 1.004, 0), _V(1, 2.187, 1));
+	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 
 	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
 	anim_truck_rot[3] = CreateAnimation(0.5);
 	AddManagedAnimationComponent(anim_truck_rot[3], 0.0, 1.0, Rot_Truck4);
-	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	//MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, NULL, 0, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[3] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
+	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 
 	// Panel position test
 	// panelMeshoffset = meshoffset;
@@ -1018,28 +1040,37 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	double front_dist, back_dist;
 	double dist=length(relPos);
 	double dCos = cos(lastHead);
-	unsigned short usFwdIndex; // indicates which tracks are at 'front' of crawler
-
+	unsigned short usAftIndex; // indicates which tracks are at 'aft' of crawler
+	
+	front_dist = dist-20.0*abs(dCos);
+	back_dist = dist+20.0*abs(dCos);
 	if(dCos >= 0.0) {
-		front_dist = dist-20.0*abs(dCos);
-		back_dist = dist+20.0*abs(dCos);
-		usFwdIndex = 2;
+		usAftIndex = 2;
 	}
 	else {
-		front_dist = dist-20.0*abs(dCos);
-		back_dist = dist+20.0*abs(dCos);
-		usFwdIndex = 0;
+		usAftIndex = 0;
 	}
 
 	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
 	if(front_dist < 395.0 && abs(relPos.y)<10.0)
 	{
-		static const double ramp_slope = 15.4 / (395.0-131.5);
+		double front_dist2 = dist-(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
+		double back_dist2 = dist+(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 
-		//double height = range(0.0, (395.0-dist)*ramp_slope, 15.4);
-		//double height = range(0.0, (395.0-front_dist)*ramp_slope, 15.4);
-		double front_height = range(0.0, (395.0-front_dist)*ramp_slope, 15.4);
-		double back_height = range(0.0, (395.0-back_dist)*ramp_slope, 15.4);
+		double front_height = CalcRampHeight(front_dist);
+		double back_height = CalcRampHeight(back_dist);
+		double front_height2 = CalcRampHeight(front_dist2);
+		double back_height2 = CalcRampHeight(back_dist2);
+
+		double fwdAngle=atan((front_height-front_height2)/(front_dist2-front_dist));
+		double backAngle=atan((back_height2-back_height)/(back_dist-back_dist2));
+		//double rot_anim_pos = curAngle/(20*RAD); // animation has range of +/10 degress; divide by 20 to get result in correct range
+		double fwd_rot_anim_pos = fwdAngle/(20*RAD);
+		double back_rot_anim_pos = backAngle/(20*RAD);
+		if(usAftIndex==0) {
+			fwd_rot_anim_pos = -fwd_rot_anim_pos;
+			back_rot_anim_pos = -back_rot_anim_pos;
+		}
 
 		// needed to prevent treads from appearing to sink into lover segment of ramp
 		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
@@ -1048,16 +1079,18 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		curHeight=front_height;
 		curAngle=atan((front_height-back_height)/40.0);
 
-		//SetTouchdownPoints(_V(0, back_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
 		SetTouchdownPoints(_V(0, front_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
 
-		double rot_anim_pos = curAngle/(20*RAD); // animation has range of +/10 degress; divide by 20 to get result in correct range
-		if(usFwdIndex==0) rot_anim_pos = -rot_anim_pos;
-		for(int i=0;i<4;i++) SetAnimation(anim_truck_rot[i], 0.5 + rot_anim_pos);
-		SetAnimation(anim_truck_trans[usFwdIndex], min(JACKING_MAX_HEIGHT, front_height-back_height));
-		SetAnimation(anim_truck_trans[usFwdIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height));
+		for(int i=0;i<2;i++) {
+			SetAnimation(anim_truck_rot[i+2-usAftIndex], 0.5+fwd_rot_anim_pos);
+			SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
+		}
+		SetAnimation(anim_truck_trans[usAftIndex], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);
+		SetAnimation(anim_truck_trans[usAftIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);
 
 		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
+		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
+		//sprintf_s(oapiDebugString(), 255, "Heights: Fwd %f %f %f Back %f %f %f Jack: %f", front_height, front_height2, front_height3, back_height, back_height2, back_height3, front_height3-back_height3);
 		return true;
 	}
 	else {
