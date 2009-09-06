@@ -278,6 +278,8 @@ void CRT::OMSMPS(HDC hDC)
 	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
 	HPEN WhitePen=CreatePen(PS_SOLID, 0, WHITE);
 	HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
+
+	int save = SaveDC(hDC);
 	SetTextColor(hDC, GREEN);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
@@ -408,6 +410,8 @@ void CRT::OMSMPS(HDC hDC)
 	}
 	//SelectObject(hDC, GreenPen);
 	//SelectObject(hDC, BlackBrush);
+
+	RestoreDC(hDC, save);
 	DeleteObject(GreenBrush);
 	DeleteObject(WhiteBrush);
 	DeleteObject(BlackBrush);
@@ -551,6 +555,8 @@ void CRT::APUHYD(HDC hDC)
 	HBRUSH GreenBrush=CreateSolidBrush(GREEN);
 	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
 	HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
+
+	int save = SaveDC(hDC);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
 	SelectDefaultFont(hDC, 0);
@@ -665,6 +671,8 @@ void CRT::APUHYD(HDC hDC)
 			Rectangle(hDC, 162+33*nPos, 91-0.026*FuelPress, 183+33*nPos, 91);
 		}
 	}
+
+	RestoreDC(hDC, save);
 	DeleteObject(GreenBrush);
 	DeleteObject(BlackBrush);
 	DeleteObject(GreenPen);
@@ -2322,7 +2330,7 @@ void CRT::DrawCommonHeader(HDC hdc)
 	}
 
 	//this->SelectDefaultFont(hdc, 1);
-	SelectObject(hdc, hCRTFont);
+	HGDIOBJ hOldFont = SelectObject(hdc, hCRTFont);
 
 	sts->GetGPCMET(usGPCDriver, usDay, usHour, usMinute, usSecond);
 	
@@ -2338,6 +2346,8 @@ void CRT::DrawCommonHeader(HDC hdc)
 
 	
 	CRTTextOut(hdc, 1, 1, cbuf);
+
+	SelectObject(hdc, hOldFont);
 }
 
 void CRT::SetDisplayTitle(const char *pszTitle)

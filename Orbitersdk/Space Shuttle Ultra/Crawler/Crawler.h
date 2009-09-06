@@ -76,6 +76,7 @@
 #pragma once
 
 #include <vector>
+#include "meshres_drivetruck.h"
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
@@ -141,6 +142,8 @@ private:
 	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
+	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(15.4 / (395.0-131.5)), 15.4); };
+
 	double velocity;
 	bool velocityStop;
 	//double targetHeading;
@@ -184,6 +187,7 @@ private:
 	//int meshidxPanelReverse;
 	UINT anim_truck_trans[4];
 	UINT anim_truck_rot[4];
+	UINT DrivetruckGrpList[NGRP]; // array used to define drivetruck animations
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
