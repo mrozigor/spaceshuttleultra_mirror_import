@@ -254,6 +254,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Crawler\meshres_drivetruck.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SSUMath.h"
 				>
 			</File>
