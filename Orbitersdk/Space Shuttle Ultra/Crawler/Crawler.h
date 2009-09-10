@@ -131,6 +131,13 @@ private:
 	void SlowIfDesired(double timeAcceleration);
 	void SetMeshesVisibility(WORD mode);
 	/**
+	 * Returns crawler position in vessel-centered local horizon frame
+	 * Assumes vessels are close and Earth is flat
+	 * @param hVessel -handle of target vessel
+	 * @param vs -struct containing crawler's current surf. position
+	 */
+	VECTOR3 CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) const;
+	/**
 	 * Sets touchdown points based on position relative to launchpad.
 	 * @returns true if touchdown points were changed
 	 */
@@ -161,6 +168,8 @@ private:
 	double lastLat;
 	double lastLong;
 	double lastHead;
+	
+	VESSELSTATUS2 vs;
 
 	bool keyAccelerate;
 	bool keyBrake;
@@ -169,6 +178,7 @@ private:
 	bool keyCenter;
 
 	OBJHANDLE hMLP;
+	ATTACHMENTHANDLE hMLPAttach;
 	//OBJHANDLE hLV;
 	//OBJHANDLE hMSS;
 	ATTACHMENTHANDLE ahMLP;

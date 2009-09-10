@@ -652,6 +652,8 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetSize(39.0);
 	CreateGOXVentThrusters();
 	CreateLights();
+
+	CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(0, 0, -1), "XMLP");
 }
 
 void SSUPad::UpdateGOXVentThrusters() {

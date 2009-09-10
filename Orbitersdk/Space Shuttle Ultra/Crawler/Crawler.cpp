@@ -200,6 +200,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 
 	LVName[0] = 0;
 	hMLP = NULL;
+	hMLPAttach = NULL;
 	//hLV = NULL;
 	//hMSS = NULL;
 	vccVis = NULL;	
@@ -434,7 +435,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	keyBrake = false;
 
 	double lat, lon;
-	VESSELSTATUS2 vs;
 	vs.version = 2;
 	GetStatusEx(&vs);
 
@@ -487,9 +487,10 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	for(unsigned int i=0; i<vhLC39.size(); i++) {
 		VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
 
-		double padLat, padLong, padRad;
+		/*double padLat, padLong, padRad;
 		oapiGetEquPos(vhLC39[i], &padLong, &padLat, &padRad);
-		VECTOR3 rpos = _V(padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth), padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0);
+		VECTOR3 rpos = _V(padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth), padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0);*/
+		VECTOR3 rpos = CalcRelSurfPos(vhLC39[i], vs);
 
 		//sprintf_s(oapiDebugString(), 255, "RelPos: %f %f %f", rpos.x, rpos.y, rpos.z);
 		if(UpdateTouchdownPoints(rpos)) break;
@@ -570,6 +571,12 @@ void Crawler::DoFirstTimestep() {
 		hML = oapiGetVesselByName("ML");
 		hMSS = oapiGetVesselByName("MSS");*/
 		hMLP = GetAttachmentStatus(ahMLP);
+		// find point on MLP we are attached to
+		VESSEL* pMLP = oapiGetVesselInterface(hMLP);
+		for(DWORD i=0;i<pMLP->AttachmentCount(true);i++) {
+			ATTACHMENTHANDLE aH = pMLP->GetAttachmentHandle(true, i);
+			if(pMLP->GetAttachmentStatus(aH)==GetHandle()) hMLPAttach = aH;
+		}
 	}
 	firstTimestepDone = true;
 }
@@ -763,11 +770,11 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 
 	if (!firstTimestepDone) return 0;
 
-	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate)) {
+	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate) || !down) {
 		return 0; 
 	}
 
-	if (key == OAPI_KEY_J && down == true) {
+	if (key == OAPI_KEY_J) {
 		if (IsAttached())
 			Detach();
 		else
@@ -888,6 +895,7 @@ void Crawler::Attach() {
 				oapiWriteLog("Attaching MLP");
 				AttachChild(hV, ahMLP, ahAttach);
 				hMLP = hV;
+				hMLPAttach = ahAttach;
 				break;
 			}
 		}
@@ -927,23 +935,42 @@ void Crawler::Detach() {
 	if (velocity != 0) return;
 	if (!IsAttached()) return;
 
-	// Is ML attached?
-	/*if (hML == GetAttachmentStatus(ahMLP)) {
-		ML *ml = (ML *)oapiGetVesselInterface(hML);
-		if (ml->Detach()) {
-			SlowIfDesired(1.0);
-			DetachChild(ah);
+	// loop thorugh all landed vessels and find one within range with MLP attach point
+	for(DWORD i=0;i<oapiGetVesselCount();i++) {
+		OBJHANDLE hV = oapiGetVesselByIndex(i);
+		if(hV == GetHandle()) continue;
+		VESSEL* pV = oapiGetVesselInterface(hV);
+
+		// check if vessel is landed
+		if((pV->GetFlightStatus() & 1)) {
+			//oapiWriteLog(pV->GetName());
+			VECTOR3 rpos = CalcRelSurfPos(hV, vs);
+
+			for(DWORD j=0;j<pV->AttachmentCount(false);j++) {
+				ATTACHMENTHANDLE aH = pV->GetAttachmentHandle(false, j);
+				if(!_strnicmp("XMLP", pV->GetAttachmentId(aH), 4) && !pV->GetAttachmentStatus(aH)) {
+					VECTOR3 attach_pos, attach_dir, attach_rot;
+					double heading;
+					pV->GetAttachmentParams(aH, attach_pos, attach_dir, attach_rot);
+					oapiGetHeading(hV, &heading);
+
+					attach_pos = rpos+RotateVectorY(attach_pos, heading);
+					attach_pos.y = 0.0; // everything is landed; ignore vert distance for the moment
+					sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z);
+					oapiWriteLog(oapiDebugString());
+
+					if(length(attach_pos) < 2.5) { // attach MLP to VAB/LC39
+						DetachChild(ahMLP);
+						bool success = pV->AttachChild(hMLP, aH, hMLPAttach);
+						hMLP = NULL;
+						hMLPAttach = NULL;
+
+						if(!success) oapiWriteLog("ERROR: Could not attach to pad");
+					}
+				}
+			}
 		}
-	}*/
-	
-	// Is MSS attached?
-	/*if (hMSS == GetAttachmentStatus(ahMLP)) {
-		MSS *mss = (MSS *)oapiGetVesselInterface(hMSS);
-		if (mss->Detach()) {
-			SlowIfDesired(1.0);
-			DetachChild(ah);
-		}
-	}*/
+	}
 }
 
 bool Crawler::IsAttached() {
@@ -1109,4 +1136,11 @@ ANIMATIONCOMPONENT_HANDLE Crawler::AddManagedAnimationComponent(UINT anim, doubl
 {
 	vpAnimations.push_back(trans);
 	return AddAnimationComponent(anim, state0, state1, trans, parent);
+}
+
+VECTOR3 Crawler::CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) const
+{
+	double padLat, padLong, padRad;
+	oapiGetEquPos(hVessel, &padLong, &padLat, &padRad);
+	return _V(padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth), padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0);
 }
