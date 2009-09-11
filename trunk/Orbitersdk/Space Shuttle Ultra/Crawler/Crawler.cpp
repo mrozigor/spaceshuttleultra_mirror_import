@@ -385,7 +385,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	// panelMeshidx = meshidxTruck3;
 
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
-	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), _V(1, 0, 0), "XMLP");
+	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), _V(0, 0, 1), "XMLP");
 
 	//VSEnableCollisions(GetHandle(),"ProjectApollo");
 	//double tph = -0.01;
@@ -571,11 +571,13 @@ void Crawler::DoFirstTimestep() {
 		hML = oapiGetVesselByName("ML");
 		hMSS = oapiGetVesselByName("MSS");*/
 		hMLP = GetAttachmentStatus(ahMLP);
-		// find point on MLP we are attached to
-		VESSEL* pMLP = oapiGetVesselInterface(hMLP);
-		for(DWORD i=0;i<pMLP->AttachmentCount(true);i++) {
-			ATTACHMENTHANDLE aH = pMLP->GetAttachmentHandle(true, i);
-			if(pMLP->GetAttachmentStatus(aH)==GetHandle()) hMLPAttach = aH;
+		if(hMLP) {
+			// find point on MLP we are attached to
+			VESSEL* pMLP = oapiGetVesselInterface(hMLP);
+			for(DWORD i=0;i<pMLP->AttachmentCount(true);i++) {
+				ATTACHMENTHANDLE aH = pMLP->GetAttachmentHandle(true, i);
+				if(pMLP->GetAttachmentStatus(aH)==GetHandle()) hMLPAttach = aH;
+			}
 		}
 	}
 	firstTimestepDone = true;
