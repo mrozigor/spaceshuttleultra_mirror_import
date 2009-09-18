@@ -19,7 +19,7 @@ BEGIN_CAMERA
 END_CAMERA
 
 BEGIN_SHIPS
-Crawler-Transporter:Crawler
+Crawler-Transporter:SSU_CT
   STATUS Landed Earth
   POS -80.6515154 28.5796661
   HEADING 75.04
