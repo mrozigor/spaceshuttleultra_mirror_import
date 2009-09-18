@@ -158,7 +158,7 @@
 #define VIEWPOS_RIGHTREARGANGWAY		6
 
 HINSTANCE g_hDLL;
-char trace_file[] = "ProjectApollo Crawler.log";
+//char trace_file[] = "ProjectApollo Crawler.log";
 
 DLLCLBK void InitModule(HINSTANCE hModule) {
 
@@ -178,7 +178,6 @@ DLLCLBK void ovcExit(VESSEL *vessel) {
 
 Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 {
-
 	velocity = 0;
 	velocityStop = false;
 	//targetHeading = 0;
@@ -191,6 +190,16 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 	lastLatLongSet = false;
 	lastLat = 0;
 	lastLong = 0;
+
+	//curHeight = 0.01;
+	//curAngle = 0.0;
+	curFrontAngle = 0.0;
+	curBackAngle = 0.0;
+	curFrontHeight = 0.01;
+	curBackHeight = 0.01;
+	jackHeight = 0.0;
+
+	bReverseDirection=false;
 	
 	keyAccelerate = false;
 	keyBrake= false;
@@ -198,7 +207,6 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 	keyRight= false;
 	keyCenter = false;
 
-	LVName[0] = 0;
 	hMLP = NULL;
 	hMLPAttach = NULL;
 	//hLV = NULL;
@@ -347,7 +355,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[0] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
-	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP-2], 1, _V(0, 0.948, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 
 	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -357,7 +365,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[1] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
-	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 
 	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -367,7 +375,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[2] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
-	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP-2], 1,_V(0, 1.004, 0), _V(1, 2.187, 1));
+	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP-2], 1,_V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 
 	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -377,7 +385,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[3] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
-	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 2.187, 1));
+	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 
 	// Panel position test
@@ -385,7 +393,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	// panelMeshidx = meshidxTruck3;
 
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
-	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), _V(0, 0, 1), "XMLP");
+	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
 
 	//VSEnableCollisions(GetHandle(),"ProjectApollo");
 	//double tph = -0.01;
@@ -601,25 +609,25 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	while (oapiReadScenario_nextline (scn, line)) {
 		if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf (line + 8, "%lf", &velocity);
-		} /*else if (!_strnicmp (line, "TARGETHEADING", 13)) {
-			sscanf (line + 13, "%lf", &targetHeading);
-		}*/ else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
+		} else if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
+			sscanf (line + 11, "%lf", &jackHeight);
+		} else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
 			sscanf (line + 12, "%lf", &wheeldeflect);
 		} else if (!_strnicmp (line, "VIEWPOS", 7)) {
 			sscanf (line + 7, "%i", &viewPos);
 		} else if (!_strnicmp (line, "STANDALONE", 10)) {
 			sscanf (line + 10, "%i", &standalone);
 		} else if (!_strnicmp (line, "HEIGHT", 6)) {
-			sscanf (line+6, "%lf", &curHeight);
-			SetTouchdownPoints(_V(0, curHeight,  10), _V(-10, curHeight, -10), _V(10, curHeight, -10));
+			sscanf (line+6, "%lf%lf", &curFrontHeight, &curBackHeight);
+			SetTouchdownPoints(_V(0, curFrontHeight,  10), _V(-10, curFrontHeight, -10), _V(10, curFrontHeight, -10));
 		} else if (!_strnicmp (line, "ANGLE", 5)) {
-			sscanf (line+5, "%lf", &curAngle);
-			curAngle*=RAD; // angle is saved as degrees, so convert back to radians
+			sscanf (line+5, "%lf%lf", &curFrontAngle, &curBackAngle);
 		} else if (!_strnicmp (line, "GROUND_POS", 10)) {
 			sscanf (line + 10, "%lf%lf%lf", &lastLat, &lastLong, &lastHead);
 			lastLatLongSet=true;
-		} else if (!_strnicmp (line, "LVNAME", 6)) {
-			strncpy (LVName, line + 7, 64);
+		} else if (!_strnicmp (line, "REVERSE_ATTACH", 14)) {
+			bReverseDirection=true;
+			SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
 		} else {
 			ParseScenarioLineEx (line, status);
 		}
@@ -633,49 +641,64 @@ void Crawler::clbkSaveState(FILEHANDLE scn) {
 	char cbuf[255];
 
 	oapiWriteScenario_float(scn, "VELOCITY", velocity);
-	//oapiWriteScenario_float(scn, "TARGETHEADING", targetHeading);
 	oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);	
-	oapiWriteScenario_float(scn, "HEIGHT", curHeight);
-	oapiWriteScenario_float(scn, "ANGLE", DEG*curAngle);
+	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
+	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
+	oapiWriteScenario_string(scn, "HEIGHT", cbuf);
+	sprintf_s(cbuf, 255, "%f %f", curFrontAngle, curBackAngle);
+	oapiWriteScenario_string(scn, "ANGLE", cbuf);
 	oapiWriteScenario_int(scn, "VIEWPOS", viewPos);
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
-	if (LVName[0])
-		oapiWriteScenario_string(scn, "LVNAME", LVName);
 	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
+	if(bReverseDirection) oapiWriteLine(scn, "  REVERSE_ATTACH");
 }
 
 int Crawler::clbkConsumeDirectKey(char *kstate) {
 
 	if (!firstTimestepDone) return 0;
 
-	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate)) {
+	if (KEYMOD_SHIFT(kstate) /*|| KEYMOD_CONTROL(kstate)*/) {
 		return 0; 
 	}
 
-	if (KEYDOWN(kstate, OAPI_KEY_ADD)) {
-		keyAccelerate = true;				
-		RESETKEY(kstate, OAPI_KEY_ADD);
+	if(KEYMOD_CONTROL(kstate)) {
+		if (KEYDOWN(kstate, OAPI_KEY_J)) { // raise platform
+			jackHeight=min(jackHeight+0.01*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
+			UpdateTouchdownPoints();
+			RESETKEY(kstate, OAPI_KEY_J);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_K)) { // lower platform
+			jackHeight=max(jackHeight-0.01*oapiGetTimeAcceleration(), 0.0);
+			UpdateTouchdownPoints();
+			RESETKEY(kstate, OAPI_KEY_K);
+		}
 	}
-	if (KEYDOWN(kstate, OAPI_KEY_SUBTRACT)) {
-		keyBrake = true;				
-		RESETKEY(kstate, OAPI_KEY_SUBTRACT);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD1)) {
-		keyLeft = true;				
-		RESETKEY(kstate, OAPI_KEY_NUMPAD1);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD2)) {
-		keyCenter = true;				
-		RESETKEY(kstate, OAPI_KEY_NUMPAD2);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD3)) {
-		keyRight = true;				
-		RESETKEY(kstate, OAPI_KEY_NUMPAD3);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD5)) {
-		keyCenter = true;				
-		RESETKEY(kstate, OAPI_KEY_NUMPAD5);
+	else {
+		if (KEYDOWN(kstate, OAPI_KEY_ADD)) {
+			keyAccelerate = true;				
+			RESETKEY(kstate, OAPI_KEY_ADD);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_SUBTRACT)) {
+			keyBrake = true;				
+			RESETKEY(kstate, OAPI_KEY_SUBTRACT);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_NUMPAD1)) {
+			keyLeft = true;				
+			RESETKEY(kstate, OAPI_KEY_NUMPAD1);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_NUMPAD2)) {
+			keyCenter = true;				
+			RESETKEY(kstate, OAPI_KEY_NUMPAD2);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_NUMPAD3)) {
+			keyRight = true;				
+			RESETKEY(kstate, OAPI_KEY_NUMPAD3);
+		}
+		if (KEYDOWN(kstate, OAPI_KEY_NUMPAD5)) {
+			keyCenter = true;				
+			RESETKEY(kstate, OAPI_KEY_NUMPAD5);
+		}
 	}
 
 	// touchdown point test
@@ -893,8 +916,36 @@ void Crawler::Attach() {
 
 			pVessel->GetAttachmentParams(ahAttach, pos, dir, rot);
 			pVessel->Local2Global(pos, gpos);
-			if(dist(gpos, gattach) < 2.0 || true) {
+			
+			if(dist(gpos, gattach) < 5.0) {
 				oapiWriteLog("Attaching MLP");
+				// if MLP is attached to something else, detach it
+				if(pVessel->GetAttachmentStatus(ahAttach)) {
+					VESSEL* pParent = oapiGetVesselInterface(pVessel->GetAttachmentStatus(ahAttach));
+					for(DWORD j=0;j<pParent->AttachmentCount(false);i++) {
+						ATTACHMENTHANDLE ahParent = pParent->GetAttachmentHandle(false, j);
+						if(pParent->GetAttachmentStatus(ahParent)==hV) {
+							pParent->DetachChild(ahParent);
+							break;
+						}
+					}
+				}
+
+				// make sure Crawler attach point has correct rot vector
+				double CrawlerHeading, MLPHeading;
+				oapiGetHeading(GetHandle(), &CrawlerHeading);
+				oapiGetHeading(GetHandle(), &MLPHeading);
+				VECTOR3 CrawlerRot=RotateVectorY(MLP_ATTACH_ROT, CrawlerHeading*DEG);
+				VECTOR3 MLPRot=RotateVectorY(rot, MLPHeading*DEG);
+				if(!bReverseDirection && dotp(MLPRot, CrawlerRot)>=0.0) {
+					bReverseDirection=true;
+					SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
+				}
+				else if(bReverseDirection && dotp(MLPRot, CrawlerRot)<0.0) {
+					bReverseDirection=false;
+					SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT);
+				}
+
 				AttachChild(hV, ahMLP, ahAttach);
 				hMLP = hV;
 				hMLPAttach = ahAttach;
@@ -952,16 +1003,19 @@ void Crawler::Detach() {
 				ATTACHMENTHANDLE aH = pV->GetAttachmentHandle(false, j);
 				if(!_strnicmp("XMLP", pV->GetAttachmentId(aH), 4) && !pV->GetAttachmentStatus(aH)) {
 					VECTOR3 attach_pos, attach_dir, attach_rot;
+					VECTOR3 pt1, pt2, pt3;
 					double heading;
 					pV->GetAttachmentParams(aH, attach_pos, attach_dir, attach_rot);
+					pV->GetTouchdownPoints(pt1, pt2, pt3);
 					oapiGetHeading(hV, &heading);
 
-					attach_pos = rpos+RotateVectorY(attach_pos, heading);
-					attach_pos.y = 0.0; // everything is landed; ignore vert distance for the moment
-					sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z);
+					attach_pos = rpos+RotateVectorY(attach_pos, heading*DEG)-MLP_ATTACH_POS;
+					attach_pos.y-=(jackHeight+curFrontHeight+pt1.y); //we can use any TD point; y coordinate should be the same
+					sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f rpos: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z,
+						rpos.x, rpos.y, rpos.z);
 					oapiWriteLog(oapiDebugString());
 
-					if(length(attach_pos) < 2.5) { // attach MLP to VAB/LC39
+					if(length(_V(attach_pos.x, 0.0, attach_pos.z)) < 4.0 && abs(attach_pos.y) < 0.5) { // attach MLP to VAB/LC39
 						DetachChild(ahMLP);
 						bool success = pV->AttachChild(hMLP, aH, hMLPAttach);
 						hMLP = NULL;
@@ -1069,19 +1123,19 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	double front_dist, back_dist;
 	double dist=length(relPos);
 	double dCos = cos(lastHead);
-	unsigned short usAftIndex; // indicates which tracks are at 'aft' of crawler
+	//unsigned short usAftIndex; // indicates which tracks are at 'aft' of crawler
 	
 	front_dist = dist-20.0*abs(dCos);
 	back_dist = dist+20.0*abs(dCos);
-	if(dCos >= 0.0) {
+	/*if(dCos >= 0.0) {
 		usAftIndex = 2;
 	}
 	else {
 		usAftIndex = 0;
-	}
+	}*/
 
 	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
-	if(front_dist < 395.0 && abs(relPos.y)<10.0)
+	if(front_dist < 395.0 && abs(relPos.x)<10.0)
 	{
 		double front_dist2 = dist-(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 		double back_dist2 = dist+(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
@@ -1096,7 +1150,7 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		//double rot_anim_pos = curAngle/(20*RAD); // animation has range of +/10 degress; divide by 20 to get result in correct range
 		double fwd_rot_anim_pos = fwdAngle/(20*RAD);
 		double back_rot_anim_pos = backAngle/(20*RAD);
-		if(usAftIndex==0) {
+		if(dCos<0.0) {
 			fwd_rot_anim_pos = -fwd_rot_anim_pos;
 			back_rot_anim_pos = -back_rot_anim_pos;
 		}
@@ -1105,17 +1159,22 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		
-		curHeight=front_height;
-		curAngle=atan((front_height-back_height)/40.0);
+		//curHeight=front_height;
+		//curAngle=atan((front_height-back_height)/40.0);
+		curFrontHeight=front_height;
+		curBackHeight=back_height2;
+		curFrontAngle=fwdAngle;
+		curBackAngle=backAngle;
 
-		SetTouchdownPoints(_V(0, front_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
+		UpdateTouchdownPoints();
+		/*SetTouchdownPoints(_V(0, front_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
 
 		for(int i=0;i<2;i++) {
 			SetAnimation(anim_truck_rot[i+2-usAftIndex], 0.5+fwd_rot_anim_pos);
 			SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
 		}
 		SetAnimation(anim_truck_trans[usAftIndex], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);
-		SetAnimation(anim_truck_trans[usAftIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);
+		SetAnimation(anim_truck_trans[usAftIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);*/
 
 		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
 		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
@@ -1123,14 +1182,41 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		return true;
 	}
 	else {
-		SetTouchdownPoints(_V(0, 0.01, 20.0), _V(-10, 0.01, -20.0), _V(10, 0.01, -20.0));
-		for(int i=0;i<4;i++) {
-			SetAnimation(anim_truck_rot[i], 0.5);
-			SetAnimation(anim_truck_trans[i], 0.0);
-		}
-		curHeight=0.01;
+		curFrontHeight=curBackHeight=0.01;
+		curFrontAngle=curBackAngle=0.0;
+		UpdateTouchdownPoints();
 	}
 	return false;
+}
+
+void Crawler::UpdateTouchdownPoints() const
+{
+	double dCos = cos(lastHead);
+	unsigned short usAftIndex, usFwdIndex; // indicates which tracks are at 'aft' of crawler
+	if(dCos >= 0.0) {
+		usAftIndex = 2;
+		usFwdIndex = 0;
+	}
+	else {
+		usAftIndex = 0;
+		usFwdIndex = 2;
+	}
+
+	double fwd_rot_anim_pos = curFrontAngle/(20*RAD);
+	double back_rot_anim_pos = curBackAngle/(20*RAD);
+	if(dCos<0.0) {
+		fwd_rot_anim_pos = -fwd_rot_anim_pos;
+		back_rot_anim_pos = -back_rot_anim_pos;
+	}
+
+	SetTouchdownPoints(_V(0, jackHeight+curFrontHeight, 20.0), _V(-10, jackHeight+curFrontHeight, -20.0), _V(10, jackHeight+curFrontHeight, -20.0));
+	for(int i=0;i<2;i++) {
+		SetAnimation(anim_truck_rot[i+usFwdIndex], 0.5+fwd_rot_anim_pos);
+		SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
+
+		SetAnimation(anim_truck_trans[usAftIndex+i], min(JACKING_MAX_HEIGHT, jackHeight+curFrontHeight-curBackHeight)/JACKING_MAX_HEIGHT);
+		SetAnimation(anim_truck_trans[usFwdIndex+i], min(JACKING_MAX_HEIGHT, jackHeight)/JACKING_MAX_HEIGHT);
+	}
 }
 
 ANIMATIONCOMPONENT_HANDLE Crawler::AddManagedAnimationComponent(UINT anim, double state0, double state1,
@@ -1144,5 +1230,5 @@ VECTOR3 Crawler::CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) cons
 {
 	double padLat, padLong, padRad;
 	oapiGetEquPos(hVessel, &padLong, &padLat, &padRad);
-	return _V(padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth), padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0);
+	return _V(padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0, padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth));
 }
