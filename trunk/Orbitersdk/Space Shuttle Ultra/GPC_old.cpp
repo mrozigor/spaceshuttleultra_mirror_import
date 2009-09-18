@@ -570,35 +570,67 @@ void Atlantis::AerojetDAP(double SimdT)
 {
 	//for the moment, use RHC input to control thruster firings
 	if(PitchActive) {
-		if(RHCInput.data[PITCH]>0.01) SetThrusterGroupLevel(thg_pitchup, 1.0);
+		if(RHCInput.data[PITCH]>0.01) {
+			SetThrusterGroupLevel(thg_pitchup, 1.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
+		}
+		else if(RHCInput.data[PITCH]<-0.01) {
+			SetThrusterGroupLevel(thg_pitchdown, 1.0);
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+		}
 		else {
 			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			if(RHCInput.data[PITCH]<-0.01) SetThrusterGroupLevel(thg_pitchdown, 1.0);
-			else SetThrusterGroupLevel(thg_pitchdown, 0.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
 	}
+	else {
+		SetThrusterGroupLevel(thg_pitchup, 0.0);
+		SetThrusterGroupLevel(thg_pitchdown, 0.0);
+	}
+
 	if(YawActive) {
-		if(RHCInput.data[YAW]>0.01) SetThrusterGroupLevel(thg_yawright, 1.0);
+		if(RHCInput.data[YAW]>0.01) {
+			SetThrusterGroupLevel(thg_yawright, 1.0);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
+		}
+		else if(RHCInput.data[YAW]<-0.01) {
+			SetThrusterGroupLevel(thg_yawleft, 1.0);
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+		}
 		else {
 			SetThrusterGroupLevel(thg_yawright, 0.0);
-			if(RHCInput.data[YAW]<-0.01) SetThrusterGroupLevel(thg_yawleft, 1.0);
-			else SetThrusterGroupLevel(thg_yawleft, 0.0);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 	}
+	else {
+		SetThrusterGroupLevel(thg_yawright, 0.0);
+		SetThrusterGroupLevel(thg_yawleft, 0.0);
+	}
+
 	if(RollActive) {
-		if(RHCInput.data[ROLL]>0.01) SetThrusterGroupLevel(thg_rollright, 1.0);
+		if(RHCInput.data[ROLL]>0.01) {
+			SetThrusterGroupLevel(thg_rollright, 1.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
+		}
+		else if(RHCInput.data[ROLL]<-0.01) {
+			SetThrusterGroupLevel(thg_rollleft, 1.0);
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+		}
 		else {
 			SetThrusterGroupLevel(thg_rollright, 0.0);
-			if(RHCInput.data[ROLL]<-0.01) SetThrusterGroupLevel(thg_rollleft, 1.0);
-			else SetThrusterGroupLevel(thg_rollleft, 0.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_rollright, 0.0);
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
 	}
 }
 
 void Atlantis::Maneuver(double dt)
 {
 	VECTOR3 ThrustVector;
-	//sprintf(oapiDebugString(), "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
+	sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 	if(BurnInProg)
 	{
 		if(met>=(IgnitionTime+BurnTime)) {
