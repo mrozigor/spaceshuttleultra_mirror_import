@@ -87,11 +87,12 @@ const double DRIVETRACK_Z_OFFSET = 13.439;
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 2.534);
 const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 
-const double JACKING_MAX_HEIGHT = 2.0;
+const double JACKING_MAX_HEIGHT = 4.0;
 // max distance the crawler platform can be jacked up from the drivetrucks
 
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 5.869, 0.0);
 //const VECTOR3 MLP_ATTACH_POS = _V(0.0, 10.869, 0.0);
+const VECTOR3 MLP_ATTACH_ROT = _V(0, 0, 1);
 
 const int ENGINE_SOUND_ID = 1;
 
@@ -139,9 +140,13 @@ private:
 	VECTOR3 CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) const;
 	/**
 	 * Sets touchdown points based on position relative to launchpad.
-	 * @returns true if touchdown points were changed
+	 * @returns true if crawler is on pad ramp/surface
 	 */
 	bool UpdateTouchdownPoints(const VECTOR3 &relPos);
+	/**
+	 * Sets touchdown points based on current hieght/angle values
+	 */
+	void UpdateTouchdownPoints() const;
 	/**
 	 * Wrapper for AddAnimationComponent function
 	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by destructor
@@ -161,8 +166,13 @@ private:
 	// Mission Time for passing to PAMFD:
 	double MissionTime;
 
-	double curHeight; // height above ground (m)
-	double curAngle; // angle rel. to horizontal (rad)
+	//double curHeight; // height above ground (m)
+	//double curAngle; // angle rel. to horizontal (rad)
+	double curFrontHeight, curBackHeight; // height above ground (m)
+	double curFrontAngle, curBackAngle; // angle rel. to horizontal (rad)
+	double jackHeight; // height to which platform has been jacked
+
+	bool bReverseDirection; // true if attachment point direction needs to be reversed
 
 	bool lastLatLongSet;
 	double lastLat;
@@ -204,8 +214,6 @@ private:
 	//SoundLib soundlib;
 	//Sound soundEngine;
 	int SoundID;
-
-	char LVName[256];
 
 	OBJHANDLE hEarth;
 	std::vector<OBJHANDLE> vhLC39;
