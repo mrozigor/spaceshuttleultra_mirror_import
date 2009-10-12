@@ -207,7 +207,7 @@ private:
 	//int meshidxPanelReverse;
 	UINT anim_truck_trans[4];
 	UINT anim_truck_rot[4];
-	UINT DrivetruckGrpList[NGRP]; // array used to define drivetruck animations
+	UINT DrivetruckGrpList[NGRP_TRUCK]; // array used to define drivetruck animations
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
