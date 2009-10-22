@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  APU simulation definition
+  Water Spray Boiler simulation definition
 
 
 
@@ -22,32 +22,34 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef __APU_H
-#define __APU_H
+#ifndef __WSB_H_BDF34C5B_092D_4dfd_B7B8_184C46C919E9
+#define __WSB_H_BDF34C5B_092D_4dfd_B7B8_184C46C919E9
 #pragma once
 
 #include "AtlantisSubsystem.h"
 #include "discsignals/DiscInPort.h"
 #include "discsignals/DiscOutPort.h"
 
-using class ::discsignals::DiscInPort;
-
-class APU: public AtlantisSubsystem
+/**
+ * Simulates Water Spray Boiler used to cool APUs and hyd fluid
+ * At the moment, all it does is check WSB ready for APU talkbacks
+ * TODO: accurately calculate boiloff rate
+ * TODO: propulsive force when venting steam
+ */
+class WSB : public AtlantisSubsystem
 {
+	unsigned short usID; // from 1 to 3
+
+	double waterMass[2];
+
+	// indicates controller selected and if controller is powered
+	DiscInPort ControllerPwr, ControllerA, ControllerB;
+	DiscInPort BoilerN2Supply;
+	DiscOutPort Ready;
 public:
-	APU(SubsystemDirector* _director, const string& _ident, int _ID);
-	~APU();
+	WSB(SubsystemDirector* _director, const string& _ident, unsigned short _ID);
+	virtual ~WSB();
 
-	//functions for CRT MFD APU/HYD display
-	virtual double GetHydraulicPressure() const;
-	virtual double GetFuelLevel() const;
-	virtual double GetFuelPressure() const;
-	virtual double GetAPUSpeed() const;
-	bool IsRunning() const;
-	virtual bool SingleParamParseLine() const {return true;};
-
-	//void CreateTanks();
-	void DefineTank(PROPELLANT_HANDLE _phTank);
 	virtual void Realize();
 
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
@@ -55,27 +57,7 @@ public:
 	virtual void OnPropagate(double SimT, double DeltaT, double MJD);
 
 	virtual void OnSaveState(FILEHANDLE scn) const;
-	virtual bool OnParseLine(const char* line);
-
-	typedef enum {OFF, START, ON, SHUTDOWN} APU_STATE;
-private:
-	bool ReadyToStart() const;
-
-	int ID;
-
-	double FuelLevel[2];
-	double HydraulicPressure[2];
-	double FuelPress[2];
-	double APUSpeed[2];
-
-	APU_STATE State;
-	PROPELLANT_HANDLE phTank;
-
-	DiscInPort APU_Run, APU_HydPumpPress;
-	DiscInPort APU_CntlrPwr, APU_FuelTankValves;
-	DiscInPort WSB_Ready;
-	DiscOutPort APU_HydraulicPress;
-	DiscOutPort APU_ReadyToStart;
+	virtual bool OnParseLine(const char* keyword, const char* line);
 };
 
-#endif //__APU_H
+#endif //__WSB_H_BDF34C5B_092D_4dfd_B7B8_184C46C919E9

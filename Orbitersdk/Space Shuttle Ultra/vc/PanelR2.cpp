@@ -148,64 +148,76 @@ namespace vc
 
 		/**** APU 1 ****/
 		pAPUControl[0]->SetMouseRegion(0.347421f, 0.382021f, 0.412748f, 0.424506f);
-		pAPUControl[0]->SetReference(_V(1.1416, 1.8473, 14.307), switch_rot, switch_pull);
+		pAPUControl[0]->SetReference(_V(1.1416, 1.8473, 14.307), switch_rot);
+		pAPUControl[0]->SetPullDirection(switch_pull);
 		pAPUControl[0]->DefineSwitchGroup(GRP_R2b15_VC);
 		pAPUControl[0]->SetInitialAnimState(0.5f);
 
 		pHydPumpPress[0]->SetMouseRegion(0.364955f, 0.534468f, 0.454298f, 0.568684f);
-		pHydPumpPress[0]->SetReference(_V(1.1496, 1.8333, 14.184), switch_rot, switch_pull);
+		pHydPumpPress[0]->SetReference(_V(1.1496, 1.8333, 14.184), switch_rot);
+		pHydPumpPress[0]->SetPullDirection(switch_pull);
 		pHydPumpPress[0]->DefineSwitchGroup(GRP_R2b27_VC);
 		pHydPumpPress[0]->SetInitialAnimState(0.5f);
 
 		pAPUCntlrPwr[0]->SetMouseRegion(0.495306f, 0.606395f, 0.553809f, 0.649438f);
-		pAPUCntlrPwr[0]->SetReference(_V(1.2106, 1.8433, 14.122), switch_rot, switch_pull);
+		pAPUCntlrPwr[0]->SetReference(_V(1.2106, 1.8433, 14.122), switch_rot);
+		pAPUCntlrPwr[0]->SetPullDirection(switch_pull);
 		pAPUCntlrPwr[0]->DefineSwitchGroup(GRP_R2b34_VC);
 		pAPUCntlrPwr[0]->SetInitialAnimState(0.5f);
 
 		pAPUFuelTkVlv[0]->SetMouseRegion(0.496828f, 0.675809f, 0.575494f, 0.714835f);
-		pAPUFuelTkVlv[0]->SetReference(_V(1.2136, 1.8363, 14.064), switch_rot, switch_pull);
+		pAPUFuelTkVlv[0]->SetReference(_V(1.2136, 1.8363, 14.064), switch_rot);
+		pAPUFuelTkVlv[0]->SetPullDirection(switch_pull);
 		pAPUFuelTkVlv[0]->DefineSwitchGroup(GRP_R2b37_VC);
 		pAPUFuelTkVlv[0]->SetInitialAnimState(0.5f);
 
 		/**** APU 2 ****/
 		pAPUControl[1]->SetMouseRegion(0.412748f, 0.382021f, 0.472092f, 0.424506f);
-		pAPUControl[1]->SetReference(_V(1.1706, 1.8563, 14.306), switch_rot, switch_pull);
+		pAPUControl[1]->SetReference(_V(1.1706, 1.8563, 14.306), switch_rot);
+		pAPUControl[1]->SetPullDirection(switch_pull);
 		pAPUControl[1]->DefineSwitchGroup(GRP_R2b16_VC);
 		pAPUControl[1]->SetInitialAnimState(0.5f);
 
 		pHydPumpPress[1]->SetMouseRegion(0.454298f, 0.534468f, 0.549506f, 0.568684f);
-		pHydPumpPress[1]->SetReference(_V(1.1986, 1.8473, 14.182), switch_rot, switch_pull);
+		pHydPumpPress[1]->SetReference(_V(1.1986, 1.8473, 14.182), switch_rot);
+		pHydPumpPress[1]->SetPullDirection(switch_pull);
 		pHydPumpPress[1]->DefineSwitchGroup(GRP_R2b28_VC);
 		pHydPumpPress[1]->SetInitialAnimState(0.5f);
 
 		pAPUCntlrPwr[1]->SetMouseRegion(0.553809f, 0.606395f, 0.617025f, 0.649438f);
-		pAPUCntlrPwr[1]->SetReference(_V(1.2416, 1.8523, 14.121), switch_rot, switch_pull);
+		pAPUCntlrPwr[1]->SetReference(_V(1.2416, 1.8523, 14.121), switch_rot);
+		pAPUCntlrPwr[1]->SetPullDirection(switch_pull);
 		pAPUCntlrPwr[1]->DefineSwitchGroup(GRP_R2b35_VC);
 		pAPUCntlrPwr[1]->SetInitialAnimState(0.5f);
 
 		pAPUFuelTkVlv[1]->SetMouseRegion(0.575494f, 0.675809f, 0.649903f, 0.714835f);
-		pAPUFuelTkVlv[1]->SetReference(_V(1.2536, 1.8483, 14.062), switch_rot, switch_pull);
+		pAPUFuelTkVlv[1]->SetReference(_V(1.2536, 1.8483, 14.062), switch_rot);
+		pAPUFuelTkVlv[1]->SetPullDirection(switch_pull);
 		pAPUFuelTkVlv[1]->DefineSwitchGroup(GRP_R2b38_VC);
 		pAPUFuelTkVlv[1]->SetInitialAnimState(0.5f);
 
 		/**** APU 3 ****/
 		pAPUControl[2]->SetMouseRegion(0.472092f, 0.382021f, 0.535220f, 0.424506f);
-		pAPUControl[2]->SetReference(_V(1.2006, 1.8643, 14.305), switch_rot, switch_pull);
+		pAPUControl[2]->SetReference(_V(1.2006, 1.8643, 14.305), switch_rot);
+		pAPUControl[2]->SetPullDirection(switch_pull);
 		pAPUControl[2]->DefineSwitchGroup(GRP_R2b17_VC);
 		pAPUControl[2]->SetInitialAnimState(0.5f);
 
 		pHydPumpPress[2]->SetMouseRegion(0.549506f, 0.534468f, 0.625087f, 0.568684f);
-		pHydPumpPress[2]->SetReference(_V(1.2446, 1.8613, 14.181), switch_rot, switch_pull);
+		pHydPumpPress[2]->SetReference(_V(1.2446, 1.8613, 14.181), switch_rot);
+		pHydPumpPress[2]->SetPullDirection(switch_pull);
 		pHydPumpPress[2]->DefineSwitchGroup(GRP_R2b29_VC);
 		pHydPumpPress[2]->SetInitialAnimState(0.5f);
 
 		pAPUCntlrPwr[2]->SetMouseRegion(0.617025f, 0.606395f, 0.682484f, 0.649438f);
-		pAPUCntlrPwr[2]->SetReference(_V(1.2726, 1.8613, 14.12), switch_rot, switch_pull);
+		pAPUCntlrPwr[2]->SetReference(_V(1.2726, 1.8613, 14.12), switch_rot);
+		pAPUCntlrPwr[2]->SetPullDirection(switch_pull);
 		pAPUCntlrPwr[2]->DefineSwitchGroup(GRP_R2b36_VC);
 		pAPUCntlrPwr[2]->SetInitialAnimState(0.5f);
 
 		pAPUFuelTkVlv[2]->SetMouseRegion(0.649903f, 0.675809f, 0.726327f, 0.714835f);
-		pAPUFuelTkVlv[2]->SetReference(_V(1.2946, 1.8603, 14.061), switch_rot, switch_pull);
+		pAPUFuelTkVlv[2]->SetReference(_V(1.2946, 1.8603, 14.061), switch_rot);
+		pAPUFuelTkVlv[2]->SetPullDirection(switch_pull);
 		pAPUFuelTkVlv[2]->DefineSwitchGroup(GRP_R2b39_VC);
 		pAPUFuelTkVlv[2]->SetInitialAnimState(0.5f);
 
@@ -382,7 +394,7 @@ namespace vc
 		for(int i=0;i<3;i++) {
 			sprintf_s(cbuf, 255, "R2_To_APU%d", i+1);
 			DiscreteBundle *pBundle=STS()->BundleManager()->CreateBundle(cbuf, 16);
-
+			
 			/*APU_Run[i].Connect(pBundle, 0);
 			APU_CntlrPwr[i].Connect(pBundle, 1);
 			APU_FuelTankValves[i].Connect(pBundle, 2);
@@ -396,6 +408,12 @@ namespace vc
 			pHydPumpPress[i]->ConnectPort(1, pBundle, 3);
 			APU_HydraulicPress[i].Connect(pBundle, 4);
 			pAPUReadyToStart[i]->SetInput(0, pBundle, 5, TB_GRAY);
+
+			sprintf_s(cbuf, 255, "WSB%d", i+1);
+			pBundle=STS()->BundleManager()->CreateBundle(cbuf, 16);
+			pBlrCntlrPwrHtr[i]->outputA.Connect(pBundle, 1);
+			pBlrCntlrPwrHtr[i]->outputB.Connect(pBundle, 2);
+			pBlrN2Supply[i]->output.Connect(pBundle, 3);
 		}
 
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("ETUmbDoors", 16);

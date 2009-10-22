@@ -64,7 +64,7 @@ namespace vc {
 		/**
 		 * @param _pullDir Normalized vector in direction along which lever can be pulled
 		 */
-		void SetReference(const VECTOR3& _ref, const VECTOR3& _dir, const VECTOR3& _pullDir);
+		//void SetReference(const VECTOR3& _ref, const VECTOR3& _dir, const VECTOR3& _pullDir);
 		void SetPullDirection(VECTOR3 _pullDir);
 
 		virtual void Realize();

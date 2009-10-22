@@ -3,7 +3,7 @@
 #include <OrbiterSoundSDK35.h>
 
 APU::APU(SubsystemDirector *_director, const std::string &_ident, int _ID)
-	: AtlantisSubsystem(_director, _ident), ID(_ID)
+	: AtlantisSubsystem(_director, _ident), ID(_ID), phTank(NULL)
 {
 	State=OFF;
 	FuelLevel[0]=FuelLevel[1]=0.0;
@@ -16,9 +16,14 @@ APU::~APU()
 {
 }
 
-void APU::CreateTanks()
+/*void APU::CreateTanks()
 {
 	phTank=STS()->CreatePropellantResource(APU_FUEL_TANK_MASS);
+}*/
+
+void APU::DefineTank(PROPELLANT_HANDLE _phTank)
+{
+	if(!phTank) phTank=_phTank;
 }
 
 double APU::GetHydraulicPressure() const
@@ -58,6 +63,11 @@ void APU::Realize()
 	APU_HydraulicPress.Connect(pBundle, 4);
 	APU_ReadyToStart.Connect(pBundle, 5);
 
+	char cbuf[255];
+	sprintf_s(cbuf, 255, "WSB%d", ID);
+	pBundle=BundleManager()->CreateBundle(cbuf, 16);
+	WSB_Ready.Connect(pBundle, 0);
+
 	FuelLevel[0]=FuelLevel[1]=STS()->GetPropellantMass(phTank);
 }
 
@@ -87,6 +97,7 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 					if(STS()->GetSoundID()!=-1) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
 				}
 			}
+			else APU_ReadyToStart.ResetLine();
 
 			break;
 		case START:
@@ -210,7 +221,7 @@ bool APU::OnParseLine(const char *line)
 	return false;
 }
 
-bool APU::ReadyToStart()
+bool APU::ReadyToStart() const
 {
-	return (FuelLevel[0]>0.0 && APU_CntlrPwr && APU_FuelTankValves && !APU_HydPumpPress);
+	return (FuelLevel[0]>0.0 && APU_CntlrPwr && APU_FuelTankValves && !APU_HydPumpPress && WSB_Ready);
 }

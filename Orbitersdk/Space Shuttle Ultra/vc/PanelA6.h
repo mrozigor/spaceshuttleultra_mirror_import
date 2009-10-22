@@ -46,7 +46,7 @@ namespace vc
 		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
 		//void UpdatePBIs();
 
-		LockableLever* pFltCntlrPower;
+		LockableLever2* pFltCntlrPower;
 		StdSwitch2* pSense;
 
 		//DAP PBIs
