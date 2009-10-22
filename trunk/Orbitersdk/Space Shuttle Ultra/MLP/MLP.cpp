@@ -503,12 +503,12 @@ void MLP::DefineAnimations()
 	T0UmbilicalState.Set(AnimState::CLOSED, 0.0);
 	anim_t0umb=CreateAnimation(1.0);
 
-	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilical};
+	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
 	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
 		_V(-5.45, -0.647, -14.216), _V(0, 0, 1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &LeftT0Umb);
 
-	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilical};
+	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
 	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
 		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
