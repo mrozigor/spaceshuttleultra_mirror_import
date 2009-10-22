@@ -49,5 +49,7 @@ namespace vc {
 		virtual void DefineVC();
 		virtual void RegisterVC();
 		
+		virtual void Realize();
+		
 	};
 };

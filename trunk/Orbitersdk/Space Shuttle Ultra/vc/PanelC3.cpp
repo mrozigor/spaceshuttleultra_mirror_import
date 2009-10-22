@@ -151,13 +151,15 @@ namespace vc
 		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
 
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
-		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot, pull_dir);
+		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot);
+		pOMSArm[LEFT]->SetPullDirection(pull_dir);
 		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3b1_VC);
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
 		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
-		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot, pull_dir);
+		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot);
+		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
 		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3b2_VC);
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
@@ -173,13 +175,15 @@ namespace vc
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
-		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot, pull_dir);
+		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot);
+		pAirDataProbeDeploy[LEFT]->SetPullDirection(pull_dir);
 		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
-		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot, pull_dir);
+		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
+		pAirDataProbeDeploy[RIGHT]->SetPullDirection(pull_dir);
 		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);

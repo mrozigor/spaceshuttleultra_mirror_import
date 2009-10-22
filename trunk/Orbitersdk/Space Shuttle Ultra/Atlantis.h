@@ -1920,6 +1920,8 @@ private:
 	DiscOutPort SpdbkThrotAutoOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
+	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
+
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3];
 	DiscInPort RMSSpeedIn;

@@ -20,6 +20,7 @@ namespace vc
 		char cbuf[255];
 
 		Add(pSense=new StdSwitch2(_sts, "SENSE"));
+		Add(pFltCntlrPower = new LockableLever2(_sts, "Aft Flt Cntlr Pwr"));
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
@@ -29,6 +30,11 @@ namespace vc
 			name+=cbuf;
 			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));
 		}
+
+		pSense->SetLabel(0, "-X");
+		pSense->SetLabel(1, "-Z");
+		pFltCntlrPower->SetLabel(0, "OFF");
+		pFltCntlrPower->SetLabel(1, "ON");
 	}
 
 	PanelA6::~PanelA6()
@@ -37,14 +43,22 @@ namespace vc
 
 	void PanelA6::DefineVC()
 	{
+		VECTOR3 switch_rot =  _V(-1, 0, 0);
+		VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
 		oapiWriteLog("PanelA6: DefineVC called");
 
 		AddAIDToMouseEventList(AID_A6);
 
 		pSense->DefineSwitchGroup(GRP_A6U1_VC);
 		pSense->SetInitialAnimState(0.5);
-		pSense->SetReference(_V(0.728, 2.780, 12.313), _V(-1.00, 0.0, 0.0));
+		pSense->SetReference(_V(0.728, 2.780, 12.313), switch_rot);
 		pSense->SetMouseRegion(0.863499f, 0.262889f, 0.924675f, 0.332972f);
+
+		pFltCntlrPower->DefineSwitchGroup(GRP_A6U2_VC);
+		pFltCntlrPower->SetInitialAnimState(0.5);
+		pFltCntlrPower->SetReference(_V(0.686, 2.781, 12.313), switch_rot);
+		pFltCntlrPower->SetPullDirection(switch_pull);
+		pFltCntlrPower->SetMouseRegion(0.772155f, 0.254109f, 0.836383f, 0.348049f);
 
 		for(int i=0;i<24;i++) {
 			pPBIs[i]->AddAIDToRedrawEventList(AID_A6_PBI1+i);
@@ -87,7 +101,7 @@ namespace vc
 
 		VECTOR3 ofs=STS()->orbiter_ofs;
 
-		oapiVCRegisterArea(AID_A6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
+		oapiVCRegisterArea(AID_A6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A6,
 			_V(0.262, 2.892, 12.277)+ofs, _V(0.789, 2.892, 12.277)+ofs,
 			_V(0.262, 2.511, 12.397)+ofs, _V(0.789, 2.511, 12.397)+ofs);
@@ -146,10 +160,10 @@ namespace vc
 
 	void PanelA6::Realize()
 	{
-		BasicPanel::Realize();
-
-		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("A6", 16);
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("Controllers", 16);
 		pSense->output.Connect(pBundle, 0);
+		//pFltCntlrPower->output.Connect(pBundle, 3);
+		pFltCntlrPower->ConnectPort(1, pBundle, 3);
 
 		pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS1", 16);
 		for(int i=0;i<16;i++) {
@@ -163,6 +177,8 @@ namespace vc
 			pPBIs[i]->output.Connect(pBundle, i-16);
 			pPBIs[i]->test.Connect(pBundle, i-16);
 		}
+		
+		BasicPanel::Realize();
 	}
 
 	/*bool PanelA6::OnVCMouseEvent(int id, int _event, VECTOR3 &p)

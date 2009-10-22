@@ -44,6 +44,7 @@
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
 #include "ETUmbDoorSystem.h"
+#include "WSB.h"
 #include "MCA.h"
 #include "Latch.h"
 #include "RMSSystem.h"
@@ -852,6 +853,10 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
   psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
   psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
+
+  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB1", 1));
+  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB2", 2));
+  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB3", 3));
 
   // latch instances need to be created before scenario is loaded
   // latch positions are set in DefineAttachments() function
@@ -5375,6 +5380,12 @@ void Atlantis::clbkPostCreation ()
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
 	SpdbkThrotAutoOut.Connect(pBundle, 0);
 
+	pBundle=BundleManager()->CreateBundle("Controllers", 16);
+	AftSense.Connect(pBundle, 0);
+	CdrFltCntlrPwr.Connect(pBundle, 1);
+	PltFltCntlrPwr.Connect(pBundle, 2);
+	AftFltCntlrPwr.Connect(pBundle, 3);
+
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
 	RMSRelease.Connect(pBundle, 1);
@@ -5731,7 +5742,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 		}
 		else { // use RHC/THC input to control RCS
-			if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
+			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
+			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
 				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
 				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
@@ -5744,45 +5756,43 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
 				}
 			}
-			else { //aft RHC/THC
-				DiscreteBundle* pBundle=bundleManager->CreateBundle("A6", 16);
-				if(pBundle) {
-					DiscInPort Sense;
-					Sense.Connect(pBundle, 0);
-					if(Sense) { //-Z
-						//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
-						RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-						RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-						RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-						if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-							THCInput.z=-AltKybdInput.x;
-							THCInput.y=-AltKybdInput.y;
-							THCInput.x=-AltKybdInput.z;
-						}
-						else {
-							THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-							THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-							THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-						}
+			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr){ //aft RHC/THC
+				if(AftSense) { //-Z
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
+					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+						THCInput.z=-AltKybdInput.x;
+						THCInput.y=-AltKybdInput.y;
+						THCInput.x=-AltKybdInput.z;
 					}
-					else { //-X
-						//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
-						RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-						RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-						RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-						if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-							THCInput.x=-AltKybdInput.x;
-							THCInput.y=-AltKybdInput.y;
-							THCInput.z=AltKybdInput.z;
-						}
-						else {
-							THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-							THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-							THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-						}
+					else {
+						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
 					}
 				}
-				//else sprintf_s(oapiDebugString(), 255, "ERROR: Could not find bundle");
+				else { //-X
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+						THCInput.x=-AltKybdInput.x;
+						THCInput.y=-AltKybdInput.y;
+						THCInput.z=AltKybdInput.z;
+					}
+					else {
+						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+					}
+				}
+			}
+			else {
+				RHCInput=_V(0, 0, 0);
+				THCInput=_V(0, 0, 0);
 			}
 		}
 		
@@ -8385,7 +8395,9 @@ void Atlantis::CreateOrbiterTanks()
 	if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
 	for(i=0;i<3;i++) {
 	  //if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-		pAPU[i]->CreateTanks();
+		//pAPU[i]->CreateTanks();
+		PROPELLANT_HANDLE phTank = CreatePropellantResource(APU_FUEL_TANK_MASS);
+		pAPU[i]->DefineTank(phTank);
 	}
 	for(i=0;i<2;i++) {
 	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);

@@ -29,11 +29,11 @@ namespace vc {
 		grpIndex=_grpIndex;
 	}
 
-	void LockableLever::SetReference(const VECTOR3& _ref, const VECTOR3& _dir, const VECTOR3& _pullDir)
+	/*void LockableLever::SetReference(const VECTOR3& _ref, const VECTOR3& _dir, const VECTOR3& _pullDir)
 	{
 		BasicSwitch::SetReference(_ref, _dir);
 		SetPullDirection(_pullDir);
-	}
+	}*/
 
 	void LockableLever::SetPullDirection(VECTOR3 _pullDir)
 	{
@@ -125,6 +125,7 @@ namespace vc {
 	{
 		if(bHasAnimations) {
 			SetAnimation(anim_switch, static_cast<double>(usNewPosition)/(usNumPositions - 1));
+			//sprintf_s(oapiDebugString(), 255, "%s: Setting position %f", GetIdentifier().c_str(), static_cast<double>(usNewPosition)/(usNumPositions - 1));
 		}
 	}
 

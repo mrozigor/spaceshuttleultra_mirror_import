@@ -48,6 +48,8 @@ namespace vc {
 		virtual ~PanelF6();
 		virtual void DefineVC();
 		virtual void RegisterVC();
+
+		virtual void Realize();
 		
 	};
 };
