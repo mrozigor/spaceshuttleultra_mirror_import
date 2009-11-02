@@ -5400,6 +5400,10 @@ void Atlantis::clbkPostCreation ()
 	RMSSpeedIn.Connect(pBundle, 12);
 	RMSSpeedOut.Connect(pBundle, 12);
 
+	pBundle = bundleManager->CreateBundle("RMS_SINGLE_JOINT", 16);
+	RMSDrivePlus.Connect(pBundle, 8);
+	RMSDriveMinus.Connect(pBundle, 9);
+
 	pBundle=bundleManager->CreateBundle("SSMEC_R2_SWITCHES", 4);
 	MPSPwr[0][0].Connect(pBundle, 0);
 	MPSPwr[1][0].Connect(pBundle, 1);
@@ -5430,7 +5434,7 @@ void Atlantis::clbkPostCreation ()
 
 void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 {
-	double dThrust;
+	//double dThrust;
 	double steerforce, airspeed;
 	int i;
 
@@ -5721,6 +5725,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			EnableControlSurfaces();
 		}
 		met+=simdt;
+
 		//get THC and RHC input
 		if(ControlRMS) { // use RHC/THC input to control RMS
 			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
@@ -5739,6 +5744,20 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			for(int i=0;i<3;i++) {
 				RHCInput.data[i]=0.0;
 				THCInput.data[i]=0.0;
+			}
+
+			// use RHC pitch commands to drive single joint input
+			if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
+				RMSDrivePlus.SetLine();
+				RMSDriveMinus.ResetLine();
+			}
+			else if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
+				RMSDrivePlus.ResetLine();
+				RMSDriveMinus.SetLine();
+			}
+			else {
+				RMSDrivePlus.ResetLine();
+				RMSDriveMinus.ResetLine();
 			}
 		}
 		else { // use RHC/THC input to control RCS
