@@ -243,7 +243,7 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 				update_vectors=true;
 			}
 		}
-		for(int i=0;i<6;i++) {
+		/*for(int i=0;i<6;i++) {
 			if(joint_motion[i]!=0) {
 				//SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
 				if(!RMSSpeed) SetJointAngle((RMS_JOINT)i, joint_angle[i]+RMS_JOINT_COARSE_ROTATION_SPEEDS[i]*DeltaT*joint_motion[i]);
@@ -251,38 +251,41 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 				update_vectors=true;
 				joint_motion[i]=0;
 			}
-		}
-		// EE rotation
-		VECTOR3 change=_V(0.0, 0.0, 0.0);
-		bool moveEE=false;
-		for(int i=0;i<3;i++) {
-			if(!Eq(RHCInput[i].GetVoltage(), 0.0, 0.05)) {
-				//change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
-				if(!RMSSpeed) change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_ROTATION_SPEED;
-				else change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_ROTATION_SPEED;
-				moveEE=true;
+		}*/
+		else { // not in single joint mode
+			// EE rotation
+			VECTOR3 change=_V(0.0, 0.0, 0.0);
+			bool moveEE=false;
+			for(int i=0;i<3;i++) {
+				if(!Eq(RHCInput[i].GetVoltage(), 0.0, 0.05)) {
+					//change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
+					if(!RMSSpeed) change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_ROTATION_SPEED;
+					else change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_ROTATION_SPEED;
+					moveEE=true;
+				}
 			}
-		}
-		if(moveEE) Rotate(change);
-		// EE translation
-		change=_V(0.0, 0.0, 0.0);
-		moveEE=false;
-		for(int i=0;i<3;i++) {
-			if(!Eq(THCInput[i].GetVoltage(), 0.0, 0.05)) {
-				//change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
-				if(!RMSSpeed) change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
-				else change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
-				moveEE=true;
+			if(moveEE) Rotate(change);
+
+			// EE translation
+			change=_V(0.0, 0.0, 0.0);
+			moveEE=false;
+			for(int i=0;i<3;i++) {
+				if(!Eq(THCInput[i].GetVoltage(), 0.0, 0.05)) {
+					//change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
+					if(!RMSSpeed) change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
+					else change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
+					moveEE=true;
+				}
+				else if(ee_translation[i]!=0) {
+					//change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
+					if(!RMSSpeed) change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
+					else change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
+					ee_translation[i]=0;
+					moveEE=true;
+				}
 			}
-			else if(ee_translation[i]!=0) {
-				//change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
-				if(!RMSSpeed) change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
-				else change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
-				ee_translation[i]=0;
-				moveEE=true;
-			}
+			if(moveEE) Translate(change);
 		}
-		if(moveEE) Translate(change);
 	}
 
 	if(EEAuto || EEMan) {

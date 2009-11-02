@@ -1923,7 +1923,7 @@ private:
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
-	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3];
+	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
 	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
