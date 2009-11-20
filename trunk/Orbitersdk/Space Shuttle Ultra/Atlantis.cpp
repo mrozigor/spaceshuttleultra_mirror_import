@@ -861,9 +861,9 @@ pActiveLatches(3, NULL)
   // latch instances need to be created before scenario is loaded
   // latch positions are set in DefineAttachments() function
   VECTOR3 vPayloadPos=_V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-  psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatch(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-  psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatch(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-  psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatch(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+  psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatchGroup(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+  psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatchGroup(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+  psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatchGroup(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
 
   for(int i=0;i<2;i++) {
 	  SRBGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
@@ -5505,13 +5505,15 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			if(GroundContact()) {
 				airspeed=GetAirspeed();
 				//if(airspeed<395.0 && airspeed>1.0)
-				if(airspeed<95.0 && airspeed>1.0)
+				//if(airspeed<95.0 && airspeed>1.0)
+				if(GetPitch() < -2.0*RAD) // nose gear down
 				{
-					steerforce = (95-airspeed);
+					steerforce = (95.0-airspeed);
 					if(airspeed<6.0) steerforce*=(airspeed/6);
 					steerforce = 275000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
 					AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
 					AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
+					//SetNosewheelSteering(true);
 				}
 			}
 			break;

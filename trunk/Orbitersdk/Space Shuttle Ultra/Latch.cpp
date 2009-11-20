@@ -1,6 +1,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "SSUMath.h"
 
 LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)
 	: AtlantisSubsystem(_director, _ident)
@@ -129,11 +130,12 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 
 				v->GetAttachmentParams (hAtt, pos, dir, rot);
 				v->Local2Global (pos, gpos);
-				//sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
+				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
 				//oapiWriteLog(oapiDebugString());
 				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
 					v->GlobalRot(dir, gdir);
-					if(fabs(PI-acos(dotp(gdir, grmsdir))) < MAX_GRAPPLING_ANGLE) {
+					double dot_product = range(-1, dotp(gdir, grmsdir), 1);
+					if(fabs(PI-acos(dot_product)) < MAX_GRAPPLING_ANGLE) {
 						if(pVessel) *pVessel=v;
 						return hAtt;
 					}
@@ -192,27 +194,70 @@ void LatchSystem::CheckForAttachedObjects()
 }
 
 //////////////////////////////////////////////////////////////
-// ActiveLatch class
+// ActiveLatchGroup class
 //////////////////////////////////////////////////////////////
 
-ActiveLatch::ActiveLatch(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
-	: LatchSystem(_director, _ident, "XS")
+ActiveLatchGroup::ActiveLatchGroup(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
+	: LatchSystem(_director, _ident, "XS"), usLatchNum(5)
 {
 	SetAttachmentParams(_pos, _dir, _rot);
+
+	for(unsigned short i=0;i<5;i++) LatchState[i].Set(AnimState::OPEN, 1.0);
 }
 
-ActiveLatch::~ActiveLatch()
+ActiveLatchGroup::~ActiveLatchGroup()
 {
 }
 
-void ActiveLatch::CreateAttachment()
+void ActiveLatchGroup::Realize()
+{
+	LatchSystem::Realize();
+
+	DiscreteBundle* pBundle = BundleManager()->CreateBundle(GetIdentifier(), 10);
+	for(unsigned short i=0;i<5;i++) {
+		LatchSignal[i].Connect(pBundle, 2*i);
+		ReleaseSignal[i].Connect(pBundle, 2*i+1);
+	}
+}
+
+void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
+{	
+	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
+
+	for(unsigned short i=0;i<usLatchNum;i++) {
+		if(LatchSignal[i] && !LatchState[i].Closed()) {
+			LatchState[i].action=AnimState::CLOSING;
+			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			// if even one latch is closed, we can latch payload
+			if(LatchState[i].Closed()) {
+				Latch();
+				sprintf_s(oapiDebugString(), 255, "%s: latched latch %d", GetIdentifier().c_str(), i);
+			}
+		}
+		else if(ReleaseSignal[i] && !LatchState[i].Open()) {
+			LatchState[i].action=AnimState::OPENING;
+			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			// if all latches are open, release payload
+			if(LatchState[i].Open()) {
+				sprintf_s(oapiDebugString(), 255, "%s: released latch %d", GetIdentifier().c_str(), i);
+				bool rel=true;
+				for(unsigned short j=0;j<usLatchNum;j++) {
+					if(!LatchState[j].Open()) rel=false;
+				}
+				if(rel) Release();
+			}
+		}
+	}
+}
+
+void ActiveLatchGroup::CreateAttachment()
 {
 	if(!hAttach)
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+pos, dir, rot, AttachID.c_str());
 	else STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+pos, dir, rot);
 }
 
-void ActiveLatch::SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
+void ActiveLatchGroup::SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
 {
 	pos=_pos;
 	dir=_dir;
@@ -220,28 +265,36 @@ void ActiveLatch::SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, 
 	if(hAttach) CreateAttachment(); // update attachment
 }
 
-void ActiveLatch::Latch()
+void ActiveLatchGroup::Latch()
 {
-	ATTACHMENTHANDLE hTarget=NULL;
-	VESSEL* pTarget=NULL;
-	hTarget=FindPayload(&pTarget);
-	if(hTarget && pTarget) AttachPayload(pTarget, hTarget);
-	sprintf_s(oapiDebugString(), 55, "%s", AttachID.c_str());
+	if(!IsLatched()) {
+		ATTACHMENTHANDLE hTarget=NULL;
+		VESSEL* pTarget=NULL;
+		hTarget=FindPayload(&pTarget);
+		if(hTarget && pTarget) AttachPayload(pTarget, hTarget);
+		//sprintf_s(oapiDebugString(), 255, "%s", AttachID.c_str());
+		//sprintf_s(oapiDebugString(), 355, "%s: Latch called %f", GetIdentifier().c_str(), oapiRand());
+	}
 }
 
-void ActiveLatch::Release()
+void ActiveLatchGroup::Release()
 {
-	DetachPayload();
+	if(IsLatched()) DetachPayload();
+	//sprintf_s(oapiDebugString(), 355, "%s: Release called %f", GetIdentifier().c_str(), oapiRand());
 }
 
-void ActiveLatch::OnAttach()
+void ActiveLatchGroup::OnAttach()
 {
+	if(IsFirstStep()) { // if we are loading attachment from scn file, set all latch states to LATCHED
+		for(unsigned short i=0;i<5;i++) LatchState[i].Set(AnimState::CLOSED, 0.0);
+	}
+
 	char cbuf[255];
 	sprintf_s(cbuf, 255, "%s latched", GetIdentifier().c_str());
 	oapiWriteLog(cbuf);
 }
 
-void ActiveLatch::OnDetach()
+void ActiveLatchGroup::OnDetach()
 {
 	char cbuf[255];
 	sprintf_s(cbuf, 255, "%s released", GetIdentifier().c_str());
