@@ -21,6 +21,12 @@ namespace vc
 
 		Add(pSense=new StdSwitch2(_sts, "SENSE"));
 		Add(pFltCntlrPower = new LockableLever2(_sts, "Aft Flt Cntlr Pwr"));
+		Add(pPayloadRetentionLatches[0] = new StdSwitch3(_sts, "Payload Ret Latch 1"));
+		Add(pPayloadRetentionLatches[1] = new StdSwitch3(_sts, "Payload Ret Latch 2"));
+		Add(pPayloadRetentionLatches[2] = new StdSwitch3(_sts, "Payload Ret Latch 3"));
+		Add(pPayloadRetentionLatches[3] = new StdSwitch3(_sts, "Payload Ret Latch 4"));
+		Add(pPayloadRetentionLatches[4] = new StdSwitch3(_sts, "Payload Ret Latch 5"));
+		Add(pPayloadSelect = new RotaryDemuxSwitch(_sts, "Payload Select", 5));
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
@@ -35,6 +41,16 @@ namespace vc
 		pSense->SetLabel(1, "-Z");
 		pFltCntlrPower->SetLabel(0, "OFF");
 		pFltCntlrPower->SetLabel(1, "ON");
+		for(int i=0;i<5;i++) {
+			pPayloadRetentionLatches[i]->SetLabel(0, "LATCH");
+			pPayloadRetentionLatches[i]->SetLabel(1, "OFF");
+			pPayloadRetentionLatches[i]->SetLabel(2, "RELEASE");
+		}
+		pPayloadSelect->SetLabel(0, "3");
+		pPayloadSelect->SetLabel(1, "MON3");
+		pPayloadSelect->SetLabel(2, "2");
+		pPayloadSelect->SetLabel(3, "MON1");
+		pPayloadSelect->SetLabel(4, "1");
 	}
 
 	PanelA6::~PanelA6()
@@ -59,6 +75,38 @@ namespace vc
 		pFltCntlrPower->SetReference(_V(0.686, 2.781, 12.313), switch_rot);
 		pFltCntlrPower->SetPullDirection(switch_pull);
 		pFltCntlrPower->SetMouseRegion(0.772155f, 0.254109f, 0.836383f, 0.348049f);
+
+		pPayloadRetentionLatches[0]->DefineSwitchGroup(GRP_A6U36_VC);
+		pPayloadRetentionLatches[0]->SetInitialAnimState(0.5);
+		pPayloadRetentionLatches[0]->SetReference(_V(0.618, 2.555, 12.383), switch_rot);
+		pPayloadRetentionLatches[0]->SetMouseRegion(0.651142f, 0.844718f, 0.710472f, 0.935115f);
+		
+		pPayloadRetentionLatches[1]->DefineSwitchGroup(GRP_A6U42_VC);
+		pPayloadRetentionLatches[1]->SetInitialAnimState(0.5);
+		pPayloadRetentionLatches[1]->SetReference(_V(0.582, 2.555, 12.383), switch_rot);
+		pPayloadRetentionLatches[1]->SetMouseRegion(0.578245f, 0.847014f, 0.640193f, 0.934493f);
+		
+		pPayloadRetentionLatches[2]->DefineSwitchGroup(GRP_A6U43_VC);
+		pPayloadRetentionLatches[2]->SetInitialAnimState(0.5);
+		pPayloadRetentionLatches[2]->SetReference(_V(0.543, 2.555, 12.383), switch_rot);
+		pPayloadRetentionLatches[2]->SetMouseRegion(0.507261f, 0.844424f, 0.569764f, 0.932009f);
+		
+		pPayloadRetentionLatches[3]->DefineSwitchGroup(GRP_A6U44_VC);
+		pPayloadRetentionLatches[3]->SetInitialAnimState(0.5);
+		pPayloadRetentionLatches[3]->SetReference(_V(0.505, 2.554, 12.383), switch_rot);
+		pPayloadRetentionLatches[3]->SetMouseRegion(0.432613f, 0.846585f, 0.492668f, 0.936958f);
+		
+		pPayloadRetentionLatches[4]->DefineSwitchGroup(GRP_A6U45_VC);
+		pPayloadRetentionLatches[4]->SetInitialAnimState(0.5);
+		pPayloadRetentionLatches[4]->SetReference(_V(0.468, 2.554, 12.383), switch_rot);
+		pPayloadRetentionLatches[4]->SetMouseRegion(0.356811f, 0.845240f, 0.421112f, 0.939906f);
+
+		pPayloadSelect->DefineSwitchGroup(GRP_A6US37_VC);
+		pPayloadSelect->SetInitialAnimState(1.0f);
+		pPayloadSelect->SetReference(_V(0.707, 2.552, 12.392), -switch_pull);
+		pPayloadSelect->DefineRotationAngle(120.0f);
+		pPayloadSelect->SetOffset(-60.0f);
+		pPayloadSelect->SetMouseRegion(0.811500f, 0.842076f, 0.881687f, 0.940961f);
 
 		for(int i=0;i<24;i++) {
 			pPBIs[i]->AddAIDToRedrawEventList(AID_A6_PBI1+i);
@@ -177,8 +225,86 @@ namespace vc
 			pPBIs[i]->output.Connect(pBundle, i-16);
 			pPBIs[i]->test.Connect(pBundle, i-16);
 		}
+
+		pBundle = STS()->BundleManager()->CreateBundle("A6_LATCHSWITCHES", 16);
+		for(int i=0;i<5;i++) {
+			LatchSwitch_Latch[i].Connect(pBundle, i);
+			LatchSwitch_Release[i].Connect(pBundle, i+5);
+
+			pPayloadRetentionLatches[i]->outputA.Connect(pBundle, i);
+			pPayloadRetentionLatches[i]->outputB.Connect(pBundle, i+5);
+		}
+
+		// connect ports for payload select rotary
+		PayloadSelect[0].Connect(pBundle, 10);
+		pPayloadSelect->ConnectOutputSignal(4, pBundle, 10);
+		PayloadSelect[1].Connect(pBundle, 11);
+		pPayloadSelect->ConnectOutputSignal(2, pBundle, 11);
+		PayloadSelect[2].Connect(pBundle, 12);
+		pPayloadSelect->ConnectOutputSignal(0, pBundle, 12);
+		// connect 2 MON ports
+		pPayloadSelect->ConnectOutputSignal(3, pBundle, 13);
+		pPayloadSelect->ConnectOutputSignal(1, pBundle, 14);
+
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH0", 2);
+		for(int i=0;i<5;i++) {
+			Latch_Latch[0][i].Connect(pBundle, 2*i);
+			Latch_Release[0][i].Connect(pBundle, 2*i+1);
+		}
+
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH1", 2);
+		for(int i=0;i<5;i++) {
+			Latch_Latch[1][i].Connect(pBundle, 2*i);
+			Latch_Release[1][i].Connect(pBundle, 2*i+1);
+		}
+
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH2", 2);
+		for(int i=0;i<5;i++) {
+			Latch_Latch[2][i].Connect(pBundle, 2*i);
+			Latch_Release[2][i].Connect(pBundle, 2*i+1);
+		}
 		
 		BasicPanel::Realize();
+	}
+
+	void PanelA6::OnPreStep(double SimT, double DeltaT, double MJD)
+	{
+		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+
+		PanelA6::PAYLOAD Payload = GetSelectedPayload();
+
+		//sprintf_s(oapiDebugString(), 255, "Active Payload: %d Latches:", Payload);
+
+		if(Payload != MON) {
+			for(int i=0;i<5;i++) {
+				if(LatchSwitch_Latch[i]) {
+					Latch_Latch[Payload][i].SetLine();
+					Latch_Release[Payload][i].ResetLine();
+
+					//sprintf_s(oapiDebugString(), 255, "%s LAT", oapiDebugString());
+				}
+				else if(LatchSwitch_Release[i]) {
+					Latch_Latch[Payload][i].ResetLine();
+					Latch_Release[Payload][i].SetLine();
+
+					//sprintf_s(oapiDebugString(), 255, "%s REL", oapiDebugString());
+				}
+				else {
+					Latch_Latch[Payload][i].ResetLine();
+					Latch_Release[Payload][i].ResetLine();
+
+					//sprintf_s(oapiDebugString(), 255, "%s OFF", oapiDebugString());
+				}
+			}
+		}
+	}
+
+	PanelA6::PAYLOAD PanelA6::GetSelectedPayload() const
+	{
+		if(PayloadSelect[0]) return PL1;
+		if(PayloadSelect[1]) return PL2;
+		if(PayloadSelect[2]) return PL3;
+		else return MON;
 	}
 
 	/*bool PanelA6::OnVCMouseEvent(int id, int _event, VECTOR3 &p)

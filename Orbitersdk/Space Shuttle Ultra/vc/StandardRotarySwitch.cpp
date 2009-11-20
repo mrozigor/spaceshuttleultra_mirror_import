@@ -27,6 +27,8 @@ namespace vc
 	{
 		BasicRotarySwitch::OnPositionChange(usNewPosition);
 
+		// if we have an input signal, use input value as output
+		// otherwise, set output signal
 		bool bOutput=true;
 		if(bInputConnected) bOutput=inputSignal.IsSet();
 

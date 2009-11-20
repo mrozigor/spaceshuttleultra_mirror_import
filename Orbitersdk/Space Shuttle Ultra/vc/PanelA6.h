@@ -26,6 +26,7 @@
 
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
+#include "StandardRotarySwitch.h"
 #include "PushButtonIndicator.h"
 
 namespace vc
@@ -40,17 +41,30 @@ namespace vc
 		virtual void RegisterVC();
 		virtual void Realize();
 
+		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+
 		//virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
 		//virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	private:
 		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
 		//void UpdatePBIs();
+		typedef enum { PL1=0, PL2=1, PL3=2, MON=3 } PAYLOAD; // both monitor positions are the same, so we only need 1 MON enum
+
+		PanelA6::PAYLOAD GetSelectedPayload() const;
 
 		LockableLever2* pFltCntlrPower;
 		StdSwitch2* pSense;
 
+		StdSwitch3* pPayloadRetentionLatches[5];
+
+		RotaryDemuxSwitch* pPayloadSelect;
+
 		//DAP PBIs
 		PushButtonIndicator* pPBIs[24];
+
+		DiscInPort LatchSwitch_Latch[5], LatchSwitch_Release[5];
+		DiscOutPort Latch_Latch[3][5], Latch_Release[3][5];
+		DiscInPort PayloadSelect[5];
 
 		//PBI lights
 		//bool PBI_Lights[24]; //true if light on

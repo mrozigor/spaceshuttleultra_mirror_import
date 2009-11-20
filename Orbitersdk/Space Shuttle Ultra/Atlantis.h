@@ -957,7 +957,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
-class ActiveLatch;
+class ActiveLatchGroup;
 class MCA;
 class MechActuator;
 
@@ -1360,7 +1360,7 @@ private:
 	 */
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	std::vector<ActiveLatch*> pActiveLatches;
+	std::vector<ActiveLatchGroup*> pActiveLatches;
 
 	//GPC programs
 	dps::GNCSoftware *gncsoftware;

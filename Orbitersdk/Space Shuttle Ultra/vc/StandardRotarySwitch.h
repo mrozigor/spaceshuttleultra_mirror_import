@@ -35,6 +35,9 @@ namespace vc
 	using class ::discsignals::DiscOutPort;
 	using class ::discsignals::DiscInPort;
 
+	/**
+	 * Rotary switch that sends single input signal to multiple possible output signals
+	 */
 	class RotaryDemuxSwitch: public BasicRotarySwitch
 	{
 	protected:

@@ -27,12 +27,17 @@
 #pragma once
 
 #include "AtlantisSubsystem.h"
-//#include "discsignals/discsignals.h"
+#include "vesselapi.h"
+#include "discsignals/discsignals.h"
 
 const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling
 const double MAX_GRAPPLING_ANGLE = 0.087266;
 // max angle between EE and grapple for successful grappling (radians)
+
+
+const double LATCH_CLOSE_TIME = 30.0;
+// time(sec) for latch to open/close
 
 /**
  * This class essentially acts as a wrapper for a single ATTACHMENTHANDLE.
@@ -69,6 +74,10 @@ protected:
 	ATTACHMENTHANDLE FindPayload(VESSEL** pVessel=NULL) const;
 	bool PayloadIsFree() const;
 
+	inline bool IsLatched() { return attachedPayload != NULL; };
+
+	inline bool IsFirstStep() { return firstStep; };
+
 	VESSEL* attachedPayload;
 	ATTACHMENTHANDLE hPayloadAttachment;
 	ATTACHMENTHANDLE hAttach;
@@ -87,11 +96,14 @@ private:
 /**
  * Class for PLBD latches that can be operated on-orbit
  */
-class ActiveLatch : public LatchSystem
+class ActiveLatchGroup : public LatchSystem
 {
 public:
-	ActiveLatch(SubsystemDirector* _director, const string& _ident, const VECTOR3& _pos, const VECTOR3& _dir, const VECTOR3& _rot);
-	virtual ~ActiveLatch();
+	ActiveLatchGroup(SubsystemDirector* _director, const string& _ident, const VECTOR3& _pos, const VECTOR3& _dir, const VECTOR3& _rot);
+	virtual ~ActiveLatchGroup();
+
+	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+	virtual void Realize();
 
 	virtual void CreateAttachment();
 
@@ -104,6 +116,11 @@ protected:
 	virtual void OnDetach();
 private:
 	VECTOR3 pos, dir, rot;
+	unsigned short usLatchNum;
+
+	DiscInPort LatchSignal[5], ReleaseSignal[5];
+
+	AnimState LatchState[5];
 };
 
 #endif //__LATCH_H
