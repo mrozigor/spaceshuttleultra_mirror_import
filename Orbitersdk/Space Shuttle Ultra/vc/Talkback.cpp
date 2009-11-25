@@ -81,17 +81,28 @@ namespace vc
 		if(usWidth == 32)
 		{
 			if(label<8) 
-				oapiBlt(surf, g_Param.tkbk_label, 0, 0, label*32, 0, usWidth, usHeight);
+				oapiBlt(surf, g_Param.tkbk_label, talkbackLocation.x, talkbackLocation.y, label*32, 0, usWidth, usHeight);
 			else 
-				oapiBlt(surf, g_Param.tkbk_label, 0, 0, (label-8)*32, 18, usWidth, usHeight);
-		} else {
+				oapiBlt(surf, g_Param.tkbk_label, talkbackLocation.x, talkbackLocation.y, (label-8)*32, 18, usWidth, usHeight);
+		}
+		else if(usWidth == 50)
+		{
 			sprintf_s(oapiDebugString(), 255, "StandardTalkback::UpdateTalkback");
 			if(label<5) 
-				oapiBlt(surf, g_Param.tkbk_label, 0, 0, label*50, 35, usWidth, usHeight);
+				oapiBlt(surf, g_Param.tkbk_label, talkbackLocation.x, talkbackLocation.y, label*50, 35, usWidth, usHeight);
 			else 
-				oapiBlt(surf, g_Param.tkbk_label, 0, 0, (label-5)*50, 65, usWidth, usHeight);
+				oapiBlt(surf, g_Param.tkbk_label, talkbackLocation.x, talkbackLocation.y, (label-5)*50, 65, usWidth, usHeight);
 		}
-			return true;
+		else // use StretchBlt equivalent
+		{
+			RECT tgt = _R(talkbackLocation.x, talkbackLocation.y, talkbackLocation.x+usWidth, talkbackLocation.y+usHeight);
+			RECT src;
+			if(label<8) src = _R(label*32, 0, (label+1)*32, 18);
+			else src = _R((label-8)*32, 18, (label-7)*32, 36);
+
+			oapiBlt(surf, g_Param.tkbk_label, &tgt, &src);
+		}
+		return true;
 	}
 
 	Std2SegTalkback::Std2SegTalkback(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs)

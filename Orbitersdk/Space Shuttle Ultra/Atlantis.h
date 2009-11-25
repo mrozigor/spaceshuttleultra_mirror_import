@@ -799,7 +799,17 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_A6_PBI22   522
 #define AID_A6_PBI23   523
 #define AID_A6_PBI24   524
-#define AID_A6_MAX     529
+#define AID_A6_TKBK1   525
+#define AID_A6_TKBK2   526
+#define AID_A6_TKBK3   527
+#define AID_A6_TKBK4   528
+#define AID_A6_TKBK5   529
+#define AID_A6_TKBK6   530
+#define AID_A6_TKBK7   531
+#define AID_A6_TKBK8   532
+#define AID_A6_TKBK9   533
+#define AID_A6_TKBK10  534
+#define AID_A6_MAX     539
 
 #define AID_R11_MIN		540
 #define AID_R11			540

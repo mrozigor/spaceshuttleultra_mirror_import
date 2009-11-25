@@ -26,6 +26,7 @@
 #define __LATCH_H
 #pragma once
 
+#include <vector>
 #include "AtlantisSubsystem.h"
 #include "vesselapi.h"
 #include "discsignals/discsignals.h"
@@ -51,6 +52,7 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+	virtual bool SingleParamParseLine() const {return true;};
 
 	/**
 	 * Creates ATTACHMENTHANDLE associated with latch(es)
@@ -71,7 +73,20 @@ protected:
 	virtual void OnAttach() = 0;
 	virtual void OnDetach() = 0;
 
-	ATTACHMENTHANDLE FindPayload(VESSEL** pVessel=NULL) const;
+	/**
+	 * Finds vessel that can be attached to this latch
+	 * @param pVessel Optional pointer to vessel pointer which will point to payload vessel returned
+	 * @returns ATTACHMENTHANDLE to attachment point on payload which can be attached to latch
+	 */
+	virtual ATTACHMENTHANDLE FindPayload(VESSEL** pVessel=NULL) const;
+	/**
+	 * @param hV Handle to vessel
+	 * @param glatchpos Position of latch in global coordindates
+	 * @param glatchdir Direction of latch attachment point in global coordinates
+	 * @returns Handle to attachment point which can be used by latch
+	 * @returns NULL if vessel cannot be attached
+	 */
+	ATTACHMENTHANDLE CanAttach(OBJHANDLE hV, const VECTOR3& glatchpos, const VECTOR3& glatchdir) const;
 	bool PayloadIsFree() const;
 
 	inline bool IsLatched() { return attachedPayload != NULL; };
@@ -105,6 +120,9 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	virtual void Realize();
 
+	virtual bool OnParseLine(const char* line);
+	virtual void OnSaveState(FILEHANDLE scn) const;
+
 	virtual void CreateAttachment();
 
 	void SetAttachmentParams(const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot);
@@ -114,13 +132,26 @@ public:
 protected:
 	virtual void OnAttach();
 	virtual void OnDetach();
+
+	virtual ATTACHMENTHANDLE FindPayload(VESSEL** pVessel=NULL) const;
 private:
+	void PopulatePayloadList();
+	bool CheckRTL() const;
+	bool AllLatchesOpen() const;
+
 	VECTOR3 pos, dir, rot;
 	unsigned short usLatchNum;
 
 	DiscInPort LatchSignal[5], ReleaseSignal[5];
+	DiscOutPort Latched[5], Released[5];
+	DiscOutPort ReadyToLatch[5];
 
 	AnimState LatchState[5];
+
+	// list of payloads which are within grapple range
+	// updated every 10 seconds by PopulatePayloadList
+	vector<OBJHANDLE> vhPayloads;
+	double lastUpdateTime; //SimT at which last update occurred
 };
 
 #endif //__LATCH_H

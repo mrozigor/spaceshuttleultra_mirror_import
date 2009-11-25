@@ -27,6 +27,7 @@
 #include "BasicPanel.h"
 #include "StandardSwitch.h"
 #include "StandardRotarySwitch.h"
+#include "Talkback.h"
 #include "PushButtonIndicator.h"
 
 namespace vc
@@ -64,7 +65,12 @@ namespace vc
 
 		DiscInPort LatchSwitch_Latch[5], LatchSwitch_Release[5];
 		DiscOutPort Latch_Latch[3][5], Latch_Release[3][5];
+		DiscInPort Latch_Latched[3][5], Latch_Released[3][5], Latch_RTL[3][5];
+		DiscOutPort Latch_LatchedTkbk[5], Latch_ReleasedTkbk[5], Latch_RTLTkbk[5];
 		DiscInPort PayloadSelect[5];
+
+		StandardTalkback* pLatchState[5];
+		StandardTalkback* pLatchRTL[5];
 
 		//PBI lights
 		//bool PBI_Lights[24]; //true if light on

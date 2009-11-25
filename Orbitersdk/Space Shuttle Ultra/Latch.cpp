@@ -2,6 +2,7 @@
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
 #include "SSUMath.h"
+//#include "util/Stopwatch.h"
 
 LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)
 	: AtlantisSubsystem(_director, _ident)
@@ -24,7 +25,9 @@ LatchSystem::~LatchSystem()
 
 void LatchSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	//oapiWriteLog((char*)(GetIdentifier().c_str()));
 	if(firstStep) {
+		//oapiWriteLog("First step");
 		CheckForAttachedObjects();
 		firstStep=false;
 	}
@@ -108,7 +111,8 @@ void LatchSystem::DetachPayload()
 
 ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 {
-	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
+	VECTOR3 grms, pos, dir, rot, grmsdir;
+	ATTACHMENTHANDLE hAtt;
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
 	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
 	STS()->GlobalRot(dir, grmsdir);
@@ -117,7 +121,7 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 	// Not very scalable ...
 	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
+		/*if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
 		oapiGetGlobalPos (hV, &gpos);
 		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
 			VESSEL *v = oapiGetVesselInterface (hV);
@@ -141,9 +145,46 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 					}
 				}
 			}
+		}*/
+		hAtt = CanAttach(hV, grms, grmsdir);
+		if(hAtt) {
+			if(pVessel) *pVessel = oapiGetVesselInterface(hV);
+			return hAtt;
 		}
 	}
 	if(pVessel) *pVessel=NULL;
+	return NULL;
+}
+
+ATTACHMENTHANDLE LatchSystem::CanAttach(OBJHANDLE hV, const VECTOR3& glatchpos, const VECTOR3& glatchdir) const
+{
+	if (hV == STS()->GetHandle()) return NULL; // we don't want to grapple ourselves ...
+
+	VECTOR3 gpos, gdir, pos, dir, rot;
+	oapiGetGlobalPos (hV, &gpos);
+	if (dist (gpos, glatchpos) < oapiGetSize (hV)) { // in range
+		VESSEL *v = oapiGetVesselInterface (hV);
+		DWORD nAttach = v->AttachmentCount (true);
+		for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
+			ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
+			const char *id = v->GetAttachmentId (hAtt);
+			if (strncmp (id, AttachID.c_str(), AttachID.length())) 
+				continue; // attachment point not compatible
+
+			v->GetAttachmentParams (hAtt, pos, dir, rot);
+			v->Local2Global (pos, gpos);
+			//sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, glatchpos));
+			//oapiWriteLog(oapiDebugString());
+			if (dist (gpos, glatchpos) < MAX_GRAPPLING_DIST) { 
+				v->GlobalRot(dir, gdir);
+				double dot_product = range(-1, dotp(gdir, glatchdir), 1);
+				if(fabs(PI-acos(dot_product)) < MAX_GRAPPLING_ANGLE) {
+					return hAtt;
+				}
+			}
+		}
+	}
+
 	return NULL;
 }
 
@@ -198,7 +239,7 @@ void LatchSystem::CheckForAttachedObjects()
 //////////////////////////////////////////////////////////////
 
 ActiveLatchGroup::ActiveLatchGroup(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
-	: LatchSystem(_director, _ident, "XS"), usLatchNum(5)
+	: LatchSystem(_director, _ident, "XS"), usLatchNum(5), lastUpdateTime(-100.0)
 {
 	SetAttachmentParams(_pos, _dir, _rot);
 
@@ -218,10 +259,17 @@ void ActiveLatchGroup::Realize()
 		LatchSignal[i].Connect(pBundle, 2*i);
 		ReleaseSignal[i].Connect(pBundle, 2*i+1);
 	}
+
+	pBundle = BundleManager()->CreateBundle(GetIdentifier()+"_STATE", 15);
+	for(unsigned short i=0;i<5;i++) {
+		Latched[i].Connect(pBundle, 3*i);
+		Released[i].Connect(pBundle, 3*i+1);
+		ReadyToLatch[i].Connect(pBundle, 3*i+2);
+	}
 }
 
 void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
-{	
+{
 	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
 
 	for(unsigned short i=0;i<usLatchNum;i++) {
@@ -231,7 +279,7 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 			// if even one latch is closed, we can latch payload
 			if(LatchState[i].Closed()) {
 				Latch();
-				sprintf_s(oapiDebugString(), 255, "%s: latched latch %d", GetIdentifier().c_str(), i);
+				//sprintf_s(oapiDebugString(), 255, "%s: latched latch %d", GetIdentifier().c_str(), i);
 			}
 		}
 		else if(ReleaseSignal[i] && !LatchState[i].Open()) {
@@ -240,14 +288,80 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 			// if all latches are open, release payload
 			if(LatchState[i].Open()) {
 				sprintf_s(oapiDebugString(), 255, "%s: released latch %d", GetIdentifier().c_str(), i);
-				bool rel=true;
+				/*bool rel=true;
 				for(unsigned short j=0;j<usLatchNum;j++) {
 					if(!LatchState[j].Open()) rel=false;
 				}
-				if(rel) Release();
+				if(rel) Release();*/
+				if(AllLatchesOpen()) Release();
+			}
+		}
+
+		if(LatchState[i].Open()) {
+			Latched[i].ResetLine();
+			Released[i].SetLine();
+		}
+		else if(LatchState[i].Closed()) {
+			Latched[i].SetLine();
+			Released[i].ResetLine();
+		}
+		else {
+			Latched[i].ResetLine();
+			Released[i].ResetLine();
+		}
+	}
+
+	// every 10 seconds, update list of nearby payloads
+	double Update = SimT-lastUpdateTime;
+	if(Update>10.0 || Update<0.0) {
+		PopulatePayloadList();
+		lastUpdateTime=SimT;
+	}
+
+	//Stopwatch st;
+	//st.Start();
+	if(CheckRTL()) {
+		sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
+		for(int i=0;i<5;i++) ReadyToLatch[i].SetLine();
+	}
+	else {
+		for(int i=0;i<5;i++) ReadyToLatch[i].ResetLine();
+	}
+	//double time = st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "Time: %f", time);
+
+	//sprintf_s(oapiDebugString(), 255, "Latch state: %f %f %f %f %f", LatchState[0].pos, LatchState[1].pos, LatchState[2].pos,
+		//LatchState[3].pos, LatchState[4].pos);
+}
+
+bool ActiveLatchGroup::OnParseLine(const char *line)
+{
+	if(LatchSystem::OnParseLine(line)) return true;
+	else {
+		if(!_strnicmp(line, "LATCH_STATE", 11)) {
+			char num[2];
+			num[0]=line[11];
+			num[1]='\0';
+			int index = atoi(num)-1;
+
+			if(index>=0 && index<5) {
+				sscan_state((char*)(line+12), LatchState[index]);
+				return true;
 			}
 		}
 	}
+
+	return false;
+}
+
+void ActiveLatchGroup::OnSaveState(FILEHANDLE scn) const
+{
+	LatchSystem::OnSaveState(scn);
+	WriteScenario_state(scn, "LATCH_STATE1", LatchState[0]);
+	WriteScenario_state(scn, "LATCH_STATE2", LatchState[1]);
+	WriteScenario_state(scn, "LATCH_STATE3", LatchState[2]);
+	WriteScenario_state(scn, "LATCH_STATE4", LatchState[3]);
+	WriteScenario_state(scn, "LATCH_STATE5", LatchState[4]);
 }
 
 void ActiveLatchGroup::CreateAttachment()
@@ -271,6 +385,7 @@ void ActiveLatchGroup::Latch()
 		ATTACHMENTHANDLE hTarget=NULL;
 		VESSEL* pTarget=NULL;
 		hTarget=FindPayload(&pTarget);
+		//hTarget=LatchSystem::FindPayload(&pTarget);
 		if(hTarget && pTarget) AttachPayload(pTarget, hTarget);
 		//sprintf_s(oapiDebugString(), 255, "%s", AttachID.c_str());
 		//sprintf_s(oapiDebugString(), 355, "%s: Latch called %f", GetIdentifier().c_str(), oapiRand());
@@ -285,7 +400,8 @@ void ActiveLatchGroup::Release()
 
 void ActiveLatchGroup::OnAttach()
 {
-	if(IsFirstStep()) { // if we are loading attachment from scn file, set all latch states to LATCHED
+	if(IsFirstStep() && AllLatchesOpen()) { 
+		// if scn file says we are attached and latches are open, set all latch states to LATCHED
 		for(unsigned short i=0;i<5;i++) LatchState[i].Set(AnimState::CLOSED, 0.0);
 	}
 
@@ -299,4 +415,60 @@ void ActiveLatchGroup::OnDetach()
 	char cbuf[255];
 	sprintf_s(cbuf, 255, "%s released", GetIdentifier().c_str());
 	oapiWriteLog(cbuf);
+}
+
+ATTACHMENTHANDLE ActiveLatchGroup::FindPayload(VESSEL** pVessel) const
+{
+	ATTACHMENTHANDLE hAtt = NULL;
+	VECTOR3 glatchpos, glatchdir, pos, dir, rot;
+
+	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
+	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, glatchpos);
+	STS()->GlobalRot(dir, glatchdir);
+
+	for(unsigned int i=0;i<vhPayloads.size();i++) {
+		hAtt = CanAttach(vhPayloads.at(i), glatchpos, glatchdir);
+		if(hAtt) {
+			//sprintf_s(oapiDebugString(), 255, "%s: found payload", GetIdentifier().c_str());
+			if(pVessel) *pVessel=oapiGetVesselInterface(vhPayloads[i]);
+			return hAtt;
+		}
+	}
+
+	if(pVessel) *pVessel=NULL;
+	return NULL;
+}
+
+
+bool ActiveLatchGroup::CheckRTL() const
+{
+	return (FindPayload()!=NULL);
+}
+
+bool ActiveLatchGroup::AllLatchesOpen() const
+{
+	for(unsigned short j=0;j<usLatchNum;j++) {
+		if(!LatchState[j].Open()) return false;
+	}
+	return true;
+}
+
+void ActiveLatchGroup::PopulatePayloadList()
+{
+	VECTOR3 gpos, grms, pos, dir, rot;
+	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
+	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
+
+	// clear list
+	vhPayloads.clear();
+
+	// Search the complete vessel list for a grappling candidate.
+	// Not very scalable ...
+	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
+		OBJHANDLE hV = oapiGetVesselByIndex (i);
+		if(hV == STS()->GetHandle()) continue;
+		oapiGetGlobalPos (hV, &gpos);
+		if(dist(grms, gpos) < 2*oapiGetSize(hV)) vhPayloads.push_back(hV);
+		//sprintf_s(oapiDebugString(), 255, "dist: %f", dist(grms, gpos));
+	}
 }
