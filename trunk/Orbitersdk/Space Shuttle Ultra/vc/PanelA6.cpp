@@ -27,6 +27,16 @@ namespace vc
 		Add(pPayloadRetentionLatches[3] = new StdSwitch3(_sts, "Payload Ret Latch 4"));
 		Add(pPayloadRetentionLatches[4] = new StdSwitch3(_sts, "Payload Ret Latch 5"));
 		Add(pPayloadSelect = new RotaryDemuxSwitch(_sts, "Payload Select", 5));
+		Add(pLatchState[0] = new StandardTalkback(_sts, "Payload Ret Latch1 Tkbk", 2));
+		Add(pLatchState[1] = new StandardTalkback(_sts, "Payload Ret Latch2 Tkbk", 2));
+		Add(pLatchState[2] = new StandardTalkback(_sts, "Payload Ret Latch3 Tkbk", 2));
+		Add(pLatchState[3] = new StandardTalkback(_sts, "Payload Ret Latch4 Tkbk", 2));
+		Add(pLatchState[4] = new StandardTalkback(_sts, "Payload Ret Latch5 Tkbk", 2));
+		Add(pLatchRTL[0] = new StandardTalkback(_sts, "Payload Latch1 RTL", 1));
+		Add(pLatchRTL[1] = new StandardTalkback(_sts, "Payload Latch2 RTL", 1));
+		Add(pLatchRTL[2] = new StandardTalkback(_sts, "Payload Latch3 RTL", 1));
+		Add(pLatchRTL[3] = new StandardTalkback(_sts, "Payload Latch4 RTL", 1));
+		Add(pLatchRTL[4] = new StandardTalkback(_sts, "Payload Latch5 RTL", 1));
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
@@ -117,6 +127,16 @@ namespace vc
 			pPBIs[i]->SetDimensions(37, 11);
 		}
 
+		for(int i=0;i<5;i++) {
+			pLatchRTL[i]->AddAIDToRedrawEventList(AID_A6_TKBK1+i);
+			pLatchRTL[i]->SetTalkbackLocation(0, 0);
+			pLatchRTL[i]->SetDimensions(40, 22);
+
+			pLatchState[i]->AddAIDToRedrawEventList(AID_A6_TKBK6+i);
+			pLatchState[i]->SetTalkbackLocation(0, 0);
+			pLatchState[i]->SetDimensions(40, 22);
+		}
+
 		//mouse regions
 		pPBIs[0]->SetMouseRegion(0.659691f, 0.112755f, 0.705132f, 0.174825f); //A
 		pPBIs[1]->SetMouseRegion(0.60511f, 0.114699f, 0.649507f, 0.172828f); //B
@@ -204,6 +224,18 @@ namespace vc
 		oapiVCRegisterArea(AID_A6_PBI23, _R(1023, 1496, 1060, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//ROT YAW PULSE
 		oapiVCRegisterArea(AID_A6_PBI24, _R(1102, 1496, 1139, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		// RTL Talkbacks
+		oapiVCRegisterArea(AID_A6_TKBK1, _R(708, 1721, 748, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK2, _R(806, 1721, 846, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK3, _R(908, 1721, 948, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK4, _R(1008, 1721, 1048, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK5, _R(1108, 1721, 1148, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		// Latch Talkbacks
+		oapiVCRegisterArea(AID_A6_TKBK6, _R(710, 1809, 750, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK7, _R(807, 1809, 847, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK8, _R(910, 1809, 950, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK9, _R(1010, 1809, 1050, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		oapiVCRegisterArea(AID_A6_TKBK10, _R(1111, 1809, 1151, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 	}
 
 	void PanelA6::Realize()
@@ -234,7 +266,6 @@ namespace vc
 			pPayloadRetentionLatches[i]->outputA.Connect(pBundle, i);
 			pPayloadRetentionLatches[i]->outputB.Connect(pBundle, i+5);
 		}
-
 		// connect ports for payload select rotary
 		PayloadSelect[0].Connect(pBundle, 10);
 		pPayloadSelect->ConnectOutputSignal(4, pBundle, 10);
@@ -246,22 +277,48 @@ namespace vc
 		pPayloadSelect->ConnectOutputSignal(3, pBundle, 13);
 		pPayloadSelect->ConnectOutputSignal(1, pBundle, 14);
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH0", 2);
+		pBundle = STS()->BundleManager()->CreateBundle("A6_LATCH_TKBKS", 16);
+		for(int i=0;i<5;i++) {
+			Latch_LatchedTkbk[i].Connect(pBundle, i);
+			Latch_ReleasedTkbk[i].Connect(pBundle, i+5);
+			Latch_RTLTkbk[i].Connect(pBundle, i+10);
+
+			pLatchState[i]->SetInput(0, pBundle, i, TB_LAT);
+			pLatchState[i]->SetInput(1, pBundle, i+5, TB_REL);
+			pLatchRTL[i]->SetInput(0, pBundle, i+10, TB_GRAY);
+		}
+
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH0", 10);
+		DiscreteBundle* pBundle2 = STS()->BundleManager()->CreateBundle("LATCH0_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[0][i].Connect(pBundle, 2*i);
 			Latch_Release[0][i].Connect(pBundle, 2*i+1);
+
+			Latch_Latched[0][i].Connect(pBundle2, 3*i);
+			Latch_Released[0][i].Connect(pBundle2, 3*i+1);
+			Latch_RTL[0][i].Connect(pBundle2, 3*i+2);
 		}
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH1", 2);
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH1", 10);
+		pBundle2 = STS()->BundleManager()->CreateBundle("LATCH1_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[1][i].Connect(pBundle, 2*i);
 			Latch_Release[1][i].Connect(pBundle, 2*i+1);
+
+			Latch_Latched[1][i].Connect(pBundle2, 3*i);
+			Latch_Released[1][i].Connect(pBundle2, 3*i+1);
+			Latch_RTL[1][i].Connect(pBundle2, 3*i+2);
 		}
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH2", 2);
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH2", 10);
+		pBundle2 = STS()->BundleManager()->CreateBundle("LATCH2_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[2][i].Connect(pBundle, 2*i);
 			Latch_Release[2][i].Connect(pBundle, 2*i+1);
+
+			Latch_Latched[2][i].Connect(pBundle2, 3*i);
+			Latch_Released[2][i].Connect(pBundle2, 3*i+1);
+			Latch_RTL[2][i].Connect(pBundle2, 3*i+2);
 		}
 		
 		BasicPanel::Realize();
@@ -295,6 +352,22 @@ namespace vc
 
 					//sprintf_s(oapiDebugString(), 255, "%s OFF", oapiDebugString());
 				}
+
+				if(Latch_Latched[Payload][i]) {
+					Latch_LatchedTkbk[i].SetLine();
+					Latch_ReleasedTkbk[i].ResetLine();
+				}
+				else if(Latch_Released[Payload][i]) {
+					Latch_LatchedTkbk[i].ResetLine();
+					Latch_ReleasedTkbk[i].SetLine();
+				}
+				else {
+					Latch_LatchedTkbk[i].ResetLine();
+					Latch_ReleasedTkbk[i].ResetLine();
+				}
+
+				if(Latch_RTL[Payload][i]) Latch_RTLTkbk[i].SetLine();
+				else Latch_RTLTkbk[i].ResetLine();
 			}
 		}
 	}

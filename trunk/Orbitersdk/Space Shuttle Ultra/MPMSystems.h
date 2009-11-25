@@ -49,7 +49,6 @@ public:
 	//virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 	virtual bool OnParseLine(const char* line);
 	virtual void OnSaveState(FILEHANDLE scn) const;
-	virtual bool SingleParamParseLine() const {return true;};
 
 	void CheckDoubleAttach(VESSEL* vessel, bool attached) { 
 		if((attachedPayload && attachedPayload==vessel) || (hAttach && vessel->GetHandle()==STS()->GetAttachmentStatus(hAttach))) doubleAttached=attached; 
