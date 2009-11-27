@@ -43,6 +43,7 @@ namespace mission {
 
 	class Mission {
 	protected:
+		std::string strFileName;
 		std::string strMissionName;
 		std::string strOrbiter;
 		int iETVersion;
@@ -58,6 +59,10 @@ namespace mission {
 		
 		bool bUseRMS;
 		bool bHasMPMs;
+		bool bHasODS;
+		bool bHasExtAL;
+
+		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
 		bool bUseOMSAssist;
 		unsigned short usExtAirlockMode;
@@ -106,11 +111,16 @@ namespace mission {
 		
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
+		virtual const std::string& GetMissionFileName() const;
+		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
+		virtual double GetODSZPos() const;
 		
 		virtual bool HasKuBandAntenna() const;
 		virtual bool HasRMS() const;
 		virtual bool HasSTBDMPMs() const;
+		virtual bool HasODS() const;
+		virtual bool HasExtAL() const;
 		
 
 		virtual bool UseDirectAscent() const;

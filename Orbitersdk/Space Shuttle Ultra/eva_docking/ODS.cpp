@@ -364,7 +364,7 @@ namespace eva_docking {
 
 	void ODS::Realize() {
 		oapiWriteLog("(ssu)Realize ODS...");
-		STS()->SetExternalAirlockVisual(true, true);
+		//STS()->SetExternalAirlockVisual(true, true);
 
 		DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);

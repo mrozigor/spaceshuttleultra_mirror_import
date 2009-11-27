@@ -352,6 +352,7 @@ const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
+const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -1188,7 +1189,7 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
-	virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
+	//virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
 	 * @param fThrust0 Vacuum thrust
@@ -1349,6 +1350,7 @@ private:
 	bool bLiftOff;
 	bool bHasKUBand;
 	bool bHasODS;
+	bool bHasExtAL;
 	bool bMidDeckVisible;
 
 	CommModeHandler* pCommModeHandler;
@@ -1398,8 +1400,10 @@ private:
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
-	void ShowODS();
-	void HideODS();
+	void ShowODS() const;
+	void HideODS() const;
+	void ShowExtAL() const;
+	void HideExtAL() const;
 	/*void IlluminateMesh(UINT idx);
 	void IlluminateMesh(UINT idx, vector<DWORD> vExclude); //NOTE: vExclude MUST be in ascending order
 	void DisableIllumination(UINT idx, MESHHANDLE GlobalMesh);*/

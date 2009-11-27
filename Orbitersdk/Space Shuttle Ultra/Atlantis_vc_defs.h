@@ -29,8 +29,6 @@
 #include "orbitersdk.h"
 
 
-const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
-
 /**  
  * list of the VC positions
  */

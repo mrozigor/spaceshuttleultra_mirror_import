@@ -722,6 +722,7 @@ pActiveLatches(3, NULL)
   bCommMode = false;
   bSSMEGOXVent = false;
   bHasODS = false;
+  bHasExtAL = false;
   bMidDeckVisible = false;
   tSRBSep=SRB_SEPARATION_TIME;
   TLastMajorCycle=0.0;
@@ -2294,6 +2295,11 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
   orbiter_ofs = ofs;
   huds.hudcnt = _V(ofs.x-0.671257, ofs.y+2.523535, ofs.z+14.969);
 
+  if(pMission) {
+	  bHasODS = pMission->HasODS();
+	  bHasExtAL = pMission->HasExtAL();
+  }
+
   if (mesh_orbiter == MESH_UNDEFINED) {
 
     // ***** Load meshes
@@ -2319,15 +2325,28 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	AddKUBandVisual(ofs);
 
 	if(mesh_extal == MESH_UNDEFINED) {
-		VECTOR3 x = ofs + ODS_POS;
+		VECTOR3 x;
+		if(pMission) x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
+		else x = ofs + ODS_POS;
 		mesh_extal = AddMesh(hExtALMesh, &x);
 		SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 	if(mesh_ods == MESH_UNDEFINED) {
-		VECTOR3 x = ofs + ODS_POS;
+		VECTOR3 x;
+		if(pMission) x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
+		else x = ofs + ODS_POS;
 		mesh_ods = AddMesh(hODSMesh, &x);
 		SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	}
+
+	if(bHasODS) {
+		ShowODS(); // also shows external airlock
+	}
+	else {
+		HideODS();
+		if(bHasExtAL) ShowExtAL();
+		else HideExtAL();
 	}
 
 	mesh_middeck = AddMesh(hMidDeckMesh, &ofs);
@@ -2404,7 +2423,10 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     // ***** Docking definitions
 
-    SetDockParams (ofs+ORBITER_DOCKPOS, _V(0,1,0), _V(0,0,-1));
+	VECTOR3 DockPos;
+	if(pMission) DockPos = _V(ORBITER_DOCKPOS.x, ORBITER_DOCKPOS.y, pMission->GetODSZPos());
+	else DockPos = ORBITER_DOCKPOS;
+	SetDockParams (ofs+DockPos, _V(0,1,0), _V(0,0,-1));
 
     // ***** Attachment definitions
 
@@ -5038,11 +5060,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     break;
   }
 
-  if(bHasODS)
-	  ShowODS();
-  else
-	  HideODS();
-
   UpdateMesh ();
   //if(RMS) UpdateMRLMicroswitches();
   SetILoads();
@@ -5060,7 +5077,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   if(pMission != NULL) 
   {
-	  strcpy(cbuf, pMission->GetMissionName().c_str());
+	  strcpy(cbuf, pMission->GetMissionFileName().c_str());
 	  oapiWriteScenario_string(scn, "MISSION", cbuf);
   }
 
@@ -6607,7 +6624,8 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
-	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
+	  if(pMission) SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+pMission->GetODSZPos()));
+	  else SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
@@ -7360,16 +7378,27 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
   return 0;
 }
 
-void Atlantis::ShowODS()
+void Atlantis::ShowODS() const
 {
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	ShowExtAL();
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 }
 
-void Atlantis::HideODS()
+void Atlantis::HideODS() const
 {
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
 	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
+}
+
+void Atlantis::ShowExtAL() const
+{
+	SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+	oapiWriteLog("Showing ExtAL");
+}
+
+void Atlantis::HideExtAL() const
+{	
+	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
+	oapiWriteLog("Hiding ExtAL");
 }
 
 void Atlantis::TurnOnPadLights()
@@ -8935,7 +8964,7 @@ void Atlantis::RealizeSubsystemConnections() {
 	
 }
 
-void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
+/*void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
 	if(fExtAl) {
 		SetMeshVisibilityMode(mesh_extal, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
 	} else {
@@ -8947,7 +8976,7 @@ void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
 	} else {
 		SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
 	}
-}
+}*/
 
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
