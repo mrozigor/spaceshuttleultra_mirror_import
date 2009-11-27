@@ -25,6 +25,7 @@ namespace mission {
 		char buffer[800];
 		std::string filename;
 		filename = "Missions\\SSU\\" + strMission + ".cfg";
+		strFileName = strMission;
 
 		sprintf_s(buffer, 800, "(Mission) Loading mission %s from file %s",
 			strMission.c_str(), filename.c_str());
@@ -89,6 +90,14 @@ namespace mission {
 		{
 			bHasMPMs = false;
 		}
+		if(!oapiReadItem_bool(hFile, "UseODS", bHasODS))
+		{
+			bHasODS = false;
+		}
+		if(!oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL))
+		{
+			bHasExtAL = false;
+		}
 
 		for(int i = 0; i<16; i++)
 		{
@@ -100,6 +109,9 @@ namespace mission {
 			} else {
 				fPayloadZPos[i] = x;
 			}
+		}
+		if(oapiReadItem_float(hFile, "ODSZPos%d", fODSZPos)) {
+			fODSZPos = 10.1529;
 		}
 
 		oapiCloseFile(hFile, FILE_IN);
@@ -171,6 +183,11 @@ namespace mission {
 		else
 			return fPayloadZPos[iIndex];
 	}
+
+	double Mission::GetODSZPos() const
+	{
+		return fODSZPos;
+	}
 		
 	const std::string& Mission::GetOrbiter() const
 	{
@@ -180,6 +197,11 @@ namespace mission {
 	const std::string& Mission::GetMissionName() const
 	{
 		return strMissionName;
+	}
+
+	const std::string& Mission::GetMissionFileName() const
+	{
+		return strFileName;
 	}
 	
 	bool Mission::HasKuBandAntenna() const
@@ -195,6 +217,16 @@ namespace mission {
 	bool Mission::HasSTBDMPMs() const
 	{
 		return bHasMPMs;
+	}
+
+	bool Mission::HasODS() const
+	{
+		return bHasODS;
+	}
+
+	bool Mission::HasExtAL() const
+	{
+		return (bHasExtAL || bHasODS);
 	}
 
 	bool Mission::UseDirectAscent() const
