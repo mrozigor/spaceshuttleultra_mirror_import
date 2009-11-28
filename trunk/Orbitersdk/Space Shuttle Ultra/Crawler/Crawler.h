@@ -81,14 +81,15 @@
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
 const double DRIVETRACK_Y_OFFSET = 2.85;
-const double DRIVETRACK_Z_OFFSET = 13.439;
+const double DRIVETRACK_Z_OFFSET = 13.239;
 // offsets between crawler drivetracks and main body mesh
 
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 2.534);
 const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 
-const double JACKING_MAX_HEIGHT = 4.0;
+const double JACKING_MAX_HEIGHT = 1.8;
 // max distance the crawler platform can be jacked up from the drivetrucks
+// According to various sources maxing jacking height is 6 ft(1.8 m)
 
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 5.869, 0.0);
 //const VECTOR3 MLP_ATTACH_POS = _V(0.0, 10.869, 0.0);
