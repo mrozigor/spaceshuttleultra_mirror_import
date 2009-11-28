@@ -707,12 +707,12 @@ int Crawler::clbkConsumeDirectKey(char *kstate) {
 
 	if(KEYMOD_CONTROL(kstate)) {
 		if (KEYDOWN(kstate, OAPI_KEY_J)) { // raise platform
-			jackHeight=min(jackHeight+0.01*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
+			jackHeight=min(jackHeight+0.0001*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
 			UpdateTouchdownPoints();
 			RESETKEY(kstate, OAPI_KEY_J);
 		}
 		if (KEYDOWN(kstate, OAPI_KEY_K)) { // lower platform
-			jackHeight=max(jackHeight-0.01*oapiGetTimeAcceleration(), 0.0);
+			jackHeight=max(jackHeight-0.0001*oapiGetTimeAcceleration(), 0.0);
 			UpdateTouchdownPoints();
 			RESETKEY(kstate, OAPI_KEY_K);
 		}
@@ -1087,12 +1087,12 @@ void Crawler::SetView(int viewpos) {
 
 	viewPos = viewpos;
 	if (viewPos == VIEWPOS_REARCABIN) {
-		SetCameraOffset(_V(-14.97, 5.3, -14.534));
+		SetCameraOffset(_V(-15.77, 5.3, -16.934000));
 		SetCameraDefaultDirection(_V(0, -0.309017, -0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
-		SetCameraOffset(_V(16.5, 5.3, 19.6));
+		SetCameraOffset(_V(15.59, 5.3, 17.094000));
 		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
