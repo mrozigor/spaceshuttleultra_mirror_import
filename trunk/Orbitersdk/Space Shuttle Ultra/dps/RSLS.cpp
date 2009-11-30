@@ -39,16 +39,19 @@ namespace dps
 		  }
     	  if(sts->GetSSMEThrustLevel(2)<0.9) {
 			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[0][0];
 			RSLSAbortData=2;
 		  }
 		  if(sts->GetSSMEThrustLevel(3)<0.9)  {
 			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[0][0];
 			RSLSAbortData=3;
 		  }
 		  if(!sts->HydraulicsOK())  {
 			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[1][0];
 			RSLSAbortData=1;
 		  }
