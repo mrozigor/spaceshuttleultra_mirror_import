@@ -110,9 +110,12 @@ namespace mission {
 				fPayloadZPos[i] = x;
 			}
 		}
-		if(oapiReadItem_float(hFile, "ODSZPos%d", fODSZPos)) {
+		if(!oapiReadItem_float(hFile, "ODSZPos", fODSZPos)) {
 			fODSZPos = 10.1529;
 		}
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "ODS Pos: %f", fODSZPos);
+		oapiWriteLog(cbuf);
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
