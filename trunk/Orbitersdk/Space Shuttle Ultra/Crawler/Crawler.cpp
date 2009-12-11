@@ -937,9 +937,10 @@ void Crawler::Attach() {
 	if (IsAttached()) return;
 
 	VECTOR3 pos, dir, rot;
-	VECTOR3 gpos, gattach;
+	VECTOR3 gpos, gattach, horizon_attach;
 
 	Local2Global(MLP_ATTACH_POS, gattach);
+	HorizonRot(MLP_ATTACH_POS, horizon_attach);
 
 	for(DWORD i=0; i<oapiGetVesselCount(); i++) {
 		OBJHANDLE hV=oapiGetVesselByIndex(i);
@@ -961,38 +962,49 @@ void Crawler::Attach() {
 			pVessel->Local2Global(pos, gpos);
 			
 			if(dist(gpos, gattach) < 5.0) {
-				oapiWriteLog("Attaching MLP");
-				// if MLP is attached to something else, detach it
-				if(pVessel->GetAttachmentStatus(ahAttach)) {
-					VESSEL* pParent = oapiGetVesselInterface(pVessel->GetAttachmentStatus(ahAttach));
-					for(DWORD j=0;j<pParent->AttachmentCount(false);i++) {
-						ATTACHMENTHANDLE ahParent = pParent->GetAttachmentHandle(false, j);
-						if(pParent->GetAttachmentStatus(ahParent)==hV) {
-							pParent->DetachChild(ahParent);
-							break;
+				/*VECTOR3 horizon_pos;
+				pVessel->HorizonRot(pos, horizon_pos);
+				sprintf_s(oapiDebugString(), 255, "VDist: %f attach: %f pos: %f", horizon_attach.y-horizon_pos.y, horizon_attach.y, horizon_pos.y);
+				oapiWriteLog(oapiDebugString());*/
+				//if(abs(horizon_pos.y-horizon_attach.y) < 0.5) { // make sure crawler has been jacked to correct height
+				VECTOR3 gdist = gpos-gattach;
+				MATRIX3 RotMatrix;
+				GetRotationMatrix(RotMatrix);
+				VECTOR3 ldist = tmul(RotMatrix, gdist);
+				if(abs(ldist.y)<0.5) { // make sure crawler has been jacked to correct height
+					oapiWriteLog("Attaching MLP");
+					// if MLP is attached to something else, detach it
+					if(pVessel->GetAttachmentStatus(ahAttach)) {
+						VESSEL* pParent = oapiGetVesselInterface(pVessel->GetAttachmentStatus(ahAttach));
+						for(DWORD j=0;j<pParent->AttachmentCount(false);i++) {
+							ATTACHMENTHANDLE ahParent = pParent->GetAttachmentHandle(false, j);
+							if(pParent->GetAttachmentStatus(ahParent)==hV) {
+								pParent->DetachChild(ahParent);
+								break;
+							}
 						}
 					}
-				}
 
-				// make sure Crawler attach point has correct rot vector
-				double CrawlerHeading, MLPHeading;
-				oapiGetHeading(GetHandle(), &CrawlerHeading);
-				oapiGetHeading(GetHandle(), &MLPHeading);
-				VECTOR3 CrawlerRot=RotateVectorY(MLP_ATTACH_ROT, CrawlerHeading*DEG);
-				VECTOR3 MLPRot=RotateVectorY(rot, MLPHeading*DEG);
-				if(!bReverseDirection && dotp(MLPRot, CrawlerRot)>=0.0) {
-					bReverseDirection=true;
-					SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
-				}
-				else if(bReverseDirection && dotp(MLPRot, CrawlerRot)<0.0) {
-					bReverseDirection=false;
-					SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT);
-				}
+					// make sure Crawler attach point has correct rot vector
+					double CrawlerHeading, MLPHeading;
+					oapiGetHeading(GetHandle(), &CrawlerHeading);
+					oapiGetHeading(GetHandle(), &MLPHeading);
+					VECTOR3 CrawlerRot=RotateVectorY(MLP_ATTACH_ROT, CrawlerHeading*DEG);
+					VECTOR3 MLPRot=RotateVectorY(rot, MLPHeading*DEG);
+					if(!bReverseDirection && dotp(MLPRot, CrawlerRot)>=0.0) {
+						bReverseDirection=true;
+						SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
+					}
+					else if(bReverseDirection && dotp(MLPRot, CrawlerRot)<0.0) {
+						bReverseDirection=false;
+						SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT);
+					}
 
-				AttachChild(hV, ahMLP, ahAttach);
-				hMLP = hV;
-				hMLPAttach = ahAttach;
-				break;
+					AttachChild(hV, ahMLP, ahAttach);
+					hMLP = hV;
+					hMLPAttach = ahAttach;
+					break; // get out of for_loop
+				}
 			}
 		}
 	}
@@ -1032,6 +1044,7 @@ void Crawler::Detach() {
 	if (!IsAttached()) return;
 
 	// loop thorugh all landed vessels and find one within range with MLP attach point
+	// release MLP and attach it to vessel
 	for(DWORD i=0;i<oapiGetVesselCount();i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex(i);
 		if(hV == GetHandle()) continue;

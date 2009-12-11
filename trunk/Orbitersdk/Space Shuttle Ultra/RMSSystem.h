@@ -117,7 +117,7 @@ public:
 	void RotateJoint(RMS_JOINT joint, bool positive);
 	void TranslateEE(const VECTOR3 &direction);
 
-	void RotateElbowCam(int pitch, int yaw);
+	//void RotateElbowCam(int pitch, int yaw);
 	void SetElbowCamRotSpeed(bool low);
 
 	void SetEECameraView(bool Active);
@@ -166,9 +166,11 @@ private:
 	//RMS Camera rot/direction
 	double camRMSElbow[2];
 	bool camLowSpeed;
-	int camRMSElbow_rotation[2];
+	//int camRMSElbow_rotation[2];
 	VECTOR3 camRMSElbowLoc[2];
 	bool camera_moved;
+
+	DiscInPort ElbowCamTiltUp, ElbowCamTiltDown, ElbowCamPanLeft, ElbowCamPanRight;
 
 	//EE and IK parameters
 	VECTOR3 arm_tip[5];

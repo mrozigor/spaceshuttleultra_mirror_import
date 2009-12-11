@@ -50,6 +50,13 @@ namespace mission {
 			strOrbiter = buffer;
 		}
 
+		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
+		{
+			strOrbiterTexName = "SSU\\" + std::string(buffer) + ".dds";
+			oapiWriteLog((char*)strOrbiterTexName.c_str());
+		}
+		else strOrbiterTexName = "";
+
 		if(!oapiReadItem_float(hFile, "LTime", fLTimeMJD))
 		{
 			fLTimeMJD = -1.0;
@@ -113,9 +120,6 @@ namespace mission {
 		if(!oapiReadItem_float(hFile, "ODSZPos", fODSZPos)) {
 			fODSZPos = 10.1529;
 		}
-		char cbuf[255];
-		sprintf_s(cbuf, 255, "ODS Pos: %f", fODSZPos);
-		oapiWriteLog(cbuf);
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -205,6 +209,11 @@ namespace mission {
 	const std::string& Mission::GetMissionFileName() const
 	{
 		return strFileName;
+	}
+
+	const std::string& Mission::GetOrbiterTextureName() const
+	{
+		return strOrbiterTexName;
 	}
 	
 	bool Mission::HasKuBandAntenna() const

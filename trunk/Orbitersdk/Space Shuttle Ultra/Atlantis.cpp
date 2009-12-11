@@ -690,14 +690,18 @@ pActiveLatches(3, NULL)
   DragChuteSpin.Set(AnimState::OPENING, 0.0);
 
   // default camera positions
-  camFLyaw = 0;
+  /*camFLyaw = 0;
   camFLpitch = 0;
   camFRyaw = 0;
   camFRpitch = 0;
   camBLyaw = 0;
   camBLpitch = 0;
   camBRyaw = 0;
-  camBRpitch = 0;
+  camBRpitch = 0;*/
+  for(int i=0;i<4;i++) {
+	  camYaw[i] = 0;
+	  camPitch[i] = 0;
+  }
 
   cameraLowRate = false;
   cameraMoved = false;
@@ -1885,53 +1889,54 @@ void Atlantis::DefineAnimations (void)
   // FRONT LEFT
   static UINT camFLYawGrp[1] = {GRP_PANTILT_FL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
+    _V(-1.9,1.72,11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
   static UINT camFLPitchGrp[1] = {GRP_CCTV_FL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87), _V(1,0,0), (float)(340*RAD));
-  anim_camFLpitch = CreateAnimation (0.5);
+    _V(-1.9,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
+  //anim_camFLpitch = CreateAnimation (0.5);
+  anim_camFLpitch = CreateAnimation (0.7647);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
   static UINT camFRYawGrp[1] = {GRP_PANTILT_FR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.72,orbiter_ofs.z+11.87), _V(0,1,0), (float)(340*RAD));
+    _V(1.863,1.72,11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
   static UINT camFRPitchGrp[1] = {GRP_CCTV_FR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87), _V(1,0,0), (float)(340*RAD));
-  anim_camFRpitch = CreateAnimation (0.5);
+    _V(1.863,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
+  anim_camFRpitch = CreateAnimation (0.7647);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
   static UINT camBLYawGrp[1] = {GRP_PANTILT_BL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(orbiter_ofs.x-2.31,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(180*RAD));
+    _V(-2.31,+1.79,-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CCTV_BL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31), _V(1,0,0), (float)(-340*RAD));
-  anim_camBLpitch = CreateAnimation (0.5);
+    _V(-2.31,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
+  anim_camBLpitch = CreateAnimation (0.7647);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
   static UINT camBRYawGrp[1] = {GRP_PANTILT_BR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(orbiter_ofs.x+2.29,orbiter_ofs.y+1.79,orbiter_ofs.z-6.31), _V(0,1,0), (float)(340*RAD));
+    _V(2.29,1.79,-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CCTV_BR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31), _V(1,0,0), (float)(-340*RAD));
-  anim_camBRpitch = CreateAnimation (0.5);
+    _V(2.29,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
+  anim_camBRpitch = CreateAnimation (0.7647);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
   // ***** 10 Dummy animation *****
@@ -2298,6 +2303,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
   if(pMission) {
 	  bHasODS = pMission->HasODS();
 	  bHasExtAL = pMission->HasExtAL();
+	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
   }
 
   if (mesh_orbiter == MESH_UNDEFINED) {
@@ -3079,31 +3085,31 @@ void Atlantis::SetAnimationCameras() {
 	double b = 0;
 
 	// FRONT LEFT
-	double anim_yaw = linterp(-170, 0, 170, 1, camFLyaw);
+	double anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_A]);
 	SetAnimation(anim_camFLyaw, anim_yaw);
 
-	double anim_pitch = linterp(-170, 0, 170, 1, camFLpitch);
+	double anim_pitch = linterp(170, 0, -170, 1, camPitch[CAM_A]);
 	SetAnimation(anim_camFLpitch, anim_pitch);
 
 	// FRONT RIGHT
-	anim_yaw = linterp(-170, 0, 170, 1, camFRyaw);
+	anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_D]);
 	SetAnimation(anim_camFRyaw, anim_yaw);
 
-	anim_pitch = linterp(-170, 0, 170, 1, camFRpitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_D]);
 	SetAnimation(anim_camFRpitch, anim_pitch);
 
 	// BACK LEFT
-	anim_yaw = linterp(-170, 0, 170, 1, camBLyaw);
+	anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_B]);
 	SetAnimation(anim_camBLyaw, anim_yaw);
 
-	anim_pitch = linterp(-170, 0, 170, 1, camBLpitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_B]);
 	SetAnimation(anim_camBLpitch, anim_pitch);
 
 	// BACK RIGHT
-	anim_yaw = linterp(-170, 0, 170, 1, camBRyaw);
+	anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_C]);
 	SetAnimation(anim_camBRyaw, anim_yaw);
 
-	anim_pitch = linterp(-170, 0, 170, 1, camBRpitch);
+	anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_C]);
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
 	//RMS Elbow
@@ -3114,23 +3120,23 @@ void Atlantis::SetAnimationCameras() {
 
 	switch (VCMode) {
 	case VC_PLBCAMFL:
-		a = ((-camFLyaw+90)*RAD);
-		b = ((camFLpitch-90)*RAD);
+		a = ((-camYaw[CAM_A]+90)*RAD);
+		b = ((-camPitch[CAM_A])*RAD);
 		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		break;
 	case VC_PLBCAMFR:
-		a = ((-camFRyaw+90)*RAD);
-		b = ((camFRpitch-90)*RAD);
+		a = ((-camYaw[CAM_D]+90)*RAD);
+		b = ((-camPitch[CAM_D])*RAD);
 		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		break;
 	case VC_PLBCAMBL:
-		a = ((-camBLyaw-90)*RAD);
-		b = ((camBLpitch-90)*RAD);
+		a = ((-camYaw[CAM_B]-90)*RAD);
+		b = ((-camPitch[CAM_B])*RAD);
 		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		break;
 	case VC_PLBCAMBR:
-		a = ((-camBRyaw-90)*RAD);
-		b = ((camBRpitch-90)*RAD);
+		a = ((-camYaw[CAM_C]-90)*RAD);
+		b = ((-camPitch[CAM_C])*RAD);
 		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		break;
 	/*case VC_RMSCAM:
@@ -4875,7 +4881,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
 	} else if (!_strnicmp (line, "PLBD_CAM", 8)) {
-		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camFLpitch, &camFLyaw, &camFRpitch, &camFRyaw, &camBLpitch, &camBLyaw, &camBRpitch, &camBRyaw);
+		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_D], &camYaw[CAM_D],
+			&camPitch[CAM_B], &camYaw[CAM_B], &camPitch[CAM_C], &camYaw[CAM_C]);
 		cameraMoved=true;
     } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_x);
@@ -5185,7 +5192,8 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
   }
 
-  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camFLpitch, camFLyaw, camFRpitch, camFRyaw, camBLpitch, camBLyaw, camBRpitch, camBRyaw);
+  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_D], camYaw[CAM_D],
+			camPitch[CAM_B], camYaw[CAM_B], camPitch[CAM_C], camYaw[CAM_C]);
   oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
 
   oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
@@ -5443,6 +5451,25 @@ void Atlantis::clbkPostCreation ()
 	pBundle=bundleManager->CreateBundle("ROMS", 2);
 	OMSArm[RIGHT].Connect(pBundle, 0);
 	OMSArmPress[RIGHT].Connect(pBundle, 1);
+
+	// ports for pan/tilt and cam settings
+	DiscreteBundle* pCamBundles[5];
+	pCamBundles[0] = bundleManager->CreateBundle("PLBD_CAM_A", 16);
+	pCamBundles[1] = bundleManager->CreateBundle("PLBD_CAM_B", 16);
+	pCamBundles[2] = bundleManager->CreateBundle("PLBD_CAM_C", 16);
+	pCamBundles[3] = bundleManager->CreateBundle("PLBD_CAM_D", 16);
+	pCamBundles[4] = bundleManager->CreateBundle("RMS_ELBOW_CAM", 16);
+	for(int i=0;i<5;i++) {
+		PLBDCamPanLeft[i].Connect(pCamBundles[i], 0);
+		PLBDCamPanLeft_Out[i].Connect(pCamBundles[i], 0);
+		PLBDCamPanRight[i].Connect(pCamBundles[i], 1);
+		PLBDCamPanRight_Out[i].Connect(pCamBundles[i], 1);
+
+		PLBDCamTiltUp[i].Connect(pCamBundles[i], 2);
+		PLBDCamTiltUp_Out[i].Connect(pCamBundles[i], 2);
+		PLBDCamTiltDown[i].Connect(pCamBundles[i], 3);
+		PLBDCamTiltDown_Out[i].Connect(pCamBundles[i], 3);
+	}
 }
 
 // --------------------------------------------------------------
@@ -6046,6 +6073,27 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	// ----------------------------------------------------------
 	// Animate payload bay cameras.
 	// ----------------------------------------------------------
+	double camRate;
+	camRate = CAM_HIGHRATE_SPEED;
+	for(int i=0;i<4;i++) {
+		if(PLBDCamPanLeft[i])  {
+			camYaw[i] = max(-MAX_PLBD_CAM_TILT, camYaw[i]-camRate*simdt);
+			cameraMoved = true;
+		}
+		else if(PLBDCamPanRight[i]) {
+			camYaw[i] = min(MAX_PLBD_CAM_TILT, camYaw[i]+camRate*simdt);
+			cameraMoved = true;
+		}
+
+		if(PLBDCamTiltUp[i]) {
+			camPitch[i] = max(-MAX_PLBD_CAM_TILT, camPitch[i]-camRate*simdt);
+			cameraMoved = true;
+		}
+		else if(PLBDCamTiltDown[i]) {
+			camPitch[i] = min(MAX_PLBD_CAM_TILT, camPitch[i]+camRate*simdt);
+			cameraMoved = true;
+		}
+	}
 	if (cameraMoved) {
 		SetAnimationCameras();
 		cameraMoved = false;
@@ -6202,7 +6250,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 
   UpdateMesh ();
 #endif
-  UpdateOrbiterTexture();
+  //UpdateOrbiterTexture();
   //UpdateETTexture();
 }
 
@@ -7206,29 +7254,51 @@ void Atlantis::AutoReleaseSequence()
 // --------------------------------------------------------------
 int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 {
-  if (!down) {
-		switch(key) {
-			case OAPI_KEY_LEFT:
-			case OAPI_KEY_RIGHT:
-				AltKybdInput.y=0.0;
-				return 1;
-			case OAPI_KEY_INSERT:
-			case OAPI_KEY_DELETE:
-				AltKybdInput.x=0.0;
-				return 1;
-			case OAPI_KEY_UP:
-			case OAPI_KEY_DOWN:
-				AltKybdInput.z=0.0;
-				return 1;
-			case OAPI_KEY_RETURN:
-			case OAPI_KEY_BACK:
-				RMSGrapple.ResetLine();
-				RMSRelease.ResetLine();
-				return 1;
-			default:
-				return 0;
+	if (!down) {
+		if(KEYMOD_ALT(kstate)) {
+			if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
+				switch(key) {
+						case OAPI_KEY_LEFT:
+							PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							return 1;
+						case OAPI_KEY_RIGHT:
+							PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							return 1;
+						case OAPI_KEY_UP:
+							PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							return 1;
+						case OAPI_KEY_DOWN:
+							PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							return 1;
+						default:
+							return 0;
+				}
+			}
 		}
-  }
+		else if(!KEYMOD_ALT(kstate) && !KEYMOD_SHIFT(kstate)) { // Ctrl or unmodified
+			switch(key) {
+					case OAPI_KEY_LEFT:
+					case OAPI_KEY_RIGHT:
+						AltKybdInput.y=0.0;
+						return 1;
+					case OAPI_KEY_INSERT:
+					case OAPI_KEY_DELETE:
+						AltKybdInput.x=0.0;
+						return 1;
+					case OAPI_KEY_UP:
+					case OAPI_KEY_DOWN:
+						AltKybdInput.z=0.0;
+						return 1;
+					case OAPI_KEY_RETURN:
+					case OAPI_KEY_BACK:
+						RMSGrapple.ResetLine();
+						RMSRelease.ResetLine();
+						return 1;
+					default:
+						return 0;
+			}
+		}
+	}
 
   if(pCommModeHandler->IsInCommMode())
   {
@@ -7308,6 +7378,25 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 		return 1;
 	}
+	} else if(KEYMOD_ALT(kstate)) {
+		if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
+			switch(key) {
+				case OAPI_KEY_LEFT:
+					PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
+					return 1;
+				case OAPI_KEY_RIGHT:
+					PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
+					return 1;
+				case OAPI_KEY_UP:
+					PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
+					return 1;
+				case OAPI_KEY_DOWN:
+					PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
+					return 1;
+				default:
+					return 0;
+			}
+		}
   } else if(!KEYMOD_SHIFT(kstate) && !KEYMOD_ALT(kstate)) { // unmodified keys
     switch (key) {
 	/*case OAPI_KEY_TAB:
@@ -7334,9 +7423,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     case OAPI_KEY_8:
       ToggleGrapple();
       return 1;
-    /*case OAPI_KEY_9:
-      center_arm = true;
-      return 1;*/
     case OAPI_KEY_E:
       do_eva = true;
       return 1;
@@ -7893,23 +7979,23 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     // Set Atlantis camera selected from dialog
     if (SendDlgItemMessage (hWnd, IDC_CAM_FL, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 0;
-      camYaw =& sts->camFLyaw;
-      camPitch =& sts->camFLpitch;
+	  camYaw =& sts->camYaw[Atlantis::CAM_A];
+	  camPitch =& sts->camPitch[Atlantis::CAM_A];
     }
     if (SendDlgItemMessage (hWnd, IDC_CAM_FR, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 1;
-      camYaw =& sts->camFRyaw;
-      camPitch =& sts->camFRpitch;
+	  camYaw =& sts->camYaw[Atlantis::CAM_D];
+      camPitch =& sts->camPitch[Atlantis::CAM_D];
     }
     if (SendDlgItemMessage (hWnd, IDC_CAM_BL, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 2;
-      camYaw =& sts->camBLyaw;
-      camPitch =& sts->camBLpitch;
+      camYaw =& sts->camYaw[Atlantis::CAM_B];
+      camPitch =& sts->camPitch[Atlantis::CAM_B];
     }
     if (SendDlgItemMessage (hWnd, IDC_CAM_BR, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 3;
-      camYaw =& sts->camBRyaw;
-      camPitch =& sts->camBRpitch;
+      camYaw =& sts->camYaw[Atlantis::CAM_C];
+      camPitch =& sts->camPitch[Atlantis::CAM_C];
     }
 	if (SendDlgItemMessage (hWnd, IDC_CAM_RMS, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraControl = 4;
@@ -7931,35 +8017,37 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
     // Sets the current selected camera orientation and flag camera moved;
 	if (SendDlgItemMessage (hWnd, IDC_CAM_LEFT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-		if(sts->cameraControl == 4) {
+		/*if(sts->cameraControl == 4) {
 			if(sts->pRMS) sts->pRMS->RotateElbowCam(0, -1);
 		}
-		else {
+		else*/ {
 			*camYaw = max(-170, *camYaw - (t1-t0)*rate);
 			sts->cameraMoved = true;
 		}
 	} else if (SendDlgItemMessage (hWnd, IDC_CAM_RIGHT, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-		if(sts->cameraControl == 4) {
+		/*if(sts->cameraControl == 4) {
 			if(sts->pRMS) sts->pRMS->RotateElbowCam(0, 1);
 		}
-		else {
+		else */{
 			*camYaw = min(170, *camYaw + (t1-t0)*rate);
 			sts->cameraMoved = true;
 		}
 	} else if (SendDlgItemMessage (hWnd, IDC_CAM_UP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-		if(sts->cameraControl == 4) {
+		/*if(sts->cameraControl == 4) {
 			if(sts->pRMS) sts->pRMS->RotateElbowCam(1, 0);
 		}
-		else {
-			*camPitch = min(170, *camPitch + (t1-t0)*rate);
+		else*/ {
+			//*camPitch = min(170, *camPitch + (t1-t0)*rate);
+			*camPitch = max(-170, *camPitch - (t1-t0)*rate);
 			sts->cameraMoved = true;
 		}
 	} else if (SendDlgItemMessage (hWnd, IDC_CAM_DOWN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-		if(sts->cameraControl == 4) {
+		/*if(sts->cameraControl == 4) {
 			if(sts->pRMS) sts->pRMS->RotateElbowCam(-1, 0);
 		}
-		else {
-			*camPitch = max(-170, *camPitch - (t1-t0)*rate);
+		else */{
+			//*camPitch = max(-170, *camPitch - (t1-t0)*rate);
+			*camPitch = min(170, *camPitch + (t1-t0)*rate);
 			sts->cameraMoved = true;
 		}
 	}
@@ -9027,8 +9115,10 @@ void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const
 	}
 }
 
-void Atlantis::UpdateOrbiterTexture() {
-	
+void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
+	if(strTextureName.length()==0) return; // no texture specified
+	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
+	oapiSetTexture(hOrbiterMesh, 2, hTexture);
 }
 
 void Atlantis::UpdateETTexture() {
