@@ -222,6 +222,8 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 const double CAM_HIGHRATE_SPEED = 12;
 const double CAM_LOWRATE_SPEED = 1.2;
 // Payload camera speed rates (deg/sec)
+const double MAX_PLBD_CAM_TILT = 170.0;
+const double MAX_PLBD_CAM_PAN = 170.0;
 
 //Post Contact Thrusting
 const double PCT_STAGE1 = 0.56;
@@ -1523,7 +1525,7 @@ private:
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
 	bool RCSThrustersFiring();
-	void UpdateOrbiterTexture();
+	void UpdateOrbiterTexture(const std::string& strTextureName);
 	void UpdateETTexture();
 
 	
@@ -1609,14 +1611,16 @@ private:
 	//UINT anim_camRMSElbowTilt;
 	
 	// PAYLOAD CAMERAS ROTATION (-170 to 170 degrees)
-	double camFLyaw;
+	/*double camFLyaw;
 	double camFLpitch;
 	double camFRyaw;
 	double camFRpitch;
 	double camBLyaw;
 	double camBLpitch;
 	double camBRyaw;
-	double camBRpitch;
+	double camBRpitch;*/
+	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
+	double camYaw[4], camPitch[4];
 	//double camRMSElbowPan, camRMSElbowTilt;
 	//RMS Camera rot/direction
 	//VECTOR3 camRMSElbowLoc[2];
@@ -1935,6 +1939,12 @@ private:
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
+
+	// Pan/Tilt PLBD cameras and RMS elbow cam
+	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow
+	DiscInPort PLBDCamPanLeft[5], PLBDCamPanRight[5], PLBDCamTiltUp[5], PLBDCamTiltDown[5];
+	DiscOutPort PLBDCamPanLeft_Out[5], PLBDCamPanRight_Out[5];
+	DiscOutPort PLBDCamTiltUp_Out[5], PLBDCamTiltDown_Out[5];
 
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;

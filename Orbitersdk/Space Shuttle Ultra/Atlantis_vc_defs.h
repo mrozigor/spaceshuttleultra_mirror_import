@@ -45,10 +45,10 @@ const int VC_RMSSTATION = 9;
 const int VC_PORTSTATION = 10;
 const int VC_AFTWORKSTATION = 11;
 const int VC_DOCKCAM = 12;
-const int VC_PLBCAMFL = 13;
-const int VC_PLBCAMFR = 14;
-const int VC_PLBCAMBL = 15;
-const int VC_PLBCAMBR = 16;
+const int VC_PLBCAMFL = 13; // A
+const int VC_PLBCAMBL = 14; // B
+const int VC_PLBCAMBR = 15; // C
+const int VC_PLBCAMFR = 16; // D
 const int VC_RMSCAM = 17;
 const int VC_LEECAM = 18;
 //Beginning of Mid deck positions

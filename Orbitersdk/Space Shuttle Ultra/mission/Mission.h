@@ -46,6 +46,7 @@ namespace mission {
 		std::string strFileName;
 		std::string strMissionName;
 		std::string strOrbiter;
+		std::string strOrbiterTexName;
 		int iETVersion;
 		int iBranchCode;
 		int iRevisionCode;
@@ -112,6 +113,11 @@ namespace mission {
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
 		virtual const std::string& GetMissionFileName() const;
+		/**
+		 * @return Name of texture file specified in mission file
+		 * Empty string if no file is specified
+		 */
+		virtual const std::string& GetOrbiterTextureName() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
