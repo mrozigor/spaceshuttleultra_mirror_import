@@ -118,7 +118,7 @@ public:
 	void TranslateEE(const VECTOR3 &direction);
 
 	//void RotateElbowCam(int pitch, int yaw);
-	void SetElbowCamRotSpeed(bool low);
+	//void SetElbowCamRotSpeed(bool low);
 
 	void SetEECameraView(bool Active);
 	void SetElbowCamView(bool Active);
@@ -165,11 +165,12 @@ private:
 
 	//RMS Camera rot/direction
 	double camRMSElbow[2];
-	bool camLowSpeed;
+	//bool camLowSpeed;
 	//int camRMSElbow_rotation[2];
 	VECTOR3 camRMSElbowLoc[2];
 	bool camera_moved;
 
+	DiscInPort CamLowSpeed;
 	DiscInPort ElbowCamTiltUp, ElbowCamTiltDown, ElbowCamPanLeft, ElbowCamPanRight;
 
 	//EE and IK parameters

@@ -59,6 +59,7 @@
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelA6.h"
+#include "vc/PanelA7U.h"
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
@@ -361,6 +362,7 @@ pActiveLatches(3, NULL)
 
   pgAft.AddPanel(new vc::PanelA6(this));
   pgAft.AddPanel(new vc::AftMDU(this));
+  pgAft.AddPanel(new vc::PanelA7U(this));
 
   pgAftStbd.AddPanel(new vc::PanelR11(this));
   
@@ -883,6 +885,13 @@ pActiveLatches(3, NULL)
   SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
   SSMEGimbal[1][ROLL].SetGains(0.009, 0.002, 0.0);
   SSMEGimbal[2][ROLL].SetGains(-0.009, -0.002, 0.0);
+
+  for(unsigned short i=0;i<5;i++) {
+	  bPLBDCamPanLeft[i] = false;
+	  bPLBDCamPanRight[i] = false;
+	  bPLBDCamTiltUp[i] = false;
+	  bPLBDCamTiltDown[i] = false;
+  }
 }
 
 // --------------------------------------------------------------
@@ -2316,8 +2325,11 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
-	SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
-	PaintMarkings (insignia_tex);
+	if(pMission && pMission->WingPaintingEnabled()) {
+		strncpy(WingName, pMission->GetOrbiter().c_str(), 256);
+		SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
+		PaintMarkings (insignia_tex);
+	}
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
@@ -2891,6 +2903,8 @@ void Atlantis::UpdateMesh ()
   //SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
+  SetAnimationCameras(); // update camera positions
+
 
   // update MFD brightness
   if (vis) {
@@ -3088,7 +3102,7 @@ void Atlantis::SetAnimationCameras() {
 	double anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_A]);
 	SetAnimation(anim_camFLyaw, anim_yaw);
 
-	double anim_pitch = linterp(170, 0, -170, 1, camPitch[CAM_A]);
+	double anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_A]);
 	SetAnimation(anim_camFLpitch, anim_pitch);
 
 	// FRONT RIGHT
@@ -5140,11 +5154,11 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   //GPC
   oapiWriteScenario_int (scn, "OPS", ops);
-  if(bAutopilot) {
-	  sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
-	  oapiWriteScenario_string(scn, "AUTOPILOT", cbuf);
-  }
-  if(status<3) {
+  if(status < STATE_ORBITER) {
+	  if(bAutopilot) {
+		sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
+		oapiWriteScenario_string(scn, "AUTOPILOT", cbuf);
+	  }
 	  sprintf(cbuf, "%f %f", OMS_Assist[0], OMS_Assist[1]);
 	  oapiWriteScenario_string(scn, "ASSIST", cbuf);
 	  sprintf(cbuf, "%f %f", Throttle_Bucket[0]/fps_to_ms, Throttle_Bucket[1]/fps_to_ms);
@@ -5459,7 +5473,7 @@ void Atlantis::clbkPostCreation ()
 	pCamBundles[2] = bundleManager->CreateBundle("PLBD_CAM_C", 16);
 	pCamBundles[3] = bundleManager->CreateBundle("PLBD_CAM_D", 16);
 	pCamBundles[4] = bundleManager->CreateBundle("RMS_ELBOW_CAM", 16);
-	for(int i=0;i<5;i++) {
+	for(unsigned short i=0;i<5;i++) {
 		PLBDCamPanLeft[i].Connect(pCamBundles[i], 0);
 		PLBDCamPanLeft_Out[i].Connect(pCamBundles[i], 0);
 		PLBDCamPanRight[i].Connect(pCamBundles[i], 1);
@@ -5469,6 +5483,8 @@ void Atlantis::clbkPostCreation ()
 		PLBDCamTiltUp_Out[i].Connect(pCamBundles[i], 2);
 		PLBDCamTiltDown[i].Connect(pCamBundles[i], 3);
 		PLBDCamTiltDown_Out[i].Connect(pCamBundles[i], 3);
+
+		PTULowSpeed[i].Connect(pCamBundles[i], 4);
 	}
 }
 
@@ -6073,9 +6089,39 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	// ----------------------------------------------------------
 	// Animate payload bay cameras.
 	// ----------------------------------------------------------
+	if(VCMode>=VC_PLBCAMFL && VCMode<=VC_RMSCAM) {
+		if(bPLBDCamPanLeft[VCMode-VC_PLBCAMFL]) {
+			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
+			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
+		}
+		else if(bPLBDCamPanRight[VCMode-VC_PLBCAMFL]) {
+			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
+			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
+		}
+		else {
+			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
+			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
+		}
+
+		if(bPLBDCamTiltUp[VCMode-VC_PLBCAMFL]) {
+			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
+			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
+		}
+		else if(bPLBDCamTiltDown[VCMode-VC_PLBCAMFL]) {
+			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
+			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
+		}
+		else {
+			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
+			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
+		}
+	}
+
 	double camRate;
-	camRate = CAM_HIGHRATE_SPEED;
 	for(int i=0;i<4;i++) {
+		if(PTULowSpeed[i]) camRate = CAM_LOWRATE_SPEED;
+		else camRate = CAM_HIGHRATE_SPEED;
+
 		if(PLBDCamPanLeft[i])  {
 			camYaw[i] = max(-MAX_PLBD_CAM_TILT, camYaw[i]-camRate*simdt);
 			cameraMoved = true;
@@ -6098,6 +6144,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		SetAnimationCameras();
 		cameraMoved = false;
 	}
+	//sprintf_s(oapiDebugString(), 255, "FL: %f %f FR: %f %f BL: %f %f BR: %f %f", camYaw[CAM_A], camPitch[CAM_A],
+		//camYaw[CAM_D], camPitch[CAM_D], camYaw[CAM_B], camPitch[CAM_B], camYaw[CAM_C], camPitch[CAM_C]);
 
 	// ----------------------------------------------------------
 	// Communication mode handler
@@ -7259,16 +7307,20 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 			if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
 				switch(key) {
 						case OAPI_KEY_LEFT:
-							PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							bPLBDCamPanLeft[VCMode-VC_PLBCAMFL] = false;
 							return 1;
 						case OAPI_KEY_RIGHT:
-							PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							bPLBDCamPanRight[VCMode-VC_PLBCAMFL] = false;
 							return 1;
 						case OAPI_KEY_UP:
-							PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							bPLBDCamTiltUp[VCMode-VC_PLBCAMFL] = false;
 							return 1;
 						case OAPI_KEY_DOWN:
-							PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
+							bPLBDCamTiltDown[VCMode-VC_PLBCAMFL] = false;
 							return 1;
 						default:
 							return 0;
@@ -7382,16 +7434,20 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
 			switch(key) {
 				case OAPI_KEY_LEFT:
-					PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
+					//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
+					bPLBDCamPanLeft[VCMode-VC_PLBCAMFL] = true;
 					return 1;
 				case OAPI_KEY_RIGHT:
-					PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
+					//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
+					bPLBDCamPanRight[VCMode-VC_PLBCAMFL] = true;
 					return 1;
 				case OAPI_KEY_UP:
-					PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
+					//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
+					bPLBDCamTiltUp[VCMode-VC_PLBCAMFL] = true;
 					return 1;
 				case OAPI_KEY_DOWN:
-					PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
+					//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
+					bPLBDCamTiltDown[VCMode-VC_PLBCAMFL] = true;
 					return 1;
 				default:
 					return 0;
@@ -8007,11 +8063,11 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     // Set Atlantis camera Rate from dialog
     if (SendDlgItemMessage (hWnd, IDC_CAM_LOWRATE, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraLowRate = true;
-	  if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(true);
+	  //if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(true);
       rate = CAM_LOWRATE_SPEED;
     } else {
       sts->cameraLowRate = false;
-	  if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(false);
+	  //if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(false);
       rate = CAM_HIGHRATE_SPEED;
     }
 

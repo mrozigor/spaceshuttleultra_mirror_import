@@ -20,13 +20,23 @@ void Atlantis::InitializeAutopilot()
 		TgtFPA=pMission->GetMECOFPA()*DEG;
 		TgtAlt=pMission->GetMECOAlt();
 		TgtSpd=pMission->GetMECOVel();
+
+		RollToHeadsUp=pMission->GetRTHUVelocity();
+		if(pMission->UseOMSAssist()) {
+			OMS_Assist[0] = pMission->GetOMSAssistStart();
+			OMS_Assist[1] = pMission->GetOMSAssistEnd();
+		}
+		else OMS_Assist[0] = OMS_Assist[1] = 0.0;
 	}
 
 	OBJHANDLE hRef=GetSurfaceRef();
 	//calculate heading
 	double latitude, /*Radius,*/ longitude;
 	GetEquPos(longitude, latitude, Radius);
-	if(cos(TgtInc*RAD)>cos(latitude)) THeading=PI/2;
+	if(cos(TgtInc*RAD)>cos(latitude)) {
+		THeading=PI/2;
+		TgtInc = latitude*DEG;
+	}
 	else {
 		double InHeading = asin(cos(TgtInc*RAD)/cos(latitude));
 		double xVel, yVel;

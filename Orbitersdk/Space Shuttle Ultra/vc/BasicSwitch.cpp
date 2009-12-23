@@ -35,6 +35,7 @@ const string& BasicSwitch::GetLabel(int iPosition) const {
 
 bool BasicSwitch::GetStateString(unsigned long ulBufferSize, char* pszBuffer) {
 
+	if(bSpringLoaded) return false; // no need to save state, position is always 1
 	try {
 		if(labels.at(usCurrentPosition).compare("")) {
 			sprintf_s(pszBuffer, ulBufferSize, "%s", 

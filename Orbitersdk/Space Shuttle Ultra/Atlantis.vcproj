@@ -88,7 +88,7 @@
 				OutputFile="..\..\Modules\MG_Atlantis.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft SDK\Lib&quot;"
+				AdditionalLibraryDirectories="..\lib;&quot;C:\Program Files\Microsoft SDK\Lib&quot;"
 				IgnoreDefaultLibraryNames="msvcirt.lib;MSVCRTD.lib"
 				SubSystem="2"
 				StackReserveSize="4194304"
@@ -543,6 +543,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelA7U.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelA8.cpp"
 				>
 			</File>
@@ -931,6 +935,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelA7A8ODS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelA7U.h"
 				>
 			</File>
 			<File

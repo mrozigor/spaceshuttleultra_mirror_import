@@ -47,6 +47,7 @@ namespace mission {
 		std::string strMissionName;
 		std::string strOrbiter;
 		std::string strOrbiterTexName;
+		bool bEnableWingPainting;
 		int iETVersion;
 		int iBranchCode;
 		int iRevisionCode;
@@ -66,6 +67,10 @@ namespace mission {
 		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
 		bool bUseOMSAssist;
+		double OMSAssistStart;
+		double OMSAssistEnd;
+		//bool bUseRTHU;
+		double RTHUVelocity;
 		unsigned short usExtAirlockMode;
 
 		double fPayloadZPos[16];
@@ -118,6 +123,8 @@ namespace mission {
 		 * Empty string if no file is specified
 		 */
 		virtual const std::string& GetOrbiterTextureName() const;
+
+		virtual bool WingPaintingEnabled() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
@@ -131,6 +138,9 @@ namespace mission {
 
 		virtual bool UseDirectAscent() const;
 		virtual bool UseOMSAssist() const;
+		virtual double GetOMSAssistStart() const;
+		virtual double GetOMSAssistEnd() const;
+		virtual double GetRTHUVelocity() const;
 
 		
 	};

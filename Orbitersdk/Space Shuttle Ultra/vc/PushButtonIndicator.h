@@ -61,6 +61,34 @@ namespace vc
 
 		DiscOutPort output; //generally same as input port
 	};
+
+	/**
+	 * PBIs are normally in groups where only 1 DiscPort in the group is set
+	 * Monitors group of DiscPorts
+	 * If one DiscPort is set, resets all other ports in group
+	 */
+	class PBIDiscPortGroup
+	{
+		const static int MAX_SIZE = 16;
+		DiscOutPort outPorts[MAX_SIZE];
+		DiscInPort inPorts[MAX_SIZE];
+
+		bool oldValues[MAX_SIZE];
+
+		unsigned short usCount;
+	public:
+		PBIDiscPortGroup();
+		~PBIDiscPortGroup();
+
+		/**
+		 * Add all ports from usStart to usEnd (inclusive) to group
+		 */
+		void AddPorts(DiscreteBundle* pBundle, unsigned short usStart, unsigned short usEnd);
+
+		void OnPreStep();
+	private:
+		void SetLine(unsigned short usIndex);
+	};
 };
 
 #endif //__PUSHBUTTONINDICATOR_H
