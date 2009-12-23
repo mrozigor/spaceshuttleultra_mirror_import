@@ -21,7 +21,7 @@ void Atlantis::InitializeAutopilot()
 		TgtAlt=pMission->GetMECOAlt();
 		TgtSpd=pMission->GetMECOVel();
 
-		RollToHeadsUp=pMission->GetRTHUVelocity();
+		RollToHeadsUp=pMission->GetRTHUVelocity()*fps_to_ms;
 		if(pMission->UseOMSAssist()) {
 			OMS_Assist[0] = pMission->GetOMSAssistStart();
 			OMS_Assist[1] = pMission->GetOMSAssistEnd();
