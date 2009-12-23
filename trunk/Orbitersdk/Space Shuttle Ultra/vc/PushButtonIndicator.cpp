@@ -89,4 +89,54 @@ namespace vc
 			SetAnimation(anim_pb, 0.0);
 		}
 	}
+
+	PBIDiscPortGroup::PBIDiscPortGroup()
+		: usCount(0)
+	{
+		for(int i=0;i<MAX_SIZE;i++) oldValues[i] = false;
+	}
+
+	PBIDiscPortGroup::~PBIDiscPortGroup()
+	{
+	}
+
+	void PBIDiscPortGroup::AddPorts(DiscreteBundle* pBundle, unsigned short usStart, unsigned short usEnd)
+	{
+		if(usEnd < usStart) return;
+
+		unsigned short index = usCount;
+		for(unsigned short i=usStart;i<=usEnd, index<MAX_SIZE;i++, index++)
+		{
+			inPorts[index].Connect(pBundle, i);
+			outPorts[index].Connect(pBundle, i);
+		}
+		usCount = (usEnd-usStart) + 1;
+	}
+
+	void PBIDiscPortGroup::OnPreStep()
+	{
+		for(unsigned short i=0;i<usCount;i++) {
+			// loop through ports until we find one that has just been set
+			if(!oldValues[i] && inPorts[i]) {
+				// make sure that this line is the only line set
+				SetLine(i);
+				return;
+			}
+			//else oldValues[i] = inPorts[i];
+		}
+	}
+
+	void PBIDiscPortGroup::SetLine(unsigned short usIndex)
+	{
+		if(usIndex>=usCount) return;
+
+		for(unsigned short i=0;i<usCount;i++) {
+			if(i!=usIndex) {
+				outPorts[i].ResetLine();
+				oldValues[i] = false;
+			}
+		}
+		outPorts[usIndex].SetLine();
+		oldValues[usIndex] = true;
+	}
 };

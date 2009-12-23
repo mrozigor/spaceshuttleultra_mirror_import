@@ -838,6 +838,17 @@ const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
 #define AID_F4_RY_CSS	606
 #define AID_F4_MAX		620
 
+#define AID_A7U_MIN		640
+#define AID_A7U			640
+#define AID_A7U_PBI1	641
+#define AID_A7U_PBI2	642
+#define AID_A7U_PBI3	643
+#define AID_A7U_PBI4	644
+#define AID_A7U_PBI5	645
+#define AID_A7U_PBI6	646
+#define AID_A7U_PBI7	647
+#define AID_A7U_MAX		660
+
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
@@ -1933,6 +1944,8 @@ private:
 
 	mutable bool fSSMEHandleErrorFlag;
 
+	bool bPLBDCamPanLeft[5], bPLBDCamPanRight[5], bPLBDCamTiltUp[5], bPLBDCamTiltDown[5];
+
 	//DiscPorts
 	DiscInPort SpdbkThrotAutoIn;
 	DiscOutPort SpdbkThrotAutoOut;
@@ -1943,6 +1956,7 @@ private:
 	// Pan/Tilt PLBD cameras and RMS elbow cam
 	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow
 	DiscInPort PLBDCamPanLeft[5], PLBDCamPanRight[5], PLBDCamTiltUp[5], PLBDCamTiltDown[5];
+	DiscInPort PTULowSpeed[5];
 	DiscOutPort PLBDCamPanLeft_Out[5], PLBDCamPanRight_Out[5];
 	DiscOutPort PLBDCamTiltUp_Out[5], PLBDCamTiltDown_Out[5];
 

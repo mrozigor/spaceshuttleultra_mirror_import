@@ -3,7 +3,7 @@
 #include "SSUMath.h"
 
 RMSSystem::RMSSystem(SubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE), camLowSpeed(false)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE)
 {
 	joint_pos[SHOULDER_YAW] = 0.5;
 	joint_pos[SHOULDER_PITCH] = 0.0136;
@@ -103,6 +103,7 @@ void RMSSystem::Realize()
 	ElbowCamPanRight.Connect(pBundle, 1);
 	ElbowCamTiltUp.Connect(pBundle, 2);
 	ElbowCamTiltDown.Connect(pBundle, 3);
+	CamLowSpeed.Connect(pBundle, 4);
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
@@ -395,22 +396,22 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}*/
 	if(ElbowCamPanLeft) {
-		if(camLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_PAN);
+		if(CamLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_PAN);
 		else camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLBD_CAM_PAN);
 		camera_moved=true;
 	}
 	else if(ElbowCamPanRight) {
-		if(camLowSpeed) camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_PAN);
+		if(CamLowSpeed) camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_PAN);
 		else camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_PAN);
 		camera_moved=true;
 	}
 	if(ElbowCamTiltDown) {
-		if(camLowSpeed) camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_TILT);
+		if(CamLowSpeed) camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_TILT);
 		else camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLBD_CAM_TILT);
 		camera_moved=true;
 	}
 	else if(ElbowCamTiltUp) {
-		if(camLowSpeed) camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
+		if(CamLowSpeed) camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
 		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
 		camera_moved=true;
 	}
@@ -490,13 +491,13 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		arm_moved=false;
 	}
-	else if(camera_moved && RMSCameraMode==ELBOW) {
+	else if(camera_moved /*&& RMSCameraMode==ELBOW*/) {
 		double anim=linterp(-MAX_PLBD_CAM_PAN, 0, MAX_PLBD_CAM_PAN, 1, camRMSElbow[PAN]);
 		STS()->SetAnimation(anim_camRMSElbow[PAN], anim);
 		anim=linterp(-MAX_PLBD_CAM_TILT, 0, MAX_PLBD_CAM_TILT, 1, camRMSElbow[TILT]);
 		STS()->SetAnimation(anim_camRMSElbow[TILT], anim);
 
-		UpdateElbowCamView();
+		if(RMSCameraMode==ELBOW) UpdateElbowCamView();
 		camera_moved=false;
 	}
 }
@@ -577,10 +578,10 @@ void RMSSystem::TranslateEE(const VECTOR3 &direction)
 	camRMSElbow_rotation[TILT]=pitch;
 }*/
 
-void RMSSystem::SetElbowCamRotSpeed(bool low)
+/*void RMSSystem::SetElbowCamRotSpeed(bool low)
 {
 	camLowSpeed=low;
-}
+}*/
 
 void RMSSystem::Translate(const VECTOR3 &dPos)
 {

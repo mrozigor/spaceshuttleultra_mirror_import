@@ -49,6 +49,12 @@ namespace mission {
 		{
 			strOrbiter = buffer;
 		}
+		else strOrbiter = "";
+
+		if(!oapiReadItem_bool(hFile, "EnableWingPainting", bEnableWingPainting))
+		{
+			 bEnableWingPainting = false;
+		}
 
 		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
 		{
@@ -84,9 +90,20 @@ namespace mission {
 		fMECOFPA *= RAD;
 		fTargetInc *= RAD;
 		
-		if(!oapiReadItem_bool(hFile, "UseOMSAssist", bUseOMSAssist))
+		/*if(!oapiReadItem_bool(hFile, "UseOMSAssist", bUseOMSAssist))
 		{
 			bUseOMSAssist = false;
+		}*/
+
+		if(oapiReadItem_float(hFile, "OMSAssistStart", OMSAssistStart) && oapiReadItem_float(hFile, "OMSAssistEnd", OMSAssistEnd))
+		{
+			bUseOMSAssist = true;
+		}
+		else bUseOMSAssist = false;
+
+		if(!oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", RTHUVelocity))
+		{
+			RTHUVelocity = 100000.0; // velocity faster than orbital speed; RTHU will not occur
 		}
 
 		if(!oapiReadItem_bool(hFile, "UseRMS", bUseRMS))
@@ -215,6 +232,11 @@ namespace mission {
 	{
 		return strOrbiterTexName;
 	}
+
+	bool Mission::WingPaintingEnabled() const
+	{
+		return bEnableWingPainting;
+	}
 	
 	bool Mission::HasKuBandAntenna() const
 	{
@@ -248,6 +270,21 @@ namespace mission {
 	
 	bool Mission::UseOMSAssist() const
 	{
-		return false;
+		return bUseOMSAssist;
+	}
+
+	double Mission::GetOMSAssistStart() const
+	{
+		return OMSAssistStart;
+	}
+
+	double Mission::GetOMSAssistEnd() const
+	{
+		return OMSAssistEnd;
+	}
+
+	double Mission::GetRTHUVelocity() const
+	{
+		return RTHUVelocity;
 	}
 };

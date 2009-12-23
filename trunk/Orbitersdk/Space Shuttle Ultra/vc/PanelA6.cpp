@@ -69,8 +69,8 @@ namespace vc
 
 	void PanelA6::DefineVC()
 	{
-		VECTOR3 switch_rot =  _V(-1, 0, 0);
-		VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
+		const VECTOR3 switch_rot =  _V(-1, 0, 0);
+		const VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
 		oapiWriteLog("PanelA6: DefineVC called");
 
 		AddAIDToMouseEventList(AID_A6);
@@ -167,7 +167,7 @@ namespace vc
 		BasicPanel::RegisterVC();
 		oapiWriteLog("PanelA6: RegisterVC called");
 
-		VECTOR3 ofs=STS()->orbiter_ofs;
+		VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
 
 		oapiVCRegisterArea(AID_A6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A6,
