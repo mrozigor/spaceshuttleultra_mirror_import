@@ -11,7 +11,8 @@
 namespace vc {
 
 BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
-: BasicVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0)
+: BasicVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0),
+	vbSpringLoaded(usNumPositions, false)
 {
 	this->usNumPositions = usNumPositions;
 	labels.resize(usNumPositions);
@@ -69,7 +70,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 	if(bOrientation) {
 		if(x > 0.6) {
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
-			else {
+			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
 				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
@@ -77,7 +78,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 		}
 		else if(x < 0.4) {
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
-			else {
+			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
 				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
@@ -87,7 +88,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 	else {
 		if(y > 0.6) {
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
-			else {
+			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
 				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
@@ -95,7 +96,7 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 		}
 		else if( y < 0.4) {
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
-			else {
+			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
 				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
@@ -170,9 +171,21 @@ void BasicSwitch::SetOrientation(bool bHorizontal)
 	bOrientation = bHorizontal;
 }
 
+void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos)
+{
+	if(usPos>=usNumPositions) return;
+
+	bSpringLoaded = bSpringLoaded || IsSpringLoaded;
+	vbSpringLoaded.at(usPos) = IsSpringLoaded;
+}
+
 void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded)
 {
-	bSpringLoaded=IsSpringLoaded;
+	unsigned short usMidPosition = (usNumPositions - 1)/2;
+	//bSpringLoaded=IsSpringLoaded;
+	for(unsigned short i=0;i<usNumPositions;i++) {
+		SetSpringLoaded((i!=usMidPosition), i);
+	}
 }
 
 };
