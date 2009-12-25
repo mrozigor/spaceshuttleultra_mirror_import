@@ -44,6 +44,7 @@ protected:
 	bool bSpringLoaded;
 	unsigned short usNumPositions;
 	vector<string> labels;
+	vector<bool> vbSpringLoaded;
 	unsigned short usCurrentPosition;
 public:
 	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
@@ -56,7 +57,14 @@ public:
 	 */
 	void SetInitialPosition(unsigned short usInPos);
 	void SetOrientation(bool bHorizontal);
+	/**
+	 * Fully spring loaded switch
+	 */
 	void SetSpringLoaded(bool IsSpringLoaded);
+	/**
+	 * Set a single switch position to be spring loaded
+	 */
+	void SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos);
 
 	virtual void DefineVCAnimations(UINT vc_idx);
 	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);

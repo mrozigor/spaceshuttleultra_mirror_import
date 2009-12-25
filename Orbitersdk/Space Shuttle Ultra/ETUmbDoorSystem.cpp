@@ -2,7 +2,7 @@
 #include "SSUMath.h"
 
 ETUmbDoorSystem::ETUmbDoorSystem(SubsystemDirector* _director)
-	: AtlantisSubsystem(_director, "ET Umb Doors")
+	: AtlantisSubsystem(_director, "ETUmbDoors")
 {
 	LDoorPos[0]=LDoorPos[1]=0.0; // closed
 	RDoorPos[0]=RDoorPos[1]=0.0; // closed
@@ -164,10 +164,15 @@ bool ETUmbDoorSystem::OnParseLine(const char *keyword, const char *line)
 {
 	if(!strncmp(keyword, "ET_DOORS", 8)) {
 		sscanf_s(line, "%lf%lf", &LDoorPos[0], &RDoorPos[0]);
+		LDoorPos[1] = LDoorPos[0];
+		RDoorPos[1] = RDoorPos[0];
 		return true;
 	}
 	else if(!strncmp(keyword, "ET_DOOR_LATCHES", 14)) {
 		sscanf_s(line, "%lf%lf%lf", &CLLatchPos[0], &LLatchPos[0], &RLatchPos[0]);
+		CLLatchPos[1] = CLLatchPos[0];
+		LLatchPos[1] = LLatchPos[0];
+		RLatchPos[1] = RLatchPos[0];
 		return true;
 	}
 	return false;

@@ -111,6 +111,7 @@ namespace vc
 		pPanTiltRate->SetInitialAnimState(0.5);
 		pPanTiltRate->SetMouseRegion(0.412282f, 0.769816f, 0.471316f, 0.868281f);
 		pPanTiltRate->SetReference(_V(-0.043, 2.583, 12.373), switch_rot_vert);
+		pPanTiltRate->SetSpringLoaded(true, 2);
 
 		pCamApbi->AddAIDToRedrawEventList(AID_A7U_PBI1);
 		pCamApbi->SetMouseRegion(0.448337f, 0.392420f, 0.497079f, 0.456108f);

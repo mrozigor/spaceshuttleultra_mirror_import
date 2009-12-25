@@ -148,7 +148,7 @@ bool AtlantisSubsystem::OnReadState (FILEHANDLE scn) {
 					pszKey[i++] = *line;
 					line++;
 				}
-				pszKey[++i] = '\0';
+				pszKey[i++] = '\0';
 				if(*line != '\0') {
 					OnParseLine(pszKey, line);
 				} else {
