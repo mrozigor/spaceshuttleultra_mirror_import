@@ -519,8 +519,14 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	if(vs.surf_hdg< 0) vs.surf_hdg += 2.0 * PI;
 	if(vs.surf_hdg >= 2.0 * PI) vs.surf_hdg -= 2.0 * PI;
 
-	lon += sin(lastHead) * velocity * simdt / oapiGetSize(hEarth);
-	lat += cos(lastHead) * velocity * simdt / oapiGetSize(hEarth);
+	//lon += sin(lastHead) * velocity * simdt / oapiGetSize(hEarth);
+	//lat += cos(lastHead) * velocity * simdt / oapiGetSize(hEarth);
+	VECTOR3 dir = _V(sin(lastHead), cos(lat) * cos(lastHead), 0);
+	sprintf_s(oapiDebugString(), 255, "Dir: %f", length(dir));
+	dir /= length(dir);
+	lon += dir.x * velocity * simdt / oapiGetSize(hEarth);
+	lat += dir.y * velocity * simdt / oapiGetSize(hEarth);
+	//sprintf_s(oapiDebugString(), 255, "dLat: %f dLon: %f", (cos(lastHead)*velocity/oapiGetSize(hEarth))*1000000.0, sin(lastHead) * velocity / oapiGetSize(hEarth));
 	vs.surf_lng = lon;
 	vs.surf_lat = lat;
 	vs.status = 1;

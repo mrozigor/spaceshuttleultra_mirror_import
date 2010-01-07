@@ -180,6 +180,7 @@ namespace vc
 		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
+		pAirDataProbeDeploy[LEFT]->SetInitialPosition(0);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
@@ -187,6 +188,7 @@ namespace vc
 		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
+		pAirDataProbeDeploy[RIGHT]->SetInitialPosition(0);
 	}
 
 	void PanelC3::Realize()
