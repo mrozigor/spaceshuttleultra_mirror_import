@@ -32,6 +32,13 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 	//////////////////////// ET vent ////////////////////////
 }
 
+void Atlantis_Tank::UpdateETTexture() const
+{
+	SURFHANDLE scorchedTexture = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+	if(!oapiSetTexture(hTankMesh, 3, scorchedTexture))
+		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
+}
+
 // ==============================================================
 // Callback functions
 // ==============================================================
@@ -99,6 +106,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	//////////////////////// ET vent ////////////////////////
 
 	AddMesh (hTankMesh);
+	UpdateETTexture();
 }
 
 // Simulation time step

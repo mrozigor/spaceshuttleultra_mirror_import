@@ -2018,6 +2018,8 @@ public:
 	void clbkPostStep (double simt, double simdt, double mjd);
 
 private:
+	void UpdateETTexture() const;
+
 	MESHHANDLE hTankMesh;
 
 	//////////////////////// ET vent ////////////////////////
