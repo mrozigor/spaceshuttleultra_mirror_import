@@ -398,6 +398,8 @@ namespace eva_docking {
 		dscu_Hooks2ClosedLight.Connect(pBundleB, 6);
 		dscu_LatchesOpenLight.Connect(pBundleB, 7);
 		dscu_RingFinalLight.Connect(pBundleB, 8);
+
+		STS()->SetAnimation(anim_ring, RingState.pos);
 	}
 
 	void ODS::OnSaveState(FILEHANDLE scn) const
@@ -569,6 +571,7 @@ namespace eva_docking {
 	{
 		if(!_strnicmp(keyword, "RING_STATE", 10))
 		{
+			sscan_state((char*)line, RingState);
 			return true;
 		}
 		else {
