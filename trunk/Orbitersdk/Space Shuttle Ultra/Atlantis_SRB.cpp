@@ -86,9 +86,9 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	SetSize (23.0);
 	SetEmptyMass (SRB_EMPTY_MASS);
 	SetCW (0.1, 0.3, 1.4, 1.4);
-	SetCrossSections (_V(162.1,162.1,26.6));
+	SetCrossSections (_V(167.42,172.64,22.92));
 	SetRotDrag (_V(0.7,0.7,0.1));
-	SetPMI (_V(154.3,154.3,1.83));
+	SetPMI (_V(128.72,128.64,2.31));
 	//SetGravityGradientDamping (10.0);
 	SetTouchdownPoints (_V(0,-2,-21.1), _V(-2,1,-21.1), _V(2,1,-21.1));
 	SetLiftCoeffFunc (0);
@@ -121,26 +121,23 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	//BSM
 	if(Left)
 	{
-		thBSM[0] = CreateThruster(_V(0.752, 2.06, -20.5), _V(-0.22, -0.604, 0.766), 3*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(1.194, 2.896, -19.328), _V(0.339, 0.9347, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[2] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(0.752, 3.15, -19.5), _V(-0.533, -0.773, 0.342), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.469, -0.813, 0.341), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	} else 
 	{
-		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 3*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(-1.194, 2.896, -19.328),  _V(-0.339, 0.9347, -0.102), BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[2] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	}
 	// for simplicity, the separation bolts directly use SRB propellant. We give
 	// them an insanely high ISP to avoid significant propellant drainage
 
-	AddExhaust (th_bolt, 0.7, 0.1, _V(-2.1,0,-8), _V(-1,0,0));
-	AddExhaust (th_bolt, 0.7, 0.1, _V(-2.1,0,11), _V(-1,0,0));
+	//AddExhaust (th_bolt, 0.7, 0.1, _V(-2.1,0,-8), _V(-1,0,0));
+	//AddExhaust (th_bolt, 0.7, 0.1, _V(-2.1,0,11), _V(-1,0,0));
 
 	AddExhaustStream (thBSM[0], &bsm_exhaust);
 	AddExhaustStream (thBSM[1], &bsm_exhaust);
-	AddExhaustStream (thBSM[0], &bsm_contrail);
-	AddExhaustStream (thBSM[1], &bsm_contrail);
-	AddExhaustStream (th_bolt, _V(-2.1,0,0), &srb_bolt);
+	//AddExhaustStream (thBSM[0], &bsm_contrail);
+	//AddExhaustStream (thBSM[1], &bsm_contrail);
 
 	//Add slag effect streams
 	AddParticleStream(&srb_slag1, _V(0,0,-22), SLAG_DIR, &slag1);
@@ -198,9 +195,9 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 
 			if(srb_dt < 1.2)
 			{
-				for(int i=0;i<3;i++) SetThrusterLevel(thBSM[i], 1.0-(srb_dt*0.583));
+				for(int i=0;i<2;i++) SetThrusterLevel(thBSM[i], 1.0-(srb_dt*0.583));
 			} else {
-				for(int i=0;i<3;i++) SetThrusterLevel(thBSM[i], 0.0);
+				for(int i=0;i<2;i++) SetThrusterLevel(thBSM[i], 0.0);
 			}
 			/*
 			if (srb_dt > bolt_t) {
