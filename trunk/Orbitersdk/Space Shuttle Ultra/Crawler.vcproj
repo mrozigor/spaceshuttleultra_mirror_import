@@ -5,6 +5,7 @@
 	Name="Crawler"
 	ProjectGUID="{BAAA2ADB-0507-4E33-9E80-23CEE3B74E37}"
 	RootNamespace="Crawler"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -48,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../src_aux,../../src_sys,../../src_mfd,../../src_lm,../../src_moon,../../src_csm,../../src_launch,../../src_landing,../../src_saturn,../../../../include,../../../../../Sound/OrbiterSound_SDK/VESSELSOUND_SDK/ShuttlePB_project"
+				AdditionalIncludeDirectories="../../../../include;../include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,9 +106,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -204,9 +202,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -241,6 +236,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Crawler\CrawlerEngine.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SSUMath.cpp"
 				>
 			</File>
@@ -251,6 +250,10 @@
 			>
 			<File
 				RelativePath="Crawler\Crawler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerEngine.h"
 				>
 			</File>
 			<File

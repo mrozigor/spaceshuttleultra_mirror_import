@@ -177,16 +177,20 @@ DLLCLBK void ovcExit(VESSEL *vessel) {
 	if (vessel) delete (Crawler*)vessel;
 }
 
-Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
+Crawler::Crawler(OBJHANDLE hObj, int fmodel)
+: VESSEL2 (hObj, fmodel)
 {
-	velocity = 0;
+	pEngine = new CrawlerEngine();
+
+	//tgtVelocity = 0.0;
+	//velocity = 0;
 	velocityStop = false;
 	//targetHeading = 0;
 	wheeldeflect = 0;
 	viewPos = VIEWPOS_FRONTCABIN;
 	firstTimestepDone = false;
 	standalone = false;
-	MissionTime = 0;
+	//MissionTime = 0;
 
 	lastLatLongSet = false;
 	lastLat = 0;
@@ -202,8 +206,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 
 	bReverseDirection=false;
 	
-	keyAccelerate = false;
-	keyBrake= false;
+	//keyAccelerate = false;
+	//keyBrake= false;
 	keyLeft= false;
 	keyRight= false;
 	keyCenter = false;
@@ -238,6 +242,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel) : VESSEL2 (hObj, fmodel)
 Crawler::~Crawler() {
 	// delete MGROUP_TRANSFORMs
 	for(unsigned short i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
+	delete pEngine;
 }
 
 void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
@@ -449,39 +454,46 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	double maxVelocity = 0.894;
 
 	if (!firstTimestepDone) DoFirstTimestep(); 
+	pEngine->OnPreStep(simt, simdt, mjd);
 
 	if (IsAttached()) maxVelocity = maxVelocity / 2.0;
-
-	double dv;
-	//oapiGetHeading(GetHandle(), &lastHead);
+	
 	double timeW = oapiGetTimeAcceleration();
+	/*double dv;
+	double tgtVelocity;
+	//oapiGetHeading(GetHandle(), &lastHead);
 
 	if (((keyAccelerate && viewPos == VIEWPOS_FRONTCABIN) || (keyBrake && viewPos == VIEWPOS_REARCABIN)) && !velocityStop) {
-		dv = 0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
-		if (velocity < 0 && velocity + dv >= 0) {
-			velocity = 0;
+		//dv = 0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
+		dv = simdt * 0.1;
+		if (tgtVelocity < 0 && tgtVelocity + dv >= 0) {
+			tgtVelocity = 0;
 			velocityStop = true;
 		} else {
-			velocity += dv;
+			tgtVelocity += dv;
 		}
-		if (velocity > maxVelocity) velocity = maxVelocity;
+		if (tgtVelocity > maxVelocity) tgtVelocity = maxVelocity;
 
 	} else if (((keyBrake && viewPos == VIEWPOS_FRONTCABIN) || (keyAccelerate && viewPos == VIEWPOS_REARCABIN)) && !velocityStop) {
-		dv = -0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
-		if (velocity > 0 && velocity + dv <= 0) {
-			velocity = 0;
+		//dv = -0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
+		dv = simdt * -0.1;
+		if (tgtVelocity > 0 && tgtVelocity + dv <= 0) {
+			tgtVelocity = 0;
 			velocityStop = true;
 		} else {
-			velocity += dv;
+			tgtVelocity += dv;
 		}
-		if (velocity < -maxVelocity) velocity = -maxVelocity;
+		if (tgtVelocity < -maxVelocity) tgtVelocity = -maxVelocity;
 	
 	} else if (!keyAccelerate && !keyBrake) {
 		velocityStop = false;
-	}
+	}*/
+	//velocity = tgtVelocity;
+	//pEngine->SetTargetSpeed(tgtVelocity);
+	double velocity=pEngine->GetSpeed();
 	// Reset flags
-	keyAccelerate = false;
-	keyBrake = false;
+	//keyAccelerate = false;
+	//keyBrake = false;
 
 	double lat, lon;
 	vs.version = 2;
@@ -522,11 +534,9 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	//lon += sin(lastHead) * velocity * simdt / oapiGetSize(hEarth);
 	//lat += cos(lastHead) * velocity * simdt / oapiGetSize(hEarth);
 	VECTOR3 dir = _V(sin(lastHead), cos(lat) * cos(lastHead), 0);
-	sprintf_s(oapiDebugString(), 255, "Dir: %f", length(dir));
 	dir /= length(dir);
 	lon += dir.x * velocity * simdt / oapiGetSize(hEarth);
 	lat += dir.y * velocity * simdt / oapiGetSize(hEarth);
-	//sprintf_s(oapiDebugString(), 255, "dLat: %f dLon: %f", (cos(lastHead)*velocity/oapiGetSize(hEarth))*1000000.0, sin(lastHead) * velocity / oapiGetSize(hEarth));
 	vs.surf_lng = lon;
 	vs.surf_lat = lat;
 	vs.status = 1;
@@ -654,9 +664,7 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	char *line;
 	
 	while (oapiReadScenario_nextline (scn, line)) {
-		if (!_strnicmp (line, "VELOCITY", 8)) {
-			sscanf (line + 8, "%lf", &velocity);
-		} else if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
+		if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
 			sscanf (line + 11, "%lf", &jackHeight);
 		} else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
 			sscanf (line + 12, "%lf", &wheeldeflect);
@@ -676,20 +684,21 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 			bReverseDirection=true;
 			SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
 		} else {
-			ParseScenarioLineEx (line, status);
+			if(!pEngine->ParseLine(line))
+				ParseScenarioLineEx (line, status);
 		}
 	}
 
 	UpdateTouchdownPoints();
 }
 
-void Crawler::clbkSaveState(FILEHANDLE scn) {
-	
-	VESSEL2::clbkSaveState (scn);
+void Crawler::clbkSaveState(FILEHANDLE scn)
+{	
+	VESSEL2::clbkSaveState(scn);
 
 	char cbuf[255];
 
-	oapiWriteScenario_float(scn, "VELOCITY", velocity);
+	//oapiWriteScenario_float(scn, "VELOCITY", velocity);
 	oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);	
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
@@ -701,6 +710,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn) {
 	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
 	if(bReverseDirection) oapiWriteLine(scn, "  REVERSE_ATTACH");
+	pEngine->SaveState(scn);
 }
 
 int Crawler::clbkConsumeDirectKey(char *kstate) {
@@ -724,14 +734,14 @@ int Crawler::clbkConsumeDirectKey(char *kstate) {
 		}
 	}
 	else {
-		if (KEYDOWN(kstate, OAPI_KEY_ADD)) {
+		/*if (KEYDOWN(kstate, OAPI_KEY_ADD)) {
 			keyAccelerate = true;				
 			RESETKEY(kstate, OAPI_KEY_ADD);
 		}
 		if (KEYDOWN(kstate, OAPI_KEY_SUBTRACT)) {
 			keyBrake = true;				
 			RESETKEY(kstate, OAPI_KEY_SUBTRACT);
-		}
+		}*/
 		if (KEYDOWN(kstate, OAPI_KEY_NUMPAD1)) {
 			keyLeft = true;				
 			RESETKEY(kstate, OAPI_KEY_NUMPAD1);
@@ -844,50 +854,61 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 
 	if (!firstTimestepDone) return 0;
 
-	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate) || !down) {
+	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate)) {
 		return 0; 
 	}
 
-	if (key == OAPI_KEY_J) {
-		if (IsAttached())
-			Detach();
-		else
-			Attach();
+	if (key == OAPI_KEY_ADD) {
+		pEngine->Accelerate(down);
+		return 1;
+	}
+	if (key == OAPI_KEY_SUBTRACT) {
+		pEngine->Brake(down);
 		return 1;
 	}
 
-	if (key == OAPI_KEY_1 && down == true) {
-		SetView(VIEWPOS_FRONTCABIN);
-		return 1;
-	}
-	if (key == OAPI_KEY_2 && down == true) {
-		SetView(VIEWPOS_REARCABIN);
-		return 1;
-	}
-	if (key == OAPI_KEY_3 && down == true) {
-		SetView(VIEWPOS_ML);
-		return 1;
-	}
-	if (key == OAPI_KEY_4 && down == true) {
-		SetView(VIEWPOS_GROUND);
-		return 1;
-	}
-	if (key == OAPI_KEY_5 && down == true) {
-		SetView(VIEWPOS_FRONTGANGWAY);
-		return 1;
-	}
-	if (key == OAPI_KEY_6 && down == true) {
-		SetView(VIEWPOS_REARGANGWAY);
-		return 1;
-	}
-	if (key == OAPI_KEY_7 && down == true) {
-		SetView(VIEWPOS_RIGHTREARGANGWAY);
-		return 1;
-	}
+	if(!down) {
+		if (key == OAPI_KEY_J) {
+			if (IsAttached())
+				Detach();
+			else
+				Attach();
+			return 1;
+		}
 
-	if(key==OAPI_KEY_G) {
-		oapiSetShowGrapplePoints(true);
-		return 1;
+		if (key == OAPI_KEY_1 && down == true) {
+			SetView(VIEWPOS_FRONTCABIN);
+			return 1;
+		}
+		if (key == OAPI_KEY_2 && down == true) {
+			SetView(VIEWPOS_REARCABIN);
+			return 1;
+		}
+		if (key == OAPI_KEY_3 && down == true) {
+			SetView(VIEWPOS_ML);
+			return 1;
+		}
+		if (key == OAPI_KEY_4 && down == true) {
+			SetView(VIEWPOS_GROUND);
+			return 1;
+		}
+		if (key == OAPI_KEY_5 && down == true) {
+			SetView(VIEWPOS_FRONTGANGWAY);
+			return 1;
+		}
+		if (key == OAPI_KEY_6 && down == true) {
+			SetView(VIEWPOS_REARGANGWAY);
+			return 1;
+		}
+		if (key == OAPI_KEY_7 && down == true) {
+			SetView(VIEWPOS_RIGHTREARGANGWAY);
+			return 1;
+		}
+
+		if(key==OAPI_KEY_G) {
+			oapiSetShowGrapplePoints(true);
+			return 1;
+		}
 	}
 
 	/*if (key == OAPI_KEY_NUMPAD7 && down == true) {
@@ -939,7 +960,7 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 void Crawler::Attach() {
 
 	if (standalone) return;
-	if (velocity != 0) return;
+	if (!Eq(pEngine->GetSpeed(), 0.0)) return;
 	if (IsAttached()) return;
 
 	VECTOR3 pos, dir, rot;
@@ -1046,7 +1067,7 @@ void Crawler::Attach() {
 void Crawler::Detach() {
 
 	if (standalone) return;
-	if (velocity != 0) return;
+	if (!Eq(pEngine->GetSpeed(), 0.0)) return;
 	if (!IsAttached()) return;
 
 	// loop thorugh all landed vessels and find one within range with MLP attach point
