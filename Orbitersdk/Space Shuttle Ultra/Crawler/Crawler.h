@@ -76,7 +76,10 @@
 #pragma once
 
 #include <vector>
+#include <orbitersdk.h>
+#include "../SSUMath.h"
 #include "meshres_drivetruck.h"
+#include "CrawlerEngine.h"
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
@@ -117,7 +120,7 @@ public:
 	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
 	bool clbkLoadGenericCockpit();
 	// This will extract the mission time from the saturn in order to pass to ProjectApollo MFD
-	double GetMissionTime() {return MissionTime;};
+	//double GetMissionTime() {return MissionTime;};
 
 private:
 	void DoFirstTimestep();
@@ -157,7 +160,10 @@ private:
 
 	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(15.4 / (395.0-131.5)), 15.4); };
 
-	double velocity;
+	CrawlerEngine* pEngine;
+
+	//double tgtVelocity;
+	//double velocity;
 	bool velocityStop;
 	//double targetHeading;
 	int viewPos;
@@ -165,7 +171,7 @@ private:
 	int standalone;
 	bool firstTimestepDone;
 	// Mission Time for passing to PAMFD:
-	double MissionTime;
+	//double MissionTime;
 
 	//double curHeight; // height above ground (m)
 	//double curAngle; // angle rel. to horizontal (rad)
@@ -182,8 +188,8 @@ private:
 	
 	VESSELSTATUS2 vs;
 
-	bool keyAccelerate;
-	bool keyBrake;
+	//bool keyAccelerate;
+	//bool keyBrake;
 	bool keyLeft;
 	bool keyRight;
 	bool keyCenter;
