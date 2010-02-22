@@ -451,12 +451,16 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
-	double maxVelocity = 0.894;
+	//double maxVelocity = 0.894;
 
-	if (!firstTimestepDone) DoFirstTimestep(); 
+	if (!firstTimestepDone) DoFirstTimestep();
+
+	// control crawler speed
+	if(IsAttached()) pEngine->SetMaxSpeed(MAX_LOADED_SPEED);
+	else pEngine->SetMaxSpeed(MAX_UNLOADED_SPEED);
 	pEngine->OnPreStep(simt, simdt, mjd);
 
-	if (IsAttached()) maxVelocity = maxVelocity / 2.0;
+	//if (IsAttached()) maxVelocity = maxVelocity / 2.0;
 	
 	double timeW = oapiGetTimeAcceleration();
 	/*double dv;
@@ -859,11 +863,13 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 	}
 
 	if (key == OAPI_KEY_ADD) {
-		pEngine->Accelerate(down);
+		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->Accelerate(down);
+		else if(viewPos == VIEWPOS_REARCABIN) pEngine->Brake(down);
 		return 1;
 	}
 	if (key == OAPI_KEY_SUBTRACT) {
-		pEngine->Brake(down);
+		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->Brake(down);
+		else if(viewPos == VIEWPOS_REARCABIN) pEngine->Accelerate(down);
 		return 1;
 	}
 

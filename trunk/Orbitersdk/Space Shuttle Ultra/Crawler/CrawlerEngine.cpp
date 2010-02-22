@@ -6,6 +6,7 @@ CrawlerEngine::CrawlerEngine()
 	targetSpeed = 0.0;
 	actualSpeed = 0.0;
 	enginePower = 0.0;
+	maxSpeed = MAX_UNLOADED_SPEED;
 	bReverse = false;
 
 	accelerate = false;
@@ -21,10 +22,10 @@ double CrawlerEngine::GetSpeed() const
 	return actualSpeed;
 }
 
-/*void CrawlerEngine::SetTargetSpeed(double speed)
+void CrawlerEngine::SetMaxSpeed(double speed)
 {
-	targetSpeed = speed;
-}*/
+	maxSpeed = speed;
+}
 
 void CrawlerEngine::Accelerate(bool _acc)
 {
@@ -41,8 +42,6 @@ void CrawlerEngine::Brake(bool _brake)
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 {
 	// calculate target velocity
-	const double maxVelocity = 0.894;
-
 	if(accelerate) {
 		double dv = SimDT * 0.1;
 		if (targetSpeed < 0 && targetSpeed + dv >= 0) {
@@ -51,7 +50,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		} else {
 			targetSpeed += dv;
 		}
-		if (targetSpeed > maxVelocity) targetSpeed = maxVelocity;
+		if (targetSpeed > maxSpeed) targetSpeed = maxSpeed;
 	}
 	else if(brake) {
 		double dv = SimDT * -0.1;
@@ -61,7 +60,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		} else {
 			targetSpeed += dv;
 		}
-		if (targetSpeed < -maxVelocity) targetSpeed = -maxVelocity;	
+		if (targetSpeed < -maxSpeed) targetSpeed = -maxSpeed;
 	}
 
 	// simplistic implementation of engine: acc is proportional to engine power
