@@ -17,6 +17,7 @@ public:
 
 	double GetSpeed() const;
 	//void SetTargetSpeed(double speed);
+	void SetMaxSpeed(double speed);
 
 	void Accelerate(bool _acc);
 	void Brake(bool _brake);
@@ -27,6 +28,7 @@ public:
 	void OnPreStep(double SimT, double SimDT, double MJD);
 private:
 	// speed in m/s
+	double maxSpeed;
 	double targetSpeed;
 	double actualSpeed;
 	bool bReverse;
