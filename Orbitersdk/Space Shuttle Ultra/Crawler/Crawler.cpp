@@ -873,7 +873,7 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 		return 1;
 	}
 
-	if(!down) {
+	if(down) {
 		if (key == OAPI_KEY_J) {
 			if (IsAttached())
 				Detach();
@@ -882,31 +882,31 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			return 1;
 		}
 
-		if (key == OAPI_KEY_1 && down == true) {
+		if (key == OAPI_KEY_1) {
 			SetView(VIEWPOS_FRONTCABIN);
 			return 1;
 		}
-		if (key == OAPI_KEY_2 && down == true) {
+		if (key == OAPI_KEY_2) {
 			SetView(VIEWPOS_REARCABIN);
 			return 1;
 		}
-		if (key == OAPI_KEY_3 && down == true) {
+		if (key == OAPI_KEY_3) {
 			SetView(VIEWPOS_ML);
 			return 1;
 		}
-		if (key == OAPI_KEY_4 && down == true) {
+		if (key == OAPI_KEY_4) {
 			SetView(VIEWPOS_GROUND);
 			return 1;
 		}
-		if (key == OAPI_KEY_5 && down == true) {
+		if (key == OAPI_KEY_5) {
 			SetView(VIEWPOS_FRONTGANGWAY);
 			return 1;
 		}
-		if (key == OAPI_KEY_6 && down == true) {
+		if (key == OAPI_KEY_6) {
 			SetView(VIEWPOS_REARGANGWAY);
 			return 1;
 		}
-		if (key == OAPI_KEY_7 && down == true) {
+		if (key == OAPI_KEY_7) {
 			SetView(VIEWPOS_RIGHTREARGANGWAY);
 			return 1;
 		}
