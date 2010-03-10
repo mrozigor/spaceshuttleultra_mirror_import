@@ -196,7 +196,7 @@ bool BasicVCComponent::OnReadState(FILEHANDLE scn) {
 			return false;
 		} else {
 			unsigned long i = 0;
-			while(*line != ' ' || *line != '\0') {
+			while(*line != ' ' && *line != '\0') {
 				pszKey[i++] = *line;
 				line++;
 			}

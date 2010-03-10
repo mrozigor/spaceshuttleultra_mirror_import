@@ -760,6 +760,14 @@ namespace vc {
 
 	void MDU::PrintToBuffer(const char* string, int length, int col, int row, char attributes)
 	{
+		if((col+length) > 51) {
+			char pszBuf[255];
+			sprintf_s(pszBuf, 255, "ERROR: MDU %d text buffer overflow", static_cast<int>(usMDUID));
+			oapiWriteLog(pszBuf);
+			strcpy(oapiDebugString(), pszBuf);
+
+			return;
+		}
 		for(int i=0;i<length;i++) {
 			textBuffer[col+i][row].cSymbol=string[i];
 			textBuffer[col+i][row].cAttr=attributes;

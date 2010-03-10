@@ -1241,7 +1241,8 @@ public:
 	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
-	void IgniteSRBs();	
+	void IgniteSRBs();
+	void SignalGSEStart();
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
 	void StartROFIs();
@@ -1296,7 +1297,6 @@ public:
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
 	//bool center_arm;
 	//bool arm_moved;
-	double center_arm_t;
 	bool do_eva;
 	bool do_plat;
 	bool do_cargostatic;
@@ -1409,7 +1409,6 @@ private:
 	bool bCommMode;
 	void DefineSSMEExhaust();
 	//void SignalGSEBreakHDP();
-	void SignalGSEStart();
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
@@ -1799,7 +1798,7 @@ private:
 	double pl_mass;
 	//double dT;
 	VECTOR3 GVesselPos, GVesselVel;
-	VESSELSTATUS Status;
+	//VESSELSTATUS Status;
 
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;

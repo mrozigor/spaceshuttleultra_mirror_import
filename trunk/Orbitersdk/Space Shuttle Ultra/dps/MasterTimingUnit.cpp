@@ -190,7 +190,7 @@ void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 		}
 
 
-		if(bMETCounting[timer])
+		if(bMETCounting[0])
 		{
 			fMET[timer][1] = fMET[timer][0] + fDeltaT;
 			if(fMET[timer][0] > 34560000.0) {
@@ -379,7 +379,7 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 		strcpy(pszTempA, line);
 		oapiWriteLog(pszTempA);
 		sscanf_s(pLine2, "%d %f %s %s",
-			&iTmpA, &fTmpA, pszTempA, pszTempB);
+			&iTmpA, &fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
 		if(iTmpA >=0 && iTmpA < 2)
 		{
 			//fEvent[iTmpA][0] = fTmpA;
