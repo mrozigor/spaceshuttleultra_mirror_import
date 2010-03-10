@@ -99,6 +99,9 @@ protected:
 
 	string AttachID;
 private:
+	/**
+	 * Called during first timestep to handle any objects attached when scn starts
+	 */
 	void CheckForAttachedObjects();
 
 	bool firstStep;

@@ -334,6 +334,9 @@ pActiveLatches(3, NULL)
   bundleManager = new DiscreteBundleManager();
   busManager = new dps::ShuttleBusManager();
   pCommModeHandler= new CommModeHandler(this);
+  
+  // initialize mdu pointers to NULL, otherwise we may get CTDs
+  for(i=0;i<11;i++) mdus[i] = NULL;
 
   plop            = new PayloadBayOp (this);
   //gop             = new GearOp (this);
@@ -371,6 +374,7 @@ pActiveLatches(3, NULL)
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
 
+  pPanelA8 = NULL;
   pExtAirlock = NULL;
 
 
@@ -419,8 +423,8 @@ pActiveLatches(3, NULL)
 
   psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
   
-  psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-Y Star Tracker Door Motor", 8.0));
-  psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-Z Star Tracker Door Motor", 8.0));
+  psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-YStarTrackerDoorMotor", 8.0));
+  psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-ZStarTrackerDoorMotor", 8.0));
 
   psubsystems->AddSubsystem(pACBusSystem = new eps::ACBusSystem(psubsystems));
   psubsystems->AddSubsystem(pInverter[0] = new eps::Inverter(psubsystems, "INVERTER1"));
@@ -467,9 +471,13 @@ pActiveLatches(3, NULL)
 	usPayloadType[i] = 0;
   }
 
-  
+  met = 0.0;
+  for(int i=0;i<4;i++) {
+	  MET[i]=0;
+	  START_TIME[i]=0;
+  }
 
-  status          = 3;
+  status          = STATE_ORBITER;
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
   spdb_proc       = 0.0;
@@ -564,8 +572,11 @@ pActiveLatches(3, NULL)
   thManFRCS4[0] = thManFRCS4[1] = NULL;
   thManFRCS5[0] = thManFRCS5[1] = NULL;
 
+  th_oms[0] = th_oms[1] = NULL;
+
   for(i=0;i<3;i++)
   {
+	th_main[i] = NULL;
 	th_ssme_gox[i] = NULL;
 	th_ssme_loxdump[i] = NULL;
 	thManLRCS1[i] = NULL;
@@ -642,7 +653,7 @@ pActiveLatches(3, NULL)
   //arm_moved       = false;
   //mpm_moved		  = false;
   bManualSeparate = false;
-  ofs_sts_sat     = _V(0,0,0);
+  //ofs_sts_sat     = _V(0,0,0);
   do_eva          = false;
   do_plat         = false;
   do_cargostatic  = false;
@@ -660,10 +671,10 @@ pActiveLatches(3, NULL)
   for(int i = 0; i<3; i++)
   {
 	ahCenterActive[i] = NULL;
-	ahCenterPassive[i] = NULL;
   }
   for(int i = 0; i<4; i++)
   {
+	ahCenterPassive[i] = NULL;
 	ahPortPL[i] = NULL;
 	ahStbdPL[i] = NULL;
   }
@@ -2556,7 +2567,7 @@ void Atlantis::SeparateBoosters (double met)
   oapiWriteLog(cbuf);
   //reset SSME PID controllers
   for(int i=0;i<3;i++) {
-	  for(int j=0;j>3;j++) SSMEGimbal[i][j].Reset();
+	  for(int j=0;j<3;j++) SSMEGimbal[i][j].Reset();
   }
 
   //stop playing sound
@@ -2744,7 +2755,7 @@ void Atlantis::SeparateMMU (void)
   GetStatus (vs);
   char name[256];
   strcpy (name, GetName()); strcat (name, "-MMU");
-  hMMU = VESSEL::Create (name, "Nasa_MMU", vs);
+  hMMU = oapiCreateVessel(name, "Nasa_MMU", vs);
   jettison_time = oapiGetSimTime();
   reset_mmu = true;
   // Remove MMU from shuttle instance
@@ -3974,7 +3985,7 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 				}
 				if(item==8) {
 					int nNew=atoi(Data);
-					if(nNew==2 || nNew==5) {
+					if(nNew==2 || nNew==4) {
 						TGT_ID=nNew;
 					}
 				}
@@ -4357,7 +4368,7 @@ void Atlantis::LoadTrackManeuver()
 {
 	MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270, Temp;
 	if(TGT_ID==2) {
-		GetStatus(Status);
+		//GetStatus(Status);
 		if(OM<=0.0) RotMatrixOM=IdentityMatrix;
 		else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
 		GetRotMatrixX(-P*RAD, RotMatrixP);
@@ -4431,7 +4442,7 @@ void Atlantis::LoadBurnAttManeuver()
 	VECTOR3 LVLHOrientation=BurnAtt;
 
 	MATRIX3 RotMatrixR, RotMatrixP, RotMatrixY, Temp;
-	GetStatus(Status);
+	//GetStatus(Status);
 	GetRotMatrixZ(LVLHOrientation.data[ROLL]*RAD, RotMatrixR);
 	GetRotMatrixX(-LVLHOrientation.data[PITCH]*RAD, RotMatrixP);
 	GetRotMatrixY(LVLHOrientation.data[YAW]*RAD, RotMatrixY);
@@ -4505,6 +4516,9 @@ void Atlantis::SetILoads()
 
 VECTOR3 Atlantis::CalcLVLHAttitude()
 {
+	VESSELSTATUS Status;
+	GetStatus(Status);
+
 	RefPoints GlobalPts, LocalPts;
 	MATRIX3 LocalToGlobal;
 	VECTOR3 LocVel, HVel;
@@ -4850,9 +4864,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   char pszBuffer[256];
   char pszLogBuffer[256];
   double srbtime = 0.0;
-  double sts_sat_x = 0.0;
+  /*double sts_sat_x = 0.0;
   double sts_sat_y = 0.0;
-  double sts_sat_z = 0.0;
+  double sts_sat_z = 0.0;*/
   spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
   while (oapiReadScenario_nextline (scn, line)) {
@@ -4898,13 +4912,13 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_D], &camYaw[CAM_D],
 			&camPitch[CAM_B], &camYaw[CAM_B], &camPitch[CAM_C], &camYaw[CAM_C]);
 		cameraMoved=true;
-    } else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
+    } /*else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_x);
     } else if (!_strnicmp (line, "SAT_OFS_Y", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_y);
     } else if (!_strnicmp (line, "SAT_OFS_Z", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_z);
-	} else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
+	}*/ else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
 		sscanf (line+12, "%lf", &pl_mass);
 	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
 		sscanf (line+17, "%s", cargo_static_mesh_name);
@@ -5016,7 +5030,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		ParsePayloadLine(line);
 	} else if (!_strnicmp(line, "@PANEL", 6)) {
 		char pszPanelName[30];
-		sscanf_s(line+6, "%s", pszPanelName);
+		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszBuffer));
 		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
 			pszPanelName, line);
 		oapiWriteLog(pszBuffer);
@@ -5061,9 +5075,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       // unrecognised option - pass to Orbiter's generic parser
     }
   }
-  ofs_sts_sat.x=sts_sat_x;
+  /*ofs_sts_sat.x=sts_sat_x;
   ofs_sts_sat.y=sts_sat_y;
-  ofs_sts_sat.z=sts_sat_z;
+  ofs_sts_sat.z=sts_sat_z;*/
 
   ClearMeshes();
   switch (status) {
@@ -5141,9 +5155,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  WriteScenario_state(scn, "EXTEND", Extend);*/
   }
 
-  oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
+  /*oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
   oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
-  oapiWriteScenario_float (scn, "SAT_OFS_Z", ofs_sts_sat.z);
+  oapiWriteScenario_float (scn, "SAT_OFS_Z", ofs_sts_sat.z);*/
 
   if (do_cargostatic) {
     oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
@@ -5277,7 +5291,7 @@ bool Atlantis::ParsePayloadLine(const char* pszLine)
 	float zpos = 0.0, mass = 0.0;
 	int x = 0;
 	sscanf_s(pszLine + 8, "%s",
-		pszKey);
+		pszKey, sizeof(pszKey));
 
 	sscanf_s(pszLine + 9 + strlen(pszKey), "%f %f %d",
 		&zpos, &mass, &x);
@@ -5496,7 +5510,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 {
 	//double dThrust;
 	double steerforce, airspeed;
-	int i;
 
 	//oapiWriteLog("In clbkPreStep");
 
@@ -5513,7 +5526,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	pgAft.OnPreStep(simT, simDT, mjd);
 	pgAftPort.OnPreStep(simT, simDT, mjd);
 	//throttle limits
-	for(i=0;i<2;i++)
+	for(int i=0;i<2;i++)
 	{
 		/*if(panelc3->OMS_Eng[i]<2) {
 			if(GetThrusterLevel(th_oms[i])>0.0 && GetThrusterLevel(th_oms[i])<1) {
@@ -5618,7 +5631,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
 		{
 			status = STATE_STAGE1; // launch
-			SignalGSEStart();
 			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
 			RecordEvent ("STATUS", "SSME_IGNITION");
 			//play sounds
@@ -6026,7 +6038,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		vs.rvel.x = rvel.x+rofs.x;
 		vs.rvel.y = rvel.y+rofs.y;
 		vs.rvel.z = rvel.z+rofs.z;
-		aVessel = new VESSEL (hMMU, 1);
+		aVessel = oapiGetVesselInterface(hMMU);
 		aVessel->DefSetState(&vs);
 		reset_mmu=false;
 	}

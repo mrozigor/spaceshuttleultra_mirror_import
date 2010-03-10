@@ -639,7 +639,6 @@ void Atlantis::AerojetDAP(double SimdT)
 
 void Atlantis::Maneuver(double dt)
 {
-	VECTOR3 ThrustVector;
 	sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 	if(BurnInProg)
 	{
@@ -650,6 +649,7 @@ void Atlantis::Maneuver(double dt)
 			BurnInProg=false;
 		}
 		else {
+			VECTOR3 ThrustVector;
 			GetThrustVector(ThrustVector); //inefficient
 			//only shows errors caused by burn timing
 			VGO.x-=((ThrustVector.z/GetMass())*dt)/fps_to_ms;
@@ -659,7 +659,7 @@ void Atlantis::Maneuver(double dt)
 	}
 	else if(met>=tig)
 	{
-		if(OMS!=3) {
+		if(OMS<3) {
 			//sprintf(oapiDebugString(), "Burning");
 			BurnInProg=true;
 			IgnitionTime=met;
@@ -1018,7 +1018,7 @@ void Atlantis::PCTControl(double SimT)
 
 void Atlantis::AttControl(double SimdT)
 {
-	int i;
+	//int i;
 
 	GetAngularVel(AngularVelocity);
 	GetGlobalOrientation(InertialOrientationRad);
@@ -1027,7 +1027,7 @@ void Atlantis::AttControl(double SimdT)
 
 	GetGlobalPos(GVesselPos);
 
-	for(i=0;i<3;i++) {
+	for(int i=0;i<3;i++) {
 		if(!RotPulseInProg[i]) ReqdRates.data[i]=AngularVelocity.data[i]*DEG;
 	}
 
@@ -1048,7 +1048,7 @@ void Atlantis::AttControl(double SimdT)
 			REQD_ATT=CurrentAttitude*DEG;
 		}
 		else if(ControlMode==LVLH) {
-			GetStatus(Status);
+			//GetStatus(Status);
 			LVLHOrientationReqd=CalcLVLHAttitude()*DEG;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
 		}
@@ -1056,7 +1056,7 @@ void Atlantis::AttControl(double SimdT)
 		ManeuverStatus=MNVR_COMPLETE; //(check value set here)
 
 		RHCInput.data[YAW]=-RHCInput.data[YAW]; //difference in Orbiter and STS frames
-		for(i=0;i<3;i++) {
+		for(int i=0;i<3;i++) {
 			if(RHCInput.data[i]>0.01) {
 				if(RHCInput.data[i]>0.75) ReqdRates.data[i]=1000;
 				else {
@@ -1084,7 +1084,7 @@ void Atlantis::AttControl(double SimdT)
 		MATRIX3 LastReqdAttMatrix;
 		VECTOR3 NullRates, NullRatesLocal;
 		if((ControlMode==AUTO && TRK) || ControlMode==LVLH) {
-			GetStatus(Status); //
+			//GetStatus(Status);
 			//LastReqdAtt=REQD_ATT;
 			LastReqdAttMatrix=ReqdAttMatrix;
 			ReqdAttMatrix=ConvertLVLHAnglesToM50Matrix(LVLHOrientationReqd*RAD);
@@ -1216,96 +1216,104 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 	VECTOR3 ThrusterLevel;
 	VECTOR3 CurrentRates;
 	CurrentRates=AngularVelocity*DEG;
+	VECTOR3 Error = Rates-CurrentRates;
+
 	VECTOR3 PriLimits, VernLimits;
 	PriLimits=_V(0.05, 0.05, 0.05);
 	VernLimits=_V(0.0015, 0.0015, 0.0015);
 	double dTimeAcc=oapiGetTimeAcceleration();
 	//sprintf_s(oapiDebugString(), 255, "%s Limits: %f %f %f", oapiDebugString(), VernLimits.x, VernLimits.y, VernLimits.z);
 
-	ThrusterLevel.data[PITCH]=Rates.data[PITCH]-CurrentRates.data[PITCH];
-	if(abs(ThrusterLevel.data[PITCH])>PriLimits.data[PITCH]) {
-		if(DAPMode[1]!=2) { // PRI/ALT
-			if(ThrusterLevel.data[PITCH]>0) {
-				SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_pitchdown, 0.0);
-			}
-			else if(ThrusterLevel.data[PITCH]<0) {
-				SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_pitchup, 0.0);
-			}
+	if(abs(Error.data[PITCH])>PriLimits.data[PITCH] && DAPMode[1]!=2) { // PRI/ALT
+		if(Error.data[PITCH]>0) {
+			ThrusterLevel.data[PITCH] = 1.0;
+			SetThrusterGroupLevel(thg_pitchup, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		}
-		else { // VERN
-			//sprintf(oapiDebugString(), "%f", dDiff);
-			if(ThrusterLevel.data[PITCH]>0) {
-				SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
-				SetThrusterGroupLevel(thg_pitchdown, 0.0);
-			}
-			else if(ThrusterLevel.data[PITCH]<0) {
-				SetThrusterGroupLevel(thg_pitchup, 0.0);
-				SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
-			}
+		else {
+			ThrusterLevel.data[PITCH] = -1.0;
+			SetThrusterGroupLevel(thg_pitchdown, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+		}
+	}
+	else if(abs(Error.data[PITCH])>VernLimits.data[PITCH] && DAPMode[1]==2) { // VERN
+		//sprintf(oapiDebugString(), "%f", dDiff);
+		if(Error.data[PITCH]>0) {
+			ThrusterLevel.data[PITCH] = 0.1;
+			SetThrusterGroupLevel(thg_pitchup, 0.1/dTimeAcc);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
+		}
+		else {
+			ThrusterLevel.data[PITCH] = -0.1;
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.1/dTimeAcc);
 		}
 	}
 	else {
+		ThrusterLevel.data[PITCH] = 0.0;
 		SetThrusterGroupLevel(thg_pitchup, 0.0);
 		SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		//If RHC is out of detent, pretend pulse is still in progress
 		if(abs(RHCInput.data[PITCH])<0.01) RotPulseInProg[PITCH]=false;
 	}
 
-	ThrusterLevel.data[YAW]=Rates.data[YAW]-CurrentRates.data[YAW];
-	if(abs(ThrusterLevel.data[YAW])>PriLimits.data[YAW]) {
-		if(DAPMode[1]!=2) { // PRI/ALT
-			if(ThrusterLevel.data[YAW]>0) {
-				SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_yawright, 0.0);
-			}
-			else if(ThrusterLevel.data[YAW]<0) {
-				SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_yawleft, 0.0);
-			}
+	if(abs(Error.data[YAW])>PriLimits.data[YAW] && DAPMode[1]!=2) { // PRI/ALT
+		if(Error.data[YAW]>0) {
+			ThrusterLevel.data[YAW] = 1.0;
+			SetThrusterGroupLevel(thg_yawleft, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_yawright, 0.0);
 		}
-		else { // VERN
-			if(ThrusterLevel.data[YAW]>0) {
-				SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
-				SetThrusterGroupLevel(thg_yawright, 0.0);
-			}
-			else if(ThrusterLevel.data[YAW]<0) {
-				SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
-				SetThrusterGroupLevel(thg_yawleft, 0.0);
-			}
+		else {
+			ThrusterLevel.data[YAW] = -1.0;
+			SetThrusterGroupLevel(thg_yawright, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
+		}
+	}
+	else if(abs(Error.data[YAW])>VernLimits.data[YAW] && DAPMode[1]==2) { // VERN
+		if(Error.data[YAW]>0) {
+			ThrusterLevel.data[YAW] = 0.1;
+			SetThrusterGroupLevel(thg_yawleft, 0.1/dTimeAcc);
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+		}
+		else {
+			ThrusterLevel.data[YAW] = -0.1;
+			SetThrusterGroupLevel(thg_yawright, 0.1/dTimeAcc);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 	}
 	else {
+		ThrusterLevel.data[YAW] = 0.0;
 		SetThrusterGroupLevel(thg_yawright, 0.0);
 		SetThrusterGroupLevel(thg_yawleft, 0.0);
 		if(abs(RHCInput.data[YAW])<0.01) RotPulseInProg[YAW]=false;
 	}
 
-	ThrusterLevel.data[ROLL]=Rates.data[ROLL]-CurrentRates.data[ROLL];
-	if(abs(ThrusterLevel.data[ROLL])>PriLimits.data[ROLL]) {
-		if(DAPMode[1]!=2) { // PRI/ALT
-			if(ThrusterLevel.data[ROLL]>0) {
-				SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_rollleft, 0.0);
-			}
-			else if(ThrusterLevel.data[ROLL]<0) {
-				SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
-				SetThrusterGroupLevel(thg_rollright, 0.0);
-			}
+	if(abs(Error.data[ROLL])>PriLimits.data[ROLL] && DAPMode[1]!=2) { // PRI/ALT
+		if(Error.data[ROLL]>0) {
+			ThrusterLevel.data[ROLL] = 1.0;
+			SetThrusterGroupLevel(thg_rollright, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
-		else { // VERN
-			if(ThrusterLevel.data[ROLL]>0) {
-				SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
-				SetThrusterGroupLevel(thg_rollleft, 0.0);
-			}
-			else if(ThrusterLevel.data[ROLL]<0) {
-				SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
-				SetThrusterGroupLevel(thg_rollright, 0.0);
-			}
+		else {
+			ThrusterLevel.data[ROLL] = -1.0;
+			SetThrusterGroupLevel(thg_rollleft, 1.0/dTimeAcc);
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+		}
+	}
+	else if(abs(Error.data[ROLL])>VernLimits.data[ROLL] && DAPMode[1]==2) { // VERN
+		if(Error.data[ROLL]>0) {
+			ThrusterLevel.data[ROLL] = 0.1;
+			SetThrusterGroupLevel(thg_rollright, 0.1/dTimeAcc);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
+		}
+		else {
+			ThrusterLevel.data[ROLL] = -0.1;
+			SetThrusterGroupLevel(thg_rollleft, 0.1/dTimeAcc);
+			SetThrusterGroupLevel(thg_rollright, 0.0);
 		}
 	}
 	else {
+		ThrusterLevel.data[ROLL] = 0.0;
 		SetThrusterGroupLevel(thg_rollright, 0.0);
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
 		if(abs(RHCInput.data[ROLL])<0.01) RotPulseInProg[ROLL]=false;

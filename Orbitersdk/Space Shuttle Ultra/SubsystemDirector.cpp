@@ -108,7 +108,6 @@ void SubsystemDirector::SetClassCaps(FILEHANDLE cfg)
 
 bool SubsystemDirector::ParseScenarioLine(FILEHANDLE scn, char* line)
 {
-	unsigned long i;
 	char pszBuffer[400];
 	if(!_strnicmp(line, "@SUBSYSTEM", 10)) {
 		oapiWriteLog(line);
@@ -140,7 +139,7 @@ bool SubsystemDirector::ParseScenarioLine(FILEHANDLE scn, char* line)
 			}
 		}
 	} else {
-		for(i = 0; i<subsystems.size(); i++)
+		for(unsigned long i = 0; i<subsystems.size(); i++)
 		{
 			//
 			if(subsystems[i]->OnParseLine(line))

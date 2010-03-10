@@ -223,7 +223,7 @@ void LatchSystem::CheckForAttachedObjects()
 		}
 		else { // check data loaded from scenario
 			if(attachmentIndex!=-1 && !payloadName.empty()) {
-				OBJHANDLE hV=oapiGetVesselByName((char*)payloadName.c_str());
+				hV=oapiGetVesselByName((char*)payloadName.c_str());
 				if(hV) {
 					VESSEL* v=oapiGetVesselInterface(hV);
 					ATTACHMENTHANDLE attach=v->GetAttachmentHandle(true, attachmentIndex);
