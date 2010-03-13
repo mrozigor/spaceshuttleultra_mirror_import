@@ -13,13 +13,13 @@ namespace vc {
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts)
 : sts(_sts), pParent(NULL), bHasReference(false), bHasDirection(false),
-	fInitialAnimState(0.0)
+	bHasAnimations(false), fInitialAnimState(0.0)
 {
 }
 
 BasicVCComponent::BasicVCComponent(Atlantis* _sts, const string& _ident)
 : sts(_sts), ident(_ident), pParent(NULL), bHasReference(false), 
-	bHasDirection(false), fInitialAnimState(0.0)
+	bHasDirection(false), bHasAnimations(false), fInitialAnimState(0.0)
 {
 
 }

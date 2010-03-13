@@ -105,7 +105,7 @@ namespace vc
 		if(usEnd < usStart) return;
 
 		unsigned short index = usCount;
-		for(unsigned short i=usStart;i<=usEnd, index<MAX_SIZE;i++, index++)
+		for(unsigned short i=usStart;(i<=usEnd && index<MAX_SIZE);i++, index++)
 		{
 			inPorts[index].Connect(pBundle, i);
 			outPorts[index].Connect(pBundle, i);

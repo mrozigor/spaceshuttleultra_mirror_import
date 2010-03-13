@@ -1181,7 +1181,6 @@ namespace vc {
 	void MDU::DAP_CONFIG()
 	{
 		char *strings[3]={" ALL", "NOSE", "TAIL"};
-		char *Edit[3]={"6/7 EDIT", "EDIT A", "EDIT B"};
 		char cbuf[255];
 		int lim[3]={3, 5, 5};
 		int i, n;

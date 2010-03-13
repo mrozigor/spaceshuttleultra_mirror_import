@@ -184,7 +184,7 @@ void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded)
 	unsigned short usMidPosition = (usNumPositions - 1)/2;
 	//bSpringLoaded=IsSpringLoaded;
 	for(unsigned short i=0;i<usNumPositions;i++) {
-		SetSpringLoaded((i!=usMidPosition), i);
+		SetSpringLoaded(IsSpringLoaded && (i!=usMidPosition), i);
 	}
 }
 
