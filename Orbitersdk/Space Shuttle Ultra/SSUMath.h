@@ -126,6 +126,11 @@ static inline double range(double min, double value, double max)
 	return value;
 }
 
+inline double minmax(double fmin, double x, double fmax)
+{
+	return min(fmax, max(x, fmin));
+}
+
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
 {
 	VECTOR3 Output;
