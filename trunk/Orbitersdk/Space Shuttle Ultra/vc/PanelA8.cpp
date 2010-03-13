@@ -223,7 +223,7 @@ namespace vc
 			short nValue, pointPos=-1;
 
 			sprintf_s(ledOut, 10, "%.4f", abs(LEDValues[id-AID_A8_LED1]));
-			for(int i=1, counter=0;i<5, counter<10;i++, counter++) {
+			for(int i=1, counter=0;(i<5 && counter<10);i++, counter++) {
 				// don't print decimal point as a number
 				if(ledOut[counter]=='.') {
 					pointPos=counter;

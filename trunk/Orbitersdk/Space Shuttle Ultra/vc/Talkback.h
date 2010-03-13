@@ -83,7 +83,7 @@ namespace vc
 		bool UpdateTalkback(SURFHANDLE surf, unsigned short upper_label, unsigned short lower_label);
 	public:
 		// maximum number of different inputs to talkback
-		static const int MAX_INPUTS = 2;
+		static const int MAX_INPUTS = 3;
 
 		Std2SegTalkback(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs=MAX_INPUTS);
 		virtual ~Std2SegTalkback();

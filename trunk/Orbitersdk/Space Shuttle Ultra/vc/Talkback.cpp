@@ -1,5 +1,6 @@
 #include "Talkback.h"
 #include "../Atlantis.h"
+#include <cassert>
 
 extern GDIParams g_Param;
 
@@ -33,6 +34,7 @@ namespace vc
 	StandardTalkback::StandardTalkback(Atlantis *_sts, const std::string &_ident, unsigned short _usInputs)
 		: BasicTalkback(_sts, _ident)
 	{
+		assert(_usInputs <= MAX_INPUTS);
 		usInputs=_usInputs;
 		// force talkback to be redrawn on first time step
 		tkbk_state=-1;
@@ -108,6 +110,7 @@ namespace vc
 	Std2SegTalkback::Std2SegTalkback(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs)
 		: BasicTalkback(_sts, _ident)
 	{
+		assert(_usInputs <= MAX_INPUTS);
 		usInputs=_usInputs;
 		usInactive=0;
 		usInactiveFlag=TB_GRAY;
