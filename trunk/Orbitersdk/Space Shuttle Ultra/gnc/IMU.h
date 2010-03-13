@@ -26,6 +26,7 @@
 
 #include "..\AtlantisSubsystem.h"
 #include "..\dps\BIU.h"
+#include "..\discsignals\discsignals.h"
 
 namespace gnc {
 
@@ -41,6 +42,8 @@ namespace gnc {
 		VECTOR3 sm_xref_gpos_old;
 		VECTOR3 sm_yref_gpos_old;
 		VECTOR3 sm_zref_gpos_old;
+
+		double fTemperatureState; //????
 	public:
 		IMU(SubsystemDirector* _director, const std::string& name, unsigned short usTerminalID=5);
 		virtual ~IMU();
@@ -58,7 +61,15 @@ namespace gnc {
 		virtual const VECTOR3& GetM50Acceleration() const;
 		virtual const VECTOR3& GetM50Attitude() const;
 
-		dps::BIU fc_connect;
+		virtual void TestInput(unsigned short word1, unsigned short word2);
 
+		//replace by subsystem serial I/O output
+		dps::BusTerminal fc_connect;		
+		//subsystem serial I/O is two-way.
+		
+		discsignals::DiscInPort power_on;
+		discsignals::DiscInPort operate;
+
+		discsignals::DiscOutPort InOperateMode;
 	};
 };
