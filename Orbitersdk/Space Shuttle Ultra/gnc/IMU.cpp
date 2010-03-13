@@ -6,7 +6,7 @@ namespace gnc {
 	: AtlantisSubsystem(_direct, _name),
 	fc_connect()
 	{
-		fc_connect.Init(this, _name + "-FC", usTerminalID, false);
+		fc_connect.Init(this, NULL, _name + "-FC", usTerminalID);
 	}
 
 	IMU::~IMU()
@@ -67,6 +67,11 @@ namespace gnc {
 		static VECTOR3 x;
 		x = _V(0.0, 0.0, 0.0);
 		return x;
+	}
+
+	void IMU::TestInput(unsigned short word1, unsigned short word2)
+	{
+		//verify behavior of IMU interface
 	}
 
 };
