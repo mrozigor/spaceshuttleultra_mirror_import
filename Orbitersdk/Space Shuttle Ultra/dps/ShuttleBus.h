@@ -38,16 +38,39 @@ namespace dps {
 
 	using namespace std;
 
+	
+
+	class IMDMProtocol {
+	public:
+		virtual bool MDMGetModuleType(unsigned int uiModule, unsigned short& usModuleType) = 0;
+		virtual bool MDMWrite(unsigned int uiModuleAddr, short sWord) = 0;
+		virtual bool MDMRead(unsigned int uiModuleAddr, short& sWord) = 0;
+		virtual bool MDMExecute(unsigned uiProgram, short* writeBuffer, short* readBuffer) = 0;
+	};
+
 	class ShuttleBus
 	{
+		unsigned long ulCycle;
 		string ident;
+		BusTerminal* m_lookup_table[31];
 		set<BIU*> connections;
+		set<BusTerminal*> terminals;
+		set<BusController*> controllers;
 	public:
 		ShuttleBus(const string& _ident);
 		virtual ~ShuttleBus();
 		virtual const string& GetIdent() const;
 		virtual void ConnectTo(BIU* pTarget);
-		virtual long Transmit(unsigned short usTarget, unsigned short usNumData, unsigned short usData[]);
+		//virtual long Transmit(unsigned short usTarget, unsigned short usNumData, unsigned short usData[]);
+		//virtual unsigned short Transmit(bool toMDM, short sDataCount, word24 dataw[]);
+		virtual void busPrePhase();
+		virtual void busCommandPhase();
+		virtual void busReadPhase();
+
+		BUS_COMMAND_WORD busCommand(BUS_COMMAND_WORD cw, 
+			unsigned long word_count, short* cdw);
+		unsigned long ReadData(unsigned int mdm, 
+			unsigned long word_count, short* rdw);
 	};
 
 	class ShuttleBusManager {
@@ -58,6 +81,7 @@ namespace dps {
 		ShuttleBus* CreateBus(const string& _ident);
 		ShuttleBus* FindBus(const string& _ident) const;
 		ShuttleBus* GetBus(const string& _ident);
+		void clbkPropagate(double fSimT, double fDeltaT);
 	};
 
 };

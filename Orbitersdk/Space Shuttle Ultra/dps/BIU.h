@@ -33,8 +33,9 @@ namespace dps {
 
 	using namespace std;
 
+
 	class FastQueue {
-		unsigned short usBuffer[1024];
+		word16 sBuffer[4096];
 		unsigned short usTailPtr;
 		unsigned short usHeadPtr;
 	public:
@@ -44,61 +45,119 @@ namespace dps {
 		};
 
 
-		inline unsigned short front() const {
-			return usBuffer[usHeadPtr];
+		inline word16 front() const {
+			return sBuffer[usHeadPtr];
 		};
 
 		inline void Pop() {
 			if(usHeadPtr != usTailPtr) {
-				usHeadPtr = (usHeadPtr + 1) % 1024;
+				usHeadPtr = (usHeadPtr + 1);
 			}
 		};
 
-		inline void Push(unsigned short usVal) {
-			if((usTailPtr + 1) % 1024 != usHeadPtr) {
-				usBuffer[usTailPtr] = usVal;
-				usTailPtr = (usTailPtr + 1) % 1024;
+		inline void Push(word16 sVal) {
+			if( usTailPtr < 4096) {
+				sBuffer[usTailPtr] = sVal;
+				usTailPtr++;
 			}
 		};
+
+		inline bool EndOfData() const {
+			return (usTailPtr < usHeadPtr) || IsEmpty();
+		}
 
 		inline void Purge() {
 			usTailPtr = 0;
 			usHeadPtr = 0;
 		};
 
+		inline void Rewind() {
+			usHeadPtr = 0;
+		}
+
 		inline bool IsEmpty() const {
-			return usTailPtr == usHeadPtr;
+			return (usTailPtr == 0);
 		}
 	};
 
+
 	class BIU {
+	protected:
 		AtlantisSubsystem* pParent;
 		string label;
-		unsigned short usReceiveBuffer[1024];
-		unsigned short usTransmitBuffer[1024];
+		IConnectedToBus* m_owner;
+
 		ShuttleBus* pBus;
-		bool bIsBusMaster;
-		bool bDontListen;
 		unsigned short usTerminalID;
-		void notifyReceived(unsigned long ulChannel);
-		void executeTransmitProgram(unsigned long ulChannel);
 	public:
 		BIU();
-		BIU(unsigned short usTerminalID, bool bIsMaster = false);
+		BIU(unsigned short usTerminalID);
 		virtual ~BIU();
-		void Label(const string& _label);
-		const string& GetLabel() const;
-		void SetParent(AtlantisSubsystem* pSubsys);
-		AtlantisSubsystem* GetParent() const;
-		void SetTerminalID(unsigned short TermID);
-		void Init(AtlantisSubsystem* pSubsys, const string& _label, 
-			unsigned short usTermID, bool bIsMaster);
+
+		virtual BUS_COMMAND_WORD busCommand(BUS_COMMAND_WORD cw, unsigned long word_count, short* cdw) = 0;
+		virtual void busCommandPhase() = 0;
+		virtual void busReadPhase() = 0;
+
 		void ConnectTo(ShuttleBus* pBus);
-		void MakeBusMaster();
-		void Listen(bool fEnable = true);
-		virtual void OnNewMessage();
-		virtual void SendFloat(unsigned short usTarget, float fValue);
-		virtual void SendWord(unsigned short usTarget, short sValue);
-		//virtual void Transmit();
+
+		/**
+		 * Clear the communication queue.
+		 */
+		
+
+		const string& GetLabel() const;
+		AtlantisSubsystem* GetParent() const;
+		inline short GetTerminalID() const {return usTerminalID;};
+
+		void Init(AtlantisSubsystem* pSubsys,
+			IConnectedToBus* owner,
+			const string& _label, 
+			unsigned short usTermID);
+		virtual bool IsController() const;
+		virtual bool IsTerminal() const;
+
+		void Label(const string& _label);
+
+		void SetParent(AtlantisSubsystem* pSubsys);		
+		void SetTerminalID(unsigned short TermID);
 	};
+
+
+
+	class BusTerminal: public BIU
+	{
+	protected:
+		FastQueue output_data;
+	public:
+		BusTerminal();
+		BusTerminal(unsigned short usTerminalID);
+		virtual ~BusTerminal();
+		virtual void busCommandPhase();
+		virtual void busReadPhase();
+		bool Flush();
+		virtual bool IsTerminal() const;
+		virtual unsigned long ReadData(unsigned long num_data, 
+			word16* data);
+		bool Rewind();
+		void WriteData(unsigned long num_data, word16* data);
+		virtual BUS_COMMAND_WORD busCommand(BUS_COMMAND_WORD cw, 
+			unsigned long word_count, word16* cdw);
+	};
+
+	class BusController: public BIU
+	{
+	public:
+		BusController();
+		BusController(unsigned short usTerminalID);
+		virtual ~BusController();
+		virtual BUS_COMMAND_WORD busCommand(BUS_COMMAND_WORD cw, unsigned long word_count, short* cdw);
+		virtual void busCommandPhase();
+		virtual void busReadPhase();
+		virtual bool IsController() const;
+		void Listen(bool fEnable = true);
+		unsigned long ReadData(unsigned int mdm, unsigned long word_count,
+			short* rdw);
+	};
+
+	
 };
