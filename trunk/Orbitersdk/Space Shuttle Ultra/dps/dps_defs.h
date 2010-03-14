@@ -74,10 +74,24 @@ namespace dps {
 	 * Connection between Shuttle Bus and subsystems.
 	 */
 	class BIU;
+	class BusTerminal;
+	class BusController;
 	/**
-	 * Class representing a random access memory with 16 bit words. 
+	 * Class representing a random access memory with 32 bit words. 
 	 */
-	class RAM16;
+	class RAM32;
+
+	//typedef long word24;
+	typedef long word32;
+	typedef short word16;
+
+	typedef union {
+		unsigned int uaddr:24;
+		char cd[3];
+	} word24;
+
+	typedef float float32;
+	typedef unsigned char gpcchar;
 
 	typedef enum {
 		GNC = 0,
@@ -89,6 +103,22 @@ namespace dps {
 		char cSymbol;
 		char cAttr;
 	} DEUCHAR;
+
+	typedef struct {
+		word16 bite1;
+		word16 bite2;
+		word16 bite3;
+		word16 bite4;
+		word16 deu_mf;
+		word16 cmd_len;
+
+		gpcchar cmd_line[32];
+	} DEU_STATUS;
+
+	typedef struct {
+		int event_used:15;
+		int event_state:1;
+	} EVENT;
 
 	/**
 	 * @brief IRIG-B compatible time frame
@@ -111,6 +141,7 @@ namespace dps {
 		unsigned char uP8:8;
 		unsigned char uP9:8;
 	} IRIGB_FRAME;
+
 
 	typedef struct {
 		unsigned int uSeconds:7;
@@ -138,6 +169,43 @@ namespace dps {
 		long lData[32];
 	} DEU_DATA;
 
-	
+	typedef struct {
+		unsigned int word_count:5;
+		union {
+			struct{
+				unsigned int channel_addr:5;
+				unsigned int module_addr:4;
+			};
+			unsigned int prom_addr:9;
+		};
+		unsigned int mode_ctrl:5;
+		unsigned int mdm_no:5;
+		unsigned int _spare_:8;
+	} BUS_COMMAND_WORD;
+
+	class IConnectedToBus {
+	public:
+		virtual void busCommandPhase(BusController* biu) = 0;
+		virtual void busReadPhase(BusController* biu) = 0;
+		virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
+			unsigned long num_data, word16 *cdw) = 0;
+	};	
+
+	typedef union {
+		float32 fl32;
+		word32 dword;
+		word16 word[2];
+		BUS_COMMAND_WORD cw;
+	} MEMORY_WORD;
+
+	inline BUS_COMMAND_WORD _CW(unsigned int mdm, unsigned int mode_control, unsigned int data, unsigned int word_count) {
+		BUS_COMMAND_WORD t;
+		t.mdm_no = mdm;
+		t.mode_ctrl = mode_control;
+		t.prom_addr = data;
+		t.word_count = (word_count-1);
+		return t;
+	};
+
 
 };
