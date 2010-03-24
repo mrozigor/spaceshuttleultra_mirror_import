@@ -10,11 +10,15 @@ namespace dps {
 
 		ostringstream sbuf;
 
-		for(int i = 0; i<24; i++) {
+		for(int i = 0; i<20; i++) {
 			sbuf.str("");
 			sbuf << "MIA" << i + 1;
-			channel[i].Init(this, sbuf.str(), usGPCID, false);
+			channel[i].Init(this, NULL, sbuf.str(), usGPCID);
 		}
+		ICC[0].Init(this, NULL, "ICCA", (usGPCID + 1)%5 + 1);
+		ICC[1].Init(this, NULL, "ICCB", (usGPCID + 2)%5 + 1);
+		ICC[2].Init(this, NULL, "ICCC", (usGPCID + 3)%5 + 1);
+		ICC[3].Init(this, NULL, "ICCD", (usGPCID + 4)%5 + 1);
 	}
 
 	GPC::~GPC() {
@@ -26,6 +30,18 @@ namespace dps {
 	}
 
 	void GPC::ClearGPCMemory() {
+	}
+
+	void GPC::fcosClose()
+	{
+	}
+
+	void GPC::fcosSchedule()
+	{
+	}
+
+	void GPC::fcosWait(long delay)
+	{
 	}
 
 	void GPC::FreeApplicationMemory() {
@@ -44,6 +60,7 @@ namespace dps {
 		} else if(ipl_source2.IsSet()) {
 
 		}
+		//Load GPCIPL software
 	}
 
 	void GPC::LoadMemoryConfiguration(unsigned short usMemConfig) {
@@ -74,5 +91,10 @@ namespace dps {
 
 	void GPC::OnPostStep(double fSimT, double fDeltaT, double fMJD) {
 		//sprintf_s(oapiDebugString(), 255, "sizeof(__psw) = %d", sizeof(AP101PSW));
+	}
+
+	void GPC::SupervisorCall(char function)
+	{
+
 	}
 };
