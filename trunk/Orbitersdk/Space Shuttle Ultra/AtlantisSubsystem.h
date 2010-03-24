@@ -130,6 +130,10 @@ public:
 	 */
 	virtual bool OnParseLine(const char* line);
 	/**
+	 *
+	 */
+	virtual bool OnParseLine(const char* keyword, const char* line);
+	/**
 	 * Save the state of the subsystem
 	 */
 	virtual void OnSaveState(FILEHANDLE scn) const;
@@ -183,7 +187,7 @@ public:
 	 */
 	ShuttleBusManager* BusManager() const;
 
-	virtual bool OnParseLine(const char* keyword, const char* line);
+	
 	virtual bool OnReadState (FILEHANDLE scn);
 	virtual void OnSetClassCaps();
 	virtual bool SingleParamParseLine() const {return false;};

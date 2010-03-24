@@ -16,6 +16,8 @@
 #include "Atlantis.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK35.h>
+#include <iostream>
+#include <fstream>
 #include "PlBayOp.h"
 //#include "GearOp.h"
 #include "PanelA4.h"
@@ -99,13 +101,32 @@ HELPCONTEXT g_hc = {
   "html/vessels/Atlantis.chm::/Atlantis.hhk"
 };
 
+std::ofstream animlog;
+
+inline void BeginLoggingAnims(void)
+{
+	animlog.open("SSUAnimation.log");
+	animlog << "ANIMATION LOG" << std::endl;
+}
+
+inline void LogAnim(const std::string& name, UINT anim)
+{
+
+	animlog << name << "\t" << std::dec << anim << " ( 0x"<<std::hex << anim << ")" << std::endl;
+}
+
+inline void EndLoggingAnims(void)
+{
+	
+	animlog.close();
+}
+
 // ==============================================================
 // Local prototypes
 
 BOOL CALLBACK Atlantis_DlgProc (HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK RMS_DlgProc (HWND, UINT, WPARAM, LPARAM);
 extern void GetSRB_State (double met, double &thrust_level, double &prop_level);
-
 
 // ==============================================================
 // Airfoil coefficient functions
@@ -319,7 +340,9 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 : VESSEL2 (hObj, fmodel),
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
-pActiveLatches(3, NULL)
+pActiveLatches(3, NULL),
+dapcontrol(NULL),
+gncsoftware(NULL)
 {
 #ifdef _DEBUG
         // D. Beachy: for BoundsChecker debugging
@@ -331,6 +354,7 @@ pActiveLatches(3, NULL)
   // Make these first, for avoiding CTDs
   //----------------------------------------------------
   pMission = NULL;			//No mission selected
+  options = new SSUOptions();
   bundleManager = new DiscreteBundleManager();
   busManager = new dps::ShuttleBusManager();
   pCommModeHandler= new CommModeHandler(this);
@@ -348,8 +372,13 @@ pActiveLatches(3, NULL)
   dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
 
-  gncsoftware	= new dps::GNCSoftware(this);
-  rsls			= new dps::RSLS(this);
+  oapiWriteLog("******************************************************");  
+  oapiWriteLog("(Space Shuttle Ultra) Say Dennis that he has disabled");
+  oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
+  oapiWriteLog("******************************************************");  
+  //rsls			= new dps::RSLS(this);
+  //gncsoftware	= new dps::GNCSoftware(this);
+  
 
   pgForward.AddPanel(new vc::PanelF2(this));
   pgForward.AddPanel(new vc::PanelF4(this));
@@ -1653,6 +1682,7 @@ void Atlantis::DefineAnimations (void)
   //UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
+  BeginLoggingAnims();
 
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
@@ -1725,7 +1755,9 @@ void Atlantis::DefineAnimations (void)
 	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
+  LogAnim("anim_door", anim_door);
   anim_rad = CreateAnimation (0);
+  LogAnim("anim_rad", anim_rad);
   anim_clatch[0] = CreateAnimation(0);
   anim_clatch[1] = CreateAnimation(0);
   anim_clatch[2] = CreateAnimation(0);
@@ -1780,6 +1812,7 @@ void Atlantis::DefineAnimations (void)
     _V(0, -2.26, -3.68), _V(1, 0, 0), (float)(94.5*RAD));
 
   anim_gear = CreateAnimation (0);
+  LogAnim("anim_gear", anim_gear);
   AddAnimationComponent (anim_gear, 0,   0.5, &LNosewheelDoor);
   AddAnimationComponent (anim_gear, 0,   0.5, &RNosewheelDoor);
   AddAnimationComponent (anim_gear, 0.4, 1.0, &Nosewheel);
@@ -1798,10 +1831,12 @@ void Atlantis::DefineAnimations (void)
   static UINT DragChute[4] = {0, 1, 2, 3};
   static MGROUP_SCALE ScaleAll(mesh_dragchute, DragChute, 4, _V(0.0, 0.0, 0.0), _V(0.01, 0.01, 0.01));
   anim_chute_deploy = CreateAnimation(0.0);
+  LogAnim("anim_chute_deploy", anim_chute_deploy);
   AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleCords);
   AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleChute);
   parent=AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
   anim_chute_spin = CreateAnimation(0.0);
+  LogAnim("anim_chute_spin", anim_chute_spin);
   static MGROUP_ROTATE SpinChute1(mesh_dragchute, DragChute, 4,
 	  _V(0, 0, 0), _V(0.00609621, -0.0146035, -0.999875), (float)(400.0*RAD));
   AddAnimationComponent(anim_chute_spin, 0.0, 0.5, &SpinChute1, parent);
@@ -1824,6 +1859,7 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE ElevatorDoor_down (midx, ElevDoorGrp_down, 4,
     _V(0,-1.798,-8.246), _V(1,0,0), (float)(2.5*RAD));
   anim_elev = CreateAnimation (0.5);
+  LogAnim("anim_elev", anim_elev);
   AddAnimationComponent (anim_elev, 0.5, 1, &Elevator_up);
   AddAnimationComponent (anim_elev, 0, 0.5, &Elevator_down);
   AddAnimationComponent (anim_elev, 0.5, 1, &ElevatorDoor_up);
@@ -1833,6 +1869,7 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE BodyFlap (midx, bfGrp, 1,
     _V(0,-2.034,-12.256), _V(1,0,0), (float)(22.5*RAD));
   anim_bf = CreateAnimation (0.5);
+  LogAnim("anim_bf", anim_bf);
   AddAnimationComponent (anim_bf, 0, 1, &BodyFlap);
 
   // ***** 5. Aileron animation of elevons *****
@@ -1868,11 +1905,13 @@ void Atlantis::DefineAnimations (void)
     _V(0,-1.798,-8.246), _V(1,0,0), (float)(2.5*RAD));
 
   anim_laileron = CreateAnimation (0.5);
+  LogAnim("anim_laileron", anim_laileron);
   AddAnimationComponent (anim_laileron, 0, 0.5, &LAileron_up);
   AddAnimationComponent (anim_laileron, 0, 0.5, &LAileronDoor_up);
   AddAnimationComponent (anim_laileron, 0.5, 1, &LAileron_down);
   AddAnimationComponent (anim_laileron, 0.5, 1, &LAileronDoor_down);
   anim_raileron = CreateAnimation (0.5);
+  LogAnim("anim_raileron", anim_raileron);
   AddAnimationComponent (anim_raileron, 0, 0.5, &RAileron_down);
   AddAnimationComponent (anim_raileron, 0, 0.5, &RAileronDoor_down);
   AddAnimationComponent (anim_raileron, 0.5, 1, &RAileron_up);
@@ -1884,6 +1923,7 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE Rudder (midx, RudderGrp, 2,
     _V(0,5.611325,-11.835325), _V(0.037,-0.833,0.552), (float)(54.2*RAD));
   anim_rudder = CreateAnimation (0.5);
+  LogAnim("anim_rudder", anim_rudder);
   AddAnimationComponent (anim_rudder, 0, 1, &Rudder);
 
   // ***** 7. Speedbrake animation *****
@@ -1896,6 +1936,7 @@ void Atlantis::DefineAnimations (void)
     _V(-0.3112,5.611325,-11.835325), _V(0.037,0.833,-0.552), (float)(49.3*RAD));
 
   anim_spdb = CreateAnimation (0);
+  LogAnim("anim_spdb", anim_spdb);
   AddAnimationComponent (anim_spdb, 0, 1, &SB1);
   AddAnimationComponent (anim_spdb, 0, 1, &SB2);
 
@@ -1911,6 +1952,7 @@ void Atlantis::DefineAnimations (void)
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
     _V(-1.9,1.72,11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
+  LogAnim("anim_camFLyaw", anim_camFLyaw);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
   static UINT camFLPitchGrp[1] = {GRP_CCTV_FL};
@@ -1918,6 +1960,7 @@ void Atlantis::DefineAnimations (void)
     _V(-1.9,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
   //anim_camFLpitch = CreateAnimation (0.5);
   anim_camFLpitch = CreateAnimation (0.7647);
+  LogAnim("anim_camFLpitch", anim_camFLpitch);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
   // FRONT RIGHT
@@ -1925,12 +1968,14 @@ void Atlantis::DefineAnimations (void)
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
     _V(1.863,1.72,11.87), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
+  LogAnim("anim_camFRyaw", anim_camFRyaw);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
   static UINT camFRPitchGrp[1] = {GRP_CCTV_FR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
     _V(1.863,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.7647);
+  LogAnim("anim_camFRpitch", anim_camFRpitch);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
   // BACK LEFT
@@ -1938,12 +1983,14 @@ void Atlantis::DefineAnimations (void)
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
     _V(-2.31,+1.79,-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
+  LogAnim("anim_camBLyaw", anim_camBLyaw);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CCTV_BL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
     _V(-2.31,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
   anim_camBLpitch = CreateAnimation (0.7647);
+  LogAnim("anim_camBLpitch", anim_camBLpitch);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
   // BACK RIGHT
@@ -1951,12 +1998,14 @@ void Atlantis::DefineAnimations (void)
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
     _V(2.29,1.79,-6.31), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
+  LogAnim("anim_camBRyaw", anim_camBRyaw);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CCTV_BR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
     _V(2.29,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
   anim_camBRpitch = CreateAnimation (0.7647);
+  LogAnim("anim_camBRpitch", anim_camBRpitch);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
   // ***** 10 Dummy animation *****
@@ -1974,7 +2023,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
 	  UMBDOORR_REF, UMBDOOR_AXIS, (float)(-180.0*RAD));
   anim_letumbdoor = CreateAnimation(0);
+  LogAnim("anim_letumbdoor", anim_letumbdoor);
   anim_retumbdoor = CreateAnimation(0);
+  LogAnim("anim_retumbdoor", anim_retumbdoor);
   AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
   AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
 
@@ -1997,7 +2048,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE SSMETPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMET_GOX_REF1), 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeTyaw = CreateAnimation(0.5);
+  LogAnim("anim_ssmeTyaw", anim_ssmeTyaw);
   anim_ssmeTpitch = CreateAnimation(0.5);
+  LogAnim("anim_ssmeTpitch", anim_ssmeTpitch);
 
   parent = AddAnimationComponent(anim_ssmeTyaw, 0.0, 1.0, &SSMETYaw, NULL);
   AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitch, parent);
@@ -2010,7 +2063,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE SSMELPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMEL_GOX_REF1), 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeLyaw = CreateAnimation(0.5);
+  LogAnim("anim_ssmeLyaw", anim_ssmeLyaw);
   anim_ssmeLpitch = CreateAnimation(0.5);
+  LogAnim("anim_ssmeLpitch", anim_ssmeLpitch);
 
   parent = AddAnimationComponent(anim_ssmeLyaw, 0.0, 1.0, &SSMELYaw, NULL);
   AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitch, parent);
@@ -2022,7 +2077,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE SSMERPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMER_GOX_REF1), 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
   anim_ssmeRyaw = CreateAnimation(0.5);
+  LogAnim("anim_ssmeRyaw", anim_ssmeRyaw);
   anim_ssmeRpitch = CreateAnimation(0.5);
+  LogAnim("anim_ssmeRpitch", anim_ssmeRpitch);
 
   parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
   AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
@@ -2041,9 +2098,11 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE ADPR_Deploy (midx, ADPR_Grp, 1, PROBER_REF, PROBE_AXIS, (float)(-180.0 * RAD));
 
   anim_adpl = CreateAnimation(1.0);
+  LogAnim("anim_adpl", anim_adpl);
   AddAnimationComponent(anim_adpl, 0.0, 1.0, &ADPL_Deploy);
 
   anim_adpr = CreateAnimation(1.0);
+  LogAnim("anim_adpr", anim_adpr);
   AddAnimationComponent(anim_adpr, 0.0, 1.0, &ADPR_Deploy);
 
   // ======================================================
@@ -2057,11 +2116,13 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
 
   anim_stzd = CreateAnimation(1.0);
+  LogAnim("anim_stzd", anim_stzd);
   AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
 
   pSTZDoorMotor->SetObjectAnim(anim_stzd);
 
   anim_styd = CreateAnimation(1.0);
+  LogAnim("anim_styd", anim_styd);
   AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
 
   pSTYDoorMotor->SetObjectAnim(anim_styd);
@@ -2079,6 +2140,8 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   //panelc3->DefineVCAnimations (vidx);
   //panelr2->DefineVCAnimations (vidx);
+
+  EndLoggingAnims();
 }
 
 void Atlantis::DefineAttachments (const VECTOR3& ofs0)
@@ -4820,23 +4883,27 @@ double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 // --------------------------------------------------------------
 void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 {
-  if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
-    render_cockpit = false;
 
-  if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
-    bUseRealRCS = false;
+	options->Parse(cfg);
+	if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
+		render_cockpit = false;
 
-  if(!oapiReadItem_bool (cfg, "EnableMCADebug", bEnableMCADebug))
-	  bEnableMCADebug = false;
+	if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
+		bUseRealRCS = false;
+
+	if(!oapiReadItem_bool (cfg, "EnableMCADebug", bEnableMCADebug))
+		bEnableMCADebug = false;
   
 
 
-  psubsystems->SetClassCaps(cfg);
+	psubsystems->SetClassCaps(cfg);
 
-  if(pA7A8Panel) 
-  {
-	  
-  }
+	/*
+	if(pA7A8Panel) 
+	{
+		  
+	}
+	*/
 }
 
 // --------------------------------------------------------------
@@ -5139,6 +5206,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteLine(scn, "  STBD_MPM"); 
 	  //WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
   }
+  
   if(RMS) {
 	  oapiWriteLine(scn, "  RMS");
 	  /*sprintf (cbuf, "%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f", arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr);
@@ -5508,10 +5576,15 @@ void Atlantis::clbkPostCreation ()
 
 void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 {
-	//double dThrust;
+	static bool ___PreStep_flag = false;
+//	double dThrust;
 	double steerforce, airspeed;
 
-	//oapiWriteLog("In clbkPreStep");
+	if(!___PreStep_flag)
+	{
+		oapiWriteLog("In clbkPreStep");
+		___PreStep_flag = true;
+	}
 
 	//Stopwatch st;
 	//st.Start();
@@ -5600,6 +5673,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 {
+	static bool ___PostStep_flag = false;
 	//double met;
 	double airspeed;
 	int i;
@@ -5608,11 +5682,32 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//Stopwatch st;
 	//st.Start();
 
-	//oapiWriteLog("In clbkPostStep");
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Entering.");
+	}
 
-	dapcontrol->OnPostStep(simt, simdt, mjd);
-	gncsoftware->OnPostStep(simt, simdt, mjd);
+	
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Processing subsystems.");
+	}
 	psubsystems->PostStep(simt, simdt, mjd);
+
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
+	}
+	if(dapcontrol != NULL)
+		dapcontrol->OnPostStep(simt, simdt, mjd);
+	if(gncsoftware != NULL)
+		gncsoftware->OnPostStep(simt, simdt, mjd);
+
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Processing panels.");
+	}
+	
 	//Panel groups
 	pgLeft.OnPostStep(simt, simdt, mjd);
 	pgForward.OnPostStep(simt, simdt, mjd);
@@ -5622,7 +5717,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	pgAftStbd.OnPostStep(simt, simdt, mjd);
 	pgAft.OnPostStep(simt, simdt, mjd);
 	pgAftPort.OnPostStep(simt, simdt, mjd);
+
 	
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
+	}
 	
 
 	switch (status) {
@@ -6182,6 +6282,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
 	//oapiWriteLog(oapiDebugString());
+
+	if(!___PostStep_flag)
+	{
+		oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
+		___PostStep_flag = true;
+	}
+
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
@@ -6294,6 +6401,7 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 // --------------------------------------------------------------
 void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 {
+  oapiWriteLog("(Atlantis::clbkVisualCreated) Entered.");
   if (refcount > 1) return; // we don't support more than one visual per object
   vis = _vis;
 
@@ -6312,6 +6420,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 #endif
   //UpdateOrbiterTexture();
   //UpdateETTexture();
+  oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
 // --------------------------------------------------------------
@@ -8370,12 +8479,15 @@ void Atlantis::DefineKUBandAnimations()
     _V(2.549,1.874,10.280), _V(0,1,0), (float)(-162*RAD));
 
   anim_kubd = CreateAnimation (0);
+  LogAnim("anim_kubd", anim_kubd);
   ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     1, &KuBand1);
 
   anim_kualpha = CreateAnimation(0.0);
+  LogAnim("anim_kualpha", anim_kualpha);
   parent = AddAnimationComponent (anim_kualpha, 0, 1, &KuBand2, parent);
 
   anim_kubeta = CreateAnimation(0.5);
+  LogAnim("anim_kubeta", anim_kubeta);
   AddAnimationComponent (anim_kubeta, 0.0, 0.1, &KuBand3, parent);
 
 }
