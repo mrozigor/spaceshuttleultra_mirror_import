@@ -44,7 +44,7 @@ protected:
 	Atlantis* psts;
 	vector<AtlantisSubsystem*> subsystems;
 public:
-	virtual Atlantis* STS();
+	virtual Atlantis* STS() const;
 	SubsystemDirector(Atlantis* _sts);
 	~SubsystemDirector();
 	bool AddSubsystem(AtlantisSubsystem* pSubsys);
@@ -58,6 +58,7 @@ public:
 	bool SaveState(FILEHANDLE scn);
 	bool PostStep(double fSimT, double fDeltaT, double fMJD);
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
+	bool Report() const;
 	bool WriteLog(const AtlantisSubsystem* src, char* message);
 	virtual DiscreteBundleManager* BundleManager() const;
 

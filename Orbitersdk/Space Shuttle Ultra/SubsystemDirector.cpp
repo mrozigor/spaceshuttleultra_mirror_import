@@ -1,7 +1,10 @@
 #include "SubsystemDirector.h"
 #include "Atlantis.h"
 #include "AtlantisSubsystem.h"
+#include "dps/ShuttleBus.h"
 #include <algorithm>
+#include "util/Stopwatch.h"
+#include <ctime>
 
 SubsystemDirector::SubsystemDirector(Atlantis* _sts)
 : psts(_sts)
@@ -180,22 +183,29 @@ bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 	unsigned long i;
 	//const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
 	const double SUBSAMPLING_DELTAT = 0.04;	//40 ms
+	double tsf = 0.0;
 	
 
 	//Subsampling pass
 	double t0 = fSimT;
 	long lSubCount = 0;
+	Stopwatch sw;
+
 	while(t0 < fSimT + fDeltaT) {
 		double dt = min(SUBSAMPLING_DELTAT, fSimT + fDeltaT - t0);
+		sw.Start();
 		for(i = 0; i<subsystems.size(); i++)
 		{	
 			subsystems[i]->OnSubPreStep(t0, dt, fMJD);
 		}
+		if(BusManager() != NULL)
+			BusManager()->clbkPropagate(t0, dt);
 		for(i = 0; i<subsystems.size(); i++)
 		{
 			//
 			subsystems[i]->OnSubPropagate(t0, dt, fMJD);
 		}
+
 
 		for(i = 0; i<subsystems.size(); i++)
 		{	
@@ -203,9 +213,11 @@ bool SubsystemDirector::PostStep(double fSimT, double fDeltaT, double fMJD)
 		}
 		t0 += SUBSAMPLING_DELTAT;
 		lSubCount ++;
+		//measure average time for the subsampling during this time step
+		tsf += (sw.Stop()-tsf)/lSubCount;
 	}
 
-	//sprintf_s(oapiDebugString(), 255, "%d SUBSAMPLING STEPS", lSubCount);
+	sprintf_s(oapiDebugString(), 255, "%d SUBSAMPLING STEPS @ %5.2f us", lSubCount, tsf);
 
 	//Propagate subsystem states to the end of the discrete timestep
 	for(i = 0; i<subsystems.size(); i++)
@@ -232,6 +244,44 @@ bool SubsystemDirector::PreStep(double fSimT, double fDeltaT, double fMJD)
 	return true;
 }
 
+bool SubsystemDirector::Report() const
+{
+	unsigned int i;
+	time_t t0;
+	static char buffer[512];
+
+	t0 = time(NULL);
+	ctime_s(buffer, 511, &t0);
+	//Create report file
+	std::ofstream report;
+	report.open("ssu-subsys-report.html");
+	report << "<!doctype html>" << std::endl;
+	report << "<html>" << std::endl << "<head>" << std::endl;
+	report << "<title>SSU subsystem report " << 
+		STS()->GetName() << "</title>" << std::endl;
+	report << "</head>" << std::endl;
+
+	report << "<body>" << std::endl;
+	report << "<header>" << buffer << "</header>" << std::endl;
+	
+	report << "<h1>SSU subsystem report</h1>" << std::endl;
+	report << "<h2>List of existing subsystems</h2>" << std::endl;
+
+	report << "<ol>" << std::endl;
+
+	for(i = 0; i<subsystems.size(); i++)
+	{
+		report << "<li>" << subsystems[i]->GetIdentifier() << "</li>"
+			<< std::endl;
+	}
+
+	report << "</ol>" << std::endl;
+
+	report << "</body>" << std::endl << "</html>" << std::endl;
+	report.close();
+	return true;
+}
+
 bool SubsystemDirector::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
 {
 
@@ -248,7 +298,7 @@ bool SubsystemDirector::WriteLog(const AtlantisSubsystem* src, char* message)
 	return true;
 }
 
-Atlantis* SubsystemDirector::STS()
+Atlantis* SubsystemDirector::STS() const
 {
 	return psts;
 }

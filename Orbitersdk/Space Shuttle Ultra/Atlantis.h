@@ -39,6 +39,7 @@
 #define __ATLANTIS_H
 
 #include "CRT.h"
+#include "SSUOptions.h"
 #include "orbitersdk.h"
 #include <math.h>
 #include <vector>
@@ -57,7 +58,6 @@
 #include "vc/DAPControl.h"
 #include "APU.h"
 #include "SSUEngConst.h"
-
 #include "discsignals/Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
@@ -1032,6 +1032,7 @@ class Atlantis: public VESSEL2 {
 	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
+	SSUOptions* options;
 	/* **************************************************
 	 * Mission data reference
 	 * **************************************************/
@@ -2084,10 +2085,11 @@ static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
 }
 
 
-
+#if defined(IS_SSU_DLL_MODULE)
 DLLCLBK mission::Mission* ssuGetMission(const std::string& filename);
 void ClearMissionManagementMemory();
 void InitMissionManagementMemory();
+#endif
 
 #endif // !__ATLANTIS_H
 
