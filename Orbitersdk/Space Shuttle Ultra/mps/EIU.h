@@ -29,12 +29,13 @@
 #include "SSME.h"
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
+#include "..\dps\dps_defs.h"
 #include "..\dps\BIU.h"
 
 
 namespace mps
 {
-	class EIU:public AtlantisSubsystem
+	class EIU:public AtlantisSubsystem, public dps::IConnectedToBus
 	{
 	private:
 		int ID;
@@ -44,6 +45,11 @@ namespace mps
 	public:
 		EIU( SubsystemDirector*, const string&, int, SSME* );
 		~EIU( void );
+
+		virtual void busCommandPhase(dps::BusController* biu);
+		virtual void busReadPhase(dps::BusController* biu);
+		virtual dps::BUS_COMMAND_WORD busCommand(dps::BusTerminal* biu, dps::BUS_COMMAND_WORD cw, 
+			unsigned long num_data, dps::word16 *cdw);
 
 		// GPCs only
 
@@ -67,7 +73,7 @@ namespace mps
 
 		// TODO power swicth -> O17
 
-		dps::BIU mia[4];
+		dps::BusTerminal mia[4];
 	};
 }
 

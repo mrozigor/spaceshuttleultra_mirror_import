@@ -14,10 +14,10 @@ namespace mps
 		engine->dataGetPrimaryData( PrimaryData );
 		engine->dataGetSecondaryData( SecondaryData );
 
-		mia[0].Init(this, "MIA1", 14+ID, false);
-		mia[1].Init(this, "MIA2", 14+ID, false);
-		mia[2].Init(this, "MIA3", 14+ID, false);
-		mia[3].Init(this, "MIA4", 14+ID, false);
+		mia[0].Init(this, this, "MIA1", 14+ID);
+		mia[1].Init(this, this, "MIA2", 14+ID);
+		mia[2].Init(this, this, "MIA3", 14+ID);
+		mia[3].Init(this, this, "MIA4", 14+ID);
 		return;
 	}
 
@@ -26,6 +26,21 @@ namespace mps
 		delete PrimaryData;
 		delete SecondaryData;
 		// the end
+	}
+
+	void EIU::busCommandPhase(dps::BusController* biu)
+	{
+	}
+
+	dps::BUS_COMMAND_WORD EIU::busCommand(dps::BusTerminal* biu, 
+		dps::BUS_COMMAND_WORD cw, 
+		unsigned long num_words, dps::word16 *cdw)
+	{
+		return cw;
+	}
+
+	void EIU::busReadPhase(dps::BusController* biu)
+	{
 	}
 
 	int EIU::RequestCMD( int cmd, double data )
