@@ -53,6 +53,105 @@ namespace dps {
 		unsigned int SystemMask:8;
 	} AP101PSW;
 
+	
+
+	typedef struct {
+		//Reserved area
+		word16 tpsares1[4];
+		//power on PSW
+		AP101PSW tpsapwr;
+		word16 tpsars2[4];
+		word16 tpsars3[4];
+		//Power off PSW
+		AP101PSW tpsapwrf;
+		//System reset PSW
+		AP101PSW tpsasrp;
+		word16 tpsars4[2];
+		word24 tpsacvta;
+		word16 tpsaspr1;
+		word16 tpsars5[4];
+		word16 tpsars6[4];
+		word16 tpsars7[4];
+		word16 tpsars8[4];
+		word16 tpsars9[4];
+		word16 tpsars10[4];
+		word16 tpsars11[4];
+		word16 tpsars12[4];
+		word16 tpsars13[4];
+		//Machine check old PSW
+		AP101PSW tpsamcop;
+		//Machine check new PSW
+		AP101PSW tpsamcnp;
+		//program check old PSW
+		AP101PSW tpsapiop;
+		//Program check new PSW
+		AP101PSW tpsapinp;
+		word16 tpsars14[4];
+		word16 tpsars15[4];
+		//SVC old PSW
+		AP101PSW tpsasop;
+		//Program check new PSW
+		AP101PSW tpsasnp;
+		//Program counter 1 old PSW
+		AP101PSW tpsac1op;
+		//Program counter 1 new PSW
+		AP101PSW tpsac1np;
+		//Program counter 2 old PSW
+		AP101PSW tpsac2op;
+		//Program counter 2 new PSW
+		AP101PSW tpsac2np;
+		//Instruction monitor old PSW
+		AP101PSW tpsaimop;
+		//Instruction monitor new PSW
+		AP101PSW tpsaimnp;
+		//External interrupt old PSW
+		AP101PSW tpsaeop;
+		//External interrupt new PSW
+		AP101PSW tpsaenp;
+		//External interrupt 1 old PSW
+		AP101PSW tpsae1op;
+		//External interrupt 1 new PSW
+		AP101PSW tpsae1np;
+		//External interrupt 2 old PSW
+		AP101PSW tpsae2op;
+		//External interrupt 2 new PSW
+		AP101PSW tpsae2np;
+		//External interrupt 3 old PSW
+		AP101PSW tpsae3op;
+		//External interrupt 3 new PSW
+		AP101PSW tpsae3np;
+		//Special interrupt old PSW
+		AP101PSW tpsasiop;
+		//Special interrupt new PSW
+		AP101PSW tpsasinp;
+		word16 tpsars16[16];
+		word16 tpsapcs1;
+		word16 tpsapcs2;
+		word16 tpsawork[14];
+		word16 tpsapar1[16];
+		word16 tpsapar2[16];
+		word16 tpsapafp[16];
+		word16 tpsapamr[16];
+		word16 tpsapars;
+		word16 tpsapac1;
+		word16 tpsapac2;
+		word16 tpsapaor;
+		word16 tpsars17[60];
+	} PREFERRED_STORAGE;
+
+
+
+	/**
+	 * Quick and dirty IOP implementation, should be 
+	 * improved if possible.
+	 */
+	class IOP {
+	public:
+		IOP();
+		virtual ~IOP();
+		
+	};
+
 	/**
 	 * base class for all GPC subsystem units. Must implement IOP and CPU 
 	 * behavior. 
@@ -65,6 +164,8 @@ namespace dps {
 		float fFPR[8];
 
 		AP101PSW psw;
+
+		PREFERRED_STORAGE* pPrefStorage;
 		
 		unsigned short usMajorCount;
 		unsigned short usMinorCount;
@@ -101,6 +202,14 @@ namespace dps {
 		 * Clear the whole memory reserved for applications
 		 */
 		virtual void FreeApplicationMemory();
+
+		virtual void fcosSchedule();
+		virtual void fcosWait(long delay);
+		virtual void fcosClose();
+
+		long GetInstructionAddress() const;
+		void SetInstructionAddress(long lAddr);
+		virtual void SupervisorCall(char function);
 		
 	
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
@@ -110,7 +219,8 @@ namespace dps {
 		//@todo: Number is not unknown, needs research!
 		DiscDemultiplex16 disc_in[4];
 		DiscMultiplex16 disc_out;
-		BIU channel[24];
+		BusController channel[24];
+		BusTerminal ICC[4];
 		DiscInPort power_on;
 		DiscInPort ipl;
 		DiscInPort ipl_source1;
