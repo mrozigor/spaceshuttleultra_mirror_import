@@ -10,8 +10,11 @@
 #endif // _MSC_VER > 1000
 
 #include "../AtlantisSubsystem.h"
+#include "dps_defs.h"
+#include "BIU.h"
 
 namespace dps {
+
 class MDMIOModule;
 
 /**
@@ -31,15 +34,41 @@ class MDMIOModule;
  * Modules 5  and 13 connect to the RJDF - likely DOH/DIL modules
  *
  */
-class MDM : public AtlantisSubsystem  
+class MDM : public AtlantisSubsystem, public IConnectedToBus  
 {
 protected:
-	short SCU_PROM[2][16384];
-	MDMIOModule* pmodules[16];
+	word16 m_bite_status;
+	word16 SCU_PROM[512];
+	MDMIOModule* m_modules[16];
+	
 public:
-	MDM(SubsystemDirector* _director, const string& _ident);
+	MDM(SubsystemDirector* _director, const string& _ident,
+		unsigned short MIA1_addr, unsigned short MIA2_addr);
 	virtual ~MDM();
 
+	void LoadPROM(const std::string& prom_file);
+	void LoadPROMAndCreate(const std::string& prom_file);
+	/**
+	 * @param module_id Module address, 0 - 15
+	 */
+	void InstallDOHModule(unsigned int module_id);
+	void InstallDIHModule(unsigned int module_id);
+	void InstallDOLModule(unsigned int module_id);
+	void InstallDILModule(unsigned int module_id);
+	void InstallAODModule(unsigned int module_id);
+	void InstallAIDModule(unsigned int module_id);
+	void InstallAISModule(unsigned int module_id);
+	void InstallSIOModule(unsigned int module_id);
+	void InstallTacanModule(unsigned int module_id);
+
+	void ExecuteProm(unsigned int start, unsigned int number_of_words);
+	
+	virtual void busCommandPhase(BusController* biu);
+	virtual void busReadPhase(BusController* biu);
+	virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
+			unsigned long num_data, word16 *cdw);
+
+	BusTerminal mia1, mia2;
 };
 
 };

@@ -58,6 +58,7 @@
 #define SSU_KEY_PRO 31
 
 namespace dps {
+
 	class IDP;
 	class GPC;
 	class GNCSoftware;
@@ -169,7 +170,8 @@ namespace dps {
 		long lData[32];
 	} DEU_DATA;
 
-	typedef struct {
+	struct BUS_COMMAND_WORD 
+	{
 		unsigned int word_count:5;
 		union {
 			struct{
@@ -181,7 +183,7 @@ namespace dps {
 		unsigned int mode_ctrl:5;
 		unsigned int mdm_no:5;
 		unsigned int _spare_:8;
-	} BUS_COMMAND_WORD;
+	};
 
 	class IConnectedToBus {
 	public:
@@ -191,6 +193,7 @@ namespace dps {
 			unsigned long num_data, word16 *cdw) = 0;
 	};	
 
+	
 	typedef union {
 		float32 fl32;
 		word32 dword;
