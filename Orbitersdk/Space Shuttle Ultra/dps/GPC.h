@@ -164,53 +164,9 @@ namespace dps {
 		float fFPR[8];
 
 		AP101PSW psw;
-
-		PREFERRED_STORAGE* pPrefStorage;
-		
-		unsigned short usMajorCount;
-		unsigned short usMinorCount;
-
-		float fGPCSeconds;
-		short usGPCMinutes;
-
-		unsigned long ulRTC;
-
-		unsigned long ulManualRTC;
-		
-
-		virtual void OnIOPPrestep(double fSimT, double fDeltaT, double fMJD);
-		virtual void MinorCycle(double fSimT, double fDeltaT, double fMJD);
-		virtual void MajorCycle(double fSimT, double fDeltaT, double fMJD);
-
-		/**
-		 * Fill the first memory page (4096 byte) by PROM data with 
-		 * information about how to find the IPL.
-		 */
-		virtual void GeneratePROMData() = 0;
 	public:
 		GPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
 		virtual ~GPC();
-		virtual void IPL();
-		virtual void LoadMemoryConfiguration(unsigned short usMemConfig);
-
-		//Functions for handling data blocks in GPC memory
-		virtual void* AllocateGPCMemory(unsigned long usSize);
-		virtual void FreeGPCMemory(void* pMemBlock);
-		//clear the whole memory
-		virtual void ClearGPCMemory();
-		/**
-		 * Clear the whole memory reserved for applications
-		 */
-		virtual void FreeApplicationMemory();
-
-		virtual void fcosSchedule();
-		virtual void fcosWait(long delay);
-		virtual void fcosClose();
-
-		long GetInstructionAddress() const;
-		void SetInstructionAddress(long lAddr);
-		virtual void SupervisorCall(char function);
-		
 	
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);

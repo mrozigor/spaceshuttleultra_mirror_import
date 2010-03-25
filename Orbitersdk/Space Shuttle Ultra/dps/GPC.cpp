@@ -25,58 +25,6 @@ namespace dps {
 
 	}
 
-	void* GPC::AllocateGPCMemory(unsigned long usSize) {
-		return NULL;
-	}
-
-	void GPC::ClearGPCMemory() {
-	}
-
-	void GPC::fcosClose()
-	{
-	}
-
-	void GPC::fcosSchedule()
-	{
-	}
-
-	void GPC::fcosWait(long delay)
-	{
-	}
-
-	void GPC::FreeApplicationMemory() {
-		//Reset the memory management tables
-	}
-
-	void GPC::FreeGPCMemory(void* pMemBlock) {
-	}
-
-	
-
-	void GPC::IPL() {
-			//Load the first 24 bytes of memory from MMU1 or MMU2
-		if(ipl_source1.IsSet()) {
-			
-		} else if(ipl_source2.IsSet()) {
-
-		}
-		//Load GPCIPL software
-	}
-
-	void GPC::LoadMemoryConfiguration(unsigned short usMemConfig) {
-
-	}
-
-	void GPC::MinorCycle(double fSimT, double fDeltaT, double fMJD) {
-	}
-	
-	void GPC::MajorCycle(double fSimT, double fDeltaT, double fMJD) {
-	}
-	
-
-	void GPC::OnIOPPrestep(double fSimT, double fDeltaT, double fMJD) {
-	}
-
 	void GPC::OnPreStep(double fSimT, double fDeltaT, double fMJD) {
 
 	}
@@ -91,10 +39,5 @@ namespace dps {
 
 	void GPC::OnPostStep(double fSimT, double fDeltaT, double fMJD) {
 		//sprintf_s(oapiDebugString(), 255, "sizeof(__psw) = %d", sizeof(AP101PSW));
-	}
-
-	void GPC::SupervisorCall(char function)
-	{
-
 	}
 };
