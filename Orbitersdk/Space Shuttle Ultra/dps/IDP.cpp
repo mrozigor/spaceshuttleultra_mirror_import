@@ -1,5 +1,4 @@
 #include "IDP.h"
-#include "IDPSoftware.h"
 
 namespace dps {
 
@@ -11,30 +10,45 @@ namespace dps {
 		usDISP=dps::MODE_UNDEFINED;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
-		CreateSoftware();
 
-		dk_channel.Init(this, "DK", 10, false);
-		fc_channel[0].Init(this, "FC1", 9+usIDPID, false);
-		fc_channel[1].Init(this, "FC2", 9+usIDPID, false);
-		fc_channel[2].Init(this, "FC3", 9+usIDPID, false);
-		fc_channel[3].Init(this, "FC4", 9+usIDPID, false);
+		dk_channel.Init(this, this, "DK", 10);
+		fc_channel[0].Init(this, this, "FC1", 9+usIDPID);
+		fc_channel[1].Init(this, this, "FC2", 9+usIDPID);
+		fc_channel[2].Init(this, this, "FC3", 9+usIDPID);
+		fc_channel[3].Init(this, this, "FC4", 9+usIDPID);
 	}
 
 	IDP::~IDP()
 	{
-		for(unsigned int i = 0; i<software_storage.size(); i++) {
-			delete software_storage[i];
+		
+	}	
+
+	BUS_COMMAND_WORD IDP::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, unsigned long num_data, word16* cdw)
+	{
+		if(biu == &dk_channel)
+		{
+			char* command = reinterpret_cast<char*>(cdw);
+			if(command[0] == '@')
+			{
+				//special command
+			}
+			else
+			{
+				//just print it directly.
+				
+			}
+			//reply with status
+
 		}
-		software_storage.clear();
+		return cw;
 	}
 
-	void IDP::CreateSoftware() {
-		IDPSoftware* pSoftware;
+	void IDP::busCommandPhase(BusController* biu)
+	{
+	}
 
-		pSoftware = new IDP_OTP(this);
-		software_storage.push_back(pSoftware);
-		pOTP = pSoftware;
-		
+	void IDP::busReadPhase(BusController* biu)
+	{
 	}
 
 	unsigned short IDP::GetIDPID() const {
@@ -257,12 +271,12 @@ namespace dps {
 
 		sprintf_s(pszBuffer, 15, "%03d/%02d:%02d:%02d",
 			usGPCDay, usGPCHour, usGPCMinute, usGPCSecond);
-		mdu->PrintToBuffer(pszBuffer, 12, 39, 1, 0);
+		mdu->mvprint(39, 1, pszBuffer, 0);
 
 		if(bGPCTimerActive) {
 			sprintf_s(pszBuffer, 15, "%03d/%02d:%02d:%02d",
 				usTimerDay, usTimerHour, usTimerMinute, usTimerSecond);
-			mdu->PrintToBuffer(pszBuffer, 12, 39, 2, 0);
+			mdu->mvprint(39, 2, pszBuffer, 0);
 		}
 	}
 
