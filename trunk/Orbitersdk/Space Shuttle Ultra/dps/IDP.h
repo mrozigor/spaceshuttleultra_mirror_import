@@ -48,24 +48,12 @@ namespace dps {
 	 */
 	const unsigned short MODE_UNDEFINED = (unsigned short)-1;
 
-	/**
-	 * Generic class for IDP display. 
-	 * Each display should implement it's own functions for drawing and input. 
- 	 */
-	class IDPSoftware {
-		IDP* pIDP;
-	public:
-		IDPSoftware(IDP* hardware);
-		virtual ~IDPSoftware();
-		virtual void Run(double fSimT, double fDeltaT) = 0;
-		virtual void PaintMDU(vc::MDU* pmdu) = 0;
-	};
-
+	
 	/**
 	 * Implementation of the Integrated display processor. Each can deal with a infinite number of 
 	 * MDUs. 
  	 */
-	class IDP : public AtlantisSubsystem {
+	class IDP : public AtlantisSubsystem, public IConnectedToBus {
 	public:
 		typedef enum __memory_state {
 			MS_EMPTY = 0,
@@ -73,8 +61,8 @@ namespace dps {
 			MS_OPERATIONAL
 		} MEMORY_STATE;
 
-		BIU dk_channel;
-		BIU fc_channel[4];
+		BusTerminal dk_channel;
+		BusTerminal fc_channel[4];
 	private:
 		unsigned short usIDPID;
 		vc::PMDU mdu_list[7];
@@ -108,26 +96,11 @@ namespace dps {
 		DiscInPort MajorFuncGNC;
 		DiscInPort MajorFuncPL;
 
-		vector<IDPSoftware*> software_storage;
+		DEU_STATUS status;
 
-		IDPSoftware* pOTP;
+		word16 usDisplayBuffer[4096];
 
-		map<unsigned short, IDPSoftware*> ipl_software;
-
-		map<unsigned short, IDPSoftware*> gnc_ops;
-		map<unsigned short, IDPSoftware*> gnc_specdisp;
-
-		map<unsigned short, IDPSoftware*> sm_ops;
-		map<unsigned short, IDPSoftware*> sm_specdisp;
-
-		map<unsigned short, IDPSoftware*> pl_ops;
-		map<unsigned short, IDPSoftware*> pl_specdisp;
-
-		map<unsigned short, IDPSoftware*> bfs_ops;
-		map<unsigned short, IDPSoftware*> bfs_specdisp;
-
-		void CreateSoftware();
-
+		
 		void AppendScratchPadLine(char cKey);
 		void ClearScratchPadLine();
 		void DelFromScratchPadLine();
@@ -141,11 +114,14 @@ namespace dps {
 		virtual void OnExec();
 
 		void PrintTime(vc::MDU* mdu);
-		
+		void RenderDisplayBuffer(vc::MDU* mdu);
 	public:
 		IDP(SubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
 		virtual ~IDP();
-		
+		virtual void busCommandPhase(BusController* biu);
+		virtual void busReadPhase(BusController* biu);
+		virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
+			unsigned long num_data, word16 *cdw);
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
 		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;

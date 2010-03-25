@@ -31,6 +31,7 @@
 
 #include "..\AtlantisSubsystem.h"
 #include "GPC.h"
+#include "RAM32.h"
 
 namespace dps {
 
@@ -45,7 +46,8 @@ namespace dps {
 	// Important variables are stored inside the lower 
 	// 64 KB (SECTION 0) of the memory
 	// ===================================================
-		long lMemory[262144];
+		//long lMemory[262144];
+		
 	// ===================================================
 	// General submodules: IOP
 	// ===================================================
@@ -54,6 +56,11 @@ namespace dps {
 	// transmits data half words from the memory over 
 	// the MIAs. 
 	protected:
+		RAM32S memory;
+		/**
+		 * Fill the first memory page (4096 byte) by PROM data with 
+		 * information about how to find the IPL.
+		 */
 		virtual void GeneratePROMData();
 		//void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
 		//void LoadSoftware(const GPCSoftware* pSoftware);
