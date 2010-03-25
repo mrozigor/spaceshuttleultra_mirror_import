@@ -52,6 +52,45 @@ namespace vc {
 		//
 	}
 
+	void MDU::DrawCommonHeader(const char* cDispTitle)
+	{
+		char cbuf[200];
+		char cspecbuf[4];
+		char cdispbuf[4];
+		char cUplink[3];
+		unsigned short usDay, usHour, usMinute, usSecond;
+		strcpy_s(cUplink, "  ");
+		strcpy_s(cspecbuf, "   ");
+		strcpy_s(cdispbuf, "   ");
+
+		if(GetIDP()->GetSpec() >= 0)
+		{
+			sprintf_s(cspecbuf, 4, "%03d", GetIDP()->GetSpec());
+		}
+		
+
+
+		if(GetIDP()->GetDisp() >= 0)
+		{
+			sprintf_s(cdispbuf, 4, "%03d", GetIDP()->GetDisp());
+		}
+
+		STS()->GetGPCMET(1, usDay, usHour, usMinute, usSecond);
+	
+		//Todo: GPC count their own MET independent of the MTU
+		sprintf(cbuf,"%03d1/%03s/%3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
+			GetIDP()->GetOps(), 
+			cspecbuf, 
+			cdispbuf, 
+			cDispTitle, 
+			cUplink, 
+			0, 
+			usDay, usHour, usMinute, usSecond);
+
+	
+		mvprint(0, 0, cbuf);
+	}
+
 	const string& MDU::GetEdgekeyMenu() const
 	{
 		static string r = "MAIN MENU";
@@ -392,362 +431,11 @@ namespace vc {
 			else {
 				PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 			}
-			/*PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
-			sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
-				STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
-			PrintToBuffer(cbuf, strlen(cbuf), 0, 2, 0);
-			
-			PrintToBuffer("MNVR OPTION", 11, 0, 4, 0);
-			sprintf_s(cbuf, 255, "5 R %6.2f", STS()->MNVR_OPTION.data[ROLL]);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-			sprintf_s(cbuf, 255, "6 P %6.2f", STS()->MNVR_OPTION.data[PITCH]);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 6, 0);
-			sprintf_s(cbuf, 255, "7 Y %6.2f", STS()->MNVR_OPTION.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 7, 0);
-
-			PrintToBuffer("TRK/ROT OPTIONS", 15, 0, 9, 0);
-			sprintf_s(cbuf, 255, "8 TGT ID %03d", STS()->TGT_ID);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-
-			PrintToBuffer("9  RA", 5, 1, 12, 0);
-			PrintToBuffer("10 DEC", 6, 1, 13, 0);
-			PrintToBuffer("11 LAT", 6, 1, 14, 0);
-			PrintToBuffer("12 LON", 6, 1, 15, 0);
-			PrintToBuffer("13 ALT", 6, 1, 16, 0);
-
-			sprintf_s(cbuf, 255, "14 BODY VECT %d", STS()->BODY_VECT);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 18, 0);
-			sprintf_s(cbuf, 255, "15 P %6.2f", STS()->P);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 20, 0);
-			sprintf_s(cbuf, 255, "16 Y %6.2f", STS()->Y);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
-			if(STS()->OM>=0.0) {
-				sprintf_s(cbuf, 255, " 17 OM %6.2f", STS()->OM);
-				PrintToBuffer(cbuf, strlen(cbuf), 1, 22, 0);
-			}
-			else PrintToBuffer("17 OM", 6, 1, 22, 0);
-
-			PrintToBuffer("START MNVR 18", 13, 14, 4, 0);
-			PrintToBuffer("TRK  19", 7, 20, 5, 0);
-			PrintToBuffer("ROT  20", 7, 20, 6, 0);
-			PrintToBuffer("CNCL  21", 8, 19, 7, 0);
-			PrintToBuffer("CUR", 3, 28, 3, 0);
-			PrintToBuffer("FUT", 3, 32, 3, 0);
-			if(STS()->MNVR) {
-				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 4, 0);
-				else PrintToBuffer("X", 1, 33, 4, 0);
-			}
-			else if(STS()->TRK) {
-				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 5, 0);
-				else PrintToBuffer("X", 1, 33, 5, 0);
-			}
-			else if(STS()->ROT) {
-				if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 6, 0);
-				else PrintToBuffer("X", 1, 33, 6, 0);
-			}
-
-			PrintToBuffer("ATT MON", 7, 19, 9, 0);
-			PrintToBuffer("22 MON AXIS", 11, 20, 10, 0);
-			PrintToBuffer("ERR TOT 23", 10, 20, 11, 0);
-			PrintToBuffer("ERR DAP 24", 10, 20, 11, 0);
-
-			PrintToBuffer("ROLL    PITCH    YAW", 20, 26, 14, 0);
-			sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", DEG*STS()->CurrentAttitude.data[ROLL], DEG*STS()->CurrentAttitude.data[PITCH], DEG*STS()->CurrentAttitude.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 19, 15, 0);
-			sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", STS()->REQD_ATT.data[ROLL], STS()->REQD_ATT.data[PITCH], STS()->REQD_ATT.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 19, 16, 0);
-			sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", STS()->PitchYawRoll.data[ROLL], STS()->PitchYawRoll.data[PITCH], STS()->PitchYawRoll.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
-			sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);*/
 		}
-
 		else if(STS()->ops==104 || STS()->ops==105 || STS()->ops==106 || STS()->ops==202 
 			|| STS()->ops==301 || STS()->ops==302 || STS()->ops==303)
 		{
 			MNVR();
-			/*//char cbuf[255];
-			int minutes, seconds;
-			int timeDiff;
-			int TIMER[4];
-			int TGO[2];
-
-			switch(STS()->ops) {
-			case 104:
-				PrintToBuffer("1041/", 5, 1, 0, 0);
-				PrintToBuffer("OMS 1 MNVR EXEC", 15, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-				}
-				break;
-			case 105:
-				PrintToBuffer("1051/", 5, 1, 0, 0);
-				PrintToBuffer("OMS 2 MNVR EXEC", 15, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			case 106:
-				PrintToBuffer("1061/", 5, 1, 0, 0);
-				PrintToBuffer("OMS 2 MNVR COAST", 16, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			case 202:
-				PrintToBuffer("2021/", 5, 1, 0, 0);
-				PrintToBuffer("ORBIT MNVR EXEC", 15, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			case 301:
-				PrintToBuffer("3011/", 5, 1, 0, 0);
-				PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			case 302:
-				PrintToBuffer("3021/", 5, 1, 0, 0);
-				PrintToBuffer("DEORB MNVR EXEC", 15, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			case 303:
-				PrintToBuffer("3031/", 5, 1, 0, 0);
-				PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
-				if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
-					minutes=STS()->oparam.PeT/60;
-					seconds=STS()->oparam.PeT-(60*minutes);
-					sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-					//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-					//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-				}
-				else {
-					minutes=STS()->oparam.ApT/60;
-					seconds=STS()->oparam.ApT-(60*minutes);
-					sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-					PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				}
-				break;
-			}
-
-			sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-			PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-			if(false) {
-				timeDiff=STS()->tig-STS()->met+1;
-				TIMER[0]=timeDiff/86400;
-				TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
-				TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
-				TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
-				sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
-				PrintToBuffer(cbuf, strlen(cbuf), 18, 1, 0);
-			}
-
-			PrintToBuffer("OMS BOTH 1", 10, 1, 1, 0);
-			PrintToBuffer("L 2", 3, 8, 2, 0);
-			PrintToBuffer("R 3", 3, 8, 3, 0);
-			PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
-			PrintToBuffer("*", 1, STS()->OMS+1, 11, 0);
-
-			sprintf(cbuf, "5 TV ROLL %d", STS()->TV_ROLL);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-			PrintToBuffer("TRIM LOAD", 9, 1, 6, 0);
-			sprintf(cbuf, "6 P  %+2.1f", STS()->Trim.data[0]);
-			PrintToBuffer(cbuf, strlen(cbuf), 2, 7, 0);
-			sprintf(cbuf, "7 LY %+2.1f", STS()->Trim.data[1]);
-			PrintToBuffer(cbuf, strlen(cbuf), 2, 8, 0);
-			sprintf(cbuf, "8 RY %+2.1f", STS()->Trim.data[2]);
-			PrintToBuffer(cbuf, strlen(cbuf), 2, 9, 0);
-			sprintf(cbuf, "9 WT %6.0f", STS()->WT);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-			PrintToBuffer("10 TIG", 6, 0, 11, 0);
-			sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", STS()->TIG[0], STS()->TIG[1], STS()->TIG[2], STS()->TIG[3]);
-			PrintToBuffer(cbuf, strlen(cbuf), 3, 12, 0);
-
-			PrintToBuffer("TGT PEG 4", 9, 0, 13, 0);
-			PrintToBuffer("14 C1", 5, 1, 14, 0);
-			PrintToBuffer("15 C2", 5, 1, 15, 0);
-			PrintToBuffer("16 HT", 5, 1, 16, 0);
-			PrintToBuffer("17  T", 5, 1, 17, 0); //theta symbol should be before T
-			//TextOut(hDC, 0, 153, " 17  T", 6);
-			//Ellipse(hDC, 28, 156, 34, 165);
-			//MoveToEx(hDC, 28, 160, NULL);
-			//LineTo(hDC, 34, 160);
-			PrintToBuffer("18 PRPLT", 5, 1, 18, 0);
-
-			PrintToBuffer("TGT PEG 7", 9, 0, 19, 0);
-			PrintToBuffer("19  VX", 6, 1, 20, 0);
-			PrintToBuffer("20  VY", 6, 1, 21, 0);
-			PrintToBuffer("21  VZ", 6, 1, 22, 0);
-			//TextOut(hDC, 0, 171, "TGT PEG 7", 9);
-			//TextOut(hDC, 0, 180, " 19  VX", 7);
-			//DrawDelta(hDC, 30, 184, 27, 33, 190);
-			//TextOut(hDC, 0, 189, " 20  VY", 7);
-			//DrawDelta(hDC, 30, 193, 27, 33, 199);
-			//TextOut(hDC, 0, 198, " 21  VZ", 7);
-			//DrawDelta(hDC, 30, 202, 27, 33, 208);
-			if(STS()->PEG7.x!=0.0 || STS()->PEG7.y!=0.0 || STS()->PEG7.z!=0.0) {
-				sprintf(cbuf, "%+7.1f", STS()->PEG7.x);
-				PrintToBuffer(cbuf, strlen(cbuf), 8, 20, 0);
-				sprintf(cbuf, "%+6.1f", STS()->PEG7.y);
-				PrintToBuffer(cbuf, strlen(cbuf), 8, 21, 0);
-				sprintf(cbuf, "%+6.1f", STS()->PEG7.z);
-				PrintToBuffer(cbuf, strlen(cbuf), 8, 22, 0);
-			}
-
-			if(STS()->MNVRLOAD) {
-				PrintToBuffer("LOAD 22/TIMER 23", 16, 0, 23, 0);
-				sprintf(cbuf, "24 R %-3.0f", STS()->BurnAtt.data[ROLL]);
-				PrintToBuffer(cbuf, strlen(cbuf), 21, 3, 0);
-				sprintf(cbuf, "25 P %-3.0f", STS()->BurnAtt.data[PITCH]);
-				PrintToBuffer(cbuf, strlen(cbuf), 21, 4, 0);
-				sprintf(cbuf, "26 Y %-3.0f", STS()->BurnAtt.data[YAW]);
-				PrintToBuffer(cbuf, strlen(cbuf), 21, 5, 0);
-			}
-			else {
-				PrintToBuffer("     22/TIMER 23", 16, 0, 23, 0);
-				PrintToBuffer("24 R", 4, 21, 3, 0);
-				PrintToBuffer("25 P", 4, 21, 4, 0);
-				PrintToBuffer("26 Y", 4, 21, 5, 0);
-			}
-
-			//MoveToEx(hDC, 98, 15, NULL);
-			//LineTo(hDC, 98, 218);
-
-			PrintToBuffer("BURN ATT", 8, 20, 2, 0);
-			if(!STS()->TRK) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
-			else PrintToBuffer("MNVR 27X", 8, 20, 6, 0);
-
-			PrintToBuffer("REI", 3, 20, 8, 0);
-			PrintToBuffer("GMBL", 4, 25, 10, 0);
-			PrintToBuffer("L", 1, 24, 11, 0);
-			PrintToBuffer("R", 1, 30, 11, 0);
-			sprintf(cbuf, "P %+02.1f %+02.1f", STS()->OMSGimbal[0][0], STS()->OMSGimbal[1][0]);
-			PrintToBuffer(cbuf, strlen(cbuf), 20, 12, 0);
-			sprintf(cbuf, "Y %+02.1f %+02.1f", STS()->OMSGimbal[0][1], STS()->OMSGimbal[1][1]);
-			PrintToBuffer(cbuf, strlen(cbuf), 20, 13, 0);
-
-			PrintToBuffer("PRI 28   29", 11, 20, 15, 0);
-			PrintToBuffer("SEC 30   31", 11, 20, 16, 0);
-			PrintToBuffer("OFF 32   33", 11, 20, 17, 0);
-			PrintToBuffer("GMBL CK  34", 11, 20, 18, 0);
-
-			//MoveToEx(hDC, 156, 15, NULL);
-			//LineTo(hDC, 156, 111);
-			//LineTo(hDC, 250, 111);
-
-			if(!STS()->BurnInProg) {
-				TGO[0]=STS()->BurnTime/60;
-				TGO[1]=STS()->BurnTime-(TGO[0]*60);
-			}
-			else if(!STS()->BurnCompleted) {
-				double btRemaining=STS()->IgnitionTime+STS()->BurnTime-STS()->met;
-				TGO[0]=(int)btRemaining/60;
-				TGO[1]=(int)btRemaining%60;
-			}
-			else TGO[0]=TGO[1]=0;
-			sprintf(cbuf, "VTOT   %6.2f", STS()->DeltaVTot);
-			PrintToBuffer(cbuf, strlen(cbuf), 37, 3, 0);
-			//DrawDelta(hDC, 161, 31, 158, 164, 37);
-			sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
-			PrintToBuffer(cbuf, strlen(cbuf), 36, 4, 0);
-			sprintf(cbuf, "VGO X %+8.2f", STS()->VGO.x);
-			PrintToBuffer(cbuf, strlen(cbuf), 36, 6, 0);
-			sprintf(cbuf, "Y  %+7.2f", STS()->VGO.y);
-			PrintToBuffer(cbuf, strlen(cbuf), 40, 7, 0);
-			sprintf(cbuf, "Z  %+7.2f", STS()->VGO.z);
-			PrintToBuffer(cbuf, strlen(cbuf), 40, 8, 0);
-			PrintToBuffer("HA     HP", 9, 40, 10, 0);
-			sprintf(cbuf, "TGT");
-			PrintToBuffer(cbuf, strlen(cbuf), 36, 11, 0);
-			//TextOut(hDC, 158, 90, cbuf, strlen(cbuf));
-			sprintf(cbuf, "CUR");
-			PrintToBuffer(cbuf, strlen(cbuf), 36, 12, 0);
-			//TextOut(hDC, 158, 99, cbuf, strlen(cbuf));
-
-			sprintf(cbuf, "35 ABORT TGT");
-			PrintToBuffer(cbuf, strlen(cbuf), 35, 15, 0);
-			//TextOut(hDC, 150, 126, cbuf, strlen(cbuf));
-
-			//TextOut(hDC, 185, 135, "FWD RCS", 7);
-			//TextOut(hDC, 185, 144, "  ARM  36", 9);
-			//TextOut(hDC, 185, 153, "  DUMP 37", 9);
-			//TextOut(hDC, 185, 162, "  OFF  38", 9);
-			//TextOut(hDC, 185, 171, "SURF DRIVE", 10);
-			//TextOut(hDC, 185, 180, "  ON   39", 9);
-			//TextOut(hDC, 185, 189, "  OFF  40", 9);*/
 		}
 		else {
 			prim_idp->OnPaint(this);
@@ -900,8 +588,7 @@ namespace vc {
 
 		switch(STS()->ops) {
 		case 104:
-			PrintToBuffer("1041/", 5, 1, 0, 0);
-			PrintToBuffer("OMS 1 MNVR EXEC", 15, 15, 0, 0);
+			DrawCommonHeader("OMS 1 MNVR EXEC");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -920,8 +607,7 @@ namespace vc {
 			}
 			break;
 		case 105:
-			PrintToBuffer("1051/", 5, 1, 0, 0);
-			PrintToBuffer("OMS 2 MNVR EXEC", 15, 15, 0, 0);
+			DrawCommonHeader("OMS 2 MNVR EXEC");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -938,8 +624,7 @@ namespace vc {
 			}
 			break;
 		case 106:
-			PrintToBuffer("1061/", 5, 1, 0, 0);
-			PrintToBuffer("OMS 2 MNVR COAST", 16, 15, 0, 0);
+			DrawCommonHeader("OMS 2 MNVR COAST");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -956,8 +641,7 @@ namespace vc {
 			}
 			break;
 		case 202:
-			PrintToBuffer("2021/", 5, 1, 0, 0);
-			PrintToBuffer("ORBIT MNVR EXEC", 15, 15, 0, 0);
+			DrawCommonHeader("ORBIT MNVR EXEC");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -974,8 +658,7 @@ namespace vc {
 			}
 			break;
 		case 301:
-			PrintToBuffer("3011/", 5, 1, 0, 0);
-			PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
+			DrawCommonHeader("DEORB MNVR COAST");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -992,8 +675,7 @@ namespace vc {
 			}
 			break;
 		case 302:
-			PrintToBuffer("3021/", 5, 1, 0, 0);
-			PrintToBuffer("DEORB MNVR EXEC", 15, 15, 0, 0);
+			DrawCommonHeader("DEORB MNVR EXEC");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -1010,8 +692,7 @@ namespace vc {
 			}
 			break;
 		case 303:
-			PrintToBuffer("3031/", 5, 1, 0, 0);
-			PrintToBuffer("DEORB MNVR COAST", 16, 15, 0, 0);
+			DrawCommonHeader("DEORB MNVR COAST");
 			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
 				minutes=(int)(STS()->oparam.PeT/60);
 				seconds=(int)(STS()->oparam.PeT-(60*minutes));
@@ -1029,8 +710,6 @@ namespace vc {
 			break;
 		}
 
-		sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
 		timeDiff=(int)(STS()->tig-STS()->met+1);
 		if(true) { //for the moment, timer will always be drawn; this will change next version
 			TIMER[0]=timeDiff/86400;
@@ -1185,11 +864,8 @@ namespace vc {
 		int lim[3]={3, 5, 5};
 		int i, n;
 
-		PrintToBuffer("2011/020/", 9, 1, 0, 0);
-		PrintToBuffer("DAP CONFIG", 10, 18, 0, 0);
-		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-
+		DrawCommonHeader("DAP CONFIG");
+		
 		//TextOut(hDC, 84, 9, "1 A", 3);
 		//TextOut(hDC, 149, 9, "2 B", 3);
 		//TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
@@ -1326,13 +1002,45 @@ namespace vc {
 
 	void MDU::ORBIT_TGT()
 	{
-		char cbuf[256];
-		PrintToBuffer("2011/034/", 9, 1, 0, 0);
-		PrintToBuffer("ORBIT TGT", 10, 18, 0, 0);
-		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-	
+		DrawCommonHeader("ORBIT TGT");
 	}
 
+	void MDU::GPCMEMORY()
+	{
+	
+		DrawCommonHeader("GPC MEMORY");
+
+		Line(16, 3, 16, 22);
+		Line(10, 7, 10, 22);
+		Line(1, 22, 16, 22);
+		Line(16, 14, 50, 14);
+		Line(16, 20, 50, 20);
+		Line(19, 14, 19, 24);
+
+		mvprint(1, 3, "MEM/BUS CONFIG");
+		mvprint(1, 4, "1 CONFIG");
+		mvprint(1, 5, "2 GPC");
+		mvprint(2, 7, "STRING 1");
+		mvprint(9, 8, "2");
+		mvprint(9, 9, "3");
+		mvprint(9, 10, "4");
+		mvprint(4, 11, "PL 1/2");
+		mvprint(5, 13, "CRT 1");
+		mvprint(9, 14, "2");
+		mvprint(9, 15, "3");
+		mvprint(9, 16, "4");
+		mvprint(2, 18, "LAUNCH 1");
+		mvprint(9, 19, "2");
+		mvprint(6, 20, "MM 1");
+		mvprint(9, 21, "2");
+		mvprint(18, 3, "READ/WRITE");
+		mvprint(19, 4, "DATA 20");
+		mvprint(29, 4, "BIT SET 22");
+		mvprint(42, 4, "SEQ ID 24");
+		mvprint(19, 5, "CODE 21");
+		mvprint(29, 5, "BIT RST 23");
+		mvprint(42, 5, "WRITE 25");
+		mvprint(19, 6, "26 ENG UNITS");
+	}
 };
 

@@ -74,6 +74,8 @@ namespace vc {
 	protected:
 		virtual void RegisterMFDContext(int id);
 		virtual void SwitchMFDMode();
+		void DrawCommonHeader(const char* cDispTitle);
+		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 		
 		inline void MDU::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
 		{
@@ -92,6 +94,12 @@ namespace vc {
 		virtual char* GetEdgeKeyMenuLabel(int iButton);
 		bool SetPrimaryIDP(dps::IDP* idp);
 		bool SetSecondaryIDP(dps::IDP* idp);
+		inline dps::IDP* GetIDP() const {
+			if(bUseSecondaryPort)
+				return sec_idp;
+			else
+				return prim_idp;
+		}
 		/**
 		 * Does nothing as it currently has no animations.
 		 * @sa BasicVCComponent::DefineVCAnimations
@@ -136,7 +144,21 @@ namespace vc {
 		virtual bool IsCRTBufferEnabled() const;
 
 		virtual void UpdateTextBuffer();
-		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
+		
+
+		//IDP interface functions
+		/** 
+		 * Act like the curses function
+		 */
+		inline void mvprint(int x, int y, const char* pszLine, char attributes = 0) 
+		{
+			//
+			PrintToBuffer(pszLine, strlen(pszLine), x, y, attributes);
+		}
+
+		inline void Line(int x1, int y1, int x2, int y2, char attributes = 0) 
+		{
+		}
 
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
 		//	const VECTOR3& bottom_right);
@@ -168,7 +190,9 @@ namespace vc {
 		void DAP_CONFIG();
 		void MNVR();
 		void ORBIT_TGT();
-		//void GPCMEMORY(HDC hdc);
+		void PASSTRAJ();
+		void GNCSYSSUMM1();
+		void GPCMEMORY();
 	};
 
 };
