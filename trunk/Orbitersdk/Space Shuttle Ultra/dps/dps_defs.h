@@ -91,6 +91,14 @@ namespace dps {
 		char cd[3];
 	} word24;
 
+	inline word24 __word24(int x)
+	{
+		word24 y;
+		y.uaddr = x;
+		return y;
+	}
+	
+
 	typedef float float32;
 	typedef unsigned char gpcchar;
 
