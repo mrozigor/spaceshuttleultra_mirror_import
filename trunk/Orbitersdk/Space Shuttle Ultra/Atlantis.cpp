@@ -14,6 +14,7 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "Atlantis.h"
+#include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK35.h>
 #include <iostream>
