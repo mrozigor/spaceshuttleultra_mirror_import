@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\..\Modules\Startup"
+			OutputDirectory=".\..\..\Modules\Startup"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -42,14 +42,14 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\Modules\Startup/AtlantisConfig.tlb"
+				TypeLibraryName=".\..\..\Modules\Startup/AtlantisConfig.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;c:\Program Files\Microsoft SDK\Include&quot;;..\include"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ATLANTISCONFIG_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -68,7 +68,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="2057"
-				AdditionalIncludeDirectories="&quot;c:\Program Files\Microsoft SDK\Include\mfc&quot;;&quot;c:\Program Files\Microsoft SDK\Include&quot;;&quot;c:\Program Files\Microsoft SDK\Include\win64\mfc&quot;"
+				AdditionalIncludeDirectories=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -79,7 +79,7 @@
 				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="c:\Program Files\Microsoft SDK\lib"
+				AdditionalLibraryDirectories="..\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 				StackReserveSize="4194304"
 				ImportLibrary=".\..\..\Modules\Startup/AtlantisConfig.lib"
@@ -97,7 +97,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\Modules\Startup/AtlantisConfig.bsc"
+				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -112,7 +112,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\..\Modules\Plugin"
+			OutputDirectory=".\..\..\Modules\Startup"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -138,13 +138,13 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\Modules\Plugin/AtlantisConfig.tlb"
+				TypeLibraryName=".\..\..\Modules\Startup/AtlantisConfig.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ATLANTISCONFIG_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -163,6 +163,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="2057"
+				AdditionalIncludeDirectories=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -170,14 +171,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\..\Modules\Plugin/AtlantisConfig.dll"
+				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\..\Modules\Plugin/AtlantisConfig.pdb"
+				ProgramDatabaseFile=".\..\..\Modules\Startup/AtlantisConfig.pdb"
 				StackReserveSize="4194304"
-				ImportLibrary=".\..\..\..\Modules\Plugin/AtlantisConfig.lib"
+				ImportLibrary=".\..\..\Modules\Startup/AtlantisConfig.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -192,7 +194,103 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\Modules\Plugin/AtlantisConfig.bsc"
+				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Analysis (Debug)|Win32"
+			OutputDirectory=".\..\..\Modules\Startup"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\Modules\Startup/AtlantisConfig.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ATLANTISCONFIG_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				PrecompiledHeaderFile=".\Debug/AtlantisConfig.pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="2057"
+				AdditionalIncludeDirectories=""
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
+				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\lib"
+				IgnoreDefaultLibraryNames="msvcirt.lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\..\..\Modules\Startup/AtlantisConfig.pdb"
+				StackReserveSize="4194304"
+				ImportLibrary=".\..\..\Modules\Startup/AtlantisConfig.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\..\..\Modules\Startup/AtlantisConfig.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -231,6 +329,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Analysis (Debug)|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="AtlantisConfig.cpp"
@@ -246,6 +352,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Analysis (Debug)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
