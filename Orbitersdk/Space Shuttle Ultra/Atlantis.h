@@ -39,7 +39,7 @@
 #define __ATLANTIS_H
 
 #include "CRT.h"
-#include "SSUOptions.h"
+//#include "SSUOptions.h"
 #include "orbitersdk.h"
 #include <math.h>
 #include <vector>
@@ -1006,6 +1006,7 @@ typedef enum {
 } SIDE;
 
 class CommModeHandler;
+class SSUOptions;
 
 using class discsignals::DiscreteBundleManager;
 using class dps::ShuttleBusManager;
