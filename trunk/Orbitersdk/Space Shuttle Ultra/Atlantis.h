@@ -1010,6 +1010,7 @@ class SSUOptions;
 
 using class discsignals::DiscreteBundleManager;
 using class dps::ShuttleBusManager;
+using class dps::MDM;
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
@@ -1044,6 +1045,39 @@ public:
 	eps::ACBusSystem *pACBusSystem;
 	dps::MasterTimingUnit* pMTU;		//just quick reference. Don't ever delete this, yourself.
 	dps::IDP* pIDP[4];
+	/**
+	 * Flight forward MDMs
+	 * Card 3 is SIO
+	 * * Channel 1 connects to MTU (FF4 not connected)
+	 * Card 8 is Analog output
+	 * * Channel 6 is Nosewheel Steering CMD
+	 */
+	dps::MDM* pFF[4];
+	/** 
+	 * Flight Aft MDM
+	 * Card 0 is Analog out
+	 * * Channels 0-11 connect to ASA
+	 * 
+	 */
+	dps::MDM* pFA[4];
+	/**
+	 * Payload MDMs
+	 * Card 2 is Discrete output
+	 * Card 10 is Discrete output
+	 * Card 12 is Analog input
+	 * * Channel 3 is APU 3 Fuel quantity
+	 * * Channel 8 is APU 1 Fuel quantity
+	 * * Channel 10 is APU 2 Fuel quantity
+	 */
+	dps::MDM* pPL[2];
+	dps::MDM* pLF1;
+	dps::MDM* pLA1;
+	dps::MDM* pLM1;
+	dps::MDM* pOF[4];
+	dps::MDM* pOA[3];
+	dps::MDM* pLL[2];
+	dps::MDM* pLR[2];
+	dps::MDM* pFMDM[2];
 	dps::GPC* pGPC[5];
 	OMSSubsystem* pOMS;
 	gnc::IMU* pIMU[3];
