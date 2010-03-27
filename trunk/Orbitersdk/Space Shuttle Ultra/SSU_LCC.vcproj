@@ -39,6 +39,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -53,6 +54,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
 				OutputFile="..\..\Modules\SSULCC.dll"
+				AdditionalLibraryDirectories="..\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
@@ -102,7 +104,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include&quot;;..\..\include"
+				AdditionalIncludeDirectories="..\include"
 				StringPooling="true"
 				RuntimeLibrary="2"
 			/>
@@ -119,7 +121,73 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
 				OutputFile="..\..\Modules\SSULCC.dll"
+				AdditionalLibraryDirectories="..\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Analysis (Debug)|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			ManagedExtensions="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
+				OutputFile="..\..\Modules\SSULCC.dll"
+				AdditionalLibraryDirectories="..\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
