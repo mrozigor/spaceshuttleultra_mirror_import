@@ -21,14 +21,9 @@
 #include <fstream>
 #include "PlBayOp.h"
 //#include "GearOp.h"
-#include "PanelA4.h"
-#include "vc/PanelA8.h"
-#include "PanelC2.h"
 //#include "PanelC3.h"
 //#include "PanelF7.h"
-#include "PanelO3.h"
 //#include "PanelR2.h"
-#include "vc/PanelR2.h"
 #include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
@@ -38,10 +33,11 @@
 #include "meshres_vc_additions.h"
 #include "resource.h"
 #include "SubsystemDirector.h"
-#include "dps/MasterTimingUnit.h"
-#include "dps/IDP.h"
 #include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
+#include "dps/IDP.h"
+#include "dps/MasterTimingUnit.h"
+#include "dps/MDM.h"
 #include "dps/RSLS.h"
 #include "dps/ShuttleBus.h"
 #include "eva_docking/ODS.h"
@@ -54,6 +50,9 @@
 #include "StbdMPMSystem.h"
 #include "MechActuator.h"
 #include "mps/BLOCK_II.h"
+#include "PanelA4.h"
+#include "PanelC2.h"
+#include "PanelO3.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
 #include "vc/PanelF4.h"
@@ -62,11 +61,14 @@
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelA6.h"
+#include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
+#include "vc/PanelR2.h"
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
 #include "SSUMath.h"
+
 
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
@@ -424,8 +426,67 @@ gncsoftware(NULL)
   psubsystems->AddSubsystem(pAMC1 = new MCA(psubsystems, "AMC1"));
   psubsystems->AddSubsystem(pAMC2 = new MCA(psubsystems, "AMC2"));
   psubsystems->AddSubsystem(pAMC3 = new MCA(psubsystems, "AMC3"));
-  
 
+  psubsystems->AddSubsystem(pFF[0] = new MDM(psubsystems, "FF1", 10, 10));
+  psubsystems->AddSubsystem(pFF[1] = new MDM(psubsystems, "FF2", 11, 11));
+  psubsystems->AddSubsystem(pFF[2] = new MDM(psubsystems, "FF3", 12, 12));
+  psubsystems->AddSubsystem(pFF[3] = new MDM(psubsystems, "FF4", 13, 13));
+  
+  psubsystems->AddSubsystem(pFA[0] = new MDM(psubsystems, "FA1", 14, 14));
+  psubsystems->AddSubsystem(pFA[1] = new MDM(psubsystems, "FA2", 15, 15));
+  psubsystems->AddSubsystem(pFA[2] = new MDM(psubsystems, "FA3", 16, 16));
+  psubsystems->AddSubsystem(pFA[3] = new MDM(psubsystems, "FA4", 17, 17));
+
+  psubsystems->AddSubsystem(pPL[0] = new MDM(psubsystems, "PL1", 20, 20));
+  psubsystems->AddSubsystem(pPL[1] = new MDM(psubsystems, "PL2", 21, 21));
+  
+  psubsystems->AddSubsystem(pLF1 = new MDM(psubsystems, "LF1", 22, 22));
+  psubsystems->AddSubsystem(pLM1 = new MDM(psubsystems, "LM1", 24, 24));
+  psubsystems->AddSubsystem(pLA1 = new MDM(psubsystems, "LA1", 23, 23));
+
+  psubsystems->AddSubsystem(pOF[0] = new MDM(psubsystems, "OF1", 1, 1));
+  psubsystems->AddSubsystem(pOF[1] = new MDM(psubsystems, "OF2", 2, 2));
+  psubsystems->AddSubsystem(pOF[2] = new MDM(psubsystems, "OF3", 3, 3));
+  psubsystems->AddSubsystem(pOF[3] = new MDM(psubsystems, "OF4", 4, 4));
+  
+  psubsystems->AddSubsystem(pOA[0] = new MDM(psubsystems, "OA1", 5, 5));
+  psubsystems->AddSubsystem(pOA[1] = new MDM(psubsystems, "OA2", 6, 6));
+  psubsystems->AddSubsystem(pOA[2] = new MDM(psubsystems, "OA3", 7, 7));  
+
+  psubsystems->AddSubsystem(pLL[0] = new MDM(psubsystems, "LL1", 25, 25));
+  psubsystems->AddSubsystem(pLL[1] = new MDM(psubsystems, "LL2", 26, 26));
+  
+  psubsystems->AddSubsystem(pLR[0] = new MDM(psubsystems, "LR1", 27, 27));
+  psubsystems->AddSubsystem(pLR[1] = new MDM(psubsystems, "LR2", 28, 28));
+  
+  //Flexible MDMs
+  //There are no flexible MDMs supported yet
+  pFMDM[0] = pFMDM[1] = NULL;	
+
+  for(int i = 0; i<4; i++)
+  {
+	  pFF[i]->LoadPROM("FF.rom");
+	  pFA[i]->LoadPROM("FA.rom");
+	  pOF[i]->LoadPROM("OF.rom");
+  }
+
+  for(int i = 0; i<3; i++)
+  {
+		pOA[i]->LoadPROM("OF.rom");
+  }
+
+  for(int i = 0; i<2; i++)
+  {
+		pPL[i]->LoadPROM("PL.rom");
+		pLL[i]->LoadPROM("LL.rom");
+		pLR[i]->LoadPROM("LR.rom");
+  }
+
+  pLF1->LoadPROM("LF1.rom");
+  pLM1->LoadPROM("LM1.rom");
+  pLA1->LoadPROM("LA1.rom");
+  
+  
   psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
   psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
   psubsystems->AddSubsystem(pEIU[2] = new mps::EIU(psubsystems, "EIU3", 3, pSSME[2]));
