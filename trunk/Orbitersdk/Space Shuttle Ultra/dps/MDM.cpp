@@ -6,6 +6,7 @@
 #include "MDM.h"
 #include "BIU.h"
 #include "dps_defs.h"
+#include "../SSUOptions.h"
 #include "assert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw,
 		break;
 	case 10:
 		//Send and reset BITE
-		biu->WriteData(1, reinterpret_cast<word16*>(&m_bite_status));
+		biu->WriteData(1, &m_bite_status);
 		m_bite_status = 0;
 		break;
 	case 11:
@@ -173,12 +174,28 @@ void MDM::LoadPROM(const std::string& prom_file)
 {
 	std::string filename;
 	std::ifstream prom;
-	//STS()->options->GetROMFileDir()
+	
 	filename = prom_file;
 	
 	prom.open(filename.c_str(), std::ios::binary);
-	prom.read(reinterpret_cast<char*>(SCU_PROM), 1024);
-	prom.close();
+	if(!prom)
+	{
+		filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
+		prom.open(filename.c_str(), std::ios::binary);
+	}
+
+	if(prom)
+	{
+		prom.read(reinterpret_cast<char*>(SCU_PROM), 1024);
+		prom.close();
+	}
+	else
+	{
+		char buffer[400];	
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra)Can't load PROM image '%s' for '%s'",
+			filename.c_str(), GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buffer);
+	}
 }
 
 void MDM::MasterReset(void)
