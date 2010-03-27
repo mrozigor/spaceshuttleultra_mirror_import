@@ -6,6 +6,7 @@
 #include "MDM.h"
 #include "BIU.h"
 #include "dps_defs.h"
+#include "assert.h"
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -47,6 +48,7 @@ void MDM::busReadPhase(BusController* biu)
 BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
 			unsigned long num_data, word16 *cdw)
 {
+	assert(cdw != NULL);
 	word16 tmp_data[16];
 
 	switch(cw.mode_ctrl)
@@ -79,24 +81,30 @@ BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw,
 		break;
 	case 8:
 		//Write data
+		
 		break;
 	case 9:
 		//Read data
 		break;
 	case 10:
 		//Send and reset BITE
+		biu->WriteData(1, reinterpret_cast<word16*>(&m_bite_status));
+		m_bite_status = 0;
 		break;
 	case 11:
 		//Master reset
+		MasterReset();
 		break;
 	case 12:
-		biu->WriteData(2, reinterpret_cast<word16*>(&cw));
+		//Send last command word
+		biu->WriteData(1, reinterpret_cast<word16*>(&cw));
 		break;
 	case 13:
 		//Spare
 		break;
 	case 14:
 		//load BITE register
+		m_bite_status = cdw[0];
 		break;
 	case 15:
 		//spare
@@ -161,6 +169,23 @@ void MDM::InstallTacanModule(unsigned int module_id)
 	SCU_PROM[module_id] = 0x0500;
 }
 
+void MDM::LoadPROM(const std::string& prom_file)
+{
+	std::string filename;
+	std::ifstream prom;
+	//STS()->options->GetROMFileDir()
+	filename = prom_file;
+	
+	prom.open(filename.c_str(), std::ios::binary);
+	prom.read(reinterpret_cast<char*>(SCU_PROM), 1024);
+	prom.close();
+}
+
+void MDM::MasterReset(void)
+{
+	m_bite_status = 0;
+	//Reset all I/O modules
+}
 
 
 };

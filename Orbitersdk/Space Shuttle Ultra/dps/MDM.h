@@ -40,7 +40,7 @@ protected:
 	word16 m_bite_status;
 	word16 SCU_PROM[512];
 	MDMIOModule* m_modules[16];
-	
+	void MasterReset(void);
 public:
 	MDM(SubsystemDirector* _director, const string& _ident,
 		unsigned short MIA1_addr, unsigned short MIA2_addr);
