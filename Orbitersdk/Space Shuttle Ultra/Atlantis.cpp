@@ -572,6 +572,7 @@ gncsoftware(NULL)
   ldoor_drag      = rdoor_drag = 0.0;
   spdb_status     = AnimState::CLOSED;
   spdb_proc       = 0.0;
+  spdb_tgt		  = 0.0;
   mesh_orbiter    = MESH_UNDEFINED;
   mesh_cockpit    = MESH_UNDEFINED;
   mesh_vc         = MESH_UNDEFINED;
@@ -855,6 +856,11 @@ gncsoftware(NULL)
   TV_ROLL=0.0;
   BurnInProg=false;
   BurnCompleted=false;
+  
+  RHCInput = _V(0, 0, 0);
+  THCInput = _V(0, 0, 0);
+  AltKybdInput = _V(0, 0, 0);
+
   for(i=0; i<3; i++) {
 	  //MNVR
 	  PEG7.data[i]=0.0;
@@ -900,8 +906,6 @@ gncsoftware(NULL)
 	  //DAP settings
 	  RotMode[i]=0;
 	  TransMode[i]=0;
-	  RHCInput.data[i]=0.0;
-	  THCInput.data[i]=0.0;
 	  RotationCommand.data[i]=0.0;
 	  TranslationCommand.data[i]=0.0; 
 	  RotPulseInProg[i]=false;
