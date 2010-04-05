@@ -356,6 +356,8 @@ const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
+const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
+
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
 const unsigned short MPS_SSME_LEFT = 2;
@@ -1265,6 +1267,17 @@ public:
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
 
+	/**
+	 * Calls VESSEL::AttachChild and adds mass of child to shuttle mass
+	 * Should always be called instead of AttachChild.
+	 */
+	bool AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const;
+	/**
+	 * Calls VESSEL::DetachChild and subtracts mass of child from shuttle mass
+	 * Should always be called instead of DetachChild.
+	 */
+	bool DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel = 0.0) const;
+
 	bool AreMCADebugMessagesEnabled() const throw();
 
 	virtual void UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up);
@@ -1368,6 +1381,7 @@ public:
 	ATTACHMENTHANDLE ahCenterPassive[4];
 	ATTACHMENTHANDLE ahStbdPL[4];
 	ATTACHMENTHANDLE ahPortPL[4];
+	ATTACHMENTHANDLE ahET, ahLeftSRB, ahRightSRB;
 	
 	//VECTOR3 arm_tip[3];
 	//VECTOR3 wrist_yaw_joint[2];
@@ -1493,6 +1507,15 @@ private:
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
+
+	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
+
+	/**
+	 * Called from clbkPostCreation.
+	 * Loops through child attachments and adds their mass to shuttle mass.
+	 */
+	double GetMassOfAttachedObjects() const;
+	void UpdateMass() const;
 
 	//OBSS
 	//void AttachOBSS() const;
@@ -1889,7 +1912,7 @@ private:
 	//GPC
 	int ops, SMOps;
 	int last_mfd;
-	//bool bFirstStep; //call functions in first timestep
+	bool firstStep; //call functions in first timestep
 	//Data Input
 	KeyboardInput DataInput[3];
 	int CRT_SEL[2]; //0=CDR, 1=PLT
@@ -1935,6 +1958,7 @@ private:
 	double P, Y, OM;
 	bool MNVR, TRK, ROT;
 	bool Pitch, Yaw, Roll;
+	//bool RotatingAxis[3]; // indicates if shuttle is actively rotating around each axis
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
 	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector*/;
@@ -2051,11 +2075,17 @@ public:
 	// Overloaded callback functions
 	void clbkSetClassCaps (FILEHANDLE cfg);
 	void clbkPostStep (double simt, double simdt, double mjd);
+	void clbkLoadStateEx(FILEHANDLE scn, void* status);	
+	void clbkSaveState (FILEHANDLE scn);
+	
+	virtual void UseBurntETTexture();
 
 private:
-	void UpdateETTexture() const;
 
 	MESHHANDLE hTankMesh;
+	ATTACHMENTHANDLE ahToOrbiter;
+
+	bool bUseBurntTexture;
 
 	//////////////////////// ET vent ////////////////////////
 	PROPELLANT_HANDLE phLOXtank;

@@ -379,7 +379,7 @@ gncsoftware(NULL)
   oapiWriteLog("(Space Shuttle Ultra) Say Dennis that he has disabled");
   oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
   oapiWriteLog("******************************************************");  
-  //rsls			= new dps::RSLS(this);
+  rsls			= new dps::RSLS(this);
   //gncsoftware	= new dps::GNCSoftware(this);
   
 
@@ -840,7 +840,7 @@ gncsoftware(NULL)
   SMOps=201;
   ops=101;
   last_mfd=0;
-  //bFirstStep=true;
+  firstStep=true;
   ThrAngleP=-13.20;
   ThrAngleY=0.0;
   //Displays
@@ -861,6 +861,7 @@ gncsoftware(NULL)
   THCInput = _V(0, 0, 0);
   AltKybdInput = _V(0, 0, 0);
 
+  ReqdRates = _V(0, 0, 0);
   for(i=0; i<3; i++) {
 	  //MNVR
 	  PEG7.data[i]=0.0;
@@ -1074,7 +1075,7 @@ void Atlantis::SetLaunchConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (30.0);
-  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
+  //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
   SetWingAspect (0.7);
   SetWingEffectiveness (2.5);
@@ -1084,6 +1085,8 @@ void Atlantis::SetLaunchConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
+  UpdateMass();
+  //SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
   // ************************* propellant specs **********************************
 
@@ -1223,7 +1226,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (28.8);
-  SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
+  //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
   SetWingAspect (0.7);
   SetWingEffectiveness (2.5);
@@ -1233,6 +1236,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-5,30), _V(-10,-10,-30), _V(10,0,-30));
+  UpdateMass();
 
   // ************************* propellant specs **********************************
 
@@ -1340,7 +1344,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // *********************** physical parameters *********************************
 
   SetSize (19.6);
-  SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
+  //SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
   VECTOR3 r[2] = {{0,0,10},{0,0,-8}};
   SetPMI (_V(104.2,108.8,13.497));
   SetGravityGradientDamping (20.0);
@@ -1350,6 +1354,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   //gop->SetGearParameters(gop->gear_proc);
   DefineTouchdownPoints();
   SetMaxWheelbrakeForce(250000);
+  UpdateMass();
 
   // ************************* aerodynamics **************************************
 
@@ -2430,7 +2435,15 @@ The same starboard
 		}
 	}
 	
+	CreateETAndSRBAttachments(ofs0);
+}
 
+void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
+{
+	ahET = CreateAttachment(false, ET_ATTACH_POS+ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
+	char pszBuf[255];
+	sprintf_s(pszBuf, 255, "Attachment count: %d", AttachmentCount(false));
+	oapiWriteLog(pszBuf);
 }
 
 bool Atlantis::SatStowed() const
@@ -2613,6 +2626,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
 void Atlantis::AddTankVisual (const VECTOR3 &ofs)
 {
+	return;
   if (mesh_tank == MESH_UNDEFINED) {
 
     // ***** Load mesh
@@ -2701,12 +2715,19 @@ void Atlantis::SeparateBoosters (double met)
 
   //stop playing sound
   StopVesselWave3(SoundID, SSME_RUNNING);
+
+  // change ET texture
+  OBJHANDLE hTank = GetAttachmentStatus(ahET);
+  if(hTank) {
+	Atlantis_Tank* pTank = static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
+	pTank->UseBurntETTexture();
+  }
 }
 
 void Atlantis::SeparateTank (void)
 {
   // Create Tank as individual object
-  VESSELSTATUS2 vs;
+  /*VESSELSTATUS2 vs;
   memset (&vs, 0, sizeof (vs));
   vs.version = 2;
   GetStatusEx (&vs);
@@ -2726,7 +2747,9 @@ void Atlantis::SeparateTank (void)
   vs.status = 0;
   char name[256];
   strcpy (name, GetName()); strcat (name, "-Tank");
-  oapiCreateVesselEx (name, "Atlantis_Tank", &vs);
+  oapiCreateVesselEx (name, "Atlantis_Tank", &vs);*/
+
+	DetachChildAndUpdateMass(ahET, -1.0);
 
   // Remove Tank from shuttle instance
   DelPropellantResource (ph_tank);
@@ -2744,7 +2767,7 @@ void Atlantis::SeparateTank (void)
 
   // remove tank mesh and shift cg
   //Test keeping animations - which are not defined on the ET.
-  DelMesh (mesh_tank, true);
+  //DelMesh (mesh_tank, true);
   ShiftCG (OFS_WITHTANK_ORBITER);
 
   // reconfigure
@@ -5645,6 +5668,11 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	static bool ___PreStep_flag = false;
 //	double dThrust;
 	double steerforce, airspeed;
+
+	if(firstStep) {
+		firstStep = false;
+		UpdateMass();
+	}
 
 	if(!___PreStep_flag)
 	{
@@ -9419,4 +9447,53 @@ void Atlantis::SSMEEngControl(unsigned short usEng) const
 	else {
 		SetThrusterResource(th_main[usEng], NULL);
 	}
+}
+
+bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
+{
+	bool result = AttachChild(child, attachment, child_attachment);
+	if(result) {
+		double mass = GetEmptyMass();
+		mass += oapiGetMass(child);
+		SetEmptyMass(mass);
+	}
+	return result;
+}
+
+bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel) const
+{
+	OBJHANDLE hChild = GetAttachmentStatus(attachment);
+	bool result = DetachChild(attachment, vel);
+	if(result && hChild) {
+		double mass = GetEmptyMass();
+		mass -= oapiGetMass(hChild);
+		SetEmptyMass(mass);
+	}
+	return result;
+}
+
+double Atlantis::GetMassOfAttachedObjects() const
+{
+	double mass = 0.0;
+	DWORD count = AttachmentCount(false);
+	//int attachedCount = 0;
+	for(DWORD i=0;i<count;i++) {
+		ATTACHMENTHANDLE hAtt = GetAttachmentHandle(false, i);
+		OBJHANDLE hV=GetAttachmentStatus(hAtt);
+		if(hV) {
+			mass += oapiGetMass(hV);
+			//attachedCount++;
+		}
+	}
+
+	/*char pszBuf[50];
+	sprintf_s(pszBuf, 50, "Attach count: %d dMass: %f", attachedCount, mass);
+	oapiWriteLog(pszBuf);*/
+
+	return mass;
+}
+
+void Atlantis::UpdateMass() const
+{
+	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
