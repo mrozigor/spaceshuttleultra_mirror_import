@@ -34,9 +34,10 @@ void LatchSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 
 	if(attachedPayload!=NULL && !STS()->GetAttachmentStatus(hAttach)) {
 		if(PayloadIsFree()) {
-			STS()->AttachChild(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
+			/*STS()->AttachChild(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
 			double mass=STS()->GetEmptyMass()+attachedPayload->GetMass();
-			STS()->SetEmptyMass(mass);
+			STS()->SetEmptyMass(mass);*/
+			STS()->AttachChildAndUpdateMass(attachedPayload->GetHandle(), hAttach, hPayloadAttachment);
 		}
 	}
 }
@@ -87,8 +88,8 @@ void LatchSystem::DetachPayload()
 {
 	if(attachedPayload) {
 		// remove mass of released payload
-		double mass=STS()->GetEmptyMass()-attachedPayload->GetMass();
-		STS()->SetEmptyMass(mass);
+		//double mass=STS()->GetEmptyMass()-attachedPayload->GetMass();
+		//STS()->SetEmptyMass(mass);
 
 		// signal to RMS and MPMs that payload they are attached to has been unlatched
 		if(STS()->pRMS && STS()->pRMS!=this) STS()->pRMS->CheckDoubleAttach(attachedPayload, false);
@@ -96,7 +97,8 @@ void LatchSystem::DetachPayload()
 	}
 	hPayloadAttachment=NULL;
 	attachedPayload=NULL;
-	STS()->DetachChild(hAttach);
+	//STS()->DetachChild(hAttach);
+	STS()->DetachChildAndUpdateMass(hAttach);
 
 	OnDetach();
 }
@@ -209,8 +211,8 @@ void LatchSystem::CheckForAttachedObjects()
 		OBJHANDLE hV=STS()->GetAttachmentStatus(hAttach);
 		if(hV) {
 			attachedPayload=oapiGetVesselInterface(hV);
-			double mass=STS()->GetEmptyMass()+attachedPayload->GetMass();
-			STS()->SetEmptyMass(mass);
+			//double mass=STS()->GetEmptyMass()+attachedPayload->GetMass();
+			//STS()->SetEmptyMass(mass);
 			// find handle of attachment point on payload
 			for(DWORD i=0;i<attachedPayload->AttachmentCount(true);i++) {
 				ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(true, i);
