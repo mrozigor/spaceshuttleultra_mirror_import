@@ -20,7 +20,7 @@
 
 // Constructor
 Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
-: VESSEL2(hObj)
+: VESSEL2(hObj), bUseBurntTexture(false)
 {
 	// preload mesh
 	hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
@@ -32,8 +32,9 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 	//////////////////////// ET vent ////////////////////////
 }
 
-void Atlantis_Tank::UpdateETTexture() const
+void Atlantis_Tank::UseBurntETTexture()
 {
+	bUseBurntTexture = true;
 	SURFHANDLE scorchedTexture = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
 	if(!oapiSetTexture(hTankMesh, 3, scorchedTexture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
@@ -106,7 +107,8 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	//////////////////////// ET vent ////////////////////////
 
 	AddMesh (hTankMesh);
-	UpdateETTexture();
+
+	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0), _V(0, -1, 0), _V(0, 0, 1), "SSU_ET");
 }
 
 // Simulation time step
@@ -140,6 +142,27 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 		SetThrusterLevel( thLOXvent, 0 );
 	}
 	//////////////////////// ET vent ////////////////////////
+}
+
+void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
+{
+	char* line;
+
+	while(oapiReadScenario_nextline(scn, line)) {
+		if(!_strnicmp(line, "BURNT_TEX", 9)) {
+			bUseBurntTexture = true;
+		}
+		else ParseScenarioLineEx(line, status);
+	}
+
+	if(bUseBurntTexture) UseBurntETTexture();
+}
+
+void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
+{
+	VESSEL2::clbkSaveState(scn);
+
+	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
 }
 
 // ==============================================================
