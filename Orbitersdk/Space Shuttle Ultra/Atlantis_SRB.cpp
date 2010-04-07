@@ -22,18 +22,18 @@
 
 // Constructor
 Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
-: VESSEL2(hObj)
+: VESSEL2(hObj), bMainEngine(false), bSeparationEngine(false)
 {
 	// preload mesh
 	hSRBMesh_Left = oapiLoadMeshGlobal ("SSU/LSRB");
 	hSRBMesh_Right = oapiLoadMeshGlobal ("SSU/RSRB");
-	slag1 = 1.0;
-	slag2 = 1.0;
-	slag3 = 1.0;
+	slag1 = 0.0;
+	slag2 = 0.0;
+	slag3 = 0.0;
 }
 
 // reconstruct liftoff time from fuel level
-void Atlantis_SRB::SetRefTime (void)
+/*void Atlantis_SRB::SetRefTime (void)
 {
 	extern double SRB_Seq[], SRB_Prop[];
 
@@ -44,6 +44,17 @@ void Atlantis_SRB::SetRefTime (void)
     double SRB_PrpSCL=(SRB_Prop[i]-SRB_Prop[i-1])/(SRB_Seq[i]-SRB_Seq[i-1]);
 	double met = SRB_Seq[i] + (fuel-SRB_Prop[i])/SRB_PrpSCL;
 	t0 = oapiGetSimTime()-met;
+}*/
+
+void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_level, double prop_level)
+{
+	t0 = launch_time;
+	SetPropellantMass(ph_main, prop_level*SRB_MAX_PROPELLANT_MASS);
+	SetThrusterLevel(th_main, thrust_level);
+
+	bMainEngine = true;
+	bSeparationEngine = true;
+	srb_separation_time = oapiGetSimTime();
 }
 
 // ==============================================================
@@ -92,6 +103,8 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	//SetGravityGradientDamping (10.0);
 	SetTouchdownPoints (_V(0,-2,-21.1), _V(-2,1,-21.1), _V(2,1,-21.1));
 	SetLiftCoeffFunc (0);
+
+	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0), _V(1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 
 	// ************************* propellant specs **********************************
 
@@ -147,16 +160,14 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// ************************ visual parameters **********************************
 
 	AddMesh (hSRBMesh);
-
-	bMainEngine = true;
-	bSeparationEngine = true;
-	srb_separation_time = oapiGetSimTime();
 }
 
 // Finish setup
 void Atlantis_SRB::clbkPostCreation ()
 {
-	SetRefTime ();	// reconstruct ignition time from fuel level
+	//SetRefTime ();	// reconstruct ignition time from fuel level
+	SetPropellantMass(ph_main, 0.0);
+	SetPropellantMass(phBSM, GetPropellantMaxMass(phBSM));
 }
 
 // Simulation time step
@@ -211,7 +222,7 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 		}
 	}
 	//increased altitude for self delete
-	if (GetAltitude() < 250.0) oapiDeleteVessel (GetHandle());
+	if (GetAltitude() < 250.0 && !GetAttachmentStatus(ahToOrbiter)) oapiDeleteVessel (GetHandle());
 }
 
 // ==============================================================
