@@ -357,6 +357,8 @@ const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
+const VECTOR3 LSRB_ATTACH_POS = _V(-6.88, -7.95, 2.309);
+const VECTOR3 RSRB_ATTACH_POS = _V(6.88, -7.95, 2.309);
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -1217,9 +1219,6 @@ public:
 	void PaintMarkings (SURFHANDLE tex);
 	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
 	void RevertSpeedbrake ();
-	void SeparateBoosters (double srb_time);
-	void SeparateMMU (void);
-	void SeparateTank (void);
 	/* ***************************************************************
 	 * Setters
 	 *****************************************************************/
@@ -1442,6 +1441,11 @@ private:
 	dps::RSLS *rsls;
 
 	SURFHANDLE tex_rcs;
+	
+	void SeparateBoosters (double srb_time);
+	void DetachSRB(ATTACHMENTHANDLE ahSRBAttach, double thrust, double prop) const;
+	void SeparateMMU (void);
+	void SeparateTank (void);
 
 	void SSMEEngControl(unsigned short usEng) const;
 	void OMSEngControl(unsigned short usEng) const;
@@ -2040,7 +2044,13 @@ public:
 	Atlantis_SRB (OBJHANDLE hObj);
 	// Construct interface from existing object
 
-	void SetRefTime (void);
+	//void SetRefTime (void);
+	/**
+	 * @param launch_time simtime at which SRB ignition occured (seconds)
+	 * @param thrust_level thrust (between 0 and 1) of booster
+	 * @param prop_level amount of fuel remaining (between 0 and 1)
+	 */
+	virtual void SetPostSeparationState(double launch_time, double thrust_level, double prop_level);
 
 	// Overloaded callback functions
 	void clbkSetClassCaps (FILEHANDLE cfg);
@@ -2061,6 +2071,7 @@ private:
 	THRUSTER_HANDLE th_main;    // engine handle
 	THRUSTER_HANDLE th_bolt;    // separation bolt
 	THRUSTER_HANDLE thBSM[3];	//represent engines by a single logical thruster for each group.
+	ATTACHMENTHANDLE ahToOrbiter;
 };
 
 // ==========================================================

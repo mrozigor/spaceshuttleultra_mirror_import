@@ -2441,6 +2441,8 @@ The same starboard
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 {
 	ahET = CreateAttachment(false, ET_ATTACH_POS+ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
+	ahLeftSRB = CreateAttachment(false, LSRB_ATTACH_POS+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
+	ahRightSRB = CreateAttachment(false, RSRB_ATTACH_POS+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	char pszBuf[255];
 	sprintf_s(pszBuf, 255, "Attachment count: %d", AttachmentCount(false));
 	oapiWriteLog(pszBuf);
@@ -2640,6 +2642,7 @@ void Atlantis::AddTankVisual (const VECTOR3 &ofs)
 
 void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
 {
+	return;
   if (mesh_srb[which] == MESH_UNDEFINED) {
 
     // ***** Load mesh
@@ -2658,7 +2661,7 @@ void Atlantis::SeparateBoosters (double met)
 	int i;
 	char buffer[120];
   // Create SRB's as individual objects
-  VESSELSTATUS2 vs;
+  /*VESSELSTATUS2 vs;
   VESSELSTATUS2::FUELSPEC fuel;
   VESSELSTATUS2::THRUSTSPEC thrust;
   memset (&vs, 0, sizeof(vs));
@@ -2681,7 +2684,14 @@ void Atlantis::SeparateBoosters (double met)
   Local2Rel (OFS_LAUNCH_LEFTSRB, vs.rpos);
   //vs.arot.z -= 1.5*PI;
   name[strlen(name)-1] = '2';
-  oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);
+  oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);*/
+
+	double thrust_level, prop_level;
+	GetSRB_State(met, thrust_level, prop_level);
+	prop_level = GetPropellantMass(ph_srb)/GetPropellantMaxMass(ph_srb);
+	
+	DetachSRB(ahLeftSRB, thrust_level, prop_level);
+	DetachSRB(ahRightSRB, thrust_level, prop_level);
 
   sprintf(buffer, "MG_Atlantis: Residual SRB propellant mass is %f kg\n", GetPropellantMass(ph_srb));
   oapiWriteLog(buffer);
@@ -2722,6 +2732,16 @@ void Atlantis::SeparateBoosters (double met)
 	Atlantis_Tank* pTank = static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
 	pTank->UseBurntETTexture();
   }
+}
+
+void Atlantis::DetachSRB(ATTACHMENTHANDLE ahSRBAttach, double thrust, double prop) const
+{
+	OBJHANDLE hSRB = GetAttachmentStatus(ahSRBAttach);
+	if(hSRB) {
+		Atlantis_SRB* pSRB = static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
+		DetachChildAndUpdateMass(ahSRBAttach);
+		pSRB->SetPostSeparationState(t0, thrust, prop);
+	}
 }
 
 void Atlantis::SeparateTank (void)
