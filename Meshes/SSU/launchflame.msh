@@ -1338,5 +1338,5 @@ MATERIAL cargobay
 0.67451 0.67451 0.67451 1 128
 0.576471 0.576471 0.576471 1
 TEXTURES 2
-SSMEstream.dds
-MGAtlantis.dds
+SSU\SSMEstream.dds
+SSU\MGAtlantis.dds
