@@ -4,7 +4,9 @@ namespace dps {
 
 	IDP::IDP(SubsystemDirector* _direct, const std::string& _ident, 
 		unsigned short _usIDPID)
-		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID)
+		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID),
+		usGPCDay(0), usGPCHour(0), usGPCMinute(0), usGPCSecond(0),
+		usTimerDay(0), usTimerHour(0), usTimerMinute(0), usTimerSecond(0)
 	{
 		usSPEC=dps::MODE_UNDEFINED;
 		usDISP=dps::MODE_UNDEFINED;
