@@ -2690,8 +2690,8 @@ void Atlantis::SeparateBoosters (double met)
 	GetSRB_State(met, thrust_level, prop_level);
 	prop_level = GetPropellantMass(ph_srb)/GetPropellantMaxMass(ph_srb);
 	
-	DetachSRB(ahLeftSRB, thrust_level, prop_level);
-	DetachSRB(ahRightSRB, thrust_level, prop_level);
+	DetachSRB(LEFT, thrust_level, prop_level);
+	DetachSRB(RIGHT, thrust_level, prop_level);
 
   sprintf(buffer, "MG_Atlantis: Residual SRB propellant mass is %f kg\n", GetPropellantMass(ph_srb));
   oapiWriteLog(buffer);
@@ -2734,14 +2734,18 @@ void Atlantis::SeparateBoosters (double met)
   }
 }
 
-void Atlantis::DetachSRB(ATTACHMENTHANDLE ahSRBAttach, double thrust, double prop) const
+void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
 {
-	OBJHANDLE hSRB = GetAttachmentStatus(ahSRBAttach);
+	/*OBJHANDLE hSRB = GetAttachmentStatus(ahSRBAttach);
 	if(hSRB) {
 		Atlantis_SRB* pSRB = static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
 		DetachChildAndUpdateMass(ahSRBAttach);
 		pSRB->SetPostSeparationState(t0, thrust, prop);
-	}
+	}*/
+	Atlantis_SRB* pSRB = GetSRBInterface(side);
+	if(side==LEFT) DetachChildAndUpdateMass(ahLeftSRB);
+	else DetachChildAndUpdateMass(ahRightSRB);
+	pSRB->SetPostSeparationState(t0, thrust, prop);
 }
 
 void Atlantis::SeparateTank (void)
@@ -2793,6 +2797,24 @@ void Atlantis::SeparateTank (void)
   // reconfigure
   RecordEvent ("JET", "ET"); 
   SetOrbiterConfiguration ();
+}
+
+Atlantis_Tank* Atlantis::GetTankInterface() const
+{
+	OBJHANDLE hTank = GetAttachmentStatus(ahET);
+	if(hTank)
+		return static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
+	return NULL;
+}
+
+Atlantis_SRB* Atlantis::GetSRBInterface(SIDE side) const
+{
+	OBJHANDLE hSRB = NULL;
+	if(side==LEFT) hSRB = GetAttachmentStatus(ahLeftSRB);
+	else hSRB = GetAttachmentStatus(ahRightSRB);
+	if(hSRB)
+		return static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
+	return NULL;
 }
 
 void Atlantis::ToggleGrapple (void)
@@ -7784,18 +7806,24 @@ void Atlantis::TurnOnPadLights()
 		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
 		IlluminateMesh(OrbiterMesh);
 
-		vector<int> ExcludeTank;
+		/*vector<int> ExcludeTank;
 		ExcludeTank.push_back(7);
 		ExcludeTank.push_back(8);
 		MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
-		IlluminateMesh(TankMesh, ExcludeTank);
+		IlluminateMesh(TankMesh, ExcludeTank);*/
+		Atlantis_Tank* pTank = GetTankInterface();
+		pTank->TurnOnPadLights();
 
-		vector<int> ExcludeSRB;
+		/*vector<int> ExcludeSRB;
 		ExcludeSRB.push_back(2);
 		for(int i=0;i<2;i++) {
 			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
 			IlluminateMesh(SrbMesh, ExcludeSRB);
-		}
+		}*/		
+		Atlantis_SRB* pSRB = GetSRBInterface(LEFT);
+		pSRB->TurnOnPadLights();
+		pSRB = GetSRBInterface(RIGHT);
+		pSRB->TurnOnPadLights();
 
 		bIlluminated=true;
 	}
@@ -7807,13 +7835,20 @@ void Atlantis::TurnOffPadLights()
 		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
 		DisableIllumination(OrbiterMesh, hOrbiterMesh);
 		
-		MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
-		DisableIllumination(TankMesh, hTankMesh);
+		/*MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
+		DisableIllumination(TankMesh, hTankMesh);*/
+		Atlantis_Tank* pTank = GetTankInterface();
+		pTank->TurnOffPadLights();
 		
-		for(int i=0;i<2;i++) {
+		/*for(int i=0;i<2;i++) {
 			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
 			DisableIllumination(SrbMesh, hSRBMesh[i]);
-		}
+		}*/
+		Atlantis_SRB* pSRB = GetSRBInterface(LEFT);
+		pSRB->TurnOffPadLights();
+		pSRB = GetSRBInterface(RIGHT);
+		pSRB->TurnOffPadLights();
+
 		bIlluminated=false;
 	}
 }
