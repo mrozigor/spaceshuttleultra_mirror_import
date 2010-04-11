@@ -989,6 +989,9 @@ class ActiveLatchGroup;
 class MCA;
 class MechActuator;
 
+class Atlantis_Tank;
+class Atlantis_SRB;
+
 
 
 typedef enum {
@@ -1443,7 +1446,7 @@ private:
 	SURFHANDLE tex_rcs;
 	
 	void SeparateBoosters (double srb_time);
-	void DetachSRB(ATTACHMENTHANDLE ahSRBAttach, double thrust, double prop) const;
+	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
 	void SeparateTank (void);
 
@@ -1513,6 +1516,9 @@ private:
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
 
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
+
+	Atlantis_Tank* GetTankInterface() const;
+	Atlantis_SRB* GetSRBInterface(SIDE side) const;
 
 	/**
 	 * Called from clbkPostCreation.
@@ -2051,8 +2057,13 @@ public:
 	 * @param prop_level amount of fuel remaining (between 0 and 1)
 	 */
 	virtual void SetPostSeparationState(double launch_time, double thrust_level, double prop_level);
+	
+	virtual void TurnOnPadLights() const;
+	virtual void TurnOffPadLights() const;
 
 	// Overloaded callback functions
+	void clbkVisualCreated(VISHANDLE vis, int refcount);
+	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
 	void clbkSetClassCaps (FILEHANDLE cfg);
 	void clbkPostStep (double simt, double simdt, double mjd);
 	void clbkPostCreation ();
@@ -2060,6 +2071,10 @@ public:
 private:
 	MESHHANDLE hSRBMesh_Left;
 	MESHHANDLE hSRBMesh_Right;
+	UINT mesh_idx;
+
+	VISHANDLE hVis;
+
 	double t0;                  // reference time: liftoff
 	double srb_separation_time; // simulation time at which SRB separation was initiated
 	bool bMainEngine;           // main engine firing?
@@ -2084,6 +2099,8 @@ public:
 	// Construct interface from existing object
 
 	// Overloaded callback functions
+	void clbkVisualCreated(VISHANDLE vis, int refcount);
+	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
 	void clbkSetClassCaps (FILEHANDLE cfg);
 	void clbkPostStep (double simt, double simdt, double mjd);
 	void clbkLoadStateEx(FILEHANDLE scn, void* status);	
@@ -2091,12 +2108,17 @@ public:
 	
 	virtual void UseBurntETTexture();
 
+	virtual void TurnOnPadLights() const;
+	virtual void TurnOffPadLights() const;
+
 private:
+	VISHANDLE hVis;
 
 	MESHHANDLE hTankMesh;
-	ATTACHMENTHANDLE ahToOrbiter;
-
+	UINT mesh_idx;
 	bool bUseBurntTexture;
+
+	ATTACHMENTHANDLE ahToOrbiter;
 
 	//////////////////////// ET vent ////////////////////////
 	PROPELLANT_HANDLE phLOXtank;

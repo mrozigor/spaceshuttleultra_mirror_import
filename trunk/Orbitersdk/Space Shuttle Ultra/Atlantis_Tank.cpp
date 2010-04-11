@@ -6,7 +6,9 @@
 //
 // Atlantis_Tank.cpp
 // Reference implementation of Atlantis Tank vessel class module
-// Note: This module takes control of the tank after separation
+// Note: The propellant tanks associated with the ET are defined
+// by the Atlantis class. This module is attached to the orbiter
+// during launch and takes control of the tank after separation
 // from the orbiter.
 // ==============================================================
 
@@ -23,6 +25,7 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 : VESSEL2(hObj), bUseBurntTexture(false)
 {
 	// preload mesh
+	mesh_idx = MESH_UNDEFINED;
 	hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
 
 	//////////////////////// ET vent ////////////////////////
@@ -38,6 +41,25 @@ void Atlantis_Tank::UseBurntETTexture()
 	SURFHANDLE scorchedTexture = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
 	if(!oapiSetTexture(hTankMesh, 3, scorchedTexture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
+}
+
+void Atlantis_Tank::TurnOnPadLights() const
+{
+	if(hVis) {
+		vector<int> ExcludeTank;
+		ExcludeTank.push_back(7);
+		ExcludeTank.push_back(8);
+		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
+		IlluminateMesh(hMesh, ExcludeTank);
+	}
+}
+
+void Atlantis_Tank::TurnOffPadLights() const
+{
+	if(hVis) {
+		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
+		DisableIllumination(hMesh, hTankMesh);
+	}
 }
 
 // ==============================================================
@@ -106,7 +128,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	AddExhaustStream( thLOXvent, &psLOXvent );
 	//////////////////////// ET vent ////////////////////////
 
-	AddMesh (hTankMesh);
+	mesh_idx = AddMesh (hTankMesh);
 
 	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0), _V(0, -1, 0), _V(0, 0, 1), "SSU_ET");
 }
@@ -163,6 +185,16 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 	VESSEL2::clbkSaveState(scn);
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
+}
+
+void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
+{
+	hVis = vis;
+}
+
+void Atlantis_Tank::clbkVisualDestroyed(VISHANDLE vis, int refcount)
+{
+	if(vis == hVis) hVis = NULL;
 }
 
 // ==============================================================

@@ -7,8 +7,10 @@
 // Atlantis_SRB.cpp
 // Reference implementation of Atlantis SRB(Space Shuttle - Solid
 // Rocket Booster) vessel class module
-// Note: This module takes control of the SRB after separation
-// from the Shuttle's main tank.
+// Note: Druing launch, the thrusters associated with this vessel
+// do not provide any thrust; similar resources are created in
+// the Atlantis module. This module takes control of the SRB after
+// separation from the Shuttle's main tank.
 // ==============================================================
 
 #define ORBITER_MODULE
@@ -25,26 +27,16 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 : VESSEL2(hObj), bMainEngine(false), bSeparationEngine(false)
 {
 	// preload mesh
+	mesh_idx = MESH_UNDEFINED;
 	hSRBMesh_Left = oapiLoadMeshGlobal ("SSU/LSRB");
 	hSRBMesh_Right = oapiLoadMeshGlobal ("SSU/RSRB");
+
+	hVis = NULL;
+
 	slag1 = 0.0;
 	slag2 = 0.0;
 	slag3 = 0.0;
 }
-
-// reconstruct liftoff time from fuel level
-/*void Atlantis_SRB::SetRefTime (void)
-{
-	extern double SRB_Seq[], SRB_Prop[];
-
-	double fuel = GetFuelMass()/GetMaxFuelMass();
-	int i;
-	for (i = 1; i < SRB_nt; i++)
-		if (fuel >= SRB_Prop[i]) break;
-    double SRB_PrpSCL=(SRB_Prop[i]-SRB_Prop[i-1])/(SRB_Seq[i]-SRB_Seq[i-1]);
-	double met = SRB_Seq[i] + (fuel-SRB_Prop[i])/SRB_PrpSCL;
-	t0 = oapiGetSimTime()-met;
-}*/
 
 void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_level, double prop_level)
 {
@@ -57,9 +49,37 @@ void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_leve
 	srb_separation_time = oapiGetSimTime();
 }
 
+void Atlantis_SRB::TurnOnPadLights() const
+{
+	if(hVis) {
+		vector<int> ExcludeSRB;
+		ExcludeSRB.push_back(2);
+		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
+		IlluminateMesh(hMesh, ExcludeSRB);
+	}
+}
+
+void Atlantis_SRB::TurnOffPadLights() const
+{
+	if(hVis) {
+		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
+		DisableIllumination(hMesh, hSRBMesh);
+	}
+}
+
 // ==============================================================
 // Callback functions
 // ==============================================================
+
+void Atlantis_SRB::clbkVisualCreated(VISHANDLE vis, int refcount)
+{
+	hVis = vis;
+}
+
+void Atlantis_SRB::clbkVisualDestroyed(VISHANDLE vis, int refcount)
+{
+	if(vis == hVis) hVis = NULL;
+}
 
 // Set SRB class specs
 void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
@@ -159,7 +179,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 
 	// ************************ visual parameters **********************************
 
-	AddMesh (hSRBMesh);
+	mesh_idx = AddMesh (hSRBMesh);
 }
 
 // Finish setup
