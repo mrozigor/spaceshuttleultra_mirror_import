@@ -2658,7 +2658,7 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
 
 void Atlantis::SeparateBoosters (double met)
 {
-	int i;
+	//int i;
 	char buffer[120];
   // Create SRB's as individual objects
   /*VESSELSTATUS2 vs;
@@ -2699,7 +2699,7 @@ void Atlantis::SeparateBoosters (double met)
   // Remove SRB's from Shuttle instance
   DelPropellantResource (ph_srb);
   DelThrusterGroup (thg_srb, THGROUP_USER, true);
-  for(i = 0; i<2; i++)
+  for(int i = 0; i<2; i++)
   {
 	DelExhaustStream(pshSlag1[i]);
     DelExhaustStream(pshSlag2[i]);
@@ -3621,9 +3621,9 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 							ROT=false;
 							TRK=false;
 							ManeuverStatus=MNVR_COMPLETE;
-							Yaw=false;
-							Pitch=false;
-							Roll=false;
+							RotatingAxis[PITCH]=false;
+							RotatingAxis[YAW]=false;
+							RotatingAxis[ROLL]=false;
 							ManeuverinProg=false;
 							CurManeuver.Type=AttManeuver::OFF;
 							FutManeuver.Type=AttManeuver::OFF;
@@ -4244,9 +4244,9 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 					ROT=false;
 					TRK=false;
 					ManeuverStatus=MNVR_COMPLETE;
-					Yaw=false;
-					Pitch=false;
-					Roll=false;
+					RotatingAxis[YAW]=false;
+					RotatingAxis[PITCH]=false;
+					RotatingAxis[ROLL]=false;
 					ManeuverinProg=false;
 					CurManeuver.Type=AttManeuver::OFF;
 					FutManeuver.Type=AttManeuver::OFF;
@@ -4626,9 +4626,9 @@ void Atlantis::LoadBurnAttManeuver()
 	TRK=true;
 	MNVR=false;
 	ROT=false;
-	Yaw=false;
-	Pitch=false;
-	Roll=false;
+	RotatingAxis[YAW]=false;
+	RotatingAxis[PITCH]=false;
+	RotatingAxis[ROLL]=false;
 	TGT_ID=2;
 	AttDeadband=0.05;
 	for(int i=0;i<4;i++) START_TIME[i]=MET[i];
@@ -4677,9 +4677,9 @@ void Atlantis::TerminateManeuver()
 	ROT=false;
 	TRK=false;
 	ManeuverStatus=MNVR_COMPLETE;
-	Yaw=false;
-	Pitch=false;
-	Roll=false;
+	RotatingAxis[YAW]=false;
+	RotatingAxis[PITCH]=false;
+	RotatingAxis[ROLL]=false;
 	ManeuverinProg=false;
 	CurManeuver.Type=AttManeuver::OFF;
 	FutManeuver.Type=AttManeuver::OFF;
@@ -4992,7 +4992,7 @@ MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 }
 
 //Math
-double Atlantis::NullStartAngle(double Rates, AXIS Axis)
+double Atlantis::NullStartAngle(double Rates, AXIS Axis) const
 {
 	double Time, Angle;
 	if(!Eq(Rates, 0.0)) {
@@ -5002,8 +5002,6 @@ double Atlantis::NullStartAngle(double Rates, AXIS Axis)
 	}
 	else return 0.0;
 }
-
-
 
 // ==============================================================
 // Overloaded callback functions
