@@ -1597,7 +1597,7 @@ private:
 	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
 	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
-	double NullStartAngle(double Rates, AXIS Axis);
+	double NullStartAngle(double Rates, AXIS Axis) const;
 
 	//Thruster Control
 	void EnableThrusters(const int Thrusters[], int nThrusters);
@@ -1967,8 +1967,8 @@ private:
 	int TGT_ID, BODY_VECT;
 	double P, Y, OM;
 	bool MNVR, TRK, ROT;
-	bool Pitch, Yaw, Roll;
-	//bool RotatingAxis[3]; // indicates if shuttle is actively rotating around each axis
+	//bool Pitch, Yaw, Roll;
+	bool RotatingAxis[3]; // indicates if shuttle is actively rotating around each axis
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
 	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector*/;

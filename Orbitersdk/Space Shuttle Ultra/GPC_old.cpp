@@ -860,9 +860,10 @@ void Atlantis::StartAttManeuver()
 			LVLHTgtOrientationMatrix=CurManeuver.LVLHTgtOrientationMatrix;
 			LVLHOrientationReqd=GetAnglesFromMatrix(LVLHTgtOrientationMatrix)*DEG;
 		}
-		Yaw=false;
+		/*Yaw=false;
 		Pitch=false;
-		Roll=false;
+		Roll=false;*/
+		for(i=0;i<3;i++) RotatingAxis[i] = false;
 		ManeuverinProg=false;
 	}
 }
@@ -1213,7 +1214,7 @@ void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitud
 
 void Atlantis::SetRates(const VECTOR3 &Rates)
 {
-	const VECTOR3 PRI_LIMITS = _V(0.05, 0.05, 0.05);
+	const VECTOR3 PRI_LIMITS = _V(0.01, 0.01, 0.01);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
 	//double dDiff;
 	VECTOR3 ThrusterLevel;
@@ -1323,25 +1324,31 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 	//Rates=RotationAxis*-RotRate;
 	for(int i=0;i<3;i++) {
 		if(ControlMode==AUTO || RotMode[i]==0) Rates.data[i]=RotationAxis.data[i]*-RotRate;
+
+		if(abs(PitchYawRoll.data[i]) <= NullStartAngle(abs(AngularVelocity.data[i]), static_cast<AXIS>(i))) {
+			if(ControlMode==AUTO || RotMode[i]==0) Rates.data[i] = 0.0;
+			RotatingAxis[i] = false;
+		}
+		else RotatingAxis[i] = true;
 	}
 
-	if(abs(PitchYawRoll.data[PITCH])<=NullStartAngle(abs(AngularVelocity.data[PITCH]), PITCH)) {
+	/*if(abs(PitchYawRoll.data[PITCH])<=NullStartAngle(abs(AngularVelocity.data[PITCH]), PITCH)) {
 		if(ControlMode==AUTO || RotMode[PITCH]==0) Rates.data[PITCH]=0.0;
-		Pitch=false;
+		RotatingAxis[PITCH]=false;
 	}
-	else Pitch=true;
+	else RotatingAxis[PITCH]=true;
 	if(abs(PitchYawRoll.data[YAW])<=NullStartAngle(abs(AngularVelocity.data[YAW]), YAW)) {
 		if(ControlMode==AUTO || RotMode[YAW]==0) Rates.data[YAW]=0.0;
-		Yaw=false;
+		RotatingAxis[YAW]=false;
 	}
-	else Yaw=true;
+	else RotatingAxis[YAW]=true;
 	if(abs(PitchYawRoll.data[ROLL])<=NullStartAngle(abs(AngularVelocity.data[ROLL]), ROLL)) {
 		if(ControlMode==AUTO || RotMode[ROLL]==0) Rates.data[ROLL]=0.0;
-		Roll=false;
+		RotatingAxis[ROLL]=false;
 	}
-	else Roll=true;
+	else RotatingAxis[ROLL]=true;*/
 
-	if(!Pitch && !Yaw && !Roll) {
+	if(!RotatingAxis[PITCH] && !RotatingAxis[YAW] && !RotatingAxis[ROLL]) {
 		ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
 		//sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
 	}
@@ -1356,13 +1363,37 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 	GetPMI(PMI);
 
 	if(ControlMode!=FREE) {
-		if(ControlMode==AUTO || RotMode[ROLL]==0) {
-			if(/*!Yaw && !Pitch &&*/ (Roll || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
-				if(abs(PitchYawRoll.data[ROLL])<0.05) Roll=false;
-				else {
-					Roll=true;
+		for(int i=2;i>=0;i--) {
+			if(ControlMode==AUTO || RotMode[i]==0) {
+				Rates.data[i]=0.0;
+				if((RotatingAxis[i] || abs(PitchYawRoll.data[i])>AttDeadband)) {
+					if(abs(PitchYawRoll.data[i])<0.05) RotatingAxis[i]=false;
+					else {
+						RotatingAxis[i]=true;
+						if(abs(PitchYawRoll.data[i]) <= NullStartAngle(abs(AngularVelocity.data[i]), static_cast<AXIS>(i))) {
+							Rates.data[i] = 0.0;
+						}
+						else {
+							if(PitchYawRoll.data[i] > 0) {
+								if(ManeuverStatus==MNVR_COMPLETE) Rates.data[i] = -range(RotRate/10.0, PitchYawRoll.data[i]/5.0, RotRate);
+								else Rates.data[i] = -RotRate;
+							}
+							else {
+								if(ManeuverStatus==MNVR_COMPLETE) Rates.data[i] = range(RotRate/10.0, -PitchYawRoll.data[i]/5.0, RotRate);
+								else Rates.data[i] = RotRate;
+							}
+						}
+					}
 				}
-				if(Roll) {
+			}
+		}
+		/*if(ControlMode==AUTO || RotMode[ROLL]==0) {
+			if(/*!Yaw && !Pitch &&* (RotatingAxis[ROLL] || abs(PitchYawRoll.data[ROLL])>AttDeadband)) {
+				if(abs(PitchYawRoll.data[ROLL])<0.05) RotatingAxis[ROLL]=false;
+				else {
+					RotatingAxis[ROLL]=true;
+				}
+				if(RotatingAxis[ROLL]) {
 					//sprintf(oapiDebugString(), "%f %f %f", abs(PitchYawRoll.data[ROLL]), 
 					//	NullStartAngle(abs(AngularVelocity.data[ROLL]), ORBITER_ROLL_TORQUE, ROLL), PMI.data[ROLL]);
 					if(abs(PitchYawRoll.data[ROLL])<=NullStartAngle(abs(AngularVelocity.data[ROLL]), ROLL)) {
@@ -1389,12 +1420,12 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 		}
 
 		if(ControlMode==AUTO || RotMode[YAW]==0) {
-			if(/*!Roll && !Pitch &&*/ (Yaw || abs(PitchYawRoll.data[YAW])>AttDeadband)) {
-				if(abs(PitchYawRoll.data[YAW])<0.05) Yaw=false;
+			if(/*!Roll && !Pitch &&* (RotatingAxis[YAW] || abs(PitchYawRoll.data[YAW])>AttDeadband)) {
+				if(abs(PitchYawRoll.data[YAW])<0.05) RotatingAxis[YAW]=false;
 				else {
-					Yaw=true;
+					RotatingAxis[YAW]=true;
 				}
-				if(Yaw) {
+				if(RotatingAxis[YAW]) {
 					if(abs(PitchYawRoll.data[YAW])<=NullStartAngle(abs(AngularVelocity.data[YAW]), YAW)) {
 						Rates.data[YAW]=0.0;
 						//Pitch=false;
@@ -1421,16 +1452,16 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 		}
 
 		if(ControlMode==AUTO || RotMode[PITCH]==0) {
-			if(/*!Roll && !Yaw &&*/ (Pitch || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
+			if(/*!Roll && !Yaw &&* (RotatingAxis[PITCH] || abs(PitchYawRoll.data[PITCH])>AttDeadband)) {
 				if(abs(PitchYawRoll.data[PITCH])<0.05) {
-					Pitch=false;
+					RotatingAxis[PITCH]=false;
 					//ManeuverComplete=true;
 					sprintf(oapiDebugString(), "Maneuver completed");
 				}
 				else {
-					Pitch=true;
+					RotatingAxis[PITCH]=true;
 				}
-				if(Pitch) {
+				if(RotatingAxis[PITCH]) {
 					if(abs(PitchYawRoll.data[PITCH])<=NullStartAngle(abs(AngularVelocity.data[PITCH]), PITCH)) {
 						//sprintf(oapiDebugString(), "%f %f", abs(PitchYawRoll.data[PITCH]), NullStartAngle(abs(AngularVelocity.data[PITCH]), ORBITER_PITCH_TORQUE, PITCH));
 						Rates.data[PITCH]=0.00000;
@@ -1455,9 +1486,9 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vec
 				//sprintf(oapiDebugString(), "roll %f", Torque.data[PITCH]);
 			}
 			else Rates.data[PITCH]=0.0000;
-		}
+		}*/
 
-		if(!Pitch && !Yaw && !Roll) {
+		if(!RotatingAxis[PITCH] && !RotatingAxis[YAW] && !RotatingAxis[ROLL]) {
 			ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
 			//sprintf_s(oapiDebugString(), 255, "MNVR COMPLETE");
 		}
