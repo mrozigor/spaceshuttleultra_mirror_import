@@ -1569,6 +1569,7 @@ private:
 	void LoadManeuver();
 	void UpdateDAP(); //updates rot rates, torques
 	void TransControl(double SimT, double SimdT);
+	void UpdateAttControlVariables();
 	void AttControl(double SimdT);
 	void AerojetDAP(double SimdT);
 	void PCTControl(double simt);
