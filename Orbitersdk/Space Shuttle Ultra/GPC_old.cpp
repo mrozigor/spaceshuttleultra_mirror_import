@@ -1017,16 +1017,20 @@ void Atlantis::PCTControl(double SimT)
 	}
 }
 
-void Atlantis::AttControl(double SimdT)
+void Atlantis::UpdateAttControlVariables()
 {
-	//int i;
-
 	GetAngularVel(AngularVelocity);
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
-	//ConvertLVLHAnglesToM50(_V(0, 0, 0)); //debugging
+	GetGlobalPos(GVesselPos);	
+	Mass=GetMass();
+	GetPMI(PMI);
+}
 
-	GetGlobalPos(GVesselPos);
+void Atlantis::AttControl(double SimdT)
+{
+	//int i;
+	UpdateAttControlVariables();
 
 	for(int i=0;i<3;i++) {
 		if(!RotPulseInProg[i]) ReqdRates.data[i]=AngularVelocity.data[i]*DEG;
@@ -1237,6 +1241,7 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 		Limits = VERN_LIMITS;
 		MaxThrusterLevel = 0.1;
 	}
+	if(ManeuverStatus==MNVR_IN_PROGRESS) Limits=Limits*5.0;
 
 	if(abs(Error.data[PITCH])>Limits.data[PITCH]) {
 		if(Error.data[PITCH]>0) {
@@ -1312,9 +1317,6 @@ void Atlantis::SetRates(const VECTOR3 &Rates)
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 {
 	//convert rotation around RotationAxis to rates around x,y,z axes
-
-	Mass=GetMass();
-	GetPMI(PMI);
 	//Rates.data[PITCH]=0.0;
 	//Rates.data[YAW]=0.0;
 	//Rates.data[ROLL]=0.0;
@@ -1357,11 +1359,6 @@ void Atlantis::CalcRequiredRates(VECTOR3 &Rates)
 
 void Atlantis::CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates) //vectors in degrees
 {
-	//CurrentRates=AngularVelocity*DEG;
-	//sprintf(oapiDebugString(), "AttControl");
-	Mass=GetMass();
-	GetPMI(PMI);
-
 	if(ControlMode!=FREE) {
 		for(int i=2;i>=0;i--) {
 			if(ControlMode==AUTO || RotMode[i]==0) {
