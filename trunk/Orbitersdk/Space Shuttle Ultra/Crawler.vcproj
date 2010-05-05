@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../include;../include"
+				AdditionalIncludeDirectories="../include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -77,10 +77,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib orbitersdk.lib OrbiterSoundSDK35.lib"
-				OutputFile="../../../../../Modules/Crawler.dll"
+				OutputFile="../../Modules/Crawler.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../../lib,../../../../../Sound/OrbiterSound_SDK/VESSELSOUND_SDK/ShuttlePB_project"
+				AdditionalLibraryDirectories="../lib"
 				IgnoreDefaultLibraryNames="LIBCMT;MSVCIRT;MSVCRT"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug\Crawler/Crawler.pdb"
@@ -99,7 +99,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="../../../../../Modules/Crawler.bsc"
+				OutputFile="../../Modules/Crawler.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../../include;../include"
+				AdditionalIncludeDirectories="../include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -175,7 +175,7 @@
 				OutputFile="../../Modules/Crawler.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../../lib;../lib"
+				AdditionalLibraryDirectories="../lib"
 				IgnoreDefaultLibraryNames="LIBC,MSVCRT,msvcirt,libci"
 				ProgramDatabaseFile=".\Release\Crawler/Crawler.pdb"
 				ImportLibrary=".\Release\Crawler/Crawler.lib"
@@ -193,7 +193,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="../../../../../Modules/Crawler.bsc"
+				OutputFile="../../Modules/Crawler.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
