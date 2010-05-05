@@ -35,6 +35,8 @@ RMSSystem::RMSSystem(SubsystemDirector *_director)
 	camRMSElbowLoc[0]=RMS_ELBOW_CAM_POS;
 	camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
 	//camRMSElbow_rotation[0]=camRMSElbow_rotation[1]=0;
+	camRMSElbow[PAN] = 0.0;
+	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
 
 	arm_moved=false;

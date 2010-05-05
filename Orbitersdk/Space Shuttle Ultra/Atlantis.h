@@ -1588,8 +1588,8 @@ private:
 	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
 	MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
-	VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
-	VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
+	//VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
+	//VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//calc attitude/attitude error
 	VECTOR3 CalcLVLHAttitude();

@@ -63,14 +63,14 @@ namespace vc {
 		strcpy_s(cspecbuf, "   ");
 		strcpy_s(cdispbuf, "   ");
 
-		if(GetIDP()->GetSpec() >= 0)
+		if(GetIDP()->GetSpec() != dps::MODE_UNDEFINED)
 		{
 			sprintf_s(cspecbuf, 4, "%03d", GetIDP()->GetSpec());
 		}
 		
 
 
-		if(GetIDP()->GetDisp() >= 0)
+		if(GetIDP()->GetDisp() != dps::MODE_UNDEFINED)
 		{
 			sprintf_s(cdispbuf, 4, "%03d", GetIDP()->GetDisp());
 		}
