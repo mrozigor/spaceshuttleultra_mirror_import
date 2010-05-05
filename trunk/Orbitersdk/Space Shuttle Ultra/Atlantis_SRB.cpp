@@ -101,11 +101,11 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 
 	extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
 	extern PARTICLESTREAMSPEC bsm_exhaust, bsm_contrail, bsm_residual;
-	PARTICLESTREAMSPEC srb_bolt = {
+	/*PARTICLESTREAMSPEC srb_bolt = {
 		0, 8.0, 20, 0.0, 0.1, 0.3, 16, 3.0, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_LIN, 0, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
-	};
+	};*/
 
 	
 

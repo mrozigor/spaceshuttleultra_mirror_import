@@ -380,7 +380,7 @@ gncsoftware(NULL)
   oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
   oapiWriteLog("******************************************************");  
   rsls			= new dps::RSLS(this);
-  //gncsoftware	= new dps::GNCSoftware(this);
+  gncsoftware	= new dps::GNCSoftware(this);
   
 
   pgForward.AddPanel(new vc::PanelF2(this));
@@ -853,6 +853,7 @@ gncsoftware(NULL)
   TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
   OMSGimbal[0][0]=OMSGimbal[0][1]=0;
   OMSGimbal[1][0]=OMSGimbal[1][1]=0;
+  OMS = 0;
   TV_ROLL=0.0;
   BurnInProg=false;
   BurnCompleted=false;
@@ -1220,7 +1221,6 @@ void Atlantis::SetPostLaunchConfiguration (double met)
 // --------------------------------------------------------------
 void Atlantis::SetOrbiterTankConfiguration (void)
 {
-  int i;
   VECTOR3 ofs;
 
   // *********************** physical parameters *********************************
@@ -1281,7 +1281,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
 	DefineSSMEExhaust();
   }
-  for(i=0;i<3;i++) {
+  for(int i=0;i<3;i++) {
 	  //AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
 	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
 	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
@@ -1296,7 +1296,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	th_oms[0] = CreateThruster (ofs+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	th_oms[1] = CreateThruster (ofs+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	for(i=0;i<2;i++) {
+	for(int i=0;i<2;i++) {
 		AddExhaust (th_oms[i], 0.0, 0.5);
 		//panelc3->EngControl(i);
 		OMSEngControl(i);
@@ -3440,7 +3440,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 	double dNew;
 	//int id=Display[mfd]->id;
 
-	sprintf_s(oapiDebugString(), 255, "Input: %d %s %s", change, Name, Data);
+	//sprintf_s(oapiDebugString(), 255, "Input: %d %s %s", change, Name, Data);
 
 	if (change == 9)
 	{
@@ -4894,7 +4894,7 @@ VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
 	return Output;
 }
 
-VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
+/*VECTOR3 Atlantis::ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input)
 {
 	VECTOR3 Output;
 	Output.x=Input.x;
@@ -4946,11 +4946,11 @@ VECTOR3 Atlantis::ConvertLVLHAnglesToM50(const VECTOR3 &Input) //input angles in
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
 
 	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
-	return Output;*/
+	return Output;*
 
 	MATRIX3 RotMatrix=ConvertLVLHAnglesToM50Matrix(Input);
 	return GetAnglesFromMatrix(RotMatrix);
-}
+}*/
 
 MATRIX3 Atlantis::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input)
 {
@@ -5810,7 +5810,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	static bool ___PostStep_flag = false;
 	//double met;
 	double airspeed;
-	int i;
+	//int i;
 	OBJHANDLE hvessel;
 
 	//Stopwatch st;
@@ -5876,7 +5876,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		{
 			if(bSSMEGOXVent)
 			{
-				for(i = 0; i<3; i++)
+				for(unsigned short i = 0; i<3; i++)
 				{
 					if(th_ssme_gox[i] != NULL) {
 						SetThrusterLevel(th_ssme_gox[i], 1.0);
@@ -5885,7 +5885,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 			else
 			{
-				for(i = 0; i<3; i++)
+				for(unsigned short i = 0; i<3; i++)
 				{
 					if(th_ssme_gox[i] != NULL) {
 						SetThrusterLevel(th_ssme_gox[i], 0.0);
@@ -5895,7 +5895,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		else {
 			bSSMEGOXVent = false;
-			for(i = 0; i<3; i++)
+			for(unsigned short i = 0; i<3; i++)
 			{
 				if(th_ssme_gox[i] != NULL) {
 					SetThrusterLevel(th_ssme_gox[i], 0.0);
@@ -5909,7 +5909,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//play sounds
 		if(!IsPlaying3(SoundID, SSME_START))
 			PlayVesselWave3(SoundID, SSME_RUNNING, LOOP);
-		for(i = 0; i<3; i++)
+		for(unsigned short i = 0; i<3; i++)
 		{
 			if(th_ssme_gox[i] != NULL) {
 				SetThrusterLevel(th_ssme_gox[i], 0.0);
@@ -5944,7 +5944,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
 				double thrust_level, prop_level;
 				GetSRB_State (met, thrust_level, prop_level);
-				for (i = 0; i < 2; i++)
+				for (unsigned short i = 0; i < 2; i++)
 					SetThrusterLevel (th_srb[i], thrust_level);
 
 				if(met > 15.0)
