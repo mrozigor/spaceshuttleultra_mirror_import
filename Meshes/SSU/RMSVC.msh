@@ -13645,7 +13645,7 @@ TEXTURES 7
 SSU/R2.dds
 SSU/stsvc02.dds
 SSU/A2panel.dds
-SSU/A8top.dds
-SSU/A8bottom.dds
-SSU/C3.dds
-SSU/A8lights.dds
+SSU/A8top.dds D
+SSU/A8bottom.dds D
+SSU/C3.dds 
+SSU/A8lights.dds D
