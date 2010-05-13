@@ -33,37 +33,39 @@
 #include <string>
 #include "OrbiterAPI.h"
 #include "ISubsystem.h"
-#include "dps/dps_defs.h"
+//#include "dps/dps_defs.h"
 #include "discsignals\DiscreteBundleManager.h"
 
 using namespace std;
 using namespace discsignals;
-using class dps::ShuttleBusManager;
+//using class dps::ShuttleBusManager;
 
-class Atlantis;
+//class Atlantis;
+template <class TVessel>
 class SubsystemDirector;
 /**
  * base class for all subsystem simulations. 
  */
-class AtlantisSubsystem: public ISubsystem 
+template <class TVessel>
+class Subsystem: public ISubsystem 
 {
 protected:
-	SubsystemDirector* director;
+	SubsystemDirector<TVessel>* director;
 	string ident;
 public:
 	/**
 	 * Create a new Atlantis subsystem object
 	 */
-	AtlantisSubsystem(SubsystemDirector* _director, const string& _ident);
+	Subsystem(SubsystemDirector<TVessel>* _director, const string& _ident);
 	/**
 	 * Destructor
 	 */
-	virtual ~AtlantisSubsystem();
+	virtual ~Subsystem();
 	/**
 	 * Get a reference to the Space Shuttle external physical model.
 	 * @return reference to the space shuttle object. If possible.
 	 */
-	Atlantis* STS() const;
+	TVessel* V() const;
 	/**
 	 * Add new meshes to the visual. 
 	 * @deprecated Don't use, instead, use Realize() to tell the Atlantis 
@@ -185,7 +187,7 @@ public:
 	 * Return the currently used data bus managing object. 
 	 * @return pointer to the bus manager
 	 */
-	ShuttleBusManager* BusManager() const;
+	//ShuttleBusManager* BusManager() const;
 
 	
 	virtual bool OnReadState (FILEHANDLE scn);
@@ -193,10 +195,198 @@ public:
 	virtual bool SingleParamParseLine() const {return false;};
 };
 
-class EmptySubsystem: AtlantisSubsystem {
+template <class TVessel>
+class EmptySubsystem: Subsystem<TVessel> {
 public:
-	EmptySubsystem(SubsystemDirector* _director);
+	EmptySubsystem(SubsystemDirector<TVessel>* _director);
 	virtual ~EmptySubsystem();
 };
+
+template <class TVessel>
+Subsystem<TVessel>::Subsystem(SubsystemDirector<TVessel>* _director, const string& _ident)
+: director(_director), ident(_ident)
+{
+	/*char pszBuffer[300];
+	oapiWriteLog("(AtlantisSubsystem::AtlantisSubsystem)");
+	sprintf_s(pszBuffer, 300, "(AtlantisSubsystem) Create subsystem %s.", ident.c_str());
+	oapiWriteLog(pszBuffer);*/
+}
+
+template <class TVessel>
+Subsystem<TVessel>::~Subsystem()
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::AddMeshes(const VECTOR3& ofs)
+{
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::RegisterComponent(SubsystemComponent* pComponent)
+{
+	return false;
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::DelComponent(SubsystemComponent* pComponent)
+{
+	return false;
+}
+
+template <class TVessel>
+unsigned long Subsystem<TVessel>::CountComponents() const
+{
+	return 0;
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::Realize()
+{
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::OnParseLine(const char* line)
+{
+	return false;
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::OnParseLine(const char* key, const char* line)
+{
+	return false;
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnSaveState(FILEHANDLE scn) const
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnPostStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnPreStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnPropagate(double fSimT, double fDeltaT, double fMJD)
+{
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnSubPostStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnSubPreStep(double fSimT, double fDeltaT, double fMJD)
+{
+
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnSubPropagate(double fSimT, double fDeltaT, double fMJD)
+{
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnPlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event)
+{
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::OnFail(const string& strFailCode)
+{
+	return false;
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnDumpToLog() const
+{
+}
+
+template <class TVessel>
+const string& Subsystem<TVessel>::GetIdentifier() const
+{
+	return this->ident;
+}
+
+template <class TVessel>
+const string& Subsystem<TVessel>::GetQualifiedIdentifier() const
+{
+	return GetIdentifier();
+}
+
+template <class TVessel>
+TVessel* Subsystem<TVessel>::V() const
+{
+	return director->V();
+}
+
+template <class TVessel>
+DiscreteBundleManager* Subsystem<TVessel>::BundleManager() const
+{
+	return director->BundleManager();
+}
+
+/*ShuttleBusManager* AtlantisSubsystem::BusManager() const {
+	return director->BusManager();
+}*/
+
+template <class TVessel>
+void Subsystem<TVessel>::UnloadSubsystem() {
+	
+}
+
+template <class TVessel>
+bool Subsystem<TVessel>::OnReadState (FILEHANDLE scn) {
+	char* line;
+	char pszKey[256];
+	while(oapiReadScenario_nextline(scn, line)) {
+		if(!_strnicmp(line, "@ENDSUBSYSTEM", 13)) {
+			return true;
+		} else {
+			if(SingleParamParseLine())
+				OnParseLine(line);
+			else {
+				unsigned long i = 0;
+				while(*line != ' ' && *line != '\0') {
+					pszKey[i++] = *line;
+					line++;
+				}
+				pszKey[i++] = '\0';
+				if(*line != '\0') {
+					OnParseLine(pszKey, line);
+				} else {
+					OnParseLine(pszKey, NULL);
+				}
+			}
+		}
+	}
+	return false;
+}
+
+template <class TVessel>
+void Subsystem<TVessel>::OnSetClassCaps()
+{
+}
+
+template <class TVessel>
+EmptySubsystem<TVessel>::EmptySubsystem(SubsystemDirector<TVessel>* _director)
+: Subsystem(_director, "[Empty]") {
+}
+
+template <class TVessel>
+EmptySubsystem<TVessel>::~EmptySubsystem() {
+}
 
 #endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
