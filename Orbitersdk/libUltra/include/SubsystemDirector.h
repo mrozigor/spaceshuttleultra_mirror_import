@@ -28,7 +28,7 @@
 #include <vector>
 #include "OrbiterAPI.h"
 //#include "dps/dps_defs.h"
-#include "discsignals/DiscreteBundleManager.h"
+#include "DiscreteBundleManager.h"
 
 using namespace std;
 
@@ -63,7 +63,7 @@ public:
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool Report() const;
 	bool WriteLog(const Subsystem<TVessel>* src, char* message);
-	//virtual DiscreteBundleManager* BundleManager() const;
+	virtual DiscreteBundleManager* BundleManager() const;
 
 
 	//virtual dps::ShuttleBusManager* BusManager() const;
@@ -155,10 +155,10 @@ Subsystem<TVessel>* SubsystemDirector<TVessel>::GetSubsystemByName(const std::st
 	return NULL;
 }
 
-/*template <class TVessel>
+template <class TVessel>
 DiscreteBundleManager* SubsystemDirector<TVessel>::BundleManager() const {
 	return pV->BundleManager();
-}*/
+}
 
 /*ShuttleBusManager* SubsystemDirector::BusManager() const {
 	return psts->BusManager();

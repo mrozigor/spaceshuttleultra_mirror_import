@@ -34,7 +34,7 @@
 #include "OrbiterAPI.h"
 #include "ISubsystem.h"
 //#include "dps/dps_defs.h"
-#include "discsignals\DiscreteBundleManager.h"
+#include "DiscreteBundleManager.h"
 
 using namespace std;
 using namespace discsignals;
