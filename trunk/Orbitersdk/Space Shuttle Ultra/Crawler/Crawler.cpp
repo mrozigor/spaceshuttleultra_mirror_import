@@ -126,45 +126,18 @@
 #include <stdio.h>
 #include <math.h>
 #include <string>
-//#include "nasspsound.h"
 #include <OrbiterSoundSDK35.h>
-//#include "soundlib.h"
-//#include "tracer.h"
 
 #include "../SSUMath.h"
 #include "Crawler.h"
+#include "CrawlerCenterPanel.h"
 #include "meshres_crawler.h"
-/*#include "nasspdefs.h"
-#include "toggleswitch.h"
-#include "apolloguidance.h"
-#include "dsky.h"
-#include "csmcomputer.h"
-#include "IMU.h"
-#include "lvimu.h"
-#include "saturn.h"
-#include "VAB.h"
-#include "ML.h"
-#include "MSS.h"
-#include "papi.h"*/
-
-//#include "../CollisionSDK.h"
-
-// View positions
-#define VIEWPOS_FRONTCABIN				0
-#define VIEWPOS_REARCABIN				1
-#define VIEWPOS_ML						2
-#define VIEWPOS_GROUND					3
-#define VIEWPOS_FRONTGANGWAY			4
-#define VIEWPOS_REARGANGWAY				5
-#define VIEWPOS_RIGHTREARGANGWAY		6
 
 HINSTANCE g_hDLL;
-//char trace_file[] = "ProjectApollo Crawler.log";
 
 DLLCLBK void InitModule(HINSTANCE hModule) {
 
 	g_hDLL = hModule;
-	//InitCollisionSDK();
 }
 
 DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel) {
@@ -180,13 +153,23 @@ DLLCLBK void ovcExit(VESSEL *vessel) {
 Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 : VESSEL2 (hObj, fmodel)
 {
-	pEngine = new CrawlerEngine();
+	//pEngine = new CrawlerEngine();
+	pBundleManager = new DiscreteBundleManager();
+	psubsystems = new SubsystemDirector<Crawler>(this);
+	psubsystems->AddSubsystem(pEngine = new CrawlerEngine(psubsystems));
+	//psubsystems->AddSubsystem(new CrawlerVC(psubsystems, "FWD_CAB", CrawlerVC::FWD));
+	//psubsystems->AddSubsystem(new CrawlerVC(psubsystems, "REAR_CAB", CrawlerVC::REAR));
+	//cabs = new vc::PanelGroup<Crawler>();
+	//cabs[0] = new vc::CrawlerVC(this, "FWD_CAB", vc::CrawlerVC::FWD);
+	pgFwdCab.AddPanel(new vc::CrawlerCenterPanel(this, "FWD_CAB", vc::FWD));
+	//cabs[1] = new vc::CrawlerVC(this, "REAR_CAB", vc::CrawlerVC::REAR);
+	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB", vc::REAR));
 
 	//tgtVelocity = 0.0;
 	//velocity = 0;
 	velocityStop = false;
 	//targetHeading = 0;
-	wheeldeflect = 0;
+	steeringActual[0] = steeringActual[1] = 0;
 	viewPos = VIEWPOS_FRONTCABIN;
 	firstTimestepDone = false;
 	standalone = false;
@@ -242,7 +225,10 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 Crawler::~Crawler() {
 	// delete MGROUP_TRANSFORMs
 	for(unsigned short i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
-	delete pEngine;
+	
+	//delete cabs[0];
+	//delete cabs[1];
+	delete psubsystems;
 }
 
 void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
@@ -342,6 +328,18 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	meshoffset = crawler_meshoffset + _V(-12.657, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
     meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
+
+	/*VECTOR3 crawler_vc_offset = CRAWLER_VC_OFFSET;
+	meshidxVC = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels"), &crawler_vc_offset);
+	//SetMeshVisibilityMode(meshidxVC, MESHVIS_VC | MESHVIS_EXTERNAL | MESHVIS_EXTPASS);
+	SetMeshVisibilityMode(meshidxVC, MESHVIS_ALWAYS);*/
+
+	VECTOR3 crawler_vc_offset = CRAWLER_FWD_VC_OFFSET;
+	fwdVCIdx = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels_reversed"), &crawler_vc_offset);
+	SetMeshVisibilityMode(fwdVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
+	crawler_vc_offset = CRAWLER_REAR_VC_OFFSET;
+	rearVCIdx = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels"), &crawler_vc_offset);
+	SetMeshVisibilityMode(rearVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
 
 	// initialize array of groups needed for drivetruck translation animation
 	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
@@ -447,6 +445,26 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	//VSSetTouchdownPoints(GetHandle(), _V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
 	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
 	//ShiftCG(_V(0, -16, 0));
+
+	psubsystems->SetClassCaps(cfg);
+	pgFwdCab.DefineVC();
+	pgFwdCab.DefineVCAnimations(fwdVCIdx);
+	pgRearCab.DefineVC();
+	pgRearCab.DefineVCAnimations(rearVCIdx);
+}
+
+void Crawler::clbkPostCreation()
+{
+	psubsystems->RealizeAll();
+	//cabs[0]->Realize();
+	//cabs[1]->Realize();
+	pgFwdCab.Realize();
+	pgRearCab.Realize();
+
+	// connect DiscPorts
+	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 4);
+	steeringCommand[0].Connect(pBundle, 0);
+	steeringCommand[1].Connect(pBundle, 1);
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -455,10 +473,16 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 	if (!firstTimestepDone) DoFirstTimestep();
 
+	psubsystems->PreStep(simt, simdt, mjd);
+	//cabs[0]->OnPreStep(simt, simdt, mjd);
+	//cabs[1]->OnPreStep(simt, simdt, mjd);
+	pgFwdCab.OnPreStep(simt, simdt, mjd);
+	pgRearCab.OnPreStep(simt, simdt, mjd);
+
 	// control crawler speed
 	if(IsAttached()) pEngine->SetMaxSpeed(MAX_LOADED_SPEED);
 	else pEngine->SetMaxSpeed(MAX_UNLOADED_SPEED);
-	pEngine->OnPreStep(simt, simdt, mjd);
+	//pEngine->OnPreStep(simt, simdt, mjd);
 
 	//if (IsAttached()) maxVelocity = maxVelocity / 2.0;
 	
@@ -514,21 +538,54 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	
 	} else return;
 
-	if ((keyLeft && viewPos == VIEWPOS_FRONTCABIN) || (keyRight && viewPos == VIEWPOS_REARCABIN)) {
-		wheeldeflect = max(-1,wheeldeflect - (0.5 * simdt * (pow(2.0, log10(timeW))) / timeW));
-	
-	} else if ((keyRight && viewPos == VIEWPOS_FRONTCABIN) || (keyLeft && viewPos == VIEWPOS_REARCABIN)) {
-		wheeldeflect = min(1, wheeldeflect + (0.5 * simdt * (pow(2.0, log10(timeW))) / timeW));
-
+	sprintf_s(oapiDebugString(), 255, "error: %f", steeringCommanded[viewPos]-steeringActual[viewPos]);
+	//if ((keyLeft && viewPos == VIEWPOS_FRONTCABIN) || (keyRight && viewPos == VIEWPOS_REARCABIN)) {
+	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
+		double dAngle = 0.1 * simdt;
+		//if(abs(steeringCommanded[viewPos]-steeringActual[viewPos]) < (1/(MAX_TURN_ANGLE*DEG) - dAngle)) {
+		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
+		//if(steeringCommanded[viewPos] > steeringActual[viewPos] && 
+			steeringCommanded[viewPos] = max(-1,steeringCommanded[viewPos] - dAngle);
+			//steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+			steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+		}	
+	//} else if ((keyRight && viewPos == VIEWPOS_FRONTCABIN) || (keyLeft && viewPos == VIEWPOS_REARCABIN)) {
+	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
+		double dAngle = 0.1 * simdt;
+		//if(abs(steeringCommanded[viewPos]-steeringActual[viewPos]) < (1/(MAX_TURN_ANGLE*DEG) - dAngle)) {
+		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
+			steeringCommanded[viewPos] = min(1, steeringCommanded[viewPos] + dAngle);
+			//steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+			steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+		}
 	} else if (keyCenter) {
-		wheeldeflect = 0;
+		for(unsigned short i=0;i<2;i++) {
+			steeringCommanded[i] = 0;
+			steeringCommand[i].ResetLine();
+		}
 	}
 	keyLeft = false;
 	keyRight = false;
 	keyCenter = false;
+	
+	for(unsigned short i=0;i<2;i++) {
+		double steeringError = steeringCommanded[i]-steeringActual[i];
+		if(steeringError < -0.0001) {
+			double dAngle = 0.05*simdt;
+			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-dAngle);
+		}
+		else if(steeringError > 0.0001) {			
+			double dAngle = 0.05*simdt;
+			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+dAngle);
+		}
+	}
 
-	double r = 45; // 150 ft
-	double dheading = wheeldeflect * velocity * simdt / r;
+	const double r = 45; // 150 ft
+	double dheading = ((steeringActual[1]-steeringActual[0]) * velocity * simdt) / (2*r);
 	// turn speed is only doubled when time acc is multiplied by ten:
 	dheading = (pow(5.0, log10(timeW))) * dheading / timeW;
 	vs.surf_hdg += dheading;
@@ -537,7 +594,8 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 	//lon += sin(lastHead) * velocity * simdt / oapiGetSize(hEarth);
 	//lat += cos(lastHead) * velocity * simdt / oapiGetSize(hEarth);
-	VECTOR3 dir = _V(sin(lastHead), cos(lat) * cos(lastHead), 0);
+	double headingOffset = -(steeringActual[1]+steeringActual[0]) * MAX_TURN_ANGLE/2.0;
+	VECTOR3 dir = _V(sin(lastHead+headingOffset), cos(lat) * cos(lastHead+headingOffset), 0);
 	dir /= length(dir);
 	lon += dir.x * velocity * simdt / oapiGetSize(hEarth);
 	lat += dir.y * velocity * simdt / oapiGetSize(hEarth);
@@ -614,6 +672,11 @@ void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
 		lv = (Saturn *)oapiGetVesselInterface(hLV);
 		MissionTime = lv -> GetMissionTime();
 	}*/
+	psubsystems->PostStep(simt, simdt, mjd);
+	//cabs[0]->OnPostStep(simt, simdt, mjd);	
+	//cabs[1]->OnPostStep(simt, simdt, mjd);
+	pgFwdCab.OnPostStep(simt, simdt, mjd);
+	pgRearCab.OnPostStep(simt, simdt, mjd);
 }
 
 void Crawler::DoFirstTimestep() {
@@ -670,8 +733,10 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	while (oapiReadScenario_nextline (scn, line)) {
 		if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
 			sscanf (line + 11, "%lf", &jackHeight);
-		} else if (!_strnicmp (line, "WHEELDEFLECT", 12)) {
-			sscanf (line + 12, "%lf", &wheeldeflect);
+		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
+			sscanf (line + 15, "%lf%lf", &steeringActual[0], &steeringActual[1]);
+		} else if (!_strnicmp (line, "STEERING_COMMANDED", 18)) {
+			sscanf (line + 18, "%lf%lf", &steeringCommanded[0], &steeringCommanded[1]);
 		} else if (!_strnicmp (line, "VIEWPOS", 7)) {
 			sscanf (line + 7, "%i", &viewPos);
 		} else if (!_strnicmp (line, "STANDALONE", 10)) {
@@ -688,7 +753,8 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 			bReverseDirection=true;
 			SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
 		} else {
-			if(!pEngine->ParseLine(line))
+			//if(!pEngine->ParseLine(line))
+			if(!psubsystems->ParseScenarioLine(scn, line))
 				ParseScenarioLineEx (line, status);
 		}
 	}
@@ -703,7 +769,11 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	char cbuf[255];
 
 	//oapiWriteScenario_float(scn, "VELOCITY", velocity);
-	oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);	
+	//oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);
+	sprintf_s(cbuf, 255, "%f %f", steeringActual[0], steeringActual[1]);
+	oapiWriteScenario_string(scn, "STEERING_ACTUAL", cbuf);	
+	sprintf_s(cbuf, 255, "%f %f", steeringCommanded[0], steeringCommanded[1]);
+	oapiWriteScenario_string(scn, "STEERING_COMMANDED", cbuf);
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
 	oapiWriteScenario_string(scn, "HEIGHT", cbuf);
@@ -714,7 +784,8 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
 	if(bReverseDirection) oapiWriteLine(scn, "  REVERSE_ATTACH");
-	pEngine->SaveState(scn);
+	//pEngine->SaveState(scn);
+	psubsystems->SaveState(scn);
 }
 
 int Crawler::clbkConsumeDirectKey(char *kstate) {
@@ -1207,6 +1278,22 @@ bool Crawler::clbkLoadGenericCockpit() {
 	return true;
 }
 
+bool Crawler::clbkLoadVC (int id)
+{
+	switch(id) {
+		case VIEWPOS_FRONTCABIN:
+		case VIEWPOS_REARCABIN:
+			oapiWriteLog("Showing VC");
+			//cabs[id]->RegisterVC();
+			if(VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
+			else pgRearCab.RegisterVC();
+			oapiVCSetNeighbours(1-id, 1-id, -1, -1); // left, right neighbours are other panels
+			SetView(id);
+			return true;
+	}
+	return false;
+}
+
 bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 {
 	double front_dist, back_dist;
@@ -1326,4 +1413,9 @@ VECTOR3 Crawler::CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) cons
 	double padLat, padLong, padRad;
 	oapiGetEquPos(hVessel, &padLong, &padLat, &padRad);
 	return _V(padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0, padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth));
+}
+
+DiscreteBundleManager* Crawler::BundleManager() const
+{
+	return pBundleManager;
 }

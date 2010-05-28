@@ -1,7 +1,8 @@
 #include "CrawlerEngine.h"
 #include "Crawler.h"
 
-CrawlerEngine::CrawlerEngine()
+CrawlerEngine::CrawlerEngine(SubsystemDirector<Crawler>* _director)
+: Subsystem(_director, "Engine")
 {
 	targetSpeed = 0.0;
 	actualSpeed = 0.0;
@@ -88,8 +89,9 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 			}
 			dPower = range(-0.05, tgtPower-enginePower, 0.05);
 		}
-		else {
+		else { // hold speed
 			dPower = range(-0.05, 0.25-enginePower, 0.05);
+			tgtPower = 0.25;
 		}
 	}
 	else { // shutdown engine
@@ -103,24 +105,25 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f MPH Velocity: %f MPH Pwr: %f %f", targetSpeed*MPS2MPH, actualSpeed*MPS2MPH, enginePower, tgtPower);
 }
 
-bool CrawlerEngine::ParseLine(const char* line)
+bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
 {
-	if(!_strnicmp(line, "VELOCITY", 8)) {
-		sscanf_s(line+8, "%lf", &actualSpeed);
+	std::string strKey = keyword;
+	if(strKey == "VELOCITY") {
+		sscanf_s(line, "%lf", &actualSpeed);
 		return true;
 	}
-	else if(!_strnicmp(line, "TGT_VELOCITY", 12)) {
-		sscanf_s(line+12, "%lf", &targetSpeed);
+	else if(strKey == "TGT_VELOCITY") {
+		sscanf_s(line, "%lf", &targetSpeed);
 		return true;
 	}
-	else if(!_strnicmp(line, "ENGINE_POWER", 12)) {
-		sscanf_s(line+12, "%lf", &enginePower);
+	else if(strKey == "ENGINE_POWER") {
+		sscanf_s(line, "%lf", &enginePower);
 		return true;
 	}
 	return false;
 }
 
-void CrawlerEngine::SaveState(FILEHANDLE scn) const
+void CrawlerEngine::OnSaveState(FILEHANDLE scn) const
 {
 	oapiWriteScenario_float(scn, "VELOCITY", actualSpeed);
 	oapiWriteScenario_float(scn, "TGT_VELOCITY", targetSpeed);
