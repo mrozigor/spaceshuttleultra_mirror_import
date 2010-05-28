@@ -3,17 +3,23 @@
 #pragma once
 
 #include <orbitersdk.h>
+#include "Subsystem.h"
 
 //const double MAX_POWER = 4000.0e3;
 // total power (Watts) of all 4 generators
 
 class Crawler;
 
-class CrawlerEngine
+class CrawlerEngine : public Subsystem<Crawler>
 {
 public:
-	CrawlerEngine();
+	CrawlerEngine(SubsystemDirector<Crawler>* _director);
 	~CrawlerEngine();
+	
+	virtual void OnPreStep(double SimT, double SimDT, double MJD);
+
+	virtual bool OnParseLine(const char* keyword, const char* line);
+	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	double GetSpeed() const;
 	//void SetTargetSpeed(double speed);
@@ -21,11 +27,6 @@ public:
 
 	void Accelerate(bool _acc);
 	void Brake(bool _brake);
-
-	bool ParseLine(const char* line);
-	void SaveState(FILEHANDLE scn) const;
-
-	void OnPreStep(double SimT, double SimDT, double MJD);
 private:
 	// speed in m/s
 	double maxSpeed;

@@ -77,9 +77,12 @@
 
 #include <vector>
 #include <orbitersdk.h>
+#include "Discsignals.h"
 #include "../SSUMath.h"
 #include "meshres_drivetruck.h"
 #include "CrawlerEngine.h"
+#include "PanelGroup.h"
+#include "SubsystemDirector.h"
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
@@ -94,6 +97,9 @@ const double JACKING_MAX_HEIGHT = 1.8;
 // max distance the crawler platform can be jacked up from the drivetrucks
 // According to various sources maxing jacking height is 6 ft(1.8 m)
 
+const double MAX_TURN_ANGLE = 10.0*RAD;
+// max angle (in radians) each set of tracks can be turned
+
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 5.869, 0.0);
 //const VECTOR3 MLP_ATTACH_POS = _V(0.0, 10.869, 0.0);
 const VECTOR3 MLP_ATTACH_ROT = _V(0, 0, 1);
@@ -102,6 +108,21 @@ const double MAX_UNLOADED_SPEED = 2.0/MPS2MPH;
 const double MAX_LOADED_SPEED = 0.8/MPS2MPH;
 
 const int ENGINE_SOUND_ID = 1;
+
+
+// View positions
+const int VIEWPOS_FRONTCABIN		= 0;
+const int VIEWPOS_REARCABIN			= 1;
+const int VIEWPOS_ML				= 2;
+const int VIEWPOS_GROUND			= 3;
+const int VIEWPOS_FRONTGANGWAY		= 4;
+const int VIEWPOS_REARGANGWAY		= 5;
+const int VIEWPOS_RIGHTREARGANGWAY	= 6;
+
+namespace vc
+{
+	class CrawlerVC;
+};
 
 ///
 /// \ingroup Ground
@@ -117,13 +138,17 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 	int clbkConsumeDirectKey(char *kstate);
 	int clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
+	void clbkPostCreation();
 	void clbkPreStep (double simt, double simdt, double mjd);
 	void clbkPostStep(double simt, double simdt, double mjd);
 	void clbkVisualCreated(VISHANDLE vis, int refcount);
 	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
 	bool clbkLoadGenericCockpit();
+	bool clbkLoadVC (int id);
 	// This will extract the mission time from the saturn in order to pass to ProjectApollo MFD
 	//double GetMissionTime() {return MissionTime;};
+
+	DiscreteBundleManager* BundleManager() const;
 
 private:
 	void DoFirstTimestep();
@@ -138,6 +163,9 @@ private:
 	void SetView(int viewpos);
 	void SlowIfDesired(double timeAcceleration);
 	void SetMeshesVisibility(WORD mode);
+
+	void CreateVCAnimations(UINT meshIdx, const VECTOR3& pos, const double direction);
+
 	/**
 	 * Returns crawler position in vessel-centered local horizon frame
 	 * Assumes vessels are close and Earth is flat
@@ -163,6 +191,13 @@ private:
 
 	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(15.4 / (395.0-131.5)), 15.4); };
 
+private:
+	SubsystemDirector<Crawler>* psubsystems;
+	DiscreteBundleManager* pBundleManager;
+
+	vc::PanelGroup<Crawler> pgFwdCab, pgRearCab;
+	//vc::CrawlerVC* cabs[2];
+
 	CrawlerEngine* pEngine;
 
 	//double tgtVelocity;
@@ -170,7 +205,8 @@ private:
 	bool velocityStop;
 	//double targetHeading;
 	int viewPos;
-	double wheeldeflect;
+	//double wheeldeflect[2];
+	double steeringActual[2], steeringCommanded[2];
 	int standalone;
 	bool firstTimestepDone;
 	// Mission Time for passing to PAMFD:
@@ -188,8 +224,9 @@ private:
 	double lastLat;
 	double lastLong;
 	double lastHead;
-	
 	VESSELSTATUS2 vs;
+
+	DiscOutPort steeringCommand[2];
 
 	//bool keyAccelerate;
 	//bool keyBrake;
@@ -203,7 +240,9 @@ private:
 	//OBJHANDLE hMSS;
 	ATTACHMENTHANDLE ahMLP;
 
-	VISHANDLE vccVis;	
+public:
+	VISHANDLE vccVis;
+private:
 	/*MESHGROUP_TRANSFORM vccSpeedGroup, vccSpeedGroupReverse;
 	MESHGROUP_TRANSFORM vccSteering1Group, vccSteering2Group;
 	MESHGROUP_TRANSFORM vccSteering1GroupReverse, vccSteering2GroupReverse;*/
@@ -213,11 +252,13 @@ private:
 	int meshidxTruck2;
 	int meshidxTruck3;
 	int meshidxTruck4;
+	UINT fwdVCIdx, rearVCIdx;
     //int meshidxPanel;
 	//int meshidxPanelReverse;
 	UINT anim_truck_trans[4];
 	UINT anim_truck_rot[4];
 	UINT DrivetruckGrpList[NGRP_TRUCK]; // array used to define drivetruck animations
+
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
