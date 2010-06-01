@@ -31,7 +31,9 @@
 
 //#include "vc_defs.h"
 //#include "BasicPanel.h"
+#include "orbiterapi.h"
 #include "ISubsystem.h"
+#include <set>
 #include <string>
 
 namespace vc {

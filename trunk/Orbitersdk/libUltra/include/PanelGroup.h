@@ -26,13 +26,11 @@
 
 #include "OrbiterAPI.h"
 #include <vector>
+#include "BasicPanel.h"
 //#include "vc_defs.h"
 
 namespace vc {
 	using namespace std;
-
-	template <class TVessel>
-	class BasicPanel;
 
 	template <class TVessel>
 	class PanelGroup {
