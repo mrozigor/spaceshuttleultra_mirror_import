@@ -131,6 +131,7 @@
 #include "../SSUMath.h"
 #include "Crawler.h"
 #include "CrawlerCenterPanel.h"
+#include "CrawlerRightPanel.h"
 #include "meshres_crawler.h"
 
 HINSTANCE g_hDLL;
@@ -161,9 +162,11 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	//psubsystems->AddSubsystem(new CrawlerVC(psubsystems, "REAR_CAB", CrawlerVC::REAR));
 	//cabs = new vc::PanelGroup<Crawler>();
 	//cabs[0] = new vc::CrawlerVC(this, "FWD_CAB", vc::CrawlerVC::FWD);
-	pgFwdCab.AddPanel(new vc::CrawlerCenterPanel(this, "FWD_CAB", vc::FWD));
+	pgFwdCab.AddPanel(new vc::CrawlerCenterPanel(this, "FWD_CAB_CTR", vc::FWD));
+	pgFwdCab.AddPanel(new vc::CrawlerRightPanel(this, "FWD_CAB_RIGHT", vc::FWD));
 	//cabs[1] = new vc::CrawlerVC(this, "REAR_CAB", vc::CrawlerVC::REAR);
 	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB", vc::REAR));
+	pgRearCab.AddPanel(new vc::CrawlerRightPanel(this, "REAR_CAB_RIGHT", vc::REAR));
 
 	//tgtVelocity = 0.0;
 	//velocity = 0;
@@ -929,7 +932,17 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 
 	if (!firstTimestepDone) return 0;
 
-	if (KEYMOD_SHIFT(kstate) || KEYMOD_CONTROL(kstate)) {
+	if(KEYMOD_CONTROL(kstate)) {
+		if(!down && key == OAPI_KEY_3) {
+			pgFwdCab.ToggleCoordinateDisplayMode();
+			pgRearCab.ToggleCoordinateDisplayMode();
+			oapiWriteLog("Toggling coordinate display mode");
+			return 1;
+		}
+		else return 0;
+	}
+
+	if (KEYMOD_SHIFT(kstate)) {
 		return 0; 
 	}
 
@@ -1209,7 +1222,7 @@ void Crawler::SetView(int viewpos) {
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
-		SetCameraOffset(_V(15.59, 5.3, 17.094000));
+		SetCameraOffset(_V(15.59, 5.3, 17.074000));
 		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
@@ -1285,13 +1298,24 @@ bool Crawler::clbkLoadVC (int id)
 		case VIEWPOS_REARCABIN:
 			oapiWriteLog("Showing VC");
 			//cabs[id]->RegisterVC();
-			if(VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
+			if(id==VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
 			else pgRearCab.RegisterVC();
 			oapiVCSetNeighbours(1-id, 1-id, -1, -1); // left, right neighbours are other panels
 			SetView(id);
 			return true;
 	}
 	return false;
+}
+
+bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
+{
+	oapiWriteLog("clbkVCMouseEvent called");
+	bool bRet = false;
+
+	bRet = pgFwdCab.OnVCMouseEvent(id, _event, p);
+	bRet = pgRearCab.OnVCMouseEvent(id, _event, p);
+
+	return bRet;
 }
 
 bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)

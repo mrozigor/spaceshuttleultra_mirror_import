@@ -27,8 +27,6 @@ public:
 private:
 	vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	CRAWLER_CAB cabID;
-
 	MESHHANDLE hVCMesh;
 	//UINT meshIdx;
 
