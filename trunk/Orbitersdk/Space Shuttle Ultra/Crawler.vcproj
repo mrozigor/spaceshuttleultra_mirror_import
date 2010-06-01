@@ -48,8 +48,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/analyze"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include"
+				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -146,7 +147,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../include"
+				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -236,7 +237,47 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Crawler\CrawlerCenterPanel.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Crawler\CrawlerEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerLeftPanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerPanelLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerPBI.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerRightPanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\src\DiscInPort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\src\DiscOutPort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\src\DiscreteBundle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\src\DiscreteBundleManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\src\DiscretePort.cpp"
 				>
 			</File>
 			<File
@@ -249,7 +290,23 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\libUltra\include\BasicPanel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\include\BasicVCComponent.h"
+				>
+			</File>
+			<File
 				RelativePath="Crawler\Crawler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\Crawler_vc_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerCenterPanel.h"
 				>
 			</File>
 			<File
@@ -257,7 +314,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Crawler\CrawlerLeftPanel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerPanelLight.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerPBI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\CrawlerRightPanel.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Crawler\meshres_crawler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\meshres_crawler_vc.h"
 				>
 			</File>
 			<File
@@ -265,7 +342,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\libUltra\include\PanelGroup.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SSUMath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\include\Subsystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\include\SubsystemDirector.h"
 				>
 			</File>
 		</Filter>
