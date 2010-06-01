@@ -119,6 +119,15 @@ const int VIEWPOS_FRONTGANGWAY		= 4;
 const int VIEWPOS_REARGANGWAY		= 5;
 const int VIEWPOS_RIGHTREARGANGWAY	= 6;
 
+const int AID_REAR_OFFSET = 30; // offset added for rear cabs
+const int AID_LEFT_MIN			= 0;
+const int AID_CTR_MIN			= 10;
+const int AID_RIGHT_MIN			= 20;
+const int AID_GCIR_PBI			= 20;
+const int AID_INDEP_PBI			= 21;
+const int AID_CRAB_PBI			= 22;
+const int AID_CAB_ACK_PBI		= 23;
+
 namespace vc
 {
 	class CrawlerVC;
@@ -143,8 +152,11 @@ public:
 	void clbkPostStep(double simt, double simdt, double mjd);
 	void clbkVisualCreated(VISHANDLE vis, int refcount);
 	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
+
 	bool clbkLoadGenericCockpit();
 	bool clbkLoadVC (int id);
+	bool clbkVCMouseEvent(int id, int _event, VECTOR3& p);
+
 	// This will extract the mission time from the saturn in order to pass to ProjectApollo MFD
 	//double GetMissionTime() {return MissionTime;};
 
