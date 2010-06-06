@@ -127,6 +127,7 @@
 #include <math.h>
 #include <string>
 #include <OrbiterSoundSDK35.h>
+#include "../resource_Crawler.h"
 
 #include "../SSUMath.h"
 #include "Crawler.h"
@@ -134,11 +135,21 @@
 #include "CrawlerRightPanel.h"
 #include "meshres_crawler.h"
 
-HINSTANCE g_hDLL;
+//HINSTANCE g_hDLL;
+GlobalHandles g_Resources;
 
 DLLCLBK void InitModule(HINSTANCE hModule) {
 
-	g_hDLL = hModule;
+	//g_hDLL = hModule;
+	g_Resources.hDll = hModule;
+	HBITMAP hBmp = LoadBitmap(g_Resources.hDll, MAKEINTRESOURCE(IDB_PBILABELS));
+	g_Resources.pbi_lights = oapiCreateSurface(hBmp);
+}
+
+DLLCLBK void ExitModule (HINSTANCE hModule)
+{
+	if(g_Resources.pbi_lights)
+		oapiDestroySurface(g_Resources.pbi_lights);
 }
 
 DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel) {
@@ -210,6 +221,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	meshidxTruck2 = 0;
 	meshidxTruck3 = 0;
 	meshidxTruck4 = 0;
+	hFwdVCMesh = NULL;
+	hRearVCMesh = NULL;
 	//meshidxPanel = 0;
 	//meshidxPanelReverse = 0;
 
@@ -232,6 +245,7 @@ Crawler::~Crawler() {
 	//delete cabs[0];
 	//delete cabs[1];
 	delete psubsystems;
+	delete pBundleManager;
 }
 
 void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
@@ -338,10 +352,12 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetMeshVisibilityMode(meshidxVC, MESHVIS_ALWAYS);*/
 
 	VECTOR3 crawler_vc_offset = CRAWLER_FWD_VC_OFFSET;
-	fwdVCIdx = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels_reversed"), &crawler_vc_offset);
+	hFwdVCMesh = oapiLoadMeshGlobal("SSU\\Crawler_VC_panels_reversed");
+	fwdVCIdx = AddMesh(hFwdVCMesh, &crawler_vc_offset);
 	SetMeshVisibilityMode(fwdVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
 	crawler_vc_offset = CRAWLER_REAR_VC_OFFSET;
-	rearVCIdx = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels"), &crawler_vc_offset);
+	hRearVCMesh = oapiLoadMeshGlobal("SSU\\Crawler_VC_panels");
+	rearVCIdx = AddMesh(hRearVCMesh, &crawler_vc_offset);
 	SetMeshVisibilityMode(rearVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
 
 	// initialize array of groups needed for drivetruck translation animation
@@ -468,6 +484,9 @@ void Crawler::clbkPostCreation()
 	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 4);
 	steeringCommand[0].Connect(pBundle, 0);
 	steeringCommand[1].Connect(pBundle, 1);
+	greatCircle.Connect(pBundle, 2);
+	crab.Connect(pBundle, 3);
+	independent.Connect(pBundle, 4);
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -541,27 +560,21 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	
 	} else return;
 
-	sprintf_s(oapiDebugString(), 255, "error: %f", steeringCommanded[viewPos]-steeringActual[viewPos]);
-	//if ((keyLeft && viewPos == VIEWPOS_FRONTCABIN) || (keyRight && viewPos == VIEWPOS_REARCABIN)) {
 	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
 		double dAngle = 0.1 * simdt;
-		//if(abs(steeringCommanded[viewPos]-steeringActual[viewPos]) < (1/(MAX_TURN_ANGLE*DEG) - dAngle)) {
 		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
-		//if(steeringCommanded[viewPos] > steeringActual[viewPos] && 
 			steeringCommanded[viewPos] = max(-1,steeringCommanded[viewPos] - dAngle);
-			//steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
 			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
 			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}	
-	//} else if ((keyRight && viewPos == VIEWPOS_FRONTCABIN) || (keyLeft && viewPos == VIEWPOS_REARCABIN)) {
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
 		double dAngle = 0.1 * simdt;
-		//if(abs(steeringCommanded[viewPos]-steeringActual[viewPos]) < (1/(MAX_TURN_ANGLE*DEG) - dAngle)) {
 		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
 			steeringCommanded[viewPos] = min(1, steeringCommanded[viewPos] + dAngle);
-			//steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
 			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
 			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}
@@ -595,8 +608,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	if(vs.surf_hdg< 0) vs.surf_hdg += 2.0 * PI;
 	if(vs.surf_hdg >= 2.0 * PI) vs.surf_hdg -= 2.0 * PI;
 
-	//lon += sin(lastHead) * velocity * simdt / oapiGetSize(hEarth);
-	//lat += cos(lastHead) * velocity * simdt / oapiGetSize(hEarth);
 	double headingOffset = -(steeringActual[1]+steeringActual[0]) * MAX_TURN_ANGLE/2.0;
 	VECTOR3 dir = _V(sin(lastHead+headingOffset), cos(lat) * cos(lastHead+headingOffset), 0);
 	dir /= length(dir);
@@ -1318,6 +1329,17 @@ bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
 	return bRet;
 }
 
+bool Crawler::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
+{
+	sprintf_s(oapiDebugString(), 255, "VC Redraw event: %d", id);
+	if(pgFwdCab.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgRearCab.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	
+	return false;
+}
+
 bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 {
 	double front_dist, back_dist;
@@ -1442,4 +1464,10 @@ VECTOR3 Crawler::CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) cons
 DiscreteBundleManager* Crawler::BundleManager() const
 {
 	return pBundleManager;
+}
+
+MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
+{
+	if(cab==vc::FWD) return hFwdVCMesh;
+	else return hRearVCMesh;
 }

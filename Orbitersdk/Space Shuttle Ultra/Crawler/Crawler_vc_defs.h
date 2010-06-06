@@ -14,6 +14,11 @@ namespace vc
 	//typedef BasicPanel<Crawler> CrawlerPanel;
 	typedef enum {FWD = 0, REAR = 1} CRAWLER_CAB;
 
+	const int PBI_OFF_RED = 0;
+	const int PBI_ON_RED = 31;
+	const int PBI_GO = 62;
+	const int PBI_BLACK = 93;
+
 	class CrawlerPanel : public BasicPanel<Crawler>
 	{
 	protected:

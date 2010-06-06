@@ -11,8 +11,12 @@ namespace vc
 
 class CrawlerPBI : public CrawlerPanelLight
 {
+	const static int MAX_GROUP_PORTS = 5;
+
 	bool bAllowReset;
 	DiscOutPort output;
+	DiscOutPort groupPorts[MAX_GROUP_PORTS];
+	unsigned short usGroupCount;
 public:
 	CrawlerPBI(Crawler* _v, const std::string& _ident);
 	virtual ~CrawlerPBI();
@@ -22,6 +26,10 @@ public:
 
 	void AllowReset(bool allow);
 	virtual void ConnectPort(DiscreteBundle* pBundle, unsigned short usLine);
+	/**
+	 * Add line to be reset when PBI is pressed
+	 */
+	virtual void ConnectGroupPort(DiscreteBundle* pBundle, unsigned short usLine);
 };
 
 };

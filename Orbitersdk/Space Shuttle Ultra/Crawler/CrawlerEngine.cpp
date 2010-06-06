@@ -102,7 +102,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	if(abs(dPower) > abs(tgtPower-enginePower)) enginePower = tgtPower;
 	else enginePower = range(0.0, enginePower+dPower, 1.0);
 
-	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f MPH Velocity: %f MPH Pwr: %f %f", targetSpeed*MPS2MPH, actualSpeed*MPS2MPH, enginePower, tgtPower);
+	//sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f MPH Velocity: %f MPH Pwr: %f %f", targetSpeed*MPS2MPH, actualSpeed*MPS2MPH, enginePower, tgtPower);
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
