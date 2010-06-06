@@ -4,7 +4,7 @@ namespace vc
 {
 
 CrawlerPBI::CrawlerPBI(Crawler* _v, const std::string& _ident)
-: CrawlerPanelLight(_v, _ident), bAllowReset(false)
+: CrawlerPanelLight(_v, _ident), bAllowReset(false), usGroupCount(0)
 {
 }
 
@@ -24,8 +24,11 @@ bool CrawlerPBI::OnMouseEvent(int _event, float x, float y)
 
 void CrawlerPBI::OnPress()
 {
-	if(bAllowReset && input) output.SetLine();
-	else output.ResetLine();
+	if(bAllowReset && input) output.ResetLine();
+	else {
+		output.SetLine();
+		for(unsigned short i=0;i<usGroupCount;i++) groupPorts[i].ResetLine();
+	}
 }
 
 void CrawlerPBI::AllowReset(bool allow)
@@ -37,6 +40,12 @@ void CrawlerPBI::ConnectPort(DiscreteBundle* pBundle, unsigned short usLine)
 {
 	CrawlerPanelLight::ConnectPort(pBundle, usLine);
 	output.Connect(pBundle, usLine);
+}
+
+void CrawlerPBI::ConnectGroupPort(DiscreteBundle *pBundle, unsigned short usLine)
+{
+	groupPorts[usGroupCount].Connect(pBundle, usLine);
+	++usGroupCount;
 }
 
 };

@@ -13,6 +13,8 @@ class CrawlerRightPanel : public CrawlerPanel
 	CrawlerPBI* pGreatCircle;
 	CrawlerPBI* pIndependent;
 	CrawlerPBI* pCrab;
+
+	void DefineSteeringModePBI(CrawlerPBI* pPBI) const;
 public:
 	CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 	virtual ~CrawlerRightPanel();

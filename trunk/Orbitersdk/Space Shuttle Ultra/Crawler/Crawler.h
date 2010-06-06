@@ -83,6 +83,7 @@
 #include "CrawlerEngine.h"
 #include "PanelGroup.h"
 #include "SubsystemDirector.h"
+#include "Crawler_vc_defs.h"
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
@@ -123,15 +124,22 @@ const int AID_REAR_OFFSET = 30; // offset added for rear cabs
 const int AID_LEFT_MIN			= 0;
 const int AID_CTR_MIN			= 10;
 const int AID_RIGHT_MIN			= 20;
-const int AID_GCIR_PBI			= 20;
-const int AID_INDEP_PBI			= 21;
-const int AID_CRAB_PBI			= 22;
-const int AID_CAB_ACK_PBI		= 23;
+const int AID_GCIR_PBI			= 21;
+const int AID_INDEP_PBI			= 22;
+const int AID_CRAB_PBI			= 23;
+const int AID_CAB_ACK_PBI		= 24;
 
 namespace vc
 {
 	class CrawlerVC;
 };
+
+typedef struct
+{
+	HINSTANCE hDll;
+	SURFHANDLE pbi_lights;
+} GlobalHandles;
+
 
 ///
 /// \ingroup Ground
@@ -156,11 +164,14 @@ public:
 	bool clbkLoadGenericCockpit();
 	bool clbkLoadVC (int id);
 	bool clbkVCMouseEvent(int id, int _event, VECTOR3& p);
+	bool clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 
 	// This will extract the mission time from the saturn in order to pass to ProjectApollo MFD
 	//double GetMissionTime() {return MissionTime;};
 
 	DiscreteBundleManager* BundleManager() const;
+
+	MESHHANDLE GetVCMesh(vc::CRAWLER_CAB cab) const;
 
 private:
 	void DoFirstTimestep();
@@ -202,7 +213,9 @@ private:
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
 	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(15.4 / (395.0-131.5)), 15.4); };
-
+	
+public:
+	VISHANDLE vccVis;
 private:
 	SubsystemDirector<Crawler>* psubsystems;
 	DiscreteBundleManager* pBundleManager;
@@ -239,6 +252,7 @@ private:
 	VESSELSTATUS2 vs;
 
 	DiscOutPort steeringCommand[2];
+	DiscInPort independent, crab, greatCircle;
 
 	//bool keyAccelerate;
 	//bool keyBrake;
@@ -252,9 +266,9 @@ private:
 	//OBJHANDLE hMSS;
 	ATTACHMENTHANDLE ahMLP;
 
-public:
-	VISHANDLE vccVis;
-private:
+	MESHHANDLE hFwdVCMesh;
+	MESHHANDLE hRearVCMesh;
+
 	/*MESHGROUP_TRANSFORM vccSpeedGroup, vccSpeedGroupReverse;
 	MESHGROUP_TRANSFORM vccSteering1Group, vccSteering2Group;
 	MESHGROUP_TRANSFORM vccSteering1GroupReverse, vccSteering2GroupReverse;*/
