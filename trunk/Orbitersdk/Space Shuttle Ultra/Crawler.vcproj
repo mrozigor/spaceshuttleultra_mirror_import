@@ -455,6 +455,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource_Crawler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SSUMath.h"
 				>
 			</File>

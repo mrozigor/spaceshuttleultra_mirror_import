@@ -6,6 +6,7 @@
 namespace vc {
 
 	BasicPanel::BasicPanel(Atlantis* sts, const string& _name)
+		: bHasOwnVCMesh(false)
 	{
 		name = _name;
 		psts = sts;

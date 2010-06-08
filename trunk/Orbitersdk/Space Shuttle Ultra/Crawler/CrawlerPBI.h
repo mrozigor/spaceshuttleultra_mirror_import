@@ -13,6 +13,7 @@ class CrawlerPBI : public CrawlerPanelLight
 {
 	const static int MAX_GROUP_PORTS = 5;
 
+	bool bInitialState;
 	bool bAllowReset;
 	DiscOutPort output;
 	DiscOutPort groupPorts[MAX_GROUP_PORTS];
@@ -21,8 +22,13 @@ public:
 	CrawlerPBI(Crawler* _v, const std::string& _ident);
 	virtual ~CrawlerPBI();
 
+	virtual void Realize();
 	virtual bool OnMouseEvent(int _event, float x, float y);
 	void OnPress();
+
+	virtual bool IsMultiLineSaveState() const { return false; };
+	virtual bool OnParseLine(const char* line);
+	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
 
 	void AllowReset(bool allow);
 	virtual void ConnectPort(DiscreteBundle* pBundle, unsigned short usLine);

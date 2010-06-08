@@ -184,6 +184,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	velocityStop = false;
 	//targetHeading = 0;
 	steeringActual[0] = steeringActual[1] = 0;
+	steeringCommanded[0] = steeringCommanded[1] = 0;
 	viewPos = VIEWPOS_FRONTCABIN;
 	firstTimestepDone = false;
 	standalone = false;
@@ -487,6 +488,9 @@ void Crawler::clbkPostCreation()
 	greatCircle.Connect(pBundle, 2);
 	crab.Connect(pBundle, 3);
 	independent.Connect(pBundle, 4);
+
+	steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+	steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -766,6 +770,18 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 		} else if (!_strnicmp (line, "REVERSE_ATTACH", 14)) {
 			bReverseDirection=true;
 			SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
+		} else if (!_strnicmp(line, "@PANEL", 6)) {
+			char pszPanelName[30];
+			sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
+			oapiWriteLog(pszPanelName);
+			//bool bFound = false;
+
+			if(pgFwdCab.HasPanel(pszPanelName))
+				pgFwdCab.ParsePanelBlock(pszPanelName, scn);
+			else if(pgRearCab.HasPanel(pszPanelName))
+				pgRearCab.ParsePanelBlock(pszPanelName, scn);
+
+			oapiWriteLog("\tLeave @PANEL block.");
 		} else {
 			//if(!pEngine->ParseLine(line))
 			if(!psubsystems->ParseScenarioLine(scn, line))
@@ -788,6 +804,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_string(scn, "STEERING_ACTUAL", cbuf);	
 	sprintf_s(cbuf, 255, "%f %f", steeringCommanded[0], steeringCommanded[1]);
 	oapiWriteScenario_string(scn, "STEERING_COMMANDED", cbuf);
+
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
 	oapiWriteScenario_string(scn, "HEIGHT", cbuf);
@@ -800,6 +817,8 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	if(bReverseDirection) oapiWriteLine(scn, "  REVERSE_ATTACH");
 	//pEngine->SaveState(scn);
 	psubsystems->SaveState(scn);
+	pgFwdCab.OnSaveState(scn);
+	pgRearCab.OnSaveState(scn);
 }
 
 int Crawler::clbkConsumeDirectKey(char *kstate) {
