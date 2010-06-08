@@ -875,7 +875,7 @@ void CRT::MNVR(HDC hDC)
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
 	return;
 
-	SelectDefaultFont(hDC, 0);
+	/*SelectDefaultFont(hDC, 0);
 
 	switch(sts->ops) {
 		case 104:
@@ -1142,7 +1142,7 @@ void CRT::MNVR(HDC hDC)
 	TextOut(hDC, 185, 162, "  OFF  38", 9);
 	TextOut(hDC, 185, 171, "SURF DRIVE", 10);
 	TextOut(hDC, 185, 180, "  ON   39", 9);
-	TextOut(hDC, 185, 189, "  OFF  40", 9);
+	TextOut(hDC, 185, 189, "  OFF  40", 9);*/
 }
 
 /*void CRT::PDRS(HDC hDC)

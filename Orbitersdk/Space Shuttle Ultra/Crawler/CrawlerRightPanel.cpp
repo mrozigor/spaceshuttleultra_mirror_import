@@ -91,6 +91,8 @@ void CrawlerRightPanel::Realize()
 	pCrab->ConnectGroupPort(pBundle, 4);
 	pIndependent->ConnectGroupPort(pBundle, 2);
 	pIndependent->ConnectGroupPort(pBundle, 3);
+
+	CrawlerPanel::Realize();
 }
 
 };
