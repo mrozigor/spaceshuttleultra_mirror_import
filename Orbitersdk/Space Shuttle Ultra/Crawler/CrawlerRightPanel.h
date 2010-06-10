@@ -4,6 +4,8 @@
 
 #include "Crawler_vc_defs.h"
 #include "CrawlerPBI.h"
+#include "CrawlerDigitalDisplay.h"
+#include "CrawlerBarGauge.h"
 
 namespace vc
 {
@@ -13,6 +15,11 @@ class CrawlerRightPanel : public CrawlerPanel
 	CrawlerPBI* pGreatCircle;
 	CrawlerPBI* pIndependent;
 	CrawlerPBI* pCrab;
+
+	//CrawlerDigitalDisplay* pFwdSteeringAngle;
+	CrawlerDigitalDisplay* pDesSteeringAngleValue;
+
+	CrawlerBarGauge *pDesSteeringAngleGauge;
 
 	void DefineSteeringModePBI(CrawlerPBI* pPBI) const;
 public:
