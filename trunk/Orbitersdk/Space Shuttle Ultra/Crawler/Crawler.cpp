@@ -144,12 +144,16 @@ DLLCLBK void InitModule(HINSTANCE hModule) {
 	g_Resources.hDll = hModule;
 	HBITMAP hBmp = LoadBitmap(g_Resources.hDll, MAKEINTRESOURCE(IDB_PBILABELS));
 	g_Resources.pbi_lights = oapiCreateSurface(hBmp);
+	hBmp = LoadBitmap(g_Resources.hDll, MAKEINTRESOURCE(IDB_7SEGDIGITS));
+	g_Resources.digits_7seg = oapiCreateSurface(hBmp);
 }
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
 {
 	if(g_Resources.pbi_lights)
 		oapiDestroySurface(g_Resources.pbi_lights);
+	if(g_Resources.digits_7seg)
+		oapiDestroySurface(g_Resources.digits_7seg);
 }
 
 DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel) {

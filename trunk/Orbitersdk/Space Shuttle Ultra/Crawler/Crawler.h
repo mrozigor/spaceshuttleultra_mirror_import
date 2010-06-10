@@ -120,7 +120,7 @@ const int VIEWPOS_FRONTGANGWAY		= 4;
 const int VIEWPOS_REARGANGWAY		= 5;
 const int VIEWPOS_RIGHTREARGANGWAY	= 6;
 
-const int AID_REAR_OFFSET = 30; // offset added for rear cabs
+const int AID_REAR_OFFSET = 50; // offset added for rear cabs
 const int AID_LEFT_MIN			= 0;
 const int AID_CTR_MIN			= 10;
 const int AID_RIGHT_MIN			= 20;
@@ -128,6 +128,12 @@ const int AID_GCIR_PBI			= 21;
 const int AID_INDEP_PBI			= 22;
 const int AID_CRAB_PBI			= 23;
 const int AID_CAB_ACK_PBI		= 24;
+const int AID_STEERING_L_VALUE	= 25;
+const int AID_STEERING_L_BAR	= 26;
+const int AID_STEERING_R_VALUE	= 27;
+const int AID_STEERING_R_BAR	= 28;
+const int AID_STEERING_DES_VALUE= 29;
+const int AID_STEEEING_DES_BAR	= 30;
 
 namespace vc
 {
@@ -138,6 +144,7 @@ typedef struct
 {
 	HINSTANCE hDll;
 	SURFHANDLE pbi_lights;
+	SURFHANDLE digits_7seg;
 } GlobalHandles;
 
 
