@@ -16,12 +16,17 @@ class CrawlerRightPanel : public CrawlerPanel
 	CrawlerPBI* pIndependent;
 	CrawlerPBI* pCrab;
 
-	//CrawlerDigitalDisplay* pFwdSteeringAngle;
+	CrawlerDigitalDisplay* pLeftSteeringAngleValue; // shows angle for this cab
+	CrawlerDigitalDisplay* pRightSteeringAngleValue; // shows angle for other cab
 	CrawlerDigitalDisplay* pDesSteeringAngleValue;
 
-	CrawlerBarGauge *pDesSteeringAngleGauge;
+	CrawlerBarGauge* pLeftSteeringAngleGauge; // shows angle for this cab
+	CrawlerBarGauge* pRightSteeringAngleGauge; // shows angle for other cab
+	CrawlerBarGauge* pDesSteeringAngleGauge;
 
 	void DefineSteeringModePBI(CrawlerPBI* pPBI) const;
+	void DefineSteeringAngleGauge(CrawlerBarGauge* pGauge) const;
+	void DefineSteeringAngleDisplay(CrawlerDigitalDisplay* pDisplay) const;
 public:
 	CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 	virtual ~CrawlerRightPanel();

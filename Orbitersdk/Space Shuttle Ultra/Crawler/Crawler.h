@@ -258,7 +258,8 @@ private:
 	double lastHead;
 	VESSELSTATUS2 vs;
 
-	DiscOutPort steeringCommand[2];
+	DiscOutPort port_steeringCommand[2];
+	DiscOutPort port_steeringActual[2];
 	DiscInPort independent, crab, greatCircle;
 
 	//bool keyAccelerate;

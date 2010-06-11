@@ -486,15 +486,19 @@ void Crawler::clbkPostCreation()
 	pgRearCab.Realize();
 
 	// connect DiscPorts
-	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 4);
-	steeringCommand[0].Connect(pBundle, 0);
-	steeringCommand[1].Connect(pBundle, 1);
+	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 7);
+	port_steeringCommand[0].Connect(pBundle, 0);
+	port_steeringCommand[1].Connect(pBundle, 1);
 	greatCircle.Connect(pBundle, 2);
 	crab.Connect(pBundle, 3);
 	independent.Connect(pBundle, 4);
+	port_steeringActual[0].Connect(pBundle, 5);
+	port_steeringActual[1].Connect(pBundle, 6);
 
-	steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-	steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+	port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+	port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+	port_steeringActual[0].SetLine(static_cast<float>(steeringActual[0]));
+	port_steeringActual[1].SetLine(static_cast<float>(steeringActual[1]));
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -574,8 +578,8 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 			steeringCommanded[viewPos] = max(-1,steeringCommanded[viewPos] - dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
 			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}	
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
 		double dAngle = 0.1 * simdt;
@@ -583,13 +587,13 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 			steeringCommanded[viewPos] = min(1, steeringCommanded[viewPos] + dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
 			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
+			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}
 	} else if (keyCenter) {
 		for(unsigned short i=0;i<2;i++) {
 			steeringCommanded[i] = 0;
-			steeringCommand[i].ResetLine();
+			port_steeringCommand[i].ResetLine();
 		}
 	}
 	keyLeft = false;
@@ -601,10 +605,12 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		if(steeringError < -0.0001) {
 			double dAngle = 0.05*simdt;
 			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-dAngle);
+			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 		else if(steeringError > 0.0001) {			
 			double dAngle = 0.05*simdt;
 			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+dAngle);
+			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 	}
 
