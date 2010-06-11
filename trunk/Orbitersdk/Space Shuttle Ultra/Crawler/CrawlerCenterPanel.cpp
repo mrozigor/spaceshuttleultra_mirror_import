@@ -41,7 +41,7 @@ void CrawlerCenterPanel::Realize()
 	BasicPanel::Realize();
 
 	// connect disc ports
-	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 5);
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 7);
 	steering.Connect(pBundle, cabID);
 }
 

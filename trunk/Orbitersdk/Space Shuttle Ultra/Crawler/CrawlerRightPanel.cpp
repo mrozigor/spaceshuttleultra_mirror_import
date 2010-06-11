@@ -12,8 +12,13 @@ CrawlerRightPanel::CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRA
 	Add(pIndependent = new CrawlerPBI(_v, "Independent"));
 	Add(pCrab = new CrawlerPBI(_v, "Crab"));
 	Add(pGreatCircle = new CrawlerPBI(_v, "GreatCircle"));
+
 	Add(pDesSteeringAngleValue = new CrawlerDigitalDisplay(_v, "DesiredSteeringAngleValue"));
 	Add(pDesSteeringAngleGauge = new CrawlerBarGauge(_v, "DesiredSteeringAngleGauge", false));
+	Add(pLeftSteeringAngleValue = new CrawlerDigitalDisplay(_v, "LeftSteeringAngleValue"));
+	Add(pLeftSteeringAngleGauge = new CrawlerBarGauge(_v, "LeftSteeringAngleGauge", false));
+	Add(pRightSteeringAngleValue = new CrawlerDigitalDisplay(_v, "RightSteeringAngleValue"));
+	Add(pRightSteeringAngleGauge = new CrawlerBarGauge(_v, "RightSteeringAngleGauge", false));
 }
 
 CrawlerRightPanel::~CrawlerRightPanel()
@@ -48,8 +53,12 @@ void CrawlerRightPanel::RegisterVC()
 	oapiVCRegisterArea(AID_CRAB_PBI+aid_ofs, _R(795, 840, 855, 870), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
 
 	SURFHANDLE gauges_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 2);
-	oapiVCRegisterArea(AID_STEERING_DES_VALUE+aid_ofs, _R(48, 349, 198, 391), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
-	oapiVCRegisterArea(AID_STEEEING_DES_BAR+aid_ofs, _R(47, 411, 528, 439), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEERING_DES_VALUE+aid_ofs, _R(48, 304, 198, 346), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEEEING_DES_BAR+aid_ofs, _R(47, 366, 528, 394), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEERING_L_VALUE+aid_ofs, _R(50, 488, 200, 530), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEERING_L_BAR+aid_ofs, _R(49, 550, 530, 578), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEERING_R_VALUE+aid_ofs, _R(50, 870, 200, 912), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_STEERING_R_BAR+aid_ofs, _R(49, 932, 530, 960), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
 
 	oapiWriteLog("CrawlerRightPanel::RegisterVC() called");
 }
@@ -73,15 +82,21 @@ void CrawlerRightPanel::DefineVC()
 	pIndependent->SetMouseRegion(0.289f, 0.516f, 0.431f, 0.872f);
 
 	pDesSteeringAngleValue->AddAIDToRedrawEventList(AID_STEERING_DES_VALUE+aid_ofs);
-	pDesSteeringAngleValue->SetScaleValue(MAX_TURN_ANGLE*DEG);
-	pDesSteeringAngleValue->SetBaseCoords(0, 0);
-	pDesSteeringAngleValue->SetDimensions(150, 42, 5);
+	DefineSteeringAngleDisplay(pDesSteeringAngleValue);
 
 	pDesSteeringAngleGauge->AddAIDToRedrawEventList(AID_STEEEING_DES_BAR+aid_ofs);
-	pDesSteeringAngleGauge->SetScaleValue(MAX_TURN_ANGLE*DEG);
-	pDesSteeringAngleGauge->SetRange(-7.0, 7.0);
-	pDesSteeringAngleGauge->SetBaseCoords(0, 0);
-	pDesSteeringAngleGauge->SetDimensions(481, 28, 37);
+	DefineSteeringAngleGauge(pDesSteeringAngleGauge);
+
+	pLeftSteeringAngleValue->AddAIDToRedrawEventList(AID_STEERING_L_VALUE+aid_ofs);
+	DefineSteeringAngleDisplay(pLeftSteeringAngleValue);
+
+	pLeftSteeringAngleGauge->AddAIDToRedrawEventList(AID_STEERING_L_BAR+aid_ofs);
+	DefineSteeringAngleGauge(pLeftSteeringAngleGauge);
+
+	pRightSteeringAngleValue->AddAIDToRedrawEventList(AID_STEERING_R_VALUE+aid_ofs);
+	DefineSteeringAngleDisplay(pRightSteeringAngleValue);
+	pRightSteeringAngleGauge->AddAIDToRedrawEventList(AID_STEERING_R_BAR+aid_ofs);
+	DefineSteeringAngleGauge(pRightSteeringAngleGauge);
 }
 
 void CrawlerRightPanel::DefineSteeringModePBI(CrawlerPBI* pPBI) const
@@ -93,12 +108,31 @@ void CrawlerRightPanel::DefineSteeringModePBI(CrawlerPBI* pPBI) const
 	pPBI->SetSourceCoords(true, 0, PBI_GO);
 }
 
+void CrawlerRightPanel::DefineSteeringAngleGauge(CrawlerBarGauge* pGauge) const
+{
+	pGauge->SetScaleValue(MAX_TURN_ANGLE*DEG);
+	pGauge->SetRange(-7.0, 7.0);
+	pGauge->SetBaseCoords(0, 0);
+	pGauge->SetDimensions(481, 28, 37);
+}
+
+void CrawlerRightPanel::DefineSteeringAngleDisplay(CrawlerDigitalDisplay* pDisplay) const
+{
+	pDisplay->SetScaleValue(MAX_TURN_ANGLE*DEG);
+	pDisplay->SetBaseCoords(0, 0);
+	pDisplay->SetDimensions(150, 42, 5);
+}
+
 void CrawlerRightPanel::Realize()
 {
-	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 5);
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 7);
 
 	pDesSteeringAngleValue->ConnectPort(pBundle, cabID);
 	pDesSteeringAngleGauge->ConnectPort(pBundle, cabID);
+	pLeftSteeringAngleValue->ConnectPort(pBundle, 5+cabID);
+	pLeftSteeringAngleGauge->ConnectPort(pBundle, 5+cabID);
+	pRightSteeringAngleValue->ConnectPort(pBundle, 6-cabID);
+	pRightSteeringAngleGauge->ConnectPort(pBundle, 6-cabID);
 
 	pGreatCircle->ConnectPort(pBundle, 2);
 	pCrab->ConnectPort(pBundle, 3);
