@@ -8,6 +8,7 @@
 #include "dps_defs.h"
 #include "../SSUOptions.h"
 #include "assert.h"
+#include "IOModule.h"
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -50,21 +51,21 @@ BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw,
 			unsigned long num_data, word16 *cdw)
 {
 	assert(cdw != NULL);
-	word16 tmp_data[16];
+	word16 tmp_data[32];
 
 	switch(cw.mode_ctrl)
 	{
 	case 0:
 		break;
 	case 1:
-		for(unsigned int i = 0; i<cw.word_count; i++)
+		for(unsigned int i = 0; i<=cw.word_count; i++)
 		{
 			tmp_data[i] = SCU_PROM[cw.prom_addr + i];
 		}
 		biu->WriteData(cw.word_count, tmp_data);
 		break;
 	case 2:
-		ExecuteProm(cw.prom_addr, cw.word_count);
+		ExecuteProm(cw.prom_addr, cw.word_count,biu, cw, num_data, cdw);
 		break;
 	case 3:
 		break;
@@ -82,10 +83,25 @@ BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw,
 		break;
 	case 8:
 		//Write data
-		
+		if(m_modules[cw.module_addr] != 0)
+		{
+			for(unsigned int i = 0; i<cw.word_count+1; i++)
+			{	
+				m_modules[cw.module_addr]->WriteToChannel(cw.channel_addr, cdw[i]);
+			}
+		}
 		break;
 	case 9:
 		//Read data
+		if(m_modules[cw.module_addr] != 0)
+		{
+			for(unsigned int i = 0; i<cw.word_count+1; i++)
+			{
+				m_modules[cw.module_addr]->ReadFromChannel(cw.channel_addr, tmp_data[i]);	
+			}
+			biu->WriteData(cw.word_count + 1, tmp_data);
+		}
+		
 		break;
 	case 10:
 		//Send and reset BITE
@@ -115,11 +131,66 @@ BUS_COMMAND_WORD MDM::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw,
 	return cw;
 }
 
-void MDM::ExecuteProm(unsigned int start, unsigned int number_of_words)
+void MDM::ExecuteProm(unsigned int start, unsigned int number_of_words,
+	BusTerminal* biu, BUS_COMMAND_WORD cw, 
+	unsigned long num_data, word16 *cdw)
 {
+	PROM_COMMAND_WORD* operation;
+	PROM_IOM_INFO* module_info;
+	IOModule* iom;
+	word16 io_buffer[32];
+	short incr = 1;
+	unsigned short cdw_ptr = 0;
+
 	for(unsigned int i = 0; i<number_of_words; i++)
 	{
+		if(start > 511)
+			return;
 
+
+		operation = reinterpret_cast<PROM_COMMAND_WORD*>(&SCU_PROM[start]);
+		module_info = reinterpret_cast<PROM_IOM_INFO*>(&SCU_PROM[operation->module_addr]);
+		iom = m_modules[operation->module_addr];
+		unsigned short channel = operation->channel_addr;
+
+		if(module_info->iom_class == 0x4)
+		{
+			incr = 0;
+		} else
+		{
+			incr = 1;
+		}
+
+		switch(operation->mode_ctrl)
+		{
+		case 0:
+			//initiate command data transfer
+			for(unsigned int j = 0; j < operation->word_count; ++j)
+			{
+				iom->WriteToChannel(channel, cdw[cdw_ptr]);
+				cdw_ptr++;
+				channel += incr;
+			}
+			break;
+		case 1:
+			//initiate response data transfer
+			for(unsigned int j = 0; j < operation->word_count; ++j)
+			{
+				iom->ReadFromChannel(channel, io_buffer[j]);
+				channel += incr;
+			}
+			mia1.WriteData(operation->word_count, io_buffer);
+			
+			break;
+		case 2:
+			//send and reset BITE status register
+			
+			break;
+		case 3:
+			//initiate BITE
+			iom->BITE();
+			break;
+		}
 		start++;
 	}
 }
@@ -153,6 +224,8 @@ void MDM::InstallAISModule(unsigned int module_id)
 {
 	SCU_PROM[module_id] = 0x0200;
 }
+
+//1355
 
 
 void MDM::InstallAODModule(unsigned int module_id)
@@ -202,6 +275,11 @@ void MDM::MasterReset(void)
 {
 	m_bite_status = 0;
 	//Reset all I/O modules
+	for(unsigned int i = 0; i<16; i++)
+	{
+		if(m_modules[i] != NULL)
+			m_modules[i]->Reset();
+	}
 }
 
 

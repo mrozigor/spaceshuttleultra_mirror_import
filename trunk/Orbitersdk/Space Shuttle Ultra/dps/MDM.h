@@ -15,7 +15,22 @@
 
 namespace dps {
 
-class MDMIOModule;
+	struct PROM_COMMAND_WORD {
+		unsigned parity:1;
+		unsigned mode_ctrl:2;
+		unsigned channel_addr:5;
+		unsigned module_addr:4;
+		unsigned word_count:4;
+	};
+
+	struct PROM_IOM_INFO {
+		unsigned test_table:8;
+		unsigned iom_class:4;
+		unsigned reserved:3;
+		unsigned parity:1;
+	};
+
+class IOModule;
 
 /**
  * Possible modules per MDM (maximal 16 modules):
@@ -39,7 +54,7 @@ class MDM : public AtlantisSubsystem, public IConnectedToBus
 protected:
 	word16 m_bite_status;
 	word16 SCU_PROM[512];
-	MDMIOModule* m_modules[16];
+	IOModule* m_modules[16];
 	void MasterReset(void);
 public:
 	MDM(SubsystemDirector* _director, const string& _ident,
@@ -61,7 +76,9 @@ public:
 	void InstallSIOModule(unsigned int module_id);
 	void InstallTacanModule(unsigned int module_id);
 
-	void ExecuteProm(unsigned int start, unsigned int number_of_words);
+	void ExecuteProm(unsigned int start, unsigned int number_of_words,
+		BusTerminal* biu, BUS_COMMAND_WORD cw, 
+			unsigned long num_data, word16 *cdw);
 	
 	virtual void busCommandPhase(BusController* biu);
 	virtual void busReadPhase(BusController* biu);
