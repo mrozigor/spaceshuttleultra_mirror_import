@@ -1257,12 +1257,12 @@ void Crawler::SetView(int viewpos) {
 
 	viewPos = viewpos;
 	if (viewPos == VIEWPOS_REARCABIN) {
-		SetCameraOffset(_V(-15.77, 5.3, -16.934000));
+		SetCameraOffset(_V(-15.19, 5, -17.774000));
 		SetCameraDefaultDirection(_V(0, -0.309017, -0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
-		SetCameraOffset(_V(15.59, 5.3, 17.074000));
+		SetCameraOffset(_V(15.19, 5, 17.774000));
 		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 

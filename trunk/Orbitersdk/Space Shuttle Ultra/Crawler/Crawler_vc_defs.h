@@ -6,8 +6,8 @@
 
 class Crawler;
 
-const VECTOR3 CRAWLER_REAR_VC_OFFSET = _V(-15.77, 4.544, -18.0);
-const VECTOR3 CRAWLER_FWD_VC_OFFSET = _V(15.59, 4.544, 18.14);
+const VECTOR3 CRAWLER_REAR_VC_OFFSET = _V(-15.242, 4.544, -18.3);
+const VECTOR3 CRAWLER_FWD_VC_OFFSET = _V(15.242, 4.544, 18.3);
 
 namespace vc
 {
