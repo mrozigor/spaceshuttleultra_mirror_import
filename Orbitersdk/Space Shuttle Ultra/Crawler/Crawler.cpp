@@ -325,29 +325,30 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);
 	VECTOR3 crawler_meshoffset = CRAWLER_MESH_OFFSET;
-    meshidxCrawler = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_mainbody"), &crawler_meshoffset);
+    meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME), &crawler_meshoffset);
+    //meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME_1980), &crawler_meshoffset);
 	SetMeshVisibilityMode(meshidxCrawler, MESHVIS_ALWAYS);
 
 	// Tracks
 	MESHHANDLE track = oapiLoadMeshGlobal("SSU\\Crawler_drivetrucks");
 	
 	//meshoffset = _V(14.539, 1.765, 15.512);
-	VECTOR3 meshoffset = crawler_meshoffset + _V(14.539, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
+	VECTOR3 meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
     meshidxTruck1 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck1, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, 15.512);
-	meshoffset = crawler_meshoffset + _V(-12.657, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
     meshidxTruck2 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck2, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(14.539, 1.765, -10.359);
-	meshoffset = crawler_meshoffset + _V(14.539, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
     meshidxTruck3 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck3, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, -10.359);
-	meshoffset = crawler_meshoffset + _V(-12.657, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
     meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
 
@@ -364,6 +365,30 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	hRearVCMesh = oapiLoadMeshGlobal("SSU\\Crawler_VC_panels");
 	rearVCIdx = AddMesh(hRearVCMesh, &crawler_vc_offset);
 	SetMeshVisibilityMode(rearVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
+
+	DefineAnimations();
+
+	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
+	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
+
+	//VSEnableCollisions(GetHandle(),"ProjectApollo");
+	//double tph = -0.01;
+	//SetTouchdownPoints(_V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
+	//VSSetTouchdownPoints(GetHandle(), _V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
+	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
+	//ShiftCG(_V(0, -16, 0));
+
+	psubsystems->SetClassCaps(cfg);
+	pgFwdCab.DefineVC();
+	pgFwdCab.DefineVCAnimations(fwdVCIdx);
+	pgRearCab.DefineVC();
+	pgRearCab.DefineVCAnimations(rearVCIdx);
+}
+
+void Crawler::DefineAnimations()
+{
+	const float STRUT_ROTATION_ANGLE = static_cast<float>(22.5*RAD);
+	const VECTOR3 STRUT_SCALE_VECTOR = _V(1.45, 1.0, 1.0);
 
 	// initialize array of groups needed for drivetruck translation animation
 	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
@@ -385,15 +410,15 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 0.948, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 	// strut animations
-	static UINT Strut11GrpList[4] = {GRP_Cylinder668, GRP_Cylinder669, GRP_Cylinder670, GRP_Cylinder682};
-	MGROUP_ROTATE* Rotate_Strut11 = new MGROUP_ROTATE(meshidxCrawler, Strut11GrpList, 3, _V(8.705, 2.499, 18.125), _V(0, 0, -1), (float)(45.0*RAD));
+	static UINT Strut11GrpList[2] = {GRP_CORNERDC_FWD_STEERING_CYLINDER, GRP_CORNER_D_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut11 = new MGROUP_ROTATE(meshidxCrawler, &Strut11GrpList[0], 1, _V(8.289, 2.394, 18.126), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut11);
-	MGROUP_SCALE* Scale_Strut11 = new MGROUP_SCALE(meshidxCrawler, &Strut11GrpList[3], 1, _V(12.836, 3.013, 18.125), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut11 = new MGROUP_SCALE(meshidxCrawler, &Strut11GrpList[1], 1, _V(12.447, 2.905, 18.126), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Strut11, parent);
-	static UINT Strut12GrpList[4] = {GRP_Cylinder673, GRP_Cylinder674, GRP_Cylinder675, GRP_Cylinder683};
-	MGROUP_ROTATE* Rotate_Strut12 = new MGROUP_ROTATE(meshidxCrawler, Strut12GrpList, 3, _V(8.705, 2.499, 8.277), _V(0, 0, -1), (float)(45.0*RAD));
+	static UINT Strut12GrpList[2] = {GRP_CORNER_D_REAR_STEERING_CYLINDER, GRP_CORNER_D_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut12 = new MGROUP_ROTATE(meshidxCrawler, &Strut12GrpList[0], 1, _V(8.286, 2.394, 8.279), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut12);
-	MGROUP_SCALE* Scale_Strut12 = new MGROUP_SCALE(meshidxCrawler, &Strut12GrpList[3], 1, _V(12.836, 3.013, 8.277), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut12 = new MGROUP_SCALE(meshidxCrawler, &Strut12GrpList[1], 1, _V(12.447, 2.905, 8.279), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Strut12, parent);
 
 	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -405,15 +430,15 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 	// strut animations
-	static UINT Strut21GrpList[4] = {GRP_Cylinder496, GRP_Cylinder497, GRP_Cylinder498, GRP_Cylinder499};
-	MGROUP_ROTATE* Rotate_Strut21 = new MGROUP_ROTATE(meshidxCrawler, Strut21GrpList, 3, _V(-8.698, 2.518, 18.125), _V(0, 0, 1), (float)(45.0*RAD));
+	static UINT Strut21GrpList[2] = {GRP_CORNER_C_FWD_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELDA};
+	MGROUP_ROTATE* Rotate_Strut21 = new MGROUP_ROTATE(meshidxCrawler, &Strut21GrpList[0], 1, _V(-8.307, 2.414, 18.125), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut21);
-	MGROUP_SCALE* Scale_Strut21 = new MGROUP_SCALE(meshidxCrawler, &Strut21GrpList[3], 1, _V(-12.829, 3.033, 18.12), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut21 = new MGROUP_SCALE(meshidxCrawler, &Strut21GrpList[1], 1, _V(-12.465, 2.924, 18.125), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Strut21, parent);
-	static UINT Strut22GrpList[4] = {GRP_Cylinder430, GRP_Cylinder457, GRP_Cylinder458, GRP_Cylinder459};
-	MGROUP_ROTATE* Rotate_Strut22 = new MGROUP_ROTATE(meshidxCrawler, Strut22GrpList, 3, _V(-8.698, 2.518, 8.274), _V(0, 0, 1), (float)(45.0*RAD));
+	static UINT Strut22GrpList[2] = {GRP_CORNER_C_REAR_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut22 = new MGROUP_ROTATE(meshidxCrawler, &Strut22GrpList[0], 1, _V(-8.307, 2.414, 8.275), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut22);
-	MGROUP_SCALE* Scale_Strut22 = new MGROUP_SCALE(meshidxCrawler, &Strut22GrpList[3], 1, _V(-12.829, 3.033, 8.275), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut22 = new MGROUP_SCALE(meshidxCrawler, &Strut22GrpList[1], 1, _V(-12.465, 2.924, 8.275), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Strut22, parent);
 
 	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -425,15 +450,15 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-2], 1,_V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 	// strut animations
-	static UINT Strut31GrpList[4] = {GRP_Cylinder657, GRP_Cylinder658, GRP_Cylinder659, GRP_Cylinder667};
-	MGROUP_ROTATE* Rotate_Strut31 = new MGROUP_ROTATE(meshidxCrawler, Strut31GrpList, 3, _V(8.705, 2.499, -18.186), _V(0, 0, -1), (float)(45.0*RAD));
+	static UINT Strut31GrpList[2] = {GRP_CORNER_A_FWD_STEERING_CYLINDER, GRP_CORNER_A_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut31 = new MGROUP_ROTATE(meshidxCrawler, &Strut31GrpList[0], 1, _V(8.289, 2.396, -18.181), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut31);
-	MGROUP_SCALE* Scale_Strut31 = new MGROUP_SCALE(meshidxCrawler, &Strut31GrpList[3], 1, _V(12.836, 3.013, -18.183), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut31 = new MGROUP_SCALE(meshidxCrawler, &Strut31GrpList[1], 1, _V(12.449, 2.908, -18.181), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Strut31, parent);
-	static UINT Strut32GrpList[4] = {GRP_Cylinder652, GRP_Cylinder653, GRP_Cylinder654, GRP_Cylinder666};
-	MGROUP_ROTATE* Rotate_Strut32 = new MGROUP_ROTATE(meshidxCrawler, Strut32GrpList, 3, _V(8.705, 2.499, -8.337), _V(0, 0, -1), (float)(45.0*RAD));
+	static UINT Strut32GrpList[2] = {GRP_CORNER_A_REAR_STEERING_CYLINDER, GRP_CORNER_A_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut32 = new MGROUP_ROTATE(meshidxCrawler, &Strut32GrpList[0], 1, _V(8.289, 2.396, -8.333), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut32);
-	MGROUP_SCALE* Scale_Strut32 = new MGROUP_SCALE(meshidxCrawler, &Strut32GrpList[3], 1, _V(12.836, 3.013, -8.335), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut32 = new MGROUP_SCALE(meshidxCrawler, &Strut32GrpList[1], 1, _V(12.449, 2.908, -8.333), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Strut32, parent);
 
 	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
@@ -445,36 +470,16 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 	// strut animations
-	static UINT Strut41GrpList[4] = {GRP_Cylinder636, GRP_Cylinder637, GRP_Cylinder638, GRP_Cylinder650};
-	MGROUP_ROTATE* Rotate_Strut41 = new MGROUP_ROTATE(meshidxCrawler, Strut41GrpList, 3, _V(-8.698, 2.518, -18.186), _V(0, 0, 1), (float)(45.0*RAD));
+	static UINT Strut41GrpList[2] = {GRP_CORNER_B_FWD_STEERING_CYLINDER, GRP_CORNER_B_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut41 = new MGROUP_ROTATE(meshidxCrawler, &Strut41GrpList[0], 1, _V(-8.307, 2.414, -18.191), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut41);
-	MGROUP_SCALE* Scale_Strut41 = new MGROUP_SCALE(meshidxCrawler, &Strut41GrpList[3], 1, _V(-12.829, 3.033, -18.195), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut41 = new MGROUP_SCALE(meshidxCrawler, &Strut41GrpList[1], 1, _V(-12.465, 2.924, -18.191), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Strut41, parent);
-	static UINT Strut42GrpList[4] = {GRP_Cylinder641, GRP_Cylinder642, GRP_Cylinder643, GRP_Cylinder651};
-	MGROUP_ROTATE* Rotate_Strut42 = new MGROUP_ROTATE(meshidxCrawler, Strut42GrpList, 3, _V(-8.698, 2.518, -8.337), _V(0, 0, 1), (float)(45.0*RAD));
+	static UINT Strut42GrpList[2] = {GRP_CORNER_B_REAR_STEERING_CYLINDER, GRP_CORNER_B_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	MGROUP_ROTATE* Rotate_Strut42 = new MGROUP_ROTATE(meshidxCrawler, &Strut42GrpList[0], 1, _V(-8.307, 2.414, -8.343), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut42);
-	MGROUP_SCALE* Scale_Strut42 = new MGROUP_SCALE(meshidxCrawler, &Strut42GrpList[3], 1, _V(-12.829, 3.033, -8.345), _V(1.75, 1.0, 1.0));
+	MGROUP_SCALE* Scale_Strut42 = new MGROUP_SCALE(meshidxCrawler, &Strut42GrpList[1], 1, _V(-12.465, 2.924, -8.343), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Strut42, parent);
-
-	// Panel position test
-	// panelMeshoffset = meshoffset;
-	// panelMeshidx = meshidxTruck3;
-
-	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
-	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
-
-	//VSEnableCollisions(GetHandle(),"ProjectApollo");
-	//double tph = -0.01;
-	//SetTouchdownPoints(_V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
-	//VSSetTouchdownPoints(GetHandle(), _V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
-	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
-	//ShiftCG(_V(0, -16, 0));
-
-	psubsystems->SetClassCaps(cfg);
-	pgFwdCab.DefineVC();
-	pgFwdCab.DefineVCAnimations(fwdVCIdx);
-	pgRearCab.DefineVC();
-	pgRearCab.DefineVCAnimations(rearVCIdx);
 }
 
 void Crawler::clbkPostCreation()
