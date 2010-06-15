@@ -87,12 +87,18 @@
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
+const double FWD_DRIVETRACK_X_OFFSET = 14.45;
+const double REAR_DRIVETRACK_X_OFFSET = -12.30;
 const double DRIVETRACK_Y_OFFSET = 2.85;
 const double DRIVETRACK_Z_OFFSET = 13.239;
 // offsets between crawler drivetracks and main body mesh
 
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 2.534);
+//const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 4.25, 0.0);
 const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 0.0);
+
+const static char* CRAWLER_MESHNAME = "SSU\\Crawler_mainbody";
+const static char* CRAWLER_MESHNAME_1980 = "SSU\\Crawler_mainbody_1980";
 
 const double JACKING_MAX_HEIGHT = 1.8;
 // max distance the crawler platform can be jacked up from the drivetrucks
@@ -194,7 +200,8 @@ private:
 	void SlowIfDesired(double timeAcceleration);
 	void SetMeshesVisibility(WORD mode);
 
-	void CreateVCAnimations(UINT meshIdx, const VECTOR3& pos, const double direction);
+	void DefineAnimations();
+	//void CreateVCAnimations(UINT meshIdx, const VECTOR3& pos, const double direction);
 
 	/**
 	 * Returns crawler position in vessel-centered local horizon frame
