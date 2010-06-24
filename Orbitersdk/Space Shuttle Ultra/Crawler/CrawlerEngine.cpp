@@ -40,6 +40,13 @@ void CrawlerEngine::Brake(bool _brake)
 	accelerate=false;
 }
 
+void CrawlerEngine::Realize()
+{
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
+	currentSpeedPort.Connect(pBundle, 0);
+	currentSpeedPort.SetLine(static_cast<float>(actualSpeed*MPS2MPH));
+}
+
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 {
 	// calculate target velocity
@@ -73,6 +80,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		else actualSpeed+=acceleration*SimDT;
 	}
 	else actualSpeed = 0.0;
+	currentSpeedPort.SetLine(static_cast<float>(actualSpeed*MPS2MPH));
 
 	// calculate throttle setting
 	double dPower;

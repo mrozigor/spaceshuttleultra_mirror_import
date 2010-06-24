@@ -3177,8 +3177,7 @@ void Atlantis::DeployDragChute()
 
 void Atlantis::JettisonDragChute()
 {
-	DelMesh(mesh_dragchute, false);
-	mesh_dragchute=MESH_UNDEFINED;
+	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
 
 	DragChuteState=JETTISONED;
 	DragChuteSize=0.0;

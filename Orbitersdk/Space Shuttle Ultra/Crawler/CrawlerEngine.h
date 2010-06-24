@@ -4,6 +4,8 @@
 
 #include <orbitersdk.h>
 #include "Subsystem.h"
+#include "DiscreteBundle.h"
+#include "DiscOutPort.h"
 
 //const double MAX_POWER = 4000.0e3;
 // total power (Watts) of all 4 generators
@@ -15,6 +17,8 @@ class CrawlerEngine : public Subsystem<Crawler>
 public:
 	CrawlerEngine(SubsystemDirector<Crawler>* _director);
 	~CrawlerEngine();
+
+	virtual void Realize();
 	
 	virtual void OnPreStep(double SimT, double SimDT, double MJD);
 
@@ -40,6 +44,8 @@ private:
 	//double acceleration;
 
 	double enginePower; // between 0 and 1
+
+	DiscOutPort currentSpeedPort;
 };
 
 #endif //__CRAWLERENGINE_H_F05A8448_9C86_481c_B632_0641CA218CF0

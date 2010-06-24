@@ -882,94 +882,6 @@ int Crawler::clbkConsumeDirectKey(char *kstate) {
 			RESETKEY(kstate, OAPI_KEY_NUMPAD5);
 		}
 	}
-
-	// touchdown point test
-	/*
-	VESSELSTATUS vs;
-	GetStatus(vs);
-
-	if (KEYDOWN (kstate, OAPI_KEY_A)) {
-		touchdownPointHeight += 0.001;
-
-		SetTouchdownPoints(_V(  0, touchdownPointHeight,  10), 
-						   _V(-10, touchdownPointHeight, -10), 
-						   _V( 10, touchdownPointHeight, -10));
-		VSSetTouchdownPoints(GetHandle(), 
-						   _V(  0, touchdownPointHeight,  10), 
-						   _V(-10, touchdownPointHeight, -10), 
-						   _V( 10, touchdownPointHeight, -10),
-						   -touchdownPointHeight);
-
-		sprintf(oapiDebugString(), "touchdownPointHeight %f", touchdownPointHeight);
-		RESETKEY(kstate, OAPI_KEY_A);
-	}
-	if (KEYDOWN (kstate, OAPI_KEY_S)) {
-		touchdownPointHeight -= 0.001;
-
-		SetTouchdownPoints(_V(  0, touchdownPointHeight,  10), 
-						   _V(-10, touchdownPointHeight, -10), 
-						   _V( 10, touchdownPointHeight, -10));
-		VSSetTouchdownPoints(GetHandle(), 
-						   _V(  0, touchdownPointHeight,  10), 
-						   _V(-10, touchdownPointHeight, -10), 
-						   _V( 10, touchdownPointHeight, -10),
-						   -touchdownPointHeight);
-
-		sprintf(oapiDebugString(), "touchdownPointHeight %f", touchdownPointHeight);
-		RESETKEY(kstate, OAPI_KEY_S);
-	}
-	*/
-
-	// Panel test
-	/*		
-	double step = 0.01;
-	if (KEYMOD_CONTROL(kstate))
-		step = 0.001;
-
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD4)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.x += step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD4);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD6)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.x -= step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD6);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD8)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.y += step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD8);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD2)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.y -= step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD2);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD1)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.z += step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD1);
-	}
-	if (KEYDOWN(kstate, OAPI_KEY_NUMPAD3)) {
-		DelMesh(panelMeshidx);
-		panelMeshoffset.z -= step; 
-	    panelMeshidx = AddMesh(oapiLoadMeshGlobal("ProjectApollo\\Crawler_drivetrucks"), &panelMeshoffset);
-		SetMeshVisibilityMode(panelMeshidx, MESHVIS_ALWAYS);
-		RESETKEY(kstate, OAPI_KEY_NUMPAD3);
-	}
-	sprintf(oapiDebugString(), "panelMeshoffset x %f y %f z %f", panelMeshoffset.x, panelMeshoffset.y, panelMeshoffset.z);
-	*/
 	return 0;
 }
 
@@ -1045,50 +957,6 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			return 1;
 		}
 	}
-
-	/*if (key == OAPI_KEY_NUMPAD7 && down == true) {
-		if (!standalone) {
-			OBJHANDLE hVab = oapiGetVesselByName("VAB");
-			if (hVab) {
-				VAB *vab = (VAB *) oapiGetVesselInterface(hVab);
-				vab->ToggleHighBay1Door();
-			}
-		}
-		return 1;
-	}
-
-	if (key == OAPI_KEY_NUMPAD8 && down == true) {
-		if (!standalone) {
-			OBJHANDLE hVab = oapiGetVesselByName("VAB");
-			if (hVab) {
-				VAB *vab = (VAB *) oapiGetVesselInterface(hVab);
-				vab->ToggleHighBay3Door();
-			}
-		}
-		return 1;
-	}*/
-
-	/*if (key == OAPI_KEY_B && down == true) {
-		if (!standalone) {
-			OBJHANDLE hVab = oapiGetVesselByName("VAB");
-			if (hVab) {
-				VAB *vab = (VAB *) oapiGetVesselInterface(hVab);
-				vab->BuildSaturnStage();
-			}
-		}
-		return 1;
-	}
-
-	if (key == OAPI_KEY_U && down == true) {
-		if (!standalone) {
-			OBJHANDLE hVab = oapiGetVesselByName("VAB");
-			if (hVab) {
-				VAB *vab = (VAB *) oapiGetVesselInterface(hVab);
-				vab->UnbuildSaturnStage();
-			}
-		}
-		return 1;
-	} */
 	return 0;
 }
 
@@ -1262,12 +1130,16 @@ void Crawler::SetView(int viewpos) {
 
 	viewPos = viewpos;
 	if (viewPos == VIEWPOS_REARCABIN) {
-		SetCameraOffset(_V(-15.19, 5, -17.774000));
+		//SetCameraOffset(_V(-15.19, 5, -17.774000));
+		SetCameraOffset(CRAWLER_REAR_VC_OFFSET + _V(0.0, 0.456, 0.576));
+		SetCameraShiftRange(_V(0.0, 0.2, -0.3), _V(0, 0, 0), _V(0, 0, 0));
 		SetCameraDefaultDirection(_V(0, -0.309017, -0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
-		SetCameraOffset(_V(15.19, 5, 17.774000));
+		//SetCameraOffset(_V(15.19, 5, 17.774000));
+		SetCameraOffset(CRAWLER_FWD_VC_OFFSET + _V(0.0, 0.456, -0.576));
+		SetCameraShiftRange(_V(0.0, 0.2, 0.3), _V(0, 0, 0), _V(0, 0, 0));
 		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
