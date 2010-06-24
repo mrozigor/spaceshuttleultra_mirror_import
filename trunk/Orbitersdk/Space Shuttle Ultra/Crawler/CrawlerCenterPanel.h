@@ -5,6 +5,8 @@
 #include <orbitersdk.h>
 #include <vector>
 #include "Crawler_vc_defs.h"
+#include "CrawlerDigitalDisplay.h"
+#include "CrawlerBarGauge.h"
 #include "DiscInPort.h"
 #include "DiscreteBundle.h"
 
@@ -27,8 +29,8 @@ public:
 private:
 	vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	MESHHANDLE hVCMesh;
-	//UINT meshIdx;
+	CrawlerBarGauge* pSpeedGauge;
+	CrawlerDigitalDisplay* pSpeedDisplay;
 
 	UINT anim_steering;
 

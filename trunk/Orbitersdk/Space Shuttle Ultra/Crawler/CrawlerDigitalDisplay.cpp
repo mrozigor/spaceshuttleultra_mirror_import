@@ -46,7 +46,7 @@ bool CrawlerDigitalDisplay::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	short nValue, pointPos=-1;
 
 	int stringSize = sprintf_s(pszLedOut, 10, "%.2f", abs(input.GetVoltage()*fScale));
-	if(stringSize >= usDigitCount) {
+	if(stringSize > usDigitCount) { // ignore decimal point in string length
 		oapiWriteLog("ERROR: CrawlerDigitalDisplay overflow");
 		return false;
 	}
