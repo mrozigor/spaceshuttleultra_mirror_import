@@ -1006,7 +1006,7 @@ void Crawler::Attach() {
 					// if MLP is attached to something else, detach it
 					if(pVessel->GetAttachmentStatus(ahAttach)) {
 						VESSEL* pParent = oapiGetVesselInterface(pVessel->GetAttachmentStatus(ahAttach));
-						for(DWORD j=0;j<pParent->AttachmentCount(false);i++) {
+						for(DWORD j=0;j<pParent->AttachmentCount(false);j++) {
 							ATTACHMENTHANDLE ahParent = pParent->GetAttachmentHandle(false, j);
 							if(pParent->GetAttachmentStatus(ahParent)==hV) {
 								pParent->DetachChild(ahParent);
