@@ -131,6 +131,11 @@ inline double minmax(double fmin, double x, double fmax)
 	return min(fmax, max(x, fmin));
 }
 
+inline int round(double value)
+{
+	return static_cast<int>(floor(value+0.5));
+}
+
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
 {
 	VECTOR3 Output;
