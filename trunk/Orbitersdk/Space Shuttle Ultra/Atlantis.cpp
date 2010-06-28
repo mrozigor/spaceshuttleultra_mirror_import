@@ -341,7 +341,7 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
 // Constructor
 // --------------------------------------------------------------
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
-: VESSEL2 (hObj, fmodel),
+: VESSEL3 (hObj, fmodel),
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
 pActiveLatches(3, NULL),
 dapcontrol(NULL),
@@ -6527,6 +6527,191 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 		LineTo(hDC, (hps->W/2)+commanded+5, hps->H-80);
 		LineTo(hDC, (hps->W/2)+commanded, hps->H-85);
 	}
+}
+
+bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
+{
+	if(ops!=304) {
+		VESSEL3::clbkDrawHUD(mode, hps, skp);
+		return true;
+	}
+	// if in ops 304, draw entry/landing HUD
+	char cbuf[255];
+	VECTOR3 Velocity;
+	double dOut;
+	int commanded, act;
+
+	// show gear deployment status
+	if (gear_status.action==AnimState::OPEN) {
+		skp->Text(hps->CX-60, hps->CY+5, "GR-DN", 5);
+	}
+	else if (gear_status.action==AnimState::OPENING || gear_status.action==AnimState::CLOSING) {
+		skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
+	}
+	if((pADPS->IsDeployed(0) || pADPS->IsDeployed(1)) && GetAltitude()<50000)
+	{
+		GetHorizonAirspeedVector(Velocity);
+		/*sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
+		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));*/
+		//dOut=GetAirspeed()*1.943844;
+		const double EAS_EXP = 2.0/7.0;
+		const double P0 = 1.01325E6;
+		dOut = 661.48 * sqrt(5.0 * GetAtmPressure()/ATMP * (pow(GetDynPressure() / GetAtmPressure() + 1, EAS_EXP) - 1.0));
+		sprintf(cbuf, "KEAS:%.0f", dOut);
+		skp->Text(hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
+		dOut=(GetAltitude()*3.280833)-17;
+		sprintf(cbuf,"ALT:%.0f",dOut);
+		skp->Text(10,(hps->H)/2-25,cbuf,strlen(cbuf));
+	}
+
+	// draw pitch ladder
+	double dPitch = GetPitch()*DEG;
+	int nPitch = static_cast<int>(dPitch);
+	int pitchBar = nPitch - (nPitch%5); // display lines at 5-degree increments
+	double bank = GetBank()*DEG;
+	/*VECTOR3 line_dir_vector = RotateVectorZ(_V(1, 0, 0), bank);
+	VECTOR3 line_rot_vector = RotateVectorZ(_V(0, 1, 0), bank);
+	double curPitchDelta = pitchBar-dPitch;
+	int textHeight = skp->GetCharSize() & 65535; // lower 16 bits of GetCharSize
+	while(true) { // end loop when line is above HUD boundaries
+		VECTOR3 line_pos = RotateVectorZ(_V(5*hps->Scale, curPitchDelta*hps->Scale, 0), bank);
+		line_pos.x = hps->CX-line_pos.x;
+		line_pos.y = hps->CY-line_pos.y;
+		if(line_pos.y < 0 || line_pos.x < 0) break;
+		VECTOR3 line_end = line_pos + line_dir_vector*10*hps->Scale;
+		if(line_end.y < 0 || line_end.x < 0) break;
+		// draw line
+		skp->Line(static_cast<int>(line_pos.x), static_cast<int>(line_pos.y),
+			static_cast<int>(line_end.x), static_cast<int>(line_end.y));
+
+		// print angle
+		sprintf_s(cbuf, 255, "%d", static_cast<int>(floor(curPitchDelta+dPitch)));
+		skp->Text(static_cast<int>(line_end.x)+3, static_cast<int>(line_end.y)-textHeight/2, cbuf, strlen(cbuf));
+		//int textWidth = skp->GetTextWidth(cbuf);
+		//VECTOR3 textPos = line_end - line_dir_vector*textWidth - line_rot_vector*(2+textHeight);
+		//VECTOR3 textEnd = line_end - line_rot_vector*2;
+		//skp->Text(static_cast<int>(textPos.x), static_cast<int>(textPos.y), cbuf, strlen(cbuf));
+		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
+			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
+
+		curPitchDelta += 5.0;
+	}*/
+	int curPitchLine = pitchBar;
+	while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
+		curPitchLine+=5;	
+	curPitchLine = pitchBar-5;
+	while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
+		curPitchLine-=5;
+	//skp->Line(hps->CX-20, hps->CY, hps->CX+20, hps->CY);
+
+	skp->Line(hps->CX-5, hps->CY, hps->CX+5, hps->CY);
+	skp->Line(hps->CX, hps->CY-5, hps->CX, hps->CY+5);
+
+	double glideslope_center_y = hps->CY + GetAOA()*DEG*hps->Scale;
+	double glideslope_center_x = hps->CX - GetSlipAngle()*DEG*hps->Scale;
+	skp->Ellipse(glideslope_center_x-5, glideslope_center_y-5, glideslope_center_x+5, glideslope_center_y+5);
+	skp->Line(glideslope_center_x-10, glideslope_center_y, glideslope_center_x-5, glideslope_center_y);
+	skp->Line(glideslope_center_x+9, glideslope_center_y, glideslope_center_x+4, glideslope_center_y);
+	skp->Line(glideslope_center_x, glideslope_center_y-10, glideslope_center_x, glideslope_center_y-5);
+
+	if(GetAltitude()<50000 && status==STATE_ORBITER)
+	{
+		//sprintf(oapiDebugString(), "%f", GetDrag());
+		//MoveToEx(hDC, (hps->W/2)-25, hps->H-85, NULL);
+		skp->MoveTo((hps->W/2)-25, hps->H-85);
+		skp->LineTo((hps->W/2)+25, hps->H-85);
+		for(int i=-25;i<=25;i+=10)
+		{
+			//MoveToEx(hDC, (hps->W/2)+i, hps->H-80, NULL);
+			//LineTo(hDC, (hps->W/2)+i, hps->H-90);
+			skp->Line((hps->W/2)+i, hps->H-80, (hps->W/2)+i, hps->H-90);
+		}
+		commanded=(int)(spdb_tgt*50)-25;
+		act=(int)(spdb_proc*50)-25;
+		//actual
+		skp->MoveTo((hps->W/2)+act, hps->H-85);
+		skp->LineTo((hps->W/2)+act-5, hps->H-90);
+		skp->LineTo((hps->W/2)+act+5, hps->H-90);
+		skp->LineTo((hps->W/2)+act, hps->H-85);
+		//commanded
+		skp->MoveTo((hps->W/2)+commanded, hps->H-85);
+		skp->LineTo((hps->W/2)+commanded-5, hps->H-80);
+		skp->LineTo((hps->W/2)+commanded+5, hps->H-80);
+		skp->LineTo((hps->W/2)+commanded, hps->H-85);
+	}
+
+
+	return true;
+}
+
+bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderPitch, double orbiterPitch, double orbiterBank) const
+{
+	char pszBuf[20];
+
+	double curPitchDelta = static_cast<double>(ladderPitch) - orbiterPitch;
+	int textHeight = skp->GetCharSize() & 65535; // lower 16 bits of GetCharSize
+
+	VECTOR3 line_dir_vector = RotateVectorZ(_V(1, 0, 0), orbiterBank);
+	VECTOR3 line_pos = RotateVectorZ(_V(5*hps->Scale, curPitchDelta*hps->Scale, 0), orbiterBank);
+	line_pos.x = hps->CX-line_pos.x;
+	line_pos.y = hps->CY-line_pos.y;
+	if(line_pos.y < 0 || line_pos.x < 0) return false;
+	if(line_pos.y > hps->W || line_pos.x > hps->H) return false;
+	VECTOR3 line_end = line_pos + line_dir_vector*10*hps->Scale;
+	if(line_end.y < 0 || line_end.x < 0) return false;
+	if(line_end.y > hps->W || line_end.x > hps->H) return false;
+	
+	// draw line
+	if(ladderPitch < 0) { // 2 dashed lines
+		VECTOR3 line_seg1_end = line_pos + line_dir_vector*0.85*hps->Scale;
+		skp->Line(round(line_pos.x), round(line_pos.y),
+			round(line_seg1_end.x), round(line_seg1_end.y));
+		VECTOR3 line_seg2_start = line_seg1_end + line_dir_vector*0.3*hps->Scale;
+		VECTOR3 line_seg2_end = line_pos + line_dir_vector*2*hps->Scale;
+		skp->Line(round(line_seg2_start.x), round(line_seg2_start.y), round(line_seg2_end.x), round(line_seg2_end.y));
+		VECTOR3 line_seg3_start = line_end - line_dir_vector*2*hps->Scale;
+		VECTOR3 line_seg3_end = line_seg3_start + line_dir_vector*0.85*hps->Scale;
+		skp->Line(round(line_seg3_start.x), round(line_seg3_start.y),
+			round(line_seg3_end.x), round(line_seg3_end.y));
+		VECTOR3 line_seg4_start = line_seg3_end + line_dir_vector*0.3*hps->Scale;
+		skp->Line(round(line_seg4_start.x), round(line_seg4_start.y),
+			round(line_end.x), round(line_end.y));
+	}
+	else { //  2 solid lines
+		VECTOR3 line_seg1_end = line_pos + line_dir_vector*2*hps->Scale;
+		skp->Line(round(line_pos.x), round(line_pos.y), round(line_seg1_end.x), round(line_seg1_end.y));
+		VECTOR3 line_seg2_start = line_end - line_dir_vector*2*hps->Scale;		
+		skp->Line(round(line_seg2_start.x), round(line_seg2_start.y), round(line_end.x), round(line_end.y));
+	}
+	// draw lines pointing toward horizon
+	if(ladderPitch > 0) {
+		VECTOR3 line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
+		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
+		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
+		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
+		skp->Line(round(right_line_end.x), round(right_line_end.y), round(line_end.x), round(line_end.y));
+	}
+	else if(ladderPitch < 0) {
+		VECTOR3 line_rot_vector = RotateVectorZ(_V(0, -1, 0), orbiterBank);
+		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
+		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
+		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
+		skp->Line(round(right_line_end.x), round(right_line_end.y), round(line_end.x), round(line_end.y));
+	}
+
+	// print angle
+	if(ladderPitch != 0) {
+		sprintf_s(pszBuf, 20, "%d", ladderPitch);
+		skp->Text(static_cast<int>(line_end.x)+3, static_cast<int>(line_end.y)-textHeight/2, pszBuf, strlen(pszBuf));
+		//int textWidth = skp->GetTextWidth(cbuf);
+		//VECTOR3 textPos = line_end - line_dir_vector*textWidth - line_rot_vector*(2+textHeight);
+		//VECTOR3 textEnd = line_end - line_rot_vector*2;
+		//skp->Text(static_cast<int>(textPos.x), static_cast<int>(textPos.y), cbuf, strlen(cbuf));
+		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
+			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
+	}
+
+	return true;
 }
 
 // --------------------------------------------------------------

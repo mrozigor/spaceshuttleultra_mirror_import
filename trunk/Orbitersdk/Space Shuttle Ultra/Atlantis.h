@@ -1023,7 +1023,7 @@ using class dps::MDM;
 // Interface for derived vessel class: Atlantis
 // ==========================================================
 
-class Atlantis: public VESSEL2 {
+class Atlantis: public VESSEL3 {
 	friend class PayloadBayOp;
 	friend class GearOp;
 	friend class PanelA4;
@@ -1177,6 +1177,7 @@ public:
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
 	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
+	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp);
 	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
 	bool clbkLoadGenericCockpit ();
 	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
@@ -1449,6 +1450,17 @@ private:
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
 	void SeparateTank (void);
+	
+	/**
+	 * Draws pitch ladder line on HUD
+	 * @param skp HUD Sketchpad instance
+	 * @param hps HUD HUDPAINTSPEC instance
+	 * @param ladderPitch pitch corresponding to line being drawn
+	 * @param orbiterPitch current pitch angle of orbiter
+	 * @param orbiterBank current bank angle of orbiter
+	 * @returns false is line is out of HUD area; true otherwise
+	 */
+	bool DrawHUDPitchLine(oapi::Sketchpad* skp, const HUDPAINTSPEC* hps, int ladderPitch, double orbiterPitch, double orbiterBank) const;
 
 	void SSMEEngControl(unsigned short usEng) const;
 	void OMSEngControl(unsigned short usEng) const;
