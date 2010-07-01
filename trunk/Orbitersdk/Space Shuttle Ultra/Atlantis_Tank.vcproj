@@ -328,6 +328,10 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\Atlantis_Tank.h"
+			>
+		</File>
+		<File
 			RelativePath="..\lib\orbiter.lib"
 			>
 		</File>

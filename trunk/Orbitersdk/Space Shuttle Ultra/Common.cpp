@@ -8,7 +8,7 @@
 // Utility functions common to multiple Atlantis-related modules
 // ==============================================================
 
-#include "Atlantis.h"
+#include "Atlantis_SRB.h"
 
 #ifdef _DEBUG
 // D. Beachy: GROW THE STACK HERE SO WE CAN USE BOUNDSCHECKER FOR DEBUGGING

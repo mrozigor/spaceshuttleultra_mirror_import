@@ -14,7 +14,9 @@
 // ==============================================================
 
 #define ORBITER_MODULE
-#include "Atlantis.h"
+//#include "Atlantis.h"
+#include "Atlantis_SRB.h"
+#include "CommonDefs.h"
 #include "math.h"
 #include "stdio.h"
 
@@ -52,7 +54,7 @@ void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_leve
 void Atlantis_SRB::TurnOnPadLights() const
 {
 	if(hVis) {
-		vector<int> ExcludeSRB;
+		std::vector<int> ExcludeSRB;
 		ExcludeSRB.push_back(2);
 		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
 		IlluminateMesh(hMesh, ExcludeSRB);
