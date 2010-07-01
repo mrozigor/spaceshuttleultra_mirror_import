@@ -95,10 +95,10 @@ void SSULCC::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			sscanf_s(line+10, "%lf", &launch_mjd);
 		}
 		else if(!_strnicmp(line, "PAD_NAME", 8)) {
-			sscanf_s(line+8, "%s", PadName);
+			sscanf_s(line+8, "%s", PadName, sizeof(PadName));
 		}
 		else if(!_strnicmp(line, "SHUTTLE_NAME", 12)) {
-			sscanf_s(line+12, "%s", ShuttleName);
+			sscanf_s(line+12, "%s", ShuttleName, sizeof(ShuttleName));
 		}
 		else ParseScenarioLineEx(line, status);
 	}
