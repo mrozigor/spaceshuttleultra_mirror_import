@@ -14,6 +14,9 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "Atlantis.h"
+#include "Atlantis_SRB.h"
+#include "Atlantis_Tank.h"
+#include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK35.h>
@@ -577,11 +580,9 @@ gncsoftware(NULL)
   mesh_cockpit    = MESH_UNDEFINED;
   mesh_vc         = MESH_UNDEFINED;
   mesh_middeck    = MESH_UNDEFINED;
-  mesh_tank       = MESH_UNDEFINED;
-  mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
+  //mesh_tank       = MESH_UNDEFINED;
+  //mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
-  //mesh_rms        = MESH_UNDEFINED;
-  //mesh_mpm        = MESH_UNDEFINED;
   mesh_extal	  = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
   mesh_cargo_static = MESH_UNDEFINED;
@@ -709,12 +710,10 @@ gncsoftware(NULL)
   hOrbiterCockpitMesh	= oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
   hOrbiterVCMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
   hMidDeckMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MIDDECK);
-  //hOrbiterRMSMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RMS);
-  //hOBSSMPMMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MPM);
   hKUBandMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
-  hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
-  hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
-  hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
+  //hTankMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
+  //hSRBMesh[0]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_RSRB);
+  //hSRBMesh[1]			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_LSRB);
   hExtALMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_EXTAL);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   //hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
@@ -725,7 +724,7 @@ gncsoftware(NULL)
   bIlluminated=false;
 
    tex_rcs = oapiRegisterExhaustTexture ("Exhaust_atrcs");
-   texScorchedET = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+   /*texScorchedET = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
    
    if(texScorchedET == NULL) {
 	   oapiWriteLog("[SpaceShuttleUltra]Failed loading scorched ET texture.");
@@ -733,7 +732,7 @@ gncsoftware(NULL)
    texNormalET = oapiLoadTexture(DEFAULT_NORMAL_ET_TEXTURE);
    if(texNormalET == NULL) {
 	   oapiWriteLog("[SpaceShuttleUltra]Failed loading normal ET texture.");
-   }
+   }*/
    
   
   //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
@@ -1199,9 +1198,9 @@ void Atlantis::SetLaunchConfiguration (void)
   // ************************ visual parameters **********************************
 
   AddOrbiterVisual (OFS_LAUNCH_ORBITER);
-  AddTankVisual    (OFS_LAUNCH_TANK);
-  AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
-  AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
+  //AddTankVisual    (OFS_LAUNCH_TANK);
+  //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
+  //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
   status = STATE_PRELAUNCH;
 }
@@ -1329,7 +1328,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   status = STATE_STAGE2;
 
   AddOrbiterVisual (OFS_WITHTANK_ORBITER);
-  AddTankVisual    (OFS_WITHTANK_TANK);
+  //AddTankVisual    (OFS_WITHTANK_TANK);
 
   //status = STATE_STAGE2;
 }
@@ -2626,7 +2625,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
   }
 }
 
-void Atlantis::AddTankVisual (const VECTOR3 &ofs)
+/*void Atlantis::AddTankVisual (const VECTOR3 &ofs)
 {
 	return;
   if (mesh_tank == MESH_UNDEFINED) {
@@ -2654,37 +2653,12 @@ void Atlantis::AddSRBVisual (int which, const VECTOR3 &ofs)
     else       srb_id2 = id;
   }
   
-}
+}*/
 
 void Atlantis::SeparateBoosters (double met)
 {
 	//int i;
 	char buffer[120];
-  // Create SRB's as individual objects
-  /*VESSELSTATUS2 vs;
-  VESSELSTATUS2::FUELSPEC fuel;
-  VESSELSTATUS2::THRUSTSPEC thrust;
-  memset (&vs, 0, sizeof(vs));
-  vs.version = 2;
-  GetStatusEx (&vs);
-  vs.flag = VS_FUELLIST | VS_THRUSTLIST;
-  vs.fuel = &fuel;
-  vs.nfuel = 1;
-  vs.fuel->idx = 0;
-  vs.thruster = &thrust;
-  vs.nthruster = 1;
-  vs.thruster->idx = 0;
-  GetSRB_State (met, vs.thruster->level, vs.fuel->level);
-  Local2Rel (OFS_LAUNCH_RIGHTSRB, vs.rpos);
-  //vs.arot.z += 0.25*PI;
-  vs.status = 0;
-  char name[256];
-  strcpy (name, GetName()); strcat (name, "-SRB1");
-  oapiCreateVesselEx (name, "Atlantis_RSRB", &vs);
-  Local2Rel (OFS_LAUNCH_LEFTSRB, vs.rpos);
-  //vs.arot.z -= 1.5*PI;
-  name[strlen(name)-1] = '2';
-  oapiCreateVesselEx (name, "Atlantis_LSRB", &vs);*/
 
 	double thrust_level, prop_level;
 	GetSRB_State(met, thrust_level, prop_level);
@@ -2706,9 +2680,7 @@ void Atlantis::SeparateBoosters (double met)
 	DelExhaustStream(pshSlag3[i]);
   }
 
-  // remove srb meshes and shift cg
-  DelMesh(mesh_srb[1], true);
-  DelMesh(mesh_srb[0], true);
+  // shift cg
   ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
 
 
@@ -2750,29 +2722,6 @@ void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
 
 void Atlantis::SeparateTank (void)
 {
-  // Create Tank as individual object
-  /*VESSELSTATUS2 vs;
-  memset (&vs, 0, sizeof (vs));
-  vs.version = 2;
-  GetStatusEx (&vs);
-  //vs.flag = VS_FUELRESET | VS_THRUSTRESET;
-	vs.flag = VS_THRUSTRESET;
-  VECTOR3 ofs = OFS_WITHTANK_TANK;
-  if (Playback()) // necessary because during playback the CG shift occurs before separation
-    ofs -= OFS_WITHTANK_ORBITER;
-  VECTOR3 rofs, rvel = {vs.rvel.x, vs.rvel.y, vs.rvel.z};
-  VECTOR3 vel = {0,-1,0};
-  Local2Rel (ofs, vs.rpos);
-  GlobalRot (vel, rofs);
-  vs.rvel.x = rvel.x+rofs.x;
-  vs.rvel.y = rvel.y+rofs.y;
-  vs.rvel.z = rvel.z+rofs.z;
-  vs.vrot.x = -0.02;
-  vs.status = 0;
-  char name[256];
-  strcpy (name, GetName()); strcat (name, "-Tank");
-  oapiCreateVesselEx (name, "Atlantis_Tank", &vs);*/
-
 	DetachChildAndUpdateMass(ahET, -1.0);
 
   // Remove Tank from shuttle instance
@@ -3214,11 +3163,8 @@ void Atlantis::ClearMeshes ()
   VESSEL::ClearMeshes();
   mesh_orbiter = MESH_UNDEFINED;
   mesh_kuband  = MESH_UNDEFINED;
-  //mesh_rms     = MESH_UNDEFINED;
   mesh_cockpit = MESH_UNDEFINED;
   mesh_vc      = MESH_UNDEFINED;
-  mesh_tank    = MESH_UNDEFINED;
-  mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
 }
 
 void Atlantis::SetBayDoorPosition (double pos)
@@ -5303,7 +5249,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   char cbuf[256];
 
   // default vessel parameters
-  VESSEL2::clbkSaveState (scn);
+  VESSEL3::clbkSaveState (scn);
 
   if(pMission != NULL) 
   {
@@ -5569,7 +5515,7 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
 void Atlantis::clbkPostCreation ()
 {
 	oapiWriteLog("In clbkPostCreation");
-	VESSEL2::clbkPostCreation(); //may not be necessary
+	VESSEL3::clbkPostCreation(); //may not be necessary
 
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
 	if(SoundID!=-1) {
@@ -6532,7 +6478,10 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
 {
 	if(ops!=304) {
+		Stopwatch st;
+		st.Start();
 		VESSEL3::clbkDrawHUD(mode, hps, skp);
+		sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
 		return true;
 	}
 	// if in ops 304, draw entry/landing HUD
@@ -6540,6 +6489,8 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 	VECTOR3 Velocity;
 	double dOut;
 	int commanded, act;
+	Stopwatch st;
+	st.Start();
 
 	// show gear deployment status
 	if (gear_status.action==AnimState::OPEN) {
@@ -6609,10 +6560,10 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 
 	double glideslope_center_y = hps->CY + GetAOA()*DEG*hps->Scale;
 	double glideslope_center_x = hps->CX - GetSlipAngle()*DEG*hps->Scale;
-	skp->Ellipse(glideslope_center_x-5, glideslope_center_y-5, glideslope_center_x+5, glideslope_center_y+5);
-	skp->Line(glideslope_center_x-10, glideslope_center_y, glideslope_center_x-5, glideslope_center_y);
-	skp->Line(glideslope_center_x+9, glideslope_center_y, glideslope_center_x+4, glideslope_center_y);
-	skp->Line(glideslope_center_x, glideslope_center_y-10, glideslope_center_x, glideslope_center_y-5);
+	skp->Ellipse(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+	skp->Line(round(glideslope_center_x)-10, round(glideslope_center_y), round(glideslope_center_x)-5, round(glideslope_center_y));
+	skp->Line(round(glideslope_center_x)+9, round(glideslope_center_y), round(glideslope_center_x)+4, round(glideslope_center_y));
+	skp->Line(round(glideslope_center_x), round(glideslope_center_y)-10, round(glideslope_center_x), round(glideslope_center_y)-5);
 
 	if(GetAltitude()<50000 && status==STATE_ORBITER)
 	{
@@ -6640,7 +6591,7 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 		skp->LineTo((hps->W/2)+commanded, hps->H-85);
 	}
 
-
+	sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
 	return true;
 }
 
@@ -9630,18 +9581,6 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
 	oapiSetTexture(hOrbiterMesh, 2, hTexture);
-}
-
-void Atlantis::UpdateETTexture() {
-	if(status < 3)
-	{
-		MESHHANDLE hET = GetMesh(vis, mesh_tank);
-		if(!oapiSetTexture(hET, 3, texScorchedET)) {
-			oapiWriteLog("[SpaceShuttleUltra]Can't set ET texture.");
-		}
-		else oapiWriteLog("Texture updated");
-		//oapiSetTexture(hET, 1, texNormalET);
-	}
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {

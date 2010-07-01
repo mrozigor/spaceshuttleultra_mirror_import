@@ -94,17 +94,13 @@ const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
 //const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
 //const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
-const static char* DEFAULT_MESHNAME_ET = "SSU/ET129";
-const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
-const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
+//const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
+//const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
-
-const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/ET-129_exterior_launch.dds";
-const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ET-129_exterior_scorched.dds";
 
 // ==========================================================
 // Some Orbiter-related parameters
@@ -255,62 +251,11 @@ const double AXIS_TILT = 23.4458878*RAD;
 // Some Tank-related parameters
 // ==========================================================
 
-const double TANK_MAX_PROPELLANT_MASS = 719115.0;
-// Main tank propellant mass [kg]
-
-const double TANK_EMPTY_MASS = 26535; //Super light weight tank, 58500lb, STS-91 on
-                                      //STS-1 to STS-5 tank 76000lb 35425.0kg
-                                      //Light weight tank 66000lb 29937kg, STS-6 to STS-90
-// Main tank empty mass
-
 const double ET_SEP_TIME = 18.00000; // ET Sep time (after MECO)
 const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
 
-// ==========================================================
-// Some SRB-related parameters
-// ==========================================================
 
-const double SRB_MAX_PROPELLANT_MASS = 502146.0;
-// SRB propellant mass [kg]
-//total impulse is 1.32466E9 Ns
-
-const double SRB_EMPTY_MASS = 87603.65;
-// SRB empty mass [kg]
-
-//const double SRB_ISP0 = 3574.68;
-const double SRB_ISP0 = 2638.89;
-//const double SRB_ISP1 = 2859.74;
-const double SRB_ISP1 = 2368.79;
-// SRB vacuum and sea-level fuel-specific impulse [m/s]
-
-//const double SRB_THRUST = 17064000; //from Jenkins
-/*
-SRM vacuum thrust as reported by Thiokol in the report "RSRM-13 (360Q013) ballistics mass 
-properties flight designation STS-41"
-*/
-const double SRB_THRUST = 15.12904086E6; // Vacuum SRB thrust per unit [N]
-
-//Lift-off thrust is 15.574012 MN
-//Equals vacuum thrust 17.67824672 MN 
-
-const double MAX_ATT_LAUNCH = 1e-5;
-const double MAX_ROLL_SRB = 2.5e-5;
-// Max attitude thrust during launch phase (temporary)
-
-const double SRB_STABILISATION_TIME = 6.6;
-// MET: -SRB ignition
-
-const double SRB_SEPARATION_TIME = 124.0;
-// MET: SRB separation
-const int SRB_nt = 30;
-
-const double SRB_CUTOUT_TIME = 130.0;
-
-const double BSM_MAX_PROPELLANT_MASS = 75.0 * 0.45349;
-const double BSM_THRUST0 = 82.76475E3;
-const double BSM_ISP0 = 2400.0;
-
-const UINT MIDX_ORBITER = 1;
+/*const UINT MIDX_ORBITER = 1;
 const UINT MIDX_COCKPIT = 2;
 const UINT MIDX_VC = 3;
 const UINT MIDX_RMS = 4;
@@ -324,11 +269,11 @@ const UINT MIDX_ODS = 11;
 const UINT MIDX_ODS_VC = 12;
 const UINT MIDX_PLPANEL_A7 = 13;
 const UINT MIDX_PLPANEL_A8 = 14;
-const UINT MIDX_PLPANEL_A9 = 15;
+const UINT MIDX_PLPANEL_A9 = 15;*/
 
 
 // MET: engine shutdown
-const double NO_SLAG_TIME = 240.0;
+/*const double NO_SLAG_TIME = 240.0;
 
 const double SLAG_SPREAD = 0.2;
 
@@ -336,7 +281,7 @@ const double SLAG1_RATE = 5;
 const double SLAG2_RATE = 11.0;
 const double SLAG3_RATE = 49.0;
 
-const VECTOR3 SLAG_DIR = _V(0.0, 0.0, -1.0);
+const VECTOR3 SLAG_DIR = _V(0.0, 0.0, -1.0);*/
 
 // ==========================================================
 // Mesh offsets for various configurations
@@ -570,8 +515,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // ==========================================================
 // Mesh group indices for some components
 // ==========================================================
-
-const UINT MESH_UNDEFINED = (UINT)-1;
 
  const int MFDGROUPS[11] = {
     GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
@@ -1153,8 +1096,8 @@ public:
 	UINT mesh_middeck;                         // index for mid deck mesh
 	//UINT mesh_rms;							   // index for RMS mesh
 	//UINT mesh_mpm;							   // index for STBD MPM mesh
-	UINT mesh_tank;                            // index for external tank mesh
-	UINT mesh_srb[2];                          // index for SRB meshes
+	//UINT mesh_tank;                            // index for external tank mesh
+	//UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
@@ -1167,12 +1110,8 @@ public:
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
 	void AddOrbiterVisual (const VECTOR3 &ofs);
-	void AddSRBVisual (int which, const VECTOR3 &ofs);
-	void AddTankVisual (const VECTOR3 &ofs);
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual ShuttleBusManager* BusManager() const;
-	//VECTOR3 CalcAnimationFKArm();
-	//void CalcAnimationFKArm(VECTOR3 &pos, VECTOR3 &dir);
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
@@ -1227,12 +1166,9 @@ public:
 	 * Setters
 	 *****************************************************************/
 	virtual void SetAirDataProbeDeployment(int side, double position);
-	//void SetAnimationArm (UINT anim, double state);
-	//void SetAnimationIKArm(VECTOR3 arm_dpos);
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
-	//void SetStbdMPMPosition(double pos);
 	void SetKuAntennaPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void SetLastCreatedMFD(unsigned short usMDU);
@@ -1311,14 +1247,9 @@ public:
     virtual bool HydraulicsOK();
 
 	void ToggleGrapple (void);
-	//void AutoGrappleSequence();
-	//void AutoReleaseSequence();
 	void ToggleArrest (void);
 	void UpdateMesh ();
-	//void UpdateRMSPositions();
-	//void UpdateRMSAngles();
 	void UpdateSSMEGimbalAnimations();
-	//VECTOR3 CalcAnimationFKArm2();
 
 	/*
 	void RegisterVC_CdrMFD ();
@@ -1330,8 +1261,6 @@ public:
 
 	
 	//mission::Mission* the_mission;
-
-	//Extended SRB smoke effects
 	
 	/**
 	 * Pointer to the A7A8 custom panel region
@@ -1357,14 +1286,11 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, /*hOrbiterRMSMesh,*/ /*hOBSSMPMMesh,*/ hTankMesh, hSRBMesh[2],
+		hMidDeckMesh, /*hOrbiterRMSMesh,*/ /*hOBSSMPMMesh, hTankMesh, hSRBMesh[2],*/
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
 	char cargo_static_mesh_name[256];
-
-	SURFHANDLE texScorchedET;
-	SURFHANDLE texNormalET;
 
 	double fPayloadZPos[16];
 	double fPayloadMass[16];
@@ -1386,8 +1312,6 @@ public:
 	ATTACHMENTHANDLE ahPortPL[4];
 	ATTACHMENTHANDLE ahET, ahLeftSRB, ahRightSRB;
 	
-	//VECTOR3 arm_tip[3];
-	//VECTOR3 wrist_yaw_joint[2];
 	SubsystemDirector* psubsystems;
 	
 	PayloadBayOp *plop; // control and status of payload bay operations
@@ -1485,9 +1409,6 @@ private:
 	void HideODS() const;
 	void ShowExtAL() const;
 	void HideExtAL() const;
-	/*void IlluminateMesh(UINT idx);
-	void IlluminateMesh(UINT idx, vector<DWORD> vExclude); //NOTE: vExclude MUST be in ascending order
-	void DisableIllumination(UINT idx, MESHHANDLE GlobalMesh);*/
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
@@ -1519,10 +1440,6 @@ private:
 	void ToggleVCMode();
 	
 	//RMS
-	//bool ArmCradled() const;
-	//void UpdateMPMMicroswitches();
-	//void UpdateMRLMicroswitches();
-	//bool SatGrappled() const { return (pRMS && pRMS->Grappled()); }
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
 	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
@@ -1538,10 +1455,6 @@ private:
 	 */
 	double GetMassOfAttachedObjects() const;
 	void UpdateMass() const;
-
-	//OBSS
-	//void AttachOBSS() const;
-	//void DetachOBSS() const;
 
 	//Launch
 	void AutoMainGimbal(double DeltaT);
@@ -1618,7 +1531,6 @@ private:
 	void UpdateTranslationForces();
 	bool RCSThrustersFiring();
 	void UpdateOrbiterTexture(const std::string& strTextureName);
-	void UpdateETTexture();
 
 	
 
@@ -1838,26 +1750,6 @@ private:
 	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
 	int Hydraulic_Press[3];
 
-	// RMS arm animation status
-	/*ANIMATIONCOMPONENT_HANDLE hAC_arm, hAC_sat, hAC_satref;
-	MGROUP_TRANSFORM *rms_anim[7], *rms_rollout_anim;
-	UINT anim_arm_sy, anim_arm_sp, anim_arm_ep, anim_arm_wp, anim_arm_wy, anim_arm_wr, anim_arm_ee;
-	UINT anim_rollout;
-	UINT anim_stbd_mpm;
-	VECTOR3 obss_attach_point[2];
-	double arm_sy, arm_sp, arm_ep, arm_wp, arm_wy, arm_wr;
-	double sy_angle, sp_angle, ep_angle, wp_angle, wy_angle, wr_angle;
-	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
-	
-	//RMS
-	AnimState RMSRollout, StbdMPMRollout;
-	//int MPM_Microswitches[2][2]; //0=PORT/STO, 1=STBD/DPLY
-	double shoulder_brace;
-	//double MRL[2]; //0=PORT, 1=STBD
-	//int MRL_FwdMicroswitches[2][3], MRL_MidMicroswitches[2][3], MRL_AftMicroswitches[2][3]; //0=PORT/LAT, 1=STBD/REL, 2=RDY
-	bool RMS;
-	bool STBDMPM;
-	bool mpm_moved;*/
 	bool RMS, STBDMPM;
 
 	bool ControlRMS;
@@ -2053,147 +1945,6 @@ private:
 	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);
 };
-
-// ==========================================================
-// Interface for derived vessel class: Atlantis_SRB
-// ==========================================================
-
-class Atlantis_SRB: public VESSEL2 {
-public:
-	Atlantis_SRB (OBJHANDLE hObj);
-	// Construct interface from existing object
-
-	//void SetRefTime (void);
-	/**
-	 * @param launch_time simtime at which SRB ignition occured (seconds)
-	 * @param thrust_level thrust (between 0 and 1) of booster
-	 * @param prop_level amount of fuel remaining (between 0 and 1)
-	 */
-	virtual void SetPostSeparationState(double launch_time, double thrust_level, double prop_level);
-	
-	virtual void TurnOnPadLights() const;
-	virtual void TurnOffPadLights() const;
-
-	// Overloaded callback functions
-	void clbkVisualCreated(VISHANDLE vis, int refcount);
-	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
-	void clbkSetClassCaps (FILEHANDLE cfg);
-	void clbkPostStep (double simt, double simdt, double mjd);
-	void clbkPostCreation ();
-
-private:
-	MESHHANDLE hSRBMesh_Left;
-	MESHHANDLE hSRBMesh_Right;
-	UINT mesh_idx;
-
-	VISHANDLE hVis;
-
-	double t0;                  // reference time: liftoff
-	double srb_separation_time; // simulation time at which SRB separation was initiated
-	bool bMainEngine;           // main engine firing?
-	bool bSeparationEngine;     // separation thrusters firing?
-	double slag1, slag2, slag3;
-	MESHHANDLE hSRBMesh;
-	PROPELLANT_HANDLE ph_main;  // handle for propellant resource
-	PROPELLANT_HANDLE phBSM;	//separation motor fuel resource
-	THRUSTER_HANDLE th_main;    // engine handle
-	THRUSTER_HANDLE th_bolt;    // separation bolt
-	THRUSTER_HANDLE thBSM[3];	//represent engines by a single logical thruster for each group.
-	ATTACHMENTHANDLE ahToOrbiter;
-};
-
-// ==========================================================
-// Interface for derived vessel class: Atlantis_Tank
-// ==========================================================
-
-class Atlantis_Tank: public VESSEL2 {
-public:
-	Atlantis_Tank (OBJHANDLE hObj);
-	// Construct interface from existing object
-
-	// Overloaded callback functions
-	void clbkVisualCreated(VISHANDLE vis, int refcount);
-	void clbkVisualDestroyed(VISHANDLE vis, int refcount);
-	void clbkSetClassCaps (FILEHANDLE cfg);
-	void clbkPostStep (double simt, double simdt, double mjd);
-	void clbkLoadStateEx(FILEHANDLE scn, void* status);	
-	void clbkSaveState (FILEHANDLE scn);
-	
-	virtual void UseBurntETTexture();
-
-	virtual void TurnOnPadLights() const;
-	virtual void TurnOffPadLights() const;
-
-private:
-	VISHANDLE hVis;
-
-	MESHHANDLE hTankMesh;
-	UINT mesh_idx;
-	bool bUseBurntTexture;
-
-	ATTACHMENTHANDLE ahToOrbiter;
-
-	//////////////////////// ET vent ////////////////////////
-	PROPELLANT_HANDLE phLOXtank;
-	THRUSTER_HANDLE thLOXvent;
-	double timer;
-	short counter;
-	double pos;
-	//////////////////////// ET vent ////////////////////////
-};
-
-
-
-//mesh illumination functions
-static void IlluminateMesh(MESHHANDLE mesh)
-{
-	MATERIAL* material=NULL;
-
-	DWORD materialCount = oapiMeshMaterialCount(mesh);
-    for (DWORD mi = 0; mi < materialCount; mi++) {
-        material = oapiMeshMaterial(mesh, mi);
-        if (material->emissive.g <= 0.1) {
-            material->emissive.r = 0.3f;
-            material->emissive.g = 0.3f;
-            material->emissive.b = 0.3f;
-        }
-    }
-}
-
-static void IlluminateMesh(MESHHANDLE mesh, vector<int> vExclude)
-{
-	MATERIAL* material=NULL;
-	unsigned int ExCounter=0;
-
-	int materialCount = oapiMeshMaterialCount(mesh);
-    for (int mi = 0; mi < materialCount; mi++) {
-		if(vExclude[ExCounter]!=mi) {
-			material = oapiMeshMaterial(mesh, mi);
-			if (material->emissive.g <= 0.1) {
-				material->emissive.r = 0.3f;
-				material->emissive.g = 0.3f;
-				material->emissive.b = 0.3f;
-			}
-		}
-		else if(ExCounter<(vExclude.size()-1)) ExCounter++;
-    }
-}
-
-static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
-{
-	MATERIAL* MeshMaterial=NULL;
-	MATERIAL* DefaultMaterial=NULL;
-
-	DWORD materialCount = oapiMeshMaterialCount(mesh);
-    for (DWORD mi = 0; mi < materialCount; mi++) {
-        MeshMaterial = oapiMeshMaterial(mesh, mi);
-		DefaultMaterial = oapiMeshMaterial(GlobalMesh, mi);
-        
-		MeshMaterial->emissive.r=DefaultMaterial->emissive.r;
-		MeshMaterial->emissive.g=DefaultMaterial->emissive.g;
-		MeshMaterial->emissive.b=DefaultMaterial->emissive.b;
-    }
-}
 
 
 #if defined(IS_SSU_DLL_MODULE)

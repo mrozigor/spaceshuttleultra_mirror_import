@@ -905,6 +905,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommonDefs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\DAPControl.h"
 				>
 			</File>

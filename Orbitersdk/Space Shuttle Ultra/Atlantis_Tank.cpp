@@ -13,7 +13,10 @@
 // ==============================================================
 
 #define ORBITER_MODULE
-#include "Atlantis.h"
+//#include "Atlantis.h"
+#include "Atlantis_Tank.h"
+#include <vector>
+#include "CommonDefs.h"
 #include "math.h"
 
 // ==============================================================
@@ -46,7 +49,7 @@ void Atlantis_Tank::UseBurntETTexture()
 void Atlantis_Tank::TurnOnPadLights() const
 {
 	if(hVis) {
-		vector<int> ExcludeTank;
+		std::vector<int> ExcludeTank;
 		ExcludeTank.push_back(7);
 		ExcludeTank.push_back(8);
 		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
