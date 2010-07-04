@@ -6066,6 +6066,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				RHCInput=_V(0, 0, 0);
 				THCInput=_V(0, 0, 0);
 			}
+
+			for(unsigned short i=0;i<3;i++) {
+				RMS_RHCInput[i].SetLine(0.0);
+				RMS_THCInput[i].SetLine(0.0);
+			}
 		}
 		
 		/*
