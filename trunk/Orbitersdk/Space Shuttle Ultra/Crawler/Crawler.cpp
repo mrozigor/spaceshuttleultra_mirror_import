@@ -169,37 +169,29 @@ DLLCLBK void ovcExit(VESSEL *vessel) {
 Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 : VESSEL2 (hObj, fmodel)
 {
-	//pEngine = new CrawlerEngine();
 	pBundleManager = new DiscreteBundleManager();
 	psubsystems = new SubsystemDirector<Crawler>(this);
 	psubsystems->AddSubsystem(pEngine = new CrawlerEngine(psubsystems));
-	//psubsystems->AddSubsystem(new CrawlerVC(psubsystems, "FWD_CAB", CrawlerVC::FWD));
-	//psubsystems->AddSubsystem(new CrawlerVC(psubsystems, "REAR_CAB", CrawlerVC::REAR));
-	//cabs = new vc::PanelGroup<Crawler>();
-	//cabs[0] = new vc::CrawlerVC(this, "FWD_CAB", vc::CrawlerVC::FWD);
+
 	pgFwdCab.AddPanel(new vc::CrawlerCenterPanel(this, "FWD_CAB_CTR", vc::FWD));
 	pgFwdCab.AddPanel(new vc::CrawlerRightPanel(this, "FWD_CAB_RIGHT", vc::FWD));
-	//cabs[1] = new vc::CrawlerVC(this, "REAR_CAB", vc::CrawlerVC::REAR);
 	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB", vc::REAR));
 	pgRearCab.AddPanel(new vc::CrawlerRightPanel(this, "REAR_CAB_RIGHT", vc::REAR));
 
 	//tgtVelocity = 0.0;
 	//velocity = 0;
+	currentSpeed = 0.0;
 	velocityStop = false;
-	//targetHeading = 0;
 	steeringActual[0] = steeringActual[1] = 0;
 	steeringCommanded[0] = steeringCommanded[1] = 0;
 	viewPos = VIEWPOS_FRONTCABIN;
 	firstTimestepDone = false;
 	standalone = false;
-	//MissionTime = 0;
 
 	lastLatLongSet = false;
 	lastLat = 0;
 	lastLong = 0;
 
-	//curHeight = 0.01;
-	//curAngle = 0.0;
 	curFrontAngle = 0.0;
 	curBackAngle = 0.0;
 	curFrontHeight = 0.01;
@@ -216,8 +208,6 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hMLP = NULL;
 	hMLPAttach = NULL;
-	//hLV = NULL;
-	//hMSS = NULL;
 	vccVis = NULL;	
 	vccSpeed = 0;	
 	vccSteering = 0;
@@ -228,16 +218,11 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	meshidxTruck4 = 0;
 	hFwdVCMesh = NULL;
 	hRearVCMesh = NULL;
-	//meshidxPanel = 0;
-	//meshidxPanelReverse = 0;
 
 	hEarth = NULL;
 
 	//soundlib.InitSoundLib(hObj, SOUND_DIRECTORY);
 	//soundlib.LoadSound(soundEngine, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
-
-	//panelMeshoffset = _V(0,0,0);
-    //panelMeshidx = 0;
 
 	SoundID = ConnectToOrbiterSoundDLL3(GetHandle());
 	RequestLoadVesselWave3(SoundID, ENGINE_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
@@ -246,9 +231,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 Crawler::~Crawler() {
 	// delete MGROUP_TRANSFORMs
 	for(unsigned short i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
-	
-	//delete cabs[0];
-	//delete cabs[1];
+
 	delete psubsystems;
 	delete pBundleManager;
 }
@@ -269,58 +252,6 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
     ClearMeshes();
     ClearExhaustRefs();
     ClearAttExhaustRefs();
-
-	// Front cabin panel
-	//meshoffset = _V(0.767, 3.387, 2.534);
-	/*VECTOR3 meshoffset = _V(15.266, 4.675, 20.812);
-    meshidxPanel = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_centerpanel"), &meshoffset);
-	SetMeshVisibilityMode(meshidxPanel, MESHVIS_ALWAYS);
-
-    // Speed indicator
-	vccSpeedGroup.P.transparam.shift = _V(0, 0, 0);
-	vccSpeedGroup.nmesh = meshidxPanel;
-	vccSpeedGroup.ngrp = 10;
-	vccSpeedGroup.transform = MESHGROUP_TRANSFORM::TRANSLATE;
-
-    // Steering wheel rotation
-	vccSteering1Group.P.rotparam.ref = _V(0.148, 0.084, 0.225);
-	vccSteering1Group.P.rotparam.axis = _V(0, 0.913545, -0.406736);
-	vccSteering1Group.P.rotparam.angle = 0.0;  
-	vccSteering1Group.nmesh = meshidxPanel;
-	vccSteering1Group.ngrp = 11;
-	vccSteering1Group.transform = MESHGROUP_TRANSFORM::ROTATE;
-	vccSteering2Group.P.rotparam.ref = _V(0.148, 0.084, 0.225);
-	vccSteering2Group.P.rotparam.axis = _V(0, 0.913545, -0.406736);
-	vccSteering2Group.P.rotparam.angle = 0.0;  
-	vccSteering2Group.nmesh = meshidxPanel;
-	vccSteering2Group.ngrp = 12;
-	vccSteering2Group.transform = MESHGROUP_TRANSFORM::ROTATE;*/
-
-	// Rear cabin panel
-	//meshoffset = _V(-15.057, 4.675, -15.298);
-	/*meshoffset = _V(-15.599, 1.288, -17.278) + CRAWLER_MESH_OFFSET;
-    meshidxPanelReverse = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_centerpanel_reverse"), &meshoffset);
-	SetMeshVisibilityMode(meshidxPanelReverse, MESHVIS_ALWAYS);
-
-    // Speed indicator (reverse)
-	vccSpeedGroupReverse.P.transparam.shift = _V(0, 0, 0);
-	vccSpeedGroupReverse.nmesh = meshidxPanelReverse;
-	vccSpeedGroupReverse.ngrp = 10;
-	vccSpeedGroupReverse.transform = MESHGROUP_TRANSFORM::TRANSLATE;
-
-    // Steering wheel rotation (reverse)
-	vccSteering1GroupReverse.P.rotparam.ref = _V(0.076, 0.084, 0.33);
-	vccSteering1GroupReverse.P.rotparam.axis = _V(0, 0.913545, 0.406736);
-	vccSteering1GroupReverse.P.rotparam.angle = 0.0;  
-	vccSteering1GroupReverse.nmesh = meshidxPanelReverse;
-	vccSteering1GroupReverse.ngrp = 11;
-	vccSteering1GroupReverse.transform = MESHGROUP_TRANSFORM::ROTATE;
-	vccSteering2GroupReverse.P.rotparam.ref = _V(0.076, 0.084, 0.33);
-	vccSteering2GroupReverse.P.rotparam.axis = _V(0, 0.913545, 0.406736);
-	vccSteering2GroupReverse.P.rotparam.angle = 0.0;  
-	vccSteering2GroupReverse.nmesh = meshidxPanelReverse;
-	vccSteering2GroupReverse.ngrp = 12;
-	vccSteering2GroupReverse.transform = MESHGROUP_TRANSFORM::ROTATE;*/
 
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);
@@ -485,8 +416,6 @@ void Crawler::DefineAnimations()
 void Crawler::clbkPostCreation()
 {
 	psubsystems->RealizeAll();
-	//cabs[0]->Realize();
-	//cabs[1]->Realize();
 	pgFwdCab.Realize();
 	pgRearCab.Realize();
 
@@ -504,6 +433,10 @@ void Crawler::clbkPostCreation()
 	port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 	port_steeringActual[0].SetLine(static_cast<float>(steeringActual[0]));
 	port_steeringActual[1].SetLine(static_cast<float>(steeringActual[1]));
+
+	pBundle = pBundleManager->CreateBundle("CRAWLER_SPEED", 2);
+	port_currentSpeed.Connect(pBundle, 0);
+	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -513,8 +446,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	if (!firstTimestepDone) DoFirstTimestep();
 
 	psubsystems->PreStep(simt, simdt, mjd);
-	//cabs[0]->OnPreStep(simt, simdt, mjd);
-	//cabs[1]->OnPreStep(simt, simdt, mjd);
 	pgFwdCab.OnPreStep(simt, simdt, mjd);
 	pgRearCab.OnPreStep(simt, simdt, mjd);
 
@@ -524,43 +455,22 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	//pEngine->OnPreStep(simt, simdt, mjd);
 
 	//if (IsAttached()) maxVelocity = maxVelocity / 2.0;
+
+	// update speed
+	double acceleration = pEngine->GetAcceleration();
+	if(!Eq(currentSpeed, 0.0, 0.01) || !Eq(acceleration, 0.0)) {
+		// simulate friction
+		if(!Eq(currentSpeed, 0.0)) {
+			if(currentSpeed < 0.0) acceleration+=0.0025;
+			else acceleration-=0.0025;
+		}
+		// calculate new speed
+		currentSpeed+=acceleration*simdt;
+	}
+	else currentSpeed = 0.0;
+	port_currentSpeed.SetLine(static_cast<float>(currentSpeed));
 	
 	double timeW = oapiGetTimeAcceleration();
-	/*double dv;
-	double tgtVelocity;
-	//oapiGetHeading(GetHandle(), &lastHead);
-
-	if (((keyAccelerate && viewPos == VIEWPOS_FRONTCABIN) || (keyBrake && viewPos == VIEWPOS_REARCABIN)) && !velocityStop) {
-		//dv = 0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
-		dv = simdt * 0.1;
-		if (tgtVelocity < 0 && tgtVelocity + dv >= 0) {
-			tgtVelocity = 0;
-			velocityStop = true;
-		} else {
-			tgtVelocity += dv;
-		}
-		if (tgtVelocity > maxVelocity) tgtVelocity = maxVelocity;
-
-	} else if (((keyBrake && viewPos == VIEWPOS_FRONTCABIN) || (keyAccelerate && viewPos == VIEWPOS_REARCABIN)) && !velocityStop) {
-		//dv = -0.5 * simdt * (pow(2.0, log10(timeW))) / timeW;
-		dv = simdt * -0.1;
-		if (tgtVelocity > 0 && tgtVelocity + dv <= 0) {
-			tgtVelocity = 0;
-			velocityStop = true;
-		} else {
-			tgtVelocity += dv;
-		}
-		if (tgtVelocity < -maxVelocity) tgtVelocity = -maxVelocity;
-	
-	} else if (!keyAccelerate && !keyBrake) {
-		velocityStop = false;
-	}*/
-	//velocity = tgtVelocity;
-	//pEngine->SetTargetSpeed(tgtVelocity);
-	double velocity=pEngine->GetSpeed();
-	// Reset flags
-	//keyAccelerate = false;
-	//keyBrake = false;
 
 	double lat, lon;
 	vs.version = 2;
@@ -620,7 +530,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 
 	const double r = 45; // 150 ft
-	double dheading = ((steeringActual[1]-steeringActual[0]) * velocity * simdt) / (2*r);
+	double dheading = ((steeringActual[1]-steeringActual[0]) * currentSpeed * simdt) / (2*r);
 	// turn speed is only doubled when time acc is multiplied by ten:
 	dheading = (pow(5.0, log10(timeW))) * dheading / timeW;
 	vs.surf_hdg += dheading;
@@ -630,8 +540,8 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	double headingOffset = -(steeringActual[1]+steeringActual[0]) * MAX_TURN_ANGLE/2.0;
 	VECTOR3 dir = _V(sin(lastHead+headingOffset), cos(lat) * cos(lastHead+headingOffset), 0);
 	dir /= length(dir);
-	lon += dir.x * velocity * simdt / oapiGetSize(hEarth);
-	lat += dir.y * velocity * simdt / oapiGetSize(hEarth);
+	lon += dir.x * currentSpeed * simdt / oapiGetSize(hEarth);
+	lat += dir.y * currentSpeed * simdt / oapiGetSize(hEarth);
 	vs.surf_lng = lon;
 	vs.surf_lat = lat;
 	vs.status = 1;
@@ -657,7 +567,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 
 	// play sounds
-	if (velocity != 0) {
+	if (currentSpeed != 0) {
 		// velocity dependent sound disabled
 		// soundEngine.play(LOOP, (int)(127.5 + 127.5 * velocity / maxVelocity));
 		//soundEngine.play();
@@ -666,48 +576,10 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		//soundEngine.stop();
 		StopVesselWave3(SoundID, ENGINE_SOUND_ID);
 	}
-
-	//
-	// Update the VC console
-	//
-	/*if (vccVis) {
-		// Speed indicators
-		double v = (velocity * 0.066); 
-		vccSpeedGroup.P.transparam.shift.x = float(v - vccSpeed);
-		vccSpeedGroupReverse.P.transparam.shift.x = float(v - vccSpeed);
-		MeshgroupTransform(vccVis, vccSpeedGroup);
-		MeshgroupTransform(vccVis, vccSpeedGroupReverse);
-		vccSpeed = v;
-
-		// Steering wheel
-		double a = -wheeldeflect * 90.0 * RAD;
-		vccSteering1Group.P.rotparam.angle = float(a - vccSteering);
-		vccSteering2Group.P.rotparam.angle = float(a - vccSteering);
-		vccSteering1GroupReverse.P.rotparam.angle = -float(a - vccSteering);
-		vccSteering2GroupReverse.P.rotparam.angle = -float(a - vccSteering);
-		MeshgroupTransform(vccVis, vccSteering1Group);
-		MeshgroupTransform(vccVis, vccSteering2Group);
-		MeshgroupTransform(vccVis, vccSteering1GroupReverse);
-		MeshgroupTransform(vccVis, vccSteering2GroupReverse);
-		vccSteering = a;		
-	}*/
-
-	/* VECTOR3 pos;
-	GetRelativePos(hMSS, pos);
-	sprintf(oapiDebugString(), "Dist %f", length(pos)); */
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
-	//This seems the best place to update our mission time off of the Saturn.
-	/*Saturn *lv = NULL;
-	if (!standalone) {
-		// Updating internal mission time from Launch Vehichle.
-		lv = (Saturn *)oapiGetVesselInterface(hLV);
-		MissionTime = lv -> GetMissionTime();
-	}*/
 	psubsystems->PostStep(simt, simdt, mjd);
-	//cabs[0]->OnPostStep(simt, simdt, mjd);	
-	//cabs[1]->OnPostStep(simt, simdt, mjd);
 	pgFwdCab.OnPostStep(simt, simdt, mjd);
 	pgRearCab.OnPostStep(simt, simdt, mjd);
 }
@@ -766,6 +638,8 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	while (oapiReadScenario_nextline (scn, line)) {
 		if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
 			sscanf (line + 11, "%lf", &jackHeight);
+		} else if (!_strnicmp (line, "VELOCITY", 8)) {
+			sscanf_s (line + 8, "%lf", &currentSpeed);
 		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
 			sscanf (line + 15, "%lf%lf", &steeringActual[0], &steeringActual[1]);
 		} else if (!_strnicmp (line, "STEERING_COMMANDED", 18)) {
@@ -814,6 +688,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	char cbuf[255];
 
 	//oapiWriteScenario_float(scn, "VELOCITY", velocity);
+	oapiWriteScenario_float(scn, "VELOCITY", currentSpeed);
 	//oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);
 	sprintf_s(cbuf, 255, "%f %f", steeringActual[0], steeringActual[1]);
 	oapiWriteScenario_string(scn, "STEERING_ACTUAL", cbuf);	
@@ -904,13 +779,13 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 	}
 
 	if (key == OAPI_KEY_ADD) {
-		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->Accelerate(down);
-		else if(viewPos == VIEWPOS_REARCABIN) pEngine->Brake(down);
+		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->IncreaseTgtSpeed(down);
+		else if(viewPos == VIEWPOS_REARCABIN) pEngine->DecreaseTgtSpeed(down);
 		return 1;
 	}
 	if (key == OAPI_KEY_SUBTRACT) {
-		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->Brake(down);
-		else if(viewPos == VIEWPOS_REARCABIN) pEngine->Accelerate(down);
+		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->DecreaseTgtSpeed(down);
+		else if(viewPos == VIEWPOS_REARCABIN) pEngine->IncreaseTgtSpeed(down);
 		return 1;
 	}
 
@@ -963,7 +838,8 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 void Crawler::Attach() {
 
 	if (standalone) return;
-	if (!Eq(pEngine->GetSpeed(), 0.0)) return;
+	//if (!Eq(pEngine->GetSpeed(), 0.0)) return;
+	if (!Eq(currentSpeed, 0.0)) return;
 	if (IsAttached()) return;
 
 	VECTOR3 pos, dir, rot;
@@ -1070,7 +946,7 @@ void Crawler::Attach() {
 void Crawler::Detach() {
 
 	if (standalone) return;
-	if (!Eq(pEngine->GetSpeed(), 0.0)) return;
+	if (!Eq(currentSpeed, 0.0)) return;
 	if (!IsAttached()) return;
 
 	// loop thorugh all landed vessels and find one within range with MLP attach point

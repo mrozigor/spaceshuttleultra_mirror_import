@@ -41,12 +41,14 @@ void CrawlerCenterPanel::DefineVC()
 	pSpeedGauge->SetRange(-2.0, 2.0);
 	pSpeedGauge->SetBaseCoords(0, 0);
 	pSpeedGauge->SetDimensions(482, 28, 37);
-	if(cabID==REAR) pSpeedGauge->SetScaleValue(-1.0);
+	if(cabID==REAR) pSpeedGauge->SetScaleValue(-MPS2MPH);
+	else pSpeedGauge->SetScaleValue(MPS2MPH);
 
 	pSpeedDisplay->AddAIDToRedrawEventList(AID_SPEED_VALUE+aid_ofs);
 	pSpeedDisplay->SetBaseCoords(0, 0);
 	pSpeedDisplay->SetDimensions(148, 42, 4);
-	if(cabID==REAR) pSpeedDisplay->SetScaleValue(-1.0);
+	if(cabID==REAR) pSpeedDisplay->SetScaleValue(-MPS2MPH);
+	else pSpeedDisplay->SetScaleValue(MPS2MPH);
 }
 
 void CrawlerCenterPanel::DefineVCAnimations(UINT vcidx)
@@ -65,7 +67,7 @@ void CrawlerCenterPanel::Realize()
 	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 7);
 	steering.Connect(pBundle, cabID);
 
-	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
+	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
 	pSpeedGauge->ConnectPort(pBundle, 0);
 	pSpeedDisplay->ConnectPort(pBundle, 0);
 

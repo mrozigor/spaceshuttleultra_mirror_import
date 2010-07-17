@@ -5,22 +5,22 @@ CrawlerEngine::CrawlerEngine(SubsystemDirector<Crawler>* _director)
 : Subsystem(_director, "Engine")
 {
 	targetSpeed = 0.0;
-	actualSpeed = 0.0;
+	currentAcceleration = 0.0;
 	enginePower = 0.0;
 	maxSpeed = MAX_UNLOADED_SPEED;
 	bReverse = false;
 
-	accelerate = false;
-	brake = false;
+	increaseTgtSpeed = false;
+	decreaseTgtSpeed = false;
 }
 
 CrawlerEngine::~CrawlerEngine()
 {
 }
 
-double CrawlerEngine::GetSpeed() const
+double CrawlerEngine::GetAcceleration() const
 {
-	return actualSpeed;
+	return currentAcceleration;
 }
 
 void CrawlerEngine::SetMaxSpeed(double speed)
@@ -28,43 +28,42 @@ void CrawlerEngine::SetMaxSpeed(double speed)
 	maxSpeed = speed;
 }
 
-void CrawlerEngine::Accelerate(bool _acc)
+void CrawlerEngine::IncreaseTgtSpeed(bool _inc)
 {
-	accelerate=_acc;
-	brake=false;
+	increaseTgtSpeed=_inc;
+	decreaseTgtSpeed=false;
 }
 
-void CrawlerEngine::Brake(bool _brake)
+void CrawlerEngine::DecreaseTgtSpeed(bool _dec)
 {
-	brake=_brake;
-	accelerate=false;
+	decreaseTgtSpeed=_dec;
+	increaseTgtSpeed=false;
 }
 
 void CrawlerEngine::Realize()
 {
-	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
-	currentSpeedPort.Connect(pBundle, 0);
-	currentSpeedPort.SetLine(static_cast<float>(actualSpeed*MPS2MPH));
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
+	currentSpeed.Connect(pBundle, 0);
 }
 
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 {
 	// calculate target velocity
-	if(accelerate) {
+	if(increaseTgtSpeed) {
 		double dv = SimDT * 0.1;
 		if (targetSpeed < 0 && targetSpeed + dv >= 0) {
 			targetSpeed = 0;
-			accelerate=brake=false;
+			increaseTgtSpeed=decreaseTgtSpeed=false;
 		} else {
 			targetSpeed += dv;
 		}
 		if (targetSpeed > maxSpeed) targetSpeed = maxSpeed;
 	}
-	else if(brake) {
+	else if(decreaseTgtSpeed) {
 		double dv = SimDT * -0.1;
 		if (targetSpeed > 0 && targetSpeed + dv <= 0) {
 			targetSpeed = 0;
-			brake=accelerate=false;
+			decreaseTgtSpeed=increaseTgtSpeed=false;
 		} else {
 			targetSpeed += dv;
 		}
@@ -72,19 +71,13 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	}
 
 	// simplistic implementation of engine: acc is proportional to engine power
-	double acceleration = (enginePower-0.25)*0.01;
-	if(!Eq(actualSpeed, 0.0, 0.01) || acceleration>0.0) {
-		if((Eq(actualSpeed, 0.0, 0.01) && targetSpeed<0.0) || actualSpeed<0.0) {
-			actualSpeed-=acceleration*SimDT;
-		}
-		else actualSpeed+=acceleration*SimDT;
-	}
-	else actualSpeed = 0.0;
-	currentSpeedPort.SetLine(static_cast<float>(actualSpeed*MPS2MPH));
+	currentAcceleration = enginePower*0.01;
 
 	// calculate throttle setting
 	double dPower;
 	double tgtPower;
+	double actualSpeed = currentSpeed.GetVoltage();
+	enginePower = fabs(enginePower); // for calculations, use positive power
 	if(!Eq(targetSpeed, 0.0, 0.01)) {
 		double err=targetSpeed-actualSpeed;
 		if(fabs(err) > 0.005) {
@@ -109,18 +102,20 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	dPower*=SimDT;
 	if(abs(dPower) > abs(tgtPower-enginePower)) enginePower = tgtPower;
 	else enginePower = range(0.0, enginePower+dPower, 1.0);
+	// correct sign of enginePower
+	if(targetSpeed < 0.0) enginePower = -enginePower;
 
-	//sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f MPH Velocity: %f MPH Pwr: %f %f", targetSpeed*MPS2MPH, actualSpeed*MPS2MPH, enginePower, tgtPower);
+	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f", targetSpeed*MPS2MPH);
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
 {
 	std::string strKey = keyword;
-	if(strKey == "VELOCITY") {
+	/*if(strKey == "VELOCITY") {
 		sscanf_s(line, "%lf", &actualSpeed);
 		return true;
 	}
-	else if(strKey == "TGT_VELOCITY") {
+	else */if(strKey == "TGT_VELOCITY") {
 		sscanf_s(line, "%lf", &targetSpeed);
 		return true;
 	}
@@ -133,7 +128,7 @@ bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
 
 void CrawlerEngine::OnSaveState(FILEHANDLE scn) const
 {
-	oapiWriteScenario_float(scn, "VELOCITY", actualSpeed);
+	//oapiWriteScenario_float(scn, "VELOCITY", actualSpeed);
 	oapiWriteScenario_float(scn, "TGT_VELOCITY", targetSpeed);
 	oapiWriteScenario_float(scn, "ENGINE_POWER", enginePower);	
 }

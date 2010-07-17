@@ -243,6 +243,7 @@ private:
 
 	//double tgtVelocity;
 	//double velocity;
+	double currentSpeed;
 	bool velocityStop;
 	//double targetHeading;
 	int viewPos;
@@ -270,6 +271,7 @@ private:
 	DiscOutPort port_steeringCommand[2];
 	DiscOutPort port_steeringActual[2];
 	DiscInPort independent, crab, greatCircle;
+	DiscOutPort port_currentSpeed;
 
 	//bool keyAccelerate;
 	//bool keyBrake;
