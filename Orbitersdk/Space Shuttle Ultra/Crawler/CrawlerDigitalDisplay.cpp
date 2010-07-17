@@ -70,7 +70,7 @@ bool CrawlerDigitalDisplay::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	}
 
 	// print sign
-	if(input.GetVoltage() < 0.0) {
+	if(input.GetVoltage()*fScale < 0.0) {
 		src_rect = _R(64, 0, 128, 64);
 		tgt_rect = _R(0, 0, usDigitWidth+start*usDigitWidth, usHeight);
 		oapiBlt(surf, g_Resources.digits_7seg, &tgt_rect, &src_rect);
