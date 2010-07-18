@@ -270,6 +270,8 @@ private:
 
 	DiscOutPort port_steeringCommand[2];
 	DiscOutPort port_steeringActual[2];
+	DiscInPort port_BrakeSet, port_ParkingBrakeSet;
+	DiscOutPort port_Brake;
 	DiscInPort independent, crab, greatCircle;
 	DiscOutPort port_currentSpeed;
 
