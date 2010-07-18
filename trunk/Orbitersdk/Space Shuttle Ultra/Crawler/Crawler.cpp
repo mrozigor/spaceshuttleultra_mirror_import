@@ -434,6 +434,13 @@ void Crawler::clbkPostCreation()
 	port_steeringActual[0].SetLine(static_cast<float>(steeringActual[0]));
 	port_steeringActual[1].SetLine(static_cast<float>(steeringActual[1]));
 
+	pBundle = pBundleManager->CreateBundle("CRAWLER_BRAKE", 2);
+	port_Brake.Connect(pBundle, 0);
+	port_BrakeSet.Connect(pBundle, 0);
+	port_ParkingBrakeSet.Connect(pBundle, 1);
+
+	port_Brake.ResetLine();
+
 	pBundle = pBundleManager->CreateBundle("CRAWLER_SPEED", 2);
 	port_currentSpeed.Connect(pBundle, 0);
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
@@ -459,10 +466,14 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	// update speed
 	double acceleration = pEngine->GetAcceleration();
 	if(!Eq(currentSpeed, 0.0, 0.01) || !Eq(acceleration, 0.0)) {
-		// simulate friction
+		// simulate friction and brakes
 		if(!Eq(currentSpeed, 0.0)) {
-			if(currentSpeed < 0.0) acceleration+=0.0025;
-			else acceleration-=0.0025;
+			double friction = 0.0025;
+			if(port_BrakeSet) friction += 0.005; // brakes
+			if(port_ParkingBrakeSet) friction += 0.01;
+			
+			if(currentSpeed >= 0.0) acceleration = acceleration-friction;
+			else acceleration = acceleration+friction;
 		}
 		// calculate new speed
 		currentSpeed+=acceleration*simdt;
@@ -783,9 +794,14 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 		else if(viewPos == VIEWPOS_REARCABIN) pEngine->DecreaseTgtSpeed(down);
 		return 1;
 	}
-	if (key == OAPI_KEY_SUBTRACT) {
+	else if (key == OAPI_KEY_SUBTRACT) {
 		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->DecreaseTgtSpeed(down);
 		else if(viewPos == VIEWPOS_REARCABIN) pEngine->IncreaseTgtSpeed(down);
+		return 1;
+	}
+	else if (key == OAPI_KEY_B) {
+		if(down) port_Brake.SetLine();
+		else port_Brake.ResetLine();
 		return 1;
 	}
 
@@ -971,13 +987,13 @@ void Crawler::Detach() {
 					pV->GetTouchdownPoints(pt1, pt2, pt3);
 					oapiGetHeading(hV, &heading);
 
-					attach_pos = rpos+RotateVectorY(attach_pos, heading*DEG)-MLP_ATTACH_POS;
-					attach_pos.y-=(jackHeight+curFrontHeight+pt1.y); //we can use any TD point; y coordinate should be the same
+					attach_pos = rpos-RotateVectorY(attach_pos, heading*DEG)+MLP_ATTACH_POS;
+					attach_pos.y+=(jackHeight+curFrontHeight+pt1.y); //we can use any TD point; y coordinate should be the same
 					sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f rpos: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z,
 						rpos.x, rpos.y, rpos.z);
 					oapiWriteLog(oapiDebugString());
 
-					if(length(_V(attach_pos.x, 0.0, attach_pos.z)) < 4.0 && abs(attach_pos.y) < 0.5) { // attach MLP to VAB/LC39
+					if(length(_V(attach_pos.x, 0.0, attach_pos.z)) < 5.0 && abs(attach_pos.y) < 0.25) { // attach MLP to VAB/LC39
 						DetachChild(ahMLP);
 						bool success = pV->AttachChild(hMLP, aH, hMLPAttach);
 						hMLP = NULL;

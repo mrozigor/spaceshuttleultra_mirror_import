@@ -105,7 +105,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	// correct sign of enginePower
 	if(targetSpeed < 0.0) enginePower = -enginePower;
 
-	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f", targetSpeed*MPS2MPH);
+	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f Power: %f", targetSpeed*MPS2MPH, enginePower);
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
