@@ -109,7 +109,7 @@ const double MAX_TURN_ANGLE = 10.0*RAD;
 
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 6, 0.0);
 //const VECTOR3 MLP_ATTACH_POS = _V(0.0, 10.869, 0.0);
-const VECTOR3 MLP_ATTACH_ROT = _V(0, 0, -1);
+const VECTOR3 MLP_ATTACH_ROT = _V(0, 0, 1);
 
 const double MAX_UNLOADED_SPEED = 2.0/MPS2MPH;
 const double MAX_LOADED_SPEED = 0.8/MPS2MPH;
@@ -259,8 +259,6 @@ private:
 	double curFrontHeight, curBackHeight; // height above ground (m)
 	double curFrontAngle, curBackAngle; // angle rel. to horizontal (rad)
 	double jackHeight; // height to which platform has been jacked
-
-	bool bReverseDirection; // true if attachment point direction needs to be reversed
 
 	bool lastLatLongSet;
 	double lastLat;
