@@ -197,8 +197,6 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	curFrontHeight = 0.01;
 	curBackHeight = 0.01;
 	jackHeight = 0.0;
-
-	bReverseDirection=false;
 	
 	//keyAccelerate = false;
 	//keyBrake= false;
@@ -667,9 +665,6 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 		} else if (!_strnicmp (line, "GROUND_POS", 10)) {
 			sscanf (line + 10, "%lf%lf%lf", &lastLat, &lastLong, &lastHead);
 			lastLatLongSet=true;
-		} else if (!_strnicmp (line, "REVERSE_ATTACH", 14)) {
-			bReverseDirection=true;
-			SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), -MLP_ATTACH_ROT);
 		} else if (!_strnicmp(line, "@PANEL", 6)) {
 			char pszPanelName[30];
 			sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
@@ -715,7 +710,6 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
 	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
-	if(bReverseDirection) oapiWriteLine(scn, "  REVERSE_ATTACH");
 	//pEngine->SaveState(scn);
 	psubsystems->SaveState(scn);
 	pgFwdCab.OnSaveState(scn);
@@ -908,7 +902,7 @@ void Crawler::Attach() {
 					}
 
 					// make sure Crawler attach point has correct rot vector
-					double CrawlerHeading, MLPHeading;
+					/*double CrawlerHeading, MLPHeading;
 					oapiGetHeading(GetHandle(), &CrawlerHeading);
 					oapiGetHeading(GetHandle(), &MLPHeading);
 					VECTOR3 CrawlerRot=RotateVectorY(MLP_ATTACH_ROT, CrawlerHeading*DEG);
@@ -920,7 +914,7 @@ void Crawler::Attach() {
 					else if(bReverseDirection && dotp(MLPRot, CrawlerRot)<0.0) {
 						bReverseDirection=false;
 						SetAttachmentParams(ahMLP, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT);
-					}
+					}*/
 
 					AttachChild(hV, ahMLP, ahAttach);
 					hMLP = hV;
