@@ -1,14 +1,110 @@
-// ========================================================
-// Mesh resource file for Crawler_mainboady_1980.msh
-// Generated with meshc on Sun Jul 25 14:26:31 2010
+// ======================================================
+// Created by ssumeshc 0.1
+// Input file: ../../../Meshes/SSU/Crawler_mainbody_1980.msh
+// ======================================================
 
-// ========================================================
+#pragma once
 
-// Number of mesh groups:
-#define NGRP 0
+const unsigned int NUMGRP = 100;
 
-// Number of materials:
-#define NMAT 0
+const unsigned int GRP_BOX01	=	0;	//Box01
+const unsigned int GRP_BOX02	=	1;	//Box02
+const unsigned int GRP_BOX03	=	2;	//Box03
+const unsigned int GRP_BOX04	=	3;	//Box04
+const unsigned int GRP_BOX05	=	4;	//Box05
+const unsigned int GRP_BOX06	=	5;	//Box06
+const unsigned int GRP_BOX08	=	6;	//Box08
+const unsigned int GRP_BOX22	=	7;	//Box22
+const unsigned int GRP_BOX63	=	8;	//Box63
+const unsigned int GRP_BOX75	=	9;	//Box75
+const unsigned int GRP_BOX77	=	10;	//Box77
+const unsigned int GRP_BOX78	=	11;	//Box78
+const unsigned int GRP_BOX82	=	12;	//Box82
+const unsigned int GRP_BOX86	=	13;	//Box86
+const unsigned int GRP_BOX88	=	14;	//Box88
+const unsigned int GRP_BOX101	=	15;	//Box101
+const unsigned int GRP_BOX105	=	16;	//Box105
+const unsigned int GRP_BOX134	=	17;	//Box134
+const unsigned int GRP_BOX186	=	18;	//Box186
+const unsigned int GRP_BOX229	=	19;	//Box229
+const unsigned int GRP_BOX230	=	20;	//Box230
+const unsigned int GRP_BOX239	=	21;	//Box239
+const unsigned int GRP_BOX342	=	22;	//Box342
+const unsigned int GRP_BOX343	=	23;	//Box343
+const unsigned int GRP_BOX344	=	24;	//Box344
+const unsigned int GRP_BOX348	=	25;	//Box348
+const unsigned int GRP_BOX349	=	26;	//Box349
+const unsigned int GRP_BOX353	=	27;	//Box353
+const unsigned int GRP_BOX354	=	28;	//Box354
+const unsigned int GRP_BOX532	=	29;	//Box532
+const unsigned int GRP_BOX613	=	30;	//Box613
+const unsigned int GRP_BOX658	=	31;	//Box658
+const unsigned int GRP_BOX712	=	32;	//Box712
+const unsigned int GRP_BOX713	=	33;	//Box713
+const unsigned int GRP_CORNER_A_AUXILLARY_STEERING_ARM	=	34;	//Corner_A_Auxillary_steering_arm
+const unsigned int GRP_CORNER_A_FWD_BOTTOM_STEERING_CYLINDER	=	35;	//Corner_A_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_A_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHEILD	=	36;	//Corner_A_FWD_bottom_steering_cylinder_dust_sheild
+const unsigned int GRP_CORNER_A_FWD_STEERING_CYLINDER	=	37;	//Corner_A_FWD_steering_cylinder
+const unsigned int GRP_CORNER_A_FWD_STEERING_CYLINDER_DUST_SHIELD	=	38;	//Corner_A_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_A_REAR_BOTTOM_STEERING_CYLINDER	=	39;	//Corner_A_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_A_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	40;	//Corner_A_Rear_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_A_REAR_STEERING_CYLINDER	=	41;	//Corner_A_Rear_steering_cylinder
+const unsigned int GRP_CORNER_A_REAR_STEERING_CYLINDER_DUST_SHIELD	=	42;	//Corner_A_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_B_AUXILLARY_STEERING_ARM	=	43;	//Corner_B_Auxillary_steering_arm
+const unsigned int GRP_CORNER_B_FWD_BOTTOM_STEERING_CYLINDER	=	44;	//Corner_B_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_B_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	45;	//Corner_B_FWD_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_B_FWD_STEERING_CYLINDER	=	46;	//Corner_B_FWD_steering_cylinder
+const unsigned int GRP_CORNER_B_FWD_STEERING_CYLINDER_DUST_SHIELD	=	47;	//Corner_B_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_B_REAR_BOTTOM_STEERING_CYLINDER	=	48;	//Corner_B_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_B_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHEILD	=	49;	//Corner_B_Rear_bottom_steering_cylinder_dust_sheild
+const unsigned int GRP_CORNER_B_REAR_STEERING_CYLINDER	=	50;	//Corner_B_Rear_steering_cylinder
+const unsigned int GRP_CORNER_B_REAR_STEERING_CYLINDER_DUST_SHIELD	=	51;	//Corner_B_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_AUXILLARY_STEERING_ARM	=	52;	//Corner_C_Auxillary_steering_arm
+const unsigned int GRP_CORNER_C_FWD_BOTTOM_STEERING_CYLINDER	=	53;	//Corner_C_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_C_FWD_STEERING_CYLINDER	=	54;	//Corner_C_FWD_steering_cylinder
+const unsigned int GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELD	=	55;	//Corner_C_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELDA	=	56;	//Corner_C_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_REAR_BOTTOM_STEERING_CYLINDER	=	57;	//Corner_C_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_C_REAR_STEERING_CYLINDER	=	58;	//Corner_C_Rear_steering_cylinder
+const unsigned int GRP_CORNER_D_AUXILLARY_STEERING_ARM	=	59;	//Corner_D_Auxillary_steering_arm
+const unsigned int GRP_CORNER_D_FWD_BOTTOM_STEERING_CYLINDER	=	60;	//Corner_D_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_D_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	61;	//Corner_D_FWD_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_FWD_STEERING_CYLINDER_DUST_SHIELD	=	62;	//Corner_D_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_REAR_BOTTOM_STEERING_CYLINDER	=	63;	//Corner_D_rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_D_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	64;	//Corner_D_Rear_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_REAR_STEERING_CYLINDER	=	65;	//Corner_D_Rear_steering_cylinder
+const unsigned int GRP_CORNER_D_REAR_STEERING_CYLINDER_DUST_SHIELD	=	66;	//Corner_D_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_FWD_STEERING_CYLINDER	=	67;	//Corner_D_FWD_steering_cylinder
+const unsigned int GRP_CYLINDER01	=	68;	//Cylinder01
+const unsigned int GRP_CYLINDER02	=	69;	//Cylinder02
+const unsigned int GRP_CYLINDER10	=	70;	//Cylinder10
+const unsigned int GRP_CYLINDER49	=	71;	//Cylinder49
+const unsigned int GRP_CYLINDER192	=	72;	//Cylinder192
+const unsigned int GRP_CYLINDER502	=	73;	//Cylinder502
+const unsigned int GRP_CYLINDER506	=	74;	//Cylinder506
+const unsigned int GRP_HYDRAULIC_OIL_TANK	=	75;	//Hydraulic_Oil_Tank
+const unsigned int GRP_LINE01	=	76;	//Line01
+const unsigned int GRP_LINE03	=	77;	//Line03
+const unsigned int GRP_LINE10	=	78;	//Line10
+const unsigned int GRP_LINE27	=	79;	//Line27
+const unsigned int GRP_TUBE01	=	80;	//Tube01
+const unsigned int GRP_BOX791	=	81;	//Box791
+const unsigned int GRP_CYLINDER06	=	82;	//Cylinder06
+const unsigned int GRP_CYLINDER261	=	83;	//Cylinder261
+const unsigned int GRP_BOX30	=	84;	//Box30
+const unsigned int GRP_TUBE02	=	85;	//Tube02
+const unsigned int GRP_BOX09	=	86;	//Box09
+const unsigned int GRP_BOX10	=	87;	//Box10
+const unsigned int GRP_CYLINDER507	=	88;	//Cylinder507
+const unsigned int GRP_CYLINDER508	=	89;	//Cylinder508
+const unsigned int GRP_BOX793	=	90;	//Box793
+const unsigned int GRP_TUBE03	=	91;	//Tube03
+const unsigned int GRP_BOX794	=	92;	//Box794
+const unsigned int GRP_TUBE04	=	93;	//Tube04
+const unsigned int GRP_BOX07	=	94;	//Box07
+const unsigned int GRP_BOX41	=	95;	//Box41
+const unsigned int GRP_BOX84	=	96;	//Box84
+const unsigned int GRP_BOX196	=	97;	//Box196
+const unsigned int GRP_BOX714	=	98;	//Box714
+const unsigned int GRP_LINE02	=	99;	//Line02
 
-// Number of textures:
-#define NTEX 0

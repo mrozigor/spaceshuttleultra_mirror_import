@@ -202,7 +202,9 @@ private:
 	void SlowIfDesired(double timeAcceleration);
 	void SetMeshesVisibility(WORD mode);
 
-	void DefineAnimations();
+	void DefineAnimations(bool b1980Mesh);
+	void DefineStrutAnimations();
+	void Define1980StrutAnimations();
 	//void CreateVCAnimations(UINT meshIdx, const VECTOR3& pos, const double direction);
 
 	/**
