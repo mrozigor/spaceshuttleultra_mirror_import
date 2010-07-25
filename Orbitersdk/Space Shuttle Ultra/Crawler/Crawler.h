@@ -246,6 +246,7 @@ private:
 	double currentSpeed;
 	bool velocityStop;
 	//double targetHeading;
+	bool bGenericCockpitView;
 	int viewPos;
 	//double wheeldeflect[2];
 	double steeringActual[2], steeringCommanded[2];

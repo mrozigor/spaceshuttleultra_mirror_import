@@ -219,9 +219,6 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hEarth = NULL;
 
-	//soundlib.InitSoundLib(hObj, SOUND_DIRECTORY);
-	//soundlib.LoadSound(soundEngine, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
-
 	SoundID = ConnectToOrbiterSoundDLL3(GetHandle());
 	RequestLoadVesselWave3(SoundID, ENGINE_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
 }
@@ -281,11 +278,6 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
     meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
 
-	/*VECTOR3 crawler_vc_offset = CRAWLER_VC_OFFSET;
-	meshidxVC = AddMesh(oapiLoadMeshGlobal("SSU\\Crawler_VC_panels"), &crawler_vc_offset);
-	//SetMeshVisibilityMode(meshidxVC, MESHVIS_VC | MESHVIS_EXTERNAL | MESHVIS_EXTPASS);
-	SetMeshVisibilityMode(meshidxVC, MESHVIS_ALWAYS);*/
-
 	VECTOR3 crawler_vc_offset = CRAWLER_FWD_VC_OFFSET;
 	hFwdVCMesh = oapiLoadMeshGlobal("SSU\\Crawler_VC_panels_reversed");
 	fwdVCIdx = AddMesh(hFwdVCMesh, &crawler_vc_offset);
@@ -300,10 +292,6 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
 	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
 
-	//VSEnableCollisions(GetHandle(),"ProjectApollo");
-	//double tph = -0.01;
-	//SetTouchdownPoints(_V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
-	//VSSetTouchdownPoints(GetHandle(), _V(  0, tph,  10), _V(-10, tph, -10), _V( 10, tph, -10));
 	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
 	//ShiftCG(_V(0, -16, 0));
 
@@ -566,9 +554,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	for(unsigned int i=0; i<vhLC39.size(); i++) {
 		VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
 
-		/*double padLat, padLong, padRad;
-		oapiGetEquPos(vhLC39[i], &padLong, &padLat, &padRad);
-		VECTOR3 rpos = _V(padLat*oapiGetSize(hEarth)-vs.surf_lat*oapiGetSize(hEarth), padLong*oapiGetSize(hEarth)-vs.surf_lng*oapiGetSize(hEarth), 0.0);*/
 		VECTOR3 rpos = CalcRelSurfPos(vhLC39[i], vs);
 
 		//sprintf_s(oapiDebugString(), 255, "RelPos: %f %f %f", rpos.x, rpos.y, rpos.z);
@@ -578,11 +563,8 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	// play sounds
 	if (currentSpeed != 0) {
 		// velocity dependent sound disabled
-		// soundEngine.play(LOOP, (int)(127.5 + 127.5 * velocity / maxVelocity));
-		//soundEngine.play();
 		PlayVesselWave3(SoundID, ENGINE_SOUND_ID, LOOP);
 	} else {
-		//soundEngine.stop();
 		StopVesselWave3(SoundID, ENGINE_SOUND_ID);
 	}
 }
@@ -601,21 +583,8 @@ void Crawler::DoFirstTimestep() {
 	hEarth = GetGravityRef();
 
 	//oapiGetHeading(GetHandle(), &targetHeading);
-	
-	// Turn off pretty much everything that Orbitersound does by default.
-	/*soundlib.SoundOptionOnOff(PLAYCOUNTDOWNWHENTAKEOFF, FALSE);
-	soundlib.SoundOptionOnOff(PLAYCABINAIRCONDITIONING, FALSE);
-	soundlib.SoundOptionOnOff(PLAYCABINRANDOMAMBIANCE, FALSE);
-	soundlib.SoundOptionOnOff(PLAYLANDINGANDGROUNDSOUND, FALSE);
-	soundlib.SoundOptionOnOff(PLAYRADIOATC, FALSE);
-	soundlib.SoundOptionOnOff(PLAYRADARBIP, FALSE);
-	soundlib.SoundOptionOnOff(DISPLAYTIMER, FALSE);*/
 
 	if (!standalone) {
-		/*if (LVName[0])
-			hLV = oapiGetVesselByName(LVName);
-		hML = oapiGetVesselByName("ML");
-		hMSS = oapiGetVesselByName("MSS");*/
 		hMLP = GetAttachmentStatus(ahMLP);
 		if(hMLP) {
 			// find point on MLP we are attached to
@@ -678,7 +647,6 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 
 			oapiWriteLog("\tLeave @PANEL block.");
 		} else {
-			//if(!pEngine->ParseLine(line))
 			if(!psubsystems->ParseScenarioLine(scn, line))
 				ParseScenarioLineEx (line, status);
 		}
@@ -808,33 +776,35 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			return 1;
 		}
 
-		if (key == OAPI_KEY_1) {
-			SetView(VIEWPOS_FRONTCABIN);
-			return 1;
-		}
-		if (key == OAPI_KEY_2) {
-			SetView(VIEWPOS_REARCABIN);
-			return 1;
-		}
-		if (key == OAPI_KEY_3) {
-			SetView(VIEWPOS_ML);
-			return 1;
-		}
-		if (key == OAPI_KEY_4) {
-			SetView(VIEWPOS_GROUND);
-			return 1;
-		}
-		if (key == OAPI_KEY_5) {
-			SetView(VIEWPOS_FRONTGANGWAY);
-			return 1;
-		}
-		if (key == OAPI_KEY_6) {
-			SetView(VIEWPOS_REARGANGWAY);
-			return 1;
-		}
-		if (key == OAPI_KEY_7) {
-			SetView(VIEWPOS_RIGHTREARGANGWAY);
-			return 1;
+		if(bGenericCockpitView) {
+			if (key == OAPI_KEY_1) {
+				SetView(VIEWPOS_FRONTCABIN);
+				return 1;
+			}
+			if (key == OAPI_KEY_2) {
+				SetView(VIEWPOS_REARCABIN);
+				return 1;
+			}
+			if (key == OAPI_KEY_3) {
+				SetView(VIEWPOS_ML);
+				return 1;
+			}
+			if (key == OAPI_KEY_4) {
+				SetView(VIEWPOS_GROUND);
+				return 1;
+			}
+			if (key == OAPI_KEY_5) {
+				SetView(VIEWPOS_FRONTGANGWAY);
+				return 1;
+			}
+			if (key == OAPI_KEY_6) {
+				SetView(VIEWPOS_REARGANGWAY);
+				return 1;
+			}
+			if (key == OAPI_KEY_7) {
+				SetView(VIEWPOS_RIGHTREARGANGWAY);
+				return 1;
+			}
 		}
 
 		if(key==OAPI_KEY_G) {
@@ -924,33 +894,6 @@ void Crawler::Attach() {
 			}
 		}
 	}
-
-	//ATTACHMENTHANDLE ah = GetAttachmentHandle(false, 0);
-	/*if (hML != NULL) {
-		ML *ml = (ML *)oapiGetVesselInterface(hML);
-
-		// Is the crawler close enough to the ML?
-		VECTOR3 pos;
-		GetRelativePos(hML, pos);
-		if (length(pos) < 73) {
-			if (ml->Attach()) {
-				AttachChild(hML, ah, ml->GetAttachmentHandle(true, 0));
-			}
-		}
-	}*/
-
-	/*if (hMSS != NULL) {
-		MSS *mss = (MSS *)oapiGetVesselInterface(hMSS);
-
-		// Is the crawler close enough to the MSS?
-		VECTOR3 pos;
-		GetRelativePos(hMSS, pos);
-		if (length(pos) < 67) {
-			if (mss->Attach()) {
-				AttachChild(hMSS, ah, mss->GetAttachmentHandle(true, 0));
-			}
-		}
-	}*/
 }
 
 void Crawler::Detach() {
@@ -1016,14 +959,12 @@ void Crawler::SetView(int viewpos) {
 
 	viewPos = viewpos;
 	if (viewPos == VIEWPOS_REARCABIN) {
-		//SetCameraOffset(_V(-15.19, 5, -17.774000));
 		SetCameraOffset(CRAWLER_REAR_VC_OFFSET + _V(0.0, 0.456, 0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, -0.3), _V(0, 0, 0), _V(0, 0, 0));
 		SetCameraDefaultDirection(_V(0, -0.309017, -0.951057));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
-		//SetCameraOffset(_V(15.19, 5, 17.774000));
 		SetCameraOffset(CRAWLER_FWD_VC_OFFSET + _V(0.0, 0.456, -0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, 0.3), _V(0, 0, 0), _V(0, 0, 0));
 		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
@@ -1063,8 +1004,6 @@ void Crawler::SetMeshesVisibility(WORD mode) {
 	SetMeshVisibilityMode(meshidxTruck2, mode);
 	SetMeshVisibilityMode(meshidxTruck3, mode);
 	SetMeshVisibilityMode(meshidxTruck4, mode);
-	//SetMeshVisibilityMode(meshidxPanel, mode);
-	//SetMeshVisibilityMode(meshidxPanelReverse, mode);
 
 }
 
@@ -1090,24 +1029,52 @@ void Crawler::clbkVisualDestroyed(VISHANDLE vis, int refcount) {
 
 bool Crawler::clbkLoadGenericCockpit() {
 
+	bGenericCockpitView = true;
 	SetView();
 	return true;
 }
 
 bool Crawler::clbkLoadVC (int id)
 {
+	bool bValid = false;
+	
 	switch(id) {
 		case VIEWPOS_FRONTCABIN:
 		case VIEWPOS_REARCABIN:
-			oapiWriteLog("Showing VC");
-			//cabs[id]->RegisterVC();
+			//oapiWriteLog("Showing VC");
 			if(id==VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
 			else pgRearCab.RegisterVC();
-			oapiVCSetNeighbours(1-id, 1-id, -1, -1); // left, right neighbours are other panels
-			SetView(id);
-			return true;
+			oapiVCSetNeighbours(1-id, 1-id, VIEWPOS_ML, VIEWPOS_GROUND); // left, right neighbours are other panels
+			bValid = true;
+			break;
+		case VIEWPOS_ML:
+			oapiVCSetNeighbours(-1, -1, -1, VIEWPOS_FRONTGANGWAY);
+			bValid = true;
+			break;
+		case VIEWPOS_GROUND:
+			oapiVCSetNeighbours(-1, -1, VIEWPOS_FRONTGANGWAY, -1);
+			bValid = true;
+			break;
+		case VIEWPOS_FRONTGANGWAY:
+			oapiVCSetNeighbours(VIEWPOS_REARGANGWAY, VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_ML, VIEWPOS_FRONTCABIN);
+			bValid = true;
+			break;
+		case VIEWPOS_REARGANGWAY:
+			oapiVCSetNeighbours(VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_FRONTGANGWAY, VIEWPOS_ML, VIEWPOS_REARCABIN);
+			bValid = true;
+			break;			
+		case VIEWPOS_RIGHTREARGANGWAY:
+			oapiVCSetNeighbours(VIEWPOS_FRONTGANGWAY, VIEWPOS_REARGANGWAY, VIEWPOS_ML, VIEWPOS_REARCABIN);
+			bValid = true;
+			break;
 	}
-	return false;
+
+	if(bValid) {
+		bGenericCockpitView = false;
+		SetView(id);
+	}
+
+	return bValid;
 }
 
 bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
