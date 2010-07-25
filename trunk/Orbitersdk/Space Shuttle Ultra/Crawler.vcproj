@@ -378,6 +378,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Crawler\Define1980StrutAnimations.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\DefineStrutAnimations.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\libUltra\src\DiscInPort.cpp"
 				>
 			</File>
@@ -456,6 +464,10 @@
 			</File>
 			<File
 				RelativePath=".\Crawler\meshres_crawler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\meshres_crawler_1980.h"
 				>
 			</File>
 			<File
