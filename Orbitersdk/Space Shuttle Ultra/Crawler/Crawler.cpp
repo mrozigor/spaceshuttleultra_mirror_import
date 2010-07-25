@@ -250,9 +250,15 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);
+	bool mesh_1980 = false;
+	if(!oapiReadItem_bool(cfg, "1980_Mesh", mesh_1980)) mesh_1980 = false;
 	VECTOR3 crawler_meshoffset = CRAWLER_MESH_OFFSET;
-    meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME), &crawler_meshoffset);
-    //meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME_1980), &crawler_meshoffset);
+	if(mesh_1980) {
+		meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME_1980), &crawler_meshoffset);
+	}
+	else {
+		meshidxCrawler = AddMesh(oapiLoadMeshGlobal(CRAWLER_MESHNAME), &crawler_meshoffset);
+	}
 	SetMeshVisibilityMode(meshidxCrawler, MESHVIS_ALWAYS);
 
 	// Tracks
