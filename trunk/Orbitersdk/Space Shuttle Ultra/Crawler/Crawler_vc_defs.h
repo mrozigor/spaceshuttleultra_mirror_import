@@ -11,7 +11,6 @@ const VECTOR3 CRAWLER_FWD_VC_OFFSET = _V(15.242, 4.544, 18.35);
 
 namespace vc
 {
-	//typedef BasicPanel<Crawler> CrawlerPanel;
 	typedef enum {FWD = 0, REAR = 1} CRAWLER_CAB;
 
 	const int PBI_OFF_RED = 0;
@@ -46,7 +45,6 @@ namespace vc
 		 */
 		inline VECTOR3 TransformVector(const VECTOR3& v) {
 			if(cabID == FWD) return _V(-v.x, v.y, -v.z);
-			//if(cabID == FWD) return v;
 			else return v;
 		}
 	};

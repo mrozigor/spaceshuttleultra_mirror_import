@@ -38,11 +38,6 @@ void CrawlerLeftPanel::RegisterVC()
 		TransformVector(_V(0.284, 0.119, -0.174))+ofs, 
 		TransformVector(_V(0.579, 0.075, 0.173))+ofs,
 		TransformVector(_V(0.284, 0.075, -0.174))+ofs);
-	/*oapiVCSetAreaClickmode_Quadrilateral(AID_LEFT_MIN+aid_ofs,
-		TransformVector(_V(-0.298, 0.088, 0.165))+ofs,
-		TransformVector(_V(-0.289, 0.088, 0.177))+ofs, 
-		TransformVector(_V(-0.294, 0.075, 0.162))+ofs,
-		TransformVector(_V(-0.284, 0.075, 0.174))+ofs);*/
 
 	SURFHANDLE panels_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 1);
 	oapiVCRegisterArea(AID_BRAKE_PBI+aid_ofs, _R(658, 982, 718, 1012), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);

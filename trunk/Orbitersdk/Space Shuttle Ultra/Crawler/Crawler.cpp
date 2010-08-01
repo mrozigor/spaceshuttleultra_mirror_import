@@ -325,87 +325,6 @@ void Crawler::DefineAnimations(bool b1980Mesh)
 
 	if(b1980Mesh) Define1980StrutAnimations();
 	else DefineStrutAnimations();
-
-	/*static VECTOR3 dummy_vec[4];
-	MGROUP_ROTATE* Rot_Truck1 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[0]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
-	anim_truck_rot[0] = CreateAnimation(0.5);
-	ANIMATIONCOMPONENT_HANDLE parent = AddManagedAnimationComponent(anim_truck_rot[0], 0.0, 1.0, Rot_Truck1);
-	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
-	anim_truck_trans[0] = CreateAnimation(0.0);
-	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
-	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 0.948, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
-	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
-	// strut animations
-	static UINT Strut11GrpList[2] = {GRP_CORNERDC_FWD_STEERING_CYLINDER, GRP_CORNER_D_FWD_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut11 = new MGROUP_ROTATE(meshidxCrawler, &Strut11GrpList[0], 1, _V(8.289, 2.394, 18.126), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut11);
-	MGROUP_SCALE* Scale_Strut11 = new MGROUP_SCALE(meshidxCrawler, &Strut11GrpList[1], 1, _V(12.447, 2.905, 18.126), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Strut11, parent);
-	static UINT Strut12GrpList[2] = {GRP_CORNER_D_REAR_STEERING_CYLINDER, GRP_CORNER_D_REAR_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut12 = new MGROUP_ROTATE(meshidxCrawler, &Strut12GrpList[0], 1, _V(8.286, 2.394, 8.279), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut12);
-	MGROUP_SCALE* Scale_Strut12 = new MGROUP_SCALE(meshidxCrawler, &Strut12GrpList[1], 1, _V(12.447, 2.905, 8.279), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Strut12, parent);
-
-	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
-	anim_truck_rot[1] = CreateAnimation(0.5);
-	parent = AddManagedAnimationComponent(anim_truck_rot[1], 0.0, 1.0, Rot_Truck2);
-	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
-	anim_truck_trans[1] = CreateAnimation(0.0);
-	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
-	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
-	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
-	// strut animations
-	/*static UINT Strut21GrpList[2] = {GRP_CORNER_C_FWD_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELDA};
-	MGROUP_ROTATE* Rotate_Strut21 = new MGROUP_ROTATE(meshidxCrawler, &Strut21GrpList[0], 1, _V(-8.307, 2.414, 18.125), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut21);
-	MGROUP_SCALE* Scale_Strut21 = new MGROUP_SCALE(meshidxCrawler, &Strut21GrpList[1], 1, _V(-12.465, 2.924, 18.125), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Strut21, parent);
-	static UINT Strut22GrpList[2] = {GRP_CORNER_C_REAR_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut22 = new MGROUP_ROTATE(meshidxCrawler, &Strut22GrpList[0], 1, _V(-8.307, 2.414, 8.275), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut22);
-	MGROUP_SCALE* Scale_Strut22 = new MGROUP_SCALE(meshidxCrawler, &Strut22GrpList[1], 1, _V(-12.465, 2.924, 8.275), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Strut22, parent);
-
-	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
-	anim_truck_rot[2] = CreateAnimation(0.5);
-	parent = AddManagedAnimationComponent(anim_truck_rot[2], 0.0, 1.0, Rot_Truck3);
-	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
-	anim_truck_trans[2] = CreateAnimation(0.0);
-	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
-	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-2], 1,_V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
-	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
-	// strut animations
-	/*static UINT Strut31GrpList[2] = {GRP_CORNER_A_FWD_STEERING_CYLINDER, GRP_CORNER_A_FWD_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut31 = new MGROUP_ROTATE(meshidxCrawler, &Strut31GrpList[0], 1, _V(8.289, 2.396, -18.181), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut31);
-	MGROUP_SCALE* Scale_Strut31 = new MGROUP_SCALE(meshidxCrawler, &Strut31GrpList[1], 1, _V(12.449, 2.908, -18.181), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Strut31, parent);
-	static UINT Strut32GrpList[2] = {GRP_CORNER_A_REAR_STEERING_CYLINDER, GRP_CORNER_A_REAR_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut32 = new MGROUP_ROTATE(meshidxCrawler, &Strut32GrpList[0], 1, _V(8.289, 2.396, -8.333), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut32);
-	MGROUP_SCALE* Scale_Strut32 = new MGROUP_SCALE(meshidxCrawler, &Strut32GrpList[1], 1, _V(12.449, 2.908, -8.333), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Strut32, parent);
-
-	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
-	anim_truck_rot[3] = CreateAnimation(0.5);
-	parent = AddManagedAnimationComponent(anim_truck_rot[3], 0.0, 1.0, Rot_Truck4);
-	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
-	anim_truck_trans[3] = CreateAnimation(0.0);
-	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
-	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
-	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
-	// strut animations
-	static UINT Strut41GrpList[2] = {GRP_CORNER_B_FWD_STEERING_CYLINDER, GRP_CORNER_B_FWD_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut41 = new MGROUP_ROTATE(meshidxCrawler, &Strut41GrpList[0], 1, _V(-8.307, 2.414, -18.191), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut41);
-	MGROUP_SCALE* Scale_Strut41 = new MGROUP_SCALE(meshidxCrawler, &Strut41GrpList[1], 1, _V(-12.465, 2.924, -18.191), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Strut41, parent);
-	static UINT Strut42GrpList[2] = {GRP_CORNER_B_REAR_STEERING_CYLINDER, GRP_CORNER_B_REAR_STEERING_CYLINDER_DUST_SHIELD};
-	MGROUP_ROTATE* Rotate_Strut42 = new MGROUP_ROTATE(meshidxCrawler, &Strut42GrpList[0], 1, _V(-8.307, 2.414, -8.343), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
-	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut42);
-	MGROUP_SCALE* Scale_Strut42 = new MGROUP_SCALE(meshidxCrawler, &Strut42GrpList[1], 1, _V(-12.465, 2.924, -8.343), STRUT_SCALE_VECTOR);
-	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Strut42, parent);*/
 }
 
 void Crawler::clbkPostCreation()
@@ -687,7 +606,6 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
 	sprintf_s(cbuf, 255, "%.10f %.10f %.10f", lastLat, lastLong, lastHead);
 	oapiWriteScenario_string(scn, "GROUND_POS", cbuf);
-	//pEngine->SaveState(scn);
 	psubsystems->SaveState(scn);
 	pgFwdCab.OnSaveState(scn);
 	pgRearCab.OnSaveState(scn);
@@ -1113,16 +1031,9 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	double front_dist, back_dist;
 	double dist=length(relPos);
 	double dCos = cos(lastHead);
-	//unsigned short usAftIndex; // indicates which tracks are at 'aft' of crawler
 	
 	front_dist = dist-20.0*abs(dCos);
 	back_dist = dist+20.0*abs(dCos);
-	/*if(dCos >= 0.0) {
-		usAftIndex = 2;
-	}
-	else {
-		usAftIndex = 0;
-	}*/
 
 	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
 	if(front_dist < 395.0 && abs(relPos.x)<10.0)
@@ -1137,7 +1048,6 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 
 		double fwdAngle=atan((front_height-front_height2)/(front_dist2-front_dist));
 		double backAngle=atan((back_height2-back_height)/(back_dist-back_dist2));
-		//double rot_anim_pos = curAngle/(20*RAD); // animation has range of +/10 degress; divide by 20 to get result in correct range
 		double fwd_rot_anim_pos = fwdAngle/(20*RAD);
 		double back_rot_anim_pos = backAngle/(20*RAD);
 		if(dCos<0.0) {
@@ -1149,22 +1059,12 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		
-		//curHeight=front_height;
-		//curAngle=atan((front_height-back_height)/40.0);
 		curFrontHeight=front_height;
 		curBackHeight=back_height2;
 		curFrontAngle=fwdAngle;
 		curBackAngle=backAngle;
 
 		UpdateTouchdownPoints();
-		/*SetTouchdownPoints(_V(0, front_height, 20.0), _V(-10, front_height, -20.0), _V(10, front_height, -20.0));
-
-		for(int i=0;i<2;i++) {
-			SetAnimation(anim_truck_rot[i+2-usAftIndex], 0.5+fwd_rot_anim_pos);
-			SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
-		}
-		SetAnimation(anim_truck_trans[usAftIndex], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);
-		SetAnimation(anim_truck_trans[usAftIndex+1], min(JACKING_MAX_HEIGHT, front_height-back_height2)/JACKING_MAX_HEIGHT);*/
 
 		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
 		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
