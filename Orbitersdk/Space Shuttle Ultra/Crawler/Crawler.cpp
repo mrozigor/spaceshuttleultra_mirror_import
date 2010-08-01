@@ -131,11 +131,10 @@
 
 #include "../SSUMath.h"
 #include "Crawler.h"
+#include "CrawlerLeftPanel.h"
 #include "CrawlerCenterPanel.h"
 #include "CrawlerRightPanel.h"
-//#include "meshres_crawler.h"
 
-//HINSTANCE g_hDLL;
 GlobalHandles g_Resources;
 
 DLLCLBK void InitModule(HINSTANCE hModule) {
@@ -146,6 +145,8 @@ DLLCLBK void InitModule(HINSTANCE hModule) {
 	g_Resources.pbi_lights = oapiCreateSurface(hBmp);
 	hBmp = LoadBitmap(g_Resources.hDll, MAKEINTRESOURCE(IDB_7SEGDIGITS));
 	g_Resources.digits_7seg = oapiCreateSurface(hBmp);
+	hBmp = LoadBitmap(g_Resources.hDll, MAKEINTRESOURCE(IDB_LIGHTS));
+	g_Resources.lights = oapiCreateSurface(hBmp);
 }
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
@@ -173,9 +174,11 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	psubsystems = new SubsystemDirector<Crawler>(this);
 	psubsystems->AddSubsystem(pEngine = new CrawlerEngine(psubsystems));
 
+	pgFwdCab.AddPanel(new vc::CrawlerLeftPanel(this, "FWD_CAB_LEFT", vc::FWD));
 	pgFwdCab.AddPanel(new vc::CrawlerCenterPanel(this, "FWD_CAB_CTR", vc::FWD));
 	pgFwdCab.AddPanel(new vc::CrawlerRightPanel(this, "FWD_CAB_RIGHT", vc::FWD));
-	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB", vc::REAR));
+	pgRearCab.AddPanel(new vc::CrawlerLeftPanel(this, "REAR_CAB_LEFT", vc::REAR));
+	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB_CTR", vc::REAR));
 	pgRearCab.AddPanel(new vc::CrawlerRightPanel(this, "REAR_CAB_RIGHT", vc::REAR));
 
 	//tgtVelocity = 0.0;

@@ -127,7 +127,9 @@ const int VIEWPOS_REARGANGWAY		= 5;
 const int VIEWPOS_RIGHTREARGANGWAY	= 6;
 
 const int AID_REAR_OFFSET = 50; // offset added for rear cabs
-const int AID_LEFT_MIN			= 0;
+const int AID_LEFT_MIN			= 1;
+const int AID_BRAKE_PBI			= 2;
+const int AID_BRAKE_LIGHT		= 3;
 const int AID_CTR_MIN			= 10;
 const int AID_SPEED_VALUE		= 11;
 const int AID_SPEED_BAR			= 12;
@@ -153,6 +155,7 @@ typedef struct
 	HINSTANCE hDll;
 	SURFHANDLE pbi_lights;
 	SURFHANDLE digits_7seg;
+	SURFHANDLE lights;
 } GlobalHandles;
 
 
