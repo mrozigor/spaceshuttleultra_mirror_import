@@ -54,6 +54,7 @@ END
 
 IDB_PBILABELS           BITMAP                  "Bitmaps\\Crawler_PBI_labels.bmp"
 IDB_7SEGDIGITS          BITMAP                  "Bitmaps\\Crawler_digits.bmp"
+IDB_LIGHTS              BITMAP                  "Bitmaps\\Crawler_lights.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

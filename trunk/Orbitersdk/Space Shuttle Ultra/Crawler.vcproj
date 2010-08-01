@@ -508,6 +508,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Bitmaps\Crawler_lights.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\Bitmaps\Crawler_PBI_labels.bmp"
 				>
 			</File>

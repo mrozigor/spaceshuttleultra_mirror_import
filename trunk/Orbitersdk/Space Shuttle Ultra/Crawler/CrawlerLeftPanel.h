@@ -3,13 +3,23 @@
 #pragma once
 
 #include "Crawler_vc_defs.h"
-
+#include "CrawlerPBI.h"
+#include "CrawlerPanelLight.h"
 
 namespace vc
 {
 
 class CrawlerLeftPanel : public CrawlerPanel
 {
+	CrawlerPBI* pParkingBrakePBI;
+	CrawlerPanelLight* pParkingBrakeLight;
+public:
+	CrawlerLeftPanel(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
+	virtual ~CrawlerLeftPanel();
+
+	virtual void RegisterVC();
+	virtual void DefineVC();
+	virtual void Realize();
 };
 
 };

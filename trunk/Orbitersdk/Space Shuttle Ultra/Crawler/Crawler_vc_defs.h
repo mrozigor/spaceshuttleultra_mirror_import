@@ -19,6 +19,19 @@ namespace vc
 	const int PBI_GO = 62;
 	const int PBI_BLACK = 93;
 
+	const int LIGHT_WIDTH = 87;
+	const int LIGHT_HEIGHT = 67;
+	const int LIGHT_ON_X = 0;
+	const int LIGHT_OFF_X = 88;
+	const int LIGHT_CAB_SELECTED_Y	= 0;
+	const int LIGHT_MAX_ANGLE_Y		= 69;
+	const int LIGHT_IN_CONTROL_Y	= 138;
+	const int LIGHT_MOTOR_FIELD_Y	= 207;
+	const int LIGHT_MOTOR_CHKS_Y	= 276;
+	const int LIGHT_EXCITER_ON_Y	= 345;
+	const int LIGHT_GROUND_FAULT_Y	= 414;
+	const int LIGHT_BRAKES_ON_Y		= 483;
+
 	class CrawlerPanel : public BasicPanel<Crawler>
 	{
 	protected:
