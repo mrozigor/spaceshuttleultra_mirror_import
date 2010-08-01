@@ -31,12 +31,9 @@ public:
 	CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 	virtual ~CrawlerRightPanel();
 
-	//virtual void DefineVCAnimations (UINT vcidx);
 	virtual void RegisterVC();
 	virtual void DefineVC();
 	virtual void Realize();
-
-	//virtual void OnPreStep(double SimT, double SimDT, double MJD);
 };
 
 };

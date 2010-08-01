@@ -279,8 +279,6 @@ private:
 	DiscInPort independent, crab, greatCircle;
 	DiscOutPort port_currentSpeed;
 
-	//bool keyAccelerate;
-	//bool keyBrake;
 	bool keyLeft;
 	bool keyRight;
 	bool keyCenter;
@@ -294,9 +292,6 @@ private:
 	MESHHANDLE hFwdVCMesh;
 	MESHHANDLE hRearVCMesh;
 
-	/*MESHGROUP_TRANSFORM vccSpeedGroup, vccSpeedGroupReverse;
-	MESHGROUP_TRANSFORM vccSteering1Group, vccSteering2Group;
-	MESHGROUP_TRANSFORM vccSteering1GroupReverse, vccSteering2GroupReverse;*/
 	double vccSpeed, vccSteering;
     int meshidxCrawler;
     int meshidxTruck1;
@@ -304,8 +299,6 @@ private:
 	int meshidxTruck3;
 	int meshidxTruck4;
 	UINT fwdVCIdx, rearVCIdx;
-    //int meshidxPanel;
-	//int meshidxPanelReverse;
 	UINT anim_truck_trans[4];
 	UINT anim_truck_rot[4];
 	UINT DrivetruckGrpList[NGRP_TRUCK]; // array used to define drivetruck animations
@@ -313,8 +306,6 @@ private:
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	//SoundLib soundlib;
-	//Sound soundEngine;
 	int SoundID;
 
 	OBJHANDLE hEarth;
