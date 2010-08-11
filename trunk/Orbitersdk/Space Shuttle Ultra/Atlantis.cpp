@@ -5657,6 +5657,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
+		if(bAutopilot && status <= STATE_STAGE2) InitializeAutopilot();
 	}
 
 	if(!___PreStep_flag)
@@ -5814,8 +5815,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			RecordEvent ("STATUS", "SSME_IGNITION");
 			//play sounds
 			PlayVesselWave3(SoundID, SSME_START, NOLOOP);
-			if(bAutopilot) 
-				InitializeAutopilot(); //setup autopilot for ascent
+			//if(bAutopilot) 
+				//InitializeAutopilot(); //setup autopilot for ascent
 		} 
 		else if(GetThrusterGroupLevel(THGROUP_MAIN) == 0.0)
 		{
