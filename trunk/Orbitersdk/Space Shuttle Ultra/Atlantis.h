@@ -1395,6 +1395,7 @@ private:
 	void CreateRightARCS(const VECTOR3& ref_pos);
 	void CreateLeftARCS(const VECTOR3& ref_pos);
 	void CreateFRCS(const VECTOR3& ref_pos);
+	void CreateSSMEs(const VECTOR3& ofs);
 	void CreateMPSGOXVents(const VECTOR3& ref_pos);
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
