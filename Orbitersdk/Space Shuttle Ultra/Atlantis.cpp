@@ -1107,14 +1107,12 @@ void Atlantis::SetLaunchConfiguration (void)
 
   ClearThrusterDefinitions();
   
-  th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+  /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
   th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-
-  CreateMPSGOXVents(OFS_LAUNCH_ORBITER);
+  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);*/
+  CreateSSMEs(OFS_LAUNCH_ORBITER);  
   
-  
-  thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
+  /*thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
   DefineSSMEExhaust();
   //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
   for(i=0;i<3;i++) {
@@ -1123,7 +1121,7 @@ void Atlantis::SetLaunchConfiguration (void)
 	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
 	  //panelr2->CheckMPSArmed(i);
 	  SSMEEngControl(i);
-  }
+  }*/
 
   // SRBs
   /*th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
@@ -1254,7 +1252,8 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // all times
 
   ofs = OFS_WITHTANK_ORBITER;
-  if (thg_main) { // main engines already defined - just modify parameters
+  CreateSSMEs(OFS_WITHTANK_ORBITER);
+  /*if (thg_main) { // main engines already defined - just modify parameters
 	  /*
 	SetThrusterRef (th_main[1], ofs+_V(-1.6,-0.2,-16.0));
     SetThrusterDir (th_main[1], _V( 0.0624,-0.1789,0.9819));
@@ -1262,7 +1261,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
     SetThrusterDir (th_main[2], _V(-0.0624,-0.1789,0.9819));
     SetThrusterRef (th_main[0], ofs+_V( 0.0, 3.2,-15.5));
     SetThrusterDir (th_main[0], _V( 0.0,-0.308046,0.951372));
-	*/
+	*
 
 	DefineSSMEExhaust();
   } 
@@ -1287,7 +1286,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	  SetThrusterDir(th_main[i], EngineNullPosition[i]);
 	  //panelr2->CheckMPSArmed(i);
 	  SSMEEngControl(i);
-  }
+  }*/
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(th_oms[0]==NULL) {
     //VECTOR3 OMS_POS=ofs+_V(0,3.55,-13.04);
@@ -8827,6 +8826,27 @@ void Atlantis::StartROFIs()
 				static_cast<MLP*>(pV)->TriggerROFIs();
 			}
 		}
+	}
+}
+
+void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
+{
+	if(!thg_main) {
+		th_main[0] = CreateThruster (ofs + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[1] = CreateThruster (ofs + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[2] = CreateThruster (ofs + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
+		thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
+	}
+
+	CreateMPSGOXVents(ofs);
+	DefineSSMEExhaust();
+
+	// calculate null direction for each engine 
+	for(unsigned short i=0;i<3;i++) {
+		GetThrusterRef(th_main[i], EngineNullPosition[i]);
+		EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
+		SetThrusterDir(th_main[i], EngineNullPosition[i]);
+		SSMEEngControl(i);
 	}
 }
 
