@@ -828,7 +828,7 @@ gncsoftware(NULL)
   bZThrust=false;
   bEngineFail=false;
   bCommMode = false;
-  bSSMEGOXVent = false;
+  bSSMEGOXVent = true;
   bHasODS = false;
   bHasExtAL = false;
   bMidDeckVisible = false;
@@ -6952,7 +6952,10 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = orbiter_ofs + VC_HUDPOS_CDR;
-    oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS1);
+    
+	if(bHasODS) oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS1);
+	else oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_PLBCAMFL, VC_MS1);
+	
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
 
@@ -6987,7 +6990,10 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
 		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
     huds.hudcnt = orbiter_ofs + VC_HUDPOS_PLT;
-    oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
+    
+	if(bHasODS) oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
+	else oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
+	
 	InactiveMDUs.insert(vc::MDUID_AFD);
 	InactiveMDUs.insert(vc::MDUID_CRT4);
 
@@ -7023,7 +7029,8 @@ bool Atlantis::clbkLoadVC (int id)
 	InactiveMDUs.insert(vc::MDUID_CDR2);
 
     // Outside cameras neighbours
-	oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
+	if(bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
+	else oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION);
     //oapiVCSetNeighbours (1, 0, 3, 0);
 
     // Default camera rotarion
@@ -7079,7 +7086,8 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
     SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
-    oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
+    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_AFTWORKSTATION);
 
 	//HideMidDeck();
 
@@ -7089,7 +7097,8 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMFR: //FR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
     SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
-    oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
+    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTWORKSTATION);
 
 	//HideMidDeck();
 
@@ -7098,7 +7107,8 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
     SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
-    oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
+	if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_AFTWORKSTATION);
 
 	//HideMidDeck();
 
@@ -7107,7 +7117,8 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
     SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
-    oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
+    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTWORKSTATION);
 
 	//HideMidDeck();
 
@@ -7138,7 +7149,8 @@ bool Atlantis::clbkLoadVC (int id)
 		_V(0.4, 0.0, 0.0), 0, 0, 
 		_V(-0.4, 0.0, 0.0), 0, 0);
     // Outside cameras neighbours
-	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+	if(bHasODS) oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
 
 	//HideMidDeck();
 
@@ -7161,7 +7173,10 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_RMSSTATION);
     SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+    
+	if(bHasODS) oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
+	else oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
+	
 	InactiveMDUs.insert(vc::MDUID_PLT1);
 	InactiveMDUs.insert(vc::MDUID_PLT2);
 
@@ -7192,7 +7207,10 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_PORTSTATION);
     SetCameraDefaultDirection (VC_DIR_PORTSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
+    
+	if(bHasODS) oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
+	else oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
+
 	InactiveMDUs.insert(vc::MDUID_PLT1);
 	InactiveMDUs.insert(vc::MDUID_PLT2);
 
@@ -7247,7 +7265,10 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS1);
     SetCameraDefaultDirection (VC_DIR_MS1);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-	oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
+	
+	if(bHasODS) oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_PLBCAMFL);
+
 	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
@@ -7280,7 +7301,10 @@ bool Atlantis::clbkLoadVC (int id)
 	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
+    
+	if(bHasODS) oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
+	else oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
+
 	InactiveMDUs.insert(vc::MDUID_AFD);
 
 	// Default camera rotation
@@ -7333,7 +7357,8 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
 
-	  oapiVCSetNeighbours (-1, -1, VC_MIDDECK, VC_DOCKCAM);
+	  if(bHasODS) oapiVCSetNeighbours (-1, -1, VC_MIDDECK, VC_DOCKCAM);
+	  else oapiVCSetNeighbours (-1, -1, VC_MIDDECK, -1);
 
 	  //ShowMidDeck();
      
@@ -9308,9 +9333,9 @@ AMAX=1
 TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0, 1.25, 1.2, 1.35, PARTICLESTREAMSPEC::EMISSIVE, 
+	  0, 0.06, 140, 10, 0, 0.60, 1.2, 1.35, PARTICLESTREAMSPEC::EMISSIVE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
-	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-1140, 1
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
 
 	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
