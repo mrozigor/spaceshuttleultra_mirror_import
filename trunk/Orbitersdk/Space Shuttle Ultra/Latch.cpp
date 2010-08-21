@@ -429,6 +429,10 @@ ATTACHMENTHANDLE ActiveLatchGroup::FindPayload(VESSEL** pVessel) const
 	STS()->GlobalRot(dir, glatchdir);
 
 	for(unsigned int i=0;i<vhPayloads.size();i++) {
+		// if handle has become invalid, skip vessel
+		// payload list is updated every 10 seconds and should delete invalid element
+		if(!oapiIsVessel(vhPayloads.at(i))) continue;
+
 		hAtt = CanAttach(vhPayloads.at(i), glatchpos, glatchdir);
 		if(hAtt) {
 			//sprintf_s(oapiDebugString(), 255, "%s: found payload", GetIdentifier().c_str());
