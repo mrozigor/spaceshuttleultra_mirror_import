@@ -4,7 +4,7 @@
 
 
 
-MechActuator::MechActuator(SubsystemDirector *_pDirect, 
+MechActuator::MechActuator(AtlantisSubsystemDirector *_pDirect, 
 						   const std::string &_ident, 
 						   double fStandardTime)
 : AtlantisSubsystem(_pDirect, _ident)

@@ -65,7 +65,7 @@ namespace dps {
 		//void LoadMemoryConfiguration(const GPCMemoryConfiguration* pMemConfig);
 		//void LoadSoftware(const GPCSoftware* pSoftware);
 	public:
-		AP101S(SubsystemDirector* _director, const string& _ident, unsigned short usGPCID);
+		AP101S(AtlantisSubsystemDirector* _director, const string& _ident, unsigned short usGPCID);
 		virtual ~AP101S();
 	};
 

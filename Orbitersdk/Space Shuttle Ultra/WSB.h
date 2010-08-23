@@ -47,7 +47,7 @@ class WSB : public AtlantisSubsystem
 	DiscInPort BoilerN2Supply;
 	DiscOutPort Ready;
 public:
-	WSB(SubsystemDirector* _director, const string& _ident, unsigned short _ID);
+	WSB(AtlantisSubsystemDirector* _director, const string& _ident, unsigned short _ID);
 	virtual ~WSB();
 
 	virtual void Realize();

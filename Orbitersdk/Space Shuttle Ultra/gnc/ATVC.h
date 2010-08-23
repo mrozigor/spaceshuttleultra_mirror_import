@@ -143,7 +143,7 @@ namespace gnc
 		DiscOutPort out_RSRBT_isolvlv;
 		DiscOutPort out_RSRBR_isolvlv;
 
-		ATVC( SubsystemDirector* _director, const string& _ident, short nID );
+		ATVC( AtlantisSubsystemDirector* _director, const string& _ident, short nID );
 		~ATVC( void );
 
 		void Realize( void );

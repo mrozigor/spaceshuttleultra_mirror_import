@@ -4,7 +4,7 @@
 #include "SSUMath.h"
 //#include "util/Stopwatch.h"
 
-LatchSystem::LatchSystem(SubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)
+LatchSystem::LatchSystem(AtlantisSubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)
 	: AtlantisSubsystem(_director, _ident)
 {
 	attachedPayload=NULL;
@@ -240,7 +240,7 @@ void LatchSystem::CheckForAttachedObjects()
 // ActiveLatchGroup class
 //////////////////////////////////////////////////////////////
 
-ActiveLatchGroup::ActiveLatchGroup(SubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
+ActiveLatchGroup::ActiveLatchGroup(AtlantisSubsystemDirector *_director, const std::string &_ident, const VECTOR3 &_pos, const VECTOR3 &_dir, const VECTOR3 &_rot)
 	: LatchSystem(_director, _ident, "XS"), usLatchNum(5), lastUpdateTime(-100.0)
 {
 	SetAttachmentParams(_pos, _dir, _rot);

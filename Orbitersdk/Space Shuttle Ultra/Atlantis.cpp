@@ -35,7 +35,7 @@
 #include "meshres_KU.h"
 #include "meshres_vc_additions.h"
 #include "resource.h"
-#include "SubsystemDirector.h"
+#include "AtlantisSubsystemDirector.h"
 #include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
 #include "dps/IDP.h"
@@ -413,7 +413,7 @@ gncsoftware(NULL)
   pExtAirlock = NULL;
 
 
-  psubsystems	  = new SubsystemDirector(this);
+  psubsystems	  = new AtlantisSubsystemDirector(this);
 
   psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
   psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));

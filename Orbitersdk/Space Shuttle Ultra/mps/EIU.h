@@ -43,7 +43,7 @@ namespace mps
 		VDT_32* PrimaryData;
 		VDT_6* SecondaryData;
 	public:
-		EIU( SubsystemDirector*, const string&, int, SSME* );
+		EIU( AtlantisSubsystemDirector*, const string&, int, SSME* );
 		~EIU( void );
 
 		virtual void busCommandPhase(dps::BusController* biu);

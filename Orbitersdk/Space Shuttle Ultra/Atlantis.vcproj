@@ -61,7 +61,7 @@
 				ExecutionBucket="6"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../include"
+				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -160,7 +160,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include"
+				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/Atlantis.pch"
@@ -256,7 +256,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/analyze"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include"
+				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/Atlantis.pch"
@@ -443,6 +443,10 @@
 			</File>
 			<File
 				RelativePath=".\AtlantisSubsystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AtlantisSubsystemDirector.cpp"
 				>
 			</File>
 			<File
@@ -812,10 +816,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SubsystemDirector.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\vc\Talkback.cpp"
 				>
 			</File>
@@ -862,6 +862,10 @@
 			</File>
 			<File
 				RelativePath=".\AtlantisSubsystem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AtlantisSubsystemDirector.h"
 				>
 			</File>
 			<File
@@ -1193,7 +1197,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SubsystemDirector.h"
+				RelativePath="..\libUltra\include\Subsystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\libUltra\include\SubsystemDirector.h"
 				>
 			</File>
 			<File

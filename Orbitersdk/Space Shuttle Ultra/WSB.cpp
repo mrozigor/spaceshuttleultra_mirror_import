@@ -1,6 +1,6 @@
 #include "WSB.h"
 
-WSB::WSB(SubsystemDirector *_director, const std::string &_ident, unsigned short _ID)
+WSB::WSB(AtlantisSubsystemDirector *_director, const std::string &_ident, unsigned short _ID)
 	: AtlantisSubsystem(_director, _ident), usID(_ID)
 {
 	waterMass[0] = waterMass[1] = 0.0;

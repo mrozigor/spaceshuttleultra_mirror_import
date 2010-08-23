@@ -2,7 +2,7 @@
 
 namespace eva_docking {
 
-	BasicExternalAirlock::BasicExternalAirlock(SubsystemDirector* pdirect, const string& _ident)
+	BasicExternalAirlock::BasicExternalAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident)
 		: AtlantisSubsystem(pdirect, _ident)
 	{
 	}
@@ -42,7 +42,7 @@ namespace eva_docking {
 
 	}
 
-	NoExtAirlock::NoExtAirlock(SubsystemDirector *pdirect) 
+	NoExtAirlock::NoExtAirlock(AtlantisSubsystemDirector *pdirect) 
 		: BasicExternalAirlock(pdirect, "[Empty]")
 	{
 	}

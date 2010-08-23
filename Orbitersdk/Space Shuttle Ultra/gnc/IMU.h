@@ -45,7 +45,7 @@ namespace gnc {
 
 		double fTemperatureState; //????
 	public:
-		IMU(SubsystemDirector* _director, const std::string& name, unsigned short usTerminalID=5);
+		IMU(AtlantisSubsystemDirector* _director, const std::string& name, unsigned short usTerminalID=5);
 		virtual ~IMU();
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);

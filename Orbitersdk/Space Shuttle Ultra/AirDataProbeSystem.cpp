@@ -10,7 +10,7 @@
 // Konstruktion/Destruktion
 //////////////////////////////////////////////////////////////////////
 
-AirDataProbeSystem::AirDataProbeSystem(SubsystemDirector* _director)
+AirDataProbeSystem::AirDataProbeSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "ADPS")
 {
 	left_deploy[0] = left_deploy[1] = 0.0;
@@ -152,8 +152,8 @@ bool AirDataProbeSystem::IsDeployed(int side) const
 
 void AirDataProbeSystem::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 {
-	director->STS()->SetAirDataProbeDeployment(0, left_deploy[0]);
-	director->STS()->SetAirDataProbeDeployment(1, right_deploy[0]);
+	STS()->SetAirDataProbeDeployment(0, left_deploy[0]);
+	STS()->SetAirDataProbeDeployment(1, right_deploy[0]);
 }
 
 double AirDataProbeSystem::GetStaticPressure(int side) const

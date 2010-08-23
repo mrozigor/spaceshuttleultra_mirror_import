@@ -16,7 +16,7 @@
 
 namespace dps {
 
-MDM::MDM(SubsystemDirector* _director, const string& _ident,
+MDM::MDM(AtlantisSubsystemDirector* _director, const string& _ident,
 		 unsigned short MIA1_addr, unsigned short MIA2_addr)
 : AtlantisSubsystem(_director, _ident)
 {

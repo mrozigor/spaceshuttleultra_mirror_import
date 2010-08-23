@@ -57,7 +57,7 @@ protected:
 	IOModule* m_modules[16];
 	void MasterReset(void);
 public:
-	MDM(SubsystemDirector* _director, const string& _ident,
+	MDM(AtlantisSubsystemDirector* _director, const string& _ident,
 		unsigned short MIA1_addr, unsigned short MIA2_addr);
 	virtual ~MDM();
 

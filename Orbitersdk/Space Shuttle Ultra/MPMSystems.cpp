@@ -1,7 +1,7 @@
 #include "MPMSystems.h"
 #include "CommonDefs.h"
 
-MPMSystem::MPMSystem(SubsystemDirector *_director, const std::string &_ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID)
+MPMSystem::MPMSystem(AtlantisSubsystemDirector *_director, const std::string &_ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID)
 	: LatchSystem(_director, _ident, _attachID)
 {
 	mesh_index=MESH_UNDEFINED;

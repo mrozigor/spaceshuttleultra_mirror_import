@@ -2,7 +2,7 @@
 #include "RMSSystem.h"
 #include "SSUMath.h"
 
-StbdMPMSystem::StbdMPMSystem(SubsystemDirector *_director)
+StbdMPMSystem::StbdMPMSystem(AtlantisSubsystemDirector *_director)
 	: MPMSystem(_director, "STBD_MPM", MPM_MESHNAME, MPM_MESH_OFFSET, "OBSS")
 {
 	obss_attach_point[0]=OBSS_ATTACHMENT_POINT;

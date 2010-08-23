@@ -3,7 +3,7 @@
 
 namespace mps
 {
-	EIU::EIU( SubsystemDirector* _director, const string& _ident, int nID, SSME* ptr ):AtlantisSubsystem( _director, _ident )
+	EIU::EIU( AtlantisSubsystemDirector* _director, const string& _ident, int nID, SSME* ptr ):AtlantisSubsystem( _director, _ident )
 	{
 		ID = nID;
 		engine = ptr;

@@ -449,7 +449,7 @@ namespace mps
 		 * @param _ident identification of the subsystem inside the model
 		 * @param nID identification number of the SSME
 		 */
-		SSME( SubsystemDirector* _director, const string& _ident, int nID );
+		SSME( AtlantisSubsystemDirector* _director, const string& _ident, int nID );
 		~SSME( void );
 
 		/** 

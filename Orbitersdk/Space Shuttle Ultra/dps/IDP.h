@@ -116,7 +116,7 @@ namespace dps {
 		void PrintTime(vc::MDU* mdu);
 		void RenderDisplayBuffer(vc::MDU* mdu);
 	public:
-		IDP(SubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
+		IDP(AtlantisSubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
 		virtual ~IDP();
 		virtual void busCommandPhase(BusController* biu);
 		virtual void busReadPhase(BusController* biu);

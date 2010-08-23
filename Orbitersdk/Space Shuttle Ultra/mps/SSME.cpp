@@ -4,7 +4,7 @@
 
 namespace mps
 {
-	SSME::SSME( SubsystemDirector* _director, const string& _ident, int nID ):AtlantisSubsystem( _director, _ident )
+	SSME::SSME( AtlantisSubsystemDirector* _director, const string& _ident, int nID ):AtlantisSubsystem( _director, _ident )
 	{
 		ID = nID;
 		VDT = new VDT_128;

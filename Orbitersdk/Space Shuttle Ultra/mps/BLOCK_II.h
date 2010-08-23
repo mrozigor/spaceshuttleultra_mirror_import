@@ -61,7 +61,7 @@ namespace mps
 		double dcPC_MS( double );
 
 	public:
-		BLOCK_II( SubsystemDirector*, const string&, int );
+		BLOCK_II( AtlantisSubsystemDirector*, const string&, int );
 		~BLOCK_II( void );
 
 		// heart beat

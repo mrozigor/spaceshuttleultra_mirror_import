@@ -42,7 +42,7 @@ const VECTOR3 OBSS_ATTACHMENT_POINT = _V(0.06, 0.28, 1.457);
 class StbdMPMSystem : public MPMSystem
 {
 public:
-	StbdMPMSystem(SubsystemDirector* _director);
+	StbdMPMSystem(AtlantisSubsystemDirector* _director);
 	virtual ~StbdMPMSystem();
 
 	virtual void Realize();

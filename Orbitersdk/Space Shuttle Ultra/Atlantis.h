@@ -923,7 +923,7 @@ class PanelA4;
 class PanelC2;
 //class PanelF7;
 class PanelO3;
-class SubsystemDirector;
+class AtlantisSubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
@@ -1312,7 +1312,7 @@ public:
 	ATTACHMENTHANDLE ahPortPL[4];
 	ATTACHMENTHANDLE ahET, ahLeftSRB, ahRightSRB;
 	
-	SubsystemDirector* psubsystems;
+	AtlantisSubsystemDirector* psubsystems;
 	
 	PayloadBayOp *plop; // control and status of payload bay operations
 	//GearOp *gop; // control and status of landing gear

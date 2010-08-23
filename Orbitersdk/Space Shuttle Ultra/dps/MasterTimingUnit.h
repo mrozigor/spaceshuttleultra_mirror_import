@@ -94,7 +94,7 @@ class MasterTimingUnit : public AtlantisSubsystem
 
 	bool bMETCounting[2];
 public:
-	MasterTimingUnit(SubsystemDirector* _director);
+	MasterTimingUnit(AtlantisSubsystemDirector* _director);
 	virtual ~MasterTimingUnit();
 
 	short GetEventTimerSec(MTU_EVTTMR_INDEX timer) const;
