@@ -206,7 +206,7 @@ namespace eps {
 		double fPowerP2[2];
 		double fPowerP3[2];
 	public:
-		Inverter(SubsystemDirector* _direct, const std::string& name);
+		Inverter(AtlantisSubsystemDirector* _direct, const std::string& name);
 		virtual ~Inverter();
 		virtual double GetVoltage(ACPHASE phase) const;
 		virtual double GetPhaseAngle(ACPHASE phase) const;
@@ -233,7 +233,7 @@ namespace eps {
 		std::vector<ACBus*> bus_systems;
 		ACBus* CreateBus(const std::string& name);
 	public:
-		ACBusSystem(SubsystemDirector* _pDirect);
+		ACBusSystem(AtlantisSubsystemDirector* _pDirect);
 		virtual ~ACBusSystem();
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);

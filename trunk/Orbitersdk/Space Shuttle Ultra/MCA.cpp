@@ -33,7 +33,7 @@ void MCAModule::OnPropagate(double fSimT, double fDeltaT)
 	mc.acPropagate(fSimT, fDeltaT);
 }
 
-MCA::MCA(SubsystemDirector *_direct, const std::string &name)
+MCA::MCA(AtlantisSubsystemDirector *_direct, const std::string &name)
 : AtlantisSubsystem(_direct, name)
 {
 	oapiWriteLog("(MCA::MCA)");

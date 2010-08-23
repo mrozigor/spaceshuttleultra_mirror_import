@@ -2,7 +2,7 @@
 
 namespace gnc {
 
-	IMU::IMU(SubsystemDirector* _direct, const std::string& _name, unsigned short usTerminalID)
+	IMU::IMU(AtlantisSubsystemDirector* _direct, const std::string& _name, unsigned short usTerminalID)
 	: AtlantisSubsystem(_direct, _name),
 	fc_connect()
 	{

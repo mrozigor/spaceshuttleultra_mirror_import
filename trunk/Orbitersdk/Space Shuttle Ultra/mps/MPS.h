@@ -93,7 +93,7 @@ namespace mps
 		// RP
 
 	public:
-		MPS( SubsystemDirector* );
+		MPS( AtlantisSubsystemDirector* );
 		~MPS( void );
 
 		// vlv ops

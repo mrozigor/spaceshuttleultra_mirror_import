@@ -22,6 +22,8 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
+#ifndef __DISCRETEBUNDLEMANAGER_H_6C8AD5C7_ABE2_4842_AE3B_072F3951A4C9
+#define __DISCRETEBUNDLEMANAGER_H_6C8AD5C7_ABE2_4842_AE3B_072F3951A4C9
 #pragma once
 
 #include <vector>
@@ -51,3 +53,5 @@ public:
 };
 
 };
+
+#endif

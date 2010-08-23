@@ -5,7 +5,7 @@
 
 namespace eva_docking {
 
-	ODS::ODS(SubsystemDirector* pdirect, const string& _ident)
+	ODS::ODS(AtlantisSubsystemDirector* pdirect, const string& _ident)
 		: ExtAirlock(pdirect, _ident),
 		bPowerRelay(false),
 		bCircuitProtectionOff(false),

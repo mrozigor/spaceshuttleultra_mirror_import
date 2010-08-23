@@ -35,7 +35,7 @@ using class ::discsignals::DiscInPort;
 class APU: public AtlantisSubsystem
 {
 public:
-	APU(SubsystemDirector* _director, const string& _ident, int _ID);
+	APU(AtlantisSubsystemDirector* _director, const string& _ident, int _ID);
 	~APU();
 
 	//functions for CRT MFD APU/HYD display

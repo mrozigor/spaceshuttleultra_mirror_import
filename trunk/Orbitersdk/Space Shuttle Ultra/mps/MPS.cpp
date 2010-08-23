@@ -3,7 +3,7 @@
 
 namespace mps
 {
-	MPS::MPS( SubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsMPS" )
+	MPS::MPS( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "mpsMPS" )
 	{
 		// mostly speculation...
 		ptrPV1 = new ValveTypeBool( true, 50 );

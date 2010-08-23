@@ -29,7 +29,7 @@ namespace eva_docking {
 
 	class BasicExternalAirlock: public AtlantisSubsystem {
 	public:
-		BasicExternalAirlock(SubsystemDirector* pdirect, const string& ident);
+		BasicExternalAirlock(AtlantisSubsystemDirector* pdirect, const string& ident);
 		virtual ~BasicExternalAirlock();
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void Realize();
@@ -46,7 +46,7 @@ namespace eva_docking {
 
 	class NoExtAirlock: public BasicExternalAirlock {
 	public:
-		NoExtAirlock(SubsystemDirector* pdirect);
+		NoExtAirlock(AtlantisSubsystemDirector* pdirect);
 		virtual ~NoExtAirlock();
 		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
 	};

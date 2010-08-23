@@ -1,7 +1,7 @@
 #include "eps_defs.h"
 
 namespace eps {
-	ACBusSystem::ACBusSystem(SubsystemDirector* _direct)
+	ACBusSystem::ACBusSystem(AtlantisSubsystemDirector* _direct)
 		: AtlantisSubsystem(_direct, "ACBusSystem")
 	{
 	}

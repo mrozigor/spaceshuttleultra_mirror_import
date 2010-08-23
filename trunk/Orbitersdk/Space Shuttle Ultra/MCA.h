@@ -51,7 +51,7 @@ public:
 class MCA: public AtlantisSubsystem 
 {
 public:
-	MCA(SubsystemDirector* _direct, const std::string& name);
+	MCA(AtlantisSubsystemDirector* _direct, const std::string& name);
 	virtual ~MCA();
 	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);

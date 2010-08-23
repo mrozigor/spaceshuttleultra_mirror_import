@@ -4,7 +4,7 @@
 
 namespace mps
 {
-	BLOCK_II::BLOCK_II( SubsystemDirector* _director, const string& _ident, int nID ):SSME( _director, _ident, nID )
+	BLOCK_II::BLOCK_II( AtlantisSubsystemDirector* _director, const string& _ident, int nID ):SSME( _director, _ident, nID )
 	{
 		MPL = BLOCK_II_MPL;
 		FPL = BLOCK_II_FPL;

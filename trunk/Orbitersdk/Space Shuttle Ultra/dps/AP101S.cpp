@@ -10,7 +10,7 @@
 
 namespace dps {
 
-AP101S::AP101S(SubsystemDirector* _director, const string& _ident, unsigned short usGPCID)
+AP101S::AP101S(AtlantisSubsystemDirector* _director, const string& _ident, unsigned short usGPCID)
 :GPC(_director, _ident, usGPCID)
 {
 

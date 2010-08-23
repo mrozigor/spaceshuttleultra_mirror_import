@@ -29,7 +29,7 @@ public:
 	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 	bool IsDeployed(int side) const;
 	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
-	AirDataProbeSystem(SubsystemDirector* _director);
+	AirDataProbeSystem(AtlantisSubsystemDirector* _director);
 	virtual ~AirDataProbeSystem();
 
 	virtual void Realize();

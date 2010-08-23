@@ -2,7 +2,7 @@
 
 namespace eva_docking {
 
-	ExtAirlock::ExtAirlock(SubsystemDirector *pdirect, const std::string &_ident)
+	ExtAirlock::ExtAirlock(AtlantisSubsystemDirector *pdirect, const std::string &_ident)
 		: BasicExternalAirlock(pdirect, _ident) 
 	{
 		fHatchState = 0.0;

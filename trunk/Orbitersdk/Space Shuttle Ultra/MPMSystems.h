@@ -41,7 +41,7 @@ using namespace discsignals;
 class MPMSystem : public LatchSystem
 {
 public:
-	MPMSystem(SubsystemDirector* _director, const string& _ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID);
+	MPMSystem(AtlantisSubsystemDirector* _director, const string& _ident, const char* _meshname, const VECTOR3& _meshOffset, const string& _attachID);
 	virtual ~MPMSystem();
 
 	virtual void Realize();

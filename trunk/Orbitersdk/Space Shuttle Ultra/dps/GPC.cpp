@@ -3,7 +3,7 @@
 
 namespace dps {
 
-	GPC::GPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID) 
+	GPC::GPC(AtlantisSubsystemDirector* _direct, const string& _ident, unsigned short usGPCID) 
 		: AtlantisSubsystem(_direct, _ident)
 	{
 		this->usGPCID = usGPCID;

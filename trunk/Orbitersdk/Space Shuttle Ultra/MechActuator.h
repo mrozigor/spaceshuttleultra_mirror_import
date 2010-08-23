@@ -49,7 +49,7 @@ class MechActuator: public AtlantisSubsystem
 	bool fSingleMotorFlag;
 	
 public:
-	MechActuator(SubsystemDirector* _pDirect, const string& _ident, double fStandardTime = 0.0);
+	MechActuator(AtlantisSubsystemDirector* _pDirect, const string& _ident, double fStandardTime = 0.0);
 	virtual ~MechActuator();
 	virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 	virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);

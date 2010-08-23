@@ -109,7 +109,7 @@ namespace eva_docking {
 
 
 	public:
-		ODS(SubsystemDirector* pdirect, const string& _ident);
+		ODS(AtlantisSubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();
 		virtual void Realize();
 		//virtual void AddMeshes(const VECTOR3& ofs);

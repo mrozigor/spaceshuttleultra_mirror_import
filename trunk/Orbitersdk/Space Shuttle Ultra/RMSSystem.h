@@ -96,7 +96,7 @@ public:
 	typedef enum {SHOULDER_YAW=0, SHOULDER_PITCH=1, ELBOW_PITCH=2, WRIST_PITCH=3, WRIST_YAW=4, WRIST_ROLL=5} RMS_JOINT;
 	typedef enum {PAN=0, TILT=1} CAMERA_MOTION;
 
-	RMSSystem(SubsystemDirector* _director);
+	RMSSystem(AtlantisSubsystemDirector* _director);
 	virtual ~RMSSystem();
 
 	virtual void Realize();

@@ -2,7 +2,7 @@
 #include "Atlantis.h"
 #include <OrbiterSoundSDK35.h>
 
-APU::APU(SubsystemDirector *_director, const std::string &_ident, int _ID)
+APU::APU(AtlantisSubsystemDirector *_director, const std::string &_ident, int _ID)
 	: AtlantisSubsystem(_director, _ident), ID(_ID), phTank(NULL)
 {
 	State=OFF;

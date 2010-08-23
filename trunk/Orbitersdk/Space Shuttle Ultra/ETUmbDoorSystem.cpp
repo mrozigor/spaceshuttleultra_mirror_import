@@ -1,7 +1,7 @@
 #include "ETUmbDoorSystem.h"
 #include "SSUMath.h"
 
-ETUmbDoorSystem::ETUmbDoorSystem(SubsystemDirector* _director)
+ETUmbDoorSystem::ETUmbDoorSystem(AtlantisSubsystemDirector* _director)
 	: AtlantisSubsystem(_director, "ETUmbDoors")
 {
 	LDoorPos[0]=LDoorPos[1]=0.0; // closed

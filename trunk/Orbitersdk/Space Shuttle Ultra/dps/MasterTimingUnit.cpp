@@ -10,7 +10,7 @@
 
 namespace dps {
 
-MasterTimingUnit::MasterTimingUnit(SubsystemDirector* _director)
+MasterTimingUnit::MasterTimingUnit(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "MTU")
 {
 	int i;

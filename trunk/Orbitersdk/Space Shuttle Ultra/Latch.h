@@ -46,7 +46,7 @@ const double LATCH_CLOSE_TIME = 30.0;
 class LatchSystem : public AtlantisSubsystem
 {
 public:
-	LatchSystem(SubsystemDirector* _director, const string& _ident, const string& _attachID);
+	LatchSystem(AtlantisSubsystemDirector* _director, const string& _ident, const string& _attachID);
 	virtual ~LatchSystem();
 
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
@@ -117,7 +117,7 @@ private:
 class ActiveLatchGroup : public LatchSystem
 {
 public:
-	ActiveLatchGroup(SubsystemDirector* _director, const string& _ident, const VECTOR3& _pos, const VECTOR3& _dir, const VECTOR3& _rot);
+	ActiveLatchGroup(AtlantisSubsystemDirector* _director, const string& _ident, const VECTOR3& _pos, const VECTOR3& _dir, const VECTOR3& _rot);
 	virtual ~ActiveLatchGroup();
 
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);

@@ -165,7 +165,7 @@ namespace dps {
 
 		AP101PSW psw;
 	public:
-		GPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
+		GPC(AtlantisSubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
 		virtual ~GPC();
 	
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);

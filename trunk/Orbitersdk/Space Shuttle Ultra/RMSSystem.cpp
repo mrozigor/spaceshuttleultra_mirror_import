@@ -2,7 +2,7 @@
 #include "meshres_RMS.h"
 #include "SSUMath.h"
 
-RMSSystem::RMSSystem(SubsystemDirector *_director)
+RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE)
 {
 	joint_pos[SHOULDER_YAW] = 0.5;

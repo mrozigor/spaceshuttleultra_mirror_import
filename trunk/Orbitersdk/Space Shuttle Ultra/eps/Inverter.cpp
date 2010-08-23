@@ -2,7 +2,7 @@
 
 namespace eps {
 
-	Inverter::Inverter(SubsystemDirector* _direct, const std::string& name)
+	Inverter::Inverter(AtlantisSubsystemDirector* _direct, const std::string& name)
 		: AtlantisSubsystem(_direct, name)
 	{
 		fPowerP1[0] = fPowerP1[1] = 0.0;

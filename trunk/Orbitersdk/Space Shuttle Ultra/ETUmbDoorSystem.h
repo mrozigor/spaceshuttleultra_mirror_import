@@ -38,7 +38,7 @@ const double LATCH_OPERATING_SPEED = 0.166666667;
 class ETUmbDoorSystem : public AtlantisSubsystem
 {
 public:
-	ETUmbDoorSystem(SubsystemDirector* _director);
+	ETUmbDoorSystem(AtlantisSubsystemDirector* _director);
 	virtual ~ETUmbDoorSystem();
 
 	virtual void Realize();

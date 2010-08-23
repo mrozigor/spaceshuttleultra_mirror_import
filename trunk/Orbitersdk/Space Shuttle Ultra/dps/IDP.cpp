@@ -2,7 +2,7 @@
 
 namespace dps {
 
-	IDP::IDP(SubsystemDirector* _direct, const std::string& _ident, 
+	IDP::IDP(AtlantisSubsystemDirector* _direct, const std::string& _ident, 
 		unsigned short _usIDPID)
 		: AtlantisSubsystem(_direct, _ident), usIDPID(_usIDPID),
 		usGPCDay(0), usGPCHour(0), usGPCMinute(0), usGPCSecond(0),
