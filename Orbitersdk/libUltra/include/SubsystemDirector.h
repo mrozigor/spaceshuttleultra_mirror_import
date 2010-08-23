@@ -22,8 +22,8 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef ___ATLANTIS_ULTRA_SUBSYSTEM_DIRECTOR_H___
-#define ___ATLANTIS_ULTRA_SUBSYSTEM_DIRECTOR_H___
+#ifndef ___ULTRA_SUBSYSTEM_DIRECTOR_H___
+#define ___ULTRA_SUBSYSTEM_DIRECTOR_H___
 
 #include <vector>
 #include "OrbiterAPI.h"
@@ -63,10 +63,7 @@ public:
 	bool PreStep(double fSimT, double fDeltaT, double fMJD);
 	bool Report() const;
 	bool WriteLog(const Subsystem<TVessel>* src, char* message);
-	virtual DiscreteBundleManager* BundleManager() const;
 
-
-	//virtual dps::ShuttleBusManager* BusManager() const;
 	
 	/**
 	 * 
@@ -154,15 +151,6 @@ Subsystem<TVessel>* SubsystemDirector<TVessel>::GetSubsystemByName(const std::st
 	}
 	return NULL;
 }
-
-template <class TVessel>
-DiscreteBundleManager* SubsystemDirector<TVessel>::BundleManager() const {
-	return pV->BundleManager();
-}
-
-/*ShuttleBusManager* SubsystemDirector::BusManager() const {
-	return psts->BusManager();
-}*/
 
 template <class TVessel>
 bool SubsystemDirector<TVessel>::RealizeAll() {

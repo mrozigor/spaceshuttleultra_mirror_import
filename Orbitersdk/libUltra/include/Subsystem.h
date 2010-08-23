@@ -23,8 +23,8 @@
 
   **************************************************************************/
 
-#if !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
-#define AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_
+#ifndef SUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_
+#define SUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -33,6 +33,7 @@
 #include <string>
 #include "OrbiterAPI.h"
 #include "ISubsystem.h"
+#include "SubsystemDirector.h"
 //#include "dps/dps_defs.h"
 #include "DiscreteBundleManager.h"
 
@@ -40,9 +41,6 @@ using namespace std;
 using namespace discsignals;
 //using class dps::ShuttleBusManager;
 
-//class Atlantis;
-template <class TVessel>
-class SubsystemDirector;
 /**
  * base class for all subsystem simulations. 
  */
@@ -177,17 +175,6 @@ public:
 	 * Remove subsystem from Shuttle and visual
 	 */
 	virtual void UnloadSubsystem();
-
-	/** 
-	 * Return the currently used discrete bundle managing object. 
-	 * @return pointer to the bundle manager
-	 */
-	DiscreteBundleManager* BundleManager() const;
-	/** 
-	 * Return the currently used data bus managing object. 
-	 * @return pointer to the bus manager
-	 */
-	//ShuttleBusManager* BusManager() const;
 
 	
 	virtual bool OnReadState (FILEHANDLE scn);
@@ -332,12 +319,6 @@ TVessel* Subsystem<TVessel>::V() const
 	return director->V();
 }
 
-template <class TVessel>
-DiscreteBundleManager* Subsystem<TVessel>::BundleManager() const
-{
-	return director->BundleManager();
-}
-
 /*ShuttleBusManager* AtlantisSubsystem::BusManager() const {
 	return director->BusManager();
 }*/
@@ -389,4 +370,4 @@ template <class TVessel>
 EmptySubsystem<TVessel>::~EmptySubsystem() {
 }
 
-#endif // !defined(AFX_ATLANTISSUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
+#endif // !defined(SUBSYSTEM_H__6A9F0F48_D391_4E11_9536_F359182CA558__INCLUDED_)
