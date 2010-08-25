@@ -29,7 +29,7 @@
 #include <vector>
 #include "AtlantisSubsystem.h"
 #include "vesselapi.h"
-#include "discsignals/discsignals.h"
+#include "discsignals.h"
 
 const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling

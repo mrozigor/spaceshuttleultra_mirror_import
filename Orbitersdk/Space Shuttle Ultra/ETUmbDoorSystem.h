@@ -28,7 +28,7 @@
 
 #include "Atlantis.h"
 #include "AtlantisSubsystem.h"
-#include "discsignals/discsignals.h"
+#include "discsignals.h"
 
 using namespace discsignals;
 

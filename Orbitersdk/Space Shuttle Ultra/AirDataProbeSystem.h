@@ -10,7 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "AtlantisSubsystem.h"
-#include "discsignals/discsignals.h"
+#include "discsignals.h"
 
 using namespace discsignals;
 

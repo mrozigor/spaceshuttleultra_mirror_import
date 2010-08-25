@@ -27,7 +27,7 @@
 #pragma once
 
 #include "BasicRotarySwitch.h"
-#include "../discsignals/discsignals.h"
+#include "discsignals.h"
 
 namespace vc
 {

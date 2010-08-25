@@ -24,9 +24,9 @@
   **************************************************************************/
 #pragma once
 
-#include "..\discsignals\DiscreteBundleManager.h"
-#include "..\discsignals\DiscInPort.h"
-#include "..\discsignals\DiscOutPort.h"
+#include "DiscreteBundleManager.h"
+#include "DiscInPort.h"
+#include "DiscOutPort.h"
 
 namespace hydraulics {
 

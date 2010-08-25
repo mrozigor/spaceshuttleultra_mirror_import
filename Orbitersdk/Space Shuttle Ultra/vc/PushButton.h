@@ -25,7 +25,7 @@
 #pragma once
 
 #include "BasicVCComponent.h"
-#include "../discsignals/DiscOutPort.h"
+#include "DiscOutPort.h"
 
 namespace vc {
 

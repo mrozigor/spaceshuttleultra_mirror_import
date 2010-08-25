@@ -28,8 +28,8 @@
 
 #include "../Atlantis.h"
 #include "StandardLight.h"
-#include "../discsignals/DiscInPort.h"
-#include "../discsignals/DiscOutPort.h"
+#include "DiscInPort.h"
+#include "DiscOutPort.h"
 
 namespace vc
 {

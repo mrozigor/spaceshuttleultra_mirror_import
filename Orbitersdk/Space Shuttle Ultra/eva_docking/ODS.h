@@ -24,8 +24,8 @@
   **************************************************************************/
 #pragma once
 #include "ExtAirlock.h"
-#include "../discsignals/DiscOutPort.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscOutPort.h"
+#include "DiscInPort.h"
 #include <set>
 
 const static char* ODS_MESHNAME = "ODS";

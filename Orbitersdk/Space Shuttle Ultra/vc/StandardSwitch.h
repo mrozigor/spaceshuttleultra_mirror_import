@@ -29,9 +29,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "../discsignals/DiscreteBundle.h"
-#include "../discsignals/DiscOutPort.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscreteBundle.h"
+#include "DiscOutPort.h"
+#include "DiscInPort.h"
 #include "BasicSwitch.h"
 
 namespace vc {

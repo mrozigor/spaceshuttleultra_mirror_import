@@ -26,7 +26,7 @@
 
 #include "..\AtlantisSubsystem.h"
 #include "..\dps\BIU.h"
-#include "..\discsignals\discsignals.h"
+#include "discsignals.h"
 
 namespace gnc {
 

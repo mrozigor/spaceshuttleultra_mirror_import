@@ -1,6 +1,6 @@
 #include "PanelA7A8ODS.h"
 #include "../Atlantis.h"
-#include "../discsignals/DiscreteBundleManager.h"
+#include "DiscreteBundleManager.h"
 #include "../meshres_odsvc.h"
 
 extern GDIParams g_Param;

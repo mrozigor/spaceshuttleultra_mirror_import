@@ -537,23 +537,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscInPort.cpp"
+				RelativePath="..\libUltra\src\DiscInPort.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscOutPort.cpp"
+				RelativePath="..\libUltra\src\DiscOutPort.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscreteBundle.cpp"
+				RelativePath="..\libUltra\src\DiscreteBundle.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscreteBundleManager.cpp"
+				RelativePath="..\libUltra\src\DiscreteBundleManager.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscretePort.cpp"
+				RelativePath="..\libUltra\src\DiscretePort.cpp"
 				>
 			</File>
 			<File

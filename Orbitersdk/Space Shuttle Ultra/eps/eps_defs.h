@@ -25,7 +25,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../discsignals/DiscInPort.h"
+#include "../../libUltra/include/DiscInPort.h"
 #include "../AtlantisSubsystem.h"
 
 namespace eps {
