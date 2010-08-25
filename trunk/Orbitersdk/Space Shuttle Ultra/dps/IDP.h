@@ -29,7 +29,7 @@
 #include "dps_defs.h"
 #include "BIU.h"
 #include "../Keyboard.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscInPort.h"
 #include <map>
 
 namespace dps {	

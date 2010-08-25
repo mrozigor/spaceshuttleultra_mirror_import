@@ -25,7 +25,7 @@
 #pragma once 
 
 #include "BasicLight.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscInPort.h"
 
 
 

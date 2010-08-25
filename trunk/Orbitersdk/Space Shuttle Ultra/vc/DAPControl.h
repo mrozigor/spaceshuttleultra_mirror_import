@@ -27,8 +27,8 @@
 #pragma once
 
 #include "../Atlantis.h"
-#include "../discsignals/DiscOutPort.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscOutPort.h"
+#include "DiscInPort.h"
 
 // ==============================================================
 // DAPControl class

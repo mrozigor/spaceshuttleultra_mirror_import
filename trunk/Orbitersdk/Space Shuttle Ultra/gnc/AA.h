@@ -25,7 +25,7 @@
 
 #pragma once
 #include "../AtlantisSubsystem.h"
-#include "../discsignals/DiscOutPort.h"
+#include "../../libUltra/include/DiscOutPort.h"
 
 namespace gnc {
 

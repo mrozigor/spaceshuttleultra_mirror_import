@@ -25,7 +25,7 @@
 
 #pragma once
 #include "BasicVCComponent.h"
-#include "../discsignals/DiscreteBundle.h"
+#include "DiscreteBundle.h"
 
 namespace vc {
 

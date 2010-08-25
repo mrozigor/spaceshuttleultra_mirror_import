@@ -1,6 +1,6 @@
 #pragma once
 #include "dps_defs.h"
-#include "../discsignals/DiscInPort.h"
+#include "DiscInPort.h"
 
 namespace dps {
 

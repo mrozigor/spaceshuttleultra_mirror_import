@@ -25,7 +25,7 @@
 #pragma once
 
 #include "AtlantisSubsystem.h"
-#include "discsignals\discsignals.h"
+#include "discsignals.h"
 #include "eps\eps_defs.h"
 
 

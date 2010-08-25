@@ -27,7 +27,7 @@
 #pragma once
 
 #include "Latch.h"
-#include "discsignals/discsignals.h"
+#include "discsignals.h"
 #include "Atlantis.h"
 
 const double MPM_DEPLOY_SPEED = 0.0294117647;

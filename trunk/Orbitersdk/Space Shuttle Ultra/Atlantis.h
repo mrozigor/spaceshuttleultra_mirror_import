@@ -58,7 +58,7 @@
 #include "vc/DAPControl.h"
 #include "APU.h"
 #include "SSUEngConst.h"
-#include "discsignals/Discsignals.h"
+#include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
 

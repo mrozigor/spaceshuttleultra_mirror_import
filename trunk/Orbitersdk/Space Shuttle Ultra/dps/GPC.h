@@ -25,8 +25,8 @@
 #pragma once 
 
 #include "../AtlantisSubsystem.h"
-#include "../discsignals/DiscInPort.h"
-#include "../discsignals/DiscOutPort.h"
+#include "DiscInPort.h"
+#include "DiscOutPort.h"
 #include "BIU.h"
 
 namespace dps {

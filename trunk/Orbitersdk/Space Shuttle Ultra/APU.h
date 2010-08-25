@@ -27,8 +27,8 @@
 #pragma once
 
 #include "AtlantisSubsystem.h"
-#include "discsignals/DiscInPort.h"
-#include "discsignals/DiscOutPort.h"
+#include "../libUltra/include/DiscInPort.h"
+#include "../libUltra/include/DiscOutPort.h"
 
 using class ::discsignals::DiscInPort;
 
