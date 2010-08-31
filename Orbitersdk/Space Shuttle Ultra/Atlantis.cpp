@@ -7417,6 +7417,7 @@ bool Atlantis::clbkLoadVC (int id)
 		panelo3->UpdateVC();
 		//panelr2->UpdateVC();
 	}
+	oapiCameraSetCockpitDir(0, 0);
 	return ok;
 }
 

@@ -922,6 +922,7 @@ void Crawler::SetView(int viewpos) {
 		SetCameraDefaultDirection(_V(0, 0, -1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 	}	
+	oapiCameraSetCockpitDir(0, 0);
 }
 
 void Crawler::SetMeshesVisibility(WORD mode) {
