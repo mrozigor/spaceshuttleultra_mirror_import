@@ -71,6 +71,7 @@ namespace mission {
 		double OMSAssistEnd;
 		//bool bUseRTHU;
 		double RTHUVelocity;
+		double fMaxSSMEThrust;
 		unsigned short usExtAirlockMode;
 
 		double fPayloadZPos[16];
@@ -112,6 +113,11 @@ namespace mission {
 		virtual double GetMECOAlt() const;
 		virtual double GetMECOVel() const;
 		virtual double GetMECOFPA() const;
+
+		/**
+		 * @return maximum SSME thrust during standard launch profile
+		 */
+		virtual double GetMaxSSMEThrust() const;
 
 		virtual unsigned int GetNumberOfOMSBurns() const;
 		

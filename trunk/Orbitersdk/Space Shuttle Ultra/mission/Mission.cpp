@@ -106,6 +106,11 @@ namespace mission {
 			RTHUVelocity = 100000.0; // velocity faster than orbital speed; RTHU will not occur
 		}
 
+		if(!oapiReadItem_float(hFile, "MaxSSMEThrust", fMaxSSMEThrust))
+		{
+			fMaxSSMEThrust = 104.5;
+		}
+
 		if(!oapiReadItem_bool(hFile, "UseRMS", bUseRMS))
 		{
 			bUseRMS = false;
@@ -193,6 +198,11 @@ namespace mission {
 	double Mission::GetMECOFPA() const
 	{
 		return fMECOFPA;
+	}
+
+	double Mission::GetMaxSSMEThrust() const
+	{
+		return fMaxSSMEThrust;
 	}
 
 	unsigned int Mission::GetNumberOfOMSBurns() const
