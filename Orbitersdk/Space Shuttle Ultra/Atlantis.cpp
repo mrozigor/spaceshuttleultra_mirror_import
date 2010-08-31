@@ -2998,10 +2998,10 @@ void Atlantis::FailEngine(int engine)
 	SetThrusterResource(th_main[engine], NULL);
 	//should check throttle increase
 	MaxThrust=109.0;
-	for(int i=0;i<3;i++)
+	/*for(int i=0;i<3;i++)
 	{
 		SetThrusterMax0(th_main[i], SSME_RATED_THRUST*(MaxThrust/100.0));
-	}
+	}*/
 	CalcThrustAngles();
 	bEngineFail=false;
 }
@@ -5033,6 +5033,10 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
 				if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 			}
+
+			bAutopilot = true; // if mission file exists, we can get autopilot parameters
+
+			MaxThrust = pMission->GetMaxSSMEThrust();
 		}
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);

@@ -383,14 +383,14 @@ void Atlantis::Throttle(double dt)
 		case 1:
 			if(!bThrottle) return;
 			if(GetAirspeed()<18.288) 
-				SetThrusterGroupLevel(THGROUP_MAIN, 100.0/MaxThrust);
+				SetThrusterGroupLevel(THGROUP_MAIN, 100.0/109.0);
 			else if(GetAirspeed()>=Throttle_Bucket[0] && GetAirspeed()<=Throttle_Bucket[1]) {
-				if(GetThrusterGroupLevel(THGROUP_MAIN)>0.692) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
-				else SetThrusterGroupLevel(THGROUP_MAIN, 0.692);
+				if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
+				else SetThrusterGroupLevel(THGROUP_MAIN, 72.0/109.0);
 			}
 			else {
-				if(GetThrusterGroupLevel(THGROUP_MAIN)<0.99) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
-				else SetThrusterGroupLevel(THGROUP_MAIN, 1.00);
+				if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
+				else SetThrusterGroupLevel(THGROUP_MAIN, MaxThrust/109.0);
 			}
 			break;
 		case 2:
@@ -408,9 +408,9 @@ void Atlantis::Throttle(double dt)
 			if(!bThrottle) return;
 			if(a0>=29.00) { //28.42
 				for(int i=0;i<3;i++) {
-					if(GetThrusterLevel(th_main[i])>67.0/MaxThrust)
+					if(GetThrusterLevel(th_main[i])> (67.0/109.0))
 						IncThrusterLevel(th_main[i], -0.01);
-					else SetThrusterLevel(th_main[i], 67.0/MaxThrust);
+					else SetThrusterLevel(th_main[i], 67.0/109.0);
 				}
 			}
 			if(bAutopilot) {
