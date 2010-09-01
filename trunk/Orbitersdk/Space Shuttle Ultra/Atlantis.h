@@ -1376,7 +1376,8 @@ private:
 	void SeparateTank (void);
 	
 	/**
-	 * Draws pitch ladder line on HUD
+	 * Draws pitch ladder line on HUD.
+	 * Rotated font (for labelling line) is assumed to be selected into sketchpad
 	 * @param skp HUD Sketchpad instance
 	 * @param hps HUD HUDPAINTSPEC instance
 	 * @param ladderPitch pitch corresponding to line being drawn
@@ -1785,7 +1786,7 @@ private:
 	double THeading, TAp, TPe, TTrA, TEcc, TgtRad;
 	PIDControl SSMEGimbal[3][3], SRBGimbal[2][3];
 
-	double MaxThrust;
+	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	bool bAutopilot, bThrottle;
 	bool bMECO, bZThrust;
 	double tMECO, tSRBSep; //time(MET)

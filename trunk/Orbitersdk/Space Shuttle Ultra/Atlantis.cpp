@@ -6556,12 +6556,19 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 
 		curPitchDelta += 5.0;
 	}*/
+	// create rotated font for HUD pitch markings
+	oapi::Font* pFont = oapiCreateFont(12, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
+	oapi::Font* pOldFont = skp->SetFont(pFont);
+	// draw pitch lines
 	int curPitchLine = pitchBar;
 	while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
 		curPitchLine+=5;	
 	curPitchLine = pitchBar-5;
 	while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
 		curPitchLine-=5;
+	// deselect rotated font
+	skp->SetFont(pOldFont);
+	oapiReleaseFont(pFont);
 	//skp->Line(hps->CX-20, hps->CY, hps->CX+20, hps->CY);
 
 	skp->Line(hps->CX-5, hps->CY, hps->CX+5, hps->CY);
@@ -6611,6 +6618,7 @@ bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, i
 	double curPitchDelta = static_cast<double>(ladderPitch) - orbiterPitch;
 	int textHeight = skp->GetCharSize() & 65535; // lower 16 bits of GetCharSize
 
+	VECTOR3 line_rot_vector;
 	VECTOR3 line_dir_vector = RotateVectorZ(_V(1, 0, 0), orbiterBank);
 	VECTOR3 line_pos = RotateVectorZ(_V(5*hps->Scale, curPitchDelta*hps->Scale, 0), orbiterBank);
 	line_pos.x = hps->CX-line_pos.x;
@@ -6645,14 +6653,14 @@ bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, i
 	}
 	// draw lines pointing toward horizon
 	if(ladderPitch > 0) {
-		VECTOR3 line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
+		line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
 		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
 		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
 		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
 		skp->Line(round(right_line_end.x), round(right_line_end.y), round(line_end.x), round(line_end.y));
 	}
 	else if(ladderPitch < 0) {
-		VECTOR3 line_rot_vector = RotateVectorZ(_V(0, -1, 0), orbiterBank);
+		line_rot_vector = RotateVectorZ(_V(0, -1, 0), orbiterBank);
 		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
 		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
 		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
@@ -6662,11 +6670,11 @@ bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, i
 	// print angle
 	if(ladderPitch != 0) {
 		sprintf_s(pszBuf, 20, "%d", ladderPitch);
-		skp->Text(static_cast<int>(line_end.x)+3, static_cast<int>(line_end.y)-textHeight/2, pszBuf, strlen(pszBuf));
-		//int textWidth = skp->GetTextWidth(cbuf);
-		//VECTOR3 textPos = line_end - line_dir_vector*textWidth - line_rot_vector*(2+textHeight);
+		//skp->Text(static_cast<int>(line_end.x)+3, static_cast<int>(line_end.y)-textHeight/2, pszBuf, strlen(pszBuf));
+		int textWidth = skp->GetTextWidth(pszBuf);
+		VECTOR3 textPos = line_end - line_dir_vector*(1+textWidth) + line_rot_vector*(1+textHeight);
 		//VECTOR3 textEnd = line_end - line_rot_vector*2;
-		//skp->Text(static_cast<int>(textPos.x), static_cast<int>(textPos.y), cbuf, strlen(cbuf));
+		skp->Text(round(textPos.x), round(textPos.y), pszBuf, strlen(pszBuf));
 		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
 			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 	}
