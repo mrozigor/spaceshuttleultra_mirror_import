@@ -24,6 +24,7 @@ const double FSS_OWP_STRUT_OFFSET = 13.427;
 const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 44;
+const unsigned int STADIUM_LIGHT_COUNT = 5;
 
 const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.85047, 20.18538);
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.85047, 22.48279);
@@ -32,7 +33,7 @@ const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 const int RSS_ROTATE_SOUND = 1;
 static const char* RSS_ROTATE_SOUND_FILE = "Sound\\ShuttleUltra\\RSS_Rotation.wav";
 
-class SSUPad: public VESSEL2
+class SSUPad: public VESSEL3
 {
 public:
 	SSUPad(OBJHANDLE hVessel, int flightmodel);
@@ -112,6 +113,10 @@ private:
 	bool IsDawn() const;
 
 	int SoundID;
+
+	PROPELLANT_HANDLE phLights; // fake tank for lights
+	THRUSTER_HANDLE thStadiumLights[STADIUM_LIGHT_COUNT];
+	LightEmitter* pStadiumLights[STADIUM_LIGHT_COUNT];
 };
 
 #endif //__SSUPAD_H

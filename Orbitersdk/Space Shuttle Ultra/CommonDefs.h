@@ -10,6 +10,7 @@ const UINT MESH_UNDEFINED = (UINT)-1;
 //mesh illumination functions
 static void IlluminateMesh(MESHHANDLE mesh)
 {
+	return;
 	MATERIAL* material=NULL;
 
 	DWORD materialCount = oapiMeshMaterialCount(mesh);
@@ -25,6 +26,7 @@ static void IlluminateMesh(MESHHANDLE mesh)
 
 static void IlluminateMesh(MESHHANDLE mesh, std::vector<int> vExclude)
 {
+	return;
 	MATERIAL* material=NULL;
 	unsigned int ExCounter=0;
 
@@ -44,6 +46,7 @@ static void IlluminateMesh(MESHHANDLE mesh, std::vector<int> vExclude)
 
 static void DisableIllumination(MESHHANDLE mesh, MESHHANDLE GlobalMesh)
 {
+	return;
 	MATERIAL* MeshMaterial=NULL;
 	MATERIAL* DefaultMaterial=NULL;
 
