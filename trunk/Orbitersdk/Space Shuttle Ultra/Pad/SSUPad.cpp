@@ -197,10 +197,10 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {1, 1, 1, 1};
-	const COLOUR4 STADIUM_LIGHT_SPECULAR = {1, 1, 1, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0.925, 1, 0.925, 1};
 	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0, 0, 0, 0};
-	const double STADIUM_LIGHT_RANGE = 500.0;
+	const double STADIUM_LIGHT_RANGE = 300.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
 	const double STADIUM_LIGHT_ATT1 = 0;
 	const double STADIUM_LIGHT_ATT2 = 1e-3;
@@ -214,7 +214,7 @@ void SSUPad::CreateLights() {
 		// create fake thruster to simulate glare from lights
 		thStadiumLights[i] = CreateThruster(STADIUM_LIGHT_POS[i], STADIUM_LIGHT_DIR[i], 0.0, phLights,
 			1.0, 1.0);
-		AddExhaust(thStadiumLights[i], 0.0, 3.0);
+		AddExhaust(thStadiumLights[i], 0.0, 1.5);
 	}
 }
 
@@ -238,7 +238,7 @@ void SSUPad::DefineAnimations()
 		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(75.5*RAD));
 
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
-		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(75.5*RAD));
+		_V(3.743, -6.87, 21.359), _V(0, -1, 0), (float)(73*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
 	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
@@ -248,7 +248,7 @@ void SSUPad::DefineAnimations()
 	anim_venthood=CreateAnimation(1.0);
 	static UINT VentHoodGrp[1] = {GRP_VENTHOOD_FSS};
 	static MGROUP_ROTATE VentHood(fss_mesh_idx, VentHoodGrp, 1,
-		_V(-17.19, 83.344, 21.278), _V(0, 0, 1), (float)(41.0*RAD));
+		_V(-17.19, 83.344, 21.278), _V(0, 0, 1), (float)(48.0*RAD));
 	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
 
 	
