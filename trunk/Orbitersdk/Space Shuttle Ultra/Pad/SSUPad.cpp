@@ -61,7 +61,24 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-0.85, 62.70, 27.55),
 	_V(-0.85, 68.70, 27.55),
 	_V(-0.85, 74.70, 27.55),
-	_V(-0.85, 80.70, 27.55)};
+	_V(-0.85, 80.70, 27.55)
+};
+
+VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
+	_V(-60.4, -0.75, 45.25) + _V(12.288, 28.594, -86.877),
+	_V(-60.4, -0.75, 45.25) + _V(56.812, 28.594, -89.026),
+	_V(-60.4, -0.75, 45.25) + _V(102.852, 28.594, -86.954),
+	_V(-60.4, -0.75, 45.25) + _V(116.768, 28.594, -15.921),
+	_V(-60.4, -0.75, 45.25) + _V(12.288, 28.594, -22.229)
+};
+
+VECTOR3 STADIUM_LIGHT_DIR[STADIUM_LIGHT_COUNT] = {
+	_V(0.7071, 0.0, 0.7071),
+	_V(0.0, 0.0, 1.0),
+	_V(-0.7071, 0.0, 0.7071),
+	_V(-0.7071, 0.0, -0.7071),
+	_V(0.7071, 0.0, -0.7071)
+};
 
 //global functions
 DLLCLBK void InitModule(HINSTANCE hDLL)
@@ -131,7 +148,7 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
-	: VESSEL2(hVessel, flightmodel),
+	: VESSEL3(hVessel, flightmodel),
 	fLightsOn(false)
 {
 	//add meshes
@@ -178,6 +195,26 @@ void SSUPad::CreateLights() {
 		lights[i].active = false;
 
 		AddBeacon(&lights[i]);
+	}
+
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {1, 1, 1, 1};
+	const COLOUR4 STADIUM_LIGHT_SPECULAR = {1, 1, 1, 1};
+	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0, 0, 0, 0};
+	const double STADIUM_LIGHT_RANGE = 500.0;
+	const double STADIUM_LIGHT_ATT0 = 1e-3;
+	const double STADIUM_LIGHT_ATT1 = 0;
+	const double STADIUM_LIGHT_ATT2 = 1e-3;
+
+	phLights = CreatePropellantResource(1.0, 1.0);
+	for(int i=0;i<STADIUM_LIGHT_COUNT;i++) {
+		pStadiumLights[i] = AddSpotLight(STADIUM_LIGHT_POS[i], STADIUM_LIGHT_DIR[i],
+			STADIUM_LIGHT_RANGE, STADIUM_LIGHT_ATT0, STADIUM_LIGHT_ATT1, STADIUM_LIGHT_ATT2, 45*RAD, 180*RAD,
+			STADIUM_LIGHT_DIFFUSE, STADIUM_LIGHT_SPECULAR, STADIUM_LIGHT_AMBIENT);
+		
+		// create fake thruster to simulate glare from lights
+		thStadiumLights[i] = CreateThruster(STADIUM_LIGHT_POS[i], STADIUM_LIGHT_DIR[i], 0.0, phLights,
+			1.0, 1.0);
+		AddExhaust(thStadiumLights[i], 0.0, 3.0);
 	}
 }
 
@@ -295,6 +332,11 @@ void SSUPad::DisableLights() {
 
 		fLightsOn = fLightsOn && lights[i].active;
 	}
+
+	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
+		pStadiumLights[i]->Activate(false);
+		SetThrusterLevel(thStadiumLights[i], 0.0);
+	}
 }
 
 void SSUPad::EnableLights() {
@@ -304,6 +346,11 @@ void SSUPad::EnableLights() {
 		lights[i].active = true;
 
 		fLightsOn = fLightsOn && lights[i].active;
+	}
+
+	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
+		pStadiumLights[i]->Activate(true);
+		SetThrusterLevel(thStadiumLights[i], 1.0);
 	}
 }
 
@@ -429,7 +476,7 @@ void SSUPad::clbkPostCreation()
 
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 {
-	VESSEL2::clbkPreStep(simt, simdt, mjd);
+	VESSEL3::clbkPreStep(simt, simdt, mjd);
 
 	if(simt > fNextLightUpdate) {
 		fNextLightUpdate = simt + 300.0;
@@ -511,7 +558,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 
 void SSUPad::clbkSaveState(FILEHANDLE scn)
 {
-	VESSEL2::clbkSaveState(scn); //default parameters
+	VESSEL3::clbkSaveState(scn); //default parameters
 
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
 	WriteScenario_state(scn, "GVA", GVAState);
