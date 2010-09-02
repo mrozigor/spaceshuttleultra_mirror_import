@@ -26,12 +26,17 @@
 
 // Constructor
 Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
-: VESSEL2(hObj), bMainEngine(false), bSeparationEngine(false)
+: VESSEL3(hObj), bMainEngine(false), bSeparationEngine(false), usSectionCount(SRB_SECTION_COUNT)
 {
 	// preload mesh
-	mesh_idx = MESH_UNDEFINED;
+	//mesh_idx = MESH_UNDEFINED;
 	hSRBMesh_Left = oapiLoadMeshGlobal ("SSU/LSRB");
 	hSRBMesh_Right = oapiLoadMeshGlobal ("SSU/RSRB");
+	for(unsigned short i=0;i<SRB_SECTION_COUNT;i++) {
+		//hSRMSegmentMesh_Left[i] = NULL;
+		//hSRMSegmentMesh_Right[i] = NULL;
+		hSRMSegmentMesh[i] = NULL;
+	}
 
 	hVis = NULL;
 
@@ -53,20 +58,20 @@ void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_leve
 
 void Atlantis_SRB::TurnOnPadLights() const
 {
-	if(hVis) {
+	/*if(hVis) {
 		std::vector<int> ExcludeSRB;
 		ExcludeSRB.push_back(2);
 		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
 		IlluminateMesh(hMesh, ExcludeSRB);
-	}
+	}*/
 }
 
 void Atlantis_SRB::TurnOffPadLights() const
 {
-	if(hVis) {
+	/*if(hVis) {
 		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
 		DisableIllumination(hMesh, hSRBMesh);
-	}
+	}*/
 }
 
 // ==============================================================
@@ -94,11 +99,21 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	{
 		hSRBMesh = hSRBMesh_Left;
 	//	oapiWriteLog("Create Left SRB\n");
+		hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/STS1_LSRB_aft_segment");
+		hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/STS1_LSRB_aft_center_segment");
+		hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_center_segment");
+		hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_segment");
+		hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_skirt_assy");
 	}
 	else 
 	{
 		hSRBMesh = hSRBMesh_Right;
 	//	oapiWriteLog("Create Right SRB\n");
+		hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_segment");
+		hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_center_segment");
+		hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_center_segment");
+		hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_segment");
+		hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_skirt_assy");
 	}
 
 	extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
@@ -181,7 +196,20 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 
 	// ************************ visual parameters **********************************
 
-	mesh_idx = AddMesh (hSRBMesh);
+	//mesh_idx = AddMesh (hSRBMesh);
+}
+
+void Atlantis_SRB::UpdateVisual() const
+{
+	ClearMeshes();
+
+	if(usSectionCount == SRB_SECTION_COUNT) AddMesh(hSRBMesh);
+	else {
+		for(int i=0;i<usSectionCount;i++) {
+			VECTOR3 ofs = _V(0.0, 0.0, SRB_SECTION_ZPOS[i]);
+			AddMesh(hSRMSegmentMesh[i], &ofs);
+		}
+	}
 }
 
 // Finish setup
@@ -190,6 +218,9 @@ void Atlantis_SRB::clbkPostCreation ()
 	//SetRefTime ();	// reconstruct ignition time from fuel level
 	SetPropellantMass(ph_main, 0.0);
 	SetPropellantMass(phBSM, GetPropellantMaxMass(phBSM));
+
+	// show meshes
+	UpdateVisual();
 }
 
 // Simulation time step
@@ -245,6 +276,27 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 	}
 	//increased altitude for self delete
 	if (GetAltitude() < 250.0 && !GetAttachmentStatus(ahToOrbiter)) oapiDeleteVessel (GetHandle());
+}
+
+void Atlantis_SRB::clbkLoadStateEx(FILEHANDLE scn, void *status)
+{
+	char* line;
+
+	while(oapiReadScenario_nextline(scn, line)) {
+		if(!_strnicmp(line, "SECTION_COUNT", 13)) {
+			int temp;
+			sscanf_s(line+14, "%d", &temp);
+			usSectionCount = static_cast<int>(temp);
+		}
+		else ParseScenarioLineEx(line, status);
+	}
+}
+
+void Atlantis_SRB::clbkSaveState(FILEHANDLE scn)
+{
+	VESSEL3::clbkSaveState(scn);
+
+	oapiWriteScenario_int(scn, "SECTION_COUNT", static_cast<int>(usSectionCount));
 }
 
 // ==============================================================

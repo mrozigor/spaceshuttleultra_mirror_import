@@ -55,11 +55,21 @@ const double SLAG3_RATE = 49.0;
 
 const VECTOR3 SLAG_DIR = _V(0.0, 0.0, -1.0);
 
+const unsigned short SRB_SECTION_COUNT = 5; // 4 fueled segments and FWD skirt
+
+const double SRB_SECTION_ZPOS[SRB_SECTION_COUNT] = {
+	-15.2,
+	SRB_SECTION_ZPOS[0]+10.6,
+	SRB_SECTION_ZPOS[1]+8.3,
+	SRB_SECTION_ZPOS[2]+8.24,
+	30.0,
+};
+
 // ==========================================================
 // Interface for derived vessel class: Atlantis_SRB
 // ==========================================================
 
-class Atlantis_SRB: public VESSEL2 {
+class Atlantis_SRB: public VESSEL3 {
 public:
 	Atlantis_SRB (OBJHANDLE hObj);
 	// Construct interface from existing object
@@ -82,12 +92,21 @@ public:
 	void clbkPostStep (double simt, double simdt, double mjd);
 	void clbkPostCreation ();
 
+	void clbkLoadStateEx(FILEHANDLE scn, void* status);
+	void clbkSaveState(FILEHANDLE scn);
+
 private:
+	void UpdateVisual() const;
+
 	MESHHANDLE hSRBMesh_Left;
 	MESHHANDLE hSRBMesh_Right;
-	UINT mesh_idx;
+	MESHHANDLE hSRMSegmentMesh[SRB_SECTION_COUNT];
+	//MESHHANDLE hSRMSegmentMesh_Right[SRB_SECTION_COUNT];
+	//UINT mesh_idx;
 
 	VISHANDLE hVis;
+
+	unsigned short usSectionCount; // number of sections; if usSectionCount is 5, SRB is fully assembled
 
 	double t0;                  // reference time: liftoff
 	double srb_separation_time; // simulation time at which SRB separation was initiated
