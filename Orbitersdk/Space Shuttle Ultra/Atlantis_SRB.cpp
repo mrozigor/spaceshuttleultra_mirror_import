@@ -56,24 +56,6 @@ void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_leve
 	srb_separation_time = oapiGetSimTime();
 }
 
-void Atlantis_SRB::TurnOnPadLights() const
-{
-	/*if(hVis) {
-		std::vector<int> ExcludeSRB;
-		ExcludeSRB.push_back(2);
-		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
-		IlluminateMesh(hMesh, ExcludeSRB);
-	}*/
-}
-
-void Atlantis_SRB::TurnOffPadLights() const
-{
-	/*if(hVis) {
-		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
-		DisableIllumination(hMesh, hSRBMesh);
-	}*/
-}
-
 // ==============================================================
 // Callback functions
 // ==============================================================

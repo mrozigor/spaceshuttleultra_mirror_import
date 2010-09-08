@@ -81,9 +81,6 @@ public:
 	 * @param prop_level amount of fuel remaining (between 0 and 1)
 	 */
 	virtual void SetPostSeparationState(double launch_time, double thrust_level, double prop_level);
-	
-	virtual void TurnOnPadLights() const;
-	virtual void TurnOffPadLights() const;
 
 	// Overloaded callback functions
 	void clbkVisualCreated(VISHANDLE vis, int refcount);

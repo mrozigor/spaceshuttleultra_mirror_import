@@ -7898,14 +7898,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	  if(bThrottle) bThrottle=false;
 	  else bThrottle=true;
 	  return 1;
-	case OAPI_KEY_D:
-		if(!bIlluminated) {
-			TurnOnPadLights();
-		}
-		else {
-			TurnOffPadLights();
-		}
-		return 1;
     case OAPI_KEY_J:  // "Jettison"
       if (!Playback()) bManualSeparate = true;
       return 1;
@@ -7974,59 +7966,6 @@ void Atlantis::HideExtAL() const
 {	
 	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
 	oapiWriteLog("Hiding ExtAL");
-}
-
-void Atlantis::TurnOnPadLights()
-{
-	if(status==STATE_PRELAUNCH && !bIlluminated) {
-		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
-		IlluminateMesh(OrbiterMesh);
-
-		/*vector<int> ExcludeTank;
-		ExcludeTank.push_back(7);
-		ExcludeTank.push_back(8);
-		MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
-		IlluminateMesh(TankMesh, ExcludeTank);*/
-		Atlantis_Tank* pTank = GetTankInterface();
-		pTank->TurnOnPadLights();
-
-		/*vector<int> ExcludeSRB;
-		ExcludeSRB.push_back(2);
-		for(int i=0;i<2;i++) {
-			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
-			IlluminateMesh(SrbMesh, ExcludeSRB);
-		}*/		
-		Atlantis_SRB* pSRB = GetSRBInterface(LEFT);
-		pSRB->TurnOnPadLights();
-		pSRB = GetSRBInterface(RIGHT);
-		pSRB->TurnOnPadLights();
-
-		bIlluminated=true;
-	}
-}
-
-void Atlantis::TurnOffPadLights()
-{
-	if(status==STATE_PRELAUNCH || status==STATE_STAGE1 && bIlluminated) {
-		MESHHANDLE OrbiterMesh=GetMesh(vis, mesh_orbiter);
-		DisableIllumination(OrbiterMesh, hOrbiterMesh);
-		
-		/*MESHHANDLE TankMesh=GetMesh(vis, mesh_tank);
-		DisableIllumination(TankMesh, hTankMesh);*/
-		Atlantis_Tank* pTank = GetTankInterface();
-		pTank->TurnOffPadLights();
-		
-		/*for(int i=0;i<2;i++) {
-			MESHHANDLE SrbMesh=GetMesh(vis, mesh_srb[i]);
-			DisableIllumination(SrbMesh, hSRBMesh[i]);
-		}*/
-		Atlantis_SRB* pSRB = GetSRBInterface(LEFT);
-		pSRB->TurnOffPadLights();
-		pSRB = GetSRBInterface(RIGHT);
-		pSRB->TurnOffPadLights();
-
-		bIlluminated=false;
-	}
 }
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
@@ -8589,7 +8528,6 @@ void Atlantis::TriggerLiftOff()
 	bLiftOff = true;
 	t0=oapiGetSimTime(); //update t0 value to actual (instead of planned) liftoff time
 	pMTU->StartMET();
-	TurnOffPadLights();
 }
 
 short Atlantis::GetSRBChamberPressure(unsigned short which_srb)

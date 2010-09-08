@@ -36,9 +36,6 @@ public:
 	
 	virtual void UseBurntETTexture();
 
-	virtual void TurnOnPadLights() const;
-	virtual void TurnOffPadLights() const;
-
 private:
 	VISHANDLE hVis;
 
