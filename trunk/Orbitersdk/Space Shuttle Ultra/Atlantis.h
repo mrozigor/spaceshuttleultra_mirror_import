@@ -1242,8 +1242,6 @@ public:
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
 
-	virtual void TurnOnPadLights();
-	virtual void TurnOffPadLights();
     virtual bool HydraulicsOK();
 
 	void ToggleGrapple (void);

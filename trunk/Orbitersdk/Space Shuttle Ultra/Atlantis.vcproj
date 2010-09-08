@@ -569,10 +569,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GearOp.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\GNCSoftware.cpp"
 				>
 			</File>
@@ -962,10 +958,6 @@
 			</File>
 			<File
 				RelativePath=".\eva_docking\ExtAirlock.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GearOp.h"
 				>
 			</File>
 			<File

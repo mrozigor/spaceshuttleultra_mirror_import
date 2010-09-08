@@ -64,9 +64,6 @@ private:
 
 	ATTACHMENTHANDLE ahBase; // used to attach to crawler/LC39/VAB
 
-	void TurnOnPadLights();
-	void TurnOffPadLights();
-
 	Atlantis* GetShuttleOnPad();
 
 	double CalculateThrustPower(

@@ -15,7 +15,6 @@
 #define ORBITER_MODULE
 //#include "Atlantis.h"
 #include "Atlantis_Tank.h"
-#include <vector>
 #include "CommonDefs.h"
 #include "math.h"
 
@@ -44,25 +43,6 @@ void Atlantis_Tank::UseBurntETTexture()
 	SURFHANDLE scorchedTexture = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
 	if(!oapiSetTexture(hTankMesh, 3, scorchedTexture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
-}
-
-void Atlantis_Tank::TurnOnPadLights() const
-{
-	if(hVis) {
-		std::vector<int> ExcludeTank;
-		ExcludeTank.push_back(7);
-		ExcludeTank.push_back(8);
-		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
-		IlluminateMesh(hMesh, ExcludeTank);
-	}
-}
-
-void Atlantis_Tank::TurnOffPadLights() const
-{
-	if(hVis) {
-		MESHHANDLE hMesh=GetMesh(hVis, mesh_idx);
-		DisableIllumination(hMesh, hTankMesh);
-	}
 }
 
 // ==============================================================

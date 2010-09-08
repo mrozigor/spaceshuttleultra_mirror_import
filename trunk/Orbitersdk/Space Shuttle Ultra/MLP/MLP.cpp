@@ -116,28 +116,6 @@ void MLP::clbkLoadStateEx(FILEHANDLE scn, void* vs)
 
 void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 {
-	//if this is the first step, wait a little so all visuals are created
-	if(fSimT>0.5) {
-		if(dTimer<=fSimT) {
-			dTimer=fSimT+300.0;
-
-			OBJHANDLE Sun=NULL;
-			int count=(int)oapiGetGbodyCount();
-			for(int i=0;i<count;i++) {
-				Sun=oapiGetGbodyByIndex(i);
-				if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
-			}
-			if(Sun) {
-				VECTOR3 SunPosGlobal, SunPos;
-				oapiGetGlobalPos(Sun, &SunPosGlobal);
-				Global2Local(SunPosGlobal, SunPos);
-				double angle=acos(SunPos.y/length(SunPos))*DEG;
-				if(angle>85.0 && !bPadLightsOn) TurnOnPadLights();
-				else if(angle<85.0 && bPadLightsOn) TurnOffPadLights();
-			}
-		}
-	}
-
 	if(bStartSequence)
 	{
 		fCountdown -= fDeltaT;
@@ -219,28 +197,6 @@ void MLP::OnT0() {
 
 	//Trigger T0 animation
 	T0UmbilicalState.action=AnimState::OPENING;
-}
-
-void MLP::TurnOnPadLights()
-{
-	if(!vis) return;
-
-	MESHHANDLE mesh=GetMesh(vis, msh_idx);
-	IlluminateMesh(mesh);
-	Atlantis* sts=GetShuttleOnPad();
-	if(sts) sts->TurnOnPadLights();
-	bPadLightsOn=true;
-}
-
-void MLP::TurnOffPadLights()
-{
-	if(!vis) return;
-
-	MESHHANDLE mesh=GetMesh(vis, msh_idx);
-	DisableIllumination(mesh, mshMLP);
-	Atlantis* sts=GetShuttleOnPad();
-	if(sts) sts->TurnOffPadLights();
-	bPadLightsOn=false;
 }
 
 Atlantis* MLP::GetShuttleOnPad()

@@ -324,7 +324,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\MLP\MLP.h"
+			RelativePath=".\MLP\MLP.h"
 			>
 		</File>
 		<File
