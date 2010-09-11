@@ -1258,46 +1258,6 @@ void CRT::DisableThrusters(const int Thrusters[], int nThrusters)
 */
 }
 
-void CRT::UpdateDAP()
-{
-	sprintf(oapiDebugString(), "UpdateDAP() called %f", oapiRand());
-	if(sts->DAPMode[1]==0) {
-		sts->RotRate=sts->DAP[sts->DAPMode[0]].PRI_ROT_RATE;
-		sts->AttDeadband=sts->DAP[sts->DAPMode[0]].PRI_ATT_DB;
-		sts->RateDeadband=sts->DAP[sts->DAPMode[0]].PRI_RATE_DB;
-		if(sts->DAP[sts->DAPMode[0]].PRI_P_OPTION!=0)
-			sts->Torque.data[PITCH]=0.5*ORBITER_PITCH_TORQUE;
-		else sts->Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
-		if(sts->DAP[sts->DAPMode[0]].PRI_Y_OPTION!=0)
-			sts->Torque.data[YAW]=0.5*ORBITER_YAW_TORQUE;
-		else sts->Torque.data[YAW]=ORBITER_YAW_TORQUE;
-		sts->Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
-	}
-	else if(sts->DAPMode[1]==1) {
-		sts->RotRate=sts->DAP[sts->DAPMode[0]].PRI_ROT_RATE;
-		sts->AttDeadband=sts->DAP[sts->DAPMode[0]].PRI_ATT_DB;
-		sts->RateDeadband=sts->DAP[sts->DAPMode[0]].ALT_RATE_DB;
-		if(sts->DAP[sts->DAPMode[0]].ALT_JET_OPT==2) {
-			sts->Torque.data[PITCH]=0.5*ORBITER_PITCH_TORQUE;
-			sts->Torque.data[YAW]=0.5*ORBITER_YAW_TORQUE;
-			sts->Torque.data[ROLL]=0.5*ORBITER_ROLL_TORQUE;
-		}
-		else {
-			sts->Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
-			sts->Torque.data[YAW]=ORBITER_YAW_TORQUE;
-			sts->Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
-		}
-	}
-	else if(sts->DAPMode[1]==2) {
-		sts->RotRate=sts->DAP[sts->DAPMode[0]].VERN_ROT_RATE;
-		sts->AttDeadband=sts->DAP[sts->DAPMode[0]].VERN_ATT_DB;
-		sts->RateDeadband=sts->DAP[sts->DAPMode[0]].VERN_RATE_DB;
-		sts->Torque.data[PITCH]=0.1*ORBITER_PITCH_TORQUE;
-		sts->Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
-		sts->Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
-	}
-}
-
 char *CRT::ButtonLabel (int bt)
 {
 	static char *label[2][4] = {{"UP", "OMS", "HYD", "SPI"},

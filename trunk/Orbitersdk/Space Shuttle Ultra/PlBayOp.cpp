@@ -1,4 +1,5 @@
 #include "PlBayOp.h"
+#include "ParameterValues.h"
 #include "resource.h"
 #include "meshres_vc.h"
 #include "vc\vc_defs.h"

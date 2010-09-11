@@ -82,8 +82,6 @@ private:
 	void EnableThrusters(const int Thrusters[], int nThrusters);
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 
-	void UpdateDAP(); //updates rot rates, torques
-
 	VESSEL *vessel;
 	VECTOR3 GVesselPos, GVesselVel;
 	VESSELSTATUS Status;

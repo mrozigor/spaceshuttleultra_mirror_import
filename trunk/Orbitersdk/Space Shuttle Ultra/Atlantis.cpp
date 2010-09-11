@@ -16,6 +16,7 @@
 #include "Atlantis.h"
 #include "Atlantis_SRB.h"
 #include "Atlantis_Tank.h"
+#include "ParameterValues.h"
 #include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
@@ -6319,8 +6320,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	double camRate;
 	for(int i=0;i<4;i++) {
-		if(PTULowSpeed[i]) camRate = CAM_LOWRATE_SPEED;
-		else camRate = CAM_HIGHRATE_SPEED;
+		if(PTULowSpeed[i]) camRate = PTU_LOWRATE_SPEED;
+		else camRate = PTU_HIGHRATE_SPEED;
 
 		if(PLBDCamPanLeft[i])  {
 			camYaw[i] = max(-MAX_PLBD_CAM_TILT, camYaw[i]-camRate*simdt);
@@ -8378,7 +8379,7 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
   double *camYaw;
   double *camPitch;
-  double rate = CAM_HIGHRATE_SPEED;
+  double rate = PTU_HIGHRATE_SPEED;
 
   switch (uMsg) {
     case WM_INITDIALOG:
@@ -8449,11 +8450,11 @@ BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     if (SendDlgItemMessage (hWnd, IDC_CAM_LOWRATE, BM_GETCHECK, 0, 0) == BST_CHECKED) {
       sts->cameraLowRate = true;
 	  //if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(true);
-      rate = CAM_LOWRATE_SPEED;
+      rate = PTU_LOWRATE_SPEED;
     } else {
       sts->cameraLowRate = false;
 	  //if(sts->pRMS) sts->pRMS->SetElbowCamRotSpeed(false);
-      rate = CAM_HIGHRATE_SPEED;
+      rate = PTU_HIGHRATE_SPEED;
     }
 
     // Sets the current selected camera orientation and flag camera moved;

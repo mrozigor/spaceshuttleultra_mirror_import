@@ -86,9 +86,6 @@ const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.681, 2.641, 1.806);
 
-const double PTU_HIGHRATE_SPEED = 12.0;
-const double PTU_LOWRATE_SPEED = 1.2;
-// Payload camera speed rates (deg/sec)
 
 class RMSSystem : public MPMSystem
 {
