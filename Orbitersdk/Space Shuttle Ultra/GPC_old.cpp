@@ -1,7 +1,6 @@
 // GPC Code
 #include "Atlantis.h"
-#include "PanelC3.h"
-
+#include "ParameterValues.h"
 #include "util/Stopwatch.h"
 #include <OrbiterSoundSDK35.h>
 #include <cstdio>

@@ -1121,6 +1121,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ParameterValues.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PIDControl.h"
 				>
 			</File>
