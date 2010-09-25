@@ -52,8 +52,6 @@ void XenonLights::CreateLights()
 
 void XenonLights::clbkPreStep(double simT, double simDT, double MJD)
 {
-	const double HEIGHT_OFFSET = 70.0;
-
 	updateClock -= simDT;
 	if(updateClock < 0.0) {
 		updateClock = 60.0;
@@ -71,7 +69,7 @@ void XenonLights::clbkPreStep(double simT, double simDT, double MJD)
 				MATRIX3 RotMatrix;
 				GetRotationMatrix(RotMatrix);
 				VECTOR3 pos = tmul(RotMatrix, -relPos);
-				pos.y += HEIGHT_OFFSET;
+				pos.y = heightOffset;
 				lightDir=pos/length(pos);
 			}
 		}
@@ -101,6 +99,16 @@ bool XenonLights::FindTarget()
 			if(length(relPos) < MAX_TARGET_RANGE) {
 				bFoundTarget = true;
 				hTarget = hV;
+
+				// set height offset; this is different between rollout and on pad
+				VESSEL* pTarget = oapiGetVesselInterface(hTarget);
+				if(!_stricmp(pTarget->GetClassName(), CRAWLER_CLASS_NAME) ||
+					!_stricmp(pTarget->GetClassName(), CRAWLER_1980_CLASS_NAME)) {
+						heightOffset = CRAWLER_HEIGHT_OFFSET;
+				}
+				else {
+					heightOffset = PAD_HEIGHT_OFFSET;
+				}
 				return true;
 			}
 		}
