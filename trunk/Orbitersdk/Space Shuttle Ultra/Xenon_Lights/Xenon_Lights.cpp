@@ -41,7 +41,7 @@ void XenonLights::CreateLights()
 
 	for(int i=0;i<2;i++) {
 		pLights[i] = AddSpotLight(LIGHT_POS[i], _V(0, 0, 1),
-			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 3.0*RAD, 5.0*RAD,
+			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 4.5*RAD, 8.0*RAD,
 			LIGHT_DIFFUSE, LIGHT_SPECULAR, LIGHT_AMBIENT);
 
 		// create fake thruster to simulate glare from lights
