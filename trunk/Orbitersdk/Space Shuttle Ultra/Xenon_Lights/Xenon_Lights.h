@@ -5,7 +5,9 @@
 #include "orbitersdk.h"
 
 static const char* XENON_TRAILER_MESH_NAME = "SSU/KSC_xenon_lights_trailer";
-static const char* PAD_CLASS_NAME = "SSU_Pad";
+static const char* SHUTTLE_CLASS_NAME = "SpaceShuttleUltra";
+
+const double MAX_TARGET_RANGE = 1000.0; // max distance from light to shuttle
 
 class XenonLights : public VESSEL3
 {
@@ -14,8 +16,17 @@ public:
 	virtual ~XenonLights();
 
 	void clbkSetClassCaps(FILEHANDLE cfg);
-	void clbkPostCreation();
+
+	void clbkPreStep(double simT, double simDT, double MJD);
 private:
+	bool FindTarget();
+	/**
+	 * Gets parent vessel to which hVessel is attached
+	 * @param hVessel vessel to find parent attachment
+	 * @returns NULL if no parent, otherwise handle of parent vessel
+	 */
+	OBJHANDLE GetAttachedParent(OBJHANDLE hVessel) const;
+
 	void CreateLights();
 	void DefineAnimations();
 	void SetLightState(bool on) const;
@@ -29,6 +40,9 @@ private:
 
 	bool bLightsOn;
 	bool bFoundTarget;
+	OBJHANDLE hTarget; // vessel lights are pointed at
+
+	double updateClock; // if <0, update position of target
 };
 
 #endif
