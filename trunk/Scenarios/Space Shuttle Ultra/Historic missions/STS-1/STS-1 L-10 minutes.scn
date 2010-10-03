@@ -61,7 +61,7 @@ END_VC
 
 
 BEGIN_SHIPS
-MLP-2:Atlantis_MLP
+MLP-2:SSU_MLP
   STATUS Landed Earth
   POS -80.6040620 28.6084030
   HEADING 0.00
@@ -420,11 +420,11 @@ ET:Atlantis_Tank_white
   STATUS Orbiting Earth
   ATTACHED 0:20,Columbia
 END
-LSRB:Atlantis_LSRB
+LSRB:SSU_LSRB
   STATUS Orbiting Earth
   ATTACHED 0:21,Columbia
 END
-RSRB:Atlantis_RSRB
+RSRB:SSU_RSRB
   STATUS Orbiting Earth
   ATTACHED 0:22,Columbia
 END
