@@ -197,8 +197,8 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.925, 1, 0.925, 1};
-	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95, 0.95, 1, 1};
+	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0.95, 0.95, 1, 1};
 	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0, 0, 0, 0};
 	const double STADIUM_LIGHT_RANGE = 300.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
@@ -695,7 +695,7 @@ void SSUPad::CreateGOXVentThrusters() {
 }
 
 void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
-	SetEmptyMass(6500000.0);
+	SetEmptyMass(2.000001);
 	SetSize(39.0);
 	CreateGOXVentThrusters();
 	CreateLights();

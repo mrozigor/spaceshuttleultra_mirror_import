@@ -5,13 +5,13 @@
 #include "orbitersdk.h"
 #include <vector>
 
-static const char* XENON_TRAILER_MESH_NAME = "SSU/KSC_xenon_lights_trailer";
+static const char* XENON_TRAILER_MESH_NAME = "SSU//KSC_xenon_lights_trailer";
 static const char* SHUTTLE_CLASS_NAME = "SpaceShuttleUltra";
 static const char* CRAWLER_CLASS_NAME = "SSU_CT";
 static const char* CRAWLER_1980_CLASS_NAME = "SSU_CT_1980";
 
 const double CRAWLER_HEIGHT_OFFSET = 50.0;
-const double PAD_HEIGHT_OFFSET = 60.0;
+const double PAD_HEIGHT_OFFSET = 65.0;
 
 const double MAX_TARGET_RANGE = 1000.0; // max distance from light to shuttle
 const double PAN_RANGE = 360.0*RAD;

@@ -76,13 +76,13 @@ void XenonLights::CreateLights()
 
 	//VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 0.488), _V(2.395, 1.526, 0.488)};
 
-	const COLOUR4 LIGHT_DIFFUSE = {0.925, 1, 0.925, 1};
-	const COLOUR4 LIGHT_SPECULAR = {0.425, 0.5, 0.425, 0.5};
+	const COLOUR4 LIGHT_DIFFUSE = {0.75, 0.75, 0.75, 0};
+	const COLOUR4 LIGHT_SPECULAR = {0, 0, 0, 0};
 	const COLOUR4 LIGHT_AMBIENT = {0, 0, 0, 0};
-	const double LIGHT_RANGE = 1000.0;
+	const double LIGHT_RANGE = 450;
 	const double LIGHT_ATT0 = 1e-3;
 	const double LIGHT_ATT1 = 0;
-	const double LIGHT_ATT2 = 1e-5;
+	const double LIGHT_ATT2 = 0.000075;
 
 	for(int i=0;i<2;i++) {
 		pLights[i] = AddSpotLight(LIGHT_POS[i], _V(0, 0, 1),
