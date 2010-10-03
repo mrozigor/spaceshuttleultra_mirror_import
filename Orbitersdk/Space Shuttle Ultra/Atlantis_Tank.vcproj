@@ -165,7 +165,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="..\..\Modules/Atlantis_Tank.dll"
+				OutputFile="..\..\Modules/SSU_Tank.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
@@ -258,7 +258,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="..\..\Modules/Atlantis_Tank.dll"
+				OutputFile="..\..\Modules/SSU_Tank.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
