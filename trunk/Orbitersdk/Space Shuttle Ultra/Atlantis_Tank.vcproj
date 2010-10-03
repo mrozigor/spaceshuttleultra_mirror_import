@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib gdi32.lib"
-				OutputFile="..\..\Modules/Atlantis_Tank.dll"
+				OutputFile="..\..\Modules/SSU_Tank.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"

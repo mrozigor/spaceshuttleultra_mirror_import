@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../include;../libUltra/include"
+				AdditionalIncludeDirectories="../include;../libUltra/include;../../Sound/OrbiterSound_SDK/VESSELSOUND_SDK/ShuttlePB_project"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -165,6 +165,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1036"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include\mfc&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -172,10 +173,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib orbitersdk.lib OrbiterSoundSDK35.lib"
-				OutputFile="../../Modules/Crawler.dll"
+				OutputFile="../../Modules/SSU_Crawler.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../lib"
+				AdditionalLibraryDirectories="../lib;;../../Sound/OrbiterSound_SDK/VESSELSOUND_SDK/ShuttlePB_project"
 				IgnoreDefaultLibraryNames="LIBC,MSVCRT,msvcirt,libci"
 				ProgramDatabaseFile=".\Release\Crawler/Crawler.pdb"
 				ImportLibrary=".\Release\Crawler/Crawler.lib"
