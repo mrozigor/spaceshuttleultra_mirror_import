@@ -256,6 +256,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Xenon_Lights\meshres_xenon.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Xenon_Lights\Xenon_Lights.h"
 				>
 			</File>
