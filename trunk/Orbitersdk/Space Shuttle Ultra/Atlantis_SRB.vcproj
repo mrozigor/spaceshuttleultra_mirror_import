@@ -166,7 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile=".\..\..\Modules/Atlantis_SRB.dll"
+				OutputFile=".\..\..\Modules/SSU_SRB.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"
@@ -259,7 +259,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile=".\..\..\Modules/Atlantis_SRB.dll"
+				OutputFile=".\..\..\Modules/SSU_SRB.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"

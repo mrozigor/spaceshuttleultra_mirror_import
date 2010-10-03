@@ -58,7 +58,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile="..\..\Modules\SSULCC.dll"
+				OutputFile="..\..\Modules\SSU_LCC.dll"
 				AdditionalLibraryDirectories="..\lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
@@ -197,7 +197,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile="..\..\Modules\SSULCC.dll"
+				OutputFile="..\..\Modules\SSU_LCC.dll"
 				AdditionalLibraryDirectories="..\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
