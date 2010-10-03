@@ -3,6 +3,7 @@
 #pragma once
 
 #include "orbitersdk.h"
+#include <vector>
 
 static const char* XENON_TRAILER_MESH_NAME = "SSU/KSC_xenon_lights_trailer";
 static const char* SHUTTLE_CLASS_NAME = "SpaceShuttleUltra";
@@ -13,6 +14,10 @@ const double CRAWLER_HEIGHT_OFFSET = 50.0;
 const double PAD_HEIGHT_OFFSET = 60.0;
 
 const double MAX_TARGET_RANGE = 1000.0; // max distance from light to shuttle
+const double PAN_RANGE = 360.0*RAD;
+const double TILT_RANGE = 90.0*RAD;
+
+VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 0.488), _V(2.395, 1.526, 0.488)};
 
 class XenonLights : public VESSEL3
 {
@@ -31,13 +36,20 @@ private:
 	 * @returns NULL if no parent, otherwise handle of parent vessel
 	 */
 	OBJHANDLE GetAttachedParent(OBJHANDLE hVessel) const;
+	bool IsDay() const;
 
 	void CreateLights();
 	void DefineAnimations();
-	void SetLightState(bool on) const;
 
+	void SetDirection(VECTOR3 dir);
+	void SetLightState(bool on);
+
+	UINT meshIndex;
 	UINT anim_pan[2], anim_tilt[2];
-	VECTOR3 lightDir;
+	std::vector<MGROUP_TRANSFORM*> vpAnimations;
+	VECTOR3 lightPosition[2];
+	//double pan, tilt;
+	//VECTOR3 lightDir;
 
 	PROPELLANT_HANDLE phLights;
 	THRUSTER_HANDLE thLights[2];
@@ -48,7 +60,7 @@ private:
 	OBJHANDLE hTarget; // vessel lights are pointed at
 	double heightOffset;
 
-	double updateClock; // if <0, update position of target
+	double updateClock; // if <0, update position of target and light state
 };
 
 #endif
