@@ -761,7 +761,7 @@ void Crawler::Attach() {
 
 		VESSEL* pVessel=oapiGetVesselInterface(hV);
 		std::string className=pVessel->GetClassName();
-		if(className == "Atlantis_MLP") { //found an MLP
+		if(className == "SSU_MLP") { //found an MLP
 			oapiWriteLog("Found MLP");
 			ATTACHMENTHANDLE ahAttach=pVessel->GetAttachmentHandle(true, 0);
 

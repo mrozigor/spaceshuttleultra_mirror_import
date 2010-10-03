@@ -8764,7 +8764,7 @@ void Atlantis::SignalGSEStart()
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
 			{
 				static_cast<MLP*>(pV)->SignalGSEStart();
 			}
@@ -8781,7 +8781,7 @@ void Atlantis::SignalGSEBreakHDP()
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
 			{
 				//static_cast<MLP*>(pV)->TriggerHDP();
 				static_cast<MLP*>(pV)->OnT0();
@@ -8798,7 +8798,7 @@ void Atlantis::StartROFIs()
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "Atlantis_MLP"))
+			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
 			{
 				static_cast<MLP*>(pV)->TriggerROFIs();
 			}
