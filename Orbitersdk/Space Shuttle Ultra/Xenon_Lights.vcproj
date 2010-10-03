@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile="../../Modules/Xenon_Lights.dll"
+				OutputFile="../../Modules/SSU_Xenon_Lights.dll"
 				AdditionalLibraryDirectories="../lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -133,7 +133,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib OrbiterSDK.lib"
-				OutputFile="../../Modules/Xenon_Lights.dll"
+				OutputFile="../../Modules/SSU_Xenon_Lights.dll"
 				AdditionalLibraryDirectories="../lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"

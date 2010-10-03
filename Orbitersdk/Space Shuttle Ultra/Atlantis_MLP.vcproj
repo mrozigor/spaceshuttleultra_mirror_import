@@ -172,7 +172,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib orbiterSDK.lib DlgCtrl.lib"
-				OutputFile=".\..\..\Modules\Atlantis_MLP.dll"
+				OutputFile=".\..\..\Modules\SSU_MLP.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib"

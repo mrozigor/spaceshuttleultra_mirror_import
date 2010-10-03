@@ -148,7 +148,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include"
+				AdditionalIncludeDirectories="E:\Orbiter2010_SSU\Sound\OrbiterSound_SDK\VESSELSOUND_SDK\ShuttlePB_project;..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -167,7 +167,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include\mfc&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -175,10 +175,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="orbiter.lib orbitersdk.lib DlgCtrl.lib"
-				OutputFile="..\..\Modules\SSUPad.dll"
+				OutputFile="..\..\Modules\SSU_Pad.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\lib"
+				AdditionalLibraryDirectories="E:\Orbiter2010_SSU\Sound\OrbiterSound_SDK\VESSELSOUND_SDK\ShuttlePB_project;..\lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="msvcrt.lib;msvcirt.lib"
 				ProgramDatabaseFile=".\Release/SSUPad.pdb"
