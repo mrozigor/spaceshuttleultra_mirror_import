@@ -1329,6 +1329,9 @@ private:
 	double A,B,C,TLastAB,fhdotrh;
 	double eCurrent;
 
+	// Entry
+	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
+
 	//GPC
 	int ops, SMOps;
 	int last_mfd;
@@ -1430,6 +1433,10 @@ private:
 	DiscOutPort SpdbkThrotAutoOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
+	DiscInPort PitchAutoIn, RollYawAutoIn;
+	//DiscOutPort PitchAutoOut, RollYawAutoOut;
+	//DiscInPort PitchCSSIn, RollYawCSSIn;
+	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam

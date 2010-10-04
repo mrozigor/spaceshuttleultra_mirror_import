@@ -42,8 +42,10 @@ namespace vc
 		UINT uiGroup;
 		MGROUP_TRANSLATE* pPushDown;
 		bool bAllowReset;
+		bool bSaveState;
+		bool bInitialState; // state loaded from scenario file
 	public:
-		PushButtonIndicator(Atlantis* _sts, const string& _ident);
+		PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState=false);
 		~PushButtonIndicator();
 
 		//void DefineGroup(UINT _grpIndex);
@@ -51,6 +53,10 @@ namespace vc
 		virtual bool OnMouseEvent(int _event, float x, float y);
 		virtual void OnPress();
 		virtual void OnRelease();
+
+		virtual void Realize();
+		virtual bool OnParseLine(const char* line);
+		virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
 
 		void ConnectAll(DiscreteBundle* pBundle, int line);
 		/**

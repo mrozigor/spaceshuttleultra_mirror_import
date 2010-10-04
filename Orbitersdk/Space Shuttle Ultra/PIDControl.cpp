@@ -1,9 +1,25 @@
 #include "PIDControl.h"
+#include "SSUMath.h"
 
 PIDControl::PIDControl(double pGain, double dGain, double iGain)
+	: integral(0.0), lastValue(0.0), firstStep(true), outputLimitsSet(false), integralLimitsSet(false)
+{
+	SetGains(pGain, dGain, iGain);
+}
+
+PIDControl::PIDControl(double pGain, double dGain, double iGain, double min, double max)
+	: integral(0.0), lastValue(0.0), firstStep(true), integralLimitsSet(false)
+{
+	SetGains(pGain, dGain, iGain);
+	SetLimits(min, max);
+}
+
+PIDControl::PIDControl(double pGain, double dGain, double iGain, double min, double max, double iMin, double iMax)
 	: integral(0.0), lastValue(0.0), firstStep(true)
 {
 	SetGains(pGain, dGain, iGain);
+	SetLimits(min, max);
+	SetIntegralLimits(iMin, iMax);
 }
 
 PIDControl::~PIDControl()
@@ -29,10 +45,17 @@ double PIDControl::Step(double value, double DeltaT)
 	else firstStep=false;
 	//store value for next timestep
 	lastValue=value;
+	
+	double limitedIntegral;
+	if(integralLimitsSet)
+		limitedIntegral = range(integralMin, integral, integralMax);
+	else limitedIntegral = integral;
 
-	return proportionalGain * value 
+	double result = proportionalGain * value 
 		+ derivativeGain * derivative
-		+ integralGain * integral;
+		+ integralGain * limitedIntegral;
+	if(outputLimitsSet) result = range(minOutput, result, maxOutput);
+	return result;
 }
 
 void PIDControl::SetGains(double pGain, double dGain, double iGain)
@@ -40,4 +63,18 @@ void PIDControl::SetGains(double pGain, double dGain, double iGain)
 	proportionalGain=pGain;
 	derivativeGain=dGain;
 	integralGain=iGain;
+}
+
+void PIDControl::SetLimits(double min, double max)
+{
+	minOutput = min;
+	maxOutput = max;
+	outputLimitsSet = true;
+}
+
+void PIDControl::SetIntegralLimits(double min, double max)
+{
+	integralMin = min;
+	integralMax = max;
+	integralLimitsSet = true;
 }

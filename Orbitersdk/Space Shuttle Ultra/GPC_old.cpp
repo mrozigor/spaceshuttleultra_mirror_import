@@ -560,6 +560,8 @@ void Atlantis::GPC(double simt, double dt)
 			TransControl(simt, dt);
 			break;
 		case 304:
+			if(GetMachNumber() < 2.5) ops = 305;
+		case 305:
 			AerojetDAP(dt);
 			break;
 	}
@@ -633,6 +635,38 @@ void Atlantis::AerojetDAP(double SimdT)
 	else {
 		SetThrusterGroupLevel(thg_rollright, 0.0);
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
+	}
+
+	// lookup table to get target AOA for current mach
+	const double AOA_Lookup[24] = {
+		40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 39.0, 38.0, 36.0, 34.0, 30.0, 27.0, 23.0, 19.0, 16.0, 15.0};
+	//  25,   24,   23,   22,   21,   20,   19,   18,   17,   16,   15,   14,   13,   12,   11,   10,   9,    8,    7,    6,    5,    4,    3,    2.5
+	
+	// use PID controllers to maintain AoA
+	if(ops==304 && GetAltitude()<100.0*1000.0 && PitchAutoIn) {
+		double mach = GetMachNumber();
+		int index;
+		double TargetAOA;
+		if(mach > 3.0) {
+			int index = max(25 - static_cast<int>(mach), 1);
+			TargetAOA = linterp(static_cast<int>(mach), AOA_Lookup[index], static_cast<int>(mach)+1, AOA_Lookup[index-1], mach);
+		}
+		else {
+			TargetAOA = linterp(3.0, AOA_Lookup[22], 2.5, AOA_Lookup[23], mach);
+		}
+
+		double flapPos = BodyFlap.Step(TargetAOA-GetAOA()*DEG, SimdT);
+		double elevonPos = ElevonPitch.Step(TargetAOA-GetAOA()*DEG, SimdT);
+
+		if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
+		else if(elevonPos < -0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, -1.0);
+		else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, flapPos);
+		SetControlSurfaceLevel(AIRCTRL_ELEVATOR, elevonPos);
+		sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", TargetAOA, elevonPos, TargetAOA-GetAOA()*DEG);
+	}
+	else {
+		// NOTE: this sets permanent value to 0.0; transient position is set by keyboard/joystick
+		SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
 	}
 }
 

@@ -256,6 +256,8 @@
 #define AID_F2_ST_MAN	584
 #define AID_F2_P_CSS	585
 #define AID_F2_RY_CSS	586
+#define AID_F2_P_AUTO	587
+#define AID_F2_RY_AUTO	588
 #define AID_F2_MAX		599
 
 #define AID_F4_MIN		600
@@ -266,6 +268,8 @@
 #define AID_F4_ST_MAN	604
 #define AID_F4_P_CSS	605
 #define AID_F4_RY_CSS	606
+#define AID_F4_P_AUTO	607
+#define AID_F4_RY_AUTO	608
 #define AID_F4_MAX		620
 
 #define AID_A7U_MIN		640

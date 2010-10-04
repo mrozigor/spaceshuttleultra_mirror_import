@@ -12,6 +12,9 @@ namespace vc
 		Add(pSbdbkThrotMan = new StandardLight(_sts, "F4_SBDKTHROT_MAN"));
 		Add(pBodyFlap = new PushButtonIndicator(_sts, "F4_BODYFLAP_AUTO"));
 		Add(pBodyFlapMan = new StandardLight(_sts, "F4_BODYFLAP_MAN"));
+
+		Add(pPitchAuto = new PushButtonIndicator(_sts, "F4_PITCH_AUTO", true));
+		Add(pPitchCSS = new PushButtonIndicator(_sts, "F4_PITCH_CSS", true));
 	}
 
 	PanelF4::~PanelF4()
@@ -20,8 +23,6 @@ namespace vc
 
 	void PanelF4::Realize()
 	{
-		BasicPanel::Realize();
-
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
 		pSbdbkThrot->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
 		pSbdbkThrotMan->input.Connect(pBundle, 2); //MAN light; F4 PBI only
@@ -31,6 +32,20 @@ namespace vc
 		pBodyFlap->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
 		pBodyFlapMan->input.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
 		pBodyFlapMan->test.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
+
+		pBundle=STS()->BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+		pPitchAuto->ConnectAll(pBundle, 0);
+		pPitchCSS->ConnectAll(pBundle, 1);
+		PitchPortGroup.AddPorts(pBundle, 0, 1);
+		
+		BasicPanel::Realize();
+	}
+
+	void PanelF4::OnPreStep(double SimT, double DeltaT, double MJD)
+	{
+		PitchPortGroup.OnPreStep();
+
+		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
 	}
 
 	void PanelF4::DefineVC()
@@ -68,6 +83,22 @@ namespace vc
 		pBodyFlapMan->SetSourceCoords(true, 0, 0);
 		pBodyFlapMan->SetSourceCoords(false, 0, 14);
 		pBodyFlapMan->SetDimensions(42, 14);
+
+		pPitchAuto->AddAIDToRedrawEventList(AID_F4_P_AUTO);
+		pPitchAuto->SetSourceImage(g_Param.pbi_lights);
+		pPitchAuto->SetBase(0, 0);
+		pPitchAuto->SetSourceCoords(true, 0, 0);
+		pPitchAuto->SetSourceCoords(false, 0, 14);
+		pPitchAuto->SetDimensions(42, 14);
+		pPitchAuto->SetMouseRegion(0.635229f, 0.286244f, 0.677304f, 0.395611f);
+
+		pPitchCSS->AddAIDToRedrawEventList(AID_F4_P_CSS);
+		pPitchCSS->SetSourceImage(g_Param.pbi_lights);
+		pPitchCSS->SetBase(0, 0);
+		pPitchCSS->SetSourceCoords(true, 0, 0);
+		pPitchCSS->SetSourceCoords(false, 0, 14);
+		pPitchCSS->SetDimensions(42, 14);
+		pPitchCSS->SetMouseRegion(0.681582f, 0.358571f, 0.724378f, 0.468767f);
 	}
 
 	void PanelF4::RegisterVC()
@@ -87,5 +118,7 @@ namespace vc
 		oapiVCRegisterArea(AID_F4_ST_MAN, _R(1296, 585, 1338, 599), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 		oapiVCRegisterArea(AID_F4_BF_AUTO, _R(1436, 542, 1478, 556), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 		oapiVCRegisterArea(AID_F4_BF_MAN, _R(1437, 583, 1479, 597), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
+		oapiVCRegisterArea(AID_F4_P_AUTO, _R(773, 562, 815, 576), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
+		oapiVCRegisterArea(AID_F4_P_CSS, _R(899, 565, 941, 579), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 	}
 };

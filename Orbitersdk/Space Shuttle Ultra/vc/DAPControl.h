@@ -43,11 +43,6 @@ namespace vc {
 	public:
 		DAPControl(Atlantis *_sts);
 		/**
-		 * Handles mouse events from either set of PBIs.
-		 * block==1 represents top row of PBIs; block==2 represents all other PBIs.
-		 */
-		bool VCMouseEvent(int block, int nEvent, const VECTOR3 &p);
-		/**
 		 * Returns true if PBI on
 		 */
 		bool GetPBIState(int id);
@@ -69,6 +64,10 @@ namespace vc {
 		DiscInPort input[24];
 		DiscOutPort output[24];
 		bool oldValues[24];
+
+		//bool bPitchAuto, bRollYawAuto;
+		DiscInPort PitchAutoIn, PitchCSSIn, RollYawAutoIn, RollYawCSSIn;
+		DiscOutPort PitchAutoOut, PitchCSSOut, RollYawAutoOut, RollYawCSSOut;
 	};
 };
 

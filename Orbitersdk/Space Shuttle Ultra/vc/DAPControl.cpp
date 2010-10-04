@@ -9,6 +9,8 @@ namespace vc {
 		: sts(_sts)
 	{
 		for(int i=0;i<24;i++) oldValues[i]=false;
+		//bPitchAuto = true;
+		//bRollYawAuto = true;
 	}
 
 	void DAPControl::Realize()
@@ -34,6 +36,16 @@ namespace vc {
 			if(oldValues[i]) output[i].SetLine();
 			else output[i].ResetLine();
 		}
+
+		pBundle=sts->BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+		PitchAutoOut.Connect(pBundle, 0);
+		PitchAutoIn.Connect(pBundle, 0);
+		PitchCSSOut.Connect(pBundle, 1);
+		PitchCSSIn.Connect(pBundle, 1);
+		RollYawAutoOut.Connect(pBundle, 2);
+		RollYawAutoIn.Connect(pBundle, 2);
+		RollYawCSSOut.Connect(pBundle, 3);
+		RollYawCSSIn.Connect(pBundle, 3);
 	}
 
 	void DAPControl::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -45,167 +57,31 @@ namespace vc {
 			if(oldValues[i]) output[i].SetLine();
 			else output[i].ResetLine();
 		}
-	}
 
-	bool DAPControl::VCMouseEvent(int block, int nEvent, const VECTOR3 &p)
-	{
-		bool bRet=false;
-		sprintf_s(oapiDebugString(), 255, "DAPControl: %f %f %f", p.x, p.y, p.z);
-		
-		if(block==1) {
-			//A
-			if(p.x>=0.003333 && p.x<=0.131725 && p.y>=0.028526 && p.y<=0.849584) {
-				//sts->DAPMode[0]=0;
-				//sts->UpdateDAP();
-				ButtonPress(0);
-				bRet=true;
-			}
-			//B
-			if(p.x>=0.176299 && p.x<=0.303113 && p.y>=0.037805 && p.y<=0.871381) {
-				//sts->DAPMode[0]=1;
-				//sts->UpdateDAP();
-				ButtonPress(1);
-				bRet=true;
-			}
-			//AUTO
-			if(p.x>=0.351384 && p.x<=0.480228 && p.y>=0.058962 && p.y<=0.899763) {
-				//sts->ControlMode=Atlantis::AUTO;
-				//add extra initialization
-				//InitializeControlMode();
-				ButtonPress(2);
-				bRet=true;
-			}
-			//INRTL
-			if(p.x>=0.51934 && p.x<=0.646509 && p.y>=0.052969 && p.y<=0.886635) {
-				//sts->ControlMode=Atlantis::INRTL;
-				//add extra initialization
-				//InitializeControlMode();
-				ButtonPress(3);
-				bRet=true;
-			}
-			//LVLH
-			if(p.x>=0.685939 && p.x<=0.815357 && p.y>=0.041121 && p.y<=0.901168) {
-				//sts->ControlMode=Atlantis::LVLH;
-				//add extra initialization
-				//InitializeControlMode();
-				ButtonPress(4);
-				bRet=true;
-			}
-			//FREE
-			if(p.x>=0.863466 && p.x<=0.99105 && p.y>=0.037412 && p.y<=0.88139) {
-				//sts->ControlMode=Atlantis::FREE;
-				//if(sts->PostContactThrusting[1]) sts->TogglePCT();
-				//add extra initialization
-				//InitializeControlMode();
-				ButtonPress(5);
-				bRet=true;
-			}
+		// handle AUTO/CSS PBIs
+		switch(sts->ops) {
+			case 105:
+			case 106:
+			case 201:
+			case 202:
+			case 301:
+			case 302:
+			case 303:
+				PitchAutoOut.ResetLine();
+				PitchCSSOut.ResetLine();
+				RollYawAutoOut.ResetLine();
+				RollYawCSSOut.ResetLine();
+				break;
+			case 304:
+				break;
+			case 305:
+				// for the moment, force CSS
+				PitchCSSOut.SetLine();
+				RollYawCSSOut.SetLine();
+				PitchAutoOut.ResetLine();
+				RollYawAutoOut.ResetLine();
+				break;
 		}
-		else if(block==2) {
-			//PCT
-			if(p.x>=0.025329 && p.x<=0.158726 && p.y>=0.02142 && p.y<=0.286954) {
-				ButtonPress(6);
-				bRet=true;
-				/*if(sts->PostContactThrusting[0]) {
-					sts->TogglePCT();
-				}*/
-			}
-			//PRI
-			else if(p.x>=0.5279445 && p.x<=0.6480245 && p.y>=0.012412 && p.y<=0.261399) {
-				ButtonPress(9);
-				bRet=true;
-				/*if(sts->DAPMode[1]!=0) {
-					sts->DAPMode[1]=0;
-					sts->UpdateDAP();
-				}*/
-			}
-			//ALT
-			else if(p.x>=0.692582 && p.x<=0.82202 && p.y>=0.001188 && p.y<=0.263191) {
-				ButtonPress(10);
-				bRet=true;
-				/*if(sts->DAPMode[1]!=1) {
-					sts->DAPMode[1]=1;
-					sts->UpdateDAP();
-					bRet=true;
-				}*/
-			}
-			//VERN
-			else if(p.x>=0.86248 && p.x<=0.994839 && p.y>=0.000951 && p.y<=0.260899) {
-				/*if(sts->DAPMode[1]!=2) {
-					sts->DAPMode[1]=2;
-					sts->UpdateDAP();
-				}*/
-				ButtonPress(11);
-				bRet=true;
-			}
-			//X NORM
-			else if(p.x>=0.003083 && p.x<=0.129235 && p.y>=0.368609 && p.y<=0.628432) {
-				ButtonPress(12);
-				bRet=true;
-			}
-			//Y NORM
-			else if(p.x>=0.172048 && p.x<=0.301167 && p.y>=0.36579 && p.y<=0.630109) {
-				ButtonPress(13);
-				bRet=true;
-			}
-			//Z NORM
-			else if(p.x>=0.337985 && p.x<=0.467041 && p.y>=0.373341 && p.y<=0.628341) {
-				ButtonPress(14);
-				bRet=true;
-			}
-			//DISC RATE (ROLL)
-			else if(p.x>=0.523584 && p.x<=0.656069 && p.y>=0.369307 && p.y<=0.635155) {
-				ButtonPress(15);
-				bRet=true;
-			}
-			//DISC RATE (PITCH)
-			else if(p.x>=0.694456 && p.x<=0.821347 && p.y>=0.364444 && p.y<=0.631278) {
-				ButtonPress(16);
-				bRet=true;
-			}
-			//DISC RATE (YAW)
-			else if(p.x>=0.865548 && p.x<=0.996359 && p.y>=0.374009 && p.y<=0.625811) {
-				/*if(sts->RotMode[YAW]!=0) {
-					sts->RotMode[YAW]=0;
-					sts->RotPulseInProg[YAW]=false;
-					bRet=true;
-				}*/
-				ButtonPress(17);
-				bRet=true;
-			}
-			//X PULSE
-			else if(p.x>=0.003433 && p.x<=0.126946 && p.y>=0.736736 && p.y<=0.992645) {
-				ButtonPress(18);
-				bRet=true;
-			}
-			//Y PULSE
-			else if(p.x>=0.169533 && p.x<=0.295239 && p.y>=0.739643 && p.y<=0.989427) {
-				ButtonPress(19);
-				bRet=true;
-			}
-			//Z PULSE
-			else if(p.x>=0.337445 && p.x<=0.465086 && p.y>=0.735088 && p.y<=0.990598) {
-				ButtonPress(20);
-				bRet=true;
-			}
-			//PULSE (ROLL)
-			else if(p.x>=0.525904 && p.x<=0.653727 && p.y>=0.73224 && p.y<=0.998566) {
-				ButtonPress(21);
-				bRet=true;
-			}
-			//PULSE (PITCH)
-			else if(p.x>=0.691348 && p.x<=0.818212 && p.y>=0.723454 && p.y<=0.991530) {
-				ButtonPress(22);
-				bRet=true;
-			}
-			//PULSE (YAW)
-			else if(p.x>=0.868416 && p.x<=0.994284 && p.y>=0.735267 && p.y<=0.994234) {
-				ButtonPress(23);
-				bRet=true;
-			}
-		}
-
-		return bRet;
 	}
 
 	bool DAPControl::GetPBIState(int id)
