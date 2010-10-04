@@ -2,8 +2,8 @@
 
 namespace vc
 {
-	PushButtonIndicator::PushButtonIndicator(Atlantis* _sts, const string& _ident)
-		: StandardLight(_sts, _ident)
+	PushButtonIndicator::PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState)
+		: StandardLight(_sts, _ident), bSaveState(_saveState), bInitialState(false)
 	{
 		anim_pb = NULL;
 		pPushDown = NULL;
@@ -88,6 +88,34 @@ namespace vc
 		{
 			SetAnimation(anim_pb, 0.0);
 		}
+	}
+
+	void PushButtonIndicator::Realize()
+	{
+		if(bSaveState) {
+			if(bInitialState) output.SetLine();
+			else output.ResetLine();
+		}
+	}
+
+	bool PushButtonIndicator::OnParseLine(const char* line)
+	{
+		if(bSaveState) {
+			int result = atoi(line);
+			if(result == 0) bInitialState = false;
+			else bInitialState = true;
+			return true;
+		}
+		return false;
+	}
+
+	bool PushButtonIndicator::GetStateString(unsigned long ulBufferSize, char* pszBuffer)
+	{
+		if(!bSaveState) return false; // no need to save state
+		
+		if(input) strcpy_s(pszBuffer, ulBufferSize, "1");
+		else strcpy_s(pszBuffer, ulBufferSize, "0");
+		return true;
 	}
 
 	PBIDiscPortGroup::PBIDiscPortGroup()

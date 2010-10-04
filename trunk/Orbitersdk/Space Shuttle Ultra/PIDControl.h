@@ -35,9 +35,15 @@ private:
 	double lastValue;
 	double integral;
 	double proportionalGain, derivativeGain, integralGain;
+	bool integralLimitsSet;
+	double integralMax, integralMin;
+	bool outputLimitsSet;
+	double maxOutput, minOutput;
 	bool firstStep;
 public:
-	PIDControl(double pGain=0.0, double dGain=0.0, double iGain=0.0);
+	PIDControl(double pGain=0.0, double dGain=0.0, double iGain=0.0);	
+	PIDControl(double pGain, double dGain, double iGain, double min, double max);
+	PIDControl(double pGain, double dGain, double iGain, double min, double max, double iMin, double iMax);
 	~PIDControl();
 
 	/**
@@ -54,6 +60,15 @@ public:
 	double Step(double value, double DeltaT);
 
 	void SetGains(double pGain, double dGain, double iGain);
+	/**
+	 * Sets limits on output
+	 */
+	void SetLimits(double min, double max);
+	/**
+	 * Sets limits on integral value when calculating output.
+	 * Integral value can still be infinitely large, but value within limits will be used to calculate output.
+	 */
+	void SetIntegralLimits(double min, double max);
 };
 
 #endif //__PIDCONTROL_H

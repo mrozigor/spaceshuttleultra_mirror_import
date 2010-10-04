@@ -35,6 +35,10 @@ namespace vc
 	{
 		PushButtonIndicator *pBodyFlap, *pSbdbkThrot; //handles AUTO light
 		StandardLight *pBodyFlapMan, *pSbdbkThrotMan;
+		
+		PushButtonIndicator *pPitchAuto;
+		PushButtonIndicator *pPitchCSS;
+		PBIDiscPortGroup PitchPortGroup;
 
 	public:
 		PanelF4(Atlantis* _sts);
@@ -44,6 +48,8 @@ namespace vc
 
 		virtual void DefineVC();
 		virtual void RegisterVC();
+
+		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	};
 };
 

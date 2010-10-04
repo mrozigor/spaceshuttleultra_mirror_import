@@ -347,6 +347,8 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 : VESSEL3 (hObj, fmodel),
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
+BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
+ElevonPitch(0.5, 0.25, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 pActiveLatches(3, NULL),
 dapcontrol(NULL),
 gncsoftware(NULL)
@@ -1733,13 +1735,24 @@ void Atlantis::DisableControlSurfaces()
 void Atlantis::EnableControlSurfaces()
 {
 	if(ControlSurfacesEnabled) return;
-	helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
-    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
+	helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 10.0, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
+    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 10.0, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
 	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	ControlSurfacesEnabled=true;
 }
+/*void Atlantis::EnableControlSurfaces()
+{
+	if(ControlSurfacesEnabled) return;
+	//helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 43.8, 1.5, _V( 0, -2.3,  -10.0), AIRCTRL_AXIS_XPOS, 1.75, anim_elev);	
+	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 23.855, 1.5, _V( 0, -2.3, -10.0), AIRCTRL_AXIS_XPOS, 1.75, anim_elev);
+    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 10.91, 2.0, _V( 0, 0,  -14.5), AIRCTRL_AXIS_XPOS, anim_bf);
+	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	ControlSurfacesEnabled=true;
+}*/
 
 // --------------------------------------------------------------
 // Define animation sequences for moving parts
@@ -3475,7 +3488,14 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 			{
 				ops=303;
 			}
-			else if(nNew==304 && ops==303) ops=304;
+			else if(nNew==304 && ops==303)
+			{
+				ops=304;
+			}
+			else if(nNew==305 && ops==304)
+			{
+				ops=305;
+			}
 			return true;
 		}
 		else if(change==1) {
@@ -5579,6 +5599,16 @@ void Atlantis::clbkPostCreation ()
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
 	SpdbkThrotAutoOut.Connect(pBundle, 0);
 
+	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+	//PitchAutoOut.Connect(pBundle, 0);
+	PitchAutoIn.Connect(pBundle, 0);
+	//PitchCSSOut.Connect(pBundle, 1);
+	//PitchCSSIn.Connect(pBundle, 1);
+	//RollYawAutoOut.Connect(pBundle, 2);
+	RollYawAutoIn.Connect(pBundle, 2);
+	//RollYawCSSOut.Connect(pBundle, 3);
+	//RollYawCSSIn.Connect(pBundle, 3);
+
 	pBundle=BundleManager()->CreateBundle("Controllers", 16);
 	AftSense.Connect(pBundle, 0);
 	CdrFltCntlrPwr.Connect(pBundle, 1);
@@ -6487,11 +6517,11 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 
 bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
 {
-	if(ops!=304) {
-		Stopwatch st;
-		st.Start();
+	if(ops < 304) {
+		//Stopwatch st;
+		//st.Start();
 		VESSEL3::clbkDrawHUD(mode, hps, skp);
-		sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
+		//sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
 		return true;
 	}
 	// if in ops 304, draw entry/landing HUD
