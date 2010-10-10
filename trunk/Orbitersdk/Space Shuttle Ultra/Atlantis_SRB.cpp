@@ -139,26 +139,26 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// *********************** thruster definitions ********************************
 
 	// main engine
-	th_main = CreateThruster (_V(0,0,-21), _V(0,0,1), SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1);
+	th_main = CreateThruster (_V(0.484,0.434,-21), _V(0,0,1), SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1);
 	SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
-	bsm_exhaust.tex = srb_exhaust.tex = oapiRegisterParticleTexture ("Contrail2");
+	bsm_exhaust.tex = srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
 	
 	AddExhaust (th_main, 16.0, 2.0, tex);
-	AddExhaustStream (th_main, _V(0,0,-30), &srb_contrail);
-	AddExhaustStream (th_main, _V(0,0,-25), &srb_exhaust);
+	AddExhaustStream (th_main, _V(0.484,0.434,-25), &srb_exhaust);
+	AddExhaustStream (th_main, _V(0.484,0.434,-100), &srb_contrail);
 
 	// separation bolts
-	th_bolt = CreateThruster (_V(0,0,1.3), _V(1,0,0), 3e6, ph_main, 1e7);
+	//th_bolt = CreateThruster (_V(0,0,1.3), _V(1,0,0), 3e6, ph_main, 1e7);
 
 	//BSM
 	if(Left)
 	{
-		thBSM[0] = CreateThruster(_V(0.752, 3.15, -19.5), _V(-0.232, -0.729, -0.642), 4*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.261, -0.719, 0.642), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(0.752, 3.15, -19.5), _V(-0.219, -0.604, 0.765), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.262, -0.719, 0.642), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	} else 
 	{
-		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.22, -0.604, 0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
-		thBSM[1] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.22, -0.604, -0.766), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(-0.752, 2.06, -20.5), _V(0.219, -0.604, 0.765), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[1] = CreateThruster(_V(-0.445, 1.22, 21), _V(0.262, -0.719, 0.642), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	}
 	// for simplicity, the separation bolts directly use SRB propellant. We give
 	// them an insanely high ISP to avoid significant propellant drainage
