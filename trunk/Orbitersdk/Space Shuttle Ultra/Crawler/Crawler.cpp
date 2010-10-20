@@ -413,7 +413,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	} else return;
 
 	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = 0.1 * simdt;
+		double dAngle = STEERING_SPEED * simdt;
 		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
 			steeringCommanded[viewPos] = max(-1,steeringCommanded[viewPos] - dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
@@ -422,7 +422,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}	
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = 0.1 * simdt;
+		double dAngle = STEERING_SPEED * simdt;
 		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
 			steeringCommanded[viewPos] = min(1, steeringCommanded[viewPos] + dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
@@ -443,12 +443,12 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	for(unsigned short i=0;i<2;i++) {
 		double steeringError = steeringCommanded[i]-steeringActual[i];
 		if(steeringError < -0.0001) {
-			double dAngle = 0.05*simdt;
+			double dAngle = TRACK_TURN_SPEED * simdt;
 			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-dAngle);
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 		else if(steeringError > 0.0001) {			
-			double dAngle = 0.05*simdt;
+			double dAngle = TRACK_TURN_SPEED * simdt;
 			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+dAngle);
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
