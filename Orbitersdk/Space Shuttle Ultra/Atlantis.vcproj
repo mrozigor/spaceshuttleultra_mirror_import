@@ -254,7 +254,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/analyze"
+				AdditionalOptions="/analyze&#x0D;&#x0A;/wd4100"
 				Optimization="0"
 				AdditionalIncludeDirectories="../include;../libUltra/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
@@ -263,7 +263,7 @@
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 			/>
@@ -392,6 +392,10 @@
 			</File>
 			<File
 				RelativePath=".\eps\ACMotorController.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Aerodynamics\AerodynamicLookupTables.cpp"
 				>
 			</File>
 			<File
@@ -558,6 +562,10 @@
 			</File>
 			<File
 				RelativePath=".\mps\EIU.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Aerodynamics\ElevonVertical.cpp"
 				>
 			</File>
 			<File
@@ -820,6 +828,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Aerodynamics\Vertical.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WSB.cpp"
 				>
 			</File>
@@ -834,6 +846,14 @@
 			</File>
 			<File
 				RelativePath="AC_resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Aerodynamics\AerodynamicLookupTables.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Aerodynamics\Aerodynamics.h"
 				>
 			</File>
 			<File

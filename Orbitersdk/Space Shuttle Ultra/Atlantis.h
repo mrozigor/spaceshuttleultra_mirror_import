@@ -422,6 +422,12 @@ typedef struct {
 	int InputSize; //number of chars used
 } KeyboardInput;
 
+typedef struct {
+	double leftElevon, rightElevon;
+	double bodyFlap;
+	double speedbrake;
+	double rudder;
+} AerosurfacePositions;
 
 
 class PanelA4;
@@ -776,6 +782,7 @@ public:
 	
 
 
+	AerosurfacePositions aerosurfaces;
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
@@ -1331,6 +1338,7 @@ private:
 
 	// Entry
 	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
+	PIDControl PitchControl;
 
 	//GPC
 	int ops, SMOps;

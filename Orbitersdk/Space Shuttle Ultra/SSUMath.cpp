@@ -186,7 +186,7 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
 	RotMatrixZ.m33 = 1;
 }
 
-int tpir(const std::vector<double> &list, double target) {
+unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
 	if(target<list[0]) return 0;
 	if(target>=list[list.size()-1]) return list.size()-2;
@@ -204,7 +204,7 @@ int tpir(const std::vector<double> &list, double target) {
 	}
 	// sprintf(buf,"result %d",-46);
 	// strcat(oapiDebugString(),buf);
-	return -46;
+	return 0; // we should never hit this point
 }
 
 int tpir(const double* list, int n_items, double target) {
@@ -234,7 +234,7 @@ double linterp(double x0, double y0, double x1, double y1, double x) {
 }
 
 double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x) {
-	int i=tpir(listx,x);
+	unsigned int i=GetLowerIndex(listx,x);
 	//  sprintf(oapiDebugString(),"i %d x0 %f y0 %f x1 %f y1 %f x %f",i,listx[i],listy[i],listx[i+1],listy[i+1],x);
 	return linterp(listx[i],listy[i],listx[i+1],listy[i+1],x);
 }

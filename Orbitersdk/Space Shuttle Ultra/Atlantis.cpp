@@ -17,6 +17,7 @@
 #include "Atlantis_SRB.h"
 #include "Atlantis_Tank.h"
 #include "ParameterValues.h"
+#include "Aerodynamics/Aerodynamics.h"
 #include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
@@ -227,6 +228,32 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
   *cm=0;
 }
 
+const Aerodynamics::VerticalAerodynamicsLookup verticalLookup;
+const Aerodynamics::ElevonVerticalLookup elevonVerticalLookup;
+//const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
+
+void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
+{
+	double basicLift, basicDrag, basicMoment;
+	double elevonLift, elevonDrag, elevonMoment;
+	//double speedbrakeLift, speedbrakeDrag, speedbrakeMoment;
+
+	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
+	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+	//elevonPos = range(-15.0, elevonPos, 15.0);
+	verticalLookup.GetValues(M, aoa*DEG, aerosurfaces->speedbrake, basicLift, basicDrag, basicMoment);
+	elevonVerticalLookup.GetValues(M, aoa*DEG, elevonPos, elevonLift, elevonDrag, elevonMoment);
+
+	//speedbrakeVerticalLookup.GetValues(M, aoa*DEG, aerosurfaces->speedbrake, speedbrakeLift, speedbrakeDrag, speedbrakeMoment);
+
+	*cl = basicLift+elevonLift;
+	*cd = basicDrag+elevonDrag;
+	*cm = basicMoment+elevonMoment;
+
+	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
+	//sprint
+}
+
 /*
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd) {
   if(M<mach[0])M=mach[0];
@@ -249,7 +276,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
   }
 }
 */
-void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, double *cl, double *cm, double *cd){
+/*void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, double *cl, double *cm, double *cd){
   Atlantis* v=(Atlantis*)vv;
     if(M<mach[0])M=mach[0];
     if(M>mach[n_mach-1])M=mach[n_mach-1];
@@ -310,7 +337,7 @@ void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, doubl
 //    *cd = 0.09 + oapiGetInducedDrag (*cl, 2.266, 0.5);
     *cd = 0.09 + oapiGetInducedDrag (*cl, 2.266, 0.75);
 
-  }*/
+  }*
 //  sprintf(oapiDebugString(),"P%d Y%d R%d TableM: %f TableAoA: %f Table Cl: %f AFCS Cl: %f Table Cd: %f AFCS Cd: %f",v->PitchActive,v->YawActive,v->RollActive,M,aoa*180.0/PI,Tablecl,*cl,Tablecd,*cd);
   else {
 	*cl=Tablecl;
@@ -318,7 +345,7 @@ void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, doubl
   }
 //    *cm=tableterp(&cmBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
 //  *cm+=tableterp(&cmTrim[0][0], trimExt, n_trimExt, mach, n_mach, bfDeploy,M);
-}
+}*/
 
 // 2. horizontal lift component (vertical stabiliser and body)
 
@@ -334,7 +361,8 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
   double d = beta*istep - idx;
   *cl = CL[idx] + (CL[idx+1]-CL[idx])*d;
   *cm = 0.0;
-  *cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
+  //*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
+  *cd = 0.0;
 }
 
 // ==============================================================
@@ -348,7 +376,8 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 : VESSEL3 (hObj, fmodel),
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
 BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
-ElevonPitch(0.5, 0.25, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
+ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
+PitchControl(0.40, 0.001, 0.15, -1.0, 1.0, -5.0, 5.0),
 pActiveLatches(3, NULL),
 dapcontrol(NULL),
 gncsoftware(NULL)
@@ -953,6 +982,11 @@ gncsoftware(NULL)
   PostContactThrusting[1]=false;
   PCTStartTime=0.0;
 
+  aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
+  aerosurfaces.speedbrake = 0.0;
+  aerosurfaces.bodyFlap = 0.0;
+  aerosurfaces.rudder = 0.0;
+
   ControlRMS=false;
 
   //I-loads
@@ -1347,7 +1381,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetSize (19.6);
   //SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
   VECTOR3 r[2] = {{0,0,10},{0,0,-8}};
-  SetPMI (_V(104.2,108.8,13.497));
+  SetPMI (_V(120.2,108.8,13.497));
   SetGravityGradientDamping (20.0);
   SetTrimScale (0.05);
   SetCW (ORBITER_CW[0], ORBITER_CW[1], ORBITER_CW[2], ORBITER_CW[3]);
@@ -1360,7 +1394,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // ************************* aerodynamics **************************************
 
   SetRotDrag (_V(0.43,0.43,0.29)); // angular drag
-  CreateAirfoil3 (LIFT_VERTICAL,   _V(0,0,-0.5), VLiftCoeff, NULL,Orbiterc, OrbiterS, OrbiterA);
+  CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,Orbiterc, OrbiterS, OrbiterA);
   CreateAirfoil (LIFT_HORIZONTAL, _V(0,0,-4), HLiftCoeff, 20,  50, 1.5);
 
   /*helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
@@ -1371,7 +1405,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   ControlSurfacesEnabled=true;*/
 
   ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
+  //CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
@@ -1735,8 +1769,8 @@ void Atlantis::DisableControlSurfaces()
 void Atlantis::EnableControlSurfaces()
 {
 	if(ControlSurfacesEnabled) return;
-	helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 10.0, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
-    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 10.0, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
+	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 0.0, 0.0, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, 2.0, anim_elev);
+    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
 	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
@@ -5776,6 +5810,15 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 					//SetNosewheelSteering(true);
 				}
 			}
+
+			//aerosurfaces.leftElevon = 
+			/*double elevonPos = GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
+			if(elevonPos < 0.0)
+				aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-18.0;
+			else
+				aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*/
+			aerosurfaces.speedbrake=spdb_proc*100.0;
+
 			break;
 	}
 
@@ -5983,24 +6026,24 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		EnableAllRCS();
 		//On entry, start shutting down RCS channels as appropriate
 		if(RollActive && GetDynPressure()>RollOff) {
-			SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
+			/*SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
 			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
 			DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
+			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);*/
 			RollActive=false;
 		}
 		if(PitchActive && GetDynPressure()>PitchOff) {
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
+			/*SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
 			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
 			DelThrusterGroup(THGROUP_ATT_PITCHUP);
-			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
+			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);*/
 			PitchActive=false;
 		}
 		if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
-			SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
+			/*SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
 			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
 			DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
+			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);*/
 			YawActive=false;
 		}
 		//Check if Control Surfaces are usable
@@ -6545,9 +6588,10 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 		/*sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
 		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));*/
 		//dOut=GetAirspeed()*1.943844;
-		const double EAS_EXP = 2.0/7.0;
-		const double P0 = 1.01325E6;
-		dOut = 661.48 * sqrt(5.0 * GetAtmPressure()/ATMP * (pow(GetDynPressure() / GetAtmPressure() + 1, EAS_EXP) - 1.0));
+		//const double EAS_EXP = 2.0/7.0;
+		//const double P0 = 1.01325E6;
+		//dOut = 661.48 * sqrt(5.0 * GetAtmPressure()/ATMP * (pow(GetDynPressure() / GetAtmPressure() + 1, EAS_EXP) - 1.0));
+		dOut = 661.47 * GetMachNumber() * sqrt(GetAtmPressure()/101325.0);
 		sprintf(cbuf, "KEAS:%.0f", dOut);
 		skp->Text(hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
 		dOut=(GetAltitude()*3.280833)-17;
@@ -6638,7 +6682,8 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 		skp->LineTo((hps->W/2)+commanded, hps->H-85);
 	}
 
-	sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
+	//sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
+	st.Stop();
 	return true;
 }
 
