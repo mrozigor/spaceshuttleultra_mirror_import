@@ -687,13 +687,14 @@ void Atlantis::AerojetDAP(double SimdT)
 		double PitchError = PitchRateCommand-AngularVelocity.data[PITCH]*DEG;
 
 		double elevonPos = PitchControl.Step(PitchError, SimdT);
-		if(elevonPos < 0.0)
+		/*if(elevonPos < 0.0)
 			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-18.0;
 		else
-			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;
+			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*/
+		aerosurfaces.rightElevon = aerosurfaces.leftElevon = range(-33.0, elevonPos*-33.0, 18.0);
 		
 		sprintf_s(oapiDebugString(), 255, "%s RHC Input: %f %f %f elevon: %f rates: %f %f SB: %f", oapiDebugString(),
-			RHCInput.data[PITCH], RHCInput.data[YAW], RHCInput.data[ROLL], aerosurfaces.leftElevon, ReqdRates.data[PITCH], PitchError,
+			RHCInput.data[PITCH], RHCInput.data[YAW], RHCInput.data[ROLL], aerosurfaces.leftElevon, PitchRateCommand, PitchError,
 			aerosurfaces.speedbrake);
 	}
 }
