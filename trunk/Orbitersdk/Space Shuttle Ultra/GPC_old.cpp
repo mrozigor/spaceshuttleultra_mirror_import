@@ -579,6 +579,8 @@ void Atlantis::GPC(double simt, double dt)
 
 void Atlantis::AerojetDAP(double SimdT)
 {
+	GetAngularVel(AngularVelocity);
+
 	//for the moment, use RHC input to control thruster firings
 	if(PitchActive) {
 		if(RHCInput.data[PITCH]>0.01) {
@@ -643,30 +645,56 @@ void Atlantis::AerojetDAP(double SimdT)
 	//  25,   24,   23,   22,   21,   20,   19,   18,   17,   16,   15,   14,   13,   12,   11,   10,   9,    8,    7,    6,    5,    4,    3,    2.5
 	
 	// use PID controllers to maintain AoA
-	if(ops==304 && GetAltitude()<100.0*1000.0 && PitchAutoIn) {
-		double mach = GetMachNumber();
-		int index;
-		double TargetAOA;
-		if(mach > 3.0) {
-			int index = max(25 - static_cast<int>(mach), 1);
-			TargetAOA = linterp(static_cast<int>(mach), AOA_Lookup[index], static_cast<int>(mach)+1, AOA_Lookup[index-1], mach);
+	if(ops==304) {
+		if(GetAltitude()<100.0*1000.0 && PitchAutoIn) {
+			double mach = GetMachNumber();
+			int index;
+			double TargetAOA;
+			if(mach > 3.0) {
+				int index = max(25 - static_cast<int>(mach), 1);
+				TargetAOA = linterp(static_cast<int>(mach), AOA_Lookup[index], static_cast<int>(mach)+1, AOA_Lookup[index-1], mach);
+			}
+			else {
+				TargetAOA = linterp(3.0, AOA_Lookup[22], 2.5, AOA_Lookup[23], mach);
+			}
+
+			double flapPos = BodyFlap.Step(TargetAOA-GetAOA()*DEG, SimdT);
+			double elevonPos = ElevonPitch.Step(TargetAOA-GetAOA()*DEG, SimdT);
+
+			if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
+			else if(elevonPos < -0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, -1.0);
+			else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 0.0);
+			SetControlSurfaceLevel(AIRCTRL_ELEVATOR, elevonPos);
+			sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", TargetAOA, elevonPos, TargetAOA-GetAOA()*DEG);
 		}
 		else {
-			TargetAOA = linterp(3.0, AOA_Lookup[22], 2.5, AOA_Lookup[23], mach);
+			// NOTE: this sets permanent value to 0.0; transient position is set by keyboard/joystick
+			SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
 		}
-
-		double flapPos = BodyFlap.Step(TargetAOA-GetAOA()*DEG, SimdT);
-		double elevonPos = ElevonPitch.Step(TargetAOA-GetAOA()*DEG, SimdT);
-
-		if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
-		else if(elevonPos < -0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, -1.0);
-		else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, flapPos);
-		SetControlSurfaceLevel(AIRCTRL_ELEVATOR, elevonPos);
-		sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", TargetAOA, elevonPos, TargetAOA-GetAOA()*DEG);
 	}
-	else {
-		// NOTE: this sets permanent value to 0.0; transient position is set by keyboard/joystick
-		SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
+	else if(ops==305) {
+		/*if(Eq(RHCInput.data[PITCH], 0.0, 0.001)) {
+			ReqdRates.data[PITCH] = 0.0;
+		}
+		else {
+			ReqdRates.data[PITCH] += RHCInput.data[PITCH]*3.0*SimdT;
+		}
+		double PitchError = ReqdRates.data[PITCH]-AngularVelocity.data[PITCH]*DEG;
+		// add bias for trim
+		double trim = GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
+		PitchError += GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;*/
+		double PitchRateCommand = GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;
+		double PitchError = PitchRateCommand-AngularVelocity.data[PITCH]*DEG;
+
+		double elevonPos = PitchControl.Step(PitchError, SimdT);
+		if(elevonPos < 0.0)
+			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-18.0;
+		else
+			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;
+		
+		sprintf_s(oapiDebugString(), 255, "%s RHC Input: %f %f %f elevon: %f rates: %f %f SB: %f", oapiDebugString(),
+			RHCInput.data[PITCH], RHCInput.data[YAW], RHCInput.data[ROLL], aerosurfaces.leftElevon, ReqdRates.data[PITCH], PitchError,
+			aerosurfaces.speedbrake);
 	}
 }
 

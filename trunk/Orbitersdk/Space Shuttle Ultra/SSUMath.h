@@ -48,7 +48,7 @@ void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
 //interpolation
-int tpir(const std::vector<double> &list, double target);
+unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);
 double linterp(double x0, double y0, double x1, double y1, double x);
 double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x);
