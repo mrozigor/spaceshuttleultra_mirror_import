@@ -377,7 +377,7 @@ Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
 BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
 ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
-PitchControl(0.40, 0.001, 0.15, -1.0, 1.0, -5.0, 5.0),
+PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
 pActiveLatches(3, NULL),
 dapcontrol(NULL),
 gncsoftware(NULL)
