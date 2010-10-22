@@ -693,9 +693,9 @@ void Atlantis::AerojetDAP(double SimdT)
 			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*/
 		aerosurfaces.rightElevon = aerosurfaces.leftElevon = range(-33.0, elevonPos*-33.0, 18.0);
 		
-		/*sprintf_s(oapiDebugString(), 255, "%s RHC Input: %f %f %f elevon: %f rates: %f %f SB: %f", oapiDebugString(),
-			RHCInput.data[PITCH], RHCInput.data[YAW], RHCInput.data[ROLL], aerosurfaces.leftElevon, PitchRateCommand, PitchError,
-			aerosurfaces.speedbrake);*/
+		sprintf_s(oapiDebugString(), 255, "RHC Input: %f elevon: %f rates: %f error: %f SB: %f",
+			RHCInput.data[PITCH], aerosurfaces.leftElevon, PitchRateCommand, PitchError,
+			aerosurfaces.speedbrake);
 	}
 }
 
