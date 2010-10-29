@@ -683,7 +683,7 @@ void Atlantis::AerojetDAP(double SimdT)
 		// add bias for trim
 		double trim = GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
 		PitchError += GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;*/
-		double PitchRateCommand = GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;
+		double PitchRateCommand = GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
 		double PitchError = PitchRateCommand-AngularVelocity.data[PITCH]*DEG;
 
 		double elevonPos = PitchControl.Step(PitchError, SimdT);
@@ -1213,7 +1213,7 @@ void Atlantis::AttControl(double SimdT)
 		}
 		else NullRates=NullRatesLocal=_V(0, 0, 0); //MNVR or ControlMode==INRTL
 		
-		//PitchYawRoll=CalcPitchYawRollAngles()*DEG;
+		// get error between target and actual attitudes
 		PitchYawRollMatrix=CalcPitchYawRollRotMatrix();
 		PitchYawRoll=GetAnglesFromMatrix(PitchYawRollMatrix)*DEG;
 		//if(ControlMode==INRTL) sprintf_s(oapiDebugString(), 255, "RatesN: %f %f %f", ReqdRates.x, ReqdRates.y, ReqdRates.z);

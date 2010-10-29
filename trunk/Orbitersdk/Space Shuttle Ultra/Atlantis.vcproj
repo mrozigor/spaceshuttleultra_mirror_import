@@ -395,7 +395,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Aerodynamics\AerodynamicLookupTables.cpp"
+				RelativePath=".\AerodynamicLookupTables.cpp"
 				>
 			</File>
 			<File
@@ -562,10 +562,6 @@
 			</File>
 			<File
 				RelativePath=".\mps\EIU.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Aerodynamics\ElevonVertical.cpp"
 				>
 			</File>
 			<File
@@ -828,10 +824,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Aerodynamics\Vertical.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\WSB.cpp"
 				>
 			</File>
@@ -849,11 +841,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Aerodynamics\AerodynamicLookupTables.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Aerodynamics\Aerodynamics.h"
+				RelativePath=".\AerodynamicLookupTables.h"
 				>
 			</File>
 			<File
