@@ -112,6 +112,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile)
 		std::getline(dataIn, line);
 		ReadCSVLine(line, deflectionRange);
 
+		unsigned int lineCount = 2; // counter in case file is invalid
 		std::vector<double> normalData;
 		std::vector<double> axialData;
 		std::vector<double> momentData;
@@ -126,28 +127,22 @@ ThreeDLookup::ThreeDLookup(const char* dataFile)
 			std::getline(dataIn, line);
 			ReadCSVLine(line, momentData);
 
-			if(machAoaValues.size() != 2) {
-				oapiWriteLog("ERROR: Invalid aerodynamic data file");
-				oapiWriteLog((char*)dataFile);
-				break;
-			}
-			else if(normalData.size() != deflectionRange.size()) {
-				oapiWriteLog("ERROR: Invalid aerodynamic data file");
-				oapiWriteLog((char*)dataFile);
-				break;
-			}
-			else if(axialData.size() != deflectionRange.size()) {
-				oapiWriteLog("ERROR: Invalid aerodynamic data file");
-				oapiWriteLog((char*)dataFile);
-				break;
-			}
-			else if(momentData.size() != deflectionRange.size()) {
-				oapiWriteLog("ERROR: Invalid aerodynamic data file");
-				oapiWriteLog((char*)dataFile);
+			// make sure block of data is valid
+			bool error = ( (machAoaValues.size() != 2) ||
+				(normalData.size() != deflectionRange.size()) ||
+				(axialData.size() != deflectionRange.size()) ||
+				(momentData.size() != deflectionRange.size()) );
+			if(error) {
+				std::ostringstream message;
+				message << "ERROR: Invalid aerodynamic data file " << dataFile << std::endl;
+				message << "Line " << lineCount;
+				oapiWriteLog((char*)message.str().c_str());
 				break;
 			}
 
 			AddAxialDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
+
+			lineCount+=4;
 		}
 		dataIn.close();
 	}
@@ -156,7 +151,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile)
 		oapiWriteLog((char*)dataFile);
 	}
 
-	for(unsigned int i=0;i<lookupTables[0].liftLookupTable.size();i++) {
+	/*for(unsigned int i=0;i<lookupTables[0].liftLookupTable.size();i++) {
 		std::ostringstream stream1;
 		std::ostringstream stream2;
 		stream1 << zValues[0] << " " << lookupTables[0].xValues[i];
@@ -167,7 +162,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile)
 		}
 		oapiWriteLog((char*)stream1.str().c_str());
 		oapiWriteLog((char*)stream2.str().c_str());
-	}
+	}*/
 }
 
 ThreeDLookup::~ThreeDLookup()
