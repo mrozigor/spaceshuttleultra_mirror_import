@@ -17,7 +17,8 @@
 #include "Atlantis_SRB.h"
 #include "Atlantis_Tank.h"
 #include "ParameterValues.h"
-#include "Aerodynamics/Aerodynamics.h"
+#include "AerodynamicLookupTables.h"
+//#include "Aerodynamics/Aerodynamics.h"
 #include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
@@ -228,8 +229,11 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
   *cm=0;
 }
 
-const Aerodynamics::VerticalAerodynamicsLookup verticalLookup;
-const Aerodynamics::ElevonVerticalLookup elevonVerticalLookup;
+//Aerodynamics::VerticalAerodynamicsLookup verticalLookup;
+//Aerodynamics::ElevonVerticalLookup elevonVerticalLookup;
+Aerodynamics::ThreeDLookup elevonVerticalLookup("Config/SSU_Elevon.csv");
+Aerodynamics::ThreeDLookup verticalLookup("Config/SSU_Aero.csv");
+Aerodynamics::ThreeDLookup bodyFlapVerticalLookup("Config/SSU_BodyFlap.csv");
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
