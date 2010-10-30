@@ -62,7 +62,7 @@ const double SRB_SECTION_ZPOS[SRB_SECTION_COUNT] = {
 	SRB_SECTION_ZPOS[0]+10.6,
 	SRB_SECTION_ZPOS[1]+8.3,
 	SRB_SECTION_ZPOS[2]+8.24,
-	30.0,
+	SRB_SECTION_ZPOS[3]+8.2,
 };
 
 // ==========================================================
