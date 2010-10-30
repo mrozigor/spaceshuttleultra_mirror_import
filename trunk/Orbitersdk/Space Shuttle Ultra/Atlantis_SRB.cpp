@@ -141,7 +141,8 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// main engine
 	th_main = CreateThruster (_V(0.484,0.434,-21), _V(0,0,1), SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1);
 	SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
-	bsm_exhaust.tex = srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
+	bsm_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
+	srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
 	
 	AddExhaust (th_main, 16.0, 2.0, tex);
 	AddExhaustStream (th_main, _V(0.484,0.434,-25), &srb_exhaust);
@@ -185,12 +186,11 @@ void Atlantis_SRB::UpdateVisual() const
 {
 	ClearMeshes();
 
-	if(usSectionCount == SRB_SECTION_COUNT) AddMesh(hSRBMesh);
-	else {
-		for(int i=0;i<usSectionCount;i++) {
-			VECTOR3 ofs = _V(0.0, 0.0, SRB_SECTION_ZPOS[i]);
-			AddMesh(hSRMSegmentMesh[i], &ofs);
-		}
+
+	for(int i=0;i<usSectionCount;i++) {
+		VECTOR3 ofs = _V(0.0, 0.0, SRB_SECTION_ZPOS[i]);
+		AddMesh(hSRMSegmentMesh[i], &ofs);
+	
 	}
 }
 
