@@ -800,6 +800,7 @@ public:
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
+	DEVMESHHANDLE hDevOrbiterMesh;
 	char cargo_static_mesh_name[256];
 
 	double fPayloadZPos[16];
@@ -1031,7 +1032,7 @@ private:
 	//calc attitude/attitude error
 	VECTOR3 CalcLVLHAttitude();
 	//VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
-	VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
+	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
 	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);

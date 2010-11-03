@@ -18,7 +18,6 @@
 #include "Atlantis_Tank.h"
 #include "ParameterValues.h"
 #include "AerodynamicLookupTables.h"
-//#include "Aerodynamics/Aerodynamics.h"
 #include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
@@ -754,6 +753,8 @@ gncsoftware(NULL)
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   //hPanelA8Mesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_PANELA8);
   hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
+
+  hDevOrbiterMesh = NULL;
 
 
   ControlSurfacesEnabled = false;
@@ -2517,7 +2518,6 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
   if(pMission) {
 	  bHasODS = pMission->HasODS();
 	  bHasExtAL = pMission->HasExtAL();
-	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
   }
 
   if (mesh_orbiter == MESH_UNDEFINED) {
@@ -4757,7 +4757,7 @@ VECTOR3 Atlantis::CalcLVLHAttitude()
 	Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
 	Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
 	return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
-}*/
+}
 
 VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 {
@@ -4772,7 +4772,7 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles(VECTOR3 &RelAttitude)
 	RotateVector(YawRollUnit, RelAttitude, GlobalPts.Yaw);
 
 	return GetPYR(GlobalPts.Pitch, GlobalPts.Yaw);
-}
+}*/
 
 MATRIX3 Atlantis::CalcPitchYawRollRotMatrix()
 {
@@ -6771,6 +6771,9 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   if (refcount > 1) return; // we don't support more than one visual per object
   vis = _vis;
 
+	// get device-specific mesh handles
+  hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
+
 #ifdef UNDEF
   // note: orbiter re-applies the animations to the mesh before calling
   // clbkVisualCreated, so updating the mesh here is not necessary
@@ -6786,6 +6789,9 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 #endif
   //UpdateOrbiterTexture();
   //UpdateETTexture();
+  if(pMission)
+	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
+
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
@@ -9660,9 +9666,10 @@ void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const
 }
 
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
+	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hOrbiterMesh, 2, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
