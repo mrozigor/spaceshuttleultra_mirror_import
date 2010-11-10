@@ -76,7 +76,7 @@ public:
 	ThreeDLookup(const char* dataFile);
 	virtual ~ThreeDLookup();
 	
-	void GetValues(double z, double x, double y, double& cl, double& cd, double& cm);
+	void GetValues(double mach, double aoa, double deflection, double& cl, double& cd, double& cm);
 
 	static bool Compare(ThreeDLookup& l1, ThreeDLookup& l2);
 protected:

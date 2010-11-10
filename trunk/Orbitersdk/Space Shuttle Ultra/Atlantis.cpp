@@ -4797,7 +4797,7 @@ MATRIX3 Atlantis::CalcPitchYawRollRotMatrix()
 			  Pitch.x, Pitch.y, Pitch.z);
 }
 
-VECTOR3 Atlantis::CalcPitchYawRollAngles()
+/*VECTOR3 Atlantis::CalcPitchYawRollAngles()
 {
 	//uses angles in orbiter coordinate-frame
 	RefPoints GlobalPts, LocalPts;
@@ -4819,7 +4819,7 @@ VECTOR3 Atlantis::CalcPitchYawRollAngles()
 	VECTOR3 Roll=crossp(LocalPts.Pitch, LocalPts.Yaw);
 	Output.data[ROLL]=-asin(Roll.x);
 	return Output;
-}
+}*/
 
 VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {

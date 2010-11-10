@@ -1034,7 +1034,7 @@ private:
 	//VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
 	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
-	VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
+	//VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
 	double NullStartAngle(double Rates, AXIS Axis) const;
 

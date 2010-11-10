@@ -229,17 +229,17 @@ void Atlantis::Guide() {
 	C=(mu/(r*r)-(omega*omega*r))/a0;
 	target_roll=0;
 	target_yaw=0;
-    fhdotrh=A+B*(met-TLastAB)+C;
-    if(fabs(fhdotrh)>1) {
+	fhdotrh=A+B*(met-TLastAB)+C;
+	if(fabs(fhdotrh)>1) {
 		//Commanded to do a cos(pitch) out of range, turn
 		//off pitch guidance so pilot has a chance to do something
 		//"Handing over manual control... Good Luck! :)"
 		//   --Eddie, flight computer of the Heart of Gold
 		//bAutopilot=false;
-    } 
+	} 
 	else {
 		target_pitch=(PI/2-acos(fhdotrh))*DEG;
-    }
+	}
 
 	//target_pitch = target_pitch+ThrAngleP; //yaw angle ignored for now
 	CmdPDot=(target_pitch-ThrAngleP*cos(GetBank())-GetPitch()*DEG)/(2*TMajorCycle);
