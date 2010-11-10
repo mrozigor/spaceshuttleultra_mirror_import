@@ -169,22 +169,22 @@ ThreeDLookup::~ThreeDLookup()
 {
 }
 
-void ThreeDLookup::GetValues(double z, double x, double y, double &cl, double &cd, double &cm)
+void ThreeDLookup::GetValues(double mach, double aoa, double deflection, double &cl, double &cd, double &cm)
 {
 	double cl1, cl2;
 	double cd1, cd2;
 	double cm1, cm2;
 
-	if(z<zValues[lowerZIndex] || z>zValues[lowerZIndex+1])
-		lowerZIndex = GetLowerIndex(zValues, z);
+	if(mach<zValues[lowerZIndex] || mach>zValues[lowerZIndex+1])
+		lowerZIndex = GetLowerIndex(zValues, mach);
 	unsigned int upperZIndex = lowerZIndex+1;
 
-	lookupTables[lowerZIndex].GetValues(x, y, cl1, cd1, cm1);
-	lookupTables[upperZIndex].GetValues(x, y, cl2, cd2, cm2);
+	lookupTables[lowerZIndex].GetValues(aoa, deflection, cl1, cd1, cm1);
+	lookupTables[upperZIndex].GetValues(aoa, deflection, cl2, cd2, cm2);
 
-	cl = linterp(zValues[lowerZIndex], cl1, zValues[upperZIndex], cl2, z);
-	cd = linterp(zValues[lowerZIndex], cd1, zValues[upperZIndex], cd2, z);
-	cm = linterp(zValues[lowerZIndex], cm1, zValues[upperZIndex], cm2, z);
+	cl = linterp(zValues[lowerZIndex], cl1, zValues[upperZIndex], cl2, mach);
+	cd = linterp(zValues[lowerZIndex], cd1, zValues[upperZIndex], cd2, mach);
+	cm = linterp(zValues[lowerZIndex], cm1, zValues[upperZIndex], cm2, mach);
 }
 
 void ThreeDLookup::AddDataRange(double z, double x, const double *yData, const double *liftData, const double *dragData, const double *momentData, unsigned int size)
