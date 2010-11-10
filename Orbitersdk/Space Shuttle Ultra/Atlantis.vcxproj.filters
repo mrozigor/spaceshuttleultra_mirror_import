@@ -1,0 +1,656 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Meshes">
+      <UniqueIdentifier>{85389b8a-8282-4470-82be-bc206a30820e}</UniqueIdentifier>
+      <Extensions>msh</Extensions>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{df34d7ab-c86d-4cf2-b786-b4a0bd941cc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes">
+      <UniqueIdentifier>{e52f85a5-1605-4e5e-b9fc-d2610bd5887a}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Meshes\SSU\Cockpit.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\ET125.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\KU.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\lsrb.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\ODS.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\ODSVC.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\Orbiter.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\RMS.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\rsrb.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Meshes\SSU\VC.msh">
+      <Filter>Meshes</Filter>
+    </None>
+    <None Include="..\..\Scenarios\(Current state).scn" />
+    <None Include="Bitmaps\bitmap1.bmp" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
+    <None Include="ClassDiagram3.cd" />
+    <None Include="ClassDiagram4.cd" />
+    <None Include="ClassDiagram5.cd" />
+    <None Include="ClassDiagram6.cd" />
+    <None Include="Bitmaps\clocknums.bmp" />
+    <None Include="Bitmaps\DEU_Raw.bmp" />
+    <None Include="Bitmaps\digits.bmp" />
+    <None Include="down.ico" />
+    <None Include="ico00001.ico" />
+    <None Include="ico00002.ico" />
+    <None Include="ico00003.ico" />
+    <None Include="ico00004.ico" />
+    <None Include="icon1.ico" />
+    <None Include="Bitmaps\ODSbuttons.bmp" />
+    <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
+    <None Include="..\..\Orbiter.log" />
+    <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
+    <None Include="Bitmaps\tkbk_label.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="eps\ACBus.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eps\ACBusSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eps\ACMotor.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eps\ACMotorController.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AerodynamicLookupTables.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\AftMDU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AirDataProbeSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\AP101S.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="APU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Atlantis.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AtlantisSubsystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AtlantisSubsystemDirector.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gnc\ATVC.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eva_docking\BasicExtAirlock.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\BasicLight.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\BasicPanel.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\BasicRotarySwitch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\BasicSwitch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicValve.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\BasicVCComponent.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\BIU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\BLOCK_II.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\BusController.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\BusTerminal.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CommModeHandler.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\DAPControl.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libUltra\src\DiscInPort.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libUltra\src\DiscOutPort.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libUltra\src\DiscreteBundle.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libUltra\src\DiscreteBundleManager.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libUltra\src\DiscretePort.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\EIU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ETUmbDoorSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eva_docking\ExtAirlock.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\GNCSoftware.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\GPC.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GPC_old.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\GPCSoftware.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="hydraulics\HydActuator.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\IDP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gnc\IMU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eps\Inverter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Latch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MasterTimingUnit.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MCA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MDM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MechActuator.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mission\Mission.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MissionFileManagement.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MPMSystems.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\MPS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eva_docking\ODS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelA4.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA6.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA7A8ODS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA7U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA8.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelC2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelC3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF4.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF6.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF7.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF8.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelGroup.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelO3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO6.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelR11.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelR2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PIDControl.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlBayOp.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PushButton.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PushButtonIndicator.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RAM32.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RAM32S.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="RMSSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RSLS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\ShuttleBus.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\SSME.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SSUMath.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardLight.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardRotarySwitch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardSwitch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardSwitchCover.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="StbdMPMSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Stopwatch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\Talkback.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ValveTypeBool.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="WSB.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gnc\AA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AC_resource.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AerodynamicLookupTables.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\AftMDU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\AP101S.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="APU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Atlantis.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Atlantis_vc_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AtlantisSubsystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AtlantisSubsystemDirector.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="gnc\ATVC.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\BasicExtAirlock.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\BasicLight.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\BasicPanel.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\BasicRotarySwitch.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\BasicSwitch.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicValve.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\BasicVCComponent.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\BIU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonDefs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\DAPControl.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\DiscInPort.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\DiscOutPort.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\DiscreteBundle.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\DiscreteBundleManager.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\DiscretePort.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="discsignals\discsignals.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\dps_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\EIU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eps\eps_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ETUmbDoorSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\EventTimer.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\ExtAirlock.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\GNCSoftware.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\GPC.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\GPCSoftware.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="hydraulics\HydActuator.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\IDP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="gnc\IMU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ISubsystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Latch.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MasterTimingUnit.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MCA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\MDU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MechActuator.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_ods.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_odsvc.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_RMS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_additions.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mission\Mission.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MMU.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MPMSystems.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\MPS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\ODS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\OrbiterAPI.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\OrbiterSoundSDK35.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA6.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA7A8ODS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA7U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelC2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelC3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF4.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF6.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF7.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelGroup.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO6.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelR11.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelR2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ParameterValues.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PIDControl.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PlBayOp.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PushButton.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PushButtonIndicator.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RAM16.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="RMSSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RSLS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\ShuttleBus.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSME.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="SSUEngConst.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="SSUMath.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\StandardLight.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\StandardRotarySwitch.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\StandardSwitch.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\StandardSwitchCover.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="StbdMPMSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libUltra\include\Subsystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libUltra\include\SubsystemDirector.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\Talkback.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ValveTypeBool.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\vc_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\VesselAPI.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="WSB.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Atlantis.rc" />
+  </ItemGroup>
+</Project>
