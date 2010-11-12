@@ -660,11 +660,12 @@ void Atlantis::AerojetDAP(double SimdT)
 
 			double flapPos = BodyFlap.Step(TargetAOA-GetAOA()*DEG, SimdT);
 			double elevonPos = ElevonPitch.Step(TargetAOA-GetAOA()*DEG, SimdT);
+			aerosurfaces.rightElevon = aerosurfaces.leftElevon = range(-33.0, elevonPos*-33.0, 18.0);
 
-			if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
+			/*if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
 			else if(elevonPos < -0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, -1.0);
-			else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 0.0);
-			SetControlSurfaceLevel(AIRCTRL_ELEVATOR, elevonPos);
+			else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 0.0);*/
+			aerosurfaces.bodyFlap = 0.0;
 			sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", TargetAOA, elevonPos, TargetAOA-GetAOA()*DEG);
 		}
 		else {
