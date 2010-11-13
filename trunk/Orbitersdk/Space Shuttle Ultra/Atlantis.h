@@ -332,10 +332,10 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // ==========================================================
 
  const int MFDGROUPS[11] = {
-    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
+	GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
+	GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
 	GRP_MFD11_VC
-    };
+	};
 
 // ==========================================================
 // I-Loaded values
@@ -571,7 +571,7 @@ public:
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
-    char WingName[256];
+	char WingName[256];
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
@@ -754,7 +754,7 @@ public:
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
 
-    virtual bool HydraulicsOK();
+	virtual bool HydraulicsOK();
 
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
@@ -1179,7 +1179,7 @@ private:
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main (SSME) engines
 	THRUSTER_HANDLE th_oms[2];               // handles for orbiter OMS engines
 	THRUSTER_HANDLE th_srb[2];                 // handles for SRB engines
-    THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
+	THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
 	THRUSTER_HANDLE th_att_lin[10];
 
 	/**
