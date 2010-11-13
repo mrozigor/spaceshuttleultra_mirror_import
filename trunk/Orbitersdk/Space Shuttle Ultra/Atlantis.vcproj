@@ -399,6 +399,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\AerojetDAP.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\AftMDU.cpp"
 				>
 			</File>
@@ -842,6 +846,10 @@
 			</File>
 			<File
 				RelativePath=".\AerodynamicLookupTables.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AerojetDAP.h"
 				>
 			</File>
 			<File

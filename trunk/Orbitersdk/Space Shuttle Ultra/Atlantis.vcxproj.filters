@@ -350,6 +350,9 @@
     <ClCompile Include="WSB.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\AerojetDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -647,6 +650,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="WSB.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\AerojetDAP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
