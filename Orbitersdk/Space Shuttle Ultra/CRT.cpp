@@ -452,11 +452,13 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, 68, nPos, NULL);
 		LineTo(hDC, 65, nPos);
 	}
-	if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
+	/*if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
-	else dNum=dNum*-20;
-	nPos=145+(3*dNum);
+	else dNum=dNum*-20;*/
+	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon+sts->aerosurfaces.rightElevon)/2.0;
+	else dNum=0.0;
+	nPos=static_cast<int>(145.0+(3.0*dNum));
 	MoveToEx(hDC, 6, nPos, NULL);
 	LineTo (hDC, 14, nPos-4);
 	LineTo (hDC, 14, nPos+4);
@@ -491,11 +493,13 @@ void CRT::SPI(HDC hDC)
 	LineTo (hDC, 103, 94);
 	LineTo (hDC, 103, 102);
 	LineTo (hDC, 95, 98);
-	if(sts->panelr2->HydraulicPressure())dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
+	/*if(sts->panelr2->HydraulicPressure())dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
-	else dNum=dNum*-65;
-	nPos=98+(1.65*dNum);
+	else dNum=dNum*-65;*/
+	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.bodyFlap;
+	else dNum=0.0;
+	nPos=static_cast<int>(98.0+(1.65*dNum));
 	MoveToEx(hDC, 99, nPos, NULL);
 	LineTo (hDC, 91, nPos-4);
 	LineTo (hDC, 91, nPos+4);
@@ -515,7 +519,7 @@ void CRT::SPI(HDC hDC)
 	}
 	if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 	else dNum=0.0;
-	nPos=190+dNum*-54.2;
+	nPos=static_cast<int>(190.0+dNum*-54.2);
 	MoveToEx(hDC, nPos, 64, NULL);
 	LineTo (hDC, nPos-4, 56);
 	LineTo (hDC, nPos+4, 56);
@@ -539,7 +543,7 @@ void CRT::SPI(HDC hDC)
 	dNum=dNum*10.0;
 	if(dNum>5.0) dNum=5.0;
 	else if(dNum < -5.0) dNum= -5.0;
-	nPos=190+12*dNum;
+	nPos=static_cast<int>(190.0+12.0*dNum);
 	MoveToEx(hDC, nPos, 139, NULL);
 	LineTo (hDC, nPos-4, 131);
 	LineTo (hDC, nPos+4, 131);
