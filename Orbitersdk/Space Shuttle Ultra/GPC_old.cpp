@@ -640,7 +640,7 @@ void Atlantis::AerojetDAP(double SimdT)
 	}
 
 	// lookup table to get target AOA for current mach
-	const double AOA_Lookup[24] = {
+	/*const double AOA_Lookup[24] = {
 		40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 39.0, 38.0, 36.0, 34.0, 30.0, 27.0, 23.0, 19.0, 16.0, 15.0};
 	//  25,   24,   23,   22,   21,   20,   19,   18,   17,   16,   15,   14,   13,   12,   11,   10,   9,    8,    7,    6,    5,    4,    3,    2.5
 	
@@ -664,7 +664,7 @@ void Atlantis::AerojetDAP(double SimdT)
 
 			/*if(elevonPos > 0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 1.0);
 			else if(elevonPos < -0.05) SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, -1.0);
-			else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 0.0);*/
+			else SetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM, 0.0);*
 			aerosurfaces.bodyFlap = 0.0;
 			sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", TargetAOA, elevonPos, TargetAOA-GetAOA()*DEG);
 		}
@@ -683,7 +683,7 @@ void Atlantis::AerojetDAP(double SimdT)
 		double PitchError = ReqdRates.data[PITCH]-AngularVelocity.data[PITCH]*DEG;
 		// add bias for trim
 		double trim = GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM);
-		PitchError += GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;*/
+		PitchError += GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.0;*
 		double PitchRateCommand = GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
 		double PitchError = PitchRateCommand-AngularVelocity.data[PITCH]*DEG;
 
@@ -691,13 +691,13 @@ void Atlantis::AerojetDAP(double SimdT)
 		/*if(elevonPos < 0.0)
 			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-18.0;
 		else
-			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*/
+			aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*
 		aerosurfaces.rightElevon = aerosurfaces.leftElevon = range(-33.0, elevonPos*-33.0, 18.0);
 		
 		sprintf_s(oapiDebugString(), 255, "RHC Input: %f elevon: %f rates: %f error: %f SB: %f",
 			RHCInput.data[PITCH], aerosurfaces.leftElevon, PitchRateCommand, PitchError,
 			aerosurfaces.speedbrake);
-	}
+	}*/
 }
 
 void Atlantis::Maneuver(double dt)

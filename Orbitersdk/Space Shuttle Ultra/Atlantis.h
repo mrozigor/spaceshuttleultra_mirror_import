@@ -665,6 +665,7 @@ public:
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
 	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec) const;
+	virtual unsigned int GetGPCMajorMode() const;
 	int GetSoundID() const;
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
@@ -1342,7 +1343,9 @@ private:
 	PIDControl PitchControl;
 
 	//GPC
-	int ops, SMOps;
+	//int ops, SMOps;
+	unsigned int ops;
+	unsigned int SMOps;
 	int last_mfd;
 	bool firstStep; //call functions in first timestep
 	//Data Input
@@ -1447,6 +1450,9 @@ private:
 	//DiscInPort PitchCSSIn, RollYawCSSIn;
 	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
+
+	DiscOutPort RHCInputPort[3], THCInputPort[3];
+	DiscInPort LeftElevonCommand, RightElevonCommand;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam
 	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow

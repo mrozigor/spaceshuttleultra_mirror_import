@@ -22,8 +22,8 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK35.h>
-#include <iostream>
-#include <fstream>
+//#include <iostream>
+//#include <fstream>
 #include "PlBayOp.h"
 //#include "GearOp.h"
 //#include "PanelC3.h"
@@ -38,6 +38,7 @@
 #include "meshres_vc_additions.h"
 #include "resource.h"
 #include "AtlantisSubsystemDirector.h"
+#include "dps/AerojetDAP.h"
 #include "dps/AP101S.h"
 #include "dps/GNCSoftware.h"
 #include "dps/IDP.h"
@@ -239,6 +240,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 {
 	double basicLift, basicDrag, basicMoment;
 	double elevonLift, elevonDrag, elevonMoment;
+	double bodyFlapLift, bodyFlapDrag, bodyFlapMoment;
 	//double speedbrakeLift, speedbrakeDrag, speedbrakeMoment;
 
 	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
@@ -246,6 +248,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	//elevonPos = range(-15.0, elevonPos, 15.0);
 	verticalLookup.GetValues(M, aoa*DEG, aerosurfaces->speedbrake, basicLift, basicDrag, basicMoment);
 	elevonVerticalLookup.GetValues(M, aoa*DEG, elevonPos, elevonLift, elevonDrag, elevonMoment);
+	bodyFlapVerticalLookup.GetValues(M, aoa*DEG, aerosurfaces->bodyFlap, bodyFlapLift, bodyFlapDrag, bodyFlapMoment);
 
 	//speedbrakeVerticalLookup.GetValues(M, aoa*DEG, aerosurfaces->speedbrake, speedbrakeLift, speedbrakeDrag, speedbrakeMoment);
 
@@ -559,6 +562,8 @@ gncsoftware(NULL)
   psubsystems->AddSubsystem(pInverter[0] = new eps::Inverter(psubsystems, "INVERTER1"));
   psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
   psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
+
+  psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
@@ -5163,7 +5168,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	}*/ /*else if (!_strnicmp (line, "ARM_STATUS", 10)) {
 		sscanf (line+10, "%lf%lf%lf%lf%lf%lf", &arm_sy, &arm_sp, &arm_ep, &arm_wp, &arm_wy, &arm_wr);
 	}*/ else if(!_strnicmp(line, "OPS", 3)) {
-		sscanf(line+3, "%d", &ops);
+		sscanf(line+3, "%u", &ops);
 	} else if(!_strnicmp(line, "PEG7", 4)) {
 		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 	} else if(!_strnicmp(line, "WT", 2)) {
@@ -5652,6 +5657,16 @@ void Atlantis::clbkPostCreation ()
 	CdrFltCntlrPwr.Connect(pBundle, 1);
 	PltFltCntlrPwr.Connect(pBundle, 2);
 	AftFltCntlrPwr.Connect(pBundle, 3);
+
+	pBundle=bundleManager->CreateBundle("HC_INPUT", 16);
+	for(int i=0;i<3;i++) {
+		RHCInputPort[i].Connect(pBundle, i);
+		THCInputPort[i].Connect(pBundle, i+3);
+	}
+
+	pBundle=bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
+	LeftElevonCommand.Connect(pBundle, 0);
+	RightElevonCommand.Connect(pBundle, 1);
 
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
@@ -6260,6 +6275,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 	}
 	GPC(simt, simdt); //perform GPC functions
+
+	// get aerosurface positions from GPC commands
+	aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
+	aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+	aerosurfaces.bodyFlap = 0.0;
 
 	//update MET
 	MET[0]=(int)(met/86400);
@@ -9075,6 +9095,11 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 
 	}
 	return false;
+}
+
+unsigned int Atlantis::GetGPCMajorMode() const
+{
+	return ops;
 }
 
 void Atlantis::CreateOrbiterTanks()
