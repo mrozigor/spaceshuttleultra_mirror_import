@@ -1010,7 +1010,7 @@ private:
 	void TransControl(double SimT, double SimdT);
 	void UpdateAttControlVariables();
 	void AttControl(double SimdT);
-	void AerojetDAP(double SimdT);
+	//void AerojetDAP(double SimdT);
 	void PCTControl(double simt);
 	void TogglePCT();
 	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
@@ -1452,6 +1452,7 @@ private:
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
+	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
 	DiscInPort LeftElevonCommand, RightElevonCommand;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam

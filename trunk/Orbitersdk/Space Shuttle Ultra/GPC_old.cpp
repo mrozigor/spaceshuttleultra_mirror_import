@@ -561,8 +561,9 @@ void Atlantis::GPC(double simt, double dt)
 			break;
 		case 304:
 			if(GetMachNumber() < 2.5) ops = 305;
+			break;
 		case 305:
-			AerojetDAP(dt);
+			//AerojetDAP(dt);
 			break;
 	}
 
@@ -577,7 +578,7 @@ void Atlantis::GPC(double simt, double dt)
 	return;
 }
 
-void Atlantis::AerojetDAP(double SimdT)
+/*void Atlantis::AerojetDAP(double SimdT)
 {
 	GetAngularVel(AngularVelocity);
 
@@ -697,8 +698,8 @@ void Atlantis::AerojetDAP(double SimdT)
 		sprintf_s(oapiDebugString(), 255, "RHC Input: %f elevon: %f rates: %f error: %f SB: %f",
 			RHCInput.data[PITCH], aerosurfaces.leftElevon, PitchRateCommand, PitchError,
 			aerosurfaces.speedbrake);
-	}*/
-}
+	}*
+}*/
 
 void Atlantis::Maneuver(double dt)
 {
