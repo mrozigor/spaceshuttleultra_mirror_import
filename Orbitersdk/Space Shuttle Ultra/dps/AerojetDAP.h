@@ -21,11 +21,13 @@ class AerojetDAP : public AtlantisSubsystem
 	PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
 	PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
 	//PIDControl BodyFlap;
-
-	DiscInPort RHCInput[3];
-	DiscOutPort LeftElevonCommand, RightElevonCommand;
 	
 	DiscInPort PitchAuto, RollYawAuto;
+	DiscInPort RHCInput[3];
+	DiscOutPort ThrusterCommands[3];
+	DiscOutPort LeftElevonCommand, RightElevonCommand;
+	
+	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 public:
 	AerojetDAP(AtlantisSubsystemDirector* _director);
 	virtual ~AerojetDAP();
@@ -34,6 +36,9 @@ public:
 
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 private:
+	void SetThrusterLevels();
+	void CheckThrusterActivation();
+
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.
 	 */
