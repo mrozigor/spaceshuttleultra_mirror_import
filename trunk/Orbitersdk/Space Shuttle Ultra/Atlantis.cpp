@@ -1456,9 +1456,9 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   const double ew1 = 0.4, ew2 = 0.8; // exhaust width scales
 
   THRUSTER_HANDLE thTmp[10];
-  PitchActive=true;
+  /*PitchActive=true;
   YawActive=true;
-  RollActive=true;
+  RollActive=true;*/
 
   if(bUseRealRCS)
   {
@@ -5798,27 +5798,27 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	case STATE_ORBITER: // post tank separation
 		EnableAllRCS();
 		//On entry, start shutting down RCS channels as appropriate
-		if(RollActive && GetDynPressure()>RollOff) {
+		/*if(RollActive && GetDynPressure()>RollOff) {
 			/*SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
 			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
 			DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);*/
+			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);*
 			RollActive=false;
 		}
 		if(PitchActive && GetDynPressure()>PitchOff) {
 			/*SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
 			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
 			DelThrusterGroup(THGROUP_ATT_PITCHUP);
-			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);*/
+			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);*
 			PitchActive=false;
 		}
 		if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
 			/*SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
 			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
 			DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);*/
+			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);*
 			YawActive=false;
-		}
+		}*/
 		//Check if Control Surfaces are usable
 		if(ControlSurfacesEnabled && !panelr2->HydraulicPressure())
 		{
@@ -5922,8 +5922,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				RMS_RHCInput[i].SetLine(0.0);
 				RMS_THCInput[i].SetLine(0.0);
 
-				RHCInputPort[i].SetLine(RHCInput.data[i]);
-				THCInputPort[i].SetLine(THCInput.data[i]);
+				RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
+				THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
 			}
 		}
 		

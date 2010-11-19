@@ -48,7 +48,7 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 		if(STS()->GetAltitude()<100.0*1000.0 && PitchAuto) {
 			double targetAOA = CalculateTargetAOA(STS()->GetMachNumber());
 			
-			double elevonPos = AOA_ElevonPitch.Step(targetAOA-STS()->GetAOA()*DEG, DeltaT);
+			double elevonPos = range(-1.0, AOA_ElevonPitch.Step(targetAOA-STS()->GetAOA()*DEG, DeltaT), 1.0);
 			LeftElevonCommand.SetLine(static_cast<float>(elevonPos));
 			RightElevonCommand.SetLine(static_cast<float>(elevonPos));
 			
