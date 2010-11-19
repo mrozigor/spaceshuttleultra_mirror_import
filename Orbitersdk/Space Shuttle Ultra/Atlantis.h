@@ -838,7 +838,7 @@ public:
 	vc::DAPControl *dapcontrol;
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;
-	bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
+	//bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
 	OBJHANDLE ThisVessel;
 
