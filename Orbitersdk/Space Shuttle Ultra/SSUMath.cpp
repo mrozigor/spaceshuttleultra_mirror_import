@@ -186,6 +186,16 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
 	RotMatrixZ.m33 = 1;
 }
 
+double NullStartAngle(double Rate, double Mass, double Moment, double Torque)
+{
+	if(!Eq(Rate, 0.0)) {
+		double Time = (Mass*Moment*Rate)/Torque;
+		double Angle=0.5*Rate*Time;
+		return DEG*Angle;
+	}
+	else return 0.0;
+}
+
 unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
 	if(target<list[0]) return 0;
