@@ -4,6 +4,7 @@
 
 #include "../PIDControl.h"
 #include "../AtlantisSubsystem.h"
+#include "../SSUEngConst.h"
 #include "discsignals.h"
 
 namespace dps
@@ -17,6 +18,12 @@ using namespace discsignals;
  */
 class AerojetDAP : public AtlantisSubsystem
 {
+	bool bFirstStep;
+
+	// Orbiter data
+	double OrbiterMass;
+	VECTOR3 PMI;
+	VECTOR3 RCSTorque;
 
 	PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
 	PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
@@ -28,6 +35,13 @@ class AerojetDAP : public AtlantisSubsystem
 	DiscOutPort LeftElevonCommand, RightElevonCommand;
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
+
+	// attitude and rates relative to velocity vector (AOA, sideslip, bank)
+	// values in degrees or deg/sec
+	VECTOR3 degTargetAttitude;
+	VECTOR3 degCurrentAttitude;
+	VECTOR3 degCurrentRates;
+	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering aronud an axis
 public:
 	AerojetDAP(AtlantisSubsystemDirector* _director);
 	virtual ~AerojetDAP();
@@ -37,7 +51,18 @@ public:
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 private:
 	void SetThrusterLevels();
+	/**
+	 * Checks if any active thruster groups should be disabled.
+	 */
 	void CheckThrusterActivation();
+
+	/**
+	 * Get AOA, bank and sideslip values and rates.
+	 */
+	void GetAttitudeData(double DeltaT);
+	void UpdateOrbiterData();
+
+	double GetThrusterCommand(AXIS axis);
 
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.

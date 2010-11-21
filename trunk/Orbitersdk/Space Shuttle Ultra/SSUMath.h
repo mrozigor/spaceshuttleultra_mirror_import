@@ -47,6 +47,7 @@ VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in ra
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
+double NullStartAngle(double Rate, double Mass, double Moment, double Torque);
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);
@@ -126,9 +127,15 @@ static inline double range(double min, double value, double max)
 	return value;
 }
 
-inline double minmax(double fmin, double x, double fmax)
+/*inline double minmax(double fmin, double x, double fmax)
 {
 	return min(fmax, max(x, fmin));
+}*/
+
+static inline double sign(double x)
+{
+	if(x>=0.0) return 1.0;
+	else return -1.0;
 }
 
 inline int round(double value)
