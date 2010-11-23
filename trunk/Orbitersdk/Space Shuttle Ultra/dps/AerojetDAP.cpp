@@ -19,6 +19,7 @@ Rate_ElevonPitch(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0)
 
 	for(unsigned short i=0;i<3;i++) {
 		ThrustersActive[i]=true;
+		AerosurfacesActive[i]=false;
 		RotatingAxis[i]=false;
 	}
 
@@ -59,21 +60,30 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 		UpdateOrbiterData();
 		GetAttitudeData(DeltaT);
 
-		CheckThrusterActivation();
+		CheckControlActivation();
 		SetThrusterLevels();
 
-		if(STS()->GetAltitude()<100.0*1000.0 && PitchAuto) {
+		if(/*STS()->GetAltitude()<100.0*1000.0 &&*/ PitchAuto) {
 			degTargetAttitude.data[PITCH] = CalculateTargetAOA(STS()->GetMachNumber());
 			
-			double elevonPos = range(-1.0, AOA_ElevonPitch.Step(degTargetAttitude.data[PITCH]-degCurrentAttitude.data[PITCH], DeltaT), 1.0);
-			LeftElevonCommand.SetLine(static_cast<float>(elevonPos));
-			RightElevonCommand.SetLine(static_cast<float>(elevonPos));
+			if(ThrustersActive[PITCH])
+				ThrusterCommands[PITCH].SetLine(GetThrusterCommand(PITCH));
+			if(ThrustersActive[YAW])
+				ThrusterCommands[YAW].SetLine(GetThrusterCommand(YAW));
+			
+			if(AerosurfacesActive[PITCH]) {
+				double elevonPos = range(-1.0, AOA_ElevonPitch.Step(degTargetAttitude.data[PITCH]-degCurrentAttitude.data[PITCH], DeltaT), 1.0);
+				LeftElevonCommand.SetLine(static_cast<float>(elevonPos));
+				RightElevonCommand.SetLine(static_cast<float>(elevonPos));
+			}
+			else {
+				LeftElevonCommand.SetLine(0.0f);
+				RightElevonCommand.SetLine(0.0f);
+			}
 						
 			//sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", targetAOA, elevonPos, targetAOA-CurrentAttitude.data[PITCH]);
 			sprintf_s(oapiDebugString(), 255, "AOA: %f %f Beta: %f %f Bank: %f %f", degCurrentAttitude.data[PITCH], degCurrentRates.data[PITCH],
 				degCurrentAttitude.data[YAW], degCurrentRates.data[YAW], degCurrentAttitude.data[ROLL], degCurrentRates.data[ROLL]);
-			
-			ThrusterCommands[YAW].SetLine(GetThrusterCommand(YAW));
 		}
 		else {
 			ControllerInputGuidance(DeltaT);
@@ -83,7 +93,7 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 		UpdateOrbiterData();
 		GetAttitudeData(DeltaT);
 
-		CheckThrusterActivation();
+		CheckControlActivation();
 		SetThrusterLevels();
 
 		ControllerInputGuidance(DeltaT);
@@ -160,7 +170,7 @@ double AerojetDAP::GetThrusterCommand(AXIS axis)
 	double attError = degTargetAttitude.data[axis]-degCurrentAttitude.data[axis];
 
 	if(RotatingAxis[axis]) {
-		if(abs(attError) < 0.05 && degCurrentRates.data[axis] < 0.05) { // stopped at target attitude
+		if(abs(attError) < 0.05 && abs(degCurrentRates.data[axis]) < 0.05) { // stopped at target attitude
 			RotatingAxis[axis] = false;
 			return 0.0;
 		}
@@ -186,21 +196,34 @@ double AerojetDAP::GetThrusterCommand(AXIS axis)
 	return 0.0;
 }
 
-void AerojetDAP::CheckThrusterActivation()
+void AerojetDAP::CheckControlActivation()
 {
 	const double ROLL_OFF_PRESS=10*47.880259;
 	const double PITCH_OFF_PRESS=40*47.880259;
 	const double YAW_OFF_MACH=1.0;
 
+	const double ELEVON_ON_PRESS=2.0*47.880259;
+	const double RUDDER_ON_MACH=5.0;
+
 	double dynamicPressure = STS()->GetDynPressure();
+	double mach = STS()->GetMachNumber();
+
 	if(ThrustersActive[ROLL] && dynamicPressure>ROLL_OFF_PRESS) {
 		ThrustersActive[ROLL]=false;
 	}
 	if(ThrustersActive[PITCH] && dynamicPressure>PITCH_OFF_PRESS) {
 		ThrustersActive[PITCH]=false;
 	}
-	if(ThrustersActive[ROLL] && STS()->GetMachNumber()<YAW_OFF_MACH && dynamicPressure>1000.0) { // 2nd test is to make sure we're in atmosphere
+	if(ThrustersActive[ROLL] && mach<YAW_OFF_MACH && dynamicPressure>1000.0) { // 2nd test is to make sure we're in atmosphere
 		ThrustersActive[YAW]=false;
+	}
+
+	if(!AerosurfacesActive[PITCH] && dynamicPressure>ELEVON_ON_PRESS) {
+		AerosurfacesActive[PITCH]=true;
+		AerosurfacesActive[ROLL]=true;
+	}
+	if(!AerosurfacesActive[YAW] && mach<RUDDER_ON_MACH && dynamicPressure>1000.0) {
+		AerosurfacesActive[YAW]=true;
 	}
 }
 
@@ -219,7 +242,8 @@ void AerojetDAP::ControllerInputGuidance(double DeltaT)
 
 void AerojetDAP::GetAttitudeData(double DeltaT)
 {
-	double lastSideslip = degCurrentAttitude.data[YAW];
+	//double lastSideslip = degCurrentAttitude.data[YAW];
+	VECTOR3 degLastAttitude = degCurrentAttitude;
 
 	// get AOA, sideslip and bank
 	degCurrentAttitude.data[PITCH] = STS()->GetAOA()*DEG;
@@ -228,12 +252,16 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 
 	STS()->GetAngularVel(degCurrentRates);
 	degCurrentRates*=DEG;
-	// calculate sideslip rate manually
+	// rotating frame, so calculate rates by differentiating attitude changes
 	if(!bFirstStep) {
-		degCurrentRates.data[YAW] = (degCurrentAttitude.data[YAW]-lastSideslip)/DeltaT;
+		//degCurrentRates.data[YAW] = (degCurrentAttitude.data[YAW]-lastSideslip)/DeltaT;
+		for(unsigned int i=0;i<3;i++) {
+			degCurrentRates.data[i] = (degCurrentAttitude.data[i]-degLastAttitude.data[i])/DeltaT;
+		}
 	}
 	else {
-		degCurrentRates.data[YAW] = 0.0;
+		//degCurrentRates.data[YAW] = 0.0;
+		degCurrentRates = _V(0.0, 0.0, 0.0);
 	}
 }
 
