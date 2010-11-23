@@ -35,6 +35,7 @@ class AerojetDAP : public AtlantisSubsystem
 	DiscOutPort LeftElevonCommand, RightElevonCommand;
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
+	bool AerosurfacesActive[3];
 
 	// attitude and rates relative to velocity vector (AOA, sideslip, bank)
 	// values in degrees or deg/sec
@@ -53,8 +54,9 @@ private:
 	void SetThrusterLevels();
 	/**
 	 * Checks if any active thruster groups should be disabled.
+	 * Checks if any inactive control surfaces should be enabled.
 	 */
-	void CheckThrusterActivation();
+	void CheckControlActivation();
 
 	/**
 	 * Get AOA, bank and sideslip values and rates.

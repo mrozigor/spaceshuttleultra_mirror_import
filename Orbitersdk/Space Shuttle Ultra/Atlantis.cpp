@@ -6036,11 +6036,19 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	// get aerosurface positions and thruster commands from GPC commands
 	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
 	if(ops==304 || ops==305) {
-		aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
-		aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
-		aerosurfaces.bodyFlap = 0.0;
+		if(HydraulicsOK()) {
+			aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
+			aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+			aerosurfaces.bodyFlap = 0.0;
+		}
+		else {
+			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
+			aerosurfaces.bodyFlap = 0.0;
+			aerosurfaces.rudder = 0.0;
+			aerosurfaces.speedbrake = 0.0;
+		}
 		// set animations corresponding to aerosurface positions
-		SetAnimation(anim_elev, (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0);
+		SetAnimation(anim_elev, (aerosurfaces.leftElevon+aerosurfaces.rightElevon)/2.0);
 
 		// check inputs from GPC and set thrusters
 		if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
