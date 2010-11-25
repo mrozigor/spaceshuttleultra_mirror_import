@@ -1047,13 +1047,6 @@ Atlantis::~Atlantis () {
 	delete gncsoftware;
 	delete rsls;
 
-	//if(pA7A8Panel)
-		//delete pA7A8Panel;
-
-  
-	//for (i = 0; i < 7; i++) delete rms_anim[i];
-	//delete rms_rollout_anim;
-
 	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 	  
 	delete CameraFLYaw;
@@ -1129,27 +1122,9 @@ void Atlantis::SetLaunchConfiguration (void)
 
   ClearThrusterDefinitions();
   
-  /*th_main[0] = CreateThruster (OFS_LAUNCH_ORBITER + SSMET_REF, _V(0.0, -0.37489, 0.92707), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[1] = CreateThruster (OFS_LAUNCH_ORBITER + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-  th_main[2] = CreateThruster (OFS_LAUNCH_ORBITER + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);*/
   CreateSSMEs(OFS_LAUNCH_ORBITER);  
-  
-  /*thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
-  DefineSSMEExhaust();
-  //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-  for(i=0;i<3;i++) {
-	  //AddExhaust(th_main[i], 30.0, 2.0, 5, tex_main);
-	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
-	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
-	  //panelr2->CheckMPSArmed(i);
-	  SSMEEngControl(i);
-  }*/
 
   // SRBs
-  /*th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(0,0.023643,0.999720), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);*/
-  //th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), _V(0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  //th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), _V(-0.21958, 0.06765, 0.97325), SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
@@ -1192,9 +1167,6 @@ void Atlantis::SetLaunchConfiguration (void)
 
   //OMS
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  //VECTOR3 OMS_POS=OFS_LAUNCH_ORBITER+_V(0,3.55,-13.04);
-  //th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-  //th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
   th_oms[0] = CreateThruster (OFS_LAUNCH_ORBITER+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
   th_oms[1] = CreateThruster (OFS_LAUNCH_ORBITER+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
   for(i=0;i<2;i++) {
@@ -1275,46 +1247,10 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   ofs = OFS_WITHTANK_ORBITER;
   CreateSSMEs(OFS_WITHTANK_ORBITER);
-  /*if (thg_main) { // main engines already defined - just modify parameters
-	  /*
-	SetThrusterRef (th_main[1], ofs+_V(-1.6,-0.2,-16.0));
-    SetThrusterDir (th_main[1], _V( 0.0624,-0.1789,0.9819));
-    SetThrusterRef (th_main[2], ofs+_V( 1.6,-0.2,-16.0));
-    SetThrusterDir (th_main[2], _V(-0.0624,-0.1789,0.9819));
-    SetThrusterRef (th_main[0], ofs+_V( 0.0, 3.2,-15.5));
-    SetThrusterDir (th_main[0], _V( 0.0,-0.308046,0.951372));
-	*
 
-	DefineSSMEExhaust();
-  } 
-  else {        // create main engines
-    th_main[0] = CreateThruster (ofs+_V( 0.0, 3.2,-15.5), _V( 0.0,-0.308046,0.951372), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-	th_main[1] = CreateThruster (ofs+_V(-1.6,-0.2,-16.0), _V( 0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-	th_main[2] = CreateThruster (ofs+_V( 1.6,-0.2,-16.0), _V(-0.0624,-0.1789,0.9819), SSME_RATED_THRUST*(MaxThrust/100.0), ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-	thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
-
-	CreateMPSGOXVents(ofs);
-
-    //SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
-	//sprintf(oapiDebugString(), "Creating main engines");
-    //for (i = 0; i < 3; i++) AddExhaust (th_main[i], 30.0, 2.0, tex_main);
-
-	DefineSSMEExhaust();
-  }
-  for(int i=0;i<3;i++) {
-	  //AddExhaust(th_main[i], 30.0, 2.0, 1, tex_main);
-	  GetThrusterRef(th_main[i], EngineNullPosition[i]);
-	  EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
-	  SetThrusterDir(th_main[i], EngineNullPosition[i]);
-	  //panelr2->CheckMPSArmed(i);
-	  SSMEEngControl(i);
-  }*/
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(th_oms[0]==NULL) {
-    //VECTOR3 OMS_POS=ofs+_V(0,3.55,-13.04);
-	//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[0] = CreateThruster (ofs+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+    th_oms[0] = CreateThruster (ofs+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	th_oms[1] = CreateThruster (ofs+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	for(int i=0;i<2;i++) {
 		AddExhaust (th_oms[i], 0.0, 0.5);
@@ -1761,17 +1697,6 @@ void Atlantis::EnableControlSurfaces()
 	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	ControlSurfacesEnabled=true;
 }
-/*void Atlantis::EnableControlSurfaces()
-{
-	if(ControlSurfacesEnabled) return;
-	//helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 43.8, 1.5, _V( 0, -2.3,  -10.0), AIRCTRL_AXIS_XPOS, 1.75, anim_elev);	
-	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 23.855, 1.5, _V( 0, -2.3, -10.0), AIRCTRL_AXIS_XPOS, 1.75, anim_elev);
-    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 10.91, 2.0, _V( 0, 0,  -14.5), AIRCTRL_AXIS_XPOS, anim_bf);
-	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
-	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
-	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
-	ControlSurfacesEnabled=true;
-}*/
 
 // --------------------------------------------------------------
 // Define animation sequences for moving parts
@@ -5378,8 +5303,6 @@ void Atlantis::clbkPostCreation ()
 	pgAftPort.Realize();
 	pgAft.Realize();
 	pgAftStbd.Realize();
-	//panelr2->Realize();
-	//if(panela8) panela8->Realize();
 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 	BodyFlapAutoIn.Connect(pBundle, 0);
@@ -5519,44 +5442,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	pgAftStbd.OnPreStep(simT, simDT, mjd);
 	pgAft.OnPreStep(simT, simDT, mjd);
 	pgAftPort.OnPreStep(simT, simDT, mjd);
-	//throttle limits
-	for(int i=0;i<2;i++)
-	{
-		/*if(panelc3->OMS_Eng[i]<2) {
-			if(GetThrusterLevel(th_oms[i])>0.0 && GetThrusterLevel(th_oms[i])<1) {
-				SetThrusterLevel(th_oms[i],1.0);
-				dThrust=GetPropellantMass(oms_helium_tank[i])-0.01*simDT;
-				if(dThrust<=0.0) {
-					SetThrusterLevel(th_oms[i],0.0);
-					dThrust=0.0;
-				}
-				SetPropellantMass(oms_helium_tank[i],dThrust);
-			}
-			else if(GetThrusterLevel(th_oms[i])==1.0) {
-				dThrust=GetPropellantMass(oms_helium_tank[i])-0.01*simDT;
-				if(dThrust<=0.0) {
-					SetThrusterLevel(th_oms[i],0.0);
-					dThrust=0.0;
-				}
-				SetPropellantMass(oms_helium_tank[i],dThrust);
-			 }
-		}*/
-	}
-	/*if(status==3) {
-		//Nosewheel steering
-		if(GroundContact()) {
-			airspeed=GetAirspeed();
-			//if(airspeed<395.0 && airspeed>1.0)
-			if(airspeed<95.0 && airspeed>1.0)
-			{
-				steerforce = (95-airspeed);
-				if(airspeed<6.0) steerforce*=(airspeed/6);
-				steerforce = 275000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
-				AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
-				AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
-			}
-		}
-	}*/
 
 	OMSEngControl(LEFT);
 	OMSEngControl(RIGHT);
@@ -5583,14 +5468,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 					//SetNosewheelSteering(true);
 				}
 			}
-
-			//aerosurfaces.leftElevon = 
-			/*double elevonPos = GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
-			if(elevonPos < 0.0)
-				aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-18.0;
-			else
-				aerosurfaces.rightElevon = aerosurfaces.leftElevon = elevonPos*-33.0;*/
-			aerosurfaces.speedbrake=spdb_proc*100.0;
 
 			break;
 	}
@@ -6040,6 +5917,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
 			aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
 			aerosurfaces.bodyFlap = 0.0;
+			aerosurfaces.speedbrake = spdb_proc*100.0;
 		}
 		else {
 			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
@@ -6139,14 +6017,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	// Execute payload bay operations
 	plop->Step (simt, simdt);
-	//gop->Step (simt, simdt);
 	panela4->Step(simt, simdt);
-	//if(RMS && panela8) panela8->Step(simt, simdt);
 	panelc2->Step(simt, simdt);
-	//panelc3->Step (simt, simdt);
-	//  panelf7->Step(simt, simdt);
 	panelo3->Step(simt, simdt);
-	//panelr2->Step (simt, simdt);
 
 
 
@@ -6184,13 +6057,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		SetAnimation (anim_gear, gear_status.pos);
 	}
-
-	/*if (arm_moved) {
-		arm_moved = false;
-	}
-	if(mpm_moved) {
-		mpm_moved=false;
-	}*/
 
 	// ----------------------------------------------------------
 	// Animate payload bay cameras.
