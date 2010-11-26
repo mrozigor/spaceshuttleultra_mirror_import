@@ -420,17 +420,42 @@ void CRT::OMSMPS(HDC hDC)
 }
 void CRT::SPI(HDC hDC)
 {
+	HFONT ArialFont = CreateFont(15,5, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
+		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
+	HBRUSH GreenBrush=CreateSolidBrush(RGB(50,255,50));
+	HBRUSH WhiteBrush=CreateSolidBrush(WHITE);
+	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
+	HBRUSH PurpleBrush=CreateSolidBrush(RGB(100,100,100));
+	HPEN WhitePen=CreatePen(PS_SOLID, 0, WHITE);
+	HPEN GreenPen=CreatePen(PS_SOLID, 0, RGB(50,255,50));
+	HPEN PurplePen=CreatePen(PS_SOLID,2, RGB(150,50,150));
+	HPEN PurpleThinPen=CreatePen(PS_SOLID,0, RGB(150,50,150));
+	HPEN DarkPurplePen=CreatePen(PS_SOLID,0,RGB(100,100,100));
+	HPEN YellowPen=CreatePen(PS_SOLID,1,RGB(255,255,0));
+	HPEN BoldWhitePen = CreatePen(PS_SOLID,2,WHITE);
+	HPEN LightBluePen = CreatePen(PS_SOLID,0,RGB(0,255,255));
+	
 	int nPos;
 	double dNum;
 	char cbuf[255];
 	//Elevons
-	SelectDefaultFont(hDC, 0);
-	SetTextColor(hDC, GREEN);
+	//SelectDefaultFont(hDC, 0);
+	SelectObject(hDC,ArialFont);
+	SelectObject(hDC, PurplePen);
+	SetTextColor(hDC, WHITE);
 	TextOut(hDC, 0, 5, "ELEVONS", 7);
 	TextOut(hDC, 12, 15, "DEG", 3);
-	Rectangle (hDC, 10, 40, 21, 206);
-	Rectangle (hDC, 55, 40, 66, 206);
-	for(nPos=55;nPos<=205;nPos+=30) {
+	//Rectangle (hDC, 10, 40, 21, 206);
+	MoveToEx(hDC,10,55,NULL);
+	LineTo(hDC,10,221);
+	MoveToEx(hDC,21,55,NULL);
+	LineTo(hDC,21,221);
+	//Rectangle (hDC, 55, 40, 66, 206);
+	MoveToEx(hDC,55,55,NULL);
+	LineTo(hDC,55,221);
+	MoveToEx(hDC,66,55,NULL);
+	LineTo(hDC,66,221);
+	for(nPos=70;nPos<=220;nPos+=30) {
 		MoveToEx(hDC, 4, nPos, NULL);
 		LineTo(hDC, 10, nPos);
 		MoveToEx(hDC, 26, nPos, NULL);
@@ -442,7 +467,7 @@ void CRT::SPI(HDC hDC)
 		sprintf(cbuf,"%d", 10*((nPos-55)/30)-30);
 		TextOut(hDC, 27, nPos-7, cbuf, strlen(cbuf));
 	}
-	for(nPos=40;nPos<=205;nPos+=30) {
+	for(nPos=55;nPos<=220;nPos+=30) {
 		MoveToEx(hDC, 7, nPos, NULL);
 		LineTo(hDC, 10, nPos);
 		MoveToEx(hDC, 23, nPos, NULL);
@@ -452,13 +477,22 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, 68, nPos, NULL);
 		LineTo(hDC, 65, nPos);
 	}
+	//DRAW INSIDE OF BOXES WITH SLIGHTLY DARKER PURPLE
+	SelectObject(hDC, PurpleBrush);
+	SelectObject(hDC, DarkPurplePen);
+    Rectangle (hDC, 12, 50, 19, 226);
+	Rectangle (hDC, 57, 50, 64, 226);
+	SelectObject(hDC,GreenPen);
+	SelectObject(hDC,BlackBrush);
 	/*if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
 	else dNum=dNum*-20;*/
+	SelectObject(hDC,YellowPen);
 	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon+sts->aerosurfaces.rightElevon)/2.0;
 	else dNum=0.0;
-	nPos=static_cast<int>(145.0+(3.0*dNum));
+	sprintf(oapiDebugString(),"%lf",dNum);
+	nPos=static_cast<int>(145.0+(3.0*dNum))+15;
 	MoveToEx(hDC, 6, nPos, NULL);
 	LineTo (hDC, 14, nPos-4);
 	LineTo (hDC, 14, nPos+4);
@@ -475,21 +509,58 @@ void CRT::SPI(HDC hDC)
 	LineTo (hDC, 61, nPos-4);
 	LineTo (hDC, 61, nPos+4);
 	LineTo (hDC, 69, nPos);
+	SelectObject(hDC,GreenPen);
+
+	//DRAW TE UP TE DW
+	SelectObject(hDC,GreenPen);
+	MoveToEx(hDC,5,45,NULL);
+	LineTo(hDC,5,35);
+	MoveToEx(hDC,5,35,NULL);
+	LineTo(hDC,35,35);
+	SetTextColor(hDC,GREEN);
+	TextOut(hDC,40,28,"TE UP",5);
+	MoveToEx(hDC,80,35,NULL);
+	LineTo(hDC,115,35);
+	MoveToEx(hDC,115,35,NULL);
+	LineTo(hDC,115,45);
+
+	//TE DW
+	MoveToEx(hDC,5,230,NULL);
+	LineTo(hDC,5,240);
+	MoveToEx(hDC,5,240,NULL);
+	LineTo(hDC,35,240);
+	SetTextColor(hDC,GREEN);
+	TextOut(hDC,40,233,"TE DW",5);
+	MoveToEx(hDC,80,240,NULL);
+	LineTo(hDC,115,240);
+	MoveToEx(hDC,115,240,NULL);
+	LineTo(hDC,115,230);
+	
+	
 	//Body flap
-	TextOut(hDC, 60, 5, "BODYFLAP", 8);
-	TextOut(hDC, 80, 15, "%", 1);
-	Rectangle (hDC, 85, 40, 96, 206);
-	for(nPos=55;nPos<=205;nPos+=33) {
+	SetTextColor(hDC,WHITE);
+	TextOut(hDC, 60, 5, "BODY FLAP", 9);
+	TextOut(hDC, 87, 15, "%", 1);
+	SelectObject(hDC,PurplePen);
+	//Rectangle (hDC, 85, 40, 96, 206);
+	MoveToEx(hDC,96,55,NULL);
+	LineTo(hDC,96,221);
+	for(nPos=70;nPos<=220;nPos+=33) {
 		MoveToEx(hDC, 98, nPos, NULL);
 		LineTo(hDC, 95, nPos);
 	}
-	for(nPos=40;nPos<=205;nPos+=33) {
+	for(nPos=55;nPos<=220;nPos+=33) {
 		MoveToEx(hDC, 101, nPos, NULL);
 		LineTo(hDC, 95, nPos);
 		sprintf(cbuf,"%d", 20*((nPos-40)/33));
 		TextOut(hDC, 102, nPos-7, cbuf, strlen(cbuf));
 	}
-	MoveToEx(hDC, 95, 98, NULL);
+	SelectObject(hDC,PurpleBrush);
+	SelectObject(hDC,DarkPurplePen);
+	Rectangle (hDC, 87, 50, 94, 226);
+
+	SelectObject(hDC,YellowPen);
+    MoveToEx(hDC, 95, 98, NULL);
 	LineTo (hDC, 103, 94);
 	LineTo (hDC, 103, 102);
 	LineTo (hDC, 95, 98);
@@ -497,16 +568,24 @@ void CRT::SPI(HDC hDC)
 	else dNum=0.0;
 	if(dNum>=0) dNum=dNum*-35;
 	else dNum=dNum*-65;*/
+	
 	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.bodyFlap;
 	else dNum=0.0;
-	nPos=static_cast<int>(98.0+(1.65*dNum));
+	//sprintf(oapiDebugString(),"%lf",dNum+5);
+	nPos=static_cast<int>(98.0+(1.65*dNum))+15;
 	MoveToEx(hDC, 99, nPos, NULL);
 	LineTo (hDC, 91, nPos-4);
 	LineTo (hDC, 91, nPos+4);
 	LineTo (hDC, 99, nPos);
 	//Rudder
+	SetTextColor(hDC,WHITE);
 	TextOut(hDC, 160, 25, "RUDDER-DEG", 10);
-	Rectangle (hDC, 130, 60, 251, 71);
+	SelectObject(hDC,DarkPurplePen);
+	SelectObject(hDC,PurpleBrush);
+	Rectangle (hDC, 125, 62, 256, 71);
+	SelectObject(hDC,PurpleThinPen);
+	MoveToEx(hDC,130,60,NULL);
+	LineTo(hDC,251,60);
 	for(nPos=130;nPos<=250;nPos+=20) {
 		MoveToEx(hDC, nPos, 53, NULL);
 		LineTo(hDC, nPos, 60);
@@ -517,37 +596,145 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC, nPos, 57, NULL);
 		LineTo(hDC, nPos, 60);
 	}
-	if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+	SelectObject(hDC,YellowPen);
+	if(sts->panelr2->HydraulicPressure()) dNum=-sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 	else dNum=0.0;
 	nPos=static_cast<int>(190.0+dNum*-54.2);
-	MoveToEx(hDC, nPos, 64, NULL);
-	LineTo (hDC, nPos-4, 56);
-	LineTo (hDC, nPos+4, 56);
-	LineTo (hDC, nPos, 64);
+	MoveToEx(hDC, nPos, 56, NULL);
+	LineTo (hDC, nPos-4, 64);
+	LineTo (hDC, nPos+4, 64);
+	LineTo (hDC, nPos, 56);
+
+	SetTextColor(hDC,GREEN);
+	TextOut(hDC,125,73,"L RUD",5);
+	TextOut(hDC,210,73,"R RUD",5);
 	//Aileron
-	TextOut(hDC, 160, 100, "AILERON-DEG", 11);
-	Rectangle (hDC, 130, 135, 251, 146);
-	TextOut(hDC, 123, 115, "5", 1);
-	TextOut(hDC, 187, 115, "0", 1);
-	TextOut(hDC, 245, 115, "5", 1);
+	SelectObject(hDC,PurpleThinPen);
+	MoveToEx(hDC,130,125,NULL);
+	LineTo(hDC,251,125);
+	SelectObject(hDC,DarkPurplePen);
+	SelectObject(hDC,PurpleBrush);
+	SetTextColor(hDC,WHITE);
+	TextOut(hDC, 160, 90, "AILERON-DEG", 11);
+	Rectangle (hDC, 125, 127, 256, 135);
+	TextOut(hDC, 123, 105, "5", 1);
+	TextOut(hDC, 187, 105, "0", 1);
+	TextOut(hDC, 245, 105, "5", 1);
+	SelectObject(hDC,PurpleThinPen);
 	for(nPos=130;nPos<=250;nPos+=12) {
-		MoveToEx(hDC, nPos, 129, NULL);
-		LineTo(hDC, nPos, 135);
+		MoveToEx(hDC, nPos, 119, NULL);
+		LineTo(hDC, nPos, 125);
 	}
 	for(nPos=136;nPos<=250;nPos+=12) {
-		MoveToEx(hDC, nPos, 132, NULL);
-		LineTo(hDC, nPos, 135);
+		MoveToEx(hDC, nPos, 122, NULL);
+		LineTo(hDC, nPos, 125);
 	}
+	SelectObject(hDC,YellowPen);
 	if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
 	else dNum=0.0;
 	dNum=dNum*10.0;
 	if(dNum>5.0) dNum=5.0;
 	else if(dNum < -5.0) dNum= -5.0;
 	nPos=static_cast<int>(190.0+12.0*dNum);
-	MoveToEx(hDC, nPos, 139, NULL);
-	LineTo (hDC, nPos-4, 131);
-	LineTo (hDC, nPos+4, 131);
-	LineTo (hDC, nPos, 139);
+	MoveToEx(hDC, nPos, 121, NULL);
+	LineTo (hDC, nPos-4, 129);
+	LineTo (hDC, nPos+4, 129);
+	LineTo (hDC, nPos, 121);
+	
+	SetTextColor(hDC,GREEN);
+	TextOut(hDC,125,137,"L AIL",5);
+	TextOut(hDC,220,137,"R AIL",5);
+
+
+	//SPEEDBRAKE
+	SetTextColor(hDC,WHITE);
+	TextOut(hDC, 140, 160, "SPEEDBRAKE %", 12);
+	SetTextColor(hDC,RGB(255,200,0));
+	TextOut(hDC, 160, 175,"ACTUAL",6);
+	SelectObject(hDC,BlackBrush);
+	SelectObject(hDC,BoldWhitePen);
+	Rectangle(hDC,220,175,250,190);
+	double Actual = sts->aerosurfaces.speedbrake;
+	char ActualBuf[3];
+	//sprintf(oapiDebugString(),"%.0lf",Actual);
+	sprintf(ActualBuf,"%.0lf",Actual);
+	TextOut(hDC,223,175,ActualBuf,strlen(ActualBuf));
+	SelectObject(hDC,PurpleThinPen);
+	SetTextColor(hDC,WHITE);
+	double capt = 0;
+	for(int i=140; i<=240; i+=20)
+	{
+		char captbuf[3];
+		sprintf(captbuf,"%.0lf",capt);
+		TextOut(hDC,i-7,190,captbuf,3);
+		capt+=20;
+	}
+
+	for(int i=140; i<240; i+=20)
+	{
+		MoveToEx(hDC,i,203,NULL);
+		LineTo(hDC,i,208);
+		LineTo(hDC,i+10,208);
+		MoveToEx(hDC,i+10,205.5,NULL);
+		LineTo(hDC,i+10,208);
+		LineTo(hDC,i+20,208);
+		LineTo(hDC,i+20,203);
+	}
+
+	SelectObject(hDC,DarkPurplePen);
+	SelectObject(hDC,PurpleBrush);
+	Rectangle(hDC,135,210,245,218);
+
+	SelectObject(hDC,PurpleThinPen);
+	for(int i=140; i<240; i+=20)
+	{
+		MoveToEx(hDC,i,224,NULL);
+		LineTo(hDC,i,219);
+		LineTo(hDC,i+10,219);
+		MoveToEx(hDC,i+10,221.5,NULL);
+		LineTo(hDC,i+10,219);
+		LineTo(hDC,i+20,219);
+		LineTo(hDC,i+20,224);
+	}
+
+	SetTextColor(hDC,RGB(0,255,255));
+	TextOut(hDC, 155, 230,"COMMAND",7);
+	SelectObject(hDC,BlackBrush);
+	SelectObject(hDC,BoldWhitePen);
+	Rectangle(hDC,220,230,250,245);
+	double Command = sts->spdb_tgt*100;
+	//sprintf(oapiDebugString(),"%lf",Command);
+	char CommandBuf[3];
+	sprintf(CommandBuf,"%.0lf",Command);
+	TextOut(hDC,223,230,CommandBuf,strlen(CommandBuf));
+
+	SelectObject(hDC,YellowPen);
+	MoveToEx(hDC,140+((Actual/100)*100),206,NULL);
+	LineTo(hDC,135+((Actual/100)*100),212.5);
+	LineTo(hDC,145+((Actual/100)*100),212.5);
+	LineTo(hDC,140+((Actual/100)*100),206);
+	
+
+	SelectObject(hDC,LightBluePen);
+	MoveToEx(hDC,140+((Command/100)*100),221,NULL);
+	LineTo(hDC,135+((Command/100)*100),214.5);
+	LineTo(hDC,145+((Command/100)*100),214.5);
+	LineTo(hDC,140+((Command/100)*100),221);
+
+	DeleteObject(ArialFont);
+	DeleteObject(GreenBrush);
+	DeleteObject(WhiteBrush);
+	DeleteObject(PurpleBrush);
+	DeleteObject(WhitePen);
+	DeleteObject(GreenPen);
+	DeleteObject(PurplePen);
+	DeleteObject(PurpleThinPen);
+	DeleteObject(DarkPurplePen);
+	DeleteObject(YellowPen);
+	DeleteObject(BoldWhitePen);
+	DeleteObject(LightBluePen);
+
+
 }
 
 void CRT::APUHYD(HDC hDC)
