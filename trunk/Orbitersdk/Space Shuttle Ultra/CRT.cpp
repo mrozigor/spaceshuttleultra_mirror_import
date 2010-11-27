@@ -1039,7 +1039,7 @@ void CRT::PASSTRAJ(HDC hdc)
 		TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 9), cbuf, strlen(cbuf));
 	}
 
-	int iETLevel = sts->GetETPropellant(usGPCDriver);
+	int iETLevel = sts->GetETPropellant();
 
 	if(iETLevel >= 0)
 	{
