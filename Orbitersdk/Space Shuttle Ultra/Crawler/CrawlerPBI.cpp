@@ -14,7 +14,10 @@ CrawlerPBI::~CrawlerPBI()
 
 void CrawlerPBI::Realize()
 {
-	if(bInitialState) OnPress();
+	if(bInitialState) {
+		output.SetLine();
+		for(unsigned short i=0;i<usGroupCount;i++) groupPorts[i].ResetLine();
+	}
 }
 
 bool CrawlerPBI::OnMouseEvent(int _event, float x, float y)
