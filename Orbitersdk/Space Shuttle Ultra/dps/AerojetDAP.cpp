@@ -10,7 +10,8 @@ AerojetDAP::AerojetDAP(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "AerojetDAP"),
 bFirstStep(true), OrbiterMass(1.0),
 AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
-Rate_ElevonPitch(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0)
+Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
+Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0)
 {
 	PMI = _V(1.0, 1.0, 1.0);
 	RCSTorque.data[PITCH] = 0.5*ORBITER_PITCH_TORQUE;
@@ -21,6 +22,7 @@ Rate_ElevonPitch(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0)
 		ThrustersActive[i]=true;
 		AerosurfacesActive[i]=false;
 		RotatingAxis[i]=false;
+		CSSInitialized[i]=false;
 	}
 
 	degTargetAttitude = _V(0.0, 0.0, 0.0);
@@ -63,7 +65,9 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 		CheckControlActivation();
 		SetThrusterLevels();
 
-		if(/*STS()->GetAltitude()<100.0*1000.0 &&*/ PitchAuto) {
+		if(PitchAuto) {
+			CSSInitialized[PITCH] = false;
+
 			degTargetAttitude.data[PITCH] = CalculateTargetAOA(STS()->GetMachNumber());
 			
 			if(ThrustersActive[PITCH])
@@ -229,15 +233,22 @@ void AerojetDAP::CheckControlActivation()
 
 void AerojetDAP::ControllerInputGuidance(double DeltaT)
 {
-	double PitchRateCommand = STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
-	double PitchError = PitchRateCommand-degCurrentRates.data[PITCH]*DEG;
+	if(!CSSInitialized[PITCH]) {
+		degTargetAttitude.data[PITCH] = degCurrentAttitude.data[PITCH];
+		CSSInitialized[PITCH] = true;
+	}
+	else {
+		double PitchRateCommand = STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
+		degTargetAttitude.data[PITCH]+=PitchRateCommand*DeltaT;
+		double PitchError = degTargetAttitude.data[PITCH] - degCurrentAttitude.data[PITCH];
 
-	double elevonPos = Rate_ElevonPitch.Step(PitchError, DeltaT);
-	LeftElevonCommand.SetLine(static_cast<float>(elevonPos));
-	RightElevonCommand.SetLine(static_cast<float>(elevonPos));
+		double elevonPos = Pitch_ElevonPitch.Step(PitchError, DeltaT);
+		LeftElevonCommand.SetLine(static_cast<float>(elevonPos));
+		RightElevonCommand.SetLine(static_cast<float>(elevonPos));
 
-	sprintf_s(oapiDebugString(), 255, "RHC Input: %f elevon: %f rates: %f error: %f",
-		RHCInput[PITCH].GetVoltage(), range(-33.0, elevonPos*-33.0, 18.0), PitchRateCommand, PitchError);
+		//sprintf_s(oapiDebugString(), 255, "RHC Input: %f elevon: %f rates: %f error: %f",
+			//RHCInput[PITCH].GetVoltage(), range(-33.0, elevonPos*-33.0, 18.0), PitchRateCommand, PitchError);
+	}
 }
 
 void AerojetDAP::GetAttitudeData(double DeltaT)
@@ -246,7 +257,10 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	VECTOR3 degLastAttitude = degCurrentAttitude;
 
 	// get AOA, sideslip and bank
-	degCurrentAttitude.data[PITCH] = STS()->GetAOA()*DEG;
+	if(STS()->GetGPCMajorMode()==304)
+		degCurrentAttitude.data[PITCH] = STS()->GetAOA()*DEG;
+	else
+		degCurrentAttitude.data[PITCH] = STS()->GetPitch()*DEG;
 	degCurrentAttitude.data[YAW] = STS()->GetSlipAngle()*DEG;
 	degCurrentAttitude.data[ROLL] = STS()->GetBank()*DEG;
 

@@ -5926,7 +5926,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			aerosurfaces.speedbrake = 0.0;
 		}
 		// set animations corresponding to aerosurface positions
-		SetAnimation(anim_elev, (aerosurfaces.leftElevon+aerosurfaces.rightElevon)/2.0);
+		double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
 
 		// check inputs from GPC and set thrusters
 		if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {

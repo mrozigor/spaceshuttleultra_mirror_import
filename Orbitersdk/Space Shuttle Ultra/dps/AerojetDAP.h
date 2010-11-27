@@ -27,6 +27,7 @@ class AerojetDAP : public AtlantisSubsystem
 
 	PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
 	PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
+	PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
 	//PIDControl BodyFlap;
 	
 	DiscInPort PitchAuto, RollYawAuto;
@@ -36,6 +37,7 @@ class AerojetDAP : public AtlantisSubsystem
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
+	bool CSSInitialized[3];
 
 	// attitude and rates relative to velocity vector (AOA, sideslip, bank)
 	// values in degrees or deg/sec
