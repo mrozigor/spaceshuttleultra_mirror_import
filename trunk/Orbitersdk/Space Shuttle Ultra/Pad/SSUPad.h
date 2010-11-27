@@ -3,10 +3,14 @@
 #pragma once
 
 #include "orbitersdk.h"
+#include "Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 static const char* DEFAULT_MESHNAME_HARDSTAND="SSU/LC39A_hardstand";
+static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
+
+const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
@@ -58,6 +62,12 @@ public:
 	void DeployIAA();
 	void HaltIAA();
 	void RetractIAA();
+
+
+	//PURGE FLOW DEPENDENT ON FUEL IN ET tanks
+	char ShuttleName[256];
+
+
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
@@ -71,8 +81,8 @@ private:
 	bool fLightsOn;
 	BEACONLIGHTSPEC lights[FSS_NUM_LIGHTS];
 
-	MESHHANDLE FSSMesh, RSSMesh, HardStandMesh;
-	UINT fss_mesh_idx, rss_mesh_idx, hs_mesh_idx;
+	MESHHANDLE FSSMesh, RSSMesh, HardStandMesh, WaterTowerMesh;
+	UINT fss_mesh_idx, rss_mesh_idx, hs_mesh_idx, wt_mesh_idx;
 
 	//animations; 0.0, CLOSED corresponds to state at t0
 	UINT anim_accessarm;
@@ -117,6 +127,10 @@ private:
 	PROPELLANT_HANDLE phLights; // fake tank for lights
 	THRUSTER_HANDLE thStadiumLights[STADIUM_LIGHT_COUNT];
 	LightEmitter* pStadiumLights[STADIUM_LIGHT_COUNT];
+
+	Atlantis* pSTS;
+	double StsTank;
+	
 };
 
 #endif //__SSUPAD_H
