@@ -742,7 +742,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.0002, 5, 1.15, 0.25, 1.03, 0.5, 6.0, PARTICLESTREAMSPEC::EMISSIVE, 
+	  0, 0.6, 15, 1.15, 5, 1.03, 0.5, 6.0, PARTICLESTREAMSPEC::EMISSIVE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
