@@ -3,7 +3,7 @@
 #pragma once
 
 #include "orbitersdk.h"
-#include "Atlantis.h"
+#include "../Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
@@ -62,12 +62,7 @@ public:
 	void DeployIAA();
 	void HaltIAA();
 	void RetractIAA();
-
-
-	//PURGE FLOW DEPENDENT ON FUEL IN ET tanks
-	char ShuttleName[256];
-
-
+	
 private:
 	void DefineAnimations();
 	void GOXArmSequence();
@@ -128,8 +123,8 @@ private:
 	THRUSTER_HANDLE thStadiumLights[STADIUM_LIGHT_COUNT];
 	LightEmitter* pStadiumLights[STADIUM_LIGHT_COUNT];
 
+	std::string ShuttleName;
 	Atlantis* pSTS;
-	double StsTank;
 	
 };
 

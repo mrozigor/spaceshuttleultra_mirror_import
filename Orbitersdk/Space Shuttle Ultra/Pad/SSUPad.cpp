@@ -5,7 +5,6 @@
 #include "meshres_RSS.h"
 #include <dlgctrl.h>
 #include <OrbiterSoundSDK35.h>
-#include "Atlantis.h"
 
 //global dll handle
 HINSTANCE hPad_DLL;
@@ -485,11 +484,11 @@ void SSUPad::clbkPostCreation()
 
 
 	//GET POINTER TO ATLANTIS CLASS
-	OBJHANDLE hSTS = oapiGetVesselByName(ShuttleName);
+	OBJHANDLE hSTS = oapiGetVesselByName((char*)ShuttleName.c_str());
 	if(hSTS!=NULL)
 	{
 		VESSEL *pVessel = oapiGetVesselInterface(hSTS);
-		if(pVessel && !_strnicmp(pVessel->GetClassNameA(), "SpaceShuttleUltra",17))
+		if(pVessel && !_strnicmp(pVessel->GetClassName(), "SpaceShuttleUltra",17))
 			pSTS = (Atlantis*)pVessel;
 		else
 			pSTS = NULL;
@@ -568,22 +567,25 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	UpdateGOXVentThrusters();
 	
 	
-	//double fGOXMass = GetPropellantMass(phGOXVent);
-	//if(fGOXMass > 0.0) {
-		//Make vent level lag behind 
-		//double fFlow = max(fGOXMass/5.0, 0.01);
-		//SetThrusterLevel(thGOXVent[0], 1);
-		//SetThrusterLevel(thGOXVent[1], 1);
-
-		//if(fGOXMass > 0.1) {
-			//SetPropellantMass(phGOXVent, max(fGOXMass - 5.0 * fFlow * simdt, 1.0));
-		//} else {
-		//	SetPropellantMass(phGOXVent, 0.0);
-		//}
-	//}
+	if(VentHoodState.Open() && pSTS) {
+		short sGOXLevel = pSTS->GetETPropellant();
+		if(sGOXLevel >= 60) {
+			SetPropellantMass(phGOXVent, 100.0); // we don't care what the actual mass is, just make sure it's nonzero
+			// Make vent level lag behind 
+			double fFlow = static_cast<double>(sGOXLevel)/100.0;
+			SetThrusterLevel(thGOXVent[0], fFlow/5.0);
+			SetThrusterLevel(thGOXVent[1], fFlow/5.0);
+		}
+	}
+	else
+	{
+		SetThrusterLevel(thGOXVent[0], 0.0);
+		SetThrusterLevel(thGOXVent[1], 0.0);
+	}
 
 	
 	//NEW GOX VENT CODE
+	/*double StsTank;
 	if(pSTS)
 	{
 		StsTank = pSTS->STSTankForPad;
@@ -611,7 +613,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	{
 		SetThrusterLevel(thGOXVent[0], 0);
 		SetThrusterLevel(thGOXVent[1], 0);
-	}
+	}*/
 	
 }
 
@@ -628,7 +630,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
 	WriteScenario_state(scn, "FSS_IAA", IAA_State);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
-	oapiWriteScenario_string(scn,"SHUTTLE",ShuttleName);
+	oapiWriteScenario_string(scn,"SHUTTLE", (char*)ShuttleName.c_str());
 }
 
 void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
@@ -673,7 +675,8 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			SetAnimation(anim_fss_gh2_ventarm, FSS_GH2_VentArmState.pos);
 		}
 		else if (!_strnicmp(line, "SHUTTLE", 7)) {
-			sscanf_s(line+7,"%s",&ShuttleName,sizeof(ShuttleName));
+			//sscanf_s(line+7,"%s",&ShuttleName,sizeof(ShuttleName));
+			ShuttleName = line+8; // read char array into string
 			char cnam[256];
 			sprintf(cnam,"%s%s","Shuttle name: ",ShuttleName);
 			oapiWriteLog(cnam);
@@ -754,7 +757,6 @@ void SSUPad::CreateGOXVentThrusters() {
 		phGOXVent = CreatePropellantResource(TANK_MAX_PROPELLANT_MASS);
 		thGOXVent[0] = CreateThruster(vtx_goxvent[0], dir, 0, phGOXVent, 250, 100);
 		thGOXVent[1] = CreateThruster(vtx_goxvent[1], dir, 0, phGOXVent, 250, 100);
-		//SetPropellantMass(phGOXVent,TANK_MAX_PROPELLANT_MASS);
 		AddExhaustStream(thGOXVent[0], &gox_stream);
 		AddExhaustStream(thGOXVent[1], &gox_stream);
 	} else {

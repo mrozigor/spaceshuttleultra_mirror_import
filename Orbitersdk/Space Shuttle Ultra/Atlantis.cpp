@@ -8341,7 +8341,7 @@ unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay
 	return 0;
 }
 
-short Atlantis::GetETPropellant(unsigned short usGPCID)
+short Atlantis::GetETPropellant() const
 {
 	if(status < 3)
 	{
