@@ -393,8 +393,6 @@ gncsoftware(NULL)
         GrowStack();
 #endif
   int i;
-
-  STSTankForPad = 0;
   
   //----------------------------------------------------
   // Make these first, for avoiding CTDs
@@ -1028,7 +1026,6 @@ gncsoftware(NULL)
 	  bPLBDCamTiltUp[i] = false;
 	  bPLBDCamTiltDown[i] = false;
   }
-
 }
 
 // --------------------------------------------------------------
@@ -6153,12 +6150,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		___PostStep_flag = true;
 	}
 
-	if((status != 3) && (ph_tank != NULL))
-	{
-		//oapiWriteLog("Warunek nie dziala");
-		STSTankForPad = GetPropellantMass(ph_tank);
-	}
-
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
@@ -6462,8 +6453,6 @@ bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, i
 		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
 			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 	}
-
-	
 
 	return true;
 }
