@@ -212,6 +212,7 @@ void XenonLights::SetDirection(VECTOR3 dir)
 		SetAnimation(anim_tilt[i], tilt/TILT_RANGE);
 
 		pLights[i]->SetDirection(dir);
+		SetThrusterDir(thLights[i], dir);
 	}
 }
 
