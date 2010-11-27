@@ -842,6 +842,9 @@ public:
 
 	OBJHANDLE ThisVessel;
 
+
+	double STSTankForPad;
+
 	
 
 private:

@@ -43,7 +43,7 @@ const double ORBITER_ROLL_TORQUE = 41800.00;
 const double OMS_HELIUM_TANK_MASS = 21.0;
 //Helium tank mass [kg]
 
-const double CHUTE_DEPLOY_TIME = 1.5;
+const double CHUTE_DEPLOY_TIME = 2.5;
 // Time from chute deploy command to deployment of chute (s)
 const double CHUTE_INFLATE_TIME = 6.3;
 // Time from chute deploy command to full inflation of chute (s)
@@ -53,7 +53,7 @@ const double CHUTE_INFLATE_RATE = 1.0;
 // Rate at which chute inflates (1/s)
 const double CHUTE_SPIN_RATE = 0.5;
 // Rate at which chute spins (1/s)
-const double CHUTE_DEPLOY_SPEED = 195.0/MPS2KTS;
+const double CHUTE_DEPLOY_SPEED = 165.0/MPS2KTS;
 // Speed at which chute is deployed (m/s)
 const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;
 // Speed at which chute is jettisoned (m/s)

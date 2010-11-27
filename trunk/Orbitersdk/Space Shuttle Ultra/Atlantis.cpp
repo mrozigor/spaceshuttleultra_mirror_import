@@ -393,6 +393,8 @@ gncsoftware(NULL)
         GrowStack();
 #endif
   int i;
+
+  STSTankForPad = 0;
   
   //----------------------------------------------------
   // Make these first, for avoiding CTDs
@@ -1026,6 +1028,7 @@ gncsoftware(NULL)
 	  bPLBDCamTiltUp[i] = false;
 	  bPLBDCamTiltDown[i] = false;
   }
+
 }
 
 // --------------------------------------------------------------
@@ -1309,7 +1312,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetCrossSections (ORBITER_CS);
   //gop->SetGearParameters(gop->gear_proc);
   DefineTouchdownPoints();
-  SetMaxWheelbrakeForce(250000);
+  SetMaxWheelbrakeForce(250000/2);
   UpdateMass();
 
   // ************************* aerodynamics **************************************
@@ -1331,7 +1334,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
-  CreateVariableDragElement (&DragChuteSize, 45, _V(0, 4.6, -12.03));
+  CreateVariableDragElement (&DragChuteSize, 22.5, _V(0, 4.6, -12.03));
 
   SetADCtrlMode (7);
 
@@ -3070,7 +3073,7 @@ void Atlantis::DefineTouchdownPoints()
 {
 	if (gear_status.action==AnimState::OPEN) { // gear fully deployed
 		SetTouchdownPoints (_V(0,-3.8,17), _V(-3.96,-5.1,-4.3), _V(3.96,-5.1,-4.3)); // gear wheel tips
-		SetSurfaceFrictionCoeff (0.035, 0.5);
+		SetSurfaceFrictionCoeff (0.035/2, 0.5);
 	}
 	else {
 		SetTouchdownPoints (_V(0,-2.5,14), _V(-8,-2.8,-9), _V(8,-2.8,-9)); // belly landing
@@ -5462,7 +5465,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 				{
 					steerforce = (95.0-airspeed);
 					if(airspeed<6.0) steerforce*=(airspeed/6);
-					steerforce = 275000*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
+					steerforce = 275000/3*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
 					AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
 					AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
 					//SetNosewheelSteering(true);
@@ -6150,6 +6153,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		___PostStep_flag = true;
 	}
 
+	if((status != 3) && (ph_tank != NULL))
+	{
+		//oapiWriteLog("Warunek nie dziala");
+		STSTankForPad = GetPropellantMass(ph_tank);
+	}
+
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
@@ -6453,6 +6462,8 @@ bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, i
 		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
 			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 	}
+
+	
 
 	return true;
 }
