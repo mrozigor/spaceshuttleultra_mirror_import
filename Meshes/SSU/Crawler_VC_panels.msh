@@ -18237,5 +18237,5 @@ MATERIAL CopyOfPaneltex1
  .9  .9  .9  1  0
  0  0  0  1
 TEXTURES 2
-CrawlerTransporter_panels.dds 
-CrawlerTransporter_panels_gauges.dds 
+SSU\CrawlerTransporter_panels.dds 
+SSU\CrawlerTransporter_panels_gauges.dds 
