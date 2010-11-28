@@ -25,7 +25,7 @@
 #if !defined(___SPACE_SHUTTLE_ULTRA_VC_DEFINITIONS_H_INCLUDED___)
 #define ___SPACE_SHUTTLE_ULTRA_VC_DEFINITIONS_H_INCLUDED___
 
-#include <windows.h>
+//#include <windows.h>
 
 // ==========================================================
 // panel area identifiers
@@ -296,12 +296,12 @@
 #define AID_MDU_PLT2	1009
 #define AID_MDU_AFD1	1010
 
-const UINT AID_CUSTOM_PANELS_MIN = 10000;
-const UINT AID_CUSTOM_PANELS_MAX = 30000;
+const unsigned int AID_CUSTOM_PANELS_MIN = 10000;
+const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
 
-const UINT AID_A7A3 = 11000;
-const UINT AID_ODSLIGHTS = 11001;
-const UINT AID_A8A3 = 11010;
+const unsigned int AID_A7A3 = 11000;
+const unsigned int AID_ODSLIGHTS = 11001;
+const unsigned int AID_A8A3 = 11010;
 
 
 #define SWITCH1		0

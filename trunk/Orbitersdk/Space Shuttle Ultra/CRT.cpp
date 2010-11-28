@@ -1,16 +1,17 @@
 #define STRICT
 #define ORBITER_MODULE
-#include "windows.h"
+#include <math.h>
+#include "Atlantis.h"
 #include "orbitersdk.h"
-#include "vc/PanelR2.h"
-#include "APU.h"
-#include "PanelC2.h"
-#include "vc/MDU.h"
-#include "vc/vc_defs.h"
 #include "CRT.h"
-#include <cstdio>
-#include "dps/IDP.h"
-#include "dps/MasterTimingUnit.h"
+//#include "vc/PanelR2.h"
+//#include "APU.h"
+//#include "PanelC2.h"
+//#include "vc/MDU.h"
+//#include "vc/vc_defs.h"
+//#include <cstdio>
+//#include "dps/IDP.h"
+//#include "dps/MasterTimingUnit.h"
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)
@@ -480,7 +481,7 @@ void CRT::SPI(HDC hDC)
 	//DRAW INSIDE OF BOXES WITH SLIGHTLY DARKER PURPLE
 	SelectObject(hDC, PurpleBrush);
 	SelectObject(hDC, DarkPurplePen);
-    Rectangle (hDC, 12, 50, 19, 226);
+	Rectangle (hDC, 12, 50, 19, 226);
 	Rectangle (hDC, 57, 50, 64, 226);
 	SelectObject(hDC,GreenPen);
 	SelectObject(hDC,BlackBrush);
@@ -560,7 +561,7 @@ void CRT::SPI(HDC hDC)
 	Rectangle (hDC, 87, 50, 94, 226);
 
 	SelectObject(hDC,YellowPen);
-    MoveToEx(hDC, 95, 98, NULL);
+	MoveToEx(hDC, 95, 98, NULL);
 	LineTo (hDC, 103, 94);
 	LineTo (hDC, 103, 102);
 	LineTo (hDC, 95, 98);
@@ -597,7 +598,7 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, nPos, 60);
 	}
 	SelectObject(hDC,YellowPen);
-	if(sts->panelr2->HydraulicPressure()) dNum=-sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+	if(sts->HydraulicsOK()) dNum=-sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 	else dNum=0.0;
 	nPos=static_cast<int>(190.0+dNum*-54.2);
 	MoveToEx(hDC, nPos, 56, NULL);
@@ -630,7 +631,7 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, nPos, 125);
 	}
 	SelectObject(hDC,YellowPen);
-	if(sts->panelr2->HydraulicPressure()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
+	if(sts->HydraulicsOK()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
 	else dNum=0.0;
 	dNum=dNum*10.0;
 	if(dNum>5.0) dNum=5.0;
@@ -1479,13 +1480,13 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
   bool cbSpec(void *id, char *str, void *data);
 
   switch (key) {
-    case OAPI_KEY_M:
+	case OAPI_KEY_M:
 	  if(mode==1) mode=0;
 	  else if(mode==0) mode=1;
 	  InvalidateDisplay();
 	  InvalidateButtons();
-      return true;
-    case OAPI_KEY_1:
+	  return true;
+	case OAPI_KEY_1:
 	  display=1;
 	  InvalidateDisplay();
 	  return true;
@@ -1497,19 +1498,19 @@ bool CRT::ConsumeKeyBuffered (DWORD key) {
 	  display=3;
 	  InvalidateDisplay();
 	  return true;
-    /*case OAPI_KEY_O:
+	/*case OAPI_KEY_O:
 	  oapiOpenInputBox("OPS", cbChangeOps, 0, 20, (void *)this);
 	  InvalidateDisplay();
-      return true;
-    case OAPI_KEY_S:
+	  return true;
+	case OAPI_KEY_S:
 	  oapiOpenInputBox("SPEC", cbSpec, 0, 20, (void *)this);
 	  InvalidateDisplay();
-      return true;
-    case OAPI_KEY_I:
+	  return true;
+	case OAPI_KEY_I:
 	  return false; //disable item input
 	  oapiOpenInputBox("ITEM", cbItem, 0, 20, (void *)this);
 	  InvalidateDisplay();
-      return true;*/
+	  return true;*/
   }
   return false;
 }
