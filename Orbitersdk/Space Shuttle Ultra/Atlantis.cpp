@@ -16,6 +16,7 @@
 #include "Atlantis.h"
 #include "Atlantis_SRB.h"
 #include "Atlantis_Tank.h"
+#include "CRT.h"
 #include "ParameterValues.h"
 #include "AerodynamicLookupTables.h"
 #include "CommonDefs.h"

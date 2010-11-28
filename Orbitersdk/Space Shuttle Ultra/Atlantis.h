@@ -38,7 +38,7 @@
 #ifndef __ATLANTIS_H
 #define __ATLANTIS_H
 
-#include "CRT.h"
+//#include "CRT.h"
 //#include "SSUOptions.h"
 #include "orbitersdk.h"
 #include <math.h>
@@ -100,6 +100,8 @@ const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
+
+static const char* STD_CLASS_NAME = "SpaceShuttleUltra";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };

@@ -1,11 +1,7 @@
 #ifndef __CRT_H
 #define __CRT_H
 
-#include "Atlantis.h"
 #include "orbitersdk.h"
-#include <math.h>
-
-static const char* STD_CLASS_NAME = "SpaceShuttleUltra";
 
 
 typedef struct {
