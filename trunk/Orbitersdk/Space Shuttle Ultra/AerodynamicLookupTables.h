@@ -36,12 +36,12 @@ protected:
 	 * Adds data to lookup tables
 	 * Note that this MUST be called in order of increasing x-value (i.e. 0.5 to 25.0)
 	 */
-	void AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size);
+	//void AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size);
 	/**
 	 * Similar to AddDataRange, but for normal/axial values instead of lift/drag
 	 * Converts values to lift/drag coefficients
 	 */
-	void AddAxialDataRange(double x, const double* yData, const double* normalData, const double* axialData, const double* momentData, unsigned int size);
+	//void AddAxialDataRange(double x, const double* yData, const double* normalData, const double* axialData, const double* momentData, unsigned int size);
 	/**
 	 * Similar to AddDataRange, but for normal/axial values instead of lift/drag
 	 * Converts values to lift/drag coefficients
@@ -84,12 +84,12 @@ protected:
 	 * Adds data to lookup tables
 	 * Note that this MUST be called in order of increasing z-value, then increasing x-value
 	 */
-	void AddDataRange(double mach, double aoa, const double* deflectionData, const double* liftData, const double * dragData, const double* momentData, unsigned int size);
+	//void AddDataRange(double mach, double aoa, const double* deflectionData, const double* liftData, const double * dragData, const double* momentData, unsigned int size);
 	/**
 	 * Similar to AddDataRange, but for normal/axial values in stead of lift/drag
 	 * Converts values to lift/drag coefficients
 	 */
-	void AddAxialDataRange(double mach, double aoa, const double* deflectionData, const double* normalData, const double * axialData, const double* momentData, unsigned int size);
+	//void AddAxialDataRange(double mach, double aoa, const double* deflectionData, const double* normalData, const double * axialData, const double* momentData, unsigned int size);
 	void AddAxialDataRange(double mach, double aoa, std::vector<double> deflectionData, std::vector<double> normalData, std::vector<double> axialData,  std::vector<double> momentData);
 	/**
 	 * Reads data in single line of csv file into vector

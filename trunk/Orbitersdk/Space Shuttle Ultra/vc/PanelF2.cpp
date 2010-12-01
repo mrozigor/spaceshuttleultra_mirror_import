@@ -15,6 +15,8 @@ namespace vc
 		
 		Add(pPitchAuto = new PushButtonIndicator(_sts, "F2_PITCH_AUTO", true));
 		Add(pPitchCSS = new PushButtonIndicator(_sts, "F2_PITCH_CSS", true));
+		Add(pRollYawAuto = new PushButtonIndicator(_sts, "F2_RY_AUTO", true));
+		Add(pRollYawCSS = new PushButtonIndicator(_sts, "F2_RY_CSS", true));
 	}
 
 	PanelF2::~PanelF2()
@@ -37,6 +39,9 @@ namespace vc
 		pPitchAuto->ConnectAll(pBundle, 0);
 		pPitchCSS->ConnectAll(pBundle, 1);
 		PitchPortGroup.AddPorts(pBundle, 0, 1);
+		pRollYawAuto->ConnectAll(pBundle, 2);
+		pRollYawCSS->ConnectAll(pBundle, 3);
+		RollYawPortGroup.AddPorts(pBundle, 2, 3);
 		
 		BasicPanel::Realize();
 	}
@@ -44,6 +49,7 @@ namespace vc
 	void PanelF2::OnPreStep(double SimT, double DeltaT, double MJD)
 	{
 		PitchPortGroup.OnPreStep();
+		RollYawPortGroup.OnPreStep();
 
 		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
 	}
@@ -53,11 +59,7 @@ namespace vc
 		AddAIDToMouseEventList(AID_F2);
 
 		pSbdbkThrot->AddAIDToRedrawEventList(AID_F2_ST_AUTO);
-		pSbdbkThrot->SetSourceImage(g_Param.pbi_lights);
-		pSbdbkThrot->SetBase(0, 0);
-		pSbdbkThrot->SetSourceCoords(true, 0, 0);
-		pSbdbkThrot->SetSourceCoords(false, 0, 14);
-		pSbdbkThrot->SetDimensions(42, 14);
+		SetCommonPBIParameters(pSbdbkThrot);
 		pSbdbkThrot->SetMouseRegion(0.133675f, 0.579283f, 0.176833f, 0.687911f);
 		pSbdbkThrot->AllowReset(true);
 
@@ -69,11 +71,7 @@ namespace vc
 		pSbdbkThrotMan->SetDimensions(42, 14);
 
 		pBodyFlap->AddAIDToRedrawEventList(AID_F2_BF_AUTO);
-		pBodyFlap->SetSourceImage(g_Param.pbi_lights);
-		pBodyFlap->SetBase(0, 0);
-		pBodyFlap->SetSourceCoords(true, 0, 0);
-		pBodyFlap->SetSourceCoords(false, 0, 14);
-		pBodyFlap->SetDimensions(42, 14);
+		SetCommonPBIParameters(pBodyFlap);
 		pBodyFlap->SetMouseRegion(0.089873f, 0.6449937f, 0.131254f, 0.757229f);
 		pBodyFlap->AllowReset(true);
 
@@ -85,20 +83,29 @@ namespace vc
 		pBodyFlapMan->SetDimensions(42, 14);
 
 		pPitchAuto->AddAIDToRedrawEventList(AID_F2_P_AUTO);
-		pPitchAuto->SetSourceImage(g_Param.pbi_lights);
-		pPitchAuto->SetBase(0, 0);
-		pPitchAuto->SetSourceCoords(true, 0, 0);
-		pPitchAuto->SetSourceCoords(false, 0, 14);
-		pPitchAuto->SetDimensions(42, 14);
+		SetCommonPBIParameters(pPitchAuto);
 		pPitchAuto->SetMouseRegion(0.307323f, 0.300987f, 0.350129f, 0.414815f);
 
 		pPitchCSS->AddAIDToRedrawEventList(AID_F2_P_CSS);
-		pPitchCSS->SetSourceImage(g_Param.pbi_lights);
-		pPitchCSS->SetBase(0, 0);
-		pPitchCSS->SetSourceCoords(true, 0, 0);
-		pPitchCSS->SetSourceCoords(false, 0, 14);
-		pPitchCSS->SetDimensions(42, 14);
+		SetCommonPBIParameters(pPitchCSS);
 		pPitchCSS->SetMouseRegion(0.260530f, 0.374445f, 0.303078f, 0.487884f);
+
+		pRollYawAuto->AddAIDToRedrawEventList(AID_F2_RY_AUTO);		
+		SetCommonPBIParameters(pRollYawAuto);
+		pRollYawAuto->SetMouseRegion(0.330374f, 0.409961f, 0.372533f, 0.520422f);
+
+		pRollYawCSS->AddAIDToRedrawEventList(AID_F2_RY_CSS);
+		SetCommonPBIParameters(pRollYawCSS);
+		pRollYawCSS->SetMouseRegion(0.284035f, 0.310907f, 0.326656f, 0.592650f);
+	}
+
+	void PanelF2::SetCommonPBIParameters(PushButtonIndicator* pPBI)
+	{
+		pPBI->SetSourceImage(g_Param.pbi_lights);
+		pPBI->SetBase(0, 0);
+		pPBI->SetSourceCoords(true, 0, 0);
+		pPBI->SetSourceCoords(false, 0, 14);
+		pPBI->SetDimensions(42, 14);
 	}
 
 	void PanelF2::RegisterVC()
@@ -119,6 +126,8 @@ namespace vc
 		oapiVCRegisterArea(AID_F2_BF_AUTO, _R(737, 252, 779, 266), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 		oapiVCRegisterArea(AID_F2_BF_MAN, _R(738, 294, 780, 308), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 		oapiVCRegisterArea(AID_F2_P_AUTO, _R(1362, 272, 1404, 286), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F2_P_CSS, _R(1231, 275, 1273, 289), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
+		oapiVCRegisterArea(AID_F2_P_CSS, _R(1231, 275, 1273, 289), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);		
+		oapiVCRegisterArea(AID_F2_RY_AUTO, _R(1364, 396, 1406, 410), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
+		oapiVCRegisterArea(AID_F2_RY_CSS, _R(1232, 399, 1274, 413), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
 	}
 };

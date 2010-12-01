@@ -38,10 +38,7 @@
 #ifndef __ATLANTIS_H
 #define __ATLANTIS_H
 
-//#include "CRT.h"
-//#include "SSUOptions.h"
 #include "orbitersdk.h"
-#include <math.h>
 #include <vector>
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
