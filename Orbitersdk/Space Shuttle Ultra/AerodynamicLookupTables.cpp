@@ -16,16 +16,16 @@ TwoDLookup::~TwoDLookup()
 {
 }
 
-void TwoDLookup::AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size)
+/*void TwoDLookup::AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size)
 {
 	xValues.push_back(x);
 	yValues.push_back(std::vector<double>(yData, yData+size));
 	liftLookupTable.push_back(std::vector<double>(liftData, liftData+size));
 	dragLookupTable.push_back(std::vector<double>(dragData, dragData+size));
 	momentLookupTable.push_back(std::vector<double>(momentData, momentData+size));
-}
+}*/
 
-void TwoDLookup::AddAxialDataRange(double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
+/*void TwoDLookup::AddAxialDataRange(double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
 {
 	xValues.push_back(x);
 	yValues.push_back(std::vector<double>(yData, yData+size));
@@ -41,7 +41,7 @@ void TwoDLookup::AddAxialDataRange(double x, const double *yData, const double *
 		dragLookupTable[dragLookupTable.size()-1].push_back(-ld.x);
 		liftLookupTable[liftLookupTable.size()-1].push_back(ld.y);
 	}
-}
+}*/
 
 void TwoDLookup::AddAxialDataRange(double x, const std::vector<double>& yData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)
 {
@@ -187,7 +187,7 @@ void ThreeDLookup::GetValues(double mach, double aoa, double deflection, double 
 	cm = linterp(zValues[lowerZIndex], cm1, zValues[upperZIndex], cm2, mach);
 }
 
-void ThreeDLookup::AddDataRange(double z, double x, const double *yData, const double *liftData, const double *dragData, const double *momentData, unsigned int size)
+/*void ThreeDLookup::AddDataRange(double z, double x, const double *yData, const double *liftData, const double *dragData, const double *momentData, unsigned int size)
 {
 	if(zValues.size()==0 || zValues[zValues.size()-1]!=z) {
 		zValues.push_back(z);
@@ -195,9 +195,9 @@ void ThreeDLookup::AddDataRange(double z, double x, const double *yData, const d
 	}
 
 	lookupTables[lookupTables.size()-1].AddDataRange(x, yData, liftData, dragData, momentData, size);
-}
+}*/
 
-void ThreeDLookup::AddAxialDataRange(double z, double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
+/*void ThreeDLookup::AddAxialDataRange(double z, double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
 {
 	/*double* liftData = new double[size];
 	double* dragData = new double[size];
@@ -212,7 +212,7 @@ void ThreeDLookup::AddAxialDataRange(double z, double x, const double *yData, co
 	AddDataRange(z, x, yData, liftData, dragData, momentData, size);
 
 	delete[] liftData;
-	delete[] dragData;*/
+	delete[] dragData;*
 	
 	if(zValues.size()==0 || zValues[zValues.size()-1]!=z) {
 		zValues.push_back(z);
@@ -220,7 +220,7 @@ void ThreeDLookup::AddAxialDataRange(double z, double x, const double *yData, co
 	}
 
 	lookupTables[lookupTables.size()-1].AddAxialDataRange(x, yData, normalData, axialData, momentData, size);
-}
+}*/
 
 void ThreeDLookup::AddAxialDataRange(double mach, double aoa, std::vector<double> deflectionData, std::vector<double> normalData, std::vector<double> axialData,  std::vector<double> momentData)
 {	

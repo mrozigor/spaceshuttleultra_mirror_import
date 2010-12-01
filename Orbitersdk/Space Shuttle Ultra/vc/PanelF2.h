@@ -41,6 +41,9 @@ namespace vc
 		PushButtonIndicator *pPitchAuto;
 		PushButtonIndicator *pPitchCSS;
 		PBIDiscPortGroup PitchPortGroup;
+		PushButtonIndicator *pRollYawAuto;
+		PushButtonIndicator *pRollYawCSS;
+		PBIDiscPortGroup RollYawPortGroup;
 
 	public:
 		PanelF2(Atlantis* _sts);
@@ -52,6 +55,8 @@ namespace vc
 		virtual void RegisterVC();
 
 		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+	private:
+		void SetCommonPBIParameters(PushButtonIndicator* pPBI);
 	};
 };
 
