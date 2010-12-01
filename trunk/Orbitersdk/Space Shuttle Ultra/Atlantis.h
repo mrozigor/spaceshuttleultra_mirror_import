@@ -482,17 +482,13 @@ class Atlantis: public VESSEL3 {
 	friend class PanelA4;
 	friend class PanelA8;
 	friend class PanelC2;
-	//friend class PanelC3;
 	friend class vc::PanelF7;
 	friend class PanelO3;
-	//friend class vc::PanelR2; // temporary
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
 	friend class vc::DAPControl;
 	friend class dps::GNCSoftware; //temporary
-	friend BOOL CALLBACK RMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	friend BOOL CALLBACK PAYCAM_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
 	SSUOptions* options;
 	/* **************************************************
