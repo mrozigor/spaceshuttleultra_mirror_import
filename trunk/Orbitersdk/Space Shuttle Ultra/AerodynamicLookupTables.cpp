@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <cassert>
 #include "AerodynamicLookupTables.h"
 #include "SSUMath.h"
 
@@ -43,7 +44,31 @@ TwoDLookup::~TwoDLookup()
 	}
 }*/
 
-void TwoDLookup::AddAxialDataRange(double x, const std::vector<double>& yData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)
+void TwoDLookup::AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData)
+{
+	assert(deflectionData.size() == sideForceData.size());
+	assert(deflectionData.size() == momentData.size());
+
+	// split side force data to lift/drag coefficients
+	std::vector<double> lift;
+	std::vector<double> drag;
+	lift.reserve(sideForceData.size());
+	drag.reserve(sideForceData.size());
+	for(unsigned int i=0;i<sideForceData.size();i++) {
+		VECTOR3 axial = _V(sideForceData[i], 0.0, 0.0);
+		VECTOR3 ld = RotateVectorZ(axial, -beta);
+		lift.push_back(ld.x);
+		drag.push_back(ld.y);
+	}
+
+	xValues.push_back(beta);
+	yValues.push_back(deflectionData);
+	liftLookupTable.push_back(lift);
+	dragLookupTable.push_back(drag);
+	momentLookupTable.push_back(momentData);
+}
+
+void TwoDLookup::AddVerticalDataRange(double x, const std::vector<double>& yData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)
 {
 	xValues.push_back(x);
 	yValues.push_back(yData);
@@ -101,7 +126,7 @@ ThreeDLookup::ThreeDLookup()
 {
 }
 
-ThreeDLookup::ThreeDLookup(const char* dataFile)
+ThreeDLookup::ThreeDLookup(const char* dataFile, bool _isHorizontalData)
 : lowerZIndex(0)
 {
 	std::ifstream dataIn(dataFile);
@@ -113,36 +138,56 @@ ThreeDLookup::ThreeDLookup(const char* dataFile)
 		ReadCSVLine(line, deflectionRange);
 
 		unsigned int lineCount = 2; // counter in case file is invalid
+		double lastMach = 0.0;
+		double lastAOA = 0.0;
 		std::vector<double> normalData;
 		std::vector<double> axialData;
 		std::vector<double> momentData;
-		std::vector<double> machAoaValues; 
-		while(!dataIn.eof()) {
+		std::vector<double> machAoaValues;
+		while(dataIn.good()) {
 			std::getline(dataIn, line);
 			ReadCSVLine(line, machAoaValues);
 			std::getline(dataIn, line);
 			ReadCSVLine(line, normalData);
-			std::getline(dataIn, line);
-			ReadCSVLine(line, axialData);
+			if(!_isHorizontalData) {
+				std::getline(dataIn, line);
+				ReadCSVLine(line, axialData);
+			}
 			std::getline(dataIn, line);
 			ReadCSVLine(line, momentData);
 
 			// make sure block of data is valid
-			bool error = ( (machAoaValues.size() != 2) ||
-				(normalData.size() != deflectionRange.size()) ||
-				(axialData.size() != deflectionRange.size()) ||
-				(momentData.size() != deflectionRange.size()) );
-			if(error) {
+			bool countError = ( (machAoaValues.size() != 2) ||
+				( normalData.size() != deflectionRange.size()) ||
+				( !_isHorizontalData && (axialData.size() != deflectionRange.size()) ) ||
+				( momentData.size() != deflectionRange.size()) );
+			if(countError) {
 				std::ostringstream message;
 				message << "ERROR: Invalid aerodynamic data file " << dataFile << std::endl;
-				message << "Line " << lineCount;
+				message << "Data block at line " << lineCount;
 				oapiWriteLog((char*)message.str().c_str());
 				break;
 			}
+			else { // check that data is added in correct order
+				if((Eq(lastMach, machAoaValues[0], 0.0001) && machAoaValues[1]<lastAOA) || machAoaValues[0]<lastMach) {
+					std::ostringstream message;
+					message << "ERROR: Incorrect data order " << dataFile << std::endl;
+					message << "Data block at line " << lineCount;
+					oapiWriteLog((char*)message.str().c_str());
+					break;
+				}
+			}
+			lastMach = machAoaValues[0];
+			lastAOA = machAoaValues[1];
 
-			AddAxialDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
-
-			lineCount+=4;
+			if(_isHorizontalData) {
+				AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, momentData);
+				lineCount+=3;
+			}
+			else {
+				AddVerticalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
+				lineCount+=4;
+			}
 		}
 		dataIn.close();
 	}
@@ -222,14 +267,24 @@ void ThreeDLookup::GetValues(double mach, double aoa, double deflection, double 
 	lookupTables[lookupTables.size()-1].AddAxialDataRange(x, yData, normalData, axialData, momentData, size);
 }*/
 
-void ThreeDLookup::AddAxialDataRange(double mach, double aoa, std::vector<double> deflectionData, std::vector<double> normalData, std::vector<double> axialData,  std::vector<double> momentData)
-{	
-	if(zValues.size()==0 || zValues[zValues.size()-1]!=mach) {
+void ThreeDLookup::AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData)
+{
+	if(zValues.empty() || zValues[zValues.size()-1]!=mach) {
 		zValues.push_back(mach);
 		lookupTables.push_back(TwoDLookup());
 	}
 
-	lookupTables[lookupTables.size()-1].AddAxialDataRange(aoa, deflectionData, normalData, axialData, momentData);
+	lookupTables[lookupTables.size()-1].AddHorizontalDataRange(aoa, deflectionData, sideForceData, momentData);
+}
+
+void ThreeDLookup::AddVerticalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)
+{	
+	if(zValues.empty() || zValues[zValues.size()-1]!=mach) {
+		zValues.push_back(mach);
+		lookupTables.push_back(TwoDLookup());
+	}
+
+	lookupTables[lookupTables.size()-1].AddVerticalDataRange(aoa, deflectionData, normalData, axialData, momentData);
 }
 
 void ThreeDLookup::ReadCSVLine(const std::string &line, std::vector<double> &data) const
