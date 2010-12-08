@@ -42,11 +42,20 @@ protected:
 	 * Converts values to lift/drag coefficients
 	 */
 	//void AddAxialDataRange(double x, const double* yData, const double* normalData, const double* axialData, const double* momentData, unsigned int size);
+	
 	/**
-	 * Similar to AddDataRange, but for normal/axial values instead of lift/drag
-	 * Converts values to lift/drag coefficients
+	 * Adds data to lookup tables.
+	 * Should only be used for horizontal aerodynamic data (no drag coefficients)
+	 * Splits side force data into lift and drag coefficients
+	 * Note that this MUST be called in order of increasing mach value (i.e. 0.5 to 25.0)
 	 */
-	void AddAxialDataRange(double x, const std::vector<double>& yData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData);
+	void AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData);
+	/**
+	 * Adds vertical data to lookup tables.
+	 * Converts axial values to lift/drag coefficients
+	 * Note that this MUST be called in order of increasing mach value (i.e. 0.5 to 25.0)
+	 */
+	void AddVerticalDataRange(double aoa, const std::vector<double>& deflectionData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData);
 private:
 	/**
 	 *
@@ -73,7 +82,7 @@ class ThreeDLookup
 	unsigned int lowerZIndex;
 public:
 	ThreeDLookup();
-	ThreeDLookup(const char* dataFile);
+	ThreeDLookup(const char* dataFile, bool _isHorizontalData = false);
 	virtual ~ThreeDLookup();
 	
 	void GetValues(double mach, double aoa, double deflection, double& cl, double& cd, double& cm);
@@ -85,12 +94,13 @@ protected:
 	 * Note that this MUST be called in order of increasing z-value, then increasing x-value
 	 */
 	//void AddDataRange(double mach, double aoa, const double* deflectionData, const double* liftData, const double * dragData, const double* momentData, unsigned int size);
+	
+	void AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData);
 	/**
-	 * Similar to AddDataRange, but for normal/axial values in stead of lift/drag
-	 * Converts values to lift/drag coefficients
+	 * Adds vertical data to lookup table
+	 * Converts axial values to lift/drag coefficients
 	 */
-	//void AddAxialDataRange(double mach, double aoa, const double* deflectionData, const double* normalData, const double * axialData, const double* momentData, unsigned int size);
-	void AddAxialDataRange(double mach, double aoa, std::vector<double> deflectionData, std::vector<double> normalData, std::vector<double> axialData,  std::vector<double> momentData);
+	void AddVerticalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData);
 	/**
 	 * Reads data in single line of csv file into vector
 	 * @param line line containing double values delimited by commas
