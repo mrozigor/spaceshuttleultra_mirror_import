@@ -490,9 +490,10 @@ void CRT::SPI(HDC hDC)
 	if(dNum>=0) dNum=dNum*-35;
 	else dNum=dNum*-20;*/
 	SelectObject(hDC,YellowPen);
-	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon+sts->aerosurfaces.rightElevon)/2.0;
+	//if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon+sts->aerosurfaces.rightElevon)/2.0;
+	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.leftElevon;
 	else dNum=0.0;
-	sprintf(oapiDebugString(),"%lf",dNum);
+	//sprintf(oapiDebugString(),"%lf",dNum);
 	nPos=static_cast<int>(145.0+(3.0*dNum))+15;
 	MoveToEx(hDC, 6, nPos, NULL);
 	LineTo (hDC, 14, nPos-4);
@@ -502,6 +503,9 @@ void CRT::SPI(HDC hDC)
 	LineTo (hDC, 16, nPos-4);
 	LineTo (hDC, 16, nPos+4);
 	LineTo (hDC, 24, nPos);
+	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.rightElevon;
+	else dNum=0.0;
+	nPos=static_cast<int>(145.0+(3.0*dNum))+15;
 	MoveToEx(hDC, 51, nPos, NULL);
 	LineTo (hDC, 59, nPos-4);
 	LineTo (hDC, 59, nPos+4);
@@ -631,11 +635,11 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, nPos, 125);
 	}
 	SelectObject(hDC,YellowPen);
-	if(sts->HydraulicsOK()) dNum=sts->GetControlSurfaceLevel(AIRCTRL_AILERON);
+	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon-sts->aerosurfaces.rightElevon)/2.0;
 	else dNum=0.0;
-	dNum=dNum*10.0;
-	if(dNum>5.0) dNum=5.0;
-	else if(dNum < -5.0) dNum= -5.0;
+	//dNum=dNum*10.0;
+	//if(dNum>5.0) dNum=5.0;
+	//else if(dNum < -5.0) dNum= -5.0;
 	nPos=static_cast<int>(190.0+12.0*dNum);
 	MoveToEx(hDC, nPos, 121, NULL);
 	LineTo (hDC, nPos-4, 129);
@@ -676,7 +680,7 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC,i,203,NULL);
 		LineTo(hDC,i,208);
 		LineTo(hDC,i+10,208);
-		MoveToEx(hDC,i+10,205.5,NULL);
+		MoveToEx(hDC,i+10,205,NULL);
 		LineTo(hDC,i+10,208);
 		LineTo(hDC,i+20,208);
 		LineTo(hDC,i+20,203);
@@ -692,7 +696,7 @@ void CRT::SPI(HDC hDC)
 		MoveToEx(hDC,i,224,NULL);
 		LineTo(hDC,i,219);
 		LineTo(hDC,i+10,219);
-		MoveToEx(hDC,i+10,221.5,NULL);
+		MoveToEx(hDC,i+10,221,NULL);
 		LineTo(hDC,i+10,219);
 		LineTo(hDC,i+20,219);
 		LineTo(hDC,i+20,224);
@@ -711,8 +715,8 @@ void CRT::SPI(HDC hDC)
 
 	SelectObject(hDC,YellowPen);
 	MoveToEx(hDC,140+((Actual/100)*100),206,NULL);
-	LineTo(hDC,135+((Actual/100)*100),212.5);
-	LineTo(hDC,145+((Actual/100)*100),212.5);
+	LineTo(hDC,135+((Actual/100)*100),212);
+	LineTo(hDC,145+((Actual/100)*100),212);
 	LineTo(hDC,140+((Actual/100)*100),206);
 	
 

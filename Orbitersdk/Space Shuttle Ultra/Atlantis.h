@@ -1448,7 +1448,8 @@ private:
 
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
 	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
-	DiscInPort LeftElevonCommand, RightElevonCommand;
+	//DiscInPort LeftElevonCommand, RightElevonCommand;
+	DiscInPort ElevonCommand, AileronCommand;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam
 	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow

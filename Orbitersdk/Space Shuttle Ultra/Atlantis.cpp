@@ -233,6 +233,7 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
 Aerodynamics::ThreeDLookup elevonVerticalLookup("Config/SSU_Elevon.csv");
 Aerodynamics::ThreeDLookup verticalLookup("Config/SSU_Aero.csv");
 Aerodynamics::ThreeDLookup bodyFlapVerticalLookup("Config/SSU_BodyFlap.csv");
+Aerodynamics::ThreeDLookup aileronHorizontalLookup("Config/SSU_Aileron.csv", true);
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
@@ -257,6 +258,46 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 
 	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
 	//sprint
+}
+
+void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
+{
+	static const double step = RAD*22.5;
+	static const double istep = 1.0/step;
+	static const int nabsc = 17;
+	static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
+
+	double aoa = v->GetAOA()*DEG;
+	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
+	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+	double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
+
+	double ailLift, ailDrag, ailMoment;
+	// get linearized derivatives and multiply results by aileron deflection
+	aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailLift, ailDrag, ailMoment);
+	ailLift*=aileronPos;
+	ailDrag*=aileronPos;
+	ailMoment*=aileronPos;
+
+	double qbar = v->GetDynPressure();
+	double rollMoment = ailMoment*qbar*OrbiterS*Orbiterb;
+	// add force caused by aileron deflection
+	v->AddForce(_V(0.0, 0.5*rollMoment, 0.0), _V(1.0, 0.0, 0.0));
+	v->AddForce(_V(0.0, -0.5*rollMoment, 0.0), _V(-1.0, 0.0, 0.0));
+
+	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
+		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
+	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
+		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
+
+	beta += PI;
+	int idx = max (0, min (15, (int)(beta*istep)));
+	double d = beta*istep - idx;
+	*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ailLift;
+	*cm = 0.0 + ailMoment;
+	//*cm = 0.02;
+	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
+	*cd = 0.0 + ailDrag;
 }
 
 /*
@@ -354,7 +395,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 
 // 2. horizontal lift component (vertical stabiliser and body)
 
-void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, double *cd)
+/*void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, double *cd)
 {
   static const double step = RAD*22.5;
   static const double istep = 1.0/step;
@@ -368,7 +409,7 @@ void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, doubl
   *cm = 0.0;
   //*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
   *cd = 0.0;
-}
+}*/
 
 // ==============================================================
 // Specialised vessel class Atlantis
@@ -1315,7 +1356,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   SetRotDrag (_V(0.43,0.43,0.29)); // angular drag
   CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,Orbiterc, OrbiterS, OrbiterA);
-  CreateAirfoil (LIFT_HORIZONTAL, _V(0,0,-4), HLiftCoeff, 20,  50, 1.5);
+  CreateAirfoil3 (LIFT_HORIZONTAL, _V(0.0, 0.0, 0.0), HLiftCoeff, &aerosurfaces, 20,  50, 1.5);
 
   /*helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
   hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
@@ -1692,8 +1733,10 @@ void Atlantis::EnableControlSurfaces()
 	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 0.0, 0.0, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, 2.0);
     hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
 	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
-	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
-	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	ControlSurfacesEnabled=true;
 }
 
@@ -5335,8 +5378,10 @@ void Atlantis::clbkPostCreation ()
 	}
 
 	pBundle=bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
-	LeftElevonCommand.Connect(pBundle, 0);
-	RightElevonCommand.Connect(pBundle, 1);
+	//LeftElevonCommand.Connect(pBundle, 0);
+	//RightElevonCommand.Connect(pBundle, 1);
+	ElevonCommand.Connect(pBundle, 0);
+	AileronCommand.Connect(pBundle, 1);
 
 	pBundle=bundleManager->CreateBundle("THRUSTER_CMD", 16);
 	for(unsigned int i=0;i<3;i++) {
@@ -5912,9 +5957,15 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	// get aerosurface positions and thruster commands from GPC commands
 	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
 	if(ops==304 || ops==305) {
+		double elevonPos = 0.0;
+		double aileronPos = 0.0;
 		if(HydraulicsOK()) {
-			aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
-			aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*-33.0, 18.0);
+			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
+			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
+			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+			aerosurfaces.leftElevon = range(-33.0, elevonPos+aileronPos, 18.0);
+			aerosurfaces.rightElevon = range(-33.0, elevonPos-aileronPos, 18.0);
 			aerosurfaces.bodyFlap = 0.0;
 			aerosurfaces.speedbrake = spdb_proc*100.0;
 		}
@@ -5925,9 +5976,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			aerosurfaces.speedbrake = 0.0;
 		}
 		// set animations corresponding to aerosurface positions
-		double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
 		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
+		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+		SetAnimation(anim_elev, (aileronPos +1.0)/2.0);
 
+		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
+			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
 		// check inputs from GPC and set thrusters
 		if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
 			SetThrusterGroupLevel(thg_pitchup, 1.0);
@@ -5954,12 +6009,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetThrusterGroupLevel(thg_yawleft, 0.0);
 		}
 		if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
-			SetThrusterGroupLevel(thg_rollright, 1.0);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-		}
-		else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
 			SetThrusterGroupLevel(thg_rollleft, 1.0);
 			SetThrusterGroupLevel(thg_rollright, 0.0);
+		}
+		else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
+			SetThrusterGroupLevel(thg_rollright, 1.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
 		}
 		else {
 			SetThrusterGroupLevel(thg_rollright, 0.0);
