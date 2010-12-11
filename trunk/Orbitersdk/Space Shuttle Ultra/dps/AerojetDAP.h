@@ -25,15 +25,18 @@ class AerojetDAP : public AtlantisSubsystem
 	VECTOR3 PMI;
 	VECTOR3 RCSTorque;
 
-	PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
-	PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
+	//PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
+	PIDControl ElevonPitch; // converts angle error (AOA or pitch, in degrees) to elevon command
+	//PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
 	PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
+	PIDControl Roll_AileronRoll; // converts roll angle error (in degrees) to aileron command
 	//PIDControl BodyFlap;
 	
 	DiscInPort PitchAuto, RollYawAuto;
 	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
-	DiscOutPort LeftElevonCommand, RightElevonCommand;
+	//DiscOutPort LeftElevonCommand, RightElevonCommand;
+	DiscOutPort ElevonCommand, AileronCommand;
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
@@ -66,16 +69,23 @@ private:
 	void GetAttitudeData(double DeltaT);
 	void UpdateOrbiterData();
 
+	/**
+	 * Calculates thruster command (1.0, -1.0 or 0.0) to rotate to target angle in given axis.
+	 * Computes target rotation rate and returns thruster command to establish correct rate.
+	 */
 	double GetThrusterCommand(AXIS axis);
 
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.
 	 */
 	double CalculateTargetAOA(double mach) const;
+
+	void SetAerosurfaceCommands(double DeltaT);
 	/**
 	 * Uses RHC input to set elevon position.
 	 */
-	void ControllerInputGuidance(double DeltaT);
+	void CSSPitchGuidance(double DeltaT);
+	void CSSRollGuidance(double DeltaT);
 };
 
 };
