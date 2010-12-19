@@ -311,6 +311,8 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	pgRearCab.DefineVCAnimations(rearVCIdx);
 }
 
+
+
 void Crawler::DefineAnimations(bool b1980Mesh)
 {
 	// initialize array of groups needed for drivetruck translation animation
@@ -358,6 +360,8 @@ void Crawler::clbkPostCreation()
 	pBundle = pBundleManager->CreateBundle("CRAWLER_SPEED", 2);
 	port_currentSpeed.Connect(pBundle, 0);
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
+	DefineFWDCabKnobsAnimations();
+	DefineREARCabKnobsAnimations();
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -495,9 +499,11 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	} else {
 		StopVesselWave3(SoundID, ENGINE_SOUND_ID);
 	}
+
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
+	pLDS->CalculateDistanceBetweenAttachments(MlpAttachL2G(),CTRotationMatrix());
 	psubsystems->PostStep(simt, simdt, mjd);
 	pgFwdCab.OnPostStep(simt, simdt, mjd);
 	pgRearCab.OnPostStep(simt, simdt, mjd);
@@ -569,9 +575,13 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 			//bool bFound = false;
 
 			if(pgFwdCab.HasPanel(pszPanelName))
+			{
 				pgFwdCab.ParsePanelBlock(pszPanelName, scn);
+			}
 			else if(pgRearCab.HasPanel(pszPanelName))
+			{
 				pgRearCab.ParsePanelBlock(pszPanelName, scn);
+			}
 
 			oapiWriteLog("\tLeave @PANEL block.");
 		} else {
@@ -853,8 +863,8 @@ void Crawler::Detach() {
 
 					attach_pos = rpos-RotateVectorY(attach_pos, heading*DEG)+MLP_ATTACH_POS;
 					attach_pos.y+=(jackHeight+curFrontHeight+pt1.y); //we can use any TD point; y coordinate should be the same
-					sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f rpos: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z,
-						rpos.x, rpos.y, rpos.z);
+					//sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f rpos: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z,
+						//rpos.x, rpos.y, rpos.z);
 					oapiWriteLog(oapiDebugString());
 
 					if(length(_V(attach_pos.x, 0.0, attach_pos.z)) < 5.0 && abs(attach_pos.y) < 0.25) { // attach MLP to VAB/LC39
@@ -971,7 +981,7 @@ bool Crawler::clbkLoadVC (int id)
 		case VIEWPOS_REARCABIN:
 			//oapiWriteLog("Showing VC");
 			if(id==VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
-			else pgRearCab.RegisterVC();
+			else pgRearCab.RegisterVC(); 
 			oapiVCSetNeighbours(1-id, 1-id, VIEWPOS_ML, VIEWPOS_GROUND); // left, right neighbours are other panels
 			bValid = true;
 			break;
@@ -1013,12 +1023,17 @@ bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
 	bRet = pgFwdCab.OnVCMouseEvent(id, _event, p);
 	bRet = pgRearCab.OnVCMouseEvent(id, _event, p);
 
+	if((id==AID_LDS_AREA) || (id==AID_LDS_AREA+AID_REAR_OFFSET))
+	{
+		KnobAction(p,id);  //LDS BUTTON ACTION
+	}
+
 	return bRet;
 }
 
 bool Crawler::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	sprintf_s(oapiDebugString(), 255, "VC Redraw event: %d", id);
+	//sprintf_s(oapiDebugString(), 255, "VC Redraw event: %d", id);
 	if(pgFwdCab.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgRearCab.OnVCRedrawEvent(id, _event, surf))
@@ -1139,4 +1154,194 @@ MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
 {
 	if(cab==vc::FWD) return hFwdVCMesh;
 	else return hRearVCMesh;
+}
+
+void Crawler::KnobAction(VECTOR3 pos, int panel)
+{
+	if(panel == 31)
+	{
+		//BUTTON x1.0
+		if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(LeftFWDKnobAnim,OFF);
+			LeftFWDKnobState = OFF;
+		}
+		else if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(LeftFWDKnobAnim,ON);
+			LeftFWDKnobState = ON;
+		}
+
+		//==========================================================================================
+		//BUTTON x0.1
+		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(CenterFWDKnobAnim,OFF);
+			CenterFWDKnobState = OFF;
+		}
+		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(CenterFWDKnobAnim,ON);
+			CenterFWDKnobState = ON;
+		}
+
+
+		//===========================================================================================
+		//BUTTON x0.01
+		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(RightFWDKnobAnim,OFF);
+			RightFWDKnobState = OFF;
+		}
+		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(RightFWDKnobAnim,ON);
+			RightFWDKnobState = ON;
+		}
+	}
+	else if(panel == 81)
+	{
+		//BUTTON x1.0
+		if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(LeftREARKnobAnim,OFF);
+			LeftREARKnobState = OFF;
+		}
+		else if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(LeftREARKnobAnim,ON);
+			LeftREARKnobState = ON;
+		}
+
+		//==========================================================================================
+		//BUTTON x0.1
+		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(CenterREARKnobAnim,OFF);
+			CenterREARKnobState = OFF;
+		}
+		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(CenterREARKnobAnim,ON);
+			CenterREARKnobState = ON;
+		}
+
+
+		//===========================================================================================
+		//BUTTON x0.01
+		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0) && (pos.y <= 0.35)))
+		{
+			//SET BUTTON TO OFF
+			SetAnimation(RightREARKnobAnim,OFF);
+			RightREARKnobState = OFF;
+		}
+		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0.8) && (pos.y <= 1)))
+		{
+			//SET BUTTON TO ON
+			SetAnimation(RightREARKnobAnim,ON);
+			RightREARKnobState = ON;
+		}
+	}
+}
+
+void Crawler::DefineFWDCabKnobsAnimations()
+{	
+	//sprintf(oapiDebugString(),"%i",dmshnbr);
+	VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2;
+	LP1 = _V(0.449,0.286,0.067);
+	LP2 = _V(0.409,0.286,0.036);
+	CP1 = _V(0.467,0.286,0.043);
+	CP2 = _V(0.427,0.286,0.012);
+	RP1 = _V(0.486,0.286,0.020);
+	RP2 = _V(0.446,0.286,-0.011);
+	
+	//LEFT KNOB ANIMATION
+	static UINT LeftKnobGrp[1] = {57};
+	VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
+	VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
+	static MGROUP_ROTATE RotLeftKnob(5,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
+	LeftFWDKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(LeftFWDKnobAnim,0,1,&RotLeftKnob);
+
+	//CENTER KNOB ANIMATION
+	static UINT CenterKnobGrp[1] = {58};
+	VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
+	VECTOR3 CNormalised = CResult/dist(CP1,CP2);
+	static MGROUP_ROTATE RotCenterKnob(5,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
+	CenterFWDKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(CenterFWDKnobAnim,0,1,&RotCenterKnob);
+	
+	
+
+	//RIGHT KNOB ANIMATION
+	static UINT RightKnobGrp[1] = {59};
+	VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
+	VECTOR3 RNormalised = RResult/dist(RP1,RP2);
+	static MGROUP_ROTATE RotRightKnob(5,RightKnobGrp,1,RP1,RNormalised,120*RAD);
+	RightFWDKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(RightFWDKnobAnim,0,1,&RotRightKnob);
+	
+}
+
+void Crawler::DefineREARCabKnobsAnimations()
+{	
+	//sprintf(oapiDebugString(),"%i",dmshnbr);
+	VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2;
+	LP1 = _V(-0.449,0.286,-0.067);
+	LP2 = _V(-0.409,0.286,-0.036);
+	CP1 = _V(-0.467,0.286,-0.043);
+	CP2 = _V(-0.427,0.286,-0.012);
+	RP1 = _V(-0.486,0.286,-0.020);
+	RP2 = _V(-0.446,0.286,0.011);
+	
+	//LEFT KNOB ANIMATION
+	static UINT LeftKnobGrp[1] = {57};
+	VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
+	VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
+	static MGROUP_ROTATE RotLeftKnob(6,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
+	LeftREARKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(LeftREARKnobAnim,0,1,&RotLeftKnob);
+
+	//CENTER KNOB ANIMATION
+	static UINT CenterKnobGrp[1] = {58};
+	VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
+	VECTOR3 CNormalised = CResult/dist(CP1,CP2);
+	static MGROUP_ROTATE RotCenterKnob(6,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
+	CenterREARKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(CenterREARKnobAnim,0,1,&RotCenterKnob);
+	
+	
+
+	//RIGHT KNOB ANIMATION
+	static UINT RightKnobGrp[1] = {59};
+	VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
+	VECTOR3 RNormalised = RResult/dist(RP1,RP2);
+	static MGROUP_ROTATE RotRightKnob(6,RightKnobGrp,1,RP1,RNormalised,120*RAD);
+	RightREARKnobAnim = CreateAnimation(0.0);
+	AddAnimationComponent(RightREARKnobAnim,0,1,&RotRightKnob);
+	
+}
+
+VECTOR3 Crawler::MlpAttachL2G()
+{
+	VECTOR3 global;
+	Local2Global(MLP_ATTACH_POS,global);
+	return global;
+}
+
+MATRIX3 Crawler::CTRotationMatrix()
+{
+	MATRIX3 rot;
+	GetRotationMatrix(rot);
+	return rot;
 }
