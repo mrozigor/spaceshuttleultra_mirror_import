@@ -84,6 +84,7 @@
 #include "PanelGroup.h"
 #include "SubsystemDirector.h"
 #include "Crawler_vc_defs.h"
+#include "LDS.h"
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
@@ -148,6 +149,7 @@ const int AID_STEERING_R_VALUE	= 27;
 const int AID_STEERING_R_BAR	= 28;
 const int AID_STEERING_DES_VALUE= 29;
 const int AID_STEEEING_DES_BAR	= 30;
+const int AID_LDS_AREA          = 31;
 
 namespace vc
 {
@@ -194,6 +196,17 @@ public:
 	DiscreteBundleManager* BundleManager() const;
 
 	MESHHANDLE GetVCMesh(vc::CRAWLER_CAB cab) const;
+
+
+	//LDS IMPLEMENTATION
+	LDS *pLDS;
+	void KnobAction(VECTOR3 pos, int panel);
+	void DefineFWDCabKnobsAnimations();
+	void DefineREARCabKnobsAnimations();
+	UINT LeftFWDKnobAnim, CenterFWDKnobAnim, RightFWDKnobAnim, LeftREARKnobAnim, CenterREARKnobAnim, RightREARKnobAnim;
+	int LeftFWDKnobState, CenterFWDKnobState, RightFWDKnobState, LeftREARKnobState, CenterREARKnobState, RightREARKnobState;
+	VECTOR3 MlpAttachL2G();
+	MATRIX3 CTRotationMatrix();
 
 private:
 	void DoFirstTimestep();
