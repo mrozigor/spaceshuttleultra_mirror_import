@@ -2730,7 +2730,6 @@ Atlantis_SRB* Atlantis::GetSRBInterface(SIDE side) const
 
 void Atlantis::ToggleGrapple (void)
 {
-  HWND hDlg;
   //OBJHANDLE hV = GetAttachmentStatus (ahRMS);
 
   if(!RMS) return; //no arm
@@ -2744,9 +2743,6 @@ void Atlantis::ToggleGrapple (void)
 
     //DetachChild (ahRMS);
 	pRMS->Ungrapple();
-    if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-      EnableWindow (GetDlgItem (hDlg, IDC_STOW), TRUE);
-    }
     // check whether the object being ungrappled is ready to be clamped into the payload bay
 	/*
     if (hAtt) {
@@ -2782,10 +2778,6 @@ void Atlantis::ToggleGrapple (void)
 		  /*pl_mass+=oapiGetMass(hV);
 		  //oapiWriteLog("pl_mass increased");
 		  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
-		  if (hDlg = oapiFindDialog (g_Param.hDLL, IDD_RMS)) {
-			  //SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), "Release");
-			  EnableWindow (GetDlgItem (hDlg, IDC_STOW), FALSE);
-		  }
 	  }
   }
 }
