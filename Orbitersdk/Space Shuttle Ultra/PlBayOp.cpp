@@ -19,7 +19,6 @@ static Atlantis *sts_dlg;
 PayloadBayOp::PayloadBayOp (Atlantis *_sts): sts(_sts)
 {
 	sts_dlg = sts;
-	hDlg = NULL;
 
 	int i;
 
@@ -172,7 +171,6 @@ void PayloadBayOp::SetDoorAction (AnimState::Action action)
 	sts->RecordEvent ("CARGODOOR", ActionString[action]);
 
 	UpdateVC();
-	if (hDlg) UpdateDialog (hDlg);
 }
 
 // ==============================================================
@@ -227,7 +225,6 @@ void PayloadBayOp::SetRadiatorAction (AnimState::Action action)
 	sts->RecordEvent ("RADIATOR", ActionString[action]);
 
 	UpdateVC();
-	if (hDlg) UpdateDialog (hDlg);
 }
 
 // ==============================================================
@@ -266,7 +263,6 @@ void PayloadBayOp::SetRadLatchAction (AnimState::Action action)
 	sts->RecordEvent ("RADLATCH", ActionString[action]);
 
 	UpdateVC();
-	if (hDlg) UpdateDialog (hDlg);
 }
 
 // ==============================================================
@@ -287,7 +283,6 @@ void PayloadBayOp::SetKuAntennaAction (AnimState::Action action)
 	sts->RecordEvent ("KUBAND", ActionString[action]);
 
 	UpdateVC();
-	if (hDlg) UpdateDialog (hDlg);
 }
 
 // ==============================================================
@@ -340,14 +335,6 @@ void PayloadBayOp::SaveState (FILEHANDLE scn)
 		sprintf_s(cbuf, 255, "BAYDOORLATCH%d", i);
 		if(!CLBayDoorLatch[i].Closed()) WriteScenario_state (scn, cbuf, CLBayDoorLatch[i]);
 	}
-}
-
-// ==============================================================
-
-void PayloadBayOp::OpenDialog ()
-{
-	if (hDlg) return; // dialog already open
-	hDlg = oapiOpenDialogEx (g_Param.hDLL, IDD_PLBAY, PlOp_DlgProc, DLG_CAPTIONCLOSE | DLG_CAPTIONHELP, this);
 }
 
 // ==============================================================
@@ -571,7 +558,6 @@ bool PayloadBayOp::VCMouseEvent (int id, int event, VECTOR3 &p)
 
 	if (action) {
 		UpdateVC ();
-		if (hDlg) UpdateDialog (hDlg);
 	}
 	return false;
 }
@@ -601,233 +587,4 @@ bool PayloadBayOp::VCRedrawEvent (int id, int event, SURFHANDLE surf)
 		}
 	}
 	return false;
-}
-
-// ==============================================================
-
-void PayloadBayOp::UpdateDialog (HWND hWnd)
-{
-	char cbuf[256];
-	int i;
-	sprintf_s (cbuf, 256, "Atlantis %s: Payload Bay Operation", sts->GetName());
-	SetWindowText (hWnd, cbuf);
-	for (i = 0; i < 2; i++) {
-		int plbd_ctrl[2] = {IDC_PLBD1, IDC_PLBD2};
-		bool enable = (BayDoor[i] == BD_ENABLE);
-		oapiSetSwitchState (GetDlgItem (hWnd, plbd_ctrl[i]), enable ? 0 : 1, true);
-	}
-	oapiSetSwitchState (GetDlgItem (hWnd, IDC_PLBD), BayDoorOp == BDO_OPEN ? 0 : BayDoorOp == BDO_CLOSE ? 1 : 2, true);
-
-	static char *PLBDstr[5] = {"===","CL","OP","\\\\\\\\\\","\\\\\\\\\\"};
-	SetWindowText (GetDlgItem (hWnd, IDC_PLBD_TLKBK), PLBDstr[BayDoorStatus.action]);
-
-	for (i = 0; i < 2; i++) {
-		int mech_ctrl[2] = {IDC_MECH1, IDC_MECH2};
-		bool mon = (MechPwr[i] == MP_ON);
-		oapiSetSwitchState (GetDlgItem (hWnd, mech_ctrl[i]), mon ? 0 : 1, true);
-	}
-
-	for (i = 0; i < 2; i++) {
-		static char *RDCTstr[5] = {"===","STO","DPL","\\\\\\\\\\","\\\\\\\\\\"};
-		int rad_ctrl[2] = {IDC_RADA, IDC_RADB};
-		int rad_tlkbk[2] = {IDC_RADS_TLKBK, IDC_RADP_TLKBK};
-		oapiSetSwitchState (GetDlgItem (hWnd, rad_ctrl[i]), RadiatorCtrl[i] == RC_DEPLOY ? 0 : RadiatorCtrl[i] == RC_OFF ? 2 : 1, true);
-		SetWindowText (GetDlgItem (hWnd, rad_tlkbk[i]), RDCTstr[RadiatorStatus.action]);
-	}
-
-	for (i = 0; i < 2; i++) {
-		static char *LTCTstr[5] = {"===","LAT","REL","\\\\\\\\\\","\\\\\\\\\\"};
-		int lat_ctrl[2] = {IDC_LATCHA, IDC_LATCHB};
-		int lat_tlkbk[2] = {IDC_LATCHS_TLKBK, IDC_LATCHP_TLKBK};
-		oapiSetSwitchState (GetDlgItem (hWnd, lat_ctrl[i]), RadLatchCtrl[i] == LC_RELEASE ? 0 : RadLatchCtrl[i] == LC_OFF ? 2 : 1, true);
-		SetWindowText (GetDlgItem (hWnd, lat_tlkbk[i]), LTCTstr[RadLatchStatus.action]);
-	}
-
-	oapiSetSwitchState (GetDlgItem (hWnd, IDC_KU), KuCtrl == KU_DEPLOY ? 0 : KuCtrl == KU_STOW ? 1 : 2, true);
-	oapiSetSwitchState (GetDlgItem (hWnd, IDC_KU_DIRECT), KuDirectCtrl == KU_DIRECT_ON ? 0 : 1, true);
-	static char *KUstr[5] = {"===","STO","DPL","\\\\\\\\\\","\\\\\\\\\\"};
-	SetWindowText (GetDlgItem (hWnd, IDC_KU_TLKBK), KUstr[KuAntennaStatus.action]);
-}
-
-// ==============================================================
-
-BOOL PayloadBayOp::DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	bool action = false;
-
-	switch (uMsg) {
-	case WM_INITDIALOG: {
-		SWITCHPARAM sp = {SWITCHPARAM::THREESTATE, SWITCHPARAM::VERTICAL};
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_PLBD), &sp, true);
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_RADA), &sp, true);
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_RADB), &sp, true);
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_LATCHA), &sp, true);
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_LATCHB), &sp, true);
-		oapiSetSwitchParams (GetDlgItem (hWnd, IDC_KU), &sp, true);
-		UpdateDialog (hWnd);
-		} return TRUE;
-	case WM_COMMAND:
-		switch (LOWORD(wParam)) {
-		case IDHELP:
-			g_hc.topic = "/BayOp.htm";
-			oapiOpenHelp (&g_hc);
-			return TRUE;
-		case IDCANCEL:
-			oapiCloseDialog (hWnd);
-			hDlg = NULL;
-			return TRUE;
-		case IDC_PLBD1:
-		case IDC_PLBD2:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				int idx = (LOWORD(wParam) == IDC_PLBD1 ? 0 : 1);
-				switch (lParam) {
-				case 0:
-					BayDoor[idx] = BD_ENABLE;
-					action = true;
-					break;
-				case 1:
-					BayDoor[idx] = BD_DISABLE;
-					SetDoorAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_MECH1:
-		case IDC_MECH2:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				int idx = (LOWORD(wParam) == IDC_MECH1 ? 0 : 1);
-				switch (lParam) {
-				case 0:
-					MechPwr[idx] = MP_ON;
-					action = true;
-					break;
-				case 1:
-					MechPwr[idx] = MP_OFF;
-					SetRadiatorAction (AnimState::STOPPED);
-					SetRadLatchAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_PLBD:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				switch (lParam) {
-				case 0:
-					BayDoorOp = BDO_OPEN;
-					SetDoorAction (AnimState::OPENING);
-					action = true;
-					break;
-				case 1:
-					BayDoorOp = BDO_CLOSE;
-					SetDoorAction (AnimState::CLOSING);
-					action = true;
-					break;
-				case 2:
-					BayDoorOp = BDO_STOP;
-					SetDoorAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_RADA:
-		case IDC_RADB:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				int idx = (LOWORD(wParam) == IDC_RADA ? 0 : 1);
-				switch (lParam) {
-				case 0:
-					RadiatorCtrl[idx] = RC_DEPLOY;
-					SetRadiatorAction (AnimState::OPENING);
-					action = true;
-					break;
-				case 1:
-					RadiatorCtrl[idx] = RC_STOW;
-					SetRadiatorAction (AnimState::CLOSING);
-					action = true;
-					break;
-				case 2:
-					RadiatorCtrl[idx] = RC_OFF;
-					SetRadiatorAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_LATCHA:
-		case IDC_LATCHB:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				int idx = (LOWORD(wParam) == IDC_LATCHA ? 0 : 1);
-				switch (lParam) {
-				case 0:
-					RadLatchCtrl[idx] = LC_RELEASE;
-					SetRadLatchAction (AnimState::OPENING);
-					action = true;
-					break;
-				case 1:
-					RadLatchCtrl[idx] = LC_LATCH;
-					SetRadLatchAction (AnimState::CLOSING);
-					action = true;
-					break;
-				case 2:
-					RadLatchCtrl[idx] = LC_OFF;
-					SetRadLatchAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_KU:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				switch (lParam) {
-				case 0:
-					KuCtrl = KU_DEPLOY;
-					SetKuAntennaAction (AnimState::OPENING);
-					action = true;
-					break;
-				case 1:
-					KuCtrl = KU_STOW;
-					SetKuAntennaAction (AnimState::CLOSING);
-					action = true;
-					break;
-				case 2:
-					KuCtrl = KU_GND;
-					SetKuAntennaAction (AnimState::STOPPED);
-					action = true;
-					break;
-				}
-			}
-			break;
-		case IDC_KU_DIRECT:
-			if (HIWORD (wParam) == BN_CLICKED) {
-				switch (lParam) {
-				case 0:
-					KuDirectCtrl = KU_DIRECT_ON;
-					SetKuAntennaAction (AnimState::CLOSING);
-					action = true;
-					break;
-				case 1:
-					KuDirectCtrl = KU_DIRECT_OFF;
-					action = true;
-					break;
-				}
-			}
-			break;
-		}
-		if (action) {
-			UpdateVC();
-			return TRUE;
-		}
-		break;
-	}
-	return oapiDefDialogProc (hWnd, uMsg, wParam, lParam);
-}
-
-// ==============================================================
-// Dialog callback hook
-
-BOOL CALLBACK PlOp_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return sts_dlg->plop->DlgProc (hWnd, uMsg, wParam, lParam);
 }
