@@ -17,7 +17,7 @@ PanelA4::PanelA4(Atlantis *_sts): sts(_sts)
 {
 	switch_state = 1;
 	old_switch_state = 1;
-    switch_timer = 0.0;
+	switch_timer = 0.0;
 	sTimerMinutes = 0;
 	sTimerSeconds = 0;
 	sMETSeconds = 0;

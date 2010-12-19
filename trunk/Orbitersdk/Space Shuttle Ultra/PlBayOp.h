@@ -25,7 +25,6 @@
 #ifndef __PLBAYOP_H
 #define __PLBAYOP_H
 
-#include <windows.h>
 #include "Atlantis.h"
 
 // ==============================================================
