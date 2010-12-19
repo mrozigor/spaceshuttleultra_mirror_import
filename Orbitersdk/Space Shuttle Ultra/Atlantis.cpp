@@ -14,6 +14,7 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "Atlantis.h"
+#include "Atlantis_defs.h"
 #include "Atlantis_SRB.h"
 #include "Atlantis_Tank.h"
 #include "CRT.h"

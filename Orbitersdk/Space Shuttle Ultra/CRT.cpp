@@ -4,14 +4,6 @@
 #include "Atlantis.h"
 #include "orbitersdk.h"
 #include "CRT.h"
-//#include "vc/PanelR2.h"
-//#include "APU.h"
-//#include "PanelC2.h"
-//#include "vc/MDU.h"
-//#include "vc/vc_defs.h"
-//#include <cstdio>
-//#include "dps/IDP.h"
-//#include "dps/MasterTimingUnit.h"
 
 #define RED RGB(255, 0, 0)
 #define GREEN RGB(0, 255, 0)

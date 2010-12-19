@@ -655,6 +655,9 @@
     <ClInclude Include="dps\AerojetDAP.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="Atlantis_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

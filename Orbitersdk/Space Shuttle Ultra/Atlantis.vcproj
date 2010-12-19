@@ -869,6 +869,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Atlantis_defs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Atlantis_vc_defs.h"
 				>
 			</File>
