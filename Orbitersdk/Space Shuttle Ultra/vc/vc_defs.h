@@ -25,8 +25,6 @@
 #if !defined(___SPACE_SHUTTLE_ULTRA_VC_DEFINITIONS_H_INCLUDED___)
 #define ___SPACE_SHUTTLE_ULTRA_VC_DEFINITIONS_H_INCLUDED___
 
-//#include <windows.h>
-
 // ==========================================================
 // panel area identifiers
 // ==========================================================

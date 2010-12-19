@@ -25,7 +25,6 @@
 #ifndef __PANELC2_H
 #define __PANELC2_H
 
-#include <windows.h>
 #include "Atlantis.h"
 
 // ==============================================================
