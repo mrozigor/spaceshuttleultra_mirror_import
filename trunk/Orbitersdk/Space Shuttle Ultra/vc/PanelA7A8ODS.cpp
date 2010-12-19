@@ -1,5 +1,6 @@
 #include "PanelA7A8ODS.h"
 #include "../Atlantis.h"
+#include "../Atlantis_defs.h"
 #include "DiscreteBundleManager.h"
 #include "../meshres_odsvc.h"
 

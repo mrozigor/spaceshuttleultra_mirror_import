@@ -3,7 +3,7 @@
 #pragma once
 
 #include "orbitersdk.h"
-#include "../Atlantis.h"
+//#include "../Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
@@ -36,6 +36,8 @@ const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
 static const char* RSS_ROTATE_SOUND_FILE = "Sound\\ShuttleUltra\\RSS_Rotation.wav";
+
+class Atlantis;
 
 class SSUPad: public VESSEL3
 {

@@ -19,6 +19,8 @@ const VECTOR3 HDP_POS = _V(0, -0.8, -3.9);
 
 const double TSM_UMBILICAL_RETRACT_SPEED = 1.5;
 
+class Atlantis;
+
 class MLP: public VESSEL2
 {
 	

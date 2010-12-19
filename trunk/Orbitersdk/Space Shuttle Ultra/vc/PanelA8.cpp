@@ -26,7 +26,7 @@
 #include "PanelA8.h"
 #include "../meshres_vc_a8.h"
 #include "../meshres_vc_additions.h"
-#include "../Atlantis.h"
+#include "../Atlantis_defs.h"
 #include "../CommonDefs.h"
 #include "../RMSSystem.h"
 #include "../SSUMath.h"

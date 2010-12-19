@@ -1,4 +1,5 @@
 #include "GNCSoftware.h"
+#include "../Atlantis_defs.h"
 
 namespace dps
 {

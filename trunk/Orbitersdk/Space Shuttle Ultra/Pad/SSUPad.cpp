@@ -1,5 +1,6 @@
 #define ORBITER_MODULE
 #include "SSUPad.h"
+#include "../Atlantis.h"
 #include "Pad_Resource.h"
 #include "meshres_FSS.h"
 #include "meshres_RSS.h"
@@ -489,7 +490,7 @@ void SSUPad::clbkPostCreation()
 	{
 		VESSEL *pVessel = oapiGetVesselInterface(hSTS);
 		if(pVessel && !_strnicmp(pVessel->GetClassName(), "SpaceShuttleUltra",17))
-			pSTS = (Atlantis*)pVessel;
+			pSTS = static_cast<Atlantis*>(pVessel);
 		else
 			pSTS = NULL;
 	}

@@ -360,6 +360,7 @@
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="AC_resource.h" />

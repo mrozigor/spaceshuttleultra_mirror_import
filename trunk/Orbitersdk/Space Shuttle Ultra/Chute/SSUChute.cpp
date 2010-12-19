@@ -1,5 +1,5 @@
 #include "SSUChute.h"
-#include "../Atlantis.h"
+#include "../Atlantis_defs.h"
 
 #define ORBITER_MODULE
 
