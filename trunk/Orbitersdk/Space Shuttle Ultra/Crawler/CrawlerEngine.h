@@ -6,6 +6,7 @@
 #include "Subsystem.h"
 #include "DiscreteBundle.h"
 #include "DiscInPort.h"
+#include "DiscOutPort.h"
 
 //const double MAX_POWER = 4000.0e3;
 // total power (Watts) of all 4 generators
@@ -53,6 +54,7 @@ private:
 
 	//DiscOutPort currentSpeedPort;
 	DiscInPort currentSpeed;
+	DiscOutPort commandVoltage;
 };
 
 #endif //__CRAWLERENGINE_H_F05A8448_9C86_481c_B632_0641CA218CF0

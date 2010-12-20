@@ -247,9 +247,9 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetBankMomentScale(0);
 	SetLiftCoeffFunc(0); 
 
-    ClearMeshes();
-    ClearExhaustRefs();
-    ClearAttExhaustRefs();
+	ClearMeshes();
+	ClearExhaustRefs();
+	ClearAttExhaustRefs();
 
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);
@@ -269,22 +269,22 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	
 	//meshoffset = _V(14.539, 1.765, 15.512);
 	VECTOR3 meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
-    meshidxTruck1 = AddMesh(track, &meshoffset);
+	meshidxTruck1 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck1, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, 15.512);
 	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
-    meshidxTruck2 = AddMesh(track, &meshoffset);
+	meshidxTruck2 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck2, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(14.539, 1.765, -10.359);
 	meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
-    meshidxTruck3 = AddMesh(track, &meshoffset);
+	meshidxTruck3 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck3, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, -10.359);
 	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
-    meshidxTruck4 = AddMesh(track, &meshoffset);
+	meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
 
 	VECTOR3 crawler_vc_offset = CRAWLER_FWD_VC_OFFSET;

@@ -135,6 +135,7 @@ const int AID_REAR_OFFSET = 50; // offset added for rear cabs
 const int AID_LEFT_MIN			= 1;
 const int AID_BRAKE_PBI			= 2;
 const int AID_BRAKE_LIGHT		= 3;
+const int AID_COMMAND_VOLTAGE	= 4;
 const int AID_CTR_MIN			= 10;
 const int AID_SPEED_VALUE		= 11;
 const int AID_SPEED_BAR			= 12;
@@ -310,8 +311,8 @@ private:
 	MESHHANDLE hRearVCMesh;
 
 	double vccSpeed, vccSteering;
-    int meshidxCrawler;
-    int meshidxTruck1;
+	int meshidxCrawler;
+	int meshidxTruck1;
 	int meshidxTruck2;
 	int meshidxTruck3;
 	int meshidxTruck4;
