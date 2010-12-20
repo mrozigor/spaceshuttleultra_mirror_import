@@ -44,6 +44,10 @@ void CrawlerEngine::Realize()
 {
 	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
 	currentSpeed.Connect(pBundle, 0);
+
+	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
+	commandVoltage.Connect(pBundle, 0);
+	commandVoltage.SetLine(0.0f);
 }
 
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
@@ -105,6 +109,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	// correct sign of enginePower
 	if(targetSpeed < 0.0) enginePower = -enginePower;
 
+	commandVoltage.SetLine(enginePower);
 	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f Power: %f", targetSpeed*MPS2MPH, enginePower);
 }
 

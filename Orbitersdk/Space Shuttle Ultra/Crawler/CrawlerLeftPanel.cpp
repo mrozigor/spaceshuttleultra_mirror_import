@@ -11,6 +11,7 @@ CrawlerLeftPanel::CrawlerLeftPanel(Crawler *_v, const std::string &_ident, vc::C
 {
 	Add(pParkingBrakePBI = new CrawlerPBI(_v, "BRAKE"));
 	Add(pParkingBrakeLight = new CrawlerPanelLight(_v, "BrakeLight"));
+	Add(pCommandVoltage = new CrawlerDigitalDisplay(_v, "CommandVoltage"));
 }
 
 CrawlerLeftPanel::~CrawlerLeftPanel()
@@ -42,6 +43,9 @@ void CrawlerLeftPanel::RegisterVC()
 	SURFHANDLE panels_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 1);
 	oapiVCRegisterArea(AID_BRAKE_PBI+aid_ofs, _R(658, 982, 718, 1012), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
 	oapiVCRegisterArea(AID_BRAKE_LIGHT+aid_ofs, _R(805, 720, 892, 787), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
+	
+	SURFHANDLE gauges_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 2);
+	oapiVCRegisterArea(AID_COMMAND_VOLTAGE+aid_ofs, _R(199, 139, 331, 169), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
 }
 
 void CrawlerLeftPanel::DefineVC()
@@ -67,6 +71,11 @@ void CrawlerLeftPanel::DefineVC()
 	pParkingBrakeLight->SetSourceCoords(false, LIGHT_OFF_X, LIGHT_BRAKES_ON_Y);
 	pParkingBrakeLight->SetSourceCoords(true, LIGHT_ON_X, LIGHT_BRAKES_ON_Y);
 	pParkingBrakeLight->AddAIDToRedrawEventList(AID_BRAKE_LIGHT+aid_ofs);
+
+	pCommandVoltage->SetScaleValue(100.0f);
+	pCommandVoltage->SetBaseCoords(0, 0);
+	pCommandVoltage->SetDimensions(132, 30, 5);
+	pCommandVoltage->AddAIDToRedrawEventList(AID_COMMAND_VOLTAGE+aid_ofs);
 }
 
 void CrawlerLeftPanel::Realize()
@@ -74,6 +83,9 @@ void CrawlerLeftPanel::Realize()
 	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_BRAKE", 2);
 	pParkingBrakePBI->ConnectPort(pBundle, 1);
 	pParkingBrakeLight->ConnectPort(pBundle, 1);
+	
+	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
+	pCommandVoltage->ConnectPort(pBundle, 0);
 
 	CrawlerPanel::Realize();
 }
