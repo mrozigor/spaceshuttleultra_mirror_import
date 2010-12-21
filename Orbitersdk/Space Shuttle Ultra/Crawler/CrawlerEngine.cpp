@@ -1,5 +1,6 @@
 #include "CrawlerEngine.h"
 #include "Crawler.h"
+#include <OrbiterSoundSDK35.h>
 
 CrawlerEngine::CrawlerEngine(SubsystemDirector<Crawler>* _director)
 : Subsystem(_director, "Engine")
@@ -48,6 +49,8 @@ void CrawlerEngine::Realize()
 	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
 	commandVoltage.Connect(pBundle, 0);
 	commandVoltage.SetLine(0.0f);
+	for(unsigned int i=0;i<3;i++)
+		engineState[i].Connect(pBundle, i+1);
 }
 
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
@@ -61,7 +64,6 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		} else {
 			targetSpeed += dv;
 		}
-		if (targetSpeed > maxSpeed) targetSpeed = maxSpeed;
 	}
 	else if(decreaseTgtSpeed) {
 		double dv = SimDT * -0.1;
@@ -71,46 +73,64 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		} else {
 			targetSpeed += dv;
 		}
-		if (targetSpeed < -maxSpeed) targetSpeed = -maxSpeed;
 	}
+	if(engineState[FWD])
+		targetSpeed = range(0.0, targetSpeed, maxSpeed);
+	else if(engineState[REV])
+		targetSpeed = range(-maxSpeed, targetSpeed, 0.0);
+	else
+		targetSpeed = 0.0;
 
 	// simplistic implementation of engine: acc is proportional to engine power
-	currentAcceleration = enginePower*0.01;
+	if((engineState[FWD] && targetSpeed>0.0) || (engineState[REV] && targetSpeed<0.0)) {
+		currentAcceleration = enginePower*0.01;
 
-	// calculate throttle setting
-	double dPower;
-	double tgtPower;
-	double actualSpeed = currentSpeed.GetVoltage();
-	enginePower = fabs(enginePower); // for calculations, use positive power
-	if(!Eq(targetSpeed, 0.0, 0.01)) {
-		double err=targetSpeed-actualSpeed;
-		if(fabs(err) > 0.005) {
-			tgtPower = range(0.30, fabs(err)*10.0, 1.0);
-			if((actualSpeed>0.0 && err<0.0) || (actualSpeed<0.0 && err>0.0)) {
-				tgtPower = (1.0-tgtPower)*(0.20/0.70);
+		// calculate throttle setting
+		double dPower;
+		double tgtPower;
+		double actualSpeed = currentSpeed.GetVoltage();
+		enginePower = fabs(enginePower); // for calculations, use positive power
+		if(!Eq(targetSpeed, 0.0, 0.01)) {
+			double err=targetSpeed-actualSpeed;
+			if(fabs(err) > 0.005) {
+				tgtPower = range(0.30, fabs(err)*10.0, 1.0);
+				if((actualSpeed>0.0 && err<0.0) || (actualSpeed<0.0 && err>0.0)) {
+					tgtPower = (1.0-tgtPower)*(0.20/0.70);
+				}
+				if(fabs(err)<0.01 && oapiGetTimeAcceleration()>20.0) {
+					tgtPower = 0.25;
+				}
+				dPower = range(-0.05, tgtPower-enginePower, 0.05);
 			}
-			if(fabs(err)<0.01 && oapiGetTimeAcceleration()>20.0) {
+			else { // hold speed
+				dPower = range(-0.05, 0.25-enginePower, 0.05);
 				tgtPower = 0.25;
 			}
-			dPower = range(-0.05, tgtPower-enginePower, 0.05);
 		}
-		else { // hold speed
-			dPower = range(-0.05, 0.25-enginePower, 0.05);
-			tgtPower = 0.25;
+		else { // shutdown engine
+			dPower = -0.05;
+			tgtPower = 0.0;
 		}
+		dPower*=SimDT;
+		if(abs(dPower) > abs(tgtPower-enginePower)) enginePower = tgtPower;
+		else enginePower = range(0.0, enginePower+dPower, 1.0);
+		// correct sign of enginePower
+		if(targetSpeed < 0.0) enginePower = -enginePower;
 	}
-	else { // shutdown engine
-		dPower = -0.05;
-		tgtPower = 0.0;
+	else {
+		enginePower = 0.0;
 	}
-	dPower*=SimDT;
-	if(abs(dPower) > abs(tgtPower-enginePower)) enginePower = tgtPower;
-	else enginePower = range(0.0, enginePower+dPower, 1.0);
-	// correct sign of enginePower
-	if(targetSpeed < 0.0) enginePower = -enginePower;
 
 	commandVoltage.SetLine(enginePower);
-	sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f Power: %f", targetSpeed*MPS2MPH, enginePower);
+	//sprintf_s(oapiDebugString(), 255, "Tgt Velocity: %f Power: %f", targetSpeed*MPS2MPH, enginePower);
+
+	//play sounds
+	if(engineState[FWD] || engineState[REV]) {
+		PlayVesselWave3(V()->GetSoundID(), ENGINE_SOUND_ID, LOOP);
+	}
+	else {
+		StopVesselWave3(V()->GetSoundID(), ENGINE_SOUND_ID);
+	}
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)

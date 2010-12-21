@@ -136,6 +136,9 @@ const int AID_LEFT_MIN			= 1;
 const int AID_BRAKE_PBI			= 2;
 const int AID_BRAKE_LIGHT		= 3;
 const int AID_COMMAND_VOLTAGE	= 4;
+const int AID_FWD_PBI			= 5;
+const int AID_REV_PBI			= 6;
+const int AID_NEUT_PBI			= 7;
 const int AID_CTR_MIN			= 10;
 const int AID_SPEED_VALUE		= 11;
 const int AID_SPEED_BAR			= 12;
@@ -195,7 +198,7 @@ public:
 	//double GetMissionTime() {return MissionTime;};
 
 	DiscreteBundleManager* BundleManager() const;
-
+	int GetSoundID() const;
 	MESHHANDLE GetVCMesh(vc::CRAWLER_CAB cab) const;
 
 
