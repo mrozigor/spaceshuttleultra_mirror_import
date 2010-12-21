@@ -120,6 +120,8 @@ const double MAX_UNLOADED_SPEED = 2.0/MPS2MPH;
 const double MAX_LOADED_SPEED = 0.8/MPS2MPH;
 
 const int ENGINE_SOUND_ID = 1;
+const int ENGINE_START_SOUND_ID = 2;
+const int ENGINE_STOP_SOUND_ID = 3;
 
 
 // View positions

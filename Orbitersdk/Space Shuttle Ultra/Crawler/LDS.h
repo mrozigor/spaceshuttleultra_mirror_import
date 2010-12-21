@@ -1,7 +1,7 @@
 #include "orbitersdk.h"
 
-#define OFF 0
-#define ON 1
+const int OFF = 0;
+const int ON = 1;
 
 class LDS   //ONLY CALCULATIONS AND METHODS HERE
 {

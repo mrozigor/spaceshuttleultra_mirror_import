@@ -224,6 +224,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	SoundID = ConnectToOrbiterSoundDLL3(GetHandle());
 	RequestLoadVesselWave3(SoundID, ENGINE_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
+	RequestLoadVesselWave3(SoundID, ENGINE_START_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine_startup.wav", BOTHVIEW_FADED_MEDIUM);
+	RequestLoadVesselWave3(SoundID, ENGINE_STOP_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine_shutdown.wav", BOTHVIEW_FADED_MEDIUM);
 }
 
 Crawler::~Crawler() {
@@ -689,13 +691,11 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 	}
 
 	if (key == OAPI_KEY_ADD) {
-		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->IncreaseTgtSpeed(down);
-		else if(viewPos == VIEWPOS_REARCABIN) pEngine->DecreaseTgtSpeed(down);
+		pEngine->IncreaseTgtSpeed(down);
 		return 1;
 	}
 	else if (key == OAPI_KEY_SUBTRACT) {
-		if(viewPos == VIEWPOS_FRONTCABIN) pEngine->DecreaseTgtSpeed(down);
-		else if(viewPos == VIEWPOS_REARCABIN) pEngine->IncreaseTgtSpeed(down);
+		pEngine->DecreaseTgtSpeed(down);
 		return 1;
 	}
 	else if (key == OAPI_KEY_B) {

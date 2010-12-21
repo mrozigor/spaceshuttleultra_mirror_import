@@ -15,7 +15,8 @@ class Crawler;
 
 class CrawlerEngine : public Subsystem<Crawler>
 {
-	typedef enum {NEUT, FWD, REV} ENGINE_STATE;
+	typedef enum {NEUT, FWD, REV} ENGINE_DIRECTION;
+	typedef enum {OFF, SHUTDOWN, STARTING, ON} ENGINE_STATE;
 public:
 	CrawlerEngine(SubsystemDirector<Crawler>* _director);
 	~CrawlerEngine();
@@ -53,10 +54,10 @@ private:
 
 	double enginePower; // between -1 (reverse) and 1
 
-	//ENGINE_STATE engineState;
+	ENGINE_STATE engineState;
 
 	//DiscOutPort currentSpeedPort;
-	DiscInPort engineState[3];
+	DiscInPort engineDirection[3];
 	DiscInPort currentSpeed;
 	DiscOutPort commandVoltage;
 };
