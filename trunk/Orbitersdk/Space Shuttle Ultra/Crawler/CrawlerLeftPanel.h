@@ -13,6 +13,9 @@ namespace vc
 class CrawlerLeftPanel : public CrawlerPanel
 {
 	CrawlerPBI* pParkingBrakePBI;
+	CrawlerPBI* pFwdPBI;
+	CrawlerPBI* pRevPBI;
+	CrawlerPBI* pNeutPBI;
 	CrawlerPanelLight* pParkingBrakeLight;
 	CrawlerDigitalDisplay* pCommandVoltage;
 public:
@@ -22,6 +25,8 @@ public:
 	virtual void RegisterVC();
 	virtual void DefineVC();
 	virtual void Realize();
+private:
+	void DefineEnginePBI(CrawlerPBI* pPBI);
 };
 
 };

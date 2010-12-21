@@ -493,12 +493,12 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 
 	// play sounds
-	if (currentSpeed != 0) {
+	/*if (currentSpeed != 0) {
 		// velocity dependent sound disabled
 		PlayVesselWave3(SoundID, ENGINE_SOUND_ID, LOOP);
 	} else {
 		StopVesselWave3(SoundID, ENGINE_SOUND_ID);
-	}
+	}*/
 
 }
 
@@ -1148,6 +1148,11 @@ VECTOR3 Crawler::CalcRelSurfPos(OBJHANDLE hVessel, const VESSELSTATUS2& vs) cons
 DiscreteBundleManager* Crawler::BundleManager() const
 {
 	return pBundleManager;
+}
+
+int Crawler::GetSoundID() const
+{
+	return SoundID;
 }
 
 MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
