@@ -105,6 +105,11 @@ const double JACKING_MAX_HEIGHT = 1.8;
 // max distance the crawler platform can be jacked up from the drivetrucks
 // According to various sources maxing jacking height is 6 ft(1.8 m)
 
+const int JACK_HEIGHT_COUNT = 3; // # of predefined jacking levels
+const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.0, 1.48, 1.7};
+// fully down, docking, clearance
+// heights in meters
+
 const double MAX_TURN_ANGLE = 10.0*RAD;
 // max angle (in radians) each set of tracks can be turned
 const double TRACK_TURN_SPEED = 0.05;
@@ -155,7 +160,9 @@ const int AID_STEERING_R_VALUE	= 27;
 const int AID_STEERING_R_BAR	= 28;
 const int AID_STEERING_DES_VALUE= 29;
 const int AID_STEEEING_DES_BAR	= 30;
-const int AID_LDS_AREA          = 31;
+const int AID_AVG_HEIGHT_VALUE	= 31;
+const int AID_AVG_HEIGHT_BAR	= 32;
+const int AID_LDS_AREA          = 40;
 
 namespace vc
 {
@@ -288,6 +295,7 @@ private:
 	double curFrontHeight, curBackHeight; // height above ground (m)
 	double curFrontAngle, curBackAngle; // angle rel. to horizontal (rad)
 	double jackHeight; // height to which platform has been jacked
+	int targetJackHeightIndex; // index of target height
 
 	bool lastLatLongSet;
 	double lastLat;
@@ -295,6 +303,7 @@ private:
 	double lastHead;
 	VESSELSTATUS2 vs;
 
+	DiscOutPort port_JackHeight;
 	DiscOutPort port_steeringCommand[2];
 	DiscOutPort port_steeringActual[2];
 	DiscInPort port_BrakeSet, port_ParkingBrakeSet;

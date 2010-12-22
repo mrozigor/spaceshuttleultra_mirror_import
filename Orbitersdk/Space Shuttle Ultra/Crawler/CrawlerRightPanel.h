@@ -24,6 +24,9 @@ class CrawlerRightPanel : public CrawlerPanel
 	CrawlerBarGauge* pRightSteeringAngleGauge; // shows angle for other cab
 	CrawlerBarGauge* pDesSteeringAngleGauge;
 
+	CrawlerDigitalDisplay* pAverageHeightValue;
+	CrawlerBarGauge* pAverageHeightGauge;
+
 	void DefineSteeringModePBI(CrawlerPBI* pPBI) const;
 	void DefineSteeringAngleGauge(CrawlerBarGauge* pGauge) const;
 	void DefineSteeringAngleDisplay(CrawlerDigitalDisplay* pDisplay) const;

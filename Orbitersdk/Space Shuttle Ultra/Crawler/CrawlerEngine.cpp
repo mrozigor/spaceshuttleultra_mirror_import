@@ -134,7 +134,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	currentAcceleration = enginePower*0.01;
 	commandVoltage.SetLine(enginePower);
 
-	sprintf_s(oapiDebugString(), 255, "Target Speed: %f", targetSpeed);
+	sprintf_s(oapiDebugString(), 255, "Target Speed: %f", targetSpeed*MPS2MPH);
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)

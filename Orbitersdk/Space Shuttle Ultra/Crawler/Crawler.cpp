@@ -200,6 +200,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	curFrontHeight = 0.01;
 	curBackHeight = 0.01;
 	jackHeight = 0.0;
+	targetJackHeightIndex = 0;
 	
 	//keyAccelerate = false;
 	//keyBrake= false;
@@ -364,6 +365,10 @@ void Crawler::clbkPostCreation()
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
 	DefineFWDCabKnobsAnimations();
 	DefineREARCabKnobsAnimations();
+
+	pBundle = pBundleManager->CreateBundle("CRAWLER_JEL", 1);
+	port_JackHeight.Connect(pBundle, 0);
+	port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -494,14 +499,15 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		if(UpdateTouchdownPoints(rpos)) break;
 	}
 
-	// play sounds
-	/*if (currentSpeed != 0) {
-		// velocity dependent sound disabled
-		PlayVesselWave3(SoundID, ENGINE_SOUND_ID, LOOP);
-	} else {
-		StopVesselWave3(SoundID, ENGINE_SOUND_ID);
-	}*/
-
+	// jack crawler
+	if(!Eq(jackHeight, JACKING_HEIGHTS[targetJackHeightIndex], 0.001)) {
+		if(jackHeight < JACKING_HEIGHTS[targetJackHeightIndex])
+			jackHeight=min(jackHeight+0.0001*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+		else
+			jackHeight=max(jackHeight-0.0001*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+		UpdateTouchdownPoints();
+		port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
+	}
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
@@ -552,6 +558,8 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 	while (oapiReadScenario_nextline (scn, line)) {
 		if (!_strnicmp (line, "JACK_HEIGHT", 11)) {
 			sscanf (line + 11, "%lf", &jackHeight);
+		} else if (!_strnicmp (line, "TARGET_JACK_INDEX", 17)) {
+			sscanf (line + 17, "%d", &targetJackHeightIndex);
 		} else if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf_s (line + 8, "%lf", &currentSpeed);
 		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
@@ -610,6 +618,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_string(scn, "STEERING_COMMANDED", cbuf);
 
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
+	oapiWriteScenario_float(scn, "TARGET_JACK_INDEX", targetJackHeightIndex);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
 	oapiWriteScenario_string(scn, "HEIGHT", cbuf);
 	sprintf_s(cbuf, 255, "%f %f", curFrontAngle, curBackAngle);
@@ -631,19 +640,21 @@ int Crawler::clbkConsumeDirectKey(char *kstate) {
 		return 0; 
 	}
 
-	if(KEYMOD_CONTROL(kstate)) {
+	/*if(KEYMOD_CONTROL(kstate)) {
 		if (KEYDOWN(kstate, OAPI_KEY_J)) { // raise platform
 			jackHeight=min(jackHeight+0.0001*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
 			UpdateTouchdownPoints();
+			port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 			RESETKEY(kstate, OAPI_KEY_J);
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_K)) { // lower platform
+		else if (KEYDOWN(kstate, OAPI_KEY_K)) { // lower platform
 			jackHeight=max(jackHeight-0.0001*oapiGetTimeAcceleration(), 0.0);
 			UpdateTouchdownPoints();
+			port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 			RESETKEY(kstate, OAPI_KEY_K);
 		}
 	}
-	else {
+	else*/ {
 		/*if (KEYDOWN(kstate, OAPI_KEY_ADD)) {
 			keyAccelerate = true;				
 			RESETKEY(kstate, OAPI_KEY_ADD);
@@ -681,6 +692,14 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			pgFwdCab.ToggleCoordinateDisplayMode();
 			pgRearCab.ToggleCoordinateDisplayMode();
 			oapiWriteLog("Toggling coordinate display mode");
+			return 1;
+		}
+		else if(!down && key == OAPI_KEY_J) {
+			targetJackHeightIndex = min(targetJackHeightIndex+1, JACK_HEIGHT_COUNT);
+			return 1;
+		}
+		else if(!down && key == OAPI_KEY_K) {
+			targetJackHeightIndex = max(targetJackHeightIndex-1, 0);
 			return 1;
 		}
 		else return 0;
