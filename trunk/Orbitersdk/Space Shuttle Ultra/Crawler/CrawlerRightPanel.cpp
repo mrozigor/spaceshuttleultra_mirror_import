@@ -19,6 +19,9 @@ CrawlerRightPanel::CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRA
 	Add(pLeftSteeringAngleGauge = new CrawlerBarGauge(_v, "LeftSteeringAngleGauge", false));
 	Add(pRightSteeringAngleValue = new CrawlerDigitalDisplay(_v, "RightSteeringAngleValue"));
 	Add(pRightSteeringAngleGauge = new CrawlerBarGauge(_v, "RightSteeringAngleGauge", false));
+
+	Add(pAverageHeightValue = new CrawlerDigitalDisplay(_v, "RightSteeringAngleValue"));
+	Add(pAverageHeightGauge = new CrawlerBarGauge(_v, "AverageHeightGauge", true));
 }
 
 CrawlerRightPanel::~CrawlerRightPanel()
@@ -59,6 +62,8 @@ void CrawlerRightPanel::RegisterVC()
 	oapiVCRegisterArea(AID_STEERING_L_BAR+aid_ofs, _R(49, 550, 530, 578), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
 	oapiVCRegisterArea(AID_STEERING_R_VALUE+aid_ofs, _R(50, 870, 200, 912), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
 	oapiVCRegisterArea(AID_STEERING_R_BAR+aid_ofs, _R(49, 932, 530, 960), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_AVG_HEIGHT_VALUE+aid_ofs, _R(767, 822, 917, 864), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
+	oapiVCRegisterArea(AID_AVG_HEIGHT_BAR+aid_ofs, _R(827, 351, 859, 805), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
 
 	oapiWriteLog("CrawlerRightPanel::RegisterVC() called");
 }
@@ -97,6 +102,17 @@ void CrawlerRightPanel::DefineVC()
 	DefineSteeringAngleDisplay(pRightSteeringAngleValue);
 	pRightSteeringAngleGauge->AddAIDToRedrawEventList(AID_STEERING_R_BAR+aid_ofs);
 	DefineSteeringAngleGauge(pRightSteeringAngleGauge);
+
+	pAverageHeightGauge->SetScaleValue(6.0);
+	pAverageHeightGauge->SetRange(0.0, 6.0);
+	pAverageHeightGauge->SetBaseCoords(0, 0);
+	pAverageHeightGauge->SetDimensions(32, 454, 37);
+	pAverageHeightGauge->AddAIDToRedrawEventList(AID_AVG_HEIGHT_BAR+aid_ofs);
+
+	pAverageHeightValue->SetScaleValue(6.0);
+	pAverageHeightValue->SetBaseCoords(0, 0);
+	pAverageHeightValue->SetDimensions(150, 42, 5);
+	pAverageHeightValue->AddAIDToRedrawEventList(AID_AVG_HEIGHT_VALUE+aid_ofs);
 }
 
 void CrawlerRightPanel::DefineSteeringModePBI(CrawlerPBI* pPBI) const
@@ -145,6 +161,10 @@ void CrawlerRightPanel::Realize()
 	pCrab->ConnectGroupPort(pBundle, 4);
 	pIndependent->ConnectGroupPort(pBundle, 2);
 	pIndependent->ConnectGroupPort(pBundle, 3);
+
+	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_JEL", 1);
+	pAverageHeightGauge->ConnectPort(pBundle, 0);
+	pAverageHeightValue->ConnectPort(pBundle, 0);
 
 	CrawlerPanel::Realize();
 }

@@ -24,31 +24,51 @@ void CrawlerBarGauge::OnPreStep(double SimT, double DeltaT, double MJD)
 
 bool CrawlerBarGauge::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	float barSize = (usWidth*input.GetVoltage()*fScale)/abs(max-min); // length of bar displayed
-	int segmentCount = static_cast<int>(barSize)/usBarWidth;
-
+	int midPos;
 	RECT litRect;
-	litRect.top = redrawBase.y;
-	litRect.bottom = redrawBase.y+usHeight;
-	int midPos = static_cast<int>(usWidth*((1.0+max+min)/2.0));
-	if(input.GetVoltage() < 0.0) {
-		//left = midPos-bars*usBarWidth;
-		litRect.left = redrawBase.x + max(midPos + segmentCount*usBarWidth, 0);
-		litRect.right = redrawBase.x + midPos;
+	if(!bVertical) {
+		float barSize = (usWidth*input.GetVoltage()*fScale)/abs(max-min);
+		int segmentCount = static_cast<int>(barSize)/usBarWidth; // get integer number of segments
+		//midPos = static_cast<int>(usWidth*((1.0+max+min)/2.0));
+		midPos = static_cast<int>(usWidth*(-min/(max-min)));
+
+		litRect.top = redrawBase.y;
+		litRect.bottom = redrawBase.y+usHeight;
+		if(input.GetVoltage() < 0.0) {
+			litRect.left = redrawBase.x + max(midPos + segmentCount*usBarWidth, 0);
+			litRect.right = redrawBase.x + midPos;
+		}
+		else {
+			litRect.left = redrawBase.x + midPos;
+			litRect.right = redrawBase.x + min(midPos + segmentCount*usBarWidth, usWidth);
+		}
 	}
 	else {
-		litRect.left = redrawBase.x + midPos;
-		//right = midPos+bars*usBarWidth;
-		litRect.right = redrawBase.x + min(midPos + segmentCount*usBarWidth, usWidth);
+		float barSize = (usHeight*input.GetVoltage()*fScale)/abs(max-min);
+		int segmentCount = static_cast<int>(barSize)/usBarWidth; // get integer number of segments
+		//midPos = static_cast<int>(usHeight*((1.0+max+min)/2.0));
+		midPos = static_cast<int>(usHeight*(1.0 + min/(max-min)));
+		
+		litRect.left = redrawBase.x;
+		litRect.right = redrawBase.x+usWidth;
+		if(input.GetVoltage() < 0.0) {
+			// TODO: make sure this works for -ve values (we don't need it yet)
+			litRect.bottom = redrawBase.y + max(midPos - segmentCount*usBarWidth, 0);
+			litRect.top = redrawBase.y + midPos;
+		}
+		else {
+			litRect.bottom = redrawBase.y + midPos;
+			litRect.top = redrawBase.y + min(midPos - segmentCount*usBarWidth, usHeight);
+		}
 	}
-
-	HDC hDC = oapiGetDC(surf);
-	HBRUSH hUnlitBrush = CreateSolidBrush(RGB(70, 76, 88));
 	RECT gaugeRect;
 	gaugeRect.top = redrawBase.y;
 	gaugeRect.bottom = redrawBase.y+usHeight;
 	gaugeRect.left = redrawBase.x;
 	gaugeRect.right = redrawBase.x+usWidth;
+	// draw gauge
+	HDC hDC = oapiGetDC(surf);
+	HBRUSH hUnlitBrush = CreateSolidBrush(RGB(70, 76, 88));
 	FillRect(hDC, &gaugeRect, hUnlitBrush);
 	HBRUSH hLitBrush = CreateSolidBrush(RGB(144, 77, 101));
 	FillRect(hDC, &litRect, hLitBrush);
