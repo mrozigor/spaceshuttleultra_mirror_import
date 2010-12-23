@@ -227,6 +227,7 @@
     <ClCompile Include="..\libUltra\src\DiscreteBundle.cpp" />
     <ClCompile Include="..\libUltra\src\DiscreteBundleManager.cpp" />
     <ClCompile Include="..\libUltra\src\DiscretePort.cpp" />
+    <ClCompile Include="Crawler\LDS.cpp" />
     <ClCompile Include="SSUMath.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +246,7 @@
     <ClInclude Include="Crawler\CrawlerPanelLight.h" />
     <ClInclude Include="Crawler\CrawlerPBI.h" />
     <ClInclude Include="Crawler\CrawlerRightPanel.h" />
+    <ClInclude Include="Crawler\LDS.h" />
     <ClInclude Include="Crawler\meshres_crawler.h" />
     <ClInclude Include="Crawler\meshres_crawler_1980.h" />
     <ClInclude Include="Crawler\meshres_crawler_vc.h" />
