@@ -112,9 +112,9 @@ const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.0, 1.1, 1.4};
 
 const double MAX_TURN_ANGLE = 10.0*RAD;
 // max angle (in radians) each set of tracks can be turned
-const double TRACK_TURN_SPEED = 0.05;
+const double TRACK_TURN_SPEED = 0.125;
 // speed (in degrees/sec) at which Crawler tracks turn
-const double STEERING_SPEED = 0.1;
+const double STEERING_SPEED = 0.2;
 // speed (in degrees/sec) at which commanded deflection changes
 
 const VECTOR3 MLP_ATTACH_POS = _V(0.0, 6, 0.0);
@@ -132,7 +132,7 @@ const int ENGINE_STOP_SOUND_ID = 3;
 // View positions
 const int VIEWPOS_FRONTCABIN		= 0;
 const int VIEWPOS_REARCABIN			= 1;
-const int VIEWPOS_ML				= 2;
+const int VIEWPOS_ENGINEERING		= 2;
 const int VIEWPOS_GROUND			= 3;
 const int VIEWPOS_FRONTGANGWAY		= 4;
 const int VIEWPOS_REARGANGWAY		= 5;
