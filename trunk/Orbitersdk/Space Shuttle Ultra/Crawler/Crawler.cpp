@@ -500,11 +500,11 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 
 	// jack crawler
-	if(!Eq(jackHeight, JACKING_HEIGHTS[targetJackHeightIndex], 0.001)) {
+	if(!Eq(jackHeight, JACKING_HEIGHTS[targetJackHeightIndex], 0.01)) {
 		if(jackHeight < JACKING_HEIGHTS[targetJackHeightIndex])
-			jackHeight=min(jackHeight+0.0001*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+			jackHeight=min(jackHeight+0.01*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
 		else
-			jackHeight=max(jackHeight-0.0001*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+			jackHeight=max(jackHeight-0.01*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
 		UpdateTouchdownPoints();
 		port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 	}
@@ -642,13 +642,13 @@ int Crawler::clbkConsumeDirectKey(char *kstate) {
 
 	/*if(KEYMOD_CONTROL(kstate)) {
 		if (KEYDOWN(kstate, OAPI_KEY_J)) { // raise platform
-			jackHeight=min(jackHeight+0.0001*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
+			jackHeight=min(jackHeight+0.0005*oapiGetTimeAcceleration(), JACKING_MAX_HEIGHT);
 			UpdateTouchdownPoints();
 			port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 			RESETKEY(kstate, OAPI_KEY_J);
 		}
 		else if (KEYDOWN(kstate, OAPI_KEY_K)) { // lower platform
-			jackHeight=max(jackHeight-0.0001*oapiGetTimeAcceleration(), 0.0);
+			jackHeight=max(jackHeight-0.0005*oapiGetTimeAcceleration(), 0.0);
 			UpdateTouchdownPoints();
 			port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 			RESETKEY(kstate, OAPI_KEY_K);
@@ -742,7 +742,7 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 				return 1;
 			}
 			if (key == OAPI_KEY_3) {
-				SetView(VIEWPOS_ML);
+				SetView(VIEWPOS_ENGINEERING);
 				return 1;
 			}
 			if (key == OAPI_KEY_4) {
@@ -917,18 +917,18 @@ void Crawler::SetView(int viewpos) {
 	if (viewPos == VIEWPOS_REARCABIN) {
 		SetCameraOffset(CRAWLER_REAR_VC_OFFSET + _V(0.0, 0.456, 0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, -0.3), _V(0, 0, 0), _V(0, 0, 0));
-		SetCameraDefaultDirection(_V(0, -0.309017, -0.951057));
+		SetCameraDefaultDirection(_V(0, -0.453991, -0.891007));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
 		SetCameraOffset(CRAWLER_FWD_VC_OFFSET + _V(0.0, 0.456, -0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, 0.3), _V(0, 0, 0), _V(0, 0, 0));
-		SetCameraDefaultDirection(_V(0, -0.309017, 0.951057));
+		SetCameraDefaultDirection(_V(0, -0.453991, 0.891007));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
-	} else if (viewPos == VIEWPOS_ML) {
-		SetCameraOffset(_V(19.9, 15.4, -25.6));
-		SetCameraDefaultDirection(_V(-0.630037, 0.453991, 0.630037));
+	} else if (viewPos == VIEWPOS_ENGINEERING) {
+		SetCameraOffset(_V(4.4, 4.1, -1.3));
+		SetCameraDefaultDirection(_V(-1,0,0));
 		SetMeshesVisibility(MESHVIS_ALWAYS | MESHVIS_EXTPASS);
 
 	} else if (viewPos == VIEWPOS_GROUND) {
@@ -937,17 +937,17 @@ void Crawler::SetView(int viewpos) {
 		SetMeshesVisibility(MESHVIS_ALWAYS | MESHVIS_EXTPASS);
 
 	} else if (viewPos == VIEWPOS_FRONTGANGWAY) {
-		SetCameraOffset(_V(0, 4.1, 21.3));
+		SetCameraOffset(_V(0, 4.1, 19.934));
 		SetCameraDefaultDirection(_V(0, 0, 1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_REARGANGWAY) {
-		SetCameraOffset(_V(0, 4.1, -16.234));
+		SetCameraOffset(_V(0, 4.1, -19.234));
 		SetCameraDefaultDirection(_V(0, 0, -1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_RIGHTREARGANGWAY) {
-		SetCameraOffset(_V(16.4, 5.7, -11.434));
+		SetCameraOffset(_V(15, 5.7, -11.934));
 		SetCameraDefaultDirection(_V(0, 0, -1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 	}	
@@ -1001,10 +1001,10 @@ bool Crawler::clbkLoadVC (int id)
 			//oapiWriteLog("Showing VC");
 			if(id==VIEWPOS_FRONTCABIN) pgFwdCab.RegisterVC();
 			else pgRearCab.RegisterVC(); 
-			oapiVCSetNeighbours(1-id, 1-id, VIEWPOS_ML, VIEWPOS_GROUND); // left, right neighbours are other panels
+			oapiVCSetNeighbours(1-id, 1-id, VIEWPOS_ENGINEERING, VIEWPOS_GROUND); // left, right neighbours are other panels
 			bValid = true;
 			break;
-		case VIEWPOS_ML:
+		case VIEWPOS_ENGINEERING:
 			oapiVCSetNeighbours(-1, -1, -1, VIEWPOS_FRONTGANGWAY);
 			bValid = true;
 			break;
@@ -1013,15 +1013,15 @@ bool Crawler::clbkLoadVC (int id)
 			bValid = true;
 			break;
 		case VIEWPOS_FRONTGANGWAY:
-			oapiVCSetNeighbours(VIEWPOS_REARGANGWAY, VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_ML, VIEWPOS_FRONTCABIN);
+			oapiVCSetNeighbours(VIEWPOS_REARGANGWAY, VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_ENGINEERING, VIEWPOS_FRONTCABIN);
 			bValid = true;
 			break;
 		case VIEWPOS_REARGANGWAY:
-			oapiVCSetNeighbours(VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_FRONTGANGWAY, VIEWPOS_ML, VIEWPOS_REARCABIN);
+			oapiVCSetNeighbours(VIEWPOS_RIGHTREARGANGWAY, VIEWPOS_FRONTGANGWAY, VIEWPOS_ENGINEERING, VIEWPOS_REARCABIN);
 			bValid = true;
 			break;			
 		case VIEWPOS_RIGHTREARGANGWAY:
-			oapiVCSetNeighbours(VIEWPOS_FRONTGANGWAY, VIEWPOS_REARGANGWAY, VIEWPOS_ML, VIEWPOS_REARCABIN);
+			oapiVCSetNeighbours(VIEWPOS_FRONTGANGWAY, VIEWPOS_REARGANGWAY, VIEWPOS_ENGINEERING, VIEWPOS_REARCABIN);
 			bValid = true;
 			break;
 	}
