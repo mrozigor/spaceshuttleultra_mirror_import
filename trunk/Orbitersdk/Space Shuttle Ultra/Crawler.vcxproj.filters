@@ -66,6 +66,9 @@
     <ClCompile Include="SSUMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Crawler\LDS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Crawler.rc">
@@ -134,6 +137,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libUltra\include\SubsystemDirector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Crawler\LDS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

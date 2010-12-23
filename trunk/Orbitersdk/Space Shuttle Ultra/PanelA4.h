@@ -1,7 +1,6 @@
 #ifndef __PANELA4_H
 #define __PANELA4_H
 
-#include <windows.h>
 #include "Atlantis.h"
 
 // ==============================================================
