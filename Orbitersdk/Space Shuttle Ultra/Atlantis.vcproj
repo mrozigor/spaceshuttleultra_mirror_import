@@ -657,6 +657,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\OMSBurnSoftware.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\OrbitDAP.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PanelA4.cpp"
 				>
 			</File>
@@ -785,6 +793,14 @@
 			</File>
 			<File
 				RelativePath=".\dps\ShuttleBus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\SimpleGPCSoftware.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\SimpleGPCSystem.cpp"
 				>
 			</File>
 			<File
@@ -1073,6 +1089,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\OMSBurnSoftware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\OrbitDAP.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OrbiterAPI.h"
 				>
 			</File>
@@ -1178,6 +1202,14 @@
 			</File>
 			<File
 				RelativePath=".\dps\ShuttleBus.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\SimpleGPCSoftware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\SimpleGPCSystem.h"
 				>
 			</File>
 			<File
