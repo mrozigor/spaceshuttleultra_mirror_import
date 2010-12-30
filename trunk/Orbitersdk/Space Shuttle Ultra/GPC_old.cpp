@@ -452,8 +452,8 @@ void Atlantis::GPC(double simt, double dt)
 					TransPulseDV.z=-ET_SEP_RATE;
 				}
 				else if(status==3 && Eq(TransPulseDV.z, 0.0, 0.001)) { //Z thrusting complete
-					WT=GetMass()*kg_to_pounds;
-					ops=104;
+					//WT=GetMass()*kg_to_pounds;
+					SetGPCMajorMode(104);
 				}
 				AttControl(dt);
 				TransControl(simt, dt);
@@ -463,7 +463,7 @@ void Atlantis::GPC(double simt, double dt)
 		case 105:
 		case 202:
 		case 302:
-			if(!BurnCompleted && MNVRLOAD && MnvrExecute) Maneuver(dt);
+			//if(!BurnCompleted && MNVRLOAD && MnvrExecute) Maneuver(dt);
 			/*AttControl(dt);
 			TransControl(simt, dt);
 			break;*/
@@ -475,7 +475,7 @@ void Atlantis::GPC(double simt, double dt)
 			TransControl(simt, dt);
 			break;
 		case 304:
-			if(GetMachNumber() < 2.5) ops = 305;
+			if(GetMachNumber() < 2.5) SetGPCMajorMode(305);
 			break;
 		case 305:
 			//AerojetDAP(dt);
@@ -493,7 +493,7 @@ void Atlantis::GPC(double simt, double dt)
 	return;
 }
 
-void Atlantis::Maneuver(double dt)
+/*void Atlantis::Maneuver(double dt)
 {
 	sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 	if(BurnInProg)
@@ -525,9 +525,9 @@ void Atlantis::Maneuver(double dt)
 		}
 	}
 	//else sprintf(oapiDebugString(), "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
-}
+}*/
 
-void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
+/*void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
 {
 	VECTOR3 CurrentRates=AngularVelocity*DEG;
 	double pitchDelta=Rates.data[PITCH]-CurrentRates.data[PITCH]; //if positive, vessel is pitching down
@@ -556,9 +556,9 @@ void Atlantis::OMSTVC(const VECTOR3 &Rates, double SimDT)
 
 	if(RCSWraparound) SetRates(Rates);
 	else if(OMS!=0) SetRates(_V(0.0, 0.0, Rates.data[ROLL])); //for single-engine burns, use RCS for roll control
-}
+}*/
 
-void Atlantis::LoadManeuver()
+/*void Atlantis::LoadManeuver()
 {
 	int i;
 	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
@@ -605,7 +605,7 @@ void Atlantis::LoadManeuver()
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-abs(cos(TV_ROLL*RAD)));
-	}*/
+	}*
 	
 	//Burn Attitude
 	if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
@@ -618,7 +618,7 @@ void Atlantis::LoadManeuver()
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-cos(TV_ROLL*RAD));
-	}*/
+	}*
 
 	//use rocket equation (TODO: Check math/formulas here)
 	StartWeight=WT/kg_to_pounds;
@@ -631,7 +631,7 @@ void Atlantis::LoadManeuver()
 	VGO.x=DeltaVTot*ThrustDir.z;
 	VGO.y=DeltaVTot*ThrustDir.x;
 	VGO.z=-DeltaVTot*ThrustDir.y;
-}
+}*/
 
 void Atlantis::UpdateDAP()
 {
@@ -992,7 +992,8 @@ void Atlantis::AttControl(double SimdT)
 		else CalcRequiredRates(ReqdRates);
 	}
 	if(!BurnInProg) SetRates(ReqdRates);
-	else OMSTVC(ReqdRates, SimdT); //OMS burn is going on, so use OMS TVC for control
+	//else OMSTVC(ReqdRates, SimdT); //OMS burn is going on, so use OMS TVC for control
+	//SetRates(ReqdRates);
 }
 
 void Atlantis::CalcManeuverTargets(VECTOR3 NullRates) //calculates TargetAttitude and time to reach attitude

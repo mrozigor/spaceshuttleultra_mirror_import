@@ -6,8 +6,8 @@
 namespace dps
 {
 
-AerojetDAP::AerojetDAP(AtlantisSubsystemDirector* _director)
-: AtlantisSubsystem(_director, "AerojetDAP"),
+AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
+: SimpleGPCSoftware(_gpc, "AerojetDAP"),
 bFirstStep(true), OrbiterMass(1.0),
 //AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
@@ -61,7 +61,8 @@ void AerojetDAP::Realize()
 
 void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 {
-	switch(STS()->GetGPCMajorMode()) {
+	sprintf_s(oapiDebugString(), 255, "AerojetDAP::OnPostStep");
+	switch(GetMajorMode()) {
 	case 304:
 		UpdateOrbiterData();
 		GetAttitudeData(DeltaT);
@@ -138,6 +139,11 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 	}
 	
 	bFirstStep = false;
+}
+
+bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
+{
+	return (newMajorMode ==304 || newMajorMode == 305);
 }
 
 void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
@@ -232,7 +238,7 @@ double AerojetDAP::GetThrusterCommand(AXIS axis)
 			return -sign(degCurrentRates.data[axis]);
 		}
 		else { // set rotation rate
-			double rotationRate = range(MIN_ROTATION_RATE, abs(attError) -2.0*ATT_DEADBAND, MAX_ROTATION_RATE);
+			double rotationRate = range(MIN_ROTATION_RATE, 4.0*(abs(attError) - 2.0*ATT_DEADBAND), MAX_ROTATION_RATE);
 			double rateError = rotationRate*sign(attError)-degCurrentRates.data[axis];
 			//sprintf_s(oapiDebugString(), 255, "AErr: %f RErr: %f Rate: %f", attError, rateError, degCurrentRates.data[axis]);
 			if(abs(rateError) < 0.025) return 0.0;
@@ -311,7 +317,10 @@ void AerojetDAP::CSSRollGuidance(double DeltaT)
 	else {
 		double RollRateCommand = -STS()->GetControlSurfaceLevel(AIRCTRL_AILERON)*5.0;
 		degTargetAttitude.data[ROLL]+=RollRateCommand*DeltaT;
-		degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-1.0, degTargetAttitude.data[ROLL], degCurrentAttitude.data[ROLL]+1.0);
+		
+		double deltaLimit = 1.0;
+		if(ThrustersActive[ROLL]) deltaLimit = 2.0;
+		degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-deltaLimit, degTargetAttitude.data[ROLL], degCurrentAttitude.data[ROLL]+deltaLimit);
 		/*double RollError = degTargetAttitude.data[ROLL] - degCurrentAttitude.data[ROLL];
 
 		double aileronPos = Roll_AileronRoll.Step(RollError, DeltaT);

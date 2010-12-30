@@ -245,6 +245,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dps\AerojetDAP.cpp" />
+    <ClCompile Include="dps\OMSBurnSoftware.cpp" />
+    <ClCompile Include="dps\OrbitDAP.cpp" />
+    <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
+    <ClCompile Include="dps\SimpleGPCSoftware.h" />
+    <ClCompile Include="dps\SimpleGPCSystem.cpp" />
     <ClCompile Include="eps\ACBus.cpp" />
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
@@ -362,6 +367,9 @@
   <ItemGroup>
     <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
+    <ClInclude Include="dps\OMSBurnSoftware.h" />
+    <ClInclude Include="dps\OrbitDAP.h" />
+    <ClInclude Include="dps\SimpleGPCSystem.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="AC_resource.h" />
     <ClInclude Include="AerodynamicLookupTables.h" />

@@ -266,7 +266,7 @@ class Atlantis: public VESSEL3 {
 	friend class CRT;
 	friend class vc::MDU;
 	friend class vc::DAPControl;
-	friend class dps::GNCSoftware; //temporary
+	friend class dps::OrbitDAP; // temporary until all code is moved to OrbitDAP class
 public:
 	SSUOptions* options;
 	/* **************************************************
@@ -330,7 +330,7 @@ public:
 	MCA* pAMC2;
 	MCA* pAMC3;
 
-	
+	dps::SimpleGPCSystem *pSimpleGPC;
 
 	MechActuator* pSTYDoorMotor;
 	MechActuator* pSTZDoorMotor;
@@ -439,6 +439,7 @@ public:
 	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
+	virtual double GetMET() const;
 	int GetSoundID() const;
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
@@ -464,6 +465,7 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
+	void SetGPCMajorMode (unsigned int newMajorMode);
 	//virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -520,6 +522,9 @@ public:
 	void TriggerLiftOff();
 	void StartROFIs();
 
+	void LoadBurnAttManeuver(const VECTOR3& BurnAtt);
+	void TerminateManeuver();
+	
 	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
 	void ItemInput(int idp, int item, const char* Data=NULL);
 
@@ -668,12 +673,12 @@ private:
 	 * @param ladderPitch pitch corresponding to line being drawn
 	 * @param orbiterPitch current pitch angle of orbiter
 	 * @param orbiterBank current bank angle of orbiter
-	 * @returns false is line is out of HUD area; true otherwise
+	 * @returns false if line is out of HUD area; true otherwise
 	 */
 	bool DrawHUDPitchLine(oapi::Sketchpad* skp, const HUDPAINTSPEC* hps, int ladderPitch, double orbiterPitch, double orbiterBank) const;
 
 	void SSMEEngControl(unsigned short usEng) const;
-	void OMSEngControl(unsigned short usEng) const;
+	void OMSEngControl(unsigned short usEng);
 
 	void StopAllManifolds();
 	void FireAllNextManifold();
@@ -772,7 +777,7 @@ private:
 	 * @param yaw angle in degrees (relative to null position)
 	 * @return false if gimbal values are out of range, true otherwise
 	 */
-	bool GimbalOMS(int engine, double pitch, double yaw);
+	 void GimbalOMS(int engine, double pitch, double yaw);
 	void OMSTVC(const VECTOR3 &Rates, double SimDT);
 	//void GimbalOMS(const VECTOR3 &Targets);
 
@@ -790,8 +795,7 @@ private:
 	void LoadInertialManeuver();
 	void LoadTrackManeuver();
 	void LoadRotationManeuver();
-	void LoadBurnAttManeuver();
-	void TerminateManeuver();
+	//void LoadBurnAttManeuver(const VECTOR3& BurnAtt);
 	void CalcManeuverTargets(VECTOR3 NullRates);
 	void SetRates(const VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates);
@@ -1135,7 +1139,8 @@ private:
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	//MNVR
-	int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
+	bool BurnInProg;
+	/*int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
 	double tig; // TIG in seconds 
 	double TIG[4]; // day,hour,min,sec
 	double IgnitionTime; //MET at ignition
@@ -1151,8 +1156,9 @@ private:
 	double vgoTot;
 	bool MNVRLOAD, MnvrExecute, MnvrToBurnAtt;
 	VECTOR3 BurnAtt;
-	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
+	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW*/
 	PIDControl OMSTVCControlP, OMSTVCControlY;
+	double curOMSPitch[2], curOMSYaw[2];
 
 	//DAP
 	bool ManeuverinProg;
@@ -1177,8 +1183,8 @@ private:
 	MATRIX3 ReqdAttMatrix;
 	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates/*, TrackRates*/;
 	MATRIX3 PitchYawRollMatrix;
-	ORBITPARAM oparam;
-	ELEMENTS el;
+	//ORBITPARAM oparam;
+	//ELEMENTS el;
 	double TrkRate;	
 	double Mass;
 	VECTOR3 PMI, Torque;
@@ -1241,7 +1247,7 @@ private:
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
 	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
-	DiscInPort OMSArm[2], OMSArmPress[2];
+	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
