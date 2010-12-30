@@ -353,6 +353,21 @@
     <ClCompile Include="dps\AerojetDAP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\SimpleGPCSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SimpleGPCSoftware.h">
+      <Filter>Includes</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SimpleGPCSoftware.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\OMSBurnSoftware.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\OrbitDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -656,6 +671,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="Atlantis_defs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SimpleGPCSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\OMSBurnSoftware.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\OrbitDAP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

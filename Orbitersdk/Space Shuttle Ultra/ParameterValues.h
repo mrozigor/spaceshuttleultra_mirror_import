@@ -19,6 +19,10 @@ const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
 const double ORBITER_OMS_THRUST = 26700.0;
 // Vacuum thrust per unit for Orbital Maneuvering System [N] (x2 for total)
 
+const double OMS_PITCH_RANGE = 6.0;
+const double OMS_YAW_RANGE = 7.0;
+// max gimbal angles in degrees
+
 const double ORBITER_RCS_THRUST = 7740.0;
 // Vacuum thrust rating for attitude thrusters (Reaction Control System) [N]
 

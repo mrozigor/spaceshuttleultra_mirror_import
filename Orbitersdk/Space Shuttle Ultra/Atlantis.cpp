@@ -24,13 +24,7 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK35.h>
-//#include <iostream>
-//#include <fstream>
 #include "PlBayOp.h"
-//#include "GearOp.h"
-//#include "PanelC3.h"
-//#include "PanelF7.h"
-//#include "PanelR2.h"
 #include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
@@ -48,6 +42,7 @@
 #include "dps/MDM.h"
 #include "dps/RSLS.h"
 #include "dps/ShuttleBus.h"
+#include "dps/SimpleGPCSystem.h"
 #include "eva_docking/ODS.h"
 #include "AirDataProbeSystem.h"
 #include "ETUmbDoorSystem.h"
@@ -76,6 +71,7 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
 #include "SSUMath.h"
+#include <cassert>
 
 
 #ifdef INCLUDE_OMS_CODE
@@ -590,6 +586,8 @@ gncsoftware(NULL)
   psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
   psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
 
+  psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
+
   psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
@@ -604,7 +602,7 @@ gncsoftware(NULL)
   psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
   psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
-  psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
+  //psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
@@ -909,7 +907,7 @@ gncsoftware(NULL)
   CRT_SEL[0]=2; //CRT3
   CRT_SEL[1]=1; //CRT2
   //MNVR
-  MNVRLOAD=false;
+  /*MNVRLOAD=false;
   MnvrExecute=false;
   MnvrToBurnAtt=false;
   TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
@@ -918,7 +916,8 @@ gncsoftware(NULL)
   OMS = 0;
   TV_ROLL=0.0;
   BurnInProg=false;
-  BurnCompleted=false;
+  BurnCompleted=false;*/
+  BurnInProg=false;
   
   RHCInput = _V(0, 0, 0);
   THCInput = _V(0, 0, 0);
@@ -927,7 +926,7 @@ gncsoftware(NULL)
   ReqdRates = _V(0, 0, 0);
   for(i=0; i<3; i++) {
 	  //MNVR
-	  PEG7.data[i]=0.0;
+	  //PEG7.data[i]=0.0;
 	  //UNIV PTG
 	  MNVR_OPTION.data[i]=0.0;
 	  TRKROT_OPTION.data[i]=0.0;
@@ -1067,6 +1066,9 @@ gncsoftware(NULL)
 	  bPLBDCamTiltUp[i] = false;
 	  bPLBDCamTiltDown[i] = false;
   }
+
+  curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
+  curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
 }
 
 // --------------------------------------------------------------
@@ -2906,27 +2908,29 @@ void Atlantis::AutoMainGimbal (double DeltaT) {
 	UpdateSSMEGimbalAnimations();
 }
 
-bool Atlantis::GimbalOMS(int engine, double pitch, double yaw)
+void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
 {
 	if(abs(pitch)<6.0 && abs(yaw)<7.0) {
-		OMSGimbal[engine][0]=pitch;
-		OMSGimbal[engine][1]=yaw;
+		//OMSGimbal[engine][0]=pitch;
+		//OMSGimbal[engine][1]=yaw;
 
-		VECTOR3 dir;
+		/*VECTOR3 dir;
 		if(engine==0) dir=L_OMS_DIR;
 		else dir=R_OMS_DIR;
 
 		dir=RotateVectorX(dir, -pitch); //positive OMS gimbal directs thrust downwards
-		dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
+		dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right*/
+		VECTOR3 dir = CalcOMSThrustDir(engine, pitch, yaw);
 
 		SetThrusterDir(th_oms[engine], dir);
+
+		curOMSPitch[engine] = pitch;
+		curOMSYaw[engine] = yaw;
 
 		char cbuf[255];
 		sprintf_s(cbuf, 255, "OMS DIR: %d %f %f %f", engine, dir.x, dir.y, dir.z);
 		oapiWriteLog(cbuf);
-		return true;
 	}
-	else return false;
 }
 
 double Atlantis::CalcNetThrust()
@@ -3330,82 +3334,74 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 		}
 		else return false;
 	}
-	else if(change==10) // EXEC pressed (no input)
-	{
-		sprintf_s(oapiDebugString(), 255, "EXEC pressed");
-		if(ops==104 || ops==105 || ops==106 || ops==202 || 
-			ops==301 || ops==302 || ops==303) {
-			if(MNVRLOAD && !MnvrExecute && tig-met<=15.0) MnvrExecute=true;
-		}
-	}
 
 	if(pIDP[idp]->GetMajfunc()==dps::GNC) //GNC
 	{
 		if(change==0) {
 			nNew=atoi(Name);
 			if(nNew==104 && ops==103) {
-				ops=104;
-				WT=GetMass()*kg_to_pounds;
+				SetGPCMajorMode(104);
+				/*WT=GetMass()*kg_to_pounds;
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
 				MnvrExecute=false;
-				MnvrToBurnAtt=false;
+				MnvrToBurnAtt=false;*/
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==105 && ops==104) {
-				ops=105;
-				WT=GetMass()*kg_to_pounds;
+				SetGPCMajorMode(105);
+				/*WT=GetMass()*kg_to_pounds;
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
 				MnvrExecute=false;
-				MnvrToBurnAtt=false;
+				MnvrToBurnAtt=false;*/
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==106 && ops==105) {
-				ops=106;
+				SetGPCMajorMode(106);
 			}
 			else if(nNew==201 && (ops==202 || ops==106))
 			{
-				ops=201;
+				SetGPCMajorMode(201);
 				MNVR=false;
 				TRK=false;
 				ROT=false;
 			}
 			else if(nNew==202 && ops==201)
 			{
-				ops=202;
-				WT=GetMass()*kg_to_pounds;
+				SetGPCMajorMode(202);
+				/*WT=GetMass()*kg_to_pounds;
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
 				MnvrExecute=false;
-				MnvrToBurnAtt=false;
+				MnvrToBurnAtt=false;*/
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==301 && ops==201)
 			{
-				ops=301;
-				WT=GetMass()*kg_to_pounds;
+				SetGPCMajorMode(301);
+				/*WT=GetMass()*kg_to_pounds;
 				BurnInProg=false;
 				BurnCompleted=false;
 				MNVRLOAD=false;
 				MnvrExecute=false;
-				MnvrToBurnAtt=false;
+				MnvrToBurnAtt=false;*/
 				//Display[mfd]->bTIMER=false;
 			}
 			else if(nNew==302 && ops==301)
 			{
-				ops=302;
+				SetGPCMajorMode(302);
 			}
 			else if(nNew==303 && ops==302)
 			{
-				ops=303;
+				SetGPCMajorMode(303);
 			}
 			else if(nNew==304 && ops==303)
 			{
-				ops=304;
+				SetGPCMajorMode(304);
 			}
 			else if(nNew==305 && ops==304)
 			{
@@ -3664,7 +3660,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 			}
 			else if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
 				return false;
-				if(nNew>=1 && nNew<=4) {
+				/*if(nNew>=1 && nNew<=4) {
 					OMS=nNew-1;
 					return true;
 				}
@@ -3700,7 +3696,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 					}
 					return true;
 				}
-				return false;
+				return false;*/
 			}
 		}
 		else if(change==2) {
@@ -3955,7 +3951,8 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				}
 			}
 			else if(ops==104 || ops==105 || ops==202 || ops==301 || ops==302) {
-				if(item==5) {
+				assert(false); // should go to OMSBurnSoftware class
+				/*if(item==5) {
 					TV_ROLL=atof(Data);
 					return true;
 				}
@@ -4005,7 +4002,7 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 					dNew=atof(Data);
 					PEG7.data[item-19]=dNew;
 					return true;
-				}
+				}*/
 				return false;
 			}
 			item=0;
@@ -4343,7 +4340,8 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 		case 301:
 		case 302:
 		case 303:
-			if(item>=1 && item<=4) {
+			assert(false);
+			/*if(item>=1 && item<=4) {
 				OMS=item-1;
 			}
 			if(item==5) {
@@ -4400,7 +4398,7 @@ void Atlantis::ItemInput(int idp, int item, const char* Data)
 					TerminateManeuver();
 					MnvrToBurnAtt=false;
 				}
-			}
+			}*/
 			
 			break;
 		}
@@ -4499,9 +4497,9 @@ void Atlantis::LoadTrackManeuver()
 	}
 }
 
-void Atlantis::LoadBurnAttManeuver()
+void Atlantis::LoadBurnAttManeuver(const VECTOR3& BurnAtt)
 {
-	MnvrToBurnAtt=true;
+	//MnvrToBurnAtt=true;
 	// similar to track maneuver code
 	TRK=true;
 	MNVR=false;
@@ -4900,7 +4898,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 	} else if(!_strnicmp(line, "OPS", 3)) {
 		sscanf(line+3, "%u", &ops);
-	} else if(!_strnicmp(line, "PEG7", 4)) {
+		pSimpleGPC->SetMajorMode(ops);
+	/*} else if(!_strnicmp(line, "PEG7", 4)) {
 		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 	} else if(!_strnicmp(line, "WT", 2)) {
 		sscanf(line+2, "%lf", &WT);
@@ -4909,7 +4908,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "TV_ROLL", 7)) {
 		sscanf_s(line+7, "%lf", &TV_ROLL);
 	} else if(!_strnicmp(line, "MNVR", 4)) {
-		sscanf_s(line+4, "%d %d", &MNVRLOAD, &MnvrToBurnAtt);
+		sscanf_s(line+4, "%d %d", &MNVRLOAD, &MnvrToBurnAtt);*/
 	} else if(!_strnicmp(line, "ASSIST", 6)) {
 		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
 	} else if(!_strnicmp(line, "THROTTLE_BUCKET", 15)) {
@@ -5028,6 +5027,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     SetOrbiterConfiguration();
     break;
   }
+  if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
 
   UpdateMesh ();
   SetILoads();
@@ -5102,7 +5102,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_float(scn, "HEADS_UP", RollToHeadsUp/fps_to_ms);
   }
   //MNVR
-  if(ops==303 || ops==302 || ops==301 || ops==202 || ops==104 || ops==105 || ops==106) {
+  /*if(ops==303 || ops==302 || ops==301 || ops==202 || ops==104 || ops==105 || ops==106) {
 	  oapiWriteScenario_vec(scn, "PEG7", PEG7);
 	  oapiWriteScenario_float(scn, "WT", WT);
 	  sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
@@ -5110,7 +5110,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_float(scn, "TV_ROLL", TV_ROLL);
 	  sprintf_s(cbuf, 255, "%d %d", MNVRLOAD, MnvrToBurnAtt);
 	  oapiWriteScenario_string(scn, "MNVR", cbuf);
-  }
+  }*/
   //DAP
   oapiWriteScenario_int (scn, "TGT_ID", TGT_ID);
   oapiWriteScenario_int (scn, "BODY_VECT", BODY_VECT);
@@ -5314,7 +5314,7 @@ void Atlantis::clbkPostCreation ()
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 
-	if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
+	/*if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
 		if(MNVRLOAD) {
 			LoadManeuver();
 			if(MnvrToBurnAtt) LoadBurnAttManeuver();
@@ -5324,7 +5324,7 @@ void Atlantis::clbkPostCreation ()
 		if(MNVR) LoadInertialManeuver();
 		else if(TRK) LoadTrackManeuver();
 		else if(ROT) LoadRotationManeuver();
-	}
+	}*/
 
 	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
 
@@ -5416,12 +5416,18 @@ void Atlantis::clbkPostCreation ()
 	MPSHeIsolA[2].Connect(pBundle, 2);
 	MPSHeIsolB[2].Connect(pBundle, 2);
 
-	pBundle=bundleManager->CreateBundle("LOMS", 2);
+	pBundle=bundleManager->CreateBundle("LOMS", 5);
 	OMSArm[LEFT].Connect(pBundle, 0);
 	OMSArmPress[LEFT].Connect(pBundle, 1);
-	pBundle=bundleManager->CreateBundle("ROMS", 2);
+	OMSFire[LEFT].Connect(pBundle, 2);
+	OMSPitch[LEFT].Connect(pBundle, 3);
+	OMSYaw[LEFT].Connect(pBundle, 4);
+	pBundle=bundleManager->CreateBundle("ROMS", 5);
 	OMSArm[RIGHT].Connect(pBundle, 0);
 	OMSArmPress[RIGHT].Connect(pBundle, 1);
+	OMSFire[RIGHT].Connect(pBundle, 2);
+	OMSPitch[RIGHT].Connect(pBundle, 3);
+	OMSYaw[RIGHT].Connect(pBundle, 4);
 
 	// ports for pan/tilt and cam settings
 	DiscreteBundle* pCamBundles[5];
@@ -5636,7 +5642,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SeparateBoosters (met);
 			tSRBSep=met;
 			bManualSeparate = false;
-			ops=103;		//Replace by signal to GPC
+			SetGPCMajorMode(103);		//Replace by signal to GPC
 			CalcThrustAngles();
 		}
 		else {
@@ -5668,7 +5674,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-			if(ops==101) ops=102;
+			if(ops==101) SetGPCMajorMode(102);
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -8483,6 +8489,17 @@ unsigned int Atlantis::GetGPCMajorMode() const
 	return ops;
 }
 
+void Atlantis::SetGPCMajorMode(unsigned int newMajorMode)
+{
+	ops = newMajorMode;
+	pSimpleGPC->SetMajorMode(ops);
+}
+
+double Atlantis::GetMET() const
+{
+	return met;
+}
+
 void Atlantis::CreateOrbiterTanks()
 {
 	int i;
@@ -9098,13 +9115,26 @@ ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, doub
 	return AddAnimationComponent(anim, state0, state1, trans, parent);
 }
 
-void Atlantis::OMSEngControl(unsigned short usEng) const
+void Atlantis::OMSEngControl(unsigned short usEng)
 {
 	if(GetPropellantMass(oms_helium_tank[usEng])>0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], ph_oms);
 	}
 	else if(GetPropellantMass(oms_helium_tank[usEng])<=0.0 || (!OMSArm[usEng] && !OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], NULL);
+	}
+	
+	if(OMSFire[usEng]) {
+		SetThrusterLevel(th_oms[usEng], 1.0);
+	}
+	else {
+		SetThrusterLevel(th_oms[usEng], 0.0);
+	}
+
+	double pitch = OMSPitch[usEng].GetVoltage()*OMS_PITCH_RANGE;
+	double yaw = OMSYaw[usEng].GetVoltage()*OMS_YAW_RANGE;
+	if(!Eq(pitch, curOMSPitch[usEng], 0.01) || !Eq(yaw, curOMSYaw[usEng], 0.01)) {
+		GimbalOMS(usEng, pitch, yaw);
 	}
 }
 

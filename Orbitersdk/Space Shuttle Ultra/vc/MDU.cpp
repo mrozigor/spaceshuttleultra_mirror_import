@@ -411,34 +411,28 @@ namespace vc {
 			}
 		}
 
-		if(STS()->ops==201) {
-			if(prim_idp) {
-				//if DISP is not set, show appropriate SPEC/default display
-				if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-					if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
-					else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+		if(!prim_idp->OnPaint(this)) {
+			if(STS()->ops==201) {
+				if(prim_idp) {
+					//if DISP is not set, show appropriate SPEC/default display
+					if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
+						if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
+						else if(prim_idp->GetSpec()==20) DAP_CONFIG();
+						else {
+							char cbuf[55];
+							sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
+						}
+					}
 					else {
 						char cbuf[55];
-						sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
+						sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
 					}
+					//else UNIVPTG();
 				}
 				else {
-					char cbuf[55];
-					sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
+					PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 				}
-				//else UNIVPTG();
 			}
-			else {
-				PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
-			}
-		}
-		else if(STS()->ops==104 || STS()->ops==105 || STS()->ops==106 || STS()->ops==202 
-			|| STS()->ops==301 || STS()->ops==302 || STS()->ops==303)
-		{
-			MNVR();
-		}
-		else {
-			prim_idp->OnPaint(this);
 		}
 		
 		//print Scratch Pad line
@@ -578,7 +572,7 @@ namespace vc {
 		PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
 	}
 
-	void MDU::MNVR()
+	/*void MDU::MNVR()
 	{
 		int minutes, seconds;
 		int timeDiff;
@@ -854,7 +848,7 @@ namespace vc {
 		//TextOut(hDC, 185, 171, "SURF DRIVE", 10);
 		//TextOut(hDC, 185, 180, "  ON   39", 9);
 		//TextOut(hDC, 185, 189, "  OFF  40", 9);
-	}
+	}*/
 
 
 	void MDU::DAP_CONFIG()

@@ -1,4 +1,5 @@
 #include "SSUMath.h"
+#include "Atlantis_defs.h"
 
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
 {	
@@ -264,4 +265,15 @@ double tableterp(const double* table, const double* listrow, int n_row, const do
 	//  sprintf(oapiDebugString(),"rowlookup %f collookup %f i_row %d row0 %f row1 %f t %f result %f",rowlookup,collookup,i_row,row0,row1,t,result);
 	return result;
 	//  return 0;
+}
+
+VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw)
+{
+	VECTOR3 dir;
+	if(side==0) dir=L_OMS_DIR;
+	else dir=R_OMS_DIR;
+
+	dir=RotateVectorX(dir, -pitch); //positive OMS gimbal directs thrust downwards
+	dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
+	return dir;
 }

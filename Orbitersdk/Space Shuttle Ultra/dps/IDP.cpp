@@ -1,4 +1,5 @@
 #include "IDP.h"
+#include "SimpleGPCSystem.h"
 
 namespace dps {
 
@@ -193,7 +194,8 @@ namespace dps {
 	void IDP::OnExec() {
 		// check if EXEC was pressed without any ITEM input
 		if(cScratchPadLine[0]=='\0' || IsCompleteLine()) {
-			STS()->Input(GetIDPID()-1, 10, NULL);
+			//STS()->Input(GetIDPID()-1, 10, NULL);
+			STS()->pSimpleGPC->ExecPressed(GetSpec());
 		}
 		else {
 			std::string scratchPad=GetScratchPadLineString();
@@ -220,13 +222,15 @@ namespace dps {
 				}
 				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
 				unsigned int item=atoi(Name.c_str());
-				STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
+				if(!STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str()))
+					STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 				Data=""; //clear string
 				while(i<scratchPad.length()) {
 					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
 						if(Data.length()>0) {
 							item++;
-							STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
+							if(!STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str()))
+								STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 						}
 						Data=""; //clear string
 					}
@@ -235,7 +239,8 @@ namespace dps {
 				}
 				if(Data.length()>0) {
 					item++;
-					STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
+					if(!STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str()))
+						STS()->ItemInput(GetIDPID()-1, item, Data.c_str());
 				}
 			}
 		}
@@ -253,9 +258,13 @@ namespace dps {
 
 		//Clear text buffer, if needed
 
-		PrintTime(pMDU);
+		//PrintTime(pMDU);
 		//delegate painting to software
 
+		if(GetDisp() != dps::MODE_UNDEFINED)
+			return STS()->pSimpleGPC->OnPaint(GetDisp(), pMDU);
+		else
+			return STS()->pSimpleGPC->OnPaint(GetSpec(), pMDU);
 
 		return true;
 	}

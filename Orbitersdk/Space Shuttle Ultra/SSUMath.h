@@ -48,6 +48,7 @@ void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
 double NullStartAngle(double Rate, double Mass, double Moment, double Torque);
+VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw);
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);

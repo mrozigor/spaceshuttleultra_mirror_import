@@ -3,7 +3,8 @@
 #pragma once
 
 #include "../PIDControl.h"
-#include "../AtlantisSubsystem.h"
+//#include "../AtlantisSubsystem.h"
+#include "SimpleGPCSoftware.h"
 #include "../SSUEngConst.h"
 #include "discsignals.h"
 
@@ -16,7 +17,7 @@ using namespace discsignals;
  * DAP during entry, TAEM and A/L phases (MM304 and MM305)
  * At the moment, only AOA autopilot during entry is working
  */
-class AerojetDAP : public AtlantisSubsystem
+class AerojetDAP : public SimpleGPCSoftware
 {
 	bool bFirstStep;
 
@@ -49,12 +50,14 @@ class AerojetDAP : public AtlantisSubsystem
 	VECTOR3 degCurrentRates;
 	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering aronud an axis
 public:
-	AerojetDAP(AtlantisSubsystemDirector* _director);
+	AerojetDAP(SimpleGPCSystem* _gpc);
 	virtual ~AerojetDAP();
 
 	virtual void Realize();
 
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
+
+	virtual bool OnMajorModeChange(unsigned int newMajorMode);
 private:
 	void SetThrusterLevels();
 	/**
