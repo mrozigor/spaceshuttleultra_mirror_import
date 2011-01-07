@@ -339,7 +339,7 @@ void Crawler::clbkPostCreation()
 	pgRearCab.Realize();
 
 	// connect DiscPorts
-	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 7);
+	DiscreteBundle* pBundle = pBundleManager->CreateBundle("CRAWLER_STEERING", 8);
 	port_steeringCommand[0].Connect(pBundle, 0);
 	port_steeringCommand[1].Connect(pBundle, 1);
 	greatCircle.Connect(pBundle, 2);
@@ -347,6 +347,7 @@ void Crawler::clbkPostCreation()
 	independent.Connect(pBundle, 4);
 	port_steeringActual[0].Connect(pBundle, 5);
 	port_steeringActual[1].Connect(pBundle, 6);
+	port_steering2Degrees.Connect(pBundle, 7);
 
 	port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
 	port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
@@ -423,19 +424,22 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	
 	} else return;
 
+	double steeringAngleScaleFactor;
+	if(port_steering2Degrees) steeringAngleScaleFactor = 2.0/(MAX_TURN_ANGLE*DEG);
+	else steeringAngleScaleFactor = 1.0;
 	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt;
+		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
 		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = max(-1,steeringCommanded[viewPos] - dAngle);
+			steeringCommanded[viewPos] = max(-steeringAngleScaleFactor,steeringCommanded[viewPos] - dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
 			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
 			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
 			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 		}	
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt;
+		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
 		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = min(1, steeringCommanded[viewPos] + dAngle);
+			steeringCommanded[viewPos] = min(steeringAngleScaleFactor, steeringCommanded[viewPos] + dAngle);
 			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
 			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
 			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
@@ -465,10 +469,8 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		}
 	}
 
-	const double r = 45; // 150 ft
+	const double r = 127; // 150 ft
 	double dheading = ((steeringActual[1]-steeringActual[0]) * currentSpeed * simdt) / (2*r);
-	// turn speed is only doubled when time acc is multiplied by ten:
-	dheading = (pow(5.0, log10(timeW))) * dheading / timeW;
 	vs.surf_hdg += dheading;
 	if(vs.surf_hdg< 0) vs.surf_hdg += 2.0 * PI;
 	if(vs.surf_hdg >= 2.0 * PI) vs.surf_hdg -= 2.0 * PI;

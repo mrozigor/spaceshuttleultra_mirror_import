@@ -17,6 +17,8 @@ namespace vc
 	const int PBI_ON_RED = 31;
 	const int PBI_GO = 62;
 	const int PBI_BLACK = 93;
+	const int PBI_6DEG = 124;
+	const int PBI_2DEG = 155;
 
 	const int LIGHT_WIDTH = 87;
 	const int LIGHT_HEIGHT = 67;

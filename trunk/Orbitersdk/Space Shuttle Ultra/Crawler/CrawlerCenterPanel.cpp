@@ -64,8 +64,9 @@ void CrawlerCenterPanel::DefineVCAnimations(UINT vcidx)
 void CrawlerCenterPanel::Realize()
 {
 	// connect disc ports
-	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 7);
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 8);
 	steering.Connect(pBundle, cabID);
+	steering2DegRange.Connect(pBundle, 7);
 
 	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
 	pSpeedGauge->ConnectPort(pBundle, 0);
@@ -78,7 +79,13 @@ void CrawlerCenterPanel::OnPreStep(double SimT, double SimDT, double MJD)
 {
 	CrawlerPanel::OnPreStep(SimT, SimDT, MJD);
 
-	double steeringAnim = steering.GetVoltage()/2.0 + 0.5;
+	// get steering input (between -1 and 1) and set steering wheel position
+	// in 2 degree mode, full steering deflection corresponds to 2 degree track angle
+	// in real life, steering wheel angle should determine steering command; here it's the other way aronud
+	double steeringAnim;
+	if(steering2DegRange) steeringAnim  = steering.GetVoltage()*1.5 + 0.5;
+	else steeringAnim = steering.GetVoltage()/2.0 + 0.5;
+	sprintf_s(oapiDebugString(), 255, "Steering: %f", steering.GetVoltage());
 	V()->SetAnimation(anim_steering, steeringAnim);
 }
 
