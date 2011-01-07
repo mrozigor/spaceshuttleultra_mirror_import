@@ -12,6 +12,7 @@ CrawlerRightPanel::CrawlerRightPanel(Crawler* _v, const std::string& _ident, CRA
 	Add(pIndependent = new CrawlerPBI(_v, "Independent"));
 	Add(pCrab = new CrawlerPBI(_v, "Crab"));
 	Add(pGreatCircle = new CrawlerPBI(_v, "GreatCircle"));
+	Add(pMode = new CrawlerPBI(_v, "Mode"));
 
 	Add(pDesSteeringAngleValue = new CrawlerDigitalDisplay(_v, "DesiredSteeringAngleValue"));
 	Add(pDesSteeringAngleGauge = new CrawlerBarGauge(_v, "DesiredSteeringAngleGauge", false));
@@ -45,15 +46,16 @@ void CrawlerRightPanel::RegisterVC()
 
 	oapiVCRegisterArea(AID_RIGHT_MIN+aid_ofs, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
 	oapiVCSetAreaClickmode_Quadrilateral(AID_RIGHT_MIN+aid_ofs,
-		TransformVector(_V(-0.310, 0.020, -0.076))+ofs,
-		TransformVector(_V(-0.404, 0.020, 0.048))+ofs, 
-		TransformVector(_V(-0.297, -0.040, -0.071))+ofs,
-		TransformVector(_V(-0.398, -0.040, 0.052))+ofs);
+		TransformVector(_V(-0.267, 0.087, -0.194))+ofs,
+		TransformVector(_V(-0.420, 0.087, -0.026))+ofs, 
+		TransformVector(_V(-0.267, -0.040, -0.108))+ofs,
+		TransformVector(_V(-0.420, -0.040, 0.073))+ofs);
 
 	SURFHANDLE panels_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 1);
 	oapiVCRegisterArea(AID_GCIR_PBI+aid_ofs, _R(728, 840, 788, 870), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
 	oapiVCRegisterArea(AID_INDEP_PBI+aid_ofs, _R(863, 840, 923, 870), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
 	oapiVCRegisterArea(AID_CRAB_PBI+aid_ofs, _R(795, 840, 855, 870), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
+	oapiVCRegisterArea(AID_MODE_PBI+aid_ofs, _R(728, 911, 788, 941), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
 
 	SURFHANDLE gauges_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 2);
 	oapiVCRegisterArea(AID_STEERING_DES_VALUE+aid_ofs, _R(48, 304, 198, 346), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, gauges_tex);
@@ -78,13 +80,22 @@ void CrawlerRightPanel::DefineVC()
 
 	DefineSteeringModePBI(pGreatCircle);
 	pGreatCircle->AddAIDToRedrawEventList(AID_GCIR_PBI+aid_ofs);
-	pGreatCircle->SetMouseRegion(0.0f, 0.45f, 0.130f, 0.88f);
+	pGreatCircle->SetMouseRegion(0.204822f, 0.819111f, 0.330464f, 0.960083f);
 	DefineSteeringModePBI(pCrab);
 	pCrab->AddAIDToRedrawEventList(AID_CRAB_PBI+aid_ofs);
-	pCrab->SetMouseRegion(0.134f, 0.510f, 0.279f, 0.867f);
+	pCrab->SetMouseRegion(0.303274f, 0.828959f, 0.426405f, 0.970183f);
 	DefineSteeringModePBI(pIndependent);
 	pIndependent->AddAIDToRedrawEventList(AID_INDEP_PBI+aid_ofs);
-	pIndependent->SetMouseRegion(0.289f, 0.516f, 0.431f, 0.872f);
+	pIndependent->SetMouseRegion(0.402592f, 0.842065f, 0.532279f, 0.989447f);
+
+	pMode->SetBaseCoords(0, 0);
+	pMode->SetDimensions(60, 30);
+	pMode->AllowReset(true);
+	pMode->SetSourceImage(g_Resources.pbi_lights);
+	pMode->SetSourceCoords(false, 0, PBI_6DEG);
+	pMode->SetSourceCoords(true, 0, PBI_2DEG);
+	pMode->AddAIDToRedrawEventList(AID_MODE_PBI+aid_ofs);
+	pMode->SetMouseRegion(0.0, 0.0, 0.106300f, 0.128120f);
 
 	pDesSteeringAngleValue->AddAIDToRedrawEventList(AID_STEERING_DES_VALUE+aid_ofs);
 	DefineSteeringAngleDisplay(pDesSteeringAngleValue);
@@ -141,7 +152,7 @@ void CrawlerRightPanel::DefineSteeringAngleDisplay(CrawlerDigitalDisplay* pDispl
 
 void CrawlerRightPanel::Realize()
 {
-	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 7);
+	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_STEERING", 8);
 
 	pDesSteeringAngleValue->ConnectPort(pBundle, cabID);
 	pDesSteeringAngleGauge->ConnectPort(pBundle, cabID);
@@ -153,6 +164,7 @@ void CrawlerRightPanel::Realize()
 	pGreatCircle->ConnectPort(pBundle, 2);
 	pCrab->ConnectPort(pBundle, 3);
 	pIndependent->ConnectPort(pBundle, 4);
+	pMode->ConnectPort(pBundle, 7);
 
 	// setup group ports
 	pGreatCircle->ConnectGroupPort(pBundle, 3);

@@ -35,6 +35,7 @@ private:
 	UINT anim_steering;
 
 	DiscInPort steering;
+	DiscInPort steering2DegRange;
 };
 
 };

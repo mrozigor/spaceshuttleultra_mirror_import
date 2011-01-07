@@ -15,6 +15,7 @@ class CrawlerRightPanel : public CrawlerPanel
 	CrawlerPBI* pGreatCircle;
 	CrawlerPBI* pIndependent;
 	CrawlerPBI* pCrab;
+	CrawlerPBI* pMode;
 
 	CrawlerDigitalDisplay* pLeftSteeringAngleValue; // shows angle for this cab
 	CrawlerDigitalDisplay* pRightSteeringAngleValue; // shows angle for other cab
