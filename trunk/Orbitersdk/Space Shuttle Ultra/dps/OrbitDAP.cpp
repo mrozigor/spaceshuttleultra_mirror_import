@@ -1,5 +1,5 @@
 #include "OrbitDAP.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 #include "../ParameterValues.h"
 
 namespace dps

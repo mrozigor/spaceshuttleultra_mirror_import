@@ -6,8 +6,8 @@ namespace dps
 	  "T -%f - Main engine %d failure",
 	  "T -%f - Hydraulic system failure (APUs not on?)"
 	};
-	RSLS::RSLS(Atlantis* _sts)
-		: GPCSoftware(_sts)
+	RSLS::RSLS()
+		: GPCSoftware("G1PL1SEQ")
 	{
 		launch_mjd=-1.0;
 		timeToLaunch=-1.0;
@@ -23,14 +23,18 @@ namespace dps
 		if(!Active) return;
 		timeToLaunch=(launch_mjd-mjd)*86400.0;
 
+		
+		/*
     	if(timeToLaunch<=10.0 && lastTTL>=10.0)	sts->StartROFIs();
 		if(timeToLaunch<=8.0 && lastTTL>=8.0) sts->SignalGSEStart();
 		if(timeToLaunch<=6.60 && lastTTL>=6.60)	sts->SetSSMEThrustLevel(3, 1.0);
 		if(timeToLaunch<=6.48 && lastTTL>=6.48)	sts->SetSSMEThrustLevel(2, 1.0);
 		if(timeToLaunch<=6.36 && lastTTL>=6.36)	sts->SetSSMEThrustLevel(1, 1.0);
+		*/
 
 		bool RSLSAbort=false;
 		if(timeToLaunch<=2.0) {
+			/*
 		  if(sts->GetSSMEThrustLevel(1)<0.9) {
 			RSLSAbort=true;
 			RSLSAbortTime=timeToLaunch;
@@ -55,13 +59,16 @@ namespace dps
 			RSLSAbortCause=&RSLSAbortCauses[1][0];
 			RSLSAbortData=1;
 		  }
+		  */
 		}
 
 		if(RSLSAbort) {
 			Active=false;
+			/*
 			sts->SetSSMEThrustLevel(1, 0);
 			sts->SetSSMEThrustLevel(2, 0);
 			sts->SetSSMEThrustLevel(3, 0);
+			*/
             Aborted=true;
 //				NOTEHANDLE nhAbort = oapiCreateAnnotation(true, 1.5, _V(1.0, 1.0, 0.0));
 //             	oapiAnnotationSetPos(nhAbort, 0.05, 0.05, 0.75, 0.1);
@@ -74,12 +81,16 @@ namespace dps
 		}
 
 		//launch
+		/*
 		if(timeToLaunch<=0.0 && !sts->GetLiftOffFlag() && !Aborted) {
+			
 			sts->SignalGSEBreakHDP();
 			sts->IgniteSRBs();
 			sts->TriggerLiftOff();
+			
 			Active=false;
 		}
+		*/
 
 		lastTTL=timeToLaunch;
 	}

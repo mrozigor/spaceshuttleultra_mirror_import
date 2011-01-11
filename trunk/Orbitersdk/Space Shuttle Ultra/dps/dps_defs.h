@@ -60,7 +60,7 @@
 namespace dps {
 
 	class IDP;
-	class GPC;
+	
 	class SimpleGPCSystem;
 	class OrbitDAP; // temporary
 	class GNCSoftware;
@@ -72,7 +72,9 @@ namespace dps {
 	class ShuttleBus;
 	class ShuttleBusManager;
 	class TimeBus;
+	class GPC;
 	class AP101S;
+	class SimpleGPC;
 	/**
 	 * Connection between Shuttle Bus and subsystems.
 	 */
@@ -110,12 +112,12 @@ namespace dps {
 		PL = 2
 	} MAJORFUNCTION;
 
-	typedef struct {
+	struct DEUCHAR {
 		char cSymbol;
 		char cAttr;
-	} DEUCHAR;
+	};
 
-	typedef struct {
+	struct DEU_STATUS {
 		word16 bite1;
 		word16 bite2;
 		word16 bite3;
@@ -124,12 +126,34 @@ namespace dps {
 		word16 cmd_len;
 
 		gpcchar cmd_line[32];
-	} DEU_STATUS;
+	};
 
-	typedef struct {
+	/**
+	 * @brief low-level HAL/S FC event type
+	 * Event type as used in AP-101 computers. 
+	 */
+	struct EVENT {
+		/**
+		 * 
+		 */
 		int event_used:15;
 		int event_state:1;
-	} EVENT;
+	};
+
+	struct PSW {
+		unsigned int uIA:24;
+		unsigned int uPM:4;
+		unsigned int uCC:2;
+		unsigned int uILC:2;
+		unsigned int uIntCode:16;
+		unsigned int bProblemState:1;
+		unsigned int bWaitState:1;
+		unsigned int bMachineCheckMask:1;
+		unsigned int bASCIIMode:1;
+		unsigned int bProtKey:4;
+		unsigned int SystemMask:8;
+	};
+
 
 	/**
 	 * @brief IRIG-B compatible time frame
@@ -141,7 +165,7 @@ namespace dps {
 	 * It takes half a second to send to actual time in 5 pulse coded bytes
 	 * The other 5 bytes of the time are not used but get transmitted anyway.
 	 */
-	typedef struct {
+	struct IRIGB_FRAME {
 		unsigned int uSeconds:7;
 		unsigned int uMinutes:7;
 		unsigned int uHours:6;
@@ -151,16 +175,17 @@ namespace dps {
 		unsigned char uP7:8;
 		unsigned char uP8:8;
 		unsigned char uP9:8;
-	} IRIGB_FRAME;
+	};
 
 
-	typedef struct {
+	struct GPC_TIME_RECORD {
 		unsigned int uSeconds:7;
 		unsigned int uMinutes:7;
 		unsigned int uHours:6;
 		unsigned int uDays:9;
-	} GPC_TIME_RECORD;
+	};
 
+	/*
 	typedef struct {
 		unsigned char ucGPCID;
 		unsigned short ucMajorFunction;
@@ -172,16 +197,18 @@ namespace dps {
 		short sDataPage;
 		long lData[16];
 	} DEU_COMMAND;
+	*/
 
+	/*
 	typedef struct {
 		unsigned char ucMajorFunction;
 		unsigned long ulKeyMap;
 		unsigned short usDataSize;
 		long lData[32];
 	} DEU_DATA;
+	*/
 
-	struct BUS_COMMAND_WORD 
-	{
+	struct BUS_COMMAND_WORD {
 		unsigned int word_count:5;
 		union {
 			struct{
@@ -219,6 +246,8 @@ namespace dps {
 		t.word_count = (word_count-1);
 		return t;
 	};
+
+
 
 
 };

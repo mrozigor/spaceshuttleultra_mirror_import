@@ -137,7 +137,7 @@ void CrawlerRightPanel::DefineSteeringModePBI(CrawlerPBI* pPBI) const
 
 void CrawlerRightPanel::DefineSteeringAngleGauge(CrawlerBarGauge* pGauge) const
 {
-	pGauge->SetScaleValue(MAX_TURN_ANGLE*DEG);
+	pGauge->SetScaleValue(static_cast<float>(MAX_TURN_ANGLE*DEG));
 	pGauge->SetRange(-7.0, 7.0);
 	pGauge->SetBaseCoords(0, 0);
 	pGauge->SetDimensions(481, 28, 37);
@@ -145,7 +145,7 @@ void CrawlerRightPanel::DefineSteeringAngleGauge(CrawlerBarGauge* pGauge) const
 
 void CrawlerRightPanel::DefineSteeringAngleDisplay(CrawlerDigitalDisplay* pDisplay) const
 {
-	pDisplay->SetScaleValue(MAX_TURN_ANGLE*DEG);
+	pDisplay->SetScaleValue(static_cast<float>(MAX_TURN_ANGLE*DEG));
 	pDisplay->SetBaseCoords(0, 0);
 	pDisplay->SetDimensions(150, 42, 5);
 }

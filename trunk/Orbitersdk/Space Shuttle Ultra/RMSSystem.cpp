@@ -1,7 +1,7 @@
 #include "RMSSystem.h"
 #include "ParameterValues.h"
 #include "meshres_RMS.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 
 RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE)

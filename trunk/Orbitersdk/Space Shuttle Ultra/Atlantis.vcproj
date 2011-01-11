@@ -84,11 +84,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib libUltra.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\lib"
+				AdditionalLibraryDirectories="..\lib;..\lib\Lua;..\libUltra\lib"
 				IgnoreDefaultLibraryNames="msvcirt.lib;MSVCRTD.lib"
 				SubSystem="2"
 				StackReserveSize="4194304"
@@ -185,11 +185,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\lib"
+				AdditionalLibraryDirectories="..\lib;..\lib\Lua"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="msvcirt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
@@ -281,11 +281,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\lib"
+				AdditionalLibraryDirectories="..\lib;..\lib\Lua"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="msvcirt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
@@ -411,6 +411,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\AODModule.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\AP101S.cpp"
 				>
 			</File>
@@ -482,10 +486,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BasicValve.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\vc\BasicVCComponent.cpp"
 				>
 			</File>
@@ -545,26 +545,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\libUltra\src\DiscInPort.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\libUltra\src\DiscOutPort.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\libUltra\src\DiscreteBundle.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\libUltra\src\DiscreteBundleManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\libUltra\src\DiscretePort.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\mps\EIU.cpp"
 				>
 			</File>
@@ -593,6 +573,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\HALS_Compilations.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\HALS_Types.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hydraulics\HydActuator.cpp"
 				>
 			</File>
@@ -606,6 +594,10 @@
 			</File>
 			<File
 				RelativePath=".\eps\Inverter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\IOModule.cpp"
 				>
 			</File>
 			<File
@@ -796,6 +788,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\SimpleGPC.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\SimpleGPCSoftware.cpp"
 				>
 			</File>
@@ -808,7 +804,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SSUMath.cpp"
+				RelativePath=".\SSULua.cpp"
 				>
 			</File>
 			<File
@@ -836,11 +832,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vc\Talkback.cpp"
+				RelativePath=".\dps\Symbol.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ValveTypeBool.cpp"
+				RelativePath=".\vc\Talkback.cpp"
 				>
 			</File>
 			<File
@@ -949,30 +945,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\discsignals\DiscInPort.h"
-				>
-			</File>
-			<File
-				RelativePath=".\discsignals\DiscOutPort.h"
-				>
-			</File>
-			<File
-				RelativePath=".\discsignals\DiscreteBundle.h"
-				>
-			</File>
-			<File
-				RelativePath=".\discsignals\DiscreteBundleManager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\discsignals\DiscretePort.h"
-				>
-			</File>
-			<File
-				RelativePath=".\discsignals\discsignals.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\dps_defs.h"
 				>
 			</File>
@@ -1009,6 +981,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\HALS_Compilations.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\HALS_Types.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hydraulics\HydActuator.h"
 				>
 			</File>
@@ -1018,6 +998,10 @@
 			</File>
 			<File
 				RelativePath=".\gnc\IMU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\IOModule.h"
 				>
 			</File>
 			<File
@@ -1034,6 +1018,10 @@
 			</File>
 			<File
 				RelativePath=".\MCA.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\MDM.h"
 				>
 			</File>
 			<File
@@ -1102,6 +1090,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\OrbiterSoundSDK35.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelA1U.h"
 				>
 			</File>
 			<File

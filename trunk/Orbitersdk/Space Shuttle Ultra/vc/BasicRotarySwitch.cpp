@@ -1,5 +1,5 @@
 #include "BasicRotarySwitch.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 #include "../Atlantis.h"
 
 namespace vc

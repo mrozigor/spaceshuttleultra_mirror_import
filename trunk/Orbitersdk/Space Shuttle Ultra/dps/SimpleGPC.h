@@ -4,6 +4,7 @@
 
 namespace dps {
 
+	
 	class SimpleGPC: public GPC
 	{
 		PREFERRED_STORAGE* pPrefStorage;
@@ -23,7 +24,7 @@ namespace dps {
 		virtual void MinorCycle(double fSimT, double fDeltaT, double fMJD);
 		virtual void MajorCycle(double fSimT, double fDeltaT, double fMJD);
 	public:
-		SimpleGPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
+		SimpleGPC(AtlantisSubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
 		virtual ~SimpleGPC();
 		virtual void IPL();
 		virtual void LoadMemoryConfiguration(unsigned short usMemConfig);

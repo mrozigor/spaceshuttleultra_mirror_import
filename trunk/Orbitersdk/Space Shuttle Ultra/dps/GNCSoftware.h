@@ -33,7 +33,7 @@ namespace dps
 	class GNCSoftware : public GPCSoftware
 	{
 	public:
-		GNCSoftware(Atlantis* _sts);
+		GNCSoftware(const std::string& name);
 
 		//virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 		virtual void OnPostStep(double SimT, double DeltaT, double MJD);
@@ -42,7 +42,7 @@ namespace dps
 		void Maneuver(double dt);
 		void SetILoads();
 		//scheduled functions
-		static void UpdateElements(Atlantis* sts);
+		//static void UpdateElements(Atlantis* sts);
 	};
 };
 

@@ -25,46 +25,33 @@
 #ifndef _GPCSOFTWARE_H
 #define _GPCSOFTWARE_H
 
-#include "../Atlantis.h"
+#include "dps_defs.h"
+#include "HALS_Types.h"
+#include "HALS_Compilations.h"
+//#include "SimpleGPC.h"
 
-typedef void (*GPCSCHEDULEDFUNC) (Atlantis*);
+
 
 namespace dps
 {	
-	class ScheduledFunction
+	/**
+	 *	@brief Software to be used for the simple GPC model
+	 * 
+	 *  Does only contain code, data is stored in GPC RAM.
+	 */
+	class GPCSoftware: public hals::Compilation
 	{
 	public:
-		ScheduledFunction(Atlantis* _sts, double _period, GPCSCHEDULEDFUNC _function);
-		void Step(double simt);
-	private:
-		GPCSCHEDULEDFUNC function;
-		Atlantis* sts;
-
-		/**
-		 * Sim time at which to call function
-		 */
-		double CallTime;
-		/**
-		 * Period between function calls
-		 */
-		double period;
-	};
-
-	class GPCSoftware
-	{
-	public:
-		GPCSoftware(Atlantis* _sts);
+		GPCSoftware(const std::string& name = "__unnamed");
 		~GPCSoftware();
 
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-		virtual void OnPostStep(double SimT, double DeltaT, double MJD);
-
-		static GPCSoftware* CreateSoftware(const string& _softname);
+		virtual word16 operator() (word16 instr_addr);
 	protected:
-		Atlantis* sts;
+		word32 GPR(unsigned int index) const;
+		void GPR(unsigned int index, word32 value);
 
-		//scheduled GPC functions
-		vector<ScheduledFunction*> ScheduledFunctions;
+		float FPR(unsigned int index) const;
+		void FPR(unsigned int index, float value);
 	};
 };
 

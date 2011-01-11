@@ -4,7 +4,7 @@
 #include "util/Stopwatch.h"
 #include <OrbiterSoundSDK35.h>
 #include <cstdio>
-#include "SSUMath.h"
+#include <UltraMath.h>
 
 //extern int tpir(const double* list, int n_items, double target);
 //extern double linterp(double x0, double y0, double x1, double y1, double x);

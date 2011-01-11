@@ -3,7 +3,7 @@
 
 namespace dps {
 
-	SimpleGPC::SimpleGPC(SubsystemDirector* _direct, const string& _ident, unsigned short usGPCID) 
+	SimpleGPC::SimpleGPC(AtlantisSubsystemDirector* _direct, const string& _ident, unsigned short usGPCID) 
 		: GPC(_direct, _ident, usGPCID)
 	{
 		

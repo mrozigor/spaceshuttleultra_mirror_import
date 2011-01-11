@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  RSLS software definition
+  Panel A6 definition
 
 
 
@@ -22,33 +22,47 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef _RSLS_H
-#define _RSLS_H
 #pragma once
 
-#include "../Atlantis.h"
-#include "dps_defs.h"
-#include "GPCSoftware.h"
+#include "BasicPanel.h"
+#include "StandardSwitch.h"
+#include "StandardRotarySwitch.h"
+#include "Talkback.h"
+#include "PushButtonIndicator.h"
 
-namespace dps
+namespace vc
 {
-	class RSLS : public GPCSoftware
+	class PanelA1U: public BasicPanel
 	{
 	public:
-		RSLS();
-		~RSLS();
+		PanelA1U(Atlantis* _sts);
+		virtual ~PanelA1U();
 
-		virtual void OnPostStep(double simT, double dT, double mjd);
+		virtual void DefineVC();
+		virtual void RegisterVC();
+		virtual void Realize();
 
-		//Communication with LCC
-		bool SychronizeCountdown(double mjd);
-		void StartRSLSSequence();
+		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+
+		//virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
+		//virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	private:
-		double launch_mjd, timeToLaunch, lastTTL, RSLSAbortTime;
-		bool Active,Aborted;
-		char* RSLSAbortCause;
-		int RSLSAbortData;
+		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
+		//void UpdatePBIs();
+
+		StdSwitch3* SignalStrengthSelect;
+		StdSwitch3* SlewAzimuth;
+		StdSwitch3* SlewElevation;
+		StdSwitch2* SlewRate;
+		StdSwitch2* Control;
+		RotaryDemuxSwitch* SteeringMode;
+		StdSwitch2* Search;
+		StdSwitch3* Power;
+		StdSwitch3* Mode;
+		StdSwitch3* RadarOutput;
+		RotaryDemuxSwitch* HighDataRateSP;
+		RotaryDemuxSwitch* LowDataRateSP;
+		LockableLever2* TAGSEncrypt;
+
 	};
 };
-
-#endif //_RSLS_H

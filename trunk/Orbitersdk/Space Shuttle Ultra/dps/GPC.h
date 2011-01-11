@@ -39,6 +39,34 @@ namespace dps {
 
 #pragma pack()
 
+	struct BCE_LOCAL_STORE {
+		unsigned long bce_program_counter;
+		unsigned char bce_identity_register;
+		unsigned short bce_instruction_register_hi;
+		unsigned long bce_timeout_register;
+		unsigned short bce_instruction_register_lo;
+		unsigned long bce_base_register;
+		unsigned char bce_interface_unit_address_register;
+		unsigned short bce_status_hi;
+		unsigned long bce_status_lo;
+		unsigned long bce_status_registers;
+	};
+
+	struct MSC_LOCAL_STORE {
+		unsigned long msc_program_counter;
+		unsigned long msc_index_register;
+		unsigned short msc_instruction_hi;
+		unsigned short msc_accumulator_hi;
+		unsigned short msc_instruction_lo;
+		unsigned short msc_accumulator_lo;
+		unsigned long msc_external_call_register;
+		long msc_accumulator_register;
+		BCE_LOCAL_STORE bce_local_store;
+		
+	};
+
+	
+
 	typedef struct __psw {
 		unsigned int uIA:24;
 		unsigned int uPM:4;
@@ -139,19 +167,6 @@ namespace dps {
 		word16 tpsars17[60];
 	} PREFERRED_STORAGE;
 
-
-
-	/**
-	 * Quick and dirty IOP implementation, should be 
-	 * improved if possible.
-	 */
-	class IOP {
-	public:
-		IOP();
-		virtual ~IOP();
-		
-	};
-
 	/**
 	 * base class for all GPC subsystem units. Must implement IOP and CPU 
 	 * behavior. 
@@ -160,10 +175,37 @@ namespace dps {
 	protected:
 		unsigned short usGPCID;
 
+		/**
+		 * general purpose registers
+		 * 
+		 * used for most operating system calls for transfering
+		 * parameters
+		 */
 		long lGPR[16];
+		/**
+		 * floating power registers
+		 * 
+		 * used for some operating system calls for parameters
+		 */
 		float fFPR[8];
 
+		/**
+		 * Program status word, 64 bit bit field
+		 */
 		AP101PSW psw;
+
+		MSC_LOCAL_STORE msc_local_store;
+		/**
+		 * local store for each Bus Control Element
+		 * access happens over the shadow register bank in 
+		 * MSC_LOCAL_STORE.
+		 */
+		BCE_LOCAL_STORE bce_local_store[24];
+		/**
+		 * implementation of the programmed channel I/O instruction (PC)
+		 * 
+		 */
+		void PC(unsigned long bce_program_counter);
 	public:
 		GPC(AtlantisSubsystemDirector* _direct, const string& _ident, unsigned short usGPCID);
 		virtual ~GPC();
