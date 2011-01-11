@@ -5,8 +5,8 @@
 #include "../PIDControl.h"
 //#include "../AtlantisSubsystem.h"
 #include "SimpleGPCSoftware.h"
-#include "../SSUEngConst.h"
-#include "discsignals.h"
+#include <EngConst.h>
+#include <discsignals.h>
 
 namespace dps
 {

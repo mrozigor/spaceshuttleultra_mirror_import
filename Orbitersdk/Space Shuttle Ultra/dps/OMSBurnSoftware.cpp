@@ -2,7 +2,7 @@
 #include "OrbitDAP.h"
 #include "../Atlantis.h"
 #include "../ParameterValues.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 #include "IDP.h"
 
 namespace dps

@@ -1,5 +1,26 @@
 #include <UltraMath.h>
 
+unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
+	// char buf[64];
+	if(target<list[0]) return 0;
+	if(target>=list[list.size()-1]) return list.size()-2;
+	//  sprintf(oapiDebugString(),"target %f n_items %d ",target,n_items);
+	for(unsigned int i=1;i<list.size();i++) {
+		//if(i>10) {
+		//    sprintf(buf,"list[%d] %.2f ",i,list[i]);
+		//  strcat(oapiDebugString(),buf);
+		//}
+		if(list[i]>=target) {
+			//sprintf(buf,"result %d",i-1);
+			//strcat(oapiDebugString(),buf);
+			return i-1;
+		}
+	}
+	// sprintf(buf,"result %d",-46);
+	// strcat(oapiDebugString(),buf);
+	return 0; // we should never hit this point
+}
+
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
 {	
 	VECTOR3 Res = { 0, 0, 0 };

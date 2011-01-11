@@ -1,7 +1,7 @@
 #include "PanelR2.h"
 #include "../Atlantis.h"
 #include "../meshres_vc_additions.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 
 namespace vc
 {

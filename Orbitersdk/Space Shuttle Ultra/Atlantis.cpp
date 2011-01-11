@@ -70,7 +70,7 @@
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 #include <cassert>
 
 
@@ -114,6 +114,27 @@ inline void BeginLoggingAnims(void)
 {
 	animlog.open("SSUAnimation.log");
 	animlog << "ANIMATION LOG" << std::endl;
+}
+
+VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw)
+{
+	VECTOR3 dir;
+	if(side==0) dir=L_OMS_DIR;
+	else dir=R_OMS_DIR;
+
+	dir=RotateVectorX(dir, -pitch); //positive OMS gimbal directs thrust downwards
+	dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
+	return dir;
+}
+
+double NullStartAngle(double Rate, double Mass, double Moment, double Torque)
+{
+	if(!Eq(Rate, 0.0)) {
+		double Time = (Mass*Moment*Rate)/Torque;
+		double Angle=0.5*Rate*Time;
+		return DEG*Angle;
+	}
+	else return 0.0;
 }
 
 inline void LogAnim(const std::string& name, UINT anim)
@@ -457,8 +478,8 @@ gncsoftware(NULL)
   oapiWriteLog("(Space Shuttle Ultra) Say Dennis that he has disabled");
   oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
   oapiWriteLog("******************************************************");  
-  rsls			= new dps::RSLS(this);
-  gncsoftware	= new dps::GNCSoftware(this);
+  //rsls			= new dps::RSLS("RSLS");
+  //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
   
 
   pgForward.AddPanel(new vc::PanelF2(this));
@@ -5284,12 +5305,26 @@ void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
   }
 }
 
+int Atlantis::clbkGeneric(int msgid, int prm, void *context)
+{
+	switch(msgid)
+	{
+	case VMSG_LUAINSTANCE:
+		return Lua_InitInstance (context);
+	case VMSG_LUAINTERPRETER:
+		return Lua_InitInterpreter (context);
+	default:
+		return 0;
+	}
+	return 0;
+}
+
 // --------------------------------------------------------------
 // Before first timestep
 // --------------------------------------------------------------
 void Atlantis::clbkPostCreation ()
 {
-	oapiWriteLog("In clbkPostCreation");
+	//oapiWriteLog("In clbkPostCreation");
 	VESSEL3::clbkPostCreation(); //may not be necessary
 
 	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
@@ -5328,7 +5363,7 @@ void Atlantis::clbkPostCreation ()
 
 	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
 
-	oapiWriteLog("(ssu)Realize all subsystems");
+	//oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
 	pgForward.Realize();
 	pgLeft.Realize();

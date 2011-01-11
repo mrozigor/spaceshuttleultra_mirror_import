@@ -1,7 +1,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 //#include "util/Stopwatch.h"
 
 LatchSystem::LatchSystem(AtlantisSubsystemDirector *_director, const std::string &_ident, const std::string &_attachID)

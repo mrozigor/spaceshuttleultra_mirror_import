@@ -1,5 +1,5 @@
 #include "ETUmbDoorSystem.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 
 ETUmbDoorSystem::ETUmbDoorSystem(AtlantisSubsystemDirector* _director)
 	: AtlantisSubsystem(_director, "ETUmbDoors")

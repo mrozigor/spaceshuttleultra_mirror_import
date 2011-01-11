@@ -28,7 +28,7 @@
 
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-#include "..\ValveTypeBool.h"
+#include <ValveTypeBool.h>
 
 
 namespace mps

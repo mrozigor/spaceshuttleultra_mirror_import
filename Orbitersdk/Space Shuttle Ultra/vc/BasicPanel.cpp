@@ -281,6 +281,7 @@ namespace vc {
 			return true;
 		}
 		else {
+			//This panel is not responsible for this area identifier.
 			return false;
 		}
 	}

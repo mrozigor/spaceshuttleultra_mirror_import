@@ -53,7 +53,7 @@
 #include "vc/PanelF7.h"
 #include "vc/DAPControl.h"
 #include "APU.h"
-#include "SSUEngConst.h"
+#include <EngConst.h>
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
@@ -402,6 +402,7 @@ public:
 	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
 	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp);
 	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
+	virtual int clbkGeneric(int msgid = 0, int prm = 0, void *context = 0);
 	bool clbkLoadGenericCockpit ();
 	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
 	bool clbkLoadVC (int id);
@@ -701,6 +702,8 @@ private:
 	void HideODS() const;
 	void ShowExtAL() const;
 	void HideExtAL() const;
+	int Lua_InitInterpreter (void *context);
+	int Lua_InitInstance (void *context);
 	//-----------------------------------
 	void DefineKUBandAnimations();
 	void LaunchClamps();
@@ -1253,6 +1256,9 @@ private:
 	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);
 };
+
+VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw);
+double NullStartAngle(double Rate, double Mass, double Moment, double Torque);
 
 
 #if defined(IS_SSU_DLL_MODULE)

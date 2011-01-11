@@ -29,7 +29,7 @@
 #include "../Atlantis_defs.h"
 #include "../CommonDefs.h"
 #include "../RMSSystem.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 
 extern GDIParams g_Param;
 

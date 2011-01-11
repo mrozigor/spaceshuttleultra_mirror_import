@@ -48,6 +48,7 @@ void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
 //interpolation
+unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);
 double linterp(double x0, double y0, double x1, double y1, double x);
@@ -125,6 +126,18 @@ static inline double range(double min, double value, double max)
 	if(value>max) return max;
 	return value;
 }
+
+inline int round(double value)
+{
+	return static_cast<int>(floor(value+0.5));
+}
+
+static inline double sign(double x)
+{
+	if(x>=0.0) return 1.0;
+	else return -1.0;
+}
+
 
 inline double minmax(double fmin, double x, double fmax)
 {

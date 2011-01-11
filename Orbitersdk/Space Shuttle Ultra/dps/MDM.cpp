@@ -153,6 +153,9 @@ void MDM::ExecuteProm(unsigned int start, unsigned int number_of_words,
 		iom = m_modules[operation->module_addr];
 		unsigned short channel = operation->channel_addr;
 
+		if(iom == NULL)
+			continue;
+
 		if(module_info->iom_class == 0x4)
 		{
 			incr = 0;
@@ -230,6 +233,9 @@ void MDM::InstallAISModule(unsigned int module_id)
 
 void MDM::InstallAODModule(unsigned int module_id)
 {
+	if(m_modules[module_id]) delete m_modules[module_id];
+	m_modules[module_id] = new AODModule(this);
+
 	SCU_PROM[module_id] = 0x0600;
 }
 

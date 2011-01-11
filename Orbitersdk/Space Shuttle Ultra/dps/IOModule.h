@@ -1,6 +1,7 @@
 #pragma once
 #include "dps_defs.h"
 #include "DiscInPort.h"
+#include "DiscOutPort.h"
 
 namespace dps {
 
@@ -16,6 +17,7 @@ public:
 	virtual bool ReadFromChannel(unsigned int channel_no, word16& data) = 0;
 	virtual bool BITE() = 0;
 	virtual bool ConnectDiscrete(unsigned int port, discsignals::DiscreteBundle* bundle, unsigned int line) = 0;
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD) = 0;
 };
 
 class AIDModule: public IOModule
@@ -30,6 +32,7 @@ public:
 	virtual bool ReadFromChannel(unsigned int channel_no, word16& data);
 	virtual bool BITE();
 	virtual bool ConnectDiscrete(unsigned int port, discsignals::DiscreteBundle* bundle, unsigned int line);
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 
 	discsignals::DiscInPort channel_in[16];
 };
@@ -46,6 +49,7 @@ public:
 	virtual bool ReadFromChannel(unsigned int channel_no, word16& data);
 	virtual bool BITE();
 	virtual bool ConnectDiscrete(unsigned int port, discsignals::DiscreteBundle* bundle, unsigned int line);
+	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 
 	discsignals::DiscOutPort channel_out[16];
 };
