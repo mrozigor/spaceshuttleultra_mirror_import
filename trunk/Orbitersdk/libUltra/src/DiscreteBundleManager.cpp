@@ -68,8 +68,13 @@ DiscreteBundle* DiscreteBundleManager::CreateBundle(const std::string &_ident, u
 	}
 }
 
+unsigned long DiscreteBundleManager::CountBundles() const 
+{
+	return bundles.size();
+}
+
 bool DiscreteBundleManager::ExistsBundle(const std::string &_ident) const {
-	char pszBuffer[400];
+	//char pszBuffer[400];
 	//sprintf_s(pszBuffer, 400, "(DiscreteBundleManager::ExistsBundle) Enter \"%s\"", _ident.c_str());
 	//oapiWriteLog(pszBuffer);
 	try {
@@ -121,6 +126,18 @@ DiscreteBundle* DiscreteBundleManager::FindBundle(const std::string &_ident) con
 	return NULL;
 };
 
+DiscreteBundle* DiscreteBundleManager::GetBundleByIndex(unsigned long ulIndex) const
+{
+	try {
+		return bundles.at(ulIndex);
+	}
+	catch(...)
+	{
+		oapiWriteLog("(DiscreteBundleManager::FindBundle) Uncaught exception.");
+		return NULL;
+	}
+	return NULL;
+}
 
 
 };

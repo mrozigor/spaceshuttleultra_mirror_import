@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Boolean Valve class
+  Basic Valve Definition
 
 
 
@@ -22,34 +22,60 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef _g_ValveTypeBool_H_
-#define _g_ValveTypeBool_H_
+#ifndef _g_BasicValve_H_
+#define _g_BasicValve_H_
 
 
-#include <BasicValve.h>
-
-
-class ValveTypeBool
+class BasicValve
 {
 private:
-	BasicValve* vlv;
-	bool pos;
+	double pos;
+	double maxrate;
+
+	// motion
+	double mpos;
+	double mrate;
 public:
 	/**
-	 * Opens valve
+	 * Opens valve using specific rate
+  	 * @param rate rate
+	 */
+	bool Open( double rate );
+
+	/**
+	 * Opens valve using maximum rate
 	 */
 	bool Open( void );
 
 	/**
-	 * Closes valve
+	 * Closes valve using specific rate
+  	 * @param rate rate
+	 */
+	bool Close( double rate );
+
+	/**
+	 * Closes valve using maximum rate
 	 */
 	bool Close( void );
 
 	/**
-	 * Returns valve position
-	 * @return valve position (ON/OFF)
+	 * Moves valve to target position using specific rate
+ 	 * @param tpos target position
+  	 * @param rate rate
 	 */
-	bool GetPos( void );
+	bool Move( double tpos, double rate );
+
+	/**
+	 * Moves valve to target position using maximum rate
+ 	 * @param tpos target position
+	 */
+	bool Move( double tpos );
+
+	/**
+	 * Returns valve position
+	 * @return valve position (range: 0 - closed, 1 - open)
+	 */
+	double GetPos( void );
 
 	/**
 	 * Updates valve position (call from time step functions)
@@ -61,16 +87,22 @@ public:
 	 * Use from .scn loading function to set valve position
 	 * @param ipos valve position
 	 */
-	void _backdoor( bool ipos );
+	void _backdoor( double ipos );
 
 	/**
-	 * Create a new valve (only shows ON/OFF states)
+	 * Create a new valve
 	 * @param initpos initial valve position
 	 * @param imaxrate maximum valve motion rate
 	 */
-	ValveTypeBool( bool initpos, double imaxrate );
-	~ValveTypeBool( void );
+	BasicValve( double initpos, double imaxrate );
+	~BasicValve( void );
 };
 
 
-#endif// _g_ValveTypeBool_H_
+#endif// _g_BasicValve_H_
+
+
+/*
+// 1->open, 0->closed
+// rate -> %/s
+*/
