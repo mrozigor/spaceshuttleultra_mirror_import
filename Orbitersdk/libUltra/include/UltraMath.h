@@ -24,10 +24,10 @@
   **************************************************************************/
 #pragma once
 
-#include "OrbiterAPI.h"
+#include <OrbiterAPI.h>
 #include <cmath>
 #include <vector>
-#include "SSUEngConst.h"
+#include <EngConst.h>
 
 const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 								  0, 1, 0,

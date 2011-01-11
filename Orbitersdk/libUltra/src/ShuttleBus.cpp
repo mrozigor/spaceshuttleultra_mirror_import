@@ -3,9 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <OrbiterAPI.h>
-#include "ShuttleBus.h"
-#include "BIU.h"
-#include "../AtlantisSubsystem.h"
+#include <ShuttleBus.h>
+#include <BIU.h>
+#include <Subsystem.h>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
