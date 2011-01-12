@@ -365,6 +365,9 @@
     <ClCompile Include="dps\Symbol.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelA1U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -674,6 +677,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelA1U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="commGCIL.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

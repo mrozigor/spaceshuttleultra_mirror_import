@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltra", "..\libUltra\lib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VAB", "VAB\VAB.vcxproj", "{32D9221B-99F5-4E38-8DBA-B06A532142E2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSUTruck", "SSUTruck\SSUTruck.vcxproj", "{139BA578-15BC-4528-81C5-75841E1A1ABE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis (Debug)|Win32 = Analysis (Debug)|Win32
@@ -120,6 +122,12 @@ Global
 		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Debug|Win32.Build.0 = Debug|Win32
 		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Release|Win32.ActiveCfg = Release|Win32
 		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Release|Win32.Build.0 = Release|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Debug|Win32.Build.0 = Debug|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.ActiveCfg = Release|Win32
+		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

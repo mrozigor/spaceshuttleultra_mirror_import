@@ -321,6 +321,7 @@
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
     <ClCompile Include="PanelA4.cpp" />
+    <ClCompile Include="vc\PanelA1U.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
     <ClCompile Include="vc\PanelA7U.cpp" />
@@ -365,6 +366,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Atlantis_defs.h" />
+    <ClInclude Include="commGCIL.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\HALS_Compilations.h" />
     <ClInclude Include="dps\HALS_Types.h" />
