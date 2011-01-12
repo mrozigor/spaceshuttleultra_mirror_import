@@ -506,6 +506,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\commGCIL.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CommModeHandler.cpp"
 				>
 			</File>
@@ -654,6 +658,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\OrbitDAP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelA1U.cpp"
 				>
 			</File>
 			<File
