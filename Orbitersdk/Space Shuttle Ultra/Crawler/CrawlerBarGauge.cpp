@@ -1,6 +1,6 @@
 #include "CrawlerBarGauge.h"
 #include "DrawAPI.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 
 namespace vc
 {

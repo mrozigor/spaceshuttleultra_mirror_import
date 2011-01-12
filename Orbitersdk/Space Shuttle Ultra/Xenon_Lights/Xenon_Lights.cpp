@@ -2,7 +2,7 @@
 
 #include "Xenon_Lights.h"
 #include "meshres_xenon.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 
 XenonLights::XenonLights(OBJHANDLE hVessel, int fmodel)
 : VESSEL3(hVessel, fmodel), bLightsOn(false),

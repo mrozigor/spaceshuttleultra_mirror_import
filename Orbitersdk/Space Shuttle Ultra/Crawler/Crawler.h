@@ -78,7 +78,7 @@
 #include <vector>
 #include <orbitersdk.h>
 #include "Discsignals.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 #include "meshres_drivetruck.h"
 #include "CrawlerEngine.h"
 #include "PanelGroup.h"

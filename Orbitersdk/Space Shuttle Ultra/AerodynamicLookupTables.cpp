@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cassert>
 #include "AerodynamicLookupTables.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 
 namespace Aerodynamics
 {

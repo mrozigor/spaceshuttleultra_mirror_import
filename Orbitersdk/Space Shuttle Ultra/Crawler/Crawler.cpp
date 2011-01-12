@@ -129,7 +129,7 @@
 #include <OrbiterSoundSDK35.h>
 #include "../resource_Crawler.h"
 
-#include "../SSUMath.h"
+#include <UltraMath.h>
 #include "Crawler.h"
 #include "CrawlerLeftPanel.h"
 #include "CrawlerCenterPanel.h"
