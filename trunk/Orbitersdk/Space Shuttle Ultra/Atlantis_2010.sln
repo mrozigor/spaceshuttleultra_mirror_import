@@ -25,6 +25,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crawler", "Crawler.vcxproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Xenon_Lights", "Xenon_Lights.vcxproj", "{396E345C-7D91-4ECD-B912-6178511A25EA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltra", "..\libUltra\libUltra.vcxproj", "{EDA1260C-9F5C-478A-B18B-A687101FC234}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VAB", "VAB\VAB.vcxproj", "{32D9221B-99F5-4E38-8DBA-B06A532142E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis (Debug)|Win32 = Analysis (Debug)|Win32
@@ -104,6 +108,18 @@ Global
 		{396E345C-7D91-4ECD-B912-6178511A25EA}.Debug|Win32.Build.0 = Debug|Win32
 		{396E345C-7D91-4ECD-B912-6178511A25EA}.Release|Win32.ActiveCfg = Release|Win32
 		{396E345C-7D91-4ECD-B912-6178511A25EA}.Release|Win32.Build.0 = Release|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Debug|Win32.Build.0 = Debug|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Release|Win32.ActiveCfg = Release|Win32
+		{EDA1260C-9F5C-478A-B18B-A687101FC234}.Release|Win32.Build.0 = Release|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Debug|Win32.Build.0 = Debug|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Release|Win32.ActiveCfg = Release|Win32
+		{32D9221B-99F5-4E38-8DBA-B06A532142E2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,6 @@
 #include "CrawlerDigitalDisplay.h"
 #include "Crawler.h"
-#include "../SSUMath.h"
+#include <UltraMath.h>
 
 extern GlobalHandles g_Resources;
 

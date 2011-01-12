@@ -128,9 +128,6 @@
     <ClCompile Include="vc\BasicSwitch.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="BasicValve.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\BasicVCComponent.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -153,21 +150,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\DAPControl.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscInPort.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscOutPort.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscreteBundle.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscreteBundleManager.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscretePort.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="mps\EIU.cpp">
@@ -320,9 +302,6 @@
     <ClCompile Include="mps\SSME.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="SSUMath.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\StandardLight.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -344,9 +323,6 @@
     <ClCompile Include="vc\Talkback.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="ValveTypeBool.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="WSB.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -366,6 +342,27 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\OrbitDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\AODModule.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\HALS_Compilations.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\HALS_Types.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\IOModule.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SimpleGPC.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SSULua.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\Symbol.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -434,24 +431,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\DAPControl.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\DiscInPort.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\DiscOutPort.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\DiscreteBundle.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\DiscreteBundleManager.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\DiscretePort.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="discsignals\discsignals.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\dps_defs.h">
@@ -680,6 +659,21 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\OrbitDAP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\HALS_Compilations.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\HALS_Types.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\IOModule.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MDM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA1U.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

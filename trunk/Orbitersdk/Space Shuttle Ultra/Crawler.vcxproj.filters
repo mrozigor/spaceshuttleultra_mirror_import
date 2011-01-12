@@ -63,9 +63,6 @@
     <ClCompile Include="..\libUltra\src\DiscretePort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SSUMath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Crawler\LDS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

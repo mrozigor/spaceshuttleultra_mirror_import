@@ -1,5 +1,5 @@
 #include "PIDControl.h"
-#include "SSUMath.h"
+#include <UltraMath.h>
 
 PIDControl::PIDControl(double pGain, double dGain, double iGain)
 	: integral(0.0), lastValue(0.0), firstStep(true), outputLimitsSet(false), integralLimitsSet(false)
