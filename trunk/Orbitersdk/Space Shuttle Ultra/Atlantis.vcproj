@@ -54,7 +54,7 @@
 				ExecutionBucket="5"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="2057"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include\mfc&quot;"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -178,7 +178,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="2057"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft Platform SDK\Include\mfc&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
