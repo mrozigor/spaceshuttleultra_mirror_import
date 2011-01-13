@@ -407,6 +407,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Crawler\LDS.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SSUMath.cpp"
 				>
 			</File>
@@ -461,6 +465,10 @@
 			</File>
 			<File
 				RelativePath=".\Crawler\CrawlerRightPanel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crawler\LDS.h"
 				>
 			</File>
 			<File

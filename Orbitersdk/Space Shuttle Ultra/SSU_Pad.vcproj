@@ -148,7 +148,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="G:\orbiter2010\Orbitersdk\libUltra\include;..\include"
+				AdditionalIncludeDirectories="..\libUltra\include;..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="0"
