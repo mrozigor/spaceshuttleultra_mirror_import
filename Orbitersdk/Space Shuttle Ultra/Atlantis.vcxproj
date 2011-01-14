@@ -142,7 +142,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK35.lib;lua51.lib;libUltra.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK35.lib;lua5.1.lib;libUltra.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;..\libUltra\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -455,8 +455,6 @@
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\ShuttleBus.h" />
     <ClInclude Include="mps\SSME.h" />
-    <ClInclude Include="SSUEngConst.h" />
-    <ClInclude Include="SSUMath.h" />
     <ClInclude Include="vc\StandardLight.h" />
     <ClInclude Include="vc\StandardRotarySwitch.h" />
     <ClInclude Include="vc\StandardSwitch.h" />

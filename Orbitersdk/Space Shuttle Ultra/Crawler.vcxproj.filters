@@ -127,9 +127,6 @@
     <ClInclude Include="resource_Crawler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SSUMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libUltra\include\Subsystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>

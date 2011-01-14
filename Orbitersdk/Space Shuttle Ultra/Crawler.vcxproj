@@ -252,7 +252,6 @@
     <ClInclude Include="Crawler\meshres_drivetruck.h" />
     <ClInclude Include="..\libUltra\include\PanelGroup.h" />
     <ClInclude Include="resource_Crawler.h" />
-    <ClInclude Include="SSUMath.h" />
     <ClInclude Include="..\libUltra\include\Subsystem.h" />
     <ClInclude Include="..\libUltra\include\SubsystemDirector.h" />
   </ItemGroup>
