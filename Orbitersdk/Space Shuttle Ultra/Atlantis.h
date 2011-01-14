@@ -614,7 +614,6 @@ public:
 	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary
-	vc::DAPControl *dapcontrol;
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;
 	//bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
@@ -804,8 +803,8 @@ private:
 	void CalcRequiredRates(VECTOR3 &Rates);
 	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
 	//change ref. frames
-	VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
-	MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
+	//VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
+	//MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	//VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	//VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
@@ -1142,7 +1141,6 @@ private:
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	//MNVR
-	bool BurnInProg;
 	/*int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
 	double tig; // TIG in seconds 
 	double TIG[4]; // day,hour,min,sec
@@ -1222,6 +1220,9 @@ private:
 
 	bool bPLBDCamPanLeft[5], bPLBDCamPanRight[5], bPLBDCamTiltUp[5], bPLBDCamTiltDown[5];
 
+	// used to trigger RCS sounds
+	int lastRotCommand[3], lastTransCommand[3]; // -1, 0 or 1
+
 	//DiscPorts
 	DiscInPort SpdbkThrotAutoIn;
 	DiscOutPort SpdbkThrotAutoOut;
@@ -1258,7 +1259,6 @@ private:
 };
 
 VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw);
-double NullStartAngle(double Rate, double Mass, double Moment, double Torque);
 
 
 #if defined(IS_SSU_DLL_MODULE)

@@ -1,6 +1,5 @@
 #include <UltraMath.h>
-
-unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
+unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
 	if(target<list[0]) return 0;
 	if(target>=list[list.size()-1]) return list.size()-2;
@@ -207,25 +206,72 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
 	RotMatrixZ.m33 = 1;
 }
 
-int tpir(const std::vector<double> &list, double target) {
-	// char buf[64];
-	if(target<list[0]) return 0;
-	if(target>=list[list.size()-1]) return list.size()-2;
-	//  sprintf(oapiDebugString(),"target %f n_items %d ",target,n_items);
-	for(unsigned int i=1;i<list.size();i++) {
-		//if(i>10) {
-		//    sprintf(buf,"list[%d] %.2f ",i,list[i]);
-		//  strcat(oapiDebugString(),buf);
-		//}
-		if(list[i]>=target) {
-			//sprintf(buf,"result %d",i-1);
-			//strcat(oapiDebugString(),buf);
-			return i-1;
-		}
+double NullStartAngle(double radRate, double Mass, double Moment, double Torque)
+{
+	if(!Eq(radRate, 0.0)) {
+		//double Time = (Mass*Moment*Rate)/Torque;
+		//double Angle=0.5*Rate*Time;
+		double Angle = (0.5*radRate*radRate*Mass*Moment)/Torque;
+		return DEG*Angle;
 	}
-	// sprintf(buf,"result %d",-46);
-	// strcat(oapiDebugString(),buf);
-	return -46;
+	else return 0.0;
+}
+
+double RotationRateChange(double Mass, double Moment, double Torque, double DeltaT)
+{
+	double acceleration = Torque/(Mass*Moment);
+	double DeltaRate = acceleration*DeltaT;
+	return DEG*DeltaRate;
+}
+
+VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
+{
+	VECTOR3 Output=_V(0, 0, 0);
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+	MATRIX3 M50, RotMatrixM50;
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+
+	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
+	GetRotMatrixY(90*RAD, RotMatrixM50);
+	M50=mul(RotMatrixM50, M50);
+	if(ToOrbiter) {
+		//transpose matrix
+		M50=_M( M50.m11, M50.m21, M50.m31,
+				M50.m12, M50.m22, M50.m32,
+				M50.m13, M50.m23, M50.m33);
+	}
+	
+	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
+	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
+	RotMatrix=mul(M50, RotMatrix);
+	
+	//get angles
+	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	Output.data[YAW]=-asin(RotMatrix.m13);
+	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
+	return Output;
+}
+
+MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter)
+{
+	MATRIX3 Output;
+	MATRIX3 M50, RotMatrixM50;
+
+	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
+	GetRotMatrixY(90*RAD, RotMatrixM50);
+	M50=mul(RotMatrixM50, M50);
+	if(ToOrbiter) {
+		//transpose matrix
+		M50=_M( M50.m11, M50.m21, M50.m31,
+				M50.m12, M50.m22, M50.m32,
+				M50.m13, M50.m23, M50.m33);
+	}
+
+	Output=mul(M50, RotMatrix);
+	return Output;
 }
 
 int tpir(const double* list, int n_items, double target) {
@@ -255,7 +301,7 @@ double linterp(double x0, double y0, double x1, double y1, double x) {
 }
 
 double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x) {
-	int i=tpir(listx,x);
+	unsigned int i=GetLowerIndex(listx,x);
 	//  sprintf(oapiDebugString(),"i %d x0 %f y0 %f x1 %f y1 %f x %f",i,listx[i],listy[i],listx[i+1],listy[i+1],x);
 	return linterp(listx[i],listy[i],listx[i+1],listy[i+1],x);
 }
