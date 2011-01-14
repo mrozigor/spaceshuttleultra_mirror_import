@@ -32,6 +32,9 @@
 const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 								  0, 1, 0,
 								  0, 0, 1);
+//Attitude ref. frame conversion
+const double AXIS_TILT = 23.4458878*RAD;
+//tilt of Earth's axis (radians)
 
 //Math
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -47,9 +50,17 @@ VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in ra
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
+double NullStartAngle(double radRate, double Mass, double Moment, double Torque);
+/**
+ * Returns change in rotation rate (DEG/s) over given time period.
+ */
+double RotationRateChange(double Mass, double Moment, double Torque, double DeltaT);
+
+VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
+MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
+
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
-int tpir(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);
 double linterp(double x0, double y0, double x1, double y1, double x);
 double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x);
@@ -126,8 +137,7 @@ static inline double range(double min, double value, double max)
 	if(value>max) return max;
 	return value;
 }
-
-inline int round(double value)
+inline int round(double value)
 {
 	return static_cast<int>(floor(value+0.5));
 }
@@ -136,12 +146,6 @@ static inline double sign(double x)
 {
 	if(x>=0.0) return 1.0;
 	else return -1.0;
-}
-
-
-inline double minmax(double fmin, double x, double fmax)
-{
-	return min(fmax, max(x, fmin));
 }
 
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis

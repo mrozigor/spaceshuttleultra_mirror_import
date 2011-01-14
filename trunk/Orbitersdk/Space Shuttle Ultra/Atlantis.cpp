@@ -127,16 +127,6 @@ VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw)
 	return dir;
 }
 
-double NullStartAngle(double Rate, double Mass, double Moment, double Torque)
-{
-	if(!Eq(Rate, 0.0)) {
-		double Time = (Mass*Moment*Rate)/Torque;
-		double Angle=0.5*Rate*Time;
-		return DEG*Angle;
-	}
-	else return 0.0;
-}
-
 inline void LogAnim(const std::string& name, UINT anim)
 {
 
@@ -443,7 +433,6 @@ BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
 ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
 pActiveLatches(3, NULL),
-dapcontrol(NULL),
 gncsoftware(NULL)
 {
 #ifdef _DEBUG
@@ -471,7 +460,6 @@ gncsoftware(NULL)
   //panelc3         = new PanelC3(this);
   //panelr2       = new PanelR2(this);
   panelc2		  = new PanelC2(this);
-  dapcontrol	  = new vc::DAPControl(this);
   //panelf7		  = new PanelF7(this);
 
   oapiWriteLog("******************************************************");  
@@ -938,7 +926,6 @@ gncsoftware(NULL)
   TV_ROLL=0.0;
   BurnInProg=false;
   BurnCompleted=false;*/
-  BurnInProg=false;
   
   RHCInput = _V(0, 0, 0);
   THCInput = _V(0, 0, 0);
@@ -946,6 +933,8 @@ gncsoftware(NULL)
 
   ReqdRates = _V(0, 0, 0);
   for(i=0; i<3; i++) {
+	  lastRotCommand[i] = 0;
+	  lastTransCommand[i] = 0;
 	  //MNVR
 	  //PEG7.data[i]=0.0;
 	  //UNIV PTG
@@ -1107,7 +1096,6 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
-	delete dapcontrol;
 	delete gncsoftware;
 	delete rsls;
 
@@ -4590,7 +4578,6 @@ void Atlantis::TerminateManeuver()
 		else TargetAttM50.data[i]=REQD_ATT.data[i];
 	}
 	TargetAttM50=TargetAttM50*RAD;
-	dapcontrol->InitializeControlMode();
 }
 
 void Atlantis::SetILoads()
@@ -4660,7 +4647,7 @@ MATRIX3 Atlantis::CalcPitchYawRollRotMatrix()
 			  Pitch.x, Pitch.y, Pitch.z);
 }
 
-VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
+/*VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -4708,7 +4695,7 @@ MATRIX3 Atlantis::ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bo
 
 	Output=mul(M50, RotMatrix);
 	return Output;
-}
+}*/
 
 VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
 {
@@ -5344,7 +5331,6 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 	}
 
-	dapcontrol->Realize();
 
 	GetGlobalOrientation(InertialOrientationRad);
 	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
@@ -5360,8 +5346,6 @@ void Atlantis::clbkPostCreation ()
 		else if(TRK) LoadTrackManeuver();
 		else if(ROT) LoadRotationManeuver();
 	}*/
-
-	if(ControlMode!=FREE) dapcontrol->InitializeControlMode();
 
 	//oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
@@ -5403,6 +5387,9 @@ void Atlantis::clbkPostCreation ()
 	for(int i=0;i<3;i++) {
 		RHCInputPort[i].Connect(pBundle, i);
 		THCInputPort[i].Connect(pBundle, i+3);
+
+		RHCInputPort[i].SetLine(0.0f);
+		THCInputPort[i].SetLine(0.0f);
 	}
 
 	pBundle=bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
@@ -5549,6 +5536,148 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 			break;
 	}
+	
+	// check inputs from GPC and set thrusters
+	if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
+		SetThrusterGroupLevel(thg_pitchdown, 0.0);
+
+		if(lastRotCommand[PITCH] != 1) {
+			lastRotCommand[PITCH] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
+		SetThrusterGroupLevel(thg_pitchup, 0.0);
+
+		if(lastRotCommand[PITCH] != -1) {
+			lastRotCommand[PITCH] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_pitchup, 0.0);
+		SetThrusterGroupLevel(thg_pitchdown, 0.0);
+		lastRotCommand[PITCH] = 0;
+	}
+	if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
+		SetThrusterGroupLevel(thg_yawleft, 0.0);
+
+		if(lastRotCommand[YAW] != 1) {
+			lastRotCommand[YAW] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
+		SetThrusterGroupLevel(thg_yawright, 0.0);
+
+		if(lastRotCommand[YAW] != -1) {
+			lastRotCommand[YAW] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_yawright, 0.0);
+		SetThrusterGroupLevel(thg_yawleft, 0.0);
+		lastRotCommand[YAW] = 0;
+	}
+	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_rollleft, RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollright, 0.0);
+
+		if(lastRotCommand[ROLL] != 1) {
+			lastRotCommand[ROLL] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_rollright, -RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
+
+		if(lastRotCommand[ROLL] != -1) {
+			lastRotCommand[ROLL] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_rollright, 0.0);
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
+		lastRotCommand[ROLL] = 0;
+	}
+
+	if(TransThrusterCommands[0].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_transfwd, 1.0);
+		SetThrusterGroupLevel(thg_transaft, 0.0);
+
+		if(lastTransCommand[0] != 1) {
+			lastTransCommand[0] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(TransThrusterCommands[0].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_transaft, 1.0);
+		SetThrusterGroupLevel(thg_transfwd, 0.0);
+
+		if(lastTransCommand[0] != -1) {
+			lastTransCommand[0] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transfwd, 0.0);
+		SetThrusterGroupLevel(thg_transaft, 0.0);
+		lastTransCommand[0] = 0;
+	}
+	if(TransThrusterCommands[1].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_transright, 1.0);
+		SetThrusterGroupLevel(thg_transleft, 0.0);
+
+		if(lastTransCommand[1] != 1) {
+			lastTransCommand[1] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(TransThrusterCommands[1].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_transleft, 1.0);
+		SetThrusterGroupLevel(thg_transright, 0.0);
+
+		if(lastTransCommand[1] != -1) {
+			lastTransCommand[1] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transright, 0.0);
+		SetThrusterGroupLevel(thg_transleft, 0.0);
+		lastTransCommand[1] = 0;
+	}
+	if(TransThrusterCommands[2].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_transdown, 1.0);
+		SetThrusterGroupLevel(thg_transup, 0.0);
+
+		if(lastTransCommand[2] != 1) {
+			lastTransCommand[2] = 1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else if(TransThrusterCommands[2].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_transup, 1.0);
+		SetThrusterGroupLevel(thg_transdown, 0.0);
+
+		if(lastTransCommand[2] != -1) {
+			lastTransCommand[2] = -1;
+			PlayVesselWave3(SoundID, RCS_SOUND);
+		}
+	}
+	else {
+		SetThrusterGroupLevel(thg_transdown, 0.0);
+		SetThrusterGroupLevel(thg_transup, 0.0);
+		lastTransCommand[2] = 0;
+	}
+	
 
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
@@ -5583,8 +5712,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	{
 		oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
 	}
-	if(dapcontrol != NULL)
-		dapcontrol->OnPostStep(simt, simdt, mjd);
 	if(gncsoftware != NULL)
 		gncsoftware->OnPostStep(simt, simdt, mjd);
 
@@ -5987,6 +6114,43 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 	}
 	GPC(simt, simdt); //perform GPC functions
+	// check inputs from GPC and set thrusters
+	/*if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
+		SetThrusterGroupLevel(thg_pitchdown, 0.0);
+	}
+	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
+		SetThrusterGroupLevel(thg_pitchup, 0.0);
+	}
+	else {
+		SetThrusterGroupLevel(thg_pitchup, 0.0);
+		SetThrusterGroupLevel(thg_pitchdown, 0.0);
+	}
+	if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
+		SetThrusterGroupLevel(thg_yawleft, 0.0);
+	}
+	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
+		SetThrusterGroupLevel(thg_yawright, 0.0);
+	}
+	else {
+		SetThrusterGroupLevel(thg_yawright, 0.0);
+		SetThrusterGroupLevel(thg_yawleft, 0.0);
+	}
+	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
+		SetThrusterGroupLevel(thg_rollleft, RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollright, 0.0);
+	}
+	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
+		SetThrusterGroupLevel(thg_rollright, -RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
+	}
+	else {
+		SetThrusterGroupLevel(thg_rollright, 0.0);
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
+	}*/
 
 	// get aerosurface positions and thruster commands from GPC commands
 	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
@@ -6017,43 +6181,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
 			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
-		// check inputs from GPC and set thrusters
-		if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
-			SetThrusterGroupLevel(thg_pitchup, 1.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		}
-		else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
-			SetThrusterGroupLevel(thg_pitchdown, 1.0);
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-		}
-		else {
-			SetThrusterGroupLevel(thg_pitchup, 0.0);
-			SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		}
-		if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
-			SetThrusterGroupLevel(thg_yawright, 1.0);
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
-		}
-		else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
-			SetThrusterGroupLevel(thg_yawleft, 1.0);
-			SetThrusterGroupLevel(thg_yawright, 0.0);
-		}
-		else {
-			SetThrusterGroupLevel(thg_yawright, 0.0);
-			SetThrusterGroupLevel(thg_yawleft, 0.0);
-		}
-		if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
-			SetThrusterGroupLevel(thg_rollleft, 1.0);
-			SetThrusterGroupLevel(thg_rollright, 0.0);
-		}
-		else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
-			SetThrusterGroupLevel(thg_rollright, 1.0);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-		}
-		else {
-			SetThrusterGroupLevel(thg_rollright, 0.0);
-			SetThrusterGroupLevel(thg_rollleft, 0.0);
-		}
+		
 	}
 
 	//update MET
@@ -9091,7 +9219,6 @@ void Atlantis::TogglePCT()
 		PCTStartTime=oapiGetSimTime();
 		DAPMode[1]=0; //PRI
 		ControlMode=FREE;
-		dapcontrol->InitializeControlMode();
 
 		//set Body Flap PBIs
 		BodyFlapAutoOut.SetLine();

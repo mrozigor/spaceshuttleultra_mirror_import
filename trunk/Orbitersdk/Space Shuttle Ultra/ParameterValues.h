@@ -139,10 +139,6 @@ const int AftRollThrusters[2] = {9, 11};
 const double TMajorCycle = 1.0000;
 const double TPEGStop = 7.000; //40?
 
-//Attitude ref. frame conversion
-const double AXIS_TILT = 23.4458878*RAD;
-//tilt of Earth's axis (radians)
-
 // ==========================================================
 // Some Tank-related parameters
 // ==========================================================

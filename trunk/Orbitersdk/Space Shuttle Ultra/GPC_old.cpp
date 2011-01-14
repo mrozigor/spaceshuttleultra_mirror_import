@@ -455,8 +455,8 @@ void Atlantis::GPC(double simt, double dt)
 					//WT=GetMass()*kg_to_pounds;
 					SetGPCMajorMode(104);
 				}
-				AttControl(dt);
-				TransControl(simt, dt);
+				//AttControl(dt);
+				//TransControl(simt, dt);
 			}
 			break;
 		case 104:
@@ -471,8 +471,8 @@ void Atlantis::GPC(double simt, double dt)
 		case 201:
 		case 301:
 		case 303:
-			AttControl(dt);
-			TransControl(simt, dt);
+			//AttControl(dt);
+			//TransControl(simt, dt);
 			break;
 		case 304:
 			if(GetMachNumber() < 2.5) SetGPCMajorMode(305);
@@ -991,7 +991,7 @@ void Atlantis::AttControl(double SimdT)
 		if(ManeuverStatus==MNVR_COMPLETE) CalcRequiredRates(ReqdRates, NullRatesLocal*DEG);
 		else CalcRequiredRates(ReqdRates);
 	}
-	if(!BurnInProg) SetRates(ReqdRates);
+	//if(!BurnInProg) SetRates(ReqdRates);
 	//else OMSTVC(ReqdRates, SimdT); //OMS burn is going on, so use OMS TVC for control
 	//SetRates(ReqdRates);
 }

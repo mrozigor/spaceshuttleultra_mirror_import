@@ -10,41 +10,87 @@
 namespace dps
 {
 
+const double RHC_SOFT_STOP = 0.75;
+const double RHC_DETENT = 0.01;
+
 struct AttManeuver
 {
-	bool bValid;
-	VECTOR3 TargetAttM50;
-	MATRIX3 LVLHTgtOrientationMatrix;
+	bool IsValid;
+	VECTOR3 radTargetAttOrbiter;
+	VECTOR3 radTargetLVLHAtt; // only needed for LVLH frame
+	//MATRIX3 LVLHTgtOrientationMatrix;
 	enum {MNVR, TRK, ROT} Type; // at the moment, ROT is not supported
-
-	AttManeuver& operator = (const AttManeuver& rhs)
-	{
-		bValid = rhs.bValid;
-		TargetAttM50 = rhs.TargetAttM50;
-		LVLHTgtOrientationMatrix = rhs.LVLHTgtOrientationMatrix;
-		Type = rhs.Type;
-		return *this;
-	}
 };
 
 class OrbitDAP : public SimpleGPCSoftware
 {
 public:
 	typedef enum {RCS, LEFT_OMS, RIGHT_OMS, BOTH_OMS} CONTROL_MODE;
-	typedef enum {AUTO, INRTL, LVLH, FREE} DAP_MODE;
+	typedef enum {PRI, ALT, VERN} DAP_MODE;
+	typedef enum {A, B} DAP_SELECT;
+	typedef enum {AUTO, INRTL, LVLH, FREE} DAP_CONTROL_MODE;
+	typedef enum {DISC_RATE, ROT_PULSE} ROT_MODE;
+	typedef enum {NORM, TRANS_PULSE} TRANS_MODE;
 private:
 	PIDControl OMSTVCControlP, OMSTVCControlY, OMSTVCControlR;
 	VECTOR3 OMSTrim;
 	CONTROL_MODE ControlMode;
 
+	DAP_MODE DAPMode;
+	DAP_SELECT DAPSelect;
+	DAP_CONTROL_MODE DAPControlMode;
+	ROT_MODE RotMode[3];
+	TRANS_MODE TransMode[3]; // 0=X, 1=Y, 2=Z
+	DAPConfig DAPConfiguration[3]; //0=A, 1=B, 2=Edit
+
+	// values change depending on DAP mode selected
+	// initialized in Realize() function
+	double degRotPulse, TransPulse;
+	double degRotRate, degAttDeadband, degRateDeadband;
+
+	bool RotatingAxis[3];
+	bool RotPulseInProg[3];
+	bool TransPulseInProg[3];
+	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
+
+	VECTOR3 degReqdRates;
+	MATRIX3 attErrorMatrix;
+	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	// ActiveManeuver is whatever attitude is currently being held (in AUTO, INRTL or LVLH)
 	// Cur/FutManeuver are maneuvers loaded using UNIV PTG; in AUTO mode, Active and Cur maneuvers are always (check this) the same
 	AttManeuver ActiveManeuver, CurManeuver, FutManeuver;
 	double FutMnvrStartTime; // MET when future loaded maneuver starts
+	double mnvrCompletionMET; // MET when current maneuver will be complete
+	double lastUpdateTime; // time when final inertial attitude was last estimated for TRK maneuver
 
-	VECTOR3 radAngularVelocity;
+	VECTOR3 radCurrentOrbiterAtt;
+	VECTOR3 radAngularVelocity, degAngularVelocity;
+	VECTOR3 GlobalPos;
+	double OrbiterMass;
+	VECTOR3 PMI;
+	VECTOR3 Torque;
+	
+	bool bFirstStep;
+	double lastStepDeltaT;
 
-	DiscInPort DAPMode[4];
+	// values used in UNIV PTG to store attitude maneuvers
+	int START_TIME[4];
+	VECTOR3 MNVR_OPTION;
+	int TGT_ID, BODY_VECT;
+	double P, Y, OM;
+
+	VECTOR3 CUR_ATT, REQD_ATT, ATT_ERR; // attitudes in degrees in M50 frame
+
+	bool PBI_state[24];
+	DiscInPort PBI_input[24];
+	DiscOutPort PBI_output[24];
+	/*DiscInPort DAPSelect[2]; // A or B
+	DiscInPort DAPMode[3]; // PRI, ALT, VERN
+	DiscInPort DAPControlMode[4]; // AUTO, INRTL, LVLH, FREE*/
+	DiscInPort RHCInput[3];
+	DiscInPort THCInput[3];
+	DiscOutPort RotThrusterCommands[3];
+	DiscOutPort TransThrusterCommands[3];
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
@@ -65,18 +111,36 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	//virtual bool ItemInput(int spec, int item, const char* Data);
+	virtual bool ItemInput(int spec, int item, const char* Data);
 	//virtual bool ExecPressed(int spec);
-	//virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
+	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 
-	//virtual bool OnParseLine(const char* keyword, const char* value);
-	//virtual void OnSaveState(FILEHANDLE scn) const;
+	virtual bool OnParseLine(const char* keyword, const char* value);
+	virtual void OnSaveState(FILEHANDLE scn) const;
 private:
 	void GetAttitudeData();
 
-	void LoadCurLVLHManeuver(const MATRIX3& RotMatrix);
-	void LoadCurINRTLManeuver(const VECTOR3& degTargetAtt);
+	//void LoadCurLVLHManeuver(const MATRIX3& RotMatrix);
+	void LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
+	void LoadFutLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
+	void LoadCurINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
+	void LoadFutINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
+	void StartCurManeuver();
+	void StartINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
+	//void StartLVLHManeuver(const MATRIX3& LVLHTgtMatrix);
+	void StartLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
 
+	/**
+	 * Determines rates due to RHC input.
+	 * Returns true if RHC is out of detent.
+	 */
+	bool GetRHCRequiredRates();
+	void HandleTHCInput(double DeltaT);
+
+	void CalcEulerAxisRates();
+	void CalcMultiAxisRates(const VECTOR3& degNullRatesLocal);
+
+	void SetRates(const VECTOR3 &degRates, double DeltaT);
 	//void OMSTVC(const VECTOR3& degAngleErrors);
 	void OMSTVC(const VECTOR3 &Rates, double SimDT); // temporary; used unitl attitude control code is moved to this class
 	/**
@@ -85,6 +149,35 @@ private:
 	 * If angles are out of range, uses maximum possible gimbal angle.
 	 */
 	bool GimbalOMS(SIDE side, double pitch, double yaw);
+
+	void UpdateDAPParameters();
+	//void UpdateTorqueValues();
+
+	/**
+	* Returns true if PBI on.
+	* PBIs are numbered along rows, then columns.
+	* First row is 1, 2, 3,..., 2nd row is 7, 8, etc.
+	*/
+	bool GetPBIState(int id) const;
+	/**
+	 * Handles DAP PBI being pressed.
+	 */
+	void ButtonPress(int id);
+
+	double CalcManeuverCompletionTime(const VECTOR3& radTargetAttOrbiter, const VECTOR3& radNullRatesOrbiter) const;
+
+	/*** Vector/Matrix manipulation functions ***/
+	/**
+	 * Returns current attitude (in RADIANS) in rotatin LVLH frame.
+	 */
+	VECTOR3 GetCurrentLVLHAttitude() const;
+	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const;
+	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const;
+	MATRIX3 CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const;
+	/**
+	 * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to angles in shuttle body frame.
+	 */
+	VECTOR3 ConvertPYOMToBodyAngles() const;
 };
 
 };
