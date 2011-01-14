@@ -607,12 +607,6 @@
     <ClInclude Include="mps\SSME.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="SSUEngConst.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="SSUMath.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\StandardLight.h">
       <Filter>Includes</Filter>
     </ClInclude>
