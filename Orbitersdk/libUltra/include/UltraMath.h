@@ -137,7 +137,8 @@ static inline double range(double min, double value, double max)
 	if(value>max) return max;
 	return value;
 }
-inline int round(double value)
+
+inline int round(double value)
 {
 	return static_cast<int>(floor(value+0.5));
 }

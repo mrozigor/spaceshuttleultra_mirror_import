@@ -296,11 +296,9 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="vc\DAPControl.cpp" />
     <ClCompile Include="mps\EIU.cpp" />
     <ClCompile Include="ETUmbDoorSystem.cpp" />
     <ClCompile Include="eva_docking\ExtAirlock.cpp" />
-    <ClCompile Include="dps\GNCSoftware.cpp" />
     <ClCompile Include="dps\GPC.cpp" />
     <ClCompile Include="GPC_old.cpp" />
     <ClCompile Include="dps\GPCSoftware.cpp" />
@@ -396,14 +394,12 @@
     <ClInclude Include="dps\BIU.h" />
     <ClInclude Include="mps\BLOCK_II.h" />
     <ClInclude Include="CommonDefs.h" />
-    <ClInclude Include="vc\DAPControl.h" />
     <ClInclude Include="dps\dps_defs.h" />
     <ClInclude Include="mps\EIU.h" />
     <ClInclude Include="eps\eps_defs.h" />
     <ClInclude Include="ETUmbDoorSystem.h" />
     <ClInclude Include="vc\EventTimer.h" />
     <ClInclude Include="eva_docking\ExtAirlock.h" />
-    <ClInclude Include="dps\GNCSoftware.h" />
     <ClInclude Include="dps\GPC.h" />
     <ClInclude Include="dps\GPCSoftware.h" />
     <ClInclude Include="hydraulics\HydActuator.h" />

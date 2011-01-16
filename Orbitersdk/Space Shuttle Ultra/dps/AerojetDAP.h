@@ -55,7 +55,7 @@ public:
 
 	virtual void Realize();
 
-	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
+	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
 private:
@@ -76,7 +76,7 @@ private:
 	 * Calculates thruster command (1.0, -1.0 or 0.0) to rotate to target angle in given axis.
 	 * Computes target rotation rate and returns thruster command to establish correct rate.
 	 */
-	double GetThrusterCommand(AXIS axis);
+	double GetThrusterCommand(AXIS axis, double DeltaT);
 
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.

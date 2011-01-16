@@ -36,7 +36,6 @@
 #include "AtlantisSubsystemDirector.h"
 #include "dps/AerojetDAP.h"
 #include "dps/AP101S.h"
-#include "dps/GNCSoftware.h"
 #include "dps/IDP.h"
 #include "dps/MasterTimingUnit.h"
 #include "dps/MDM.h"
@@ -432,8 +431,7 @@ OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
 BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
 ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
-pActiveLatches(3, NULL),
-gncsoftware(NULL)
+pActiveLatches(3, NULL)
 {
 #ifdef _DEBUG
         // D. Beachy: for BoundsChecker debugging
@@ -1096,7 +1094,6 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
-	delete gncsoftware;
 	delete rsls;
 
 	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
@@ -5538,6 +5535,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	}
 	
 	// check inputs from GPC and set thrusters
+	//sprintf_s(oapiDebugString(), 255, "RCS: %f %f %f", RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[YAW].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage());
 	if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
 		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
 		SetThrusterGroupLevel(thg_pitchdown, 0.0);
@@ -5678,6 +5676,35 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		lastTransCommand[2] = 0;
 	}
 	
+	if(ops==304 || ops==305) {
+		double elevonPos = 0.0;
+		double aileronPos = 0.0;
+		if(HydraulicsOK()) {
+			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*-33.0, 18.0);
+			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
+			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
+			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+			aerosurfaces.leftElevon = range(-33.0, elevonPos+aileronPos, 18.0);
+			aerosurfaces.rightElevon = range(-33.0, elevonPos-aileronPos, 18.0);
+			aerosurfaces.bodyFlap = 0.0;
+			aerosurfaces.speedbrake = spdb_proc*100.0;
+		}
+		else {
+			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
+			aerosurfaces.bodyFlap = 0.0;
+			aerosurfaces.rudder = 0.0;
+			aerosurfaces.speedbrake = 0.0;
+		}
+		// set animations corresponding to aerosurface positions
+		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
+		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+		SetAnimation(anim_elev, (aileronPos +1.0)/2.0);
+
+		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
+			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
+		
+	}
 
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
@@ -5712,8 +5739,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	{
 		oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
 	}
-	if(gncsoftware != NULL)
-		gncsoftware->OnPostStep(simt, simdt, mjd);
 
 	if(!___PostStep_flag)
 	{
@@ -6154,7 +6179,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	// get aerosurface positions and thruster commands from GPC commands
 	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
-	if(ops==304 || ops==305) {
+	/*if(ops==304 || ops==305) {
 		double elevonPos = 0.0;
 		double aileronPos = 0.0;
 		if(HydraulicsOK()) {
@@ -6182,7 +6207,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
 			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
 		
-	}
+	}*/
 
 	//update MET
 	MET[0]=(int)(met/86400);

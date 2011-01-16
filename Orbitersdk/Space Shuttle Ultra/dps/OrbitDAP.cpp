@@ -448,7 +448,10 @@ void OrbitDAP::Realize()
 		RHCInput[i].Connect(pBundle, i);
 		THCInput[i].Connect(pBundle, i+3);
 	}
-
+	pBundle = BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+	PitchAuto.Connect(pBundle, 0);
+	PitchCSS.Connect(pBundle, 1);	RollYawAuto.Connect(pBundle, 2);
+	RollYawCSS.Connect(pBundle, 3);
 	UpdateDAPParameters();
 }
 
@@ -575,6 +578,12 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	else {
 		OMSTVC(STS()->ReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
 	}
+
+	// set entry DAP mode PBIs to OFF
+	PitchAuto.ResetLine();
+	PitchCSS.ResetLine();
+	RollYawAuto.ResetLine();
+	RollYawCSS.ResetLine();
 
 	lastStepDeltaT = DeltaT;
 }

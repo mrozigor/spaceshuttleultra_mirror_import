@@ -92,6 +92,7 @@ private:
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3];
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
+	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
 	virtual ~OrbitDAP();
