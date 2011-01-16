@@ -59,9 +59,14 @@ void AerojetDAP::Realize()
 	RollYawAuto.Connect(pBundle, 2);
 }
 
-void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
+void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	sprintf_s(oapiDebugString(), 255, "AerojetDAP::OnPostStep");
+	// on first step, Orbiter gives incorrect data, so ignore this step
+	if(bFirstStep) {
+		bFirstStep = false;
+		return;
+	}
+
 	switch(GetMajorMode()) {
 	case 304:
 		UpdateOrbiterData();
@@ -107,12 +112,12 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 		// set thruster and aerosurface commands
 		for(int i=0;i<3;i++) {
 			if(ThrustersActive[i])
-				ThrusterCommands[i].SetLine(GetThrusterCommand(static_cast<AXIS>(i)));
+				ThrusterCommands[i].SetLine(GetThrusterCommand(static_cast<AXIS>(i), DeltaT));
 			else
 				ThrusterCommands[i].SetLine(0.0f);
 		}
 		SetAerosurfaceCommands(DeltaT);
-		
+
 		/*for(int i=0;i<3;i++) {
 			if(AerosurfacesActive[i]) {
 				double Error = degTargetAttitude.data[i] - degCurrentAttitude.data[i];
@@ -133,7 +138,7 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		// only yaw thrusters should be active at this point
 		if(ThrustersActive[YAW])
-			ThrusterCommands[YAW].SetLine(GetThrusterCommand(YAW));
+			ThrusterCommands[YAW].SetLine(GetThrusterCommand(YAW, DeltaT));
 		SetAerosurfaceCommands(DeltaT);
 		break;
 	}
@@ -143,7 +148,17 @@ void AerojetDAP::OnPostStep(double SimT, double DeltaT, double MJD)
 
 bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
-	return (newMajorMode ==304 || newMajorMode == 305);
+	if(newMajorMode ==304 || newMajorMode == 305) {
+		// set Translation Commands to 0.0 during entry and landing
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle("THRUSTER_CMD", 16);
+		DiscOutPort port;
+		for(int i=0;i<3;i++) {
+			port.Connect(pBundle, i+3);
+			port.ResetLine();
+		}
+		return true;
+	}
+	return false;
 }
 
 void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
@@ -219,18 +234,18 @@ void AerojetDAP::SetThrusterLevels()
 	}*/
 }
 
-double AerojetDAP::GetThrusterCommand(AXIS axis)
+double AerojetDAP::GetThrusterCommand(AXIS axis, double DeltaT)
 {
 	// values in degrees
 	const double ATT_DEADBAND = 0.25;
-	const double RATE_DEADBAND = 0.05;
+	const double RATE_DEADBAND = max(0.05, RotationRateChange(OrbiterMass, PMI.data[axis], RCSTorque.data[axis], DeltaT));
 	const double MIN_ROTATION_RATE = 0.2;
 	const double MAX_ROTATION_RATE = 2.0;
 
 	double attError = degTargetAttitude.data[axis]-degCurrentAttitude.data[axis];
 
 	if(RotatingAxis[axis]) {
-		if(abs(attError) < 0.05 && abs(degCurrentRates.data[axis]) < 0.01) { // stopped at target attitude
+		if(abs(attError) < 0.10 && abs(degCurrentRates.data[axis]) < RotationRateChange(OrbiterMass, PMI.data[axis], RCSTorque.data[axis], DeltaT)) { // stopped at target attitude
 			RotatingAxis[axis] = false;
 			return 0.0;
 		}

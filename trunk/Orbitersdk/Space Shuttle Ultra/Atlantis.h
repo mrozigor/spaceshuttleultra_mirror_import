@@ -51,7 +51,6 @@
 #include "vc/PanelGroup.h"
 #include "vc/BasicPanel.h"
 #include "vc/PanelF7.h"
-#include "vc/DAPControl.h"
 #include "APU.h"
 #include <EngConst.h>
 #include "Discsignals.h"
@@ -655,7 +654,6 @@ private:
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
 	//GPC programs
-	dps::GNCSoftware *gncsoftware;
 	dps::RSLS *rsls;
 
 	SURFHANDLE tex_rcs;

@@ -1,5 +1,6 @@
 #include <UltraMath.h>
-unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
+
+unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
 	if(target<list[0]) return 0;
 	if(target>=list[list.size()-1]) return list.size()-2;

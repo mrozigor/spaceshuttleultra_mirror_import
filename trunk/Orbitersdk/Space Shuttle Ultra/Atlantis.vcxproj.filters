@@ -149,9 +149,6 @@
     <ClCompile Include="Common.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\DAPControl.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="mps\EIU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -159,9 +156,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="eva_docking\ExtAirlock.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="dps\GNCSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\GPC.cpp">
@@ -433,9 +427,6 @@
     <ClInclude Include="CommonDefs.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\DAPControl.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\dps_defs.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -452,9 +443,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="eva_docking\ExtAirlock.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="dps\GNCSoftware.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\GPC.h">

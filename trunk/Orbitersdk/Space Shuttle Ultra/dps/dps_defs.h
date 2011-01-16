@@ -63,7 +63,6 @@ namespace dps {
 	
 	class SimpleGPCSystem;
 	class OrbitDAP; // temporary
-	class GNCSoftware;
 	class RSLS;
 	class MMU;
 	class MDM;
