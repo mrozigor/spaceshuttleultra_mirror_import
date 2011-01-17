@@ -464,7 +464,8 @@ pActiveLatches(3, NULL)
   oapiWriteLog("(Space Shuttle Ultra) Say Dennis that he has disabled");
   oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
   oapiWriteLog("******************************************************");  
-  //rsls			= new dps::RSLS("RSLS");
+  //rsls			= new dps::RSLS();
+  rsls = NULL;
   //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
   
 
@@ -5764,7 +5765,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
-		rsls->OnPostStep(simt, simdt, mjd);
+		if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		if (GetThrusterGroupLevel(THGROUP_MAIN) > 0.95) 
 		{
 			status = STATE_STAGE1; // launch
@@ -5823,7 +5824,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SignalGSEBreakHDP();
 			TriggerLiftOff();	
 		}*/
-		if(!GetLiftOffFlag()) rsls->OnPostStep(simt, simdt, mjd);
+		if(!GetLiftOffFlag() && rsls) rsls->OnPostStep(simt, simdt, mjd);
 		//sprintf(oapiDebugString(),"met: %f",met);
 		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
 			SeparateBoosters (met);
@@ -9229,12 +9230,12 @@ void Atlantis::RealizeSubsystemConnections() {
 
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
-	rsls->SychronizeCountdown(launch_mjd);
+	if(rsls) rsls->SychronizeCountdown(launch_mjd);
 }
 
 void Atlantis::StartRSLSSequence()
 {
-	rsls->StartRSLSSequence();
+	if(rsls) rsls->StartRSLSSequence();
 }
 
 void Atlantis::TogglePCT()
