@@ -545,10 +545,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\vc\DAPControl.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\mps\EIU.cpp"
 				>
 			</File>
@@ -558,10 +554,6 @@
 			</File>
 			<File
 				RelativePath=".\eva_docking\ExtAirlock.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\dps\GNCSoftware.cpp"
 				>
 			</File>
 			<File
