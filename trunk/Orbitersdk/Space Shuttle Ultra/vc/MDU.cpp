@@ -411,7 +411,13 @@ namespace vc {
 			}
 		}
 
-		if(!prim_idp->OnPaint(this)) {
+		if(prim_idp) {
+			prim_idp->OnPaint(this);
+		}
+		else {
+			PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
+		}
+		/*if(!prim_idp->OnPaint(this)) {
 			if(STS()->ops==201) {
 				if(prim_idp) {
 					//if DISP is not set, show appropriate SPEC/default display
@@ -433,7 +439,7 @@ namespace vc {
 					PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 				}
 			}
-		}
+		}*/
 		
 		//print Scratch Pad line
 		const char* scratch_pad=prim_idp->GetScratchPadLineString();
@@ -493,7 +499,7 @@ namespace vc {
 	{
 	}
 
-	void MDU::UNIVPTG()
+	/*void MDU::UNIVPTG()
 	{
 		char cbuf[255];
 		//PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
@@ -570,7 +576,7 @@ namespace vc {
 		PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
 		sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
 		PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
-	}
+	}*/
 
 	/*void MDU::MNVR()
 	{
@@ -851,7 +857,7 @@ namespace vc {
 	}*/
 
 
-	void MDU::DAP_CONFIG()
+	/*void MDU::DAP_CONFIG()
 	{
 		char *strings[3]={" ALL", "NOSE", "TAIL"};
 		char cbuf[255];
@@ -997,7 +1003,7 @@ namespace vc {
 	void MDU::ORBIT_TGT()
 	{
 		DrawCommonHeader("ORBIT TGT");
-	}
+	}*/
 
 	void MDU::GPCMEMORY()
 	{

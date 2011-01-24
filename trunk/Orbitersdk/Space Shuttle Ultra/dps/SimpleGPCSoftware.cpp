@@ -87,7 +87,7 @@ void SimpleGPCSoftware::PrintCommonHeader(const char* header, vc::MDU* pMDU) con
 	STS()->GetGPCMET(1, usDay, usHour, usMinute, usSecond);
 
 	//Todo: GPC count their own MET independent of the MTU
-	sprintf(cbuf,"%03d1/%03s/%3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
+	sprintf(cbuf,"%03d1/%03s/%3s  %16s  %2s  %1d %03d/%02d:%02d:%02d", 
 		STS()->pSimpleGPC->GetMajorMode(),
 		cspecbuf, 
 		cdispbuf, 

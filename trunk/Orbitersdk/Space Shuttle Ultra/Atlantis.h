@@ -522,11 +522,8 @@ public:
 	void TriggerLiftOff();
 	void StartROFIs();
 
-	void LoadBurnAttManeuver(const VECTOR3& BurnAtt);
-	void TerminateManeuver();
-	
 	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
-	void ItemInput(int idp, int item, const char* Data=NULL);
+	//void ItemInput(int idp, int item, const char* Data=NULL);
 
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
@@ -782,27 +779,6 @@ private:
 	//void GimbalOMS(const VECTOR3 &Targets);
 
 	//DAP
-	//void GimbalOMS(VECTOR3 Targets);
-	void LoadManeuver();
-	void UpdateDAP(); //updates rot rates, torques
-	void TransControl(double SimT, double SimdT);
-	void UpdateAttControlVariables();
-	void AttControl(double SimdT);
-	//void AerojetDAP(double SimdT);
-	void PCTControl(double simt);
-	void TogglePCT();
-	void StartAttManeuver(); //initiates maneuver loaded into CurManeuver
-	void LoadInertialManeuver();
-	void LoadTrackManeuver();
-	void LoadRotationManeuver();
-	//void LoadBurnAttManeuver(const VECTOR3& BurnAtt);
-	void CalcManeuverTargets(VECTOR3 NullRates);
-	void SetRates(const VECTOR3 &Rates);
-	void CalcRequiredRates(VECTOR3 &Rates);
-	void CalcRequiredRates(VECTOR3 &Rates, const VECTOR3 &NullRates);
-	//change ref. frames
-	//VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
-	//MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	//VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	//VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
@@ -1193,9 +1169,6 @@ private:
 	int DAPMode[2]; //0=A, 1=B && 0=PRI, 1=ALT, 2=VERN
 	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
 	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
-	//PCT
-	bool PostContactThrusting[2]; //0=armed, 1=active
-	double PCTStartTime;
 	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
 	bool RotPulseInProg[3], TransPulseInProg[3];
 	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes

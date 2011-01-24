@@ -41,6 +41,8 @@ private:
 	DAP_CONTROL_MODE DAPControlMode;
 	ROT_MODE RotMode[3];
 	TRANS_MODE TransMode[3]; // 0=X, 1=Y, 2=Z
+
+	int editDAP; // -1=None, 0=A, 1=B
 	DAPConfig DAPConfiguration[3]; //0=A, 1=B, 2=Edit
 
 	// values change depending on DAP mode selected
@@ -81,6 +83,12 @@ private:
 
 	VECTOR3 CUR_ATT, REQD_ATT, ATT_ERR; // attitudes in degrees in M50 frame
 
+	//PCT
+	//bool PostContactThrusting[2]; //0=armed, 1=active
+	//bool PCTArmed, PCTActive;
+	bool PCTActive;
+	double PCTStartTime;
+
 	bool PBI_state[24];
 	DiscInPort PBI_input[24];
 	DiscOutPort PBI_output[24];
@@ -90,8 +98,12 @@ private:
 	DiscInPort RHCInput[3];
 	DiscInPort THCInput[3];
 	DiscOutPort RotThrusterCommands[3];
-	DiscOutPort TransThrusterCommands[3];
+	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
+	DiscInPort PCTArmed;
+	DiscInPort BodyFlapAuto; // used to trigger PCT
+	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
+	//DiscOutPort port_PCTActive;
 	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
@@ -120,6 +132,9 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 private:
 	void GetAttitudeData();
+
+	void PaintUNIVPTGDisplay(vc::MDU* pMDU) const;
+	void PaintDAPCONFIGDisplay(vc::MDU* pMDU) const;
 
 	//void LoadCurLVLHManeuver(const MATRIX3& RotMatrix);
 	void LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
@@ -150,6 +165,10 @@ private:
 	 * If angles are out of range, uses maximum possible gimbal angle.
 	 */
 	bool GimbalOMS(SIDE side, double pitch, double yaw);
+
+	void StartPCT();
+	void StopPCT();
+	void PCTControl(double SimT);
 
 	void UpdateDAPParameters();
 	//void UpdateTorqueValues();

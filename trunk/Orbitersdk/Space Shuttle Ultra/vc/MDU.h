@@ -186,9 +186,6 @@ namespace vc {
 		 * Display functions
 		 * Update text buffer with appropriate data for display
 		 */
-		void UNIVPTG();
-		void DAP_CONFIG();
-		void MNVR();
 		void ORBIT_TGT();
 		void PASSTRAJ();
 		void GNCSYSSUMM1();
