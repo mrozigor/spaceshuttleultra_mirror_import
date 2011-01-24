@@ -202,10 +202,10 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 			//STS()->LoadBurnAttManeuver(BurnAtt);
 			pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
 		}
-		else {
+		/*else {
 			STS()->TerminateManeuver();
 			MnvrToBurnAtt=false;
-		}
+		}*/
 		return true;
 	}
 

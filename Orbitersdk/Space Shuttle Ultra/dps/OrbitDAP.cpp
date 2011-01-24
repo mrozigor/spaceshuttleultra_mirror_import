@@ -42,9 +42,10 @@ OrbitDAP::OrbitDAP(SimpleGPCSystem* pGPC)
 : SimpleGPCSoftware(pGPC, "OrbitDAP"),
 OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75), OMSTVCControlR(3.5, 0.0, 0.75),
 ControlMode(RCS),
-DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL),
+DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL), editDAP(-1),
 ManeuverStatus(MNVR_OFF),
-bFirstStep(true), lastStepDeltaT(1.0)
+bFirstStep(true), lastStepDeltaT(1.0),
+PCTActive(false)
 {
 	OMSTrim = _V(0.0, 0.0, 0.0);
 	degReqdRates = _V(0.0, 0.0, 0.0);
@@ -119,21 +120,7 @@ void OrbitDAP::UseRCS()
 
 void OrbitDAP::ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt)
 {
-	/*MATRIX3 RotMatrix;
-	
-	MATRIX3 RotMatrixR, RotMatrixP, RotMatrixY, Temp;
-	GetRotMatrixZ(degLVLHAtt.data[ROLL]*RAD, RotMatrixR);
-	GetRotMatrixX(-degLVLHAtt.data[PITCH]*RAD, RotMatrixP);
-	GetRotMatrixY(degLVLHAtt.data[YAW]*RAD, RotMatrixY);
-	Temp=mul(RotMatrixR, RotMatrixP);
-	Temp=mul(Temp, RotMatrixY);
-	RotMatrix=_M(Temp.m11, Temp.m21, Temp.m31,
-		Temp.m12, Temp.m22, Temp.m32,
-		Temp.m13, Temp.m23, Temp.m33);*/
-
 	LoadCurLVLHManeuver(degLVLHAtt*RAD);
-
-	STS()->LoadBurnAttManeuver(degLVLHAtt);
 }
 
 void OrbitDAP::LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
@@ -224,7 +211,7 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 	for(int i=0;i<3;i++) {
 		if(abs(THCInput[i].GetVoltage())>0.01) {
 			//if PCT is in progress, disable it when THC is moved out of detent
-			if(STS()->PostContactThrusting[1]) STS()->TogglePCT();
+			if(PCTActive) StopPCT();
 
 			if(TransMode[i]==NORM) {
 				TransThrusterCommands[i].SetLine(static_cast<float>( sign(THCInput[i].GetVoltage()) ));
@@ -386,8 +373,8 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	}
 	//sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
 
-	if(RCSWraparound) STS()->SetRates(Rates);
-	else if(ControlMode!=BOTH_OMS) STS()->SetRates(_V(0.0, 0.0, Rates.data[ROLL])); //for single-engine burns, use RCS for roll control
+	if(RCSWraparound) SetRates(Rates, SimDT);
+	else if(ControlMode!=BOTH_OMS) SetRates(_V(0.0, 0.0, Rates.data[ROLL]), SimDT); //for single-engine burns, use RCS for roll control
 }
 
 bool OrbitDAP::GimbalOMS(SIDE side, double pitch, double yaw)
@@ -448,10 +435,21 @@ void OrbitDAP::Realize()
 		RHCInput[i].Connect(pBundle, i);
 		THCInput[i].Connect(pBundle, i+3);
 	}
-	pBundle = BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+
+	pBundle = BundleManager()->CreateBundle("CSS_CONTROLS", 4);
 	PitchAuto.Connect(pBundle, 0);
-	PitchCSS.Connect(pBundle, 1);	RollYawAuto.Connect(pBundle, 2);
-	RollYawCSS.Connect(pBundle, 3);
+	PitchCSS.Connect(pBundle, 1);
+	RollYawAuto.Connect(pBundle, 2);
+	RollYawCSS.Connect(pBundle, 3);
+
+	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+	PCTArmed.Connect(pBundle, 0);
+
+	pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
+	BodyFlapAuto.Connect(pBundle, 0);
+	port_PCTActive[0].Connect(pBundle, 0);
+	port_PCTActive[1].Connect(pBundle, 1);
+
 	UpdateDAPParameters();
 }
 
@@ -492,7 +490,10 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 	if(ControlMode == RCS) {
-		HandleTHCInput(DeltaT);
+		if(BodyFlapAuto && !PCTActive) StartPCT();
+		else if(!BodyFlapAuto && PCTActive) StopPCT();
+		if(!PCTActive) HandleTHCInput(DeltaT);
+		else PCTControl(SimT);
 
 		if(GetRHCRequiredRates()) {
 			if(DAPControlMode == AUTO) {
@@ -599,120 +600,325 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 
 bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 {
-	if(spec!=dps::MODE_UNDEFINED || GetMajorMode()!=201) return false;
+	if(GetMajorMode()!=201) return false;
 
-	if(item>=1 && item<=4) {
-		int nNew=atoi(Data);
-		if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
-			START_TIME[item-1]=nNew;
-		}
-	}
-	else if(item==5 || item==6) {
-		double dNew=atof(Data);
-		if(dNew>=0.0 && dNew<360.0) {
-			if(item==5) MNVR_OPTION.data[ROLL]=dNew;
-			else MNVR_OPTION.data[PITCH]=dNew;
-		}
-	}
-	else if(item==7) {
-		double dNew=atof(Data);
-		if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-			MNVR_OPTION.data[YAW]=dNew;
-		}
-	}
-	if(item==8) {
-		int nNew=atoi(Data);
-		if(nNew==2 || nNew==4) {
-			TGT_ID=nNew;
-		}
-	}
-	if(item==14) {
-		int nNew=atoi(Data);
-		if(nNew>=1 && nNew<=5) {
-			BODY_VECT=nNew;
-			if(BODY_VECT==1) {
-				P=0.0;
-				Y=0.0;
-			}
-			else if(BODY_VECT==2) {
-				P=180.0;
-				Y=0.0;
-			}
-			else if(BODY_VECT==3) {
-				P=90.0;
-				Y=0.0;
-			}
-			else if(BODY_VECT==4) {
-				P=90.0;
-				Y=79.333;
+	if(spec==dps::MODE_UNDEFINED) {
+		if(item>=1 && item<=4) {
+			int nNew=atoi(Data);
+			if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
+				START_TIME[item-1]=nNew;
 			}
 		}
-	}
-	if(item==15 && BODY_VECT==5) {
-		double dNew=atof(Data);
-		if(dNew>=0.0 && dNew<360.0) {
-			P=dNew;
-		}
-	}
-	if(item==16 && BODY_VECT==5) {
-		double dNew=atof(Data);
-		if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-			Y=dNew;
-		}
-	}
-	if(item==17) {
-		double dNew=atof(Data);
-		if(dNew>=0.0 && dNew<360.0) {
-			OM=dNew;
-		}
-	}
-	else if(item==18) {
-		VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
-		double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-		if(startTime <= STS()->GetMET()) {
-			LoadCurINRTLManeuver(radTargetAtt);
-		}
-		else {
-			FutMnvrStartTime = startTime;
-			LoadFutINRTLManeuver(radTargetAtt);
-		}
-	}
-	else if(item==19) {
-		VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles();
-		double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-		if(startTime <= STS()->GetMET()) {
-			if(TGT_ID == 2) {
-				LoadCurLVLHManeuver(radTargetAtt);
+		else if(item==5 || item==6) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<360.0) {
+				if(item==5) MNVR_OPTION.data[ROLL]=dNew;
+				else MNVR_OPTION.data[PITCH]=dNew;
 			}
 		}
-		else {
-			FutMnvrStartTime = startTime;
-			if(TGT_ID == 2) {
-				LoadFutLVLHManeuver(radTargetAtt);
+		else if(item==7) {
+			double dNew=atof(Data);
+			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+				MNVR_OPTION.data[YAW]=dNew;
 			}
 		}
-	}
-	/*else if(item==20) {
+		if(item==8) {
+			int nNew=atoi(Data);
+			if(nNew==2 || nNew==4) {
+				TGT_ID=nNew;
+			}
+		}
+		if(item==14) {
+			int nNew=atoi(Data);
+			if(nNew>=1 && nNew<=5) {
+				BODY_VECT=nNew;
+				if(BODY_VECT==1) {
+					P=0.0;
+					Y=0.0;
+				}
+				else if(BODY_VECT==2) {
+					P=180.0;
+					Y=0.0;
+				}
+				else if(BODY_VECT==3) {
+					P=90.0;
+					Y=0.0;
+				}
+				else if(BODY_VECT==4) {
+					P=90.0;
+					Y=79.333;
+				}
+			}
+		}
+		if(item==15 && BODY_VECT==5) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<360.0) {
+				P=dNew;
+			}
+		}
+		if(item==16 && BODY_VECT==5) {
+			double dNew=atof(Data);
+			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
+				Y=dNew;
+			}
+		}
+		if(item==17) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<360.0) {
+				OM=dNew;
+			}
+		}
+		else if(item==18) {
+			VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
+			double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+			if(startTime <= STS()->GetMET()) {
+				LoadCurINRTLManeuver(radTargetAtt);
+			}
+			else {
+				FutMnvrStartTime = startTime;
+				LoadFutINRTLManeuver(radTargetAtt);
+			}
+		}
+		else if(item==19) {
+			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles();
+			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+			if(startTime <= STS()->GetMET()) {
+				if(TGT_ID == 2) {
+					LoadCurLVLHManeuver(radTargetAtt);
+				}
+			}
+			else {
+				FutMnvrStartTime = startTime;
+				if(TGT_ID == 2) {
+					LoadFutLVLHManeuver(radTargetAtt);
+				}
+			}
+		}
+		/*else if(item==20) {
 		LoadRotationManeuver();
-	}*/
-	else if(item==21) {
-		CurManeuver.IsValid = false;
-		FutManeuver.IsValid = false;
-		RotatingAxis[YAW]=false;
-		RotatingAxis[PITCH]=false;
-		RotatingAxis[ROLL]=false;
+		}*/
+		else if(item==21) {
+			CurManeuver.IsValid = false;
+			FutManeuver.IsValid = false;
+			RotatingAxis[YAW]=false;
+			RotatingAxis[PITCH]=false;
+			RotatingAxis[ROLL]=false;
 
-		DAPControlMode=INRTL;
-		StartINRTLManeuver(radCurrentOrbiterAtt);
+			DAPControlMode=INRTL;
+			StartINRTLManeuver(radCurrentOrbiterAtt);
+		}
+		return true;
 	}
-
-	return true;
+	else if(spec==20) {
+		if(item==3 || item==4) {
+			editDAP=item-3;
+			DAPConfiguration[2]=DAPConfiguration[editDAP];
+		}
+		else if(item==5) {
+			if(editDAP != -1) DAPConfiguration[editDAP]=DAPConfiguration[2];
+			editDAP=-1;
+		}
+		if(item==10 || item==30 || item==50) {
+			double dNew=atof(Data);
+			if(dNew>=0.05 && dNew<=2.0) {
+				DAPConfiguration[convert[item]].PRI_ROT_RATE=dNew;
+				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==11 || item==31 || item==51) {
+			double dNew=atof(Data);
+			if(dNew>0.10 && dNew<=40.0) {
+				DAPConfiguration[convert[item]].PRI_ATT_DB=dNew;
+				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==12 || item==32 || item==52) {
+			double dNew=atof(Data);
+			if(dNew>=0.10 && dNew<=5.0) {
+				DAPConfiguration[convert[item]].PRI_RATE_DB=dNew;
+				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==13 || item==33 || item==53) {
+			double dNew=atof(Data);
+			if(dNew>=0.04 && dNew<=1.0) {
+				DAPConfiguration[convert[item]].PRI_ROT_PLS=dNew;
+				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==14 || item==34 || item==54) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<=0.999) {
+				DAPConfiguration[convert[item]].PRI_COMP=dNew;
+				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==15 || item==35 || item==55) {
+			if(DAPConfiguration[convert[item]].PRI_P_OPTION<2) {
+				DAPConfiguration[convert[item]].PRI_P_OPTION++;
+				if(DAPMode==PRI) {
+					if(DAPConfiguration[DAPSelect].PRI_P_OPTION==1) {
+						STS()->DisableThrusters(AftPitchThrusters, 2);
+						UpdateDAPParameters();
+					}
+					else if(DAPConfiguration[DAPSelect].PRI_P_OPTION==2) {
+						STS()->EnableThrusters(AftPitchThrusters, 2);
+						STS()->DisableThrusters(NosePitchThrusters, 2);
+						UpdateDAPParameters();
+					}
+				}
+			}
+			else {
+				DAPConfiguration[convert[item]].PRI_P_OPTION=0;
+				if(DAPConfiguration[DAPSelect].PRI_P_OPTION==0) {
+					STS()->EnableThrusters(NosePitchThrusters, 2);
+					UpdateDAPParameters();
+				}
+			}
+		}
+		else if(item==16 || item==36 || item==56) {
+			if(DAPConfiguration[convert[item]].PRI_Y_OPTION<2) {
+				DAPConfiguration[convert[item]].PRI_Y_OPTION++;
+				if(DAPMode==PRI) {
+					if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==1) {
+						STS()->DisableThrusters(AftYawThrusters, 2);
+						UpdateDAPParameters();
+					}
+					else if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==2) {
+						STS()->EnableThrusters(AftYawThrusters, 2);
+						STS()->DisableThrusters(NoseYawThrusters, 2);
+						UpdateDAPParameters();
+					}
+				}
+			}
+			else {
+				DAPConfiguration[convert[item]].PRI_Y_OPTION=0;
+				if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==0) {
+					STS()->EnableThrusters(NoseYawThrusters, 2);
+					UpdateDAPParameters();
+				}
+			}
+		}
+		else if(item==17 || item==37 || item==57) {
+			double dNew=atof(Data);
+			if(dNew>=0.01 && dNew<=5.0) {
+				DAPConfiguration[convert[item]].PRI_TRAN_PLS=dNew;
+				if(convert[item]== DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			}
+		}
+		else if(item==18 || item==38 || item==58) {
+			double dNew=atof(Data);
+			if(dNew>=0.05 && dNew<=5.0) {
+				DAPConfiguration[convert[item]].ALT_RATE_DB=dNew;
+				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			}
+		}
+		else if(item==19 || item==39 || item==59) {
+			if(DAPConfiguration[convert[item]].ALT_JET_OPT==0) {
+				DAPConfiguration[convert[item]].ALT_JET_OPT=2;
+				if(DAPMode==ALT) {
+					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==2) {
+						STS()->DisableThrusters(NoseRotThrusters, 6);
+						STS()->EnableThrusters(AftRotThrusters, 6);
+						UpdateDAPParameters();
+					}
+				}
+			}
+			else {
+				DAPConfiguration[convert[item]].ALT_JET_OPT=0;
+				if(DAPMode==ALT) {
+					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==0) {
+						STS()->EnableThrusters(NoseRotThrusters, 6);
+						UpdateDAPParameters();
+					}
+				}
+			}
+		}
+		else if(item==20 || item==40 || item==60) {
+			int nNew=atoi(Data);
+			if(nNew>=1 && nNew<=3) {
+				DAPConfiguration[convert[item]].ALT_JETS=nNew;
+				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			}
+		}
+		else if(item==21 || item==41 || item==61) {
+			double dNew=atof(Data);
+			if(dNew>=0.08 && dNew<=9.99) {
+				DAPConfiguration[convert[item]].ALT_ON_TIME=dNew;
+				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			}
+		}
+		else if(item==22 || item==42 || item==62) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<=99.99) {
+				DAPConfiguration[convert[item]].ALT_DELAY=dNew;
+				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			}
+		}
+		else if(item==23 || item==43 || item==63) {
+			double dNew=atof(Data);
+			if(dNew>=0.002 && dNew<=1.0) {
+				DAPConfiguration[convert[item]].VERN_ROT_RATE=dNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		else if(item==24 || item==44 || item==64) {
+			double dNew=atof(Data);
+			if(dNew>=0.01 && dNew<=40.0) {
+				DAPConfiguration[convert[item]].VERN_ATT_DB=dNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		else if(item==25 || item==45 || item==65) {
+			double dNew=atof(Data);
+			if(dNew>=0.01 && dNew<=0.5) {
+				DAPConfiguration[convert[item]].VERN_RATE_DB=dNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		else if(item==26 || item==46 || item==66) {
+			double dNew=atof(Data);
+			if(dNew>=0.001 && dNew<=0.5) {
+				DAPConfiguration[convert[item]].VERN_ROT_PLS=dNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		else if(item==27 || item==47 || item==67) {
+			double dNew=atof(Data);
+			if(dNew>=0.0 && dNew<=0.999) {
+				DAPConfiguration[convert[item]].VERN_COMP=dNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		else if(item==28 || item==48 || item==68) {
+			int nNew=atoi(Data);
+			if(nNew>=0 && nNew<=9) {
+				DAPConfiguration[convert[item]].VERN_CNTL_ACC=nNew;
+				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			}
+		}
+		return true;
+	}
+	return false;
 }
 
 bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 {
-	if(spec!=dps::MODE_UNDEFINED || GetMajorMode()!=201) return false;
+	if(GetMajorMode()==201) {
+		if(spec==dps::MODE_UNDEFINED) {
+			PaintUNIVPTGDisplay(pMDU);
+			return true;
+		}
+		else if(spec==20) {
+			PaintDAPCONFIGDisplay(pMDU);
+			return true;
+		}
+	}
+	return false;
+}
 
+void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
+{
 	char cbuf[255];
 	PrintCommonHeader("UNIV PTG", pMDU);
 
@@ -794,7 +1000,90 @@ bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(19, 17, cbuf);
 	sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", degAngularVelocity.data[ROLL], degAngularVelocity.data[PITCH], degAngularVelocity.data[YAW]);
 	pMDU->mvprint(19, 18, cbuf);
-	return true;
+}
+
+void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
+{
+	char *strings[3]={" ALL", "NOSE", "TAIL"};
+	char cbuf[255];
+	int lim[3]={3, 5, 5};
+	int i, n;
+
+	PrintCommonHeader("DAP CONFIG", pMDU);
+
+	pMDU->mvprint(4, 2, "PRI");
+	pMDU->mvprint(9, 2, "1 DAP A");
+	pMDU->mvprint(20, 2, "2 DAP B");
+	pMDU->mvprint(33, 2, "PRI");
+	pMDU->mvprint(0, 3, "ROT RATE");
+	pMDU->mvprint(0, 4, "ATT DB");
+	pMDU->mvprint(0, 5, "RATE DB");
+	pMDU->mvprint(0, 6, "ROT PLS");
+	pMDU->mvprint(0, 7, "COMP");
+	pMDU->mvprint(0, 8, "P OPTION");
+	pMDU->mvprint(0, 9, "Y OPTION");
+	pMDU->mvprint(0, 10, "TRAN PLS");
+
+	pMDU->mvprint(4, 11, "ALT");
+	pMDU->mvprint(33, 11, "ALT");
+	pMDU->mvprint(0, 12, "RATE DB");
+	pMDU->mvprint(0, 13, "JET OPT");
+	pMDU->mvprint(0, 14, "# JETS");
+	pMDU->mvprint(0, 15, "ON TIME");
+	pMDU->mvprint(0, 16, "DELAY");
+
+	pMDU->mvprint(4, 17, "VERN");
+	pMDU->mvprint(33, 17, "VERN");
+	pMDU->mvprint(0, 18, "ROT RATE");
+	pMDU->mvprint(0, 19, "ATT DB");
+	pMDU->mvprint(0, 20, "RATE DB");
+	pMDU->mvprint(0, 21, "ROT PLS");
+	pMDU->mvprint(0, 22, "COMP");
+	pMDU->mvprint(0, 23, "CNTL ACC");
+
+	int edit=2; //temporary
+	for(n=1, i=0;n<=lim[edit];n+=2, i++) {
+		sprintf_s(cbuf, 255, "%d %.4f", 10*n, DAPConfiguration[i].PRI_ROT_RATE);
+		pMDU->mvprint(9+11*i, 3, cbuf);
+		sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+1, DAPConfiguration[i].PRI_ATT_DB);
+		pMDU->mvprint(9+11*i, 4, cbuf);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+2, DAPConfiguration[i].PRI_RATE_DB);
+		pMDU->mvprint(9+11*i, 5, cbuf);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+3, DAPConfiguration[i].PRI_ROT_PLS);
+		pMDU->mvprint(9+11*i, 6, cbuf);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+4, DAPConfiguration[i].PRI_COMP);
+		pMDU->mvprint(9+11*i, 7, cbuf);
+		sprintf_s(cbuf, 255, "%d   %s", 10*n+5, strings[DAPConfiguration[i].PRI_P_OPTION]);
+		pMDU->mvprint(9+11*i, 8, cbuf);
+		sprintf_s(cbuf, 255, "%d   %s", 10*n+6, strings[DAPConfiguration[i].PRI_Y_OPTION]);
+		pMDU->mvprint(9+11*i, 9, cbuf);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
+		pMDU->mvprint(9+11*i, 10, cbuf);
+
+		sprintf(cbuf, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
+		pMDU->mvprint(9+11*i, 12, cbuf);
+		sprintf(cbuf, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
+		pMDU->mvprint(9+11*i, 13, cbuf);
+		sprintf(cbuf, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
+		pMDU->mvprint(9+11*i, 14, cbuf);
+		sprintf(cbuf, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
+		pMDU->mvprint(9+11*i, 15, cbuf);
+		sprintf(cbuf, "%d   %.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
+		pMDU->mvprint(9+11*i, 16, cbuf);
+
+		sprintf(cbuf, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
+		pMDU->mvprint(9+11*i, 18, cbuf);
+		sprintf(cbuf, "%d   %.2f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
+		pMDU->mvprint(9+11*i, 19, cbuf);
+		sprintf(cbuf, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
+		pMDU->mvprint(9+11*i, 20, cbuf);
+		sprintf(cbuf, "%d   %.2f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
+		pMDU->mvprint(9+11*i, 21, cbuf);
+		sprintf(cbuf, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
+		pMDU->mvprint(9+11*i, 22, cbuf);
+		sprintf(cbuf, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
+		pMDU->mvprint(9+11*i, 23, cbuf);
+	}
 }
 
 bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
@@ -924,7 +1213,8 @@ bool OrbitDAP::GetPBIState(int id) const
 	case 5: //FREE
 		return DAPControlMode == FREE;
 	case 6: //PCT
-		return (STS()->PostContactThrusting[1]);
+		return PCTActive;
+		//return (STS()->PostContactThrusting[1]);
 		break;
 	case 7: //LOW Z
 		break;
@@ -995,13 +1285,17 @@ void OrbitDAP::ButtonPress(int id)
 			RotMode[i]=ROT_PULSE;
 			RotPulseInProg[i]=false;
 		}		
-		if(STS()->PostContactThrusting[1]) STS()->TogglePCT();
+		if(PCTActive) StopPCT();
+		//if(STS()->PostContactThrusting[1]) STS()->TogglePCT();
 		//InitializeControlMode();
 		break;
 	case 6: // PCT
-		if(STS()->PostContactThrusting[0]) {
-			STS()->TogglePCT();
+		if(PCTArmed && !PCTActive) {
+			StartPCT();
 		}
+		/*if(STS()->PostContactThrusting[0]) {
+			STS()->TogglePCT();
+		}*/
 		break;
 	case 9: // PRI
 		if(DAPMode != PRI) {
@@ -1099,6 +1393,55 @@ void OrbitDAP::ButtonPress(int id)
 			RotPulseInProg[YAW] = false;
 		}
 		break;
+	}
+}
+
+void OrbitDAP::StartPCT()
+{
+	PCTActive=true;
+	PCTStartTime=oapiGetSimTime();
+	DAPMode=PRI; //PRI
+	DAPControlMode=FREE;
+
+	//set Body Flap PBIs
+	port_PCTActive[0].SetLine();
+	port_PCTActive[1].SetLine();
+	//BodyFlapAutoOut.SetLine();
+	//BodyFlapManOut.SetLine();
+}
+
+void OrbitDAP::StopPCT()
+{
+	PCTActive=false;
+	DAPSelect=A;
+	DAPMode=VERN;
+	// TODO: mode to A9/B9 DAP CONFIGs
+
+	//stop firing RCS jets
+	//SetThrusterGroupLevel(thg_transup, 0.0);
+
+	//set Body Flap PBIs
+	port_PCTActive[0].ResetLine();
+	port_PCTActive[1].ResetLine();
+	//BodyFlapAutoOut.ResetLine();
+	//BodyFlapManOut.ResetLine();
+}
+
+void OrbitDAP::PCTControl(double SimT)
+{
+	double dT=SimT-PCTStartTime;
+
+	//prevent translation thrusters except (up group) from firing
+	TransThrusterCommands[0].ResetLine();
+	TransThrusterCommands[1].ResetLine();
+
+	//fire thrusters as appropriate
+	if(dT<=PCT_STAGE1) TransThrusterCommands[2].SetLine(-0.5f);
+	else if(dT<=PCT_STAGE2) TransThrusterCommands[2].ResetLine();
+	else if(dT<=PCT_STAGE3) TransThrusterCommands[2].SetLine(-0.5f);
+	else {
+		TransThrusterCommands[2].ResetLine();
+		StopPCT();
 	}
 }
 
