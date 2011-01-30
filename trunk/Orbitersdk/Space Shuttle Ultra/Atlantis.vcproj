@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib libUltra.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltra.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

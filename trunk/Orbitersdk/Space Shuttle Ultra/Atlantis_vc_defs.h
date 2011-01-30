@@ -65,12 +65,12 @@ const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
 const VECTOR3 VC_HUDPOS_PLT = _V(0.656, 2.5725, 14.614);
 
-const static char* VC_LBL_MS1 = "MS1 seat";
-const VECTOR3 VC_POS_MS1 = _V(0.2, 2.629396, 13.5); //0804025, DaveS edit: Moved position forward to a more correct position
+const static char* VC_LBL_MS1 = "MS2/FE seat";
+const VECTOR3 VC_POS_MS1 = _V(0, 2.629396, 13.25);
 const VECTOR3 VC_DIR_MS1 = _V(0.0, 0, 1.0);
 
-const static char* VC_LBL_MS2 = "MS2 seat";
-const VECTOR3 VC_POS_MS2 = _V(0.7, 2.75, 13.5); //0804025, DaveS edit: Moved position forward to a more correct position
+const static char* VC_LBL_MS2 = "MS seat";
+const VECTOR3 VC_POS_MS2 = _V(0.7, 2.75, 13.25);
 const VECTOR3 VC_DIR_MS2 = _V(0.0, 0.0, 1.0);
 
 const static char* VC_LBL_COAS = "COAS";
@@ -101,10 +101,10 @@ const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
 const static char* VC_LBL_LEECAM = "RMS EE camera";
 const static char* VC_LBL_ELBOWCAM = "RMS Elbow camera";
-const static char* VC_LBL_PLBCAMFL = "Payload bay FL camera";
-const static char* VC_LBL_PLBCAMFR = "Payload bay FR camera";
-const static char* VC_LBL_PLBCAMBL = "Payload bay BL camera";
-const static char* VC_LBL_PLBCAMBR = "Payload bay BR camera";
+const static char* VC_LBL_PLBCAMFL = "Payload bay A camera";
+const static char* VC_LBL_PLBCAMFR = "Payload bay D camera";
+const static char* VC_LBL_PLBCAMBL = "Payload bay B camera";
+const static char* VC_LBL_PLBCAMBR = "Payload bay C camera";
 
 const static char* VC_LBL_MIDDECK = "Mid Deck";
 const VECTOR3 VC_POS_MIDDECK = _V(-1.44, 0.0, 13.353);
