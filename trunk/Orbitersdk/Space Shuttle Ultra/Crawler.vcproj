@@ -410,10 +410,6 @@
 				RelativePath=".\Crawler\LDS.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\SSUMath.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -493,10 +489,6 @@
 			</File>
 			<File
 				RelativePath=".\resource_Crawler.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SSUMath.h"
 				>
 			</File>
 			<File
