@@ -141,6 +141,39 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case IDC_IAA_RETRACT:
 				pad->RetractIAA();
 				return TRUE;
+			case IDC_CREWARM_EXTEND:
+				pad->MoveOrbiterAccessArm(AnimState::OPENING);
+				return TRUE;
+			case IDC_CREWARM_RETRACT:
+				pad->MoveOrbiterAccessArm(AnimState::CLOSING);
+				return TRUE;
+			case IDC_CREWARM_STOP:
+				pad->MoveOrbiterAccessArm(AnimState::STOPPED);
+				return TRUE;
+			case IDC_GH2_EXTEND:
+				pad->MoveGH2Pipe(AnimState::CLOSING);
+				return TRUE;
+			case IDC_GH2_RETRACT:
+				pad->MoveGH2Pipe(AnimState::OPENING);
+				return TRUE;
+			case IDC_VHOOD_DEPLOY:
+				pad->MoveVentHood(AnimState::OPENING);
+				return TRUE;
+			case IDC_VHOOD_RETRACT:
+				pad->MoveVentHood(AnimState::CLOSING);
+				return TRUE;
+			case IDC_VHOOD_HALT:
+				pad->MoveVentHood(AnimState::STOPPED);
+				return TRUE;
+			case IDC_VARM_EXTEND:
+				pad->MoveLOXArm(AnimState::OPENING);
+				return TRUE;
+			case IDC_VARM_RETRACT:
+				pad->MoveLOXArm(AnimState::CLOSING);
+				return TRUE;
+			case IDC_VARM_HALT:
+				pad->MoveLOXArm(AnimState::STOPPED);
+				return TRUE;
 		}
 	}
 
@@ -392,13 +425,13 @@ void SSUPad::OnT0()
 
 void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
 {
-	if(action==AnimState::OPENING || action==AnimState::CLOSING)
+	if(action==AnimState::OPENING || action==AnimState::CLOSING || action==AnimState::STOPPED)
 		AccessArmState.action=action;
 }
 
 void SSUPad::MoveGOXArm(AnimState::Action action)
 {
-	if(action==AnimState::OPENING || action==AnimState::CLOSING) {
+	if(action==AnimState::OPENING || action==AnimState::CLOSING || action==AnimState::STOPPED) {
 		GOXArmAction=action;
 		GOXArmSequence();
 	}
@@ -452,6 +485,26 @@ void SSUPad::GOXArmSequence()
 		}
 		else GOXArmAction=AnimState::CLOSED;
 	}
+	else if(GOXArmAction==AnimState::STOPPED)
+		GVAState.action=AnimState::STOPPED;
+}
+
+void SSUPad::MoveGH2Pipe(AnimState::Action action)
+{
+	if(action==AnimState::CLOSING || action == AnimState::OPENING)
+		FSS_GH2_VentArmState.action = action;
+}
+
+void SSUPad::MoveVentHood(AnimState::Action action)
+{
+	if(action == AnimState::CLOSING || action == AnimState::OPENING || action == AnimState::STOPPED)
+		VentHoodState.action = action;
+}
+
+void SSUPad::MoveLOXArm(AnimState::Action action)
+{
+	if(action == AnimState::CLOSING || action == AnimState::OPENING || action == AnimState::STOPPED)
+		GVAState.action = action;
 }
 
 AnimState::Action SSUPad::GetAccessArmState() const

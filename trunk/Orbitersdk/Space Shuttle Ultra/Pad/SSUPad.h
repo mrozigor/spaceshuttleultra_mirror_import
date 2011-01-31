@@ -56,6 +56,9 @@ public:
 	virtual void OnT0();
 	virtual void MoveOrbiterAccessArm(AnimState::Action action);
 	virtual void MoveGOXArm(AnimState::Action action);
+	void MoveGH2Pipe(AnimState::Action action);
+	void MoveVentHood(AnimState::Action action);
+	void MoveLOXArm(AnimState::Action action);
 	virtual AnimState::Action GetAccessArmState() const;
 	virtual AnimState::Action GetGOXArmState() const;
 	void MoveRSS_OWP(AnimState::Action action);
