@@ -616,6 +616,15 @@ public:
 
 	OBJHANDLE ThisVessel;
 
+	//-----------------------------------------------
+	//PLB Lights
+	//-----------------------------------------------
+	LightEmitter* PLBLight[6];
+	void ControlPLBLights();
+	VECTOR3 PLBLightPosition[6];
+	BEACONLIGHTSPEC bspec[6];
+	bool bPLBLights;
+
 	
 
 private:

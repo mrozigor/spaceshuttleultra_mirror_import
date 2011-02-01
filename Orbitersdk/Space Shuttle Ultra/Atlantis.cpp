@@ -1074,6 +1074,49 @@ pActiveLatches(3, NULL)
 
   curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
   curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
+
+
+
+
+
+
+  //PLB LIGHTS
+  PLBLightPosition[0] = _V(1.4224,-1.26892,7.62); //forward stbd
+  PLBLightPosition[1] = _V(-1.4224,-1.26892,7.62); //forward port
+  PLBLightPosition[2] = _V(1.4224,-1.26892,1.8034);//mid stbd
+  PLBLightPosition[3] = _V(-1.4224,-1.26892,1.8034);//mid port
+  PLBLightPosition[4] = _V(1.4224,-1.26892,-2.30302);//aft stbd
+  PLBLightPosition[5] = _V(-1.4224,-1.26892,-2.30302);//aft port
+  static VECTOR3& color = _V(0.75,0.75,0.75);
+  const COLOUR4 diff = {0.75, 0.75, 0.75, 0};
+  const COLOUR4 amb = {0,0,0,0};
+  const COLOUR4 spec = {0,0,0,0};
+
+	//CREATE BEACONS
+	for(int i=0; i<6; ++i)
+	{
+		bspec[i].active = true;
+		bspec[i].col = &color;
+		bspec[i].duration = 0;
+	    bspec[i].falloff = 0.4;
+		bspec[i].period = 0;
+		bspec[i].pos = &PLBLightPosition[i];
+		bspec[i].shape = BEACONSHAPE_DIFFUSE;
+		bspec[i].size = 0.25;
+		bspec[i].tofs = 0;
+		AddBeacon(&bspec[i]);
+	}
+
+	//CREATE LIGHTS
+	for(int i=0; i<6; ++i)
+	{
+		PLBLight[i] = AddPointLight(PLBLightPosition[i],20,0.5,0.4,0.001,
+			diff,spec,amb);
+	}
+
+	bPLBLights = false;
+
+
 }
 
 // --------------------------------------------------------------
@@ -3863,6 +3906,19 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			pgAftPort.ParsePanelBlock(pszPanelName, scn);
 
 		oapiWriteLog("\tLeave @PANEL block.");
+	} else if(!_strnicmp(line,"PLB_LIGHTS",10)) {
+		int t;
+		sscanf_s(line+10,"%i",&t);
+		if(t==1)
+		{
+			bPLBLights = false;
+			ControlPLBLights();
+		}
+		else
+		{
+			bPLBLights = true;
+			ControlPLBLights();
+		}
 	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
@@ -4009,6 +4065,14 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_D], camYaw[CAM_D],
 			camPitch[CAM_B], camYaw[CAM_B], camPitch[CAM_C], camYaw[CAM_C]);
   oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
+  if(bPLBLights)
+  {
+	  oapiWriteScenario_int(scn,"PLB_LIGHTS",1);
+  }
+  else
+  {
+	  oapiWriteScenario_int(scn,"PLB_LIGHTS",0);
+  }
 
   oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
@@ -4028,6 +4092,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   pgAftStbd.OnSaveState(scn);
   pgAft.OnSaveState(scn);
   pgAftPort.OnSaveState(scn);
+
 
 	//oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   //psubsystems->SaveState(scn);
@@ -6733,6 +6798,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgAftPort.ToggleCoordinateDisplayMode();
 		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 		return 1;
+	case OAPI_KEY_L:
+		ControlPLBLights();
+		return 1;
 	}
 	} else if(KEYMOD_ALT(kstate)) {
 		if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
@@ -8204,4 +8272,27 @@ double Atlantis::GetMassOfAttachedObjects() const
 void Atlantis::UpdateMass() const
 {
 	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
+}
+
+
+void Atlantis::ControlPLBLights()
+{
+	if(bPLBLights)
+	{
+		for(int i=0; i<6; ++i)
+		{
+			PLBLight[i]->Activate(false);
+			bspec[i].active = false;
+		}
+		bPLBLights = false;
+	}
+	else
+	{
+		for(int i=0; i<6; ++i)
+		{
+			PLBLight[i]->Activate(true);
+			bspec[i].active = true;
+		}
+		bPLBLights = true;
+	}
 }
