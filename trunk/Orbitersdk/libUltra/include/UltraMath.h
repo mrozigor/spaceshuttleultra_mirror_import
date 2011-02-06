@@ -59,6 +59,7 @@ double RotationRateChange(double Mass, double Moment, double Torque, double Delt
 VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
 MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
 
+VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);

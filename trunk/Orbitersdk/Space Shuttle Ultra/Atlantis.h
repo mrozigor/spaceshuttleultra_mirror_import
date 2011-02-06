@@ -440,6 +440,9 @@ public:
 	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
 	virtual double GetMET() const;
+	virtual double GetTgtSpeedbrakePosition() const;
+	virtual double GetActSpeedbrakePosition() const;
+	virtual AnimState::Action GetGearState() const;
 	int GetSoundID() const;
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
@@ -783,29 +786,29 @@ private:
 	 * @param yaw angle in degrees (relative to null position)
 	 * @return false if gimbal values are out of range, true otherwise
 	 */
-	 void GimbalOMS(int engine, double pitch, double yaw);
+	void GimbalOMS(int engine, double pitch, double yaw);
 	void OMSTVC(const VECTOR3 &Rates, double SimDT);
 	//void GimbalOMS(const VECTOR3 &Targets);
 
 	//DAP
-	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
+	//VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
 	//VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
 	//VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
-	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
+	//MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
 	//calc attitude/attitude error
-	VECTOR3 CalcLVLHAttitude();
+	//VECTOR3 CalcLVLHAttitude();
 	//VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
 	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
-	MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
+	//MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
 	//VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
-	double NullStartAngle(double Rates, AXIS Axis) const;
+	//double NullStartAngle(double Rates, AXIS Axis) const;
 
 	//Thruster Control
 	void EnableThrusters(const int Thrusters[], int nThrusters);
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
-	bool RCSThrustersFiring();
+
 	void UpdateOrbiterTexture(const std::string& strTextureName);
 
 	
@@ -890,15 +893,6 @@ private:
 	//UINT anim_camRMSElbowPan;
 	//UINT anim_camRMSElbowTilt;
 	
-	// PAYLOAD CAMERAS ROTATION (-170 to 170 degrees)
-	/*double camFLyaw;
-	double camFLpitch;
-	double camFRyaw;
-	double camFRpitch;
-	double camBLyaw;
-	double camBLpitch;
-	double camBRyaw;
-	double camBRpitch;*/
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
 	double camYaw[4], camPitch[4];
 	//double camRMSElbowPan, camRMSElbowTilt;
@@ -1124,24 +1118,6 @@ private:
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	//MNVR
-	/*int OMS; //0=BOTH, 1=LEFT, 2=RIGHT, 3=RCS
-	double tig; // TIG in seconds 
-	double TIG[4]; // day,hour,min,sec
-	double IgnitionTime; //MET at ignition
-	bool BurnInProg, BurnCompleted;
-	double WT;
-	VECTOR3 PEG7, DeltaV;
-	double C1, C2, HT, ThetaT; // PEG4 Targets
-	VECTOR3 Trim; // 0=P, 1=LY, 2=RY
-	double TV_ROLL;
-	double DeltaVTot;
-	double BurnTime;
-	VECTOR3 VGO;
-	double vgoTot;
-	bool MNVRLOAD, MnvrExecute, MnvrToBurnAtt;
-	VECTOR3 BurnAtt;
-	double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW*/
-	PIDControl OMSTVCControlP, OMSTVCControlY;
 	double curOMSPitch[2], curOMSYaw[2];
 
 	//DAP

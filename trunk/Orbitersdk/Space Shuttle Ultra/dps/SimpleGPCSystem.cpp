@@ -138,6 +138,15 @@ bool SimpleGPCSystem::OnPaint(int spec, vc::MDU* pMDU) const
 	return false;
 }
 
+bool SimpleGPCSystem::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
+{
+	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
+		if(vActiveSoftware[i]->OnDrawHUD(hps, skp))
+			return true;
+	}
+	return false;
+}
+
 SimpleGPCSoftware* SimpleGPCSystem::FindSoftware(const std::string& identifier) const
 {
 	for(unsigned int i=0;i<vSoftware.size();i++) {

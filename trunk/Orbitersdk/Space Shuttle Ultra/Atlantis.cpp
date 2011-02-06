@@ -427,7 +427,6 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 // --------------------------------------------------------------
 Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
 : VESSEL3 (hObj, fmodel),
-OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75),
 BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
 ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
@@ -3311,25 +3310,6 @@ void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 	}
 }
 
-bool Atlantis::RCSThrustersFiring()
-{
-	if(!Eq(GetThrusterGroupLevel(thg_pitchup), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_pitchdown), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_yawleft), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_yawright), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_rollleft), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_rollright), 0.0, 0.01)) return true;
-	
-	if(!Eq(GetThrusterGroupLevel(thg_transup), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_transdown), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_transright), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_transleft), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_transfwd), 0.0, 0.01)) return true;
-	if(!Eq(GetThrusterGroupLevel(thg_transaft), 0.0, 0.01)) return true;
-
-	return false;
-}
-
 void Atlantis::UpdateTranslationForces()
 {
 	TransForce[0].x=GetThrusterGroupMaxThrust(thg_transfwd);
@@ -3465,6 +3445,13 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 				}
 				else return false;
 			}
+			else if(pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305) {
+				if(nNew == 50) {
+					pIDP[idp]->SetSpec(50);
+					return true;
+				}
+				return false;
+			}
 		}
 	}
 	else if(pIDP[idp]->GetMajfunc()==dps::SM) //SM
@@ -3493,7 +3480,7 @@ void Atlantis::SetILoads()
 	return;
 }
 
-VECTOR3 Atlantis::CalcLVLHAttitude()
+/*VECTOR3 Atlantis::CalcLVLHAttitude()
 {
 	VESSELSTATUS Status;
 	GetStatus(Status);
@@ -3544,7 +3531,7 @@ MATRIX3 Atlantis::CalcPitchYawRollRotMatrix()
 	return _M(YawRoll.x, YawRoll.y, YawRoll.z,
 			  H.x, H.y, H.z,
 			  Pitch.x, Pitch.y, Pitch.z);
-}
+}*/
 
 /*VECTOR3 Atlantis::ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {
@@ -3596,7 +3583,7 @@ MATRIX3 Atlantis::ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bo
 	return Output;
 }*/
 
-VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
+/*VECTOR3 Atlantis::ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles)
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, LocalToGlobal;
@@ -3671,7 +3658,7 @@ double Atlantis::NullStartAngle(double Rates, AXIS Axis) const
 		return DEG*Angle;
 	}
 	else return 0.0;
-}
+}*/
 
 // ==============================================================
 // Overloaded callback functions
@@ -5414,7 +5401,9 @@ void Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
 
 bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
 {
-	if(ops < 304) {
+	pSimpleGPC->OnDrawHUD(hps, skp);
+	return true;
+	/*if(ops < 304) {
 		//Stopwatch st;
 		//st.Start();
 		VESSEL3::clbkDrawHUD(mode, hps, skp);
@@ -5440,7 +5429,7 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 	{
 		GetHorizonAirspeedVector(Velocity);
 		/*sprintf(cbuf,"VSPEED:%.2f",Velocity.y);
-		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));*/
+		TextOut(hDC,10,(hps->H)/2-35,cbuf,strlen(cbuf));*
 		//dOut=GetAirspeed()*1.943844;
 		//const double EAS_EXP = 2.0/7.0;
 		//const double P0 = 1.01325E6;
@@ -5484,7 +5473,7 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 
 		curPitchDelta += 5.0;
-	}*/
+	}*
 	// create rotated font for HUD pitch markings
 	oapi::Font* pFont = oapiCreateFont(12, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
 	oapi::Font* pOldFont = skp->SetFont(pFont);
@@ -5538,7 +5527,7 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 
 	//sprintf_s(oapiDebugString(), 255, "HUD time: %f", st.Stop());
 	st.Stop();
-	return true;
+	return true;*/
 }
 
 bool Atlantis::DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderPitch, double orbiterPitch, double orbiterBank) const
@@ -7603,6 +7592,21 @@ void Atlantis::SetGPCMajorMode(unsigned int newMajorMode)
 double Atlantis::GetMET() const
 {
 	return met;
+}
+
+double Atlantis::GetTgtSpeedbrakePosition() const
+{
+	return spdb_tgt;
+}
+
+double Atlantis::GetActSpeedbrakePosition() const
+{
+	return spdb_proc;
+}
+
+AnimState::Action Atlantis::GetGearState() const
+{
+	return gear_status.action;
 }
 
 void Atlantis::CreateOrbiterTanks()
