@@ -173,6 +173,8 @@ void OrbitDAP::StartINRTLManeuver(const VECTOR3& radTargetAttOrbiter)
 
 void OrbitDAP::StartLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
 {
+	sprintf_s(oapiDebugString(), 255, "Starting LVLH mnvr: %f %f %f",
+		radTargetLVLHAtt.data[PITCH]*DEG, radTargetLVLHAtt.data[YAW]*DEG, radTargetLVLHAtt.data[ROLL]*DEG);
 	ActiveManeuver.IsValid = true;
 	ActiveManeuver.radTargetLVLHAtt = radTargetLVLHAtt;
 	ActiveManeuver.Type = AttManeuver::TRK;
