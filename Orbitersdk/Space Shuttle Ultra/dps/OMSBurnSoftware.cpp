@@ -200,6 +200,7 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 	else if(item==27) {
 		if(!MnvrToBurnAtt) {
 			//STS()->LoadBurnAttManeuver(BurnAtt);
+			MnvrToBurnAtt = true;
 			pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
 		}
 		/*else {

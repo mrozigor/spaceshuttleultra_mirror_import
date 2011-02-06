@@ -275,6 +275,13 @@ MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbit
 	return Output;
 }
 
+VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
+{
+	VECTOR3 v;
+	oapiEquToLocal(hPlanet, lng, lat, rad, &v);
+	return v;
+}
+
 int tpir(const double* list, int n_items, double target) {
 	// char buf[64];
 	if(target<list[0]) return 0;

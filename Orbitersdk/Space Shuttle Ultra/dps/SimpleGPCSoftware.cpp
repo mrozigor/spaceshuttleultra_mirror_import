@@ -59,6 +59,11 @@ bool SimpleGPCSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	return false;
 }
 
+bool SimpleGPCSoftware::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
+{
+	return false;
+}
+
 SimpleGPCSoftware* SimpleGPCSoftware::FindSoftware(const std::string& identifier) const
 {
 	return pGPC->FindSoftware(identifier);

@@ -57,6 +57,7 @@ public:
 	 * Returns true if data was drawn; false otherwise
 	 */
 	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
+	virtual bool OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const;
 
 	SimpleGPCSoftware* FindSoftware(const std::string& identifier) const;
 };

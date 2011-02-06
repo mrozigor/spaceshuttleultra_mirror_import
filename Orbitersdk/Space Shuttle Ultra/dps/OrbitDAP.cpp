@@ -490,7 +490,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 	if(ControlMode == RCS) {
-		if(BodyFlapAuto && !PCTActive) StartPCT();
+		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
 		else if(!BodyFlapAuto && PCTActive) StopPCT();
 		if(!PCTActive) HandleTHCInput(DeltaT);
 		else PCTControl(SimT);
