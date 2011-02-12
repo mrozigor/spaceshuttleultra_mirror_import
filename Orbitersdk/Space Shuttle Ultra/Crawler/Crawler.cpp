@@ -134,6 +134,7 @@
 #include "CrawlerLeftPanel.h"
 #include "CrawlerCenterPanel.h"
 #include "CrawlerRightPanel.h"
+#include "LDSPanel.h"
 
 GlobalHandles g_Resources;
 
@@ -180,6 +181,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	pgRearCab.AddPanel(new vc::CrawlerLeftPanel(this, "REAR_CAB_LEFT", vc::REAR));
 	pgRearCab.AddPanel(new vc::CrawlerCenterPanel(this, "REAR_CAB_CTR", vc::REAR));
 	pgRearCab.AddPanel(new vc::CrawlerRightPanel(this, "REAR_CAB_RIGHT", vc::REAR));
+	pgFwdCab.AddPanel(new vc::LDS(this,"FWD_LDS", vc::FWD));
+	pgRearCab.AddPanel(new vc::LDS(this,"REAR_LDS", vc::REAR));
 
 	//tgtVelocity = 0.0;
 	//velocity = 0;
@@ -364,8 +367,6 @@ void Crawler::clbkPostCreation()
 	pBundle = pBundleManager->CreateBundle("CRAWLER_SPEED", 2);
 	port_currentSpeed.Connect(pBundle, 0);
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
-	DefineFWDCabKnobsAnimations();
-	DefineREARCabKnobsAnimations();
 
 	pBundle = pBundleManager->CreateBundle("CRAWLER_JEL", 1);
 	port_JackHeight.Connect(pBundle, 0);
@@ -513,7 +514,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
-	pLDS->CalculateDistanceBetweenAttachments(MlpAttachL2G(),CTRotationMatrix());
 	psubsystems->PostStep(simt, simdt, mjd);
 	pgFwdCab.OnPostStep(simt, simdt, mjd);
 	pgRearCab.OnPostStep(simt, simdt, mjd);
@@ -1044,11 +1044,12 @@ bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
 	bRet = pgFwdCab.OnVCMouseEvent(id, _event, p);
 	bRet = pgRearCab.OnVCMouseEvent(id, _event, p);
 
+	/*
 	if((id==AID_LDS_AREA) || (id==AID_LDS_AREA+AID_REAR_OFFSET))
 	{
 		KnobAction(p,id);  //LDS BUTTON ACTION
 	}
-
+	*/
 	return bRet;
 }
 
@@ -1182,6 +1183,8 @@ MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
 	else return hRearVCMesh;
 }
 
+
+/*
 void Crawler::KnobAction(VECTOR3 pos, int panel)
 {
 	if(panel == 31)
@@ -1371,3 +1374,4 @@ MATRIX3 Crawler::CTRotationMatrix()
 	GetRotationMatrix(rot);
 	return rot;
 }
+*/
