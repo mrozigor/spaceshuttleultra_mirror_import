@@ -13,7 +13,8 @@ namespace vc
 
 	LDS::~LDS()
 	{
-		//something here
+		// clean up animations
+		for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 	}
 
 	void LDS::ShowAlignmentError(double lateral)
@@ -98,7 +99,7 @@ namespace vc
 	{
 
 		
-		int rot_ofs;
+		/*int rot_ofs;
 		if(cabID == FWD)
 		{
 			rot_ofs = 1;
@@ -109,7 +110,8 @@ namespace vc
 		{
 			rot_ofs = -1;
 			BasicPanel::DefineVCAnimations(6); //PASS REAR LDS MESH NUMBER
-		}
+		}*/
+		//BasicPanel::DefineVCAnimations(vcidx);
 		
 		//BasicPanel::DefineVCAnimations(mshnbr);
 
@@ -131,25 +133,28 @@ namespace vc
 		static UINT LeftKnobGrp[1] = {57};
 		VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
 		VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
-		static MGROUP_ROTATE RotLeftKnob(vcidx,LeftKnobGrp,1,LP1,LNormalised,rot_ofs*120*RAD); //TRANSFORMED VECTOR
+		MGROUP_ROTATE* pRotLeftKnob = new MGROUP_ROTATE(vcidx,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
 		LeftKnobAnim = V()->CreateAnimation(0.0);
-		V()->AddAnimationComponent(LeftKnobAnim,0,1,&RotLeftKnob);
+		V()->AddAnimationComponent(LeftKnobAnim,0,1,pRotLeftKnob);
+		vpAnimations.push_back(pRotLeftKnob);
 
 		//CENTER KNOB ANIMATION
 		static UINT CenterKnobGrp[1] = {58};
 		VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
 		VECTOR3 CNormalised = CResult/dist(CP1,CP2);
-		static MGROUP_ROTATE RotCenterKnob(vcidx,CenterKnobGrp,1,CP1,CNormalised,rot_ofs*120*RAD);
+		MGROUP_ROTATE* pRotCenterKnob = new MGROUP_ROTATE(vcidx,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
 		CenterKnobAnim = V()->CreateAnimation(0.0);
-		V()->AddAnimationComponent(CenterKnobAnim,0,1,&RotCenterKnob);
+		V()->AddAnimationComponent(CenterKnobAnim,0,1,pRotCenterKnob);
+		vpAnimations.push_back(pRotCenterKnob);
 
 		//RIGHT KNOB ANIMATION
 		static UINT RightKnobGrp[1] = {59};
 		VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
 		VECTOR3 RNormalised = RResult/dist(RP1,RP2);
-		static MGROUP_ROTATE RotRightKnob(vcidx,RightKnobGrp,1,RP1,RNormalised,rot_ofs*120*RAD);
+		MGROUP_ROTATE* pRotRightKnob = new MGROUP_ROTATE(vcidx,RightKnobGrp,1,RP1,RNormalised,120*RAD);
 		RightKnobAnim = V()->CreateAnimation(0.0);
-		V()->AddAnimationComponent(RightKnobAnim,0,1,&RotRightKnob);
+		V()->AddAnimationComponent(RightKnobAnim,0,1,pRotRightKnob);
+		vpAnimations.push_back(pRotRightKnob);
 	}
 		
 
