@@ -1,5 +1,6 @@
 #include "orbitersdk.h"
 #include "Crawler_vc_defs.h"
+#include <vector>
 
 const int OFF = 0;
 const int ON = 1;
@@ -10,6 +11,7 @@ namespace vc
 
 	class LDS : public CrawlerPanel
 	{
+		std::vector<MGROUP_ROTATE*> vpAnimations;
 	public:
 		LDS(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 		virtual ~LDS();
