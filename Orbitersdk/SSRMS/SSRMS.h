@@ -1,0 +1,113 @@
+#ifndef __SSRMS_H
+#define __SSRMS_H
+#pragma once
+
+#include "orbitersdk.h"
+#include "Subsystem.h"
+#include "SubsystemDirector.h"
+#include <cmath>
+
+static const char* ATTACH_ID = "GS";
+
+const double JOINT_ROTATION_SPEED = 1.0; // deg/s
+const double EE_ROTATION_SPEED = 1.0; // deg/s
+const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
+
+// joint positions
+const VECTOR3 SR_JOINT = _V(0.70, 0.59, -8.44); // coincides with LEE position
+const VECTOR3 SY_JOINT = _V(0.69, 0.59, -7.47);
+const VECTOR3 SP_JOINT = _V(0.0, 0.00, -7.47);
+const VECTOR3 EP_JOINT = _V(0.0, 0.0, 0.0);
+const VECTOR3 WP_JOINT = _V(0.0, 0.0, 7.47);
+const VECTOR3 WY_JOINT = _V(-0.69, 0.59, 7.47);
+const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint position
+
+//const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
+// distance (metres) from SR joint to SY joint
+//const double SY_SP_DIST = length(SP_JOINT-SY_JOINT);
+// distance (metres) from SY joint to SP joint
+const double SP_EP_DIST = length(EP_JOINT-SP_JOINT);
+// distance (metres) from SP joint to EP joint
+const double EP_WP_DIST = length(WP_JOINT-EP_JOINT);
+// distance (metres) from EP joint to WP joint
+//const double WP_WY_DIST = length(WY_JOINT-WP_JOINT);
+const double WP_WY_DIST = WY_JOINT.y-WP_JOINT.y;
+// distance (metres) from WP joint to WY joint
+const double WY_EE_DIST = length(WY_JOINT-LEE_POS);
+// distance (metres) from WY joint to EE
+const double LEE_OFFSET = SY_JOINT.x-LEE_POS.x;
+// horizontal offset between the LEE and the reference point
+
+const double JOINT_LIMITS[2] = {-447.0, +447.0};
+const double JOINT_SOFTSTOPS[2] = {-447.0, +447.0}; // TODO: update these to correct values
+
+enum Frame{EE_FRAME, BASE_FRAME};
+
+class LatchSystem;
+
+class SSRMS: public VESSEL2
+{
+public:
+	typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
+	typedef enum {SHOULDER_ROLL=0, SHOULDER_YAW, SHOULDER_PITCH, ELBOW_PITCH, WRIST_PITCH, WRIST_YAW, WRIST_ROLL} SSRMS_JOINT;
+
+	SSRMS(OBJHANDLE hObj, int fmodel);
+	~SSRMS();
+
+	//callback functions
+	void clbkLoadStateEx(FILEHANDLE scn, void *vs);
+	void clbkSaveState(FILEHANDLE scn);
+	void clbkPreStep(double simt, double simdt, double mjd);
+	void clbkPostStep(double SimT, double SimDT, double MJD);
+	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
+	void clbkPostCreation();
+	int  clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
+private:
+	void DefineAnimations();
+	void DefineThrusters();
+
+	//SSRMS functions
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot);
+	/**
+	 * Sets joint angle
+	 * @parameter angle - angle in degrees
+	 * @returns - true if angle could be set, false otherwise
+	 */
+	bool SetJointAngle(SSRMS_JOINT joint, double angle);
+	/**
+	 * Tries to change which LEE is used as base and which LEE is active
+	 * @returns - true is active LEE was changed; false otherwise
+	 */
+	bool ChangeActiveLEE();
+	void CalculateVectors();
+
+private:
+	SSRMSSubsystemDirector* pSubsystemDirector;
+
+	VECTOR3 arm_tip[3];
+	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot, arm_ee_angles;
+	double joint_angle[7]; // angles in degrees
+	bool arm_moved, update_angles, update_vectors;
+
+	unsigned short activeLEE, passiveLEE; // either 0 or 1
+	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
+	unsigned short SpeedFactor;
+	Frame RefFrame;
+
+	int OrbiterSoundHandle;
+
+	//mesh handles
+	MESHHANDLE hSSRMSMesh;
+	UINT mesh_ssrms;
+	UINT anim_joint[2][7], anim_lee;
+
+	bool ShowAttachmentPoints;
+
+	THRUSTER_HANDLE rms_control[6];
+	PROPELLANT_HANDLE ph_null;
+
+	ATTACHMENTHANDLE ahBase, ahGrapple;
+	LatchSystem* pLEE[2];
+};
+
+#endif // !__SSRMS_H
