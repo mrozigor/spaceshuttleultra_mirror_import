@@ -1,1 +1,9 @@
 LEE Switching:
+	Each LEE has 2 attach points (to parent and to child).
+	Switching process:
+		Current base detaches from parent, but remains 'grappled'.
+		Other LEE (already grappled) attaches to parent attach point.
+IK Ref Frame:
+	X -> axis around which roll joints rotate
+	Y -> axis around which yaw joints rotate
+	Z -> axis around which pitch joints rotate

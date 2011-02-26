@@ -78,8 +78,8 @@ void LEESystem::DetachFromBase()
 
 void LEESystem::Realize()
 {
-	hBaseAttach = V()->CreateAttachment(true, SR_JOINT, _V(0, 0, 1), _V(0, 1, 0), ATTACH_ID);
-	hEEAttach = V()->CreateAttachment(false, SR_JOINT, _V(0, 0, 1), _V(0, 1, 0), ATTACH_ID);
+	hBaseAttach = V()->CreateAttachment(true, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
+	hEEAttach = V()->CreateAttachment(false, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
 }
 
 void LEESystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -215,6 +215,7 @@ bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchp
 		v->GlobalRot(dir, gdir);
 		if(fabs(PI-acos(dotp(gdir, glatchdir))) < MAX_GRAPPLING_ANGLE)
 			return true;
+		else sprintf_s(oapiDebugString(), 255, "Angle error: %f", fabs(PI-acos(dotp(gdir, glatchdir))));
 	}
 	return false;
 }

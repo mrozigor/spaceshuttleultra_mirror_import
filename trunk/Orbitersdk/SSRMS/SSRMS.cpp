@@ -161,9 +161,13 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 {
 	//sprintf_s(oapiDebugString(), 255, "Target pos: %f %f %f", newPos.x, newPos.y, newPos.z);
 
-	SetJointAngle(SHOULDER_ROLL, 0.0);
+	//SetJointAngle(SHOULDER_ROLL, 0.0);
+	// pretend shoulder roll is set to 0
+	VECTOR3 pos = RotateVectorX(newPos, -joint_angle[SHOULDER_ROLL]);
+	VECTOR3 dir = RotateVectorX(newDir, -joint_angle[SHOULDER_ROLL]);
+	VECTOR3 rot = RotateVectorX(newRot, -joint_angle[SHOULDER_ROLL]);
 
-	VECTOR3 arm_wy_pos = newPos-newDir*WY_EE_DIST;
+	VECTOR3 arm_wy_pos = pos-dir*WY_EE_DIST;
 
 	//sprintf_s(oapiDebugString(), 255, "arm_wy_pos: %f %f %f", arm_wy_pos.x, arm_wy_pos.y, arm_wy_pos.z);
 
@@ -175,7 +179,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	VECTOR3 offset_vector = RotateVectorZ(_V(0, -1, 0), -sy_angle_r*DEG);
 	//if(offset_vector.y>0.0) offset_vector=-offset_vector; // make sure vector always points in -Y direction; simplifies math
 	//if(corrected_wy_pos.x<0.0) offset_vector=-offset_vector;
-	VECTOR3 wp_dir = crossp(offset_vector, newDir);
+	VECTOR3 wp_dir = crossp(offset_vector, dir);
 	//VECTOR3 wp_dir;
 	//if(offset_vector.y<=0.0) wp_dir = crossp(offset_vector, newDir);
 	//else wp_dir = crossp(-offset_vector, newDir);
@@ -213,7 +217,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	/*if((offset_vector.z>0.0 && newDir.z<0.0) || (offset_vector.z<0.0 && newDir.z>0.0)) 
 		wy_angle_d=90.0+DEG*acos(dotp(offset_vector, newDir));
 	else*/
-	wy_angle_d=90.0-DEG*acos(dotp(offset_vector, newDir));
+	wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
 	//if(abs(sy_angle_r*DEG)<90.0) wy_angle_d=90.0-DEG*acos(dotp(offset_vector, newDir));
 	//else wy_angle_d=180.0+DEG*acos(dotp(offset_vector, newDir));
 	//if(corrected_wy_pos.x>=0.0) wy_angle_d=90.0-DEG*acos(dotp(offset_vector, newDir));
@@ -326,9 +330,16 @@ void SSRMS::CalculateVectors()
 	}
 	else {*/
 		//arm_ee_pos=arm_tip[0]-SY_JOINT;
-		arm_ee_pos=arm_tip[0]-_V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
-		arm_ee_pos=_V(arm_ee_pos.z, -arm_ee_pos.x, -arm_ee_pos.y);
-		sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+	arm_ee_pos=arm_tip[0]-_V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
+	arm_ee_pos=_V(arm_ee_pos.z, -arm_ee_pos.x, -arm_ee_pos.y);
+
+	if(activeLEE==0) {
+		//arm_ee_dir = -arm_ee_dir;
+		//arm_ee_pos = RotateVectorX(-arm_ee_pos, joint_angle[SHOULDER_ROLL]);
+		arm_ee_pos = RotateVectorX(arm_ee_pos, joint_angle[SHOULDER_ROLL]);
+	}
+
+	sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 	//}
 	//oapiWriteLog(oapiDebugString());
 }
@@ -371,35 +382,42 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 {
 	pSubsystemDirector->PreStep(SimT, SimDT, mjd);
 
-	for(unsigned short i=0;i<7;i++) {
-		if(joint_motion[i]!=0) {
-			SetJointAngle((SSRMS_JOINT)i, joint_angle[i]+SimDT*JOINT_ROTATION_SPEED*SpeedFactor*joint_motion[i]);
-			update_vectors=true;
-			update_angles=true;
+	// if one LEE is free, allow arm to move
+	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) {
+		for(unsigned short i=0;i<7;i++) {
+			if(joint_motion[i]!=0) {
+				SetJointAngle((SSRMS_JOINT)i, joint_angle[i]+SimDT*JOINT_ROTATION_SPEED*SpeedFactor*joint_motion[i]);
+				update_vectors=true;
+				update_angles=true;
+			}
 		}
+
+		VECTOR3 RHCInput=_V(0.0, 0.0, 0.0);
+		VECTOR3 THCInput=_V(0.0, 0.0, 0.0);
+		VECTOR3 EETrans;
+
+		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
+
+		if(activeLEE==0) {
+			VECTOR3 arm_ee_cross = crossp(arm_ee_dir, arm_ee_rot);
+			MATRIX3 RotMatrix = _M(arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
+				arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z,
+				arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+			EETrans=tmul(RotMatrix, THCInput)*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
+			//EETrans=mul(RotMatrix, THCInput)*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
+			//sprintf_s(oapiDebugString(), 255, "arm_ee_cross: %f %f %f", arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z);
+		}
+		else EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
+
+		//sprintf_s(oapiDebugString(), 255, "EETrans: %f %f %f", EETrans.x/length(EETrans), EETrans.y/length(EETrans), EETrans.z/length(EETrans));
+		if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+EETrans, arm_ee_dir, arm_ee_rot);
+		//if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+RotateVectorZ(EETrans, joint_angle[SHOULDER_ROLL]), arm_ee_dir, arm_ee_rot);
 	}
 
-	VECTOR3 RHCInput=_V(0.0, 0.0, 0.0);
-	VECTOR3 THCInput=_V(0.0, 0.0, 0.0);
-	VECTOR3 EETrans;
-	
-	THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-	THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-	THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-
-	if(activeLEE==0) {
-		VECTOR3 arm_ee_cross = crossp(arm_ee_dir, arm_ee_rot);
-		MATRIX3 RotMatrix = _M(arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
-							arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z,
-							arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
-		EETrans=tmul(RotMatrix, THCInput)*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
-		//EETrans=mul(RotMatrix, THCInput)*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
-		sprintf_s(oapiDebugString(), 255, "arm_ee_cross: %f %f %f", arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z);
-	}
-	else EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
-	
-	sprintf_s(oapiDebugString(), 255, "EETrans: %f %f %f", EETrans.x/length(EETrans), EETrans.y/length(EETrans), EETrans.z/length(EETrans));
-	if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+EETrans, arm_ee_dir, arm_ee_rot);
+	VECTOR3 dir = arm_tip[1]-arm_tip[0];
+	sprintf_s(oapiDebugString(), 255, "DIR: %f %f %f", dir.x, dir.y, dir.z);
 }
 
 void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
@@ -446,7 +464,7 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 			update_angles=false;
 		}		
 
-		pLEE[1]->SetAttachmentParams(arm_tip[0], -arm_tip[1]+arm_tip[0], arm_tip[2]-arm_tip[0]);
+		pLEE[1]->SetAttachmentParams(arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 		arm_moved=false;
 	}
