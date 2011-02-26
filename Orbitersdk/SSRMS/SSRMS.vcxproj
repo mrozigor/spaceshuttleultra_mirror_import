@@ -80,7 +80,7 @@
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
       <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>MSVCRT;MSVCRTD</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -95,7 +95,7 @@
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
       <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>MSVCRT;MSVCRTD</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
