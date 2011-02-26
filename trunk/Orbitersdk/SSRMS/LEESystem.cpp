@@ -107,13 +107,9 @@ bool LEESystem::OnParseLine(const char* keyword, const char* line)
 {
 	//if(!_strnicmp(line, label.c_str(), label.length())) {
 	if(!_strnicmp(keyword, "ATTACHED_PAYLOAD", 16)) {
-		/*std::string temp=line+label.length();
-		int index=temp.find(' ');
-		payloadName=temp.substr(0, index);
-		std::string num=temp.substr(index+1);
-		attachmentIndex=atoi(num.c_str());*/
-		sscanf_s(line, "%s %d", payloadName, attachmentIndex);
-
+		char cbuf[255];
+		sscanf(line+1, "%s %d", cbuf, &attachmentIndex); // first char is space, so skip it
+		payloadName = cbuf;
 		return true;
 	}
 	else if(!_strnicmp(keyword, "BASE", 4)) {
