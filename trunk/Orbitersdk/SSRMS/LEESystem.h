@@ -7,9 +7,11 @@
 class SSRMS;
 typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
 typedef Subsystem<SSRMS> SSRMSSubsystem;
-const double MAX_GRAPPLING_DIST = 0.5;
+
+const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling
-const double MAX_GRAPPLING_ANGLE = 0.087266;
+//const double MAX_GRAPPLING_ANGLE = 0.087266;
+const double MAX_GRAPPLING_ANGLE = 0.2;
 // max angle between EE and grapple for successful grappling (radians)
 
 /**
@@ -29,10 +31,20 @@ public:
 	//void SetAttachment(ATTACHMENTHANDLE ah, bool active);
 	void SetAttachmentParams(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& rot) const;
 
+	/**
+	 * Called when 'grapple' command is sent to LEE.
+	 * /returns handle to vessel grappled; NULL if nothing in range
+	 */
 	OBJHANDLE Grapple();
+	/**
+	 * Called when 'ungrapple command is sent to LEE.
+	 */
 	void Ungrapple();
 	bool Grappled() const {return (hPayloadAttachment!=NULL);};
 	bool GrappledToBase() const {return (Grappled() && isGrappledToBase);};
+
+	void AttachToBase();
+	void DetachFromBase();
 
 	virtual void Realize();
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);

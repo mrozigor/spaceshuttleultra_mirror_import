@@ -5,9 +5,11 @@
 #include "orbitersdk.h"
 #include "Subsystem.h"
 #include "SubsystemDirector.h"
+#include "LEESystem.h"
 #include <cmath>
 
-static const char* ATTACH_ID = "GS";
+//static const char* ATTACH_ID = "GS";
+static const char* ATTACH_ID = "A";
 
 const double JOINT_ROTATION_SPEED = 1.0; // deg/s
 const double EE_ROTATION_SPEED = 1.0; // deg/s
@@ -21,6 +23,14 @@ const VECTOR3 EP_JOINT = _V(0.0, 0.0, 0.0);
 const VECTOR3 WP_JOINT = _V(0.0, 0.0, 7.47);
 const VECTOR3 WY_JOINT = _V(-0.69, 0.59, 7.47);
 const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint position
+
+/*const unsigned short SHOULDER_ROLL[] =	{6, 0};
+const unsigned short SHOULDER_YAW[] =	{5, 1};
+const unsigned short SHOULDER_PITCH[] =	{4, 2};
+const unsigned short ELBOW_PITCH[] =	{3, 3};
+const unsigned short WRIST_PITCH[] =	{2, 4};
+const unsigned short WRIST_YAW[] =		{1, 5};
+const unsigned short WRIST_ROLL[] =		{0, 6};*/
 
 //const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
@@ -42,8 +52,6 @@ const double JOINT_LIMITS[2] = {-447.0, +447.0};
 const double JOINT_SOFTSTOPS[2] = {-447.0, +447.0}; // TODO: update these to correct values
 
 enum Frame{EE_FRAME, BASE_FRAME};
-
-class LatchSystem;
 
 class SSRMS: public VESSEL2
 {
@@ -74,6 +82,7 @@ private:
 	 * @returns - true if angle could be set, false otherwise
 	 */
 	bool SetJointAngle(SSRMS_JOINT joint, double angle);
+	//bool SetJointAngle(unsigned short joint, double angle);
 	/**
 	 * Tries to change which LEE is used as base and which LEE is active
 	 * @returns - true is active LEE was changed; false otherwise
@@ -83,6 +92,7 @@ private:
 
 private:
 	SSRMSSubsystemDirector* pSubsystemDirector;
+	LEESystem* pLEE[2];
 
 	VECTOR3 arm_tip[3];
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot, arm_ee_angles;
@@ -100,14 +110,15 @@ private:
 	MESHHANDLE hSSRMSMesh;
 	UINT mesh_ssrms;
 	UINT anim_joint[2][7], anim_lee;
+	//UINT anim_joint[7], anim_lee;
 
 	bool ShowAttachmentPoints;
 
 	THRUSTER_HANDLE rms_control[6];
 	PROPELLANT_HANDLE ph_null;
 
-	ATTACHMENTHANDLE ahBase, ahGrapple;
-	LatchSystem* pLEE[2];
+	//ATTACHMENTHANDLE ahBase, ahGrapple;
+	//LatchSystem* pLEE[2];
 };
 
 #endif // !__SSRMS_H
