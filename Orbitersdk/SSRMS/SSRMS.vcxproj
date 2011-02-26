@@ -49,6 +49,9 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">SSRMSD</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SSRMSD</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SSRMSD</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,7 +61,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
-      <OutputFile>..\..\Modules\SSRMS.dll</OutputFile>
+      <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -75,7 +78,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
-      <OutputFile>..\..\Modules\SSRMS.dll</OutputFile>
+      <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>MSVCRT;MSVCRTD</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -90,7 +93,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
-      <OutputFile>..\..\Modules\SSRMS.dll</OutputFile>
+      <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>MSVCRT;MSVCRTD</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -100,15 +103,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="LEESystem.cpp" />
-    <ClCompile Include="LEE.cpp" />
     <ClCompile Include="SSRMS.cpp" />
-    <ClCompile Include="SSRMS_Latch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LEESystem.h" />
-    <ClInclude Include="LEE.h" />
     <ClInclude Include="SSRMS.h" />
-    <ClInclude Include="SSRMS_Latch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Implementation Notes.txt" />

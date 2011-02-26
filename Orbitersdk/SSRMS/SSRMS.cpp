@@ -1,7 +1,6 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "SSRMS.h"
-#include "SSRMS_Latch.h"
 #include "OrbiterSoundSDK35.h"
 #include "UltraMath.h"
 
@@ -16,11 +15,11 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	SetCrossSections(_V(4.7, 4.4, 0.4));
 
 	pSubsystemDirector = new SSRMSSubsystemDirector(this);
-	//pSubsystemDirector->AddSubsystem(pLEE[0] = new LatchSubsystem(this, "LEE1", ATTACH_ID));
-	//pSubsystemDirector->AddSubsystem(pLEE[1] = new LatchSubsystem(this, "LEE2", ATTACH_ID));
+	pSubsystemDirector->AddSubsystem(pLEE[0] = new LEESystem(pSubsystemDirector, "LEE1", ATTACH_ID));
+	pSubsystemDirector->AddSubsystem(pLEE[1] = new LEESystem(pSubsystemDirector, "LEE2", ATTACH_ID));
 
-	pLEE[0] = new LatchSystem(this, "LEE1", ATTACH_ID);
-	pLEE[1] = new LatchSystem(this, "LEE2", ATTACH_ID);
+	//pLEE[0] = new LatchSystem(this, "LEE1", ATTACH_ID);
+	//pLEE[1] = new LatchSystem(this, "LEE2", ATTACH_ID);
 
 	//load mesh
 	hSSRMSMesh = oapiLoadMeshGlobal("SSRMSD");
@@ -59,19 +58,17 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	DefineAnimations();
 	DefineThrusters();
 
-	ahBase = CreateAttachment(true, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
-	ahGrapple = CreateAttachment(false, arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], ATTACH_ID);
+	//ahBase = CreateAttachment(true, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
+	//ahGrapple = CreateAttachment(false, arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], ATTACH_ID);
 	//SetAttachmentParams(ahBase, arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
-	pLEE[0]->SetAttachment(ahBase, false);
-	pLEE[1]->SetAttachment(ahGrapple, true);
+	//pLEE[0]->SetAttachment(ahBase, false);
+	//pLEE[1]->SetAttachment(ahGrapple, true);
 }
 
 SSRMS::~SSRMS()
 {
 	delete pSubsystemDirector;
 	//for(int i=0;i<8;i++) delete rms_anim[i];
-	delete pLEE[0];
-	delete pLEE[1];
 }
 
 void SSRMS::DefineAnimations()
@@ -82,42 +79,49 @@ void SSRMS::DefineAnimations()
 	static MGROUP_ROTATE sr_anim (mesh_ssrms, ShoulderRollGrp, 1,
 		SR_JOINT, _V(0, 0, -1), (float)(894.0*RAD));
 	anim_joint[1][SHOULDER_ROLL] = CreateAnimation(0.5);
+	//anim_joint[SHOULDER_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_ROLL], 0, 1, &sr_anim);
 
 	static UINT ShoulderYawGrp[1] = {22};
 	static MGROUP_ROTATE sy_anim (mesh_ssrms, ShoulderYawGrp, 1,
 		SY_JOINT, _V(0, 1, 0), (float)(894.0*RAD));
 	anim_joint[1][SHOULDER_YAW] = CreateAnimation(0.5);
+	//anim_joint[SHOULDER_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_YAW], 0, 1, &sy_anim, parent);
 
 	static UINT ShoulderPitchGrp[10] = {23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
 	static MGROUP_ROTATE sp_anim (mesh_ssrms, ShoulderPitchGrp, 10,
 		SP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
 	anim_joint[1][SHOULDER_PITCH] = CreateAnimation(0.5);
+	//anim_joint[SHOULDER_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_PITCH], 0, 1, &sp_anim, parent);
 
 	static UINT ElbowPitchGrp[9] = {33, 34, 35, 36, 37, 38, 39, 40, 41};
 	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 9,
 		EP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
 	anim_joint[1][ELBOW_PITCH] = CreateAnimation(0.5);
+	//anim_joint[ELBOW_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][ELBOW_PITCH], 0, 1, &ep_anim, parent);
 
 	static UINT WristPitchGrp[1] = {42};
 	static MGROUP_ROTATE wp_anim (mesh_ssrms, WristPitchGrp, 1,
 		WP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
 	anim_joint[1][WRIST_PITCH] = CreateAnimation(0.5);
+	//anim_joint[WRIST_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_PITCH], 0, 1, &wp_anim, parent);
 
 	static UINT WristYawGrp[1] = {43};
 	static MGROUP_ROTATE wy_anim(mesh_ssrms, WristYawGrp, 1,
 		WY_JOINT, _V(0, 1, 0), (float)(894.0*RAD));
 	anim_joint[1][WRIST_YAW] = CreateAnimation(0.5);
+	//anim_joint[WRIST_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_YAW], 0, 1, &wy_anim, parent);
 
 	static UINT WristRollGrp[21] = {44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64};
 	static MGROUP_ROTATE wr_anim(mesh_ssrms, WristRollGrp, 21,
 		LEE_POS, _V(0, 0, 1), (float)(894.0*RAD));
 	anim_joint[1][WRIST_ROLL] = CreateAnimation(0.5);
+	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
 
 	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
@@ -258,7 +262,7 @@ bool SSRMS::ChangeActiveLEE()
 {
 	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) return false;
 
-	pLEE[activeLEE]->Ungrapple();
+	/*pLEE[activeLEE]->Ungrapple();
 	pLEE[passiveLEE]->Ungrapple();
 
 	activeLEE=passiveLEE;
@@ -271,7 +275,12 @@ bool SSRMS::ChangeActiveLEE()
 	pLEE[1]->SetAttachmentParams(arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 	pLEE[activeLEE]->Grapple();
-	pLEE[passiveLEE]->Grapple();
+	pLEE[passiveLEE]->Grapple();*/
+	pLEE[passiveLEE]->DetachFromBase();
+	pLEE[activeLEE]->AttachToBase();
+
+	activeLEE=passiveLEE;
+	passiveLEE=1-activeLEE;
 
 	// swap joint angles
 	for(unsigned short i=0;i<ELBOW_PITCH;i++) {
@@ -340,7 +349,9 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscanf(line+10, "%d", &activeLEE);
 			passiveLEE=1-activeLEE;
 		}
-		else ParseScenarioLineEx(line, vs);
+		else if(!pSubsystemDirector->ParseScenarioLine(scn, line)) {
+			ParseScenarioLineEx(line, vs);
+		}
 	}
 }
 
@@ -353,13 +364,14 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 				joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
 	oapiWriteScenario_int(scn, "ACTIVE_LEE", activeLEE);
+	pSubsystemDirector->SaveState(scn);
 }
 
 void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 {
-	for(int i=0;i<2;i++) pLEE[i]->OnPreStep(SimT, SimDT, mjd);
+	pSubsystemDirector->PreStep(SimT, SimDT, mjd);
 
-	for(int i=0;i<7;i++) {
+	for(unsigned short i=0;i<7;i++) {
 		if(joint_motion[i]!=0) {
 			SetJointAngle((SSRMS_JOINT)i, joint_angle[i]+SimDT*JOINT_ROTATION_SPEED*SpeedFactor*joint_motion[i]);
 			update_vectors=true;
@@ -392,6 +404,8 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 
 void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 {
+	pSubsystemDirector->PostStep(SimT, SimDT, MJD);
+
 	if(arm_moved) {
 		/*if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
@@ -432,7 +446,7 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 			update_angles=false;
 		}		
 
-		pLEE[1]->SetAttachmentParams(arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		pLEE[1]->SetAttachmentParams(arm_tip[0], -arm_tip[1]+arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 		arm_moved=false;
 	}
@@ -523,6 +537,8 @@ void SSRMS::clbkPostCreation()
 	//turn off attitude control sound
 	OrbiterSoundHandle = ConnectToOrbiterSoundDLL3(GetHandle());
 	if(OrbiterSoundHandle!=-1)SoundOptionOnOff3(OrbiterSoundHandle, PLAYATTITUDETHRUST, FALSE);
+
+	pSubsystemDirector->RealizeAll();
 
 	SetPropellantMass(ph_null, 1.0);
 

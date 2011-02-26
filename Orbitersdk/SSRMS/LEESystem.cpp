@@ -1,5 +1,6 @@
 #include "LEESystem.h"
 #include "SSRMS.h"
+#include <cassert>
 
 LEESystem::LEESystem(SSRMSSubsystemDirector* _director, const std::string &_ident, const std::string &_attachID)
 : SSRMSSubsystem(_director, _ident), isGrappledToBase(false), firstStep(true)
@@ -61,10 +62,24 @@ void LEESystem::Ungrapple()
 	DetachPayload();
 }
 
+void LEESystem::AttachToBase()
+{
+	assert(isGrappledToBase);
+
+	attachedPayload->AttachChild(V()->GetHandle(), hPayloadAttachment, hBaseAttach);
+}
+
+void LEESystem::DetachFromBase()
+{
+	assert(isGrappledToBase);
+
+	attachedPayload->DetachChild(hPayloadAttachment);
+}
+
 void LEESystem::Realize()
 {
-	hBaseAttach = V()->CreateAttachment(true, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
-	hEEAttach = V()->CreateAttachment(false, SR_JOINT, _V(0, 0, -1), _V(0, 1, 0), ATTACH_ID);
+	hBaseAttach = V()->CreateAttachment(true, SR_JOINT, _V(0, 0, 1), _V(0, 1, 0), ATTACH_ID);
+	hEEAttach = V()->CreateAttachment(false, SR_JOINT, _V(0, 0, 1), _V(0, 1, 0), ATTACH_ID);
 }
 
 void LEESystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -196,7 +211,7 @@ bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchp
 	VECTOR3 gpos, gdir;
 	v->GetAttachmentParams (ah, pos, dir, rot);
 	v->Local2Global (pos, gpos);
-	if (dist (gpos, glatchpos) < MAX_GRAPPLING_DIST) { 
+	if (dist (gpos, glatchpos) < MAX_GRAPPLING_DIST) {
 		v->GlobalRot(dir, gdir);
 		if(fabs(PI-acos(dotp(gdir, glatchdir))) < MAX_GRAPPLING_ANGLE)
 			return true;
@@ -235,8 +250,8 @@ void LEESystem::CheckForAttachedObjects()
 		//double mass=GetSSRMS()->GetEmptyMass()+attachedPayload->GetMass();
 		//GetSSRMS()->SetEmptyMass(mass);
 		// find handle of attachment point on payload
-		for(DWORD i=0;i<attachedPayload->AttachmentCount(isGrappledToBase);i++) {
-			ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(isGrappledToBase, i);
+		for(DWORD i=0;i<attachedPayload->AttachmentCount(!isGrappledToBase);i++) {
+			ATTACHMENTHANDLE hAtt=attachedPayload->GetAttachmentHandle(!isGrappledToBase, i);
 			if(attachedPayload->GetAttachmentStatus(hAtt)==V()->GetHandle()) {
 				hPayloadAttachment=hAtt;
 				//OnAttach();

@@ -15,13 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LEE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SSRMS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SSRMS_Latch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LEESystem.cpp">
@@ -29,13 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LEE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SSRMS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SSRMS_Latch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LEESystem.h">
