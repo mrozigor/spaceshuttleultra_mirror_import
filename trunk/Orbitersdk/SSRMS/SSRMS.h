@@ -8,8 +8,8 @@
 #include "LEESystem.h"
 #include <cmath>
 
-//static const char* ATTACH_ID = "GS";
-static const char* ATTACH_ID = "A";
+static const char* ATTACH_ID = "GS";
+//static const char* ATTACH_ID = "A";
 
 const double JOINT_ROTATION_SPEED = 1.0; // deg/s
 const double EE_ROTATION_SPEED = 1.0; // deg/s
@@ -32,10 +32,10 @@ const unsigned short WRIST_PITCH[] =	{2, 4};
 const unsigned short WRIST_YAW[] =		{1, 5};
 const unsigned short WRIST_ROLL[] =		{0, 6};*/
 
-//const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
+const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
-//const double SY_SP_DIST = length(SP_JOINT-SY_JOINT);
-// distance (metres) from SY joint to SP joint
+const double SY_SP_VERT_DIST = SY_JOINT.y-SP_JOINT.y;
+// distance (metres) from SY joint to SP joint in Orbiter Y axis
 const double SP_EP_DIST = length(EP_JOINT-SP_JOINT);
 // distance (metres) from SP joint to EP joint
 const double EP_WP_DIST = length(WP_JOINT-EP_JOINT);

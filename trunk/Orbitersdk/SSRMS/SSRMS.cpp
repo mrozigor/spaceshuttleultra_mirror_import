@@ -36,8 +36,10 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	arm_ee_dir = _V(1, 0, 0);
 	arm_ee_rot = _V(0, 1, 0);
 	arm_tip[0] = LEE_POS;
-	arm_tip[1] = _V(-0.70, 0.59, 9.44);
-	arm_tip[2] = _V(-0.70, 1.59, 8.44);
+	arm_tip[1] = LEE_POS + _V(0, 0, 1);
+	arm_tip[2] = LEE_POS + _V(0, 1, 0);
+	//arm_tip[1] = _V(-0.70, 0.59, 9.44);
+	//arm_tip[2] = _V(-0.70, 1.59, 8.44);
 
 	update_angles=false;
 	update_vectors=true;
@@ -162,12 +164,28 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	//sprintf_s(oapiDebugString(), 255, "Target pos: %f %f %f", newPos.x, newPos.y, newPos.z);
 
 	//SetJointAngle(SHOULDER_ROLL, 0.0);
+	// convert position to frame with origin near LEE 1
+	/*VECTOR3 newCross = crossp(newDir, newRot);
+	newCross/=length(newCross);
+	MATRIX3 RotMatrix = _M(newDir.x, newDir.y, newDir.z,
+		newCross.x, newCross.y, newCross.z,
+		newRot.x, newRot.y, newRot.z);
+	VECTOR3 pos = tmul(RotMatrix, newPos);*/
 	// pretend shoulder roll is set to 0
 	const VECTOR3 IK_REFERENCE = _V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
 	const VECTOR3 LEE_OFFSET_VECTOR = _V(SR_JOINT.z-IK_REFERENCE.z, -(SR_JOINT.x-IK_REFERENCE.x), -(SR_JOINT.y-IK_REFERENCE.y));
 	VECTOR3 pos = RotateVectorX(newPos, -joint_angle[SHOULDER_ROLL])+LEE_OFFSET_VECTOR;
+	//sprintf_s(oapiDebugString(), 255, "IK Pos: %f %f %f", pos.x, pos.y, pos.z);
 	VECTOR3 dir = RotateVectorX(newDir, -joint_angle[SHOULDER_ROLL]);
 	VECTOR3 rot = RotateVectorX(newRot, -joint_angle[SHOULDER_ROLL]);
+	//VECTOR3 pos = RotateVectorX(_V(newPos.x, -newPos.y, newPos.z), -joint_angle[SHOULDER_ROLL])+LEE_OFFSET_VECTOR;
+	//sprintf_s(oapiDebugString(), 255, "IK Pos: %f %f %f", pos.x, pos.y, pos.z);
+	//VECTOR3 dir = RotateVectorX(_V(newDir.x, -newDir.y, newDir.z), -joint_angle[SHOULDER_ROLL]);
+	//VECTOR3 rot = RotateVectorX(_V(newRot.x, -newRot.y, newRot.z), -joint_angle[SHOULDER_ROLL]);
+	// switch sign of Y axis to get IK code to work
+	/*pos.y=-pos.y;
+	dir.y=-dir.y;
+	rot.y=-rot.y;*/
 
 	VECTOR3 arm_wy_pos = pos-dir*WY_EE_DIST;
 
@@ -177,11 +195,12 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	double c_length = length(corrected_wy_pos);
 	double offset_angle = asin(LEE_OFFSET/c_length);
 
-	double sy_angle_r = -atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
-	VECTOR3 offset_vector = RotateVectorZ(_V(0, -1, 0), -sy_angle_r*DEG);
+	double sy_angle_r = atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
+	sprintf_s(oapiDebugString(), 255, "sy_angle: %f offset_angle: %f", DEG*sy_angle_r, DEG*offset_angle);
+	VECTOR3 offset_vector = RotateVectorZ(_V(0, 1, 0), -sy_angle_r*DEG);
 	//if(offset_vector.y>0.0) offset_vector=-offset_vector; // make sure vector always points in -Y direction; simplifies math
 	//if(corrected_wy_pos.x<0.0) offset_vector=-offset_vector;
-	VECTOR3 wp_dir = crossp(offset_vector, dir);
+	VECTOR3 wp_dir = crossp(dir, offset_vector);
 	//VECTOR3 wp_dir;
 	//if(offset_vector.y<=0.0) wp_dir = crossp(offset_vector, newDir);
 	//else wp_dir = crossp(-offset_vector, newDir);
@@ -206,20 +225,21 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	double ep_angle_d=DEG*acos(cos_phibar_e)-180.0;
 	double cos_phi_s2=(EP_WP_DIST*EP_WP_DIST-SP_EP_DIST*SP_EP_DIST-r*r)/(-2*SP_EP_DIST*r);
 	if(fabs(cos_phi_s2)>1) return false; //Can't reach with shoulder
-	double sp_angle_d=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
+	//double sp_angle_d=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
+	double sp_angle_d=DEG*(acos(cos_phi_s2));
 
-	double phi=-DEG*acos(wp_dir.z);
+	double phi=DEG*acos(wp_dir.z);
 	//double phi = DEG*atan2(sqrt(wp_dir.x*wp_dir.x + wp_dir.y*wp_dir.y), wp_dir.z);
 	//if((wp_dir.x>0.0 && corrected_wy_pos.x>=0.0) || (wp_dir.x<0.0 && corrected_wy_pos.x<0.0)) phi=-phi;
-	if(wp_dir.x<0.0) phi=-phi;
-	if(offset_vector.y>0.0) phi=-phi;
+	//if(wp_dir.x<0.0) phi=-phi;
+	//if(offset_vector.y>0.0) phi=-phi;
 	double wp_angle_d=phi-sp_angle_d-ep_angle_d;
 
-	double wy_angle_d;
+	//double wy_angle_d;
 	/*if((offset_vector.z>0.0 && newDir.z<0.0) || (offset_vector.z<0.0 && newDir.z>0.0)) 
 		wy_angle_d=90.0+DEG*acos(dotp(offset_vector, newDir));
 	else*/
-	wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
+	double wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
 	//if(abs(sy_angle_r*DEG)<90.0) wy_angle_d=90.0-DEG*acos(dotp(offset_vector, newDir));
 	//else wy_angle_d=180.0+DEG*acos(dotp(offset_vector, newDir));
 	//if(corrected_wy_pos.x>=0.0) wy_angle_d=90.0-DEG*acos(dotp(offset_vector, newDir));
@@ -228,7 +248,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 
 	//sprintf_s(oapiDebugString(), 255, "SY: %f SP: %f EP: %f WP: %f WY: %f", sy_angle_r*DEG, sp_angle_d, ep_angle_d, wp_angle_d, wy_angle_d);
 
-	if(activeLEE==0) {
+	/*if(activeLEE==0) {
 		SetJointAngle(WRIST_YAW, sy_angle_r*DEG);
 		SetJointAngle(WRIST_PITCH, sp_angle_d);
 		SetJointAngle(ELBOW_PITCH, ep_angle_d);
@@ -243,7 +263,13 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		SetJointAngle(WRIST_PITCH, wp_angle_d);
 		SetJointAngle(WRIST_YAW, wy_angle_d);
 		//SetJointAngle(WRIST_ROLL, wr_angle);
-	}
+	}*/
+	SetJointAngle(SHOULDER_YAW, sy_angle_r*DEG);
+	SetJointAngle(SHOULDER_PITCH, sp_angle_d);
+	SetJointAngle(ELBOW_PITCH, ep_angle_d);
+	SetJointAngle(WRIST_PITCH, wp_angle_d);
+	SetJointAngle(WRIST_YAW, wy_angle_d);
+	//SetJointAngle(WRIST_ROLL, wr_angle);
 
 	arm_ee_pos = newPos;
 	arm_ee_dir = newDir;
@@ -266,7 +292,7 @@ bool SSRMS::SetJointAngle(SSRMS::SSRMS_JOINT joint, double angle)
 
 bool SSRMS::ChangeActiveLEE()
 {
-	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) return false;
+	//if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) return false;
 
 	/*pLEE[activeLEE]->Ungrapple();
 	pLEE[passiveLEE]->Ungrapple();
@@ -282,8 +308,8 @@ bool SSRMS::ChangeActiveLEE()
 
 	pLEE[activeLEE]->Grapple();
 	pLEE[passiveLEE]->Grapple();*/
-	pLEE[passiveLEE]->DetachFromBase();
-	pLEE[activeLEE]->AttachToBase();
+	if(pLEE[passiveLEE]->GrappledToBase()) pLEE[passiveLEE]->DetachFromBase();
+	if(pLEE[activeLEE]->GrappledToBase()) pLEE[activeLEE]->AttachToBase();
 
 	activeLEE=passiveLEE;
 	passiveLEE=1-activeLEE;
@@ -301,6 +327,42 @@ bool SSRMS::ChangeActiveLEE()
 
 void SSRMS::CalculateVectors()
 {
+	// work forward through joints and update vectors
+	arm_ee_dir = _V(1, 0, 0);
+	arm_ee_rot = RotateVectorX(_V(0, 0, 1), joint_angle[SHOULDER_ROLL]); // should probably be -joint_angle[SR]
+	arm_ee_pos = _V(SR_SY_DIST, 0, 0) - arm_ee_rot*SY_SP_VERT_DIST;
+	// handle SY joint; get new direction, than translate EE pos to compensate for horizontal offset between booms
+	arm_ee_dir = RotateVector(arm_ee_rot, RAD*joint_angle[SHOULDER_YAW], arm_ee_dir);
+	VECTOR3 dir_cross_rot = crossp(arm_ee_dir, arm_ee_rot); // pitch joints rotate around this vector
+	arm_ee_pos += dir_cross_rot*LEE_OFFSET;
+	// handle 3 pitch joints
+	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[SHOULDER_PITCH], arm_ee_dir);
+	arm_ee_pos += arm_ee_dir*SP_EP_DIST;
+	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[ELBOW_PITCH], arm_ee_dir);
+	arm_ee_pos += arm_ee_dir*EP_WP_DIST;
+	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[WRIST_PITCH], arm_ee_dir);
+	arm_ee_rot = RotateVector(dir_cross_rot, RAD*(joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH]+joint_angle[WRIST_PITCH]), arm_ee_rot);
+	arm_ee_pos += arm_ee_rot*WP_WY_DIST;
+	// wrist yaw
+	arm_ee_dir = RotateVector(arm_ee_rot, RAD*joint_angle[WRIST_YAW], arm_ee_dir);
+	arm_ee_pos += arm_ee_dir*WY_EE_DIST;
+	// wrist roll
+	arm_ee_rot = RotateVector(arm_ee_dir, RAD*joint_angle[WRIST_ROLL], arm_ee_rot);
+	/*arm_ee_dir.z = -arm_ee_dir.z;
+	arm_ee_rot.z = -arm_ee_rot.z;
+	arm_ee_pos.z = -arm_ee_pos.z;*/
+	VECTOR3 old_arm_ee_pos=arm_tip[0]-SR_JOINT;
+	old_arm_ee_pos=_V(old_arm_ee_pos.z, -old_arm_ee_pos.x, -old_arm_ee_pos.y);
+	sprintf_s(oapiDebugString(), 255, "FK pos: %f %f %f Orbiter pos: %f %f %f",
+		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+		old_arm_ee_pos.x, old_arm_ee_pos.y, old_arm_ee_pos.z);
+	sprintf_s(oapiDebugString(), 255, "Pos: %f %f %f Dir: %f %f %f Rot: %f %f %f",
+		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+		arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
+		arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+}
+/*void SSRMS::CalculateVectors()
+{
 	arm_ee_dir=arm_tip[1]-arm_tip[0];
 	//if(activeLEE==0) arm_ee_dir=_V(arm_ee_dir.z, arm_ee_dir.x, -arm_ee_dir.y);
 	//else arm_ee_dir=_V(arm_ee_dir.z, -arm_ee_dir.x, -arm_ee_dir.y);
@@ -309,7 +371,7 @@ void SSRMS::CalculateVectors()
 	//oapiWriteLog(oapiDebugString());
 
 	arm_ee_rot=arm_tip[2]-arm_tip[0];
-	arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, -arm_ee_rot.y);
+	arm_ee_rot=_V(arm_ee_rot.z, -arm_ee_rot.x, -arm_ee_rot.y);
 	//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 	//oapiWriteLog(oapiDebugString());
 
@@ -330,7 +392,7 @@ void SSRMS::CalculateVectors()
 		//sprintf_s(oapiDebugString(), 255, "Calculated SY pos: %f %f %f", arm_sy_pos.x, arm_sy_pos.y, arm_sy_pos.z);
 		//arm_ee_pos=_V(arm_ee_pos.x, -arm_ee_pos.y, -arm_ee_pos.z);
 	}
-	else {*/
+	else {*
 		//arm_ee_pos=arm_tip[0]-SY_JOINT;
 	arm_ee_pos=arm_tip[0]-SR_JOINT;
 	arm_ee_pos=_V(arm_ee_pos.z, -arm_ee_pos.x, -arm_ee_pos.y);
@@ -338,15 +400,27 @@ void SSRMS::CalculateVectors()
 	if(activeLEE==0) {
 		//arm_ee_dir = -arm_ee_dir;
 		//arm_ee_pos = RotateVectorX(-arm_ee_pos, joint_angle[SHOULDER_ROLL]);
+		//arm_ee_dir = _V(arm_ee_dir.x, arm_ee_dir.y, -arm_ee_dir.z);
 		arm_ee_dir = RotateVectorX(arm_ee_dir, joint_angle[SHOULDER_ROLL]);
 		arm_ee_rot = RotateVectorX(arm_ee_rot, joint_angle[SHOULDER_ROLL]);
+		VECTOR3 corrected_arm_ee_rot = RotateVector(arm_ee_dir, -RAD*joint_angle[WRIST_ROLL], arm_ee_rot);
+		//arm_ee_rot = _V(arm_ee_rot.x, arm_ee_rot.y, -arm_ee_rot.z);
+		VECTOR3 arm_ee_cross = crossp(arm_ee_dir, corrected_arm_ee_rot);
+		arm_ee_cross/=length(arm_ee_cross);
+		MATRIX3 RotMatrix = _M(arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
+			arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z,
+			corrected_arm_ee_rot.x, corrected_arm_ee_rot.y, corrected_arm_ee_rot.z);
+		arm_ee_pos = tmul(RotMatrix, arm_ee_pos);
 		arm_ee_pos = RotateVectorX(arm_ee_pos, joint_angle[SHOULDER_ROLL]);
 	}
 
-	sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+	sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f EE dir: %f %f %f EE rot: %f %f %f",
+		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+		arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
+		arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 	//}
 	//oapiWriteLog(oapiDebugString());
-}
+}*/
 
 void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 {
@@ -404,7 +478,7 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
 		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
 
-		if(activeLEE==0) {
+		/*if(activeLEE==0) {
 			VECTOR3 arm_ee_cross = crossp(arm_ee_dir, arm_ee_rot);
 			MATRIX3 RotMatrix = _M(arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
 				arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z,
@@ -413,15 +487,16 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			//EETrans=mul(RotMatrix, THCInput)*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
 			//sprintf_s(oapiDebugString(), 255, "arm_ee_cross: %f %f %f", arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z);
 		}
-		else EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
+		else EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;*/
+		EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
 
 		//sprintf_s(oapiDebugString(), 255, "EETrans: %f %f %f", EETrans.x/length(EETrans), EETrans.y/length(EETrans), EETrans.z/length(EETrans));
 		if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+EETrans, arm_ee_dir, arm_ee_rot);
 		//if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+RotateVectorZ(EETrans, joint_angle[SHOULDER_ROLL]), arm_ee_dir, arm_ee_rot);
 	}
 
-	VECTOR3 dir = arm_tip[1]-arm_tip[0];
-	sprintf_s(oapiDebugString(), 255, "DIR: %f %f %f", dir.x, dir.y, dir.z);
+	//VECTOR3 dir = arm_tip[1]-arm_tip[0];
+	//sprintf_s(oapiDebugString(), 255, "DIR: %f %f %f", dir.x, dir.y, dir.z);
 }
 
 void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
@@ -470,6 +545,8 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 
 		pLEE[1]->SetAttachmentParams(arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
+		//if(activeLEE==0) ShiftCentreOfMass(
+
 		arm_moved=false;
 	}
 	if(update_vectors) {
@@ -497,14 +574,32 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 		update_vectors=false;
 	}
 	/*else {
+		VECTOR3 act_arm_ee_pos=arm_tip[0]-SR_JOINT;
+		act_arm_ee_pos=_V(act_arm_ee_pos.z, -act_arm_ee_pos.x, -act_arm_ee_pos.y);
+		if(activeLEE == 0) {
+			VECTOR3 arm_ee_cross = crossp(arm_ee_dir, arm_ee_rot);
+			arm_ee_cross/=length(arm_ee_cross);
+			MATRIX3 RotMatrix = _M(arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
+				arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z,
+				arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+			act_arm_ee_pos = tmul(RotMatrix, act_arm_ee_pos);
+			act_arm_ee_pos = RotateVectorX(act_arm_ee_pos, joint_angle[SHOULDER_ROLL]);
+		}
+		sprintf_s(oapiDebugString(), 255, "Actual Pos: %f %f %f Expected Pos: %f %f %f",
+			act_arm_ee_pos.x, act_arm_ee_pos.y, act_arm_ee_pos.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+	}*/
+	else {
 		VECTOR3 old_arm_ee_pos = arm_ee_pos;
 		VECTOR3 old_arm_ee_dir = arm_ee_dir;
 		VECTOR3 old_arm_ee_rot = arm_ee_rot;
 		CalculateVectors();
+		sprintf_s(oapiDebugString(), 255, "Expected pos: %f %f %f Actual pos: %f %f %f Expected dir: %f %f %f Actual dir: %f %f %f",
+			old_arm_ee_pos.x, old_arm_ee_pos.y, old_arm_ee_pos.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
+			old_arm_ee_dir.x, old_arm_ee_dir.y, old_arm_ee_dir.z, arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 		//VECTOR3 lee_offset = (SY_JOINT-SR_JOINT) - RotateVectorX((SY_JOINT-SR_JOINT), -joint_angle[SHOULDER_ROLL]);
 		//VECTOR3 rotated_lee_offset = RotateVectorX(LEE_OFFSET_VECTOR, joint_angle[SHOULDER_ROLL]);
 		//VECTOR3 rotatedPos = RotateVectorX(arm_ee_pos-rotated_lee_offset, -joint_angle[SHOULDER_ROLL])+LEE_OFFSET_VECTOR;
-		const VECTOR3 IK_REFERENCE = _V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
+		/*const VECTOR3 IK_REFERENCE = _V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
 		VECTOR3 temp_arm_ee_pos=arm_tip[0]-IK_REFERENCE;
 		temp_arm_ee_pos=_V(temp_arm_ee_pos.z, -temp_arm_ee_pos.x, -temp_arm_ee_pos.y);
 		const VECTOR3 LEE_OFFSET_VECTOR = _V(SR_JOINT.z-IK_REFERENCE.z, -(SR_JOINT.x-IK_REFERENCE.x), -(SR_JOINT.y-IK_REFERENCE.y));
@@ -515,11 +610,11 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 		sprintf_s(oapiDebugString(), 255, "Expected pos: %f %f %f Actual pos: %f %f %f Temp Pos: %f %f %f RotatedPos: %f %f %f",
 			old_arm_ee_pos.x, old_arm_ee_pos.y, old_arm_ee_pos.z, arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
 			temp_arm_ee_pos.x, temp_arm_ee_pos.y, temp_arm_ee_pos.z,
-			rotatedPos.x, rotatedPos.y, rotatedPos.z);
+			rotatedPos.x, rotatedPos.y, rotatedPos.z);*/
 		arm_ee_pos = old_arm_ee_pos;
 		arm_ee_dir = old_arm_ee_dir;
 		arm_ee_rot = old_arm_ee_rot;
-	}*/
+	}
 
 	//VECTOR3 arm_ee_pos2=arm_tip[0]-SY_JOINT;
 	//VECTOR3 arm_ee_pos2=arm_tip[0]-_V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
