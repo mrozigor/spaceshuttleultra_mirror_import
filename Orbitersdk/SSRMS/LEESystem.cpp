@@ -200,8 +200,9 @@ ATTACHMENTHANDLE LEESystem::FindPayload(bool checkBaseAttachment, VESSEL** pVess
 bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchpos, const VECTOR3& glatchdir) const
 {
 	const char *id = v->GetAttachmentId (ah);
-	if (strncmp (id, AttachID.c_str(), AttachID.length())) 
-		return false; // attachment point not compatible
+	//oapiWriteLog(const_cast<char*>(id));
+	//if (strncmp (id, AttachID.c_str(), AttachID.length())) 
+		//return false; // attachment point not compatible
 
 	VECTOR3 pos, dir, rot;
 	VECTOR3 gpos, gdir;
