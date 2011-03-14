@@ -919,13 +919,13 @@ void Crawler::SetView(int viewpos) {
 	if (viewPos == VIEWPOS_REARCABIN) {
 		SetCameraOffset(CRAWLER_REAR_VC_OFFSET + _V(0.0, 0.456, 0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, -0.3), _V(0, 0, 0), _V(0, 0, 0));
-		SetCameraDefaultDirection(_V(0, -0.453991, -0.891007));
+		SetCameraDefaultDirection(_V(0, 0, -1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_FRONTCABIN) {
 		SetCameraOffset(CRAWLER_FWD_VC_OFFSET + _V(0.0, 0.456, -0.576));
 		SetCameraShiftRange(_V(0.0, 0.2, 0.3), _V(0, 0, 0), _V(0, 0, 0));
-		SetCameraDefaultDirection(_V(0, -0.453991, 0.891007));
+		SetCameraDefaultDirection(_V(0, 0, 1));
 		SetMeshesVisibility(MESHVIS_ALWAYS);
 
 	} else if (viewPos == VIEWPOS_ENGINEERING) {
