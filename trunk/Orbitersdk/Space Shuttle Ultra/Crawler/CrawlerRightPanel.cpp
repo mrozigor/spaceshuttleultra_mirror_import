@@ -46,8 +46,8 @@ void CrawlerRightPanel::RegisterVC()
 
 	oapiVCRegisterArea(AID_RIGHT_MIN+aid_ofs, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
 	oapiVCSetAreaClickmode_Quadrilateral(AID_RIGHT_MIN+aid_ofs,
-		TransformVector(_V(-0.267, 0.087, -0.194))+ofs,
-		TransformVector(_V(-0.420, 0.087, -0.026))+ofs, 
+		TransformVector(_V(-0.267, 0.18, -0.194))+ofs, 
+		TransformVector(_V(-0.420, 0.18, -0.026))+ofs, 
 		TransformVector(_V(-0.267, -0.040, -0.108))+ofs,
 		TransformVector(_V(-0.420, -0.040, 0.073))+ofs);
 
@@ -80,22 +80,22 @@ void CrawlerRightPanel::DefineVC()
 
 	DefineSteeringModePBI(pGreatCircle);
 	pGreatCircle->AddAIDToRedrawEventList(AID_GCIR_PBI+aid_ofs);
-	pGreatCircle->SetMouseRegion(0.204822f, 0.819111f, 0.330464f, 0.960083f);
+	pGreatCircle->SetMouseRegion(0.254695f, 0.774857f, 0.384179f, 0.901405f);
 	DefineSteeringModePBI(pCrab);
 	pCrab->AddAIDToRedrawEventList(AID_CRAB_PBI+aid_ofs);
-	pCrab->SetMouseRegion(0.303274f, 0.828959f, 0.426405f, 0.970183f);
+	pCrab->SetMouseRegion(0.350553f, 0.791195f, 0.477232f, 0.914307f);
 	DefineSteeringModePBI(pIndependent);
 	pIndependent->AddAIDToRedrawEventList(AID_INDEP_PBI+aid_ofs);
-	pIndependent->SetMouseRegion(0.402592f, 0.842065f, 0.532279f, 0.989447f);
+	pIndependent->SetMouseRegion(0.443358f, 0.808174f, 0.594612f, 0.943099f);
 
-	pMode->SetBaseCoords(0, 0);
+	pMode->SetBaseCoords(10, 10);
 	pMode->SetDimensions(60, 30);
 	pMode->AllowReset(true);
 	pMode->SetSourceImage(g_Resources.pbi_lights);
 	pMode->SetSourceCoords(false, 0, PBI_6DEG);
 	pMode->SetSourceCoords(true, 0, PBI_2DEG);
 	pMode->AddAIDToRedrawEventList(AID_MODE_PBI+aid_ofs);
-	pMode->SetMouseRegion(0.0, 0.0, 0.106300f, 0.128120f);
+	pMode->SetMouseRegion(0.0, 0.0, 0.118125f, 0.192183f);
 
 	pDesSteeringAngleValue->AddAIDToRedrawEventList(AID_STEERING_DES_VALUE+aid_ofs);
 	DefineSteeringAngleDisplay(pDesSteeringAngleValue);

@@ -38,10 +38,10 @@ void CrawlerLeftPanel::RegisterVC()
 
 	oapiVCRegisterArea(AID_LEFT_MIN+aid_ofs, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);
 	oapiVCSetAreaClickmode_Quadrilateral(AID_LEFT_MIN+aid_ofs,
-		TransformVector(_V(0.579, 0.130, 0.173))+ofs,
-		TransformVector(_V(0.284, 0.130, -0.174))+ofs, 
-		TransformVector(_V(0.579, 0.075, 0.173))+ofs,
-		TransformVector(_V(0.284, 0.075, -0.174))+ofs);
+		TransformVector(_V(0.566, 0.187, 0.214))+ofs,
+		TransformVector(_V(0.310, 0.187, -0.236))+ofs, 
+		TransformVector(_V(0.525, 0.105, 0.220))+ofs,
+		TransformVector(_V(0.275, 0.075, -0.214))+ofs);
 
 	SURFHANDLE panels_tex = oapiGetTextureHandle(V()->GetVCMesh(cabID), 1);
 	oapiVCRegisterArea(AID_BRAKE_PBI+aid_ofs, _R(658, 982, 718, 1012), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panels_tex);
@@ -69,19 +69,19 @@ void CrawlerLeftPanel::DefineVC()
 	pParkingBrakePBI->SetSourceCoords(true, 0, PBI_ON_RED);
 	pParkingBrakePBI->AddAIDToRedrawEventList(AID_BRAKE_PBI+aid_ofs);
 	pParkingBrakePBI->AllowReset(true);
-	pParkingBrakePBI->SetMouseRegion(0.956645f, 0.565480f, 1.0f, 1.0f);
+	pParkingBrakePBI->SetMouseRegion(0.916822f, 0.518648f, 0.972010f, 0.795954f);
 
 	DefineEnginePBI(pFwdPBI);
 	pFwdPBI->AddAIDToRedrawEventList(AID_FWD_PBI+aid_ofs);
-	pFwdPBI->SetMouseRegion(0.154231f, 0.138779f, 0.197060f, 0.529547f);
+	pFwdPBI->SetMouseRegion(0.144804f, 0.096366f, 0.199067f, 0.360672f);
 
 	DefineEnginePBI(pRevPBI);
 	pRevPBI->AddAIDToRedrawEventList(AID_REV_PBI+aid_ofs);
-	pRevPBI->SetMouseRegion(0.243617f, 0.127377f, 0.286767f, 0.516108f);
+	pRevPBI->SetMouseRegion(0.246844f, 0.107135f, 0.299727f, 0.377244f);
 
 	DefineEnginePBI(pNeutPBI);
 	pNeutPBI->AddAIDToRedrawEventList(AID_NEUT_PBI+aid_ofs);
-	pNeutPBI->SetMouseRegion(0.198545f, 0.138197f, 0.242643f, 0.524199f);
+	pNeutPBI->SetMouseRegion(0.195921f, 0.100198f, 0.249119f, 0.363231f);
 
 	pParkingBrakeLight->SetBaseCoords(0, 0);
 	pParkingBrakeLight->SetDimensions(LIGHT_WIDTH, LIGHT_HEIGHT);
