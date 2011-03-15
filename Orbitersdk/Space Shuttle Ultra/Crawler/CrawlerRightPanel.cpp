@@ -88,7 +88,7 @@ void CrawlerRightPanel::DefineVC()
 	pIndependent->AddAIDToRedrawEventList(AID_INDEP_PBI+aid_ofs);
 	pIndependent->SetMouseRegion(0.443358f, 0.808174f, 0.594612f, 0.943099f);
 
-	pMode->SetBaseCoords(10, 10);
+	pMode->SetBaseCoords(0, 0);
 	pMode->SetDimensions(60, 30);
 	pMode->AllowReset(true);
 	pMode->SetSourceImage(g_Resources.pbi_lights);
