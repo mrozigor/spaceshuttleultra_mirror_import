@@ -12,7 +12,7 @@ static const char* ATTACH_ID = "GS";
 //static const char* ATTACH_ID = "A";
 
 const double JOINT_ROTATION_SPEED = 1.0; // deg/s
-const double EE_ROTATION_SPEED = 1.0; // deg/s
+const double EE_ROTATION_SPEED = RAD*1.0; // rad/s
 const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
 
 // joint positions
@@ -114,7 +114,7 @@ private:
 
 	bool ShowAttachmentPoints;
 
-	THRUSTER_HANDLE rms_control[6];
+	THRUSTER_HANDLE rms_control[12];
 	PROPELLANT_HANDLE ph_null;
 
 	//ATTACHMENTHANDLE ahBase, ahGrapple;
