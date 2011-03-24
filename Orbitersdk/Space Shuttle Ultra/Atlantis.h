@@ -663,7 +663,8 @@ private:
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
 	//GPC programs
-	dps::RSLS *rsls;
+	//dps::RSLS *rsls;
+	dps::RSLS_old *rsls;
 
 	SURFHANDLE tex_rcs;
 	
@@ -1053,6 +1054,9 @@ private:
 	double TgtInc, TgtLAN, TgtSpd, TgtAlt, TgtFPA; //targets for guidance
 	double THeading, TAp, TPe, TTrA, TEcc, TgtRad;
 	PIDControl SSMEGimbal[3][3], SRBGimbal[2][3];
+	DiscOutPort ZTransCommand;
+	bool ETSepTranslationInProg;
+	double ETSepMinusZDV;
 
 	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	bool bAutopilot, bThrottle;
@@ -1155,8 +1159,8 @@ private:
 	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
 	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
 	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
-	bool RotPulseInProg[3], TransPulseInProg[3];
-	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
+	//bool RotPulseInProg[3], TransPulseInProg[3];
+	//VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
 	double RotRate, AttDeadband, RateDeadband, RotPls, TranPls;
 	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
 	int JetsEnabled;

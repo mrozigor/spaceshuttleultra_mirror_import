@@ -251,6 +251,7 @@
     <ClCompile Include="dps\IOModule.cpp" />
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
     <ClCompile Include="dps\OrbitDAP.cpp" />
+    <ClCompile Include="dps\RSLS.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.h" />
@@ -350,7 +351,7 @@
     <ClCompile Include="dps\RAM32.cpp" />
     <ClCompile Include="dps\RAM32S.cpp" />
     <ClCompile Include="RMSSystem.cpp" />
-    <ClCompile Include="dps\RSLS.cpp" />
+    <ClCompile Include="dps\RSLS_old.cpp" />
     <ClCompile Include="dps\ShuttleBus.cpp" />
     <ClCompile Include="mps\SSME.cpp" />
     <ClCompile Include="vc\StandardLight.cpp" />
@@ -372,6 +373,7 @@
     <ClInclude Include="dps\MDM.h" />
     <ClInclude Include="dps\OMSBurnSoftware.h" />
     <ClInclude Include="dps\OrbitDAP.h" />
+    <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPCSystem.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="AC_resource.h" />
@@ -448,7 +450,7 @@
     <ClInclude Include="dps\RAM16.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RMSSystem.h" />
-    <ClInclude Include="dps\RSLS.h" />
+    <ClInclude Include="dps\RSLS_old.h" />
     <ClInclude Include="dps\ShuttleBus.h" />
     <ClInclude Include="mps\SSME.h" />
     <ClInclude Include="vc\StandardLight.h" />

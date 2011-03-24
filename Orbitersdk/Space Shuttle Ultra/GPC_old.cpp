@@ -444,16 +444,28 @@ void Atlantis::GPC(double simt, double dt)
 				Throttle(dt);
 			}
 			else { //post MECO
-				if(status==2 && !TransPulseInProg[2] && tMECO+ET_SEP_TIME<=met)
+				if(status==2 && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=met)
 				{
 					SeparateTank();
 					bManualSeparate = false;
-					TransPulseInProg[2]=true;
-					TransPulseDV.z=-ET_SEP_RATE;
+					//TransPulseInProg[2]=true;
+					ETSepTranslationInProg = true;
+					//TransPulseDV.z=-ET_SEP_RATE;
 				}
-				else if(status==3 && Eq(TransPulseDV.z, 0.0, 0.001)) { //Z thrusting complete
-					//WT=GetMass()*kg_to_pounds;
-					SetGPCMajorMode(104);
+				else if(status==3) {
+					if(ETSepMinusZDV <= 0.001) { //Z thrusting complete
+						//WT=GetMass()*kg_to_pounds;
+						ZTransCommand.ResetLine();
+						ETSepTranslationInProg = false;
+						SetGPCMajorMode(104);
+					}
+					else { // -Z thrusting in progress
+						ZTransCommand.SetLine(-1.0f);
+						// calculate DV so far
+						VECTOR3 ThrustVector;
+						GetThrustVector(ThrustVector);
+						ETSepMinusZDV -= (ThrustVector.y/GetMass())*dt;
+					}
 				}
 				//AttControl(dt);
 				//TransControl(simt, dt);
