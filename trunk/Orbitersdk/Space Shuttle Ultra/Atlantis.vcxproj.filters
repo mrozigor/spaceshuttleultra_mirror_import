@@ -287,9 +287,6 @@
     <ClCompile Include="RMSSystem.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\RSLS.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\ShuttleBus.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -360,6 +357,12 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA1U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RSLS_old.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -586,9 +589,6 @@
     <ClInclude Include="RMSSystem.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="dps\RSLS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\ShuttleBus.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -662,6 +662,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="commGCIL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RSLS_old.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RSLS.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

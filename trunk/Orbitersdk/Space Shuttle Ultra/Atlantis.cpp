@@ -40,6 +40,7 @@
 #include "dps/MasterTimingUnit.h"
 #include "dps/MDM.h"
 #include "dps/RSLS.h"
+#include "dps/RSLS_old.h"
 #include "dps/ShuttleBus.h"
 #include "dps/SimpleGPCSystem.h"
 #include "eva_docking/ODS.h"
@@ -464,7 +465,8 @@ pActiveLatches(3, NULL)
   oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
   oapiWriteLog("******************************************************");  
   //rsls			= new dps::RSLS();
-  rsls = NULL;
+  rsls			= new dps::RSLS_old(this);
+  //rsls = NULL;
   //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
   
 
@@ -902,6 +904,8 @@ pActiveLatches(3, NULL)
   bMidDeckVisible = false;
   tSRBSep=SRB_SEPARATION_TIME;
   TLastMajorCycle=0.0;
+  ETSepTranslationInProg = false;
+  ETSepMinusZDV = ET_SEP_RATE;
 
   // gpc
   SMOps=201;
@@ -979,9 +983,9 @@ pActiveLatches(3, NULL)
 	  TransMode[i]=0;
 	  RotationCommand.data[i]=0.0;
 	  TranslationCommand.data[i]=0.0; 
-	  RotPulseInProg[i]=false;
-	  TransPulseInProg[i]=false;
-	  TransPulseDV.data[i]=0.0;
+	  //RotPulseInProg[i]=false;
+	  //TransPulseInProg[i]=false;
+	  //TransPulseDV.data[i]=0.0;
 	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
   }
   RotRate=DAP[0].PRI_ROT_RATE;
@@ -4311,6 +4315,7 @@ void Atlantis::clbkPostCreation ()
 		RotThrusterCommands[i].Connect(pBundle, i);
 		TransThrusterCommands[i].Connect(pBundle, i+3);
 	}
+	ZTransCommand.Connect(pBundle, 5);
 
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
