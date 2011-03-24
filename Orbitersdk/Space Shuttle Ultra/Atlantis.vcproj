@@ -784,6 +784,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\RSLS_old.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\ShuttleBus.cpp"
 				>
 			</File>
@@ -1190,6 +1194,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\RSLS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\RSLS_old.h"
 				>
 			</File>
 			<File
