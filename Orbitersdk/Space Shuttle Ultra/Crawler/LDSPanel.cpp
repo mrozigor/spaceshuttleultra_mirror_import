@@ -1,5 +1,6 @@
 #include "LDSPanel.h"
 #include "Crawler.h"
+#include "meshres_crawler_vc.h"
 
 namespace vc
 {
@@ -125,7 +126,7 @@ namespace vc
 		RP2 = TransformVector(_V(-0.434,0.350,0.005));
 
 		//LEFT KNOB ANIMATION
-		static UINT LeftKnobGrp[1] = {29};
+		static UINT LeftKnobGrp[1] = {GRP_LDS_sense_1_knob_VC};
 		VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
 		VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
 		MGROUP_ROTATE* pRotLeftKnob = new MGROUP_ROTATE(vcidx,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
@@ -134,7 +135,7 @@ namespace vc
 		vpAnimations.push_back(pRotLeftKnob);
 
 		//CENTER KNOB ANIMATION
-		static UINT CenterKnobGrp[1] = {28};
+		static UINT CenterKnobGrp[1] = {GRP_LDS_sense_10_knob_VC};
 		VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
 		VECTOR3 CNormalised = CResult/dist(CP1,CP2);
 		MGROUP_ROTATE* pRotCenterKnob = new MGROUP_ROTATE(vcidx,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
@@ -143,7 +144,7 @@ namespace vc
 		vpAnimations.push_back(pRotCenterKnob);
 
 		//RIGHT KNOB ANIMATION
-		static UINT RightKnobGrp[1] = {27};
+		static UINT RightKnobGrp[1] = {GRP_LDS_sense_01_knob_VC};
 		VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
 		VECTOR3 RNormalised = RResult/dist(RP1,RP2);
 		MGROUP_ROTATE* pRotRightKnob = new MGROUP_ROTATE(vcidx,RightKnobGrp,1,RP1,RNormalised,120*RAD);
