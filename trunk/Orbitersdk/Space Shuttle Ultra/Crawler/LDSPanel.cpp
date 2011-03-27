@@ -48,13 +48,15 @@ namespace vc
 			pv = oapiGetVesselInterface(hv);
 			name = pv->GetClassNameA();
 			//oapiWriteLog("PRZED WEJSCIEM W IFA");
-			if(name == "SSU_MLP") //match
+			if(name == "SSU_Pad") //match
 			{
-				//oapiWriteLog("ZNALAZLEM PAD");
+				oapiWriteLog("FOUND PAD");
 				ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(true,0);
 
 				//TESTING ATTACHMENT
+				oapiWriteLog("START ATTACHMENT TEST");
 				if(_strnicmp(pv->GetAttachmentId(attach),"XMLP",4)) continue;
+				oapiWriteLog("ATTACHMENT TEST COMPLETED");
 
 				pv->GetAttachmentParams(attach,pos,dir,rot);
 				pv->Local2Global(pos,gpos);
@@ -71,20 +73,28 @@ namespace vc
 
 	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		if(LeftKnobState == ON)
+		/*if(LeftKnobState == ON)
 			V()->SetAnimation(LDSBarAnim,CalculateOffset(1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
 		if(CenterKnobState == ON)
 			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
 		if(RightKnobState == ON)
-			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));*/
+		sprintf(oapiDebugString(),"%lf",CalculateDistanceBetweenAttachments(MLP_ATTACH_POS));
+		
 	}
 
 	double LDS::CalculateOffset(double accuracy, double distance)
 	{
 		double offset;
 		offset = ((0.05/accuracy)*distance) + 0.5;
-		//sprintf(oapiDebugString(),"%lf",offset);
-		return offset;
+		sprintf(oapiDebugString(),"%lf",offset);
+
+
+		if(offset >= 1)
+			return 1;
+		else if(offset <= 0)
+			return 0;
+		else return offset;
 	}
 
 	void LDS::RegisterVC()
