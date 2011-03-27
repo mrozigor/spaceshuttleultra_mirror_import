@@ -53,8 +53,8 @@ void CrawlerCenterPanel::DefineVC()
 
 void CrawlerCenterPanel::DefineVCAnimations(UINT vcidx)
 {	
-	static UINT SteeringWheel[2] = {GRP_Steering_wheel_VC, GRP_Steering_wheel_VC};
-	MGROUP_ROTATE *pSteeringWheel = new MGROUP_ROTATE(vcidx, SteeringWheel, 2, TransformVector(_V(0.0, 0.043, -0.158)),
+	static UINT SteeringWheel[2] = {GRP_Steering_wheel_VC, GRP_Steering_wheel_degrees_VC};
+	MGROUP_ROTATE *pSteeringWheel = new MGROUP_ROTATE(vcidx, SteeringWheel, 2, TransformVector(_V(0.0, 0.099, -0.164)),
 		TransformVector(_V(0, -0.50104, -0.86543)), static_cast<float>((180.0*RAD)*(MAX_TURN_ANGLE*DEG/6.0)));
 	anim_steering = V()->CreateAnimation(0.5);
 	V()->AddAnimationComponent(anim_steering, 0.0, 1.0, pSteeringWheel);
