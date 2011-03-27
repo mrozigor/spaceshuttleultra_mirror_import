@@ -16,6 +16,7 @@ namespace vc
 	{
 		// clean up animations
 		for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
+		for(unsigned int i=0;i<LDSAnimation.size();i++) delete LDSAnimation.at(i);
 	}
 
 	void LDS::ShowAlignmentError(double lateral)
@@ -23,29 +24,67 @@ namespace vc
 		//sprintf(oapiDebugString(),"%lf",lateral);
 	}
 
-	void LDS::CalculateDistanceBetweenAttachments(VECTOR3 MLP_ATTACH_GLOBAL, MATRIX3 RotationMatrix)
+	double LDS::CalculateDistanceBetweenAttachments(VECTOR3 MLP_ATTACH_POS)
 	{
+
+		VECTOR3 pos, dir, rot;
+		VECTOR3 gpos, gattach, horizon_attach;
+		VECTOR3 ldist;
+
+		
+
 		bool found = false;
 		OBJHANDLE hv = NULL;
 		VESSEL *pv = NULL;
 		std::string name;
 		name.clear();
 
+		V()->Local2Global(MLP_ATTACH_POS, gattach);
+		V()->HorizonRot(MLP_ATTACH_POS, horizon_attach);
+
 		for(DWORD i=0; i<oapiGetVesselCount(); i++)
 		{
 			hv = oapiGetVesselByIndex(i);
 			pv = oapiGetVesselInterface(hv);
 			name = pv->GetClassNameA();
-			if(name.c_str() == "SSU_Pad")
+			//oapiWriteLog("PRZED WEJSCIEM W IFA");
+			if(name == "SSU_MLP") //match
 			{
-				oapiWriteLog((char*)name.c_str());
-				oapiWriteLog("ZNALAZLEM PAD");
-			}
-			else
-			{
-				//COKOLWIEK
-			}
+				//oapiWriteLog("ZNALAZLEM PAD");
+				ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(true,0);
+
+				//TESTING ATTACHMENT
+				if(_strnicmp(pv->GetAttachmentId(attach),"XMLP",4)) continue;
+
+				pv->GetAttachmentParams(attach,pos,dir,rot);
+				pv->Local2Global(pos,gpos);
+
+				VECTOR3 gdist = gpos-gattach;
+				MATRIX3 RotMatrix;
+				V()->GetRotationMatrix(RotMatrix);
+
+				ldist = tmul(RotMatrix,gdist);
+			}	
 		}
+		return ldist.x;
+	}
+
+	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
+	{
+		if(LeftKnobState == ON)
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+		if(CenterKnobState == ON)
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+		if(RightKnobState == ON)
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+	}
+
+	double LDS::CalculateOffset(double accuracy, double distance)
+	{
+		double offset;
+		offset = ((0.05/accuracy)*distance) + 0.5;
+		//sprintf(oapiDebugString(),"%lf",offset);
+		return offset;
 	}
 
 	void LDS::RegisterVC()
@@ -117,13 +156,16 @@ namespace vc
 		//BasicPanel::DefineVCAnimations(mshnbr);
 
 
-		VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2;
+		VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2,AB1,AB2;
 		LP1 = TransformVector(_V(-0.448,0.350,-0.073));
 		LP2 = TransformVector(_V(-0.404,0.350,-0.047));
 		CP1 = TransformVector(_V(-0.463,0.350,-0.047));
 		CP2 = TransformVector(_V(-0.421,0.350,-0.022));
 		RP1 = TransformVector(_V(-0.478,0.350,-0.021));
 		RP2 = TransformVector(_V(-0.434,0.350,0.005));
+		AB1 = TransformVector(_V(-0.4746225178,0.4015539587,-0.0527803004));
+		AB2 = TransformVector(_V(-0.4253329933,0.4015539587,-0.1361487955));
+
 
 		//LEFT KNOB ANIMATION
 		static UINT LeftKnobGrp[1] = {GRP_LDS_sense_1_knob_VC};
@@ -151,6 +193,16 @@ namespace vc
 		RightKnobAnim = V()->CreateAnimation(0.0);
 		V()->AddAnimationComponent(RightKnobAnim,0,1,pRotRightKnob);
 		vpAnimations.push_back(pRotRightKnob);
+
+		//LDS ALIGNMENT BAR ANIMATION
+		static UINT LDSBarGrp[1] = {GRP_Alignment_bar_VC};
+		VECTOR3 BResult = _V(AB2.x-AB1.x,AB2.y-AB1.y,AB2.z-AB1.z);
+		VECTOR3 BNormalised = BResult/dist(AB1,AB2);
+		MGROUP_TRANSLATE *pLDSTranslate = new MGROUP_TRANSLATE(vcidx,LDSBarGrp,1,BResult);
+		LDSBarAnim = V()->CreateAnimation(0.5);
+		V()->AddAnimationComponent(LDSBarAnim,0,1,pLDSTranslate);
+		LDSAnimation.push_back(pLDSTranslate);
+		
 	}
 		
 
