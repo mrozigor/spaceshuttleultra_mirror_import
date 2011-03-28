@@ -51,7 +51,7 @@ namespace vc
 			if(name == "SSU_Pad") //match
 			{
 				oapiWriteLog("FOUND PAD");
-				ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(true,0);
+				ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(false,0);
 
 				//TESTING ATTACHMENT
 				oapiWriteLog("START ATTACHMENT TEST");
@@ -68,18 +68,18 @@ namespace vc
 				ldist = tmul(RotMatrix,gdist);
 			}	
 		}
-		return ldist.x;
+		return -ldist.x;
 	}
 
 	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		/*if(LeftKnobState == ON)
+		if(LeftKnobState == ON)
 			V()->SetAnimation(LDSBarAnim,CalculateOffset(1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
 		if(CenterKnobState == ON)
 			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
 		if(RightKnobState == ON)
-			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));*/
-		sprintf(oapiDebugString(),"%lf",CalculateDistanceBetweenAttachments(MLP_ATTACH_POS));
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+		//sprintf(oapiDebugString(),"%lf",CalculateDistanceBetweenAttachments(MLP_ATTACH_POS));
 		
 	}
 
