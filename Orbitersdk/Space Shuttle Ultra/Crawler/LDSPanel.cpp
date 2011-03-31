@@ -9,6 +9,10 @@ namespace vc
 		:CrawlerPanel(_v ,_ident, _cab)
 	{
 		//SOMETHING
+		oapiWriteLog("LDS: CLEAR TARGET");
+		target.clear();
+		target = "NONE";
+		//target = "LC39A";
 	}
 
 
@@ -24,7 +28,7 @@ namespace vc
 		//sprintf(oapiDebugString(),"%lf",lateral);
 	}
 
-	double LDS::CalculateDistanceBetweenAttachments(VECTOR3 MLP_ATTACH_POS)
+	double LDS::CalculateDistanceBetweenAttachments()
 	{
 
 		VECTOR3 pos, dir, rot;
@@ -48,37 +52,65 @@ namespace vc
 			pv = oapiGetVesselInterface(hv);
 			name = pv->GetClassNameA();
 			//oapiWriteLog("PRZED WEJSCIEM W IFA");
-			if(name == "SSU_Pad") //match
+			if(target == "LC39A" || target == "LC39B")
 			{
-				oapiWriteLog("FOUND PAD");
-				ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(false,0);
+				if(name == "SSU_Pad") //match
+				{
+					oapiWriteLog("FOUND PAD");
+					ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(false,0);
 
-				//TESTING ATTACHMENT
-				oapiWriteLog("START ATTACHMENT TEST");
-				if(_strnicmp(pv->GetAttachmentId(attach),"XMLP",4)) continue;
-				oapiWriteLog("ATTACHMENT TEST COMPLETED");
+					//TESTING ATTACHMENT
+					oapiWriteLog("START ATTACHMENT TEST");
+					if(_strnicmp(pv->GetAttachmentId(attach),"XMLP",4)) continue;
+					oapiWriteLog("ATTACHMENT TEST COMPLETED");
 
-				pv->GetAttachmentParams(attach,pos,dir,rot);
-				pv->Local2Global(pos,gpos);
+					pv->GetAttachmentParams(attach,pos,dir,rot);
+					pv->Local2Global(pos,gpos);
 
-				VECTOR3 gdist = gpos-gattach;
-				MATRIX3 RotMatrix;
-				V()->GetRotationMatrix(RotMatrix);
+					VECTOR3 gdist = gpos-gattach;
+					MATRIX3 RotMatrix;
+					V()->GetRotationMatrix(RotMatrix);
 
-				ldist = tmul(RotMatrix,gdist);
-			}	
+					ldist = tmul(RotMatrix,gdist);
+					return -ldist.x;
+				}	
+			}
+			else if(target == "VAB_HBAY1")
+			{
+				if(name == "SSU_VAB") //match
+				{
+					pv->Local2Global(VAB_HIGHBAY1,gpos);
+					VECTOR3 gdist = gpos - gattach;
+					MATRIX3 RotMatrix;
+					V()->GetRotationMatrix(RotMatrix);
+					ldist = tmul(RotMatrix,gdist);
+					return -ldist.x;
+				}
+			}
+			else if(target == "VAB_HBAY2")
+			{
+				if(name == "SSU_VAB")
+				{
+					pv->Local2Global(VAB_HIGHBAY2,gpos);
+					VECTOR3 gdist = gpos - gattach;
+					MATRIX3 RotMatrix;
+					V()->GetRotationMatrix(RotMatrix);
+					ldist = tmul(RotMatrix,gdist);
+					return -ldist.x;
+				}
+			}
 		}
-		return -ldist.x;
+		return 0; //NO TARGET OR STH
 	}
 
 	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
 		if(LeftKnobState == ON)
-			V()->SetAnimation(LDSBarAnim,CalculateOffset(1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(1,CalculateDistanceBetweenAttachments()));
 		if(CenterKnobState == ON)
-			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.1,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.1,CalculateDistanceBetweenAttachments()));
 		if(RightKnobState == ON)
-			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments(MLP_ATTACH_POS)));
+			V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments()));
 		//sprintf(oapiDebugString(),"%lf",CalculateDistanceBetweenAttachments(MLP_ATTACH_POS));
 		
 	}
@@ -272,6 +304,28 @@ namespace vc
 			return true;
 		}
 		else return false;
+	}
+
+	void LDS::OnSaveState (FILEHANDLE scn) const
+	{
+		char cbuf[256];
+		sprintf(cbuf,"%s",target);
+		oapiWriteScenario_string(scn,"LDS_TARGET",cbuf);
+	}
+
+	bool LDS::OnReadState (FILEHANDLE scn)
+	{
+		char *line;
+		while(!oapiReadScenario_nextline(scn,line))
+		{
+			if(!_strnicmp(line,"LDS_TARGET",10))
+			{
+				oapiWriteLog("LDS: LOAD TARGET");
+				sscanf(line+10,"%s",&target);
+				return true;
+			}
+		}
+		return false;
 	}
 
 };
