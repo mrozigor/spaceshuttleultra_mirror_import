@@ -34,7 +34,5 @@ namespace vc
 
 		virtual void DefineVCAnimations(UINT vcidx);
 		virtual bool OnVCMouseEvent(int id, int _event, VECTOR3 &p);
-		virtual void OnSaveState (FILEHANDLE scn) const;
-		virtual bool OnReadState (FILEHANDLE scn);
 	};
 };
