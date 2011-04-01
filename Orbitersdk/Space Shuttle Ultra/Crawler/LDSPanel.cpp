@@ -1,6 +1,7 @@
 #include "LDSPanel.h"
 #include "Crawler.h"
 #include "meshres_crawler_vc.h"
+#include <list>
 
 namespace vc
 {
@@ -36,7 +37,8 @@ namespace vc
 		VECTOR3 ldist;
 
 		
-
+		std::vector<ATTACHMENTHANDLE> attachments;
+		std::vector<VESSEL*> vessels;
 		bool found = false;
 		OBJHANDLE hv = NULL;
 		VESSEL *pv = NULL;
@@ -46,6 +48,81 @@ namespace vc
 		V()->Local2Global(MLP_ATTACH_POS, gattach);
 		V()->HorizonRot(MLP_ATTACH_POS, horizon_attach);
 
+		for(DWORD i=0; i<oapiGetVesselCount(); ++i)
+		{
+			hv = oapiGetVesselByIndex(i);
+			pv = oapiGetVesselInterface(hv);
+
+			name = pv->GetClassNameA();
+			if(name == "SSU_Pad" || name == "SSU_VAB")
+			{
+				for(DWORD j=0; j<pv->AttachmentCount(false); j++)
+				{
+					ATTACHMENTHANDLE attach = pv->GetAttachmentHandle(false,j);
+					if(!_strnicmp(pv->GetAttachmentId(attach),"XMLP",4))
+					{
+						attachments.push_back(attach);
+						vessels.push_back(pv);
+					}
+				}
+			}
+		}
+
+		//sprintf(oapiDebugString(),"FOUND %lf ATTACHMENTS",attachments.end());
+
+		//ALL XMLP ATTACHMENTS COMPLETED
+		//DETERMINING SHORTEST DISTANCE
+
+		std::vector<VESSEL*>::iterator vi= vessels.begin();
+		std::vector<VESSEL*>::iterator tvi;
+		std::vector<ATTACHMENTHANDLE>::iterator ai= attachments.begin();
+		std::vector<ATTACHMENTHANDLE>::iterator tai;
+		double distance = -1;
+		
+		for(vi = vessels.begin(); vi != vessels.end(); vi++)
+		{
+			(*vi)->GetAttachmentParams((*ai),pos,dir,rot);
+			(*vi)->Local2Global(pos,gpos);
+			double temp = dist(gpos,gattach);
+
+			if(distance == -1)
+			{
+				distance = temp;
+				tvi = vi;
+				tai = ai;
+				++ai;
+			}
+
+			if(temp<distance)
+			{
+				distance = temp;
+				tvi = vi;
+				tai = ai;
+				++ai;
+			}
+
+		}
+		//sprintf(oapiDebugString(),"%lf",distance);
+
+		//FINAL CALCULATION
+		(*tvi)->GetAttachmentParams((*tai),pos,dir,rot);
+		(*tvi)->Local2Global(pos,gpos);
+		VECTOR3 gdist = gpos - gattach;
+		MATRIX3 RotMatrix;
+		V()->GetRotationMatrix(RotMatrix);
+		ldist = tmul(RotMatrix,gdist);
+
+		sprintf(oapiDebugString(),"%lf",-ldist.x);
+
+		if(!attachments.empty())
+			return -ldist.x;
+		else return 0;
+
+
+		
+
+
+		/*
 		for(DWORD i=0; i<oapiGetVesselCount(); i++)
 		{
 			hv = oapiGetVesselByIndex(i);
@@ -101,7 +178,9 @@ namespace vc
 			}
 		}
 		return 0; //NO TARGET OR STH
+		*/
 	}
+
 
 	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
@@ -119,7 +198,7 @@ namespace vc
 	{
 		double offset;
 		offset = ((0.05/accuracy)*distance) + 0.5;
-		sprintf(oapiDebugString(),"%lf",offset);
+		//sprintf(oapiDebugString(),"%lf",offset);
 
 
 		if(offset >= 1)
@@ -304,28 +383,6 @@ namespace vc
 			return true;
 		}
 		else return false;
-	}
-
-	void LDS::OnSaveState (FILEHANDLE scn) const
-	{
-		char cbuf[256];
-		sprintf(cbuf,"%s",target);
-		oapiWriteScenario_string(scn,"LDS_TARGET",cbuf);
-	}
-
-	bool LDS::OnReadState (FILEHANDLE scn)
-	{
-		char *line;
-		while(!oapiReadScenario_nextline(scn,line))
-		{
-			if(!_strnicmp(line,"LDS_TARGET",10))
-			{
-				oapiWriteLog("LDS: LOAD TARGET");
-				sscanf(line+10,"%s",&target);
-				return true;
-			}
-		}
-		return false;
 	}
 
 };
