@@ -76,7 +76,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	}
 
 	if(!ahBase) {
-		ahBase = CreateAttachment(true, _V(0, -8.2, 0), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
+		ahBase = CreateAttachment(true, _V(0, -8.35, 0), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
 	}
 }
 
@@ -470,12 +470,12 @@ void MLP::DefineAnimations()
 		_V(5.347, -0.645, -14.216), _V(0, 0, -1), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
 
-	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_cover};
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_bonnet};
 	static MGROUP_ROTATE LeftT0UmbCover(msh_idx, LeftT0UmbCoverGrp, 1,
 		_V(-6.267, 6.527, -14.216), _V(0, 0, -1), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &LeftT0UmbCover);
 
-	static UINT RightT0UmbCoverGrp[1] = {GRP_RH_TSM_cover};
+	static UINT RightT0UmbCoverGrp[1] = {GRP_RH_TSM_bonnet};
 	static MGROUP_ROTATE RightT0UmbCover(msh_idx, RightT0UmbCoverGrp, 1,
 		_V(6.164, 6.527, -14.216), _V(0, 0, 1), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &RightT0UmbCover);
