@@ -120,12 +120,6 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case IDC_RSS_CLOSE:
 				pad->MoveRSS(AnimState::CLOSING);
 				return TRUE;
-			case IDC_FSSOWP_OPEN:
-				pad->MoveFSS_OWP(AnimState::OPENING);
-				return TRUE;
-			case IDC_FSSOWP_CLOSE:
-				pad->MoveFSS_OWP(AnimState::CLOSING);
-				return TRUE;
 			case IDC_RSSOWP_OPEN:
 				pad->MoveRSS_OWP(AnimState::OPENING);
 				return TRUE;
@@ -302,19 +296,19 @@ void SSUPad::DefineAnimations()
 
 	//RBUS umbilical beam
 	FSS_GH2_VentArmState.Set(AnimState::CLOSED, 0.0);
-	static UINT FSS_GH2_Arm[2] = {GRP_RBUS_umbilical_beam, GRP_RBUS_carrier_plate};
-	static MGROUP_ROTATE FSS_GH2_ArmRot(fss_mesh_idx, FSS_GH2_Arm, 2,
+	static UINT FSS_GH2_Arm2[2] = {GRP_RBUS_umbilical_beam, GRP_RBUS_carrier_plate};
+	static MGROUP_ROTATE FSS_GH2_ArmRot2(fss_mesh_idx, FSS_GH2_Arm2, 2,
 		_V(5.123, 65.803, 9.541), _V(-0.80134, 0.0, 0.59821), (float)(85.0*RAD));
 	anim_fss_gh2_ventarm=CreateAnimation(0.0);
-	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, &FSS_GH2_ArmRot);
+	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, &FSS_GH2_ArmRot2);
 
-	//IAA rotation
-	IAA_State.Set(AnimState::CLOSED, 0.0);
-	static UINT IAAGrp[2] = {Intertank_Access_Arm, IAA_extensible_platform};
-	static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 2, _V( 8.821483, 63.7142, 13.60194), 
-		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
-	anim_iaa = CreateAnimation(0.0);
-	AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
+	////IAA rotation
+	//IAA_State.Set(AnimState::CLOSED, 0.0);
+	//static UINT IAAGrp[2] = {Intertank_Access_Arm, IAA_extensible_platform};
+	//static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 2, _V( 8.821483, 63.7142, 13.60194), 
+	//	_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
+	//anim_iaa = CreateAnimation(0.0);
+	//AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
 
 
 	//RSS rotation
@@ -351,6 +345,13 @@ void SSUPad::DefineAnimations()
 	AddAnimationComponent(anim_rss_y_owp, 0.05, 0.35, &RSS_flip_lower);
 	AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
 	//SetAnimation(anim_rss_y_owp, 1.0);
+
+
+	//RBUS
+	static UINT RBUS_grp[1] = {GRP_RBUS_carrier_plate};
+	static MGROUP_TRANSLATE rbus_translate = MGROUP_TRANSLATE(fss_mesh_idx,RBUS_grp,1,_V(15.42,-1.665,0));
+	anim_fss_rbus = CreateAnimation(0.0);
+	AddAnimationComponent(anim_fss_rbus,0,1,&rbus_translate,0);
 
 
 
@@ -408,8 +409,8 @@ bool SSUPad::IsDawn() const {
 
 void SSUPad::OnT0()
 {
-	FSS_GH2_VentArmState.action=AnimState::OPENING;
-	FSS_RBUS_UmbilicalState.action=AnimState::OPENING;
+	//FSS_GH2_VentArmState.action=AnimState::OPENING;  why?
+	MoveRBUS(AnimState::OPENING);
 }
 
 void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
@@ -489,6 +490,12 @@ void SSUPad::MoveLOXArm(AnimState::Action action)
 {
 	if(action == AnimState::CLOSING || action == AnimState::OPENING || action == AnimState::STOPPED)
 		GVAState.action = action;
+}
+
+void SSUPad::MoveRBUS(AnimState::Action action)
+{
+	if(action == AnimState::CLOSING || action == AnimState::OPENING)
+		FSS_RBUS_UmbilicalState.action = action;
 }
 
 AnimState::Action SSUPad::GetAccessArmState() const
@@ -581,6 +588,12 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_rss, RSS_State.pos);
 		PlayVesselWave3(SoundID, RSS_ROTATE_SOUND, LOOP);
 	}
+	if(FSS_RBUS_UmbilicalState.Moving())
+	{
+		double dp = simdt*FSS_RBUS_RATE;
+		FSS_RBUS_UmbilicalState.Move(dp);
+		SetAnimation(anim_fss_rbus,FSS_RBUS_UmbilicalState.pos);
+	}
 	else StopVesselWave3(SoundID, RSS_ROTATE_SOUND);
 
 	UpdateGOXVentThrusters();
@@ -643,7 +656,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
 	WriteScenario_state(scn, "GVA", GVAState);
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
-	WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
+	//WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
 	WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
 	WriteScenario_state(scn, "RSS", RSS_State);
 	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
@@ -672,11 +685,11 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if(!_strnicmp(line, "GOX_SEQUENCE", 12)) {
 			sscanf(line+12, "%d", &GOXArmAction);
 		}
-		else if (!_strnicmp(line, "FSS_OWP", 7)) {
+		/*else if (!_strnicmp(line, "FSS_OWP", 7)) {
 			sscan_state(line+7, FSS_OWP_State);
 			SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 			AnimateFSSOWPStrut();
-		}
+		}*/
 		else if (!_strnicmp(line, "RSS_OWP", 7)) {
 			sscan_state(line+7, RSS_OWP_State);
 			SetAnimation(anim_rss_y_owp, RSS_OWP_State.pos);
@@ -728,10 +741,10 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 					else RSS_OWP_State.action=AnimState::CLOSING;
 				}
 				return 1;
-			case OAPI_KEY_Y:
+			/*case OAPI_KEY_Y:
 				if(FSS_OWP_State.Closing() || FSS_OWP_State.Closed()) FSS_OWP_State.action=AnimState::OPENING;
 				else FSS_OWP_State.action=AnimState::CLOSING;
-				return 1;
+				return 1;*/
 		}
 	}
 
