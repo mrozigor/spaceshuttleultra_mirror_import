@@ -5,7 +5,7 @@
 #include "orbitersdk.h"
 //#include "../Atlantis.h"
 
-static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
+static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS_1985";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 static const char* DEFAULT_MESHNAME_HARDSTAND="SSU/LC39A_hardstand";
 static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
@@ -19,6 +19,7 @@ const double RSS_OWP_RATE = 0.002381;
 const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
 const double FSS_IAA_RATE = 1.0/200.0;
+const double FSS_RBUS_RATE = 2.0;
 
 
 const unsigned int FSS_NUM_LIGHTS = 44;
@@ -60,6 +61,7 @@ public:
 	void DeployIAA();
 	void HaltIAA();
 	void RetractIAA();
+	void MoveRBUS(AnimState::Action action);
 	
 private:
 	void DefineAnimations();
@@ -83,6 +85,8 @@ private:
 	UINT anim_iaa;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
+	UINT anim_fss_rbus;
+
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -101,6 +105,7 @@ private:
 	AnimState RSS_State;
 	AnimState FSS_GH2_VentArmState;
 	AnimState::Action GOXArmAction;
+	AnimState FSS_RBUS_UmbilicalState;
 
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
 	{
