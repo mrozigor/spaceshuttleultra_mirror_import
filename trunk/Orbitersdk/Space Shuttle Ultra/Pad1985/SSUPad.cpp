@@ -590,6 +590,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "RSS", RSS_State);
 	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
 	WriteScenario_state(scn, "FSS_IAA", IAA_State);
+	WriteScenario_state(scn, "RBUS", FSS_RBUS_UmbilicalState);
 	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 	oapiWriteScenario_string(scn,"SHUTTLE", (char*)ShuttleName.c_str());
 }
@@ -641,6 +642,10 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			char cnam[256];
 			sprintf(cnam,"%s%s","Shuttle name: ",ShuttleName);
 			oapiWriteLog(cnam);
+		}
+		else if(!_strnicmp(line,"RBUS",4)){
+			sscan_state(line+4, FSS_RBUS_UmbilicalState);
+			SetAnimation(anim_fss_rbus, FSS_RBUS_UmbilicalState.pos);
 		}
 		else ParseScenarioLineEx(line, status);
 	}
