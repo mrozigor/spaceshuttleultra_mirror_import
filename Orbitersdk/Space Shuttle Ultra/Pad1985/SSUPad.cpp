@@ -70,12 +70,6 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case IDC_RSS_CLOSE:
 				pad->MoveRSS(AnimState::CLOSING);
 				return TRUE;
-			case IDC_RSSOWP_OPEN:
-				pad->MoveRSS_OWP(AnimState::OPENING);
-				return TRUE;
-			case IDC_RSSOWP_CLOSE:
-				pad->MoveRSS_OWP(AnimState::CLOSING);
-				return TRUE;
 			case IDC_IAA_DEPLOY:
 				pad->DeployIAA();
 				return TRUE;
@@ -117,6 +111,12 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				return TRUE;
 			case IDC_VARM_HALT:
 				pad->MoveLOXArm(AnimState::STOPPED);
+				return TRUE;
+			case IDC_RBUS_CLOSE:
+				pad->MoveRBUS(AnimState::CLOSING);
+				return TRUE;
+			case IDC_RBUS_OPEN:
+				pad->MoveRBUS(AnimState::OPENING);
 				return TRUE;
 		}
 	}
@@ -274,25 +274,25 @@ void SSUPad::DefineAnimations()
 	//SetAnimation(anim_rss, 1.0);
 
 	
-	//RSS OWP
-	RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
-	static UINT RSS_Y_LOWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
-	static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 11.7));
-	static UINT RSS_Y_UOWPGrp[3] = {GRP_Box64, GRP_Box40, GRP_Box283};
-	static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 3,
-		_V(-0, 49.85, -7), _V(-1, 0, 0), (float)(33.0*RAD));
-	static UINT RSS_flip_upperGrp[1] = {GRP_Upper_triple_flip};
-	static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
-		_V(0, 62.5, 2.45), _V(1, 0, 0), (float)(90.0*RAD));
-	static UINT RSS_flip_lowerGrp[1] = {GRP_Lower_triple_flip};
-	static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 1,
-		_V(-7.286, 62.5, 4.21), _V(0, 1, 0), (float)(108.0*RAD));
-	anim_rss_y_owp=CreateAnimation(0.0);
-	AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
-	AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_flip_upper);
-	AddAnimationComponent(anim_rss_y_owp, 0.05, 0.35, &RSS_flip_lower);
-	AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
-	//SetAnimation(anim_rss_y_owp, 1.0);
+	////RSS OWP
+	//RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
+	//static UINT RSS_Y_LOWPGrp[2] = {GRP_RSS_Plus_Y_OWP_Lower, GRP_Box73};
+	//static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 11.7));
+	//static UINT RSS_Y_UOWPGrp[3] = {GRP_Box64, GRP_Box40, GRP_Box283};
+	//static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 3,
+	//	_V(-0, 49.85, -7), _V(-1, 0, 0), (float)(33.0*RAD));
+	//static UINT RSS_flip_upperGrp[1] = {GRP_Upper_triple_flip};
+	//static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
+	//	_V(0, 62.5, 2.45), _V(1, 0, 0), (float)(90.0*RAD));
+	//static UINT RSS_flip_lowerGrp[1] = {GRP_Lower_triple_flip};
+	//static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 1,
+	//	_V(-7.286, 62.5, 4.21), _V(0, 1, 0), (float)(108.0*RAD));
+	//anim_rss_y_owp=CreateAnimation(0.0);
+	//AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
+	//AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_flip_upper);
+	//AddAnimationComponent(anim_rss_y_owp, 0.05, 0.35, &RSS_flip_lower);
+	//AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
+	////SetAnimation(anim_rss_y_owp, 1.0);
 
 
 
@@ -350,7 +350,7 @@ bool SSUPad::IsDawn() const {
 
 void SSUPad::OnT0()
 {
-	//FSS_GH2_VentArmState.action=AnimState::OPENING;  why?
+	FSS_GH2_VentArmState.action=AnimState::OPENING;
 	MoveRBUS(AnimState::OPENING);
 }
 
@@ -369,15 +369,8 @@ void SSUPad::MoveGOXArm(AnimState::Action action)
 }
 
 
-void SSUPad::MoveRSS_OWP(AnimState::Action action)
-{
-	if(RSS_State.Closed() && (action==AnimState::OPENING || action==AnimState::CLOSING))
-		RSS_OWP_State.action=action;
-}
-
 void SSUPad::MoveRSS(AnimState::Action action)
 {
-	if(RSS_OWP_State.Closed())
 		RSS_State.action=action;
 }
 
@@ -508,11 +501,6 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_venthood, VentHoodState.pos);
 		if(GOXArmAction>=AnimState::CLOSING && !VentHoodState.Moving()) GOXArmSequence();
 	}
-	if(RSS_OWP_State.Moving()) {
-		double dp=simdt*RSS_OWP_RATE;
-		RSS_OWP_State.Move(dp);
-		SetAnimation(anim_rss_y_owp, RSS_OWP_State.pos);
-	}
 	if(IAA_State.Moving()) {
 		double dp=simdt*FSS_IAA_RATE;
 		IAA_State.Move(dp);
@@ -598,7 +586,7 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "GVA", GVAState);
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
 	//WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
-	WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
+	//WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
 	WriteScenario_state(scn, "RSS", RSS_State);
 	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
 	WriteScenario_state(scn, "FSS_IAA", IAA_State);
@@ -631,10 +619,10 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 			AnimateFSSOWPStrut();
 		}*/
-		else if (!_strnicmp(line, "RSS_OWP", 7)) {
+		/*else if (!_strnicmp(line, "RSS_OWP", 7)) {
 			sscan_state(line+7, RSS_OWP_State);
 			SetAnimation(anim_rss_y_owp, RSS_OWP_State.pos);
-		}
+		}*/
 		else if (!_strnicmp(line, "RSS", 3)) {
 			sscan_state(line+3, RSS_State);
 			SetAnimation(anim_rss, RSS_State.pos);
@@ -677,10 +665,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 				else RSS_State.action=AnimState::CLOSING;
 				return 1;
 			case OAPI_KEY_X:
-				if(RSS_State.Closed()) {
-					if(RSS_OWP_State.Closing() || RSS_OWP_State.Closed()) RSS_OWP_State.action=AnimState::OPENING;
-					else RSS_OWP_State.action=AnimState::CLOSING;
-				}
+				//there was RSS_OWP code
 				return 1;
 			/*case OAPI_KEY_Y:
 				if(FSS_OWP_State.Closing() || FSS_OWP_State.Closed()) FSS_OWP_State.action=AnimState::OPENING;

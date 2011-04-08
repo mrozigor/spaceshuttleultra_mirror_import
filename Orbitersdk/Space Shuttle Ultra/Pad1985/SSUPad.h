@@ -15,7 +15,6 @@ const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
-const double RSS_OWP_RATE = 0.002381;
 const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
 const double FSS_IAA_RATE = 1.0/200.0;
@@ -56,7 +55,6 @@ public:
 	void MoveLOXArm(AnimState::Action action);
 	virtual AnimState::Action GetAccessArmState() const;
 	virtual AnimState::Action GetGOXArmState() const;
-	void MoveRSS_OWP(AnimState::Action action);
 	void MoveRSS(AnimState::Action action);
 	void DeployIAA();
 	void HaltIAA();
@@ -81,7 +79,6 @@ private:
 	//animations; 0.0, CLOSED corresponds to state at t0
 	UINT anim_accessarm;
 	UINT anim_gva, anim_venthood;
-	UINT anim_rss_y_owp;
 	UINT anim_iaa;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
@@ -101,7 +98,6 @@ private:
 	 */
 	AnimState IAA_State;
 	
-	AnimState RSS_OWP_State;
 	AnimState RSS_State;
 	AnimState FSS_GH2_VentArmState;
 	AnimState::Action GOXArmAction;
