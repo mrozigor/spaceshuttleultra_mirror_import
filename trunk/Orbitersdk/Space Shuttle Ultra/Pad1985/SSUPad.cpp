@@ -12,7 +12,7 @@ HINSTANCE hPad_DLL;
 
 
 VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
-	_V(8.821483, 63.7142, 16),
+	_V(0,0,0),
 };
 
 VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
@@ -137,7 +137,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	RSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_RSS);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
 
-	VECTOR3 hs_ofs=_V(-60.4, -0.75, 45.25);
+	VECTOR3 hs_ofs=_V(-57, -0.75, 1.5);
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 	VECTOR3 wt_ofs=_V(100, 45, -66);
@@ -253,7 +253,7 @@ void SSUPad::DefineAnimations()
 	AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
 
 	//RBUS
-	static UINT RBUS_grp[2] = {GRP_RBUS_umbilical_beam_FSS ,GRP_RBUS_carrier_plate_FSS};
+	static UINT RBUS_grp[2] = {GRP_RBUS_umbilical_beam_FSS, GRP_RBUS_carrier_plate_FSS};
 	static MGROUP_TRANSLATE rbus_translate = MGROUP_TRANSLATE(fss_mesh_idx,RBUS_grp,2,_V(0,-1.665,15.42));
 	anim_fss_rbus = CreateAnimation(0.0);
 	AddAnimationComponent(anim_fss_rbus,0,1,&rbus_translate,0);
@@ -733,7 +733,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	CreateGOXVentThrusters();
 	CreateLights();
 
-	CreateAttachment(false, _V(4, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
+	CreateAttachment(false, _V(5.7, 21, 1.5), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 }
 
 void SSUPad::UpdateGOXVentThrusters() {
