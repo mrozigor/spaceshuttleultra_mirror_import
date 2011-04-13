@@ -113,7 +113,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 
 	mesh_idx = AddMesh (hTankMesh);
 
-	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0), _V(0, -1, 0), _V(0, 0, 1), "SSU_ET");
+	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0.5), _V(0, -1, 0), _V(0, 0, 1), "SSU_ET");
 }
 
 // Simulation time step
