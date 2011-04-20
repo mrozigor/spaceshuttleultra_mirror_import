@@ -16,19 +16,19 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 };
 
 VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
-	_V(-60.4, -0.75, 45.25) + _V(12.288, 28.594, -86.877),
-	_V(-60.4, -0.75, 45.25) + _V(56.812, 28.594, -89.026),
-	_V(-60.4, -0.75, 45.25) + _V(102.852, 28.594, -86.954),
-	_V(-60.4, -0.75, 45.25) + _V(116.768, 28.594, -15.921),
-	_V(-60.4, -0.75, 45.25) + _V(12.288, 28.594, -22.229)
+	_V(-58.2, -0.75, 1.3) + _V(4.126, 32, -41.503), //POS of SE light
+	_V(-58.2, -0.75, 1.3) + _V(55.574, 27, -43.662), // POS of E light
+	_V(-58.2, -0.75, 1.3) + _V(107.217, 32, -41.615),  // POS of NE light
+	_V(-58.2, -0.75, 1.3) + _V(117.091, 32, 30.015),  // POS of NW light
+	_V(-58.2, -0.75, 1.3) + _V(-10.551, 32, 23.754) // POS of SW light
 };
 
 VECTOR3 STADIUM_LIGHT_DIR[STADIUM_LIGHT_COUNT] = {
-	_V(0.7071, 0.0, 0.7071),
-	_V(0.0, 0.0, 1.0),
-	_V(-0.7071, 0.0, 0.7071),
-	_V(-0.7071, 0.0, -0.7071),
-	_V(0.7071, 0.0, -0.7071)
+	_V(0.7071, 0.0, 0.7071), // DIR of SE light
+	_V(0.0, 0.0, -1.0), // DIR of E light
+	_V(-0.7071, 0.0, 0.7071), // DIR of NE light
+	_V(-0.7071, 0.0, -0.7071), // DIR of NW light
+	_V(0.7071, 0.0, -0.7071) // DIR of SW light
 };
 
 //global functions
@@ -133,11 +133,11 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	FSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_FSS);
 	fss_mesh_idx=AddMesh(FSSMesh);
 
-	VECTOR3 rss_ofs=_V(0.0, 1.0, 1.5);
+	VECTOR3 rss_ofs=_V(13, 15, 1);
 	RSSMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_RSS);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
 
-	VECTOR3 hs_ofs=_V(-57, -0.75, 1.5);
+	VECTOR3 hs_ofs=_V(-58.2, -0.75, 1.3);
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 	VECTOR3 wt_ofs=_V(100, 45, -66);
@@ -184,8 +184,8 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95, 0.95, 1, 1};
-	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0.95, 0.95, 1, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {1, 0, 0, 1};//{0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
 	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0, 0, 0, 0};
 	const double STADIUM_LIGHT_RANGE = 300.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
@@ -210,7 +210,7 @@ void SSUPad::DefineAnimations()
 	//orbiter access arm
 	static UINT AccessArmGrp[2] = {GRP_Orbiter_Access_Arm_FSS, GRP_White_Room_FSS};
 	static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 2,
-		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(72.0*RAD));
+		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	anim_accessarm=CreateAnimation(0.0);
 	AddAnimationComponent(anim_accessarm, 0.0, 1.0, &AccessArm);
@@ -220,10 +220,10 @@ void SSUPad::DefineAnimations()
 	anim_gva=CreateAnimation(0.0);
 	static UINT GVAGrp[3] = {GRP_GVA_swing_arm_fences_FSS, GRP_GVA_swing_arm_FSS,  GRP_GOX_vent_pipes_FSS};
 	static MGROUP_ROTATE GVA(fss_mesh_idx, GVAGrp, 3,
-		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
+		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(77*RAD));
 
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
-		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(90*RAD));
+		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(77*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
 	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
@@ -247,7 +247,7 @@ void SSUPad::DefineAnimations()
 	////IAA rotation
 	IAA_State.Set(AnimState::CLOSED, 0.0);
 	static UINT IAAGrp[2] = {GRP_Intertank_Access_Arm_FSS, GRP_IAA_extensible_platform_FSS};
-	static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 2, _V(8.821483, 63.7142, 16), 
+	static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 2, _V(8.98, 63.7142, 16), 
 		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
 	anim_iaa = CreateAnimation(0.0);
 	AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
@@ -262,11 +262,11 @@ void SSUPad::DefineAnimations()
 	//RSS rotation
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
-		_V(-15.8, 0, 21.5), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
-	static UINT RSS_DoorGrp[1] = {GRP_Box281};
-	static MGROUP_SCALE RSS_door1(rss_mesh_idx, RSS_DoorGrp, 1, _V(-7.32,69.38,-1.82), _V(1,0.01,1));
-	static UINT RSS_DoorGrp2[1] = {GRP_Box281};
-	static MGROUP_SCALE RSS_door2(rss_mesh_idx, RSS_DoorGrp2, 1, _V(-7.32,69.38,-1.82), _V(1,100,1));
+	_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+	static UINT RSS_DoorGrp[1] = {GRP_FRCS_Room_door};
+	static MGROUP_SCALE RSS_door1(rss_mesh_idx, RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
+	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_Room_door};
+	static MGROUP_SCALE RSS_door2(rss_mesh_idx, RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
 	anim_rss=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss, 0, 0.05, &RSS_door1);
 	AddAnimationComponent(anim_rss, 0.06, 0.95, &RSS_Retract);
@@ -729,11 +729,11 @@ void SSUPad::CreateGOXVentThrusters() {
 
 void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetEmptyMass(2.000001);
-	SetSize(39.0);
+	SetSize(392.5);
 	CreateGOXVentThrusters();
 	CreateLights();
 
-	CreateAttachment(false, _V(5.7, 21, 1.5), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
+	CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 }
 
 void SSUPad::UpdateGOXVentThrusters() {
