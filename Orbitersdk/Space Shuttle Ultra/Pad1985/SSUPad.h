@@ -6,7 +6,7 @@
 //#include "../Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS_1985";
-static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
+static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS_1985";
 static const char* DEFAULT_MESHNAME_HARDSTAND="SSU/LC39A_hardstand";
 static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
 
@@ -24,8 +24,8 @@ const double FSS_RBUS_RATE = 0.35;
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int STADIUM_LIGHT_COUNT = 5;
 
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
