@@ -120,7 +120,7 @@ private:
 	void CreateLights();
 	void EnableLights();
 	void DisableLights();
-	bool IsDawn() const;
+	bool IsNight() const;
 
 	int SoundID;
 

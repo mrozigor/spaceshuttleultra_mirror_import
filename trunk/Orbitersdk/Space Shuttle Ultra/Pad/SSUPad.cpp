@@ -369,11 +369,11 @@ void SSUPad::DefineAnimations()
 }
 
 void SSUPad::DisableLights() {
-	fLightsOn = true;
+	fLightsOn = false;
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = false;
 
-		fLightsOn = fLightsOn && lights[i].active;
+		//fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -388,7 +388,7 @@ void SSUPad::EnableLights() {
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = true;
 
-		fLightsOn = fLightsOn && lights[i].active;
+		//fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -399,7 +399,7 @@ void SSUPad::EnableLights() {
 
 
 
-bool SSUPad::IsDawn() const {
+bool SSUPad::IsNight() const {
 	
 	OBJHANDLE Sun=NULL;
 	int count=(int)oapiGetGbodyCount();
@@ -561,10 +561,10 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	if(simt > fNextLightUpdate) {
 		fNextLightUpdate = simt + 300.0;
 
-		if(fLightsOn && !IsDawn()) {
+		if(fLightsOn && !IsNight()) {
 			DisableLights();
 		} 
-		else if(!fLightsOn && IsDawn()) {
+		else if(!fLightsOn && IsNight()) {
 			EnableLights();
 		}
 	}
