@@ -184,9 +184,9 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {1, 0, 0, 1};//{0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95, 1, 0.95, 1};//{0.925, 1, 0.925, 1};
 	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
-	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0, 0, 0, 0};
+	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1, 0.125, 0.1, 0};
 	const double STADIUM_LIGHT_RANGE = 300.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
 	const double STADIUM_LIGHT_ATT1 = 0;
@@ -220,10 +220,10 @@ void SSUPad::DefineAnimations()
 	anim_gva=CreateAnimation(0.0);
 	static UINT GVAGrp[3] = {GRP_GVA_swing_arm_fences_FSS, GRP_GVA_swing_arm_FSS,  GRP_GOX_vent_pipes_FSS};
 	static MGROUP_ROTATE GVA(fss_mesh_idx, GVAGrp, 3,
-		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(77*RAD));
+		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
-		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(77*RAD));
+		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
 	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
@@ -299,11 +299,11 @@ void SSUPad::DefineAnimations()
 }
 
 void SSUPad::DisableLights() {
-	fLightsOn = true;
+	fLightsOn = false;
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = false;
 
-		fLightsOn = fLightsOn && lights[i].active;
+		//fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -318,7 +318,7 @@ void SSUPad::EnableLights() {
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = true;
 
-		fLightsOn = fLightsOn && lights[i].active;
+		//fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -329,7 +329,7 @@ void SSUPad::EnableLights() {
 
 
 
-bool SSUPad::IsDawn() const {
+bool SSUPad::IsNight() const {
 	
 	OBJHANDLE Sun=NULL;
 	int count=(int)oapiGetGbodyCount();
@@ -474,10 +474,10 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	if(simt > fNextLightUpdate) {
 		fNextLightUpdate = simt + 300.0;
 
-		if(fLightsOn && !IsDawn()) {
+		if(fLightsOn && !IsNight()) {
 			DisableLights();
 		} 
-		else if(!fLightsOn && IsDawn()) {
+		else if(!fLightsOn && IsNight()) {
 			EnableLights();
 		}
 	}

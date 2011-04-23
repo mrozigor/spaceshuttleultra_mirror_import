@@ -24,8 +24,8 @@ const double FSS_RBUS_RATE = 0.35;
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int STADIUM_LIGHT_COUNT = 5;
 
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
@@ -112,7 +112,7 @@ private:
 	void CreateLights();
 	void EnableLights();
 	void DisableLights();
-	bool IsDawn() const;
+	bool IsNight() const;
 
 	int SoundID;
 
