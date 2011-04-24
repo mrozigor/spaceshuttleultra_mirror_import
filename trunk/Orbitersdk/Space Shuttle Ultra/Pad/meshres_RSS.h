@@ -1,65 +1,67 @@
 // ========================================================
 // Mesh resource file for LC39A_RSS.msh
-// Generated with meshc on Sun Dec 14 17:41:37 2008
+// Generated with meshc on Mon Apr 25 01:08:18 2011
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_RSS 49
+#define NGRP 51
 
 // Number of materials:
-#define NMAT_RSS 7
+#define NMAT 7
 
 // Number of textures:
-#define NTEX_RSS 1
+#define NTEX 1
 
 // Named mesh groups:
-#define GRP_Cylinder01 0
-#define GRP_Cylinder358 1
-#define GRP_Cylinder382 2
-#define GRP_Cylinder389 3
-#define GRP_Box535 4
-#define GRP_Box565 5
-#define GRP_Cylinder314 6
-#define GRP_Cylinder316 7
-#define GRP_Cylinder350 8
-#define GRP_Cylinder370 9
-#define GRP_Cylinder381 10
-#define GRP_RSS_cab 11
-#define GRP_Box07 12
-#define GRP_Box40 13
-#define GRP_Box64 14
-#define GRP_Box73 15
-#define GRP_Box140 16
-#define GRP_Box146 17
-#define GRP_Box147 18
-#define GRP_Box272 19
-#define GRP_Box274 20
-#define GRP_Box281 21
-#define GRP_Box283 22
-#define GRP_Box284 23
-#define GRP_Box321 24
-#define GRP_Box323 25
-#define GRP_Box324 26
-#define GRP_Box330 27
-#define GRP_Box527 28
-#define GRP_Cylinder04 29
-#define GRP_Cylinder90 30
-#define GRP_Cylinder221 31
-#define GRP_Cylinder248 32
-#define GRP_Line01 33
-#define GRP_Line07 34
-#define GRP_Lower_triple_flip 35
-#define GRP_Main_PCR_structure 36
-#define GRP_Minus_Y_Wing_cover 37
-#define GRP_Object02 38
-#define GRP_OMBUU 39
-#define GRP_PCR_access_doors 40
-#define GRP_PCR_doors 41
-#define GRP_RSS_Plus_Y_OWP_Lower 42
-#define GRP_RSS_truss_structure 43
-#define GRP_Tube08 44
-#define GRP_Upper_catwalks_and_stairs 45
-#define GRP_Upper_triple_flip 46
-#define GRP_Vertical_torque_tubes 47
-#define GRP_RSS_cab_windows 48
+#define GRP_APS_APU_servicing_platforms 0
+#define GRP_Box03 1
+#define GRP_Canister_guide_rails 2
+#define GRP_ET_Platforms 3
+#define GRP_FRCS_access_left 4
+#define GRP_FRCS_access_static 5
+#define GRP_FRCS_ET_platform 6
+#define GRP_FRCS_Room_door 7
+#define GRP_FRCS_Room_stairhouse 8
+#define GRP_Hoist_equipment_room 9
+#define GRP_HVAC_ducts 10
+#define GRP_LPCR_door_1 11
+#define GRP_LPCR_door_2 12
+#define GRP_LPCR_door_seal 13
+#define GRP_Metal_Panels 14
+#define GRP_Object01 15
+#define GRP_OMBUU 16
+#define GRP_PCR 17
+#define GRP_PCR_floor 18
+#define GRP_PCR_roof 19
+#define GRP_PCR_side_seals 20
+#define GRP_PCR_top 21
+#define GRP_Plane03 22
+#define GRP_Plane06 23
+#define GRP_RPCR_door_1 24
+#define GRP_RPCR_door_2 25
+#define GRP_RPCR_door_seal 26
+#define GRP_RSS_cab 27
+#define GRP_RSS_cab_door 28
+#define GRP_RSS_drive_truck_FWD 29
+#define GRP_RSS_drive_truck_rear 30
+#define GRP_RSS_tube_frame 31
+#define GRP_Torque_tube_fittings 32
+#define GRP_Torque_tube_platforms 33
+#define GRP_Tube08 34
+#define GRP_Vertical_torque_tubes 35
+#define GRP_Wing_Panels 36
+#define GRP_Metal_Panel_flip_upper_left 37
+#define GRP_Line06 38
+#define GRP_Metal_Panel_flip_lower_left 39
+#define GRP_OWP_Curtain_Wall_rails 40
+#define GRP_Box01 41
+#define GRP_Upper_catwalks_and_stairs 42
+#define GRP_Cylinder221 43
+#define GRP_Cylinder90 44
+#define GRP_OWP_Curtain_Wall 45
+#define GRP_Line02 46
+#define GRP_SRB_IEA_platform 47
+#define GRP_Metal_Panel_flip_right_lower 48
+#define GRP_Metal_Panel_flip_right 49
+#define GRP_RSS_cab_windows 50

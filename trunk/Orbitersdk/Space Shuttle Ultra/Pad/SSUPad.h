@@ -27,11 +27,11 @@ const double FSS_OWP_STRUT_LENGTH = 18.3203;
 const double FSS_OWP_STRUT_OFFSET = 13.427;
 const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
 
-const unsigned int FSS_NUM_LIGHTS = 44;
+const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int STADIUM_LIGHT_COUNT = 5;
 
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
