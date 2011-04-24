@@ -79,24 +79,24 @@ private:
 	void DisableThrusters(const int Thrusters[], int nThrusters);
 
 	VESSEL *vessel;
-	VECTOR3 GVesselPos, GVesselVel;
-	VESSELSTATUS Status;
+	//VECTOR3 GVesselPos, GVesselVel;
+	//VESSELSTATUS Status;
 
 	int width, height;
 	int ops, item, spec, mode, display;
 	//int data;
 	int id;
 
-	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
-	double dT;
-	bool landed;
+	//int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
+	//double dT;
+	//bool landed;
 
-	int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
+	/*int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
 	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
 	int Hydraulic_Press[3];
-	double APU_Fuel_Last[3], APU_Fuel_Rate, Simtime_last, Simtime;
+	double APU_Fuel_Last[3], APU_Fuel_Rate, Simtime_last, Simtime;*/
 
-	VECTOR3 /*InertialOrientation, InertialOrientationRad,*/ AngularVelocity;
+	/*VECTOR3 /*InertialOrientation, InertialOrientationRad,* AngularVelocity;
 	int edit; //0=Blank, 1=A, 2=B
 	VECTOR3 PMI;
 
@@ -108,7 +108,7 @@ private:
 	//VECTOR3 Trim; // 0=P, 1=LY, 2=RY
 
 	//PDRS Control
-	int RMS_SEL; //0=PORT, 1=STBD
+	int RMS_SEL; //0=PORT, 1=STBD*/
 
 	bool UpdateStatus;
 	static struct SavePrm{

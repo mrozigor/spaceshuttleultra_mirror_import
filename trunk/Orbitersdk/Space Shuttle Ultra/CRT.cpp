@@ -20,7 +20,7 @@
 // Global variables
 
 int g_MFDmode; // identifier for new MFD mode
-CRT *mfd;
+//CRT *mfd;
 CRT::SavePrm CRT::saveprm;
 
 MFD_GDIPARAM mfd_gparam;
@@ -38,7 +38,7 @@ DLLCLBK void InitModule (HINSTANCE hDLL)
 
 	// Register the new MFD mode with Orbiter
 	g_MFDmode = oapiRegisterMFDMode (spec);
-	mfd = NULL;
+	//mfd = NULL;
 	mfd_gparam.hDLL = hDLL;
 	mfd_gparam.hCRTFont = CreateFont(10,10, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "System");
@@ -122,18 +122,18 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	}*/
 	//UpdateStatus=true;
 
-	bTIMER=false;
+	//bTIMER=false;
 	//sprintf(oapiDebugString(), "Constructor %f", oapiRand());
-	vessel->GetPMI(PMI);
+	//vessel->GetPMI(PMI);
 
-	RMS_SEL=0;
+	//RMS_SEL=0;
 
-	for(i=0;i<4;i++) {
+	/*for(i=0;i<4;i++) {
 		Launch_time[i]=0;
 		MET_Add[i]=0;
 		//START_TIME[i]=0;
-	}
-	mfd=this;
+	}*/
+	//mfd=this;
 	return;
 }
 
@@ -160,7 +160,7 @@ void CRT::Update (HDC hDC)
 
 	//sprintf(oapiDebugString(), "%d", id);
 
-	Simtime=oapiGetSimTime();
+	//Simtime=oapiGetSimTime();
 
 	if(mode==10001) {
 			int n;
@@ -255,7 +255,7 @@ void CRT::Update (HDC hDC)
 		DisplayScratchPad(hDC);
 	}
 	//sprintf(oapiDebugString(), "%f", Simtime-Simtime_last);
-	Simtime_last=Simtime;
+	//Simtime_last=Simtime;
 }
 
 void CRT::OMSMPS(HDC hDC)
@@ -1450,7 +1450,7 @@ char *CRT::ButtonLabel (int bt)
 {
 	static char *label[2][4] = {{"UP", "OMS", "HYD", "SPI"},
 	{"UP", "", "", ""}};
-	return (bt < 4 ? label[mode][bt] : 0);
+	return ((mode < 2 && bt < 4) ? label[mode][bt] : NULL);
 }
 
 // Return button menus
