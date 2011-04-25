@@ -2,6 +2,7 @@
 #define __SSUPAD_H
 #pragma once
 
+#include <vector>
 #include "orbitersdk.h"
 //#include "../Atlantis.h"
 
@@ -107,6 +108,7 @@ private:
 	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
 	UINT anim_fss_rbus;
 
+	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -127,6 +129,15 @@ private:
 	AnimState::Action GOXArmAction;
 	AnimState FSS_RBUS_UmbilicalState;
 
+	/**
+	 * Creates MGROUP_ROTATE struct, adds it to animation list, and returns pointer to struct
+	 */
+	MGROUP_ROTATE* DefineRotation(UINT mesh, UINT *grp, UINT ngrp, const VECTOR3 &ref, const VECTOR3 &axis, float angle)
+	{
+		MGROUP_ROTATE* mgrp = new MGROUP_ROTATE(mesh, grp, ngrp, ref, axis, angle);
+		vpAnimations.push_back(mgrp);
+		return mgrp;
+	}
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
 	{
 		if(fabs(d1-d2)>dDiff) return false;
