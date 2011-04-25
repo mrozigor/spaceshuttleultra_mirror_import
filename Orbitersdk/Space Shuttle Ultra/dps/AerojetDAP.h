@@ -17,6 +17,12 @@ using namespace discsignals;
  * Offset between OGS aimpoint and rwy threshold
  */
 const double OGS_AIMPOINT = -7500/MPS2FPS;
+const double AL_GS = tan(-20.0*RAD);
+const double Y_AL_INTERCEPT = 10018.0/MPS2FPS;
+const double X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
+
+const int NZ_VALUE_COUNT = 5;
+const double NZ_UPDATE_INTERVAL = 0.1;
 
 /**
  * DAP during entry, TAEM and A/L phases (MM304 and MM305)
@@ -25,17 +31,18 @@ const double OGS_AIMPOINT = -7500/MPS2FPS;
 class AerojetDAP : public SimpleGPCSoftware
 {
 private:	
-	typedef enum {HDG, PRFNL, OGS, FLARE} GUIDANCE_MODE;
-	typedef enum {LOVHD, ROVHD, STIN} HAC_DIRECTION;
+	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
+	typedef enum {L, R} HAC_SIDE;
+	typedef enum {OVHD, STIN} HAC_DIRECTION;
 
 	class LandingSiteData
 	{
-	public:
 		double radPriLat, radPriLong;
 		double radSecLat, radSecLong;
 		double degPriHeading; // add 180 to get sec heading
 		std::string strPri, strSec;
 
+	public:
 		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, const char* pri, const char* sec)
 			: radPriLat(_radPriLat), radPriLong(_radPriLong), radSecLat(_radSecLat), radSecLong(_radSecLong),
 			degPriHeading(_degPriHeading),
@@ -45,6 +52,38 @@ private:
 
 		~LandingSiteData()
 		{
+		}
+
+		void GetRwyPosition(bool pri, double& radLat, double& radLong) const
+		{
+			if(pri) {
+				radLat = radPriLat;
+				radLong = radPriLong;
+			}
+			else {
+				radLat = radSecLat;
+				radLong = radSecLong;
+			}
+		}
+
+		double GetRwyHeading(bool pri) const
+		{
+			if(pri) return degPriHeading;
+			else {
+				double heading = degPriHeading + 180.0;
+				if(heading >= 360.0) heading-=360.0;
+				return heading;
+			}
+		}
+
+		const std::string& GetPriRwyName() const
+		{
+			return strPri;
+		}
+
+		const std::string& GetSecRwyName() const
+		{
+			return strSec;
 		}
 	};
 
@@ -60,10 +99,12 @@ private:
 	//PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
 	PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
 	PIDControl Roll_AileronRoll; // converts roll angle error (in degrees) to aileron command
-	PIDControl Yaw_AileronYaw; // converts roll angle error (in degrees) to aileron command
+	PIDControl Yaw_RudderYaw; // converts roll angle error (in degrees) to aileron command
+	PIDControl QBar_Speedbrake; // converts qbar error (in kPa) to speedbrake command
 	//PIDControl BodyFlap;
 	
 	DiscInPort PitchAuto, RollYawAuto;
+	DiscInPort SpeedbrakeAuto;
 	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
@@ -78,24 +119,38 @@ private:
 	VECTOR3 degTargetAttitude;
 	VECTOR3 degCurrentAttitude;
 	VECTOR3 degCurrentRates;
+	//VECTOR3 degTargetRates; // used in aerosurface control to ramp rotation rates
 	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering aronud an axis
 	
 	OBJHANDLE hEarth;
 
-	GUIDANCE_MODE GuidanceMode;
-
+	/** Variables used by TAEM guidance **/
+	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
 	//HAC_DIRECTION HACDirection;
+	HAC_SIDE HACSide;
 	MATRIX3 RwyRotMatrix;
 	VECTOR3 RwyPos;
 	double degRwyHeading;
 	//double TargetGlideslope;
 	//double TargetPitchRate;
-	double NZCommand;
-	//double TargetPitch, TargetBank;
-	double TargetBank;
 	double prfnlBankFader;
 	double HAC_TurnRadius;
+	double TotalRange;
 	double gravity_force;
+	/** values for calculating NZ **/
+	// NZ needs to be averaged to compensate for elevon deflections
+	double lastNZUpdateTime;
+	double averageNZ, NZValues[NZ_VALUE_COUNT];
+	int curNZValueCount;
+	/** values related to qbar (dynamic pressure) **/
+	// all values in kPa
+	double filteredQBar;
+
+	/** Output guidance variables **/
+	double NZCommand; // MM305 output
+	double TargetBank;
+
+	double elevonPos, aileronPos, rudderPos;
 
 	std::vector<LandingSiteData> vLandingSites;
 
@@ -114,6 +169,9 @@ public:
 	//virtual bool ExecPressed(int spec);
 	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 	virtual bool OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const;
+
+	virtual bool OnParseLine(const char* keyword, const char* value);
+	virtual void OnSaveState(FILEHANDLE scn) const;
 private:
 	void SetThrusterLevels();
 	/**
@@ -161,12 +219,6 @@ private:
 	void CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT);
 	/**
 	 * \param RwyPos position relative to runway threshold in rwy-relative frame
-	 * \return glideslope for shuttle on OGS
-	 * \note X=height Y=distance from runway (-ve) Z=offset from centerline
-	 */
-	double CalculateOGS(const VECTOR3 &RwyPos) const;
-	/**
-	 * \param RwyPos position relative to runway threshold in rwy-relative frame
 	 * \note X=height Y=distance from runway (-ve) Z=offset from centerline
 	 * \note Calculates target glideslope rate for preflare
 	 */
@@ -176,7 +228,16 @@ private:
 	 * \return glideslope for shuttle performing preflare
 	 */
 	double CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const;
+	/**
+	 * Updates NZCommand variable.
+	 * Also calculates qbar error for speedbrake calculation.
+	 */
 	double CalculateNZCommand(const VECTOR3& velocity, double predRange, double curAlt, double DeltaT) const;
+	/**
+	 * Returns commanded speedbrake angle in degrees.
+	 * Currently implements older version of speedbrake algorithm.
+	 */
+	double CalculateSpeedbrakeCommand(double predRange, double DeltaT);
 
 	/**
 	 * Called every time the target runway is changed.
@@ -184,6 +245,13 @@ private:
 	 */
 	void InitializeRunwayData();
 	VECTOR3 GetRunwayRelPos() const;
+
+	/**
+	 * Calculates range and azimuth error to selected runway.
+	 * /param range updated with range to rwy [m]
+	 * /param delaz updated with azimuth error to rwy threshold [deg]
+	 */
+	void CalculateRangeAndDELAZ(double& range, double& delaz) const;
 
 	void LoadLandingSiteList();
 
