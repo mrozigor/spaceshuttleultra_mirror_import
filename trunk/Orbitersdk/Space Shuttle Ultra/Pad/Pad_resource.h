@@ -12,25 +12,30 @@
 #define IDC_RSSOWP_OPEN                 1006
 #define IDC_RSSOWP_CLOSE                1007
 #define IDC_LABEL1                      1008
+#define IDC_LABEL_RSSOWP                1008
 #define IDC_FSSOWP_OPEN                 1009
 #define IDC_RSS_CLOSE3                  1010
 #define IDC_FSSOWP_CLOSE                1010
 #define IDC_LABEL2                      1011
+#define IDC_LABELFSSOWP                 1011
+#define IDC_LABEL_FSSOWP                1011
 #define IDC_IAA_DEPLOY                  1012
 #define IDC_IAA_RETRACT                 1013
 #define IDC_BUTTON4                     1014
 #define IDC_IAA_HALT                    1014
-#define IDC_VHOOD_DEPLOY                1015//
-#define IDC_VHOOD_HALT                  1016//
-#define IDC_VHOOD_RETRACT               1017//
+#define IDC_VHOOD_DEPLOY                1015
+#define IDC_VHOOD_HALT                  1016
+#define IDC_VHOOD_RETRACT               1017
 #define IDC_VARM_EXTEND                 1018
 #define IDC_VARM_HALT                   1019
 #define IDC_VARM_RETRACT                1020
-#define IDC_CREWARM_EXTEND              1021//
-#define IDC_CREWARM_STOP                1022//
-#define IDC_CREWARM_RETRACT             1023//
-#define IDC_GH2_EXTEND                  1024//
-#define IDC_GH2_RETRACT                 1025//
+#define IDC_CREWARM_EXTEND              1021
+#define IDC_CREWARM_STOP                1022
+#define IDC_CREWARM_RETRACT             1023
+#define IDC_GH2_EXTEND                  1024
+#define IDC_GH2_RETRACT                 1025
+#define IDC_RBUS_EXTEND                 1026
+#define IDC_RBUS_RETRACT                1027
 
 // Next default values for new objects
 // 

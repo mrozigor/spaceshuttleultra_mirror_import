@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -64,30 +62,32 @@ BEGIN
     GROUPBOX        "OWP",IDC_GROUP_OWP,7,58,207,60
     PUSHBUTTON      "Extend",IDC_RSSOWP_OPEN,42,71,49,14,WS_GROUP
     PUSHBUTTON      "Retract",IDC_RSSOWP_CLOSE,95,71,49,14
-    LTEXT           "RSS:",IDC_LABEL1,15,71,26,14,SS_CENTERIMAGE
+    LTEXT           "RSS:",IDC_LABEL_RSSOWP,15,71,26,14,SS_CENTERIMAGE
     PUSHBUTTON      "Extend",IDC_FSSOWP_OPEN,42,92,49,14,WS_GROUP
     PUSHBUTTON      "Retract",IDC_FSSOWP_CLOSE,95,92,49,14
-    LTEXT           "FSS:",IDC_LABEL2,15,92,26,14,SS_CENTERIMAGE
+    LTEXT           "FSS:",IDC_LABEL_FSSOWP,15,92,26,14,SS_CENTERIMAGE
     GROUPBOX        "FSS Arms",IDC_STATIC,7,118,207,120
     LTEXT           "IAA:",IDC_STATIC,15,133,16,8
     PUSHBUTTON      "Deploy",IDC_IAA_DEPLOY,52,130,50,14
     PUSHBUTTON      "Retract",IDC_IAA_RETRACT,159,130,49,14
     PUSHBUTTON      "Halt",IDC_IAA_HALT,105,130,50,14
-	LTEXT           "GVA Vent Hood:"IDC_STATIC,15,150,40,15
-	PUSHBUTTON      "Deploy",IDC_VHOOD_DEPLOY,52,151,50,14
-	PUSHBUTTON      "Halt",IDC_VHOOD_HALT,105,151,50,14
-	PUSHBUTTON      "Retract",IDC_VHOOD_RETRACT,159,151,50,14
-	LTEXT           "GVA Swing Arm:",IDC_STATIC,15,171,40,15
-	PUSHBUTTON      "Extend",IDC_VARM_EXTEND,52,172,50,14
-	PUSHBUTTON      "Stop",IDC_VARM_HALT,105,172,50,14
-	PUSHBUTTON      "Retract",IDC_VARM_RETRACT,159,172,50,14
-	LTEXT           "OAA:",IDC_STATIC,15,196,16,14
-	PUSHBUTTON      "Extend",IDC_CREWARM_EXTEND,52,193,50,14
-	PUSHBUTTON      "Stop",IDC_CREWARM_STOP,105,193,50,14
-	PUSHBUTTON      "Retract",IDC_CREWARM_RETRACT,159,193,50,14
-	LTEXT           "GH2 Ventline:",IDC_STATIC,15,213,40,16
-	PUSHBUTTON      "Extend",IDC_GH2_EXTEND,52,214,50,14
-	PUSHBUTTON      "Retract",IDC_GH2_RETRACT,105,214,50,14
+    LTEXT           "GVA Vent Hood:",IDC_STATIC,15,150,40,15
+    PUSHBUTTON      "Deploy",IDC_VHOOD_DEPLOY,52,151,50,14
+    PUSHBUTTON      "Halt",IDC_VHOOD_HALT,105,151,50,14
+    PUSHBUTTON      "Retract",IDC_VHOOD_RETRACT,159,151,50,14
+    LTEXT           "GVA Swing Arm:",IDC_STATIC,15,171,40,15
+    PUSHBUTTON      "Extend",IDC_VARM_EXTEND,52,172,50,14
+    PUSHBUTTON      "Stop",IDC_VARM_HALT,105,172,50,14
+    PUSHBUTTON      "Retract",IDC_VARM_RETRACT,159,172,50,14
+    LTEXT           "OAA:",IDC_STATIC,15,196,16,14
+    PUSHBUTTON      "Extend",IDC_CREWARM_EXTEND,52,193,50,14
+    PUSHBUTTON      "Stop",IDC_CREWARM_STOP,105,193,50,14
+    PUSHBUTTON      "Retract",IDC_CREWARM_RETRACT,159,193,50,14
+    LTEXT           "GH2 Ventline:",IDC_STATIC,15,213,40,16
+    PUSHBUTTON      "Extend",IDC_GH2_EXTEND,52,214,50,14
+    PUSHBUTTON      "Retract",IDC_GH2_RETRACT,105,214,50,14
+    PUSHBUTTON      "Extend",IDC_RBUS_EXTEND,42,82,49,14,WS_GROUP
+    PUSHBUTTON      "Retract",IDC_RBUS_RETRACT,95,82,49,14
 END
 
 
@@ -97,7 +97,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ANIMCTRL, DIALOG
     BEGIN
@@ -113,7 +113,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
