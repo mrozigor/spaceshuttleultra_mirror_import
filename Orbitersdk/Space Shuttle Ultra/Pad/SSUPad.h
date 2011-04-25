@@ -7,6 +7,8 @@
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
+static const char* DEFAULT_MESHNAME_FSS_1985="SSU/LC39A_FSS_1985";
+static const char* DEFAULT_MESHNAME_RSS_1985="SSU/LC39A_RSS_1985";
 static const char* DEFAULT_MESHNAME_HARDSTAND="SSU/LC39A_hardstand";
 static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
 
@@ -20,6 +22,7 @@ const double FSS_OWP_RATE = 0.00128205;
 const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
 const double FSS_IAA_RATE = 1.0/200.0;
+const double FSS_RBUS_RATE = 0.35;
 
 //FSS OWP strut animation constants
 const double FSS_OWP_BRACKET_LENGTH = 12.212;
@@ -27,11 +30,15 @@ const double FSS_OWP_STRUT_LENGTH = 18.3203;
 const double FSS_OWP_STRUT_OFFSET = 13.427;
 const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
 
-const unsigned int FSS_NUM_LIGHTS = 1;
+const unsigned int FSS_NUM_LIGHTS = 44;
 const unsigned int STADIUM_LIGHT_COUNT = 5;
 
+//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
+//const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
 const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
+//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
+//const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
@@ -41,6 +48,7 @@ class Atlantis;
 
 class SSUPad: public VESSEL3
 {
+	friend BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
 	SSUPad(OBJHANDLE hVessel, int flightmodel);
 	~SSUPad();
@@ -67,13 +75,18 @@ public:
 	void DeployIAA();
 	void HaltIAA();
 	void RetractIAA();
+	void MoveRBUS(AnimState::Action action);
 	
 private:
 	void DefineAnimations();
+	//void DefineAnimations();
+	//void DefineAnimations1985();
 	void GOXArmSequence();
 	void AnimateFSSOWPStrut();
 	void CreateGOXVentThrusters();
 	void UpdateGOXVentThrusters();
+
+	bool bPad1985;
 
 	PROPELLANT_HANDLE phGOXVent;
 	THRUSTER_HANDLE thGOXVent[2];
@@ -92,6 +105,8 @@ private:
 	UINT anim_iaa;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
+	UINT anim_fss_rbus;
+
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -110,6 +125,7 @@ private:
 	AnimState RSS_State;
 	AnimState FSS_GH2_VentArmState;
 	AnimState::Action GOXArmAction;
+	AnimState FSS_RBUS_UmbilicalState;
 
 	inline bool Eq(const double d1, const double d2, double dDiff=0.00001)
 	{
