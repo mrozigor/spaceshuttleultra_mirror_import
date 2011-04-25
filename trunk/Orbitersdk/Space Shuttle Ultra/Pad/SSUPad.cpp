@@ -505,7 +505,7 @@ AnimState::Action SSUPad::GetGOXArmState() const
 
 void SSUPad::AnimateFSSOWPStrut()
 {
-	if(!bPad1985) return; // no OWP on 1985 pad
+	if(bPad1985) return; // no OWP on 1985 pad
 
 	double angle=(PI/2)*(min(FSS_OWP_State.pos, 0.769)/0.769);
 	//calculate horizontal distance between FSS strut attachment (to OWP bracket) and FSS bracket attachment (to FSS)
