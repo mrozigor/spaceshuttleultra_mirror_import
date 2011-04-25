@@ -349,8 +349,6 @@ void SSUPad::DisableLights() {
 	fLightsOn = false;
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = false;
-
-		fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -364,8 +362,6 @@ void SSUPad::EnableLights() {
 
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
 		lights[i].active = true;
-
-		fLightsOn = fLightsOn && lights[i].active;
 	}
 
 	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
@@ -856,6 +852,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	CreateGOXVentThrusters();
 	CreateLights();
+	DisableLights(); // make sure lights are initially off
 
 	//if(bPad1985) CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 	//else CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
