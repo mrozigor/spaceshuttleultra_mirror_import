@@ -4,8 +4,8 @@
 #include "Pad_Resource.h"
 #include "meshres_FSS.h"
 #include "meshres_RSS.h"
-//#include "meshres_FSS_1985.h"
-//#include "meshres_RSS_1985.h"
+#include "meshres_FSS_1985.h"
+#include "meshres_RSS_1985.h"
 #include <dlgctrl.h>
 #include <OrbiterSoundSDK35.h>
 
@@ -187,6 +187,8 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 
 SSUPad::~SSUPad()
 {
+	for(unsigned int i=0;i<vpAnimations.size();i++)
+		delete vpAnimations.at(i);
 }
 
 void SSUPad::CreateLights() {
@@ -204,9 +206,9 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1f, 0.95f, 1f};//{0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.925, 1, 0.925, 1};
 	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
-	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0f};
+	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
 	const double STADIUM_LIGHT_RANGE = 300.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
 	const double STADIUM_LIGHT_ATT1 = 0;
@@ -229,53 +231,59 @@ void SSUPad::DefineAnimations()
 {
 	//orbiter access arm
 	static UINT AccessArmGrp[2] = {GRP_Orbiter_Access_Arm_FSS, GRP_White_Room_FSS};
-	static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 2,
+	static UINT AccessArmGrp_1985[2] = {GRP_Orbiter_Access_Arm_FSS_1985, GRP_White_Room_FSS_1985};
+	/*static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 2,
+		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));*/
+	MGROUP_ROTATE* AccessArm = DefineRotation(fss_mesh_idx, bPad1985 ? AccessArmGrp_1985 : AccessArmGrp, 2,
 		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	anim_accessarm=CreateAnimation(0.0);
-	AddAnimationComponent(anim_accessarm, 0.0, 1.0, &AccessArm);
+	AddAnimationComponent(anim_accessarm, 0.0, 1.0, AccessArm);
 
 	//GOX arm
 	GVAState.Set(AnimState::CLOSED, 0.0);
 	anim_gva=CreateAnimation(0.0);
 	static UINT GVAGrp[3] = {GRP_GVA_swing_arm_fences_FSS, GRP_GVA_swing_arm_FSS,  GRP_GOX_vent_pipes_FSS};
-	static MGROUP_ROTATE GVA(fss_mesh_idx, GVAGrp, 3,
+	static UINT GVAGrp_1985[3] = {GRP_GVA_swing_arm_fences_FSS_1985, GRP_GVA_swing_arm_FSS_1985,  GRP_GOX_vent_pipes_FSS_1985};
+	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 3,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
-
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
-	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA);
+	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, GVA);
 	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
 
 	//GOX hood
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	anim_venthood=CreateAnimation(1.0);
 	static UINT VentHoodGrp[9] = {GRP_GOX_Vent_Hood_FSS, GRP_North_GOX_dockseal_FSS, GRP_South_GOX_dockseal_FSS, GRP_South_GOX_vent_cylinder_01_FSS, GRP_South_GOX_vent_cylinder_02_FSS, GRP_South_GOX_vent_cylinder_03_FSS, GRP_North_GOX_vent_cylinder_01_FSS, GRP_North_GOX_vent_cylinder_02_FSS, GRP_North_GOX_vent_cylinder_03_FSS};
-	static MGROUP_ROTATE VentHood(fss_mesh_idx, VentHoodGrp, 9,
+	static UINT VentHoodGrp_1985[9] = {GRP_GOX_Vent_Hood_FSS_1985, GRP_North_GOX_dockseal_FSS_1985, GRP_South_GOX_dockseal_FSS_1985, GRP_South_GOX_vent_cylinder_01_FSS_1985, GRP_South_GOX_vent_cylinder_02_FSS_1985, GRP_South_GOX_vent_cylinder_03_FSS_1985, GRP_North_GOX_vent_cylinder_01_FSS_1985, GRP_North_GOX_vent_cylinder_02_FSS_1985, GRP_North_GOX_vent_cylinder_03_FSS_1985};
+	MGROUP_ROTATE* VentHood = DefineRotation(fss_mesh_idx, bPad1985 ? VentHoodGrp_1985 : VentHoodGrp, 9,
 		_V(-16, 82, 21.709), _V(0, 0, 1), (float)(48.0*RAD));
-	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, &VentHood, parent);
+	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, VentHood, parent);
 
 	//GH2 Vent Arm
 	FSS_GH2_VentArmState.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_GH2_Arm[3] = {GRP_GH2_fwd_vent_flex_line_FSS, GRP_GH2_vent_hard_line_FSS, GRP_GUCP_FSS};
-	static MGROUP_ROTATE FSS_GH2_ArmRot(fss_mesh_idx, FSS_GH2_Arm, 3,
+	static UINT FSS_GH2_Arm_1985[3] = {GRP_GH2_fwd_vent_flex_line_FSS_1985, GRP_GH2_vent_hard_line_FSS_1985, GRP_GUCP_FSS_1985};
+	MGROUP_ROTATE* FSS_GH2_ArmRot = DefineRotation(fss_mesh_idx, bPad1985 ? FSS_GH2_Arm_1985 : FSS_GH2_Arm, 3,
 		_V(5.123, 65.803, 9.541), _V(-0.80134, 0.0, 0.59821), (float)(85.0*RAD));
 	anim_fss_gh2_ventarm=CreateAnimation(0.0);
-	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, &FSS_GH2_ArmRot);
+	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, FSS_GH2_ArmRot);
 
 	////IAA rotation
 	IAA_State.Set(AnimState::CLOSED, 0.0);
 	static UINT IAAGrp[2] = {GRP_Intertank_Access_Arm_FSS, GRP_IAA_extensible_platform_FSS};
-	static MGROUP_ROTATE IAA_Deploy(fss_mesh_idx, IAAGrp, 2, _V(8.98, 63.7142, 16), 
+	static UINT IAAGrp_1985[2] = {GRP_Intertank_Access_Arm_FSS_1985, GRP_IAA_extensible_platform_FSS_1985};
+	MGROUP_ROTATE* IAA_Deploy = DefineRotation(fss_mesh_idx, bPad1985 ? IAAGrp_1985 : IAAGrp, 2, _V(8.98, 63.7142, 16), 
 		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
 	anim_iaa = CreateAnimation(0.0);
-	AddAnimationComponent(anim_iaa, 0.0, 1.0, &IAA_Deploy);
+	AddAnimationComponent(anim_iaa, 0.0, 1.0, IAA_Deploy);
 
 	if(bPad1985) {
 		//RBUS
 		FSS_RBUS_UmbilicalState.Set(AnimState::CLOSED, 0.0);
-		static UINT RBUS_grp[2] = {GRP_RBUS_umbilical_beam_FSS, GRP_RBUS_carrier_plate_FSS};
+		static UINT RBUS_grp[2] = {GRP_RBUS_umbilical_beam_FSS_1985, GRP_RBUS_carrier_plate_FSS_1985};
 		static MGROUP_TRANSLATE rbus_translate = MGROUP_TRANSLATE(fss_mesh_idx,RBUS_grp,2,_V(0,-1.665,15.42));
 		anim_fss_rbus = CreateAnimation(0.0);
 		AddAnimationComponent(anim_fss_rbus,0,1,&rbus_translate,0);
@@ -317,19 +325,22 @@ void SSUPad::DefineAnimations()
 		AddAnimationComponent(anim_rss_y_owp, 0.38, 1.0, &RSS_Y_LOWP);
 	}
 
-
 	//RSS rotation
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
-	_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+		_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
 	static UINT RSS_DoorGrp[1] = {GRP_FRCS_Room_door};
-	static MGROUP_SCALE RSS_door1(rss_mesh_idx, RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
+	static UINT RSS_DoorGrp_1985[1] = {GRP_FRCS_Room_door_1985};
+	MGROUP_SCALE* RSS_door1 = new MGROUP_SCALE(rss_mesh_idx, bPad1985 ? RSS_DoorGrp_1985 : RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
+	vpAnimations.push_back(RSS_door1);
 	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_Room_door};
-	static MGROUP_SCALE RSS_door2(rss_mesh_idx, RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
+	static UINT RSS_DoorGrp2_1985[1] = {GRP_FRCS_Room_door_1985};
+	MGROUP_SCALE* RSS_door2 = new MGROUP_SCALE (rss_mesh_idx, bPad1985 ? RSS_DoorGrp2_1985 : RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
+	vpAnimations.push_back(RSS_door2);
 	anim_rss=CreateAnimation(0.0);
-	AddAnimationComponent(anim_rss, 0, 0.05, &RSS_door1);
+	AddAnimationComponent(anim_rss, 0, 0.05, RSS_door1);
 	AddAnimationComponent(anim_rss, 0.06, 0.95, &RSS_Retract);
-	AddAnimationComponent(anim_rss, 0.96, 1.00, &RSS_door2);
+	AddAnimationComponent(anim_rss, 0.96, 1.00, RSS_door2);
 	//SetAnimation(anim_rss, 1.0);
 }
 
