@@ -154,6 +154,9 @@ private:
 
 	std::vector<LandingSiteData> vLandingSites;
 
+	double HUDFlashTime;
+	bool bHUDFlasher; // used for flashing values on HUD
+
 	int SITE_ID;
 	bool SEC; // true if secondary runway is used
 public:

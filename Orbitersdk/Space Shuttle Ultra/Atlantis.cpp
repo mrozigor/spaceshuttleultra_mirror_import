@@ -656,7 +656,6 @@ pActiveLatches(3, NULL)
   met = 0.0;
   for(int i=0;i<4;i++) {
 	  MET[i]=0;
-	  START_TIME[i]=0;
   }
 
   status          = STATE_ORBITER;
@@ -943,7 +942,6 @@ pActiveLatches(3, NULL)
 	  MNVR_OPTION.data[i]=0.0;
 	  TRKROT_OPTION.data[i]=0.0;
 	  REQD_ATT.data[i]=0.0;
-	  LVLHOrientationReqd.data[i]=0.0;
 	  RotationAxis.data[i]=0.0;
 	  TargetAttOrbiter.data[i]=0.0;
 	  TargetAttM50.data[i]=0.0;
@@ -994,16 +992,6 @@ pActiveLatches(3, NULL)
   RotPls=DAP[0].PRI_ROT_PLS;
   TranPls=DAP[0].PRI_TRAN_PLS*fps_to_ms;
   RotationAngle=0.0;
-  TGT_ID=2;
-  BODY_VECT=1;
-  P=0;
-  Y=0;
-  OM=-1;
-  CurManeuver.Type=AttManeuver::OFF;
-  FutManeuver.Type=AttManeuver::OFF;
-  MNVR=false;
-  ROT=false;
-  TRK=false;
   ControlMode=INRTL;
   DAPMode[0]=0; //A
   DAPMode[1]=0; //PRI
@@ -1014,11 +1002,7 @@ pActiveLatches(3, NULL)
   Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
   Torque.data[YAW]=ORBITER_YAW_TORQUE;
   Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
-  ManeuverinProg=false;
   //ManeuverComplete=false;
-  ManeuverStatus=MNVR_OFF;
-  MNVR_TIME = 0.0;
-  TimeSinceTgtUpdate = 0.0;
 
   aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
   aerosurfaces.speedbrake = 0.0;
@@ -1787,8 +1771,10 @@ void Atlantis::EnableControlSurfaces()
 	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
-	hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
-	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	hraileron = CreateControlSurface3 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, 1.0);
+	hlaileron = CreateControlSurface3 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, 1.0);
 	ControlSurfacesEnabled=true;
 }
 
@@ -2920,6 +2906,7 @@ void Atlantis::SteerGimbal(double DeltaT) {
 
    //Use the left and right main engines to steer (after SRBs are gone)
 	VECTOR3 RateDeltas;
+	VECTOR3 AngularVelocity;
 	GetAngularVel(AngularVelocity);
 	RateDeltas=ReqdRates-(AngularVelocity*DEG);
 
@@ -2935,6 +2922,7 @@ void Atlantis::SteerGimbal(double DeltaT) {
 void Atlantis::AutoMainGimbal (double DeltaT) {
     //Steer with the SRBs and lower SSMEs
 	VECTOR3 RateDeltas;
+	VECTOR3 AngularVelocity;
 	int i;
 	
 	GetAngularVel(AngularVelocity);
@@ -3394,9 +3382,6 @@ bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
 			else if(nNew==201 && (ops==202 || ops==106))
 			{
 				SetGPCMajorMode(201);
-				MNVR=false;
-				TRK=false;
-				ROT=false;
 			}
 			else if(nNew==202 && ops==201)
 			{
@@ -3822,16 +3807,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
 		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
 		bEngineFail=true;
-	} else if(!_strnicmp(line, "TGT_ID", 6)) {
-		sscanf(line+6, "%d", &TGT_ID);
-	} else if(!_strnicmp(line, "BODY_VECT", 9)) {
-		sscanf(line+9, "%d", &BODY_VECT);
-	} else if(!_strnicmp(line, "P_ANGLE", 7)) {
-		sscanf(line+7, "%lf", &P);
-	} else if(!_strnicmp(line, "Y_ANGLE", 7)) {
-		sscanf(line+7, "%lf", &Y);
-	} else if(!_strnicmp(line, "OM_ANGLE", 8)) {
-		sscanf(line+8, "%lf", &OM);
 	} else if(!_strnicmp(line, "ROLL", 4)) {
 		sscanf(line+4, "%lf", &MNVR_OPTION.data[ROLL]);
 	} else if(!_strnicmp(line, "PITCH", 5)) {
@@ -3852,12 +3827,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		else if(nTemp==1) ControlMode=INRTL;
 		else if(nTemp==2) ControlMode=LVLH;
 		else if(nTemp==3) ControlMode=FREE;
-	} else if(!_strnicmp (line, "CUR_MNVR", 8)) {
-		int flag;
-		sscanf(line+8, "%d", &flag);
-		if(flag==1) MNVR=true;
-		else if(flag==2) TRK=true;
-		else if(flag==3) ROT=true;
 	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
 		action = 0;
 		sscanf(line+10, "%d", &action);
@@ -4023,14 +3992,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_string(scn, "MNVR", cbuf);
   }*/
   //DAP
-  oapiWriteScenario_int (scn, "TGT_ID", TGT_ID);
-  oapiWriteScenario_int (scn, "BODY_VECT", BODY_VECT);
   oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
   oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
   oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
-  oapiWriteScenario_float (scn, "P_ANGLE", P);
-  oapiWriteScenario_float (scn, "Y_ANGLE", Y);
-  oapiWriteScenario_float (scn, "OM_ANGLE", OM);
   sprintf_s(cbuf, 256, "%d %d", DAPMode[0], DAPMode[1]);
   oapiWriteScenario_string (scn, "DAP MODE", cbuf);
   sprintf_s(cbuf, 256, "%d %d %d", RotMode[0], RotMode[1], RotMode[2]);
@@ -4039,12 +4003,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_string (scn, "TRANS MODE", cbuf);
   sprintf_s(cbuf, 256, "%d", ControlMode);
   oapiWriteScenario_string (scn, "CONTROL MODE", cbuf);
-  if(MNVR || TRK || ROT) {
-	  //use ints for ID
-	  if(MNVR) oapiWriteScenario_int(scn, "CUR_MNVR", 1);
-	  else if(TRK) oapiWriteScenario_int(scn, "CUR_MNVR", 2);
-	  else oapiWriteScenario_int(scn, "CUR_MNVR", 3);
-  }
 
   SavePayloadState(scn);
 
@@ -4244,9 +4202,6 @@ void Atlantis::clbkPostCreation ()
 	}
 
 
-	GetGlobalOrientation(InertialOrientationRad);
-	CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
-
 	/*if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
 		if(MNVRLOAD) {
 			LoadManeuver();
@@ -4278,6 +4233,8 @@ void Atlantis::clbkPostCreation ()
 	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
 	SpdbkThrotAutoOut.Connect(pBundle, 0);
+	SpdbkThrotCDROut.Connect(pBundle, 1);
+	SpdbkThrotPLTOut.Connect(pBundle, 2);
 
 	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
 	//PitchAutoOut.Connect(pBundle, 0);
@@ -4314,6 +4271,13 @@ void Atlantis::clbkPostCreation ()
 	for(unsigned int i=0;i<3;i++) {
 		RotThrusterCommands[i].Connect(pBundle, i);
 		TransThrusterCommands[i].Connect(pBundle, i+3);
+
+		// at start, make sure lines are set to 0;
+		DiscOutPort temp;
+		temp.Connect(pBundle, i);
+		temp.ResetLine();
+		temp.Connect(pBundle, i+3);
+		temp.ResetLine();
 	}
 	ZTransCommand.Connect(pBundle, 5);
 
@@ -4807,12 +4771,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetThrusterLevel(th_oms[0], 0.00);
 			SetThrusterLevel(th_oms[1], 0.00);
 			//initiate attitude hold
-			GetGlobalOrientation(InertialOrientationRad);
+			/*GetGlobalOrientation(InertialOrientationRad);
 			CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
 			ControlMode=INRTL;
 			TargetAttOrbiter=InertialOrientationRad;
 			TargetAttM50=CurrentAttitude;
-			REQD_ATT=CurrentAttitude*DEG;
+			REQD_ATT=CurrentAttitude*DEG;*/
 		}
 		else EnableAllRCS();
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
@@ -5029,12 +4993,27 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			do_eva = false;
 		};
 
-		//handle body flap PBIs
+		//handle body flap and speedbrake PBIs
 		if((int)(ops/100)==3) //Entry
 		{
 			//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
 			if(BodyFlapAutoIn) BodyFlapManOut.ResetLine();
 			else BodyFlapManOut.SetLine();
+
+			if(!SpdbkThrotAutoIn) {
+				if(VCMode==VC_PLT) {
+					SpdbkThrotPLTOut.SetLine();
+					SpdbkThrotCDROut.ResetLine();
+				}
+				else {
+					SpdbkThrotCDROut.SetLine();
+					SpdbkThrotPLTOut.ResetLine();
+				}
+			}
+			else {
+				SpdbkThrotCDROut.ResetLine();
+				SpdbkThrotPLTOut.ResetLine();
+			}
 		}
 		else if(ops < 200) //LAUNCH
 		{
