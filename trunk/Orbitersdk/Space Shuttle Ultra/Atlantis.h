@@ -1125,7 +1125,7 @@ private:
 	double curOMSPitch[2], curOMSYaw[2];
 
 	//DAP
-	bool ManeuverinProg;
+	/*bool ManeuverinProg;
 	//ManueverinProg is true if attitude is controlled by autopilot
 	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	//ManeuverStatus is used to set autopilot actions
@@ -1139,7 +1139,7 @@ private:
 	bool RotatingAxis[3]; // indicates if shuttle is actively rotating around each axis
 	VECTOR3 InertialOrientationRad, AngularVelocity;
 	VECTOR3 CurrentAttitude;
-	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector*/;
+	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector;*/
 	MATRIX3 LVLHTgtOrientationMatrix;
 	VECTOR3 RotationAxis;
 	double RotationAngle;
@@ -1185,7 +1185,7 @@ private:
 
 	//DiscPorts
 	DiscInPort SpdbkThrotAutoIn;
-	DiscOutPort SpdbkThrotAutoOut;
+	DiscOutPort SpdbkThrotAutoOut, SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscInPort PitchAutoIn, RollYawAutoIn;

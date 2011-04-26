@@ -103,7 +103,7 @@ lastNZUpdateTime(-1.0), averageNZ(0.0), curNZValueCount(0),
 filteredQBar(0.0),
 NZCommand(0.0), TargetBank(0.0),
 elevonPos(0.0), aileronPos(0.0), rudderPos(0.0),
-SITE_ID(0), SEC(false)
+HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 {
 	PMI = _V(1.0, 1.0, 1.0);
 	RCSTorque.data[PITCH] = 0.5*ORBITER_PITCH_TORQUE;
@@ -171,6 +171,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		bFirstStep = false;
 		bSecondStep = true;
 		return;
+	}
+
+	if(HUDFlashTime <= SimT) {
+		HUDFlashTime = SimT+0.1;
+		bHUDFlasher = !bHUDFlasher;
 	}
 
 	//double distToRwy, delaz; // only used in MM304
@@ -395,9 +400,30 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		skp->Line(hps->CX-5, hps->CY, hps->CX+5, hps->CY);
 		skp->Line(hps->CX, hps->CY-5, hps->CX, hps->CY+5);
 
-		double glideslope_center_y = hps->CY + STS()->GetAOA()*DEG*hps->Scale;
-		double glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG*hps->Scale;
-		skp->Ellipse(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+		// draw velocity vector
+		double glideslope_center_y, glideslope_center_x;
+		if(TAEMGuidanceMode>=PRFNL) {
+			glideslope_center_y = hps->CY + STS()->GetAOA()*DEG*hps->Scale;
+			glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG*hps->Scale;
+			if(prfnlBankFader > 1.0) {
+				double HUD_Center_X = static_cast<double>(hps->CX);
+				double HUD_Center_Y = static_cast<double>(hps->H)/2.0 - 25.0;
+				glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
+				glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
+			}
+		//double dBank = (bank-TargetBank)/prfnlBankFader;
+		//prfnlBankFader -= oapiGetSimStep();
+		//sprintf_s(oapiDebugString(), 255, "Fader bank: %f Actual target: %f", TargetBank+dBank, bank);
+		//return TargetBank+dBank*oapiGetSimStep();
+			skp->Ellipse(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+		}
+		else {
+			// before PRFNL mode, we have square at center of HUD
+			glideslope_center_y = static_cast<double>(hps->H)/2.0 - 25.0;
+			glideslope_center_x = static_cast<double>(hps->CX);
+			skp->Rectangle(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+		}
+		// lines are the same for both VV and center square modes
 		skp->Line(round(glideslope_center_x)-10, round(glideslope_center_y), round(glideslope_center_x)-5, round(glideslope_center_y));
 		skp->Line(round(glideslope_center_x)+9, round(glideslope_center_y), round(glideslope_center_x)+4, round(glideslope_center_y));
 		skp->Line(round(glideslope_center_x), round(glideslope_center_y)-10, round(glideslope_center_x), round(glideslope_center_y)-5);
@@ -423,12 +449,31 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			//guidance_center_x = hps->CX + (STS()->GetBank()*DEG)*hps->Scale;
 			//guidance_center_x = hps->CX;
 		//}
-		// TODO: validate guidance_center coordinates
-		skp->MoveTo(round(guidance_center_x)-5, round(guidance_center_y));
-		skp->LineTo(round(guidance_center_x), round(guidance_center_y)+5);
-		skp->LineTo(round(guidance_center_x)+5, round(guidance_center_y));
-		skp->LineTo(round(guidance_center_x), round(guidance_center_y)-5);
-		skp->LineTo(round(guidance_center_x)-5, round(guidance_center_y));
+		// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
+		bool bValid = true;
+		if(guidance_center_x < 0.0) {
+			bValid = false;
+			guidance_center_x = 0.0;
+		}
+		else if(guidance_center_x > hps->W) {
+			bValid = false;
+			guidance_center_x = hps->W;
+		}
+		if(guidance_center_y < 0.0) {
+			bValid = false;
+			guidance_center_y = 0.0;
+		}
+		else if(guidance_center_y > hps->H-57) {
+			bValid = false;
+			guidance_center_y = hps->H-57;
+		}
+		if(bValid || bHUDFlasher) {
+			skp->MoveTo(round(guidance_center_x)-5, round(guidance_center_y));
+			skp->LineTo(round(guidance_center_x), round(guidance_center_y)+5);
+			skp->LineTo(round(guidance_center_x)+5, round(guidance_center_y));
+			skp->LineTo(round(guidance_center_x), round(guidance_center_y)-5);
+			skp->LineTo(round(guidance_center_x)-5, round(guidance_center_y));
+		}
 
 		switch(TAEMGuidanceMode) {
 		case ACQ:
