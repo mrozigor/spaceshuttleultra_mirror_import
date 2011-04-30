@@ -4,9 +4,9 @@
 
 #include "orbitersdk.h"
 
-const static char* DEFAULT_MESHNAME_ET = "SSU/ET129";
+const static char* DEFAULT_MESHNAME_ET = "SSU/SLWT";
 
-const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/ET-129_exterior_launch.dds";
+const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/SLWT_ETtex.dds";
 const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ET-129_exterior_scorched.dds";
 
 const double TANK_MAX_PROPELLANT_MASS = 719115.0;
