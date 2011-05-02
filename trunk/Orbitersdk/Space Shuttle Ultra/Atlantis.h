@@ -1178,6 +1178,8 @@ private:
 
 	mutable bool fSSMEHandleErrorFlag;
 
+	bool bLastCamInternal;
+
 	bool bPLBDCamPanLeft[5], bPLBDCamPanRight[5], bPLBDCamTiltUp[5], bPLBDCamTiltDown[5];
 
 	// used to trigger RCS sounds

@@ -88,7 +88,7 @@ bool DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderP
 }
 AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AerojetDAP"),
-bFirstStep(true), bSecondStep(false), OrbiterMass(1.0),
+bFirstStep(true), bSecondStep(false), bWONG(false), OrbiterMass(1.0),
 //AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
@@ -240,59 +240,83 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		//sprintf_s(oapiDebugString(), 255, "Range: %f Delaz: %f", distToRwy, delaz);
 		break;
 	case 305:
-		UpdateOrbiterData();
-		GetAttitudeData(DeltaT);
-
-		CheckControlActivation();
-		//SetThrusterLevels();
-
-		// calculate dynamic pressure profile
-		double qbar = STS()->GetDynPressure()*PA2PSF;
-		double qbarDerivative = range(-5.0, 0.5583958*(qbar-filteredQBar), 5.0);
-		filteredQBar += qbarDerivative*DeltaT;
-		// skip QBD calculation for the moment
-
-		// update NZ
-		if(lastNZUpdateTime < SimT-NZ_UPDATE_INTERVAL) {
-			lastNZUpdateTime = SimT;
-			for(int i=0;i<NZ_VALUE_COUNT-1;i++) NZValues[i] = NZValues[i+1];
-
-			VECTOR3 lift, drag;
-			STS()->GetLiftVector(lift);
-			STS()->GetDragVector(drag);
-			NZValues[NZ_VALUE_COUNT-1] = (lift.y+drag.y)/gravity_force;
-			if(curNZValueCount<NZ_VALUE_COUNT) curNZValueCount++;
-
-			double total = 0.0;
-			for(int i=0;i<NZ_VALUE_COUNT;i++) total+=NZValues[i];
-			averageNZ = total/NZ_VALUE_COUNT;
+		if(bWONG) {
+			//oapiWriteLog("WONG");
+			// load relief
+			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
+			AileronCommand.SetLine(0.0f);
+			//Nosewheel steering
+			double airspeed=STS()->GetAirspeed();
+			//sprintf_s(oapiDebugString(), 255, "Pitch: %f", STS()->GetPitch()*DEG);
+			//oapiWriteLog(oapiDebugString());
+			double steerforce = (95.0-airspeed);
+			if(airspeed<6.0) steerforce*=(airspeed/6);
+			//steerforce = 275000/3*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
+			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
+			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
+			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
+			//SetNosewheelSteering(true);
 		}
+		else {
+			//oapiWriteLog("No WONG");
 
-		switch(TAEMGuidanceMode) {
-		case HDG:
-			CalculateHACGuidance(DeltaT);
-			break;
-		case PRFNL:
-		case OGS:
-		case FLARE:
-			CalculateTargetGlideslope(GetRunwayRelPos(), DeltaT);
-			TargetBank = CalculatePrefinalBank(GetRunwayRelPos());
-			break;
+			UpdateOrbiterData();
+			GetAttitudeData(DeltaT);
+
+			CheckControlActivation();
+			//SetThrusterLevels();
+
+			// calculate dynamic pressure profile
+			double qbar = STS()->GetDynPressure()*PA2PSF;
+			double qbarDerivative = range(-5.0, 0.5583958*(qbar-filteredQBar), 5.0);
+			filteredQBar += qbarDerivative*DeltaT;
+			// skip QBD calculation for the moment
+
+			// update NZ
+			if(lastNZUpdateTime < SimT-NZ_UPDATE_INTERVAL) {
+				lastNZUpdateTime = SimT;
+				for(int i=0;i<NZ_VALUE_COUNT-1;i++) NZValues[i] = NZValues[i+1];
+
+				VECTOR3 lift, drag;
+				STS()->GetLiftVector(lift);
+				STS()->GetDragVector(drag);
+				NZValues[NZ_VALUE_COUNT-1] = (lift.y+drag.y)/gravity_force;
+				if(curNZValueCount<NZ_VALUE_COUNT) curNZValueCount++;
+
+				double total = 0.0;
+				for(int i=0;i<NZ_VALUE_COUNT;i++) total+=NZValues[i];
+				averageNZ = total/NZ_VALUE_COUNT;
+			}
+
+			switch(TAEMGuidanceMode) {
+			case HDG:
+				CalculateHACGuidance(DeltaT);
+				break;
+			case PRFNL:
+			case OGS:
+			case FLARE:
+				CalculateTargetGlideslope(GetRunwayRelPos(), DeltaT);
+				TargetBank = CalculatePrefinalBank(GetRunwayRelPos());
+				break;
+			}
+
+			CSSPitchGuidance(DeltaT);
+			CSSRollGuidance(DeltaT);
+
+			// only yaw thrusters should be active at this point
+			if(ThrustersActive[YAW])
+				ThrusterCommands[YAW].SetLine(static_cast<float>(GetThrusterCommand(YAW, DeltaT)));
+			else
+				ThrusterCommands[YAW].SetLine(0.0f);
+			ThrusterCommands[PITCH].SetLine(0.0f);
+			ThrusterCommands[ROLL].SetLine(0.0f);
+
+			SetAerosurfaceCommands(DeltaT);
+			if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
+
+			// check for weight-on-nose-gear
+			if(STS()->GroundContact() && STS()->GetPitch() < -3.5*RAD) bWONG = true;
 		}
-
-		CSSPitchGuidance(DeltaT);
-		CSSRollGuidance(DeltaT);
-
-		// only yaw thrusters should be active at this point
-		if(ThrustersActive[YAW])
-			ThrusterCommands[YAW].SetLine(static_cast<float>(GetThrusterCommand(YAW, DeltaT)));
-		else
-			ThrusterCommands[YAW].SetLine(0.0f);
-		ThrusterCommands[PITCH].SetLine(0.0f);
-		ThrusterCommands[ROLL].SetLine(0.0f);
-
-		SetAerosurfaceCommands(DeltaT);
-		if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
 		break;
 	}
 	
@@ -579,7 +603,7 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 	if(AerosurfacesActive[YAW]) {
 		rudderPos = Yaw_RudderYaw.Step(-STS()->GetSlipAngle()*DEG, DeltaT);
 	}
-	ElevonCommand.SetLine(static_cast<float>(elevonPos));
+	ElevonCommand.SetLine(static_cast<float>(-elevonPos)); // PID controller output has opposite sign of required elevon direction
 	AileronCommand.SetLine(static_cast<float>(aileronPos));
 	STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, rudderPos);
 
@@ -719,6 +743,7 @@ void AerojetDAP::CSSPitchGuidance(double DeltaT)
 	}
 	else {
 		double PitchRateCommand = STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
+		//double PitchRateCommand = RHCInput[PITCH].GetVoltage()*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
 		//if(degTargetRates.data[PITCH] < PitchRateCommand) degTargetRates.data[PITCH] = max(degTargetRates.data[PITCH]+1.0*DeltaT, PitchRateCommand);
 		//else if(degTargetRates.data[PITCH] > PitchRateCommand) degTargetRates.data[PITCH] = min(degTargetRates.data[PITCH]-1.0*DeltaT, PitchRateCommand);
 		degTargetAttitude.data[PITCH]+=PitchRateCommand*DeltaT;
@@ -743,6 +768,7 @@ void AerojetDAP::CSSRollGuidance(double DeltaT)
 	}
 	else {
 		double RollRateCommand = -STS()->GetControlSurfaceLevel(AIRCTRL_AILERON)*5.0;
+		//double RollRateCommand = -RHCInput[ROLL].GetVoltage()*5.0;
 		if(GetMajorMode() == 305) RollRateCommand*=2.0;
 		degTargetAttitude.data[ROLL]+=RollRateCommand*DeltaT;
 		

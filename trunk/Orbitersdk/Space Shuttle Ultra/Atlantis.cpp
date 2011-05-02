@@ -880,6 +880,8 @@ pActiveLatches(3, NULL)
   cameraMoved = false;
   cameraControl = 0;
 
+  bLastCamInternal = false;
+
   pl_mass=0.0;
 
   newmfd=NULL;
@@ -3214,9 +3216,6 @@ void Atlantis::SetSpeedbrake(double tgt)
 }
 
 void Atlantis::SetAnimationCameras() {
-	double a = 0;
-	double b = 0;
-
 	// FRONT LEFT
 	double anim_yaw = linterp(-170, 0, 170, 1, camYaw[CAM_A]);
 	SetAnimation(anim_camFLyaw, anim_yaw);
@@ -3251,31 +3250,40 @@ void Atlantis::SetAnimationCameras() {
 	anim_pitch=linterp(-170, 0, 170, 1, camRMSElbowTilt);
 	SetAnimation(anim_camRMSElbowTilt, anim_pitch);*/
 
-	switch (VCMode) {
-	case VC_PLBCAMFL:
-		a = ((-camYaw[CAM_A]+90)*RAD);
-		b = ((-camPitch[CAM_A])*RAD);
-		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-		break;
-	case VC_PLBCAMFR:
-		a = ((-camYaw[CAM_D]+90)*RAD);
-		b = ((-camPitch[CAM_D])*RAD);
-		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-		break;
-	case VC_PLBCAMBL:
-		a = ((-camYaw[CAM_B]-90)*RAD);
-		b = ((-camPitch[CAM_B])*RAD);
-		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-		break;
-	case VC_PLBCAMBR:
-		a = ((-camYaw[CAM_C]-90)*RAD);
-		b = ((-camPitch[CAM_C])*RAD);
-		SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-		break;
-	/*case VC_RMSCAM:
-		SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-		SetCameraOffset(camRMSElbowLoc[0]);
-		break;*/
+	if(oapiCameraInternal()) {
+		double a = 0;
+		double b = 0;
+
+		switch (VCMode) {
+		case VC_PLBCAMFL:
+			a = ((-camYaw[CAM_A]+90)*RAD);
+			b = ((-camPitch[CAM_A])*RAD);
+			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+			oapiCameraSetCockpitDir(0.0, 0.0);
+			break;
+		case VC_PLBCAMFR:
+			a = ((-camYaw[CAM_D]+90)*RAD);
+			b = ((-camPitch[CAM_D])*RAD);
+			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+			oapiCameraSetCockpitDir(0.0, 0.0);
+			break;
+		case VC_PLBCAMBL:
+			a = ((-camYaw[CAM_B]-90)*RAD);
+			b = ((-camPitch[CAM_B])*RAD);
+			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+			oapiCameraSetCockpitDir(0.0, 0.0);
+			break;
+		case VC_PLBCAMBR:
+			a = ((-camYaw[CAM_C]-90)*RAD);
+			b = ((-camPitch[CAM_C])*RAD);
+			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+			oapiCameraSetCockpitDir(0.0, 0.0);
+			break;
+			/*case VC_RMSCAM:
+			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+			SetCameraOffset(camRMSElbowLoc[0]);
+			break;*/
+		}
 	}
 }
 
@@ -4358,7 +4366,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 {
 	static bool ___PreStep_flag = false;
 //	double dThrust;
-	double steerforce, airspeed;
+	//double steerforce, airspeed;
 
 	if(firstStep) {
 		firstStep = false;
@@ -4395,22 +4403,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
 			break;
 		case STATE_ORBITER:
-			//Nosewheel steering
-			if(GroundContact()) {
-				airspeed=GetAirspeed();
-				//if(airspeed<395.0 && airspeed>1.0)
-				//if(airspeed<95.0 && airspeed>1.0)
-				if(GetPitch() < -2.0*RAD) // nose gear down
-				{
-					steerforce = (95.0-airspeed);
-					if(airspeed<6.0) steerforce*=(airspeed/6);
-					steerforce = 275000/3*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
-					AddForce (_V(steerforce, 0, 0), _V(0, 0, 12.0));
-					AddForce (_V(-steerforce, 0, 0), _V(0, 0, -12.0));
-					//SetNosewheelSteering(true);
-				}
-			}
-
 			break;
 	}
 	
@@ -4560,7 +4552,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		double elevonPos = 0.0;
 		double aileronPos = 0.0;
 		if(HydraulicsOK()) {
-			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*-33.0, 18.0);
+			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*33.0, 18.0);
 			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
 			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
 			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
@@ -4585,6 +4577,12 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
 		
 	}
+
+	// if we reenter PLBD cam view from external view, update camera direction
+	if(!bLastCamInternal && oapiCameraInternal()) {
+		if(VCMode>=VC_PLBCAMFL && VCMode<=VC_RMSCAM) SetAnimationCameras();
+	}
+	bLastCamInternal = oapiCameraInternal();
 
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
