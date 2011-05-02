@@ -40,6 +40,8 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
 
+	bLastCamInternal = false;
+
 	arm_moved=false;
 	update_vectors=false;
 	update_angles=false;
@@ -503,6 +505,14 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		if(RMSCameraMode==ELBOW) UpdateElbowCamView();
 		camera_moved=false;
 	}
+
+	// if user enters cockpit view from external view, update camera direction
+	// due to bug in Orbiter API, this cam position can't be updated when RMS is moved in external view
+	if(!bLastCamInternal && oapiCameraInternal()) {
+		if(RMSCameraMode==EE) UpdateEECamView();
+		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
+	}
+	bLastCamInternal = oapiCameraInternal();
 }
 
 bool RMSSystem::OnParseLine(const char* line)
@@ -808,17 +818,23 @@ void RMSSystem::SetElbowCamView(bool Active)
 
 void RMSSystem::UpdateEECamView() const
 {
-	double tilt = joint_angle[WRIST_ROLL];
-	if(tilt<-180.0) tilt+=360.0;
-	else if(tilt>180.0) tilt-=360.0;
-	STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]);
-	STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], 0.0);
+	if(oapiCameraInternal()) {
+		double tilt = joint_angle[WRIST_ROLL];
+		if(tilt<-180.0) tilt+=360.0;
+		else if(tilt>180.0) tilt-=360.0;
+		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]);
+		STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], 0.0);
+		oapiCameraSetCockpitDir(0.0, 0.0);
+	}
 }
 
 void RMSSystem::UpdateElbowCamView() const
 {
-	STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-	STS()->SetCameraOffset(camRMSElbowLoc[0]);
+	if(oapiCameraInternal()) {
+		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+		STS()->SetCameraOffset(camRMSElbowLoc[0]);
+		oapiCameraSetCockpitDir(0.0, 0.0);
+	}
 }
 
 void RMSSystem::ToggleJointAngleDisplay()

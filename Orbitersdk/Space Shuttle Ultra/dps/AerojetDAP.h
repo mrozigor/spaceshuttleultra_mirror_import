@@ -89,6 +89,8 @@ private:
 
 	bool bFirstStep, bSecondStep;
 
+	bool bWONG;
+
 	// Orbiter data
 	double OrbiterMass;
 	VECTOR3 PMI;

@@ -167,6 +167,8 @@ private:
 	VECTOR3 camRMSElbowLoc[2];
 	bool camera_moved;
 
+	bool bLastCamInternal;
+
 	DiscInPort CamLowSpeed;
 	DiscInPort ElbowCamTiltUp, ElbowCamTiltDown, ElbowCamPanLeft, ElbowCamPanRight;
 
