@@ -427,6 +427,8 @@ void CRT::SPI(HDC hDC)
 	HPEN YellowPen=CreatePen(PS_SOLID,1,RGB(255,255,0));
 	HPEN BoldWhitePen = CreatePen(PS_SOLID,2,WHITE);
 	HPEN LightBluePen = CreatePen(PS_SOLID,0,RGB(0,255,255));
+
+	int savedDC = SaveDC(hDC);
 	
 	int nPos;
 	double dNum;
@@ -718,9 +720,11 @@ void CRT::SPI(HDC hDC)
 	LineTo(hDC,145+((Command/100)*100),214.5);
 	LineTo(hDC,140+((Command/100)*100),221);
 
+	RestoreDC(hDC, savedDC); // deselect pens, brushes, etc. so we can delete them
 	DeleteObject(ArialFont);
 	DeleteObject(GreenBrush);
 	DeleteObject(WhiteBrush);
+	DeleteObject(BlackBrush);
 	DeleteObject(PurpleBrush);
 	DeleteObject(WhitePen);
 	DeleteObject(GreenPen);
