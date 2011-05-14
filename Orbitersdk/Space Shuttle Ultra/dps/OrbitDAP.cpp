@@ -356,6 +356,8 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
 	bool RCSWraparound=(abs(rollDelta)>0.5 || abs(pitchDelta)>0.25 || abs(yawDelta)>0.25);
 
+	sprintf_s(oapiDebugString(), 255, "OMSTVC: %f %f %f", pitchDelta, yawDelta, rollDelta);
+
 	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
 	double dYaw=OMSTVCControlY.Step(yawDelta, SimDT);
 
@@ -491,7 +493,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	if(ControlMode == RCS) {
+	/*if(ControlMode == RCS) {
 		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
 		else if(!BodyFlapAuto && PCTActive) StopPCT();
 		if(!PCTActive) HandleTHCInput(DeltaT);
@@ -541,7 +543,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 					/*sprintf_s(oapiDebugString(), 255, "Null Rates: %f %f %f %f %f %f Time: %f",
 						degNullRatesLocal.data[PITCH], degNullRatesLocal.data[YAW], degNullRatesLocal.data[ROLL],
 						DEG*radNullRatesOrbiter.data[PITCH], DEG*radNullRatesOrbiter.data[YAW], DEG*radNullRatesOrbiter.data[ROLL],
-						mnvrCompletionMET);*/
+						mnvrCompletionMET);*
 
 					if(ManeuverStatus == MNVR_IN_PROGRESS) {
 						radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter + radNullRatesOrbiter*(mnvrCompletionMET-STS()->GetMET());
@@ -580,7 +582,94 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 	else {
 		OMSTVC(STS()->ReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
+	}*/
+
+	if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
+	else if(!BodyFlapAuto && PCTActive) StopPCT();
+	if(!PCTActive) HandleTHCInput(DeltaT);
+	else PCTControl(SimT);
+
+	if(GetRHCRequiredRates()) {
+		if(DAPControlMode == AUTO) {
+			DAPControlMode = INRTL;
+			StartINRTLManeuver(radCurrentOrbiterAtt);
+		}
+		else if(DAPControlMode == INRTL) {
+			StartINRTLManeuver(radCurrentOrbiterAtt);
+		}
+		else if(DAPControlMode == LVLH) {
+			StartLVLHManeuver(GetCurrentLVLHAttitude());
+		}
+		ATT_ERR = _V(0.0, 0.0, 0.0);
 	}
+	else if(DAPControlMode != FREE) { // if DAP is in FREE, we only care about RHC input
+		//sprintf_s(oapiDebugString(), 255, "RHC in detent");
+		// calc rates for DAP
+		VECTOR3 radTargetAttOrbiter;
+		VECTOR3 degNullRatesLocal = _V(0.0, 0.0, 0.0);
+		if(ActiveManeuver.Type == AttManeuver::TRK) {
+			VECTOR3 radLastTgtAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
+			MATRIX3 reqdAttM50Matrix = ConvertLVLHAnglesToM50Matrix(ActiveManeuver.radTargetLVLHAtt);
+			MATRIX3 reqdAttOrbiterMatrix = ConvertMatrixBetweenM50AndOrbiter(reqdAttM50Matrix, true);
+			ActiveManeuver.radTargetAttOrbiter = GetAnglesFromMatrix(reqdAttOrbiterMatrix);
+			REQD_ATT = GetAnglesFromMatrix(reqdAttM50Matrix)*DEG;
+
+			if(ManeuverStatus == MNVR_STARTING) {
+				ManeuverStatus = MNVR_IN_PROGRESS;
+				lastUpdateTime = -100.0;
+			}
+			else {
+				degNullRatesLocal = (ConvertOrbiterAnglesToLocal(ActiveManeuver.radTargetAttOrbiter)-ConvertOrbiterAnglesToLocal(radLastTgtAttOrbiter))/lastStepDeltaT;
+				degNullRatesLocal*=DEG;
+				VECTOR3 radNullRatesOrbiter = (ActiveManeuver.radTargetAttOrbiter-radLastTgtAttOrbiter)/lastStepDeltaT;
+
+				if((STS()->GetMET()-lastUpdateTime) > 60.0) {
+					mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(ActiveManeuver.radTargetAttOrbiter, radNullRatesOrbiter);
+					lastUpdateTime = STS()->GetMET();
+				}
+				/*sprintf_s(oapiDebugString(), 255, "Target LVLH: %f %f %f TargetAttOrbiter: %f %f %f",
+				ActiveManeuver.radTargetLVLHAtt.data[PITCH]*DEG, ActiveManeuver.radTargetLVLHAtt.data[YAW]*DEG, ActiveManeuver.radTargetLVLHAtt.data[ROLL]*DEG,
+				ActiveManeuver.radTargetAttOrbiter.data[PITCH]*DEG, ActiveManeuver.radTargetAttOrbiter.data[YAW]*DEG, ActiveManeuver.radTargetAttOrbiter.data[ROLL]*DEG);*/
+				/*sprintf_s(oapiDebugString(), 255, "Null Rates: %f %f %f %f %f %f Time: %f",
+				degNullRatesLocal.data[PITCH], degNullRatesLocal.data[YAW], degNullRatesLocal.data[ROLL],
+				DEG*radNullRatesOrbiter.data[PITCH], DEG*radNullRatesOrbiter.data[YAW], DEG*radNullRatesOrbiter.data[ROLL],
+				mnvrCompletionMET);*/
+
+				if(ManeuverStatus == MNVR_IN_PROGRESS) {
+					radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter + radNullRatesOrbiter*(mnvrCompletionMET-STS()->GetMET());
+				}
+				else {
+					radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
+				}
+			}
+			// calculate null rates
+		}
+		else {
+			radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
+		}
+		attErrorMatrix=CalcPitchYawRollRotMatrix(radTargetAttOrbiter);
+		ATT_ERR=GetAnglesFromMatrix(attErrorMatrix)*DEG;
+		if(ManeuverStatus == MNVR_COMPLETE) {
+			CalcMultiAxisRates(degNullRatesLocal);
+		}
+		else if(ManeuverStatus == MNVR_IN_PROGRESS) {
+			CalcEulerAxisRates();
+			if(!RotatingAxis[PITCH] && !RotatingAxis[YAW] && !RotatingAxis[ROLL]) {
+				ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
+			}
+		}
+		else { // MNVR_STARTING
+			degReqdRates = _V(0.0, 0.0, 0.0);
+		}
+		//sprintf_s(oapiDebugString(), 255, "Tgt Rates: P: %f Y: %f R: %f Torque: P: %f Y: %f R: %f",
+		//degReqdRates.data[PITCH], degReqdRates.data[YAW], degReqdRates.data[ROLL], Torque.data[PITCH], Torque.data[YAW], Torque.data[ROLL]);
+	}
+	else { // FREE
+		degReqdRates = degAngularVelocity;
+	}
+	//SetRates(STS()->ReqdRates, DeltaT);
+	if(ControlMode == RCS) SetRates(degReqdRates, DeltaT);
+	else OMSTVC(degReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
 
 	// set entry DAP mode PBIs to OFF
 	PitchAuto.ResetLine();

@@ -69,7 +69,7 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	if(BurnCompleted || !MnvrLoad || !MnvrExecute) return; // no burn to perform
 
 	double met = STS()->GetMET();
-	sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
+	//sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
 	if(BurnInProg)
 	{
 		if(met>=(IgnitionTime+BurnTime)) {
@@ -458,6 +458,10 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		sscanf(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 		return true;
 	}
+	else if(!_strnicmp(keyword, "Trim", 4)) {
+		sscanf(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
+		return true;
+	}
 	else if(!_strnicmp(keyword, "WT", 2)) {
 		sscanf(value, "%lf", &WT);
 		return true;
@@ -481,6 +485,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 {
 	char cbuf[255];
 	oapiWriteScenario_vec(scn, "PEG7", PEG7);
+	oapiWriteScenario_vec(scn, "Trim", Trim);
 	oapiWriteScenario_float(scn, "WT", WT);
 	sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	oapiWriteScenario_string(scn, "TIG", cbuf);
@@ -535,7 +540,7 @@ void OMSBurnSoftware::LoadManeuver()
 	}
 	ThrustDir=RotateVectorZ(ThrustDir, TV_ROLL);
 
-	sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
+	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
 	BurnAtt.data[PITCH]=-asin(ThrustDir.y)*DEG;
 	BurnAtt.data[YAW]=-asin(ThrustDir.x)*DEG; //check signs here
 	// compensate for roll
