@@ -2526,6 +2526,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
 	}*/
 
+	if(pMission)
 	AddKUBandVisual(ofs);
 
 	if(mesh_extal == MESH_UNDEFINED) {
@@ -3747,6 +3748,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			bAutopilot = true; // if mission file exists, we can get autopilot parameters
 
 			MaxThrust = pMission->GetMaxSSMEThrust();
+
+			Throttle_Bucket[0] = pMission->GetTHdownVelocity()*fps_to_ms;
+			Throttle_Bucket[1] = pMission->GetTHupVelocity()*fps_to_ms;
+
+			bHasKUBand = pMission->HasKUBand();
 		}
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
@@ -7277,7 +7283,7 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 {
-	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand) 
+	if (mesh_kuband == MESH_UNDEFINED && pMission->HasKUBand())
 	{
 		
 		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
