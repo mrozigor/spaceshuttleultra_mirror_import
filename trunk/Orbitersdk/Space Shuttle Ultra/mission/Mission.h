@@ -58,11 +58,14 @@ namespace mission {
 		double fMECOVel;
 		double fMECOFPA;
 		double fTargetInc;
+		double fTHdown;
+		double fTHup;
 		
 		bool bUseRMS;
 		bool bHasMPMs;
 		bool bHasODS;
 		bool bHasExtAL;
+		bool bHasKUBand;
 
 		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
@@ -135,7 +138,6 @@ namespace mission {
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
 		
-		virtual bool HasKuBandAntenna() const;
 		virtual bool HasRMS() const;
 		virtual bool HasSTBDMPMs() const;
 		virtual bool HasODS() const;
@@ -147,6 +149,9 @@ namespace mission {
 		virtual double GetOMSAssistStart() const;
 		virtual double GetOMSAssistEnd() const;
 		virtual double GetRTHUVelocity() const;
+		virtual double GetTHdownVelocity() const;
+		virtual double GetTHupVelocity() const;
+		virtual bool HasKUBand() const;
 
 		
 	};

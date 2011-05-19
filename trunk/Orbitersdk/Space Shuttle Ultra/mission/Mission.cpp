@@ -111,10 +111,26 @@ namespace mission {
 			fMaxSSMEThrust = 104.5;
 		}
 
+		if(!oapiReadItem_float(hFile, "ThrottleDown", fTHdown))
+		{
+			fTHdown = 800;
+		}
+
+		if(!oapiReadItem_float(hFile, "ThrottleUp", fTHup))
+		{
+			1200;
+		}
+
 		if(!oapiReadItem_bool(hFile, "UseRMS", bUseRMS))
 		{
 			bUseRMS = false;
 		}
+
+		if(!oapiReadItem_bool(hFile, "UseKUBand", bHasKUBand))
+		{
+			bHasKUBand = false;
+		}
+
 		if(!oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs))
 		{
 			bHasMPMs = false;
@@ -248,10 +264,6 @@ namespace mission {
 		return bEnableWingPainting;
 	}
 	
-	bool Mission::HasKuBandAntenna() const
-	{
-		return true;
-	}
 
 	bool Mission::HasRMS() const
 	{
@@ -296,5 +308,20 @@ namespace mission {
 	double Mission::GetRTHUVelocity() const
 	{
 		return RTHUVelocity;
+	}
+
+	double Mission::GetTHdownVelocity() const
+	{
+		return fTHdown;
+	}
+
+	double Mission::GetTHupVelocity() const
+	{
+		return fTHup;
+	}
+
+	bool Mission::HasKUBand() const
+	{
+		return bHasKUBand;
 	}
 };
