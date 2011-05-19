@@ -424,8 +424,6 @@
     <ClInclude Include="MPMSystems.h" />
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
-    <ClInclude Include="..\include\OrbiterAPI.h" />
-    <ClInclude Include="..\..\include\OrbiterSoundSDK35.h" />
     <ClInclude Include="vc\PanelA1U.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />

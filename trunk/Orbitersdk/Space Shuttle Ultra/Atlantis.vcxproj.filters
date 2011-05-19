@@ -514,12 +514,6 @@
     <ClInclude Include="eva_docking\ODS.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\OrbiterAPI.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\OrbiterSoundSDK35.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PanelA6.h">
       <Filter>Includes</Filter>
     </ClInclude>

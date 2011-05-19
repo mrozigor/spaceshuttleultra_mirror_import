@@ -146,10 +146,25 @@ namespace mission {
 
 		virtual bool UseDirectAscent() const;
 		virtual bool UseOMSAssist() const;
+		/**
+		 * MET at which OMS Assist starts
+		 */
 		virtual double GetOMSAssistStart() const;
+		/**
+		 * MET at which OMS Assist ends
+		 */
 		virtual double GetOMSAssistEnd() const;
+		/**
+		 * Returns velocity in fps when roll to heads up begins
+		 */
 		virtual double GetRTHUVelocity() const;
+		/**
+		 * Returns MaxQ throttle down velocity in fps
+		 */
 		virtual double GetTHdownVelocity() const;
+		/**
+		 * Returns MaxQ throttle up velocity in fps
+		 */
 		virtual double GetTHupVelocity() const;
 		virtual bool HasKUBand() const;
 
