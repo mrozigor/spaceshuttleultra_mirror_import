@@ -113,12 +113,12 @@ namespace mission {
 
 		if(!oapiReadItem_float(hFile, "ThrottleDown", fTHdown))
 		{
-			fTHdown = 800;
+			fTHdown = 834.0;
 		}
 
 		if(!oapiReadItem_float(hFile, "ThrottleUp", fTHup))
 		{
-			1200;
+			fTHup = 1174.0;
 		}
 
 		if(!oapiReadItem_bool(hFile, "UseRMS", bUseRMS))
@@ -128,7 +128,7 @@ namespace mission {
 
 		if(!oapiReadItem_bool(hFile, "UseKUBand", bHasKUBand))
 		{
-			bHasKUBand = false;
+			bHasKUBand = true;
 		}
 
 		if(!oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs))
