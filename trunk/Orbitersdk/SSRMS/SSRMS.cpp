@@ -468,7 +468,7 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 
 		VECTOR3 RHCInput=_V(0.0, 0.0, 0.0);
 		VECTOR3 THCInput=_V(0.0, 0.0, 0.0);
-		VECTOR3 EETrans;
+		//VECTOR3 EETrans;
 
 		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
 		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
@@ -492,15 +492,50 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			//sprintf_s(oapiDebugString(), 255, "arm_ee_cross: %f %f %f", arm_ee_cross.x, arm_ee_cross.y, arm_ee_cross.z);
 		}
 		else EETrans=THCInput*EE_TRANSLATION_SPEED*SimDT*SpeedFactor;*/
-		EETrans=THCInput;
-		VECTOR3 newDir, newRot;
-		RotateVectorPYR(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
-		RotateVectorPYR(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
+		//EETrans=THCInput;
+		//VECTOR3 newDir, newRot;
+		//RotateVectorPYR(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
+		//RotateVectorPYR(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
 		//sprintf_s(oapiDebugString(), 255, "old_dir: %f %f %f newDir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z,
 			//newDir.x, newDir.y, newDir.z);
 
 		//sprintf_s(oapiDebugString(), 255, "EETrans: %f %f %f", EETrans.x/length(EETrans), EETrans.y/length(EETrans), EETrans.z/length(EETrans));
-		if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.0001) || !Eq(RHCInput, _V(0.0, 0.0, 0.0))) MoveEE(arm_ee_pos+EETrans, newDir, newRot);
+		if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.0001) || !Eq(RHCInput, _V(0.0, 0.0, 0.0))) {
+			VECTOR3 EETrans, newDir, newRot;
+			if(RefFrame==BASE_FRAME) {
+				EETrans=THCInput;
+				RotateVectorPYR(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
+				RotateVectorPYR(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
+			}
+			else if(RefFrame==EE_FRAME) {
+				//EETrans = _V(THCInput.x*arm_ee_dir.x, THCInput.y*arm_ee_dir.y, THCInput.z*arm_ee_dir.z);
+				EETrans = arm_ee_dir*THCInput.x + arm_ee_rot*THCInput.z + crossp(arm_ee_rot, arm_ee_dir)*THCInput.y;
+
+				VECTOR3 y_axis = crossp(arm_ee_rot, arm_ee_dir);
+				MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, arm_ee_rot.x,
+									   arm_ee_dir.y, y_axis.y, arm_ee_rot.y,
+									   arm_ee_dir.z, y_axis.z, arm_ee_rot.z);
+				//MATRIX3 RotMatrix = RotationMatrix(arm_ee_dir, , arm_ee_rot);
+				MATRIX3 RotMatrixRoll, RotMatrixPitch, RotMatrixYaw;
+				GetRotMatrixX(RHCInput.data[ROLL], RotMatrixRoll);
+				GetRotMatrixY(RHCInput.data[PITCH], RotMatrixPitch);
+				GetRotMatrixZ(RHCInput.data[YAW], RotMatrixYaw);
+				RotMatrix = mul(RotMatrix, RotMatrixPitch);
+				RotMatrix = mul(RotMatrix, RotMatrixYaw);
+				RotMatrix = mul(RotMatrix, RotMatrixRoll);
+
+				newDir = _V(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31);
+				newRot = _V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
+				//newDir = tmul(RotMatrix, _V(1.0, 0.0, 0.0));
+				//newRot = tmul(RotMatrix, _V(0.0, 0.0, 1.0));
+				//newDir = tmul(RotMatrix, arm_ee_dir);
+				//newRot = tmul(RotMatrix, arm_ee_rot);
+				//RotateVectorPYR(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
+				//RotateVectorPYR(arm_ee_rot, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
+				//RotateVector(crossp(arm_ee_dir, arm_ee_rot), RHCInput, newDir);
+			}
+			MoveEE(arm_ee_pos+EETrans, newDir, newRot);
+		}
 		//if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+RotateVectorZ(EETrans, joint_angle[SHOULDER_ROLL]), arm_ee_dir, arm_ee_rot);
 	}
 
@@ -728,7 +763,7 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 				return 1;
 			case OAPI_KEY_F:
 				if(!down) {
-					if(RefFrame==EE_FRAME) RefFrame=(Frame)(RefFrame+1);
+					if(RefFrame==EE_FRAME) RefFrame=(FRAME)(RefFrame+1);
 					else RefFrame=EE_FRAME;
 				}
 				return 1;
