@@ -51,7 +51,7 @@ const double LEE_OFFSET = SY_JOINT.x-LEE_POS.x;
 const double JOINT_LIMITS[2] = {-447.0, +447.0};
 const double JOINT_SOFTSTOPS[2] = {-447.0, +447.0}; // TODO: update these to correct values
 
-enum Frame{EE_FRAME, BASE_FRAME};
+enum FRAME{EE_FRAME, BASE_FRAME};
 
 class SSRMS: public VESSEL2
 {
@@ -102,7 +102,7 @@ private:
 	unsigned short activeLEE, passiveLEE; // either 0 or 1
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
-	Frame RefFrame;
+	FRAME RefFrame;
 
 	int OrbiterSoundHandle;
 
