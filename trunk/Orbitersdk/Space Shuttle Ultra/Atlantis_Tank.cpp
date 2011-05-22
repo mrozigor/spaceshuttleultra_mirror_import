@@ -24,15 +24,17 @@
 
 // Constructor
 Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
-: VESSEL2(hObj), bUseBurntTexture(false)
+: VESSEL2(hObj), bUseBurntTexture(false), scenarioMass(-1.0)
 {
 	// preload mesh
 	mesh_idx = MESH_UNDEFINED;
-	hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
+	//hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
+
+	pszScenarioTexture[0] = NULL;
 
 	//////////////////////// ET vent ////////////////////////
-	timer = -1;
-	counter = 50;
+	ventTimer = -1;
+	ventCounter = 50;
 	pos = 0;
 	//////////////////////// ET vent ////////////////////////
 }
@@ -56,7 +58,24 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	// Tank cannot receive input focus
 
 	SetSize (24.0);
-	SetEmptyMass (TANK_EMPTY_MASS);
+
+	// see what type of tank this is
+	char pszBuffer[255];
+	bool bFoundData = oapiReadItem_string(cfg, "Type", pszBuffer);
+	if(!bFoundData || !_strnicmp(pszBuffer, "SLWT", 4)) { // default to SLWT tank
+		SetEmptyMass (SLWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SLWT_MESHNAME_ET);
+	}
+	else if(!_strnicmp(pszBuffer, "LWT", 3)) {
+		SetEmptyMass (LWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (LWT_MESHNAME_ET);
+	}
+	else if(!_strnicmp(pszBuffer, "SWT", 3)) {
+		SetEmptyMass (SWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SWT_MESHNAME_ET);
+	}
+	//SetEmptyMass (TANK_EMPTY_MASS);
+	//SetEmptyMass (SLWT_EMPTY_MASS);
 
 	//SetMaxFuelMass (TANK_MAX_PROPELLANT_MASS);
 	// Note that the Tank instance is only created after separation from
@@ -122,29 +141,34 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 	if (GetAltitude() < 0.0) oapiDeleteVessel (GetHandle());
 
 	//////////////////////// ET vent ////////////////////////
-	if (timer == -1) timer = simt + 120;// start vent in 120 sec
-
-	if (counter >= (int)((1 - pos) * 50))
-	{
-		pos = (simt * 10) - (int)(simt * 10);// new valve position
-		counter = 0;
+	if (ventTimer < 0.0 && !GetAttachmentStatus(ahToOrbiter)) {
+		ventTimer = simt + 120;// start vent 120 sec after ET Sep
+		SetPropellantMass(phLOXtank, 400.0); // make sure 'tank' is full for venting
 	}
 
-	if ((simt - timer) > 0)
-	{
-		counter++;
-		if (pos <= 0.75)// close it if under 75% so it pulses... looks cool!
+	if(ventTimer > 0.0) {
+		if (ventCounter >= (int)((1 - pos) * 50))
 		{
-			SetThrusterLevel( thLOXvent, 0 );
+			pos = (simt * 10) - (int)(simt * 10);// new valve position
+			ventCounter = 0;
+		}
+
+		if ((simt - ventTimer) > 0)
+		{
+			ventCounter++;
+			if (pos <= 0.75)// close it if under 75% so it pulses... looks cool!
+			{
+				SetThrusterLevel( thLOXvent, 0 );
+			}
+			else
+			{
+				SetThrusterLevel( thLOXvent, pos );
+			}
 		}
 		else
 		{
-			SetThrusterLevel( thLOXvent, pos );
+			SetThrusterLevel( thLOXvent, 0 );
 		}
-	}
-	else
-	{
-		SetThrusterLevel( thLOXvent, 0 );
 	}
 	//////////////////////// ET vent ////////////////////////
 }
@@ -157,6 +181,12 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		if(!_strnicmp(line, "BURNT_TEX", 9)) {
 			bUseBurntTexture = true;
 		}
+		else if(!_strnicmp(line, "EMPTY_MASS", 10)) {
+			sscanf_s(line+10, "%lf", scenarioMass);
+		}
+		else if(!_strnicmp(line, "ET_TEX_NAME", 11)) {
+			strcpy(pszScenarioTexture, line+12);
+		}
 		else ParseScenarioLineEx(line, status);
 	}
 
@@ -168,6 +198,8 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 	VESSEL2::clbkSaveState(scn);
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
+	if(scenarioMass>0.0) oapiWriteScenario_float(scn, "EMPTY_MASS", scenarioMass);
+	if(pszScenarioTexture!=NULL) oapiWriteScenario_string(scn, "ET_TEX_NAME", pszScenarioTexture);
 }
 
 void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
