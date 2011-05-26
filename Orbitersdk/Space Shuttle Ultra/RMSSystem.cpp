@@ -620,14 +620,34 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles)
 	VECTOR3 newDir, newRot;
 
 	if(RMSMode[5].IsSet()) { // END EFF mode
-		VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
+		// NOTE: EE mode rotates relative to camera orientation
+		// we do not need to compensate for angle with RMS and shuttle frames
+		VECTOR3 y_axis = crossp(arm_ee_rot, arm_ee_dir);
+		// create rotation matrix corresponding to current orientation
+		MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, arm_ee_rot.x,
+							   arm_ee_dir.y, y_axis.y, arm_ee_rot.y,
+							   arm_ee_dir.z, y_axis.z, arm_ee_rot.z);
+		//MATRIX3 RotMatrix = RotationMatrix(arm_ee_dir, , arm_ee_rot);
+		MATRIX3 RotMatrixRoll, RotMatrixPitch, RotMatrixYaw;
+		GetRotMatrixX(dAngles.data[ROLL], RotMatrixRoll);
+		GetRotMatrixY(dAngles.data[PITCH], RotMatrixPitch);
+		GetRotMatrixZ(dAngles.data[YAW], RotMatrixYaw);
+		// update rotation matrix to adjust for new angles
+		RotMatrix = mul(RotMatrix, RotMatrixPitch);
+		RotMatrix = mul(RotMatrix, RotMatrixYaw);
+		RotMatrix = mul(RotMatrix, RotMatrixRoll);
+
+		newDir = _V(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31);
+		newRot = _V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
+
+		/*VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 		// NOTE: for math to work, we need to swap yaw and pitch angles
 		RotateVectorPYR(ee_dir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
 		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 
 		VECTOR3 ee_rot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
 		RotateVectorPYR(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
-		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);*/
 
 		MoveEE(arm_ee_pos, newDir, newRot);
 		update_angles=true;

@@ -179,6 +179,7 @@ private:
 	 * +Y: towards port side (right from aft windows)
 	 * +Z: Up
 	 * Frame corresponds to negative version of frame used by real shuttle
+	 * arm_ee_dir and arm_ee_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame
 	 */
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 arm_ee_angles; // angles in radians
