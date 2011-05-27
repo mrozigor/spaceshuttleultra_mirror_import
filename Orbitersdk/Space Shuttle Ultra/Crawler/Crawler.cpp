@@ -503,11 +503,11 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 
 	// jack crawler
-	if(!Eq(jackHeight, JACKING_HEIGHTS[targetJackHeightIndex], 0.01)) {
+	if(!Eq(jackHeight, JACKING_HEIGHTS[targetJackHeightIndex], 0.001)) {
 		if(jackHeight < JACKING_HEIGHTS[targetJackHeightIndex])
-			jackHeight=min(jackHeight+0.01*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+			jackHeight=min(jackHeight+0.0025*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
 		else
-			jackHeight=max(jackHeight-0.01*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
+			jackHeight=max(jackHeight-0.0025*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
 		UpdateTouchdownPoints();
 		port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 	}
@@ -572,9 +572,9 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 			sscanf (line + 7, "%i", &viewPos);
 		} else if (!_strnicmp (line, "STANDALONE", 10)) {
 			sscanf (line + 10, "%i", &standalone);
-		} else if (!_strnicmp (line, "HEIGHT", 6)) {
-			sscanf (line+6, "%lf%lf", &curFrontHeight, &curBackHeight);
-			SetTouchdownPoints(_V(0, curFrontHeight,  10), _V(-10, curFrontHeight, -10), _V(10, curFrontHeight, -10));
+		//} else if (!_strnicmp (line, "HEIGHT", 6)) {
+		//	sscanf (line+6, "%lf%lf", &curFrontHeight, &curBackHeight);
+		//	SetTouchdownPoints(_V(0, curFrontHeight,  10), _V(-10, curFrontHeight, -10), _V(10, curFrontHeight, -10));
 		} else if (!_strnicmp (line, "ANGLE", 5)) {
 			sscanf (line+5, "%lf%lf", &curFrontAngle, &curBackAngle);
 		} else if (!_strnicmp (line, "GROUND_POS", 10)) {
@@ -622,8 +622,8 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
 	oapiWriteScenario_float(scn, "TARGET_JACK_INDEX", targetJackHeightIndex);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
-	oapiWriteScenario_string(scn, "HEIGHT", cbuf);
-	sprintf_s(cbuf, 255, "%f %f", curFrontAngle, curBackAngle);
+	//oapiWriteScenario_string(scn, "HEIGHT", cbuf);
+	//sprintf_s(cbuf, 255, "%f %f", curFrontAngle, curBackAngle);
 	oapiWriteScenario_string(scn, "ANGLE", cbuf);
 	oapiWriteScenario_int(scn, "VIEWPOS", viewPos);
 	oapiWriteScenario_int(scn, "STANDALONE", standalone);
@@ -1106,7 +1106,7 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 
 		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
 		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
-		//sprintf_s(oapiDebugString(), 255, "Heights: Fwd %f %f %f Back %f %f %f Jack: %f", front_height, front_height2, front_height3, back_height, back_height2, back_height3, front_height3-back_height3);
+		//sprintf_s(oapiDebugString(), 255, "Heights: Fwd %f %f %f Back %f %f %f Jack: %f", front_height, front_height2, back_height, back_height2);
 		return true;
 	}
 	else {

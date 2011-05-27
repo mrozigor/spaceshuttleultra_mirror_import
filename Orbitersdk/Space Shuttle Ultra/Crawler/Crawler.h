@@ -264,7 +264,7 @@ private:
 	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
-	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(15.4 / (395.0-131.5)), 15.4); };
+	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(14.45 / (395.0-131.5)), 14.45); };
 	
 public:
 	VISHANDLE vccVis;
