@@ -1,11 +1,11 @@
 // ========================================================
 // Mesh resource file for LC39A_RSS.msh
-// Generated with meshc on Mon Apr 25 01:08:18 2011
+// Generated with meshc on Wed Apr 27 21:50:52 2011
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP 51
+#define NGRP 52
 
 // Number of materials:
 #define NMAT 7
@@ -52,16 +52,17 @@
 #define GRP_Vertical_torque_tubes 35
 #define GRP_Wing_Panels 36
 #define GRP_Metal_Panel_flip_upper_left 37
-#define GRP_Line06 38
-#define GRP_Metal_Panel_flip_lower_left 39
-#define GRP_OWP_Curtain_Wall_rails 40
-#define GRP_Box01 41
-#define GRP_Upper_catwalks_and_stairs 42
-#define GRP_Cylinder221 43
-#define GRP_Cylinder90 44
-#define GRP_OWP_Curtain_Wall 45
-#define GRP_Line02 46
-#define GRP_SRB_IEA_platform 47
-#define GRP_Metal_Panel_flip_right_lower 48
-#define GRP_Metal_Panel_flip_right 49
-#define GRP_RSS_cab_windows 50
+#define GRP_OWP_Curtain_Wall_rails 38
+#define GRP_Box01 39
+#define GRP_Upper_catwalks_and_stairs 40
+#define GRP_Cylinder221 41
+#define GRP_Cylinder90 42
+#define GRP_Line02 43
+#define GRP_SRB_IEA_platform 44
+#define GRP_Metal_Panel_flip_right_lower 45
+#define GRP_Metal_Panel_flip_right 46
+#define GRP_Box07 47
+#define GRP_Metal_Panel_flip_lower_left 48
+#define GRP_Line06 49
+#define GRP_OWP_Curtain_Wall 50
+#define GRP_RSS_cab_windows 51

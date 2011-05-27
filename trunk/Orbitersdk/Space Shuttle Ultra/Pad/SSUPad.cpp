@@ -14,7 +14,7 @@ HINSTANCE hPad_DLL;
 
 
 VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
-	_V(-6, 50, -3.5),
+	_V(-58.2, -0.75, 1.3) + _V(185, 93, -107),
 };
 
 VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
@@ -192,14 +192,14 @@ SSUPad::~SSUPad()
 }
 
 void SSUPad::CreateLights() {
-	static VECTOR3& light_color = _V(1.0, 0.25, 0.25);
+	static VECTOR3& light_color = _V(1, 1, 1);
 	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
-		lights[i].duration = 0;
-		lights[i].period = 0;
+		lights[i].duration = 0.5;
+		lights[i].period = 2;
 		lights[i].pos = &FSS_POS_LIGHT[i];
 		lights[i].col = &light_color;
-		lights[i].size = 0.2;
-		lights[i].shape = BEACONSHAPE_DIFFUSE;
+		lights[i].size = 1;
+		lights[i].shape = BEACONSHAPE_STAR;
 		lights[i].falloff = 0.4;
 		lights[i].active = false;
 
@@ -267,7 +267,7 @@ void SSUPad::DefineAnimations()
 	static UINT FSS_GH2_Arm[3] = {GRP_GH2_fwd_vent_flex_line_FSS, GRP_GH2_vent_hard_line_FSS, GRP_GUCP_FSS};
 	static UINT FSS_GH2_Arm_1985[3] = {GRP_GH2_fwd_vent_flex_line_FSS_1985, GRP_GH2_vent_hard_line_FSS_1985, GRP_GUCP_FSS_1985};
 	MGROUP_ROTATE* FSS_GH2_ArmRot = DefineRotation(fss_mesh_idx, bPad1985 ? FSS_GH2_Arm_1985 : FSS_GH2_Arm, 3,
-		_V(5.123, 65.803, 9.541), _V(-0.80134, 0.0, 0.59821), (float)(85.0*RAD));
+		_V(5.07, 65.5287, 11.6944), _V(-0.843, 0.0, 0.536), (float)(90.0*RAD));
 	anim_fss_gh2_ventarm=CreateAnimation(0.0);
 	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, FSS_GH2_ArmRot);
 
@@ -294,13 +294,13 @@ void SSUPad::DefineAnimations()
 		static UINT FSS_Y_OWPRotGrp[2] = {GRP_Outer_OWP_Curtain_Wall_panel_FSS, 
 			GRP_Outer_OWP_Curtain_Wall_struts_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 2,
-			_V(-6.9, 0.0, 22.1), _V(0, 1.0, 0.0), (float)(PI/2));
+			_V(-6.37, 0.0, 22), _V(0, 1.0, 0.0), (float)(PI/2));
 		anim_fss_y_owp=CreateAnimation(0.0);
 		parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.769, &FSS_Y_OWPRot);
 		static UINT FSS_Y_OWPTransGrp[2] = {GRP_Inner_OWP_Curtain_Wall_structure_FSS, GRP_Inner_OWP_Curtain_Wall_panel_FSS};
-		static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 2, _V(7.5, 0.0, 0.0));
+		static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 2, _V(7.2, 0.0, 0.0));
 		AddAnimationComponent(anim_fss_y_owp, 0.769, 1.0, &FSS_Y_OWPTrans, parent);
-		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_North_Cutrain_Wall_struts_FSS};
+		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_North_Curtain_Wall_struts_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
 			_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
 		anim_fss_y_owp_strut=CreateAnimation(0.5);
@@ -308,17 +308,16 @@ void SSUPad::DefineAnimations()
 		//RSS OWP
 		RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
 		static UINT RSS_Y_LOWPGrp[2] = {GRP_OWP_Curtain_Wall, GRP_SRB_IEA_platform};
-		static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 9.636));
+		static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 12.1));
 		static UINT RSS_Y_UOWPGrp[2] = {GRP_Metal_Panel_flip_right, GRP_Metal_Panel_flip_right_lower};
 		static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 2,
-			_V(0, 34.35, -4.57), _V(-1, 0, 0), (float)(33.0*RAD));
+			_V(0, 34.94, -4.57), _V(-1, 0, 0), (float)(33.0*RAD));
 		static UINT RSS_flip_upperGrp[1] = {GRP_Metal_Panel_flip_upper_left};
 		static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
 			_V(0, 45.71, 4.515), _V(1, 0, 0), (float)(90.0*RAD));
-		//DaveS 110425 note: Coordinates is good but it seems like a mesh change is required
 		static UINT RSS_flip_lowerGrp[2] = {GRP_Metal_Panel_flip_lower_left, GRP_Line06};
 		static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 2,
-			_V(-20.76, 34.40, 5), _V(0, 1, 0), (float)(105.0*RAD));
+			_V(-20.75, 34.40, 6.06), _V(0, 1, 0), (float)(105.0*RAD));
 		anim_rss_y_owp=CreateAnimation(0.0);
 		AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
 		AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_flip_upper);
@@ -837,7 +836,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	WaterTowerMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_WATERTOWER);
 	const VECTOR3 rss_ofs=_V(14, 15.5, 1);
-	const VECTOR3 hs_ofs=_V(-58.2, -0.75, 1.3);
+	const VECTOR3 hs_ofs=_V(-58.2, -1.75, 1.3);
 	const VECTOR3 wt_ofs=_V(100, 45, -66);
 	fss_mesh_idx=AddMesh(FSSMesh);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);

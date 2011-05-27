@@ -19,17 +19,17 @@ const double ORBITER_ACCESS_ARM_RATE = 0.005263;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
-const double FSS_OWP_RATE = 0.00128205;
+const double FSS_OWP_RATE = 0.005;
 const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
 const double FSS_IAA_RATE = 1.0/200.0;
 const double FSS_RBUS_RATE = 0.35;
 
 //FSS OWP strut animation constants
-const double FSS_OWP_BRACKET_LENGTH = 12.212;
-const double FSS_OWP_STRUT_LENGTH = 18.3203;
+const double FSS_OWP_BRACKET_LENGTH = 12.4;
+const double FSS_OWP_STRUT_LENGTH = 18.02;
 const double FSS_OWP_STRUT_OFFSET = 13.427;
-const double FSS_OWP_STRUT_NULL_ANGLE = 86.197; //angle in degrees
+const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int STADIUM_LIGHT_COUNT = 5;

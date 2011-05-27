@@ -1,6 +1,6 @@
 // ========================================================
-// Mesh resource file for C:\Orbiter\Orbiter_SSUDev\Meshes\SSU\LC39A_RSS_1985.msh
-// Generated with meshc on Sun Apr 24 21:41:33 2011
+// Mesh resource file for LC39A_RSS_1985.msh
+// Generated with meshc on Thu May 19 17:54:50 2011
 
 // ========================================================
 
