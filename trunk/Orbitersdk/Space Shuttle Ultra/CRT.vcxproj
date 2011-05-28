@@ -92,7 +92,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Orbiter.lib;Orbitersdk.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\Plugin\CRT.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -142,7 +142,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Orbiter.lib;Orbitersdk.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\Plugin\CRT.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -191,7 +191,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Orbiter.lib;Orbitersdk.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\Plugin\CRT.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -215,10 +215,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CRT.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\lib\orbiter.lib" />
-    <Library Include="..\lib\Orbitersdk.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
