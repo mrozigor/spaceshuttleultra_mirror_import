@@ -207,7 +207,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Orbitersdk.h" />
     <ClInclude Include="Chute\SSUChute.h" />
   </ItemGroup>
   <ItemGroup>

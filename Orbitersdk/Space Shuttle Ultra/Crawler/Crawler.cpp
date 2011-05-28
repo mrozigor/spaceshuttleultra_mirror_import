@@ -886,7 +886,7 @@ void Crawler::Detach() {
 					attach_pos.y+=(jackHeight+curFrontHeight+pt1.y); //we can use any TD point; y coordinate should be the same
 					//sprintf_s(oapiDebugString(), 255, "Attach point: %f %f %f rpos: %f %f %f", attach_pos.x, attach_pos.y, attach_pos.z,
 						//rpos.x, rpos.y, rpos.z);
-					oapiWriteLog(oapiDebugString());
+					//oapiWriteLog(oapiDebugString());
 
 					if(length(_V(attach_pos.x, 0.0, attach_pos.z)) < 5.0 && abs(attach_pos.y) < 0.25) { // attach MLP to VAB/LC39
 						DetachChild(ahMLP);
@@ -1073,8 +1073,10 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	front_dist = dist-20.0*abs(dCos);
 	back_dist = dist+20.0*abs(dCos);
 
-	// ramp to LC39 starts 395m from pad and ends 131.5 m from pad
-	if(front_dist < 395.0 && abs(relPos.x)<10.0)
+	//sprintf_s(oapiDebugString(), 255, "front_dist: %f back_dist: %f", front_dist, back_dist);
+
+	// ramp to LC39 starts 390 m from pad and ends 131.5 m from pad
+	if(front_dist < LC39_RAMP_START && abs(relPos.x)<10.0)
 	{
 		double front_dist2 = dist-(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 		double back_dist2 = dist+(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
@@ -1094,8 +1096,8 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 		}
 
 		// needed to prevent treads from appearing to sink into lover segment of ramp
-		front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
-		back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
+		//front_height += range(0.0, (front_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
+		//back_height += range(0.0, (back_dist-131.5)*(0.4/(395.0-131.5)), 0.5);
 		
 		curFrontHeight=front_height;
 		curBackHeight=back_height2;

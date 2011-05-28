@@ -123,6 +123,9 @@ const VECTOR3 MLP_ATTACH_ROT = _V(0, 0, 1);
 const double MAX_UNLOADED_SPEED = 2.0/MPS2MPH;
 const double MAX_LOADED_SPEED = 0.8/MPS2MPH;
 
+const double LC39_RAMP_START = 376.0; // distance from pad at which ramp starts
+const double LC39_RAMP_END = 127.5; // distance from pad at which ramp ends
+
 const int ENGINE_SOUND_ID = 1;
 const int ENGINE_START_SOUND_ID = 2;
 const int ENGINE_STOP_SOUND_ID = 3;
@@ -264,7 +267,7 @@ private:
 	ANIMATIONCOMPONENT_HANDLE AddManagedAnimationComponent(UINT anim, double state0, double state1,
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
-	double CalcRampHeight(double dist) { return range(0.0, (395.0-dist)*(14.45 / (395.0-131.5)), 14.45); };
+	double CalcRampHeight(double dist) { return range(0.0, (LC39_RAMP_START-dist)*(14.45 / (LC39_RAMP_START - LC39_RAMP_END)), 14.45); };
 	
 public:
 	VISHANDLE vccVis;
