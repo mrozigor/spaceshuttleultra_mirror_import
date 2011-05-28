@@ -843,7 +843,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 	wt_mesh_idx=AddMesh(WaterTowerMesh, &wt_ofs);
 
-	SetTouchdownPoints(_V(1.0, -1.0, 0.0), _V(-1.0, -1.0, 1.0), _V(-1.0, -1.0, -1.0));
+	SetTouchdownPoints(_V(1.0, -2.0, 0.0), _V(-1.0, -2.0, 1.0), _V(-1.0, -2.0, -1.0));
 
 	//if(bPad1985) DefineAnimations1985();
 	//else DefineAnimations();
