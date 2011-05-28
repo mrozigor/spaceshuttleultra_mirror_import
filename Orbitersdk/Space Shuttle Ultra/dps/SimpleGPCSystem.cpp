@@ -104,9 +104,14 @@ bool SimpleGPCSystem::OnReadState(FILEHANDLE scn)
 
 void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 {
-	for(unsigned int i=0;i<vSoftware.size();i++) {
+	/*for(unsigned int i=0;i<vSoftware.size();i++) {
 		oapiWriteScenario_string(scn, "@BEGINSOFTWARE", const_cast<char*>(vSoftware[i]->GetIdentifier().c_str()));
 		vSoftware[i]->OnSaveState(scn);
+		oapiWriteScenario_string(scn, "@ENDSOFTWARE", "");
+	}*/
+	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
+		oapiWriteScenario_string(scn, "@BEGINSOFTWARE", const_cast<char*>(vActiveSoftware[i]->GetIdentifier().c_str()));
+		vActiveSoftware[i]->OnSaveState(scn);
 		oapiWriteScenario_string(scn, "@ENDSOFTWARE", "");
 	}
 }
