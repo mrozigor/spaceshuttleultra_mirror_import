@@ -187,6 +187,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	//tgtVelocity = 0.0;
 	//velocity = 0;
 	currentSpeed = 0.0;
+	targetSpeed = 0.0;
+	maxSpeed = MAX_UNLOADED_SPEED;
 	velocityStop = false;
 	steeringActual[0] = steeringActual[1] = 0;
 	steeringCommanded[0] = steeringCommanded[1] = 0;
@@ -210,6 +212,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	keyLeft= false;
 	keyRight= false;
 	keyCenter = false;
+	increaseTgtSpeed = false;
+	decreaseTgtSpeed = false;
 
 	hMLP = NULL;
 	hMLPAttach = NULL;
@@ -366,7 +370,9 @@ void Crawler::clbkPostCreation()
 
 	pBundle = pBundleManager->CreateBundle("CRAWLER_SPEED", 2);
 	port_currentSpeed.Connect(pBundle, 0);
-	port_currentSpeed.SetLine(static_cast<float>(currentSpeed*MPS2MPH));
+	port_targetSpeed.Connect(pBundle, 1);
+	port_currentSpeed.SetLine(static_cast<float>(currentSpeed));
+	port_targetSpeed.SetLine(static_cast<float>(targetSpeed));
 
 	pBundle = pBundleManager->CreateBundle("CRAWLER_JEL", 1);
 	port_JackHeight.Connect(pBundle, 0);
@@ -384,11 +390,23 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	pgRearCab.OnPreStep(simt, simdt, mjd);
 
 	// control crawler speed
-	if(IsAttached()) pEngine->SetMaxSpeed(MAX_LOADED_SPEED);
-	else pEngine->SetMaxSpeed(MAX_UNLOADED_SPEED);
+	if(IsAttached()) maxSpeed = MAX_LOADED_SPEED;
+	else maxSpeed = MAX_UNLOADED_SPEED;
+	//if(IsAttached()) pEngine->SetMaxSpeed(MAX_LOADED_SPEED);
+	//else pEngine->SetMaxSpeed(MAX_UNLOADED_SPEED);
 	//pEngine->OnPreStep(simt, simdt, mjd);
 
 	//if (IsAttached()) maxVelocity = maxVelocity / 2.0;
+
+	// set target speed
+	if(increaseTgtSpeed) {
+		double dv = simdt*0.1;
+		targetSpeed = range(0.0, targetSpeed+dv, maxSpeed);
+	}
+	else if(decreaseTgtSpeed) {
+		double dv = simdt*-0.1;
+		targetSpeed = range(0.0, targetSpeed+dv, maxSpeed);
+	}
 
 	// update speed
 	double acceleration = pEngine->GetAcceleration();
@@ -407,6 +425,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 	else currentSpeed = 0.0;
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed));
+	port_targetSpeed.SetLine(static_cast<float>(targetSpeed));
 	
 	double timeW = oapiGetTimeAcceleration();
 
@@ -564,6 +583,8 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 			sscanf (line + 17, "%d", &targetJackHeightIndex);
 		} else if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf_s (line + 8, "%lf", &currentSpeed);
+		} else if (!_strnicmp (line, "TGT_VELOCITY", 12)) {
+			sscanf_s(line, "%lf", &targetSpeed);
 		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
 			sscanf (line + 15, "%lf%lf", &steeringActual[0], &steeringActual[1]);
 		} else if (!_strnicmp (line, "STEERING_COMMANDED", 18)) {
@@ -613,6 +634,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 
 	//oapiWriteScenario_float(scn, "VELOCITY", velocity);
 	oapiWriteScenario_float(scn, "VELOCITY", currentSpeed);
+	oapiWriteScenario_float(scn, "TGT_VELOCITY", targetSpeed);
 	//oapiWriteScenario_float(scn, "WHEELDEFLECT", wheeldeflect);
 	sprintf_s(cbuf, 255, "%f %f", steeringActual[0], steeringActual[1]);
 	oapiWriteScenario_string(scn, "STEERING_ACTUAL", cbuf);	
@@ -712,11 +734,15 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 	}
 
 	if (key == OAPI_KEY_ADD) {
-		pEngine->IncreaseTgtSpeed(down);
+		//pEngine->IncreaseTgtSpeed(down);
+		increaseTgtSpeed = down;
+		decreaseTgtSpeed = false;
 		return 1;
 	}
 	else if (key == OAPI_KEY_SUBTRACT) {
-		pEngine->DecreaseTgtSpeed(down);
+		//pEngine->DecreaseTgtSpeed(down);
+		decreaseTgtSpeed = down;
+		increaseTgtSpeed = false;
 		return 1;
 	}
 	else if (key == OAPI_KEY_B) {

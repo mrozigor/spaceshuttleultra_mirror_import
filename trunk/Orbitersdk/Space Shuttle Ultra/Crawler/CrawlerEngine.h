@@ -33,22 +33,22 @@ public:
 	 */
 	double GetAcceleration() const;
 	//void SetTargetSpeed(double speed);
-	void SetMaxSpeed(double speed);
+	//void SetMaxSpeed(double speed);
 
-	void IncreaseTgtSpeed(bool _inc);
-	void DecreaseTgtSpeed(bool _dec);
+	//void IncreaseTgtSpeed(bool _inc);
+	//void DecreaseTgtSpeed(bool _dec);
 private:
 	// speed in m/s
-	double maxSpeed;
-	double targetSpeed;
+	//double maxSpeed;
+	//double targetSpeed;
 	//double actualSpeed;
 	double currentAcceleration;
 	bool bReverse;
 
 	//bool accelerate;
 	//bool brake;
-	bool increaseTgtSpeed;
-	bool decreaseTgtSpeed;
+	//bool increaseTgtSpeed;
+	//bool decreaseTgtSpeed;
 
 	//double acceleration;
 
@@ -59,6 +59,7 @@ private:
 	//DiscOutPort currentSpeedPort;
 	DiscInPort engineDirection[3];
 	DiscInPort currentSpeed;
+	DiscInPort tgtSpeed;
 	DiscOutPort commandVoltage;
 };
 
