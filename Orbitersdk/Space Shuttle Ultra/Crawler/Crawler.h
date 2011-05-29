@@ -282,13 +282,17 @@ private:
 
 	//double tgtVelocity;
 	//double velocity;
+	double targetSpeed;
 	double currentSpeed;
+	double maxSpeed;
 	bool velocityStop;
 	//double targetHeading;
 	bool bGenericCockpitView;
 	int viewPos;
 	//double wheeldeflect[2];
 	double steeringActual[2], steeringCommanded[2];
+	bool increaseTgtSpeed;
+	bool decreaseTgtSpeed;
 	int standalone;
 	bool firstTimestepDone;
 	// Mission Time for passing to PAMFD:
@@ -314,7 +318,7 @@ private:
 	DiscInPort port_BrakeSet, port_ParkingBrakeSet;
 	DiscOutPort port_Brake;
 	DiscInPort independent, crab, greatCircle;
-	DiscOutPort port_currentSpeed;
+	DiscOutPort port_currentSpeed, port_targetSpeed;
 
 	bool keyLeft;
 	bool keyRight;

@@ -6,14 +6,14 @@ CrawlerEngine::CrawlerEngine(SubsystemDirector<Crawler>* _director)
 : Subsystem(_director, "Engine"),
 engineState(OFF)
 {
-	targetSpeed = 0.0;
+	//targetSpeed = 0.0;
 	currentAcceleration = 0.0;
 	enginePower = 0.0;
-	maxSpeed = MAX_UNLOADED_SPEED;
+	//maxSpeed = MAX_UNLOADED_SPEED;
 	bReverse = false;
 
-	increaseTgtSpeed = false;
-	decreaseTgtSpeed = false;
+	//increaseTgtSpeed = false;
+	//decreaseTgtSpeed = false;
 }
 
 CrawlerEngine::~CrawlerEngine()
@@ -25,7 +25,7 @@ double CrawlerEngine::GetAcceleration() const
 	return currentAcceleration;
 }
 
-void CrawlerEngine::SetMaxSpeed(double speed)
+/*void CrawlerEngine::SetMaxSpeed(double speed)
 {
 	maxSpeed = speed;
 }
@@ -40,12 +40,13 @@ void CrawlerEngine::DecreaseTgtSpeed(bool _dec)
 {
 	decreaseTgtSpeed=_dec;
 	increaseTgtSpeed=false;
-}
+}*/
 
 void CrawlerEngine::Realize()
 {
 	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
 	currentSpeed.Connect(pBundle, 0);
+	tgtSpeed.Connect(pBundle, 1);
 
 	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_ENGINE", 16);
 	commandVoltage.Connect(pBundle, 0);
@@ -57,14 +58,14 @@ void CrawlerEngine::Realize()
 void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 {
 	// set target speed
-	if(increaseTgtSpeed) {
+	/*if(increaseTgtSpeed) {
 		double dv = SimDT*0.1;
 		targetSpeed = range(0.0, targetSpeed+dv, maxSpeed);
 	}
 	else if(decreaseTgtSpeed) {
 		double dv = SimDT*-0.1;
 		targetSpeed = range(0.0, targetSpeed+dv, maxSpeed);
-	}
+	}*/
 
 	// use FWD/NEUT/REV PBIs to start/shutdown engine and play correct sounds
 	// use startup/shutdown sound length to determine when startup or shutdown is complete
@@ -97,6 +98,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		double dPower;
 		double tgtPower;
 		double actualSpeed = currentSpeed.GetVoltage();
+		double targetSpeed = tgtSpeed.GetVoltage();
 		enginePower = fabs(enginePower); // for calculations, use positive power
 		if(!Eq(targetSpeed, 0.0, 0.01)) {
 			//double err=targetSpeed-actualSpeed;
@@ -127,6 +129,8 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		else enginePower = range(0.0, enginePower+dPower, 1.0);
 		// correct sign of enginePower
 		if(engineDirection[REV]) enginePower = -enginePower;
+
+		sprintf_s(oapiDebugString(), 255, "Target Speed: %f", targetSpeed*MPS2MPH);
 	}
 	else {
 		enginePower = 0.0;
@@ -134,17 +138,16 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	currentAcceleration = enginePower*0.01;
 	commandVoltage.SetLine(enginePower);
 
-	sprintf_s(oapiDebugString(), 255, "Target Speed: %f", targetSpeed*MPS2MPH);
 }
 
 bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
 {
 	std::string strKey = keyword;
-	if(strKey == "TGT_VELOCITY") {
+	/*if(strKey == "TGT_VELOCITY") {
 		sscanf_s(line, "%lf", &targetSpeed);
 		return true;
-	}
-	else if(strKey == "ENGINE_POWER") {
+	}*/
+	if(strKey == "ENGINE_POWER") {
 		sscanf_s(line, "%lf", &enginePower);
 		return true;
 	}
@@ -160,7 +163,7 @@ bool CrawlerEngine::OnParseLine(const char* keyword, const char* line)
 void CrawlerEngine::OnSaveState(FILEHANDLE scn) const
 {
 	//oapiWriteScenario_float(scn, "VELOCITY", actualSpeed);
-	oapiWriteScenario_float(scn, "TGT_VELOCITY", targetSpeed);
+	//oapiWriteScenario_float(scn, "TGT_VELOCITY", targetSpeed);
 	oapiWriteScenario_float(scn, "ENGINE_POWER", enginePower);
 	oapiWriteScenario_int(scn, "ENGINE_STATE", engineState);
 }

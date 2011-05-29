@@ -1,5 +1,6 @@
 #include "CrawlerLeftPanel.h"
 #include "Crawler.h"
+#include "meshres_crawler_vc.h"
 
 extern GlobalHandles g_Resources; 
 
@@ -7,7 +8,7 @@ namespace vc
 {
 
 CrawlerLeftPanel::CrawlerLeftPanel(Crawler *_v, const std::string &_ident, vc::CRAWLER_CAB _cab)
-: CrawlerPanel(_v, _ident, _cab)
+: CrawlerPanel(_v, _ident, _cab), pSpeedKnobAnimation(NULL)
 {
 	Add(pParkingBrakePBI = new CrawlerPBI(_v, "BRAKE"));
 	Add(pFwdPBI = new CrawlerPBI(_v, "FWD"));
@@ -19,6 +20,7 @@ CrawlerLeftPanel::CrawlerLeftPanel(Crawler *_v, const std::string &_ident, vc::C
 
 CrawlerLeftPanel::~CrawlerLeftPanel()
 {
+	delete pSpeedKnobAnimation;
 }
 
 void CrawlerLeftPanel::RegisterVC()
@@ -96,6 +98,14 @@ void CrawlerLeftPanel::DefineVC()
 	pCommandVoltage->AddAIDToRedrawEventList(AID_COMMAND_VOLTAGE+aid_ofs);
 }
 
+void CrawlerLeftPanel::DefineVCAnimations(UINT vcidx)
+{	
+	static UINT SpeedControlKnob[1] = {GRP_SPEED_CONTROL_KNOB_VC};
+	pSpeedKnobAnimation = new MGROUP_ROTATE(vcidx, SpeedControlKnob, 1, TransformVector(_V(0.412, 0.077, 0.061)),
+		TransformVector(_V(-0.78112, 0.44150, 0.44150)), static_cast<float>((270.0*RAD)));
+	anim_SpeedKnob = V()->CreateAnimation(0.0);
+	V()->AddAnimationComponent(anim_SpeedKnob, 0.0, 1.0, pSpeedKnobAnimation);
+}
 void CrawlerLeftPanel::Realize()
 {
 	DiscreteBundle* pBundle = V()->BundleManager()->CreateBundle("CRAWLER_BRAKE", 2);
@@ -126,7 +136,17 @@ void CrawlerLeftPanel::Realize()
 		pRevPBI->ConnectGroupPort(pBundle, 3);
 	}
 
+	pBundle = V()->BundleManager()->CreateBundle("CRAWLER_SPEED", 16);
+	port_TargetSpeed.Connect(pBundle, 1);
+
 	CrawlerPanel::Realize();
+}
+void CrawlerLeftPanel::OnPreStep(double SimT, double SimDT, double MJD)
+{
+	CrawlerPanel::OnPreStep(SimT, SimDT, MJD);	
+
+	double speedKnob = port_TargetSpeed.GetVoltage()/MAX_UNLOADED_SPEED;
+	V()->SetAnimation(anim_SpeedKnob, speedKnob);
 }
 
 void CrawlerLeftPanel::DefineEnginePBI(CrawlerPBI* pPBI)

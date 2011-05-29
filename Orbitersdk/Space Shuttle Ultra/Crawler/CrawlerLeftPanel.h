@@ -18,12 +18,20 @@ class CrawlerLeftPanel : public CrawlerPanel
 	CrawlerPBI* pNeutPBI;
 	CrawlerPanelLight* pParkingBrakeLight;
 	CrawlerDigitalDisplay* pCommandVoltage;
+
+	MGROUP_ROTATE* pSpeedKnobAnimation;
+	UINT anim_SpeedKnob;
+
+	DiscInPort port_TargetSpeed;
 public:
 	CrawlerLeftPanel(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 	virtual ~CrawlerLeftPanel();
 
+	virtual void DefineVCAnimations (UINT vcidx);
 	virtual void RegisterVC();
 	virtual void DefineVC();
+
+	virtual void OnPreStep(double SimT, double SimDT, double MJD);
 	virtual void Realize();
 private:
 	void DefineEnginePBI(CrawlerPBI* pPBI);
