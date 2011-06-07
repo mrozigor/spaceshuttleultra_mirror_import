@@ -9,6 +9,7 @@
 const double ACCESS_ARM_RETRACT_TIME = 450.0;
 const double GOX_ARM_RETRACT_TIME = 150.0;
 const double RSLS_SEQUENCE_START_TIME = 31.0;
+const double APU_CHECK_TIME = 245.0;
 
 class SSULCC: public VESSEL2
 {

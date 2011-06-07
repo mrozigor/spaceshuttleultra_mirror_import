@@ -40,6 +40,8 @@ public:
 	virtual void UseBurntETTexture();
 
 private:
+	virtual void UseETTexture(const char* pszTexName);
+
 	VISHANDLE hVis;
 
 	MESHHANDLE hTankMesh;
