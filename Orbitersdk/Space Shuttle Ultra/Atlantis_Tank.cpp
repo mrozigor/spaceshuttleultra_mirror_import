@@ -42,8 +42,13 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 void Atlantis_Tank::UseBurntETTexture()
 {
 	bUseBurntTexture = true;
-	SURFHANDLE scorchedTexture = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
-	if(!oapiSetTexture(hTankMesh, 3, scorchedTexture))
+	UseETTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+}
+
+void Atlantis_Tank::UseETTexture(const char* pszTexName)
+{
+	SURFHANDLE texture = oapiLoadTexture(pszTexName);
+	if(!oapiSetTexture(hTankMesh, 3, texture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
 }
 
@@ -183,6 +188,7 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		}
 		else if(!_strnicmp(line, "EMPTY_MASS", 10)) {
 			sscanf_s(line+10, "%lf", scenarioMass);
+			SetEmptyMass(scenarioMass);
 		}
 		else if(!_strnicmp(line, "ET_TEX_NAME", 11)) {
 			strcpy(pszScenarioTexture, line+12);
@@ -191,6 +197,7 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 	}
 
 	if(bUseBurntTexture) UseBurntETTexture();
+	if(pszScenarioTexture) UseETTexture(pszScenarioTexture);
 }
 
 void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)

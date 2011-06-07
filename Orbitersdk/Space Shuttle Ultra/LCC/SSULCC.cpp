@@ -48,7 +48,10 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
 	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
-	if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
+	if(timeToLaunch < 0.0) return; // nothing to do
+
+	//if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
+	sprintf(oapiDebugString(),"T %f",-timeToLaunch);
 
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
@@ -62,6 +65,15 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
 	}
 	if(pSSU) {
+		// these steps should really be done by GLS class, but we dpn't have one yet.
+		if(timeToLaunch<=APU_CHECK_TIME /*&& lastTTL>=RSLS_SEQUENCE_START_TIME*/)
+		{
+			if(!pSSU->HydraulicsOK())
+			{
+				sprintf_s(oapiDebugString(), 255, "Launch aborted: No hydraulic pressure (check APUs)");
+				timeToLaunch = mjd-1.0; // set launch time to date in past
+			}
+		}
 		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
 		{
 			oapiWriteLog("LCC: T-31");
