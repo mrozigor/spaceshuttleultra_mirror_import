@@ -302,7 +302,7 @@ private:
 	//double curAngle; // angle rel. to horizontal (rad)
 	double curFrontHeight, curBackHeight; // height above ground (m)
 	double curFrontAngle, curBackAngle; // angle rel. to horizontal (rad)
-	double jackHeight; // height to which platform has been jacked
+	double jackHeight; // height to which platform has been jacked. Gives height of front of platform; rear will be jacked up further on LC 39 ramp
 	int targetJackHeightIndex; // index of target height
 
 	bool lastLatLongSet;
