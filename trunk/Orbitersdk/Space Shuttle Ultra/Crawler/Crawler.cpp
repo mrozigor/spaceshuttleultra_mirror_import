@@ -376,7 +376,8 @@ void Crawler::clbkPostCreation()
 
 	pBundle = pBundleManager->CreateBundle("CRAWLER_JEL", 1);
 	port_JackHeight.Connect(pBundle, 0);
-	port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
+	double avgHeight = jackHeight + (curFrontHeight-curBackHeight)/2.0;
+	port_JackHeight.SetLine(avgHeight/JACKING_MAX_HEIGHT);
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -528,8 +529,10 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		else
 			jackHeight=max(jackHeight-0.0025*simdt, JACKING_HEIGHTS[targetJackHeightIndex]);
 		UpdateTouchdownPoints();
-		port_JackHeight.SetLine(jackHeight/JACKING_MAX_HEIGHT);
 	}
+	// jacking height may change when going up ramp, so always update height
+	double avgHeight = jackHeight + (curFrontHeight-curBackHeight)/2.0;
+	port_JackHeight.SetLine(avgHeight/JACKING_MAX_HEIGHT);
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
