@@ -19832,7 +19832,7 @@ MATERIAL Panel tex 1
 1.0 1.0 1.0 1.0
 1.0 1.0 1.0 1.0
 0.9 0.9 0.9 1.0 0.0
-0.0 0.0 0.0 1.0
+0.2 0.2 0.2 1.0
 MATERIAL material02
 0.72549 0.0 0.0 1.0
 0.72549 0.0 0.0 1.0
@@ -19867,7 +19867,7 @@ MATERIAL Panel tex 3
 1.0 1.0 1.0 1.0
 1.0 1.0 1.0 1.0
 0.9 0.9 0.9 1.0 0.0
-0.0 0.0 0.0 1.0
+0.2 0.2 0.2 1.0
 TEXTURES 2
 SSU\CrawlerTransporter_panels.dds
 SSU\CrawlerTransporter_panels_gauges.dds
