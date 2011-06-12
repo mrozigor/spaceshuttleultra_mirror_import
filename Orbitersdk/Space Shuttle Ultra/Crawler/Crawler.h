@@ -89,7 +89,7 @@
 //const double DRIVETRACK_Y_OFFSET = 1.765;
 const double FWD_DRIVETRACK_X_OFFSET = 14.45;
 const double REAR_DRIVETRACK_X_OFFSET = -12.30;
-const double DRIVETRACK_Y_OFFSET = 2.85;
+const double DRIVETRACK_Y_OFFSET = 1.00;
 const double DRIVETRACK_Z_OFFSET = 13.239;
 // offsets between crawler drivetracks and main body mesh
 

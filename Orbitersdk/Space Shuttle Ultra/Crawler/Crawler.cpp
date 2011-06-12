@@ -327,13 +327,14 @@ void Crawler::DefineAnimations(bool b1980Mesh)
 {
 	// initialize array of groups needed for drivetruck translation animation
 	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
-		if(i!=GRP_JEL1_TRUCK && i!=GRP_JEL2_TRUCK) {
+		if(i!=GRP_JEL_cylinders_TRUCK) {
 			DrivetruckGrpList[j]=i;
 			j++;
 		}
 	}
-	DrivetruckGrpList[NGRP_TRUCK-2]=GRP_JEL1_TRUCK;
-	DrivetruckGrpList[NGRP_TRUCK-1]=GRP_JEL2_TRUCK;
+	//DrivetruckGrpList[NGRP_TRUCK-2]=GRP_JEL1_TRUCK;
+	//DrivetruckGrpList[NGRP_TRUCK-1]=GRP_JEL2_TRUCK;
+	DrivetruckGrpList[NGRP_TRUCK-1]=GRP_JEL_cylinders_TRUCK;
 
 	if(b1980Mesh) Define1980StrutAnimations();
 	else DefineStrutAnimations();
