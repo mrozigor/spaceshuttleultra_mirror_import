@@ -89,7 +89,7 @@ namespace vc
 		}
 		else if(usWidth == 50)
 		{
-			sprintf_s(oapiDebugString(), 255, "StandardTalkback::UpdateTalkback");
+			//sprintf_s(oapiDebugString(), 255, "StandardTalkback::UpdateTalkback");
 			if(label<5) 
 				oapiBlt(surf, g_Param.tkbk_label, talkbackLocation.x, talkbackLocation.y, label*50, 35, usWidth, usHeight);
 			else 
