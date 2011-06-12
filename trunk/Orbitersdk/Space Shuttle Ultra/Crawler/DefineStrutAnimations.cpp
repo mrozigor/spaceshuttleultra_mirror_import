@@ -16,12 +16,12 @@ void Crawler::DefineStrutAnimations()
 	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 0.948, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 	// strut animations
-	static UINT Strut11GrpList[2] = {GRP_CORNERDC_FWD_STEERING_CYLINDER, GRP_CORNER_D_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut11GrpList[2] = {GRP_Corner_D_FWD_steering_cylinder, GRP_Corner_D_FWD_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut11 = new MGROUP_ROTATE(meshidxCrawler, &Strut11GrpList[0], 1, _V(8.289, 2.394, 18.126), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut11);
 	MGROUP_SCALE* Scale_Strut11 = new MGROUP_SCALE(meshidxCrawler, &Strut11GrpList[1], 1, _V(12.447, 2.905, 18.126), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Strut11, parent);
-	static UINT Strut12GrpList[2] = {GRP_CORNER_D_REAR_STEERING_CYLINDER, GRP_CORNER_D_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut12GrpList[2] = {GRP_Corner_D_Rear_steering_cylinder, GRP_Corner_D_Rear_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut12 = new MGROUP_ROTATE(meshidxCrawler, &Strut12GrpList[0], 1, _V(8.286, 2.394, 8.279), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Rotate_Strut12);
 	MGROUP_SCALE* Scale_Strut12 = new MGROUP_SCALE(meshidxCrawler, &Strut12GrpList[1], 1, _V(12.447, 2.905, 8.279), STRUT_SCALE_VECTOR);
@@ -36,12 +36,12 @@ void Crawler::DefineStrutAnimations()
 	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 	// strut animations
-	static UINT Strut21GrpList[2] = {GRP_CORNER_C_FWD_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELDA};
+	static UINT Strut21GrpList[2] = {GRP_Corner_C_FWD_steering_cylinder, GRP_Corner_C_FWD_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut21 = new MGROUP_ROTATE(meshidxCrawler, &Strut21GrpList[0], 1, _V(-8.307, 2.414, 18.125), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut21);
 	MGROUP_SCALE* Scale_Strut21 = new MGROUP_SCALE(meshidxCrawler, &Strut21GrpList[1], 1, _V(-12.465, 2.924, 18.125), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Strut21, parent);
-	static UINT Strut22GrpList[2] = {GRP_CORNER_C_REAR_STEERING_CYLINDER, GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut22GrpList[2] = {GRP_Corner_C_Rear_steering_cylinder, GRP_Corner_C_FWD_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut22 = new MGROUP_ROTATE(meshidxCrawler, &Strut22GrpList[0], 1, _V(-8.307, 2.414, 8.275), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Rotate_Strut22);
 	MGROUP_SCALE* Scale_Strut22 = new MGROUP_SCALE(meshidxCrawler, &Strut22GrpList[1], 1, _V(-12.465, 2.924, 8.275), STRUT_SCALE_VECTOR);
@@ -56,12 +56,12 @@ void Crawler::DefineStrutAnimations()
 	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-2], 1,_V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 	// strut animations
-	static UINT Strut31GrpList[2] = {GRP_CORNER_A_FWD_STEERING_CYLINDER, GRP_CORNER_A_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut31GrpList[2] = {GRP_Corner_A_FWD_steering_cylinder, GRP_Corner_A_FWD_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut31 = new MGROUP_ROTATE(meshidxCrawler, &Strut31GrpList[0], 1, _V(8.289, 2.396, -18.181), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut31);
 	MGROUP_SCALE* Scale_Strut31 = new MGROUP_SCALE(meshidxCrawler, &Strut31GrpList[1], 1, _V(12.449, 2.908, -18.181), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Strut31, parent);
-	static UINT Strut32GrpList[2] = {GRP_CORNER_A_REAR_STEERING_CYLINDER, GRP_CORNER_A_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut32GrpList[2] = {GRP_Corner_A_Rear_steering_cylinder, GRP_Corner_A_Rear_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut32 = new MGROUP_ROTATE(meshidxCrawler, &Strut32GrpList[0], 1, _V(8.289, 2.396, -8.333), _V(0, 0, -1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Rotate_Strut32);
 	MGROUP_SCALE* Scale_Strut32 = new MGROUP_SCALE(meshidxCrawler, &Strut32GrpList[1], 1, _V(12.449, 2.908, -8.333), STRUT_SCALE_VECTOR);
@@ -76,12 +76,12 @@ void Crawler::DefineStrutAnimations()
 	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 	// strut animations
-	static UINT Strut41GrpList[2] = {GRP_CORNER_B_FWD_STEERING_CYLINDER, GRP_CORNER_B_FWD_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut41GrpList[2] = {GRP_Corner_B_FWD_steering_cylinder, GRP_Corner_B_FWD_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut41 = new MGROUP_ROTATE(meshidxCrawler, &Strut41GrpList[0], 1, _V(-8.307, 2.414, -18.191), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut41);
 	MGROUP_SCALE* Scale_Strut41 = new MGROUP_SCALE(meshidxCrawler, &Strut41GrpList[1], 1, _V(-12.465, 2.924, -18.191), STRUT_SCALE_VECTOR);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Strut41, parent);
-	static UINT Strut42GrpList[2] = {GRP_CORNER_B_REAR_STEERING_CYLINDER, GRP_CORNER_B_REAR_STEERING_CYLINDER_DUST_SHIELD};
+	static UINT Strut42GrpList[2] = {GRP_Corner_B_Rear_steering_cylinder, GRP_Corner_B_Rear_steering_cylinder_dust_shield};
 	MGROUP_ROTATE* Rotate_Strut42 = new MGROUP_ROTATE(meshidxCrawler, &Strut42GrpList[0], 1, _V(-8.307, 2.414, -8.343), _V(0, 0, 1), STRUT_ROTATION_ANGLE);
 	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Rotate_Strut42);
 	MGROUP_SCALE* Scale_Strut42 = new MGROUP_SCALE(meshidxCrawler, &Strut42GrpList[1], 1, _V(-12.465, 2.924, -8.343), STRUT_SCALE_VECTOR);
