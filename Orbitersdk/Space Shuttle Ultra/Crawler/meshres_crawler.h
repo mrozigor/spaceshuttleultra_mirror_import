@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for Crawler_mainbody.msh
-// Generated with meshc on Fri Jun 10 20:20:09 2011
+// Generated with meshc on Sun Jun 12 20:39:44 2011
 
 // ========================================================
 
@@ -116,7 +116,7 @@
 #define GRP_Corner_D_Rear_bottom_steering_cylinder_dust_shield 99
 #define GRP_Corner_D_Rear_steering_cylinder 100
 #define GRP_Corner_D_Rear_steering_cylinder_dust_shield 101
-#define GRP_CornerDC_FWD_steering_cylinder 102
+#define GRP_Corner_D_FWD_steering_cylinder 102
 #define GRP_Cylinder01 103
 #define GRP_Cylinder02 104
 #define GRP_Cylinder03 105
