@@ -1,30 +1,142 @@
 // ========================================================
 // Mesh resource file for Crawler_drivetrucks.msh
-// Generated with meshc on Fri Jun 10 20:53:54 2011
+// Generated with meshc on Mon Jun 13 10:39:39 2011
 
 // ========================================================
 
 // Number of mesh groups:
-#define NGRP_TRUCK 14
+#define NGRP_TRUCK 126
 
 // Number of materials:
-#define NMAT_TRUCK 3
+#define NMAT_TRUCK 4
 
 // Number of textures:
 #define NTEX_TRUCK 2
 
 // Named mesh groups:
-#define GRP_Main_truck_assembly_TRUCK 0
+#define GRP_Auxillary_steering_arm_TRUCK 0
 #define GRP_Belt_idlers_TRUCK 1
-#define GRP_Main_truck_assembly_sides_TRUCK 2
-#define GRP_Steering_arms_TRUCK 3
+#define GRP_Belt_tension_adjustors_TRUCK 2
+#define GRP_DC_traction_motor_cylinders_TRUCK 3
 #define GRP_DC_traction_motors_TRUCK 4
-#define GRP_JEL_cylinder_dust_shields_TRUCK 5
-#define GRP_Guide_tube_dust_shield_upper_TRUCK 6
-#define GRP_JEL_cylinders_TRUCK 7
-#define GRP_Guide_tube_dust_shield_lower_TRUCK 8
-#define GRP_Belt_tension_adjustors_TRUCK 9
-#define GRP_Sprockets_TRUCK 10
-#define GRP_Auxillary_steering_arm_TRUCK 11
-#define GRP_DC_traction_motor_cylinders_TRUCK 12
-#define GRP_Guide_tube_TRUCK 13
+#define GRP_Guide_tube_dust_shield_lower_TRUCK 5
+#define GRP_InnerShoe_01_TRUCK 6
+#define GRP_InnerShoe_02_TRUCK 7
+#define GRP_InnerShoe_03_TRUCK 8
+#define GRP_InnerShoe_04_TRUCK 9
+#define GRP_InnerShoe_05_TRUCK 10
+#define GRP_InnerShoe_06_TRUCK 11
+#define GRP_InnerShoe_07_TRUCK 12
+#define GRP_InnerShoe_08_TRUCK 13
+#define GRP_InnerShoe_09_TRUCK 14
+#define GRP_InnerShoe_10_TRUCK 15
+#define GRP_InnerShoe_11_TRUCK 16
+#define GRP_InnerShoe_12_TRUCK 17
+#define GRP_InnerShoe_13_TRUCK 18
+#define GRP_InnerShoe_14_TRUCK 19
+#define GRP_InnerShoe_15_TRUCK 20
+#define GRP_InnerShoe_16_TRUCK 21
+#define GRP_InnerShoe_17_TRUCK 22
+#define GRP_InnerShoe_18_TRUCK 23
+#define GRP_InnerShoe_19_TRUCK 24
+#define GRP_InnerShoe_20_TRUCK 25
+#define GRP_InnerShoe_21_TRUCK 26
+#define GRP_InnerShoe_22_TRUCK 27
+#define GRP_InnerShoe_23_TRUCK 28
+#define GRP_InnerShoe_24_TRUCK 29
+#define GRP_InnerShoe_25_TRUCK 30
+#define GRP_InnerShoe_26_TRUCK 31
+#define GRP_InnerShoe_27_TRUCK 32
+#define GRP_InnerShoe_28_TRUCK 33
+#define GRP_InnerShoe_29_TRUCK 34
+#define GRP_InnerShoe_30_TRUCK 35
+#define GRP_InnerShoe_31_TRUCK 36
+#define GRP_InnerShoe_32_TRUCK 37
+#define GRP_InnerShoe_33_TRUCK 38
+#define GRP_InnerShoe_34_TRUCK 39
+#define GRP_InnerShoe_35_TRUCK 40
+#define GRP_InnerShoe_36_TRUCK 41
+#define GRP_InnerShoe_37_TRUCK 42
+#define GRP_InnerShoe_38_TRUCK 43
+#define GRP_InnerShoe_39_TRUCK 44
+#define GRP_InnerShoe_40_TRUCK 45
+#define GRP_InnerShoe_41_TRUCK 46
+#define GRP_InnerShoe_42_TRUCK 47
+#define GRP_InnerShoe_43_TRUCK 48
+#define GRP_InnerShoe_43_TRUCK 49
+#define GRP_InnerShoe_45_TRUCK 50
+#define GRP_InnerShoe_46_TRUCK 51
+#define GRP_InnerShoe_47_TRUCK 52
+#define GRP_InnerShoe_48_TRUCK 53
+#define GRP_InnerShoe_49_TRUCK 54
+#define GRP_InnerShoe_50_TRUCK 55
+#define GRP_InnerShoe_51_TRUCK 56
+#define GRP_InnerShoe_52_TRUCK 57
+#define GRP_InnerShoe_53_TRUCK 58
+#define GRP_InnerShoe_55_TRUCK 59
+#define GRP_InnerShoe_56_TRUCK 60
+#define GRP_InnerShoe_57_TRUCK 61
+#define GRP_JEL_Guide_cylinder_dust_shields_TRUCK 62
+#define GRP_JEL__Guide_cylinders_TRUCK 63
+#define GRP_Main_truck_assembly_TRUCK 64
+#define GRP_Main_truck_assembly_sides_TRUCK 65
+#define GRP_OuterShoe_01_TRUCK 66
+#define GRP_OuterShoe_02_TRUCK 67
+#define GRP_OuterShoe_03_TRUCK 68
+#define GRP_OuterShoe_04_TRUCK 69
+#define GRP_OuterShoe_05_TRUCK 70
+#define GRP_OuterShoe_06_TRUCK 71
+#define GRP_OuterShoe_07_TRUCK 72
+#define GRP_OuterShoe_08_TRUCK 73
+#define GRP_OuterShoe_09_TRUCK 74
+#define GRP_OuterShoe_10_TRUCK 75
+#define GRP_OuterShoe_11_TRUCK 76
+#define GRP_OuterShoe_12_TRUCK 77
+#define GRP_OuterShoe_13_TRUCK 78
+#define GRP_OuterShoe_14_TRUCK 79
+#define GRP_OuterShoe_15_TRUCK 80
+#define GRP_OuterShoe_16_TRUCK 81
+#define GRP_OuterShoe_17_TRUCK 82
+#define GRP_OuterShoe_18_TRUCK 83
+#define GRP_OuterShoe_19_TRUCK 84
+#define GRP_OuterShoe_20_TRUCK 85
+#define GRP_OuterShoe_21_TRUCK 86
+#define GRP_OuterShoe_22_TRUCK 87
+#define GRP_OuterShoe_23_TRUCK 88
+#define GRP_OuterShoe_24_TRUCK 89
+#define GRP_OuterShoe_25_TRUCK 90
+#define GRP_OuterShoe_26_TRUCK 91
+#define GRP_OuterShoe_27_TRUCK 92
+#define GRP_OuterShoe_28_TRUCK 93
+#define GRP_OuterShoe_29_TRUCK 94
+#define GRP_OuterShoe_30_TRUCK 95
+#define GRP_OuterShoe_31_TRUCK 96
+#define GRP_OuterShoe_32_TRUCK 97
+#define GRP_OuterShoe_33_TRUCK 98
+#define GRP_OuterShoe_34_TRUCK 99
+#define GRP_OuterShoe_35_TRUCK 100
+#define GRP_OuterShoe_36_TRUCK 101
+#define GRP_OuterShoe_37_TRUCK 102
+#define GRP_OuterShoe_38_TRUCK 103
+#define GRP_OuterShoe_39_TRUCK 104
+#define GRP_OuterShoe_40_TRUCK 105
+#define GRP_OuterShoe_41_TRUCK 106
+#define GRP_OuterShoe_42_TRUCK 107
+#define GRP_OuterShoe_43_TRUCK 108
+#define GRP_OuterShoe_44_TRUCK 109
+#define GRP_OuterShoe_45_TRUCK 110
+#define GRP_OuterShoe_46_TRUCK 111
+#define GRP_OuterShoe_47_TRUCK 112
+#define GRP_OuterShoe_48_TRUCK 113
+#define GRP_OuterShoe_49_TRUCK 114
+#define GRP_OuterShoe_50_TRUCK 115
+#define GRP_OuterShoe_51_TRUCK 116
+#define GRP_OuterShoe_52_TRUCK 117
+#define GRP_OuterShoe_53_TRUCK 118
+#define GRP_OuterShoe_55_TRUCK 119
+#define GRP_OuterShoe_56_TRUCK 120
+#define GRP_OuterShoe_57_TRUCK 121
+#define GRP_OuterShoe_58_TRUCK 122
+#define GRP_OuterShoe_58_TRUCK 123
+#define GRP_Sprockets_TRUCK 124
+#define GRP_Steering_arms_TRUCK 125
