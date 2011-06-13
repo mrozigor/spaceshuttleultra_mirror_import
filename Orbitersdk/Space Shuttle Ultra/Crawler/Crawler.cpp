@@ -276,10 +276,11 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	// Tracks
 	MESHHANDLE track = oapiLoadMeshGlobal("SSU\\Crawler_drivetrucks");
+	MESHHANDLE track_reversed = oapiLoadMeshGlobal("SSU\\Crawler_drivetrucks_reversed");
 	
 	//meshoffset = _V(14.539, 1.765, 15.512);
 	VECTOR3 meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
-	meshidxTruck1 = AddMesh(track, &meshoffset);
+	meshidxTruck1 = AddMesh(track_reversed, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck1, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, 15.512);
@@ -289,7 +290,7 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	//meshoffset = _V(14.539, 1.765, -10.359);
 	meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
-	meshidxTruck3 = AddMesh(track, &meshoffset);
+	meshidxTruck3 = AddMesh(track_reversed, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck3, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, -10.359);

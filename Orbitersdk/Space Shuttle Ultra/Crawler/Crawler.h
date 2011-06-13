@@ -87,7 +87,7 @@
 
 //const double DRIVETRACK_X_OFFSET = 14.539;
 //const double DRIVETRACK_Y_OFFSET = 1.765;
-const double FWD_DRIVETRACK_X_OFFSET = 14.45;
+const double FWD_DRIVETRACK_X_OFFSET = 12.30;
 const double REAR_DRIVETRACK_X_OFFSET = -12.30;
 const double DRIVETRACK_Y_OFFSET = 3.05;
 const double DRIVETRACK_Z_OFFSET = 13.5;
