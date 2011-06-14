@@ -265,7 +265,6 @@ class Atlantis: public VESSEL3 {
 	friend class CRT;
 	friend class vc::MDU;
 	friend class vc::DAPControl;
-	friend class dps::OrbitDAP; // temporary until all code is moved to OrbitDAP class
 public:
 	SSUOptions* options;
 	/* **************************************************
@@ -495,6 +494,10 @@ public:
 	 * @return 0 < SSME PC < 1
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
+
+	//Thruster Control; called from OrbitDAP class
+	void EnableThrusters(const int Thrusters[], int nThrusters);
+	void DisableThrusters(const int Thrusters[], int nThrusters);
 
 	/**
 	 * Calls VESSEL::AttachChild and adds mass of child to shuttle mass
@@ -805,9 +808,6 @@ private:
 	//bool CheckLimits(double dNum1, double dNum2, double dLim);
 	//double NullStartAngle(double Rates, AXIS Axis) const;
 
-	//Thruster Control
-	void EnableThrusters(const int Thrusters[], int nThrusters);
-	void DisableThrusters(const int Thrusters[], int nThrusters);
 	void UpdateTranslationForces();
 
 	void UpdateOrbiterTexture(const std::string& strTextureName);
@@ -1125,45 +1125,7 @@ private:
 	double curOMSPitch[2], curOMSYaw[2];
 
 	//DAP
-	/*bool ManeuverinProg;
-	//ManueverinProg is true if attitude is controlled by autopilot
-	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
-	//ManeuverStatus is used to set autopilot actions
-	AttManeuver CurManeuver, FutManeuver;
-	double MNVR_TIME, TimeSinceTgtUpdate;
-	int START_TIME[4]; // day,hour,min,sec
-	int TGT_ID, BODY_VECT;
-	double P, Y, OM;
-	bool MNVR, TRK, ROT;
-	//bool Pitch, Yaw, Roll;
-	bool RotatingAxis[3]; // indicates if shuttle is actively rotating around each axis
-	VECTOR3 InertialOrientationRad, AngularVelocity;
-	VECTOR3 CurrentAttitude;
-	VECTOR3 LVLHOrientationReqd/*, LVLHError, LVLHRateVector;*/
-	MATRIX3 LVLHTgtOrientationMatrix;
-	VECTOR3 RotationAxis;
-	double RotationAngle;
-	VECTOR3 MNVR_OPTION, TRKROT_OPTION, REQD_ATT;
-	MATRIX3 ReqdAttMatrix;
-	VECTOR3 PitchYawRoll, TargetAttM50, TargetAttOrbiter, ReqdRates/*, TrackRates*/;
-	MATRIX3 PitchYawRollMatrix;
-	//ORBITPARAM oparam;
-	//ELEMENTS el;
-	double TrkRate;	
-	double Mass;
-	VECTOR3 PMI, Torque;
-	//DAPConfig A, B, Edit;
-	DAPConfig DAP[3]; //0=A, 1=B, 2=Edit
-	int edit; //0=Blank, 1=A, 2=B
-	int DAPMode[2]; //0=A, 1=B && 0=PRI, 1=ALT, 2=VERN
-	int RotMode[3]; //0=PITCH/DISC RATE, 1=YAW/PULSE, 2=ROLL
-	int TransMode[3]; //0=X/NORM, 1=Y/PULSE, 2=Z
-	enum {AUTO, INRTL, LVLH, FREE} ControlMode;
-	//bool RotPulseInProg[3], TransPulseInProg[3];
-	//VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
-	double RotRate, AttDeadband, RateDeadband, RotPls, TranPls;
-	bool NoseThrusters, TailThrusters, Thrusters; //Enabled/Disabled
-	int JetsEnabled;
+	VECTOR3 ReqdRates;
 
 	vector<double> stage1guidance[2];
 
