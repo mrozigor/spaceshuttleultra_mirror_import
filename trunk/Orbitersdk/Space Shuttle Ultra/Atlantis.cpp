@@ -941,12 +941,12 @@ pActiveLatches(3, NULL)
 	  //MNVR
 	  //PEG7.data[i]=0.0;
 	  //UNIV PTG
-	  MNVR_OPTION.data[i]=0.0;
-	  TRKROT_OPTION.data[i]=0.0;
-	  REQD_ATT.data[i]=0.0;
-	  RotationAxis.data[i]=0.0;
-	  TargetAttOrbiter.data[i]=0.0;
-	  TargetAttM50.data[i]=0.0;
+	  //MNVR_OPTION.data[i]=0.0;
+	  //TRKROT_OPTION.data[i]=0.0;
+	  //REQD_ATT.data[i]=0.0;
+	  //RotationAxis.data[i]=0.0;
+	  //TargetAttOrbiter.data[i]=0.0;
+	  //TargetAttM50.data[i]=0.0;
 	  //Initialize Keyboard Input
 	  DataInput[i].OPS=false;
 	  DataInput[i].ITEM=false;
@@ -958,53 +958,10 @@ pActiveLatches(3, NULL)
 	  sprintf(DataInput[i].input, "");
 	  DataInput[i].InputSize=0;
 	  //Display[i]=NULL;
-	  //Initialize DAP Config
-	  DAP[i].PRI_ROT_RATE=1.0;
-	  DAP[i].PRI_ATT_DB=0.5;
-	  DAP[i].PRI_RATE_DB=0.1;
-	  DAP[i].PRI_ROT_PLS=0.1;
-	  DAP[i].PRI_COMP=0.0;
-  	  DAP[i].PRI_TRAN_PLS=0.2;
-	  DAP[i].PRI_P_OPTION=0;
-	  DAP[i].PRI_Y_OPTION=0;
-	  DAP[i].ALT_RATE_DB=0.2;
-	  DAP[i].ALT_ON_TIME=0.5;
-	  DAP[i].ALT_DELAY=0.5;
-	  DAP[i].ALT_JET_OPT=0;
-	  DAP[i].ALT_JETS=2;
-	  DAP[i].VERN_ROT_RATE=0.25;
-	  DAP[i].VERN_ATT_DB=0.1;
-	  DAP[i].VERN_RATE_DB=0.01;
-	  DAP[i].VERN_ROT_PLS=0.1;
-	  DAP[i].VERN_COMP=0.0;
-	  DAP[i].VERN_CNTL_ACC=0;
-	  //DAP settings
-	  RotMode[i]=0;
-	  TransMode[i]=0;
 	  RotationCommand.data[i]=0.0;
 	  TranslationCommand.data[i]=0.0; 
-	  //RotPulseInProg[i]=false;
-	  //TransPulseInProg[i]=false;
-	  //TransPulseDV.data[i]=0.0;
 	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
   }
-  RotRate=DAP[0].PRI_ROT_RATE;
-  AttDeadband=DAP[0].PRI_ATT_DB;
-  RateDeadband=DAP[0].PRI_RATE_DB;
-  RotPls=DAP[0].PRI_ROT_PLS;
-  TranPls=DAP[0].PRI_TRAN_PLS*fps_to_ms;
-  RotationAngle=0.0;
-  ControlMode=INRTL;
-  DAPMode[0]=0; //A
-  DAPMode[1]=0; //PRI
-  JetsEnabled=3;
-  Thrusters=true;
-  NoseThrusters=true;
-  TailThrusters=true;
-  Torque.data[PITCH]=ORBITER_PITCH_TORQUE;
-  Torque.data[YAW]=ORBITER_YAW_TORQUE;
-  Torque.data[ROLL]=ORBITER_ROLL_TORQUE;
-  //ManeuverComplete=false;
 
   aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
   aerosurfaces.speedbrake = 0.0;
@@ -3820,26 +3777,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
 		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
 		bEngineFail=true;
-	} else if(!_strnicmp(line, "ROLL", 4)) {
-		sscanf(line+4, "%lf", &MNVR_OPTION.data[ROLL]);
-	} else if(!_strnicmp(line, "PITCH", 5)) {
-		sscanf(line+5, "%lf", &MNVR_OPTION.data[PITCH]);
-	} else if(!_strnicmp(line, "YAW", 3)) {
-		sscanf(line+3, "%lf", &MNVR_OPTION.data[YAW]);
-	} else if(!_strnicmp(line, "DAP MODE", 8)) {
-		sscanf(line+8, "%d %d", &DAPMode[0], &DAPMode[1]);
-	} else if(!_strnicmp(line, "ROT MODE", 8)) {
-		sscanf(line+8, "%d %d %d", &RotMode[0], &RotMode[1], &RotMode[2]);
-	} else if(!_strnicmp(line, "TRANS MODE", 10)) {
-		sscanf(line+10, "%d %d %d", &TransMode[0], &TransMode[1], &TransMode[2]);
-	} else if(!_strnicmp(line, "CONTROL MODE", 12)) {
-		//sscanf(line+12, "%d", &ControlMode);
-		int nTemp;
-		sscanf(line+12, "%d", &nTemp);
-		if(nTemp==0) ControlMode=AUTO;
-		else if(nTemp==1) ControlMode=INRTL;
-		else if(nTemp==2) ControlMode=LVLH;
-		else if(nTemp==3) ControlMode=FREE;
 	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
 		action = 0;
 		sscanf(line+10, "%d", &action);
@@ -3994,28 +3931,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_string(scn, "THROTTLE_BUCKET", cbuf);
 	  oapiWriteScenario_float(scn, "HEADS_UP", RollToHeadsUp/fps_to_ms);
   }
-  //MNVR
-  /*if(ops==303 || ops==302 || ops==301 || ops==202 || ops==104 || ops==105 || ops==106) {
-	  oapiWriteScenario_vec(scn, "PEG7", PEG7);
-	  oapiWriteScenario_float(scn, "WT", WT);
-	  sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
-	  oapiWriteScenario_string(scn, "TIG", cbuf);
-	  oapiWriteScenario_float(scn, "TV_ROLL", TV_ROLL);
-	  sprintf_s(cbuf, 255, "%d %d", MNVRLOAD, MnvrToBurnAtt);
-	  oapiWriteScenario_string(scn, "MNVR", cbuf);
-  }*/
-  //DAP
-  oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
-  oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
-  oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
-  sprintf_s(cbuf, 256, "%d %d", DAPMode[0], DAPMode[1]);
-  oapiWriteScenario_string (scn, "DAP MODE", cbuf);
-  sprintf_s(cbuf, 256, "%d %d %d", RotMode[0], RotMode[1], RotMode[2]);
-  oapiWriteScenario_string (scn, "ROT MODE", cbuf);
-  sprintf_s(cbuf, 256, "%d %d %d", TransMode[0], TransMode[1], TransMode[2]);
-  oapiWriteScenario_string (scn, "TRANS MODE", cbuf);
-  sprintf_s(cbuf, 256, "%d", ControlMode);
-  oapiWriteScenario_string (scn, "CONTROL MODE", cbuf);
 
   SavePayloadState(scn);
 
@@ -4841,6 +4756,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 
 			// use RHC pitch commands to drive single joint input
+			// in theory, these discrete lines should only be set if RMS is in SINGLE or DIRECT mode
+			// in practice, RMS code only looks at these discrete lines if in appropriate mode
 			if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
 				RMSDrivePlus.SetLine();
 				RMSDriveMinus.ResetLine();
