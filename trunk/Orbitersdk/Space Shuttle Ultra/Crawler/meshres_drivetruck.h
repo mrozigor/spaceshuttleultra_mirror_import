@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for Crawler_drivetrucks.msh
-// Generated with meshc on Mon Jun 13 10:39:39 2011
+// Generated with meshc on Sat Jun 18 18:38:10 2011
 
 // ========================================================
 
@@ -76,8 +76,8 @@
 #define GRP_InnerShoe_55_TRUCK 59
 #define GRP_InnerShoe_56_TRUCK 60
 #define GRP_InnerShoe_57_TRUCK 61
-#define GRP_JEL_Guide_cylinder_dust_shields_TRUCK 62
-#define GRP_JEL__Guide_cylinders_TRUCK 63
+#define GRP_JEL__Guide_cylinders_TRUCK 62
+#define GRP_JEL_Guide_cylinder_dust_shields_TRUCK 63
 #define GRP_Main_truck_assembly_TRUCK 64
 #define GRP_Main_truck_assembly_sides_TRUCK 65
 #define GRP_OuterShoe_01_TRUCK 66
