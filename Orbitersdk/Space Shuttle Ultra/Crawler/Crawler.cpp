@@ -279,22 +279,22 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	MESHHANDLE track_reversed = oapiLoadMeshGlobal("SSU\\Crawler_drivetrucks_reversed");
 	
 	//meshoffset = _V(14.539, 1.765, 15.512);
-	VECTOR3 meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
+	VECTOR3 meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, FWD_DRIVETRACK_Z_OFFSET);
 	meshidxTruck1 = AddMesh(track_reversed, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck1, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, 15.512);
-	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, FWD_DRIVETRACK_Z_OFFSET);
 	meshidxTruck2 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck2, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(14.539, 1.765, -10.359);
-	meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(FWD_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, REAR_DRIVETRACK_Z_OFFSET);
 	meshidxTruck3 = AddMesh(track_reversed, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck3, MESHVIS_ALWAYS);
 
 	//meshoffset = _V(-12.957, 1.765, -10.359);
-	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, -DRIVETRACK_Z_OFFSET);
+	meshoffset = _V(REAR_DRIVETRACK_X_OFFSET, DRIVETRACK_Y_OFFSET, REAR_DRIVETRACK_Z_OFFSET);
 	meshidxTruck4 = AddMesh(track, &meshoffset);
 	SetMeshVisibilityMode(meshidxTruck4, MESHVIS_ALWAYS);
 
@@ -1108,8 +1108,8 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	// ramp to LC39 starts 390 m from pad and ends 131.5 m from pad
 	if(front_dist < LC39_RAMP_START && abs(relPos.x)<10.0)
 	{
-		double front_dist2 = dist-(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
-		double back_dist2 = dist+(DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
+		double front_dist2 = dist-(FWD_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
+		double back_dist2 = dist+(REAR_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 
 		double front_height = CalcRampHeight(front_dist);
 		double back_height = CalcRampHeight(back_dist);

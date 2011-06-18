@@ -89,13 +89,14 @@
 //const double DRIVETRACK_Y_OFFSET = 1.765;
 const double FWD_DRIVETRACK_X_OFFSET = 12.30;
 const double REAR_DRIVETRACK_X_OFFSET = -12.30;
-const double DRIVETRACK_Y_OFFSET = 3.05;
-const double DRIVETRACK_Z_OFFSET = 13.5;
+const double DRIVETRACK_Y_OFFSET = 3.2;
+const double FWD_DRIVETRACK_Z_OFFSET = 13.5;
+const double REAR_DRIVETRACK_Z_OFFSET = -13.75;
 // offsets between crawler drivetracks and main body mesh
 
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 2.534);
 //const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 4.25, 0.0);
-const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0.0, 0.0);
+const VECTOR3 CRAWLER_MESH_OFFSET = _V(0.0, 0, 0.0);
 
 const static char* CRAWLER_MESHNAME = "SSU\\Crawler_mainbody";
 const static char* CRAWLER_MESHNAME_1980 = "SSU\\Crawler_mainbody_1980";
