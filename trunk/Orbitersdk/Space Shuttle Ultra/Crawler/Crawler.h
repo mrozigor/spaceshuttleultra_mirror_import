@@ -106,7 +106,7 @@ const double JACKING_MAX_HEIGHT = 1.8;
 // According to various sources maxing jacking height is 6 ft(1.8 m)
 
 const int JACK_HEIGHT_COUNT = 3; // # of predefined jacking levels
-const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.0, 0.702, 1.4};
+const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.0, 0.9, 1.8};
 // fully down, docking, clearance
 // heights in meters
 
