@@ -13,7 +13,7 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[0] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
-	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 0.948, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
+	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 	// strut animations
 	static UINT Strut11GrpList[2] = {GRP_Corner_D_FWD_steering_cylinder, GRP_Corner_D_FWD_steering_cylinder_dust_shield};
@@ -33,7 +33,7 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[1] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
-	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
+	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 	// strut animations
 	static UINT Strut21GrpList[2] = {GRP_Corner_C_FWD_steering_cylinder, GRP_Corner_C_FWD_steering_cylinder_dust_shield};
@@ -53,7 +53,7 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[2] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
-	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-2], 1,_V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
+	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-1], 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 	// strut animations
 	static UINT Strut31GrpList[2] = {GRP_Corner_A_FWD_steering_cylinder, GRP_Corner_A_FWD_steering_cylinder_dust_shield};
@@ -73,7 +73,7 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP_TRUCK-2, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	anim_truck_trans[3] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
-	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-2], 1, _V(0, 1.004, 0), _V(1, 1.0935*JACKING_MAX_HEIGHT, 1));
+	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 	// strut animations
 	static UINT Strut41GrpList[2] = {GRP_Corner_B_FWD_steering_cylinder, GRP_Corner_B_FWD_steering_cylinder_dust_shield};
