@@ -168,6 +168,9 @@ const int AID_AVG_HEIGHT_BAR	= 32;
 const int AID_MODE_PBI			= 33;
 const int AID_LDS_AREA          = 40;
 
+const VECTOR3 INNER_BRAKE_DISK_REF_PT = {0.30,-0.97,0.54};
+const VECTOR3 OUTTER_BRAKE_DISK_REF_PT = {1.96,-0.97,0.54};
+
 namespace vc
 {
 	class CrawlerVC;
@@ -343,7 +346,12 @@ private:
 	UINT fwdVCIdx, rearVCIdx;
 	UINT anim_truck_trans[4];
 	UINT anim_truck_rot[4];
+	UINT anim_brake_discs;
+	double brake_discs_state;
 	UINT DrivetruckGrpList[NGRP_TRUCK]; // array used to define drivetruck animations
+	void RedefineBrakingDiscsAnimationRefPoints(); //To update braking discs animation reference points as we are jacking the crawler
+	MGROUP_ROTATE* InnerBrakeDiscs[4];
+	MGROUP_ROTATE* OutterBrakeDiscs[4];
 
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
