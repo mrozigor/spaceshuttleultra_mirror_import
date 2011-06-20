@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for Crawler_drivetrucks.msh
-// Generated with meshc on Mon Jun 20 22:05:03 2011
+// Generated with meshc on Mon Jun 20 22:15:29 2011
 
 // ========================================================
 
@@ -140,4 +140,4 @@
 #define GRP_OuterShoe_58_TRUCK 123
 #define GRP_Sprockets_TRUCK 124
 #define GRP_Steering_arms_TRUCK 125
-#define GRP_DC_traction_motor_brake_discs_inner_TRUCK 126
+#define GRP_DC_traction_motor_brake_discs_outer_TRUCK 126

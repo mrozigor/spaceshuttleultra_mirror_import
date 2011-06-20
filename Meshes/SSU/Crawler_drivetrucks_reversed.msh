@@ -163,7 +163,7 @@ GEOM 96 60 ;Group 0 (Auxillary_steering_arm)  MainCTmaterial
 LABEL Belt_idlers
 MATERIAL 2
 TEXTURE 1
-GEOM 1236 912 ;Group 1 (Belt_idlers) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 1236 912 ;Group 1 (Belt_idlers) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
 -1.51804 -.619059  1.60818  0  .998899 -.0469097  .23221  .457999
 -1.51804 -.621745  1.58707  0  .960644 -.277783  .232885  .458121
 -1.51804 -.628422  1.56926  0  .879947 -.475071  .233454  .458424
@@ -2315,7 +2315,7 @@ GEOM 1236 912 ;Group 1 (Belt_idlers) SSU\CrawlerTransporter_tex_earlyshuttle.dds
 LABEL Belt_tension_adjustors
 MATERIAL 2
 TEXTURE 1
-GEOM 5096 3520 ;Group 2 (Belt_tension_adjustors) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 5096 3520 ;Group 2 (Belt_tension_adjustors) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
 -1.54319 -.835527  3.56173  0  .999823  .0187974  .246098  .486761
 -1.54319 -.839204  3.53789  0  .949934 -.312451  .244718  .486959
 -1.54319 -.847656  3.51789  0  .809922 -.586538  .243469  .486827
@@ -10935,7 +10935,7 @@ GEOM 5096 3520 ;Group 2 (Belt_tension_adjustors) SSU\CrawlerTransporter_tex_earl
 LABEL DC_traction_motor_brake_discs_inner
 MATERIAL 2
 TEXTURE 1
-GEOM 212 184 ;Group 3 (DC_traction_motor_brake_discs_inner) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 212 184 ;Group 3 (DC_traction_motor_brake_discs_inner) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
  .30141 -.968242 -6.40905  0  0  1  .598264  .133965
 -.114135 -.968242 -6.40905  0  0  1  .705345  .133965
 -.0890745 -.826117 -6.40905  0  0  1  .698888  .0982059
@@ -27427,7 +27427,7 @@ GEOM 9624 6464 ;Group 4 (DC_traction_motors)  MainCTmaterial
 LABEL Guide_tube_dust_shield_lower
 MATERIAL 3
 TEXTURE 2
-GEOM 102 96 ;Group 5 (Guide_tube_dust_shield_lower) SSU\CrawlerTubing.dds Mtl#1withTex:SSU\CrawlerTubing
+GEOM 102 96 ;Group 5 (Guide_tube_dust_shield_lower) CrawlerTubing.dds Mtl#1withTex:SSU\CrawlerTubing
  1.11325 -.410199  .109059  0 -1  0  .5  .656564
  1.11325 -.410199  1.21368  0 -1  0  .75  .656564
  1.39915 -.410199  1.17604  0 -1  0  .791667  .656564
@@ -60227,7 +60227,7 @@ GEOM 1762 1488 ;Group 62 (JEL__Guide_cylinders)  MainCTmaterial
 LABEL JEL_Guide_cylinder_dust_shields
 MATERIAL 3
 TEXTURE 2
-GEOM 510 480 ;Group 63 (JEL_Guide_cylinder_dust_shields) SSU\CrawlerTubing.dds Mtl#1withTex:SSU\CrawlerTubing
+GEOM 510 480 ;Group 63 (JEL_Guide_cylinder_dust_shields) CrawlerTubing.dds Mtl#1withTex:SSU\CrawlerTubing
  .61325 -1.82647  1.49722  0 -1  0  .5  1.61034
  .61325 -1.82647  1.81722  0 -1  0  .75  1.61034
  .696072 -1.82647  1.80632  0 -1  0  .791667  1.61034
@@ -64223,7 +64223,7 @@ GEOM 1698 1300 ;Group 64 (Main_truck_assembly)  MainCTmaterial
 LABEL Main_truck_assembly_sides
 MATERIAL 2
 TEXTURE 1
-GEOM 2108 1952 ;Group 65 (Main_truck_assembly_sides) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 2108 1952 ;Group 65 (Main_truck_assembly_sides) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
 -1.56775 -3.0134  .10906  0 -1  0  .799238  .504554
 -1.56775 -3.0134  4.47364  0 -1  0  .799238  .909035
 -1.56775 -2.7439  4.94206 -5.93255E-07 -.866778  .498694  .822287  .952445
@@ -98679,7 +98679,7 @@ GEOM 356 164 ;Group 123 (OuterShoe_58)  Mtl#2
 LABEL Sprockets
 MATERIAL 2
 TEXTURE 1
-GEOM 392 384 ;Group 124 (Sprockets) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 392 384 ;Group 124 (Sprockets) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
  3.37813 -2.25828 -4.81815 -1  0  0  .422322  .473256
  3.37813 -2.2012 -5.63441 -1  0  0  .422322  .412619
  3.37813 -1.99188 -5.59183 -1  0  0  .438017  .414685
@@ -100004,10 +100004,10 @@ GEOM 320 224 ;Group 125 (Steering_arms)  MainCTmaterial
  318  309  317
  307  313  305
  313  307  319
-LABEL DC_traction_motor_brake_discs_inner
+LABEL DC_traction_motor_brake_discs_outer
 MATERIAL 2
 TEXTURE 1
-GEOM 212 184 ;Group 126 (DC_traction_motor_brake_discs_inner) SSU\CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
+GEOM 212 184 ;Group 126 (DC_traction_motor_brake_discs_outer) CrawlerTransporter_tex_earlyshuttle.dds CTtexturewithTex:SSU\CrawlerTransporter_tex_postSTS114
  1.9589 -.968242 -6.40905  0  0  1  .598264  .133965
  2.34938 -.826117 -6.40905  0  0  1  .698888  .0982059
  2.37444 -.968242 -6.40905  0  0  1  .705345  .133965
