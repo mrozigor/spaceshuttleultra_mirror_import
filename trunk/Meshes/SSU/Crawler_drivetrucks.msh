@@ -100004,10 +100004,10 @@ GEOM 320 224 ; Steering_arms
 317 309 318
 305 313 307
 319 307 313
-LABEL DC_traction_motor_brake_discs_inner
+LABEL DC_traction_motor_brake_discs_outer
 MATERIAL 2
 TEXTURE 1
-GEOM 212 184 ; DC_traction_motor_brake_discs_inner
+GEOM 212 184 ; DC_traction_motor_brake_discs_outer
 -1.9589 -0.968242 -6.40905 0.0 0.0 1.0 0.598264 0.133965
 -2.34938 -0.826117 -6.40905 0.0 0.0 1.0 0.698888 0.0982059
 -2.37444 -0.968242 -6.40905 0.0 0.0 1.0 0.705345 0.133965
