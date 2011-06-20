@@ -227,6 +227,7 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 	meshidxTruck4 = 0;
 	hFwdVCMesh = NULL;
 	hRearVCMesh = NULL;
+	brake_discs_state = 0;
 
 	hEarth = NULL;
 
@@ -534,6 +535,20 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	// jacking height may change when going up ramp, so always update height
 	double avgHeight = jackHeight + (curFrontHeight-curBackHeight)/2.0;
 	port_JackHeight.SetLine(avgHeight/JACKING_MAX_HEIGHT);
+
+
+	//braking cylinders animation
+	if(oapiGetTimeAcceleration() == 1) //on time acceleration there are some offsets, so we don't want to animate when time accel is enabled
+	{
+		RedefineBrakingDiscsAnimationRefPoints();
+		brake_discs_state += (simdt*currentSpeed*0.44704/5.252742917)*168; //how many evolutions does the disc per second
+		if(brake_discs_state >= 1)
+			brake_discs_state = 0;
+
+		SetAnimation(anim_brake_discs,brake_discs_state);
+	}
+
+
 }
 
 void Crawler::clbkPostStep(double simt, double simdt, double mjd) {
@@ -1213,6 +1228,29 @@ MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
 {
 	if(cab==vc::FWD) return hFwdVCMesh;
 	else return hRearVCMesh;
+}
+
+void Crawler::RedefineBrakingDiscsAnimationRefPoints()
+{
+	//static UINT GRP_Brake_Discs[2] = {GRP_DC_traction_motor_brake_discs_inner_TRUCK, GRP_DC_traction_motor_brake_discs_outer_TRUCK};
+
+	//brake discs inner truck 1
+	//MGROUP_ROTATE* InnerBrakeDiscs_1 = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(0.31,-0.97-jackHeight,0.54),_V(0,0,1),-(float)360*RAD);
+	//anim_brake_discs[0] = CreateAnimation(0.0);
+	//AddAnimationComponent(anim_brake_discs[0],0,1,InnerBrakeDiscs_1);
+	
+	InnerBrakeDiscs[0]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
+	OutterBrakeDiscs[0]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
+
+	InnerBrakeDiscs[1]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
+	OutterBrakeDiscs[1]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
+
+	InnerBrakeDiscs[2]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
+	OutterBrakeDiscs[2]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
+
+	InnerBrakeDiscs[3]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
+	OutterBrakeDiscs[3]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
+
 }
 
 
