@@ -725,7 +725,7 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			//sscanf_s(line+7,"%s",&ShuttleName,sizeof(ShuttleName));
 			ShuttleName = line+8; // read char array into string
 			char cnam[256];
-			sprintf(cnam,"%s%s","Shuttle name: ",ShuttleName);
+			sprintf(cnam,"%s%s","Shuttle name: ",ShuttleName.c_str());
 			oapiWriteLog(cnam);
 		}
 		else if(bPad1985 && !_strnicmp(line,"RBUS",4)){
