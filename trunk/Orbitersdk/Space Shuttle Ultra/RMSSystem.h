@@ -61,8 +61,10 @@ const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6,
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
 
 //const double RMS_JOINT_ROTATION_SPEED = 1.5;
-const double RMS_JOINT_COARSE_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64};
-const double RMS_JOINT_VERN_ROTATION_SPEEDS[6] = {0.42, 0.42, 0.59, 0.88, 0.88, 0.88};
+const double RMS_JOINT_MAX_ROTATION_SPEED[6] = {20.0, 20.0, 20.0, 20.0, 20.0, 20.0}; // mechanical limits; numbers are made up
+const double RMS_JOINT_COARSE_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64}; // software limits; from PL ID 0
+const double RMS_JOINT_VERN_ROTATION_SPEEDS[6] = {0.42, 0.42, 0.59, 0.88, 0.88, 0.88}; // software limits; from PL ID 0
+// max rotation/translation sppeds from STS-125 PDRS Flight Supplement (PL ID 0)
 // RMS arm joint rotation speed (deg/sec)
 const double RMS_EE_COARSE_ROTATION_SPEED = 4.7*RAD;
 const double RMS_EE_VERN_ROTATION_SPEED = 4.7*RAD;
@@ -112,7 +114,7 @@ public:
 	 * @param positive true if joint should rotate in positive direction
 	 */
 	void RotateJoint(RMS_JOINT joint, bool positive);
-	void TranslateEE(const VECTOR3 &direction);
+	//void TranslateEE(const VECTOR3 &direction);
 
 	//void RotateElbowCam(int pitch, int yaw);
 	//void SetElbowCamRotSpeed(bool low);
@@ -141,9 +143,20 @@ private:
 	void CreateArm();
 	bool ArmStowed() const;
 
-	void Translate(const VECTOR3 &dPos);
-	void Rotate(const VECTOR3 &dAngles); // angles in radians
-	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot);
+	/**
+	 * Calculates new EE position (in IK frame) for given delta pos
+	 * @param dPos change in position (in meters) in selected RMS control frame
+	 * @param newPos new EE position in IK frame
+	 */
+	void Translate(const VECTOR3 &dPos, VECTOR3& newPos);
+	/**
+	 * Calculates new EE rotation parameters (in IK frame) for given Euler angles.
+	 * @param dAngles YZX Euler angles (around RMS control frame) in radians 
+	 * @param newDir new direction vector of EE after rotation in IK frame
+	 * @param newRot new rot vector of EE after rotation in IK frame
+	 */
+	void Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot); // angles in radians
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
 
@@ -182,7 +195,7 @@ private:
 	 * arm_ee_dir and arm_ee_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame
 	 */
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
-	VECTOR3 arm_ee_angles; // angles in radians
+	VECTOR3 arm_ee_angles; // angles in radians; used for some IK modes
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6];
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
