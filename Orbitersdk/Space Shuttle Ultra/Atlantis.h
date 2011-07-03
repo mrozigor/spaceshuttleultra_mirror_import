@@ -1146,6 +1146,7 @@ private:
 
 	// used to trigger RCS sounds
 	int lastRotCommand[3], lastTransCommand[3]; // -1, 0 or 1
+	int lastRMSSJCommand; // -1, 0 or 1
 
 	//DiscPorts
 	DiscInPort SpdbkThrotAutoIn;

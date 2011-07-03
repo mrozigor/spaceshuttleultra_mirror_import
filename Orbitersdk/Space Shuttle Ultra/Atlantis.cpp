@@ -969,6 +969,7 @@ pActiveLatches(3, NULL)
   aerosurfaces.rudder = 0.0;
 
   ControlRMS=false;
+  lastRMSSJCommand=0;
 
   //I-loads
   //stage1guidance_size=0;
@@ -4761,14 +4762,19 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
 				RMSDrivePlus.SetLine();
 				RMSDriveMinus.ResetLine();
+				lastRMSSJCommand = 1;
 			}
 			else if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
 				RMSDrivePlus.ResetLine();
 				RMSDriveMinus.SetLine();
+				lastRMSSJCommand = -1;
 			}
 			else {
-				RMSDrivePlus.ResetLine();
-				RMSDriveMinus.ResetLine();
+				if(lastRMSSJCommand != 0) { // only reset lines once, so Panel A8 joint drive switch works
+					RMSDrivePlus.ResetLine();
+					RMSDriveMinus.ResetLine();
+					lastRMSSJCommand = 0;
+				}
 			}
 		}
 		else { // use RHC/THC input to control RCS

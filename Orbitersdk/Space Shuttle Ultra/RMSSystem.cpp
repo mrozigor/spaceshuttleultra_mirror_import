@@ -265,38 +265,45 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}*/
 		else { // not in single joint mode
+			VECTOR3 newPos = arm_ee_pos;
+			VECTOR3 newDir = arm_ee_dir;
+			VECTOR3 newRot = arm_ee_rot;
+			bool rotateEE=false, translateEE=false;
+
 			// EE rotation
 			VECTOR3 change=_V(0.0, 0.0, 0.0);
-			bool moveEE=false;
+			//bool moveEE=false;
 			for(int i=0;i<3;i++) {
 				if(!Eq(RHCInput[i].GetVoltage(), 0.0, 0.05)) {
 					//change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_ROTATION_SPEED;
 					if(!RMSSpeed) change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_ROTATION_SPEED;
 					else change.data[i]+=(RHCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_ROTATION_SPEED;
-					moveEE=true;
+					rotateEE=true;
 				}
 			}
-			if(moveEE) Rotate(change);
+			if(rotateEE) Rotate(change, newDir, newRot);
 
 			// EE translation
 			change=_V(0.0, 0.0, 0.0);
-			moveEE=false;
+			//moveEE=false;
 			for(int i=0;i<3;i++) {
 				if(!Eq(THCInput[i].GetVoltage(), 0.0, 0.05)) {
 					//change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_TRANSLATION_SPEED;
 					if(!RMSSpeed) change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
 					else change.data[i]+=(THCInput[i].GetVoltage()/5.0)*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
-					moveEE=true;
+					translateEE=true;
 				}
 				else if(ee_translation[i]!=0) {
 					//change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_TRANSLATION_SPEED;
 					if(!RMSSpeed) change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_COARSE_TRANSLATION_SPEED;
 					else change.data[i]+=ee_translation[i]*DeltaT*RMS_EE_VERN_TRANSLATION_SPEED;
 					ee_translation[i]=0;
-					moveEE=true;
+					translateEE=true;
 				}
 			}
-			if(moveEE) Translate(change);
+			if(translateEE) Translate(change, newPos);
+
+			if(translateEE || rotateEE) MoveEE(newPos, newDir, newRot, DeltaT);
 		}
 	}
 
@@ -576,14 +583,14 @@ void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)
 	else joint_motion[joint]=-1;
 }
 
-void RMSSystem::TranslateEE(const VECTOR3 &direction)
+/*void RMSSystem::TranslateEE(const VECTOR3 &direction)
 {
 	for (int i=0;i<3;i++) {
 		if(direction.data[i]>0.25) ee_translation[i]=1;
 		else if(direction.data[i]<-0.25) ee_translation[i]=-1;
 		else ee_translation[i]=0;
 	}
-}
+}*/
 
 /*void RMSSystem::RotateElbowCam(int pitch, int yaw)
 {
@@ -596,7 +603,7 @@ void RMSSystem::TranslateEE(const VECTOR3 &direction)
 	camLowSpeed=low;
 }*/
 
-void RMSSystem::Translate(const VECTOR3 &dPos)
+void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 {
 	if(RMSMode[5].IsSet()) { // END EFF
 		/*VECTOR3 change=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE)*dPos.x;
@@ -606,18 +613,20 @@ void RMSSystem::Translate(const VECTOR3 &dPos)
 
 		VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
 		VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
-		MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
+		//MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
+		newPos = arm_ee_pos+change;
 	}
 	else if(RMSMode[6].IsSet()) { // ORB LD
-		MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
+		//MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
+		newPos = arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
 	}
 }
 
-void RMSSystem::Rotate(const VECTOR3 &dAngles)
+void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 {
 	static const VECTOR3 inDir=_V(0.0, 0.0, -1.0);
 	static const VECTOR3 inRot=RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
-	VECTOR3 newDir, newRot;
+	//VECTOR3 newDir, newRot;
 
 	if(RMSMode[5].IsSet()) { // END EFF mode
 		// NOTE: EE mode rotates relative to camera orientation
@@ -649,28 +658,43 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles)
 		RotateVectorPYR(ee_rot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
 		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);*/
 
-		MoveEE(arm_ee_pos, newDir, newRot);
+		//MoveEE(arm_ee_pos, newDir, newRot);
 		update_angles=true;
 	}
 
 	else if(RMSMode[6].IsSet()) { // ORB LD
-		VECTOR3 newAngles=arm_ee_angles+dAngles;
+		/*VECTOR3 newAngles=arm_ee_angles+dAngles;
 		RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
 		RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
 		newDir=_V(-newDir.z, -newDir.x, newDir.y);
 		newRot=_V(-newRot.z, -newRot.x, newRot.y);
 		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);*/
+
+		//VECTOR3 newAngles=arm_ee_angles+dAngles;
+		//RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
+		//RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
+		//newDir=_V(-newDir.z, -newDir.x, newDir.y);
+		//newRot=_V(-newRot.z, -newRot.x, newRot.y);
+		newDir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
+		RotateVectorPYR(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+		RotateVectorPYR(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
 
-		if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
+		//if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
+		update_angles=true;
 		//else sprintf_s(oapiDebugString(), 255, "%s ERROR: MoveEE returned false", oapiDebugString());
 	}
 }
 
-bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
+bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT)
 {
 	// NOTE: for cross products, |a x b|=|a||b|sin(theta)
 	// all vectors obtained as cross products should be normalized
+
+	double new_joint_angles[6]; // angles in degrees
 
 	VECTOR3 arm_wy_cpos=newPos-newDir*RMS_WY_EE_DIST;
 	double yaw_angle=atan2(arm_wy_cpos.y, arm_wy_cpos.x);
@@ -680,10 +704,10 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	VECTOR3 normal=crossp(boom_plane, _V(0.0, 0.0, 1.0));
 	normal/=length(normal);
 
-	double beta_w;
+	//double beta_w;
 	if((newDir.z>normal.z && newDir.z<boom_plane.z) || (newDir.z<normal.z && newDir.z>boom_plane.z))
-		beta_w=-DEG*acos(dotp(normal, newDir))+90.0;
-	else beta_w=-90.0+DEG*acos(dotp(normal, newDir));
+		new_joint_angles[WRIST_YAW] = -DEG*acos(dotp(normal, newDir))+90.0;
+	else new_joint_angles[WRIST_YAW] = -90.0+DEG*acos(dotp(normal, newDir));
 
 	double phi;
 	//find vector in same plane as arm booms and perpendicular to EE direction
@@ -702,44 +726,64 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	/*sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
 		phi, beta_w);*/
 
-	double theta_w; // wrist roll
-	theta_w=acos(dotp(wp_normal, newRot))*DEG;
+	new_joint_angles[WRIST_ROLL]=acos(dotp(wp_normal, newRot))*DEG;
 	//if((newRot.x>wp_normal.x && newRot.y<wp_normal.y) || (newRot.x<wp_normal.x && newRot.y>wp_normal.y))
 	VECTOR3 cross_product=crossp(wp_normal, newRot);
 	if(Eq(1.0, dotp(cross_product/length(cross_product), newDir), 0.05))
-		theta_w=-theta_w;
+		new_joint_angles[WRIST_ROLL]=-new_joint_angles[WRIST_ROLL];
 
 	VECTOR3 arm_wp_dir=crossp(wp_normal, normal); // wp_normal and normal vectors are perpendicular
 	VECTOR3 arm_wp_cpos=arm_wy_cpos-arm_wp_dir*RMS_WP_WY_DIST;
 	double r=length(arm_wp_cpos);
 
-	double beta_s=-DEG*yaw_angle;
+	new_joint_angles[SHOULDER_YAW] = -DEG*yaw_angle;
 	double rho=sqrt(arm_wp_cpos.x*arm_wp_cpos.x+arm_wp_cpos.y*arm_wp_cpos.y);
 	double cos_phibar_e=(r*r-RMS_SP_EP_DIST*RMS_SP_EP_DIST-RMS_EP_WP_DIST*RMS_EP_WP_DIST)/(-2*RMS_SP_EP_DIST*RMS_EP_WP_DIST);
 	if (fabs(cos_phibar_e)>1) return false;//Can't reach new point with the elbow
-	double phi_e=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
+	new_joint_angles[ELBOW_PITCH]=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
 	double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
 	if(fabs(cos_phi_s2)>1) return false; //Can't reach with shoulder
-	double phi_s=DEG*(atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
+	new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
 
-	//make sure values calculated are within bounds
-	if(beta_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_YAW] || beta_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_YAW]) return false;
-	if(phi_s<RMS_JOINT_SOFTSTOPS[0][SHOULDER_PITCH] || phi_s>RMS_JOINT_SOFTSTOPS[1][SHOULDER_PITCH]) return false;
-	if(phi_e<RMS_JOINT_SOFTSTOPS[0][ELBOW_PITCH] || phi_e>RMS_JOINT_SOFTSTOPS[1][ELBOW_PITCH]) return false;
+	// make sure values calculated are within bounds
+	// make sure speed of each joint is within limits
+	for(int i=SHOULDER_YAW;i<=ELBOW_PITCH;i++)
+	{
+		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
+		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			return false;
+		}
+		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
+		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
+		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
+			return false;
+		}
+	}
 
-	//wrist pitch
-	double phi_w=phi-phi_s-phi_e;
+	new_joint_angles[WRIST_PITCH]=phi-new_joint_angles[SHOULDER_PITCH]-new_joint_angles[ELBOW_PITCH];
 
-	//check values are within bounds
-	if(phi_w<RMS_JOINT_SOFTSTOPS[0][WRIST_PITCH] || phi_w>RMS_JOINT_SOFTSTOPS[1][WRIST_PITCH]) return false;
-	if(beta_w<RMS_JOINT_SOFTSTOPS[0][WRIST_YAW] || beta_w>RMS_JOINT_SOFTSTOPS[1][WRIST_YAW]) return false;
+	// check values are within bounds
+	// make sure speed of each joint is within limits
+	for(int i=WRIST_PITCH;i<=WRIST_YAW;i++)
+	{
+		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
+		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			return false;
+		}
+		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
+		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
+		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
+			return false;
+		}
+	}
 
-	SetJointAngle(SHOULDER_YAW, beta_s);
-	SetJointAngle(SHOULDER_PITCH, phi_s);
-	SetJointAngle(ELBOW_PITCH, phi_e);
-	SetJointAngle(WRIST_PITCH, phi_w);
-	SetJointAngle(WRIST_YAW, beta_w);
-	SetJointAngle(WRIST_ROLL, theta_w);
+	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++) {
+		SetJointAngle(static_cast<RMS_JOINT>(i), new_joint_angles[i]);
+	}
 
 	arm_ee_pos=newPos;
 	arm_ee_dir=newDir;
