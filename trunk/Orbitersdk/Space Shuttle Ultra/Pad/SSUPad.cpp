@@ -300,7 +300,7 @@ void SSUPad::DefineAnimations()
 		static UINT FSS_Y_OWPTransGrp[2] = {GRP_Inner_OWP_Curtain_Wall_structure_FSS, GRP_Inner_OWP_Curtain_Wall_panel_FSS};
 		static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 2, _V(7.2, 0.0, 0.0));
 		AddAnimationComponent(anim_fss_y_owp, 0.769, 1.0, &FSS_Y_OWPTrans, parent);
-		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_North_Curtain_Wall_struts_FSS};
+		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_North_Cutrain_Wall_struts_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
 			_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
 		anim_fss_y_owp_strut=CreateAnimation(0.5);
