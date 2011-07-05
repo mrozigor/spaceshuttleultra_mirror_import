@@ -60139,6 +60139,6 @@ MATERIAL CopyOfMaterial#1
  .9  .9  .9  1  100
  0  0  0  1
 TEXTURES 3
-SSU\SLWT_ETtex.dds 
+SSU\SLWT_ETtex.dds D
 SSU\Cabletray_tex.dds 
 SSU\ET-125_detailtex_launch.dds 
