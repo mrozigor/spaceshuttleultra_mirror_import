@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for LC39A_FSS.msh
-// Generated with meshc on Tue Apr 26 15:15:30 2011
+// Generated with meshc on Tue Jul 05 04:15:23 2011
 
 // ========================================================
 
@@ -43,27 +43,27 @@
 #define GRP_White_Room_FSS 26
 #define GRP_Orbiter_Access_Arm_FSS 27
 #define GRP_FSS_levels_FSS 28
-#define GRP_Lightning_mast_FSS 29
-#define GRP_LIghtning_mast_base_FSS 30
-#define GRP_Photo_target_01_FSS 31
-#define GRP_Photo_target_02_FSS 32
-#define GRP_Photo_target_03_FSS 33
-#define GRP_Photo_target_04_FSS 34
-#define GRP_GVA_access_platform_FSS 35
-#define GRP_Inner_OWP_Curtain_Wall_panel_FSS 36
-#define GRP_Inner_OWP_Curtain_Wall_structure_FSS 37
-#define GRP_Outer_OWP_Curtain_Wall_panel_FSS 38
-#define GRP_Outer_OWP_Curtain_Wall_struts_FSS 39
-#define GRP_GOX_Vent_Hood_FSS 40
-#define GRP_GOX_vent_pipes_FSS 41
-#define GRP_GVA_swing_arm_FSS 42
-#define GRP_GVA_swing_arm_fences_FSS 43
-#define GRP_North_GOX_dockseal_FSS 44
-#define GRP_North_GOX_vent_cylinder_01_FSS 45
-#define GRP_North_GOX_vent_cylinder_02_FSS 46
-#define GRP_North_GOX_vent_cylinder_03_FSS 47
-#define GRP_South_GOX_dockseal_FSS 48
-#define GRP_South_GOX_vent_cylinder_01_FSS 49
-#define GRP_South_GOX_vent_cylinder_02_FSS 50
-#define GRP_South_GOX_vent_cylinder_03_FSS 51
-#define GRP_North_Curtain_Wall_struts_FSS 52
+#define GRP_Outer_OWP_Curtain_Wall_panel_FSS 29
+#define GRP_Inner_OWP_Curtain_Wall_structure_FSS 30
+#define GRP_Lightning_mast_FSS 31
+#define GRP_Inner_OWP_Curtain_Wall_panel_FSS 32
+#define GRP_LIghtning_mast_base_FSS 33
+#define GRP_Photo_target_01_FSS 34
+#define GRP_Photo_target_02_FSS 35
+#define GRP_Photo_target_03_FSS 36
+#define GRP_Photo_target_04_FSS 37
+#define GRP_North_GOX_vent_cylinder_02_FSS 38
+#define GRP_South_GOX_vent_cylinder_02_FSS 39
+#define GRP_South_GOX_vent_cylinder_01_FSS 40
+#define GRP_South_GOX_dockseal_FSS 41
+#define GRP_North_GOX_dockseal_FSS 42
+#define GRP_North_GOX_vent_cylinder_01_FSS 43
+#define GRP_South_GOX_vent_cylinder_03_FSS 44
+#define GRP_GVA_swing_arm_fences_FSS 45
+#define GRP_GVA_swing_arm_FSS 46
+#define GRP_GOX_vent_pipes_FSS 47
+#define GRP_GOX_Vent_Hood_FSS 48
+#define GRP_North_GOX_vent_cylinder_03_FSS 49
+#define GRP_GVA_access_platform_FSS 50
+#define GRP_Outer_OWP_Curtain_Wall_struts_FSS 51
+#define GRP_North_Cutrain_Wall_struts_FSS 52
