@@ -62972,6 +62972,6 @@ MATERIAL Mtl #2
 0.9 0.9 0.9 1.0 0.0
 0.0 0.0 0.0 1.0
 TEXTURES 3
-SSU\SWT_ETtex.dds
+SSU\SWT_ETtex.dds D
 SSU\Cabletray_tex_SWT.dds
 SSU\ET-125_detailtex_launch.dds
