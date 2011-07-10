@@ -675,6 +675,7 @@ pActiveLatches(3, NULL)
   mesh_cargo_static = MESH_UNDEFINED;
   mesh_panela8	  = MESH_UNDEFINED;
   mesh_dragchute  = MESH_UNDEFINED;
+  mesh_heatshield = MESH_UNDEFINED;
 
   vis             = NULL;
 
@@ -801,8 +802,9 @@ pActiveLatches(3, NULL)
   hExtALMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_EXTAL);
   hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
   hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
-
+  hHeatShieldMesh       = oapiLoadMeshGlobal ("SSU/SSU_entry");
   hDevOrbiterMesh = NULL;
+  hDevHeatShieldMesh = NULL;
 
 
   ControlSurfacesEnabled = false;
@@ -1062,6 +1064,13 @@ pActiveLatches(3, NULL)
 	}
 
 	bPLBLights = false;
+
+
+	
+	
+	
+	reentry_flames = NULL;
+
 
 
 }
@@ -2300,6 +2309,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	//Move to UpdateDockAuxAttach(), include animation of docking port.
 	//reject attaching when no docking port available
 	UpdateODSAttachment(ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0), _V(0.0,0.0,1.0));
+	
 
 /*
 dynamic centerline payloads, controlled by the payload 1-3 interfaces
@@ -2469,6 +2479,12 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
+	//ADD REENTRY MESH
+	VECTOR3 ofset = _V(0,0,0);
+	oapiWriteLog("OFSET REENTRY SET");
+	mesh_heatshield = AddMesh(hHeatShieldMesh,&ofset);
+	oapiWriteLog("REENTRY MESH ADDED");
+
 	if(pMission && pMission->WingPaintingEnabled()) {
 		strncpy(WingName, pMission->GetOrbiter().c_str(), 256);
 		SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
@@ -2612,6 +2628,9 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		oapiWriteLog("\tDONE.");
 	}
 
+	
+
+	
   }
 }
 
@@ -3009,6 +3028,8 @@ void Atlantis::UpdateMesh ()
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
   SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
+  SetAnimation (anim_kualpha, plop->KuAntennaStatus.pos);
+  SetAnimation (anim_kubeta, plop->KuAntennaStatus.pos);
   //SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
   //SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
@@ -3144,6 +3165,8 @@ void Atlantis::SetRadiatorPosition (double pos)
 void Atlantis::SetKuAntennaPosition (double pos)
 {
   SetAnimation (anim_kubd, pos);
+  SetAnimation (anim_kualpha, pos);
+  SetAnimation (anim_kubeta, pos);
 }
 
 void Atlantis::SetETUmbDoorPosition (double pos, int door)
@@ -3645,6 +3668,22 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 		  
 	}
 	*/
+
+	////REENTRY STREAM
+	//SURFHANDLE entry = oapiRegisterReentryTexture("Reentry1");
+	//SetReentryTexture(entry,302763);
+	//PS_REENTRY.srcrate = 60;
+	//PS_REENTRY.v0 = 300;
+	//PS_REENTRY.ltype = PS_REENTRY.EMISSIVE;
+	//PS_REENTRY.levelmap = PS_REENTRY.LVL_FLAT;
+	//PS_REENTRY.atmsmap = PS_REENTRY.ATM_FLAT;
+	////PS_REENTRY.amin = 1;
+	//PS_REENTRY.amax = 5;
+	//PS_REENTRY.lifetime = 100;
+	//PS_REENTRY.growthrate = 100;
+	//PS_REENTRY.srcsize = 100;
+	//PS_REENTRY.srcspread = 1000;
+
 }
 
 // --------------------------------------------------------------
@@ -5202,6 +5241,50 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		___PostStep_flag = true;
 	}
 
+	double DynPress = GetDynPressure();
+	double speed = GetAirspeed();
+	double heating = DynPress * speed / 1000000;
+	double heating_factor = 0.2631*heating - 2.9405;
+	double heating_scalar;
+	if(heating_factor>=1)
+		heating_scalar = 1;
+	else if(heating_factor<=0)
+		heating_scalar = 0;
+	else 
+		heating_scalar = heating_factor;
+
+	if(heating_scalar == 0)
+		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_NEVER);
+	else
+		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_ALWAYS);
+	
+
+	//REENTRY HEAT SHIELD
+	if(hDevHeatShieldMesh)
+	{
+		oapiSetMeshProperty(hDevHeatShieldMesh,MESHPROPERTY_MODULATEMATALPHA,(DWORD)1);
+		oapiSetMeshProperty(hHeatShieldMesh,MESHPROPERTY_MODULATEMATALPHA,(DWORD)1);
+		DWORD i,num = oapiMeshMaterialCount(hHeatShieldMesh);
+		for(i=0; i<num; i++)
+		{
+			MATERIAL *mat1 = oapiMeshMaterial(hHeatShieldMesh,i);
+			MATERIAL mat2;
+			memcpy(&mat2,mat1,sizeof(MATERIAL));
+			mat2.ambient.a = heating_scalar;
+			mat2.ambient.b = 255;
+			mat2.ambient.r = 255;
+			mat2.ambient.g = 255;
+			mat2.diffuse.a = heating_scalar;
+			mat2.emissive.a = heating_scalar;
+			mat2.specular.a = heating_scalar;
+			oapiSetMaterial(hDevHeatShieldMesh,i,&mat2);
+			ZeroMemory(&mat2,sizeof(MATERIAL));
+			mat1 = NULL;
+		}
+	
+	}
+
+	sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
@@ -5522,6 +5605,8 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 
 	// get device-specific mesh handles
   hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
+  oapiWriteLog("GETTING DEVMESH");
+  hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
 
 #ifdef UNDEF
   // note: orbiter re-applies the animations to the mesh before calling
@@ -5550,6 +5635,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 void Atlantis::clbkVisualDestroyed (VISHANDLE _vis, int refcount)
 {
   if (vis == _vis) vis = NULL;
+  hDevHeatShieldMesh = NULL;
 }
 
 // --------------------------------------------------------------
@@ -7231,24 +7317,24 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.549,1.878,10.469), _V(0,0,1), (float)(-360*RAD));
+    _V(2.549,1.878,10.469), _V(0,0,1), (float)(-123*RAD)); //originals were -360*RAD   2.549,1.878,10.469
 
 
   static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V(2.549,1.874,10.280), _V(0,1,0), (float)(-162*RAD));
+    _V(2.549,1.874,10.280), _V(0,1,0), (float)(-27*RAD));//original was -162*RAD
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
-  ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     1, &KuBand1);
+  ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0,     0.5, &KuBand1);
 
   anim_kualpha = CreateAnimation(0.0);
   LogAnim("anim_kualpha", anim_kualpha);
-  parent = AddAnimationComponent (anim_kualpha, 0, 1, &KuBand2, parent);
+  parent = AddAnimationComponent (anim_kualpha, 0.71, 1, &KuBand2, parent);
 
   anim_kubeta = CreateAnimation(0.5);
   LogAnim("anim_kubeta", anim_kubeta);
-  AddAnimationComponent (anim_kubeta, 0.0, 0.1, &KuBand3, parent);
+  AddAnimationComponent (anim_kubeta, 0.51, 0.7, &KuBand3, parent);
 
 }
 
