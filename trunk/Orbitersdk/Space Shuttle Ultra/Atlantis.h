@@ -385,6 +385,7 @@ public:
 	UINT mesh_ods;							   // index for	ODS outside mesh
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
+	UINT mesh_heatshield;					   //index for heat shield mesh
 
 	//**********************************************************
 	//* public methods
@@ -582,6 +583,8 @@ public:
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
+	MESHHANDLE hHeatShieldMesh;
+	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
 	char cargo_static_mesh_name[256];
 
@@ -636,6 +639,8 @@ public:
 private:
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
+	PSTREAM_HANDLE reentry_flames;
+	PARTICLESTREAMSPEC PS_REENTRY;
 
 	bool bSRBCutoffFlag;
 	bool bLiftOff;
