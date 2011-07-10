@@ -7317,12 +7317,12 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.549,1.878,10.469), _V(0,0,1), (float)(-123*RAD)); //originals were -360*RAD   2.549,1.878,10.469
+    _V(2.36395,2.04217,10.4731), _V(0,0,1), (float)(-123*RAD)); //originals were -360*RAD   2.549,1.878,10.469
 
 
   static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V(2.549,1.874,10.280), _V(0,1,0), (float)(-27*RAD));//original was -162*RAD
+    _V(2.33638,2.05352,10.3196), _V(0,1,0), (float)(-27*RAD));//original was -162*RAD
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
