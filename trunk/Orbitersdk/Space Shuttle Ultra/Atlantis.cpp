@@ -7309,7 +7309,7 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
-    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-150*RAD));
+    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-120*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
@@ -7326,11 +7326,11 @@ void Atlantis::DefineKUBandAnimations()
 
   anim_kualpha = CreateAnimation(0.0);
   LogAnim("anim_kualpha", anim_kualpha);
-  parent = AddAnimationComponent (anim_kualpha, 0.51, 0.7, &KuBand2, parent);
+  parent = AddAnimationComponent (anim_kualpha, 0.61, 0.8, &KuBand2, parent);
 
   anim_kubeta = CreateAnimation(0.0);
   LogAnim("anim_kubeta", anim_kubeta);
-  AddAnimationComponent (anim_kubeta, 0.71, 1, &KuBand3, parent);
+  AddAnimationComponent (anim_kubeta, 0.81, 1, &KuBand3, parent);
 
 }
 
