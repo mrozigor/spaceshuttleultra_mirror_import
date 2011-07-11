@@ -1037,9 +1037,9 @@ pActiveLatches(3, NULL)
   PLBLightPosition[4] = _V(1.4224,-1.26892,-2.30302);//aft stbd
   PLBLightPosition[5] = _V(-1.4224,-1.26892,-2.30302);//aft port
   static VECTOR3& color = _V(0.75,0.75,0.75);
-  const COLOUR4 diff = {0.75, 0.75, 0.75, 0};
-  const COLOUR4 amb = {0,0,0,0};
-  const COLOUR4 spec = {0,0,0,0};
+  const COLOUR4 diff = {0.8, 0.8, 1, 0};
+  const COLOUR4 amb = {0.0, 0.0, 0};
+  const COLOUR4 spec = {0.8, 0.8, 1,0};
 
 	//CREATE BEACONS
 	for(int i=0; i<6; ++i)
@@ -1433,8 +1433,8 @@ void Atlantis::SetOrbiterConfiguration (void)
 // --------------------------------------------------------------
 void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   SURFHANDLE tex_rcs = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
-  const double eh = 9.0, eh2 = 12.0; // exhaust length scales, 080902, DaveS edit: Increased length for both side, fore/aft and laterally firing jets
-  const double ew1 = 0.4, ew2 = 0.8; // exhaust width scales
+  const double eh = 9.0, eh2 = 25.0; // exhaust length scales
+  const double ew1 = 0.8, ew2 = 0.8; // exhaust width scales
 
   THRUSTER_HANDLE thTmp[10];
   /*PitchActive=true;
@@ -7306,10 +7306,6 @@ void Atlantis::DefineKUBandAnimations()
 {
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
-      // DaveS edit: Animations have now been realigned. Someone better doublecheck the gimbal and dish animations though.
-      // DaveS July 9 2009 edit: Did some research and measurements in GMAX and the deploy/stow rotation angle was seriously off!
-      // Previous was 118°s, while the correct angle is 150°s. This using a chart found in the SCOM and camparing views with a video of OV-103's
-      // KU antenna being deployed at the beginning of the STS-95 mission.
 
   static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
@@ -7317,12 +7313,12 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.36395,2.04217,10.4731), _V(0,0,1), (float)(-123*RAD)); //originals were -360*RAD   2.549,1.878,10.469
+    _V(2.36395,2.04217,10.4731), _V(0,0,1), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
 
   static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V(2.33638,2.05352,10.3196), _V(0,1,0), (float)(-27*RAD));//original was -162*RAD
+    _V(2.33638,2.05352,10.3196), _V(1,0,0), (float)(-66.75*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
@@ -7330,11 +7326,11 @@ void Atlantis::DefineKUBandAnimations()
 
   anim_kualpha = CreateAnimation(0.0);
   LogAnim("anim_kualpha", anim_kualpha);
-  parent = AddAnimationComponent (anim_kualpha, 0.71, 1, &KuBand2, parent);
+  parent = AddAnimationComponent (anim_kualpha, 0.51, 0.7, &KuBand2, parent);
 
-  anim_kubeta = CreateAnimation(0.5);
+  anim_kubeta = CreateAnimation(0.0);
   LogAnim("anim_kubeta", anim_kubeta);
-  AddAnimationComponent (anim_kubeta, 0.51, 0.7, &KuBand3, parent);
+  AddAnimationComponent (anim_kubeta, 0.71, 1, &KuBand3, parent);
 
 }
 
