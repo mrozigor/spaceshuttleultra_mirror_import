@@ -31,6 +31,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 class AerojetDAP : public SimpleGPCSoftware
 {
 private:	
+	//typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STIN} HAC_DIRECTION;
@@ -209,6 +210,8 @@ private:
 	void CSSPitchGuidance(double DeltaT);
 	void CSSRollGuidance(double DeltaT);
 
+	double CalculateTargetDrag();
+
 	void CalculateHACGuidance(double DeltaT);
 	/**
 	 * \param RwyPos position relative to runway threshold in rwy-relative frame
@@ -232,7 +235,12 @@ private:
 	 * \param RwyPos position relative to runway threshold in rwy-relative frame
 	 * \return glideslope for shuttle performing preflare
 	 */
-	double CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const;
+	//double CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const;
+	/**
+	 * \param RwyPos position relative to runway threshold in rwy-relative frame
+	 * \return NZ acceleration for shuttle performing preflare
+	 */
+	double CalculatePreflareNZ(const VECTOR3 &RwyPos) const;
 	/**
 	 * Updates NZCommand variable.
 	 * Also calculates qbar error for speedbrake calculation.

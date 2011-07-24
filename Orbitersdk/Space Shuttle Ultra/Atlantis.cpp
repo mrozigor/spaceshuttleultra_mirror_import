@@ -2336,6 +2336,7 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		8. Static C/L payload 1
 		9.	Static C/L payload 2
 		10. Static C/L payload 3.
+		11. Static C/L payload 4.
 		*/
 	vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
 	
@@ -2366,15 +2367,17 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 
 Pseudo static Port sill payloads (Are static inside the Shuttle, but can later get separated by EVA)
 
-11. Port static 1
-12. Port Static 2
-13. Port Static 3
+12. Port static 1
+13. Port Static 2
+14. Port Static 3
+15. Port Static 4
 
 The same starboard
 
-14. Starboard Static 1
-15. Starboard Static 2
-16. Starboard Static 3
+16. Starboard Static 1
+17. Starboard Static 2
+18. Starboard Static 3
+19. Starboard Static 4
 	*/
 
 	vPayloadPos = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 0.0);
@@ -2435,6 +2438,11 @@ The same starboard
 		}
 	}
 	
+/*
+20. ET
+21. LSRB
+22. RSRB
+*/
 	CreateETAndSRBAttachments(ofs0);
 }
 
@@ -5284,7 +5292,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	
 	}
 
-	sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
+	//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------

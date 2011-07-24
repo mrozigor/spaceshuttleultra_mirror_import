@@ -230,6 +230,9 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		SetAerosurfaceCommands(DeltaT);
 
+		//double tgtDrag = CalculateTargetDrag();
+		//sprintf_s(oapiDebugString(), 255, "Tgt Drag: %f", tgtDrag);
+
 		/*for(int i=0;i<3;i++) {
 			if(AerosurfacesActive[i]) {
 				double Error = degTargetAttitude.data[i] - degCurrentAttitude.data[i];
@@ -452,8 +455,8 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		skp->Line(round(glideslope_center_x)+9, round(glideslope_center_y), round(glideslope_center_x)+4, round(glideslope_center_y));
 		skp->Line(round(glideslope_center_x), round(glideslope_center_y)-10, round(glideslope_center_x), round(glideslope_center_y)-5);
 
-		double guidance_center_x, guidance_center_y;
-		//if(GuidanceMode==PRFNL || GuidanceMode==OGS) {
+		if(TAEMGuidanceMode != FNLFL) {
+			double guidance_center_x, guidance_center_y;
 			VECTOR3 lift, drag;
 			STS()->GetLiftVector(lift);
 			STS()->GetDragVector(drag);
@@ -472,31 +475,32 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
 			//guidance_center_x = hps->CX + (STS()->GetBank()*DEG)*hps->Scale;
 			//guidance_center_x = hps->CX;
-		//}
-		// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
-		bool bValid = true;
-		if(guidance_center_x < 0.0) {
-			bValid = false;
-			guidance_center_x = 0.0;
-		}
-		else if(guidance_center_x > hps->W) {
-			bValid = false;
-			guidance_center_x = hps->W;
-		}
-		if(guidance_center_y < 0.0) {
-			bValid = false;
-			guidance_center_y = 0.0;
-		}
-		else if(guidance_center_y > hps->H-57) {
-			bValid = false;
-			guidance_center_y = hps->H-57;
-		}
-		if(bValid || bHUDFlasher) {
-			skp->MoveTo(round(guidance_center_x)-5, round(guidance_center_y));
-			skp->LineTo(round(guidance_center_x), round(guidance_center_y)+5);
-			skp->LineTo(round(guidance_center_x)+5, round(guidance_center_y));
-			skp->LineTo(round(guidance_center_x), round(guidance_center_y)-5);
-			skp->LineTo(round(guidance_center_x)-5, round(guidance_center_y));
+			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f diff: %f", averageNZ, NZCommand, NZCommand+NZSteadyState-averageNZ);
+			// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
+			bool bValid = true;
+			if(guidance_center_x < 0.0) {
+				bValid = false;
+				guidance_center_x = 0.0;
+			}
+			else if(guidance_center_x > hps->W) {
+				bValid = false;
+				guidance_center_x = hps->W;
+			}
+			if(guidance_center_y < 0.0) {
+				bValid = false;
+				guidance_center_y = 0.0;
+			}
+			else if(guidance_center_y > hps->H-57) {
+				bValid = false;
+				guidance_center_y = hps->H-57;
+			}
+			if(bValid || bHUDFlasher) {
+				skp->MoveTo(round(guidance_center_x)-5, round(guidance_center_y));
+				skp->LineTo(round(guidance_center_x), round(guidance_center_y)+5);
+				skp->LineTo(round(guidance_center_x)+5, round(guidance_center_y));
+				skp->LineTo(round(guidance_center_x), round(guidance_center_y)-5);
+				skp->LineTo(round(guidance_center_x)-5, round(guidance_center_y));
+			}
 		}
 
 		switch(TAEMGuidanceMode) {
@@ -831,6 +835,11 @@ double AerojetDAP::CalculateTargetAOA(double mach) const
 	}
 }
 
+double AerojetDAP::CalculateTargetDrag()
+{
+	return -10.0; // indicate the target drag is not known
+}
+
 void AerojetDAP::CalculateHACGuidance(double DeltaT)
 {
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
@@ -921,8 +930,10 @@ void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 			TAEMGuidanceMode = OGS;
 	}
 	if(TAEMGuidanceMode == OGS) {
-		if(STS()->GetAltitude() <= 1750.0/MPS2FPS) {
-			InitiatePreflare();
+		//if(STS()->GetAltitude() <= 1750.0/MPS2FPS) {
+		if(STS()->GetAltitude() <= 2000.0/MPS2FPS) {
+			//InitiatePreflare();
+			TAEMGuidanceMode = FLARE;
 		}
 		else {
 			if(true) {
@@ -938,9 +949,18 @@ void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 			}
 		}
 	}
-	/*if(GuidanceMode == FLARE) {
-		TargetGlideslope = CalculatePreflareGlideslope(TgtPos);
-	}*/
+	if(TAEMGuidanceMode == FLARE) {
+		//TargetGlideslope = CalculatePreflareGlideslope(TgtPos);
+		NZCommand = CalculatePreflareNZ(TgtPos);
+
+		// check for transition to FLNFL
+		if(STS()->GetAltitude()<80.0) {
+			VECTOR3 horz_airspeed;
+			STS()->GetHorizonAirspeedVector(horz_airspeed);
+			double altThreshold = (horz_airspeed.y - 8.0/MPS2FPS)*6.25 + 30.0/MPS2FPS;
+			if(STS()->GetAltitude()<30.0 || STS()->GetAltitude()<altThreshold) TAEMGuidanceMode = FNLFL;
+		}
+	}
 }
 
 double AerojetDAP::CalculatePrefinalBank(const VECTOR3& RwyPos)
@@ -1067,15 +1087,15 @@ void AerojetDAP::InitiatePreflare()
 	//TargetGlideslope = (STS()->GetPitch() - STS()->GetAOA())*DEG;
 }
 
-double AerojetDAP::CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const
+/*double AerojetDAP::CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const
 {
 	/**
 	 * Offset between IGS aimpoint and rwy threshold
-	 */
+	 *
 	const double IGS_AIMPOINT = -1000.0/MPS2FPS;
 	/**
 	 * Target glideslope at end of flare
-	 */
+	 *
 	const double TGT_IGS = 1.5*RAD;
 
 	return 0.0;
@@ -1091,7 +1111,37 @@ double AerojetDAP::CalculatePreflareGlideslope(const VECTOR3 &RwyPos) const
 	//oapiWriteLog(oapiDebugString());
 	
 	double DeltaT = oapiGetSimStep();
-	return min(TargetGlideslope+(DeltaT*flareRate), -1.5);*/
+	return min(TargetGlideslope+(DeltaT*flareRate), -1.5);
+}*/
+
+double AerojetDAP::CalculatePreflareNZ(const VECTOR3 &RwyPos) const
+{
+	/**
+	 * Offset between IGS aimpoint and rwy threshold
+	 */
+	const double IGS_AIMPOINT = -1000.0/MPS2FPS;
+	/**
+	 * Target glideslope at end of flare
+	 */
+	const double TGT_IGS = 1.5*RAD;
+	/**
+	 * Radius of preflare circle
+	 */
+	const double PREFLARE_RADIUS = 30146.0/MPS2FPS;
+
+	//return 0.0;
+
+	double curGlideslope = STS()->GetPitch() - STS()->GetAOA();
+	double speed = STS()->GetAirspeed();
+	VECTOR3 TgtPos = _V(RwyPos.x+IGS_AIMPOINT, RwyPos.y, RwyPos.z);
+	double flareRate = (speed * ( cos(TGT_IGS)-cos(-curGlideslope)+tan(TGT_IGS)*(sin(TGT_IGS)-sin(-curGlideslope)) )) / (-TgtPos.z+TgtPos.x*tan(TGT_IGS));
+
+	//sprintf_s(oapiDebugString(), 255, "Flare Rate: %f GS: %f", flareRate, NZCommand);
+	//oapiWriteLog(oapiDebugString());
+	//sprintf_s(oapiDebugString(), 255, "TgtPos: %f %f %f", TgtPos.x, TgtPos.y, TgtPos.z);
+	//oapiWriteLog(oapiDebugString());
+	
+	return (PREFLARE_RADIUS*flareRate*flareRate)/G; // NZ required to accelerate in circle
 }
 
 void AerojetDAP::InitializeRunwayData()
