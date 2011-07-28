@@ -56,7 +56,6 @@ STS-101:Atlantis
   CONFIGURATION 3
   CARGODOOR 1 1.0000
   GEAR 0 0.0000
-  OPS 201
 END
 Leonardo:Leonardo_mplm
   STATUS Orbiting Earth

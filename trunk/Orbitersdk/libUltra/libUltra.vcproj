@@ -21,7 +21,7 @@
 			OutputDirectory="./lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -84,7 +84,7 @@
 			OutputDirectory="./lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\MMUTapeImage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\ShuttleBus.cpp"
 				>
 			</File>
@@ -206,7 +210,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\include\AP101Assembler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\BasicAssembler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\BIU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Computer.h"
 				>
 			</File>
 			<File
@@ -242,6 +258,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\MMUTapeImage.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\PanelGroup.h"
 				>
 			</File>
@@ -250,11 +270,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\STSTLM.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Subsystem.h"
 				>
 			</File>
 			<File
 				RelativePath=".\include\SubsystemDirector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\TLMServer.h"
 				>
 			</File>
 			<File

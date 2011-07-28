@@ -36,13 +36,19 @@ namespace discsignals {
 	}
 
 	DiscDemultiplex16::DiscDemultiplex16() {
-
+		usLatch = 0;
 	}
 
 	DiscDemultiplex16::~DiscDemultiplex16() {
 	}
 
 	void DiscDemultiplex16::Propagate(double fSimT, double fDeltaT, double fMJD) {
+		unsigned short x = 0;
+		for(unsigned int i = 0; i<16; i++) {
+			if(r[15-i].IsSet()) x |= 1;
+			x <<= 1;
+		}
+		usLatch = x;
 	}
 
 	

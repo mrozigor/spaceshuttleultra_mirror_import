@@ -495,7 +495,8 @@ pActiveLatches(3, NULL)
 
   pPanelA8 = NULL;
   pExtAirlock = NULL;
-
+  hODSDock = NULL;
+	
 
   psubsystems	  = new AtlantisSubsystemDirector(this);
 
@@ -594,6 +595,12 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pGPC[2] = new dps::AP101S(psubsystems, "GPC3", 3));
   psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
   psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
+  //Create Mass Memory Units
+  psubsystems->AddSubsystem(pMMU[0] = new dps::MMU(psubsystems, "MMU1"));
+  psubsystems->AddSubsystem(pMMU[1] = new dps::MMU(psubsystems, "MMU2"));
+
+  pMMU[0]->SetTapeImage("Data/SSU/MMU1_TEST.dat");
+  pMMU[1]->SetTapeImage("Data/SSU/MMU2_TEST.dat");
 
   psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
 
@@ -1240,6 +1247,7 @@ void Atlantis::SetLaunchConfiguration (void)
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
   status = STATE_PRELAUNCH;
+  
 }
 
 // --------------------------------------------------------------
@@ -1647,6 +1655,18 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   thg_rollright = CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_USER);
   
   UpdateTranslationForces();
+}
+
+bool Atlantis::CreateDockingPort(const VECTOR3& pos)
+{
+	if(hODSDock == NULL)
+	{
+		//return true;
+	}
+	else {
+
+	}
+	return false;
 }
 
 void Atlantis::DisableAllRCS() {

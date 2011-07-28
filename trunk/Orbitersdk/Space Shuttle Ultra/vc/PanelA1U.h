@@ -50,19 +50,19 @@ namespace vc
 		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
 		//void UpdatePBIs();
 
-		StdSwitch3* SignalStrengthSelect;
-		StdSwitch3* SlewAzimuth;
-		StdSwitch3* SlewElevation;
-		StdSwitch2* SlewRate;
-		StdSwitch2* Control;
-		RotaryDemuxSwitch* SteeringMode;
-		StdSwitch2* Search;
-		StdSwitch3* Power;
-		StdSwitch3* Mode;
-		StdSwitch3* RadarOutput;
-		RotaryDemuxSwitch* HighDataRateSP;
-		RotaryDemuxSwitch* LowDataRateSP;
-		LockableLever2* TAGSEncrypt;
+		StdSwitch3* pSignalStrengthSelect;
+		StdSwitch3* pSlewAzimuth;
+		StdSwitch3* pSlewElevation;
+		StdSwitch2* pSlewRate;
+		StdSwitch2* pControl;
+		RotaryDemuxSwitch* pSteeringMode;
+		StdSwitch2* pSearch;
+		StdSwitch3* pPower;
+		StdSwitch3* pMode;
+		StdSwitch3* pRadarOutput;
+		RotaryDemuxSwitch* pHighDataRateSP;
+		RotaryDemuxSwitch* pLowDataRateSP;
+		LockableLever2* pTAGSEncrypt;
 
 	};
 };

@@ -4,7 +4,12 @@
 #include "Atlantis.h"
 #include "AtlantisSubsystem.h"
 
-class KuBandSystem: public AtlantisSubsystem
+namespace comm {
+
+/**
+ * Structural and mechanical model of the deployed assembly.
+ */
+class DeployedAssembly: public AtlantisSubsystem
 {
 	unsigned short usGPCMode[2];
 	double alpha_angle[2];
@@ -16,15 +21,21 @@ class KuBandSystem: public AtlantisSubsystem
 	bool bHeatersOn[2];
 public:
 	virtual double GetAzimuth();
-	virtual bool SetSlew(double fAzimuth, double fElevation);
+	virtual bool SetSlew(double fAlpha, double fBeta);
 	virtual double GetSignalStrength();
-	KuBandSystem(SubsystemDirector* _director);
-	virtual ~KuBandSystem();
+	virtual int GetAlphaResolverAngle() const;
+	virtual int GetBetaResolverAngle() const;
+
+	DeployedAssembly(AtlantisSubsystemDirector* _director);
+	virtual ~DeployedAssembly();
 	virtual bool ParseLine(const char* line);
 	virtual void SaveState(FILEHANDLE scn);
 	virtual void PreStep(double fSimT, double fDeltaT);
 	virtual void PostStep(double fSimT, double fDeltaT);
 	virtual void Propagate(double fSimT, double fDeltaT);
+	
+};
+
 };
 
 #endif

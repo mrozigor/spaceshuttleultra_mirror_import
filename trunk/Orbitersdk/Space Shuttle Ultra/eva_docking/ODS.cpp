@@ -401,6 +401,8 @@ namespace eva_docking {
 		dscu_RingFinalLight.Connect(pBundleB, 8);
 
 		STS()->SetAnimation(anim_ring, RingState.pos);
+
+		
 	}
 
 	void ODS::OnSaveState(FILEHANDLE scn) const

@@ -4,11 +4,20 @@
 
 extern GDIParams g_Param;
 
+const VECTOR3 S1_REF = _V(0.0, 3.048204, 12.22);
+const VECTOR3 S3_REF = _V(0.0, 2.97289, 12.22);
+const VECTOR3 S5_REF = _V(0.0, 2.91259, 12.22);
+
 namespace vc
 {
 	PanelA1U::PanelA1U(Atlantis* _sts)
 		: BasicPanel(_sts, "A1U")
 	{
+		Add(pSignalStrengthSelect = new StdSwitch3(_sts, "SIG STR"));
+		pSignalStrengthSelect->SetLabel(0, "SBAND FM");
+		pSignalStrengthSelect->SetLabel(1, "KU");
+		pSignalStrengthSelect->SetLabel(2, "SBAND PM");
+		
 		/*
 		Add(pCameraPan = new StdSwitch3(_sts, "PAN"));
 		Add(pCameraTilt = new StdSwitch3(_sts, "TILT"));

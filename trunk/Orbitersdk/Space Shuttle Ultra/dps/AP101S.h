@@ -40,7 +40,8 @@ namespace dps {
 
 	class AP101S : public GPC  
 	{
-	
+	static const word32 IPL_BYTES = 512;
+	static const word16 IPL_DEVICE[2];
 	// ===================================================
 	// Random access memory
 	// Important variables are stored inside the lower 
@@ -67,6 +68,9 @@ namespace dps {
 	public:
 		AP101S(AtlantisSubsystemDirector* _director, const string& _ident, unsigned short usGPCID);
 		virtual ~AP101S();
+
+		void OnSubPropagate(double fSimT, double fDeltaT, double fMJD);
+		void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 	};
 
 };

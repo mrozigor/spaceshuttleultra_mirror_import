@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -506,7 +506,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\commGCIL.h"
+				RelativePath=".\commDeployedAssembly.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\commGCIL.cpp"
 				>
 			</File>
 			<File
@@ -630,6 +634,10 @@
 			</File>
 			<File
 				RelativePath=".\MissionFileManagement.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\MMU.cpp"
 				>
 			</File>
 			<File
@@ -941,11 +949,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\commEA1.h"
+				>
+			</File>
+			<File
+				RelativePath=".\commGCIL.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CommonDefs.h"
 				>
 			</File>
 			<File
 				RelativePath=".\vc\DAPControl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DeployedAssembly.h"
 				>
 			</File>
 			<File
