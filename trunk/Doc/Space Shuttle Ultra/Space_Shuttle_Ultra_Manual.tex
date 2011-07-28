@@ -33,7 +33,7 @@
 
 \textsc{\LARGE Space Shuttle Ultra}\\[1.5cm]
 
-\textsc{\Large Version 1.XX  Rev. A}\\[0.5cm]
+\textsc{\Large Version 1.XX  Rev. B}\\[0.5cm]
 
 \huge \bfseries SSU Operations Manual\\[0.4cm]
 
@@ -90,7 +90,7 @@ This document is formated to look the same as the SCOM to facilitate changing fr
 	CONTENTS & \\[0.4cm]
 	1.1	OVERVIEW & 2\\
 	1.2	ORBITER AND SSU & 7\\
-	1.3	COMPONENTS OVERVIEW & \\
+	1.3	COMPONENTS OVERVIEW & 10\\
 	\hline
 \end{tabular}
 \\[0.4cm]
@@ -120,7 +120,7 @@ Also included in this section is keyboard commands for SSU but will not include 
 \addcontentsline{toc}{subsection}{Space Shuttle Overview}
 The space shuttle system consists of four primary elements: an orbiter spacecraft, two solid rocket boosters (SRBs), and external tank (ET) to house fuel and oxidizer, and three space shuttle main engines (SSMEs). The shuttle can transport payloads into near Earth orbit 100 to 312 nm (185 to 577 km) above the Earth. Payloads are carried in a bay 15 feet in diameter and 60 feet long. Major system requirements are that the orbiter and the two SRBs be reusable.\\
 \\
-The orbiter has carries a flight crew of up to eight persons. The nominal mission is 4 to 16 days in space. The crew compartment has a shirtsleeve environment, and the acceleration load is never greater than 3 g's. In its return to Earth, the orbiter has a crossrange maneuvering capability of about 1,100 nm.\\
+The orbiter has carried a flight crew of up to eight persons. The nominal mission is 4 to 16 days in space. The crew compartment has a shirtsleeve environment, and the acceleration load is never greater than 3 g's. In its return to Earth, the orbiter has a crossrange maneuvering capability of about 1,100 nm.\\
 
 \subsection*{\large Nominal Mission Profile}
 \addcontentsline{toc}{subsection}{Nominal Mission Profile}
@@ -164,7 +164,7 @@ At the completion of orbital operations, the RCS is used to orient the orbiter i
 \begin{center}
 \subsection*{Entry}
 \end{center}
-Orbiter reentry is normally controlled automatically by the Digital Autopilot (DAP) from entry interface (EI) through TAEM, to $\sim$ mach 2, where the CDR takes control of the orbiter. This autopilot has yet to be simulated in SSU but manual entry is possible with third party addons that provide more situational awareness then what is currently provided.  A detailed description of reentry procedures will be included later in this document.
+Orbiter reentry is normally controlled automatically by the Aerojet Digital Autopilot (DAP) from entry interface (EI) through TAEM, to $\sim$ mach 2, where the CDR takes control of the orbiter. This autopilot has yet to be simulated in SSU but manual entry is possible with third party addons that provide more situational awareness then what is currently provided.  A detailed description of reentry procedures will be included later in this document.
 \\
 \begin{center}
 \subsection*{TAEM}
@@ -270,7 +270,7 @@ Ctrl+O - toggle between Coarse and and Vern rates\\
 
 \subsection*{\large Camera Views}
 \addcontentsline{toc}{subsection}{Camera Views}
-SSU includes the four payload bay cameras and the docking port centerline camera. The PLB cameras are controled via their switches on panel A7U on the flight deck and are no longer control with a dialog window.
+SSU includes the four payload bay cameras and the docking port centerline camera. The PLB cameras are controled via their switches on panel A7U on the flight deck and are no longer controled with a dialog window.
 
 \subsection*{Navigating the Virtual Cockpit}
 Changing between Virtual Cockpit (VC) views is identical to the system used in the default Atlantis but with several more positions around the cockpit that we call stations. You can switch between different stations using the Ctrl+Arrow key combination (See Chart below for all combinations.) The Commander (CDR) Station is the front left seat on the flight deck, while the Pilot (PLT) station is the right seat (while looking forward).\\
@@ -281,55 +281,62 @@ The table below is set up to show the different ways to move about the crew modu
 	\hline
 	Cockpit View & Left & Right & Up & Down \\
 	\hline \hline
-	CDR & Port Workstation & PLT & ODS & MS1 \\
+	Commander Seat & Port Workstation & Pilot Seat & ODS Camera & MS Seat \\
 	\hline
-	PLT & CDR & Stbd Workstation & ODS & MS2 \\
+	Pilot Seat & Commander Seat & Stbd Workstation & ODS Camera & MS2/FE Seat \\
 	\hline
-	MS1 & Port Workstation & MS2 & CDR & ODS \\
+	MS Seat & Port Workstation & MS2/FE Seat & Commander Seat & ODS Camera\\
 	\hline
-	MS2 & MS1 & Stbd Workstation & PLT & ODS\\
+	MS2/FE Seat & MS Seat & Stbd Workstation & Pilot Seat & ODS Camera\\
 	\hline
-	Port Workstation & RMS Station & CDR & ODS & Middeck\\
+	Port Workstation & RMS Work Station & Commander Seat & ODS Camera & Middeck\\
 	\hline
-	Stbd Workstation & PLT & Aft Pilot & ODS & Aft Workstation\\
+	Stbd Workstation & Pilot Seat & Aft Pilot Station & ODS Camera & Aft Workstation\\
 	\hline
-	Aft Workstation & Stbd Workstation & Port Workstation & RMS Station & MS1\\
+	Aft Workstation & Stbd Workstation & Port Workstation & RMS Work Station & MS Seat\\
 	\hline
-	Aft Pilot & stbd Workstation & RMS Station & ODS & Aft Workstation\\
+	Aft Pilot Station & Stbd Workstation & RMS Work Station & ODS Camera & Aft Workstation\\
 	\hline
-	RMS Station & Aft Pilot & Port Station & ODS & Aft Workstation\\
+	RMS Work Station & Aft Pilot Station & Port Station & ODS Camera & Aft Workstation\\
 	\hline
-	RMS EE & RMS Elbow & - & - & RMS Station\\
+	RMS EE & RMS Elbow & - & - & RMS Work Station\\
 	\hline
-	RMS Elbow & - & RMS EE & - & RMS Station\\
+	RMS Elbow & - & RMS EE & - & RMS Work Station\\
 	\hline
-	PLB Camera A & PLB Camera D & PLB Camera B & RMS EE & ODS\\
+	PLB Camera A & PLB Camera D & PLB Camera B & RMS EE & ODS Camera\\
 	\hline
-	PLB Camera D & PLB Camera C & PLB Camera A & RMS EE & ODS\\
+	PLB Camera D & PLB Camera C & PLB Camera A & RMS EE & ODS Camera\\
 	\hline
-	PLB Camera B & PLB Camera A & PLB Camera C & RMS EE & ODS\\
+	PLB Camera B & PLB Camera A & PLB Camera C & RMS EE & ODS Camera\\
 	\hline
-	PLB Camera C & PLB Camera B & PLB Camera D & RMS EE & ODS\\
+	PLB Camera C & PLB Camera B & PLB Camera D & RMS EE & ODS Camera\\
 	\hline
-	ODS & - & - & PLB Camera D & Aft Pilot\\
+	ODS Camera & - & - & PLB Camera D & Aft Pilot Station\\
 	\hline
 \end{tabular}
 \newpage
-\begin{multicols}{2}
 \subsection*{\large Payload Operations Overview}
 \addcontentsline{toc}{subsection}{ Payload Operations Overview}
-
-
+Payloads are attached through standard Orbiter attachment points. The diagram below will assist in visializing the available attachment locations.\\
+\\
+\includegraphics[width=1\textwidth]{SSU_Attachments.jpg}
+\\
+\\
+\\
+\\
+Currently no payload bay bridgerails are shown, this makes payload berthing in the bay difficalt at best.  If the payload is one that is deployed and later put back into the bay (example: MPLM), be sure to take note of the SRMS joint angles and orbiter XYZ coordenents displayed on panel A8U. For more information on the payload deploment and retreval systems see section 2.9. The scenario file entries needed to add payloads to SSU are covered in section 5 of this manual. \\
+\\
 \newpage
+\begin{multicols}{2}
 \subsection{\large Components Overview}
 
 \begin{tabular}{|p{7cm} p{0.25cm}|}
 	\hline
 	&\\[0.1cm]
 	CONTENTS & \\[0.4cm]
-	Orbiter & \\
-	External Tank & \\
-	Solid Rocket Boosters & \\
+	Orbiter & 10\\
+	External Tank & 11\\
+	Solid Rocket Boosters & 11\\
 	\hline
 \end{tabular}
 \subsection*{\large Orbiter}
@@ -337,22 +344,74 @@ The table below is set up to show the different ways to move about the crew modu
 
 The Orbiter is the manned vehicle component of the Space Shuttle System and is the only component to reach orbital velocities.  The orbiter itself is divided into nine major sections: (1) forward fuselage, which includes the crew compartment, (2) wings, (3) midfuselage, (4) payload bay doors, (5) aft fuselage, (6) forward RCS, (7) vertical tail, (8) OMS/RCS pods, (9) body flap.  Many of these sections are only structural sections of the orbiter and are thus not simulated by SSU. The following descriptions discuss the key sections as they pertain to the user in simulation and point out important systems contained in them.
 
-\begin{center}
+
 \subsection*{Forward Fuselage}
-\end{center}
 The forward fuselage contains the crew compartment, forward RCS module, nose cap, nose gear wheel well with associated gear and doors.  The forward fuselage also contains various antennas, deployable air data probes and the openings for the two star trackers.
 \\
-\begin{center}
+
 \subsection*{Crew Compartment}
-\end{center}
 The crew compartment arrangement consists of three levels, the flight deck, the middeck and the lower equipment bay. Currently only the flight deck and the middeck are simulated in any capacity. The compartment has a side hatch for normal ingress and egress, a hatch into the airlock from the middeck, and a hatch from the airlock into the payload bay for extravehicular activity and payload bay access (Currently none of these hatches are simulated).
 
 \end{multicols}
 \includegraphics[width=1\textwidth]{Orbiter.jpg}
 \begin{multicols}{2}
 
+\newpage
+\begin{center}
+\textbf{Flight Deck}
+\end{center}
+The fight deck is the uppermost compartment in the cabin.  The flight deck is further divided into two halves. The forward flight deck has the commander and pilot work stations and contains controls and displays for controlling the vehical throughout all mission phases. The aft flight deck, the rear section of the deck, contains displays and controls for orbital maneuvers, rendezvous maneurvers, stationkeeping, docking, payload deployment and retrival, playload monitoring, remote manipulator system controls and displays, payload bay door operations, and CCTV operations.  Currently all operations that can be done with SSU are done from the flight deck.
+
+\begin{center}
+\textbf{Middeck}
+\end{center}
+The middeck contains areas for crew life on-orbit.  While some switches that are required to operate equipment on the flight deck are located here, SSU currently does not simulate these switches.  The middeck is modeled and can be entered in the VC but thereare no funtions to be performed there currently.
+\\
+
+\begin{center}
+ \subsection*{Midfuselage}
+\end{center}
+The midfuselage contains the payload bay, payload bay doors, main landing gear wells and gear, fuelcell equipment, and attachment structure for the wings. For SSU, this is where payloads are attached to the orbiter and where most of the PDRS and EVA activity is located. See these system sections for detailed information about systems contained in the midfuselage: 
+\begin{itemize}
+\item 2.6 Mechanical Systems
+\item 2.8 Orbiter Docking System
+\item 2.10 Payload Deployment and Retieval System
+\end{itemize}
+\\
+\begin{center}
+ \subsection*{Aft Fuselage \& OMS/RCS Pods}
+\end{center}
+The aft fuselage holds systems including the APUs, Water Spray Boilers, and the three SSMEs. It also provides attachment structure for the vertical stabilizer, body flap, and the OMS/RCS pods.  The aft OMS/RCS system is interconnected between the left and right pods.
+\\
+\subsection*{\large External Tank}
+\addcontentsline{toc}{subsection}{ External Tank}
+The external tank (ET) contains the liwuid hydrogen and liquid oxygen oxidizer and supplies them under pressure to the three SSMEs in the orbiter during ascent. When the SSMEs are shut down, the ET is jettisoned and enters the Earth's atmosphere, where it breaks up and inpacts in a remote ocean area.\\
+\\
+The ET itself is made up of three main elements, an Oxygen tank, an unpressurized intertank, and a hydrogen tank.  The ET makes up the backbone of the STS stack and provides attachment interfaces for the two Solid Rocket Boosters.\\
+\\
+Because SSU means to simulate historical missions, the different types of ETs have been simulated. The earliest tank used on STS-1 through STS-5 and STS-7, is called a Standard Weight Tank (SWT). The first two of these, used on STS-1 and 2, were painted white to protect the tanks from ultraviolet light.  This was later determined to not be a problem and all later tanks were not painted removing 600 lb of weight from the tank.\\
+\\
+The second version of the ET was called the Lightweight Tank (LWT).  These tanks flew on mission begining with STS-6 and was last used on STS-107.  The last type of tank is the Super Lightweight Tank (SLWT).  These tanks have been used from STS-91 (STS-99 and STS-107 were exceptions) up until the end of the program.\\
+\\
+For SSU, the main difference between these tanks are the weight and visual appernce.  All ETs will show charred SOFI after SRB sep. Eventually, users will be able to attach the ET to the SRBs in the VAB in stacking simulations but this is still early in development and is incomplete.\\
+\\
+\subsection*{\large Solid Rocket Boosters}
+\addcontentsline{toc}{subsection}{ Solid Rocket Boosters}
+The two Solid Rocket Boosters (SRBs) are the largest solid-propellant motors ever flown and the first ever designed for reuse.\\
+\\
+As with the real shuttle SSUs SRBs are attached to the launch platform during prelaunch.  Once the SSMEs have been verified operating normal, the stack is detached from the pad and the SRBs are ignited. The SRBs cannot be turned off and must remain on the vehical until burnout.\\
+\\
+SRB ground operations will include SRB ocean retrival and SRB segment stacking in the VAB. Stacking operations are still incomplete.
 
 \end{multicols}
+\includegraphics[width=0.85\textwidth]{SLWT.jpg}\\
+\\
+\\
+\\
+\\
+\\
+\includegraphics[width=0.85\textwidth]{SRB.jpg}
+
 
 \newpage
 \subfile{SSU_SYSTEMS}
