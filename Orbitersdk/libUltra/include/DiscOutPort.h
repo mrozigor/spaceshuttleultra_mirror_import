@@ -57,6 +57,8 @@ public:
 	DiscMultiplex4();
 	virtual ~DiscMultiplex4();
 	void Set(unsigned char ucNewLatch);
+	void ResetAll();
+	void SetSingle(unsigned int index);
 	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 };
 
@@ -69,6 +71,8 @@ public:
 	DiscMultiplex16();
 	virtual ~DiscMultiplex16();
 	void Set(unsigned short usNewLatch);
+	void ResetAll();
+	void SetSingle(unsigned int index);
 	virtual void Propagate(double fSimT, double fDeltaT, double fMJD);
 };
 

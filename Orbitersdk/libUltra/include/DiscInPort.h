@@ -44,8 +44,8 @@ namespace discsignals {
 	};
 
 	class DiscDemultiplex16: public DiscMultiplex {
-	/*protected:
-		unsigned short usLatch;*/
+	protected:
+		unsigned short usLatch;
 	public:
 		DiscInPort r[16];
 	public:

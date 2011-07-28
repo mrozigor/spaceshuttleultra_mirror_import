@@ -95,6 +95,11 @@ int vabMoveVLCDoor(lua_State *L) {
 }
 
 int vabOpenVLCDoor (lua_State *L) {
+	VAB* vab = lua_toVAB(L, 0);
+	unsigned int bay = (unsigned int)lua_tonumber(L, 1);
+	unsigned int seg = (unsigned int)lua_tonumber(L, 1);
+	bool res = vab->openTo(bay, seg);
+	lua_pushboolean(L, res);
 	return 1;
 }
 

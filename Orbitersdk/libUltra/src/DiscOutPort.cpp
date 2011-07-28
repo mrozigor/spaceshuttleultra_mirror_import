@@ -52,7 +52,41 @@ void DiscOutPort::ResetLine()
 	DiscMultiplex16::~DiscMultiplex16() {
 	}
 
+	void DiscMultiplex16::ResetAll()
+	{
+		for(unsigned int i = 0; i<16; i++)
+		{
+			r[i].ResetLine();
+		}
+	}
+
+	void DiscMultiplex16::SetSingle(unsigned int index)
+	{
+		for(unsigned int i = 0; i<16; i++)
+		{
+			if(i != index)
+			
+				r[i].ResetLine();
+			else
+				r[i].SetLine();
+			
+		}
+	}
+	
+
 	void DiscMultiplex16::Propagate(double fSimT, double fDeltaT, double fMJD) {
+	}
+
+	void DiscMultiplex16::Set(unsigned short usNewLatch)
+	{
+		for(unsigned int i = 0; i<16; i++)
+		{
+			if((usNewLatch & 0x0001) != 0)
+				r[i].SetLine();
+			else
+				r[i].ResetLine();
+			usNewLatch >>= 1;
+		}
 	}
 
 };

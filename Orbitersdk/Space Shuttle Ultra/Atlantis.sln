@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_SRB", "Atlantis_SR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Tank", "Atlantis_Tank.vcproj", "{EE67E0BD-7B53-48FB-893A-C63884245A5D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HALFC", "HALFC\HALFC.vcproj", "{29FF9529-2231-4F21-AA18-37C7A7EA9933}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomMFD", "CRT.vcproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Chute", "Atlantis_Chute.vcproj", "{66D11E71-6424-4736-B0B9-5198C3123337}"
@@ -32,6 +30,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltra", "..\libUltra\libUltra.vcproj", "{EDA1260C-9F5C-478A-B18B-A687101FC234}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSUTruck", "SSUTruck\SSUTruck.vcproj", "{139BA578-15BC-4528-81C5-75841E1A1ABE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssuHLASM", "..\libUltra\toolkit\ssuHLASM\ssuHLASM.vcproj", "{23441DE5-D9E3-4568-93B9-C1893F98D34F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,11 +64,6 @@ Global
 		{EE67E0BD-7B53-48FB-893A-C63884245A5D}.Debug|Win32.Build.0 = Debug|Win32
 		{EE67E0BD-7B53-48FB-893A-C63884245A5D}.Release|Win32.ActiveCfg = Release|Win32
 		{EE67E0BD-7B53-48FB-893A-C63884245A5D}.Release|Win32.Build.0 = Release|Win32
-		{29FF9529-2231-4F21-AA18-37C7A7EA9933}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
-		{29FF9529-2231-4F21-AA18-37C7A7EA9933}.Debug|Win32.ActiveCfg = Debug|Win32
-		{29FF9529-2231-4F21-AA18-37C7A7EA9933}.Debug|Win32.Build.0 = Debug|Win32
-		{29FF9529-2231-4F21-AA18-37C7A7EA9933}.Release|Win32.ActiveCfg = Release|Win32
-		{29FF9529-2231-4F21-AA18-37C7A7EA9933}.Release|Win32.Build.0 = Release|Win32
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
 		{4AE6E2AE-A177-494E-AA66-976B4102DA67}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -135,6 +130,12 @@ Global
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Debug|Win32.Build.0 = Debug|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.ActiveCfg = Release|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.Build.0 = Release|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Debug|Win32.Build.0 = Debug|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Release|Win32.ActiveCfg = Release|Win32
+		{23441DE5-D9E3-4568-93B9-C1893F98D34F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

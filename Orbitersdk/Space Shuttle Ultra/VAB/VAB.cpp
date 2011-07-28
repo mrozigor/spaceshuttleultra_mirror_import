@@ -1,5 +1,40 @@
 #define ORBITER_MODULE
 #include "VAB.h"
+#include "meshres.h"
+
+const UINT VAB_HIGHBAY1_GROUPS[11] = {
+	GRP_HB1HORIZONTALDOORL1, GRP_HB1HORIZONTALDOORL2,
+	GRP_HB1HORIZONTALDOORR1, GRP_HB1HORIZONTALDOORR2,
+	GRP_HB1VLD1, GRP_HB1VLD2, GRP_HB1VLD3,
+	GRP_HB1VLD4, GRP_HB1VLD5, GRP_HB1VLD6,
+	GRP_HB1VLD7
+	};
+
+const UINT VAB_HIGHBAY2_GROUPS[11] = {
+	GRP_HB2HORIZONTALDOORL1, GRP_HB2HORIZONTALDOORL2,
+	GRP_HB2HORIZONTALDOORR1, GRP_HB2HORIZONTALDOORR2,
+	GRP_HB2VLD1, GRP_HB2VLD2, GRP_HB2VLD3,
+	GRP_HB2VLD4, GRP_HB2VLD5, GRP_HB2VLD6,
+	GRP_HB2VLD7
+	};
+
+
+const UINT VAB_HIGHBAY3_GROUPS[11] = {
+	GRP_HB3HORIZONTALDOORL1, GRP_HB3HORIZONTALDOORL2,
+	GRP_HB3HORIZONTALDOORR1, GRP_HB3HORIZONTALDOORR2,
+	GRP_HB3VLD1, GRP_HB3VLD2, GRP_HB3VLD3,
+	GRP_HB3VLD4, GRP_HB3VLD5, GRP_HB3VLD6,
+	GRP_HB3VLD7
+	};
+
+const UINT VAB_HIGHBAY4_GROUPS[11] = {
+	GRP_HB4HORIZONTALDOORL1, GRP_HB4HORIZONTALDOORL2,
+	GRP_HB4HORIZONTALDOORR1, GRP_HB4HORIZONTALDOORR2,
+	GRP_HB4VLD1, GRP_HB4VLD2, GRP_HB4VLD3,
+	GRP_HB4VLD4, GRP_HB4VLD5, GRP_HB4VLD6,
+	GRP_HB4VLD7
+	};
+
 
 DLLCLBK VESSEL* ovcInit(OBJHANDLE hVessel, int iFlightModel)
 {
@@ -49,6 +84,8 @@ void VAB::clbkPostStep(double fSimT, double fDeltaT, double fMJD)
 
 void VAB::clbkPreStep(double fSimT, double fDeltaT, double fMJD)
 {
+	for(unsigned int i = 0; i<4; i++)
+		highbay[i].execute(fDeltaT);
 }
 
 void VAB::clbkSaveState(FILEHANDLE scn)
@@ -73,6 +110,10 @@ void VAB::clbkSetClassCaps(FILEHANDLE cfg)
 
 void VAB::DefineDoorAnimations(void)
 {
+	highbay[0].init(this, midxExterior, _V(1.0, 0.0, 0.0), VAB_HIGHBAY1_GROUPS);
+	highbay[1].init(this, midxExterior, _V(1.0, 0.0, 0.0), VAB_HIGHBAY2_GROUPS);
+	highbay[2].init(this, midxExterior, _V(-1.0, 0.0, 0.0), VAB_HIGHBAY3_GROUPS);
+	highbay[3].init(this, midxExterior, _V(-1.0, 0.0, 0.0), VAB_HIGHBAY4_GROUPS);
 }
 
 void VAB::DefineLightBeacons(void)
@@ -81,4 +122,10 @@ void VAB::DefineLightBeacons(void)
 
 void VAB::DefineLights(void)
 {
+}
+
+bool VAB::openTo(unsigned int hb, unsigned int segpos)
+{
+
+	return false;
 }

@@ -1,5 +1,5 @@
 BEGIN_DESC
-Contains the latest simulation state.
+Beginning of Post-Insertion checklist. Configure GPCs for OPS2, Aft Station config, PLBD opening and Ku-Band activation.
 END_DESC
 
 BEGIN_ENVIRONMENT
@@ -177,9 +177,9 @@ Columbia:SpaceShuttleUltra
 @ENDSUBSYSTEM		;EIU3
 @SUBSYSTEM MTU
   MET_RUNNING 1
-  MET0 5336.928688
-  MET1 5336.928688
-  MET2 5336.928688
+  MET0 3000.000000
+  MET1 3000.000000
+  MET2 3000.000000
 EVENT_TIMER0 0.000000 DOWN STOPPED
 EVENT_TIMER1 0.000000 DOWN STOPPED
 @ENDSUBSYSTEM		;MTU

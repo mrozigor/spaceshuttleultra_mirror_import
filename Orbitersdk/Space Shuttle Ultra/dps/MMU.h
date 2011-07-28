@@ -23,16 +23,24 @@
 
   **************************************************************************/
 #pragma once
-
+#include "dps_defs.h"
 #include "../AtlantisSubsystem.h"
+#include "BIU.h"
+#include <discsignals.h>
 
 namespace dps {
 
 	class MMU: public AtlantisSubsystem {
+		HANDLE tape_image;
+		word16 block_buffer[512];
+	protected:
+		bool WriteToBlock(short block_index);
+		bool ReadBlock(short block_index);
 	public:
-		MMU(SubsystemDirector* _direct, const string& _ident);
+		MMU(AtlantisSubsystemDirector* _direct, const string& _ident);
 		virtual ~MMU();
-		BIU channel;
+		void SetTapeImage(const std::string& img_file);
+		BusTerminal channel;
 		DiscInPort power_on;
 	};
 };

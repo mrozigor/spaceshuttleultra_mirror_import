@@ -43,6 +43,7 @@
 #include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
+#include "dps/MMU.h"
 #include "eps/eps_defs.h"
 #include "gnc/IMU.h"
 #include "mission/Mission.h"
@@ -311,6 +312,7 @@ public:
 	dps::MDM* pLR[2];
 	dps::MDM* pFMDM[2];
 	dps::GPC* pGPC[5];
+	dps::MMU* pMMU[2];
 	OMSSubsystem* pOMS;
 	gnc::IMU* pIMU[3];
 	mps::SSME* pSSME[3];
@@ -517,6 +519,16 @@ public:
 	virtual ATTACHMENTHANDLE GetODSAttachment() const;
 
 	/**
+	 * If no docking port yet defined, create new only docking port at that location
+	 * If docking port already defined and no vessel docked, move to new position.
+	 * Otherwise, the function fails.
+	 * 
+	 * @param pos The desired position of the docking port in body coordinates
+	 * @return true if successful and docking port at the desired location, false if failed. 
+	 */
+	virtual bool CreateDockingPort(const VECTOR3& pos);
+
+	/**
 	 * Wrapper for AddAnimationComponent
 	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by Atlantis destructor
 	 */
@@ -639,6 +651,7 @@ public:
 private:
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
+	DOCKHANDLE hODSDock;
 	PSTREAM_HANDLE reentry_flames;
 	PARTICLESTREAMSPEC PS_REENTRY;
 

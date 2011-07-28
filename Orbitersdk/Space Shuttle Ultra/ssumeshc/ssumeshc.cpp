@@ -7,9 +7,10 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <ctime>
 #include <set>
 
-const std::string SSUMESHC_VERSION = "0.1";
+const std::string SSUMESHC_VERSION = "0.2";
 
 std::wstring input_file_name = L"";
 std::wstring output_file_name = L".\\meshres.h";
@@ -23,6 +24,31 @@ struct LABEL_GROUP {
 };
 
 std::vector<LABEL_GROUP> labels;
+
+const std::string& ToAlphaCode(unsigned long number)
+{
+	static std::string __result;
+	std::string a;
+	__result = "";
+
+	if(number == 0)
+		return __result;
+	
+	while(number>0)
+	{
+		if(number > 26)
+		{
+			a = ((char)('A' + (number%26)));
+			number /= 26;
+		} else {
+			a = ((char)('A' + (number - 1)));
+			number = 0;
+		}
+		
+		__result = a + __result;
+	}
+	return __result;
+}
 
 void ParseMesh()
 {
@@ -52,12 +78,18 @@ void ParseMesh()
 
 void WriteHeaderFile() 
 {
+	
+	char date_buf[400];
+	time_t time_buf = time(NULL);
+	ctime_s(date_buf, 400, &time_buf);
+
 	std::ofstream hfile;
 	std::set<std::string> existing_symbols;
 	existing_symbols.clear();
 	hfile.open(output_file_name.c_str());
 	hfile << "// ======================================================" << std::endl;
 	hfile << "// Created by ssumeshc " << SSUMESHC_VERSION << std::endl;
+	hfile << "// Date of conversion : " << date_buf << std::endl;
 	hfile << "// Input file: " << std::string(input_file_name.begin(), input_file_name.end()) << std::endl;
 	hfile << "// ======================================================" << std::endl;
 	hfile << std::endl;
@@ -87,11 +119,10 @@ void WriteHeaderFile()
 
 		if(existing_symbols.find(tmp) != existing_symbols.end()) {
 			std::string temp;
-			char apc = 'A';
+			unsigned long attempt = 0;
 			do{
-				temp = tmp;
-				temp += apc;
-				apc++;
+				temp = tmp + ToAlphaCode(attempt);
+				attempt++;
 			} while(existing_symbols.find(temp) != existing_symbols.end());
 			tmp = temp;
 		}
@@ -106,8 +137,25 @@ void WriteHeaderFile()
 	hfile.close();
 }
 
+void printhelp()
+{
+	std::wstring temp;
+	temp.assign(SSUMESHC_VERSION.begin(), SSUMESHC_VERSION.end());
+	std::wcout << "SSU Mesh labels to C++ converter. Version " 
+		<< temp << "." << std::endl;
+	std::wcout << "Syntax: ssumeshc [OPTIONS] FILE" << std::endl;
+	std::wcout << std::endl;
+	std::wcout << "OPTIONS:" << std::endl;
+	std::wcout << "   -o FILE     Set output file" << std::endl; 
+	std::wcout << "   -p PREFIX   Set symbol prefix" << std::endl; 
+	std::wcout << "   -s SUFFIX   Set symbol suffix" << std::endl; 
+	std::wcout << "   -? -h       Display this help" << std::endl;
+
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	bool bValidInput = false;
 	if(argc < 1)
 	{
 		std::wcerr << L"No mesh file given as input." << std::endl;
@@ -132,21 +180,40 @@ int _tmain(int argc, _TCHAR* argv[])
 				output_file_name.assign(argv[i]+2);
 
 				break;
+			case L'?':
+			case L'h':
+				printhelp();
+				return 0;
+			default:
+				std::wcerr << L"ERROR: Illegal parameter : " << argv[i] << std::endl;
+				printhelp();
+				return 1;
 			}
 		} else {
-			std::wcout << "input=" << argv[i] << std::endl;
+			//std::wcout << "input=" << argv[i] << std::endl;
 			input_file_name.assign(argv[i]);
+			bValidInput = true;
 		}
 	}
-	std::wcout << L"Input File name: " << input_file_name.c_str() << std::endl;
-	std::wcout << L"Output File name: " << output_file_name.c_str() << std::endl;
-	std::wcout << L"Constant prefix: " << std::wstring(constant_prefix.begin(), constant_prefix.end()) << std::endl;
-	std::wcout << L"Constant suffix: " << std::wstring(constant_suffix.begin(), constant_suffix.end()) << std::endl;
 
-	std::wcout << L"Parse mesh file..." << std::endl;
-	ParseMesh();
+	if(bValidInput)
+	{
+		std::wcout << L"Input File name: " << input_file_name.c_str() << std::endl;
+		std::wcout << L"Output File name: " << output_file_name.c_str() << std::endl;
+		std::wcout << L"Constant prefix: " << std::wstring(constant_prefix.begin(), constant_prefix.end()) << std::endl;
+		std::wcout << L"Constant suffix: " << std::wstring(constant_suffix.begin(), constant_suffix.end()) << std::endl;
 
-	WriteHeaderFile();
-	return 0;
+		std::wcout << L"Parse mesh file..." << std::endl;
+		ParseMesh();
+
+		WriteHeaderFile();
+		return 0;
+	}
+	else {
+		std::wcerr << L"ERROR: No input file specified." << std::endl;
+		printhelp();
+		return 1;
+	}
+	
 }
 

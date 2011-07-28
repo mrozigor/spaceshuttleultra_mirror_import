@@ -8,6 +8,8 @@ namespace comm {
 		GCIL(AtlantisSubsystemDirector* _direct);
 		virtual ~GCIL();
 
+		void OnPropagate(double fSimT, double fDeltaT, double fMJD);
+
 		discsignals::DiscInPort command_enable;
 		discsignals::DiscInPort panel_enable;
 
