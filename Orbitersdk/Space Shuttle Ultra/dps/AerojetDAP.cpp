@@ -254,11 +254,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//oapiWriteLog(oapiDebugString());
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
-			//steerforce = 275000/3*steerforce*GetControlSurfaceLevel(AIRCTRL_RUDDER);
-			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
+			steerforce = 27500/3*steerforce*STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+			//steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
 			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
-			//SetNosewheelSteering(true);
+			//sprintf_s(oapiDebugString(), 255, "NWS force: %f", steerforce);
 		}
 		else {
 			//oapiWriteLog("No WONG");
@@ -318,7 +318,13 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
 
 			// check for weight-on-nose-gear
-			if(STS()->GroundContact() && STS()->GetPitch() < -3.5*RAD) bWONG = true;
+			if(STS()->GroundContact() && STS()->GetPitch() < -3.0*RAD) {
+				bWONG = true;
+				// set default positions of control surfaces to zero
+				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
+			}
 		}
 		break;
 	}
@@ -566,6 +572,12 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		else HACSide = R;
 		return true;
 	}
+	else if(!_strnicmp(keyword, "TAEM_GUIDANCE", 13)) {
+		int nTemp;
+		sscanf_s(value, "%d", &nTemp);
+		if(nTemp>=0 && nTemp<=FNLFL) TAEMGuidanceMode=static_cast<TAEM_GUIDANCE_MODE>(nTemp);
+		return true;
+	}
 	return false;
 }
 
@@ -575,6 +587,7 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	if(SEC) oapiWriteScenario_string(scn, "SEC", "TRUE");
 	if(HACSide==L) oapiWriteScenario_string(scn, "SIDE", "L");
 	else oapiWriteScenario_string(scn, "SIDE", "R");
+	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 }
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
