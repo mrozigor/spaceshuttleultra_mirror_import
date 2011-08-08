@@ -365,6 +365,15 @@
     <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="commDeployedAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="commGCIL.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MMU.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -662,6 +671,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\RSLS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="DeployedAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
