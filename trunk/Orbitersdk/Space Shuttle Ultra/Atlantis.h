@@ -694,18 +694,6 @@ private:
 	void SeparateMMU (void);
 	void SeparateTank (void);
 	
-	/**
-	 * Draws pitch ladder line on HUD.
-	 * Rotated font (for labelling line) is assumed to be selected into sketchpad
-	 * @param skp HUD Sketchpad instance
-	 * @param hps HUD HUDPAINTSPEC instance
-	 * @param ladderPitch pitch corresponding to line being drawn
-	 * @param orbiterPitch current pitch angle of orbiter
-	 * @param orbiterBank current bank angle of orbiter
-	 * @returns false if line is out of HUD area; true otherwise
-	 */
-	bool DrawHUDPitchLine(oapi::Sketchpad* skp, const HUDPAINTSPEC* hps, int ladderPitch, double orbiterPitch, double orbiterBank) const;
-
 	void SSMEEngControl(unsigned short usEng) const;
 	void OMSEngControl(unsigned short usEng);
 
@@ -740,6 +728,15 @@ private:
 	void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
+	/**
+	 * Creates fake thrusters for THC, RHC and SPDBK/THROT input
+	 */
+	void CreateDummyThrusters();
+
+	/**
+	 * Updates discrete port values for all hand controllers (RHC, THC, SPDBK/THROT).
+	 */
+	void UpdateHandControllerSignals();
 
 	//Landing Gear
 	void DeployLandingGear();
@@ -957,6 +954,8 @@ private:
 	THRUSTER_HANDLE th_att_rcs[18];            // 12 for rotation, 6 virtual
 	THRUSTER_HANDLE th_att_lin[10];
 
+	bool bSSMEsDefined, bOMSDefined, bRCSDefined, bControllerThrustersDefined;
+
 	/**
 	 * Used for the preflight GOX venting of the SSMEs.
 	 */
@@ -1021,6 +1020,7 @@ private:
 	VECTOR3 TransForce[2]; //force provided by translation groups; 0=plus-axis
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
+	std::vector<UINT> vExRCS;				   // RCS exhaust
 	bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
@@ -1177,6 +1177,7 @@ private:
 	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
+	DiscOutPort SpdbkThrotPort;
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
 	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;

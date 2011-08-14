@@ -1,5 +1,6 @@
 // GPC Code
 #include "Atlantis.h"
+#include "Atlantis_defs.h"
 #include "ParameterValues.h"
 #include "util/Stopwatch.h"
 #include <OrbiterSoundSDK35.h>
@@ -382,14 +383,24 @@ void Atlantis::Throttle(double dt)
 		case 1:
 			if(!bThrottle) return;
 			if(GetAirspeed()<18.288) 
-				SetThrusterGroupLevel(THGROUP_MAIN, 100.0/109.0);
+				SetSSMEThrustLevel(0.0, 100.0/109.0);
 			else if(GetAirspeed()>=Throttle_Bucket[0] && GetAirspeed()<=Throttle_Bucket[1]) {
-				if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
-				else SetThrusterGroupLevel(THGROUP_MAIN, 72.0/109.0);
+				//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
+				//else SetSSMEThrustLevel(0, 72.0/109.0);
+				for(unsigned short i=1;i<=3;i++) {
+					double thrustLevel = GetSSMEThrustLevel(i);
+					if(thrustLevel > (72.0/109.0)) SetSSMEThrustLevel(i, thrustLevel - 0.1*dt);
+					else SetSSMEThrustLevel(i, 72.0/109.0);
+				}
 			}
 			else {
-				if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
-				else SetThrusterGroupLevel(THGROUP_MAIN, MaxThrust/109.0);
+				//if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
+				//else SetSSMEThrustLevel(0, MaxThrust/109.0);
+				for(unsigned short i=1;i<=3;i++) {
+					double thrustLevel = GetSSMEThrustLevel(i);
+					if(thrustLevel < (MaxThrust/109.0)) SetSSMEThrustLevel(i, thrustLevel + 0.1*dt);
+					else SetSSMEThrustLevel(i, MaxThrust/109.0);
+				}
 			}
 			break;
 		case 2:
@@ -407,7 +418,7 @@ void Atlantis::Throttle(double dt)
 			if(!bThrottle) return;
 			if(a0>=29.00) { //28.42
 				for(int i=0;i<3;i++) {
-					if(GetThrusterLevel(th_main[i])> (67.0/109.0))
+					if(GetThrusterLevel(th_main[i]) > (67.0/109.0))
 						IncThrusterLevel(th_main[i], -0.01);
 					else SetThrusterLevel(th_main[i], 67.0/109.0);
 				}
@@ -430,7 +441,8 @@ void Atlantis::GPC(double simt, double dt)
 {
 	switch(ops) {
 		case 101:
-			if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
+			//if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
+			if(status>=STATE_STAGE1) Throttle(dt);
 			break;
 		case 102:
 			Throttle(dt);

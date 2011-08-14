@@ -137,6 +137,7 @@ void AerojetDAP::Realize()
 	for(int i=0;i<3;i++) {
 		RHCInput[i].Connect(pBundle, i);
 	}
+	SpdbkThrotPort.Connect(pBundle, 6);	
 
 	pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
 	//LeftElevonCommand.Connect(pBundle, 0);
@@ -316,6 +317,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			SetAerosurfaceCommands(DeltaT);
 			if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
+			else STS()->SetSpeedbrake(SpdbkThrotPort.GetVoltage());
 
 			// check for weight-on-nose-gear
 			if(STS()->GroundContact() && STS()->GetPitch() < -3.0*RAD) {
