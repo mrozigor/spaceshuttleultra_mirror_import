@@ -108,6 +108,7 @@ private:
 	
 	DiscInPort PitchAuto, RollYawAuto;
 	DiscInPort SpeedbrakeAuto;
+	DiscInPort SpdbkThrotPort;
 	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
