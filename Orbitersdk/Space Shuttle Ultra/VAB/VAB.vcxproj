@@ -91,10 +91,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Highbay.cpp" />
     <ClCompile Include="VAB.cpp" />
     <ClCompile Include="VAB_lua.cpp" />
+    <ClCompile Include="VLDAnimation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="meshres.h" />
     <ClInclude Include="VAB.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
