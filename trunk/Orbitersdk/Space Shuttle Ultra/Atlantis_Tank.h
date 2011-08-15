@@ -6,7 +6,7 @@
 
 //const static char* DEFAULT_MESHNAME_ET = "SSU/SLWT";
 const static char* SWT_MESHNAME_ET = "SSU/SWT";
-const static char* LWT_MESHNAME_ET = "SSU/SLWT";
+const static char* LWT_MESHNAME_ET = "SSU/LWT";
 const static char* SLWT_MESHNAME_ET = "SSU/SLWT";
 
 //const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/SLWT_ETtex.dds";
