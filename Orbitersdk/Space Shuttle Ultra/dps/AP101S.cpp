@@ -38,6 +38,9 @@ namespace dps {
 
 	void AP101S::OnSubPropagate(double fSimT, double fDeltaT, double fMJD)
 	{
+
+	}
+	/*{
 		
 		//instructions per second: 1 million
 		//Execute code
@@ -76,6 +79,6 @@ namespace dps {
 			}
 		}
 
-	}
+	}*/
 
 };
