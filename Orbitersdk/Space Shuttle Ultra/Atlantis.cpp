@@ -4531,9 +4531,10 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		___PreStep_flag = true;
 	}
 
-	//Stopwatch st;
+	//Stopwatch st, stSub;
 	//st.Start();
 
+	//stSub.Start();
 	psubsystems->PreStep(simT, simDT, mjd);
 	pgLeft.OnPreStep(simT, simDT, mjd);
 	pgForward.OnPreStep(simT, simDT, mjd);
@@ -4543,6 +4544,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	pgAftStbd.OnPreStep(simT, simDT, mjd);
 	pgAft.OnPreStep(simT, simDT, mjd);
 	pgAftPort.OnPreStep(simT, simDT, mjd);
+	//double subTime = stSub.Stop();
 
 	OMSEngControl(LEFT);
 	OMSEngControl(RIGHT);
@@ -4736,7 +4738,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	bLastCamInternal = oapiCameraInternal();
 
 	//double time=st.Stop();
-	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f", time);
+	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
 	//oapiWriteLog(oapiDebugString());
 
 }	//Atlantis::clbkPreStep
@@ -4749,7 +4751,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	//int i;
 	OBJHANDLE hvessel;
 
-	//Stopwatch st;
+	//Stopwatch st, stSub;
 	//st.Start();
 
 	if(!___PostStep_flag)
@@ -4762,7 +4764,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	{
 		oapiWriteLog("(Atlantis::clbkPostStep) Processing subsystems.");
 	}
+	//stSub.Start();
 	psubsystems->PostStep(simt, simdt, mjd);
+	//double subTime = stSub.Stop();
 
 	if(!___PostStep_flag)
 	{
@@ -4783,6 +4787,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	pgAftStbd.OnPostStep(simt, simdt, mjd);
 	pgAft.OnPostStep(simt, simdt, mjd);
 	pgAftPort.OnPostStep(simt, simdt, mjd);
+	//stSub.Stop();
 
 	
 	if(!___PostStep_flag)
@@ -5137,7 +5142,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 					if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
 				}
 				SetAnimation(anim_chute_spin, DragChuteSpin.pos);
-				sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
+				//sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
 			}
 		}
 
@@ -5487,6 +5492,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	
 	}
 
+	//double time = st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);
 	//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
 }   //Atlantis::clbkPostStep
 
@@ -6965,11 +6972,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       return 1;
 	case OAPI_KEY_COMMA:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
 		return 1;
 	case OAPI_KEY_PERIOD:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
 		return 1;
 	case OAPI_KEY_G:
 		//gop->RevertLandingGear();

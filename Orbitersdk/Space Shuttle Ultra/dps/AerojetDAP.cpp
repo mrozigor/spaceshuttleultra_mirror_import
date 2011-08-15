@@ -317,7 +317,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			SetAerosurfaceCommands(DeltaT);
 			if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
-			else STS()->SetSpeedbrake(SpdbkThrotPort.GetVoltage());
+			else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
 
 			// check for weight-on-nose-gear
 			if(STS()->GroundContact() && STS()->GetPitch() < -3.0*RAD) {
