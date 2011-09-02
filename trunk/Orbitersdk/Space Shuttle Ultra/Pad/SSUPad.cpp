@@ -600,13 +600,14 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_rss, RSS_State.pos);
 		PlayVesselWave3(SoundID, RSS_ROTATE_SOUND, LOOP);
 	}
+	else StopVesselWave3(SoundID, RSS_ROTATE_SOUND);
+
 	if(bPad1985 && FSS_RBUS_UmbilicalState.Moving())
 	{
 		double dp = simdt*FSS_RBUS_RATE;
 		FSS_RBUS_UmbilicalState.Move(dp);
 		SetAnimation(anim_fss_rbus,FSS_RBUS_UmbilicalState.pos);
 	}
-	else StopVesselWave3(SoundID, RSS_ROTATE_SOUND);
 
 	UpdateGOXVentThrusters();
 	
