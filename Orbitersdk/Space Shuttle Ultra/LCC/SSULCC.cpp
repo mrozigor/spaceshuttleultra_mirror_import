@@ -51,7 +51,10 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	if(timeToLaunch < 0.0) return; // nothing to do
 
 	//if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
-	sprintf(oapiDebugString(),"T %f",-timeToLaunch);
+	int hours = floor(timeToLaunch/3600);
+	int minutes = floor((timeToLaunch - (hours*3600)) / 60);
+	int seconds = floor(timeToLaunch - (hours*3600) - (minutes*60));
+	sprintf(oapiDebugString(),"T -%02i:%02i:%02i",hours,minutes,seconds);
 
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
