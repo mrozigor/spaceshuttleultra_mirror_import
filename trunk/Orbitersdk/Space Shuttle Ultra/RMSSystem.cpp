@@ -4,7 +4,7 @@
 #include <UltraMath.h>
 
 RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE), bFirstStep(true)
 {
 	joint_pos[SHOULDER_YAW] = 0.5;
 	joint_pos[SHOULDER_PITCH] = 0.0136;
@@ -438,6 +438,8 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	}
 
+	// if arm was moved, update attachment position and IK vectors/angles
+	// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
 	if(arm_moved) {
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
@@ -481,7 +483,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		}
 		if(update_angles) {
 			arm_ee_angles=ee_att_output;
-			update_angles=false;
+			if(!bFirstStep) update_angles=false;
 		}
 
 		if(update_vectors) {
@@ -498,10 +500,10 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
-			update_vectors=false;
+			if(!bFirstStep) update_vectors=false;
 		}
 
-		arm_moved=false;
+		if(!bFirstStep) arm_moved=false;
 	}
 	else if(camera_moved /*&& RMSCameraMode==ELBOW*/) {
 		double anim=linterp(-MAX_PLBD_CAM_PAN, 0, MAX_PLBD_CAM_PAN, 1, camRMSElbow[PAN]);
@@ -520,6 +522,11 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
 	}
 	bLastCamInternal = oapiCameraInternal();
+
+	if(bFirstStep) {
+		//oapiWriteLog("RMSSystem: first step");
+		bFirstStep = false;
+	}
 }
 
 bool RMSSystem::OnParseLine(const char* line)

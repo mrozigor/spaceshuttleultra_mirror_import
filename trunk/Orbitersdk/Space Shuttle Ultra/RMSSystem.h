@@ -197,7 +197,7 @@ private:
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 arm_ee_angles; // angles in radians; used for some IK modes
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
-	double joint_pos[6], joint_angle[6];
+	double joint_pos[6], joint_angle[6]; // angles in degrees
 	double sp_null, ep_null; //required to compensate for elbow joint being 'below' booms
 	int joint_motion[6];
 	int ee_translation[3];
@@ -217,6 +217,8 @@ private:
 
 	bool arm_moved;
 	bool update_vectors, update_angles;
+
+	bool bFirstStep;
 
 	bool display_angles;
 
