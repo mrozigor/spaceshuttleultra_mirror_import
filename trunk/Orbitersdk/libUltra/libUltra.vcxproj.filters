@@ -51,6 +51,9 @@
     <ClCompile Include="src\ValveTypeBool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MMUTapeImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BIU.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ValveTypeBool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MMUTapeImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

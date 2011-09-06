@@ -45,13 +45,13 @@ void OMSBurnSoftware::Realize()
 	omsPitchCommand[RIGHT].ResetLine();
 	omsYawCommand[RIGHT].ResetLine();
 
+	pOrbitDAP = static_cast<OrbitDAP*>(FindSoftware("OrbitDAP"));
+
 	if(MnvrLoad) {
 		LoadManeuver();
 		//if(MnvrToBurnAtt) STS()->LoadBurnAttManeuver(BurnAtt);
 		if(MnvrToBurnAtt) pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
 	}
-
-	pOrbitDAP = static_cast<OrbitDAP*>(FindSoftware("OrbitDAP"));
 }
 
 void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
