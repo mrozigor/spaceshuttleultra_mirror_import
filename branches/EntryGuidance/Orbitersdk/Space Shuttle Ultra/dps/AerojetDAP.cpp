@@ -97,6 +97,7 @@ ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to 
 Roll_AileronRoll(0.15, 0.15, 0.00, -1.0, 1.0),
 Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1),
+EntryGuidanceMode(PREENTRY),
 TAEMGuidanceMode(HDG), HACSide(L),
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
 lastNZUpdateTime(-1.0), averageNZ(0.0), curNZValueCount(0),
@@ -231,8 +232,54 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		SetAerosurfaceCommands(DeltaT);
 
-		//double tgtDrag = CalculateTargetDrag();
-		//sprintf_s(oapiDebugString(), 255, "Tgt Drag: %f", tgtDrag);
+		// entry guidance mode transitions
+		{
+			const double CLG_INIT_DRAG = 4.25/MPS2FPS;
+			//VECTOR3 force, gravity;
+			VECTOR3 lift, drag;
+			double acceleration;
+			switch(EntryGuidanceMode) {
+			case PREENTRY:
+				//STS()->GetForceVector(force);
+				//STS()->GetWeightVector(gravity);
+				//acceleration = length(force-gravity)/STS()->GetMass();
+				STS()->GetLiftVector(lift);
+				STS()->GetDragVector(drag);
+				acceleration = length(lift+drag)/STS()->GetMass();
+				if(acceleration>CLG_INIT_DRAG) EntryGuidanceMode=TEMP_CONTROL;
+				break;
+			}
+		}
+
+		// for the moment, print tgt drag and let user figure out how the achieve drag
+		{
+		//VECTOR3 force, gravity;
+		VECTOR3 lift, drag;
+		double acceleration;
+		double tgtDrag = CalculateTargetDrag();
+		switch(EntryGuidanceMode) {
+		case PREENTRY:
+			sprintf_s(oapiDebugString(), 255, "PREENTRY: Tgt Drag: %f", tgtDrag);
+			break;
+		case TEMP_CONTROL:
+			//STS()->GetForceVector(force);
+			//STS()->GetWeightVector(gravity);
+			STS()->GetLiftVector(lift);
+			STS()->GetDragVector(drag);
+			acceleration = length(lift+drag)/STS()->GetMass();
+			sprintf_s(oapiDebugString(), 255, "TEMP CONTROL: Tgt Drag: %f Accel: %f", tgtDrag, acceleration);
+			break;
+		case EQU_GLIDE:
+			sprintf_s(oapiDebugString(), 255, "EQU GLIDE: Tgt Drag: %f", tgtDrag);
+			break;
+		case CONST_DRAG:
+			sprintf_s(oapiDebugString(), 255, "CONST DRAG: Tgt Drag: %f", tgtDrag);
+			break;
+		case TRANSITION:
+			sprintf_s(oapiDebugString(), 255, "TRANSITION: Tgt Drag: %f", tgtDrag);
+			break;
+		}
+		}
 
 		/*for(int i=0;i<3;i++) {
 			if(AerosurfacesActive[i]) {
@@ -580,6 +627,12 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		if(nTemp>=0 && nTemp<=FNLFL) TAEMGuidanceMode=static_cast<TAEM_GUIDANCE_MODE>(nTemp);
 		return true;
 	}
+	else if(!_strnicmp(keyword, "ENTRY_GUIDANCE", 13)) {
+		int nTemp;
+		sscanf_s(value, "%d", &nTemp);
+		if(nTemp>=0 && nTemp<=TRANSITION) EntryGuidanceMode=static_cast<ENTRY_GUIDANCE_MODE>(nTemp);
+		return true;
+	}
 	return false;
 }
 
@@ -589,6 +642,7 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	if(SEC) oapiWriteScenario_string(scn, "SEC", "TRUE");
 	if(HACSide==L) oapiWriteScenario_string(scn, "SIDE", "L");
 	else oapiWriteScenario_string(scn, "SIDE", "R");
+	oapiWriteScenario_int(scn, "ENTRY_GUIDANCE", static_cast<int>(EntryGuidanceMode));
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 }
 
@@ -852,7 +906,39 @@ double AerojetDAP::CalculateTargetAOA(double mach) const
 
 double AerojetDAP::CalculateTargetDrag()
 {
-	return -10.0; // indicate the target drag is not known
+	const double AK = -0.4612777/MPS2FPS;
+	const double AK1 = -4.176825/MPS2FPS;
+	const double VA = 23163.7/MPS2FPS;
+	const double VA1 = 21000.0/MPS2FPS;
+	const double VA2 = 27197.46/MPS2FPS;
+	const double VB1 = 19000.0/MPS2FPS;
+
+	const double CQ3_1 = AK/(2.0*VB1*(VA-VB1));
+	const double CQ2_1 = -2.0*VA*CQ3_1;
+	const double CQ1_1 = 1.0 - VB1*(CQ2_1+CQ3_1*VB1);
+	const double DX2 = CQ1_1 + VA1*(CQ2_1+CQ3_1*VA1);
+	const double CQ3_2 = (AK1*DX2)/(2.0*VA1*(VA2-VA1));
+	const double CQ2_2 = -2.0*VA2*CQ3_2;
+	const double CQ1_2 = DX2 - VA1*(CQ2_2+CQ3_2*VA1);
+
+	const double D23C = 19.38/MPS2FPS;
+
+	VECTOR3 vel;
+	STS()->GetRelativeVel(hEarth, vel);
+	double relativeVel=length(vel);
+	switch(EntryGuidanceMode) {
+	case TEMP_CONTROL:
+		double refDrag;
+		if(STS()->GetAirspeed() > VA1) {
+			refDrag = CQ1_1 + relativeVel*(CQ2_1 + relativeVel*CQ3_1);
+		}
+		else {
+			refDrag = CQ1_2 + relativeVel*(CQ2_2 + relativeVel*CQ3_2);
+		}
+		return refDrag*D23C; // D23 isn't constant in actual code
+	default:
+		return -10.0; // indicate the target drag is not known
+	}
 }
 
 void AerojetDAP::CalculateHACGuidance(double DeltaT)

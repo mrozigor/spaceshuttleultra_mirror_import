@@ -31,7 +31,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 class AerojetDAP : public SimpleGPCSoftware
 {
 private:	
-	//typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
+	typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STIN} HAC_DIRECTION;
@@ -128,6 +128,9 @@ private:
 	
 	OBJHANDLE hEarth;
 
+	/** Variables used by entry guidance **/
+	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
+
 	/** Variables used by TAEM guidance **/
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
 	//HAC_DIRECTION HACDirection;
@@ -211,6 +214,9 @@ private:
 	void CSSPitchGuidance(double DeltaT);
 	void CSSRollGuidance(double DeltaT);
 
+	/**
+	 * Returns target drag in m/s^2
+	 */
 	double CalculateTargetDrag();
 
 	void CalculateHACGuidance(double DeltaT);
