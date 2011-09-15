@@ -194,10 +194,6 @@ private:
 	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const;
 	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const;
 	MATRIX3 CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const;
-	/**
-	 * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to angles in shuttle body frame.
-	 */
-	VECTOR3 ConvertPYOMToBodyAngles() const;
 };
 
 };
