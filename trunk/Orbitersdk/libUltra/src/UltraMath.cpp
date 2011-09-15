@@ -171,6 +171,22 @@ VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
 	return GetAnglesFromMatrix(mul(mat, RotMatrix));*/
 }
 
+VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix)
+{
+	VECTOR3 Angles;
+	Angles.data[YAW]=asin(RotMatrix.m21);
+	if(Eq(RotMatrix.m21, 1.0, 0.0001)) { // singularity; assume pitch is zero
+		Angles.data[PITCH]=0.0;
+		if(Angles.data[YAW] > 0.0) Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
+		else Angles.data[ROLL]=atan2(RotMatrix.m32, RotMatrix.m12);
+	}
+	else { // normal case
+		Angles.data[PITCH]=-atan2(RotMatrix.m31, RotMatrix.m11);
+		Angles.data[ROLL]=-atan2(RotMatrix.m23, RotMatrix.m22);
+	}
+	return Angles;
+}
+
 // Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX)
 {
@@ -256,10 +272,11 @@ VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 	RotMatrix=mul(M50, RotMatrix);
 	
 	//get angles
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
+	return GetAnglesFromMatrix(RotMatrix);
+	/*Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Output;
+	return Output;*/
 }
 
 MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter)
@@ -279,6 +296,50 @@ MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbit
 
 	Output=mul(M50, RotMatrix);
 	return Output;
+}
+
+VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM)
+{
+	MATRIX3 RotMatrixP, RotMatrixY, RotMatrix270;
+	GetRotMatrixY(270*RAD, RotMatrix270);
+	GetRotMatrixY(radP, RotMatrixP);
+	GetRotMatrixZ(radY, RotMatrixY);
+	
+	MATRIX3 Temp=mul(RotMatrixP, RotMatrixY);
+
+	// above code calculates body vector (and can probably be optimized)
+	// Y axis only changes when OM is changed
+	VECTOR3 x_axis = _V(Temp.m11, Temp.m21, Temp.m31); // body vector
+	VECTOR3 y_axis, z_axis;
+	if(!Eq(x_axis, _V(0, 1, 0), 0.01) && !Eq(x_axis, _V(0, -1, 0), 0.01)) {
+		if(radOM > 0.0) y_axis = RotateVector(x_axis, radOM, _V(0, 1, 0));
+		else y_axis = _V(0, 1, 0);
+		z_axis = crossp(x_axis, y_axis);
+		z_axis = z_axis/length(z_axis); // normalize Z axis
+		y_axis = crossp(z_axis, x_axis); // to get orthogonal frame, recalculate Y axis
+	}
+	else {
+		if(radOM > 0.0) z_axis = RotateVector(x_axis, radOM, _V(0, 0, 1));
+		else z_axis = _V(0, 0, 1);
+		y_axis = crossp(z_axis, x_axis);
+		y_axis = y_axis/length(y_axis); // normalize Z axis
+		z_axis = crossp(x_axis, y_axis); // to get orthogonal frame, recalculate Y axis
+	}
+
+	MATRIX3 RotMatrix = _M(x_axis.x, x_axis.y, x_axis.z,
+						   y_axis.x, y_axis.y, y_axis.z,
+						   z_axis.x, z_axis.y, z_axis.z);
+	RotMatrix=mul(RotMatrix270, RotMatrix); // rotation required so BV is pointed towards Earth
+	/*sprintf_s(oapiDebugString(), 255, "X axis: %f %f %f", x_axis.x, x_axis.y, x_axis.z); 
+	oapiWriteLog(oapiDebugString());
+	sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
+		RotMatrix.m11, RotMatrix.m12, RotMatrix.m13,
+		RotMatrix.m21, RotMatrix.m22, RotMatrix.m23,
+		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
+	oapiWriteLog(oapiDebugString());*/
+
+	VECTOR3 angles = GetYZXAnglesFromMatrix(RotMatrix);
+	return _V(-angles.data[PITCH], angles.data[YAW], angles.data[ROLL]);
 }
 
 VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)

@@ -771,7 +771,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			}
 		}
 		else if(item==19) {
-			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles();
+			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
 			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
 			if(startTime <= STS()->GetMET()) {
 				if(TGT_ID == 2) {
@@ -1718,22 +1718,6 @@ MATRIX3 OrbitDAP::CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) 
 	return _M(YawRoll.x, YawRoll.y, YawRoll.z,
 			  H.x, H.y, H.z,
 			  Pitch.x, Pitch.y, Pitch.z);
-}
-
-VECTOR3 OrbitDAP::ConvertPYOMToBodyAngles() const
-{
-	MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270;
-	if(OM<=0.0) RotMatrixOM=IdentityMatrix;
-	else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
-	GetRotMatrixX(-P*RAD, RotMatrixP);
-	GetRotMatrixY(Y*RAD, RotMatrixY);
-	GetRotMatrixX(270*RAD, RotMatrix270);
-	
-	MATRIX3 Temp=mul(RotMatrix270, RotMatrixOM);
-	Temp=mul(Temp, RotMatrixY);
-	Temp=mul(Temp, RotMatrixP);
-
-	return GetAnglesFromMatrix(Temp);
 }
 
 };
