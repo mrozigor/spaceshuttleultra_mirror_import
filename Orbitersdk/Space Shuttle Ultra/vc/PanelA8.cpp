@@ -236,7 +236,7 @@ namespace vc
 				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
 			}
 			// print sign
-			if(LEDValues[id-AID_A8_LED1]>=0.0) src_rect = _R(0, 0, 64, 64);
+			if(LEDValues[id-AID_A8_LED1]>=0.0) src_rect = _R(4, 4, 52, 52);
 			else src_rect = _R(64, 0, 128, 64);
 			tgt_rect = _R(0, 0, 22, 22);
 			oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
@@ -298,9 +298,9 @@ namespace vc
 		oapiVCRegisterArea(AID_A8_TKBK19, _R(821, 392, 848, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// LED displays
 		//oapiVCRegisterArea(AID_A8_LED1, _R(230, 506, 252, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	}
 
 	void PanelA8::DefineVC()
