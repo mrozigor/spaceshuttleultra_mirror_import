@@ -255,8 +255,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//oapiWriteLog(oapiDebugString());
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
-			steerforce = 27500/3*steerforce*STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER);
-			//steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
+			//steerforce = 27500/3*steerforce*STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
 			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
 			//sprintf_s(oapiDebugString(), 255, "NWS force: %f", steerforce);
@@ -761,8 +761,8 @@ void AerojetDAP::CSSPitchGuidance(double DeltaT)
 		CSSInitialized[PITCH] = true;
 	}
 	else {
-		double PitchRateCommand = STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
-		//double PitchRateCommand = RHCInput[PITCH].GetVoltage()*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
+		//double PitchRateCommand = STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATOR)*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
+		double PitchRateCommand = RHCInput[PITCH].GetVoltage()*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
 		//if(degTargetRates.data[PITCH] < PitchRateCommand) degTargetRates.data[PITCH] = max(degTargetRates.data[PITCH]+1.0*DeltaT, PitchRateCommand);
 		//else if(degTargetRates.data[PITCH] > PitchRateCommand) degTargetRates.data[PITCH] = min(degTargetRates.data[PITCH]-1.0*DeltaT, PitchRateCommand);
 		degTargetAttitude.data[PITCH]+=PitchRateCommand*DeltaT;
@@ -786,8 +786,8 @@ void AerojetDAP::CSSRollGuidance(double DeltaT)
 		CSSInitialized[ROLL] = true;
 	}
 	else {
-		double RollRateCommand = -STS()->GetControlSurfaceLevel(AIRCTRL_AILERON)*5.0;
-		//double RollRateCommand = -RHCInput[ROLL].GetVoltage()*5.0;
+		//double RollRateCommand = -STS()->GetControlSurfaceLevel(AIRCTRL_AILERON)*5.0;
+		double RollRateCommand = -RHCInput[ROLL].GetVoltage()*5.0;
 		if(GetMajorMode() == 305) RollRateCommand*=2.0;
 		degTargetAttitude.data[ROLL]+=RollRateCommand*DeltaT;
 		
