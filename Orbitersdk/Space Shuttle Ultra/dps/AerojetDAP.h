@@ -135,7 +135,7 @@ private:
 	MATRIX3 RwyRotMatrix;
 	VECTOR3 RwyPos;
 	double degRwyHeading;
-	//double TargetGlideslope;
+	double degTargetGlideslope;
 	//double TargetPitchRate;
 	double prfnlBankFader;
 	double HAC_TurnRadius;
@@ -241,7 +241,7 @@ private:
 	 * \param RwyPos position relative to runway threshold in rwy-relative frame
 	 * \return NZ acceleration for shuttle performing preflare
 	 */
-	double CalculatePreflareNZ(const VECTOR3 &RwyPos) const;
+	double CalculatePreflareNZ(const VECTOR3 &RwyPos, double DeltaT);
 	/**
 	 * Updates NZCommand variable.
 	 * Also calculates qbar error for speedbrake calculation.
