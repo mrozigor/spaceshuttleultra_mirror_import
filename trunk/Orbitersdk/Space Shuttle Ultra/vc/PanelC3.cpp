@@ -7,7 +7,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	PanelC3::PanelC3(Atlantis *_sts)
-		: BasicPanel(_sts, "C3")
+		: AtlantisPanel(_sts, "C3")
 	{
 		char cbuf[5];
 
@@ -47,7 +47,7 @@ namespace vc
 	void PanelC3::RegisterVC()
 	{
 		oapiWriteLog("Registering Panel C3");
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 		SURFHANDLE panelc3_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELC3_VC);
@@ -223,6 +223,6 @@ namespace vc
 		pAirDataProbeDeploy[RIGHT]->ConnectPort(1, pBundle, 2); // DEPLOY/HEAT
 
 		// VC component DiscPorts need to be connected before Realize() is called
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 };

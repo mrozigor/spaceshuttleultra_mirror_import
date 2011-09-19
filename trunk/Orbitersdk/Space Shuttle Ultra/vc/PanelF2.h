@@ -31,7 +31,7 @@
 
 namespace vc
 {
-	class PanelF2: public BasicPanel
+	class PanelF2: public AtlantisPanel
 	{
 		/*PushButtonIndicator *pBFAuto, *pBFMan;
 		PushButtonIndicator *pSbdThrotAuto, *pSbdThrotMan;*/

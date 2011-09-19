@@ -5,7 +5,7 @@
 namespace vc
 {
 	BasicRotarySwitch::BasicRotarySwitch(Atlantis *_sts, unsigned short _usNumPositions, const std::string &_ident)
-		: BasicVCComponent(_sts, _ident), labels(_usNumPositions, ""), usNumPositions(_usNumPositions), usCurrentPosition(_usNumPositions), 
+		: AtlantisVCComponent(_sts, _ident), labels(_usNumPositions, ""), usNumPositions(_usNumPositions), usCurrentPosition(_usNumPositions), 
 		rotAngle(0.0), rotOffset(0.0), allowWraparound(false)
 	{
 		pSwitchRot = NULL;
@@ -49,7 +49,7 @@ namespace vc
 
 	void BasicRotarySwitch::SetInitialAnimState(double fState)
 	{
-		BasicVCComponent::SetInitialAnimState(fState);
+		AtlantisVCComponent::SetInitialAnimState(fState);
 		if(usCurrentPosition==usNumPositions) 
 			usCurrentPosition = static_cast<unsigned short>(fState*(usNumPositions-1));
 	}

@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class BasicRotarySwitch: public BasicVCComponent
+	class BasicRotarySwitch: public AtlantisVCComponent
 	{
 	protected:
 		unsigned short usNumPositions;

@@ -14,7 +14,7 @@ const VECTOR3 DAP2LRCorner=_V(0.364316, 0.494076, 0); // Lower Right
 namespace vc
 {
 	PanelA6::PanelA6(Atlantis* _sts)
-		:BasicPanel(_sts, "A6")
+		:AtlantisPanel(_sts, "A6")
 	{
 		char cbuf[255];
 
@@ -163,7 +163,7 @@ namespace vc
 
 	void PanelA6::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 		oapiWriteLog("PanelA6: RegisterVC called");
 
 		VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
@@ -320,12 +320,12 @@ namespace vc
 			Latch_RTL[2][i].Connect(pBundle2, 3*i+2);
 		}
 		
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 
 	void PanelA6::OnPreStep(double SimT, double DeltaT, double MJD)
 	{
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
 		PanelA6::PAYLOAD Payload = GetSelectedPayload();
 

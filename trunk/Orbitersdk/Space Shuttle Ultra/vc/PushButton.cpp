@@ -4,7 +4,7 @@
 namespace vc {
 
 	PushButton::PushButton(Atlantis* _sts, const string& _ident) 
-		: BasicVCComponent(_sts, _ident), output()
+		: AtlantisVCComponent(_sts, _ident), output()
 	{
 		anim_pb = NULL;
 		pPushDown = NULL;

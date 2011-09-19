@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class PanelR11 : public BasicPanel
+	class PanelR11 : public AtlantisPanel
 	{
 	private:
 		MDU* pCRT4;

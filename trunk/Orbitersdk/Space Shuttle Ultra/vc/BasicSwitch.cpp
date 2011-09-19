@@ -11,7 +11,7 @@
 namespace vc {
 
 BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
-: BasicVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0),
+: AtlantisVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0),
 	vbSpringLoaded(usNumPositions, false)
 {
 	this->usNumPositions = usNumPositions;

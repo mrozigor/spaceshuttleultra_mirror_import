@@ -36,7 +36,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	PanelA8::PanelA8(Atlantis* _sts)
-		: BasicPanel(_sts, "A8")
+		: AtlantisPanel(_sts, "A8")
 	{
 		hPanelMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_PANELA8);
 		mesh_index=MESH_UNDEFINED;
@@ -161,7 +161,7 @@ namespace vc
 
 	void PanelA8::OnPreStep(double SimT, double DeltaT, double MJD)
 	{
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
 		double NewLEDValues[3];
 
@@ -250,14 +250,14 @@ namespace vc
 			return true;
 		}
 
-		return BasicPanel::OnVCRedrawEvent(id, _event, surf);
+		return AtlantisPanel::OnVCRedrawEvent(id, _event, surf);
 	}
 
 	void PanelA8::RegisterVC()
 	{
 		oapiWriteLog("PanelA8::RegisterVC() called");
-		BasicPanel::RegisterVC();
-		oapiWriteLog("PanelA8::BasicPanel::RegisterVC() called");
+		AtlantisPanel::RegisterVC();
+		oapiWriteLog("PanelA8::AtlantisPanel::RegisterVC() called");
 
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
@@ -462,7 +462,7 @@ namespace vc
 	void PanelA8::DefineVCAnimations(UINT vcidx)
 	{
 		// call DefineVCAnimations using correct index
-		BasicPanel::DefineVCAnimations(mesh_index);
+		AtlantisPanel::DefineVCAnimations(mesh_index);
 	}
 
 	void PanelA8::Realize()
@@ -533,6 +533,6 @@ namespace vc
 		pSingleDirectDrive->outputB.Connect(pBundle, 8);
 		pSingleDirectDrive->outputA.Connect(pBundle, 9);
 
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 };

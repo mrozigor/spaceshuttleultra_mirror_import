@@ -30,7 +30,7 @@
 
 namespace vc {
 
-	class PanelF7: public BasicPanel
+	class PanelF7: public AtlantisPanel
 	{
 	private:
 		MDU* pCRT1;

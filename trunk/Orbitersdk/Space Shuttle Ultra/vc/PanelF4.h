@@ -31,7 +31,7 @@
 
 namespace vc
 {
-	class PanelF4: public BasicPanel
+	class PanelF4: public AtlantisPanel
 	{
 		PushButtonIndicator *pBodyFlap, *pSbdbkThrot; //handles AUTO light
 		StandardLight *pBodyFlapMan, *pSbdbkThrotMan;

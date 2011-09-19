@@ -3,7 +3,7 @@
 namespace vc {
 
 	BasicLight::BasicLight(Atlantis* _sts, const string& _ident)
-		:BasicVCComponent(_sts, _ident)
+		:AtlantisVCComponent(_sts, _ident)
 	{
 		redrawBase.x = 0;
 		redrawBase.y = 0;

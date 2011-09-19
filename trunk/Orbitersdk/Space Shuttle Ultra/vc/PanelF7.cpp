@@ -9,7 +9,7 @@ extern GDIParams g_Param;
 namespace vc {
 
 	PanelF7::PanelF7(Atlantis* _sts)
-		: BasicPanel(_sts, "F7")
+		: AtlantisPanel(_sts, "F7")
 	{
 		Add(pCRT1 = new MDU(_sts, "CRT1", MDUID_CRT1, true));
 		Add(pCRT2 = new MDU(_sts, "CRT2", MDUID_CRT2, true));
@@ -44,7 +44,7 @@ namespace vc {
 
 	void PanelF7::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_F7, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		//timer
@@ -96,6 +96,6 @@ namespace vc {
 			return true;
 		}
 
-		return BasicPanel::OnVCRedrawEvent(id, _event, surf);
+		return AtlantisPanel::OnVCRedrawEvent(id, _event, surf);
 	}
 };

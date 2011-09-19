@@ -32,7 +32,7 @@
 namespace vc {
 
 
-	class MDU: public BasicVCComponent
+	class MDU: public AtlantisVCComponent
 	{	
 		double t0;
 		bool counting;

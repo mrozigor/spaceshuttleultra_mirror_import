@@ -6,7 +6,7 @@
 namespace vc {
 
 	PanelF6::PanelF6(Atlantis* _sts)
-		: BasicPanel(_sts, "F6")
+		: AtlantisPanel(_sts, "F6")
 	{
 		Add(pCDR1 = new MDU(_sts, "CDR1", MDUID_CDR1, true));
 		Add(pCDR2 = new MDU(_sts, "CDR2", MDUID_CDR2, true));
@@ -40,7 +40,7 @@ namespace vc {
 
 	void PanelF6::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		
 		oapiVCRegisterArea(AID_F6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
@@ -54,7 +54,7 @@ namespace vc {
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("Controllers", 16);
 		pFltCntlrPower->ConnectPort(1, pBundle, 1);
 
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 		
 };

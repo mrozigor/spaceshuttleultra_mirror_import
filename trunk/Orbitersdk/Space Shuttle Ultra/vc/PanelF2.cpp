@@ -6,7 +6,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	PanelF2::PanelF2(Atlantis* _sts)
-		: BasicPanel(_sts, "F2")
+		: AtlantisPanel(_sts, "F2")
 	{
 		Add(pSbdbkThrot = new PushButtonIndicator(_sts, "F2_SBDTHROT_AUTO"));
 		Add(pSbdbkThrotMan = new StandardLight(_sts, "F2_SBDKTHROT_MAN"));
@@ -43,7 +43,7 @@ namespace vc
 		pRollYawCSS->ConnectAll(pBundle, 3);
 		RollYawPortGroup.AddPorts(pBundle, 2, 3);
 		
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 
 	void PanelF2::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -51,7 +51,7 @@ namespace vc
 		PitchPortGroup.OnPreStep();
 		RollYawPortGroup.OnPreStep();
 
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 	}
 
 	void PanelF2::DefineVC()
@@ -110,7 +110,7 @@ namespace vc
 
 	void PanelF2::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		SURFHANDLE tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_FPANELS_VC);
 

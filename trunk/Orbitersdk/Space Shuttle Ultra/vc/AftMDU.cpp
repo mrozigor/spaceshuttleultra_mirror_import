@@ -6,7 +6,7 @@
 namespace vc
 {
 	AftMDU::AftMDU(Atlantis* _sts)
-		: BasicPanel(_sts, "AftMDU")
+		: AtlantisPanel(_sts, "AftMDU")
 	{
 		Add(pAFD = new MDU(_sts, "AFD", MDUID_AFD, true));
 	}
@@ -25,7 +25,7 @@ namespace vc
 
 	void AftMDU::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		
