@@ -30,7 +30,7 @@
 
 namespace vc
 {
-	class AftMDU : public BasicPanel
+	class AftMDU : public AtlantisPanel
 	{
 	private:
 		MDU* pAFD;

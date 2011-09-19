@@ -7,7 +7,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	PanelA7U::PanelA7U(Atlantis* _sts)
-		: BasicPanel(_sts, "A7U")
+		: AtlantisPanel(_sts, "A7U")
 	{
 		Add(pCameraPan = new StdSwitch3(_sts, "PAN"));
 		Add(pCameraTilt = new StdSwitch3(_sts, "TILT"));
@@ -32,7 +32,7 @@ namespace vc
 	{
 		VideoInputGroup.OnPreStep();
 
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
 		//if(CamTiltUp_In) sprintf_s(oapiDebugString(), 255, "Tilt up");
 		//else if(CamTiltDown_In) sprintf_s(oapiDebugString(), 255, "Tilt down");
@@ -161,7 +161,7 @@ namespace vc
 
 	void PanelA7U::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 
@@ -186,7 +186,7 @@ namespace vc
 
 	void PanelA7U::Realize()
 	{
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("A7U_CameraSelect", 16);
 		pCamApbi->ConnectAll(pBundle, 0);

@@ -32,7 +32,7 @@ namespace vc {
 	using class discsignals::DiscreteBundle;
 
 
-	class BasicLight:public BasicVCComponent {
+	class BasicLight:public AtlantisVCComponent {
 	protected:
 
 		POINT redrawBase;

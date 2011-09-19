@@ -49,7 +49,7 @@
 #include "mission/Mission.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
-#include "vc/PanelGroup.h"
+#include "PanelGroup.h"
 #include "vc/BasicPanel.h"
 #include "vc/PanelF7.h"
 #include "APU.h"
@@ -569,11 +569,11 @@ public:
 	/**
 	 * Pointer to the A7A8 custom panel region
 	 */
-	vc::BasicPanel* pA7A8Panel;
+	vc::AtlantisPanel* pA7A8Panel;
 	/**
 	 * Pointer to the A8 (RMS) panel region
 	 */
-	vc::BasicPanel* pPanelA8;
+	vc::AtlantisPanel* pPanelA8;
 	
 
 
@@ -667,14 +667,14 @@ private:
 	/* *************************************************
 	 * Panel groups
 	 * *************************************************/
-	vc::PanelGroup pgForward;
-	vc::PanelGroup pgLeft;
-	vc::PanelGroup pgCenter;
-	vc::PanelGroup pgRight;
-	vc::PanelGroup pgOverhead;
-	vc::PanelGroup pgAftStbd;
-	vc::PanelGroup pgAft;
-	vc::PanelGroup pgAftPort;
+	vc::PanelGroup<Atlantis> pgForward;
+	vc::PanelGroup<Atlantis> pgLeft;
+	vc::PanelGroup<Atlantis> pgCenter;
+	vc::PanelGroup<Atlantis> pgRight;
+	vc::PanelGroup<Atlantis> pgOverhead;
+	vc::PanelGroup<Atlantis> pgAftStbd;
+	vc::PanelGroup<Atlantis> pgAft;
+	vc::PanelGroup<Atlantis> pgAftPort;
 
 	/**
 	 * all animations that need to be deleted in destructor

@@ -11,7 +11,7 @@ const VECTOR3 S5_REF = _V(0.0, 2.91259, 12.22);
 namespace vc
 {
 	PanelA1U::PanelA1U(Atlantis* _sts)
-		: BasicPanel(_sts, "A1U")
+		: AtlantisPanel(_sts, "A1U")
 	{
 		Add(pSignalStrengthSelect = new StdSwitch3(_sts, "SIG STR"));
 		pSignalStrengthSelect->SetLabel(0, "SBAND FM");
@@ -44,7 +44,7 @@ namespace vc
 		/*
 		VideoInputGroup.OnPreStep();
 
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
 		//if(CamTiltUp_In) sprintf_s(oapiDebugString(), 255, "Tilt up");
 		//else if(CamTiltDown_In) sprintf_s(oapiDebugString(), 255, "Tilt down");
@@ -177,7 +177,7 @@ namespace vc
 
 	void PanelA1U::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 
@@ -209,7 +209,7 @@ namespace vc
 
 	void PanelA1U::Realize()
 	{
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 
 		/*
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("A7U_CameraSelect", 16);

@@ -37,7 +37,7 @@ namespace vc {
 
 using namespace std;
 
-class BasicSwitch : public BasicVCComponent  
+class BasicSwitch : public AtlantisVCComponent  
 {
 protected:
 	bool bOrientation;

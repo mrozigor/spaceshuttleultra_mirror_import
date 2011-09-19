@@ -283,10 +283,8 @@
     <ClCompile Include="gnc\ATVC.cpp" />
     <ClCompile Include="eva_docking\BasicExtAirlock.cpp" />
     <ClCompile Include="vc\BasicLight.cpp" />
-    <ClCompile Include="vc\BasicPanel.cpp" />
     <ClCompile Include="vc\BasicRotarySwitch.cpp" />
     <ClCompile Include="vc\BasicSwitch.cpp" />
-    <ClCompile Include="vc\BasicVCComponent.cpp" />
     <ClCompile Include="dps\BIU.cpp" />
     <ClCompile Include="mps\BLOCK_II.cpp" />
     <ClCompile Include="dps\BusController.cpp" />
@@ -335,7 +333,6 @@
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
-    <ClCompile Include="vc\PanelGroup.cpp" />
     <ClCompile Include="PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
@@ -411,7 +408,6 @@
     <ClInclude Include="hydraulics\HydActuator.h" />
     <ClInclude Include="dps\IDP.h" />
     <ClInclude Include="gnc\IMU.h" />
-    <ClInclude Include="ISubsystem.h" />
     <ClInclude Include="Latch.h" />
     <ClInclude Include="dps\MasterTimingUnit.h" />
     <ClInclude Include="MCA.h" />

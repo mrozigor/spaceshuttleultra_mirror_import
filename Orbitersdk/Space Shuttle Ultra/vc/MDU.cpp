@@ -17,7 +17,7 @@ namespace vc {
 	}
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
-		: BasicVCComponent(_sts, _ident), usMDUID(_usMDUID), MFDID(-1),
+		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID), MFDID(-1),
 		bUseCRTMFD(_bUseCRTMFD),
 		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
 		bInverseX(false), counting(false)

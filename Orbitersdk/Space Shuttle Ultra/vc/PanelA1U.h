@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class PanelA1U: public BasicPanel
+	class PanelA1U: public AtlantisPanel
 	{
 	public:
 		PanelA1U(Atlantis* _sts);

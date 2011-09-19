@@ -34,7 +34,7 @@
 
 namespace vc
 {
-	class PanelA8 : public BasicPanel
+	class PanelA8 : public AtlantisPanel
 	{
 		StdSwitch3* pEEMode;
 		StdSwitch3* pEEManContr;

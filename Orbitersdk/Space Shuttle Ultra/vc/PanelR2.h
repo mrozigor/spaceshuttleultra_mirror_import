@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class PanelR2 : public BasicPanel
+	class PanelR2 : public AtlantisPanel
 	{
 		StdSwitch3* pBlrCntlrPwrHtr[3];
 		StdSwitch2* pBlrCntlr[3];

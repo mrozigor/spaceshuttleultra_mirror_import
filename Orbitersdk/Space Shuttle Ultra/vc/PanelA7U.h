@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class PanelA7U : public BasicPanel
+	class PanelA7U : public AtlantisPanel
 	{
 		StdSwitch3* pCameraPan;
 		StdSwitch3* pCameraTilt;

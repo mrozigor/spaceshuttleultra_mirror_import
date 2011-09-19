@@ -119,16 +119,10 @@
     <ClCompile Include="vc\BasicLight.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\BasicPanel.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\BasicRotarySwitch.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\BasicSwitch.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="vc\BasicVCComponent.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\BIU.cpp">
@@ -249,9 +243,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelF8.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="vc\PanelGroup.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="PanelO3.cpp">
@@ -470,9 +461,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="gnc\IMU.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="ISubsystem.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="Latch.h">

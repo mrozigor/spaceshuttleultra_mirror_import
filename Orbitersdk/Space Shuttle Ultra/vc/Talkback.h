@@ -33,7 +33,7 @@ namespace vc
 {
 	using namespace discsignals;
 
-	class BasicTalkback : public BasicVCComponent
+	class BasicTalkback : public AtlantisVCComponent
 	{
 	protected:
 		unsigned short usHeight, usWidth;
