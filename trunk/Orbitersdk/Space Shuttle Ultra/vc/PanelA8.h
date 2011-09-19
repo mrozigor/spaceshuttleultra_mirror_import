@@ -26,7 +26,7 @@
 #define __VC_PANELA8_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
 #include "StandardRotarySwitch.h"

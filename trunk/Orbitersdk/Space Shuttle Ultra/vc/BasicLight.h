@@ -24,7 +24,7 @@
   **************************************************************************/
 
 #pragma once
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include "DiscreteBundle.h"
 
 namespace vc {

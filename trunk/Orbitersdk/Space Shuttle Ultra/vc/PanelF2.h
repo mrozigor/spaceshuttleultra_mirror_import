@@ -26,7 +26,7 @@
 #define __PANELF2_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 
 namespace vc

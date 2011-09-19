@@ -50,7 +50,7 @@
 #include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "PanelGroup.h"
-#include "vc/BasicPanel.h"
+#include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
 #include "APU.h"
 #include <EngConst.h>

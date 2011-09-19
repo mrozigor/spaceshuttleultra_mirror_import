@@ -27,7 +27,7 @@
 #ifndef _PANELR11_H
 #define _PANELR11_H
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "MDU.h"
 
 namespace vc

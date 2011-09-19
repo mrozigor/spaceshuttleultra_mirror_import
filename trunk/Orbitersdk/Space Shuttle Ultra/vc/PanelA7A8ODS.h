@@ -23,7 +23,7 @@
 
   **************************************************************************/
 #pragma once
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushButton.h"
 #include "StandardLight.h"

@@ -26,7 +26,7 @@
 #define __VC_PANEL_R2_H_12F72432_EB9D_4b53_BC9D_4BCD6DD61C17
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "Talkback.h"
 

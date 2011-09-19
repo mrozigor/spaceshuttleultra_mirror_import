@@ -29,7 +29,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include <vector>
 #include <string>
 

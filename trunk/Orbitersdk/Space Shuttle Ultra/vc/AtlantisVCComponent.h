@@ -30,7 +30,7 @@
 #endif // _MSC_VER > 1000
 
 #include "vc_defs.h"
-#include "BasicPanel.h"
+#include <BasicPanel.h>
 //#include "../ISubsystem.h"
 #include <BasicVCComponent.h>
 #include <string>
