@@ -26,7 +26,7 @@
 #define __TALKBACK_H
 #pragma once
 
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include "DiscInPort.h"
 
 namespace vc

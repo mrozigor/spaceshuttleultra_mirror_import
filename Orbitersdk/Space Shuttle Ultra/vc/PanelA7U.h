@@ -26,7 +26,7 @@
 #define _VC_PANELA7U_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushButtonIndicator.h"
 

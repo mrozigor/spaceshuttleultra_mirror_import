@@ -24,7 +24,7 @@
   **************************************************************************/
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "MDU.h"
 #include "StandardSwitch.h"
 

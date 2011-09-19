@@ -26,7 +26,7 @@
 
 #include "../dps/dps_defs.h"
 #include "vc_defs.h"
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 
 
 namespace vc {

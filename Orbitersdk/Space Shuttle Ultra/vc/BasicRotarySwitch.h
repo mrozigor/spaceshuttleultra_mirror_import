@@ -26,7 +26,7 @@
 #define __VC_BASICROTARYSWITCH_H
 #pragma once
 
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include <vector>
 #include <string>
 
