@@ -406,9 +406,6 @@
     <ClInclude Include="vc\BasicLight.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\BasicPanel.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\BasicRotarySwitch.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -416,9 +413,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="BasicValve.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="vc\BasicVCComponent.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\BIU.h">
@@ -662,6 +656,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="DeployedAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\AtlantisPanel.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\AtlantisVCComponent.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
