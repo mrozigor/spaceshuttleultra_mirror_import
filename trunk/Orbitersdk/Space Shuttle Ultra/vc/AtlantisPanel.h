@@ -22,8 +22,8 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef ___BASIC_PANEL_H_INCLUDED___
-#define ___BASIC_PANEL_H_INCLUDED___
+#ifndef ___ATLANTIS_PANEL_H_INCLUDED___519F1F47_B7BD_4C97_8618_C65B9B7ADE29
+#define ___ATLANTIS_PANEL_H_INCLUDED___519F1F47_B7BD_4C97_8618_C65B9B7ADE29
 
 #include "OrbiterAPI.h"
 #include <set>

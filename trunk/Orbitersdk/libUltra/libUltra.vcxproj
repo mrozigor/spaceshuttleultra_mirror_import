@@ -92,6 +92,8 @@
     <ClCompile Include="src\ValveTypeBool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BasicPanel.h" />
+    <ClInclude Include="include\BasicVCComponent.h" />
     <ClInclude Include="include\BIU.h" />
     <ClInclude Include="include\DiscInPort.h" />
     <ClInclude Include="include\DiscOutPort.h" />
