@@ -389,11 +389,11 @@
     <ClInclude Include="gnc\ATVC.h" />
     <ClInclude Include="eva_docking\BasicExtAirlock.h" />
     <ClInclude Include="vc\BasicLight.h" />
-    <ClInclude Include="vc\BasicPanel.h" />
+    <ClInclude Include="vc\AtlantisPanel.h" />
     <ClInclude Include="vc\BasicRotarySwitch.h" />
     <ClInclude Include="vc\BasicSwitch.h" />
     <ClInclude Include="BasicValve.h" />
-    <ClInclude Include="vc\BasicVCComponent.h" />
+    <ClInclude Include="vc\AtlantisVCComponent.h" />
     <ClInclude Include="dps\BIU.h" />
     <ClInclude Include="mps\BLOCK_II.h" />
     <ClInclude Include="CommonDefs.h" />
