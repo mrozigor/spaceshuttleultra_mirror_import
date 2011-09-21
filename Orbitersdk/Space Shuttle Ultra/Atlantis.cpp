@@ -74,6 +74,7 @@
 #include <cassert>
 
 
+
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -5462,22 +5463,43 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		___PostStep_flag = true;
 	}
 
-	double DynPress = GetDynPressure();
+
+	/*if(simt - tt >= 5)
+	{
+		tt = simt;
+		FILEHANDLE f1 = oapiOpenFile("SSUDensity.txt",FILE_APP);
+		oapiWriteItem_float(f1,"",GetAtmDensity());
+		oapiCloseFile(f1, FILE_APP);
+
+		FILEHANDLE f2 = oapiOpenFile("SSUVelocity.txt",FILE_APP);
+		oapiWriteItem_float(f2,"",GetAirspeed());
+		oapiCloseFile(f2,FILE_APP);
+
+		FILEHANDLE f3 = oapiOpenFile("SSUAltitude.txt",FILE_APP);
+		oapiWriteItem_float(f3,"",GetAltitude());
+		oapiCloseFile(f3,FILE_APP);
+	}*/
+	
+	
+	double dens = GetAtmDensity();
 	double speed = GetAirspeed();
-	double heating = DynPress * speed / 1000000;
-	double heating_factor = 0.2631*heating - 2.9405;
-	double heating_scalar;
+	double flux = (dens*pow(speed,3))/3/1000000;
+	double heating_factor = flux/4 - 3.5;
+	double heating_scalar = 0;
 	if(heating_factor>=1)
 		heating_scalar = 1;
 	else if(heating_factor<=0)
 		heating_scalar = 0;
 	else 
 		heating_scalar = heating_factor;
+		
+
 
 	if(heating_scalar == 0)
 		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_NEVER);
 	else
 		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_ALWAYS);
+	
 	
 
 	//REENTRY HEAT SHIELD
