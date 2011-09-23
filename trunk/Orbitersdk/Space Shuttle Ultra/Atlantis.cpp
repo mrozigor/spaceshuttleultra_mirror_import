@@ -662,9 +662,6 @@ pActiveLatches(3, NULL)
   }
 
   met = 0.0;
-  for(int i=0;i<4;i++) {
-	  MET[i]=0;
-  }
 
   status          = STATE_ORBITER;
   ldoor_drag      = rdoor_drag = 0.0;
@@ -4131,9 +4128,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteLine(scn, "  ODS");
   }
 
-  if (status == 1)
+  /*if (status == 1)
     oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-  else oapiWriteScenario_float (scn, "MET", met);
+  else oapiWriteScenario_float (scn, "MET", met);*/
 
   if (spdb_status != AnimState::CLOSED) {
     sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
@@ -4809,6 +4806,14 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
 	}
 	
+	// update MET
+	if(status==STATE_PRELAUNCH) {
+		met = 0.0;
+	}
+	else {
+		// calculate MET (in seconds) from MTU
+		met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0)/1000.0;
+	}
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
@@ -4865,7 +4870,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//GPC(simdt);
 		break;
 	case STATE_STAGE1: // SRB's ignited
-		met = simt-t0;
 		//play sounds
 		if(!IsPlaying3(SoundID, SSME_START))
 			PlayVesselWave3(SoundID, SSME_RUNNING, LOOP);
@@ -4925,7 +4929,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 
 	case STATE_STAGE2: // post SRB separation
-		met+=simdt;
 		if (bManualSeparate) {
 			//SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
 			//for(unsigned short i=0;i<3;i++) SetSSMEThrustLevel(i, 0.00);
@@ -4994,7 +4997,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		{
 			EnableControlSurfaces();
 		}
-		met+=simdt;
 
 		//get THC and RHC input
 		UpdateHandControllerSignals();
@@ -5280,12 +5282,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
 		
 	}*/
-
-	//update MET
-	MET[0]=(int)(met/86400);
-	MET[1]=(int)((met-86400*MET[0])/3600);
-	MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
-	MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
 
 	if(SoundID!=-1) {
 		//play RCS sounds

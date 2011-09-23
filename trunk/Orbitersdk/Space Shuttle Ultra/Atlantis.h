@@ -360,7 +360,7 @@ public:
 
 	double t0;          // reference time: designated liftoff time
 	double met;
-	int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
+	//int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
 	WORD srb_id1, srb_id2;
 
 	enum {
@@ -429,6 +429,7 @@ public:
 	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant() const;
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
+	virtual double GetMET() const;
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
 	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
 	virtual dps::IDP* GetIDP(unsigned short usIDPNumber) const;
@@ -441,7 +442,6 @@ public:
 	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
-	virtual double GetMET() const;
 	virtual double GetTgtSpeedbrakePosition() const;
 	virtual double GetActSpeedbrakePosition() const;
 	virtual AnimState::Action GetGearState() const;
