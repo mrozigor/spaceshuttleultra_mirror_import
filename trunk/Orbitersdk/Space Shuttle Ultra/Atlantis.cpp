@@ -1422,8 +1422,9 @@ void Atlantis::SetOrbiterConfiguration (void)
 	bOMSDefined = true;
 	//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
   }
+  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
   for(i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0.0, 0.5);
+	  AddExhaust (th_oms[i], 0, 1.5, tex_oms);
 	  //panelc3->EngControl(i);
 	  OMSEngControl(i);
   }
