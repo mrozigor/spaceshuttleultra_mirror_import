@@ -66,11 +66,20 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 
-	if(BurnCompleted || !MnvrLoad || !MnvrExecute) return; // no burn to perform
+	if(!MnvrLoad || !MnvrExecute) return; // no burn to perform
+
+	if(BurnInProg || BurnCompleted) { // update VGO values
+		VECTOR3 ThrustVector;
+		STS()->GetThrustVector(ThrustVector); //inefficient
+		//only shows errors caused by burn timing
+		VGO.x-=((ThrustVector.z/STS()->GetMass())*DeltaT)*MPS2FPS;
+		VGO.y-=((ThrustVector.x/STS()->GetMass())*DeltaT)*MPS2FPS;
+		VGO.z+=((ThrustVector.y/STS()->GetMass())*DeltaT)*MPS2FPS;
+	}
 
 	double met = STS()->GetMET();
 	//sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
-	if(BurnInProg)
+	if(BurnInProg) // check if engines should be shut down
 	{
 		if(met>=(IgnitionTime+BurnTime)) {
 			//sprintf(oapiDebugString(), "Shutdown");
@@ -81,18 +90,17 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 			BurnInProg=false;
 			pOrbitDAP->UseRCS();
 		}
-		else {
+		/*else {
 			VECTOR3 ThrustVector;
 			STS()->GetThrustVector(ThrustVector); //inefficient
 			//only shows errors caused by burn timing
 			VGO.x-=((ThrustVector.z/STS()->GetMass())*DeltaT)*MPS2FPS;
 			VGO.y-=((ThrustVector.x/STS()->GetMass())*DeltaT)*MPS2FPS;
 			VGO.z+=((ThrustVector.y/STS()->GetMass())*DeltaT)*MPS2FPS;
-		}
+		}*/
 	}
-	else if(met>=tig)
+	else if(!BurnCompleted && met>=tig) // check if burn should start
 	{
-		// start burn
 		if(OMS<3) {
 			//sprintf(oapiDebugString(), "Burning");
 			BurnInProg=true;
