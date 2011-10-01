@@ -1663,6 +1663,7 @@ VECTOR3 OrbitDAP::ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const
 
 MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 {
+	// calculate matrix to convert from LVLH to Orbiter inertial frame
 	VECTOR3 GPos, GVel;
 	STS()->GetRelativePos(STS()->GetSurfaceRef(), GPos);
 	STS()->GetRelativeVel(STS()->GetSurfaceRef(), GVel);
@@ -1675,6 +1676,7 @@ MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 						x_axis.y, y_axis.y, z_axis.y,	
 						x_axis.z, y_axis.z, z_axis.z);
 
+	// convert LVLH angles to rotation matrix
 	VECTOR3 HorizonX, HorizonY, HorizonZ;
 	RotateVectorPYR(_V(1, 0, 0), radAngles, HorizonX);
 	RotateVectorPYR(_V(0, 1, 0), radAngles, HorizonY);
@@ -1682,7 +1684,7 @@ MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 	MATRIX3 LVLHMatrix = _M(HorizonX.x, HorizonY.x, HorizonZ.x,
 							HorizonX.y, HorizonY.y, HorizonZ.y,
 							HorizonX.z, HorizonY.z, HorizonZ.z);
-	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix); // in theory, this should be equal to RotMatrix
+	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix);
 
 	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
 	return RotMatrix;
