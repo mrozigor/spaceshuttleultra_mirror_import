@@ -24,7 +24,7 @@
   **************************************************************************/
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
 #include "PushButton.h"
@@ -32,7 +32,7 @@
 
 namespace vc {
 
-	class PanelO6 : public BasicPanel {
+	class PanelO6 : public AtlantisPanel {
 	private:
 		StdSwitch3* pLGlareShieldFlood;
 		Std2SegTalkback* pSTYDoorPosition;

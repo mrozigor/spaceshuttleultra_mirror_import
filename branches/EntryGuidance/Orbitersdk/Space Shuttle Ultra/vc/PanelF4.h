@@ -26,12 +26,12 @@
 #define __PANELF4_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 
 namespace vc
 {
-	class PanelF4: public BasicPanel
+	class PanelF4: public AtlantisPanel
 	{
 		PushButtonIndicator *pBodyFlap, *pSbdbkThrot; //handles AUTO light
 		StandardLight *pBodyFlapMan, *pSbdbkThrotMan;

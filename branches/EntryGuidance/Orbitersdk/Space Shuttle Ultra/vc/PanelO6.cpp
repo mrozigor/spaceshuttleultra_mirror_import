@@ -6,7 +6,7 @@
 namespace vc {
 
 	PanelO6::PanelO6(Atlantis* _sts) 
-		: BasicPanel(_sts, "O6") {
+		: AtlantisPanel(_sts, "O6") {
 
 		const VECTOR3 SWITCH_VERTICAL = _V(1.0, 0.0, 0.0);
 
@@ -437,7 +437,7 @@ namespace vc {
 	void PanelO6::RegisterVC()
 	{
 		oapiWriteLog("(PanelO6::RegisterVC) Begin registration.");
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->orbiter_ofs;
 
 		oapiVCRegisterArea(AID_O6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);

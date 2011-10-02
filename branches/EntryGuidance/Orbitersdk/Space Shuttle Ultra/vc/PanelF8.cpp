@@ -6,7 +6,7 @@
 namespace vc {
 
 	PanelF8::PanelF8(Atlantis* _sts)
-		: BasicPanel(_sts, "F8")
+		: AtlantisPanel(_sts, "F8")
 	{
 		Add(pPLT1 = new MDU(_sts, "PLT1", MDUID_PLT1, true));
 		Add(pPLT2 = new MDU(_sts, "PLT2", MDUID_PLT2, true));
@@ -40,7 +40,7 @@ namespace vc {
 
 	void PanelF8::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_F8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F8, 
@@ -53,7 +53,7 @@ namespace vc {
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("Controllers", 16);
 		pFltCntlrPower->ConnectPort(1, pBundle, 2);
 		
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 		
 };

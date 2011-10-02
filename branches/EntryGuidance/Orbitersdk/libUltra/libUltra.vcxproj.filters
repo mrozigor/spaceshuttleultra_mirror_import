@@ -107,6 +107,12 @@
     <ClInclude Include="include\MMUTapeImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\BasicPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BasicVCComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

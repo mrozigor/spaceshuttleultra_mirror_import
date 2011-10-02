@@ -7,7 +7,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	BasicTalkback::BasicTalkback(Atlantis* _sts, const std::string& _ident)
-		: BasicVCComponent(_sts, _ident)
+		: AtlantisVCComponent(_sts, _ident)
 	{
 		talkbackLocation.x=0;
 		talkbackLocation.y=0;

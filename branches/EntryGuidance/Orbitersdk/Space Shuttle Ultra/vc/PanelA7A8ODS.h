@@ -23,7 +23,7 @@
 
   **************************************************************************/
 #pragma once
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushButton.h"
 #include "StandardLight.h"
@@ -32,7 +32,7 @@ namespace vc {
 	/**
 	 * Example implementation of a BasicPanel derived panel
 	 */
-	class PanelA7A8ODS: public BasicPanel
+	class PanelA7A8ODS: public AtlantisPanel
 	{
 
 		StandardLight* plADS;

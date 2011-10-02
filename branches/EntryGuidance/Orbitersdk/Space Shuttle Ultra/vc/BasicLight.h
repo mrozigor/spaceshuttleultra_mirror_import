@@ -24,7 +24,7 @@
   **************************************************************************/
 
 #pragma once
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include "DiscreteBundle.h"
 
 namespace vc {
@@ -32,7 +32,7 @@ namespace vc {
 	using class discsignals::DiscreteBundle;
 
 
-	class BasicLight:public BasicVCComponent {
+	class BasicLight:public AtlantisVCComponent {
 	protected:
 
 		POINT redrawBase;

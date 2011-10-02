@@ -6,7 +6,7 @@
 namespace vc
 {
 	PanelR2::PanelR2(Atlantis* psts)
-		: BasicPanel(psts, "R2")
+		: AtlantisPanel(psts, "R2")
 	{
 		Add(pBlrN2Supply[0] = new StdSwitch2(psts, "Boiler1 N2 Supply"));
 		Add(pBlrN2Supply[1] = new StdSwitch2(psts, "Boiler2 N2 Supply"));
@@ -118,7 +118,7 @@ namespace vc
 	void PanelR2::RegisterVC()
 	{
 		oapiWriteLog("Registering PanelR2");
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 		SURFHANDLE panelr2_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELR2_VC);
@@ -457,7 +457,7 @@ namespace vc
 		pMPSHeIsolA[2]->outputB.Connect(pBundle, 2); // ignore GPC and CLOSE positions 
 		pMPSHeIsolB[2]->outputB.Connect(pBundle, 3);
 
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 
 	bool PanelR2::HydraulicPressure() const

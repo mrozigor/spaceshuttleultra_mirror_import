@@ -74,6 +74,7 @@
 #include <cassert>
 
 
+
 #ifdef INCLUDE_OMS_CODE
 #include "OMSSubsystem.h"
 #endif
@@ -661,9 +662,6 @@ pActiveLatches(3, NULL)
   }
 
   met = 0.0;
-  for(int i=0;i<4;i++) {
-	  MET[i]=0;
-  }
 
   status          = STATE_ORBITER;
   ldoor_drag      = rdoor_drag = 0.0;
@@ -1424,8 +1422,9 @@ void Atlantis::SetOrbiterConfiguration (void)
 	bOMSDefined = true;
 	//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
   }
+  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
   for(i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0.0, 0.5);
+	  AddExhaust (th_oms[i], 0, 1.5, tex_oms);
 	  //panelc3->EngControl(i);
 	  OMSEngControl(i);
   }
@@ -3435,57 +3434,70 @@ void Atlantis::UpdateHandControllerSignals()
 		}
 	}
 	else { // use RHC/THC input to control RCS
-		//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
-		if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-			RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-			RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-			RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-			if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-				for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
+		if(status==STATE_ORBITER && GetAltitude()<100000.0) { // use Orbiter aerosurfaces, which will smoothly ramp between values, for entry
+			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
+				RHCInput.data[PITCH]=GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
+				RHCInput.data[YAW]=GetControlSurfaceLevel(AIRCTRL_RUDDER);
+				RHCInput.data[ROLL]=GetControlSurfaceLevel(AIRCTRL_AILERON);
 			}
 			else {
-				THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-				THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-				THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+				RHCInput=_V(0, 0, 0);
 			}
+			THCInput=_V(0, 0, 0);
 		}
-		else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr){ //aft RHC/THC
-			if(AftSense) { //-Z
-				//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
-				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					THCInput.z=-AltKybdInput.x;
-					THCInput.y=-AltKybdInput.y;
-					THCInput.x=-AltKybdInput.z;
-				}
-				else {
-					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-				}
-			}
-			else { //-X
-				//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
-				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+		else { // launch or in orbit - use Orbiter thrusters
+			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
+			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
+				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
 				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
 				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					THCInput.x=-AltKybdInput.x;
-					THCInput.y=-AltKybdInput.y;
-					THCInput.z=AltKybdInput.z;
+					for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
 				}
 				else {
-					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
 					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
 				}
 			}
-		}
-		else {
-			RHCInput=_V(0, 0, 0);
-			THCInput=_V(0, 0, 0);
+			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
+				if(AftSense) { //-Z
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
+					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+						THCInput.z=-AltKybdInput.x;
+						THCInput.y=-AltKybdInput.y;
+						THCInput.x=-AltKybdInput.z;
+					}
+					else {
+						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
+					}
+				}
+				else { //-X
+					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
+					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
+					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
+					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
+					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+						THCInput.x=-AltKybdInput.x;
+						THCInput.y=-AltKybdInput.y;
+						THCInput.z=AltKybdInput.z;
+					}
+					else {
+						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
+						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+					}
+				}
+			}
+			else {
+				RHCInput=_V(0, 0, 0);
+				THCInput=_V(0, 0, 0);
+			}
 		}
 
 		for(unsigned short i=0;i<3;i++) {
@@ -4117,9 +4129,9 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteLine(scn, "  ODS");
   }
 
-  if (status == 1)
+  /*if (status == 1)
     oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-  else oapiWriteScenario_float (scn, "MET", met);
+  else oapiWriteScenario_float (scn, "MET", met);*/
 
   if (spdb_status != AnimState::CLOSED) {
     sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
@@ -4795,6 +4807,14 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
 	}
 	
+	// update MET
+	if(status==STATE_PRELAUNCH) {
+		met = 0.0;
+	}
+	else {
+		// calculate MET (in seconds) from MTU
+		met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0)/1000.0;
+	}
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
@@ -4851,7 +4871,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//GPC(simdt);
 		break;
 	case STATE_STAGE1: // SRB's ignited
-		met = simt-t0;
 		//play sounds
 		if(!IsPlaying3(SoundID, SSME_START))
 			PlayVesselWave3(SoundID, SSME_RUNNING, LOOP);
@@ -4911,7 +4930,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 
 	case STATE_STAGE2: // post SRB separation
-		met+=simdt;
 		if (bManualSeparate) {
 			//SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
 			//for(unsigned short i=0;i<3;i++) SetSSMEThrustLevel(i, 0.00);
@@ -4980,7 +4998,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		{
 			EnableControlSurfaces();
 		}
-		met+=simdt;
 
 		//get THC and RHC input
 		UpdateHandControllerSignals();
@@ -5267,12 +5284,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		
 	}*/
 
-	//update MET
-	MET[0]=(int)(met/86400);
-	MET[1]=(int)((met-86400*MET[0])/3600);
-	MET[2]=(int)((met-86400*MET[0]-3600*MET[1])/60);
-	MET[3]=(int)(met-86400*MET[0]-3600*MET[1]-60*MET[2]);
-
 	if(SoundID!=-1) {
 		//play RCS sounds
 		/*if(RCSThrustersFiring()) {
@@ -5449,22 +5460,43 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		___PostStep_flag = true;
 	}
 
-	double DynPress = GetDynPressure();
+
+	/*if(simt - tt >= 5)
+	{
+		tt = simt;
+		FILEHANDLE f1 = oapiOpenFile("SSUDensity.txt",FILE_APP);
+		oapiWriteItem_float(f1,"",GetAtmDensity());
+		oapiCloseFile(f1, FILE_APP);
+
+		FILEHANDLE f2 = oapiOpenFile("SSUVelocity.txt",FILE_APP);
+		oapiWriteItem_float(f2,"",GetAirspeed());
+		oapiCloseFile(f2,FILE_APP);
+
+		FILEHANDLE f3 = oapiOpenFile("SSUAltitude.txt",FILE_APP);
+		oapiWriteItem_float(f3,"",GetAltitude());
+		oapiCloseFile(f3,FILE_APP);
+	}*/
+	
+	
+	double dens = GetAtmDensity();
 	double speed = GetAirspeed();
-	double heating = DynPress * speed / 1000000;
-	double heating_factor = 0.2631*heating - 2.9405;
-	double heating_scalar;
+	double flux = (dens*pow(speed,3))/3/1000000;
+	double heating_factor = flux/4 - 3.5;
+	double heating_scalar = 0;
 	if(heating_factor>=1)
 		heating_scalar = 1;
 	else if(heating_factor<=0)
 		heating_scalar = 0;
 	else 
 		heating_scalar = heating_factor;
+		
+
 
 	if(heating_scalar == 0)
 		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_NEVER);
 	else
 		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_ALWAYS);
+	
 	
 
 	//REENTRY HEAT SHIELD

@@ -361,17 +361,19 @@ namespace vc {
 
 
 	class MDU;
-	class BasicVCComponent;
+	//class BasicVCComponent;
+	class AtlantisVCComponent;
 	class BasicSwitch;
-	class BasicPanel;
-	class PanelGroup;
+	//class BasicPanel;
+	class AtlantisPanel;
+	//class PanelGroup;
 	class PanelF7;
 	class PanelR2;
 	class DAPControl;
 
-	typedef struct {
+	/*typedef struct {
 		float x, y;
-	} VCMOUSEEVENTPOINT;
+	} VCMOUSEEVENTPOINT;*/
 
 	typedef MDU* PMDU;
 };

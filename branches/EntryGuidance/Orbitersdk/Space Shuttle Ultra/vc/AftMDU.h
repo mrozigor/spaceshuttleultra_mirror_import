@@ -25,12 +25,12 @@
 #ifndef _AFTMDU_H
 #define _AFTMDU_H
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "MDU.h"
 
 namespace vc
 {
-	class AftMDU : public BasicPanel
+	class AftMDU : public AtlantisPanel
 	{
 	private:
 		MDU* pAFD;

@@ -474,19 +474,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vc\BasicPanel.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\vc\BasicRotarySwitch.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\vc\BasicSwitch.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vc\BasicVCComponent.cpp"
 				>
 			</File>
 			<File
@@ -713,10 +705,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vc\PanelGroup.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PanelO3.cpp"
 				>
 			</File>
@@ -901,11 +889,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\AtlantisPanel.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AtlantisSubsystem.h"
 				>
 			</File>
 			<File
 				RelativePath=".\AtlantisSubsystemDirector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\AtlantisVCComponent.h"
 				>
 			</File>
 			<File
@@ -921,10 +917,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vc\BasicPanel.h"
-				>
-			</File>
-			<File
 				RelativePath=".\vc\BasicRotarySwitch.h"
 				>
 			</File>
@@ -934,10 +926,6 @@
 			</File>
 			<File
 				RelativePath=".\BasicValve.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vc\BasicVCComponent.h"
 				>
 			</File>
 			<File
@@ -1026,10 +1014,6 @@
 			</File>
 			<File
 				RelativePath=".\dps\IOModule.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ISubsystem.h"
 				>
 			</File>
 			<File
@@ -1162,10 +1146,6 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF8.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vc\PanelGroup.h"
 				>
 			</File>
 			<File

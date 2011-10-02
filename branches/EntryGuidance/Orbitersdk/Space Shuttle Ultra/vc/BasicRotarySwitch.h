@@ -26,13 +26,13 @@
 #define __VC_BASICROTARYSWITCH_H
 #pragma once
 
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include <vector>
 #include <string>
 
 namespace vc
 {
-	class BasicRotarySwitch: public BasicVCComponent
+	class BasicRotarySwitch: public AtlantisVCComponent
 	{
 	protected:
 		unsigned short usNumPositions;

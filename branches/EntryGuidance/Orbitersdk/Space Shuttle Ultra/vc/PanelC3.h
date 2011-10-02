@@ -26,13 +26,13 @@
 #define __VC_PANEL_C3_H_8B69A84E_82D7_49e2_BE5D_B389A8E2B914
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushbuttonIndicator.h"
 
 namespace vc
 {
-	class PanelC3 : public BasicPanel
+	class PanelC3 : public AtlantisPanel
 	{
 	public:
 		PanelC3(Atlantis* _sts);

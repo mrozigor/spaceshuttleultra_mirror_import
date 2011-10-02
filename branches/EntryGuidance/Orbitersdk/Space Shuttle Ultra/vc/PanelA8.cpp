@@ -36,7 +36,7 @@ extern GDIParams g_Param;
 namespace vc
 {
 	PanelA8::PanelA8(Atlantis* _sts)
-		: BasicPanel(_sts, "A8")
+		: AtlantisPanel(_sts, "A8")
 	{
 		hPanelMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_PANELA8);
 		mesh_index=MESH_UNDEFINED;
@@ -161,7 +161,7 @@ namespace vc
 
 	void PanelA8::OnPreStep(double SimT, double DeltaT, double MJD)
 	{
-		BasicPanel::OnPreStep(SimT, DeltaT, MJD);
+		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
 		double NewLEDValues[3];
 
@@ -236,7 +236,7 @@ namespace vc
 				oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
 			}
 			// print sign
-			if(LEDValues[id-AID_A8_LED1]>=0.0) src_rect = _R(0, 0, 64, 64);
+			if(LEDValues[id-AID_A8_LED1]>=0.0) src_rect = _R(4, 4, 52, 52);
 			else src_rect = _R(64, 0, 128, 64);
 			tgt_rect = _R(0, 0, 22, 22);
 			oapiBlt(surf, g_Param.digits_7seg, &tgt_rect, &src_rect);
@@ -250,14 +250,14 @@ namespace vc
 			return true;
 		}
 
-		return BasicPanel::OnVCRedrawEvent(id, _event, surf);
+		return AtlantisPanel::OnVCRedrawEvent(id, _event, surf);
 	}
 
 	void PanelA8::RegisterVC()
 	{
 		oapiWriteLog("PanelA8::RegisterVC() called");
-		BasicPanel::RegisterVC();
-		oapiWriteLog("PanelA8::BasicPanel::RegisterVC() called");
+		AtlantisPanel::RegisterVC();
+		oapiWriteLog("PanelA8::AtlantisPanel::RegisterVC() called");
 
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
@@ -298,9 +298,9 @@ namespace vc
 		oapiVCRegisterArea(AID_A8_TKBK19, _R(821, 392, 848, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// LED displays
 		//oapiVCRegisterArea(AID_A8_LED1, _R(230, 506, 252, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
-		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 	}
 
 	void PanelA8::DefineVC()
@@ -462,7 +462,7 @@ namespace vc
 	void PanelA8::DefineVCAnimations(UINT vcidx)
 	{
 		// call DefineVCAnimations using correct index
-		BasicPanel::DefineVCAnimations(mesh_index);
+		AtlantisPanel::DefineVCAnimations(mesh_index);
 	}
 
 	void PanelA8::Realize()
@@ -533,6 +533,6 @@ namespace vc
 		pSingleDirectDrive->outputB.Connect(pBundle, 8);
 		pSingleDirectDrive->outputA.Connect(pBundle, 9);
 
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 	}
 };

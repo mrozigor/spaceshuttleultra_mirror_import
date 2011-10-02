@@ -24,7 +24,7 @@
   **************************************************************************/
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
@@ -32,7 +32,7 @@
 
 namespace vc
 {
-	class PanelA6: public BasicPanel
+	class PanelA6: public AtlantisPanel
 	{
 	public:
 		PanelA6(Atlantis* _sts);

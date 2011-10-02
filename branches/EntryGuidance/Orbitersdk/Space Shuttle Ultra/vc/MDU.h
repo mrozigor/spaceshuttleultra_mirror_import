@@ -26,13 +26,13 @@
 
 #include "../dps/dps_defs.h"
 #include "vc_defs.h"
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 
 
 namespace vc {
 
 
-	class MDU: public BasicVCComponent
+	class MDU: public AtlantisVCComponent
 	{	
 		double t0;
 		bool counting;

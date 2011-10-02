@@ -12,7 +12,7 @@ namespace vc {
 	using class discsignals::DiscreteBundle;
 
 	PanelA7A8ODS::PanelA7A8ODS(Atlantis* _sts)
-		: BasicPanel(_sts, "A7A3/A8A3")
+		: AtlantisPanel(_sts, "A7A3/A8A3")
 	{
 
 		mesh_odspanel = oapiLoadMeshGlobal(ODSPANEL_MESHNAME);
@@ -140,7 +140,7 @@ namespace vc {
 	void PanelA7A8ODS::Realize()
 	{	
 		//Define switch connections
-		BasicPanel::Realize();
+		AtlantisPanel::Realize();
 
 		oapiWriteLog("Panel A7/A8:\tRealize()");
 
@@ -521,7 +521,7 @@ namespace vc {
 
 	void PanelA7A8ODS::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->orbiter_ofs;
 		oapiVCRegisterArea(AID_A8A3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
@@ -544,7 +544,7 @@ namespace vc {
 	void PanelA7A8ODS::DefineVCAnimations(UINT vc_idx)
 	{
 		oapiWriteLog("PANEL A7/A8:\tDefine VC Animations");
-		BasicPanel::DefineVCAnimations(midx_odspanel);
+		AtlantisPanel::DefineVCAnimations(midx_odspanel);
 	}
 		
 };

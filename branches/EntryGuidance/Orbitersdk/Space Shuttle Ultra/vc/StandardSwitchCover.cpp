@@ -48,7 +48,7 @@ namespace vc
 		{
 			SetAnimation(anim_cover, usNewPosition);
 		}
-		BasicVCComponent::SetMouseRegion(mouse_a[usNewPosition].x, mouse_a[usNewPosition].y, mouse_d[usNewPosition].x, mouse_d[usNewPosition].y);
+		AtlantisVCComponent::SetMouseRegion(mouse_a[usNewPosition].x, mouse_a[usNewPosition].y, mouse_d[usNewPosition].x, mouse_d[usNewPosition].y);
 	}
 
 	void StandardSwitchCover::DefineCoverGroup(UINT _grpIndex)

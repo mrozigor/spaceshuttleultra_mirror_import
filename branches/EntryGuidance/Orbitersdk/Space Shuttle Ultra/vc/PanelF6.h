@@ -24,13 +24,13 @@
   **************************************************************************/
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "MDU.h"
 #include "StandardSwitch.h"
 
 namespace vc {
 
-	class PanelF6: public BasicPanel
+	class PanelF6: public AtlantisPanel
 	{
 		MDU* pCDR1;
 		MDU* pCDR2;

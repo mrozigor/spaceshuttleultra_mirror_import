@@ -27,12 +27,12 @@
 #ifndef _PANELR11_H
 #define _PANELR11_H
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "MDU.h"
 
 namespace vc
 {
-	class PanelR11 : public BasicPanel
+	class PanelR11 : public AtlantisPanel
 	{
 	private:
 		MDU* pCRT4;

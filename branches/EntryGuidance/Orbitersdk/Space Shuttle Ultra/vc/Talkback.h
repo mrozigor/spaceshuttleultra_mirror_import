@@ -26,14 +26,14 @@
 #define __TALKBACK_H
 #pragma once
 
-#include "BasicVCComponent.h"
+#include "AtlantisVCComponent.h"
 #include "DiscInPort.h"
 
 namespace vc
 {
 	using namespace discsignals;
 
-	class BasicTalkback : public BasicVCComponent
+	class BasicTalkback : public AtlantisVCComponent
 	{
 	protected:
 		unsigned short usHeight, usWidth;

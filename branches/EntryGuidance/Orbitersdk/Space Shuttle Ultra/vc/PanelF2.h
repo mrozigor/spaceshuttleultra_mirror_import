@@ -26,12 +26,12 @@
 #define __PANELF2_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 
 namespace vc
 {
-	class PanelF2: public BasicPanel
+	class PanelF2: public AtlantisPanel
 	{
 		/*PushButtonIndicator *pBFAuto, *pBFMan;
 		PushButtonIndicator *pSbdThrotAuto, *pSbdThrotMan;*/

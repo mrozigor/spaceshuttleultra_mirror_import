@@ -771,7 +771,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			}
 		}
 		else if(item==19) {
-			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles();
+			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
 			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
 			if(startTime <= STS()->GetMET()) {
 				if(TGT_ID == 2) {
@@ -1663,37 +1663,30 @@ VECTOR3 OrbitDAP::ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const
 
 MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 {
-	VECTOR3 HorizonX, LocalX, GlobalX, HorizonY, LocalY, GlobalY, HorizonZ, LocalZ, GlobalZ;
-	VECTOR3 GVel, HVel, LocVel;
-	MATRIX3 LocalToGlobal;
-
-	STS()->GetRotationMatrix(LocalToGlobal);
+	// calculate matrix to convert from LVLH to Orbiter inertial frame
+	VECTOR3 GPos, GVel;
+	STS()->GetRelativePos(STS()->GetSurfaceRef(), GPos);
 	STS()->GetRelativeVel(STS()->GetSurfaceRef(), GVel);
-	LocVel=tmul(LocalToGlobal, GVel); //multiply GVel by transpose(inverse) of rotation matrix
-	STS()->HorizonRot(LocVel, HVel);
-	double VVAngle=atan2(HVel.z, HVel.x)*DEG;
+	VECTOR3 norm_GVel = GVel/length(GVel); // almost z-axis
+	VECTOR3 y_axis = GPos/length(GPos);
+	VECTOR3 x_axis = crossp(y_axis, norm_GVel);
+	x_axis = x_axis/length(x_axis);
+	VECTOR3 z_axis = crossp(x_axis, y_axis);
+	MATRIX3 TFMatrix = _M(x_axis.x, y_axis.x, z_axis.x,
+						x_axis.y, y_axis.y, z_axis.y,	
+						x_axis.z, y_axis.z, z_axis.z);
 
-	RotateVectorPYR2(_V(0, 0, -1), _V(radAngles.z, radAngles.y, -radAngles.x), HorizonX);
-	HorizonX=RotateVectorY(HorizonX, VVAngle);
-	STS()->HorizonInvRot(HorizonX, LocalX);
-	STS()->GlobalRot(LocalX, GlobalX);
-	
-	RotateVectorPYR2(_V(0, 1, 0), _V(radAngles.z, radAngles.y, -radAngles.x), HorizonY);
-	HorizonY=RotateVectorY(HorizonY, VVAngle);
-	STS()->HorizonInvRot(HorizonY, LocalY);
-	STS()->GlobalRot(LocalY, GlobalY);
+	// convert LVLH angles to rotation matrix
+	VECTOR3 HorizonX, HorizonY, HorizonZ;
+	RotateVectorPYR(_V(1, 0, 0), radAngles, HorizonX);
+	RotateVectorPYR(_V(0, 1, 0), radAngles, HorizonY);
+	RotateVectorPYR(_V(0, 0, 1), radAngles, HorizonZ);
+	MATRIX3 LVLHMatrix = _M(HorizonX.x, HorizonY.x, HorizonZ.x,
+							HorizonX.y, HorizonY.y, HorizonZ.y,
+							HorizonX.z, HorizonY.z, HorizonZ.z);
+	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix);
 
-	RotateVectorPYR2(_V(1, 0, 0), _V(radAngles.z, radAngles.y, -radAngles.x), HorizonZ);
-	HorizonZ=RotateVectorY(HorizonZ, VVAngle);
-	STS()->HorizonInvRot(HorizonZ, LocalZ);
-	STS()->GlobalRot(LocalZ, GlobalZ);
-
-	MATRIX3 RotMatrix = _M(GlobalX.x, GlobalY.x, GlobalZ.x,
-							GlobalX.y, GlobalY.y, GlobalZ.y,
-							GlobalX.z, GlobalY.z, GlobalZ.z);
 	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
-
-	//Output=ConvertAnglesBetweenM50AndOrbiter(Output);
 	return RotMatrix;
 }
 
@@ -1718,22 +1711,6 @@ MATRIX3 OrbitDAP::CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) 
 	return _M(YawRoll.x, YawRoll.y, YawRoll.z,
 			  H.x, H.y, H.z,
 			  Pitch.x, Pitch.y, Pitch.z);
-}
-
-VECTOR3 OrbitDAP::ConvertPYOMToBodyAngles() const
-{
-	MATRIX3 RotMatrixOM, RotMatrixP, RotMatrixY, RotMatrix270;
-	if(OM<=0.0) RotMatrixOM=IdentityMatrix;
-	else GetRotMatrixZ(OM*RAD, RotMatrixOM); //perform OM rotation first
-	GetRotMatrixX(-P*RAD, RotMatrixP);
-	GetRotMatrixY(Y*RAD, RotMatrixY);
-	GetRotMatrixX(270*RAD, RotMatrix270);
-	
-	MATRIX3 Temp=mul(RotMatrix270, RotMatrixOM);
-	Temp=mul(Temp, RotMatrixY);
-	Temp=mul(Temp, RotMatrixP);
-
-	return GetAnglesFromMatrix(Temp);
 }
 
 };

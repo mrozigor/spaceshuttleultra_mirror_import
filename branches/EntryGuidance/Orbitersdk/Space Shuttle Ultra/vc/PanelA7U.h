@@ -26,13 +26,13 @@
 #define _VC_PANELA7U_H
 #pragma once
 
-#include "BasicPanel.h"
+#include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushButtonIndicator.h"
 
 namespace vc
 {
-	class PanelA7U : public BasicPanel
+	class PanelA7U : public AtlantisPanel
 	{
 		StdSwitch3* pCameraPan;
 		StdSwitch3* pCameraTilt;

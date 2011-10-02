@@ -5,7 +5,7 @@
 namespace vc
 {
 	PanelR11::PanelR11(Atlantis *_sts)
-		: BasicPanel(_sts, "R11")
+		: AtlantisPanel(_sts, "R11")
 	{
 		Add(pCRT4 = new MDU(_sts, "CRT4", MDUID_CRT4, true));
 	}
@@ -24,7 +24,7 @@ namespace vc
 
 	void PanelR11::RegisterVC()
 	{
-		BasicPanel::RegisterVC();
+		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
 
