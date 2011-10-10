@@ -118,6 +118,12 @@ public:
 	 * Currently only needed for OMSBurnSoftware class (to manuver to burn att).
 	 */
 	void ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt);
+	/**
+	 * Starts maneuver to INRTL attitude.
+	 * Maneuver will start as soon as AUTO is selected.
+	 * Currently only needed for OMSBurnSoftware class (to manuver to burn att).
+	 */
+	void ManeuverToINRTLAttitude(const VECTOR3& degINRTLAtt);
 	
 	virtual void Realize();
 
