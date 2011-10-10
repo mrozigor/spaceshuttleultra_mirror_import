@@ -3,6 +3,7 @@
 #include "../Atlantis.h"
 #include "../ParameterValues.h"
 #include <UltraMath.h>
+#include "../util/Stopwatch.h"
 #include "IDP.h"
 
 namespace dps
@@ -50,7 +51,8 @@ void OMSBurnSoftware::Realize()
 	if(MnvrLoad) {
 		LoadManeuver();
 		//if(MnvrToBurnAtt) STS()->LoadBurnAttManeuver(BurnAtt);
-		if(MnvrToBurnAtt) pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+		//if(MnvrToBurnAtt) pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+		if(MnvrToBurnAtt) pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
 	}
 }
 
@@ -209,7 +211,8 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 		if(!MnvrToBurnAtt) {
 			//STS()->LoadBurnAttManeuver(BurnAtt);
 			MnvrToBurnAtt = true;
-			pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+			//pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+			pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
 		}
 		/*else {
 			STS()->TerminateManeuver();
@@ -549,8 +552,9 @@ void OMSBurnSoftware::LoadManeuver()
 	ThrustDir=RotateVectorZ(ThrustDir, TV_ROLL);
 
 	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
-	BurnAtt.data[PITCH]=-asin(ThrustDir.y)*DEG;
-	BurnAtt.data[YAW]=-asin(ThrustDir.x)*DEG; //check signs here
+	VECTOR3 radLVLHBurnAtt;
+	radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
+	radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
 	// compensate for roll
 	/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
@@ -560,16 +564,29 @@ void OMSBurnSoftware::LoadManeuver()
 	
 	//Burn Attitude
 	if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
-		if(DeltaV.z<=0) BurnAtt.data[PITCH]+=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		else BurnAtt.data[PITCH]-=DEG*acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 	}
-	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) BurnAtt.data[YAW]+=DEG*asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
-	BurnAtt.data[ROLL]=TV_ROLL;
+	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+	radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
 	/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-cos(TV_ROLL*RAD));
 	}*/
+
+	// convert LVLH angles to inertial angles at TIG
+	OBJHANDLE hEarth = STS()->GetGravityRef();
+	double timeToBurn=tig-STS()->GetMET();
+	VECTOR3 pos, vel;
+	STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
+	Stopwatch st;
+	st.Start();
+	PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
+	double time=st.Stop();
+	sprintf_s(oapiDebugString(), 255, "Propagation time: %f", time);
+	MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, pos, vel);
+	BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
 
 	//use rocket equation (TODO: Check math/formulas here)
 	// NOTE: assume vacuum ISP and 1.0 efficiency for tank

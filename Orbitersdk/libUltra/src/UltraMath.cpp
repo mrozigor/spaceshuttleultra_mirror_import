@@ -1,4 +1,5 @@
 #include <UltraMath.h>
+#include <kost.h>
 
 unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
@@ -19,6 +20,24 @@ unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// sprintf(buf,"result %d",-46);
 	// strcat(oapiDebugString(),buf);
 	return 0; // we should never hit this point
+}
+
+void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass)
+{
+	double mu = GGRAV*(oapiGetMass(hPlanet)+vesselMass);
+	kostStateVector state;
+	double J2Coeff=0.0;
+	if(nonsphericalGravity && oapiGetPlanetJCoeffCount(hPlanet)>0) J2Coeff=oapiGetPlanetJCoeff(hPlanet, 0);
+	kostElements2StateVectorAtTime(mu, &elements, &state, time, 1e-10, 30, oapiGetSize(hPlanet), J2Coeff);
+	//pos=state.pos;
+	//vel=state.vel;
+	pos=ConvertBetweenLHAndRHFrames(state.pos);
+	vel=ConvertBetweenLHAndRHFrames(state.vel);
+	// convert from equ frame to ecliptic frame
+	MATRIX3 obliquityMatrix;
+	oapiGetPlanetObliquityMatrix(hPlanet, &obliquityMatrix);
+	pos=mul(obliquityMatrix, pos);
+	vel=mul(obliquityMatrix, vel);
 }
 
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
@@ -146,7 +165,7 @@ void RotateVectorPYR2(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Re
 	Result=mul(RotMatrixZ, AfterPY);
 }
 
-VECTOR3 GetAnglesFromMatrix(const MATRIX3 &RotMatrix)
+VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix)
 {
 	VECTOR3 Angles;
 	Angles.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
@@ -272,7 +291,7 @@ VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 	RotMatrix=mul(M50, RotMatrix);
 	
 	//get angles
-	return GetAnglesFromMatrix(RotMatrix);
+	return GetXYZAnglesFromMatrix(RotMatrix);
 	/*Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
@@ -296,6 +315,31 @@ MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbit
 
 	Output=mul(M50, RotMatrix);
 	return Output;
+}
+
+MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel)
+{
+	VECTOR3 norm_GVel = vel/length(vel); // almost z-axis
+	VECTOR3 y_axis = pos/length(pos);
+	VECTOR3 x_axis = crossp(y_axis, norm_GVel);
+	x_axis = x_axis/length(x_axis);
+	VECTOR3 z_axis = crossp(x_axis, y_axis);
+	MATRIX3 TFMatrix = _M(x_axis.x, y_axis.x, z_axis.x,
+						x_axis.y, y_axis.y, z_axis.y,	
+						x_axis.z, y_axis.z, z_axis.z);
+
+	// convert LVLH angles to rotation matrix
+	VECTOR3 HorizonX, HorizonY, HorizonZ;
+	RotateVectorPYR(_V(1, 0, 0), radAngles, HorizonX);
+	RotateVectorPYR(_V(0, 1, 0), radAngles, HorizonY);
+	RotateVectorPYR(_V(0, 0, 1), radAngles, HorizonZ);
+	MATRIX3 LVLHMatrix = _M(HorizonX.x, HorizonY.x, HorizonZ.x,
+							HorizonX.y, HorizonY.y, HorizonZ.y,
+							HorizonX.z, HorizonY.z, HorizonZ.z);
+	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix);
+
+	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
+	return RotMatrix;
 }
 
 VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM)

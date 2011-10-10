@@ -123,6 +123,12 @@ void OrbitDAP::ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt)
 	LoadCurLVLHManeuver(degLVLHAtt*RAD);
 }
 
+void OrbitDAP::ManeuverToINRTLAttitude(const VECTOR3& degINRTLAtt)
+{
+	VECTOR3 radOrbiterAtt = ConvertAnglesBetweenM50AndOrbiter(degINRTLAtt*RAD, true);
+	LoadCurINRTLManeuver(radOrbiterAtt);
+}
+
 void OrbitDAP::LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
 {
 	CurManeuver.IsValid = true;
@@ -611,8 +617,8 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			VECTOR3 radLastTgtAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
 			MATRIX3 reqdAttM50Matrix = ConvertLVLHAnglesToM50Matrix(ActiveManeuver.radTargetLVLHAtt);
 			MATRIX3 reqdAttOrbiterMatrix = ConvertMatrixBetweenM50AndOrbiter(reqdAttM50Matrix, true);
-			ActiveManeuver.radTargetAttOrbiter = GetAnglesFromMatrix(reqdAttOrbiterMatrix);
-			REQD_ATT = GetAnglesFromMatrix(reqdAttM50Matrix)*DEG;
+			ActiveManeuver.radTargetAttOrbiter = GetXYZAnglesFromMatrix(reqdAttOrbiterMatrix);
+			REQD_ATT = GetXYZAnglesFromMatrix(reqdAttM50Matrix)*DEG;
 
 			if(ManeuverStatus == MNVR_STARTING) {
 				ManeuverStatus = MNVR_IN_PROGRESS;
@@ -648,7 +654,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
 		}
 		attErrorMatrix=CalcPitchYawRollRotMatrix(radTargetAttOrbiter);
-		ATT_ERR=GetAnglesFromMatrix(attErrorMatrix)*DEG;
+		ATT_ERR=GetXYZAnglesFromMatrix(attErrorMatrix)*DEG;
 		if(ManeuverStatus == MNVR_COMPLETE) {
 			CalcMultiAxisRates(degNullRatesLocal);
 		}
@@ -1667,7 +1673,8 @@ MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 	VECTOR3 GPos, GVel;
 	STS()->GetRelativePos(STS()->GetSurfaceRef(), GPos);
 	STS()->GetRelativeVel(STS()->GetSurfaceRef(), GVel);
-	VECTOR3 norm_GVel = GVel/length(GVel); // almost z-axis
+	return ::ConvertLVLHAnglesToM50Matrix(radAngles, GPos, GVel);
+	/*VECTOR3 norm_GVel = GVel/length(GVel); // almost z-axis
 	VECTOR3 y_axis = GPos/length(GPos);
 	VECTOR3 x_axis = crossp(y_axis, norm_GVel);
 	x_axis = x_axis/length(x_axis);
@@ -1687,7 +1694,7 @@ MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
 	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix);
 
 	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
-	return RotMatrix;
+	return RotMatrix;*/
 }
 
 MATRIX3 OrbitDAP::CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const

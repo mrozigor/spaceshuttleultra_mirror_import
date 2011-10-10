@@ -36,6 +36,12 @@ const MATRIX3 IdentityMatrix = _M(1, 0, 0,
 const double AXIS_TILT = 23.4458878*RAD;
 //tilt of Earth's axis (radians)
 
+/**
+ * Converts current elements to state vector at a future time
+ * Wrapper for kost functions; all input and output is in Orbiter frames/data structures
+ */
+void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass=0.0);
+
 //Math
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
 VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -46,7 +52,7 @@ VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v);
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 void RotateVectorPYR(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 void RotateVectorPYR2(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-VECTOR3 GetAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
+VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 //VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
@@ -61,6 +67,7 @@ double RotationRateChange(double Mass, double Moment, double Torque, double Delt
 
 VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
 MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
+MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel);
 /**
 * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to angles in shuttle body frame.
 */
@@ -86,7 +93,7 @@ static inline VECTOR3 Projection(const VECTOR3 &u, const VECTOR3 &v) //Proj u on
 	return v*(dotp(u, v)/dotp(v, v));
 }
 
-static inline VECTOR3 ToRad(const VECTOR3 &Input)
+/*static inline VECTOR3 ToRad(const VECTOR3 &Input)
 {
 		VECTOR3 Output;
 		for(int i=0;i<3;i++) {
@@ -102,6 +109,16 @@ static inline VECTOR3 ToDeg(const VECTOR3 &Input)
 		Output.data[i]=Input.data[i]*DEG;
 	}
 	return Output;
+}*/
+
+/**
+ * Converts between Orbiter left-handed frame and right-handed frame.
+ * Swaps y and z values.
+ * Used mainly when calling KOST functions
+ */
+static inline VECTOR3 ConvertBetweenLHAndRHFrames(VECTOR3 &v)
+{
+	return _V(v.x, v.z, v.y);
 }
 	
 static inline VECTOR3 NormZ(VECTOR3 &v)
