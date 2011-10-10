@@ -45,7 +45,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./include;../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include;../include;./KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -63,7 +63,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>./include;../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include;../include;./KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -77,6 +77,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="KOST\kost_elements.cpp" />
+    <ClCompile Include="KOST\kost_linalg.cpp" />
+    <ClCompile Include="KOST\kost_math.cpp" />
+    <ClCompile Include="KOST\kost_propagate.cpp" />
+    <ClCompile Include="KOST\kost_shape.cpp" />
     <ClCompile Include="src\BasicValve.cpp" />
     <ClCompile Include="src\BIU.cpp" />
     <ClCompile Include="src\BusController.cpp" />
@@ -111,6 +116,7 @@
     <ClInclude Include="include\Ultra.h" />
     <ClInclude Include="include\UltraMath.h" />
     <ClInclude Include="include\ValveTypeBool.h" />
+    <ClInclude Include="KOST\kost.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

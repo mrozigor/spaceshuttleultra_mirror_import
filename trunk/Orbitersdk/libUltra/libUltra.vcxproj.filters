@@ -54,6 +54,21 @@
     <ClCompile Include="src\MMUTapeImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="KOST\kost_elements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KOST\kost_linalg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KOST\kost_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KOST\kost_propagate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KOST\kost_shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BIU.h">
@@ -111,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\BasicVCComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KOST\kost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
