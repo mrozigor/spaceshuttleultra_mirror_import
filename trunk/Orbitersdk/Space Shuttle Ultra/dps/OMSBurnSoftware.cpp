@@ -67,7 +67,6 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 		oparam.PeT-=DeltaT;
 	}
 
-
 	if(!MnvrLoad || !MnvrExecute) return; // no burn to perform
 
 	if(BurnInProg || BurnCompleted) { // update VGO values
@@ -243,109 +242,39 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	switch(GetMajorMode()) {
 	case 104:
 		PrintCommonHeader("OMS 1 MNVR EXEC", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) {
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 105:
 		PrintCommonHeader("OMS 2 MNVR EXEC", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) {
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 106:
 		PrintCommonHeader("OMS 2 MNVR COAST", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) {
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 202:
 		PrintCommonHeader("ORBIT MNVR EXEC", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) {
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 301:
 		PrintCommonHeader("DEORB MNVR COAST", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) { // should show REI
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 302:
 		PrintCommonHeader("DEORB MNVR EXEC", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) { // should show REI
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
 	case 303:
 		PrintCommonHeader("DEORB MNVR COAST", pMDU);
-		if((oparam.PeT)<(oparam.ApT)) { // should show REI/TFF
-			minutes=(int)(oparam.PeT/60);
-			seconds=(int)(oparam.PeT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-			pMDU->mvprint(20, 9, cbuf);
-		}
-		else {
-			minutes=(int)(oparam.ApT/60);
-			seconds=(int)(oparam.ApT-(60*minutes));
-			sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
-			pMDU->mvprint(20, 9, cbuf);
-		}
 		break;
+	}
+	// print time to apogee/perigee
+	// for OPS 3, this should be REI & TFF instead (see SCOM)
+	if((oparam.PeT)<(oparam.ApT)) {
+		minutes=(int)(oparam.PeT/60);
+		seconds=(int)(oparam.PeT-(60*minutes));
+		sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
+		pMDU->mvprint(20, 9, cbuf);
+	}
+	else {
+		minutes=(int)(oparam.ApT/60);
+		seconds=(int)(oparam.ApT-(60*minutes));
+		sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
+		pMDU->mvprint(20, 9, cbuf);
 	}
 
 	timeDiff=static_cast<int>(tig-STS()->GetMET()+1);
@@ -364,7 +293,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %d", static_cast<int>(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %d", round(TV_ROLL));
 	pMDU->mvprint(1, 5, cbuf);
 	pMDU->mvprint(1, 6, "TRIM LOAD");
 	sprintf(cbuf, "6 P  %+2.1f", Trim.data[0]);
@@ -456,7 +385,12 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(40, 8, cbuf);
 	pMDU->mvprint(40, 10, "HA     HP");
 	pMDU->mvprint(36, 11, "TGT");
-	pMDU->mvprint(36, 12, "CUR");
+	double earthRadius = oapiGetSize(STS()->GetGravityRef());
+	double ap = (oparam.ApD-earthRadius)/NMI2M;
+	double pe = (oparam.PeD-earthRadius)/NMI2M;
+	sprintf(cbuf, "CUR %3d   %+4d", round(ap), round(pe));
+	pMDU->mvprint(36, 12, cbuf);
+	//pMDU->mvprint(36, 12, "CUR");
 
 	pMDU->mvprint(35, 15, "35 ABORT TGT");
 
@@ -580,11 +514,7 @@ void OMSBurnSoftware::LoadManeuver()
 	double timeToBurn=tig-STS()->GetMET();
 	VECTOR3 pos, vel;
 	STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-	Stopwatch st;
-	st.Start();
 	PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
-	double time=st.Stop();
-	sprintf_s(oapiDebugString(), 255, "Propagation time: %f", time);
 	MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, pos, vel);
 	BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
 
