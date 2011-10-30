@@ -191,6 +191,13 @@ void PayloadBayOp::AutoDoorSequenceControl()
 		else if(!CLBayDoorLatch[1].Closed()) CLBayDoorLatch[1].action=AnimState::CLOSING;
 		else if(!CLBayDoorLatch[2].Closed()) CLBayDoorLatch[2].action=AnimState::CLOSING;
 	}
+	else { // BDO_STOP
+		if(BayDoorStatus.Moving()) SetDoorAction(AnimState::STOPPED);
+		else if(CLBayDoorLatch[0].Moving()) CLBayDoorLatch[0].action=AnimState::STOPPED;
+		else if(CLBayDoorLatch[3].Moving()) CLBayDoorLatch[3].action=AnimState::STOPPED;
+		else if(CLBayDoorLatch[1].Moving()) CLBayDoorLatch[1].action=AnimState::STOPPED;
+		else if(CLBayDoorLatch[2].Moving()) CLBayDoorLatch[2].action=AnimState::STOPPED;
+	}
 }
 
 // ==============================================================
