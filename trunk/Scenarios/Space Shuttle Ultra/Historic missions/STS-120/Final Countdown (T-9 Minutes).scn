@@ -9,11 +9,11 @@ BEGIN_ENVIRONMENT
 END_ENVIRONMENT
 
 BEGIN_FOCUS
-  Ship Atlantis
+  Ship Discovery
 END_FOCUS
 
 BEGIN_CAMERA
-  TARGET Atlantis
+  TARGET Discovery
   MODE Cockpit
   FOV 50.00
   BEGIN_PRESET
@@ -71,7 +71,7 @@ Mir
   IDS 0:540 10 1:542 10 2:544 10
   XPDR 482
 END
-Atlantis:SpaceShuttleUltra
+Discovery:SpaceShuttleUltra
   STATUS Landed Earth
   POS -80.6232502 28.6197342
   HEADING 2.00
@@ -81,7 +81,7 @@ Atlantis:SpaceShuttleUltra
   CONFIGURATION 0
   ODS
   MET 0.000
-  WING_NAME Atlantis
+  WING_NAME Discovery
   RMS
   ARM_STATUS 0.500000 0.013600 0.014688 0.500000 0.500000 0.500000
   RMS_ROLLOUT 0 0.000000
@@ -178,6 +178,18 @@ Atlantis:SpaceShuttleUltra
   STBD_MPM_ROLLOUT 0 0.0000
   STBD_MPM_LATCHES 1 1.0000
 END
+ET:SSU_Tank
+  STATUS Orbiting Earth
+  ATTACHED 0:20,Discovery
+END
+LSRB:SSU_LSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:21,Discovery
+END
+RSRB:SSU_RSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:22,Discovery
+END
 MLP:SSU_MLP
   STATUS Landed Earth
   POS -80.6040620 28.608403
@@ -200,11 +212,11 @@ LCC:SSU_LCC
   HEADING 270.00
   LAUNCH_MJD 51795.536991
   PAD_NAME LC39A
-  SHUTTLE_NAME Atlantis
+  SHUTTLE_NAME Discovery
 END
 Ultra_OBSS:Spacecraft\Spacecraft3
   STATUS Orbiting Earth
-  ATTACHED 0:1,Atlantis
+  ATTACHED 0:1,Discovery
   NAVFREQ 0 0
   RCS 1
   CTRL_SURFACE 1
