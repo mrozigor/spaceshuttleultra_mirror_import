@@ -195,6 +195,18 @@ Discovery:SpaceShuttleUltra
   RMS_LATCHES 0 0.0000
 @ENDSUBSYSTEM		;RMS
 END
+ET:SSU_Tank
+  STATUS Orbiting Earth
+  ATTACHED 0:20,Discovery
+END
+LSRB:SSU_LSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:21,Discovery
+END
+RSRB:SSU_RSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:22,Discovery
+END
 END_SHIPS
 
 BEGIN_ExtMFD

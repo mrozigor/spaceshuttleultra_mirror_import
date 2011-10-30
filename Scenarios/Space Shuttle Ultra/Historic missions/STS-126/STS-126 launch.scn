@@ -196,6 +196,18 @@ Endeavour:SpaceShuttleUltra
    EVENT_TIMER0 0.000000 DOWN STOPPED
    EVENT_TIMER1 0.000000 DOWN STOPPED
 END
+ET:SSU_Tank
+  STATUS Orbiting Earth
+  ATTACHED 0:20,Endeavour
+END
+LSRB:SSU_LSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:21,Endeavour
+END
+RSRB:SSU_RSRB
+  STATUS Orbiting Earth
+  ATTACHED 0:22,Endeavour
+END
 Ultra_OBSS:Spacecraft\Spacecraft3
   STATUS Orbiting Earth
   ATTACHED 0:1,Endeavour
