@@ -75,6 +75,7 @@ namespace dps {
 	class GPC;
 	class AP101S;
 	class SimpleGPC;
+	class SimpleGPCSoftware;
 	/**
 	 * Connection between Shuttle Bus and subsystems.
 	 */

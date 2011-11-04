@@ -3,13 +3,12 @@
 #pragma once
 
 #include "../AtlantisSubsystem.h"
+#include "dps_defs.h"
 #include "../vc/vc_defs.h"
 #include <vector>
 
 namespace dps
 {
-
-class SimpleGPCSoftware;
 
 /**
  * Simple class to simulate GPC and associated software.
@@ -46,18 +45,18 @@ public:
 	 * @param item ITEM number
 	 * @param Data string containing data entered
 	 */
-	virtual bool ItemInput(int spec, int item, const char* Data);
+	bool ItemInput(int spec, int item, const char* Data);
 	/**
 	 * Called when EXEC is pressed and no data has been entered.
 	 * Returns true if keypress was handled.
 	 */
-	virtual bool ExecPressed(int spec);
+	bool ExecPressed(int spec);
 	/**
 	 * Draws display on MDU.
 	 * Returns true if data was drawn; false otherwise
 	 */
-	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
-	virtual bool OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const;
+	bool OnPaint(int spec, vc::MDU* pMDU) const;
+	bool OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const;
 
 	SimpleGPCSoftware* FindSoftware(const std::string& identifier) const;
 };
