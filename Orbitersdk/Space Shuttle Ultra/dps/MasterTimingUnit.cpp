@@ -299,6 +299,12 @@ void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 	bMETCounting[0] = bMETCounting[1];
 }
 
+void MasterTimingUnit::Realize()
+{
+	// make sure data loaded from scenario file is propagated for first timestep
+	OnPropagate(0.0, 0.0, oapiGetSimMJD());
+}
+
 void MasterTimingUnit::OnSaveState(FILEHANDLE scn) const
 {
 	char pszBuffer[128];

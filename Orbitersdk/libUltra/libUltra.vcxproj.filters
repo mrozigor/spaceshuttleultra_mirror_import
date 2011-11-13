@@ -69,6 +69,9 @@
     <ClCompile Include="KOST\kost_shape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\StateVectorPropagator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BIU.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KOST\kost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StateVectorPropagator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

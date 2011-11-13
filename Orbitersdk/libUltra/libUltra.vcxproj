@@ -93,6 +93,7 @@
     <ClCompile Include="src\DiscretePort.cpp" />
     <ClCompile Include="src\MMUTapeImage.cpp" />
     <ClCompile Include="src\ShuttleBus.cpp" />
+    <ClCompile Include="src\StateVectorPropagator.cpp" />
     <ClCompile Include="src\UltraMath.cpp" />
     <ClCompile Include="src\ValveTypeBool.cpp" />
   </ItemGroup>
@@ -111,6 +112,7 @@
     <ClInclude Include="include\MMUTapeImage.h" />
     <ClInclude Include="include\PanelGroup.h" />
     <ClInclude Include="include\ShuttleBus.h" />
+    <ClInclude Include="include\StateVectorPropagator.h" />
     <ClInclude Include="include\Subsystem.h" />
     <ClInclude Include="include\SubsystemDirector.h" />
     <ClInclude Include="include\Ultra.h" />
