@@ -3,6 +3,7 @@
 #pragma once
 
 #include "SimpleGPCSoftware.h"
+#include "StateVectorPropagator.h"
 #include "discsignals.h"
 
 namespace dps
@@ -28,9 +29,11 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	VECTOR3 BurnAtt;
 	//double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 
-	ORBITPARAM oparam;
-	ELEMENTS el;
+	//ORBITPARAM oparam;
+	//ELEMENTS el;
+	double ApD, ApT, PeD, PeT;
 	double lastUpdateSimTime;
+	StateVectorPropagator propagator;
 
 	DiscOutPort omsEngineCommand[2], omsPitchCommand[2], omsYawCommand[2];
 	DiscInPort omsPitchGimbal[2], omsYawGimbal[2];

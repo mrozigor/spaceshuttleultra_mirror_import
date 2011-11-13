@@ -4542,7 +4542,15 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		oapiWriteLog("In clbkPreStep");
 		___PreStep_flag = true;
 	}
-
+	
+	// update MET; needs to be done as early as possible, before subsytem PreStep functions are called
+	if(status==STATE_PRELAUNCH) {
+		met = 0.0;
+	}
+	else {
+		// calculate MET (in seconds) from MTU
+		met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0)/1000.0;
+	}
 	//Stopwatch st, stSub;
 	//st.Start();
 
@@ -4805,15 +4813,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	if(!___PostStep_flag)
 	{
 		oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
-	}
-	
-	// update MET
-	if(status==STATE_PRELAUNCH) {
-		met = 0.0;
-	}
-	else {
-		// calculate MET (in seconds) from MTU
-		met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0)/1000.0;
 	}
 
 	switch (status) {

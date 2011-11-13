@@ -13,7 +13,10 @@ OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "OMSBurnSoftware"),
 BurnInProg(false), BurnCompleted(false),
 MnvrLoad(false), MnvrExecute(false), MnvrToBurnAtt(false),
-lastUpdateSimTime(-10.0), pOrbitDAP(NULL)
+lastUpdateSimTime(-100.0),
+//propagatedState(0.05, 20, 3600.0),
+propagator(0.2, 50, 7200.0),
+pOrbitDAP(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
 	OMS = 0;
@@ -58,14 +61,53 @@ void OMSBurnSoftware::Realize()
 
 void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	if((SimT-lastUpdateSimTime) > 10.0) {
-		STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
+	//if((SimT-lastUpdateSimTime) > 10.0) {
+	if((SimT-lastUpdateSimTime) > 60.0) {
+		//ELEMENTS el;
+		//ORBITPARAM oparam;
+		OBJHANDLE hEarth = STS()->GetGravityRef();
+		//STS()->GetElements(hEarth, el, &oparam, 0, FRAME_EQU);
+		if(lastUpdateSimTime < 0.0) {
+			//propagatedState.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), oapiGetPlanetJCoeff(hEarth, 0));
+			propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), oapiGetPlanetJCoeff(hEarth, 0));
+		}
+
+		MATRIX3 obliquityMat;
+		oapiGetPlanetObliquityMatrix(hEarth, &obliquityMat);
+		VECTOR3 pos, vel;
+		STS()->GetRelativePos(hEarth, pos);
+		STS()->GetRelativeVel(hEarth, vel);
+		pos=tmul(obliquityMat, pos);
+		vel=tmul(obliquityMat, vel);
+		propagator.UpdateStateVector(pos, vel, STS()->GetMET());
+		//if(lastUpdateSimTime < 0.0) propagator.UpdateStateVector(pos, vel, STS()->GetMET());
+		//sprintf_s(oapiDebugString(), 255, "MET: %f Pos: %f %f %f Vel: %f %f %f", STS()->GetMET(), pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+		//oapiWriteLog(oapiDebugString());
+		// update perigee/apogee data
+		if(lastUpdateSimTime > 0.0) {
+			//Stopwatch st;
+			//st.Start();
+			propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
+			propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
+			//double time = st.Stop();
+			//sprintf_s(oapiDebugString(), 255, "ApD: %f PeD: %f MET_Apo: %f MET_Peri: %f", ApD, PeD, ApT, PeT);
+		}
+
 		lastUpdateSimTime = SimT;
 	}
-	else {
-		oparam.ApT-=DeltaT;
-		oparam.PeT-=DeltaT;
-	}
+	/*else {
+		//oparam.ApT-=DeltaT;
+		//oparam.PeT-=DeltaT;
+		ApT-=DeltaT;
+		PeT-=DeltaT;
+	}*/
+
+	//Stopwatch st;
+	//st.Start();
+	//propagatedState.Step(STS()->GetMET(), DeltaT);
+	propagator.Step(STS()->GetMET(), DeltaT);
+	//double propTime = st.Stop();
+	//sprintf_s(oapiDebugString(), 255, "Propagation step Time: %f", propTime);
 
 	if(!MnvrLoad || !MnvrExecute) return; // no burn to perform
 
@@ -264,7 +306,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	}
 	// print time to apogee/perigee
 	// for OPS 3, this should be REI & TFF instead (see SCOM)
-	if((oparam.PeT)<(oparam.ApT)) {
+	/*if((oparam.PeT)<(oparam.ApT)) {
 		minutes=(int)(oparam.PeT/60);
 		seconds=(int)(oparam.PeT-(60*minutes));
 		sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
@@ -273,6 +315,20 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	else {
 		minutes=(int)(oparam.ApT/60);
 		seconds=(int)(oparam.ApT-(60*minutes));
+		sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
+		pMDU->mvprint(20, 9, cbuf);
+	}*/
+	if(PeT<ApT) {
+		double TTP = PeT - STS()->GetMET();
+		minutes=(int)(TTP/60);
+		seconds=(int)(TTP-(60*minutes));
+		sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
+		pMDU->mvprint(20, 9, cbuf);
+	}
+	else {
+		double TTA = ApT - STS()->GetMET();
+		minutes=(int)(TTA/60);
+		seconds=(int)(TTA-(60*minutes));
 		sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
 		pMDU->mvprint(20, 9, cbuf);
 	}
@@ -386,8 +442,10 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(40, 10, "HA     HP");
 	pMDU->mvprint(36, 11, "TGT");
 	double earthRadius = oapiGetSize(STS()->GetGravityRef());
-	double ap = (oparam.ApD-earthRadius)/NMI2M;
-	double pe = (oparam.PeD-earthRadius)/NMI2M;
+	//double ap = (oparam.ApD-earthRadius)/NMI2M;
+	//double pe = (oparam.PeD-earthRadius)/NMI2M;
+	double ap = (ApD-earthRadius)/NMI2M;
+	double pe = (PeD-earthRadius)/NMI2M;
 	sprintf(cbuf, "CUR %3d   %+4d", round(ap), round(pe));
 	pMDU->mvprint(36, 12, cbuf);
 	//pMDU->mvprint(36, 12, "CUR");
@@ -513,6 +571,9 @@ void OMSBurnSoftware::LoadManeuver()
 	OBJHANDLE hEarth = STS()->GetGravityRef();
 	double timeToBurn=tig-STS()->GetMET();
 	VECTOR3 pos, vel;
+	// TODO: use VesselState class here
+	ELEMENTS el;
+	ORBITPARAM oparam;
 	STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 	PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
 	MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, pos, vel);
