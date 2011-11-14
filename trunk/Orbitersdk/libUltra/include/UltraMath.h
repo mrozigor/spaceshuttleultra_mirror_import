@@ -116,7 +116,7 @@ static inline VECTOR3 ToDeg(const VECTOR3 &Input)
  * Swaps y and z values.
  * Used mainly when calling KOST functions
  */
-static inline VECTOR3 ConvertBetweenLHAndRHFrames(VECTOR3 &v)
+static inline VECTOR3 ConvertBetweenLHAndRHFrames(const VECTOR3 &v)
 {
 	return _V(v.x, v.z, v.y);
 }
