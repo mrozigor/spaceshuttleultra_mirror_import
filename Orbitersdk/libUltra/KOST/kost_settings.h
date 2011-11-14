@@ -103,9 +103,9 @@ you might want to do:
 #define KOSTMM_LINALG_OPERATORS_MATRIX3
 #define KOSTMM_LINALG_OPERATORS_EXTRA
 
-#define dotProduct   dotp
-#define crossProduct crossp
-#define abs          length
+//#define dotProduct   dotp
+//#define crossProduct crossp
+//#define abs          length
 #undef  abs2
 #undef  makeTranspose
 
