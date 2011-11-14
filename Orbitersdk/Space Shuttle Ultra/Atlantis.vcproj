@@ -185,11 +185,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltrad.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\lib;..\lib\Lua"
+				AdditionalLibraryDirectories="..\lib;..\lib\Lua;..\libUltra\lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="msvcirt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
