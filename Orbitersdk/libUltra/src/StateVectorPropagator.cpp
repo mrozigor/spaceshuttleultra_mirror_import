@@ -31,6 +31,13 @@ void StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTO
 		maxPropMET = met+maxPropagationTime;
 		lastSaveMET = propMET-1000.0; // force data to be saved
 		lastStateVectorUpdateMET = met;
+
+		if(stateVectors.size()==0) {
+			kostStateVector state;
+			state.pos = ConvertBetweenLHAndRHFrames(equPos);
+			state.vel = ConvertBetweenLHAndRHFrames(equVel);
+			stateVectors.insert(std::make_pair(met, state));
+		}
 	}
 	/*if(stateVectors.size() > 0) {
 		VECTOR3 pos, vel;

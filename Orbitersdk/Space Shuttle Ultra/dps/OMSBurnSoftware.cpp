@@ -52,7 +52,7 @@ void OMSBurnSoftware::Realize()
 	pOrbitDAP = static_cast<OrbitDAP*>(FindSoftware("OrbitDAP"));
 
 	if(MnvrLoad) {
-		LoadManeuver();
+		LoadManeuver(false); // BurnAtt should have been loaded from scenario; don't have state vectors, so it can't be calculated here
 		//if(MnvrToBurnAtt) STS()->LoadBurnAttManeuver(BurnAtt);
 		//if(MnvrToBurnAtt) pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
 		if(MnvrToBurnAtt) pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
@@ -87,11 +87,13 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(lastUpdateSimTime > 0.0) {
 			//Stopwatch st;
 			//st.Start();
-			propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-			propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
+			//propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
+			//propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
 			//double time = st.Stop();
 			//sprintf_s(oapiDebugString(), 255, "ApD: %f PeD: %f MET_Apo: %f MET_Peri: %f", ApD, PeD, ApT, PeT);
 		}
+		propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
+		propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
 
 		lastUpdateSimTime = SimT;
 	}
@@ -318,7 +320,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		sprintf_s(cbuf, 255, "TTA %.2d:%.2d", minutes, seconds);
 		pMDU->mvprint(20, 9, cbuf);
 	}*/
-	if(PeT<ApT) {
+	if(PeT<ApT && PeT>=STS()->GetMET()) {
 		double TTP = PeT - STS()->GetMET();
 		minutes=(int)(TTP/60);
 		seconds=(int)(TTP-(60*minutes));
@@ -465,6 +467,10 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		sscanf(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
 		return true;
 	}
+	else if(!_strnicmp(keyword, "BURN_ATT", 8)) {
+		sscanf(value, "%lf%lf%lf", &BurnAtt.x, &BurnAtt.y, &BurnAtt.z);
+		return true;
+	}
 	else if(!_strnicmp(keyword, "WT", 2)) {
 		sscanf(value, "%lf", &WT);
 		return true;
@@ -489,6 +495,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	char cbuf[255];
 	oapiWriteScenario_vec(scn, "PEG7", PEG7);
 	oapiWriteScenario_vec(scn, "Trim", Trim);
+	oapiWriteScenario_vec(scn, "BURN_ATT", BurnAtt);
 	oapiWriteScenario_float(scn, "WT", WT);
 	sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	oapiWriteScenario_string(scn, "TIG", cbuf);
@@ -497,7 +504,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_string(scn, "MNVR", cbuf);
 }
 
-void OMSBurnSoftware::LoadManeuver()
+void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;
 	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
@@ -544,40 +551,47 @@ void OMSBurnSoftware::LoadManeuver()
 	ThrustDir=RotateVectorZ(ThrustDir, TV_ROLL);
 
 	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
-	VECTOR3 radLVLHBurnAtt;
-	radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
-	radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
-	// compensate for roll
-	/*if(TV_ROLL!=0.0) {
+	if(calculateBurnAtt) {
+		VECTOR3 radLVLHBurnAtt;
+		radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
+		radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
+		// compensate for roll
+		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-abs(cos(TV_ROLL*RAD)));
-	}*/
-	
-	//Burn Attitude
-	if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
-		if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-	}
-	if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
-	radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
-	/*if(TV_ROLL!=0.0) {
+		}*/
+
+		//Burn Attitude
+		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
+			if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+			else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
+		}
+		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+		radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
+		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
 		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
 		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-cos(TV_ROLL*RAD));
-	}*/
+		}*/
 
-	// convert LVLH angles to inertial angles at TIG
-	OBJHANDLE hEarth = STS()->GetGravityRef();
-	double timeToBurn=tig-STS()->GetMET();
-	VECTOR3 pos, vel;
-	// TODO: use VesselState class here
-	ELEMENTS el;
-	ORBITPARAM oparam;
-	STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-	PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
-	MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, pos, vel);
-	BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
+		// convert LVLH angles to inertial angles at TIG
+		OBJHANDLE hEarth = STS()->GetGravityRef();
+		//double timeToBurn=tig-STS()->GetMET();
+		VECTOR3 pos, vel;
+		// TODO: use VesselState class here
+		//ELEMENTS el;
+		//ORBITPARAM oparam;
+		//STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
+		//PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
+		propagator.GetStateVectors(tig, pos, vel);
+		MATRIX3 obliquityMatrix;
+		oapiGetPlanetObliquityMatrix(hEarth, &obliquityMatrix);
+		pos=mul(obliquityMatrix, pos);
+		vel=mul(obliquityMatrix, vel);
+		MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, pos, vel);
+		BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
+	}
 
 	//use rocket equation (TODO: Check math/formulas here)
 	// NOTE: assume vacuum ISP and 1.0 efficiency for tank

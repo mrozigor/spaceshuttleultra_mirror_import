@@ -55,7 +55,7 @@ public:
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 private:
-	void LoadManeuver();
+	void LoadManeuver(bool calculateBurnAtt = true);
 };
 
 };
