@@ -216,6 +216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\StateVectorPropagator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\UltraMath.cpp"
 				>
 			</File>
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\include\ShuttleBus.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\StateVectorPropagator.h"
 				>
 			</File>
 			<File
