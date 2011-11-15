@@ -1,0 +1,11 @@
+This document describes how to setup the libraries required to compile SSU.
+
+OrbiterSound: Copy the OrbiterSDK35 .lib and .h files (in Sound/OrbiterSound_SDK/VESSELSOUND_SDK) into the orbitersdk/lib and orbitersdk/include folders, respectively.
+
+
+If you don't want to run the unit tests, you can simply unload the libUltraTests project in Visual Studio, and the tests will not be compiled.
+GoogleTest is required to build and run the unit tests.
+GoogleTest:
+	Download the Google Test. Extract the zip into orbitersdk, and rename the folder to googletest.
+	Open the googletest/msvc/gtest-md.sln file and compile both the Release and Debug versions.
+	Copy the gtest.lib and gtest_main-md.lib files (from the Release build) and the gtestd.lib and gtest_main-mdd.lib (from the Debug build) into orbitersdk/googletes/lib/Dynamic.
