@@ -6,10 +6,12 @@
 #include <vector>
 
 const double SRB_MAX_PROPELLANT_MASS = 502146.0;
+const double FWC_SRB_MAX_PROPELLANT_MASS = 501440.015;
 // SRB propellant mass [kg]
 //total impulse is 1.32466E9 Ns
 
 const double SRB_EMPTY_MASS = 87603.65;
+const double FWC_SRB_EMPTY_MASS = 53103.8731;
 // SRB empty mass [kg]
 
 //const double SRB_ISP0 = 3574.68;
@@ -24,6 +26,7 @@ SRM vacuum thrust as reported by Thiokol in the report "RSRM-13 (360Q013) ballis
 properties flight designation STS-41"
 */
 const double SRB_THRUST = 15.12904086E6; // Vacuum SRB thrust per unit [N]
+const double FWC_SRB_THRUST = 14808129.8; // Vacuum SRB thrust per unit [N]
 
 //Lift-off thrust is 15.574012 MN
 //Equals vacuum thrust 17.67824672 MN 
