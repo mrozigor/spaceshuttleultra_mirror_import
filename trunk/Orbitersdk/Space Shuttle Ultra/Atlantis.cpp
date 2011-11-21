@@ -4384,6 +4384,8 @@ void Atlantis::clbkPostCreation ()
 		else if(ROT) LoadRotationManeuver();
 	}*/
 
+
+
 	//oapiWriteLog("(ssu)Realize all subsystems");
 	psubsystems->RealizeAll();
 	pgForward.Realize();
@@ -4534,6 +4536,20 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
+		// update SRB thrusters to match values from SRB vessel
+		if(status <= STATE_STAGE1) {
+			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
+			VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
+			THRUSTER_HANDLE th_ref = pLeftSRB->GetGroupThruster(THGROUP_MAIN, 0);
+			CopyThrusterSettings(th_srb[0], pLeftSRB, th_ref);
+			VESSEL* pRightSRB = oapiGetVesselInterface(GetAttachmentStatus(ahRightSRB));
+			th_ref = pRightSRB->GetGroupThruster(THGROUP_MAIN, 0);
+			CopyThrusterSettings(th_srb[1], pRightSRB, th_ref);
+
+			PROPELLANT_HANDLE ph_ref = pLeftSRB->GetThrusterResource(th_ref);
+			double phMass = pLeftSRB->GetPropellantMaxMass(ph_ref);
+			SetPropellantMaxMass(ph_srb, phMass*2.0);
+		}
 		if(bAutopilot && status <= STATE_STAGE2) InitializeAutopilot();
 	}
 
@@ -8465,4 +8481,10 @@ void Atlantis::ControlPLBLights()
 		}
 		bPLBLights = true;
 	}
+}
+
+void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
+{
+	SetThrusterMax0(th, v->GetThrusterMax0(th_ref));
+	SetThrusterIsp(th, v->GetThrusterIsp0(th), v->GetThrusterIsp(th, 101.4e3), 101.4e3);
 }

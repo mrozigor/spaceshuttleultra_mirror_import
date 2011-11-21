@@ -693,6 +693,14 @@ private:
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
 	void SeparateTank (void);
+
+	/**
+	 * Copies settings (thrust & ISP) from one thruster to another
+	 * \param th Thruster to change settings on
+	 * \param v Vessel containing th_ref
+	 * \param th_ref Thruster to copy settings from
+	 */
+	void CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref);
 	
 	void SSMEEngControl(unsigned short usEng) const;
 	void OMSEngControl(unsigned short usEng);
