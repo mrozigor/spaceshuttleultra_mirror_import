@@ -205,15 +205,20 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// ************************ visual parameters **********************************
 
 	//mesh_idx = AddMesh (hSRBMesh);
+
+	// show meshes
+	UpdateVisual(FWC);
 }
 
-void Atlantis_SRB::UpdateVisual() const
+void Atlantis_SRB::UpdateVisual(bool FWC) const
 {
 	ClearMeshes();
 
 
 	for(int i=0;i<usSectionCount;i++) {
-		VECTOR3 ofs = _V(0.0, 0.0, SRB_SECTION_ZPOS[i]);
+		VECTOR3 ofs;
+		if(FWC) ofs = _V(0.0, 0.0, FWC_SRB_SECTION_ZPOS[i]);
+		else ofs = _V(0.0, 0.0, SRB_SECTION_ZPOS[i]);
 		AddMesh(hSRMSegmentMesh[i], &ofs);
 	
 	}
@@ -225,9 +230,6 @@ void Atlantis_SRB::clbkPostCreation ()
 	//SetRefTime ();	// reconstruct ignition time from fuel level
 	SetPropellantMass(ph_main, 0.0);
 	SetPropellantMass(phBSM, GetPropellantMaxMass(phBSM));
-
-	// show meshes
-	UpdateVisual();
 }
 
 // Simulation time step

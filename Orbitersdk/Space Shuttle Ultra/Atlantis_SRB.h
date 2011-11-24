@@ -62,10 +62,17 @@ const unsigned short SRB_SECTION_COUNT = 5; // 4 fueled segments and FWD skirt
 
 const double SRB_SECTION_ZPOS[SRB_SECTION_COUNT] = {
 	-15.2,
-	SRB_SECTION_ZPOS[0]+10.6,
-	SRB_SECTION_ZPOS[1]+8.3,
-	SRB_SECTION_ZPOS[2]+8.24,
-	SRB_SECTION_ZPOS[3]+8.2,
+	SRB_SECTION_ZPOS[0]+9.93,
+	SRB_SECTION_ZPOS[1]+8.05,
+	SRB_SECTION_ZPOS[2]+8.02,
+	SRB_SECTION_ZPOS[3]+8.3,
+};
+const double FWC_SRB_SECTION_ZPOS[SRB_SECTION_COUNT] = {
+	-15.2,
+	FWC_SRB_SECTION_ZPOS[0]+9.82,
+	FWC_SRB_SECTION_ZPOS[1]+8.00,
+	FWC_SRB_SECTION_ZPOS[2]+8.63,
+	FWC_SRB_SECTION_ZPOS[3]+8.83,
 };
 
 // ==========================================================
@@ -96,7 +103,7 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 
 private:
-	void UpdateVisual() const;
+	void UpdateVisual(bool FWC) const;
 
 	MESHHANDLE hSRBMesh_Left;
 	MESHHANDLE hSRBMesh_Right;
