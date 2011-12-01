@@ -74,6 +74,7 @@ MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &po
 VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
 
 VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
+void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);

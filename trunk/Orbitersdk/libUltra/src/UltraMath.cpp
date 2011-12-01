@@ -1,5 +1,5 @@
-#include <UltraMath.h>
-#include <kost.h>
+#include "UltraMath.h"
+#include "kost.h"
 
 unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
@@ -391,6 +391,14 @@ VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 	VECTOR3 v;
 	oapiEquToLocal(hPlanet, lng, lat, rad, &v);
 	return v;
+}
+
+void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel)
+{
+	MATRIX3 obliquityMatrix;
+	oapiGetPlanetObliquityMatrix(hPlanet, &obliquityMatrix);
+	eclPos=mul(obliquityMatrix, equPos);
+	eclVel=mul(obliquityMatrix, equVel);
 }
 
 int tpir(const double* list, int n_items, double target) {

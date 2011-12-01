@@ -27,15 +27,15 @@ class StateVectorPropagator
 	VECTOR3 propPos, propVel;
 	double propMET;
 
-	double mu, GM, radius, J2;
+	double mu, GM, planetRadius, J2;
 	//double vesselMass;
 public:
 	//StateVectorPropagator(const VECTOR3& pos, const VECTOR3& vel, OBJHANDLE hPlanet, double _vesselMass, double currentMET);
 	StateVectorPropagator(double propagationStepLength, int _iterationsPerStep, double _maxPropagationTime);
 	~StateVectorPropagator();
 
-	void SetParameters(double vesselMass, double planetMass, double planetRadius, double J2Coeff);
-	void UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met);
+	void SetParameters(double vesselMass, double planetMass, double _planetRadius, double J2Coeff);
+	void UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate=false);
 
 	//void SetVesselMass(double newMass);
 
@@ -51,9 +51,21 @@ public:
 	//void GetPerigeeData(double& PeD, double& METAtPerigee) const;
 	void GetApogeeData(double currentMET, double& ApD, double& METAtApogee) const;
 	void GetPerigeeData(double currentMET, double& PeD, double& METAtPerigee) const;
+	/**
+	 * Returns MET at which the vessel will reach a given altitude.
+	 * \altitude altitude (relative to Earth's surface) in meters
+	 */
+	double GetMETAtAltitude(double currentMET, double altitude) const;
 private:
 	void Propagate(unsigned int iterationCount, double DeltaT);
 	void CalculateAccelerationVector(VECTOR3& grav) const;
 };
+
+/**
+ * Returns time (from epoch of elements passed) when spacecraft will next pass through given altitude.
+ * Assumes altitude is between apogee and perigee of elements.
+ * \radius distance (from centre of Earth) in meters
+ */
+double GetTimeToRadius(double radius, const ELEMENTS& el, double mu);
 
 #endif //STATEVECTORPROPAGATOR_128F62F4_83F4_4BDD_967B_7E2CD4016D3F
