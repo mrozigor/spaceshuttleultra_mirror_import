@@ -65,3 +65,37 @@ TEST(StateVectorPropagatorTest, ReturnsValidResultBeforeStepCalled) {
 	EXPECT_NEAR(length(pos), length(EXPECTED_POS), 200.0);
 	EXPECT_NEAR(length(vel), length(EXPECTED_VEL), 200.0);
 }
+
+TEST(StateVectorPropagatorTest, CalculatesTimeToAltAccurately) {
+	StateVectorPropagator propagator(0.05, 20, 5000.0);
+	propagator.SetParameters(96461.6, 59.73698968e23, 6371000.0, 0.00108263);
+	//const VECTOR3 INITIAL_POS = _V(622964.481668, -3028206.045104, 5892997.255388);
+	const VECTOR3 INITIAL_POS = _V(233311.676827, -2819821.588365, 6020231.977982);
+	//const VECTOR3 INITIAL_VEL = _V(-6469.566849, 3350.014902, 2360.274191);
+	const VECTOR3 INITIAL_VEL = _V(-6504.368186, 3588.428418, 1876.032923);
+	//const double INITIAL_MET = 0.0;
+	const double INITIAL_MET = 1374076.391000;
+	propagator.UpdateStateVector(INITIAL_POS, INITIAL_VEL, INITIAL_MET);
+	double met = INITIAL_MET;
+	for(int i=0;i<10000;i++) {
+		met+=0.05; // 20 fps framerate
+		propagator.Step(met, 0.05);
+	}
+	//double EI_met = propagator.GetMETAtAltitude(met, 120e3+6371000.0);
+	//double METAt119k = propagator.GetMETAtAltitude(met, 119e3+6371000.0);
+	double METAt119k = propagator.GetMETAtAltitude(met, 119e3);
+	//EXPECT_NEAR(EI_met, 1317, 5.0);
+	EXPECT_NEAR(METAt119k, 1375279.239478, 5.0);
+}
+
+TEST(StateVectorPropagatorTest, CalculatesTimeToAltBeforePropagation) {
+	StateVectorPropagator propagator(0.05, 20, 5000.0);
+	propagator.SetParameters(96461.6, 59.73698968e23, 6371000.0, 0.00108263);
+	const VECTOR3 INITIAL_POS = _V(233311.676827, -2819821.588365, 6020231.977982);
+	const VECTOR3 INITIAL_VEL = _V(-6504.368186, 3588.428418, 1876.032923);
+	const double INITIAL_MET = 1374076.391000;
+	propagator.UpdateStateVector(INITIAL_POS, INITIAL_VEL, INITIAL_MET);
+	//double METAt119k = propagator.GetMETAtAltitude(INITIAL_MET, 119e3+6371000.0);
+	double METAt119k = propagator.GetMETAtAltitude(INITIAL_MET, 119e3);
+	EXPECT_NEAR(METAt119k, 1375279.239478, 40.0);
+}

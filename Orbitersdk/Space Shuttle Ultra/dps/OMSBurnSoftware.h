@@ -5,9 +5,11 @@
 #include "SimpleGPCSoftware.h"
 #include "StateVectorPropagator.h"
 #include "discsignals.h"
+#include <EngConst.h>
 
 namespace dps
 {
+const double EI_ALT = 400e3/MPS2FPS; // 400,000 feet
 
 class OMSBurnSoftware : public SimpleGPCSoftware
 {
@@ -32,6 +34,7 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	//ORBITPARAM oparam;
 	//ELEMENTS el;
 	double ApD, ApT, PeD, PeT;
+	double metAt400KFeet;
 	double lastUpdateSimTime;
 	StateVectorPropagator propagator;
 
@@ -56,6 +59,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 private:
 	void LoadManeuver(bool calculateBurnAtt = true);
+	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
+	void UpdatePropagatorStateVectors(bool forceUpdate);
 };
 
 };

@@ -1,3 +1,4 @@
+#include <cassert>
 #include "..\include\StateVectorPropagator.h"
 #include "..\include\UltraMath.h"
 
@@ -13,18 +14,18 @@ StateVectorPropagator::~StateVectorPropagator()
 {
 }
 
-void StateVectorPropagator::SetParameters(double vesselMass, double planetMass, double planetRadius, double J2Coeff)
+void StateVectorPropagator::SetParameters(double vesselMass, double planetMass, double _planetRadius, double J2Coeff)
 {
 	GM = planetMass*GGRAV;
 	mu = GGRAV*(planetMass+vesselMass);
-	radius = planetRadius;
+	planetRadius = _planetRadius;
 	J2 = J2Coeff;
 }
 
-void StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met)
+void StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate)
 {
 	// only update vectors if last set of state vectors has been propagated to limit
-	if(propMET >= maxPropMET) {
+	if(propMET >= maxPropMET || forceUpdate) {
 		propPos = equPos;
 		propVel = equVel;
 		propMET = met;
@@ -95,7 +96,7 @@ void StateVectorPropagator::GetStateVectors(double MET, VECTOR3& pos, VECTOR3& v
 	ELEMENTS el;
 	double epoch = GetElements(MET, el);
 	kostStateVector state;
-	kostElements2StateVectorAtTime(mu, &el, &state, MET-epoch, 1e-5, 50, radius, 0.0);
+	kostElements2StateVectorAtTime(mu, &el, &state, MET-epoch, 1e-5, 50, planetRadius, 0.0);
 	pos = ConvertBetweenLHAndRHFrames(state.pos);
 	vel = ConvertBetweenLHAndRHFrames(state.vel);
 }
@@ -186,6 +187,29 @@ void StateVectorPropagator::GetPerigeeData(double currentMET, double& PeD, doubl
 	if((METAtPerigee-currentMET) > oparam.T) METAtPerigee-= oparam.T;
 }
 
+double StateVectorPropagator::GetMETAtAltitude(double currentMET, double altitude) const
+{
+	if(stateVectors.size() == 0) return 0.0; // no data
+
+	double radius = altitude + planetRadius;
+
+	MapConstIterator it=stateVectors.begin();
+	double previousAlt = length(it->second.pos);
+	++it;
+	while(it != stateVectors.end()) {
+		double alt = length(it->second.pos);
+		if((alt<=radius && previousAlt>=radius) ||( alt>=radius && previousAlt<=radius)) {
+			break;
+		}
+		previousAlt = alt;
+		++it;
+	}
+	--it;
+	ELEMENTS el;
+	kostStateVector2Elements(mu, &(it->second), &el, NULL);
+	return GetTimeToRadius(radius, el, mu)+it->first;
+}
+
 void StateVectorPropagator::Propagate(unsigned int iterationCount, double DeltaT)
 {
 	for(unsigned int i=0;i<iterationCount;i++) {
@@ -204,8 +228,8 @@ void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& grav) const
 	double lat = asin(propPos.y/length(propPos));
 	double r = length(propPos);
 	// acceleration magnitudes in r and theta directions
-	double a_r = -GM/(r*r) + 1.5*(GM*radius*radius*J2/pow(r, 4))*(3*pow(sin(lat), 2) - 1);
-	double a_theta = -3*(GM*radius*radius*J2/pow(r, 4))*sin(lat)*cos(lat);
+	double a_r = -GM/(r*r) + 1.5*(GM*planetRadius*planetRadius*J2/pow(r, 4))*(3*pow(sin(lat), 2) - 1);
+	double a_theta = -3*(GM*planetRadius*planetRadius*J2/pow(r, 4))*sin(lat)*cos(lat);
 	// unit vectors
 	VECTOR3 r_hat = propPos/r;
 	VECTOR3 phi = crossp(_V(0, 1, 0), r_hat);
@@ -213,4 +237,25 @@ void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& grav) const
 	theta_hat/=length(theta_hat);
 
 	grav = r_hat*a_r + theta_hat*a_theta;
+}
+
+double GetTimeToRadius(double radius, const ELEMENTS& el, double mu)
+{
+	// assert that radius is between apogee and perigee
+	assert(radius >= el.a*(1-el.e));
+	assert(radius <= el.a*(1+el.e));
+
+	double n = sqrt(mu/pow(el.a, 3));
+	double trueAnomaly = acos((el.a*(1-el.e*el.e)/radius - 1)/el.e);
+	double eccentricAnomaly = acos((el.e+cos(trueAnomaly))/(1+el.e*cos(trueAnomaly)));
+	double meanAnomaly = eccentricAnomaly - el.e*sin(eccentricAnomaly);
+	double meanAnomaly2 = 2*PI - meanAnomaly; // two possible mean anomaly values
+	double currentMeanAnomaly = kostGetMeanAnomaly(mu, &el);
+	double deltaM = meanAnomaly-currentMeanAnomaly;
+	double deltaM2 = meanAnomaly2-currentMeanAnomaly;
+	//if(deltaM < 0.0) deltaM += 2*PI;
+	//if(deltaM2 < 0.0) deltaM2 += 2*PI;
+	if(abs(deltaM2) < abs(deltaM)) deltaM = deltaM2;
+	//deltaM = min(deltaM, deltaM2);
+	return deltaM/n;
 }
