@@ -4924,8 +4924,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
 				double thrust_level, prop_level;
 				GetSRB_State (met, thrust_level, prop_level);
-				for (unsigned short i = 0; i < 2; i++)
+				for (unsigned short i = 0; i < 2; i++) {
 					SetThrusterLevel (th_srb[i], thrust_level);
+					SetPropellantMass(ph_srb, prop_level*GetPropellantMaxMass(ph_srb));
+				}
 
 				if(met > 15.0)
 				{
