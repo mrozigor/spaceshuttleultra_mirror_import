@@ -13,6 +13,7 @@ OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "OMSBurnSoftware"),
 BurnInProg(false), BurnCompleted(false),
 MnvrLoad(false), MnvrExecute(false), MnvrToBurnAtt(false),
+bShowTimer(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
 propagator(0.2, 50, 7200.0),
@@ -190,9 +191,9 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
 			metAt400KFeet = propagator.GetMETAtAltitude(STS()->GetMET(), EI_ALT);
-			MnvrLoad=true; // required to display EI att
+			bShowTimer = false;
 		}
-		else MnvrLoad=false;
+		MnvrLoad=false;
 		return true;
 	}
 	return false;
@@ -258,7 +259,11 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 		return true;
 	}
 	else if(item==22) {
-		LoadManeuver();
+		if(GetMajorMode() != 303) LoadManeuver();
+		return true;
+	}
+	else if(item==23) {
+		if(MnvrLoad) bShowTimer = true;
 		return true;
 	}
 	else if(item==27) {
@@ -289,7 +294,6 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	if(spec!=dps::MODE_UNDEFINED) return false;
 
 	int minutes, seconds;
-	int timeDiff;
 	int TIMER[4];
 	int TGO[2];
 	char cbuf[255];
@@ -355,8 +359,8 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		}
 	}
 
-	timeDiff=static_cast<int>(tig-STS()->GetMET()+1);
-	if(true) { //for the moment, timer will always be drawn; this will change next version
+	int timeDiff=max(0, static_cast<int>(tig-STS()->GetMET()+1));
+	if(bShowTimer) {
 		TIMER[0]=timeDiff/86400;
 		TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
 		TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
@@ -406,22 +410,25 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(8, 22, cbuf);
 	}
 
-	if(MnvrLoad) {
-		pMDU->mvprint(0, 23, "LOAD 22/TIMER 23");
+	if(MnvrLoad || GetMajorMode()==303) {
 		sprintf(cbuf, "24 R %-3.0f", BurnAtt.data[ROLL]);
 		pMDU->mvprint(21, 3, cbuf);
 		sprintf(cbuf, "25 P %-3.0f", BurnAtt.data[PITCH]);
 		pMDU->mvprint(21, 4, cbuf);
 		sprintf(cbuf, "26 Y %-3.0f", BurnAtt.data[YAW]);
 		pMDU->mvprint(21, 5, cbuf);
-		if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
 	}
 	else {
-		pMDU->mvprint(0, 23, "     22/TIMER 23");
 		pMDU->mvprint(21, 3, "24 R");
 		pMDU->mvprint(21, 4, "25 P");
 		pMDU->mvprint(21, 5, "26 Y");
 	}
+
+	if(MnvrLoad) {
+		pMDU->mvprint(0, 23, "LOAD 22/TIMER 23");
+		if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+	}
+	else pMDU->mvprint(0, 23, "     22/TIMER 23");
 
 	pMDU->mvprint(20, 2, "BURN ATT");
 	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
@@ -507,6 +514,10 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		sscanf_s(value, "%d %d", &MnvrLoad, &MnvrToBurnAtt);
 		return true;
 	}
+	else if(!_strnicmp(keyword, "TIMER", 5)) {
+		bShowTimer = true;
+		return true;
+	}
 	return false;
 }
 
@@ -522,6 +533,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_float(scn, "TV_ROLL", TV_ROLL);
 	sprintf_s(cbuf, 255, "%d %d", MnvrLoad, MnvrToBurnAtt);
 	oapiWriteScenario_string(scn, "MNVR", cbuf);
+	if(bShowTimer) oapiWriteScenario_string(scn, "TIMER", "");
 }
 
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
