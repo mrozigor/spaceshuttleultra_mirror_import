@@ -28,6 +28,7 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	VECTOR3 VGO;
 	double vgoTot;
 	bool MnvrLoad, MnvrExecute, MnvrToBurnAtt;
+	bool bShowTimer;
 	VECTOR3 BurnAtt;
 	//double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 
