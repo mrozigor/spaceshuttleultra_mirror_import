@@ -2,7 +2,7 @@
 #define ___ATLANTIS_MLP_H___
 
 #include "OrbiterAPI.h"
-#include "VesselAPI.h"
+#include "ISSUMLP.h"
 
 const VECTOR3 POS_MPS_SMOKE = _V(0.0, -15.0, -20.0);
 const VECTOR3 POS_SRB_SMOKE = _V(0.0, -15.0, +20.0);
@@ -21,7 +21,7 @@ const double TSM_UMBILICAL_RETRACT_SPEED = 1.5;
 
 class Atlantis;
 
-class MLP: public VESSEL2
+class MLP: public VESSEL2, public ISSUMLP
 {
 	
 public:

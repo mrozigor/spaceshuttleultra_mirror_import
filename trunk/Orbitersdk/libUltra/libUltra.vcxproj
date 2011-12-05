@@ -108,6 +108,8 @@
     <ClInclude Include="include\DiscretePort.h" />
     <ClInclude Include="include\discsignals.h" />
     <ClInclude Include="include\EngConst.h" />
+    <ClInclude Include="include\ISSULaunchTower.h" />
+    <ClInclude Include="include\ISSUMLP.h" />
     <ClInclude Include="include\ISubsystem.h" />
     <ClInclude Include="include\MMUTapeImage.h" />
     <ClInclude Include="include\PanelGroup.h" />

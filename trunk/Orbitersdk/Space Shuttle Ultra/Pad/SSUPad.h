@@ -4,6 +4,7 @@
 
 #include <vector>
 #include "orbitersdk.h"
+#include "ISSULaunchTower.h"
 //#include "../Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
@@ -47,7 +48,7 @@ static const char* RSS_ROTATE_SOUND_FILE = "Sound\\ShuttleUltra\\RSS_Rotation.wa
 
 class Atlantis;
 
-class SSUPad: public VESSEL3
+class SSUPad: public VESSEL3, public ISSULaunchTower
 {
 	friend BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:

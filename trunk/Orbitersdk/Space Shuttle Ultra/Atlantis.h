@@ -57,6 +57,7 @@
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
+#include "ISSUMLP.h"
 
 
 
@@ -776,6 +777,7 @@ private:
 
 	Atlantis_Tank* GetTankInterface() const;
 	Atlantis_SRB* GetSRBInterface(SIDE side) const;
+	ISSUMLP* GetMLPInterface() const;
 
 	/**
 	 * Called from clbkPostCreation.
