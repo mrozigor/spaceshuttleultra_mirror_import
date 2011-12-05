@@ -4,7 +4,7 @@
 
 #include "orbitersdk.h"
 #include "../Atlantis.h"
-#include "../Pad/SSUPad.h"
+#include "ISSULaunchTower.h"
 
 const double ACCESS_ARM_RETRACT_TIME = 450.0;
 const double GOX_ARM_RETRACT_TIME = 150.0;
@@ -26,7 +26,7 @@ private:
 	double lastTTL;
 	char PadName[256], ShuttleName[256];
 
-	SSUPad* pFSS;
+	ISSULaunchTower* pFSS;
 	Atlantis* pSSU;
 };
 

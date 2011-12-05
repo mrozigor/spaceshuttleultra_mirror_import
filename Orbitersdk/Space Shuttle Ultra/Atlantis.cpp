@@ -2818,6 +2818,22 @@ Atlantis_SRB* Atlantis::GetSRBInterface(SIDE side) const
 	return NULL;
 }
 
+ISSUMLP* Atlantis::GetMLPInterface() const
+{
+	if(ahHDP)
+	{
+		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
+		if(hMLP)
+		{
+			VESSEL* pV = oapiGetVesselInterface(hMLP);
+			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
+			{
+				return static_cast<MLP*>(pV);
+			}
+		}
+	}
+}
+
 void Atlantis::ToggleGrapple (void)
 {
   //OBJHANDLE hV = GetAttachmentStatus (ahRMS);
@@ -7527,52 +7543,20 @@ void Atlantis::DefineKUBandAnimations()
 
 void Atlantis::SignalGSEStart()
 {
-	if(ahHDP)
-	{
-		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
-		if(hMLP)
-		{
-			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
-			{
-				static_cast<MLP*>(pV)->SignalGSEStart();
-			}
-		}
-	}
+	ISSUMLP* pMLP = GetMLPInterface();
+	pMLP->SignalGSEStart();
 }
 
 void Atlantis::SignalGSEBreakHDP()
 {
-
-	if(ahHDP)
-	{
-		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
-		if(hMLP)
-		{
-			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
-			{
-				//static_cast<MLP*>(pV)->TriggerHDP();
-				static_cast<MLP*>(pV)->OnT0();
-			}
-		}
-	}
+	ISSUMLP* pMLP = GetMLPInterface();
+	pMLP->TriggerHDP();
 }
 
 void Atlantis::StartROFIs()
 {
-	if(ahHDP)
-	{
-		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
-		if(hMLP)
-		{
-			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
-			{
-				static_cast<MLP*>(pV)->TriggerROFIs();
-			}
-		}
-	}
+	ISSUMLP* pMLP = GetMLPInterface();
+	pMLP->TriggerROFIs();
 }
 
 void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
