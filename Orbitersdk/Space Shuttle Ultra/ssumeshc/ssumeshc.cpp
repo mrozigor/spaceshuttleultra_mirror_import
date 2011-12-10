@@ -111,6 +111,8 @@ void WriteHeaderFile()
 			}
 			else if(isalnum(*iter)) {
 				tmp += toupper(*iter);
+			} else if(*iter == '_') {
+				tmp += '_';
 			} else {
 				//ignore
 			}
