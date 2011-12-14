@@ -227,10 +227,10 @@ const double cmTrim[n_trimExt][n_mach]={{0.0158,0.016,0.0179,0.0204,0.020165,0.0
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 {-0.0424,-0.0442,-0.0488,-0.05562,-0.0559,-0.05618,-0.058004,-0.05922,-0.05222,-0.05241,-0.04894,-0.04195,-0.03722,-0.02979,-0.02112,-0.016505,-0.01189,-0.0328,-0.0442,-0.061,-0.065}};
 
-const double OrbiterS=2690*0.3048*0.3048;
-const double Orbiterb=78.056*0.3048; //Turns out span is not used...
-const double Orbiterc=39.56*0.3048; //...but chord is
-const double OrbiterA=Orbiterb*Orbiterb/OrbiterS; //Has to be passed, doesn't have to be correct
+//const double OrbiterS=2690*0.3048*0.3048;
+//const double Orbiterb=78.056*0.3048; //Turns out span is not used...
+//const double Orbiterc=39.56*0.3048; //...but chord is
+//const double OrbiterA=Orbiterb*Orbiterb/OrbiterS; //Has to be passed, doesn't have to be correct
 void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
   *cl=1.2*sin(aoa*2);
   *cd=2*sin(aoa);
@@ -247,7 +247,7 @@ Aerodynamics::ThreeDLookup aileronHorizontalLookup("Config/SSU_Aileron.csv", tru
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
 {
-	double basicLift, basicDrag, basicMoment;
+	/*double basicLift, basicDrag, basicMoment;
 	double elevonLift, elevonDrag, elevonMoment;
 	double bodyFlapLift, bodyFlapDrag, bodyFlapMoment;
 	//double speedbrakeLift, speedbrakeDrag, speedbrakeMoment;
@@ -263,10 +263,13 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 
 	*cl = basicLift+elevonLift;
 	*cd = basicDrag+elevonDrag;
-	*cm = basicMoment+elevonMoment;
+	*cm = basicMoment+elevonMoment;*/
 
 	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
 	//sprint
+
+	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
+	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
 }
 
 void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
@@ -289,7 +292,7 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	ailMoment*=aileronPos;
 
 	double qbar = v->GetDynPressure();
-	double rollMoment = ailMoment*qbar*OrbiterS*Orbiterb;
+	double rollMoment = ailMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
 	// add force caused by aileron deflection
 	v->AddForce(_V(0.0, 0.5*rollMoment, 0.0), _V(1.0, 0.0, 0.0));
 	v->AddForce(_V(0.0, -0.5*rollMoment, 0.0), _V(-1.0, 0.0, 0.0));
@@ -307,6 +310,21 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	//*cm = 0.02;
 	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
 	*cd = 0.0 + ailDrag;
+}
+void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
+{
+	double basicLift, basicDrag, basicMoment;
+	double elevonLift, elevonDrag, elevonMoment;
+	double bodyFlapLift, bodyFlapDrag, bodyFlapMoment;
+
+	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+	verticalLookup.GetValues(mach, degAOA, aerosurfaces->speedbrake, basicLift, basicDrag, basicMoment);
+	elevonVerticalLookup.GetValues(mach, degAOA, elevonPos, elevonLift, elevonDrag, elevonMoment);
+	bodyFlapVerticalLookup.GetValues(mach, degAOA, aerosurfaces->bodyFlap, bodyFlapLift, bodyFlapDrag, bodyFlapMoment);
+
+	*cl = basicLift+elevonLift;
+	*cd = basicDrag+elevonDrag;
+	*cm = basicMoment+elevonMoment;
 }
 
 /*
@@ -1378,7 +1396,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // ************************* aerodynamics **************************************
 
   SetRotDrag (_V(0.43,0.43,0.29)); // angular drag
-  CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,Orbiterc, OrbiterS, OrbiterA);
+  CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
   CreateAirfoil3 (LIFT_HORIZONTAL, _V(0.0, 0.0, 0.0), HLiftCoeff, &aerosurfaces, 20,  50, 1.5);
 
   /*helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);

@@ -47,6 +47,11 @@ const double ORBITER_ROLL_TORQUE = 41800.00;
 const double OMS_HELIUM_TANK_MASS = 21.0;
 //Helium tank mass [kg]
 
+const double ORBITER_WING_AREA = 2690*0.3048*0.3048; // [m^2]
+const double ORBITER_SPAN = 78.056*0.3048; //Turns out span is not used...
+const double ORBITER_CHORD_LENGTH=39.56*0.3048; //...but chord is
+const double ORBITER_WING_ASPECT_RATIO = ORBITER_SPAN*ORBITER_SPAN/ORBITER_WING_AREA; //Has to be passed, doesn't have to be correct
+
 const double CHUTE_DEPLOY_TIME = 2.5;
 // Time from chute deploy command to deployment of chute (s)
 const double CHUTE_INFLATE_TIME = 6.3;

@@ -1213,6 +1213,11 @@ private:
 };
 
 VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw);
+/**
+* Calculates lift, drag and moment coefficients for given mach, AOA and aerosurface positions
+*/
+void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double* cl, double* cm, double* cd);
+
 
 
 #if defined(IS_SSU_DLL_MODULE)
