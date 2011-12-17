@@ -365,6 +365,9 @@
     <ClCompile Include="dps\MMU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="ReentryDragTable.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -662,6 +665,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AtlantisVCComponent.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ReentryDragTable.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

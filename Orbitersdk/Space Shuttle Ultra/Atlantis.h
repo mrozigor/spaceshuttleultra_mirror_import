@@ -647,6 +647,8 @@ public:
 	BEACONLIGHTSPEC bspec[6];
 	bool bPLBLights;
 
+	double drag_coeff,dragc1,dragc2;
+
 	
 
 private:
