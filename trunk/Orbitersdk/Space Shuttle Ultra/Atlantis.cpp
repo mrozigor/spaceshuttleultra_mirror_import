@@ -5540,6 +5540,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		heating_scalar = 0;
 	else 
 		heating_scalar = heating_factor;
+
+	//sprintf(oapiDebugString(),"%lf",heating_scalar);
 		
 
 
@@ -5574,6 +5576,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 	
 	}
+
+	verticalLookup.GetValues(GetMachNumber(),GetAOA()*DEG,aerosurfaces,dragc1,drag_coeff,dragc2);
+
 
 	//double time = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);

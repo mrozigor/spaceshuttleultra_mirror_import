@@ -7,6 +7,7 @@
 #include "SimpleGPCSoftware.h"
 #include <EngConst.h>
 #include <discsignals.h>
+#include "../ReentryDragTable.h"
 
 namespace dps
 {
@@ -179,6 +180,8 @@ public:
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	DragTable* dTable;
 private:
 	void SetThrusterLevels();
 	/**
@@ -201,8 +204,19 @@ private:
 
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.
+	 * and lookup table to manipulate roll to maintain drag profile described at that table
 	 */
 	double CalculateTargetAOA(double mach) const;
+	void CalculateTargetRoll(double dT);
+	double CalculateTargetVSpeed(double actual_altitude, double target_altitude, double current_vspeed, double dT);
+	double CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double actual_vacc, double dT);
+	bool first_roll;
+	bool roll_command;
+	double target_bank;
+	double last_vel;
+	double last_h_error;
+	double target_vspeed;
+	double target_vacc;
 
 	void SetAerosurfaceCommands(double DeltaT);
 	/**
@@ -212,6 +226,8 @@ private:
 	void CSSRollGuidance(double DeltaT);
 
 	double CalculateTargetDrag();
+	
+
 
 	void CalculateHACGuidance(double DeltaT);
 	/**
