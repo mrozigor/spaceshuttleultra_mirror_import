@@ -310,7 +310,7 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	//*cm = 0.02;
 	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
 	*cd = 0.0 + ailDrag;
-}
+}
 void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
 {
 	double basicLift, basicDrag, basicMoment;
@@ -5576,9 +5576,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 	
 	}
-
-	verticalLookup.GetValues(GetMachNumber(),GetAOA()*DEG,aerosurfaces.speedbrake,dragc1,drag_coeff,dragc2);
-
 
 	//double time = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);

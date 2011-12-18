@@ -265,6 +265,7 @@
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
     <ClCompile Include="AerodynamicLookupTables.cpp" />
+    <ClCompile Include="ReentryDragTable.cpp" />
     <ClCompile Include="SSULua.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
     <ClCompile Include="AirDataProbeSystem.cpp" />
@@ -379,6 +380,7 @@
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="AC_resource.h" />
     <ClInclude Include="AerodynamicLookupTables.h" />
+    <ClInclude Include="ReentryDragTable.h" />
     <ClInclude Include="vc\AftMDU.h" />
     <ClInclude Include="dps\AP101S.h" />
     <ClInclude Include="APU.h" />

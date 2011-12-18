@@ -284,9 +284,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			CSSRollGuidance(DeltaT);
 			double speed = STS()->GetAirspeed();
 			double r, az;
+			double cl, cm, cd;
+			GetShuttleVerticalAeroCoefficients(STS()->GetMachNumber(), STS()->GetAOA()*DEG, &(STS()->aerosurfaces), &cl, &cm, &cd);
 			CalculateRangeAndDELAZ(r,az);
 			double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
-			double target_altitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(),STS()->drag_coeff);
+			double target_altitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
 			sprintf(oapiDebugString(),"Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude());
 		}
 
