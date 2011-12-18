@@ -5577,7 +5577,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	
 	}
 
-	verticalLookup.GetValues(GetMachNumber(),GetAOA()*DEG,aerosurfaces,dragc1,drag_coeff,dragc2);
+	verticalLookup.GetValues(GetMachNumber(),GetAOA()*DEG,aerosurfaces.speedbrake,dragc1,drag_coeff,dragc2);
 
 
 	//double time = st.Stop();
