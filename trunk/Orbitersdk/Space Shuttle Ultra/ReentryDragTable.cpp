@@ -1,4 +1,5 @@
 #include "ReentryDragTable.h"
+#include "ParameterValues.h"
 
 DragTable::DragTable()
 {
@@ -61,7 +62,7 @@ double DragTable::TargetAltitude(double target_drag, double speed, double AOA, d
 	double cd2 = -6.15920/1000*AOA;
 	double cd3 = -6.21408/10000*pow(AOA,2);
 	//double drag = 0.5*GetAirDensity(alt)*pow(speed,2)*(cd1+cd2+cd3)*250/2*mass;
-	double density = (target_drag*2*mass)/(pow(speed,2)*cd*250);
+	double density = (target_drag*2*mass)/(pow(speed,2)*cd*ORBITER_WING_AREA);
 	double eah = density/2.04959;
 	return log(fabs(eah))/-0.000156935;
 

@@ -1,6 +1,8 @@
 #ifndef _PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE
 #define _PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE
 #pragma once
+#include "OrbiterAPI.h"
+#include "EngConst.h"
 
 const double ORBITER_EMPTY_MASS = 81100.0;
 // Orbiter empty mass [kg]
