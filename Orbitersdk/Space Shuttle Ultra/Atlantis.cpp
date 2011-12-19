@@ -4959,7 +4959,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SignalGSEBreakHDP();
 			TriggerLiftOff();	
 		}*/
-		if(!GetLiftOffFlag() && rsls) rsls->OnPostStep(simt, simdt, mjd);
+		if(!GetLiftOffFlag()) {
+			Twang(t0-simt);
+			if(rsls) rsls->OnPostStep(simt, simdt, mjd);
+		}
 		//sprintf(oapiDebugString(),"met: %f",met);
 		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
 			SeparateBoosters (met);
@@ -8491,6 +8494,16 @@ void Atlantis::UpdateMass() const
 	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
+void Atlantis::Twang(double timeToLaunch) const
+{
+	double twangParam=(1.0-timeToLaunch/6.0);
+	if(twangParam<0 || twangParam>1) return;
+	double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
+	//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
+	double c=cos(twangAngle);
+	double s=sin(twangAngle);
+	SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
+}
 
 void Atlantis::ControlPLBLights()
 {

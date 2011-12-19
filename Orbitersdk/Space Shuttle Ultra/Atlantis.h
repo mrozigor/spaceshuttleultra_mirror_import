@@ -787,6 +787,7 @@ private:
 	double GetMassOfAttachedObjects() const;
 	void UpdateMass() const;
 
+	void Twang(double timeToLaunch) const;
 	//Launch
 	void AutoMainGimbal(double DeltaT);
 	void SteerGimbal(double DeltaT);
