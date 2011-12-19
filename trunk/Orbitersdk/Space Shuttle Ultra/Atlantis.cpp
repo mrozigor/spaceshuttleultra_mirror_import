@@ -82,6 +82,7 @@
 
 
 #include "MLP/MLP.h"
+#include "SLC6/SLC6.h"
 
 #include <stdio.h>
 #include <fstream>
@@ -2844,12 +2845,14 @@ ISSUMLP* Atlantis::GetMLPInterface() const
 		if(hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV && !_stricmp(pV->GetClassName(), "SSU_MLP"))
+			if(pV)
 			{
-				return static_cast<MLP*>(pV);
+				if(!_stricmp(pV->GetClassName(), "SSU_MLP")) return static_cast<MLP*>(pV);
+				else if(!_stricmp(pV->GetClassName(), "SSU_SLC6")) return static_cast<SLC6*>(pV);
 			}
 		}
 	}
+	return NULL;
 }
 
 void Atlantis::ToggleGrapple (void)
@@ -4570,8 +4573,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
-		// update SRB thrusters to match values from SRB vessel
 		if(status <= STATE_STAGE1) {
+			// update SRB thrusters to match values from SRB vessel
 			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
 			VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
 			THRUSTER_HANDLE th_ref = pLeftSRB->GetGroupThruster(THGROUP_MAIN, 0);
@@ -4583,6 +4586,28 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PROPELLANT_HANDLE ph_ref = pLeftSRB->GetThrusterResource(th_ref);
 			double phMass = pLeftSRB->GetPropellantMaxMass(ph_ref);
 			SetPropellantMaxMass(ph_srb, phMass*2.0);
+
+			// update touchdown points to match height of attachment to pad
+			// otherwise, stack will either fall through pad or bounce upwards at T-0
+			OBJHANDLE hPad = GetAttachmentStatus(ahHDP);
+			if(hPad) {
+				VESSEL* v = oapiGetVesselInterface(hPad);
+				DWORD count = v->AttachmentCount(false);
+				//ATTACHMENTHANDLE ahParent = NULL;
+				VECTOR3 parentAttachPos, dir, rot;
+				for(DWORD i=0;i<count;i++) {
+					ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
+					if(v->GetAttachmentStatus(ah) == GetHandle()) {
+						v->GetAttachmentParams(ah, parentAttachPos, dir, rot);
+						break;
+					}
+				}
+				VECTOR3 pt1, pt2, pt3;
+				v->GetTouchdownPoints(pt1, pt2, pt3);
+				// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
+				double touchdownZ = pt1.y-parentAttachPos.y - 25.71;
+				SetTouchdownPoints (_V(0,-10,touchdownZ), _V(-7,7,touchdownZ), _V(7,7,touchdownZ));
+			}
 		}
 		if(bAutopilot && status <= STATE_STAGE2) InitializeAutopilot();
 	}

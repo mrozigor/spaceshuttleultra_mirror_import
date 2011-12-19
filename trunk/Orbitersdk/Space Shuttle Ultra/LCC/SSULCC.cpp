@@ -1,5 +1,6 @@
 #include "SSULCC.h"
 #include "../Pad/SSUPad.h"
+#include "../SLC6/SLC6.h"
 #include "../Atlantis.h"
 
 #define ORBITER_MODULE
@@ -28,9 +29,9 @@ void SSULCC::clbkPostCreation()
 	OBJHANDLE hPad=oapiGetVesselByName(PadName);
 	if(hPad!=NULL) {
 		VESSEL* pVessel=oapiGetVesselInterface(hPad);
-		if(pVessel && !_strnicmp(pVessel->GetClassNameA(), "SSU_Pad", 7)) {
-			SSUPad* pTemp = static_cast<SSUPad*>(pVessel); // required for second cast to work
-			pFSS = static_cast<ISSULaunchTower*>(pTemp);
+		if(pVessel) {
+			if(!_strnicmp(pVessel->GetClassName(), "SSU_Pad", 7)) pFSS = static_cast<SSUPad*>(pVessel);
+			if(!_strnicmp(pVessel->GetClassName(), "SSU_SLC6", 8)) pFSS = static_cast<SLC6*>(pVessel);
 		}
 		else pFSS=NULL;
 	}
