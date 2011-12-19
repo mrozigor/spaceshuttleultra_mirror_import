@@ -7561,16 +7561,16 @@ void Atlantis::DefineKUBandAnimations()
 
 }
 
-void Atlantis::SignalGSEStart()
+void Atlantis::GLSAutoSeqStart()
 {
 	ISSUMLP* pMLP = GetMLPInterface();
-	pMLP->SignalGSEStart();
+	pMLP->GLSAutoSeqStart();
 }
 
 void Atlantis::SignalGSEBreakHDP()
 {
 	ISSUMLP* pMLP = GetMLPInterface();
-	pMLP->TriggerHDP();
+	pMLP->OnT0();
 }
 
 void Atlantis::StartROFIs()

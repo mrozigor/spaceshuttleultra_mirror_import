@@ -25,7 +25,7 @@ class MLP: public VESSEL2, public ISSUMLP
 {
 	
 public:
-	virtual void SignalGSEStart();
+	virtual void GLSAutoSeqStart();
 	virtual void OnT0();
 	virtual void TriggerHDP();
 	virtual void TriggerROFIs();

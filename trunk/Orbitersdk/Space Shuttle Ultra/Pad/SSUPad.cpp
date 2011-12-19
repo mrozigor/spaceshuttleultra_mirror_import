@@ -94,37 +94,37 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				pad->RetractIAA();
 				return TRUE;
 			case IDC_CREWARM_EXTEND:
-				pad->MoveOrbiterAccessArm(AnimState::OPENING);
+				pad->ExtendOrbiterAccessArm();
 				return TRUE;
 			case IDC_CREWARM_RETRACT:
-				pad->MoveOrbiterAccessArm(AnimState::CLOSING);
+				pad->RetractOrbiterAccessArm();
 				return TRUE;
 			case IDC_CREWARM_STOP:
-				pad->MoveOrbiterAccessArm(AnimState::STOPPED);
+				pad->HaltOrbiterAccessArm();
 				return TRUE;
 			case IDC_GH2_EXTEND:
-				pad->MoveGH2Pipe(AnimState::CLOSING);
+				pad->AttachGH2Ventline();
 				return TRUE;
 			case IDC_GH2_RETRACT:
-				pad->MoveGH2Pipe(AnimState::OPENING);
+				pad->DetachGH2Ventline();
 				return TRUE;
 			case IDC_VHOOD_DEPLOY:
-				pad->MoveVentHood(AnimState::OPENING);
+				pad->LowerVentHood();
 				return TRUE;
 			case IDC_VHOOD_RETRACT:
-				pad->MoveVentHood(AnimState::CLOSING);
+				pad->RaiseVentHood();
 				return TRUE;
 			case IDC_VHOOD_HALT:
-				pad->MoveVentHood(AnimState::STOPPED);
+				pad->HaltVentHood();
 				return TRUE;
 			case IDC_VARM_EXTEND:
-				pad->MoveLOXArm(AnimState::OPENING);
+				pad->ExtendGOXArm();
 				return TRUE;
 			case IDC_VARM_RETRACT:
-				pad->MoveLOXArm(AnimState::CLOSING);
+				pad->RetractGOXArm();
 				return TRUE;
 			case IDC_VARM_HALT:
-				pad->MoveLOXArm(AnimState::STOPPED);
+				pad->HaltGOXArm();
 				return TRUE;
 			case IDC_RBUS_EXTEND:
 				pad->MoveRBUS(AnimState::CLOSING);
@@ -396,18 +396,34 @@ void SSUPad::OnT0()
 	if(bPad1985) MoveRBUS(AnimState::OPENING);
 }
 
-void SSUPad::MoveOrbiterAccessArm(AnimState::Action action)
+void SSUPad::ExtendOrbiterAccessArm()
 {
-	if(action==AnimState::OPENING || action==AnimState::CLOSING || action==AnimState::STOPPED)
-		AccessArmState.action=action;
+	AccessArmState.action=AnimState::OPENING;
 }
 
-void SSUPad::MoveGOXArm(AnimState::Action action)
+void SSUPad::RetractOrbiterAccessArm()
 {
-	if(action==AnimState::OPENING || action==AnimState::CLOSING || action==AnimState::STOPPED) {
-		GOXArmAction=action;
-		GOXArmSequence();
-	}
+	AccessArmState.action=AnimState::CLOSING;
+}
+
+void SSUPad::HaltOrbiterAccessArm()
+{
+	AccessArmState.action=AnimState::STOPPED;
+}
+
+void SSUPad::ExtendGOXArm()
+{
+	GVAState.action=AnimState::OPENING;
+}
+
+void SSUPad::RetractGOXArm()
+{
+	GVAState.action=AnimState::CLOSING;
+}
+
+void SSUPad::HaltGOXArm()
+{
+	GVAState.action=AnimState::STOPPED;
 }
 
 void SSUPad::MoveFSS_OWP(AnimState::Action action)
@@ -464,22 +480,47 @@ void SSUPad::GOXArmSequence()
 		GVAState.action=AnimState::STOPPED;
 }
 
-void SSUPad::MoveGH2Pipe(AnimState::Action action)
+void SSUPad::AttachGH2Ventline()
 {
-	if(action==AnimState::CLOSING || action == AnimState::OPENING)
-		FSS_GH2_VentArmState.action = action;
+	FSS_GH2_VentArmState.action=AnimState::CLOSING;
 }
 
-void SSUPad::MoveVentHood(AnimState::Action action)
+void SSUPad::DetachGH2Ventline()
 {
-	if(action == AnimState::CLOSING || action == AnimState::OPENING || action == AnimState::STOPPED)
-		VentHoodState.action = action;
+	FSS_GH2_VentArmState.action=AnimState::OPENING;
 }
 
-void SSUPad::MoveLOXArm(AnimState::Action action)
+void SSUPad::RaiseVentHood()
 {
-	if(action == AnimState::CLOSING || action == AnimState::OPENING || action == AnimState::STOPPED)
-		GVAState.action = action;
+	VentHoodState.action=AnimState::CLOSING;
+}
+
+void SSUPad::LowerVentHood()
+{
+	VentHoodState.action=AnimState::OPENING;
+}
+
+void SSUPad::HaltVentHood()
+{
+	VentHoodState.action=AnimState::STOPPED;
+}
+
+void SSUPad::ExtendGOXArmAndHood()
+{
+	GOXArmAction = AnimState::OPENING;
+	GOXArmSequence();
+}
+
+void SSUPad::RetractGOXArmAndHood()
+{
+	GOXArmAction = AnimState::CLOSING;
+	GOXArmSequence();
+}
+
+void SSUPad::HaltGOXArmAndHood()
+{
+	GOXArmAction = AnimState::STOPPED;
+	GOXArmSequence();
 }
 
 void SSUPad::MoveRBUS(AnimState::Action action)

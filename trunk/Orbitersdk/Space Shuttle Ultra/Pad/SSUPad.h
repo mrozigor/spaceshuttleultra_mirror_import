@@ -64,19 +64,34 @@ public:
 
 	//communication with LCC
 	virtual void OnT0();
-	virtual void MoveOrbiterAccessArm(AnimState::Action action);
-	virtual void MoveGOXArm(AnimState::Action action);
-	void MoveGH2Pipe(AnimState::Action action);
-	void MoveVentHood(AnimState::Action action);
-	void MoveLOXArm(AnimState::Action action);
+	virtual void ExtendOrbiterAccessArm();
+	virtual void RetractOrbiterAccessArm();
+	virtual void HaltOrbiterAccessArm();
+
+	virtual void ExtendGOXArm();
+	virtual void RetractGOXArm();
+	virtual void HaltGOXArm();
+
+	virtual void AttachGH2Ventline();
+	virtual void DetachGH2Ventline();
+
+	virtual void RaiseVentHood();
+	virtual void LowerVentHood();
+	virtual void HaltVentHood();
+
+	virtual void ExtendGOXArmAndHood();
+	virtual void RetractGOXArmAndHood();
+	virtual void HaltGOXArmAndHood();
+
+	virtual void DeployIAA();
+	virtual void HaltIAA();
+	virtual void RetractIAA();
+
 	virtual AnimState::Action GetAccessArmState() const;
 	virtual AnimState::Action GetGOXArmState() const;
 	void MoveRSS_OWP(AnimState::Action action);
 	void MoveFSS_OWP(AnimState::Action action);
 	void MoveRSS(AnimState::Action action);
-	void DeployIAA();
-	void HaltIAA();
-	void RetractIAA();
 	void MoveRBUS(AnimState::Action action);
 	
 private:

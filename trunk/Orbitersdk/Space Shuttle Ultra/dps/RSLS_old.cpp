@@ -11,6 +11,7 @@ namespace dps
 	{
 		launch_mjd=-1.0;
 		timeToLaunch=-1.0;
+		lastTTL = 100.0;
 		Active=false;
 		Aborted=false;
 	}
@@ -23,8 +24,8 @@ namespace dps
 		if(!Active) return;
 		timeToLaunch=(launch_mjd-mjd)*86400.0;
 
+		if(timeToLaunch<=31.0 && lastTTL>=31.0) sts->GLSAutoSeqStart();
     	if(timeToLaunch<=10.0 && lastTTL>=10.0)	sts->StartROFIs();
-		if(timeToLaunch<=8.0 && lastTTL>=8.0) sts->SignalGSEStart();
 		if(timeToLaunch<=6.60 && lastTTL>=6.60)	sts->SetSSMEThrustLevel(3, 1.0);
 		if(timeToLaunch<=6.48 && lastTTL>=6.48)	sts->SetSSMEThrustLevel(2, 1.0);
 		if(timeToLaunch<=6.36 && lastTTL>=6.36)	sts->SetSSMEThrustLevel(1, 1.0);

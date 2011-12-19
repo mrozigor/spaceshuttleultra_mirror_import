@@ -5,9 +5,8 @@
 class ISSUMLP
 {
 public:
-	virtual void SignalGSEStart() = 0;
+	virtual void GLSAutoSeqStart() = 0; // called at T-31 seconds
 	virtual void OnT0() = 0;
-	virtual void TriggerHDP() = 0;
 	virtual void TriggerROFIs() = 0;
 	virtual void ActivateSSS() = 0;
 };
