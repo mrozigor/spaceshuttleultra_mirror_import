@@ -47,7 +47,6 @@ private:
 	double fCountdown;
 	bool bStartSequence;
 	void CalculateSteamProduction(double fSimT, double fDeltaT);
-	void Twang(double TMinus);
 	bool bSSS_Active;
 	double fT_SSSActive;
 	ATTACHMENTHANDLE ahHDP;
