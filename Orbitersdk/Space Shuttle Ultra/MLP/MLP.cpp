@@ -17,7 +17,7 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	bStartSequence = false;
 	ahHDP = NULL;
 	ahBase = NULL;
-	fCountdown = 8.0;
+	fCountdown = 31.0;
 
 	dTimer=0.0;
 	bPadLightsOn=false;
@@ -241,28 +241,29 @@ void MLP::TriggerHDP()
 {
 //	VECTOR3 ownRV;
 	//Reset Vessel Status if needed
-	VESSELSTATUS2 st;
-	st.version = 2;
-	st.flag = 0;
-	VESSELSTATUS2 st2;
-	st2.version = 2;
-	st2.flag = 0;
-	GetStatusEx(&st2);
 	OBJHANDLE hShuttle = GetAttachmentStatus(ahHDP);
+	if(hShuttle) {
+		VESSELSTATUS2 st;
+		st.version = 2;
+		st.flag = 0;
+		VESSELSTATUS2 st2;
+		st2.version = 2;
+		st2.flag = 0;
+		GetStatusEx(&st2);
 
-	
-	DetachChild(ahHDP, 0.00001);
 
-	if(hShuttle)
-	{
-		VESSEL* pV = oapiGetVesselInterface(hShuttle);
-		pV->GetStatusEx(&st);
-		st.rbody = st2.rbody;
-		st.rvel = st2.rvel;
-		pV->DefSetStateEx(&st);
+		DetachChild(ahHDP, 0.00001);
+
+		if(hShuttle)
+		{
+			VESSEL* pV = oapiGetVesselInterface(hShuttle);
+			pV->GetStatusEx(&st);
+			st.rbody = st2.rbody;
+			st.rvel = st2.rvel;
+			pV->DefSetStateEx(&st);
+		}
+		RecordEvent("MLPGSE", "GPC TRIGGER HDP");
 	}
-	RecordEvent("MLPGSE", "GPC TRIGGER HDP");
-
 }
 
 void MLP::TriggerROFIs()
@@ -481,8 +482,9 @@ void MLP::DefineAnimations()
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &RightT0UmbCover);
 }
 
-void MLP::SignalGSEStart()
+void MLP::GLSAutoSeqStart()
 {
 	RecordEvent("MLPGSE", "GPC START COMMAND");
 	bStartSequence = true;
+	fCountdown = 31.0;
 }

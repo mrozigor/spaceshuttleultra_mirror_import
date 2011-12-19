@@ -537,7 +537,7 @@ public:
 		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent = NULL);
 
 	void IgniteSRBs();
-	void SignalGSEStart();
+	void GLSAutoSeqStart();
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
 	void StartROFIs();
