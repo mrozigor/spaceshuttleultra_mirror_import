@@ -1065,9 +1065,9 @@ pActiveLatches(3, NULL)
   PLBLightPosition[4] = _V(1.4224,-1.26892,-2.30302);//aft stbd
   PLBLightPosition[5] = _V(-1.4224,-1.26892,-2.30302);//aft port
   static VECTOR3& color = _V(0.75,0.75,0.75);
-  const COLOUR4 diff = {0.8, 0.8, 1, 0};
+  const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
   const COLOUR4 amb = {0.0, 0.0, 0};
-  const COLOUR4 spec = {0.8, 0.8, 1,0};
+  const COLOUR4 spec = {0.8f, 0.8f, 1.0f, 0.0f};
 
 	//CREATE BEACONS
 	for(int i=0; i<6; ++i)
@@ -5563,13 +5563,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			MATERIAL *mat1 = oapiMeshMaterial(hHeatShieldMesh,i);
 			MATERIAL mat2;
 			memcpy(&mat2,mat1,sizeof(MATERIAL));
-			mat2.ambient.a = heating_scalar;
+			mat2.ambient.a = static_cast<float>(heating_scalar);
 			mat2.ambient.b = 255;
 			mat2.ambient.r = 255;
 			mat2.ambient.g = 255;
-			mat2.diffuse.a = heating_scalar;
-			mat2.emissive.a = heating_scalar;
-			mat2.specular.a = heating_scalar;
+			mat2.diffuse.a = static_cast<float>(heating_scalar);
+			mat2.emissive.a = static_cast<float>(heating_scalar);
+			mat2.specular.a = static_cast<float>(heating_scalar);
 			oapiSetMaterial(hDevHeatShieldMesh,i,&mat2);
 			ZeroMemory(&mat2,sizeof(MATERIAL));
 			mat1 = NULL;
