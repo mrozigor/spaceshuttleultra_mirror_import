@@ -33,16 +33,20 @@ void Atlantis::InitializeAutopilot()
 	//calculate heading
 	double latitude, /*Radius,*/ longitude;
 	GetEquPos(longitude, latitude, Radius);
-	if(cos(TgtInc*RAD)>cos(latitude)) {
+	if(abs(cos(TgtInc*RAD))>abs(cos(latitude))) {
 		THeading=PI/2;
 		TgtInc = latitude*DEG;
 	}
 	else {
+		// there are two possible launch headings: going north and going south
+		// for TgtInc < 90 deg (KSC launches) we want northerly heading
+		// for TgtInc > 90 deg (VAFB) we want southerly heading
 		double InHeading = asin(cos(TgtInc*RAD)/cos(latitude));
 		double xVel, yVel;
 		xVel = TgtSpd*cos(TgtFPA*RAD)*sin(InHeading)-464.581*cos(latitude);
 		yVel = TgtSpd*cos(TgtFPA*RAD)*cos(InHeading);
-		THeading=atan2(xVel, yVel);
+		THeading=atan2(xVel, yVel); // northerly heading
+		if(THeading < 0.0) THeading = PI - THeading; // if heading is negative, this is retrograde inclination; use southerly heading
 	}
 
 	mu=GGRAV*oapiGetMass(hRef);
@@ -105,10 +109,10 @@ double Atlantis::CalculateAzimuth()
 
 	azimuth= asin(cos(TgtInc*RAD)/cos(latitude));  // this equ doesn't take rotation into accout
 	equator_v=Radius*(2*PI/SidDay);   //equator velocity
-	tgt_orbit_v[0]=sqrt(mu/TgtRad)*cos(azimuth); // northern velocity
-	tgt_orbit_v[1]=sqrt(mu/TgtRad)*sin(azimuth); // eastern velocity
-	lnch_v[0]= tgt_orbit_v[0] - (current_vel[0]); // taking current velocity into accout for CC (North)
-	lnch_v[1]= tgt_orbit_v[1] - (current_vel[1]); // taking current velocity into accout for CC (East)
+	tgt_orbit_v[0]=TgtSpd*cos(TgtFPA*RAD)*cos(azimuth); // northern velocity
+	tgt_orbit_v[1]=TgtSpd*cos(TgtFPA*RAD)*sin(azimuth); // eastern velocity
+	lnch_v[0]= abs(tgt_orbit_v[0]) - abs(current_vel[0]); // taking current velocity into accout for CC (North); assume both values have same sign
+	lnch_v[1]= abs(tgt_orbit_v[1]) - abs(current_vel[1]); // taking current velocity into accout for CC (East); assume both values have same sign
 
 	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
 	if(lnch_v[0]==0.0) { //div by zero protection
@@ -116,6 +120,8 @@ double Atlantis::CalculateAzimuth()
 		else true_azimuth=-PI/2;
 	}
 	else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
+	if(current_vel[0] < 0.0) true_azimuth = PI - true_azimuth; // we are heading south, so need to use southerly heading
+	if(current_vel[1] < 0.0) true_azimuth = 2*PI - true_azimuth; // retrograde inclination
 
 	/*VECTOR3 pos;
 	GetRelativeVel(GetSurfaceRef(), vel);
