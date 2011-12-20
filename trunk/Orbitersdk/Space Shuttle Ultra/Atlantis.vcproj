@@ -772,6 +772,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ReentryDragTable.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RMSSystem.cpp"
 				>
 			</File>
@@ -1182,6 +1186,10 @@
 			</File>
 			<File
 				RelativePath=".\dps\RAM16.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ReentryDragTable.h"
 				>
 			</File>
 			<File
