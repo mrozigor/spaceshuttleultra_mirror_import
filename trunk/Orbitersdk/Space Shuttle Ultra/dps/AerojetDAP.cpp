@@ -1,5 +1,6 @@
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
+#include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
 
@@ -137,7 +138,7 @@ ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to 
 Roll_AileronRoll(0.15, 0.15, 0.00, -1.0, 1.0),
 Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1),
-TAEMGuidanceMode(HDG), HACSide(L),
+TAEMGuidanceMode(HDG), HACDirection(OVHD), HACSide(L),
 degTargetGlideslope(-20.0), // default OGS glideslope
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
 lastNZUpdateTime(-1.0), averageNZ(0.0), curNZValueCount(0),
@@ -231,6 +232,9 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		HUDFlashTime = SimT+0.1;
 		bHUDFlasher = !bHUDFlasher;
 	}
+
+	// select correct side for HAC
+	if(HACDirection == STRT || STS()->GetAirspeed() > 9000.0/MPS2FPS) SelectHAC();
 
 	//double distToRwy, delaz; // only used in MM304
 	switch(GetMajorMode()) {
@@ -436,6 +440,13 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 		else if(item == 4) {
 			SEC = true;
 			return true;
+		}
+		else if(item == 6) {
+			if(TAEMGuidanceMode <= ACQ) { // if we are already in HDG mode (on HAC), it's too late to change from OVHD to STRT
+				if(HACDirection == OVHD) HACDirection = STRT;
+				else HACDirection = OVHD;
+				SelectHAC();
+			}
 		}
 		else if(item == 41) {
 			int nNew;
@@ -670,6 +681,99 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(13, 7, "4");
 	if(SEC) pMDU->mvprint(14, 7, "*");
 	else pMDU->mvprint(14, 6, "*");
+
+	pMDU->mvprint(0, 12, "G&N");
+	if(HACDirection == OVHD) pMDU->mvprint(6, 12, "OVHD 6");
+	else pMDU->mvprint(6, 12, "STRT 6");
+	if(GetMajorMode() >= 304) {
+		if(HACSide == L) {
+			pMDU->mvprint(4, 12, "L");
+			pMDU->mvprint(0, 13, "HSI L");
+		}
+		else {
+			pMDU->mvprint(4, 12, "R");
+			pMDU->mvprint(0, 13, "HSI R");
+		}
+	}
+
+	const int BUG_POINT_X = 128;
+	const int BUG_POINT_Y = 158;
+	const int BUG_WIDTH1 = 1;
+	const int BUG_HEIGHT1 = 6;
+	const int BUG_WIDTH2 = BUG_WIDTH1 + 4;
+	const int BUG_HEIGHT2 = BUG_HEIGHT1 + 4;
+
+	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
+	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
+
+	// frame used for all vectors: LVLH-like frame with origin at shuttle position, X-axis along -ve velocity vector, Y-axis towards port side
+	VECTOR3 velocity;
+	STS()->GetHorizonAirspeedVector(velocity);
+	double degHeading = DEG*atan2(velocity.x, velocity.z);
+	double degHeadingError = vLandingSites[SITE_ID].GetRwyHeading(SEC) - degHeading ;
+	while(degHeadingError < 0.0) degHeadingError+=360.0;
+	while(degHeadingError > 360.0) degHeadingError-=360.0;
+	VECTOR3 TgtPos = GetRunwayRelPos();
+
+	VECTOR3 TouchdownPos = -RotateVectorZ(_V(TgtPos.x-IGS_AIMPOINT, TgtPos.y, 0.0), degHeadingError); // ignore height error
+	VECTOR3 HACExitPos = -RotateVectorZ(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y, 0.0), degHeadingError);
+	// calculate scale factor for display
+	double scale_distance = max(length(TouchdownPos), length(HACExitPos)+HAC_TurnRadius); // make sure HAC circle and touchdown point are visible
+	scale_distance = range(20e3, scale_distance, 500e3); // limit distance covered by display to between 20km and 500km
+	double scale = scale_distance/128; // screen area is 256 pixels by 256 pixels
+	int touchdown_x = BUG_POINT_X - round(TouchdownPos.y/scale);
+	int touchdown_y = round(TouchdownPos.x/scale) + BUG_POINT_Y;
+	int hac_exit_x = BUG_POINT_X - round(HACExitPos.y/scale);
+	int hac_exit_y = round(HACExitPos.x/scale) + BUG_POINT_Y;
+	pMDU->Circle(touchdown_x, touchdown_y, 4);
+	pMDU->Line(hac_exit_x, hac_exit_y, touchdown_x, touchdown_y);
+
+	VECTOR3 HACCenter = -RotateVectorZ(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y, 0.0), degHeadingError);
+	int hac_center_x = BUG_POINT_X - round(HACCenter.y/scale);
+	int hac_center_y = BUG_POINT_Y + round(HACCenter.x/scale);
+	int hac_radius = round(HAC_TurnRadius/scale);
+	pMDU->Circle(hac_center_x, hac_center_y, hac_radius);
+
+	// draw position predictor circles
+	// get speed and acceleration in LVLH-like frame
+	VECTOR3 localForce;
+	STS()->GetForceVector(localForce);
+	VECTOR3 localAcceleration = localForce/STS()->GetMass();
+	VECTOR3 horizonAcceleration;
+	STS()->HorizonRot(localAcceleration, horizonAcceleration);
+	VECTOR3 groundVelocity = _V(-sqrt(velocity.x*velocity.x + velocity.z*velocity.z), 0, 0); // initial velocity is always along display's y axis
+	VECTOR3 groundAcceleration = RotateVectorZ(_V(-horizonAcceleration.z, -horizonAcceleration.x, 0), -degHeading);
+	// to calculate position in future, split acceleration into (constant magnitude) radial and tangential components and do numerical integration
+	// assumes aerodynamic forces (lift/drag) are constant
+	double radial_acc = -groundAcceleration.y;
+	double tangential_acc = -groundAcceleration.x;
+	VECTOR3 pos = _V(0, 0, 0);
+	const double DELTA_T = 0.1;
+	for(double time=DELTA_T;time<=60.1;time+=DELTA_T) {
+		pos += groundVelocity*DELTA_T + groundAcceleration*(0.5*DELTA_T*DELTA_T);
+		// calculate acceleration from radial and tangential components
+		VECTOR3 norm_vel = groundVelocity/length(groundVelocity);
+		groundAcceleration = crossp(norm_vel, _V(0, 0, -1))*radial_acc + norm_vel*tangential_acc;
+		groundVelocity = groundVelocity + groundAcceleration*DELTA_T;
+
+		if(Eq(time, 20, 0.01) || Eq(time, 40, 0.01) || Eq(time, 60, 0.01)) {
+			int pos_x = BUG_POINT_X - round(pos.y/scale);
+			int pos_y = BUG_POINT_Y + round(pos.x/scale);
+			pMDU->Circle(pos_x, pos_y, 4, dps::DEUATT_OVERBRIGHT);
+		}
+	}
+
+	// draw shuttle bug (this is always at fixed position)
+	pMDU->Line(BUG_POINT_X, BUG_POINT_Y, BUG_POINT_X+BUG_WIDTH1, BUG_POINT_Y+BUG_HEIGHT1, dps::DEUATT_OVERBRIGHT);
+	pMDU->Line(BUG_POINT_X, BUG_POINT_Y, BUG_POINT_X-BUG_WIDTH1, BUG_POINT_Y+BUG_HEIGHT1, dps::DEUATT_OVERBRIGHT);
+	pMDU->Line(BUG_POINT_X+BUG_WIDTH1, BUG_POINT_Y+BUG_HEIGHT1, BUG_POINT_X+BUG_WIDTH2, BUG_POINT_Y+BUG_HEIGHT2, dps::DEUATT_OVERBRIGHT);
+	pMDU->Line(BUG_POINT_X-BUG_WIDTH1, BUG_POINT_Y+BUG_HEIGHT1, BUG_POINT_X-BUG_WIDTH2, BUG_POINT_Y+BUG_HEIGHT2, dps::DEUATT_OVERBRIGHT);
+	pMDU->Line(BUG_POINT_X-BUG_WIDTH2, BUG_POINT_Y+BUG_HEIGHT2, BUG_POINT_X+BUG_WIDTH2, BUG_POINT_Y+BUG_HEIGHT2, dps::DEUATT_OVERBRIGHT);
+	pMDU->Line(BUG_POINT_X, BUG_POINT_Y+BUG_HEIGHT2, BUG_POINT_X, BUG_POINT_Y+BUG_HEIGHT2+2, dps::DEUATT_OVERBRIGHT);
+	//pMDU->Line(126, 160, 122, 166);
+	//pMDU->Line(130, 160, 134, 166);
+	//pMDU->Line(122, 166, 134, 166);
+	//pMDU->Line(128, 166, 128, 168);
 }
 
 void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
@@ -921,13 +1025,26 @@ double AerojetDAP::CalculateTargetDrag()
 	return -10.0; // indicate the target drag is not known
 }
 
+void AerojetDAP::SelectHAC()
+{
+	VECTOR3 pos = GetRunwayRelPos();
+	if(HACDirection == OVHD) {
+		if(pos.y < 0.0) HACSide = R;
+		else HACSide = L;
+	}
+	else { // STRT
+		if(pos.y < 0.0) HACSide = L;
+		else HACSide = R;
+	}
+}
+
 void AerojetDAP::CalculateHACGuidance(double DeltaT)
 {
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	const double DR3 = 8000.0/MPS2FPS;
-	const double FINAL_RADIUS = 14000.0/MPS2FPS;
+	//const double FINAL_RADIUS = 14000.0/MPS2FPS;
 	//const double HAC_RADIUS = 20000/MPS2FPS;
-	const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+	//const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
 	//const double HAC_CENTER_Y = -FINAL_RADIUS;
 	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
 	const double R1 = 0.0;
@@ -1199,10 +1316,6 @@ void AerojetDAP::InitiatePreflare()
 double AerojetDAP::CalculatePreflareNZ(const VECTOR3 &RwyPos, double DeltaT)
 {
 	/**
-	 * Offset between IGS aimpoint and rwy threshold
-	 */
-	const double IGS_AIMPOINT = -1000.0/MPS2FPS;
-	/**
 	 * Target glideslope at end of flare
 	 */
 	const double TGT_IGS = 1.5*RAD;
@@ -1215,7 +1328,7 @@ double AerojetDAP::CalculatePreflareNZ(const VECTOR3 &RwyPos, double DeltaT)
 
 	double curGlideslope = STS()->GetPitch() - STS()->GetAOA();
 	double speed = STS()->GetAirspeed();
-	VECTOR3 TgtPos = _V(RwyPos.x+IGS_AIMPOINT, RwyPos.y, RwyPos.z);
+	VECTOR3 TgtPos = _V(RwyPos.x-IGS_AIMPOINT, RwyPos.y, RwyPos.z);
 	double flareRate = (speed * ( cos(TGT_IGS)-cos(-curGlideslope)+tan(TGT_IGS)*(sin(TGT_IGS)-sin(-curGlideslope)) )) / (-TgtPos.z+TgtPos.x*tan(TGT_IGS));
 	flareRate = max(flareRate, 0.0);
 
