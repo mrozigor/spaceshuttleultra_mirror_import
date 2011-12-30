@@ -24,6 +24,7 @@
   **************************************************************************/
 #pragma once
 
+#include <vector>
 #include "../dps/dps_defs.h"
 #include "vc_defs.h"
 #include "AtlantisVCComponent.h"
@@ -69,6 +70,8 @@ namespace vc {
 		bool bPower;
 		bool bIsConnectedToCRTMFD;
 		
+		std::vector<dps::DEU_LINE> lines;
+		std::vector<dps::DEU_ELLIPSE> ellipses;
 
 		//Use a paint buffer for storing primitives?
 	protected:
@@ -77,13 +80,13 @@ namespace vc {
 		void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 		
-		inline void MDU::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
+		/*inline void MDU::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
 		{
 			MoveToEx(hDC, TopX, TopY, NULL);
 			LineTo(hDC, LBottomX, BottomY);
 			LineTo(hDC, RBottomX, BottomY);
 			LineTo(hDC, TopX, TopY);
-		}
+		}*/
 
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);
@@ -156,8 +159,72 @@ namespace vc {
 			PrintToBuffer(pszLine, strlen(pszLine), x, y, attributes);
 		}
 
+		/**
+		 * Draw line on DEU.
+		 * Coordinates should be between 0 and 255
+		 */
 		inline void Line(int x1, int y1, int x2, int y2, char attributes = 0) 
 		{
+			dps::DEU_LINE line;
+			line.x0 = x1;
+			line.y0 = y1;
+			line.x1 = x2;
+			line.y1 = y2;
+			line.cAttr = attributes;
+			lines.push_back(line);
+		}
+
+		/**
+		 * Draw ellipse on DEU.
+		 * Coordinates should be between 0 and 255
+		 */
+		inline void Ellipse(int xLeft, int yTop, int xRight, int yBottom, char attributes = 0)
+		{
+			dps::DEU_ELLIPSE ellipse;
+			ellipse.xLeft = xLeft;
+			ellipse.yTop = yTop;
+			ellipse.xRight = xRight;
+			ellipse.yBottom = yBottom;
+			ellipse.cAttr = attributes;
+			ellipses.push_back(ellipse);
+		}
+
+		/**
+		 * Draw circle on DEU.
+		 * Coordinates should be between 0 and 255
+		 */
+		inline void Circle(int xCenter, int yCenter, int radius, char attributes = 0)
+		{
+			Ellipse(xCenter-radius, yCenter-radius, xCenter+radius, yCenter+radius, attributes);
+		}
+
+		/**
+		 * Draws delta character at specified location on MDU.
+		 */
+		inline void Delta(int x, int y, char attributes = 0)
+		{
+			// each DEU character is 5 pixels wide and 9 pixels high
+			Line(5*x, 9*y + 6, 5*x+4, 9*y + 6, attributes);
+			Line(5*x, 9*y + 6, 5*x + 2, 9*y, attributes);
+			Line(5*x+4, 9*y + 6, 5*x + 2, 9*y, attributes);
+		}
+
+		/**
+		 * Draws theta character at specified location on MDU.
+		 */
+		inline void Theta(int x, int y, char attributes = 0)
+		{
+			Ellipse(5*x, 9*y+2, 5*x+4, 9*y+8, attributes);
+			Line(5*x, 9*y+4, 5*x+4, 9*y+4, attributes);
+		}
+
+		/**
+		 * Adds dot above specified character on MDU.
+		 * This is usuaaly used to signify rates (i.e. rdot or hdot).
+		 */
+		inline void DotCharacter(int x, int y, char attributes = 0)
+		{
+			Circle(5*x+2, 9*y, 1, attributes);
 		}
 
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,

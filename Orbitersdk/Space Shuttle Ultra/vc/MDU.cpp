@@ -261,7 +261,31 @@ namespace vc {
 		}
 		BitBlt(hDC, 0, 0, 256, 256, CompatibleDC, 0, 0, SRCCOPY);
 
+		// TODO: make pens class members and only create/destroy them once
+		HPEN hOverbrightPen = CreatePen(PS_SOLID, 0, RGB(255, 255, 0));
+		HPEN hNormalPen = CreatePen(PS_SOLID, 0, RGB(128, 255, 0));
+		// draw lines/circles
+		for(unsigned int i=0;i<lines.size();i++) {
+			if(lines[i].cAttr != dps::DEUATT_FLASHING || flash) {
+				if(lines[i].cAttr == dps::DEUATT_OVERBRIGHT) SelectObject(hDC, hOverbrightPen);
+				else SelectObject(hDC, hNormalPen);
+				MoveToEx(hDC, lines[i].x0, lines[i].y0, NULL);
+				LineTo(hDC, lines[i].x1, lines[i].y1);
+			}
+		}
+		for(unsigned int i=0;i<ellipses.size();i++) {
+			if(ellipses[i].cAttr != dps::DEUATT_FLASHING || flash) {
+				if(ellipses[i].cAttr == dps::DEUATT_OVERBRIGHT) SelectObject(hDC, hOverbrightPen);
+				else SelectObject(hDC, hNormalPen);
+				int startX = (ellipses[i].xLeft+ellipses[i].xRight)/2;
+				int startY = ellipses[i].yTop;
+				Arc(hDC, ellipses[i].xLeft, ellipses[i].yTop, ellipses[i].xRight, ellipses[i].yBottom, startX, startY, startX, startY);
+			}
+		}
+
 		RestoreDC(hDC, Save);
+		DeleteObject(hNormalPen);
+		DeleteObject(hOverbrightPen);
 		DeleteDC(CompatibleDC);
 		DeleteDC(BitmapDC);
 		DeleteObject(BMP);
@@ -410,6 +434,9 @@ namespace vc {
 				textBuffer[i][j].cSymbol=0;
 			}
 		}
+
+		lines.clear();
+		ellipses.clear();
 
 		if(prim_idp) {
 			prim_idp->OnPaint(this);

@@ -118,6 +118,17 @@ namespace dps {
 		char cAttr;
 	};
 
+	struct DEU_LINE {
+		int x0, y0;
+		int x1, y1;
+		char cAttr;
+	};
+
+	struct DEU_ELLIPSE {
+		int xLeft, yTop, xRight, yBottom;
+		char cAttr;
+	};
+
 	struct DEU_STATUS {
 		word16 bite1;
 		word16 bite2;
