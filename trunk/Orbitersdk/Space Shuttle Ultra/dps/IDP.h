@@ -146,6 +146,7 @@ namespace dps {
 		void SetMajFunc(MAJORFUNCTION func);
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual bool OnParseLine(const char* line);
+		virtual bool SingleParamParseLine() const {return true;};
 		//
 		inline bool IsOPSLine() const {return (cScratchPadLine[0] == SSU_KEY_OPS);};
 		inline bool IsSPECLine() const {return (cScratchPadLine[0] == SSU_KEY_SPEC);};
