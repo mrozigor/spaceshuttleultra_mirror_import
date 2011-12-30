@@ -633,6 +633,104 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		skp->LineTo((hps->CX)+commanded+5, hps->H-80);
 		skp->LineTo((hps->CX)+commanded, hps->H-85);
 	}
+
+	double fov = oapiCameraAperture();
+
+	
+	//VECTOR3 rwypos = GetRunwayRelPos();
+	//double distance = length(rwypos);
+	//VECTOR3 rwynorm = rwypos;
+	//normalise(rwynorm);
+	//VECTOR3 end2 = rwypos + tmul(RwyRotMatrix,rwynorm)*4000;
+	//double maxsin = sin(fov/2);
+	////first end
+	//double hsin = rwypos.z/distance - sin(STS()->GetPitch());
+	//double wsin = rwypos.y/distance - sin(STS()->GetSlipAngle());
+	//double hcomp = (hps->H/2) * (hsin/maxsin);
+	//double wcomp = (hps->W/2) * (wsin/maxsin);
+
+
+	////second end
+	//double distance2 = length(end2);
+	//double hsin2 = end2.z/distance2 - sin(STS()->GetPitch());
+	//double wsin2 = end2.y/distance2 - sin(STS()->GetSlipAngle());
+	//double hcomp2 = (hps->H/2) * (hsin2/maxsin);
+	//double wcomp2 = (hps->W/2) * (wsin2/maxsin);
+	//skp->MoveTo(hps->W/2 + wcomp,hps->H/2 - hcomp);
+	//skp->LineTo(hps->W/2 + wcomp2,hps->H/2 - hcomp2);
+	//sprintf(oapiDebugString(),"%lf %lf %lf %lf",end2.x,end2.y,end2.z,asin(wsin2)*DEG);
+	
+	double maxsin = sin(fov);
+	double lat1, lon1, lat2, lon2;
+	vLandingSites[0].GetRwyPosition(true,lat1,lon1);
+	VECTOR3 rwy1_end, lrwy1;
+	oapiEquToGlobal(hEarth,lon1,lat1,oapiGetSize(hEarth),&rwy1_end);
+	STS()->Global2Local(rwy1_end,lrwy1);
+	
+
+	vLandingSites[0].GetRwyPosition(false,lat2,lon2);
+	VECTOR3 rwy2_end, lrwy2;
+	oapiEquToGlobal(hEarth,lon2,lat2,oapiGetSize(hEarth),&rwy2_end);
+	STS()->Global2Local(rwy2_end,lrwy2);
+
+	VECTOR3 rwyDir = lrwy2 - lrwy1;
+	normalise(rwyDir);
+
+	VECTOR3 rotDir = RotateVectorY(rwyDir,-90);
+
+	VECTOR3 camPosGlobal, camPos;
+	oapiCameraGlobalPos(&camPosGlobal);
+	STS()->Global2Local(camPosGlobal,camPos);
+
+	
+	//UPPER LEFT CORNER
+	VECTOR3 left1 = lrwy1 - (rotDir*40);
+	left1-=camPos;
+	double wcomp_left1 = (left1.x/(left1.z*tan(fov))+1)*hps->W/2;
+	double hcomp_left1 = (-left1.y/(left1.z*tan(fov))+1)*hps->H/2;
+
+	//UPPER RIGHT CORNER
+	VECTOR3 right1 = lrwy1 + (rotDir*40);
+	right1-=camPos;
+	double wcomp_right1 = (right1.x/(right1.z*tan(fov))+1)*hps->W/2;
+	double hcomp_right1 = (-right1.y/(right1.z*tan(fov))+1)*hps->H/2;
+
+	//LOWER RIGHT CORNER
+	VECTOR3 right2 = lrwy2 + rotDir*40;
+	right2-=camPos;
+	double wcomp_right2 = (right2.x/(right2.z*tan(fov))+1)*hps->W/2;
+	double hcomp_right2 = (-right2.y/(right2.z*tan(fov))+1)*hps->H/2;
+
+	//LOWER LEFT CORNER
+	VECTOR3 left2 = lrwy2 - rotDir*40;
+	left2-=camPos;
+	double wcomp_left2 = (left2.x/(left2.z*tan(fov))+1)*hps->W/2;
+	double hcomp_left2 = (-left2.y/(left2.z*tan(fov))+1)*hps->H/2;
+
+	//DRAW RUNWAY
+	skp->MoveTo(wcomp_left1,hcomp_left1);
+	skp->LineTo(wcomp_right1,hcomp_right1);
+	skp->LineTo(wcomp_right2,hcomp_right2);
+	skp->LineTo(wcomp_left2,hcomp_left2);
+	skp->LineTo(wcomp_left1,hcomp_left1);
+
+
+
+	
+	////move to first end
+	//VECTOR3 vector_end1 = lrwy2 - camPos;
+	//double hcomp2 = (-vector_end1.y/(vector_end1.z*tan(fov))+1)*hps->H/2;
+	//double wcomp2 = (vector_end1.x/(vector_end1.z*tan(fov))+1)*hps->W/2;
+	//skp->MoveTo(wcomp2,hcomp2);
+	//
+	////draw line to second end
+	//VECTOR3 vector_end2 = lrwy1 - camPos;
+	//double hcomp1 = (-vector_end2.y/(vector_end2.z*tan(fov))+1)*hps->H/2;
+	//double wcomp1 = (vector_end2.x/(vector_end2.z*tan(fov))+1)*hps->W/2;
+	//skp->LineTo(wcomp1,hcomp1);
+
+
+
 	return true;
 }
 
@@ -1109,7 +1207,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 {
 	double HeadingError = atan2(TgtPos.y, -TgtPos.x)*DEG;
-	sprintf_s(oapiDebugString(), 255, "TPos X: %f Y: %f Z: %f", TgtPos.x, TgtPos.y, TgtPos.z);
+	//sprintf_s(oapiDebugString(), 255, "TPos X: %f Y: %f Z: %f", TgtPos.x, TgtPos.y, TgtPos.z);
 	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f Z: %f HeadingError: %f", TgtPos.x, TgtPos.y, TgtPos.z, HeadingError);
 	TotalRange = sqrt(TgtPos.x*TgtPos.x + TgtPos.y*TgtPos.y);
 	if(TAEMGuidanceMode == PRFNL) {
@@ -1179,7 +1277,7 @@ double AerojetDAP::CalculatePrefinalBank(const VECTOR3& RwyPos)
 	if(prfnlBankFader > 1.0) {
 		double dBank = (bank-TargetBank)/prfnlBankFader;
 		prfnlBankFader -= oapiGetSimStep();
-		sprintf_s(oapiDebugString(), 255, "Fader bank: %f Actual target: %f", TargetBank+dBank, bank);
+		//sprintf_s(oapiDebugString(), 255, "Fader bank: %f Actual target: %f", TargetBank+dBank, bank);
 		return TargetBank+dBank*oapiGetSimStep();
 	}
 	return bank;
@@ -1215,13 +1313,13 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	else {
 		tgtAlt = Y_AL_INTERCEPT - AL_GS*rangeToALI;
 		if(rangeToALI > 0.0) {
-			sprintf_s(oapiDebugString(), 255, "Cubic alt profile");
+			//sprintf_s(oapiDebugString(), 255, "Cubic alt profile");
 			tgtAlt += rangeToALI*rangeToALI*(CUBIC_C3 + rangeToALI*CUBIC_C4);
 			tgtGs = AL_GS - rangeToALI*(2*CUBIC_C3 + 3*rangeToALI*CUBIC_C4);
 			tgtGs = range(AL_GS, tgtGs, -LINEAR_GLIDESLOPE);
 		}
 		else {
-			sprintf_s(oapiDebugString(), 255, "Final approach alt profile");
+			//sprintf_s(oapiDebugString(), 255, "Final approach alt profile");
 			// for the moment, assume we're on final
 			tgtGs = AL_GS;
 		}
@@ -1234,8 +1332,8 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	double refHDot = horzSpeed*tgtGs;
 	double HDotErr = refHDot + velocity.z;
 
-	sprintf_s(oapiDebugString(), 255, "%s Gain: %f TgtAlt: %f refHDot: %f HDotErr: %f DNZC: %f", oapiDebugString(), gain, tgtAlt,
-		refHDot, HDotErr, gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt)));
+	//sprintf_s(oapiDebugString(), 255, "%s Gain: %f TgtAlt: %f refHDot: %f HDotErr: %f DNZC: %f", oapiDebugString(), gain, tgtAlt,
+		//refHDot, HDotErr, gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt)));
 
 	double NZC;
 	double deltaNZComm = gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt));	

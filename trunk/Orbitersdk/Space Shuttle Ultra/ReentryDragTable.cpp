@@ -1,5 +1,6 @@
 #include "ReentryDragTable.h"
 #include "ParameterValues.h"
+#include "UltraMath.h"
 
 DragTable::DragTable()
 {
@@ -14,41 +15,45 @@ DragTable::~DragTable()
 void DragTable::LoadFromFile()
 {
 	std::fstream file;
-	file.open("Config/SSU_ReentryDrag.csv",std::ios::in);
+	file.open("Config/SSU_Density.csv",std::ios::in);
 	if(file.is_open())
 	{
 		std::string line;
 		while(std::getline(file,line))
 		{
-			double vr, h;
-			sscanf(line.c_str(),"%lf%lf",&vr,&h);
-			dTable.push_back(std::pair<double,double>(vr,h));
+			double alt, rho;
+			sscanf(line.c_str(),"%lf%lf",&alt,&rho);
+			dTable.push_back(std::pair<double,double>(alt,rho));
 			line.clear();
-			vr = h = 0;
+			alt = rho = 0;
 		}
 		
 	}
 
 }
 
-double DragTable::Interpolate(double relVel)
+double DragTable::Interpolate(double rho)
 {
 	std::vector<std::pair<double,double>>::iterator it;
-	
+
 	for(it = dTable.begin(); it != dTable.end(); it++)
 	{
-		if(it<dTable.end()-1)
-		{
-			if((it->first > relVel && (it+1)->first < relVel )||(it->first < relVel && (it+1)->first > relVel ) )
-				return it->second + ((it+1)->second - it->second)*(relVel-it->first)/((it+1)->first - it->first);
+		if(rho >= 1.16696)
+			return 500;
 
-			else if(it->first == relVel)
-				return it->second;
+		else if(rho <= 5.98467e-007)
+			return 100000;
+
+		else
+		{
+			if(it<dTable.end()-1)
+			{
+				if((rho>it->second && rho < (it+1)->second) || (rho<it->second && rho > (it+1)->second))
+					return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
+			}
 		}
-		else return it->second;
 	}
 	
-	return 0;
 }
 
 double DragTable::GetAirDensity(double altitude)
@@ -63,12 +68,11 @@ double DragTable::TargetAltitude(double target_drag, double speed, double AOA, d
 	double cd3 = -6.21408/10000*pow(AOA,2);
 	//double drag = 0.5*GetAirDensity(alt)*pow(speed,2)*(cd1+cd2+cd3)*250/2*mass;
 	double density = (target_drag*2*mass)/(pow(speed,2)*cd*ORBITER_WING_AREA);
-	double eah = density/2.04959;
-	return log(fabs(eah))/-0.000156935;
+	return Interpolate(density);
 
 }
 
 double DragTable::TargetDrag(double range, double speed)
 {
-	return ((speed-300)*(speed+300))/(2*range);
+	return ((speed-300)*(speed+300))/(2*(range-100000));
 }
