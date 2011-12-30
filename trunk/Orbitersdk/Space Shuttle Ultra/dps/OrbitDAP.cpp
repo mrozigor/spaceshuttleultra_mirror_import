@@ -76,23 +76,23 @@ PCTActive(false)
 		RotatingAxis[i] = false;
 
 		//Initialize DAP Config
-		DAPConfiguration[i].PRI_ROT_RATE=1.0;
-		DAPConfiguration[i].PRI_ATT_DB=0.5;
-		DAPConfiguration[i].PRI_RATE_DB=0.1;
+		DAPConfiguration[i].PRI_ROT_RATE=0.2;
+		DAPConfiguration[i].PRI_ATT_DB=5.0;
+		DAPConfiguration[i].PRI_RATE_DB=0.2;
 		DAPConfiguration[i].PRI_ROT_PLS=0.1;
 		DAPConfiguration[i].PRI_COMP=0.0;
-		DAPConfiguration[i].PRI_TRAN_PLS=0.2;
+		DAPConfiguration[i].PRI_TRAN_PLS=0.1;
 		DAPConfiguration[i].PRI_P_OPTION=0;
 		DAPConfiguration[i].PRI_Y_OPTION=0;
 		DAPConfiguration[i].ALT_RATE_DB=0.2;
-		DAPConfiguration[i].ALT_ON_TIME=0.5;
-		DAPConfiguration[i].ALT_DELAY=0.5;
+		DAPConfiguration[i].ALT_ON_TIME=0.08;
+		DAPConfiguration[i].ALT_DELAY=0.0;
 		DAPConfiguration[i].ALT_JET_OPT=0;
 		DAPConfiguration[i].ALT_JETS=2;
-		DAPConfiguration[i].VERN_ROT_RATE=0.25;
-		DAPConfiguration[i].VERN_ATT_DB=0.1;
-		DAPConfiguration[i].VERN_RATE_DB=0.01;
-		DAPConfiguration[i].VERN_ROT_PLS=0.1;
+		DAPConfiguration[i].VERN_ROT_RATE=0.2;
+		DAPConfiguration[i].VERN_ATT_DB=1.0;
+		DAPConfiguration[i].VERN_RATE_DB=0.020;
+		DAPConfiguration[i].VERN_ROT_PLS=0.01;
 		DAPConfiguration[i].VERN_COMP=0.0;
 		DAPConfiguration[i].VERN_CNTL_ACC=0;
 	}
