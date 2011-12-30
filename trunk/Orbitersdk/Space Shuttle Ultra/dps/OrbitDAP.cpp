@@ -118,6 +118,11 @@ void OrbitDAP::UseRCS()
 	ControlMode = RCS;
 }
 
+OrbitDAP::DAP_CONTROL_MODE OrbitDAP::GetDAPMode() const
+{
+	return DAPControlMode;
+}
+
 void OrbitDAP::ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt)
 {
 	LoadCurLVLHManeuver(degLVLHAtt*RAD);

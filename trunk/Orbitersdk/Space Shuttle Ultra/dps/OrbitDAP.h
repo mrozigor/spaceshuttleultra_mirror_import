@@ -112,6 +112,8 @@ public:
 	void UseOMSTVC(CONTROL_MODE Mode, const VECTOR3& Trim);
 	void UseRCS();
 
+	DAP_CONTROL_MODE GetDAPMode() const;
+	
 	/**
 	 * Starts maneuver to LVLH attitude.
 	 * Maneuver will start as soon as AUTO is selected.
@@ -124,7 +126,7 @@ public:
 	 * Currently only needed for OMSBurnSoftware class (to manuver to burn att).
 	 */
 	void ManeuverToINRTLAttitude(const VECTOR3& degINRTLAtt);
-	
+
 	virtual void Realize();
 
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);

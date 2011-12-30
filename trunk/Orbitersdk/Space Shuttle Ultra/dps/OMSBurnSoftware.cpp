@@ -194,6 +194,9 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 			bShowTimer = false;
 		}
 		MnvrLoad=false;
+		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
+		VGO = _V(0, 0, 0);
+		DeltaVTot = 0.0;
 		return true;
 	}
 	return false;
@@ -365,7 +368,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
 		TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
 		TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
-		sprintf_s(cbuf, 255, "%.0d/%02d:%02d:%02d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
+		sprintf_s(cbuf, 255, "%03d/%02d:%02d:%02d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
 		pMDU->mvprint(38, 1, cbuf);
 	}
 
@@ -384,7 +387,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(2, 8, cbuf);
 	sprintf(cbuf, "8 RY %+2.1f", Trim.data[2]);
 	pMDU->mvprint(2, 9, cbuf);
-	sprintf(cbuf, "9 WT %6.0f", WT);
+	sprintf(cbuf, "9 WT  %6.0f", WT);
 	pMDU->mvprint(1, 10, cbuf);
 	pMDU->mvprint(0, 11, "10 TIG");
 	sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
@@ -394,6 +397,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 14, "14 C1");
 	pMDU->mvprint(1, 15, "15 C2");
 	pMDU->mvprint(1, 16, "16 HT");
+	pMDU->Theta(4, 17);
 	pMDU->mvprint(1, 17, "17  T");
 	pMDU->mvprint(1, 18, "18 PRPLT");
 
@@ -401,13 +405,14 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 20, "19  VX");
 	pMDU->mvprint(1, 21, "20  VY");
 	pMDU->mvprint(1, 22, "21  VZ");
+	for(int i=20;i<=22;i++) pMDU->Delta(4, i); // delta symbols for DV X/Y/Z
 	if(PEG7.x!=0.0 || PEG7.y!=0.0 || PEG7.z!=0.0) {
 		sprintf(cbuf, "%+7.1f", PEG7.x);
-		pMDU->mvprint(8, 20, cbuf);
+		pMDU->mvprint(9, 20, cbuf);
 		sprintf(cbuf, "%+6.1f", PEG7.y);
-		pMDU->mvprint(8, 21, cbuf);
+		pMDU->mvprint(10, 21, cbuf);
 		sprintf(cbuf, "%+6.1f", PEG7.z);
-		pMDU->mvprint(8, 22, cbuf);
+		pMDU->mvprint(10, 22, cbuf);
 	}
 
 	if(MnvrLoad || GetMajorMode()==303) {
@@ -425,14 +430,34 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	}
 
 	if(MnvrLoad) {
-		pMDU->mvprint(0, 23, "LOAD 22/TIMER 23");
+		pMDU->mvprint(0, 23, "LOAD  22/TIMER 23");
 		if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
 	}
-	else pMDU->mvprint(0, 23, "     22/TIMER 23");
+	else pMDU->mvprint(6, 23, "22/TIMER 23");
 
 	pMDU->mvprint(20, 2, "BURN ATT");
 	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
 	else pMDU->mvprint(20, 6, "MNVR 27*");
+	// display selected DAP mode
+	OrbitDAP::DAP_CONTROL_MODE dapMode = pOrbitDAP->GetDAPMode();
+	std::string text;
+	switch(dapMode) {
+	case OrbitDAP::AUTO:
+		text = "AUTO";
+		break;
+	case OrbitDAP::INRTL:
+		text = "INRTL";
+		break;
+	case OrbitDAP::LVLH:
+		text = "LVLH";
+		break;
+	case OrbitDAP::FREE:
+		text = "FREE";
+		break;
+	}
+	if(MnvrToBurnAtt && dapMode != OrbitDAP::AUTO) pMDU->mvprint(30, 6, text.c_str(), dps::DEUATT_OVERBRIGHT);
+	else pMDU->mvprint(30, 6, text.c_str());
+
 
 	pMDU->mvprint(20, 8, "REI");
 	pMDU->mvprint(25, 10, "GMBL");
@@ -448,11 +473,13 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(20, 17, "OFF 32   33");
 	pMDU->mvprint(20, 18, "GMBL CK  34");
 
-	if(!BurnInProg && !BurnCompleted) {
+	pMDU->Line(175, 117, 255, 117);
+	pMDU->Line(175, 18, 175, 117);
+	if(MnvrLoad && !BurnInProg && !BurnCompleted) {
 		TGO[0]=(int)(BurnTime/60);
 		TGO[1]=(int)(BurnTime-(TGO[0]*60));
 	}
-	else if(!BurnCompleted) {
+	else if(MnvrLoad && !BurnCompleted) {
 		double btRemaining=IgnitionTime+BurnTime-STS()->GetMET();
 		TGO[0]=(int)btRemaining/60;
 		TGO[1]=(int)btRemaining%60;
@@ -460,7 +487,8 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	else TGO[0]=TGO[1]=0;
 	sprintf(cbuf, "VTOT   %6.2f", DeltaVTot);
 	pMDU->mvprint(37, 3, cbuf);
-	sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
+	pMDU->Delta(36, 3);
+	sprintf(cbuf, "TGO      %2d:%.2d", TGO[0], TGO[1]);
 	pMDU->mvprint(36, 4, cbuf);
 	sprintf(cbuf, "VGO X %+8.2f", VGO.x);
 	pMDU->mvprint(36, 6, cbuf);
