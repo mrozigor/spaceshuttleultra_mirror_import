@@ -662,13 +662,13 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 	
 	double maxsin = sin(fov);
 	double lat1, lon1, lat2, lon2;
-	vLandingSites[0].GetRwyPosition(true,lat1,lon1);
+	vLandingSites[SITE_ID].GetRwyPosition(true,lat1,lon1);
 	VECTOR3 rwy1_end, lrwy1;
 	oapiEquToGlobal(hEarth,lon1,lat1,oapiGetSize(hEarth),&rwy1_end);
 	STS()->Global2Local(rwy1_end,lrwy1);
 	
 
-	vLandingSites[0].GetRwyPosition(false,lat2,lon2);
+	vLandingSites[SITE_ID].GetRwyPosition(false,lat2,lon2);
 	VECTOR3 rwy2_end, lrwy2;
 	oapiEquToGlobal(hEarth,lon2,lat2,oapiGetSize(hEarth),&rwy2_end);
 	STS()->Global2Local(rwy2_end,lrwy2);
