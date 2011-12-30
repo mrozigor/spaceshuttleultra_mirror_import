@@ -15,12 +15,19 @@ namespace dps
 using namespace discsignals;
 
 /**
+* Offset between IGS aimpoint and rwy threshold
+*/
+const double IGS_AIMPOINT = 1000.0/MPS2FPS;
+/**
  * Offset between OGS aimpoint and rwy threshold
  */
 const double OGS_AIMPOINT = -7500/MPS2FPS;
 const double AL_GS = tan(-20.0*RAD);
 const double Y_AL_INTERCEPT = 10018.0/MPS2FPS;
 const double X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
+
+const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+const double FINAL_RADIUS = 14000.0/MPS2FPS; // center of HAC in Y direction is +/- FINAL_RADIUS
 
 const int NZ_VALUE_COUNT = 5;
 const double NZ_UPDATE_INTERVAL = 0.1;
@@ -35,7 +42,7 @@ private:
 	//typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
-	typedef enum {OVHD, STIN} HAC_DIRECTION;
+	typedef enum {OVHD, STRT} HAC_DIRECTION;
 
 	class LandingSiteData
 	{
@@ -131,7 +138,7 @@ private:
 
 	/** Variables used by TAEM guidance **/
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
-	//HAC_DIRECTION HACDirection;
+	HAC_DIRECTION HACDirection;
 	HAC_SIDE HACSide;
 	MATRIX3 RwyRotMatrix;
 	VECTOR3 RwyPos;
@@ -227,7 +234,10 @@ private:
 
 	double CalculateTargetDrag();
 	
-
+	/**
+	 * Based on HAC direction (OVHD or STRT), selects left or right HAC
+	 */
+	void SelectHAC();
 
 	void CalculateHACGuidance(double DeltaT);
 	/**
