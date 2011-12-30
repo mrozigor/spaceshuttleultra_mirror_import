@@ -15,7 +15,7 @@ private:
 
 public:
 	void LoadFromFile();
-	double Interpolate(double relVel);
+	double Interpolate(double rho);
 	double GetAirDensity(double altitude);
 	double TargetAltitude(double target_drag, double speed, double AOA, double mass, double cd);
 	double TargetDrag(double range, double speed);
