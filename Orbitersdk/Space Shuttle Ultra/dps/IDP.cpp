@@ -221,7 +221,8 @@ namespace dps {
 					}
 				}
 				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
-				unsigned int item=atoi(Name.c_str());				STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
+				unsigned int item=atoi(Name.c_str());
+				STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
 				Data=""; //clear string
 				while(i<scratchPad.length()) {
 					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
