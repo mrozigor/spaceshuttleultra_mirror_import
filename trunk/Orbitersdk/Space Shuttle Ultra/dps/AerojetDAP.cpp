@@ -632,103 +632,127 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		skp->LineTo((hps->CX)+commanded-5, hps->H-80);
 		skp->LineTo((hps->CX)+commanded+5, hps->H-80);
 		skp->LineTo((hps->CX)+commanded, hps->H-85);
+
+		//VECTOR3 rwypos = GetRunwayRelPos();
+		//double distance = length(rwypos);
+		//VECTOR3 rwynorm = rwypos;
+		//normalise(rwynorm);
+		//VECTOR3 end2 = rwypos + tmul(RwyRotMatrix,rwynorm)*4000;
+		//double maxsin = sin(fov/2);
+		////first end
+		//double hsin = rwypos.z/distance - sin(STS()->GetPitch());
+		//double wsin = rwypos.y/distance - sin(STS()->GetSlipAngle());
+		//double hcomp = (hps->H/2) * (hsin/maxsin);
+		//double wcomp = (hps->W/2) * (wsin/maxsin);
+
+
+		////second end
+		//double distance2 = length(end2);
+		//double hsin2 = end2.z/distance2 - sin(STS()->GetPitch());
+		//double wsin2 = end2.y/distance2 - sin(STS()->GetSlipAngle());
+		//double hcomp2 = (hps->H/2) * (hsin2/maxsin);
+		//double wcomp2 = (hps->W/2) * (wsin2/maxsin);
+		//skp->MoveTo(hps->W/2 + wcomp,hps->H/2 - hcomp);
+		//skp->LineTo(hps->W/2 + wcomp2,hps->H/2 - hcomp2);
+		//sprintf(oapiDebugString(),"%lf %lf %lf %lf",end2.x,end2.y,end2.z,asin(wsin2)*DEG);
+
+		double lat1, lon1, lat2, lon2;
+		vLandingSites[SITE_ID].GetRwyPosition(true,lat1,lon1);
+		VECTOR3 rwy1_end, lrwy1;
+		oapiEquToGlobal(hEarth,lon1,lat1,oapiGetSize(hEarth),&rwy1_end);
+		STS()->Global2Local(rwy1_end,lrwy1);
+
+		vLandingSites[SITE_ID].GetRwyPosition(false,lat2,lon2);
+		VECTOR3 rwy2_end, lrwy2;
+		oapiEquToGlobal(hEarth,lon2,lat2,oapiGetSize(hEarth),&rwy2_end);
+		STS()->Global2Local(rwy2_end,lrwy2);
+
+		VECTOR3 rwyDir = lrwy2 - lrwy1;
+		normalise(rwyDir);
+		VECTOR3 lvlh = RotateVectorZ( RotateVectorX(_V(0, 1, 0), -dPitch), -bank);
+		VECTOR3 rwyWidthDir = crossp(rwyDir, lvlh);
+
+		const double RUNWAY_WIDTH = 100.0; // works for KSC; might not work for other runways
+		VECTOR3 rwy1_l = lrwy1 - rwyWidthDir*(RUNWAY_WIDTH/2.0);
+		VECTOR3 rwy1_r = lrwy1 + rwyWidthDir*(RUNWAY_WIDTH/2.0);
+		VECTOR3 rwy2_l = lrwy2 - rwyWidthDir*(RUNWAY_WIDTH/2.0);
+		VECTOR3 rwy2_r = lrwy2 + rwyWidthDir*(RUNWAY_WIDTH/2.0);
+
+		VECTOR3 camPos;
+		STS()->GetCameraOffset(camPos);
+
+		VECTOR3 error[4];
+		error[0] = camPos-rwy1_l;
+		error[1] = camPos-rwy2_l;
+		error[2] = camPos-rwy2_r;
+		error[3] = camPos-rwy1_r;
+		int rwy_pos_x[4], rwy_pos_y[4];
+		for(int i=0;i<4;i++) {
+			rwy_pos_x[i] = hps->CX + static_cast<int>( round(hps->Scale*DEG*atan(error[i].x/error[i].z)) );
+			rwy_pos_y[i] = hps->CY + static_cast<int>( round(hps->Scale*DEG*atan(-error[i].y/error[i].z)) );
+		}
+		// check if at least one of the points is visible
+		bool drawRunway = false;
+		for(int i=0;i<4;i++) {
+			if((rwy_pos_x[i] >= 0 && rwy_pos_x[i] < hps->W) || (rwy_pos_y[i] >= 0 && rwy_pos_y[i] < hps->H)) {
+				drawRunway = true;
+				break;
+			}
+		}
+		if(drawRunway) {
+			skp->Line(rwy_pos_x[0], rwy_pos_y[0], rwy_pos_x[1], rwy_pos_y[1]);
+			skp->Line(rwy_pos_x[1], rwy_pos_y[1], rwy_pos_x[2], rwy_pos_y[2]);
+			skp->Line(rwy_pos_x[2], rwy_pos_y[2], rwy_pos_x[3], rwy_pos_y[3]);
+			skp->Line(rwy_pos_x[3], rwy_pos_y[3], rwy_pos_x[0], rwy_pos_y[0]);
+		}
+
+		//UPPER LEFT CORNER
+		/*VECTOR3 left1 = lrwy1 - (rotDir*40);
+		left1-=camPos;
+		double wcomp_left1 = (left1.x/(left1.z*tan(fov))+1)*hps->W/2;
+		double hcomp_left1 = (-left1.y/(left1.z*tan(fov))+1)*hps->H/2;
+
+		//UPPER RIGHT CORNER
+		VECTOR3 right1 = lrwy1 + (rotDir*40);
+		right1-=camPos;
+		double wcomp_right1 = (right1.x/(right1.z*tan(fov))+1)*hps->W/2;
+		double hcomp_right1 = (-right1.y/(right1.z*tan(fov))+1)*hps->H/2;
+
+		//LOWER RIGHT CORNER
+		VECTOR3 right2 = lrwy2 + rotDir*40;
+		right2-=camPos;
+		double wcomp_right2 = (right2.x/(right2.z*tan(fov))+1)*hps->W/2;
+		double hcomp_right2 = (-right2.y/(right2.z*tan(fov))+1)*hps->H/2;
+
+		//LOWER LEFT CORNER
+		VECTOR3 left2 = lrwy2 - rotDir*40;
+		left2-=camPos;
+		double wcomp_left2 = (left2.x/(left2.z*tan(fov))+1)*hps->W/2;
+		double hcomp_left2 = (-left2.y/(left2.z*tan(fov))+1)*hps->H/2;
+
+		//DRAW RUNWAY
+		skp->MoveTo(wcomp_left1,hcomp_left1);
+		skp->LineTo(wcomp_right1,hcomp_right1);
+		skp->LineTo(wcomp_right2,hcomp_right2);
+		skp->LineTo(wcomp_left2,hcomp_left2);
+		skp->LineTo(wcomp_left1,hcomp_left1);*/
+
+
+
+
+		////move to first end
+		//VECTOR3 vector_end1 = lrwy2 - camPos;
+		//double hcomp2 = (-vector_end1.y/(vector_end1.z*tan(fov))+1)*hps->H/2;
+		//double wcomp2 = (vector_end1.x/(vector_end1.z*tan(fov))+1)*hps->W/2;
+		//skp->MoveTo(wcomp2,hcomp2);
+		//
+		////draw line to second end
+		//VECTOR3 vector_end2 = lrwy1 - camPos;
+		//double hcomp1 = (-vector_end2.y/(vector_end2.z*tan(fov))+1)*hps->H/2;
+		//double wcomp1 = (vector_end2.x/(vector_end2.z*tan(fov))+1)*hps->W/2;
+		//skp->LineTo(wcomp1,hcomp1);
+
 	}
-
-	double fov = oapiCameraAperture();
-
-	
-	//VECTOR3 rwypos = GetRunwayRelPos();
-	//double distance = length(rwypos);
-	//VECTOR3 rwynorm = rwypos;
-	//normalise(rwynorm);
-	//VECTOR3 end2 = rwypos + tmul(RwyRotMatrix,rwynorm)*4000;
-	//double maxsin = sin(fov/2);
-	////first end
-	//double hsin = rwypos.z/distance - sin(STS()->GetPitch());
-	//double wsin = rwypos.y/distance - sin(STS()->GetSlipAngle());
-	//double hcomp = (hps->H/2) * (hsin/maxsin);
-	//double wcomp = (hps->W/2) * (wsin/maxsin);
-
-
-	////second end
-	//double distance2 = length(end2);
-	//double hsin2 = end2.z/distance2 - sin(STS()->GetPitch());
-	//double wsin2 = end2.y/distance2 - sin(STS()->GetSlipAngle());
-	//double hcomp2 = (hps->H/2) * (hsin2/maxsin);
-	//double wcomp2 = (hps->W/2) * (wsin2/maxsin);
-	//skp->MoveTo(hps->W/2 + wcomp,hps->H/2 - hcomp);
-	//skp->LineTo(hps->W/2 + wcomp2,hps->H/2 - hcomp2);
-	//sprintf(oapiDebugString(),"%lf %lf %lf %lf",end2.x,end2.y,end2.z,asin(wsin2)*DEG);
-	
-	double maxsin = sin(fov);
-	double lat1, lon1, lat2, lon2;
-	vLandingSites[SITE_ID].GetRwyPosition(true,lat1,lon1);
-	VECTOR3 rwy1_end, lrwy1;
-	oapiEquToGlobal(hEarth,lon1,lat1,oapiGetSize(hEarth),&rwy1_end);
-	STS()->Global2Local(rwy1_end,lrwy1);
-	
-
-	vLandingSites[SITE_ID].GetRwyPosition(false,lat2,lon2);
-	VECTOR3 rwy2_end, lrwy2;
-	oapiEquToGlobal(hEarth,lon2,lat2,oapiGetSize(hEarth),&rwy2_end);
-	STS()->Global2Local(rwy2_end,lrwy2);
-
-	VECTOR3 rwyDir = lrwy2 - lrwy1;
-	normalise(rwyDir);
-
-	VECTOR3 rotDir = RotateVectorY(rwyDir,-90);
-
-	VECTOR3 camPosGlobal, camPos;
-	oapiCameraGlobalPos(&camPosGlobal);
-	STS()->Global2Local(camPosGlobal,camPos);
-
-	
-	//UPPER LEFT CORNER
-	VECTOR3 left1 = lrwy1 - (rotDir*40);
-	left1-=camPos;
-	double wcomp_left1 = (left1.x/(left1.z*tan(fov))+1)*hps->W/2;
-	double hcomp_left1 = (-left1.y/(left1.z*tan(fov))+1)*hps->H/2;
-
-	//UPPER RIGHT CORNER
-	VECTOR3 right1 = lrwy1 + (rotDir*40);
-	right1-=camPos;
-	double wcomp_right1 = (right1.x/(right1.z*tan(fov))+1)*hps->W/2;
-	double hcomp_right1 = (-right1.y/(right1.z*tan(fov))+1)*hps->H/2;
-
-	//LOWER RIGHT CORNER
-	VECTOR3 right2 = lrwy2 + rotDir*40;
-	right2-=camPos;
-	double wcomp_right2 = (right2.x/(right2.z*tan(fov))+1)*hps->W/2;
-	double hcomp_right2 = (-right2.y/(right2.z*tan(fov))+1)*hps->H/2;
-
-	//LOWER LEFT CORNER
-	VECTOR3 left2 = lrwy2 - rotDir*40;
-	left2-=camPos;
-	double wcomp_left2 = (left2.x/(left2.z*tan(fov))+1)*hps->W/2;
-	double hcomp_left2 = (-left2.y/(left2.z*tan(fov))+1)*hps->H/2;
-
-	//DRAW RUNWAY
-	skp->MoveTo(wcomp_left1,hcomp_left1);
-	skp->LineTo(wcomp_right1,hcomp_right1);
-	skp->LineTo(wcomp_right2,hcomp_right2);
-	skp->LineTo(wcomp_left2,hcomp_left2);
-	skp->LineTo(wcomp_left1,hcomp_left1);
-
-
-
-	
-	////move to first end
-	//VECTOR3 vector_end1 = lrwy2 - camPos;
-	//double hcomp2 = (-vector_end1.y/(vector_end1.z*tan(fov))+1)*hps->H/2;
-	//double wcomp2 = (vector_end1.x/(vector_end1.z*tan(fov))+1)*hps->W/2;
-	//skp->MoveTo(wcomp2,hcomp2);
-	//
-	////draw line to second end
-	//VECTOR3 vector_end2 = lrwy1 - camPos;
-	//double hcomp1 = (-vector_end2.y/(vector_end2.z*tan(fov))+1)*hps->H/2;
-	//double wcomp1 = (vector_end2.x/(vector_end2.z*tan(fov))+1)*hps->W/2;
-	//skp->LineTo(wcomp1,hcomp1);
-
 
 
 	return true;
