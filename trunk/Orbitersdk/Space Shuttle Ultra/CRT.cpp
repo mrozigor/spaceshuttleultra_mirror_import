@@ -1540,10 +1540,10 @@ void CRT::WriteStatus(FILEHANDLE scn) const
 {
 	//char cbuf[255];
 	oapiWriteScenario_int (scn, "Mode2", mode);
-	//oapiWriteScenario_int (scn, "Display", display);
+	oapiWriteScenario_int (scn, "Display", display);
 	//oapiWriteScenario_int (scn, "OPS", ops);
 	//oapiWriteScenario_int (scn, "Spec", spec);
-	oapiWriteScenario_int (scn, "MDU", usMDU);
+	//oapiWriteScenario_int (scn, "MDU", usMDU);
 	/*oapiWriteScenario_int (scn, "MET0", MET[0]);
 	oapiWriteScenario_int (scn, "MET1", MET[1]);
 	oapiWriteScenario_int (scn, "MET2", MET[2]);
@@ -1562,10 +1562,19 @@ void CRT::ReadStatus(FILEHANDLE scn)
 		if (!strnicmp (line, "Mode2", 5)) {
 			sscanf (line+5, "%d", &mode);
 		}
-		/*else if(!strnicmp(line, "Display", 7)) {
+		/*else if (!strnicmp (line, "MDU", 3)) {
+			sscanf (line+3, "%u", &usMDU);
+			if(sts && sts->GetMDU(usMDU))
+			{
+				vc::MDU* pMDU = sts->GetMDU(usMDU); 
+				pMDU->ConnectToCRTMFD();
+			}
+		}*/
+		else if(!strnicmp(line, "Display", 7)) {
 			sscanf(line+7, "%d", &display);
 		}
-		else if(!strnicmp(line, "OPS", 3)) {
+		else if (!strnicmp (line, "END_MFD", 7)) break;
+		/*else if(!strnicmp(line, "OPS", 3)) {
 			sscanf(line+3, "%d", &ops);
 		}
 		else if(!strnicmp(line, "Spec", 4)) {
