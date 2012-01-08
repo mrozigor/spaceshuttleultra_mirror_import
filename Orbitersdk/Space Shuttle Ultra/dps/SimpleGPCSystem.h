@@ -26,6 +26,10 @@ public:
 	virtual ~SimpleGPCSystem();
 
 	void SetMajorMode(unsigned int newMM);
+	/**
+	 * Returns true if transition to major mode passed is valid.
+	 */
+	bool IsValidMajorModeTransition(unsigned int newMajorMode) const;
 
 	unsigned int GetMajorMode() const { return majorMode; };
 

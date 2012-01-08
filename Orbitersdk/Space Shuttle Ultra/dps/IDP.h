@@ -112,6 +112,8 @@ namespace dps {
 		virtual void OnAck();
 		virtual void OnClear();
 		virtual void OnExec();
+		virtual void OnPro();
+		virtual void OnResume();
 
 		void PrintTime(vc::MDU* mdu);
 		void RenderDisplayBuffer(vc::MDU* mdu);

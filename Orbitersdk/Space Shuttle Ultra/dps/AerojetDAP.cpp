@@ -1099,7 +1099,7 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	VECTOR3 degLastAttitude = degCurrentAttitude;
 
 	// get AOA, sideslip and bank
-	if(STS()->GetGPCMajorMode()==304)
+	if(GetMajorMode()==304)
 		degCurrentAttitude.data[PITCH] = STS()->GetAOA()*DEG;
 	else
 		degCurrentAttitude.data[PITCH] = STS()->GetPitch()*DEG;
