@@ -104,11 +104,20 @@ namespace dps {
 		
 		//TODO: Implement checking of active keyboard
 		switch(cKey) {
+			case SSU_KEY_RESUME:
+				OnResume();
+				break;
 			case SSU_KEY_CLEAR:
 				OnClear();
 				break;
 			case SSU_KEY_EXEC:
 				OnExec();
+				AppendScratchPadLine(cKey);
+				break;
+			case SSU_KEY_PRO:
+				OnPro();
+				AppendScratchPadLine(cKey);
+				break;
 			case SSU_KEY_ITEM:
 			case SSU_KEY_SPEC:
 			case SSU_KEY_OPS:
@@ -240,6 +249,37 @@ namespace dps {
 					STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
 				}
 			}
+		}
+	}
+
+	void IDP::OnPro()
+	{
+		std::string scratchPad=GetScratchPadLineString();
+		int ITEM=scratchPad.find("ITEM ");
+		int OPS=scratchPad.find("OPS ");
+		int SPEC=scratchPad.find("SPEC ");
+
+		if(OPS != std::string::npos) { // OPS entered
+			//STS()->Input(GetIDPID()-1, 0, scratchPad.substr(OPS+4).c_str());
+			unsigned int newMM = static_cast<unsigned int>(atoi(scratchPad.substr(OPS+4).c_str()));
+			if(STS()->pSimpleGPC->IsValidMajorModeTransition(newMM)) {
+				STS()->pSimpleGPC->SetMajorMode(newMM);
+			}
+		}
+		else if(SPEC != std::string::npos) { // SPEC entered
+			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
+			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
+			if(STS()->IsValidSPEC(0, newSpec)) SetSpec(static_cast<unsigned short>(newSpec));
+		}
+	}
+
+	void IDP::OnResume()
+	{
+		if(GetDisp() != dps::MODE_UNDEFINED) {
+			SetDisp(dps::MODE_UNDEFINED);
+		}
+		else if(GetSpec() != dps::MODE_UNDEFINED) {
+			SetSpec(dps::MODE_UNDEFINED);
 		}
 	}
 

@@ -897,7 +897,7 @@ void CRT::PASSTRAJ(HDC hdc)
 
 	VECTOR3 LVLH_Vel, LVLH_Pos;
 	sts->GetGPCLVLHVel(usGPCDriver, LVLH_Vel);
-	switch(sts->ops)
+	switch(sts->GetGPCMajorMode())
 	{
 	case 101:
 		SetDisplayTitle("LAUNCH TRAJ");
@@ -1034,7 +1034,7 @@ void CRT::PASSTRAJ(HDC hdc)
 	}*/
 
 
-	if(sts->ops == 102 && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(1) < 50))
+	if(sts->GetGPCMajorMode() && (sts->GetSRBChamberPressure(0) < 50 || sts->GetSRBChamberPressure(1) < 50))
 	{
 		strcpy(cbuf, "PC < 50");
 		TextOut(hdc, (short)(charW * 9), 5 + (short)(charH * 9), cbuf, strlen(cbuf));
@@ -2497,7 +2497,7 @@ void CRT::DrawCommonHeader(HDC hdc)
 	
 	//Todo: GPC count their own MET independent of the MTU
 	sprintf(cbuf,"%03d1/%03s/%3s    %14s  %2s  %1d %03d/%02d:%02d:%02d", 
-		sts->ops, 
+		sts->GetGPCMajorMode(),
 		cspecbuf, 
 		cdispbuf, 
 		cDispTitle, 

@@ -941,7 +941,7 @@ pActiveLatches(3, NULL)
 
   // gpc
   SMOps=201;
-  ops=101;
+  //ops=101;
   last_mfd=0;
   firstStep=true;
   ThrAngleP=-13.20;
@@ -3556,133 +3556,6 @@ void Atlantis::UpdateHandControllerSignals()
 	}
 }
 
-bool Atlantis::Input(int idp, int change, const char *Name, const char *Data)
-{
-	//int item;
-	int nNew;
-	//int id=Display[mfd]->id;
-
-	//sprintf_s(oapiDebugString(), 255, "Input: %d %s %s", change, Name, Data);
-
-	if (change == 9)
-	{
-		//Resume key pressed
-		if(pIDP[idp]->GetDisp() != dps::MODE_UNDEFINED) {
-			//pIDP[idp]->SetDisp(0);
-			pIDP[idp]->SetDisp(dps::MODE_UNDEFINED);
-			return true;
-		}
-		else if(pIDP[idp]->GetSpec() != dps::MODE_UNDEFINED) {
-			//pIDP[idp]->SetSpec(0);
-			pIDP[idp]->SetSpec(dps::MODE_UNDEFINED);
-			return true;
-		}
-		else return false;
-	}
-
-	if(pIDP[idp]->GetMajfunc()==dps::GNC) //GNC
-	{
-		if(change==0) {
-			nNew=atoi(Name);
-			if(nNew==104 && ops==103) {
-				SetGPCMajorMode(104);
-				/*WT=GetMass()*kg_to_pounds;
-				BurnInProg=false;
-				BurnCompleted=false;
-				MNVRLOAD=false;
-				MnvrExecute=false;
-				MnvrToBurnAtt=false;*/
-				//Display[mfd]->bTIMER=false;
-			}
-			else if(nNew==105 && ops==104) {
-				SetGPCMajorMode(105);
-				/*WT=GetMass()*kg_to_pounds;
-				BurnInProg=false;
-				BurnCompleted=false;
-				MNVRLOAD=false;
-				MnvrExecute=false;
-				MnvrToBurnAtt=false;*/
-				//Display[mfd]->bTIMER=false;
-			}
-			else if(nNew==106 && ops==105) {
-				SetGPCMajorMode(106);
-			}
-			else if(nNew==201 && (ops==202 || ops==106))
-			{
-				SetGPCMajorMode(201);
-			}
-			else if(nNew==202 && ops==201)
-			{
-				SetGPCMajorMode(202);
-				/*WT=GetMass()*kg_to_pounds;
-				BurnInProg=false;
-				BurnCompleted=false;
-				MNVRLOAD=false;
-				MnvrExecute=false;
-				MnvrToBurnAtt=false;*/
-				//Display[mfd]->bTIMER=false;
-			}
-			else if(nNew==301 && ops==201)
-			{
-				SetGPCMajorMode(301);
-				/*WT=GetMass()*kg_to_pounds;
-				BurnInProg=false;
-				BurnCompleted=false;
-				MNVRLOAD=false;
-				MnvrExecute=false;
-				MnvrToBurnAtt=false;*/
-				//Display[mfd]->bTIMER=false;
-			}
-			else if(nNew==302 && ops==301)
-			{
-				SetGPCMajorMode(302);
-			}
-			else if(nNew==303 && ops==302)
-			{
-				SetGPCMajorMode(303);
-			}
-			else if(nNew==304 && ops==303)
-			{
-				SetGPCMajorMode(304);
-			}
-			else if(nNew==305 && ops==304)
-			{
-				ops=305;
-			}
-			return true;
-		}
-		else if(change==2) {
-			nNew=atoi(Name);
-			if(ops==201) {
-				if(nNew==20) {
-					//Display[mfd]->spec=nNew;
-					pIDP[idp]->SetSpec((unsigned short)nNew);
-					//InvalidateDisplay();
-					return true;
-				}
-				else return false;
-			}
-			else if(pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305) {
-				if(nNew == 50) {
-					pIDP[idp]->SetSpec(50);
-					return true;
-				}
-				return false;
-			}
-		}
-	}
-	else if(pIDP[idp]->GetMajfunc()==dps::SM) //SM
-	{
-		sprintf(oapiDebugString(), "SM Item Entry");
-		if(change==1) {
-			nNew=atoi(Name);
-			if(SMOps==201) {
-			}
-		}
-	}
-	return false;
-}
-
 void Atlantis::SetILoads()
 {
 	//stage1guidance[0]=new double[8];
@@ -4029,6 +3902,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
 		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 	} else if(!_strnicmp(line, "OPS", 3)) {
+		unsigned int ops;
 		sscanf(line+3, "%u", &ops);
 		pSimpleGPC->SetMajorMode(ops);
 	/*} else if(!_strnicmp(line, "PEG7", 4)) {
@@ -4198,7 +4072,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   if(pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
 
   //GPC
-  oapiWriteScenario_int (scn, "OPS", ops);
+  oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
   if(status < STATE_ORBITER) {
 	  if(bAutopilot) {
 		sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
@@ -4796,7 +4670,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		lastTransCommand[2] = 0;
 	}
 	
-	if(ops==304 || ops==305) {
+	if(pSimpleGPC->GetMajorMode()==304 || pSimpleGPC->GetMajorMode()==305) {
 		double elevonPos = 0.0;
 		double aileronPos = 0.0;
 		if(HydraulicsOK()) {
@@ -5002,7 +4876,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-			if(ops==101) SetGPCMajorMode(102);
+			if(pSimpleGPC->GetMajorMode()==101) SetGPCMajorMode(102);
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -5263,7 +5137,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		};
 
 		//handle body flap and speedbrake PBIs
-		if((int)(ops/100)==3) //Entry
+		if((int)(pSimpleGPC->GetMajorMode()/100)==3) //Entry
 		{
 			//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
 			if(BodyFlapAutoIn) BodyFlapManOut.ResetLine();
@@ -5284,7 +5158,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				SpdbkThrotPLTOut.ResetLine();
 			}
 		}
-		else if(ops < 200) //LAUNCH
+		else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
 		{
 			BodyFlapAutoOut.ResetLine();
 			BodyFlapManOut.ResetLine();
@@ -7085,11 +6959,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       return 1;
 	case OAPI_KEY_COMMA:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
 		return 1;
 	case OAPI_KEY_PERIOD:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && ops>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
 		return 1;
 	case OAPI_KEY_G:
 		//gop->RevertLandingGear();
@@ -7431,7 +7305,7 @@ unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
 
 short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 {
-	switch(ops)
+	switch(pSimpleGPC->GetMajorMode())
 	{
 	case 102:
 		if(met < 30.0)
@@ -7661,7 +7535,7 @@ double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
 
 bool Atlantis::IsValidSPEC(int gpc, int spec) const
 {
-	switch(ops/100)
+	switch(pSimpleGPC->GetMajorMode()/100)
 	{
 	case 0:
 		switch(spec)
@@ -7796,13 +7670,13 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 
 unsigned int Atlantis::GetGPCMajorMode() const
 {
-	return ops;
+	return pSimpleGPC->GetMajorMode();
 }
 
 void Atlantis::SetGPCMajorMode(unsigned int newMajorMode)
 {
-	ops = newMajorMode;
-	pSimpleGPC->SetMajorMode(ops);
+	//ops = newMajorMode;
+	pSimpleGPC->SetMajorMode(newMajorMode);
 }
 
 double Atlantis::GetMET() const

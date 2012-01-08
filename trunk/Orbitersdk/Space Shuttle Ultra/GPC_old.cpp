@@ -445,7 +445,7 @@ void Atlantis::Throttle(double dt)
 
 void Atlantis::GPC(double simt, double dt)
 {
-	switch(ops) {
+	switch(GetGPCMajorMode()) {
 		case 101:
 			//if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
 			if(status>=STATE_STAGE1) Throttle(dt);

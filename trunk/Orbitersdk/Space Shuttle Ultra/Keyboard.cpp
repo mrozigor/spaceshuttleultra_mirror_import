@@ -105,7 +105,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 			ClearInput();
 			//sts->DataInput[sts->CRT_SEL[keyboard]].SPEC=true;
 			//Resume key
-			sts->Input(sts->CRT_SEL[keyboard], DEU_KEY_RESUME, NULL, NULL);
+			//sts->Input(sts->CRT_SEL[keyboard], DEU_KEY_RESUME, NULL, NULL);
 			PutKey(SSU_KEY_RESUME);
 		}
 	}
@@ -235,10 +235,10 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 			sts->DataInput[sts->CRT_SEL[keyboard]].PRO=true;
 			PutKey(SSU_KEY_PRO);
 			
-			if(sts->DataInput[sts->CRT_SEL[keyboard]].OPS)
+			/*if(sts->DataInput[sts->CRT_SEL[keyboard]].OPS)
 				sts->Input(sts->CRT_SEL[keyboard], 0, sts->DataInput[sts->CRT_SEL[keyboard]].input);
 			else if(sts->DataInput[sts->CRT_SEL[keyboard]].SPEC)
-				sts->Input(sts->CRT_SEL[keyboard], 2, sts->DataInput[sts->CRT_SEL[keyboard]].input);
+				sts->Input(sts->CRT_SEL[keyboard], 2, sts->DataInput[sts->CRT_SEL[keyboard]].input);*/
 		}
 	} else {
 		sprintf_s(oapiDebugString(), 255, "KEYBOARD %c| ID %d EVENT %d p %f %f %f",

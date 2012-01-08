@@ -542,9 +542,6 @@ public:
 	void TriggerLiftOff();
 	void StartROFIs();
 
-	bool Input(int mfd, int change, const char *Name, const char *Data=NULL);
-	//void ItemInput(int idp, int item, const char* Data=NULL);
-
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
@@ -1134,7 +1131,7 @@ private:
 
 	//GPC
 	//int ops, SMOps;
-	unsigned int ops;
+	//unsigned int ops;
 	unsigned int SMOps;
 	int last_mfd;
 	bool firstStep; //call functions in first timestep

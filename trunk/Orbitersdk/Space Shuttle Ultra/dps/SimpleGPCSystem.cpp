@@ -10,7 +10,7 @@ namespace dps
 {
 
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
-: AtlantisSubsystem(_director, "SimpleGPCSystem")
+: AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
 {
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
@@ -33,6 +33,34 @@ void SimpleGPCSystem::SetMajorMode(unsigned int newMM)
 	majorMode = newMM;
 }
 
+bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) const
+{
+	switch(newMajorMode) {
+	case 104:
+		return majorMode == 103;
+	case 105:
+		return majorMode == 104;
+	case 106:
+		return majorMode == 105;
+	case 201:
+		return (majorMode == 106 || majorMode == 202 || majorMode == 301);
+	case 202:
+		return majorMode == 201;
+	case 301:
+		return (majorMode == 104 || majorMode == 105 || majorMode == 106 || majorMode == 201 || majorMode == 302);
+	case 302:
+		return majorMode == 301;
+	case 303:
+		return majorMode == 302;
+	case 304:
+		return majorMode == 303;
+	case 305:
+		return majorMode == 304;
+	default:
+		return false;
+	}
+}
+
 void SimpleGPCSystem::Realize()
 {
 	for(unsigned int i=0;i<vSoftware.size();i++)
@@ -41,7 +69,7 @@ void SimpleGPCSystem::Realize()
 
 void SimpleGPCSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	assert(majorMode == STS()->GetGPCMajorMode()); // TODO: change major mode only in this class
+	//assert(majorMode == STS()->GetGPCMajorMode()); // TODO: change major mode only in this class
 	for(unsigned int i=0;i<vActiveSoftware.size();i++)
 		vActiveSoftware[i]->OnPreStep(SimT, DeltaT, MJD);
 }
