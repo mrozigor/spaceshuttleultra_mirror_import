@@ -1006,15 +1006,13 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 
 bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 {
-	if(GetMajorMode()==201) {
-		if(spec==dps::MODE_UNDEFINED) {
-			PaintUNIVPTGDisplay(pMDU);
-			return true;
-		}
-		else if(spec==20) {
-			PaintDAPCONFIGDisplay(pMDU);
-			return true;
-		}
+	if(spec==dps::MODE_UNDEFINED && GetMajorMode()==201) {
+		PaintUNIVPTGDisplay(pMDU);
+		return true;
+	}
+	else if(spec==20) {
+		PaintDAPCONFIGDisplay(pMDU);
+		return true;
 	}
 	return false;
 }
