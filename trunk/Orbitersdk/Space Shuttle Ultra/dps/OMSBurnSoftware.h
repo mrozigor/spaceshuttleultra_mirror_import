@@ -3,7 +3,7 @@
 #pragma once
 
 #include "SimpleGPCSoftware.h"
-#include "StateVectorPropagator.h"
+#include "StateVectorSoftware.h"
 #include "discsignals.h"
 #include <EngConst.h>
 
@@ -39,12 +39,13 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	double ApD, ApT, PeD, PeT;
 	double metAt400KFeet;
 	double lastUpdateSimTime;
-	StateVectorPropagator propagator;
+	//StateVectorPropagator propagator;
 
 	DiscOutPort omsEngineCommand[2], omsPitchCommand[2], omsYawCommand[2];
 	DiscInPort omsPitchGimbal[2], omsYawGimbal[2];
 
 	OrbitDAP* pOrbitDAP;
+	StateVectorSoftware* pStateVector;
 public:
 	OMSBurnSoftware(SimpleGPCSystem* _gpc);
 	virtual ~OMSBurnSoftware();
@@ -63,7 +64,7 @@ public:
 private:
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
-	void UpdatePropagatorStateVectors(bool forceUpdate);
+	void UpdateOrbitData();
 };
 
 };

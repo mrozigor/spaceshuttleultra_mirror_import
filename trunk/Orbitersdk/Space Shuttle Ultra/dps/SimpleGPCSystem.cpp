@@ -3,6 +3,7 @@
 #include "SimpleGPCSoftware.h"
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
+#include "StateVectorSoftware.h"
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
 
@@ -13,6 +14,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
 {
 	vSoftware.push_back(new OrbitDAP(this));
+	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
 }

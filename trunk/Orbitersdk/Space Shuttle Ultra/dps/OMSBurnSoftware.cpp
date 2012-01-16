@@ -16,8 +16,8 @@ MnvrLoad(false), MnvrExecute(false), MnvrToBurnAtt(false),
 bShowTimer(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
-propagator(0.2, 50, 7200.0),
-pOrbitDAP(NULL)
+//propagator(0.2, 50, 7200.0),
+pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
 	OMS = 0;
@@ -51,6 +51,7 @@ void OMSBurnSoftware::Realize()
 	omsYawCommand[RIGHT].ResetLine();
 
 	pOrbitDAP = static_cast<OrbitDAP*>(FindSoftware("OrbitDAP"));
+	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 
 	if(MnvrLoad) {
 		LoadManeuver(false); // BurnAtt should have been loaded from scenario; don't have state vectors, so it can't be calculated here
@@ -64,15 +65,10 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	//if((SimT-lastUpdateSimTime) > 10.0) {
 	if((SimT-lastUpdateSimTime) > 60.0) {
-		UpdatePropagatorStateVectors(false);
+		UpdateOrbitData();
 		//ELEMENTS el;
 		//ORBITPARAM oparam;
 		//STS()->GetElements(hEarth, el, &oparam, 0, FRAME_EQU);
-		if(lastUpdateSimTime < 0.0) {
-			OBJHANDLE hEarth = STS()->GetGravityRef();
-			//propagatedState.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), oapiGetPlanetJCoeff(hEarth, 0));
-			propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), oapiGetPlanetJCoeff(hEarth, 0));
-		}
 
 		/*MATRIX3 obliquityMat;
 		oapiGetPlanetObliquityMatrix(hEarth, &obliquityMat);
@@ -112,7 +108,7 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	//Stopwatch st;
 	//st.Start();
 	//propagatedState.Step(STS()->GetMET(), DeltaT);
-	propagator.Step(STS()->GetMET(), DeltaT);
+	//propagator.Step(STS()->GetMET(), DeltaT);
 	//double propTime = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Propagation step Time: %f", propTime);
 
@@ -142,9 +138,11 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 			BurnCompleted=true;
 			BurnInProg=false;
 			pOrbitDAP->UseRCS();
-			UpdatePropagatorStateVectors(true);
+			//pStateVector->UpdatePropagatorStateVectors();
+			//UpdateOrbitData();
 			//lastUpdateSimTime = SimT; // force elements to be updated
 		}
+		UpdateOrbitData();
 	}
 	else if(!BurnInProg && !BurnCompleted) // check if burn should start
 	{
@@ -201,7 +199,7 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		MnvrToBurnAtt=false;
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
-			metAt400KFeet = propagator.GetMETAtAltitude(STS()->GetMET(), EI_ALT);
+			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
 		MnvrLoad=false;
@@ -661,7 +659,8 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		//ORBITPARAM oparam;
 		//STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
 		//PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
-		propagator.GetStateVectors(tig, equPos, equVel);
+		//propagator.GetStateVectors(tig, equPos, equVel);
+		pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
 		ConvertEquToEcl(hEarth, equPos, equVel, eclPos, eclVel);
 		MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
 		BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
@@ -683,9 +682,9 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 
 void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
 {
-	double metAtEI = propagator.GetMETAtAltitude(STS()->GetMET(), EI_ALT);
+	double metAtEI = pStateVector->GetMETAtAltitude(EI_ALT);
 	VECTOR3 EIPos, EIVel, EIEclPos, EIEclVel;
-	propagator.GetStateVectors(metAtEI, EIPos, EIVel);
+	pStateVector->GetPropagatedStateVectors(metAtEI, EIPos, EIVel);
 	// TODO: move this into separate function
 	ConvertEquToEcl(STS()->GetGravityRef(), EIPos, EIVel, EIEclPos, EIEclVel);
 	const VECTOR3 EI_ATT = _V(40.0*RAD, 0.0, 0.0);
@@ -693,26 +692,12 @@ void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
 	degAtt = GetXYZAnglesFromMatrix(M50Matrix)*DEG;
 }
 
-void OMSBurnSoftware::UpdatePropagatorStateVectors(bool forceUpdate)
+void OMSBurnSoftware::UpdateOrbitData()
 {
-	OBJHANDLE hEarth = STS()->GetGravityRef();
-	MATRIX3 obliquityMat;
-	oapiGetPlanetObliquityMatrix(hEarth, &obliquityMat);
-	VECTOR3 pos, vel;
-	STS()->GetRelativePos(hEarth, pos);
-	STS()->GetRelativeVel(hEarth, vel);
-	pos=tmul(obliquityMat, pos);
-	vel=tmul(obliquityMat, vel);
-
-	propagator.UpdateStateVector(pos, vel, STS()->GetMET(), forceUpdate);
-	//if(lastUpdateSimTime < 0.0) propagator.UpdateStateVector(pos, vel, STS()->GetMET());
-	//sprintf_s(oapiDebugString(), 255, "MET: %f Pos: %f %f %f Vel: %f %f %f", STS()->GetMET(), pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
-	//oapiWriteLog(oapiDebugString());
-
-	if(GetMajorMode() == 303) metAt400KFeet = propagator.GetMETAtAltitude(STS()->GetMET(), EI_ALT);
+	if(GetMajorMode() == 303) metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 	else {
-		propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-		propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
+		pStateVector->GetApogeeData(ApD, ApT);
+		pStateVector->GetPerigeeData(PeD, PeT);
 	}
 }
 };
