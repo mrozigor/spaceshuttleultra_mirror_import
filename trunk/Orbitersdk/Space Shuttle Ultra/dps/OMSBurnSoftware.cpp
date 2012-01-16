@@ -579,6 +579,12 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	if(bShowTimer) oapiWriteScenario_string(scn, "TIMER", "");
 }
 
+void OMSBurnSoftware::SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV)
+{
+	ConvertSecondsToDDHHMMSS(maneuverTIG, TIG);
+	PEG7 = maneuverDV*MPS2FPS;
+}
+
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;

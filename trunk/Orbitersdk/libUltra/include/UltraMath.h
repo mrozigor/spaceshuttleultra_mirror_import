@@ -175,6 +175,28 @@ static inline double range(double min, double value, double max)
 	return value;
 }
 
+/**
+ * Converts time in DD/HH:MM:SS format (array of 4 doubles) to time in seconds
+ */
+inline double ConvertDDHHMMSSToSeconds(const double ddhhmmss[])
+{
+	return ddhhmmss[0]*86400+ddhhmmss[1]*3600+ddhhmmss[2]*60+ddhhmmss[3];
+}
+
+/**
+ * Converts time in seconds to time in DD/HH:MM:SS format (array of 4 doubles)
+ */
+inline void ConvertSecondsToDDHHMMSS(double seconds, double ddhhmmss[])
+{
+	ddhhmmss[0] = static_cast<int>(seconds/86400);
+	seconds -= ddhhmmss[0]*86400;
+	ddhhmmss[1] = static_cast<int>(seconds/3600);
+	seconds -= ddhhmmss[1]*3600;
+	ddhhmmss[2] = static_cast<int>(seconds/60);
+	seconds -= ddhhmmss[2]*60;
+	ddhhmmss[3] = seconds;
+}
+
 inline int round(double value)
 {
 	return static_cast<int>(floor(value+0.5));

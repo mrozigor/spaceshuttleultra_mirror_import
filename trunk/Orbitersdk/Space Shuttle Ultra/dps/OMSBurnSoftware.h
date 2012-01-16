@@ -61,6 +61,14 @@ public:
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	/**
+	 * Sets maneuver data (TIG and DV).
+	 * Used for other programs (i.e. Orbit Tgt) to set burn data.
+	 * \param maneuverTIG TIG of burn (MET, in seconds)
+	 * \param maneuverDV DeltaV of burn in m/s
+	 */
+	void SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV);
 private:
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
