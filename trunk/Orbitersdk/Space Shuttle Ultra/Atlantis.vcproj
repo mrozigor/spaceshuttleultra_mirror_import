@@ -653,6 +653,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\OrbitTgtSoftware.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelA1U.cpp"
 				>
 			</File>
@@ -825,6 +829,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitchCover.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\StateVectorSoftware.cpp"
 				>
 			</File>
 			<File
@@ -1105,6 +1113,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\OrbitTgtSoftware.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PanelA1U.h"
 				>
 			</File>
@@ -1246,6 +1258,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\StandardSwitchCover.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\StateVectorSoftware.h"
 				>
 			</File>
 			<File

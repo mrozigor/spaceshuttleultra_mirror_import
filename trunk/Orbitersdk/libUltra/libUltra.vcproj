@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\LambertBurnTargeting.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\MMUTapeImage.cpp"
 				>
 			</File>
@@ -283,6 +287,10 @@
 			</File>
 			<File
 				RelativePath=".\KOST\kost.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\LambertBurnTargeting.h"
 				>
 			</File>
 			<File
