@@ -91,6 +91,7 @@
     <ClCompile Include="src\DiscreteBundle.cpp" />
     <ClCompile Include="src\DiscreteBundleManager.cpp" />
     <ClCompile Include="src\DiscretePort.cpp" />
+    <ClCompile Include="src\LambertBurnTargeting.cpp" />
     <ClCompile Include="src\MMUTapeImage.cpp" />
     <ClCompile Include="src\ShuttleBus.cpp" />
     <ClCompile Include="src\StateVectorPropagator.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="include\ISSULaunchTower.h" />
     <ClInclude Include="include\ISSUMLP.h" />
     <ClInclude Include="include\ISubsystem.h" />
+    <ClInclude Include="include\LambertBurnTargeting.h" />
     <ClInclude Include="include\MMUTapeImage.h" />
     <ClInclude Include="include\PanelGroup.h" />
     <ClInclude Include="include\ShuttleBus.h" />
