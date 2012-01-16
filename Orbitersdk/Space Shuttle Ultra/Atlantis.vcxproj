@@ -254,6 +254,7 @@
     <ClCompile Include="dps\MMU.cpp" />
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
     <ClCompile Include="dps\OrbitDAP.cpp" />
+    <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
     <ClCompile Include="dps\RSLS.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
@@ -376,6 +377,7 @@
     <ClInclude Include="dps\MDM.h" />
     <ClInclude Include="dps\OMSBurnSoftware.h" />
     <ClInclude Include="dps\OrbitDAP.h" />
+    <ClInclude Include="dps\OrbitTgtSoftware.h" />
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPCSystem.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />

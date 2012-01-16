@@ -371,6 +371,9 @@
     <ClCompile Include="dps\StateVectorSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\OrbitTgtSoftware.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -674,6 +677,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\StateVectorSoftware.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\OrbitTgtSoftware.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

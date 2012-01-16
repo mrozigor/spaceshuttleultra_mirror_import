@@ -4,6 +4,7 @@
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
 #include "StateVectorSoftware.h"
+#include "OrbitTgtSoftware.h"
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
 
@@ -16,6 +17,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
+	vSoftware.push_back(new OrbitTgtSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
 }
 
