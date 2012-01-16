@@ -22,23 +22,42 @@ void StateVectorPropagator::SetParameters(double vesselMass, double planetMass, 
 	J2 = J2Coeff;
 }
 
-void StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate)
+void StateVectorPropagator::UpdateVesselMass(double vesselMass)
 {
-	// only update vectors if last set of state vectors has been propagated to limit
-	if(propMET >= maxPropMET || forceUpdate) {
-		propPos = equPos;
-		propVel = equVel;
-		propMET = met;
-		maxPropMET = met+maxPropagationTime;
-		lastSaveMET = propMET-1000.0; // force data to be saved
-		lastStateVectorUpdateMET = met;
+	mu = GM + GGRAV*vesselMass;
+}
 
-		if(stateVectors.size()==0) {
-			kostStateVector state;
-			state.pos = ConvertBetweenLHAndRHFrames(equPos);
-			state.vel = ConvertBetweenLHAndRHFrames(equVel);
-			stateVectors.insert(std::make_pair(met, state));
+bool StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate)
+{
+	// only update vectors if last set of state vectors has been propagated to limit or error between propagated and actual vectors exceeds limit
+	const double MAX_POS_ERROR = 100.0; // max position error in any axis
+	const double MAX_VEL_ERROR = 2.0; // max velocity error in any axis
+	bool retVal = false;
+	if(propMET < maxPropMET && !forceUpdate) {
+		VECTOR3 curPos, curVel;
+		GetStateVectors(met, curPos, curVel);
+		if(Eq(curPos, equPos, MAX_POS_ERROR) && Eq(curVel, equVel, MAX_VEL_ERROR)) {
+			return false; // no need to update vectors
 		}
+		else {
+			stateVectors.clear(); // state vectors have changed (probably due to maneuer or pertubration), so clear out old vectors
+			retVal = true; // if we have not propagated vectors to limit, return true (since state vectors have changed)
+		}
+	}
+	else if(forceUpdate) stateVectors.clear(); // state vectors have changed (probably due to maneuer or pertubration), so clear out old vectors
+
+	propPos = equPos;
+	propVel = equVel;
+	propMET = met;
+	maxPropMET = met+maxPropagationTime;
+	lastSaveMET = propMET-1000.0; // force data to be saved
+	lastStateVectorUpdateMET = met;
+
+	if(stateVectors.size()==0) {
+		kostStateVector state;
+		state.pos = ConvertBetweenLHAndRHFrames(equPos);
+		state.vel = ConvertBetweenLHAndRHFrames(equVel);
+		stateVectors.insert(std::make_pair(met, state));
 	}
 	/*if(stateVectors.size() > 0) {
 		VECTOR3 pos, vel;
@@ -46,6 +65,8 @@ void StateVectorPropagator::UpdateStateVector(const VECTOR3& equPos, const VECTO
 		//sprintf_s(oapiDebugString(), 255, "Pos error: %f %f %f Vel error: %f %f %f total pos error: %f total vel error: %f",
 			//propPos.x-pos.x, propPos.y-pos.y, propPos.z-pos.z, propVel.x-vel.x, propVel.y-vel.y, propVel.z-vel.z, length(propPos-pos), length(propVel-vel));
 	}*/
+
+	return retVal;
 }
 
 /*void StateVectorPropagator::GetState(VECTOR3& pos, VECTOR3& vel) const
@@ -61,7 +82,7 @@ void StateVectorPropagator::Step(double currentMET, double DeltaT)
 	if(propMET<maxPropMET && DeltaT<(stepLength*iterationsPerStep)) { // don't bother propagating if time acceleration is too fast
 		Propagate(iterationsPerStep, stepLength);
 
-		if((propMET-lastSaveMET) > 60.0) {
+		if((propMET-lastSaveMET) > 20.0) {
 			// clean out values from old state vectors
 			MapConstIterator start = stateVectors.upper_bound(lastSaveMET);
 			if(start != stateVectors.end()) {
