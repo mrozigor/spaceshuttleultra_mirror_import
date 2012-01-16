@@ -35,7 +35,13 @@ public:
 	~StateVectorPropagator();
 
 	void SetParameters(double vesselMass, double planetMass, double _planetRadius, double J2Coeff);
-	void UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate=false);
+	void UpdateVesselMass(double vesselMass);
+	/**
+	 * Updates state vector if last set of state vectors has been propagated to limit or difference between new and existing state vectors exceeds limit
+	 * \param forceUpdate Forces state vectors to be updated.
+	 * Returns true if error between new and existing vectors exceeded limit; false otherwise (if forceUpdate is true, function always returns false)
+	 */
+	bool UpdateStateVector(const VECTOR3& equPos, const VECTOR3& equVel, double met, bool forceUpdate=false);
 
 	//void SetVesselMass(double newMass);
 
