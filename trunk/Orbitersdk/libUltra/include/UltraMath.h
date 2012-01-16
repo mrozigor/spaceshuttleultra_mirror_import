@@ -73,6 +73,17 @@ MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &po
 */
 VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
 
+/**
+ * Returns matrix to convert direction vector in global frame to LVLH frame
+ * LVLH Frame:
+ *		X: from target in +ve velocity vector Z: from target towards center of Earth
+ * \param pos position of vessel in global frame
+ * \param vel position of vessel in inertial frame
+ * \param changeHandedness true to change handedness (i.e. LH global frame to RH LVLH frame)
+ * \returns rotation matrix
+ */
+MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness = false);
+
 VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation

@@ -19,13 +19,15 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	double IgnitionTime; //MET at ignition
 	bool BurnInProg, BurnCompleted;
 	double WT;
-	VECTOR3 PEG7, DeltaV;
+	VECTOR3 PEG7; // DV in fps (values entered on CRT display; LVLH at TIG frame)
+	VECTOR3 DeltaV; // DV in m/s (LVLH at TIG frame)
 	double C1, C2, HT, ThetaT; // PEG4 Targets
 	VECTOR3 Trim; // 0=P, 1=LY, 2=RY
 	double TV_ROLL;
 	double DeltaVTot;
 	double BurnTime;
-	VECTOR3 VGO;
+	VECTOR3 VGO; // fps, body vector frame (VGO values displayed on CRT display)
+	VECTOR3 VGO_Global; // m/s, Orbitersim global frame
 	double vgoTot;
 	bool MnvrLoad, MnvrExecute, MnvrToBurnAtt;
 	bool bShowTimer;

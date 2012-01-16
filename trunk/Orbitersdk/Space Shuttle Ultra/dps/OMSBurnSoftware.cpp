@@ -116,20 +116,23 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	//double propTime = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Propagation step Time: %f", propTime);
 
-	if(!MnvrLoad || !MnvrExecute) return; // no burn to perform
+	double met = STS()->GetMET();
+	if(!MnvrLoad || met<tig) return; // no burn to perform, or we haven't reached TIG yet
 
-	if(BurnInProg || BurnCompleted) { // update VGO values
-		VECTOR3 ThrustVector;
-		STS()->GetThrustVector(ThrustVector); //inefficient
-		//only shows errors caused by burn timing
-		VGO.x-=((ThrustVector.z/STS()->GetMass())*DeltaT)*MPS2FPS;
-		VGO.y-=((ThrustVector.x/STS()->GetMass())*DeltaT)*MPS2FPS;
-		VGO.z+=((ThrustVector.y/STS()->GetMass())*DeltaT)*MPS2FPS;
+	// update VGO values
+	// we need to update global (orbitersim frame) VGO, then convert VGOs to shuttle body coordinates for display
+	VECTOR3 ThrustVector;
+	if(STS()->GetThrustVector(ThrustVector)) {
+		MATRIX3 LocalToGlobal;
+		STS()->GetRotationMatrix(LocalToGlobal);
+		VECTOR3 GlobalThrust = mul(LocalToGlobal, ThrustVector);
+		VGO_Global -= (GlobalThrust/STS()->GetMass())*DeltaT;
+		// convert VGO_Global to body coordinates (and to fps) for display
+		VGO = tmul(LocalToGlobal, VGO_Global);
+		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
 	}
 
-	double met = STS()->GetMET();
-	//sprintf_s(oapiDebugString(), 255, "Maneuver %f %f %f %f", tig, met, BurnTime, IgnitionTime);
-	if(BurnInProg) // check if engines should be shut down
+	if(BurnInProg && MnvrExecute) // check if engines should be shut down
 	{
 		if(met>=(IgnitionTime+BurnTime)) {
 			//sprintf(oapiDebugString(), "Shutdown");
@@ -142,21 +145,29 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 			UpdatePropagatorStateVectors(true);
 			//lastUpdateSimTime = SimT; // force elements to be updated
 		}
-		/*else {
-			VECTOR3 ThrustVector;
-			STS()->GetThrustVector(ThrustVector); //inefficient
-			//only shows errors caused by burn timing
-			VGO.x-=((ThrustVector.z/STS()->GetMass())*DeltaT)*MPS2FPS;
-			VGO.y-=((ThrustVector.x/STS()->GetMass())*DeltaT)*MPS2FPS;
-			VGO.z+=((ThrustVector.y/STS()->GetMass())*DeltaT)*MPS2FPS;
-		}*/
 	}
-	else if(!BurnCompleted && met>=tig) // check if burn should start
+	else if(!BurnInProg && !BurnCompleted) // check if burn should start
 	{
-		if(OMS<3) {
-			//sprintf(oapiDebugString(), "Burning");
-			BurnInProg=true;
-			IgnitionTime=met;
+		//sprintf(oapiDebugString(), "Burning");
+		BurnInProg=true;
+		IgnitionTime=met;
+
+		// get VGO in orbitersim global frame; this vector will be updated every timestep
+		OBJHANDLE hEarth = STS()->GetGravityRef();
+		VECTOR3 pos, vel;
+		// this gets Orbitersim state vectors
+		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
+		STS()->GetRelativePos(hEarth, pos);
+		STS()->GetRelativeVel(hEarth, vel);
+		MATRIX3 GlobalToLVLH_TIG = GetGlobalToLVLHMatrix(pos, vel, true);
+		VGO_Global = tmul(GlobalToLVLH_TIG, DeltaV);
+		// convert VGO_Global to body coordinates (and to fps) for display
+		MATRIX3 LocalToGlobal;
+		STS()->GetRotationMatrix(LocalToGlobal);
+		VGO = tmul(LocalToGlobal, VGO_Global);
+		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
+
+		if(MnvrExecute) {
 			//ignite engines
 			//if(OMS==0) SetThrusterGroupLevel(thg_main, 1.00);
 			//else SetThrusterLevel(th_oms[OMS-1], 1.00);
@@ -169,7 +180,7 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 				omsEngineCommand[0].SetLine();
 				pOrbitDAP->UseOMSTVC(OrbitDAP::LEFT_OMS, Trim);
 			}
-			else {
+			else if(OMS==2) {
 				omsEngineCommand[1].SetLine();
 				pOrbitDAP->UseOMSTVC(OrbitDAP::RIGHT_OMS, Trim);
 			}
@@ -205,6 +216,7 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 {
 	double dNew;
+	if(spec != dps::MODE_UNDEFINED) return false;
 	if(item>=1 && item<=4) {
 		OMS=item-1;
 		return true;
@@ -481,8 +493,8 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	}
 	else if(MnvrLoad && !BurnCompleted) {
 		double btRemaining=IgnitionTime+BurnTime-STS()->GetMET();
-		TGO[0]=(int)btRemaining/60;
-		TGO[1]=(int)btRemaining%60;
+		TGO[0]=max(0, (int)btRemaining/60);
+		TGO[1]=max(0, (int)btRemaining%60);
 	}
 	else TGO[0]=TGO[1]=0;
 	sprintf(cbuf, "VTOT   %6.2f", DeltaVTot);
@@ -514,7 +526,11 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 {
-	if(!_strnicmp(keyword, "PEG7", 4)) {
+	if(!_strnicmp(keyword, "OMS", 3)) {
+		sscanf(value, "%d", &OMS);
+		return true;
+	}
+	else if(!_strnicmp(keyword, "PEG7", 4)) {
 		sscanf(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 		return true;
 	}
@@ -552,6 +568,7 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 {
 	char cbuf[255];
+	oapiWriteScenario_int(scn, "OMS", OMS);
 	oapiWriteScenario_vec(scn, "PEG7", PEG7);
 	oapiWriteScenario_vec(scn, "Trim", Trim);
 	oapiWriteScenario_vec(scn, "BURN_ATT", BurnAtt);
@@ -600,10 +617,10 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		ThrustDir=ThrustDir/ThrustFactor; //normalize vector
 	}
 	else if(OMS==1 || OMS==2) {
-		omsPitchCommand[OMS-1].SetLine(Trim.data[0]);
-		omsYawCommand[OMS-1].SetLine(Trim.data[OMS]);
+		omsPitchCommand[OMS-1].SetLine(Trim.data[0]/OMS_PITCH_RANGE);
+		omsYawCommand[OMS-1].SetLine(Trim.data[OMS]/OMS_YAW_RANGE);
 		//ThrustDir = STS()->GimbalOMS(OMS-1, Trim.data[0], Trim.data[OMS]);
-		ThrustDir = CalcOMSThrustDir(OMS, Trim.data[0], Trim.data[OMS]);
+		ThrustDir = CalcOMSThrustDir(OMS-1, Trim.data[0], Trim.data[OMS]);
 	}
 	else {
 		ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
@@ -614,7 +631,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	if(calculateBurnAtt) {
 		VECTOR3 radLVLHBurnAtt;
 		radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
-		radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
+		radLVLHBurnAtt.data[YAW]=asin(ThrustDir.x); //check signs here
 		// compensate for roll
 		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
@@ -627,7 +644,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 			if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 			else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 		}
-		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]-=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
 		radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
 		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
