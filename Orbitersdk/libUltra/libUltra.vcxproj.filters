@@ -72,6 +72,9 @@
     <ClCompile Include="src\StateVectorPropagator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LambertBurnTargeting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BIU.h">
@@ -141,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ISSUMLP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LambertBurnTargeting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
