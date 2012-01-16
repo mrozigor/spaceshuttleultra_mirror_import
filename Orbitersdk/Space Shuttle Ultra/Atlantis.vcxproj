@@ -259,6 +259,7 @@
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.h" />
     <ClCompile Include="dps\SimpleGPCSystem.cpp" />
+    <ClCompile Include="dps\StateVectorSoftware.cpp" />
     <ClCompile Include="dps\Symbol.cpp" />
     <ClCompile Include="eps\ACBus.cpp" />
     <ClCompile Include="eps\ACBusSystem.cpp" />
@@ -377,6 +378,7 @@
     <ClInclude Include="dps\OrbitDAP.h" />
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPCSystem.h" />
+    <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="AC_resource.h" />
     <ClInclude Include="AerodynamicLookupTables.h" />
