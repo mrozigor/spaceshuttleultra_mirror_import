@@ -77,6 +77,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="meshres_SAB.h" />
     <ClInclude Include="meshres_Tower.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SLC6.h" />
