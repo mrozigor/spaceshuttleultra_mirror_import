@@ -2,6 +2,7 @@
 #include "SLC6.h"
 #include "UltraMath.h"
 #include "meshres_Tower.h"
+#include "meshres_SAB.h"
 #include "resource.h"
 #include <DlgCtrl.h>
 
@@ -14,12 +15,19 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 {
 	hPadMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_PAD);
 	hTowerMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_TOWER);
+	hPCRMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_PCR);
+	hSABMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_SAB);
+	hMSTMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MST);
 
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	VentArmState.Set(AnimState::CLOSED, 0.0);
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	GH2VentlineState.Set(AnimState::CLOSED, 0.0);
 	IAAState.Set(AnimState::CLOSED, 0.0);
+	PCRState.Set(AnimState::CLOSED, 0.0);
+	SABState.Set(AnimState::CLOSED, 0.0);
+	MSTState.Set(AnimState::CLOSED, 0.0);
+	SABDoorState.Set(AnimState::CLOSED, 0.0);
 }
 
 SLC6::~SLC6()
@@ -31,6 +39,9 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 {
 	pad_mesh_idx = AddMesh(hPadMesh, &PAD_MESH_OFFSET);
 	tower_mesh_idx = AddMesh(hTowerMesh, &TOWER_MESH_OFFSET);
+	pcr_mesh_idx = AddMesh(hPCRMesh, &PCR_MESH_OFFSET);
+	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
+	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
 	ahHDP = CreateAttachment(false, _V(0, 6, -1.9), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
@@ -90,6 +101,25 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_IAA, IAAState.pos);
 	}
 
+	if(PCRState.Moving()) {
+		PCRState.Move(simdt*SLC6_PCR_TRANSLATE_RATE);
+		SetAnimation(anim_PCR, PCRState.pos);
+	}
+
+	if(SABState.Moving()) {
+		SABState.Move(simdt*SLC6_SAB_TRANSLATE_RATE);
+		SetAnimation(anim_SAB, SABState.pos);
+	}
+	if(SABDoorState.Moving()) {
+		SABDoorState.Move(simdt*SLC6_SAB_DOOR_RATE);
+		SetAnimation(anim_SABDoor, SABDoorState.pos);
+	}
+
+	if(MSTState.Moving()) {
+		MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
+		SetAnimation(anim_MST, MSTState.pos);
+	}
+
 	if(ROFILevel>0.01 && (simt-ROFIStartTime)>10.0) ROFILevel=0.0;
 }
 
@@ -102,6 +132,10 @@ void SLC6::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "VENT_HOOD", VentHoodState);
 	WriteScenario_state(scn, "GH2_VENTLINE", GH2VentlineState);
 	WriteScenario_state(scn, "IAA", IAAState);
+	WriteScenario_state(scn, "PCR", PCRState);
+	WriteScenario_state(scn, "SAB", SABState);
+	WriteScenario_state(scn, "MST", MSTState);
+	WriteScenario_state(scn, "SABDoor", SABDoorState);
 }
 
 void SLC6::clbkLoadStateEx(FILEHANDLE scn, void * status)
@@ -128,6 +162,22 @@ void SLC6::clbkLoadStateEx(FILEHANDLE scn, void * status)
 		else if(!_strnicmp(line, "IAA", 3)) {
 			sscan_state(line+3, IAAState);
 			SetAnimation(anim_IAA, IAAState.pos);
+		}
+		else if(!_strnicmp(line, "PCR", 3)) {
+			sscan_state(line+3, PCRState);
+			SetAnimation(anim_PCR, PCRState.pos);
+		}
+		else if(!_strnicmp(line, "SABDoor", 7)) {
+			sscan_state(line+7, SABDoorState);
+			SetAnimation(anim_SABDoor, SABDoorState.pos);
+		}
+		else if(!_strnicmp(line, "SAB", 3)) {
+			sscan_state(line+3, SABState);
+			SetAnimation(anim_SAB, SABState.pos);
+		}
+		else if(!_strnicmp(line, "MST", 3)) {
+			sscan_state(line+3, MSTState);
+			SetAnimation(anim_MST, MSTState.pos);
 		}
 		else ParseScenarioLineEx(line, status);
 	}
@@ -170,6 +220,22 @@ int SLC6::clbkConsumeBufferedKey(DWORD key, bool down, char * keystate)
 		case OAPI_KEY_A:
 			if(IAAState.Open()) RetractIAA();
 			else DeployIAA();
+			return 1;
+		case OAPI_KEY_C:
+			if(PCRState.Closed()) ExtendPCR();
+			else RetractPCR();
+			return 1;
+		case OAPI_KEY_Y:
+			if(SABState.Closed()) ExtendSAB();
+			else RetractSAB();
+			return 1;
+		case OAPI_KEY_M:
+			if(MSTState.Closed()) ExtendMST();
+			else RetractMST();
+			return 1;
+		case OAPI_KEY_D:
+			if(SABDoorState.Closed()) OpenSABDoor();
+			else CloseSABDoor();
 			return 1;
 	}
 
@@ -288,6 +354,66 @@ void SLC6::RetractIAA()
 	IAAState.action=AnimState::CLOSING;
 }
 
+void SLC6::ExtendPCR()
+{
+	PCRState.action = AnimState::OPENING;
+}
+
+void SLC6::HaltPCR()
+{
+	PCRState.action = AnimState::STOPPED;
+}
+
+void SLC6::RetractPCR()
+{
+	PCRState.action = AnimState::CLOSING;
+}
+
+void SLC6::ExtendSAB()
+{
+	SABState.action = AnimState::OPENING;
+}
+
+void SLC6::HaltSAB()
+{
+	SABState.action = AnimState::STOPPED;
+}
+
+void SLC6::RetractSAB()
+{
+	SABState.action = AnimState::CLOSING;
+}
+
+void SLC6::OpenSABDoor()
+{
+	SABDoorState.action = AnimState::OPENING;
+}
+
+void SLC6::HaltSABDoor()
+{
+	SABDoorState.action = AnimState::STOPPED;
+}
+
+void SLC6::CloseSABDoor()
+{
+	SABDoorState.action = AnimState::CLOSING;
+}
+
+void SLC6::ExtendMST()
+{
+	MSTState.action = AnimState::OPENING;
+}
+
+void SLC6::HaltMST()
+{
+	MSTState.action = AnimState::STOPPED;
+}
+
+void SLC6::RetractMST()
+{
+	MSTState.action = AnimState::CLOSING;
+}
+
 void SLC6::DetachShuttle() const
 {
 	OBJHANDLE hShuttle = GetAttachmentStatus(ahHDP);
@@ -386,6 +512,28 @@ void SLC6::DefineAnimations()
 	MGROUP_ROTATE* pIAA = DefineRotation(tower_mesh_idx, IAAGrp, 1, _V(-7.725, 43.15, -28.065), _V(0, 1, 0), static_cast<float>(210.0*RAD));
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, pIAA);
+
+	MGROUP_TRANSLATE* pPCR = DefineTranslation(pcr_mesh_idx, NULL, 0, _V(0, 0, -223));
+	anim_PCR = CreateAnimation(0.0);
+	AddAnimationComponent(anim_PCR, 0.0, 1.0, pPCR);
+
+	MGROUP_TRANSLATE* pSAB = DefineTranslation(sab_mesh_idx, NULL, 0, _V(0, 0, -104.5));
+	anim_SAB = CreateAnimation(0.0);
+	AddAnimationComponent(anim_SAB, 0.0, 1.0, pSAB);
+
+	MGROUP_TRANSLATE* pMST = DefineTranslation(mst_mesh_idx, NULL, 0, _V(0, 0, 115));
+	anim_MST = CreateAnimation(0.0);
+	AddAnimationComponent(anim_MST, 0.0, 1.0, pMST);
+
+	static UINT SABDoorGrp[7] = {GRP_Door_panel7_SAB, GRP_Door_panel6_SAB, GRP_Door_panel5_SAB, GRP_Door_panel4_SAB, GRP_Door_panel3_SAB, GRP_Door_panel2_SAB, GRP_Door_panel1_SAB};
+	MGROUP_TRANSLATE* pSABDoor[7];
+	anim_SABDoor = CreateAnimation(0.0);
+	double start = 0.0;
+	for(int i=0;i<7;i++) {
+		pSABDoor[i] = DefineTranslation(sab_mesh_idx, &SABDoorGrp[i], 1, _V(0, (7-i)*7.5, 0));
+		AddAnimationComponent(anim_SABDoor, start, 1.0, pSABDoor[i]);
+		start += 1.0/7.0;
+	}
 }
 
 MGROUP_ROTATE* SLC6::DefineRotation(UINT mesh, UINT * grp, UINT ngrp, const VECTOR3 & ref, const VECTOR3 & axis, float angle)
@@ -473,6 +621,42 @@ BOOL CALLBACK SLC6_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				return TRUE;
 			case IDC_IAA_RETRACT:
 				pad->RetractIAA();
+				return TRUE;
+			case IDC_PCR_EXTEND:
+				pad->ExtendPCR();
+				return TRUE;
+			case IDC_PCR_HALT:
+				pad->HaltPCR();
+				return TRUE;
+			case IDC_PCR_RETRACT:
+				pad->RetractPCR();
+				return TRUE;
+			case IDC_SAB_EXTEND:
+				pad->ExtendSAB();
+				return TRUE;
+			case IDC_SAB_HALT:
+				pad->HaltSAB();
+				return TRUE;
+			case IDC_SAB_RETRACT:
+				pad->RetractSAB();
+				return TRUE;
+			case IDC_SAB_DOOR_OPEN:
+				pad->OpenSABDoor();
+				return TRUE;
+			case IDC_SAB_DOOR_HALT:
+				pad->HaltSABDoor();
+				return TRUE;
+			case IDC_SAB_DOOR_CLOSE:
+				pad->CloseSABDoor();
+				return TRUE;
+			case IDC_MST_EXTEND:
+				pad->ExtendMST();
+				return TRUE;
+			case IDC_MST_HALT:
+				pad->HaltMST();
+				return TRUE;
+			case IDC_MST_RETRACT:
+				pad->RetractMST();
 				return TRUE;
 		}
 	}
