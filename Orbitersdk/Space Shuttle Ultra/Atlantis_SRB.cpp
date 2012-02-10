@@ -135,7 +135,8 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// *********************** physical parameters *********************************
 
 	SetSize (23.0);
-	SetEmptyMass (SRB_EMPTY_MASS);
+	if(FWC) SetEmptyMass (FWC_SRB_EMPTY_MASS);
+	else SetEmptyMass (SRB_EMPTY_MASS);
 	SetCW (0.1, 0.3, 1.4, 1.4);
 	SetCrossSections (_V(167.42,172.64,22.92));
 	SetRotDrag (_V(0.7,0.7,0.1));
