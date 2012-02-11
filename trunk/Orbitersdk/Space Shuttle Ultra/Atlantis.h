@@ -731,8 +731,8 @@ private:
 	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
-	void DisableAllRCS();
-	void EnableAllRCS();
+	//void DisableAllRCS();
+	//void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 	/**
@@ -1030,7 +1030,7 @@ private:
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
 	std::vector<UINT> vExRCS;				   // RCS exhaust
-	bool RCSEnabled;
+	//bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	bool ControlSurfacesEnabled;

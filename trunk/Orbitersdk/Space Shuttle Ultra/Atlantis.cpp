@@ -1453,7 +1453,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   // RCS (Reaction Control System)
   CreateAttControls_RCS (_V(0,0,0));
   CreateDummyThrusters();
-  EnableAllRCS();
+  //EnableAllRCS();
 
   discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
   pBundle = bundleManager->CreateBundle("C2_TO_IDP2", 16);
@@ -1669,7 +1669,7 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   vExRCS.push_back(AddExhaust (th_att_lin[9], eh2, ew1, center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs));//F1F, fixed
   vExRCS.push_back(AddExhaust (th_att_lin[9], eh2, ew1, center+_V( 0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988), tex_rcs));//F2F, fixed
 
-  RCSEnabled=true;
+  //RCSEnabled=true;
   if(!bRCSDefined) {
 	  thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);
 	  thg_pitchdown = CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_USER);
@@ -1733,7 +1733,8 @@ bool Atlantis::CreateDockingPort(const VECTOR3& pos)
 	return false;
 }
 
-void Atlantis::DisableAllRCS() {
+/*void Atlantis::DisableAllRCS() {
+  return;
   if(bUseRealRCS)
 		return;
 
@@ -1754,6 +1755,7 @@ void Atlantis::DisableAllRCS() {
 }
 
 void Atlantis::EnableAllRCS() {
+  return;
   if(bUseRealRCS)
 		return;
 
@@ -1771,7 +1773,7 @@ void Atlantis::EnableAllRCS() {
   CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
   CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
   RCSEnabled=true;
-}
+  }*/
 
 void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	HDC hDC = oapiGetDC (tex);
@@ -2802,12 +2804,12 @@ void Atlantis::SeparateTank (void)
   //DelThrusterGroup (thg_main, THGROUP_MAIN, true);
 
   // clear launch attitude control system
-  DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
-  DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
-  DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
-  DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
-  DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
-  DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
+  //DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
+  //DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
+  //DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
+  //DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
+  //DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
+  //DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
 
   // remove tank mesh and shift cg
   //Test keeping animations - which are not defined on the ET.
@@ -4857,7 +4859,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 
 				// extract current thrust level and propellant level as a function of time
-				DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
+				//DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
 				double thrust_level, prop_level;
 				GetSRB_State (met, thrust_level, prop_level);
 				for (unsigned short i = 0; i < 2; i++) {
@@ -4890,20 +4892,20 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetThrusterLevel(th_oms[0], 0.00);
 			SetThrusterLevel(th_oms[1], 0.00);
 			bMECO=true;
-			EnableAllRCS();
+			//EnableAllRCS();
 			SeparateTank();
 			bManualSeparate = false;
 			bZThrust=false;
 			//ops=104;
 		}
-		if (GetSSMEThrustLevel(0) > 0.05) {
+		/*if (GetSSMEThrustLevel(0) > 0.05) {
 			DisableAllRCS();
-		}
-		else if(!bMECO)
+		}*/
+		else if(GetSSMEThrustLevel(0) < 0.05 && !bMECO)
 		{
 			bMECO=true;
 			tMECO=met;
-			EnableAllRCS();
+			//EnableAllRCS();
 			SetThrusterLevel(th_oms[0], 0.00);
 			SetThrusterLevel(th_oms[1], 0.00);
 			//initiate attitude hold
@@ -4914,12 +4916,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			TargetAttM50=CurrentAttitude;
 			REQD_ATT=CurrentAttitude*DEG;*/
 		}
-		else EnableAllRCS();
+		//else EnableAllRCS();
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
 		break;
 	case STATE_ORBITER: // post tank separation
-		EnableAllRCS();
+		//EnableAllRCS();
 		//On entry, start shutting down RCS channels as appropriate
 		/*if(RollActive && GetDynPressure()>RollOff) {
 			/*SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
