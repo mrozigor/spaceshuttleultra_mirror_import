@@ -449,7 +449,6 @@ public:
 	int GetSoundID() const;
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
-	void Jettison ();
 	void OperateSpeedbrake (AnimState::Action action);
 	void PaintMarkings (SURFHANDLE tex);
 	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);

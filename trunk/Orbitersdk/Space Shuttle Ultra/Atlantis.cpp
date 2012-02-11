@@ -3112,20 +3112,6 @@ void Atlantis::LaunchClamps ()
   AddForce (Fc, r);
 }
 
-void Atlantis::Jettison ()
-{
-  switch (status) {
-  case 0:
-  case 3:               // nothing to do
-    break;
-  case 1:               // abandon boosters
-    SeparateBoosters (oapiGetSimTime()-t0);
-    break;
-  case 2:               // abandon tank
-    SeparateTank();
-    break;
-  }
-}
 
 // Update moving parts of the orbiter's visual: payload bay doors and gear
 // This should only be called when the visual exists, e.g. from within
