@@ -39,14 +39,14 @@ void Atlantis::InitializeAutopilot()
 	}
 	else {
 		// there are two possible launch headings: going north and going south
-		// for TgtInc < 90 deg (KSC launches) we want northerly heading
-		// for TgtInc > 90 deg (VAFB) we want southerly heading
+		// for TgtInc < 65 deg (KSC launches) we want northerly heading; max. inclination of KSC launch was 62 degrees (with dog-leg)
+		// for TgtInc > 65 deg (VAFB) we want southerly heading
 		double InHeading = asin(cos(TgtInc*RAD)/cos(latitude));
 		double xVel, yVel;
 		xVel = TgtSpd*cos(TgtFPA*RAD)*sin(InHeading)-464.581*cos(latitude);
 		yVel = TgtSpd*cos(TgtFPA*RAD)*cos(InHeading);
 		THeading=atan2(xVel, yVel); // northerly heading
-		if(THeading < 0.0) THeading = PI - THeading; // if heading is negative, this is retrograde inclination; use southerly heading
+		if(TgtInc > 65.0) THeading = PI - THeading; // if heading is negative, this is retrograde inclination; use southerly heading
 	}
 
 	mu=GGRAV*oapiGetMass(hRef);
