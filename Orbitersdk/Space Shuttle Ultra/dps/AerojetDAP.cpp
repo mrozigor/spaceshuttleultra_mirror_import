@@ -831,6 +831,12 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		else HACSide = R;
 		return true;
 	}
+	else if(!_strnicmp(keyword, "ENTRY_GUIDANCE", 14)) {
+		int nTemp;
+		sscanf_s(value, "%d", &nTemp);
+		if(nTemp>=PREENTRY && nTemp<=TRANSITION) EntryGuidanceMode=static_cast<ENTRY_GUIDANCE_MODE>(nTemp);
+		return true;
+	}
 	else if(!_strnicmp(keyword, "TAEM_GUIDANCE", 13)) {
 		int nTemp;
 		sscanf_s(value, "%d", &nTemp);
@@ -846,6 +852,7 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	if(SEC) oapiWriteScenario_string(scn, "SEC", "TRUE");
 	if(HACSide==L) oapiWriteScenario_string(scn, "SIDE", "L");
 	else oapiWriteScenario_string(scn, "SIDE", "R");
+	oapiWriteScenario_int(scn, "ENTRY_GUIDANCE", static_cast<int>(EntryGuidanceMode));
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 }
 
