@@ -8,6 +8,16 @@
 namespace dps
 {
 
+const double VA = 23163.7/MPS2FPS;
+const double VA1 = 21000.0/MPS2FPS;
+const double VA2 = 27197.46/MPS2FPS;
+const double VB1 = 19000.0/MPS2FPS;
+const double VS1 = 23271.87/MPS2FPS;
+const double VSIT2 = VS1*VS1;
+const double VTRAN = 10500/MPS2FPS;
+const double VQ = 5000/MPS2FPS;
+const double VQ2 = VQ*VQ;
+
 /**
  * Draws pitch ladder line on HUD.
  * Rotated font (for labelling line) is assumed to be selected into sketchpad
@@ -138,6 +148,8 @@ ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to 
 Roll_AileronRoll(0.15, 0.15, 0.00, -1.0, 1.0),
 Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1),
+EntryGuidanceMode(PREENTRY),
+referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 TAEMGuidanceMode(HDG), HACDirection(OVHD), HACSide(L),
 degTargetGlideslope(-20.0), // default OGS glideslope
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
@@ -291,9 +303,35 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			double cl, cm, cd;
 			GetShuttleVerticalAeroCoefficients(STS()->GetMachNumber(), STS()->GetAOA()*DEG, &(STS()->aerosurfaces), &cl, &cm, &cd);
 			CalculateRangeAndDELAZ(r,az);
-			double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
+			//double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
+			double target_drag = CalculateTargetDrag(DeltaT, r);
 			double target_altitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
-			sprintf(oapiDebugString(),"Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude());
+			VECTOR3 vec;
+			STS()->GetHorizonAirspeedVector(vec);
+			double v_acc = (last_vel - vec.y)*DeltaT;
+			last_vel = vec.y;
+			double target_vspeed = CalculateTargetVSpeed(STS()->GetAltitude(),target_altitude,vec.y,DeltaT);
+			double target_vacc = CalculateTargetVAcc(vec.y,target_vspeed,v_acc,DeltaT);
+			char cbuf[255];
+			sprintf_s(cbuf, 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
+			//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
+			switch(EntryGuidanceMode) {
+			case PREENTRY:
+				sprintf_s(oapiDebugString(), 255, "PREENTRY: %s", cbuf);
+				break;
+			case TEMP_CONTROL:
+				sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
+				break;
+			case EQU_GLIDE:
+				sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
+				break;
+			case CONST_DRAG:
+				sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
+				break;
+			case TRANSITION:
+				sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
+				break;
+			}
 		}
 
 		// set thruster and aerosurface commands
@@ -305,6 +343,26 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		SetAerosurfaceCommands(DeltaT);
 
+		// entry guidance mode transitions
+		/*{
+			const double CLG_INIT_DRAG = 4.25/MPS2FPS;
+			//VECTOR3 force, gravity;
+			VECTOR3 lift, drag;
+			double acceleration;
+			switch(EntryGuidanceMode) {
+			case PREENTRY:
+				//STS()->GetForceVector(force);
+				//STS()->GetWeightVector(gravity);
+				//acceleration = length(force-gravity)/STS()->GetMass();
+				STS()->GetLiftVector(lift);
+				STS()->GetDragVector(drag);
+				acceleration = length(lift+drag)/STS()->GetMass();
+				if(acceleration>CLG_INIT_DRAG) EntryGuidanceMode=TEMP_CONTROL;
+				break;
+			case TEMP_CONTROL:
+				if(STS()->GetAirspeed() < VB1) EntryGuidanceMode = EQU_GLIDE;
+			}
+		}*/
 		//double tgtDrag = CalculateTargetDrag();
 		//sprintf_s(oapiDebugString(), 255, "Tgt Drag: %f", tgtDrag);
 
@@ -1142,9 +1200,145 @@ double AerojetDAP::CalculateTargetAOA(double mach) const
 	}
 }
 
-double AerojetDAP::CalculateTargetDrag()
+double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 {
-	return -10.0; // indicate the target drag is not known
+	const double AK = -3.4573;
+	const double AK1 = -4.76;
+	const double ALFM = 33.0/MPS2FPS; // target const. drag level
+	const double DT2MIN = 0.008/MPS2FPS;
+	const double DELV = 2300/MPS2FPS;
+	const double DRDDL = -1.5*NMI2M*MPS2FPS;
+	const double DF = 20.80031/MPS2FPS;
+	const double E1 = 0.01/MPS2FPS;
+	const double EEF4 = 2.0e6/(MPS2FPS*MPS2FPS); // changed from value in 80FM23; document has erroneous value of 2.0e-6 instead of 2.0e6
+	const double ETRAN = 0.5998473e8/(MPS2FPS*MPS2FPS);
+	const double GS2 = 0.0001;
+	const double RPT1 = 29.44*NMI2M;
+
+	const double RCG1 = (VSIT2-VQ2)/(2*ALFM);
+	const double RPT = RPT1 - ((ETRAN-EEF4)*log(DF/ALFM)/(ALFM-DF) + (VTRAN*VTRAN-VQ2)/(2.0*ALFM));
+	
+	const double CQ3_1 = -AK/(2.0*VB1*(VA-VB1));
+	const double CQ2_1 = -2.0*VA*CQ3_1;
+	const double CQ1_1 = 1.0 - VB1*(CQ2_1+CQ3_1*VB1);
+	const double DX2 = CQ1_1 + VA1*(CQ2_1+CQ3_1*VA1);
+	const double CQ3_2 = -(AK1*DX2)/(2.0*VA1*(VA2-VA1));
+	const double CQ2_2 = -2.0*VA2*CQ3_2;
+	const double CQ1_2 = DX2 - VA1*(CQ2_2+CQ3_2*VA1);
+
+	const double CLG_INIT_DRAG = 4.25/MPS2FPS;
+	const double D23C = 19.38/MPS2FPS;
+
+	//VECTOR3 vel;
+	//STS()->GetRelativeVel(hEarth, vel);
+	//double relativeVel=length(vel);
+	char cbuf[255];
+	double relativeVel = STS()->GetAirspeed();
+	double oldConstDragLevel = constDragLevel;
+	constDragLevel = (relativeVel*relativeVel-VQ2)/(2*(range-RPT));
+	double constDragLevelDot = (constDragLevel - oldConstDragLevel)/DeltaT;
+	double energyOverMass = G*STS()->GetAltitude() + 0.5*relativeVel*relativeVel; // EEF
+	double C1 = (constDragLevel-DF)/(ETRAN-EEF4);
+	double DREFP5 = DF + (energyOverMass-EEF4)*C1;
+	//sprintf_s(cbuf, 255, "T2: %f T2DOT: %f", constDragLevel, constDragLevelDot);
+	//oapiWriteLog(cbuf);
+	switch(EntryGuidanceMode) {
+	case PREENTRY:
+		VECTOR3 lift, drag;
+		double acceleration;
+		STS()->GetLiftVector(lift);
+		STS()->GetDragVector(drag);
+		acceleration = length(lift+drag)/STS()->GetMass();
+		if(acceleration > CLG_INIT_DRAG) EntryGuidanceMode = TEMP_CONTROL;
+		return CLG_INIT_DRAG;
+	case TEMP_CONTROL:
+	case EQU_GLIDE:
+		{
+		//double constDragLevel = dTable->TargetDrag(range, relativeVel); // TODO: move this function out of DragTable class
+		//double refDrag;
+		//if(dTable->TargetDrag(range, relativeVel) > DT2MIN || relativeVel < (VQ+DELV)) {
+		//if(constDragLevelDot > DT2MIN || relativeVel < (VQ+DELV)) {
+		if(constDragLevelDot > DT2MIN || relativeVel < (constDragStartVel+DELV)) {
+			double VB2 = VB1*VB1;
+			if(relativeVel<VB1) VB2 = relativeVel*relativeVel;
+			constDragStartVel = VQ;
+			double D23L = ALFM*(VSIT2-VB2)/(VSIT2-VQ2);
+			if(referenceDrag23 > D23L) constDragStartVel = sqrt(VSIT2-D23L*(VSIT2-VQ2)/referenceDrag23);
+			//double A2 = NMI2M*(VSIT2-VB2)/2.0;
+			double A2 = (VSIT2-VB2)/2.0;
+			double equGlideRangeDrag = A2*log(ALFM/referenceDrag23); // REQ1
+			double constDragRange = RCG1 - A2/referenceDrag23; // RCG
+			double phase23RangeDrag = equGlideRangeDrag; // R231; should add range from Temp Control phase as well, but we are only doing calculation for Equ Glide phase
+			//double R23 = range/NMI2M - constDragRange - RPT;
+			double R23 = range - constDragRange - RPT;
+			double newReferenceDrag23 = phase23RangeDrag/R23; // D231
+			if(newReferenceDrag23 >= D23L)
+				referenceDrag23 = newReferenceDrag23 + (A2*pow(1 - referenceDrag23/newReferenceDrag23, 2))/(2*R23);
+			else
+				referenceDrag23 = max(newReferenceDrag23, E1);
+			refDrag = referenceDrag23;
+			//sprintf_s(cbuf, 255, "D23L: %f A2: %f constDragLevel: %f referenceDrag23: %f", D23L, A2, constDragLevel, referenceDrag23);
+			//sprintf_s(cbuf, 255, "R23: %f A2: %f constDragLevel: %f newReferenceDrag23: %f referenceDrag23: %f", R23, A2, constDragLevel, newReferenceDrag23, referenceDrag23);
+			//oapiWriteLog(cbuf);
+		}
+		//else EntryGuidanceMode = CONST_DRAG;
+		if(EntryGuidanceMode == TEMP_CONTROL) {
+			if(relativeVel < VA1) {
+				refDrag = CQ1_1 + relativeVel*(CQ2_1 + relativeVel*CQ3_1);
+			}
+			else {
+				refDrag = CQ1_2 + relativeVel*(CQ2_2 + relativeVel*CQ3_2);
+			}
+			refDrag *= D23C;
+			if(relativeVel < VB1) EntryGuidanceMode = EQU_GLIDE;
+			//return refDrag*D23C; // D23 isn't constant in actual code
+			//return refDrag*referenceDrag23;
+		}
+		// check for transition to equ glide phase
+		// if in equ glide phase, use slightly different target drag if velocity > VB1 (otherwise, just use referenceDrag23)
+		if(relativeVel < VA && relativeVel >= VB1) {
+			double ALDCO = (1.0 - VB1*VB1/VSIT2)/referenceDrag23;
+			double DREFP1 = (1.0 - relativeVel*relativeVel/VSIT2)/ALDCO; // if relativeVel<VB1, DREFP1 = referenceDrag23 (D23)
+			//char cbuf[255];
+			//sprintf_s(cbuf, 255, "ALDCO: %f DREFP1: %f referenceDrag23: %f", ALDCO, DREFP1, referenceDrag23);
+			//oapiWriteLog(cbuf);
+			//double DREFP1 = referenceDrag23;
+			//double DREFP3 = DREFP1 + GS2*(RDTREF - RDTRF1); // actual code
+			double DREFP3 = DREFP1; // simpler version so we don't need to calculated RDTREF and RDTRF1
+			if(refDrag < DREFP3 || EntryGuidanceMode == EQU_GLIDE) {
+				EntryGuidanceMode = EQU_GLIDE;
+				refDrag = DREFP1;
+			}
+		}
+		if(relativeVel < (constDragStartVel + DELV) && refDrag > constDragLevel) { // NOTE: GS3 = 0
+			EntryGuidanceMode = CONST_DRAG;
+		}
+
+		return refDrag;
+		//double aldco = (1 - (relativeVel*relativeVel/VSIT2))/D23C;
+		//return (1 - 
+		}
+	case CONST_DRAG:
+		if(relativeVel < (VTRAN + DELV) && constDragLevel > DREFP5) EntryGuidanceMode = TRANSITION;
+		refDrag = constDragLevel;
+		return constDragLevel;
+	case TRANSITION:
+		{
+		double DREFPT = refDrag - DF;
+		if(abs(DREFPT) < E1) refDrag = DF + E1*sign(DREFPT);
+		if(refDrag < E1) refDrag = E1;
+		DREFPT = refDrag - DF;
+		C1 = DREFPT/(energyOverMass-EEF4);
+		double transitionRange = log(refDrag/DF)/C1; // RER1
+		double dRdD = min(1/(C1*refDrag) - transitionRange/DREFPT, DRDDL); // DRDD
+		refDrag = refDrag + (range - transitionRange - RPT1)/dRdD;
+		//double DREFP_MAX = ALIM*(STS()->GetDrag()/STS()->GetMass())/
+		// skip drag limit code; not sure how load factor is defined (probably Lift/mass)
+		return refDrag;
+		}
+	default:
+		return -10.0; // indicate the target drag is not known
+	}
 }
 
 void AerojetDAP::SelectHAC()

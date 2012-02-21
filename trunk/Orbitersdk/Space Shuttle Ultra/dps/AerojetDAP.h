@@ -39,7 +39,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 class AerojetDAP : public SimpleGPCSoftware
 {
 private:	
-	//typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
+	typedef enum {PREENTRY, TEMP_CONTROL, EQU_GLIDE, CONST_DRAG, TRANSITION} ENTRY_GUIDANCE_MODE;
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STRT} HAC_DIRECTION;
@@ -135,6 +135,12 @@ private:
 	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering aronud an axis
 	
 	OBJHANDLE hEarth;
+
+	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
+	double refDrag; // DREFP
+	double referenceDrag23; // D23
+	double constDragLevel; // T2
+	double constDragStartVel; // VCG
 
 	/** Variables used by TAEM guidance **/
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
@@ -232,7 +238,11 @@ private:
 	void CSSPitchGuidance(double DeltaT);
 	void CSSRollGuidance(double DeltaT);
 
-	double CalculateTargetDrag();
+	/**
+	 * Calculates target drag (based on current guidance mode)
+	 * /param range range to rwy [m]
+	 */
+	double CalculateTargetDrag(double DeltaT, double range);
 	
 	/**
 	 * Based on HAC direction (OVHD or STRT), selects left or right HAC
