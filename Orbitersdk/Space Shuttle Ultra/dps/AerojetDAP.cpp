@@ -342,6 +342,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 				ThrusterCommands[i].SetLine(0.0f);
 		}
 		SetAerosurfaceCommands(DeltaT);
+		if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
+		else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
+		if(STS()->GetMachNumber() < 6.0)
+			Roll_AileronRoll.SetGains(0.25, 0.05, 0.0); // update gains to improve control
 
 		// entry guidance mode transitions
 		/*{
@@ -1577,7 +1581,11 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 
 double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 {
-	if(STS()->GetMachNumber() > 0.95) return 65.0;
+	double mach = STS()->GetMachNumber();
+	if(mach > 10.0) return 0.0;
+	else if(mach >= 3.2) return 81.0*min(1.0, (10.0-mach)); // ramp from 0% at M10 to 81% at M9
+	else if(mach > 0.95) return 16.0*max(0.0, (mach-2.5)/0.7) + 65.0; // ramp from 81% at M3.2 to 65% at M2.5
+	//if(STS()->GetMachNumber() > 0.95) return 65.0;
 
 	// NOTE: this an older version of the speedbrake command algorithm
 	// newer versions also include energy term
