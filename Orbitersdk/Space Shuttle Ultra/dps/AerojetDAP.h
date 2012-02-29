@@ -28,6 +28,8 @@ const double X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
 
 const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
 const double FINAL_RADIUS = 14000.0/MPS2FPS; // center of HAC in Y direction is +/- FINAL_RADIUS
+const double R1 = 0.0;
+const double R2 = 0.093/MPS2FPS;
 
 const int NZ_VALUE_COUNT = 5;
 const double NZ_UPDATE_INTERVAL = 0.1;
@@ -137,6 +139,8 @@ private:
 	OBJHANDLE hEarth;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
+	VECTOR3 HAC_Center;
+	double HAC_Lat, HAC_Long;
 	double refDrag; // DREFP
 	double referenceDrag23; // D23
 	double constDragLevel; // T2
@@ -146,13 +150,13 @@ private:
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
 	HAC_DIRECTION HACDirection;
 	HAC_SIDE HACSide;
-	MATRIX3 RwyRotMatrix;
+	MATRIX3 RwyRotMatrix; // converts from Orbiter Earth local frame to runway frame
 	VECTOR3 RwyPos;
 	double degRwyHeading;
 	double degTargetGlideslope;
 	//double TargetPitchRate;
 	double prfnlBankFader;
-	double HAC_TurnRadius;
+	double HAC_TurnRadius; // also used by Entry Guidance
 	double TotalRange;
 	double gravity_force;
 	/** values for calculating NZ **/
@@ -301,7 +305,7 @@ private:
 	 * /param range updated with range to rwy [m]
 	 * /param delaz updated with azimuth error to rwy threshold [deg]
 	 */
-	void CalculateRangeAndDELAZ(double& range, double& delaz) const;
+	void CalculateRangeAndDELAZ(double& Range, double& delaz);
 
 	void LoadLandingSiteList();
 
