@@ -457,7 +457,7 @@ void OrbitDAP::Realize()
 	RollYawAuto.Connect(pBundle, 2);
 	RollYawCSS.Connect(pBundle, 3);
 
-	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	PCTArmed.Connect(pBundle, 0);
 
 	pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);

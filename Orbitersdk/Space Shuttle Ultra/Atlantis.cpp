@@ -4301,11 +4301,17 @@ void Atlantis::clbkPostCreation ()
 	BodyFlapAutoOut.Connect(pBundle, 0);
 	BodyFlapManOut.Connect(pBundle, 1);
 
-	pBundle=BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
 	SpdbkThrotAutoOut.Connect(pBundle, 0);
 	SpdbkThrotCDROut.Connect(pBundle, 1);
 	SpdbkThrotPLTOut.Connect(pBundle, 2);
+	// if AUTO port is not set, enable CDR SPDBK/THROT control (code in clbkPostStep will select CDR/PLT depending on VC position)
+	if(!SpdbkThrotAutoIn) {
+		DiscOutPort temp;
+		temp.Connect(pBundle, 1); // CDR
+		temp.SetLine();
+	}
 
 	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
 	//PitchAutoOut.Connect(pBundle, 0);

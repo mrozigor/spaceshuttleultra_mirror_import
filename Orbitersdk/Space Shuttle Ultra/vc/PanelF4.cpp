@@ -8,9 +8,9 @@ namespace vc
 	PanelF4::PanelF4(Atlantis* _sts)
 		: AtlantisPanel(_sts, "F4")
 	{
-		Add(pSbdbkThrot = new PushButtonIndicator(_sts, "F4_SBDTHROT_AUTO"));
-		Add(pSbdbkThrotMan = new StandardLight(_sts, "F4_SBDKTHROT_MAN"));
-		Add(pBodyFlap = new PushButtonIndicator(_sts, "F4_BODYFLAP_AUTO"));
+		Add(pSbdbkThrot = new PushButtonIndicator(_sts, "F4_SPDBKTHROT_AUTO", true));
+		Add(pSbdbkThrotMan = new StandardLight(_sts, "F4_SPDBKTHROT_MAN"));
+		Add(pBodyFlap = new PushButtonIndicator(_sts, "F4_BODYFLAP_AUTO", true));
 		Add(pBodyFlapMan = new StandardLight(_sts, "F4_BODYFLAP_MAN"));
 
 		Add(pPitchAuto = new PushButtonIndicator(_sts, "F4_PITCH_AUTO", true));
@@ -25,7 +25,7 @@ namespace vc
 
 	void PanelF4::Realize()
 	{
-		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 		pSbdbkThrot->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
 		pSbdbkThrotMan->input.Connect(pBundle, 2); //MAN light; F4 PBI only
 		pSbdbkThrotMan->test.Connect(pBundle, 2); //MAN light; F4 PBI only
