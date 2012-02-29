@@ -497,10 +497,12 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 	if(spec == 50) {
 		if(item == 3) {
 			SEC = false;
+			InitializeRunwayData();
 			return true;
 		}
 		else if(item == 4) {
 			SEC = true;
+			InitializeRunwayData();
 			return true;
 		}
 		else if(item == 6) {
@@ -513,7 +515,10 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 		else if(item == 41) {
 			int nNew;
 			sscanf_s(Data, "%d", &nNew);
-			if(nNew>=0 && nNew<=vLandingSites.size()) SITE_ID = nNew;
+			if(nNew>=0 && nNew<=vLandingSites.size()) {
+				SITE_ID = nNew;
+				InitializeRunwayData();
+			}
 			return true;
 		}
 	}
@@ -1355,13 +1360,18 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 void AerojetDAP::SelectHAC()
 {
 	VECTOR3 pos = GetRunwayRelPos();
+	HAC_SIDE newHAC;
 	if(HACDirection == OVHD) {
-		if(pos.y < 0.0) HACSide = R;
-		else HACSide = L;
+		if(pos.y < 0.0) newHAC = R;
+		else newHAC = L;
 	}
 	else { // STRT
-		if(pos.y < 0.0) HACSide = L;
-		else HACSide = R;
+		if(pos.y < 0.0) newHAC = L;
+		else newHAC = R;
+	}
+	if(HACSide != newHAC) {
+		HACSide = newHAC;
+		InitializeRunwayData();
 	}
 }
 
@@ -1374,8 +1384,8 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	//const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
 	//const double HAC_CENTER_Y = -FINAL_RADIUS;
 	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
-	const double R1 = 0.0;
-	const double R2 = 0.093/MPS2FPS;
+	//const double R1 = 0.0;
+	//const double R2 = 0.093/MPS2FPS;
 	// NOTE: gains are in deg/ft, so multiply by conversion factor
 	const double GR = 0.005*MPS2FPS;
 	const double GRDOT = 0.2*MPS2FPS;
@@ -1705,6 +1715,13 @@ void AerojetDAP::InitializeRunwayData()
 		y.x, y.y, y.z,
 		-end1.x, -end1.y, -end1.z);
 	RwyPos = mul(RwyRotMatrix, RwyPos);
+	
+	// calculate values used by entry guidance
+	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
+	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
+	HAC_Center = tmul(RwyRotMatrix, RwyPos + _V(HAC_CENTER_X, HAC_CENTER_Y, 0.0));
+	double hacRad;
+	oapiLocalToEqu(hEarth, HAC_Center, &HAC_Long, &HAC_Lat, &hacRad);
 }
 
 VECTOR3 AerojetDAP::GetRunwayRelPos() const
@@ -1715,24 +1732,42 @@ VECTOR3 AerojetDAP::GetRunwayRelPos() const
 	return mul(RwyRotMatrix, v)-RwyPos;
 }
 
-void AerojetDAP::CalculateRangeAndDELAZ(double& range, double& delaz) const
+void AerojetDAP::CalculateRangeAndDELAZ(double& Range, double& delaz)
 {
+	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
+	
 	double lng, lat, rad;
 	double tgtLong, tgtLat;
-	STS()->GetEquPos(lng, lat, rad);
 	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
-
-	double avgRadius = oapiGetSize(hEarth) + STS()->GetAltitude()/2.0;
-	double angle = oapiOrthodome(lng, lat, tgtLong, tgtLat);
-	range = angle*avgRadius;
-
+	STS()->GetEquPos(lng, lat, rad);
+	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
+	
 	VECTOR3 v;
 	STS()->GetHorizonAirspeedVector(v);
 	double actualHeading = atan2(v.x, v.z);
 
-	double tgtHeading = atan2(sin(tgtLong-lng)*cos(tgtLat), cos(lat)*sin(tgtLat) - sin(lat)*cos(tgtLat)*cos(tgtLong-lng));
-	//sprintf_s(oapiDebugString(), 255, "Lng: %f Lat: %f Range: %f Heading: %f Tgt: %f", lng, lat, range, DEG*actualHeading, DEG*tgtHeading);
-	delaz = DEG*(actualHeading-tgtHeading);
+	double cosGreatCircle = dotp(shuttlePos/length(shuttlePos), HAC_Center/length(HAC_Center)); // CTHVC
+	double sinGreatCircle = sqrt(1 - cosGreatCircle*cosGreatCircle);
+	double SINB = HAC_TurnRadius/oapiGetSize(hEarth);
+	double CTVWP1 = cosGreatCircle + 0.5*cosGreatCircle*SINB*SINB;
+	double SBARCR = SINB/sinGreatCircle;
+	double temp = range(-1, CTVWP1*SBARCR, 1);
+	double A2 = acos(temp);
+	temp = range(-1, CTVWP1, 1);
+	double rangeToWP1 = acos(temp)*oapiGetSize(hEarth);
+	temp = range(-1, SBARCR, 1);
+	double T8 = asin(temp);
+	//double BARWP1 = actualHeading - YSGN*T8;
+	double headingToHACCenter = atan2(sin(HAC_Long-lng)*cos(HAC_Lat), cos(lat)*sin(HAC_Lat) - sin(lat)*cos(HAC_Lat)*cos(HAC_Long-lng));
+	double headingToWP1 = headingToHACCenter - YSGN*T8; // this is not quite the same as in documents, but should work
+	double A3 = 0.5*PI - A2 + YSGN*(vLandingSites[SITE_ID].GetRwyHeading(!SEC)*RAD - headingToHACCenter);
+	if(A3 < 0.0) A3 += 2*PI;
+	double HAC_TurnAngle = A3*DEG;
+	HAC_TurnRadius = FINAL_RADIUS + (R1 + R2*HAC_TurnAngle)*HAC_TurnAngle;
+	double HAC_range = FINAL_RADIUS*HAC_TurnAngle + 0.5*R1*HAC_TurnAngle*HAC_TurnAngle + (1/3)*R2*HAC_TurnAngle*HAC_TurnAngle*HAC_TurnAngle;
+	Range = rangeToWP1 + HAC_range*RAD - HAC_CENTER_X;
+
+	delaz = DEG*(actualHeading-headingToWP1);
 }
 
 /*double AerojetDAP::CalculateRangeToRunway() const
