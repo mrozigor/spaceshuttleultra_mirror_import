@@ -220,7 +220,7 @@ void AerojetDAP::Realize()
 	PitchAuto.Connect(pBundle, 0);
 	RollYawAuto.Connect(pBundle, 2);
 
-	pBundle=STS()->BundleManager()->CreateBundle("SBDBKTHROT_CONTROLS", 16);
+	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
 	
 	hEarth = STS()->GetGravityRef();
