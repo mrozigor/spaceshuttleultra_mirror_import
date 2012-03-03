@@ -1068,7 +1068,7 @@ pActiveLatches(3, NULL)
   static VECTOR3& color = _V(0.75,0.75,0.75);
   const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
   const COLOUR4 amb = {0.0, 0.0, 0};
-  const COLOUR4 spec = {0.8f, 0.8f, 1.0f, 0.0f};
+  const COLOUR4 spec = {0.2, 0.2, 0.2,0};
 
 	//CREATE BEACONS
 	for(int i=0; i<6; ++i)
@@ -7432,16 +7432,15 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand1Grp[1] = {GRP_KUBAND_BOX_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
-    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-120*RAD));
+    _V(2.626,1.350,11.793), _V(0,1,0), (float)(-145*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_KUGIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.36395,2.04217,10.4731), _V(0,0,1), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
-
+    _V(2.36395,2.04217,10.4731), _V(-0.258814, 0.16773, -0.951253), (float)(116.5*RAD)); //Data from the Ku band System Workbook
 
   static UINT KuBand3Grp[1] = {GRP_KUDISH_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V(2.33638,2.05352,10.3196), _V(1,0,0), (float)(-66.75*RAD));//Data from the Ku band System Workbook
+    _V(2.33638,2.05352,10.3196), _V(0.574927, -0.768743, -0.280165), (float)(-23.25*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
@@ -7449,11 +7448,11 @@ void Atlantis::DefineKUBandAnimations()
 
   anim_kualpha = CreateAnimation(0.0);
   LogAnim("anim_kualpha", anim_kualpha);
-  parent = AddAnimationComponent (anim_kualpha, 0.61, 0.8, &KuBand2, parent);
+  parent = AddAnimationComponent (anim_kualpha, 0.81, 1, &KuBand2, parent);
 
   anim_kubeta = CreateAnimation(0.0);
   LogAnim("anim_kubeta", anim_kubeta);
-  AddAnimationComponent (anim_kubeta, 0.81, 1, &KuBand3, parent);
+  AddAnimationComponent (anim_kubeta, 0.61, 0.8, &KuBand3, parent);
 
 }
 
