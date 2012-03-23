@@ -211,6 +211,20 @@ private:
 	 * Get AOA, bank and sideslip values and rates.
 	 */
 	void GetAttitudeData(double DeltaT);
+	/**
+	 * Calculate bank angle 'seen' by lift vector
+	 * This is not the same as normal bank angle, because shuttle flies at high AOA (and lift vector is perpendicular to velocity, not direction)
+	 * Returns (positive) value in degrees
+	 */
+	double CalculateCurrentLiftBank() const;
+	/**
+	 * Calculate lift bank required to produce desired vertical acceleration
+	 * Returns (positive) value in degrees
+	 */
+	double CalculateRequiredLiftBank(double tgtVAcc) const;
+	/**
+	 * Update mass and PMI data
+	 */
 	void UpdateOrbiterData();
 
 	/**
