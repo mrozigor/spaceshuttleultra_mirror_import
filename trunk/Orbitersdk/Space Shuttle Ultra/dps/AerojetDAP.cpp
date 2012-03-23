@@ -1178,7 +1178,11 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	else
 		degCurrentAttitude.data[PITCH] = STS()->GetPitch()*DEG;
 	degCurrentAttitude.data[YAW] = STS()->GetSlipAngle()*DEG;
-	degCurrentAttitude.data[ROLL] = STS()->GetBank()*DEG;
+	// for AUTO control, we are interested in bank around lift vector; for CSS control, use actual bank
+	if(!RollYawAuto)
+		degCurrentAttitude.data[ROLL] = STS()->GetBank()*DEG;
+	else
+		degCurrentAttitude.data[ROLL] = CalculateCurrentLiftBank();
 
 	STS()->GetAngularVel(degCurrentRates);
 	degCurrentRates*=DEG;
@@ -1193,6 +1197,34 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 		//degCurrentRates.data[YAW] = 0.0;
 		degCurrentRates = _V(0.0, 0.0, 0.0);
 	}
+}
+
+double AerojetDAP::CalculateCurrentLiftBank() const
+{
+	VECTOR3 horizonVel;
+	STS()->GetHorizonAirspeedVector(horizonVel);
+	double gamma = asin(horizonVel.y/length(horizonVel));
+	
+	VECTOR3 liftVec, horLiftVec;
+	STS()->GetLiftVector(liftVec);
+	liftVec = RotateVectorX(liftVec, -gamma*DEG);
+	STS()->HorizonRot(liftVec, horLiftVec);
+	double bankSign = sign(STS()->GetBank());
+	double liftBank = acos(horLiftVec.y/length(horLiftVec));
+	return DEG*bankSign*liftBank;
+}
+
+double AerojetDAP::CalculateRequiredLiftBank(double tgtVAcc) const
+{
+	//double predictedVacc = cos(horBank*RAD)*(lift/STS()->GetMass()) - (gravity/STS()->GetMass()) + (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
+	VECTOR3 gravityVec, relativeVelVec;
+	STS()->GetWeightVector(gravityVec);
+	oapiGetRelativeVel(STS()->GetHandle(), hEarth, &relativeVelVec);
+	double relativeVel = length(relativeVelVec);
+	double centrifugalForce = (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
+	double reqdLiftForce = tgtVAcc - centrifugalForce + length(gravityVec)/OrbiterMass;
+	double cosBank = range(-1, reqdLiftForce/(STS()->GetLift()/OrbiterMass), 1);
+	return DEG*acos(cosBank);
 }
 
 void AerojetDAP::UpdateOrbiterData()
