@@ -2,6 +2,7 @@
 #define AEROJETDAP_H_77EB3AE1_0A62_4181_8370_0F9995B10FEF
 #pragma once
 
+#include <queue>
 #include "../PIDControl.h"
 //#include "../AtlantisSubsystem.h"
 #include "SimpleGPCSoftware.h"
@@ -145,6 +146,16 @@ private:
 	double referenceDrag23; // D23
 	double constDragLevel; // T2
 	double constDragStartVel; // VCG
+	double lastTgtAltitude;
+	double lastRefVSpeed;
+	double lastVAccSum;
+	std::queue<double> lastVAccs;
+	double lastVspeedSum;
+	std::queue<double> lastVspeeds;
+	double lastTargetAltitudeSum;
+	std::queue<double> lastTargetAltitudes;
+	double tgtBankSign; // changed at each roll reversal
+	bool performedFirstRollReversal;
 
 	/** Variables used by TAEM guidance **/
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
@@ -261,6 +272,16 @@ private:
 	 * /param range range to rwy [m]
 	 */
 	double CalculateTargetDrag(double DeltaT, double range);
+	/**
+	 * Updates averaging for target altitude, vspeed and vacc.
+	 */
+	void UpdateRequiredStateAveraging(double targetAltitude, double DeltaT);
+	//double CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double);
+	/**
+	 * Calculates roll direction (-1 or +1) for maintaing delaz within limits.
+	 * Updates tgtBankSign variable.
+	 */
+	void UpdateRollDirection(double mach, double delaz);
 	
 	/**
 	 * Based on HAC direction (OVHD or STRT), selects left or right HAC
