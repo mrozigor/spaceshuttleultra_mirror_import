@@ -150,6 +150,7 @@ Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
+lastVAccSum(0.0), lastVspeedSum(0.0), lastTargetAltitudeSum(0.0), tgtBankSign(1.0), performedFirstRollReversal(false),
 TAEMGuidanceMode(HDG), HACDirection(OVHD), HACSide(L),
 degTargetGlideslope(-20.0), // default OGS glideslope
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
@@ -251,6 +252,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	//double distToRwy, delaz; // only used in MM304
 	switch(GetMajorMode()) {
 	case 304:
+		{
 		UpdateOrbiterData();
 		GetAttitudeData(DeltaT);
 
@@ -288,50 +290,76 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			CSSPitchGuidance(DeltaT);
 		}
 
+		double speed = STS()->GetAirspeed();
+		double r, delaz;
+		double cl, cm, cd;
+		GetShuttleVerticalAeroCoefficients(STS()->GetMachNumber(), STS()->GetAOA()*DEG, &(STS()->aerosurfaces), &cl, &cm, &cd);
+		CalculateRangeAndDELAZ(r, delaz);
+		UpdateRollDirection(STS()->GetMachNumber(), delaz);
+		//double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
+		double target_drag = CalculateTargetDrag(DeltaT, r);
+		double newTargetAltitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
+		// update averaging
+		UpdateRequiredStateAveraging(newTargetAltitude, DeltaT);
+	
+		VECTOR3 vec;
+		STS()->GetHorizonAirspeedVector(vec);
+		
+		double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
+		double avg_vspeed = lastVspeedSum/lastVspeeds.size();
+		double target_vspeed = avg_vspeed + 2e-2*(target_altitude - STS()->GetAltitude());
+		double target_vacc = lastVAccSum/lastVAccs.size() + 1e-1*(target_vspeed - vec.y);
+		
+		lastTgtAltitude = target_altitude;
+		lastRefVSpeed = avg_vspeed;
+		last_vel = vec.y;
+
+		double actBank = CalculateCurrentLiftBank();
+		double tgtBank;
+		if(EntryGuidanceMode == PREENTRY) tgtBank = 0.0;
+		else tgtBank = tgtBankSign*CalculateRequiredLiftBank(target_vacc);
+		
+		VECTOR3 grav, relativeVelVec;
+		STS()->GetWeightVector(grav);
+		oapiGetRelativeVel(STS()->GetHandle(), hEarth, &relativeVelVec);
+		double relativeVel = length(relativeVelVec);
+		double centrifugalForce = (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
+		double expectedVacc = (STS()->GetLift()/OrbiterMass)*cos(RAD*actBank) + centrifugalForce - length(grav)/OrbiterMass;
+
+		char cbuf[255];
+		//sprintf_s(cbuf, 255, "Target drag: %lf, Target altitude: %lf, Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Tgt VAcc: %f VAcc error: %f",target_drag,target_altitude,target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, target_vacc, target_vacc-cur_vacc);
+		sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f Expected Vacc: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank, expectedVacc);
+		//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
+		switch(EntryGuidanceMode) {
+		case PREENTRY:
+			sprintf_s(oapiDebugString(), 255, "PREENTRY: %s", cbuf);
+			break;
+		case TEMP_CONTROL:
+			sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
+			break;
+		case EQU_GLIDE:
+			sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
+			break;
+		case CONST_DRAG:
+			sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
+			break;
+		case TRANSITION:
+			sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
+			break;
+		}
 		// roll AP isn't implemented yet, so just CSS guidance
 		if(RollYawAuto)
 		{
 			CSSInitialized[ROLL] = false;
-			CalculateTargetRoll(DeltaT);
-			degTargetAttitude.data[ROLL] = target_bank;
+			//CalculateTargetRoll(DeltaT);
+			double deltaLimit = 1.0;
+			if(ThrustersActive[ROLL]) deltaLimit = 2.0;
+			degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-deltaLimit, tgtBank, degCurrentAttitude.data[ROLL]+deltaLimit);
+			//degTargetAttitude.data[ROLL] = tgtBank;
 		}
 		else
 		{
 			CSSRollGuidance(DeltaT);
-			double speed = STS()->GetAirspeed();
-			double r, az;
-			double cl, cm, cd;
-			GetShuttleVerticalAeroCoefficients(STS()->GetMachNumber(), STS()->GetAOA()*DEG, &(STS()->aerosurfaces), &cl, &cm, &cd);
-			CalculateRangeAndDELAZ(r,az);
-			//double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
-			double target_drag = CalculateTargetDrag(DeltaT, r);
-			double target_altitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
-			VECTOR3 vec;
-			STS()->GetHorizonAirspeedVector(vec);
-			double v_acc = (last_vel - vec.y)*DeltaT;
-			last_vel = vec.y;
-			double target_vspeed = CalculateTargetVSpeed(STS()->GetAltitude(),target_altitude,vec.y,DeltaT);
-			double target_vacc = CalculateTargetVAcc(vec.y,target_vspeed,v_acc,DeltaT);
-			char cbuf[255];
-			sprintf_s(cbuf, 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
-			//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
-			switch(EntryGuidanceMode) {
-			case PREENTRY:
-				sprintf_s(oapiDebugString(), 255, "PREENTRY: %s", cbuf);
-				break;
-			case TEMP_CONTROL:
-				sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
-				break;
-			case EQU_GLIDE:
-				sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
-				break;
-			case CONST_DRAG:
-				sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
-				break;
-			case TRANSITION:
-				sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
-				break;
-			}
 		}
 
 		// set thruster and aerosurface commands
@@ -379,6 +407,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}*/
 		//sprintf_s(oapiDebugString(), 255, "Range: %f Delaz: %f", distToRwy, delaz);
 		break;
+		}
 	case 305:
 		if(bWONG) {
 			//oapiWriteLog("WONG");
@@ -835,6 +864,10 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		SEC = true;
 		return true;
 	}
+	else if(!_strnicmp(keyword, "FIRST_RR", 8)) {
+		performedFirstRollReversal = true;
+		return true;
+	}
 	else if(!_strnicmp(keyword, "SIDE", 4)) {
 		if(!_strnicmp(value, "L", 1)) HACSide = L;
 		else HACSide = R;
@@ -861,6 +894,7 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	if(SEC) oapiWriteScenario_string(scn, "SEC", "TRUE");
 	if(HACSide==L) oapiWriteScenario_string(scn, "SIDE", "L");
 	else oapiWriteScenario_string(scn, "SIDE", "R");
+	if(performedFirstRollReversal) oapiWriteScenario_string(scn, "FIRST_RR", "TRUE");
 	oapiWriteScenario_int(scn, "ENTRY_GUIDANCE", static_cast<int>(EntryGuidanceMode));
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 }
@@ -1216,14 +1250,14 @@ double AerojetDAP::CalculateCurrentLiftBank() const
 
 double AerojetDAP::CalculateRequiredLiftBank(double tgtVAcc) const
 {
-	//double predictedVacc = cos(horBank*RAD)*(lift/STS()->GetMass()) - (gravity/STS()->GetMass()) + (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
+	const double MAX_BANK_COS = 0.173648; // limit bank to 80 degrees
 	VECTOR3 gravityVec, relativeVelVec;
 	STS()->GetWeightVector(gravityVec);
 	oapiGetRelativeVel(STS()->GetHandle(), hEarth, &relativeVelVec);
 	double relativeVel = length(relativeVelVec);
 	double centrifugalForce = (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
 	double reqdLiftForce = tgtVAcc - centrifugalForce + length(gravityVec)/OrbiterMass;
-	double cosBank = range(-1, reqdLiftForce/(STS()->GetLift()/OrbiterMass), 1);
+	double cosBank = range(MAX_BANK_COS, reqdLiftForce/(STS()->GetLift()/OrbiterMass), 1);
 	return DEG*acos(cosBank);
 }
 
@@ -1386,6 +1420,53 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 		}
 	default:
 		return -10.0; // indicate the target drag is not known
+	}
+}
+
+void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double DeltaT)
+{
+	if(lastTargetAltitudes.size() >= 200) {
+		lastTargetAltitudeSum -= lastTargetAltitudes.front();
+		lastTargetAltitudes.pop();
+	}
+	lastTargetAltitudes.push(targetAltitude);
+	lastTargetAltitudeSum += targetAltitude;
+	//double target_vspeed = (target_altitude-oldTargetAltitude)/DeltaT;
+	double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
+
+	double ref_vspeed = range(-250.0, (target_altitude-lastTgtAltitude)/DeltaT, 250.0);
+	// update averaging
+	lastVspeedSum += ref_vspeed;
+	lastVspeeds.push(ref_vspeed);
+	if(lastVspeeds.size() >= 500) {
+		lastVspeedSum -= lastVspeeds.front();
+		lastVspeeds.pop();
+	}
+	double avg_vspeed = lastVspeedSum/lastVspeeds.size();
+
+	double ref_vacc = range(-10.0, (avg_vspeed-lastRefVSpeed)/DeltaT, 10.0);
+	// update averaging
+	lastVAccSum += ref_vacc;
+	lastVAccs.push(ref_vacc);
+	if(lastVAccs.size() >= 1000) {
+		lastVAccSum -= lastVAccs.front();
+		lastVAccs.pop();
+	}
+}
+
+void AerojetDAP::UpdateRollDirection(double mach, double delaz)
+{
+	if(EntryGuidanceMode == PREENTRY) {
+		tgtBankSign = sign(delaz);
+	}
+	else {
+		double delazLimit = 17.5;
+		if(!performedFirstRollReversal) delazLimit = 10.5;
+		if(mach < 4.0) delazLimit = range(10, (mach-2.8)*6.25 + 10.0, 17.5);
+		if(abs(delaz) >= delazLimit) {
+			tgtBankSign = sign(delaz);
+			performedFirstRollReversal = true;
+		}
 	}
 }
 
