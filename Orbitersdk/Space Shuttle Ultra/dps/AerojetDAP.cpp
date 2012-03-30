@@ -298,55 +298,53 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		UpdateRollDirection(STS()->GetMachNumber(), delaz);
 		//double target_drag = dTable->TargetDrag(r,STS()->GetAirspeed());
 		double target_drag = CalculateTargetDrag(DeltaT, r);
-		double newTargetAltitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
-		// update averaging
-		UpdateRequiredStateAveraging(newTargetAltitude, DeltaT);
-	
-		VECTOR3 vec;
-		STS()->GetHorizonAirspeedVector(vec);
-		
-		double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
-		double avg_vspeed = lastVspeedSum/lastVspeeds.size();
-		double target_vspeed = avg_vspeed + 2e-2*(target_altitude - STS()->GetAltitude());
-		double target_vacc = lastVAccSum/lastVAccs.size() + 1e-1*(target_vspeed - vec.y);
-		
-		lastTgtAltitude = target_altitude;
-		lastRefVSpeed = avg_vspeed;
-		last_vel = vec.y;
-
-		double actBank = CalculateCurrentLiftBank();
 		double tgtBank;
-		if(EntryGuidanceMode == PREENTRY) tgtBank = 0.0;
-		else tgtBank = tgtBankSign*CalculateRequiredLiftBank(target_vacc);
+		if (EntryGuidanceMode != PREENTRY) {
+			double newTargetAltitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
+			// update averaging
+			UpdateRequiredStateAveraging(newTargetAltitude, DeltaT);
+	
+			VECTOR3 vec;
+			STS()->GetHorizonAirspeedVector(vec);
 		
-		VECTOR3 grav, relativeVelVec;
-		STS()->GetWeightVector(grav);
-		oapiGetRelativeVel(STS()->GetHandle(), hEarth, &relativeVelVec);
-		double relativeVel = length(relativeVelVec);
-		double centrifugalForce = (relativeVel*relativeVel)/(STS()->GetAltitude()+oapiGetSize(hEarth));
-		double expectedVacc = (STS()->GetLift()/OrbiterMass)*cos(RAD*actBank) + centrifugalForce - length(grav)/OrbiterMass;
+			double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
+			double avg_vspeed = lastVspeedSum/lastVspeeds.size();
+			double target_vspeed = avg_vspeed + 2e-2*(target_altitude - STS()->GetAltitude());
+			double target_vacc = lastVAccSum/lastVAccs.size() + 1e-1*(target_vspeed - vec.y);
+		
+			lastTgtAltitude = target_altitude;
+			lastRefVSpeed = avg_vspeed;
+			last_vel = vec.y;
 
-		char cbuf[255];
-		//sprintf_s(cbuf, 255, "Target drag: %lf, Target altitude: %lf, Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Tgt VAcc: %f VAcc error: %f",target_drag,target_altitude,target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, target_vacc, target_vacc-cur_vacc);
-		sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f Expected Vacc: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank, expectedVacc);
-		//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
-		switch(EntryGuidanceMode) {
-		case PREENTRY:
-			sprintf_s(oapiDebugString(), 255, "PREENTRY: %s", cbuf);
-			break;
-		case TEMP_CONTROL:
-			sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
-			break;
-		case EQU_GLIDE:
-			sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
-			break;
-		case CONST_DRAG:
-			sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
-			break;
-		case TRANSITION:
-			sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
-			break;
+			double actBank = CalculateCurrentLiftBank();
+			tgtBank = tgtBankSign*CalculateRequiredLiftBank(target_vacc);
+			
+			char cbuf[255];
+			//sprintf_s(cbuf, 255, "Target drag: %lf, Target altitude: %lf, Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Tgt VAcc: %f VAcc error: %f",target_drag,target_altitude,target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, target_vacc, target_vacc-cur_vacc);
+			//sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f Expected Vacc: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank, expectedVacc);
+			sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank);
+			//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
+			switch(EntryGuidanceMode) {
+			case TEMP_CONTROL:
+				sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
+				break;
+			case EQU_GLIDE:
+				sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
+				break;
+			case CONST_DRAG:
+				sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
+				break;
+			case TRANSITION:
+				sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
+				break;
+			}
+
 		}
+		else {
+			tgtBank = 0.0;
+			sprintf_s(oapiDebugString(), 255, "PREENTRY");
+		}
+		
 		// roll AP isn't implemented yet, so just CSS guidance
 		if(RollYawAuto)
 		{
@@ -1435,6 +1433,7 @@ void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double Delt
 	double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
 
 	double ref_vspeed = range(-250.0, (target_altitude-lastTgtAltitude)/DeltaT, 250.0);
+	if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
 	// update averaging
 	lastVspeedSum += ref_vspeed;
 	lastVspeeds.push(ref_vspeed);
@@ -1445,6 +1444,7 @@ void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double Delt
 	double avg_vspeed = lastVspeedSum/lastVspeeds.size();
 
 	double ref_vacc = range(-10.0, (avg_vspeed-lastRefVSpeed)/DeltaT, 10.0);
+	if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
 	// update averaging
 	lastVAccSum += ref_vacc;
 	lastVAccs.push(ref_vacc);
