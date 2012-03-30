@@ -145,7 +145,7 @@ bFirstStep(true), bSecondStep(false), bWONG(false), OrbiterMass(1.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
 ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Roll_AileronRoll(0.15, 0.05, 0.00, -1.0, 1.0),
-Roll_AileronRoll(0.15, 0.15, 0.00, -1.0, 1.0),
+Roll_AileronRoll(0.10, 0.20, 0.00, -1.0, 1.0),
 Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1),
 EntryGuidanceMode(PREENTRY),
@@ -350,10 +350,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		{
 			CSSInitialized[ROLL] = false;
 			//CalculateTargetRoll(DeltaT);
-			double deltaLimit = 1.0;
-			if(ThrustersActive[ROLL]) deltaLimit = 2.0;
+			double deltaLimit = 2.0;
+			//if(ThrustersActive[ROLL]) deltaLimit = 2.0;
+			tgtBank = range(degTargetAttitude.data[ROLL]-5.0*DeltaT, tgtBank, degTargetAttitude.data[ROLL]+5.0*DeltaT);
 			degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-deltaLimit, tgtBank, degCurrentAttitude.data[ROLL]+deltaLimit);
-			//degTargetAttitude.data[ROLL] = tgtBank;
 		}
 		else
 		{
