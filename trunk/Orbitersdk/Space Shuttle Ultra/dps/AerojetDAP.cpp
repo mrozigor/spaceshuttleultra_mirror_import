@@ -151,7 +151,7 @@ QBar_Speedbrake(1.5, 0.0, 0.1),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 lastVAccSum(0.0), lastVspeedSum(0.0), lastTargetAltitudeSum(0.0), tgtBankSign(1.0), performedFirstRollReversal(false),
-TAEMGuidanceMode(HDG), HACDirection(OVHD), HACSide(L),
+TAEMGuidanceMode(ACQ), HACDirection(OVHD), HACSide(L),
 degTargetGlideslope(-20.0), // default OGS glideslope
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
 lastNZUpdateTime(-1.0), averageNZ(0.0), curNZValueCount(0),
@@ -456,6 +456,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 
 			switch(TAEMGuidanceMode) {
+			case ACQ:
 			case HDG:
 				CalculateHACGuidance(DeltaT);
 				break;
@@ -1514,38 +1515,66 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	velocity = _V(velocity.z, velocity.x, -velocity.y);
 	
 	//double rtan = 0.0;
-	double radius = length(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y, 0.0));
-	double turn_angle = DEG*atan2(HAC_CENTER_Y-TgtPos.y, HAC_CENTER_X-TgtPos.x);
+	double radius = length(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y, 0.0)); // RCIRC
+	double pst = DEG*atan2(HAC_CENTER_Y-TgtPos.y, HAC_CENTER_X-TgtPos.x); // temporary variable for calculating HAC turn angle
+	double rtan = 0.0;
 	if(radius > HAC_TurnRadius) {
-		double rtan = sqrt(radius*radius - HAC_TurnRadius*HAC_TurnRadius);
-		turn_angle -= DEG*YSGN*atan2(HAC_TurnRadius, rtan);
+		rtan = sqrt(radius*radius - HAC_TurnRadius*HAC_TurnRadius);
+		pst -= DEG*YSGN*atan2(HAC_TurnRadius, rtan);
 	}
 	else {
-		turn_angle -= YSGN*90.0;
+		pst -= YSGN*90.0;
 	}
-	if(turn_angle < -180.0) turn_angle+=360.0;
-	else if(turn_angle > 180.0) turn_angle-=360.0;
-	turn_angle = -turn_angle*YSGN;
+	if(pst < -180.0) pst+=360.0;
+	else if(pst > 180.0) pst-=360.0;
+	double turn_angle = -pst*YSGN; // PSHAN
 	if(turn_angle < 0.0) turn_angle+=360.0;
-	HAC_TurnRadius = FINAL_RADIUS + R1*turn_angle + R2*turn_angle*turn_angle;
+	HAC_TurnRadius = FINAL_RADIUS + R1*turn_angle + R2*turn_angle*turn_angle; // RTURN
 	double HAC_range = FINAL_RADIUS*turn_angle + 0.5*R1*turn_angle*turn_angle + (1/3)*R2*turn_angle*turn_angle*turn_angle;
 	TotalRange = HAC_range*RAD - HAC_CENTER_X;
 	//double tgt_turn_rate = airspeed/HAC_RADIUS;
 	//double rad_turn_rate = airspeed/radius; // turn rate for circle with current radius
+	
+	if(TAEMGuidanceMode == ACQ) {
+		//double headingToRwy = -atan2(TgtPos.y, -TgtPos.x)*DEG; // minus sign seems to be needed to get math to work
+		double courseToRwy = atan2(velocity.y, velocity.x)*DEG;
+		double headingToHAC = pst-courseToRwy; // DPSAC
+		if(headingToHAC < -180.0) headingToHAC+=360.0;
+		else if(headingToHAC > 180.0) headingToHAC-=360.0;
 
-	double rdot = -(velocity.x*(HAC_CENTER_X-TgtPos.x) + velocity.y*(HAC_CENTER_Y-TgtPos.y))/radius;
-	double phi_ref = DEG*(velocity.x*velocity.x+velocity.y*velocity.y - rdot*rdot)/(G*HAC_TurnRadius);
-	double rdotrf = -DEG*sqrt(velocity.x*velocity.x+velocity.y*velocity.y)*(R1+2.0*R2*turn_angle)/HAC_TurnRadius;
-	TargetBank = YSGN*max(0, phi_ref + (radius-HAC_TurnRadius)*GR + (rdot-rdotrf)*GRDOT);
+		double degAvgBank = range(30.00, 63.33 - 13.33*STS()->GetMachNumber(), 50.00);
+		double acqTurnRadius = sqrt(velocity.x*velocity.x+velocity.y*velocity.y)*length(velocity)/(G*tan(degAvgBank*RAD));
+		double acqTurnArcLength = acqTurnRadius*abs(headingToHAC)*RAD;
+		double a = acqTurnRadius*(1.0 - cos(headingToHAC*RAD));
+		double b = rtan - acqTurnRadius*abs(sin(headingToHAC*RAD));
+		double rangeFromAcqTurnToHAC = sqrt(a*a + b*b);
+		TotalRange += acqTurnArcLength + rangeFromAcqTurnToHAC;
+
+		//TargetBank = 2.5*headingToHAC;
+		double bankLimit = 50.0;
+		if(STS()->GetMachNumber() > 0.95) bankLimit = 30.0;
+		TargetBank = sign(headingToHAC)*range(0.0, 2.5*abs(headingToHAC), bankLimit);
+		// check for transition to HDG phase
+		if(radius < 1.1*HAC_TurnRadius) TAEMGuidanceMode = HDG;
+		
+		sprintf_s(oapiDebugString(), 255, "ACQ: X: %f Y: %f Z: %f pst: %f courseToRwy: %f headingToHAC: %f TargetBank: %f TotalRange: %f", velocity.x, velocity.y, velocity.z, pst, courseToRwy, headingToHAC, TargetBank, TotalRange);
+		//oapiWriteLog(oapiDebugString());
+	}
+	else {
+		double rdot = -(velocity.x*(HAC_CENTER_X-TgtPos.x) + velocity.y*(HAC_CENTER_Y-TgtPos.y))/radius;
+		double phi_ref = DEG*(velocity.x*velocity.x+velocity.y*velocity.y - rdot*rdot)/(G*HAC_TurnRadius);
+		double rdotrf = -DEG*sqrt(velocity.x*velocity.x+velocity.y*velocity.y)*(R1+2.0*R2*turn_angle)/HAC_TurnRadius;
+		TargetBank = YSGN*max(0, phi_ref + (radius-HAC_TurnRadius)*GR + (rdot-rdotrf)*GRDOT);
+	}
 	
 	NZCommand = CalculateNZCommand(velocity, TotalRange, -TgtPos.z, DeltaT);
 
-	sprintf_s(oapiDebugString(), 255, "X: %f Y: %f TgtRadius: %f Radius: %f NZ: %f Bank: %f Angle: %f Range: %f", TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y,
-		HAC_TurnRadius, radius, NZCommand, TargetBank, turn_angle, TotalRange);
+	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f TgtRadius: %f Radius: %f NZ: %f Bank: %f Angle: %f Range: %f", TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y,
+		//HAC_TurnRadius, radius, NZCommand, TargetBank, turn_angle, TotalRange);
 	//sprintf_s(oapiDebugString(), 255, "PX: %f PY: %f PZ: %f VX: %f VY: %f VZ: %f", TgtPos.x, TgtPos.y, TgtPos.z,
 		//velocity.x, velocity.y, velocity.z);
 
-	double headingToRwy = atan2(TgtPos.y, -TgtPos.x)*DEG;
+	//double headingToRwy = atan2(TgtPos.y, -TgtPos.x)*DEG;
 	//sprintf_s(oapiDebugString(), 255, "HTR: %f dis: %f AoA: %f", headingToRwy, abs(HAC_CENTER_Z-TgtPos.z), STS()->GetAOA()*DEG);
 	//if(abs(headingToRwy)>=0.0 && abs(headingToRwy)<8.0 && abs(HAC_CENTER_X-TgtPos.x) < 5300.0/MPS2FPS) {
 	if(TotalRange < (-HAC_CENTER_X + DR3)) {
@@ -1568,7 +1597,7 @@ void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 			STS()->GetHorizonAirspeedVector(horz_airspeed);
 			velocity = RotateVectorY(horz_airspeed, degRwyHeading);
 			velocity = _V(velocity.z, velocity.x, -velocity.y);
-			NZCommand = CalculateNZCommand(velocity, sqrt(TgtPos.x*TgtPos.x+TgtPos.y*TgtPos.y), -TgtPos.z, DeltaT);
+			NZCommand = CalculateNZCommand(velocity, TotalRange, -TgtPos.z, DeltaT);
 		}
 		else {
 			//TargetGlideslope = CalculateOGS(TgtPos);
