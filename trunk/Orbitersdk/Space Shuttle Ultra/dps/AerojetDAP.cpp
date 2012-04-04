@@ -649,7 +649,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ SS: %f NZ Comm Inc: %f", NZ, NZSteadyState, NZCommand);
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f NZ Inc: %f", NZ, NZAccError+NZSteadyState, NZAccError);
 			//sprintf_s(oapiDebugString(), 255, " %s NZ: %f NZ Command: %f NZ SS: %f", oapiDebugString(), NZ, NZCommand, NZSteadyState);
-			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (10.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
+			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (20.0*NZCommand+5.0*(NZSteadyState-averageNZ))*hps->Scale;
 			else guidance_center_y = glideslope_center_y - (5.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
 			guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f diff: %f", averageNZ, NZCommand, NZCommand+NZSteadyState-averageNZ);
@@ -1570,7 +1570,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	NZCommand = CalculateNZCommand(velocity, TotalRange, -TgtPos.z, DeltaT);
 
 	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f TgtRadius: %f Radius: %f NZ: %f Bank: %f Angle: %f Range: %f", TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y,
-		//HAC_TurnRadius, radius, NZCommand, TargetBank, turn_angle, TotalRange);
+			  //HAC_TurnRadius, radius, NZCommand, TargetBank, turn_angle, TotalRange);
 	//sprintf_s(oapiDebugString(), 255, "PX: %f PY: %f PZ: %f VX: %f VY: %f VZ: %f", TgtPos.x, TgtPos.y, TgtPos.z,
 		//velocity.x, velocity.y, velocity.z);
 
@@ -1669,17 +1669,22 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	/**
 	 * Range above which linear altitude reference is used
 	 */
-	const double CUBIC_ALT_REF_CUTOFF_RANGE = 256527.82/MPS2FPS;
+	//const double CUBIC_ALT_REF_CUTOFF_RANGE = 256527.82/MPS2FPS;
+	const double CUBIC_ALT_REF_CUTOFF_RANGE = 308109.5/MPS2FPS;
 	/**
 	 * Reference height corresponding to range == CUBIC_ALT_REF_CUTOFF_RANGE
 	 */
-	const double CUBIC_ALT_REF_CUTOFF_HEIGHT = 78161.826/MPS2FPS;
-	const double LINEAR_GLIDESLOPE = 0.1112666;
+	//const double CUBIC_ALT_REF_CUTOFF_HEIGHT = 78161.826/MPS2FPS;
+	const double CUBIC_ALT_REF_CUTOFF_HEIGHT = 84821.29/MPS2FPS;
+	//const double LINEAR_GLIDESLOPE = 0.1112666;
+	const double LINEAR_GLIDESLOPE = 0.1125953;
 	/**
 	 * Constants for cubic altitude reference
 	 */
-	const double CUBIC_C3 = -4.7714787e-7 * MPS2FPS;
-	const double CUBIC_C4 = -2.4291527e-13 * MPS2FPS*MPS2FPS;
+	//const double CUBIC_C3 = -4.7714787e-7 * MPS2FPS;
+	//const double CUBIC_C4 = -2.4291527e-13 * MPS2FPS*MPS2FPS;
+	const double CUBIC_C3 = -0.3641168e-6 * MPS2FPS;
+	const double CUBIC_C4 = -0.9481026e-13 * MPS2FPS*MPS2FPS;
 	/**
 	 * Gain for calculating filteredDeltaNZComm
 	 */
@@ -1713,8 +1718,7 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	double refHDot = horzSpeed*tgtGs;
 	double HDotErr = refHDot + velocity.z;
 
-	//sprintf_s(oapiDebugString(), 255, "%s Gain: %f TgtAlt: %f refHDot: %f HDotErr: %f DNZC: %f", oapiDebugString(), gain, tgtAlt,
-		//refHDot, HDotErr, gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt)));
+	//sprintf_s(oapiDebugString(), 255, "Gain: %f TgtAlt: %f refHDot: %f HDotErr: %f DNZC: %f", gain, tgtAlt, refHDot, HDotErr, gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt)));
 
 	double NZC;
 	double deltaNZComm = gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt));	
@@ -1756,7 +1760,7 @@ double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 	else {
 		refQbar = range(180.0, 180.0+QBC1*(rangeToALI-PBRCQ), 220.0);
 	}
-	sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f", refQbar, filteredQBar, refQbar-filteredQBar);
+	//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f", refQbar, filteredQBar, refQbar-filteredQBar);
 	double QBarError = refQbar-filteredQBar;
 
 	return range(LOWER_LIM, 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT), UPPER_LIM);

@@ -333,6 +333,10 @@ private:
 	 * Updates internal variables used for calculations.
 	 */
 	void InitializeRunwayData();
+	/**
+ 	 * Returns position relative to runway
+ 	 * \note X=distance from runway (-ve) Y=offset from centerline Z=height (-ve)
+ 	 */
 	VECTOR3 GetRunwayRelPos() const;
 
 	/**
