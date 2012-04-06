@@ -82,6 +82,7 @@
     <ClCompile Include="KOST\kost_math.cpp" />
     <ClCompile Include="KOST\kost_propagate.cpp" />
     <ClCompile Include="KOST\kost_shape.cpp" />
+    <ClCompile Include="src\AerodynamicLookupTables.cpp" />
     <ClCompile Include="src\BasicValve.cpp" />
     <ClCompile Include="src\BIU.cpp" />
     <ClCompile Include="src\BusController.cpp" />
@@ -99,6 +100,7 @@
     <ClCompile Include="src\ValveTypeBool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AerodynamicLookupTables.h" />
     <ClInclude Include="include\BasicPanel.h" />
     <ClInclude Include="include\BasicVCComponent.h" />
     <ClInclude Include="include\BIU.h" />
