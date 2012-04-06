@@ -86,9 +86,6 @@
     <ClCompile Include="eps\ACMotorController.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="AerodynamicLookupTables.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\AftMDU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -380,9 +377,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="AC_resource.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="AerodynamicLookupTables.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AftMDU.h">

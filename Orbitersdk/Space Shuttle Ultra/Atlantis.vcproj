@@ -395,10 +395,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\AerodynamicLookupTables.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\AerojetDAP.cpp"
 				>
 			</File>
@@ -866,10 +862,6 @@
 			</File>
 			<File
 				RelativePath="AC_resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\AerodynamicLookupTables.h"
 				>
 			</File>
 			<File
