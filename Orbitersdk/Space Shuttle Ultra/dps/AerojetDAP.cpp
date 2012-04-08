@@ -147,7 +147,8 @@ ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to 
 //Roll_AileronRoll(0.15, 0.05, 0.00, -1.0, 1.0),
 Roll_AileronRoll(0.10, 0.20, 0.00, -1.0, 1.0),
 Yaw_RudderYaw(0.15, 0.05, 0.00, -1.0, 1.0),
-QBar_Speedbrake(1.5, 0.0, 0.1),
+QBar_Speedbrake(1.5, 0.0, 0.1, -100.0, 100.0, -200.0, 200.0),
+Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 lastVAccSum(0.0), lastVspeedSum(0.0), lastTargetAltitudeSum(0.0), tgtBankSign(1.0), performedFirstRollReversal(false),
@@ -579,7 +580,8 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		}
 
 		STS()->GetHorizonAirspeedVector(Velocity);
-		dOut = 661.47 * STS()->GetMachNumber() * sqrt(STS()->GetAtmPressure()/101325.0);
+		//dOut = 661.47 * STS()->GetMachNumber() * sqrt(STS()->GetAtmPressure()/101325.0);
+		dOut = STS()->GetKEAS();
 		sprintf(cbuf, "KEAS:%.0f", dOut);
 		skp->Text(hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
 		dOut=(STS()->GetAltitude()*3.280833)-17;
@@ -1603,7 +1605,7 @@ void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 			//TargetGlideslope = CalculateOGS(TgtPos);
 		}
 		//TargetHeading = RwyHeading-HeadingError*3.0;
-		if(STS()->GetAltitude() < 10000.0/MPS2FPS)
+		if(STS()->GetAltitude() < 10000.0/MPS2FPS) // test is actually more complicated than this
 			TAEMGuidanceMode = OGS;
 	}
 	if(TAEMGuidanceMode == OGS) {
@@ -1752,18 +1754,33 @@ double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 	const double QBC1 = 3.6086999E-4*MPS2FPS;
 	const double QBC2 = -1.1613301E-3*MPS2FPS;
 
-	double rangeToALI = predRange + X_AL_INTERCEPT; // positive in TAEM, negative on final approach
-	double refQbar = 0.0;
-	if(rangeToALI < PBRCQ) {
-		refQbar = range(180.0, 285.0+QBC2*rangeToALI, 285.0);
+	// use KEAS below 9000 feet and qbar above 9000 feet
+	// actual shuttle uses blended logic between 9000 and 14000 feet
+	if(STS()->GetAltitude() > 9000.0/MPS2FPS) {
+		double rangeToALI = predRange + X_AL_INTERCEPT; // positive in TAEM, negative on final approach
+		double refQbar = 0.0;
+		if(rangeToALI < PBRCQ) {
+			refQbar = range(180.0, 285.0+QBC2*rangeToALI, 285.0);
+		}
+		else {
+			refQbar = range(180.0, 180.0+QBC1*(rangeToALI-PBRCQ), 220.0);
+		}
+		//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f", refQbar, filteredQBar, refQbar-filteredQBar);
+		double QBarError = refQbar-filteredQBar;
+
+		double command = 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT);
+		sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f Command: %f", refQbar, filteredQBar, refQbar-filteredQBar, command);
+		//return range(LOWER_LIM, 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT), UPPER_LIM);
+		return range(LOWER_LIM, command, UPPER_LIM);
+	}
+	else if(STS()->GetAltitude() > 3000.0/MPS2FPS) {
+		return range(LOWER_LIM, 65.0 - Vel_Speedbrake.Step(300.0-STS()->GetKEAS(), DeltaT), UPPER_LIM);
 	}
 	else {
-		refQbar = range(180.0, 180.0+QBC1*(rangeToALI-PBRCQ), 220.0);
+		// what should happen is speedbrake is set to constant value below 3000 feet, and then updated at 500 feet
+		// for the moment, just used fixed value of 15%
+		return 15.0;
 	}
-	//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f", refQbar, filteredQBar, refQbar-filteredQBar);
-	double QBarError = refQbar-filteredQBar;
-
-	return range(LOWER_LIM, 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT), UPPER_LIM);
 }
 
 void AerojetDAP::InitiatePreflare()

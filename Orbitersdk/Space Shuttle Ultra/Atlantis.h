@@ -445,6 +445,7 @@ public:
 	virtual unsigned int GetGPCMajorMode() const;
 	virtual double GetTgtSpeedbrakePosition() const;
 	virtual double GetActSpeedbrakePosition() const;
+	virtual double GetKEAS() const;
 	virtual AnimState::Action GetGearState() const;
 	int GetSoundID() const;
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
