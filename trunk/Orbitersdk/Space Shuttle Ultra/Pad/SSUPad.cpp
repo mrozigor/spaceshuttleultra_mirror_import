@@ -662,6 +662,11 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 			SetThrusterLevel(thGOXVent[0], fFlow/5.0);
 			SetThrusterLevel(thGOXVent[1], fFlow/5.0);
 		}
+		else
+		{
+			SetThrusterLevel(thGOXVent[0], 0.0);
+			SetThrusterLevel(thGOXVent[1], 0.0);
+		}
 	}
 	else
 	{
