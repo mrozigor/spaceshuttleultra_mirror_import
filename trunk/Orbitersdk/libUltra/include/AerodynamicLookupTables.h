@@ -82,8 +82,10 @@ class ThreeDLookup
 	unsigned int lowerZIndex;
 public:
 	ThreeDLookup();
-	ThreeDLookup(const char* dataFile, bool _isHorizontalData = false);
+	ThreeDLookup(const char* dataFile, bool isHorizontalData = false);
 	virtual ~ThreeDLookup();
+
+	void Init(const char* dataFile, bool isHorizontalData = false);
 	
 	void GetValues(double mach, double aoa, double deflection, double& cl, double& cd, double& cm);
 

@@ -126,8 +126,13 @@ ThreeDLookup::ThreeDLookup()
 {
 }
 
-ThreeDLookup::ThreeDLookup(const char* dataFile, bool _isHorizontalData)
+ThreeDLookup::ThreeDLookup(const char* dataFile, bool isHorizontalData)
 : lowerZIndex(0)
+{
+	Init(dataFile, isHorizontalData);
+}
+	
+void ThreeDLookup::Init(const char* dataFile, bool isHorizontalData)
 {
 	std::ifstream dataIn(dataFile);
 	if(!dataIn.fail()) { // file was opened; read data
@@ -149,7 +154,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile, bool _isHorizontalData)
 			ReadCSVLine(line, machAoaValues);
 			std::getline(dataIn, line);
 			ReadCSVLine(line, normalData);
-			if(!_isHorizontalData) {
+			if(!isHorizontalData) {
 				std::getline(dataIn, line);
 				ReadCSVLine(line, axialData);
 			}
@@ -159,7 +164,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile, bool _isHorizontalData)
 			// make sure block of data is valid
 			bool countError = ( (machAoaValues.size() != 2) ||
 				( normalData.size() != deflectionRange.size()) ||
-				( !_isHorizontalData && (axialData.size() != deflectionRange.size()) ) ||
+				( !isHorizontalData && (axialData.size() != deflectionRange.size()) ) ||
 				( momentData.size() != deflectionRange.size()) );
 			if(countError) {
 				std::ostringstream message;
@@ -180,7 +185,7 @@ ThreeDLookup::ThreeDLookup(const char* dataFile, bool _isHorizontalData)
 			lastMach = machAoaValues[0];
 			lastAOA = machAoaValues[1];
 
-			if(_isHorizontalData) {
+			if(isHorizontalData) {
 				AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, momentData);
 				lineCount+=3;
 			}
