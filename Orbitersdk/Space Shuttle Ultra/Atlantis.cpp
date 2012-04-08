@@ -238,12 +238,11 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
   *cm=0;
 }
 
-//Aerodynamics::VerticalAerodynamicsLookup verticalLookup;
-//Aerodynamics::ElevonVerticalLookup elevonVerticalLookup;
-Aerodynamics::ThreeDLookup elevonVerticalLookup("Config/SSU_Elevon.csv");
-Aerodynamics::ThreeDLookup verticalLookup("Config/SSU_Aero.csv");
-Aerodynamics::ThreeDLookup bodyFlapVerticalLookup("Config/SSU_BodyFlap.csv");
-Aerodynamics::ThreeDLookup aileronHorizontalLookup("Config/SSU_Aileron.csv", true);
+// initialized in InitModule
+Aerodynamics::ThreeDLookup elevonVerticalLookup;
+Aerodynamics::ThreeDLookup verticalLookup;
+Aerodynamics::ThreeDLookup bodyFlapVerticalLookup;
+Aerodynamics::ThreeDLookup aileronHorizontalLookup;
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
@@ -7125,6 +7124,12 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 {
   g_Param.hDLL = hModule;
   oapiRegisterCustomControls (hModule);
+
+  // initialize aerodynamic lookup tables
+  elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
+  verticalLookup.Init("Config/SSU_Aero.csv");
+  bodyFlapVerticalLookup.Init("Config/SSU_BodyFlap.csv");
+  aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
   InitMissionManagementMemory();
   g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
