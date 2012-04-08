@@ -114,7 +114,8 @@ private:
 	PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
 	PIDControl Roll_AileronRoll; // converts roll angle error (in degrees) to aileron command
 	PIDControl Yaw_RudderYaw; // converts roll angle error (in degrees) to aileron command
-	PIDControl QBar_Speedbrake; // converts qbar error (in kPa) to speedbrake command
+	PIDControl QBar_Speedbrake; // converts qbar error (in kPa) to speedbrake command; used in TAEM phase
+	PIDControl Vel_Speedbrake; // converts speed error (KEAS) to speedbrake command; used in A/L phase
 	//PIDControl BodyFlap;
 	
 	DiscInPort PitchAuto, RollYawAuto;

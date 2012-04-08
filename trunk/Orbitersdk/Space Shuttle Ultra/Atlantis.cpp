@@ -5284,11 +5284,13 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	if (spdb_status >= AnimState::CLOSING) {
 		double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
+		double tgt = spdb_tgt; // once speedbrake has been opened, limit position to >15%
+		if(GetMachNumber() < 10.0) tgt = max(spdb_tgt, 0.15); // once speedbrake has been opened, limit position to >15%
 		if (spdb_status == AnimState::CLOSING) { // retract brake
-			if (spdb_proc > spdb_tgt) spdb_proc = max (spdb_tgt, spdb_proc-da);
+			if (spdb_proc > tgt) spdb_proc = max (tgt, spdb_proc-da);
 			else                 spdb_status = AnimState::CLOSED;
 		} else {                           // deploy antenna
-			if (spdb_proc < spdb_tgt) spdb_proc = min (spdb_tgt, spdb_proc+da);
+			if (spdb_proc < tgt) spdb_proc = min (tgt, spdb_proc+da);
 			else                 spdb_status = AnimState::OPEN;
 		}
 		SetAnimation (anim_spdb, spdb_proc);
@@ -7690,6 +7692,11 @@ double Atlantis::GetTgtSpeedbrakePosition() const
 double Atlantis::GetActSpeedbrakePosition() const
 {
 	return spdb_proc;
+}
+
+double Atlantis::GetKEAS() const
+{
+	return 661.47 * GetMachNumber() * sqrt(GetAtmPressure()/101325.0);
 }
 
 AnimState::Action Atlantis::GetGearState() const
