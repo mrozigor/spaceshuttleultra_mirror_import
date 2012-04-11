@@ -5,7 +5,7 @@
 #include "Orbitersdk.h"
 
 const static char* DEFAULT_MESHNAME_VC = "SSU/VC";
-const static char* DEFAULT_MESHNAME_KU = "SSU/KU";
+const static char* DEFAULT_MESHNAME_KU = "SSU/Ku_band_DA";
 const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
 const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
 //const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
@@ -35,8 +35,8 @@ const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
-const VECTOR3 LSRB_ATTACH_POS = _V(-6.55, -7.4, 2.8);
-const VECTOR3 RSRB_ATTACH_POS = _V(6.55, -7.4, 2.8);
+const VECTOR3 LSRB_ATTACH_POS = _V(-6.3, -7.7, 2.8);
+const VECTOR3 RSRB_ATTACH_POS = _V(6.3, -7.7, 2.8);
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
