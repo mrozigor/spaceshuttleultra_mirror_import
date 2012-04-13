@@ -7437,17 +7437,17 @@ void Atlantis::DefineKUBandAnimations()
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[3] = {GRP_DEA_KU, GRP_Hinge_connectors_KU, GRP_DEA_cable_KU};
-  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 3,
-    _V(2.63,1.385,11.653), _V(0,1,0), (float)(-145*RAD));
+  static UINT KuBand1Grp[2] = {GRP_DEA_KU, GRP_Hinge_connectors_KU};
+  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 2,
+    _V(2.595,1.366,11.752), _V(0,1,0), (float)(-145*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_Alpha_gimbal_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.405,2.044,10.589), _V(0.499838, -0.00223174, 0.866116), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
+    _V(2.294,1.974,10.774), _V(0.499838, -0.00223174, 0.866116), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
-  static UINT KuBand3Grp[1] = {GRP_Beta_gimbal_boom_KU};
-  static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 1,
-    _V(2.369,2.029,10.511), _V(-0.451635, 0.86964, 0.199378), (float)(23.25*RAD));//Data from the Ku band System Workbook
+  static UINT KuBand3Grp[4] = {GRP_Beta_gimbal_boom_KU, GRP_Gimbal_lock_structure_KU, GRP_Dish_KU, GRP_Dish_receiver_supports_KU};
+  static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
+    _V(2.241,1.975,10.67), _V(-0.451635, 0.86964, 0.199378), (float)(23.25*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
