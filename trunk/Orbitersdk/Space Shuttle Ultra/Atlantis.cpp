@@ -1058,12 +1058,12 @@ pActiveLatches(3, NULL)
 
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.4224,-1.26892,7.62); //forward stbd
-  PLBLightPosition[1] = _V(-1.4224,-1.26892,7.62); //forward port
-  PLBLightPosition[2] = _V(1.4224,-1.26892,1.8034);//mid stbd
-  PLBLightPosition[3] = _V(-1.4224,-1.26892,1.8034);//mid port
-  PLBLightPosition[4] = _V(1.4224,-1.26892,-2.30302);//aft stbd
-  PLBLightPosition[5] = _V(-1.4224,-1.26892,-2.30302);//aft port
+  PLBLightPosition[0] = _V(1.6,-1.1,7.88); //forward stbd
+  PLBLightPosition[1] = _V(-1.6,-1.1,7.88); //forward port
+  PLBLightPosition[2] = _V(1.6,-1.1,0.23);//mid stbd
+  PLBLightPosition[3] = _V(-1.6,-1.1,0.23);//mid port
+  PLBLightPosition[4] = _V(1.6,-1.1,-3.13);//aft stbd
+  PLBLightPosition[5] = _V(-1.6,-1.1,-3.13);//aft port
   static VECTOR3& color = _V(0.75,0.75,0.75);
   const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
   const COLOUR4 amb = {0.0, 0.0, 0};
@@ -1087,7 +1087,7 @@ pActiveLatches(3, NULL)
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
 	{
-		PLBLight[i] = AddPointLight(PLBLightPosition[i],20,0.5,0.4,0.001,
+		PLBLight[i] = AddPointLight(PLBLightPosition[i],20,0.5,0.8,0.001,
 			diff,spec,amb);
 	}
 
@@ -1850,10 +1850,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RCargoDoorGrp[3] = {GRP_CARGODOOROUTR, GRP_CARGODOORINR, GRP_RADIATORBR};
   MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 3,
-    _V(2.82, 1.39, 0), _V(0, 0, 1), (float)(-170.5*RAD));
+    _V(2.82, 1.39, 0), _V(0, 0, 1), (float)(-175.5*RAD));
   static UINT LCargoDoorGrp[3] = {GRP_CARGODOOROUTL,GRP_CARGODOORINL, GRP_RADIATORBL};
   MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 3,
-    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(170.5*RAD)); 
+    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(175.5*RAD)); 
 
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 1,
@@ -1901,19 +1901,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);
@@ -2111,14 +2111,14 @@ void Atlantis::DefineAnimations (void)
   // FRONT LEFT
   static UINT camFLYawGrp[1] = {GRP_PANTILT_FL};
   CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(-1.9,1.72,11.87), _V(0,1,0), (float)(340*RAD));
+    _V(-1.9,1.72,11.72), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   LogAnim("anim_camFLyaw", anim_camFLyaw);
   parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
   static UINT camFLPitchGrp[1] = {GRP_CCTV_FL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(-1.9,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
+    _V(-1.9,1.95,11.72), _V(-1,0,0), (float)(340*RAD));
   //anim_camFLpitch = CreateAnimation (0.5);
   anim_camFLpitch = CreateAnimation (0.7647);
   LogAnim("anim_camFLpitch", anim_camFLpitch);
@@ -2127,14 +2127,14 @@ void Atlantis::DefineAnimations (void)
   // FRONT RIGHT
   static UINT camFRYawGrp[1] = {GRP_PANTILT_FR};
   CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(1.863,1.72,11.87), _V(0,1,0), (float)(340*RAD));
+    _V(1.863,1.72,11.72), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   LogAnim("anim_camFRyaw", anim_camFRyaw);
   parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
   static UINT camFRPitchGrp[1] = {GRP_CCTV_FR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(1.863,1.95,11.87), _V(-1,0,0), (float)(340*RAD));
+    _V(1.863,1.95,11.72), _V(-1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.7647);
   LogAnim("anim_camFRpitch", anim_camFRpitch);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
@@ -6139,7 +6139,7 @@ bool Atlantis::clbkLoadVC (int id)
 		break;
   case VC_PLBCAMFL: //FL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
-    SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
+    SetCameraOffset (_V(orbiter_ofs.x-1.9,orbiter_ofs.y+1.95,orbiter_ofs.z+11.72));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_AFTWORKSTATION);
 
@@ -6150,7 +6150,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMFR: //FR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
-    SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.87));
+    SetCameraOffset (_V(orbiter_ofs.x+1.863,orbiter_ofs.y+1.95,orbiter_ofs.z+11.72));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTWORKSTATION);
 
@@ -6160,7 +6160,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
-    SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
+    SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31));
 	if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_AFTWORKSTATION);
 
@@ -6170,7 +6170,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
-    SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.01));
+    SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTWORKSTATION);
 
@@ -7443,7 +7443,7 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand2Grp[1] = {GRP_Alpha_gimbal_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.294,1.974,10.774), _V(0.499838, -0.00223174, 0.866116), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
+    _V(2.294,2.074,10.774), _V(0.499838, -0.00223174, 0.866116), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
   static UINT KuBand3Grp[4] = {GRP_Beta_gimbal_boom_KU, GRP_Gimbal_lock_structure_KU, GRP_Dish_KU, GRP_Dish_receiver_supports_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
