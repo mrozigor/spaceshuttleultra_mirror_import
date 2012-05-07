@@ -128,32 +128,34 @@ void RMSSystem::Realize()
 void RMSSystem::CreateArm()
 {
 	//NOTE: all MGROUP_ROTATEs will be deleted by Atlantis class
+	const VECTOR3 PitchAxis = RotateVectorZ(_V(1, 0, 0), RMS_ROLLOUT_ANGLE);
+	const VECTOR3 YawAxis = RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE);
 
 	//rollout animation
 	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMs, GRP_base};
 	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)(31.36*RAD));
+		_V(-2.643, 1.282, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
 	//shoulder yaw
 	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
 	MGROUP_ROTATE* pRMS_sy_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderYawGrp, 1,
-		RMS_SY_JOINT, _V(-0.321040041302228, 0.947065621739415, 0), (float)(-360*RAD)); // -180 .. +180
+		RMS_SY_JOINT, YawAxis, (float)(-360*RAD)); // -180 .. +180
 	anim_joint[SHOULDER_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, pRMS_sy_anim, parent);
 
 	//shoulder pitch
 	static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
 	MGROUP_ROTATE* pRMS_sp_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderPitchGrp, 1,
-		RMS_SP_JOINT, _V(0.948683298050514, 0.316227766016838, 0), (float)(147.0*RAD)); // -2 .. +145
+		RMS_SP_JOINT, PitchAxis, (float)(147.0*RAD)); // -2 .. +145
 	anim_joint[SHOULDER_PITCH] = STS()->CreateAnimation (0.0136);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, pRMS_sp_anim, parent);
 
 	//elbow pitch
-	static UINT RMSElbowPitchGrp[2] = {GRP_Radii, GRP_cambase};
+	static UINT RMSElbowPitchGrp[2] = {GRP_box, GRP_cambase};
 	MGROUP_ROTATE* pRMS_ep_anim = new MGROUP_ROTATE(mesh_index, RMSElbowPitchGrp, 2,
-		RMS_EP_JOINT, _V(0.948683598, 0.316226863954669, 0), (float)(163.4*RAD));
+		RMS_EP_JOINT, PitchAxis, (float)(163.4*RAD));
 	anim_joint[ELBOW_PITCH] = STS()->CreateAnimation (0.985312);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, pRMS_ep_anim, parent);
 
@@ -175,21 +177,21 @@ void RMSSystem::CreateArm()
 	//wrist pitch
 	static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
 	MGROUP_ROTATE* pRMS_wp_anim = new MGROUP_ROTATE(mesh_index, RMSWristPitchGrp, 1,
-		RMS_WP_JOINT, _V(0.949637404032871, 0.313350922867173, 0), (float)(242.8*RAD)); // -121.4 .. +121.4
+		RMS_WP_JOINT, PitchAxis, (float)(242.8*RAD)); // -121.4 .. +121.4
 	anim_joint[WRIST_PITCH] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_PITCH], 0, 1, pRMS_wp_anim, parent);
 
 	//wrist yaw
 	static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
 	MGROUP_ROTATE* pRMS_wy_anim = new MGROUP_ROTATE(mesh_index, RMSWristYawGrp, 1,
-		RMS_WY_JOINT, _V(0.314338082679218, -0.949311102735849, 0), (float)(-242.6*RAD)); // -121.3 .. +121.3
+		RMS_WY_JOINT, YawAxis, (float)(242.6*RAD)); // -121.3 .. +121.3
 	anim_joint[WRIST_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_YAW], 0, 1, pRMS_wy_anim, parent);
 
 	//wrist roll
 	static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
 	MGROUP_ROTATE* pRMS_wr_anim = new MGROUP_ROTATE(mesh_index, RMSEndEffectorGrp, 1,
-		_V(-2.844, 2.133, -5.52), _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
+		RMS_EE_POS, _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, pRMS_wr_anim, parent);
 
