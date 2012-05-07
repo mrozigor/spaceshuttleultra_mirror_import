@@ -214,7 +214,7 @@ LCC:SSU_LCC
   PAD_NAME LC39A
   SHUTTLE_NAME Discovery
 END
-Ultra_OBSS:Spacecraft\Spacecraft3
+Ultra_OBSS:SSU_OBSS
   STATUS Orbiting Earth
   ATTACHED 0:1,Discovery
   NAVFREQ 0 0
