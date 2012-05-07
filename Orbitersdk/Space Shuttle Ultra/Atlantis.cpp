@@ -479,11 +479,6 @@ pActiveLatches(3, NULL)
   panelc2		  = new PanelC2(this);
   //panelf7		  = new PanelF7(this);
 
-  oapiWriteLog("******************************************************");  
-  oapiWriteLog("(Space Shuttle Ultra) Say Dennis that he has disabled");
-  oapiWriteLog("(Space Shuttle Ultra) the RSLS and should fix it.");
-  oapiWriteLog("******************************************************");  
-  //rsls			= new dps::RSLS();
   rsls			= new dps::RSLS_old(this);
   //rsls = NULL;
   //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
