@@ -1,6 +1,6 @@
 // ========================================================
-// Mesh resource file for ../../Meshes/SSU/RMS.msh
-// Generated with meshc on Mon May 07 14:46:06 2012
+// Mesh resource file for RMS.msh
+// Generated with meshc on Tue May 08 06:49:32 2012
 
 // ========================================================
 
