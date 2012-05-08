@@ -4,7 +4,7 @@
 #include <UltraMath.h>
 
 RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
-	: MPMSystem(_director, "RMS", RMS_MESHNAME, _V(0.0, 0.0, 0.0), "G"), RMSCameraMode(NONE), bFirstStep(true)
+	: MPMSystem(_director, "RMS", RMS_MESHNAME, RMS_MESH_OFFSET, "G"), RMSCameraMode(NONE), bFirstStep(true)
 {
 	joint_pos[SHOULDER_YAW] = 0.5;
 	joint_pos[SHOULDER_PITCH] = 0.0136;
@@ -18,7 +18,7 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
 	arm_tip[4] = RMS_EE_POS+RMS_EE_CAM_OFFSET;
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
-	arm_ee_pos = _V(15.069, 0.0, 0.0);
+	arm_ee_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
 	arm_ee_rot = _V(0.0, 1.0, 0.0);
 	arm_ee_angles = _V(0.0, 0.0, 0.0);
 
@@ -220,7 +220,7 @@ void RMSSystem::CreateArm()
 void RMSSystem::CreateAttachment()
 {
 	if(!hAttach)
-		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
+		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 }
 
 bool RMSSystem::Movable() const 
@@ -443,7 +443,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	// if arm was moved, update attachment position and IK vectors/angles
 	// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
 	if(arm_moved) {
-		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
 		if(Eq(joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
