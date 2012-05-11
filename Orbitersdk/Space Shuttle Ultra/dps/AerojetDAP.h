@@ -250,8 +250,6 @@ private:
 	 * and lookup table to manipulate roll to maintain drag profile described at that table
 	 */
 	double CalculateTargetAOA(double mach) const;
-	void CalculateTargetRoll(double dT);
-	double CalculateTargetVSpeed(double actual_altitude, double target_altitude, double current_vspeed, double dT);
 	double CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double actual_vacc, double dT);
 	bool first_roll;
 	bool roll_command;

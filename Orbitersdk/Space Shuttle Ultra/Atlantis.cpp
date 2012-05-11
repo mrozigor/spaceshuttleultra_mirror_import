@@ -1062,7 +1062,7 @@ pActiveLatches(3, NULL)
   static VECTOR3& color = _V(0.75,0.75,0.75);
   const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
   const COLOUR4 amb = {0.0, 0.0, 0};
-  const COLOUR4 spec = {0.2, 0.2, 0.2,0};
+  const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
 
 	//CREATE BEACONS
 	for(int i=0; i<6; ++i)
