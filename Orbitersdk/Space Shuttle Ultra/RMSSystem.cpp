@@ -13,10 +13,11 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	joint_pos[WRIST_YAW] = 0.5;
 	joint_pos[WRIST_ROLL] = 0.5;
 	arm_tip[0] = RMS_EE_POS;
-	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // -Z coordinate of attachment point is negative, so subtract 1 here
-	arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
-	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
-	arm_tip[4] = RMS_EE_POS+RMS_EE_CAM_OFFSET;
+	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // to calculate EE attachment direction (-Z coordinate of attachment point is negative, so subtract 1 here)
+	//arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
+	arm_tip[2] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate rot vector for attachment
+	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
+	arm_tip[4] = RMS_EE_CAM_POS; // to calculate EE camera position
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
 	arm_ee_rot = _V(0.0, 1.0, 0.0);
@@ -167,7 +168,7 @@ void RMSSystem::CreateArm()
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
 	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
-		_V(-2.71472, 2.52002, 2.05612), _V(-0.951057, 0.309014, 0), (float)(340*RAD));
+		_V(-2.71472, 2.52002, 2.05612), _V(0.951057, -0.309014, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
 	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
@@ -620,8 +621,9 @@ void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 		change+=RotateVectorX(crossp(arm_ee_rot, arm_ee_dir), RMS_ROLLOUT_ANGLE)*dPos.y;
 		//RotateVectorX(change, -RMS_ROLLOUT_ANGLE);*/
 
-		VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
-		VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
+		//VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
+		//VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
+		VECTOR3 change=arm_ee_dir*dPos.x+arm_ee_rot*dPos.z+crossp(arm_ee_rot, arm_ee_dir)*dPos.y;
 		//MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
 		newPos = arm_ee_pos+change;
 	}
@@ -895,7 +897,7 @@ void RMSSystem::UpdateEECamView() const
 		double tilt = joint_angle[WRIST_ROLL];
 		if(tilt<-180.0) tilt+=360.0;
 		else if(tilt>180.0) tilt-=360.0;
-		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]);
+		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]+RMS_MESH_OFFSET);
 		STS()->SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], 0.0);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
@@ -905,7 +907,7 @@ void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
 		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-		STS()->SetCameraOffset(camRMSElbowLoc[0]);
+		STS()->SetCameraOffset(camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }

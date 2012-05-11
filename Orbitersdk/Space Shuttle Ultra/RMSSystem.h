@@ -86,7 +86,8 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
 //const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
-const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
+//const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
+const VECTOR3 RMS_EE_CAM_POS = _V(-3.025, 2.458, -5.592);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.681, 2.641, 1.806);
 
