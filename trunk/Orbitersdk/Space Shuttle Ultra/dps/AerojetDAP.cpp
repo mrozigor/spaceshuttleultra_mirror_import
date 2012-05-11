@@ -1962,84 +1962,6 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back(LandingSiteData(28.632944*RAD, -80.706035*RAD, 28.5970420*RAD, -80.6826540*RAD, 150.2505, "KSC15", "KSC33"));
 }
 
-void AerojetDAP::CalculateTargetRoll(double dT)
-{
-	double delAZ, range;
-	CalculateRangeAndDELAZ(range,delAZ);
-	double speed = STS()->GetAirspeed()*3.28/1000;
-	double alt = STS()->GetAltitude()/1000;
-	VECTOR3 vec;
-	VECTOR3 force, f;
-	STS()->GetForceVector(f);
-	STS()->HorizonRot(f,force);
-	//double v_acc = force.y/STS()->GetMass();
-	double v_acc = (last_vel - vec.y)*dT;
-	STS()->GetHorizonAirspeedVector(vec);
-	double target_height = dTable->Interpolate(speed)/3.28;
-	
-
-	
-
-	double delAZlimit = 10.5;
-
-	//EXECUTE FIRST ROLL
-	if(!first_roll && !roll_command && vec.y >= -73)
-	{
-		if(delAZ > 0)
-			target_bank = 79; //to the left
-		else
-			target_bank = -79;//to the right
-
-		roll_command = true;
-		first_roll = true;
-	}
-
-	//CHECK IF WE HAVE TO DO ROLL REVERSAL
-	if(first_roll && fabs(delAZ) >= delAZlimit)
-	{
-		target_bank = -target_bank;
-		roll_command = true;
-	}
-
-	if(first_roll && !roll_command)
-	{
-		target_vspeed = CalculateTargetVSpeed(STS()->GetAltitude(),target_height,vec.y,dT);
-		target_vacc = CalculateTargetVAcc(vec.y,target_vspeed,v_acc,dT);
-
-		//BANK PID
-		double vacc_err = target_vacc - v_acc;
-		if(vacc_err > 0) 
-		{
-			if(STS()->GetBank() > 0)
-				target_bank = max(target_bank - 1, 0);
-			else
-				target_bank = min(target_bank + 1, 0);
-
-			roll_command = true;
-		}
-		else
-		{
-			if(STS()->GetBank() > 0)
-				target_bank = min(target_bank + 1, 79);
-			else
-				target_bank = max(target_bank - 1, -79);
-
-			roll_command = true;
-		}
-
-			
-	}
-
-	//AT THE END CHECK IF WE ARE STILL MANEUVRING
-	if(fabs(target_bank - STS()->GetBank()*DEG) <= 0.2 && roll_command)
-		roll_command = false;
-
-	sprintf(oapiDebugString(),"Targets: Bank: %lf, VAcc: %lf,\n VSpeed: %lf, Altitude: %lf; A Vacc: %lf",target_bank,target_vacc,target_vspeed,target_height,v_acc);
-	//sprintf(oapiDebugString(),"Altitude error: %lf",target_height-alt);
-	last_vel = vec.y;
-
-}
-
 double AerojetDAP::CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double actual_vacc, double dT)
 {
 	double ref_vacc = 40; //when vertical speed difference equals this value, error will be corrected at vertical acceleration of 1m/s*s
@@ -2050,18 +1972,6 @@ double AerojetDAP::CalculateTargetVAcc(double actual_vspeed, double target_vspee
 	if(target_vspeed > actual_vspeed)
 		return min(actual_vacc + error/ref_vacc,1);
 	else return max(actual_vacc - error/ref_vacc, -1);
-}
-
-double AerojetDAP::CalculateTargetVSpeed(double actual_altitude, double target_altitude, double current_vspeed, double dT)
-{
-	double error = fabs(actual_altitude - target_altitude);
-	double correction_time = 360; //this value shows in how much time we will try to correct altitude error, the higher value, the longer correction time
-
-	if(target_altitude > actual_altitude)
-		return min(current_vspeed + error/correction_time,100);
-	
-	else if(target_altitude < actual_altitude)
-		return max(current_vspeed - error/correction_time,-100);
 }
 
 };

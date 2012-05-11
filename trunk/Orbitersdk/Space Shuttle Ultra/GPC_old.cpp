@@ -389,7 +389,7 @@ void Atlantis::Throttle(double dt)
 		case 1:
 			if(!bThrottle) return;
 			if(GetAirspeed()<18.288) 
-				SetSSMEThrustLevel(0.0, 100.0/109.0);
+				SetSSMEThrustLevel(0, 100.0/109.0);
 			else if(GetAirspeed()>=Throttle_Bucket[0] && GetAirspeed()<=Throttle_Bucket[1]) {
 				//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
 				//else SetSSMEThrustLevel(0, 72.0/109.0);
