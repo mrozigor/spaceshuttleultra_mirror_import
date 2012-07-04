@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="src\LambertBurnTargetingTests.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\PEG4TargetingTests.cpp" />
     <ClCompile Include="src\StateVectorPropagatorTests.cpp" />
   </ItemGroup>
   <ItemGroup>

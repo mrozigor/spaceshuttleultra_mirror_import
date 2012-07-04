@@ -6,6 +6,7 @@
 #include "StateVectorSoftware.h"
 #include "discsignals.h"
 #include <EngConst.h>
+#include <PEG4Targeting.h>
 
 namespace dps
 {
@@ -34,6 +35,10 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	VECTOR3 BurnAtt;
 	//double OMSGimbal[2][2]; //0=LOMS/PITCH, 1=ROMS/YAW
 
+	bool bCalculatingPEG4Burn;
+	PEG4Targeting peg4Targeting;
+
+	OBJHANDLE hEarth;
 	//ORBITPARAM oparam;
 	//ELEMENTS el;
 	double ApD, ApT, PeD, PeT;
@@ -70,6 +75,7 @@ public:
 	 */
 	void SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV);
 private:
+	void StartCalculatingPEG4Targets();
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
 	void UpdateOrbitData();

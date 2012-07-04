@@ -22,6 +22,7 @@ OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)
 BurnInProg(false), BurnCompleted(false),
 MnvrLoad(false), MnvrExecute(false), MnvrToBurnAtt(false),
 bShowTimer(false),
+bCalculatingPEG4Burn(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
 //propagator(0.2, 50, 7200.0),
@@ -32,6 +33,13 @@ pOrbitDAP(NULL), pStateVector(NULL)
 	TV_ROLL=0.0;
 	PEG7 = _V(0.0, 0.0, 0.0);
 	Trim = _V(0.0, 0.0, 0.0);
+
+	C1 = 0.0;
+	C2 = 0.0;
+	HT = 0.0;
+	ThetaT = 0.0;
+
+	hEarth = NULL;
 }
 
 OMSBurnSoftware::~OMSBurnSoftware()
@@ -61,6 +69,11 @@ void OMSBurnSoftware::Realize()
 	pOrbitDAP = static_cast<OrbitDAP*>(FindSoftware("OrbitDAP"));
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 
+	hEarth = STS()->GetGravityRef();
+	double J2 = 0;
+	if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
+	peg4Targeting.SetPlanetParameters(oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
+	
 	if(MnvrLoad) {
 		LoadManeuver(false); // BurnAtt should have been loaded from scenario; don't have state vectors, so it can't be calculated here
 		//if(MnvrToBurnAtt) STS()->LoadBurnAttManeuver(BurnAtt);
@@ -121,6 +134,21 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	//sprintf_s(oapiDebugString(), 255, "Propagation step Time: %f", propTime);
 
 	double met = STS()->GetMET();
+	if(bCalculatingPEG4Burn) {
+		if(peg4Targeting.Step()) {
+			VECTOR3 equDeltaV = peg4Targeting.GetDeltaV();
+			bCalculatingPEG4Burn = false;
+			if(peg4Targeting.Converged()) {
+				VECTOR3 tigPos, tigVel;
+				pStateVector->GetPropagatedStateVectors(ConvertDDHHMMSSToSeconds(TIG), tigPos, tigVel);
+				MATRIX3 RotMatrix = GetGlobalToLVLHMatrix(tigPos, tigVel, true);
+				PEG7 = mul(RotMatrix, equDeltaV)*MPS2FPS;
+				LoadManeuver();
+				//pOMSBurnSoftware->SetManeuverData(t1_tig, DeltaV);
+			}
+		}
+	}
+	
 	if(!MnvrLoad || met<tig) return; // no burn to perform, or we haven't reached TIG yet
 
 	// update VGO values
@@ -159,7 +187,6 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 		IgnitionTime=met;
 
 		// get VGO in orbitersim global frame; this vector will be updated every timestep
-		OBJHANDLE hEarth = STS()->GetGravityRef();
 		VECTOR3 pos, vel;
 		// this gets Orbitersim state vectors
 		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
@@ -256,7 +283,8 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 		return true;
 	}
 	else if(item==14 && GetMajorMode()!=202) {
-		C1=atof(Data);
+		dNew=atof(Data);
+		if(dNew >= 0.0 && dNew <= 99999.0) C1 = dNew;
 		return true;
 	}
 	else if(item==15 && GetMajorMode()!=202) {
@@ -267,20 +295,29 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 		return true;
 	}
 	else if(item==16 && GetMajorMode()!=202) {
-		HT=atof(Data);
+		dNew=atof(Data);
+		if(dNew >= 0.0 && dNew <= 999.999) HT = dNew;
 		return true;
 	}
 	else if(item==17 && GetMajorMode()!=202) {
-		ThetaT=atof(Data);
+		dNew=atof(Data);
+		if(dNew >= 0.0 && dNew <= 540.0) ThetaT = dNew;
 		return true;
 	}
 	else if(item>=19 && item<=21) {
 		dNew=atof(Data);
-		PEG7.data[item-19]=dNew;
+		if((item == 19 && fabs(dNew) <= 9999.9) || (item != 19 && fabs(dNew) <= 999.9)) {
+			PEG7.data[item-19]=dNew;
+		}
 		return true;
 	}
 	else if(item==22) {
-		if(GetMajorMode() != 303) LoadManeuver();
+		if(GetMajorMode() != 303) {
+			// in OPS 1 & 3, use PEG4 targets if PEG4 values are nonzero
+			// PEG 7 is always used in OPS 2 
+			if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) StartCalculatingPEG4Targets();
+			else LoadManeuver();
+		}
 		return true;
 	}
 	else if(item==23) {
@@ -413,10 +450,18 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 	pMDU->mvprint(0, 13, "TGT PEG 4");
 	pMDU->mvprint(1, 14, "14 C1");
+	sprintf(cbuf, "%05.0f", C1);
+	pMDU->mvprint(12, 14, cbuf);
 	pMDU->mvprint(1, 15, "15 C2");
+	sprintf(cbuf, "%+06.4f", C2);
+	pMDU->mvprint(10, 15, cbuf);
 	pMDU->mvprint(1, 16, "16 HT");
+	sprintf(cbuf, "%07.3f", HT);
+	pMDU->mvprint(10, 16, cbuf);
 	pMDU->Theta(4, 17);
 	pMDU->mvprint(1, 17, "17  T");
+	sprintf(cbuf, "%07.3f", ThetaT);
+	pMDU->mvprint(10, 17, cbuf);
 	pMDU->mvprint(1, 18, "18 PRPLT");
 
 	pMDU->mvprint(0, 19, "TGT PEG 7");
@@ -540,6 +585,10 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		sscanf(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 		return true;
 	}
+	else if(!_strnicmp(keyword, "PEG4", 4)) {
+		sscanf(value, "%lf%lf%lf%lf", &C1, &C2, &HT, &ThetaT);
+		return true;
+	}
 	else if(!_strnicmp(keyword, "Trim", 4)) {
 		sscanf(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
 		return true;
@@ -576,6 +625,10 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	char cbuf[255];
 	oapiWriteScenario_int(scn, "OMS", OMS);
 	oapiWriteScenario_vec(scn, "PEG7", PEG7);
+	if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) { // save PEG4 targets
+		sprintf_s(cbuf, 255, "%f %f %f %f", C1, C2, HT, ThetaT);
+		oapiWriteScenario_string(scn, "PEG4", cbuf);
+	}
 	oapiWriteScenario_vec(scn, "Trim", Trim);
 	oapiWriteScenario_vec(scn, "BURN_ATT", BurnAtt);
 	oapiWriteScenario_float(scn, "WT", WT);
@@ -593,6 +646,26 @@ void OMSBurnSoftware::SetManeuverData(double maneuverTIG, const VECTOR3& maneuve
 	PEG7 = maneuverDV*MPS2FPS;
 }
 
+void OMSBurnSoftware::StartCalculatingPEG4Targets()
+{
+	bCalculatingPEG4Burn = true;
+	VECTOR3 initialPos, initialVel;
+	pStateVector->GetPropagatedStateVectors(ConvertDDHHMMSSToSeconds(TIG), initialPos, initialVel);
+
+	// calculate acceleration
+	// assume single-OMS or 2-OMS burn (no RCS burns) for the moment
+	double StartWeight = WT*LBM;
+	double thrust = ORBITER_OMS_THRUST;
+	if(OMS == 0) thrust = ORBITER_OMS_THRUST*2;
+	double acceleration = thrust/StartWeight;
+	
+	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, ThetaT*RAD, initialPos, initialVel, acceleration);
+	
+	char cbuf[255];
+	sprintf_s(cbuf, "PEG4 Initial state: %f %f %f %f %f %f", initialPos.x, initialPos.y, initialPos.z, initialVel.x, initialVel.y, initialVel.z);
+	oapiWriteLog(cbuf);
+}
+	
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;
@@ -665,8 +738,6 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		}*/
 
 		// convert LVLH angles to inertial angles at TIG
-		OBJHANDLE hEarth = STS()->GetGravityRef();
-		//double timeToBurn=tig-STS()->GetMET();
 		VECTOR3 equPos, equVel, eclPos, eclVel;
 		// TODO: use VesselState class here
 		//ELEMENTS el;
