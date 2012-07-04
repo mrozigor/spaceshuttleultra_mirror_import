@@ -40,7 +40,7 @@ const double AXIS_TILT = 23.4458878*RAD;
  * Converts current elements to state vector at a future time
  * Wrapper for kost functions; all input and output is in Orbiter frames/data structures
  */
-void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass=0.0);
+//void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass=0.0);
 
 //Math
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
@@ -84,8 +84,8 @@ VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
  */
 MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness = false);
 
-VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
-void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
+//VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
+//void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
 int tpir(const double* list, int n_items, double target);
@@ -232,3 +232,4 @@ static inline VECTOR3 RotateVectorZ(const VECTOR3 &v, double angle) //rotates ab
 	Output.z=v.z;
 	return Output;
 }
+

@@ -8,6 +8,14 @@
 
 namespace dps
 {
+	
+void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel)
+{
+	MATRIX3 obliquityMatrix;
+	oapiGetPlanetObliquityMatrix(hPlanet, &obliquityMatrix);
+	eclPos=mul(obliquityMatrix, equPos);
+	eclVel=mul(obliquityMatrix, equVel);
+}
 
 OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "OMSBurnSoftware"),

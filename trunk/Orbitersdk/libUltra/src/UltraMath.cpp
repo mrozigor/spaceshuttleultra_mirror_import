@@ -22,7 +22,7 @@ unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	return 0; // we should never hit this point
 }
 
-void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass)
+/*void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass)
 {
 	double mu = GGRAV*(oapiGetMass(hPlanet)+vesselMass);
 	kostStateVector state;
@@ -38,7 +38,7 @@ void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elemen
 	oapiGetPlanetObliquityMatrix(hPlanet, &obliquityMatrix);
 	pos=mul(obliquityMatrix, pos);
 	vel=mul(obliquityMatrix, vel);
-}
+}*/
 
 VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
 {	
@@ -401,7 +401,7 @@ MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool chang
 				z_unit.x, z_unit.y, z_unit.z);
 }
 
-VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
+/*VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 {
 	VECTOR3 v;
 	oapiEquToLocal(hPlanet, lng, lat, rad, &v);
@@ -414,7 +414,7 @@ void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& eq
 	oapiGetPlanetObliquityMatrix(hPlanet, &obliquityMatrix);
 	eclPos=mul(obliquityMatrix, equPos);
 	eclVel=mul(obliquityMatrix, equVel);
-}
+}*/
 
 int tpir(const double* list, int n_items, double target) {
 	// char buf[64];
