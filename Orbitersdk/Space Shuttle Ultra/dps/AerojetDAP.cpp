@@ -137,6 +137,13 @@ void DrawHUDGuidanceTriangles(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, dou
 	DrawTriangle(skp, rightTrianglePt1, rightTrianglePt2, rightTrianglePt3);
 }
 
+VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
+{
+	VECTOR3 v;
+	oapiEquToLocal(hPlanet, lng, lat, rad, &v);
+	return v;
+}
+
 AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AerojetDAP"),
 bFirstStep(true), bSecondStep(false), bWONG(false), OrbiterMass(1.0),
