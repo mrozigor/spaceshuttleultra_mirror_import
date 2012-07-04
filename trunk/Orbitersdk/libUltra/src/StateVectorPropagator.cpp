@@ -6,7 +6,7 @@
 	//: curPos(pos), curVel(vel), curMET(currentMET), vesselMass(_vesselMass)
 StateVectorPropagator::StateVectorPropagator(double propagationStepLength, int _iterationsPerStep, double _maxPropagationTime)
 	: stepLength(propagationStepLength), iterationsPerStep(_iterationsPerStep), maxPropagationTime(_maxPropagationTime),
-	lastSaveMET(-1000.0), maxPropMET(-1000.0), propMET(0)
+	lastSaveMET(-1000.0), maxPropMET(-1000.0), propMET(0), perturbFunction(NULL)
 {
 }
 
@@ -20,6 +20,11 @@ void StateVectorPropagator::SetParameters(double vesselMass, double planetMass, 
 	mu = GGRAV*(planetMass+vesselMass);
 	planetRadius = _planetRadius;
 	J2 = J2Coeff;
+}
+
+void StateVectorPropagator::DefinePerturbations(PropagatorPerturbation* pertubations)
+{
+	perturbFunction = pertubations;
 }
 
 void StateVectorPropagator::UpdateVesselMass(double vesselMass)
@@ -240,11 +245,12 @@ void StateVectorPropagator::Propagate(unsigned int iterationCount, double DeltaT
 		VECTOR3 finalGrav;
 		CalculateAccelerationVector(finalGrav);
 		propVel += (initialGrav+finalGrav)*0.5*DeltaT;
+		propMET += DeltaT;
 	}
-	propMET += iterationCount*DeltaT;
+	//propMET += iterationCount*DeltaT;
 }
 
-void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& grav) const
+void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& acc) const
 {
 	double lat = asin(propPos.y/length(propPos));
 	double r = length(propPos);
@@ -257,7 +263,8 @@ void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& grav) const
 	VECTOR3 theta_hat = crossp(r_hat, phi);
 	theta_hat/=length(theta_hat);
 
-	grav = r_hat*a_r + theta_hat*a_theta;
+	acc = r_hat*a_r + theta_hat*a_theta;
+	if(perturbFunction) acc += perturbFunction->GetAcceleration(propMET, propPos, propVel);
 }
 
 double GetTimeToRadius(double radius, const ELEMENTS& el, double mu)

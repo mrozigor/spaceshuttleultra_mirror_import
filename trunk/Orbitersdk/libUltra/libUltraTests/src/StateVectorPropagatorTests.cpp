@@ -146,3 +146,64 @@ TEST(StateVectorPropagatorTest, CalculatesTimeToAltBeforePropagation) {
 	double METAt119k = propagator.GetMETAtAltitude(INITIAL_MET, 119e3);
 	EXPECT_NEAR(METAt119k, 1375279.239478, 40.0);
 }
+
+class TestPerturbation : public PropagatorPerturbation
+{
+	double planetRadius, J2, GM;
+public:
+	TestPerturbation(double planetMass, double radius, double J2)
+	{
+		GM = GGRAV*planetMass;
+		planetRadius = radius;
+		this->J2 = J2;
+	}
+	
+	// copied from StateVectorPropagator::CalculateAccelerationVector (06/15/12)
+	// should result in zero total acceleration
+	VECTOR3 GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel)
+	{
+		double lat = asin(equPos.y/length(equPos));
+		double r = length(equPos);
+		// acceleration magnitudes in r and theta directions
+		double a_r = -GM/(r*r) + 1.5*(GM*planetRadius*planetRadius*J2/pow(r, 4))*(3*pow(sin(lat), 2) - 1);
+		double a_theta = -3*(GM*planetRadius*planetRadius*J2/pow(r, 4))*sin(lat)*cos(lat);
+		// unit vectors
+		VECTOR3 r_hat = equPos/r;
+		VECTOR3 phi = crossp(_V(0, 1, 0), r_hat);
+		VECTOR3 theta_hat = crossp(r_hat, phi);
+		theta_hat/=length(theta_hat);
+
+		return -(r_hat*a_r + theta_hat*a_theta);
+	}
+};
+
+TEST(StateVectorPropagatorTest, Perturbations) {
+	const double EARTH_MASS = 5973698968000000000000000.0;
+	const double EARTH_RADIUS = 6371010.0;
+	const double J2 = 0.001083;
+
+	const VECTOR3 INITIAL_POS = _V(5056798.528649, -547320.350203, -4271363.579233);
+	const VECTOR3 INITIAL_VEL = _V(0.0, 0.0, 0.0);
+	
+	StateVectorPropagator propagator(0.2, 50, 4000.0);
+	propagator.SetParameters(96904.650960, EARTH_MASS, EARTH_RADIUS, J2);
+	propagator.UpdateStateVector(INITIAL_POS, INITIAL_VEL, 0.0);
+
+	TestPerturbation perturbation(EARTH_MASS, EARTH_RADIUS, J2);
+	propagator.DefinePerturbations(&perturbation);
+	double met = 0.0;
+	for(int i=0;i<10000;i++) {
+		met+=0.05; // 20 fps framerate
+		propagator.Step(met, 0.05);
+	}
+	
+	VECTOR3 pos, vel;
+	propagator.GetStateVectors(4000.0, pos, vel); // must be max propagation time to prevent propagation using elliptical orbit
+	EXPECT_NEAR(pos.x, INITIAL_POS.x, 100.0);
+	EXPECT_NEAR(pos.y, INITIAL_POS.y, 100.0);
+	EXPECT_NEAR(pos.z, INITIAL_POS.z, 100.0);
+	EXPECT_NEAR(vel.x, INITIAL_VEL.x, 10.0);
+	EXPECT_NEAR(vel.y, INITIAL_VEL.y, 10.0);
+	EXPECT_NEAR(vel.z, INITIAL_VEL.z, 10.0);
+
+}

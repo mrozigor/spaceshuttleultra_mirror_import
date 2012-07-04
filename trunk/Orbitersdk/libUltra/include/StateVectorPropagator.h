@@ -6,6 +6,12 @@
 #include "..\KOST\kost.h"
 #include <map>
 
+class PropagatorPerturbation
+{
+public:
+	virtual VECTOR3 GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel) = 0;
+};
+
 class StateVectorPropagator
 {
 	typedef std::map<double, kostStateVector> StateVectorMap;
@@ -28,6 +34,7 @@ class StateVectorPropagator
 	double propMET;
 
 	double mu, GM, planetRadius, J2;
+	PropagatorPerturbation* perturbFunction;
 	//double vesselMass;
 public:
 	//StateVectorPropagator(const VECTOR3& pos, const VECTOR3& vel, OBJHANDLE hPlanet, double _vesselMass, double currentMET);
@@ -35,6 +42,12 @@ public:
 	~StateVectorPropagator();
 
 	void SetParameters(double vesselMass, double planetMass, double _planetRadius, double J2Coeff);
+	/**
+	 * Sets functor used to calculate perturbations (drag, thrust, etc.)
+	 * Caller is responsible for ensuring object is not deleted while propagator is in use
+	 * \param pertubations pointer to functor which will return perturbation acceleration for each timestep - NULL if no perturbations
+	 */
+	void DefinePerturbations(PropagatorPerturbation* pertubations);
 	void UpdateVesselMass(double vesselMass);
 	/**
 	 * Updates state vector if last set of state vectors has been propagated to limit or difference between new and existing state vectors exceeds limit
@@ -64,7 +77,7 @@ public:
 	double GetMETAtAltitude(double currentMET, double altitude) const;
 private:
 	void Propagate(unsigned int iterationCount, double DeltaT);
-	void CalculateAccelerationVector(VECTOR3& grav) const;
+	void CalculateAccelerationVector(VECTOR3& acc) const;
 };
 
 /**
