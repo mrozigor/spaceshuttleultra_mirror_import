@@ -24,5 +24,8 @@
     <ClCompile Include="src\LambertBurnTargetingTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PEG4TargetingTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
