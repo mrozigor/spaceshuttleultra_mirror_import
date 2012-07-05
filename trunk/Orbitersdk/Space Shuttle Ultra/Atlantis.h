@@ -818,20 +818,6 @@ private:
 	void OMSTVC(const VECTOR3 &Rates, double SimDT);
 	//void GimbalOMS(const VECTOR3 &Targets);
 
-	//DAP
-	//VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &Angles);
-	//VECTOR3 ConvertVectorBetweenOrbiterAndM50(const VECTOR3 &Input);
-	//VECTOR3 ConvertLVLHAnglesToM50(const VECTOR3 &Input);
-	//MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &Input);
-	//calc attitude/attitude error
-	//VECTOR3 CalcLVLHAttitude();
-	//VECTOR3 CalcRelLVLHAttitude(VECTOR3 &Target);
-	//VECTOR3 CalcPitchYawRollAngles(VECTOR3 &RelAttitude);
-	//MATRIX3 CalcPitchYawRollRotMatrix(); //handles M50 coordinates
-	//VECTOR3 CalcPitchYawRollAngles(); //handles M50 coordinates
-	//bool CheckLimits(double dNum1, double dNum2, double dLim);
-	//double NullStartAngle(double Rates, AXIS Axis) const;
-
 	void UpdateTranslationForces();
 
 	void UpdateOrbiterTexture(const std::string& strTextureName);
