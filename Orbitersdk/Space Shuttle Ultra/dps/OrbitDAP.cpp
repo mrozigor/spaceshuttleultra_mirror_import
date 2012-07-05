@@ -1627,8 +1627,8 @@ VECTOR3 OrbitDAP::GetCurrentLVLHAttitude() const
 	VECTOR3 H = crossp(Status.rpos, Status.rvel);
 	VECTOR3 RefAttitude = GetPYR2(Status.rvel, H);
 
-	RotateVector(PitchUnit, RefAttitude, GlobalPts.Pitch);
-	RotateVector(YawRollUnit, RefAttitude, GlobalPts.Yaw);
+	RotateVectorLH(PitchUnit, RefAttitude, GlobalPts.Pitch);
+	RotateVectorLH(YawRollUnit, RefAttitude, GlobalPts.Yaw);
 	GlobalPts.Pitch = GlobalPos + GlobalPts.Pitch;
 	GlobalPts.Yaw = GlobalPos + GlobalPts.Yaw;	
 	STS()->Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
@@ -1650,9 +1650,9 @@ VECTOR3 OrbitDAP::ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, LocalToGlobal;
 	//MATRIX3 M50, RotMatrixM50, LocalToGlobal;
 
-	GetRotMatrixX(radAngles.x, RotMatrixX);
-	GetRotMatrixY(radAngles.y, RotMatrixY);
-	GetRotMatrixZ(radAngles.z, RotMatrixZ);
+	GetRotMatrixX(-radAngles.x, RotMatrixX);
+	GetRotMatrixY(-radAngles.y, RotMatrixY);
+	GetRotMatrixZ(-radAngles.z, RotMatrixZ);
 
 	STS()->GetRotationMatrix(LocalToGlobal);
 	//transpose matrix
@@ -1707,8 +1707,8 @@ MATRIX3 OrbitDAP::CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) 
 	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
 	//RotateVector(PitchUnit, RelAttitude, PitchUnit);
 	//RotateVector(YawRollUnit, RelAttitude, YawRollUnit);
-	RotateVector(PitchUnit, radTargetAttOrbiter, GlobalPts.Pitch);
-	RotateVector(YawRollUnit, radTargetAttOrbiter, GlobalPts.Yaw);
+	RotateVectorLH(PitchUnit, radTargetAttOrbiter, GlobalPts.Pitch);
+	RotateVectorLH(YawRollUnit, radTargetAttOrbiter, GlobalPts.Yaw);
 	GlobalPts.Pitch = GlobalPos + GlobalPts.Pitch;
 	GlobalPts.Yaw = GlobalPos + GlobalPts.Yaw;	
 	STS()->Global2Local(GlobalPts.Pitch, LocalPts.Pitch);

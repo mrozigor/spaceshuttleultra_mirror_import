@@ -616,6 +616,9 @@ void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)
 void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 {
 	if(RMSMode[5].IsSet()) { // END EFF
+		// Reference Frame:
+		// X: in direction of EE (arm_ee_dir) Z: opposite to camera direction (-arm_ee_rot) Y: completes RH frame
+		
 		/*VECTOR3 change=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE)*dPos.x;
 		change+=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE)*dPos.z;
 		change+=RotateVectorX(crossp(arm_ee_rot, arm_ee_dir), RMS_ROLLOUT_ANGLE)*dPos.y;
@@ -623,7 +626,7 @@ void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 
 		//VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
 		//VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
-		VECTOR3 change=arm_ee_dir*dPos.x+arm_ee_rot*dPos.z+crossp(arm_ee_rot, arm_ee_dir)*dPos.y;
+		VECTOR3 change=arm_ee_dir*dPos.x-arm_ee_rot*dPos.z+crossp(-arm_ee_rot, arm_ee_dir)*dPos.y;
 		//MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
 		newPos = arm_ee_pos+change;
 	}
@@ -635,18 +638,19 @@ void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 
 void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 {
-	static const VECTOR3 inDir=_V(0.0, 0.0, -1.0);
-	static const VECTOR3 inRot=RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
+	//static const VECTOR3 inDir=_V(0.0, 0.0, -1.0);
+	//static const VECTOR3 inRot=RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE);
 	//VECTOR3 newDir, newRot;
 
 	if(RMSMode[5].IsSet()) { // END EFF mode
 		// NOTE: EE mode rotates relative to camera orientation
 		// we do not need to compensate for angle with RMS and shuttle frames
-		VECTOR3 y_axis = crossp(arm_ee_rot, arm_ee_dir);
+		// in EE mode, Z-axis is in opposited direction to arm_ee_rot
+		VECTOR3 y_axis = crossp(-arm_ee_rot, arm_ee_dir);
 		// create rotation matrix corresponding to current orientation
-		MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, arm_ee_rot.x,
-							   arm_ee_dir.y, y_axis.y, arm_ee_rot.y,
-							   arm_ee_dir.z, y_axis.z, arm_ee_rot.z);
+		MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, -arm_ee_rot.x,
+							   arm_ee_dir.y, y_axis.y, -arm_ee_rot.y,
+							   arm_ee_dir.z, y_axis.z, -arm_ee_rot.z);
 		//MATRIX3 RotMatrix = RotationMatrix(arm_ee_dir, , arm_ee_rot);
 		MATRIX3 RotMatrixRoll, RotMatrixPitch, RotMatrixYaw;
 		GetRotMatrixX(dAngles.data[ROLL], RotMatrixRoll);
@@ -658,7 +662,7 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		RotMatrix = mul(RotMatrix, RotMatrixRoll);
 
 		newDir = _V(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31);
-		newRot = _V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
+		newRot = -_V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
 
 		/*VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 		// NOTE: for math to work, we need to swap yaw and pitch angles
@@ -689,8 +693,9 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		//newRot=_V(-newRot.z, -newRot.x, newRot.y);
 		newDir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 		newRot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
-		RotateVectorPYR(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
-		RotateVectorPYR(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+		// NOTE: internal IK frame is left-handed, so use LH rotations
+		RotateVectorLH(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+		RotateVectorLH(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
 		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
 		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
 
