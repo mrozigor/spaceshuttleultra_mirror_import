@@ -56,7 +56,21 @@ void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Resu
 VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 //VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
-VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
+/**
+ * Returns Euler angles (in radians); Pitch=Y axis, Yaw=Z axis, Roll=Z axis
+ */
+VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix); 
+/**
+ * Returns Euler angles (in radians)
+ * Value for each axis corresponds to angle around that axis
+ */
+VECTOR3 GetZYXAnglesFromMatrixLH(const MATRIX3 &RotMatrix); // returns angles in radians
+/**
+ * Returns rotation matrix corresponding to given Euler angles
+ * Rotation is performed in YZX order - this corresponds to PYR order for shuttle body axis & LVLH frames
+ * \param Angles Angle of rotation about each axis
+ */
+MATRIX3 GetRotationMatrixYZX(const VECTOR3& Angles);
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
@@ -66,13 +80,22 @@ double NullStartAngle(double radRate, double Mass, double Moment, double Torque)
  */
 double RotationRateChange(double Mass, double Moment, double Torque, double DeltaT);
 
-VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
-MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
-MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel);
+//VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
+//MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
+//MATRIX3 ConvertMatrixFromOrbiterToM50(const MATRIX3 &RotMatrix);
+/**
+ * Converts vessel rotation matrix (returned by VESSEL::GetRotationMatrix) to M50 frame.
+ * Also transforms body axis frame to shuttle body axis frame (i.e. +X pointing forward, +Z pointing down).
+ * \returns Rotation matrix to convert between body axis and M50 frame
+ */
+MATRIX3 ConvertOrbitersimRotationMatrixToM50(const MATRIX3 &RotMatrix);
+//MATRIX3 ConvertOrbitersimAnglesToM50Matrix(const VECTOR3 &radAngles);
+//MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel);
 /**
 * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to angles in shuttle body frame.
 */
-VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
+//VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
+MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM);
 
 /**
  * Returns matrix to convert direction vector in global frame to LVLH frame
@@ -153,6 +176,14 @@ static inline MATRIX3 Transpose(const MATRIX3& m)
 	return _M(m.m11, m.m21, m.m31,
 			  m.m12, m.m22, m.m32,
 			  m.m13, m.m23, m.m33);
+}
+
+/**
+ * Returns rotation matrix representing angle from current to target matrix
+ */
+static inline MATRIX3 GetRotationErrorMatrix(const MATRIX3& cur, const MATRIX3& tgt)
+{
+	return mul(Transpose(cur), tgt);
 }
 
 static inline bool Eq(const double d1, const double d2, double dDiff=0.00001)

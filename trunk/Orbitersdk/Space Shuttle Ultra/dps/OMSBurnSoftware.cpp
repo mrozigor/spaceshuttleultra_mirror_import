@@ -16,6 +16,19 @@ void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& eq
 	eclPos=mul(obliquityMatrix, equPos);
 	eclVel=mul(obliquityMatrix, equVel);
 }
+	
+/**
+ * Converts LVLH angles (in radians) to M50 angles (in radians)
+ * \param equPos position in right-handed equatorial frame (i.e. frame returned by StateVectorSoftware, converted to RH)
+ * \param equVel velocity in right-handed equatorial frame (i.e. frame returned by StateVectorSoftware, converted to RH)
+ */
+VECTOR3 ConvertLVLHAnglesToM50Angles(const VECTOR3& radLVLHAngles, const VECTOR3& equPos, const VECTOR3& equVel)
+{
+	MATRIX3 tgtLVLHMatrix = GetRotationMatrixYZX(_V(radLVLHAngles.data[ROLL], radLVLHAngles.data[PITCH], radLVLHAngles.data[YAW]));
+	MATRIX3 LVLHMatrix = Transpose(GetGlobalToLVLHMatrix(equPos, equVel));
+	MATRIX3 M50Matrix = mul(LVLHMatrix, tgtLVLHMatrix);
+	return GetYZXAnglesFromMatrix(M50Matrix);
+}
 
 OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "OMSBurnSoftware"),
@@ -746,9 +759,10 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		//PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
 		//propagator.GetStateVectors(tig, equPos, equVel);
 		pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
-		ConvertEquToEcl(hEarth, equPos, equVel, eclPos, eclVel);
-		MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
-		BurnAtt=GetXYZAnglesFromMatrix(M50Matrix)*DEG;
+		equPos = ConvertBetweenLHAndRHFrames(equPos);
+		equVel = ConvertBetweenLHAndRHFrames(equVel);
+		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
+		BurnAtt = ConvertLVLHAnglesToM50Angles(radLVLHBurnAtt, equPos, equVel)*DEG;
 	}
 
 	//use rocket equation (TODO: Check math/formulas here)
@@ -768,13 +782,17 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
 {
 	double metAtEI = pStateVector->GetMETAtAltitude(EI_ALT);
-	VECTOR3 EIPos, EIVel, EIEclPos, EIEclVel;
+	//VECTOR3 EIPos, EIVel, EIEclPos, EIEclVel;
+	VECTOR3 EIPos, EIVel;
 	pStateVector->GetPropagatedStateVectors(metAtEI, EIPos, EIVel);
+	EIPos = ConvertBetweenLHAndRHFrames(EIPos);
+	EIVel = ConvertBetweenLHAndRHFrames(EIVel);
 	// TODO: move this into separate function
-	ConvertEquToEcl(STS()->GetGravityRef(), EIPos, EIVel, EIEclPos, EIEclVel);
+	//ConvertEquToEcl(STS()->GetGravityRef(), EIPos, EIVel, EIEclPos, EIEclVel);
 	const VECTOR3 EI_ATT = _V(40.0*RAD, 0.0, 0.0);
-	MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(EI_ATT, EIEclPos, EIEclVel);
-	degAtt = GetXYZAnglesFromMatrix(M50Matrix)*DEG;
+	//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(EI_ATT, EIEclPos, EIEclVel);
+	//degAtt = GetYZXAnglesFromMatrix(M50Matrix)*DEG;
+	degAtt = ConvertLVLHAnglesToM50Angles(EI_ATT, EIPos, EIVel)*DEG;
 }
 
 void OMSBurnSoftware::UpdateOrbitData()
