@@ -504,8 +504,8 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			VECTOR3 EETrans, newDir, newRot;
 			if(RefFrame==BASE_FRAME) {
 				EETrans=THCInput;
-				RotateVectorPYR(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
-				RotateVectorPYR(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
+				RotateVectorLH(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
+				RotateVectorLH(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
 			}
 			else if(RefFrame==EE_FRAME) {
 				//EETrans = _V(THCInput.x*arm_ee_dir.x, THCInput.y*arm_ee_dir.y, THCInput.z*arm_ee_dir.z);

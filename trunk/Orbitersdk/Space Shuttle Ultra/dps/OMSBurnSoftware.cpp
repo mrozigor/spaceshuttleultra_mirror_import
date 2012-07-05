@@ -716,7 +716,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	if(calculateBurnAtt) {
 		VECTOR3 radLVLHBurnAtt;
 		radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
-		radLVLHBurnAtt.data[YAW]=asin(ThrustDir.x); //check signs here
+		radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
 		// compensate for roll
 		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
@@ -729,7 +729,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 			if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 			else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
 		}
-		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]-=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
+		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
 		radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
 		/*if(TV_ROLL!=0.0) {
 		double dTemp=BurnAtt.data[PITCH];
