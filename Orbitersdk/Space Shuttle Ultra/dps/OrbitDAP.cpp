@@ -9,14 +9,8 @@ namespace dps
 void SaveAttManeuver(FILEHANDLE scn, char* item, const AttManeuver& maneuver)
 {
 	char cbuf[255];
-	if(maneuver.Type==AttManeuver::MNVR) {
-		sprintf_s(cbuf, 255, "%d %f %f %f", maneuver.Type,
-			maneuver.radTargetAttOrbiter.data[PITCH], maneuver.radTargetAttOrbiter.data[YAW], maneuver.radTargetAttOrbiter.data[ROLL]);
-	}
-	else if(maneuver.Type==AttManeuver::TRK) {
-		sprintf_s(cbuf, 255, "%d %f %f %f", maneuver.Type,
-			maneuver.radTargetLVLHAtt.data[PITCH], maneuver.radTargetLVLHAtt.data[YAW], maneuver.radTargetLVLHAtt.data[ROLL]);
-	}
+	VECTOR3 eulerAngles = GetYZXAnglesFromMatrix(maneuver.tgtMatrix);
+	sprintf_s(cbuf, 255, "%d %f %f %f", maneuver.Type, eulerAngles.data[PITCH], eulerAngles.data[YAW], eulerAngles.data[ROLL]);
 	oapiWriteScenario_string(scn, item, cbuf);
 }
 
@@ -26,15 +20,10 @@ void LoadAttManeuver(const char* value, AttManeuver& maneuver)
 	VECTOR3 vTemp;
 	sscanf(value, "%d%lf%lf%lf", &nTemp, &vTemp.data[PITCH], &vTemp.data[YAW], &vTemp.data[ROLL]);
 
-	if(nTemp == AttManeuver::MNVR) {
+	if(nTemp == AttManeuver::MNVR || nTemp == AttManeuver::TRK) {
 		maneuver.IsValid = true;
-		maneuver.Type = AttManeuver::MNVR;
-		maneuver.radTargetAttOrbiter = vTemp;
-	}
-	else if(nTemp == AttManeuver::TRK) {
-		maneuver.IsValid = true;
-		maneuver.Type = AttManeuver::TRK;
-		maneuver.radTargetLVLHAtt = vTemp;
+		maneuver.Type = static_cast<AttManeuver::TYPE>(nTemp);
+		maneuver.tgtMatrix = GetRotationMatrixYZX(_V(vTemp.data[ROLL], vTemp.data[PITCH], vTemp.data[YAW]));
 	}
 }
 
@@ -45,7 +34,8 @@ ControlMode(RCS),
 DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL), editDAP(-1),
 ManeuverStatus(MNVR_OFF),
 bFirstStep(true), lastStepDeltaT(1.0),
-PCTActive(false)
+PCTActive(false),
+pStateVector(NULL) 
 {
 	OMSTrim = _V(0.0, 0.0, 0.0);
 	degReqdRates = _V(0.0, 0.0, 0.0);
@@ -123,75 +113,77 @@ OrbitDAP::DAP_CONTROL_MODE OrbitDAP::GetDAPMode() const
 	return DAPControlMode;
 }
 
-void OrbitDAP::ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt)
+/*void OrbitDAP::ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt)
 {
 	LoadCurLVLHManeuver(degLVLHAtt*RAD);
-}
+}*/
 
 void OrbitDAP::ManeuverToINRTLAttitude(const VECTOR3& degINRTLAtt)
 {
-	VECTOR3 radOrbiterAtt = ConvertAnglesBetweenM50AndOrbiter(degINRTLAtt*RAD, true);
-	LoadCurINRTLManeuver(radOrbiterAtt);
+	//VECTOR3 radOrbiterAtt = ConvertAnglesBetweenM50AndOrbiter(degINRTLAtt*RAD, true);
+	MATRIX3 OrbiterAtt = GetRotationMatrixYZX(_V(degINRTLAtt.data[ROLL], degINRTLAtt.data[PITCH], degINRTLAtt.data[YAW])*RAD);
+	LoadCurINRTLManeuver(OrbiterAtt);
 }
 
-void OrbitDAP::LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
+void OrbitDAP::LoadCurLVLHManeuver(const MATRIX3& tgtMatrixLVLH)
 {
 	CurManeuver.IsValid = true;
-	//CurManeuver.LVLHTgtOrientationMatrix = RotMatrix;
-	CurManeuver.radTargetLVLHAtt = radTargetLVLHAtt;
+	CurManeuver.tgtMatrix = tgtMatrixLVLH;
 	CurManeuver.Type = AttManeuver::TRK;
-	if(DAPControlMode == AUTO) StartLVLHManeuver(radTargetLVLHAtt);
+	if(DAPControlMode == AUTO) StartCurManeuver();
 }
 
-void OrbitDAP::LoadFutLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
+void OrbitDAP::LoadFutLVLHManeuver(const MATRIX3& tgtMatrixLVLH)
 {
 	FutManeuver.IsValid = true;
-	FutManeuver.radTargetLVLHAtt = radTargetLVLHAtt;
+	FutManeuver.tgtMatrix = tgtMatrixLVLH;
 	FutManeuver.Type = AttManeuver::TRK;
 }
 
-void OrbitDAP::LoadCurINRTLManeuver(const VECTOR3& radTargetAttOrbiter)
+void OrbitDAP::LoadCurINRTLManeuver(const MATRIX3& tgtMatrixM50)
 {
 	CurManeuver.IsValid = true;
-	CurManeuver.radTargetAttOrbiter = radTargetAttOrbiter;
+	CurManeuver.tgtMatrix = tgtMatrixM50;
 	CurManeuver.Type = AttManeuver::MNVR;
-	if(DAPControlMode == AUTO) StartINRTLManeuver(radTargetAttOrbiter);
+	if(DAPControlMode == AUTO) StartCurManeuver();
 }
 
-void OrbitDAP::LoadFutINRTLManeuver(const VECTOR3& radTargetAttOrbiter)
+void OrbitDAP::LoadFutINRTLManeuver(const MATRIX3& tgtMatrixM50)
 {
 	FutManeuver.IsValid = true;
-	FutManeuver.radTargetAttOrbiter = radTargetAttOrbiter;
+	FutManeuver.tgtMatrix = tgtMatrixM50;
 	FutManeuver.Type = AttManeuver::MNVR;
 }
 
 void OrbitDAP::StartCurManeuver()
 {
 	if(CurManeuver.IsValid) {
-		if(CurManeuver.Type == AttManeuver::MNVR) StartINRTLManeuver(CurManeuver.radTargetAttOrbiter);
-		else if(CurManeuver.Type == AttManeuver::TRK) StartLVLHManeuver(CurManeuver.radTargetLVLHAtt);
+		//if(CurManeuver.Type == AttManeuver::MNVR) StartINRTLManeuver(CurManeuver.radTargetAttOrbiter);
+		//else if(CurManeuver.Type == AttManeuver::TRK) StartLVLHManeuver(CurManeuver.radTargetLVLHAtt);
+		StartManeuver(CurManeuver.tgtMatrix, CurManeuver.Type);
 	}
 }
-
-void OrbitDAP::StartINRTLManeuver(const VECTOR3& radTargetAttOrbiter)
+	
+void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 {
+	ActiveManeuver.tgtMatrix = tgtAtt;
+	ActiveManeuver.Type = type;
 	ActiveManeuver.IsValid = true;
-	ActiveManeuver.radTargetAttOrbiter = radTargetAttOrbiter;
-	ActiveManeuver.Type = AttManeuver::MNVR;
-	REQD_ATT = ConvertAnglesBetweenM50AndOrbiter(radTargetAttOrbiter)*DEG;
+	
 	ManeuverStatus = MNVR_IN_PROGRESS;
-}
-
-void OrbitDAP::StartLVLHManeuver(const VECTOR3& radTargetLVLHAtt)
-{
-	sprintf_s(oapiDebugString(), 255, "Starting LVLH mnvr: %f %f %f",
-		radTargetLVLHAtt.data[PITCH]*DEG, radTargetLVLHAtt.data[YAW]*DEG, radTargetLVLHAtt.data[ROLL]*DEG);
-	ActiveManeuver.IsValid = true;
-	ActiveManeuver.radTargetLVLHAtt = radTargetLVLHAtt;
-	ActiveManeuver.Type = AttManeuver::TRK;
-	ManeuverStatus = MNVR_STARTING;
-	lastUpdateTime= 0.0;
+	lastUpdateTime = 0.0;
 	mnvrCompletionMET = STS()->GetMET();
+		
+	if(ActiveManeuver.Type == AttManeuver::MNVR) {
+		degNullRates = _V(0, 0, 0);
+		// calculate M50 target att
+		REQD_ATT = GetYZXAnglesFromMatrix(ActiveManeuver.tgtMatrix)*DEG;
+		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
+		//oapiWriteLog(oapiDebugString());
+	}
+	else {
+		lastUpdateTime = -100.0;
+	}
 }
 
 bool OrbitDAP::GetRHCRequiredRates()
@@ -273,9 +265,11 @@ void OrbitDAP::CalcEulerAxisRates()
 	VECTOR3 RotationAxis;
 	double RotationAngle=CalcEulerAngle(IdentityMatrix, attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
+	VECTOR3 RotationAxis_orig = RotationAxis;
+	RotationAxis = _V(RotationAxis.y, RotationAxis.z, RotationAxis.x); // change rotation axis so PYR axes are mapped correctly
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {
-			degReqdRates.data[i]=RotationAxis.data[i]*-degRotRate;
+			degReqdRates.data[i]=RotationAxis.data[i]*degRotRate;
 			if(abs(ATT_ERR.data[i]) <= NullStartAngle(abs(radAngularVelocity.data[i]), OrbiterMass, PMI.data[i], Torque.data[i])) {
 				degReqdRates.data[i] = 0.0;
 				RotatingAxis[i] = false;
@@ -301,7 +295,7 @@ void OrbitDAP::CalcMultiAxisRates(const VECTOR3& degNullRatesLocal)
 						degReqdRates.data[i] = 0.0;
 					}
 					else {
-						degReqdRates.data[i] = -sign(ATT_ERR.data[i])*range(degRotRate/10.0, abs(ATT_ERR.data[i])/5.0, degRotRate);
+						degReqdRates.data[i] = sign(ATT_ERR.data[i])*range(degRotRate/10.0, abs(ATT_ERR.data[i])/5.0, degRotRate);
 					}
 				}
 			}
@@ -321,14 +315,30 @@ void OrbitDAP::CalcMultiAxisRates(const VECTOR3& degNullRatesLocal)
 	}
 }
 
+void OrbitDAP::UpdateNullRates()
+{
+	ELEMENTS el;
+	ORBITPARAM param;
+	STS()->GetElements(STS()->GetGravityRef(), el, &param);
+	double orb_rad = 360.0/param.T;
+	
+	VECTOR3 tgtLVLHAtt = GetYZXAnglesFromMatrix(ActiveManeuver.tgtMatrix);
+	degNullRates.data[ROLL] = -orb_rad*sin(tgtLVLHAtt.data[YAW]);
+	degNullRates.data[PITCH] = -orb_rad*cos(tgtLVLHAtt.data[YAW])*cos(tgtLVLHAtt.data[ROLL]);
+	degNullRates.data[YAW] = orb_rad*cos(tgtLVLHAtt.data[YAW])*sin(tgtLVLHAtt.data[ROLL]);
+	sprintf_s(oapiDebugString(), 255, "Null rates: %f %f %f", degNullRates.data[PITCH], degNullRates.data[YAW], degNullRates.data[ROLL]);
+	oapiWriteLog(oapiDebugString());
+}
+
 void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
 	const VECTOR3 PRI_LIMITS = _V(0.01, 0.01, 0.01);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
-	Error.data[YAW] = -Error.data[YAW]; // temporary
-	Error.data[ROLL] = -Error.data[ROLL];
+	Error.data[YAW] = Error.data[YAW]; // temporary
+	Error.data[ROLL] = Error.data[ROLL];
+	//sprintf_s(oapiDebugString(), 255, "Rate error: %f %f %f", Error.data[PITCH], Error.data[YAW], Error.data[ROLL]);
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -404,10 +414,13 @@ bool OrbitDAP::GimbalOMS(SIDE side, double pitch, double yaw)
 void OrbitDAP::GetAttitudeData()
 {
 	STS()->GetAngularVel(radAngularVelocity);
+	radAngularVelocity = _V(radAngularVelocity.x, -radAngularVelocity.y, radAngularVelocity.z); // convert from Orbitersim to body axis frame
 	degAngularVelocity = radAngularVelocity*DEG;
-	STS()->GetGlobalOrientation(radCurrentOrbiterAtt);
-	CUR_ATT = ConvertAnglesBetweenM50AndOrbiter(radCurrentOrbiterAtt)*DEG;
-	STS()->GetGlobalPos(GlobalPos);	
+	
+	STS()->GetRotationMatrix(curM50Matrix);
+	curM50Matrix = ConvertOrbitersimRotationMatrixToM50(curM50Matrix);
+	CUR_ATT = GetYZXAnglesFromMatrix(curM50Matrix)*DEG;
+	
 	OrbiterMass = STS()->GetMass();
 	STS()->GetPMI(PMI);
 }
@@ -464,6 +477,8 @@ void OrbitDAP::Realize()
 	BodyFlapAuto.Connect(pBundle, 0);
 	port_PCTActive[0].Connect(pBundle, 0);
 	port_PCTActive[1].Connect(pBundle, 1);
+	
+	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 
 	UpdateDAPParameters();
 }
@@ -487,10 +502,10 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(CurManeuver.IsValid) StartCurManeuver();
 		}
 		else if(DAPControlMode == INRTL) {
-			StartINRTLManeuver(radCurrentOrbiterAtt);
+			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
 		else if(DAPControlMode == LVLH) {
-			StartLVLHManeuver(GetCurrentLVLHAttitude());
+			StartManeuver(GetCurrentLVLHAttMatrix(), AttManeuver::TRK);
 		}
 		bFirstStep = false;
 	}
@@ -504,97 +519,6 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	/*if(ControlMode == RCS) {
-		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
-		else if(!BodyFlapAuto && PCTActive) StopPCT();
-		if(!PCTActive) HandleTHCInput(DeltaT);
-		else PCTControl(SimT);
-
-		if(GetRHCRequiredRates()) {
-			if(DAPControlMode == AUTO) {
-				DAPControlMode = INRTL;
-				StartINRTLManeuver(radCurrentOrbiterAtt);
-			}
-			else if(DAPControlMode == INRTL) {
-				StartINRTLManeuver(radCurrentOrbiterAtt);
-			}
-			else if(DAPControlMode == LVLH) {
-				StartLVLHManeuver(GetCurrentLVLHAttitude());
-			}
-			ATT_ERR = _V(0.0, 0.0, 0.0);
-		}
-		else if(DAPControlMode != FREE) { // if DAP is in FREE, we only care about RHC input
-			//sprintf_s(oapiDebugString(), 255, "RHC in detent");
-			// calc rates for DAP
-			VECTOR3 radTargetAttOrbiter;
-			VECTOR3 degNullRatesLocal = _V(0.0, 0.0, 0.0);
-			if(ActiveManeuver.Type == AttManeuver::TRK) {
-				VECTOR3 radLastTgtAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
-				MATRIX3 reqdAttM50Matrix = ConvertLVLHAnglesToM50Matrix(ActiveManeuver.radTargetLVLHAtt);
-				MATRIX3 reqdAttOrbiterMatrix = ConvertMatrixBetweenM50AndOrbiter(reqdAttM50Matrix, true);
-				ActiveManeuver.radTargetAttOrbiter = GetAnglesFromMatrix(reqdAttOrbiterMatrix);
-				REQD_ATT = GetAnglesFromMatrix(reqdAttM50Matrix)*DEG;
-
-				if(ManeuverStatus == MNVR_STARTING) {
-					ManeuverStatus = MNVR_IN_PROGRESS;
-					lastUpdateTime = -100.0;
-				}
-				else {
-					degNullRatesLocal = (ConvertOrbiterAnglesToLocal(ActiveManeuver.radTargetAttOrbiter)-ConvertOrbiterAnglesToLocal(radLastTgtAttOrbiter))/lastStepDeltaT;
-					degNullRatesLocal*=DEG;
-					VECTOR3 radNullRatesOrbiter = (ActiveManeuver.radTargetAttOrbiter-radLastTgtAttOrbiter)/lastStepDeltaT;
-
-					if((STS()->GetMET()-lastUpdateTime) > 60.0) {
-						mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(ActiveManeuver.radTargetAttOrbiter, radNullRatesOrbiter);
-						lastUpdateTime = STS()->GetMET();
-					}
-					/*sprintf_s(oapiDebugString(), 255, "Target LVLH: %f %f %f TargetAttOrbiter: %f %f %f",
-						ActiveManeuver.radTargetLVLHAtt.data[PITCH]*DEG, ActiveManeuver.radTargetLVLHAtt.data[YAW]*DEG, ActiveManeuver.radTargetLVLHAtt.data[ROLL]*DEG,
-						ActiveManeuver.radTargetAttOrbiter.data[PITCH]*DEG, ActiveManeuver.radTargetAttOrbiter.data[YAW]*DEG, ActiveManeuver.radTargetAttOrbiter.data[ROLL]*DEG);*/
-					/*sprintf_s(oapiDebugString(), 255, "Null Rates: %f %f %f %f %f %f Time: %f",
-						degNullRatesLocal.data[PITCH], degNullRatesLocal.data[YAW], degNullRatesLocal.data[ROLL],
-						DEG*radNullRatesOrbiter.data[PITCH], DEG*radNullRatesOrbiter.data[YAW], DEG*radNullRatesOrbiter.data[ROLL],
-						mnvrCompletionMET);*
-
-					if(ManeuverStatus == MNVR_IN_PROGRESS) {
-						radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter + radNullRatesOrbiter*(mnvrCompletionMET-STS()->GetMET());
-					}
-					else {
-						radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
-					}
-				}
-				// calculate null rates
-			}
-			else {
-				radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
-			}
-			attErrorMatrix=CalcPitchYawRollRotMatrix(radTargetAttOrbiter);
-			ATT_ERR=GetAnglesFromMatrix(attErrorMatrix)*DEG;
-			if(ManeuverStatus == MNVR_COMPLETE) {
-				CalcMultiAxisRates(degNullRatesLocal);
-			}
-			else if(ManeuverStatus == MNVR_IN_PROGRESS) {
-				CalcEulerAxisRates();
-				if(!RotatingAxis[PITCH] && !RotatingAxis[YAW] && !RotatingAxis[ROLL]) {
-					ManeuverStatus=MNVR_COMPLETE; //now maintaining targ. attitude
-				}
-			}
-			else { // MNVR_STARTING
-				degReqdRates = _V(0.0, 0.0, 0.0);
-			}
-			//sprintf_s(oapiDebugString(), 255, "Tgt Rates: P: %f Y: %f R: %f Torque: P: %f Y: %f R: %f",
-				//degReqdRates.data[PITCH], degReqdRates.data[YAW], degReqdRates.data[ROLL], Torque.data[PITCH], Torque.data[YAW], Torque.data[ROLL]);
-		}
-		else { // FREE
-			degReqdRates = degAngularVelocity;
-		}
-		//SetRates(STS()->ReqdRates, DeltaT);
-		SetRates(degReqdRates, DeltaT);
-	}
-	else {
-		OMSTVC(STS()->ReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
-	}*/
-
 	if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
 	else if(!BodyFlapAuto && PCTActive) StopPCT();
 	if(!PCTActive) HandleTHCInput(DeltaT);
@@ -603,65 +527,44 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	if(GetRHCRequiredRates()) {
 		if(DAPControlMode == AUTO) {
 			DAPControlMode = INRTL;
-			StartINRTLManeuver(radCurrentOrbiterAtt);
+			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
 		else if(DAPControlMode == INRTL) {
-			StartINRTLManeuver(radCurrentOrbiterAtt);
+			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
 		else if(DAPControlMode == LVLH) {
-			StartLVLHManeuver(GetCurrentLVLHAttitude());
+			StartManeuver(GetCurrentLVLHAttMatrix(), AttManeuver::TRK);
 		}
 		ATT_ERR = _V(0.0, 0.0, 0.0);
 	}
 	else if(DAPControlMode != FREE) { // if DAP is in FREE, we only care about RHC input
-		//sprintf_s(oapiDebugString(), 255, "RHC in detent");
-		// calc rates for DAP
-		VECTOR3 radTargetAttOrbiter;
-		VECTOR3 degNullRatesLocal = _V(0.0, 0.0, 0.0);
+		MATRIX3 tgtM50Matrix;  // target M50 attitude for this timestep
 		if(ActiveManeuver.Type == AttManeuver::TRK) {
-			VECTOR3 radLastTgtAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
-			MATRIX3 reqdAttM50Matrix = ConvertLVLHAnglesToM50Matrix(ActiveManeuver.radTargetLVLHAtt);
-			MATRIX3 reqdAttOrbiterMatrix = ConvertMatrixBetweenM50AndOrbiter(reqdAttM50Matrix, true);
-			ActiveManeuver.radTargetAttOrbiter = GetXYZAnglesFromMatrix(reqdAttOrbiterMatrix);
-			REQD_ATT = GetXYZAnglesFromMatrix(reqdAttM50Matrix)*DEG;
+			MATRIX3 curLVLHMatrix = GetCurrentLVLHRefMatrix();
+			tgtM50Matrix = mul(curLVLHMatrix, ActiveManeuver.tgtMatrix);
+			REQD_ATT = GetYZXAnglesFromMatrix(tgtM50Matrix)*DEG;
 
-			if(ManeuverStatus == MNVR_STARTING) {
-				ManeuverStatus = MNVR_IN_PROGRESS;
-				lastUpdateTime = -100.0;
+			if((STS()->GetMET()-lastUpdateTime) > 60.0) {
+				UpdateNullRates();
+				mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(curM50Matrix, ActiveManeuver.tgtMatrix, curLVLHMatrix, length(degNullRates));
+				lastUpdateTime = STS()->GetMET();
 			}
-			else {
-				degNullRatesLocal = (ConvertOrbiterAnglesToLocal(ActiveManeuver.radTargetAttOrbiter)-ConvertOrbiterAnglesToLocal(radLastTgtAttOrbiter))/lastStepDeltaT;
-				degNullRatesLocal*=DEG;
-				VECTOR3 radNullRatesOrbiter = (ActiveManeuver.radTargetAttOrbiter-radLastTgtAttOrbiter)/lastStepDeltaT;
-
-				if((STS()->GetMET()-lastUpdateTime) > 60.0) {
-					mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(ActiveManeuver.radTargetAttOrbiter, radNullRatesOrbiter);
-					lastUpdateTime = STS()->GetMET();
-				}
-				/*sprintf_s(oapiDebugString(), 255, "Target LVLH: %f %f %f TargetAttOrbiter: %f %f %f",
-				ActiveManeuver.radTargetLVLHAtt.data[PITCH]*DEG, ActiveManeuver.radTargetLVLHAtt.data[YAW]*DEG, ActiveManeuver.radTargetLVLHAtt.data[ROLL]*DEG,
-				ActiveManeuver.radTargetAttOrbiter.data[PITCH]*DEG, ActiveManeuver.radTargetAttOrbiter.data[YAW]*DEG, ActiveManeuver.radTargetAttOrbiter.data[ROLL]*DEG);*/
-				/*sprintf_s(oapiDebugString(), 255, "Null Rates: %f %f %f %f %f %f Time: %f",
-				degNullRatesLocal.data[PITCH], degNullRatesLocal.data[YAW], degNullRatesLocal.data[ROLL],
-				DEG*radNullRatesOrbiter.data[PITCH], DEG*radNullRatesOrbiter.data[YAW], DEG*radNullRatesOrbiter.data[ROLL],
-				mnvrCompletionMET);*/
-
-				if(ManeuverStatus == MNVR_IN_PROGRESS) {
-					radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter + radNullRatesOrbiter*(mnvrCompletionMET-STS()->GetMET());
-				}
-				else {
-					radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
-				}
+			if(ManeuverStatus == MNVR_IN_PROGRESS) {
+				// calculate M50 matrix corresponding to target attitude at end of maneuver
+				double rotationAngle = RAD*length(degNullRates)*(mnvrCompletionMET-STS()->GetMET());
+				MATRIX3 LVLHRotation;
+				GetRotMatrixY(-rotationAngle, LVLHRotation);
+				tgtM50Matrix = mul(mul(curLVLHMatrix, LVLHRotation), ActiveManeuver.tgtMatrix);
 			}
-			// calculate null rates
 		}
 		else {
-			radTargetAttOrbiter = ActiveManeuver.radTargetAttOrbiter;
+			tgtM50Matrix = ActiveManeuver.tgtMatrix;
 		}
-		attErrorMatrix=CalcPitchYawRollRotMatrix(radTargetAttOrbiter);
-		ATT_ERR=GetXYZAnglesFromMatrix(attErrorMatrix)*DEG;
+		
+		attErrorMatrix = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
+		ATT_ERR=GetYZXAnglesFromMatrix(attErrorMatrix)*DEG;
 		if(ManeuverStatus == MNVR_COMPLETE) {
-			CalcMultiAxisRates(degNullRatesLocal);
+			CalcMultiAxisRates(degNullRates);
 		}
 		else if(ManeuverStatus == MNVR_IN_PROGRESS) {
 			CalcEulerAxisRates();
@@ -672,13 +575,10 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		else { // MNVR_STARTING
 			degReqdRates = _V(0.0, 0.0, 0.0);
 		}
-		//sprintf_s(oapiDebugString(), 255, "Tgt Rates: P: %f Y: %f R: %f Torque: P: %f Y: %f R: %f",
-		//degReqdRates.data[PITCH], degReqdRates.data[YAW], degReqdRates.data[ROLL], Torque.data[PITCH], Torque.data[YAW], Torque.data[ROLL]);
 	}
 	else { // FREE
 		degReqdRates = degAngularVelocity;
 	}
-	//SetRates(STS()->ReqdRates, DeltaT);
 	if(ControlMode == RCS) SetRates(degReqdRates, DeltaT);
 	else OMSTVC(degReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
 
@@ -771,28 +671,30 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			}
 		}
 		else if(item==18) {
-			VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
+			//VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
+			MATRIX3 tgtAtt = GetRotationMatrixYZX(_V(MNVR_OPTION.data[ROLL], MNVR_OPTION.data[PITCH], MNVR_OPTION.data[YAW])*RAD);
 			double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
 			if(startTime <= STS()->GetMET()) {
-				LoadCurINRTLManeuver(radTargetAtt);
+				LoadCurINRTLManeuver(tgtAtt);
 			}
 			else {
 				FutMnvrStartTime = startTime;
-				LoadFutINRTLManeuver(radTargetAtt);
+				LoadFutINRTLManeuver(tgtAtt);
 			}
 		}
 		else if(item==19) {
-			VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
+			//VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
+			MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
 			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
 			if(startTime <= STS()->GetMET()) {
 				if(TGT_ID == 2) {
-					LoadCurLVLHManeuver(radTargetAtt);
+					LoadCurLVLHManeuver(tgtAtt);
 				}
 			}
 			else {
 				FutMnvrStartTime = startTime;
 				if(TGT_ID == 2) {
-					LoadFutLVLHManeuver(radTargetAtt);
+					LoadFutLVLHManeuver(tgtAtt);
 				}
 			}
 		}
@@ -807,7 +709,8 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			RotatingAxis[ROLL]=false;
 
 			DAPControlMode=INRTL;
-			StartINRTLManeuver(radCurrentOrbiterAtt);
+			//StartINRTLManeuver(radCurrentOrbiterAtt);
+			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
 		return true;
 	}
@@ -1368,16 +1271,14 @@ void OrbitDAP::ButtonPress(int id)
 	case 2: // AUTO
 		DAPControlMode = AUTO;
 		if(CurManeuver.IsValid) StartCurManeuver();
-		//InitializeControlMode();
 		break;
 	case 3: // INRTL
 		DAPControlMode = INRTL;
-		StartINRTLManeuver(radCurrentOrbiterAtt);
-		//InitializeControlMode();
+		StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		break;
 	case 4: // LVLH
 		DAPControlMode = LVLH;
-		StartLVLHManeuver(GetCurrentLVLHAttitude());
+		StartManeuver(GetCurrentLVLHAttMatrix(), AttManeuver::TRK);
 		break;
 	case 5: // FREE
 		DAPControlMode = FREE;
@@ -1590,7 +1491,7 @@ void OrbitDAP::UpdateDAPParameters()
 	sprintf_s(oapiDebugString(), 255, "Rate: %f AttDb %f RateDb: %f", degRotRate, degAttDeadband, degRateDeadband);
 }
 
-double OrbitDAP::CalcManeuverCompletionTime(const VECTOR3& radTargetAttOrbiter, const VECTOR3& radNullRatesOrbiter) const
+double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const MATRIX3& tgtLVLHMatrix, const MATRIX3& curLVLHMatrix, double degOrbitalRate) const
 {
 	double mnvrTime = 0.0;
 	double lastMnvrTime = 0.0;
@@ -1603,124 +1504,29 @@ double OrbitDAP::CalcManeuverCompletionTime(const VECTOR3& radTargetAttOrbiter, 
 		if(mnvrTime < 0) {
 			mnvrTime=0.0;
 		}
-		radFinalTargetAtt = radTargetAttOrbiter+radNullRatesOrbiter*mnvrTime; //check TargetAtt frame
-		PYR=CalcPitchYawRollRotMatrix(radFinalTargetAtt);
+		
+		double rotationAngle = degOrbitalRate*mnvrTime;
+		MATRIX3 LVLHRotation;
+		GetRotMatrixY(-rotationAngle*RAD, LVLHRotation);
+		MATRIX3 tgtM50Matrix = mul(mul(curLVLHMatrix, LVLHRotation), tgtLVLHMatrix);
+				
+		PYR = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
 		double Angle=CalcEulerAngle(IdentityMatrix, PYR, Axis);
 		mnvrTime=(Angle*DEG)/degRotRate;
-
-		//sprintf(oapiDebugString(), "Iterating: %d %f", counter, MNVR_TIME);
-		//sprintf(oapiDebugString(), "Iterating: %d %f %f %f", counter, MNVR_TIME, NullRates.data[YAW]*DEG, TargetAttOrbiter.data[ROLL]*DEG);
-		//oapiWriteLog(oapiDebugString());
 	} while(abs(mnvrTime-lastMnvrTime)>0.05 && counter<50);
 	return max(mnvrTime, 0.0);
 }
 
-VECTOR3 OrbitDAP::GetCurrentLVLHAttitude() const
+MATRIX3 OrbitDAP::GetCurrentLVLHRefMatrix() const
 {
-	VESSELSTATUS Status;
-	STS()->GetStatus(Status);
-
-	RefPoints GlobalPts, LocalPts;
-	MATRIX3 LocalToGlobal;
-	VECTOR3 LocVel, HVel;
-	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
-	VECTOR3 H = crossp(Status.rpos, Status.rvel);
-	VECTOR3 RefAttitude = GetPYR2(Status.rvel, H);
-
-	RotateVectorLH(PitchUnit, RefAttitude, GlobalPts.Pitch);
-	RotateVectorLH(YawRollUnit, RefAttitude, GlobalPts.Yaw);
-	GlobalPts.Pitch = GlobalPos + GlobalPts.Pitch;
-	GlobalPts.Yaw = GlobalPos + GlobalPts.Yaw;	
-	STS()->Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
-	STS()->Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
-	
-	VECTOR3 radLVLHAngles=GetPYR(LocalPts.Pitch, LocalPts.Yaw);
-
-	STS()->GetRotationMatrix(LocalToGlobal);
-	LocVel=tmul(LocalToGlobal, Status.rvel); //multiply rvel by transpose(inverse) of rotation matrix
-	STS()->HorizonRot(LocVel, HVel);
-	double VVAngle=asin(HVel.y/length(HVel));
-	radLVLHAngles.data[PITCH]+=VVAngle;
-	return radLVLHAngles;
+	VECTOR3 pos, vel;
+	pStateVector->GetCurrentStateVectorsM50(pos, vel);
+	return Transpose(GetGlobalToLVLHMatrix(pos, vel));
 }
 
-VECTOR3 OrbitDAP::ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const
+MATRIX3 OrbitDAP::GetCurrentLVLHAttMatrix() const
 {
-	VECTOR3 Output=_V(0, 0, 0);
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ, LocalToGlobal;
-	//MATRIX3 M50, RotMatrixM50, LocalToGlobal;
-
-	GetRotMatrixX(-radAngles.x, RotMatrixX);
-	GetRotMatrixY(-radAngles.y, RotMatrixY);
-	GetRotMatrixZ(-radAngles.z, RotMatrixZ);
-
-	STS()->GetRotationMatrix(LocalToGlobal);
-	//transpose matrix
-	LocalToGlobal=_M(LocalToGlobal.m11, LocalToGlobal.m21, LocalToGlobal.m31,
-					 LocalToGlobal.m12, LocalToGlobal.m22, LocalToGlobal.m32,
-					 LocalToGlobal.m13, LocalToGlobal.m23, LocalToGlobal.m33);
-	MATRIX3 Temp=mul(RotMatrixX, RotMatrixY);
-	MATRIX3 RotMatrix=mul(Temp,RotMatrixZ);
-	RotMatrix=mul(LocalToGlobal, RotMatrix);
-
-	//get angles
-	Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Output.data[YAW]=-asin(RotMatrix.m13);
-	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Output;
-}
-
-MATRIX3 OrbitDAP::ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const
-{
-	// calculate matrix to convert from LVLH to Orbiter inertial frame
-	VECTOR3 GPos, GVel;
-	STS()->GetRelativePos(STS()->GetSurfaceRef(), GPos);
-	STS()->GetRelativeVel(STS()->GetSurfaceRef(), GVel);
-	return ::ConvertLVLHAnglesToM50Matrix(radAngles, GPos, GVel);
-	/*VECTOR3 norm_GVel = GVel/length(GVel); // almost z-axis
-	VECTOR3 y_axis = GPos/length(GPos);
-	VECTOR3 x_axis = crossp(y_axis, norm_GVel);
-	x_axis = x_axis/length(x_axis);
-	VECTOR3 z_axis = crossp(x_axis, y_axis);
-	MATRIX3 TFMatrix = _M(x_axis.x, y_axis.x, z_axis.x,
-						x_axis.y, y_axis.y, z_axis.y,	
-						x_axis.z, y_axis.z, z_axis.z);
-
-	// convert LVLH angles to rotation matrix
-	VECTOR3 HorizonX, HorizonY, HorizonZ;
-	RotateVectorPYR(_V(1, 0, 0), radAngles, HorizonX);
-	RotateVectorPYR(_V(0, 1, 0), radAngles, HorizonY);
-	RotateVectorPYR(_V(0, 0, 1), radAngles, HorizonZ);
-	MATRIX3 LVLHMatrix = _M(HorizonX.x, HorizonY.x, HorizonZ.x,
-							HorizonX.y, HorizonY.y, HorizonZ.y,
-							HorizonX.z, HorizonY.z, HorizonZ.z);
-	MATRIX3 RotMatrix=mul(TFMatrix, LVLHMatrix);
-
-	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
-	return RotMatrix;*/
-}
-
-MATRIX3 OrbitDAP::CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const
-{
-	//uses angles in orbiter coordinate-frame
-	RefPoints GlobalPts, LocalPts;
-	VECTOR3 PitchUnit = {0, 0, 1.0}, YawRollUnit = {1.0, 0, 0};
-	//RotateVector(PitchUnit, RelAttitude, PitchUnit);
-	//RotateVector(YawRollUnit, RelAttitude, YawRollUnit);
-	RotateVectorLH(PitchUnit, radTargetAttOrbiter, GlobalPts.Pitch);
-	RotateVectorLH(YawRollUnit, radTargetAttOrbiter, GlobalPts.Yaw);
-	GlobalPts.Pitch = GlobalPos + GlobalPts.Pitch;
-	GlobalPts.Yaw = GlobalPos + GlobalPts.Yaw;	
-	STS()->Global2Local(GlobalPts.Pitch, LocalPts.Pitch);
-	STS()->Global2Local(GlobalPts.Yaw, LocalPts.Yaw);
-	//return GetPYR(LocalPts.Pitch, LocalPts.Yaw);
-
-	VECTOR3 Pitch = Normalize(LocalPts.Pitch);
-	VECTOR3 YawRoll = Normalize(LocalPts.Yaw);
-	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
-	return _M(YawRoll.x, YawRoll.y, YawRoll.z,
-			  H.x, H.y, H.z,
-			  Pitch.x, Pitch.y, Pitch.z);
+	return GetRotationErrorMatrix(GetCurrentLVLHRefMatrix(), curM50Matrix);
 }
 
 };

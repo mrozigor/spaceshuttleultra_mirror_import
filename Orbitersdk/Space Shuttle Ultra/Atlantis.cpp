@@ -4378,8 +4378,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		lastRotCommand[YAW] = 0;
 	}
 	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_rollleft, RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollright, 0.0);
+		SetThrusterGroupLevel(thg_rollright, RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollleft, 0.0);
 
 		if(lastRotCommand[ROLL] != 1) {
 			lastRotCommand[ROLL] = 1;
@@ -4387,8 +4387,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		}
 	}
 	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_rollright, -RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
+		SetThrusterGroupLevel(thg_rollleft, -RotThrusterCommands[ROLL].GetVoltage());
+		SetThrusterGroupLevel(thg_rollright, 0.0);
 
 		if(lastRotCommand[ROLL] != -1) {
 			lastRotCommand[ROLL] = -1;

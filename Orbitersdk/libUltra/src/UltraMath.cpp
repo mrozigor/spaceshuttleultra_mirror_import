@@ -79,9 +79,12 @@ double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VEC
 	RotMatrix=mul(RefAngles, TargetAngles);
 	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
 	Angle=acos(0.5*(Trace-1));
-	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
-	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
-	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
+	//Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
+	//Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
+	//Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
+	Axis.x=(RotMatrix.m32-RotMatrix.m23)/(2*sin(Angle));
+	Axis.y=(RotMatrix.m13-RotMatrix.m31)/(2*sin(Angle));
+	Axis.z=(RotMatrix.m21-RotMatrix.m12)/(2*sin(Angle));
 	if(Angle>PI) {
 		Angle=2*PI-Angle;
 		Axis=-Axis;
@@ -187,10 +190,36 @@ VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix)
 		Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
 	}
 	else { // normal case
-		Angles.data[PITCH]=-atan2(RotMatrix.m31, RotMatrix.m11);
-		Angles.data[ROLL]=-atan2(RotMatrix.m23, RotMatrix.m22);
+		Angles.data[PITCH]=atan2(-RotMatrix.m31, RotMatrix.m11);
+		Angles.data[ROLL]=atan2(-RotMatrix.m23, RotMatrix.m22);
 	}
 	return Angles;
+}
+
+VECTOR3 GetZYXAnglesFromMatrixLH(const MATRIX3 &RotMatrix)
+{
+	VECTOR3 Angles;
+	Angles.y = asin(RotMatrix.m31);
+	if(Eq(abs(RotMatrix.m31), 1.0, 0.0001)) { // singularity
+		Angles.x = 0;
+		Angles.z = atan2(RotMatrix.m12, RotMatrix.m22);
+	}
+	else { // normal case
+		Angles.z = atan2(-RotMatrix.m21, RotMatrix.m11);
+		Angles.x = atan2(-RotMatrix.m32, RotMatrix.m33);
+	}
+	return Angles;
+}
+
+MATRIX3 GetRotationMatrixYZX(const VECTOR3& Angles)
+{
+	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
+
+	GetRotMatrixX(Angles.x, RotMatrixX);
+	GetRotMatrixY(Angles.y, RotMatrixY);
+	GetRotMatrixZ(Angles.z, RotMatrixZ);
+
+	return mul(RotMatrixY, mul(RotMatrixZ, RotMatrixX));
 }
 
 // Returns the rotation matrix for a rotation of a given angle around the X axis (Pitch)
@@ -253,7 +282,7 @@ double RotationRateChange(double Mass, double Moment, double Torque, double Delt
 	return DEG*DeltaRate;
 }
 
-VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
+/*VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 {
 	VECTOR3 Output=_V(0, 0, 0);
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
@@ -282,29 +311,72 @@ VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter)
 	/*Output.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
 	Output.data[YAW]=-asin(RotMatrix.m13);
 	Output.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Output;*/
-}
+	return Output;*
+}*/
 
-MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter)
+//MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter)
+/*MATRIX3 ConvertMatrixFromOrbiterToM50(const MATRIX3 &RotMatrix)
 {
+	// left-handed rotation matrix - converts from LH M50 to Orbitersim inertial frame
+	// to convert to RH M50, swap Z and Y axes
+	/*const MATRIX3 ToLH_M50=_M(1, 0, 0,
+						 0, cos(AXIS_TILT), -sin(AXIS_TILT),
+						 0, sin(AXIS_TILT), cos(AXIS_TILT));*
+	const MATRIX3 ToLH_M50 = _M(1, 0, 0,
+								0, cos(AXIS_TILT), sin(AXIS_TILT),
+								0, -sin(AXIS_TILT), cos(AXIS_TILT));
+	//MATRIX3 LH_M50;
 	MATRIX3 Output;
-	MATRIX3 M50, RotMatrixM50;
 
-	M50=_M(1, 0, 0,  0, -cos(AXIS_TILT), -sin(AXIS_TILT),  0, sin(AXIS_TILT), -cos(AXIS_TILT));
-	GetRotMatrixY(-90*RAD, RotMatrixM50);
-	M50=mul(RotMatrixM50, M50);
-	if(ToOrbiter) {
-		//transpose matrix
-		M50=_M( M50.m11, M50.m21, M50.m31,
-				M50.m12, M50.m22, M50.m32,
-				M50.m13, M50.m23, M50.m33);
-	}
+	//GetRotMatrixY(-90*RAD, RotMatrixM50);
+	//M50=mul(RotMatrixM50, M50);
+	//Output = mul(RotMatrix, M50);
+	//Output = mul(ToLH_M50, RotMatrix); // rotate matrix around X-axis (of Orbitersim global frame) to convert it to LH M50 frame
+	MATRIX3 LH_M50 = mul(ToLH_M50, RotMatrix); // rotate matrix around X-axis (of Orbitersim global frame) to convert it to LH M50 frame
+	// LH M50 frame is identical to RH M50 frame, but with Y and Z axes swapped
+	// to get rotation matrix in RH frame (with +ve determinant), compute Euler angles for LH frame, then use these angles to compute RH frame
+	VECTOR3 eulerAngles = GetZYXAnglesFromMatrixLH(LH_M50);
+	return GetRotationMatrixYZX(eulerAngles);
+	
+	// swap Z and Y axes
+	/*Output = _M(Output.m11, Output.m13, Output.m12,
+				Output.m21, Output.m23, Output.m22,
+				Output.m31, Output.m33, Output.m32);
+	return Output;*
+}*/
 
-	Output=mul(M50, RotMatrix);
-	return Output;
+MATRIX3 ConvertOrbitersimRotationMatrixToM50(const MATRIX3 &RotMatrix)
+{
+	const MATRIX3 BodyAxis_To_OrbitersimLocal = _M(0, 0, 1,
+												   1, 0, 0,
+												   0, -1, 0);
+	const MATRIX3 OrbitersimGlobal_To_M50 = _M(1, 0, 0,
+											   0, -sin(AXIS_TILT), cos(AXIS_TILT),
+											   0, cos(AXIS_TILT), sin(AXIS_TILT));
+	MATRIX3 M50Matrix = mul(BodyAxis_To_OrbitersimLocal, Transpose(RotMatrix));
+	M50Matrix = mul(M50Matrix, OrbitersimGlobal_To_M50);
+	M50Matrix = Transpose(M50Matrix);
+	return M50Matrix;
 }
 
-MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel)
+MATRIX3 ConvertOrbitersimAnglesToM50Matrix(const VECTOR3 &radAngles)
+{
+	const MATRIX3 ToM50 = _M(1, 0, 0,
+								0, cos(AXIS_TILT), sin(AXIS_TILT),
+								0, -sin(AXIS_TILT), cos(AXIS_TILT));
+
+	// use Euler angles to compute rotation matrix for right-handed intermediate frame
+	// intermediate frame: M50, rotated around X-axis so Z-axis matches Y-axis of Orbitersim global frame
+	MATRIX3 RotX, RotY, RotZ;
+	GetRotMatrixX(-radAngles.x, RotX); // Orbitersim angles are for LH frame, so change sign
+	GetRotMatrixY(-radAngles.z, RotZ); // swap Y and Z axes, and want RH rotation
+	GetRotMatrixZ(-radAngles.y, RotY); // swap Y and Z axes, and want RH rotation
+	MATRIX3 intermediate = mul(RotX, mul(RotY, RotZ)); // Orbitersim gives angles in XYZ order
+
+	return mul(ToM50, intermediate); // want to rotate around original X-axis, so premultiply
+}
+
+/*MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &pos, const VECTOR3 &vel)
 {
 	// LVLH frame used here is different from shuttle LVLH frame
 	// y-axis: position vector z-axis: velocity vector
@@ -325,7 +397,7 @@ MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &po
 	RotateVectorPYR(_V(0, 0, 1), radAngles, HorizonZ);
 	MATRIX3 LVLHMatrix = _M(HorizonX.x, HorizonY.x, HorizonZ.x,
 							HorizonX.y, HorizonY.y, HorizonZ.y,
-							HorizonX.z, HorizonY.z, HorizonZ.z);*/
+							HorizonX.z, HorizonY.z, HorizonZ.z);*
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
 	// want left-handed rotations, so use negative rotation angles
 	GetRotMatrixX(-radAngles.data[PITCH], RotMatrixX);
@@ -342,9 +414,9 @@ MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles, const VECTOR3 &po
 
 	RotMatrix=ConvertMatrixBetweenM50AndOrbiter(RotMatrix);
 	return RotMatrix;
-}
+}*/
 
-VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM)
+MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM)
 {
 	MATRIX3 RotMatrixP, RotMatrixY;
 	GetRotMatrixY(radP, RotMatrixP);
@@ -371,8 +443,7 @@ VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM)
 
 	MATRIX3 RotMatrix = _M(x_axis.x, x_axis.y, x_axis.z,
 						   y_axis.x, y_axis.y, y_axis.z,
-						   z_axis.x, z_axis.y, z_axis.z);
-	/*sprintf_s(oapiDebugString(), 255, "X axis: %f %f %f", x_axis.x, x_axis.y, x_axis.z); 
+						   z_axis.x, z_axis.y, z_axis.z); /*sprintf_s(oapiDebugString(), 255, "X axis: %f %f %f", x_axis.x, x_axis.y, x_axis.z); 
 	oapiWriteLog(oapiDebugString());
 	sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
 		RotMatrix.m11, RotMatrix.m12, RotMatrix.m13,
@@ -385,8 +456,9 @@ VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM)
 		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
 	oapiWriteLog(oapiDebugString());
 
-	VECTOR3 angles = GetYZXAnglesFromMatrix(RotMatrix);
-	return angles;
+	//VECTOR3 angles = GetYZXAnglesFromMatrix(RotMatrix);
+	//return angles;
+	return RotMatrix;
 }
 
 MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness)

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "SimpleGPCSoftware.h"
+#include "StateVectorSoftware.h"
 #include "../PIDControl.h"
 #include "../Atlantis.h"
 #include "discsignals.h"
@@ -15,11 +16,14 @@ const double RHC_DETENT = 0.01;
 
 struct AttManeuver
 {
+	typedef enum {MNVR, TRK, ROT} TYPE; // at the moment, ROT is not supported
 	bool IsValid;
-	VECTOR3 radTargetAttOrbiter;
-	VECTOR3 radTargetLVLHAtt; // only needed for LVLH frame
+	//VECTOR3 radTargetAttOrbiter;
+	//MATRIX3 tgtAttOrbiterInrtl; // target attitude in Orbitersim inertial frame
+	//VECTOR3 radTargetLVLHAtt; // only needed for LVLH frame
+	MATRIX3 tgtMatrix; // target attitude (rotation matrix) in Orbitersim frame (LVLH or inertial, as appropriate)
 	//MATRIX3 LVLHTgtOrientationMatrix;
-	enum {MNVR, TRK, ROT} Type; // at the moment, ROT is not supported
+	TYPE Type; // at the moment, ROT is not supported
 };
 
 class OrbitDAP : public SimpleGPCSoftware
@@ -56,18 +60,20 @@ private:
 	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
 
 	VECTOR3 degReqdRates;
+	VECTOR3 degNullRates; // rates (in body axis frame) required to null rotation
 	MATRIX3 attErrorMatrix;
-	enum {MNVR_OFF, MNVR_STARTING, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
+	enum {MNVR_OFF, MNVR_IN_PROGRESS, MNVR_COMPLETE} ManeuverStatus;
 	// ActiveManeuver is whatever attitude is currently being held (in AUTO, INRTL or LVLH)
 	// Cur/FutManeuver are maneuvers loaded using UNIV PTG; in AUTO mode, Active and Cur maneuvers are always (check this) the same
 	AttManeuver ActiveManeuver, CurManeuver, FutManeuver;
 	double FutMnvrStartTime; // MET when future loaded maneuver starts
 	double mnvrCompletionMET; // MET when current maneuver will be complete
-	double lastUpdateTime; // time when final inertial attitude was last estimated for TRK maneuver
+	double lastUpdateTime; // time when null rates and final inertial attitude was last estimated for TRK maneuver
 
-	VECTOR3 radCurrentOrbiterAtt;
+	//VECTOR3 radCurrentOrbiterAtt;
+	MATRIX3 curM50Matrix;
 	VECTOR3 radAngularVelocity, degAngularVelocity;
-	VECTOR3 GlobalPos;
+	//VECTOR3 GlobalPos;
 	double OrbiterMass;
 	VECTOR3 PMI;
 	VECTOR3 Torque;
@@ -105,6 +111,8 @@ private:
 	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
 	//DiscOutPort port_PCTActive;
 	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
+	
+	StateVectorSoftware* pStateVector;
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
 	virtual ~OrbitDAP();
@@ -119,11 +127,12 @@ public:
 	 * Maneuver will start as soon as AUTO is selected.
 	 * Currently only needed for OMSBurnSoftware class (to manuver to burn att).
 	 */
-	void ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt);
+	//void ManeuverToLVLHAttitude(const VECTOR3& degLVLHAtt);
 	/**
 	 * Starts maneuver to INRTL attitude.
 	 * Maneuver will start as soon as AUTO is selected.
 	 * Currently only needed for OMSBurnSoftware class (to manuver to burn att).
+	 * \param degINRTLAtt Attitude (in degrees) in M50 frame in standard PRY order
 	 */
 	void ManeuverToINRTLAttitude(const VECTOR3& degINRTLAtt);
 
@@ -145,14 +154,15 @@ private:
 	void PaintDAPCONFIGDisplay(vc::MDU* pMDU) const;
 
 	//void LoadCurLVLHManeuver(const MATRIX3& RotMatrix);
-	void LoadCurLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
-	void LoadFutLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
-	void LoadCurINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
-	void LoadFutINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
+	void LoadCurLVLHManeuver(const MATRIX3& tgtMatrixLVLH);
+	void LoadFutLVLHManeuver(const MATRIX3& tgtMatrixLVLH);
+	void LoadCurINRTLManeuver(const MATRIX3& tgtMatrixM50);
+	void LoadFutINRTLManeuver(const MATRIX3& tgtMatrixM50);
 	void StartCurManeuver();
-	void StartINRTLManeuver(const VECTOR3& radTargetAttOrbiter);
-	//void StartLVLHManeuver(const MATRIX3& LVLHTgtMatrix);
-	void StartLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
+	void StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type);
+	//void StartINRTLManeuver(const MATRIX3& tgtMatrixOrbiter);
+	//void StartLVLHManeuver(const MATRIX3& tgtMatrixLVLH);
+	//void StartLVLHManeuver(const VECTOR3& radTargetLVLHAtt);
 
 	/**
 	 * Determines rates due to RHC input.
@@ -163,6 +173,8 @@ private:
 
 	void CalcEulerAxisRates();
 	void CalcMultiAxisRates(const VECTOR3& degNullRatesLocal);
+	
+	void UpdateNullRates();
 
 	void SetRates(const VECTOR3 &degRates, double DeltaT);
 	//void OMSTVC(const VECTOR3& degAngleErrors);
@@ -192,16 +204,27 @@ private:
 	 */
 	void ButtonPress(int id);
 
-	double CalcManeuverCompletionTime(const VECTOR3& radTargetAttOrbiter, const VECTOR3& radNullRatesOrbiter) const;
+	//double CalcManeuverCompletionTime(const VECTOR3& radTargetAttOrbiter, const VECTOR3& radNullRatesOrbiter) const;
+	double CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const MATRIX3& tgtLVLHMatrix, const MATRIX3& curLVLHMatrix, double degOrbitalRate) const;
 
 	/*** Vector/Matrix manipulation functions ***/
 	/**
 	 * Returns current attitude (in RADIANS) in rotatin LVLH frame.
 	 */
-	VECTOR3 GetCurrentLVLHAttitude() const;
-	VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const;
-	MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const;
-	MATRIX3 CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const;
+	//VECTOR3 GetCurrentLVLHAttitude() const;
+	/**
+	 * Returns rotation matrix to convert from LVLH to M50 frame
+	 */
+	MATRIX3 GetCurrentLVLHRefMatrix() const;
+	/**
+	 * Returns rotation matrix representing current attitude in LVLH frame
+	 */
+	MATRIX3 GetCurrentLVLHAttMatrix() const;
+	//VECTOR3 ConvertOrbiterAnglesToLocal(const VECTOR3 &radAngles) const;
+	//MATRIX3 ConvertLVLHAnglesToM50Matrix(const VECTOR3 &radAngles) const;
+	MATRIX3 ConvertLVLHToM50Matrix(const MATRIX3 &matrix) const;
+	//MATRIX3 CalcPitchYawRollRotMatrix(const VECTOR3& radTargetAttOrbiter) const;
+	//MATRIX3 CalcPitchYawRollRotMatrix(const MATRIX3& tgtM50Matrix) const;
 };
 
 };

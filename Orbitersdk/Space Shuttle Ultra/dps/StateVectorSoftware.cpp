@@ -1,5 +1,6 @@
 #include "StateVectorSoftware.h"
 #include "../Atlantis.h"
+#include <UltraMath.h>
 
 namespace dps
 {
@@ -26,6 +27,7 @@ StateVectorSoftware::~StateVectorSoftware()
 
 void StateVectorSoftware::Realize()
 {
+	hEarth = STS()->GetGravityRef();
 	if(!targetVesselName.empty()) SetTargetVessel(const_cast<char*>(targetVesselName.c_str()));
 }
 
@@ -34,7 +36,6 @@ void StateVectorSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	double timeBetweenUpdates = max(4.0, 4.0*oapiGetTimeAcceleration());
 	if((SimT-lastUpdateSimTime) > timeBetweenUpdates) {
 		if(lastUpdateSimTime < 0.0) {
-			hEarth = STS()->GetGravityRef();
 			double J2 = 0;
 			if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
 			propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
@@ -107,6 +108,13 @@ void StateVectorSoftware::GetPropagatedStateVectors(double met, VECTOR3 & pos, V
 	propagator.GetStateVectors(met, pos, vel);
 }
 
+void StateVectorSoftware::GetCurrentStateVectorsM50(VECTOR3& pos, VECTOR3& vel) const
+{
+	GetStateVectors(STS(), hEarth, pos, vel);
+	// GetStateVectors already converts to equatorial (LH M50) frame, so we just need to swap Z and Y axes
+	pos = ConvertBetweenLHAndRHFrames(pos);
+	vel = ConvertBetweenLHAndRHFrames(vel);
+}
 void StateVectorSoftware::GetApogeeData(double& ApD, double& ApT) const
 {
 	propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);

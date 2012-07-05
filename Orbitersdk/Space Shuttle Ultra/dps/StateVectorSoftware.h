@@ -45,6 +45,7 @@ public:
 
 	double GetMETAtAltitude(double altitude) const;
 	void GetPropagatedStateVectors(double met, VECTOR3& pos, VECTOR3& vel) const;
+	void GetCurrentStateVectorsM50(VECTOR3& pos, VECTOR3& vel) const;
 	void GetApogeeData(double& ApD, double& ApT) const;
 	void GetPerigeeData(double& PeD, double& PeT) const;
 
