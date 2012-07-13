@@ -360,8 +360,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//CalculateTargetRoll(DeltaT);
 			double deltaLimit = 2.0;
 			//if(ThrustersActive[ROLL]) deltaLimit = 2.0;
-			tgtBank = range(degTargetAttitude.data[ROLL]-5.0*DeltaT, tgtBank, degTargetAttitude.data[ROLL]+5.0*DeltaT);
-			degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-deltaLimit, tgtBank, degCurrentAttitude.data[ROLL]+deltaLimit);
+			double filteredTgtBank = range(degTargetAttitude.data[ROLL]-5.0*DeltaT, tgtBank, degTargetAttitude.data[ROLL]+5.0*DeltaT);
+			degTargetAttitude.data[ROLL] = range(degCurrentAttitude.data[ROLL]-deltaLimit, filteredTgtBank, degCurrentAttitude.data[ROLL]+deltaLimit);
 		}
 		else
 		{
@@ -1031,7 +1031,7 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 		rudderPos = Yaw_RudderYaw.Step(-STS()->GetSlipAngle()*DEG, DeltaT);
 	}
 	ElevonCommand.SetLine(static_cast<float>(-elevonPos)); // PID controller output has opposite sign of required elevon direction
-	AileronCommand.SetLine(static_cast<float>(aileronPos));
+	AileronCommand.SetLine(static_cast<float>(-aileronPos));
 	STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, rudderPos);
 
 	//sprintf_s(oapiDebugString(), 255, "Roll: %f Target Roll: %f Roll Rate: %f Commanded Aileron: %f",
@@ -1195,7 +1195,7 @@ void AerojetDAP::CSSRollGuidance(double DeltaT)
 	}
 	else {
 		//double RollRateCommand = -STS()->GetControlSurfaceLevel(AIRCTRL_AILERON)*5.0;
-		double RollRateCommand = -RHCInput[ROLL].GetVoltage()*5.0;
+		double RollRateCommand = RHCInput[ROLL].GetVoltage()*5.0;
 		if(GetMajorMode() == 305) RollRateCommand*=2.0;
 		degTargetAttitude.data[ROLL]+=RollRateCommand*DeltaT;
 		
@@ -1222,14 +1222,24 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	degCurrentAttitude.data[YAW] = STS()->GetSlipAngle()*DEG;
 	// for AUTO control, we are interested in bank around lift vector; for CSS control, use actual bank
 	if(!RollYawAuto)
-		degCurrentAttitude.data[ROLL] = STS()->GetBank()*DEG;
+		degCurrentAttitude.data[ROLL] = -STS()->GetBank()*DEG;
 	else
 		degCurrentAttitude.data[ROLL] = CalculateCurrentLiftBank();
 
 	STS()->GetAngularVel(degCurrentRates);
+	degCurrentRates = _V(degCurrentRates.x, -degCurrentRates.y, degCurrentRates.z); // convert to body axis frame
 	degCurrentRates*=DEG;
+	VECTOR3 biasRates; // calculate rotation rate (body axis frame) required to maintain constant attitude
+	VECTOR3 relativeVelVec;
+	oapiGetRelativeVel(STS()->GetHandle(), hEarth, &relativeVelVec);
+	double relativeVel = length(relativeVelVec);
+	biasRates.data[PITCH] = -DEG*(relativeVel/(STS()->GetAltitude() + oapiGetSize(hEarth)));
+	biasRates.data[YAW] = degCurrentRates.data[ROLL]*sin(STS()->GetAOA());
+	//biasRates.data[YAW] = 0.0;
+	biasRates.data[ROLL] = 0.0;
+	degCurrentRates -= biasRates;
 	// rotating frame, so calculate rates by differentiating attitude changes
-	if(!bFirstStep) {
+	/*if(!bFirstStep) {
 		//degCurrentRates.data[YAW] = (degCurrentAttitude.data[YAW]-lastSideslip)/DeltaT;
 		for(unsigned int i=0;i<3;i++) {
 			degCurrentRates.data[i] = (degCurrentAttitude.data[i]-degLastAttitude.data[i])/DeltaT;
@@ -1238,7 +1248,7 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	else {
 		//degCurrentRates.data[YAW] = 0.0;
 		degCurrentRates = _V(0.0, 0.0, 0.0);
-	}
+	}*/
 }
 
 double AerojetDAP::CalculateCurrentLiftBank() const
@@ -1251,7 +1261,7 @@ double AerojetDAP::CalculateCurrentLiftBank() const
 	STS()->GetLiftVector(liftVec);
 	liftVec = RotateVectorX(liftVec, -gamma*DEG);
 	STS()->HorizonRot(liftVec, horLiftVec);
-	double bankSign = sign(STS()->GetBank());
+	double bankSign = -sign(STS()->GetBank());
 	double liftBank = acos(horLiftVec.y/length(horLiftVec));
 	return DEG*bankSign*liftBank;
 }
@@ -1474,7 +1484,7 @@ void AerojetDAP::UpdateRollDirection(double mach, double delaz)
 		if(!performedFirstRollReversal) delazLimit = 10.5;
 		if(mach < 4.0) delazLimit = range(10, (mach-2.8)*6.25 + 10.0, 17.5);
 		if(abs(delaz) >= delazLimit) {
-			tgtBankSign = sign(delaz);
+			tgtBankSign = -sign(delaz);
 			performedFirstRollReversal = true;
 		}
 	}
