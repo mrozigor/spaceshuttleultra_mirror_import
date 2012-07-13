@@ -519,6 +519,7 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 		}
 
 		if(newMajorMode == 305) {
+			TAEMGuidanceMode = ACQ; // initial value; only enter S-Turn phase if we have to
 			// initialize filtered qbar value
 			filteredQBar = STS()->GetDynPressure()*PA2PSF;
 			Roll_AileronRoll.SetGains(0.25, 0.05, 0.0); // set gains for TAEM phase
