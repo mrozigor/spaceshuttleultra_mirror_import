@@ -1478,7 +1478,7 @@ void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double Delt
 void AerojetDAP::UpdateRollDirection(double mach, double delaz)
 {
 	if(EntryGuidanceMode == PREENTRY) {
-		tgtBankSign = sign(delaz);
+		tgtBankSign = -sign(delaz);
 	}
 	else {
 		double delazLimit = 17.5;
