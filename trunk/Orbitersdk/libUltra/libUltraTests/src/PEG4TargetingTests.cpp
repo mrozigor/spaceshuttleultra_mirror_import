@@ -69,7 +69,7 @@ TEST(PEG4TargetingTest, Perturbations) {
 	const double TARGET_HEIGHT = 65.832*NMI2M;
 	const double C1 = 14992/MPS2FPS;
 	const double C2 = -0.6017;
-	const double ACCELERATION = 5.0;
+	const double ACCELERATION = 0.3; // shuttle OMS (both) acceleration should be about 0.5 m/s^2
 
 	// HT = 65.832 nm
 	//double transferTime = -1.0;
@@ -100,8 +100,8 @@ TEST(PEG4TargetingTest, Perturbations) {
 	//const VECTOR3 TARGET_POS = RotateVector(ROT_VECTOR, TRANSFER_ANGLE, INITIAL_POS/length(INITIAL_POS))*(TARGET_HEIGHT+EARTH_RADIUS);
 
 	EXPECT_NEAR(length(targeting.GetDeltaV()), 0.0, 300.0); // ensure DV is reasonable
-	EXPECT_NEAR(dotp(INITIAL_VEL+targeting.GetDeltaV(), ROT_VECTOR), 0.0, 1e-2); // ensure target velocity is in current orbit plane (limit: 0.6 degrees)
-	EXPECT_NEAR(dotp(finalPos/length(finalPos), INITIAL_POS/length(INITIAL_POS)), cos(TRANSFER_ANGLE), 0.001); // check transfer angle
+	EXPECT_NEAR(dotp(targeting.GetDeltaV()/length(targeting.GetDeltaV()), ROT_VECTOR), 0.0, 1e-2); // ensure target velocity is in current orbit plane (limit: 0.6 degrees)
+	EXPECT_NEAR(dotp(finalPos/length(finalPos), INITIAL_POS/length(INITIAL_POS)), cos(TRANSFER_ANGLE), 0.002); // check transfer angle (limit: 0.1 degrees)
 	EXPECT_NEAR(length(finalPos), TARGET_HEIGHT+EARTH_RADIUS, 1e2); // check height at target point
 	//EXPECT_NEAR(length(finalPos-TARGET_POS), 0.0, 1e2);
 	// check velocity constraints
