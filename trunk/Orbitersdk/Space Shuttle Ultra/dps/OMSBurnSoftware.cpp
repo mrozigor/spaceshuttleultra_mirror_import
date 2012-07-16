@@ -256,6 +256,9 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		DeltaVTot = 0.0;
 		return true;
 	}
+	else {
+		bShowTimer = false; // if leaving OMS MNVR EXEC display, turn off timer (so it will be disable the next time we entrer OMS MNVR EXEC)
+	}
 	return false;
 }
 

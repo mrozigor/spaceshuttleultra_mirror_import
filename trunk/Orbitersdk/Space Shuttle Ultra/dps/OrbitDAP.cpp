@@ -380,20 +380,21 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	sprintf_s(oapiDebugString(), 255, "OMSTVC: %f %f %f", pitchDelta, yawDelta, rollDelta);
 
 	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
-	double dYaw=OMSTVCControlY.Step(yawDelta, SimDT);
+	double dYaw=OMSTVCControlY.Step(-yawDelta, SimDT);
+	double dRoll = OMSTVCControlR.Step(rollDelta, SimDT);
 
 	if(ControlMode!=RIGHT_OMS) //left OMS engine burning
 	{
 		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
 		double Pitch=OMSTrim.data[0]+dPitch, Yaw=OMSTrim.data[1]+dYaw;
-		if(ControlMode==BOTH_OMS) Pitch-=rollDelta;
+		if(ControlMode==BOTH_OMS) Pitch-=dRoll;
 		if(!GimbalOMS(LEFT, Pitch, Yaw)) RCSWraparound=true;
 	}
 	if(ControlMode!=LEFT_OMS) //right OMS engine burning
 	{
 		//double dPitch=2.5*pitchDelta, dYaw=3.0*yawDelta; //changes in gimbal position from default (trim) angle
 		double Pitch=OMSTrim.data[0]+dPitch, Yaw=OMSTrim.data[2]+dYaw;
-		if(ControlMode==BOTH_OMS) Pitch+=rollDelta;
+		if(ControlMode==BOTH_OMS) Pitch+=dRoll;
 		if(!GimbalOMS(RIGHT, Pitch, Yaw)) RCSWraparound=true;
 	}
 	//sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
