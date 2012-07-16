@@ -6,7 +6,7 @@
 
 /**
  * Calculates PEG7 targets and transfer time from initial to target position 
- * Assumes instantaneous burn
+ * Assumes instantaneous burn (and no perturbations)
  * \param transferAngle angle between initial and target position (may exceed pi) [rad]
  * \param initialPos position at TIG (equatorial, inertial frame) [m]
  * \param targetPos target position (equatorial, inertial frame) [m]
@@ -51,6 +51,7 @@ public:
  *	5. Compute offset between actual and target position (ignore OOP error); add offset to target point
  *	6. Recalculate target velocity at burn cutoff point
  *	7. Iterate steps 2-6
+ * This always works for shuttle, but might not converge for vessels with low acceleration (i.e. < 0.2 m/s^2)
  */
 class PEG4Targeting
 {

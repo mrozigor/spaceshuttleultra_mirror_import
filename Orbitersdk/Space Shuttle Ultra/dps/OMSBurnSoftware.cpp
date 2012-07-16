@@ -149,12 +149,12 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	double met = STS()->GetMET();
 	if(bCalculatingPEG4Burn) {
 		if(peg4Targeting.Step()) {
-			VECTOR3 equDeltaV = peg4Targeting.GetDeltaV();
 			bCalculatingPEG4Burn = false;
 			if(peg4Targeting.Converged()) {
 				VECTOR3 tigPos, tigVel;
 				pStateVector->GetPropagatedStateVectors(ConvertDDHHMMSSToSeconds(TIG), tigPos, tigVel);
 				MATRIX3 RotMatrix = GetGlobalToLVLHMatrix(tigPos, tigVel, true);
+				VECTOR3 equDeltaV = peg4Targeting.GetDeltaV();
 				PEG7 = mul(RotMatrix, equDeltaV)*MPS2FPS;
 				LoadManeuver();
 				//pOMSBurnSoftware->SetManeuverData(t1_tig, DeltaV);

@@ -6,7 +6,7 @@ static const double PROPAGATOR_STEP_LENGTH = 0.05;
 static const int PROPAGATOR_STEP_COUNT = 800;
 static const double MAX_RANGE_ERROR = 1000.0/MPS2FPS;
 //static const double MAX_RANGE_ERROR = 2000.0;
-static const int MAX_ITERATIONS = 10;
+static const int MAX_ITERATIONS = 20;
 
 VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& targetPos, double mu, double& transferTime)
 {
@@ -170,7 +170,7 @@ bool PEG4Targeting::Step()
 			//propagator.GetStateVectors(burnTime, cutoffPos, cutoffVel);
 			omsPropagator.GetCutoffStateVector(cutoffPos, cutoffVel);
 			orbitPlane = crossp(cutoffPos/length(cutoffPos), cutoffVel/length(cutoffVel));
-			if(iterationCount == 1) {
+			if(iterationCount%2 == 1) { // only propagate every other iteration to target point - this helps convergence when acceleration is low by correcting errors due to burn duration
 				PerformTargetingIteration();
 			}
 			else {
