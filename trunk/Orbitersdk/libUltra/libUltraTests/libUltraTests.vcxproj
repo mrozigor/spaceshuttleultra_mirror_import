@@ -54,7 +54,8 @@
       <AdditionalDependencies>gtestd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>cd $(TargetDir)
+$(TargetDir)$(TargetFileName)</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Run tests</Message>
@@ -76,13 +77,15 @@
       <AdditionalDependencies>gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetDir)$(TargetFileName)</Command>
+      <Command>cd $(TargetDir)
+$(TargetDir)$(TargetFileName)</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Run tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AerodynamicLookupTableTests.cpp" />
     <ClCompile Include="src\LambertBurnTargetingTests.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PEG4TargetingTests.cpp" />
@@ -97,6 +100,9 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFiles\FourDLookupTest.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
