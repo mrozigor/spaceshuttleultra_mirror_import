@@ -156,6 +156,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Averager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\BasicValve.cpp"
 				>
 			</File>
@@ -247,6 +251,10 @@
 			</File>
 			<File
 				RelativePath=".\include\AP101Assembler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Averager.h"
 				>
 			</File>
 			<File
