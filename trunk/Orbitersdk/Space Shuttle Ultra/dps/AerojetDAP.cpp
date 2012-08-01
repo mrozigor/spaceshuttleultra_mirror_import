@@ -158,11 +158,12 @@ QBar_Speedbrake(1.5, 0.0, 0.1, -100.0, 100.0, -200.0, 200.0),
 Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
-lastVAccSum(0.0), lastVspeedSum(0.0), lastTargetAltitudeSum(0.0), tgtBankSign(1.0), performedFirstRollReversal(false),
+tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0),
+tgtBankSign(1.0), performedFirstRollReversal(false),
 TAEMGuidanceMode(ACQ), HACDirection(OVHD), HACSide(L),
 degTargetGlideslope(-20.0), // default OGS glideslope
 prfnlBankFader(5.0), HAC_TurnRadius(20000.0/MPS2FPS), TotalRange(0.0),
-lastNZUpdateTime(-1.0), averageNZ(0.0), curNZValueCount(0),
+lastNZUpdateTime(-1.0), nzAveraging(2.0), averageNZ(0.0),
 filteredQBar(0.0),
 NZCommand(0.0), TargetBank(0.0),
 elevonPos(0.0), aileronPos(0.0), rudderPos(0.0),
@@ -184,8 +185,6 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	degCurrentAttitude = _V(0.0, 0.0, 0.0);
 	degCurrentRates = _V(0.0, 0.0, 0.0);
 	//degTargetRates = _V(0.0, 0.0, 0.0);
-
-	for(int i=0;i<NZ_VALUE_COUNT;i++) NZValues[i] = 0.0;
 
 	LoadLandingSiteList(); // this might be done later in creation process
 
@@ -240,9 +239,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
-		VECTOR3 gravity;
-		STS()->GetWeightVector(gravity);
-		gravity_force = length(gravity);
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
 		bFirstStep = false;
 		bSecondStep = true;
@@ -310,15 +306,15 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		if (EntryGuidanceMode != PREENTRY) {
 			double newTargetAltitude = dTable->TargetAltitude(target_drag,speed,STS()->GetAOA()*DEG,STS()->GetMass(), cd);
 			// update averaging
-			UpdateRequiredStateAveraging(newTargetAltitude, DeltaT);
+			UpdateRequiredStateAveraging(newTargetAltitude, DeltaT, SimT);
 	
 			VECTOR3 vec;
 			STS()->GetHorizonAirspeedVector(vec);
 		
-			double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
-			double avg_vspeed = lastVspeedSum/lastVspeeds.size();
+			double target_altitude = tgtAltAveraging.GetAvgValue();
+			double avg_vspeed = vspeedAveraging.GetAvgValue();
 			double target_vspeed = avg_vspeed + 2e-2*(target_altitude - STS()->GetAltitude());
-			double target_vacc = lastVAccSum/lastVAccs.size() + 1e-1*(target_vspeed - vec.y);
+			double target_vacc = vaccAveraging.GetAvgValue() + 1e-1*(target_vspeed - vec.y);
 		
 			lastTgtAltitude = target_altitude;
 			lastRefVSpeed = avg_vspeed;
@@ -330,7 +326,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			char cbuf[255];
 			//sprintf_s(cbuf, 255, "Target drag: %lf, Target altitude: %lf, Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Tgt VAcc: %f VAcc error: %f",target_drag,target_altitude,target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, target_vacc, target_vacc-cur_vacc);
 			//sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f Expected Vacc: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank, expectedVacc);
-			sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank);
+			sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f", target_altitude-STS()->GetAltitude(), vspeedAveraging.GetAvgValue(), vspeedAveraging.GetAvgValue()-vec.y, vaccAveraging.GetAvgValue(), target_vacc, actBank, tgtBank, tgtBank-actBank);
 			//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
 			switch(EntryGuidanceMode) {
 			case TEMP_CONTROL:
@@ -450,17 +446,15 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			// update NZ
 			if(lastNZUpdateTime < SimT-NZ_UPDATE_INTERVAL) {
 				lastNZUpdateTime = SimT;
-				for(int i=0;i<NZ_VALUE_COUNT-1;i++) NZValues[i] = NZValues[i+1];
 
-				VECTOR3 lift, drag;
+				VECTOR3 lift, drag, gravity;
 				STS()->GetLiftVector(lift);
 				STS()->GetDragVector(drag);
-				NZValues[NZ_VALUE_COUNT-1] = (lift.y+drag.y)/gravity_force;
-				if(curNZValueCount<NZ_VALUE_COUNT) curNZValueCount++;
+				STS()->GetWeightVector(gravity);
+				double curNZ = (lift.y+drag.y)/length(gravity);
+				nzAveraging.NewValue(curNZ, SimT);
 
-				double total = 0.0;
-				for(int i=0;i<NZ_VALUE_COUNT;i++) total+=NZValues[i];
-				averageNZ = total/NZ_VALUE_COUNT;
+				averageNZ = nzAveraging.GetAvgValue();
 			}
 
 			switch(TAEMGuidanceMode) {
@@ -1442,37 +1436,17 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 	}
 }
 
-void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double DeltaT)
+void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double DeltaT, double SimT)
 {
-	if(lastTargetAltitudes.size() >= 200) {
-		lastTargetAltitudeSum -= lastTargetAltitudes.front();
-		lastTargetAltitudes.pop();
-	}
-	lastTargetAltitudes.push(targetAltitude);
-	lastTargetAltitudeSum += targetAltitude;
-	//double target_vspeed = (target_altitude-oldTargetAltitude)/DeltaT;
-	double target_altitude = lastTargetAltitudeSum/lastTargetAltitudes.size();
+	tgtAltAveraging.NewValue(targetAltitude, SimT);
 
-	double ref_vspeed = range(-250.0, (target_altitude-lastTgtAltitude)/DeltaT, 250.0);
-	if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
-	// update averaging
-	lastVspeedSum += ref_vspeed;
-	lastVspeeds.push(ref_vspeed);
-	if(lastVspeeds.size() >= 500) {
-		lastVspeedSum -= lastVspeeds.front();
-		lastVspeeds.pop();
-	}
-	double avg_vspeed = lastVspeedSum/lastVspeeds.size();
+	double ref_vspeed = range(-250.0, (tgtAltAveraging.GetAvgValue()-lastTgtAltitude)/DeltaT, 250.0);
+	//if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
+	vspeedAveraging.NewValue(ref_vspeed, SimT);
 
-	double ref_vacc = range(-10.0, (avg_vspeed-lastRefVSpeed)/DeltaT, 10.0);
-	if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
-	// update averaging
-	lastVAccSum += ref_vacc;
-	lastVAccs.push(ref_vacc);
-	if(lastVAccs.size() >= 1000) {
-		lastVAccSum -= lastVAccs.front();
-		lastVAccs.pop();
-	}
+	double ref_vacc = range(-10.0, (vspeedAveraging.GetAvgValue()-lastRefVSpeed)/DeltaT, 10.0);
+	//if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
+	vaccAveraging.NewValue(ref_vacc, SimT);
 }
 
 void AerojetDAP::UpdateRollDirection(double mach, double delaz)

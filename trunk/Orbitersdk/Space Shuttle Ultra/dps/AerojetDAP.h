@@ -2,12 +2,12 @@
 #define AEROJETDAP_H_77EB3AE1_0A62_4181_8370_0F9995B10FEF
 #pragma once
 
-#include <queue>
 #include "../PIDControl.h"
 //#include "../AtlantisSubsystem.h"
 #include "SimpleGPCSoftware.h"
 #include <EngConst.h>
 #include <discsignals.h>
+#include <Averager.h>
 #include "../ReentryDragTable.h"
 
 namespace dps
@@ -149,12 +149,15 @@ private:
 	double constDragStartVel; // VCG
 	double lastTgtAltitude;
 	double lastRefVSpeed;
-	double lastVAccSum;
-	std::queue<double> lastVAccs;
-	double lastVspeedSum;
-	std::queue<double> lastVspeeds;
-	double lastTargetAltitudeSum;
-	std::queue<double> lastTargetAltitudes;
+	//double lastVAccSum;
+	//std::queue<double> lastVAccs;
+	//double lastVspeedSum;
+	//std::queue<double> lastVspeeds;
+	//double lastTargetAltitudeSum;
+	//std::queue<double> lastTargetAltitudes;
+	Averager tgtAltAveraging;
+	Averager vspeedAveraging;
+	Averager vaccAveraging;
 	double tgtBankSign; // changed at each roll reversal
 	bool performedFirstRollReversal;
 
@@ -170,12 +173,12 @@ private:
 	double prfnlBankFader;
 	double HAC_TurnRadius; // also used by Entry Guidance
 	double TotalRange;
-	double gravity_force;
 	/** values for calculating NZ **/
 	// NZ needs to be averaged to compensate for elevon deflections
 	double lastNZUpdateTime;
-	double averageNZ, NZValues[NZ_VALUE_COUNT];
-	int curNZValueCount;
+	Averager nzAveraging;
+	double averageNZ;
+	//int curNZValueCount;
 	/** values related to qbar (dynamic pressure) **/
 	// all values in kPa
 	double filteredQBar;
@@ -274,7 +277,7 @@ private:
 	/**
 	 * Updates averaging for target altitude, vspeed and vacc.
 	 */
-	void UpdateRequiredStateAveraging(double targetAltitude, double DeltaT);
+	void UpdateRequiredStateAveraging(double targetAltitude, double DeltaT, double SimT);
 	//double CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double);
 	/**
 	 * Calculates roll direction (-1 or +1) for maintaing delaz within limits.

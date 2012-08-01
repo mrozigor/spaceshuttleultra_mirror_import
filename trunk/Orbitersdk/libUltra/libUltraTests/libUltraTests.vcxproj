@@ -86,6 +86,7 @@ $(TargetDir)$(TargetFileName)</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AerodynamicLookupTableTests.cpp" />
+    <ClCompile Include="src\AveragerTests.cpp" />
     <ClCompile Include="src\LambertBurnTargetingTests.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PEG4TargetingTests.cpp" />

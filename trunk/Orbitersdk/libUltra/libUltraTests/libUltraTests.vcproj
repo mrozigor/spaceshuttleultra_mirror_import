@@ -176,11 +176,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\AveragerTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\LambertBurnTargetingTests.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\src\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\PEG4TargetingTests.cpp"
 				>
 			</File>
 			<File
