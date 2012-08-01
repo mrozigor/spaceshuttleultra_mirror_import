@@ -111,7 +111,12 @@ MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool chang
 //VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 //void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation
+/**
+ * Returns index of largest element in (sorted) array which is smaller than target.
+ * Maximum index returned will be size()-2 (this makes interpolation easier).
+ */
 unsigned int GetLowerIndex(const std::vector<double> &list, double target);
+unsigned int GetLowerIndex(const double* list, unsigned int size, double target);
 int tpir(const double* list, int n_items, double target);
 double linterp(double x0, double y0, double x1, double y1, double x);
 double listerp(const std::vector<double> &listx, const std::vector<double> &listy, double x);

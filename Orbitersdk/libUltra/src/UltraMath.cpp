@@ -1,5 +1,6 @@
 #include "UltraMath.h"
 #include "kost.h"
+#include <algorithm>
 
 unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// char buf[64];
@@ -20,6 +21,14 @@ unsigned int GetLowerIndex(const std::vector<double> &list, double target) {
 	// sprintf(buf,"result %d",-46);
 	// strcat(oapiDebugString(),buf);
 	return 0; // we should never hit this point
+}
+
+unsigned int GetLowerIndex(const double* list, unsigned int size, double target)
+{
+	unsigned int diff = std::distance(list, std::upper_bound(list, list+size, target));
+	if(diff > 0) diff -= 1; // upper_bound returns first element larger than target; we want one before this
+	if(diff >= size-1) return size-2; // used for interpolation, so never return last element in array
+	return diff;
 }
 
 /*void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass)
