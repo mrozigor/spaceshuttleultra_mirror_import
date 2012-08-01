@@ -242,6 +242,7 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
 Aerodynamics::ThreeDLookup elevonVerticalLookup;
 Aerodynamics::ThreeDLookup verticalLookup;
 Aerodynamics::ThreeDLookup bodyFlapVerticalLookup;
+Aerodynamics::FourDLookup horizontalLookup;
 Aerodynamics::ThreeDLookup aileronHorizontalLookup;
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
@@ -274,43 +275,53 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 
 void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
 {
-	static const double step = RAD*22.5;
-	static const double istep = 1.0/step;
-	static const int nabsc = 17;
-	static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
+	//static const double step = RAD*22.5;
+	//static const double istep = 1.0/step;
+	//static const int nabsc = 17;
+	//static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
 
 	double aoa = v->GetAOA()*DEG;
 	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
 	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
-	double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
+	//double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
+	double aileronPos = aerosurfaces->rightElevon-aerosurfaces->leftElevon;
+
+	double sideForce, yawMoment, rollMoment;
+	horizontalLookup.GetValues(M, aoa, abs(beta)*DEG, aerosurfaces->speedbrake, sideForce, yawMoment, rollMoment);
+	sideForce *= sign(beta);
+	yawMoment *= sign(beta);
+	rollMoment *= sign(beta);
+	//sideForce = yawMoment = rollMoment = 0.0;
 
 	double ailSideForce, ailYawMoment, ailRollMoment;
 	// get linearized derivatives and multiply results by aileron deflection
+	//aileronHorizontalLookup.GetValues(M, aoa*DEG, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
 	aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
-	ailSideForce*=aileronPos;
-	ailYawMoment*=aileronPos;
-	ailRollMoment*=aileronPos;
+	sideForce += ailSideForce*aileronPos;
+	yawMoment += ailYawMoment*aileronPos;
+	rollMoment += ailRollMoment*aileronPos;
 	
-	VECTOR3 sideForceVec = _V(ailSideForce, 0.0, 0.0);
-	VECTOR3 ld = RotateVectorZ(sideForceVec, -beta*DEG);
-	if(beta < 0.0) ld = -ld; // correct direction of side force for -ve beta
+	// split side force into 'lift' and 'drag' components
+	VECTOR3 sideForceVec = _V(sideForce, 0.0, 0.0);
+	VECTOR3 ld = RotateVectorZ(sideForceVec, beta*DEG);
 
 	double qbar = v->GetDynPressure();
-	double rollMoment = ailRollMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
+	double rollForce = rollMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
 	// add force caused by aileron deflection
-	v->AddForce(_V(0.0, 0.5*rollMoment, 0.0), _V(1.0, 0.0, 0.0));
-	v->AddForce(_V(0.0, -0.5*rollMoment, 0.0), _V(-1.0, 0.0, 0.0));
+	v->AddForce(_V(0.0, -0.5*rollForce, 0.0), _V(-1.0, 0.0, 0.0));
+	v->AddForce(_V(0.0, 0.5*rollForce, 0.0), _V(1.0, 0.0, 0.0));
 
 	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
 		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
 	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
 		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
 
-	beta += PI;
-	int idx = max (0, min (15, (int)(beta*istep)));
-	double d = beta*istep - idx;
-	*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ld.x;
-	*cm = 0.0 + ailYawMoment;
+	//beta += PI;
+	//int idx = max (0, min (15, (int)(beta*istep)));
+	//double d = beta*istep - idx;
+	//*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ld.x;
+	*cl = ld.x;
+	*cm = 0.0 + yawMoment;
 	//*cm = 0.02;
 	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
 	*cd = 0.0 + ld.y;
@@ -4483,8 +4494,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
 			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
 			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
-			aerosurfaces.leftElevon = range(-33.0, elevonPos+aileronPos, 18.0);
-			aerosurfaces.rightElevon = range(-33.0, elevonPos-aileronPos, 18.0);
+			aerosurfaces.leftElevon = range(-33.0, elevonPos-aileronPos, 18.0);
+			aerosurfaces.rightElevon = range(-33.0, elevonPos+aileronPos, 18.0);
 			aerosurfaces.bodyFlap = 0.0;
 			aerosurfaces.speedbrake = spdb_proc*100.0;
 		}
@@ -6943,6 +6954,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
   verticalLookup.Init("Config/SSU_Aero.csv");
   bodyFlapVerticalLookup.Init("Config/SSU_BodyFlap.csv");
+  horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
   aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
   InitMissionManagementMemory();
