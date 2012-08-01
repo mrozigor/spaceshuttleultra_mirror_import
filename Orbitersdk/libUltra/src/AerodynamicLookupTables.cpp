@@ -17,55 +17,17 @@ TwoDLookup::~TwoDLookup()
 {
 }
 
-/*void TwoDLookup::AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size)
-{
-	xValues.push_back(x);
-	yValues.push_back(std::vector<double>(yData, yData+size));
-	liftLookupTable.push_back(std::vector<double>(liftData, liftData+size));
-	dragLookupTable.push_back(std::vector<double>(dragData, dragData+size));
-	momentLookupTable.push_back(std::vector<double>(momentData, momentData+size));
-}*/
-
-/*void TwoDLookup::AddAxialDataRange(double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
-{
-	xValues.push_back(x);
-	yValues.push_back(std::vector<double>(yData, yData+size));
-	liftLookupTable.push_back(std::vector<double>());
-	dragLookupTable.push_back(std::vector<double>());
-	momentLookupTable.push_back(std::vector<double>(momentData, momentData+size));
-
-	dragLookupTable[dragLookupTable.size()-1].reserve(size);
-	liftLookupTable[liftLookupTable.size()-1].reserve(size);
-	for(unsigned int i=0;i<size;i++) {
-		VECTOR3 axial = _V(-axialData[i], normalData[i], 0.0);
-		VECTOR3 ld = RotateVectorZ(axial, x);
-		dragLookupTable[dragLookupTable.size()-1].push_back(-ld.x);
-		liftLookupTable[liftLookupTable.size()-1].push_back(ld.y);
-	}
-}*/
-
-void TwoDLookup::AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData)
+void TwoDLookup::AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& yawMomentData, const std::vector<double>& rollMomentData)
 {
 	assert(deflectionData.size() == sideForceData.size());
-	assert(deflectionData.size() == momentData.size());
-
-	// split side force data to lift/drag coefficients
-	std::vector<double> lift;
-	std::vector<double> drag;
-	lift.reserve(sideForceData.size());
-	drag.reserve(sideForceData.size());
-	for(unsigned int i=0;i<sideForceData.size();i++) {
-		VECTOR3 axial = _V(sideForceData[i], 0.0, 0.0);
-		VECTOR3 ld = RotateVectorZ(axial, -beta);
-		lift.push_back(ld.x);
-		drag.push_back(ld.y);
-	}
+	assert(deflectionData.size() == yawMomentData.size());
+	assert(deflectionData.size() == rollMomentData.size());
 
 	xValues.push_back(beta);
 	yValues.push_back(deflectionData);
-	liftLookupTable.push_back(lift);
-	dragLookupTable.push_back(drag);
-	momentLookupTable.push_back(momentData);
+	liftLookupTable.push_back(sideForceData);
+	dragLookupTable.push_back(yawMomentData);
+	momentLookupTable.push_back(rollMomentData);
 }
 
 void TwoDLookup::AddVerticalDataRange(double x, const std::vector<double>& yData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)
@@ -95,8 +57,6 @@ void TwoDLookup::GetValues(double x, double y, double& cl, double& cd, double& c
 	if(y<yValues[xUpperIndex][yUpperIndex] || y>yValues[xUpperIndex][yUpperIndex+1])
 		yUpperIndex = GetLowerIndex(yValues[xUpperIndex], y);
 
-	//unsigned int y2 = GetLowerIndex(yValues[x2], y);
-	
 	cl = Interpolate(liftLookupTable, xLowerIndex, yLowerIndex, xUpperIndex, yUpperIndex, x, y);
 	cd = Interpolate(dragLookupTable, xLowerIndex, yLowerIndex, xUpperIndex, yUpperIndex, x, y);
 	cm = Interpolate(momentLookupTable, xLowerIndex, yLowerIndex, xUpperIndex, yUpperIndex, x, y);
@@ -154,17 +114,15 @@ void ThreeDLookup::Init(const char* dataFile, bool isHorizontalData)
 			ReadCSVLine(line, machAoaValues);
 			std::getline(dataIn, line);
 			ReadCSVLine(line, normalData);
-			if(!isHorizontalData) {
-				std::getline(dataIn, line);
-				ReadCSVLine(line, axialData);
-			}
+			std::getline(dataIn, line);
+			ReadCSVLine(line, axialData);
 			std::getline(dataIn, line);
 			ReadCSVLine(line, momentData);
 
 			// make sure block of data is valid
 			bool countError = ( (machAoaValues.size() != 2) ||
 				( normalData.size() != deflectionRange.size()) ||
-				( !isHorizontalData && (axialData.size() != deflectionRange.size()) ) ||
+				( axialData.size() != deflectionRange.size() ) ||
 				( momentData.size() != deflectionRange.size()) );
 			if(countError) {
 				std::ostringstream message;
@@ -186,13 +144,12 @@ void ThreeDLookup::Init(const char* dataFile, bool isHorizontalData)
 			lastAOA = machAoaValues[1];
 
 			if(isHorizontalData) {
-				AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, momentData);
-				lineCount+=3;
+				AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
 			}
 			else {
 				AddVerticalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
-				lineCount+=4;
 			}
+			lineCount+=4;
 		}
 		dataIn.close();
 	}
@@ -237,49 +194,14 @@ void ThreeDLookup::GetValues(double mach, double aoa, double deflection, double 
 	cm = linterp(zValues[lowerZIndex], cm1, zValues[upperZIndex], cm2, mach);
 }
 
-/*void ThreeDLookup::AddDataRange(double z, double x, const double *yData, const double *liftData, const double *dragData, const double *momentData, unsigned int size)
-{
-	if(zValues.size()==0 || zValues[zValues.size()-1]!=z) {
-		zValues.push_back(z);
-		lookupTables.push_back(TwoDLookup());
-	}
-
-	lookupTables[lookupTables.size()-1].AddDataRange(x, yData, liftData, dragData, momentData, size);
-}*/
-
-/*void ThreeDLookup::AddAxialDataRange(double z, double x, const double *yData, const double *normalData, const double *axialData, const double *momentData, unsigned int size)
-{
-	/*double* liftData = new double[size];
-	double* dragData = new double[size];
-
-	for(unsigned int i=0;i<size;i++) {
-		VECTOR3 axial = _V(-axialData[i], normalData[i], 0.0);
-		VECTOR3 ld = RotateVectorZ(axial, x);
-		dragData[i] = -ld.x;
-		liftData[i] = ld.y;
-	}
-
-	AddDataRange(z, x, yData, liftData, dragData, momentData, size);
-
-	delete[] liftData;
-	delete[] dragData;*
-	
-	if(zValues.size()==0 || zValues[zValues.size()-1]!=z) {
-		zValues.push_back(z);
-		lookupTables.push_back(TwoDLookup());
-	}
-
-	lookupTables[lookupTables.size()-1].AddAxialDataRange(x, yData, normalData, axialData, momentData, size);
-}*/
-
-void ThreeDLookup::AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData)
+void ThreeDLookup::AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& yawMomentData, const std::vector<double>& rollMomentData)
 {
 	if(zValues.empty() || zValues[zValues.size()-1]!=mach) {
 		zValues.push_back(mach);
 		lookupTables.push_back(TwoDLookup());
 	}
 
-	lookupTables[lookupTables.size()-1].AddHorizontalDataRange(aoa, deflectionData, sideForceData, momentData);
+	lookupTables[lookupTables.size()-1].AddHorizontalDataRange(aoa, deflectionData, sideForceData, yawMomentData, rollMomentData);
 }
 
 void ThreeDLookup::AddVerticalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& normalData, const std::vector<double>& axialData, const std::vector<double>& momentData)

@@ -284,15 +284,19 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
 	double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
 
-	double ailLift, ailDrag, ailMoment;
+	double ailSideForce, ailYawMoment, ailRollMoment;
 	// get linearized derivatives and multiply results by aileron deflection
-	aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailLift, ailDrag, ailMoment);
-	ailLift*=aileronPos;
-	ailDrag*=aileronPos;
-	ailMoment*=aileronPos;
+	aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
+	ailSideForce*=aileronPos;
+	ailYawMoment*=aileronPos;
+	ailRollMoment*=aileronPos;
+	
+	VECTOR3 sideForceVec = _V(ailSideForce, 0.0, 0.0);
+	VECTOR3 ld = RotateVectorZ(sideForceVec, -beta*DEG);
+	if(beta < 0.0) ld = -ld; // correct direction of side force for -ve beta
 
 	double qbar = v->GetDynPressure();
-	double rollMoment = ailMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
+	double rollMoment = ailRollMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
 	// add force caused by aileron deflection
 	v->AddForce(_V(0.0, 0.5*rollMoment, 0.0), _V(1.0, 0.0, 0.0));
 	v->AddForce(_V(0.0, -0.5*rollMoment, 0.0), _V(-1.0, 0.0, 0.0));
@@ -305,11 +309,11 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	beta += PI;
 	int idx = max (0, min (15, (int)(beta*istep)));
 	double d = beta*istep - idx;
-	*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ailLift;
-	*cm = 0.0 + ailMoment;
+	*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ld.x;
+	*cm = 0.0 + ailYawMoment;
 	//*cm = 0.02;
 	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
-	*cd = 0.0 + ailDrag;
+	*cd = 0.0 + ld.y;
 }
 void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
 {
