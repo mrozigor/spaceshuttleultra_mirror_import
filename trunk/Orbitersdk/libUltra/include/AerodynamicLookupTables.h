@@ -33,23 +33,11 @@ public:
 	static bool Compare(TwoDLookup& l1, TwoDLookup& l2);
 protected:
 	/**
-	 * Adds data to lookup tables
-	 * Note that this MUST be called in order of increasing x-value (i.e. 0.5 to 25.0)
-	 */
-	//void AddDataRange(double x, const double* yData, const double* liftData, const double* dragData, const double* momentData, unsigned int size);
-	/**
-	 * Similar to AddDataRange, but for normal/axial values instead of lift/drag
-	 * Converts values to lift/drag coefficients
-	 */
-	//void AddAxialDataRange(double x, const double* yData, const double* normalData, const double* axialData, const double* momentData, unsigned int size);
-	
-	/**
 	 * Adds data to lookup tables.
-	 * Should only be used for horizontal aerodynamic data (no drag coefficients)
-	 * Splits side force data into lift and drag coefficients
+	 * Should only be used for horizontal aerodynamic data (side force instead of lift/drag coefficients)
 	 * Note that this MUST be called in order of increasing mach value (i.e. 0.5 to 25.0)
 	 */
-	void AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData);
+	void AddHorizontalDataRange(double beta, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& yawMomentData, const std::vector<double>& rollMomentData);
 	/**
 	 * Adds vertical data to lookup tables.
 	 * Converts axial values to lift/drag coefficients
@@ -91,13 +79,7 @@ public:
 
 	static bool Compare(ThreeDLookup& l1, ThreeDLookup& l2);
 protected:
-	/**
-	 * Adds data to lookup tables
-	 * Note that this MUST be called in order of increasing z-value, then increasing x-value
-	 */
-	//void AddDataRange(double mach, double aoa, const double* deflectionData, const double* liftData, const double * dragData, const double* momentData, unsigned int size);
-	
-	void AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& momentData);
+	void AddHorizontalDataRange(double mach, double aoa, const std::vector<double>& deflectionData, const std::vector<double>& sideForceData, const std::vector<double>& yawMomentData, const std::vector<double>& rollMomentData);
 	/**
 	 * Adds vertical data to lookup table
 	 * Converts axial values to lift/drag coefficients
