@@ -7,6 +7,18 @@
 
 namespace Aerodynamics
 {
+	
+void ReadCSVLine(const std::string &line, std::vector<double> &data)
+{
+	data.clear(); // empty vector before adding data
+	std::istringstream inputStream(line);
+	while(!inputStream.eof()) {
+		double value;
+		inputStream>>value;
+		data.push_back(value);
+		inputStream.ignore(1, ',');
+	}
+}
 
 TwoDLookup::TwoDLookup()
 : xLowerIndex(0), yLowerIndex(0), xUpperIndex(1), yUpperIndex(1)
@@ -92,65 +104,17 @@ ThreeDLookup::ThreeDLookup(const char* dataFile, bool isHorizontalData)
 	Init(dataFile, isHorizontalData);
 }
 	
+ThreeDLookup::~ThreeDLookup()
+{
+}
+
 void ThreeDLookup::Init(const char* dataFile, bool isHorizontalData)
 {
 	std::ifstream dataIn(dataFile);
 	if(!dataIn.fail()) { // file was opened; read data
-		std::string line;
-		// read deflection range
-		std::vector<double> deflectionRange;
-		std::getline(dataIn, line);
-		ReadCSVLine(line, deflectionRange);
-
-		unsigned int lineCount = 2; // counter in case file is invalid
-		double lastMach = 0.0;
-		double lastAOA = 0.0;
-		std::vector<double> normalData;
-		std::vector<double> axialData;
-		std::vector<double> momentData;
-		std::vector<double> machAoaValues;
-		while(dataIn.good()) {
-			std::getline(dataIn, line);
-			ReadCSVLine(line, machAoaValues);
-			std::getline(dataIn, line);
-			ReadCSVLine(line, normalData);
-			std::getline(dataIn, line);
-			ReadCSVLine(line, axialData);
-			std::getline(dataIn, line);
-			ReadCSVLine(line, momentData);
-
-			// make sure block of data is valid
-			bool countError = ( (machAoaValues.size() != 2) ||
-				( normalData.size() != deflectionRange.size()) ||
-				( axialData.size() != deflectionRange.size() ) ||
-				( momentData.size() != deflectionRange.size()) );
-			if(countError) {
-				std::ostringstream message;
-				message << "ERROR: Invalid aerodynamic data file " << dataFile << std::endl;
-				message << "Data block at line " << lineCount;
-				oapiWriteLog((char*)message.str().c_str());
-				break;
-			}
-			else { // check that data is added in correct order
-				if((Eq(lastMach, machAoaValues[0], 0.0001) && machAoaValues[1]<lastAOA) || machAoaValues[0]<lastMach) {
-					std::ostringstream message;
-					message << "ERROR: Incorrect data order " << dataFile << std::endl;
-					message << "Data block at line " << lineCount;
-					oapiWriteLog((char*)message.str().c_str());
-					break;
-				}
-			}
-			lastMach = machAoaValues[0];
-			lastAOA = machAoaValues[1];
-
-			if(isHorizontalData) {
-				AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
-			}
-			else {
-				AddVerticalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
-			}
-			lineCount+=4;
-		}
+		oapiWriteLog("Loading aerodynamic data from file");
+		oapiWriteLog((char*)dataFile);
+		Init(dataIn, isHorizontalData);
 		dataIn.close();
 	}
 	else {
@@ -170,12 +134,70 @@ void ThreeDLookup::Init(const char* dataFile, bool isHorizontalData)
 		oapiWriteLog((char*)stream1.str().c_str());
 		oapiWriteLog((char*)stream2.str().c_str());
 	}*/
+
 }
 
-ThreeDLookup::~ThreeDLookup()
+void ThreeDLookup::Init(std::istream& data, bool isHorizontalData)
 {
-}
+	std::string line;
+	// read deflection range
+	std::vector<double> deflectionRange;
+	std::getline(data, line);
+	ReadCSVLine(line, deflectionRange);
 
+	unsigned int lineCount = 2; // counter in case file is invalid
+	double lastMach = -100.0;
+	double lastAOA = -100.0;
+	std::vector<double> normalData;
+	std::vector<double> axialData;
+	std::vector<double> momentData;
+	std::vector<double> machAoaValues;
+	while(data.good()) {
+		std::getline(data, line);
+		ReadCSVLine(line, machAoaValues);
+		std::getline(data, line);
+		ReadCSVLine(line, normalData);
+		std::getline(data, line);
+		ReadCSVLine(line, axialData);
+		std::getline(data, line);
+		ReadCSVLine(line, momentData);
+
+		// make sure block of data is valid
+		bool countError = ( (machAoaValues.size() != 2) ||
+							( normalData.size() != deflectionRange.size()) ||
+							( axialData.size() != deflectionRange.size() ) ||
+							( momentData.size() != deflectionRange.size()) );
+		if(countError) {
+			std::ostringstream message;
+			message << "ERROR: Invalid aerodynamic data file " << std::endl;
+			message << "Data block at line " << lineCount;
+			oapiWriteLog((char*)message.str().c_str());
+			oapiWriteLog((char*)line.c_str());
+			break;
+		}
+		else { // check that data is added in correct order
+			if((Eq(lastMach, machAoaValues[0], 0.0001) && machAoaValues[1]<lastAOA) || machAoaValues[0]<lastMach) {
+				std::ostringstream message;
+				message << "ERROR: Incorrect data order " << std::endl;
+				message << "Mach: " << machAoaValues[0] << " AOA: " << machAoaValues[1] << std::endl;
+				message << "Data block at line " << lineCount;
+				oapiWriteLog((char*)message.str().c_str());
+				break;
+			}
+		}
+		lastMach = machAoaValues[0];
+		lastAOA = machAoaValues[1];
+
+		if(isHorizontalData) {
+			AddHorizontalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
+		}
+		else {
+			AddVerticalDataRange(machAoaValues[0], machAoaValues[1], deflectionRange, normalData, axialData, momentData);
+		}
+		lineCount+=4;
+	}
+}
+	
 void ThreeDLookup::GetValues(double mach, double aoa, double deflection, double &cl, double &cd, double &cm)
 {
 	double cl1, cl2;
@@ -214,7 +236,7 @@ void ThreeDLookup::AddVerticalDataRange(double mach, double aoa, const std::vect
 	lookupTables[lookupTables.size()-1].AddVerticalDataRange(aoa, deflectionData, normalData, axialData, momentData);
 }
 
-void ThreeDLookup::ReadCSVLine(const std::string &line, std::vector<double> &data) const
+/*void ThreeDLookup::ReadCSVLine(const std::string &line, std::vector<double> &data) const
 {
 	data.clear(); // empty vector before adding data
 	std::istringstream inputStream(line);
@@ -224,7 +246,7 @@ void ThreeDLookup::ReadCSVLine(const std::string &line, std::vector<double> &dat
 		data.push_back(value);
 		inputStream.ignore(1, ',');
 	}
-}
+}*/
 
 bool ThreeDLookup::Compare(ThreeDLookup& l1, ThreeDLookup& l2)
 {
@@ -235,6 +257,103 @@ bool ThreeDLookup::Compare(ThreeDLookup& l1, ThreeDLookup& l2)
 			return false;
 	}
 	return true;
+}
+
+FourDLookup::FourDLookup()
+: lowerIndex(0)
+{
+}
+
+FourDLookup::~FourDLookup()
+{
+}
+	
+void FourDLookup::Init(const char* dataFile, bool isHorizontalData)
+{
+	std::ifstream data(dataFile);
+	if(!data.fail()) { // file was opened; read data
+		oapiWriteLog("Loading aerodynamic data from file");
+		oapiWriteLog((char*)dataFile);
+		//Init(dataIn, isHorizontalData);
+		
+		std::string line;
+		// read deflection range
+		std::getline(data, line);
+		ReadCSVLine(line, machValues);
+		// ignore next 2 lines (blank line, followed by first deflection value)
+		std::getline(data, line);
+		std::getline(data, line);
+
+		unsigned int lineCount = 1;
+		bool emptyTable = true;
+		std::stringstream ThreeDTable;
+		while(data.good()) {
+			std::getline(data, line);
+			++lineCount;
+			if(line.length() == 0) { // empty line; create new table
+				lookupTables.push_back(ThreeDLookup());
+				lookupTables.back().Init(ThreeDTable, isHorizontalData);
+				// clear string and reset flags
+				ThreeDTable.str(std::string());
+				ThreeDTable.clear();
+				emptyTable = true;
+				// log progress
+				std::ostringstream message;
+				message << "Read 3D table block ending at " << lineCount-1 << std::endl;
+				oapiWriteLog((char*)message.str().c_str());
+				// ignore next line (only used to make editing table easier)
+				if(data.good()) std::getline(data, line);
+			}
+			else {
+				//ThreeDTable << line << std::endl;
+				if(!emptyTable) ThreeDTable << std::endl;
+				ThreeDTable << line;
+				emptyTable = false;
+			}
+		}
+		if(ThreeDTable.str().length() > 0) { // create new table for last data block
+			lookupTables.push_back(ThreeDLookup());
+			lookupTables.back().Init(ThreeDTable, isHorizontalData);
+		}
+	
+		data.close();
+	}
+	else {
+		oapiWriteLog("ERROR: Could not find aerodynamic data file");
+		oapiWriteLog((char*)dataFile);
+	}
+
+	/*for(unsigned int i=0;i<lookupTables[0].liftLookupTable.size();i++) {
+		std::ostringstream stream1;
+		std::ostringstream stream2;
+		stream1 << zValues[0] << " " << lookupTables[0].xValues[i];
+		stream2 << zValues[0] << " "<< lookupTables[0].xValues[i];
+		for(unsigned int j=0;j<lookupTables[0].liftLookupTable[i].size();j++) {
+			stream1 << " " << lookupTables[0].liftLookupTable[i][j];
+			stream2 << " " << lookupTables[0].dragLookupTable[i][j];
+		}
+		oapiWriteLog((char*)stream1.str().c_str());
+		oapiWriteLog((char*)stream2.str().c_str());
+	}*/
+}
+	
+void FourDLookup::GetValues(double mach, double aoa, double beta, double deflection, double& cl, double& cd, double& cm)
+{
+	double cl1, cl2;
+	double cd1, cd2;
+	double cm1, cm2;
+
+	if(mach<machValues[lowerIndex] || mach>machValues[lowerIndex+1])
+		lowerIndex = GetLowerIndex(machValues, mach);
+	unsigned int upperIndex = lowerIndex+1;
+
+	lookupTables[lowerIndex].GetValues(deflection, aoa, beta, cl1, cd1, cm1);
+	lookupTables[upperIndex].GetValues(deflection, aoa, beta, cl2, cd2, cm2);
+
+	cl = linterp(machValues[lowerIndex], cl1, machValues[upperIndex], cl2, mach);
+	cd = linterp(machValues[lowerIndex], cd1, machValues[upperIndex], cd2, mach);
+	cm = linterp(machValues[lowerIndex], cm1, machValues[upperIndex], cm2, mach);
+
 }
 
 };

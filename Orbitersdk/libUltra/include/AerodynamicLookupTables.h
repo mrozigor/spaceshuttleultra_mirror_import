@@ -6,6 +6,8 @@
 
 namespace Aerodynamics
 {
+	
+void ReadCSVLine(const std::string &line, std::vector<double> &data);
 
 /**
  * 2D lookup tables for cl, cd and cm values.
@@ -60,6 +62,13 @@ private:
 /**
  * 3D lookup table for cl, cm and cd values
  * x corresponds to aoa, y corresponds to deflection, z corresponds to mach
+ * Data file format:
+ *      1st line: list of aerosurface deflection values (ordered smallest to largest)
+ *      2nd line: mach, AOA
+ *      3rd line: list of normal force coefficients (side force for horizontal data)
+ *      4th line: list of axial force coefficients (yaw moment for horizontal data)
+ *      5th line: list of pitch moment coefficients (roll moment for horizontal data)
+ *      Repeat lines 2-5 for all mach/AOA combinations; data sets should be ordered first by increasing (constant mach), then increasing mach
  */
 class ThreeDLookup
 {
@@ -74,7 +83,18 @@ public:
 	virtual ~ThreeDLookup();
 
 	void Init(const char* dataFile, bool isHorizontalData = false);
+	void Init(std::istream& data, bool isHorizontalData);
 	
+	/**
+	 * Returns lift, drag and moment coefficients (side force, yaw moment and roll moment for horizontal table)
+	 * For 4D table, input should be deflection, AOA, beta instead of mach, AOA, deflection
+	 * @param mach Current Mach number
+	 * @param aoa Angle of Attack in degrees
+	 * @param deflection Deflection of relevant control surface, measured in appropriate units (usually degrees or %)
+	 * @param cl Will be set to lift coefficient (side force for horizontal lookup)
+	 * @param cd Will be set to drag coefficient (yaw moment for horizontal lookup)
+	 * @param cm Will be set to pitch moment coefficient (roll moment for horizontal lookup)
+	 */
 	void GetValues(double mach, double aoa, double deflection, double& cl, double& cd, double& cm);
 
 	static bool Compare(ThreeDLookup& l1, ThreeDLookup& l2);
@@ -89,7 +109,44 @@ protected:
 	 * Reads data in single line of csv file into vector
 	 * @param line line containing double values delimited by commas
 	 */
-	void ReadCSVLine(const std::string& line, std::vector<double>& data) const;
+	//void ReadCSVLine(const std::string& line, std::vector<double>& data) const;
+};
+
+/**
+ * 4D lookup table; used for horizontal data
+ * Data file format:
+ *      1st line: range of mach values
+ *      2nd line: blank line
+ *      3rd line: first mach value
+ *      list of 3D lookup tables (with beta replacing aerosurface deflection); each 3D table contains data for one particular mach value; tables are separated by a blank line followed by a line containing the mach value corresponding to the table below
+ *      Each 3D table has the form
+ *           range of beta values
+ *           aerosurface deflection,AOA
+ *           lift of side force coefficients
+ *           lift of yaw moment coefficients
+ *           lift of roll moment coefficients
+ *           ...
+ */
+class FourDLookup
+{
+	std::vector<double> machValues;
+	std::vector<ThreeDLookup> lookupTables;
+	unsigned int lowerIndex;
+public:
+	FourDLookup();
+	//FourDLookup(const char* dataFile, bool isHorizontalData = false);
+	virtual ~FourDLookup();
+
+	void Init(const char* dataFile, bool isHorizontalData = false);
+	//void Init(std::istream& data, bool isHorizontalData);
+	
+	/**
+	 * Uses interpolation to get values from lookup table
+	 * @param cf Will be set to side force coefficient (normal force for vertical lookup)
+	 * @param cym Will be set to yaw moment coefficient (axial force for vertical lookup)
+	 * @param crm Will be set to roll moment coefficient (pitch moment for vertical lookup)
+	 */
+	void GetValues(double mach, double aoa, double beta, double deflection, double& cf, double& cym, double& crm);
 };
 
 };
