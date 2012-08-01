@@ -111,7 +111,7 @@ private:
 	//PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
 	PIDControl ElevonPitch; // converts angle error (AOA or pitch, in degrees) to elevon command
 	//PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
-	PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
+	//PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command
 	PIDControl Roll_AileronRoll; // converts roll angle error (in degrees) to aileron command
 	PIDControl Yaw_RudderYaw; // converts roll angle error (in degrees) to aileron command
 	PIDControl QBar_Speedbrake; // converts qbar error (in kPa) to speedbrake command; used in TAEM phase
@@ -128,15 +128,13 @@ private:
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
-	bool CSSInitialized[3];
 
 	// attitude and rates relative to velocity vector (AOA, sideslip, bank)
 	// values in degrees or deg/sec
-	VECTOR3 degTargetAttitude;
 	VECTOR3 degCurrentAttitude;
 	VECTOR3 degCurrentRates;
-	//VECTOR3 degTargetRates; // used in aerosurface control to ramp rotation rates
-	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering aronud an axis
+	VECTOR3 degTargetRates; // used in aerosurface control to ramp rotation rates
+	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering around an axis (RCS)
 	
 	OBJHANDLE hEarth;
 
@@ -149,12 +147,6 @@ private:
 	double constDragStartVel; // VCG
 	double lastTgtAltitude;
 	double lastRefVSpeed;
-	//double lastVAccSum;
-	//std::queue<double> lastVAccs;
-	//double lastVspeedSum;
-	//std::queue<double> lastVspeeds;
-	//double lastTargetAltitudeSum;
-	//std::queue<double> lastTargetAltitudes;
 	Averager tgtAltAveraging;
 	Averager vspeedAveraging;
 	Averager vaccAveraging;
@@ -243,31 +235,36 @@ private:
 	void UpdateOrbiterData();
 
 	/**
-	 * Calculates thruster command (1.0, -1.0 or 0.0) to rotate to target angle in given axis.
-	 * Computes target rotation rate and returns thruster command to establish correct rate.
+	 * Calculates thruster command (1.0, -1.0 or 0.0) to set desired rotation rate
 	 */
 	double GetThrusterCommand(AXIS axis, double DeltaT);
 
 	/**
 	 * Uses lookup table to calculate target AOA for current mach number.
-	 * and lookup table to manipulate roll to maintain drag profile described at that table
 	 */
 	double CalculateTargetAOA(double mach) const;
-	double CalculateTargetVAcc(double actual_vspeed, double target_vspeed, double actual_vacc, double dT);
-	bool first_roll;
-	bool roll_command;
-	double target_bank;
-	double last_vel;
-	double last_h_error;
-	double target_vspeed;
-	double target_vacc;
+	/**
+	 * Calculates target bank in degrees
+	 */
+	double CalculateTargetBank(double mach, double targetAOA, double DeltaT, double SimT);
+	/**
+	 * Uses lookup table to calculate GALR (Gain for Ailerons in Roll Channel)
+	 * Lookup table values from NASA Entry DAP Workbook 21002.
+	 */
+	double CalculateGALR(double mach) const;
+	/**
+	 * Calculates required roll/yaw rates around body axes to achieve desired bank rate around stability axes (i.e. velocity vector)
+	 * Uses simplified version of roll/ywa channels described in NASA Entry DAP Workbook 21002
+	 */
+	void CalculateTargetRollYawRates(double mach, double radAOA, double degTgtBankRate, double& degTgtRollRate, double& degTgtYawRate) const;
 
 	void SetAerosurfaceCommands(double DeltaT);
 	/**
-	 * Uses RHC input to set elevon position.
+	 * Uses RHC input to set desired rates.
+	 * Return target rates (in deg/sec) in appropriate axis
 	 */
-	void CSSPitchGuidance(double DeltaT);
-	void CSSRollGuidance(double DeltaT);
+	double CSSPitchInput(double DeltaT);
+	double CSSRollInput(double DeltaT);
 
 	/**
 	 * Calculates target drag (based on current guidance mode)
