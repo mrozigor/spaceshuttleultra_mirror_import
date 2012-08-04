@@ -787,7 +787,7 @@ void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
 	double metAtEI = pStateVector->GetMETAtAltitude(EI_ALT);
 	//VECTOR3 EIPos, EIVel, EIEclPos, EIEclVel;
 	VECTOR3 EIPos, EIVel;
-	pStateVector->GetPropagatedStateVectors(metAtEI, EIPos, EIVel);
+	pStateVector->GetPropagatedStateVectors(metAtEI-300.0, EIPos, EIVel);
 	EIPos = ConvertBetweenLHAndRHFrames(EIPos);
 	EIVel = ConvertBetweenLHAndRHFrames(EIVel);
 	// TODO: move this into separate function
