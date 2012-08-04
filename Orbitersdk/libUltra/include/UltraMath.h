@@ -48,6 +48,9 @@ VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
 //returns rotation axis and angle of rotation (in radians)
 double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis);
 //double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis);
+/**
+ * Returns vector v rotated by given angle about Axis
+ */
 VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v);
 // rotates vector around specified Euler angles in XYZ order
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
@@ -57,7 +60,7 @@ VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in ra
 VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 //VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 /**
- * Returns Euler angles (in radians); Pitch=Y axis, Yaw=Z axis, Roll=Z axis
+ * Returns Euler angles (in radians); Pitch=Y axis, Yaw=Z axis, Roll=X axis
  */
 VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix); 
 /**
