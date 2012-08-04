@@ -273,6 +273,26 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ)
 	RotMatrixZ.m33 = 1;
 }
 
+MATRIX3 GetRotationMatrix(const VECTOR3& x_axis, double angle)
+{
+	VECTOR3 y_axis, z_axis;
+	if(Eq(x_axis, _V(0, 1, 0), 0.01) || Eq(x_axis, _V(0, -1, 0), 0.01)) { // special case
+		z_axis = _V(0, 0, 1);
+	}
+	else { // normal
+		z_axis = crossp(x_axis, _V(0, 1, 0));
+		z_axis /= length(z_axis);
+	}
+	z_axis = RotateVector(x_axis, angle, z_axis);
+	y_axis = crossp(z_axis, x_axis);
+	//return _M(x_axis.x, x_axis.y, x_axis.z,
+	//y_axis.x, y_axis.y, y_axis.z,
+	//z_axis.x, z_axis.y, z_axis.z);
+	return _M(x_axis.x, y_axis.x, z_axis.x,
+			  x_axis.y, y_axis.y, z_axis.y,
+			  x_axis.z, y_axis.z, z_axis.z);
+}
+
 double NullStartAngle(double radRate, double Mass, double Moment, double Torque)
 {
 	if(!Eq(radRate, 0.0)) {

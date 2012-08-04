@@ -77,6 +77,13 @@ MATRIX3 GetRotationMatrixYZX(const VECTOR3& Angles);
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
+/**
+ * Returns rotation matrix with x axis in specified direction, and z axis rotated around x axis by specified angle relative to reference frame.
+ * \param x_axis Normalised vector in direction of x axis
+ * \param angle Angle (in radians) between z axis and z axis in reference frame
+ */
+MATRIX3 GetRotationMatrix(const VECTOR3& x_axis, double angle);
+
 double NullStartAngle(double radRate, double Mass, double Moment, double Torque);
 /**
  * Returns change in rotation rate (DEG/s) over given time period.
