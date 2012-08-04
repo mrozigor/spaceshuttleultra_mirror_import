@@ -686,8 +686,6 @@ private:
 	//dps::RSLS *rsls;
 	dps::RSLS_old *rsls;
 
-	SURFHANDLE tex_rcs;
-	
 	void SeparateBoosters (double srb_time);
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
@@ -731,6 +729,7 @@ private:
 	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
+	void AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
 	//void DisableAllRCS();
 	//void EnableAllRCS();
 	void DisableControlSurfaces();
@@ -1016,6 +1015,9 @@ private:
 	UINT ex_main[3];						   // main engine exhaust
 	UINT ex_retro[2];						   // OMS exhaust
 	std::vector<UINT> vExRCS;				   // RCS exhaust
+	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
+	PARTICLESTREAMSPEC RCS_PSSpec;
+	SURFHANDLE RCS_Exhaust_tex;
 	//bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
