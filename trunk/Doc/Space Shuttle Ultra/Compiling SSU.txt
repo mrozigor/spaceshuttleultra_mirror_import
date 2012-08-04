@@ -8,4 +8,4 @@ GoogleTest is required to build and run the unit tests.
 GoogleTest:
 	Download the Google Test. Extract the zip into orbitersdk, and rename the folder to googletest.
 	Open the googletest/msvc/gtest-md.sln file and compile both the Release and Debug versions.
-	Copy the gtest.lib and gtest_main-md.lib files (from the Release build) and the gtestd.lib and gtest_main-mdd.lib (from the Debug build) into orbitersdk/googletes/lib/Dynamic.
+	Copy the gtest.lib and gtest_main-md.lib files (from the Release build) and the gtestd.lib and gtest_main-mdd.lib (from the Debug build) into orbitersdk/googletest/lib/Dynamic.
