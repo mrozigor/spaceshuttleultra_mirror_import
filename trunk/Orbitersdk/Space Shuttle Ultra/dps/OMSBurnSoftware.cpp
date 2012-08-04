@@ -22,9 +22,8 @@ void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& eq
  * \param equPos position in right-handed equatorial frame (i.e. frame returned by StateVectorSoftware, converted to RH)
  * \param equVel velocity in right-handed equatorial frame (i.e. frame returned by StateVectorSoftware, converted to RH)
  */
-VECTOR3 ConvertLVLHAnglesToM50Angles(const VECTOR3& radLVLHAngles, const VECTOR3& equPos, const VECTOR3& equVel)
+VECTOR3 ConvertLVLHMatrixToM50Angles(const MATRIX3& tgtLVLHMatrix, const VECTOR3& equPos, const VECTOR3& equVel)
 {
-	MATRIX3 tgtLVLHMatrix = GetRotationMatrixYZX(_V(radLVLHAngles.data[ROLL], radLVLHAngles.data[PITCH], radLVLHAngles.data[YAW]));
 	MATRIX3 LVLHMatrix = Transpose(GetGlobalToLVLHMatrix(equPos, equVel));
 	MATRIX3 M50Matrix = mul(LVLHMatrix, tgtLVLHMatrix);
 	return GetYZXAnglesFromMatrix(M50Matrix);
@@ -726,32 +725,17 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	else {
 		ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
 	}
-	ThrustDir=RotateVectorZ(ThrustDir, TV_ROLL);
 
 	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
 	if(calculateBurnAtt) {
-		VECTOR3 radLVLHBurnAtt;
-		radLVLHBurnAtt.data[PITCH]=-asin(ThrustDir.y);
-		radLVLHBurnAtt.data[YAW]=-asin(ThrustDir.x); //check signs here
-		// compensate for roll
-		/*if(TV_ROLL!=0.0) {
-		double dTemp=BurnAtt.data[PITCH];
-		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
-		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-abs(cos(TV_ROLL*RAD)));
-		}*/
-
-		//Burn Attitude
-		if(DeltaV.x!=0.0 || DeltaV.z!=0.0) {
-			if(DeltaV.z<=0) radLVLHBurnAtt.data[PITCH]+=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-			else radLVLHBurnAtt.data[PITCH]-=acos(DeltaV.x/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.z, 2))));
-		}
-		if(DeltaV.x!=0.0 || DeltaV.y!=0.0) radLVLHBurnAtt.data[YAW]+=asin(DeltaV.y/sqrt((pow(DeltaV.x, 2)+pow(DeltaV.y, 2))));
-		radLVLHBurnAtt.data[ROLL]=TV_ROLL*RAD;
-		/*if(TV_ROLL!=0.0) {
-		double dTemp=BurnAtt.data[PITCH];
-		BurnAtt.data[PITCH]-=BurnAtt.data[PITCH]*(1.0-cos(TV_ROLL*RAD))+BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD));
-		BurnAtt.data[YAW]+=BurnAtt.data[YAW]*(1.0-sin(TV_ROLL*RAD))-dTemp*(1.0-cos(TV_ROLL*RAD));
-		}*/
+		// calculate LVLH burn attitude
+		MATRIX3 ThrustToBodyMatrix = Transpose(GetRotationMatrix(_V(ThrustDir.z, ThrustDir.x, -ThrustDir.y), 0.0));
+		VECTOR3 DeltaVDir = PEG7/length(PEG7);
+		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
+		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
+		//VECTOR3 radLVLHBurnAtt = GetYZXAnglesFromMatrix(LVLHToBurnAttMatrix);
+		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
+		//oapiWriteLog(oapiDebugString());
 
 		// convert LVLH angles to inertial angles at TIG
 		VECTOR3 equPos, equVel, eclPos, eclVel;
@@ -765,7 +749,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		equPos = ConvertBetweenLHAndRHFrames(equPos);
 		equVel = ConvertBetweenLHAndRHFrames(equVel);
 		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
-		BurnAtt = ConvertLVLHAnglesToM50Angles(radLVLHBurnAtt, equPos, equVel)*DEG;
+		BurnAtt = ConvertLVLHMatrixToM50Angles(LVLHToBurnAttMatrix, equPos, equVel)*DEG;
 	}
 
 	//use rocket equation (TODO: Check math/formulas here)
@@ -792,10 +776,10 @@ void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
 	EIVel = ConvertBetweenLHAndRHFrames(EIVel);
 	// TODO: move this into separate function
 	//ConvertEquToEcl(STS()->GetGravityRef(), EIPos, EIVel, EIEclPos, EIEclVel);
-	const VECTOR3 EI_ATT = _V(40.0*RAD, 0.0, 0.0);
+	const MATRIX3 EI_ATT = GetRotationMatrixYZX(_V(0.0, 40.0*RAD, 0.0));
 	//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(EI_ATT, EIEclPos, EIEclVel);
 	//degAtt = GetYZXAnglesFromMatrix(M50Matrix)*DEG;
-	degAtt = ConvertLVLHAnglesToM50Angles(EI_ATT, EIPos, EIVel)*DEG;
+	degAtt = ConvertLVLHMatrixToM50Angles(EI_ATT, EIPos, EIVel)*DEG;
 }
 
 void OMSBurnSoftware::UpdateOrbitData()
