@@ -11,8 +11,8 @@ typedef Subsystem<SSRMS> SSRMSSubsystem;
 const double MAX_GRAPPLING_DIST = 0.5;
 // max distance between RMS tip and grappling point for successful grappling
 //const double MAX_GRAPPLING_ANGLE = 0.087266;
-const double MAX_GRAPPLING_ANGLE = 0.2;
-// max angle between EE and grapple for successful grappling (radians)
+//const double MAX_GRAPPLING_ANGLE = 0.2;
+const double MAX_GRAPPLING_ANGLE_COS_ERR = 0.02; // max angle between EE and grapple for successful grappling (cosine of angle)
 
 /**
  * Simulates LEE.
