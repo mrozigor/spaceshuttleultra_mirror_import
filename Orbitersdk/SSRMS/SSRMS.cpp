@@ -133,13 +133,13 @@ void SSRMS::DefineAnimations()
 
 	static UINT WristRollGrp[21] = {44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64};
 	static MGROUP_ROTATE wr_anim(mesh_ssrms, WristRollGrp, 21,
-		LEE_POS, _V(0, 0, 1), (float)(894.0*RAD));
+		LEE_POS, _V(0, 0, -1), (float)(894.0*RAD));
 	anim_joint[1][WRIST_ROLL] = CreateAnimation(0.5);
 	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
 
 	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
-		LEE_POS, _V(0, 0, 1), 0.0);
+		LEE_POS, _V(0, 0, -1), 0.0);
 	anim_lee = CreateAnimation(0.5);
 	AddAnimationComponent(anim_lee, 0, 1, &lee_anim, parent);
 
