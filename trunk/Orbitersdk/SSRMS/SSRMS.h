@@ -99,7 +99,7 @@ private:
 	double joint_angle[7]; // angles in degrees
 	bool arm_moved, update_angles, update_vectors;
 
-	unsigned short activeLEE, passiveLEE; // either 0 or 1
+	int activeLEE, passiveLEE; // either 0 or 1
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
