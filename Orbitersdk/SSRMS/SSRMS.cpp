@@ -307,6 +307,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	else*/
 	double wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
 	double wr_angle_d = DEG*acos(dotp(wp_dir, newRot));
+	if(dotp(wp_dir, crossp(newRot, newDir)) < 0) wr_angle_d = -wr_angle_d;
 
 	//if(yaw180Error) sp_angle_d+=180.0;
 
@@ -471,7 +472,7 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 		//VECTOR3 EETrans;
 
 		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
+		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
 		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
 		THCInput*=EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
 
@@ -504,8 +505,8 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			VECTOR3 EETrans, newDir, newRot;
 			if(RefFrame==BASE_FRAME) {
 				EETrans=THCInput;
-				RotateVectorLH(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
-				RotateVectorLH(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
+				RotateVector(arm_ee_dir, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newDir);
+				RotateVector(arm_ee_rot,  _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
 			}
 			else if(RefFrame==EE_FRAME) {
 				//EETrans = _V(THCInput.x*arm_ee_dir.x, THCInput.y*arm_ee_dir.y, THCInput.z*arm_ee_dir.z);
