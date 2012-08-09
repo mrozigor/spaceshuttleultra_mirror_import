@@ -1,5 +1,6 @@
 #include "LEESystem.h"
 #include "SSRMS.h"
+#include "UltraMath.h"
 #include <cassert>
 
 LEESystem::LEESystem(SSRMSSubsystemDirector* _director, const std::string &_ident, const std::string &_attachID)
@@ -210,9 +211,8 @@ bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchp
 	v->Local2Global (pos, gpos);
 	if (dist (gpos, glatchpos) < MAX_GRAPPLING_DIST) {
 		v->GlobalRot(dir, gdir);
-		if(fabs(PI-acos(dotp(gdir, glatchdir))) < MAX_GRAPPLING_ANGLE)
-			return true;
-		else sprintf_s(oapiDebugString(), 255, "Angle error: %f", fabs(PI-acos(dotp(gdir, glatchdir))));
+		if(Eq(-1.0, dotp(gdir, glatchdir), MAX_GRAPPLING_ANGLE_COS_ERR)) return true;
+		else sprintf_s(oapiDebugString(), 255, "Angle error cos: %f", dotp(gdir, glatchdir));
 	}
 	return false;
 }
@@ -264,8 +264,12 @@ void LEESystem::CheckForAttachedObjects()
 			hV=oapiGetVesselByName((char*)payloadName.c_str());
 			if(hV) {
 				VESSEL* v=oapiGetVesselInterface(hV);
-				ATTACHMENTHANDLE attach=v->GetAttachmentHandle(isGrappledToBase, attachmentIndex);
+				ATTACHMENTHANDLE attach=v->GetAttachmentHandle(!isGrappledToBase, attachmentIndex);
 				AttachPayload(v, attach);
+			}
+			else {
+				oapiWriteLog("Could not find payload:");
+				oapiWriteLog((char*)payloadName.c_str());
 			}
 		}
 	}
