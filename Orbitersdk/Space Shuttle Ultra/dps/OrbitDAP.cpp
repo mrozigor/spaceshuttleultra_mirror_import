@@ -171,17 +171,22 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 	ActiveManeuver.IsValid = true;
 	
 	ManeuverStatus = MNVR_IN_PROGRESS;
-	lastUpdateTime = 0.0;
-	mnvrCompletionMET = STS()->GetMET();
 		
 	if(ActiveManeuver.Type == AttManeuver::MNVR) {
 		degNullRates = _V(0, 0, 0);
 		// calculate M50 target att
 		REQD_ATT = GetYZXAnglesFromMatrix(ActiveManeuver.tgtMatrix)*DEG;
+		// calculate time to reach target attitude
+		VECTOR3 Axis;
+		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
+		double Angle = CalcEulerAngle(IdentityMatrix, AttError, Axis);
+		mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
 		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
 		//oapiWriteLog(oapiDebugString());
+		lastUpdateTime = 0.0;
 	}
 	else {
+		mnvrCompletionMET = STS()->GetMET();
 		lastUpdateTime = -100.0;
 	}
 }
@@ -547,7 +552,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			if((STS()->GetMET()-lastUpdateTime) > 60.0) {
 				UpdateNullRates();
-				mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(curM50Matrix, ActiveManeuver.tgtMatrix, curLVLHMatrix, length(degNullRates));
+				if(ManeuverStatus < MNVR_COMPLETE) mnvrCompletionMET = STS()->GetMET() + CalcManeuverCompletionTime(curM50Matrix, ActiveManeuver.tgtMatrix, curLVLHMatrix, length(degNullRates));
 				lastUpdateTime = STS()->GetMET();
 			}
 			if(ManeuverStatus == MNVR_IN_PROGRESS) {
@@ -926,7 +931,12 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	char cbuf[255];
 	PrintCommonHeader("UNIV PTG", pMDU);
 
-	pMDU->mvprint(3, 2, "CUR MNVR COMPL");
+	double CUR_MNVR_COMPL[4];
+	if(DAPControlMode == INRTL || DAPControlMode == FREE) ConvertSecondsToDDHHMMSS(STS()->GetMET(), CUR_MNVR_COMPL);
+	else ConvertSecondsToDDHHMMSS(mnvrCompletionMET, CUR_MNVR_COMPL);
+	pMDU->mvprint(3, 1, "CUR MNVR COMPL");
+	sprintf_s(cbuf, 255, "%.2d:%.2d:%.2d", static_cast<int>(CUR_MNVR_COMPL[1]), static_cast<int>(CUR_MNVR_COMPL[2]), static_cast<int>(CUR_MNVR_COMPL[3]));
+	pMDU->mvprint(18, 1, cbuf);
 	sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 		START_TIME[0], START_TIME[1], START_TIME[2], START_TIME[3]);
 	pMDU->mvprint(1, 2, cbuf);
