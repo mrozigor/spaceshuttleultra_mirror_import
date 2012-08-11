@@ -119,6 +119,7 @@ private:
 	//PIDControl BodyFlap;
 	
 	DiscInPort PitchAuto, RollYawAuto;
+	DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort SpeedbrakeAuto;
 	DiscInPort SpdbkThrotPort;
 	DiscInPort RHCInput[3];

@@ -221,7 +221,9 @@ void AerojetDAP::Realize()
 
 	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
 	PitchAuto.Connect(pBundle, 0);
+	PitchCSSOut.Connect(pBundle, 1);
 	RollYawAuto.Connect(pBundle, 2);
+	RollYawCSSOut.Connect(pBundle, 3);
 
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
@@ -247,6 +249,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 	// select correct side for HAC
 	if(HACDirection == STRT || STS()->GetAirspeed() > 9000.0/MPS2FPS) SelectHAC();
+
+	// downmode to CSS if RHC is out of detent
+	if(!Eq(RHCInput[PITCH].GetVoltage(), 0.0, 0.1)) PitchCSSOut.SetLine();
+	if(!Eq(RHCInput[ROLL].GetVoltage(), 0.0, 0.1)) RollYawCSSOut.SetLine();
 
 	//double distToRwy, delaz; // only used in MM304
 	switch(GetMajorMode()) {
