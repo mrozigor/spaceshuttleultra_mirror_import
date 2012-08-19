@@ -1070,7 +1070,7 @@ void AerojetDAP::CheckControlActivation()
 
 double AerojetDAP::CSSPitchInput(double DeltaT)
 {
-	return RHCInput[PITCH].GetVoltage()*2.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*5.0;
+	return RHCInput[PITCH].GetVoltage()*6.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.5;
 }
 
 
