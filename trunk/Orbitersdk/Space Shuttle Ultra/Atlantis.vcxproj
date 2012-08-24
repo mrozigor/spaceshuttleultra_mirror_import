@@ -248,6 +248,7 @@
     <ClCompile Include="commGCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
+    <ClCompile Include="dps\AscentGuidance.cpp" />
     <ClCompile Include="dps\HALS_Compilations.cpp" />
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
@@ -370,6 +371,7 @@
     <ClInclude Include="commGCIL.h" />
     <ClInclude Include="DeployedAssembly.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
+    <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\HALS_Compilations.h" />
     <ClInclude Include="dps\HALS_Types.h" />
     <ClInclude Include="dps\IOModule.h" />

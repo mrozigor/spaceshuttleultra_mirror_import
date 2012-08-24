@@ -13,10 +13,11 @@ const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
 const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
 // Amount of fuel in forward RCS tanks
 
-const double SSME_RATED_THRUST = 2090664.159; //100% thrust
+//const double SSME_RATED_THRUST = 2090664.159; //100% thrust
 const double ORBITER_MAIN_THRUST = 2170732.15; //Nominal "104%" thrust
 const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
 // Vacuum thrust rating per main engine [N]
+const double SSME_MAX_POWER_LEVEL = 109.0;
 
 const double ORBITER_OMS_THRUST = 26700.0;
 // Vacuum thrust per unit for Orbital Maneuvering System [N] (x2 for total)
@@ -141,10 +142,6 @@ const int AftPitchThrusters[2] = {1, 3};
 const int AftYawThrusters[2] = {5, 7};
 const int AftRollThrusters[2] = {9, 11};
 //RCS Thruster Groups
-
-//PEG
-const double TMajorCycle = 1.0000;
-const double TPEGStop = 7.000; //40?
 
 // ==========================================================
 // Some Tank-related parameters

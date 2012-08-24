@@ -932,7 +932,7 @@ pActiveLatches(3, NULL)
   OMS_Assist[0]=0.0;
   OMS_Assist[1]=0.0;
   RollToHeadsUp=100000.0;
-  bAutopilot=false;
+  bAutopilot=true;
   bThrottle=true;
   bMECO=false;
   bZThrust=false;
@@ -2808,28 +2808,40 @@ void Atlantis::SeparateTank (void)
 {
 	DetachChildAndUpdateMass(ahET, -1.0);
 
-  // Remove Tank from shuttle instance
-  DelPropellantResource (ph_tank);
+	// Remove Tank from shuttle instance
+	DelPropellantResource (ph_tank);
 
-  // main engines are done
-  //DelThrusterGroup (thg_main, THGROUP_MAIN, true);
+	// main engines are done
+	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
 
-  // clear launch attitude control system
-  //DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
-  //DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
-  //DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
-  //DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
-  //DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
-  //DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
+	// clear launch attitude control system
+	//DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
+	//DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
+	//DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
+	//DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
+	//DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
+	//DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
 
-  // remove tank mesh and shift cg
-  //Test keeping animations - which are not defined on the ET.
-  //DelMesh (mesh_tank, true);
-  ShiftCG (OFS_WITHTANK_ORBITER);
+	// remove tank mesh and shift cg
+	//Test keeping animations - which are not defined on the ET.
+	//DelMesh (mesh_tank, true);
+	ShiftCG (OFS_WITHTANK_ORBITER);
 
-  // reconfigure
-  RecordEvent ("JET", "ET"); 
-  SetOrbiterConfiguration ();
+	// reconfigure
+	RecordEvent ("JET", "ET"); 
+	SetOrbiterConfiguration ();
+
+	bManualSeparate = false;
+}
+
+bool Atlantis::HasSRBs() const
+{
+	return (status <= STATE_STAGE1);
+}
+
+bool Atlantis::HasTank() const
+{
+	return (status <= STATE_STAGE2);
 }
 
 Atlantis_Tank* Atlantis::GetTankInterface() const
@@ -3072,7 +3084,7 @@ void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
 	}
 }
 
-double Atlantis::CalcNetThrust()
+double Atlantis::CalcNetSSMEThrust() const
 {
 	VECTOR3 N=_V(0, 0, 0), F, M;
 	for(int i=0;i<3;i++) {
@@ -3082,14 +3094,19 @@ double Atlantis::CalcNetThrust()
 	return length(N);
 }
 
-void Atlantis::CalcThrustAngles()
+double Atlantis::GetSSMEISP() const
+{
+	return GetThrusterIsp(th_main[0]);
+}
+
+void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
 {
 	VECTOR3 N=_V(0, 0, 0);
 	N+=_V( 0.0,-0.308046,0.951372)*GetThrusterLevel(th_main[0]);
 	N+=_V( 0.0624,-0.1789,0.9819)*GetThrusterLevel(th_main[1]);
 	N+=_V(-0.0624,-0.1789,0.9819)*GetThrusterLevel(th_main[2]);
-	ThrAngleP=DEG*asin(N.y/N.z);
-	ThrAngleY=DEG*asin(N.x/N.z);
+	degAngleP=DEG*asin(N.y/N.z);
+	degAngleY=DEG*asin(N.x/N.z);
 }
 
 void Atlantis::FailEngine(int engine)
@@ -3101,7 +3118,7 @@ void Atlantis::FailEngine(int engine)
 	{
 		SetThrusterMax0(th_main[i], SSME_RATED_THRUST*(MaxThrust/100.0));
 	}*/
-	CalcThrustAngles();
+	CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 	bEngineFail=false;
 }
 
@@ -3725,7 +3742,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sscanf_s(line+7, "%lf", &TV_ROLL);
 	} else if(!_strnicmp(line, "MNVR", 4)) {
 		sscanf_s(line+4, "%d %d", &MNVRLOAD, &MnvrToBurnAtt);*/
-	} else if(!_strnicmp(line, "ASSIST", 6)) {
+	/*} else if(!_strnicmp(line, "ASSIST", 6)) {
 		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
 	} else if(!_strnicmp(line, "THROTTLE_BUCKET", 15)) {
 		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
@@ -3736,7 +3753,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		RollToHeadsUp=RollToHeadsUp*fps_to_ms;
 	} else if(!_strnicmp(line, "AUTOPILOT", 9)) {
 		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
-		bAutopilot=true;
+		bAutopilot=true;*/
 	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
 		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
 		bEngineFail=true;
@@ -4585,14 +4602,15 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		{ // add braces so we can declare new variable
 		// check SSME state and trigger liftoff when required
-		bool bAllSSMEsOn = true; // all SSMEs exceed 95% (Orbiter thruster level)
+		bool bAllSSMEsOn = true; // all SSMEs exceed 90% (Orbiter thruster level)
 		bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
 		for(unsigned short i=1;i<=3;i++) {
 			if(!Eq(GetSSMEThrustLevel(i), 0.0, 0.001)) bAllSSMEsOff = false;
-			if(GetSSMEThrustLevel(i) < 0.95) bAllSSMEsOn = false;
+			if(GetSSMEThrustLevel(i) < 90.0) bAllSSMEsOn = false;
 		}
 		if (bAllSSMEsOn) 
 		{
+			SetGPCMajorMode(102);
 			status = STATE_STAGE1; // launch
 			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
 			RecordEvent ("STATUS", "SSME_IGNITION");
@@ -4659,7 +4677,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			tSRBSep=met;
 			bManualSeparate = false;
 			SetGPCMajorMode(103);		//Replace by signal to GPC
-			CalcThrustAngles();
+			CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 		}
 		else {
 			if(met>0.0) {
@@ -4692,7 +4710,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-			if(pSimpleGPC->GetMajorMode()==101) SetGPCMajorMode(102);
+			//if(pSimpleGPC->GetMajorMode()==101) SetGPCMajorMode(102);
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -4708,7 +4726,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			bMECO=true;
 			//EnableAllRCS();
 			SeparateTank();
-			bManualSeparate = false;
 			bZThrust=false;
 			//ops=104;
 		}
@@ -6889,6 +6906,25 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 	return true;
 }
 
+bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double degYaw)
+{
+	if(usMPSNo == 0) {
+		return SetSSMEGimbalAngles(1, degPitch, degYaw) &&
+			SetSSMEGimbalAngles(2, degPitch, degYaw) &&
+			SetSSMEGimbalAngles(3, degPitch, degYaw);
+	}
+	else if(usMPSNo > 3) {
+		return false; // error
+	}
+	else {
+		VECTOR3 dir=RotateVectorX(EngineNullPosition[usMPSNo-1], range(-10.5, degPitch, 10.5));
+		dir=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
+		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
+		//oapiWriteLog(oapiDebugString());
+		return SetSSMEDir(usMPSNo, dir);
+	}
+}
+
 bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
 	if(usMPSNo == 0) {
 		//Set all
@@ -6907,7 +6943,7 @@ bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
 			}
 			return false;
 		}
-		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel);
+		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel/SSME_MAX_POWER_LEVEL);
 	}
 	fSSMEHandleErrorFlag = false;
 	return true;
@@ -6925,7 +6961,16 @@ double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
 		return -1;
 	}
 	fSSMEHandleErrorFlag = false;
-	return GetThrusterLevel( th_main[usMPSNo - 1] );
+	return GetThrusterLevel( th_main[usMPSNo - 1] )*SSME_MAX_POWER_LEVEL;
+}
+
+void Atlantis::SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw)
+{
+	VECTOR3 dir=RotateVectorX(SRB_THRUST_DIR, range(-5.0, degPitch, 5.0));
+	dir=RotateVectorY(dir, range(-5.0, degYaw, 5.0));
+	//sprintf_s(oapiDebugString(), 255, "SRB gimbal angles: %d %f %f", SRB, degPitch, degYaw);
+	//oapiWriteLog(oapiDebugString());
+	SetThrusterDir(th_srb[SRB], dir);
 }
 
 void Atlantis::IgniteSRBs()

@@ -173,7 +173,7 @@ void Atlantis::Navigate() {
 	last_target_roll=target_roll;
 	oapiGetFocusPitch(&pitch);
 
-	F=CalcNetThrust();
+	F=CalcNetSSMEThrust();
 	m=GetMass();
 	Isp=GetThrusterIsp(th_main[0]);
 	a0=F/m;
@@ -385,7 +385,7 @@ void Atlantis::RateCommand()
 	for(int i=0;i<3;i++) ReqdRates.data[i]=range(oldRates.data[i]-1, ReqdRates.data[i], oldRates.data[i]+1);
 }
 
-void Atlantis::Throttle(double dt)
+/*void Atlantis::Throttle(double dt)
 {
 	switch(status) {
 		case 1:
@@ -443,36 +443,36 @@ void Atlantis::Throttle(double dt)
 			break;
 	}
 	return;
-}
+}*/
 
 void Atlantis::GPC(double simt, double dt)
 {
 	switch(GetGPCMajorMode()) {
 		case 101:
 			//if(GetThrusterGroupLevel(THGROUP_MAIN)>0.865) Throttle(dt);
-			if(status>=STATE_STAGE1) Throttle(dt);
+			//if(status>=STATE_STAGE1) Throttle(dt);
 			break;
 		case 102:
-			Throttle(dt);
-			RateCommand();
-			AutoMainGimbal(dt);
+			//Throttle(dt);
+			//RateCommand();
+			//AutoMainGimbal(dt);
 			break;
 		case 103:
 			if(!bMECO && status==2) {
-				RateCommand();
-				SteerGimbal(dt);
-				Throttle(dt);
+				//RateCommand();
+				//SteerGimbal(dt);
+				//Throttle(dt);
 			}
 			else { //post MECO
 				if(status==2 && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=met)
 				{
-					SeparateTank();
-					bManualSeparate = false;
+					//SeparateTank();
+					//bManualSeparate = false;
 					//TransPulseInProg[2]=true;
-					ETSepTranslationInProg = true;
+					///ETSepTranslationInProg = true;
 					//TransPulseDV.z=-ET_SEP_RATE;
 				}
-				else if(status==3) {
+				/*else if(status==3) {
 					if(ETSepMinusZDV <= 0.001) { //Z thrusting complete
 						//WT=GetMass()*kg_to_pounds;
 						ZTransCommand.ResetLine();
@@ -486,7 +486,7 @@ void Atlantis::GPC(double simt, double dt)
 						GetThrustVector(ThrustVector);
 						ETSepMinusZDV -= (ThrustVector.y/GetMass())*dt;
 					}
-				}
+				}*/
 				//AttControl(dt);
 				//TransControl(simt, dt);
 			}

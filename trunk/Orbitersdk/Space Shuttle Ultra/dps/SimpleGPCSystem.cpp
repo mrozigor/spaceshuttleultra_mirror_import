@@ -1,6 +1,7 @@
 #include <cassert>
 #include "SimpleGPCSystem.h"
 #include "SimpleGPCSoftware.h"
+#include "AscentGuidance.h"
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
 #include "StateVectorSoftware.h"
@@ -14,6 +15,7 @@ namespace dps
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
 {
+	vSoftware.push_back(new AscentGuidance(this));
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
