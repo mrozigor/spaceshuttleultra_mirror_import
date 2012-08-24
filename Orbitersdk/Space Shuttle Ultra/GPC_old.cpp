@@ -21,7 +21,9 @@ void Atlantis::InitializeAutopilot()
 		TgtAlt=pMission->GetMECOAlt();
 		TgtSpd=pMission->GetMECOVel();
 
-		RollToHeadsUp=pMission->GetRTHUVelocity()*fps_to_ms;
+		//RollToHeadsUp=pMission->GetRTHUVelocity()*fps_to_ms;
+		if(pMission->PerformRTHU()) RollToHeadsUp = 12200.0/MPS2FPS;
+		else RollToHeadsUp = 100000.0; // velocity faster than orbital speed; RTHU will not occur
 		if(pMission->UseOMSAssist()) {
 			OMS_Assist[0] = pMission->GetOMSAssistStart();
 			OMS_Assist[1] = pMission->GetOMSAssistEnd();

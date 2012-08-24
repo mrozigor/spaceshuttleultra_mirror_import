@@ -52,7 +52,7 @@ namespace mission {
 		int iBranchCode;
 		int iRevisionCode;
 
-		double fLTimeMJD;
+		double fLaunchTimeMJD;
 		double fLandTimeMJD;
 		double fMECOAlt;
 		double fMECOVel;
@@ -69,19 +69,26 @@ namespace mission {
 
 		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
+		bool bPerformRTHU;
 		bool bUseOMSAssist;
 		double OMSAssistStart;
 		double OMSAssistEnd;
 		//bool bUseRTHU;
-		double RTHUVelocity;
+		//double RTHUVelocity;
 		double fMaxSSMEThrust;
 		unsigned short usExtAirlockMode;
 
 		double fPayloadZPos[16];
 
-		
+		/**
+		 * Initializes parameters to default values
+		 */
+		void SetDefaultValues();
 	public:
-		Mission();
+		/**
+		 * Loads data from specified file.
+		 * If strMission is empty string, returns default values.
+		 */
 		Mission(const std::string& strMission);
 		virtual ~Mission();
 
@@ -155,9 +162,9 @@ namespace mission {
 		 */
 		virtual double GetOMSAssistEnd() const;
 		/**
-		 * Returns velocity in fps when roll to heads up begins
+		 * Returns true if roll to heads up should be performed
 		 */
-		virtual double GetRTHUVelocity() const;
+		virtual bool PerformRTHU() const;
 		/**
 		 * Returns MaxQ throttle down velocity in fps
 		 */
