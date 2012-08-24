@@ -264,6 +264,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		CheckControlActivation();
 		//SetThrusterLevels();
 
+		if(STS()->GetMachNumber() < 2.5) SetMajorMode(305);
+		
 		// control yaw regardless of AUTO/CSS mode
 		//if(ThrustersActive[YAW])
 			//ThrusterCommands[YAW].SetLine(GetThrusterCommand(YAW));

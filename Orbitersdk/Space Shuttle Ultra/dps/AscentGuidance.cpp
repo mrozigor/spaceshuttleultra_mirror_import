@@ -76,7 +76,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 					if(ETSepMinusZDV <= 0.001) { //Z thrusting complete
 						ZTransCommand.ResetLine();
 						ETSepTranslationInProg = false;
-						STS()->SetGPCMajorMode(104);
+						SetMajorMode(104);
 					}
 					else { // -Z thrusting in progress
 						ZTransCommand.SetLine(-1.0f);

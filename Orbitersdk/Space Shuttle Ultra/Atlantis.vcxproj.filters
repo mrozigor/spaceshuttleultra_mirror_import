@@ -152,9 +152,6 @@
     <ClCompile Include="dps\GPC.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="GPC_old.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\GPCSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>

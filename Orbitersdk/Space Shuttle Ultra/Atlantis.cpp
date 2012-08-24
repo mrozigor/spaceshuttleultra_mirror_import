@@ -925,35 +925,14 @@ pActiveLatches(3, NULL)
 
   newmfd=NULL;
 
-  //Launch Guidance
-  MaxThrust=104.5; //104.5% thrust
-  Throttle_Bucket[0]=834*fps_to_ms;
-  Throttle_Bucket[1]=1174*fps_to_ms;
-  OMS_Assist[0]=0.0;
-  OMS_Assist[1]=0.0;
-  RollToHeadsUp=100000.0;
-  bAutopilot=true;
-  bThrottle=true;
-  bMECO=false;
-  bZThrust=false;
   bEngineFail=false;
-  bCommMode = false;
-  bSSMEGOXVent = true;
-  bHasODS = false;
-  bHasExtAL = false;
-  bMidDeckVisible = false;
-  tSRBSep=SRB_SEPARATION_TIME;
-  TLastMajorCycle=0.0;
-  ETSepTranslationInProg = false;
-  ETSepMinusZDV = ET_SEP_RATE;
 
   // gpc
   SMOps=201;
   //ops=101;
   last_mfd=0;
   firstStep=true;
-  ThrAngleP=-13.20;
-  ThrAngleY=0.0;
+
   //Displays
   CRT_SEL[0]=2; //CRT3
   CRT_SEL[1]=1; //CRT2
@@ -1036,20 +1015,6 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatchGroup(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
   psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatchGroup(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
   psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatchGroup(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-
-  for(int i=0;i<2;i++) {
-	  SRBGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
-	  SRBGimbal[i][YAW].SetGains(0.005, 0.001, 0.0);
-  }
-  SRBGimbal[0][ROLL].SetGains(0.009, 0.002, 0.0);
-  SRBGimbal[1][ROLL].SetGains(-0.009, -0.002, 0.0);
-  for(int i=0;i<3;i++) {
-	  SSMEGimbal[i][PITCH].SetGains(-0.005, -0.001, 0.0);
-	  SSMEGimbal[i][YAW].SetGains(-0.005, -0.001, 0.0);
-  }
-  SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
-  SSMEGimbal[1][ROLL].SetGains(0.009, 0.002, 0.0);
-  SSMEGimbal[2][ROLL].SetGains(-0.009, -0.002, 0.0);
 
   for(unsigned short i=0;i<5;i++) {
 	  bPLBDCamPanLeft[i] = false;
@@ -1369,15 +1334,6 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
     CreateAttControls_RCS(ofs);
 	CreateDummyThrusters();
-
-	// set SSME gains
-	for(int i=0;i<3;i++) {
-		SSMEGimbal[i][PITCH].SetGains(-0.03, -0.001, 0.0);
-		SSMEGimbal[i][YAW].SetGains(0.02, 0.0, 0.0);
-	}
-	SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
-	SSMEGimbal[1][ROLL].SetGains(0.009, 0.002, 0.0);
-	SSMEGimbal[2][ROLL].SetGains(-0.009, -0.002, 0.0);
 
   // ************************* aerodynamics **************************************
 
@@ -2774,10 +2730,6 @@ void Atlantis::SeparateBoosters (double met)
   char cbuf[255];
   sprintf(cbuf, "Boosters separated");
   oapiWriteLog(cbuf);
-  //reset SSME PID controllers
-  for(int i=0;i<3;i++) {
-	  for(int j=0;j<3;j++) SSMEGimbal[i][j].Reset();
-  }
 
   //stop playing sound
   StopVesselWave3(SoundID, SSME_RUNNING);
@@ -3015,50 +2967,6 @@ bool Atlantis::HydraulicsOK() {
   return panelr2->HydraulicPressure();
 }
 
-void Atlantis::SteerGimbal(double DeltaT) {
-	int i;
-
-   //Use the left and right main engines to steer (after SRBs are gone)
-	VECTOR3 RateDeltas;
-	VECTOR3 AngularVelocity;
-	GetAngularVel(AngularVelocity);
-	RateDeltas=ReqdRates-(AngularVelocity*DEG);
-
-	for(i=0;i<3;i++) {
-		VECTOR3 deflection=_V(range(-0.1, SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 0.1),
-			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
-	}
-
-	UpdateSSMEGimbalAnimations();
-}
-
-void Atlantis::AutoMainGimbal (double DeltaT) {
-    //Steer with the SRBs and lower SSMEs
-	VECTOR3 RateDeltas;
-	VECTOR3 AngularVelocity;
-	int i;
-	
-	GetAngularVel(AngularVelocity);
-	RateDeltas=ReqdRates-(AngularVelocity*DEG);
-
-	for(i=0;i<2;i++) {
-		VECTOR3 deflection=_V(SRBGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
-			SRBGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)+SRBGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 0.0);
-		SetThrusterDir(th_srb[i], NormZ(deflection+SRB_THRUST_DIR));
-	}
-	for(i=0;i<3;i++) {
-		VECTOR3 deflection=_V(
-			SSMEGimbal[i][YAW].Step(RateDeltas.data[YAW], DeltaT), 
-			SSMEGimbal[i][PITCH].Step(RateDeltas.data[PITCH], DeltaT)
-				+ SSMEGimbal[i][ROLL].Step(RateDeltas.data[ROLL], DeltaT), 
-			0.0);
-		SetThrusterDir(th_main[i], NormZ(EngineNullPosition[i]+deflection));
-	}
-
-	UpdateSSMEGimbalAnimations();
-}
-
 void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
 {
 	if(abs(pitch)<6.0 && abs(yaw)<7.0) {
@@ -3112,13 +3020,6 @@ void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
 void Atlantis::FailEngine(int engine)
 {
 	SetThrusterResource(th_main[engine], NULL);
-	//should check throttle increase
-	MaxThrust=109.0;
-	/*for(int i=0;i<3;i++)
-	{
-		SetThrusterMax0(th_main[i], SSME_RATED_THRUST*(MaxThrust/100.0));
-	}*/
-	CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 	bEngineFail=false;
 }
 
@@ -3572,20 +3473,6 @@ void Atlantis::UpdateHandControllerSignals()
 	}
 }
 
-void Atlantis::SetILoads()
-{
-	//stage1guidance[0]=new double[8];
-	//stage1guidance[1]=new double[8];
-	for(int i=0;i<8;i++) {
-		//stage1guidance[0][i]=defaultStage1Guidance[0][i];
-		//stage1guidance[1][i]=defaultStage1Guidance[1][i];
-		stage1guidance[0].push_back(defaultStage1Guidance[0][i]);
-		stage1guidance[1].push_back(defaultStage1Guidance[1][i]);
-	}
-	//stage1guidance_size=8;
-	return;
-}
-
 void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 {
 
@@ -3680,13 +3567,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
 			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 		}
-
-		bAutopilot = true; // if mission file exists, we can get autopilot parameters
-
-		MaxThrust = pMission->GetMaxSSMEThrust();
-
-		Throttle_Bucket[0] = pMission->GetTHdownVelocity()*fps_to_ms;
-		Throttle_Bucket[1] = pMission->GetTHupVelocity()*fps_to_ms;
 
 		bHasKUBand = pMission->HasKUBand();
 	} else if (!_strnicmp (line, "MET", 3)) {
@@ -3840,7 +3720,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
 
   UpdateMesh ();
-  SetILoads();
 }
 
 // --------------------------------------------------------------
@@ -3900,17 +3779,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   //GPC
   oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
-  if(status < STATE_ORBITER) {
-	  if(bAutopilot) {
-		sprintf(cbuf, "%f %f% f% f% f", TgtInc, TgtLAN, TgtAlt, TgtSpd, TgtFPA);
-		oapiWriteScenario_string(scn, "AUTOPILOT", cbuf);
-	  }
-	  sprintf(cbuf, "%f %f", OMS_Assist[0], OMS_Assist[1]);
-	  oapiWriteScenario_string(scn, "ASSIST", cbuf);
-	  sprintf(cbuf, "%f %f", Throttle_Bucket[0]/fps_to_ms, Throttle_Bucket[1]/fps_to_ms);
-	  oapiWriteScenario_string(scn, "THROTTLE_BUCKET", cbuf);
-	  oapiWriteScenario_float(scn, "HEADS_UP", RollToHeadsUp/fps_to_ms);
-  }
 
   SavePayloadState(scn);
 
@@ -4196,7 +4064,6 @@ void Atlantis::clbkPostCreation ()
 		temp.Connect(pBundle, i+3);
 		temp.ResetLine();
 	}
-	ZTransCommand.Connect(pBundle, 5);
 
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
@@ -4316,7 +4183,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 				SetTouchdownPoints (_V(0,-10,touchdownZ), _V(-7,7,touchdownZ), _V(7,7,touchdownZ));
 			}
 		}
-		if(bAutopilot && status <= STATE_STAGE2) InitializeAutopilot();
 	}
 
 	if(!___PreStep_flag)
@@ -4610,7 +4476,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 		if (bAllSSMEsOn) 
 		{
-			SetGPCMajorMode(102);
 			status = STATE_STAGE1; // launch
 			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
 			RecordEvent ("STATUS", "SSME_IGNITION");
@@ -4674,10 +4539,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//sprintf(oapiDebugString(),"met: %f",met);
 		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
 			SeparateBoosters (met);
-			tSRBSep=met;
 			bManualSeparate = false;
-			SetGPCMajorMode(103);		//Replace by signal to GPC
-			CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
+			pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
 		}
 		else {
 			if(met>0.0) {
@@ -4710,7 +4573,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-			//if(pSimpleGPC->GetMajorMode()==101) SetGPCMajorMode(102);
+			if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -4723,30 +4586,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetSSMEThrustLevel(0, 0.00);
 			SetThrusterLevel(th_oms[0], 0.00);
 			SetThrusterLevel(th_oms[1], 0.00);
-			bMECO=true;
-			//EnableAllRCS();
 			SeparateTank();
-			bZThrust=false;
-			//ops=104;
 		}
 		/*if (GetSSMEThrustLevel(0) > 0.05) {
 			DisableAllRCS();
 		}*/
-		else if(GetSSMEThrustLevel(0) < 0.05 && !bMECO)
-		{
-			bMECO=true;
-			tMECO=met;
-			//EnableAllRCS();
-			SetThrusterLevel(th_oms[0], 0.00);
-			SetThrusterLevel(th_oms[1], 0.00);
-			//initiate attitude hold
-			/*GetGlobalOrientation(InertialOrientationRad);
-			CurrentAttitude=ConvertAnglesBetweenM50AndOrbiter(InertialOrientationRad);
-			ControlMode=INRTL;
-			TargetAttOrbiter=InertialOrientationRad;
-			TargetAttM50=CurrentAttitude;
-			REQD_ATT=CurrentAttitude*DEG;*/
-		}
 		//else EnableAllRCS();
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
@@ -4999,7 +4843,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		break;
 	}
-	GPC(simt, simdt); //perform GPC functions
 	// check inputs from GPC and set thrusters
 	/*if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
 		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
@@ -6775,13 +6618,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	/*case OAPI_KEY_TAB:
 		pCommModeHandler->EnterCommMode();
 		break;*/
-	case OAPI_KEY_B:
-	  bAutopilot=false;
-	  return 1;
-	case OAPI_KEY_C:
-	  if(bThrottle) bThrottle=false;
-	  else bThrottle=true;
-	  return 1;
     case OAPI_KEY_J:  // "Jettison"
       if (!Playback()) bManualSeparate = true;
       return 1;
@@ -7537,12 +7373,6 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 unsigned int Atlantis::GetGPCMajorMode() const
 {
 	return pSimpleGPC->GetMajorMode();
-}
-
-void Atlantis::SetGPCMajorMode(unsigned int newMajorMode)
-{
-	//ops = newMajorMode;
-	pSimpleGPC->SetMajorMode(newMajorMode);
 }
 
 double Atlantis::GetMET() const
