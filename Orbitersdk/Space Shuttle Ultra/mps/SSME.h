@@ -356,20 +356,6 @@ namespace mps
 		void SetCOTime( void );
 
 		/**
-		 * Converts engine level from Orbiter convention to STS convention
-		 * @param pcOSFS engine level (Orbiter convention)
-		 * @return engine level (STS convention)
-		 */
-		double PCfromOSFStoSTS( double pcOSFS );
-
-		/**
-		 * Converts engine level from STS convention to Orbiter convention
-		 * @param pcSTS engine level (STS convention)
-		 * @return engine level (Orbiter convention)
-		 */
-		double PCfromSTStoOSFS( double pcSTS );
-
-		/**
 		 * Converts engine level from percentage to chamber pressure (psi)
 		 * @param pcPCT engine level (percentage)
 		 * @return engine level (chamber pressure)

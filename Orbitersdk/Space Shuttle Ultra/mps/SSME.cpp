@@ -66,16 +66,6 @@ namespace mps
 		STS()->SetSSMEParams( ID, FPL_THRUST, ISP0, ISP1 );
 	}
 
-	double SSME::PCfromOSFStoSTS( double pcOSFS )
-	{
-		return (pcOSFS * FPL);
-	}
-
-	double SSME::PCfromSTStoOSFS( double pcSTS )
-	{
-		return (pcSTS / FPL);
-	}
-
 	double SSME::PCfromPCTtoPSI( double pcPCT )
 	{
 		return ((pcPCT * RPL_PC_PRESS) / 100);
@@ -91,7 +81,7 @@ namespace mps
 		// MCC press
 		// TODO cookup variations (within redlines... for now...)
 		double pcread = STS()->GetSSMEThrustLevel( ID );
-		pcread = PCfromPCTtoPSI( PCfromOSFStoSTS( pcread ) );
+		pcread = PCfromPCTtoPSI( pcread );
 		PRESS_MCC_A1 = pcread;
 		PRESS_MCC_A2 = pcread;
 		PRESS_MCC_B1 = pcread;
@@ -162,7 +152,7 @@ namespace mps
 				{
 					// keep same pc as before
 					ThrottleCmdTme = -1;
-					STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( PCfromPSItoPCT( PC_CMD ) ) );
+					STS()->SetSSMEThrustLevel( ID, PCfromPSItoPCT( PC_CMD ) );
 				}
 				break;
 			case STARTMAINSTAGE_FIXEDDENSITY:
@@ -580,7 +570,7 @@ namespace mps
 		
 		ValveScheduleIgnition( time - ESCtime );
 
-		STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+		STS()->SetSSMEThrustLevel( ID, pc );
 		//PC_REF = PCfromPCTtoPSI( pc );
 		return;
 	}
@@ -591,7 +581,7 @@ namespace mps
 		
 		ValveScheduleShutdown( time - COtime );
 
-		STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+		STS()->SetSSMEThrustLevel( ID, pc );
 		//PC_REF = PCfromPCTtoPSI( pc );
 		return;
 	}
@@ -609,7 +599,7 @@ namespace mps
 		if ((time - ThrottleCmdTme) >= 0.2)// 200ms delay in pc change
 		{
 			double pc = dcPC_MS( dtime );
-			STS()->SetSSMEThrustLevel( ID, PCfromSTStoOSFS( pc ) );
+			STS()->SetSSMEThrustLevel( ID, pc );
 		}
 		//PC_REF = PCfromPCTtoPSI( pc );
 		return;

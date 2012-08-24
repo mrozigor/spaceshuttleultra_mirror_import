@@ -488,17 +488,37 @@ public:
 	 * @return false for failure, true for success
 	 */
 	bool SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir);
+	/**
+	 * Sets SSME thrust direction.
+	 * Function limits gimbal angles to correct range (10.5 degrees pitch, 8.5 degrees yaw)
+	 * Null direction passes through stack c.g.
+	 * @paramusMPSNo numerical ID of the SSME
+	 * @param degPitch pitch gimbal angle (degrees)
+	 * @param degYaw yaw gimbal angle (degrees)
+	 * @return false for failure, true for success
+	 */
+	bool SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double degYaw);
 
 	/** 
-	 *	@param fThrustLevel Thrust level from 0.0 to 1.0
+	 *	@param fThrustLevel Thrust level (in %) from 0.0 to 109.0 (max power level)
 	 */
 	bool SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel);
 
 	/**
 	 * @param usMPSNo numerical ID of the SSME
-	 * @return 0 < SSME PC < 1
+	 * @return 0 < SSME PC < 109.0
 	 */
 	double GetSSMEThrustLevel( unsigned short usMPSNo );
+
+	/**
+	 * Sets SRB gimbal direction based on specified gimbal angles.
+	 * Function limits angles to +/- 5 degrees
+	 */
+	void SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw);
+
+	double CalcNetSSMEThrust() const;
+	double GetSSMEISP() const;
+	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
 
 	//Thruster Control; called from OrbitDAP class
 	void EnableThrusters(const int Thrusters[], int nThrusters);
@@ -542,6 +562,18 @@ public:
 	void SignalGSEBreakHDP();
 	void TriggerLiftOff();
 	void StartROFIs();
+
+	void SeparateBoosters (double srb_time);
+	void SeparateTank (void);
+
+	/**
+	 * Return true if SRBs are attached to shuttle
+	 */
+	bool HasSRBs() const;
+	/**
+	 * Return true if ET is attached to shuttle
+	 */
+	bool HasTank() const;
 
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
@@ -687,10 +719,8 @@ private:
 	//dps::RSLS *rsls;
 	dps::RSLS_old *rsls;
 
-	void SeparateBoosters (double srb_time);
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
-	void SeparateTank (void);
 
 	/**
 	 * Copies settings (thrust & ISP) from one thruster to another
@@ -789,11 +819,11 @@ private:
 	void AutoMainGimbal(double DeltaT);
 	void SteerGimbal(double DeltaT);
 	void RateCommand();
-	void Throttle(double dt);
+	//void Throttle(double dt);
 	void FailEngine(int engine);
 	void InitializeAutopilot();
-	double CalcNetThrust();
-	void CalcThrustAngles();
+	//double CalcNetThrust();
+	//void CalcThrustAngles();
 	double CalculateAzimuth();
 	//PEG
 	void MajorCycle();

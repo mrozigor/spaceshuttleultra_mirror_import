@@ -411,6 +411,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\AscentGuidance.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dps\AP101S.cpp"
 				>
 			</File>
@@ -870,6 +874,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\AftMDU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AscentGuidance.h"
 				>
 			</File>
 			<File

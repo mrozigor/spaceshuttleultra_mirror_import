@@ -26,25 +26,25 @@ namespace dps
 
 		if(timeToLaunch<=31.0 && lastTTL>=31.0) sts->GLSAutoSeqStart();
     	if(timeToLaunch<=10.0 && lastTTL>=10.0)	sts->StartROFIs();
-		if(timeToLaunch<=6.60 && lastTTL>=6.60)	sts->SetSSMEThrustLevel(3, 1.0);
-		if(timeToLaunch<=6.48 && lastTTL>=6.48)	sts->SetSSMEThrustLevel(2, 1.0);
-		if(timeToLaunch<=6.36 && lastTTL>=6.36)	sts->SetSSMEThrustLevel(1, 1.0);
+		if(timeToLaunch<=6.60 && lastTTL>=6.60)	sts->SetSSMEThrustLevel(3, 100.0);
+		if(timeToLaunch<=6.48 && lastTTL>=6.48)	sts->SetSSMEThrustLevel(2, 100.0);
+		if(timeToLaunch<=6.36 && lastTTL>=6.36)	sts->SetSSMEThrustLevel(1, 100.0);
 
 		bool RSLSAbort=false;
 		if(timeToLaunch<=2.0) {
-		  if(sts->GetSSMEThrustLevel(1)<0.9) {
+		  if(sts->GetSSMEThrustLevel(1)<90.0) {
 			RSLSAbort=true;
 			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[0][0];
 			RSLSAbortData=1;
 		  }
-    	  if(sts->GetSSMEThrustLevel(2)<0.9) {
+    	  if(sts->GetSSMEThrustLevel(2)<90.0) {
 			RSLSAbort=true;
 			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[0][0];
 			RSLSAbortData=2;
 		  }
-		  if(sts->GetSSMEThrustLevel(3)<0.9)  {
+		  if(sts->GetSSMEThrustLevel(3)<90.0)  {
 			RSLSAbort=true;
 			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[0][0];
