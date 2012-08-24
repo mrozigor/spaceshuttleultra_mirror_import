@@ -305,7 +305,6 @@
     <ClCompile Include="ETUmbDoorSystem.cpp" />
     <ClCompile Include="eva_docking\ExtAirlock.cpp" />
     <ClCompile Include="dps\GPC.cpp" />
-    <ClCompile Include="GPC_old.cpp" />
     <ClCompile Include="dps\GPCSoftware.cpp" />
     <ClCompile Include="hydraulics\HydActuator.cpp" />
     <ClCompile Include="dps\IDP.cpp" />

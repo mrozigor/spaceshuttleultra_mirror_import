@@ -21,6 +21,7 @@ public:
 	Atlantis* STS() const { return pGPC->STS(); };
 	DiscreteBundleManager* BundleManager() const { return pGPC->BundleManager(); };
 	unsigned int GetMajorMode() const { return pGPC->GetMajorMode(); };
+	void SetMajorMode(unsigned int newMajorMode) const { pGPC->SetMajorMode(newMajorMode); };
 
 	virtual void Realize();
 

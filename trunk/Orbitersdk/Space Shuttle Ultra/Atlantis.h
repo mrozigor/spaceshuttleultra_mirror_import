@@ -472,7 +472,6 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
-	void SetGPCMajorMode (unsigned int newMajorMode);
 	//virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -816,26 +815,10 @@ private:
 
 	void Twang(double timeToLaunch) const;
 	//Launch
-	void AutoMainGimbal(double DeltaT);
-	void SteerGimbal(double DeltaT);
-	void RateCommand();
 	//void Throttle(double dt);
 	void FailEngine(int engine);
-	void InitializeAutopilot();
 	//double CalcNetThrust();
 	//void CalcThrustAngles();
-	double CalculateAzimuth();
-	//PEG
-	void MajorCycle();
-	void Navigate();
-	void Estimate();
-	void Guide();
-
-	//GPC
-	void GPC(double simt, double dt);
-	void Maneuver(double dt);
-	void SetILoads();
-	//void Test();
 
 	//OMS
 	/**
@@ -851,26 +834,6 @@ private:
 	void UpdateTranslationForces();
 
 	void UpdateOrbiterTexture(const std::string& strTextureName);
-
-	
-
-	inline double a(double t) {
-		return a0/(1-t/tau);
-	}
-	inline double b0(double TT) {
-		return -Isp*log(1-TT/tau);
-	}
-	inline double bn(double TT, int n) {
-		if(n==0) return b0(TT);
-		return bn(TT,n-1)*tau-Isp*pow(TT,n)/n;
-	}
-	inline double c0(double TT) {
-		return b0(TT)*TT-bn(TT,1);
-	}
-	inline double cn(double TT, int n) {
-		if(n==0) return c0(TT);
-		return cn(TT,n-1)*tau-Isp*pow(TT,n+1)/(n*(n+1));
-	}
 
 	// *******************************************************************************
 	// Animations
@@ -1094,55 +1057,13 @@ private:
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 
-	//Launch
-	double Throttle_Bucket[2], OMS_Assist[2], RollToHeadsUp; //start/end times
-	//targets in SI (angles in degrees)
-	double TgtInc, TgtLAN, TgtSpd, TgtAlt, TgtFPA; //targets for guidance
-	double THeading, TAp, TPe, TTrA, TEcc, TgtRad;
-	PIDControl SSMEGimbal[3][3], SRBGimbal[2][3];
-	DiscOutPort ZTransCommand;
-	bool ETSepTranslationInProg;
-	double ETSepMinusZDV;
+	bool bEnableMCADebug;
 
-	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
-	bool bAutopilot, bThrottle;
-	bool bMECO, bZThrust;
-	double tMECO, tSRBSep; //time(MET)
-	double dV; // used for -Z translation
-	VECTOR3 EngineNullPosition[3];
+	//Launch
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
-	bool bEnableMCADebug;
-	VECTOR3 Thrust;
-	//PEG
-	double target_pitch,last_target_pitch,CmdPDot;
-	double target_yaw,last_target_yaw,CmdYDot;
-	double target_roll,last_target_roll,CmdRDot;
-	double TLastMajorCycle;
-	//Navigation variables
-	VECTOR3 rh0,rv,vv,hv;
-	double r,v,h,theta,omega,phi;
-	VECTOR3 rh,thetah,hh;
-	VECTOR3 posMoon,velMoon,rmh;
-	double vr,vtheta,vh;
-	//Azimuth
-	double Radius, SidDay;
-
-	double fh;
-	double pitch,yaw,roll;
-
-	double mu,Re,g;
-	double F, m, Isp, a0, tau, ThrAngleP, ThrAngleY;
-	//Estimation variables
-	double T, p, deltah, deltav, hT, metCutoff;
-	//double rT,vrT,T,p,aOrbit,deltah,deltav,hT,metCutoff;
-	double ftheta,fdottheta,fdotdottheta,rbar;
-	double deltatheta,thetaT;
-	double fr,fdotr;
-	double d1,d2,d3,d4;
-	double A,B,C,TLastAB,fhdotrh;
-	double eCurrent;
+	VECTOR3 EngineNullPosition[3];
 
 	// Entry
 	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
