@@ -398,6 +398,7 @@ public:
 	void AddOrbiterVisual (const VECTOR3 &ofs);
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual ShuttleBusManager* BusManager() const;
+	mission::Mission* GetMissionData() const;
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
@@ -1208,6 +1209,7 @@ void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const Aerosu
 
 
 #if defined(IS_SSU_DLL_MODULE)
+DLLCLBK mission::Mission* ssuGetDefaultMission();
 DLLCLBK mission::Mission* ssuGetMission(const std::string& filename);
 void ClearMissionManagementMemory();
 void InitMissionManagementMemory();

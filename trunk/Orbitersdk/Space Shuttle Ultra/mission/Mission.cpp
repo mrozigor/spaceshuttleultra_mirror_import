@@ -4,20 +4,47 @@
 
 namespace mission {
 
-	Mission::Mission()
-	{
-	}
-
 	Mission::Mission(const std::string& strMission)
 	{
-		if(!LoadMission(strMission))
+		SetDefaultValues();
+		if(!strMission.empty())
 		{
-			oapiWriteLog("(Mission) failed creating mission from loaded file.");
+			if(!LoadMission(strMission))
+			{
+				oapiWriteLog("(Mission) failed creating mission from loaded file.");
+			}
 		}
 	}
 
 	Mission::~Mission()
 	{
+	}
+
+	void Mission::SetDefaultValues()
+	{
+		bEnableWingPainting = false;
+		fLaunchTimeMJD = -1.0;
+		fLandTimeMJD = -1.0;
+
+		fTargetInc = 28.5*RAD;
+		fMECOAlt = 105000;
+		fMECOVel = 7869.635088;
+		fMECOFPA = 0.747083*RAD;
+
+		bUseOMSAssist = false;
+		bPerformRTHU = false;
+		fMaxSSMEThrust = 104.5;
+		fTHdown = 834.0;
+		fTHup = 1174.0;
+
+		bUseRMS = false;
+		bHasKUBand = true;
+		bHasMPMs = false;
+		bHasODS = false;
+		bHasExtAL = false;
+
+		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
+		fODSZPos = 10.1529;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -49,115 +76,63 @@ namespace mission {
 		{
 			strOrbiter = buffer;
 		}
-		else strOrbiter = "";
 
-		if(!oapiReadItem_bool(hFile, "EnableWingPainting", bEnableWingPainting))
-		{
-			 bEnableWingPainting = false;
-		}
+		oapiReadItem_bool(hFile, "EnableWingPainting", bEnableWingPainting);
 
 		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
 		{
 			strOrbiterTexName = "SSU\\" + std::string(buffer) + ".dds";
 			oapiWriteLog((char*)strOrbiterTexName.c_str());
 		}
-		else strOrbiterTexName = "";
 
-		if(!oapiReadItem_float(hFile, "LTime", fLTimeMJD))
-		{
-			fLTimeMJD = -1.0;
-		}
-
+		oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
 		
-		if(!oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD))
+		oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD);
+
+		if(oapiReadItem_float(hFile, "TargetInc", fTargetInc))
 		{
-			fLandTimeMJD = -1.0;
+			fTargetInc *= RAD;
 		}
 
-		if(!oapiReadItem_float(hFile, "TargetInc", fTargetInc))
+		oapiReadItem_float(hFile, "MECOAlt", fMECOAlt);
+		oapiReadItem_float(hFile, "MECOVel", fMECOVel);
+		if(oapiReadItem_float(hFile, "MECOFPA", fMECOFPA))
 		{
-			oapiWriteLog("(Mission) MECO inclination not found, using default value.");
-			fTargetInc = 28.5;
+			fMECOFPA *= RAD;
 		}
-
-		if(!oapiReadItem_float(hFile, "MECOAlt", fMECOAlt))
-			fMECOAlt = 105000;
-		if(!oapiReadItem_float(hFile, "MECOVel", fMECOVel))
-			fMECOVel = 7869.635088;
-		if(!oapiReadItem_float(hFile, "MECOFPA", fMECOFPA))
-			fMECOFPA = 0.747083;
-
-		fMECOFPA *= RAD;
-		fTargetInc *= RAD;
 		
 		/*if(!oapiReadItem_bool(hFile, "UseOMSAssist", bUseOMSAssist))
 		{
 			bUseOMSAssist = false;
 		}*/
 
+		oapiReadItem_bool(hFile, "PerformRollToHeadsUp", bPerformRTHU);
+		double fTemp;
+		if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
 		if(oapiReadItem_float(hFile, "OMSAssistStart", OMSAssistStart) && oapiReadItem_float(hFile, "OMSAssistEnd", OMSAssistEnd))
 		{
 			bUseOMSAssist = true;
 		}
-		else bUseOMSAssist = false;
+		oapiReadItem_float(hFile, "MaxSSMEThrust", fMaxSSMEThrust);
+		oapiReadItem_float(hFile, "ThrottleDown", fTHdown);
+		oapiReadItem_float(hFile, "ThrottleUp", fTHup);
 
-		if(!oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", RTHUVelocity))
-		{
-			RTHUVelocity = 100000.0; // velocity faster than orbital speed; RTHU will not occur
-		}
-
-		if(!oapiReadItem_float(hFile, "MaxSSMEThrust", fMaxSSMEThrust))
-		{
-			fMaxSSMEThrust = 104.5;
-		}
-
-		if(!oapiReadItem_float(hFile, "ThrottleDown", fTHdown))
-		{
-			fTHdown = 834.0;
-		}
-
-		if(!oapiReadItem_float(hFile, "ThrottleUp", fTHup))
-		{
-			fTHup = 1174.0;
-		}
-
-		if(!oapiReadItem_bool(hFile, "UseRMS", bUseRMS))
-		{
-			bUseRMS = false;
-		}
-
-		if(!oapiReadItem_bool(hFile, "UseKUBand", bHasKUBand))
-		{
-			bHasKUBand = true;
-		}
-
-		if(!oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs))
-		{
-			bHasMPMs = false;
-		}
-		if(!oapiReadItem_bool(hFile, "UseODS", bHasODS))
-		{
-			bHasODS = false;
-		}
-		if(!oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL))
-		{
-			bHasExtAL = false;
-		}
+		oapiReadItem_bool(hFile, "UseRMS", bUseRMS);
+		oapiReadItem_bool(hFile, "UseKUBand", bHasKUBand);
+		oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs);
+		oapiReadItem_bool(hFile, "UseODS", bHasODS);
+		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
 
 		for(int i = 0; i<16; i++)
 		{
 			double x;
 			sprintf_s(buffer, "PayloadZPos%d", i);
-			if(!oapiReadItem_float(hFile, buffer, x))
+			if(oapiReadItem_float(hFile, buffer, x))
 			{
-				fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-			} else {
 				fPayloadZPos[i] = x;
 			}
 		}
-		if(!oapiReadItem_float(hFile, "ODSZPos", fODSZPos)) {
-			fODSZPos = 10.1529;
-		}
+		oapiReadItem_float(hFile, "ODSZPos", fODSZPos);
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -188,7 +163,7 @@ namespace mission {
 
 	double Mission::GetLaunchMJD() const
 	{
-		return fLTimeMJD;
+		return fLaunchTimeMJD;
 	}
 
 	unsigned int Mission::GetLaunchSite() const
@@ -305,9 +280,9 @@ namespace mission {
 		return OMSAssistEnd;
 	}
 
-	double Mission::GetRTHUVelocity() const
+	bool Mission::PerformRTHU() const
 	{
-		return RTHUVelocity;
+		return bPerformRTHU;
 	}
 
 	double Mission::GetTHdownVelocity() const

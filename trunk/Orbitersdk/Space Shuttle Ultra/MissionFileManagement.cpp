@@ -3,6 +3,11 @@
 
 std::map<std::string, mission::Mission*> ssu_mission_hashmap;
 
+DLLCLBK mission::Mission* ssuGetDefaultMission()
+{
+	return ssuGetMission("");
+}
+
 DLLCLBK mission::Mission* ssuGetMission(const std::string& mission_name)
 {
 	if(ssu_mission_hashmap.find(mission_name) != ssu_mission_hashmap.end())

@@ -476,7 +476,7 @@ pActiveLatches(3, NULL)
   //----------------------------------------------------
   // Make these first, for avoiding CTDs
   //----------------------------------------------------
-  pMission = NULL;			//No mission selected
+  pMission = ssuGetDefaultMission();			//No mission selected
   options = new SSUOptions();
   bundleManager = new DiscreteBundleManager();
   busManager = new dps::ShuttleBusManager();
@@ -1168,6 +1168,11 @@ DiscreteBundleManager* Atlantis::BundleManager() const
 
 ShuttleBusManager* Atlantis::BusManager() const {
 	return busManager;
+}
+
+mission::Mission* Atlantis::GetMissionData() const
+{
+	return pMission;
 }
 
 const VECTOR3& Atlantis::GetOrbiterCoGOffset() const 
@@ -2439,8 +2444,7 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
 	for(unsigned int i = 0; i<3; i++)
 	{
-		if(pMission) vPayloadPos.z=pMission->GetPayloadZPos(i);
-		else vPayloadPos.z=fPayloadZPos[i];
+		vPayloadPos.z=pMission->GetPayloadZPos(i);
 
 		pActiveLatches[i]->SetAttachmentParams(vPayloadPos, DIR_CENTERPL, ROT_CENTERPL);
 		pActiveLatches[i]->CreateAttachment();
@@ -2462,10 +2466,7 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		{
 			//update
 			//vPayloadPos.z = fPayloadZPos[i+3];
-			if(pMission)
-				vPayloadPos.z = pMission->GetPayloadZPos(i+3);
-			else
-				vPayloadPos.z = fPayloadZPos[i+3];
+			vPayloadPos.z = pMission->GetPayloadZPos(i+3);
 
 			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL);
@@ -2504,10 +2505,7 @@ The same starboard
 		{
 			//update
 			//vPayloadPos.z = fPayloadZPos[i+7];
-			if(pMission)
-				vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-			else
-				vPayloadPos.z = fPayloadZPos[i+7];
+			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
 
 			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL);
@@ -2515,10 +2513,7 @@ The same starboard
 		else 
 		{
 			//vPayloadPos.z = fPayloadZPos[i+7];
-			if(pMission)
-				vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-			else
-				vPayloadPos.z = fPayloadZPos[i+7];
+			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
 
 			//create
 			ahPortPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_PORTPL, 
@@ -2533,10 +2528,7 @@ The same starboard
 		if(ahStbdPL[i])
 		{
 			//update
-			if(pMission)
-				vPayloadPos.z = pMission->GetPayloadZPos(i+11);
-			else
-				vPayloadPos.z = fPayloadZPos[i+11];
+			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			//vPayloadPos.z = fPayloadZPos[i+11];
 			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL);
@@ -2544,10 +2536,7 @@ The same starboard
 		else 
 		{
 			//vPayloadPos.z = fPayloadZPos[i+11];
-			if(pMission)
-				vPayloadPos.z = pMission->GetPayloadZPos(i+11);
-			else
-				vPayloadPos.z = fPayloadZPos[i+11];
+			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			//create
 			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL, "XS");
@@ -2588,10 +2577,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
   orbiter_ofs = ofs;
   huds.hudcnt = _V(ofs.x-0.671257, ofs.y+2.523535, ofs.z+14.969);
 
-  if(pMission) {
-	  bHasODS = pMission->HasODS();
-	  bHasExtAL = pMission->HasExtAL();
-  }
+  bHasODS = pMission->HasODS();
+  bHasExtAL = pMission->HasExtAL();
 
   if (mesh_orbiter == MESH_UNDEFINED) {
 
@@ -2609,7 +2596,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	mesh_heatshield = AddMesh(hHeatShieldMesh,&ofset);
 	oapiWriteLog("REENTRY MESH ADDED");
 
-	if(pMission && pMission->WingPaintingEnabled()) {
+	if(pMission->WingPaintingEnabled()) {
 		strncpy(WingName, pMission->GetOrbiter().c_str(), 256);
 		SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
 		PaintMarkings (insignia_tex);
@@ -2627,17 +2614,13 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	AddKUBandVisual(ofs);
 
 	if(mesh_extal == MESH_UNDEFINED) {
-		VECTOR3 x;
-		if(pMission) x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-		else x = ofs + ODS_POS;
+		VECTOR3 x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
 		mesh_extal = AddMesh(hExtALMesh, &x);
 		SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 	if(mesh_ods == MESH_UNDEFINED) {
-		VECTOR3 x;
-		if(pMission) x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-		else x = ofs + ODS_POS;
+		VECTOR3 x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
 		mesh_ods = AddMesh(hODSMesh, &x);
 		SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
@@ -2725,9 +2708,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     // ***** Docking definitions
 
-	VECTOR3 DockPos;
-	if(pMission) DockPos = _V(ORBITER_DOCKPOS.x, ORBITER_DOCKPOS.y, pMission->GetODSZPos());
-	else DockPos = ORBITER_DOCKPOS;
+	VECTOR3 DockPos = _V(ORBITER_DOCKPOS.x, ORBITER_DOCKPOS.y, pMission->GetODSZPos());
 	SetDockParams (ofs+DockPos, _V(0,1,0), _V(0,0,-1));
 
     // ***** Attachment definitions
@@ -3670,29 +3651,27 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		
 		pMission = ssuGetMission(pszBuffer);
 
-		if(pMission) {
-			// add additional components defined in Mission file
-			RMS = pMission->HasRMS();
-			STBDMPM = pMission->HasSTBDMPMs();
+		// add additional components defined in Mission file
+		RMS = pMission->HasRMS();
+		STBDMPM = pMission->HasSTBDMPMs();
 
-			if(RMS) {
-				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-				if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-			}
-			if(STBDMPM) {
-				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-				if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-			}
-
-			bAutopilot = true; // if mission file exists, we can get autopilot parameters
-
-			MaxThrust = pMission->GetMaxSSMEThrust();
-
-			Throttle_Bucket[0] = pMission->GetTHdownVelocity()*fps_to_ms;
-			Throttle_Bucket[1] = pMission->GetTHupVelocity()*fps_to_ms;
-
-			bHasKUBand = pMission->HasKUBand();
+		if(RMS) {
+			psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 		}
+		if(STBDMPM) {
+			psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+		}
+
+		bAutopilot = true; // if mission file exists, we can get autopilot parameters
+
+		MaxThrust = pMission->GetMaxSSMEThrust();
+
+		Throttle_Bucket[0] = pMission->GetTHdownVelocity()*fps_to_ms;
+		Throttle_Bucket[1] = pMission->GetTHupVelocity()*fps_to_ms;
+
+		bHasKUBand = pMission->HasKUBand();
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
 	} else if(!_strnicmp(line, "ODS", 3)) {
@@ -3857,7 +3836,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   // default vessel parameters
   VESSEL3::clbkSaveState (scn);
 
-  if(pMission != NULL) 
+  if(!pMission->GetMissionFileName().empty()) 
   {
 	  strcpy(cbuf, pMission->GetMissionFileName().c_str());
 	  oapiWriteScenario_string(scn, "MISSION", cbuf);
@@ -5588,7 +5567,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 #endif
   //UpdateOrbiterTexture();
   //UpdateETTexture();
-  if(pMission)
+  if(!pMission->GetOrbiterTextureName().empty())
 	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
 
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
@@ -6024,8 +6003,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
-	  if(pMission) SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+pMission->GetODSZPos()));
-	  else SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+10.1529));
+	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+pMission->GetODSZPos()));
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
@@ -6978,7 +6956,6 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
   aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
-  InitMissionManagementMemory();
   g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
   g_Param.pbi_lights = oapiCreateSurface (LOADBMP (IDB_PBILIGHTS));
   if(g_Param.pbi_lights == NULL) {
@@ -7017,7 +6994,6 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
 {
-  ClearMissionManagementMemory();
   oapiUnregisterCustomControls (hModule);
   DeleteDC(g_Param.DeuCharBitmapDC);
   if(g_Param.tkbk_label)
