@@ -4,7 +4,7 @@
 
 #include "SimpleGPCSoftware.h"
 #include "StateVectorSoftware.h"
-#include "../PIDControl.h"
+#include <PIDControl.h>
 #include "../Atlantis.h"
 #include "discsignals.h"
 

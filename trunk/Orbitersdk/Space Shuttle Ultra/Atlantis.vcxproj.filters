@@ -251,9 +251,6 @@
     <ClCompile Include="vc\PanelR2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PIDControl.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="PlBayOp.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -554,9 +551,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="ParameterValues.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="PIDControl.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="PlBayOp.h">
