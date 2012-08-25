@@ -4,7 +4,7 @@
 
 #include "SimpleGPCSoftware.h"
 #include <discsignals.h>
-#include "../PIDControl.h"
+#include <PIDControl.h>
 #include <EngConst.h>
 
 namespace dps

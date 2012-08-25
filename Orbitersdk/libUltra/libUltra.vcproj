@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\PIDControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\ShuttleBus.cpp"
 				>
 			</File>
@@ -315,6 +319,10 @@
 			</File>
 			<File
 				RelativePath=".\include\PanelGroup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\PIDControl.h"
 				>
 			</File>
 			<File

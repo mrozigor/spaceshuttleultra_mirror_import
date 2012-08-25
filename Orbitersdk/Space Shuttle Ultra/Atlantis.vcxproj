@@ -339,7 +339,6 @@
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
-    <ClCompile Include="PIDControl.cpp" />
     <ClCompile Include="PlBayOp.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -446,7 +445,6 @@
     <ClInclude Include="vc\PanelR11.h" />
     <ClInclude Include="vc\PanelR2.h" />
     <ClInclude Include="ParameterValues.h" />
-    <ClInclude Include="PIDControl.h" />
     <ClInclude Include="PlBayOp.h" />
     <ClInclude Include="vc\PushButton.h" />
     <ClInclude Include="vc\PushButtonIndicator.h" />

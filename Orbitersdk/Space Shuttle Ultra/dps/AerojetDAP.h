@@ -2,7 +2,7 @@
 #define AEROJETDAP_H_77EB3AE1_0A62_4181_8370_0F9995B10FEF
 #pragma once
 
-#include "../PIDControl.h"
+#include <PIDControl.h>
 //#include "../AtlantisSubsystem.h"
 #include "SimpleGPCSoftware.h"
 #include <EngConst.h>

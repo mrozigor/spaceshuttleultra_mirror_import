@@ -96,6 +96,7 @@
     <ClCompile Include="src\LambertBurnTargeting.cpp" />
     <ClCompile Include="src\MMUTapeImage.cpp" />
     <ClCompile Include="src\PEG4Targeting.cpp" />
+    <ClCompile Include="src\PIDControl.cpp" />
     <ClCompile Include="src\ShuttleBus.cpp" />
     <ClCompile Include="src\StateVectorPropagator.cpp" />
     <ClCompile Include="src\UltraMath.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="include\MMUTapeImage.h" />
     <ClInclude Include="include\PanelGroup.h" />
     <ClInclude Include="include\PEG4Targeting.h" />
+    <ClInclude Include="include\PIDControl.h" />
     <ClInclude Include="include\ShuttleBus.h" />
     <ClInclude Include="include\StateVectorPropagator.h" />
     <ClInclude Include="include\Subsystem.h" />
