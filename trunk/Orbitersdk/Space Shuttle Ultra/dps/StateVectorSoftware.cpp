@@ -57,6 +57,10 @@ void StateVectorSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 
 bool StateVectorSoftware::OnMajorModeChange(unsigned int newMajorMode)
 {
+	if(newMajorMode == 102) { // liftoff - get position at T0
+		VECTOR3 vel;
+		GetStateVectors(STS(), hEarth, t0Pos, vel);
+	}
 	if(newMajorMode >= 104 && newMajorMode <= 303) return true;
 	return false;
 }
@@ -77,12 +81,17 @@ bool StateVectorSoftware::OnParseLine(const char* keyword, const char* value)
 		targetVesselName = value;
 		return true;
 	}
+	else if(!_strnicmp(keyword, "T0_POS", 6)) {
+		sscanf(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
+		return true;
+	}
 	return false;
 }
 
 void StateVectorSoftware::OnSaveState(FILEHANDLE scn) const
 {
 	if(!targetVesselName.empty()) oapiWriteScenario_string(scn, "TARGET_VESSEL", const_cast<char*>(targetVesselName.c_str()));
+	oapiWriteScenario_vec(scn, "T0_POS", t0Pos);
 }
 
 void StateVectorSoftware::SetTargetVessel(char* vesselName)
@@ -123,6 +132,11 @@ void StateVectorSoftware::GetApogeeData(double& ApD, double& ApT) const
 void StateVectorSoftware::GetPerigeeData(double& PeD, double& PeT) const
 {
 	propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
+}
+
+VECTOR3 StateVectorSoftware::GetPositionAtT0() const
+{
+	return t0Pos;
 }
 
 void StateVectorSoftware::GetTargetStateVectors(double met, VECTOR3 & pos, VECTOR3 & vel) const

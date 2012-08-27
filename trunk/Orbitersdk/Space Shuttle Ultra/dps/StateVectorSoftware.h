@@ -18,6 +18,8 @@ class StateVectorSoftware : public SimpleGPCSoftware
 	StateVectorPropagator propagator, targetPropagator;
 	VECTOR3 lastVelocity;
 
+	VECTOR3 t0Pos;
+
 	std::string targetVesselName;
 	VESSEL* pTargetVessel;
 public:
@@ -48,6 +50,7 @@ public:
 	void GetCurrentStateVectorsM50(VECTOR3& pos, VECTOR3& vel) const;
 	void GetApogeeData(double& ApD, double& ApT) const;
 	void GetPerigeeData(double& PeD, double& PeT) const;
+	VECTOR3 GetPositionAtT0() const;
 
 	void GetTargetStateVectors(double met, VECTOR3& pos, VECTOR3& vel) const;
 private:
