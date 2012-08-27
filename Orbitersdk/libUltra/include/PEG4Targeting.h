@@ -9,12 +9,13 @@
  * Assumes instantaneous burn (and no perturbations)
  * \param transferAngle angle between initial and target position (may exceed pi) [rad]
  * \param initialPos position at TIG (equatorial, inertial frame) [m]
+ * \param initialVel velocity at TIG (equatorial, inertial frame) [m/s]
  * \param targetPos target position (equatorial, inertial frame) [m]
  * \param mu standard gravitational parameter G*(M1+M2)
  * \param transferTime reference to variable which will be populated with transfer time (in seconds)
- * \returns required velocity at end of burn [m/s]
+ * \returns required Delta V [m/s]
  */
-VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& targetPos, double mu, double& transferTime);
+VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& initialVel, const VECTOR3& targetPos, double mu, double& transferTime);
 
 
 /**

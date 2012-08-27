@@ -8,7 +8,7 @@ static const double MAX_RANGE_ERROR = 1000.0/MPS2FPS;
 //static const double MAX_RANGE_ERROR = 2000.0;
 static const int MAX_ITERATIONS = 20;
 
-VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& targetPos, double mu, double& transferTime)
+VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& initialVel, const VECTOR3& targetPos, double mu, double& transferTime)
 {
 	// algorithm from LTVCON function described in NASA document (dated 1976)
 	// http://ntrs.nasa.gov/search.jsp?R=19760024151
@@ -31,15 +31,17 @@ VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const V
 
 	//VECTOR3 orbit_plane = crossp(targetPos, initialPos);
 	VECTOR3 orbit_plane = crossp(initialPos, targetPos);
+	if(Eq(transferAngle, PI, 0.1*RAD)) orbit_plane = crossp(initialPos, initialVel); // initial & target position are in same line, so use initial velocity to define orbit plane
+	else if(transferAngle > PI) orbit_plane = -orbit_plane; // for transfer angles > 180, cross product above gives vector in wrong direction
 	orbit_plane /= length(orbit_plane);
 	VECTOR3 initialPos_unit = initialPos/length(initialPos);
-	VECTOR3 initial_vel = (initialPos_unit*initial_radial_vel + crossp(orbit_plane, initialPos_unit)*initial_horizontal_vel)*v_circ;
+	VECTOR3 required_vel = (initialPos_unit*initial_radial_vel + crossp(orbit_plane, initialPos_unit)*initial_horizontal_vel)*v_circ;
 	//VECTOR3 final_vel = v_circ*(final_radial_vel*targetPos/length(targetPos) + final_horizontal_vel*crossp(orbit_plane, targetPos));
 
 	// calculate transfer time
 	kostStateVector postBurnState;
 	postBurnState.pos = ConvertBetweenLHAndRHFrames(initialPos);
-	postBurnState.vel = ConvertBetweenLHAndRHFrames(initial_vel);
+	postBurnState.vel = ConvertBetweenLHAndRHFrames(required_vel);
 	kostElements postBurnElements;
 	kostOrbitParam postBurnParams;
 	kostStateVector2Elements(mu, &postBurnState, &postBurnElements, &postBurnParams);
@@ -62,7 +64,7 @@ VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const V
 	//if(U <= -1) return _V(0, 0, 0); // hyperbolic solution
 	//double E = sqrt(1 - lambda*lambda*(1-U*U)) - lambda*U;
 	//double W = sqrt(1 + lambda + 
-	return initial_vel;
+	return required_vel-initialVel;
 }
 
 PEG4Propagator::PEG4Propagator()
@@ -146,7 +148,7 @@ void PEG4Targeting::SetPEG4Targets(double C1, double C2, double HT, double trans
 	targetPos = targetPos*(planetRadius + HT);
 
 	totalMissOffset = _V(0.0, 0.0, 0.0);
-	PerformTargetingIteration();
+	//PerformTargetingIteration();
 	cutoffPos = initialPos; // for first iteration, assume instantaneous burn
 	cutoffVel = initialVel;
 
@@ -227,12 +229,10 @@ void PEG4Targeting::PerformTargetingIteration()
 	VECTOR3 correctedTargetPos = targetPos+totalMissOffset;
 	// calculate coast phase transfer angle to account for miss offset
 	double correctedTransferAngle = acos(dotp(cutoffPos/length(cutoffPos), correctedTargetPos/length(correctedTargetPos)));
-	// acos is limited to [0, pi]; transfer angle is within [0, 3*pi]
-	if(transferAngle >= 2*PI) correctedTransferAngle += 2*PI;
-	if(transferAngle >= PI) correctedTransferAngle = 2*PI - correctedTransferAngle;
+	// if cross product of cutoff pos and target pos is in opposite direction to orbit plane, transfer angle is > 180 degrees
+	if(dotp(orbitPlane, crossp(cutoffPos, correctedTargetPos)) < 0) correctedTransferAngle = 2*PI-correctedTransferAngle;
 	
-	VECTOR3 reqdVel = CalculatePEG7Targets(C1, C2, correctedTransferAngle, cutoffPos, correctedTargetPos, mu, coastTime);
-	equDeltaV += reqdVel - cutoffVel; // in first iteration, this will be reqd-initial; further iterations will refine value
+	equDeltaV += CalculatePEG7Targets(C1, C2, correctedTransferAngle, cutoffPos, cutoffVel, correctedTargetPos, mu, coastTime); // in first iteration, this will be reqd-initial at TIG; further iterations will refine value
 	equDeltaV -= orbitPlane*dotp(equDeltaV, orbitPlane); // remove any out-of-plane component
 	burnTime = length(equDeltaV)/acceleration;
 

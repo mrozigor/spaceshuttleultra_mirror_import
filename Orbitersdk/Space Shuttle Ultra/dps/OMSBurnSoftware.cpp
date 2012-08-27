@@ -673,8 +673,20 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 	double thrust = ORBITER_OMS_THRUST;
 	if(OMS == 0) thrust = ORBITER_OMS_THRUST*2;
 	double acceleration = thrust/StartWeight;
+
+	// for OPS 1 (OMS-1/2) burns, ThetaT value used in calculations (angle from TIG position to target point) is different from ThetaT entered on display (angle from launch site to target point)
+	double correctedThetaT = ThetaT*RAD;
+	if(GetMajorMode() < 200) {
+		VECTOR3 launchSitePos = pStateVector->GetPositionAtT0();
+		double angleToLaunchSite = acos(dotp(launchSitePos/length(launchSitePos), initialPos/length(initialPos)));
+		if(dotp(crossp(initialPos, initialVel), crossp(launchSitePos, initialPos)) < 0) angleToLaunchSite = 2*PI-angleToLaunchSite; // if cross product of launch site and TIG positions is in direction of -ve angular momentum vector, change sign of angle
+		correctedThetaT -= angleToLaunchSite;
+
+		sprintf_s(oapiDebugString(), 255, "Angle to launch site at TIG: %f %f", DEG*angleToLaunchSite, DEG*correctedThetaT);
+		oapiWriteLog(oapiDebugString());
+	}
 	
-	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, ThetaT*RAD, initialPos, initialVel, acceleration);
+	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, correctedThetaT, initialPos, initialVel, acceleration);
 	
 	char cbuf[255];
 	sprintf_s(cbuf, "PEG4 Initial state: %f %f %f %f %f %f", initialPos.x, initialPos.y, initialPos.z, initialVel.x, initialVel.y, initialVel.z);
