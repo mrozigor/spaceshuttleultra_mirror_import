@@ -191,13 +191,16 @@ namespace vc
 				NewLEDValues[0]=RMSJointAngles[RMSSystem::WRIST_PITCH].GetVoltage()*1999.8;
 				NewLEDValues[1]=NewLEDValues[2]=0.0;
 			}
-			if(LED_JointSelect[3].IsSet()) { // WRIST YAW
+			else if(LED_JointSelect[3].IsSet()) { // WRIST YAW
 				NewLEDValues[1]=RMSJointAngles[RMSSystem::WRIST_YAW].GetVoltage()*1999.8;
 				NewLEDValues[0]=NewLEDValues[2]=0.0;
 			}
-			if(LED_JointSelect[2].IsSet()) { // WRIST ROLL
+			else if(LED_JointSelect[2].IsSet()) { // WRIST ROLL
 				NewLEDValues[2]=RMSJointAngles[RMSSystem::WRIST_ROLL].GetVoltage()*1999.8;
 				NewLEDValues[0]=NewLEDValues[1]=0.0;
+			}
+			else {
+				for(int i=0;i<3;i++) NewLEDValues[i]=8888.0;
 			}
 		}
 		else {
