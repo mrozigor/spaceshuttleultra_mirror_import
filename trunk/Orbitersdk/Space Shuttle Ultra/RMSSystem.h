@@ -40,9 +40,9 @@ const VECTOR3 RMS_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 const VECTOR3 RMS_SY_JOINT = _V(-2.721, 1.97, 9.31);
 const VECTOR3 RMS_SP_JOINT = _V(-2.88, 2.13, 9.31);
 const VECTOR3 RMS_EP_JOINT = _V(-2.8225, 1.96, 2.67);
-const VECTOR3 RMS_WP_JOINT = _V(-2.881, 2.072, -4.205);
-const VECTOR3 RMS_WY_JOINT = _V(-2.881, 2.072, -4.805);
-const VECTOR3 RMS_EE_POS = _V(-2.881, 2.072, -6.00);
+const VECTOR3 RMS_WP_JOINT = _V(-2.867, 2.1305, -4.369);
+const VECTOR3 RMS_WY_JOINT = _V(-2.867, 2.1305, -4.928);
+const VECTOR3 RMS_EE_POS = _V(-2.8675, 2.131, -6.027);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
