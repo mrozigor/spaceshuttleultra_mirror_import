@@ -3637,10 +3637,10 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
 		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
 		bEngineFail=true;
-	} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
+	/*} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
 		action = 0;
 		sscanf(line+10, "%d", &action);
-		bSSMEGOXVent = (action != 0);
+		bSSMEGOXVent = (action != 0);*/
 	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
 		ParsePayloadLine(line);
 	} else if (!_strnicmp(line, "@PANEL", 6)) {
@@ -3782,10 +3782,10 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
   SavePayloadState(scn);
 
-  if(bSSMEGOXVent)
+  /*if(bSSMEGOXVent)
   {
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
-  }
+  }*/
 
   sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_D], camYaw[CAM_D],
 			camPitch[CAM_B], camYaw[CAM_B], camPitch[CAM_C], camYaw[CAM_C]);
@@ -4486,7 +4486,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		} 
 		else if(bAllSSMEsOff)
 		{
-			if(bSSMEGOXVent)
+			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
 			{
 				for(unsigned short i = 0; i<3; i++)
 				{
@@ -4506,7 +4506,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 		}
 		else {
-			bSSMEGOXVent = false;
 			for(unsigned short i = 0; i<3; i++)
 			{
 				if(th_ssme_gox[i] != NULL) {
@@ -6543,7 +6542,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		RMSGrapple.ResetLine();
 		RMSRelease.SetLine();
 		return 1;
-	case OAPI_KEY_X: //temporary
+	/*case OAPI_KEY_X: //temporary
 		if(status == STATE_PRELAUNCH)
 		{
 			bSSMEGOXVent = !bSSMEGOXVent;
@@ -6558,8 +6557,8 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 					RMSRollout.action=AnimState::CLOSING;
 				}
 			}
-		}*/
-		return 1;
+		}*
+		return 1;*/
 	case OAPI_KEY_1: //temporary
 		/*if(DisplayJointAngles) {
 			DisplayJointAngles=false;

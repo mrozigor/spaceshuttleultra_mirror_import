@@ -1017,8 +1017,6 @@ private:
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	bool ControlSurfacesEnabled;
 
-	bool bSSMEGOXVent;
-
 	//CLR
 	VECTOR3 SSMET_GOX_REF1;
 	VECTOR3 SSMEL_GOX_REF1;
