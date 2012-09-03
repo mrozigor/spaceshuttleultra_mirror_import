@@ -21,6 +21,7 @@ DiscreteBundle::DiscreteBundle(const string& _ident, int nLines)
 	assert(nLines <= 16);
 	snLines = nLines;
 	ident = _ident;
+	for(int i=0;i<nLines;i++) fLines[i] = 0.0; // by default, all lines are not set
 }
 
 DiscreteBundle::~DiscreteBundle()
