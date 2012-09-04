@@ -2110,9 +2110,9 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camFLPitchGrp[1] = {GRP_CCTV_FL};
   CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(-1.9,1.95,11.72), _V(-1,0,0), (float)(340*RAD));
-  //anim_camFLpitch = CreateAnimation (0.5);
-  anim_camFLpitch = CreateAnimation (0.7647);
+    _V(-1.9,1.95,11.72), _V(1,0,0), (float)(340*RAD));
+  anim_camFLpitch = CreateAnimation (0.5);
+  //anim_camFLpitch = CreateAnimation (0.7647);
   LogAnim("anim_camFLpitch", anim_camFLpitch);
   parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
@@ -2126,8 +2126,8 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camFRPitchGrp[1] = {GRP_CCTV_FR};
   CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(1.863,1.95,11.72), _V(-1,0,0), (float)(340*RAD));
-  anim_camFRpitch = CreateAnimation (0.7647);
+    _V(1.863,1.95,11.72), _V(1,0,0), (float)(340*RAD));
+  anim_camFRpitch = CreateAnimation (0.5);
   LogAnim("anim_camFRpitch", anim_camFRpitch);
   AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
@@ -2141,8 +2141,8 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camBLPitchGrp[1] = {GRP_CCTV_BL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(-2.31,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
-  anim_camBLpitch = CreateAnimation (0.7647);
+    _V(-2.31,2.02,-6.31), _V(-1,0,0), (float)(340*RAD));
+  anim_camBLpitch = CreateAnimation (0.5);
   LogAnim("anim_camBLpitch", anim_camBLpitch);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
@@ -2156,8 +2156,8 @@ void Atlantis::DefineAnimations (void)
 
   static UINT camBRPitchGrp[1] = {GRP_CCTV_BR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(2.29,2.02,-6.31), _V(1,0,0), (float)(340*RAD));
-  anim_camBRpitch = CreateAnimation (0.7647);
+    _V(2.29,2.02,-6.31), _V(-1,0,0), (float)(340*RAD));
+  anim_camBRpitch = CreateAnimation (0.5);
   LogAnim("anim_camBRpitch", anim_camBRpitch);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
@@ -3265,25 +3265,25 @@ void Atlantis::SetAnimationCameras() {
 		switch (VCMode) {
 		case VC_PLBCAMFL:
 			a = ((-camYaw[CAM_A]+90)*RAD);
-			b = ((-camPitch[CAM_A])*RAD);
+			b = ((camPitch[CAM_A]-90)*RAD);
 			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 			oapiCameraSetCockpitDir(0.0, 0.0);
 			break;
 		case VC_PLBCAMFR:
 			a = ((-camYaw[CAM_D]+90)*RAD);
-			b = ((-camPitch[CAM_D])*RAD);
+			b = ((camPitch[CAM_D]-90)*RAD);
 			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 			oapiCameraSetCockpitDir(0.0, 0.0);
 			break;
 		case VC_PLBCAMBL:
 			a = ((-camYaw[CAM_B]-90)*RAD);
-			b = ((-camPitch[CAM_B])*RAD);
+			b = ((camPitch[CAM_B]-90)*RAD);
 			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 			oapiCameraSetCockpitDir(0.0, 0.0);
 			break;
 		case VC_PLBCAMBR:
 			a = ((-camYaw[CAM_C]-90)*RAD);
-			b = ((-camPitch[CAM_C])*RAD);
+			b = ((camPitch[CAM_C]-90)*RAD);
 			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 			oapiCameraSetCockpitDir(0.0, 0.0);
 			break;
@@ -3584,8 +3584,8 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
 		sscanf (line+17, "%lf", &srbtime);
 	} else if (!_strnicmp (line, "PLBD_CAM", 8)) {
-		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_D], &camYaw[CAM_D],
-			&camPitch[CAM_B], &camYaw[CAM_B], &camPitch[CAM_C], &camYaw[CAM_C]);
+		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
+			&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
 		cameraMoved=true;
     } /*else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
 		sscanf (line+9, "%lf", &sts_sat_x);
@@ -3787,8 +3787,8 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
   }*/
 
-  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_D], camYaw[CAM_D],
-			camPitch[CAM_B], camYaw[CAM_B], camPitch[CAM_C], camYaw[CAM_C]);
+  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
+			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
   oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
   if(bPLBLights)
   {
@@ -5044,11 +5044,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			cameraMoved = true;
 		}
 
-		if(PLBDCamTiltUp[i]) {
+		if(PLBDCamTiltDown[i]) {
 			camPitch[i] = max(-MAX_PLBD_CAM_TILT, camPitch[i]-camRate*simdt);
 			cameraMoved = true;
 		}
-		else if(PLBDCamTiltDown[i]) {
+		else if(PLBDCamTiltUp[i]) {
 			camPitch[i] = min(MAX_PLBD_CAM_TILT, camPitch[i]+camRate*simdt);
 			cameraMoved = true;
 		}
