@@ -396,22 +396,23 @@ double AscentGuidance::CalculateAzimuth()
 	STS()->HorizonRot(vel, horizonvel);
 	current_vel[1] = horizonvel.data[0]; //East
 	current_vel[0] = horizonvel.data[2];  // North
-	//sprintf_s(oapiDebugString(), 255, "current_vel: %f %f", current_vel[0], current_vel[1]);
 
-
-	azimuth = asin(cos(TgtInc*RAD)/cos(latitude));  // this equ doesn't take rotation into accout
+	azimuth = asin(range(-1, cos(TgtInc*RAD)/cos(latitude), 1));  // this equ doesn't take rotation into accout
 	equator_v=EarthRadius*(2*PI/SidDay);   //equator velocity
 	tgt_orbit_v[0]=TgtSpd*cos(TgtFPA*RAD)*cos(azimuth); // northern velocity
 	tgt_orbit_v[1]=TgtSpd*cos(TgtFPA*RAD)*sin(azimuth); // eastern velocity
 	lnch_v[0]= abs(tgt_orbit_v[0]) - abs(current_vel[0]); // taking current velocity into accout for CC (North); assume both values have same sign
 	lnch_v[1]= abs(tgt_orbit_v[1]) - abs(current_vel[1]); // taking current velocity into accout for CC (East); assume both values have same sign
 
+	//sprintf_s(oapiDebugString(), 255, "current_vel: %f %f target vel: %f %f", current_vel[0], current_vel[1], tgt_orbit_v[0], tgt_orbit_v[1]);
+
 	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
-	if(lnch_v[0]==0.0) { //div by zero protection
+	/*if(lnch_v[0]==0.0) { //div by zero protection
 		if(lnch_v[1]>0) true_azimuth=PI/2;
 		else true_azimuth=-PI/2;
-	}
-	else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
+	}*/
+	//else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
+	true_azimuth = atan2(lnch_v[1], lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
 	if(current_vel[0] < 0.0) true_azimuth = PI - true_azimuth; // we are heading south, so need to use southerly heading
 	if(current_vel[1] < 0.0) true_azimuth = 2*PI - true_azimuth; // retrograde inclination
 
