@@ -4010,14 +4010,16 @@ void Atlantis::clbkPostCreation ()
 
 	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
-	SpdbkThrotAutoOut.Connect(pBundle, 0);
 	SpdbkThrotCDROut.Connect(pBundle, 1);
 	SpdbkThrotPLTOut.Connect(pBundle, 2);
-	// if AUTO port is not set, enable CDR SPDBK/THROT control (code in clbkPostStep will select CDR/PLT depending on VC position)
-	if(!SpdbkThrotAutoIn) {
-		DiscOutPort temp;
-		temp.Connect(pBundle, 1); // CDR
-		temp.SetLine();
+	// if neither MAN port is set, set AUTO port
+	DiscInPort SpdbkThrotCDRIn, SpdbkThrotPLTIn;
+	SpdbkThrotCDRIn.Connect(pBundle, 1);
+	SpdbkThrotPLTIn.Connect(pBundle, 2);
+	if(!SpdbkThrotCDRIn && !SpdbkThrotPLTIn) {
+		DiscOutPort SpdbkThrotAutoOut;
+		SpdbkThrotAutoOut.Connect(pBundle, 0);
+		SpdbkThrotAutoOut.SetLine();
 	}
 
 	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
@@ -4098,6 +4100,9 @@ void Atlantis::clbkPostCreation ()
 	MPSPwr[1][2].Connect(pBundle, 1);
 	MPSHeIsolA[2].Connect(pBundle, 2);
 	MPSHeIsolB[2].Connect(pBundle, 2);
+
+	pBundle = bundleManager->CreateBundle("SSME", 8);
+	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
 
 	pBundle=bundleManager->CreateBundle("LOMS", 5);
 	OMSArm[LEFT].Connect(pBundle, 0);
@@ -4227,6 +4232,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			break;
 	}
 	
+	UpdateHandControllerSignals();
+
 	// check inputs from GPC and set thrusters
 	//sprintf_s(oapiDebugString(), 255, "RCS: %f %f %f", RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[YAW].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage());
 	if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
@@ -4629,7 +4636,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 
 		//get THC and RHC input
-		UpdateHandControllerSignals();
 		/*if(ControlRMS) { // use RHC/THC input to control RMS
 			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
 			RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
@@ -6638,6 +6644,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		//gop->RevertLandingGear();
 		DeployLandingGear();
 		return 1;
+	case OAPI_KEY_MULTIPLY: // NUMPAD *
+		for(int i=0;i<3;i++) SSMEShutdown[i].SetLine();
+		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
 	case OAPI_KEY_LEFT:
 		AltKybdInput.y=-1.0;
 		return 1;

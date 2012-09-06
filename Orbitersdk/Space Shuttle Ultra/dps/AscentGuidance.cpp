@@ -9,6 +9,7 @@ namespace dps
 AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AscentGuidance"),
   hEarth(NULL),
+  lastSBTCCommand(0.0),
   stage1GuidanceVelTable(DEFAULT_STAGE1_GUIDANCE_TABLE_VEL, DEFAULT_STAGE1_GUIDANCE_TABLE_VEL+STAGE1_GUIDANCE_TABLE_SIZE),
   stage1GuidancePitchTable(DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH, DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH+STAGE1_GUIDANCE_TABLE_SIZE),
   bMECO(false),
@@ -44,6 +45,18 @@ void AscentGuidance::Realize()
 
 	pBundle = STS()->BundleManager()->CreateBundle("THRUSTER_CMD", 16);
 	ZTransCommand.Connect(pBundle, 5);
+
+	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
+	SpdbkThrotAutoIn.Connect(pBundle, 0);
+	SpdbkThrotAutoOut.Connect(pBundle, 0);
+	SpdbkThrotPLT.Connect(pBundle, 2);
+	SpdbkThrotAutoOut.SetLine(); // default to auto throttling
+
+	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
+	SpdbkThrotPort.Connect(pBundle, 6);	
+
+	pBundle = STS()->BundleManager()->CreateBundle("SSME", 8);
+	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -224,11 +237,6 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	STS()->GetAngularVel(AngularVelocity);
 	VECTOR3 degRateError = degReqdRates - AngularVelocity*DEG;
 
-	sprintf_s(oapiDebugString(), 255, "Reqd Rates: %f %f %f Rate Error: %f %f %f",
-			  degReqdRates.data[PITCH], degReqdRates.data[YAW], degReqdRates.data[ROLL],
-			  degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL]);
-	oapiWriteLog(oapiDebugString());
-
 	for(int i=0;i<3;i++) {
 		double pitchGimbal = SSMEGimbal[i][PITCH].Step(degRateError.data[PITCH], DeltaT);
 		double yawGimbal = SSMEGimbal[i][YAW].Step(degRateError.data[YAW], DeltaT);
@@ -319,57 +327,84 @@ void AscentGuidance::SecondStageRateCommand()
 
 void AscentGuidance::Throttle(double DeltaT)
 {
-	switch(GetMajorMode()) {
-		case 102: // STAGE 1
-			if(STS()->GetAirspeed()<18.288) 
-				STS()->SetSSMEThrustLevel(0, 100.0);
-			else if(STS()->GetAirspeed()>=ThrottleBucketStartVel && STS()->GetAirspeed()<=ThrottleBucketEndVel) {
-				//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
-				//else SetSSMEThrustLevel(0, 72.0/109.0);
-				for(unsigned short i=1;i<=3;i++) {
-					double thrustLevel = STS()->GetSSMEThrustLevel(i);
-					if(thrustLevel > 72.0) STS()->SetSSMEThrustLevel(i, thrustLevel - 10.0*DeltaT);
-					else STS()->SetSSMEThrustLevel(i, 72.0);
+	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
+	sprintf_s(oapiDebugString(), 255, "SBTCCommand: %f", SBTCCommand);
+
+	if(SpdbkThrotAutoIn) { // auto throttling
+		// check for manual takeover
+		if(Eq(STS()->GetSSMEThrustLevel(0), SBTCCommand, 4.0) && !Eq(SBTCCommand, lastSBTCCommand, 1e-2)) {
+			SpdbkThrotAutoOut.ResetLine();
+			SpdbkThrotPLT.SetLine();
+		}
+		else SpdbkThrotPLT.ResetLine();
+
+		switch(GetMajorMode()) {
+			case 102: // STAGE 1
+				if(STS()->GetAirspeed()<18.288) 
+					STS()->SetSSMEThrustLevel(0, 100.0);
+				else if(STS()->GetAirspeed()>=ThrottleBucketStartVel && STS()->GetAirspeed()<=ThrottleBucketEndVel) {
+					//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
+					//else SetSSMEThrustLevel(0, 72.0/109.0);
+					for(unsigned short i=1;i<=3;i++) {
+						double thrustLevel = STS()->GetSSMEThrustLevel(i);
+						if(thrustLevel > 72.0) STS()->SetSSMEThrustLevel(i, thrustLevel - 10.0*DeltaT);
+						else STS()->SetSSMEThrustLevel(i, 72.0);
+					}
 				}
-			}
-			else {
-				//if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
-				//else SetSSMEThrustLevel(0, MaxThrust/109.0);
-				for(unsigned short i=1;i<=3;i++) {
-					double thrustLevel = STS()->GetSSMEThrustLevel(i);
-					if(thrustLevel < MaxThrust) STS()->SetSSMEThrustLevel(i, thrustLevel + 10.0*DeltaT);
-					else STS()->SetSSMEThrustLevel(i, MaxThrust);
+				else {
+					//if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
+					//else SetSSMEThrustLevel(0, MaxThrust/109.0);
+					for(unsigned short i=1;i<=3;i++) {
+						double thrustLevel = STS()->GetSSMEThrustLevel(i);
+						if(thrustLevel < MaxThrust) STS()->SetSSMEThrustLevel(i, thrustLevel + 10.0*DeltaT);
+						else STS()->SetSSMEThrustLevel(i, MaxThrust);
+					}
 				}
-			}
-			break;
-		case 103: // STAGE 3
-			//OMS Assist
-			if(STS()->GetMET()>OMSAssistStart && STS()->GetMET()<OMSAssistEnd && !bMECO)
-			{
-				OMSCommand[LEFT].SetLine();
-				OMSCommand[RIGHT].SetLine();
-			}
-			else
-			{
-				OMSCommand[LEFT].ResetLine();
-				OMSCommand[RIGHT].ResetLine();
-			}
-			if(thrustAcceleration>=29.00) { //28.42
-				for(int i=1;i<=3;i++) {
-					if(STS()->GetSSMEThrustLevel(i) > 67.0)
-						STS()->SetSSMEThrustLevel(i, STS()->GetSSMEThrustLevel(i)-1.0);
-					else STS()->SetSSMEThrustLevel(i, 67.0);
+				break;
+			case 103: // STAGE 3
+				//OMS Assist
+				if(STS()->GetMET()>OMSAssistStart && STS()->GetMET()<OMSAssistEnd && !bMECO)
+				{
+					OMSCommand[LEFT].SetLine();
+					OMSCommand[RIGHT].SetLine();
 				}
-			}
-			if(relativeVelocity>=TgtSpd) {
-				//reached target speed
-				STS()->SetSSMEThrustLevel(0, 0.0);
-				bMECO=true;
-				tMECO = STS()->GetMET();
-			}
-			break;
+				else
+				{
+					OMSCommand[LEFT].ResetLine();
+					OMSCommand[RIGHT].ResetLine();
+				}
+				if(thrustAcceleration>=29.00) { //28.42
+					for(int i=1;i<=3;i++) {
+						if(STS()->GetSSMEThrustLevel(i) > 67.0)
+							STS()->SetSSMEThrustLevel(i, STS()->GetSSMEThrustLevel(i)-1.0);
+						else STS()->SetSSMEThrustLevel(i, 67.0);
+					}
+				}
+				if(relativeVelocity>=TgtSpd) {
+					//reached target speed
+					STS()->SetSSMEThrustLevel(0, 0.0);
+					oapiWriteLog("MECO");
+					//bMECO=true;
+					//tMECO = STS()->GetMET();
+				}
+				break;
+		}
 	}
-	return;
+	else { // manual throttling
+		STS()->SetSSMEThrustLevel(0, SBTCCommand);
+	}
+
+	lastSBTCCommand = SBTCCommand;
+	
+	// handle shutdown commands
+	for(int i=0;i<3;i++) {
+		if(SSMEShutdown[i]) STS()->SetSSMEThrustLevel(i, 0.0);
+	}
+	// detect MECO
+	if(Eq(STS()->GetSSMEThrustLevel(0), 0.0, 0.01)) {
+		bMECO = true;
+		tMECO = STS()->GetMET();
+	}
 }
 
 void AscentGuidance::MajorCycle()

@@ -61,7 +61,7 @@ namespace vc
 		pSbdbkThrot->AddAIDToRedrawEventList(AID_F2_ST_AUTO);
 		SetCommonPBIParameters(pSbdbkThrot);
 		pSbdbkThrot->SetMouseRegion(0.133675f, 0.579283f, 0.176833f, 0.687911f);
-		pSbdbkThrot->AllowReset(true);
+		pSbdbkThrot->AllowReset(false);
 
 		pSbdbkThrotMan->AddAIDToRedrawEventList(AID_F2_ST_MAN);
 		pSbdbkThrotMan->SetSourceImage(g_Param.pbi_lights);

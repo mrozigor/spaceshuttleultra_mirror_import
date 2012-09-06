@@ -65,7 +65,7 @@ namespace vc
 		pSbdbkThrot->SetSourceCoords(false, 0, 14);
 		pSbdbkThrot->SetDimensions(42, 14);
 		pSbdbkThrot->SetMouseRegion(0.823518f, 0.583791f, 0.867013f, 0.697191f);
-		pSbdbkThrot->AllowReset(true);
+		pSbdbkThrot->AllowReset(false);
 
 		pSbdbkThrotMan->AddAIDToRedrawEventList(AID_F4_ST_MAN);
 		pSbdbkThrotMan->SetSourceImage(g_Param.pbi_lights);

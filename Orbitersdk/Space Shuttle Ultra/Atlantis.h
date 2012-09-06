@@ -1115,7 +1115,7 @@ private:
 
 	//DiscPorts
 	DiscInPort SpdbkThrotAutoIn;
-	DiscOutPort SpdbkThrotAutoOut, SpdbkThrotCDROut, SpdbkThrotPLTOut;
+	DiscOutPort SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscInPort PitchAutoIn, RollYawAutoIn;
@@ -1142,6 +1142,7 @@ private:
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
 	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
+	DiscOutPort SSMEShutdown[3]; // to allow MECO to be commanded from keyboard
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
 
 	void AddKUBandVisual(const VECTOR3 ofs);

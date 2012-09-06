@@ -59,6 +59,9 @@ private:
 	 * Uses PEG guidance.
 	 */
 	void SecondStageRateCommand();
+	/**
+	 * Sets SSME throttle value.
+	 */
 	void Throttle(double dt);
 
 	/**
@@ -97,9 +100,16 @@ private:
 	double ThrottleBucketStartVel, ThrottleBucketEndVel;
 	bool PerformRTHU;
 
+	discsignals::DiscInPort SpdbkThrotPort;
+	discsignals::DiscInPort SpdbkThrotAutoIn;
+	discsignals::DiscOutPort SpdbkThrotAutoOut;
+	discsignals::DiscOutPort SpdbkThrotPLT;
+	discsignals::DiscInPort SSMEShutdown[3];
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
 	discsignals::DiscOutPort ZTransCommand;
+
+	double lastSBTCCommand;
 
 	VECTOR3 degReqdRates;
 
