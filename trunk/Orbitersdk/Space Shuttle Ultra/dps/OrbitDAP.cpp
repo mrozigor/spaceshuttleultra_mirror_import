@@ -543,9 +543,9 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		ATT_ERR = _V(0.0, 0.0, 0.0);
 	}
-	else if(DAPControlMode != FREE) { // if DAP is in FREE, we only care about RHC input
+	else if(DAPControlMode != FREE) { // if DAP is in FREE, we only care about RHC input; otherwise, we want to maintain target attitude
 		MATRIX3 tgtM50Matrix;  // target M50 attitude for this timestep
-		if(ActiveManeuver.Type == AttManeuver::TRK) {
+		if(ActiveManeuver.Type == AttManeuver::TRK) { // get (instantaneous) target M50 attitude
 			MATRIX3 curLVLHMatrix = GetCurrentLVLHRefMatrix();
 			tgtM50Matrix = mul(curLVLHMatrix, ActiveManeuver.tgtMatrix);
 			REQD_ATT = GetYZXAnglesFromMatrix(tgtM50Matrix)*DEG;
