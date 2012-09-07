@@ -4231,6 +4231,9 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		case STATE_ORBITER:
 			break;
 	}
+
+	// disable all Orbitersim autopilots
+	for(int i=NAVMODE_KILLROT;i<=NAVMODE_HOLDALT;i++) DeactivateNavmode(i);
 	
 	UpdateHandControllerSignals();
 
@@ -8114,5 +8117,5 @@ void Atlantis::ControlPLBLights()
 void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
 {
 	SetThrusterMax0(th, v->GetThrusterMax0(th_ref));
-	SetThrusterIsp(th, v->GetThrusterIsp0(th), v->GetThrusterIsp(th, 101.4e3), 101.4e3);
+	SetThrusterIsp(th, v->GetThrusterIsp0(th_ref), v->GetThrusterIsp(th_ref, 101.4e3), 101.4e3);
 }
