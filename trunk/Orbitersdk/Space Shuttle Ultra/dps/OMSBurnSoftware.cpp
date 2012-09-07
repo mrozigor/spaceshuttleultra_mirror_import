@@ -26,7 +26,7 @@ VECTOR3 ConvertLVLHMatrixToM50Angles(const MATRIX3& tgtLVLHMatrix, const VECTOR3
 {
 	MATRIX3 LVLHMatrix = Transpose(GetGlobalToLVLHMatrix(equPos, equVel));
 	MATRIX3 M50Matrix = mul(LVLHMatrix, tgtLVLHMatrix);
-	return GetYZXAnglesFromMatrix(M50Matrix);
+	return GetYZX_PYRAnglesFromMatrix(M50Matrix);
 }
 
 OMSBurnSoftware::OMSBurnSoftware(SimpleGPCSystem* _gpc)

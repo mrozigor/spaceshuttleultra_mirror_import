@@ -475,7 +475,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
 									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
 									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
-		VECTOR3 ee_att_output = GetPYRAnglesFromMatrix(arm_ee_dir_mat);
+		VECTOR3 ee_att_output = GetZYX_RYPAnglesFromMatrix(arm_ee_dir_mat);
 		// reference frame is a bit odd here, so we need this to get the math to work
 		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
 		for(int i=0;i<3;i++) {
