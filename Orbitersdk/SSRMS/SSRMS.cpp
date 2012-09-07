@@ -306,8 +306,8 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		wy_angle_d=90.0+DEG*acos(dotp(offset_vector, newDir));
 	else*/
 	double wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
-	double wr_angle_d = DEG*acos(dotp(wp_dir, newRot));
-	if(dotp(wp_dir, crossp(newRot, newDir)) < 0) wr_angle_d = -wr_angle_d;
+	double wr_angle_d = DEG*acos(dotp(wp_dir, rot));
+	if(dotp(wp_dir, crossp(rot, dir)) < 0) wr_angle_d = -wr_angle_d;
 
 	//if(yaw180Error) sp_angle_d+=180.0;
 
@@ -339,6 +339,7 @@ bool SSRMS::SetJointAngle(SSRMS::SSRMS_JOINT joint, double angle)
 {
 	if(angle>=JOINT_LIMITS[0] && angle<=JOINT_LIMITS[1]) {
 		double pos=linterp(JOINT_LIMITS[0], 0.0, JOINT_LIMITS[1], 1.0, angle);
+		if(activeLEE == 0 && (joint == SHOULDER_YAW || joint == WRIST_YAW)) pos = 1.0-pos; // yaw joints rotate in different directions depending on which LEE is active
 		SetAnimation(anim_joint[activeLEE][joint], pos);
 		joint_angle[joint]=angle;
 		arm_moved=true;
@@ -377,6 +378,9 @@ bool SSRMS::ChangeActiveLEE()
 		joint_angle[i]=joint_angle[6-i];
 		joint_angle[6-i]=temp;
 	}
+	// yaw joints rotate in different directions depending on which LEE is active
+	joint_angle[SHOULDER_YAW] = -joint_angle[SHOULDER_YAW];
+	joint_angle[WRIST_YAW] = -joint_angle[WRIST_YAW];
 	CalculateVectors();
 
 	return true;
@@ -407,8 +411,8 @@ void SSRMS::CalculateVectors()
 	// wrist roll
 	arm_ee_rot = RotateVector(arm_ee_dir, RAD*joint_angle[WRIST_ROLL], arm_ee_rot);
 
-	VECTOR3 old_arm_ee_pos=arm_tip[0]-SR_JOINT;
-	old_arm_ee_pos=_V(old_arm_ee_pos.z, -old_arm_ee_pos.x, -old_arm_ee_pos.y);
+	//VECTOR3 old_arm_ee_pos=arm_tip[0]-SR_JOINT;
+	//old_arm_ee_pos=_V(old_arm_ee_pos.z, -old_arm_ee_pos.x, -old_arm_ee_pos.y);
 	/*sprintf_s(oapiDebugString(), 255, "FK pos: %f %f %f Orbiter pos: %f %f %f arm_tip: %f %f %f",
 		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
 		old_arm_ee_pos.x, old_arm_ee_pos.y, old_arm_ee_pos.z,
