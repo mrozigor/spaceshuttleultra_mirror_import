@@ -475,6 +475,9 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 {
 	pSubsystemDirector->PreStep(SimT, SimDT, mjd);
 
+	// disable all Orbitersim autopilots
+	for(int i=NAVMODE_KILLROT;i<=NAVMODE_HOLDALT;i++) DeactivateNavmode(i);
+
 	// if one LEE is free, allow arm to move
 	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) {
 		for(unsigned short i=0;i<7;i++) {
