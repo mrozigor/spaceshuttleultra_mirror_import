@@ -47,7 +47,7 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//arm_wrist_pos = WristPitchJoint-ShoulderPitchJoint;
 	arm_ee_dir = _V(1, 0, 0);
 	arm_ee_rot = _V(0, 1, 0);
-	arm_tip[0] = LEE_POS;
+	old_arm_tip = arm_tip[0] = LEE_POS;
 	arm_tip[1] = LEE_POS + _V(0, 0, 1);
 	arm_tip[2] = LEE_POS + _V(0, 1, 0);
 	//arm_tip[1] = _V(-0.70, 0.59, 9.44);
@@ -383,6 +383,20 @@ bool SSRMS::ChangeActiveLEE()
 	joint_angle[WRIST_YAW] = -joint_angle[WRIST_YAW];
 	CalculateVectors();
 
+	// shift meshes to align active LEE with centre of external cam view
+	if(activeLEE == 0) {
+		ShiftMeshes(old_arm_tip-SR_JOINT);
+		old_arm_tip = SR_JOINT;
+	}
+	else {
+		ShiftMeshes(old_arm_tip-arm_tip[0]);
+		old_arm_tip = arm_tip[0];
+	}
+	VECTOR3 ofs;
+	GetMeshOffset(mesh_ssrms, ofs);
+	pLEE[1]->SetAttachmentParams(arm_tip[0]+ofs, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+	pLEE[0]->SetAttachmentParams(SR_JOINT+ofs, _V(0, 0, -1), _V(0, 1, 0));
+
 	return true;
 }
 
@@ -592,10 +606,16 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 			update_angles=false;
 		}		
 
-		pLEE[1]->SetAttachmentParams(arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		// shift meshes to active LEE is at centre of external view
+		if(activeLEE == 1) ShiftMeshes(-(arm_tip[0] - old_arm_tip));
+		// update attachments
+		VECTOR3 ofs;
+		GetMeshOffset(mesh_ssrms, ofs);
+		pLEE[1]->SetAttachmentParams(arm_tip[0]+ofs, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
+		pLEE[0]->SetAttachmentParams(SR_JOINT+ofs, _V(0, 0, -1), _V(0, 1, 0));
 
-		//if(activeLEE==0) ShiftCentreOfMass(
-
+		old_arm_tip = arm_tip[0];
+		
 		arm_moved=false;
 	}
 	if(update_vectors) {
@@ -722,6 +742,9 @@ void SSRMS::clbkPostCreation()
 	if(arm_moved) {
 		for(int i=0;i<7;i++) SetJointAngle((SSRMS_JOINT)i, joint_angle[i]);
 	}
+
+	if(activeLEE == 1) ShiftMeshes(-arm_tip[0]);
+	else ShiftMeshes(-SR_JOINT);
 
 	VESSEL2::clbkPostCreation();
 }
