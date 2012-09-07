@@ -104,6 +104,8 @@ private:
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
 
+	VECTOR3 old_arm_tip; // used to shift meshes so active LEE is at centre of external view
+
 	int OrbiterSoundHandle;
 
 	//mesh handles
