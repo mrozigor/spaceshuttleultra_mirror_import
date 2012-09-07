@@ -49,43 +49,9 @@ unsigned int GetLowerIndex(const double* list, unsigned int size, double target)
 	vel=mul(obliquityMatrix, vel);
 }*/
 
-VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
-
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
-
-	Res.data[YAW] = -asin(YawRoll.z);
-
-	Res.data[ROLL] = atan2(YawRoll.y, YawRoll.x);
-
-	Res.data[PITCH] = atan2(H.z, Pitch.z);
-
-	return Res;
-
-}
-
-VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll)
-{	
-	VECTOR3 Res = { 0, 0, 0 };
-	// Normalize the vectors
-	Pitch = Normalize(Pitch);
-	YawRoll = Normalize(YawRoll);
-	VECTOR3 H = Normalize(crossp(Pitch, YawRoll));
-	Res.data[YAW] = -asin(Pitch.x);
-	Res.data[ROLL] = atan2(H.x, YawRoll.x);
-	Res.data[PITCH] = atan2(Pitch.y, Pitch.z);
-	return Res;
-}
-
-double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis)
+double CalcEulerAngle(const MATRIX3 &RotMatrix, VECTOR3 &Axis)
 {
 	double Angle;
-	MATRIX3 RotMatrix;
-	RotMatrix=mul(RefAngles, TargetAngles);
 	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
 	Angle=acos(0.5*(Trace-1));
 	//Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
@@ -101,28 +67,6 @@ double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VEC
 	return Angle;
 }
 
-/*double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis)
-{
-	double Angle;
-	MATRIX3 RotMatrix, Ref, Target;
-	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	GetRotMatrixX(RefAngles.x, RotMatrixX);
-	GetRotMatrixY(RefAngles.y, RotMatrixY);
-	GetRotMatrixZ(RefAngles.z, RotMatrixZ);
-	Ref=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
-	GetRotMatrixX(TargetAngles.x, RotMatrixX);
-	GetRotMatrixY(TargetAngles.y, RotMatrixY);
-	GetRotMatrixZ(TargetAngles.z, RotMatrixZ);
-	Target=mul(mul(RotMatrixX, RotMatrixY), RotMatrixZ);
-	RotMatrix=mul(Ref, Target);
-	double Trace=RotMatrix.m11+RotMatrix.m22+RotMatrix.m33;
-	Angle=acos(0.5*(Trace-1));
-	Axis.x=(RotMatrix.m23-RotMatrix.m32)/(2*sin(Angle));
-	Axis.y=(RotMatrix.m31-RotMatrix.m13)/(2*sin(Angle));
-	Axis.z=(RotMatrix.m12-RotMatrix.m21)/(2*sin(Angle));
-	return Angle;
-}*/
-
 VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v)
 {
 	// Rodrigues' Rotation Formula
@@ -131,24 +75,6 @@ VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v)
 
 void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
-	/*MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
-	VECTOR3 AfterZ, AfterZY;					// Temporary variables
-
-	// left-handed frame, so use negative angles when calculating rotation matrix
-	GetRotMatrixX(-Angles.x, RotMatrixX);
-	GetRotMatrixY(-Angles.y, RotMatrixY);
-	GetRotMatrixZ(-Angles.z, RotMatrixZ);*/
-	
-	/*MultiplyByMatrix(Initial, RotMatrixZ, AfterZ);
-	MultiplyByMatrix(AfterZ, RotMatrixY, AfterZY);
-	MultiplyByMatrix(AfterZY, RotMatrixX, Result);*/
-	/*AfterZ=mul(RotMatrixZ, Initial);
-	AfterZY=mul(RotMatrixY, AfterZ);
-	Result=mul(RotMatrixX, AfterZY);*/
-
-	/*MATRIX3 RotMatrix=mul(RotMatrixZ, RotMatrixY);
-	RotMatrix=mul(RotMatrix, RotMatrixX);
-	Result=mul(RotMatrix, Initial);*/
 	RotateVector(Initial, -Angles, Result);
 }
 

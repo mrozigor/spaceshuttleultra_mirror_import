@@ -179,7 +179,7 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 		// calculate time to reach target attitude
 		VECTOR3 Axis;
 		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
-		double Angle = CalcEulerAngle(IdentityMatrix, AttError, Axis);
+		double Angle = CalcEulerAngle(AttError, Axis);
 		mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
 		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
 		//oapiWriteLog(oapiDebugString());
@@ -268,7 +268,7 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 void OrbitDAP::CalcEulerAxisRates()
 {	
 	VECTOR3 RotationAxis;
-	double RotationAngle=CalcEulerAngle(IdentityMatrix, attErrorMatrix, RotationAxis);
+	double RotationAngle=CalcEulerAngle(attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
 	VECTOR3 RotationAxis_orig = RotationAxis;
 	RotationAxis = _V(RotationAxis.y, RotationAxis.z, RotationAxis.x); // change rotation axis so PYR axes are mapped correctly
@@ -1522,7 +1522,7 @@ double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const M
 		MATRIX3 tgtM50Matrix = mul(mul(curLVLHMatrix, LVLHRotation), tgtLVLHMatrix);
 				
 		PYR = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
-		double Angle=CalcEulerAngle(IdentityMatrix, PYR, Axis);
+		double Angle=CalcEulerAngle(PYR, Axis);
 		mnvrTime=(Angle*DEG)/degRotRate;
 	} while(abs(mnvrTime-lastMnvrTime)>0.05 && counter<50);
 	return max(mnvrTime, 0.0);
