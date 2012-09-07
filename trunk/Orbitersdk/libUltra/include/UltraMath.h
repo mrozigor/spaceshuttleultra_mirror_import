@@ -43,22 +43,24 @@ const double AXIS_TILT = 23.4458878*RAD;
 //void PropagateStateVector(OBJHANDLE hPlanet, double time, const ELEMENTS& elements, VECTOR3& pos, VECTOR3& vel, bool nonsphericalGravity, double vesselMass=0.0);
 
 //Math
-VECTOR3 GetPYR(VECTOR3 Pitch, VECTOR3 YawRoll);
-VECTOR3 GetPYR2(VECTOR3 Pitch, VECTOR3 YawRoll);
-//returns rotation axis and angle of rotation (in radians)
-double CalcEulerAngle(const MATRIX3 &RefAngles, const MATRIX3 &TargetAngles, VECTOR3 &Axis);
-//double CalcEulerAngle(const VECTOR3 &RefAngles, const VECTOR3 &TargetAngles, VECTOR3 &Axis);
+/**
+ * Calculates rotation axis and angle of rotation (in radians) corresponding to rotation matrix.
+ */
+double CalcEulerAngle(const MATRIX3 &RotMatrix, VECTOR3 &Axis);
 /**
  * Returns vector v rotated by given angle about Axis
  */
 VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v);
-// rotates vector around specified Euler angles in XYZ order
+/**
+ * Rotates vector around specified Euler angles in XYZ order
+ */
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-// rotates vector in left-handed frame
+/**
+ * Rotates vector around specified Euler angles in XYZ order in left-handed frame
+ */
 void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
-//VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 /**
  * Returns Euler angles (in radians); Pitch=Y axis, Yaw=Z axis, Roll=X axis
  */
@@ -74,8 +76,17 @@ VECTOR3 GetZYXAnglesFromMatrixLH(const MATRIX3 &RotMatrix); // returns angles in
  * \param Angles Angle of rotation about each axis
  */
 MATRIX3 GetRotationMatrixYZX(const VECTOR3& Angles);
+/**
+ * Calculates rotation matrix corresponding to rotation around X axis by specified angle (radians)
+ */
 void GetRotMatrixX(double Angle, MATRIX3 &RotMatrixX);
+/**
+ * Calculates rotation matrix corresponding to rotation around Y axis by specified angle (radians)
+ */
 void GetRotMatrixY(double Angle, MATRIX3 &RotMatrixY);
+/**
+ * Calculates rotation matrix corresponding to rotation around Z axis by specified angle (radians)
+ */
 void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
 /**
  * Returns rotation matrix with x axis in specified direction, and z axis rotated around x axis by specified angle relative to reference frame.
@@ -84,15 +95,19 @@ void GetRotMatrixZ(double Angle, MATRIX3 &RotMatrixZ);
  */
 MATRIX3 GetRotationMatrix(const VECTOR3& x_axis, double angle);
 
+/**
+ * Returns angle (in degress) through which body will rotate before angular velocity is killed.
+ * \param radRate rotation rate (rad/s)
+ * \param Mass mass of body
+ * \param Moment moment of inertia about rotation axis
+ * \param Torque torque applied to null rotation
+ */
 double NullStartAngle(double radRate, double Mass, double Moment, double Torque);
 /**
  * Returns change in rotation rate (DEG/s) over given time period.
  */
 double RotationRateChange(double Mass, double Moment, double Torque, double DeltaT);
 
-//VECTOR3 ConvertAnglesBetweenM50AndOrbiter(const VECTOR3 &Angles, bool ToOrbiter=false);
-//MATRIX3 ConvertMatrixBetweenM50AndOrbiter(const MATRIX3 &RotMatrix, bool ToOrbiter=false);
-//MATRIX3 ConvertMatrixFromOrbiterToM50(const MATRIX3 &RotMatrix);
 /**
  * Converts vessel rotation matrix (returned by VESSEL::GetRotationMatrix) to M50 frame.
  * Also transforms body axis frame to shuttle body axis frame (i.e. +X pointing forward, +Z pointing down).
@@ -105,6 +120,10 @@ MATRIX3 ConvertOrbitersimRotationMatrixToM50(const MATRIX3 &RotMatrix);
 * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to angles in shuttle body frame.
 */
 //VECTOR3 ConvertPYOMToBodyAngles(double radP, double radY, double radOM);
+/**
+ * Converts Pitch, Yaw and Omicron angles (entered in UNIV PTG display) to LVLH rotation matrix
+ * \returns LVLH rotation matrix (right-handed)
+ */
 MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM);
 
 /**
@@ -172,6 +191,9 @@ static inline VECTOR3 ConvertBetweenLHAndRHFrames(const VECTOR3 &v)
 	return _V(v.x, v.z, v.y);
 }
 	
+/**
+ * Returns vector normalized by adjusting z-component only - x & y values are not changed
+ */
 static inline VECTOR3 NormZ(VECTOR3 &v)
 {
 	// error checking
