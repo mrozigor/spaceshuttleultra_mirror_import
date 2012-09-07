@@ -59,17 +59,19 @@ void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result
  * Rotates vector around specified Euler angles in XYZ order in left-handed frame
  */
 void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
-VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
+/**
+ * Returns Euler angles (in radians); Pitch=X axis, Yaw=Y axis, Roll=Z axis
+ */
+VECTOR3 GetZYX_RYPAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
 /**
  * Returns Euler angles (in radians); Pitch=Y axis, Yaw=Z axis, Roll=X axis
  */
-VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix); 
+VECTOR3 GetYZX_PYRAnglesFromMatrix(const MATRIX3 &RotMatrix); 
 /**
  * Returns Euler angles (in radians)
  * Value for each axis corresponds to angle around that axis
  */
-VECTOR3 GetZYXAnglesFromMatrixLH(const MATRIX3 &RotMatrix); // returns angles in radians
+VECTOR3 GetZYXAnglesFromMatrixLH(const MATRIX3 &RotMatrix);
 /**
  * Returns rotation matrix corresponding to given Euler angles
  * Rotation is performed in YZX order - this corresponds to PYR order for shuttle body axis & LVLH frames

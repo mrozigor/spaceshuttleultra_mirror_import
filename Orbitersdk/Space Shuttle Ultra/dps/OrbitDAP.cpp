@@ -9,7 +9,7 @@ namespace dps
 void SaveAttManeuver(FILEHANDLE scn, char* item, const AttManeuver& maneuver)
 {
 	char cbuf[255];
-	VECTOR3 eulerAngles = GetYZXAnglesFromMatrix(maneuver.tgtMatrix);
+	VECTOR3 eulerAngles = GetYZX_PYRAnglesFromMatrix(maneuver.tgtMatrix);
 	sprintf_s(cbuf, 255, "%d %f %f %f", maneuver.Type, eulerAngles.data[PITCH], eulerAngles.data[YAW], eulerAngles.data[ROLL]);
 	oapiWriteScenario_string(scn, item, cbuf);
 }
@@ -175,7 +175,7 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 	if(ActiveManeuver.Type == AttManeuver::MNVR) {
 		degNullRates = _V(0, 0, 0);
 		// calculate M50 target att
-		REQD_ATT = GetYZXAnglesFromMatrix(ActiveManeuver.tgtMatrix)*DEG;
+		REQD_ATT = GetYZX_PYRAnglesFromMatrix(ActiveManeuver.tgtMatrix)*DEG;
 		// calculate time to reach target attitude
 		VECTOR3 Axis;
 		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
@@ -327,7 +327,7 @@ void OrbitDAP::UpdateNullRates()
 	STS()->GetElements(STS()->GetGravityRef(), el, &param);
 	double orb_rad = 360.0/param.T;
 	
-	VECTOR3 tgtLVLHAtt = GetYZXAnglesFromMatrix(ActiveManeuver.tgtMatrix);
+	VECTOR3 tgtLVLHAtt = GetYZX_PYRAnglesFromMatrix(ActiveManeuver.tgtMatrix);
 	degNullRates.data[ROLL] = -orb_rad*sin(tgtLVLHAtt.data[YAW]);
 	degNullRates.data[PITCH] = -orb_rad*cos(tgtLVLHAtt.data[YAW])*cos(tgtLVLHAtt.data[ROLL]);
 	degNullRates.data[YAW] = orb_rad*cos(tgtLVLHAtt.data[YAW])*sin(tgtLVLHAtt.data[ROLL]);
@@ -425,7 +425,7 @@ void OrbitDAP::GetAttitudeData()
 	
 	STS()->GetRotationMatrix(curM50Matrix);
 	curM50Matrix = ConvertOrbitersimRotationMatrixToM50(curM50Matrix);
-	CUR_ATT = GetYZXAnglesFromMatrix(curM50Matrix)*DEG;
+	CUR_ATT = GetYZX_PYRAnglesFromMatrix(curM50Matrix)*DEG;
 	
 	OrbiterMass = STS()->GetMass();
 	STS()->GetPMI(PMI);
@@ -548,7 +548,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(ActiveManeuver.Type == AttManeuver::TRK) { // get (instantaneous) target M50 attitude
 			MATRIX3 curLVLHMatrix = GetCurrentLVLHRefMatrix();
 			tgtM50Matrix = mul(curLVLHMatrix, ActiveManeuver.tgtMatrix);
-			REQD_ATT = GetYZXAnglesFromMatrix(tgtM50Matrix)*DEG;
+			REQD_ATT = GetYZX_PYRAnglesFromMatrix(tgtM50Matrix)*DEG;
 
 			if((STS()->GetMET()-lastUpdateTime) > 60.0) {
 				UpdateNullRates();
@@ -568,7 +568,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		
 		attErrorMatrix = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
-		ATT_ERR=GetYZXAnglesFromMatrix(attErrorMatrix)*DEG;
+		ATT_ERR=GetYZX_PYRAnglesFromMatrix(attErrorMatrix)*DEG;
 		if(ManeuverStatus == MNVR_COMPLETE) {
 			CalcMultiAxisRates(degNullRates);
 		}

@@ -91,16 +91,7 @@ void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result
 	Result=mul(RotMatrix, Initial);
 }
 
-VECTOR3 GetXYZAnglesFromMatrix(const MATRIX3 &RotMatrix)
-{
-	VECTOR3 Angles;
-	Angles.data[PITCH]=atan2(RotMatrix.m23, RotMatrix.m33);
-	Angles.data[YAW]=-asin(RotMatrix.m13);
-	Angles.data[ROLL]=atan2(RotMatrix.m12, RotMatrix.m11);
-	return Angles;
-}
-
-VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
+VECTOR3 GetZYX_RYPAnglesFromMatrix(const MATRIX3 &RotMatrix)
 {
 	VECTOR3 Angles;
 	Angles.data[PITCH]=atan2(RotMatrix.m32, RotMatrix.m33);
@@ -116,7 +107,7 @@ VECTOR3 GetPYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
 	return GetAnglesFromMatrix(mul(mat, RotMatrix));*/
 }
 
-VECTOR3 GetYZXAnglesFromMatrix(const MATRIX3 &RotMatrix)
+VECTOR3 GetYZX_PYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
 {
 	VECTOR3 Angles;
 	Angles.data[YAW]=asin(RotMatrix.m21);
