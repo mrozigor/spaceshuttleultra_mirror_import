@@ -159,6 +159,7 @@ Roll_AileronRoll(0.20, 0.00, 0.10, -1.0, 1.0),
 Yaw_RudderYaw(0.50, 0.00, 0.10, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1, -100.0, 100.0, -200.0, 200.0),
 Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
+lastSBTCCommand(1.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0),
@@ -227,6 +228,7 @@ void AerojetDAP::Realize()
 
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
+	SpeedbrakeAutoOut.Connect(pBundle, 0);
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -237,6 +239,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
+		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
 		bFirstStep = false;
 		bSecondStep = true;
 		return;
@@ -330,8 +333,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 				ThrusterCommands[i].SetLine(0.0f);
 		}
 		SetAerosurfaceCommands(DeltaT);
-		if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
-		else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
+		SetSpeedbrakeCommand(TotalRange, DeltaT);
 
 		break;
 		}
@@ -413,8 +415,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			ThrusterCommands[ROLL].SetLine(0.0f);
 
 			SetAerosurfaceCommands(DeltaT);
-			if(SpeedbrakeAuto) STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(TotalRange, DeltaT)/100.0);
-			else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
+			SetSpeedbrakeCommand(TotalRange, DeltaT);
 
 			// check for weight-on-nose-gear
 			if(STS()->GroundContact() && STS()->GetPitch() < -3.0*RAD) {
@@ -964,6 +965,18 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 
 	//sprintf_s(oapiDebugString(), 255, "Roll: %f Target Roll: %f Roll Rate: %f Commanded Aileron: %f",
 		//degCurrentAttitude.data[ROLL], degTargetAttitude.data[ROLL], degCurrentRates.data[ROLL], aileronPos);
+}
+
+void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
+{
+	if(SpeedbrakeAuto) {
+		// check for manual takeover
+		if(!bSecondStep && !Eq(SpdbkThrotPort.GetVoltage(), lastSBTCCommand, 0.01)) SpeedbrakeAutoOut.ResetLine();
+		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
+		
+		STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(range, DeltaT)/100.0);
+	}
+	else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
 }
 
 void AerojetDAP::SetThrusterLevels()

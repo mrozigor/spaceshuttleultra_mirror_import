@@ -121,11 +121,14 @@ private:
 	DiscInPort PitchAuto, RollYawAuto;
 	DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort SpeedbrakeAuto;
+	DiscOutPort SpeedbrakeAutoOut;
 	DiscInPort SpdbkThrotPort;
 	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
 	DiscOutPort ElevonCommand, AileronCommand;
+
+	double lastSBTCCommand; // used to check if speedbrake has moved
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
@@ -260,6 +263,11 @@ private:
 	void CalculateTargetRollYawRates(double mach, double radAOA, double degTgtBankRate, double& degTgtRollRate, double& degTgtYawRate) const;
 
 	void SetAerosurfaceCommands(double DeltaT);
+	/**
+	 * Uses either AUTO guidance or SBTC command to set speedbrake position.
+	 * Checks for manual speedbrake takeover (i.e. SBTC moved)
+	 */
+	void SetSpeedbrakeCommand(double range, double DeltaT);
 	/**
 	 * Uses RHC input to set desired rates.
 	 * Return target rates (in deg/sec) in appropriate axis
