@@ -198,11 +198,12 @@ bool OrbitDAP::GetRHCRequiredRates()
 		if(abs(RHCInput[i].GetVoltage()) > RHC_DETENT) {
 			outOfDetent = true;
 			if(abs(RHCInput[i].GetVoltage()) < RHC_SOFT_STOP) {
-				if(RotMode[i]==DISC_RATE) {
-					degReqdRates.data[i] = degRotRate*sign(RHCInput[i].GetVoltage()); //DISC RATE
+				if(RotMode[i]==DISC_RATE) { // DISC RATE
+					// if RHC was pushed past soft stop previously (high rotation rates), maintain high rotation rate; otherwise rotate at specified rate
+					degReqdRates.data[i] = max(degRotRate, abs(degAngularVelocity.data[i]))*sign(RHCInput[i].GetVoltage());
 				}
-				else if(!RotPulseInProg[i]) {
-					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign(RHCInput[i].GetVoltage()); //PULSE
+				else if(!RotPulseInProg[i]) { // PULSE
+					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign(RHCInput[i].GetVoltage());
 					RotPulseInProg[i]=true;
 				}
 			}
