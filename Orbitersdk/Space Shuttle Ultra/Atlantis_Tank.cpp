@@ -115,7 +115,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 
 	//////////////////////// ET vent ////////////////////////
 	phLOXtank = CreatePropellantResource( 400 );
-	thLOXvent = CreateThruster( _V( -3.456, -2.074, 5.716 ), _V( 0.866, 0.5, 0 ), 600, phLOXtank, 300, 300 );
+	thLOXvent = CreateThruster( _V( -3.12321, -2.36732, 13.4955 ), _V( 0.788011, 0.615661, 0 ), 600, phLOXtank, 300, 300 );
 	PARTICLESTREAMSPEC psLOXvent = {
 		0,
 		0.1,
