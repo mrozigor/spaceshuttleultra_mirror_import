@@ -356,7 +356,7 @@ bool SSRMS::SetJointAngle(SSRMS::SSRMS_JOINT joint, double angle)
 
 bool SSRMS::ChangeActiveLEE()
 {
-	//if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) return false;
+	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) return false;
 
 	/*pLEE[activeLEE]->Ungrapple();
 	pLEE[passiveLEE]->Ungrapple();
