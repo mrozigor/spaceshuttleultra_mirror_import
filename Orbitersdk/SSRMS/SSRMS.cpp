@@ -91,49 +91,49 @@ void SSRMS::DefineAnimations()
 
 	static UINT ShoulderRollGrp[1] = {21};
 	static MGROUP_ROTATE sr_anim (mesh_ssrms, ShoulderRollGrp, 1,
-		SR_JOINT, _V(0, 0, -1), (float)(894.0*RAD));
+		SR_JOINT, _V(0, 0, -1), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_ROLL] = CreateAnimation(0.5);
 	//anim_joint[SHOULDER_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_ROLL], 0, 1, &sr_anim);
 
 	static UINT ShoulderYawGrp[1] = {22};
 	static MGROUP_ROTATE sy_anim (mesh_ssrms, ShoulderYawGrp, 1,
-		SY_JOINT, _V(0, 1, 0), (float)(894.0*RAD));
+		SY_JOINT, _V(0, 1, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_YAW] = CreateAnimation(0.5);
 	//anim_joint[SHOULDER_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_YAW], 0, 1, &sy_anim, parent);
 
 	static UINT ShoulderPitchGrp[10] = {23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
 	static MGROUP_ROTATE sp_anim (mesh_ssrms, ShoulderPitchGrp, 10,
-		SP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
+		SP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_PITCH] = CreateAnimation(0.5);
 	//anim_joint[SHOULDER_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_PITCH], 0, 1, &sp_anim, parent);
 
 	static UINT ElbowPitchGrp[9] = {33, 34, 35, 36, 37, 38, 39, 40, 41};
 	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 9,
-		EP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
+		EP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][ELBOW_PITCH] = CreateAnimation(0.5);
 	//anim_joint[ELBOW_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][ELBOW_PITCH], 0, 1, &ep_anim, parent);
 
 	static UINT WristPitchGrp[1] = {42};
 	static MGROUP_ROTATE wp_anim (mesh_ssrms, WristPitchGrp, 1,
-		WP_JOINT, _V(1, 0, 0), (float)(894.0*RAD));
+		WP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_PITCH] = CreateAnimation(0.5);
 	//anim_joint[WRIST_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_PITCH], 0, 1, &wp_anim, parent);
 
 	static UINT WristYawGrp[1] = {43};
 	static MGROUP_ROTATE wy_anim(mesh_ssrms, WristYawGrp, 1,
-		WY_JOINT, _V(0, 1, 0), (float)(894.0*RAD));
+		WY_JOINT, _V(0, 1, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_YAW] = CreateAnimation(0.5);
 	//anim_joint[WRIST_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_YAW], 0, 1, &wy_anim, parent);
 
 	static UINT WristRollGrp[21] = {44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64};
 	static MGROUP_ROTATE wr_anim(mesh_ssrms, WristRollGrp, 21,
-		LEE_POS, _V(0, 0, -1), (float)(894.0*RAD));
+		LEE_POS, _V(0, 0, -1), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_ROLL] = CreateAnimation(0.5);
 	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
@@ -187,6 +187,8 @@ void SSRMS::DefineThrusters()
 
 bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
 {
+	double new_joint_angles[7]; // angles in degrees
+
 	const VECTOR3 IK_REFERENCE = _V(SY_JOINT.x, SP_JOINT.y, SY_JOINT.z);
 	const VECTOR3 LEE_OFFSET_VECTOR = _V(SR_JOINT.z-IK_REFERENCE.z, (SR_JOINT.x-IK_REFERENCE.x), -(SR_JOINT.y-IK_REFERENCE.y));
 	// pretend shoulder roll is set to 0
@@ -211,22 +213,22 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 
 	//double sy_angle_r = -atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
 	double sy_angle_r = atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
-	double sy_angle_d = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
+	new_joint_angles[SHOULDER_YAW] = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
 	bool yaw180Error = false;
 	//double old_sy_angle_d = ResolveToNearestAngle(joint_angle[SHOULDER_YAW], 0.0);
 	//if(abs(old_sy_angle_d-sy_angle_r*DEG)>165.0) {
-	if(abs(joint_angle[SHOULDER_YAW]-sy_angle_d)>95.0) {
+	if(abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW])>95.0) {
 		sprintf_s(oapiDebugString(), 255, "MoveEE: 180-degree yaw error");
 		yaw180Error = true;
 		//sy_angle_r = -atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
 		sy_angle_r = sy_angle_r + RAD*180.0 - 2*offset_angle;
-		sy_angle_d = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
+		new_joint_angles[SHOULDER_YAW] = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
 
 		//arm_wy_pos = -arm_wy_pos;
 		//dir = -dir;
 		//rot = -rot;
 	}
-	else sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f", abs(joint_angle[SHOULDER_YAW]-sy_angle_d));
+	else sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f", abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW]));
 	oapiWriteLog(oapiDebugString());
 	// calculate vector parallel to horizontal offset between booms
 	// offset_vector is perpendicular to boom plane
@@ -272,22 +274,22 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		sprintf_s(oapiDebugString(), 255, "MoveEE: Can't reach with elbow");
 		return false;//Can't reach new point with the elbow
 	}
-	double ep_angle_d=DEG*acos(cos_phibar_e)-180.0;
+	new_joint_angles[ELBOW_PITCH]=DEG*acos(cos_phibar_e)-180.0;
 	double cos_phi_s2=(EP_WP_DIST*EP_WP_DIST-SP_EP_DIST*SP_EP_DIST-r*r)/(-2*SP_EP_DIST*r);
 	if(fabs(cos_phi_s2)>1) {
 		sprintf_s(oapiDebugString(), 255, "MoveEE: Can't reach with shoulder");
 		return false; //Can't reach with shoulder
 	}
-	double sp_angle_d=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
+	new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
 	// 2 possible solutions for pitch angles; pick one closest to current state
-	if(!Eq(sign(ep_angle_d), sign(joint_angle[ELBOW_PITCH]), 0.01)) {
+	if(!Eq(sign(new_joint_angles[ELBOW_PITCH]), sign(joint_angle[ELBOW_PITCH]), 0.01)) {
 		//sprintf_s(oapiDebugString(), 255, "MoveEE: reversing elbow sign");
-		ep_angle_d = -ep_angle_d;
-		sp_angle_d=DEG*(atan2(offset_wp_pos.z,rho)-acos(cos_phi_s2));
+		new_joint_angles[ELBOW_PITCH] = -new_joint_angles[ELBOW_PITCH];
+		new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)-acos(cos_phi_s2));
 		//sp_angle_d = -sp_angle_d;
 	}
 	if(yaw180Error) {
-		sp_angle_d += 180.0-2.0*DEG*atan2(offset_wp_pos.z,rho);
+		new_joint_angles[SHOULDER_PITCH] += 180.0-2.0*DEG*atan2(offset_wp_pos.z,rho);
 		//sp_angle_d += 180.0+acos(cos_phi_s2);
 		//sp_angle_d = 180.0 - sp_angle_d - 2.0*ep_angle_d;
 	}
@@ -299,15 +301,15 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	//if((wp_dir.x>0.0 && corrected_wy_pos.x>=0.0) || (wp_dir.x<0.0 && corrected_wy_pos.x<0.0)) phi=-phi;
 	if(wp_dir.x<0.0) phi=-phi;
 	if(offset_vector.y>0.0) phi=-phi;
-	double wp_angle_d=phi-sp_angle_d-ep_angle_d;
+	new_joint_angles[WRIST_PITCH]=phi-new_joint_angles[SHOULDER_PITCH]-new_joint_angles[ELBOW_PITCH];
 
 	//double wy_angle_d;
 	/*if((offset_vector.z>0.0 && newDir.z<0.0) || (offset_vector.z<0.0 && newDir.z>0.0)) 
 		wy_angle_d=90.0+DEG*acos(dotp(offset_vector, newDir));
 	else*/
-	double wy_angle_d=90.0-DEG*acos(dotp(offset_vector, dir));
-	double wr_angle_d = DEG*acos(dotp(wp_dir, rot));
-	if(dotp(wp_dir, crossp(rot, dir)) < 0) wr_angle_d = -wr_angle_d;
+	new_joint_angles[WRIST_YAW]=90.0-DEG*acos(dotp(offset_vector, dir));
+	new_joint_angles[WRIST_ROLL] = DEG*acos(dotp(wp_dir, rot));
+	if(dotp(wp_dir, crossp(rot, dir)) < 0) new_joint_angles[WRIST_ROLL] = -new_joint_angles[WRIST_ROLL];
 
 	//if(yaw180Error) sp_angle_d+=180.0;
 
@@ -315,18 +317,22 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	//sy_angle_d = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
 	// increment angles by 360 degrees to get them as close as possible to existing values
 	// this was already done for SY joint
-	sp_angle_d = ResolveToNearestAngle(sp_angle_d, joint_angle[SHOULDER_PITCH]);
+	for(int joint=SHOULDER_PITCH;joint<=WRIST_ROLL;joint++) new_joint_angles[joint] = ResolveToNearestAngle(new_joint_angles[joint], joint_angle[joint]);
+	/*sp_angle_d = ResolveToNearestAngle(sp_angle_d, joint_angle[SHOULDER_PITCH]);
 	ep_angle_d = ResolveToNearestAngle(ep_angle_d, joint_angle[ELBOW_PITCH]);
 	wp_angle_d = ResolveToNearestAngle(wp_angle_d, joint_angle[WRIST_PITCH]);
 	wy_angle_d = ResolveToNearestAngle(wy_angle_d, joint_angle[WRIST_YAW]);
-	wr_angle_d = ResolveToNearestAngle(wr_angle_d, joint_angle[WRIST_ROLL]);
+	wr_angle_d = ResolveToNearestAngle(wr_angle_d, joint_angle[WRIST_ROLL]);*/
 
-	SetJointAngle(SHOULDER_YAW, sy_angle_d);
-	SetJointAngle(SHOULDER_PITCH, sp_angle_d);
-	SetJointAngle(ELBOW_PITCH, ep_angle_d);
-	SetJointAngle(WRIST_PITCH, wp_angle_d);
-	SetJointAngle(WRIST_YAW, wy_angle_d);
-	SetJointAngle(WRIST_ROLL, wr_angle_d);
+	// make sure angles are within limits
+	for(int joint=SHOULDER_YAW;joint<=WRIST_ROLL;joint++) {
+		if(new_joint_angles[joint]<JOINT_SOFTSTOPS[0] || new_joint_angles[joint]>JOINT_SOFTSTOPS[1]) {
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", joint, new_joint_angles[joint]);
+			return false;
+		}
+	}
+	
+	for(int joint=SHOULDER_YAW;joint<=WRIST_ROLL;joint++) SetJointAngle(static_cast<SSRMS_JOINT>(joint), new_joint_angles[joint]); // leave roll 
 
 	arm_ee_pos = newPos;
 	arm_ee_dir = newDir;
@@ -337,7 +343,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 
 bool SSRMS::SetJointAngle(SSRMS::SSRMS_JOINT joint, double angle)
 {
-	if(angle>=JOINT_LIMITS[0] && angle<=JOINT_LIMITS[1]) {
+	if(angle>=JOINT_SOFTSTOPS[0] && angle<=JOINT_SOFTSTOPS[1]) {
 		double pos=linterp(JOINT_LIMITS[0], 0.0, JOINT_LIMITS[1], 1.0, angle);
 		if(activeLEE == 0 && (joint == SHOULDER_YAW || joint == WRIST_YAW)) pos = 1.0-pos; // yaw joints rotate in different directions depending on which LEE is active
 		SetAnimation(anim_joint[activeLEE][joint], pos);

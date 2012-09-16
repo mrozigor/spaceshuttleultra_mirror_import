@@ -48,8 +48,8 @@ const double WY_EE_DIST = length(WY_JOINT-LEE_POS);
 const double LEE_OFFSET = SY_JOINT.x-LEE_POS.x;
 // horizontal offset between the LEE and the reference point
 
-const double JOINT_LIMITS[2] = {-447.0, +447.0};
-const double JOINT_SOFTSTOPS[2] = {-447.0, +447.0}; // TODO: update these to correct values
+const double JOINT_LIMITS[2] = {-280.0, +280.0};
+const double JOINT_SOFTSTOPS[2] = {-270.0, +270.0}; // from ISS ROBO Console Handbook, 1.2-29 (p. 58)
 
 enum FRAME{EE_FRAME, BASE_FRAME};
 
