@@ -1893,19 +1893,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.05,3.41,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);
@@ -7150,17 +7150,17 @@ void Atlantis::DefineKUBandAnimations()
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[3] = {GRP_DEA_KU, GRP_Hinge_connectors_KU, GRP_DEA_cable_rotating_KU};
-  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 3,
-    _V(2.59,1.366,11.84), _V(0,1,0), (float)(-145*RAD));
+  static UINT KuBand1Grp[1] = {GRP_DEA_KU};
+  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
+    _V(2.59,1.155,11.785), _V(0,1,0), (float)(-145*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_Alpha_gimbal_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-    _V(2.29,1.974,10.774), _V(0.500001, -0.002199, 0.866022), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
+    _V(2.327,1.979,10.784), _V(0.504249,0,0.863558), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
   static UINT KuBand3Grp[4] = {GRP_Beta_gimbal_boom_KU, GRP_Gimbal_lock_structure_KU, GRP_Dish_KU, GRP_Dish_receiver_supports_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
-    _V(2.249,1.94,10.669), _V(-0.453277, 0.868994, 0.198469), (float)(23.25*RAD));//Data from the Ku band System Workbook
+    _V(2.275,1.966,10.676), _V(0.460305,-0.866073,-0.195029), (float)(23.25*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
@@ -7173,6 +7173,7 @@ void Atlantis::DefineKUBandAnimations()
   anim_kubeta = CreateAnimation(0.0);
   LogAnim("anim_kubeta", anim_kubeta);
   AddAnimationComponent (anim_kubeta, 0.61, 0.8, &KuBand3, parent);
+
 
 }
 
