@@ -7,6 +7,8 @@
 #include "StateVectorSoftware.h"
 #include "OrbitTgtSoftware.h"
 #include "AerojetDAP.h"
+#include "SSME_SOP.h"
+#include "RSLS_old.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -15,6 +17,8 @@ namespace dps
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
 {
+	vSoftware.push_back( new SSME_SOP( this ) );
+	vSoftware.push_back( new RSLS_old( this ) );
 	vSoftware.push_back(new AscentGuidance(this));
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));

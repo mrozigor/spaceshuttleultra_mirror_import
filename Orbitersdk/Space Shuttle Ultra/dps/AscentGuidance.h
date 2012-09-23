@@ -19,6 +19,12 @@ const double ROLL_TO_HEADS_UP_VELOCITY = 12200.0/MPS2FPS; // relative velocity a
 const double ASCENT_MAJOR_CYCLE = 1.0000; // time (seconds) between guidance major cycles
 const double PEG_STOP_TIME = 7.000; // time (seconds) before expected MECO to stop PEG calculations and hold constant attitude (in real life, PEG ends 40 s before MECO, but active attitude control continues)
 
+// HACK not sure real values, both I-loads
+const double ALIM1 = 29.3218835;// m/s^2 | 2.99 g
+const double ALIM2 = 29.41995;// m/s^2 | 3.0 g
+
+class SSME_SOP;
+
 /**
  * Controls shuttle during ascent (first and second stage).
  */
@@ -150,6 +156,12 @@ private:
 	double d1,d2,d3,d4;
 	double A,C;
 	double eCurrent;
+
+	SSME_SOP* pSSME_SOP;
+	double throttlecmd;// SSME commaded throttle
+	bool glimiting;// g limiting in progress
+	bool SSME_throttle_event[3];
+	bool SSMEManualShutdown[3];
 };
 	
 };

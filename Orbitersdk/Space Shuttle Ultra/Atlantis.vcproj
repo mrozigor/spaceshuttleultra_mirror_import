@@ -411,15 +411,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dps\AscentGuidance.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\AP101S.cpp"
 				>
 			</File>
 			<File
 				RelativePath="APU.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AscentGuidance.cpp"
 				>
 			</File>
 			<File
@@ -541,6 +541,22 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\mps\ComputerInterfaceElectronics.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\ComputerInterfaceElectronics_BLOCK_II.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\DigitalComputerUnit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\DigitalComputerUnit_BLOCK_II.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\EIU.cpp"
 				>
 			</File>
@@ -578,6 +594,14 @@
 			</File>
 			<File
 				RelativePath=".\gnc\IMU.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\InputElectronics.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\InputElectronics_BLOCK_II.cpp"
 				>
 			</File>
 			<File
@@ -650,6 +674,14 @@
 			</File>
 			<File
 				RelativePath=".\dps\OrbitTgtSoftware.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\OutputElectronics.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\OutputElectronics_BLOCK_II.cpp"
 				>
 			</File>
 			<File
@@ -752,6 +784,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\mps\PowerSupplyElectronics.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\PowerSupplyElectronics_BLOCK_II.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PushButton.cpp"
 				>
 			</File>
@@ -804,6 +844,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\SSME_SOP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEController.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEController_BLOCK_II.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEControllerSW.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEControllerSW_AD08.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SSULua.cpp"
 				>
 			</File>
@@ -844,6 +904,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\VehicleInterfaceElectronics.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\VehicleInterfaceElectronics_BLOCK_II.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WSB.cpp"
 				>
 			</File>
@@ -869,15 +937,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dps\AscentGuidance.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\AP101S.h"
 				>
 			</File>
 			<File
 				RelativePath="APU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\AscentGuidance.h"
 				>
 			</File>
 			<File
@@ -953,11 +1021,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\ComputerInterfaceElectronics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\ComputerInterfaceElectronics_BLOCK_II.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\DAPControl.h"
 				>
 			</File>
 			<File
 				RelativePath=".\DeployedAssembly.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\DigitalComputerUnit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\DigitalComputerUnit_BLOCK_II.h"
 				>
 			</File>
 			<File
@@ -1014,6 +1098,14 @@
 			</File>
 			<File
 				RelativePath=".\gnc\IMU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\InputElectronics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\InputElectronics_BLOCK_II.h"
 				>
 			</File>
 			<File
@@ -1085,6 +1177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\MPSdefs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ODS.h"
 				>
 			</File>
@@ -1106,6 +1202,14 @@
 			</File>
 			<File
 				RelativePath=".\dps\OrbitTgtSoftware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\OutputElectronics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\OutputElectronics_BLOCK_II.h"
 				>
 			</File>
 			<File
@@ -1177,6 +1281,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mps\PowerSupplyElectronics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\PowerSupplyElectronics_BLOCK_II.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vc\PushButton.h"
 				>
 			</File>
@@ -1222,6 +1334,26 @@
 			</File>
 			<File
 				RelativePath=".\mps\SSME.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\SSME_SOP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEController.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEController_BLOCK_II.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEControllerSW.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\SSMEControllerSW_AD08.h"
 				>
 			</File>
 			<File
@@ -1274,6 +1406,14 @@
 			</File>
 			<File
 				RelativePath=".\vc\vc_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\VehicleInterfaceElectronics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mps\VehicleInterfaceElectronics_BLOCK_II.h"
 				>
 			</File>
 			<File

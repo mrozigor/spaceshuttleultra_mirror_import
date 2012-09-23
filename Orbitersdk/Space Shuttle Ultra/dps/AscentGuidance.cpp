@@ -2,6 +2,7 @@
 #include "../Atlantis.h"
 #include "../ParameterValues.h"
 #include <UltraMath.h>
+#include "SSME_SOP.h"
 
 namespace dps
 {
@@ -30,6 +31,18 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
 	SSMEGimbal[1][ROLL].SetGains(0.5, 0.10, 0.0);
 	SSMEGimbal[2][ROLL].SetGains(-0.5, -0.10, 0.0);
+
+	SSME_throttle_event[0] = false;
+	SSME_throttle_event[1] = false;
+	SSME_throttle_event[2] = false;
+
+	throttlecmd = 100;
+
+	glimiting = false;
+
+	SSMEManualShutdown[0] = false;
+	SSMEManualShutdown[1] = false;
+	SSMEManualShutdown[2] = false;
 }
 
 AscentGuidance::~AscentGuidance()
@@ -57,6 +70,8 @@ void AscentGuidance::Realize()
 
 	pBundle = STS()->BundleManager()->CreateBundle("SSME", 8);
 	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
+
+	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -76,7 +91,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 					tLastMajorCycle = STS()->GetMET();
 				}
 				SecondStageRateCommand();
-				GimbalSSMEs(DeltaT);
+				if (pSSME_SOP->GetMECOCommandFlag() == false) GimbalSSMEs(DeltaT);// don't steer after MECO cmd
 				Throttle(DeltaT);
 			}
 			else { //post MECO
@@ -340,7 +355,28 @@ void AscentGuidance::Throttle(double DeltaT)
 
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
-				if(STS()->GetAirspeed()<18.288) 
+				if ((STS()->GetAirspeed() >= 18.288) && (SSME_throttle_event[0] == false))
+				{
+					// "off the pad" throttle up
+					throttlecmd = 104.5;
+					pSSME_SOP->SetThrottlePercent( throttlecmd );
+					SSME_throttle_event[0] = true;
+				}
+				else if ((STS()->GetAirspeed() >= ThrottleBucketStartVel) && (SSME_throttle_event[1] == false))
+				{
+					// max q throttle down
+					throttlecmd = 72;
+					pSSME_SOP->SetThrottlePercent( throttlecmd );
+					SSME_throttle_event[1] = true;
+				}
+				else if ((STS()->GetAirspeed() >= ThrottleBucketEndVel) && (SSME_throttle_event[2] == false))
+				{
+					// max q throttle up
+					throttlecmd = 104.5;
+					pSSME_SOP->SetThrottlePercent( throttlecmd );
+					SSME_throttle_event[2] = true;
+				}
+				/*if(STS()->GetAirspeed()<18.288) 
 					STS()->SetSSMEThrustLevel(0, 100.0);
 				else if(STS()->GetAirspeed()>=ThrottleBucketStartVel && STS()->GetAirspeed()<=ThrottleBucketEndVel) {
 					//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
@@ -359,7 +395,7 @@ void AscentGuidance::Throttle(double DeltaT)
 						if(thrustLevel < MaxThrust) STS()->SetSSMEThrustLevel(i, thrustLevel + 10.0*DeltaT);
 						else STS()->SetSSMEThrustLevel(i, MaxThrust);
 					}
-				}
+				}*/
 				break;
 			case 103: // STAGE 3
 				//OMS Assist
@@ -373,17 +409,35 @@ void AscentGuidance::Throttle(double DeltaT)
 					OMSCommand[LEFT].ResetLine();
 					OMSCommand[RIGHT].ResetLine();
 				}
-				if(thrustAcceleration>=29.00) { //28.42
+				// g limiting
+				if (thrustAcceleration > ALIM2) glimiting = true;
+				if ((glimiting == true) && (thrustAcceleration > ALIM1))
+				{
+					if (throttlecmd != 67)// if at MPL can't do more
+					{
+						if (pSSME_SOP->GetPercentChamberPressVal( 1 ) - throttlecmd < 0.15)// wait while throttling
+						{
+							throttlecmd--;// throttle back 1%
+							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
+							pSSME_SOP->SetThrottlePercent( throttlecmd );
+						}
+					}
+				}
+				/*if(thrustAcceleration>=29.00) { //28.42
 					for(int i=1;i<=3;i++) {
 						if(STS()->GetSSMEThrustLevel(i) > 67.0)
 							STS()->SetSSMEThrustLevel(i, STS()->GetSSMEThrustLevel(i)-1.0);
 						else STS()->SetSSMEThrustLevel(i, 67.0);
 					}
-				}
+				}*/
 				if(relativeVelocity>=TgtSpd) {
 					//reached target speed
-					STS()->SetSSMEThrustLevel(0, 0.0);
-					oapiWriteLog("MECO");
+					if (pSSME_SOP->GetMECOCommandFlag() == false)
+					{
+						pSSME_SOP->SetMECOCommandFlag();
+						oapiWriteLog("MECO");
+					}
+					//STS()->SetSSMEThrustLevel(0, 0.0);
 					//bMECO=true;
 					//tMECO = STS()->GetMET();
 				}
@@ -391,17 +445,28 @@ void AscentGuidance::Throttle(double DeltaT)
 		}
 	}
 	else { // manual throttling
-		STS()->SetSSMEThrustLevel(0, SBTCCommand);
+		pSSME_SOP->SetThrottlePercent( SBTCCommand );
+		//STS()->SetSSMEThrustLevel(0, SBTCCommand);
 	}
 
 	lastSBTCCommand = SBTCCommand;
 	
 	// handle shutdown commands
 	for(int i=0;i<3;i++) {
-		if(SSMEShutdown[i]) STS()->SetSSMEThrustLevel(i, 0.0);
+		if(SSMEShutdown[i])
+		{
+			if (SSMEManualShutdown[i] == false)
+			{
+				SSMEManualShutdown[i] = true;
+				pSSME_SOP->SetShutdownEnableCommandFlag( i + 1 );
+				pSSME_SOP->SetShutdownCommandFlag( i + 1 );
+				//STS()->SetSSMEThrustLevel(i, 0.0);
+			}
+		}
 	}
 	// detect MECO
 	if(Eq(STS()->GetSSMEThrustLevel(0), 0.0, 0.01)) {
+		// should use SSME SOP, but better leave as is because MECO confirmed is still not fool proof
 		bMECO = true;
 		tMECO = STS()->GetMET();
 	}
