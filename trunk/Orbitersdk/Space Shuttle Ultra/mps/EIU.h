@@ -26,54 +26,59 @@
 #define _mps_EIU_H_
 
 
-#include "SSME.h"
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "..\dps\dps_defs.h"
 #include "..\dps\BIU.h"
+#include "DiscInPort.h"
+
+
+//#define _EIU_DATA_RECORDER
 
 
 namespace mps
 {
+	class SSME;
+	using class discsignals::DiscInPort;
+
 	class EIU:public AtlantisSubsystem, public dps::IConnectedToBus
 	{
-	private:
-		int ID;
-		SSME* engine;
-		VDT_32* PrimaryData;
-		VDT_6* SecondaryData;
-	public:
-		EIU( AtlantisSubsystemDirector*, const string&, int, SSME* );
-		~EIU( void );
+		private:
+			int ID;
+			SSME* eng;
+			DiscInPort* AC;
 
-		virtual void busCommandPhase(dps::BusController* biu);
-		virtual void busReadPhase(dps::BusController* biu);
-		virtual dps::BUS_COMMAND_WORD busCommand(dps::BusTerminal* biu, dps::BUS_COMMAND_WORD cw, 
-			unsigned long num_data, dps::word16 *cdw);
+			unsigned short DataPri[32];
+			unsigned short DataSec[6];
+#ifdef _EIU_DATA_RECORDER
+			FILE* fp;
 
-		// GPCs only
+			void DataRecorder( unsigned short* data, char* type );
+#endif// _EIU_DATA_RECORDER
+		public:
+			dps::BusTerminal mia[4];
 
-		/**
-		 * Return primary data
-		 * @param ptrPrimaryData pointer to primary data structure VDT_32
-		 */
-		int RequestPrimaryData( VDT_32* ptrPrimaryData );
+			EIU( AtlantisSubsystemDirector* _director, const string& _ident, int ID, SSME* eng );
+			~EIU( void );
 
-		/**
-		 * Return secondary data
-		 * @param ptrSecondaryData pointer to secondary data structure VDT_6
-		 */
-		int RequestSecondaryData( VDT_6* ptrSecondaryData );
-		int RequestCMD( int, double );
+			virtual void busCommandPhase( dps::BusController* biu );
+			virtual void busReadPhase( dps::BusController* biu );
+			virtual dps::BUS_COMMAND_WORD busCommand( dps::BusTerminal* biu, dps::BUS_COMMAND_WORD cw, unsigned long num_data, dps::word16 *cdw );
 
-		// heart beat
-		void OnPostStep( double, double, double );
-		//void OnPreStep( double, double, double );
-		//void OnPropagate( double, double, double );
+			/**
+			 * Used to connect DiscInPort
+			 * @sa AtlantisSubsystem::Realize
+			 */
+			void Realize( void );
 
-		// TODO power swicth -> O17
+			void OnPostStep( double, double, double );
 
-		dps::BusTerminal mia[4];
+			void CIA( int num, unsigned short* data );
+
+			// HACK
+			void readpri( unsigned short* data );
+			void readsec( unsigned short* data );
+			void command( unsigned short cmd );
 	};
 }
 

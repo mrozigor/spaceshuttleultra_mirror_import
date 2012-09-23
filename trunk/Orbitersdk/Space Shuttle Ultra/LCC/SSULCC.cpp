@@ -80,6 +80,11 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 				timeToLaunch = mjd-1.0; // set launch time to date in past
 			}
 		}
+		if ((timeToLaunch <= PSN4_TIME) && (lastTTL >= PSN4_TIME))
+		{
+			oapiWriteLog("LCC: PSN4");
+			pSSU->PSN4();
+		}
 		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
 		{
 			oapiWriteLog("LCC: T-31");

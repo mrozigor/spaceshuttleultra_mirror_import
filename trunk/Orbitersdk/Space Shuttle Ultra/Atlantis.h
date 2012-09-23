@@ -430,6 +430,7 @@ public:
 	virtual double GetETGOXMassFlow() const;
 	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant() const;
+	virtual double GetETPropellant_B( void ) const;
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
 	virtual double GetMET() const;
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
@@ -580,6 +581,8 @@ public:
 
 	virtual bool HydraulicsOK();
 
+	virtual void PSN4( void );
+
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
 	void UpdateMesh ();
@@ -716,7 +719,7 @@ private:
 
 	//GPC programs
 	//dps::RSLS *rsls;
-	dps::RSLS_old *rsls;
+	//dps::RSLS_old *rsls;
 
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
@@ -729,7 +732,7 @@ private:
 	 */
 	void CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref);
 	
-	void SSMEEngControl(unsigned short usEng) const;
+	/*void SSMEEngControl(unsigned short usEng) const;*/
 	void OMSEngControl(unsigned short usEng);
 
 	void StopAllManifolds();

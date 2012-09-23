@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  SSME definition
+  Space Shuttle Main Engine definition
 
 
 
@@ -28,433 +28,140 @@
 
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-#include <ValveTypeBool.h>
+#include "..\Atlantis.h"
+#include "ValveTypeBool.h"
 
 
 namespace mps
 {
-	typedef enum _ENGINE_STATUS
-	{
-		// CHECKOUT
-		CHECKOUT_STANDBY,
-		CHECKOUT_COMPONENTCHECKOUT,
-		// START PREPARATION
-		STARTPREPARATION_PURGESEQUENCE1,
-		STARTPREPARATION_PURGESEQUENCE2,
-		STARTPREPARATION_PURGESEQUENCE3,
-		STARTPREPARATION_PURGESEQUENCE4,
-		STARTPREPARATION_ENGINEREADY,
-		// START/MAINSTAGE
-		STARTMAINSTAGE_STARTPHASESTARTINITIATION,
-		STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP,
-		STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL,
-		STARTMAINSTAGE_FIXEDDENSITY,
-		STARTMAINSTAGE_THRUSTLIMITING,
-		STARTMAINSTAGE_ELECTRICALLOCKUP,
-		STARTMAINSTAGE_HYDRAULICLOCKUP,
-		// SHUTDOWN
-		SHUTDOWN_THROTTLINGTOZEROTHRUST,
-		SHUTDOWN_PROPELLANTVALVESCLOSED,
-		SHUTDOWN_FAILSAFEPNEUMATIC,
-		// POST SHUTDOWN
-		POSTSHUTDOWN_STANDBY,
-		POSTSHUTDOWN_OXIDIZERDUMP,
-		POSTSHUTDOWN_TERMINATESEQUENCE,
-		// PROM
-		PROM_STANDBY
-	} ENGINE_STATUS;
+	const double MAX_RATE_CCV = 120;// DONO max rate
+	const double MAX_RATE_MOV = 120;// DONO max rate
+	const double MAX_RATE_MFV = 150;// DONO max rate
+	const double MAX_RATE_FPOV = 170;// DONO max rate
+	const double MAX_RATE_OPOV = 210;// DONO max rate
+	const double MAX_RATE_OBV = 50;// DONO max rate
+	const double MAX_RATE_FBV = 50;// DONO max rate
+	const double MAX_RATE_AFV = 50;// DONO max rate
 
-
-	typedef enum _DCU
-	{
-		DCU_A,
-		DCU_B
-	} DCU;
-
-	typedef struct _VDT_128
-	{
-		float DW1;
-		float DW2;
-		float DW3;
-		float DW4;
-		float DW5;
-		float DW6;
-		float DW7;
-		float DW8;
-		float DW9;
-		float DW10;
-		float DW11;
-		float DW12;
-		float DW13;
-		float DW14;
-		float DW15;
-		float DW16;
-		float DW17;
-		float DW18;
-		float DW19;
-		float DW20;
-		float DW21;
-		float DW22;
-		float DW23;
-		float DW24;
-		float DW25;
-		float DW26;
-		float DW27;
-		float DW28;
-		float DW29;
-		float DW30;
-		float DW31;
-		float DW32;
-		float DW33;
-		float DW34;
-		float DW35;
-		float DW36;
-		float DW37;
-		float DW38;
-		float DW39;
-		float DW40;
-		float DW41;
-		float DW42;
-		float DW43;
-		float DW44;
-		float DW45;
-		float DW46;
-		float DW47;
-		float DW48;
-		float DW49;
-		float DW50;
-		float DW51;
-		float DW52;
-		float DW53;
-		float DW54;
-		float DW55;
-		float DW56;
-		float DW57;
-		float DW58;
-		float DW59;
-		float DW60;
-		float DW61;
-		float DW62;
-		float DW63;
-		float DW64;
-		float DW65;
-		float DW66;
-		float DW67;
-		float DW68;
-		float DW69;
-		float DW70;
-		float DW71;
-		float DW72;
-		float DW73;
-		float DW74;
-		float DW75;
-		float DW76;
-		float DW77;
-		float DW78;
-		float DW79;
-		float DW80;
-		float DW81;
-		float DW82;
-		float DW83;
-		float DW84;
-		float DW85;
-		float DW86;
-		float DW87;
-		float DW88;
-		float DW89;
-		float DW90;
-		float DW91;
-		float DW92;
-		float DW93;
-		float DW94;
-		float DW95;
-		float DW96;
-		float DW97;
-		float DW98;
-		float DW99;
-		float DW100;
-		float DW101;
-		float DW102;
-		float DW103;
-		float DW104;
-		float DW105;
-		float DW106;
-		float DW107;
-		float DW108;
-		float DW109;
-		float DW110;
-		float DW111;
-		float DW112;
-		float DW113;
-		float DW114;
-		float DW115;
-		float DW116;
-		float DW117;
-		float DW118;
-		float DW119;
-		float DW120;
-		float DW121;
-		float DW122;
-		float DW123;
-		float DW124;
-		float DW125;
-		float DW126;
-		float DW127;
-		float DW128;
-	} VDT_128;
-
-	typedef struct _VDT_32
-	{
-		float DW1;
-		float DW2;
-		float DW3;
-		float DW4;
-		float DW5;
-		float DW6;
-		float DW7;
-		float DW8;
-		float DW9;
-		float DW10;
-		float DW11;
-		float DW12;
-		float DW13;
-		float DW14;
-		float DW15;
-		float DW16;
-		float DW17;
-		float DW18;
-		float DW19;
-		float DW20;
-		float DW21;
-		float DW22;
-		float DW23;
-		float DW24;
-		float DW25;
-		float DW26;
-		float DW27;
-		float DW28;
-		float DW29;
-		float DW30;
-		float DW31;
-		float DW32;
-	} VDT_32;
-
-	typedef struct _VDT_6
-	{
-		float DW1;
-		float DW2;
-		float DW3;
-		float DW4;
-		float DW5;
-		float DW6;
-	} VDT_6;
-
+	class SSMEController;
 
 	class SSME:public AtlantisSubsystem
 	{
-	protected:
-		BasicValve* ptrCCV;
-		BasicValve* ptrMOV;
-		BasicValve* ptrMFV;
-		BasicValve* ptrFPOV;
-		BasicValve* ptrOPOV;
-		ValveTypeBool* ptrOBV;
-		ValveTypeBool* ptrFBV;
+		friend class EIU;
+		friend class SSMEController;
+		friend class OutputElectronics_BLOCK_II;
+		friend class InputElectronics_BLOCK_II;
 
-		// internal data
-		VDT_128* VDT;
-		int ID;
-		ENGINE_STATUS STATUSWORD;
-		DCU activeDCU;
-		//THRUSTER_HANDLE thSSME;
+		protected:
+			unsigned short ID;// engine ID (1 - C, 2 - L, 3 - R)
 
-		double ESCtime;// simtime
-		double COtime;// simtime
+			BasicValve* ptrCCV;
+			BasicValve* ptrMFV;
+			BasicValve* ptrMOV;
+			BasicValve* ptrFPOV;
+			BasicValve* ptrOPOV;
+			ValveTypeBool* ptrFBV;
+			ValveTypeBool* ptrOBV;
+			ValveTypeBool* ptrAFV;
 
-		bool StartEnable;
-		bool ShutdownEnable;
+			SSMEController* Controller;
 
-		//PROPELLANT_HANDLE phET;
+			bool Igniter_MCC[2];
+			bool Igniter_FPB[2];
+			bool Igniter_OPB[2];
 
-		//VECTOR3 pos;
-		//VECTOR3 dir;
+			double ISP0;
+			double ISP1;
+			double FPL_THRUST;
+			double RPL_PC_PRESS;
+			int MPL;// % RPL
+			int FPL;// % RPL
 
-		double ISP0;
-		double ISP1;
-		double FPL_THRUST;
-		double RPL_PC_PRESS;
-		int MPL;// % RPL
-		int FPL;// % RPL
+			// sfx for lox dump
+			PROPELLANT_HANDLE phLOXdump;
+			THRUSTER_HANDLE thLOXdump;
+			VECTOR3 posLOXdump;
+			VECTOR3 dirLOXdump;
 
-		double COtimecoef;// phasing out...
-		double ThrottleCmdTme;
-		double PSN4time;
-		double PC_REF;
-		double PC_CMD;
+			// sensor table
+			double* SENSOR_P;// pressure sensors
+			double* SENSOR_T;// temperature sensors
+			double* SENSOR_S;// speed sensors
+			double* SENSOR_F;// flow sensors
+			int numP;// number of pressure sensors
+			int numT;// number of temperature sensors
+			int numS;// number of speed sensors
+			int numF;// number of flow sensors
 
+			/**
+			 * Converts engine level from percentage to chamber pressure (psi)
+			 * @param pcPCT engine level (percentage)
+			 * @return engine level (chamber pressure)
+			 */
+			double PCfromPCTtoPSI( double pcPCT ) const;
 
-		// valve position tables
-		short* CCVSIindex;
-		double* CCVScheduleIgnition_Time;
-		double* CCVScheduleIgnition_Position;
-		double* CCVScheduleIgnition_Rate;
+			/**
+			 * Converts engine level from chamber pressure (psi) to percentage
+			 * @param pcPSI engine level (chamber pressure)
+			 * @return engine level (percentage)
+			 */
+			double PCfromPSItoPCT( double pcPSI ) const;
 
-		short* MOVSIindex;
-		double* MOVScheduleIgnition_Time;
-		double* MOVScheduleIgnition_Position;
-		double* MOVScheduleIgnition_Rate;
+			// engine model
+			// gets inputs from valve positions and internal values and outputs sensor readings and thrust
+			void SSMERUN( double time, double dt );
+			virtual void RUN1( double time, double dt ) = 0;// pre-start
+			virtual void RUN2( double time, double dt ) = 0;// ignition
+			virtual void RUN3( double time, double dt ) = 0;// mainstage
+			virtual void RUN4( double time, double dt ) = 0;// cutoff
+			virtual void RUN5( double time, double dt ) = 0;// post-shutdown
 
-		short* MFVSIindex;
-		double* MFVScheduleIgnition_Time;
-		double* MFVScheduleIgnition_Position;
-		double* MFVScheduleIgnition_Rate;
+			short modelmode;
+			double modeltime;
 
-		short* FPOVSIindex;
-		double* FPOVScheduleIgnition_Time;
-		double* FPOVScheduleIgnition_Position;
-		double* FPOVScheduleIgnition_Rate;
+			// data cookup fncts
+			double dcPC_ESC( double );
+			double dcPC_CO( double );
 
-		short* OPOVSIindex;
-		double* OPOVScheduleIgnition_Time;
-		double* OPOVScheduleIgnition_Position;
-		double* OPOVScheduleIgnition_Rate;
+			double AdjCOTime( double pc );
 
-		short* CCVSSindex;
-		double* CCVScheduleShutdown_Time;
-		double* CCVScheduleShutdown_Position;
-		double* CCVScheduleShutdown_Rate;
+		public:
+			/**
+			 * Create a new SSME object.
+			 * @param _director reference to the subsystem director
+			 * @param _ident identification of the subsystem inside the model
+			 * @param nID identification number of the SSME
+			 * @param controllertype identification of the SSME controller version
+			 * @param sw identification of the software version of the SSME controller
+			 * @param numP number of presure sensors
+			 * @param numT number of temperature sensors
+			 * @param numS number of speed sensors
+			 * @param numF number of flow sensors
+			 */
+			SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short nID, int controllertype, const string& sw, int numP, int numT, int numS, int numF );
+			virtual ~SSME( void );
 
-		short* MOVSSindex;
-		double* MOVScheduleShutdown_Time;
-		double* MOVScheduleShutdown_Position;
-		double* MOVScheduleShutdown_Rate;
+			/**
+			 * Create the thruster reference of the SSME 
+			 * and link the cable connections of the SSME.
+			 * @sa AtlantisSubsystem::Realize
+			 */
+			void Realize( void );
 
-		short* MFVSSindex;
-		double* MFVScheduleShutdown_Time;
-		double* MFVScheduleShutdown_Position;
-		double* MFVScheduleShutdown_Rate;
+			void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+			//void OnPreStep( double fSimT, double fDeltaT, double fMJD );
 
-		short* FPOVSSindex;
-		double* FPOVScheduleShutdown_Time;
-		double* FPOVScheduleShutdown_Position;
-		double* FPOVScheduleShutdown_Rate;
+			bool SingleParamParseLine() const {return true;};
 
-		short* OPOVSSindex;
-		double* OPOVScheduleShutdown_Time;
-		double* OPOVScheduleShutdown_Position;
-		double* OPOVScheduleShutdown_Rate;
+			void OnSaveState( FILEHANDLE scn ) const;
+			bool OnParseLine( const char* line );
 
-		double PRESS_MCC_A1;
-		double PRESS_MCC_A2;
-		double PRESS_MCC_B1;
-		double PRESS_MCC_B2;
-		
+			// for use by the derived class
+			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
+			virtual bool __OnParseLine( const char* line ) = 0;
 
-		void Ignition( double );
-		void Shutdown( double );
-		void Throttling( double, double );
-		void SetCOTime( void );
-
-		/**
-		 * Converts engine level from percentage to chamber pressure (psi)
-		 * @param pcPCT engine level (percentage)
-		 * @return engine level (chamber pressure)
-		 */
-		double PCfromPCTtoPSI( double pcPCT );
-
-		/**
-		 * Converts engine level from chamber pressure (psi) to percentage
-		 * @param pcPSI engine level (chamber pressure)
-		 * @return engine level (percentage)
-		 */
-		double PCfromPSItoPCT( double pcPSI );
-
-		/**
-		 * Moves valves through ignition schedule
-		 * @param time time from ignition command
-		 */
-		void ValveScheduleIgnition( double time );
-
-		/**
-		 * Moves valves through throttle schedule
-		 * @param tgtpc commanded engine level (percentage)
-		 */
-		virtual void ValveScheduleThrottle( double tgtpc ) = 0;
-
-		/**
-		 * Moves valves through shutdown schedule
-		 * @param time time from shutdown command
-		 */
-		void ValveScheduleShutdown( double time );
-
-		/**
-		 * Updates valve shutdown schedule according to current engine level
-		 * @param dPC difference between RPL and current engine level in percentage (-9 (109%) to 33 (67%))
-		 */
-		virtual void ValveShutdownTableUpdate( double dPC ) = 0;
-
-		virtual void VDTUpdate( double ) = 0;// ????
-
-		void ReadSensors( void );
-
-		// data cookup fncts
-		virtual double dcPC_ESC( double ) = 0;
-		virtual double dcPC_CO( double ) = 0;
-		virtual double dcPC_MS( double ) = 0;
-
-	public:
-		// EIU only
-		// command
-		bool cmdPurgeSequence1( void );
-		bool cmdPurgeSequence2( void );
-		bool cmdPurgeSequence3( void );
-		bool cmdPurgeSequence4( void );
-		bool cmdStartEnable( void );
-		bool cmdStart( void );
-		bool cmdControllerReset( void );
-		bool cmdCheckoutStandby( void );
-		bool cmdTerminateSequence( void );
-		bool cmdShutdownEnable( void );
-		bool cmdShutdown( void );
-		bool cmdFRT1( void );
-		bool cmdOxidizerDump( void );
-		bool cmdExitPROM( void );
-		bool cmdPowerOn( void );
-		bool cmdChannelReset( void );
-		bool cmdThrottle( double );
-		bool cmdPowerOff( void );
-		//bool cmdDeactivateAllValves( void );
-		
-		// data
-		int dataGetPrimaryData( VDT_32* );
-		int dataGetSecondaryData( VDT_6* );
-
-		/**
-		 * Create a new SSME object.
-		 * @param _director reference to the subsystem director
-		 * @param _ident identification of the subsystem inside the model
-		 * @param nID identification number of the SSME
-		 */
-		SSME( AtlantisSubsystemDirector* _director, const string& _ident, int nID );
-		~SSME( void );
-
-		/** 
-		 * Create the thruster reference of the SSME 
-		 * and link the cable connections of the SSME.
-		 * @sa AtlantisSubsystem::Realize
-		 */
-		virtual void Realize( void );
-
-		//virtual THRUSTER_HANDLE GetHandle( void ) const;
-
-		// heart beat
-		void OnPostStep( double, double, double );
-		//void OnPreStep( double, double, double );
-		//void OnPropagate( double, double, double );
-
-		virtual void OnSaveState( FILEHANDLE ) const = 0;
-		virtual bool OnParseLine( const char* ) = 0;
-		};
+			void PCA( void );
+	};
 }
 
 

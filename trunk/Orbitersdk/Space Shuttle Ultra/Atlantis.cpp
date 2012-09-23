@@ -494,7 +494,7 @@ pActiveLatches(3, NULL)
   panelc2		  = new PanelC2(this);
   //panelf7		  = new PanelF7(this);
 
-  rsls			= new dps::RSLS_old(this);
+  //rsls			= new dps::RSLS_old(this);
   //rsls = NULL;
   //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
   
@@ -529,9 +529,9 @@ pActiveLatches(3, NULL)
 
   psubsystems	  = new AtlantisSubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pSSME[0] = new mps::BLOCK_II(psubsystems, "MPS_C", 1));
-  psubsystems->AddSubsystem(pSSME[1] = new mps::BLOCK_II(psubsystems, "MPS_L", 2));
-  psubsystems->AddSubsystem(pSSME[2] = new mps::BLOCK_II(psubsystems, "MPS_R", 3));
+  psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08"));
+  psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08"));
+  psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08"));
 
   psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
   psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
@@ -1106,7 +1106,7 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
-	delete rsls;
+	//delete rsls;
 
 	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 	  
@@ -4226,7 +4226,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		case STATE_PRELAUNCH:
 		case STATE_STAGE1:
 		case STATE_STAGE2:
-			for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
+			//for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
 			break;
 		case STATE_ORBITER:
 			break;
@@ -4475,7 +4475,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
-		if(rsls) rsls->OnPostStep(simt, simdt, mjd);
+		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		{ // add braces so we can declare new variable
 		// check SSME state and trigger liftoff when required
 		bool bAllSSMEsOn = true; // all SSMEs exceed 90% (Orbiter thruster level)
@@ -4543,7 +4543,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}*/
 		if(!GetLiftOffFlag()) {
 			Twang(t0-simt);
-			if(rsls) rsls->OnPostStep(simt, simdt, mjd);
+			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		}
 		//sprintf(oapiDebugString(),"met: %f",met);
 		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
@@ -6984,6 +6984,12 @@ short Atlantis::GetETPropellant() const
 	 return -1;
 }
 
+double Atlantis::GetETPropellant_B( void ) const
+{
+	if (status < 3) return 100.0 * GetPropellantMass( ph_tank ) / TANK_MAX_PROPELLANT_MASS;
+	else return -1;
+}
+
 dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
 {
 	if(usIDPNumber == 0 || usIDPNumber > 4)
@@ -7213,7 +7219,7 @@ void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 		GetThrusterRef(th_main[i], EngineNullPosition[i]);
 		EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
 		SetThrusterDir(th_main[i], EngineNullPosition[i]);
-		SSMEEngControl(i);
+		//SSMEEngControl(i);
 	}
 }
 
@@ -7954,12 +7960,23 @@ void Atlantis::RealizeSubsystemConnections() {
 
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
-	if(rsls) rsls->SychronizeCountdown(launch_mjd);
+	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
+	pRSLS->SychronizeCountdown( launch_mjd );
+	//if(rsls) rsls->SychronizeCountdown(launch_mjd);
 }
 
 void Atlantis::StartRSLSSequence()
 {
-	if(rsls) rsls->StartRSLSSequence();
+	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
+	pRSLS->StartRSLSSequence();
+	//if(rsls) rsls->StartRSLSSequence();
+}
+
+void Atlantis::PSN4( void )
+{
+	pEIU[0]->command( 0xBC00 );
+	pEIU[1]->command( 0xBC00 );
+	pEIU[2]->command( 0xBC00 );
 }
 
 void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
@@ -8021,17 +8038,17 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 	}
 }
 
-void Atlantis::SSMEEngControl(unsigned short usEng) const
-{
-	if(status>=STATE_ORBITER) return; //th_main not defined
-
-	if((MPSPwr[0][usEng] || MPSPwr[1][usEng]) && (MPSHeIsolA[usEng] || MPSHeIsolB[usEng])) {
-		SetThrusterResource(th_main[usEng], ph_tank);
-	}
-	else {
-		SetThrusterResource(th_main[usEng], NULL);
-	}
-}
+//void Atlantis::SSMEEngControl(unsigned short usEng) const
+//{
+//	if(status>=STATE_ORBITER) return; //th_main not defined
+//
+//	if((MPSPwr[0][usEng] || MPSPwr[1][usEng]) && (MPSHeIsolA[usEng] || MPSHeIsolB[usEng])) {
+//		SetThrusterResource(th_main[usEng], ph_tank);
+//	}
+//	else {
+//		SetThrusterResource(th_main[usEng], NULL);
+//	}
+//}
 
 bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
 {

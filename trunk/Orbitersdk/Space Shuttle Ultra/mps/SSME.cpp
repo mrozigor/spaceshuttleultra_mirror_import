@@ -1,49 +1,86 @@
 #include "SSME.h"
-#include "..\Atlantis.h"
+#include "SSMEController_BLOCK_II.h"
+#include "MPSdefs.h"
 
 
 namespace mps
 {
-	SSME::SSME( AtlantisSubsystemDirector* _director, const string& _ident, int nID ):AtlantisSubsystem( _director, _ident )
+	SSME::SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short ID, int controllertype, const string& sw, int numP, int numT, int numS, int numF ):AtlantisSubsystem( _director, _ident )
 	{
-		ID = nID;
-		VDT = new VDT_128;
-		activeDCU = DCU_A;
-		//thSSME = NULL;
+#ifdef _MPSDEBUG
+		char buffer[100];
+		sprintf_s( buffer, 100, " SSME::SSME in || name:%s|ID:%d|controllertype:%d|sw:%s|numP:%d|numT:%d|numS:%d|numF:%d", _ident.c_str(), ID, controllertype, sw.c_str(), numP, numT, numS, numF );
+		oapiWriteLog( buffer );
+#endif// _MPSDEBUG
 
-		STATUSWORD = STARTPREPARATION_PURGESEQUENCE3;
-		PSN4time = -1;
-		ESCtime = -1;
-		COtime = -1;
-		StartEnable = false;
-		ShutdownEnable = false;
+		this->ID = ID;
+		this->numP = numP;
+		this->numT = numT;
+		this->numS = numS;
+		this->numF = numF;
 
-		ThrottleCmdTme = -1;
+		// create sensor arrays with correct size for the engine model
+		SENSOR_P = new double[numP];
+		SENSOR_T = new double[numT];
+		SENSOR_S = new double[numS];
+		SENSOR_F = new double[numF];
 
-		PC_REF = 0;
-		PC_CMD = 0;
+		// make valves
+		ptrCCV = new BasicValve( 0, MAX_RATE_CCV );
+		ptrMOV = new BasicValve( 0, MAX_RATE_MOV );
+		ptrMFV = new BasicValve( 0, MAX_RATE_MFV );
+		ptrFPOV = new BasicValve( 0, MAX_RATE_FPOV );
+		ptrOPOV = new BasicValve( 0, MAX_RATE_OPOV );
+		ptrOBV = new ValveTypeBool( 0, MAX_RATE_OBV );
+		ptrFBV = new ValveTypeBool( 0, MAX_RATE_FBV );
+		ptrAFV = new ValveTypeBool( 0, MAX_RATE_AFV );
 
-		//dir = _V( 0.0, 0.0, 1.0 );
+		// hardware model stuff
+		modelmode = 1;
+		modeltime = 0;
 
-		/*switch (ID)
+		// igniters
+		Igniter_MCC[0] = false;
+		Igniter_MCC[1] = false;
+		Igniter_FPB[0] = false;
+		Igniter_FPB[1] = false;
+		Igniter_OPB[0] = false;
+		Igniter_OPB[1] = false;
+
+		// make controller
+		// TODO move to realize???
+		/*if (controllertype == 1)// TODO improve/add error checking
+		{
+			Controller = new SSMEController_BLOCK_I( this, sw );
+		}
+		else
+		{*/
+			Controller = new SSMEController_BLOCK_II( this, sw );
+		//}
+		
+		// LOX dump stuff
+		thLOXdump = NULL;
+		phLOXdump = NULL;
+		switch (ID)
 		{
 			case 1:
-				pos = SSMET_REF;
+				posLOXdump = _V( 0.0, 1.945, -10.76250 ) + _V( 0.0, 6.1, -13.5 );
+				dirLOXdump = _V( 0.0, -0.37489, 0.92707 );
 				break;
-			case 2: 
-				pos = SSMEL_REF;
+			case 2:
+				posLOXdump = _V( -1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
+				dirLOXdump = _V( 0.065, -0.2447, 0.9674 );
 				break;
 			case 3:
-				pos = SSMER_REF;
-		}*/
+				posLOXdump = _V( 1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
+				dirLOXdump = _V( -0.065, -0.2447, 0.9674 );
+				break;
+		}
 
-		ptrCCV = new BasicValve( 0, 120 );// DONO max rate
-		ptrMOV = new BasicValve( 0, 120 );// DONO max rate
-		ptrMFV = new BasicValve( 0, 150 );// DONO max rate
-		ptrFPOV = new BasicValve( 0, 170 );// DONO max rate
-		ptrOPOV = new BasicValve( 0, 210 );// DONO max rate
-		ptrOBV = new ValveTypeBool( 1, 50 );// DONO max rate
-		ptrFBV = new ValveTypeBool( 1, 50 );// DONO max rate
+#ifdef _MPSDEBUG
+		sprintf_s( buffer, 100, " SSME::SSME out" );
+		oapiWriteLog( buffer );
+#endif// _MPSDEBUG
 		return;
 	}
 
@@ -56,38 +93,44 @@ namespace mps
 		delete ptrOPOV;
 		delete ptrOBV;
 		delete ptrFBV;
+		delete ptrAFV;
+		delete Controller;
 
-		delete VDT;
-		// the end
+		delete[] SENSOR_P;
+		delete[] SENSOR_T;
+		delete[] SENSOR_S;
+		delete[] SENSOR_F;
+
+		if (thLOXdump != NULL)
+		{
+			STS()->DelThruster( thLOXdump );
+			STS()->DelPropellantResource( phLOXdump );
+		}
+		return;
 	}
 
 	void SSME::Realize()
 	{
 		STS()->SetSSMEParams( ID, FPL_THRUST, ISP0, ISP1 );
+
+		Controller->Realize();
+		return;
 	}
 
-	double SSME::PCfromPCTtoPSI( double pcPCT )
+	double SSME::PCfromPCTtoPSI( double pcPCT ) const
 	{
 		return ((pcPCT * RPL_PC_PRESS) / 100);
 	}
 
-	double SSME::PCfromPSItoPCT( double pcPSI )
+	double SSME::PCfromPSItoPCT( double pcPSI ) const
 	{
 		return ((pcPSI * 100) / RPL_PC_PRESS);
 	}
 
-	void SSME::ReadSensors( void )
+	/*void SSME::OnPreStep( double fSimT, double fDeltaT, double fMJD )
 	{
-		// MCC press
-		// TODO cookup variations (within redlines... for now...)
-		double pcread = STS()->GetSSMEThrustLevel( ID );
-		pcread = PCfromPCTtoPSI( pcread );
-		PRESS_MCC_A1 = pcread;
-		PRESS_MCC_A2 = pcread;
-		PRESS_MCC_B1 = pcread;
-		PRESS_MCC_B2 = pcread;
 		return;
-	}
+	}*/
 
 	void SSME::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
@@ -100,664 +143,223 @@ namespace mps
 		ptrOBV->tmestp( fDeltaT );
 		ptrFBV->tmestp( fDeltaT );
 
-		ReadSensors();
+		// engine model
+		SSMERUN( fSimT, fDeltaT );
 
-		switch (STATUSWORD)
+		// run controller
+		Controller->tmestp( fSimT, fDeltaT );
+		return;
+	}
+
+	void SSME::OnSaveState( FILEHANDLE scn ) const
+	{
+		char cbuf[255];
+
+		sprintf_s( cbuf, 255, "%d", modelmode );
+		oapiWriteScenario_string( scn, "SSME_model", cbuf );
+
+		sprintf_s( cbuf, 255, "%d %d %d %d %d %d", Igniter_MCC[0], Igniter_MCC[1], Igniter_FPB[0], Igniter_FPB[1], Igniter_OPB[0], Igniter_OPB[1] );
+		oapiWriteScenario_string( scn, "SSME_Igniters", cbuf );
+
+		sprintf_s( cbuf, 255, "%lf %lf %lf %lf %lf %d %d %d", ptrCCV->GetPos(), ptrMFV->GetPos(), ptrMOV->GetPos(), ptrFPOV->GetPos(), ptrOPOV->GetPos(), ptrFBV->GetPos(), ptrOBV->GetPos(), ptrAFV->GetPos() );
+		oapiWriteScenario_string( scn, "SSME_Valves", cbuf );
+
+		__OnSaveState( scn );// write derived class
+		Controller->__OnSaveState( scn );// write controller
+		return;
+	}
+
+	bool SSME::OnParseLine( const char* line )
+	{
+		int read_i1 = 0;
+		int read_i2 = 0;
+		int read_i3 = 0;
+		int read_i4 = 0;
+		int read_i5 = 0;
+		int read_i6 = 0;
+		double read_f1 = 0;
+		double read_f2 = 0;
+		double read_f3 = 0;
+		double read_f4 = 0;
+		double read_f5 = 0;
+#ifdef _MPSDEBUG
+		char buffer[100];
+#endif// _MPSDEBUG
+
+		if (!_strnicmp( line, "SSME_model", 10 ))
 		{
-			// CHECKOUT
-			case CHECKOUT_STANDBY:
+			sscanf_s( line + 10, "%d", &read_i1 );
+			modelmode = read_i1;
+#ifdef _MPSDEBUG
+			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_model:%d", modelmode );
+			oapiWriteLog( buffer );
+#endif// _MPSDEBUG
+			return true;
+		}
+		else if (!_strnicmp( line, "SSME_Igniters", 13 ))
+		{
+			sscanf_s( line + 13, "%d %d %d %d %d %d", &read_i1, &read_i2, &read_i3, &read_i4, &read_i5, &read_i6 );
+			Igniter_MCC[0] = GetBoolFromInt( read_i1 );
+			Igniter_MCC[1] = GetBoolFromInt( read_i2 );
+			Igniter_FPB[0] = GetBoolFromInt( read_i3 );
+			Igniter_FPB[1] = GetBoolFromInt( read_i4 );
+			Igniter_OPB[0] = GetBoolFromInt( read_i5 );
+			Igniter_OPB[1] = GetBoolFromInt( read_i6 );
+#ifdef _MPSDEBUG
+			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_Igniters:%d|%d|%d|%d|%d|%d", Igniter_MCC[0], Igniter_MCC[1], Igniter_FPB[0], Igniter_FPB[1], Igniter_OPB[0], Igniter_OPB[1] );
+			oapiWriteLog( buffer );
+#endif// _MPSDEBUG
+			return true;
+		}
+		else if (!_strnicmp( line, "SSME_Valves", 11 ))
+		{
+			sscanf_s( line + 11, "%lf %lf %lf %lf %lf %d %d %d", &read_f1, &read_f2, &read_f3, &read_f4, &read_f5, &read_i1, &read_i2, &read_i3 );
+			ptrCCV->_backdoor( read_f1 );
+			ptrMFV->_backdoor( read_f2 );
+			ptrMOV->_backdoor( read_f3 );
+			ptrFPOV->_backdoor( read_f4 );
+			ptrOPOV->_backdoor( read_f5 );
+			ptrFBV->_backdoor( GetBoolFromInt( read_i1 ) );
+			ptrOBV->_backdoor( GetBoolFromInt( read_i2 ) );
+			ptrAFV->_backdoor( GetBoolFromInt( read_i3 ) );
+#ifdef _MPSDEBUG
+			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_Valves:%lf|%lf|%lf|%lf|%lf|%d|%d|%d", ptrCCV->GetPos(), ptrMFV->GetPos(), ptrMOV->GetPos(), ptrFPOV->GetPos(), ptrOPOV->GetPos(), ptrFBV->GetPos(), ptrOBV->GetPos(), ptrAFV->GetPos() );
+			oapiWriteLog( buffer );
+#endif// _MPSDEBUG
+			return true;
+		}
+
+		if (__OnParseLine( line )) return true;// check if derived class wants line
+		if (Controller->__OnParseLine( line )) return true;// check if controller wants line
+		return false;
+	}
+
+
+	void SSME::SSMERUN( double time, double dt )
+	{
+		switch (modelmode)
+		{
+			case 1:// pre-start
+				RUN1( time, dt );
 				break;
-			case CHECKOUT_COMPONENTCHECKOUT:
+			case 2:// ignition
+				RUN2( time, dt );
 				break;
-			// START PREPARATION
-			case STARTPREPARATION_PURGESEQUENCE1:
+			case 3:// mainstage
+				RUN3( time, dt );
 				break;
-			case STARTPREPARATION_PURGESEQUENCE2:
+			case 4:// cutoff
+				RUN4( time, dt );
 				break;
-			case STARTPREPARATION_PURGESEQUENCE3:
-				ptrOBV->Open();
-				ptrFBV->Open();
+			case 5:// post-shutdown
+				RUN5( time, dt );
 				break;
-			case STARTPREPARATION_PURGESEQUENCE4:
-				// from T-235 to T-117 ???
-				if ((fSimT - PSN4time) > 118) STATUSWORD = STARTPREPARATION_ENGINEREADY;
-				break;
-			case STARTPREPARATION_ENGINEREADY:
-				ptrCCV->Open();// DONO rate
-				ptrOBV->Close();
-				ptrFBV->Close();
-				break;
-			// START/MAINSTAGE
-			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:
-				if (ESCtime == -1)// first run, setup
+		}
+		return;
+	}
+
+	void SSME::PCA( void )
+	{// HACK for pneumatic shutdown for now, to develop into full PCA class
+		// HACK vlvs don't close at full rate
+		ptrCCV->Close();
+		ptrMFV->Close();
+		ptrMOV->Close();
+		ptrFPOV->Close();
+		ptrOPOV->Close();
+		return;
+	}
+
+	// data cookup
+	// ESC
+	double SSME::dcPC_ESC( double tme )
+	{
+		double pc;
+
+		if (tme <= 0.95)
+		{
+			pc = 0;
+		}
+		else if (tme <= 1.5)
+		{
+			pc = abs( (5.09 * tme) - 4.84 );// abs here due to double precision prob
+		}
+		else if (tme <= 1.62)
+		{
+			pc = (96.67 * tme) - 142.2;
+		}
+		else if (tme <= 2.14)
+		{
+			pc = (22.5 * tme) - 22.05;
+		}
+		else if (tme <= 2.46)
+		{
+			pc = 26.1;
+		}
+		else if (tme <= 3.8)
+		{
+			pc = (49.78 * tme) - 96.35;
+		}
+		else if (tme <= 5)
+		{
+			pc = (6 * tme) + 70;
+		}
+		else
+		{
+			pc = 100;
+		}
+		return pc;
+	}
+
+
+	// CO
+	double SSME::dcPC_CO( double tme )
+	{
+		double pc;
+
+		if (tme <= 0.5)
+		{
+			pc = 100 - (122 * tme);
+		}
+		else
+		{
+			if (tme <= 1.8)
+			{
+				pc = 50.92 - (23.85 * tme);
+			}
+			else
+			{
+				if (tme <= 6)
 				{
-					PC_CMD = PCfromPCTtoPSI( 100 );
-					ESCtime = fSimT;
-					break;
-				}
-				Ignition( fSimT );
-				if ((fSimT - ESCtime) > 2.4) STATUSWORD = STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP;
-				break;
-			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
-				Ignition( fSimT );
-				if (PCfromPSItoPCT( PRESS_MCC_A1 ) == 100) STATUSWORD = STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL;
-				break;
-			case STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL:
-				// enter at ESC+3.8 ????
-				if (PC_CMD != PRESS_MCC_A1)// TODO think about a margin in here....
-				{
-					Throttling( fDeltaT, fSimT );
+					pc = 11.43 - (1.9 * tme);
 				}
 				else
 				{
-					// keep same pc as before
-					ThrottleCmdTme = -1;
-					STS()->SetSSMEThrustLevel( ID, PCfromPSItoPCT( PC_CMD ) );
+					pc = 0;
 				}
-				break;
-			case STARTMAINSTAGE_FIXEDDENSITY:
-				break;
-			case STARTMAINSTAGE_THRUSTLIMITING:
-				break;
-			case STARTMAINSTAGE_ELECTRICALLOCKUP:
-				break;
-			case STARTMAINSTAGE_HYDRAULICLOCKUP:
-				break;
-			// SHUTDOWN
-			case SHUTDOWN_THROTTLINGTOZEROTHRUST:
-				if (COtime == -1)// first run, setup
-				{
-					PC_CMD = PCfromPCTtoPSI( 0 );
-					SetCOTime();
-					COtime = fSimT;
-					break;
-				}
-				Shutdown( fSimT );
-				// after all vlvs are closed move on
-				if ((ptrCCV->GetPos() + ptrMOV->GetPos() + ptrMFV->GetPos() + ptrFPOV->GetPos() + ptrOPOV->GetPos()) == 0) STATUSWORD = SHUTDOWN_PROPELLANTVALVESCLOSED;
-				break;
-			case SHUTDOWN_PROPELLANTVALVESCLOSED:
-				// TODO keep running down TPs...
-				Shutdown( fSimT );
-				if ((fSimT - COtime) > 8)// ???time???
-				{
-					STATUSWORD = POSTSHUTDOWN_STANDBY;
-				}
-				break;
-			case SHUTDOWN_FAILSAFEPNEUMATIC:
-				// TODO kill the engine
-				STATUSWORD = POSTSHUTDOWN_STANDBY;
-				break;
-			// POST SHUTDOWN
-			case POSTSHUTDOWN_STANDBY:
-				break;
-			case POSTSHUTDOWN_OXIDIZERDUMP:
-				ptrMOV->Open();// DONO rate
-				break;
-			case POSTSHUTDOWN_TERMINATESEQUENCE:// DONO wait until all vlvs are closed???
-				ptrCCV->Close();// DONO rate
-				ptrMOV->Close();// DONO rate
-				ptrMFV->Close();// DONO rate
-				ptrFPOV->Close();// DONO rate
-				ptrOPOV->Close();// DONO rate
-				ptrOBV->Close();// DONO close this too???
-				ptrFBV->Close();// DONO close this too???
-				STATUSWORD = POSTSHUTDOWN_STANDBY;
-				break;
-			// PROM
-			case PROM_STANDBY:
-				break;
+			}
 		}
-
-		VDTUpdate( fSimT );
-		return;
+		return pc;
 	}
 
-	// EIU cmd
-	bool SSME::cmdPurgeSequence1( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case CHECKOUT_STANDBY:
-			case STARTPREPARATION_PURGESEQUENCE2:
-				STATUSWORD = STARTPREPARATION_PURGESEQUENCE1;
-				return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdPurgeSequence2( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		if (STATUSWORD == STARTPREPARATION_PURGESEQUENCE1)
-		{
-			STATUSWORD = STARTPREPARATION_PURGESEQUENCE2;
-			return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdPurgeSequence3( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case STARTPREPARATION_PURGESEQUENCE2:
-			case STARTPREPARATION_PURGESEQUENCE4:
-				STATUSWORD = STARTPREPARATION_PURGESEQUENCE3;
-				return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdPurgeSequence4( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case STARTPREPARATION_PURGESEQUENCE3:
-			case STARTPREPARATION_ENGINEREADY:
-				PSN4time = VDT->DW1;
-				STATUSWORD = STARTPREPARATION_PURGESEQUENCE4;
-				return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdStartEnable( void )// TODO checks like in bool SSME::cmdStart( void )
-	{
-		/////// remove shutdown enable ///////
-		ShutdownEnable = false;
-		/////// remove shutdown enable ///////
-
-		StartEnable = true;
-		return true;
-	}
-
-	bool SSME::cmdStart( void )
-	{
-		/////// remove shutdown enable ///////
-		ShutdownEnable = false;
-		/////// remove shutdown enable ///////
-
-		if ((STATUSWORD == STARTPREPARATION_ENGINEREADY) && (StartEnable == true))
-		{
-			STATUSWORD = STARTMAINSTAGE_STARTPHASESTARTINITIATION;
-			return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdControllerReset( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case CHECKOUT_STANDBY:
-			case CHECKOUT_COMPONENTCHECKOUT:
-			case STARTPREPARATION_PURGESEQUENCE1:
-			case STARTPREPARATION_PURGESEQUENCE2:
-			case STARTPREPARATION_PURGESEQUENCE3:
-			case STARTPREPARATION_PURGESEQUENCE4:
-			case STARTPREPARATION_ENGINEREADY:
-			case POSTSHUTDOWN_STANDBY:
-			case POSTSHUTDOWN_OXIDIZERDUMP:
-			case POSTSHUTDOWN_TERMINATESEQUENCE:
-				STATUSWORD = CHECKOUT_STANDBY;
-				return true;
-			default:
-				return false;
-		}
-		return true;
-	}
-
-	bool SSME::cmdCheckoutStandby( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case CHECKOUT_STANDBY:
-			case CHECKOUT_COMPONENTCHECKOUT:
-			case STARTPREPARATION_PURGESEQUENCE1:
-			case STARTPREPARATION_PURGESEQUENCE2:
-			case STARTPREPARATION_PURGESEQUENCE3:
-			case STARTPREPARATION_PURGESEQUENCE4:
-			case STARTPREPARATION_ENGINEREADY:
-			case POSTSHUTDOWN_STANDBY:
-			case POSTSHUTDOWN_OXIDIZERDUMP:
-			case POSTSHUTDOWN_TERMINATESEQUENCE:
-				STATUSWORD = CHECKOUT_STANDBY;
-				return true;
-			default:
-				return false;
-		}
-		return true;
-	}
-
-	bool SSME::cmdTerminateSequence( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case CHECKOUT_STANDBY:
-			case CHECKOUT_COMPONENTCHECKOUT:
-			case STARTPREPARATION_PURGESEQUENCE1:
-			case STARTPREPARATION_PURGESEQUENCE2:
-			case STARTPREPARATION_PURGESEQUENCE3:
-			case STARTPREPARATION_PURGESEQUENCE4:
-			case STARTPREPARATION_ENGINEREADY:
-			case POSTSHUTDOWN_STANDBY:
-			case POSTSHUTDOWN_OXIDIZERDUMP:
-				STATUSWORD = POSTSHUTDOWN_TERMINATESEQUENCE;
-				return true;
-			default:
-				return false;
-		}
-		return true;
-	}
-
-	bool SSME::cmdShutdownEnable( void )// TODO checks like in bool SSME::cmdShutdown( void )
-	{
-		/////// remove start enable ///////
-		StartEnable = false;
-		/////// remove start enable ///////
-
-		ShutdownEnable = true;
-		return true;
-	}
-
-	bool SSME::cmdShutdown( void )
-	{
-		/////// remove start enable ///////
-		StartEnable = false;
-		/////// remove start enable ///////
-
-		if (ShutdownEnable == false) return false;
-
-		switch (STATUSWORD)
-		{
-			case STARTPREPARATION_PURGESEQUENCE1:
-			case STARTPREPARATION_PURGESEQUENCE2:
-			case STARTPREPARATION_PURGESEQUENCE3:
-			case STARTPREPARATION_PURGESEQUENCE4:
-			case STARTPREPARATION_ENGINEREADY:
-			case STARTMAINSTAGE_THRUSTLIMITING:
-			case STARTMAINSTAGE_HYDRAULICLOCKUP:
-				STATUSWORD = SHUTDOWN_FAILSAFEPNEUMATIC;
-				return true;
-			case STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL:
-				ValveShutdownTableUpdate( PCfromPSItoPCT( VDT->DW6 ) );
-				STATUSWORD = SHUTDOWN_THROTTLINGTOZEROTHRUST;
-				return true;
-			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:// DONO goto SHUTDOWN_FAILSAFEPNEUMATIC ????
-			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
-				// TODO new valve schedule update for the 2 above????
-			case STARTMAINSTAGE_FIXEDDENSITY:
-				STATUSWORD = SHUTDOWN_THROTTLINGTOZEROTHRUST;
-				return true;
-			default:
-				return false;
-		}
-	}
-
-	bool SSME::cmdFRT1( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		switch (STATUSWORD)
-		{
-			case STARTMAINSTAGE_STARTPHASESTARTINITIATION:
-			case STARTMAINSTAGE_STARTPHASETHRUSTBUILDUP:
-			case STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL:
-			case STARTMAINSTAGE_FIXEDDENSITY:
-			case STARTMAINSTAGE_THRUSTLIMITING:
-			case STARTMAINSTAGE_ELECTRICALLOCKUP:
-			case STARTMAINSTAGE_HYDRAULICLOCKUP:
-				STATUSWORD = SHUTDOWN_FAILSAFEPNEUMATIC;
-				return true;
-			default:
-				return false;
-		}
-	}
-
-	bool SSME::cmdOxidizerDump( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		if (STATUSWORD == POSTSHUTDOWN_STANDBY)
-		{
-			STATUSWORD = POSTSHUTDOWN_OXIDIZERDUMP;
-			return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdExitPROM( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		if (STATUSWORD == PROM_STANDBY)
-		{
-			STATUSWORD = POSTSHUTDOWN_STANDBY;
-			return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdPowerOn( void )// TODO check if dead...
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		STATUSWORD = PROM_STANDBY;
-		return true;
-	}
-
-	bool SSME::cmdChannelReset( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		STATUSWORD = PROM_STANDBY;
-		return true;
-	}
-
-	bool SSME::cmdThrottle( double itgtPC )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		if ((STATUSWORD == STARTMAINSTAGE_MAINSTAGEPHASENORMALCONTROL) && (itgtPC <= FPL) && (itgtPC >= MPL))
-		{
-			PC_CMD = PCfromPCTtoPSI( itgtPC );
-			ThrottleCmdTme = VDT->DW1;
-			return true;
-		}
-		return false;
-	}
-
-	bool SSME::cmdPowerOff( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		if (STATUSWORD == POSTSHUTDOWN_STANDBY)
-		{
-			// shutdown...
-			return true;
-		}
-		return false;
-	}
-
-	/*bool SSME::cmdDeactivateAllValves( void )
-	{
-		/////// remove start/shutdown enable ///////
-		StartEnable = false;
-		ShutdownEnable = false;
-		/////// remove start/shutdown enable ///////
-
-		return true;
-	}*/
-
-	int SSME::dataGetPrimaryData( VDT_32* PrimaryData )
-	{
-		memcpy( PrimaryData, VDT, sizeof(VDT_32) );
-		return 0;
-	}
-
-	int SSME::dataGetSecondaryData( VDT_6* SecondaryData )
-	{
-		memcpy( SecondaryData, VDT, sizeof(VDT_6) );
-		return 0;
-	}
-
-	/*THRUSTER_HANDLE SSME::GetHandle( void ) const
-	{
-		return thSSME;
-	}*/
-
-// PRIVATE
-
-	void SSME::Ignition( double time )
-	{
-		double pc = dcPC_ESC( time - ESCtime );
-		
-		ValveScheduleIgnition( time - ESCtime );
-
-		STS()->SetSSMEThrustLevel( ID, pc );
-		//PC_REF = PCfromPCTtoPSI( pc );
-		return;
-	}
-
-	void SSME::Shutdown( double time )
-	{
-		double pc = dcPC_CO( time - COtime + COtimecoef );
-		
-		ValveScheduleShutdown( time - COtime );
-
-		STS()->SetSSMEThrustLevel( ID, pc );
-		//PC_REF = PCfromPCTtoPSI( pc );
-		return;
-	}
-
-	void SSME::Throttling( double dtime, double time )
-	{
-		ValveScheduleThrottle( PCfromPSItoPCT( PC_CMD ) );
-
-		if (ThrottleCmdTme == -1)
-		{
-			ThrottleCmdTme = time;
-			return;
-		}
-
-		if ((time - ThrottleCmdTme) >= 0.2)// 200ms delay in pc change
-		{
-			double pc = dcPC_MS( dtime );
-			STS()->SetSSMEThrustLevel( ID, pc );
-		}
-		//PC_REF = PCfromPCTtoPSI( pc );
-		return;
-	}
-
-	void SSME::SetCOTime( void )
+	double SSME::AdjCOTime( double pc )
 	{
 		// pc > 100% -> < 0
 		// pc = 100% -> = 0
 		// pc < 100% -> > 0
-		if (PCfromPSItoPCT( PRESS_MCC_A1 ) >= 39)
+		if (pc >= 39)
 		{
-			COtimecoef = (100 - PCfromPSItoPCT( PRESS_MCC_A1 )) / 122;
+			return (100 - pc) / 122;
 		}
 		else
 		{
-			if (PCfromPSItoPCT( PRESS_MCC_A1 ) >= 8)
+			if (pc >= 8)
 			{
-				COtimecoef = ((50.92 - PCfromPSItoPCT( PRESS_MCC_A1 )) * 2.6) / 62;
+				return ((50.92 - pc) * 2.6) / 62;
 			}
 			else
 			{
-				COtimecoef = ((11.43 - PCfromPSItoPCT( PRESS_MCC_A1 )) * 4.2) / 8;
+				return ((11.43 - pc) * 4.2) / 8;
 			}
 		}
-		return;
-	}
-
-	// Valve Schedules
-	void SSME::ValveScheduleIgnition( double time )// TODO act upon vlv cmd failure
-	{
-		short index = 0;
-
-		// move CCV
-		do
-		{
-			if ((CCVScheduleIgnition_Time[index] <= time) && (CCVScheduleIgnition_Time[index + 1] > time))
-			{
-				ptrCCV->Move( CCVScheduleIgnition_Position[index], CCVScheduleIgnition_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *CCVSIindex);
-
-		// move MOV
-		index = 0;
-		do
-		{
-			if ((MOVScheduleIgnition_Time[index] <= time) && (MOVScheduleIgnition_Time[index + 1] > time))
-			{
-				ptrMOV->Move( MOVScheduleIgnition_Position[index], MOVScheduleIgnition_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *MOVSIindex);
-
-		// move MFV
-		index = 0;
-		do
-		{
-			if ((MFVScheduleIgnition_Time[index] <= time) && (MFVScheduleIgnition_Time[index + 1] > time))
-			{
-				ptrMFV->Move( MFVScheduleIgnition_Position[index], MFVScheduleIgnition_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *MFVSIindex);
-
-		// move FPOV
-		index = 0;
-		do
-		{
-			if ((FPOVScheduleIgnition_Time[index] <= time) && (FPOVScheduleIgnition_Time[index + 1] > time))
-			{
-				ptrFPOV->Move( FPOVScheduleIgnition_Position[index], FPOVScheduleIgnition_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *FPOVSIindex);
-
-		// move OPOV
-		index = 0;
-		do
-		{
-			if ((OPOVScheduleIgnition_Time[index] <= time) && (OPOVScheduleIgnition_Time[index + 1] > time))
-			{
-				ptrOPOV->Move( OPOVScheduleIgnition_Position[index], OPOVScheduleIgnition_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *OPOVSIindex);
-
-		return;
-	}
-
-	void SSME::ValveScheduleShutdown( double time )// TODO act upon vlv cmd failure
-	{
-		short index = 0;
-
-		// move CCV
-		do
-		{
-			if ((CCVScheduleShutdown_Time[index] <= time) && (CCVScheduleShutdown_Time[index + 1] > time))
-			{
-				ptrCCV->Move( CCVScheduleShutdown_Position[index], CCVScheduleShutdown_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *CCVSSindex);
-
-		// move MOV
-		index = 0;
-		do
-		{
-			if ((MOVScheduleShutdown_Time[index] <= time) && (MOVScheduleShutdown_Time[index + 1] > time))
-			{
-				ptrMOV->Move( MOVScheduleShutdown_Position[index], MOVScheduleShutdown_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *MOVSSindex);
-
-		// move MFV
-		index = 0;
-		do
-		{
-			if ((MFVScheduleShutdown_Time[index] <= time) && (MFVScheduleShutdown_Time[index + 1] > time))
-			{
-				ptrMFV->Move( MFVScheduleShutdown_Position[index], MFVScheduleShutdown_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *MFVSSindex);
-
-		// move OPOV
-		index = 0;
-		do
-		{
-			if ((OPOVScheduleShutdown_Time[index] <= time) && (OPOVScheduleShutdown_Time[index + 1] > time))
-			{
-				ptrOPOV->Move( OPOVScheduleShutdown_Position[index], OPOVScheduleShutdown_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *OPOVSSindex);
-
-		// move FPOV
-		index = 0;
-		do
-		{
-			if ((FPOVScheduleShutdown_Time[index] <= time) && (FPOVScheduleShutdown_Time[index + 1] > time))
-			{
-				ptrFPOV->Move( FPOVScheduleShutdown_Position[index], FPOVScheduleShutdown_Rate[index] );
-				break;
-			}
-			index++;
-		} while (index < *FPOVSSindex);
-
-		return;
 	}
 }

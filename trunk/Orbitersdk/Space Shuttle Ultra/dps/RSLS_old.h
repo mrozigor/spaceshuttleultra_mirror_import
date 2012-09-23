@@ -26,15 +26,20 @@
 #define _RSLS_OLD_H
 #pragma once
 
+
+#include "SimpleGPCSoftware.h"
 #include "../Atlantis.h"
 #include "dps_defs.h"
 
+
 namespace dps
 {
-	class RSLS_old
+	class SSME_SOP;
+
+	class RSLS_old:public SimpleGPCSoftware
 	{
 	public:
-		RSLS_old(Atlantis* _sts);
+		RSLS_old( SimpleGPCSystem* _gpc );
 		~RSLS_old();
 
 		virtual void OnPostStep(double simT, double dT, double mjd);
@@ -42,13 +47,23 @@ namespace dps
 		//Communication with LCC
 		bool SychronizeCountdown(double mjd);
 		void StartRSLSSequence();
+
+		void Realize();
+		bool OnMajorModeChange( unsigned int newMajorMode );
 	private:
-		Atlantis* sts;
+		SSME_SOP* pSSME_SOP;
 		double launch_mjd, timeToLaunch, lastTTL, RSLSAbortTime;
 		bool Active,Aborted;
 		char* RSLSAbortCause;
 		int RSLSAbortData;
+		bool RSLSAbort;
+		bool abortfirstrun;
+		short abortend;
+		double eng1SDtime;
+		double eng2SDtime;
+		double eng3SDtime;
 	};
 };
+
 
 #endif //_RSLS_OLD_H
