@@ -42,7 +42,7 @@ const VECTOR3 RMS_SP_JOINT = _V(-2.866, 2.131, 9.316);
 const VECTOR3 RMS_EP_JOINT = _V(-2.809, 1.97, 2.667);
 const VECTOR3 RMS_WP_JOINT = _V(-2.867, 2.132, -4.349);
 const VECTOR3 RMS_WY_JOINT = _V(-2.867, 2.132, -4.927);
-const VECTOR3 RMS_EE_POS = _V(-2.867, 2.132, -5.332);
+const VECTOR3 RMS_EE_POS = _V(-2.867, 2.132, -6.027);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
