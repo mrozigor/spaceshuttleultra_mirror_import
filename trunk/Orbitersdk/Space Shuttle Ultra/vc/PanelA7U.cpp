@@ -19,9 +19,21 @@ namespace vc
 		Add(pCamDpbi = new PushButtonIndicator(_sts, "CAM_D"));
 		Add(pCamRMSpbi = new PushButtonIndicator(_sts, "CAM_RMS"));
 
+		Add(pPLBDLights[0] = new StdSwitch2(_sts, "PLBD FLOOD FWD STBD"));
+		Add(pPLBDLights[1] = new StdSwitch2(_sts, "PLBD FLOOD FWD PORT"));
+		Add(pPLBDLights[2] = new StdSwitch2(_sts, "PLBD FLOOD MID STBD"));
+		Add(pPLBDLights[3] = new StdSwitch2(_sts, "PLBD FLOOD MID PORT"));
+		Add(pPLBDLights[4] = new StdSwitch2(_sts, "PLBD FLOOD AFT STBD"));
+		Add(pPLBDLights[5] = new StdSwitch2(_sts, "PLBD FLOOD AFT PORT"));
+
 		pPanTiltRate->SetLabel(0, "LOW");
 		pPanTiltRate->SetLabel(1, "HIGH");
 		pPanTiltRate->SetLabel(2, "RESET");
+
+		for(int i=0;i<6;i++) {
+			pPLBDLights[i]->SetLabel(0, "OFF");
+			pPLBDLights[i]->SetLabel(1, "ON");
+		}
 	}
 
 	PanelA7U::~PanelA7U()
@@ -157,6 +169,35 @@ namespace vc
 		pCamRMSpbi->SetSourceCoords(false, 0, 14);
 		pCamRMSpbi->SetDimensions(37, 11);
 		pCamRMSpbi->AllowReset(true);
+
+		for(int i=0;i<6;i++) {
+			pPLBDLights[i]->SetInitialAnimState(0.5);
+			pPLBDLights[i]->SetInitialPosition(0);
+		}
+		pPLBDLights[0]->DefineSwitchGroup(GRP_A7U5_VC);
+		pPLBDLights[0]->SetMouseRegion(0.865516f, 0.559828f, 0.933777f, 0.635897f);
+		pPLBDLights[0]->SetReference(_V(0.207, 2.666, 12.347), switch_rot_vert);
+
+		pPLBDLights[1]->DefineSwitchGroup(GRP_A7U6_VC);
+		pPLBDLights[1]->SetMouseRegion(0.777810f, 0.558671f, 0.844142f, 0.639297f);
+		pPLBDLights[1]->SetReference(_V(0.1635, 2.666, 12.347), switch_rot_vert);
+		pPLBDLights[1]->SetReference(_V(0.1635, 2.666, 12.347), switch_rot_vert);
+
+		pPLBDLights[2]->DefineSwitchGroup(GRP_A7U3_VC);
+		pPLBDLights[2]->SetMouseRegion(0.869307f, 0.401896f, 0.931245f, 0.487941f);
+		pPLBDLights[2]->SetReference(_V(0.207, 2.725, 12.3285), switch_rot_vert);
+
+		pPLBDLights[3]->DefineSwitchGroup(GRP_A7U4_VC);
+		pPLBDLights[3]->SetMouseRegion(0.779615f, 0.407602f, 0.844617f, 0.479162f);
+		pPLBDLights[3]->SetReference(_V(0.1635, 2.725, 12.3285), switch_rot_vert);
+
+		pPLBDLights[4]->DefineSwitchGroup(GRP_A7U1_VC);
+		pPLBDLights[4]->SetMouseRegion(0.869901f, 0.264662f, 0.929604f, 0.335401f);
+		pPLBDLights[4]->SetReference(_V(0.207, 2.7795, 12.311), switch_rot_vert);
+
+		pPLBDLights[5]->DefineSwitchGroup(GRP_A7U2_VC);
+		pPLBDLights[5]->SetMouseRegion(0.778263f, 0.264470f, 0.848168f, 0.332787f);
+		pPLBDLights[5]->SetReference(_V(0.1635, 2.7795, 12.311), switch_rot_vert);
 	}
 
 	void PanelA7U::RegisterVC()
@@ -226,5 +267,8 @@ namespace vc
 			CamTiltDown_Out[i].Connect(pCamBundles[i], 3);
 			LowSpeed_Out[i].Connect(pCamBundles[i], 4);
 		}
+
+		pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
+		for(int i=0;i<6;i++) pPLBDLights[i]->output.Connect(pBundle, i);
 	}
 };
