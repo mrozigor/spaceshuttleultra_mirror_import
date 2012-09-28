@@ -670,15 +670,6 @@ public:
 
 	//OBJHANDLE ThisVessel;
 
-	//-----------------------------------------------
-	//PLB Lights
-	//-----------------------------------------------
-	LightEmitter* PLBLight[6];
-	void ControlPLBLights();
-	VECTOR3 PLBLightPosition[6];
-	BEACONLIGHTSPEC bspec[6];
-	bool bPLBLights;
-
 
 
 
@@ -928,6 +919,15 @@ private:
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();
 
+	//-----------------------------------------------
+	//PLB Lights
+	//-----------------------------------------------
+	LightEmitter* PLBLight[6];
+	//void ControlPLBLights();
+	VECTOR3 PLBLightPosition[6];
+	BEACONLIGHTSPEC PLB_bspec[6];
+	//bool bPLBLights;
+
 	//gear/drag chute
 	AnimState gear_status;
 	bool gear_armed;
@@ -1139,6 +1139,8 @@ private:
 	DiscInPort PTULowSpeed[5];
 	DiscOutPort PLBDCamPanLeft_Out[5], PLBDCamPanRight_Out[5];
 	DiscOutPort PLBDCamTiltUp_Out[5], PLBDCamTiltDown_Out[5];
+
+	DiscInPort PLBDLightPower[6];
 
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;

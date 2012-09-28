@@ -44,6 +44,8 @@ namespace vc
 		PushButtonIndicator* pCamDpbi;
 		PushButtonIndicator* pCamRMSpbi;
 
+		StdSwitch2* pPLBDLights[6];
+
 		PBIDiscPortGroup VideoInputGroup;
 
 		DiscOutPort CamTiltUp_Out[5], CamTiltDown_Out[5], CamPanLeft_Out[5], CamPanRight_Out[5], LowSpeed_Out[5];

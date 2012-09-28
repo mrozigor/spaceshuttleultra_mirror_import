@@ -1046,16 +1046,16 @@ pActiveLatches(3, NULL)
 	//CREATE BEACONS
 	for(int i=0; i<6; ++i)
 	{
-		bspec[i].active = true;
-		bspec[i].col = &color;
-		bspec[i].duration = 0;
-	    bspec[i].falloff = 0.4;
-		bspec[i].period = 0;
-		bspec[i].pos = &PLBLightPosition[i];
-		bspec[i].shape = BEACONSHAPE_DIFFUSE;
-		bspec[i].size = 0.25;
-		bspec[i].tofs = 0;
-		AddBeacon(&bspec[i]);
+		PLB_bspec[i].active = true;
+		PLB_bspec[i].col = &color;
+		PLB_bspec[i].duration = 0;
+	    PLB_bspec[i].falloff = 0.4;
+		PLB_bspec[i].period = 0;
+		PLB_bspec[i].pos = &PLBLightPosition[i];
+		PLB_bspec[i].shape = BEACONSHAPE_DIFFUSE;
+		PLB_bspec[i].size = 0.25;
+		PLB_bspec[i].tofs = 0;
+		AddBeacon(&PLB_bspec[i]);
 	}
 
 	//CREATE LIGHTS
@@ -1064,9 +1064,6 @@ pActiveLatches(3, NULL)
 		PLBLight[i] = AddPointLight(PLBLightPosition[i],20,0.5,0.8,0.001,
 			diff,spec,amb);
 	}
-
-	bPLBLights = false;
-
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
@@ -3676,7 +3673,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			pgAftPort.ParsePanelBlock(pszPanelName, scn);
 
 		oapiWriteLog("\tLeave @PANEL block.");
-	} else if(!_strnicmp(line,"PLB_LIGHTS",10)) {
+	} /*else if(!_strnicmp(line,"PLB_LIGHTS",10)) {
 		int t;
 		sscanf_s(line+10,"%i",&t);
 		if(t==1)
@@ -3689,7 +3686,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			bPLBLights = true;
 			ControlPLBLights();
 		}
-	} else {
+	}*/ else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
@@ -3790,14 +3787,14 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
 			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
   oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
-  if(bPLBLights)
+  /*if(bPLBLights)
   {
 	  oapiWriteScenario_int(scn,"PLB_LIGHTS",1);
   }
   else
   {
 	  oapiWriteScenario_int(scn,"PLB_LIGHTS",0);
-  }
+  }*/
 
   oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
@@ -4137,6 +4134,9 @@ void Atlantis::clbkPostCreation ()
 
 		PTULowSpeed[i].Connect(pCamBundles[i], 4);
 	}
+
+	pBundle = bundleManager->CreateBundle("PLBD_LIGHTS", 16);
+	for(int i=0;i<6;i++) PLBDLightPower[i].Connect(pBundle, i);
 }
 
 // --------------------------------------------------------------
@@ -4414,6 +4414,13 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		if(VCMode>=VC_PLBCAMFL && VCMode<=VC_RMSCAM) SetAnimationCameras();
 	}
 	bLastCamInternal = oapiCameraInternal();
+
+	// turn PLBD lights on/off
+	for(int i=0;i<6;i++) {
+		bool state = PLBDLightPower[i].IsSet();
+		PLBLight[i]->Activate(state);
+		PLB_bspec[i].active = state;
+	}
 
 	//double time=st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
@@ -6586,9 +6593,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgAftPort.ToggleCoordinateDisplayMode();
 		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 		return 1;
-	case OAPI_KEY_L:
-		ControlPLBLights();
-		return 1;
 	}
 	} else if(KEYMOD_ALT(kstate)) {
 		if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
@@ -8102,7 +8106,7 @@ void Atlantis::Twang(double timeToLaunch) const
 	SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
 }
 
-void Atlantis::ControlPLBLights()
+/*void Atlantis::ControlPLBLights()
 {
 	if(bPLBLights)
 	{
@@ -8122,7 +8126,7 @@ void Atlantis::ControlPLBLights()
 		}
 		bPLBLights = true;
 	}
-}
+}*/
 
 void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
 {
