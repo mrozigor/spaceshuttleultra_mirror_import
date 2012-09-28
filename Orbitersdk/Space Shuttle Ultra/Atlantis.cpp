@@ -4476,25 +4476,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
 		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
-		{ // add braces so we can declare new variable
 		// check SSME state and trigger liftoff when required
-		bool bAllSSMEsOn = true; // all SSMEs exceed 90% (Orbiter thruster level)
-		bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
-		for(unsigned short i=1;i<=3;i++) {
-			if(!Eq(GetSSMEThrustLevel(i), 0.0, 0.001)) bAllSSMEsOff = false;
-			if(GetSSMEThrustLevel(i) < 90.0) bAllSSMEsOn = false;
-		}
-		if (bAllSSMEsOn) 
-		{
-			status = STATE_STAGE1; // launch
-			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
-			RecordEvent ("STATUS", "SSME_IGNITION");
-			//play sounds
-			PlayVesselWave3(SoundID, SSME_START, NOLOOP);
-			//if(bAutopilot) 
-				//InitializeAutopilot(); //setup autopilot for ascent
-		} 
-		else if(bAllSSMEsOff)
+		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
+		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.05))
 		{
 			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
 			{
@@ -4515,14 +4499,22 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				}
 			}
 		}
-		else {
+		else
+		{
+			status = STATE_STAGE1; // launch
+			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
+			RecordEvent ("STATUS", "SSME_IGNITION");
+			//play sounds
+			PlayVesselWave3(SoundID, SSME_START, NOLOOP);
+			//if(bAutopilot) 
+				//InitializeAutopilot(); //setup autopilot for ascent
+
 			for(unsigned short i = 0; i<3; i++)
 			{
 				if(th_ssme_gox[i] != NULL) {
 					SetThrusterLevel(th_ssme_gox[i], 0.0);
 				}
 			}
-		}
 		}
 		//GPC(simdt);
 		break;
