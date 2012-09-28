@@ -358,21 +358,21 @@ void AscentGuidance::Throttle(double DeltaT)
 				if ((STS()->GetAirspeed() >= 18.288) && (SSME_throttle_event[0] == false))
 				{
 					// "off the pad" throttle up
-					throttlecmd = 104.5;
+					throttlecmd = MaxThrust;
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					SSME_throttle_event[0] = true;
 				}
 				else if ((STS()->GetAirspeed() >= ThrottleBucketStartVel) && (SSME_throttle_event[1] == false))
 				{
 					// max q throttle down
-					throttlecmd = 72;
+					throttlecmd = 72; // this should be loaded from mission file (like MaxThrust)
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					SSME_throttle_event[1] = true;
 				}
 				else if ((STS()->GetAirspeed() >= ThrottleBucketEndVel) && (SSME_throttle_event[2] == false))
 				{
 					// max q throttle up
-					throttlecmd = 104.5;
+					throttlecmd = MaxThrust;
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					SSME_throttle_event[2] = true;
 				}
