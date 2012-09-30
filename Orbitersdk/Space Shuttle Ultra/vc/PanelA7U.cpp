@@ -33,6 +33,7 @@ namespace vc
 		for(int i=0;i<6;i++) {
 			pPLBDLights[i]->SetLabel(0, "OFF");
 			pPLBDLights[i]->SetLabel(1, "ON");
+			pPLBDLights[i]->SetInitialPosition(0);
 		}
 	}
 
@@ -172,7 +173,6 @@ namespace vc
 
 		for(int i=0;i<6;i++) {
 			pPLBDLights[i]->SetInitialAnimState(0.5);
-			pPLBDLights[i]->SetInitialPosition(0);
 		}
 		pPLBDLights[0]->DefineSwitchGroup(GRP_A7U5_VC);
 		pPLBDLights[0]->SetMouseRegion(0.865516f, 0.559828f, 0.933777f, 0.635897f);
@@ -227,8 +227,6 @@ namespace vc
 
 	void PanelA7U::Realize()
 	{
-		AtlantisPanel::Realize();
-
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("A7U_CameraSelect", 16);
 		pCamApbi->ConnectAll(pBundle, 0);
 		CamA.Connect(pBundle, 0);
@@ -270,5 +268,7 @@ namespace vc
 
 		pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
 		for(int i=0;i<6;i++) pPLBDLights[i]->output.Connect(pBundle, i);
+
+		AtlantisPanel::Realize();
 	}
 };
