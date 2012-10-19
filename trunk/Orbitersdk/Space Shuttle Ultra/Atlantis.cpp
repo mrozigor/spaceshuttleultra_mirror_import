@@ -1036,8 +1036,8 @@ pActiveLatches(3, NULL)
   PLBLightPosition[1] = _V(-1.6,-1.1,7.88); //forward port
   PLBLightPosition[2] = _V(1.6,-1.1,0.23);//mid stbd
   PLBLightPosition[3] = _V(-1.6,-1.1,0.23);//mid port
-  PLBLightPosition[4] = _V(1.6,-1.1,-3.13);//aft stbd
-  PLBLightPosition[5] = _V(-1.6,-1.1,-3.13);//aft port
+  PLBLightPosition[4] = _V(1.6,-1.1,-2.71);//aft stbd
+  PLBLightPosition[5] = _V(-1.6,-1.1,-2.71);//aft port
   static VECTOR3& color = _V(0.75,0.75,0.75);
   const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
   const COLOUR4 amb = {0.0, 0.0, 0};
@@ -1509,13 +1509,11 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[0], center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793));//F1D, fixed
   AddRCSExhaust (th_att_rcs[0], center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793));//F3D, fixed
 
-  AddRCSExhaust (th_att_rcs[1], center+_V(-3.46, 3.20,-11.9), _V(0, 1,0));//L4U, fixed
-  AddRCSExhaust (th_att_rcs[1], center+_V(-3.46, 3.20,-12.3), _V(0, 1,0));//L2U, fixed
-  AddRCSExhaust (th_att_rcs[1], center+_V(-3.46, 3.20,-12.7), _V(0, 1,0));//L1U, fixed
+  AddRCSExhaust (th_att_rcs[1], center+_V(-3.46, 3.20,-12.32), _V(0, 1,0));//L2U, fixed
+  AddRCSExhaust (th_att_rcs[1], center+_V(-3.46, 3.20,-11.95), _V(0, 1,0));//L1U, fixed
 
-  AddRCSExhaust (th_att_rcs[1], center+_V( 3.43, 3.20,-11.9), _V(0, 1,0));//R4U, fixed
-  AddRCSExhaust (th_att_rcs[1], center+_V( 3.43, 3.20,-12.3), _V(0, 1,0));//R2U, fixed
-  AddRCSExhaust (th_att_rcs[1], center+_V( 3.43, 3.20,-12.7), _V(0, 1,0));//R1U, fixed
+  AddRCSExhaust (th_att_rcs[1], center+_V( 3.43, 3.20,-12.32), _V(0, 1,0));//R2U, fixed
+  AddRCSExhaust (th_att_rcs[1], center+_V( 3.43, 3.20,-11.95), _V(0, 1,0));//R1U, fixed
 
   AddRCSExhaust (th_att_rcs[2], center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0));//F1U, fixed
   AddRCSExhaust (th_att_rcs[2], center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0));//F3U, fixed
@@ -1534,13 +1532,13 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_lin[0], center+_V(-1.55,-0.20, 18.25), _V(-0.4339,-0.8830,-0.1793));//F1D, fixed
   AddRCSExhaust (th_att_lin[0], center+_V(-1.63,-0.18, 17.9), _V(-0.4339,-0.8830,-0.1793));//F3D, fixed
 
-  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-11.9), _V(0, 1,0));//L4U, fixed
-  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-12.3), _V(0, 1,0));//L2U, fixed
-  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-12.7), _V(0, 1,0));//L1U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-12.65), _V(0, 1,0));//L3U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-12.32), _V(0, 1,0));//L2U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.46, 3.20,-11.95), _V(0, 1,0));//L1U, fixed
 
-  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-11.9), _V(0, 1,0));//R4U, fixed
-  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-12.3), _V(0, 1,0));//R2U, fixed
-  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-12.7), _V(0, 1,0));//R1U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-12.65), _V(0, 1,0));//R3U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-12.32), _V(0, 1,0));//R2U, fixed
+  AddRCSExhaust (th_att_lin[3], center+_V( 3.43, 3.20,-11.95), _V(0, 1,0));//R1U, fixed
 
   AddRCSExhaust (th_att_lin[2], center+_V(-0.4 , 1.10, 17.9 ), _V(0, 1,0));//F1U, fixed
   AddRCSExhaust (th_att_lin[2], center+_V( 0.0 , 1.15 ,17.9 ), _V(0, 1,0));//F3U, fixed
@@ -1617,13 +1615,13 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[10], center+_V(-1.55,-0.20, 18.78), _V(-0.4339,-0.8830,-0.1793));//F1D
   AddRCSExhaust (th_att_rcs[10], center+_V(-1.63,-0.18, 18.40), _V(-0.4339,-0.8830,-0.1793));//F3D
 
-  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-12.30), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-12.70), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-13.10), _V(0, 1,0));//L1U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-12.65), _V(0, 1,0));//L3U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-12.32), _V(0, 1,0));//L2U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.46, 3.20,-11.95), _V(0, 1,0));//L1U
 
-  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-12.30), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-12.70), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-13.10), _V(0, 1,0));//R1U
+  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-12.65), _V(0, 1,0));//R3U
+  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-12.32), _V(0, 1,0));//R2U
+  AddRCSExhaust (th_att_rcs[11], center+_V( 3.43, 3.20,-11.94), _V(0, 1,0));//R1U
 
   AddRCSExhaust (th_att_rcs[10], center+_V(-3.1 , 1.55,-12.45), _V(-0.2844,-0.9481,-0.1422));//L4D
   AddRCSExhaust (th_att_rcs[10], center+_V(-3.1 , 1.6 ,-12.8 ), _V(-0.2844,-0.9481,-0.1422));//L2D
@@ -1846,10 +1844,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RRadiatorGrp[1] = {GRP_RADIATORFR};
   MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 1,
-    _V(2.71, 1.7, 0), _V(0, 0, 1), (float)(35.5*RAD));
+    _V(2.71, 1.82, 0), _V(0, 0, 1), (float)(35.5*RAD));
   static UINT LRadiatorGrp[1] = {GRP_RADIATORFL};
   MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 1,
-    _V(-2.71, 1.7, 0), _V(0, 0, 1), (float)(-35.5*RAD));
+    _V(-2.71, 1.82, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
@@ -1890,19 +1888,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.05,3.47,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.05,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);
@@ -1953,13 +1951,13 @@ void Atlantis::DefineAnimations (void)
     _V(0.5835,-1.945,17.6995), _V(1, 0, 0), (float)(94.5*RAD));
   static UINT RGearDoorGrp[1] = {GRP_GEARDOORR};
   static MGROUP_ROTATE RGearDoor (midx, RGearDoorGrp, 1,
-    _V(4.25, -2.39, -1.69), _V(0, 0.02, 0.9), (float)(96.2*RAD));
+    _V(4.25, -2.39, -1.65), _V(0, 0.02, 0.9), (float)(96.2*RAD));
   static UINT LGearDoorGrp[1] = {GRP_GEARDOORL};
   static MGROUP_ROTATE LGearDoor (midx, LGearDoorGrp, 1,
-    _V(-4.25, -2.39, -1.69), _V(0, 0.02, 0.9), (float)(-96.2*RAD));
+    _V(-4.25, -2.39, -1.65), _V(0, 0.02, 0.9), (float)(-96.2*RAD));
   static UINT MainGearGrp[4] = {GRP_WHEELR,GRP_GEARR,GRP_WHEELL,GRP_GEARL};
   static MGROUP_ROTATE MainGear (midx, MainGearGrp, 4,
-    _V(0, -2.26, -3.68), _V(1, 0, 0), (float)(94.5*RAD));
+    _V(0, -2.26, -3.63), _V(1, 0, 0), (float)(94.5*RAD));
 
   anim_gear = CreateAnimation (0);
   LogAnim("anim_gear", anim_gear);
@@ -2131,14 +2129,14 @@ void Atlantis::DefineAnimations (void)
   // BACK LEFT
   static UINT camBLYawGrp[1] = {GRP_PANTILT_BL};
   CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(-2.31,+1.79,-6.31), _V(0,1,0), (float)(340*RAD));
+    _V(-2.31,+1.79,-6.25), _V(0,1,0), (float)(340*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   LogAnim("anim_camBLyaw", anim_camBLyaw);
   parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CCTV_BL};
   CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(-2.31,2.02,-6.31), _V(-1,0,0), (float)(340*RAD));
+    _V(-2.31,2.02,-6.25), _V(-1,0,0), (float)(340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   LogAnim("anim_camBLpitch", anim_camBLpitch);
   AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
@@ -2146,14 +2144,14 @@ void Atlantis::DefineAnimations (void)
   // BACK RIGHT
   static UINT camBRYawGrp[1] = {GRP_PANTILT_BR};
   CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(2.29,1.79,-6.31), _V(0,1,0), (float)(340*RAD));
+    _V(2.29,1.79,-6.25), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   LogAnim("anim_camBRyaw", anim_camBRyaw);
   parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CCTV_BR};
   CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(2.29,2.02,-6.31), _V(-1,0,0), (float)(340*RAD));
+    _V(2.29,2.02,-6.25), _V(-1,0,0), (float)(340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   LogAnim("anim_camBRpitch", anim_camBRpitch);
   AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
@@ -5850,7 +5848,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBL: //BL Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
-    SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31));
+    SetCameraOffset (_V(orbiter_ofs.x-2.31,orbiter_ofs.y+2.02,orbiter_ofs.z-6.25));
 	if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_AFTWORKSTATION);
 
@@ -5860,7 +5858,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLBCAMBR: //BR Payload Bay Camera
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
-    SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.31));
+    SetCameraOffset (_V(orbiter_ofs.x+2.29,orbiter_ofs.y+2.02,orbiter_ofs.z-6.25));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 	else oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTWORKSTATION);
 
