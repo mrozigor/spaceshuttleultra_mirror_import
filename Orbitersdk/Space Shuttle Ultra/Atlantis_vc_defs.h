@@ -59,11 +59,11 @@ const int VC_EXT_AL = 200;
 const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_CDR = _V(-0.653, 2.589, 14.614);
-const VECTOR3 VC_HUDPOS_CDR = _V(-0.651, 2.568, 14.614);
+const VECTOR3 VC_HUDPOS_CDR = _V(-0.655, 2.568, 14.614);
 const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
-const VECTOR3 VC_HUDPOS_PLT = _V(0.6525, 2.568, 14.614);
+const VECTOR3 VC_HUDPOS_PLT = _V(0.655, 2.568, 14.614);
 
 const static char* VC_LBL_MS1 = "MS2/FE seat";
 const VECTOR3 VC_POS_MS1 = _V(0, 2.629396, 13.25);
