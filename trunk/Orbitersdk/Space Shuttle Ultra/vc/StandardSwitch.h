@@ -138,12 +138,18 @@ public:
 class StdSwitch3: public StandardSwitch
 {
 protected:
-	
+	unsigned short usA, usB; // switch positions where ports A and B are set
 public:
 	StdSwitch3(Atlantis* _sts, const string& _ident);
 	virtual ~StdSwitch3();
 	virtual void OnPositionChange(unsigned short usNewPosition);
 	virtual bool ConnectPort(unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine);
+	/**
+	 * Sets switch position corresponding to particular port
+	 * \param usPos switch position (0-2)
+	 * \param usPort port (1-2)
+	 */
+	bool ConnectSwitchPosition(unsigned short usPos, unsigned short usPort);
 
 	DiscOutPort outputA;	//Connection Position A
 	DiscOutPort outputB;	//Connection Position B

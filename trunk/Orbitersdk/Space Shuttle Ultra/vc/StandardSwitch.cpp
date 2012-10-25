@@ -380,23 +380,35 @@ bool StdSwitch3::ConnectPort(unsigned short usPort, discsignals::DiscreteBundle 
 	}
 }
 
+bool StdSwitch3::ConnectSwitchPosition(unsigned short usPos, unsigned short usPort)
+{
+	switch(usPort) {
+	case 1:
+		usA=usPos;
+		return true;
+	case 2:
+		usB=usPos;
+		return true;
+	default:
+		return false;
+	}
+}
+
 void StdSwitch3::OnPositionChange(unsigned short usNewPosition)
 {
 	StandardSwitch::OnPositionChange(usNewPosition);
 
-	switch(usNewPosition) {
-	case 0:
+	if(usNewPosition == usA) {
 		outputA.SetLine();
 		outputB.ResetLine();
-		break;
-	case 1:
-		outputA.ResetLine();
-		outputB.ResetLine();
-		break;
-	case 2:
+	}
+	else if(usNewPosition == usB) {
 		outputA.ResetLine();
 		outputB.SetLine();
-		break;
+	}
+	else {
+		outputA.ResetLine();
+		outputB.ResetLine();
 	}
 }
 
