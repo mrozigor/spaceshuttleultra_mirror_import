@@ -25,16 +25,22 @@ namespace vc
 		Add(pPLBDLights[3] = new StdSwitch2(_sts, "PLBD FLOOD MID PORT"));
 		Add(pPLBDLights[4] = new StdSwitch2(_sts, "PLBD FLOOD AFT STBD"));
 		Add(pPLBDLights[5] = new StdSwitch2(_sts, "PLBD FLOOD AFT PORT"));
+		Add(pPLBDLights[6] = new StdSwitch2(_sts, "PLBD FWD BHD"));
+		Add(pDockingLight = new StdSwitch3(_sts, "PLBD DOCKING"));
 
 		pPanTiltRate->SetLabel(0, "LOW");
 		pPanTiltRate->SetLabel(1, "HIGH");
 		pPanTiltRate->SetLabel(2, "RESET");
 
-		for(int i=0;i<6;i++) {
+		for(int i=0;i<7;i++) {
 			pPLBDLights[i]->SetLabel(0, "OFF");
 			pPLBDLights[i]->SetLabel(1, "ON");
 			pPLBDLights[i]->SetInitialPosition(0);
 		}
+		pDockingLight->SetLabel(0, "OFF");
+		pDockingLight->SetLabel(1, "DIM");
+		pDockingLight->SetLabel(2, "BRIGHT");
+		pDockingLight->SetInitialPosition(1);
 	}
 
 	PanelA7U::~PanelA7U()
@@ -171,7 +177,7 @@ namespace vc
 		pCamRMSpbi->SetDimensions(37, 11);
 		pCamRMSpbi->AllowReset(true);
 
-		for(int i=0;i<6;i++) {
+		for(int i=0;i<7;i++) {
 			pPLBDLights[i]->SetInitialAnimState(0.5);
 		}
 		pPLBDLights[0]->DefineSwitchGroup(GRP_A7U5_VC);
@@ -198,6 +204,15 @@ namespace vc
 		pPLBDLights[5]->DefineSwitchGroup(GRP_A7U2_VC);
 		pPLBDLights[5]->SetMouseRegion(0.778263f, 0.264470f, 0.848168f, 0.332787f);
 		pPLBDLights[5]->SetReference(_V(0.1635, 2.7795, 12.311), switch_rot_vert);
+
+		pPLBDLights[6]->DefineSwitchGroup(GRP_A7U8_VC);
+		pPLBDLights[6]->SetMouseRegion(0.777841, 0.683267, 0.843850, 0.776423);
+		pPLBDLights[6]->SetReference(_V(0.1635, 2.6155, 12.363), switch_rot_vert);
+
+		pDockingLight->SetInitialAnimState(0.5);
+		pDockingLight->DefineSwitchGroup(GRP_A7U7_VC);
+		pDockingLight->SetMouseRegion(0.870177, 0.691057, 0.931207, 0.773388);
+		pDockingLight->SetReference(_V(0.207, 2.6155, 12.363), switch_rot_vert);
 	}
 
 	void PanelA7U::RegisterVC()
@@ -267,7 +282,12 @@ namespace vc
 		}
 
 		pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
-		for(int i=0;i<6;i++) pPLBDLights[i]->output.Connect(pBundle, i);
+		//for(int i=0;i<7;i++) pPLBDLights[i]->output.Connect(pBundle, i);
+		for(int i=0;i<7;i++) pPLBDLights[i]->ConnectPort(1, pBundle, i);
+		pDockingLight->ConnectPort(1, pBundle, 7); // DIM
+		pDockingLight->ConnectPort(2, pBundle, 8); // BRIGHT
+		pDockingLight->ConnectSwitchPosition(1, 1);
+		pDockingLight->ConnectSwitchPosition(2, 2);
 
 		AtlantisPanel::Realize();
 	}

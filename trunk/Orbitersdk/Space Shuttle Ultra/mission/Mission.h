@@ -66,6 +66,7 @@ namespace mission {
 		bool bHasODS;
 		bool bHasExtAL;
 		bool bHasKUBand;
+		bool bHasBulkheadFloodlights;
 
 		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
@@ -149,6 +150,7 @@ namespace mission {
 		virtual bool HasSTBDMPMs() const;
 		virtual bool HasODS() const;
 		virtual bool HasExtAL() const;
+		virtual bool HasBulkheadFloodlights() const;
 		
 
 		virtual bool UseDirectAscent() const;

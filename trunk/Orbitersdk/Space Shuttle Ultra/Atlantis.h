@@ -922,10 +922,21 @@ private:
 	//-----------------------------------------------
 	//PLB Lights
 	//-----------------------------------------------
+	/**
+	 * Defines payload bay light (LightEmitter and associated beacon)
+	 * \param pos position of light
+	 * \param bspec Beacon spec to be initialized with data
+	 * \returns LightEmitter pointer
+	 */
+	LightEmitter* AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec);
 	LightEmitter* PLBLight[6];
+	LightEmitter* FwdBulkheadLight;
+	LightEmitter* DockingLight[2];
 	//void ControlPLBLights();
 	VECTOR3 PLBLightPosition[6];
+	VECTOR3 FwdBulkheadLightPos, DockingLightPos;
 	BEACONLIGHTSPEC PLB_bspec[6];
+	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
 	//bool bPLBLights;
 
 	//gear/drag chute
@@ -1141,6 +1152,7 @@ private:
 	DiscOutPort PLBDCamTiltUp_Out[5], PLBDCamTiltDown_Out[5];
 
 	DiscInPort PLBDLightPower[6];
+	DiscInPort FwdBulkheadLightPower, DockingLightBright, DockingLightDim;
 
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;

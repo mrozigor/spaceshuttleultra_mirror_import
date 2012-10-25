@@ -44,7 +44,8 @@ namespace vc
 		PushButtonIndicator* pCamDpbi;
 		PushButtonIndicator* pCamRMSpbi;
 
-		StdSwitch2* pPLBDLights[6];
+		StdSwitch2* pPLBDLights[7];
+		StdSwitch3* pDockingLight;
 
 		PBIDiscPortGroup VideoInputGroup;
 
