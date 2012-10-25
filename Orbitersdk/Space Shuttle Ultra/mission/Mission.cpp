@@ -42,6 +42,7 @@ namespace mission {
 		bHasMPMs = false;
 		bHasODS = false;
 		bHasExtAL = false;
+		bHasBulkheadFloodlights = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
 		fODSZPos = 10.1529;
@@ -122,6 +123,7 @@ namespace mission {
 		oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs);
 		oapiReadItem_bool(hFile, "UseODS", bHasODS);
 		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
+		oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
 
 		for(int i = 0; i<16; i++)
 		{
@@ -258,6 +260,11 @@ namespace mission {
 	bool Mission::HasExtAL() const
 	{
 		return (bHasExtAL || bHasODS);
+	}
+
+	bool Mission::HasBulkheadFloodlights() const
+	{
+		return bHasBulkheadFloodlights;
 	}
 
 	bool Mission::UseDirectAscent() const

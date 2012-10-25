@@ -1038,31 +1038,17 @@ pActiveLatches(3, NULL)
   PLBLightPosition[3] = _V(-1.6,-1.1,0.23);//mid port
   PLBLightPosition[4] = _V(1.6,-1.1,-2.71);//aft stbd
   PLBLightPosition[5] = _V(-1.6,-1.1,-2.71);//aft port
-  static VECTOR3& color = _V(0.75,0.75,0.75);
-  const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
-  const COLOUR4 amb = {0.0, 0.0, 0};
-  const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
-
-	//CREATE BEACONS
-	for(int i=0; i<6; ++i)
-	{
-		PLB_bspec[i].active = true;
-		PLB_bspec[i].col = &color;
-		PLB_bspec[i].duration = 0;
-	    PLB_bspec[i].falloff = 0.4;
-		PLB_bspec[i].period = 0;
-		PLB_bspec[i].pos = &PLBLightPosition[i];
-		PLB_bspec[i].shape = BEACONSHAPE_DIFFUSE;
-		PLB_bspec[i].size = 0.25;
-		PLB_bspec[i].tofs = 0;
-		AddBeacon(&PLB_bspec[i]);
-	}
+  FwdBulkheadLightPos = _V(0.0, 3.05, 11.98);//fwd bulkhead
+  DockingLightPos = _V(0.0, 3.33, 11.98);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
 	{
-		PLBLight[i] = AddPointLight(PLBLightPosition[i],20,0.5,0.8,0.001,
-			diff,spec,amb);
+		PLBLight[i] = AddPayloadBayLight(PLBLightPosition[i], PLB_bspec[i]);
+	}
+	FwdBulkheadLight = AddPayloadBayLight(FwdBulkheadLightPos, FwdBulkhead_bspec);
+	for (int i=0;i<2;i++) {
+		DockingLight[i] = AddPayloadBayLight(DockingLightPos, Docking_bspec[i]); // create two copies of docking light to simulate DIM and BRIGHT settings
 	}
 
 	// RCS exhaust
@@ -3290,6 +3276,27 @@ void Atlantis::SetAnimationCameras() {
 	}
 }
 
+LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec)
+{
+	static VECTOR3 color = _V(0.75,0.75,0.75);
+	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
+	const COLOUR4 amb = {0.0, 0.0, 0};
+	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+
+	bspec.active = false;
+	bspec.col = &color;
+	bspec.duration = 0;
+	bspec.falloff = 0.4;
+	bspec.period = 0;
+	bspec.pos = &pos;
+	bspec.shape = BEACONSHAPE_DIFFUSE;
+	bspec.size = 0.25;
+	bspec.tofs = 0;
+	AddBeacon(&bspec);
+	return AddPointLight(pos,20,0.5,0.8,0.001,
+						 diff,spec,amb);
+}
+
 void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
 {
 	if(bUseRealRCS)
@@ -4135,6 +4142,11 @@ void Atlantis::clbkPostCreation ()
 
 	pBundle = bundleManager->CreateBundle("PLBD_LIGHTS", 16);
 	for(int i=0;i<6;i++) PLBDLightPower[i].Connect(pBundle, i);
+	if(pMission->HasBulkheadFloodlights()) {
+		FwdBulkheadLightPower.Connect(pBundle, 6);
+		DockingLightDim.Connect(pBundle, 7);
+		DockingLightBright.Connect(pBundle, 8);
+	}
 }
 
 // --------------------------------------------------------------
@@ -4414,6 +4426,39 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	bLastCamInternal = oapiCameraInternal();
 
 	// turn PLBD lights on/off
+	if(pMission->HasBulkheadFloodlights()) {
+		bool state = FwdBulkheadLightPower;
+		FwdBulkheadLight->Activate(state);
+		FwdBulkhead_bspec.active = state;
+
+		// check docking light (which has DIM and BRIGHT positions)
+		if(DockingLightDim) {
+			DockingLight[0]->Activate(true);
+			Docking_bspec[0].active = true;
+			DockingLight[1]->Activate(false);
+			Docking_bspec[1].active = false;
+		}
+		else if(DockingLightBright) {
+			DockingLight[0]->Activate(true);
+			Docking_bspec[0].active = true;
+			DockingLight[1]->Activate(true);
+			Docking_bspec[1].active = true;
+		}
+		else { // off
+			for(int i=0;i<2;i++) {
+				DockingLight[i]->Activate(false);
+				Docking_bspec[i].active = false;
+			}
+		}
+	}
+	else { // turn off FWD bulkhead & docking lights
+		FwdBulkheadLight->Activate(false);
+		FwdBulkhead_bspec.active = false;
+		for(int i=0;i<2;i++) {
+			DockingLight[i]->Activate(false);
+			Docking_bspec[i].active = false;
+		}
+	}
 	for(int i=0;i<6;i++) {
 		bool state = PLBDLightPower[i].IsSet();
 		PLBLight[i]->Activate(state);
