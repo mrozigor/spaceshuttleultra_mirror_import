@@ -248,7 +248,7 @@ namespace dps
 
 	bool RSLS_old::OnMajorModeChange( unsigned int newMajorMode )
 	{
-		if (newMajorMode <= 102) return true;// HACK should only run on 101, but needed on 102 due to current liftoff sequence
+		if (newMajorMode <= 101) return true;
 		return false;
 	}
 };
