@@ -4619,12 +4619,12 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 					slag2 = pow(1.0 - thrust_level, 2);
 					slag3 = 1.0 - thrust_level;
 				}
+				if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
 			}
 			else {
 				LaunchClamps ();
 			}
 			
-			if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
 		}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
