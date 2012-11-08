@@ -362,6 +362,9 @@ StdSwitch3::StdSwitch3(Atlantis *_sts, const std::string &_ident)
 : StandardSwitch(_sts, 3, _ident)
 {
 	usCurrentPosition = 1; // true for most meshes
+
+	usA=0;
+	usB=2;
 }
 
 StdSwitch3::~StdSwitch3()
