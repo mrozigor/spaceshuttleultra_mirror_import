@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\MathTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\PEG4TargetingTests.cpp"
 				>
 			</File>
