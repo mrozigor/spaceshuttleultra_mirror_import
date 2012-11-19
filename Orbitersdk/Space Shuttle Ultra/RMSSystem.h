@@ -42,7 +42,7 @@ const VECTOR3 RMS_SP_JOINT = _V(-2.866, 2.131, 9.316);
 const VECTOR3 RMS_EP_JOINT = _V(-2.809, 1.97, 2.667);
 const VECTOR3 RMS_WP_JOINT = _V(-2.867, 2.132, -4.349);
 const VECTOR3 RMS_WY_JOINT = _V(-2.867, 2.132, -4.927);
-const VECTOR3 RMS_EE_POS = _V(-2.867, 2.132, -6.027);
+const VECTOR3 RMS_EE_POS = _V(-2.867, 2.132, -6.1);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
@@ -87,7 +87,7 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 
 //const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
 //const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.96, 2.4, -5.72);
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.93455, 2.37856, -5.6);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.69, 2.6, 1.66);
 
