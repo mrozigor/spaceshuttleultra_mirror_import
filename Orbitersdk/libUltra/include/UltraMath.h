@@ -279,6 +279,19 @@ static inline double sign(double x)
 	else return -1.0;
 }
 
+/**
+ * Calculated signed angle in radians [-pi to pi] from v1 to v2.
+ * \param ref reference vector to measure angle around - should be in different plane from v1 & v2 (ideally perpendicular)
+ */
+static inline double SignedAngle(const VECTOR3& v1, const VECTOR3& v2, const VECTOR3& ref)
+{
+	double dot_product = range(-1.0, dotp(v1/length(v1), v2/length(v2)), 1.0); // dot product should always be between -1 and +1, but small numerical errors may cause acos to fail
+	double angle = acos(dot_product);
+	// if cross product of v1 and v2 is in opposite direction to reference vector, angle is negative (alternatively, > 180 degrees)
+	if(dotp(ref, crossp(v1, v2)) < 0) angle = -angle;
+	return angle;
+}
+
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
 {
 	VECTOR3 Output;

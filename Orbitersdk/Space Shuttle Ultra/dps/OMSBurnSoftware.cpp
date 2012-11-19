@@ -678,8 +678,9 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 	double correctedThetaT = ThetaT*RAD;
 	if(GetMajorMode() < 200) {
 		VECTOR3 launchSitePos = pStateVector->GetPositionAtT0();
-		double angleToLaunchSite = acos(dotp(launchSitePos/length(launchSitePos), initialPos/length(initialPos)));
-		if(dotp(crossp(initialPos, initialVel), crossp(launchSitePos, initialPos)) < 0) angleToLaunchSite = 2*PI-angleToLaunchSite; // if cross product of launch site and TIG positions is in direction of -ve angular momentum vector, change sign of angle
+		//double angleToLaunchSite = acos(dotp(launchSitePos/length(launchSitePos), initialPos/length(initialPos)));
+		double angleToLaunchSite = SignedAngle(launchSitePos, initialPos, crossp(initialPos, initialVel));
+		if(angleToLaunchSite < 0) angleToLaunchSite += 2*PI;
 		correctedThetaT -= angleToLaunchSite;
 
 		sprintf_s(oapiDebugString(), 255, "Angle to launch site at TIG: %f %f", DEG*angleToLaunchSite, DEG*correctedThetaT);
