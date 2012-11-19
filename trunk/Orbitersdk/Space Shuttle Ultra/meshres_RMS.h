@@ -1,6 +1,6 @@
 // ========================================================
 // Mesh resource file for RMS.msh
-// Generated with meshc on Mon Aug 27 00:23:55 2012
+// Generated with meshc on Mon Nov 19 21:39:13 2012
 
 // ========================================================
 
@@ -14,11 +14,11 @@
 #define NTEX 2
 
 // Named mesh groups:
-#define GRP_box 0
+#define GRP_Endeffector 0
 #define GRP_box 1
-#define GRP_base 2
-#define GRP_RMS_MPMs 3
-#define GRP_Endeffector 4
+#define GRP_box 2
+#define GRP_base 3
+#define GRP_RMS_MPMs 4
 #define GRP_Shoulder_Yaw 5
 #define GRP_Humerus 6
 #define GRP_Wristpitch 7
