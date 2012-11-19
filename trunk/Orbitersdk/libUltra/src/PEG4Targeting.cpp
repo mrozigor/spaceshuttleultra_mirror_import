@@ -228,9 +228,8 @@ void PEG4Targeting::PerformTargetingIteration()
 {
 	VECTOR3 correctedTargetPos = targetPos+totalMissOffset;
 	// calculate coast phase transfer angle to account for miss offset
-	double correctedTransferAngle = acos(dotp(cutoffPos/length(cutoffPos), correctedTargetPos/length(correctedTargetPos)));
-	// if cross product of cutoff pos and target pos is in opposite direction to orbit plane, transfer angle is > 180 degrees
-	if(dotp(orbitPlane, crossp(cutoffPos, correctedTargetPos)) < 0) correctedTransferAngle = 2*PI-correctedTransferAngle;
+	double correctedTransferAngle = SignedAngle(cutoffPos, correctedTargetPos, orbitPlane);
+	if(correctedTransferAngle < 0.0) correctedTransferAngle += 2*PI;
 	
 	equDeltaV += CalculatePEG7Targets(C1, C2, correctedTransferAngle, cutoffPos, cutoffVel, correctedTargetPos, mu, coastTime); // in first iteration, this will be reqd-initial at TIG; further iterations will refine value
 	equDeltaV -= orbitPlane*dotp(equDeltaV, orbitPlane); // remove any out-of-plane component

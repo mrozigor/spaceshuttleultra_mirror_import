@@ -308,8 +308,9 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		wy_angle_d=90.0+DEG*acos(dotp(offset_vector, newDir));
 	else*/
 	new_joint_angles[WRIST_YAW]=90.0-DEG*acos(dotp(offset_vector, dir));
-	new_joint_angles[WRIST_ROLL] = DEG*acos(dotp(wp_dir, rot));
-	if(dotp(wp_dir, crossp(rot, dir)) < 0) new_joint_angles[WRIST_ROLL] = -new_joint_angles[WRIST_ROLL];
+	//new_joint_angles[WRIST_ROLL] = DEG*acos(dotp(wp_dir, rot));
+	//if(dotp(wp_dir, crossp(rot, dir)) < 0) new_joint_angles[WRIST_ROLL] = -new_joint_angles[WRIST_ROLL];
+	new_joint_angles[WRIST_ROLL] = DEG*SignedAngle(wp_dir, rot, dir);
 
 	//if(yaw180Error) sp_angle_d+=180.0;
 
