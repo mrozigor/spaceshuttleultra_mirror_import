@@ -902,12 +902,11 @@ void RMSSystem::UpdateEECamView() const
 		// calculate rotation angle for EE cam
 		VECTOR3 dir = arm_tip[1]-arm_tip[0];
 		VECTOR3 orbiter_cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
-		if(length(orbiter_cam_rot) < 0.01) orbiter_cam_rot = _V(0, 1, 0); // handle case where cam is pointing at X axis
-		else orbiter_cam_rot /= length(orbiter_cam_rot);
+		orbiter_cam_rot /= length(orbiter_cam_rot);
 		if(orbiter_cam_rot.y < 0) orbiter_cam_rot = -orbiter_cam_rot;
 		double angle = SignedAngle(orbiter_cam_rot, arm_tip[2]-arm_tip[0], dir);
 		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f dir: %f %f %f dot_prod: %f Angle: %f %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, dir.x, dir.y, dir.z, dot_prod, angle, angle*DEG);
-		sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f dir: %f %f %f Angle: %f %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, dir.x, dir.y, dir.z, angle, angle*DEG);
+		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f cam dir: %f %f %f dir: %f %f %f Angle: %f %f length: %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, arm_tip[2].x-arm_tip[0].x, arm_tip[2].y-arm_tip[0].y, arm_tip[2].z-arm_tip[0].z,  dir.x, dir.y, dir.z, angle, angle*DEG, length(dir));
 		//sprintf_s(oapiDebugString(), 255, "dot_prod: %f Angle: %f %f", dot_prod, angle, angle*DEG);
 
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]+RMS_MESH_OFFSET);

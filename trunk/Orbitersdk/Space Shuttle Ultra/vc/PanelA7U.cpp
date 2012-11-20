@@ -40,7 +40,7 @@ namespace vc
 		pDockingLight->SetLabel(0, "OFF");
 		pDockingLight->SetLabel(1, "DIM");
 		pDockingLight->SetLabel(2, "BRIGHT");
-		pDockingLight->SetInitialPosition(1);
+		pDockingLight->SetInitialPosition(0);
 	}
 
 	PanelA7U::~PanelA7U()
