@@ -81,15 +81,21 @@
 #define AID_F6_TKBK1   201
 #define AID_F6_TKBK2   202
 #define AID_F6_TKBK3   203
-#define AID_F6_MAX     220
+#define AID_F6_MAX     219
 // Panel F7 (event timer and MPS status)
-#define AID_F7_MIN	   270
-#define AID_F7	       270
-#define AID_F7_EVTTMR1 271
-#define AID_F7_EVTTMR2 272
-#define AID_F7_EVTTMR3 273
-#define AID_F7_EVTTMR4 274
-#define AID_F7_MAX	   279
+#define AID_F7_MIN	     260
+#define AID_F7	         260
+#define AID_F7_EVTTMR1   261
+#define AID_F7_EVTTMR2   262
+#define AID_F7_EVTTMR3   263
+#define AID_F7_EVTTMR4   264
+#define AID_F7_SSME_C_R  265
+#define AID_F7_SSME_C_Y  266
+#define AID_F7_SSME_L_R  267
+#define AID_F7_SSME_L_Y  268
+#define AID_F7_SSME_R_R  269
+#define AID_F7_SSME_R_Y  270
+#define AID_F7_MAX	     279
 // Panel C2 (event timer and CRT assignments)
 #define AID_C2_MIN     280
 #define AID_C2		   280
