@@ -6908,6 +6908,11 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 
   g_Param.deu_characters = LOADBMP (IDB_DEUCHARACTERS);
   
+  g_Param.ssme_lights = oapiCreateSurface (LOADBMP (IDB_SSMELIGHTS));
+  if(g_Param.ssme_lights == NULL) {
+	  oapiWriteLog("Loading bitmap \"SSME_LIGHTS\" failed.");
+  }
+
   HDC Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
   //HDC TempDC=CreateCompatibleDC(Temp1DC);
   g_Param.DeuCharBitmapDC=CreateCompatibleDC(Temp1DC);

@@ -16,6 +16,13 @@ namespace vc {
 		Add(pCRT3 = new MDU(_sts, "CRT3", MDUID_CRT3, true));
 		Add(pMFD1 = new MDU(_sts, "MFD1", MDUID_MFD1, true));
 		Add(pMFD2 = new MDU(_sts, "MFD2", MDUID_MFD2, true));
+
+		Add(pMainEngStatusR[0] = new StandardLight(_sts, "SSME 1 STATUS RED"));
+		Add(pMainEngStatusR[1] = new StandardLight(_sts, "SSME 2 STATUS RED"));
+		Add(pMainEngStatusR[2] = new StandardLight(_sts, "SSME 3 STATUS RED"));
+		Add(pMainEngStatusY[0] = new StandardLight(_sts, "SSME 1 STATUS YELLOW"));
+		Add(pMainEngStatusY[1] = new StandardLight(_sts, "SSME 2 STATUS YELLOW"));
+		Add(pMainEngStatusY[2] = new StandardLight(_sts, "SSME 3 STATUS YELLOW"));
 		
 		sTimerMinutes=0;
 		sTimerSeconds=0;
@@ -40,6 +47,22 @@ namespace vc {
 		pCRT3->DefineVCGroup(MFDGROUPS[MDUID_CRT3]);
 		pMFD1->DefineVCGroup(MFDGROUPS[MDUID_MFD1]);
 		pMFD2->DefineVCGroup(MFDGROUPS[MDUID_MFD2]);
+
+		for(int i=0;i<3;i++) {
+			pMainEngStatusR[i]->AddAIDToRedrawEventList(AID_F7_SSME_C_R+2*i);
+			pMainEngStatusR[i]->SetSourceImage(g_Param.ssme_lights);
+			pMainEngStatusR[i]->SetDimensions(65, 30);
+			pMainEngStatusR[i]->SetBase(0, 0);
+			pMainEngStatusR[i]->SetSourceCoords(true, 130*i, 0);
+			pMainEngStatusR[i]->SetSourceCoords(false, 390, 0);
+
+			pMainEngStatusY[i]->AddAIDToRedrawEventList(AID_F7_SSME_C_Y+2*i);
+			pMainEngStatusY[i]->SetSourceImage(g_Param.ssme_lights);
+			pMainEngStatusY[i]->SetDimensions(65, 30);
+			pMainEngStatusY[i]->SetBase(0, 0);
+			pMainEngStatusY[i]->SetSourceCoords(true, 65+130*i, 0);
+			pMainEngStatusY[i]->SetSourceCoords(false, 390, 0);
+		}
 	}
 
 	void PanelF7::RegisterVC()
@@ -52,15 +75,35 @@ namespace vc {
 		oapiVCRegisterArea(AID_F7_EVTTMR1, _R(0, 320, 256, 384), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 		
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F7, 
-			 
 			_V(- 0.389, 2.4112365, 14.790174)+ ofs, 
 			_V(0.385, 2.4112365, 14.791174) + ofs,
 			_V(- 0.389, 1.9662365, 14.664174)+ ofs, 
 			_V(0.385, 1.9662365, 14.664174) + ofs);
+
+		SURFHANDLE SSME_light_tex = oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_TIMER_VC);
+		oapiVCRegisterArea(AID_F7_SSME_L_R, _R(498, 165, 563, 195), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+		oapiVCRegisterArea(AID_F7_SSME_L_Y, _R(498, 195, 563, 225), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+		oapiVCRegisterArea(AID_F7_SSME_C_R, _R(629, 117, 694, 147), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+		oapiVCRegisterArea(AID_F7_SSME_C_Y, _R(629, 147, 694, 177), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+		oapiVCRegisterArea(AID_F7_SSME_R_R, _R(764, 166, 829, 196), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+		oapiVCRegisterArea(AID_F7_SSME_R_Y, _R(764, 196, 829, 226), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, SSME_light_tex);
+	}
+
+	void PanelF7::Realize()
+	{
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("MPS_STATUS_LIGHTS", 6);
+		for(int i=0;i<3;i++) {
+			pMainEngStatusR[i]->Connect(0, pBundle, i);
+			pMainEngStatusY[i]->Connect(0, pBundle, i+3);
+		}
+
+		AtlantisPanel::Realize();
 	}
 	
 	void PanelF7::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{		
+		AtlantisPanel::OnPostStep(fSimT, fDeltaT, fMJD);
+		
 		//Check forward event timer for changes and update clock if needed
 		if(STS()->pMTU->GetEventTimerMin(dps::TIMER_FORWARD) != sTimerMinutes || 
 			STS()->pMTU->GetEventTimerSec(dps::TIMER_FORWARD) != sTimerSeconds)

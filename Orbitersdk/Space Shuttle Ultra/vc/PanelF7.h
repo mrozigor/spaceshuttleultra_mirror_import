@@ -27,6 +27,7 @@
 #include "AtlantisPanel.h"
 #include "MDU.h"
 #include "StandardSwitch.h"
+#include "StandardLight.h"
 
 namespace vc {
 
@@ -42,6 +43,9 @@ namespace vc {
 		short sTimerSeconds;
 		short sTimerMinutes;
 
+		StandardLight* pMainEngStatusR[3];
+		StandardLight* pMainEngStatusY[3];
+
 		//Event timer class
 		//C&W warning lights
 	public:
@@ -49,6 +53,7 @@ namespace vc {
 		virtual ~PanelF7();
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void Realize();
 
 		virtual void OnPostStep (double fSimT, double fDeltaT, double fMJD);
 		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);

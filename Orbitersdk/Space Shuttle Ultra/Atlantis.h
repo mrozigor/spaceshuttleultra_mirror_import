@@ -140,6 +140,7 @@ typedef struct {
 	SURFHANDLE clock_digits;
 	SURFHANDLE digits_7seg;
 	SURFHANDLE odslights;
+	SURFHANDLE ssme_lights;
 	HBITMAP deu_characters;
 	HDC DeuCharBitmapDC;
 	HFONT font[1];

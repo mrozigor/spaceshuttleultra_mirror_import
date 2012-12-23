@@ -15,6 +15,7 @@
 #define IDB_PBILIGHTS                   118
 #define IDB_BITMAP1                     120
 #define IDB_ODSBUTTONS                  120
+#define IDB_SSMELIGHTS                  121
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON5                     1004
@@ -36,7 +37,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
+#define _APS_NEXT_RESOURCE_VALUE        122
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
