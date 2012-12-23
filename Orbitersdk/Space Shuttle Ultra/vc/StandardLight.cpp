@@ -60,6 +60,13 @@ namespace vc {
 		return true;
 	}
 
+	bool StandardLight::Connect(unsigned short usPort, discsignals::DiscreteBundle* pBundle, unsigned short usLine)
+	{
+		if(usPort == 1) test.Connect(pBundle, usLine);
+		else input.Connect(pBundle, usLine);
+		return true;
+	}
+
 	void StandardLight::SetSourceCoords(bool fState, unsigned short usX, unsigned short usY) {
 		if(fState) {
 			sourceOn.x = usX;
