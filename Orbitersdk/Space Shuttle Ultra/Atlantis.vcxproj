@@ -253,6 +253,7 @@
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
     <ClCompile Include="dps\MMU.cpp" />
+    <ClCompile Include="dps\MPS_Dedicated_Display_Driver.cpp" />
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
     <ClCompile Include="dps\OrbitDAP.cpp" />
     <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
@@ -391,6 +392,7 @@
     <ClInclude Include="dps\HALS_Types.h" />
     <ClInclude Include="dps\IOModule.h" />
     <ClInclude Include="dps\MDM.h" />
+    <ClInclude Include="dps\MPS_Dedicated_Display_Driver.h" />
     <ClInclude Include="dps\OMSBurnSoftware.h" />
     <ClInclude Include="dps\OrbitDAP.h" />
     <ClInclude Include="dps\OrbitTgtSoftware.h" />
