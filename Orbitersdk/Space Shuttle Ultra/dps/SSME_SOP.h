@@ -71,7 +71,9 @@ namespace dps
 
 			// status flags
 			bool DataPathFailure[3];
-			//bool CommandPathFailure[3];
+			bool CommandPathFailure[3];
+			bool HydraulicLockup[3];
+			bool ElectricalLockup[3];
 
 			double PercentChamberPress[3];
 
@@ -115,6 +117,10 @@ namespace dps
 			bool GetShutdownEnableCommandIssuedFlag( int eng ) const;
 			bool GetShutdownPhaseFlag( int eng ) const;
 			bool GetPostShutdownPhaseFlag( int eng ) const;
+			bool GetDataPathFailureFlag( int eng ) const;
+			bool GetCommandPathFailureFlag( int eng ) const;
+			bool GetHydraulicLockupFlag( int eng ) const;
+			bool GetElectricalLockupFlag( int eng ) const;
 			double GetPercentChamberPressVal( int eng ) const;
 	};
 }

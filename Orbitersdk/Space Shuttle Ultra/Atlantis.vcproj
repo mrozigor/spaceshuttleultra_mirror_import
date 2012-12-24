@@ -661,6 +661,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\MPS_Dedicated_Display_Driver.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ODS.cpp"
 				>
 			</File>
@@ -1174,6 +1178,10 @@
 			</File>
 			<File
 				RelativePath=".\mps\MPS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dps\MPS_Dedicated_Display_Driver.h"
 				>
 			</File>
 			<File

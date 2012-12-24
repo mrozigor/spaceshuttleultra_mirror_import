@@ -4,11 +4,14 @@
 
 namespace dps
 {
-	static char RSLSAbortCauses[4][255]={
+	static char RSLSAbortCauses[7][255]={
 	  "T -%f - MPS Engine %d Percent Ch Press",
 	  "T -%f - Hydraulic system failure (APUs not on?)",
-	  "T -%f - MPS ME-%d Shutdown Phase",
-	  "T -%f - MPS E-%d Post-Shutdown Phase"
+	  "T -%f - MPS E-%d in Shutdown Phase",
+	  "T -%f - MPS E-%d in Post-Shutdown Phase",
+	  "T -%f - MPS E-%d in Electrical Lockup Mode",
+	  "T -%f - MPS E-%d in Hydraulic Lockup Mode",
+	  "T -%f - MPS E-%d Data Path Failure"
 	};
 
 	RSLS_old::RSLS_old( SimpleGPCSystem *_gpc ):SimpleGPCSoftware( _gpc, "RSLS_old" )
@@ -47,6 +50,29 @@ namespace dps
 		if(timeToLaunch<=6.60 && lastTTL>=6.60)	pSSME_SOP->SetEngineStartCommandFlag( 3 );
 		if(timeToLaunch<=6.48 && lastTTL>=6.48)	pSSME_SOP->SetEngineStartCommandFlag( 2 );
 		if(timeToLaunch<=6.36 && lastTTL>=6.36)	pSSME_SOP->SetEngineStartCommandFlag( 1 );
+
+		// check data path failure
+		if (pSSME_SOP->GetDataPathFailureFlag( 1 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[6][0];
+			RSLSAbortData=1;
+		}
+		if (pSSME_SOP->GetDataPathFailureFlag( 2 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[6][0];
+			RSLSAbortData=2;
+		}
+		if (pSSME_SOP->GetDataPathFailureFlag( 3 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[6][0];
+			RSLSAbortData=3;
+		}
 
 		// check shutdown phase
 		if (pSSME_SOP->GetShutdownPhaseFlag( 1 ) == true)
@@ -91,6 +117,52 @@ namespace dps
 			RSLSAbort=true;
 			RSLSAbortTime=timeToLaunch;
 			RSLSAbortCause=&RSLSAbortCauses[3][0];
+			RSLSAbortData=3;
+		}
+
+		// check electrical lockup mode
+		if (pSSME_SOP->GetElectricalLockupFlag( 1 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[4][0];
+			RSLSAbortData=1;
+		}
+		if (pSSME_SOP->GetElectricalLockupFlag( 2 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[4][0];
+			RSLSAbortData=2;
+		}
+		if (pSSME_SOP->GetElectricalLockupFlag( 3 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[4][0];
+			RSLSAbortData=3;
+		}
+
+		// check hydraulic lockup mode
+		if (pSSME_SOP->GetHydraulicLockupFlag( 1 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[5][0];
+			RSLSAbortData=1;
+		}
+		if (pSSME_SOP->GetHydraulicLockupFlag( 2 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[5][0];
+			RSLSAbortData=2;
+		}
+		if (pSSME_SOP->GetHydraulicLockupFlag( 3 ) == true)
+		{
+			RSLSAbort=true;
+			RSLSAbortTime=timeToLaunch;
+			RSLSAbortCause=&RSLSAbortCauses[5][0];
 			RSLSAbortData=3;
 		}
 

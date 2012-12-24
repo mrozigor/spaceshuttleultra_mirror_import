@@ -55,6 +55,18 @@ namespace dps
 		DataPathFailure[1] = false;
 		DataPathFailure[2] = false;
 
+		CommandPathFailure[0] = false;
+		CommandPathFailure[1] = false;
+		CommandPathFailure[2] = false;
+
+		HydraulicLockup[0] = false;
+		HydraulicLockup[1] = false;
+		HydraulicLockup[2] = false;
+
+		ElectricalLockup[0] = false;
+		ElectricalLockup[1] = false;
+		ElectricalLockup[2] = false;
+
 		PrimaryDataFail[0] = false;
 		PrimaryDataFail[1] = false;
 		PrimaryDataFail[2] = false;
@@ -253,11 +265,29 @@ namespace dps
 		// phase
 		switch (pridata[eng][3] & 0x0E00)
 		{
-			case 5:
+			case 0x0800:// Mainstage
+				// mode
+				switch (pridata[eng][3] & 0x7000)
+				{
+					case 0x4000:// Hydraulic Lockup
+						HydraulicLockup[eng] = true;
+						ElectricalLockup[eng] = false;
+						break;
+					case 0x5000:// Electrical Lockup
+						HydraulicLockup[eng] = false;
+						ElectricalLockup[eng] = true;
+						break;
+					default:
+						HydraulicLockup[eng] = false;
+						ElectricalLockup[eng] = false;
+						break;
+				}
+				break;
+			case 0x0A00:// Shutdown
 				ShutdownPhase[eng] = true;
 				PostShutdownPhase[eng] = false;
 				break;
-			case 6:
+			case 0x0C00:// Post-Shutdown
 				ShutdownPhase[eng] = false;
 				PostShutdownPhase[eng] = true;
 				break;
@@ -276,11 +306,29 @@ namespace dps
 		// phase
 		switch (secdata[eng][3] & 0x0E00)
 		{
-			case 5:
+			case 0x0800:// Mainstage
+				// mode
+				switch (secdata[eng][3] & 0x7000)
+				{
+					case 0x4000:// Hydraulic Lockup
+						HydraulicLockup[eng] = true;
+						ElectricalLockup[eng] = false;
+						break;
+					case 0x5000:// Electrical Lockup
+						HydraulicLockup[eng] = false;
+						ElectricalLockup[eng] = true;
+						break;
+					default:
+						HydraulicLockup[eng] = false;
+						ElectricalLockup[eng] = false;
+						break;
+				}
+				break;
+			case 0x0A00:// Shutdown
 				ShutdownPhase[eng] = true;
 				PostShutdownPhase[eng] = false;
 				break;
-			case 6:
+			case 0x0C00:// Post-Shutdown
 				ShutdownPhase[eng] = false;
 				PostShutdownPhase[eng] = true;
 				break;
@@ -373,6 +421,26 @@ namespace dps
 	bool SSME_SOP::GetPostShutdownPhaseFlag( int eng ) const
 	{
 		return PostShutdownPhase[eng - 1];
+	}
+
+	bool SSME_SOP::GetDataPathFailureFlag( int eng ) const
+	{
+		return DataPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetCommandPathFailureFlag( int eng ) const
+	{
+		return CommandPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetHydraulicLockupFlag( int eng ) const
+	{
+		return HydraulicLockup[eng - 1];
+	}
+
+	bool SSME_SOP::GetElectricalLockupFlag( int eng ) const
+	{
+		return ElectricalLockup[eng - 1];
 	}
 
 	double SSME_SOP::GetPercentChamberPressVal( int eng ) const
