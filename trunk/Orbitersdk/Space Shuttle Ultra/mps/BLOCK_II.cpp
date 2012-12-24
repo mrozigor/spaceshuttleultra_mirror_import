@@ -155,7 +155,7 @@ namespace mps
 		if ((ptrMFV->GetPos() < posMFV) || (ptrMOV->GetPos() < posMOV))// MFV/MOV closing?
 		{
 			// goto shudown
-			modeltime = time;
+			modeltime = time - AdjCOTime( STS()->GetSSMEThrustLevel( ID ) );
 			modelmode = 4;
 			return;
 		}
