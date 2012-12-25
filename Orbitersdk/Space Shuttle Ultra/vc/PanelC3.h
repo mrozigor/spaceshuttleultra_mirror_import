@@ -49,6 +49,8 @@ namespace vc
 
 		StdSwitch2* pAirDataProbeStowEnable[2];
 		LockableLever3* pAirDataProbeDeploy[2];
+
+		StdSwitch3* pSSMELimitShutDn;
 	};
 };
 

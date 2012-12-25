@@ -38,6 +38,11 @@ namespace vc
 			pAirDataProbeDeploy[i]->SetLabel(1, "DEPLOY");
 			pAirDataProbeDeploy[i]->SetLabel(2, "DEPLOY/HEAT");
 		}
+
+		Add(pSSMELimitShutDn = new StdSwitch3(_sts, "MAIN ENGINE LIMIT SHUT DN"));
+		pSSMELimitShutDn->SetLabel(0, "INHIBIT");
+		pSSMELimitShutDn->SetLabel(1, "AUTO");
+		pSSMELimitShutDn->SetLabel(2, "ENABLE");
 	}
 
 	PanelC3::~PanelC3()
@@ -179,7 +184,6 @@ namespace vc
 		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
-		pAirDataProbeDeploy[LEFT]->SetInitialPosition(0);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
@@ -187,7 +191,11 @@ namespace vc
 		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
-		pAirDataProbeDeploy[RIGHT]->SetInitialPosition(0);
+
+		pSSMELimitShutDn->SetMouseRegion(0.302924f, 0.241994f, 0.357174f, 0.322577f);
+		pSSMELimitShutDn->SetReference(_V(-0.4785, 1.7175, 14.181), switch_rot);
+		pSSMELimitShutDn->DefineSwitchGroup(GRP_C3b13_VC);
+		pSSMELimitShutDn->SetInitialAnimState(0.5f);
 	}
 
 	void PanelC3::Realize()
@@ -221,6 +229,10 @@ namespace vc
 		pAirDataProbeStowEnable[RIGHT]->output.Connect(pBundle, 0);
 		pAirDataProbeDeploy[RIGHT]->ConnectPort(2, pBundle, 1); // DEPLOY
 		pAirDataProbeDeploy[RIGHT]->ConnectPort(1, pBundle, 2); // DEPLOY/HEAT
+
+		pBundle = STS()->BundleManager()->CreateBundle("LIMITS", 2);
+		pSSMELimitShutDn->ConnectPort(1, pBundle, 0); // INHIBIT
+		pSSMELimitShutDn->ConnectPort(2, pBundle, 1); // ENABLE
 
 		// VC component DiscPorts need to be connected before Realize() is called
 		AtlantisPanel::Realize();
