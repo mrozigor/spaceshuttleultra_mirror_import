@@ -422,6 +422,9 @@
     <ClCompile Include="dps\MPS_Dedicated_Display_Driver.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelO17.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -731,6 +734,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\MPS_Dedicated_Display_Driver.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO17.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

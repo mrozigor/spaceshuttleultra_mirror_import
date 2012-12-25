@@ -741,6 +741,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vc\PanelO17.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PanelO3.cpp"
 				>
 			</File>
@@ -1266,6 +1270,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF8.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelO17.h"
 				>
 			</File>
 			<File
