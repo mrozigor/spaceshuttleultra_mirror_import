@@ -354,6 +354,7 @@
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
     <ClCompile Include="PanelO3.cpp" />
+    <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
@@ -461,6 +462,7 @@
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />
     <ClInclude Include="vc\PanelR2.h" />

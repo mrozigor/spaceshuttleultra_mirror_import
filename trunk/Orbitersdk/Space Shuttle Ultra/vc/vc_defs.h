@@ -287,6 +287,8 @@
 #define AID_A7U_PBI7	647
 #define AID_A7U_MAX		660
 
+#define AID_O17 		661
+
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001

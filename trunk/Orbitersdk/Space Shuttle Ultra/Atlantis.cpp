@@ -63,6 +63,7 @@
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
+#include "vc/PanelO17.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
@@ -510,6 +511,7 @@ pActiveLatches(3, NULL)
   pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
 
   pgOverhead.AddPanel(new vc::PanelO6(this));
+  pgOverhead.AddPanel(new vc::PanelO17(this));
 
   pgAft.AddPanel(new vc::PanelA6(this));
   pgAft.AddPanel(new vc::AftMDU(this));
