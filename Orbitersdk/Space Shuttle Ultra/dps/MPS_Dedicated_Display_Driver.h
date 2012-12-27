@@ -40,10 +40,6 @@ namespace dps
 	class MPS_Dedicated_Display_Driver:public SimpleGPCSoftware
 	{
 		private:
-			// status lights
-			bool AmberStatusLight[3];
-			bool RedStatusLight[3];
-
 			SSME_SOP* pSSME_SOP;
 
 			DiscOutPort dspAmberStatusLight[3];
@@ -52,11 +48,7 @@ namespace dps
 			MPS_Dedicated_Display_Driver( SimpleGPCSystem* _gpc );
 			~MPS_Dedicated_Display_Driver( void );
 
-			void OnPreStep( double SimT, double DeltaT, double MJD );
 			void OnPostStep( double SimT, double DeltaT, double MJD );
-
-			bool OnParseLine( const char* keyword, const char* value );
-			void OnSaveState( FILEHANDLE scn ) const;
 
 			void Realize( void );
 

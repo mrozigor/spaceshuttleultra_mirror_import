@@ -25,6 +25,7 @@ public:
 private:
 	double launch_mjd;
 	double lastTTL;
+	bool _firstrun;
 	char PadName[256], ShuttleName[256];
 
 	ISSULaunchTower* pFSS;

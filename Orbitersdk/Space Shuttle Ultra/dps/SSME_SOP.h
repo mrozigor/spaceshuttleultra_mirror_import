@@ -43,46 +43,57 @@ namespace dps
 	const unsigned short ENLS = 0xE000;
 	const unsigned short INLS = 0xE400;
 
+	const unsigned short DATA_FAIL = 4;// I-LOAD
+
 	class SSME_SOP:public SimpleGPCSoftware
 	{
 		private:
-			unsigned short LastCommand[3];
+			double PercentChamberPress[3];
+			unsigned short Phase[3];
+			unsigned short Mode[3];
+			unsigned short SelfTestStatus[3];
+			unsigned short CommandStatus[3];
 
 			// command flags
 			bool StartEnableCommand[3];
 			bool EngineStartCommand[3];
 			bool ShutdownEnableCommand[3];
 			bool ShutdownCommand[3];
-			bool Throttle[3];
-			bool OxidizerDumpStart[3];
-			bool DumpStop[3];
+			bool ThrottleCommand[3];
+			bool OxidizerDumpStartCommand[3];
+			bool DumpStopCommand[3];
 			bool MECOCommand;
 
 			bool MECOConfirmed;
 
-			bool ShutdownEnableCommandIssued[3];
+			unsigned short LastCommand[3];
 
-			// phase/mode flags
-			//bool EngineReadyMode[3]
-			bool ShutdownPhase[3];
-			bool PostShutdownPhase[3];
+			bool ShutdownEnableCommandIssued[3];
 
 			double CommandedThrottle;
 
+			// phase/mode flags
+			bool ShutdownPhase[3];
+			bool PostShutdownPhase[3];
+			bool HydraulicLockupMode[3];
+			bool ElectricalLockupMode[3];
+			bool EngineReadyMode[3];
+
 			// status flags
-			bool DataPathFailure[3];
+			bool PadDataPathFailure[3];
+			bool FlightDataPathFailure[3];
 			bool CommandPathFailure[3];
-			bool HydraulicLockup[3];
-			bool ElectricalLockup[3];
-
-			double PercentChamberPress[3];
-
+			bool MajorComponentFailure[3];
 
 			unsigned short pridata[3][32];
 			unsigned short secdata[3][6];
 
 			bool PrimaryDataFail[3];
 			bool SecondaryDataFail[3];
+
+			unsigned short PrimaryFailCounter[3];
+			unsigned short SecondaryFailCounter[3];
+			unsigned short DataFailCounter[3];
 
 			double LOXDumptimeA;
 			double LOXDumptimeB;
@@ -103,24 +114,131 @@ namespace dps
 			void ProcessPriData( int eng );
 			void ProcessSecData( int eng );
 
+			/**
+			 * Causes the Start Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
 			void SetStartEnableCommandFlag( int eng );
-			void SetEngineStartCommandFlag( int eng );
-			void SetShutdownEnableCommandFlag( int eng );
-			void SetShutdownCommandFlag( int eng );
-			void SetThrottlePercent( double pct );
-			void SetMECOCommandFlag( void );
-			/*void SetOxidizerDumpStartFlag( int eng );
-			void SetDumpStopFlag( int eng );*/
 
+			/**
+			 * Causes the Engine Start Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetEngineStartCommandFlag( int eng );
+
+			/**
+			 * Causes the Shutdown Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetShutdownEnableCommandFlag( int eng );
+
+			/**
+			 * Causes the Shutdown Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetShutdownCommandFlag( int eng );
+
+			/**
+			 * Causes a Throttle Command to be issued to all SSMEs.
+			 * @param[in]	pct	new throttle setting in percent of RPL
+			 */
+			void SetThrottlePercent( double pct );
+
+			/**
+			 * Causes MECO to be issued.
+			 */
+			void SetMECOCommandFlag( void );
+
+			/*void SetOxidizerDumpStartCommandFlag( int eng );
+			void SetDumpStopCommandFlag( int eng );*/
+
+			/**
+			 * Returns an indication of whether the MECO Command has been issued.
+			 * @return		true = command issued
+			 */
 			bool GetMECOCommandFlag( void ) const;
+
+			/**
+			 * Returns an indication of whether the MECO Confirmed Flag has been set.
+			 * @return		true = flag set
+			 */
 			bool GetMECOConfirmedFlag( void ) const;
+
+			/**
+			 * Returns an indication of whether the Shutdown Enable Command has been issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = command issued
+			 */
 			bool GetShutdownEnableCommandIssuedFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the phase in effect in a SSME is Shutdown.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Shutdown Phase
+			 */
 			bool GetShutdownPhaseFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the phase in effect in a SSME is Post-Shutdown.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Post-Shutdown Phase
+			 */
 			bool GetPostShutdownPhaseFlag( int eng ) const;
-			bool GetDataPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Hydraulic Lockup.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Hydraulic Lockup Mode
+			 */
+			bool GetHydraulicLockupModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Electrical Lockup.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Electrical Lockup Mode
+			 */
+			bool GetElectricalLockupModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Engine Ready.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Engine Ready Mode
+			 */
+			bool GetEngineReadyModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Pad Data Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Pad Data Path Failure
+			 */
+			bool GetPadDataPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Flight Data Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Flight Data Path Failure
+			 */
+			bool GetFlightDataPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Command Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Command Path Failure
+			 */
 			bool GetCommandPathFailureFlag( int eng ) const;
-			bool GetHydraulicLockupFlag( int eng ) const;
-			bool GetElectricalLockupFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a MCF has been posted on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = MCF
+			 */
+			bool GetMajorComponentFailureFlag( int eng ) const;
+
+			/**
+			 * Gets the chamber pressure in percent of RPL of a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		Chamber pressure in percent of RPL
+			 */
 			double GetPercentChamberPressVal( int eng ) const;
 	};
 }

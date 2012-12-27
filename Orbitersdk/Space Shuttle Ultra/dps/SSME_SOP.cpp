@@ -7,73 +7,40 @@ namespace dps
 {
 	SSME_SOP::SSME_SOP( SimpleGPCSystem *_gpc ):SimpleGPCSoftware( _gpc, "SSME_SOP" )
 	{
-		StartEnableCommand[0] = false;
-		StartEnableCommand[1] = false;
-		StartEnableCommand[2] = false;
+		for (int i = 0; i < 3; i++)
+		{
+			StartEnableCommand[i] = false;
+			EngineStartCommand[i] = false;
+			ShutdownEnableCommand[i] = false;
+			ShutdownCommand[i] = false;
+			ThrottleCommand[i] = false;
+			OxidizerDumpStartCommand[i] = false;
+			DumpStopCommand[i] = false;
 
-		EngineStartCommand[0] = false;
-		EngineStartCommand[1] = false;
-		EngineStartCommand[2] = false;
+			ShutdownEnableCommandIssued[i] = false;
 
-		ShutdownEnableCommand[0] = false;
-		ShutdownEnableCommand[1] = false;
-		ShutdownEnableCommand[2] = false;
+			ShutdownPhase[i] = false;
+			PostShutdownPhase[i] = false;
+			HydraulicLockupMode[i] = false;
+			ElectricalLockupMode[i] = false;
+			EngineReadyMode[i] = false;
 
-		ShutdownCommand[0] = false;
-		ShutdownCommand[1] = false;
-		ShutdownCommand[2] = false;
+			PadDataPathFailure[i] = false;
+			FlightDataPathFailure[i] = false;
+			CommandPathFailure[i] = false;
+			MajorComponentFailure[i] = false;
 
-		Throttle[0] = false;
-		Throttle[1] = false;
-		Throttle[2] = false;
+			PrimaryDataFail[i] = false;
+			SecondaryDataFail[i] = false;
 
-		OxidizerDumpStart[0] = false;
-		OxidizerDumpStart[1] = false;
-		OxidizerDumpStart[2] = false;
-
-		DumpStop[0] = false;
-		DumpStop[1] = false;
-		DumpStop[2] = false;
+			PrimaryFailCounter[i] = 0;
+			SecondaryFailCounter[i] = 0;
+			DataFailCounter[i] = 0;
+		}
 
 		MECOCommand = false;
 
 		MECOConfirmed = false;
-
-		ShutdownEnableCommandIssued[0] = false;
-		ShutdownEnableCommandIssued[1] = false;
-		ShutdownEnableCommandIssued[2] = false;
-
-		ShutdownPhase[0] = false;
-		ShutdownPhase[1] = false;
-		ShutdownPhase[2] = false;
-
-		PostShutdownPhase[0] = false;
-		PostShutdownPhase[1] = false;
-		PostShutdownPhase[2] = false;
-
-		DataPathFailure[0] = false;
-		DataPathFailure[1] = false;
-		DataPathFailure[2] = false;
-
-		CommandPathFailure[0] = false;
-		CommandPathFailure[1] = false;
-		CommandPathFailure[2] = false;
-
-		HydraulicLockup[0] = false;
-		HydraulicLockup[1] = false;
-		HydraulicLockup[2] = false;
-
-		ElectricalLockup[0] = false;
-		ElectricalLockup[1] = false;
-		ElectricalLockup[2] = false;
-
-		PrimaryDataFail[0] = false;
-		PrimaryDataFail[1] = false;
-		PrimaryDataFail[2] = false;
-
-		SecondaryDataFail[0] = false;
-		SecondaryDataFail[1] = false;
-		SecondaryDataFail[2] = false;
 
 		LOXDumptimeA = 99999;
 		LOXDumptimeB = 99999;
@@ -94,42 +61,134 @@ namespace dps
 			STS()->pEIU[i]->readpri( pridata[i] );
 			STS()->pEIU[i]->readsec( secdata[i] );
 
+			PadDataPathFailure[i] = false;
+
 			if (!Eq( pridata[i][0] + ((double)pridata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
 			{
-				PrimaryDataFail[i] = true;
-			}
+				PrimaryFailCounter[i]++;
 
-			if (PrimaryDataFail[i] == true)
-			{
-				if (!Eq( secdata[i][0] + ((double)secdata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+				if (PrimaryFailCounter[i] < 2)
 				{
-					SecondaryDataFail[i] = true;
-				}
-
-				if (SecondaryDataFail[i] == true)
-				{
-					DataPathFailure[i] = true;
+					PrimaryDataFail[i] = true;
 				}
 				else
 				{
-					ProcessSecData( i );
+					PadDataPathFailure[i] = true;
+				}
+			}
+			else
+			{
+				PrimaryDataFail[i] = false;
+				PrimaryFailCounter[i] = 0;
+			}
+
+			if ((PrimaryDataFail[i] == true) || (GetMajorMode() == 101))// SRB not ignited
+			{
+				if (!Eq( secdata[i][0] + ((double)secdata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+				{
+					SecondaryFailCounter[i]++;
+
+					if (SecondaryFailCounter[i] < 2)
+					{
+						SecondaryDataFail[i] = true;
+					}
+					else
+					{
+						PadDataPathFailure[i] = true;
+					}
+
+					if (PrimaryDataFail[i] == true)
+					{
+						if (FlightDataPathFailure[i] == false)
+						{
+							DataFailCounter[i]++;
+
+							if (DataFailCounter[i] == DATA_FAIL)
+							{
+								FlightDataPathFailure[i] = true;
+							}
+						}
+					}
+					else
+					{
+						ProcessPriData( i );
+					}
+				}
+				else
+				{
+					SecondaryDataFail[i] = false;
+					SecondaryFailCounter[i] = 0;
+
+					if (PrimaryDataFail[i] == true)
+					{
+						ProcessSecData( i );
+					}
+					else
+					{
+						ProcessPriData( i );
+					}
 				}
 			}
 			else
 			{
 				ProcessPriData( i );
 			}
-
 			
+			HydraulicLockupMode[i] = false;
+			ElectricalLockupMode[i] = false;
+			switch (Phase[i])
+			{
+				case 4:// Mainstage
+					switch (Mode[i] & 0x7000)
+					{
+						case 4:// Hydraulic Lockup
+							HydraulicLockupMode[i] = true;
+							break;
+						case 5:// Electrical Lockup
+							ElectricalLockupMode[i] = true;
+							break;
+					}
+					break;
+				case 5:// Shutdown
+					ShutdownPhase[i] = true;
+					break;
+				case 6:// Post-Shutdown
+					ShutdownPhase[i] = false;
+					PostShutdownPhase[i] = true;
+					break;
+				case 2:// Start-Prep
+					if (Mode[i] == 5)// Engine Ready
+					{
+						EngineReadyMode[i] = true;
+					}
+					else
+					{
+						EngineReadyMode[i] = false;
+					}
+					break;
+			}
+
+			MajorComponentFailure[i] = false;
+			if (SelfTestStatus[i] == 1)
+			{
+				MajorComponentFailure[i] = true;
+			}
+
+			// TODO finish logic below
+			//CommandPathFailure[i] = false;
+			if (CommandStatus[i] == 1)
+			{
+				CommandPathFailure[i] = true;
+			}
 		}
 
 		if (GetMajorMode() >= 102)
 		{
 			if ((MECOConfirmed == false) && (
 				((PercentChamberPress[0] < 30) && (PercentChamberPress[1] < 30) && (PercentChamberPress[2] < 30)) ||
-				((DataPathFailure[0] == true) && (PercentChamberPress[1] < 30) && (PercentChamberPress[2] < 30)) ||
-				((PercentChamberPress[0] < 30) && (DataPathFailure[1] == true) && (PercentChamberPress[2] < 30)) ||
-				((PercentChamberPress[0] < 30) && (PercentChamberPress[1] < 30) && (DataPathFailure[2] == true))))
+				((FlightDataPathFailure[0] == true) && (PercentChamberPress[1] < 30) && (PercentChamberPress[2] < 30)) ||
+				((PercentChamberPress[0] < 30) && (FlightDataPathFailure[1] == true) && (PercentChamberPress[2] < 30)) ||
+				((PercentChamberPress[0] < 30) && (PercentChamberPress[1] < 30) && (FlightDataPathFailure[2] == true))))
 			{
 				MECOConfirmed = true;
 				oapiWriteLog( "MECO Confirmed" );
@@ -139,18 +198,18 @@ namespace dps
 
 			if ((SimT - LOXDumptimeA) > 120)// wait 120s for dump start
 			{
-				OxidizerDumpStart[0] = true;
-				OxidizerDumpStart[1] = true;
-				OxidizerDumpStart[2] = true;
+				OxidizerDumpStartCommand[0] = true;
+				OxidizerDumpStartCommand[1] = true;
+				OxidizerDumpStartCommand[2] = true;
 				LOXDumptimeA = 99999;
 				LOXDumptimeB = SimT;
 			}
 
 			if ((SimT - LOXDumptimeB) > 120)// stop dump after 120s
 			{
-				DumpStop[0] = true;
-				DumpStop[1] = true;
-				DumpStop[2] = true;
+				DumpStopCommand[0] = true;
+				DumpStopCommand[1] = true;
+				DumpStopCommand[2] = true;
 				LOXDumptimeB = 99999;
 			}
 
@@ -199,10 +258,10 @@ namespace dps
 						ShutdownEnableCommand[i] = false;
 						ShutdownEnableCommandIssued[i] = true;
 					}
-					else if (Throttle[i] == true)
+					else if (ThrottleCommand[i] == true)
 					{
 						STS()->pEIU[i]->command( THRT + (unsigned short)round( (CommandedThrottle * 1023) / 109 ) );
-						Throttle[i] = false;
+						ThrottleCommand[i] = false;
 					}
 					else if (StartEnableCommand[i] == true)
 					{
@@ -210,17 +269,17 @@ namespace dps
 						LastCommand[i] = STEN;
 						StartEnableCommand[i] = false;
 					}
-					else if (OxidizerDumpStart[i] == true)
+					else if (OxidizerDumpStartCommand[i] == true)
 					{
 						STS()->pEIU[i]->command( LOXD );
 						LastCommand[i] = LOXD;
-						OxidizerDumpStart[i] = false;
+						OxidizerDumpStartCommand[i] = false;
 					}
-					else if (DumpStop[i] == true)
+					else if (DumpStopCommand[i] == true)
 					{
 						STS()->pEIU[i]->command( TMSQ );
 						LastCommand[i] = TMSQ;
-						OxidizerDumpStart[i] = false;
+						DumpStopCommand[i] = false;
 					}
 				}
 			}
@@ -261,82 +320,20 @@ namespace dps
 	void SSME_SOP::ProcessPriData( int eng )
 	{
 		PercentChamberPress[eng] = pridata[eng][5] / 27.46789;
-
-		// phase
-		switch (pridata[eng][3] & 0x0E00)
-		{
-			case 0x0800:// Mainstage
-				// mode
-				switch (pridata[eng][3] & 0x7000)
-				{
-					case 0x4000:// Hydraulic Lockup
-						HydraulicLockup[eng] = true;
-						ElectricalLockup[eng] = false;
-						break;
-					case 0x5000:// Electrical Lockup
-						HydraulicLockup[eng] = false;
-						ElectricalLockup[eng] = true;
-						break;
-					default:
-						HydraulicLockup[eng] = false;
-						ElectricalLockup[eng] = false;
-						break;
-				}
-				break;
-			case 0x0A00:// Shutdown
-				ShutdownPhase[eng] = true;
-				PostShutdownPhase[eng] = false;
-				break;
-			case 0x0C00:// Post-Shutdown
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = true;
-				break;
-			default:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = false;
-				break;
-		}
+		Phase[eng] = (pridata[eng][3] & 0x0E00) >> 9;
+		Mode[eng] = (pridata[eng][3] & 0x7000) >> 12;
+		SelfTestStatus[eng] = (pridata[eng][3] & 0x8000) >> 15;
+		CommandStatus[eng] = (pridata[eng][3] & 0x0004) >> 2;
 		return;
 	}
 
 	void SSME_SOP::ProcessSecData( int eng )
 	{
 		PercentChamberPress[eng] = secdata[eng][5] / 27.46789;
-
-		// phase
-		switch (secdata[eng][3] & 0x0E00)
-		{
-			case 0x0800:// Mainstage
-				// mode
-				switch (secdata[eng][3] & 0x7000)
-				{
-					case 0x4000:// Hydraulic Lockup
-						HydraulicLockup[eng] = true;
-						ElectricalLockup[eng] = false;
-						break;
-					case 0x5000:// Electrical Lockup
-						HydraulicLockup[eng] = false;
-						ElectricalLockup[eng] = true;
-						break;
-					default:
-						HydraulicLockup[eng] = false;
-						ElectricalLockup[eng] = false;
-						break;
-				}
-				break;
-			case 0x0A00:// Shutdown
-				ShutdownPhase[eng] = true;
-				PostShutdownPhase[eng] = false;
-				break;
-			case 0x0C00:// Post-Shutdown
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = true;
-				break;
-			default:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = false;
-				break;
-		}
+		Phase[eng] = (secdata[eng][3] & 0x0E00) >> 9;
+		Mode[eng] = (secdata[eng][3] & 0x7000) >> 12;
+		SelfTestStatus[eng] = (secdata[eng][3] & 0x8000) >> 15;
+		CommandStatus[eng] = (secdata[eng][3] & 0x0004) >> 2;
 		return;
 	}
 
@@ -367,9 +364,9 @@ namespace dps
 	void SSME_SOP::SetThrottlePercent( double pct )
 	{
 		CommandedThrottle = pct;
-		Throttle[0] = true;
-		Throttle[1] = true;
-		Throttle[2] = true;
+		ThrottleCommand[0] = true;
+		ThrottleCommand[1] = true;
+		ThrottleCommand[2] = true;
 		return;
 	}
 
@@ -386,15 +383,15 @@ namespace dps
 		return;
 	}
 
-	/*void SSME_SOP::SetOxidizerDumpStartFlag( int eng )
+	/*void SSME_SOP::SetOxidizerDumpStartCommandFlag( int eng )
 	{
-		OxidizerDumpStart[eng - 1] = true;
+		OxidizerDumpStartCommand[eng - 1] = true;
 		return;
 	}
 
-	void SSME_SOP::SetDumpStopFlag( int eng )
+	void SSME_SOP::SetDumpStopCommandFlag( int eng )
 	{
-		DumpStop[eng - 1] = true;
+		DumpStopCommand[eng - 1] = true;
 		return;
 	}*/
 
@@ -423,9 +420,29 @@ namespace dps
 		return PostShutdownPhase[eng - 1];
 	}
 
-	bool SSME_SOP::GetDataPathFailureFlag( int eng ) const
+	bool SSME_SOP::GetHydraulicLockupModeFlag( int eng ) const
 	{
-		return DataPathFailure[eng - 1];
+		return HydraulicLockupMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetElectricalLockupModeFlag( int eng ) const
+	{
+		return ElectricalLockupMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetEngineReadyModeFlag( int eng ) const
+	{
+		return EngineReadyMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetPadDataPathFailureFlag( int eng ) const
+	{
+		return PadDataPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetFlightDataPathFailureFlag( int eng ) const
+	{
+		return FlightDataPathFailure[eng - 1];
 	}
 
 	bool SSME_SOP::GetCommandPathFailureFlag( int eng ) const
@@ -433,14 +450,9 @@ namespace dps
 		return CommandPathFailure[eng - 1];
 	}
 
-	bool SSME_SOP::GetHydraulicLockupFlag( int eng ) const
+	bool SSME_SOP::GetMajorComponentFailureFlag( int eng ) const
 	{
-		return HydraulicLockup[eng - 1];
-	}
-
-	bool SSME_SOP::GetElectricalLockupFlag( int eng ) const
-	{
-		return ElectricalLockup[eng - 1];
+		return MajorComponentFailure[eng - 1];
 	}
 
 	double SSME_SOP::GetPercentChamberPressVal( int eng ) const

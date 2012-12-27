@@ -17,7 +17,8 @@ namespace mps
 		this->ID = ID;
 		this->eng = eng;
 
-		AC = new DiscInPort;
+		ACchA = new DiscInPort;
+		ACchB = new DiscInPort;
 
 		mia[0].Init( this, this, "MIA1", 14 + ID );
 		mia[1].Init( this, this, "MIA2", 14 + ID );
@@ -51,7 +52,8 @@ namespace mps
 #ifdef _EIU_DATA_RECORDER
 		fclose( fp );
 #endif// _EIU_DATA_RECORDER
-		delete AC;
+		delete ACchA;
+		delete ACchB;
 		return;
 	}
 
@@ -96,9 +98,29 @@ namespace mps
 	void EIU::Realize( void )
 	{
 		// connect to panel O17 EIU power switches
-		/*discsignals::*/DiscreteBundle* O17_to_EIU_AC = BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
-		
-		AC->Connect( O17_to_EIU_AC, ID - 1 );
+		DiscreteBundle* O17_to_EIU_AC = BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
+
+		switch (ID)
+		{
+			case 1:
+				// C
+				// AC1/AC2
+				ACchA->Connect( O17_to_EIU_AC, 1 );
+				ACchB->Connect( O17_to_EIU_AC, 0 );
+				break;
+			case 2:
+				// L
+				// AC2/AC3
+				ACchA->Connect( O17_to_EIU_AC, 0 );
+				ACchB->Connect( O17_to_EIU_AC, 2 );
+				break;
+			case 3:
+				// R
+				// AC3/AC1
+				ACchA->Connect( O17_to_EIU_AC, 2 );
+				ACchB->Connect( O17_to_EIU_AC, 1 );
+				break;
+		}
 		return;
 	}
 
@@ -123,18 +145,24 @@ namespace mps
 
 	void EIU::readpri( unsigned short* data )
 	{// HACK
+		if ((ACchA->IsSet() == false) && (ACchB->IsSet() == false)) return;
+
 		memcpy( data, DataPri, 32 * sizeof(unsigned short) );
 		return;
 	}
 
 	void EIU::readsec( unsigned short* data )
 	{// HACK
+		if ((ACchA->IsSet() == false) && (ACchB->IsSet() == false)) return;
+
 		memcpy( data, DataSec, 6 * sizeof(unsigned short) );
 		return;
 	}
 
 	void EIU::command( unsigned short cmd )
 	{// HACK
+		if ((ACchA->IsSet() == false) && (ACchB->IsSet() == false)) return;
+
 		eng->Controller->VIE_CommandDataConverter_write( 1, cmd );
 		eng->Controller->VIE_CommandDataConverter_write( 2, cmd );
 		eng->Controller->VIE_CommandDataConverter_write( 3, cmd );

@@ -39,14 +39,14 @@
 namespace mps
 {
 	class SSME;
-	using class discsignals::DiscInPort;
 
 	class EIU:public AtlantisSubsystem, public dps::IConnectedToBus
 	{
 		private:
 			int ID;
 			SSME* eng;
-			DiscInPort* AC;
+			DiscInPort* ACchA;
+			DiscInPort* ACchB;
 
 			unsigned short DataPri[32];
 			unsigned short DataSec[6];

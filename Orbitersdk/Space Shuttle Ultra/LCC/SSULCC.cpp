@@ -12,6 +12,7 @@ SSULCC::SSULCC(OBJHANDLE hVessel, int flightmodel)
 	lastTTL=-1.0;
 	pFSS=NULL;
 	pSSU=NULL;
+	_firstrun = true;
 
 	sprintf_s(PadName, 256, "");
 	sprintf_s(ShuttleName, 256, "");
@@ -48,6 +49,12 @@ void SSULCC::clbkPostCreation()
 
 void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 {
+	if (_firstrun == true)// bypass first run as it messes up lastTTL and causes all events before current time to run as well
+	{
+		_firstrun = false;
+		return;
+	}
+
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
 	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
@@ -62,10 +69,12 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
 		{
+			oapiWriteLog("LCC: OAA");
 			pFSS->RetractOrbiterAccessArm();
 		}
 		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>=GOX_ARM_RETRACT_TIME) //retract GOX arm
 		{
+			oapiWriteLog("LCC: GVA");
 			pFSS->RetractGOXArmAndHood();
 		}
 		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();

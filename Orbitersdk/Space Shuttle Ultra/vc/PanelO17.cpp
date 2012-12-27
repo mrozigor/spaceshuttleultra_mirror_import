@@ -60,6 +60,13 @@ void PanelO17::RegisterVC()
 
 void PanelO17::Realize()
 {
+	DiscreteBundle* O17_to_EIU_AC = STS()->BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
+
+	pEIUPowerLC->output.Connect( O17_to_EIU_AC, 0 );// AC2
+	pEIUPowerCR->output.Connect( O17_to_EIU_AC, 1 );// AC1
+	pEIUPowerRL->output.Connect( O17_to_EIU_AC, 2 );// AC3
+
+	AtlantisPanel::Realize();
 }
 
 };
