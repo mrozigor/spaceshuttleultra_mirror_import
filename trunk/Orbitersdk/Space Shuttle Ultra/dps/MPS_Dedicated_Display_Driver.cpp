@@ -7,22 +7,10 @@ namespace dps
 {
 	MPS_Dedicated_Display_Driver::MPS_Dedicated_Display_Driver( SimpleGPCSystem *_gpc ):SimpleGPCSoftware( _gpc, "MPS_Dedicated_Display_Driver" )
 	{
-		AmberStatusLight[0] = false;
-		AmberStatusLight[1] = false;
-		AmberStatusLight[2] = false;
-
-		RedStatusLight[0] = false;
-		RedStatusLight[1] = false;
-		RedStatusLight[2] = false;
 		return;
 	}
 
 	MPS_Dedicated_Display_Driver::~MPS_Dedicated_Display_Driver( void )
-	{
-		return;
-	}
-
-	void MPS_Dedicated_Display_Driver::OnPreStep( double SimT, double DeltaT, double MJD )
 	{
 		return;
 	}
@@ -32,13 +20,13 @@ namespace dps
 		if (STS()->HasTank() == false)
 		{
 			// all lights off
-			AmberStatusLight[0] = false;
-			AmberStatusLight[1] = false;
-			AmberStatusLight[2] = false;
+			dspAmberStatusLight[0].ResetLine();
+			dspAmberStatusLight[1].ResetLine();
+			dspAmberStatusLight[2].ResetLine();
 
-			RedStatusLight[0] = false;
-			RedStatusLight[1] = false;
-			RedStatusLight[2] = false;
+			dpsRedStatusLight[0].ResetLine();
+			dpsRedStatusLight[1].ResetLine();
+			dpsRedStatusLight[2].ResetLine();
 		}
 		else
 		{
@@ -49,63 +37,32 @@ namespace dps
 					(pSSME_SOP->GetPostShutdownPhaseFlag( i ) == true))
 				{
 					// red light on
-					RedStatusLight[i - 1] = true;
+					dpsRedStatusLight[i - 1].SetLine();
 				}
 				else
 				{
 					// red light off
-					RedStatusLight[i - 1] = false;
+					dpsRedStatusLight[i - 1].ResetLine();
 				}
 			}
 
 			for (int i = 1; i <= 3; i++)// amber lights
 			{
-				if ((pSSME_SOP->GetElectricalLockupFlag( i ) == true) ||
-					(pSSME_SOP->GetHydraulicLockupFlag( i ) == true) || 
-					(pSSME_SOP->GetDataPathFailureFlag( i ) == true) || 
+				if ((pSSME_SOP->GetElectricalLockupModeFlag( i ) == true) ||
+					(pSSME_SOP->GetHydraulicLockupModeFlag( i ) == true) || 
+					(pSSME_SOP->GetFlightDataPathFailureFlag( i ) == true) || 
 					(pSSME_SOP->GetCommandPathFailureFlag( i ) == true))
 				{
 					// amber light on
-					AmberStatusLight[i - 1] = true;
+					dspAmberStatusLight[i - 1].SetLine();
 				}
 				else
 				{
 					// amber light off
-					AmberStatusLight[i - 1] = false;
+					dspAmberStatusLight[i - 1].ResetLine();
 				}
 			}
 		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (AmberStatusLight[i] == true)
-			{
-				dspAmberStatusLight[i].SetLine();
-			}
-			else
-			{
-				dspAmberStatusLight[i].ResetLine();
-			}
-
-			if (RedStatusLight[i] == true)
-			{
-				dpsRedStatusLight[i].SetLine();
-			}
-			else
-			{
-				dpsRedStatusLight[i].ResetLine();
-			}
-		}
-		return;
-	}
-
-	bool MPS_Dedicated_Display_Driver::OnParseLine( const char* keyword, const char* value )
-	{
-		return false;
-	}
-
-	void MPS_Dedicated_Display_Driver::OnSaveState( FILEHANDLE scn ) const
-	{
 		return;
 	}
 
@@ -113,7 +70,7 @@ namespace dps
 	{
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 
-		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "MPS_STATUS_LIGHTS", 6);
+		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "MPS_STATUS_LIGHTS", 6 );
 
 		for (int i = 0; i < 3; i++)
 		{

@@ -48,6 +48,8 @@ namespace dps
 		bool SychronizeCountdown(double mjd);
 		void StartRSLSSequence();
 
+		void Abort( void );
+
 		void Realize();
 		bool OnMajorModeChange( unsigned int newMajorMode );
 	private:
