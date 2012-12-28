@@ -44,7 +44,9 @@ const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
 
 const int RSS_ROTATE_SOUND = 1;
-static const char* RSS_ROTATE_SOUND_FILE = "Sound\\ShuttleUltra\\RSS_Rotation.wav";
+static const char* RSS_ROTATE_SOUND_FILE = "RSS_Rotation.wav";
+const int CRYO_HISS = 2;
+static const char* CRYO_HISS_SOUND_FILE = "Cryo_noise.wav";
 
 class Atlantis;
 

@@ -7,7 +7,7 @@
 #include "meshres_FSS_1985.h"
 #include "meshres_RSS_1985.h"
 #include <dlgctrl.h>
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 
 //global dll handle
 HINSTANCE hPad_DLL;
@@ -556,9 +556,11 @@ void SSUPad::AnimateFSSOWPStrut()
 
 void SSUPad::clbkPostCreation()
 {
-	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
+	SoundID=ConnectToOrbiterSoundDLL(GetHandle());
 	if(SoundID!=-1) {
-		RequestLoadVesselWave3(SoundID, RSS_ROTATE_SOUND, (char*)RSS_ROTATE_SOUND_FILE, BOTHVIEW_FADED_FAR);
+		SetMyDefaultWaveDirectory(const_cast<char*>(SOUND_DIRECTORY)); // this is defined in Atlantis.h, but is same for SSU Pad
+		RequestLoadVesselWave(SoundID, RSS_ROTATE_SOUND, (char*)RSS_ROTATE_SOUND_FILE, BOTHVIEW_FADED_FAR);
+		RequestLoadVesselWave(SoundID, CRYO_HISS, const_cast<char*>(CRYO_HISS_SOUND_FILE), BOTHVIEW_FADED_MEDIUM);
 	}
 
 
@@ -639,9 +641,9 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		double dp=simdt*RSS_RATE;
 		RSS_State.Move(dp);
 		SetAnimation(anim_rss, RSS_State.pos);
-		PlayVesselWave3(SoundID, RSS_ROTATE_SOUND, LOOP);
+		PlayVesselWave(SoundID, RSS_ROTATE_SOUND, LOOP);
 	}
-	else StopVesselWave3(SoundID, RSS_ROTATE_SOUND);
+	else StopVesselWave(SoundID, RSS_ROTATE_SOUND);
 
 	if(bPad1985 && FSS_RBUS_UmbilicalState.Moving())
 	{
@@ -674,6 +676,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetThrusterLevel(thGOXVent[1], 0.0);
 	}
 
+	PlayVesselWave(SoundID, CRYO_HISS, LOOP);
 	
 	//NEW GOX VENT CODE
 	/*double StsTank;

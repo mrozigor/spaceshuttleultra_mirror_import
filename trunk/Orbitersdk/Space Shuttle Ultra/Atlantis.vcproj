@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltra.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua5.1.lib libUltra.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltrad.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua5.1.lib libUltrad.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -281,7 +281,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua51.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -1209,7 +1209,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\OrbiterSoundSDK35.h"
+				RelativePath="..\..\include\OrbiterSoundSDK40.h"
 				>
 			</File>
 			<File

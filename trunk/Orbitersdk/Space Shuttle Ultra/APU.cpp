@@ -1,6 +1,6 @@
 #include "APU.h"
 #include "Atlantis.h"
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 
 APU::APU(AtlantisSubsystemDirector *_director, const std::string &_ident, int _ID)
 	: AtlantisSubsystem(_director, _ident), ID(_ID), phTank(NULL)
@@ -75,9 +75,9 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	switch(State) {
 		case SHUTDOWN:
-			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_SHUTDOWN)) {
-				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
-				else PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP, 0);
+			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
+			if(STS()->GetSoundID()!=-1 && IsPlaying(STS()->GetSoundID(), APU_SHUTDOWN)) {
+				PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP, 0);
 			}
 		case OFF:
 			if(APUSpeed[1]>5) APUSpeed[1]=max(APUSpeed[1]-15.0*DeltaT, 0.0);
@@ -94,22 +94,22 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 				APU_ReadyToStart.SetLine();
 				if(APU_Run) {
 					State=START;
-					if(STS()->GetSoundID()!=-1) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
+					if(STS()->GetSoundID()!=-1) PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
 				}
 			}
 			else APU_ReadyToStart.ResetLine();
 
 			break;
 		case START:
-			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_START)) {
-				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
-				else PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP, 0);
+			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
+			if(STS()->GetSoundID()!=-1 && IsPlaying(STS()->GetSoundID(), APU_START)) {
+				PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
 			}
 		case ON:
 			if(FuelLevel[0]<=0.0) State=SHUTDOWN;
 			if(!APU_Run) {
 				State=SHUTDOWN;
-				if(STS()->GetSoundID()!=-1) PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
+				if(STS()->GetSoundID()!=-1) PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
 			}
 
 			if(APU_HydPumpPress) 

@@ -1,5 +1,4 @@
 #include "PanelR2.h"
-//#include <OrbiterSoundSDK35.h>
 #include "resource.h"
 #include "meshres.h"
 #include "meshres_vc.h"
