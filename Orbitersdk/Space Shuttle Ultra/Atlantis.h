@@ -87,20 +87,21 @@ const short VARSTATE_OFFSCALE_HIGH = 5;
 static const char* STD_CLASS_NAME = "SpaceShuttleUltra";
 
 //Sound IDs
+const static char* SOUND_DIRECTORY = "Sound\\_CustomVesselsSounds\\SpaceShuttleUltra\\";
 const int RCS_SOUND = 1;
-const static char* RCS_SOUND_FILE = "Sound\\ShuttleUltra\\RCS_Jet_Fire.wav";
+const static char* RCS_SOUND_FILE = "RCS_Jet_Fire.wav";
 const int MASTER_ALARM = 2;
-const static char* MASTER_ALARM_FILE = "Sound\\ShuttleUltra\\Master_Alarm.wav";
+const static char* MASTER_ALARM_FILE = "Master_Alarm.wav";
 const int APU_START = 3;
-const static char* APU_START_FILE = "Sound\\ShuttleUltra\\APU_start_up.wav";
+const static char* APU_START_FILE = "APU_start_up.wav";
 const int APU_RUNNING = 4;
-const static char* APU_RUNNING_FILE = "Sound\\ShuttleUltra\\APU_continues.wav";
+const static char* APU_RUNNING_FILE = "APU_continues.wav";
 const int APU_SHUTDOWN = 5;
-const static char* APU_SHUTDOWN_FILE = "Sound\\ShuttleUltra\\APU_shut_down.wav";
+const static char* APU_SHUTDOWN_FILE = "APU_shut_down.wav";
 const int SSME_START = 6;
-const static char* SSME_START_FILE = "Sound\\ShuttleUltra\\SSME_ignition.wav";
+const static char* SSME_START_FILE = "SSME_ignition.wav";
 const int SSME_RUNNING = 7;
-const static char* SSME_RUNNING_FILE = "Sound\\ShuttleUltra\\SSME_sustain.wav";
+const static char* SSME_RUNNING_FILE = "SSME_sustain.wav";
 
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
 const static char* TEXT_RMSCONTROL = "Controlling RMS";

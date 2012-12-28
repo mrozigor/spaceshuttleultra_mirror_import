@@ -126,7 +126,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string>
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 #include "../resource_Crawler.h"
 
 #include <UltraMath.h>
@@ -231,10 +231,11 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hEarth = NULL;
 
-	SoundID = ConnectToOrbiterSoundDLL3(GetHandle());
-	RequestLoadVesselWave3(SoundID, ENGINE_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
-	RequestLoadVesselWave3(SoundID, ENGINE_START_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine_startup.wav", BOTHVIEW_FADED_MEDIUM);
-	RequestLoadVesselWave3(SoundID, ENGINE_STOP_SOUND_ID, "Sound\\ShuttleUltra\\CrawlerEngine_shutdown.wav", BOTHVIEW_FADED_MEDIUM);
+	SoundID = ConnectToOrbiterSoundDLL(GetHandle());
+	SetMyDefaultWaveDirectory("Sound\\_CustomVesselsSounds\\SpaceShuttleUltra");
+	RequestLoadVesselWave(SoundID, ENGINE_SOUND_ID, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
+	RequestLoadVesselWave(SoundID, ENGINE_START_SOUND_ID, "CrawlerEngine_startup.wav", BOTHVIEW_FADED_MEDIUM);
+	RequestLoadVesselWave(SoundID, ENGINE_STOP_SOUND_ID, "CrawlerEngine_shutdown.wav", BOTHVIEW_FADED_MEDIUM);
 }
 
 Crawler::~Crawler() {

@@ -23,7 +23,7 @@
 #include "CommonDefs.h"
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 #include "PlBayOp.h"
 #include "Keyboard.h"
 #include "DlgCtrl.h"
@@ -2715,7 +2715,7 @@ void Atlantis::SeparateBoosters (double met)
   oapiWriteLog(cbuf);
 
   //stop playing sound
-  StopVesselWave3(SoundID, SSME_RUNNING);
+  StopVesselWave(SoundID, SSME_RUNNING);
 
   // change ET texture
   OBJHANDLE hTank = GetAttachmentStatus(ahET);
@@ -3964,21 +3964,24 @@ void Atlantis::clbkPostCreation ()
 	//oapiWriteLog("In clbkPostCreation");
 	VESSEL3::clbkPostCreation(); //may not be necessary
 
-	SoundID=ConnectToOrbiterSoundDLL3(GetHandle());
+	SoundID=ConnectToOrbiterSoundDLL(GetHandle());
 	if(SoundID!=-1) {
-		//NOTE: (char*) casts in RequestLoadVesselWave3 calls should be safe; I think RequestLoadVesselWave3 function just stores the file names (SiameseCat)
-		SoundOptionOnOff3(SoundID, PLAYATTITUDETHRUST, FALSE);
-		RequestLoadVesselWave3(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
+		//NOTE: (char*) casts in OrbiterSound calls should be safe; I think function just stores the file names (SiameseCat)
+		SetMyDefaultWaveDirectory(const_cast<char*>(SOUND_DIRECTORY));
+
+		SoundOptionOnOff(SoundID, PLAYATTITUDETHRUST, FALSE);
+		RequestLoadVesselWave(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
 
 		//SSME sounds
-		SoundOptionOnOff3(SoundID, PLAYMAINTHRUST, FALSE);
-		RequestLoadVesselWave3(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
-		RequestLoadVesselWave3(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+		SoundOptionOnOff(SoundID, PLAYMAINTHRUST, FALSE);
+		SoundOptionOnOff(SoundID, PLAYUSERTHRUST, FALSE);
+		RequestLoadVesselWave(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
+		RequestLoadVesselWave(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
 
 		//APU sounds
-		RequestLoadVesselWave3(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
-		RequestLoadVesselWave3(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
-		RequestLoadVesselWave3(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+		RequestLoadVesselWave(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+		RequestLoadVesselWave(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+		RequestLoadVesselWave(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 	}
 
 
@@ -4257,7 +4260,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[PITCH] != 1) {
 			lastRotCommand[PITCH] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
@@ -4266,7 +4269,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[PITCH] != -1) {
 			lastRotCommand[PITCH] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4280,7 +4283,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[YAW] != 1) {
 			lastRotCommand[YAW] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
@@ -4289,7 +4292,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[YAW] != -1) {
 			lastRotCommand[YAW] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4303,7 +4306,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[ROLL] != 1) {
 			lastRotCommand[ROLL] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
@@ -4312,7 +4315,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastRotCommand[ROLL] != -1) {
 			lastRotCommand[ROLL] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4327,7 +4330,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[0] != 1) {
 			lastTransCommand[0] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(TransThrusterCommands[0].GetVoltage() < -0.01) {
@@ -4336,7 +4339,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[0] != -1) {
 			lastTransCommand[0] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4350,7 +4353,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[1] != 1) {
 			lastTransCommand[1] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(TransThrusterCommands[1].GetVoltage() < -0.01) {
@@ -4359,7 +4362,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[1] != -1) {
 			lastTransCommand[1] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4373,7 +4376,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[2] != 1) {
 			lastTransCommand[2] = 1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else if(TransThrusterCommands[2].GetVoltage() < -0.01) {
@@ -4382,7 +4385,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 		if(lastTransCommand[2] != -1) {
 			lastTransCommand[2] = -1;
-			PlayVesselWave3(SoundID, RCS_SOUND);
+			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
 	else {
@@ -4557,7 +4560,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
 			RecordEvent ("STATUS", "SSME_IGNITION");
 			//play sounds
-			PlayVesselWave3(SoundID, SSME_START, NOLOOP);
+			PlayVesselWave(SoundID, SSME_START, NOLOOP);
 			//if(bAutopilot) 
 				//InitializeAutopilot(); //setup autopilot for ascent
 
@@ -4572,8 +4575,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		break;
 	case STATE_STAGE1: // SRB's ignited
 		//play sounds
-		if(!IsPlaying3(SoundID, SSME_START))
-			PlayVesselWave3(SoundID, SSME_RUNNING, LOOP);
+		if(!IsPlaying(SoundID, SSME_START))
+			PlayVesselWave(SoundID, SSME_RUNNING, LOOP);
 		for(unsigned short i = 0; i<3; i++)
 		{
 			if(th_ssme_gox[i] != NULL) {
@@ -4977,9 +4980,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//APU sounds
 		//STOP/START sounds are handled by APU instance; RUN sound applies to all 3 APUs and is handled here
 		if(pAPU[0]->IsRunning() || pAPU[1]->IsRunning() || pAPU[2]->IsRunning()) {
-			PlayVesselWave3(SoundID, APU_RUNNING, LOOP);
+			PlayVesselWave(SoundID, APU_RUNNING, LOOP);
 		}
-		else StopVesselWave3(SoundID, APU_RUNNING); //all 3 APUs are off, so stop sound
+		else StopVesselWave(SoundID, APU_RUNNING); //all 3 APUs are off, so stop sound
 	}
 
 	//sprintf(oapiDebugString(), "%i", last_mfd);
