@@ -73,11 +73,6 @@ VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v)
 	return v*cos(radAngle) + crossp(Axis, v)*sin(radAngle) + Axis*dotp(Axis, v)*(1-cos(radAngle));
 }
 
-void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
-{
-	RotateVector(Initial, -Angles, Result);
-}
-
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result)
 {
 	MATRIX3 RotMatrixX, RotMatrixY, RotMatrixZ;
