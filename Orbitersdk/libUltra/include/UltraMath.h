@@ -56,10 +56,6 @@ VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v);
  */
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 /**
- * Rotates vector around specified Euler angles in XYZ order in left-handed frame
- */
-void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-/**
  * Returns Euler angles (in radians); Pitch=X axis, Yaw=Y axis, Roll=Z axis
  */
 VECTOR3 GetZYX_RYPAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
