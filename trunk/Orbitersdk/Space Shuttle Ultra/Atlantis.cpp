@@ -3358,12 +3358,12 @@ void Atlantis::UpdateHandControllerSignals()
 		if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
 			RMS_THCInput[0].SetLine(5.0f*(float)(AltKybdInput.x));
 			RMS_THCInput[1].SetLine(5.0f*(float)(AltKybdInput.y));
-			RMS_THCInput[2].SetLine(5.0f*(float)(-AltKybdInput.z));
+			RMS_THCInput[2].SetLine(5.0f*(float)(AltKybdInput.z));
 		}
 		else {
 			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
 			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
+			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP)));
 		}
 		for(int i=0;i<3;i++) {
 			RHCInput.data[i]=0.0;
