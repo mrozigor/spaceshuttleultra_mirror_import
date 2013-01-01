@@ -759,35 +759,18 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	if(fabs(cos_phi_s2)>1) return false; //Can't reach with shoulder
 	new_joint_angles[SHOULDER_PITCH]=DEG*(-atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
 
-	// make sure values calculated are within bounds
-	// make sure speed of each joint is within limits
-	for(int i=SHOULDER_YAW;i<=ELBOW_PITCH;i++)
-	{
-		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
-		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
-			return false;
-		}
-		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
-		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
-		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
-			return false;
-		}
-	}
-
 	new_joint_angles[WRIST_PITCH]=phi-new_joint_angles[SHOULDER_PITCH]-new_joint_angles[ELBOW_PITCH];
 
 	// check values are within bounds
 	// make sure speed of each joint is within limits
-	for(int i=WRIST_PITCH;i<=WRIST_YAW;i++)
+	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
 		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
 		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
 			return false;
 		}
-		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
+		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;
 		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
 		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
