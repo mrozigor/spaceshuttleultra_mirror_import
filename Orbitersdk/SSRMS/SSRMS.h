@@ -11,7 +11,8 @@
 static const char* ATTACH_ID = "GS";
 //static const char* ATTACH_ID = "A";
 
-const double JOINT_ROTATION_SPEED = 1.0; // deg/s
+const double JOINT_ROTATION_SPEED = 1.0; // rotation speed for single joint ops (deg/s)
+const double JOINT_SPEED_LIMIT = 4.0; // maximum possible joint rotation speed (deg/s) - at the moment, this number is just a guess
 const double EE_ROTATION_SPEED = RAD*1.0; // rad/s
 const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
 
@@ -75,7 +76,7 @@ private:
 	void DefineThrusters();
 
 	//SSRMS functions
-	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot);
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
 	/**
 	 * Sets joint angle
 	 * @parameter angle - angle in degrees

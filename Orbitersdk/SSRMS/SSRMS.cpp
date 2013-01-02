@@ -185,7 +185,7 @@ void SSRMS::DefineThrusters()
 	CreateThrusterGroup(rms_control+5, 1, THGROUP_ATT_BACK);*/
 }
 
-bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot)
+bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT)
 {
 	double new_joint_angles[7]; // angles in degrees
 
@@ -329,6 +329,11 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	for(int joint=SHOULDER_YAW;joint<=WRIST_ROLL;joint++) {
 		if(new_joint_angles[joint]<JOINT_SOFTSTOPS[0] || new_joint_angles[joint]>JOINT_SOFTSTOPS[1]) {
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", joint, new_joint_angles[joint]);
+			return false;
+		}
+		double speed = abs(new_joint_angles[joint]-joint_angle[joint])/DeltaT;
+		if(speed > JOINT_SPEED_LIMIT*SpeedFactor) { // it probably isn't realistic to scale by speed factor here
+			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", joint, speed);
 			return false;
 		}
 	}
@@ -563,7 +568,7 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 				//RotateVectorPYR(arm_ee_rot, _V(RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]), newRot);
 				//RotateVector(crossp(arm_ee_dir, arm_ee_rot), RHCInput, newDir);
 			}
-			MoveEE(arm_ee_pos+EETrans, newDir, newRot);
+			MoveEE(arm_ee_pos+EETrans, newDir, newRot, SimDT);
 		}
 		//if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.01)) MoveEE(arm_ee_pos+RotateVectorZ(EETrans, joint_angle[SHOULDER_ROLL]), arm_ee_dir, arm_ee_rot);
 	}
