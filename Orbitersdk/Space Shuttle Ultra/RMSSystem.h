@@ -63,7 +63,7 @@ const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6,
 										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
 
 //const double RMS_JOINT_ROTATION_SPEED = 1.5;
-const double RMS_JOINT_MAX_ROTATION_SPEED[6] = {20.0, 20.0, 20.0, 20.0, 20.0, 20.0}; // mechanical limits; numbers are made up
+const double RMS_JOINT_MAX_ROTATION_SPEED[6] = {40.0, 40.0, 40.0, 40.0, 40.0, 40.0}; // mechanical limits; numbers are made up
 const double RMS_JOINT_COARSE_ROTATION_SPEEDS[6] = {1.27, 1.27, 1.78, 2.64, 2.64, 2.64}; // software limits; from PL ID 0
 const double RMS_JOINT_VERN_ROTATION_SPEEDS[6] = {0.42, 0.42, 0.59, 0.88, 0.88, 0.88}; // software limits; from PL ID 0
 // max rotation/translation sppeds from STS-125 PDRS Flight Supplement (PL ID 0)
