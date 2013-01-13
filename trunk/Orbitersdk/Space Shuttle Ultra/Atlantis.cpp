@@ -7761,12 +7761,12 @@ AMAX=1
 TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0, 0.60, 1.2, 1.35, PARTICLESTREAMSPEC::EMISSIVE, 
-	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
+	  0, 0.06, 140, 10, 0, 1.2, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
 
-	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1");
+	gox_stream.tex = oapiRegisterParticleTexture ("contrail1");
 
 
 	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);

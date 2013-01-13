@@ -25,8 +25,8 @@ const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
 const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
 //const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.2,-1.91,-5.68 };
 //const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.2,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.5,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.5,-1.91,-5.68 };
+const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.27,-1.91,-5.68 };
+const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
 const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
 const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
@@ -35,8 +35,8 @@ const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
-const VECTOR3 LSRB_ATTACH_POS = _V(-6.3, -7.7, 2.8);
-const VECTOR3 RSRB_ATTACH_POS = _V(6.3, -7.7, 2.8);
+const VECTOR3 LSRB_ATTACH_POS = _V(-6.27, -7.7, 2.8);
+const VECTOR3 RSRB_ATTACH_POS = _V(6.27, -7.7, 2.8);
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;

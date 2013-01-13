@@ -14,7 +14,7 @@ HINSTANCE hPad_DLL;
 
 
 VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
-	_V(-58.2, -0.75, 1.3) + _V(185, 93, -107),
+	_V(-58.2, -0.75, 1.3) + _V(185, 93, -104),
 };
 
 VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
@@ -206,10 +206,10 @@ void SSUPad::CreateLights() {
 		AddBeacon(&lights[i]);
 	}
 
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.925, 1, 0.925, 1};
+	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
 	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
 	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
-	const double STADIUM_LIGHT_RANGE = 300.0;
+	const double STADIUM_LIGHT_RANGE = 100.0;
 	const double STADIUM_LIGHT_ATT0 = 1e-3;
 	const double STADIUM_LIGHT_ATT1 = 0;
 	const double STADIUM_LIGHT_ATT2 = 1e-3;
@@ -845,7 +845,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.6, 15, 1.15, 5, 1.03, 0.5, 6.0, PARTICLESTREAMSPEC::EMISSIVE, 
+	  0, 0.8, 15, 7, 0, 3, 1.25, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
