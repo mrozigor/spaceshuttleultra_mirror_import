@@ -320,11 +320,13 @@ void AscentGuidance::SecondStageRateCommand()
 				degReqdRates.data[ROLL]=range(-5.0, degReqdRates.data[ROLL], 5.0);
 			}
 			else {
-				degReqdRates.data[ROLL] = range(-5.0, 0.5*degBank, 5.0);
+				if(abs(degBank) > 20.0) degReqdRates.data[ROLL] = -5.0;
+				else degReqdRates.data[ROLL] = range(-2.0, 0.5*degBank, 2.0);
 				if(abs(degBank)>2.5) { //roll in progress
 					VECTOR3 vel;
 					STS()->GetHorizonAirspeedVector(vel);
-					double cyaw = -DEG*atan(vel.x/vel.z) + DEG*radHeading;
+					//double cyaw = -DEG*atan(vel.x/vel.z) + DEG*radHeading;
+					double cyaw = DEG*radHeading - DEG*atan2(vel.x, vel.z); // error between heading of stack and velocity vector
 					double tpitch=target_pitch-ThrAngleP*cos(degBank*RAD);
 					degReqdRates.data[PITCH]=tpitch-STS()->GetPitch()*DEG;
 					degReqdRates.data[YAW]=-ThrAngleP*sin(degBank*RAD)+cyaw;
