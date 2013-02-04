@@ -417,7 +417,6 @@
     <ClInclude Include="vc\AtlantisPanel.h" />
     <ClInclude Include="vc\BasicRotarySwitch.h" />
     <ClInclude Include="vc\BasicSwitch.h" />
-    <ClInclude Include="BasicValve.h" />
     <ClInclude Include="vc\AtlantisVCComponent.h" />
     <ClInclude Include="dps\BIU.h" />
     <ClInclude Include="mps\BLOCK_II.h" />
