@@ -1005,10 +1005,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BasicValve.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\BIU.h"
 				>
 			</File>
