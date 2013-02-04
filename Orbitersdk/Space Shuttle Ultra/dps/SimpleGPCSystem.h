@@ -20,7 +20,7 @@ class SimpleGPCSystem : public AtlantisSubsystem
 	std::vector<SimpleGPCSoftware*> vSoftware; // all software
 	std::vector<SimpleGPCSoftware*> vActiveSoftware; // software used in current major mode
 
-	unsigned int majorMode;
+	unsigned int majorMode, newMajorMode;
 public:
 	SimpleGPCSystem(AtlantisSubsystemDirector* _director);
 	virtual ~SimpleGPCSystem();
