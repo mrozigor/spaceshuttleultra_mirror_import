@@ -16,7 +16,7 @@ namespace dps
 {
 
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
-: AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
+: AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101), newMajorMode(0)
 {
 	vSoftware.push_back( new MPS_Dedicated_Display_Driver( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
@@ -37,12 +37,7 @@ SimpleGPCSystem::~SimpleGPCSystem()
 
 void SimpleGPCSystem::SetMajorMode(unsigned int newMM)
 {
-	vActiveSoftware.clear();
-	for(unsigned int i=0;i<vSoftware.size();i++) {
-		if(vSoftware[i]->OnMajorModeChange(newMM))
-			vActiveSoftware.push_back(vSoftware[i]);
-	}
-	majorMode = newMM;
+	newMajorMode = newMM;
 }
 
 bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) const
@@ -81,7 +76,17 @@ void SimpleGPCSystem::Realize()
 
 void SimpleGPCSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	//assert(majorMode == STS()->GetGPCMajorMode()); // TODO: change major mode only in this class
+	// if major mode changed sometime in the last timestep, update major mode
+	if(newMajorMode != 0) {
+		vActiveSoftware.clear();
+		for(unsigned int i=0;i<vSoftware.size();i++) {
+			if(vSoftware[i]->OnMajorModeChange(newMajorMode))
+				vActiveSoftware.push_back(vSoftware[i]);
+		}
+		majorMode = newMajorMode;
+		newMajorMode = 0;
+	}
+
 	for(unsigned int i=0;i<vActiveSoftware.size();i++)
 		vActiveSoftware[i]->OnPreStep(SimT, DeltaT, MJD);
 }
