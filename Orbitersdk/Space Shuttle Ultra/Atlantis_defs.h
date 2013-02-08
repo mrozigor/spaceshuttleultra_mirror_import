@@ -32,7 +32,7 @@ const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
-const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
+const VECTOR3 ODS_POS = _V(0.0, 0.85, 9);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
 const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
 const VECTOR3 LSRB_ATTACH_POS = _V(-6.27, -7.7, 2.8);
@@ -66,8 +66,8 @@ const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
-const VECTOR3 PROBEL_REF = _V(-1.20, -1.0894815, 19.4175);
-const VECTOR3 PROBER_REF = _V( 1.20, -1.0894815, 19.4175);
+const VECTOR3 PROBEL_REF = _V(-1.175, -1.0894815, 19.28);
+const VECTOR3 PROBER_REF = _V( 1.175, -1.0894815, 19.28);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 
