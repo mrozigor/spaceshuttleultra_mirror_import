@@ -2575,6 +2575,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
 	mesh_middeck = AddMesh(hMidDeckMesh, &ofs);
 	//Only make visible when actually inside the mid deck
+	bMidDeckVisible = false;
 	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
 
@@ -5727,9 +5728,12 @@ bool Atlantis::clbkLoadVC (int id)
   // Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
   //if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
   if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
-	SetMeshVisibilityMode (mesh_vc, MESHVIS_EXTERNAL);
+	// for PLBD/RMS camera views, show hid internal VC mesh and show cockpit mesh meant to be seen in external views
+	SetMeshVisibilityMode (mesh_vc, MESHVIS_NEVER);
+	SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
   } else {
 	SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
+	SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
   }
 
   if(pRMS) {
