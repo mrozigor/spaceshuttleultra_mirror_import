@@ -178,18 +178,30 @@ void PayloadBayOp::SetDoorAction (AnimState::Action action)
 void PayloadBayOp::AutoDoorSequenceControl()
 {
 	if(BayDoorOp==BDO_OPEN) {
-		if(!CLBayDoorLatch[1].Open()) CLBayDoorLatch[1].action=AnimState::OPENING;
-		else if(!CLBayDoorLatch[2].Open()) CLBayDoorLatch[2].action=AnimState::OPENING;
-		else if(!CLBayDoorLatch[0].Open()) CLBayDoorLatch[0].action=AnimState::OPENING;
-		else if(!CLBayDoorLatch[3].Open()) CLBayDoorLatch[3].action=AnimState::OPENING;
-		else if(!BayDoorStatus.Open()) SetDoorAction(AnimState::OPENING);
+		if(!CLBayDoorLatch[1].Open() || !CLBayDoorLatch[2].Open()) { // open middle gangs first
+			if(!CLBayDoorLatch[1].Open()) CLBayDoorLatch[1].action=AnimState::OPENING;
+			if(!CLBayDoorLatch[2].Open()) CLBayDoorLatch[2].action=AnimState::OPENING;
+		}
+		else if(!CLBayDoorLatch[0].Open() || !CLBayDoorLatch[3].Open()) { // next open remaining gangs
+			if(!CLBayDoorLatch[0].Open()) CLBayDoorLatch[0].action=AnimState::OPENING;
+			if(!CLBayDoorLatch[3].Open()) CLBayDoorLatch[3].action=AnimState::OPENING;
+		}
+		else { // finally, open PLBD doors
+			if(!BayDoorStatus.Open()) SetDoorAction(AnimState::OPENING);
+		}
 	}
 	else if(BayDoorOp==BDO_CLOSE) {
-		if(!BayDoorStatus.Closed()) SetDoorAction(AnimState::CLOSING);
-		else if(!CLBayDoorLatch[0].Closed()) CLBayDoorLatch[0].action=AnimState::CLOSING;
-		else if(!CLBayDoorLatch[3].Closed()) CLBayDoorLatch[3].action=AnimState::CLOSING;
-		else if(!CLBayDoorLatch[1].Closed()) CLBayDoorLatch[1].action=AnimState::CLOSING;
-		else if(!CLBayDoorLatch[2].Closed()) CLBayDoorLatch[2].action=AnimState::CLOSING;
+		if(!BayDoorStatus.Closed()) { // close PLBD doors first
+			SetDoorAction(AnimState::CLOSING);
+		}
+		else if(!CLBayDoorLatch[0].Closed() || !CLBayDoorLatch[3].Closed()) { // then close fwd and aft latch gangs
+			if(!CLBayDoorLatch[0].Closed()) CLBayDoorLatch[0].action=AnimState::CLOSING;
+			if(!CLBayDoorLatch[3].Closed()) CLBayDoorLatch[3].action=AnimState::CLOSING;
+		}
+		else { // finally, close middle latch gangs
+			if(!CLBayDoorLatch[1].Closed()) CLBayDoorLatch[1].action=AnimState::CLOSING;
+			if(!CLBayDoorLatch[2].Closed()) CLBayDoorLatch[2].action=AnimState::CLOSING;
+		}
 	}
 	else { // BDO_STOP
 		if(BayDoorStatus.Moving()) SetDoorAction(AnimState::STOPPED);
