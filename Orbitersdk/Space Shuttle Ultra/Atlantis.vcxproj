@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Analysis (Debug)|Win32">
@@ -135,6 +135,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -153,6 +154,7 @@
       <StackReserveSize>4194304</StackReserveSize>
       <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -252,6 +254,7 @@
     <ClCompile Include="dps\HALS_Compilations.cpp" />
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
+    <ClCompile Include="dps\MM801.cpp" />
     <ClCompile Include="dps\MMU.cpp" />
     <ClCompile Include="dps\MPS_Dedicated_Display_Driver.cpp" />
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
@@ -393,6 +396,7 @@
     <ClInclude Include="dps\HALS_Types.h" />
     <ClInclude Include="dps\IOModule.h" />
     <ClInclude Include="dps\MDM.h" />
+    <ClInclude Include="dps\MM801.h" />
     <ClInclude Include="dps\MPS_Dedicated_Display_Driver.h" />
     <ClInclude Include="dps\OMSBurnSoftware.h" />
     <ClInclude Include="dps\OrbitDAP.h" />

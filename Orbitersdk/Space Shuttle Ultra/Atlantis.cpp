@@ -4395,7 +4395,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		lastTransCommand[2] = 0;
 	}
 	
-	if(pSimpleGPC->GetMajorMode()==304 || pSimpleGPC->GetMajorMode()==305) {
+	if(pSimpleGPC->GetMajorMode()==304 || pSimpleGPC->GetMajorMode()==305 || pSimpleGPC->GetMajorMode() == 801) {
 		double elevonPos = 0.0;
 		double aileronPos = 0.0;
 		if(HydraulicsOK()) {
@@ -4414,6 +4414,14 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			aerosurfaces.rudder = 0.0;
 			aerosurfaces.speedbrake = 0.0;
 		}
+
+		if(pSimpleGPC->GetMajorMode() == 801)
+		{
+			elevonPos = range(-33.0,ElevonCommand.GetVoltage()*33.0, 18.0);
+			aerosurfaces.leftElevon = range(-33.0, elevonPos*10, 18.0);
+			aerosurfaces.rightElevon = range(-33.0, elevonPos*10, 18.0);
+		}
+
 		// set animations corresponding to aerosurface positions
 		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
 		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
@@ -4424,6 +4432,15 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
 		
 	}
+
+
+	//moving aerosurfaces according to MM801
+	if(pSimpleGPC->GetMajorMode() == 801)
+	{
+		double elevonPos = range(-33.0,ElevonCommand.GetVoltage()*33.0, 18.0);
+		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
+	}
+
 
 	// if we reenter PLBD cam view from external view, update camera direction
 	if(!bLastCamInternal && oapiCameraInternal()) {

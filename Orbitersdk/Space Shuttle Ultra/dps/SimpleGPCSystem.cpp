@@ -10,6 +10,7 @@
 #include "SSME_SOP.h"
 #include "RSLS_old.h"
 #include "MPS_Dedicated_Display_Driver.h"
+#include "MM801.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -27,6 +28,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back(new OMSBurnSoftware(this));
 	vSoftware.push_back(new OrbitTgtSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
+	vSoftware.push_back(new MM801(this));
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()
@@ -50,7 +52,7 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 	case 106:
 		return majorMode == 105;
 	case 201:
-		return (majorMode == 106 || majorMode == 202 || majorMode == 301);
+		return (majorMode == 106 || majorMode == 202 || majorMode == 301 || majorMode == 801);
 	case 202:
 		return majorMode == 201;
 	case 301:
@@ -63,6 +65,8 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 		return majorMode == 303;
 	case 305:
 		return majorMode == 304;
+	case 801:
+		return majorMode == 201;
 	default:
 		return false;
 	}
