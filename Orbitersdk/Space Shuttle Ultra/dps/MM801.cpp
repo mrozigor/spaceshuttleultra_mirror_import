@@ -1,7 +1,7 @@
 #include "MM801.h"
 #include "../Atlantis.h"
 
-#define ELEVON_MOVE_SPEED 0.01
+#define ELEVON_MOVE_SPEED 0.2
 
 namespace dps
 {
@@ -62,28 +62,28 @@ namespace dps
 	{
 		double actual_voltage = ElevonCommandRead.GetVoltage();
 		
-		if(bFCSTestActive)
+		if(bFCSTestActive && STS()->HydraulicsOK())
 		{
 			if(bElevonMoveUpwards)
-				ElevonCommand.SetLine(actual_voltage+ELEVON_MOVE_SPEED*DeltaT);
+				ElevonCommand.SetLine(static_cast<float>(actual_voltage+ELEVON_MOVE_SPEED*DeltaT));
 
 			if(!bElevonMoveUpwards)
-				ElevonCommand.SetLine(actual_voltage-ELEVON_MOVE_SPEED*DeltaT);
+				ElevonCommand.SetLine(static_cast<float>(actual_voltage-ELEVON_MOVE_SPEED*DeltaT));
 
 			if(bParkElevons)
 			{
 				if(actual_voltage > 0)
-					ElevonCommand.SetLine(max(0,actual_voltage-ELEVON_MOVE_SPEED*DeltaT));
+					ElevonCommand.SetLine(static_cast<float>(max(0,actual_voltage-ELEVON_MOVE_SPEED*DeltaT)));
 
 				if(actual_voltage < 0)
-					ElevonCommand.SetLine(min(0,actual_voltage+ELEVON_MOVE_SPEED*DeltaT));
+					ElevonCommand.SetLine(static_cast<float>(min(0,actual_voltage+ELEVON_MOVE_SPEED*DeltaT)));
 			}
 
 			//WHY 0.1f? Because that way elevons imitating "stop motion" when fully up/down.
-			if(actual_voltage >= 0.1f)
+			if(actual_voltage >= 1.0f)
 				bElevonMoveUpwards = false;
 
-			if(actual_voltage <= -0.1f)
+			if(actual_voltage <= -1.0f)
 				bElevonMoveUpwards = true;
 
 			if(actual_voltage == 0.0f && bParkElevons)
