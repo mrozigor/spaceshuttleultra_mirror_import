@@ -4407,6 +4407,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			aerosurfaces.rightElevon = range(-33.0, elevonPos+aileronPos, 18.0);
 			aerosurfaces.bodyFlap = 0.0;
 			aerosurfaces.speedbrake = spdb_proc*100.0;
+			//if(pSimpleGPC->GetMajorMode() == 801)
+				//aerosurfaces.bodyFlap = (ElevonCommand.GetVoltage() + 1.0)/2.0 * 100.0;
 		}
 		else {
 			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
@@ -4422,7 +4424,10 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetAnimation(anim_elev, (ElevonCommand.GetVoltage()+1.0)/2.0);
 
 		if(pSimpleGPC->GetMajorMode() == 801)
+		{
 			SetControlSurfaceLevel(AIRCTRL_RUDDER,ElevonCommand.GetVoltage());
+			//SetControlSurfaceLevel(AIRCTRL_FLAP,ElevonCommand.GetVoltage());
+		}
 		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
 		//SetAnimation(anim_elev, (AileronCommand.GetVoltage() +1.0)/2.0);
 

@@ -19,6 +19,8 @@ namespace dps
 			virtual bool ItemInput(int spec, int item, const char* Data);
 			//virtual bool ExecPressed(int spec);
 			virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
+			std::string ElevonVoltage2DegreesString(float voltage) const;
+			std::string RudderVoltage2DegreesString(float voltage) const;
 
 		private:
 			DiscOutPort ElevonCommand;
@@ -28,6 +30,7 @@ namespace dps
 			bool bFCSTestActive;
 			bool bElevonMoveUpwards;
 			bool bParkElevons;
+			
 	};
 
 
