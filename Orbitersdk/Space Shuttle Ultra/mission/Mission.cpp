@@ -45,7 +45,7 @@ namespace mission {
 		bHasBulkheadFloodlights = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-		fODSZPos = 10.1529;
+		fODSZPos = 10.6;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
