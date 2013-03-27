@@ -2164,9 +2164,9 @@ void Atlantis::DefineAnimations (void)
   // ***** SSME Gimbal Animations *****
 
 
-  static UINT SSMET_Grp[1] = {GRP_SSMET};
-  static UINT SSMEL_Grp[1] = {GRP_SSMEL};
-  static UINT SSMER_Grp[1] = {GRP_SSMER};
+  static UINT SSMET_Grp[1] = {GRP_CENTER_SSME};
+  static UINT SSMEL_Grp[1] = {GRP_LEFT_SSME};
+  static UINT SSMER_Grp[1] = {GRP_RIGHT_SSME};
   static VECTOR3 ssmet_dummy_vec;
   static VECTOR3 ssmer_dummy_vec;
   static VECTOR3 ssmel_dummy_vec;
@@ -8053,7 +8053,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 0, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
