@@ -270,8 +270,15 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
 	//sprint
 
-	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
+	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
+		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
+	}
+	else {
+		*cl = 0.0;
+		*cm = 0.0;
+		*cd = 0.0;
+	}
 }
 
 void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
@@ -281,51 +288,47 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	//static const int nabsc = 17;
 	//static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
 
-	double aoa = v->GetAOA()*DEG;
-	AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
-	//double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
-	double aileronPos = aerosurfaces->rightElevon-aerosurfaces->leftElevon;
+	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		double aoa = v->GetAOA()*DEG;
+		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
+		double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+		//double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
+		double aileronPos = aerosurfaces->rightElevon-aerosurfaces->leftElevon;
 
-	double sideForce, yawMoment, rollMoment;
-	horizontalLookup.GetValues(M, aoa, abs(beta)*DEG, aerosurfaces->speedbrake, sideForce, yawMoment, rollMoment);
-	sideForce *= sign(beta);
-	yawMoment *= sign(beta);
-	rollMoment *= sign(beta);
-	//sideForce = yawMoment = rollMoment = 0.0;
+		double sideForce, yawMoment, rollMoment;
+		horizontalLookup.GetValues(M, aoa, abs(beta)*DEG, aerosurfaces->speedbrake, sideForce, yawMoment, rollMoment);
+		sideForce *= sign(beta);
+		yawMoment *= sign(beta);
+		rollMoment *= sign(beta);
+		//sideForce = yawMoment = rollMoment = 0.0;
 
-	double ailSideForce, ailYawMoment, ailRollMoment;
-	// get linearized derivatives and multiply results by aileron deflection
-	//aileronHorizontalLookup.GetValues(M, aoa*DEG, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
-	aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
-	sideForce += ailSideForce*aileronPos;
-	yawMoment += ailYawMoment*aileronPos;
-	rollMoment += ailRollMoment*aileronPos;
+		double ailSideForce, ailYawMoment, ailRollMoment;
+		// get linearized derivatives and multiply results by aileron deflection
+		//aileronHorizontalLookup.GetValues(M, aoa*DEG, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
+		aileronHorizontalLookup.GetValues(M, aoa, elevonPos, ailSideForce, ailYawMoment, ailRollMoment);
+		sideForce += ailSideForce*aileronPos;
+		yawMoment += ailYawMoment*aileronPos;
+		rollMoment += ailRollMoment*aileronPos;
 	
-	// split side force into 'lift' and 'drag' components
-	VECTOR3 sideForceVec = _V(sideForce, 0.0, 0.0);
-	VECTOR3 ld = RotateVectorZ(sideForceVec, beta*DEG);
+		// split side force into 'lift' and 'drag' components
+		VECTOR3 sideForceVec = _V(sideForce, 0.0, 0.0);
+		VECTOR3 ld = RotateVectorZ(sideForceVec, beta*DEG);
 
-	double qbar = v->GetDynPressure();
-	double rollForce = rollMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
-	// add force caused by aileron deflection
-	v->AddForce(_V(0.0, -0.5*rollForce, 0.0), _V(-1.0, 0.0, 0.0));
-	v->AddForce(_V(0.0, 0.5*rollForce, 0.0), _V(1.0, 0.0, 0.0));
+		double qbar = v->GetDynPressure();
+		double rollForce = rollMoment*qbar*ORBITER_WING_AREA*ORBITER_SPAN;
+		// add force caused by aileron deflection
+		v->AddForce(_V(0.0, -0.5*rollForce, 0.0), _V(-1.0, 0.0, 0.0));
+		v->AddForce(_V(0.0, 0.5*rollForce, 0.0), _V(1.0, 0.0, 0.0));
 
-	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
-		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
-	//sprintf_s(oapiDebugString(), 255, "Left: %f Right: %f Aileron: %f Lift: %f Drag: %f Moment: %f",
-		//aerosurfaces->leftElevon, aerosurfaces->rightElevon, aileronPos, ailLift, ailDrag, ailMoment);
-
-	//beta += PI;
-	//int idx = max (0, min (15, (int)(beta*istep)));
-	//double d = beta*istep - idx;
-	//*cl = CL[idx] + (CL[idx+1]-CL[idx])*d + ld.x;
-	*cl = ld.x;
-	*cm = 0.0 + yawMoment;
-	//*cm = 0.02;
-	//*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
-	*cd = 0.0 + ld.y;
+		*cl = ld.x;
+		*cm = yawMoment;
+		*cd = ld.y;
+	}
+	else {
+		*cl = 0.0;
+		*cm = 0.0;
+		*cd = 0.0;
+	}
 }
 void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
 {
