@@ -4254,7 +4254,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 
 	// check inputs from GPC and set thrusters
 	//sprintf_s(oapiDebugString(), 255, "RCS: %f %f %f", RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[YAW].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage());
-	if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
+	if(RotThrusterCommands[PITCH].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
 		SetThrusterGroupLevel(thg_pitchdown, 0.0);
 
@@ -4263,7 +4263,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
+	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
 		SetThrusterGroupLevel(thg_pitchup, 0.0);
 
@@ -4277,7 +4277,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_pitchdown, 0.0);
 		lastRotCommand[PITCH] = 0;
 	}
-	if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
+	if(RotThrusterCommands[YAW].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
 		SetThrusterGroupLevel(thg_yawleft, 0.0);
 
@@ -4286,7 +4286,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
+	else if(RotThrusterCommands[YAW].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
 		SetThrusterGroupLevel(thg_yawright, 0.0);
 
@@ -4300,7 +4300,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_yawleft, 0.0);
 		lastRotCommand[YAW] = 0;
 	}
-	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
+	if(RotThrusterCommands[ROLL].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_rollright, RotThrusterCommands[ROLL].GetVoltage());
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
 
@@ -4309,7 +4309,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
+	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_rollleft, -RotThrusterCommands[ROLL].GetVoltage());
 		SetThrusterGroupLevel(thg_rollright, 0.0);
 
@@ -4324,7 +4324,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		lastRotCommand[ROLL] = 0;
 	}
 
-	if(TransThrusterCommands[0].GetVoltage() > 0.01) {
+	if(TransThrusterCommands[0].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_transfwd, 1.0);
 		SetThrusterGroupLevel(thg_transaft, 0.0);
 
@@ -4333,7 +4333,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(TransThrusterCommands[0].GetVoltage() < -0.01) {
+	else if(TransThrusterCommands[0].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_transaft, 1.0);
 		SetThrusterGroupLevel(thg_transfwd, 0.0);
 
@@ -4347,7 +4347,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_transaft, 0.0);
 		lastTransCommand[0] = 0;
 	}
-	if(TransThrusterCommands[1].GetVoltage() > 0.01) {
+	if(TransThrusterCommands[1].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_transright, 1.0);
 		SetThrusterGroupLevel(thg_transleft, 0.0);
 
@@ -4356,7 +4356,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(TransThrusterCommands[1].GetVoltage() < -0.01) {
+	else if(TransThrusterCommands[1].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_transleft, 1.0);
 		SetThrusterGroupLevel(thg_transright, 0.0);
 
@@ -4370,7 +4370,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_transleft, 0.0);
 		lastTransCommand[1] = 0;
 	}
-	if(TransThrusterCommands[2].GetVoltage() > 0.01) {
+	if(TransThrusterCommands[2].GetVoltage() > 0.0001) {
 		SetThrusterGroupLevel(thg_transdown, 1.0);
 		SetThrusterGroupLevel(thg_transup, 0.0);
 
@@ -4379,7 +4379,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			PlayVesselWave(SoundID, RCS_SOUND);
 		}
 	}
-	else if(TransThrusterCommands[2].GetVoltage() < -0.01) {
+	else if(TransThrusterCommands[2].GetVoltage() < -0.0001) {
 		SetThrusterGroupLevel(thg_transup, 1.0);
 		SetThrusterGroupLevel(thg_transdown, 0.0);
 

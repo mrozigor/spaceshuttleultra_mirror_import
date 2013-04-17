@@ -64,6 +64,7 @@ pStateVector(NULL)
 		RotPulseInProg[i] = false;
 		TransPulseInProg[i]=false;
 		RotatingAxis[i] = false;
+		NullingRates[i] = false;
 
 		//Initialize DAP Config
 		DAPConfiguration[i].PRI_ROT_RATE=0.2;
@@ -268,6 +269,8 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 
 void OrbitDAP::CalcEulerAxisRates()
 {	
+	double timeAcc = max(1.0, oapiGetTimeAcceleration());
+
 	VECTOR3 RotationAxis;
 	double RotationAngle=CalcEulerAngle(attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
@@ -276,9 +279,10 @@ void OrbitDAP::CalcEulerAxisRates()
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {
 			degReqdRates.data[i]=RotationAxis.data[i]*degRotRate;
-			if(abs(ATT_ERR.data[i]) <= NullStartAngle(abs(radAngularVelocity.data[i]), OrbiterMass, PMI.data[i], Torque.data[i])) {
+			if(abs(ATT_ERR.data[i]) <= NullStartAngle(abs(radAngularVelocity.data[i]), OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc)) {
 				degReqdRates.data[i] = 0.0;
 				RotatingAxis[i] = false;
+				NullingRates[i] = true;
 			}
 			else RotatingAxis[i] = true;
 		}
@@ -290,18 +294,23 @@ void OrbitDAP::CalcEulerAxisRates()
 
 void OrbitDAP::CalcMultiAxisRates(const VECTOR3& degNullRatesLocal)
 {
+	double timeAcc = max(1.0, oapiGetTimeAcceleration());
+
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {
 			degReqdRates.data[i]=0.0;
 			if((RotatingAxis[i] || abs(ATT_ERR.data[i])>degAttDeadband)) {
-				if(abs(ATT_ERR.data[i])<0.05) RotatingAxis[i]=false;
+				if(abs(ATT_ERR.data[i])<0.05) {
+					RotatingAxis[i]=false;
+					NullingRates[i] = true;
+				}
 				else {
 					RotatingAxis[i]=true;
-					if(abs(ATT_ERR.data[i]) <= NullStartAngle(abs(radAngularVelocity.data[i]), OrbiterMass, PMI.data[i], Torque.data[i])) {
+					if(abs(ATT_ERR.data[i]) <= NullStartAngle(abs(radAngularVelocity.data[i]), OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc)) {
 						degReqdRates.data[i] = 0.0;
 					}
 					else {
-						degReqdRates.data[i] = sign(ATT_ERR.data[i])*range(degRotRate/10.0, abs(ATT_ERR.data[i])/5.0, degRotRate);
+						degReqdRates.data[i] = sign(ATT_ERR.data[i])*range(0.05*degRotRate, abs(ATT_ERR.data[i])/5.0, 0.1*degRotRate);
 					}
 				}
 			}
@@ -311,10 +320,6 @@ void OrbitDAP::CalcMultiAxisRates(const VECTOR3& degNullRatesLocal)
 		}
 	}
 
-	if(oapiGetTimeAcceleration()>10.0)
-	{
-		degReqdRates=degReqdRates/(2.0*oapiGetTimeAcceleration()/10.0);
-	}
 	// add null rates to maintain attitude in rotation frame
 	for(int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) degReqdRates.data[i]+=degNullRatesLocal.data[i];
@@ -338,7 +343,7 @@ void OrbitDAP::UpdateNullRates()
 
 void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
-	const VECTOR3 PRI_LIMITS = _V(0.01, 0.01, 0.01);
+	const VECTOR3 PRI_LIMITS = _V(0.005, 0.005, 0.005);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
@@ -351,13 +356,17 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 	double timeAcc = max(1.0, oapiGetTimeAcceleration());
 	if(DAPMode != VERN) { // PRI/ALT
 		for(unsigned int i=0;i<3;i++) {
-			Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
+			//if(RotatingAxis[i] || NullingRates[i]) Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
+			if(RotatingAxis[i]) Limits.data[i] = max(2.0*PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
+			else if(NullingRates[i]) Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
+			else Limits.data[i] = degRateDeadband;
 		}
 		MaxThrusterLevel = 1.0/timeAcc;
 	}
 	else { // VERN
 		for(unsigned int i=0;i<3;i++) {
-			Limits.data[i] = max(VERN_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], 0.1*Torque.data[i]/timeAcc, DeltaT));
+			if(RotatingAxis[i] || NullingRates[i]) Limits.data[i] = max(VERN_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], 0.1*Torque.data[i]/timeAcc, DeltaT));
+			else Limits.data[i] = degRateDeadband;
 		}
 		MaxThrusterLevel = 0.1/timeAcc;
 	}
@@ -365,10 +374,18 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 
 	for(unsigned int i=0;i<3;i++) {
 		if(abs(Error.data[i])>Limits.data[i]) {
-			RotThrusterCommands[i].SetLine(static_cast<float>(MaxThrusterLevel*sign(Error.data[i])));
+			//RotThrusterCommands[i].SetLine(static_cast<float>(MaxThrusterLevel*sign(Error.data[i])));
+			double thrusterLevel = MaxThrusterLevel;
+			if(DAPMode != VERN) { // for PRI/ALT, there are multiple thrusters in each direction, and we don't need to fire all of them
+				double scale = abs(Error.data[i])/Limits.data[i];
+				if(scale < 2) thrusterLevel = MaxThrusterLevel/3.0;
+				else if(scale < 5) thrusterLevel = MaxThrusterLevel*(0.667);
+			}
+			RotThrusterCommands[i].SetLine(static_cast<float>(thrusterLevel*sign(Error.data[i])));
 		}
 		else {
 			RotThrusterCommands[i].ResetLine();
+			NullingRates[i] = false;
 			//If RHC is out of detent, pretend pulse is still in progress
 			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
 		}

@@ -56,6 +56,7 @@ private:
 	double degRotRate, degAttDeadband, degRateDeadband;
 
 	bool RotatingAxis[3];
+	bool NullingRates[3];
 	bool RotPulseInProg[3];
 	bool TransPulseInProg[3];
 	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
