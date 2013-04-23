@@ -109,6 +109,7 @@ private:
 	VECTOR3 RCSTorque;
 
 	//PIDControl AOA_ElevonPitch; // converts AOA error to elevon command
+	PIDControl NZ_PitchRate; // converts NZ error to pitch rate
 	PIDControl ElevonPitch; // converts angle error (AOA or pitch, in degrees) to elevon command
 	//PIDControl Rate_ElevonPitch; // converts pitch rate error (in degrees) to elevon command
 	//PIDControl Pitch_ElevonPitch; // converts pitch angle error (in degrees) to elevon command

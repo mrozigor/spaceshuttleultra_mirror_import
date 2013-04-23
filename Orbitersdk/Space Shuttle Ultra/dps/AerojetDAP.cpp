@@ -151,6 +151,7 @@ bFirstStep(true), bSecondStep(false), bWONG(false), OrbiterMass(1.0),
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
 //ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
+NZ_PitchRate(5.0, 0.0, 1.0, -0.5, 0.5, -0.5, 0.5),
 ElevonPitch(0.10, 0.00, 0.25, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Roll_AileronRoll(0.15, 0.05, 0.00, -1.0, 1.0),
 //Roll_AileronRoll(0.10, 0.20, 0.00, -1.0, 1.0),
@@ -397,9 +398,30 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 				break;
 			}
 
-			degTargetRates.data[PITCH] = CSSPitchInput(DeltaT);
+			if(PitchAuto)
+			{
+				double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
+				double NZErr = NZCommand+NZSteadyState-averageNZ;
+				degTargetRates.data[PITCH] = range(-0.5, 5.0*NZErr, 0.5);
+				sprintf_s(oapiDebugString(), 255, "NZ Err: %f", NZErr);
+			}
+			else
+			{
+				degTargetRates.data[PITCH] = CSSPitchInput(DeltaT);
+			}
 			//degTargetRates.data[ROLL] = CSSRollInput(DeltaT);
-			double tgtBankRate = CSSRollInput(DeltaT);
+			//double tgtBankRate = CSSRollInput(DeltaT);
+			double tgtBankRate;
+			if(RollYawAuto)
+			{
+				double MAX_BANK_RATE = 5.0;
+				double BANK_GAIN = 1.0;
+				tgtBankRate = range(-MAX_BANK_RATE, BANK_GAIN*(TargetBank-degCurrentAttitude.data[ROLL]), MAX_BANK_RATE);
+			}
+			else
+			{
+				tgtBankRate = CSSRollInput(DeltaT);
+			}
 			CalculateTargetRollYawRates(STS()->GetMachNumber(), STS()->GetAOA(), tgtBankRate, degTargetRates.data[ROLL], degTargetRates.data[YAW]);
 			// set yaw rates
 			//const double MAX_YAW_RATE = 10.0;
@@ -586,7 +608,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ SS: %f NZ Comm Inc: %f", NZ, NZSteadyState, NZCommand);
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f NZ Inc: %f", NZ, NZAccError+NZSteadyState, NZAccError);
 			//sprintf_s(oapiDebugString(), 255, " %s NZ: %f NZ Command: %f NZ SS: %f", oapiDebugString(), NZ, NZCommand, NZSteadyState);
-			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (20.0*NZCommand+5.0*(NZSteadyState-averageNZ))*hps->Scale;
+			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (10.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
 			else guidance_center_y = glideslope_center_y - (5.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
 			guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
 			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f diff: %f", averageNZ, NZCommand, NZCommand+NZSteadyState-averageNZ);
@@ -1536,7 +1558,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 		// check for transition to HDG phase
 		if(radius < 1.1*HAC_TurnRadius) TAEMGuidanceMode = HDG;
 		
-		sprintf_s(oapiDebugString(), 255, "ACQ: X: %f Y: %f Z: %f pst: %f courseToRwy: %f headingToHAC: %f TargetBank: %f TotalRange: %f", velocity.x, velocity.y, velocity.z, pst, courseToRwy, headingToHAC, TargetBank, TotalRange);
+		//sprintf_s(oapiDebugString(), 255, "ACQ: X: %f Y: %f Z: %f pst: %f courseToRwy: %f headingToHAC: %f TargetBank: %f TotalRange: %f", velocity.x, velocity.y, velocity.z, pst, courseToRwy, headingToHAC, TargetBank, TotalRange);
 		//oapiWriteLog(oapiDebugString());
 	}
 	else {
@@ -1746,7 +1768,7 @@ double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 		double QBarError = refQbar-filteredQBar;
 
 		double command = 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT);
-		sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f Command: %f", refQbar, filteredQBar, refQbar-filteredQBar, command);
+		//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f Command: %f", refQbar, filteredQBar, refQbar-filteredQBar, command);
 		//return range(LOWER_LIM, 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT), UPPER_LIM);
 		return range(LOWER_LIM, command, UPPER_LIM);
 	}
