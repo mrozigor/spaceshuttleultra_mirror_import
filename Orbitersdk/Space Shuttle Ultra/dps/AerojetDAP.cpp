@@ -1509,7 +1509,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	double turn_angle = -pst*YSGN; // PSHAN
 	if(turn_angle < 0.0) turn_angle+=360.0;
 	HAC_TurnRadius = FINAL_RADIUS + R1*turn_angle + R2*turn_angle*turn_angle; // RTURN
-	double HAC_range = FINAL_RADIUS*turn_angle + 0.5*R1*turn_angle*turn_angle + (1/3)*R2*turn_angle*turn_angle*turn_angle;
+	double HAC_range = FINAL_RADIUS*turn_angle + 0.5*R1*turn_angle*turn_angle + (1.0/3.0)*R2*turn_angle*turn_angle*turn_angle;
 	TotalRange = HAC_range*RAD - HAC_CENTER_X;
 	//double tgt_turn_rate = airspeed/HAC_RADIUS;
 	//double rad_turn_rate = airspeed/radius; // turn rate for circle with current radius
