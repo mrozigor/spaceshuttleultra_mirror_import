@@ -242,21 +242,22 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		WT=STS()->GetMass()*kg_to_pounds;
 		BurnInProg=false;
 		BurnCompleted=false;
-		MnvrExecute=false;
-		MnvrToBurnAtt=false;
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
-		MnvrLoad=false;
 		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
 		VGO = _V(0, 0, 0);
 		DeltaVTot = 0.0;
 		return true;
 	}
 	else {
-		bShowTimer = false; // if leaving OMS MNVR EXEC display, turn off timer (so it will be disable the next time we entrer OMS MNVR EXEC)
+		// when leaving OMS MNVR EXEC display, turn off timer and mnvr flags (so it will be disabled the next time we enter OMS MNVR EXEC)
+		bShowTimer = false;
+		MnvrLoad=false;
+		MnvrExecute=false;
+		MnvrToBurnAtt=false;
 	}
 	return false;
 }
