@@ -267,6 +267,73 @@ void StateVectorPropagator::CalculateAccelerationVector(VECTOR3& acc) const
 	if(perturbFunction) acc += perturbFunction->GetAcceleration(propMET, propPos, propVel);
 }
 
+OMSBurnPropagator::OMSBurnPropagator()
+: burnInProgress(false), burnCompleted(false)
+{
+}
+
+OMSBurnPropagator::~OMSBurnPropagator()
+{
+}
+
+void OMSBurnPropagator::SetBurnData(double TIG, const VECTOR3 &equDeltaV, double acceleration)
+{
+	burnInProgress = false;
+	burnCompleted = false;
+	this->TIG = TIG;
+	lastMET = TIG;
+	deltaV = length(equDeltaV);
+	VGO = deltaV;
+	equBurnDirection = equDeltaV/VGO; // normalise DV vector
+	acc = acceleration;
+}
+
+void OMSBurnPropagator::GetTIGStateVector(VECTOR3& pos, VECTOR3& vel) const
+{
+	pos = tigPos;
+	vel = tigVel;
+}
+
+void OMSBurnPropagator::GetCutoffStateVector(VECTOR3& pos, VECTOR3& vel) const
+{
+	pos = cutoffPos;
+	vel = cutoffVel;
+}
+
+VECTOR3 OMSBurnPropagator::GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel)
+{
+	//char cbuf[255];
+	if(!burnInProgress && !burnCompleted && MET>=TIG) {
+		burnInProgress = true;
+		tigPos = equPos;
+		tigVel = equPos;
+	}
+	else if(MET<=TIG && lastMET>=TIG) { // needed in case propagator propagates past burn, then gets new state vectors and returns to time before TIG
+		burnInProgress = false;
+		burnCompleted = false;
+		VGO = deltaV;
+		lastMET = MET;
+	}
+
+	if(burnInProgress) {
+		VGO -= acc*(MET-lastMET);
+		if(VGO <= 0.0) {
+			burnCompleted = true;
+			burnInProgress = false;
+			cutoffPos = equPos;
+			cutoffVel = equVel;
+			//sprintf_s(cbuf, 255, "MET: %f burn completeted", MET);
+			//oapiWriteLog(cbuf);
+		}
+		//sprintf_s(cbuf, 255, "MET: %f VGO: %f burn in progress", MET, VGO);
+		//oapiWriteLog(cbuf);
+		lastMET = MET;
+		return equBurnDirection*acc;
+	}
+	
+	return _V(0, 0, 0);
+}
+
 double GetTimeToRadius(double radius, const ELEMENTS& el, double mu)
 {
 	// assert that radius is between apogee and perigee

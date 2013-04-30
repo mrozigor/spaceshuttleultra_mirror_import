@@ -5,6 +5,7 @@
 #include <UltraMath.h>
 #include "../util/Stopwatch.h"
 #include "IDP.h"
+#include <kost_elements.h>
 
 namespace dps
 {
@@ -37,7 +38,7 @@ bShowTimer(false),
 bCalculatingPEG4Burn(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
-//propagator(0.2, 50, 7200.0),
+propagator(0.2, 50, 7200.0),
 pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
@@ -85,6 +86,7 @@ void OMSBurnSoftware::Realize()
 	double J2 = 0;
 	if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
 	peg4Targeting.SetPlanetParameters(oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
+	propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
 	
 	if(MnvrLoad) {
 		LoadManeuver(false); // BurnAtt should have been loaded from scenario; don't have state vectors, so it can't be calculated here
@@ -99,36 +101,10 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	//if((SimT-lastUpdateSimTime) > 10.0) {
 	if((SimT-lastUpdateSimTime) > 60.0) {
 		UpdateOrbitData();
-		//ELEMENTS el;
-		//ORBITPARAM oparam;
-		//STS()->GetElements(hEarth, el, &oparam, 0, FRAME_EQU);
-
-		/*MATRIX3 obliquityMat;
-		oapiGetPlanetObliquityMatrix(hEarth, &obliquityMat);
-		VECTOR3 pos, vel;
-		STS()->GetRelativePos(hEarth, pos);
-		STS()->GetRelativeVel(hEarth, vel);
-		pos=tmul(obliquityMat, pos);
-		vel=tmul(obliquityMat, vel);
-		propagator.UpdateStateVector(pos, vel, STS()->GetMET());
-		//if(lastUpdateSimTime < 0.0) propagator.UpdateStateVector(pos, vel, STS()->GetMET());
-		sprintf_s(oapiDebugString(), 255, "MET: %f Pos: %f %f %f Vel: %f %f %f", STS()->GetMET(), pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
-		oapiWriteLog(oapiDebugString());
-		// update perigee/apogee data
-		if(lastUpdateSimTime > 0.0) {
-			//Stopwatch st;
-			//st.Start();
-			//propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-			//propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
-			//double time = st.Stop();
-			//sprintf_s(oapiDebugString(), 255, "ApD: %f PeD: %f MET_Apo: %f MET_Peri: %f", ApD, PeD, ApT, PeT);
-		}*/
-		/*if(GetMajorMode() == 303) metAt400KFeet = propagator.GetMETAtAltitude(STS()->GetMET(), 400e3/MPS2FPS + oapiGetSize(hEarth));
-		else {
-			propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-			propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
-		}*/
-
+		// if burn has been loaded, calculate apogee/perigee at end of burn
+		if(MnvrLoad && !(BurnInProg || BurnCompleted)) {
+			UpdateBurnPropagator();
+		}
 		lastUpdateSimTime = SimT;
 	}
 	/*else {
@@ -160,6 +136,8 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 	}
+
+	if(MnvrLoad && !(BurnInProg || BurnCompleted)) propagator.Step(STS()->GetMET(), DeltaT);
 	
 	if(!MnvrLoad || met<tig) return; // no burn to perform, or we haven't reached TIG yet
 
@@ -576,8 +554,16 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	sprintf(cbuf, "Z  %+7.2f", VGO.z);
 	pMDU->mvprint(40, 8, cbuf);
 	pMDU->mvprint(40, 10, "HA     HP");
-	pMDU->mvprint(36, 11, "TGT");
 	double earthRadius = oapiGetSize(STS()->GetGravityRef());
+	if(MnvrLoad && !Eq(tgtApD, 0.0)) {
+		double ap = (tgtApD-earthRadius)/NMI2M;
+		double pe = (tgtPeD-earthRadius)/NMI2M;
+		sprintf(cbuf, "TGT %3d   %+4d", round(ap), round(pe));
+		pMDU->mvprint(36, 11, cbuf);
+	}
+	else {
+		pMDU->mvprint(36, 11, "TGT");
+	}
 	//double ap = (oparam.ApD-earthRadius)/NMI2M;
 	//double pe = (oparam.PeD-earthRadius)/NMI2M;
 	double ap = (ApD-earthRadius)/NMI2M;
@@ -702,7 +688,7 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	//VECTOR3 ThrustVector;
 	bool bDone=false;
 	MnvrLoad=true;
-	tig=TIG[0]*86400+TIG[1]*3600+TIG[2]*60+TIG[3];
+	tig = ConvertDDHHMMSSToSeconds(TIG);
 	
 	//dV
 	for(i=0;i<3;i++) {
@@ -740,32 +726,6 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
 	}
 
-	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
-	if(calculateBurnAtt) {
-		// calculate LVLH burn attitude
-		MATRIX3 ThrustToBodyMatrix = Transpose(GetRotationMatrix(_V(ThrustDir.z, ThrustDir.x, -ThrustDir.y), 0.0));
-		VECTOR3 DeltaVDir = PEG7/length(PEG7);
-		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
-		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
-		//VECTOR3 radLVLHBurnAtt = GetYZXAnglesFromMatrix(LVLHToBurnAttMatrix);
-		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
-		//oapiWriteLog(oapiDebugString());
-
-		// convert LVLH angles to inertial angles at TIG
-		VECTOR3 equPos, equVel, eclPos, eclVel;
-		// TODO: use VesselState class here
-		//ELEMENTS el;
-		//ORBITPARAM oparam;
-		//STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-		//PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
-		//propagator.GetStateVectors(tig, equPos, equVel);
-		pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
-		equPos = ConvertBetweenLHAndRHFrames(equPos);
-		equVel = ConvertBetweenLHAndRHFrames(equVel);
-		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
-		BurnAtt = ConvertLVLHMatrixToM50Angles(LVLHToBurnAttMatrix, equPos, equVel)*DEG;
-	}
-
 	//use rocket equation (TODO: Check math/formulas here)
 	// NOTE: assume vacuum ISP and 1.0 efficiency for tank
 	StartWeight=WT/kg_to_pounds;
@@ -778,6 +738,42 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	VGO.x=DeltaVTot*ThrustDir.z;
 	VGO.y=DeltaVTot*ThrustDir.x;
 	VGO.z=-DeltaVTot*ThrustDir.y;
+
+	// setup propagator to calculate apogee/perigee at end of burn
+	VECTOR3 equPos, equVel;
+	pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
+	VECTOR3 equDeltaV = tmul(GetGlobalToLVLHMatrix(equPos, equVel), DeltaV); // calculate DV in equatorial (inertial) frame
+	double acceleration = (ORBITER_OMS_THRUST*ThrustFactor)/StartWeight;
+	omsBurnPropagator.SetBurnData(tig, equDeltaV, acceleration);
+	propagator.DefinePerturbations(&omsBurnPropagator);
+	UpdateBurnPropagator();
+	//tgtApD = tgtPeD = 0.0;
+	// get initial value for target apogee/perigee by ignoring perturbations and assuming instantaneous burn
+	kostStateVector postBurnState;
+	kostElements elements;
+	kostOrbitParam params;
+	postBurnState.pos = ConvertBetweenLHAndRHFrames(equPos);
+	postBurnState.vel = ConvertBetweenLHAndRHFrames(equVel + equDeltaV);
+	double mu = GGRAV*(oapiGetMass(hEarth) + StartWeight);
+	kostStateVector2Elements(mu, &postBurnState, &elements, &params);
+	tgtApD = params.ApD;
+	tgtPeD = params.PeD;
+
+	if(calculateBurnAtt) {
+		// calculate LVLH burn attitude
+		MATRIX3 ThrustToBodyMatrix = Transpose(GetRotationMatrix(_V(ThrustDir.z, ThrustDir.x, -ThrustDir.y), 0.0));
+		VECTOR3 DeltaVDir = PEG7/length(PEG7);
+		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
+		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
+		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
+		//oapiWriteLog(oapiDebugString());
+
+		// convert LVLH angles to inertial angles at TIG
+		VECTOR3 rhEquPos = ConvertBetweenLHAndRHFrames(equPos);
+		VECTOR3 rhEquVel = ConvertBetweenLHAndRHFrames(equVel);
+		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
+		BurnAtt = ConvertLVLHMatrixToM50Angles(LVLHToBurnAttMatrix, rhEquPos, rhEquVel)*DEG;
+	}
 }
 
 void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
@@ -803,5 +799,25 @@ void OMSBurnSoftware::UpdateOrbitData()
 		pStateVector->GetApogeeData(ApD, ApT);
 		pStateVector->GetPerigeeData(PeD, PeT);
 	}
+	if(MnvrLoad && !(BurnInProg || BurnCompleted)) {
+		double tgtApT, tgtPeT;
+		//propagator.GetApogeeData(STS()->GetMET(), tgtApD, tgtApT);
+		//propagator.GetPerigeeData(STS()->GetMET(), tgtPeD, tgtPeT);
+		propagator.GetApogeeData(tig+1000.0, tgtApD, tgtApT);
+		propagator.GetPerigeeData(tig+1000.0, tgtPeD, tgtPeT);
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "MET: %f Tgt ApD: %f PeD: %f", STS()->GetMET(), tgtApD, tgtPeD);
+		oapiWriteLog(cbuf);
+	}
 }
+
+void OMSBurnSoftware::UpdateBurnPropagator()
+{
+	VECTOR3 pos, vel;
+	pStateVector->GetPropagatedStateVectors(tig, pos, vel);
+
+	propagator.UpdateVesselMass(STS()->GetMass());
+	propagator.UpdateStateVector(pos, vel, tig);
+}
+
 };
