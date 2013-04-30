@@ -44,7 +44,9 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	double ApD, ApT, PeD, PeT;
 	double metAt400KFeet;
 	double lastUpdateSimTime;
-	//StateVectorPropagator propagator;
+	StateVectorPropagator propagator;
+	OMSBurnPropagator omsBurnPropagator;
+	double tgtApD, tgtPeD;
 
 	DiscOutPort omsEngineCommand[2], omsPitchCommand[2], omsYawCommand[2];
 	DiscInPort omsPitchGimbal[2], omsYawGimbal[2];
@@ -79,6 +81,7 @@ private:
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
 	void UpdateOrbitData();
+	void UpdateBurnPropagator();
 };
 
 };

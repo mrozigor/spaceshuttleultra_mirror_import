@@ -17,31 +17,6 @@
  */
 VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const VECTOR3& initialPos, const VECTOR3& initialVel, const VECTOR3& targetPos, double mu, double& transferTime);
 
-
-/**
- * Used with StateVectorPropagator to correct for OMS burn
- * Currently assumes constant acceleration (not quite correct, but should be good approximation)
- */
-class PEG4Propagator : public PropagatorPerturbation
-{
-	VECTOR3 equBurnDirection;
-	double TIG;
-	double acc;
-	bool burnInProgress, burnCompleted;
-	double VGO;
-	double lastMET; // used for calculating interval between calls
-
-	VECTOR3 cutoffPos, cutoffVel;
-public:
-	PEG4Propagator();
-	~PEG4Propagator();
-
-	void SetBurnData(double TIG, const VECTOR3 &equDeltaV, double acceleration);
-	void GetCutoffStateVector(VECTOR3& pos, VECTOR3& vel) const;
-	
-	VECTOR3 GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel);
-};
-
 /**
  * Iteratively calculates DeltaV (in m/s) for PEG4 values
  * Algorithm:
@@ -102,7 +77,7 @@ private:
 	double planetMass, planetRadius;
 	double J2;
 	double mu;
-	PEG4Propagator omsPropagator;
+	OMSBurnPropagator omsPropagator;
 	double acceleration;
 
 	STATE currentState;
