@@ -820,6 +820,7 @@ pActiveLatches(3, NULL)
 	thManRRCS3[i] = NULL;
 	thManRRCS4[i] = NULL;
   }
+  th_srb[0] = th_srb[1] = NULL;
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
 
@@ -850,6 +851,8 @@ pActiveLatches(3, NULL)
   hlaileron	= NULL;
   hraileron	= NULL;
 
+  currentCoG = _V(0.0, 0.0, 0.0);
+  
   // preload meshes
   hOrbiterMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
   hOrbiterCockpitMesh	= oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
@@ -1045,7 +1048,8 @@ pActiveLatches(3, NULL)
   curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
   curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
 
-
+  for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
+  for(int i=0;i<2;i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
 
@@ -1188,54 +1192,60 @@ void Atlantis::SetLaunchConfiguration (void)
 
   ClearThrusterDefinitions();
   
-  CreateSSMEs(OFS_LAUNCH_ORBITER);  
+  CreateSSMEs(OFS_ZERO);  
 
   // SRBs
-  th_srb[0] = CreateThruster (OFS_LAUNCH_LEFTSRB+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[1] = CreateThruster (OFS_LAUNCH_RIGHTSRB +_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[0] = CreateThruster (LSRB_OFFSET+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+  th_srb[1] = CreateThruster (RSRB_OFFSET+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
   thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
   srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
   srb_contrail.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
   for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
-  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(-0,0,-23), &srb_exhaust); 
-  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,0,-23), &srb_exhaust);
-  AddExhaustStream (th_srb[0], OFS_LAUNCH_RIGHTSRB+_V(0,0,-135), &srb_contrail);
-  AddExhaustStream (th_srb[1], OFS_LAUNCH_LEFTSRB+_V(0,0,-135), &srb_contrail);
+  AddExhaustStream (th_srb[0], &srb_exhaust); 
+  AddExhaustStream (th_srb[1], &srb_exhaust);
+  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
+  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
 
   //Add slag effect streams
-  if(pshSlag1[0] == NULL) {
-	pshSlag1[0] = AddParticleStream(&srb_slag1, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag1);
+  for(i=0;i<2;i++) {
+	  pshSlag1[i] = AddExhaustStream(th_srb[i], &srb_slag1);
+	  pshSlag2[i] = AddExhaustStream(th_srb[i], &srb_slag2);
+	  pshSlag3[i] = AddExhaustStream(th_srb[i], &srb_slag3);
+  }
+
+  /*if(pshSlag1[0] == NULL) {
+	pshSlag1[0] = AddParticleStream(&srb_slag1, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag1);
   }
   if(pshSlag1[1] == NULL)
   {
-	pshSlag1[1] = AddParticleStream(&srb_slag1, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag1);
+	pshSlag1[1] = AddParticleStream(&srb_slag1, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag1);
   }
 
   //Add slag effect streams
   if(pshSlag2[0] == NULL) {
-	pshSlag2[0] = AddParticleStream(&srb_slag2, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag2);
+	pshSlag2[0] = AddParticleStream(&srb_slag2, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag2);
   }
   if(pshSlag2[1] == NULL)
   {
-	pshSlag2[1] = AddParticleStream(&srb_slag2, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag2);
+	pshSlag2[1] = AddParticleStream(&srb_slag2, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag2);
   }
 
   
   //Add slag effect streams
   if(pshSlag3[0] == NULL) {
-	pshSlag3[0] = AddParticleStream(&srb_slag3, OFS_LAUNCH_RIGHTSRB+_V(-0.5,1,-23), SLAG_DIR, &slag3);
+	pshSlag3[0] = AddParticleStream(&srb_slag3, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag3);
   }
   if(pshSlag3[1] == NULL)
   {
-	pshSlag3[1] = AddParticleStream(&srb_slag3, OFS_LAUNCH_LEFTSRB+_V(0.5,1,-23),  SLAG_DIR, &slag3);
-  }
+	pshSlag3[1] = AddParticleStream(&srb_slag3, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag3);
+  }*/
 
   //OMS
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
-	  th_oms[0] = CreateThruster (OFS_LAUNCH_ORBITER+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  th_oms[1] = CreateThruster (OFS_LAUNCH_ORBITER+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	  bOMSDefined = true;
 	  for(i=0;i<2;i++) {
 		  AddExhaust (th_oms[i], 0.0, 0.5);
@@ -1245,22 +1255,22 @@ void Atlantis::SetLaunchConfiguration (void)
   }
 
   // attitude
-  CreateAttControls_RCS(OFS_LAUNCH_ORBITER);
+  CreateAttControls_RCS(OFS_ZERO);
   CreateDummyThrusters();
 
   // ************************* aerodynamics **************************************
 
   hStackAirfoil = CreateAirfoil2(LIFT_VERTICAL, _V(0, 0, 0), AscentLiftCoeff, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
   ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 5, OFS_LAUNCH_ORBITER+_V(0, 7.5, -14)); // speedbrake drag
+  CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&(gear_status.pos), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&rdoor_drag, 7, OFS_LAUNCH_ORBITER+_V(2.9,0,10));   // right cargo door drag
-  CreateVariableDragElement (&ldoor_drag, 7, OFS_LAUNCH_ORBITER+_V(-2.9,0,10));  // right cargo door drag
+  CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
+  CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
+  CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
 
   // ************************ visual parameters **********************************
 
-  AddOrbiterVisual (OFS_LAUNCH_ORBITER);
+  AddOrbiterVisual (OFS_ZERO);
   //AddTankVisual    (OFS_LAUNCH_TANK);
   //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
@@ -1284,8 +1294,6 @@ void Atlantis::SetPostLaunchConfiguration (double met)
 // --------------------------------------------------------------
 void Atlantis::SetOrbiterTankConfiguration (void)
 {
-  VECTOR3 ofs;
-
   // *********************** physical parameters *********************************
 
   SetSize (28.8);
@@ -1315,13 +1323,12 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // This assumes that all 3 main engines generate the same amount of thrust at
   // all times
 
-  ofs = OFS_WITHTANK_ORBITER;
-  CreateSSMEs(OFS_WITHTANK_ORBITER);
+  CreateSSMEs(OFS_ZERO);
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
-    th_oms[0] = CreateThruster (ofs+L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (ofs+R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+    th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	bOMSDefined = true;
   }
   for(int i=0;i<2;i++) {
@@ -1331,7 +1338,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   }
 
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
-    CreateAttControls_RCS(ofs);
+    CreateAttControls_RCS(OFS_ZERO);
 	CreateDummyThrusters();
 
   // ************************* aerodynamics **************************************
@@ -1339,18 +1346,18 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   ClearAirfoilDefinitions();
   hStackAirfoil = NULL;
   ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 5, ofs+_V(0, 7.5, -14)); // speedbrake drag
+  CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&(gear_status.pos), 2, ofs+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&rdoor_drag, 7, ofs+_V(2.9,0,10));   // right cargo door drag
-  CreateVariableDragElement (&ldoor_drag, 7, ofs+_V(-2.9,0,10));  // right cargo door drag
+  CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
+  CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
+  CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
 
   // ************************ visual parameters **********************************
 
   // status has to be updated before AddTankVisual is called to update ET texture
   status = STATE_STAGE2;
 
-  AddOrbiterVisual (OFS_WITHTANK_ORBITER);
+  AddOrbiterVisual (OFS_ZERO);
   //AddTankVisual    (OFS_WITHTANK_TANK);
 
   //status = STATE_STAGE2;
@@ -2510,9 +2517,9 @@ The same starboard
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 {
-	ahET = CreateAttachment(false, ET_ATTACH_POS+ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
-	ahLeftSRB = CreateAttachment(false, LSRB_ATTACH_POS+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
-	ahRightSRB = CreateAttachment(false, RSRB_ATTACH_POS+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
+	ahET = CreateAttachment(false, ET_OFFSET+ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
+	ahLeftSRB = CreateAttachment(false, LSRB_OFFSET+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
+	ahRightSRB = CreateAttachment(false, RSRB_OFFSET+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	char pszBuf[255];
 	sprintf_s(pszBuf, 255, "Attachment count: %d", AttachmentCount(false));
 	oapiWriteLog(pszBuf);
@@ -2720,10 +2727,13 @@ void Atlantis::SeparateBoosters (double met)
 	DelExhaustStream(pshSlag1[i]);
     DelExhaustStream(pshSlag2[i]);
 	DelExhaustStream(pshSlag3[i]);
+	pshSlag1[i] = NULL;
+	pshSlag2[i] = NULL;
+	pshSlag3[i] = NULL;
   }
 
   // shift cg
-  ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
+  //ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
 
 
   // reconfigure
@@ -2779,7 +2789,7 @@ void Atlantis::SeparateTank (void)
 	// remove tank mesh and shift cg
 	//Test keeping animations - which are not defined on the ET.
 	//DelMesh (mesh_tank, true);
-	ShiftCG (OFS_WITHTANK_ORBITER);
+	//ShiftCG (OFS_WITHTANK_ORBITER);
 
 	// reconfigure
 	RecordEvent ("JET", "ET"); 
@@ -3012,9 +3022,9 @@ double Atlantis::GetSSMEISP() const
 void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
 {
 	VECTOR3 N=_V(0, 0, 0);
-	N+=_V(0.0, -0.2447, 0.9674)*GetThrusterLevel(th_main[0]);
-	N+=_V( 0.065,-0.2447, 0.9674)*GetThrusterLevel(th_main[1]);
-	N+=_V(-0.065,-0.2447, 0.9674)*GetThrusterLevel(th_main[2]);
+        for(int i=0;i<3;i++) {
+		N += SSMENullDirection[i]*GetThrusterLevel(th_main[i]);
+	}
 	degAngleP=DEG*asin(N.y/N.z);
 	degAngleY=DEG*asin(N.x/N.z);
 }
@@ -4183,6 +4193,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 //	double dThrust;
 	//double steerforce, airspeed;
 
+	UpdateCoG(); // TODO: refine
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
@@ -6842,7 +6853,7 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 		return false; // error
 	}
 	else {
-		VECTOR3 dir=RotateVectorX(EngineNullPosition[usMPSNo-1], range(-10.5, degPitch, 10.5));
+		VECTOR3 dir=RotateVectorX(SSMENullDirection[usMPSNo-1], range(-10.5, degPitch, 10.5));
 		dir=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
 		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
 		//oapiWriteLog(oapiDebugString());
@@ -6891,7 +6902,7 @@ double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
 
 void Atlantis::SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw)
 {
-	VECTOR3 dir=RotateVectorX(SRB_THRUST_DIR, range(-5.0, degPitch, 5.0));
+	VECTOR3 dir=RotateVectorX(SRBNullDirection[SRB], range(-5.0, degPitch, 5.0));
 	dir=RotateVectorY(dir, range(-5.0, degYaw, 5.0));
 	//sprintf_s(oapiDebugString(), 255, "SRB gimbal angles: %d %f %f", SRB, degPitch, degYaw);
 	//oapiWriteLog(oapiDebugString());
@@ -7298,12 +7309,7 @@ void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 	DefineSSMEExhaust();
 
 	// calculate null direction for each engine 
-	for(unsigned short i=0;i<3;i++) {
-		GetThrusterRef(th_main[i], EngineNullPosition[i]);
-		EngineNullPosition[i]=Normalize(-EngineNullPosition[i]);
-		SetThrusterDir(th_main[i], EngineNullPosition[i]);
-		//SSMEEngControl(i);
-	}
+	UpdateNullDirections();
 }
 
 void Atlantis::DefineSSMEExhaust()
@@ -7318,6 +7324,28 @@ void Atlantis::DefineSSMEExhaust()
 			DelExhaust(ex_main[i]);
 		}
 		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 0, tex_main);
+	}
+}
+
+void Atlantis::UpdateNullDirections()
+{
+	// calculate null direction for each engine 
+	for(unsigned short i=0;i<3;i++) {
+		if(th_main[i]) {
+			GetThrusterRef(th_main[i], SSMENullDirection[i]);
+			SSMENullDirection[i]=Normalize(-SSMENullDirection[i]);
+			SetThrusterDir(th_main[i], SSMENullDirection[i]);
+		}
+	}
+	if(status <= STATE_STAGE1) {
+		for(unsigned short i=0;i<2;i++) {
+			if(th_srb[i]) {
+				GetThrusterRef(th_srb[i], SRBNullDirection[i]);
+				SRBNullDirection[i].x = 0.0; // keep both SRBs pointing up without any gimballing left/right (otherwise, we get some losses fomr both SRBs thrusting in opposing directions)
+				SRBNullDirection[i]=Normalize(-SRBNullDirection[i]);
+				SetThrusterDir(th_srb[i], SRBNullDirection[i]);
+			}
+		}
 	}
 }
 
@@ -8182,6 +8210,74 @@ void Atlantis::UpdateMass() const
 	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
+void Atlantis::UpdateCoG()
+{
+	// for the moment, only look at shuttle, ET and SRBs
+	// ignore payloads and shuttle consumables
+	std::vector<double> masses;
+	std::vector<VECTOR3> positions;
+
+	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter
+	if(status <= STATE_STAGE2) { // add ET mass
+		// density in kg/m^3 (calculated from ET tank mass/volume values in SCOM)
+		const double LOX_DENSITY = 1138.43342579;
+		const double LH2_DENSITY = 70.8014107928;
+		const double TANK_RADIUS = 4.2;
+
+		VESSEL* pTank = GetTankInterface();
+		double ETMass = pTank->GetEmptyMass();
+		shuttleMass -= ETMass;
+		masses.push_back(ETMass);
+		positions.push_back(ET_EMPTY_CG);
+
+		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
+		double prop = GetPropellantLevel(ph_tank);
+		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
+		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
+		//double LOXHeight = (LOXMass/LOX_DENSITY)/(2*PI*TANK_RADIUS); // height of LOX in cylindrical tank
+		//double LH2Height = (LH2Mass/LH2_DENSITY)/(2*PI*TANK_RADIUS); // height of LH2 in cylindrical tank
+		double LOXHeight = (LOXMass/LOX_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+		double LH2Height = (LH2Mass/LH2_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+		shuttleMass -= LOXMass;
+		shuttleMass -= LH2Mass;
+		masses.push_back(LOXMass);
+		positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
+		masses.push_back(LH2Mass);
+		positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+	}
+	if(status <= STATE_STAGE1) { // add SRB mass (assume SRB CG doesn't change and SRBs are symmetric)
+		VESSEL* pLSRB = GetSRBInterface(LEFT);
+		double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
+		shuttleMass -= 2.0*SRBMass;
+		masses.push_back(SRBMass);
+		positions.push_back(LSRB_CG);
+		masses.push_back(SRBMass);
+		positions.push_back(RSRB_CG);
+	}
+	masses.push_back(shuttleMass);
+	positions.push_back(ORBITER_CG);
+
+	// calculate center of gravity (relative to center of Orbiter mesh)
+	double totalMass = 0.0;
+	VECTOR3 CoG = _V(0.0, 0.0, 0.0);
+	for(unsigned int i=0;i<masses.size();i++) {
+		totalMass += masses[i];
+		CoG += positions[i]*masses[i];
+	}
+	CoG = CoG/totalMass;
+	if(length(CoG-currentCoG) > 0.1) { // to avoid rounding errors during launch, only shift CG when magnitude of change is large enough
+		ShiftCG (CoG-currentCoG);
+		currentCoG = CoG;
+		orbiter_ofs = -currentCoG;
+		//sprintf_s(oapiDebugString(), 255, "New CoG: %f %f %f", CoG.x, CoG.y, CoG.z);
+		//oapiWriteLog(oapiDebugString());
+
+		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoG-currentCoG, NULL, 0.0, 0.0, 0.0);
+
+		if(status <= STATE_STAGE2) UpdateNullDirections();
+	}
+}
+
 void Atlantis::Twang(double timeToLaunch) const
 {
 	double twangParam=(1.0-timeToLaunch/6.0);
@@ -8190,7 +8286,7 @@ void Atlantis::Twang(double timeToLaunch) const
 	//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
 	double c=cos(twangAngle);
 	double s=sin(twangAngle);
-	SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
+	//SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
 }
 
 /*void Atlantis::ControlPLBLights()

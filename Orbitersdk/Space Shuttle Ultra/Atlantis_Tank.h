@@ -12,7 +12,10 @@ const static char* SLWT_MESHNAME_ET = "SSU/SLWT";
 //const static char* DEFAULT_NORMAL_ET_TEXTURE = "SSU/SLWT_ETtex.dds";
 const static char* DEFAULT_SCORCHED_ET_TEXTURE = "SSU/ET-129_exterior_scorched.dds";
 
-const double TANK_MAX_PROPELLANT_MASS = 719115.0;
+//const double TANK_MAX_PROPELLANT_MASS = 719115.0;
+const double LOX_MAX_PROPELLANT_MASS = 624252.0;
+const double LH2_MAX_PROPELLANT_MASS = 104463.23;
+const double TANK_MAX_PROPELLANT_MASS = LOX_MAX_PROPELLANT_MASS+LH2_MAX_PROPELLANT_MASS;
 // Main tank propellant mass [kg]
 
 // Main tank empty mass
