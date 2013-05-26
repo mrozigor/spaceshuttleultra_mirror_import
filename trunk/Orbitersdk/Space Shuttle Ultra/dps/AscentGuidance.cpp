@@ -78,6 +78,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	switch(GetMajorMode()) {
 		case 102:
+			STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 			Throttle(DeltaT);
 			FirstStageRateCommand();
 			GimbalSRBs(DeltaT);
@@ -85,6 +86,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			break;
 		case 103:
 			if(!bMECO) {
+				STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 				Navigate();
 				if(STS()->GetMET() >= (tLastMajorCycle + ASCENT_MAJOR_CYCLE)) {
 					MajorCycle();
@@ -124,7 +126,7 @@ bool AscentGuidance::OnMajorModeChange(unsigned int newMajorMode)
 	if(newMajorMode == 102 || newMajorMode == 103) {
 		if(newMajorMode == 102) InitializeAutopilot();
 		else if(newMajorMode == 103) tSRBSep = STS()->GetMET();
-		STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
+		//STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 		return true;
 	}
 	return false;

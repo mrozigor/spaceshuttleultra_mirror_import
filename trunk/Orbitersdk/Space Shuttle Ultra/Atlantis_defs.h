@@ -21,22 +21,24 @@ const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
-const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
-const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
+//const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
+//const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
 //const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.2,-1.91,-5.68 };
 //const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.2,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.27,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
-const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
-const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
+//const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.27,-1.91,-5.68 };
+//const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
+//const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
+//const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 9);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 
-const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
-const VECTOR3 LSRB_ATTACH_POS = _V(-6.27, -7.7, 2.8);
-const VECTOR3 RSRB_ATTACH_POS = _V(6.27, -7.7, 2.8);
+// mesh offsets
+// Orbiter mesh is always at (0,0,0)
+const VECTOR3 ET_OFFSET = _V(0.0, -7.7, 6.209); // offset between ET and shuttle meshes
+const VECTOR3 LSRB_OFFSET = _V(-6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -53,11 +55,12 @@ const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
 const VECTOR3 SSMEL_GOX_REF = _V(-1.57, 1.385, -14.456);
 const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
 
-const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
+//const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
+const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
-const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
-const VECTOR3 POS_TOW = _V(0.0, -1.91, 25.8);
+const VECTOR3 POS_HDP = _V(0.0, -7.95, -17.811);
+const VECTOR3 POS_TOW = _V(0.0, -7.95, 33.789);
 
 const VECTOR3 UMBDOORL_REF = _V(-1.17, -2.65, -7.60);
 const VECTOR3 UMBDOORR_REF = _V(1.17, -2.65, -7.60);
@@ -215,6 +218,15 @@ const VECTOR3 ROT_STBDPL = _V(0.0, -1.0, 0.0);
 const VECTOR3 OFS_PORTMMU = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 
+// =====================================================================
+// CG definitions (location of CG relative to center of Orbiter mesh)
+// =====================================================================
+const VECTOR3 ORBITER_CG = _V(0.0, 0.0, 0.0);
+const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
+const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
+const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
+const VECTOR3 ET_LH2_BASE = ET_OFFSET + _V(0.0, 0.0, -15.8);
+const VECTOR3 ET_LOX_BASE = ET_OFFSET + _V(0.0, 0.0, 15.0); // might not be exactly correct
 
 static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
 	"XS1A", "XS3A", "XS5A"};

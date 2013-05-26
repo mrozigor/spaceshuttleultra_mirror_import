@@ -64,15 +64,15 @@ namespace mps
 		switch (ID)
 		{
 			case 1:
-				posLOXdump = _V( 0.0, 1.945, -10.76250 ) + _V( 0.0, 6.1, -13.5 );
+				posLOXdump = _V(0.0, 3.387,-14.8485); // position relative to center of orbiter mesh
 				dirLOXdump = _V( 0.0, -0.37489, 0.92707 );
 				break;
 			case 2:
-				posLOXdump = _V( -1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
+				posLOXdump = _V(-1.458, 0.548, -15.8735); // position relative to center of orbiter mesh
 				dirLOXdump = _V( 0.065, -0.2447, 0.9674 );
 				break;
 			case 3:
-				posLOXdump = _V( 1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
+				posLOXdump = _V(1.458, 0.548, -15.8735); // position relative to center of orbiter mesh
 				dirLOXdump = _V( -0.065, -0.2447, 0.9674 );
 				break;
 		}

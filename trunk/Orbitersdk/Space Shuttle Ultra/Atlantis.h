@@ -770,6 +770,11 @@ private:
 	 */
 	void UpdateHandControllerSignals();
 
+	/**
+	 * Calculates direction in which SSMEs/SRBs must thrust to point through CoG
+	 */
+	void UpdateNullDirections();
+
 	//Landing Gear
 	void DeployLandingGear();
 	void RetractLandingGear();
@@ -808,6 +813,12 @@ private:
 	 */
 	double GetMassOfAttachedObjects() const;
 	void UpdateMass() const;
+
+	/**
+	 * Updates shuttle CoG.
+	 * Estimates center of gravity relative to center of Orbiter mesh, then calls ShiftCG to update CG.
+	 */
+	void UpdateCoG();
 
 	void Twang(double timeToLaunch) const;
 	//Launch
@@ -1069,6 +1080,8 @@ private:
 	VECTOR3 GVesselPos, GVesselVel;
 	//VESSELSTATUS Status;
 
+	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh
+
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 
@@ -1078,7 +1091,8 @@ private:
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
-	VECTOR3 EngineNullPosition[3];
+	VECTOR3 SSMENullDirection[3];
+	VECTOR3 SRBNullDirection[3];
 
 	// Entry
 	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA

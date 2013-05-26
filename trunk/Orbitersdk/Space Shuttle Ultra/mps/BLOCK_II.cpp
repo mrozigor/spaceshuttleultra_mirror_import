@@ -220,7 +220,7 @@ namespace mps
 
 			// LOX dump
 			phLOXdump = STS()->CreatePropellantResource( 700 );
-			thLOXdump = STS()->CreateThruster( posLOXdump, dirLOXdump, 4000, phLOXdump, 120, 120 );
+			thLOXdump = STS()->CreateThruster( STS()->GetOrbiterCoGOffset() + posLOXdump, dirLOXdump, 4000, phLOXdump, 120, 120 );
 			PARTICLESTREAMSPEC psLOXdump = {
 				0,
 				2,
