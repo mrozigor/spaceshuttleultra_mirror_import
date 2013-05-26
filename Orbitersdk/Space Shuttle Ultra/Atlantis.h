@@ -1031,6 +1031,7 @@ private:
 	//bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
+	AIRFOILHANDLE hStackAirfoil;
 	bool ControlSurfacesEnabled;
 
 	//CLR

@@ -247,6 +247,19 @@ Aerodynamics::FourDLookup horizontalLookup;
 Aerodynamics::ThreeDLookup aileronHorizontalLookup;
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
+void AscentLiftCoeff (double aoa, double M, double Re, double *cl, double *cm, double *cd)
+{
+	// we don't have data for first stage aerodynamics
+	// use entry model and modify coefficients to get realistic first stage performance
+	AerosurfacePositions aero;
+	aero.leftElevon = aero.rightElevon = aero.bodyFlap = aero.speedbrake = aero.rudder = 0.0;
+	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, &aero, cl, cm, cd);
+	// scale coefficients to get accurate first stage performance
+	*cl = 0.8*(*cl);
+	*cm = 0.5*(*cm);
+	*cd = 2.5*(*cd);
+}
+
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
 {
 	/*double basicLift, basicDrag, basicMoment;
@@ -829,6 +842,7 @@ pActiveLatches(3, NULL)
 	  ex_main[i] = NULL;
   }
 
+  hStackAirfoil = NULL;
   //Control Surfaces
   hrudder	= NULL;
   hbodyflap	= NULL;
@@ -1236,6 +1250,7 @@ void Atlantis::SetLaunchConfiguration (void)
 
   // ************************* aerodynamics **************************************
 
+  hStackAirfoil = CreateAirfoil2(LIFT_VERTICAL, _V(0, 0, 0), AscentLiftCoeff, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, OFS_LAUNCH_ORBITER+_V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
@@ -1321,6 +1336,8 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // ************************* aerodynamics **************************************
 
+  ClearAirfoilDefinitions();
+  hStackAirfoil = NULL;
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, ofs+_V(0, 7.5, -14)); // speedbrake drag
   //CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
@@ -1363,6 +1380,8 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   // ************************* aerodynamics **************************************
 
+  ClearAirfoilDefinitions();
+  hStackAirfoil = NULL;
   SetRotDrag (_V(0.43,0.43,0.29)); // angular drag
   CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
   CreateAirfoil3 (LIFT_HORIZONTAL, _V(0.0, 0.0, 0.0), HLiftCoeff, &aerosurfaces, 20,  50, 1.5);
