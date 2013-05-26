@@ -261,7 +261,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 }
 void AscentGuidance::FirstStageRateCommand()
 {
-	if(STS()->GetAirspeed()<32.00) {
+	if(STS()->GetAirspeed()<stage1GuidanceVelTable[1]) {
 		degReqdRates.data[PITCH] = 0.0;
 		degReqdRates.data[YAW] = 0.0;
 		degReqdRates.data[ROLL] = 0.0;
@@ -273,7 +273,7 @@ void AscentGuidance::FirstStageRateCommand()
 		double degPitch = STS()->GetPitch()*DEG;
 		double degBank = STS()->GetBank()*DEG;
 		if(degPitch>=88.5) { // roll to correct heading
-			degReqdRates.data[PITCH] = range(-10.0, 10.0*(degPitch-degTargetPitch), 10.0);
+			degReqdRates.data[PITCH] = range(-10.0, 0.48*(degPitch-degTargetPitch), 10.0);
 			degReqdRates.data[YAW]=0.0;
 			if((radHeading-radTargetHeading)>RAD) degReqdRates.data[ROLL]=8.0;
 			else if((radHeading-radTargetHeading)<-RAD) degReqdRates.data[ROLL]=-8.0;
@@ -281,7 +281,7 @@ void AscentGuidance::FirstStageRateCommand()
 			degReqdRates=RotateVectorZ(degReqdRates, (radTargetHeading-radHeading)*DEG);
 		}
 		else {
-			degReqdRates.data[PITCH] = range(-2.5, degTargetPitch-degPitch, 2.5);
+			degReqdRates.data[PITCH] = range(-2.5, 0.48*(degTargetPitch-degPitch), 2.5);
 
 			if(degPitch>60.0) {
 				degReqdRates.data[YAW] = range(-8.0, 0.25*DEG*(radHeading-radTargetHeading), 8.0);

@@ -34,8 +34,10 @@ namespace mission {
 		bUseOMSAssist = false;
 		bPerformRTHU = false;
 		fMaxSSMEThrust = 104.5;
-		fTHdown = 834.0;
-		fTHup = 1174.0;
+		//fTHdown = 834.0;
+		//fTHup = 1174.0;
+		fTHdown = 792.0;
+		fTHup = 1304.0;
 
 		bUseRMS = false;
 		bHasKUBand = true;
