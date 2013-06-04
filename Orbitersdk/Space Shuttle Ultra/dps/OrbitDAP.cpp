@@ -29,7 +29,7 @@ void LoadAttManeuver(const char* value, AttManeuver& maneuver)
 
 OrbitDAP::OrbitDAP(SimpleGPCSystem* pGPC)
 : SimpleGPCSoftware(pGPC, "OrbitDAP"),
-OMSTVCControlP(3.5, 0.0, 0.75), OMSTVCControlY(4.0, 0.0, 0.75), OMSTVCControlR(3.5, 0.0, 0.75),
+OMSTVCControlP(5.0, 0.0, 0.5), OMSTVCControlY(4.0, 0.0, 0.75), OMSTVCControlR(5.0, 0.0, 0.5),
 ControlMode(RCS),
 DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL), editDAP(-1),
 ManeuverStatus(MNVR_OFF),
@@ -398,9 +398,9 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	double pitchDelta=Rates.data[PITCH]-CurrentRates.data[PITCH]; //if positive, vessel is pitching down
 	double yawDelta=Rates.data[YAW]-CurrentRates.data[YAW]; //if positive, vessel is rotating to right
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
-	bool RCSWraparound=(abs(rollDelta)>0.5 || abs(pitchDelta)>0.25 || abs(yawDelta)>0.25);
+	bool RCSWraparound=(abs(rollDelta)>2.05 || abs(pitchDelta)>2.05 || abs(yawDelta)>2.05);
 
-	sprintf_s(oapiDebugString(), 255, "OMSTVC: %f %f %f", pitchDelta, yawDelta, rollDelta);
+	sprintf_s(oapiDebugString(), 255, "OMSTVC: %f %f %f \t%f %f %f \t%f %f %f", pitchDelta, yawDelta, rollDelta, Rates.data[PITCH], Rates.data[YAW], Rates.data[ROLL], ATT_ERR.data[PITCH], ATT_ERR.data[YAW], ATT_ERR.data[ROLL]);
 
 	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
 	double dYaw=OMSTVCControlY.Step(-yawDelta, SimDT);
@@ -604,7 +604,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		degReqdRates = degAngularVelocity;
 	}
 	if(ControlMode == RCS) SetRates(degReqdRates, DeltaT);
-	else OMSTVC(degReqdRates, DeltaT); // for the moment, use data calculated by GPC_old code
+	else OMSTVC(ATT_ERR*0.1, DeltaT);
 
 	// set entry DAP mode PBIs to OFF
 	PitchAuto.ResetLine();
