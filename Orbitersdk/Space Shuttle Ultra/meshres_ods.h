@@ -1,6 +1,6 @@
 // ========================================================
-// Mesh resource file for ..\..\Meshes\SSU\ODS.msh
-// Generated with meshc on Thu Nov 13 21:07:28 2008
+// Mesh resource file for ODS.msh
+// Generated with meshc on Tue Jun 04 21:41:26 2013
 
 // ========================================================
 
@@ -8,7 +8,7 @@
 #define NGRP_ODS 36
 
 // Number of materials:
-#define NMAT_ODS 5
+#define NMAT_ODS 4
 
 // Number of textures:
 #define NTEX_ODS 2
