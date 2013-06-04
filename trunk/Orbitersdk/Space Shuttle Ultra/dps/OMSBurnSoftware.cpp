@@ -51,6 +51,9 @@ pOrbitDAP(NULL), pStateVector(NULL)
 	C2 = 0.0;
 	HT = 0.0;
 	ThetaT = 0.0;
+	
+	VGO = _V(0.0, 0.0, 0.0);
+	DeltaVTot = 0.0;
 
 	hEarth = NULL;
 }
@@ -218,16 +221,11 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		newMajorMode == 301 || newMajorMode == 302 || newMajorMode == 303)
 	{
 		WT=STS()->GetMass()*kg_to_pounds;
-		BurnInProg=false;
-		BurnCompleted=false;
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
-		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
-		VGO = _V(0, 0, 0);
-		DeltaVTot = 0.0;
 		return true;
 	}
 	else {
@@ -236,6 +234,12 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		MnvrLoad=false;
 		MnvrExecute=false;
 		MnvrToBurnAtt=false;
+		// reset burn flags
+		BurnInProg=false;
+		BurnCompleted=false;
+		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
+		VGO = _V(0, 0, 0);
+		DeltaVTot = 0.0;
 	}
 	return false;
 }
