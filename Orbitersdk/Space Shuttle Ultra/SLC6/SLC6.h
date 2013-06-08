@@ -19,6 +19,10 @@ const VECTOR3 PCR_MESH_OFFSET = _V(0, -1.8, 241.7);
 const VECTOR3 SAB_MESH_OFFSET = _V(0, VERT_MESH_OFFSET, 138.25);
 const VECTOR3 MST_MESH_OFFSET = _V(0, VERT_MESH_OFFSET, -113.5);
 
+const VECTOR3 GOXVENT_LEFT = _V(2.146, 59.1415, -5.8853);
+const VECTOR3 GOXVENT_RIGHT = _V(4.426, 59.1415, -5.8853);
+const VECTOR3 GOXVENT_DIRREF = _V(2.146, 60.556, -5.296);
+
 const double SLC6_ORBITER_ACCESS_ARM_RATE = 0.02222;
 const double SLC6_VENT_ARM_RATE = 0.023810;
 const double SLC6_VENT_HOOD_RATE = 0.04166667;
@@ -28,6 +32,8 @@ const double SLC6_PCR_TRANSLATE_RATE = 1/2400.0; // 40 minutes to move
 const double SLC6_SAB_TRANSLATE_RATE = 1/2400.0; // 40 minutes to move
 const double SLC6_MST_TRANSLATE_RATE = 1/2400.0; // 40 minutes to move
 const double SLC6_SAB_DOOR_RATE = 1/600.0;
+
+class Atlantis;
 
 class SLC6 : public VESSEL3, public ISSULaunchTower, public ISSUMLP
 {
@@ -60,8 +66,15 @@ class SLC6 : public VESSEL3, public ISSULaunchTower, public ISSUMLP
 	double SSSLevel, SSS_SSMESteam, SSS_SRBSteam;
 	//double SSS_SSMELevel, SSS_SRBLevel;
 
+	bool bFirstStep;
 	bool bGLSAutoSeq;
 	double timeToLaunch;
+
+	PROPELLANT_HANDLE phGOXVent;
+	THRUSTER_HANDLE thGOXVent[2];
+	VECTOR3 goxVentPos[3]; // vectors to track position/direction of GOX vents
+
+	Atlantis* pSTS;
 public:
 	SLC6(OBJHANDLE hVessel, int flightmodel);
 	~SLC6();
@@ -124,6 +137,8 @@ private:
 	void DefineAnimations();
 	void DefineROFIs();
 	void DefineSSS();
+	void DefineGOXVents();
+	void UpdateGOXVents();
 
 	/**
 	 * Creates MGROUP_ROTATE struct, adds it to animation list, and returns pointer to struct
