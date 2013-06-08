@@ -1,4 +1,5 @@
 #define ORBITER_MODULE
+#include "../Atlantis.h"
 #include "SLC6.h"
 #include "UltraMath.h"
 #include "meshres_Tower.h"
@@ -10,14 +11,22 @@ HINSTANCE hModule;
 
 SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 	: VESSEL3(hVessel, flightmodel), ROFILevel(0.0), ROFIStartTime(0.0),
-	SSSLevel(0.0), SSS_SSMESteam(0.0), SSS_SRBSteam(0.0),
-	bGLSAutoSeq(false), timeToLaunch(31.0)
+	  SSSLevel(0.0), SSS_SSMESteam(0.0), SSS_SRBSteam(0.0),
+	  bFirstStep(true), bGLSAutoSeq(false), timeToLaunch(31.0),
+	  pSTS(NULL)
 {
 	hPadMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_PAD);
 	hTowerMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_TOWER);
 	hPCRMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_PCR);
 	hSABMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_SAB);
 	hMSTMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MST);
+
+	goxVentPos[0] = GOXVENT_LEFT;
+	goxVentPos[1] = GOXVENT_RIGHT;
+	goxVentPos[2] = GOXVENT_DIRREF;
+
+	phGOXVent = NULL;
+	thGOXVent[0] = thGOXVent[1] = NULL;
 
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	VentArmState.Set(AnimState::CLOSED, 0.0);
@@ -48,6 +57,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	DefineAnimations();
 	DefineROFIs();
 	DefineSSS();
+	DefineGOXVents();
 }
 
 void SLC6::clbkPostCreation()
@@ -57,6 +67,23 @@ void SLC6::clbkPostCreation()
 void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 {
 	VESSEL3::clbkPreStep(simt, simdt, mjd);
+
+	if(bFirstStep) {
+		OBJHANDLE hSTS = GetAttachmentStatus(ahHDP);
+		if(hSTS!=NULL)
+		{
+			VESSEL *pVessel = oapiGetVesselInterface(hSTS);
+			if(pVessel && !_strnicmp(pVessel->GetClassName(), "SpaceShuttleUltra",17))
+				pSTS = static_cast<Atlantis*>(pVessel);
+			else
+				pSTS = NULL;
+		}
+
+		UpdateGOXVents();
+		SetPropellantMass(phGOXVent, 0.01); // ensure that fake propellant tank for GOX venting has fuel
+
+		bFirstStep = false;
+	}
 
 	if(bGLSAutoSeq) {
 		timeToLaunch -= simdt;
@@ -83,10 +110,12 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 	if(VentHoodState.Moving() && (Eq(VentArmState.pos, 1.0, 0.001) || VentArmState.Static())) {
 		VentHoodState.Move(simdt*SLC6_VENT_HOOD_RATE);
 		SetAnimation(anim_VentHood, VentHoodState.pos);
+		UpdateGOXVents();
 	}
 	else if(VentArmState.Moving() && Eq(VentHoodState.pos, 0.0, 0.001)) {
 		VentArmState.Move(simdt*SLC6_VENT_ARM_RATE);
 		SetAnimation(anim_VentArm, VentArmState.pos);
+		UpdateGOXVents();
 	}
 
 	//sprintf_s(oapiDebugString(), 255, "VentArm: %d %f VentHood: %d %f", VentArmState.action, VentArmState.pos, VentHoodState.action, VentHoodState.pos);
@@ -118,6 +147,19 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 	if(MSTState.Moving()) {
 		MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
 		SetAnimation(anim_MST, MSTState.pos);
+	}
+
+	if(VentHoodState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
+		double fFlow = static_cast<double>(pSTS->GetETPropellant())/100.0;
+		SetThrusterLevel(thGOXVent[0], fFlow/5.0);
+		SetThrusterLevel(thGOXVent[1], fFlow/5.0);
+
+		UpdateGOXVents();
+	}
+	else
+	{
+		SetThrusterLevel(thGOXVent[0], 0.0);
+		SetThrusterLevel(thGOXVent[1], 0.0);
 	}
 
 	if(ROFILevel>0.01 && (simt-ROFIStartTime)>10.0) ROFILevel=0.0;
@@ -485,6 +527,34 @@ void SLC6::DefineSSS()
 	AddParticleStream(&sss_steam, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
 }
 
+void SLC6::DefineGOXVents()
+{
+	static PARTICLESTREAMSPEC gox_stream = {
+		0, 0.8, 15, 7, 0, 3, 1.25, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
+		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
+		PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
+	};
+
+	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
+
+	//AddParticleStream(&gox_stream, 
+	phGOXVent = CreatePropellantResource(0.01);
+	VECTOR3 dir = Normalize(goxVentPos[2]-goxVentPos[0]);
+	for(int i=0;i<2;i++) {
+		thGOXVent[i] = CreateThruster(goxVentPos[i], dir, 0.0, phGOXVent);
+		AddExhaustStream(thGOXVent[i], &gox_stream);
+	}
+}
+
+void SLC6::UpdateGOXVents()
+{
+	VECTOR3 dir = Normalize(goxVentPos[2]-goxVentPos[0]);
+	for(int i=0;i<2;i++) {
+		SetThrusterRef(thGOXVent[i], goxVentPos[i]+TOWER_MESH_OFFSET);
+		SetThrusterDir(thGOXVent[i], dir);
+	}
+}
+
 void SLC6::DefineAnimations()
 {
 	static UINT AccessArmGrp[1] = {GRP_OAA};
@@ -496,6 +566,8 @@ void SLC6::DefineAnimations()
 	MGROUP_ROTATE* pVentArm = DefineRotation(tower_mesh_idx, VentArmGrp, 4, _V(3.3, 60.876, -23.148), _V(0, -1, 0), static_cast<float>(77.5*RAD));
 	anim_VentArm = CreateAnimation(0.0);
 	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_VentArm, 0.0, 1.0, pVentArm);
+	MGROUP_ROTATE* pVentVector = DefineRotation(LOCALVERTEXLIST, MAKEGROUPARRAY(goxVentPos), 3, _V(0.0, 0.0, 0.0), _V(0, 1, 0), static_cast<float>(0.0));
+	AddAnimationComponent(anim_VentArm, 0.0, 1.0, pVentVector, parent);
 
 	static UINT VentHoodGrp[5] = {GRP_GOX_VENT_HOOD, GRP_NORTH_GOX_VENT_CYLINDER_02, GRP_NORTH_GOX_VENT_CYLINDER_03,
 		GRP_SOUTH_GOX_VENT_CYLINDER_02, GRP_SOUTH_GOX_VENT_CYLINDER_03};
