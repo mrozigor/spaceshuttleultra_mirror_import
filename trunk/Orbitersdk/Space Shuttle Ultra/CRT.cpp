@@ -1,6 +1,7 @@
 #define STRICT
 #define ORBITER_MODULE
 #include <math.h>
+#include <UltraMath.h>
 #include "Atlantis.h"
 #include "orbitersdk.h"
 #include "CRT.h"
@@ -392,7 +393,7 @@ void CRT::OMSMPS(HDC hDC)
 	//MPS
 	for(nPos=0;nPos<3;nPos++) {
 		nLoc=35*EngConvert[nPos];
-		if (sts->status<=2) dNum=static_cast<int>(109.0*sts->GetThrusterLevel(sts->th_main[nPos]));
+		if (sts->status<=2) dNum=round(109.0*sts->GetThrusterLevel(sts->th_main[nPos]));
 		else dNum=0.0;
 		sprintf(cbuf, "%.0f", dNum);
 		if(dNum>1) {
