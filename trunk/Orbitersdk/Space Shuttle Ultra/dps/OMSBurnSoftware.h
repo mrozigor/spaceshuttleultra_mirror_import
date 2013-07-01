@@ -44,6 +44,7 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	double ApD, ApT, PeD, PeT;
 	double metAt400KFeet;
 	double lastUpdateSimTime;
+	double lastMET;
 	StateVectorPropagator propagator;
 	OMSBurnPropagator omsBurnPropagator;
 	double tgtApD, tgtPeD;
@@ -77,6 +78,9 @@ public:
 	 */
 	void SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV);
 private:
+	void StartBurn();
+	void TerminateBurn();
+	
 	void StartCalculatingPEG4Targets();
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
