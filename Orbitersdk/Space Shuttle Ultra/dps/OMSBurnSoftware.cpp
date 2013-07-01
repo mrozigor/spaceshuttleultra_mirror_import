@@ -39,6 +39,7 @@ bCalculatingPEG4Burn(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
 propagator(0.2, 50, 7200.0),
+lastMET(0.0),
 pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
@@ -143,6 +144,25 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	if(MnvrLoad && !(BurnInProg || BurnCompleted)) propagator.Step(STS()->GetMET(), DeltaT);
 	
 	if(!MnvrLoad || met<tig) return; // no burn to perform, or we haven't reached TIG yet
+	unsigned int majorMode = GetMajorMode();
+	if(majorMode != 104 && majorMode != 105 && majorMode != 202 && majorMode != 302) return; // make sure we are in MM which allows burns
+	
+	// get VGO in orbitersim global frame; this vector will be updated every timestep
+	// do this at TIG so we get correct vector in global frame
+	if(lastMET < tig) {
+		VECTOR3 pos, vel;
+		// this gets Orbitersim state vectors
+		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
+		STS()->GetRelativePos(hEarth, pos);
+		STS()->GetRelativeVel(hEarth, vel);
+		MATRIX3 GlobalToLVLH_TIG = GetGlobalToLVLHMatrix(pos, vel, true);
+		VGO_Global = tmul(GlobalToLVLH_TIG, DeltaV);
+		// convert VGO_Global to body coordinates (and to fps) for display
+		MATRIX3 LocalToGlobal;
+		STS()->GetRotationMatrix(LocalToGlobal);
+		VGO = tmul(LocalToGlobal, VGO_Global);
+		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
+	}
 
 	// update VGO values
 	// we need to update global (orbitersim frame) VGO, then convert VGOs to shuttle body coordinates for display
@@ -157,65 +177,27 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
 	}
 
-	if(BurnInProg && MnvrExecute) // check if engines should be shut down
-	{
-		if(met>=(IgnitionTime+BurnTime)) {
-			//sprintf(oapiDebugString(), "Shutdown");
-			//SetThrusterGroupLevel(thg_main, 0.00);
-			omsEngineCommand[0].ResetLine();
-			omsEngineCommand[1].ResetLine();
-			BurnCompleted=true;
-			BurnInProg=false;
-			pOrbitDAP->UseRCS();
-			//pStateVector->UpdatePropagatorStateVectors();
-			//UpdateOrbitData();
-			//lastUpdateSimTime = SimT; // force elements to be updated
+	if(OMS != 4) { // start/stop OMS engines
+		if(BurnInProg && MnvrExecute) // check if engines should be shut down
+		{
+			if(met>=(IgnitionTime+BurnTime)) TerminateBurn();
+			UpdateOrbitData();
 		}
-		UpdateOrbitData();
-	}
-	else if(!BurnInProg && !BurnCompleted) // check if burn should start
-	{
-		//sprintf(oapiDebugString(), "Burning");
-		BurnInProg=true;
-		IgnitionTime=met;
-
-		// get VGO in orbitersim global frame; this vector will be updated every timestep
-		VECTOR3 pos, vel;
-		// this gets Orbitersim state vectors
-		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
-		STS()->GetRelativePos(hEarth, pos);
-		STS()->GetRelativeVel(hEarth, vel);
-		MATRIX3 GlobalToLVLH_TIG = GetGlobalToLVLHMatrix(pos, vel, true);
-		VGO_Global = tmul(GlobalToLVLH_TIG, DeltaV);
-		// convert VGO_Global to body coordinates (and to fps) for display
-		MATRIX3 LocalToGlobal;
-		STS()->GetRotationMatrix(LocalToGlobal);
-		VGO = tmul(LocalToGlobal, VGO_Global);
-		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
-
-		if(MnvrExecute) {
-			//ignite engines
-			//if(OMS==0) SetThrusterGroupLevel(thg_main, 1.00);
-			//else SetThrusterLevel(th_oms[OMS-1], 1.00);
-			if(OMS==0) {
-				omsEngineCommand[0].SetLine();
-				omsEngineCommand[1].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::BOTH_OMS, Trim);
-			}
-			else if(OMS==1) {
-				omsEngineCommand[0].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::LEFT_OMS, Trim);
-			}
-			else if(OMS==2) {
-				omsEngineCommand[1].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::RIGHT_OMS, Trim);
-			}
+		else if(!BurnInProg && !BurnCompleted && MnvrExecute) // check if burn should start
+		{
+			StartBurn();
 		}
 	}
+	
+	lastMET = met;
 }
 
 bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 {
+	// cancel any ongoing burn
+	if(BurnInProg) {
+		TerminateBurn();
+	}
 	if(newMajorMode == 104 || newMajorMode == 105 || newMajorMode == 106 ||
 		newMajorMode == 202 ||
 		newMajorMode == 301 || newMajorMode == 302 || newMajorMode == 303)
@@ -492,7 +474,11 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 	if(MnvrLoad) {
 		pMDU->mvprint(0, 23, "LOAD  22/TIMER 23");
-		if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+
+		unsigned int majorMode = GetMajorMode();
+		if(majorMode == 104 || majorMode == 105 || majorMode == 202 || majorMode == 302) {
+			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+		}
 	}
 	else pMDU->mvprint(6, 23, "22/TIMER 23");
 
@@ -650,6 +636,38 @@ void OMSBurnSoftware::SetManeuverData(double maneuverTIG, const VECTOR3& maneuve
 {
 	ConvertSecondsToDDHHMMSS(maneuverTIG, TIG);
 	PEG7 = maneuverDV*MPS2FPS;
+}
+
+void OMSBurnSoftware::StartBurn()
+{
+	BurnInProg=true;
+	IgnitionTime=STS()->GetMET();
+	//ignite engines
+	if(OMS==0) {
+		omsEngineCommand[0].SetLine();
+		omsEngineCommand[1].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::BOTH_OMS, Trim);
+	}
+	else if(OMS==1) {
+		omsEngineCommand[0].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::LEFT_OMS, Trim);
+	}
+	else if(OMS==2) {
+		omsEngineCommand[1].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::RIGHT_OMS, Trim);
+	}
+}
+
+void OMSBurnSoftware::TerminateBurn()
+{
+	omsEngineCommand[0].ResetLine();
+	omsEngineCommand[1].ResetLine();
+	BurnCompleted=true;
+	BurnInProg=false;
+	pOrbitDAP->UseRCS();
+	//pStateVector->UpdatePropagatorStateVectors();
+	//UpdateOrbitData();
+	//lastUpdateSimTime = SimT; // force elements to be updated
 }
 
 void OMSBurnSoftware::StartCalculatingPEG4Targets()
