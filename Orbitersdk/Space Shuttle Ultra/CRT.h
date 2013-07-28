@@ -70,7 +70,6 @@ private:
 
 	//void PDRS(HDC hDC);
 
-	void DisplayScratchPad(HDC hDC);
 	void DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY);
 
 	//Thruster Control

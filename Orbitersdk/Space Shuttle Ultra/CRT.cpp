@@ -59,7 +59,6 @@ DLLCLBK void ExitModule (HINSTANCE hDLL)
 CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 : MFD (w, h, v)
 {
-	int i;
 	char cbuf[200];
 
 	/*char cbuf[255];
@@ -253,7 +252,6 @@ void CRT::Update (HDC hDC)
 		else {
 			DrawCommonHeader(hDC);
 		}*/
-		DisplayScratchPad(hDC);
 	}
 	//sprintf(oapiDebugString(), "%f", Simtime-Simtime_last);
 	//Simtime_last=Simtime;
@@ -382,7 +380,7 @@ void CRT::OMSMPS(HDC hDC)
 		dNum=sts->GetPropellantMass(sts->oms_helium_tank[nPos])*228.6;
 		sprintf(cbuf, "%.0f", dNum);
 		TextOut(hDC, 14+35*nPos, 31, cbuf, strlen(cbuf));
-		Rectangle (hDC, 19+35*nPos, 90-0.008*dNum, 34+35*nPos, 90);
+		Rectangle (hDC, 19+35*nPos, static_cast<int>(90-0.008*dNum), 34+35*nPos, 90);
 		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]);
 		sprintf(cbuf, "%.0f", dNum);
 		TextOut(hDC, 15+35*nPos, 169, cbuf, strlen(cbuf));
@@ -397,7 +395,7 @@ void CRT::OMSMPS(HDC hDC)
 		else dNum=0.0;
 		sprintf(cbuf, "%.0f", dNum);
 		if(dNum>1) {
-			Rectangle(hDC, 161+nLoc, 250-0.5769*dNum, 176+nLoc, 250);
+			Rectangle(hDC, 161+nLoc, static_cast<int>(250-0.5769*dNum), 176+nLoc, 250);
 		}
 		if(EngConvert[nPos]!=1) TextOut(hDC, 157+nLoc, 169, cbuf, strlen(cbuf));
 		else TextOut(hDC, 157+nLoc, 164, cbuf, strlen(cbuf));
@@ -709,17 +707,17 @@ void CRT::SPI(HDC hDC)
 	TextOut(hDC,223,230,CommandBuf,strlen(CommandBuf));
 
 	SelectObject(hDC,YellowPen);
-	MoveToEx(hDC,140+((Actual/100)*100),206,NULL);
-	LineTo(hDC,135+((Actual/100)*100),212);
-	LineTo(hDC,145+((Actual/100)*100),212);
-	LineTo(hDC,140+((Actual/100)*100),206);
+	MoveToEx(hDC,static_cast<int>(140+((Actual/100)*100)),206,NULL);
+	LineTo(hDC,static_cast<int>(135+((Actual/100)*100)),212);
+	LineTo(hDC,static_cast<int>(145+((Actual/100)*100)),212);
+	LineTo(hDC,static_cast<int>(140+((Actual/100)*100)),206);
 	
 
 	SelectObject(hDC,LightBluePen);
-	MoveToEx(hDC,140+((Command/100)*100),221,NULL);
-	LineTo(hDC,135+((Command/100)*100),214.5);
-	LineTo(hDC,145+((Command/100)*100),214.5);
-	LineTo(hDC,140+((Command/100)*100),221);
+	MoveToEx(hDC,static_cast<int>(140+((Command/100)*100)),221,NULL);
+	LineTo(hDC,static_cast<int>(135+((Command/100)*100)),214);
+	LineTo(hDC,static_cast<int>(145+((Command/100)*100)),214);
+	LineTo(hDC,static_cast<int>(140+((Command/100)*100)),221);
 
 	RestoreDC(hDC, savedDC); // deselect pens, brushes, etc. so we can delete them
 	DeleteObject(ArialFont);
@@ -846,7 +844,7 @@ void CRT::APUHYD(HDC hDC)
 		sprintf_s(cbuf, 10, "%.0f", dNum);
 		TextOut(hDC, 28+30*nPos, 32, cbuf, strlen(cbuf));
 		if(dNum>=1) {
-			Rectangle(hDC, 29+30*nPos, 91-0.38*dNum, 50+30*nPos, 91);
+			Rectangle(hDC, 29+30*nPos, static_cast<int>(91-0.38*dNum), 50+30*nPos, 91);
 		}
 		//Hydraulic Press
 		int HydPress=(int)sts->pAPU[nPos]->GetHydraulicPressure();
@@ -854,14 +852,14 @@ void CRT::APUHYD(HDC hDC)
 		sprintf_s(cbuf, 10, "%d", HydPress);
 		TextOut(hDC, 159+33*nPos, 182, cbuf, strlen(cbuf));
 		if(HydPress>=1) {
-			Rectangle(hDC, 162+33*nPos, 241-0.01*HydPress, 183+33*nPos, 241);
+			Rectangle(hDC, 162+33*nPos, static_cast<int>(241-0.01*HydPress), 183+33*nPos, 241);
 		}
 		//Fuel P
 		int FuelPress=(int)sts->pAPU[nPos]->GetFuelPressure();
 		sprintf_s(cbuf, 10, "%d", FuelPress);
 		TextOut(hDC, 159+33*nPos, 32, cbuf, strlen(cbuf));
 		if(FuelPress>0) {
-			Rectangle(hDC, 162+33*nPos, 91-0.026*FuelPress, 183+33*nPos, 91);
+			Rectangle(hDC, 162+33*nPos, static_cast<int>(91-0.026*FuelPress), 183+33*nPos, 91);
 		}
 	}
 
@@ -889,14 +887,14 @@ void CRT::DAP_CONFIG(HDC hDC)
 
 void CRT::PASSTRAJ(HDC hdc)
 {
-	float charW = W/50.0;
-	float charH = H/25.0;
+	float charW = static_cast<float>(W)/50.0f;
+	float charH = static_cast<float>(H)/25.0f;
 	char cbuf[255];
 	double Ref_hdot = 0.0;
 
 	bool bShowHDot = (sts->GetGPCRefHDot(usGPCDriver, Ref_hdot) == VARSTATE_OK);
 
-	VECTOR3 LVLH_Vel, LVLH_Pos;
+	VECTOR3 LVLH_Vel;
 	sts->GetGPCLVLHVel(usGPCDriver, LVLH_Vel);
 	switch(sts->GetGPCMajorMode())
 	{
@@ -929,40 +927,40 @@ void CRT::PASSTRAJ(HDC hdc)
 
 	
 	//Nominal ascent line
-	MoveToEx(hdc, 0.7083*W, 0.830*H, NULL);
-	LineTo(hdc, 0.7500*W, 0.6915*H);
-	LineTo(hdc, 0.9125*W, 0.5000*H);
-	LineTo(hdc, W, 0.4574*H);
+	MoveToEx(hdc, static_cast<int>(0.7083*W), static_cast<int>(0.830*H), NULL);
+	LineTo(hdc, static_cast<int>(0.7500*W), static_cast<int>(0.6915*H));
+	LineTo(hdc, static_cast<int>(0.9125*W), static_cast<int>(0.5000*H));
+	LineTo(hdc, W, static_cast<int>(0.4574*H));
 
 	//EO at Lift-Off line
-	MoveToEx(hdc, 0.625*W, 0.830*H, NULL);
-	LineTo(hdc, 0.6833*W, 0.5426*H);
-	LineTo(hdc, 0.3042*W, 0.7660*H);
-	LineTo(hdc, 0.2292*W, 0.7872*H);
-	LineTo(hdc, 0.0833*W, 0.6915*H);
+	MoveToEx(hdc, static_cast<int>(0.625*W), static_cast<int>(0.830*H), NULL);
+	LineTo(hdc, static_cast<int>(0.6833*W), static_cast<int>(0.5426*H));
+	LineTo(hdc, static_cast<int>(0.3042*W), static_cast<int>(0.7660*H));
+	LineTo(hdc, static_cast<int>(0.2292*W), static_cast<int>(0.7872*H));
+	LineTo(hdc, static_cast<int>(0.0833*W), static_cast<int>(0.6915*H));
 
-	MoveToEx(hdc, 0.7167*W, 0.4681*H, NULL);
-	LineTo(hdc, 0.6917*W, 0.4787*H);
-	LineTo(hdc, 0.3167*W, 0.734*H);
+	MoveToEx(hdc, static_cast<int>(0.7167*W), static_cast<int>(0.4681*H), NULL);
+	LineTo(hdc, static_cast<int>(0.6917*W), static_cast<int>(0.4787*H));
+	LineTo(hdc, static_cast<int>(0.3167*W), static_cast<int>(0.734*H));
 
 	//Q = 2 line
-	MoveToEx(hdc, 0.150*W, 0.734*H, NULL);
-	LineTo(hdc, 0.0417*W, 0.7021*H);
+	MoveToEx(hdc, static_cast<int>(0.150*W), static_cast<int>(0.734*H), NULL);
+	LineTo(hdc, static_cast<int>(0.0417*W), static_cast<int>(0.7021*H));
 
 	//Q = 10 line
-	MoveToEx(hdc, 0.150*W, 0.6702*H, NULL);
-	LineTo(hdc, 0.0417*W, 0.617*H);
+	MoveToEx(hdc, static_cast<int>(0.150*W), static_cast<int>(0.6702*H), NULL);
+	LineTo(hdc, static_cast<int>(0.0417*W), static_cast<int>(0.617*H));
 
 	//Hdot indicator
-	MoveToEx(hdc, 0.0667*W, 0.1170*H, NULL);
-	LineTo(hdc, 0.0416*W, 0.1170*H);
-	LineTo(hdc, 0.0416*W, 0.8085*H);
-	LineTo(hdc, 0.0667*W, 0.8085*H);
-	short sHDot_cy = 0.4737*H;
-	short sHDot_cx = 0.0416*W;
-	float HDot_Scale = (0.4737 - 0.1170) * W;
+	MoveToEx(hdc, static_cast<int>(0.0667*W), static_cast<int>(0.1170*H), NULL);
+	LineTo(hdc, static_cast<int>(0.0416*W), static_cast<int>(0.1170*H));
+	LineTo(hdc, static_cast<int>(0.0416*W), static_cast<int>(0.8085*H));
+	LineTo(hdc, static_cast<int>(0.0667*W), static_cast<int>(0.8085*H));
+	short sHDot_cy = static_cast<short>(0.4737*H);
+	short sHDot_cx = static_cast<short>(0.0416*W);
+	float HDot_Scale = (0.4737f - 0.1170f) * W;
 	MoveToEx(hdc, sHDot_cx, sHDot_cy, NULL);
-	LineTo(hdc, 0.0667*W, sHDot_cy);
+	LineTo(hdc, static_cast<int>(0.0667*W), sHDot_cy);
 
 	if(bShowHDot)
 	{
@@ -977,7 +975,7 @@ void CRT::PASSTRAJ(HDC hdc)
 			HDot_Error = -200.0;
 		}
 
-		short sHDot_pry = sHDot_cy - (HDot_Error/200.0 * HDot_Scale);
+		short sHDot_pry = sHDot_cy - static_cast<short>(HDot_Error/200.0 * HDot_Scale);
 
 		MoveToEx(hdc, sHDot_cx, sHDot_cy + sHDot_pry, NULL);
 		LineTo(hdc, sHDot_cx-W/50, sHDot_cy + sHDot_pry - W/50);
@@ -986,23 +984,23 @@ void CRT::PASSTRAJ(HDC hdc)
 	}
 
 	//DR indicator
-	short sDR_cy = 0.1064*H;
-	short sDR_by = 0.1383*H;
+	short sDR_cy = static_cast<short>(0.1064*H);
+	short sDR_by = static_cast<short>(0.1383*H);
 
-	MoveToEx(hdc, 0.1*W, sDR_cy, NULL);
-	LineTo(hdc, 0.9667*W, sDR_cy);
+	MoveToEx(hdc, static_cast<int>(0.1*W), sDR_cy, NULL);
+	LineTo(hdc, static_cast<int>(0.9667*W), sDR_cy);
 
 	//PD3 Mark
-	MoveToEx(hdc, 0.6417*W, sDR_cy, NULL);
-	LineTo(hdc, 0.6417*W, sDR_by);
+	MoveToEx(hdc, static_cast<int>(0.6417*W), sDR_cy, NULL);
+	LineTo(hdc, static_cast<int>(0.6417*W), sDR_by);
 
 	//PD Mark
-	MoveToEx(hdc, 0.5*W, sDR_cy, NULL);
-	LineTo(hdc, 0.5*W, sDR_by);
+	MoveToEx(hdc, static_cast<int>(0.5*W), sDR_cy, NULL);
+	LineTo(hdc, static_cast<int>(0.5*W), sDR_by);
 
 	//CO Mark
-	MoveToEx(hdc, 0.1833*W, sDR_cy, NULL);
-	LineTo(hdc, 0.1833*W, sDR_by);
+	MoveToEx(hdc, static_cast<int>(0.1833*W), sDR_cy, NULL);
+	LineTo(hdc, static_cast<int>(0.1833*W), sDR_by);
 
 	//Current vehicle state:
 	double VHI = LVLH_Vel.x;
@@ -1020,8 +1018,8 @@ void CRT::PASSTRAJ(HDC hdc)
 	if(Altitude > 155500 && VHI < 10000)
 	{
 		//Draw triangle for state vector
-		short stY = H*(1.13256 - (Altitude/513955.985));
-		short stX = W*(0.36194 + (VHI/15672.3964));
+		short stY = static_cast<short>(H*(1.13256 - (Altitude/513955.985)));
+		short stX = static_cast<short>(W*(0.36194 + (VHI/15672.3964)));
 		DrawDelta(hdc, stX, stY, stX-6, stX+6, stY+9);
 		//sprintf(oapiDebugString(), "%f %f %d %d", VHI, Altitude, stX, stY);
 	}
@@ -1056,11 +1054,6 @@ void CRT::PASSTRAJ(HDC hdc)
 
 void CRT::MNVR(HDC hDC)
 {
-	char cbuf[255];
-	int minutes, seconds;
-	int timeDiff;
-	int TIMER[4];
-
 	//oapiWriteLog("Calling Paint 1");
 	vc::MDU* mdu=sts->GetMDU(id);
 	//oapiWriteLog("Calling Paint 2");
@@ -1385,41 +1378,6 @@ void CRT::MNVR(HDC hDC)
 	//TextOut(hDC, 0, 198, " MID", 4);
 	//TextOut(hDC, 0, 207, " FWD", 4);
 }*/
-
-void CRT::DisplayScratchPad(HDC hDC)
-{
-	char cbuf[255];
-	/*
-	if(sts->DataInput[id].OPS) {
-		if(sts->DataInput[id].PRO) sprintf(cbuf, "OPS %s PRO", sts->DataInput[id].input);
-		else sprintf(cbuf, "OPS %s", sts->DataInput[id].input);
-		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
-	}
-	else if(sts->DataInput[id].SPEC) {
-		if(sts->DataInput[id].PRO) sprintf(cbuf, "SPEC %s PRO", sts->DataInput[id].input);
-		else sprintf(cbuf, "SPEC %s", sts->DataInput[id].input);
-		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
-	}
-	else if(sts->DataInput[id].ITEM) {
-		if(sts->DataInput[id].EXEC) sprintf(cbuf, "ITEM %s EXEC", sts->DataInput[id].input);
-		else sprintf(cbuf, "ITEM %s", sts->DataInput[id].input);
-		TextOut(hDC, 0, 245, cbuf, strlen(cbuf));
-	}
-	else TextOut(hDC, 0, 245, sts->DataInput[id].input, strlen(sts->DataInput[id].input));
-
-	*/
-
-	/*
-	unsigned short usIDP = sts->GetMDU(usMDU)->GetDrivingIDP();
-
-	if(usIDP<100) {
-
-		const char* pszSL = sts->GetIDP(usIDP)->GetScratchPadLineString();
-
-		TextOut(hDC, 0, 245, pszSL, strlen(pszSL));
-	}
-	*/
-}
 
 void CRT::DrawDelta(HDC hDC, int TopX, int TopY, int LBottomX, int RBottomX, int BottomY)
 {
@@ -2605,23 +2563,23 @@ void CRT::GNCSYSSUMM1(HDC hdc)
 
 bool CRT::CRTTextOut(HDC hdc, short sCol, short sLine, char *text)
 {
-	float charW = W/50.0;
-	float charH = H/25.0;
+	float charW = static_cast<float>(W)/50.0f;
+	float charH = static_cast<float>(H)/25.0f;
 
 	if(sCol < 1 || sCol > 50 || sLine < 1 || sLine > 25)
 	{
 		return false;
 	}
 
-	TextOut(hdc, charW * (sCol - 1), charH * (sLine - 1), text, strlen(text));
+	TextOut(hdc, static_cast<int>(charW * (sCol - 1)), static_cast<int>(charH * (sLine - 1)), text, strlen(text));
 
 	return true;
 }
 
 bool CRT::CRTLine(HDC hdc, short sX1, short sY1, short sX2, short sY2)
 {
-	float charW = W/50.0;
-	float charH = H/25.0;
+	float charW = static_cast<float>(W)/50.0f;
+	float charH = static_cast<float>(H)/25.0f;
 
 	int iX1 = (int)(charW * sX1);
 	int iY1 = (int)(charH * sY1);

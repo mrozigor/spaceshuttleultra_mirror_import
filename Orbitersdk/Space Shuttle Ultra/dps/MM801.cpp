@@ -226,7 +226,7 @@ namespace dps
 	{
 		if(voltage > 0)
 		{
-			float x = abs(voltage)*18.0;
+			float x = abs(voltage)*18.0f;
 			char buff[255];
 			std::string x_str;
 			sprintf(buff,"%.1lf",x);
@@ -242,7 +242,7 @@ namespace dps
 
 		else if(voltage < 0)
 		{
-			float x = abs(voltage)*33.0;
+			float x = abs(voltage)*33.0f;
 			char buff[255];
 			std::string x_str;
 			sprintf(buff,"%.1lf",x);
@@ -264,7 +264,7 @@ namespace dps
 	{
 		if(voltage > 0)
 		{
-			float x = abs(voltage)*45.0;
+			float x = abs(voltage)*45.0f;
 			char buff[255];
 			std::string x_str;
 			sprintf(buff,"%.1lf",x);
@@ -280,7 +280,7 @@ namespace dps
 
 		else if(voltage < 0)
 		{
-			float x = abs(voltage)*45.0;
+			float x = abs(voltage)*45.0f;
 			char buff[255];
 			std::string x_str;
 			sprintf(buff,"%.1lf",x);

@@ -206,12 +206,12 @@ namespace vc
 		pPLBDLights[5]->SetReference(_V(0.1635, 2.7795, 12.311), switch_rot_vert);
 
 		pPLBDLights[6]->DefineSwitchGroup(GRP_A7U8_VC);
-		pPLBDLights[6]->SetMouseRegion(0.777841, 0.683267, 0.843850, 0.776423);
+		pPLBDLights[6]->SetMouseRegion(0.777841f, 0.683267f, 0.843850f, 0.776423f);
 		pPLBDLights[6]->SetReference(_V(0.1635, 2.6155, 12.363), switch_rot_vert);
 
 		pDockingLight->SetInitialAnimState(0.5);
 		pDockingLight->DefineSwitchGroup(GRP_A7U7_VC);
-		pDockingLight->SetMouseRegion(0.870177, 0.691057, 0.931207, 0.773388);
+		pDockingLight->SetMouseRegion(0.870177f, 0.691057f, 0.931207f, 0.773388f);
 		pDockingLight->SetReference(_V(0.207, 2.6155, 12.363), switch_rot_vert);
 	}
 

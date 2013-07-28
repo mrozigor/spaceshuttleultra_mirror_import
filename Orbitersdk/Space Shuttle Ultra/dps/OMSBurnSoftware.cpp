@@ -739,8 +739,8 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		ThrustDir=ThrustDir/ThrustFactor; //normalize vector
 	}
 	else if(OMS==1 || OMS==2) {
-		omsPitchCommand[OMS-1].SetLine(Trim.data[0]/OMS_PITCH_RANGE);
-		omsYawCommand[OMS-1].SetLine(Trim.data[OMS]/OMS_YAW_RANGE);
+		omsPitchCommand[OMS-1].SetLine(static_cast<float>(Trim.data[0]/OMS_PITCH_RANGE));
+		omsYawCommand[OMS-1].SetLine(static_cast<float>(Trim.data[OMS]/OMS_YAW_RANGE));
 		//ThrustDir = STS()->GimbalOMS(OMS-1, Trim.data[0], Trim.data[OMS]);
 		ThrustDir = CalcOMSThrustDir(OMS-1, Trim.data[0], Trim.data[OMS]);
 	}

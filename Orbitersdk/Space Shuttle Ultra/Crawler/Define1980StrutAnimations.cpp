@@ -19,10 +19,10 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
 	//brake discs inner truck 1
-	InnerBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),(float)360*RAD);
+	InnerBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
 	AddManagedAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[0],parent);
 	//brake discs outter
-	OutterBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-(float)360*RAD);
+	OutterBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[0]);
 	// strut animations
 	static UINT Strut11GrpList[2] = {GRP_Corner_D_FWD_steering_cylinder, GRP_Corner_D_FWD_steering_cylinder_dust_shield};
@@ -45,10 +45,10 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
 	//brake discs inner truck 2
-	InnerBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-(float)360*RAD);
+	InnerBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[1]);
 	//brake discs outter
-	OutterBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),(float)360*RAD);
+	OutterBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[1]);
 	// strut animations
 	static UINT Strut21GrpList[2] = {GRP_Corner_C_FWD_steering_cylinder, GRP_Corner_C_FWD_steering_cylinder_dust_shield};
@@ -71,10 +71,10 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &DrivetruckGrpList[NGRP_TRUCK-1], 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
 	//brake discs inner truck 3
-	InnerBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),(float)360*RAD);
+	InnerBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[2]);
 	//brake discs outter
-	OutterBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-(float)360*RAD);
+	OutterBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[2]);
 	// strut animations
 	static UINT Strut31GrpList[2] = {GRP_Corner_A_FWD_steering_cylinder, GRP_Corner_A_FWD_steering_cylinder_dust_shield};
@@ -97,10 +97,10 @@ void Crawler::Define1980StrutAnimations()
 	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &DrivetruckGrpList[NGRP_TRUCK-1], 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
 	//brake discs inner truck 4
-	InnerBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-(float)360*RAD);
+	InnerBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[3]);
 	//brake discs outter
-	OutterBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),(float)360*RAD);
+	OutterBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
 	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[3]);
 	// strut animations
 	static UINT Strut41GrpList[2] = {GRP_Corner_B_FWD_steering_cylinder, GRP_Corner_B_FWD_steering_cylinder_dust_shield};

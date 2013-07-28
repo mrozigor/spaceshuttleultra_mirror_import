@@ -78,7 +78,7 @@ void XenonLights::CreateLights()
 
 	const COLOUR4 LIGHT_DIFFUSE = {1, 1, 1, 0};
 	const COLOUR4 LIGHT_SPECULAR = {0, 0, 0, 0};
-	const COLOUR4 LIGHT_AMBIENT = {0.1, 0.1, 0.1, 0.1};
+	const COLOUR4 LIGHT_AMBIENT = {0.1f, 0.1f, 0.1f, 0.1f};
 	const double LIGHT_RANGE = 450;
 	const double LIGHT_ATT0 = 1e-3;
 	const double LIGHT_ATT1 = 0;
@@ -152,7 +152,7 @@ bool XenonLights::IsDay() const
 bool XenonLights::FindTarget()
 {
 	DWORD vesselCount = oapiGetVesselCount();
-	for(int i=0;i<vesselCount;i++) {
+	for(unsigned int i=0;i<vesselCount;i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex(i);
 		VESSEL* v = oapiGetVesselInterface(hV);
 		if(!_stricmp(v->GetClassName(), SHUTTLE_CLASS_NAME)) {
