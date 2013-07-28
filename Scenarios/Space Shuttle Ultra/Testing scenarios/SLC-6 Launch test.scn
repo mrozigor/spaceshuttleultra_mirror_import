@@ -74,6 +74,7 @@ SLC-6:SSU_SLC6
   VENT_HOOD 1 1.0000
   GH2_VENTLINE 0 0.0000
   IAA 0 0.0000
+  T0_UMB 1 1.0000
 END
 Discovery:SpaceShuttleUltra
   STATUS Landed Earth
