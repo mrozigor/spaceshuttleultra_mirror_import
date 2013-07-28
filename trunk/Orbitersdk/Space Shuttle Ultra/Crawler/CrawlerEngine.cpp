@@ -136,7 +136,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		enginePower = 0.0;
 	}
 	currentAcceleration = enginePower*0.01;
-	commandVoltage.SetLine(enginePower);
+	commandVoltage.SetLine(static_cast<float>(enginePower));
 
 }
 

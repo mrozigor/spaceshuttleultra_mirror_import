@@ -501,7 +501,7 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 		else if(item == 41) {
 			int nNew;
 			sscanf_s(Data, "%d", &nNew);
-			if(nNew>=0 && nNew<=vLandingSites.size()) {
+			if(nNew>=0 && nNew<=static_cast<int>(vLandingSites.size())) {
 				SITE_ID = nNew;
 				InitializeRunwayData();
 			}
@@ -539,10 +539,10 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		STS()->GetHorizonAirspeedVector(Velocity);
 		//dOut = 661.47 * STS()->GetMachNumber() * sqrt(STS()->GetAtmPressure()/101325.0);
 		dOut = STS()->GetKEAS();
-		sprintf(cbuf, "KEAS:%.0f", dOut);
+		sprintf_s(cbuf, 255, "KEAS:%.0f", dOut);
 		skp->Text(hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
 		dOut=(STS()->GetAltitude()*3.280833)-17;
-		sprintf(cbuf,"ALT:%.0f",dOut);
+		sprintf_s(cbuf, 255, "ALT:%.0f",dOut);
 		skp->Text(10,(hps->H)/2-25,cbuf,strlen(cbuf));
 
 		// draw pitch ladder
@@ -1334,7 +1334,7 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 	//VECTOR3 vel;
 	//STS()->GetRelativeVel(hEarth, vel);
 	//double relativeVel=length(vel);
-	char cbuf[255];
+	//char cbuf[255];
 	double relativeVel = STS()->GetAirspeed();
 	double oldConstDragLevel = constDragLevel;
 	constDragLevel = (relativeVel*relativeVel-VQ2)/(2*(range-RPT));

@@ -36,24 +36,27 @@ double DragTable::Interpolate(double rho)
 {
 	std::vector<std::pair<double,double>>::iterator it;
 
-	for(it = dTable.begin(); it != dTable.end(); it++)
+	/*if(rho >= 1.16696)
+		return 500;
+
+	else if(rho <= 5.98467e-007)
+		return 100000;*/
+	if(rho >= dTable.front().second)
+		return dTable.front().first;
+	else if(rho <= dTable.back().second)
+		return dTable.back().first;
+
+	for(it = dTable.begin(); it != dTable.end(); ++it)
 	{
-		if(rho >= 1.16696)
-			return 500;
-
-		else if(rho <= 5.98467e-007)
-			return 100000;
-
-		else
+		if(it<dTable.end()-1)
 		{
-			if(it<dTable.end()-1)
-			{
-				if((rho>it->second && rho < (it+1)->second) || (rho<it->second && rho > (it+1)->second))
-					return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
-			}
+			if((rho>it->second && rho < (it+1)->second) || (rho<it->second && rho > (it+1)->second))
+				return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
 		}
 	}
-	
+	// shouldn't reach this point
+	it = dTable.end()-2;
+	return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
 }
 
 double DragTable::GetAirDensity(double altitude)

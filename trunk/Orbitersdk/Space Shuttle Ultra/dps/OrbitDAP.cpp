@@ -1525,7 +1525,7 @@ double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const M
 	double mnvrTime = 0.0;
 	double lastMnvrTime = 0.0;
 	int counter = 0;
-	VECTOR3 radFinalTargetAtt, Axis;
+	VECTOR3 Axis;
 	MATRIX3 PYR;
 	do {
 		counter++;

@@ -41,14 +41,14 @@ void CrawlerCenterPanel::DefineVC()
 	pSpeedGauge->SetRange(-2.0, 2.0);
 	pSpeedGauge->SetBaseCoords(0, 0);
 	pSpeedGauge->SetDimensions(482, 28, 37);
-	if(cabID==REAR) pSpeedGauge->SetScaleValue(-MPS2MPH);
-	else pSpeedGauge->SetScaleValue(MPS2MPH);
+	if(cabID==REAR) pSpeedGauge->SetScaleValue(-static_cast<float>(MPS2MPH));
+	else pSpeedGauge->SetScaleValue(static_cast<float>(MPS2MPH));
 
 	pSpeedDisplay->AddAIDToRedrawEventList(AID_SPEED_VALUE+aid_ofs);
 	pSpeedDisplay->SetBaseCoords(0, 0);
 	pSpeedDisplay->SetDimensions(148, 42, 4);
-	if(cabID==REAR) pSpeedDisplay->SetScaleValue(-MPS2MPH);
-	else pSpeedDisplay->SetScaleValue(MPS2MPH);
+	if(cabID==REAR) pSpeedDisplay->SetScaleValue(-static_cast<float>(MPS2MPH));
+	else pSpeedDisplay->SetScaleValue(static_cast<float>(MPS2MPH));
 }
 
 void CrawlerCenterPanel::DefineVCAnimations(UINT vcidx)

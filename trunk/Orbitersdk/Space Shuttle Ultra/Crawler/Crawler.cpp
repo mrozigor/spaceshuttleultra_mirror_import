@@ -380,7 +380,7 @@ void Crawler::clbkPostCreation()
 	pBundle = pBundleManager->CreateBundle("CRAWLER_JEL", 1);
 	port_JackHeight.Connect(pBundle, 0);
 	double avgHeight = jackHeight + (curFrontHeight-curBackHeight)/2.0;
-	port_JackHeight.SetLine(avgHeight/JACKING_MAX_HEIGHT);
+	port_JackHeight.SetLine(static_cast<float>(avgHeight/JACKING_MAX_HEIGHT));
 }
 
 void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
@@ -535,7 +535,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	}
 	// jacking height may change when going up ramp, so always update height
 	double avgHeight = jackHeight + (curFrontHeight-curBackHeight)/2.0;
-	port_JackHeight.SetLine(avgHeight/JACKING_MAX_HEIGHT);
+	port_JackHeight.SetLine(static_cast<float>(avgHeight/JACKING_MAX_HEIGHT));
 
 
 	//braking cylinders animation
