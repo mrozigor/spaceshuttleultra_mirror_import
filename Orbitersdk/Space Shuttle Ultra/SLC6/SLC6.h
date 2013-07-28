@@ -1,10 +1,9 @@
 #ifndef SLC6_H_640EA460_C8C8_46B1_8604_B46C72BD8984
 #define SLC6_H_640EA460_C8C8_46B1_8604_B46C72BD8984
 #pragma once
-#include <vector>
 #include "orbitersdk.h"
 #include "ISSUMLP.h"
-#include "ISSULaunchTower.h"
+#include "../BaseSSUPad.h"
 
 static const char* DEFAULT_MESHNAME_PAD = "VandenbergAFB/SLC-6_STS_LaunchMount";
 static const char* DEFAULT_MESHNAME_TOWER = "VandenbergAFB/SLC-6_STS_AT";
@@ -35,7 +34,7 @@ const double SLC6_SAB_DOOR_RATE = 1/600.0;
 
 class Atlantis;
 
-class SLC6 : public VESSEL3, public ISSULaunchTower, public ISSUMLP
+class SLC6 : public BaseSSUPad, public ISSUMLP
 {
 	friend BOOL CALLBACK SLC6_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -46,16 +45,9 @@ class SLC6 : public VESSEL3, public ISSULaunchTower, public ISSUMLP
 
 	ATTACHMENTHANDLE ahHDP;
 
-	AnimState AccessArmState, VentHoodState, VentArmState;
-	AnimState GH2VentlineState;
-	AnimState IAAState;
 	AnimState PCRState, SABState, MSTState;
 	AnimState SABDoorState;
 
-	UINT anim_AccessArm;
-	UINT anim_VentHood, anim_VentArm;
-	UINT anim_GH2Ventline;
-	UINT anim_IAA;
 	UINT anim_PCR, anim_SAB, anim_MST;
 	UINT anim_SABDoor;
 
@@ -92,31 +84,6 @@ public:
 	virtual void TriggerROFIs();
 	virtual void ActivateSSS();
 
-	// ISSULaunchTower
-	// NOTE: OnT0() is required by both interfaces
-	virtual void ExtendOrbiterAccessArm();
-	virtual void RetractOrbiterAccessArm();
-	virtual void HaltOrbiterAccessArm();
-
-	virtual void ExtendGOXArm();
-	virtual void RetractGOXArm();
-	virtual void HaltGOXArm();
-
-	virtual void AttachGH2Ventline();
-	virtual void DetachGH2Ventline();
-
-	virtual void RaiseVentHood();
-	virtual void LowerVentHood();
-	virtual void HaltVentHood();
-
-	virtual void ExtendGOXArmAndHood();
-	virtual void RetractGOXArmAndHood();
-	virtual void HaltGOXArmAndHood();
-
-	virtual void DeployIAA();
-	virtual void HaltIAA();
-	virtual void RetractIAA();
-
 	virtual void ExtendPCR();
 	virtual void HaltPCR();
 	virtual void RetractPCR();
@@ -138,13 +105,8 @@ private:
 	void DefineROFIs();
 	void DefineSSS();
 	void DefineGOXVents();
-	void UpdateGOXVents();
+	virtual void UpdateGOXVents();
 
-	/**
-	 * Creates MGROUP_ROTATE struct, adds it to animation list, and returns pointer to struct
-	 */
-	MGROUP_ROTATE* DefineRotation(UINT mesh, UINT *grp, UINT ngrp, const VECTOR3 &ref, const VECTOR3 &axis, float angle);
-	MGROUP_TRANSLATE* DefineTranslation(UINT mesh, UINT* grp, UINT ngrp, const VECTOR3& shift);
 };
 
 #endif //SLC6_H_640EA460_C8C8_46B1_8604_B46C72BD8984
