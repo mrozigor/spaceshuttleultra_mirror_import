@@ -17,7 +17,7 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-58.2, -0.75, 1.3) + _V(185, 93, -104),
 };
 
-VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
+const VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
 	_V(-58.2, -0.75, 1.3) + _V(4.126, 32, -41.503), //POS of SE light
 	_V(-58.2, -0.75, 1.3) + _V(55.574, 27, -43.662), // POS of E light
 	_V(-58.2, -0.75, 1.3) + _V(107.217, 32, -41.615),  // POS of NE light
@@ -25,7 +25,7 @@ VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
 	_V(-58.2, -0.75, 1.3) + _V(-10.551, 32, 23.754) // POS of SW light
 };
 
-VECTOR3 STADIUM_LIGHT_DIR[STADIUM_LIGHT_COUNT] = {
+const VECTOR3 STADIUM_LIGHT_DIR[STADIUM_LIGHT_COUNT] = {
 	_V(0.7071, 0.0, 0.7071), // DIR of SE light
 	_V(0.0, 0.0, -1.0), // DIR of E light
 	_V(-0.7071, 0.0, 0.7071), // DIR of NE light
@@ -165,14 +165,13 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
-	: VESSEL3(hVessel, flightmodel),
+	: BaseSSUPad(hVessel, flightmodel),
 	bPad1985(false), fLightsOn(false)
 {
 	phGOXVent = NULL;
 	fNextLightUpdate = -20.0;
 
 	
-	GOXArmAction=AnimState::STOPPED;
 	vtx_goxvent[0] = FSS_POS_GOXVENTL;
 	vtx_goxvent[1] = FSS_POS_GOXVENTR;
 	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
@@ -187,44 +186,6 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 
 SSUPad::~SSUPad()
 {
-	for(unsigned int i=0;i<vpAnimations.size();i++)
-		delete vpAnimations.at(i);
-}
-
-void SSUPad::CreateLights() {
-	static VECTOR3& light_color = _V(1, 1, 1);
-	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
-		lights[i].duration = 0.5;
-		lights[i].period = 2;
-		lights[i].pos = &FSS_POS_LIGHT[i];
-		lights[i].col = &light_color;
-		lights[i].size = 1;
-		lights[i].shape = BEACONSHAPE_STAR;
-		lights[i].falloff = 0.4;
-		lights[i].active = false;
-
-		AddBeacon(&lights[i]);
-	}
-
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
-	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
-	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
-	const double STADIUM_LIGHT_RANGE = 100.0;
-	const double STADIUM_LIGHT_ATT0 = 1e-3;
-	const double STADIUM_LIGHT_ATT1 = 0;
-	const double STADIUM_LIGHT_ATT2 = 1e-3;
-
-	phLights = CreatePropellantResource(1.0, 1.0);
-	for(int i=0;i<STADIUM_LIGHT_COUNT;i++) {
-		pStadiumLights[i] = AddSpotLight(STADIUM_LIGHT_POS[i], STADIUM_LIGHT_DIR[i],
-			STADIUM_LIGHT_RANGE, STADIUM_LIGHT_ATT0, STADIUM_LIGHT_ATT1, STADIUM_LIGHT_ATT2, 45*RAD, 180*RAD,
-			STADIUM_LIGHT_DIFFUSE, STADIUM_LIGHT_SPECULAR, STADIUM_LIGHT_AMBIENT);
-		
-		// create fake thruster to simulate glare from lights
-		thStadiumLights[i] = CreateThruster(STADIUM_LIGHT_POS[i], STADIUM_LIGHT_DIR[i], 0.0, phLights,
-			1.0, 1.0);
-		AddExhaust(thStadiumLights[i], 0.0, 1.5);
-	}
 }
 
 void SSUPad::DefineAnimations()
@@ -237,12 +198,12 @@ void SSUPad::DefineAnimations()
 	MGROUP_ROTATE* AccessArm = DefineRotation(fss_mesh_idx, bPad1985 ? AccessArmGrp_1985 : AccessArmGrp, 2,
 		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
-	anim_accessarm=CreateAnimation(0.0);
-	AddAnimationComponent(anim_accessarm, 0.0, 1.0, AccessArm);
+	anim_AccessArm=CreateAnimation(0.0);
+	AddAnimationComponent(anim_AccessArm, 0.0, 1.0, AccessArm);
 
 	//GOX arm
-	GVAState.Set(AnimState::CLOSED, 0.0);
-	anim_gva=CreateAnimation(0.0);
+	VentArmState.Set(AnimState::CLOSED, 0.0);
+	anim_VentArm=CreateAnimation(0.0);
 	static UINT GVAGrp[3] = {GRP_GVA_swing_arm_fences_FSS, GRP_GVA_swing_arm_FSS,  GRP_GOX_vent_pipes_FSS};
 	static UINT GVAGrp_1985[3] = {GRP_GVA_swing_arm_fences_FSS_1985, GRP_GVA_swing_arm_FSS_1985,  GRP_GOX_vent_pipes_FSS_1985};
 	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 3,
@@ -250,35 +211,35 @@ void SSUPad::DefineAnimations()
 	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
-	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_gva, 0.0, 1.0, GVA);
-	AddAnimationComponent(anim_gva, 0.0, 1.0, &GVA_VTX);
+	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_VentArm, 0.0, 1.0, GVA);
+	AddAnimationComponent(anim_VentArm, 0.0, 1.0, &GVA_VTX);
 
 	//GOX hood
 	VentHoodState.Set(AnimState::OPEN, 1.0);
-	anim_venthood=CreateAnimation(1.0);
+	anim_VentHood=CreateAnimation(1.0);
 	static UINT VentHoodGrp[9] = {GRP_GOX_Vent_Hood_FSS, GRP_North_GOX_dockseal_FSS, GRP_South_GOX_dockseal_FSS, GRP_South_GOX_vent_cylinder_01_FSS, GRP_South_GOX_vent_cylinder_02_FSS, GRP_South_GOX_vent_cylinder_03_FSS, GRP_North_GOX_vent_cylinder_01_FSS, GRP_North_GOX_vent_cylinder_02_FSS, GRP_North_GOX_vent_cylinder_03_FSS};
 	static UINT VentHoodGrp_1985[9] = {GRP_GOX_Vent_Hood_FSS_1985, GRP_North_GOX_dockseal_FSS_1985, GRP_South_GOX_dockseal_FSS_1985, GRP_South_GOX_vent_cylinder_01_FSS_1985, GRP_South_GOX_vent_cylinder_02_FSS_1985, GRP_South_GOX_vent_cylinder_03_FSS_1985, GRP_North_GOX_vent_cylinder_01_FSS_1985, GRP_North_GOX_vent_cylinder_02_FSS_1985, GRP_North_GOX_vent_cylinder_03_FSS_1985};
 	MGROUP_ROTATE* VentHood = DefineRotation(fss_mesh_idx, bPad1985 ? VentHoodGrp_1985 : VentHoodGrp, 9,
 		_V(-16, 82, 21.709), _V(0, 0, 1), (float)(48.0*RAD));
-	parent=AddAnimationComponent(anim_venthood, 0.0, 1.0, VentHood, parent);
+	parent=AddAnimationComponent(anim_VentHood, 0.0, 1.0, VentHood, parent);
 
 	//GH2 Vent Arm
-	FSS_GH2_VentArmState.Set(AnimState::CLOSED, 0.0);
+	GH2VentlineState.Set(AnimState::CLOSED, 0.0);
 	static UINT FSS_GH2_Arm[3] = {GRP_GH2_fwd_vent_flex_line_FSS, GRP_GH2_vent_hard_line_FSS, GRP_GUCP_FSS};
 	static UINT FSS_GH2_Arm_1985[3] = {GRP_GH2_fwd_vent_flex_line_FSS_1985, GRP_GH2_vent_hard_line_FSS_1985, GRP_GUCP_FSS_1985};
 	MGROUP_ROTATE* FSS_GH2_ArmRot = DefineRotation(fss_mesh_idx, bPad1985 ? FSS_GH2_Arm_1985 : FSS_GH2_Arm, 3,
 		_V(5.07, 65.5287, 11.6944), _V(-0.843, 0.0, 0.536), (float)(90.0*RAD));
-	anim_fss_gh2_ventarm=CreateAnimation(0.0);
-	AddAnimationComponent(anim_fss_gh2_ventarm, 0.0, 1.0, FSS_GH2_ArmRot);
+	anim_GH2Ventline=CreateAnimation(0.0);
+	AddAnimationComponent(anim_GH2Ventline, 0.0, 1.0, FSS_GH2_ArmRot);
 
 	////IAA rotation
-	IAA_State.Set(AnimState::CLOSED, 0.0);
+	IAAState.Set(AnimState::CLOSED, 0.0);
 	static UINT IAAGrp[2] = {GRP_Intertank_Access_Arm_FSS, GRP_IAA_extensible_platform_FSS};
 	static UINT IAAGrp_1985[2] = {GRP_Intertank_Access_Arm_FSS_1985, GRP_IAA_extensible_platform_FSS_1985};
 	MGROUP_ROTATE* IAA_Deploy = DefineRotation(fss_mesh_idx, bPad1985 ? IAAGrp_1985 : IAAGrp, 2, _V(8.98, 63.7142, 16), 
 		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
-	anim_iaa = CreateAnimation(0.0);
-	AddAnimationComponent(anim_iaa, 0.0, 1.0, IAA_Deploy);
+	anim_IAA = CreateAnimation(0.0);
+	AddAnimationComponent(anim_IAA, 0.0, 1.0, IAA_Deploy);
 
 	if(bPad1985) {
 		//RBUS
@@ -331,12 +292,10 @@ void SSUPad::DefineAnimations()
 		_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
 	static UINT RSS_DoorGrp[1] = {GRP_FRCS_Room_door};
 	static UINT RSS_DoorGrp_1985[1] = {GRP_FRCS_Room_door_1985};
-	MGROUP_SCALE* RSS_door1 = new MGROUP_SCALE(rss_mesh_idx, bPad1985 ? RSS_DoorGrp_1985 : RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
-	vpAnimations.push_back(RSS_door1);
+	MGROUP_SCALE* RSS_door1 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp_1985 : RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
 	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_Room_door};
 	static UINT RSS_DoorGrp2_1985[1] = {GRP_FRCS_Room_door_1985};
-	MGROUP_SCALE* RSS_door2 = new MGROUP_SCALE (rss_mesh_idx, bPad1985 ? RSS_DoorGrp2_1985 : RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
-	vpAnimations.push_back(RSS_door2);
+	MGROUP_SCALE* RSS_door2 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp2_1985 : RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
 	anim_rss=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss, 0, 0.05, RSS_door1);
 	AddAnimationComponent(anim_rss, 0.06, 0.95, &RSS_Retract);
@@ -344,86 +303,10 @@ void SSUPad::DefineAnimations()
 	//SetAnimation(anim_rss, 1.0);
 }
 
-void SSUPad::DisableLights() {
-	fLightsOn = false;
-	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
-		lights[i].active = false;
-	}
-
-	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
-		pStadiumLights[i]->Activate(false);
-		SetThrusterLevel(thStadiumLights[i], 0.0);
-	}
-}
-
-void SSUPad::EnableLights() {
-	fLightsOn = true;
-
-	for(unsigned int i = 0; i<FSS_NUM_LIGHTS; i++) {
-		lights[i].active = true;
-	}
-
-	for(unsigned int i=0;i<STADIUM_LIGHT_COUNT;i++) {
-		pStadiumLights[i]->Activate(true);
-		SetThrusterLevel(thStadiumLights[i], 1.0);
-	}
-}
-
-
-
-bool SSUPad::IsNight() const {
-	
-	OBJHANDLE Sun=NULL;
-	int count=(int)oapiGetGbodyCount();
-	for(int i=0;i<count;i++) {
-		Sun=oapiGetGbodyByIndex(i);
-		if(oapiGetObjectType(Sun)==OBJTP_STAR) break;
-	}
-	if(Sun) {
-		VECTOR3 SunPosGlobal, SunPos;
-		oapiGetGlobalPos(Sun, &SunPosGlobal);
-		Global2Local(SunPosGlobal, SunPos);
-		double angle=acos(SunPos.y/length(SunPos))*DEG;
-		if(angle>85.0)
-			return true;
-	}
-	return false;
-}
-
 void SSUPad::OnT0()
 {
-	FSS_GH2_VentArmState.action=AnimState::OPENING;
+	DetachGH2Ventline();
 	if(bPad1985) MoveRBUS(AnimState::OPENING);
-}
-
-void SSUPad::ExtendOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::OPENING;
-}
-
-void SSUPad::RetractOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::CLOSING;
-}
-
-void SSUPad::HaltOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::STOPPED;
-}
-
-void SSUPad::ExtendGOXArm()
-{
-	GVAState.action=AnimState::OPENING;
-}
-
-void SSUPad::RetractGOXArm()
-{
-	GVAState.action=AnimState::CLOSING;
-}
-
-void SSUPad::HaltGOXArm()
-{
-	GVAState.action=AnimState::STOPPED;
 }
 
 void SSUPad::MoveFSS_OWP(AnimState::Action action)
@@ -446,7 +329,7 @@ void SSUPad::MoveRSS(AnimState::Action action)
 		RSS_State.action=action;
 }
 
-void SSUPad::GOXArmSequence()
+/*void SSUPad::GOXArmSequence()
 {
 	if(GOXArmAction==AnimState::OPENING) {
 		if(!Eq(GVAState.pos, 1.0)) {
@@ -478,66 +361,14 @@ void SSUPad::GOXArmSequence()
 	}
 	else if(GOXArmAction==AnimState::STOPPED)
 		GVAState.action=AnimState::STOPPED;
-}
+}*/
 
-void SSUPad::AttachGH2Ventline()
-{
-	FSS_GH2_VentArmState.action=AnimState::CLOSING;
-}
-
-void SSUPad::DetachGH2Ventline()
-{
-	FSS_GH2_VentArmState.action=AnimState::OPENING;
-}
-
-void SSUPad::RaiseVentHood()
-{
-	VentHoodState.action=AnimState::CLOSING;
-}
-
-void SSUPad::LowerVentHood()
-{
-	VentHoodState.action=AnimState::OPENING;
-}
-
-void SSUPad::HaltVentHood()
-{
-	VentHoodState.action=AnimState::STOPPED;
-}
-
-void SSUPad::ExtendGOXArmAndHood()
-{
-	GOXArmAction = AnimState::OPENING;
-	GOXArmSequence();
-}
-
-void SSUPad::RetractGOXArmAndHood()
-{
-	GOXArmAction = AnimState::CLOSING;
-	GOXArmSequence();
-}
-
-void SSUPad::HaltGOXArmAndHood()
-{
-	GOXArmAction = AnimState::STOPPED;
-	GOXArmSequence();
-}
 
 void SSUPad::MoveRBUS(AnimState::Action action)
 {
 	if(!bPad1985) return; // RBUS is only on 1985 pad
 	if(action == AnimState::CLOSING || action == AnimState::OPENING)
 		FSS_RBUS_UmbilicalState.action = action;
-}
-
-AnimState::Action SSUPad::GetAccessArmState() const
-{
-	return AccessArmState.action;
-}
-
-AnimState::Action SSUPad::GetGOXArmState() const
-{
-	return GOXArmAction;
 }
 
 void SSUPad::AnimateFSSOWPStrut()
@@ -583,9 +414,9 @@ void SSUPad::clbkPostCreation()
 
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 {
-	VESSEL3::clbkPreStep(simt, simdt, mjd);
+	BaseSSUPad::clbkPreStep(simt, simdt, mjd);
 
-	if(simt > fNextLightUpdate) {
+	/*if(simt > fNextLightUpdate) {
 		fNextLightUpdate = simt + 300.0;
 
 		if(fLightsOn && !IsNight()) {
@@ -594,27 +425,8 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		else if(!fLightsOn && IsNight()) {
 			EnableLights();
 		}
-	}
+	}*/
 
-	if(AccessArmState.Moving()) {
-		double dp=simdt*ORBITER_ACCESS_ARM_RATE;
-		AccessArmState.Move(dp);
-		SetAnimation(anim_accessarm, AccessArmState.pos);
-	}
-	
-	if(GVAState.Moving()) {
-		double dp=simdt*GVA_RATE;
-		GVAState.Move(dp);
-		SetAnimation(anim_gva, GVAState.pos);
-		if(GOXArmAction>=AnimState::CLOSING && !GVAState.Moving()) GOXArmSequence();
-	}
-
-	if(VentHoodState.Moving()) {
-		double dp=simdt*VENT_HOOD_RATE;
-		VentHoodState.Move(dp);
-		SetAnimation(anim_venthood, VentHoodState.pos);
-		if(GOXArmAction>=AnimState::CLOSING && !VentHoodState.Moving()) GOXArmSequence();
-	}
 	if(!bPad1985 && RSS_OWP_State.Moving()) {
 		double dp=simdt*RSS_OWP_RATE;
 		RSS_OWP_State.Move(dp);
@@ -626,16 +438,6 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 
 		if(FSS_OWP_State.pos<=0.5) AnimateFSSOWPStrut();
-	}
-	if(IAA_State.Moving()) {
-		double dp=simdt*FSS_IAA_RATE;
-		IAA_State.Move(dp);
-		SetAnimation(anim_iaa, IAA_State.pos);
-	}
-	if(FSS_GH2_VentArmState.Moving()) {
-		double dp=simdt*FSS_GH2_ARM_RATE;
-		FSS_GH2_VentArmState.Move(dp);
-		SetAnimation(anim_fss_gh2_ventarm, FSS_GH2_VentArmState.pos);
 	}
 	if(RSS_State.Moving()) {
 		double dp=simdt*RSS_RATE;
@@ -652,7 +454,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_fss_rbus,FSS_RBUS_UmbilicalState.pos);
 	}
 
-	UpdateGOXVentThrusters();
+	UpdateGOXVents();
 	
 	
 	if(VentHoodState.Open() && pSTS) {
@@ -713,20 +515,20 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 
 void SSUPad::clbkSaveState(FILEHANDLE scn)
 {
-	VESSEL3::clbkSaveState(scn); //default parameters
+	BaseSSUPad::clbkSaveState(scn); //default parameters
 
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
-	WriteScenario_state(scn, "GVA", GVAState);
+	WriteScenario_state(scn, "GVA", VentArmState);
 	WriteScenario_state(scn, "VENTHOOD", VentHoodState);
 	if(!bPad1985) {
 		WriteScenario_state(scn, "FSS_OWP", FSS_OWP_State);
 		WriteScenario_state(scn, "RSS_OWP", RSS_OWP_State);
 	}
 	WriteScenario_state(scn, "RSS", RSS_State);
-	WriteScenario_state(scn, "FSS_GH2", FSS_GH2_VentArmState);
-	WriteScenario_state(scn, "FSS_IAA", IAA_State);
+	WriteScenario_state(scn, "FSS_GH2", GH2VentlineState);
+	WriteScenario_state(scn, "FSS_IAA", IAAState);
 	if(bPad1985) WriteScenario_state(scn, "RBUS", FSS_RBUS_UmbilicalState);
-	oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
+	//oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
 	oapiWriteScenario_string(scn,"SHUTTLE", (char*)ShuttleName.c_str());
 }
 
@@ -737,20 +539,20 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 	while(oapiReadScenario_nextline(scn, line)) {
 		if(!_strnicmp(line, "ACCESS_ARM", 10)) {
 			sscan_state(line+10, AccessArmState);
-			SetAnimation(anim_accessarm, AccessArmState.pos);
+			SetAnimation(anim_AccessArm, AccessArmState.pos);
 		}
 		else if(!_strnicmp(line, "GVA", 3)) {
-			sscan_state(line+3, GVAState);
-			SetAnimation(anim_gva, GVAState.pos);
+			sscan_state(line+3, VentArmState);
+			SetAnimation(anim_VentArm, VentArmState.pos);
 		}
 		else if(!_strnicmp(line, "VENTHOOD", 8)) {
 			sscan_state(line+8, VentHoodState);
-			SetAnimation(anim_venthood, VentHoodState.pos);
+			SetAnimation(anim_VentHood, VentHoodState.pos);
 		}
-		else if(!_strnicmp(line, "GOX_SEQUENCE", 12)) {
+		/*else if(!_strnicmp(line, "GOX_SEQUENCE", 12)) {
 			sscanf(line+12, "%d", &GOXArmAction);
 		}
-		else if (!bPad1985 && !_strnicmp(line, "FSS_OWP", 7)) {
+		else*/ if (!bPad1985 && !_strnicmp(line, "FSS_OWP", 7)) {
 			sscan_state(line+7, FSS_OWP_State);
 			SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 			AnimateFSSOWPStrut();
@@ -764,16 +566,16 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			SetAnimation(anim_rss, RSS_State.pos);
 		}
 		else if (!_strnicmp(line, "FSS_IAA", 7)) {
-			sscan_state(line+7, IAA_State);
-			SetAnimation(anim_iaa, IAA_State.pos);
+			sscan_state(line+7, IAAState);
+			SetAnimation(anim_IAA, IAAState.pos);
 		}
 		else if (!_strnicmp(line, "FSS_GH2", 7)) {
-			sscan_state(line+7, FSS_GH2_VentArmState);
-			SetAnimation(anim_fss_gh2_ventarm, FSS_GH2_VentArmState.pos);
+			sscan_state(line+7, GH2VentlineState);
+			SetAnimation(anim_GH2Ventline, GH2VentlineState.pos);
 		}
 		else if (!_strnicmp(line, "SHUTTLE", 7)) {
 			//sscanf_s(line+7,"%s",&ShuttleName,sizeof(ShuttleName));
-			ShuttleName = line+8; // read char array into string
+			ShuttleName = line+8; // read char array into std::string
 			char cnam[256];
 			sprintf(cnam,"%s%s","Shuttle name: ",ShuttleName.c_str());
 			oapiWriteLog(cnam);
@@ -820,26 +622,12 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 	}
 
 	switch(key) {
-		case OAPI_KEY_K:
-			if(AccessArmState.Open() || AccessArmState.Opening()) AccessArmState.action=AnimState::CLOSING;
-			else AccessArmState.action=AnimState::OPENING;
-			return 1;
-			break;
 		case OAPI_KEY_O:
 			//Recharge GOX_Vent .. test
 			SetPropellantMass(phGOXVent, 8000000000000000.0);
 			return 1;
-		case OAPI_KEY_G:
-			//if(GVAState.Open() || GVAState.Opening()) GVAState.action=AnimState::CLOSING;
-			//else GVAState.action=AnimState::OPENING;
-			if(GOXArmAction==AnimState::CLOSED || GOXArmAction==AnimState::CLOSING)
-				GOXArmAction=AnimState::OPENING;
-			else GOXArmAction=AnimState::CLOSING;
-			GOXArmSequence();
-			return 1;
-			break;
 	}
-	return 0;
+	return BaseSSUPad::clbkConsumeBufferedKey(key, down, keystate);
 }
 
 void SSUPad::CreateGOXVentThrusters() {
@@ -863,7 +651,7 @@ void SSUPad::CreateGOXVentThrusters() {
 		AddExhaustStream(thGOXVent[0], &gox_stream);
 		AddExhaustStream(thGOXVent[1], &gox_stream);
 	} else {
-		UpdateGOXVentThrusters();
+		UpdateGOXVents();
 	}
 }
 
@@ -900,15 +688,22 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	DefineAnimations();
 
 	CreateGOXVentThrusters();
-	CreateLights();
-	DisableLights(); // make sure lights are initially off
+	
+	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE);
+	SetGOXVentArmRate(GVA_RATE);
+	SetGOXVentHoodRate(VENT_HOOD_RATE);
+	SetGH2VentlineRate(FSS_GH2_ARM_RATE);
+	SetIntertankAccessArmRate(FSS_IAA_RATE);
+
+	CreateLights(FSS_POS_LIGHT, FSS_NUM_LIGHTS);
+	CreateStadiumLights(STADIUM_LIGHT_POS, STADIUM_LIGHT_DIR, STADIUM_LIGHT_COUNT);
 
 	//if(bPad1985) CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 	//else CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 	CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 }
 
-void SSUPad::UpdateGOXVentThrusters() {
+void SSUPad::UpdateGOXVents() {
 	VECTOR3 dir = (vtx_goxvent[2] - vtx_goxvent[0]);
 	dir = dir/length(dir);
 	
@@ -917,19 +712,4 @@ void SSUPad::UpdateGOXVentThrusters() {
 		SetThrusterDir(thGOXVent[i], dir);
 	}
 
-}
-
-void SSUPad::DeployIAA()
-{
-	IAA_State.action = AnimState::OPENING;
-}
-
-void SSUPad::HaltIAA()
-{
-	IAA_State.action = AnimState::STOPPED;
-}
-
-void SSUPad::RetractIAA()
-{
-	IAA_State.action = AnimState::CLOSING;
 }

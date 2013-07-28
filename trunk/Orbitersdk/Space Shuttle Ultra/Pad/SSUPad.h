@@ -2,9 +2,8 @@
 #define __SSUPAD_H
 #pragma once
 
-#include <vector>
 #include "orbitersdk.h"
-#include "ISSULaunchTower.h"
+#include "../BaseSSUPad.h"
 //#include "../Atlantis.h"
 
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
@@ -50,7 +49,7 @@ static const char* CRYO_HISS_SOUND_FILE = "Cryo_noise.wav";
 
 class Atlantis;
 
-class SSUPad: public VESSEL3, public ISSULaunchTower
+class SSUPad: public BaseSSUPad
 {
 	friend BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 public:
@@ -66,31 +65,7 @@ public:
 
 	//communication with LCC
 	virtual void OnT0();
-	virtual void ExtendOrbiterAccessArm();
-	virtual void RetractOrbiterAccessArm();
-	virtual void HaltOrbiterAccessArm();
 
-	virtual void ExtendGOXArm();
-	virtual void RetractGOXArm();
-	virtual void HaltGOXArm();
-
-	virtual void AttachGH2Ventline();
-	virtual void DetachGH2Ventline();
-
-	virtual void RaiseVentHood();
-	virtual void LowerVentHood();
-	virtual void HaltVentHood();
-
-	virtual void ExtendGOXArmAndHood();
-	virtual void RetractGOXArmAndHood();
-	virtual void HaltGOXArmAndHood();
-
-	virtual void DeployIAA();
-	virtual void HaltIAA();
-	virtual void RetractIAA();
-
-	virtual AnimState::Action GetAccessArmState() const;
-	virtual AnimState::Action GetGOXArmState() const;
 	void MoveRSS_OWP(AnimState::Action action);
 	void MoveFSS_OWP(AnimState::Action action);
 	void MoveRSS(AnimState::Action action);
@@ -100,10 +75,10 @@ private:
 	void DefineAnimations();
 	//void DefineAnimations();
 	//void DefineAnimations1985();
-	void GOXArmSequence();
+	//void GOXArmSequence();
 	void AnimateFSSOWPStrut();
 	void CreateGOXVentThrusters();
-	void UpdateGOXVentThrusters();
+	virtual void UpdateGOXVents();
 
 	bool bPad1985;
 
@@ -117,40 +92,34 @@ private:
 	UINT fss_mesh_idx, rss_mesh_idx, hs_mesh_idx, wt_mesh_idx;
 
 	//animations; 0.0, CLOSED corresponds to state at t0
-	UINT anim_accessarm;
-	UINT anim_gva, anim_venthood;
 	UINT anim_rss_y_owp;
 	UINT anim_fss_y_owp, anim_fss_y_owp_strut;
-	UINT anim_iaa;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
-	UINT anim_fss_gh2_ventarm; //NOTE: CLOSED (0.0) corresponds to arm attached to ET
 	UINT anim_fss_rbus;
-
-	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
 
 	double fNextLightUpdate;
 
-	AnimState AccessArmState, GVAState, VentHoodState;
+	//AnimState AccessArmState, GVAState, VentHoodState;
 	/**
 	 * Intertank Access Arm animation state
 	 * 0 = retracted
 	 * 1 = deployed
 	 */
-	AnimState IAA_State;
+	//AnimState IAA_State;
 	
 	AnimState RSS_OWP_State, FSS_OWP_State;
 	AnimState RSS_State;
-	AnimState FSS_GH2_VentArmState;
-	AnimState::Action GOXArmAction;
+	//AnimState FSS_GH2_VentArmState;
+	//AnimState::Action GOXArmAction;
 	AnimState FSS_RBUS_UmbilicalState;
 
 	/**
 	 * Creates MGROUP_ROTATE struct, adds it to animation list, and returns pointer to struct
 	 */
-	MGROUP_ROTATE* DefineRotation(UINT mesh, UINT *grp, UINT ngrp, const VECTOR3 &ref, const VECTOR3 &axis, float angle)
+	/*MGROUP_ROTATE* DefineRotation(UINT mesh, UINT *grp, UINT ngrp, const VECTOR3 &ref, const VECTOR3 &axis, float angle)
 	{
 		MGROUP_ROTATE* mgrp = new MGROUP_ROTATE(mesh, grp, ngrp, ref, axis, angle);
 		vpAnimations.push_back(mgrp);
@@ -160,12 +129,12 @@ private:
 	{
 		if(fabs(d1-d2)>dDiff) return false;
 		return true;
-	}
+	}*/
 
-	void CreateLights();
-	void EnableLights();
-	void DisableLights();
-	bool IsNight() const;
+	//void CreateLights();
+	//void EnableLights();
+	//void DisableLights();
+	//bool IsNight() const;
 
 	int SoundID;
 
