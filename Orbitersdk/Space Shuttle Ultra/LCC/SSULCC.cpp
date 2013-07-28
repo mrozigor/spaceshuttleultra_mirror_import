@@ -58,7 +58,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
 	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
-	if(timeToLaunch < 0.0) return; // nothing to do
+	if(timeToLaunch < 0.0 && lastTTL < 0.0) return; // nothing to do
 
 	//if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
 	int hours = static_cast<int>(floor(timeToLaunch/3600));

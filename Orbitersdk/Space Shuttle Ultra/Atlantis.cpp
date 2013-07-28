@@ -7286,7 +7286,7 @@ void Atlantis::GLSAutoSeqStart()
 void Atlantis::SignalGSEBreakHDP()
 {
 	ISSUMLP* pMLP = GetMLPInterface();
-	pMLP->OnT0();
+	if(pMLP) pMLP->OnT0();
 }
 
 void Atlantis::StartROFIs()
