@@ -26,6 +26,7 @@ const double SLC6_ORBITER_ACCESS_ARM_RATE = 0.02222;
 const double SLC6_VENT_ARM_RATE = 0.023810;
 const double SLC6_VENT_HOOD_RATE = 0.04166667;
 const double SLC6_GH2_ARM_RATE = 2.0;
+const double SLC6_TSM_UMBILICAL_RETRACT_SPEED = 1.5;
 const double SLC6_IAA_RATE = 0.004762;
 const double SLC6_PCR_TRANSLATE_RATE = 1/2400.0; // 40 minutes to move
 const double SLC6_SAB_TRANSLATE_RATE = 1/2400.0; // 40 minutes to move
@@ -47,9 +48,11 @@ class SLC6 : public BaseSSUPad, public ISSUMLP
 
 	AnimState PCRState, SABState, MSTState;
 	AnimState SABDoorState;
+	AnimState T0UmbilicalState;
 
 	UINT anim_PCR, anim_SAB, anim_MST;
 	UINT anim_SABDoor;
+	UINT anim_T0Umb;
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 

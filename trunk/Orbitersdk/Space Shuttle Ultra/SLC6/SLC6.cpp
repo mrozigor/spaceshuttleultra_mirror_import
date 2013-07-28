@@ -3,11 +3,39 @@
 #include "SLC6.h"
 #include "UltraMath.h"
 #include "meshres_Tower.h"
+#include "meshres_Pad.h"
 #include "meshres_SAB.h"
 #include "resource.h"
 #include <DlgCtrl.h>
 
 HINSTANCE hModule;
+
+const unsigned int SLC6_LIGHT_COUNT = 10;
+const VECTOR3 SLC6_LIGHT_OFFSET = _V(0.0, -13.5, -99.75);
+const VECTOR3 SLC6_LIGHT_POS[SLC6_LIGHT_COUNT] = {
+	_V(-56.546, 33.334, 66.734) + SLC6_LIGHT_OFFSET, // Cylinder01
+	_V(-45.87, 33.334, 75.326) + SLC6_LIGHT_OFFSET, // Cylinder03
+	_V(-56.546, 33.334, 31.012) + SLC6_LIGHT_OFFSET, // Cylinder04
+	_V(-56.546, 33.334, 3.683) + SLC6_LIGHT_OFFSET, // Cylinder05
+	_V(-56.546, 33.334, -25.767) + SLC6_LIGHT_OFFSET, // Cylinder06
+	_V(-45.87, 33.334, 117.66) + SLC6_LIGHT_OFFSET, // Cylinder07
+	_V(30.134, 33.334, 133.743) + SLC6_LIGHT_OFFSET, // Cylinder08
+	_V(46.991, 33.334, 72.154) + SLC6_LIGHT_OFFSET, // Cylinder09
+	_V(39.889, 33.334, 66.295) + SLC6_LIGHT_OFFSET, // Cylinder10
+	_V(30.134, 33.334, 181.533) + SLC6_LIGHT_OFFSET // Cylinder11
+};
+const VECTOR3 SLC6_LIGHT_DIR[SLC6_LIGHT_COUNT] = {
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0)
+};
 
 SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 	: BaseSSUPad(hVessel, flightmodel), ROFILevel(0.0), ROFIStartTime(0.0),
@@ -32,6 +60,7 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 	VentArmState.Set(AnimState::CLOSED, 0.0);
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	GH2VentlineState.Set(AnimState::CLOSED, 0.0);
+	T0UmbilicalState.Set(AnimState::CLOSED, 0.0);
 	IAAState.Set(AnimState::CLOSED, 0.0);
 	PCRState.Set(AnimState::CLOSED, 0.0);
 	SABState.Set(AnimState::CLOSED, 0.0);
@@ -63,6 +92,8 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	SetGOXVentHoodRate(SLC6_VENT_HOOD_RATE);
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(SLC6_IAA_RATE);
+	
+	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT);
 }
 
 void SLC6::clbkPostCreation()
@@ -107,6 +138,12 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 	}
 
+	if(T0UmbilicalState.Moving()) {
+		double dp=simdt*SLC6_TSM_UMBILICAL_RETRACT_SPEED;
+		T0UmbilicalState.Move(dp);
+		SetAnimation(anim_T0Umb, T0UmbilicalState.pos);
+	}
+
 	if(PCRState.Moving()) {
 		PCRState.Move(simdt*SLC6_PCR_TRANSLATE_RATE);
 		SetAnimation(anim_PCR, PCRState.pos);
@@ -122,8 +159,11 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 	}
 
 	if(MSTState.Moving()) {
-		MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
-		SetAnimation(anim_MST, MSTState.pos);
+		// only allow MST to move if IAA is retracted and GH2 ventline is detached
+		if(IAAState.Closed() && GH2VentlineState.Open()) {
+			MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
+			SetAnimation(anim_MST, MSTState.pos);
+		}
 	}
 
 	if(VentHoodState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
@@ -150,6 +190,7 @@ void SLC6::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "VENT_ARM", VentArmState);
 	WriteScenario_state(scn, "VENT_HOOD", VentHoodState);
 	WriteScenario_state(scn, "GH2_VENTLINE", GH2VentlineState);
+	WriteScenario_state(scn, "T0_UMB", T0UmbilicalState);
 	WriteScenario_state(scn, "IAA", IAAState);
 	WriteScenario_state(scn, "PCR", PCRState);
 	WriteScenario_state(scn, "SAB", SABState);
@@ -177,6 +218,10 @@ void SLC6::clbkLoadStateEx(FILEHANDLE scn, void * status)
 		else if(!_strnicmp(line, "GH2_VENTLINE", 12)) {
 			sscan_state(line+12, GH2VentlineState);
 			SetAnimation(anim_GH2Ventline, GH2VentlineState.pos);
+		}
+		else if(!_strnicmp(line, "T0_UMB", 6)) {
+			sscan_state(line+6, T0UmbilicalState);
+			SetAnimation(anim_T0Umb, T0UmbilicalState.pos);
 		}
 		else if(!_strnicmp(line, "IAA", 3)) {
 			sscan_state(line+3, IAAState);
@@ -256,6 +301,7 @@ void SLC6::OnT0()
 {
 	DetachGH2Ventline();
 	DetachShuttle();
+	T0UmbilicalState.action=AnimState::CLOSING;
 }
 
 void SLC6::TriggerROFIs()
@@ -317,7 +363,9 @@ void SLC6::CloseSABDoor()
 
 void SLC6::ExtendMST()
 {
-	MSTState.action = AnimState::OPENING;
+	// only extend MST if IAA is retracted and GH2 ventline is detached
+	if(IAAState.Closed() && GH2VentlineState.Open())
+		MSTState.action = AnimState::OPENING;
 }
 
 void SLC6::HaltMST()
@@ -459,6 +507,20 @@ void SLC6::DefineAnimations()
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, pIAA);
 
+	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH_T0_UMBILICALS};
+	MGROUP_ROTATE* pLeftT0Umb = DefineRotation(pad_mesh_idx, LeftT0UmbGrp, 1, _V(5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, 0.9962), (float)(17.0*RAD));
+	static UINT RightT0UmbGrp[1] = {GRP_SLC6_PAD_RH_T0_UMBILICALS};
+	MGROUP_ROTATE* pRightT0Umb = DefineRotation(pad_mesh_idx, RightT0UmbGrp, 1, _V(-5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, -0.9962), (float)(17.0*RAD));
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH_TSM_BONNET};
+	MGROUP_ROTATE* pLeftT0UmbCover = DefineRotation(pad_mesh_idx, LeftT0UmbCoverGrp, 1, _V(5.75, 16.36, 6.088), _V(0.0867, 0.0, -0.9962), (float)(90.0*RAD));
+	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_RH_TSM_BONNET};
+	MGROUP_ROTATE* pRightT0UmbCover = DefineRotation(pad_mesh_idx, RightT0UmbCoverGrp, 1, _V(-5.75, 16.36, 6.088), _V(0.0867, 0.0, 0.9962), (float)(90.0*RAD));
+	anim_T0Umb = CreateAnimation(0.0);
+	AddAnimationComponent(anim_T0Umb, 0.5, 1, pLeftT0Umb);
+	AddAnimationComponent(anim_T0Umb, 0.5, 1, pRightT0Umb);
+	AddAnimationComponent(anim_T0Umb, 0, 0.55, pLeftT0UmbCover);
+	AddAnimationComponent(anim_T0Umb, 0, 0.55, pRightT0UmbCover);
+
 	MGROUP_TRANSLATE* pPCR = DefineTranslation(pcr_mesh_idx, NULL, 0, _V(0, 0, -223));
 	anim_PCR = CreateAnimation(0.0);
 	AddAnimationComponent(anim_PCR, 0.0, 1.0, pPCR);
@@ -470,6 +532,11 @@ void SLC6::DefineAnimations()
 	MGROUP_TRANSLATE* pMST = DefineTranslation(mst_mesh_idx, NULL, 0, _V(0, 0, 115));
 	anim_MST = CreateAnimation(0.0);
 	AddAnimationComponent(anim_MST, 0.0, 1.0, pMST);
+	// rotate IAA structure out of way when MST is extended
+	// in theory, the IAA and GH2 ventline animations should be children of this animation component; for the moment, we just prevent the MST from moving when the IAA is deployed or the GH2 ventline is attached
+	static UINT IAAStructureGrp[9] = {GRP_IAA_STRUCTURE, GRP_GH2_AFT_VENT_FLEX_HOSE, GRP_GH2_AFT_VENT_HARD_LINE, GRP_GH2_PIVOT_POINT, GRP_GH2_VENT_LINE_HAUNCH, GRP_GH2_FWD_VENT_FLEX_LINE, GRP_GH2_VENT_HARD_LINE, GRP_GUCP, GRP_INTERTANK_ACCESS_ARM};
+	MGROUP_ROTATE* pIAAStructure = DefineRotation(tower_mesh_idx, IAAStructureGrp, 9, _V(4.348, 0.0, -25.298), _V(0, 1, 0), static_cast<float>(-90.0*RAD)); // rotation angle is just a guess
+	AddAnimationComponent(anim_MST, 0.0, 0.05, pIAAStructure);
 
 	static UINT SABDoorGrp[7] = {GRP_Door_panel7_SAB, GRP_Door_panel6_SAB, GRP_Door_panel5_SAB, GRP_Door_panel4_SAB, GRP_Door_panel3_SAB, GRP_Door_panel2_SAB, GRP_Door_panel1_SAB};
 	MGROUP_TRANSLATE* pSABDoor[7];
