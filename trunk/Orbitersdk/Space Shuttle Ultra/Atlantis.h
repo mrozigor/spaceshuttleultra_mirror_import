@@ -699,6 +699,7 @@ private:
 	vc::PanelGroup<Atlantis> pgCenter;
 	vc::PanelGroup<Atlantis> pgRight;
 	vc::PanelGroup<Atlantis> pgOverhead;
+	vc::PanelGroup<Atlantis> pgOverheadAft;
 	vc::PanelGroup<Atlantis> pgAftStbd;
 	vc::PanelGroup<Atlantis> pgAft;
 	vc::PanelGroup<Atlantis> pgAftPort;
