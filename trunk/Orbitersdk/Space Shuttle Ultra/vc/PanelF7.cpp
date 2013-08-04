@@ -37,10 +37,24 @@ namespace vc {
 		AddAIDToMouseEventList(AID_F7);
 
 		pCRT1->SetMouseRegion(0.0f, 0.0f, 0.330f, 0.5136f);
+		pCRT1->SetPowerButtonArea(0.044091f, 0.806369f, 0.129668f, 0.901916f);
+		pCRT1->SetEdgekeyArea(0.226685f, 0.900011f, 0.784375f, 0.948678f);
+
 		pCRT2->SetMouseRegion(0.6715f, 0.0f, 1.0f, 0.5136f);
+		pCRT2->SetPowerButtonArea(0.0f, 0.829584f, 0.091723f, 0.898716f);
+		pCRT2->SetEdgekeyArea(0.206909f, 0.910128f, 0.776398f, 0.954403f);
+
 		pCRT3->SetMouseRegion(0.340f, 0.26f, 0.6715f, 0.75f);
+		pCRT3->SetPowerButtonArea(0.0f, 0.860329f, 0.145023f, 0.953701f);
+		pCRT3->SetEdgekeyArea(0.196294f, 0.951293f, 0.787676f, 0.995252f);
+
 		pMFD1->SetMouseRegion(0.0f, 0.5284f, 0.330f, 1.0f);
+		pMFD1->SetPowerButtonArea(0.044176f, 0.841141f, 0.125769f, 0.962449f);
+		pMFD1->SetEdgekeyArea(0.224502f, 0.937218f, 0.784168f, 0.984580f);
+
 		pMFD2->SetMouseRegion(0.6715f, 0.5284f, 1.0f, 1.0f);
+		pMFD2->SetPowerButtonArea(0.0f, 0.859715f, 0.099139f, 0.965387f);
+		pMFD2->SetEdgekeyArea(0.211796f, 0.942848f, 0.779738f, 0.992954f);
 
 		pCRT1->DefineVCGroup(MFDGROUPS[MDUID_CRT1]);
 		pCRT2->DefineVCGroup(MFDGROUPS[MDUID_CRT2]);

@@ -72,6 +72,10 @@ namespace vc {
 		
 		std::vector<dps::DEU_LINE> lines;
 		std::vector<dps::DEU_ELLIPSE> ellipses;
+		
+		float btnPwrXmin, btnPwrXmax, btnPwrYmin, btnPwrYmax;
+		float btnBrtXmin, btnBrtXmax, btnBrtYmin, btnBrtYmax;
+		float edgekeyXmin, edgekeyXmax, edgekeyYmin, edgekeyYmax;
 
 		//Use a paint buffer for storing primitives?
 	protected:
@@ -145,6 +149,23 @@ namespace vc {
 		 */
 		virtual bool DefineVCTexture(SURFHANDLE tex);
 		virtual bool IsCRTBufferEnabled() const;
+
+		/**
+		 * Sets location of power button.
+		 * If this function is not called, power button location will be set to default values
+		 */
+		void SetPowerButtonArea(float xmin, float ymin, float xmax, float ymax);
+		/**
+		 * Sets location of brightness button.
+		 * If this function is not called, brightness button location will be set to default values
+		 */
+		void SetBrightnessButtonArea(float xmin, float ymin, float xmax, float ymax);
+		/**
+		 * Sets location of edgekeys.
+		 * Parameters specify row containing all 6 edgekeys.
+		 * If this function is not called, edgekey location will be set to default values
+		 */
+		void SetEdgekeyArea(float xmin, float ymin, float xmax, float ymax);
 
 		virtual void UpdateTextBuffer();
 		
