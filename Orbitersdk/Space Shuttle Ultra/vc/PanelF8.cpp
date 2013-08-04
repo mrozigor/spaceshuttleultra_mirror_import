@@ -27,7 +27,9 @@ namespace vc {
 		AddAIDToMouseEventList(AID_F8);
 
 		pPLT1->SetMouseRegion(0.0f, 0.0f, 0.491582f, 0.609860f);
+		pPLT1->SetEdgekeyArea(0.210163f, 0.915644f, 0.783473f, 0.973985f);
 		pPLT2->SetMouseRegion(0.511129f, 0.0f, 1.0f, 0.611175f);
+		pPLT2->SetEdgekeyArea(0.210163f, 0.915644f, 0.783473f, 0.973985f);
 		
 		pPLT1->DefineVCGroup(MFDGROUPS[MDUID_PLT1]);
 		pPLT2->DefineVCGroup(MFDGROUPS[MDUID_PLT2]);

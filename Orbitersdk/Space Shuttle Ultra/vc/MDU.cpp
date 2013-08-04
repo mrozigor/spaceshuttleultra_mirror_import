@@ -28,6 +28,14 @@ namespace vc {
 		//Clear display buffer
 		shLabelTex = NULL;
 		bIsConnectedToCRTMFD = false;
+		
+		// set default button positions
+		btnPwrXmin = 0.038f; btnPwrXmax = 0.099f;
+		btnPwrYmin = 0.8350f; btnPwrYmax = 0.9144f;
+		btnBrtXmin = 0.9257f; btnBrtXmax = 0.9929f;
+		btnBrtYmin = 0.8350f; btnBrtYmax = 0.9144f;
+		edgekeyXmin = 0.2237f; edgekeyXmax = 0.7939f;
+		edgekeyYmin = 0.9185f; edgekeyYmax = 0.9601f;
 	}
 
 	MDU::~MDU()
@@ -136,33 +144,56 @@ namespace vc {
 	}
 
 	
+	void MDU::SetPowerButtonArea(float xmin, float ymin, float xmax, float ymax)
+	{
+		btnPwrXmin = xmin;
+		btnPwrXmax = xmax;
+		btnPwrYmin = ymin;
+		btnPwrYmax = ymax;
+	}
+
+	void MDU::SetBrightnessButtonArea(float xmin, float ymin, float xmax, float ymax)
+	{
+		btnBrtXmin = xmin;
+		btnBrtXmax = xmax;
+		btnBrtYmin = ymin;
+		btnBrtYmax = ymax;
+	}
+
+	void MDU::SetEdgekeyArea(float xmin, float ymin, float xmax, float ymax)
+	{
+		edgekeyXmin = xmin;
+		edgekeyXmax = xmax;
+		edgekeyYmin = ymin;
+		edgekeyYmax = ymax;
+	}
 
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
-		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
+		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
 
 		if(MFDID!=-1) {
-			if(y >= 0.8350 && y<= 0.9144)
+			if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
 			{
-				if( x >= 0.038 && x <= 0.099)
+				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
-						STS()->SetLastCreatedMFD(usMDUID);
-						bIsConnectedToCRTMFD = false;
-						//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
-						oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
-					}
-				}
-				else if( x >= 0.9257 && x <= 0.9929)
-				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+					STS()->SetLastCreatedMFD(usMDUID);
+					bIsConnectedToCRTMFD = false;
+					//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+					oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
 				}
 			}
-			else if (y >= 0.9185 && y <= 0.9601)
+			else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
 			{
-				if( x >= 0.2237 && x <= 0.2624)
+				sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+			}
+			else if (y >= edgekeyYmin && y <= edgekeyYmax)
+			{
+				//const float edgekeyWidth = 0.0661;
+				//const float edgekeySpace = 0.12068;
+				float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
+				if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
@@ -170,7 +201,7 @@ namespace vc {
 						oapiProcessMFDButton (MFDID, 0, _event);
 					}
 				}
-				else if( x >= 0.3285 && x <= 0.3687)
+				else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
@@ -178,7 +209,7 @@ namespace vc {
 						oapiProcessMFDButton (MFDID, 1, _event);
 					}
 				}
-				else if( x >= 0.4356 && x <= 0.4724)
+				else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
@@ -186,7 +217,7 @@ namespace vc {
 						oapiProcessMFDButton (MFDID, 2, _event);
 					}
 				} 
-				else if( x >= 0.5477 && x <= 0.5821)
+				else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
@@ -194,7 +225,7 @@ namespace vc {
 						oapiProcessMFDButton (MFDID, 3, _event);
 					}
 				}
-				else if( x >= 0.6487 && x <= 0.6865)
+				else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
@@ -202,7 +233,7 @@ namespace vc {
 						oapiProcessMFDButton (MFDID, 4, _event);
 					}
 				}
-				else if( x >= 0.7558 && x <= 0.7939)
+				else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
 				{
 					if (_event & PANEL_MOUSE_LBDOWN) {
 						t0 = oapiGetSysTime();
@@ -220,6 +251,7 @@ namespace vc {
 						counting = false;		
 					}
 				}
+				//else sprintf_s(oapiDebugString(), 80, "MDU %s EDGEKEYS: %f", GetQualifiedIdentifier().c_str(), edgekeyClickPos);
 			}
 		}
 		return true;
