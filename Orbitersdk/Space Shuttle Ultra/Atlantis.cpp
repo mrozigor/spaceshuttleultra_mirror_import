@@ -527,7 +527,8 @@ pActiveLatches(3, NULL)
   pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
 
   pgOverhead.AddPanel(new vc::PanelO6(this));
-  pgOverhead.AddPanel(new vc::PanelO17(this));
+
+  pgOverheadAft.AddPanel(new vc::PanelO17(this));
 
   pgAft.AddPanel(new vc::PanelA6(this));
   pgAft.AddPanel(new vc::AftMDU(this));
@@ -2632,6 +2633,8 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	pgOverhead.DefineVC();
 	pgOverhead.DefineVCAnimations(mesh_vc);
 
+	pgOverheadAft.DefineVC();
+	pgOverheadAft.DefineVCAnimations(mesh_vc);
 
 	pgRight.DefineVC();
 	pgRight.DefineVCAnimations(mesh_vc);
@@ -3699,6 +3702,9 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		if(pgOverhead.HasPanel(pszPanelName))
 			pgOverhead.ParsePanelBlock(pszPanelName, scn);
 
+		if(pgOverheadAft.HasPanel(pszPanelName))
+			pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
+
 		if(pgAftStbd.HasPanel(pszPanelName))
 			pgAftStbd.ParsePanelBlock(pszPanelName, scn);
 
@@ -3846,6 +3852,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   pgRight.OnSaveState(scn);
   pgCenter.OnSaveState(scn);
   pgOverhead.OnSaveState(scn);
+  pgOverheadAft.OnSaveState(scn);
   oapiWriteLog("\tAft flight deck");
   pgAftStbd.OnSaveState(scn);
   pgAft.OnSaveState(scn);
@@ -4035,6 +4042,7 @@ void Atlantis::clbkPostCreation ()
 	pgRight.Realize();
 	pgCenter.Realize();
 	pgOverhead.Realize();
+	pgOverheadAft.Realize();
 	pgAftPort.Realize();
 	pgAft.Realize();
 	pgAftStbd.Realize();
@@ -4259,6 +4267,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	pgRight.OnPreStep(simT, simDT, mjd);
 	pgCenter.OnPreStep(simT, simDT, mjd);
 	pgOverhead.OnPreStep(simT, simDT, mjd);
+	pgOverheadAft.OnPreStep(simT, simDT, mjd);
 	pgAftStbd.OnPreStep(simT, simDT, mjd);
 	pgAft.OnPreStep(simT, simDT, mjd);
 	pgAftPort.OnPreStep(simT, simDT, mjd);
@@ -4559,6 +4568,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 	pgRight.OnPostStep(simt, simdt, mjd);
 	pgCenter.OnPostStep(simt, simdt, mjd);
 	pgOverhead.OnPostStep(simt, simdt, mjd);
+	pgOverheadAft.OnPostStep(simt, simdt, mjd);
 	pgAftStbd.OnPostStep(simt, simdt, mjd);
 	pgAft.OnPostStep(simt, simdt, mjd);
 	pgAftPort.OnPostStep(simt, simdt, mjd);
@@ -5875,7 +5885,8 @@ bool Atlantis::clbkLoadVC (int id)
 
 	//HideMidDeck();
 
-	pgOverhead.RegisterVC();
+	//pgOverhead.RegisterVC();
+	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 	pgAft.RegisterVC();
 
@@ -5990,7 +6001,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	//HideMidDeck();
 
-	pgOverhead.RegisterVC();
+	//pgOverhead.RegisterVC();
 	pgAftStbd.RegisterVC();
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
@@ -6024,7 +6035,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	//ShowMidDeck();
 
-	pgOverhead.RegisterVC();
+	//pgOverhead.RegisterVC();
 	pgAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
@@ -6055,7 +6066,8 @@ bool Atlantis::clbkLoadVC (int id)
 
 	//ShowMidDeck();
 
-	pgOverhead.RegisterVC();
+	//pgOverhead.RegisterVC();
+	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
@@ -6082,6 +6094,7 @@ bool Atlantis::clbkLoadVC (int id)
 	//ShowMidDeck();
 
 	pgOverhead.RegisterVC();
+	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
@@ -6115,6 +6128,7 @@ bool Atlantis::clbkLoadVC (int id)
 	pgForward.RegisterVC();
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
+	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 
 
@@ -6150,6 +6164,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	pgCenter.RegisterVC();
 	pgOverhead.RegisterVC();
+	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 
     //RegisterVC_CdrMFD();
@@ -6269,12 +6284,13 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   //sprintf_s(oapiDebugString(), 255, "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
 
   bRet=pgForward.OnVCMouseEvent(id, _event, p);
-  bRet=pgLeft.OnVCMouseEvent(id, _event, p);
-  bRet=pgRight.OnVCMouseEvent(id, _event, p);
-  bRet=pgCenter.OnVCMouseEvent(id, _event, p);
-  bRet=pgOverhead.OnVCMouseEvent(id, _event, p);
-  bRet=pgAft.OnVCMouseEvent(id, _event, p);
-  bRet=pgAftStbd.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgLeft.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgRight.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgCenter.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgOverhead.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgOverheadAft.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgAft.OnVCMouseEvent(id, _event, p);
+  if(!bRet) bRet=pgAftStbd.OnVCMouseEvent(id, _event, p);
 
   switch (id) 
   {
@@ -6455,6 +6471,8 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 	if(pgCenter.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgOverhead.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if(pgOverheadAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgLeft.OnVCRedrawEvent(id, _event, surf))
 		return true;
@@ -6681,6 +6699,7 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		pgRight.ToggleCoordinateDisplayMode();
 		pgLeft.ToggleCoordinateDisplayMode();
 		pgOverhead.ToggleCoordinateDisplayMode();
+		pgOverheadAft.ToggleCoordinateDisplayMode();
 		pgAft.ToggleCoordinateDisplayMode();
 		pgAftStbd.ToggleCoordinateDisplayMode();
 		pgAftPort.ToggleCoordinateDisplayMode();
