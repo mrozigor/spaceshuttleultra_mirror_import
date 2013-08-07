@@ -18,6 +18,7 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	arm_tip[2] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate rot vector for attachment
 	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, -1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
 	arm_tip[4] = RMS_EE_CAM_POS; // to calculate EE camera position
+	arm_tip[5] = RMS_EE_LIGHT_POS;
 	arm_ee_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
 	arm_ee_dir = _V(1.0, 0.0, 0.0);
 	arm_ee_rot = _V(0.0, 0.0, 1.0);
@@ -110,10 +111,32 @@ void RMSSystem::Realize()
 	ElbowCamTiltUp.Connect(pBundle, 2);
 	ElbowCamTiltDown.Connect(pBundle, 3);
 	CamLowSpeed.Connect(pBundle, 4);
+	
+	pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
+	EELightPower.Connect(pBundle, 9);
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+	
+	// add end effector light
+	static VECTOR3 color = _V(0.75,0.75,0.75);
+	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
+	const COLOUR4 amb = {0.0, 0.0, 0};
+	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+	EELight_bspec.active = false;
+	EELight_bspec.col = &color;
+	EELight_bspec.duration = 0;
+	EELight_bspec.falloff = 0.4;
+	EELight_bspec.period = 0;
+	EELight_bspec.pos = &arm_tip[5];
+	EELight_bspec.shape = BEACONSHAPE_DIFFUSE;
+	EELight_bspec.size = 0.1;
+	EELight_bspec.tofs = 0;
+	STS()->AddBeacon(&EELight_bspec);
+	pEELight = STS()-> AddSpotLight(arm_tip[5],arm_tip[1]-arm_tip[0],20,0.5,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
+	    diff,spec,amb);
+	//EELight_bspec.active = true;
 
 	// set lines
 	if(Grappled()) EECapture.SetLine();
@@ -196,7 +219,7 @@ void RMSSystem::CreateArm()
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, pRMS_wr_anim, parent);
 
-	MGROUP_ROTATE* pRMS_ee_anim = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
+	MGROUP_ROTATE* pRMS_ee_anim = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 6,
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddManagedAnimationComponent (anim_rms_ee, 0, 1, pRMS_ee_anim, parent);
@@ -430,6 +453,11 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
 		camera_moved=true;
 	}
+	
+	// update light state
+	bool lightOn = EELightPower.IsSet();
+	pEELight->Activate(lightOn);
+	EELight_bspec.active = lightOn;
 }
 
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -461,6 +489,10 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		if(RMSCameraMode==EE) UpdateEECamView();
 		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
+		
+		// update end effector light position/direction
+		pEELight->SetPosition(arm_tip[5]);
+		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
 
 		/*** Update output lines to LEDs ***/
 		// calculate position

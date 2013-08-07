@@ -46,6 +46,7 @@ namespace vc
 
 		StdSwitch2* pPLBDLights[7];
 		StdSwitch3* pDockingLight;
+		StdSwitch2* pRMSLight;
 
 		PBIDiscPortGroup VideoInputGroup;
 
