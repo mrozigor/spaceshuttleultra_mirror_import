@@ -939,10 +939,12 @@ private:
 	/**
 	 * Defines payload bay light (LightEmitter and associated beacon)
 	 * \param pos position of light
+	 * \param dir direction of beam
+	 * \param degWidth angular width of umbra (in degrees); penumbra is 1.1 times specified width
 	 * \param bspec Beacon spec to be initialized with data
 	 * \returns LightEmitter pointer
 	 */
-	LightEmitter* AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec);
+	LightEmitter* AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec);
 	LightEmitter* PLBLight[6];
 	LightEmitter* FwdBulkheadLight;
 	LightEmitter* DockingLight[2];
