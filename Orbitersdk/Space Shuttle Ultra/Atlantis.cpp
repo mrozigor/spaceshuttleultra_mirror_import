@@ -1068,11 +1068,12 @@ pActiveLatches(3, NULL)
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
 	{
-		PLBLight[i] = AddPayloadBayLight(PLBLightPosition[i], PLB_bspec[i]);
+		VECTOR3 dir = _V(-sign(PLBLightPosition[i].x), 0, 0);
+		PLBLight[i] = AddPayloadBayLight(PLBLightPosition[i], dir, 135.0, PLB_bspec[i]);
 	}
-	FwdBulkheadLight = AddPayloadBayLight(FwdBulkheadLightPos, FwdBulkhead_bspec);
+	FwdBulkheadLight = AddPayloadBayLight(FwdBulkheadLightPos, _V(0, 0, -1), 120.0, FwdBulkhead_bspec);
 	for (int i=0;i<2;i++) {
-		DockingLight[i] = AddPayloadBayLight(DockingLightPos, Docking_bspec[i]); // create two copies of docking light to simulate DIM and BRIGHT settings
+		DockingLight[i] = AddPayloadBayLight(DockingLightPos, _V(0, 1, 0), 120.0, Docking_bspec[i]); // create two copies of docking light to simulate DIM and BRIGHT settings
 	}
 
 	// RCS exhaust
@@ -3310,7 +3311,7 @@ void Atlantis::SetAnimationCameras() {
 	}
 }
 
-LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec)
+LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
 	static VECTOR3 color = _V(0.75,0.75,0.75);
 	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
@@ -3327,7 +3328,7 @@ LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec)
 	bspec.size = 0.25;
 	bspec.tofs = 0;
 	AddBeacon(&bspec);
-	return AddPointLight(pos,20,0.5,0.8,0.001,
+	return AddSpotLight(pos,dir,20,0.5,0.8,0.001, degWidth*RAD, degWidth*1.1*RAD,
 						 diff,spec,amb);
 }
 
