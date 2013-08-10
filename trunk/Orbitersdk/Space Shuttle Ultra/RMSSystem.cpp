@@ -121,7 +121,7 @@ void RMSSystem::Realize()
 	
 	// add end effector light
 	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
+	const COLOUR4 diff = {1.0f, 1.0f, 0.75f, 0.0f};
 	const COLOUR4 amb = {0.0, 0.0, 0};
 	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
 	EELight_bspec.active = false;
@@ -134,7 +134,7 @@ void RMSSystem::Realize()
 	EELight_bspec.size = 0.1;
 	EELight_bspec.tofs = 0;
 	STS()->AddBeacon(&EELight_bspec);
-	pEELight = STS()-> AddSpotLight(arm_tip[5],arm_tip[1]-arm_tip[0],20,0.5,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
+	pEELight = STS()-> AddSpotLight(arm_tip[5],arm_tip[1]-arm_tip[0],20,0.25,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
 	    diff,spec,amb);
 	//EELight_bspec.active = true;
 
@@ -256,6 +256,11 @@ bool RMSSystem::Movable() const
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
+	
+	// update light state
+	bool lightOn = EELightPower.IsSet();
+	pEELight->Activate(lightOn);
+	EELight_bspec.active = lightOn;
 
 	// make sure RMS is powered and can be operated
 	if(!RMSSelect) return;
@@ -453,11 +458,6 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
 		camera_moved=true;
 	}
-	
-	// update light state
-	bool lightOn = EELightPower.IsSet();
-	pEELight->Activate(lightOn);
-	EELight_bspec.active = lightOn;
 }
 
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -467,6 +467,13 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	if(display_angles) {
 		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
 			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
+	}
+	
+	// update end effector light position/direction
+	if(arm_moved || MPMRollout.Moving()) {
+		pEELight->SetPosition(arm_tip[5]);
+		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
+		sprintf_s(oapiDebugString(), 255, "Light dir: %f %f %f", (arm_tip[1]-arm_tip[0]).x, (arm_tip[1]-arm_tip[0]).y, (arm_tip[1]-arm_tip[0]).z);
 	}
 
 	// if arm was moved, update attachment position and IK vectors/angles
@@ -489,10 +496,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		if(RMSCameraMode==EE) UpdateEECamView();
 		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
-		
-		// update end effector light position/direction
-		pEELight->SetPosition(arm_tip[5]);
-		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
 
 		/*** Update output lines to LEDs ***/
 		// calculate position
