@@ -47,6 +47,7 @@
 #include "eps/eps_defs.h"
 #include "gnc/IMU.h"
 #include "mission/Mission.h"
+#include "dps/SSME_SOP.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "PanelGroup.h"
@@ -320,6 +321,7 @@ public:
 	gnc::IMU* pIMU[3];
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
+	dps::SSME_SOP* pSSME_SOP;
 	eps::Inverter* pInverter[3];
 	APU* pAPU[3];
 	MCA* pFMC1;
@@ -585,6 +587,8 @@ public:
 
 	virtual void PSN4( void );
 
+	virtual int GetSSMEPress( int eng );
+	
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
 	void UpdateMesh ();
