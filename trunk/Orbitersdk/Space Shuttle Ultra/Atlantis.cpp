@@ -8110,6 +8110,12 @@ void Atlantis::PSN4( void )
 	pEIU[2]->command( 0xBC00 );
 }
 
+int Atlantis::GetSSMEPress( int eng )
+{
+	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware( "SSME_SOP" ));
+	return (int)pSSME_SOP->GetPercentChamberPressVal( eng );
+}
+
 void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
 	if(ahDockAux)
 	{
