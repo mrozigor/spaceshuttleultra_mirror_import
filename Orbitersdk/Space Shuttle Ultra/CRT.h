@@ -59,6 +59,16 @@ private:
 		return true;
 	}
 
+	// GDI stuff
+	HBRUSH GreenBrush;
+	HBRUSH WhiteBrush;
+	HBRUSH BlackBrush;
+	HBRUSH RedBrush;
+	HPEN WhitePen;
+	HPEN GreenPen;
+	HPEN RedPen;
+	HPEN BlackPen;
+
 	//Display Functions
 	void OMSMPS(HDC hDC);
 	void SPI(HDC hDC);
