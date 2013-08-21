@@ -65,6 +65,15 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	sprintf(cbuf, "CRT Constructor");
 	oapiWriteLog(cbuf);*/
 
+	GreenBrush = CreateSolidBrush( GREEN );
+	WhiteBrush = CreateSolidBrush( WHITE );
+	BlackBrush = CreateSolidBrush( BLACK );
+	RedBrush = CreateSolidBrush( RED );
+	WhitePen = CreatePen( PS_SOLID, 0, WHITE );
+	GreenPen = CreatePen( PS_SOLID, 0, GREEN );
+	RedPen = CreatePen( PS_SOLID, 0, RED );
+	BlackPen = CreatePen( PS_SOLID, 0, BLACK );
+
 	vessel=v;
 	width=w;
 	height=h;
@@ -141,6 +150,15 @@ CRT::~CRT ()
 {
 	//if(id>=0 && id<3) sts->Display[id]=NULL;
 	DeleteObject(hCRTFont);
+
+	DeleteObject( GreenBrush );
+	DeleteObject( WhiteBrush );
+	DeleteObject( BlackBrush );
+	DeleteObject( RedBrush );
+	DeleteObject( WhitePen );
+	DeleteObject( GreenPen );
+	DeleteObject( RedPen );
+	DeleteObject( BlackPen );
 	return;
 }
 
@@ -265,16 +283,11 @@ void CRT::OMSMPS(HDC hDC)
 
 	SelectDefaultFont(hDC, 0);
 
-	HBRUSH GreenBrush=CreateSolidBrush(GREEN);
-	HBRUSH WhiteBrush=CreateSolidBrush(WHITE);
-	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
-	HPEN WhitePen=CreatePen(PS_SOLID, 0, WHITE);
-	HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
-
 	int save = SaveDC(hDC);
 	SetTextColor(hDC, GREEN);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
+
 	TextOut(hDC, 10, 0, "OMS", 3);
 	TextOut(hDC, 150, 0, "MPS", 3);
 	MoveToEx(hDC, 80, 6, NULL);
@@ -285,7 +298,13 @@ void CRT::OMSMPS(HDC hDC)
 	LineTo(hDC, 148, 6);
 	MoveToEx(hDC, 172, 6, NULL);
 	LineTo(hDC, 255, 6);
+	MoveToEx(hDC, 0, 6, NULL);
+	LineTo(hDC, 0, 16);
+	MoveToEx(hDC, 255, 6, NULL);
+	LineTo(hDC, 255, 16);
+
 	SetTextColor(hDC, WHITE);
+
 	//OMS
 	TextOut(hDC, 23, 15, "L", 1);
 	TextOut(hDC, 58, 15, "R", 1);
@@ -300,15 +319,15 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut(hDC, 194, 6, "C/1", 3);
 	TextOut(hDC, 229, 10, "R/3", 3);
 	//Tank P
-	Rectangle (hDC, 102, 24, 128, 40);
-	Rectangle (hDC, 155, 24, 181, 40);
-	Rectangle (hDC, 190, 19, 216, 35);
-	Rectangle (hDC, 225, 24, 251, 40);
+	Rectangle (hDC, 100, 24, 129, 40);
+	Rectangle (hDC, 153, 24, 182, 40);
+	Rectangle (hDC, 188, 19, 217, 35);
+	Rectangle (hDC, 223, 24, 252, 40);
 	//Reg Press
-	Rectangle (hDC, 102, 92, 128, 108);
-	Rectangle (hDC, 155, 92, 181, 108);
-	Rectangle (hDC, 190, 87, 216, 103);
-	Rectangle (hDC, 225, 92, 251, 108);
+	Rectangle (hDC, 100, 92, 129, 108);
+	Rectangle (hDC, 153, 92, 182, 108);
+	Rectangle (hDC, 188, 87, 217, 103);
+	Rectangle (hDC, 223, 92, 252, 108);
 	//Engine Pc
 	TextOut(hDC, 159, 152, "L/2", 3);
 	TextOut(hDC, 194, 147, "C/1", 3);
@@ -316,38 +335,66 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle (hDC, 155, 167, 181, 183);
 	Rectangle (hDC, 190, 162, 216, 178);
 	Rectangle (hDC, 225, 167, 251, 183);
+	// ENG MANF
+	Rectangle( hDC, 83, 179, 109, 194 );
+	Rectangle( hDC, 116, 179, 142, 194 );
+
 	SelectObject(hDC, WhitePen);
+
 	//OMS
 	TextOut(hDC, 0, 50, "He", 2);
 	TextOut(hDC, 0, 60, "TK", 2);
 	TextOut(hDC, 3, 70, "P", 1);
 	Rectangle (hDC, 19, 50, 34, 90);
 	Rectangle (hDC, 54, 50, 69, 90);
+	MoveToEx(hDC, 34, 62, NULL);
+	LineTo(hDC, 40, 62);
+	MoveToEx(hDC, 69, 62, NULL);
+	LineTo(hDC, 75, 62);
+
 	TextOut(hDC, 0, 115, "N2", 2);
 	TextOut(hDC, 0, 125, "TK", 2);
 	TextOut(hDC, 3, 135, "P", 1);
 	Rectangle (hDC, 19, 115, 34, 155);
 	Rectangle (hDC, 54, 115, 69, 155);
+	MoveToEx(hDC, 34, 139, NULL);
+	LineTo(hDC, 40, 139);
+	MoveToEx(hDC, 69, 139, NULL);
+	LineTo(hDC, 75, 139);
+
 	TextOut(hDC, 23, 155, "L", 1);
 	TextOut(hDC, 58, 155, "R", 1);
-	TextOut(hDC, 0, 200, "Pc", 2);
-	TextOut(hDC, 3, 220, "%", 1);
+	TextOut(hDC, 0, 207, "Pc", 2);
+	TextOut(hDC, 3, 217, "%", 1);
 	Rectangle (hDC, 19, 187, 34, 250);
 	Rectangle (hDC, 54, 187, 69, 250);
-	MoveToEx(hDC, 34, 212, NULL);
-	LineTo(hDC, 40, 212);
-	MoveToEx(hDC, 69, 212, NULL);
-	LineTo(hDC, 75, 212);
+	MoveToEx(hDC, 34, 208, NULL);
+	LineTo(hDC, 40, 208);
+	MoveToEx(hDC, 69, 208, NULL);
+	LineTo(hDC, 75, 208);
+
 	//MPS
+	TextOut(hDC, 100, 10, "PNEU", 4);
 	TextOut(hDC, 80, 42, "TANK", 4);
+	TextOut(hDC, 88, 52, "P", 1);
 	Rectangle (hDC, 108, 42, 123, 82);
 	TextOut(hDC, 140, 42, "He", 2);
 	TextOut(hDC, 132, 52, "TANK", 4);
-	TextOut(hDC, 140, 62, "P", 1);
+	TextOut(hDC, 139, 62, "P", 1);
 	Rectangle (hDC, 161, 42, 176, 82);
 	Rectangle (hDC, 196, 42, 211, 82);
 	Rectangle (hDC, 230, 42, 245, 82);
-	TextOut(hDC, 80, 110, "REG", 3);
+	MoveToEx( hDC, 123, 66, NULL );
+	LineTo( hDC, 129, 66 );
+	MoveToEx( hDC, 176, 80, NULL );
+	LineTo( hDC, 182, 80 );
+	MoveToEx( hDC, 211, 80, NULL );
+	LineTo( hDC, 217, 80 );
+	MoveToEx( hDC, 245, 80, NULL );
+	LineTo( hDC, 251, 80 );
+
+	TextOut(hDC, 83, 110, "REG", 3);
+	TextOut(hDC, 90, 120, "P", 1);
 	Rectangle (hDC, 108, 110, 123, 145);
 	TextOut(hDC, 135, 110, "He", 2);
 	TextOut(hDC, 125, 120, "REG A", 5);
@@ -355,70 +402,334 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle (hDC, 161, 110, 176, 145);
 	Rectangle (hDC, 196, 110, 211, 145);
 	Rectangle (hDC, 230, 110, 245, 145);
-	TextOut(hDC, 180, 188, "Pc", 2);
-	TextOut(hDC, 184, 198, "%", 1);
-	TextOut(hDC, 215, 188, "Pc", 2);
-	TextOut(hDC, 219, 198, "%", 1);
-	Rectangle (hDC, 161, 187, 176, 250);
-	Rectangle (hDC, 196, 187, 211, 250);
-	Rectangle (hDC, 231, 187, 246, 250);
-	MoveToEx(hDC, 176, 190, NULL);
-	LineTo(hDC, 182, 190);
-	MoveToEx(hDC, 211, 190, NULL);
-	LineTo(hDC, 217, 190);
-	MoveToEx(hDC, 245, 190, NULL);
-	LineTo(hDC, 251, 190);
-	MoveToEx(hDC, 176, 211, NULL);
-	LineTo(hDC, 182, 211);
-	MoveToEx(hDC, 211, 211, NULL);
-	LineTo(hDC, 217, 211);
-	MoveToEx(hDC, 245, 211, NULL);
-	LineTo(hDC, 251, 211);
-	SelectObject(hDC, GreenBrush);
+	MoveToEx( hDC, 123, 120, NULL );
+	LineTo( hDC, 129, 120 );
+	MoveToEx( hDC, 123, 136, NULL );
+	LineTo( hDC, 129, 136 );
+	MoveToEx( hDC, 176, 120, NULL );
+	LineTo( hDC, 182, 120 );
+	MoveToEx( hDC, 176, 136, NULL );
+	LineTo( hDC, 182, 136 );
+	MoveToEx( hDC, 211, 120, NULL );
+	LineTo( hDC, 217, 120 );
+	MoveToEx( hDC, 211, 136, NULL );
+	LineTo( hDC, 217, 136 );
+	MoveToEx( hDC, 245, 120, NULL );
+	LineTo( hDC, 251, 120 );
+	MoveToEx( hDC, 245, 136, NULL );
+	LineTo( hDC, 251, 136 );
+
+	TextOut(hDC, 178, 191, "Pc", 2);
+	TextOut(hDC, 182, 201, "%", 1);
+	TextOut(hDC, 212, 191, "Pc", 2);
+	TextOut(hDC, 217, 201, "%", 1);
+	Rectangle (hDC, 161, 187, 176, 239);
+	Rectangle (hDC, 196, 187, 211, 239);
+	Rectangle (hDC, 231, 187, 246, 239);
+	MoveToEx(hDC, 176, 192, NULL);
+	LineTo(hDC, 182, 192);
+	MoveToEx(hDC, 211, 192, NULL);
+	LineTo(hDC, 217, 192);
+	MoveToEx(hDC, 245, 192, NULL);
+	LineTo(hDC, 251, 192);
+	MoveToEx(hDC, 176, 221, NULL);
+	LineTo(hDC, 182, 221);
+	MoveToEx(hDC, 211, 221, NULL);
+	LineTo(hDC, 217, 221);
+	MoveToEx(hDC, 245, 221, NULL);
+	LineTo(hDC, 251, 221);
+
+	TextOut( hDC, 85, 152, "ENG MANF", 8 );
+	TextOut( hDC, 85, 164, "LO2", 3 );
+	TextOut( hDC, 118, 164, "LH2", 3 );
+	TextOut( hDC, 109, 191, "P", 1 );
+	TextOut( hDC, 109, 201, "S", 1 );
+	TextOut( hDC, 109, 211, "I", 1 );
+	TextOut( hDC, 109, 221, "A", 1 );
+	Rectangle( hDC, 88, 200, 103, 239 );
+	Rectangle( hDC, 121, 200, 136, 239 );
+	MoveToEx( hDC, 102, 206, NULL );
+	LineTo( hDC, 108, 206 );
+	MoveToEx( hDC, 136, 213, NULL );
+	LineTo( hDC, 142, 213 );
+
+
+	//SelectObject(hDC, GreenBrush);
+	
 	//OMS
 	for(nPos=0;nPos<2;nPos++) {
 		dNum=sts->GetPropellantMass(sts->oms_helium_tank[nPos])*228.6;
-		sprintf(cbuf, "%.0f", dNum);
-		TextOut(hDC, 14+35*nPos, 31, cbuf, strlen(cbuf));
-		Rectangle (hDC, 19+35*nPos, static_cast<int>(90-0.008*dNum), 34+35*nPos, 90);
-		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]);
-		sprintf(cbuf, "%.0f", dNum);
-		TextOut(hDC, 15+35*nPos, 169, cbuf, strlen(cbuf));
-		if(dNum>1) {
-			Rectangle(hDC, 19+35*nPos, 187, 34+35*nPos, 250);
+		sprintf(cbuf, "%04.0f", dNum);
+		TextOut(hDC, 13+35*nPos, 31, cbuf, strlen(cbuf));
+		if (dNum >= 1500)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+			if (dNum > 5000) dNum = 5000;
 		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle (hDC, 20+35*nPos, round( (89-0.0076*dNum) ), 33+35*nPos, 89);
+
+		dNum = 0;// TODO get val
+		sprintf(cbuf, "%04.0f", dNum);
+		TextOut(hDC, 13+35*nPos, 96, cbuf, strlen(cbuf));
+		if (dNum >= 1200)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+			if (dNum > 3000) dNum = 3000;
+		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle (hDC, 20+35*nPos, round( (154-0.012667*dNum) ), 33+35*nPos, 154);
+		
+		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]);
+		sprintf(cbuf, "%03.0f", dNum);
+		TextOut(hDC, 16+35*nPos, 168, cbuf, strlen(cbuf));
+		if (dNum >= 80)
+		{
+			SelectObject(hDC, WhiteBrush);
+			SelectObject(hDC, WhitePen);
+			if (dNum > 120) dNum = 120;
+		}
+		else if (dNum >= 4)
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+		}
+		else
+		{
+			SelectObject(hDC, BlackBrush);
+			SelectObject(hDC, BlackPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle(hDC, 20+35*nPos, round( 249 - (0.508333 * dNum) ), 33+35*nPos, 249);
 	}
+
 	//MPS
 	for(nPos=0;nPos<3;nPos++) {
 		nLoc=35*EngConvert[nPos];
-		if (sts->status<=2) dNum=round(109.0*sts->GetThrusterLevel(sts->th_main[nPos]));
-		else dNum=0.0;
-		sprintf(cbuf, "%.0f", dNum);
-		if(dNum>1) {
-			Rectangle(hDC, 161+nLoc, static_cast<int>(250-0.5769*dNum), 176+nLoc, 250);
+		if (sts->status <= 2) dNum = sts->GetSSMEPress( nPos + 1 );
+		else dNum = 0.0;
+		sprintf(cbuf, "%03.0f", dNum);
+		if(EngConvert[nPos]!=1) TextOut(hDC, 157+nLoc, 168, cbuf, strlen(cbuf));
+		else TextOut(hDC, 157+nLoc, 163, cbuf, strlen(cbuf));
+		if (dNum >= 65)
+		{
+			SelectObject(hDC, WhiteBrush);
+			SelectObject(hDC, WhitePen);
+			if (dNum > 109) dNum = 109;
 		}
-		if(EngConvert[nPos]!=1) TextOut(hDC, 157+nLoc, 169, cbuf, strlen(cbuf));
-		else TextOut(hDC, 157+nLoc, 164, cbuf, strlen(cbuf));
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 45) dNum = 45;
+		}
+		Rectangle( hDC, 162 + nLoc, round( 238 - 0.78125 * (dNum - 45) ), 175 + nLoc, 238 );
 	}
-	//SelectObject(hDC, GreenPen);
-	//SelectObject(hDC, BlackBrush);
+	
+	// He Tank Press Pneu
+	dNum = 0;//sts->GetHeTankPress( 0 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 100, 25, cbuf, strlen( cbuf ) );
+	if (dNum >= 3800)
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum > 5000) dNum = 5000;
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 3000) dNum = 3000;
+	}
+	Rectangle( hDC, 109, round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
+
+	// He Tank Press Eng 2
+	dNum = 0;//sts->GetHeTankPress( 2 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 153, 25, cbuf, strlen( cbuf ) );
+	if (dNum >= 1150)
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum > 5000) dNum = 5000;
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 1000) dNum = 1000;
+	}
+	Rectangle( hDC, 162, round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
+
+	// He Tank Press Eng 1
+	dNum = 0;//sts->GetHeTankPress( 1 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 188, 20, cbuf, strlen( cbuf ) );
+	if (dNum >= 1150)
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum > 5000) dNum = 5000;
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 1000) dNum = 1000;
+	}
+	Rectangle( hDC, 197, round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
+
+	// He Tank Press Eng 3
+	dNum = 0;//sts->GetHeTankPress( 3 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 223, 25, cbuf, strlen( cbuf ) );
+	if (dNum >= 1150)
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum > 5000) dNum = 5000;
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 1000) dNum = 1000;
+	}
+	Rectangle( hDC, 231, round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
+
+	// He Reg Press Pneu
+	dNum = 0;//sts->GetHeRegPress( 0 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 100, 93, cbuf, strlen( cbuf ) );
+	if ((dNum >= 680) && (dNum <= 810))
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 600) dNum = 600;
+		if (dNum > 900) dNum = 900;
+	}
+	Rectangle( hDC, 109, round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
+
+	// He Reg Press Eng 2
+	dNum = 0;//sts->GetHeRegPress( 2 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 153, 93, cbuf, strlen( cbuf ) );
+	if ((dNum >= 680) && (dNum <= 810))
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 600) dNum = 600;
+		if (dNum > 900) dNum = 900;
+	}
+	Rectangle( hDC, 162, round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
+
+	// He Reg Press Eng 1
+	dNum = 0;//sts->GetHeRegPress( 1 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 188, 88, cbuf, strlen( cbuf ) );
+	if ((dNum >= 680) && (dNum <= 810))
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 600) dNum = 600;
+		if (dNum > 900) dNum = 900;
+	}
+	Rectangle( hDC, 197, round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
+
+	// He Reg Press Eng 3
+	dNum = 0;//sts->GetHeRegPress( 3 );
+	sprintf( cbuf, "%04.0f", dNum );
+	TextOut( hDC, 223, 93, cbuf, strlen( cbuf ) );
+	if ((dNum >= 680) && (dNum <= 810))
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+	}
+	else
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum < 600) dNum = 600;
+		if (dNum > 900) dNum = 900;
+	}
+	Rectangle( hDC, 231, round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
+
+	// ENG MANF LO2
+	dNum = 0;// TODO get val
+	sprintf( cbuf, "%03.0f", dNum );
+	TextOut( hDC, 85, 180, cbuf, strlen( cbuf ) );
+	if (dNum >= 250)
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum > 300) dNum = 300;
+	}
+	else
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum < 0) dNum = 0;
+	}
+	Rectangle( hDC, 89, round( 238 - (0.123333 * dNum) ), 102, 238 );
+
+	// ENG MANF LH2
+	dNum = 0;// TODO get val
+	sprintf( cbuf, "%03.0f", dNum );
+	TextOut( hDC, 118, 180, cbuf, strlen( cbuf ) );
+	if (dNum >= 66)
+	{
+		SelectObject(hDC, RedBrush);
+		SelectObject(hDC, RedPen);
+		if (dNum > 100) dNum = 100;
+	}
+	else
+	{
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum < 0) dNum = 0;
+	}
+	Rectangle( hDC, 122, round( 238 - (0.37 * dNum) ), 135, 238 );
 
 	RestoreDC(hDC, save);
-	DeleteObject(GreenBrush);
-	DeleteObject(WhiteBrush);
-	DeleteObject(BlackBrush);
-	DeleteObject(WhitePen);
-	DeleteObject(GreenPen);
 }
+
 void CRT::SPI(HDC hDC)
 {
 	HFONT ArialFont = CreateFont(15,5, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
-	HBRUSH GreenBrush=CreateSolidBrush(RGB(50,255,50));
-	HBRUSH WhiteBrush=CreateSolidBrush(WHITE);
-	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
+	//HBRUSH GreenBrush=CreateSolidBrush(RGB(50,255,50));
+	//HBRUSH WhiteBrush=CreateSolidBrush(WHITE);
+	//HBRUSH BlackBrush=CreateSolidBrush(BLACK);
 	HBRUSH PurpleBrush=CreateSolidBrush(RGB(100,100,100));
-	HPEN WhitePen=CreatePen(PS_SOLID, 0, WHITE);
+	//HPEN WhitePen=CreatePen(PS_SOLID, 0, WHITE);
 	HPEN GreenPen=CreatePen(PS_SOLID, 0, RGB(50,255,50));
 	HPEN PurplePen=CreatePen(PS_SOLID,2, RGB(150,50,150));
 	HPEN PurpleThinPen=CreatePen(PS_SOLID,0, RGB(150,50,150));
@@ -664,7 +975,7 @@ void CRT::SPI(HDC hDC)
 	{
 		char captbuf[3];
 		sprintf(captbuf,"%.0lf",capt);
-		TextOut(hDC,i-7,190,captbuf,3);
+		TextOut(hDC,i-7,190,captbuf, strlen( captbuf ) );
 		capt+=20;
 	}
 
@@ -721,11 +1032,11 @@ void CRT::SPI(HDC hDC)
 
 	RestoreDC(hDC, savedDC); // deselect pens, brushes, etc. so we can delete them
 	DeleteObject(ArialFont);
-	DeleteObject(GreenBrush);
-	DeleteObject(WhiteBrush);
-	DeleteObject(BlackBrush);
+	//DeleteObject(GreenBrush);
+	//DeleteObject(WhiteBrush);
+	//DeleteObject(BlackBrush);
 	DeleteObject(PurpleBrush);
-	DeleteObject(WhitePen);
+	//DeleteObject(WhitePen);
 	DeleteObject(GreenPen);
 	DeleteObject(PurplePen);
 	DeleteObject(PurpleThinPen);
@@ -743,130 +1054,308 @@ void CRT::APUHYD(HDC hDC)
 	double dNum;
 	char cbuf[255];
 
-	HBRUSH GreenBrush=CreateSolidBrush(GREEN);
-	HBRUSH BlackBrush=CreateSolidBrush(BLACK);
-	HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
+	//HBRUSH GreenBrush=CreateSolidBrush(GREEN);
+	//HBRUSH BlackBrush=CreateSolidBrush(BLACK);
+	//HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
 
 	int save = SaveDC(hDC);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
 	SelectDefaultFont(hDC, 0);
+
+	SetTextColor(hDC, GREEN);
+	TextOut(hDC, 127, 0, "APU", 3);
+	MoveToEx(hDC, 1, 6, NULL);
+	LineTo(hDC, 125, 6);
+	MoveToEx(hDC, 149, 6, NULL);
+	LineTo(hDC, 255, 6);
+	MoveToEx(hDC, 0, 6, NULL);
+	LineTo(hDC, 0, 16);
+	MoveToEx(hDC, 255, 6, NULL);
+	LineTo(hDC, 255, 16);
+
+	TextOut(hDC, 115, 165, "HYDRAULIC", 9);
+	MoveToEx(hDC, 1, 171, NULL);
+	LineTo(hDC, 113, 171);
+	MoveToEx(hDC, 180, 171, NULL);
+	LineTo(hDC, 255, 171);
+	MoveToEx(hDC, 0, 171, NULL);
+	LineTo(hDC, 0, 181);
+	MoveToEx(hDC, 255, 171, NULL);
+	LineTo(hDC, 255, 181);
+
 	SetTextColor(hDC, WHITE);
-	TextOut(hDC, 0, 60, "FUEL", 4);
-	TextOut(hDC, 0, 70, "QTY", 3);
-	TextOut(hDC, 0, 80, "%", 1);
-	TextOut(hDC, 37, 15, "1", 1);
-	TextOut(hDC, 67, 15, "2", 1);
-	TextOut(hDC, 97, 15, "3", 1);
-	TextOut(hDC, 39, 165, "1", 1);
-	TextOut(hDC, 74, 165, "2", 1);
-	TextOut(hDC, 109, 165, "3", 1);
+
+	// APU
+	TextOut(hDC, 37, 7, "1", 1);
+	TextOut(hDC, 67, 7, "2", 1);
+	TextOut(hDC, 97, 7, "3", 1);
+	TextOut(hDC, 0, 45, "FUEL", 4);
+	TextOut(hDC, 2, 55, "QTY", 3);
+	TextOut(hDC, 10, 65, "%", 1);
+	Rectangle (hDC, 27, 20, 53, 36);
+	Rectangle (hDC, 57, 20, 83, 36);
+	Rectangle (hDC, 87, 20, 113, 36);
+
 	TextOut(hDC, 0, 120, "H2O", 3);
 	TextOut(hDC, 0, 130, "QTY", 3);
-	TextOut(hDC, 0, 140, "%", 1);
-	TextOut(hDC, 0, 210, "QTY", 3);
-	TextOut(hDC, 0, 220, "%", 1);
-	TextOut(hDC, 125, 215, "PRESS", 5);
-	TextOut(hDC, 132, 120, "OIL", 3);
-	TextOut(hDC, 113, 130, "IN TEMP", 7);
-	TextOut(hDC, 139, 140, "F", 1);
-	TextOut(hDC, 134, 60, "FUEL", 4);
-	TextOut(hDC, 144, 70, "P", 1);
-	SetTextColor(hDC, GREEN);
-	TextOut(hDC, 127, 5, "APU", 3);
-	TextOut(hDC, 115, 156, "HYDRAULIC", 9);
-	//Fuel Qty
-	Rectangle (hDC, 27, 30, 53, 46);
-	Rectangle (hDC, 57, 30, 83, 46);
-	Rectangle (hDC, 87, 30, 113, 46);
-	Rectangle (hDC, 29, 50, 50, 91);
-	Rectangle (hDC, 59, 50, 80, 91);
-	Rectangle (hDC, 89, 50, 110, 91);
-	//H2O Qty
+	TextOut(hDC, 8, 140, "%", 1);
 	Rectangle (hDC, 27, 95, 53, 111);
 	Rectangle (hDC, 57, 95, 83, 111);
 	Rectangle (hDC, 87, 95, 113, 111);
-	Rectangle (hDC, 29, 115, 50, 156);
-	Rectangle (hDC, 59, 115, 80, 156);
-	Rectangle (hDC, 89, 115, 110, 156);
-	//Hydraulic Qty
-	Rectangle (hDC, 27, 180, 53, 196);
-	Rectangle (hDC, 57, 180, 83, 196);
-	Rectangle (hDC, 87, 180, 113, 196);
-	Rectangle (hDC, 29, 200, 50, 241);
-	Rectangle (hDC, 59, 200, 80, 241);
-	Rectangle (hDC, 89, 200, 110, 241);
-	//Hydraulic Press
-	Rectangle (hDC, 158, 180, 187, 196);
-	Rectangle (hDC, 191, 180, 220, 196);
-	Rectangle (hDC, 224, 180, 253, 196);
-	Rectangle (hDC, 162, 200, 183, 241);
-	Rectangle (hDC, 195, 200, 216, 241);
-	Rectangle (hDC, 228, 200, 249, 241);
-	MoveToEx(hDC, 189, 210, NULL);
-	LineTo(hDC, 182, 210);
-	MoveToEx(hDC, 222, 210, NULL);
-	LineTo(hDC, 215, 210);
-	MoveToEx(hDC, 255, 210, NULL);
-	LineTo(hDC, 248, 210);
-	MoveToEx(hDC, 189, 233, NULL);
-	LineTo(hDC, 182, 233);
-	MoveToEx(hDC, 222, 233, NULL);
-	LineTo(hDC, 215, 233);
-	MoveToEx(hDC, 255, 233, NULL);
-	LineTo(hDC, 248, 233);
-	//Oil In Temp
+
+	TextOut(hDC, 168, 7, "1", 1);
+	TextOut(hDC, 201, 7, "2", 1);
+	TextOut(hDC, 234, 7, "3", 1);
+	TextOut(hDC, 134, 50, "FUEL", 4);
+	TextOut(hDC, 144, 60, "P", 1);
+	Rectangle (hDC, 158, 20, 187, 36);
+	Rectangle (hDC, 191, 20, 220, 36);
+	Rectangle (hDC, 224, 20, 253, 36);
+
+	TextOut(hDC, 132, 120, "OIL", 3);
+	TextOut(hDC, 113, 130, "IN TEMP", 7);
+	TextOut(hDC, 137, 140, "ºF", 2);
 	Rectangle (hDC, 158, 95, 187, 111);
 	Rectangle (hDC, 191, 95, 220, 111);
 	Rectangle (hDC, 224, 95, 253, 111);
-	Rectangle (hDC, 162, 115, 183, 156);
-	Rectangle (hDC, 195, 115, 216, 156);
-	Rectangle (hDC, 228, 115, 249, 156);
+
+	// HYD
+	TextOut(hDC, 37, 174, "1", 1);
+	TextOut(hDC, 67, 174, "2", 1);
+	TextOut(hDC, 97, 174, "3", 1);
+	TextOut(hDC, 0, 210, "QTY", 3);
+	TextOut(hDC, 8, 220, "%", 1);
+	Rectangle (hDC, 27, 187, 53, 203);
+	Rectangle (hDC, 57, 187, 83, 203);
+	Rectangle (hDC, 87, 187, 113, 203);
+
+	TextOut(hDC, 168, 174, "1", 1);
+	TextOut(hDC, 201, 174, "2", 1);
+	TextOut(hDC, 234, 174, "3", 1);
+	TextOut(hDC, 125, 215, "PRESS", 5);
+	Rectangle (hDC, 158, 187, 187, 203);
+	Rectangle (hDC, 191, 187, 220, 203);
+	Rectangle (hDC, 224, 187, 253, 203);
+	TextOut(hDC, 185, 239, "L", 1);
+	TextOut(hDC, 218, 239, "L", 1);
+	TextOut(hDC, 250, 239, "L", 1);
+
+	SelectObject(hDC, WhitePen);
+	
+	//Fuel Qty
+	Rectangle (hDC, 32, 40, 47, 83);
+	Rectangle (hDC, 62, 40, 77, 83);
+	Rectangle (hDC, 92, 40, 107, 83);
+	MoveToEx(hDC, 47, 74, NULL);
+	LineTo(hDC, 53, 74);
+	MoveToEx(hDC, 77, 74, NULL);
+	LineTo(hDC, 83, 74);
+	MoveToEx(hDC, 107, 74, NULL);
+	LineTo(hDC, 113, 74);
+
+	//H2O Qty
+	Rectangle (hDC, 32, 115, 47, 158);
+	Rectangle (hDC, 62, 115, 77, 158);
+	Rectangle (hDC, 92, 115, 107, 158);
+	MoveToEx(hDC, 47, 141, NULL);
+	LineTo(hDC, 53, 141);
+	MoveToEx(hDC, 77, 141, NULL);
+	LineTo(hDC, 83, 141);
+	MoveToEx(hDC, 107, 141, NULL);
+	LineTo(hDC, 113, 141);
+
 	//Fuel P
-	Rectangle (hDC, 158, 30, 187, 46);
-	Rectangle (hDC, 191, 30, 220, 46);
-	Rectangle (hDC, 224, 30, 253, 46);
-	Rectangle (hDC, 162, 50, 183, 91);
-	Rectangle (hDC, 195, 50, 216, 91);
-	Rectangle (hDC, 228, 50, 249, 91);
-	SelectObject(hDC, GreenBrush);
+	Rectangle (hDC, 165, 40, 180, 83);
+	Rectangle (hDC, 198, 40, 213, 83);
+	Rectangle (hDC, 231, 40, 246, 83);
+
+	//Oil In Temp
+	Rectangle (hDC, 165, 115, 180, 158);
+	Rectangle (hDC, 198, 115, 213, 158);
+	Rectangle (hDC, 231, 115, 246, 158);
+	MoveToEx(hDC, 180, 153, NULL);
+	LineTo(hDC, 186, 153);
+	MoveToEx(hDC, 213, 153, NULL);
+	LineTo(hDC, 219, 153);
+	MoveToEx(hDC, 246, 153, NULL);
+	LineTo(hDC, 252, 153);
+	MoveToEx(hDC, 180, 133, NULL);
+	LineTo(hDC, 186, 133);
+	MoveToEx(hDC, 213, 133, NULL);
+	LineTo(hDC, 219, 133);
+	MoveToEx(hDC, 246, 133, NULL);
+	LineTo(hDC, 252, 133);
+
 	//Hydraulic Qty
-	Rectangle (hDC, 29, 202, 50, 241);
-	Rectangle (hDC, 59, 202, 80, 241);
-	Rectangle (hDC, 89, 202, 110, 241);
-	TextOut(hDC, 28, 182, "100", 3);
-	TextOut(hDC, 58, 182, "100", 3);
-	TextOut(hDC, 88, 182, "100", 3);
+	Rectangle (hDC, 32, 207, 47, 250);
+	Rectangle (hDC, 62, 207, 77, 250);
+	Rectangle (hDC, 92, 207, 107, 250);
+	MoveToEx(hDC, 47, 233, NULL);
+	LineTo(hDC, 53, 233);
+	MoveToEx(hDC, 77, 233, NULL);
+	LineTo(hDC, 83, 233);
+	MoveToEx(hDC, 107, 233, NULL);
+	LineTo(hDC, 113, 233);
+	MoveToEx(hDC, 47, 210, NULL);
+	LineTo(hDC, 53, 210);
+	MoveToEx(hDC, 77, 210, NULL);
+	LineTo(hDC, 83, 210);
+	MoveToEx(hDC, 107, 210, NULL);
+	LineTo(hDC, 113, 210);
+
+	//Hydraulic Press
+	Rectangle (hDC, 165, 207, 180, 250);
+	Rectangle (hDC, 198, 207, 213, 250);
+	Rectangle (hDC, 231, 207, 246, 250);
+	MoveToEx(hDC, 180, 244, NULL);
+	LineTo(hDC, 186, 244);
+	MoveToEx(hDC, 213, 244, NULL);
+	LineTo(hDC, 219, 244);
+	MoveToEx(hDC, 246, 244, NULL);
+	LineTo(hDC, 252, 244);
+	MoveToEx(hDC, 180, 239, NULL);
+	LineTo(hDC, 186, 239);
+	MoveToEx(hDC, 213, 239, NULL);
+	LineTo(hDC, 219, 239);
+	MoveToEx(hDC, 246, 239, NULL);
+	LineTo(hDC, 252, 239);
+	MoveToEx(hDC, 180, 224, NULL);
+	LineTo(hDC, 186, 224);
+	MoveToEx(hDC, 213, 224, NULL);
+	LineTo(hDC, 219, 224);
+	MoveToEx(hDC, 246, 224, NULL);
+	LineTo(hDC, 252, 224);
+
+
 	for(nPos=0;nPos<3;nPos++) {
 		//Fuel Qty
 		//dNum=100*(sts->GetPropellantMass(sts->apu_tank[nPos])/APU_FUEL_TANK_MASS);
 		dNum=(sts->pAPU[nPos]->GetFuelLevel()/APU_FUEL_TANK_MASS)*100.0;
-		sprintf_s(cbuf, 10, "%.0f", dNum);
-		TextOut(hDC, 28+30*nPos, 32, cbuf, strlen(cbuf));
-		if(dNum>=1) {
-			Rectangle(hDC, 29+30*nPos, static_cast<int>(91-0.38*dNum), 50+30*nPos, 91);
+		sprintf_s(cbuf, 10, "%03.0f", dNum);
+		TextOut(hDC, 29+30*nPos, 22, cbuf, strlen(cbuf));
+		if (dNum >= 20)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+			if (dNum > 100) dNum = 100;
 		}
-		//Hydraulic Press
-		int HydPress=(int)sts->pAPU[nPos]->GetHydraulicPressure();
-		//sprintf(cbuf, "%d", sts->panelr2->Hydraulic_Press[nPos]);
-		sprintf_s(cbuf, 10, "%d", HydPress);
-		TextOut(hDC, 159+33*nPos, 182, cbuf, strlen(cbuf));
-		if(HydPress>=1) {
-			Rectangle(hDC, 162+33*nPos, static_cast<int>(241-0.01*HydPress), 183+33*nPos, 241);
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
 		}
+		Rectangle(hDC, 33+30*nPos, static_cast<int>(82-0.41*dNum), 46+30*nPos, 82);
+
+		//H2O Qty
+		dNum = 0;// TODO get real value
+		sprintf_s(cbuf, 10, "%03.0f", dNum);
+		TextOut(hDC, 29+30*nPos, 97, cbuf, strlen(cbuf));
+		if (dNum >= 40)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+			if (dNum > 100) dNum = 100;
+		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle(hDC, 33+30*nPos, static_cast<int>(157-0.41*dNum), 46+30*nPos, 157);
+
 		//Fuel P
-		int FuelPress=(int)sts->pAPU[nPos]->GetFuelPressure();
-		sprintf_s(cbuf, 10, "%d", FuelPress);
-		TextOut(hDC, 159+33*nPos, 32, cbuf, strlen(cbuf));
-		if(FuelPress>0) {
-			Rectangle(hDC, 162+33*nPos, static_cast<int>(91-0.026*FuelPress), 183+33*nPos, 91);
+		dNum = sts->pAPU[nPos]->GetFuelPressure();// TODO check possible bug/misslabeling in APU, as this value should be around 365 psi
+		sprintf_s(cbuf, 10, "%04.0f", dNum);
+		TextOut(hDC, 159+33*nPos, 22, cbuf, strlen(cbuf));
+		SelectObject(hDC, GreenBrush);
+		SelectObject(hDC, GreenPen);
+		if (dNum > 500) dNum = 500;
+		if (dNum < 0) dNum = 0;
+		Rectangle(hDC, 166+33*nPos, static_cast<int>(82-0.082*dNum), 179+33*nPos, 82);
+
+		//Oil In Temp
+		dNum = 0;// TODO get real value
+		sprintf_s(cbuf, 10, "%04.0f", dNum);
+		TextOut(hDC, 159+33*nPos, 97, cbuf, strlen(cbuf));
+		if (dNum >= 291)
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum > 500) dNum = 500;
 		}
+		else if (dNum >= 45)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle(hDC, 166+33*nPos, static_cast<int>(157-0.082*dNum), 179+33*nPos, 157);
+
+		//Hydraulic Qty
+		dNum = 0;// TODO get real value
+		sprintf_s(cbuf, 10, "%03.0f", dNum);
+		TextOut(hDC, 29+30*nPos, 189, cbuf, strlen(cbuf));
+		if (dNum >= 96)
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum > 100) dNum = 100;
+		}
+		else if (dNum >= 40)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle(hDC, 33+30*nPos, static_cast<int>(249-0.41*dNum), 46+30*nPos, 249);
+
+		//Hydraulic Press
+		dNum = sts->pAPU[nPos]->GetHydraulicPressure();
+		//sprintf(cbuf, "%d", sts->panelr2->Hydraulic_Press[nPos]);
+		sprintf_s(cbuf, 10, "%04.0f", dNum);
+		TextOut(hDC, 159+33*nPos, 187, cbuf, strlen(cbuf));
+		if (dNum >= 2400)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+			if (dNum > 4000) dNum = 4000;
+		}
+		else if (dNum >= 1001)
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+		}
+		else if (dNum >= 501)
+		{
+			SelectObject(hDC, GreenBrush);
+			SelectObject(hDC, GreenPen);
+		}
+		else
+		{
+			SelectObject(hDC, RedBrush);
+			SelectObject(hDC, RedPen);
+			if (dNum < 0) dNum = 0;
+		}
+		Rectangle(hDC, 166+33*nPos, static_cast<int>(249-0.01025*dNum), 179+33*nPos, 249);
 	}
 
 	RestoreDC(hDC, save);
-	DeleteObject(GreenBrush);
-	DeleteObject(BlackBrush);
-	DeleteObject(GreenPen);
+	//DeleteObject(GreenBrush);
+	//DeleteObject(BlackBrush);
+	//DeleteObject(GreenPen);
 }
 
 void CRT::UNIVPTG(HDC hDC)
