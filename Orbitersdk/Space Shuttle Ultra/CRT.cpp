@@ -364,7 +364,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	TextOut(hDC, 23, 155, "L", 1);
 	TextOut(hDC, 58, 155, "R", 1);
-	TextOut(hDC, 0, 207, "Pc", 2);
+	TextOut(hDC, 0, 202, "Pc", 2);
 	TextOut(hDC, 3, 217, "%", 1);
 	Rectangle (hDC, 19, 187, 34, 250);
 	Rectangle (hDC, 54, 187, 69, 250);
@@ -419,25 +419,25 @@ void CRT::OMSMPS(HDC hDC)
 	MoveToEx( hDC, 245, 136, NULL );
 	LineTo( hDC, 251, 136 );
 
-	TextOut(hDC, 178, 191, "Pc", 2);
-	TextOut(hDC, 182, 201, "%", 1);
-	TextOut(hDC, 212, 191, "Pc", 2);
-	TextOut(hDC, 217, 201, "%", 1);
-	Rectangle (hDC, 161, 187, 176, 239);
-	Rectangle (hDC, 196, 187, 211, 239);
-	Rectangle (hDC, 231, 187, 246, 239);
-	MoveToEx(hDC, 176, 192, NULL);
-	LineTo(hDC, 182, 192);
-	MoveToEx(hDC, 211, 192, NULL);
-	LineTo(hDC, 217, 192);
-	MoveToEx(hDC, 245, 192, NULL);
-	LineTo(hDC, 251, 192);
-	MoveToEx(hDC, 176, 221, NULL);
-	LineTo(hDC, 182, 221);
-	MoveToEx(hDC, 211, 221, NULL);
-	LineTo(hDC, 217, 221);
-	MoveToEx(hDC, 245, 221, NULL);
-	LineTo(hDC, 251, 221);
+	TextOut(hDC, 178, 203, "Pc", 2);
+	TextOut(hDC, 182, 213, "%", 1);
+	TextOut(hDC, 212, 203, "Pc", 2);
+	TextOut(hDC, 217, 213, "%", 1);
+	Rectangle (hDC, 161, 187, 176, 250);
+	Rectangle (hDC, 196, 187, 211, 250);
+	Rectangle (hDC, 231, 187, 246, 250);
+	MoveToEx(hDC, 176, 193, NULL);
+	LineTo(hDC, 182, 193);
+	MoveToEx(hDC, 211, 193, NULL);
+	LineTo(hDC, 217, 193);
+	MoveToEx(hDC, 245, 193, NULL);
+	LineTo(hDC, 251, 193);
+	MoveToEx(hDC, 176, 228, NULL);
+	LineTo(hDC, 182, 228);
+	MoveToEx(hDC, 211, 228, NULL);
+	LineTo(hDC, 217, 228);
+	MoveToEx(hDC, 245, 228, NULL);
+	LineTo(hDC, 251, 228);
 
 	TextOut( hDC, 85, 152, "ENG MANF", 8 );
 	TextOut( hDC, 85, 164, "LO2", 3 );
@@ -535,7 +535,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, RedPen);
 			if (dNum < 45) dNum = 45;
 		}
-		Rectangle( hDC, 162 + nLoc, round( 238 - 0.78125 * (dNum - 45) ), 175 + nLoc, 238 );
+		Rectangle( hDC, 162 + nLoc, round( 249 - 0.953125 * (dNum - 45) ), 175 + nLoc, 249 );
 	}
 	
 	// He Tank Press Pneu
