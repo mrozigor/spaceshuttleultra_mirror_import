@@ -61,11 +61,13 @@ private:
 
 	// GDI stuff
 	HBRUSH GreenBrush;
+	HBRUSH TurquoiseBrush; 
 	HBRUSH WhiteBrush;
 	HBRUSH BlackBrush;
 	HBRUSH RedBrush;
 	HPEN WhitePen;
 	HPEN GreenPen;
+	HPEN TurquoisePen;
 	HPEN RedPen;
 	HPEN BlackPen;
 
