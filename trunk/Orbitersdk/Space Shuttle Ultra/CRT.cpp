@@ -10,6 +10,7 @@
 #define GREEN RGB(0, 255, 0)
 #define YELLOW RGB(255, 255, 0)
 #define DARK_YELLOW RGB(128, 128, 0)
+#define TURQUOISE RGB(0, 183, 146)
 #define DARK_GREEN RGB(0, 128, 0)
 #define WHITE RGB(255, 255, 255)
 #define BLUE RGB(0, 0, 255)
@@ -42,7 +43,7 @@ DLLCLBK void InitModule (HINSTANCE hDLL)
 	//mfd = NULL;
 	mfd_gparam.hDLL = hDLL;
 	mfd_gparam.hCRTFont = CreateFont(10,10, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
-		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "System");
+		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
 	
 }
 
@@ -66,11 +67,13 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	oapiWriteLog(cbuf);*/
 
 	GreenBrush = CreateSolidBrush( GREEN );
+	TurquoiseBrush = CreateSolidBrush( TURQUOISE );
 	WhiteBrush = CreateSolidBrush( WHITE );
 	BlackBrush = CreateSolidBrush( BLACK );
 	RedBrush = CreateSolidBrush( RED );
 	WhitePen = CreatePen( PS_SOLID, 0, WHITE );
 	GreenPen = CreatePen( PS_SOLID, 0, GREEN );
+	TurquoisePen = CreatePen( PS_SOLID, 0, TURQUOISE );
 	RedPen = CreatePen( PS_SOLID, 0, RED );
 	BlackPen = CreatePen( PS_SOLID, 0, BLACK );
 
@@ -85,7 +88,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	oapiWriteLog(cbuf);
 
 	hCRTFont = CreateFont(8,4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
-		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Courier");
+		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
 
 
 	if(!strcmp(pV->GetClassName(), "Atlantis") || 
@@ -284,24 +287,27 @@ void CRT::OMSMPS(HDC hDC)
 	SelectDefaultFont(hDC, 0);
 
 	int save = SaveDC(hDC);
-	SetTextColor(hDC, GREEN);
-	SelectObject(hDC, GreenPen);
+		HFONT ArialFont = CreateFont(13,6, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
+		CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
+	SetTextColor(hDC, TURQUOISE);
+	SelectObject(hDC,ArialFont);
+	SelectObject(hDC, TurquoisePen);
 	SelectObject(hDC, BlackBrush);
 
-	TextOut(hDC, 10, 0, "OMS", 3);
+	TextOut(hDC, 33.5, 0, "OMS", 3);
 	TextOut(hDC, 150, 0, "MPS", 3);
 	MoveToEx(hDC, 80, 6, NULL);
 	LineTo(hDC, 80, 250);
 	MoveToEx(hDC, 1, 6, NULL);
-	LineTo(hDC, 8, 6);
-	MoveToEx(hDC, 32, 6, NULL);
-	LineTo(hDC, 148, 6);
-	MoveToEx(hDC, 172, 6, NULL);
+	LineTo(hDC, 20, 6); 
+	MoveToEx(hDC, 67, 6, NULL);
+	LineTo(hDC, 145, 6);
+	MoveToEx(hDC, 180, 6, NULL);
 	LineTo(hDC, 255, 6);
 	MoveToEx(hDC, 0, 6, NULL);
-	LineTo(hDC, 0, 16);
+	LineTo(hDC, 0, 30);
 	MoveToEx(hDC, 255, 6, NULL);
-	LineTo(hDC, 255, 16);
+	LineTo(hDC, 255, 30);
 
 	SetTextColor(hDC, WHITE);
 
