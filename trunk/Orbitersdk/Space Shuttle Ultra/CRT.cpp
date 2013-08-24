@@ -1059,12 +1059,16 @@ void CRT::APUHYD(HDC hDC)
 	int nPos;
 	double dNum;
 	char cbuf[255];
+		HFONT ArialFont = CreateFont(13,6, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
+		CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
+
 
 	//HBRUSH GreenBrush=CreateSolidBrush(GREEN);
 	//HBRUSH BlackBrush=CreateSolidBrush(BLACK);
 	//HPEN GreenPen=CreatePen(PS_SOLID, 0, GREEN);
 
 	int save = SaveDC(hDC);
+	SelectObject(hDC,ArialFont);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
 	SelectDefaultFont(hDC, 0);
@@ -1072,8 +1076,8 @@ void CRT::APUHYD(HDC hDC)
 	SetTextColor(hDC, GREEN);
 	TextOut(hDC, 127, 0, "APU", 3);
 	MoveToEx(hDC, 1, 6, NULL);
-	LineTo(hDC, 125, 6);
-	MoveToEx(hDC, 149, 6, NULL);
+	LineTo(hDC, 123, 6);
+	MoveToEx(hDC, 156, 6, NULL);
 	LineTo(hDC, 255, 6);
 	MoveToEx(hDC, 0, 6, NULL);
 	LineTo(hDC, 0, 16);
@@ -1082,8 +1086,8 @@ void CRT::APUHYD(HDC hDC)
 
 	TextOut(hDC, 115, 165, "HYDRAULIC", 9);
 	MoveToEx(hDC, 1, 171, NULL);
-	LineTo(hDC, 113, 171);
-	MoveToEx(hDC, 180, 171, NULL);
+	LineTo(hDC, 110, 171);
+	MoveToEx(hDC, 185, 171, NULL);
 	LineTo(hDC, 255, 171);
 	MoveToEx(hDC, 0, 171, NULL);
 	LineTo(hDC, 0, 181);
