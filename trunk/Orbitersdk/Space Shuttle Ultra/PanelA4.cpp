@@ -150,7 +150,7 @@ void PanelA4::DefineVCAnimations (UINT vcidx)
 	//_V(-0.214039, 0, 0.0573);	//L=0.221576134
 	static VECTOR3 switch_rot = {-0.96598,0,0.25860};
 
-	static UINT VC_A4_METSWITCH_GRP = GRP_A4MissionSwitch_VC;
+	static UINT VC_A4_METSWITCH_GRP = GRP_A4MISSIONSWITCH_VC;
 
 	static MGROUP_ROTATE VC_A4_METSWITCH (vcidx, &VC_A4_METSWITCH_GRP, 1,
 		_V(-0.816909, 2.90472, 12.6216), switch_rot, (float)(90.0*RAD));

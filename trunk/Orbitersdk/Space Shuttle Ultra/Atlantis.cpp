@@ -763,7 +763,7 @@ pActiveLatches(3, NULL)
 
   int mfdgrp[11] = {
     GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
+    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_AFT_VC, GRP_MFD2_VC, GRP_MFD5_VC,
 	NULL
     };
 
@@ -779,7 +779,7 @@ pActiveLatches(3, NULL)
   }
   for (i = 0; i < 11; i++)
     mfdbright[i] =  1.0;
-  huds.ngroup       = GRP_VirtualHUD_VC;
+  huds.ngroup       = GRP_VIRTUALHUD_VC;
   huds.size         = 0.176558;
 
   // propellant resources
@@ -1173,6 +1173,7 @@ void Atlantis::SetLaunchConfiguration (void)
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
   UpdateMass();
+  SetGravityGradientDamping(0.05);
   //SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
   // ************************* propellant specs **********************************
@@ -1586,30 +1587,30 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[6], center+_V(-1.7 ,-0.15 , 17.40 ), _V(-1,0,0));//F1L, fixed
   AddRCSExhaust (th_att_rcs[6], center+_V(-1.65, 0.25 , 17.45), _V(-1,0,0));//F3L, fixed
 
-  AddRCSExhaust (th_att_rcs[5], center+_V(-3.8 , 2.35,-11.9), _V(-1,0,0));//L4L, fixed
-  AddRCSExhaust (th_att_rcs[5], center+_V(-3.8 , 2.35,-12.15 ), _V(-1,0,0));//L2L, fixed
-  AddRCSExhaust (th_att_rcs[5], center+_V(-3.8 , 2.35,-12.55 ), _V(-1,0,0));//L3L, fixed
-  AddRCSExhaust (th_att_rcs[5], center+_V(-3.8 , 2.35,-12.9), _V(-1,0,0));//L1L, fixed
+  AddRCSExhaust (th_att_rcs[5], center+_V(-4.0 , 2.35,-11.9), _V(-1,0,0));//L4L, fixed
+  AddRCSExhaust (th_att_rcs[5], center+_V(-4.0 , 2.35,-12.15 ), _V(-1,0,0));//L2L, fixed
+  AddRCSExhaust (th_att_rcs[5], center+_V(-4.0 , 2.35,-12.55 ), _V(-1,0,0));//L3L, fixed
+  AddRCSExhaust (th_att_rcs[5], center+_V(-4.0 , 2.35,-12.9), _V(-1,0,0));//L1L, fixed
 
-  AddRCSExhaust (th_att_rcs[7], center+_V( 3.8 , 2.35,-11.9), _V( 1,0,0));//R4R, fixed
-  AddRCSExhaust (th_att_rcs[7], center+_V( 3.8 , 2.35,-12.15 ), _V( 1,0,0));//R2R, fixed
-  AddRCSExhaust (th_att_rcs[7], center+_V( 3.8 , 2.35,-12.55 ), _V( 1,0,0));//R3R, fixed
-  AddRCSExhaust (th_att_rcs[7], center+_V( 3.8,  2.35,-12.9), _V( 1,0,0));//R1R, fixed
+  AddRCSExhaust (th_att_rcs[7], center+_V( 4.0 , 2.35,-11.9), _V( 1,0,0));//R4R, fixed
+  AddRCSExhaust (th_att_rcs[7], center+_V( 4.0 , 2.35,-12.15 ), _V( 1,0,0));//R2R, fixed
+  AddRCSExhaust (th_att_rcs[7], center+_V( 4.0 , 2.35,-12.55 ), _V( 1,0,0));//R3R, fixed
+  AddRCSExhaust (th_att_rcs[7], center+_V( 4.0,  2.35,-12.9), _V( 1,0,0));//R1R, fixed
 
   AddRCSExhaust (th_att_lin[4], center+_V( 1.8 ,-0.15 , 17.40 ), _V( 1,0,0));//F4R, fixed
   AddRCSExhaust (th_att_lin[4], center+_V( 1.75, 0.25 , 17.45), _V( 1,0,0));//F2R, fixed
   AddRCSExhaust (th_att_lin[6], center+_V(-1.7 ,-0.15 , 17.40 ), _V(-1,0,0));//F1L, fixed
   AddRCSExhaust (th_att_lin[6], center+_V(-1.65, 0.25 , 17.45), _V(-1,0,0));//F3L, fixed
 
-  AddRCSExhaust (th_att_lin[7], center+_V(-3.8 , 2.35,-11.9), _V(-1,0,0));//L4L, fixed
-  AddRCSExhaust (th_att_lin[7], center+_V(-3.8 , 2.35,-12.15 ), _V(-1,0,0));//L2L, fixed
-  AddRCSExhaust (th_att_lin[7], center+_V(-3.8 , 2.35,-12.55 ), _V(-1,0,0));//L3L, fixed
-  AddRCSExhaust (th_att_lin[7], center+_V(-3.8 , 2.35,-12.9), _V(-1,0,0));//L1L, fixed
+  AddRCSExhaust (th_att_lin[7], center+_V(-4.0 , 2.35,-11.9), _V(-1,0,0));//L4L, fixed
+  AddRCSExhaust (th_att_lin[7], center+_V(-4.0 , 2.35,-12.15 ), _V(-1,0,0));//L2L, fixed
+  AddRCSExhaust (th_att_lin[7], center+_V(-4.0 , 2.35,-12.55 ), _V(-1,0,0));//L3L, fixed
+  AddRCSExhaust (th_att_lin[7], center+_V(-4.0 , 2.35,-12.9), _V(-1,0,0));//L1L, fixed
 
-  AddRCSExhaust (th_att_lin[5], center+_V( 3.8 , 2.35,-11.9), _V( 1,0,0));//R4R, fixed
-  AddRCSExhaust (th_att_lin[5], center+_V( 3.8 , 2.35,-12.15 ), _V( 1,0,0));//R2R, fixed
-  AddRCSExhaust (th_att_lin[5], center+_V( 3.8 , 2.35,-12.55 ), _V( 1,0,0));//R3R, fixed
-  AddRCSExhaust (th_att_lin[5], center+_V( 3.8,  2.35,-12.9), _V( 1,0,0));//R1R, fixed
+  AddRCSExhaust (th_att_lin[5], center+_V( 4.0 , 2.35,-11.9), _V( 1,0,0));//R4R, fixed
+  AddRCSExhaust (th_att_lin[5], center+_V( 4.0 , 2.35,-12.15 ), _V( 1,0,0));//R2R, fixed
+  AddRCSExhaust (th_att_lin[5], center+_V( 4.0 , 2.35,-12.55 ), _V( 1,0,0));//R3R, fixed
+  AddRCSExhaust (th_att_lin[5], center+_V( 4.0,  2.35,-12.9), _V( 1,0,0));//R1R, fixed
 
   if(!bRCSDefined) {
 	  th_att_rcs[8] = CreateThruster (center+_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1653,10 +1654,10 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  thg_transaft = CreateThrusterGroup (th_att_lin+9, 1, THGROUP_USER);
   }
 
-  AddRCSExhaust (th_att_lin[8], center+_V(-3.59, 2.8 ,-13.4 ), _V(0,0,-1));//L1A, fixed
-  AddRCSExhaust (th_att_lin[8], center+_V(-3.27, 2.8 ,-13.4 ), _V(0,0,-1));//L3A, fixed
-  AddRCSExhaust (th_att_lin[8], center+_V( 3.64, 2.8 ,-13.4 ), _V(0,0,-1));//R1A, fixed
-  AddRCSExhaust (th_att_lin[8], center+_V( 3.27, 2.8 ,-13.4 ), _V(0,0,-1));//R3A, fixed
+  AddRCSExhaust (th_att_lin[8], center+_V(-3.59, 2.94 ,-13.33 ), _V(0,0,-1));//L1A, fixed
+  AddRCSExhaust (th_att_lin[8], center+_V(-3.27, 2.94 ,-13.33 ), _V(0,0,-1));//L3A, fixed
+  AddRCSExhaust (th_att_lin[8], center+_V( 3.64, 2.94 ,-13.33 ), _V(0,0,-1));//R1A, fixed
+  AddRCSExhaust (th_att_lin[8], center+_V( 3.27, 2.94 ,-13.33 ), _V(0,0,-1));//R3A, fixed
 
   AddRCSExhaust (th_att_lin[9], center+_V( 0.0 , 0.75, 19.0 ), _V(0, 0.0499, 0.9988));//F3F, fixed
   AddRCSExhaust (th_att_lin[9], center+_V(-0.4 , 0.7 , 19.0 ), _V(0, 0.0499, 0.9988));//F1F, fixed
@@ -6741,9 +6742,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     case OAPI_KEY_8:
       ToggleGrapple();
       return 1;
-    case OAPI_KEY_E:
+    /*case OAPI_KEY_E:
       do_eva = true;
-      return 1;
+      return 1;*/
 	case OAPI_KEY_COMMA:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
 		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
@@ -8129,7 +8130,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 0, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
