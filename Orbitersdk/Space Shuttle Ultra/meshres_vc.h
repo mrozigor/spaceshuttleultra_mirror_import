@@ -1,27 +1,25 @@
 // ========================================================
-// Mesh resource file for ..\..\Meshes\SSU\VC.msh
-// Generated with meshc on Tue Nov 11 23:12:51 2008
+// Mesh resource file for VC.msh
+// Generated with meshc on Sun Aug 25 17:19:38 2013
 
 // ========================================================
 
-#pragma once
-
 // Number of mesh groups:
-#define NGRP_VC 1281
+#define NGRP_VC 1368
 
 // Number of materials:
-#define NMAT_VC 12
+#define NMAT_VC 14
 
 // Number of textures:
-#define NTEX_VC 43
+#define NTEX_VC 48
 
 // Named mesh groups:
 #define GRP_080_VC 0
-//#define GRP_081_VC 1
+#define GRP_081_VC 1
 #define GRP_082_VC 2
 #define GRP_CDR1labels_VC 3
 #define GRP_CDR2labels_VC 4
-#define GRP_PLT1labels_VC 5
+#define GRP_PLT1labels1_VC 5
 #define GRP_PLT2labels_VC 6
 #define GRP_MFD1labels_VC 7
 #define GRP_MFD2labels_VC 8
@@ -305,17 +303,17 @@
 #define GRP_O6Scover8_VC 286
 #define GRP_O6Scover7_VC 287
 #define GRP_O6Scover6_VC 288
-//#define GRP_O6Guard_VC 289
-//#define GRP_O6Guard_VC 290
-//#define GRP_O6Guard_VC 291
-//#define GRP_O6Guard_VC 292
+#define GRP_O6Scover11_VC 289
+#define GRP_O6Scover12_VC 290
+#define GRP_O6Guard_VC 291
+#define GRP_O6Guard_VC 292
 #define GRP_A2panel_VC 293
 #define GRP_A2U1_VC 294
 #define GRP_A2U2_VC 295
 #define GRP_transguard_VC 296
 #define GRP_A6UGuardb_VC 297
-//#define GRP_transRMS_VC 298
-//#define GRP_transRMSboot_VC 299
+#define GRP_transRMS_VC 298
+#define GRP_transRMSboot_VC 299
 #define GRP_A2AZH_VC 300
 #define GRP_A2ELH_VC 301
 #define GRP_A2ELV_VC 302
@@ -364,7 +362,7 @@
 #define GRP_A7U44_VC 345
 #define GRP_A7U11_VC 346
 #define GRP_A7U_panel_VC 347
-//#define GRP_A6UGuardb_VC 348
+#define GRP_A6UGuardb_VC 348
 #define GRP_F6panel_VC 349
 #define GRP_F6panel1_VC 350
 #define GRP_F6Guard_VC 351
@@ -422,7 +420,7 @@
 #define GRP_F6HUDtest_VC 403
 #define GRP_F6HUDbrt_VC 404
 #define GRP_F8panel_VC 405
-//#define GRP_F6Guard_VC 406
+#define GRP_F6Guard_VC 406
 #define GRP_Fcovers_VC 407
 #define GRP_L1guards_VC 408
 #define GRP_L1S44_VC 409
@@ -777,7 +775,7 @@
 #define GRP_R13talk7_VC 758
 #define GRP_R13talk8_VC 759
 #define GRP_para2_VC 760
-#define GRP_CW_VC 761
+#define GRP_C/W_VC 761
 #define GRP_para3_VC 762
 #define GRP_para1_VC 763
 #define GRP_volts1_VC 764
@@ -828,7 +826,7 @@
 #define GRP_O16CB32_VC 809
 #define GRP_O16CB23_VC 810
 #define GRP_O16CB22_VC 811
-//#define GRP_O16CB32_VC 812
+#define GRP_O16CB32_VC 812
 #define GRP_O16CB4_VC 813
 #define GRP_O16CB28_VC 814
 #define GRP_O16CB29_VC 815
@@ -1297,3 +1295,90 @@
 #define GRP_O6talkback10_VC 1278
 #define GRP_O6talkback11_VC 1279
 #define GRP_O6talkback12_VC 1280
+#define GRP_CCTVmonitors_VC 1281
+#define GRP_MON1_VC 1282
+#define GRP_MON1switch1_VC 1283
+#define GRP_MON1switch2_VC 1284
+#define GRP_MON1color_VC 1285
+#define GRP_MON1tint_VC 1286
+#define GRP_MON1contr_VC 1287
+#define GRP_MON1bright_VC 1288
+#define GRP_MON1SELECTbutton_VC 1289
+#define GRP_MON2_VC 1290
+#define GRP_MON2switch1_VC 1291
+#define GRP_MON2switch2_VC 1292
+#define GRP_MON2color_VC 1293
+#define GRP_MON2tint_VC 1294
+#define GRP_MON2contr_VC 1295
+#define GRP_MON2bright_VC 1296
+#define GRP_MON2SELECTbutton_VC 1297
+#define GRP_overlay_VC 1298
+#define GRP_CTR_SSME_SHTDN_PB_VC 1299
+#define GRP_LEFT_SSME_SHTDN_PB_VC 1300
+#define GRP_RIGHT_SSME_SHTDN_PB_VC 1301
+#define GRP_SRB_SEP_PB_VC 1302
+#define GRP_DAP_A_PB_VC 1303
+#define GRP_DAP_ALT_PB_VC 1304
+#define GRP_DAP_AUTO_PB_VC 1305
+#define GRP_DAP_B_PB_VC 1306
+#define GRP_DAP_BLANK_VC 1307
+#define GRP_DAP_FREE_PB_VC 1308
+#define GRP_DAP_HIGH_Z_PB_VC 1309
+#define GRP_DAP_INRTL_PB_VC 1310
+#define GRP_DAP_LOW_Z_PB_VC 1311
+#define GRP_DAP_LVLH_PB_VC 1312
+#define GRP_DAP_PITCH_DISC_RATE_PB_VC 1313
+#define GRP_DAP_PITCH_PULSE_PB_VC 1314
+#define GRP_DAP_PRI_PB_VC 1315
+#define GRP_DAP_ROL_DISC_RATE_PB_VC 1316
+#define GRP_DAP_ROLL_PULSE_PB_VC 1317
+#define GRP_DAP_VERN_PB_VC 1318
+#define GRP_DAP_X_NORM_PB_VC 1319
+#define GRP_DAP_X_PULSE_PB_VC 1320
+#define GRP_DAP_Y_NORM_PB_VC 1321
+#define GRP_DAP_Y_PULSE_PB_VC 1322
+#define GRP_DAP_YAW_DISC_RATE_PB_VC 1323
+#define GRP_DAP_YAW_PULSE_PB_VC 1324
+#define GRP_DAP_Z_NORM_PB_VC 1325
+#define GRP_DAP_Z_PULSE_PB_VC 1326
+#define GRP_ET_SEP_PB_VC 1327
+#define GRP_CW_AC_OVERLOAD_VC 1328
+#define GRP_CW_AC_VOLTAGE_VC 1329
+#define GRP_CW_AIR_DATA_VC 1330
+#define GRP_CW_APU_OVERSPEED_VC 1331
+#define GRP_CW_APU_TEMP_VC 1332
+#define GRP_CW_APU_UNDERSPEED_VC 1333
+#define GRP_CW_AV_BAY_CABIN_AIR_VC 1334
+#define GRP_CW_BACKUP_CW_ALARM_VC 1335
+#define GRP_CW_BLANK_VC 1336
+#define GRP_CW_BLANK2_VC 1337
+#define GRP_CW_CABIN_ATM_VC 1338
+#define GRP_CW_FCS_CHANNEL_VC 1339
+#define GRP_CW_FCS_SATURATION_VC 1340
+#define GRP_CW_FREON_LOOP_VC 1341
+#define GRP_CW_FUEL_CELL_PUMP_VC 1342
+#define GRP_CW_FUEL_CELL_REAC_VC 1343
+#define GRP_CW_FUEL_CELL_STACK_TEMP_VC 1344
+#define GRP_CW_FWD_RCS_VC 1345
+#define GRP_CW_GPC_VC 1346
+#define GRP_CW_H20_LOOP_VC 1347
+#define GRP_CW_H2_PRESS_VC 1348
+#define GRP_CW_HYD_PRESS_VC 1349
+#define GRP_CW_IMU_VC 1350
+#define GRP_CW_LEFT_OMS_VC 1351
+#define GRP_CW_LEFT_RCS_VC 1352
+#define GRP_CW_LEFT_RHC_VC 1353
+#define GRP_CW_MAIN_BUS_UNDERVOLT_VC 1354
+#define GRP_CW_MPS_VC 1355
+#define GRP_CW_O2_HEATER_TEMP_VC 1356
+#define GRP_CW_O2_PRESS_VC 1357
+#define GRP_CW_OMS_KIT_VC 1358
+#define GRP_CW_OMS_TVC_VC 1359
+#define GRP_CW_PAYLOAD_CAUTION_VC 1360
+#define GRP_CW_PAYLOAD_WARNING_VC 1361
+#define GRP_CW_PRIMARY_CW_VC 1362
+#define GRP_CW_RCS_JET_VC 1363
+#define GRP_CW_RGA_ACCEL_VC 1364
+#define GRP_CW_RIGHT_AFT_RHC_VC 1365
+#define GRP_CW_RIGHT_OMS_VC 1366
+#define GRP_CW_RIGHT_RCS_VC 1367
