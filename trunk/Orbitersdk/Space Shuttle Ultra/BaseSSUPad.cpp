@@ -104,7 +104,7 @@ bool BaseSSUPad::IsNight() const
 		oapiGetGlobalPos(Sun, &SunPosGlobal);
 		Global2Local(SunPosGlobal, SunPos);
 		double angle=acos(SunPos.y/length(SunPos))*DEG;
-		if(angle>85.0)
+		if(angle>80.0)
 			return true;
 	}
 	return false;
