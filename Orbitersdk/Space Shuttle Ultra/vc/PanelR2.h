@@ -54,6 +54,16 @@ namespace vc
 		StdSwitch3* pMPSHeIsolA[3];
 		StdSwitch3* pMPSHeIsolB[3];
 
+		StdSwitch3* pMPSPRPLTDumpSequence;
+		StdSwitch3* pMPSPRPLTBackupLH2vlv;
+
+		StdSwitch3* pPneuLEngHeXOVR;
+		StdSwitch3* pPneuHeIsol;
+
+		StdSwitch3* pHeInterconnect[3];
+
+		LockableLever2* pLH2UllagePress;
+
 		StandardTalkback* pAPUReadyToStart[3];
 
 		StandardTalkback* pETUmbDoorCLLatch;

@@ -32,7 +32,7 @@ namespace vc {
 		pCDR1->DefineVCGroup(MFDGROUPS[MDUID_CDR1]);
 		pCDR2->DefineVCGroup(MFDGROUPS[MDUID_CDR2]);
 
-		pFltCntlrPower->DefineSwitchGroup(GRP_F6switch_5_VC);
+		pFltCntlrPower->DefineSwitchGroup(GRP_F6SWITCH_5_VC);
 		pFltCntlrPower->SetInitialAnimState(0.5);
 		pFltCntlrPower->SetReference(_V(-0.734, 1.99, 14.685), switch_rot);
 		pFltCntlrPower->SetMouseRegion(0.372206f, 0.851179f, 0.428169f, 0.928952f);

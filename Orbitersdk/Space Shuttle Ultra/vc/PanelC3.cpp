@@ -43,6 +43,14 @@ namespace vc
 		pSSMELimitShutDn->SetLabel(0, "INHIBIT");
 		pSSMELimitShutDn->SetLabel(1, "AUTO");
 		pSSMELimitShutDn->SetLabel(2, "ENABLE");
+
+		Add( pSSMESDPBCover[0] = new StandardSwitchCover( _sts, "SSME Left S/D PB Cover" ) );
+		Add( pSSMESDPBCover[1] = new StandardSwitchCover( _sts, "SSME Ctr S/D PB Cover" ) );
+		Add( pSSMESDPBCover[2] = new StandardSwitchCover( _sts, "SSME Right S/D PB Cover" ) );
+
+		Add( pSSMESDPB[0] = new PushButton( _sts, "SSME Left S/D PB" ) );
+		Add( pSSMESDPB[1] = new PushButton( _sts, "SSME Ctr S/D PB" ) );
+		Add( pSSMESDPB[2] = new PushButton( _sts, "SSME Right S/D PB" ) );
 	}
 
 	PanelC3::~PanelC3()
@@ -157,45 +165,72 @@ namespace vc
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
 		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot);
 		pOMSArm[LEFT]->SetPullDirection(pull_dir);
-		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3b1_VC);
+		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3B1_VC);
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
 		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
 		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot);
 		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
-		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3b2_VC);
+		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3B2_VC);
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
 		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3b10_VC);
+		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3B10_VC);
 		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
 		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3b11_VC);
+		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3B11_VC);
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
 		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[LEFT]->SetPullDirection(pull_dir);
-		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3b23_VC);
+		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3B23_VC);
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[RIGHT]->SetPullDirection(pull_dir);
-		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3b24_VC);
+		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3B24_VC);
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
 
 		pSSMELimitShutDn->SetMouseRegion(0.302924f, 0.241994f, 0.357174f, 0.322577f);
 		pSSMELimitShutDn->SetReference(_V(-0.4785, 1.7175, 14.181), switch_rot);
-		pSSMELimitShutDn->DefineSwitchGroup(GRP_C3b13_VC);
+		pSSMELimitShutDn->DefineSwitchGroup(GRP_C3B13_VC);
 		pSSMELimitShutDn->SetInitialAnimState(0.5f);
+
+		pSSMESDPBCover[0]->SetMouseRegion( 0, 0.374513f, 0.282742f, 0.428198f, 0.344442f );
+		pSSMESDPBCover[0]->SetMouseRegion( 1, 0.368484f, 0.236416f, 0.423421f, 0.272399f );
+		pSSMESDPBCover[0]->SetReference( _V( -0.0545, 1.7466, 14.1836 ), switch_rot );
+		pSSMESDPBCover[0]->DefineCoverGroup( GRP_C3COVER1_VC );
+
+		pSSMESDPBCover[1]->SetMouseRegion( 0, 0.441879f, 0.260643f, 0.496332f, 0.321328f );
+		pSSMESDPBCover[1]->SetMouseRegion( 1, 0.440854f, 0.217779f, 0.493692f, 0.257521f );
+		pSSMESDPBCover[1]->SetReference( _V( -0.0174, 1.7466, 14.1954 ), switch_rot );
+		pSSMESDPBCover[1]->DefineCoverGroup( GRP_C3COVER2_VC );
+
+		pSSMESDPBCover[2]->SetMouseRegion( 0, 0.511570f, 0.281802f, 0.563658f, 0.340997f );
+		pSSMESDPBCover[2]->SetMouseRegion( 1, 0.514202f, 0.240377f, 0.563319f, 0.277074f );
+		pSSMESDPBCover[2]->SetReference( _V( 0.0197, 1.7466, 14.1826 ), switch_rot );
+		pSSMESDPBCover[2]->DefineCoverGroup( GRP_C3COVER3_VC );
+
+		pSSMESDPB[0]->SetMouseRegion( 0.380817f, 0.295599f, 0.420386f, 0.331035f );
+		pSSMESDPB[0]->SetReference( _V( -0.0545, 1.7466, 14.1623 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[0]->DefineGroup( GRP_LEFT_SSME_SHTDN_PB_VC );
+
+		pSSMESDPB[1]->SetMouseRegion( 0.448899f, 0.276360f, 0.488503f, 0.310700f );
+		pSSMESDPB[1]->SetReference( _V( -0.0174, 1.7466, 14.1736 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[1]->DefineGroup( GRP_CTR_SSME_SHTDN_PB_VC );
+
+		pSSMESDPB[2]->SetMouseRegion( 0.515987f, 0.296511f, 0.556983f, 0.331199f );
+		pSSMESDPB[2]->SetReference( _V( 0.197, 1.7466, 14.16 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[2]->DefineGroup( GRP_RIGHT_SSME_SHTDN_PB_VC );
 	}
 
 	void PanelC3::Realize()
@@ -230,9 +265,12 @@ namespace vc
 		pAirDataProbeDeploy[RIGHT]->ConnectPort(2, pBundle, 1); // DEPLOY
 		pAirDataProbeDeploy[RIGHT]->ConnectPort(1, pBundle, 2); // DEPLOY/HEAT
 
-		pBundle = STS()->BundleManager()->CreateBundle("LIMITS", 2);
+		pBundle = STS()->BundleManager()->CreateBundle( "C3_LIMITS_SSMEPB", 5 );
 		pSSMELimitShutDn->ConnectPort(1, pBundle, 0); // INHIBIT
 		pSSMELimitShutDn->ConnectPort(2, pBundle, 1); // ENABLE
+		pSSMESDPB[0]->output.Connect( pBundle, 2 );// L
+		pSSMESDPB[1]->output.Connect( pBundle, 3 );// C
+		pSSMESDPB[2]->output.Connect( pBundle, 4 );// R
 
 		// VC component DiscPorts need to be connected before Realize() is called
 		AtlantisPanel::Realize();
