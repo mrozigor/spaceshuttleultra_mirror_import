@@ -670,6 +670,8 @@ pActiveLatches(3, NULL)
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
+  
+  pSSME_SOP = NULL;
 
 	RealizeSubsystemConnections();
 
