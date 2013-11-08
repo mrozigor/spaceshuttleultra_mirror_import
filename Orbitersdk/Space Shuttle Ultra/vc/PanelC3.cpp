@@ -135,7 +135,7 @@ namespace vc
 			pPBIs[i]->SetBase(0, 0);
 			pPBIs[i]->SetSourceCoords(true, 0, 0);
 			pPBIs[i]->SetSourceCoords(false, 0, 14);
-			pPBIs[i]->SetDimensions(37, 11);
+			pPBIs[i]->SetDimensions(42, 14);
 		}
 		// PBI mouse regions
 		pPBIs[0]->SetMouseRegion(0.075540f, 0.421567f, 0.107636f, 0.455563f); //A
