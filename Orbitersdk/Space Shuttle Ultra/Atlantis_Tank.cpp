@@ -48,7 +48,7 @@ void Atlantis_Tank::UseBurntETTexture()
 void Atlantis_Tank::UseETTexture(const char* pszTexName)
 {
 	SURFHANDLE texture = oapiLoadTexture(pszTexName);
-	if(!oapiSetTexture(hTankMesh, 3, texture))
+	if(!oapiSetTexture(hDevTankMesh, 1, texture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
 }
 
@@ -196,9 +196,6 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		}
 		else ParseScenarioLineEx(line, status);
 	}
-
-	if(bUseBurntTexture) UseBurntETTexture();
-	if(pszScenarioTexture) UseETTexture(pszScenarioTexture);
 }
 
 void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
@@ -207,12 +204,17 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
 	if(scenarioMass>0.0) oapiWriteScenario_float(scn, "EMPTY_MASS", scenarioMass);
-	if(pszScenarioTexture!=NULL) oapiWriteScenario_string(scn, "ET_TEX_NAME", pszScenarioTexture);
+	if(pszScenarioTexture[0]!=NULL) oapiWriteScenario_string(scn, "ET_TEX_NAME", pszScenarioTexture);
 }
 
 void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
 {
 	hVis = vis;
+
+	hDevTankMesh = GetDevMesh(vis, mesh_idx);
+
+	if(bUseBurntTexture) UseBurntETTexture();
+	if(pszScenarioTexture[0]!=NULL) UseETTexture(pszScenarioTexture);
 }
 
 void Atlantis_Tank::clbkVisualDestroyed(VISHANDLE vis, int refcount)

@@ -48,6 +48,7 @@ private:
 	VISHANDLE hVis;
 
 	MESHHANDLE hTankMesh;
+	DEVMESHHANDLE hDevTankMesh;
 	UINT mesh_idx;
 	bool bUseBurntTexture;
 
