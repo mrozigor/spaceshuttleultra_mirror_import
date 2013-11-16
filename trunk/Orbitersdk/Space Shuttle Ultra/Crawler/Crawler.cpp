@@ -662,7 +662,7 @@ void Crawler::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_string(scn, "STEERING_COMMANDED", cbuf);
 
 	oapiWriteScenario_float(scn, "JACK_HEIGHT", jackHeight);
-	oapiWriteScenario_float(scn, "TARGET_JACK_INDEX", targetJackHeightIndex);
+	oapiWriteScenario_int(scn, "TARGET_JACK_INDEX", targetJackHeightIndex);
 	sprintf_s(cbuf, 255, "%f %f", curFrontHeight, curBackHeight);
 	//oapiWriteScenario_string(scn, "HEIGHT", cbuf);
 	//sprintf_s(cbuf, 255, "%f %f", curFrontAngle, curBackAngle);
