@@ -4463,19 +4463,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		double alvoltage = AileronCommand.GetVoltage();
 		// set animations corresponding to aerosurface positions
 		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (ElevonCommand.GetVoltage()+1.0)/2.0);
-
-		if(pSimpleGPC->GetMajorMode() == 801)
-		{
-			SetControlSurfaceLevel(AIRCTRL_RUDDER,ElevonCommand.GetVoltage());
-			//SetControlSurfaceLevel(AIRCTRL_FLAP,ElevonCommand.GetVoltage());
-		}
-		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		//SetAnimation(anim_elev, (AileronCommand.GetVoltage() +1.0)/2.0);
-
-		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
-			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
-		
+		SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
 	}
 
 
