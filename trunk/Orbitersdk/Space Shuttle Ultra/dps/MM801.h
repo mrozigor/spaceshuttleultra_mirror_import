@@ -19,18 +19,26 @@ namespace dps
 			virtual bool ItemInput(int spec, int item, const char* Data);
 			//virtual bool ExecPressed(int spec);
 			virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
-			std::string ElevonVoltage2DegreesString(float voltage) const;
-			std::string RudderVoltage2DegreesString(float voltage) const;
 
 		private:
+			enum AEROSURFACE_DRIVE_TARGET {FV1, FV2, FV3}; // during aerosurface drive, aerosurfaces cycle between FV-1 and FV-2 positions, and are driven to FV-3 position at end of test
+
+			double GetAerosurfaceCommand(double curTarget, double DeltaT, AEROSURFACE_DRIVE_TARGET& targetIdx, const double RATE, const double* POSITIONS);
+			void PrintElevonPos(double pos, char* buff) const;
+			void PrintRudderPos(double pos, char* buff) const;
+			void PrintSpeedbrakePos(double pos, char* buff) const;
+
+
 			DiscOutPort ElevonCommand;
-			DiscOutPort AileronCommand;
 			DiscInPort ElevonCommandRead;
-			DiscInPort AileronCommandRead;
-			bool bFCSTestActive;
-			bool bElevonMoveUpwards;
-			bool bParkElevons;
-			
+			//DiscInPort AileronCommandRead;
+			DiscOutPort AileronCommand;
+
+			bool bFCSTestActive, bFCSTestEnding;
+			AEROSURFACE_DRIVE_TARGET ElevonTargetIdx;
+			AEROSURFACE_DRIVE_TARGET RudderTargetIdx;
+			AEROSURFACE_DRIVE_TARGET SpeedbrakeTargetIdx;
+			double ElevonTarget, RudderTarget, SpeedbrakeTarget;
 	};
 
 

@@ -1,17 +1,21 @@
 #include "MM801.h"
 #include "../Atlantis.h"
+#include <UltraMath.h>
 
-#define ELEVON_MOVE_SPEED 0.275
+const double ELEVON_RATE = 5.8; // rate in deg/sec
+const double RUDDER_RATE = 5.0; // rate in deg/sec
+const double SPEEDBRAKE_RATE = 2.7/.986; // rate in %/sec
+const double ELEVON_POSITIONS[3] = {18.0, -33.0, -7.5}; // angles in degrees
+const double RUDDER_POSITIONS[3] = {5.0, -5.0, 0.0}; // angles in degrees
+const double SPEEDBRAKE_POSITIONS[3] = {10.0/.986, 2.0/.986, 10.0/.986}; // deflection in percentage
 
 namespace dps
 {
 	MM801::MM801(SimpleGPCSystem* _gpc)
-		: SimpleGPCSoftware(_gpc,"MM801")
+	: SimpleGPCSoftware(_gpc,"MM801"),
+	  ElevonTarget(0.0), RudderTarget(0.0), SpeedbrakeTarget(0.0)
 	{
 		bFCSTestActive = false;
-		bElevonMoveUpwards = false;
-		bParkElevons = false;
-
 	}
 
 	MM801::~MM801()
@@ -25,7 +29,7 @@ namespace dps
 		ElevonCommand.Connect(pBundle,0);
 		AileronCommand.Connect(pBundle,1);
 		ElevonCommandRead.Connect(pBundle,0);
-		AileronCommandRead.Connect(pBundle,1);
+		//AileronCommandRead.Connect(pBundle,1);
 	}
 
 	bool MM801::OnMajorModeChange(unsigned int newMajorMode)
@@ -122,48 +126,36 @@ namespace dps
 
 
 		//ACTIVE STRING HERE
-		if(bFCSTestActive && !bParkElevons)
-			pMDU->mvprint(38,9,"*");
-
-		if(bParkElevons)
-			pMDU->mvprint(48,9,"*");
+		if(bFCSTestActive) {
+			if(ElevonTargetIdx != FV3) pMDU->mvprint(38,9,"*");
+			else pMDU->mvprint(48,9,"*");
+		}
 
 		
 		
 		
 		//FCS COMMAND
-		if(bElevonMoveUpwards && !bParkElevons && bFCSTestActive)
-		{
-			pMDU->mvprint(28,13,"U18.0");		
-			pMDU->mvprint(28,14,"U18.0");
-			pMDU->mvprint(28,15,"U18.0");
-			pMDU->mvprint(28,16,"U18.0");
-			pMDU->mvprint(28,17,"R45.0");
-			pMDU->mvprint(28,18,"100.0");
-			pMDU->mvprint(31,19,"UP");
-		}
-
-		if(!bElevonMoveUpwards && !bParkElevons && bFCSTestActive)
-		{
-			pMDU->mvprint(28,13,"D33.0");		
-			pMDU->mvprint(28,14,"D33.0");
-			pMDU->mvprint(28,15,"D33.0");
-			pMDU->mvprint(28,16,"D33.0");
-			pMDU->mvprint(28,17,"L45.0");
-			pMDU->mvprint(28,18,"000.0");
-			pMDU->mvprint(31,19,"DN");
-		}
-
+		char buff[50];
+		PrintElevonPos(ElevonTarget, buff);
+		pMDU->mvprint(28, 13, buff);
+		pMDU->mvprint(28, 14, buff);
+		pMDU->mvprint(28, 15, buff);
+		pMDU->mvprint(28, 16, buff);
+		PrintRudderPos(RudderTarget, buff);
+		pMDU->mvprint(28, 17, buff);
+		PrintSpeedbrakePos(SpeedbrakeTarget, buff);
+		pMDU->mvprint(28, 18, buff);
 		//FCS ACTUAL POS		
-		pMDU->mvprint(35,13,ElevonVoltage2DegreesString(ElevonCommandRead.GetVoltage()).c_str());
-		pMDU->mvprint(35,14,ElevonVoltage2DegreesString(ElevonCommandRead.GetVoltage()).c_str());
-		pMDU->mvprint(35,15,ElevonVoltage2DegreesString(ElevonCommandRead.GetVoltage()).c_str());
-		pMDU->mvprint(35,16,ElevonVoltage2DegreesString(ElevonCommandRead.GetVoltage()).c_str());
-		pMDU->mvprint(35,17,RudderVoltage2DegreesString(ElevonCommandRead.GetVoltage()).c_str());
-
-
-
-
+		PrintElevonPos(STS()->aerosurfaces.leftElevon, buff);
+		pMDU->mvprint(35,13,buff);
+		pMDU->mvprint(35,14,buff);
+		PrintElevonPos(STS()->aerosurfaces.rightElevon, buff);
+		pMDU->mvprint(35,15,buff);
+		pMDU->mvprint(35,16,buff);
+		PrintRudderPos(STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1, buff);
+		pMDU->mvprint(35,17,buff);
+		PrintSpeedbrakePos(STS()->GetActSpeedbrakePosition()*100.0, buff);
+		pMDU->mvprint(35,18,buff);
 
 		return true;
 	}
@@ -173,13 +165,23 @@ namespace dps
 		if(item == 10 && STS()->HydraulicsOK())
 		{
 			bFCSTestActive = true;
-			bElevonMoveUpwards = false;
+			bFCSTestEnding = false;
+			ElevonTargetIdx = FV1;
+			RudderTargetIdx = FV1;
+			SpeedbrakeTargetIdx = FV1;
+
+			ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
+			RudderTarget = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
+			SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
 			return true;
 		}
 
 		if(item == 11)
 		{
-			bParkElevons = true;
+			bFCSTestEnding = true;
+			ElevonTargetIdx = FV3;
+			RudderTargetIdx = FV3;
+			SpeedbrakeTargetIdx = FV3;
 			return true;
 		}
 		return false;
@@ -187,115 +189,62 @@ namespace dps
 
 	void MM801::OnPreStep(double SimT, double DeltaT, double MJD)
 	{
-		double actual_voltage = ElevonCommandRead.GetVoltage();
+		//double ElevonPos = ElevonCommandRead.GetVoltage()*33.0;
+		//double RudderPos = RudderCommandRead.GetVoltage()*27.1;
+		//double SpeedbrakePos = SpeedbrakeCommandRead.GetVoltage()*100.0;
 		
 		if(bFCSTestActive && STS()->HydraulicsOK())
 		{
-			if(bElevonMoveUpwards)
-				ElevonCommand.SetLine(static_cast<float>(actual_voltage+ELEVON_MOVE_SPEED*DeltaT));
+			ElevonTarget = GetAerosurfaceCommand(ElevonTarget, DeltaT, ElevonTargetIdx, ELEVON_RATE, ELEVON_POSITIONS);
+			ElevonCommand.SetLine(static_cast<float>(ElevonTarget/33.0));
 
-			if(!bElevonMoveUpwards)
-				ElevonCommand.SetLine(static_cast<float>(actual_voltage-ELEVON_MOVE_SPEED*DeltaT));
+			RudderTarget = GetAerosurfaceCommand(RudderTarget, DeltaT, RudderTargetIdx, RUDDER_RATE, RUDDER_POSITIONS);
+			STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, RudderTarget/27.1);
+			
+			SpeedbrakeTarget = GetAerosurfaceCommand(SpeedbrakeTarget, DeltaT, SpeedbrakeTargetIdx, SPEEDBRAKE_RATE, SPEEDBRAKE_POSITIONS);
+			STS()->SetSpeedbrake(SpeedbrakeTarget/100.0);
+			
+			AileronCommand.SetLine(0.0f);
 
-			if(bParkElevons)
-			{
-				if(actual_voltage > 0)
-					ElevonCommand.SetLine(static_cast<float>(max(0,actual_voltage-ELEVON_MOVE_SPEED*DeltaT)));
-
-				if(actual_voltage < 0)
-					ElevonCommand.SetLine(static_cast<float>(min(0,actual_voltage+ELEVON_MOVE_SPEED*DeltaT)));
-			}
-
-			//WHY 0.1f? Because that way elevons imitating "stop motion" when fully up/down.
-			if(actual_voltage >= 1.0f)
-				bElevonMoveUpwards = false;
-
-			if(actual_voltage <= -1.0f)
-				bElevonMoveUpwards = true;
-
-			if(actual_voltage == 0.0f && bParkElevons)
-			{
-				bParkElevons=false;
-				bFCSTestActive=false;
+			// if all aerosurfaces have reached their final position, set test state to inactive
+			if(bFCSTestEnding) {
+				double elevonPos = STS()->aerosurfaces.leftElevon;
+				double rudderPos = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
+				double speedbrakePos = STS()->GetActSpeedbrakePosition()*100.0;
+				if(Eq(elevonPos, ELEVON_POSITIONS[FV3], 0.01) && Eq(rudderPos, RUDDER_POSITIONS[FV3], 0.01) && Eq(speedbrakePos, SPEEDBRAKE_POSITIONS[FV3], 0.001)) {
+					bFCSTestActive = false;
+					bFCSTestEnding = false;
+				}
 			}
 		}
-		
 	}
 
-	std::string MM801::ElevonVoltage2DegreesString(float voltage) const
+	double MM801::GetAerosurfaceCommand(double curTarget, double DeltaT, AEROSURFACE_DRIVE_TARGET& targetIdx, const double RATE, const double* POSITIONS)
 	{
-		if(voltage > 0)
-		{
-			float x = abs(voltage)*18.0f;
-			char buff[255];
-			std::string x_str;
-			sprintf(buff,"%.1lf",x);
-			x_str = buff;
-
-
-			if(x >= 10)
-				return "U" + x_str;
-
-			else
-				return "U0" + x_str;
+		double dir = sign(POSITIONS[targetIdx] - curTarget);
+		double newTarget = curTarget + dir*RATE*DeltaT;
+		if(!Eq(dir, sign(POSITIONS[targetIdx] - newTarget))) {
+			newTarget = POSITIONS[targetIdx];
+			if(targetIdx == FV1) targetIdx = FV2;
+			else if(targetIdx == FV2) targetIdx = FV1;
 		}
-
-		else if(voltage < 0)
-		{
-			float x = abs(voltage)*33.0f;
-			char buff[255];
-			std::string x_str;
-			sprintf(buff,"%.1lf",x);
-			x_str = buff;
-
-
-			if(x >= 10)
-				return "D" + x_str;
-
-			else
-				return "D0" + x_str;
-		}
-
-		else
-			return "000.0";
+		return newTarget;
 	}
 
-	std::string MM801::RudderVoltage2DegreesString(float voltage) const
+	void MM801::PrintElevonPos(double pos, char* buff) const
 	{
-		if(voltage > 0)
-		{
-			float x = abs(voltage)*45.0f;
-			char buff[255];
-			std::string x_str;
-			sprintf(buff,"%.1lf",x);
-			x_str = buff;
-
-
-			if(x >= 10)
-				return "R" + x_str;
-
-			else
-				return "R0" + x_str;
-		}
-
-		else if(voltage < 0)
-		{
-			float x = abs(voltage)*45.0f;
-			char buff[255];
-			std::string x_str;
-			sprintf(buff,"%.1lf",x);
-			x_str = buff;
-
-
-			if(x >= 10)
-				return "L" + x_str;
-
-			else
-				return "L0" + x_str;
-		}
-
-		else
-			return "000.0";
+		if(pos >= 0) sprintf(buff,"D%04.1f",pos);
+		else sprintf(buff,"U%04.1f",-pos);
 	}
 
+	void MM801::PrintRudderPos(double pos, char* buff) const
+	{
+		if(pos >= 0) sprintf(buff,"R%04.1f",pos);
+		else sprintf(buff,"L%04.1f",-pos);
+	}
+
+	void MM801::PrintSpeedbrakePos(double pos, char* buff) const
+	{
+		sprintf(buff, "%05.1f", pos);
+	}
 };
