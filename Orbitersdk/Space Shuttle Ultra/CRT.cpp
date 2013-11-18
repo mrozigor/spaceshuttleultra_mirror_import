@@ -155,11 +155,13 @@ CRT::~CRT ()
 	DeleteObject(hCRTFont);
 
 	DeleteObject( GreenBrush );
+	DeleteObject( TurquoiseBrush );
 	DeleteObject( WhiteBrush );
 	DeleteObject( BlackBrush );
 	DeleteObject( RedBrush );
 	DeleteObject( WhitePen );
 	DeleteObject( GreenPen );
+	DeleteObject( TurquoisePen );
 	DeleteObject( RedPen );
 	DeleteObject( BlackPen );
 	return;
@@ -725,6 +727,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 122, round( 238 - (0.37 * dNum) ), 135, 238 );
 
 	RestoreDC(hDC, save);
+	DeleteObject(ArialFont);
 }
 
 void CRT::SPI(HDC hDC)
@@ -1363,6 +1366,7 @@ void CRT::APUHYD(HDC hDC)
 	}
 
 	RestoreDC(hDC, save);
+	DeleteObject(ArialFont);
 	//DeleteObject(GreenBrush);
 	//DeleteObject(BlackBrush);
 	//DeleteObject(GreenPen);
