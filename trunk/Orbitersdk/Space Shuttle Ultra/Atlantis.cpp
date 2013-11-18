@@ -5927,7 +5927,8 @@ bool Atlantis::clbkLoadVC (int id)
 	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
     SetCameraOffset (_V(orbiter_ofs.x-2.02,orbiter_ofs.y+1.95,orbiter_ofs.z+11.72));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION);
+	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION);
+	else oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION);
 
 	//HideMidDeck();
 
@@ -5938,7 +5939,8 @@ bool Atlantis::clbkLoadVC (int id)
 	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
     SetCameraOffset (_V(orbiter_ofs.x+2.02,orbiter_ofs.y+1.95,orbiter_ofs.z+11.72));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
+	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
+	oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
 
 	//HideMidDeck();
 
@@ -5948,7 +5950,8 @@ bool Atlantis::clbkLoadVC (int id)
 	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
     SetCameraOffset (_V(orbiter_ofs.x-2.43,orbiter_ofs.y+2.02,orbiter_ofs.z-6.25));
 	if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
+	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
+	oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
 
 	//HideMidDeck();
 
@@ -5958,7 +5961,8 @@ bool Atlantis::clbkLoadVC (int id)
 	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
     SetCameraOffset (_V(orbiter_ofs.x+2.43,orbiter_ofs.y+2.02,orbiter_ofs.z-6.25));
     if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
+	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
+	oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
 
 	//HideMidDeck();
 
