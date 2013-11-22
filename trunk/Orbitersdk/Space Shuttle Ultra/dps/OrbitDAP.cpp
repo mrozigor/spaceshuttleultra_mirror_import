@@ -400,8 +400,6 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
 	bool RCSWraparound=(abs(rollDelta)>2.05 || abs(pitchDelta)>2.05 || abs(yawDelta)>2.05);
 
-	sprintf_s(oapiDebugString(), 255, "OMSTVC: %f %f %f \t%f %f %f \t%f %f %f", pitchDelta, yawDelta, rollDelta, Rates.data[PITCH], Rates.data[YAW], Rates.data[ROLL], ATT_ERR.data[PITCH], ATT_ERR.data[YAW], ATT_ERR.data[ROLL]);
-
 	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
 	double dYaw=OMSTVCControlY.Step(-yawDelta, SimDT);
 	double dRoll = OMSTVCControlR.Step(rollDelta, SimDT);
@@ -424,6 +422,10 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 
 	if(RCSWraparound) SetRates(Rates, SimDT);
 	else if(ControlMode!=BOTH_OMS) SetRates(_V(0.0, 0.0, Rates.data[ROLL]), SimDT); //for single-engine burns, use RCS for roll control
+	else {
+		// turn off RCS thrusters
+		for(int i=0;i<3;i++) RotThrusterCommands[i].ResetLine();
+	}
 }
 
 bool OrbitDAP::GimbalOMS(SIDE side, double pitch, double yaw)
