@@ -1161,12 +1161,17 @@ double AerojetDAP::CalculateCurrentLiftBank() const
 	double gamma = asin(horizonVel.y/length(horizonVel));
 	
 	VECTOR3 liftVec, horLiftVec;
-	STS()->GetLiftVector(liftVec);
+	bool bLift = STS()->GetLiftVector(liftVec);
 	liftVec = RotateVectorX(liftVec, -gamma*DEG);
-	STS()->HorizonRot(liftVec, horLiftVec);
-	double bankSign = -sign(STS()->GetBank());
-	double liftBank = acos(horLiftVec.y/length(horLiftVec));
-	return DEG*bankSign*liftBank;
+	if(bLift) {
+		STS()->HorizonRot(liftVec, horLiftVec);
+		double bankSign = -sign(STS()->GetBank());
+		double liftBank = acos(horLiftVec.y/length(horLiftVec));
+		return DEG*bankSign*liftBank;
+	}
+	else { // no lift, so just return normal bank angle
+		return -DEG*STS()->GetBank();
+	}
 }
 
 double AerojetDAP::CalculateRequiredLiftBank(double tgtVAcc) const

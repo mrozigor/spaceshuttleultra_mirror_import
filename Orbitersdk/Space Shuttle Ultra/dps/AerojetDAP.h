@@ -226,6 +226,7 @@ private:
 	/**
 	 * Calculate bank angle 'seen' by lift vector
 	 * This is not the same as normal bank angle, because shuttle flies at high AOA (and lift vector is perpendicular to velocity, not direction)
+	 * Returns normal bank angle at high altitude (when atmosphere is thin and there is no lift)
 	 * Returns (positive) value in degrees
 	 */
 	double CalculateCurrentLiftBank() const;
