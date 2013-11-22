@@ -473,6 +473,15 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			// reduce roll gains 
 			Roll_AileronRoll.SetGains(0.10, 0.00, 0.01);
 		}
+		else {
+			// initialize both pitch and roll/yaw channels to AUTO
+			DiscOutPort port;
+			pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
+			port.Connect(pBundle, 0); // PITCH AUTO
+			port.SetLine();
+			port.Connect(pBundle, 2); // ROLL/YAW AUTO
+			port.SetLine();
+		}
 		return true;
 	}
 	return false;

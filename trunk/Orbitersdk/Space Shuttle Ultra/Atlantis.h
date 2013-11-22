@@ -1156,10 +1156,6 @@ private:
 	DiscOutPort SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
-	DiscInPort PitchAutoIn, RollYawAutoIn;
-	//DiscOutPort PitchAutoOut, RollYawAutoOut;
-	//DiscInPort PitchCSSIn, RollYawCSSIn;
-	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort SpdbkThrotPort;

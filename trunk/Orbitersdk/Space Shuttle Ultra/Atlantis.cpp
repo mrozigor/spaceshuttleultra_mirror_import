@@ -4070,16 +4070,6 @@ void Atlantis::clbkPostCreation ()
 		SpdbkThrotAutoOut.SetLine();
 	}
 
-	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-	//PitchAutoOut.Connect(pBundle, 0);
-	PitchAutoIn.Connect(pBundle, 0);
-	//PitchCSSOut.Connect(pBundle, 1);
-	//PitchCSSIn.Connect(pBundle, 1);
-	//RollYawAutoOut.Connect(pBundle, 2);
-	RollYawAutoIn.Connect(pBundle, 2);
-	//RollYawCSSOut.Connect(pBundle, 3);
-	//RollYawCSSIn.Connect(pBundle, 3);
-
 	pBundle=BundleManager()->CreateBundle("Controllers", 16);
 	AftSense.Connect(pBundle, 0);
 	CdrFltCntlrPwr.Connect(pBundle, 1);
