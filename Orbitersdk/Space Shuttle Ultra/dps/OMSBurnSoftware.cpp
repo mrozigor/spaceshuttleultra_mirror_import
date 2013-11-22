@@ -205,6 +205,7 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 		WT=STS()->GetMass()*kg_to_pounds;
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
+			MnvrToBurnAtt = false;
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
