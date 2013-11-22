@@ -1,5 +1,5 @@
 BEGIN_DESC
-Orbital planes aligned for rendezvous following the NC4 burn.  Use STS-Guidance to conduct a rendezvous with the ISS.
+Orbital planes aligned for rendezvous following the NC4 burn. Use the SPEC 34 ORBIT TGT display to rendezvous with the ISS.
 END_DESC
 
 BEGIN_ENVIRONMENT
