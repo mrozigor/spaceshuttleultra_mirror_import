@@ -24,13 +24,6 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	}
 	SRBGimbal[0][ROLL].SetGains(0.75, 0.05, 0.0);
 	SRBGimbal[1][ROLL].SetGains(-0.75, -0.05, 0.0);
-	for(int i=0;i<3;i++) {
-		SSMEGimbal[i][PITCH].SetGains(-0.25, -0.05, 0.0);
-		SSMEGimbal[i][YAW].SetGains(-0.25, -0.05, 0.0);
-	}
-	SSMEGimbal[0][ROLL].SetGains(0.0, 0.0, 0.0);
-	SSMEGimbal[1][ROLL].SetGains(0.5, 0.10, 0.0);
-	SSMEGimbal[2][ROLL].SetGains(-0.5, -0.10, 0.0);
 
 	SSME_throttle_event[0] = false;
 	SSME_throttle_event[1] = false;
@@ -253,12 +246,19 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	VECTOR3 AngularVelocity;
 	STS()->GetAngularVel(AngularVelocity);
 	VECTOR3 degRateError = degReqdRates - AngularVelocity*DEG;
+	
+	// see Section 5.4.3.4 of Ascent Guidance & Flight Control Workbook for more information on how roll is added to SSME gimbal angles
+	// TODO: handle engine failures
+	double pitchGimbal[3], yawGimbal[3];
+	pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+	yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
+	pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+	yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
+	pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+	yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
 
 	for(int i=0;i<3;i++) {
-		double pitchGimbal = SSMEGimbal[i][PITCH].Step(degRateError.data[PITCH], DeltaT);
-		double yawGimbal = SSMEGimbal[i][YAW].Step(degRateError.data[YAW], DeltaT);
-		double rollGimbal = SSMEGimbal[i][ROLL].Step(degRateError.data[ROLL], DeltaT);
-		STS()->SetSSMEGimbalAngles(i+1, pitchGimbal+rollGimbal, yawGimbal);
+		STS()->SetSSMEGimbalAngles(i+1, pitchGimbal[i], yawGimbal[i]);
 	}
 }
 void AscentGuidance::FirstStageRateCommand()

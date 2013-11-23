@@ -119,7 +119,7 @@ private:
 
 	VECTOR3 degReqdRates;
 
-	PIDControl SSMEGimbal[3][3], SRBGimbal[2][3];
+	PIDControl SRBGimbal[2][3];
 
 	// copied from Atlantis.h
 	double radTargetHeading, TAp, TPe, TTrA, TEcc, TgtRad;
