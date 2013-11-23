@@ -406,7 +406,6 @@ public:
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
-	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
 	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp);
 	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
 	virtual int clbkGeneric(int msgid = 0, int prm = 0, void *context = 0);
