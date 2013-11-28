@@ -1,0 +1,5 @@
+V1.20(Revision 130): 
+======================
+* Rescaled meshes, now the orbiter has the correct size in Orbiter.
+* Time display in Panel O3 working. 
+* Air data probe deployment animation
