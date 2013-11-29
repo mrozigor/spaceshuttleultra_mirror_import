@@ -1,0 +1,9 @@
+Preset 1: OTV-070, aft engine compartment and RH TSM view
+Preset 2: OTV-001, GOX Vent Arm and top ET view
+Preset 3: OTV-055, aft stack view from MLP Side 3
+Preset 4: OTV-060, LC-39A water tower camera overlooking GOX Vent Arm
+Preset 5: CS-6(OTV-048), LC-39A LOX storage facility
+Preset 6: OTV-038, LC-39A LH2 storage facility
+Preset 7: LC-39A East Pad Perimter camera(OTV-045)
+Preset 8: OTV-065, overlooking starboard side of stack from hardstand
+Preset 9: OTV-009, FSS 115' level, observing LH2 ET/Orbiter umbilical
