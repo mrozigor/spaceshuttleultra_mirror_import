@@ -259,6 +259,10 @@ Discovery:SpaceShuttleUltra
   CIE_chA bWDT 0 0
   CIE_chB bWDT 0 0
 @ENDSUBSYSTEM		;MPS_R
+@SUBSYSTEM ETUmbDoors
+  ET_DOORS 1.000000 1.000000
+  ET_DOOR_LATCHES 0.000000 1.000000 1.000000
+@ENDSUBSYSTEM		;ETUmbDoors
   @PANEL R2
   "Boiler1 N2 Supply" ON
   "Boiler2 N2 Supply" ON
