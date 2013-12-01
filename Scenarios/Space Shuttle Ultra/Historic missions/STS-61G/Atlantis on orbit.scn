@@ -483,7 +483,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "PYROS Cp" [0]
   @ENDPANEL 
 END
-CISS_CentaurG_Prime:Spacecraft3
+CISS_CentaurG_Prime:Spacecraft\Spacecraft3
   STATUS Orbiting Earth
   RPOS -158584.82 -6472750.27 1859666.42
   RVEL -7555.537 554.401 1312.219
@@ -503,7 +503,7 @@ CISS_CentaurG_Prime:Spacecraft3
   SEQ 4 -2 0.000000
   SEQ 5 -2 0.000000
 END
-CentaurG_Prime:Spacecraft3
+CentaurG_Prime:Spacecraft\Spacecraft3
   STATUS Orbiting Sun
   RPOS -147819093030.10 -6748460.86 16491143715.11
   RVEL -11351.219 555.131 -28395.464
