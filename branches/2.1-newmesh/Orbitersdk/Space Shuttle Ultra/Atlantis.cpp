@@ -1853,18 +1853,18 @@ void Atlantis::DefineAnimations (void)
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
-  static UINT RCargoDoorGrp[3] = {GRP_RIGHT_PLBD_EXT, GRP_RIGHT_PLBD_IN, GRP_RIGHT_AFT_RADIATORS};
-  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 3,
+  static UINT RCargoDoorGrp[4] = {GRP_STBD_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
+  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
     _V(2.80, 1.39, 0), _V(0, 0, 1), (float)(-175.5*RAD));
-  static UINT LCargoDoorGrp[3] = {GRP_LEFT_PLBD_EXT, GRP_LEFT_PLBD_IN, GRP_LEFT_AFT_RADIATORS};
-  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 3,
+  static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
+  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
     _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(175.5*RAD)); 
 
-  static UINT RRadiatorGrp[1] = {GRP_RIGHT_FWD_RADIATORS};
-  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 1,
+  static UINT RRadiatorGrp[2] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2};
+  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 2,
     _V(2.71, 1.82, 0), _V(0, 0, 1), (float)(35.5*RAD));
-  static UINT LRadiatorGrp[1] = {GRP_LEFT_FWD_RADIATORS};
-  MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 1,
+  static UINT LRadiatorGrp[2] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2};
+  MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 2,
     _V(-2.71, 1.82, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
   //080922, DaveS add: Added the pushrod animations to each door.
@@ -2018,10 +2018,10 @@ void Atlantis::DefineAnimations (void)
   static UINT ElevGrp_down[4] = {GRP_RIGHT_INBOARD_ELEVON,GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
   static MGROUP_ROTATE Elevator_down (midx, ElevGrp_down, 4,
     _V(-3.058,-1.88,-8.54), _V(1,0,0), (float)(18.0*RAD));
-  static UINT ElevDoorGrp_up[4] = {GRP_LEFT_INBOARD_SEAL_PANEL,GRP_LEFT_OUTBOARD_SEAL_PANEL,GRP_RIGHT_INBOARD_SEAL_PANEL,GRP_RIGHT_OUTBOARD_SEAL_PANEL};
+  static UINT ElevDoorGrp_up[4] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE ElevatorDoor_up (midx, ElevDoorGrp_up, 4,
     _V(0,-1.7,-8), _V(1,0,0), (float)(18.0*RAD));
-  static UINT ElevDoorGrp_down[4] = {GRP_LEFT_INBOARD_SEAL_PANEL,GRP_LEFT_OUTBOARD_SEAL_PANEL,GRP_RIGHT_INBOARD_SEAL_PANEL,GRP_RIGHT_OUTBOARD_SEAL_PANEL};
+  static UINT ElevDoorGrp_down[4] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE ElevatorDoor_down (midx, ElevDoorGrp_down, 4,
     _V(0,-1.7,-8), _V(1,0,0), (float)(5*RAD));
   anim_elev = CreateAnimation (0.5);
@@ -2044,14 +2044,14 @@ void Atlantis::DefineAnimations (void)
   static UINT LAileronGrp_up[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
   static MGROUP_ROTATE LAileron_up (midx, LAileronGrp_up, 2,
     _V(0,-1.88,-8.54), _V(-1,0,0), (float)(34.0*RAD));
-  static UINT LAileronDoorGrp_up[2] = {GRP_LEFT_INBOARD_SEAL_PANEL,GRP_LEFT_OUTBOARD_SEAL_PANEL};
+  static UINT LAileronDoorGrp_up[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE LAileronDoor_up (midx, LAileronDoorGrp_up, 2,
     _V(0,-1.7,-8), _V(-1,0,0), (float)(18.0*RAD));
 
   static UINT RAileronGrp_up[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
   static MGROUP_ROTATE RAileron_up (midx, RAileronGrp_up, 2,
     _V(0,-1.88,-8.54), _V(1,0,0), (float)(34.0*RAD));
-  static UINT RAileronDoorGrp_up[2] = {GRP_RIGHT_INBOARD_SEAL_PANEL,GRP_RIGHT_OUTBOARD_SEAL_PANEL};
+  static UINT RAileronDoorGrp_up[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE RAileronDoor_up (midx, RAileronDoorGrp_up, 2,
     _V(0,-1.7,-8), _V(1,0,0), (float)(18.0*RAD));
   
@@ -2059,14 +2059,14 @@ void Atlantis::DefineAnimations (void)
   static UINT LAileronGrp_down[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
   static MGROUP_ROTATE LAileron_down (midx, LAileronGrp_down, 2,
     _V(0,-2.137,-8.776), _V(-1,0,0), (float)(18.0*RAD));
-  static UINT LAileronDoorGrp_down[2] = {GRP_LEFT_INBOARD_SEAL_PANEL,GRP_LEFT_OUTBOARD_SEAL_PANEL};
+  static UINT LAileronDoorGrp_down[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE LAileronDoor_down (midx, LAileronDoorGrp_down, 2,
     _V(0,-1.798,-8.246), _V(-1,0,0), (float)(5*RAD));
 
   static UINT RAileronGrp_down[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
   static MGROUP_ROTATE RAileron_down (midx, RAileronGrp_down, 2,
     _V(0,-2.137,-8.776), _V(1,0,0), (float)(18.0*RAD));
-  static UINT RAileronDoorGrp_down[2] = {GRP_RIGHT_INBOARD_SEAL_PANEL,GRP_RIGHT_OUTBOARD_SEAL_PANEL};
+  static UINT RAileronDoorGrp_down[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE RAileronDoor_down (midx, RAileronDoorGrp_down, 2,
     _V(0,-1.798,-8.246), _V(1,0,0), (float)(5*RAD));
 
@@ -2182,8 +2182,8 @@ void Atlantis::DefineAnimations (void)
 
   // ***** 11 ET Umb Door animation *****
   // DaveS edit: still to be realigned
-  static UINT ETUmbLGrp[1] = {GRP_LEFT_ET_UMB_DOOR};
-  static UINT ETUmbRGrp[1] = {GRP_RIGHT_ET_UMB_DOOR};
+  static UINT ETUmbLGrp[1] = {GRP_ET_DOOR_LEFT};
+  static UINT ETUmbRGrp[1] = {GRP_ET_DOOR_RIGHT};
   static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
 	  UMBDOORL_REF, UMBDOOR_AXIS, (float)(+180.0*RAD));
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
@@ -2257,8 +2257,8 @@ void Atlantis::DefineAnimations (void)
 
   
 
-  static UINT ADPL_Grp[1] = {GRP_PROBEL};
-  static UINT ADPR_Grp[1] = {GRP_PROBER};
+  static UINT ADPL_Grp[1] = {GRP_LEFT_ADP};
+  static UINT ADPR_Grp[1] = {GRP_RIGHT_ADP};
 
   static MGROUP_ROTATE ADPL_Deploy (midx, ADPL_Grp, 1, PROBEL_REF, PROBE_AXIS, (float)(180.0 * RAD));
   static MGROUP_ROTATE ADPR_Deploy (midx, ADPR_Grp, 1, PROBER_REF, PROBE_AXIS, (float)(-180.0 * RAD));
@@ -2275,8 +2275,8 @@ void Atlantis::DefineAnimations (void)
   // Star tracker door animation
   // ======================================================
 
-  static UINT STZD_Grp[1] = {GRP_Z_STARTRACKDOOR};
-  static UINT STYD_Grp[1] = {GRP_Y_STARTRACKDOOR};
+  static UINT STZD_Grp[1] = {GRP_Z_STAR_TRACKER_DOOR};
+  static UINT STYD_Grp[1] = {GRP_Y_STAR_TRACKER_DOOR};
 
   static MGROUP_ROTATE STZD_Open (midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
   static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
@@ -7066,15 +7066,15 @@ void Atlantis::DefineKUBandAnimations()
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[1] = {GRP_DEA_KU};
-  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 1,
+  static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
+  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
     _V(2.59,1.155,11.82), _V(0,1,0), (float)(-145*RAD));
 
-  static UINT KuBand2Grp[1] = {GRP_Alpha_gimbal_KU};
+  static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
     _V(2.327,1.979,10.859), _V(0.504249,0,0.863558), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
-  static UINT KuBand3Grp[4] = {GRP_Beta_gimbal_boom_KU, GRP_Gimbal_lock_structure_KU, GRP_Dish_KU, GRP_Dish_receiver_supports_KU};
+  static UINT KuBand3Grp[4] = {GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
     _V(2.275,1.966,10.751), _V(-0.460305,0.866073,0.195029), (float)(23.25*RAD));//Data from the Ku band System Workbook
 

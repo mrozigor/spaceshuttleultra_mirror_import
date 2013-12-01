@@ -1,92 +1,119 @@
-// ========================================================
-// Mesh resource file for Orbiter.msh
-// Generated with meshc on Wed Mar 27 21:26:02 2013
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Sat Nov 30 16:14:06 2013
 
-// ========================================================
+// Input file: ../Meshes/SSU/Orbiter.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP 76
+#pragma once
 
-// Number of materials:
-#define NMAT 10
+const unsigned int NUMGRP = 107;
 
-// Number of textures:
-#define NTEX 3
+const unsigned int GRP_STBD_PLBD_EXTERIOR	=	0;	//STBD_PLBD_EXTERIOR
+const unsigned int GRP_PLB	=	1;	//PLB
+const unsigned int GRP_XO1307_BULKHEAD	=	2;	//Xo1307_BULKHEAD
+const unsigned int GRP_XO576_BULKHEAD	=	3;	//Xo576_BULKHEAD
+const unsigned int GRP_AFT_EVA_WINCH_HANDLE	=	4;	//AFT_EVA_WINCH_HANDLE
+const unsigned int GRP_FWD_EVA_WINCH_HOOK	=	5;	//FWD_EVA_WINCH_HOOK
+const unsigned int GRP_FWD_EVA_WINCH_HANDLE	=	6;	//FWD_EVA_WINCH_HANDLE
+const unsigned int GRP_FUSELAGE	=	7;	//FUSELAGE
+const unsigned int GRP_LEFT_PLBD_EXT	=	8;	//LEFT_PLBD_EXT
+const unsigned int GRP_STBD_PLBD_INTERIOR	=	9;	//STBD_PLBD_INTERIOR
+const unsigned int GRP_PORT_PLBD_INTERIOR	=	10;	//PORT_PLBD_INTERIOR
+const unsigned int GRP_STBD_FWD_RADIATOR_COOLANT_LINES	=	11;	//STBD_FWD_RADIATOR_COOLANT_LINES
+const unsigned int GRP_STBD_PLB_RADIATOR_4	=	12;	//STBD_PLB_RADIATOR_4
+const unsigned int GRP_PORT_PLB_RADIATOR_4	=	13;	//PORT_PLB_RADIATOR_4
+const unsigned int GRP_STBD_PLB_RADIATOR_1	=	14;	//STBD_PLB_RADIATOR_1
+const unsigned int GRP_STBD_PLB_RADIATOR_2	=	15;	//STBD_PLB_RADIATOR_2
+const unsigned int GRP_STBD_PLB_RADIATOR_3	=	16;	//STBD_PLB_RADIATOR_3
+const unsigned int GRP_PORT_PLB_RADIATOR_1	=	17;	//PORT_PLB_RADIATOR_1
+const unsigned int GRP_PORT_PLB_RADIATOR_2	=	18;	//PORT_PLB_RADIATOR_2
+const unsigned int GRP_FWD_HOOKS	=	19;	//FWD_HOOKS
+const unsigned int GRP_MID_FWD_HOOKS	=	20;	//MID_FWD_HOOKS
+const unsigned int GRP_MID_AFT_HOOKS	=	21;	//MID_AFT_HOOKS
+const unsigned int GRP_AFT_HOOKS	=	22;	//AFT_HOOKS
+const unsigned int GRP_FRCS_MODULE	=	23;	//FRCS_MODULE
+const unsigned int GRP_CAM_C	=	24;	//CAM_C
+const unsigned int GRP_XO1307_BULKHEADA	=	25;	//Xo1307_BULKHEAD
+const unsigned int GRP_WINDOWS	=	26;	//WINDOWS
+const unsigned int GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL	=	27;	//LEFT_OUTBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL	=	28;	//LEFT_INBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_ET_DOOR_LEFT	=	29;	//ET_DOOR_LEFT
+const unsigned int GRP_ET_DOOR_LEFT_DDM_ARM_AFT	=	30;	//ET_DOOR_LEFT_DDM_ARM_AFT
+const unsigned int GRP_ET_DOOR_LEFT_DDM_ARM_FWD	=	31;	//ET_DOOR_LEFT_DDM_ARM_FWD
+const unsigned int GRP_ET_DOOR_RIGHT	=	32;	//ET_DOOR_RIGHT
+const unsigned int GRP_ET_DOOR_RIGHT_DDM_ARM_AFT	=	33;	//ET_DOOR_RIGHT_DDM_ARM_AFT
+const unsigned int GRP_ET_DOOR_RIGHT_DDM_ARM_FWD	=	34;	//ET_DOOR_RIGHT_DDM_ARM_FWD
+const unsigned int GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL	=	35;	//RIGHT_OUTBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL	=	36;	//RIGHT_INBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_STARBOARD_AFT_AVS_DOOR_9	=	37;	//STARBOARD_AFT_AVS_DOOR_9
+const unsigned int GRP_STARBOARD_AFT_AVS_DOOR_8	=	38;	//STARBOARD_AFT_AVS_DOOR_8
+const unsigned int GRP_PORT_AFT_AVS_DOOR_8	=	39;	//PORT_AFT_AVS_DOOR_8
+const unsigned int GRP_PORT_AFT_AVS_DOOR_9	=	40;	//PORT_AFT_AVS_DOOR_9
+const unsigned int GRP_RIGHT_OUTBOARD_ELEVON	=	41;	//RIGHT_OUTBOARD_ELEVON
+const unsigned int GRP_RIGHT_INBOARD_ELEVON	=	42;	//RIGHT_INBOARD_ELEVON
+const unsigned int GRP_MIDBODY_PAYLOAD_UMBILICAL_PANELS	=	43;	//MIDBODY_PAYLOAD_UMBILICAL_PANELS
+const unsigned int GRP_STARBOARD_MIDBODY_AVS_DOOR_5	=	44;	//STARBOARD_MIDBODY_AVS_DOOR_5
+const unsigned int GRP_STARBOARD_MIDBODY_AVS_DOOR_6	=	45;	//STARBOARD_MIDBODY_AVS_DOOR_6
+const unsigned int GRP_STARBOARD_MIDBODY_AVS_DOOR_3	=	46;	//STARBOARD_MIDBODY_AVS_DOOR_3
+const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_3	=	47;	//PORT_MIDBODY_AVS_DOOR_3
+const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_6	=	48;	//PORT_MIDBODY_AVS_DOOR_6
+const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_5	=	49;	//PORT_MIDBODY_AVS_DOOR_5
+const unsigned int GRP_LEFT_INBOARD_ELEVON	=	50;	//LEFT_INBOARD_ELEVON
+const unsigned int GRP_LEFT_OUTBOARD_ELEVON	=	51;	//LEFT_OUTBOARD_ELEVON
+const unsigned int GRP_LEFT_MLG_DOOR	=	52;	//LEFT_MLG_DOOR
+const unsigned int GRP_STARTRACKERS	=	53;	//STARTRACKERS
+const unsigned int GRP_Z_STAR_TRACKER_DOOR	=	54;	//Z_STAR_TRACKER_DOOR
+const unsigned int GRP_Y_STAR_TRACKER_DOOR	=	55;	//Y_STAR_TRACKER_DOOR
+const unsigned int GRP_ET_DOOR_LEFT_DDM_LINK_ROD_FWD	=	56;	//ET_DOOR_LEFT_DDM_LINK_ROD_FWD
+const unsigned int GRP_ET_DOOR_LEFT_DDM_LINK_ROD_AFT	=	57;	//ET_DOOR_LEFT_DDM_LINK_ROD_AFT
+const unsigned int GRP_PORTDOOR_PULL	=	58;	//PORTDOOR_PULL
+const unsigned int GRP_PORT_CLAMP	=	59;	//PORT_CLAMP
+const unsigned int GRP_PORTPUSH_ROD	=	60;	//PORTPUSH_ROD
+const unsigned int GRP_VERTICAL_STABILIZER	=	61;	//VERTICAL_STABILIZER
+const unsigned int GRP_NLG_UPPER_TORQUE_ARM	=	62;	//NLG_UPPER_TORQUE_ARM
+const unsigned int GRP_NLG_LOWER_TORQUE_ARM	=	63;	//NLG_LOWER_TORQUE_ARM
+const unsigned int GRP_NLG_STRUT	=	64;	//NLG_STRUT
+const unsigned int GRP_LEFT_MLG_STRUT	=	65;	//LEFT_MLG_STRUT
+const unsigned int GRP_RIGHT_ADP	=	66;	//RIGHT_ADP
+const unsigned int GRP_SIDE_HATCH_EXTERIOR	=	67;	//SIDE_HATCH_EXTERIOR
+const unsigned int GRP_SSME_HEATSHIELDS	=	68;	//SSME_HEATSHIELDS
+const unsigned int GRP_PANTILT_CAM_A	=	69;	//PANTILT_CAM_A
+const unsigned int GRP_CAM_A	=	70;	//CAM_A
+const unsigned int GRP_CAM_B	=	71;	//CAM_B
+const unsigned int GRP_PANTILT_CAM_B	=	72;	//PANTILT_CAM_B
+const unsigned int GRP_CAM_D	=	73;	//CAM_D
+const unsigned int GRP_PANTILT_CAM_D	=	74;	//PANTILT_CAM_D
+const unsigned int GRP_PANTILT_CAM_C	=	75;	//PANTILT_CAM_C
+const unsigned int GRP_STBDPUSH_ROD	=	76;	//STBDPUSH_ROD
+const unsigned int GRP_STBD_CLAMP	=	77;	//STBD_CLAMP
+const unsigned int GRP_STBDDOOR_PULL	=	78;	//STBDDOOR_PULL
+const unsigned int GRP_BODYFLAP	=	79;	//BODYFLAP
+const unsigned int GRP_LEFT_MLG_SHOCK_STRUT	=	80;	//LEFT_MLG_SHOCK_STRUT
+const unsigned int GRP_LEFT_MLG_WHEELS	=	81;	//LEFT_MLG_WHEELS
+const unsigned int GRP_CENTER_SSME	=	82;	//CENTER_SSME
+const unsigned int GRP_LEFT_SSME	=	83;	//LEFT_SSME
+const unsigned int GRP_RIGHT_SSME	=	84;	//RIGHT_SSME
+const unsigned int GRP_EVA_THERMAL_COVER	=	85;	//EVA_THERMAL_COVER
+const unsigned int GRP_RIGHT_RSB_PANEL	=	86;	//RIGHT_RSB_PANEL  
+const unsigned int GRP_LEFT_RSB_PANEL	=	87;	//LEFT_RSB_PANEL  
+const unsigned int GRP_LEFT_NLG_DOOR	=	88;	//LEFT_NLG_DOOR
+const unsigned int GRP_RIGHT_NLG_DOOR	=	89;	//RIGHT_NLG_DOOR
+const unsigned int GRP_NLG_SHOCK_STRUT	=	90;	//NLG_SHOCK_STRUT
+const unsigned int GRP_NLG_WHEELS	=	91;	//NLG_WHEELS
+const unsigned int GRP_LEFT_ADP	=	92;	//LEFT_ADP
+const unsigned int GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT	=	93;	//ET_DOOR_RIGHT_DDM_LINK_ROD_AFT
+const unsigned int GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_FWD	=	94;	//ET_DOOR_RIGHT_DDM_LINK_ROD_FWD
+const unsigned int GRP_FWD_FUSELAGE	=	95;	//FWD_FUSELAGE
+const unsigned int GRP_TRACKBOX	=	96;	//TRACKBOX
+const unsigned int GRP_STARTRACKERSA	=	97;	//STARTRACKERS
+const unsigned int GRP_RIGHT_MLG_DOOR	=	98;	//RIGHT_MLG_DOOR
+const unsigned int GRP_RIGHT_MLG_STRUT	=	99;	//RIGHT_MLG_STRUT
+const unsigned int GRP_RIGHT_MLG_SHOCK_STRUT	=	100;	//RIGHT_MLG_SHOCK_STRUT
+const unsigned int GRP_RIGHT_MLG_WHEELS	=	101;	//RIGHT_MLG_WHEELS
+const unsigned int GRP_PORT_FWD_RADIATOR_COOLANT_LINES	=	102;	//PORT_FWD_RADIATOR_COOLANT_LINES
+const unsigned int GRP_PORT_PLB_RADIATOR_3	=	103;	//PORT_PLB_RADIATOR_3
+const unsigned int GRP_LOX_UMBILICAL_PANEL	=	104;	//LOX_UMBILICAL_PANEL
+const unsigned int GRP_LH2_UMBILICAL_PANEL	=	105;	//LH2_UMBILICAL_PANEL
+const unsigned int GRP_AFT_EVA_WINCH_HOOK	=	106;	//AFT_EVA_WINCH_HOOK
 
-// Named mesh groups:
-#define GRP_FUSELAGE 0
-#define GRP_PLB 1
-#define GRP_SIDE_HATCH 2
-#define GRP_box 3
-#define GRP_BODYFLAP 4
-#define GRP_RIGHT_PLBD_IN 5
-#define GRP_MIDBODY_PAYLOAD_UMBILICAL_PANELS 6
-#define GRP_LEFT_PLBD_IN 7
-#define GRP_RIGHT_INBOARD_SEAL_PANEL 8
-#define GRP_LEFT_PLBD_EXT 9
-#define GRP_RIGHT_INBOARD_ELEVON 10
-#define GRP_RIGHT_ET_UMB_DOOR 11
-#define GRP_LEFT_ET_UMB_DOOR 12
-#define GRP_LOMS 13
-#define GRP_CENTER_SSME 14
-#define GRP_LEFT_NLG_DOOR 15
-#define GRP_LEFT_MLG_DOOR 16
-#define GRP_RIGHT_MLG_DOOR 17
-#define GRP_RIGHT_NLG_DOOR 18
-#define GRP_NLG_WHEELS 19
-#define GRP_NLG_STRUT 20
-#define GRP_RIGHT_MLG_WHEELS 21
-#define GRP_RIGHT_MLG_STRUT 22
-#define GRP_LEFT_MLG_WHEELS 23
-#define GRP_LEFT_MLG_STRUT 24
-#define GRP_TRACKBOX 25
-#define GRP_PROBEL 26
-#define GRP_PROBER 27
-#define GRP_PANTILT_CAM_A 28
-#define GRP_CAM_A 29
-#define GRP_CAM_B 30
-#define GRP_PANTILT_CAM_B 31
-#define GRP_CAM_D 32
-#define GRP_PANTILT_CAM_D 33
-#define GRP_PANTILT_CAM_C 34
-#define GRP_CAM_C 35
-#define GRP_STARTRACKERS 36
-#define GRP_TRACKERPLATES 37
-#define GRP_Z_STARTRACKDOOR 38
-#define GRP_Y_STARTRACKDOOR 39
-#define GRP_RIGHT_OUTBOARD_SEAL_PANEL 40
-#define GRP_PORTPUSH_ROD 41
-#define GRP_PORT_CLAMP 42
-#define GRP_PORTDOOR_PULL 43
-#define GRP_STBDPUSH_ROD 44
-#define GRP_STBD_CLAMP 45
-#define GRP_STBDDOOR_PULL 46
-#define GRP_RIGHT_AVS_3 47
-#define GRP_RIGHT_AVS_5 48
-#define GRP_RIGHT_AVS_6 49
-#define GRP_LEFT_AVS_3 50
-#define GRP_LEFT_AVS_5 51
-#define GRP_LEFT_AVS_6 52
-#define GRP_HUDL 53
-#define GRP_HUDR 54
-#define GRP_WINDOWS 55
-#define GRP_RIGHT_OUTBOARD_ELEVON 56
-#define GRP_LEFT_FWD_RADIATORS 57
-#define GRP_RIGHT_FWD_RADIATORS 58
-#define GRP_RIGHT_AFT_RADIATORS 59
-#define GRP_LEFT_AFT_RADIATORS 60
-#define GRP_PLB_umbilical_covers 61
-#define GRP_LEFT_OUTBOARD_SEAL_PANEL 62
-#define GRP_LEFT_INBOARD_SEAL_PANEL 63
-#define GRP_LEFT_OUTBOARD_ELEVON 64
-#define GRP_LEFT_INBOARD_ELEVON 65
-#define GRP_FWD_HOOKS 66
-#define GRP_MID_FWD_HOOKS 67
-#define GRP_MID_AFT_HOOKS 68
-#define GRP_AFT_HOOKS 69
-#define GRP_RIGHT_PLBD_EXT 70
-#define GRP_LEFT_SSME 71
-#define GRP_RIGHT_SSME 72
-#define GRP_ROMS 73
-#define GRP_RIGHT_RSB_PANEL 74
-#define GRP_LEFT_RSB_PANEL 75
