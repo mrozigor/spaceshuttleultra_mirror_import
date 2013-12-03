@@ -854,6 +854,7 @@ pActiveLatches(3, NULL)
   hlaileron	= NULL;
   hraileron	= NULL;
 
+  orbiter_ofs = _V(0, 0, 0);
   currentCoG = _V(0.0, 0.0, 0.0);
   
   // preload meshes
@@ -1275,7 +1276,7 @@ void Atlantis::SetLaunchConfiguration (void)
 
   // ************************ visual parameters **********************************
 
-  AddOrbiterVisual (OFS_ZERO);
+  AddOrbiterVisual();
   //AddTankVisual    (OFS_LAUNCH_TANK);
   //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
@@ -1362,7 +1363,7 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // status has to be updated before AddTankVisual is called to update ET texture
   status = STATE_STAGE2;
 
-  AddOrbiterVisual (OFS_ZERO);
+  AddOrbiterVisual();
   //AddTankVisual    (OFS_WITHTANK_TANK);
 
   //status = STATE_STAGE2;
@@ -1459,7 +1460,7 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   // ************************ visual parameters **********************************
 
-  AddOrbiterVisual (OFS_ZERO);
+  AddOrbiterVisual();
   
 
   status = 3;
@@ -2541,10 +2542,9 @@ bool Atlantis::SatStowed() const
 	return false;
 }
 
-void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
+void Atlantis::AddOrbiterVisual()
 {
-  orbiter_ofs = ofs;
-  huds.hudcnt = _V(ofs.x-0.671257, ofs.y+2.523535, ofs.z+14.969);
+  huds.hudcnt = _V(-0.671257, 2.523535, 14.969);
 
   bHasODS = pMission->HasODS();
   bHasExtAL = pMission->HasExtAL();
@@ -2553,16 +2553,15 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 
     // ***** Load meshes
 
-    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &ofs);
+    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &OFS_ZERO);
     SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
 
-    mesh_orbiter = AddMesh (hOrbiterMesh, &ofs);
+    mesh_orbiter = AddMesh (hOrbiterMesh, &OFS_ZERO);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
 	//ADD REENTRY MESH
-	VECTOR3 ofset = _V(0,0,0);
 	oapiWriteLog("OFSET REENTRY SET");
-	mesh_heatshield = AddMesh(hHeatShieldMesh,&ofset);
+	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
 	oapiWriteLog("REENTRY MESH ADDED");
 
 	if(pMission->WingPaintingEnabled()) {
@@ -2571,7 +2570,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		PaintMarkings (insignia_tex);
 	}
 
-    mesh_vc = AddMesh (hOrbiterVCMesh, &ofs);
+    mesh_vc = AddMesh (hOrbiterVCMesh, &OFS_ZERO);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
 	/*if(RMS) {
@@ -2580,16 +2579,16 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
 	}*/
 
-	AddKUBandVisual(ofs);
+	AddKUBandVisual(OFS_ZERO);
 
 	if(mesh_extal == MESH_UNDEFINED) {
-		VECTOR3 x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
+		VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
 		mesh_extal = AddMesh(hExtALMesh, &x);
 		SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
 
 	if(mesh_ods == MESH_UNDEFINED) {
-		VECTOR3 x = ofs + _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
+		VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
 		mesh_ods = AddMesh(hODSMesh, &x);
 		SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 	}
@@ -2603,13 +2602,13 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 		else HideExtAL();
 	}
 
-	mesh_middeck = AddMesh(hMidDeckMesh, &ofs);
+	mesh_middeck = AddMesh(hMidDeckMesh, &OFS_ZERO);
 	//Only make visible when actually inside the mid deck
 	bMidDeckVisible = false;
 	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
 
-	VECTOR3 chute_ofs=orbiter_ofs+CHUTE_ATTACH_POINT;
+	VECTOR3 chute_ofs=CHUTE_ATTACH_POINT;
 	mesh_dragchute=AddMesh(hDragChuteMesh, &chute_ofs);
 	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
 
@@ -2617,13 +2616,13 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	*/
 	if(pA7A8Panel)
 	{
-		pA7A8Panel->AddMeshes(ofs);
+		pA7A8Panel->AddMeshes(OFS_ZERO);
 		// functions below should be called by panel group
 		/*pA7A8Panel->DefineVC();
 		pA7A8Panel->DefineVCAnimations(mesh_vc);
 		pA7A8Panel->Realize();*/
 	}
-	if(pPanelA8) pPanelA8->AddMeshes(ofs);
+	if(pPanelA8) pPanelA8->AddMeshes(OFS_ZERO);
 
 	pgForward.DefineVC();
 	pgForward.DefineVCAnimations(mesh_vc);
@@ -2656,7 +2655,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     huds.nmesh = mesh_vc;
 
     if (do_cargostatic) {
-      VECTOR3 cofs = ofs + cargo_static_ofs;
+      VECTOR3 cofs = cargo_static_ofs;
 	  if(mesh_cargo_static  == MESH_UNDEFINED)
 	  {
 		mesh_cargo_static = AddMesh (cargo_static_mesh_name, &cofs);
@@ -2681,7 +2680,7 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
     // ***** Docking definitions
 
 	VECTOR3 DockPos = _V(ORBITER_DOCKPOS.x, ORBITER_DOCKPOS.y, pMission->GetODSZPos());
-	SetDockParams (ofs+DockPos, _V(0,1,0), _V(0,0,-1));
+	SetDockParams (DockPos, _V(0,1,0), _V(0,0,-1));
 
     // ***** Attachment definitions
 
@@ -2690,18 +2689,18 @@ void Atlantis::AddOrbiterVisual (const VECTOR3 &ofs)
 	//if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
     //if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 
-	DefineAttachments(ofs);
+	DefineAttachments(OFS_ZERO);
 
     // ***** Cockpit camera definition
 
-    SetCameraOffset (_V(ofs.x-0.67,ofs.y+2.55,ofs.z+14.4));
+    SetCameraOffset (_V(-0.67,2.55,14.4));
     oapiVCRegisterHUD (&huds); // register changes in HUD parameters
 
 	DefineAnimations();
 
 	if(pExtAirlock) {
 		oapiWriteLog("Create External Airlock animations");
-		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, ofs);
+		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, OFS_ZERO);
 		oapiWriteLog("\tDONE.");
 	}
 

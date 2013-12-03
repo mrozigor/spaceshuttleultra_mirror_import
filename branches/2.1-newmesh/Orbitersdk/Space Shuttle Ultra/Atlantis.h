@@ -399,7 +399,7 @@ public:
 	//**********************************************************
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
-	void AddOrbiterVisual (const VECTOR3 &ofs);
+	void AddOrbiterVisual();
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
