@@ -36,9 +36,9 @@ const VECTOR3 ODS_POS = _V(0.0, 0.85, 9);//080728, DaveS edit: Fixed ODS vertica
 
 // mesh offsets
 // Orbiter mesh is always at (0,0,0)
-const VECTOR3 ET_OFFSET = _V(0.0, -7.7, 6.209); // offset between ET and shuttle meshes
-const VECTOR3 LSRB_OFFSET = _V(-6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
-const VECTOR3 RSRB_OFFSET = _V(6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
+const VECTOR3 ET_OFFSET = _V(0.0, -9.75, 4.139); // offset between ET and shuttle meshes
+const VECTOR3 LSRB_OFFSET = _V(-6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -59,7 +59,7 @@ const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
 const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
-const VECTOR3 POS_HDP = _V(0.0, -7.95, -17.811);
+const VECTOR3 POS_HDP = _V(0.0, -10.0, -19.881);
 const VECTOR3 POS_TOW = _V(0.0, -7.95, 33.789);
 
 const VECTOR3 UMBDOORL_REF = _V(-1.17, -2.65, -7.60);
@@ -221,7 +221,7 @@ const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 // =====================================================================
 // CG definitions (location of CG relative to center of Orbiter mesh)
 // =====================================================================
-const VECTOR3 ORBITER_CG = _V(0.0, 0.0, 0.0);
+const VECTOR3 ORBITER_CG = _V(0.0, -2.01062, -3.70822);
 const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
 const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
 const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
