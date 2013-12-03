@@ -5590,7 +5590,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
-    huds.hudcnt = orbiter_ofs + VC_HUDPOS_CDR;
+    huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
     
 	if(bHasODS) oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS1);
 	else oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_PLBCAMFL, VC_MS1);
@@ -5628,7 +5628,7 @@ bool Atlantis::clbkLoadVC (int id)
     SetCameraMovement (_V(0,0,0.3), 0, 0,		//Upwards/forward
 		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
 		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
-    huds.hudcnt = orbiter_ofs + VC_HUDPOS_PLT;
+    huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
     
 	if(bHasODS) oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
 	else oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
