@@ -6,6 +6,7 @@
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "dps/MasterTimingUnit.h"
+#include "Atlantis_defs.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -81,7 +82,7 @@ bool PanelA4::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 void PanelA4::RegisterVC()
 {
-	VECTOR3 ofs = sts->orbiter_ofs;
+	VECTOR3 ofs = sts->GetOrbiterCoGOffset() + VC_OFFSET;
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
 
 	oapiVCRegisterArea (AID_A4, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);

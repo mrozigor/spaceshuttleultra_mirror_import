@@ -3,6 +3,7 @@
 #include "../meshres_vc.h"
 #include "../meshres_vc_additions.h"
 #include "MDU.h"
+#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -82,7 +83,7 @@ namespace vc {
 	void PanelF7::RegisterVC()
 	{
 		AtlantisPanel::RegisterVC();
-		VECTOR3 ofs = STS()->orbiter_ofs;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		oapiVCRegisterArea(AID_F7, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		//timer
 		SURFHANDLE digit_tex = oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_DIGITS_VC);

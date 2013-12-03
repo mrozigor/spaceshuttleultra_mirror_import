@@ -31,6 +31,7 @@ const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
 //const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
+const VECTOR3 VC_OFFSET = _V(0.0, -2.31, -2.27);
 
 const VECTOR3 ODS_POS = _V(0.0, 0.85, 9);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
 

@@ -2553,7 +2553,7 @@ void Atlantis::AddOrbiterVisual()
 
     // ***** Load meshes
 
-    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &OFS_ZERO);
+    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &VC_OFFSET);
     SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
 
     mesh_orbiter = AddMesh (hOrbiterMesh, &OFS_ZERO);
@@ -2570,7 +2570,7 @@ void Atlantis::AddOrbiterVisual()
 		PaintMarkings (insignia_tex);
 	}
 
-    mesh_vc = AddMesh (hOrbiterVCMesh, &OFS_ZERO);
+    mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
 	/*if(RMS) {
@@ -2602,7 +2602,7 @@ void Atlantis::AddOrbiterVisual()
 		else HideExtAL();
 	}
 
-	mesh_middeck = AddMesh(hMidDeckMesh, &OFS_ZERO);
+	mesh_middeck = AddMesh(hMidDeckMesh, &VC_OFFSET);
 	//Only make visible when actually inside the mid deck
 	bMidDeckVisible = false;
 	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
@@ -2616,13 +2616,13 @@ void Atlantis::AddOrbiterVisual()
 	*/
 	if(pA7A8Panel)
 	{
-		pA7A8Panel->AddMeshes(OFS_ZERO);
+		pA7A8Panel->AddMeshes(VC_OFFSET);
 		// functions below should be called by panel group
 		/*pA7A8Panel->DefineVC();
 		pA7A8Panel->DefineVCAnimations(mesh_vc);
 		pA7A8Panel->Realize();*/
 	}
-	if(pPanelA8) pPanelA8->AddMeshes(OFS_ZERO);
+	if(pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 
 	pgForward.DefineVC();
 	pgForward.DefineVCAnimations(mesh_vc);
@@ -5587,7 +5587,7 @@ bool Atlantis::clbkLoadVC (int id)
   switch (id) {
   case VC_CDR: // commander position
     DisplayCameraLabel(VC_LBL_CDR);
-    SetCameraOffset (orbiter_ofs + VC_POS_CDR);
+    SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_CDR);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
     huds.hudcnt = orbiter_ofs + VC_HUDPOS_CDR;
@@ -5623,7 +5623,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_PLT: // pilot position
 	DisplayCameraLabel(VC_LBL_PLT);
-    SetCameraOffset (orbiter_ofs + VC_POS_PLT);
+    SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_PLT);
     SetCameraDefaultDirection (_V(0,0,1));
     SetCameraMovement (_V(0,0,0.3), 0, 0,		//Upwards/forward
 		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
@@ -5661,7 +5661,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_STBDSTATION: 
 	  DisplayCameraLabel(VC_LBL_STBDSTATION);
-    SetCameraOffset (VC_POS_STBDSTATION + orbiter_ofs);
+    SetCameraOffset (VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_STBDSTATION);
     //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
 	InactiveMDUs.insert(vc::MDUID_CDR1);
@@ -5781,7 +5781,7 @@ bool Atlantis::clbkLoadVC (int id)
 	  break;
   case VC_AFTPILOT: //Aft Flight Deck
 	  DisplayCameraLabel(VC_LBL_AFTPILOT);
-	SetCameraOffset (VC_POS_AFTPILOT + orbiter_ofs);
+	SetCameraOffset (VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
     SetCameraDefaultDirection (VC_DIR_AFTPILOT);
 	InactiveMDUs.insert(vc::MDUID_CDR1);
 	InactiveMDUs.insert(vc::MDUID_CDR2);
@@ -5813,7 +5813,7 @@ bool Atlantis::clbkLoadVC (int id)
 	break;
   case VC_RMSSTATION: 
 	  DisplayCameraLabel(VC_LBL_RMSSTATION);
-	SetCameraOffset (orbiter_ofs + VC_POS_RMSSTATION);
+	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION);
     SetCameraDefaultDirection (VC_DIR_RMSSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     
@@ -5847,7 +5847,7 @@ bool Atlantis::clbkLoadVC (int id)
 	break;
   case VC_PORTSTATION:
 	DisplayCameraLabel(VC_LBL_PORTSTATION);
-	SetCameraOffset (orbiter_ofs + VC_POS_PORTSTATION);
+	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
     SetCameraDefaultDirection (VC_DIR_PORTSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     
@@ -5877,7 +5877,7 @@ bool Atlantis::clbkLoadVC (int id)
 	break;
   case VC_AFTWORKSTATION:
 	  DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
-	SetCameraOffset (orbiter_ofs + VC_POS_AFTWORKSTATION);
+	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION);
     SetCameraDefaultDirection (VC_DIR_AFTWORKSTATION);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
 	oapiVCSetNeighbours (VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
@@ -5907,7 +5907,7 @@ bool Atlantis::clbkLoadVC (int id)
 
   case VC_MS1:
 	 DisplayCameraLabel(VC_LBL_MS1);
-	SetCameraOffset (orbiter_ofs + VC_POS_MS1);
+	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MS1);
     SetCameraDefaultDirection (VC_DIR_MS1);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
 	
@@ -5944,7 +5944,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_MS2:
 	DisplayCameraLabel(VC_LBL_MS2);
-	SetCameraOffset (orbiter_ofs + VC_POS_MS2);
+	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MS2);
     SetCameraDefaultDirection (VC_DIR_MS2);
     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
     
@@ -5980,7 +5980,7 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_MIDDECK:
 
 	 DisplayCameraLabel(VC_LBL_MIDDECK);
-	 SetCameraOffset (orbiter_ofs + VC_POS_MIDDECK);
+	 SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK);
      SetCameraDefaultDirection (VC_DIR_MIDDECK);
      //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
      
@@ -5999,7 +5999,7 @@ bool Atlantis::clbkLoadVC (int id)
 	 break;
   case VC_EXT_AL:
 	  DisplayCameraLabel(VC_LBL_EXT_AL);
-	  SetCameraOffset (orbiter_ofs + VC_POS_EXT_AL);
+	  SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL);
       SetCameraDefaultDirection (VC_DIR_EXT_AL);
 
 	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
