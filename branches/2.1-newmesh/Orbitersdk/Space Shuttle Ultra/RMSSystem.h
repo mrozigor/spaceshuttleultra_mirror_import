@@ -37,12 +37,12 @@ const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RM
 const VECTOR3 RMS_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 
 // RMS joint positions
-const VECTOR3 RMS_SY_JOINT = _V(-2.747, 1.771, 9.47);
-const VECTOR3 RMS_SP_JOINT = _V(-2.866, 2.131, 9.47);
-const VECTOR3 RMS_EP_JOINT = _V(-2.809, 1.97, 3.01);
-const VECTOR3 RMS_WP_JOINT = _V(-2.867, 2.132, -4.02);
-const VECTOR3 RMS_WY_JOINT = _V(-2.867, 2.132, -4.58);
-const VECTOR3 RMS_EE_POS = _V(-2.8657, 2.1299, -5.90);
+const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);
+const VECTOR3 RMS_SP_JOINT = _V(-2.632, -0.173, 7.124);
+const VECTOR3 RMS_EP_JOINT = _V(-2.581, -0.3285, 0.757);
+const VECTOR3 RMS_WP_JOINT = _V(-2.632, -0.173, -6.293);
+const VECTOR3 RMS_WY_JOINT = _V(-2.632, -0.173, -6.734);
+const VECTOR3 RMS_EE_POS = _V(-2.632, -0.173, -8.0);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
