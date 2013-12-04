@@ -1059,14 +1059,14 @@ pActiveLatches(3, NULL)
 
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.6,-1.1,8.10); //forward stbd
-  PLBLightPosition[1] = _V(-1.6,-1.1,8.10); //forward port
-  PLBLightPosition[2] = _V(1.6,-1.1,2.08);//mid stbd
-  PLBLightPosition[3] = _V(-1.6,-1.1,2.08);//mid port
-  PLBLightPosition[4] = _V(1.6,-1.1,-2.02);//aft stbd
-  PLBLightPosition[5] = _V(-1.6,-1.1,-2.02);//aft port
-  FwdBulkheadLightPos = _V(0.0, 3.05, 11.98);//fwd bulkhead
-  DockingLightPos = _V(0.0, 3.33, 11.98);//docking light
+  PLBLightPosition[0] = _V(1.4, -1.04, 9.2); //forward stbd
+  PLBLightPosition[1] = _V(-1.4,-1.04, 9.2); //forward port
+  PLBLightPosition[2] = _V(1.4, -1.04, -0.55);//aft stbd
+  PLBLightPosition[3] = _V(-1.4, -1.04, -0.55);//aft port
+  PLBLightPosition[4] = _V(1.4, -1.04, 3.5);//mid stbd
+  PLBLightPosition[5] = _V(-1.4, -1.04, 3.5);//mid port
+  FwdBulkheadLightPos = _V(0.0, 0.76, 9.57);//fwd bulkhead
+  DockingLightPos = _V(0.0, 1.02, 9.57);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
@@ -1854,37 +1854,37 @@ void Atlantis::DefineAnimations (void)
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
-  static UINT RCargoDoorGrp[4] = {GRP_STBD_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
-  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
-    _V(2.80, 1.39, 0), _V(0, 0, 1), (float)(-175.5*RAD));
-  static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
-  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
-    _V(-2.80, 1.39, 0), _V(0, 0, 1), (float)(175.5*RAD)); 
+  static UINT RCargoDoorGrp[5] = {GRP_STBD_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
+  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 5,
+    _V(2.62, -0.8, 0), _V(0, 0, 1), (float)(-175.5*RAD));
+  static UINT LCargoDoorGrp[5] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4, GRP_PORT_FWD_RADIATOR_COOLANT_LINES};
+  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 5,
+    _V(-2.62, -0.8, 0), _V(0, 0, 1), (float)(175.5*RAD)); 
 
-  static UINT RRadiatorGrp[2] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2};
-  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 2,
-    _V(2.71, 1.82, 0), _V(0, 0, 1), (float)(35.5*RAD));
-  static UINT LRadiatorGrp[2] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2};
+  static UINT RRadiatorGrp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
+  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 3,
+    _V(2.73, -0.95, 0), _V(0, 0, 1), (float)(35.5*RAD));
+  static UINT LRadiatorGrp[3] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2, GRP_PORT_FWD_RADIATOR_COOLANT_LINES};
   MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 2,
-    _V(-2.71, 1.82, 0), _V(0, 0, 1), (float)(-35.5*RAD));
+    _V(-2.73, -0.95, 0), _V(0, 0, 1), (float)(-35.5*RAD));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
   MGROUP_TRANSLATE* pPORTRod = new MGROUP_TRANSLATE(midx, PORTPUSH_RODGrp, 1,
-	  _V(0,0.175,0));
+	  _V(0,0.1,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
   MGROUP_ROTATE* pPORT_CLAMP1 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(13 * RAD));
+	  _V(-2.52, -0.95, 0), _V(0,0,1), (float)(13 * RAD));
   MGROUP_ROTATE* pPORT_CLAMP2 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.725796, 1.269572, 0), _V(0,0,1), (float)(67.5 * RAD));
+	  _V(-2.52, -0.95, 0), _V(0,0,1), (float)(67.5 * RAD));
 
   static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
   MGROUP_ROTATE* pPORTPullRod1 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.501652, 1.462607, 0), _V(0, 0, 1), (float)(-13.3*RAD));
+	  _V(-2.4, -0.76, 0), _V(0, 0, 1), (float)(-13.3*RAD));
   MGROUP_ROTATE* pPORTPullRod2 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.542652, 1.488807, 0), _V(0, 0, 1), (float)(30.5*RAD));
+	  _V(-2.4, -0.76, 0), _V(0, 0, 1), (float)(30.5*RAD));
   
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
@@ -1907,19 +1907,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(-0.03,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(-0.03,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(-0.03,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(-0.03,3.4,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);

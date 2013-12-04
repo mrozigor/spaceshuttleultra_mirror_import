@@ -90,7 +90,7 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 const VECTOR3 RMS_EE_CAM_POS = _V(-2.9597, 2.3707, -5.37); // Not true position of EE cam. Includes a fudge factor to account for a 0.03 m offset between the alignment target and grapple pin on Donamy's grapple fixture meshes
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.6941, 2.5933, 2.01);
-const VECTOR3 RMS_EE_LIGHT_POS = _V(-3.011, 2.518, -5.366);
+const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.69, 2.25, -3.75);
 
 
 class RMSSystem : public MPMSystem

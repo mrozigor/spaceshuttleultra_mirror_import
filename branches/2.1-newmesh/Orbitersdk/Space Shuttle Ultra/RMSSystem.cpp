@@ -158,7 +158,7 @@ void RMSSystem::CreateArm()
 	//rollout animation
 	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMS, GRP_BASE};
 	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.55784, 1.12081, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
+		_V(-2.34, -0.97, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
