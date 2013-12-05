@@ -1,8 +1,8 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Nov 30 16:14:06 2013
+// Date of conversion : Thu Dec 05 13:39:42 2013
 
-// Input file: ../Meshes/SSU/Orbiter.msh
+// Input file: Orbiter.msh
 // ======================================================
 
 #pragma once
@@ -95,8 +95,8 @@ const unsigned int GRP_CENTER_SSME	=	82;	//CENTER_SSME
 const unsigned int GRP_LEFT_SSME	=	83;	//LEFT_SSME
 const unsigned int GRP_RIGHT_SSME	=	84;	//RIGHT_SSME
 const unsigned int GRP_EVA_THERMAL_COVER	=	85;	//EVA_THERMAL_COVER
-const unsigned int GRP_RIGHT_RSB_PANEL	=	86;	//RIGHT_RSB_PANEL  
-const unsigned int GRP_LEFT_RSB_PANEL	=	87;	//LEFT_RSB_PANEL  
+const unsigned int GRP_RIGHT_RSB_PANEL	=	86;	//RIGHT_RSB_PANEL
+const unsigned int GRP_LEFT_RSB_PANEL	=	87;	//LEFT_RSB_PANEL
 const unsigned int GRP_LEFT_NLG_DOOR	=	88;	//LEFT_NLG_DOOR
 const unsigned int GRP_RIGHT_NLG_DOOR	=	89;	//RIGHT_NLG_DOOR
 const unsigned int GRP_NLG_SHOCK_STRUT	=	90;	//NLG_SHOCK_STRUT

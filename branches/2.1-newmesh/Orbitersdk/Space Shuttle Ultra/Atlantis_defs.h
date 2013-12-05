@@ -70,8 +70,8 @@ const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
-const VECTOR3 PROBEL_REF = _V(-1.175, -1.0894815, 19.28);
-const VECTOR3 PROBER_REF = _V( 1.175, -1.0894815, 19.28);
+const VECTOR3 PROBEL_REF = _V(-1.11, -3.1, 16.78);
+const VECTOR3 PROBER_REF = _V( 1.11, -3.1, 16.78);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 
