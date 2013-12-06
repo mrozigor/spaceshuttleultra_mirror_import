@@ -3166,11 +3166,11 @@ void Atlantis::JettisonDragChute()
 void Atlantis::DefineTouchdownPoints()
 {
 	if (gear_status.action==AnimState::OPEN) { // gear fully deployed
-		SetTouchdownPoints (_V(0,-3.8,17), _V(-3.96,-5.1,-4.3), _V(3.96,-5.1,-4.3)); // gear wheel tips
+		SetTouchdownPoints (_V(0.0, -5.88, 15.39)+orbiter_ofs, _V(-3.418, -7.46, -4.99)+orbiter_ofs, _V(3.418, -7.46, -4.99)+orbiter_ofs); // gear wheel tips
 		SetSurfaceFrictionCoeff (0.035/2, 0.5);
 	}
 	else {
-		SetTouchdownPoints (_V(0,-2.5,14), _V(-8,-2.8,-9), _V(8,-2.8,-9)); // belly landing
+		SetTouchdownPoints (_V(0,-2.5,14)+orbiter_ofs, _V(-8,-2.8,-9)+orbiter_ofs, _V(8,-2.8,-9)+orbiter_ofs); // belly landing
 		SetSurfaceFrictionCoeff (0.4, 0.4);
 	}
 }
@@ -4189,7 +4189,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 //	double dThrust;
 	//double steerforce, airspeed;
 
-	UpdateCoG(); // TODO: refine
+	if(firstStep || status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
+
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
@@ -8087,6 +8088,8 @@ void Atlantis::UpdateCoG()
 		orbiter_ofs = -currentCoG;
 		//sprintf_s(oapiDebugString(), 255, "New CoG: %f %f %f", CoG.x, CoG.y, CoG.z);
 		//oapiWriteLog(oapiDebugString());
+
+		DefineTouchdownPoints();
 
 		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoG-currentCoG, NULL, 0.0, 0.0, 0.0);
 
