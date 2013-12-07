@@ -3766,8 +3766,11 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 {
   char cbuf[256];
 
-  // default vessel parameters
+  // save default vessel parameters
+  // set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
+  ShiftCG(-currentCoG);
   VESSEL3::clbkSaveState (scn);
+  ShiftCG(currentCoG); // reset CoG to correct position
 
   if(!pMission->GetMissionFileName().empty()) 
   {
