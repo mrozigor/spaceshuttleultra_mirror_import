@@ -3227,14 +3227,6 @@ void Atlantis::OperateSpeedbrake (AnimState::Action action)
   RecordEvent ("SPEEDBRAKE", action == AnimState::CLOSING ? "CLOSE" : "OPEN");
 }
 
-void Atlantis::RevertSpeedbrake (void)
-{
-  if(spdb_status == AnimState::CLOSED || spdb_status == AnimState::CLOSING) spdb_tgt=1.0;
-  else if(spdb_status == AnimState::OPEN || spdb_status == AnimState::OPENING) spdb_tgt=0.0;
-  OperateSpeedbrake (spdb_status == AnimState::CLOSED || spdb_status == AnimState::CLOSING ?
-    AnimState::OPENING : AnimState::CLOSING);
-}
-
 void Atlantis::SetSpeedbrake(double tgt)
 {
 	spdb_tgt=tgt;
@@ -6434,9 +6426,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
     /*case OAPI_KEY_SPACE: // open RMS control dialog
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;*/
-    case OAPI_KEY_B: // deploy/retract speedbrake
-      if (!Playback()) RevertSpeedbrake ();
-      return 1;
 	case OAPI_KEY_G:
 		//gop->ArmGear();
 		ArmGear();

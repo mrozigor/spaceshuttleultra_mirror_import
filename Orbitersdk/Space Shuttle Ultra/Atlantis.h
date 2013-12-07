@@ -458,7 +458,6 @@ public:
 	void OperateSpeedbrake (AnimState::Action action);
 	void PaintMarkings (SURFHANDLE tex);
 	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
-	void RevertSpeedbrake ();
 	/* ***************************************************************
 	 * Setters
 	 *****************************************************************/
