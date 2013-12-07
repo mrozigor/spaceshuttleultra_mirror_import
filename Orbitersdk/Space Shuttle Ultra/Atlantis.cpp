@@ -3677,7 +3677,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		ParsePayloadLine(line);
 	} else if (!_strnicmp(line, "@PANEL", 6)) {
 		char pszPanelName[30];
-		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszBuffer));
+		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
 		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
 			pszPanelName, line);
 		oapiWriteLog(pszBuffer);
