@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Nov 30 18:07:13 2013
+// Date of conversion : Sat Dec 14 00:43:02 2013
 
-// Input file: ../Meshes/SSU/ODS.msh
+// Input file: ODS.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP_ODS = 36;
+const unsigned int NUMGRP = 36;
 
 const unsigned int GRP_TUBE01_ODS	=	0;	//Tube01
 const unsigned int GRP_BOX65_ODS	=	1;	//Box65
