@@ -34,8 +34,8 @@ const static char* MPM_MESHNAME = "SSU/OBSSMPMs";
 const double MAX_ATTACHMENT_DIST = 0.10;
 const double MAX_ATTACHMENT_ANGLE = 0.087266;
 
-const VECTOR3 MPM_MESH_OFFSET = _V(2.71, 1.575, 2.2);
-const VECTOR3 OBSS_ATTACHMENT_POINT = _V(0.11, 0.3, 1.457);
+const VECTOR3 MPM_MESH_OFFSET = _V(2.525, -0.632, 0);
+const VECTOR3 OBSS_ATTACHMENT_POINT = _V(0.11, 0.25, 1.257);
 
 
 class StbdMPMSystem : public MPMSystem
