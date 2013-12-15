@@ -1876,33 +1876,33 @@ void Atlantis::DefineAnimations (void)
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
   MGROUP_ROTATE* pPORT_CLAMP1 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.52, -0.95, 0), _V(0,0,1), (float)(13 * RAD));
+	  _V(-2.573, -0.872, 0), _V(0,0,1), (float)(13 * RAD));
   MGROUP_ROTATE* pPORT_CLAMP2 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.52, -0.95, 0), _V(0,0,1), (float)(67.5 * RAD));
+	  _V(-2.573, -0.872, 0), _V(0,0,1), (float)(67.5 * RAD));
 
   static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
   MGROUP_ROTATE* pPORTPullRod1 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.4, -0.76, 0), _V(0, 0, 1), (float)(-13.3*RAD));
+	  _V(-2.394, -0.762, 0), _V(0, 0, 1), (float)(-13.3*RAD));
   MGROUP_ROTATE* pPORTPullRod2 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.4, -0.76, 0), _V(0, 0, 1), (float)(30.5*RAD));
+	  _V(-2.394, -0.762, 0), _V(0, 0, 1), (float)(16.5*RAD));
   
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
   MGROUP_TRANSLATE* pSTBDRod = new MGROUP_TRANSLATE(midx, STBDPUSH_RODGrp, 1,
-	  _V(0,0.175,0));
+	  _V(0,0.1,0));
 
   //080922, DaveS add: Added the pushrod animations to each door.
   static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
   MGROUP_ROTATE* pSTBD_CLAMP1 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(13 * RAD));
+	  _V(2.573, -0.872, 0), _V(0,0,-1), (float)(13 * RAD));
   MGROUP_ROTATE* pSTBD_CLAMP2 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-	  _V(2.725796, 1.269572, 0), _V(0,0,-1), (float)(67.5 * RAD));
+	  _V(2.573, -0.872, 0), _V(0,0,-1), (float)(67.5 * RAD));
 
   static UINT STBD_PullRodGrp[1] = {GRP_STBDDOOR_PULL};
   MGROUP_ROTATE* pSTBDPullRod1 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
-	  _V(2.501652, 1.462607, 0), _V(0, 0, 1), (float)(13.3*RAD));
+	  _V(2.394, -0.762, 0), _V(0, 0, 1), (float)(13.3*RAD));
   MGROUP_ROTATE* pSTBDPullRod2 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
-	  _V(2.542652, 1.488807, 0), _V(0, 0, 1), (float)(-30.5*RAD));
+	  _V(2.394, -0.762, 0), _V(0, 0, 1), (float)(-16.5*RAD));
 
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
@@ -1944,7 +1944,7 @@ void Atlantis::DefineAnimations (void)
   parent = AddManagedAnimationComponent (anim_door, 0, 0.1181, pSTBD_CLAMP1);
   AddManagedAnimationComponent (anim_door, 0, 0.1200, pSTBDPullRod1, parent);
   parent = AddManagedAnimationComponent (anim_door, 0.1181, 0.4632, pSTBD_CLAMP2, parent);
-  AddManagedAnimationComponent (anim_door, 0.2687, 0.4632, pSTBDPullRod2, parent);
+  AddManagedAnimationComponent (anim_door, 0.31, 0.4632, pSTBDPullRod2, parent);
   // **************************************************************************************
   //left(port) side
   // **************************************************************************************
