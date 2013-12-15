@@ -1965,17 +1965,17 @@ void Atlantis::DefineAnimations (void)
   static UINT RNosewheelDoorGrp[1] = {GRP_RIGHT_NLG_DOOR};
   static MGROUP_ROTATE RNosewheelDoor (midx, RNosewheelDoorGrp, 1,
     _V(0.651575,-3.71,15.85), _V(0, 0.1896375, 0.9540225), (float)(60.0*RAD));
-  static UINT NosewheelGrp[2] = {GRP_NLG_WHEELS,GRP_NLG_STRUT};
-  static MGROUP_ROTATE Nosewheel (midx, NosewheelGrp, 2,
+  static UINT NosewheelGrp[5] = {GRP_NLG_WHEELS,GRP_NLG_STRUT, GRP_NLG_UPPER_TORQUE_ARM, GRP_NLG_LOWER_TORQUE_ARM, GRP_NLG_SHOCK_STRUT};
+  static MGROUP_ROTATE Nosewheel (midx, NosewheelGrp, 5,
     _V(0,-3.81,14.8), _V(1, 0, 0), (float)(94.5*RAD));
   static UINT RGearDoorGrp[1] = {GRP_RIGHT_MLG_DOOR};
   static MGROUP_ROTATE RGearDoor (midx, RGearDoorGrp, 1,
-    _V(4.38, -4.1, -3.15), _V(0, 0.0418756, 0.999123), (float)(96.2*RAD));
+    _V(4.338, -4.356, -3.15), _V(0, 0.0418756, 0.999123), (float)(83.8*RAD));
   static UINT LGearDoorGrp[1] = {GRP_LEFT_MLG_DOOR};
   static MGROUP_ROTATE LGearDoor (midx, LGearDoorGrp, 1,
-    _V(-4.38, -4.1, -3.15), _V(0, 0.0418756, 0.999123), (float)(-96.2*RAD));
-  static UINT MainGearGrp[4] = {GRP_RIGHT_MLG_WHEELS,GRP_RIGHT_MLG_STRUT,GRP_LEFT_MLG_WHEELS,GRP_LEFT_MLG_STRUT};
-  static MGROUP_ROTATE MainGear (midx, MainGearGrp, 4,
+    _V(-4.338, -4.356, -3.15), _V(0, 0.0418756, 0.999123), (float)(-83.8*RAD));
+  static UINT MainGearGrp[6] = {GRP_RIGHT_MLG_WHEELS,GRP_RIGHT_MLG_STRUT,GRP_RIGHT_MLG_SHOCK_STRUT,GRP_LEFT_MLG_WHEELS,GRP_LEFT_MLG_STRUT,GRP_LEFT_MLG_SHOCK_STRUT};
+  static MGROUP_ROTATE MainGear (midx, MainGearGrp, 6,
     _V(0, -4.08, -5.01), _V(1, 0, 0), (float)(94.5*RAD));
 
   anim_gear = CreateAnimation (0);
