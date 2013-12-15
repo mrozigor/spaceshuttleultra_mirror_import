@@ -2181,15 +2181,51 @@ void Atlantis::DefineAnimations (void)
   static UINT ETUmbLGrp[1] = {GRP_ET_DOOR_LEFT};
   static UINT ETUmbRGrp[1] = {GRP_ET_DOOR_RIGHT};
   static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
-	  UMBDOORL_REF, UMBDOOR_AXIS, (float)(+180.0*RAD));
+	  _V(-1.339, -4.749, -9.935), _V(0, -0.05, 0.99875), (float)(+180.0*RAD));
   static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
-	  UMBDOORR_REF, UMBDOOR_AXIS, (float)(-180.0*RAD));
+	  _V(1.339, -4.749, -9.935), _V(0, -0.05, 0.99875), (float)(-180.0*RAD));
+
+  static VECTOR3 etumbdoor_dummyvec[4];
+  static UINT ETUmbLDDMAftGrp[1] = {GRP_ET_DOOR_LEFT_DDM_ARM_AFT};
+  static UINT ETUmbLDDMAftRodGrp[1] = {GRP_ET_DOOR_LEFT_DDM_LINK_ROD_AFT};
+  static MGROUP_ROTATE ETUmbLDDMAft (midx, ETUmbLDDMAftGrp, 1, _V(-1.258, -4.675, -9.822), _V(0, 0.060757, -0.998152), static_cast<float>(-125.0*RAD));
+  static MGROUP_ROTATE ETUmbLDDMAftRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec), 1, _V(-1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(14.0*RAD));
+  static MGROUP_ROTATE ETUmbLDDMAftRod2 (midx, ETUmbLDDMAftRodGrp, 1, _V(-1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(-33*RAD));
+  static UINT ETUmbLDDMFwdGrp[1] = {GRP_ET_DOOR_LEFT_DDM_ARM_FWD};
+  static UINT ETUmbLDDMFwdRodGrp[1] = {GRP_ET_DOOR_LEFT_DDM_LINK_ROD_FWD};
+  static MGROUP_ROTATE ETUmbLDDMFwd (midx, ETUmbLDDMFwdGrp, 1, _V(-1.257, -4.738, -8.787), _V(0, 0.060757, -0.998152), static_cast<float>(-125.0*RAD));
+  static MGROUP_ROTATE ETUmbLDDMFwdRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+1), 1, _V(-1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(14.0*RAD));
+  static MGROUP_ROTATE ETUmbLDDMFwdRod2 (midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(-33.0*RAD));
   anim_letumbdoor = CreateAnimation(0);
   LogAnim("anim_letumbdoor", anim_letumbdoor);
+  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
+  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &ETUmbLDDMFwd);
+  parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwdRod1, parent);
+  AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMFwdRod2, parent);
+  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &ETUmbLDDMAft);
+  parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMAftRod1, parent);
+  AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMAftRod2, parent);
+  AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+
+  static UINT ETUmbRDDMAftGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_ARM_AFT};
+  static UINT ETUmbRDDMAftRodGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT};
+  static MGROUP_ROTATE ETUmbRDDMAft (midx, ETUmbRDDMAftGrp, 1, _V(1.258, -4.675, -9.822), _V(0, 0.060757, -0.998152), static_cast<float>(125.0*RAD));
+  static MGROUP_ROTATE ETUmbRDDMAftRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+2), 1, _V(1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(-14.0*RAD));
+  static MGROUP_ROTATE ETUmbRDDMAftRod2 (midx, ETUmbRDDMAftRodGrp, 1, _V(1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(33*RAD));
+  static UINT ETUmbRDDMFwdGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_ARM_FWD};
+  static UINT ETUmbRDDMFwdRodGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_FWD};
+  static MGROUP_ROTATE ETUmbRDDMFwd (midx, ETUmbRDDMFwdGrp, 1, _V(1.257, -4.738, -8.787), _V(0, 0.060757, -0.998152), static_cast<float>(125.0*RAD));
+  static MGROUP_ROTATE ETUmbRDDMFwdRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+3), 1, _V(1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(-14.0*RAD));
+  static MGROUP_ROTATE ETUmbRDDMFwdRod2 (midx, ETUmbRDDMFwdRodGrp, 1, _V(1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(33.0*RAD));
   anim_retumbdoor = CreateAnimation(0);
   LogAnim("anim_retumbdoor", anim_retumbdoor);
-  AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
-  AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &ETUmbRDDMFwd);
+  parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwdRod1, parent);
+  AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMFwdRod2, parent);
+  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &ETUmbRDDMAft);
+  parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMAftRod1, parent);
+  AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMAftRod2, parent);
 
   // ***** SSME Gimbal Animations *****
 
