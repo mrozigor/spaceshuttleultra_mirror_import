@@ -1059,14 +1059,14 @@ pActiveLatches(3, NULL)
 
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.4, -1.04, 9.2); //forward stbd
-  PLBLightPosition[1] = _V(-1.4,-1.04, 9.2); //forward port
-  PLBLightPosition[2] = _V(1.4, -1.04, -0.55);//aft stbd
-  PLBLightPosition[3] = _V(-1.4, -1.04, -0.55);//aft port
-  PLBLightPosition[4] = _V(1.4, -1.04, 3.5);//mid stbd
-  PLBLightPosition[5] = _V(-1.4, -1.04, 3.5);//mid port
-  FwdBulkheadLightPos = _V(0.0, 0.76, 9.57);//fwd bulkhead
-  DockingLightPos = _V(0.0, 1.02, 9.57);//docking light
+  PLBLightPosition[0] = _V(1.4, -3.05, 5.49); //forward stbd
+  PLBLightPosition[1] = _V(-1.4,-3.05, 5.49); //forward port
+  PLBLightPosition[2] = _V(1.4, -3.05, -0.21);//mid stbd
+  PLBLightPosition[3] = _V(-1.4, -3.05, -0.21);//mid port
+  PLBLightPosition[4] = _V(1.4, -3.05, -4.26);//aft stbd
+  PLBLightPosition[5] = _V(-1.4, -3.05, -4.26);//aft port
+  FwdBulkheadLightPos = _V(0.0, 0.763, 9.652);//fwd bulkhead
+  DockingLightPos = _V(0.0, 0.947, 9.652);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
@@ -8122,15 +8122,21 @@ void Atlantis::UpdateCoG()
 	}
 	CoG = CoG/totalMass;
 	if(length(CoG-currentCoG) > 0.1) { // to avoid rounding errors during launch, only shift CG when magnitude of change is large enough
-		ShiftCG (CoG-currentCoG);
+		VECTOR3 CoGShift = CoG-currentCoG;
+		ShiftCG (CoGShift);
 		currentCoG = CoG;
 		orbiter_ofs = -currentCoG;
 		//sprintf_s(oapiDebugString(), 255, "New CoG: %f %f %f", CoG.x, CoG.y, CoG.z);
 		//oapiWriteLog(oapiDebugString());
 
 		DefineTouchdownPoints();
+		
+		// update PLBD light positions
+		for(int i=0;i<6;i++) PLBLightPosition[i] -= CoGShift;
+		DockingLightPos -= CoGShift;
+		FwdBulkheadLightPos -= CoGShift;
 
-		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoG-currentCoG, NULL, 0.0, 0.0, 0.0);
+		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
 
 		if(status <= STATE_STAGE2) UpdateNullDirections();
 	}
