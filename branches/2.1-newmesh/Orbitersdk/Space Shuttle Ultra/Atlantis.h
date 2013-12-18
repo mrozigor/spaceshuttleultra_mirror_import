@@ -860,10 +860,9 @@ private:
 	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
-	UINT anim_elev;                            // handle for elevator animation
+	UINT anim_lelevon;                         // handle for left elevator animation
+	UINT anim_relevon;                         // handle for right elevator animation
 	UINT anim_bf;                              // handle for body flap animation
-	UINT anim_laileron;						   // handle for left aileron animation
-	UINT anim_raileron;						   // handle for right aileron animation
 	UINT anim_rudder;						   // handle for rudder animation
 	UINT anim_spdb;                            // handle for speed brake animation
 	UINT anim_dummy;						   // handle for dummy animation

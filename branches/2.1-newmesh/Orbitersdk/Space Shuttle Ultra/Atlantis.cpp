@@ -2013,24 +2013,38 @@ void Atlantis::DefineAnimations (void)
   
   // ***** 4. Elevator animation of elevons *****
 
-  static UINT ElevGrp_up[4] = {GRP_RIGHT_INBOARD_ELEVON,GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE Elevator_up (midx, ElevGrp_up, 4,
-    _V(-7.85,-3.9,-10.54), _V(0.998806, 0.0488501, 0), (float)(34.0*RAD));
-  static UINT ElevGrp_down[4] = {GRP_RIGHT_INBOARD_ELEVON,GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE Elevator_down (midx, ElevGrp_down, 4,
-    _V(-7.85,-3.9,-10.54), _V(0.998806, 0.0488501, 0), (float)(18.0*RAD));
-  static UINT ElevDoorGrp_up[4] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE ElevatorDoor_up (midx, ElevDoorGrp_up, 4,
-    _V(0,-3.61,-10.5), _V(0.998806, 0.0488501, 0), (float)(18.0*RAD));
-  static UINT ElevDoorGrp_down[4] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE ElevatorDoor_down (midx, ElevDoorGrp_down, 4,
-    _V(0,-3.61,-10.5), _V(0.998806, 0.0488501, 0), (float)(5*RAD));
-  anim_elev = CreateAnimation (0.5);
-  LogAnim("anim_elev", anim_elev);
-  AddAnimationComponent (anim_elev, 0.5, 1, &Elevator_up);
-  AddAnimationComponent (anim_elev, 0, 0.5, &Elevator_down);
-  AddAnimationComponent (anim_elev, 0.5, 1, &ElevatorDoor_up);
-  AddAnimationComponent (anim_elev, 0, 0.5, &ElevatorDoor_down);
+  static UINT LElevGrp[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
+  static UINT RElevGrp[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
+  static UINT LElevDoorGrp[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
+  static UINT RElevDoorGrp[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
+  static MGROUP_ROTATE LElevator_up (midx, LElevGrp, 2,
+	_V(0,-4.61,-10.51), _V(0.995261553294495, 0.097218629773975, 0.001725850138444), (float)(-34.0*RAD));
+  static MGROUP_ROTATE RElevator_up (midx, RElevGrp, 2,
+	_V(0,-3.9,-10.54), _V(0.995261553294495, 0.097218629773975, 0.001725850138444), (float)(-34.0*RAD));
+  static MGROUP_ROTATE LElevatorDoor_up (midx, LElevDoorGrp, 2,
+    _V(0,-4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(22.0*RAD));
+  static MGROUP_ROTATE RElevatorDoor_up (midx, RElevDoorGrp, 2,
+    _V(0,-4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(22.0*RAD));
+  static MGROUP_ROTATE LElevator_down (midx, LElevGrp, 2,
+    _V(0,-3.9,-10.54), _V(0.995259638999982, 0.001726197889982, 0.097238218918646), (float)(-18.0*RAD));
+  static MGROUP_ROTATE RElevator_down (midx, RElevGrp, 2,
+    _V(0,-3.9,-10.54), _V(0.995259638999982, 0.001726197889982, 0.097238218918646), (float)(-18.0*RAD));
+  static MGROUP_ROTATE LElevatorDoor_down (midx, LElevDoorGrp, 2,
+    _V(0,-3.4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
+  static MGROUP_ROTATE RElevatorDoor_down (midx, RElevDoorGrp, 2,
+    _V(0,-3.4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
+  anim_lelevon = CreateAnimation (0.5);
+  anim_relevon = CreateAnimation (0.5);
+  LogAnim("anim_lelevon", anim_lelevon);
+  LogAnim("anim_relevon", anim_relevon);
+  AddAnimationComponent (anim_lelevon, 0.5, 1, &LElevator_down);
+  AddAnimationComponent (anim_lelevon, 0, 0.5, &LElevator_up);
+  AddAnimationComponent (anim_lelevon, 0.5, 1, &LElevatorDoor_down);
+  AddAnimationComponent (anim_lelevon, 0, 0.5, &LElevatorDoor_up);
+  AddAnimationComponent (anim_relevon, 0.5, 1, &RElevator_down);
+  AddAnimationComponent (anim_relevon, 0, 0.5, &RElevator_up);
+  AddAnimationComponent (anim_relevon, 0.5, 1, &RElevatorDoor_down);
+  AddAnimationComponent (anim_relevon, 0, 0.5, &RElevatorDoor_up);
 
   static UINT bfGrp[1] = {GRP_BODYFLAP};
   static MGROUP_ROTATE BodyFlap (midx, bfGrp, 1,
@@ -2038,51 +2052,6 @@ void Atlantis::DefineAnimations (void)
   anim_bf = CreateAnimation (0.5);
   LogAnim("anim_bf", anim_bf);
   AddAnimationComponent (anim_bf, 0, 1, &BodyFlap);
-
-  // ***** 5. Aileron animation of elevons *****
-
-  // ***** Elevon upward animation *****
-  static UINT LAileronGrp_up[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE LAileron_up (midx, LAileronGrp_up, 2,
-    _V(0,-3.9,-10.54), _V(-0.998806, 0.0488501, 0), (float)(34.0*RAD));
-  static UINT LAileronDoorGrp_up[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE LAileronDoor_up (midx, LAileronDoorGrp_up, 2,
-    _V(0,-3.65,-10.5), _V(-0.998806, 0.0488501, 0), (float)(18.0*RAD));
-
-  static UINT RAileronGrp_up[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE RAileron_up (midx, RAileronGrp_up, 2,
-    _V(0,-3.9,-10.54), _V(0.998806, 0.0488501, 0), (float)(34.0*RAD));
-  static UINT RAileronDoorGrp_up[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE RAileronDoor_up (midx, RAileronDoorGrp_up, 2,
-    _V(0,-3.61,-10.5), _V(0.998806, 0.0488501, 0), (float)(18.0*RAD));
-  
-  // ***** Elevon downward animation *****
-  static UINT LAileronGrp_down[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE LAileron_down (midx, LAileronGrp_down, 2,
-    _V(0,-3.9,-10.54), _V(-0.998806, 0.0488501, 0), (float)(18.0*RAD));
-  static UINT LAileronDoorGrp_down[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE LAileronDoor_down (midx, LAileronDoorGrp_down, 2,
-    _V(0,-3.61,-10.5), _V(-0.998806, 0.0488501, 0), (float)(5*RAD));
-
-  static UINT RAileronGrp_down[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
-  static MGROUP_ROTATE RAileron_down (midx, RAileronGrp_down, 2,
-    _V(0,-3.9,-10.54), _V(0.998806, 0.0488501, 0), (float)(18.0*RAD));
-  static UINT RAileronDoorGrp_down[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE RAileronDoor_down (midx, RAileronDoorGrp_down, 2,
-    _V(0,-3.65,-10.5), _V(0.998806, 0.0488501, 0), (float)(5*RAD));
-
-  anim_laileron = CreateAnimation (0.5);
-  LogAnim("anim_laileron", anim_laileron);
-  AddAnimationComponent (anim_laileron, 0, 0.5, &LAileron_up);
-  AddAnimationComponent (anim_laileron, 0, 0.5, &LAileronDoor_up);
-  AddAnimationComponent (anim_laileron, 0.5, 1, &LAileron_down);
-  AddAnimationComponent (anim_laileron, 0.5, 1, &LAileronDoor_down);
-  anim_raileron = CreateAnimation (0.5);
-  LogAnim("anim_raileron", anim_raileron);
-  AddAnimationComponent (anim_raileron, 0, 0.5, &RAileron_down);
-  AddAnimationComponent (anim_raileron, 0, 0.5, &RAileronDoor_down);
-  AddAnimationComponent (anim_raileron, 0.5, 1, &RAileron_up);
-  AddAnimationComponent (anim_raileron, 0.5, 1, &RAileronDoor_up);
 
   // ***** 6. Rudder animation *****
 
@@ -4487,7 +4456,11 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		double alvoltage = AileronCommand.GetVoltage();
 		// set animations corresponding to aerosurface positions
 		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
+		//SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
+		if(aerosurfaces.leftElevon < 0.0) SetAnimation(anim_lelevon, (aerosurfaces.leftElevon + 34.0)/(34.0*2));
+		else SetAnimation(anim_lelevon, (18.0 + aerosurfaces.leftElevon)/(18.0*2));
+		if(aerosurfaces.rightElevon < 0.0) SetAnimation(anim_relevon, (aerosurfaces.rightElevon + 34.0)/(34.0*2));
+		else SetAnimation(anim_relevon, (18.0 + aerosurfaces.rightElevon)/(18.0*2));
 	}
 
 
