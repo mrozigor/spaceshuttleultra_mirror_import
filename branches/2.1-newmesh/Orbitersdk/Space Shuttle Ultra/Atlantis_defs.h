@@ -47,9 +47,9 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
-const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
-const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
+const VECTOR3 SSMER_REF = _V(1.418, -2.424, -13.938);
+const VECTOR3 SSMEL_REF = _V(-1.418, -2.424, -13.938);
+const VECTOR3 SSMET_REF = _V(0.0, 0.341, -13.363);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
 const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
