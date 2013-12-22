@@ -22,6 +22,8 @@ namespace mission {
 
 	void Mission::SetDefaultValues()
 	{
+		strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
+		strROMSPodMeshName = "SSU\\ROMS_pod_standard";
 		bEnableWingPainting = false;
 		fLaunchTimeMJD = -1.0;
 		fLandTimeMJD = -1.0;
@@ -86,6 +88,15 @@ namespace mission {
 		{
 			strOrbiterTexName = "SSU\\" + std::string(buffer) + ".dds";
 			oapiWriteLog((char*)strOrbiterTexName.c_str());
+		}
+
+		if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
+		{
+			strLOMSPodMeshName = "SSU\\" + std::string(buffer);
+		}
+		if(oapiReadItem_string(hFile, "ROMSPodMesh", buffer))
+		{
+			strROMSPodMeshName = "SSU\\" + std::string(buffer);
 		}
 
 		oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
@@ -236,6 +247,16 @@ namespace mission {
 	const std::string& Mission::GetOrbiterTextureName() const
 	{
 		return strOrbiterTexName;
+	}
+
+	const std::string& Mission::GetLOMSPodMeshName() const
+	{
+		return strLOMSPodMeshName;
+	}
+
+	const std::string& Mission::GetROMSPodMeshName() const
+	{
+		return strROMSPodMeshName;
 	}
 
 	bool Mission::WingPaintingEnabled() const
