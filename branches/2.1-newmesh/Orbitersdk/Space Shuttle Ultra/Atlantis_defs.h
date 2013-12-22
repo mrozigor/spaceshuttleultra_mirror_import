@@ -40,8 +40,8 @@ const VECTOR3 ODS_POS = _V(0.0, -2.05, 7);//Only X and Y axes used. Z pos is set
 const VECTOR3 ET_OFFSET = _V(0.0, -9.75, 4.139); // offset between ET and shuttle meshes
 const VECTOR3 LSRB_OFFSET = _V(-6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
 const VECTOR3 RSRB_OFFSET = _V(6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
-const VECTOR3 LOMS_OFFSET = _V(-2.17, 0.726, -11.85);
-const VECTOR3 ROMS_OFFSET = _V(2.17, 0.726, -11.85);
+const VECTOR3 LOMS_OFFSET = _V(-2.16477, 0.672942, -11.7844);
+const VECTOR3 ROMS_OFFSET = _V(2.16477, 0.672942, -11.7844);
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
