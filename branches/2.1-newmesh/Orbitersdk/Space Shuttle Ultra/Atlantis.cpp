@@ -2174,7 +2174,6 @@ void Atlantis::DefineAnimations (void)
   parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &ETUmbLDDMAft);
   parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMAftRod1, parent);
   AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMAftRod2, parent);
-  AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
 
   static UINT ETUmbRDDMAftGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_ARM_AFT};
   static UINT ETUmbRDDMAftRodGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT};
