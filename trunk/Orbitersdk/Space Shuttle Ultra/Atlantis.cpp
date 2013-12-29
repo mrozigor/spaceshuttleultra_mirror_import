@@ -125,7 +125,7 @@ VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw)
 	if(side==0) dir=L_OMS_DIR;
 	else dir=R_OMS_DIR;
 
-	dir=RotateVectorX(dir, -pitch); //positive OMS gimbal directs thrust downwards
+	dir=RotateVectorX(dir, pitch); //positive OMS gimbal directs thrust upwards
 	dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
 	return dir;
 }
