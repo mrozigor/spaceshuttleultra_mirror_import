@@ -1253,8 +1253,9 @@ void Atlantis::SetLaunchConfiguration (void)
 	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	  bOMSDefined = true;
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
 	  for(i=0;i<2;i++) {
-		  AddExhaust (th_oms[i], 0.0, 0.5);
+		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
 		  //panelc3->EngControl(i);
 		  OMSEngControl(i);
 	  }
@@ -1333,14 +1334,15 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
-    th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	bOMSDefined = true;
-  }
-  for(int i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0.0, 0.5);
-	  //panelc3->EngControl(i);
-	  OMSEngControl(i);
+	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  bOMSDefined = true;
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
+	  for(int i=0;i<2;i++) {
+		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
+		  //panelc3->EngControl(i);
+		  OMSEngControl(i);
+	  }
   }
 
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
@@ -1433,18 +1435,18 @@ void Atlantis::SetOrbiterConfiguration (void)
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   //VECTOR3 OMS_POS=_V(0,3.55,-13.04);
   if(!bOMSDefined) {
-	//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	bOMSDefined = true;
-	//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
-  }
-  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
-  for(i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0, 1.5, tex_oms);
-	  //panelc3->EngControl(i);
-	  OMSEngControl(i);
+	  //th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  //th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  bOMSDefined = true;
+	  //thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
+	  for(i=0;i<2;i++) {
+		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
+		  //panelc3->EngControl(i);
+		  OMSEngControl(i);
+	  }
   }
 
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));

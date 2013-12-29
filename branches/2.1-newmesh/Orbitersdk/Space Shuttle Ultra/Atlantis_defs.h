@@ -86,12 +86,10 @@ const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 2.349, -13.972);
 
 //const VECTOR3 L_OMS_REF = _V(-2.311, 3.297, -11.967);
 //const VECTOR3 R_OMS_REF = _V(2.311, 3.297, -11.967);
-const VECTOR3 L_OMS_REF = _V(-2.464, 3.595, -13.11);
-const VECTOR3 R_OMS_REF = _V(2.464, 3.595, -13.11);
-//const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.2708080775, 0.955953983);
-//const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.2708080775, 0.955953983);
-const VECTOR3 L_OMS_DIR = _V(0.108917, -0.272560, 0.955954);
-const VECTOR3 R_OMS_DIR = _V(-0.108917, -0.272560, 0.955954);
+const VECTOR3 L_OMS_REF = _V(0.0, 0.2805, -1.713) + LOMS_OFFSET;
+const VECTOR3 R_OMS_REF = _V(0.0, 0.2805, -1.713) + ROMS_OFFSET;
+const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.272280247041, 0.955535713334);
+const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.272280247041, 0.955535713334);
 
 const int STATE_PRELAUNCH = 0;
 const int STATE_STAGE1 = 1;	//SRBs ignited
@@ -219,7 +217,7 @@ const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 // =====================================================================
 // CG definitions (location of CG relative to center of Orbiter mesh)
 // =====================================================================
-const VECTOR3 ORBITER_CG = _V(0.0, -2.01062, -3.70822);
+const VECTOR3 ORBITER_CG = _V(0.0, -2.01062, -3.70822) + _V(0.0, 0.19888279332, 0.2939726193); // second term is fudge factor added so OMS gimbal angles are correct (SiameseCat, 131225)
 const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
 const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
 const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
