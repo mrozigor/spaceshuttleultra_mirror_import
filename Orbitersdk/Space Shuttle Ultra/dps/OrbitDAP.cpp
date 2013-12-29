@@ -400,9 +400,9 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 	double rollDelta=Rates.data[ROLL]-CurrentRates.data[ROLL]; //if positive, vessel is rolling to left
 	bool RCSWraparound=(abs(rollDelta)>2.05 || abs(pitchDelta)>2.05 || abs(yawDelta)>2.05);
 
-	double dPitch=OMSTVCControlP.Step(pitchDelta, SimDT);
+	double dPitch=OMSTVCControlP.Step(-pitchDelta, SimDT);
 	double dYaw=OMSTVCControlY.Step(-yawDelta, SimDT);
-	double dRoll = OMSTVCControlR.Step(rollDelta, SimDT);
+	double dRoll = OMSTVCControlR.Step(-rollDelta, SimDT);
 
 	if(ControlMode!=RIGHT_OMS) //left OMS engine burning
 	{
