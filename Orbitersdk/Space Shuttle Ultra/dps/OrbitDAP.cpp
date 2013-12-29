@@ -358,7 +358,7 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 		for(unsigned int i=0;i<3;i++) {
 			//if(RotatingAxis[i] || NullingRates[i]) Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
 			if(RotatingAxis[i]) Limits.data[i] = max(2.0*PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
-			else if(NullingRates[i]) Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
+			else if(NullingRates[i] || RotPulseInProg[i]) Limits.data[i] = max(PRI_LIMITS.data[i], 0.5*RotationRateChange(OrbiterMass, PMI.data[i], Torque.data[i]/timeAcc, DeltaT));
 			else Limits.data[i] = degRateDeadband;
 		}
 		MaxThrusterLevel = 1.0/timeAcc;
