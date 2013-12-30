@@ -2054,13 +2054,13 @@ void Atlantis::DefineAnimations (void)
   static UINT LElevDoorGrp[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
   static UINT RElevDoorGrp[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE LElevator_up (midx, LElevGrp, 2,
-	_V(-3.09922,-4.59415,-10.42953), _V(0.995235179322522, 0.097503527315007, 0.0), (float)(-34.0*RAD));
+	_V(-3.09922,-4.59415,-10.42953), _V(-0.995235179322522, 0.097503527315007, 0.0), (float)(34.0*RAD));
   static MGROUP_ROTATE RElevator_up (midx, RElevGrp, 2,
 	_V(3.09922,-4.59415,-10.42953), _V(0.995235179322522, 0.097503527315007, 0.0), (float)(-34.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_up (midx, LElevDoorGrp, 2,
-    _V(-3.05059,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)(-22.0*RAD));
+    _V(-11.664,-3.382752,-10.0212), _V(-0.998913, 0.0465805, 0.00183875), (float)(22.0*RAD));
   static MGROUP_ROTATE RElevatorDoor_up (midx, RElevDoorGrp, 2,
-    _V(3.05059,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)-(22.0*RAD));
+    _V(11.664,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)(-22.0*RAD));
  
   // ***** 4B. Downward animation of elevons *****
   static MGROUP_ROTATE LElevator_down (midx, LElevGrp, 2,
@@ -2068,9 +2068,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE RElevator_down (midx, RElevGrp, 2,
     _V(+3.09922,-4.59415,-10.42953), _V(0.995235179322522, 0.097503527315007, 0.0), (float)(-18.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_down (midx, LElevDoorGrp, 2,
-    _V(0,-3.4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
+    _V(-11.664,-3.382752,-10.0212), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
   static MGROUP_ROTATE RElevatorDoor_down (midx, RElevDoorGrp, 2,
-    _V(0,-3.4,-10), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
+    _V(11.664,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)(-5*RAD));
   anim_lelevon = CreateAnimation (0.5);
   anim_relevon = CreateAnimation (0.5);
   LogAnim("anim_lelevon", anim_lelevon);
