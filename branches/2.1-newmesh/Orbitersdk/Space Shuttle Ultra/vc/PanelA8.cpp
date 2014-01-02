@@ -264,7 +264,8 @@ namespace vc
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
-		oapiVCSetAreaClickmode_Quadrilateral (AID_A8, _V(-0.797, 2.892, 12.279)+ofs, _V(-0.266, 2.892, 12.279)+ofs, 
+		oapiVCSetAreaClickmode_Quadrilateral (AID_A8,
+			_V(-0.797, 2.893, 12.277)+ofs, _V(-0.266, 2.893, 12.277)+ofs, 
 			_V(-0.797, 2.119, 12.522)+ofs, _V(-0.266, 2.119, 12.522)+ofs);
 
 		SURFHANDLE panela8t_tex = oapiGetTextureHandle (hPanelMesh, TEX_A8TOP_VC);
