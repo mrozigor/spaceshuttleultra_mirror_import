@@ -116,7 +116,7 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 	VECTOR3 grms, pos, dir, rot, grmsdir;
 	ATTACHMENTHANDLE hAtt;
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
+	STS()->Local2Global (pos, grms);  // global position of attachment point
 	STS()->GlobalRot(dir, grmsdir);
 
 	// Search the complete vessel list for a grappling candidate.
@@ -425,7 +425,7 @@ ATTACHMENTHANDLE ActiveLatchGroup::FindPayload(VESSEL** pVessel) const
 	VECTOR3 glatchpos, glatchdir, pos, dir, rot;
 
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, glatchpos);
+	STS()->Local2Global (pos, glatchpos);
 	STS()->GlobalRot(dir, glatchdir);
 
 	for(unsigned int i=0;i<vhPayloads.size();i++) {
@@ -463,7 +463,7 @@ void ActiveLatchGroup::PopulatePayloadList()
 {
 	VECTOR3 gpos, grms, pos, dir, rot;
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
+	STS()->Local2Global (pos, grms);  // global position of attachment point
 
 	// clear list
 	vhPayloads.clear();
