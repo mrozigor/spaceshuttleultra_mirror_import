@@ -197,9 +197,9 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
-const double PL_ATTACH_CENTER_Y = -1.80;
-const double PL_ATTACH_SIDE_Y = 0.80;
-const double PL_ATTACH_SIDE_X = 2.45;
+const double PL_ATTACH_CENTER_Y = -3.537;
+const double PL_ATTACH_SIDE_Y = -1.15;
+const double PL_ATTACH_SIDE_X = 2.307;
 
 const VECTOR3 DIR_CENTERPL = _V(0.0, 1.0, 0.0);
 const VECTOR3 ROT_CENTERPL = _V(0.0, 0.0, 1.0);
