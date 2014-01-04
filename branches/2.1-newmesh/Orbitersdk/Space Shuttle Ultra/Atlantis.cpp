@@ -1082,18 +1082,18 @@ pActiveLatches(3, NULL)
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
-	RCS_PSSpec.srcsize=0.05;
-	RCS_PSSpec.srcrate=480;
-	RCS_PSSpec.v0=100;
+	RCS_PSSpec.srcsize=0.1;
+	RCS_PSSpec.srcrate=800;
+	RCS_PSSpec.v0=60;//100
 	RCS_PSSpec.srcspread=0;
-	RCS_PSSpec.lifetime=0.075;
-	RCS_PSSpec.growthrate=40;
-	RCS_PSSpec.atmslowdown=0.1;
+	RCS_PSSpec.lifetime=0.2;
+	RCS_PSSpec.growthrate=20;
+	RCS_PSSpec.atmslowdown=5;
 	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::EMISSIVE;
 	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_FLAT;
-	RCS_PSSpec.lmin=0.5;
+	RCS_PSSpec.lmin=1;
 	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;
-	RCS_PSSpec.amin=0.5;
+	RCS_PSSpec.amin=1;
 	RCS_PSSpec.tex=RCS_tex;
 	
 	reentry_flames = NULL;
@@ -1996,22 +1996,22 @@ void Atlantis::DefineAnimations (void)
   //gop->DefineAnimations();
   static UINT LNosewheelDoorGrp[1] = {GRP_LEFT_NLG_DOOR};
   static MGROUP_ROTATE LNosewheelDoor (midx, LNosewheelDoorGrp, 1,
-    _V(-0.651575,-3.71,15.85), _V(0, 0.1896375, 0.9540225), (float)(-60.0*RAD));
+    _V(-0.651575,-3.71,15.85), _V(-0.00552807, 0.209956, 0.977695), (float)(-60.0*RAD));
   static UINT RNosewheelDoorGrp[1] = {GRP_RIGHT_NLG_DOOR};
   static MGROUP_ROTATE RNosewheelDoor (midx, RNosewheelDoorGrp, 1,
-    _V(0.651575,-3.71,15.85), _V(0, 0.1896375, 0.9540225), (float)(60.0*RAD));
+    _V(0.651575,-3.71,15.85), _V(-0.00552807, 0.209956, 0.977695), (float)(60.0*RAD));
   static UINT NosewheelGrp[5] = {GRP_NLG_WHEELS,GRP_NLG_STRUT, GRP_NLG_UPPER_TORQUE_ARM, GRP_NLG_LOWER_TORQUE_ARM, GRP_NLG_SHOCK_STRUT};
   static MGROUP_ROTATE Nosewheel (midx, NosewheelGrp, 5,
-    _V(0,-3.81,14.8), _V(1, 0, 0), (float)(94.5*RAD));
+    _V(0,-3.81,14.8), _V(1, 0, 0), (float)(110*RAD));
   static UINT RGearDoorGrp[1] = {GRP_RIGHT_MLG_DOOR};
   static MGROUP_ROTATE RGearDoor (midx, RGearDoorGrp, 1,
-    _V(4.338, -4.356, -3.15), _V(0, 0.0418756, 0.999123), (float)(83.8*RAD));
+    _V(4.338, -4.456, -3.65), _V(-0.00356587, 0.0401574, 0.999187), (float)(83.8*RAD));
   static UINT LGearDoorGrp[1] = {GRP_LEFT_MLG_DOOR};
   static MGROUP_ROTATE LGearDoor (midx, LGearDoorGrp, 1,
-    _V(-4.338, -4.356, -3.15), _V(0, 0.0418756, 0.999123), (float)(-83.8*RAD));
+    _V(-4.338, -4.456, -3.65), _V(-0.00356587, 0.0401574, 0.999187), (float)(-83.8*RAD));
   static UINT MainGearGrp[6] = {GRP_RIGHT_MLG_WHEELS,GRP_RIGHT_MLG_STRUT,GRP_RIGHT_MLG_SHOCK_STRUT,GRP_LEFT_MLG_WHEELS,GRP_LEFT_MLG_STRUT,GRP_LEFT_MLG_SHOCK_STRUT};
   static MGROUP_ROTATE MainGear (midx, MainGearGrp, 6,
-    _V(0, -4.08, -5.01), _V(1, 0, 0), (float)(94.5*RAD));
+    _V(0, -4.08, -5.51), _V(1, 0, 0), (float)(94.5*RAD));
 
   anim_gear = CreateAnimation (0);
   LogAnim("anim_gear", anim_gear);
@@ -3360,9 +3360,9 @@ void Atlantis::SetAnimationCameras() {
 LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
 	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
+	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
 	const COLOUR4 amb = {0.0, 0.0, 0};
-	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 
 	bspec.active = false;
 	bspec.col = &color;
