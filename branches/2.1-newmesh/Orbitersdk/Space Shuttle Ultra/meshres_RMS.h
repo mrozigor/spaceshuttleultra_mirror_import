@@ -1,8 +1,8 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Nov 30 17:42:26 2013
+// Date of conversion : Wed Jan 08 19:33:32 2014
 
-// Input file: ../Meshes/SSU/RMS.msh
+// Input file: RMS.msh
 // ======================================================
 
 #pragma once
