@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sun Jan 12 10:00:25 2014
+// Date of conversion : Sun Jan 12 19:27:07 2014
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -9,8 +9,8 @@
 
 const unsigned int NUMGRP = 109;
 
-const unsigned int GRP_PORT_PLBD_INTERIOR	=	0;	//PORT_PLBD_INTERIOR
-const unsigned int GRP_STBD_PLBD_INTERIOR	=	1;	//STBD_PLBD_INTERIOR
+const unsigned int GRP_STBD_PLBD_INTERIOR	=	0;	//STBD_PLBD_INTERIOR
+const unsigned int GRP_PORT_PLBD_INTERIOR	=	1;	//PORT_PLBD_INTERIOR
 const unsigned int GRP_FUSELAGE	=	2;	//FUSELAGE
 const unsigned int GRP_PORT_FWD_RADIATOR_COOLANT_LINES	=	3;	//PORT_FWD_RADIATOR_COOLANT_LINES
 const unsigned int GRP_STBD_FWD_RADIATOR_COOLANT_LINES	=	4;	//STBD_FWD_RADIATOR_COOLANT_LINES
