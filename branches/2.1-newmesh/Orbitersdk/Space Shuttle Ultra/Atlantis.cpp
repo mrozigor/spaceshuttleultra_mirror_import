@@ -7119,15 +7119,15 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
-    _V(2.455,-1.1058,9.44), _V(0,1,0), (float)(-145*RAD));
+    _V(2.46,-1.1058,9.44), _V(0,1,0), (float)(-145*RAD));
 
   static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-	_V(2.149, -0.228, 8.456), _V(0.503871025524, 0.0, 0.863778900898), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
+	_V(2.22, -0.228, 8.456), _V(0.503871025524, 0.0, 0.863778900898), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
 
   static UINT KuBand3Grp[4] = {GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
-	_V(2.094,-0.128,8.45), _V(-0.313333468349, 0.91031618173, 0.270456256891), (float)(23.25*RAD));//Data from the Ku band System Workbook
+	_V(2.094,-0.128,8.45), _V(-0.468631, 0.841773, 0.267962), (float)(23.25*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
@@ -7976,7 +7976,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
