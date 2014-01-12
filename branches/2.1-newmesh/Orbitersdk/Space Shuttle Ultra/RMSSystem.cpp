@@ -122,10 +122,10 @@ void RMSSystem::Realize()
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 	
 	// add end effector light
-	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {1.0f, 1.0f, 0.75f, 0.0f};
+	static VECTOR3 color = _V(1.0,0.839,0.666);
+	const COLOUR4 diff = {1.0f, 0.839f, 0.666f, 0.0f};
 	const COLOUR4 amb = {0.0, 0.0, 0};
-	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 	EELight_bspec.active = false;
 	EELight_bspec.col = &color;
 	EELight_bspec.duration = 0;

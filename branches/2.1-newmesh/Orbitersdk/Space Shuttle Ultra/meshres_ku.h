@@ -1,8 +1,8 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Nov 30 20:19:42 2013
+// Date of conversion : Mon Jan 06 19:53:02 2014
 
-// Input file: ../Meshes/SSU/Ku_band_DA.msh
+// Input file: Ku_band_DA.msh
 // ======================================================
 
 #pragma once
