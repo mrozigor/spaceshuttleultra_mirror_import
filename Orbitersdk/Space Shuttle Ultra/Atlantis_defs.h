@@ -29,16 +29,19 @@ const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
 //const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
 //const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
 //const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
-const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
+const VECTOR3 VC_OFFSET = _V(0.0, -2.31, -2.27);
 
-const VECTOR3 ODS_POS = _V(0.0, 0.85, 9);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
+const VECTOR3 ODS_POS = _V(0.0, -2.05, 7);//Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
+const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS mesh position and docking port position
 
 // mesh offsets
 // Orbiter mesh is always at (0,0,0)
-const VECTOR3 ET_OFFSET = _V(0.0, -7.7, 6.209); // offset between ET and shuttle meshes
-const VECTOR3 LSRB_OFFSET = _V(-6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
-const VECTOR3 RSRB_OFFSET = _V(6.27, -7.7, 2.8); // offset between SRB and shuttle mesh
+const VECTOR3 ET_OFFSET = _V(0.0, -9.75, 4.139); // offset between ET and shuttle meshes
+const VECTOR3 LSRB_OFFSET = _V(-6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
+const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
+const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -46,54 +49,47 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
-const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
-const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
+const VECTOR3 SSMER_REF = _V(1.418, -2.424, -13.938);
+const VECTOR3 SSMEL_REF = _V(-1.418, -2.424, -13.938);
+const VECTOR3 SSMET_REF = _V(0.0, 0.341, -13.363);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
-const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
-const VECTOR3 SSMEL_GOX_REF = _V(-1.57, 1.385, -14.456);
-const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
+const VECTOR3 SSMET_GOX_REF = _V(1.234, 1.044, -15.729);
+const VECTOR3 SSMEL_GOX_REF = _V(-1.581, -0.771, -16.15);
+const VECTOR3 SSMER_GOX_REF = _V(2.742, -1.953, -16.322);
 
 //const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
 const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
-const VECTOR3 POS_HDP = _V(0.0, -7.95, -17.811);
+const VECTOR3 POS_HDP = _V(0.0, -10.0, -19.881);
 const VECTOR3 POS_TOW = _V(0.0, -7.95, 33.789);
-
-const VECTOR3 UMBDOORL_REF = _V(-1.17, -2.65, -7.60);
-const VECTOR3 UMBDOORR_REF = _V(1.17, -2.65, -7.60);
-//const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
-const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
-const VECTOR3 PROBEL_REF = _V(-1.175, -1.0894815, 19.28);
-const VECTOR3 PROBER_REF = _V( 1.175, -1.0894815, 19.28);
+const VECTOR3 PROBEL_REF = _V(-1.11, -3.1, 16.78);
+const VECTOR3 PROBER_REF = _V( 1.11, -3.1, 16.78);
 
 const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
 
 // ============================================================
 // Star Tracker Door Animation Constants
 // ============================================================
-const VECTOR3 STZD_REF = _V(-1.11,1.74,15.85);
-const VECTOR3 STZD_AXIS = _V(0.375937,-0.859628,-0.345993);
-const VECTOR3 STYD_REF = _V(-1.75,1.32,15.75);
-const VECTOR3 STYD_AXIS = _V(0.720496,-0.63336,-0.282385);
-const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(-110.0 * RAD);
+const VECTOR3 STZD_REF = _V(-1.068, -0.468, 13.405);
+const VECTOR3 STZD_AXIS = _V(-0.277668498282, 0.924453407012, 0.26131609848);
+const VECTOR3 STYD_REF = _V(-1.857, -1.178, 13.243);
+const VECTOR3 STYD_AXIS = _V(-0.949661355181, 0.177721991852, 0.257988767367);
+const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(110.0 * RAD);
 
 
-const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 4.6, -12.03);
+const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 2.349, -13.972);
 
 //const VECTOR3 L_OMS_REF = _V(-2.311, 3.297, -11.967);
 //const VECTOR3 R_OMS_REF = _V(2.311, 3.297, -11.967);
-const VECTOR3 L_OMS_REF = _V(-2.464, 3.595, -13.11);
-const VECTOR3 R_OMS_REF = _V(2.464, 3.595, -13.11);
-//const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.2708080775, 0.955953983);
-//const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.2708080775, 0.955953983);
-const VECTOR3 L_OMS_DIR = _V(0.108917, -0.272560, 0.955954);
-const VECTOR3 R_OMS_DIR = _V(-0.108917, -0.272560, 0.955954);
+const VECTOR3 L_OMS_REF = _V(0.0, 0.2805, -1.713) + LOMS_OFFSET;
+const VECTOR3 R_OMS_REF = _V(0.0, 0.2805, -1.713) + ROMS_OFFSET;
+const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.272280247041, 0.955535713334);
+const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.272280247041, 0.955535713334);
 
 const int STATE_PRELAUNCH = 0;
 const int STATE_STAGE1 = 1;	//SRBs ignited
@@ -201,9 +197,9 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
-const double PL_ATTACH_CENTER_Y = -1.80;
-const double PL_ATTACH_SIDE_Y = 0.80;
-const double PL_ATTACH_SIDE_X = 2.45;
+const double PL_ATTACH_CENTER_Y = -3.537;
+const double PL_ATTACH_SIDE_Y = -1.15;
+const double PL_ATTACH_SIDE_X = 2.307;
 
 const VECTOR3 DIR_CENTERPL = _V(0.0, 1.0, 0.0);
 const VECTOR3 ROT_CENTERPL = _V(0.0, 0.0, 1.0);
@@ -221,7 +217,7 @@ const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 // =====================================================================
 // CG definitions (location of CG relative to center of Orbiter mesh)
 // =====================================================================
-const VECTOR3 ORBITER_CG = _V(0.0, 0.0, 0.0);
+const VECTOR3 ORBITER_CG = _V(0.0, -2.01062, -3.70822) + _V(0.0, 0.19888279332, 0.2939726193); // second term is fudge factor added so OMS gimbal angles are correct (SiameseCat, 131225)
 const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
 const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
 const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);

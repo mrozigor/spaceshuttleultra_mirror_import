@@ -1,5 +1,6 @@
 #include "PanelF4.h"
 #include "../meshres_vc_additions.h"
+#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -130,7 +131,7 @@ namespace vc
 
 		SURFHANDLE tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_FPANELS_VC);
 
-		VECTOR3 ofs=STS()->orbiter_ofs;
+		VECTOR3 ofs=STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
 		oapiVCRegisterArea(AID_F4, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_F4,
