@@ -23,7 +23,7 @@ namespace eva_docking {
 		anim_ring = NULL;
 		pRingAnim = NULL;
 		RingState.Set(AnimState::STOPPED, 0.0);
-		odsAttachVec[0] = ORBITER_DOCKPOS;
+		odsAttachVec[0] = ODS_DOCKPOS_OFFSET;
 		odsAttachVec[1] = _V(0.0, 1.0, 0.0);
 		odsAttachVec[2] = _V(0.0, 0.0, 1.0);
 		target_pos = _V(0.0, 2000.0, 0.0);
@@ -277,7 +277,7 @@ namespace eva_docking {
 				}
 
 				STS()->SetAnimation(anim_ring, RingState.pos);
-				STS()->UpdateODSAttachment(odsAttachVec[0], 
+				STS()->UpdateODSAttachment(STS()->GetOrbiterCoGOffset() + odsAttachVec[0], 
 					odsAttachVec[1]-odsAttachVec[0], 
 					odsAttachVec[2]-odsAttachVec[0]);
 			}
@@ -438,7 +438,7 @@ namespace eva_docking {
 
 		if(!pRingAnim) {
 
-			odsAttachVec[0] = ORBITER_DOCKPOS + ofs;
+			odsAttachVec[0] = ODS_DOCKPOS_OFFSET + ofs;
 			odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
 			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 			
@@ -449,62 +449,62 @@ namespace eva_docking {
 				_V(0.0, 0.45, 0.0));
 
 			pCoilAnim = new MGROUP_SCALE(midx_ods, grps_coil, 3, 
-				_V(0,1.00,0) + ofs, _V(1,1.9,1));
+				_V(0,1.00,0), _V(1,1.4,1));
 
 			pRod1LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1l0, 1, 
-				_V(-0.569,1.662,0.197) + ofs, _V(-0.866,0,0.5), (float)(22.0f * RAD));
+				_V(-0.569,1.662,0.197), _V(-0.866,0,0.5), (float)(22.0f * RAD));
 
 			pRod1LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
-				_V(-0.668,1.372,0.02) + ofs, _V(-0.866,0,0.5), (float)(13.0f * RAD));
+				_V(-0.668,1.372,0.02), _V(-0.866,0,0.5), (float)(13.0f * RAD));
 
 			pRod1LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
-				_V(-0.668,1.372,0.02) + ofs, _V(-0.866,0,0.5), (float)(3.0f * RAD));
+				_V(-0.668,1.372,0.02), _V(-0.866,0,0.5), (float)(3.0f * RAD));
 
 			pRod1RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1r0, 1, 
-				_V(-0.452,1.662,0.396) + ofs, _V(0.866,0,-0.5), (float)(22.0f * RAD));
+				_V(-0.452,1.662,0.396), _V(0.866,0,-0.5), (float)(22.0f * RAD));
 
 			pRod1RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
-				_V(-0.353,1.372,0.568) + ofs, _V(0.866,0,-0.5), (float)(13.0f * RAD));
+				_V(-0.353,1.372,0.568), _V(0.866,0,-0.5), (float)(13.0f * RAD));
 
 			pRod1RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
-				_V(-0.353,1.372,0.568) + ofs, _V(0.866,0,-0.5), (float)(3.0f * RAD));
+				_V(-0.353,1.372,0.568), _V(0.866,0,-0.5), (float)(3.0f * RAD));
 
 			pRod2LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2l0, 1, 
-				_V(0.452,1.662,0.396) + ofs, _V(0.866,0,0.5), (float)(22.0f * RAD));
+				_V(0.452,1.662,0.396), _V(0.866,0,0.5), (float)(22.0f * RAD));
 
 			pRod2LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
-				_V(0.353,1.372,0.568) + ofs, _V(0.866,0,0.5), (float)(13.0f * RAD));
+				_V(0.353,1.372,0.568), _V(0.866,0,0.5), (float)(13.0f * RAD));
 
 			pRod2LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
-				_V(0.353,1.372,0.568) + ofs, _V(0.866,0,0.5), (float)(3.0f * RAD));
+				_V(0.353,1.372,0.568), _V(0.866,0,0.5), (float)(3.0f * RAD));
 
 			pRod2RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2r0, 1, 
-				_V(0.569,1.662,0.197) + ofs, _V(-0.866,0,-0.5), (float)(22.0f * RAD));
+				_V(0.569,1.662,0.197), _V(-0.866,0,-0.5), (float)(22.0f * RAD));
 
 			pRod2RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
-				_V(0.668,1.372,0.02) + ofs, _V(-0.866,0,-0.5), (float)(13.0f * RAD));
+				_V(0.668,1.372,0.02), _V(-0.866,0,-0.5), (float)(13.0f * RAD));
 
 			pRod2RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
-				_V(0.668,1.372,0.02) + ofs, _V(-0.866,0,-0.5), (float)(3.0f * RAD));
+				_V(0.668,1.372,0.02), _V(-0.866,0,-0.5), (float)(3.0f * RAD));
 
 			
 			pRod3LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3l0, 1, 
-				_V(0.117,1.662,0) + ofs, _V(0,0,-1), (float)(22.0f * RAD));
+				_V(0.117,1.662,0), _V(0,0,-1), (float)(22.0f * RAD));
 
 			pRod3LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3l1, 1, 
-				_V(0.315,1.372,0) + ofs, _V(0,0,-1), (float)(13.0f * RAD));
+				_V(0.315,1.372,0), _V(0,0,-1), (float)(13.0f * RAD));
 
 			pRod3LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod3l1, 1, 
-				_V(0.315,1.372,0) + ofs, _V(0,0,-1), (float)(3.0f * RAD));
+				_V(0.315,1.372,0), _V(0,0,-1), (float)(3.0f * RAD));
 
 			pRod3RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3r0, 1, 
-				_V(-0.117,1.662,0) + ofs, _V(0,0,1), (float)(22.0f * RAD));
+				_V(-0.117,1.662,0), _V(0,0,1), (float)(22.0f * RAD));
 
 			pRod3RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
-				_V(-0.315,1.372,0) + ofs, _V(0,0,1), (float)(13.0f * RAD));
+				_V(-0.315,1.372,0), _V(0,0,1), (float)(13.0f * RAD));
 
 			pRod3RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
-				_V(-0.315,1.372,0) + ofs, _V(0,0,1), (float)(3.0f * RAD));
+				_V(-0.315,1.372,0), _V(0,0,1), (float)(3.0f * RAD));
 
 			anim_ring = STS()->CreateAnimation(0.0);
 			ANIMATIONCOMPONENT_HANDLE parent = 

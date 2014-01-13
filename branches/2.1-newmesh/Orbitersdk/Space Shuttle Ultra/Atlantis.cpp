@@ -2436,7 +2436,7 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 
 	//Move to UpdateDockAuxAttach(), include animation of docking port.
 	//reject attaching when no docking port available
-	UpdateODSAttachment(ofs0+ORBITER_DOCKPOS, _V(0.0, 1.0, 0.0), _V(0.0,0.0,1.0));
+	UpdateODSAttachment(ofs0+_V(ODS_POS.x+ODS_DOCKPOS_OFFSET.x, ODS_POS.y+ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos()+ODS_DOCKPOS_OFFSET.z), _V(0.0, 1.0, 0.0), _V(0.0,0.0,1.0));
 	
 
 /*
@@ -2723,7 +2723,7 @@ void Atlantis::AddOrbiterVisual()
 
     // ***** Docking definitions
 
-	VECTOR3 DockPos = _V(ORBITER_DOCKPOS.x, ORBITER_DOCKPOS.y, pMission->GetODSZPos());
+	VECTOR3 DockPos = _V(ODS_POS.x+ODS_DOCKPOS_OFFSET.x, ODS_POS.y+ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos()+ODS_DOCKPOS_OFFSET.z);
 	SetDockParams (DockPos, _V(0,1,0), _V(0,0,-1));
 
     // ***** Attachment definitions
@@ -2744,7 +2744,7 @@ void Atlantis::AddOrbiterVisual()
 
 	if(pExtAirlock) {
 		oapiWriteLog("Create External Airlock animations");
-		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, OFS_ZERO);
+		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos()));
 		oapiWriteLog("\tDONE.");
 	}
 
@@ -5822,7 +5822,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
-	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+1.20,orbiter_ofs.z+pMission->GetODSZPos()));
+	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+ODS_POS.y+1.15,orbiter_ofs.z+pMission->GetODSZPos()-0.242));
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
