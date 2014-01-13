@@ -47,6 +47,8 @@ namespace mission {
 		std::string strMissionName;
 		std::string strOrbiter;
 		std::string strOrbiterTexName;
+		std::string strLOMSPodMeshName;
+		std::string strROMSPodMeshName;
 		bool bEnableWingPainting;
 		int iETVersion;
 		int iBranchCode;
@@ -140,6 +142,9 @@ namespace mission {
 		 * Empty string if no file is specified
 		 */
 		virtual const std::string& GetOrbiterTextureName() const;
+		
+		virtual const std::string& GetLOMSPodMeshName() const;
+		virtual const std::string& GetROMSPodMeshName() const;
 
 		virtual bool WingPaintingEnabled() const;
 		

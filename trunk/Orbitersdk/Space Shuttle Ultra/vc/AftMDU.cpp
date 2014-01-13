@@ -1,6 +1,7 @@
 #include "AftMDU.h"
 #include "../Atlantis.h"
 #include "../meshres_vc.h"
+#include "../Atlantis_defs.h"
 //#include "../meshres_vc_additions.h"
 
 namespace vc
@@ -27,7 +28,7 @@ namespace vc
 	{
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->orbiter_ofs;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		
 		oapiVCRegisterArea(AID_MDU_AFD1, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		

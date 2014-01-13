@@ -18,9 +18,9 @@ void StbdMPMSystem::Realize()
 	MPMSystem::Realize();
 
 	// MPM animation
-	static UINT STBDMPMGrp[1] = {0}; //only group in mesh
-	MGROUP_ROTATE* pMPMAnim = new MGROUP_ROTATE(mesh_index, STBDMPMGrp, 1,
-		_V(-0.19, -0.44, 0), _V(0, 0, 1), (float)(-31.36*RAD));
+	static UINT STBDMPMGrp[2] = {0,2};
+	MGROUP_ROTATE* pMPMAnim = new MGROUP_ROTATE(mesh_index, STBDMPMGrp, 2,
+		_V(-0.16, -0.34, 0), _V(0, 0, 1), (float)(-31.36*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pMPMAnim);
 

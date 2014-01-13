@@ -1,23 +1,22 @@
-// ========================================================
-// Mesh resource file for Ku_band_DA.msh
-// Generated with meshc on Wed Mar 27 02:05:25 2013
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Mon Jan 06 19:53:02 2014
 
-// ========================================================
+// Input file: Ku_band_DA.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP_KU 7
+#pragma once
 
-// Number of materials:
-#define NMAT_KU 3
+const unsigned int NUMGRP_KU = 10;
 
-// Number of textures:
-#define NTEX_KU 1
+const unsigned int GRP_BETA_GIMBAL_BOOM_KU	=	0;	//Beta_gimbal_boom
+const unsigned int GRP_ALPHA_GIMBAL_KU	=	1;	//Alpha_gimbal
+const unsigned int GRP_DEA_KU	=	2;	//DEA
+const unsigned int GRP_DEA_EQUIPMENT_KU	=	3;	//DEA_EQUIPMENT
+const unsigned int GRP_DEA_CABLE_STATIC_KU	=	4;	//DEA_cable_static
+const unsigned int GRP_DEAA_KU	=	5;	//DEA
+const unsigned int GRP_DISH_RECEIVER_SUPPORTS_KU	=	6;	//Dish_receiver_supports
+const unsigned int GRP_DISH_KU	=	7;	//Dish
+const unsigned int GRP_GIMBAL_LOCK_STRUCTURE_KU	=	8;	//Gimbal_lock_structure
+const unsigned int GRP_DEAB_KU	=	9;	//DEA
 
-// Named mesh groups:
-#define GRP_DEA_cable_static_KU 0
-#define GRP_Dish_KU 1
-#define GRP_Dish_receiver_supports_KU 2
-#define GRP_Gimbal_lock_structure_KU 3
-#define GRP_Beta_gimbal_boom_KU 4
-#define GRP_Alpha_gimbal_KU 5
-#define GRP_DEA_KU 6

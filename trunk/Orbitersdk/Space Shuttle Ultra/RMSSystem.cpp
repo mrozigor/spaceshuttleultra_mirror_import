@@ -41,6 +41,8 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	camRMSElbow[PAN] = 0.0;
 	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
+	
+	EELightPos = RMS_EE_LIGHT_POS;
 
 	bLastCamInternal = false;
 
@@ -120,16 +122,16 @@ void RMSSystem::Realize()
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 	
 	// add end effector light
-	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {1.0f, 1.0f, 0.75f, 0.0f};
+	static VECTOR3 color = _V(1.0,0.839,0.666);
+	const COLOUR4 diff = {1.0f, 0.839f, 0.666f, 0.0f};
 	const COLOUR4 amb = {0.0, 0.0, 0};
-	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 	EELight_bspec.active = false;
 	EELight_bspec.col = &color;
 	EELight_bspec.duration = 0;
 	EELight_bspec.falloff = 0.4;
 	EELight_bspec.period = 0;
-	EELight_bspec.pos = &arm_tip[5];
+	EELight_bspec.pos = &EELightPos;
 	EELight_bspec.shape = BEACONSHAPE_DIFFUSE;
 	EELight_bspec.size = 0.1;
 	EELight_bspec.tofs = 0;
@@ -156,64 +158,64 @@ void RMSSystem::CreateArm()
 	const VECTOR3 YawAxis = RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE);
 
 	//rollout animation
-	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMs, GRP_base};
+	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMS, GRP_BASE};
 	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.55784, 1.12081, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
+		_V(-2.34, -0.97, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
 	//shoulder yaw
-	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
+	static UINT RMSShoulderYawGrp[1] = {GRP_SHOULDER_YAW};
 	MGROUP_ROTATE* pRMS_sy_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderYawGrp, 1,
 		RMS_SY_JOINT, YawAxis, (float)(-360*RAD)); // -180 .. +180
 	anim_joint[SHOULDER_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, pRMS_sy_anim, parent);
 
 	//shoulder pitch
-	static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
+	static UINT RMSShoulderPitchGrp[1] = {GRP_HUMERUS};
 	MGROUP_ROTATE* pRMS_sp_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderPitchGrp, 1,
 		RMS_SP_JOINT, PitchAxis, (float)(147.0*RAD)); // -2 .. +145
 	anim_joint[SHOULDER_PITCH] = STS()->CreateAnimation (0.0136);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, pRMS_sp_anim, parent);
 
 	//elbow pitch
-	static UINT RMSElbowPitchGrp[2] = {GRP_box, GRP_cambase};
+	static UINT RMSElbowPitchGrp[2] = {GRP_BOX, GRP_CAMBASE};
 	MGROUP_ROTATE* pRMS_ep_anim = new MGROUP_ROTATE(mesh_index, RMSElbowPitchGrp, 2,
 		RMS_EP_JOINT, PitchAxis, (float)(163.4*RAD));
 	anim_joint[ELBOW_PITCH] = STS()->CreateAnimation (0.985312);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, pRMS_ep_anim, parent);
 
 	//RMS elbow camera
-	static UINT RMSElbowCamGrp[2] = {GRP_elbowcam, GRP_camswivel};
+	static UINT RMSElbowCamGrp[2] = {GRP_ELBOWCAM, GRP_CAMSWIVEL};
 	MGROUP_ROTATE* pRMSElbowCamPan = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp+1, 1,
-		_V(-2.76, 2.38, 2.28), _V(0.309015, 0.951057, 0), (float)(340*RAD));
+		_V(-2.68, 0.12, 0.07), _V(0.124034734589, 0.992277876713, 0.0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
 	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
-		_V(-2.69, 2.56, 2.28), _V(0.951057, -0.309014, 0), (float)(340*RAD));
+		_V(-2.65, 0.34, 0.07), _V(0.992277876713, -0.124034734589, 0.0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
 	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
-		_V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
+		_V(-2.65, 0.34, -0.19), _V(1, 0, 0), 0.0f);
 	STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamLoc, parent2);
 
 	//wrist pitch
-	static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
+	static UINT RMSWristPitchGrp[1] = {GRP_WRISTPITCH};
 	MGROUP_ROTATE* pRMS_wp_anim = new MGROUP_ROTATE(mesh_index, RMSWristPitchGrp, 1,
 		RMS_WP_JOINT, PitchAxis, (float)(242.8*RAD)); // -121.4 .. +121.4
 	anim_joint[WRIST_PITCH] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_PITCH], 0, 1, pRMS_wp_anim, parent);
 
 	//wrist yaw
-	static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
+	static UINT RMSWristYawGrp[1] = {GRP_WRIST_YAW};
 	MGROUP_ROTATE* pRMS_wy_anim = new MGROUP_ROTATE(mesh_index, RMSWristYawGrp, 1,
 		RMS_WY_JOINT, YawAxis, (float)(242.6*RAD)); // -121.3 .. +121.3
 	anim_joint[WRIST_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_YAW], 0, 1, pRMS_wy_anim, parent);
 
 	//wrist roll
-	static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
+	static UINT RMSEndEffectorGrp[1] = {GRP_ENDEFFECTOR};
 	MGROUP_ROTATE* pRMS_wr_anim = new MGROUP_ROTATE(mesh_index, RMSEndEffectorGrp, 1,
 		RMS_EE_POS, _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
@@ -471,7 +473,8 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	
 	// update end effector light position/direction
 	if(arm_moved || MPMRollout.Moving()) {
-		pEELight->SetPosition(arm_tip[5]);
+		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset();
+		pEELight->SetPosition(EELightPos);
 		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
 		sprintf_s(oapiDebugString(), 255, "Light dir: %f %f %f", (arm_tip[1]-arm_tip[0]).x, (arm_tip[1]-arm_tip[0]).y, (arm_tip[1]-arm_tip[0]).z);
 	}
@@ -940,7 +943,7 @@ void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
 		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-		STS()->SetCameraOffset(camRMSElbowLoc[0]+RMS_MESH_OFFSET);
+		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }

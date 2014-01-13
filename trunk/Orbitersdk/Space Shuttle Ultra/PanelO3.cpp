@@ -6,6 +6,7 @@
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "dps/MasterTimingUnit.h"
+#include "Atlantis_defs.h"
 //#include "Stopwatch.h"
 
 extern GDIParams g_Param;
@@ -114,7 +115,7 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 void PanelO3::RegisterVC()
 {
-	VECTOR3 ofs = sts->orbiter_ofs;
+	VECTOR3 ofs = sts->GetOrbiterCoGOffset() + VC_OFFSET;
 	SURFHANDLE digit_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_DIGITS_VC);
 
 	//Mesh data for this panel

@@ -2,6 +2,7 @@
 #include "../Atlantis.h"
 #include "../meshres_vc.h"
 #include "MDU.h"
+#include "../Atlantis_defs.h"
 
 namespace vc {
 
@@ -43,7 +44,7 @@ namespace vc {
 	void PanelF8::RegisterVC()
 	{
 		AtlantisPanel::RegisterVC();
-		VECTOR3 ofs = STS()->orbiter_ofs;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		oapiVCRegisterArea(AID_F8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F8, 
 			_V(0.416, 2.312, 14.755)+ofs, _V(0.942, 2.312, 14.755)+ofs,
