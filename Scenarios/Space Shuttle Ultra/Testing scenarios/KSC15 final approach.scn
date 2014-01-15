@@ -434,8 +434,12 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "ROMS Arm" OFF
   "LADP Stow Enable" INHIBIT
   "RADP Stow Enable" INHIBIT
-  "LADP Deploy" STOW
-  "RADP Deploy" STOW
+  "LADP Deploy" DEPLOY
+  "RADP Deploy" DEPLOY
+  "MAIN ENGINE LIMIT SHUT DN" AUTO
+  "SSME Left S/D PB Cover" [0]
+  "SSME Ctr S/D PB Cover" [0]
+  "SSME Right S/D PB Cover" [0]
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR
