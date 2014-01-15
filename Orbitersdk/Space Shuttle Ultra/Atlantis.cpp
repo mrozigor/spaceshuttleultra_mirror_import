@@ -4049,6 +4049,8 @@ void Atlantis::clbkPostCreation ()
 
 		SoundOptionOnOff(SoundID, PLAYATTITUDETHRUST, FALSE);
 		RequestLoadVesselWave(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
+		
+		ReplaceStockSound(SoundID, const_cast<char*>(AIR_CONDITIONING_SOUND_FILE), REPLACE_AIR_CONDITIONNING);
 
 		//SSME sounds
 		SoundOptionOnOff(SoundID, PLAYMAINTHRUST, FALSE);
@@ -4060,6 +4062,9 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 		RequestLoadVesselWave(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 		RequestLoadVesselWave(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+
+		RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
+		RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
 	}
 
 
