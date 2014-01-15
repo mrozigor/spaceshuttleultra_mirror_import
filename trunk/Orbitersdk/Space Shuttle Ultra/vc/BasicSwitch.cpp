@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "BasicSwitch.h"
+#include "../Atlantis.h"
+#include <OrbiterSoundSDK40.h>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -10,9 +12,10 @@
 
 namespace vc {
 
-BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
+BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident, int switchSoundID)
 : AtlantisVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0),
-	vbSpringLoaded(usNumPositions, false)
+  vbSpringLoaded(usNumPositions, false),
+  switchSound(switchSoundID)
 {
 	this->usNumPositions = usNumPositions;
 	labels.resize(usNumPositions);
@@ -130,6 +133,7 @@ bool BasicSwitch::OnParseLine(const char* line) {
 
 void BasicSwitch::OnPositionChange(unsigned short usNewPosition)
 {
+	if(switchSound > 0) PlayVesselWave(STS()->GetSoundID(), switchSound);
 }
 
 void BasicSwitch::OnPositionUp()

@@ -11,7 +11,7 @@
 
 namespace vc {
 	LockableLever::LockableLever(Atlantis *psts, unsigned short usNumPositions, const std::string &_ident)
-		: BasicSwitch(psts, usNumPositions, _ident), bIsPulled(false), bHasPullDir(false)
+	: BasicSwitch(psts, usNumPositions, _ident, SWITCH_THROW_SOUND), bIsPulled(false), bHasPullDir(false)
 	{
 		pswitchrot = NULL;
 		pswitchpull = NULL;
@@ -123,6 +123,7 @@ namespace vc {
 
 	void LockableLever::OnPositionChange(unsigned short usNewPosition)
 	{
+		BasicSwitch::OnPositionChange(usNewPosition);
 		if(bHasAnimations) {
 			SetAnimation(anim_switch, static_cast<double>(usNewPosition)/(usNumPositions - 1));
 			//sprintf_s(oapiDebugString(), 255, "%s: Setting position %f", GetIdentifier().c_str(), static_cast<double>(usNewPosition)/(usNumPositions - 1));
@@ -255,7 +256,7 @@ namespace vc {
 	}
 
 StandardSwitch::StandardSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
-: BasicSwitch(_sts, usNumPositions, _ident)
+: BasicSwitch(_sts, usNumPositions, _ident, SWITCH_THROW_SOUND)
 {
 	pswitchrot = NULL;
 	anim_switch = NULL;
@@ -312,6 +313,7 @@ void StandardSwitch::DefineSwitchGroup(UINT _grpIndex)
 
 void StandardSwitch::OnPositionChange(unsigned short usNewPosition)
 {
+	BasicSwitch::OnPositionChange(usNewPosition);
 	if(bHasAnimations)
 	{
 		SetAnimation(anim_switch, (double)(usNewPosition)/(usNumPositions - 1));
