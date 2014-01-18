@@ -380,12 +380,20 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 			oapiWriteLog("B");
 		}
 		return true;
-	} else if(!_stricmp(keyword, "EVENT_TIMER")) {
+	/*} else if(!_stricmp(keyword, "EVENT_TIMER")) {
 		const char* pLine2 = line;
 		strcpy(pszTempA, line);
 		oapiWriteLog(pszTempA);
 		sscanf_s(pLine2, "%d %f %s %s",
-			&iTmpA, &fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
+			&iTmpA, &fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));*/
+	// GLS: fixing difference between OnParseLine and OnSaveState
+	} else if(!_strnicmp( keyword, "EVENT_TIMER", 11 )) {
+		sscanf_s( keyword + 11, "%d", &iTmpA );
+		const char* pLine2 = line;
+		strcpy(pszTempA, line);
+		oapiWriteLog(pszTempA);
+		sscanf_s(pLine2, "%f %s %s",
+			&fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
 		if(iTmpA >=0 && iTmpA < 2)
 		{
 			//fEvent[iTmpA][0] = fTmpA;
