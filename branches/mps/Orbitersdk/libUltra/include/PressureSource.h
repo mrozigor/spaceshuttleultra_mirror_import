@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Boolean Valve class
+  Pressure Source Definition
 
 
 
@@ -22,55 +22,18 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef _g_ValveTypeBool_H_
-#define _g_ValveTypeBool_H_
+#ifndef _g_PressureSource_H_
+#define _g_PressureSource_H_
 
 
-#include <BasicValve.h>
-
-
-class ValveTypeBool
+class PressureSource
 {
-private:
-	BasicValve* vlv;
-	bool pos;
-public:
-	/**
-	 * Opens valve
-	 */
-	bool Open( void );
+	public:
+		PressureSource( void ){};
+		~PressureSource( void ){};
 
-	/**
-	 * Closes valve
-	 */
-	bool Close( void );
-
-	/**
-	 * Returns valve position
-	 * @return valve position (ON/OFF)
-	 */
-	bool GetPos( void ) const;
-
-	/**
-	 * Updates valve position (call from time step functions)
-	 * @param dtme sim dt
-	 */
-	void tmestp( double dtme );
-
-	/**
-	 * Use from .scn loading function to set valve position
-	 * @param ipos valve position
-	 */
-	void _backdoor( bool ipos );
-
-	/**
-	 * Create a new valve (only shows ON/OFF states)
-	 * @param initpos initial valve position
-	 * @param imaxrate maximum valve motion rate
-	 */
-	ValveTypeBool( bool initpos, double imaxrate );
-	~ValveTypeBool( void );
+		virtual double Use( double flow ) = 0;
 };
 
 
-#endif// _g_ValveTypeBool_H_
+#endif// _g_PressureSource_H_

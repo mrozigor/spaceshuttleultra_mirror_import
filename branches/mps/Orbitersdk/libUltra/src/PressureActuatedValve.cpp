@@ -1,0 +1,169 @@
+#include "PressureActuatedValve.h"
+#include "assert.h"
+
+
+PressureActuatedValve::PressureActuatedValve( double initpos, double rate, PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent )
+{
+	assert( (initpos >= 0) && (initpos <= 1) && "PressureActuatedValve::PressureActuatedValve.initpos" );
+	pos = initpos;
+	this->rate = rate / 100;
+	this->OP = OP;
+	this->CL = CL;
+	this->psource = psource;
+	this->psourceinvent = psourceinvent;
+
+	// set indications
+	if (pos == 0)
+	{
+		dopCLInd[0].SetLine();
+		dopCLInd[1].SetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+	else if (pos == 1)
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].SetLine();
+		dopOPInd[1].SetLine();
+	}
+	else
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+}
+
+PressureActuatedValve::~PressureActuatedValve( void )
+{
+	return;
+}
+
+void PressureActuatedValve::ConnectIndication( bool openind, int output, DiscreteBundle* pBundle, int iLine )
+{
+	assert( (output >= 0) && (output <= 1) && "PressureActuatedValve::ConnectIndication.output" );
+	if (openind == true) dopOPInd[output].Connect( pBundle, iLine );
+	else dopCLInd[output].Connect( pBundle, iLine );
+	return;
+}
+
+double PressureActuatedValve::GetPos( void ) const
+{
+	return pos;
+}
+
+void PressureActuatedValve::tmestp( double dt )
+{
+	double mpos = 0;
+
+	if (OP != nullptr)
+	{
+		if (CL != nullptr)
+		{
+			// type 1
+			if (OP->Use( 0 ) > CL->Use( 0 )) mpos = 1;
+			else if (OP->Use( 0 ) < CL->Use( 0 )) mpos = 0;
+			else mpos = pos;
+		}
+		else
+		{
+			// type 2 NC
+			if (OP->Use( 0 ) >= MIN_PRESS_OPEN_PAV) mpos = 1;// just get press
+			else mpos = 0;
+		}
+	}
+	else
+	{
+		if (CL != nullptr)
+		{
+			// type 2 NO
+			if (CL->Use( 0 ) >= MIN_PRESS_OPEN_PAV) mpos = 0;// just get press
+			else mpos = 1;
+		}
+	}
+
+	if (mpos != pos)
+	{
+		if (mpos > pos)
+		{
+			if (OP != nullptr) OP->Use( HE_USE_OPEN_PAV );// use now
+			pos += (rate * dt);
+			if (pos > 1) pos = 1;
+		}
+		else
+		{
+			if (CL != nullptr) CL->Use( HE_USE_OPEN_PAV );// use now
+			pos -= (rate * dt);
+			if (pos < 0) pos = 0;
+		}
+	}
+
+	// set indications
+	if (pos == 0)
+	{
+		dopCLInd[0].SetLine();
+		dopCLInd[1].SetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+	else if (pos == 1)
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].SetLine();
+		dopOPInd[1].SetLine();
+	}
+	else
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+	return;
+}
+
+void PressureActuatedValve::_backdoor( double ipos )
+{
+	pos = ipos;
+
+	// set indications
+	if (pos == 0)
+	{
+		dopCLInd[0].SetLine();
+		dopCLInd[1].SetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+	else if (pos == 1)
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].SetLine();
+		dopOPInd[1].SetLine();
+	}
+	else
+	{
+		dopCLInd[0].ResetLine();
+		dopCLInd[1].ResetLine();
+		dopOPInd[0].ResetLine();
+		dopOPInd[1].ResetLine();
+	}
+	return;
+}
+
+double PressureActuatedValve::Use( double flow )
+{
+	if (pos == 0)// TODO improve?
+	{
+		if (psourceinvent != nullptr) return psourceinvent->Use( flow );
+		else return 0;
+	}
+	else
+	{
+		if (psource != nullptr) return  pos * psource->Use( flow );
+		else return 0;
+	}
+}
