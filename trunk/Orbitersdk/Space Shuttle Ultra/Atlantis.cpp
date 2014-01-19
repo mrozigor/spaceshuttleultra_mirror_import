@@ -1079,6 +1079,13 @@ pActiveLatches(3, NULL)
 		DockingLight[i] = AddPayloadBayLight(DockingLightPos, _V(0, 1, 0), 120.0, Docking_bspec[i]); // create two copies of docking light to simulate DIM and BRIGHT settings
 	}
 
+	// light for engines during launch
+	COLOUR4 col_diff = {1,1,1,0};
+	COLOUR4 col_zero = {0,0,0,0};
+	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
+	SRBLight = AddPointLight (_V(0,LSRB_OFFSET.y,LSRB_OFFSET.z-21.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
+	SSMELight = AddPointLight (_V(0,SSMEL_REF.y,SSMEL_REF.z), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
@@ -4549,6 +4556,21 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		bool state = PLBDLightPower[i].IsSet();
 		PLBLight[i]->Activate(state);
 		PLB_bspec[i].active = state;
+	}
+
+	// during launch, turn engine light source on
+	if(status <= STATE_STAGE2 && GetSSMEThrustLevel(0) > 10.0) {
+		SSMELight->Activate(true);
+		SSMELight->SetIntensity(GetSSMEThrustLevel(0)/SSME_MAX_POWER_LEVEL);
+	}
+	else {
+		SSMELight->Activate(false);
+	}
+	if(status == STATE_STAGE1 && GetLiftOffFlag()) {
+		SRBLight->Activate(true);
+	}
+	else {
+		SRBLight->Activate(false);
 	}
 
 	//double time=st.Stop();
