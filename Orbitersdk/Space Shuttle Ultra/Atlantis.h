@@ -965,6 +965,9 @@ private:
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
 	//bool bPLBLights;
 
+	LightEmitter* SRBLight;
+	LightEmitter* SSMELight;
+
 	//gear/drag chute
 	AnimState gear_status;
 	bool gear_armed;
