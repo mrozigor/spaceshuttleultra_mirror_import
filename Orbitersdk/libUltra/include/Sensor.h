@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Boolean Valve class
+  Sensor Definition
 
 
 
@@ -22,55 +22,34 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef _g_ValveTypeBool_H_
-#define _g_ValveTypeBool_H_
+#ifndef _g_Sensor_H_
+#define _g_Sensor_H_
 
 
-#include <BasicValve.h>
+#include "DiscOutPort.h"
 
 
-class ValveTypeBool
+using class discsignals::DiscOutPort;
+using class discsignals::DiscreteBundle;
+
+
+class Sensor
 {
-private:
-	BasicValve* vlv;
-	bool pos;
-public:
-	/**
-	 * Opens valve
-	 */
-	bool Open( void );
+	private:
+		DiscOutPort dipOutput;
 
-	/**
-	 * Closes valve
-	 */
-	bool Close( void );
+		double conversor;
 
-	/**
-	 * Returns valve position
-	 * @return valve position (ON/OFF)
-	 */
-	bool GetPos( void ) const;
+		double MaxValue;
+		double MinValue;
+	public:
+		Sensor( double MaxValue = 5000, double MinValue = 0 );
+		~Sensor( void );
 
-	/**
-	 * Updates valve position (call from time step functions)
-	 * @param dtme sim dt
-	 */
-	void tmestp( double dtme );
+		void Connect( DiscreteBundle* pBundle, int iLine );
 
-	/**
-	 * Use from .scn loading function to set valve position
-	 * @param ipos valve position
-	 */
-	void _backdoor( bool ipos );
-
-	/**
-	 * Create a new valve (only shows ON/OFF states)
-	 * @param initpos initial valve position
-	 * @param imaxrate maximum valve motion rate
-	 */
-	ValveTypeBool( bool initpos, double imaxrate );
-	~ValveTypeBool( void );
+		void SetValue( double value );
 };
 
 
-#endif// _g_ValveTypeBool_H_
+#endif// _g_Sensor_H_

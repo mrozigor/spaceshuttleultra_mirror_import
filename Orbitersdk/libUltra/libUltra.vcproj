@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\PEG4Targeting.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\PIDControl.cpp"
 				>
 			</File>
@@ -319,6 +323,10 @@
 			</File>
 			<File
 				RelativePath=".\include\PanelGroup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\PEG4Targeting.h"
 				>
 			</File>
 			<File

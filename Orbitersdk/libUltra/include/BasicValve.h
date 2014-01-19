@@ -75,7 +75,7 @@ public:
 	 * Returns valve position
 	 * @return valve position (range: 0 - closed, 1 - open)
 	 */
-	double GetPos( void );
+	double GetPos( void ) const;
 
 	/**
 	 * Updates valve position (call from time step functions)
