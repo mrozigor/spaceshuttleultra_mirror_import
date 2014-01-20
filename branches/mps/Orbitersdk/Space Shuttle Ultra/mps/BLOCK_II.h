@@ -30,6 +30,7 @@
 #include "..\AtlantisSubsystem.h"
 #include "..\Atlantis.h"
 #include "SSME.h"
+#include "Sensor.h"
 
 
 namespace mps
@@ -37,18 +38,12 @@ namespace mps
 	// SSME Block II model values
 	//const double SSME_BLOCK_II_RPL_THRUST = 2090664.159; //100% thrust
 	//const double SSME_BLOCK_II_NPL_THRUST = 2170732.15; //Nominal "104%" thrust
-	const double SSME_BLOCK_II_FPL_THRUST = 2275094.273; //109% thrust
+	const double SSME_BLOCK_II_FPL_THRUST = 2278824.21641;//2275094.273; //109% thrust
 	const int SSME_BLOCK_II_FPL = 109;// % RPL
 	const int SSME_BLOCK_II_MPL = 67;// % RPL
 	const double SSME_BLOCK_II_RPL_PC_PRESS = 2746.788990825688073394495412844;// extrapolated from: 109% = 2994psia
 	const double SSME_BLOCK_II_ISP0 = 453 * 9.80665;
 	const double SSME_BLOCK_II_ISP1 = 363 * 9.80665;
-
-	// sensor count
-	const int SSME_BLOCK_II_SENSOR_P = 20;
-	const int SSME_BLOCK_II_SENSOR_T = 16;
-	const int SSME_BLOCK_II_SENSOR_S = 4;
-	const int SSME_BLOCK_II_SENSOR_F = 4;
 
 	// pressure
 	const int SSME_BLOCK_II_FPB_PP = 0;
@@ -103,14 +98,23 @@ namespace mps
 	const int SSME_BLOCK_II_HPFTP_SS_B = 3;
 
 
+	using class discsignals::DiscreteBundle;
+
+
 	class SSME_BLOCK_II:public SSME
 	{
 		private:
 			// vars for RUN2
 			double posMOV;
 			double posMFV;
+
+			Sensor Sensor_Press[20];
+			Sensor Sensor_Temp[16];
+			Sensor Sensor_Flow[4];
+			Sensor Sensor_Speed[4];
+
 		public:
-			SSME_BLOCK_II( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short ID, int controllertype, const string& sw );
+			SSME_BLOCK_II( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short ID, int controllertype, const string& sw, HeSysEng* HeSys );
 			~SSME_BLOCK_II( void );
 			
 			void RUN1( double time, double dt );// pre-start
@@ -118,6 +122,8 @@ namespace mps
 			void RUN3( double time, double dt );// mainstage
 			void RUN4( double time, double dt );// cutoff
 			void RUN5( double time, double dt );// post-shutdown
+
+			void ConnectSensors( DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed );
 
 			void __OnSaveState( FILEHANDLE scn ) const;
 			bool __OnParseLine( const char* line );

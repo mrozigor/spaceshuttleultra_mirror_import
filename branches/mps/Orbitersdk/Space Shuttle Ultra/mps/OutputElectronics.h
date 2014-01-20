@@ -27,13 +27,17 @@
 
 
 #include <orbitersdk.h>
-#include "SSMEController.h"
+#include "DiscOutPort.h"
 
 
 namespace mps
 {
 	class SSME;
+	class SSMEController;
+	class PowerSupplyElectronics;
 	class ComputerInterfaceElectronics;
+
+	using class discsignals::DiscOutPort;
 
 	class OutputElectronics
 	{
@@ -41,13 +45,23 @@ namespace mps
 			int ch;
 			SSMEController* Controller;
 			SSME* eng;
+			PowerSupplyElectronics* PSE;
+			ComputerInterfaceElectronics* CIE[2];
 			double time;
 
 			unsigned short StorageRegister;
 			unsigned short ONOFFCommandRegister[2];// only 12 MSBs used
 
 			double SH[5];
-			double POS[5];
+			double POS[9];
+
+			DiscOutPort* FuelSystemPurge_SV;
+			DiscOutPort* BleedValvesControl_SV;
+			DiscOutPort* EmergencyShutdown_SV;
+			DiscOutPort* ShutdownPurge_SV;
+			DiscOutPort* HPOTPISPurge_SV;
+			DiscOutPort* AFV_SV;
+			DiscOutPort* HPV_SV;
 
 		public:
 			OutputElectronics( int ch, SSME* eng, SSMEController* Controller );
@@ -61,6 +75,7 @@ namespace mps
 			virtual bool __OnParseLine( const char* line ) = 0;
 
 			virtual void tmestp( double time ) = 0;
+			void Realize( discsignals::DiscreteBundle* bundle );
 
 			virtual void StorageRegister_write( unsigned short data, int ch ) = 0;
 			virtual unsigned short StorageRegister_read( void ) const = 0;

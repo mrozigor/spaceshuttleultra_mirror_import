@@ -28,14 +28,12 @@
 
 #include <string>
 #include <orbitersdk.h>
-#include "SSMEController.h"
-#include "SSMEControllerSW_AD08.h"
 
 
 namespace mps
 {
-	class SSMEControllerSW;
-	class ComputerInterfaceElectronics;
+	class SSMEController;
+	class PowerSupplyElectronics;
 
 	class DigitalComputerUnit
 	{
@@ -46,9 +44,10 @@ namespace mps
 		protected:
 			int ch;
 			int ramsize;
-			SSMEControllerSW* sw;
-			SSMEController* Controller;
+			PowerSupplyElectronics* PSE;
 			ComputerInterfaceElectronics* CIE;
+			SSMEController* Controller;
+			SSMEControllerSW* sw;
 			unsigned short* RAM;
 
 			double time;
@@ -68,7 +67,7 @@ namespace mps
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
 
-			void GiveRefs( ComputerInterfaceElectronics* CIE );
+			void Realize( void );
 
 			virtual void tmestp( double time, double tmestp ) = 0;
 
@@ -79,6 +78,7 @@ namespace mps
 			void DMA_read( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength );
 
 			void PowerFailureSense( void );
+			void PowerBusDown( void );
 	};
 }
 

@@ -1,4 +1,7 @@
 #include "OutputElectronics_BLOCK_II.h"
+#include "SSMEController.h"
+#include "PowerSupplyElectronics.h"
+#include "ComputerInterfaceElectronics.h"
 #include "SSME.h"
 #include "MPSdefs.h"
 
@@ -9,7 +12,7 @@ namespace mps
 	{
 #ifdef _MPSDEBUG
 		char buffer[100];
-		sprintf_s( buffer, 100, " OutputElectronics_BLOCK_II::OutputElectronics_BLOCK_II in" );
+		sprintf_s( buffer, 100, " OutputElectronics_BLOCK_II::OutputElectronics_BLOCK_II in || ch:%d", ch );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
@@ -37,19 +40,88 @@ namespace mps
 
 	void OutputElectronics_BLOCK_II::tmestp( double time )
 	{
-		// check power supply
-		if (Controller->PSE_Power( ch ) == false) return;// no power -> no play
-
-		// if both DCUs out -> do nothing
-		if ((Controller->CIE_CheckWDTOwn( chA, 0 ) || Controller->CIE_CheckWDTOwn( chA, 1 )) && (Controller->CIE_CheckWDTOwn( chB, 0 ) || Controller->CIE_CheckWDTOwn( chB, 1 ))) return;
+		// check power supply and at least one good DCU
+		if ((PSE->Power() == false) || ((CIE[chA]->CheckWDTOwn( 0 ) || CIE[chA]->CheckWDTOwn( 1 )) && (CIE[chB]->CheckWDTOwn( 0 ) || CIE[chB]->CheckWDTOwn( 1 ))))
+		{
+			HPOTPISPurge_SV->ResetLine();
+			EmergencyShutdown_SV->ResetLine();
+			ShutdownPurge_SV->ResetLine();
+			FuelSystemPurge_SV->ResetLine();
+			BleedValvesControl_SV->ResetLine();
+			AFV_SV->ResetLine();
+			HPV_SV->ResetLine();
+			return;
+		}
 
 		this->time = time;
 
-		// TODO "issue" on/off cmds
-		// HACK
-		eng->Igniter_MCC[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_MCC ) >> 4 );
-		eng->Igniter_FPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_FPB ) >> 5 );
-		eng->Igniter_OPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_OPB ) >> 6 );
+		// "issue" on/off cmds
+		eng->Igniter_MCC[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], IGNITER_MCC ) >> 4 );
+		eng->Igniter_OPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], IGNITER_OPB ) >> 5 );
+		eng->Igniter_FPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], IGNITER_FPB ) >> 6 );
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_HPOTPISPURGE ) >> 4 ) == 1)
+		{
+			HPOTPISPurge_SV->SetLine();
+		}
+		else
+		{
+			HPOTPISPurge_SV->ResetLine();
+		}
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_EMERGENCYSHUTDOWN ) >> 5 ) == 1)
+		{
+			EmergencyShutdown_SV->SetLine();
+		}
+		else
+		{
+			EmergencyShutdown_SV->ResetLine();
+		}
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_SHUTDOWNPURGE ) >> 6 ) == 1)
+		{
+			ShutdownPurge_SV->SetLine();
+		}
+		else
+		{
+			ShutdownPurge_SV->ResetLine();
+		}
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_FUELSYSTEMPURGE ) >> 8 ) == 1)
+		{
+			FuelSystemPurge_SV->SetLine();
+		}
+		else
+		{
+			FuelSystemPurge_SV->ResetLine();
+		}
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_BLEEDVALVESCONTROL ) >> 9 ) == 1)
+		{
+			BleedValvesControl_SV->SetLine();
+		}
+		else
+		{
+			BleedValvesControl_SV->ResetLine();
+		}
+		
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], AFV ) >> 10 ) == 1)
+		{
+			AFV_SV->SetLine();
+		}
+		else
+		{
+			AFV_SV->ResetLine();
+		}
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], HPV ) >> 11 ) == 1)
+		{
+			HPV_SV->SetLine();
+		}
+		else
+		{
+			HPV_SV->ResetLine();
+		}
 
 		// TODO monitor igniters
 
@@ -59,6 +131,10 @@ namespace mps
 		POS[2] = eng->ptrMOV->GetPos();
 		POS[3] = eng->ptrFPOV->GetPos();
 		POS[4] = eng->ptrOPOV->GetPos();
+		POS[5] = eng->ptrFBV->GetPos();
+		POS[6] = eng->ptrOBV->GetPos();
+		POS[7] = eng->ptrAFV->GetPos();
+		POS[8] = eng->ptrRIV->GetPos();
 
 		// TODO servovalve drivers and models
 
@@ -73,7 +149,7 @@ namespace mps
 	void OutputElectronics_BLOCK_II::StorageRegister_write( unsigned short data, int ch )
 	{
 		// check WDT, listen to who is working
-		if (!Controller->CIE_CheckWDTOwn( chA, 0 ) && !Controller->CIE_CheckWDTOwn( chA, 1 ))
+		if (!CIE[chA]->CheckWDTOwn( 0 ) && !CIE[chA]->CheckWDTOwn( 1 ))
 		{
 			// do chA
 			if (ch == chA)
@@ -84,7 +160,7 @@ namespace mps
 		}
 		else
 		{
-			if (!Controller->CIE_CheckWDTOwn( chB, 0 ) && !Controller->CIE_CheckWDTOwn( chB, 1 ))
+			if (!CIE[chB]->CheckWDTOwn( 0 ) && !CIE[chB]->CheckWDTOwn( 1 ))
 			{
 				// do chB
 				if (ch == chB)
@@ -104,7 +180,8 @@ namespace mps
 
 	unsigned short OutputElectronics_BLOCK_II::ONOFFCommandRegister_read( int num ) const
 	{
-		return ONOFFCommandRegister[num - 1];// TODO check bounds
+		assert( (num >= 1) && (num <= 2) && "OutputElectronics_BLOCK_IIONOFFCommandRegister_read.num" );
+		return ONOFFCommandRegister[num - 1];
 	}
 
 	void OutputElectronics_BLOCK_II::CommandDecoder( void )
@@ -155,8 +232,12 @@ namespace mps
 		POS[2] = eng->ptrMOV->GetPos();
 		POS[3] = eng->ptrFPOV->GetPos();
 		POS[4] = eng->ptrOPOV->GetPos();
+		POS[5] = eng->ptrFBV->GetPos();
+		POS[6] = eng->ptrOBV->GetPos();
+		POS[7] = eng->ptrAFV->GetPos();
+		POS[8] = eng->ptrRIV->GetPos();
 
-		memcpy( data, POS, 5 * sizeof(double) );
+		memcpy( data, POS, 9 * sizeof(double) );
 		return;
 	}
 }

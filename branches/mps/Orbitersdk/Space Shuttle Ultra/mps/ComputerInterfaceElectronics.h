@@ -48,16 +48,24 @@ namespace mps
 	const unsigned short DIO_DEV_VIE_CMD2 = 0x0100;// xxxx 0001 xxxx xxxx
 	const unsigned short DIO_DEV_VIE_CMD3 = 0x0200;// xxxx 0010 xxxx xxxx
 
+
+	class PowerSupplyElectronics;
 	class DigitalComputerUnit;
+	class VehicleInterfaceElectronics;
 	class InputElectronics;
+	class OutputElectronics;
 	class SSMEController;
+
 
 	class ComputerInterfaceElectronics
 	{
 		protected:
 			int ch;
+			PowerSupplyElectronics* PSE;
 			DigitalComputerUnit* DCU;
+			VehicleInterfaceElectronics* VIE;
 			InputElectronics* IE[2];
+			OutputElectronics* OE[2];
 			ComputerInterfaceElectronics* CIEOpposite;
 			SSMEController* Controller;
 
@@ -78,12 +86,12 @@ namespace mps
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
 
+			void Realize( void );
+
 			void tmestp( double time, double dt );
 
-			void GiveRefs( DigitalComputerUnit* DCU, InputElectronics* IEchA, InputElectronics* IEchB, ComputerInterfaceElectronics* CIEOpposite );
-
-			void DMA_ch1( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength );
-			void DMA_ch2( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength );
+			void DMA_ch1( unsigned short readaddress, unsigned short readlength );
+			void DMA_ch2( unsigned short readaddress, unsigned short readlength );
 			void DMA_ch3( unsigned short selectcontrol, unsigned short writeaddress, unsigned short writelength );
 
 			unsigned short DIO( unsigned short control, unsigned short data );
@@ -92,6 +100,8 @@ namespace mps
 			void ResetWDT( int nWDT );
 			bool CheckWDTOwn( int nWDT );
 			bool CheckWDTOpposite( int nWDT );
+
+			void PowerBusDown( void );
 
 			void SwitchVRC( void );
 			void RestoreVRC( void );

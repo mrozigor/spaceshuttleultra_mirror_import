@@ -13,6 +13,9 @@ SSULCC::SSULCC(OBJHANDLE hVessel, int flightmodel)
 	pFSS=NULL;
 	pSSU=NULL;
 	_firstrun = true;
+	MPSHeSupply = true;
+	MPSHeSupplyPressure1 = 2000;
+	MPSHeSupplyPressure2 = 4100 + (400 * oapiRand());// 4100 - 4500
 
 	sprintf_s(PadName, 256, "");
 	sprintf_s(ShuttleName, 256, "");
@@ -51,6 +54,10 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 {
 	if (_firstrun == true)// bypass first run as it messes up lastTTL and causes all events before current time to run as well
 	{
+		// setup MPS He Supply initial status
+		double timeToLaunch = (launch_mjd - mjd) * 86400.0;
+		if ((timeToLaunch > MPS_HE_SUPPLY_START_TIME) || (timeToLaunch < MPS_HE_SUPPLY_END_TIME)) MPSHeSupply = false;
+
 		_firstrun = false;
 		return;
 	}
@@ -63,8 +70,8 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	//if(timeToLaunch>31.0) sprintf(oapiDebugString(),"T %f",-timeToLaunch);
 	int hours = static_cast<int>(floor(timeToLaunch/3600));
 	int minutes = static_cast<int>(floor((timeToLaunch - (hours*3600)) / 60));
-	int seconds = static_cast<int>(floor(timeToLaunch - (hours*3600) - (minutes*60)));
-	sprintf(oapiDebugString(),"T -%02i:%02i:%02i",hours,minutes,seconds);
+	double seconds = timeToLaunch - (hours*3600) - (minutes*60);
+	sprintf(oapiDebugString(),"T -%02i:%02i:%04.1f",hours,minutes,seconds);
 
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
@@ -80,7 +87,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
 	}
 	if(pSSU) {
-		// these steps should really be done by GLS class, but we dpn't have one yet.
+		// these steps should really be done by GLS class, but we don't have one yet.
 		if(timeToLaunch<=APU_CHECK_TIME /*&& lastTTL>=RSLS_SEQUENCE_START_TIME*/)
 		{
 			if(!pSSU->HydraulicsOK())
@@ -91,7 +98,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		}
 		if ((timeToLaunch <= PSN4_TIME) && (lastTTL >= PSN4_TIME))
 		{
-			oapiWriteLog("LCC: PSN4");
+			oapiWriteLog( "LCC: PSN4" );
 			pSSU->PSN4();
 		}
 		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
@@ -100,6 +107,79 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			pSSU->SynchronizeCountdown(launch_mjd);
 			pSSU->StartRSLSSequence();
 		}
+		if ((timeToLaunch <= MPS_HE_SUPPLY_START_TIME) && (lastTTL >= MPS_HE_SUPPLY_START_TIME))
+		{
+			MPSHeSupply = true;
+			oapiWriteLog( "LCC: MPS He Supply started" );
+		}
+		if ((timeToLaunch <= MPS_HE_SUPPLY_END_TIME) && (lastTTL >= MPS_HE_SUPPLY_END_TIME))
+		{
+			MPSHeSupply = false;
+			oapiWriteLog( "LCC: MPS He Supply terminated" );
+		}
+
+		/////////// MPS He Supply ///////////
+		if (MPSHeSupply == true)
+		{
+			if (timeToLaunch <= PSN4_TIME)// HACK deal with the greater flow during PSN4
+			{
+				// eng
+				for (int i = 1; i <= 3; i++)
+				{
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2)
+					{
+						// add mass
+						pSSU->HeFillTank( i, 500 * simdt );
+					}
+				}
+
+				// pneu
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2)
+				{
+					// add mass
+					pSSU->HeFillTank( 0, 2 * simdt );
+				}
+			}
+			else if (timeToLaunch <= 12000)// T-3h20m
+			{
+				// eng
+				for (int i = 1; i <= 3; i++)
+				{
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2)
+					{
+						// add mass
+						pSSU->HeFillTank( i, 8 * simdt );
+					}
+				}
+
+				// pneu
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2)
+				{
+					// add mass
+					pSSU->HeFillTank( 0, 2 * simdt );
+				}
+			}
+			else
+			{
+				// eng
+				for (int i = 1; i <= 3; i++)
+				{
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure1)
+					{
+						// add mass
+						pSSU->HeFillTank( i, 8 * simdt );
+					}
+				}
+
+				// pneu
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure1)
+				{
+					// add mass
+					pSSU->HeFillTank( 0, 2 * simdt );
+				}
+			}
+		}
+		/////////// MPS He Supply ///////////
 	}
 
 	lastTTL=timeToLaunch;

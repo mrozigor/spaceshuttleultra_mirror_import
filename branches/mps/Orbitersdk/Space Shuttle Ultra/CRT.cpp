@@ -547,7 +547,7 @@ void CRT::OMSMPS(HDC hDC)
 	}
 	
 	// He Tank Press Pneu
-	dNum = 0;//sts->GetHeTankPress( 0 );
+	dNum = sts->GetHeTankPress( 0 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 100, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 3800)
@@ -565,7 +565,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 109, round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
 
 	// He Tank Press Eng 2
-	dNum = 0;//sts->GetHeTankPress( 2 );
+	dNum = sts->GetHeTankPress( 2 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 153, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -583,7 +583,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 162, round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
 
 	// He Tank Press Eng 1
-	dNum = 0;//sts->GetHeTankPress( 1 );
+	dNum = sts->GetHeTankPress( 1 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 188, 20, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -601,7 +601,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 197, round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
 
 	// He Tank Press Eng 3
-	dNum = 0;//sts->GetHeTankPress( 3 );
+	dNum = sts->GetHeTankPress( 3 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 223, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -619,7 +619,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 231, round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
 
 	// He Reg Press Pneu
-	dNum = 0;//sts->GetHeRegPress( 0 );
+	dNum = sts->GetHeRegPress( 0 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 100, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -637,7 +637,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 109, round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
 
 	// He Reg Press Eng 2
-	dNum = 0;//sts->GetHeRegPress( 2 );
+	dNum = sts->GetHeRegPress( 2 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 153, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -655,7 +655,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 162, round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
 
 	// He Reg Press Eng 1
-	dNum = 0;//sts->GetHeRegPress( 1 );
+	dNum = sts->GetHeRegPress( 1 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 188, 88, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -673,7 +673,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 197, round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
 
 	// He Reg Press Eng 3
-	dNum = 0;//sts->GetHeRegPress( 3 );
+	dNum = sts->GetHeRegPress( 3 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 223, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -691,7 +691,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 231, round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
 
 	// ENG MANF LO2
-	dNum = 0;// TODO get val
+	dNum = sts->GetLOXManifPress();
 	sprintf( cbuf, "%03.0f", dNum );
 	TextOut( hDC, 85, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 250)
@@ -709,7 +709,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 89, round( 238 - (0.123333 * dNum) ), 102, 238 );
 
 	// ENG MANF LH2
-	dNum = 0;// TODO get val
+	dNum = sts->GetLH2ManifPress();
 	sprintf( cbuf, "%03.0f", dNum );
 	TextOut( hDC, 118, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 66)

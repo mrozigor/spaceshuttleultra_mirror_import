@@ -50,6 +50,8 @@
 #include "dps/SSME_SOP.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
+#include "mps/HeliumSystem.h"
+#include "mps/MPS.h"
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
@@ -327,6 +329,9 @@ public:
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	dps::SSME_SOP* pSSME_SOP;
+	mps::HeSysEng* pHeEng[3];
+	mps::HeSysPneu* pHePneu;
+	mps::MPS* pMPS;
 	eps::Inverter* pInverter[3];
 	APU* pAPU[3];
 	MCA* pFMC1;
@@ -525,6 +530,8 @@ public:
 	 */
 	void SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw);
 
+	void SetMPSDumpLevel( int vent, double level );
+
 	double CalcNetSSMEThrust() const;
 	double GetSSMEISP() const;
 	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
@@ -593,7 +600,14 @@ public:
 	virtual void PSN4( void );
 
 	virtual int GetSSMEPress( int eng );
-	
+	virtual int GetHeTankPress( int sys ) const;
+	virtual int GetHeRegPress( int sys ) const;
+	virtual void HeFillTank( int sys, double mass );
+	virtual PROPELLANT_HANDLE GetLH2Tank( void ) const;
+	virtual PROPELLANT_HANDLE GetLOXTank( void ) const;
+	virtual double GetLOXManifPress( void ) const;
+	virtual double GetLH2ManifPress( void ) const;
+
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
 	void UpdateMesh ();
@@ -748,6 +762,7 @@ private:
 	void CreateFRCS(const VECTOR3& ref_pos);
 	void CreateSSMEs(const VECTOR3& ofs);
 	void CreateMPSGOXVents(const VECTOR3& ref_pos);
+	void CreateMPSDumpVents( void );
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
 	unsigned short usCurrentPlayerChar;
@@ -964,7 +979,7 @@ private:
 	BEACONLIGHTSPEC PLB_bspec[6];
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
 	//bool bPLBLights;
-
+	
 	LightEmitter* SRBLight;
 	LightEmitter* SSMELight;
 
@@ -987,14 +1002,21 @@ private:
 
 	bool bSSMEsDefined, bOMSDefined, bRCSDefined, bControllerThrustersDefined;
 
+	PROPELLANT_HANDLE phLOXdump;
+	PROPELLANT_HANDLE phLH2dump;
 	/**
 	 * Used for the preflight GOX venting of the SSMEs.
 	 */
 	THRUSTER_HANDLE th_ssme_gox[3];
 	/**
-	 * To be used for visualizing the LOX MPS dump after MECO. 
+	 * To be used for visualizing the MPS dump after MECO.
+	 * 0 = SSME-1
+	 * 1 = SSME-2
+	 * 2 = SSME-3
+	 * 3 = LH2 B/U
+	 * 4 = LH2 F/D
 	 */
-	THRUSTER_HANDLE th_ssme_loxdump[3];
+	THRUSTER_HANDLE thMPSDump[5];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets
@@ -1067,9 +1089,7 @@ private:
 	VECTOR3 SSMER_GOX_REF1;
 
 	// Helium Tanks
-	PROPELLANT_HANDLE oms_helium_tank[2], mps_helium_tank[3];
-	int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
-	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
+	PROPELLANT_HANDLE oms_helium_tank[2];
 	int Hydraulic_Press[3];
 
 	bool RMS, STBDMPM;
@@ -1187,9 +1207,9 @@ private:
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
-	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
-	DiscOutPort SSMEShutdown[3]; // to allow MECO to be commanded from keyboard
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
+
+	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();

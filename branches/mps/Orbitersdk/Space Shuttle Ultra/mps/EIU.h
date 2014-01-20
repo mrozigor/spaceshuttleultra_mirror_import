@@ -33,7 +33,7 @@
 #include "DiscInPort.h"
 
 
-//#define _EIU_DATA_RECORDER
+#define _EIU_DATA_RECORDER
 
 
 namespace mps

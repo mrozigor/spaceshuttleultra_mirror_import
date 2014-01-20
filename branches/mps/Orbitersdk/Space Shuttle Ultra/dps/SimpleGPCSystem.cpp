@@ -8,9 +8,12 @@
 #include "OrbitTgtSoftware.h"
 #include "AerojetDAP.h"
 #include "SSME_SOP.h"
+#include "SSME_Operations.h"
 #include "RSLS_old.h"
 #include "MPS_Dedicated_Display_Driver.h"
+#include "MPS_Dump.h"
 #include "MM801.h"
+#include "IO_Control.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -19,7 +22,9 @@ namespace dps
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101), newMajorMode(0)
 {
+	vSoftware.push_back( new MPS_Dump( this ) );
 	vSoftware.push_back( new MPS_Dedicated_Display_Driver( this ) );
+	vSoftware.push_back( new SSME_Operations( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
 	vSoftware.push_back( new RSLS_old( this ) );
 	vSoftware.push_back(new AscentGuidance(this));
@@ -29,6 +34,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back(new OrbitTgtSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
 	vSoftware.push_back(new MM801(this));
+	vSoftware.push_back( new IO_Control( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

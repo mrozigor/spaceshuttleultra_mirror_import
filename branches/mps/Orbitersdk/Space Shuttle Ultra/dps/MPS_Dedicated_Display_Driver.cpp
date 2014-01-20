@@ -32,7 +32,7 @@ namespace dps
 		{
 			for (int i = 1; i <= 3; i++)// red lights
 			{
-				if (//(i limits exceeded flag == true) || 
+				if ((pSSME_SOP->GetLimitExceededFlag( i ) == true) || 
 					(pSSME_SOP->GetShutdownPhaseFlag( i ) == true) || 
 					(pSSME_SOP->GetPostShutdownPhaseFlag( i ) == true))
 				{
