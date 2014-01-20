@@ -31,7 +31,11 @@
 
 namespace dps
 {
+	const unsigned short MPL = 67;
+	const unsigned short FPL = 109;
+
 	// commands
+	const unsigned short SVRC = 0x2000;
 	const unsigned short LOXD = 0xA400;
 	const unsigned short XPOW = 0xAC00;
 	const unsigned short STEN = 0xC000;
@@ -45,6 +49,7 @@ namespace dps
 
 	const unsigned short DATA_FAIL = 4;// I-LOAD
 
+
 	class SSME_SOP:public SimpleGPCSoftware
 	{
 		private:
@@ -54,6 +59,7 @@ namespace dps
 			unsigned short SelfTestStatus[3];
 			unsigned short CommandStatus[3];
 
+			// TODO KMIN, KMAX, KCMD
 			// command flags
 			bool StartEnableCommand[3];
 			bool EngineStartCommand[3];
@@ -62,13 +68,13 @@ namespace dps
 			bool ThrottleCommand[3];
 			bool OxidizerDumpStartCommand[3];
 			bool DumpStopCommand[3];
-			bool MECOCommand;
-
-			bool MECOConfirmed;
+			bool LimitInhibitCommand[3];
+			bool LimitEnableCommand[3];
+			bool DCUSwitchVDTCommand[3];
 
 			unsigned short LastCommand[3];
 
-			bool ShutdownEnableCommandIssued[3];
+			bool ShutdownEnableCommandIssued[3];// TODO have a StartEnableCommandIssued????
 
 			double CommandedThrottle;
 
@@ -84,30 +90,25 @@ namespace dps
 			bool FlightDataPathFailure[3];
 			bool CommandPathFailure[3];
 			bool MajorComponentFailure[3];
+			bool LimitExceeded[3];
 
 			unsigned short pridata[3][32];
 			unsigned short secdata[3][6];
 
 			bool PrimaryDataFail[3];
 			bool SecondaryDataFail[3];
+			bool DCUProcess[3];
 
 			unsigned short PrimaryFailCounter[3];
 			unsigned short SecondaryFailCounter[3];
 			unsigned short DataFailCounter[3];
 
-			double LOXDumptimeA;
-			double LOXDumptimeB;
 		public:
 			SSME_SOP( SimpleGPCSystem* _gpc );
 			~SSME_SOP( void );
 
 			void OnPreStep( double SimT, double DeltaT, double MJD );// read data
 			void OnPostStep( double SimT, double DeltaT, double MJD );// send commands
-
-			bool OnParseLine( const char* keyword, const char* value );
-			void OnSaveState( FILEHANDLE scn ) const;
-
-			void Realize( void );
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
@@ -141,28 +142,24 @@ namespace dps
 			/**
 			 * Causes a Throttle Command to be issued to all SSMEs.
 			 * @param[in]	pct	new throttle setting in percent of RPL
+			 * @return		true = valid value
 			 */
-			void SetThrottlePercent( double pct );
+			bool SetThrottlePercent( double pct );
 
 			/**
-			 * Causes MECO to be issued.
+			 * Causes the Limit Inhibit Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
 			 */
-			void SetMECOCommandFlag( void );
-
-			/*void SetOxidizerDumpStartCommandFlag( int eng );
-			void SetDumpStopCommandFlag( int eng );*/
+			void SetLimitInhibitCommandFlag( int eng );
 
 			/**
-			 * Returns an indication of whether the MECO Command has been issued.
-			 * @return		true = command issued
+			 * Causes the Limit Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
 			 */
-			bool GetMECOCommandFlag( void ) const;
+			void SetLimitEnableCommandFlag( int eng );
 
-			/**
-			 * Returns an indication of whether the MECO Confirmed Flag has been set.
-			 * @return		true = flag set
-			 */
-			bool GetMECOConfirmedFlag( void ) const;
+			void SetOxidizerDumpStartCommandFlag( int eng );
+			void SetDumpStopCommandFlag( int eng );
 
 			/**
 			 * Returns an indication of whether the Shutdown Enable Command has been issued for a SSME.
@@ -233,6 +230,13 @@ namespace dps
 			 * @return		true = MCF
 			 */
 			bool GetMajorComponentFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether limits have been exceeded on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = limits exceeded
+			 */
+			bool GetLimitExceededFlag( int eng ) const;
 
 			/**
 			 * Gets the chamber pressure in percent of RPL of a SSME.

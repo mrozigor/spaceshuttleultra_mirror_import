@@ -76,27 +76,27 @@ namespace mps
 		return false;
 	}
 
-	void SSMEController::Realize( void )
+	void SSMEController::Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed )
 	{
-		// connect AC to PSE
-		// TODO change bundle config?
-		discsignals::DiscreteBundle* R2_AC;
+		PSE[chA]->ConnectPower( power );
+		PSE[chB]->ConnectPower( power );
 
-		switch (eng->ID)
-		{
-			case 1:
-				R2_AC = eng->BundleManager()->CreateBundle( "SSMEC_R2_SWITCHES", 4 );
-				break;
-			case 2:
-				R2_AC = eng->BundleManager()->CreateBundle( "SSMEL_R2_SWITCHES", 4 );
-				break;
-			case 3:
-				R2_AC = eng->BundleManager()->CreateBundle( "SSMER_R2_SWITCHES", 4 );
-				break;
-		}
+		PSE[chA]->Realize();
+		PSE[chB]->Realize();
 
-		PSE[chA]->ConnectPower( R2_AC );
-		PSE[chB]->ConnectPower( R2_AC );
+		DCU[chA]->Realize();
+		DCU[chB]->Realize();
+
+		CIE[chA]->Realize();
+		CIE[chB]->Realize();
+
+		OE[chA]->Realize( OEout );
+		OE[chB]->Realize( OEout );
+
+		IE[chA]->Realize( IEchA_Press, IEchA_Temp, IEchA_Flow, IEchA_Speed );
+		IE[chB]->Realize( IEchB_Press, IEchB_Temp, IEchB_Flow, IEchB_Speed );
+
+		VIE->Realize();
 		return;
 	}
 
@@ -106,95 +106,15 @@ namespace mps
 		return;
 	}
 
-	bool SSMEController::PSE_Power( int ch )
-	{
-		if (ch == chC) return (PSE[chA]->Power() || PSE[chB]->Power());
-		return PSE[ch]->Power();// TODO check bounds
-	}
-
-	bool SSMEController::CIE_CheckWDTOwn( int CIEch, int nWDT )
-	{
-		return CIE[CIEch]->CheckWDTOwn( nWDT );// TODO check bounds
-	}
-
-	void SSMEController::DCU_PowerFailureSense( int DCUch )
-	{
-		DCU[DCUch]->PowerFailureSense();// TODO check bounds
-		return;
-	}
-
-	void SSMEController::OE_GetSH( int OEch, double* data )
-	{
-		OE[OEch]->GetSH( data );// TODO check bounds
-		return;
-	}
-
-	void SSMEController::OE_GetPOS( int OEch, double* data )
-	{
-		OE[OEch]->GetPOS( data );// TODO check bounds
-		return;
-	}
-
-	void SSMEController::OE_StorageRegister_write( int OEch, unsigned short data, int ch )
-	{
-		OE[OEch]->StorageRegister_write( data, ch );
-		return;
-	}
-
-	unsigned short SSMEController::OE_StorageRegister_read( int OEch )
-	{
-		return OE[OEch]->StorageRegister_read();
-	}
-
-	unsigned short SSMEController::OE_ONOFFCommandRegister_read( int OEch, int num )
-	{
-		return OE[OEch]->ONOFFCommandRegister_read( num );
-	}
-
 	void SSMEController::VIE_CommandDataConverter_write( int ch, unsigned short cmd )
 	{
 		VIE->CommandDataConverter_write( ch, cmd );
 		return;
 	}
 
-	unsigned short SSMEController::VIE_CommandDataConverter_read( int ch )
-	{
-		return VIE->CommandDataConverter_read( ch );
-	}
-
-	void SSMEController::VIE_RecorderDataConverter_chA( unsigned short* data, int ch )
-	{
-		VIE->RecorderDataConverter_chA( data, ch );
-		return;
-	}
-
-	void SSMEController::VIE_RecorderDataConverter_chB( unsigned short* data, int ch )
-	{
-		VIE->RecorderDataConverter_chB( data, ch );
-		return;
-	}
-
-	void SSMEController::VIE_SwitchVRC( void )
-	{
-		VIE->SwitchVRC();
-		return;
-	}
-
-	void SSMEController::VIE_RestoreVRC( void )
-	{
-		VIE->RestoreVRC();
-		return;
-	}
-
 	void SSMEController::EIU_CIA( int num, unsigned short* data )
 	{
 		pEIU->CIA( num, data );
-		return;
-	}
-
-	void SSMEController::PCA( void )
-	{
-		eng->PCA();
 		return;
 	}
 }

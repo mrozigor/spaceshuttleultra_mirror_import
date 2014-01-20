@@ -27,29 +27,28 @@
 
 
 #include <orbitersdk.h>
+#include "DiscreteBundle.h"
 
 
 namespace mps
 {
-	const int chA = 0;
-	const int chB = 1;
-	const int chC = 2;
-
-	class VehicleInterfaceElectronics;
-	class PowerSupplyElectronics;
 	class InputElectronics;
-	class OutputElectronics;
-	class DigitalComputerUnit;
-	class ComputerInterfaceElectronics;
 	class SSME;
 	class EIU;
+
+	using class discsignals::DiscreteBundle;
 
 
 	class SSMEController
 	{
-		friend class OutputElectronics_BLOCK_II;
+		friend class OutputElectronics;
+		friend class InputElectronics;
 		friend class InputElectronics_BLOCK_II;
+		friend class ComputerInterfaceElectronics;
 		friend class ComputerInterfaceElectronics_BLOCK_II;
+		friend class DigitalComputerUnit;
+		friend class VehicleInterfaceElectronics;
+		friend class PowerSupplyElectronics;
 
 		private:
 			SSME* eng;
@@ -69,35 +68,15 @@ namespace mps
 			void __OnSaveState( FILEHANDLE scn ) const;
 			bool __OnParseLine( const char* line );
 
-			void Realize( void );
+			void Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed );
 
 			void GetEIURef( EIU* pEIU );
 
 			virtual void tmestp( double time, double tmestp ) = 0;
-
-			// "tunnel functions" between controller components
-			bool PSE_Power( int ch );
-
-			bool CIE_CheckWDTOwn( int CIEch, int nWDT );
-
-			void DCU_PowerFailureSense( int DCUch );
-
-			void OE_GetSH( int OEch, double* data );
-			void OE_GetPOS( int OEch, double* data );
-			void OE_StorageRegister_write( int OEch, unsigned short data, int ch );
-			unsigned short OE_StorageRegister_read( int OEch );
-			unsigned short OE_ONOFFCommandRegister_read( int OEch, int num );
-
+			
 			void VIE_CommandDataConverter_write( int ch, unsigned short cmd );
-			unsigned short VIE_CommandDataConverter_read( int ch );
-			void VIE_RecorderDataConverter_chA( unsigned short* data, int ch );
-			void VIE_RecorderDataConverter_chB( unsigned short* data, int ch );
-			void VIE_SwitchVRC( void );
-			void VIE_RestoreVRC( void );
 
 			void EIU_CIA( int num, unsigned short* data );
-
-			void PCA( void );
 	};
 }
 

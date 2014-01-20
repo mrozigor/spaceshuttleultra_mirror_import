@@ -3,6 +3,7 @@
 #include "../ParameterValues.h"
 #include <UltraMath.h>
 #include "SSME_SOP.h"
+#include "SSME_Operations.h"
 
 namespace dps
 {
@@ -25,17 +26,23 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	SRBGimbal[0][ROLL].SetGains(0.75, 0.05, 0.0);
 	SRBGimbal[1][ROLL].SetGains(-0.75, -0.05, 0.0);
 
-	SSME_throttle_event[0] = false;
-	SSME_throttle_event[1] = false;
-	SSME_throttle_event[2] = false;
-
 	throttlecmd = 100;
 
 	glimiting = false;
 
-	SSMEManualShutdown[0] = false;
-	SSMEManualShutdown[1] = false;
-	SSMEManualShutdown[2] = false;
+	// generic values, updated in InitializeAutopilot()
+	THROT[0] = THROT1;
+	THROT[1] = THROT2;
+	THROT[2] = THROT3;
+	THROT[3] = THROT4;
+	QPOLY[0] = QPOLY1;
+	QPOLY[1] = QPOLY2;
+	QPOLY[2] = QPOLY3;
+	QPOLY[3] = QPOLY4;
+	QPOLY[4] = QPOLY5;
+	J = 0;
+
+	AGT_done = false;
 }
 
 AscentGuidance::~AscentGuidance()
@@ -61,10 +68,8 @@ void AscentGuidance::Realize()
 	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
 	SpdbkThrotPort.Connect(pBundle, 6);	
 
-	pBundle = STS()->BundleManager()->CreateBundle("SSME", 8);
-	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
-
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+	pSSME_OPS = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -78,7 +83,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			GimbalSSMEs(DeltaT);
 			break;
 		case 103:
-			if(!bMECO) {
+			if (pSSME_OPS->GetMECOCommandFlag() == false){//if(!bMECO) {
 				STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 				Navigate();
 				if(STS()->GetMET() >= (tLastMajorCycle + ASCENT_MAJOR_CYCLE)) {
@@ -86,11 +91,16 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 					tLastMajorCycle = STS()->GetMET();
 				}
 				SecondStageRateCommand();
-				if (pSSME_SOP->GetMECOCommandFlag() == false) GimbalSSMEs(DeltaT);// don't steer after MECO cmd
+				GimbalSSMEs(DeltaT);
 				Throttle(DeltaT);
 			}
 			else { //post MECO
-				if(STS()->HasTank() && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=STS()->GetMET())
+				if (bMECO == false)// for low level c/o
+				{
+					bMECO = true;
+					tMECO = STS()->GetMET();
+				}
+				else if(STS()->HasTank() && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=STS()->GetMET())
 				{
 					STS()->SeparateTank();
 					ETSepTranslationInProg = true;
@@ -142,9 +152,12 @@ void AscentGuidance::InitializeAutopilot()
 	TgtAlt=pMission->GetMECOAlt();
 	TgtSpd=pMission->GetMECOVel();
 	MaxThrust = pMission->GetMaxSSMEThrust();
+	THROT[0] = MaxThrust;
+	THROT[1] = MaxThrust;
+	THROT[3] = MaxThrust;
 	PerformRTHU=pMission->PerformRTHU();
-	ThrottleBucketStartVel = pMission->GetTHdownVelocity()/MPS2FPS;
-	ThrottleBucketEndVel = pMission->GetTHupVelocity()/MPS2FPS;
+	QPOLY[2] = pMission->GetTHdownVelocity()/MPS2FPS;
+	QPOLY[3] = pMission->GetTHupVelocity()/MPS2FPS;
 	if(pMission->UseOMSAssist()) {
 		OMSAssistStart = pMission->GetOMSAssistStart();
 		OMSAssistEnd = pMission->GetOMSAssistEnd();
@@ -347,7 +360,7 @@ void AscentGuidance::SecondStageRateCommand()
 void AscentGuidance::Throttle(double DeltaT)
 {
 	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
-	sprintf_s(oapiDebugString(), 255, "SBTCCommand: %f", SBTCCommand);
+	//sprintf_s(oapiDebugString(), 255, "SBTCCommand: %f", SBTCCommand);
 
 	if(SpdbkThrotAutoIn) { // auto throttling
 		// check for manual takeover
@@ -359,26 +372,13 @@ void AscentGuidance::Throttle(double DeltaT)
 
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
-				if ((STS()->GetAirspeed() >= 18.288) && (SSME_throttle_event[0] == false))
+				AdaptiveGuidanceThrottling();
+				
+				if (STS()->GetAirspeed() >= QPOLY[J])
 				{
-					// "off the pad" throttle up
-					throttlecmd = MaxThrust;
+					throttlecmd = THROT[J];
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
-					SSME_throttle_event[0] = true;
-				}
-				else if ((STS()->GetAirspeed() >= ThrottleBucketStartVel) && (SSME_throttle_event[1] == false))
-				{
-					// max q throttle down
-					throttlecmd = 72; // this should be loaded from mission file (like MaxThrust)
-					pSSME_SOP->SetThrottlePercent( throttlecmd );
-					SSME_throttle_event[1] = true;
-				}
-				else if ((STS()->GetAirspeed() >= ThrottleBucketEndVel) && (SSME_throttle_event[2] == false))
-				{
-					// max q throttle up
-					throttlecmd = MaxThrust;
-					pSSME_SOP->SetThrottlePercent( throttlecmd );
-					SSME_throttle_event[2] = true;
+					J++;
 				}
 				/*if(STS()->GetAirspeed()<18.288) 
 					STS()->SetSSMEThrustLevel(0, 100.0);
@@ -417,6 +417,7 @@ void AscentGuidance::Throttle(double DeltaT)
 				if (thrustAcceleration > ALIM2) glimiting = true;
 				if ((glimiting == true) && (thrustAcceleration > ALIM1))
 				{
+					// TODO use correct MPL value below
 					if (throttlecmd != 67)// if at MPL can't do more
 					{
 						if (pSSME_SOP->GetPercentChamberPressVal( 1 ) - throttlecmd < 0.15)// wait while throttling
@@ -436,15 +437,21 @@ void AscentGuidance::Throttle(double DeltaT)
 				}*/
 				if(relativeVelocity>=TgtSpd) {
 					//reached target speed
-					if (pSSME_SOP->GetMECOCommandFlag() == false)
+					if (pSSME_OPS->GetMECOCommandFlag() == false)
 					{
-						pSSME_SOP->SetMECOCommandFlag();
-						oapiWriteLog("MECO");
+						pSSME_OPS->SetMECOCommandFlag();
+						bMECO = true;
+						tMECO = STS()->GetMET();
+
+						char buffer[64];
+						sprintf_s( buffer, 64, "MECO @ %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 					//STS()->SetSSMEThrustLevel(0, 0.0);
 					//bMECO=true;
 					//tMECO = STS()->GetMET();
 				}
+				sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
 		}
 	}
@@ -455,25 +462,12 @@ void AscentGuidance::Throttle(double DeltaT)
 
 	lastSBTCCommand = SBTCCommand;
 	
-	// handle shutdown commands
-	for(int i=0;i<3;i++) {
-		if(SSMEShutdown[i])
-		{
-			if (SSMEManualShutdown[i] == false)
-			{
-				SSMEManualShutdown[i] = true;
-				pSSME_SOP->SetShutdownEnableCommandFlag( i + 1 );
-				pSSME_SOP->SetShutdownCommandFlag( i + 1 );
-				//STS()->SetSSMEThrustLevel(i, 0.0);
-			}
-		}
-	}
-	// detect MECO
-	if(Eq(STS()->GetSSMEThrustLevel(0), 0.0, 0.01)) {
-		// should use SSME SOP, but better leave as is because MECO confirmed is still not fool proof
-		bMECO = true;
-		tMECO = STS()->GetMET();
-	}
+	//// detect MECO
+	//if(Eq(STS()->GetSSMEThrustLevel(0), 0.0, 0.01)) {
+	//	// should use SSME SOP, but better leave as is because MECO confirmed is still not fool proof
+	//	bMECO = true;
+	//	tMECO = STS()->GetMET();
+	//}
 }
 
 void AscentGuidance::MajorCycle()
@@ -616,6 +610,47 @@ void AscentGuidance::Guide()
 	//target_pitch = target_pitch+ThrAngleP; //yaw angle ignored for now
 	CmdPDot=(target_pitch-ThrAngleP*cos(STS()->GetBank())-STS()->GetPitch()*DEG)/(2*ASCENT_MAJOR_CYCLE);
 	//CmdPDot=(target_pitch-ThrAngleP*cos(GetBank())-GetPitch()*DEG)/TMajorCycle;
+}
+
+void AscentGuidance::AdaptiveGuidanceThrottling( void )
+{
+	/*char buffer[100];
+	sprintf_s( buffer, 100, "MET%f|VREL%f", STS()->GetMET(), STS()->GetAirspeed() );
+	oapiWriteLog( buffer );*/
+	if (AGT_done == false)
+	{
+		if (STS()->GetAirspeed() >= Vref_adjust)
+		{
+			double TDEL_adjust = STS()->GetMET() - Tref_adjust;// STS-117 data: between -0.21 and 0.21 is nominal
+			// HACK using -0.5 to +0.5 for nominal, and maximum adjust if outside -1 to +1
+			// TODO should be using ILOAD tables
+			// TODO should also change QPOLY (?) and pitch profile
+			if (TDEL_adjust < -1)// hot
+			{
+				THROT[1] -= 21;
+			}
+			else if (TDEL_adjust < -0.5)// hot
+			{
+				THROT[1] += round( 21 * TDEL_adjust );
+			}
+			else if (TDEL_adjust > 1)// cold
+			{
+				THROT[2] += 6;
+			}
+			else if (TDEL_adjust > 0.5)// cold
+			{
+				THROT[2] += round( 6 * TDEL_adjust );
+			}
+
+			AGT_done = true;
+
+			char buffer[256];
+			sprintf_s( buffer, 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
+			oapiWriteLog( buffer );
+			sprintf_s( oapiDebugString(), 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
+		}
+	}
+	return;
 }
 
 };

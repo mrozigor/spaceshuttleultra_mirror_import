@@ -23,7 +23,26 @@ const double PEG_STOP_TIME = 7.000; // time (seconds) before expected MECO to st
 const double ALIM1 = 29.3218835;// m/s^2 | 2.99 g
 const double ALIM2 = 29.41995;// m/s^2 | 3.0 g
 
+// AGT params
+// HACK no clue on Vref_adjust
+const double Vref_adjust = 120;// m/s
+const double Tref_adjust = 19;// MET (sec)
+
+// VRel/SSME throttle table
+const double THROT1 = 104;
+const double THROT2 = 104;
+const double THROT3 = 72;
+const double THROT4 = 104;
+
+const double QPOLY1 = 18.288;
+const double QPOLY2 = 132.584;
+const double QPOLY3 = 232.022;
+const double QPOLY4 = 430.898;
+const double QPOLY5 = 99999;// fake
+
+
 class SSME_SOP;
+class SSME_Operations;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -80,6 +99,8 @@ private:
 	void Estimate();
 	void Guide();
 
+	void AdaptiveGuidanceThrottling( void );
+
 	// utility functions required by PEG guidance
 	inline double b0(double TT) {
 		return -Isp*log(1-TT/tau);
@@ -103,14 +124,12 @@ private:
 	// guidance parameters
 	double TgtInc, TgtFPA, TgtAlt, TgtSpd;
 	double OMSAssistStart, OMSAssistEnd;
-	double ThrottleBucketStartVel, ThrottleBucketEndVel;
 	bool PerformRTHU;
 
 	discsignals::DiscInPort SpdbkThrotPort;
 	discsignals::DiscInPort SpdbkThrotAutoIn;
 	discsignals::DiscOutPort SpdbkThrotAutoOut;
 	discsignals::DiscOutPort SpdbkThrotPLT;
-	discsignals::DiscInPort SSMEShutdown[3];
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
 	discsignals::DiscOutPort ZTransCommand;
@@ -158,10 +177,15 @@ private:
 	double eCurrent;
 
 	SSME_SOP* pSSME_SOP;
+	SSME_Operations* pSSME_OPS;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
-	bool SSME_throttle_event[3];
-	bool SSMEManualShutdown[3];
+
+	double QPOLY[5];// SSME throttle velocity
+	double THROT[4];// SSME throttle command
+	int J;
+
+	bool AGT_done;
 };
 	
 };

@@ -27,7 +27,6 @@
 
 
 #include "OutputElectronics.h"
-#include "SSMEController.h"
 
 
 namespace mps
@@ -42,11 +41,23 @@ namespace mps
 	const unsigned short CD_OPOV = 0x0007;
 
 	// ON/OFF 1
+	const unsigned short SV_HPOTPISPURGE = 0x0010;
+	const unsigned short SV_EMERGENCYSHUTDOWN = 0x0020;
+	const unsigned short SV_SHUTDOWNPURGE = 0x0040;
+	const unsigned short SV_FUELSYSTEMPURGE = 0x0100;
+	const unsigned short SV_BLEEDVALVESCONTROL = 0x0200;
+	const unsigned short AFV = 0x0400;
+	const unsigned short HPV = 0x0800;
+
+	// ON/OFF 2
 	const unsigned short IGNITER_MCC = 0x0010;
-	const unsigned short IGNITER_FPB = 0x0020;
-	const unsigned short IGNITER_OPB = 0x0040;
+	const unsigned short IGNITER_OPB = 0x0020;
+	const unsigned short IGNITER_FPB = 0x0040;
+
 
 	class SSME;
+	class SSMEController;
+
 
 	class OutputElectronics_BLOCK_II:public OutputElectronics
 	{

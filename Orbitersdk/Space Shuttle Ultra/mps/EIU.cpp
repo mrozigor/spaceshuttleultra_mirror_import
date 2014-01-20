@@ -2,6 +2,7 @@
 #include "SSME.h"
 #include "SSMEController.h"
 #include "MPSdefs.h"
+#include "assert.h"
 
 
 namespace mps
@@ -74,9 +75,10 @@ namespace mps
 
 	void EIU::CIA( int num, unsigned short* data )
 	{
+		assert( (num >= 1) && (num <= 2) && "EIU::CIA.num" );
 		// TODO create Status Override Switch
 		// output to OPS Recorder, FM Signal Processor and T-0 Umbilical
-		if (num == 1)// assume only 1 or 2
+		if (num == 1)
 		{
 			// pri data
 			memcpy( DataPri, data, 32 * sizeof(unsigned short) );// partial data for GPCs
@@ -159,13 +161,27 @@ namespace mps
 		return;
 	}
 
+	/*
+	FR A5-107
+	(...) One example of a transient failure is an EIU power-on-reset failure. A power-on-reset failure causes the
+	temporary loss of a single power supply in an EIU. Since the EIU MIA ports 1 and 3 are on the same
+	power source (MIA ports 2 and 4 are on another), this failure will cause the temporary loss of command
+	and data transfer capability on two MIA ports (ground data only shows the status of MIA ports 1 and 4;
+	therefore, MIA ports 3 and 2 are assumed bypassed with ports 1 and 4, respectively). After this failure has
+	occurred, the command transfer capability will be regained automatically while the data transfer
+	capability will be regained via an I/O Reset. The following scenario is an example of the concern that this
+	failure raises: If an engine has a command channel B failure and a power-on-reset failure on MIA ports 1
+	and 3, the engine will be considered to have suspect command capability even if the engine responds to
+	throttle commands and will be shut down pre-MECO.
+	*/
+
 	void EIU::command( unsigned short cmd )
 	{// HACK
 		if ((ACchA->IsSet() == false) && (ACchB->IsSet() == false)) return;
 
-		eng->Controller->VIE_CommandDataConverter_write( 1, cmd );
-		eng->Controller->VIE_CommandDataConverter_write( 2, cmd );
-		eng->Controller->VIE_CommandDataConverter_write( 3, cmd );
+		eng->Controller->VIE_CommandDataConverter_write( chA, cmd );
+		eng->Controller->VIE_CommandDataConverter_write( chB, cmd );
+		eng->Controller->VIE_CommandDataConverter_write( chC, cmd );
 		return;
 	}
 

@@ -545,12 +545,20 @@ pActiveLatches(3, NULL)
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
+  pSSME_SOP = NULL;
 
   psubsystems	  = new AtlantisSubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08"));
+	psubsystems->AddSubsystem( pHeEng[0] = new mps::HeSysEng( psubsystems, "HeEng_C", 1 ) );
+	psubsystems->AddSubsystem( pHeEng[1] = new mps::HeSysEng( psubsystems, "HeEng_L", 2 ) );
+	psubsystems->AddSubsystem( pHeEng[2] = new mps::HeSysEng( psubsystems, "HeEng_R", 3 ) );
+	psubsystems->AddSubsystem( pHePneu = new mps::HeSysPneu( psubsystems, "HePneu" ) );
+
+	psubsystems->AddSubsystem( pMPS = new mps::MPS( psubsystems, pHePneu ) );
+
+	psubsystems->AddSubsystem( pSSME[0] = new mps::SSME_BLOCK_II( psubsystems, "MPS_C", 1, 2, "AD08", pHeEng[0] ) );
+	psubsystems->AddSubsystem( pSSME[1] = new mps::SSME_BLOCK_II( psubsystems, "MPS_L", 2, 2, "AD08", pHeEng[1] ) );
+	psubsystems->AddSubsystem( pSSME[2] = new mps::SSME_BLOCK_II( psubsystems, "MPS_R", 3, 2, "AD08", pHeEng[2] ) );
 
   psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
   psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
@@ -671,7 +679,6 @@ pActiveLatches(3, NULL)
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
   
-  pSSME_SOP = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -813,7 +820,6 @@ pActiveLatches(3, NULL)
   {
 	th_main[i] = NULL;
 	th_ssme_gox[i] = NULL;
-	th_ssme_loxdump[i] = NULL;
 	thManLRCS1[i] = NULL;
 	thManLRCS2[i] = NULL;
 	thManLRCS3[i] = NULL;
@@ -823,6 +829,11 @@ pActiveLatches(3, NULL)
 	thManRRCS3[i] = NULL;
 	thManRRCS4[i] = NULL;
   }
+  thMPSDump[0] = NULL;
+  thMPSDump[1] = NULL;
+  thMPSDump[2] = NULL;
+  thMPSDump[3] = NULL;
+  thMPSDump[4] = NULL;
   th_srb[0] = th_srb[1] = NULL;
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
@@ -839,10 +850,12 @@ pActiveLatches(3, NULL)
   bRCSDefined = false;
   bControllerThrustersDefined = false;
 
+  phLOXdump = NULL;
+  phLH2dump = NULL;
+
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
   for(i=0;i<3;i++) {
-	  mps_helium_tank[i] = NULL;
 	  ex_main[i] = NULL;
   }
 
@@ -1289,6 +1302,10 @@ void Atlantis::SetLaunchConfiguration (void)
   //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
+  phLOXdump = ph_tank;
+  phLH2dump = ph_tank;
+  CreateMPSDumpVents();// must be after the AddOrbiterVisual call as it uses orbiter_ofs and it not initialized before the 1º run, feel free to "fix" if needed
+
   status = STATE_PRELAUNCH;
   
 }
@@ -1338,6 +1355,10 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // all times
 
   CreateSSMEs(OFS_ZERO);
+
+  phLOXdump = ph_tank;
+  phLH2dump = ph_tank;
+  CreateMPSDumpVents();
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
@@ -2832,6 +2853,12 @@ void Atlantis::SeparateTank (void)
 	// Remove Tank from shuttle instance
 	DelPropellantResource (ph_tank);
 
+	// create separate tanks for MPS dumps
+	// 5400 lbs total prop -> estimates below for LO2 & LH2
+	phLOXdump = CreatePropellantResource( 2306 );
+	phLH2dump = CreatePropellantResource( /*144*/135 );// take out some LH2 as some has been vented before ET sep
+	CreateMPSDumpVents();
+
 	// main engines are done
 	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
 
@@ -4173,25 +4200,6 @@ void Atlantis::clbkPostCreation ()
 	RMSDrivePlus.Connect(pBundle, 8);
 	RMSDriveMinus.Connect(pBundle, 9);
 
-	pBundle=bundleManager->CreateBundle("SSMEC_R2_SWITCHES", 4);
-	MPSPwr[0][0].Connect(pBundle, 0);
-	MPSPwr[1][0].Connect(pBundle, 1);
-	MPSHeIsolA[0].Connect(pBundle, 2);
-	MPSHeIsolB[0].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMEL_R2_SWITCHES", 4);
-	MPSPwr[0][1].Connect(pBundle, 0);
-	MPSPwr[1][1].Connect(pBundle, 1);
-	MPSHeIsolA[1].Connect(pBundle, 2);
-	MPSHeIsolB[1].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMER_R2_SWITCHES", 4);
-	MPSPwr[0][2].Connect(pBundle, 0);
-	MPSPwr[1][2].Connect(pBundle, 1);
-	MPSHeIsolA[2].Connect(pBundle, 2);
-	MPSHeIsolB[2].Connect(pBundle, 2);
-
-	pBundle = bundleManager->CreateBundle("SSME", 8);
-	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
-
 	pBundle=bundleManager->CreateBundle("LOMS", 5);
 	OMSArm[LEFT].Connect(pBundle, 0);
 	OMSArmPress[LEFT].Connect(pBundle, 1);
@@ -4204,6 +4212,9 @@ void Atlantis::clbkPostCreation ()
 	OMSFire[RIGHT].Connect(pBundle, 2);
 	OMSPitch[RIGHT].Connect(pBundle, 3);
 	OMSYaw[RIGHT].Connect(pBundle, 4);
+
+	pBundle = bundleManager->CreateBundle( "C3_LIMITS_SSMEPB", 5 );
+	for(int i=0;i<3;i++) SSMEPBAnalog[i].Connect( pBundle, i + 2 );
 
 	// ports for pan/tilt and cam settings
 	DiscreteBundle* pCamBundles[5];
@@ -4637,7 +4648,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		// check SSME state and trigger liftoff when required
 		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
-		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.05))
+		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 		{
 			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
 			{
@@ -6619,9 +6630,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		//gop->RevertLandingGear();
 		DeployLandingGear();
 		return 1;
-	case OAPI_KEY_MULTIPLY: // NUMPAD *
-		for(int i=0;i<3;i++) SSMEShutdown[i].SetLine();
-		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
 	case OAPI_KEY_LEFT:
 		AltKybdInput.y=-1.0;
 		return 1;
@@ -6640,6 +6648,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_DOWN:
 		AltKybdInput.z=-1.0;
 		return 1;
+	case OAPI_KEY_MULTIPLY: // NUMPAD *
+		for(int i=0;i<3;i++) SSMEPBAnalog[i].SetLine();
+		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
 	/*case OAPI_KEY_NUMPADENTER:
 		for(int i = 0; i<3; i++) {
 			SetThrusterLevel(th_main[i], 1.0);
@@ -6798,6 +6809,14 @@ void Atlantis::IgniteSRBs()
 	GetSRB_State (0.0, thrust_level, prop_level);
 		for (int i = 0; i < 2; i++)
 			SetThrusterLevel (th_srb[i], thrust_level);
+}
+
+void Atlantis::SetMPSDumpLevel( int vent, double level )
+{
+	assert( (vent >= 0) && (vent <= 4) && " Atlantis::SetMPSDumpLevel.vent" );
+	assert( (level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level" );
+	if (thMPSDump[vent] != NULL) SetThrusterLevel( thMPSDump[vent], level );
+	return;
 }
 
 
@@ -7706,7 +7725,7 @@ AMAX=1
 TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0, 1.2, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.06, 140, 10, 0, 0.8, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
@@ -7723,6 +7742,87 @@ TEX=Contrail1*/
 		AddExhaustStream(th_ssme_gox[i], &gox_stream);
 	}
 	
+}
+
+void Atlantis::CreateMPSDumpVents( void )
+{
+	static PARTICLESTREAMSPEC psLOXdump = {
+		0,
+		2,
+		80,
+		20,
+		0.4,
+		0.4,
+		10,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_BU = {
+		0,
+		0.08,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		4,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FD = {
+		0,
+		0.2,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		4,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	// LOX dump -> dv = 9-11 fps
+	// LOX dump SSME 1
+	if (thMPSDump[0] != NULL) DelThruster( thMPSDump[0] );
+	thMPSDump[0] = CreateThruster( orbiter_ofs + _V(0.0, 3.387,-14.8485), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
+	AddExhaustStream( thMPSDump[0], &psLOXdump );
+
+	// LOX dump SSME 2
+	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
+	thMPSDump[1] = CreateThruster( orbiter_ofs + _V(-1.458, 0.548, -15.8735), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[1], &psLOXdump );
+
+	// LOX dump SSME 3
+	if (thMPSDump[2] != NULL) DelThruster( thMPSDump[2] );
+	thMPSDump[2] = CreateThruster( orbiter_ofs + _V(1.458, 0.548, -15.8735), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[2], &psLOXdump );
+
+	// LH2 dump B/U
+	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.85, -1.16, -7.30 ), _V( 1, -0.1, 0 ), 60, phLH2dump, 30, 30 );
+	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
+
+	// LH2 dump F/D
+	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
+	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -3.18, 0.71, -10.51 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
+	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
+	return;
 }
 
 void Atlantis::RealizeSubsystemConnections() {
@@ -7977,6 +8077,44 @@ int Atlantis::GetSSMEPress( int eng )
 {
 	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware( "SSME_SOP" ));
 	return round(pSSME_SOP->GetPercentChamberPressVal( eng ));
+}
+
+int Atlantis::GetHeTankPress( int sys ) const
+{
+	if (sys == 0) return pHePneu->GetTankPress();
+	return pHeEng[sys - 1]->GetTankPress();
+}
+
+int Atlantis::GetHeRegPress( int sys ) const
+{
+	if (sys == 0) return pHePneu->GetRegPress();
+	return pHeEng[sys - 1]->GetRegPress();
+}
+
+void Atlantis::HeFillTank( int sys, double mass )
+{
+	if (sys == 0) pHePneu->FillTank( mass );
+	else pHeEng[sys - 1]->FillTank( mass );
+}
+
+PROPELLANT_HANDLE Atlantis::GetLH2Tank( void ) const
+{
+	return phLH2dump;
+}
+
+PROPELLANT_HANDLE Atlantis::GetLOXTank( void ) const
+{
+	return phLOXdump;
+}
+
+double Atlantis::GetLOXManifPress( void ) const
+{
+	return pMPS->GetLOXManifPress();
+}
+
+double Atlantis::GetLH2ManifPress( void ) const
+{
+	return pMPS->GetLH2ManifPress();
 }
 
 void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
