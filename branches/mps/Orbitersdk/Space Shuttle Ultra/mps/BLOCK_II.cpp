@@ -517,8 +517,7 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 0 );
 
-		// TODO check possible bug starting on-orbit due to prop handle = NULL
-		STS()->SetMPSDumpLevel( ID - 1, ptrMOV->GetPos() *  pMPS->GetLOXPVPos( ID ) * (STS()->GetPropellantLevel( STS()->GetLOXTank() ) / 100) );
+		if (STS()->GetLOXTank() != NULL) STS()->SetMPSDumpLevel( ID - 1, ptrMOV->GetPos() *  pMPS->GetLOXPVPos( ID ) * (STS()->GetPropellantLevel( STS()->GetLOXTank() ) / 100) );
 		return;
 	}
 }
