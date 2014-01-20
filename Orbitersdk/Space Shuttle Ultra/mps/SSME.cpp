@@ -263,6 +263,7 @@ namespace mps
 					ptrHPV->_backdoor( 0 );
 					ptrGCV->_backdoor( 1 );
 					ptrRIV->_backdoor( 1 );
+					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
 
 					modelmode = 5;
 					break;
