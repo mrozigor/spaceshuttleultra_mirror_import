@@ -2597,7 +2597,7 @@ void Atlantis::AddOrbiterVisual()
 
     // ***** Load meshes
 
-    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &VC_OFFSET);
+    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &VCext_OFFSET);
     SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
 
     mesh_orbiter = AddMesh (hOrbiterMesh, &OFS_ZERO);
