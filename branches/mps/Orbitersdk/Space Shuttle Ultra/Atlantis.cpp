@@ -7800,27 +7800,27 @@ void Atlantis::CreateMPSDumpVents( void )
 	// LOX dump -> dv = 9-11 fps
 	// LOX dump SSME 1
 	if (thMPSDump[0] != NULL) DelThruster( thMPSDump[0] );
-	thMPSDump[0] = CreateThruster( orbiter_ofs + _V(0.0, 3.387,-14.8485), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
+	thMPSDump[0] = CreateThruster( orbiter_ofs + _V(0.0, 0.12,-13.28), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
 	AddExhaustStream( thMPSDump[0], &psLOXdump );
 
 	// LOX dump SSME 2
 	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
-	thMPSDump[1] = CreateThruster( orbiter_ofs + _V(-1.458, 0.548, -15.8735), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	thMPSDump[1] = CreateThruster( orbiter_ofs + _V(-1.44, -2.45, -13.85), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
 	AddExhaustStream( thMPSDump[1], &psLOXdump );
 
 	// LOX dump SSME 3
 	if (thMPSDump[2] != NULL) DelThruster( thMPSDump[2] );
-	thMPSDump[2] = CreateThruster( orbiter_ofs + _V(1.458, 0.548, -15.8735), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	thMPSDump[2] = CreateThruster( orbiter_ofs + _V(1.44, -2.45, -13.85), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
 	AddExhaustStream( thMPSDump[2], &psLOXdump );
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.85, -1.16, -7.30 ), _V( 1, -0.1, 0 ), 60, phLH2dump, 30, 30 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 1, -0.1, 0 ), 60, phLH2dump, 30, 30 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
 	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
-	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -3.18, 0.71, -10.51 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
+	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.83, -1.46, -12.28 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
 	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
 	return;
 }
