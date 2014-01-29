@@ -347,6 +347,12 @@ namespace dps
 			oapiWriteLog( "RSLS: Open LOX POGO Recirculation Valves" );
 		}
 
+		if (timeToLaunch <= 11 && lastTTL >= 11)
+		{
+			pSSME_SOP->SetThrottlePercent( 100 );
+			oapiWriteLog( "RSLS: Initialize MEs throttle to 100%" );
+		}
+
 		if (timeToLaunch <= 9.5 && lastTTL >= 9.5)
 		{
 			pSSME_SOP->SetStartEnableCommandFlag( 1 );

@@ -685,69 +685,6 @@ namespace mps
 		{
 			retval = 1;
 		}
-
-
-		if (DCU->RAM[RAM_AD08_CH] == chA)// TODO improve this...
-		{
-			switch ((DCU->RAM[26] << 2) + (DCU->RAM[30] << 1) + DCU->RAM[28])
-			{
-				case 0:
-					Set_ESW_ChannelStatus( ESW_OK );
-					break;
-				case 1:
-					Set_ESW_ChannelStatus( ESW_IE_Fail );
-					break;
-				case 2:
-					Set_ESW_ChannelStatus( ESW_OE_Fail );
-					break;
-				case 3:
-					Set_ESW_ChannelStatus( ESW_IE_OE_Fail );
-					break;
-				case 4:
-					Set_ESW_ChannelStatus( ESW_DCU_Fail );
-					break;
-				case 5:
-					Set_ESW_ChannelStatus( ESW_DCU_IE_Fail );
-					break;
-				case 6:
-					Set_ESW_ChannelStatus( ESW_DCU_OE_Fail );
-					break;
-				case 7:
-					Set_ESW_ChannelStatus( ESW_DCU_IE_OE_Fail );
-					break;
-			}
-		}
-		else
-		{
-			switch ((DCU->RAM[27] << 2) + (DCU->RAM[31] << 1) + DCU->RAM[29])
-			{
-				case 0:
-					Set_ESW_ChannelStatus( ESW_OK );
-					break;
-				case 1:
-					Set_ESW_ChannelStatus( ESW_IE_Fail );
-					break;
-				case 2:
-					Set_ESW_ChannelStatus( ESW_OE_Fail );
-					break;
-				case 3:
-					Set_ESW_ChannelStatus( ESW_IE_OE_Fail );
-					break;
-				case 4:
-					Set_ESW_ChannelStatus( ESW_DCU_Fail );
-					break;
-				case 5:
-					Set_ESW_ChannelStatus( ESW_DCU_IE_Fail );
-					break;
-				case 6:
-					Set_ESW_ChannelStatus( ESW_DCU_OE_Fail );
-					break;
-				case 7:
-					Set_ESW_ChannelStatus( ESW_DCU_IE_OE_Fail );
-					break;
-			}
-		}
-
 		return retval;
 	}
 
@@ -1722,6 +1659,14 @@ namespace mps
 				DCU->RAM[RAM_AD08_TIME_ESC] = 0xFFFF;// setup
 				RotateCommand();
 				return ESW_Accepted;
+			case THRT:
+				{
+					double pl = MPL + (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
+					if ((pl < MPL) || (pl > FPL)) return 2;
+					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
+					RotateCommand();
+					return 3;
+				}
 			case SDEN:
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
@@ -2356,6 +2301,7 @@ namespace mps
 				// 2 good
 				// 3 good
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
+				Set_ESW_ChannelStatus( ESW_OK );// TODO complete ch status
 				return 3;
 			}
 			else
@@ -2364,6 +2310,7 @@ namespace mps
 				// 2 good
 				// 3 bad
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD2];
+				Set_ESW_ChannelStatus( ESW_CHC_ERROR );
 				return 2;
 			}
 		}
@@ -2375,6 +2322,7 @@ namespace mps
 				// 2 good
 				// 3 good
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
+				Set_ESW_ChannelStatus( ESW_CHA_ERROR );
 				return 2;
 			}
 			else
@@ -2385,6 +2333,7 @@ namespace mps
 					// 2 bad
 					// 3 good
 					DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
+					Set_ESW_ChannelStatus( ESW_CHB_ERROR );
 					return 2;
 				}
 				else
@@ -2393,6 +2342,7 @@ namespace mps
 					// 2 bad
 					// 3 bad
 					DCU->RAM[RAM_AD08_VALIDCMD] = NOP;
+					Set_ESW_ChannelStatus( ESW_CHA_CHB_CHC_ERROR );
 					return 0;
 				}
 			}
@@ -2787,7 +2737,7 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_Start_StartInitiation( void )
 	{
-		DCU->RAM[RAM_AD08_PC_CMD] = PC_100_D;
+		//DCU->RAM[RAM_AD08_PC_CMD] = PC_100_D;
 
 		if (DCU->RAM[RAM_AD08_TIME_ESC] != 0xFFFF)
 		{

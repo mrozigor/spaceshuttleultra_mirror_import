@@ -168,13 +168,13 @@ namespace mps
 
 	// Channel Status
 	const unsigned short ESW_OK = 0;
-	const unsigned short ESW_IE_Fail = 1;
-	const unsigned short ESW_OE_Fail = 2;
-	const unsigned short ESW_IE_OE_Fail = 3;
-	const unsigned short ESW_DCU_Fail = 4;
-	const unsigned short ESW_DCU_IE_Fail = 5;
-	const unsigned short ESW_DCU_OE_Fail = 6;
-	const unsigned short ESW_DCU_IE_OE_Fail = 7;
+	const unsigned short ESW_CHA_ERROR = 1;
+	const unsigned short ESW_CHB_ERROR = 2;
+	const unsigned short ESW_CHA_CHB_ERROR = 3;
+	const unsigned short ESW_CHC_ERROR = 4;
+	const unsigned short ESW_CHA_CHC_ERROR = 5;
+	const unsigned short ESW_CHB_CHC_ERROR = 6;
+	const unsigned short ESW_CHA_CHB_CHC_ERROR = 7;
 
 	// Command Status
 	const unsigned short ESW_NoCommand = 0;
