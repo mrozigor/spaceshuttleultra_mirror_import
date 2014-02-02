@@ -104,9 +104,9 @@ namespace mps
 			SolenoidValve* ptrLV39;// MPS LH2 Topping Vlv OP pwr
 			SolenoidValve* ptrLV40;// LO2 Manf Reprss 1 OP Pwr
 			SolenoidValve* ptrLV41;// LO2 Manf Reprss 2 OP Pwr
-			/*LV42;// LH2 Manf Reprss 1 OP Pwr
-			LV43;// LH2 Manf Reprss 2 OP Pwr
-			LV46;// LO2 17in Disc Vlv OP Pwr
+			SolenoidValve* ptrLV42;// LH2 Manf Reprss 1 OP Pwr
+			SolenoidValve* ptrLV43;// LH2 Manf Reprss 2 OP Pwr
+			/*LV46;// LO2 17in Disc Vlv OP Pwr
 			LV47;// LO2 17in Disc Vlv CL Pwr
 			LV48;// LH2 17in Disc Vlv OP Pwr
 			LV49;// LH2 17in Disc Vlv CL Pwr

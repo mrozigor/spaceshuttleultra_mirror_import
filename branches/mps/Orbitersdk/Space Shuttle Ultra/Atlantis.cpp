@@ -6959,7 +6959,7 @@ short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
 		return (short)(1000 * GetThrusterLevel(th_srb[which_srb]));
 	}
 	else
-		return -1;
+		return 0;
 }
 
 unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short &usMin, unsigned short &usSec)

@@ -1,6 +1,7 @@
 #include "MPS_Dedicated_Display_Driver.h"
 #include "..\Atlantis.h"
 #include "SSME_SOP.h"
+#include "assert.h"
 
 
 namespace dps
@@ -69,6 +70,7 @@ namespace dps
 	void MPS_Dedicated_Display_Driver::Realize( void )
 	{
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+		assert( (pSSME_SOP != NULL) && "MPS_Dedicated_Display_Driver::Realize.pSSME_SOP" );
 
 		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "MPS_STATUS_LIGHTS", 6 );
 

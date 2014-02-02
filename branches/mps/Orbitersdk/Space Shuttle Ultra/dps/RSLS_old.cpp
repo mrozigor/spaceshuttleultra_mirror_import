@@ -1,6 +1,7 @@
 #include "RSLS_old.h"
 #include "SSME_SOP.h"
 #include "IO_Control.h"
+#include "assert.h"
 
 
 namespace dps
@@ -565,7 +566,9 @@ namespace dps
 	void RSLS_old::Realize()
 	{
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+		assert( (pSSME_SOP != NULL) && "RSLS_old::Realize.pSSME_SOP" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
+		assert( (pIO_Control != NULL) && "RSLS_old::Realize.pIO_Control" );
 
 		discsignals::DiscreteBundle* bundle = BundleManager()->CreateBundle( "MPS_CLInd_A", 16 );
 		PV19_CLInd[0].Connect( bundle, 8 );

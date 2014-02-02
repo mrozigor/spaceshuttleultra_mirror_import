@@ -3,6 +3,7 @@
 #include "SSME_SOP.h"
 #include "SSME_Operations.h"
 #include "IO_Control.h"
+#include "assert.h"
 
 
 namespace dps
@@ -43,6 +44,7 @@ namespace dps
 		}
 		else
 		{
+			// TODO get rid of t_current
 			t_last = t_current;
 			t_current = SimT;
 
@@ -186,8 +188,11 @@ namespace dps
 
 		
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+		assert( (pSSME_SOP != NULL) && "MPS_Dump::Realize.pSSME_SOP" );
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
+		assert( (pSSME_Operations != NULL) && "MPS_Dump::Realize.pSSME_Operations" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
+		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
 		return;
 	}
 

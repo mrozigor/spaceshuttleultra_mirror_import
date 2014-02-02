@@ -2,6 +2,7 @@
 #include "..\Atlantis.h"
 #include "SSME_SOP.h"
 #include "IO_Control.h"
+#include "assert.h"
 
 
 namespace dps
@@ -52,6 +53,7 @@ namespace dps
 
 	void SSME_Operations::OnPreStep( double SimT, double DeltaT, double MJD )
 	{
+		// INFO check 20030005845_2002110399 for new vlv timing data
 		for (int i = 0; i < 3; i++)
 		{
 			if (PVLV_CL_CMD[i] == true)
@@ -70,7 +72,8 @@ namespace dps
 			}
 			else
 			{
-				if (((pSSME_SOP->GetFlightDataPathFailureFlag( i + 1 ) == true) && (ShutdownCommandIssued[i] == true)) || // TODO missing safing cmd
+				// TODO missing safing cmd (is it really needed?)
+				if (((pSSME_SOP->GetFlightDataPathFailureFlag( i + 1 ) == true) && (ShutdownCommandIssued[i] == true)) ||
 					((pSSME_SOP->GetFlightDataPathFailureFlag( i + 1 ) == false) && ((pSSME_SOP->GetShutdownPhaseFlag( i + 1 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( i + 1 ) == true))))
 				{
 					FailFlag[i] = true;
@@ -112,7 +115,7 @@ namespace dps
 				if (ManualShutdownFlag[i] == false)// only log first PB use
 				{
 					char buffer[64];
-					sprintf_s( buffer, 64, "ME%d PB Pressed @ MET %.2f", i + 1, STS()->GetMET() );
+					sprintf_s( buffer, 64, "ME-%d PB Pressed @ MET %.2f", i + 1, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
 				ManualShutdownFlag[i] = true;
@@ -235,6 +238,7 @@ namespace dps
 			}
 		}
 
+		// step 30
 		if ((ManualShutdownFlag[0] == true) && (ManualShutdownFlag[1] == true) && (ManualShutdownFlag[2] == true)) MECOCommand = true;
 
 		// K
@@ -275,7 +279,9 @@ namespace dps
 		dspSSMESDPB[2].Connect( pBundle, 4 );// R
 
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+		assert( (pSSME_SOP != NULL) && "SSME_Operations::Realize.pSSME_SOP" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
+		assert( (pIO_Control != NULL) && "SSME_Operations::Realize.pIO_Control" );
 		return;
 	}
 
@@ -306,5 +312,11 @@ namespace dps
 	bool SSME_Operations::GetMECOConfirmedFlag( void ) const
 	{
 		return MECOConfirmed;
+	}
+
+	bool SSME_Operations::GetFailFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_Operations::GetFailFlag.eng" );
+		return FailFlag[eng - 1];
 	}
 }

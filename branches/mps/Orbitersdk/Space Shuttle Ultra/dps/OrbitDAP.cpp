@@ -465,11 +465,11 @@ void OrbitDAP::Realize()
 		PBI_output[i].Connect(pBundle, i-16);
 	}
 	
-	for(int i=0;i<24;i++) {
+	/*for(int i=0;i<24;i++) {
 		PBI_state[i] = GetPBIState(i);
 		if(PBI_state[i]) PBI_output[i].SetLine();
 		else PBI_output[i].ResetLine();
-	}	
+	}*/	
 
 	pBundle = BundleManager()->CreateBundle("LOMS", 5);
 	POMSGimbalCommand[LEFT].Connect(pBundle, 3);
@@ -507,10 +507,25 @@ void OrbitDAP::Realize()
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 
 	UpdateDAPParameters();
+
+	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 }
 
 void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	if (GetMajorMode() == 103)
+	{
+		if (pSSME_Operations->GetMECOConfirmedFlag() == true)
+		{
+			for(int i=0;i<24;i++) {
+			PBI_state[i] = GetPBIState(i);
+			if(PBI_state[i]) PBI_output[i].SetLine();
+			else PBI_output[i].ResetLine();
+			}
+		}
+		return;
+	}
+
 	GetAttitudeData();
 
 	for(int i=0;i<24;i++) {
@@ -619,7 +634,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
-	if(newMajorMode >= 104 && newMajorMode <= 303) {
+	if(newMajorMode >= 103 && newMajorMode <= 303) {
 		// perform initialization
 		return true;
 	}
