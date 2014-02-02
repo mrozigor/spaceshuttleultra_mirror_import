@@ -177,7 +177,7 @@ private:
 	double eCurrent;
 
 	SSME_SOP* pSSME_SOP;
-	SSME_Operations* pSSME_OPS;
+	SSME_Operations* pSSME_Operations;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 

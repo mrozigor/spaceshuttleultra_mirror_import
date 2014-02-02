@@ -39,8 +39,7 @@ namespace dps
 	const double LOX_DUMP_DURATION = 120;
 	const double LOX_DUMP_PRESS_DURATION = 90;
 
-	// HACK value below is temporary (please don't fix - GLS)
-	const double LH2_DUMP_BU_VLV_START_DELAY = 2;//11.4;// from MECO
+	const double LH2_DUMP_BU_VLV_START_DELAY = 11.4;// from MECO
 	const double LH2_DUMP_BU_VLV_DURATION = 228.6;
 	const double LH2_DUMP_START_DELAY = 120;// from MECO
 	const double LH2_DUMP_DURATION = 120;

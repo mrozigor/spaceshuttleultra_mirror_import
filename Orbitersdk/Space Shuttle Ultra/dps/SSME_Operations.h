@@ -103,6 +103,13 @@ namespace dps
 			 * @return		true = flag set
 			 */
 			bool GetMECOConfirmedFlag( void ) const;
+
+			/**
+			 * Returns an indication of whether the Fail Flag has been set for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = flag set
+			 */
+			bool GetFailFlag( int eng ) const;
 	};
 }
 

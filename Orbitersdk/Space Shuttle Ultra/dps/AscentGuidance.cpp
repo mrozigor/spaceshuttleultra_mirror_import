@@ -69,7 +69,7 @@ void AscentGuidance::Realize()
 	SpdbkThrotPort.Connect(pBundle, 6);	
 
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
-	pSSME_OPS = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
+	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -83,7 +83,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			GimbalSSMEs(DeltaT);
 			break;
 		case 103:
-			if (pSSME_OPS->GetMECOCommandFlag() == false){//if(!bMECO) {
+			if (pSSME_Operations->GetMECOCommandFlag() == false){//if(!bMECO) {
 				STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 				Navigate();
 				if(STS()->GetMET() >= (tLastMajorCycle + ASCENT_MAJOR_CYCLE)) {
@@ -100,7 +100,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 					bMECO = true;
 					tMECO = STS()->GetMET();
 				}
-				else if(STS()->HasTank() && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=STS()->GetMET())
+				else if(STS()->HasTank() && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=STS()->GetMET() && pSSME_Operations->GetMECOConfirmedFlag())
 				{
 					STS()->SeparateTank();
 					ETSepTranslationInProg = true;
@@ -437,9 +437,9 @@ void AscentGuidance::Throttle(double DeltaT)
 				}*/
 				if(relativeVelocity>=TgtSpd) {
 					//reached target speed
-					if (pSSME_OPS->GetMECOCommandFlag() == false)
+					if (pSSME_Operations->GetMECOCommandFlag() == false)
 					{
-						pSSME_OPS->SetMECOCommandFlag();
+						pSSME_Operations->SetMECOCommandFlag();
 						bMECO = true;
 						tMECO = STS()->GetMET();
 
