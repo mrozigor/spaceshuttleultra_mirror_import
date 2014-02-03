@@ -389,6 +389,7 @@ namespace mps
 				LOXHeight = LOXvol / 55.4177;
 			}
 			LOXHeight += 31.6742;
+
 			//double acc = 0;
 
 			if (STS()->GroundContact() == true)
@@ -397,9 +398,16 @@ namespace mps
 			}
 			else
 			{
-				double thr = ((STS()->GetSRBChamberPressure( 0 ) / 1000) * 2 * 14679131.3) + STS()->CalcNetSSMEThrust();
-				acc = thr / STS()->GetMass();
-				if (acc != 0) acc += 9.80665 * sin( STS()->GetPitch() );
+				VECTOR3 forceV3;
+				VECTOR3 accV3;
+				STS()->GetForceVector( forceV3 );
+				accV3 = forceV3 / STS()->GetMass();
+				acc = accV3.z;
+				if ((STS()->GetSRBChamberPressure( 0 ) + STS()->GetSRBChamberPressure( 1 ) + STS()->CalcNetSSMEThrust()) > 0) acc += 9.80665 * sin( STS()->GetPitch() );
+				
+				//double thr = ((STS()->GetSRBChamberPressure( 0 ) / 1000) * 2 * 14679131.3) + STS()->CalcNetSSMEThrust();
+				//acc = thr / STS()->GetMass();
+				//if (acc != 0) acc += 9.80665 * sin( STS()->GetPitch() );
 			}
 
 			LH2ManifPress = (LH2UllagePress + (LH2Density * acc * LH2Height)) / 6894.757;// psia
@@ -428,8 +436,7 @@ namespace mps
 		}
 
 		//char buffer[100];
-		//sprintf_s( buffer, 100, "PV1:%f PV4:%f ", ptrPV1->GetPos(), ptrPV4->GetPos() );
-		//sprintf_s( buffer, 100, "acc:%.2f %f", acc, STS()->GetPitch() * DEG );
+		//sprintf_s( buffer, 100, "acc,%.2f,%.2f", accV3.z + 9.80665 * sin( STS()->GetPitch() ), STS()->GetMET() );
 		//oapiWriteLog( buffer );
 		//sprintf_s( oapiDebugString(), 255, buffer );
 		//sprintf_s( buffer, 100, "PV4 %f LV18 %f LV19 %f", ptrPV4->GetPos(), ptrLV18->GetPos(), ptrLV19->GetPos() );
