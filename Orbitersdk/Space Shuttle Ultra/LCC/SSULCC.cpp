@@ -74,12 +74,12 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	sprintf(oapiDebugString(),"T -%02i:%02i:%04.1f",hours,minutes,seconds);
 
 	if(pFSS) {
-		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>=ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
+		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
 		{
 			oapiWriteLog("LCC: OAA");
 			pFSS->RetractOrbiterAccessArm();
 		}
-		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>=GOX_ARM_RETRACT_TIME) //retract GOX arm
+		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>GOX_ARM_RETRACT_TIME) //retract GOX arm
 		{
 			oapiWriteLog("LCC: GVA");
 			pFSS->RetractGOXArmAndHood();
@@ -96,23 +96,23 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 				timeToLaunch = mjd-1.0; // set launch time to date in past
 			}
 		}
-		if ((timeToLaunch <= PSN4_TIME) && (lastTTL >= PSN4_TIME))
+		if ((timeToLaunch <= PSN4_TIME) && (lastTTL > PSN4_TIME))
 		{
 			oapiWriteLog( "LCC: PSN4" );
 			pSSU->PSN4();
 		}
-		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>=RSLS_SEQUENCE_START_TIME)
+		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>RSLS_SEQUENCE_START_TIME)
 		{
 			oapiWriteLog("LCC: T-31");
 			pSSU->SynchronizeCountdown(launch_mjd);
 			pSSU->StartRSLSSequence();
 		}
-		if ((timeToLaunch <= MPS_HE_SUPPLY_START_TIME) && (lastTTL >= MPS_HE_SUPPLY_START_TIME))
+		if ((timeToLaunch <= MPS_HE_SUPPLY_START_TIME) && (lastTTL > MPS_HE_SUPPLY_START_TIME))
 		{
 			MPSHeSupply = true;
 			oapiWriteLog( "LCC: MPS He Supply started" );
 		}
-		if ((timeToLaunch <= MPS_HE_SUPPLY_END_TIME) && (lastTTL >= MPS_HE_SUPPLY_END_TIME))
+		if ((timeToLaunch <= MPS_HE_SUPPLY_END_TIME) && (lastTTL > MPS_HE_SUPPLY_END_TIME))
 		{
 			MPSHeSupply = false;
 			oapiWriteLog( "LCC: MPS He Supply terminated" );

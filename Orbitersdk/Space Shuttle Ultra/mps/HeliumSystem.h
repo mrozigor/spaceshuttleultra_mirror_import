@@ -27,14 +27,12 @@
 
 
 #include "PressureSource.h"
-//#include "DiscInPort.h"
 #include "..\AtlantisSubsystem.h"
 #include "SolenoidValve.h"
 
 
 namespace mps
 {
-	//using class discsignals::DiscInPort;
 	using class discsignals::DiscreteBundle;
 	class HeSysPneu;
 

@@ -163,7 +163,7 @@ namespace dps
 			}
 		}
 
-		if ((timeToLaunch <= 9.5 && lastTTL >= 9.5))
+		if ((timeToLaunch <= 9.5 && lastTTL > 9.5))
 		{
 			if (pSSME_SOP->GetEngineReadyModeFlag( 1 ) == false)// check engine ready
 			{
@@ -195,7 +195,7 @@ namespace dps
 				RSLSAbortData = 4;
 			}
 		}
-		else if (timeToLaunch <= 7 && timeToLaunch >= 6.60)
+		else if (timeToLaunch <= 7 && timeToLaunch > 6.60)
 		{
 			if (pSSME_SOP->GetEngineReadyModeFlag( 1 ) == false)// check engine ready
 			{
@@ -337,10 +337,10 @@ namespace dps
 
 		//// commands ////
 
-		if(timeToLaunch<=31.0 && lastTTL>=31.0) STS()->GLSAutoSeqStart();
-    		if(timeToLaunch<=10.0 && lastTTL>=10.0)	STS()->StartROFIs();// HACK should be in GLS
+		if(timeToLaunch<=31.0 && lastTTL>31.0) STS()->GLSAutoSeqStart();
+    		if(timeToLaunch<=10.0 && lastTTL>10.0)	STS()->StartROFIs();// HACK should be in GLS
 
-		if (timeToLaunch <= 12.5 && lastTTL >= 12.5)
+		if (timeToLaunch <= 12.5 && lastTTL > 12.5)
 		{
 			// HACK should be continuous cmd from T-12.5s to T-6.6s
 			pIO_Control->SetCommand( LOX_POGO_RECIRC_1, false );
@@ -348,13 +348,13 @@ namespace dps
 			oapiWriteLog( "RSLS: Open LOX POGO Recirculation Valves" );
 		}
 
-		if (timeToLaunch <= 11 && lastTTL >= 11)
+		if (timeToLaunch <= 11 && lastTTL > 11)
 		{
 			pSSME_SOP->SetThrottlePercent( 100 );
 			oapiWriteLog( "RSLS: Initialize MEs throttle to 100%" );
 		}
 
-		if (timeToLaunch <= 9.5 && lastTTL >= 9.5)
+		if (timeToLaunch <= 9.5 && lastTTL > 9.5)
 		{
 			pSSME_SOP->SetStartEnableCommandFlag( 1 );
 			pSSME_SOP->SetStartEnableCommandFlag( 2 );
@@ -371,7 +371,7 @@ namespace dps
 			oapiWriteLog( "RSLS: Open LH2 Prevalves" );
 		}
 
-		if (timeToLaunch <= 9.4 && lastTTL >= 9.4)
+		if (timeToLaunch <= 9.4 && lastTTL > 9.4)
 		{
 			// HACK should be continuous cmd from T-9.4s to T-6.6s
 			pIO_Control->SetCommand( LOX_OVBD_BV, true );
@@ -379,17 +379,17 @@ namespace dps
 		}
 
 		// engine start
-		if(timeToLaunch<=6.60 && lastTTL>=6.60)
+		if(timeToLaunch<=6.60 && lastTTL>6.60)
 		{
 			pSSME_SOP->SetEngineStartCommandFlag( 3 );
 			oapiWriteLog( "RSLS: ME-3 Ignition Command" );
 		}
-		if(timeToLaunch<=6.48 && lastTTL>=6.48)
+		if(timeToLaunch<=6.48 && lastTTL>6.48)
 		{
 			pSSME_SOP->SetEngineStartCommandFlag( 2 );
 			oapiWriteLog( "RSLS: ME-2 Ignition Command" );
 		}
-		if(timeToLaunch<=6.36 && lastTTL>=6.36)
+		if(timeToLaunch<=6.36 && lastTTL>6.36)
 		{
 			pSSME_SOP->SetEngineStartCommandFlag( 1 );
 			oapiWriteLog( "RSLS: ME-1 Ignition Command" );
@@ -519,7 +519,7 @@ namespace dps
 		}
 
 		// engine shutdown
-		if ((timeToLaunch <= eng1SDtime) && (lastTTL >= eng1SDtime))
+		if ((timeToLaunch <= eng1SDtime) && (lastTTL > eng1SDtime))
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 1 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 1 );
@@ -528,7 +528,7 @@ namespace dps
 			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 1 shutdown", -timeToLaunch );
 			oapiWriteLog( buffer );
 		}
-		if ((timeToLaunch <= eng2SDtime) && (lastTTL >= eng2SDtime))
+		if ((timeToLaunch <= eng2SDtime) && (lastTTL > eng2SDtime))
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 2 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 2 );
@@ -537,7 +537,7 @@ namespace dps
 			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 2 shutdown", -timeToLaunch );
 			oapiWriteLog( buffer );
 		}
-		if ((timeToLaunch <= eng3SDtime) && (lastTTL >= eng3SDtime))
+		if ((timeToLaunch <= eng3SDtime) && (lastTTL > eng3SDtime))
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 3 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 3 );

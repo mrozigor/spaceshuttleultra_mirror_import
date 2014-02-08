@@ -1015,8 +1015,9 @@ private:
 	 * 2 = SSME-3
 	 * 3 = LH2 B/U
 	 * 4 = LH2 F/D
+	 * 5 = LOX F/D
 	 */
-	THRUSTER_HANDLE thMPSDump[5];
+	THRUSTER_HANDLE thMPSDump[6];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets

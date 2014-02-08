@@ -136,7 +136,7 @@ namespace dps
 				counter_B = 0;
 				for (int i = 0; i < 3; i++)
 				{
-					// TODO still not working for 1EO and 2EO
+					// HACK replaced line below so it also works on 2EO
 					if (ManualShutdownFlag[i] == false)
 					//if ((ManualShutdownFlag[otherSSMEs[i][0]] == false) && (ManualShutdownFlag[otherSSMEs[i][1]] == false))
 					{
@@ -252,7 +252,7 @@ namespace dps
 			MECOConfirmed = true;
 			//oapiWriteLog( "MECO Confirmed" );
 			char buffer[64];
-			sprintf_s( buffer, 64, "MECO Confirmed @ MET%.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
+			sprintf_s( buffer, 64, "MECO Confirmed @ MET %.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
 			oapiWriteLog( buffer );
 		}
 

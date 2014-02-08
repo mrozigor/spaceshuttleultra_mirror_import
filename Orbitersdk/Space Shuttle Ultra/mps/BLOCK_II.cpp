@@ -516,8 +516,8 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 0 );
-
-		if (STS()->GetLOXTank() != NULL) STS()->SetMPSDumpLevel( ID - 1, ptrMOV->GetPos() *  pMPS->GetLOXPVPos( ID ) * (STS()->GetPropellantLevel( STS()->GetLOXTank() ) / 100) );
+		
+		STS()->SetMPSDumpLevel( ID - 1, ptrMOV->GetPos() *  pMPS->GetLOXPVPos( ID ) * min( (pMPS->GetLOXManifPress() / 80) * (pMPS->GetLOXManifPress() / 80), 1 ) );
 		return;
 	}
 }

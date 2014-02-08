@@ -47,6 +47,8 @@ namespace mps
 			double LOXinitpress;
 			double LH2initpress;
 
+			double LOXrepress;
+
 			// PV
 			PressureActuatedValve* ptrPV1;// ME-1 LOX prevalve
 			PressureActuatedValve* ptrPV2;// ME-2 LOX prevalve
@@ -67,7 +69,6 @@ namespace mps
 			PressureActuatedValve* ptrPV20;// LOX POGO Recrc 1 (NO)
 			PressureActuatedValve* ptrPV21;// LOX POGO Recrc 2 (NO)
 			//ValveTypeBool* ptrPV22;// LH2 Hi Pt Bl (NC)
-			
 			
 			// LV
 			/*LV1;// E1 He Iso Vlv A OP Pwr
@@ -106,14 +107,14 @@ namespace mps
 			SolenoidValve* ptrLV41;// LO2 Manf Reprss 2 OP Pwr
 			SolenoidValve* ptrLV42;// LH2 Manf Reprss 1 OP Pwr
 			SolenoidValve* ptrLV43;// LH2 Manf Reprss 2 OP Pwr
-			/*LV46;// LO2 17in Disc Vlv OP Pwr
-			LV47;// LO2 17in Disc Vlv CL Pwr
-			LV48;// LH2 17in Disc Vlv OP Pwr
-			LV49;// LH2 17in Disc Vlv CL Pwr
-			LV50;// LH2 4in Disc Vlv Op Pwr
-			LV51;// LH2 4in Disc Vlv Cl Pwr
-			LV56;// GH2 Press FCV 1 CL Pwr (FCV are NO)
-			LV57;// GH2 Press FCV 2 CL Pwr
+			SolenoidValve* ptrLV46;// LO2 17in Disc Vlv OP Pwr
+			SolenoidValve* ptrLV47;// LO2 17in Disc Vlv CL Pwr
+			SolenoidValve* ptrLV48;// LH2 17in Disc Vlv OP Pwr
+			SolenoidValve* ptrLV49;// LH2 17in Disc Vlv CL Pwr
+			SolenoidValve* ptrLV50;// LH2 4in Disc Vlv Op Pwr
+			SolenoidValve* ptrLV51;// LH2 4in Disc Vlv Cl Pwr
+			//LV56;// GH2 Press FCV 1 CL Pwr (FCV are NO)
+			/*LV57;// GH2 Press FCV 2 CL Pwr
 			LV58;// GH2 Press FCV 3 CL Pwr
 			LV59;// E1 He Intcn In OP Pwr
 			LV60;// E1 He Intcn Out OP Pwr
@@ -132,15 +133,37 @@ namespace mps
 			SolenoidValve* ptrLV76;// LOX Ovbd B/V CL
 			SolenoidValve* ptrLV77;// LO2 Pogo Recrc 1 Cl Pwr
 			SolenoidValve* ptrLV78;// LO2 Pogo RECRC 2 Cl PWR
-			//LV79;// Helium solenoid valve (PV22 OP ???)
+			//LV79;// LH2 Hi Pt Bl OP
 			SolenoidValve* ptrLV80;// E1 LO2 Prevlv CL Pwr 2
 			SolenoidValve* ptrLV81;// E2 LO2 Prevlv CL Pwr 2
 			SolenoidValve* ptrLV82;// E3 LO2 Prevlv CL Pwr 2
 			SolenoidValve* ptrLV83;// E1 LO2 Prevlv OP Pwr 2
 			SolenoidValve* ptrLV84;// E2 LO2 Prevlv OP Pwr 2
 			SolenoidValve* ptrLV85;// E3 LO2 Prevlv OP Pwr 2
+
+
+			// PD
 			
-			//SolenoidValve* ptrLVXX;// LH2 Ullage pressure
+			PressureActuatedValve* ptrPD1;// LOX 17in Disc
+			//PD1L	LOX 17in Disc Latch
+			PressureActuatedValve* ptrPD2;// LH2 17in Disc
+			//PD2L	LH2 17in Disc Latch
+			PressureActuatedValve* ptrPD3;// LH2 4in Disc
+			/*ptrPD4;// GO2 Press Disconnect
+			ptrPD5;// GH2 Press Disconnect
+			PD6
+			PD7
+			PD8	GHE 1" SUPPLY FILL DISCONNECT
+			PD9	GO2 1" REPRESS DISCONNECT
+			PD10	GH2 1" REPRESS DISCONNECT
+			PD11	FILL/DRAIN LH2 DISCONNECT
+			PD12	FILL/DRAIN LO2 DISCONNECT
+			PD13	LO2 BLEED DISCONNECT
+			PD14	
+			PD15	GO2 TEST POINT COUPLING
+			PD16	GH2 TEST POINT COUPLING
+			PD17	LH2 Hi Pt Bl disconnect
+			*/
 
 		public:
 			MPS( AtlantisSubsystemDirector* _director, HeSysPneu* HeSys );

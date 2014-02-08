@@ -27,25 +27,30 @@
 
 
 #include "SimpleGPCSoftware.h"
-#include "discsignals.h"
-
-
-using namespace discsignals;
 
 
 namespace dps
 {
-	const double LOX_DUMP_START_DELAY = 120;// from MECO
+	const double DUMP_START_DELAY = 120;// from MECO confirmed
+
+	const double HE_IC_OP_DELAY = 20;// from MECO confirmed
+	const double HE_IC_CL_DELAY = 120;// from dump start
+
+	const double LOX_DUMP_START_DELAY = 0;// from dump start
 	const double LOX_DUMP_DURATION = 120;
 	const double LOX_DUMP_PRESS_DURATION = 90;
 
-	const double LH2_DUMP_BU_VLV_START_DELAY = 11.4;// from MECO
-	const double LH2_DUMP_BU_VLV_DURATION = 228.6;
-	const double LH2_DUMP_START_DELAY = 120;// from MECO
+	const double LH2_DUMP_START_DELAY = 0;// from MECO
 	const double LH2_DUMP_DURATION = 120;
+
+	const double LH2_DUMP_BU_VLV_START_DELAY = 11.4;// from MECO confirmed
+	const double LH2_DUMP_BU_VLV_DURATION = 228.6;
 
 	const double FIRST_AUTOMATED_VACUUM_INERT_START_DELAY = 1020;// from dump start
 	const double FIRST_AUTOMATED_VACUUM_INERT_DURATION = 120;
+
+	const double SECOND_AUTOMATED_VACUUM_INERT_START_DELAY = 0;// from MM106
+	const double SECOND_AUTOMATED_VACUUM_INERT_DURATION = 180;// approx
 
 
 	class SSME_SOP;
@@ -60,28 +65,14 @@ namespace dps
 			SSME_Operations* pSSME_Operations;
 			IO_Control* pIO_Control;
 
-			DiscOutPort dspLH2_OTBD_FD_VLV_OP;
-			DiscOutPort dspLH2_OTBD_FD_VLV_CL;
-			DiscOutPort dspLH2_INBD_FD_VLV_OP;
-			DiscOutPort dspLH2_INBD_FD_VLV_CL;
-
-			DiscOutPort dspLH2_TOPPING_VLV_OP;
-
-			DiscOutPort dspLO2_Manf_Repress_1;
-			DiscOutPort dspLO2_Manf_Repress_2;
-
 			double t_MECO;
-			double t_current;
+			double t_dump_start;
 			double t_last;
+			double t_MM106_trans;
 
 			bool active;
-
-			bool LH2_OTBD_FD_VLV_OP_CMD;
-			bool LH2_OTBD_FD_VLV_CL_CMD;
-			bool LH2_INBD_FD_VLV_OP_CMD;
-			bool LH2_INBD_FD_VLV_CL_CMD;
-
-			bool LH2_TOPPING_VLV_OP_CMD;
+			bool dump_started;
+			bool MM106_trans;
 
 		public:
 			MPS_Dump( SimpleGPCSystem* _gpc );
@@ -92,7 +83,6 @@ namespace dps
 			void Realize( void );
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
-
 	};
 }
 
