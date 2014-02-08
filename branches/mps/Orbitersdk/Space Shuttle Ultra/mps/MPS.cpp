@@ -39,6 +39,13 @@ namespace mps
 		ptrLV42 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV43 = new SolenoidValve( 0, 1000, true, ptrLV42, nullptr );
 
+		ptrLV46 = new SolenoidValve( 1, 1000, true, HeSys, nullptr );
+		ptrLV47 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+		ptrLV48 = new SolenoidValve( 1, 1000, true, HeSys, nullptr );
+		ptrLV49 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+		ptrLV50 = new SolenoidValve( 1, 1000, true, HeSys, nullptr );
+		ptrLV51 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+
 		ptrLV72 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV73 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 
@@ -74,15 +81,17 @@ namespace mps
 		ptrPV21 = new PressureActuatedValve( 0, 100, nullptr, ptrLV78, nullptr, nullptr );
 		//ptrPV22 = new ValveTypeBool( false, 50 );// Normal closing response of the valve is less than 2 seconds (signal to switch).
 
-		//posPD1 = true;
-		//posPD2 = true;
-		//posPD3 = true;
-		
+		ptrPD1 = new PressureActuatedValve( 1, 100, ptrLV46, ptrLV47, nullptr, nullptr );
+		ptrPD2 = new PressureActuatedValve( 1, 100, ptrLV48, ptrLV49, nullptr, nullptr );
+		ptrPD3 = new PressureActuatedValve( 1, 100, ptrLV50, ptrLV51, nullptr, nullptr );
+
 		LOXManifPress = 105;
 		LH2ManifPress = 45;
 
 		LOXinitpress = 36;
-		LH2initpress = 57;
+		LH2initpress = 33;
+
+		LOXrepress = 0;
 		return;
 	}
 
@@ -115,6 +124,13 @@ namespace mps
 		delete ptrLV41;
 		delete ptrLV42;
 		delete ptrLV43;
+
+		delete ptrLV46;
+		delete ptrLV47;
+		delete ptrLV48;
+		delete ptrLV49;
+		delete ptrLV50;
+		delete ptrLV51;
 
 		delete ptrLV72;
 		delete ptrLV73;
@@ -149,6 +165,10 @@ namespace mps
 		delete ptrPV20;
 		delete ptrPV21;
 		//delete ptrPV22;
+
+		delete ptrPD1;
+		delete ptrPD2;
+		delete ptrPD3;
 	}
 
 	bool MPS::OnParseLine( const char* line )
@@ -213,14 +233,14 @@ namespace mps
 		ptrLV43->Connect( 0, bundle, 10 );
 		//ptrLV44->Connect( 0, bundle, 11 );
 		//ptrLV45->Connect( 0, bundle, 12 );
-		//ptrLV46->Connect( 0, bundle, 13 );
-		//ptrLV47->Connect( 0, bundle, 14 );
-		//ptrLV48->Connect( 0, bundle, 15 );
+		ptrLV46->Connect( 0, bundle, 13 );
+		ptrLV47->Connect( 0, bundle, 14 );
+		ptrLV48->Connect( 0, bundle, 15 );
 
-		//bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
-		//ptrLV49->Connect( 0, bundle, 0 );
-		//ptrLV50->Connect( 0, bundle, 1 );
-		//ptrLV51->Connect( 0, bundle, 2 );
+		bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
+		ptrLV49->Connect( 0, bundle, 0 );
+		ptrLV50->Connect( 0, bundle, 1 );
+		ptrLV51->Connect( 0, bundle, 2 );
 		//ptrLV52->Connect( 0, bundle, 3 );
 		//ptrLV53->Connect( 0, bundle, 4 );
 		//ptrLV54->Connect( 0, bundle, 5 );
@@ -315,6 +335,13 @@ namespace mps
 		ptrLV42->tmestp( fDeltaT );
 		ptrLV43->tmestp( fDeltaT );
 
+		ptrLV46->tmestp( fDeltaT );
+		ptrLV47->tmestp( fDeltaT );
+		ptrLV48->tmestp( fDeltaT );
+		ptrLV49->tmestp( fDeltaT );
+		ptrLV50->tmestp( fDeltaT );
+		ptrLV51->tmestp( fDeltaT );
+
 		ptrLV72->tmestp( fDeltaT );
 		ptrLV73->tmestp( fDeltaT );
 
@@ -349,9 +376,10 @@ namespace mps
 		ptrPV21->tmestp( fDeltaT );
 		//ptrPV22->tmestp( fDeltaT );
 
-		// TODO improve he usage for dumps and think about reentry repress
-		ptrLV41->Use( 800 * fDeltaT );
-		ptrLV43->Use( 800 * fDeltaT );
+		ptrPD1->tmestp( fDeltaT );
+		ptrPD2->tmestp( fDeltaT );
+		ptrPD3->tmestp( fDeltaT );
+
 
 		PROPELLANT_HANDLE LOXTank = STS()->GetLOXTank();
 		double LOXTankLevel = 0;
@@ -366,16 +394,14 @@ namespace mps
 			LOXTankMass = STS()->GetPropellantMaxMass( LOXTank );
 		}
 
-		double acc = 0;
 		if (LOXTankMass > 5000)// simple ET vs manifold check
 		{
 			double LH2Density = 70.85;// Kg/m^3
 			double LOXDensity = 1141;// Kg/m^3
-			double LH2UllagePress = 390932.7;// Pa (42+14.7 psia), in flight 32-34psig (46.7-48.7psia)
-			double LOXUllagePress = 246142.8;// Pa (21+14.7 psia), in flight 20-25psig (34.7-39.7psia)
+			double LH2UllagePress = 289579.8;// Pa (42 psia), in flight [this has to be psia->] 32-34psig (46.7-48.7psia)
+			double LOXUllagePress = 246142.8;// Pa (21+14.7=35.7 psia), in flight 20-25psig (34.7-39.7psia)
 			double LH2Height = 0 + (((LH2TankLevel * 104463.23) / LH2Density) / 55.4177);// m
-			//double LOXHeight = 32.8275 + (((LOXTankLevel * 624252.0) / LOXDensity) / 55.4177);// m (42.7m at pre-press)
-			double LOXHeight = 0;
+			double LOXHeight = 0;// m (42.7m at pre-press)
 			double LOXvol = (LOXTankLevel * 624252.0) / LOXDensity;
 			if (LOXvol > 378.9194)
 			{
@@ -390,7 +416,7 @@ namespace mps
 			}
 			LOXHeight += 31.6742;
 
-			//double acc = 0;
+			double acc = 0;
 
 			if (STS()->GroundContact() == true)
 			{
@@ -398,29 +424,25 @@ namespace mps
 			}
 			else
 			{
-				VECTOR3 forceV3;
-				VECTOR3 accV3;
-				STS()->GetForceVector( forceV3 );
-				accV3 = forceV3 / STS()->GetMass();
-				acc = accV3.z;
-				if ((STS()->GetSRBChamberPressure( 0 ) + STS()->GetSRBChamberPressure( 1 ) + STS()->CalcNetSSMEThrust()) > 0) acc += 9.80665 * sin( STS()->GetPitch() );
-				
-				//double thr = ((STS()->GetSRBChamberPressure( 0 ) / 1000) * 2 * 14679131.3) + STS()->CalcNetSSMEThrust();
-				//acc = thr / STS()->GetMass();
-				//if (acc != 0) acc += 9.80665 * sin( STS()->GetPitch() );
+				if ((STS()->GetSRBChamberPressure( 0 ) + STS()->GetSRBChamberPressure( 1 ) + STS()->CalcNetSSMEThrust()) > 0)
+				{
+					VECTOR3 forceV3;
+					VECTOR3 accV3;
+					STS()->GetForceVector( forceV3 );
+					accV3 = forceV3 / STS()->GetMass();
+					acc = accV3.z;
+					acc += 9.80665 * sin( STS()->GetPitch() );
+				}
 			}
 
+			// ET
 			LH2ManifPress = (LH2UllagePress + (LH2Density * acc * LH2Height)) / 6894.757;// psia
 			LOXManifPress = (LOXUllagePress + (LOXDensity * acc * LOXHeight)) / 6894.757;// psia
-			
-			///////////////////////////////////////////////////////////////////////////////////////////////////
 
-			// ET
-			//LOXManifPress = 23 + (82 * LOXTankLevel); // TODO >>100 -> SRB sep -> ~50
-			//LH2ManifPress = 33 + LH2TankLevel;
-
+			// use full vent thrust on all
 			STS()->SetMPSDumpLevel( 3, ptrPV17->GetPos() * ptrPV18->GetPos() );
-			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.7 + ptrPV13->GetPos() * 0.3) );
+			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.3 + ptrPV13->GetPos() * 0.7) );
+			STS()->SetMPSDumpLevel( 5, ptrPV9->GetPos() * ptrPV10->GetPos() );
 		}
 		else
 		{
@@ -431,12 +453,40 @@ namespace mps
 			LOXManifPress = LOXinitpress * LOXTankLevel;
 			LH2ManifPress = LH2initpress * LH2TankLevel;
 
-			STS()->SetMPSDumpLevel( 3, ptrPV17->GetPos() * ptrPV18->GetPos() * LH2TankLevel );
-			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.7 + ptrPV13->GetPos() * 0.3) * LH2TankLevel );
+			
+			//ptrLV43->Use( 1000 * fDeltaT );
+			
+			// HACK totally madeup numbers for pressurized LOX dump (not enough info)
+			double LOXrepress_temp = ptrLV41->Use( 0 );// check press
+			if (LOXrepress_temp > 0)
+			{
+				if (LOXrepress_temp > 37) LOXrepress_temp = 37;
+				if (LOXrepress_temp > LOXManifPress)
+				{
+					LOXrepress_temp = (LOXrepress_temp - LOXManifPress) / 37;
+					ptrLV41->Use( 1000 * fDeltaT * LOXrepress_temp );
+					LOXrepress += 10 * fDeltaT * LOXrepress_temp;
+				}
+			}
+			LOXManifPress += LOXTankLevel * LOXrepress;
+
+			// use "normalized" manifold press to control vent thrust
+			double LOXventlevel = LOXManifPress / 80;
+			LOXventlevel = min( LOXventlevel * LOXventlevel, 1 );
+			double LH2ventlevel = LH2ManifPress / 35;
+			LH2ventlevel = min( pow( LH2ventlevel, 5 ), 1 );
+
+			// so it doesn't take forever to empty
+			if (LOXventlevel < 0.05) LOXventlevel = 0.05;
+			if (LH2ventlevel < 0.05) LH2ventlevel = 0.05;
+
+			STS()->SetMPSDumpLevel( 3, ptrPV17->GetPos() * ptrPV18->GetPos() * LH2ventlevel );
+			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.05 + ptrPV13->GetPos() * 0.95) * LH2ventlevel );
+			STS()->SetMPSDumpLevel( 5, ptrPV9->GetPos() * ptrPV10->GetPos() * LOXventlevel );
 		}
 
 		//char buffer[100];
-		//sprintf_s( buffer, 100, "acc,%.2f,%.2f", accV3.z + 9.80665 * sin( STS()->GetPitch() ), STS()->GetMET() );
+		//sprintf_s( buffer, 100, "%f,%f,%f,%f,%f", STS()->GetMET(), LH2initpress, LH2ManifPress, LH2ventlevel, STS()->GetPropellantLevel( STS()->GetLH2Tank() ) );
 		//oapiWriteLog( buffer );
 		//sprintf_s( oapiDebugString(), 255, buffer );
 		//sprintf_s( buffer, 100, "PV4 %f LV18 %f LV19 %f", ptrPV4->GetPos(), ptrLV18->GetPos(), ptrLV19->GetPos() );

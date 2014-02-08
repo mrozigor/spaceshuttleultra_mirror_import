@@ -44,6 +44,19 @@ namespace dps
 		CMD[ME3_LH2_PVLV_OP] = false;
 		CMD[LOX_POGO_RECIRC_1] = true;
 		CMD[LOX_POGO_RECIRC_2] = true;
+		CMD[LOX_OTBD_FD_VLV_CL] = false;
+		CMD[LOX_OTBD_FD_VLV_OP] = false;
+		CMD[LOX_INBD_FD_VLV_CL] = false;
+		CMD[LOX_INBD_FD_VLV_OP] = false;
+		CMD[LH2_OTBD_FD_VLV_CL] = false;
+		CMD[LH2_OTBD_FD_VLV_OP] = false;
+		CMD[LH2_INBD_FD_VLV_CL] = false;
+		CMD[LH2_INBD_FD_VLV_OP] = false;
+		CMD[LH2_TOPPING_VLV_OP] = false;
+		CMD[LOX_REPRESS_1_OP] = false;
+		CMD[LOX_REPRESS_2_OP] = false;
+		CMD[LH2_REPRESS_1_OP] = false;
+		CMD[LH2_REPRESS_2_OP] = false;
 		return;
 	}
 
@@ -203,6 +216,63 @@ namespace dps
 		// LOX_POGO_RECIRC_2
 		if (CMD[LOX_POGO_RECIRC_2] == true) dspOUTPUT[LOX_POGO_RECIRC_2].SetLine();
 		else dspOUTPUT[LOX_POGO_RECIRC_2].ResetLine();
+
+		// LOX_POGO_RECIRC_2
+		if (CMD[LOX_POGO_RECIRC_2] == true) dspOUTPUT[LOX_POGO_RECIRC_2].SetLine();
+		else dspOUTPUT[LOX_POGO_RECIRC_2].ResetLine();
+
+		// TODO add the switches and logic for the F/Ds below (still missing panel R4)
+		// LOX_OTBD_FD_VLV_CL
+		if (CMD[LOX_OTBD_FD_VLV_CL] == true) dspOUTPUT[LOX_OTBD_FD_VLV_CL].SetLine();
+		else dspOUTPUT[LOX_OTBD_FD_VLV_CL].ResetLine();
+
+		// LOX_OTBD_FD_VLV_OP
+		if (CMD[LOX_OTBD_FD_VLV_OP] == true) dspOUTPUT[LOX_OTBD_FD_VLV_OP].SetLine();
+		else dspOUTPUT[LOX_OTBD_FD_VLV_OP].ResetLine();
+
+		// LOX_INBD_FD_VLV_CL
+		if (CMD[LOX_INBD_FD_VLV_CL] == true) dspOUTPUT[LOX_INBD_FD_VLV_CL].SetLine();
+		else dspOUTPUT[LOX_INBD_FD_VLV_CL].ResetLine();
+
+		// LOX_INBD_FD_VLV_OP
+		if (CMD[LOX_INBD_FD_VLV_OP] == true) dspOUTPUT[LOX_INBD_FD_VLV_OP].SetLine();
+		else dspOUTPUT[LOX_INBD_FD_VLV_OP].ResetLine();
+
+		// LH2_OTBD_FD_VLV_CL
+		if (CMD[LH2_OTBD_FD_VLV_CL] == true) dspOUTPUT[LH2_OTBD_FD_VLV_CL].SetLine();
+		else dspOUTPUT[LH2_OTBD_FD_VLV_CL].ResetLine();
+
+		// LH2_OTBD_FD_VLV_OP
+		if (CMD[LH2_OTBD_FD_VLV_OP] == true) dspOUTPUT[LH2_OTBD_FD_VLV_OP].SetLine();
+		else dspOUTPUT[LH2_OTBD_FD_VLV_OP].ResetLine();
+
+		// LH2_INBD_FD_VLV_CL
+		if (CMD[LH2_INBD_FD_VLV_CL] == true) dspOUTPUT[LH2_INBD_FD_VLV_CL].SetLine();
+		else dspOUTPUT[LH2_INBD_FD_VLV_CL].ResetLine();
+
+		// LH2_INBD_FD_VLV_OP
+		if (CMD[LH2_INBD_FD_VLV_OP] == true) dspOUTPUT[LH2_INBD_FD_VLV_OP].SetLine();
+		else dspOUTPUT[LH2_INBD_FD_VLV_OP].ResetLine();
+
+		// LH2_TOPPING_VLV_OP
+		if (CMD[LH2_TOPPING_VLV_OP] == true) dspOUTPUT[LH2_TOPPING_VLV_OP].SetLine();
+		else dspOUTPUT[LH2_TOPPING_VLV_OP].ResetLine();
+
+		// LOX_REPRESS_1_OP
+		if (CMD[LOX_REPRESS_1_OP] == true) dspOUTPUT[LOX_REPRESS_1_OP].SetLine();
+		else dspOUTPUT[LOX_REPRESS_1_OP].ResetLine();
+
+		// LOX_REPRESS_2_OP
+		if (CMD[LOX_REPRESS_2_OP] == true) dspOUTPUT[LOX_REPRESS_2_OP].SetLine();
+		else dspOUTPUT[LOX_REPRESS_2_OP].ResetLine();
+
+		// LH2_REPRESS_1_OP
+		if (CMD[LH2_REPRESS_1_OP] == true) dspOUTPUT[LH2_REPRESS_1_OP].SetLine();
+		else dspOUTPUT[LH2_REPRESS_1_OP].ResetLine();
+
+		// LH2_REPRESS_2_OP
+		if (CMD[LH2_REPRESS_2_OP] == true) dspOUTPUT[LH2_REPRESS_2_OP].SetLine();
+		else dspOUTPUT[LH2_REPRESS_2_OP].ResetLine();
 		return;
 	}
 
@@ -288,14 +358,21 @@ namespace dps
 		dspOUTPUT[ME2_LH2_PVLV_CL].Connect( bundle, 4 );
 		dspOUTPUT[ME3_LH2_PVLV_OP].Connect( bundle, 5 );
 		dspOUTPUT[ME3_LH2_PVLV_CL].Connect( bundle, 6 );
+		dspOUTPUT[LOX_OTBD_FD_VLV_OP].Connect( bundle, 11 );
+		dspOUTPUT[LOX_OTBD_FD_VLV_CL].Connect( bundle, 12 );
+		dspOUTPUT[LOX_INBD_FD_VLV_OP].Connect( bundle, 13 );
+		dspOUTPUT[LOX_INBD_FD_VLV_CL].Connect( bundle, 14 );
+		dspOUTPUT[LH2_OTBD_FD_VLV_OP].Connect( bundle, 15 );
 
-		/*bundle = BundleManager()->CreateBundle( "MPS_LV_C", 16 );// LV33 - LV48
-		dspLH2_OTBD_FD_VLV_CL.Connect( bundle, 0 );
-		dspLH2_INBD_FD_VLV_OP.Connect( bundle, 1 );
-		dspLH2_INBD_FD_VLV_CL.Connect( bundle, 2 );
-		dspLH2_TOPPING_VLV_OP.Connect( bundle, 6 );
-		dspLO2_Manf_Repress_1.Connect( bundle, 7 );
-		dspLO2_Manf_Repress_2.Connect( bundle, 8 );*/
+		bundle = BundleManager()->CreateBundle( "MPS_LV_C", 16 );// LV33 - LV48
+		dspOUTPUT[LH2_OTBD_FD_VLV_CL].Connect( bundle, 0 );
+		dspOUTPUT[LH2_INBD_FD_VLV_OP].Connect( bundle, 1 );
+		dspOUTPUT[LH2_INBD_FD_VLV_CL].Connect( bundle, 2 );
+		dspOUTPUT[LH2_TOPPING_VLV_OP].Connect( bundle, 6 );
+		dspOUTPUT[LOX_REPRESS_1_OP].Connect( bundle, 7 );
+		dspOUTPUT[LOX_REPRESS_2_OP].Connect( bundle, 8 );
+		dspOUTPUT[LH2_REPRESS_1_OP].Connect( bundle, 9 );
+		dspOUTPUT[LH2_REPRESS_2_OP].Connect( bundle, 10 );
 
 		bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
 		dspOUTPUT[HE_IC_CTR_IN_OP].Connect( bundle, 10 );

@@ -834,6 +834,7 @@ pActiveLatches(3, NULL)
   thMPSDump[2] = NULL;
   thMPSDump[3] = NULL;
   thMPSDump[4] = NULL;
+  thMPSDump[5] = NULL;
   th_srb[0] = th_srb[1] = NULL;
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
@@ -2856,7 +2857,7 @@ void Atlantis::SeparateTank (void)
 	// create separate tanks for MPS dumps
 	// 5400 lbs total prop -> estimates below for LO2 & LH2
 	phLOXdump = CreatePropellantResource( 2306 );
-	phLH2dump = CreatePropellantResource( /*144*/135 );// take out some LH2 as some has been vented before ET sep
+	phLH2dump = CreatePropellantResource( /*144*/142 );// take out a little LH2 as some has been vented before ET sep
 	CreateMPSDumpVents();
 
 	// main engines are done
@@ -6813,7 +6814,7 @@ void Atlantis::IgniteSRBs()
 
 void Atlantis::SetMPSDumpLevel( int vent, double level )
 {
-	assert( (vent >= 0) && (vent <= 4) && " Atlantis::SetMPSDumpLevel.vent" );
+	assert( (vent >= 0) && (vent <= 5) && " Atlantis::SetMPSDumpLevel.vent" );
 	assert( (level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level" );
 	if (thMPSDump[vent] != NULL) SetThrusterLevel( thMPSDump[vent], level );
 	return;
@@ -7746,7 +7747,7 @@ TEX=Contrail1*/
 
 void Atlantis::CreateMPSDumpVents( void )
 {
-	static PARTICLESTREAMSPEC psLOXdump = {
+	static PARTICLESTREAMSPEC psLOXdump_SSME = {
 		0,
 		2,
 		80,
@@ -7754,6 +7755,23 @@ void Atlantis::CreateMPSDumpVents( void )
 		0.4,
 		0.4,
 		10,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FD = {
+		0,
+		0.2,
+		80,
+		20,
+		0.4,
+		0.4,
+		5,
 		5,
 		PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PLIN,
@@ -7800,28 +7818,33 @@ void Atlantis::CreateMPSDumpVents( void )
 	// LOX dump -> dv = 9-11 fps
 	// LOX dump SSME 1
 	if (thMPSDump[0] != NULL) DelThruster( thMPSDump[0] );
-	thMPSDump[0] = CreateThruster( orbiter_ofs + _V(0.0, 0.94,-16.8), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
-	AddExhaustStream( thMPSDump[0], &psLOXdump );
+	thMPSDump[0] = CreateThruster( orbiter_ofs + _V( 0.0, 0.94,-16.8 ), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
+	AddExhaustStream( thMPSDump[0], &psLOXdump_SSME );
 
 	// LOX dump SSME 2
 	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
-	thMPSDump[1] = CreateThruster( orbiter_ofs + _V(-1.49, -1.95, -17.5), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
-	AddExhaustStream( thMPSDump[1], &psLOXdump );
+	thMPSDump[1] = CreateThruster( orbiter_ofs + _V( -1.49, -1.95, -17.5 ), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[1], &psLOXdump_SSME );
 
 	// LOX dump SSME 3
 	if (thMPSDump[2] != NULL) DelThruster( thMPSDump[2] );
-	thMPSDump[2] = CreateThruster( orbiter_ofs + _V(1.49, -1.95, -17.5), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
-	AddExhaustStream( thMPSDump[2], &psLOXdump );
+	thMPSDump[2] = CreateThruster( orbiter_ofs + _V( 1.49, -1.95, -17.5 ), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[2], &psLOXdump_SSME );
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 1, -0.1, 0 ), 60, phLH2dump, 30, 30 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 1, -0.2, 0 ), 60, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
 	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
 	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.83, -1.46, -12.28 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
 	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
+
+	// LOX dump F/D
+	if (thMPSDump[5] != NULL) DelThruster( thMPSDump[5] );
+	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.83, -1.46, -12.28 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
+	AddExhaustStream( thMPSDump[5], &psLOXdump_FD );
 	return;
 }
 
@@ -8081,18 +8104,21 @@ int Atlantis::GetSSMEPress( int eng )
 
 int Atlantis::GetHeTankPress( int sys ) const
 {
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::GetHeTankPress" );
 	if (sys == 0) return pHePneu->GetTankPress();
 	return pHeEng[sys - 1]->GetTankPress();
 }
 
 int Atlantis::GetHeRegPress( int sys ) const
 {
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::GetHeRegPress" );
 	if (sys == 0) return pHePneu->GetRegPress();
 	return pHeEng[sys - 1]->GetRegPress();
 }
 
 void Atlantis::HeFillTank( int sys, double mass )
 {
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::HeFillTank" );
 	if (sys == 0) pHePneu->FillTank( mass );
 	else pHeEng[sys - 1]->FillTank( mass );
 }

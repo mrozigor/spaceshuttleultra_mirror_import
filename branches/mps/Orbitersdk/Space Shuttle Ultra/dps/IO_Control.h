@@ -88,7 +88,20 @@ namespace dps
 	const int ME3_LH2_PVLV_OP = 35;
 	const int LOX_POGO_RECIRC_1 = 36;
 	const int LOX_POGO_RECIRC_2 = 37;
-	const int COUNT_OUTPUT = 38;
+	const int LOX_OTBD_FD_VLV_CL = 38;
+	const int LOX_OTBD_FD_VLV_OP = 39;
+	const int LOX_INBD_FD_VLV_CL = 40;
+	const int LOX_INBD_FD_VLV_OP = 41;
+	const int LH2_OTBD_FD_VLV_CL = 42;
+	const int LH2_OTBD_FD_VLV_OP = 43;
+	const int LH2_INBD_FD_VLV_CL = 44;
+	const int LH2_INBD_FD_VLV_OP = 45;
+	const int LH2_TOPPING_VLV_OP = 46;
+	const int LOX_REPRESS_1_OP = 47;
+	const int LOX_REPRESS_2_OP = 48;
+	const int LH2_REPRESS_1_OP = 49;
+	const int LH2_REPRESS_2_OP = 50;
+	const int COUNT_OUTPUT = 51;
 
 	class IO_Control:public SimpleGPCSoftware
 	{
