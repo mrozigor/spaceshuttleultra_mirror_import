@@ -500,7 +500,7 @@ void CRT::OMSMPS(HDC hDC)
 		}
 		Rectangle (hDC, 20+35*nPos, round( (154-0.012667*dNum) ), 33+35*nPos, 154);
 		
-		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]);
+		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() / 8618.44625);// HACK should have this in the sensor
 		sprintf(cbuf, "%03.0f", dNum);
 		TextOut(hDC, 16+35*nPos, 168, cbuf, strlen(cbuf));
 		if (dNum >= 80)
