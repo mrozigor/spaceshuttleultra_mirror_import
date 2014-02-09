@@ -1280,7 +1280,7 @@ void CRT::APUHYD(HDC hDC)
 		Rectangle(hDC, 33+30*nPos, static_cast<int>(157-0.41*dNum), 46+30*nPos, 157);
 
 		//Fuel P
-		dNum = sts->pAPU[nPos]->GetFuelPressure();// TODO check possible bug/misslabeling in APU, as this value should be around 365 psi
+		dNum = sts->pAPU[nPos]->GetFuelPressure();
 		sprintf_s(cbuf, 10, "%04.0f", dNum);
 		TextOut(hDC, 159+33*nPos, 22, cbuf, strlen(cbuf));
 		SelectObject(hDC, GreenBrush);
