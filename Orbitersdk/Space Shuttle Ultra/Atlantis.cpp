@@ -8089,6 +8089,12 @@ void Atlantis::StartRSLSSequence()
 	//if(rsls) rsls->StartRSLSSequence();
 }
 
+bool Atlantis::GetRSLSAbortFlag() const
+{
+	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
+	return pRSLS->GetRSLSAbortFlag();
+}
+
 void Atlantis::PSN4( void )
 {
 	pEIU[0]->command( 0xBC00 );

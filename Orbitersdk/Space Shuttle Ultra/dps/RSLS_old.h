@@ -57,6 +57,8 @@ namespace dps
 
 		void Realize();
 		bool OnMajorModeChange( unsigned int newMajorMode );
+
+		bool GetRSLSAbortFlag( void ) const;
 	private:
 		SSME_SOP* pSSME_SOP;
 		IO_Control* pIO_Control;
@@ -66,10 +68,12 @@ namespace dps
 		int RSLSAbortData;
 		bool RSLSAbort;
 		bool abortfirstrun;
-		short abortend;
+		short engineSD;
 		double eng1SDtime;
 		double eng2SDtime;
 		double eng3SDtime;
+		double PV123CLtime[3];
+		double PV456CLtime[3];
 
 		DiscInPort PV19_CLInd[2];
 		DiscInPort PV4_OPInd[2];

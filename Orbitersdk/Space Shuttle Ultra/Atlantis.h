@@ -594,6 +594,7 @@ public:
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
+	virtual bool GetRSLSAbortFlag() const;
 
 	virtual bool HydraulicsOK();
 

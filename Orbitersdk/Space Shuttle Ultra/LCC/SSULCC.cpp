@@ -10,12 +10,18 @@ SSULCC::SSULCC(OBJHANDLE hVessel, int flightmodel)
 {
 	launch_mjd=-1.0;
 	lastTTL=-1.0;
+
 	pFSS=NULL;
 	pSSU=NULL;
+
 	_firstrun = true;
+
 	MPSHeSupply = true;
 	MPSHeSupplyPressure1 = 2000;
 	MPSHeSupplyPressure2 = 4100 + (400 * oapiRand());// 4100 - 4500
+
+	RSLSabort = false;
+	t_abort = -1;
 
 	sprintf_s(PadName, 256, "");
 	sprintf_s(ShuttleName, 256, "");
@@ -62,6 +68,20 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		return;
 	}
 
+	if (RSLSabort == true)
+	{
+		if (pFSS)
+		{
+			if (((t_abort + OAA_EXTEND_ABORT_DELAY) <= simt) && ((t_abort + OAA_EXTEND_ABORT_DELAY) > lastTTL))// extend orbiter access arm
+			{
+				oapiWriteLog( "LCC: OAA extend" );
+				pFSS->ExtendOrbiterAccessArm();
+			}
+		}
+		lastTTL = simt;
+		return;
+	}
+
 	VESSEL2::clbkPreStep(simt, simdt, mjd);
 
 	double timeToLaunch=(launch_mjd-mjd)*86400.0; //time to launch in seconds
@@ -76,12 +96,12 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
 		{
-			oapiWriteLog("LCC: OAA");
+			oapiWriteLog("LCC: OAA retract");
 			pFSS->RetractOrbiterAccessArm();
 		}
 		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>GOX_ARM_RETRACT_TIME) //retract GOX arm
 		{
-			oapiWriteLog("LCC: GVA");
+			oapiWriteLog("LCC: GVA retract");
 			pFSS->RetractGOXArmAndHood();
 		}
 		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
@@ -126,60 +146,39 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 				// eng
 				for (int i = 1; i <= 3; i++)
 				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2)
-					{
-						// add mass
-						pSSU->HeFillTank( i, 500 * simdt );
-					}
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2) pSSU->HeFillTank( i, 500 * simdt );// add mass
 				}
 
 				// pneu
-				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2)
-				{
-					// add mass
-					pSSU->HeFillTank( 0, 2 * simdt );
-				}
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2) pSSU->HeFillTank( 0, 2 * simdt );// add mass
 			}
 			else if (timeToLaunch <= 12000)// T-3h20m
 			{
 				// eng
 				for (int i = 1; i <= 3; i++)
 				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2)
-					{
-						// add mass
-						pSSU->HeFillTank( i, 8 * simdt );
-					}
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2) pSSU->HeFillTank( i, 8 * simdt );// add mass
 				}
 
 				// pneu
-				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2)
-				{
-					// add mass
-					pSSU->HeFillTank( 0, 2 * simdt );
-				}
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2) pSSU->HeFillTank( 0, 2 * simdt );// add mass
 			}
 			else
 			{
 				// eng
 				for (int i = 1; i <= 3; i++)
 				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure1)
-					{
-						// add mass
-						pSSU->HeFillTank( i, 8 * simdt );
-					}
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure1) pSSU->HeFillTank( i, 8 * simdt );// add mass
 				}
 
 				// pneu
-				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure1)
-				{
-					// add mass
-					pSSU->HeFillTank( 0, 2 * simdt );
-				}
+				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure1) pSSU->HeFillTank( 0, 2 * simdt ); // add mass
 			}
 		}
 		/////////// MPS He Supply ///////////
+
+		RSLSabort = pSSU->GetRSLSAbortFlag();
+		if (RSLSabort == true) t_abort = simt;
 	}
 
 	lastTTL=timeToLaunch;
