@@ -25,6 +25,8 @@ namespace mps
 		posMFV = 0;
 		posMOV = 0;
 
+		IMSLHeUsage = 20.8 + (0.5 * oapiRand());// IMSL max 21.31884
+
 		Sensor_Press[0] = Sensor( 5000, 0 );
 		Sensor_Press[1] = Sensor( 5000, 0 );
 		Sensor_Press[2] = Sensor( 5000, 0 );
@@ -157,7 +159,7 @@ namespace mps
 			modeltime = time;
 			modelmode = 2;
 		}
-
+		
 		// set sensor readings
 		// press
 		temp = PCA->GetPressFuelPreburnerPurge();
@@ -181,7 +183,7 @@ namespace mps
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B1].SetValue( 0 );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_A2].SetValue( 0 );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B2].SetValue( 0 );
-		temp = PCA->UseHPOTPISPurge( 20 );// IMSL max 21.31884
+		temp = PCA->UseHPOTPISPurge( IMSLHeUsage );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B].SetValue( temp );
 
@@ -250,7 +252,7 @@ namespace mps
 		Sensor_Press[SSME_BLOCK_II_MCC_P_A2].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B1].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B2].SetValue( temp );
-		temp = PCA->UseHPOTPISPurge( 20 );// IMSL max 21.31884
+		temp = PCA->UseHPOTPISPurge( IMSLHeUsage );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B].SetValue( temp );
 
@@ -345,8 +347,7 @@ namespace mps
 		Sensor_Press[SSME_BLOCK_II_MCC_P_A2].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B1].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B2].SetValue( temp );
-
-		temp = PCA->UseHPOTPISPurge( 20 );// IMSL max 21.31884
+		temp = PCA->UseHPOTPISPurge( IMSLHeUsage );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B].SetValue( temp );
 
@@ -412,7 +413,7 @@ namespace mps
 		Sensor_Press[SSME_BLOCK_II_MCC_P_A2].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B1].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B2].SetValue( temp );
-		temp = PCA->UseHPOTPISPurge( 20 );// IMSL max 21.31884
+		temp = PCA->UseHPOTPISPurge( IMSLHeUsage );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B].SetValue( temp );
 
@@ -483,7 +484,7 @@ namespace mps
 		Sensor_Press[SSME_BLOCK_II_MCC_P_A2].SetValue( 0 );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B1].SetValue( 0 );
 		Sensor_Press[SSME_BLOCK_II_MCC_P_B2].SetValue( 0 );
-		temp = PCA->UseHPOTPISPurge( 20 );// IMSL max 21.31884
+		temp = PCA->UseHPOTPISPurge( IMSLHeUsage );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A].SetValue( temp );
 		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B].SetValue( temp );
 

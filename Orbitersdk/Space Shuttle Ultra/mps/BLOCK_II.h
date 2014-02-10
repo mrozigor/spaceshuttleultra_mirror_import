@@ -108,6 +108,8 @@ namespace mps
 			double posMOV;
 			double posMFV;
 
+			double IMSLHeUsage;
+
 			Sensor Sensor_Press[20];
 			Sensor Sensor_Temp[16];
 			Sensor Sensor_Flow[4];
