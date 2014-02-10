@@ -14,6 +14,8 @@ const double RSLS_SEQUENCE_START_TIME = 31.0;
 const double APU_CHECK_TIME = 245.0;
 const double MPS_HE_SUPPLY_END_TIME = 12.5;
 
+const double OAA_EXTEND_ABORT_DELAY = 20;// timed from several videos
+
 class SSULCC: public VESSEL2
 {
 public:
@@ -31,6 +33,8 @@ private:
 	double MPSHeSupplyPressure2;
 	bool _firstrun;
 	bool MPSHeSupply;
+	bool RSLSabort;
+	double t_abort;
 	char PadName[256], ShuttleName[256];
 
 	ISSULaunchTower* pFSS;

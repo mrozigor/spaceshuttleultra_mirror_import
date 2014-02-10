@@ -412,110 +412,97 @@ namespace dps
 		if (abortfirstrun == true)
 		{
 			oapiWriteLog( "RSLS Abort" );
-			// setup
 			Aborted = true;
 			abortfirstrun = false;
-			abortend = 0;
-			switch (RSLSAbortData)// HACK no clue about engine shutdown delays
-			{
-				case 1:// don't command shutdown on problem engine if already in shutdown, or hasn't started
-					eng1SDtime = lastTTL;
-					if ((pSSME_SOP->GetShutdownPhaseFlag( 1 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 1 ) == true) || (timeToLaunch > 6.36))
-					{
-						eng1SDtime = 1000;
-						abortend++;
-					}
+			engineSD = 0;
 
-					eng2SDtime = timeToLaunch - 1.2;
-					if (timeToLaunch > 6.48)
-					{
-						eng2SDtime = 1000;
-						abortend++;
-					}
-
-					eng3SDtime = timeToLaunch - 1.2;
-					if (timeToLaunch > 6.60)
-					{
-						eng3SDtime = 1000;
-						abortend++;
-					}
-					break;
-				case 2:
-					eng1SDtime = timeToLaunch - 2.4;
-					if (timeToLaunch > 6.36)
-					{
-						eng1SDtime = 1000;
-						abortend++;
-					}
-
-					eng2SDtime = lastTTL;
-					if ((pSSME_SOP->GetShutdownPhaseFlag( 2 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 2 ) == true) || (timeToLaunch > 6.48))
-					{
-						eng2SDtime = 1000;
-						abortend++;
-					}
-
-					eng3SDtime = timeToLaunch - 1.2;
-					if (timeToLaunch > 6.60)
-					{
-						eng3SDtime = 1000;
-						abortend++;
-					}
-					break;
-				case 3:
-					eng1SDtime = timeToLaunch - 2.4;
-					if (timeToLaunch > 6.60)
-					{
-						eng1SDtime = 1000;
-						abortend++;
-					}
-
-					eng2SDtime = timeToLaunch - 1.2;
-					if (timeToLaunch > 6.48)
-					{
-						eng2SDtime = 1000;
-						abortend++;
-					}
-
-					eng3SDtime = lastTTL;
-					if ((pSSME_SOP->GetShutdownPhaseFlag( 3 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 3 ) == true) || (timeToLaunch > 6.60))
-					{
-						eng3SDtime = 1000;
-						abortend++;
-					}
-					break;
-				case 4:// hyd
-					eng1SDtime = timeToLaunch - 1.2;
-					if (timeToLaunch > 6.36)
-					{
-						eng1SDtime = 1000;
-						abortend++;
-					}
-
-					eng2SDtime = timeToLaunch;
-					if (timeToLaunch > 6.48)
-					{
-						eng2SDtime = 1000;
-						abortend++;
-					}
-
-					eng3SDtime = timeToLaunch;
-					if (timeToLaunch > 6.60)
-					{
-						eng3SDtime = 1000;
-						abortend++;
-					}
-					break;
-			}
-			//				NOTEHANDLE nhAbort = oapiCreateAnnotation(true, 1.5, _V(1.0, 1.0, 0.0));
-//             	oapiAnnotationSetPos(nhAbort, 0.05, 0.05, 0.75, 0.1);
-//				char buf[255];
 			sprintf(oapiDebugString(),RSLSAbortCause,RSLSAbortTime,RSLSAbortData);
 
 			char buffer[100];
 			sprintf_s( buffer, 100, RSLSAbortCause, -RSLSAbortTime, RSLSAbortData );
 			oapiWriteLog( buffer );
-//              oapiAnnotationSetText(nhAbort, buf);
+
+			// HACK no clue about engine shutdown delays
+			if (timeToLaunch < 6.6)// check 3 ignited
+			{
+				pIO_Control->SetCommand( PNEU_L_HE_XOVR_OP, true );// at least one SSME on -> open LV10
+				oapiWriteLog( "RSLS: LV10 open command" );
+
+				// assume problem in this engine, and S/D immediately ("default" action)
+				eng3SDtime = timeToLaunch;
+				PV123CLtime[2] = timeToLaunch - 4.5;
+				PV456CLtime[2] = timeToLaunch - 4.9;
+
+				if ((pSSME_SOP->GetShutdownPhaseFlag( 3 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 3 ) == true))
+				{
+					// already turning off, just set time to close PVs
+					eng3SDtime = 1000;
+
+					char buffer[100];
+					sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 3 already in controller initiated shutdown", -timeToLaunch );
+					oapiWriteLog( buffer );
+				}
+				else if (RSLSAbortData != 3)
+				{
+					// on and healty, delay S/D
+					eng3SDtime -= 1.2;
+					PV123CLtime[2] -= 1.2;
+					PV456CLtime[2] -= 1.2;
+				}
+
+				if (timeToLaunch < 6.48)// check 2 ignited
+				{
+					// assume problem in this engine, and S/D immediately ("default" action)
+					eng2SDtime = timeToLaunch;
+					PV123CLtime[1] = timeToLaunch - 4.5;
+					PV456CLtime[1] = timeToLaunch - 4.9;
+
+					if ((pSSME_SOP->GetShutdownPhaseFlag( 2 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 2 ) == true))
+					{
+						// already turning off, just set time to close PVs
+						eng2SDtime = 1000;
+
+						char buffer[100];
+						sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 2 already in controller initiated shutdown", -timeToLaunch );
+						oapiWriteLog( buffer );
+					}
+					else if (RSLSAbortData != 2)
+					{
+						// on and healty, delay S/D
+						eng2SDtime -= 1.2;
+						PV123CLtime[1] -= 1.2;
+						PV456CLtime[1] -= 1.2;
+					}
+
+					if (timeToLaunch < 6.36)// check 1 ignited
+					{
+						// assume problem in this engine, and S/D immediately ("default" action)
+						eng1SDtime = timeToLaunch;
+						PV123CLtime[0] = timeToLaunch - 4.5;
+						PV456CLtime[0] = timeToLaunch - 4.9;
+
+						if ((pSSME_SOP->GetShutdownPhaseFlag( 1 ) == true) || (pSSME_SOP->GetPostShutdownPhaseFlag( 1 ) == true))
+						{
+							// already turning off, just set time to close PVs
+							eng1SDtime = 1000;
+
+							char buffer[100];
+							sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 1 already in controller initiated shutdown", -timeToLaunch );
+							oapiWriteLog( buffer );
+						}
+						else if (RSLSAbortData != 1)
+						{
+							// on and healty, delay S/D
+							eng1SDtime -= 2.4;
+							PV123CLtime[0] -= 2.4;
+							PV456CLtime[0] -= 2.4;
+						}
+					}
+					else engineSD = 1;// ME-1 in start prep
+				}
+				else engineSD = 2;// ME-2 and ME-3 in start prep
+			}
+			else engineSD = 3;// all in start prep
 		}
 
 		// engine shutdown
@@ -523,7 +510,7 @@ namespace dps
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 1 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 1 );
-			abortend++;
+
 			char buffer[100];
 			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 1 shutdown", -timeToLaunch );
 			oapiWriteLog( buffer );
@@ -532,7 +519,7 @@ namespace dps
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 2 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 2 );
-			abortend++;
+			
 			char buffer[100];
 			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 2 shutdown", -timeToLaunch );
 			oapiWriteLog( buffer );
@@ -541,13 +528,80 @@ namespace dps
 		{
 			pSSME_SOP->SetShutdownEnableCommandFlag( 3 );// both cmds now?
 			pSSME_SOP->SetShutdownCommandFlag( 3 );
-			abortend++;
+			
 			char buffer[100];
 			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 3 shutdown", -timeToLaunch );
 			oapiWriteLog( buffer );
 		}
 
-		if (abortend == 3) Active = false;
+		// SSME 1 PV closing
+		if ((timeToLaunch <= PV123CLtime[0]) && (lastTTL > PV123CLtime[0]))
+		{
+			pIO_Control->SetCommand( ME1_LOX_PVLV_OP_A, false );
+			pIO_Control->SetCommand( ME1_LOX_PVLV_OP_B, false );
+			pIO_Control->SetCommand( ME1_LOX_PVLV_CL_A, true );
+			pIO_Control->SetCommand( ME1_LOX_PVLV_CL_B, true );
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 1 LOX PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+		if ((timeToLaunch <= PV456CLtime[0]) && (lastTTL > PV456CLtime[0]))
+		{
+			pIO_Control->SetCommand( ME1_LH2_PVLV_OP, false );
+			pIO_Control->SetCommand( ME1_LH2_PVLV_CL, true );
+			engineSD++;
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 1 LH2 PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+		// SSME 2 PV closing
+		if ((timeToLaunch <= PV123CLtime[1]) && (lastTTL > PV123CLtime[1]))
+		{
+			pIO_Control->SetCommand( ME2_LOX_PVLV_OP_A, false );
+			pIO_Control->SetCommand( ME2_LOX_PVLV_OP_B, false );
+			pIO_Control->SetCommand( ME2_LOX_PVLV_CL_A, true );
+			pIO_Control->SetCommand( ME2_LOX_PVLV_CL_B, true );
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 2 LOX PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+		if ((timeToLaunch <= PV456CLtime[1]) && (lastTTL > PV456CLtime[1]))
+		{
+			pIO_Control->SetCommand( ME2_LH2_PVLV_OP, false );
+			pIO_Control->SetCommand( ME2_LH2_PVLV_CL, true );
+			engineSD++;
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 2 LH2 PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+		// SSME 3 PV closing
+		if ((timeToLaunch <= PV123CLtime[2]) && (lastTTL > PV123CLtime[2]))
+		{
+			pIO_Control->SetCommand( ME3_LOX_PVLV_OP_A, false );
+			pIO_Control->SetCommand( ME3_LOX_PVLV_OP_B, false );
+			pIO_Control->SetCommand( ME3_LOX_PVLV_CL_A, true );
+			pIO_Control->SetCommand( ME3_LOX_PVLV_CL_B, true );
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 3 LOX PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+		if ((timeToLaunch <= PV456CLtime[2]) && (lastTTL > PV456CLtime[2]))
+		{
+			pIO_Control->SetCommand( ME3_LH2_PVLV_OP, false );
+			pIO_Control->SetCommand( ME3_LH2_PVLV_CL, true );
+			engineSD++;
+			
+			char buffer[100];
+			sprintf_s( buffer, 100, "T%+f - RSLS Abort SSME 3 LH2 PV close command", -timeToLaunch );
+			oapiWriteLog( buffer );
+		}
+
+		if (engineSD == 3) Active = false;// all engines safed
 		return;
 	}
 
@@ -593,5 +647,10 @@ namespace dps
 	{
 		if (newMajorMode <= 101) return true;
 		return false;
+	}
+
+	bool RSLS_old::GetRSLSAbortFlag( void ) const
+	{
+		return RSLSAbort;
 	}
 };
