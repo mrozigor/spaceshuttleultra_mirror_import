@@ -411,6 +411,36 @@ namespace mps
 	
 	void SSMEControllerSW_AD08::UpdateShutdownValveSchedule( double dPC )
 	{
+		if (dPC > (PC_100 - (PC_100 * MPL / 100)))
+		{
+			// below MPL use "shifted" MPL profile
+			double temp = (PC_100 - dPC) / PC_100_C;
+			if (temp >= 39)
+			{
+				DCU->RAM[RAM_AD08_TIME_STDN] = (unsigned short)((100 - temp) / 0.0122);
+			}
+			else
+			{
+				if (temp >= 8)
+				{
+					DCU->RAM[RAM_AD08_TIME_STDN] = (unsigned short)(((50.92 - temp) * 2.6) / 0.0062);
+				}
+				else
+				{
+					if (temp >= 0.9538)
+					{
+						DCU->RAM[RAM_AD08_TIME_STDN] = (unsigned short)(((11.43 - temp) * 4.2) / 0.0008);
+					}
+					else
+					{
+						DCU->RAM[RAM_AD08_TIME_STDN] = 55000;
+					}
+				}
+			}
+
+			dPC = PC_100 - (PC_100 * MPL / 100);
+		}
+
 		// CCV
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS] = 0;
 		DCU->RAM[RAM_AD08_STDN_CCV_POS + 1] -= (unsigned short)round( 0.55825 * dPC );// TODO only do this under 100%

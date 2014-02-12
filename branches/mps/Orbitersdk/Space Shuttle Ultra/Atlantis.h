@@ -532,6 +532,8 @@ public:
 
 	void SetMPSDumpLevel( int vent, double level );
 
+	void SetSSMEGH2burn( int eng, bool burn );
+
 	double CalcNetSSMEThrust() const;
 	double GetSSMEISP() const;
 	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
@@ -1002,6 +1004,8 @@ private:
 	THRUSTER_HANDLE th_att_lin[10];
 
 	bool bSSMEsDefined, bOMSDefined, bRCSDefined, bControllerThrustersDefined;
+
+	PSTREAM_HANDLE SSMEGH2burn[3];
 
 	PROPELLANT_HANDLE phLOXdump;
 	PROPELLANT_HANDLE phLH2dump;

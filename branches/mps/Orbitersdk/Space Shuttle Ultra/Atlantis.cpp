@@ -1120,7 +1120,9 @@ pActiveLatches(3, NULL)
 	reentry_flames = NULL;
 
 
-
+	SSMEGH2burn[0] = NULL;
+	SSMEGH2burn[1] = NULL;
+	SSMEGH2burn[2] = NULL;
 }
 
 // --------------------------------------------------------------
@@ -6817,6 +6819,48 @@ void Atlantis::SetMPSDumpLevel( int vent, double level )
 	assert( (vent >= 0) && (vent <= 5) && " Atlantis::SetMPSDumpLevel.vent" );
 	assert( (level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level" );
 	if (thMPSDump[vent] != NULL) SetThrusterLevel( thMPSDump[vent], level );
+	return;
+}
+
+void Atlantis::SetSSMEGH2burn( int eng, bool burn )
+{
+	assert( (eng >= 1) && (eng <= 3) && " Atlantis::SetSSMEGH2burn.eng" );
+	if (SSMEGH2burn[eng - 1] != NULL) DelExhaustStream( SSMEGH2burn[eng - 1] );
+
+	if (burn == false) return;
+
+	static PARTICLESTREAMSPEC psSSMEGH2burn = {
+	0,
+	0.2,
+	40,
+	20,
+	0.4,
+	0.4,
+	5,
+	5,
+	PARTICLESTREAMSPEC::EMISSIVE,
+	PARTICLESTREAMSPEC::LVL_FLAT,
+	1, 1,
+	PARTICLESTREAMSPEC::ATM_FLAT,
+	1, 1,
+	0
+	};
+	if (GetAtmPressure() > 25000)
+	{
+		//psSSMEGH2burn.srcrate = 40;
+		//psSSMEGH2burn.growthrate = 5;
+		//psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_FLAT;
+		psSSMEGH2burn.tex = oapiRegisterParticleTexture( "SSU\\SSMEstream" );
+	}
+	else
+	{
+		psSSMEGH2burn.srcrate = 80;
+		psSSMEGH2burn.growthrate = 10;
+		psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_LIN;
+		psSSMEGH2burn.tex = 0;
+	}
+
+	SSMEGH2burn[eng - 1] = AddExhaustStream( th_main[eng - 1], &psSSMEGH2burn );
 	return;
 }
 
