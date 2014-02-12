@@ -158,6 +158,8 @@ namespace mps
 		{
 			modeltime = time;
 			modelmode = 2;
+
+			STS()->SetSSMEGH2burn( ID, true );
 		}
 		
 		// set sensor readings
@@ -286,12 +288,16 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 0 );
 
+		if (pc > 5) STS()->SetSSMEGH2burn( ID, false );
+
 		// is the controller commanding shutdown?
 		if ((ptrMFV->GetPos() < posMFV) || (ptrMOV->GetPos() < posMOV))// MFV/MOV closing?
 		{
 			// goto shudown
 			modeltime = time - AdjCOTime( STS()->GetSSMEThrustLevel( ID ) );
 			modelmode = 4;
+
+			STS()->SetSSMEGH2burn( ID, true );
 			return;
 		}
 		// if not save pos for next time
@@ -316,6 +322,9 @@ namespace mps
 		{
 			modeltime = time - AdjCOTime( STS()->GetSSMEThrustLevel( ID ) );
 			modelmode = 4;
+
+			STS()->SetSSMEGH2burn( ID, true );
+
 			RUN4( time, dt );// go to shutdown
 			return;
 		}
@@ -446,6 +455,8 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 0 );
+
+		if (pc < 3) STS()->SetSSMEGH2burn( ID, false );
 
 		// are we done here?
 		if ((time - modeltime) >= 6)// it's off -> RUN5

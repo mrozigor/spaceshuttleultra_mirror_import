@@ -309,9 +309,13 @@ namespace mps
 	{
 		double pc;
 
-		if (tme <= 0.95)
+		if (tme <= 0.1)
 		{
 			pc = 0;
+		}
+		else if (tme <= 0.95)
+		{
+			pc = 0.1;
 		}
 		else if (tme <= 1.5)
 		{
