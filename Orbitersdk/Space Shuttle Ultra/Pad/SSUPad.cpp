@@ -94,7 +94,7 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				pad->RetractIAA();
 				return TRUE;
 			case IDC_CREWARM_EXTEND:
-				pad->ExtendOrbiterAccessArm();
+				pad->ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 				return TRUE;
 			case IDC_CREWARM_RETRACT:
 				pad->RetractOrbiterAccessArm();
@@ -689,7 +689,8 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	CreateGOXVentThrusters();
 	
-	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE);
+	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_NORMAL, OAA_RATE_NORMAL);
+	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_EMERGENCY, OAA_RATE_EMERGENCY);
 	SetGOXVentArmRate(GVA_RATE);
 	SetGOXVentHoodRate(VENT_HOOD_RATE);
 	SetGH2VentlineRate(FSS_GH2_ARM_RATE);
