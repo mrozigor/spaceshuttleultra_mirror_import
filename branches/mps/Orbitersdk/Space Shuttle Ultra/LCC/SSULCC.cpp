@@ -75,7 +75,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			if (((t_abort + OAA_EXTEND_ABORT_DELAY) <= simt) && ((t_abort + OAA_EXTEND_ABORT_DELAY) > lastTTL))// extend orbiter access arm
 			{
 				oapiWriteLog( "LCC: OAA extend" );
-				pFSS->ExtendOrbiterAccessArm();
+				pFSS->ExtendOrbiterAccessArm( OAA_RATE_EMERGENCY );
 			}
 		}
 		lastTTL = simt;

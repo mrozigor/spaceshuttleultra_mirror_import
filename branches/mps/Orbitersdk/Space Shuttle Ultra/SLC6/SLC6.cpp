@@ -87,7 +87,8 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	DefineSSS();
 	DefineGOXVents();
 	
-	SetOrbiterAccessArmRate(SLC6_ORBITER_ACCESS_ARM_RATE);
+	SetOrbiterAccessArmRate(SLC6_ORBITER_ACCESS_ARM_RATE_NORMAL, OAA_RATE_NORMAL);
+	SetOrbiterAccessArmRate(SLC6_ORBITER_ACCESS_ARM_RATE_EMERGENCY, OAA_RATE_EMERGENCY);
 	SetGOXVentArmRate(SLC6_VENT_ARM_RATE);
 	SetGOXVentHoodRate(SLC6_VENT_HOOD_RATE);
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
@@ -580,7 +581,7 @@ BOOL CALLBACK SLC6_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				oapiCloseDialog(hWnd);
 				return TRUE;
 			case IDC_OAA_DEPLOY:
-				pad->ExtendOrbiterAccessArm();
+				pad->ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 				return TRUE;
 			case IDC_OAA_HALT:
 				pad->HaltOrbiterAccessArm();

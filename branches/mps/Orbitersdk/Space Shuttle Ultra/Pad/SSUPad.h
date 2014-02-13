@@ -15,7 +15,8 @@ static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
 
 const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 
-const double ORBITER_ACCESS_ARM_RATE = 0.005263;
+const double ORBITER_ACCESS_ARM_RATE_NORMAL = 0.007692;// 130sec
+const double ORBITER_ACCESS_ARM_RATE_EMERGENCY = 0.066666;// 15sec
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
