@@ -93,6 +93,7 @@
     <ClCompile Include="src\DiscreteBundle.cpp" />
     <ClCompile Include="src\DiscreteBundleManager.cpp" />
     <ClCompile Include="src\DiscretePort.cpp" />
+    <ClCompile Include="src\HydraulicActuatedValve.cpp" />
     <ClCompile Include="src\LambertBurnTargeting.cpp" />
     <ClCompile Include="src\MMUTapeImage.cpp" />
     <ClCompile Include="src\PEG4Targeting.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="include\DiscretePort.h" />
     <ClInclude Include="include\discsignals.h" />
     <ClInclude Include="include\EngConst.h" />
+    <ClInclude Include="include\HydraulicActuatedValve.h" />
     <ClInclude Include="include\ISSULaunchTower.h" />
     <ClInclude Include="include\ISSUMLP.h" />
     <ClInclude Include="include\ISubsystem.h" />
