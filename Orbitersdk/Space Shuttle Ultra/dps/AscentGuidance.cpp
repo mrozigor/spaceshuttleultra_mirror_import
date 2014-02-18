@@ -423,6 +423,7 @@ void AscentGuidance::Throttle(double DeltaT)
 						if (pSSME_SOP->GetPercentChamberPressVal( 1 ) - throttlecmd < 0.15)// wait while throttling
 						{
 							throttlecmd--;// throttle back 1%
+							throttlecmd = (double)round( throttlecmd );// round avoid x.5% cmds
 							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
 							pSSME_SOP->SetThrottlePercent( throttlecmd );
 						}
