@@ -5,6 +5,7 @@
 PressureActuatedValve::PressureActuatedValve( double initpos, double rate, PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent )
 {
 	assert( (initpos >= 0) && (initpos <= 1) && "PressureActuatedValve::PressureActuatedValve.initpos" );
+	assert( (rate > 0) && "PressureActuatedValve::PressureActuatedValve.rate" );
 	pos = initpos;
 	this->rate = rate / 100;
 	this->OP = OP;
@@ -127,6 +128,7 @@ void PressureActuatedValve::tmestp( double dt )
 
 void PressureActuatedValve::_backdoor( double ipos )
 {
+	assert( (ipos >= 0) && (ipos <= 1) && "PressureActuatedValve::_backdoor.ipos" );
 	pos = ipos;
 
 	// set indications

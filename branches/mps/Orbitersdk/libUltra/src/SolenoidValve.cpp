@@ -5,6 +5,7 @@
 SolenoidValve::SolenoidValve( double initpos, double rate, bool NormallyClosed, PressureSource* psource, PressureSource* psourceinvent )
 {
 	assert( (initpos >= 0) && (initpos <= 1) && "SolenoidValve::SolenoidValve.initpos" );
+	assert( (rate > 0) && "SolenoidValve::SolenoidValve.rate" );
 	pos = initpos;
 	this->rate = rate / 100;
 	this->NormallyClosed = NormallyClosed;
@@ -54,6 +55,7 @@ void SolenoidValve::tmestp( double dt )
 
 void SolenoidValve::_backdoor( double ipos )
 {
+	assert( (ipos >= 0) && (ipos <= 1) && "SolenoidValve::_backdoor.ipos" );
 	pos = ipos;
 	return;
 }
