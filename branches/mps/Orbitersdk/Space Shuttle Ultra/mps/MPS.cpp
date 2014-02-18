@@ -69,10 +69,10 @@ namespace mps
 		ptrPV6 = new PressureActuatedValve( 0, 100, ptrLV22, ptrLV23, nullptr, nullptr );
 /*		ptrPV7 = new ValveTypeBool( true, 100 );
 		ptrPV8 = new ValveTypeBool( true, 100 );*/
-		ptrPV9 = new PressureActuatedValve( 0, 100, ptrLV28, ptrLV29, nullptr, nullptr );
-		ptrPV10 = new PressureActuatedValve( 0, 100, ptrLV30, ptrLV31, nullptr, nullptr );
-		ptrPV11 = new PressureActuatedValve( 0, 100, ptrLV32, ptrLV33, nullptr, nullptr );
-		ptrPV12 = new PressureActuatedValve( 0, 100, ptrLV34, ptrLV35, nullptr, nullptr );
+		ptrPV9 = new PressureActuatedValve( 0, 20, ptrLV28, ptrLV29, nullptr, nullptr );
+		ptrPV10 = new PressureActuatedValve( 0, 20, ptrLV30, ptrLV31, nullptr, nullptr );
+		ptrPV11 = new PressureActuatedValve( 0, 20, ptrLV32, ptrLV33, nullptr, nullptr );
+		ptrPV12 = new PressureActuatedValve( 0, 20, ptrLV34, ptrLV35, nullptr, nullptr );
 		ptrPV13 = new PressureActuatedValve( 0, 100, ptrLV39, nullptr, nullptr, nullptr );
 		ptrPV17 = new PressureActuatedValve( 0, 100, ptrLV72, nullptr, nullptr, nullptr );
 		ptrPV18 = new PressureActuatedValve( 0, 100, ptrLV73, nullptr, nullptr, nullptr );
@@ -416,13 +416,8 @@ namespace mps
 			}
 			LOXHeight += 31.6742;
 
-			double acc = 0;
-
-			if (STS()->GroundContact() == true)
-			{
-				acc = 9.80665;
-			}
-			else
+			double acc = 9.80665;
+			if (STS()->GroundContact() == false)
 			{
 				if ((STS()->GetSRBChamberPressure( 0 ) + STS()->GetSRBChamberPressure( 1 ) + STS()->CalcNetSSMEThrust()) > 0)
 				{
@@ -433,6 +428,7 @@ namespace mps
 					acc = accV3.z;
 					acc += 9.80665 * sin( STS()->GetPitch() );
 				}
+				else acc = 0;
 			}
 
 			// ET
@@ -460,7 +456,7 @@ namespace mps
 			double LOXrepress_temp = ptrLV41->Use( 0 );// check press
 			if (LOXrepress_temp > 0)
 			{
-				if (LOXrepress_temp > 37) LOXrepress_temp = 37;
+				if (LOXrepress_temp > 37) LOXrepress_temp = 37;// conflicting reports if 20-25psia ou psig... using psig
 				if (LOXrepress_temp > LOXManifPress)
 				{
 					LOXrepress_temp = (LOXrepress_temp - LOXManifPress) / 37;
