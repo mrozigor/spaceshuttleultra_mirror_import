@@ -101,6 +101,8 @@ namespace mps
 			bool CheckWDTOwn( int nWDT );
 			bool CheckWDTOpposite( int nWDT );
 
+			void Interrupt( int num );
+
 			void PowerBusDown( void );
 
 			void SwitchVRC( void );

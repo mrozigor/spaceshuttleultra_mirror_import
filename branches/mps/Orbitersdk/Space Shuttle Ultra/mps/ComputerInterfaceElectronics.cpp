@@ -320,9 +320,15 @@ namespace mps
 		}
 	}
 
+	void ComputerInterfaceElectronics::Interrupt( int num )
+	{
+		DCU->Interrupt( num );
+		return;
+	}
+
 	void ComputerInterfaceElectronics::PowerBusDown( void )
 	{
-		DCU->PowerBusDown();
+		DCU->Interrupt( INT_PBDI );
 		return;
 	}
 

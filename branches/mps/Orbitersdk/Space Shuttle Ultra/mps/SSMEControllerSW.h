@@ -68,8 +68,7 @@ namespace mps
 
 			virtual void Executive( void ) = 0;
 
-			virtual void PowerFailureSense( void ) = 0;
-			virtual void PowerBusDown( void ) = 0;
+			virtual void Interrupt( int num ) = 0;
 	};
 }
 

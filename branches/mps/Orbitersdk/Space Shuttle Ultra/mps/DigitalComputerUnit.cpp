@@ -133,15 +133,15 @@ namespace mps
 		return;
 	}
 
-	void DigitalComputerUnit::PowerFailureSense( void )
+	void DigitalComputerUnit::PowerFailureSense( void )// TODO INT_PRI
 	{
-		if (sw != NULL) sw->PowerFailureSense();
+		if (sw != NULL) sw->Interrupt( INT_PFI );// TODO if NULL use PROM
 		return;
 	}
 
-	void DigitalComputerUnit::PowerBusDown( void )
+	void DigitalComputerUnit::Interrupt( int num )
 	{
-		if (sw != NULL) sw->PowerBusDown();
+		if (sw != NULL) sw->Interrupt( num );// TODO if NULL use PROM
 		return;
 	}
 }

@@ -68,7 +68,7 @@ namespace mps
 			void __OnSaveState( FILEHANDLE scn ) const;
 			bool __OnParseLine( const char* line );
 
-			void Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed );
+			void Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* OEoutCCV, DiscreteBundle* OEoutMFV, DiscreteBundle* OEoutMOV, DiscreteBundle* OEoutFPOV, DiscreteBundle* OEoutOPOV, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed );
 
 			void GetEIURef( EIU* pEIU );
 

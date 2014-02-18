@@ -76,7 +76,7 @@ namespace mps
 		return false;
 	}
 
-	void SSMEController::Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed )
+	void SSMEController::Realize( DiscreteBundle* power, DiscreteBundle* OEout, DiscreteBundle* OEoutCCV, DiscreteBundle* OEoutMFV, DiscreteBundle* OEoutMOV, DiscreteBundle* OEoutFPOV, DiscreteBundle* OEoutOPOV, DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed )
 	{
 		PSE[chA]->ConnectPower( power );
 		PSE[chB]->ConnectPower( power );
@@ -90,8 +90,8 @@ namespace mps
 		CIE[chA]->Realize();
 		CIE[chB]->Realize();
 
-		OE[chA]->Realize( OEout );
-		OE[chB]->Realize( OEout );
+		OE[chA]->Realize( OEout, OEoutCCV, OEoutMFV, OEoutMOV, OEoutFPOV, OEoutOPOV );
+		OE[chB]->Realize( OEout, OEoutCCV, OEoutMFV, OEoutMOV, OEoutFPOV, OEoutOPOV );
 
 		IE[chA]->Realize( IEchA_Press, IEchA_Temp, IEchA_Flow, IEchA_Speed );
 		IE[chB]->Realize( IEchB_Press, IEchB_Temp, IEchB_Flow, IEchB_Speed );

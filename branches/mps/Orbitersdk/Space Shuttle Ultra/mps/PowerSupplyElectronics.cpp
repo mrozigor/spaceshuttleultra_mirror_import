@@ -15,7 +15,6 @@ namespace mps
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
-		AC = new DiscInPort;
 		this->ch = ch;
 		this->Controller = Controller;
 		PowerOn = true;
@@ -29,7 +28,6 @@ namespace mps
 
 	PowerSupplyElectronics::~PowerSupplyElectronics( void )
 	{
-		delete AC;
 		return;
 	}
 
@@ -54,7 +52,7 @@ namespace mps
 
 	void PowerSupplyElectronics::tmestp( double time )
 	{
-		if (AC->IsSet() == false)
+		if (AC.IsSet() == false)
 		{
 			if (PowerOn == true)
 			{
@@ -63,13 +61,13 @@ namespace mps
 				CIEOpposite->PowerBusDown();
 			}
 		}
-		PowerOn = AC->IsSet();
+		PowerOn = AC.IsSet();
 		return;
 	}
 
 	void PowerSupplyElectronics::ConnectPower( DiscreteBundle* AC )
 	{
-		this->AC->Connect( AC, ch );
+		this->AC.Connect( AC, ch );
 		return;
 	}
 

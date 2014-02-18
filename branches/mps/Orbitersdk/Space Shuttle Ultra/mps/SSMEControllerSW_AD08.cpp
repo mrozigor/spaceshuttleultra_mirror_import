@@ -37,6 +37,17 @@ namespace mps
 		DCU->RAM[RAM_AD08_TIME_STDN] = 0;
 		DCU->RAM[RAM_AD08_CH] = DCU->ch;
 
+		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 1;
+
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " SSMEControllerSW_AD08::SSMEControllerSW_AD08 out" );
 		oapiWriteLog( buffer );
@@ -514,41 +525,161 @@ namespace mps
 		return;
 	}
 
-	void SSMEControllerSW_AD08::PowerFailureSense( void )
+	void SSMEControllerSW_AD08::Interrupt( int num )
 	{
-		// TODO power failure sense
-		// me out
-		return;
-	}
-
-	void SSMEControllerSW_AD08::PowerBusDown( void )
-	{
-		// desqualify other channel's DCU, IE and OE
-		if (DCU->RAM[RAM_AD08_CH] == chA)
+		switch (num)
 		{
-			DCU->RAM[27] = 1;
-			DCU->RAM[29] = 1;
-			DCU->RAM[31] = 1;
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_DCUB );
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_IEB );
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_OEB );
-			SensorsDesqualifyAll( RAM_AD08_SENSOR_B );
+			case INT_PFI:
+				return;
+			case INT_PRI:
+				return;
+			case INT_PBDI:
+				// desqualify other channel's DCU, IE and OE
+				if (DCU->RAM[RAM_AD08_CH] == chA)
+				{
+					DCU->RAM[27] = 1;
+					DCU->RAM[29] = 1;
+					DCU->RAM[31] = 1;
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_DCUB );
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_IEB );
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_OEB );
+					SensorsDesqualifyAll( RAM_AD08_SENSOR_B );
+				}
+				else
+				{
+					DCU->RAM[26] = 1;
+					DCU->RAM[28] = 1;
+					DCU->RAM[30] = 1;
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_DCUA );
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_IEA );
+					AddFID( FID_LossOfControllerRedundancy, Delimiter_OEA );
+					SensorsDesqualifyAll( RAM_AD08_SENSOR_A );
+					DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+					DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+					DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+					DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+					DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+				}
+				return;
+			case INT_CCVSVAFI:
+				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+				return;
+			case INT_CCVSVBFI:
+				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
+				if (DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				
+				if (Get_ESW_Phase() == ESW_Mainstage)
+				{
+					// hyd lockup
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
+					ChangePhaseMode();// phase/mode change
+				}
+				else
+				{
+					// pneu S/D
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+					ChangePhaseMode();// phase/mode change
+					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+				}
+				return;
+			case INT_MFVSVAFI:
+				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+				return;
+			case INT_MFVSVBFI:
+				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
+				if (DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				
+				if (Get_ESW_Phase() == ESW_Mainstage)
+				{
+					// hyd lockup
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
+					ChangePhaseMode();// phase/mode change
+				}
+				else
+				{
+					// pneu S/D
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+					ChangePhaseMode();// phase/mode change
+					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+				}
+				return;
+			case INT_MOVSVAFI:
+				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+				return;
+			case INT_MOVSVBFI:
+				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
+				if (DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				
+				if (Get_ESW_Phase() == ESW_Mainstage)
+				{
+					// hyd lockup
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
+					ChangePhaseMode();// phase/mode change
+				}
+				else
+				{
+					// pneu S/D
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+					ChangePhaseMode();// phase/mode change
+					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+				}
+				return;
+			case INT_FPOVSVAFI:
+				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+				return;
+			case INT_FPOVSVBFI:
+				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
+				if (DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				
+				if (Get_ESW_Phase() == ESW_Mainstage)
+				{
+					// hyd lockup
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
+					ChangePhaseMode();// phase/mode change
+				}
+				else
+				{
+					// pneu S/D
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+					ChangePhaseMode();// phase/mode change
+					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+				}
+				return;
+			case INT_OPOVSVAFI:
+				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+				return;
+			case INT_OPOVSVBFI:
+				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
+				if (DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				
+				if (Get_ESW_Phase() == ESW_Mainstage)
+				{
+					// hyd lockup
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
+					ChangePhaseMode();// phase/mode change
+				}
+				else
+				{
+					// pneu S/D
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+					ChangePhaseMode();// phase/mode change
+					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+				}
+				return;
+			default:
+				return;
 		}
-		else
-		{
-			DCU->RAM[26] = 1;
-			DCU->RAM[28] = 1;
-			DCU->RAM[30] = 1;
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_DCUA );
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_IEA );
-			AddFID( FID_LossOfControllerRedundancy, Delimiter_OEA );
-			SensorsDesqualifyAll( RAM_AD08_SENSOR_A );
-		}
-		return;
 	}
-
-	/////////////////////////////
-	/////////////////////////////
 
 	void SSMEControllerSW_AD08::Executive( void )
 	{
@@ -581,7 +712,7 @@ namespace mps
 			//Set_ESW_ChannelStatus();
 		}
 
-		if (fptrVehicleCommands != NULL)
+		if (fptrVehicleCommands != NULL)// TODO change to interrupt
 		{
 			retval = (this->*fptrVehicleCommands)();
 			Set_ESW_CommandStatus( retval );
@@ -846,6 +977,9 @@ namespace mps
 						Set_ESW_Mode( ESW_Mainstage_ThrustLimiting );
 						break;
 					case ESW_Mainstage_HydraulicLockup:
+						fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup;
+						fptrMonitorSDLimits = &SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl;// HACK ???
+						fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup;
 						Set_ESW_Phase( ESW_Mainstage );
 						Set_ESW_Mode( ESW_Mainstage_HydraulicLockup );
 						break;
@@ -1691,7 +1825,7 @@ namespace mps
 				return ESW_Accepted;
 			case THRT:
 				{
-					double pl = MPL + (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
+					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return 2;
 					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
 					RotateCommand();
@@ -1855,7 +1989,7 @@ namespace mps
 				return ESW_Accepted;
 			case THRT:
 				{
-					double pl = MPL + (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
+					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return 2;
 					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
 					RotateCommand();
@@ -2786,7 +2920,7 @@ namespace mps
 		ValveSchedule( RAM_AD08_IGNT_OPOV_POS, RAM_AD08_OPOV_CMD, RAM_AD08_TIME_ESC, RAM_AD08_OPOV_POS );
 
 		// on/off devs
-		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 1;
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 1;// TODO igniters stay on for 4.4s
 		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
@@ -2974,6 +3108,22 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup( void )
 	{
+		// on/off devs
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
+		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
+		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
+		DCU->RAM[RAM_AD08_AFV_CMD] = 1;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 		return 0;
 	}
 
@@ -2991,6 +3141,7 @@ namespace mps
 		}
 		else
 		{
+			DCU->RAM[RAM_AD08_PC_CMD] = 0;
 			DCU->RAM[RAM_AD08_TIME_STDN] = 0;
 			UpdateShutdownValveSchedule( PC_100 - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] );
 			// TODO fix currentPC when it's 0%, timer keeps running because vlvs don't close within 6s
@@ -3081,8 +3232,15 @@ namespace mps
 		}
 		else
 		{
+			DCU->RAM[RAM_AD08_PC_CMD] = 0;
 			DCU->RAM[RAM_AD08_TIME_STDN] = 0;
 		}
+
+		DCU->RAM[RAM_AD08_CCV_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
 
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3102,17 +3260,16 @@ namespace mps
 		{
 			DCU->RAM[RAM_AD08_HPV_CMD] = 0;
 		}
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 
 		// HACK go to Post-Shutdown Standby after 16sec
 		if (DCU->RAM[RAM_AD08_TIME_STDN] > 16000)
 		{
-			// go to shutdown prop vlv closed
-			DCU->RAM[RAM_AD08_CCV_CMD] = 0;
-			DCU->RAM[RAM_AD08_MFV_CMD] = 0;
-			DCU->RAM[RAM_AD08_MOV_CMD] = 0;
-			DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
-			DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
-
+			// go to shutdown
 			DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_PostShutdown;
 			DCU->RAM[RAM_AD08_NXT_MODE] = ESW_PostShutdown_Standby;
 			return 1;
@@ -3158,30 +3315,39 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
 	{
-		//All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch vales are then deenergized.
+		// All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch vales are then deenergized.
 
-		// close any open vlvs, then goto p/s stby
-
+		// close any open vlvs
 		DCU->RAM[RAM_AD08_CCV_CMD] = 0;
 		DCU->RAM[RAM_AD08_MFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_MOV_CMD] = 0;
 		DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
 		DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
 
-		// on/off devs
-		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
-		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
-		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 0;
-		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
-		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 0;
-		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
-		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
-
 		if (DCU->RAM[RAM_AD08_CCV_POS] + DCU->RAM[RAM_AD08_MFV_POS] + DCU->RAM[RAM_AD08_MOV_POS] + DCU->RAM[RAM_AD08_FPOV_POS] + DCU->RAM[RAM_AD08_OPOV_POS] == 0)
 		{
+			// on/off devs
+			DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
+			DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
+			DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+			DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+			DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
+			DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 0;
+			DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
+			DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 0;
+			DCU->RAM[RAM_AD08_AFV_CMD] = 0;
+			DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+			DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+			DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
+
 			// go to p/s stby
 			DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_PostShutdown;
 			DCU->RAM[RAM_AD08_NXT_MODE] = ESW_PostShutdown_Standby;
@@ -3219,11 +3385,21 @@ namespace mps
 			(DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] << 8) + 
 			(DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] << 9) + 
 			(DCU->RAM[RAM_AD08_AFV_CMD] << 10) + 
-			(DCU->RAM[RAM_AD08_HPV_CMD] << 11);
+			(DCU->RAM[RAM_AD08_HPV_CMD] << 11) + 
+			(DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] << 13) + 
+			(DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] << 14) + 
+			(DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] << 15);
 
-		unsigned short cmd2 = (DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] << 4) + 
-			(DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] << 5) + 
-			(DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] << 6);
+		unsigned short cmd2 = (DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] << 4) + 
+			(DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] << 5) + 
+			(DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] << 6) + 
+			(DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] << 7) + 
+			(DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] << 8) + 
+			(DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] << 9) + 
+			(DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] << 10) + 
+			(DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] << 11) + 
+			(DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] << 12) + 
+			(DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] << 13);
 
 		DCU->DIO_out( DEV_CIE_OEchA, cmd1 + DEV_OE_ON_OFF_1 );
 		DCU->DIO_out( DEV_CIE_OEchA, cmd2 + DEV_OE_ON_OFF_2 );
@@ -3311,7 +3487,7 @@ namespace mps
 		72	Emerg Sht Dn Press Ch A
 		73	Emerg Sht Dn Press Ch B
 		*/
-		if (DCU->RAM[28] == 0)// HACK use chB if IEchA is dead
+		if (DCU->RAM[28] == 0)// HACK use chB if IEchA is dead (doesn't work because for now IEchB doesn't receive these sensors...)
 		{
 			DCU->RAM[RAM_AD08_VRC_74] = DCU->RAM[RAM_AD08_SENSOR_A];// FPB Purge Press
 			DCU->RAM[RAM_AD08_VRC_75] = DCU->RAM[RAM_AD08_SENSOR_A + 1];// OPB Purge Press
@@ -3330,13 +3506,13 @@ namespace mps
 
 		DCU->RAM[RAM_AD08_VRC_103] = 103;// Parameter
 		
-		// TODO finish below
-		DCU->RAM[RAM_AD08_VRC_111] = ((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0x07F0) << 6) + 
-			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_2] & 0x0070) >> 2);
-		DCU->RAM[RAM_AD08_VRC_112] = ((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0x07F0) << 6) + 
-			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_2] & 0x0070) >> 2);
-		// 113
-		// 114
+		DCU->RAM[RAM_AD08_VRC_111] = ((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0x03F0) << 6) + 
+			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0xE000) >> 11);
+		DCU->RAM[RAM_AD08_VRC_112] = ((DCU->RAM[RAM_AD08_OE_B_ONOFF_REG_1] & 0x03F0) << 6) + 
+			((DCU->RAM[RAM_AD08_OE_B_ONOFF_REG_1] & 0xE000) >> 11);
+		DCU->RAM[RAM_AD08_VRC_113] = (DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_2] & 0x01F0) << 7;		
+		DCU->RAM[RAM_AD08_VRC_114] = ((DCU->RAM[RAM_AD08_OE_B_ONOFF_REG_2] & 0x3E00) >> 3) + 
+			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_2] & 0x3E00) << 2);
 
 		DCU->RAM[RAM_AD08_VRC_122] = DCU->RAM[RAM_AD08_SENSOR_A + 14];// HPOT Disch Temp Ch A3
 		DCU->RAM[RAM_AD08_VRC_123] = DCU->RAM[RAM_AD08_SENSOR_B + 14];// HPOT Disch Temp Ch B3

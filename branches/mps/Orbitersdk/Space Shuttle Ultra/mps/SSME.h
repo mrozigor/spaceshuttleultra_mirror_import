@@ -29,9 +29,9 @@
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "..\Atlantis.h"
-#include "BasicValve.h"
 #include "SolenoidValve.h"
 #include "PressureActuatedValve.h"
+#include "HydraulicActuatedValve.h"
 
 
 namespace mps
@@ -60,6 +60,7 @@ namespace mps
 	{
 		friend class EIU;
 		friend class SSMEController;
+		friend class OutputElectronics;
 		friend class OutputElectronics_BLOCK_II;
 		friend class InputElectronics_BLOCK_II;
 		friend class PneumaticControlAssembly;
@@ -67,11 +68,11 @@ namespace mps
 		protected:
 			unsigned short ID;// engine ID (1 - C, 2 - L, 3 - R)
 
-			BasicValve* ptrCCV;
-			BasicValve* ptrMFV;
-			BasicValve* ptrMOV;
-			BasicValve* ptrFPOV;
-			BasicValve* ptrOPOV;
+			HydraulicActuatedValve* ptrCCV;
+			HydraulicActuatedValve* ptrMFV;
+			HydraulicActuatedValve* ptrMOV;
+			HydraulicActuatedValve* ptrFPOV;
+			HydraulicActuatedValve* ptrOPOV;
 			SolenoidValve* ptrAFV;
 			SolenoidValve* ptrHPV_SV;
 			PressureActuatedValve* ptrFBV;
