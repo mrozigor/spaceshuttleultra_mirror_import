@@ -54,14 +54,21 @@ namespace mps
 
 			double SH[5];
 			double POS[9];
+			double SVmodel_cur[5];
+			double SVmodel_tgt[5];
+			double triplevel[2];
 
-			DiscOutPort* FuelSystemPurge_SV;
-			DiscOutPort* BleedValvesControl_SV;
-			DiscOutPort* EmergencyShutdown_SV;
-			DiscOutPort* ShutdownPurge_SV;
-			DiscOutPort* HPOTPISPurge_SV;
-			DiscOutPort* AFV_SV;
-			DiscOutPort* HPV_SV;
+			DiscOutPort HSV_pos[5];
+			DiscOutPort FO_SS[5];
+			DiscOutPort FS_SS[5];
+
+			DiscOutPort FuelSystemPurge_SV;
+			DiscOutPort BleedValvesControl_SV;
+			DiscOutPort EmergencyShutdown_SV;
+			DiscOutPort ShutdownPurge_SV;
+			DiscOutPort HPOTPISPurge_SV;
+			DiscOutPort AFV_SV;
+			DiscOutPort HPV_SV;
 
 		public:
 			OutputElectronics( int ch, SSME* eng, SSMEController* Controller );
@@ -74,8 +81,8 @@ namespace mps
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
 
-			virtual void tmestp( double time ) = 0;
-			void Realize( discsignals::DiscreteBundle* bundle );
+			virtual void tmestp( double time, double tmestp ) = 0;
+			void Realize( discsignals::DiscreteBundle* bundle, discsignals::DiscreteBundle* bundleCCV, discsignals::DiscreteBundle* bundleMFV, discsignals::DiscreteBundle* bundleMOV, discsignals::DiscreteBundle* bundleFPOV, discsignals::DiscreteBundle* bundleOPOV );
 
 			virtual void StorageRegister_write( unsigned short data, int ch ) = 0;
 			virtual unsigned short StorageRegister_read( void ) const = 0;

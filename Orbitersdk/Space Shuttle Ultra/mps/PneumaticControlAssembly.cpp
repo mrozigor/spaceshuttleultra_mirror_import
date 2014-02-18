@@ -71,16 +71,6 @@ namespace mps
 		OxidizerPreburnerPurge_PAV->tmestp( fDeltaT );
 		HPOTPISPurge_PAV->tmestp( fDeltaT );
 
-		if (EmergencyShutdown_PAV->GetPos() >= 0.2)
-		{// TODO "the pneumatic shutdown requires more helium"
-			// close vlvs
-			eng->ptrMOV->Close();// TODO improve the closing speed
-			eng->ptrMFV->Close();
-			eng->ptrCCV->Close();
-			eng->ptrOPOV->Close();
-			eng->ptrFPOV->Close();
-		}
-
 		if (FuelPreburnerPurge_PAV->GetPos() > 0)
 		{
 			pressFuelPreburnerPurge = 0.3 * FuelPreburnerPurge_PAV->GetPos() * HeSys->Use( 100 );// use He

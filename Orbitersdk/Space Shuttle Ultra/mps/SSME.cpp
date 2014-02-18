@@ -20,11 +20,11 @@ namespace mps
 		PCA = new PneumaticControlAssembly( this, HeSys );
 		
 		// make valves
-		ptrCCV = new BasicValve( 0, MAX_RATE_CCV );
-		ptrMOV = new BasicValve( 0, MAX_RATE_MOV );
-		ptrMFV = new BasicValve( 0, MAX_RATE_MFV );
-		ptrFPOV = new BasicValve( 0, MAX_RATE_FPOV );
-		ptrOPOV = new BasicValve( 0, MAX_RATE_OPOV );
+		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, PCA->PurgeSequenceValve_PAV );
+		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, PCA->PurgeSequenceValve_PAV );
+		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, PCA->PurgeSequenceValve_PAV );
+		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, PCA->PurgeSequenceValve_PAV );
+		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, PCA->PurgeSequenceValve_PAV );
 		ptrAFV = new SolenoidValve( 0, RATE_AFV, true, nullptr, nullptr );
 		ptrHPV_SV = new SolenoidValve( 0, RATE_HPV_SV, true, HeSys, PCA->PurgeSequenceValve_PAV );
 		ptrOBV = new PressureActuatedValve( 1, RATE_OBV, PCA->OxidizerBleedValve_PAV, nullptr, nullptr, nullptr );
@@ -92,6 +92,11 @@ namespace mps
 		// connect AC to PSE
 		discsignals::DiscreteBundle* bundle_power;
 		discsignals::DiscreteBundle* bundle_OEout;// TODO separate chs?
+		discsignals::DiscreteBundle* bundle_OEoutCCV;
+		discsignals::DiscreteBundle* bundle_OEoutMFV;
+		discsignals::DiscreteBundle* bundle_OEoutMOV;
+		discsignals::DiscreteBundle* bundle_OEoutFPOV;
+		discsignals::DiscreteBundle* bundle_OEoutOPOV;
 		discsignals::DiscreteBundle* bundle_IEchA_Press;
 		discsignals::DiscreteBundle* bundle_IEchB_Press;
 		discsignals::DiscreteBundle* bundle_IEchA_Temp;
@@ -118,6 +123,21 @@ namespace mps
 		sprintf_s( cbuf, 32, "OE_SSME_%d", ID );
 		bundle_OEout = BundleManager()->CreateBundle( cbuf, 14 );
 
+		sprintf_s( cbuf, 32, "OE_SSME_%d_CCV", ID );
+		bundle_OEoutCCV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_MFV", ID );
+		bundle_OEoutMFV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_MOV", ID );
+		bundle_OEoutMOV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_FPOV", ID );
+		bundle_OEoutFPOV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_OPOV", ID );
+		bundle_OEoutOPOV = BundleManager()->CreateBundle( cbuf, 6 );
+
 		sprintf_s( cbuf, 32, "SSME_%d_IEchA_Press", ID );
 		bundle_IEchA_Press = BundleManager()->CreateBundle( cbuf, 15 );
 
@@ -142,7 +162,7 @@ namespace mps
 		sprintf_s( cbuf, 32, "SSME_%d_IEchB_Speed", ID );
 		bundle_IEchB_Speed = BundleManager()->CreateBundle( cbuf, 3 );
 
-		Controller->Realize( bundle_power, bundle_OEout, bundle_IEchA_Press, bundle_IEchB_Press, bundle_IEchA_Temp, bundle_IEchB_Temp, bundle_IEchA_Flow, bundle_IEchB_Flow, bundle_IEchA_Speed, bundle_IEchB_Speed );
+		Controller->Realize( bundle_power, bundle_OEout, bundle_OEoutCCV, bundle_OEoutMFV, bundle_OEoutMOV, bundle_OEoutFPOV, bundle_OEoutOPOV, bundle_IEchA_Press, bundle_IEchB_Press, bundle_IEchA_Temp, bundle_IEchB_Temp, bundle_IEchA_Flow, bundle_IEchB_Flow, bundle_IEchA_Speed, bundle_IEchB_Speed );
 
 		ConnectSensors( bundle_IEchA_Press, bundle_IEchB_Press, bundle_IEchA_Temp, bundle_IEchB_Temp, bundle_IEchA_Flow, bundle_IEchB_Flow, bundle_IEchA_Speed, bundle_IEchB_Speed );
 
@@ -152,6 +172,12 @@ namespace mps
 		ptrAFV->Connect( 1, bundle_OEout, 11 );
 		ptrHPV_SV->Connect( 0, bundle_OEout, 12 );
 		ptrHPV_SV->Connect( 1, bundle_OEout, 13 );
+
+		ptrCCV->Connect( bundle_OEoutCCV );
+		ptrMFV->Connect( bundle_OEoutMFV );
+		ptrMOV->Connect( bundle_OEoutMOV );
+		ptrFPOV->Connect( bundle_OEoutFPOV );
+		ptrOPOV->Connect( bundle_OEoutOPOV );
 		return;
 	}
 

@@ -68,8 +68,8 @@ namespace mps
 		DCU[chA]->tmestp( time, tmestp );
 		DCU[chB]->tmestp( time, tmestp );
 		VIE->tmestp( time );// after DCU
-		OE[chA]->tmestp( time );
-		OE[chB]->tmestp( time );
+		OE[chA]->tmestp( time, tmestp );
+		OE[chB]->tmestp( time, tmestp );
 		return;
 	}
 }

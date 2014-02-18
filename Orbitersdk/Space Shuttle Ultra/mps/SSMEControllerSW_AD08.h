@@ -281,6 +281,17 @@ namespace mps
 	const int RAM_AD08_AFV_CMD = 464;
 	const int RAM_AD08_HPV_CMD = 465;
 
+	const int RAM_AD08_CCV_FO_SS_CMD = 470;
+	const int RAM_AD08_MFV_FO_SS_CMD = 471;
+	const int RAM_AD08_MOV_FO_SS_CMD = 472;
+	const int RAM_AD08_FPOV_FO_SS_CMD = 473;
+	const int RAM_AD08_OPOV_FO_SS_CMD = 474;
+	const int RAM_AD08_CCV_FS_SS_CMD = 475;
+	const int RAM_AD08_MFV_FS_SS_CMD = 476;
+	const int RAM_AD08_MOV_FS_SS_CMD = 477;
+	const int RAM_AD08_FPOV_FS_SS_CMD = 478;
+	const int RAM_AD08_OPOV_FS_SS_CMD = 479;
+
 	const int RAM_AD08_IGNT_CCV_POS = 500;
 	const int RAM_AD08_IGNT_MFV_POS = 548;
 	const int RAM_AD08_IGNT_MOV_POS = 596;
@@ -597,8 +608,7 @@ namespace mps
 			void LoadShutdownValveSchedule( void );
 			void UpdateShutdownValveSchedule( double dPC );
 
-			void PowerFailureSense( void );
-			void PowerBusDown( void );
+			void Interrupt( int num );
 	};
 }
 

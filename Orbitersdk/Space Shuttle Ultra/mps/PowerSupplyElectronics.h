@@ -49,7 +49,7 @@ namespace mps
 
 			bool PowerOn;
 		public:
-			DiscInPort* AC;
+			DiscInPort AC;
 
 			PowerSupplyElectronics( int ch, SSMEController* Controller );
 			virtual ~PowerSupplyElectronics( void );
