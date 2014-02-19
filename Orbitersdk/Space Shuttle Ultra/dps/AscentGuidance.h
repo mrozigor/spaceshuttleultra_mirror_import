@@ -180,6 +180,7 @@ private:
 	SSME_Operations* pSSME_Operations;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
+	double dt_thrt_glim;// timer for g limiting throttle cmds
 
 	double QPOLY[5];// SSME throttle velocity
 	double THROT[4];// SSME throttle command
