@@ -166,7 +166,7 @@ namespace dps
 			switch (Phase[i])
 			{
 				case 4:// Mainstage
-					switch (Mode[i] & 0x7000)
+					switch (Mode[i])
 					{
 						case 4:// Hydraulic Lockup
 							HydraulicLockupMode[i] = true;
