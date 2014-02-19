@@ -36,7 +36,7 @@ using class discsignals::DiscreteBundle;
 
 // HACK no clue about right amounts
 const double MIN_PRESS_OPEN_PAV = 150;
-const double HE_USE_OPEN_PAV = 1;
+const double HE_USE_OPEN_PAV = 5;
 
 
 class PressureActuatedValve:public PressureSource

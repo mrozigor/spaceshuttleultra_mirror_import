@@ -90,6 +90,7 @@ namespace mps
 		STS()->SetSSMEParams( ID, FPL_THRUST, ISP0, ISP1 );
 
 		// connect AC to PSE
+		discsignals::DiscreteBundle* bundle_hyd;
 		discsignals::DiscreteBundle* bundle_power;
 		discsignals::DiscreteBundle* bundle_OEout;// TODO separate chs?
 		discsignals::DiscreteBundle* bundle_OEoutCCV;
@@ -109,12 +110,15 @@ namespace mps
 		switch (ID)
 		{
 			case 1:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU1", 16 );
 				bundle_power = BundleManager()->CreateBundle( "SSMEC_R2_SWITCHES", 8 );
 				break;
 			case 2:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU2", 16 );
 				bundle_power = BundleManager()->CreateBundle( "SSMEL_R2_SWITCHES", 8 );
 				break;
 			case 3:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU3", 16 );
 				bundle_power = BundleManager()->CreateBundle( "SSMER_R2_SWITCHES", 8 );
 				break;
 		}
@@ -173,11 +177,11 @@ namespace mps
 		ptrHPV_SV->Connect( 0, bundle_OEout, 12 );
 		ptrHPV_SV->Connect( 1, bundle_OEout, 13 );
 
-		ptrCCV->Connect( bundle_OEoutCCV );
-		ptrMFV->Connect( bundle_OEoutMFV );
-		ptrMOV->Connect( bundle_OEoutMOV );
-		ptrFPOV->Connect( bundle_OEoutFPOV );
-		ptrOPOV->Connect( bundle_OEoutOPOV );
+		ptrCCV->Connect( bundle_OEoutCCV, bundle_hyd );
+		ptrMFV->Connect( bundle_OEoutMFV, bundle_hyd );
+		ptrMOV->Connect( bundle_OEoutMOV, bundle_hyd );
+		ptrFPOV->Connect( bundle_OEoutFPOV, bundle_hyd );
+		ptrOPOV->Connect( bundle_OEoutOPOV, bundle_hyd );
 		return;
 	}
 

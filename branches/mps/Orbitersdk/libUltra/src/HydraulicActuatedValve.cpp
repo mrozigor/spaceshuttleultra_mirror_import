@@ -1,10 +1,9 @@
 #include "HydraulicActuatedValve.h"
 #include "PressureSource.h"
 #include "assert.h"
-//#include "orbitersdk.h"
 
 
-HydraulicActuatedValve::HydraulicActuatedValve( double initpos, double rate, PressureSource* PneumaticClose )// TODO complete with hyd press
+HydraulicActuatedValve::HydraulicActuatedValve( double initpos, double rate, PressureSource* PneumaticClose )
 {
 	assert( (initpos >= 0) && (initpos <= 1) && "HydraulicActuatedValve::HydraulicActuatedValve.initpos" );
 	assert( (rate > 0) && "HydraulicActuatedValve::HydraulicActuatedValve.rate" );
@@ -18,7 +17,7 @@ HydraulicActuatedValve::~HydraulicActuatedValve( void )
 	return;
 }
 
-void HydraulicActuatedValve::Connect( DiscreteBundle* pBundle )
+void HydraulicActuatedValve::Connect( DiscreteBundle* pBundle, DiscreteBundle* pBundleHYD )// HACK makeshift hyd supply
 {
 	dipServovalve[0].Connect( pBundle, 0 );
 	dipServovalve[1].Connect( pBundle, 1 );
@@ -26,6 +25,8 @@ void HydraulicActuatedValve::Connect( DiscreteBundle* pBundle )
 	dipFailOperationalServoswitch[1].Connect( pBundle, 3 );
 	dipFailSafeServoswitch[0].Connect( pBundle, 4 );
 	dipFailSafeServoswitch[1].Connect( pBundle, 5 );
+
+	dipHYD.Connect( pBundleHYD, 4 );
 	return;
 }
 
@@ -43,6 +44,8 @@ void HydraulicActuatedValve::tmestp( double dt )
 		if ((dipFailOperationalServoswitch[0].IsSet() == false) && (dipFailOperationalServoswitch[1].IsSet() == false)) SV = 1;// SV B
 
 		double mpos = dipServovalve[SV].GetVoltage() / 5;
+
+		if ((dipHYD.GetVoltage() * 1000) < 1500) return;// no moviment below 1500psia
 
 		if (mpos != pos)
 		{

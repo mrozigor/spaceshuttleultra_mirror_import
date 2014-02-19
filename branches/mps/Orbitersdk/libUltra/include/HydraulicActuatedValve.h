@@ -37,7 +37,7 @@ class PressureSource;
 
 // HACK no clue about right amounts
 const double MIN_PRESS_CLOSE_HAV = 150;
-const double HE_USE_CLOSE_HAV = 10;
+const double HE_USE_CLOSE_HAV = 20;
 
 
 class HydraulicActuatedValve
@@ -47,6 +47,8 @@ class HydraulicActuatedValve
 
 		DiscInPort dipFailOperationalServoswitch[2];
 		DiscInPort dipFailSafeServoswitch[2];
+
+		DiscInPort dipHYD;
 
 		PressureSource* PneumaticClose;
 
@@ -79,7 +81,7 @@ class HydraulicActuatedValve
 		HydraulicActuatedValve( double initpos, double rate, PressureSource* PneumaticClose );
 		~HydraulicActuatedValve( void );
 
-		void Connect( DiscreteBundle* pBundle );
+		void Connect( DiscreteBundle* pBundle, DiscreteBundle* pBundleHYD );
 };
 
 
