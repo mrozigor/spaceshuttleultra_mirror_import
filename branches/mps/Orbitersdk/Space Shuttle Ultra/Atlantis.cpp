@@ -6833,7 +6833,7 @@ void Atlantis::SetSSMEGH2burn( int eng, bool burn )
 	0,
 	0.2,
 	40,
-	20,
+	35,
 	0.4,
 	0.4,
 	5,
