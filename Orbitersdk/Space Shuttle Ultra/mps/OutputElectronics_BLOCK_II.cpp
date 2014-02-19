@@ -204,50 +204,30 @@ namespace mps
 			// interrupt
 			CIE[chA]->Interrupt( INT_CCVSVAFI + ch );
 			CIE[chB]->Interrupt( INT_CCVSVAFI + ch );
-
-			char buffer[128];
-			sprintf_s( buffer, 128, "OEch%c ME%d CCV %.4f %.4f %.4f %.4f %.4f", ch + 65, eng->ID, SVmodel_cur[0], SVmodel_tgt[0], POS[0], time, tmestp );
-			oapiWriteLog( buffer );
 		}
 		if (abs(SVmodel_cur[1] - POS[1]) > triplevel[ch])
 		{
 			// interrupt
 			CIE[chA]->Interrupt( INT_MFVSVAFI + ch );
 			CIE[chB]->Interrupt( INT_MFVSVAFI + ch );
-
-			char buffer[128];
-			sprintf_s( buffer, 128, "OEch%c ME%d MFV %.4f %.4f %.4f %.4f %.4f", ch + 65, eng->ID, SVmodel_cur[1], SVmodel_tgt[1], POS[1], time, tmestp );
-			oapiWriteLog( buffer );
 		}
 		if (abs(SVmodel_cur[2] - POS[2]) > triplevel[ch])
 		{
 			// interrupt
 			CIE[chA]->Interrupt( INT_MOVSVBFI + ch );
 			CIE[chB]->Interrupt( INT_MOVSVBFI + ch );
-
-			char buffer[128];
-			sprintf_s( buffer, 128, "OEch%c ME%d MOV %.4f %.4f %.4f %.4f %.4f", ch + 65, eng->ID, SVmodel_cur[2], SVmodel_tgt[2], POS[2], time, tmestp );
-			oapiWriteLog( buffer );
 		}
 		if (abs(SVmodel_cur[3] - POS[3]) > triplevel[ch])
 		{
 			// interrupt
 			CIE[chA]->Interrupt( INT_FPOVSVAFI + ch );
 			CIE[chB]->Interrupt( INT_FPOVSVAFI + ch );
-
-			char buffer[128];
-			sprintf_s( buffer, 128, "OEch%c ME%d FPOV %.4f %.4f %.4f %.4f %.4f", ch + 65, eng->ID, SVmodel_cur[3], SVmodel_tgt[3], POS[3], time, tmestp );
-			oapiWriteLog( buffer );
 		}
 		if (abs(SVmodel_cur[4] - POS[4]) > triplevel[ch])
 		{
 			// interrupt
 			CIE[chA]->Interrupt( INT_OPOVSVAFI + ch );
 			CIE[chB]->Interrupt( INT_OPOVSVAFI + ch );
-
-			char buffer[128];
-			sprintf_s( buffer, 128, "OEch%c ME%d OPOV %.4f %.4f %.4f %.4f %.4f", ch + 65, eng->ID, SVmodel_cur[4], SVmodel_tgt[4], POS[4], time, tmestp );
-			oapiWriteLog( buffer );
 		}
 		SVmodel_tgt[0] = SH[0];
 		SVmodel_tgt[1] = SH[1];
