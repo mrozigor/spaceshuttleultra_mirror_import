@@ -29,6 +29,7 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	throttlecmd = 100;
 
 	glimiting = false;
+	dt_thrt_glim = 0;
 
 	// generic values, updated in InitializeAutopilot()
 	THROT[0] = THROT1;
@@ -420,13 +421,15 @@ void AscentGuidance::Throttle(double DeltaT)
 					// TODO use correct MPL value below
 					if (throttlecmd != 67)// if at MPL can't do more
 					{
-						if (pSSME_SOP->GetPercentChamberPressVal( 1 ) - throttlecmd < 0.15)// wait while throttling
+						if (dt_thrt_glim >= 0.9)// wait while throttling (little under 1s delay)
 						{
 							throttlecmd--;// throttle back 1%
 							throttlecmd = (double)round( throttlecmd );// round avoid x.5% cmds
 							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
 							pSSME_SOP->SetThrottlePercent( throttlecmd );
+							dt_thrt_glim = 0;// reset
 						}
+						else dt_thrt_glim += DeltaT;
 					}
 				}
 				/*if(thrustAcceleration>=29.00) { //28.42
