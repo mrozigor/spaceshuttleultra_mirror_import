@@ -45,7 +45,7 @@ namespace mps
 	const double RATE_OPP_PAV = 100;
 	const double RATE_HPOTPISP_PAV = 100;
 	const double RATE_OSP_PAV = 100;
-	const double RATE_PSV_PAV = 5.5;
+	const double RATE_PSV_PAV = 6;//16.7s
 
 
 	class HeSysEng;
@@ -64,12 +64,15 @@ namespace mps
 			// P2.3 (P12 press???)
 			// P2.4 (N2.3 press???)
 			// P2.5 (N2.4 press???)
+			// P1 Eng He
 			// P3 (downstream MFV)
 			// P4 HPOTP I/S
 			// P5 FBV
 			// P9 OBV
 			// P12 OPOVA (maybe more after???)
 			// P34 HPV
+			// P35 POGO HPV Solenoid vent port
+			// N1 GSE GN2 (600 +/-50)
 			// N2.2 HPV
 			// N2.3 OPOV/OPB/FPB
 			// N2.4 FPOV
@@ -105,7 +108,7 @@ namespace mps
 			PressureActuatedValve* PurgeSequenceValve_PAV;
 
 			double pressFuelSystemPurge;
-			double pressEmergencyShutdown;
+			//double pressEmergencyShutdown;
 			double pressFuelPreburnerPurge;
 			double pressOxidizerPreburnerPurge;
 			double pressHPOTPISPurge;

@@ -1082,16 +1082,16 @@ namespace mps
 	{
 		// first sensor is enough, it's all sequencial
 		// IE chA
-		DCU->DMA_write( 0x1000, RAM_AD08_SENSOR_A + 19, 2 );// flow
-		DCU->DMA_write( 0x1004, RAM_AD08_SENSOR_A + 21, 2 );// speed
-		DCU->DMA_write( 0x1F00, RAM_AD08_SENSOR_A, 11 );// press
-		DCU->DMA_write( 0x1F0F, RAM_AD08_SENSOR_A + 11, 8 );// temp
+		DCU->DMA_write( 0x1F00, RAM_AD08_SENSOR_A, 15 );// press
+		DCU->DMA_write( 0x1F0F, RAM_AD08_SENSOR_A + 15, 8 );// temp
+		DCU->DMA_write( 0x1000, RAM_AD08_SENSOR_A + 23, 4 );// flow
+		DCU->DMA_write( 0x1004, RAM_AD08_SENSOR_A + 27, 3 );// speed
 
 		// IE chB
-		DCU->DMA_write( 0x2000, RAM_AD08_SENSOR_B + 19, 2 );// flow
-		DCU->DMA_write( 0x2004, RAM_AD08_SENSOR_B + 21, 2 );// speed
-		DCU->DMA_write( 0x2F00, RAM_AD08_SENSOR_B, 11 );// press
-		DCU->DMA_write( 0x2F0F, RAM_AD08_SENSOR_B + 11, 8 );// temp
+		DCU->DMA_write( 0x2F00, RAM_AD08_SENSOR_B, 15 );// press
+		DCU->DMA_write( 0x2F0F, RAM_AD08_SENSOR_B + 15, 8 );// temp
+		DCU->DMA_write( 0x2000, RAM_AD08_SENSOR_B + 23, 4 );// flow
+		DCU->DMA_write( 0x2004, RAM_AD08_SENSOR_B + 27, 3 );// speed
 
 		if (DCU->RAM[30] == 0)
 		{
@@ -1119,28 +1119,28 @@ namespace mps
 		// qualify sensors
 
 		// HPFT DT A2
-		SensorQualification_Upper( RAM_AD08_SENSOR_A + 11, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_A + 15, 2650 );
 
 		// HPFT DT A3
-		SensorQualification_Upper( RAM_AD08_SENSOR_A + 12, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_A + 16, 2650 );
 
 		// HPFT DT B2
-		SensorQualification_Upper( RAM_AD08_SENSOR_B + 11, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_B + 15, 2650 );
 
 		// HPFT DT B3
-		SensorQualification_Upper( RAM_AD08_SENSOR_B + 12, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_B + 16, 2650 );
 
 		// HPOT DT A2
-		SensorQualification_Upper( RAM_AD08_SENSOR_A + 13, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_A + 17, 2650 );
 
 		// HPOT DT A3
-		SensorQualification_Upper( RAM_AD08_SENSOR_A + 14, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_A + 18, 2650 );
 
 		// HPOT DT B2
-		SensorQualification_Upper( RAM_AD08_SENSOR_B + 13, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_B + 17, 2650 );
 
 		// HPOT DT B3
-		SensorQualification_Upper( RAM_AD08_SENSOR_B + 14, 2650 );
+		SensorQualification_Upper( RAM_AD08_SENSOR_B + 18, 2650 );
 
 		// HPOTP Intermediate Seal A
 		SensorQualification_UpperLower( RAM_AD08_SENSOR_A + 10, 650, 0 );
@@ -1514,6 +1514,10 @@ namespace mps
 			case XFRT:
 			case RESM:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -1548,6 +1552,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
@@ -1584,6 +1590,10 @@ namespace mps
 			case XFRT:
 			case RESM:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -1623,6 +1633,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
@@ -1659,6 +1671,10 @@ namespace mps
 			case XFRT:
 			case RESM:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -1675,6 +1691,16 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_StartPrep;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_StartPrep_PSN4;
 				DCU->RAM[17] = DCU->RAM[RAM_AD08_TREF1];// setup
+				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
@@ -1694,6 +1720,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
@@ -1730,6 +1758,10 @@ namespace mps
 			case XFRT:
 			case RESM:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -1764,6 +1796,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
@@ -1801,6 +1835,10 @@ namespace mps
 			case XFRT:
 			case RESM:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -1873,6 +1911,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
@@ -2365,6 +2405,10 @@ namespace mps
 				return ESW_Accepted;
 			case XFRT:
 			case RSCT:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
+				RotateCommand();
+				return ESW_Accepted;
 			case RSCA:
 			case RSCB:
 			case IOHA:
@@ -2391,6 +2435,8 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case COSY:
+				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Checkout;
+				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2547,35 +2593,35 @@ namespace mps
 		>1860 R
 		*/
 		// HPFT Discharge Temperature A2
-		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 11 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 11] <= 1860)// check redline
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 15] <= 1860)// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 11 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 11 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 11 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA2 );
-		//			retval = 1;8
+		//			retval = 1;
 		//		}
 		//	}
 		//}
 
 		//// HPFT Discharge Temperature A3
-		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 12 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 12] <= 1860)// check redline
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 16] <= 1860)// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 12 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 12 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 12 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA3 );
@@ -2585,16 +2631,16 @@ namespace mps
 		//}
 
 		//// HPFT Discharge Temperature B2
-		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 11 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 11] <= 1860)// check redline
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 15] <= 1860)// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 11 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 11 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 11 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB2 );
@@ -2604,16 +2650,16 @@ namespace mps
 		//}
 
 		//// HPFT Discharge Temperature B3
-		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 12 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 12] <= 1860)// check redline
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 16] <= 1860)// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 12 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 12 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 12 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB3 );
@@ -2628,16 +2674,16 @@ namespace mps
 		//<720 R
 		//*/
 		//// HPOT Discharge Temperature A2
-		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 13 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 13] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 13] <= 1660))// check redline
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 17] <= 1660))// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 13 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 13 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 13 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA2 );
@@ -2647,16 +2693,16 @@ namespace mps
 		//}
 
 		//// HPOT Discharge Temperature A3
-		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 14 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 14] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 14] <= 1660))// check redline
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 18] <= 1660))// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 14 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_A + 14 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 14 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA3 );
@@ -2666,16 +2712,16 @@ namespace mps
 		//}
 
 		//// HPOT Discharge Temperature B2
-		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 13 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 13] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 13] <= 1660))// check redline
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 17] <= 1660))// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 13 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 13 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 13 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB2 );
@@ -2685,16 +2731,16 @@ namespace mps
 		//}
 
 		//// HPOT Discharge Temperature B3
-		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 14 + 30] & 0x8000) == 0)// check if qualified
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] & 0x8000) == 0)// check if qualified
 		//{
-		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 14] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 14] <= 1660))// check redline
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 18] <= 1660))// check redline
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 14 + 30] = 0;
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] = 0;
 		//	}
 		//	else
 		//	{
-		//		DCU->RAM[RAM_AD08_SENSOR_B + 14 + 30]++;
-		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 14 + 30] >= 3)
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] >= 3)
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB3 );
@@ -2827,6 +2873,16 @@ namespace mps
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 		return 0;
 	}
 
@@ -2845,6 +2901,16 @@ namespace mps
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 		return 0;
 	}
 
@@ -2856,13 +2922,23 @@ namespace mps
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
 		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
 		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 1;// looks like it stays on for BLOCK II engine (only)
 		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 1;// open bleed vlvs
 		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 0;
 		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 		return 0;
 	}
 
@@ -2875,9 +2951,23 @@ namespace mps
 		DCU->RAM[RAM_AD08_CCV_CMD] = 4095;
 
 		// TODO when ready go to Engine Ready
+		/*
+		All ENGINE READY parameters must be within limits for two continuous
+		seconds to obtain ENGINE READY mode. After ENGINE READY is achieved, no
+		ENGINE READY parameter may leave the redline envelope for more than one
+		continuous second.
+		*/
 		// i-seal he purge psn4+120
 		// HPOTP  Minimum Redline: 175, Maximum Redline: 225
 		// HPOTP/AT  Minimum Redline: 164, Maximum Redline: 225
+		// LPFP Disch Press Ch A&B  Min: 53 Max: 60
+		// LPFP Disch Temp Ch A&B  Min: 37 Max: 42
+		// LPOT Disch Press Ch A&B  Min: 95
+		// PBP Disch Temp Ch A&B  Max: 186.5
+		// Oxid Prebnr Pge Press  Max: 50
+		// Fuel Prebnr Pge Press  Max: 50
+		// Emerg Sht Dn Press Ch A&B  Max: 50
+		// MFV Hyd Temp Ch A&B  Min: 490
 
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -2912,9 +3002,16 @@ namespace mps
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
 		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
 		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
-		if (DCU->RAM[RAM_AD08_START_ENA] == 1) DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;// close bleed valves after STEN cmd
-		else DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 1;// TODO check: Was 20% open at 2 seconds, changed to 30% open (on 26R)
+		if (DCU->RAM[RAM_AD08_START_ENA] == 1)
+		{
+			DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;// stop fuel system purge after STEN cmd
+			DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;// close bleed valves after STEN cmd
+		}
+		else
+		{
+			DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 1;
+			DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 1;// TODO check: Was 20% open at 2 seconds, changed to 30% open (on 26R)
+		}
 		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
 		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
@@ -2945,7 +3042,7 @@ namespace mps
 		ValveSchedule( RAM_AD08_IGNT_OPOV_POS, RAM_AD08_OPOV_CMD, RAM_AD08_TIME_ESC, RAM_AD08_OPOV_POS );
 
 		// on/off devs
-		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 1;// TODO igniters stay on for 4.4s
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
@@ -2964,7 +3061,18 @@ namespace mps
 		// ESW not in hyd lockup
 		// HPFT disch temp
 		// HPOT disch temp
+
+		// check of (at least) HPFTP speed at IGNT+1.25s
+		// checks (of what?) at IGNT+1.3s and IGNT+2.3s
 		
+		/*if ((DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] > ) &&
+			() &&
+			(DCU->RAM[RAM_AD08_AFV_POS] == 0) &&
+			(DCU->RAM[RAM_AD08_SENSOR_A] < 50) &&// 50psia
+			(DCU->RAM[RAM_AD08_SENSOR_A + 1] < 50) &&// 50psia
+			() &&
+			() &&
+			())*/
 		if (DCU->RAM[RAM_AD08_TIME_ESC] > 24000)
 		{// HACK for now stay here for 2.4 sec ???
 			// go to Start phase ThrustBuildup mode
@@ -2991,9 +3099,9 @@ namespace mps
 		ValveSchedule( RAM_AD08_IGNT_OPOV_POS, RAM_AD08_OPOV_CMD, RAM_AD08_TIME_ESC, RAM_AD08_OPOV_POS );
 
 		// on/off devs
-		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
-		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 1;// igniters stay on for 4.4s
+		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 1;
+		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 1;
 		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
 		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
@@ -3002,11 +3110,11 @@ namespace mps
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 1;
 
-		if (DCU->RAM[RAM_AD08_TIME_ESC] > 45000)
-		{// HACK for now stay here until esc + 4.5 sec
-			// go to mainstage phase normalcontrol mode
+		if (DCU->RAM[RAM_AD08_TIME_ESC] > 44000)// stay here until esc + 4.4 sec ???
+		{
 			DCU->RAM[RAM_AD08_PC_REF] = PC_100_D;// HACK use this here
 
+			// go to Mainstage phase NormalControl mode
 			DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Mainstage;
 			DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_NormalControl;
 			return 1;
@@ -3120,14 +3228,37 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_Mainstage_FixedDensity( void )
 	{
+		// on/off devs
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
+		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
+		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
+		DCU->RAM[RAM_AD08_AFV_CMD] = 1;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
 		return 0;
 	}
 
 	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ThrustLimiting( void )
 	{
 		// TODO OPOV cmd limit
-		// Mode initiated whenever OPOV position command is limited for at least 3 consecutinve major cycles.
+		// Mode initiated whenever OPOV position command is limited for at least 3 consecutive major cycles.
 		// Control loop computations, Shutdown Limit Monitoring and sensor monitoring are retained.
+
+		// on/off devs
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
+		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
+		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
+		DCU->RAM[RAM_AD08_AFV_CMD] = 1;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
 		return 0;
 	}
 
@@ -3154,7 +3285,21 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ElectricalLockup( void )
 	{
-		// TODO if all MCC pc sensors are desqualified come to here and use PC_REF in VDT
+		// TODO if all MCC pc sensors are desqualified come to here
+
+		// using PC_REF in VDT
+
+		// on/off devs
+		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_OPB_IGNITER_CMD] = 0;
+		DCU->RAM[RAM_AD08_FUELSYSTEMPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_BLEEDVALVESCONTROL_CMD] = 0;
+		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
+		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
+		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
+		DCU->RAM[RAM_AD08_AFV_CMD] = 1;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
 		return 0;
 	}
 
@@ -3450,68 +3595,79 @@ namespace mps
 		DCU->RAM[RAM_AD08_VRC_3] = DCU->RAM[RAM_AD08_ESW];// Engine Status Word
 		DCU->RAM[RAM_AD08_VRC_4] = DCU->RAM[RAM_AD08_CH];// ID
 		DCU->RAM[RAM_AD08_VRC_5] = GetFID();// FID Word
-		DCU->RAM[RAM_AD08_VRC_6] = DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR];
+		if ((Get_ESW_Phase() == ESW_Mainstage) && (Get_ESW_Mode() == ESW_Mainstage_ElectricalLockup)) DCU->RAM[RAM_AD08_VRC_6] = DCU->RAM[RAM_AD08_PC_REF];
+		else DCU->RAM[RAM_AD08_VRC_6] = DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR];
 		DCU->RAM[RAM_AD08_VRC_7] = 7;// Fuel Flowmeter (qualified average)
 		//////////////////////////////////////////////////////////////////////////////////////////
+		///
 		DCU->RAM[RAM_AD08_VRC_9] = DCU->RAM[RAM_AD08_PC_CMD];
 		DCU->RAM[RAM_AD08_VRC_10] = DCU->RAM[RAM_AD08_PC_REF];
+		///
 		//////////////////////////////////////////////////////////////////////////////////////////
+		DCU->RAM[RAM_AD08_VRC_11] = DCU->RAM[RAM_AD08_SENSOR_A + 19];// PBP Disch Temp Ch A
+		//////////////////////////////////////////////////////////////////////////////////////////
+		///
 		DCU->RAM[RAM_AD08_VRC_14] = DCU->RAM[RAM_AD08_CCV_CMD];// CCV Actuator cmd
 		DCU->RAM[RAM_AD08_VRC_15] = DCU->RAM[RAM_AD08_MFV_CMD];// MFV Actuator cmd
 		DCU->RAM[RAM_AD08_VRC_16] = DCU->RAM[RAM_AD08_MOV_CMD];// MOV Actuator cmd
 		DCU->RAM[RAM_AD08_VRC_17] = DCU->RAM[RAM_AD08_FPOV_CMD];// FPOV Actuator cmd
 		DCU->RAM[RAM_AD08_VRC_18] = DCU->RAM[RAM_AD08_OPOV_CMD];// OPOV Actuator cmd
+		///
 		//////////////////////////////////////////////////////////////////////////////////////////
 		DCU->RAM[RAM_AD08_VRC_20] = DCU->RAM[RAM_AD08_SENSOR_A + 10];// HPOT I-Seal Purge Press Ch A
 		DCU->RAM[RAM_AD08_VRC_21] = DCU->RAM[RAM_AD08_SENSOR_B + 10];// HPOT I-Seal Purge Press Ch B
+		
+		DCU->RAM[RAM_AD08_VRC_24] = DCU->RAM[RAM_AD08_CCV_POS];// CCV Actuator Pos
+		DCU->RAM[RAM_AD08_VRC_25] = DCU->RAM[RAM_AD08_MFV_POS];// MFV Actuator Pos
+		DCU->RAM[RAM_AD08_VRC_26] = DCU->RAM[RAM_AD08_MOV_POS];// MOV Actuator Pos
+		DCU->RAM[RAM_AD08_VRC_27] = DCU->RAM[RAM_AD08_FPOV_POS];// FPOV Actuator Pos
+		DCU->RAM[RAM_AD08_VRC_28] = DCU->RAM[RAM_AD08_OPOV_POS];// OPOV Actuator Pos
+		DCU->RAM[RAM_AD08_VRC_29] = 29;// HPFTP Disch Press
+		DCU->RAM[RAM_AD08_VRC_30] = 30;// HPOTP Disch Press
 		//////////////////////////////////////////////////////////////////////////////////////////
-		DCU->RAM[RAM_AD08_VRC_23] = DCU->RAM[RAM_AD08_CCV_SH];// CCV Actuator cmd s&h
-		DCU->RAM[RAM_AD08_VRC_24] = DCU->RAM[RAM_AD08_MFV_SH];// MFV Actuator cmd s&h
-		DCU->RAM[RAM_AD08_VRC_25] = DCU->RAM[RAM_AD08_MOV_SH];// MOV Actuator cmd s&h
-		DCU->RAM[RAM_AD08_VRC_26] = DCU->RAM[RAM_AD08_FPOV_SH];// FPOV Actuator cmd s&h
-		DCU->RAM[RAM_AD08_VRC_27] = DCU->RAM[RAM_AD08_OPOV_SH];// OPOV Actuator cmd s&h
-
-		DCU->RAM[RAM_AD08_VRC_28] = DCU->RAM[RAM_AD08_CCV_POS];// CCV Actuator Pos
-		DCU->RAM[RAM_AD08_VRC_29] = DCU->RAM[RAM_AD08_MFV_POS];// MFV Actuator Pos
-		DCU->RAM[RAM_AD08_VRC_30] = DCU->RAM[RAM_AD08_MOV_POS];// MOV Actuator Pos
-		DCU->RAM[RAM_AD08_VRC_31] = DCU->RAM[RAM_AD08_FPOV_POS];// FPOV Actuator Pos
-		DCU->RAM[RAM_AD08_VRC_32] = DCU->RAM[RAM_AD08_OPOV_POS];// OPOV Actuator Pos
-
-		DCU->RAM[RAM_AD08_VRC_34] = DCU->RAM[RAM_AD08_TIME_ESC];// HACK IGNT+T
-		DCU->RAM[RAM_AD08_VRC_35] = DCU->RAM[RAM_AD08_TIME_STDN];// HACK STDN+T
-
+		///
+		DCU->RAM[RAM_AD08_VRC_31] = DCU->RAM[RAM_AD08_TIME_ESC];// HACK IGNT+T
+		DCU->RAM[RAM_AD08_VRC_32] = DCU->RAM[RAM_AD08_TIME_STDN];// HACK STDN+T
+		///
+		//////////////////////////////////////////////////////////////////////////////////////////
+		DCU->RAM[RAM_AD08_VRC_34] = DCU->RAM[RAM_AD08_SENSOR_A + 23];// Fuel Flowrate Ch A1
+		//////////////////////////////////////////////////////////////////////////////////////////
+		///
+		DCU->RAM[RAM_AD08_VRC_36] = DCU->RAM[RAM_AD08_CCV_SH];// CCV Actuator cmd s&h
+		DCU->RAM[RAM_AD08_VRC_37] = DCU->RAM[RAM_AD08_MFV_SH];// MFV Actuator cmd s&h
+		DCU->RAM[RAM_AD08_VRC_38] = DCU->RAM[RAM_AD08_MOV_SH];// MOV Actuator cmd s&h
+		DCU->RAM[RAM_AD08_VRC_39] = DCU->RAM[RAM_AD08_FPOV_SH];// FPOV Actuator cmd s&h
+		DCU->RAM[RAM_AD08_VRC_40] = DCU->RAM[RAM_AD08_OPOV_SH];// OPOV Actuator cmd s&h
+		///
+		//////////////////////////////////////////////////////////////////////////////////////////
 		DCU->RAM[RAM_AD08_VRC_41] = DCU->RAM[RAM_AD08_SENSOR_A + 8];// MCC Press Ch A1
 		DCU->RAM[RAM_AD08_VRC_42] = DCU->RAM[RAM_AD08_SENSOR_A + 9];// MCC Press Ch A2
 		DCU->RAM[RAM_AD08_VRC_43] = DCU->RAM[RAM_AD08_SENSOR_B + 8];// MCC Press Ch B1
 		DCU->RAM[RAM_AD08_VRC_44] = DCU->RAM[RAM_AD08_SENSOR_B + 9];// MCC Press Ch B2
-
-		DCU->RAM[RAM_AD08_VRC_45] = DCU->RAM[RAM_AD08_SENSOR_A + 11];// HPFT Disch Temp Ch A2
-		DCU->RAM[RAM_AD08_VRC_46] = DCU->RAM[RAM_AD08_SENSOR_B + 11];// HPFT Disch Temp Ch B2
-		DCU->RAM[RAM_AD08_VRC_47] = DCU->RAM[RAM_AD08_SENSOR_A + 13];// HPOT Disch Temp Ch A2
-		DCU->RAM[RAM_AD08_VRC_48] = DCU->RAM[RAM_AD08_SENSOR_B + 13];// HPOT Disch Temp Ch B2
+		DCU->RAM[RAM_AD08_VRC_45] = DCU->RAM[RAM_AD08_SENSOR_A + 15];// HPFT Disch Temp Ch A2
+		DCU->RAM[RAM_AD08_VRC_46] = DCU->RAM[RAM_AD08_SENSOR_B + 15];// HPFT Disch Temp Ch B2
+		DCU->RAM[RAM_AD08_VRC_47] = DCU->RAM[RAM_AD08_SENSOR_A + 17];// HPOT Disch Temp Ch A2
+		DCU->RAM[RAM_AD08_VRC_48] = DCU->RAM[RAM_AD08_SENSOR_B + 17];// HPOT Disch Temp Ch B2
 
 		DCU->RAM[RAM_AD08_VRC_53] = DCU->RAM[RAM_AD08_SENSOR_A + 7];// Fuel Sys Purge Press Ch A
 		DCU->RAM[RAM_AD08_VRC_54] = DCU->RAM[RAM_AD08_SENSOR_B + 7];// Fuel Sys Purge Press Ch B
+		DCU->RAM[RAM_AD08_VRC_55] = DCU->RAM[RAM_AD08_SENSOR_B + 19];// PBP Disch Temp Ch B
 
-		DCU->RAM[RAM_AD08_VRC_56] = DCU->RAM[26];// HACK
-		DCU->RAM[RAM_AD08_VRC_57] = DCU->RAM[27];
-		DCU->RAM[RAM_AD08_VRC_58] = DCU->RAM[28];
-		DCU->RAM[RAM_AD08_VRC_59] = DCU->RAM[29];
-		DCU->RAM[RAM_AD08_VRC_60] = DCU->RAM[30];
-		DCU->RAM[RAM_AD08_VRC_61] = DCU->RAM[31];
-
+		DCU->RAM[RAM_AD08_VRC_59] = DCU->RAM[RAM_AD08_SENSOR_A + 21];// MOV Hyd Temp Ch A
+		DCU->RAM[RAM_AD08_VRC_60] = DCU->RAM[RAM_AD08_SENSOR_B + 21];// MOV Hyd Temp Ch B
+		DCU->RAM[RAM_AD08_VRC_61] = DCU->RAM[RAM_AD08_SENSOR_A + 22];// MFV Hyd Temp Ch A
+		DCU->RAM[RAM_AD08_VRC_62] = DCU->RAM[RAM_AD08_SENSOR_B + 22];// MFV Hyd Temp Ch B
 		DCU->RAM[RAM_AD08_VRC_63] = (unsigned short)(DCU->RAM[RAM_AD08_RIV_POS] / 40.95);// POGO Recirn Isln V Pos
-		DCU->RAM[RAM_AD08_VRC_64] = DCU->RAM[RAM_AD08_SENSOR_A + 12];// HPFT Disch Temp Ch A3
+		DCU->RAM[RAM_AD08_VRC_64] = DCU->RAM[RAM_AD08_SENSOR_A + 16];// HPFT Disch Temp Ch A3
 		DCU->RAM[RAM_AD08_VRC_65] = ((unsigned short)(DCU->RAM[RAM_AD08_OBV_POS] / 40.95) << 8) + (unsigned short)(DCU->RAM[RAM_AD08_FBV_POS] / 40.95);// OBV | FBV
 
 		// TODO fix channels
 		DCU->RAM[RAM_AD08_VRC_68] = (DCU->RAM[RAM_AD08_AFV_CMD] << 8) + (unsigned short)(DCU->RAM[RAM_AD08_AFV_POS] / 40.95);// AFV chA | AFV chB
-		DCU->RAM[RAM_AD08_VRC_69] = DCU->RAM[RAM_AD08_SENSOR_B + 12];// HPFT Disch Temp Ch B3
-
-		/*
-		72	Emerg Sht Dn Press Ch A
-		73	Emerg Sht Dn Press Ch B
-		*/
+		DCU->RAM[RAM_AD08_VRC_69] = DCU->RAM[RAM_AD08_SENSOR_B + 16];// HPFT Disch Temp Ch B3
+		DCU->RAM[RAM_AD08_VRC_70] = DCU->RAM[RAM_AD08_SENSOR_A + 2];// LPOT Disch Press Ch A
+		DCU->RAM[RAM_AD08_VRC_71] = DCU->RAM[RAM_AD08_SENSOR_B + 2];// LPOT Disch Press Ch B
+		DCU->RAM[RAM_AD08_VRC_72] = DCU->RAM[RAM_AD08_SENSOR_A + 11];// Emerg Sht Dn Press Ch A
+		DCU->RAM[RAM_AD08_VRC_73] = DCU->RAM[RAM_AD08_SENSOR_B + 11];// Emerg Sht Dn Press Ch B
 		if (DCU->RAM[28] == 0)// HACK use chB if IEchA is dead (doesn't work because for now IEchB doesn't receive these sensors...)
 		{
 			DCU->RAM[RAM_AD08_VRC_74] = DCU->RAM[RAM_AD08_SENSOR_A];// FPB Purge Press
@@ -3523,13 +3679,24 @@ namespace mps
 			DCU->RAM[RAM_AD08_VRC_75] = DCU->RAM[RAM_AD08_SENSOR_B + 1];// OPB Purge Press
 		}
 
+		DCU->RAM[RAM_AD08_VRC_89] = DCU->RAM[RAM_AD08_SENSOR_B + 23];// Fuel Flowrate Ch B1
 		DCU->RAM[RAM_AD08_VRC_90] = 90;// Inhibit Counter/PROM Rev.
+		
+		DCU->RAM[RAM_AD08_VRC_92] = DCU->RAM[RAM_AD08_SENSOR_A + 3];// LPFP Disch Press Ch A
+		DCU->RAM[RAM_AD08_VRC_93] = DCU->RAM[RAM_AD08_SENSOR_A + 20];// LPFP Disch Temp Ch A
 
 		DCU->RAM[RAM_AD08_VRC_98] = DCU->RAM[RAM_AD08_CURCMD];// Current Command
 		DCU->RAM[RAM_AD08_VRC_99] = DCU->RAM[RAM_AD08_PRVCMD];// Previous Command
 		DCU->RAM[RAM_AD08_VRC_100] = 100;// FID/Delimiter
 
 		DCU->RAM[RAM_AD08_VRC_103] = 103;// Parameter
+
+		DCU->RAM[RAM_AD08_VRC_104] = DCU->RAM[26];// HACK
+		DCU->RAM[RAM_AD08_VRC_105] = DCU->RAM[27];
+		DCU->RAM[RAM_AD08_VRC_106] = DCU->RAM[28];
+		DCU->RAM[RAM_AD08_VRC_107] = DCU->RAM[29];
+		DCU->RAM[RAM_AD08_VRC_108] = DCU->RAM[30];
+		DCU->RAM[RAM_AD08_VRC_109] = DCU->RAM[31];
 		
 		DCU->RAM[RAM_AD08_VRC_111] = ((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0x03F0) << 6) + 
 			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_1] & 0xE000) >> 11);
@@ -3539,16 +3706,13 @@ namespace mps
 		DCU->RAM[RAM_AD08_VRC_114] = ((DCU->RAM[RAM_AD08_OE_B_ONOFF_REG_2] & 0x3E00) >> 3) + 
 			((DCU->RAM[RAM_AD08_OE_A_ONOFF_REG_2] & 0x3E00) << 2);
 
-		DCU->RAM[RAM_AD08_VRC_122] = DCU->RAM[RAM_AD08_SENSOR_A + 14];// HPOT Disch Temp Ch A3
-		DCU->RAM[RAM_AD08_VRC_123] = DCU->RAM[RAM_AD08_SENSOR_B + 14];// HPOT Disch Temp Ch B3
-		/*
-		124	Fuel Flowrate Ch A2
-		125	Fuel Flowrate Ch B2
-		126	
-		127	LPFP Disch Press Ch B
-		128	LPFP Disch Temp Ch B
-		*/
-		DCU->RAM[RAM_AD08_VRC_128] = 128;
+		DCU->RAM[RAM_AD08_VRC_122] = DCU->RAM[RAM_AD08_SENSOR_A + 18];// HPOT Disch Temp Ch A3
+		DCU->RAM[RAM_AD08_VRC_123] = DCU->RAM[RAM_AD08_SENSOR_B + 18];// HPOT Disch Temp Ch B3
+		DCU->RAM[RAM_AD08_VRC_124] = DCU->RAM[RAM_AD08_SENSOR_A + 24];// Fuel Flowrate Ch A2
+		DCU->RAM[RAM_AD08_VRC_125] = DCU->RAM[RAM_AD08_SENSOR_B + 24];// Fuel Flowrate Ch B2
+		
+		DCU->RAM[RAM_AD08_VRC_127] = DCU->RAM[RAM_AD08_SENSOR_B + 3];// LPFP Disch Press Ch B
+		DCU->RAM[RAM_AD08_VRC_128] = DCU->RAM[RAM_AD08_SENSOR_B + 20];// LPFP Disch Temp Ch B
 
 		// output
 		DCU->DMA_read( 1, RAM_AD08_VRC_1, 128 );

@@ -66,6 +66,8 @@ namespace mps
 	const int SSME_BLOCK_II_MCC_P_B2 = 17;
 	const int SSME_BLOCK_II_HPOTP_IS_A = 18;
 	const int SSME_BLOCK_II_HPOTP_IS_B = 19;
+	const int SSME_BLOCK_II_PNEU_SD_P_A = 20;
+	const int SSME_BLOCK_II_PNEU_SD_P_B = 21;
 
 	// temp
 	const int SSME_BLOCK_II_HPFT_DT_A2 = 0;
@@ -110,7 +112,7 @@ namespace mps
 
 			double IMSLHeUsage;
 
-			Sensor Sensor_Press[20];
+			Sensor Sensor_Press[22];
 			Sensor Sensor_Temp[16];
 			Sensor Sensor_Flow[4];
 			Sensor Sensor_Speed[4];

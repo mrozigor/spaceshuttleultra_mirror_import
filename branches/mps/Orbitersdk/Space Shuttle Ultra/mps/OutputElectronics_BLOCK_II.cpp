@@ -214,8 +214,8 @@ namespace mps
 		if (abs(SVmodel_cur[2] - POS[2]) > triplevel[ch])
 		{
 			// interrupt
-			CIE[chA]->Interrupt( INT_MOVSVBFI + ch );
-			CIE[chB]->Interrupt( INT_MOVSVBFI + ch );
+			CIE[chA]->Interrupt( INT_MOVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_MOVSVAFI + ch );
 		}
 		if (abs(SVmodel_cur[3] - POS[3]) > triplevel[ch])
 		{

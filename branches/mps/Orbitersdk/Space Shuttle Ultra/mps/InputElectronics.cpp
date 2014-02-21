@@ -114,7 +114,7 @@ namespace mps
 					*data = (unsigned short)round( press[10].GetVoltage() * 1000 );
 					break;
 				case 0x000B:// P12
-					*data = (unsigned short)round( press[11].GetVoltage() * 1000 );
+					*data = (unsigned short)round( press[11].GetVoltage() * 300 );
 					break;
 				case 0x000C:// P13
 					*data = (unsigned short)round( press[12].GetVoltage() * 1000 );
@@ -199,25 +199,25 @@ namespace mps
 			switch (GetMaskVal( device, 0x00FF ))
 			{
 				case 0x0000:// F1
-					*data = (unsigned short)flow[0];
+					*data = (unsigned short)round( flow[0].GetVoltage() * 1000 );
 					break;
 				case 0x0001:// F2
-					*data = (unsigned short)flow[1];
+					*data = (unsigned short)round( flow[1].GetVoltage() * 1000 );
 					break;
 				case 0x0002:// F3
-					*data = (unsigned short)flow[2];
+					*data = (unsigned short)round( flow[2].GetVoltage() * 1000 );
 					break;
 				case 0x0003:// F4
-					*data = (unsigned short)flow[3];
+					*data = (unsigned short)round( flow[3].GetVoltage() * 1000 );
 					break;
 				case 0x0004:// S1
-					*data = (unsigned short)speed[0];
+					*data = (unsigned short)round( speed[0].GetVoltage() * 8000 );
 					break;
 				case 0x0005:// S2
-					*data = (unsigned short)speed[1];
+					*data = (unsigned short)round( speed[1].GetVoltage() * 8000 );
 					break;
 				case 0x0006:// S3
-					*data = (unsigned short)speed[2];
+					*data = (unsigned short)round( speed[2].GetVoltage() * 8000 );
 					break;
 			}
 		}
