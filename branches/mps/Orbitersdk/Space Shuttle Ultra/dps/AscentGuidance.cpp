@@ -421,7 +421,7 @@ void AscentGuidance::Throttle(double DeltaT)
 					// TODO use correct MPL value below
 					if (throttlecmd != 67)// if at MPL can't do more
 					{
-						if (dt_thrt_glim >= 0.9)// wait while throttling (little under 1s delay)
+						if (dt_thrt_glim >= 0.1)// wait while throttling (10%/sec throttle change = 0.1s delay)
 						{
 							throttlecmd--;// throttle back 1%
 							throttlecmd = (double)round( throttlecmd );// round avoid x.5% cmds
