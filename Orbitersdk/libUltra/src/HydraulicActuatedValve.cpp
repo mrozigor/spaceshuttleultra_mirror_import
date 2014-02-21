@@ -67,9 +67,12 @@ void HydraulicActuatedValve::tmestp( double dt )
 		if (PneumaticClose->Use( 0 ) >= MIN_PRESS_CLOSE_HAV)// just get press
 		{
 			// close
-			PneumaticClose->Use( HE_USE_CLOSE_HAV );// use now
-			pos -= (rate * dt);// TODO use correct rate and create pneumatic sequence valve
-			if (pos < 0) pos = 0;
+			if (pos > 0)
+			{
+				PneumaticClose->Use( HE_USE_CLOSE_HAV );// use now
+				pos -= (rate * dt);// TODO use correct rate and create pneumatic sequence valve
+				if (pos < 0) pos = 0;
+			}
 		}
 	}
 	return;
