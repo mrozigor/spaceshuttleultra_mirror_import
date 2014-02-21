@@ -20,11 +20,11 @@ namespace mps
 		PCA = new PneumaticControlAssembly( this, HeSys );
 		
 		// make valves
-		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, PCA->PurgeSequenceValve_PAV );
-		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, PCA->PurgeSequenceValve_PAV );
-		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, PCA->PurgeSequenceValve_PAV );
-		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, PCA->PurgeSequenceValve_PAV );
-		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, PCA->PurgeSequenceValve_PAV );
+		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, PCA->EmergencyShutdown_PAV );
+		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, PCA->EmergencyShutdown_PAV );
+		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, PCA->EmergencyShutdown_PAV );
+		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, PCA->EmergencyShutdown_PAV );
+		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, PCA->EmergencyShutdown_PAV );
 		ptrAFV = new SolenoidValve( 0, RATE_AFV, true, nullptr, nullptr );
 		ptrHPV_SV = new SolenoidValve( 0, RATE_HPV_SV, true, HeSys, PCA->PurgeSequenceValve_PAV );
 		ptrOBV = new PressureActuatedValve( 1, RATE_OBV, PCA->OxidizerBleedValve_PAV, nullptr, nullptr, nullptr );
@@ -263,6 +263,12 @@ namespace mps
 					ptrGCV->_backdoor( 1 );
 					ptrRIV->_backdoor( 0 );
 					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
+					PCA->EmergencyShutdown_PAV->_backdoor( 1 );
+					PCA->EmergencyShutdown_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
+					PCA->HPOTPISPurge_SV->_backdoor( 0 );
+					PCA->HPOTPISPurge_PAV->_backdoor( 0 );
 
 					modelmode = 1;
 					break;
@@ -278,6 +284,8 @@ namespace mps
 					ptrHPV->_backdoor( 0 );
 					ptrGCV->_backdoor( 1 );
 					ptrRIV->_backdoor( 0 );
+					PCA->FuelSystemPurge_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
 
 					modelmode = 1;
 					break;

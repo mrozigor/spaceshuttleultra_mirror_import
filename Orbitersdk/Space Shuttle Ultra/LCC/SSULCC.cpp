@@ -141,23 +141,12 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		/////////// MPS He Supply ///////////
 		if (MPSHeSupply == true)
 		{
-			if (timeToLaunch <= PSN4_TIME)// HACK deal with the greater flow during PSN4
+			if (timeToLaunch <= 12000)// T-3h20m
 			{
 				// eng
 				for (int i = 1; i <= 3; i++)
 				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2) pSSU->HeFillTank( i, 500 * simdt );// add mass
-				}
-
-				// pneu
-				if (pSSU->GetHeTankPress( 0 ) < MPSHeSupplyPressure2) pSSU->HeFillTank( 0, 2 * simdt );// add mass
-			}
-			else if (timeToLaunch <= 12000)// T-3h20m
-			{
-				// eng
-				for (int i = 1; i <= 3; i++)
-				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2) pSSU->HeFillTank( i, 8 * simdt );// add mass
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure2) pSSU->HeFillTank( i, 30 * simdt );// add mass
 				}
 
 				// pneu
@@ -168,7 +157,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 				// eng
 				for (int i = 1; i <= 3; i++)
 				{
-					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure1) pSSU->HeFillTank( i, 8 * simdt );// add mass
+					if (pSSU->GetHeTankPress( i ) < MPSHeSupplyPressure1) pSSU->HeFillTank( i, 30 * simdt );// add mass
 				}
 
 				// pneu

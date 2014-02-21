@@ -25,7 +25,7 @@ namespace mps
 		HPOTPISPurge_PAV = new PressureActuatedValve( 1, RATE_HPOTPISP_PAV, HPOTPISPurge_SV, nullptr, HeSys, nullptr );//, OxidizerSystemPurge_PAV );
 
 		pressFuelSystemPurge = 0;
-		pressEmergencyShutdown = 0;
+		//pressEmergencyShutdown = 0;
 		pressFuelPreburnerPurge = 0;
 		pressOxidizerPreburnerPurge = 0;
 		pressHPOTPISPurge = 0;
@@ -73,7 +73,7 @@ namespace mps
 
 		if (FuelPreburnerPurge_PAV->GetPos() > 0)
 		{
-			pressFuelPreburnerPurge = 0.3 * FuelPreburnerPurge_PAV->GetPos() * HeSys->Use( 100 );// use He
+			pressFuelPreburnerPurge = 0.3 * FuelPreburnerPurge_PAV->GetPos() * HeSys->Use( 20 );// use He
 		}
 		else
 		{
@@ -81,7 +81,7 @@ namespace mps
 		}
 		if (OxidizerPreburnerPurge_PAV->GetPos() > 0)
 		{
-			pressOxidizerPreburnerPurge = OxidizerPreburnerPurge_PAV->GetPos() * HeSys->Use( 100 );// use He
+			pressOxidizerPreburnerPurge = OxidizerPreburnerPurge_PAV->GetPos() * HeSys->Use( 50 );// use He
 		}
 		else
 		{
@@ -121,7 +121,7 @@ namespace mps
 
 	double PneumaticControlAssembly::UseFuelSystemPurge( double flow )
 	{
-		pressFuelSystemPurge = 0.5 * FuelSystemPurge_PAV->Use( flow );// HACK no clue about the "regulator"
+		pressFuelSystemPurge = 0.3 * FuelSystemPurge_PAV->Use( flow );// HACK no clue about the "regulator"
 		return pressFuelSystemPurge;
 	}
 
@@ -132,7 +132,8 @@ namespace mps
 
 	double PneumaticControlAssembly::GetPressEmergencyShutdown() const
 	{
-		return pressEmergencyShutdown;
+		return EmergencyShutdown_PAV->GetPos() * HeSys->Use( 0 );
+		//return pressEmergencyShutdown;
 	}
 
 	double PneumaticControlAssembly::GetPressFuelPreburnerPurge() const

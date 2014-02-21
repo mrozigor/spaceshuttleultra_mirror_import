@@ -52,8 +52,8 @@ namespace mps
 			// sensor input
 			DiscInPort press[15];
 			DiscInPort temp[8];
-			DiscInPort speed[4];
-			DiscInPort flow[3];
+			DiscInPort speed[3];
+			DiscInPort flow[4];
 			double actpos[9];
 			double samplehold[5];
 
