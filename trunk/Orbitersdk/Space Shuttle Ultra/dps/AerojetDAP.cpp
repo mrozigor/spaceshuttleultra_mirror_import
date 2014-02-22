@@ -511,7 +511,7 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 			int nNew;
 			sscanf_s(Data, "%d", &nNew);
 			if(nNew>=0 && nNew<=static_cast<int>(vLandingSites.size())) {
-				SITE_ID = nNew;
+				SITE_ID = nNew-1;
 				InitializeRunwayData();
 			}
 			return true;
@@ -1972,7 +1972,10 @@ double AerojetDAP::CalculateDELAZ() const
 
 void AerojetDAP::LoadLandingSiteList()
 {
+	// for reference, landing site tables can be found in Ascent Checklists
 	vLandingSites.push_back(LandingSiteData(28.632944*RAD, -80.706035*RAD, 28.5970420*RAD, -80.6826540*RAD, 150.2505, "KSC15", "KSC33"));
+	for(int i=2;i<=44;i++) vLandingSites.push_back(LandingSiteData(0.0, 0.0, 0.0, 0.0, 0.0, "NUL00", "NUL00")); // add filler data so landing site indices are correct
+	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, "EDW22", "EDW04"));
 }
 
 };
