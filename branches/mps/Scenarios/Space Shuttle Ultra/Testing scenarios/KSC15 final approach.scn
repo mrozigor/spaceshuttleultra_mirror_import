@@ -376,15 +376,15 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Plt Flt Cntlr Pwr" ON
   @ENDPANEL 
   @PANEL R2
-  "Boiler1 N2 Supply" OFF
-  "Boiler2 N2 Supply" OFF
-  "Boiler3 N2 Supply" OFF
-  "Boiler1 Cntlr" OFF
-  "Boiler2 Cntlr" OFF
-  "Boiler3 Cntlr" OFF
-  "Boiler1 Cntlr Pwr/Htr" OFF
-  "Boiler2 Cntlr Pwr/Htr" OFF
-  "Boiler3 Cntlr Pwr/Htr" OFF
+  "Boiler1 N2 Supply" ON
+  "Boiler2 N2 Supply" ON
+  "Boiler3 N2 Supply" ON
+  "Boiler1 Cntlr" ON
+  "Boiler2 Cntlr" ON
+  "Boiler3 Cntlr" ON
+  "Boiler1 Cntlr Pwr/Htr" A
+  "Boiler2 Cntlr Pwr/Htr" A
+  "Boiler3 Cntlr Pwr/Htr" A
   "APU1 Run" START/RUN
   "APU2 Run" START/RUN
   "APU3 Run" START/RUN
@@ -414,6 +414,14 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS He Isol B Left" GPC
   "MPS He Isol B Ctr" GPC
   "MPS He Isol B Right" GPC
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" GPC
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" OFF
@@ -426,6 +434,11 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR
