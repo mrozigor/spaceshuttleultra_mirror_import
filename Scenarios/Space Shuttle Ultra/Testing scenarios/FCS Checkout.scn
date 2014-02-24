@@ -387,7 +387,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "ET Umb Centerline Latch" GND
   "ET Umb Left Door" OFF
   "ET Umb Left Door Latch" OFF
-  "ET Umb Right Door" CLOSE
+  "ET Umb Right Door" OFF
   "ET Umb Right Door Latch" OFF
   "MPS Pwr Left AC2" [0]
   "MPS Pwr Ctr AC1" [0]
@@ -408,7 +408,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "He Interconnect Left" GPC
   "He Interconnect Ctr" GPC
   "He Interconnect Right" GPC
-  "LH2 Ullage Press" OPEN
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" OFF
@@ -454,9 +454,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "GPC MODE 5" STBY
   @ENDPANEL 
   @PANEL O17
-  "EIU L-C" ON
-  "EIU C-R" ON
-  "EIU R-L" ON
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
   @ENDPANEL 
   @PANEL R11
   @ENDPANEL 

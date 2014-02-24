@@ -252,6 +252,14 @@ Discovery:SpaceShuttleUltra
   "MPS He Isol B Left" OPEN
   "MPS He Isol B Ctr" OPEN
   "MPS He Isol B Right" OPEN
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
@@ -264,6 +272,11 @@ Discovery:SpaceShuttleUltra
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
   @ENDPANEL 
 END
 ET:SSU_Tank

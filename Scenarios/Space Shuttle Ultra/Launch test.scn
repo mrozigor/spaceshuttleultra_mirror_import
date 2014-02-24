@@ -185,15 +185,15 @@ STS-101:SpaceShuttleUltra
   @PANEL F8
   @ENDPANEL 
   @PANEL R2
-  "Boiler1 N2 Supply" OFF
-  "Boiler2 N2 Supply" OFF
-  "Boiler3 N2 Supply" OFF
-  "Boiler1 Cntlr" OFF
-  "Boiler2 Cntlr" OFF
-  "Boiler3 Cntlr" OFF
-  "Boiler1 Cntlr Pwr/Htr" OFF
-  "Boiler2 Cntlr Pwr/Htr" OFF
-  "Boiler3 Cntlr Pwr/Htr" OFF
+  "Boiler1 N2 Supply" ON
+  "Boiler2 N2 Supply" ON
+  "Boiler3 N2 Supply" ON
+  "Boiler1 Cntlr" ON
+  "Boiler2 Cntlr" ON
+  "Boiler3 Cntlr" ON
+  "Boiler1 Cntlr Pwr/Htr" A
+  "Boiler2 Cntlr Pwr/Htr" A
+  "Boiler3 Cntlr Pwr/Htr" A
   "APU1 Run" START/RUN
   "APU2 Run" START/RUN
   "APU3 Run" START/RUN
@@ -223,6 +223,14 @@ STS-101:SpaceShuttleUltra
   "MPS He Isol B Left" OPEN
   "MPS He Isol B Ctr" OPEN
   "MPS He Isol B Right" OPEN
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL
   @PANEL O6
   "L GLRSHLD FLOOD" OFF
@@ -279,6 +287,11 @@ STS-101:SpaceShuttleUltra
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
   @ENDPANEL 
   MTU_MET_RUNNING 0
   MTU_MET0 0.000

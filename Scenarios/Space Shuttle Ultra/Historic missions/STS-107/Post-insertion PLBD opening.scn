@@ -397,6 +397,14 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS He Isol B Left" GPC
   "MPS He Isol B Ctr" GPC
   "MPS He Isol B Right" GPC
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" GPC
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
@@ -409,6 +417,11 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR
