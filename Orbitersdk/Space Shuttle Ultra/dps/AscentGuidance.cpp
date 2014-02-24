@@ -31,6 +31,16 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	glimiting = false;
 	dt_thrt_glim = 0;
 
+	MEFail[0] = false;
+	MEFail[1] = false;
+	MEFail[2] = false;
+	EOcount = 0;
+
+	finecount = false;
+	finecountthrottle[0] = FINECOUNT_THROTTLE;// TODO update to correct MPL from mission file
+	finecountthrottle[1] = FINECOUNT_THROTTLE_1EO;
+	finecountthrottle[2] = FINECOUNT_THROTTLE_2EO;
+
 	// generic values, updated in InitializeAutopilot()
 	THROT[0] = THROT1;
 	THROT[1] = THROT2;
@@ -371,6 +381,21 @@ void AscentGuidance::Throttle(double DeltaT)
 		}
 		else SpdbkThrotPLT.ResetLine();
 
+		for (int i = 0; i < 3; i++)
+		{
+			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
+			{
+				MEFail[i] = pSSME_Operations->GetFailFlag( i + 1 );
+				if (EOcount < 3) EOcount++;
+				// update 1º stage throttle table to not throttle
+				THROT[1] = THROT[0];
+				THROT[2] = THROT[0];
+				AGT_done = true;// don't do AGT
+				// throttle to mission power level
+				pSSME_SOP->SetThrottlePercent( THROT[0] );
+			}
+		}
+
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
 				AdaptiveGuidanceThrottling();
@@ -381,26 +406,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					J++;
 				}
-				/*if(STS()->GetAirspeed()<18.288) 
-					STS()->SetSSMEThrustLevel(0, 100.0);
-				else if(STS()->GetAirspeed()>=ThrottleBucketStartVel && STS()->GetAirspeed()<=ThrottleBucketEndVel) {
-					//if(GetThrusterGroupLevel(THGROUP_MAIN) > (72.0/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, -0.005);
-					//else SetSSMEThrustLevel(0, 72.0/109.0);
-					for(unsigned short i=1;i<=3;i++) {
-						double thrustLevel = STS()->GetSSMEThrustLevel(i);
-						if(thrustLevel > 72.0) STS()->SetSSMEThrustLevel(i, thrustLevel - 10.0*DeltaT);
-						else STS()->SetSSMEThrustLevel(i, 72.0);
-					}
-				}
-				else {
-					//if(GetThrusterGroupLevel(THGROUP_MAIN) < (MaxThrust/109.0)) IncThrusterGroupLevel(THGROUP_MAIN, 0.005);
-					//else SetSSMEThrustLevel(0, MaxThrust/109.0);
-					for(unsigned short i=1;i<=3;i++) {
-						double thrustLevel = STS()->GetSSMEThrustLevel(i);
-						if(thrustLevel < MaxThrust) STS()->SetSSMEThrustLevel(i, thrustLevel + 10.0*DeltaT);
-						else STS()->SetSSMEThrustLevel(i, MaxThrust);
-					}
-				}*/
 				break;
 			case 103: // STAGE 3
 				//OMS Assist
@@ -414,6 +419,22 @@ void AscentGuidance::Throttle(double DeltaT)
 					OMSCommand[LEFT].ResetLine();
 					OMSCommand[RIGHT].ResetLine();
 				}
+
+				if(relativeVelocity>=TgtSpd) {
+					//reached target speed
+					if (pSSME_Operations->GetMECOCommandFlag() == false)
+					{
+						pSSME_Operations->SetMECOCommandFlag();
+						bMECO = true;
+						tMECO = STS()->GetMET();
+
+						char buffer[64];
+						sprintf_s( buffer, 64, "MECO @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
+						return;
+					}
+				}
+
 				// g limiting
 				if (thrustAcceleration > ALIM2) glimiting = true;
 				if ((glimiting == true) && (thrustAcceleration > ALIM1))
@@ -432,28 +453,16 @@ void AscentGuidance::Throttle(double DeltaT)
 						else dt_thrt_glim += DeltaT;
 					}
 				}
-				/*if(thrustAcceleration>=29.00) { //28.42
-					for(int i=1;i<=3;i++) {
-						if(STS()->GetSSMEThrustLevel(i) > 67.0)
-							STS()->SetSSMEThrustLevel(i, STS()->GetSSMEThrustLevel(i)-1.0);
-						else STS()->SetSSMEThrustLevel(i, 67.0);
-					}
-				}*/
-				if(relativeVelocity>=TgtSpd) {
-					//reached target speed
-					if (pSSME_Operations->GetMECOCommandFlag() == false)
-					{
-						pSSME_Operations->SetMECOCommandFlag();
-						bMECO = true;
-						tMECO = STS()->GetMET();
 
-						char buffer[64];
-						sprintf_s( buffer, 64, "MECO @ %.2f", STS()->GetMET() );
-						oapiWriteLog( buffer );
-					}
-					//STS()->SetSSMEThrustLevel(0, 0.0);
-					//bMECO=true;
-					//tMECO = STS()->GetMET();
+				// fine count
+				// HACK only throttle back, no real count for now
+				if ((timeRemaining <= 6) && (finecount == false))
+				{
+					pSSME_SOP->SetThrottlePercent( finecountthrottle[EOcount] );
+					finecount = true;
+					char buffer[64];
+					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", finecountthrottle[EOcount], STS()->GetMET() );
+					oapiWriteLog( buffer );
 				}
 				sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
@@ -461,17 +470,9 @@ void AscentGuidance::Throttle(double DeltaT)
 	}
 	else { // manual throttling
 		pSSME_SOP->SetThrottlePercent( SBTCCommand );
-		//STS()->SetSSMEThrustLevel(0, SBTCCommand);
 	}
-
-	lastSBTCCommand = SBTCCommand;
 	
-	//// detect MECO
-	//if(Eq(STS()->GetSSMEThrustLevel(0), 0.0, 0.01)) {
-	//	// should use SSME SOP, but better leave as is because MECO confirmed is still not fool proof
-	//	bMECO = true;
-	//	tMECO = STS()->GetMET();
-	//}
+	lastSBTCCommand = SBTCCommand;
 }
 
 void AscentGuidance::MajorCycle()
