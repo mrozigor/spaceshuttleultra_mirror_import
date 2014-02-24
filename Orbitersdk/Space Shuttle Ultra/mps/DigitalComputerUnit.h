@@ -46,6 +46,7 @@ namespace mps
 	const int INT_FPOVSVBFI = 11;// FPOV SV chB failure
 	const int INT_OPOVSVAFI = 12;// OPOV SV chA failure
 	const int INT_OPOVSVBFI = 13;// OPOV SV chB failure
+	const int INT_CMD_RCVD = 14;// command received
 
 
 	class SSMEController;
