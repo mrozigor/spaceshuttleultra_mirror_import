@@ -93,13 +93,13 @@ namespace mps
 					*data = (unsigned short)round( press[3].GetVoltage() * 1000 );
 					break;
 				case 0x0004:// P5
-					*data = (unsigned short)round( press[4].GetVoltage() * 1000 );
+					*data = (unsigned short)round( press[4].GetVoltage() * 1600 );
 					break;
 				case 0x0005:// P6
-					*data = (unsigned short)round( press[5].GetVoltage() * 1000 );
+					*data = (unsigned short)round( press[5].GetVoltage() * 1600 );
 					break;
 				case 0x0006:// P7
-					*data = (unsigned short)round( press[6].GetVoltage() * 1000 );
+					*data = (unsigned short)round( press[6].GetVoltage() * 1600 );
 					break;
 				case 0x0007:// P8
 					*data = (unsigned short)round( press[7].GetVoltage() * 1000 );
