@@ -2,6 +2,7 @@
 #include "PowerSupplyElectronics.h"
 #include "ComputerInterfaceElectronics.h"
 #include "SSMEController.h"
+#include "DigitalComputerUnit.h"
 #include "MPSdefs.h"
 
 
@@ -103,6 +104,8 @@ namespace mps
 
 		// TODO check for errors and non 0 word
 		Command[ch] = cmd;
+		CIE[chA]->Interrupt( INT_CMD_RCVD );
+		CIE[chB]->Interrupt( INT_CMD_RCVD );
 		return;
 	}
 

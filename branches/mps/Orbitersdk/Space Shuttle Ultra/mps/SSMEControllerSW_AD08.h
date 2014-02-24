@@ -106,6 +106,8 @@ namespace mps
 	const int MPL = 67;
 	const int FPL = 109;
 
+	const double SINGLE_CH_STDN_TIMER = 512.86;// seconds
+
 	// ESW
 	// Self-Test Status
 	const unsigned short ESW_EngineOK = 1;
@@ -213,6 +215,7 @@ namespace mps
 
 	const int RAM_AD08_ESW = 3;
 
+	const int RAM_AD08_CMD_RCVD = 4;
 	const int RAM_AD08_VALIDCMD = 5;
 	const int RAM_AD08_CMD1 = 6;
 	const int RAM_AD08_CMD2 = 7;
@@ -263,6 +266,19 @@ namespace mps
 	const int RAM_AD08_OE_B_ONOFF_REG_2 = 378;
 
 	const int RAM_AD08_MCC_PC_QUAL_AVGR = 400;
+
+	/*INFO Each controller normally requires two of three valid command paths
+	from the GPC’s to control the SSME (start commands require three of three functional command
+	paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
+	capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
+	under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
+	start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
+	same channel, sequentially (with no other command in-between); and a valid command is not
+	concurrently being received on the other two channels.*/
+	const int RAM_AD08_IGNT_TIME1 = 430;
+	const int RAM_AD08_IGNT_TIME2 = 431;
+	const int RAM_AD08_LIMITSINHIBITED = 432;
+	const int RAM_AD08_STEN_STDN_CH = 433;
 
 	const int RAM_AD08_CCV_CMD = 450;
 	const int RAM_AD08_MFV_CMD = 451;

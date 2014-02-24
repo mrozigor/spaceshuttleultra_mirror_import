@@ -646,6 +646,15 @@ namespace mps
 					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Mainstage_HydraulicLockup;
 					ChangePhaseMode();// phase/mode change
 				}
+				else if (Get_ESW_Phase() == ESW_PostShutdown)
+				{
+					// HACK go to terminate sequence?
+					DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 0;// let go of these 2, so the valve closes
+					DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+					DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_PostShutdown;
+					DCU->RAM[RAM_AD08_NXT_MODE] = ESW_PostShutdown_TerminateSequence;
+					ChangePhaseMode();// phase/mode change
+				}
 				else
 				{
 					// pneu S/D
@@ -701,6 +710,9 @@ namespace mps
 					DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
 				}
 				return;
+			case INT_CMD_RCVD:
+				DCU->RAM[RAM_AD08_CMD_RCVD] = 1;
+				return;
 			default:
 				return;
 		}
@@ -734,18 +746,26 @@ namespace mps
 		if (retval != 0)
 		{
 			// MCF
-			//Set_ESW_ChannelStatus();
 		}
 
-		if (fptrVehicleCommands != NULL)// TODO change to interrupt
+		if (fptrVehicleCommands != NULL)
 		{
-			retval = (this->*fptrVehicleCommands)();
-			Set_ESW_CommandStatus( retval );
-			if (retval == 3)
+			if (DCU->RAM[RAM_AD08_CMD_RCVD] == 1)
 			{
-				// good
-				ChangePhaseMode();// phase/mode change
-				// execute cmd, change phase/mode as necessary
+				retval = (this->*fptrVehicleCommands)();
+				Set_ESW_CommandStatus( retval );
+				if (retval == 3)
+				{
+					// good
+					ChangePhaseMode();// phase/mode change
+					// execute cmd, change phase/mode as necessary
+				}
+				DCU->RAM[RAM_AD08_CMD_RCVD] = 0;
+			}
+			else
+			{
+				Set_ESW_CommandStatus( ESW_NoCommand );
+				Set_ESW_ChannelStatus( ESW_OK );
 			}
 		}
 
@@ -1438,12 +1458,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case EGND:
 			case EFLT:
 			case EFRT:
@@ -1497,12 +1515,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1556,14 +1572,6 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
-			case ENLS:
-				Set_ESW_LimitControlStatus( ESW_Enable );
-				RotateCommand();
-				return ESW_Accepted;
-			case INLS:
-				Set_ESW_LimitControlStatus( ESW_Inhibit );
-				RotateCommand();
-				return ESW_Accepted;
 			default:
 				return ESW_CommandRejected_B;
 		}
@@ -1573,12 +1581,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1637,14 +1643,6 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
-			case ENLS:
-				Set_ESW_LimitControlStatus( ESW_Enable );
-				RotateCommand();
-				return ESW_Accepted;
-			case INLS:
-				Set_ESW_LimitControlStatus( ESW_Inhibit );
-				RotateCommand();
-				return ESW_Accepted;
 			default:
 				return ESW_CommandRejected_B;
 		}
@@ -1654,12 +1652,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1724,14 +1720,6 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
-			case ENLS:
-				Set_ESW_LimitControlStatus( ESW_Enable );
-				RotateCommand();
-				return ESW_Accepted;
-			case INLS:
-				Set_ESW_LimitControlStatus( ESW_Inhibit );
-				RotateCommand();
-				return ESW_Accepted;
 			default:
 				return ESW_CommandRejected_B;
 		}
@@ -1741,12 +1729,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1800,14 +1786,6 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
-			case ENLS:
-				Set_ESW_LimitControlStatus( ESW_Enable );
-				RotateCommand();
-				return ESW_Accepted;
-			case INLS:
-				Set_ESW_LimitControlStatus( ESW_Inhibit );
-				RotateCommand();
-				return ESW_Accepted;
 			default:
 				return ESW_CommandRejected_B;
 		}
@@ -1816,14 +1794,11 @@ namespace mps
 	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady( void )
 	{
 		// validation -> voting and agreement with mode
-
 		int votes = CommandVoting();
-		if (votes == 0) return ESW_CommandRejected_A;
+		if (votes < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1852,12 +1827,12 @@ namespace mps
 				RotateCommand();
 				return ESW_Accepted;
 			case STEN:
-				if (votes < 3) return ESW_CommandRejected_A;// require 3 of 3
+				if (votes != 3) return ESW_CommandRejected_A;// requires 3 of 3
 				DCU->RAM[RAM_AD08_START_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case IGNT:
-				if (votes < 3) return ESW_CommandRejected_A;// require 3 of 3
+				if (votes != 3) return ESW_CommandRejected_A;// requires 3 of 3
 				if (DCU->RAM[RAM_AD08_START_ENA] != 1) return ESW_CommandRejected_B;// needs STEN
 
 				// TODO start inhibit protection with:
@@ -1889,10 +1864,10 @@ namespace mps
 			case THRT:
 				{
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
-					if ((pl < MPL) || (pl > FPL)) return 2;
+					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
 					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
 					RotateCommand();
-					return 3;
+					return ESW_Accepted;
 				}
 			case SDEN:
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
@@ -1915,14 +1890,6 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Checkout_Standby;
 				RotateCommand();
 				return ESW_Accepted;
-			case ENLS:
-				Set_ESW_LimitControlStatus( ESW_Enable );
-				RotateCommand();
-				return ESW_Accepted;
-			case INLS:
-				Set_ESW_LimitControlStatus( ESW_Inhibit );
-				RotateCommand();
-				return ESW_Accepted;
 			default:
 				return ESW_CommandRejected_B;
 		}
@@ -1932,12 +1899,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -1972,12 +1937,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2017,36 +1980,56 @@ namespace mps
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case SVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->SwitchVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case XFRT:
 			case RSCA:
 			case RSCB:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
+				if (votes == 1)
+				{
+					double temp = (DCU->RAM[RAM_AD08_TREF1] + (DCU->RAM[RAM_AD08_TREF2] / 10000)) - (DCU->RAM[RAM_AD08_IGNT_TIME1] + (DCU->RAM[RAM_AD08_IGNT_TIME2] / 10000));
+					if (temp >= SINGLE_CH_STDN_TIMER)
+					{
+						if (DCU->RAM[RAM_AD08_LIMITSINHIBITED] == 0)
+						{
+							DCU->RAM[RAM_AD08_STEN_STDN_CH] = Get_ESW_ChannelStatus();// easier to save failed
+							DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
+							RotateCommand();
+							return ESW_Accepted;
+						}
+						else return ESW_CommandRejected_A;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case STDN:
 				if (DCU->RAM[RAM_AD08_SHUTDOWN_ENA] != 1) return ESW_CommandRejected_B;// needs SDEN
-				// TODO read below...
-				/*Each controller normally requires two of three valid command paths
-				from the GPC’s to control the SSME (start commands require three of three functional command
-				paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
-				capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
-				under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
-				start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
-				same channel, sequentially (with no other command in-between); and a valid command is not
-				concurrently being received on the other two channels.*/
+				if (votes == 1)
+				{
+					if (DCU->RAM[RAM_AD08_STEN_STDN_CH] == Get_ESW_ChannelStatus())
+					{
+						DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+						DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
+						DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+						RotateCommand();
+						return ESW_Accepted;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
 				DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
@@ -2054,18 +2037,22 @@ namespace mps
 				return ESW_Accepted;
 			case THRT:
 				{
+					if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
-					if ((pl < MPL) || (pl > FPL)) return 2;
+					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
 					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
 					RotateCommand();
-					return 3;
+					return ESW_Accepted;
 				}
 			case ENLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Enable );
 				RotateCommand();
 				return ESW_Accepted;
 			case INLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Inhibit );
+				DCU->RAM[RAM_AD08_LIMITSINHIBITED] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2082,47 +2069,70 @@ namespace mps
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case SVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->SwitchVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case XFRT:
 			case RSCA:
 			case RSCB:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
+				if (votes == 1)
+				{
+					double temp = (DCU->RAM[RAM_AD08_TREF1] + (DCU->RAM[RAM_AD08_TREF2] / 10000)) - (DCU->RAM[RAM_AD08_IGNT_TIME1] + (DCU->RAM[RAM_AD08_IGNT_TIME2] / 10000));
+					if (temp >= SINGLE_CH_STDN_TIMER)
+					{
+						if (DCU->RAM[RAM_AD08_LIMITSINHIBITED] == 0)
+						{
+							DCU->RAM[RAM_AD08_STEN_STDN_CH] = Get_ESW_ChannelStatus();// easier to save failed
+							DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
+							RotateCommand();
+							return ESW_Accepted;
+						}
+						else return ESW_CommandRejected_A;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case STDN:
 				if (DCU->RAM[RAM_AD08_SHUTDOWN_ENA] != 1) return ESW_CommandRejected_B;// needs SDEN
-				// TODO read below...
-				/*Each controller normally requires two of three valid command paths
-				from the GPC’s to control the SSME (start commands require three of three functional command
-				paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
-				capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
-				under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
-				start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
-				same channel, sequentially (with no other command in-between); and a valid command is not
-				concurrently being received on the other two channels.*/
+				if (votes == 1)
+				{
+					if (DCU->RAM[RAM_AD08_STEN_STDN_CH] == Get_ESW_ChannelStatus())
+					{
+						DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+						DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
+						DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+						RotateCommand();
+						return ESW_Accepted;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
 				DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Enable );
 				RotateCommand();
 				return ESW_Accepted;
 			case INLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Inhibit );
+				DCU->RAM[RAM_AD08_LIMITSINHIBITED] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2139,47 +2149,70 @@ namespace mps
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case SVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->SwitchVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case XFRT:
 			case RSCA:
 			case RSCB:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
+				if (votes == 1)
+				{
+					double temp = (DCU->RAM[RAM_AD08_TREF1] + (DCU->RAM[RAM_AD08_TREF2] / 10000)) - (DCU->RAM[RAM_AD08_IGNT_TIME1] + (DCU->RAM[RAM_AD08_IGNT_TIME2] / 10000));
+					if (temp >= SINGLE_CH_STDN_TIMER)
+					{
+						if (DCU->RAM[RAM_AD08_LIMITSINHIBITED] == 0)
+						{
+							DCU->RAM[RAM_AD08_STEN_STDN_CH] = Get_ESW_ChannelStatus();// easier to save failed
+							DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
+							RotateCommand();
+							return ESW_Accepted;
+						}
+						else return ESW_CommandRejected_A;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case STDN:
 				if (DCU->RAM[RAM_AD08_SHUTDOWN_ENA] != 1) return ESW_CommandRejected_B;// needs SDEN
-				// TODO read below...
-				/*Each controller normally requires two of three valid command paths
-				from the GPC’s to control the SSME (start commands require three of three functional command
-				paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
-				capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
-				under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
-				start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
-				same channel, sequentially (with no other command in-between); and a valid command is not
-				concurrently being received on the other two channels.*/
+				if (votes == 1)
+				{
+					if (DCU->RAM[RAM_AD08_STEN_STDN_CH] == Get_ESW_ChannelStatus())
+					{
+						DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+						DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
+						DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+						RotateCommand();
+						return ESW_Accepted;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
 				DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Enable );
 				RotateCommand();
 				return ESW_Accepted;
 			case INLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Inhibit );
+				DCU->RAM[RAM_AD08_LIMITSINHIBITED] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2196,47 +2229,70 @@ namespace mps
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case SVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->SwitchVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case XFRT:
 			case RSCA:
 			case RSCB:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
+				if (votes == 1)
+				{
+					double temp = (DCU->RAM[RAM_AD08_TREF1] + (DCU->RAM[RAM_AD08_TREF2] / 10000)) - (DCU->RAM[RAM_AD08_IGNT_TIME1] + (DCU->RAM[RAM_AD08_IGNT_TIME2] / 10000));
+					if (temp >= SINGLE_CH_STDN_TIMER)
+					{
+						if (DCU->RAM[RAM_AD08_LIMITSINHIBITED] == 0)
+						{
+							DCU->RAM[RAM_AD08_STEN_STDN_CH] = Get_ESW_ChannelStatus();// easier to save failed
+							DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
+							RotateCommand();
+							return ESW_Accepted;
+						}
+						else return ESW_CommandRejected_A;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case STDN:
 				if (DCU->RAM[RAM_AD08_SHUTDOWN_ENA] != 1) return ESW_CommandRejected_B;// needs SDEN
-				// TODO read below...
-				/*Each controller normally requires two of three valid command paths
-				from the GPC’s to control the SSME (start commands require three of three functional command
-				paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
-				capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
-				under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
-				start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
-				same channel, sequentially (with no other command in-between); and a valid command is not
-				concurrently being received on the other two channels.*/
+				if (votes == 1)
+				{
+					if (DCU->RAM[RAM_AD08_STEN_STDN_CH] == Get_ESW_ChannelStatus())
+					{
+						DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+						DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
+						DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+						RotateCommand();
+						return ESW_Accepted;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_FailSafePneumatic;
 				DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Enable );
 				RotateCommand();
 				return ESW_Accepted;
 			case INLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Inhibit );
+				DCU->RAM[RAM_AD08_LIMITSINHIBITED] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2253,47 +2309,70 @@ namespace mps
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case SVRC:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				DCU->CIE->SwitchVRC();
 				RotateCommand();
 				return ESW_Accepted;
 			case XFRT:
 			case RSCA:
 			case RSCB:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				RotateCommand();
 				return ESW_Accepted;
 			case SDEN:
+				if (votes == 1)
+				{
+					double temp = (DCU->RAM[RAM_AD08_TREF1] + (DCU->RAM[RAM_AD08_TREF2] / 10000)) - (DCU->RAM[RAM_AD08_IGNT_TIME1] + (DCU->RAM[RAM_AD08_IGNT_TIME2] / 10000));
+					if (temp >= SINGLE_CH_STDN_TIMER)
+					{
+						if (DCU->RAM[RAM_AD08_LIMITSINHIBITED] == 0)
+						{
+							DCU->RAM[RAM_AD08_STEN_STDN_CH] = Get_ESW_ChannelStatus();// easier to save failed
+							DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
+							RotateCommand();
+							return ESW_Accepted;
+						}
+						else return ESW_CommandRejected_A;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_SHUTDOWN_ENA] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			case STDN:
 				if (DCU->RAM[RAM_AD08_SHUTDOWN_ENA] != 1) return ESW_CommandRejected_B;// needs SDEN
-				// TODO read below...
-				/*Each controller normally requires two of three valid command paths
-				from the GPC’s to control the SSME (start commands require three of three functional command
-				paths). SSME controller software change RCN 4354 implemented in version OI-6 and subs added the
-				capability for the engine to accept a shutdown enable/shutdown command pair on a single channel
-				under special circumstances: an internal timer has expired (currently set at 512.86 seconds from engine
-				start); limits have never been inhibited; the shutdown enable/shutdown command pair come in on the
-				same channel, sequentially (with no other command in-between); and a valid command is not
-				concurrently being received on the other two channels.*/
+				if (votes == 1)
+				{
+					if (DCU->RAM[RAM_AD08_STEN_STDN_CH] == Get_ESW_ChannelStatus())
+					{
+						DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
+						DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
+						DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
+						RotateCommand();
+						return ESW_Accepted;
+					}
+					else return ESW_CommandRejected_A;
+				}
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_Shutdown;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_Shutdown_ThrottleTo0;
 				DCU->RAM[RAM_AD08_TIME_STDN] = 0xFFFF;// setup
 				RotateCommand();
 				return ESW_Accepted;
 			case ENLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Enable );
 				RotateCommand();
 				return ESW_Accepted;
 			case INLS:
+				if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 				Set_ESW_LimitControlStatus( ESW_Inhibit );
+				DCU->RAM[RAM_AD08_LIMITSINHIBITED] = 1;
 				RotateCommand();
 				return ESW_Accepted;
 			default:
@@ -2305,12 +2384,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2333,12 +2410,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2361,12 +2436,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2389,12 +2462,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2448,12 +2519,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2489,12 +2558,10 @@ namespace mps
 	{
 		// validation -> voting and agreement with mode
 
-		if (CommandVoting() == 0) return ESW_CommandRejected_A;
+		if (CommandVoting() < 2) return ESW_CommandRejected_A;// all cmds in this mode require (at least) 2 of 3
 
 		switch (GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0xFC00 ))
 		{
-			case NOP:// do nothing
-				return ESW_NoCommand;
 			case RVRC:
 				DCU->CIE->RestoreVRC();
 				RotateCommand();
@@ -2532,18 +2599,26 @@ namespace mps
 		{
 			if (DCU->RAM[RAM_AD08_CMD2] == DCU->RAM[RAM_AD08_CMD3])
 			{
-				// 1 good
-				// 2 good
-				// 3 good
+				// all equal
+				if (DCU->RAM[RAM_AD08_CMD1] == NOP)// valid != NOP
+				{
+					DCU->RAM[RAM_AD08_VALIDCMD] = NOP;
+					Set_ESW_ChannelStatus( ESW_CHA_CHB_CHC_ERROR );
+					return 0;
+				}
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
-				Set_ESW_ChannelStatus( ESW_OK );// TODO complete ch status
+				Set_ESW_ChannelStatus( ESW_OK );
 				return 3;
 			}
 			else
 			{
-				// 1 good
-				// 2 good
-				// 3 bad
+				// 1 & 2 equal
+				if (DCU->RAM[RAM_AD08_CMD1] == NOP)// valid != NOP
+				{
+					DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
+					Set_ESW_ChannelStatus( ESW_CHA_CHB_ERROR );
+					return 1;
+				}
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD2];
 				Set_ESW_ChannelStatus( ESW_CHC_ERROR );
 				return 2;
@@ -2553,9 +2628,13 @@ namespace mps
 		{
 			if (DCU->RAM[RAM_AD08_CMD2] == DCU->RAM[RAM_AD08_CMD3])
 			{
-				// 1 bad
-				// 2 good
-				// 3 good
+				// 2 & 3 equal
+				if (DCU->RAM[RAM_AD08_CMD2] == NOP)// valid != NOP
+				{
+					DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD1];
+					Set_ESW_ChannelStatus( ESW_CHB_CHC_ERROR );
+					return 1;
+				}
 				DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
 				Set_ESW_ChannelStatus( ESW_CHA_ERROR );
 				return 2;
@@ -2564,18 +2643,20 @@ namespace mps
 			{
 				if (DCU->RAM[RAM_AD08_CMD1] == DCU->RAM[RAM_AD08_CMD3])
 				{
-					// 1 good
-					// 2 bad
-					// 3 good
+					// 1 & 3 equal
+					if (DCU->RAM[RAM_AD08_CMD1] == NOP)// valid != NOP
+					{
+						DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD2];
+						Set_ESW_ChannelStatus( ESW_CHA_CHC_ERROR );
+						return 1;
+					}
 					DCU->RAM[RAM_AD08_VALIDCMD] = DCU->RAM[RAM_AD08_CMD3];
 					Set_ESW_ChannelStatus( ESW_CHB_ERROR );
 					return 2;
 				}
 				else
 				{
-					// 1 bad
-					// 2 bad
-					// 3 bad
+					// all different
 					DCU->RAM[RAM_AD08_VALIDCMD] = NOP;
 					Set_ESW_ChannelStatus( ESW_CHA_CHB_CHC_ERROR );
 					return 0;
@@ -3032,6 +3113,8 @@ namespace mps
 		else
 		{
 			DCU->RAM[RAM_AD08_TIME_ESC] = 0;
+			DCU->RAM[RAM_AD08_IGNT_TIME1] = DCU->RAM[RAM_AD08_TREF1];
+			DCU->RAM[RAM_AD08_IGNT_TIME2] = DCU->RAM[RAM_AD08_TREF2];
 		}
 
 		// run valve ignition schedules
@@ -3313,8 +3396,7 @@ namespace mps
 		{
 			DCU->RAM[RAM_AD08_PC_CMD] = 0;
 			DCU->RAM[RAM_AD08_TIME_STDN] = 0;
-			UpdateShutdownValveSchedule( PC_100 - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] );
-			// TODO fix currentPC when it's 0%, timer keeps running because vlvs don't close within 6s
+			UpdateShutdownValveSchedule( PC_100 - DCU->RAM[RAM_AD08_PC_REF] );
 		}
 
 		ValveSchedule( RAM_AD08_STDN_CCV_POS, RAM_AD08_CCV_CMD, RAM_AD08_TIME_STDN, RAM_AD08_CCV_POS );
@@ -3485,7 +3567,7 @@ namespace mps
 
 	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
 	{
-		// All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch vales are then deenergized.
+		// All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch valves are then deenergized.
 
 		// close any open vlvs
 		DCU->RAM[RAM_AD08_CCV_CMD] = 0;
@@ -3622,14 +3704,15 @@ namespace mps
 		DCU->RAM[RAM_AD08_VRC_26] = DCU->RAM[RAM_AD08_MOV_POS];// MOV Actuator Pos
 		DCU->RAM[RAM_AD08_VRC_27] = DCU->RAM[RAM_AD08_FPOV_POS];// FPOV Actuator Pos
 		DCU->RAM[RAM_AD08_VRC_28] = DCU->RAM[RAM_AD08_OPOV_POS];// OPOV Actuator Pos
-		DCU->RAM[RAM_AD08_VRC_29] = 29;// HPFTP Disch Press
-		DCU->RAM[RAM_AD08_VRC_30] = 30;// HPOTP Disch Press
+		DCU->RAM[RAM_AD08_VRC_29] = DCU->RAM[RAM_AD08_SENSOR_A + 5];// HPFTP Disch Press Ch A
+		DCU->RAM[RAM_AD08_VRC_30] = DCU->RAM[RAM_AD08_SENSOR_A + 4];// HPOTP Disch Press Ch A
 		//////////////////////////////////////////////////////////////////////////////////////////
 		///
 		DCU->RAM[RAM_AD08_VRC_31] = DCU->RAM[RAM_AD08_TIME_ESC];// HACK IGNT+T
 		DCU->RAM[RAM_AD08_VRC_32] = DCU->RAM[RAM_AD08_TIME_STDN];// HACK STDN+T
 		///
 		//////////////////////////////////////////////////////////////////////////////////////////
+		DCU->RAM[RAM_AD08_VRC_33] = DCU->RAM[RAM_AD08_SENSOR_B + 6];// HPOTP Boost Pump Disch Press Ch B
 		DCU->RAM[RAM_AD08_VRC_34] = DCU->RAM[RAM_AD08_SENSOR_A + 23];// Fuel Flowrate Ch A1
 		//////////////////////////////////////////////////////////////////////////////////////////
 		///
@@ -3679,11 +3762,15 @@ namespace mps
 			DCU->RAM[RAM_AD08_VRC_75] = DCU->RAM[RAM_AD08_SENSOR_B + 1];// OPB Purge Press
 		}
 
+		DCU->RAM[RAM_AD08_VRC_82] = DCU->RAM[RAM_AD08_SENSOR_A + 27];// LPFTP Shaft Speed Ch A
+
 		DCU->RAM[RAM_AD08_VRC_89] = DCU->RAM[RAM_AD08_SENSOR_B + 23];// Fuel Flowrate Ch B1
 		DCU->RAM[RAM_AD08_VRC_90] = 90;// Inhibit Counter/PROM Rev.
 		
 		DCU->RAM[RAM_AD08_VRC_92] = DCU->RAM[RAM_AD08_SENSOR_A + 3];// LPFP Disch Press Ch A
 		DCU->RAM[RAM_AD08_VRC_93] = DCU->RAM[RAM_AD08_SENSOR_A + 20];// LPFP Disch Temp Ch A
+
+		DCU->RAM[RAM_AD08_VRC_96] = DCU->RAM[RAM_AD08_SENSOR_A + 28];// HPFTP Shaft Speed Ch A
 
 		DCU->RAM[RAM_AD08_VRC_98] = DCU->RAM[RAM_AD08_CURCMD];// Current Command
 		DCU->RAM[RAM_AD08_VRC_99] = DCU->RAM[RAM_AD08_PRVCMD];// Previous Command

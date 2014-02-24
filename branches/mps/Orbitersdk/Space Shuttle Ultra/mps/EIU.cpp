@@ -186,9 +186,8 @@ namespace mps
 				// HACK MIA 1 & 3 dead, assumes CIA-2 & 3 still running
 				eng->Controller->VIE_CommandDataConverter_write( chB, cmd );
 				eng->Controller->VIE_CommandDataConverter_write( chC, cmd );
-				// full EIU dead
-				return;
-			}// else full EIU dead
+			}
+			// else full EIU dead
 		}
 		return;
 	}
