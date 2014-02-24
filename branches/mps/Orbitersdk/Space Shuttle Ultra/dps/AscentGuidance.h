@@ -40,6 +40,10 @@ const double QPOLY3 = 232.022;
 const double QPOLY4 = 430.898;
 const double QPOLY5 = 99999;// fake
 
+const double FINECOUNT_THROTTLE = 67;
+const double FINECOUNT_THROTTLE_1EO = 91;
+const double FINECOUNT_THROTTLE_2EO = 91;
+
 
 class SSME_SOP;
 class SSME_Operations;
@@ -181,6 +185,11 @@ private:
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds
+
+	bool MEFail[3];
+	int EOcount;
+	bool finecount;
+	double finecountthrottle[3];
 
 	double QPOLY[5];// SSME throttle velocity
 	double THROT[4];// SSME throttle command
