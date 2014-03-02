@@ -35,7 +35,7 @@ private:
 	unsigned short usPageNumber;
 	unsigned short usDisp;
 	unsigned short usGPCDriver;
-	unsigned short usMDU;
+	//unsigned short usMDU;
 	//Math
 	inline VECTOR3 ToRad(const VECTOR3 &Input)
 	{
@@ -96,7 +96,7 @@ private:
 	int width, height;
 	int ops, item, spec, mode, display;
 	//int data;
-	int id;
+	int MDUID;
 
 	//int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
 	//double dT;

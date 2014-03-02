@@ -5429,11 +5429,7 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 	
 	//get pointer to CRT MFD as required
 	if(newmfd!=NULL && mode!=MFD_REFRESHBUTTONS) {
-		//newmfd->id = mfd;
-		newmfd->id=mfds[mfd]; //index of MDU associated with MFD
-		/*if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
-			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
-		}*/
+		newmfd->MDUID=mfds[mfd]; //index of MDU associated with MFD
 		newmfd->UpdateStatus=true;
 		newmfd=NULL; //reset newmfd so it can be used by next new instance of CRT MFD
 	}
@@ -7674,16 +7670,6 @@ void Atlantis::DisplayCameraLabel(const char* pszLabel)
 	strcpy(pszCameraLabelBuffer, pszLabel);
 	oapiAnnotationSetText(nhCameraLabel, pszCameraLabelBuffer);
 	fTimeCameraLabel = 5.0;
-}
-
-void Atlantis::SetLastCreatedMFD(unsigned short usMDU)
-{
-	usLastMDUID = usMDU;
-}
-
-short Atlantis::GetLastCreatedMFD() const
-{
-	return usLastMDUID;
 }
 
 void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)

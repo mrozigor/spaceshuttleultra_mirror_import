@@ -446,7 +446,6 @@ public:
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
 	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
 	virtual dps::IDP* GetIDP(unsigned short usIDPNumber) const;
-	virtual short GetLastCreatedMFD() const;
 	virtual bool GetLiftOffFlag() const;
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
 	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
@@ -474,7 +473,6 @@ public:
 	void SetETUmbDoorPosition(double pos, int door);
 	void SetKuAntennaPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
-	void SetLastCreatedMFD(unsigned short usMDU);
 	void SetLaunchConfiguration (void);
 	void SetOrbiterConfiguration (void);
 	void SetOrbiterTankConfiguration (void);
@@ -1088,7 +1086,6 @@ private:
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
-	unsigned short usLastMDUID;
 	//EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;
