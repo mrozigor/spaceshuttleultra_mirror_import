@@ -237,6 +237,8 @@ void AerojetDAP::Realize()
 
 void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	if(GetMajorMode() != 304 && GetMajorMode() != 305) return; // AerojetDAP software runs in MMs 301-303 as well to drive SPEC 50 HORIZ SIT display, but does not perform any control operations
+
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
@@ -457,7 +459,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
-	if(newMajorMode ==304 || newMajorMode == 305) {
+	if(newMajorMode == 304 || newMajorMode == 305) {
 		// set Translation Commands to 0.0 during entry and landing
 		DiscreteBundle* pBundle = BundleManager()->CreateBundle("THRUSTER_CMD", 16);
 		DiscOutPort port;
@@ -482,6 +484,9 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			port.Connect(pBundle, 2); // ROLL/YAW AUTO
 			port.SetLine();
 		}
+		return true;
+	}
+	else if(newMajorMode == 301 || newMajorMode == 302 || newMajorMode == 303) { // SPEC 50 (HORIZ SIT) display can be used, so allow AerojetDAP software to run
 		return true;
 	}
 	return false;
@@ -868,8 +873,12 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 {
+	char cbuf[51];
 	PrintCommonHeader("HORIZ SIT", pMDU);
 
+	pMDU->mvprint(0, 5, "41 LAND SITE");
+	sprintf_s(cbuf, 51, "%d", SITE_ID+1);
+	pMDU->mvprint(13, 5, cbuf);
 	pMDU->mvprint(0, 6, "PRI");
 	pMDU->mvprint(4, 6, vLandingSites[SITE_ID].GetPriRwyName().c_str());
 	pMDU->mvprint(13, 6, "3");
