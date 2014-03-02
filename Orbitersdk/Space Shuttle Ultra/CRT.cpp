@@ -80,9 +80,8 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 	vessel=v;
 	width=w;
 	height=h;
-	usMDU = 11;
 	
-	id=-1;
+	MDUID=-1;
 
 	sprintf_s(cbuf, 200, "[CRT]:DIMENSIONS: %d %d\n", W, H);
 	oapiWriteLog(cbuf);
@@ -105,12 +104,6 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 			sts->Display[id]=this;
 		}*/
 		sts->newmfd=this;
-		usMDU = sts->GetLastCreatedMFD();
-		if(sts->GetMDU(usMDU))
-		{
-			vc::MDU* pMDU = sts->GetMDU(usMDU); 
-			pMDU->ConnectToCRTMFD();
-		}
 		mode=0;
 	}
 	else {
@@ -208,8 +201,13 @@ void CRT::Update (HDC hDC)
 	}
 	else if(mode==1) {
 		//DrawCommonHeader(hDC);
-		vc::MDU* pMDU=sts->GetMDU(usMDU);
-		pMDU->Paint(hDC);
+		if(MDUID>=0) {
+			vc::MDU* pMDU=sts->GetMDU(MDUID);
+			pMDU->Paint(hDC);
+		}
+		else {
+			oapiWriteLog("CRT MFD not connected to MDU");
+		}
 		//dps::IDP* pIDP=sts->GetIDP(pMDU->GetDrivingIDP());
 		/*if( (id>=vc::MDUID_CRT1 && id<=vc::MDUID_CRT4) || 
 			sts->panelc2->switch_state[SWITCH2+2*(id - vc::MDUID_CRT1)]==0) //GNC*/
@@ -1374,7 +1372,7 @@ void CRT::APUHYD(HDC hDC)
 
 void CRT::UNIVPTG(HDC hDC)
 {
-	vc::MDU* mdu=sts->GetMDU(id);
+	vc::MDU* mdu=sts->GetMDU(MDUID);
 	if(mdu) mdu->Paint(hDC);
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
 	return;
@@ -1382,7 +1380,7 @@ void CRT::UNIVPTG(HDC hDC)
 
 void CRT::DAP_CONFIG(HDC hDC)
 {
-	vc::MDU* mdu=sts->GetMDU(id);
+	vc::MDU* mdu=sts->GetMDU(MDUID);
 	if(mdu) mdu->Paint(hDC);
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
 	return;
@@ -1558,7 +1556,7 @@ void CRT::PASSTRAJ(HDC hdc)
 void CRT::MNVR(HDC hDC)
 {
 	//oapiWriteLog("Calling Paint 1");
-	vc::MDU* mdu=sts->GetMDU(id);
+	vc::MDU* mdu=sts->GetMDU(MDUID);
 	//oapiWriteLog("Calling Paint 2");
 	if(mdu) mdu->Paint(hDC);
 	else sprintf_s(oapiDebugString(), 255, "MDU not initialized");
@@ -2069,28 +2067,28 @@ void CRT::ReadStatus(FILEHANDLE scn)
 
 void CRT::StoreStatus() const
 {
-	if(id==-1) {
+	if(MDUID==-1) {
 		return;
 	}
-	saveprm.spec[id]=spec;
-	saveprm.mode[id]=mode;
-	saveprm.display[id]=display;
-	saveprm.bValid[id]=true;
+	saveprm.spec[MDUID]=spec;
+	saveprm.mode[MDUID]=mode;
+	saveprm.display[MDUID]=display;
+	saveprm.bValid[MDUID]=true;
 	//sprintf(oapiDebugString(), "%i %i %i %i", saveprm.spec[id], saveprm.mode[id], saveprm.display[id], id);
 }
 
 void CRT::RecallStatus()
 {
-	if(id==-1) {
+	if(MDUID==-1) {
 		/*spec=0;
 		mode=0;
 		display=2;*/
 		return;
 	}
-	if(!saveprm.bValid[id]) return;
-	spec=saveprm.spec[id];
-	mode=saveprm.mode[id];
-	display=saveprm.display[id];
+	if(!saveprm.bValid[MDUID]) return;
+	spec=saveprm.spec[MDUID];
+	mode=saveprm.mode[MDUID];
+	display=saveprm.display[MDUID];
 	//sprintf(oapiDebugString(), "Recall %f %d %d", oapiRand(), mode, display);
 }
 
