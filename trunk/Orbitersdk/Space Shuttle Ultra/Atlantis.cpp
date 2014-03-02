@@ -284,6 +284,8 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	//sprint
 
 	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		if(abs(aoa) > 90.0*RAD) aoa = 0.0; // handle Orbitersim bug which results in very large AOA at first timestep
+
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
 		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
 	}
@@ -302,6 +304,8 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 	//static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
 
 	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		if(abs(beta) > 90.0*RAD) beta = 0.0; // handle Orbitersim bug which results in very large beta at first timestep
+
 		double aoa = v->GetAOA()*DEG;
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
 		double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
