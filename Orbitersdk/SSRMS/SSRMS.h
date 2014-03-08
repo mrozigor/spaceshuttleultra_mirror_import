@@ -25,6 +25,9 @@ const VECTOR3 WP_JOINT = _V(0.0, 0.0, 7.47);
 const VECTOR3 WY_JOINT = _V(-0.69, 0.59, 7.47);
 const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint position
 
+const VECTOR3 LEE1_CAM_POS = _V(0.696, 0.789, -8.257);
+const VECTOR3 LEE2_CAM_POS = _V(-0.702, 0.789, 8.257);
+
 /*const unsigned short SHOULDER_ROLL[] =	{6, 0};
 const unsigned short SHOULDER_YAW[] =	{5, 1};
 const unsigned short SHOULDER_PITCH[] =	{4, 2};
@@ -89,23 +92,31 @@ private:
 	 * @returns - true is active LEE was changed; false otherwise
 	 */
 	bool ChangeActiveLEE();
+	/**
+	 * Shifts SSRMS mesh and attachment points so active LEE is at centre of external view
+	 */
+	void UpdateMeshPosition();
+	/**
+	 * Updates cockpit view to match LEE camera position
+	 */
+	void UpdateCameraView();
 	void CalculateVectors();
 
 private:
 	SSRMSSubsystemDirector* pSubsystemDirector;
 	LEESystem* pLEE[2];
 
-	VECTOR3 arm_tip[3];
+	VECTOR3 arm_tip[4];
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot, arm_ee_angles;
 	double joint_angle[7]; // angles in degrees
-	bool arm_moved, update_angles, update_vectors;
+	bool arm_moved, update_angles, update_vectors, update_camera;
 
 	int activeLEE, passiveLEE; // either 0 or 1
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
 
-	VECTOR3 old_arm_tip; // used to shift meshes so active LEE is at centre of external view
+	VECTOR3 mesh_center; // used to shift meshes so active LEE is at centre of external view
 
 	int OrbiterSoundHandle;
 

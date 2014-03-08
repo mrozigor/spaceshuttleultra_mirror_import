@@ -47,15 +47,18 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//arm_wrist_pos = WristPitchJoint-ShoulderPitchJoint;
 	arm_ee_dir = _V(1, 0, 0);
 	arm_ee_rot = _V(0, 1, 0);
-	old_arm_tip = arm_tip[0] = LEE_POS;
+	arm_tip[0] = LEE_POS;
 	arm_tip[1] = LEE_POS + _V(0, 0, 1);
 	arm_tip[2] = LEE_POS + _V(0, 1, 0);
 	//arm_tip[1] = _V(-0.70, 0.59, 9.44);
 	//arm_tip[2] = _V(-0.70, 1.59, 8.44);
+	arm_tip[3] = LEE2_CAM_POS;
+	mesh_center = _V(0, 0, 0);
 
 	update_angles=false;
 	update_vectors=true;
 	arm_moved=false;
+	update_camera = false;
 
 	SpeedFactor=1;
 	RefFrame=EE_FRAME;
@@ -138,7 +141,7 @@ void SSRMS::DefineAnimations()
 	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
 
-	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 3,
+	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 4,
 		LEE_POS, _V(0, 0, -1), 0.0);
 	anim_lee = CreateAnimation(0.5);
 	AddAnimationComponent(anim_lee, 0, 1, &lee_anim, parent);
@@ -355,6 +358,7 @@ bool SSRMS::SetJointAngle(SSRMS::SSRMS_JOINT joint, double angle)
 		SetAnimation(anim_joint[activeLEE][joint], pos);
 		joint_angle[joint]=angle;
 		arm_moved=true;
+		update_camera = true;
 		return true;
 	}
 	else return false;
@@ -395,21 +399,59 @@ bool SSRMS::ChangeActiveLEE()
 	joint_angle[WRIST_YAW] = -joint_angle[WRIST_YAW];
 	CalculateVectors();
 
+	UpdateMeshPosition();
+
+	update_camera = true;
+
+	return true;
+}
+
+void SSRMS::UpdateMeshPosition()
+{
 	// shift meshes to align active LEE with centre of external cam view
 	if(activeLEE == 0) {
-		ShiftMeshes(old_arm_tip-SR_JOINT);
-		old_arm_tip = SR_JOINT;
+		ShiftMeshes(mesh_center-SR_JOINT);
+		mesh_center = SR_JOINT;
 	}
 	else {
-		ShiftMeshes(old_arm_tip-arm_tip[0]);
-		old_arm_tip = arm_tip[0];
+		ShiftMeshes(mesh_center-arm_tip[0]);
+		mesh_center = arm_tip[0];
 	}
+	// update attachment points
 	VECTOR3 ofs;
 	GetMeshOffset(mesh_ssrms, ofs);
 	pLEE[1]->SetAttachmentParams(arm_tip[0]+ofs, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 	pLEE[0]->SetAttachmentParams(SR_JOINT+ofs, _V(0, 0, -1), _V(0, 1, 0));
+}
 
-	return true;
+void SSRMS::UpdateCameraView()
+{
+	if(oapiCameraInternal()) {
+		VECTOR3 ofs;
+		GetMeshOffset(mesh_ssrms, ofs);
+
+		if(activeLEE == 1) {
+			// calculate rotation angle for EE cam
+			VECTOR3 dir = arm_tip[1]-arm_tip[0];
+			// if camera is pointing straight up or down, make it slightly offset from (0,1,0) vector
+			if(Eq(dotp(dir, _V(0, -1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, -0.999999984769, 0.0);
+			else if(Eq(dotp(dir, _V(0, 1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, 0.999999984769, 0.0);
+			VECTOR3 cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
+			cam_rot /= length(cam_rot);
+			if(cam_rot.y < 0) cam_rot = -cam_rot;
+			double angle = SignedAngle(cam_rot, arm_tip[2]-arm_tip[0], dir);
+
+			SetCameraOffset(arm_tip[3]+ofs);
+			SetCameraDefaultDirection(dir, angle);
+		}
+		else {
+			SetCameraOffset(LEE1_CAM_POS+ofs);
+			SetCameraDefaultDirection(_V(0, 0, -1), 0.0);
+		}
+		oapiCameraSetCockpitDir(0.0, 0.0);
+		
+		update_camera = false;
+	}
 }
 
 void SSRMS::CalculateVectors()
@@ -460,6 +502,7 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			arm_moved=true;
 			update_vectors=true;
 			update_angles=true;
+			update_camera = true;
 		}
 		else if(!_strnicmp(line, "ACTIVE_LEE", 10)) {
 			sscanf(line+10, "%d", &activeLEE);
@@ -621,16 +664,8 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 			update_angles=false;
 		}		
 
-		// shift meshes to active LEE is at centre of external view
-		if(activeLEE == 1) ShiftMeshes(-(arm_tip[0] - old_arm_tip));
-		// update attachments
-		VECTOR3 ofs;
-		GetMeshOffset(mesh_ssrms, ofs);
-		pLEE[1]->SetAttachmentParams(arm_tip[0]+ofs, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
-		pLEE[0]->SetAttachmentParams(SR_JOINT+ofs, _V(0, 0, -1), _V(0, 1, 0));
+		UpdateMeshPosition();
 
-		old_arm_tip = arm_tip[0];
-		
 		arm_moved=false;
 	}
 	if(update_vectors) {
@@ -657,6 +692,7 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 
 		update_vectors=false;
 	}
+	if(update_camera) UpdateCameraView();
 	/*else {
 		VECTOR3 act_arm_ee_pos=arm_tip[0]-SR_JOINT;
 		act_arm_ee_pos=_V(act_arm_ee_pos.z, -act_arm_ee_pos.x, -act_arm_ee_pos.y);
@@ -758,8 +794,7 @@ void SSRMS::clbkPostCreation()
 		for(int i=0;i<7;i++) SetJointAngle((SSRMS_JOINT)i, joint_angle[i]);
 	}
 
-	if(activeLEE == 1) ShiftMeshes(-arm_tip[0]);
-	else ShiftMeshes(-SR_JOINT);
+	UpdateMeshPosition();
 
 	VESSEL2::clbkPostCreation();
 }
