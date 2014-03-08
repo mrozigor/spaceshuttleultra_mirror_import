@@ -12,7 +12,7 @@ static const char* ATTACH_ID = "GS";
 //static const char* ATTACH_ID = "A";
 
 const double JOINT_ROTATION_SPEED = 1.0; // rotation speed for single joint ops (deg/s)
-const double JOINT_SPEED_LIMIT = 4.0; // maximum possible joint rotation speed (deg/s) - at the moment, this number is just a guess
+//const double JOINT_SPEED_LIMIT = 4.0; // maximum possible joint rotation speed (deg/s) - at the moment, this number is just a guess
 const double EE_ROTATION_SPEED = RAD*1.0; // rad/s
 const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
 
@@ -27,14 +27,6 @@ const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint positi
 
 const VECTOR3 LEE1_CAM_POS = _V(0.696, 0.789, -8.257);
 const VECTOR3 LEE2_CAM_POS = _V(-0.702, 0.789, 8.257);
-
-/*const unsigned short SHOULDER_ROLL[] =	{6, 0};
-const unsigned short SHOULDER_YAW[] =	{5, 1};
-const unsigned short SHOULDER_PITCH[] =	{4, 2};
-const unsigned short ELBOW_PITCH[] =	{3, 3};
-const unsigned short WRIST_PITCH[] =	{2, 4};
-const unsigned short WRIST_YAW[] =		{1, 5};
-const unsigned short WRIST_ROLL[] =		{0, 6};*/
 
 const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
