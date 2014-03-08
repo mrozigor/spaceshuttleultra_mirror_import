@@ -19,7 +19,7 @@ double ResolveToNearestAngle(double degAngle, double degRef)
 }
 
 SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
-:VESSEL2(hObj, fmodel)
+:VESSEL3(hObj, fmodel)
 {
 	SetEmptyMass(100);
 	SetSize(10);
@@ -478,7 +478,7 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 void SSRMS::clbkSaveState(FILEHANDLE scn)
 {
-	VESSEL2::clbkSaveState(scn);
+	VESSEL3::clbkSaveState(scn);
 
 	char cbuf[255];
 	sprintf(cbuf, "%f %f %f %f %f %f %f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
@@ -594,36 +594,46 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 	if(update_camera) UpdateCameraView();
 }
 
-void SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, HDC hDC)
+bool SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp)
 {
 	char cbuf[255];
 
-	//VESSEL2::clbkDrawHUD(mode, hps, hDC);
+	//VESSEL3::clbkDrawHUD(mode, hps, hDC);
 
 	//display joint angles
 	sprintf(cbuf, "   SR      SY      SP      EP      WP      WY      WR");
-	TextOut(hDC, hps->W/3, hps->H/10, cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, hps->H/10, cbuf, strlen(cbuf));
 	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
 		joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
-	TextOut(hDC, hps->W/3, (hps->H/10)+(hps->Markersize/2), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(hps->Markersize/2), cbuf, strlen(cbuf));
 
 	//rotation/translation speed
 	sprintf(cbuf, "Rotation speed: %d deg/sec", SpeedFactor);
-	TextOut(hDC, hps->W/3, (hps->H/10)+(1.5*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(1.5*hps->Markersize), cbuf, strlen(cbuf));
 	sprintf(cbuf, "Translation speed: %d ft/sec", SpeedFactor);
-	TextOut(hDC, hps->W/3, (hps->H/10)+(2.5*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(2.5*hps->Markersize), cbuf, strlen(cbuf));
 
 	if(RefFrame==EE_FRAME)
-		TextOut(hDC, hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using EE frame", 14);
-	else TextOut(hDC, hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using shoulder frame", 20);
+		skp->Text(hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using EE frame", 14);
+	else skp->Text(hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using shoulder frame", 20);
 
-	sprintf(cbuf, "LEE%d active", activeLEE+1);
-	TextOut(hDC, hps->W/3, (hps->H/10)+(4.5*hps->Markersize), cbuf, strlen(cbuf));
+	if(pLEE[activeLEE]->Grappled()) sprintf(cbuf, "LEE%d - Latched", activeLEE+1);
+	else sprintf(cbuf, "LEE%d - Open", activeLEE+1);
+	skp->Text(hps->W/3, (hps->H/10)+(4.5*hps->Markersize), cbuf, strlen(cbuf));
+	sprintf(cbuf, "LEE%d - BASE", (1-activeLEE)+1);
+	skp->Text(hps->W/3, (hps->H/10)+(5.5*hps->Markersize), cbuf, strlen(cbuf));
 	
 	/*sprintf(cbuf, "SR: %.2f", sr_angle);
 	TextOut(hDC, hps->W/3, hps->H/10, cbuf, strlen(cbuf));
 	sprintf(cbuf, "SY: %.2f", sy_angle);
 	TextOut(hDC, hps->W/3, (hps->H/10)+hps->Markersize, cbuf, strlen(cbuf));*/
+	
+	return true;
+}
+
+void SSRMS::clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefaultTex)
+{
+	// overridden to disable Orbitersim default HUD
 }
 
 void SSRMS::clbkPostCreation()
@@ -642,7 +652,7 @@ void SSRMS::clbkPostCreation()
 
 	UpdateMeshPosition();
 
-	VESSEL2::clbkPostCreation();
+	VESSEL3::clbkPostCreation();
 }
 
 int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)

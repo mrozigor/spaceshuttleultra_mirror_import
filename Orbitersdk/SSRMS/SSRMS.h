@@ -49,7 +49,7 @@ const double JOINT_SOFTSTOPS[2] = {-270.0, +270.0}; // from ISS ROBO Console Han
 
 enum FRAME{EE_FRAME, BASE_FRAME};
 
-class SSRMS: public VESSEL2
+class SSRMS: public VESSEL3
 {
 public:
 	typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
@@ -63,7 +63,8 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 	void clbkPreStep(double simt, double simdt, double mjd);
 	void clbkPostStep(double SimT, double SimDT, double MJD);
-	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
+	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp);
+	void clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefaultTex);
 	void clbkPostCreation();
 	int  clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 private:
