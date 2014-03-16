@@ -1900,7 +1900,7 @@ void Atlantis::DefineAnimations (void)
   // ***** 1. Cargo door and radiator animations *****
   // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
 
-  static UINT RCargoDoorGrp[4] = {GRP_STBD_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4,};
+  static UINT RCargoDoorGrp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4,};
   MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
     _V(2.62, -0.8, 0), _V(0, 0, 1), (float)(-175.5*RAD));
   static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
@@ -2370,13 +2370,13 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 	if(ahTow)
 	{
 		//Update position
-		SetAttachmentParams(ahTow, POS_TOW, _V(0.0, 0.0, 1.0), 
-			_V(0.0, -1.0, 0.0));
+		SetAttachmentParams(ahTow, POS_TOW, _V(0, 0.0749788, 0.997185), 
+			_V(0, 0.997185, -0.0749787));
 	}
 	else {
 		//create new attachment
-		ahTow = CreateAttachment(true, POS_TOW, _V(0.0, 0.0, 1.0), 
-		  _V(0.0, -1.0, 0.0), "XTOW");
+		ahTow = CreateAttachment(true, POS_TOW, _V(0, 0.0749788, 0.997185), 
+		  _V(0, 0.997185, -0.0749787), "T");
 	}
 
 	
