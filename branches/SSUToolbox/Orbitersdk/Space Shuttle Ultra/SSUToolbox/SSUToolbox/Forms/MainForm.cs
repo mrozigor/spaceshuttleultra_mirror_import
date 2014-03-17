@@ -38,31 +38,31 @@ namespace SSUToolbox.Forms
 
             myTabPage = new TabPage("MECO");
             meco = new MECO();
-            mission.Dock = DockStyle.Fill;
+            meco.Dock = DockStyle.Fill;
             myTabPage.Controls.Add(meco);
             tabControl.TabPages.Add(myTabPage);
 
             myTabPage = new TabPage("Mission Kits");
             kits = new Kits();
-            mission.Dock = DockStyle.Fill;
+            kits.Dock = DockStyle.Fill;
             myTabPage.Controls.Add(kits);
             tabControl.TabPages.Add(myTabPage);
 
             myTabPage = new TabPage("Landing");
             landing = new Landing();
-            mission.Dock = DockStyle.Fill;
+            landing.Dock = DockStyle.Fill;
             myTabPage.Controls.Add(landing);
             tabControl.TabPages.Add(myTabPage);
 
             myTabPage = new TabPage("Crew");
             crew = new Crew();
-            mission.Dock = DockStyle.Fill;
+            crew.Dock = DockStyle.Fill;
             myTabPage.Controls.Add(crew);
             tabControl.TabPages.Add(myTabPage);
 
             myTabPage = new TabPage("Flight Data Files");
             flightData = new FlightData();
-            mission.Dock = DockStyle.Fill;
+            flightData.Dock = DockStyle.Fill;
             myTabPage.Controls.Add(flightData);
             tabControl.TabPages.Add(myTabPage);
 
