@@ -1,10 +1,13 @@
-﻿using System;
-//using System.Collections.Generic;
+﻿//code by Face
+
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
+using SSUToolbox.Forms;
 using System.IO;
 
 namespace SSUToolbox
@@ -36,11 +39,13 @@ namespace SSUToolbox
         [STAThread]
         static void Main()
         {
+            //here we're not called by the launcher, so we are a standalone app
+
             TextWriterTraceListener traceListener = PreRun();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(mainForm = new Form());
+            Application.Run(mainForm = new MainForm());
 
             PostRun(traceListener);
         }
@@ -58,13 +63,15 @@ namespace SSUToolbox
 
         public static void Open()
         {
-            CreateDialog(mainForm);
+            CreateDialog(mainForm); //open a .NET dialog
+            //if the application runs in standalone mode, the form is simply shown;
+            //otherwise, Orbiter is informed of the opening via the callbacks it got set from the Launcher (MissionControlDLL)
         }
 
-        public static void Init()
+        public static void Init()   //initialize the application ( like a Main() )
         {
-            standalone = false;
-            mainForm = new Form();
+            standalone = false; //if Init() is called by the launcher, we know that we're not standalone; we're "inside" Orbiter
+            mainForm = new MainForm();
             TextWriterTraceListener traceListener = PreRun();
             mainForm.Closed += delegate { PostRun(traceListener); };
         }

@@ -1,6 +1,5 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by OrbiterNavigatorDlg.rc
 //
 #define IDD_EMPTY                       172
 

@@ -44,16 +44,72 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Forms\FlightData.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\FlightData.Designer.cs">
+      <DependentUpon>FlightData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Crew.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Crew.Designer.cs">
+      <DependentUpon>Crew.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Kits.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Kits.Designer.cs">
+      <DependentUpon>Kits.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Landing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Landing.Designer.cs">
+      <DependentUpon>Landing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MECO.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\MECO.Designer.cs">
+      <DependentUpon>MECO.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Mission.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Mission.Designer.cs">
+      <DependentUpon>Mission.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Crew.resx">
+      <DependentUpon>Crew.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FlightData.resx">
+      <DependentUpon>FlightData.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Kits.resx">
+      <DependentUpon>Kits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Landing.resx">
+      <DependentUpon>Landing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MECO.resx">
+      <DependentUpon>MECO.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Mission.resx">
+      <DependentUpon>Mission.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

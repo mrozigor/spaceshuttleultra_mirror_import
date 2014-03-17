@@ -60,17 +60,16 @@ namespace SSU
 			void CloseUnmanagedDialog (Wrapper *wrapper, HWND managed){wrapper->CloseUnmanagedDialog(managed);}
 
 			Launcher::Launcher()
-			{				
-				String^ pathONav = 
+			{
+				String^ pathSSUTB =
 					Path::GetDirectoryName(Assembly::GetExecutingAssembly()->Location);
 				wchar_t backslash = Path::DirectorySeparatorChar;
-				int test = pathONav->LastIndexOf(Path::DirectorySeparatorChar, pathONav->LastIndexOf(Path::DirectorySeparatorChar)-1);
-				pathONav = pathONav->Remove(pathONav->LastIndexOf(Path::DirectorySeparatorChar, pathONav->LastIndexOf(Path::DirectorySeparatorChar)-1));
-				
-				pathONav = Path::Combine(pathONav, "SSUToolbox\\SSUToolbox.exe");
+				pathSSUTB = pathSSUTB->Remove(pathSSUTB->LastIndexOf(backslash, pathSSUTB->LastIndexOf(backslash)-1));
+
+				pathSSUTB = Path::Combine(pathSSUTB, "SSUToolbox\\SSUToolbox.exe");
 
 
-				Assembly^ assm=Assembly::LoadFrom(pathONav);
+				Assembly^ assm=Assembly::LoadFrom(pathSSUTB);
 				if (assm!=nullptr)
 				{
 					for each (Type^ t in assm->GetTypes())
