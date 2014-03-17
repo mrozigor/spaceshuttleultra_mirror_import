@@ -6,8 +6,3 @@ http://www.microsoft.com/en-us/download/details.aspx?id=40787
 
 "SSUToolbox/"
 	the .NET app which will work both as a standalone application and as a Mission Control dialog
-
-
-Current goals:
-* porting SSUToolboxQt's code to .NET
-* see how things go with libUltra and CLR
