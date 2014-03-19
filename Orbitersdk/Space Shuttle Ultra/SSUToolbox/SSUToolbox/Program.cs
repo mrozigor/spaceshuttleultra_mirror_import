@@ -15,7 +15,7 @@ namespace SSUToolbox
     public delegate void ModalResultDelegate(DialogResult result);
     static class Program
     {
-        private static Form mainForm;
+        private static Form mainForm = null;
         public static bool standalone = true;
 
         private static TextWriterTraceListener PreRun()
@@ -52,8 +52,6 @@ namespace SSUToolbox
 
         private static void PostRun(TextWriterTraceListener traceListener)
         {
-            //Controller.exit();            //???
-
             if (traceListener != null)
             {
                 traceListener.Flush();
@@ -63,17 +61,20 @@ namespace SSUToolbox
 
         public static void Open()
         {
-            CreateDialog(mainForm); //open a .NET dialog
-            //if the application runs in standalone mode, the form is simply shown;
-            //otherwise, Orbiter is informed of the opening via the callbacks it got set from the Launcher (MissionControlDLL)
+            if(mainForm == null)
+            {
+                mainForm = new MainForm();
+                TextWriterTraceListener traceListener = PreRun();
+                mainForm.Closed += delegate { PostRun(traceListener); };
+                CreateDialog(mainForm); //open a .NET dialog
+                //if the application runs in standalone mode, the form is simply shown;
+                //otherwise, Orbiter is informed of the opening via the callbacks it got set from the Launcher (MissionControlDLL)
+            }
         }
 
         public static void Init()   //initialize the application ( like a Main() )
         {
             standalone = false; //if Init() is called by the launcher, we know that we're not standalone; we're "inside" Orbiter
-            mainForm = new MainForm();
-            TextWriterTraceListener traceListener = PreRun();
-            mainForm.Closed += delegate { PostRun(traceListener); };
         }
 
         private delegate void CreateDialogDelegate(IntPtr wrapper, IntPtr handle);
@@ -98,7 +99,7 @@ namespace SSUToolbox
                 form.Closed += (sender, e) =>
                 {
                     closeDialog(Wrapper, form.Handle);
-                    form.Dispose();
+                    mainForm = null;
                 };
                 CreateUnmanagedDialog(form);
             }
@@ -123,7 +124,7 @@ namespace SSUToolbox
                     mainForm.Enabled = true;
                     closeDialog(Wrapper, form.Handle);
                     modalFunction.BeginInvoke(form.DialogResult, null, null);
-                    form.Dispose();
+                    mainForm = null;
                 };
                 CreateUnmanagedDialog(form);
             }

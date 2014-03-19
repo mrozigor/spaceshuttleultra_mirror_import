@@ -56,8 +56,8 @@ namespace SSU
 	{
 		namespace Client
 		{
-			void CreateUnmanagedDialog (Wrapper *wrapper, HWND managed){wrapper->CreateUnmanagedDialog(managed);}
-			void CloseUnmanagedDialog (Wrapper *wrapper, HWND managed){wrapper->CloseUnmanagedDialog(managed);}
+			void __stdcall CreateUnmanagedDialog(Wrapper *wrapper, HWND managed){ wrapper->CreateUnmanagedDialog(managed); }
+			void __stdcall CloseUnmanagedDialog(Wrapper *wrapper, HWND managed){ wrapper->CloseUnmanagedDialog(managed); }
 
 			Launcher::Launcher()
 			{

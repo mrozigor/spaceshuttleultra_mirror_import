@@ -16,5 +16,10 @@ namespace SSUToolbox.Forms
         {
             InitializeComponent();
         }
+
+        private void checkConfiguration_Click(object sender, EventArgs e)
+        {
+            ;
+        }
     }
 }

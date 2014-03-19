@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\FDO.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\FDO.Designer.cs">
+      <DependentUpon>FDO.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FlightData.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     <EmbeddedResource Include="Forms\Crew.resx">
       <DependentUpon>Crew.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FDO.resx">
+      <DependentUpon>FDO.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FlightData.resx">
       <DependentUpon>FlightData.cs</DependentUpon>

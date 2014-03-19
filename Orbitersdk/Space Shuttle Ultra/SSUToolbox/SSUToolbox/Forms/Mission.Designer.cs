@@ -39,7 +39,7 @@
             // 
             this.generateFiles.Location = new System.Drawing.Point(19, 100);
             this.generateFiles.Name = "generateFiles";
-            this.generateFiles.Size = new System.Drawing.Size(178, 23);
+            this.generateFiles.Size = new System.Drawing.Size(178, 30);
             this.generateFiles.TabIndex = 0;
             this.generateFiles.Text = "Generate mission files";
             this.generateFiles.UseVisualStyleBackColor = true;
