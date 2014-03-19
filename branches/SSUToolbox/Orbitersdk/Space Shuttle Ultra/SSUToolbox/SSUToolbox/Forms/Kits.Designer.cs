@@ -33,12 +33,13 @@
             // 
             // checkConfiguration
             // 
-            this.checkConfiguration.Location = new System.Drawing.Point(17, 15);
+            this.checkConfiguration.Location = new System.Drawing.Point(17, 14);
             this.checkConfiguration.Name = "checkConfiguration";
             this.checkConfiguration.Size = new System.Drawing.Size(198, 23);
             this.checkConfiguration.TabIndex = 0;
             this.checkConfiguration.Text = "Check Configuration";
             this.checkConfiguration.UseVisualStyleBackColor = true;
+            this.checkConfiguration.Click += new System.EventHandler(this.checkConfiguration_Click);
             // 
             // Kits
             // 
@@ -46,7 +47,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.checkConfiguration);
             this.Name = "Kits";
-            this.Size = new System.Drawing.Size(374, 256);
+            this.Size = new System.Drawing.Size(305, 231);
             this.ResumeLayout(false);
 
         }

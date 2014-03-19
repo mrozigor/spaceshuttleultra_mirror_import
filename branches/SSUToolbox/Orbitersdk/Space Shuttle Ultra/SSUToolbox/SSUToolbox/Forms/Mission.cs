@@ -16,6 +16,13 @@ namespace SSUToolbox.Forms
         {
             InitializeComponent();
 
+            if(!Program.standalone)
+            {
+                generateFiles.Hide();
+                missionName.Enabled = false;
+                orbiterUsed.Enabled = false;
+            }
+
             orbiterUsed.Items.Add(orbiterNames[1]);
             orbiterUsed.Items.Add(orbiterNames[2]);
             orbiterUsed.Items.Add(orbiterNames[3]);

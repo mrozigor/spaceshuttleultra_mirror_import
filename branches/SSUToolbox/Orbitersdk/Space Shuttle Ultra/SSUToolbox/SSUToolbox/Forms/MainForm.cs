@@ -13,6 +13,7 @@ namespace SSUToolbox.Forms
 {
     public partial class MainForm : Form
     {
+        private FDO fdo = null;
         private Mission mission;
         private MECO meco;
         private Kits kits;
@@ -30,6 +31,16 @@ namespace SSUToolbox.Forms
             tabControl.TabPages.RemoveAt(0);
 
             TabPage myTabPage;
+
+            if(!Program.standalone)
+            {
+                myTabPage = new TabPage("FDO");
+                fdo = new FDO();
+                fdo.Dock = DockStyle.Fill;
+                myTabPage.Controls.Add(fdo);
+                tabControl.TabPages.Add(myTabPage);
+            }
+
             myTabPage = new TabPage("General");
             mission = new Mission();
             mission.Dock = DockStyle.Fill;
@@ -79,7 +90,7 @@ namespace SSUToolbox.Forms
                 orbiterPath = "";
             }
         }
-
+        
         private string orbiterPath;
 
         string boolString(bool val)
