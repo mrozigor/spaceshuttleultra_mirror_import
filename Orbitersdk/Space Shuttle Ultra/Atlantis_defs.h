@@ -39,8 +39,8 @@ const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS m
 // mesh offsets
 // Orbiter mesh is always at (0,0,0)
 const VECTOR3 ET_OFFSET = _V(0.0, -9.75, 4.139); // offset between ET and shuttle meshes
-const VECTOR3 LSRB_OFFSET = _V(-6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
-const VECTOR3 RSRB_OFFSET = _V(6.27, -9.75, 0.73); // offset between SRB and shuttle mesh
+const VECTOR3 LSRB_OFFSET = _V(-6.4, -9.75, 1.13); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.4, -9.75, 1.13); // offset between SRB and shuttle mesh
 const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
 const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
 
@@ -63,8 +63,8 @@ const VECTOR3 SSMER_GOX_REF = _V(2.742, -1.953, -16.322);
 const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
-const VECTOR3 POS_HDP = _V(0.0, -10.0, -19.881);
-const VECTOR3 POS_TOW = _V(0.0, -7.95, 33.789);
+const VECTOR3 POS_HDP = _V(0.0, -10.25, -19.6);
+const VECTOR3 POS_TOW = _V(0.0, -5.64, 14.73);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
