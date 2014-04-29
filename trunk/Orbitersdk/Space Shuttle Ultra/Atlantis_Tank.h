@@ -54,7 +54,8 @@ private:
 
 	// values specified in scenario
 	double scenarioMass;
-	char pszScenarioTexture[255];
+	std::string strScenarioTexture, strScenarioTextureName;
+	std::string strScenarioBurnTex, strScenarioBurnTexName;
 
 	ATTACHMENTHANDLE ahToOrbiter;
 

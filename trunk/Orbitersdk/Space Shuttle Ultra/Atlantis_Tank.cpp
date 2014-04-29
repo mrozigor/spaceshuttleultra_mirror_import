@@ -17,6 +17,7 @@
 #include "Atlantis_Tank.h"
 #include "CommonDefs.h"
 #include "math.h"
+#include <string>
 
 // ==============================================================
 // Specialised vessel class Atlantis_Tank
@@ -30,8 +31,6 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 	mesh_idx = MESH_UNDEFINED;
 	//hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
 
-	pszScenarioTexture[0] = NULL;
-
 	//////////////////////// ET vent ////////////////////////
 	ventTimer = -1;
 	ventCounter = 50;
@@ -42,7 +41,8 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 void Atlantis_Tank::UseBurntETTexture()
 {
 	bUseBurntTexture = true;
-	UseETTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+	if(strScenarioBurnTex.empty()) UseETTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+	else UseETTexture(strScenarioBurnTex.c_str());
 }
 
 void Atlantis_Tank::UseETTexture(const char* pszTexName)
@@ -184,7 +184,7 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 	char* line;
 
 	while(oapiReadScenario_nextline(scn, line)) {
-		if(!_strnicmp(line, "BURNT_TEX", 9)) {
+		if(!_strnicmp(line, "USE_BURNT_TEX", 13)) {
 			bUseBurntTexture = true;
 		}
 		else if(!_strnicmp(line, "EMPTY_MASS", 10)) {
@@ -192,7 +192,12 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			SetEmptyMass(scenarioMass);
 		}
 		else if(!_strnicmp(line, "ET_TEX_NAME", 11)) {
-			strcpy(pszScenarioTexture, line+12);
+			strScenarioTextureName = line+12;
+			strScenarioTexture = "SSU\\" + strScenarioTextureName + ".dds";
+		}
+		else if(!_strnicmp(line, "BURNT_TEX_NAME", 14)) {
+			strScenarioBurnTexName = line+15;
+			strScenarioBurnTex = "SSU\\" + strScenarioBurnTexName + ".dds";
 		}
 		else ParseScenarioLineEx(line, status);
 	}
@@ -204,7 +209,8 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
 	if(scenarioMass>0.0) oapiWriteScenario_float(scn, "EMPTY_MASS", scenarioMass);
-	if(pszScenarioTexture[0]!=NULL) oapiWriteScenario_string(scn, "ET_TEX_NAME", pszScenarioTexture);
+	if(!strScenarioTextureName.empty()) oapiWriteScenario_string(scn, "ET_TEX_NAME", const_cast<char*>(strScenarioTextureName.c_str()));
+	if(!strScenarioBurnTexName.empty()) oapiWriteScenario_string(scn, "BURNT_TEX_NAME", const_cast<char*>(strScenarioBurnTexName.c_str()));
 }
 
 void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
@@ -214,7 +220,7 @@ void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
 	hDevTankMesh = GetDevMesh(vis, mesh_idx);
 
 	if(bUseBurntTexture) UseBurntETTexture();
-	if(pszScenarioTexture[0]!=NULL) UseETTexture(pszScenarioTexture);
+	if(!strScenarioTexture.empty()) UseETTexture(strScenarioTexture.c_str());
 }
 
 void Atlantis_Tank::clbkVisualDestroyed(VISHANDLE vis, int refcount)
