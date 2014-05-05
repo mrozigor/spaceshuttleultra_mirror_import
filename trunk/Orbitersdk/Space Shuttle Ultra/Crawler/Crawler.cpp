@@ -1125,7 +1125,7 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	if(front_dist < LC39_RAMP_START && abs(relPos.x)<10.0)
 	{
 		double front_dist2 = dist-(FWD_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
-		double back_dist2 = dist+(REAR_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
+		double back_dist2 = dist-(REAR_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 
 		double front_height = CalcRampHeight(front_dist);
 		double back_height = CalcRampHeight(back_dist);
