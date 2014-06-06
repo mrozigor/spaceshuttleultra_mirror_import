@@ -17,7 +17,7 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 	_V(-58.2, -0.75, 1.3) + _V(185, 93, -104),
 };
 
-const VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
+const VECTOR3 LC39_LIGHT_POS[LC39_LIGHT_COUNT] = {
 	_V(-58.2, -0.75, 1.3) + _V(4.126, 32, -41.503), //POS of SE light
 	_V(-58.2, -0.75, 1.3) + _V(55.574, 27, -43.662), // POS of E light
 	_V(-58.2, -0.75, 1.3) + _V(107.217, 32, -41.615),  // POS of NE light
@@ -25,13 +25,22 @@ const VECTOR3 STADIUM_LIGHT_POS[STADIUM_LIGHT_COUNT] = {
 	_V(-58.2, -0.75, 1.3) + _V(-10.551, 32, 23.754) // POS of SW light
 };
 
-const VECTOR3 STADIUM_LIGHT_DIR[STADIUM_LIGHT_COUNT] = {
+const VECTOR3 LC39_LIGHT_DIR[LC39_LIGHT_COUNT] = {
 	_V(0.7071, 0.0, 0.7071), // DIR of SE light
 	_V(0.0, 0.0, -1.0), // DIR of E light
 	_V(-0.7071, 0.0, 0.7071), // DIR of NE light
 	_V(-0.7071, 0.0, -0.7071), // DIR of NW light
 	_V(0.7071, 0.0, -0.7071) // DIR of SW light
 };
+const COLOUR4 LC39_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
+const COLOUR4 LC39_LIGHT_SPECULAR = {0,0,0,0};
+const COLOUR4 LC39_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
+const double LC39_LIGHT_RANGE = 100.0;
+const double LC39_LIGHT_ATT0 = 1e-3;
+const double LC39_LIGHT_ATT1 = 0;
+const double LC39_LIGHT_ATT2 = 1e-3;
+const double LC39_LIGHT_UMBRA = 45.0*RAD;
+const double LC39_LIGHT_PENUMBRA = 180.0*RAD;
 
 //global functions
 DLLCLBK void InitModule(HINSTANCE hDLL)
@@ -696,7 +705,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetIntertankAccessArmRate(FSS_IAA_RATE);
 
 	CreateLights(FSS_POS_LIGHT, FSS_NUM_LIGHTS);
-	CreateStadiumLights(STADIUM_LIGHT_POS, STADIUM_LIGHT_DIR, STADIUM_LIGHT_COUNT);
+	CreateStadiumLights(LC39_LIGHT_POS, LC39_LIGHT_DIR, LC39_LIGHT_COUNT, LC39_LIGHT_RANGE, LC39_LIGHT_ATT0, LC39_LIGHT_ATT1, LC39_LIGHT_ATT2, LC39_LIGHT_UMBRA, LC39_LIGHT_PENUMBRA, LC39_LIGHT_DIFFUSE, LC39_LIGHT_SPECULAR, LC39_LIGHT_AMBIENT);
 
 	//if(bPad1985) CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 	//else CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");

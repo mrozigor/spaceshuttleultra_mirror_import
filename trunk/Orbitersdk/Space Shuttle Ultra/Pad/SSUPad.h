@@ -32,7 +32,7 @@ const double FSS_OWP_STRUT_OFFSET = 13.427;
 const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 1;
-const unsigned int STADIUM_LIGHT_COUNT = 5;
+const unsigned int LC39_LIGHT_COUNT = 5;
 
 //const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
 //const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
@@ -139,8 +139,8 @@ private:
 	int SoundID;
 
 	PROPELLANT_HANDLE phLights; // fake tank for lights
-	THRUSTER_HANDLE thStadiumLights[STADIUM_LIGHT_COUNT];
-	LightEmitter* pStadiumLights[STADIUM_LIGHT_COUNT];
+	THRUSTER_HANDLE thStadiumLights[LC39_LIGHT_COUNT];
+	LightEmitter* pStadiumLights[LC39_LIGHT_COUNT];
 
 	std::string ShuttleName;
 	Atlantis* pSTS;
