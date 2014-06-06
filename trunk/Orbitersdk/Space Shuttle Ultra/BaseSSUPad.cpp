@@ -257,7 +257,7 @@ void BaseSSUPad::HaltGOXArm()
 
 void BaseSSUPad::AttachGH2Ventline()
 {
-	GH2VentlineState.action=AnimState::CLOSING;
+	if(IAAState.Open()) GH2VentlineState.action=AnimState::CLOSING;
 }
 
 void BaseSSUPad::DetachGH2Ventline()
