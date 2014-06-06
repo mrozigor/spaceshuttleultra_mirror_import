@@ -55,8 +55,9 @@ protected:
 	 * Creates stadium lights (beacons and spotlights) at specified positions
 	 * \param positions array of positions at which to create lights
 	 * \param count number of lights (size of positions array)
+	 * \param range,att0,att1,att2,umbra,penumbra,diffuse,specular,ambient Passed directly to VESSEL::AddSpotLight function
 	 */
-	void CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count);
+	void CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count, double range, double att0, double att1, double att2, double umbra, double penumbra, COLOUR4 diffuse, COLOUR4 specular, COLOUR4 ambient);
 	void ToggleLights(bool enable);
 	bool IsNight() const;
 	

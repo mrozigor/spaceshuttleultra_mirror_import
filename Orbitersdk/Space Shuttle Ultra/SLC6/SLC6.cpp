@@ -36,6 +36,15 @@ const VECTOR3 SLC6_LIGHT_DIR[SLC6_LIGHT_COUNT] = {
 	_V(-1, 0, 0),
 	_V(-1, 0, 0)
 };
+const COLOUR4 SLC6_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
+const COLOUR4 SLC6_LIGHT_SPECULAR = {0,0,0,0};
+const COLOUR4 SLC6_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
+const double SLC6_LIGHT_RANGE = 100.0;
+const double SLC6_LIGHT_ATT0 = 1e-3;
+const double SLC6_LIGHT_ATT1 = 0;
+const double SLC6_LIGHT_ATT2 = 1e-3;
+const double SLC6_LIGHT_UMBRA = 45.0*RAD;
+const double SLC6_LIGHT_PENUMBRA = 180.0*RAD;
 
 SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 	: BaseSSUPad(hVessel, flightmodel), ROFILevel(0.0), ROFIStartTime(0.0),
@@ -93,7 +102,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(SLC6_IAA_RATE);
 	
-	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT);
+	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT, SLC6_LIGHT_RANGE, SLC6_LIGHT_ATT0, SLC6_LIGHT_ATT1, SLC6_LIGHT_ATT2, SLC6_LIGHT_UMBRA, SLC6_LIGHT_PENUMBRA, SLC6_LIGHT_DIFFUSE, SLC6_LIGHT_SPECULAR, SLC6_LIGHT_AMBIENT);
 }
 
 void SLC6::clbkPostCreation()
