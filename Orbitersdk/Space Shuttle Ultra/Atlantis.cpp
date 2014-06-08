@@ -243,6 +243,8 @@ void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
 Aerodynamics::ThreeDLookup elevonVerticalLookup;
 Aerodynamics::ThreeDLookup verticalLookup;
 Aerodynamics::ThreeDLookup bodyFlapVerticalLookup;
+Aerodynamics::ThreeDLookup groundEffectLookup;
+Aerodynamics::ThreeDLookup groundEffectBodyFlapLookup;
 Aerodynamics::FourDLookup horizontalLookup;
 Aerodynamics::ThreeDLookup aileronHorizontalLookup;
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
@@ -253,7 +255,7 @@ void AscentLiftCoeff (double aoa, double M, double Re, double *cl, double *cm, d
 	// use entry model and modify coefficients to get realistic first stage performance
 	AerosurfacePositions aero;
 	aero.leftElevon = aero.rightElevon = aero.bodyFlap = aero.speedbrake = aero.rudder = 0.0;
-	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, &aero, cl, cm, cd);
+	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, 1e3, &aero, cl, cm, cd); // hardcode altitude to value large enough that shuttle is out of ground effect
 	// scale coefficients to get accurate first stage performance
 	*cl = 0.8*(*cl);
 	*cm = 0.5*(*cm);
@@ -287,7 +289,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 		if(abs(aoa) > 90.0*RAD) aoa = 0.0; // handle Orbitersim bug which results in very large AOA at first timestep
 
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
+		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, v->GetAltitude(), aerosurfaces, cl, cm, cd);
 	}
 	else {
 		*cl = 0.0;
@@ -347,20 +349,43 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 		*cd = 0.0;
 	}
 }
-void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
+void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, double altitude, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
 {
 	double basicLift, basicDrag, basicMoment;
 	double elevonLift, elevonDrag, elevonMoment;
 	double bodyFlapLift, bodyFlapDrag, bodyFlapMoment;
+	double groundEffectLift, groundEffectDrag, groundEffectMoment;
+	double groundEffectLift_BF, groundEffectDrag_BF, groundEffectMoment_BF;
 
 	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
 	verticalLookup.GetValues(mach, degAOA, aerosurfaces->speedbrake, basicLift, basicDrag, basicMoment);
 	elevonVerticalLookup.GetValues(mach, degAOA, elevonPos, elevonLift, elevonDrag, elevonMoment);
 	bodyFlapVerticalLookup.GetValues(mach, degAOA, aerosurfaces->bodyFlap, bodyFlapLift, bodyFlapDrag, bodyFlapMoment);
+	
+	const VECTOR3 GROUND_EFFECT_REF = _V(0.0, -3.926, -14.043336); // location of reference point for computing altitude (for ground effect calculations)
+	VECTOR3 groundEffectOffset = RotateVectorX(GROUND_EFFECT_REF, degAOA);
+	double groundEffectHeight = altitude+groundEffectOffset.y;
+	double heightOverSpan = groundEffectHeight/ORBITER_SPAN;
+	//groundEffectLookup.GetValues(heightOverSpan, degAOA, elevonPos, groundEffectLift, groundEffectDrag, groundEffectMoment);
+	if(heightOverSpan < 1.5) {
+		// because of how ground effect tables are set up in NASA data, ground effect lookup tables are slightly different from other lookup tables
+		// h/b (height over span) replaces aerosurface deflection, and aerosurface deflection replaces mach (ground effect is not mach-dependent)
+		heightOverSpan = max(0.0, heightOverSpan);
+		groundEffectLookup.GetValues(elevonPos, degAOA, heightOverSpan, groundEffectLift, groundEffectDrag, groundEffectMoment);
+		groundEffectBodyFlapLookup.GetValues(aerosurfaces->bodyFlap, degAOA, heightOverSpan, groundEffectLift_BF, groundEffectDrag_BF, groundEffectMoment_BF);
+	}
+	else {
+		groundEffectLift = 0.0;
+		groundEffectDrag = 0.0;
+		groundEffectMoment = 0.0;
+		groundEffectLift_BF = 0.0;
+		groundEffectDrag_BF = 0.0;
+		groundEffectMoment_BF = 0.0;
+	}
 
-	*cl = basicLift+elevonLift;
-	*cd = basicDrag+elevonDrag;
-	*cm = basicMoment+elevonMoment;
+	*cl = basicLift+elevonLift+groundEffectLift+groundEffectLift_BF;
+	*cd = basicDrag+elevonDrag+groundEffectDrag+groundEffectDrag_BF;
+	*cm = basicMoment+elevonMoment+groundEffectMoment+groundEffectMoment_BF;
 }
 
 /*
@@ -6817,6 +6842,8 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
   verticalLookup.Init("Config/SSU_Aero.csv");
   bodyFlapVerticalLookup.Init("Config/SSU_BodyFlap.csv");
+  groundEffectLookup.Init("Config/SSU_GroundEffect.csv");
+  groundEffectBodyFlapLookup.Init("Config/SSU_GroundEffectBodyFlap.csv");
   horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
   aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 

@@ -1237,7 +1237,7 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 
 	double r, delaz;
 	double cl, cm, cd;
-	GetShuttleVerticalAeroCoefficients(mach, targetAOA, &(STS()->aerosurfaces), &cl, &cm, &cd);
+	GetShuttleVerticalAeroCoefficients(mach, targetAOA, STS()->GetAltitude(), &(STS()->aerosurfaces), &cl, &cm, &cd);
 	CalculateRangeAndDELAZ(r, delaz);
 	UpdateRollDirection(mach, delaz);
 
