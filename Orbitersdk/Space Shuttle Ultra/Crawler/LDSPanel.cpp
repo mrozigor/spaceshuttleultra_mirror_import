@@ -10,12 +10,6 @@ namespace vc
 	LDS::LDS(Crawler *_v, const std::string &_ident, vc::CRAWLER_CAB _cab)
 		:CrawlerPanel(_v ,_ident, _cab)
 	{
-		//SOMETHING
-		oapiWriteLog("LDS: CLEAR TARGET");
-		target.clear();
-		target = "NONE";
-		//target = "LC39A";
-
 		if(_cab == FWD) CabSelectionSwitchPosition = CAB1;
 		else CabSelectionSwitchPosition = CAB3;
 	}
@@ -26,11 +20,6 @@ namespace vc
 		// clean up animations
 		for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 		for(unsigned int i=0;i<LDSAnimation.size();i++) delete LDSAnimation.at(i);
-	}
-
-	void LDS::ShowAlignmentError(double lateral)
-	{
-		//sprintf(oapiDebugString(),"%lf",lateral);
 	}
 
 	ATTACHMENTHANDLE LDS::FindNearestAttachment(VESSEL** pV) const
@@ -193,10 +182,10 @@ namespace vc
 
 	void LDS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		V()->SetAnimation(LDSBarAnim,CalculateOffset(0.01,CalculateDistanceBetweenAttachments()));
+		UpdateLDS(CalculateDistanceBetweenAttachments());
 	}
 
-	double LDS::CalculateOffset(double accuracy, double distance)
+	void LDS::UpdateLDS(double distance)
 	{
 		double offset;
 		// each tick represents 0.01 feet
@@ -204,7 +193,8 @@ namespace vc
 		offset = (distance*MPS2FPS)/0.16 + 0.5;
 		//sprintf(oapiDebugString(),"Distance: %f Offset: %lf", distance, offset);
 
-		return range(0, offset, 1);
+		offset = range(0, offset, 1);
+		V()->SetAnimation(LDSBarAnim, offset);
 	}
 
 	void LDS::RegisterVC()
