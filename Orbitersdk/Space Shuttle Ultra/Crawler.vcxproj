@@ -146,7 +146,7 @@
       <OutputFile>../../Modules/SSU_Crawler.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>MSVCRT;msvcirt;libci;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcirt.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ProgramDatabaseFile>.\Release\Crawler/Crawler.pdb</ProgramDatabaseFile>
       <ImportLibrary>.\Release\Crawler/Crawler.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
