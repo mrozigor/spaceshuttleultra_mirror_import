@@ -15,17 +15,16 @@ namespace vc
 	{
 		std::vector<MGROUP_ROTATE*> vpAnimations;
 		std::vector<MGROUP_TRANSLATE*> LDSAnimation;
+
+		std::string target;
+		
+		UINT LDSBarAnim;
+		UINT CabSelectionSwitchAnim;
+		enum {CAB1, CAB3} CabSelectionSwitchPosition;
 	public:
 		LDS(Crawler* _v, const std::string& _ident, CRAWLER_CAB _cab);
 		virtual ~LDS();
 
-		UINT LeftKnobAnim, CenterKnobAnim, RightKnobAnim, LDSBarAnim;
-		int LeftKnobState, CenterKnobState, RightKnobState;
-
-		std::string target;
-
-		void ShowAlignmentError(double lateral);
-		double CalculateDistanceBetweenAttachments();
 		virtual void RegisterVC();
 		virtual void DefineVC();
 		virtual void Realize();
@@ -34,5 +33,9 @@ namespace vc
 
 		virtual void DefineVCAnimations(UINT vcidx);
 		virtual bool OnVCMouseEvent(int id, int _event, VECTOR3 &p);
+	private:
+		ATTACHMENTHANDLE FindNearestAttachment(VESSEL** pV) const;
+		void ShowAlignmentError(double lateral);
+		double CalculateDistanceBetweenAttachments();
 	};
 };
