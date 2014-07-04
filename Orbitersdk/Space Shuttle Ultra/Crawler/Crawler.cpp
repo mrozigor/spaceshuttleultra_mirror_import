@@ -672,7 +672,7 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 		} else if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf_s (line + 8, "%lf", &currentSpeed);
 		} else if (!_strnicmp (line, "TGT_VELOCITY", 12)) {
-			sscanf_s(line, "%lf", &targetSpeed);
+			sscanf_s(line + 12, "%lf", &targetSpeed);
 		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
 			sscanf (line + 15, "%lf%lf", &steeringActual[0], &steeringActual[1]);
 		} else if (!_strnicmp (line, "STEERING_COMMANDED", 18)) {
@@ -807,7 +807,7 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			return 1;
 		}
 		else if(!down && key == OAPI_KEY_J) {
-			targetJackHeightIndex = min(targetJackHeightIndex+1, JACK_HEIGHT_COUNT);
+			targetJackHeightIndex = min(targetJackHeightIndex+1, JACK_HEIGHT_COUNT-1);
 			return 1;
 		}
 		else if(!down && key == OAPI_KEY_K) {
