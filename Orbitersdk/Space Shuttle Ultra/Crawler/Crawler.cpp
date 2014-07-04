@@ -126,6 +126,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string>
+#include <cassert>
 #include <OrbiterSoundSDK40.h>
 #include "../resource_Crawler.h"
 
@@ -324,22 +325,90 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	pgRearCab.DefineVCAnimations(rearVCIdx);
 }
 
-
-
 void Crawler::DefineAnimations(bool b1980Mesh)
+{
+	DefineDrivetruckAnimations();
+
+	if(b1980Mesh) Define1980StrutAnimations();
+	else DefineStrutAnimations();
+}
+
+void Crawler::DefineDrivetruckAnimations()
 {
 	// initialize array of groups needed for drivetruck translation animation
 	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
-		if(i!=GRP_JEL__Guide_cylinders_TRUCK && i!=GRP_JEL_Guide_cylinder_dust_shields_TRUCK) {
+		if(i!=GRP_JEL__Guide_cylinders_TRUCK && i!=GRP_JEL_Guide_cylinder_dust_shields_TRUCK && i!=GRP_DC_traction_motor_brake_discs_inner_TRUCK && i!=GRP_DC_traction_motor_brake_discs_outer_TRUCK) {
+			assert(j < NGRP_TRUCK-4); // ensure index is within limits
 			DrivetruckGrpList[j]=i;
 			j++;
 		}
 	}
-	DrivetruckGrpList[NGRP_TRUCK-2]=GRP_JEL__Guide_cylinders_TRUCK;
-	DrivetruckGrpList[NGRP_TRUCK-1]=GRP_JEL_Guide_cylinder_dust_shields_TRUCK;
+	static UINT GRP_JEL_Cylinders = GRP_JEL_Guide_cylinder_dust_shields_TRUCK;
+	static UINT GRP_Brake_Discs[2] = {GRP_DC_traction_motor_brake_discs_inner_TRUCK, GRP_DC_traction_motor_brake_discs_outer_TRUCK};
 
-	if(b1980Mesh) Define1980StrutAnimations();
-	else DefineStrutAnimations();
+	static VECTOR3 dummy_vec[4];
+	anim_brake_discs = CreateAnimation(0.0);
+
+	MGROUP_ROTATE* Rot_Truck1 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[0]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[0] = CreateAnimation(0.5);
+	ANIMATIONCOMPONENT_HANDLE parent = AddManagedAnimationComponent(anim_truck_rot[0], 0.0, 1.0, Rot_Truck1);
+	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[0] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
+	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
+	//brake discs inner truck 1
+	InnerBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddManagedAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[0],parent);
+	//brake discs outter
+	OutterBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[0], parent);
+	
+	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[1] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[1], 0.0, 1.0, Rot_Truck2);
+	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[1] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
+	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
+	//brake discs inner truck 2
+	InnerBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[1], parent);
+	//brake discs outter
+	OutterBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[1], parent);
+
+
+	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[2] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[2], 0.0, 1.0, Rot_Truck3);
+	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[2] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
+	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
+	//brake discs inner truck 3
+	InnerBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[2], parent);
+	//brake discs outter
+	OutterBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[2], parent);
+
+	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[3] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[3], 0.0, 1.0, Rot_Truck4);
+	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[3] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
+	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
+	//brake discs inner truck 4
+	InnerBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[3], parent);
+	//brake discs outter
+	OutterBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[3], parent);
 }
 
 void Crawler::clbkPostCreation()
@@ -431,8 +500,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed));
 	port_targetSpeed.SetLine(static_cast<float>(targetSpeed));
 	
-	double timeW = oapiGetTimeAcceleration();
-
 	double lat, lon;
 	vs.version = 2;
 	GetStatusEx(&vs);
@@ -539,12 +606,13 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 
 	//braking cylinders animation
-	if(oapiGetTimeAcceleration() == 1) //on time acceleration there are some offsets, so we don't want to animate when time accel is enabled
+	if(oapiGetTimeAcceleration() <= 5.0) //on time acceleration there are some offsets, so we don't want to animate when time accel is enabled
 	{
-		RedefineBrakingDiscsAnimationRefPoints();
 		brake_discs_state += (simdt*currentSpeed*0.44704/5.252742917)*168; //how many evolutions does the disc per second
-		if(brake_discs_state >= 1)
+		if(brake_discs_state > 1)
 			brake_discs_state = 0;
+		else if(brake_discs_state < 0)
+			brake_discs_state = 1;
 
 		SetAnimation(anim_brake_discs,brake_discs_state);
 	}
@@ -1230,30 +1298,6 @@ MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
 	if(cab==vc::FWD) return hFwdVCMesh;
 	else return hRearVCMesh;
 }
-
-void Crawler::RedefineBrakingDiscsAnimationRefPoints()
-{
-	//static UINT GRP_Brake_Discs[2] = {GRP_DC_traction_motor_brake_discs_inner_TRUCK, GRP_DC_traction_motor_brake_discs_outer_TRUCK};
-
-	//brake discs inner truck 1
-	//MGROUP_ROTATE* InnerBrakeDiscs_1 = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(0.31,-0.97-jackHeight,0.54),_V(0,0,1),-(float)360*RAD);
-	//anim_brake_discs[0] = CreateAnimation(0.0);
-	//AddAnimationComponent(anim_brake_discs[0],0,1,InnerBrakeDiscs_1);
-	
-	InnerBrakeDiscs[0]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[0]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[1]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[1]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[2]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[2]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[3]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[3]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-}
-
 
 /*
 void Crawler::KnobAction(VECTOR3 pos, int panel)
