@@ -15,8 +15,6 @@ namespace vc
 	{
 		std::vector<MGROUP_ROTATE*> vpAnimations;
 		std::vector<MGROUP_TRANSLATE*> LDSAnimation;
-
-		std::string target;
 		
 		UINT LDSBarAnim;
 		UINT CabSelectionSwitchAnim;
@@ -29,13 +27,12 @@ namespace vc
 		virtual void DefineVC();
 		virtual void Realize();
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		double CalculateOffset(double accuracy, double distance);
 
 		virtual void DefineVCAnimations(UINT vcidx);
 		virtual bool OnVCMouseEvent(int id, int _event, VECTOR3 &p);
 	private:
 		ATTACHMENTHANDLE FindNearestAttachment(VESSEL** pV) const;
-		void ShowAlignmentError(double lateral);
 		double CalculateDistanceBetweenAttachments();
+		void UpdateLDS(double distance);
 	};
 };
