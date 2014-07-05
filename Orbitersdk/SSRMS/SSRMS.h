@@ -108,6 +108,8 @@ private:
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
+	
+	VECTOR3 AltKybdInput;
 
 	VECTOR3 mesh_center; // used to shift meshes so active LEE is at centre of external view
 

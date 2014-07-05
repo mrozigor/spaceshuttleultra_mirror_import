@@ -65,6 +65,8 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	activeLEE=1;
 	passiveLEE=0;
 
+	AltKybdInput = _V(0, 0, 0);
+
 	ShowAttachmentPoints=false;
 
 	//SetCameraOffset(arm_tip[2]);
@@ -510,9 +512,14 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 		VECTOR3 THCInput=_V(0.0, 0.0, 0.0);
 		//VECTOR3 EETrans;
 
-		THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-		THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-		THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
+		if(GetAttitudeMode()==RCS_ROT) {
+			THCInput = AltKybdInput;
+		}
+		else {
+			THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
+			THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
+			THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
+		}
 		THCInput*=EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
 
 		RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
@@ -755,6 +762,30 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 					else SpeedFactor=1;
 				}
 				return 1;
+		case OAPI_KEY_LEFT:
+			if(down) AltKybdInput.y=-1.0;
+			else AltKybdInput.y=0.0;
+			return 1;
+		case OAPI_KEY_RIGHT:
+			if(down) AltKybdInput.y=1.0;
+			else AltKybdInput.y=0.0;
+			return 1;
+		case OAPI_KEY_INSERT:
+			if(down) AltKybdInput.x=-1.0;
+			else AltKybdInput.x=0.0;
+			return 1;
+		case OAPI_KEY_DELETE:
+			if(down) AltKybdInput.x=1.0;
+			else AltKybdInput.x=0.0;
+			return 1;
+		case OAPI_KEY_UP:
+			if(down) AltKybdInput.z=1.0;
+			else AltKybdInput.z=0.0;
+			return 1;
+		case OAPI_KEY_DOWN:
+			if(down) AltKybdInput.z=-1.0;
+			else AltKybdInput.z=0.0;
+			return 1;
 		}
 	}
 
