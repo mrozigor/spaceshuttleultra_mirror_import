@@ -57,7 +57,6 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	
 	foldState.Set(AnimState::OPEN, 1.0);
 
-	update_angles=false;
 	update_vectors=true;
 	arm_moved=false;
 	update_camera = false;
@@ -477,7 +476,6 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				&joint_angle[ELBOW_PITCH], &joint_angle[WRIST_PITCH], &joint_angle[WRIST_YAW], &joint_angle[WRIST_ROLL]);
 			arm_moved=true;
 			update_vectors=true;
-			update_angles=true;
 			update_camera = true;
 		}
 		else if(!_strnicmp(line, "ACTIVE_LEE", 10)) {
@@ -528,7 +526,6 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			if(joint_motion[i]!=0) {
 				SetJointAngle((SSRMS_JOINT)i, joint_angle[i]+SimDT*JOINT_ROTATION_SPEED*SpeedFactor*joint_motion[i]);
 				update_vectors=true;
-				update_angles=true;
 			}
 		}
 
@@ -594,25 +591,23 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 	pSubsystemDirector->PostStep(SimT, SimDT, MJD);
 
 	if(arm_moved) {
-		// calculate position
-		VECTOR3 ee_pos_output=(arm_tip[0]-SP_JOINT)*12/fps_to_ms;
-		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
-
 		// calculate attitude
-		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
-		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=-arm_tip[0]+arm_tip[2];
-		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[1], arm_ee_dir_orb[0]);
-		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
-									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
-									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
-		VECTOR3 ee_att_output = GetZYX_RYPAnglesFromMatrix(arm_ee_dir_mat);
-		// reference frame is a bit odd here, so we need this to get the math to work
-		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
-		if(update_angles) {
-			arm_ee_angles=ee_att_output;
-			update_angles=false;
-		}		
+		VECTOR3 ee_frame_x, ee_frame_y, ee_frame_z; // reference frame defined by EE direction
+		ee_frame_x=ConvertVectorToSSRMSFrame(arm_tip[1]-arm_tip[0]);
+		ee_frame_z=ConvertVectorToSSRMSFrame(arm_tip[0]-arm_tip[2]);
+		ee_frame_y=crossp(ee_frame_z, ee_frame_x);
+		// this rotation matrix is correct regardless of which LEE is active
+		MATRIX3 ee_frame_mat = _M(ee_frame_x.x, ee_frame_y.x, ee_frame_z.x,
+								  ee_frame_x.y, ee_frame_y.y, ee_frame_z.y,
+								  ee_frame_x.z, ee_frame_y.z, ee_frame_z.z);
+		ee_angles_output = GetYZX_PYRAnglesFromMatrix(ee_frame_mat)*DEG;
+
+		// calculate position
+		// at the moment, this is just distance (in inches) from base LEE to active LEE (in selected frame)
+		// not sure how realistic this is
+		ee_pos_output = arm_ee_pos*12.0/fps_to_ms;
+		//ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y); // shoulder frame
+		if(RefFrame == EE_FRAME) ee_pos_output = mul(ee_frame_mat, ee_pos_output);
 
 		UpdateMeshPosition();
 
@@ -638,10 +633,15 @@ bool SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp)
 	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
 		joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	skp->Text(hps->W/3, (hps->H/10)+(hps->Markersize/2), cbuf, strlen(cbuf));
+	// position/attitude
+	sprintf(cbuf, "   X     Y     Z      Pitch   Yaw    Roll");
+	skp->Text(hps->W/3, hps->H/10 + hps->Markersize, cbuf, strlen(cbuf));
+	sprintf(cbuf, "%+5.0f %+5.0f %+5.0f    %+5.1f  %+4.1f  %+5.1f", ee_pos_output.x, ee_pos_output.y, ee_pos_output.z, ee_angles_output.data[PITCH], ee_angles_output.data[YAW], ee_angles_output.data[ROLL]);
+	skp->Text(hps->W/3, hps->H/10 + 1.5*hps->Markersize, cbuf, strlen(cbuf));
 
 	//rotation/translation speed
 	sprintf(cbuf, "Rotation speed: %d deg/sec", SpeedFactor);
-	skp->Text(hps->W/3, (hps->H/10)+(1.5*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(2.0*hps->Markersize), cbuf, strlen(cbuf));
 	sprintf(cbuf, "Translation speed: %d ft/sec", SpeedFactor);
 	skp->Text(hps->W/3, (hps->H/10)+(2.5*hps->Markersize), cbuf, strlen(cbuf));
 
@@ -659,6 +659,35 @@ bool SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp)
 	TextOut(hDC, hps->W/3, hps->H/10, cbuf, strlen(cbuf));
 	sprintf(cbuf, "SY: %.2f", sy_angle);
 	TextOut(hDC, hps->W/3, (hps->H/10)+hps->Markersize, cbuf, strlen(cbuf));*/
+	
+	// draw crosshairs (part of LEE capture overlay)
+	// grapple target pin has diameter of 0.375 inches and is 4 inches long
+	const double GRAPPLE_PIN_RADIUS = (0.5*0.375/12.0)/MPS2FPS;
+	const double DIST_TO_PIN = (LEE_POS.z-LEE2_CAM_POS.z) - (4.0/12.0)/MPS2FPS; // distance from camera to grapple target pin
+	int pinSize = round(hps->Scale*DEG*atan(GRAPPLE_PIN_RADIUS/DIST_TO_PIN)); // angular size of grapple target pin when EE is aligned with grapple fixture
+	skp->Line(hps->CX-pinSize, hps->CY, hps->CX-pinSize-hps->Markersize, hps->CY);
+	skp->Line(hps->CX+pinSize, hps->CY, hps->CX+pinSize+hps->Markersize, hps->CY);
+	skp->Line(hps->CX, hps->CY-pinSize, hps->CX, hps->CY-pinSize-hps->Markersize);
+	skp->Line(hps->CX, hps->CY+pinSize, hps->CX, hps->CY+pinSize+hps->Markersize);
+	
+	// draw red lines (part of LEE capture overlay)
+	// used to indicate roll angle and distance error
+	const double MAX_ANGLE_ERROR = 15.0*RAD; // angular error represented by red lines
+	const double MAX_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.2; // distance to grapple pin represented by outer red line
+	const double MIN_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.1; // distance to grapple pin represented by inner red line
+	const double GRAPPLE_TARGET_SIZE = (14.0/12.0)/MPS2FPS; // length of white line on grapple target
+	int innerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MIN_DISTANCE_ERROR));
+	int outerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MAX_DISTANCE_ERROR));
+	int innerLength = round(innerXOffset*tan(MAX_ANGLE_ERROR));
+	int outerLength = round(outerXOffset*tan(MAX_ANGLE_ERROR));
+	oapi::Pen* redPen = oapiCreatePen(1, 3, RGB(255, 0, 0));
+	oapi::Pen* oldPen = skp->SetPen(redPen);
+	skp->Line(hps->CX + innerXOffset, hps->CY - innerLength, hps->CX + innerXOffset, hps->CY + innerLength);
+	skp->Line(hps->CX - innerXOffset, hps->CY - innerLength, hps->CX - innerXOffset, hps->CY + innerLength);
+	skp->Line(hps->CX + outerXOffset, hps->CY - outerLength, hps->CX + outerXOffset, hps->CY + outerLength);
+	skp->Line(hps->CX - outerXOffset, hps->CY - outerLength, hps->CX - outerXOffset, hps->CY + outerLength);
+	skp->SetPen(oldPen);
+	oapiReleasePen(redPen);
 	
 	return true;
 }
