@@ -34,9 +34,9 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//pLEE[1] = new LatchSystem(this, "LEE2", ATTACH_ID);
 
 	//load mesh
-	hSSRMSMesh = oapiLoadMeshGlobal("SSRMSD");
+	hSSRMSMesh = oapiLoadMeshGlobal("SSRMSF");
 	mesh_ssrms = AddMesh(hSSRMSMesh);
-	SetMeshVisibilityMode(mesh_ssrms, MESHVIS_ALWAYS);
+	SetMeshVisibilityMode(mesh_ssrms, MESHVIS_ALWAYS|MESHVIS_EXTPASS);
 
 	//initialize RMS
 	for(int i=0;i<7;i++) {
@@ -54,6 +54,8 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//arm_tip[2] = _V(-0.70, 1.59, 8.44);
 	arm_tip[3] = LEE2_CAM_POS;
 	mesh_center = _V(0, 0, 0);
+	
+	foldState.Set(AnimState::OPEN, 1.0);
 
 	update_angles=false;
 	update_vectors=true;
@@ -102,23 +104,32 @@ void SSRMS::DefineAnimations()
 	//anim_joint[SHOULDER_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_YAW], 0, 1, &sy_anim, parent);
 
-	static UINT ShoulderPitchGrp[10] = {23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
-	static MGROUP_ROTATE sp_anim (mesh_ssrms, ShoulderPitchGrp, 10,
-		SP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
+	static UINT ShoulderPitchGrp[5] = {23, 24, 25, 29, 30};
+	static MGROUP_ROTATE sp_anim (mesh_ssrms, ShoulderPitchGrp, 5,
+		SP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_PITCH] = CreateAnimation(0.5);
 	//anim_joint[SHOULDER_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_PITCH], 0, 1, &sp_anim, parent);
 
-	static UINT ElbowPitchGrp[9] = {33, 34, 35, 36, 37, 38, 39, 40, 41};
-	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 9,
-		EP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
+	static UINT ShoulderFoldGrp[5] = {26,27,28,31,32};
+	static MGROUP_ROTATE shoulder_fold_anim(mesh_ssrms, ShoulderFoldGrp, 5, _V(0, 0.245, -3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
+	anim_fold = CreateAnimation(1.0);
+	AddAnimationComponent(anim_fold, 0, 1, &shoulder_fold_anim, parent);
+
+	static UINT ElbowPitchGrp[4] = {34, 39, 40, 41};
+	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 4,
+		EP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][ELBOW_PITCH] = CreateAnimation(0.5);
 	//anim_joint[ELBOW_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][ELBOW_PITCH], 0, 1, &ep_anim, parent);
 
+	static UINT WristFoldGrp[5] = {33,35,36,37,38};
+	static MGROUP_ROTATE wrist_fold_anim(mesh_ssrms, WristFoldGrp, 5, _V(0, -0.245, 3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
+	AddAnimationComponent(anim_fold, 0, 1, &wrist_fold_anim, parent);
+
 	static UINT WristPitchGrp[1] = {42};
 	static MGROUP_ROTATE wp_anim (mesh_ssrms, WristPitchGrp, 1,
-		WP_JOINT, _V(1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
+		WP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_PITCH] = CreateAnimation(0.5);
 	//anim_joint[WRIST_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_PITCH], 0, 1, &wp_anim, parent);
@@ -209,7 +220,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		//dir = -dir;
 		//rot = -rot;
 	}
-	else sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f", abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW]));
+	//else sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f", abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW]));
 	oapiWriteLog(oapiDebugString());
 	// calculate vector parallel to horizontal offset between booms
 	// offset_vector is perpendicular to boom plane
@@ -261,23 +272,23 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 		sprintf_s(oapiDebugString(), 255, "MoveEE: Can't reach with shoulder");
 		return false; //Can't reach with shoulder
 	}
-	new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
+	new_joint_angles[SHOULDER_PITCH]=DEG*(-atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
 	// 2 possible solutions for pitch angles; pick one closest to current state
 	double curElbowAngle = ResolveToNearestAngle(joint_angle[ELBOW_PITCH], 0.0); // in case actual elbow angle exceeds +/- 180 degrees
 	if(!Eq(sign(new_joint_angles[ELBOW_PITCH]), sign(curElbowAngle), 0.01)) {
 		//sprintf_s(oapiDebugString(), 255, "MoveEE: reversing elbow sign");
 		new_joint_angles[ELBOW_PITCH] = -new_joint_angles[ELBOW_PITCH];
-		new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)-acos(cos_phi_s2));
+		new_joint_angles[SHOULDER_PITCH]=DEG*(-atan2(offset_wp_pos.z,rho)-acos(cos_phi_s2));
 		//sp_angle_d = -sp_angle_d;
 	}
 	if(yaw180Error) {
-		new_joint_angles[SHOULDER_PITCH] += 180.0-2.0*DEG*atan2(offset_wp_pos.z,rho);
+		new_joint_angles[SHOULDER_PITCH] += 180.0+2.0*DEG*atan2(offset_wp_pos.z,rho);
 		//sp_angle_d += 180.0+acos(cos_phi_s2);
 		//sp_angle_d = 180.0 - sp_angle_d - 2.0*ep_angle_d;
 	}
 	//double sp_angle_d=DEG*(acos(cos_phi_s2));
 
-	double phi=DEG*acos(wp_dir.z);
+	double phi=-DEG*acos(wp_dir.z);
 	//double phi=DEG*acos(wp_dir.z);
 	//double phi = DEG*atan2(sqrt(wp_dir.x*wp_dir.x + wp_dir.y*wp_dir.y), wp_dir.z);
 	//if((wp_dir.x>0.0 && corrected_wy_pos.x>=0.0) || (wp_dir.x<0.0 && corrected_wy_pos.x<0.0)) phi=-phi;
@@ -325,7 +336,7 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	arm_ee_pos = newPos;
 	arm_ee_dir = newDir;
 	arm_ee_rot = newRot;
-
+	
 	return true;
 }
 
@@ -428,15 +439,15 @@ void SSRMS::CalculateVectors()
 	arm_ee_pos = _V(SR_SY_DIST, 0, 0) + arm_ee_rot*SY_SP_VERT_DIST;
 	// handle SY joint; get new direction, than translate EE pos to compensate for horizontal offset between booms
 	arm_ee_dir = RotateVector(arm_ee_rot, RAD*joint_angle[SHOULDER_YAW], arm_ee_dir);
-	VECTOR3 dir_cross_rot = crossp(arm_ee_dir, arm_ee_rot); // pitch joints rotate around this vector
-	arm_ee_pos += dir_cross_rot*LEE_OFFSET;
+	VECTOR3 rot_cross_dir = crossp(arm_ee_rot, arm_ee_dir); // pitch joints rotate around this vector
+	arm_ee_pos -= rot_cross_dir*LEE_OFFSET;
 	// handle 3 pitch joints
-	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[SHOULDER_PITCH], arm_ee_dir);
+	arm_ee_dir = RotateVector(rot_cross_dir, RAD*joint_angle[SHOULDER_PITCH], arm_ee_dir);
 	arm_ee_pos += arm_ee_dir*SP_EP_DIST;
-	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[ELBOW_PITCH], arm_ee_dir);
+	arm_ee_dir = RotateVector(rot_cross_dir, RAD*joint_angle[ELBOW_PITCH], arm_ee_dir);
 	arm_ee_pos += arm_ee_dir*EP_WP_DIST;
-	arm_ee_dir = RotateVector(dir_cross_rot, RAD*joint_angle[WRIST_PITCH], arm_ee_dir);
-	arm_ee_rot = RotateVector(dir_cross_rot, RAD*(joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH]+joint_angle[WRIST_PITCH]), arm_ee_rot);
+	arm_ee_dir = RotateVector(rot_cross_dir, RAD*joint_angle[WRIST_PITCH], arm_ee_dir);
+	arm_ee_rot = RotateVector(rot_cross_dir, RAD*(joint_angle[SHOULDER_PITCH]+joint_angle[ELBOW_PITCH]+joint_angle[WRIST_PITCH]), arm_ee_rot);
 	arm_ee_pos -= arm_ee_rot*WP_WY_DIST;
 	// wrist yaw
 	arm_ee_dir = RotateVector(arm_ee_rot, RAD*joint_angle[WRIST_YAW], arm_ee_dir);
@@ -444,8 +455,8 @@ void SSRMS::CalculateVectors()
 	// wrist roll
 	arm_ee_rot = RotateVector(arm_ee_dir, RAD*joint_angle[WRIST_ROLL], arm_ee_rot);
 
-	//VECTOR3 old_arm_ee_pos=arm_tip[0]-SR_JOINT;
-	//old_arm_ee_pos=_V(old_arm_ee_pos.z, -old_arm_ee_pos.x, -old_arm_ee_pos.y);
+	VECTOR3 old_arm_ee_pos=arm_tip[0]-SR_JOINT;
+	old_arm_ee_pos=_V(old_arm_ee_pos.z, old_arm_ee_pos.x, -old_arm_ee_pos.y);
 	/*sprintf_s(oapiDebugString(), 255, "FK pos: %f %f %f Orbiter pos: %f %f %f arm_tip: %f %f %f",
 		arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z,
 		old_arm_ee_pos.x, old_arm_ee_pos.y, old_arm_ee_pos.z,
@@ -473,6 +484,10 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscanf(line+10, "%d", &activeLEE);
 			passiveLEE=1-activeLEE;
 		}
+		else if(!_strnicmp(line, "FOLDED", 6)) {
+			sscan_state(line+6, foldState);
+			SetAnimation(anim_fold, foldState.pos);
+		}
 		else if(!pSubsystemDirector->ParseScenarioLine(scn, line)) {
 			ParseScenarioLineEx(line, vs);
 		}
@@ -488,6 +503,7 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 				joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
 	oapiWriteScenario_int(scn, "ACTIVE_LEE", activeLEE);
+	WriteScenario_state(scn, "FOLDED", foldState);
 	pSubsystemDirector->SaveState(scn);
 }
 
@@ -497,6 +513,14 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 
 	// disable all Orbitersim autopilots
 	for(int i=NAVMODE_KILLROT;i<=NAVMODE_HOLDALT;i++) DeactivateNavmode(i);
+	
+	if(foldState.Moving()) {
+		foldState.Move(SimDT*SSRMS_UNFOLD_SPEED);
+		SetAnimation(anim_fold, foldState.pos);
+	}
+	
+	// if arm is still folded, arm is not allowed to move
+	if(!foldState.Open()) return;
 
 	// if one LEE is free, allow arm to move
 	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) {
@@ -746,6 +770,18 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			case OAPI_KEY_7:
 				if(down) joint_motion[WRIST_ROLL]=1;
 				else joint_motion[WRIST_ROLL]=0;
+				return 1;
+			case OAPI_KEY_K: // unfold arm
+				if(!down) {
+					if(foldState.Open() || foldState.Opening()) {
+						if(Eq(joint_angle[ELBOW_PITCH], -180.0, 0.1) || Eq(joint_angle[ELBOW_PITCH], 180.0, 0.1)) { // only allow closing if elbow joint is in correct position (otherwise animation doesn't work)
+							foldState.action = AnimState::CLOSING;
+						}
+					}
+					else {
+						foldState.action = AnimState::OPENING;
+					}
+				}
 				return 1;
 			case OAPI_KEY_G:
 				if(!down) {
