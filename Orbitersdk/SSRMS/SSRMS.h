@@ -97,14 +97,23 @@ private:
 	void UpdateCameraView();
 	void CalculateVectors();
 
+	/**
+	 * Converts vector from Orbitersim frame to SSRMS IK frame
+	 */
+	VECTOR3 ConvertVectorToSSRMSFrame(const VECTOR3& v) const
+	{
+		return _V(v.z, v.x, -v.y);
+	}
+
 private:
 	SSRMSSubsystemDirector* pSubsystemDirector;
 	LEESystem* pLEE[2];
 
 	VECTOR3 arm_tip[4];
-	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot, arm_ee_angles;
+	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
+	VECTOR3 ee_pos_output, ee_angles_output;
 	double joint_angle[7]; // angles in degrees
-	bool arm_moved, update_angles, update_vectors, update_camera;
+	bool arm_moved, update_vectors, update_camera;
 
 	int activeLEE, passiveLEE; // either 0 or 1
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
