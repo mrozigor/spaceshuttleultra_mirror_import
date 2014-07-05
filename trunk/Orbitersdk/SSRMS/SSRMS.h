@@ -16,17 +16,19 @@ const double JOINT_ROTATION_SPEED = 1.0; // rotation speed for single joint ops 
 const double EE_ROTATION_SPEED = RAD*1.0; // rad/s
 const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
 
-// joint positions
-const VECTOR3 SR_JOINT = _V(0.70, 0.59, -8.44); // coincides with LEE position
-const VECTOR3 SY_JOINT = _V(0.69, 0.59, -7.47);
-const VECTOR3 SP_JOINT = _V(0.0, 0.00, -7.47);
-const VECTOR3 EP_JOINT = _V(0.0, 0.0, 0.0);
-const VECTOR3 WP_JOINT = _V(0.0, 0.0, 7.47);
-const VECTOR3 WY_JOINT = _V(-0.69, 0.59, 7.47);
-const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint position
+const double SSRMS_UNFOLD_SPEED = 1/10.0; // time for SSRMS unfolding animation
 
-const VECTOR3 LEE1_CAM_POS = _V(0.696, 0.789, -8.257);
-const VECTOR3 LEE2_CAM_POS = _V(-0.702, 0.789, 8.257);
+// joint positions
+const VECTOR3 SR_JOINT = _V(0.826, 0.703, -8.605); // coincides with LEE position
+const VECTOR3 SY_JOINT = _V(0.826, 0.703, -7.298);
+const VECTOR3 SP_JOINT = _V(0.0,0.00,-7.298);
+const VECTOR3 EP_JOINT = _V(0.0,0.00,0.0);
+const VECTOR3 WP_JOINT = _V(0.0,0.00,7.299);
+const VECTOR3 WY_JOINT = _V(-0.829,0.703,7.299);
+const VECTOR3 LEE_POS = _V(-0.829,0.703,8.605); // coincides with WR joint position
+
+const VECTOR3 LEE1_CAM_POS = _V(0.826, 0.985, -8.217);
+const VECTOR3 LEE2_CAM_POS = _V(-0.826, 0.985, 8.217);
 
 const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
@@ -119,7 +121,10 @@ private:
 	MESHHANDLE hSSRMSMesh;
 	UINT mesh_ssrms;
 	UINT anim_joint[2][7], anim_lee;
+	UINT anim_fold;
 	//UINT anim_joint[7], anim_lee;
+	
+	AnimState foldState;
 
 	bool ShowAttachmentPoints;
 
