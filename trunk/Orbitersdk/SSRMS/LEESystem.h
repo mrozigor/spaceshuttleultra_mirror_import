@@ -52,7 +52,7 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 protected:
 	void CheckForAttachedObjects();
-	bool CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchpos, const VECTOR3& glatchdir) const;
+	bool CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchpos, const VECTOR3& glatchdir, const VECTOR3& glatchrot) const;
 
 	void AttachPayload(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void DetachPayload();

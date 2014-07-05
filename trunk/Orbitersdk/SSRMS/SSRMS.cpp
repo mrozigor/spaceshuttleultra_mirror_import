@@ -261,7 +261,8 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	}
 	new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)+acos(cos_phi_s2));
 	// 2 possible solutions for pitch angles; pick one closest to current state
-	if(!Eq(sign(new_joint_angles[ELBOW_PITCH]), sign(joint_angle[ELBOW_PITCH]), 0.01)) {
+	double curElbowAngle = ResolveToNearestAngle(joint_angle[ELBOW_PITCH], 0.0); // in case actual elbow angle exceeds +/- 180 degrees
+	if(!Eq(sign(new_joint_angles[ELBOW_PITCH]), sign(curElbowAngle), 0.01)) {
 		//sprintf_s(oapiDebugString(), 255, "MoveEE: reversing elbow sign");
 		new_joint_angles[ELBOW_PITCH] = -new_joint_angles[ELBOW_PITCH];
 		new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(offset_wp_pos.z,rho)-acos(cos_phi_s2));
