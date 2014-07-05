@@ -506,16 +506,14 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
 
 		// calculate attitude
-		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
-		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=arm_tip[2]-arm_tip[0];
-		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[1], arm_ee_dir_orb[0]);
-		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
-									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
-									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
-		VECTOR3 ee_att_output = GetZYX_RYPAnglesFromMatrix(arm_ee_dir_mat);
-		// reference frame is a bit odd here, so we need this to get the math to work
-		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
+		VECTOR3 ee_frame_x, ee_frame_y, ee_frame_z; // reference frame define by EE direction
+		ee_frame_x=ConvertVectorToRMSFrame(arm_tip[1]-arm_tip[0]);
+		ee_frame_z=ConvertVectorToRMSFrame(arm_tip[0]-arm_tip[2]);
+		ee_frame_y=crossp(ee_frame_z, ee_frame_x);
+		MATRIX3 ee_frame_mat = _M(ee_frame_x.x, ee_frame_y.x, ee_frame_z.x,
+								  ee_frame_x.y, ee_frame_y.y, ee_frame_z.y,
+								  ee_frame_x.z, ee_frame_y.z, ee_frame_z.z);
+		VECTOR3 ee_att_output = GetYZX_PYRAnglesFromMatrix(ee_frame_mat);
 		for(int i=0;i<3;i++) {
 			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=2*PI;
 
@@ -529,16 +527,16 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		if(update_vectors) {
 			arm_ik_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ik_dir=_V(-arm_ik_dir.z, -arm_ik_dir.x, -arm_ik_dir.y);
+			arm_ik_dir=ConvertVectorToRMSFrame(arm_ik_dir);
 			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
 			arm_ik_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ik_rot=_V(-arm_ik_rot.z, -arm_ik_rot.x, -arm_ik_rot.y);
+			arm_ik_rot=ConvertVectorToRMSFrame(arm_ik_rot);
 			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 
 			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-			arm_ik_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ik_pos=_V(arm_ik_pos.z, arm_ik_pos.x, arm_ik_pos.y);
+			arm_ik_pos=RotateVectorZ(arm_tip[0]-RMS_SP_JOINT, -RMS_ROLLOUT_ANGLE);
+			arm_ik_pos=ConvertVectorToRMSFrame(arm_ik_pos);
 			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
 			if(!bFirstStep) update_vectors=false;
