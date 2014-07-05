@@ -30,6 +30,9 @@ const VECTOR3 LEE_POS = _V(-0.829,0.703,8.605); // coincides with WR joint posit
 const VECTOR3 LEE1_CAM_POS = _V(0.826, 0.985, -8.217);
 const VECTOR3 LEE2_CAM_POS = _V(-0.826, 0.985, 8.217);
 
+const VECTOR3 LEE1_LIGHT_POS = _V(0.828, 1.033, -8.217);
+const VECTOR3 LEE2_LIGHT_POS = _V(-0.832, 1.033, 8.217);
+
 const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
 const double SY_SP_VERT_DIST = SY_JOINT.y-SP_JOINT.y;
@@ -121,7 +124,7 @@ private:
 	SSRMSSubsystemDirector* pSubsystemDirector;
 	LEESystem* pLEE[2];
 
-	VECTOR3 arm_tip[4];
+	VECTOR3 arm_tip[5];
 	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
 	VECTOR3 ee_pos_output, ee_angles_output;
 	double joint_angle[7]; // angles in degrees
@@ -131,6 +134,8 @@ private:
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
+
+	LightEmitter* LEELight[2];
 
 	CAMERA_VIEW cameraView;
 	double camAPan, camATilt, camBPan, camBTilt;
