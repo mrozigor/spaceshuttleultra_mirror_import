@@ -27,6 +27,7 @@
 #pragma once
 
 #include "MPMSystems.h"
+#include <UltraMath.h>
 #include <EngConst.h>
 
 const static char* RMS_MESHNAME = "SSU/RMS";
@@ -85,11 +86,13 @@ const double RMS_EXTEND_SPEED = 0.142857;
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.66, 0.08, -7.45); // Not true position of EE cam. Includes a fudge factor to account for a 0.03 m offset between the alignment target and grapple pin on Donamy's grapple fixture meshes
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.65, 0.65, 0.34);
 const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
 
+const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
+const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
 
 class RMSSystem : public MPMSystem
 {
@@ -198,9 +201,9 @@ private:
 	 * +X: Towards tail
 	 * +Y: towards port side (right from aft windows)
 	 * +Z: Down
-	 * arm_ee_dir and arm_ee_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame
+	 * arm_ik_dir and arm_ik_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame (and from EE frame)
 	 */
-	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
+	VECTOR3 arm_ik_pos, arm_ik_dir, arm_ik_rot;
 	VECTOR3 arm_ee_angles; // angles in radians; used for some IK modes
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6]; // angles in degrees

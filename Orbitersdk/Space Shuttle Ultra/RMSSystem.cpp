@@ -15,13 +15,13 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	arm_tip[0] = RMS_EE_POS;
 	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // to calculate EE attachment direction (-Z coordinate of attachment point is negative, so subtract 1 here)
 	//arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
-	arm_tip[2] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate rot vector for attachment
+	arm_tip[2] = RMS_EE_POS+RMS_Z_AXIS; // to calculate rot vector for attachment
 	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, -1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
 	arm_tip[4] = RMS_EE_CAM_POS; // to calculate EE camera position
 	arm_tip[5] = RMS_EE_LIGHT_POS;
-	arm_ee_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
-	arm_ee_dir = _V(1.0, 0.0, 0.0);
-	arm_ee_rot = _V(0.0, 0.0, 1.0);
+	arm_ik_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
+	arm_ik_dir = _V(1.0, 0.0, 0.0);
+	arm_ik_rot = _V(0.0, 0.0, 1.0);
 	arm_ee_angles = _V(0.0, 0.0, 0.0);
 
 	// default EE to grapple open and derigidized
@@ -298,9 +298,9 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}*/
 		else { // not in single joint mode
-			VECTOR3 newPos = arm_ee_pos;
-			VECTOR3 newDir = arm_ee_dir;
-			VECTOR3 newRot = arm_ee_rot;
+			VECTOR3 newPos = arm_ik_pos;
+			VECTOR3 newDir = arm_ik_dir;
+			VECTOR3 newRot = arm_ik_rot;
 			bool rotateEE=false, translateEE=false;
 
 			// EE rotation
@@ -508,7 +508,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		// calculate attitude
 		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
 		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=-arm_tip[0]+arm_tip[2];
+		arm_ee_dir_orb[1]=arm_tip[2]-arm_tip[0];
 		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[1], arm_ee_dir_orb[0]);
 		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
 									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
@@ -528,17 +528,17 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		}
 
 		if(update_vectors) {
-			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, -arm_ee_dir.y);
+			arm_ik_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ik_dir=_V(-arm_ik_dir.z, -arm_ik_dir.x, -arm_ik_dir.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
-			arm_ee_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, -arm_ee_rot.y);
+			arm_ik_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ik_rot=_V(-arm_ik_rot.z, -arm_ik_rot.x, -arm_ik_rot.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 
 			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, arm_ee_pos.y);
+			arm_ik_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ik_pos=_V(arm_ik_pos.z, arm_ik_pos.x, arm_ik_pos.y);
 			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
 			if(!bFirstStep) update_vectors=false;
@@ -655,22 +655,19 @@ void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 {
 	if(RMSMode[5].IsSet()) { // END EFF
 		// Reference Frame:
-		// X: in direction of EE (arm_ee_dir) Z: opposite to camera direction (-arm_ee_rot) Y: completes RH frame
-		
-		/*VECTOR3 change=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE)*dPos.x;
-		change+=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE)*dPos.z;
-		change+=RotateVectorX(crossp(arm_ee_rot, arm_ee_dir), RMS_ROLLOUT_ANGLE)*dPos.y;
-		//RotateVectorX(change, -RMS_ROLLOUT_ANGLE);*/
-
-		//VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
-		//VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
-		VECTOR3 change=arm_ee_dir*dPos.x+arm_ee_rot*dPos.z+crossp(arm_ee_rot, arm_ee_dir)*dPos.y;
-		//MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
-		newPos = arm_ee_pos+change;
+		// X: in direction of EE Z: opposite to camera direction Y: completes RH frame
+		VECTOR3 y_axis = crossp(arm_ik_rot, arm_ik_dir);
+		// create rotation matrix to convert vector from EE frame to Orbiter body frame
+		MATRIX3 EERotMatrix = _M(arm_ik_dir.x, y_axis.x, arm_ik_rot.x,
+							   arm_ik_dir.y, y_axis.y, arm_ik_rot.y,
+							   arm_ik_dir.z, y_axis.z, arm_ik_rot.z);
+		// matrix to convert vector from EE frame to IK frame
+		MATRIX3 IKRotMatrix = mul(EERotMatrix, Transpose(GetRotationMatrix(_V(1, 0, 0), RMS_Z_AXIS_ANGLE)));
+		newPos = arm_ik_pos+mul(IKRotMatrix, dPos);
 	}
 	else if(RMSMode[6].IsSet()) { // ORB LD
 		//MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
-		newPos = arm_ee_pos+RotateVectorX(dPos, RMS_ROLLOUT_ANGLE);
+		newPos = arm_ik_pos+RotateVectorX(dPos, RMS_ROLLOUT_ANGLE);
 	}
 }
 
@@ -684,20 +681,23 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		// NOTE: EE mode rotates relative to camera orientation
 		// we do not need to compensate for angle with RMS and shuttle frames
 		// in EE mode, Z-axis is in opposited direction to arm_ee_rot
-		VECTOR3 y_axis = crossp(arm_ee_rot, arm_ee_dir);
+		VECTOR3 y_axis = crossp(arm_ik_rot, arm_ik_dir);
 		// create rotation matrix corresponding to current orientation
-		MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, arm_ee_rot.x,
-							   arm_ee_dir.y, y_axis.y, arm_ee_rot.y,
-							   arm_ee_dir.z, y_axis.z, arm_ee_rot.z);
-		//MATRIX3 RotMatrix = RotationMatrix(arm_ee_dir, , arm_ee_rot);
+		MATRIX3 RotMatrix = _M(arm_ik_dir.x, y_axis.x, arm_ik_rot.x,
+							   arm_ik_dir.y, y_axis.y, arm_ik_rot.y,
+							   arm_ik_dir.z, y_axis.z, arm_ik_rot.z);
+		// convert rotation matrix from IK frame to EE frame
+		RotMatrix = mul(RotMatrix, GetRotationMatrix(_V(1, 0, 0), -RMS_Z_AXIS_ANGLE));
+		// update rotation matrix to adjust for new angles
 		MATRIX3 RotMatrixRoll, RotMatrixPitch, RotMatrixYaw;
 		GetRotMatrixX(dAngles.data[ROLL], RotMatrixRoll);
 		GetRotMatrixY(dAngles.data[PITCH], RotMatrixPitch);
 		GetRotMatrixZ(dAngles.data[YAW], RotMatrixYaw);
-		// update rotation matrix to adjust for new angles
 		RotMatrix = mul(RotMatrix, RotMatrixPitch);
 		RotMatrix = mul(RotMatrix, RotMatrixYaw);
 		RotMatrix = mul(RotMatrix, RotMatrixRoll);
+		// convert rotation matrix from EE frame to IK frame
+		RotMatrix = mul(RotMatrix, GetRotationMatrix(_V(1, 0, 0), RMS_Z_AXIS_ANGLE));
 
 		newDir = _V(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31);
 		newRot = _V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
@@ -728,8 +728,8 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		//RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
 		//newDir=_V(-newDir.z, -newDir.x, newDir.y);
 		//newRot=_V(-newRot.z, -newRot.x, newRot.y);
-		newDir=RotateVectorX(arm_ee_dir, -RMS_ROLLOUT_ANGLE);
-		newRot=RotateVectorX(arm_ee_rot, -RMS_ROLLOUT_ANGLE);
+		newDir=RotateVectorX(arm_ik_dir, -RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(arm_ik_rot, -RMS_ROLLOUT_ANGLE);
 		RotateVector(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
 		RotateVector(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
 		newDir=RotateVectorX(newDir, RMS_ROLLOUT_ANGLE);
@@ -820,9 +820,9 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 		SetJointAngle(static_cast<RMS_JOINT>(i), new_joint_angles[i]);
 	}
 
-	arm_ee_pos=newPos;
-	arm_ee_dir=newDir;
-	arm_ee_rot=newRot;
+	arm_ik_pos=newPos;
+	arm_ik_dir=newDir;
+	arm_ik_rot=newRot;
 
 	return true;
 }
