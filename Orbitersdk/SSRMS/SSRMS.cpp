@@ -53,7 +53,15 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//arm_tip[1] = _V(-0.70, 0.59, 9.44);
 	//arm_tip[2] = _V(-0.70, 1.59, 8.44);
 	arm_tip[3] = LEE2_CAM_POS;
+	arm_tip[4] = LEE2_LIGHT_POS;
 	mesh_center = _V(0, 0, 0);
+
+	// create lights
+	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
+	const COLOUR4 amb = {0.0, 0.0, 0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
+	LEELight[0] = AddSpotLight(LEE1_LIGHT_POS, _V(0, 0, -1), 20.0, 0.5, 1.25, 0.1, 52.0*RAD, 52.0*1.2*RAD, diff, spec, amb);
+	LEELight[1] = AddSpotLight(LEE2_LIGHT_POS, _V(0, 0,  1), 20.0, 0.5, 1.25, 0.1, 52.0*RAD, 52.0*1.2*RAD, diff, spec, amb);
 	
 	cameraA[0] = _V(0.645, 0.081, -2.948);
 	cameraA[1] = cameraA[0] + _V(0, 0, -1);
@@ -197,7 +205,7 @@ void SSRMS::DefineAnimations()
 	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
 
-	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 4,
+	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
 		LEE_POS, _V(0, 0, -1), 0.0);
 	anim_lee = CreateAnimation(0.5);
 	AddAnimationComponent(anim_lee, 0, 1, &lee_anim, parent);
@@ -409,6 +417,12 @@ bool SSRMS::ChangeActiveLEE()
 
 	if(pLEE[passiveLEE]->GrappledToBase()) pLEE[passiveLEE]->DetachFromBase();
 	if(pLEE[activeLEE]->GrappledToBase()) pLEE[activeLEE]->AttachToBase();
+	
+	// change light settings
+	if(LEELight[activeLEE]->IsActive()) {
+		LEELight[activeLEE]->Activate(false);
+		LEELight[passiveLEE]->Activate(true);
+	}
 
 	activeLEE=passiveLEE;
 	passiveLEE=1-activeLEE;
@@ -447,6 +461,10 @@ void SSRMS::UpdateMeshPosition()
 	GetMeshOffset(mesh_ssrms, ofs);
 	pLEE[1]->SetAttachmentParams(arm_tip[0]+ofs, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 	pLEE[0]->SetAttachmentParams(SR_JOINT+ofs, _V(0, 0, -1), _V(0, 1, 0));
+	// update light positions/direction
+	LEELight[0]->SetPosition(LEE1_LIGHT_POS+ofs);
+	LEELight[1]->SetPosition(arm_tip[4]+ofs);
+	LEELight[1]->SetDirection(arm_tip[1]-arm_tip[0]);
 }
 
 void SSRMS::UpdateCameraView()
@@ -558,6 +576,7 @@ void SSRMS::ShowCameraViewLabel()
 void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 {
 	char *line;
+	bool bLightOn = false;
 
 	while(oapiReadScenario_nextline(scn, line)) {
 		if(!_strnicmp(line, "ARM_STATUS", 10)) {
@@ -575,6 +594,9 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscan_state(line+6, foldState);
 			SetAnimation(anim_fold, foldState.pos);
 		}
+		else if(!_strnicmp(line, "LIGHT", 5)) {
+			bLightOn = true;
+		}
 		else if(!_strnicmp(line, "ACTIVE_CAMERA", 13)) {
 			int temp;
 			sscanf(line+13, "%d", &temp);
@@ -589,6 +611,9 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			ParseScenarioLineEx(line, vs);
 		}
 	}
+	// do this at end of scenario loading, once we know which LEE is active
+	LEELight[activeLEE]->Activate(bLightOn);
+	LEELight[passiveLEE]->Activate(false);
 }
 
 void SSRMS::clbkSaveState(FILEHANDLE scn)
@@ -601,6 +626,7 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
 	oapiWriteScenario_int(scn, "ACTIVE_LEE", activeLEE);
 	WriteScenario_state(scn, "FOLDED", foldState);
+	if(LEELight[activeLEE]->IsActive()) oapiWriteLine(scn, "  LIGHT");
 	oapiWriteScenario_int(scn, "ACTIVE_CAMERA", static_cast<int>(cameraView));
 	sprintf(cbuf, "%f %f %f %f", camAPan, camATilt, camBPan, camBTilt);
 	oapiWriteScenario_string(scn, "CAM_STATUS", cbuf);
@@ -897,6 +923,12 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			case OAPI_KEY_A: // switch active LEE
 				if(!down) {
 					ChangeActiveLEE();
+				}
+				return 1;
+			case OAPI_KEY_L:
+				if(!down) {
+					if(!LEELight[activeLEE]->IsActive()) LEELight[activeLEE]->Activate(true);
+					else LEELight[activeLEE]->Activate(false);
 				}
 				return 1;
 			case OAPI_KEY_UP:
