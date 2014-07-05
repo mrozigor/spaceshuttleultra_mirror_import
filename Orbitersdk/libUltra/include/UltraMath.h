@@ -135,6 +135,14 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM);
  */
 MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness = false);
 
+/**
+ * Calculates rotation angle to be passed to SetCameraDefaultDirection function
+ * \param dir Camera direction vector (if equal to +/- Y-axis, will be changed slightly so Orbitersim doesn't ignore rotation angle)
+ * \param rot Vector in direction of vertical axis for camera view
+ * \returns rotation angle about direction vector
+ */
+double CalculateCameraRotationAngle(VECTOR3& dir, const VECTOR3& rot);
+
 //VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 //void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation

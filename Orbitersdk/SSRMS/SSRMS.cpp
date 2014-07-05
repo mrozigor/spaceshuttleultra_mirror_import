@@ -55,6 +55,26 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	arm_tip[3] = LEE2_CAM_POS;
 	mesh_center = _V(0, 0, 0);
 	
+	cameraA[0] = _V(0.645, 0.081, -2.948);
+	cameraA[1] = cameraA[0] + _V(0, 0, -1);
+	cameraA[2] = cameraA[0] + _V(1, 0, 0); 
+	cameraB[0] = _V(-0.645, 0.125, 2.953);
+	cameraB[1] = cameraB[0] + _V(0, 0, 1);
+	cameraB[2] = cameraB[0] + _V(-1, 0, 0);
+
+	camAPan = 0.0;
+	camBPan = 0.0;
+	camATilt = 0.0;
+	camBTilt = 0.0;
+	bTiltUp = false;
+	bTiltDown = false;
+	bPanLeft = false;
+	bPanRight = false;
+	
+	nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
+	oapiAnnotationSetPos(nhCameraLabel, 0.5, 0.05, 0.6, 0.15);
+	annotationDisplayTime = 0.0;
+	
 	foldState.Set(AnimState::OPEN, 1.0);
 
 	update_vectors=true;
@@ -65,6 +85,8 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	RefFrame=EE_FRAME;
 	activeLEE=1;
 	passiveLEE=0;
+
+	cameraView = ACTIVE_LEE;
 
 	AltKybdInput = _V(0, 0, 0);
 
@@ -110,10 +132,24 @@ void SSRMS::DefineAnimations()
 	//anim_joint[SHOULDER_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_PITCH], 0, 1, &sp_anim, parent);
 
-	static UINT ShoulderFoldGrp[5] = {26,27,28,31,32};
-	static MGROUP_ROTATE shoulder_fold_anim(mesh_ssrms, ShoulderFoldGrp, 5, _V(0, 0.245, -3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
+	static UINT ShoulderFoldGrp[3] = {28,31,32};
+	static MGROUP_ROTATE shoulder_fold_anim(mesh_ssrms, ShoulderFoldGrp, 3, _V(0, 0.245, -3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
 	anim_fold = CreateAnimation(1.0);
-	AddAnimationComponent(anim_fold, 0, 1, &shoulder_fold_anim, parent);
+	ANIMATIONCOMPONENT_HANDLE parent_cam = AddAnimationComponent(anim_fold, 0, 1, &shoulder_fold_anim, parent);
+
+	static UINT BoomACamPitchGrp[1] = {26};
+	static MGROUP_ROTATE boomA_cam_pitch_anim(mesh_ssrms, BoomACamPitchGrp, 1, _V(0.705, -0.024, -2.835), _V(1, 0, 0), static_cast<float>((CAM_PAN_MAX-CAM_PAN_MIN)*RAD));
+	anim_CamAPan = CreateAnimation(0.5);
+	parent_cam = AddAnimationComponent(anim_CamAPan, 0, 1, &boomA_cam_pitch_anim, parent_cam);	
+	
+	static UINT BoomACamYawGrp[1] = {27};
+	static MGROUP_ROTATE boomA_cam_yaw_anim(mesh_ssrms, BoomACamYawGrp, 1, _V(0.677, 0.027, -2.835), _V(0, -1, 0), static_cast<float>((CAM_TILT_MAX-CAM_TILT_MIN)*RAD));
+	anim_CamATilt = CreateAnimation(0.5);
+	parent_cam = AddAnimationComponent(anim_CamATilt, 0, 1, &boomA_cam_yaw_anim, parent_cam);
+	
+	static MGROUP_ROTATE boomA_vec_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(cameraA), 3, _V(0.705, -0.024, -2.835), _V(0, 0, -1), 0.0);
+	UINT anim_temp = CreateAnimation(0.5);
+	AddAnimationComponent(anim_temp, 0, 1, &boomA_vec_anim, parent_cam);
 
 	static UINT ElbowPitchGrp[4] = {34, 39, 40, 41};
 	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 4,
@@ -122,9 +158,23 @@ void SSRMS::DefineAnimations()
 	//anim_joint[ELBOW_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][ELBOW_PITCH], 0, 1, &ep_anim, parent);
 
-	static UINT WristFoldGrp[5] = {33,35,36,37,38};
-	static MGROUP_ROTATE wrist_fold_anim(mesh_ssrms, WristFoldGrp, 5, _V(0, -0.245, 3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
-	AddAnimationComponent(anim_fold, 0, 1, &wrist_fold_anim, parent);
+	static UINT WristFoldGrp[3] = {33,35,38};
+	static MGROUP_ROTATE wrist_fold_anim(mesh_ssrms, WristFoldGrp, 3, _V(0, -0.245, 3.65), _V(1, 0, 0), static_cast<float>(180.0*RAD));
+	parent_cam = AddAnimationComponent(anim_fold, 0, 1, &wrist_fold_anim, parent);
+	
+	static UINT BoomBCamPitchGrp[1] = {36};
+	static MGROUP_ROTATE boomB_cam_pitch_anim(mesh_ssrms, BoomBCamPitchGrp, 1, _V(-0.709, 0.02, 2.84), _V(-1, 0, 0), static_cast<float>((CAM_PAN_MAX-CAM_PAN_MIN)*RAD));
+	anim_CamBPan = CreateAnimation(0.5);
+	parent_cam = AddAnimationComponent(anim_CamBPan, 0, 1, &boomB_cam_pitch_anim, parent_cam);
+	
+	static UINT BoomBCamYawGrp[1] = {37};
+	static MGROUP_ROTATE boomB_cam_yaw_anim(mesh_ssrms, BoomBCamYawGrp, 1, _V(-0.681, 0.071, 2.84), _V(0, -1, 0), static_cast<float>((CAM_TILT_MAX-CAM_TILT_MIN)*RAD));
+	anim_CamBTilt = CreateAnimation(0.5);
+	parent_cam = AddAnimationComponent(anim_CamBTilt, 0, 1, &boomB_cam_yaw_anim, parent_cam);
+	
+	static MGROUP_ROTATE boomB_vec_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(cameraB), 3, _V(-0.709, 0.02, 2.84), _V(0, 0, -1), 0.0);
+	anim_temp = CreateAnimation(0.5);
+	AddAnimationComponent(anim_temp, 0, 1, &boomB_vec_anim, parent_cam);
 
 	static UINT WristPitchGrp[1] = {42};
 	static MGROUP_ROTATE wp_anim (mesh_ssrms, WristPitchGrp, 1,
@@ -405,28 +455,51 @@ void SSRMS::UpdateCameraView()
 		VECTOR3 ofs;
 		GetMeshOffset(mesh_ssrms, ofs);
 
-		if(activeLEE == 1) {
-			// calculate rotation angle for EE cam
-			VECTOR3 dir = arm_tip[1]-arm_tip[0];
-			// if camera is pointing straight up or down, make it slightly offset from (0,1,0) vector
-			if(Eq(dotp(dir, _V(0, -1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, -0.999999984769, 0.0);
-			else if(Eq(dotp(dir, _V(0, 1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, 0.999999984769, 0.0);
-			VECTOR3 cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
-			cam_rot /= length(cam_rot);
-			if(cam_rot.y < 0) cam_rot = -cam_rot;
-			double angle = SignedAngle(cam_rot, arm_tip[2]-arm_tip[0], dir);
+		switch(cameraView) {
+		case ACTIVE_LEE:
+			if(activeLEE == 1) {
+				// calculate rotation angle for EE cam
+				VECTOR3 dir = arm_tip[1]-arm_tip[0];
+				double angle = CalculateCameraRotationAngle(dir, arm_tip[2]-arm_tip[0]);
 
-			SetCameraOffset(arm_tip[3]+ofs);
+				SetCameraOffset(arm_tip[3]+ofs);
+				SetCameraDefaultDirection(dir, angle);
+			}
+			else {
+				SetCameraOffset(LEE1_CAM_POS+ofs);
+				SetCameraDefaultDirection(_V(0, 0, -1), 0.0);
+			}
+			break;
+		case BOOM_A:
+		{
+			VECTOR3 dir = cameraA[1]-cameraA[0];
+			double angle = CalculateCameraRotationAngle(dir, cameraA[2]-cameraA[0]);
+			SetCameraOffset(cameraA[0]+ofs);
 			SetCameraDefaultDirection(dir, angle);
+			break;
 		}
-		else {
-			SetCameraOffset(LEE1_CAM_POS+ofs);
-			SetCameraDefaultDirection(_V(0, 0, -1), 0.0);
+		case BOOM_B:
+		{
+			VECTOR3 dir = cameraB[1]-cameraB[0];
+			double angle = CalculateCameraRotationAngle(dir, cameraB[2]-cameraB[0]);
+			SetCameraOffset(cameraB[0]+ofs);
+			SetCameraDefaultDirection(dir, angle);
+			break;
 		}
-		oapiCameraSetCockpitDir(0.0, 0.0);
+		}
 		
+		oapiCameraSetCockpitDir(0.0, 0.0);
+		SetCameraRotationRange(0, 0, 0, 0);
 		update_camera = false;
 	}
+}
+
+void SSRMS::UpdateCameraAnimations()
+{
+	SetAnimation(anim_CamAPan, (camAPan-CAM_PAN_MIN)/(CAM_PAN_MAX-CAM_PAN_MIN));
+	SetAnimation(anim_CamATilt, (camATilt-CAM_TILT_MIN)/(CAM_TILT_MAX-CAM_TILT_MIN));
+	SetAnimation(anim_CamBPan, (camBPan-CAM_PAN_MIN)/(CAM_PAN_MAX-CAM_PAN_MIN));
+	SetAnimation(anim_CamBTilt, (camBTilt-CAM_TILT_MIN)/(CAM_TILT_MAX-CAM_TILT_MIN));
 }
 
 void SSRMS::CalculateVectors()
@@ -466,6 +539,22 @@ void SSRMS::CalculateVectors()
 		arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);*/
 }
 
+void SSRMS::ShowCameraViewLabel()
+{
+	switch(cameraView) {
+	case ACTIVE_LEE:
+		oapiAnnotationSetText(nhCameraLabel, "LEE camera");
+		break;
+	case BOOM_A:
+		oapiAnnotationSetText(nhCameraLabel, "Boom A camera");
+		break;
+	case BOOM_B:
+		oapiAnnotationSetText(nhCameraLabel, "Boom B camera");
+		break;
+	}
+	annotationDisplayTime = 5.0;
+}
+
 void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 {
 	char *line;
@@ -486,6 +575,16 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscan_state(line+6, foldState);
 			SetAnimation(anim_fold, foldState.pos);
 		}
+		else if(!_strnicmp(line, "ACTIVE_CAMERA", 13)) {
+			int temp;
+			sscanf(line+13, "%d", &temp);
+			cameraView = static_cast<CAMERA_VIEW>(temp);
+			update_camera = true;
+		}
+		else if(!_strnicmp(line, "CAM_STATUS", 10)) {
+			sscanf(line+10, "%lf%lf%lf%lf", &camAPan, &camATilt, &camBPan, &camBTilt);
+			update_camera = true;
+		}
 		else if(!pSubsystemDirector->ParseScenarioLine(scn, line)) {
 			ParseScenarioLineEx(line, vs);
 		}
@@ -502,6 +601,9 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
 	oapiWriteScenario_int(scn, "ACTIVE_LEE", activeLEE);
 	WriteScenario_state(scn, "FOLDED", foldState);
+	oapiWriteScenario_int(scn, "ACTIVE_CAMERA", static_cast<int>(cameraView));
+	sprintf(cbuf, "%f %f %f %f", camAPan, camATilt, camBPan, camBTilt);
+	oapiWriteScenario_string(scn, "CAM_STATUS", cbuf);
 	pSubsystemDirector->SaveState(scn);
 }
 
@@ -519,6 +621,31 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 	
 	// if arm is still folded, arm is not allowed to move
 	if(!foldState.Open()) return;
+	
+	// pan/tilt cameras
+	if(bPanLeft || bPanRight || bTiltDown || bTiltUp) {
+		if(cameraView == BOOM_A) {
+			if(bPanLeft) camAPan = range(CAM_PAN_MIN, camAPan - SimDT*CAM_PAN_TILT_RATE, CAM_PAN_MAX);
+			else if(bPanRight) camAPan = range(CAM_PAN_MIN, camAPan + SimDT*CAM_PAN_TILT_RATE, CAM_PAN_MAX);
+
+			if(bTiltDown) camATilt = range(CAM_TILT_MIN, camATilt - SimDT*CAM_PAN_TILT_RATE, CAM_TILT_MAX);
+			else if(bTiltUp) camATilt = range(CAM_TILT_MIN, camATilt + SimDT*CAM_PAN_TILT_RATE, CAM_TILT_MAX);
+		}
+		else if(cameraView == BOOM_B) {
+			if(bPanLeft) camBPan = range(CAM_PAN_MIN, camBPan - SimDT*CAM_PAN_TILT_RATE, CAM_PAN_MAX);
+			else if(bPanRight) camBPan = range(CAM_PAN_MIN, camBPan + SimDT*CAM_PAN_TILT_RATE, CAM_PAN_MAX);
+
+			if(bTiltDown) camBTilt = range(CAM_TILT_MIN, camBTilt - SimDT*CAM_PAN_TILT_RATE, CAM_TILT_MAX);
+			else if(bTiltUp) camBTilt = range(CAM_TILT_MIN, camBTilt + SimDT*CAM_PAN_TILT_RATE, CAM_TILT_MAX);
+		}
+		UpdateCameraAnimations();
+		update_camera = true;
+	}
+	// hide camera label after time limit expires
+	if(annotationDisplayTime > 0) {
+		annotationDisplayTime -= SimDT;
+		if(annotationDisplayTime <= 0) oapiAnnotationSetText(nhCameraLabel, NULL);
+	}
 
 	// if one LEE is free, allow arm to move
 	if(!pLEE[0]->GrappledToBase() || !pLEE[1]->GrappledToBase()) {
@@ -660,34 +787,37 @@ bool SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp)
 	sprintf(cbuf, "SY: %.2f", sy_angle);
 	TextOut(hDC, hps->W/3, (hps->H/10)+hps->Markersize, cbuf, strlen(cbuf));*/
 	
-	// draw crosshairs (part of LEE capture overlay)
-	// grapple target pin has diameter of 0.375 inches and is 4 inches long
-	const double GRAPPLE_PIN_RADIUS = (0.5*0.375/12.0)/MPS2FPS;
-	const double DIST_TO_PIN = (LEE_POS.z-LEE2_CAM_POS.z) - (4.0/12.0)/MPS2FPS; // distance from camera to grapple target pin
-	int pinSize = round(hps->Scale*DEG*atan(GRAPPLE_PIN_RADIUS/DIST_TO_PIN)); // angular size of grapple target pin when EE is aligned with grapple fixture
-	skp->Line(hps->CX-pinSize, hps->CY, hps->CX-pinSize-hps->Markersize, hps->CY);
-	skp->Line(hps->CX+pinSize, hps->CY, hps->CX+pinSize+hps->Markersize, hps->CY);
-	skp->Line(hps->CX, hps->CY-pinSize, hps->CX, hps->CY-pinSize-hps->Markersize);
-	skp->Line(hps->CX, hps->CY+pinSize, hps->CX, hps->CY+pinSize+hps->Markersize);
+	// draw LEE capture overlay
+	if(cameraView == ACTIVE_LEE) {
+		// draw crosshairs
+		// grapple target pin has diameter of 0.375 inches and is 4 inches long
+		const double GRAPPLE_PIN_RADIUS = (0.5*0.375/12.0)/MPS2FPS;
+		const double DIST_TO_PIN = (LEE_POS.z-LEE2_CAM_POS.z) - (4.0/12.0)/MPS2FPS; // distance from camera to grapple target pin
+		int pinSize = round(hps->Scale*DEG*atan(GRAPPLE_PIN_RADIUS/DIST_TO_PIN)); // angular size of grapple target pin when EE is aligned with grapple fixture
+		skp->Line(hps->CX-pinSize, hps->CY, hps->CX-pinSize-hps->Markersize, hps->CY);
+		skp->Line(hps->CX+pinSize, hps->CY, hps->CX+pinSize+hps->Markersize, hps->CY);
+		skp->Line(hps->CX, hps->CY-pinSize, hps->CX, hps->CY-pinSize-hps->Markersize);
+		skp->Line(hps->CX, hps->CY+pinSize, hps->CX, hps->CY+pinSize+hps->Markersize);
 	
-	// draw red lines (part of LEE capture overlay)
-	// used to indicate roll angle and distance error
-	const double MAX_ANGLE_ERROR = 15.0*RAD; // angular error represented by red lines
-	const double MAX_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.2; // distance to grapple pin represented by outer red line
-	const double MIN_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.1; // distance to grapple pin represented by inner red line
-	const double GRAPPLE_TARGET_SIZE = (14.0/12.0)/MPS2FPS; // length of white line on grapple target
-	int innerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MIN_DISTANCE_ERROR));
-	int outerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MAX_DISTANCE_ERROR));
-	int innerLength = round(innerXOffset*tan(MAX_ANGLE_ERROR));
-	int outerLength = round(outerXOffset*tan(MAX_ANGLE_ERROR));
-	oapi::Pen* redPen = oapiCreatePen(1, 3, RGB(255, 0, 0));
-	oapi::Pen* oldPen = skp->SetPen(redPen);
-	skp->Line(hps->CX + innerXOffset, hps->CY - innerLength, hps->CX + innerXOffset, hps->CY + innerLength);
-	skp->Line(hps->CX - innerXOffset, hps->CY - innerLength, hps->CX - innerXOffset, hps->CY + innerLength);
-	skp->Line(hps->CX + outerXOffset, hps->CY - outerLength, hps->CX + outerXOffset, hps->CY + outerLength);
-	skp->Line(hps->CX - outerXOffset, hps->CY - outerLength, hps->CX - outerXOffset, hps->CY + outerLength);
-	skp->SetPen(oldPen);
-	oapiReleasePen(redPen);
+		// draw red lines
+		// used to indicate roll angle and distance error
+		const double MAX_ANGLE_ERROR = 15.0*RAD; // angular error represented by red lines
+		const double MAX_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.2; // distance to grapple pin represented by outer red line
+		const double MIN_DISTANCE_ERROR = (LEE_POS.z-LEE2_CAM_POS.z) + 0.1; // distance to grapple pin represented by inner red line
+		const double GRAPPLE_TARGET_SIZE = (14.0/12.0)/MPS2FPS; // length of white line on grapple target
+		int innerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MIN_DISTANCE_ERROR));
+		int outerXOffset = round(hps->Scale*DEG*atan(0.5*GRAPPLE_TARGET_SIZE/MAX_DISTANCE_ERROR));
+		int innerLength = round(innerXOffset*tan(MAX_ANGLE_ERROR));
+		int outerLength = round(outerXOffset*tan(MAX_ANGLE_ERROR));
+		oapi::Pen* redPen = oapiCreatePen(1, 3, RGB(255, 0, 0));
+		oapi::Pen* oldPen = skp->SetPen(redPen);
+		skp->Line(hps->CX + innerXOffset, hps->CY - innerLength, hps->CX + innerXOffset, hps->CY + innerLength);
+		skp->Line(hps->CX - innerXOffset, hps->CY - innerLength, hps->CX - innerXOffset, hps->CY + innerLength);
+		skp->Line(hps->CX + outerXOffset, hps->CY - outerLength, hps->CX + outerXOffset, hps->CY + outerLength);
+		skp->Line(hps->CX - outerXOffset, hps->CY - outerLength, hps->CX - outerXOffset, hps->CY + outerLength);
+		skp->SetPen(oldPen);
+		oapiReleasePen(redPen);
+	}
 	
 	return true;
 }
@@ -712,6 +842,8 @@ void SSRMS::clbkPostCreation()
 	}
 
 	UpdateMeshPosition();
+	
+	UpdateCameraAnimations();
 
 	VESSEL3::clbkPostCreation();
 }
@@ -767,9 +899,43 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 					ChangeActiveLEE();
 				}
 				return 1;
+			case OAPI_KEY_UP:
+				if(!down) {
+					if(cameraView < BOOM_B) cameraView = static_cast<CAMERA_VIEW>(cameraView+1);
+					else cameraView = ACTIVE_LEE;
+					update_camera = true;
+					ShowCameraViewLabel();
+				}
+				return 1;
+			case OAPI_KEY_DOWN:
+				if(!down) {
+					if(cameraView > ACTIVE_LEE) cameraView = static_cast<CAMERA_VIEW>(cameraView-1);
+					else cameraView = BOOM_B;
+					update_camera = true;
+					ShowCameraViewLabel();
+				}
+				return 1;
 		}
 	}
-
+	else if(KEYMOD_ALT(kstate)) {
+		// rotate boom cameras
+		if(cameraView == BOOM_A || cameraView == BOOM_B) {
+			switch(key) {
+			case OAPI_KEY_UP:
+				bTiltUp = down;
+				return 1;
+			case OAPI_KEY_DOWN:
+				bTiltDown = down;
+				return 1;
+			case OAPI_KEY_LEFT:
+				bPanLeft = down;
+				return 1;
+			case OAPI_KEY_RIGHT:
+				bPanRight = down;
+				return 1;
+			}
+		}
+	}
 	else if(!KEYMOD_SHIFT(kstate) && !KEYMOD_ALT(kstate)) {
 		switch(key) {
 			case OAPI_KEY_1:
