@@ -164,6 +164,14 @@ private:
 	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
+	/**
+	 * Converts vector from Orbitersim frame to RMS frame
+	 * Does not rotate vector to correct for RMS rollout angle
+	 */
+	VECTOR3 ConvertVectorToRMSFrame(const VECTOR3& v) const
+	{
+		return _V(-v.z, -v.x, -v.y);
+	}
 
 	int GetSelectedJoint() const;
 
