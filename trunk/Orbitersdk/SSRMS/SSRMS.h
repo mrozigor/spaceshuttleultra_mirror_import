@@ -49,13 +49,19 @@ const double LEE_OFFSET = SY_JOINT.x-LEE_POS.x;
 const double JOINT_LIMITS[2] = {-280.0, +280.0};
 const double JOINT_SOFTSTOPS[2] = {-270.0, +270.0}; // from ISS ROBO Console Handbook, 1.2-29 (p. 58)
 
-enum FRAME{EE_FRAME, BASE_FRAME};
+const double CAM_PAN_TILT_RATE = 6.0; //rate in deg/s
+const double CAM_PAN_MAX = 175.0; // deg
+const double CAM_PAN_MIN = -175.0; // deg
+const double CAM_TILT_MAX = 90.0; // deg
+const double CAM_TILT_MIN = -92.0; // deg
 
 class SSRMS: public VESSEL3
 {
 public:
 	typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
 	typedef enum {SHOULDER_ROLL=0, SHOULDER_YAW, SHOULDER_PITCH, ELBOW_PITCH, WRIST_PITCH, WRIST_YAW, WRIST_ROLL} SSRMS_JOINT;
+	typedef enum FRAME{EE_FRAME, BASE_FRAME};
+	typedef enum CAMERA_VIEW{ACTIVE_LEE, BOOM_A, BOOM_B};
 
 	SSRMS(OBJHANDLE hObj, int fmodel);
 	~SSRMS();
@@ -95,7 +101,13 @@ private:
 	 * Updates cockpit view to match LEE camera position
 	 */
 	void UpdateCameraView();
+	void UpdateCameraAnimations();
 	void CalculateVectors();
+	
+	/**
+	 * Displays label indicating current camera view
+	 */
+	void ShowCameraViewLabel();
 
 	/**
 	 * Converts vector from Orbitersim frame to SSRMS IK frame
@@ -119,6 +131,15 @@ private:
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
+
+	CAMERA_VIEW cameraView;
+	double camAPan, camATilt, camBPan, camBTilt;
+	bool bTiltUp, bTiltDown, bPanLeft, bPanRight;
+	VECTOR3 cameraA[3], cameraB[3]; // pos/dir/rot vectors for boom cameras
+	UINT anim_CamATilt, anim_CamAPan, anim_CamBTilt, anim_CamBPan;
+	
+	NOTEHANDLE nhCameraLabel; // annotation to display current camera view
+	double annotationDisplayTime; // counter used to show/hide camera label
 	
 	VECTOR3 AltKybdInput;
 
