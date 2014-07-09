@@ -7,7 +7,7 @@
 class VAB;
 
 const char MESHNAME_EXTERIOR_1980[] = "SSU\\VAB_exterior_1980";
-const char MESHNAME_INTERIOR[] = "SSU\\VAB_interior_structure_low-res";
+const char MESHNAME_INTERIOR[] = "SSU\\VAB_interior_structure";
 const double BUILDING_COG_BASE = -79.85;
 
 const unsigned int VAB_HIGHBAY1 = 0;

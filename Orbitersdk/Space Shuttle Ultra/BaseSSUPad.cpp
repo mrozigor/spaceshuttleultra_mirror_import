@@ -49,7 +49,7 @@ void BaseSSUPad::CreateStadiumLights(const VECTOR3* positions, const VECTOR3* di
 		// create fake thruster to simulate glare from lights
 		thStadiumLights[i] = CreateThruster(positions[i], dir[i], 0.0, phStadiumLights,
 			1.0, 1.0);
-		AddExhaust(thStadiumLights[i], 0.0, 1.5);
+		AddExhaust(thStadiumLights[i], 0.0, 3.0);
 
 		// add beacon to show where lights are (debugging)
 		/*stadium_lights[i].duration = 0.5;
@@ -104,7 +104,7 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	VESSEL3::clbkPreStep(simt, simdt, mjd);
 
 	if(simt > fNextLightUpdate) {
-		fNextLightUpdate = simt + 300.0;
+		fNextLightUpdate = simt + -20.0;
 
 		if(bLightsOn && !IsNight()) {
 			ToggleLights(false);

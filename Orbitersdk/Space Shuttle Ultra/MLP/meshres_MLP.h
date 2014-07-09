@@ -1,87 +1,208 @@
-// ========================================================
-// Mesh resource file for MLP-2.msh
-// Generated with meshc on Tue Apr 05 01:12:24 2011
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Sun Apr 06 20:28:12 2014
 
-// ========================================================
+// Input file: MLP-2.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP 71
+#pragma once
 
-// Number of materials:
-#define NMAT 5
+const unsigned int NUMGRP = 196;
 
-// Number of textures:
-#define NTEX 2
+const unsigned int GRP_BOX57	=	0;	//Box57
+const unsigned int GRP_SIDE4_PNEUMATIC_MUFFLERS	=	1;	//Side4_Pneumatic_mufflers
+const unsigned int GRP_MLP_SIDE_DETAIL	=	2;	//MLP_Side_detail
+const unsigned int GRP_OTV_CAM_55	=	3;	//OTV_Cam_55
+const unsigned int GRP_SIDE_4_HANDRAILS	=	4;	//Side_4_handrails
+const unsigned int GRP_STAIRHOUSE	=	5;	//Stairhouse
+const unsigned int GRP_TUBE03	=	6;	//Tube03
+const unsigned int GRP_APU_DELUGE	=	7;	//APU_deluge
+const unsigned int GRP_OTV_CAM_56	=	8;	//OTV_Cam_56
+const unsigned int GRP_OTV_CAM_54	=	9;	//OTV_Cam_54
+const unsigned int GRP_OTV_CAM_51	=	10;	//OTV_Cam_51
+const unsigned int GRP_OTV_CAM_49	=	11;	//OTV_Cam_49
+const unsigned int GRP_OTV_CAM_50	=	12;	//OTV_Cam_50
+const unsigned int GRP_OTV_CAM_72	=	13;	//OTV_Cam_72
+const unsigned int GRP_OTV_CAM_52	=	14;	//OTV_Cam_52
+const unsigned int GRP_OTV_CAM_53	=	15;	//OTV_Cam_53
+const unsigned int GRP_SRB_SWS_PIPES	=	16;	//SRB_SWS_pipes
+const unsigned int GRP_MLP_STRUCTURE	=	17;	//MLP_structure
+const unsigned int GRP_HI_SPEED_CAMS	=	18;	//Hi_speed_cams
+const unsigned int GRP_SRB_HI_SPEED_CAMERAS	=	19;	//SRB_Hi_speed_cameras
+const unsigned int GRP_OBJECT01	=	20;	//Object01
+const unsigned int GRP_BLASTSHIELDS	=	21;	//Blastshields
+const unsigned int GRP_BHS_WATER_DELUGE	=	22;	//BHS_Water_Deluge
+const unsigned int GRP_LINE04	=	23;	//Line04
+const unsigned int GRP_LH2_TSM_BONNET	=	24;	//LH2_TSM_bonnet
+const unsigned int GRP_BOX280	=	25;	//Box280
+const unsigned int GRP_BOX281	=	26;	//Box281
+const unsigned int GRP_LOX_TSM_BONNET	=	27;	//LOX_TSM_bonnet
+const unsigned int GRP_BOX03	=	28;	//Box03
+const unsigned int GRP_BOX279	=	29;	//Box279
+const unsigned int GRP_CYLINDER12	=	30;	//Cylinder12
+const unsigned int GRP_BOX282	=	31;	//Box282
+const unsigned int GRP_BOX11	=	32;	//Box11
+const unsigned int GRP_LH2_T0_UMBILICALS	=	33;	//LH2_T0_umbilicals
+const unsigned int GRP_LH2_TSM_BLAST_STRUCTURE	=	34;	//LH2_TSM_blast_structure
+const unsigned int GRP_LOX_TSM_BLAST_STRUCTURE	=	35;	//LOX_TSM_blast_structure
+const unsigned int GRP_LOX_T0_UMBILICALS	=	36;	//LOX_T0_umbilicals
+const unsigned int GRP_ROFIS	=	37;	//ROFIs
+const unsigned int GRP_SIDE_4_HANDRAILS01	=	38;	//Side_4_handrails01
+const unsigned int GRP_SIDE_4_HANDRAILS02	=	39;	//Side_4_handrails02
+const unsigned int GRP_SIDE_4_HANDRAILS03	=	40;	//Side_4_handrails03
+const unsigned int GRP_SIDE_4_HANDRAILS04	=	41;	//Side_4_handrails04
+const unsigned int GRP_SIDE_4_HANDRAILS05	=	42;	//Side_4_handrails05
+const unsigned int GRP_SIDE_4_HANDRAILS06	=	43;	//Side_4_handrails06
+const unsigned int GRP_SIDE_4_HANDRAILS07	=	44;	//Side_4_handrails07
+const unsigned int GRP_SIDE_4_HANDRAILS08	=	45;	//Side_4_handrails08
+const unsigned int GRP_SIDE_4_HANDRAILS09	=	46;	//Side_4_handrails09
+const unsigned int GRP_SIDE_4_HANDRAILS10	=	47;	//Side_4_handrails10
+const unsigned int GRP_SIDE_4_HANDRAILS11	=	48;	//Side_4_handrails11
+const unsigned int GRP_SIDE_4_HANDRAILS12	=	49;	//Side_4_handrails12
+const unsigned int GRP_SIDE_4_HANDRAILS13	=	50;	//Side_4_handrails13
+const unsigned int GRP_SIDE_4_HANDRAILS14	=	51;	//Side_4_handrails14
+const unsigned int GRP_BLASTDECK	=	52;	//Blastdeck
+const unsigned int GRP_SRB_HOLDOWNS	=	53;	//SRB_holdowns
+const unsigned int GRP_BOX30	=	54;	//Box30
+const unsigned int GRP_SIDE_3_HANDRAILS02	=	55;	//Side_3_handrails02
+const unsigned int GRP_SIDE_3_HANDRAILS01	=	56;	//Side_3_handrails01
+const unsigned int GRP_SIDE_3_HANDRAILS03	=	57;	//Side_3_handrails03
+const unsigned int GRP_SIDE_3_HANDRAILS05	=	58;	//Side_3_handrails05
+const unsigned int GRP_SIDE_3_HANDRAILS04	=	59;	//Side_3_handrails04
+const unsigned int GRP_SIDE_3_HANDRAILS06	=	60;	//Side_3_handrails06
+const unsigned int GRP_SIDE_3_HANDRAILS07	=	61;	//Side_3_handrails07
+const unsigned int GRP_SIDE_3_HANDRAILS08	=	62;	//Side_3_handrails08
+const unsigned int GRP_SIDE_3_HANDRAILS09	=	63;	//Side_3_handrails09
+const unsigned int GRP_SIDE_3_HANDRAILS10	=	64;	//Side_3_handrails10
+const unsigned int GRP_SIDE_3_HANDRAILS11	=	65;	//Side_3_handrails11
+const unsigned int GRP_SIDE_3_HANDRAILS12	=	66;	//Side_3_handrails12
+const unsigned int GRP_SIDE_3_HANDRAILS13	=	67;	//Side_3_handrails13
+const unsigned int GRP_SIDE_3_HANDRAILS14	=	68;	//Side_3_handrails14
+const unsigned int GRP_SIDE_2_HANDRAILS01	=	69;	//Side_2_handrails01
+const unsigned int GRP_SIDE_2_HANDRAILS02	=	70;	//Side_2_handrails02
+const unsigned int GRP_SIDE_2_HANDRAILS03	=	71;	//Side_2_handrails03
+const unsigned int GRP_SIDE_2_HANDRAILS04	=	72;	//Side_2_handrails04
+const unsigned int GRP_SIDE_2_HANDRAILS05	=	73;	//Side_2_handrails05
+const unsigned int GRP_SIDE_2_HANDRAILS06	=	74;	//Side_2_handrails06
+const unsigned int GRP_SIDE_2_HANDRAILS07	=	75;	//Side_2_handrails07
+const unsigned int GRP_SIDE_2_HANDRAILS08	=	76;	//Side_2_handrails08
+const unsigned int GRP_SIDE_2_HANDRAILS09	=	77;	//Side_2_handrails09
+const unsigned int GRP_SIDE_2_HANDRAILS10	=	78;	//Side_2_handrails10
+const unsigned int GRP_SIDE_2_HANDRAILS11	=	79;	//Side_2_handrails11
+const unsigned int GRP_SIDE_2_HANDRAILS12	=	80;	//Side_2_handrails12
+const unsigned int GRP_SIDE_2_HANDRAILS13	=	81;	//Side_2_handrails13
+const unsigned int GRP_SIDE_2_HANDRAILS14	=	82;	//Side_2_handrails14
+const unsigned int GRP_BLASTSHIELDSA	=	83;	//Blastshields
+const unsigned int GRP_RAIN_BIRDS	=	84;	//Rain_birds
+const unsigned int GRP_MLP_TOP_BOTTOM	=	85;	//MLP_top_bottom
+const unsigned int GRP_OBJECT05	=	86;	//Object05
+const unsigned int GRP_BOX28	=	87;	//Box28
+const unsigned int GRP_BOX29	=	88;	//Box29
+const unsigned int GRP_BOX31	=	89;	//Box31
+const unsigned int GRP_BOX32	=	90;	//Box32
+const unsigned int GRP_BOX33	=	91;	//Box33
+const unsigned int GRP_BOX34	=	92;	//Box34
+const unsigned int GRP_BOX35	=	93;	//Box35
+const unsigned int GRP_BOX36	=	94;	//Box36
+const unsigned int GRP_BOX37	=	95;	//Box37
+const unsigned int GRP_BOX38	=	96;	//Box38
+const unsigned int GRP_BOX39	=	97;	//Box39
+const unsigned int GRP_BOX40	=	98;	//Box40
+const unsigned int GRP_BOX09	=	99;	//Box09
+const unsigned int GRP_BOX10	=	100;	//Box10
+const unsigned int GRP_BOX12	=	101;	//Box12
+const unsigned int GRP_BOX13	=	102;	//Box13
+const unsigned int GRP_BOX14	=	103;	//Box14
+const unsigned int GRP_BOX15	=	104;	//Box15
+const unsigned int GRP_BOX16	=	105;	//Box16
+const unsigned int GRP_BOX17	=	106;	//Box17
+const unsigned int GRP_BOX18	=	107;	//Box18
+const unsigned int GRP_BOX19	=	108;	//Box19
+const unsigned int GRP_BOX20	=	109;	//Box20
+const unsigned int GRP_BOX21	=	110;	//Box21
+const unsigned int GRP_BOX22	=	111;	//Box22
+const unsigned int GRP_BOX23	=	112;	//Box23
+const unsigned int GRP_BOX24	=	113;	//Box24
+const unsigned int GRP_BOX25	=	114;	//Box25
+const unsigned int GRP_BOX26	=	115;	//Box26
+const unsigned int GRP_BOX27	=	116;	//Box27
+const unsigned int GRP_BOX41	=	117;	//Box41
+const unsigned int GRP_BOX42	=	118;	//Box42
+const unsigned int GRP_BOX43	=	119;	//Box43
+const unsigned int GRP_BOX44	=	120;	//Box44
+const unsigned int GRP_BOX45	=	121;	//Box45
+const unsigned int GRP_BOX46	=	122;	//Box46
+const unsigned int GRP_BOX47	=	123;	//Box47
+const unsigned int GRP_BOX48	=	124;	//Box48
+const unsigned int GRP_BOX49	=	125;	//Box49
+const unsigned int GRP_BOX50	=	126;	//Box50
+const unsigned int GRP_BOX51	=	127;	//Box51
+const unsigned int GRP_BOX52	=	128;	//Box52
+const unsigned int GRP_BOX53	=	129;	//Box53
+const unsigned int GRP_BOX54	=	130;	//Box54
+const unsigned int GRP_BOX55	=	131;	//Box55
+const unsigned int GRP_BOX56	=	132;	//Box56
+const unsigned int GRP_BOX58	=	133;	//Box58
+const unsigned int GRP_BOX59	=	134;	//Box59
+const unsigned int GRP_BOX60	=	135;	//Box60
+const unsigned int GRP_BOX61	=	136;	//Box61
+const unsigned int GRP_BOX62	=	137;	//Box62
+const unsigned int GRP_BOX63	=	138;	//Box63
+const unsigned int GRP_BOX64	=	139;	//Box64
+const unsigned int GRP_BOX65	=	140;	//Box65
+const unsigned int GRP_BOX80	=	141;	//Box80
+const unsigned int GRP_BOX81	=	142;	//Box81
+const unsigned int GRP_BOX82	=	143;	//Box82
+const unsigned int GRP_BOX83	=	144;	//Box83
+const unsigned int GRP_BOX84	=	145;	//Box84
+const unsigned int GRP_BOX85	=	146;	//Box85
+const unsigned int GRP_BOX86	=	147;	//Box86
+const unsigned int GRP_BOX66	=	148;	//Box66
+const unsigned int GRP_BOX67	=	149;	//Box67
+const unsigned int GRP_BOX68	=	150;	//Box68
+const unsigned int GRP_BOX69	=	151;	//Box69
+const unsigned int GRP_BOX70	=	152;	//Box70
+const unsigned int GRP_BOX71	=	153;	//Box71
+const unsigned int GRP_BOX72	=	154;	//Box72
+const unsigned int GRP_BOX73	=	155;	//Box73
+const unsigned int GRP_BOX74	=	156;	//Box74
+const unsigned int GRP_BOX75	=	157;	//Box75
+const unsigned int GRP_BOX76	=	158;	//Box76
+const unsigned int GRP_BOX77	=	159;	//Box77
+const unsigned int GRP_BOX78	=	160;	//Box78
+const unsigned int GRP_BOX79	=	161;	//Box79
+const unsigned int GRP_BOX87	=	162;	//Box87
+const unsigned int GRP_BOX88	=	163;	//Box88
+const unsigned int GRP_BOX89	=	164;	//Box89
+const unsigned int GRP_BOX90	=	165;	//Box90
+const unsigned int GRP_BOX91	=	166;	//Box91
+const unsigned int GRP_BOX92	=	167;	//Box92
+const unsigned int GRP_BOX93	=	168;	//Box93
+const unsigned int GRP_SIDE_1_HANDRAILS01	=	169;	//Side_1_handrails01
+const unsigned int GRP_SIDE_1_HANDRAILS02	=	170;	//Side_1_handrails02
+const unsigned int GRP_SIDE_1_HANDRAILS03	=	171;	//Side_1_handrails03
+const unsigned int GRP_SIDE_1_HANDRAILS04	=	172;	//Side_1_handrails04
+const unsigned int GRP_SIDE_1_HANDRAILS05	=	173;	//Side_1_handrails05
+const unsigned int GRP_SIDE_1_HANDRAILS06	=	174;	//Side_1_handrails06
+const unsigned int GRP_SIDE_1_HANDRAILS07	=	175;	//Side_1_handrails07
+const unsigned int GRP_SIDE_1_HANDRAILS08	=	176;	//Side_1_handrails08
+const unsigned int GRP_SIDE_1_HANDRAILS09	=	177;	//Side_1_handrails09
+const unsigned int GRP_SIDE_1_HANDRAILS10	=	178;	//Side_1_handrails10
+const unsigned int GRP_SIDE_1_HANDRAILS12	=	179;	//Side_1_handrails12
+const unsigned int GRP_SIDE_1_HANDRAILS14	=	180;	//Side_1_handrails14
+const unsigned int GRP_SIDE_1_HANDRAILS13	=	181;	//Side_1_handrails13
+const unsigned int GRP_SIDE_1_HANDRAILS11	=	182;	//Side_1_handrails11
+const unsigned int GRP_SIDE_1_HANDRAILS15	=	183;	//Side_1_handrails15
+const unsigned int GRP_SIDE_1_HANDRAILS16	=	184;	//Side_1_handrails16
+const unsigned int GRP_SIDE_1_HANDRAILS17	=	185;	//Side_1_handrails17
+const unsigned int GRP_SIDE_1_HANDRAILS18	=	186;	//Side_1_handrails18
+const unsigned int GRP_SIDE_1_HANDRAILS19	=	187;	//Side_1_handrails19
+const unsigned int GRP_SIDE_1_HANDRAILS20	=	188;	//Side_1_handrails20
+const unsigned int GRP_TSM_FIREX_PIPES	=	189;	//TSM_FireX_pipes
+const unsigned int GRP_CRYO_LINES	=	190;	//Cryo_Lines
+const unsigned int GRP_H2_LINE_SUPPORTS	=	191;	//H2_line_supports
+const unsigned int GRP_LINE01	=	192;	//Line01
+const unsigned int GRP_BOX94	=	193;	//Box94
+const unsigned int GRP_LINE03	=	194;	//Line03
+const unsigned int GRP_LINE02	=	195;	//Line02
 
-// Named mesh groups:
-#define GRP_Box18 0
-#define GRP_Blastdecks 1
-#define GRP_Box29 2
-#define GRP_Box57 3
-#define GRP_Box273 4
-#define GRP_LH2_fill_drain_lines 5
-#define GRP_Cylinder27 6
-#define GRP_GH2_vent_relief_lines 7
-#define GRP_Cylinder87 8
-#define GRP_Cylinder88 9
-#define GRP_LOX_fill_drain_vent_relief_lines 10
-#define GRP_Rain_gutters 11
-#define GRP_Exhaust_sheilds 12
-#define GRP_Line01 13
-#define GRP_LSRB_supports 14
-#define GRP_MLP_Side_detail 15
-#define GRP_Object02 16
-#define GRP_OTV_Cam_55 17
-#define GRP_OTV_cam_support 18
-#define GRP_Rain_birds 19
-#define GRP_RSRB_supports 20
-#define GRP_Side_1_Level_0_handrails 21
-#define GRP_Side_2_handrails 22
-#define GRP_Side_3_handrails 23
-#define GRP_Side_4_handrails 24
-#define GRP_Stairhouse 25
-#define GRP_Tube03 26
-#define GRP_Fixed_interface_supports 27
-#define GRP_MLP_beams 28
-#define GRP_Box01 29
-#define GRP_Cylinder01 30
-#define GRP_Blastdecks_2 31
-#define GRP_OTV_Cam_56 32
-#define GRP_OTV_Cam_54 33
-#define GRP_OTV_Cam_51 34
-#define GRP_OTV_Cam_49 35
-#define GRP_OTV_Cam_50 36
-#define GRP_OTV_Cam_72 37
-#define GRP_OTV_Cam_52 38
-#define GRP_OTV_Cam_53 39
-#define GRP_H2_Lines_markings 40
-#define GRP_LOX_Lines_markings 41
-#define GRP_Cylinder06 42
-#define GRP_SRB_SWS_pipes 43
-#define GRP_RSRB_water_bag 44
-#define GRP_LSRB_water_bag 45
-#define GRP_MLP_structure 46
-#define GRP_MLP_Side1_detail 47
-#define GRP_Box88 48
-#define GRP_ROFIs 49
-#define GRP_Hi_speed_cams 50
-#define GRP_SRB_Hi_speed_cameras 51
-#define GRP_Box281 52
-#define GRP_Box282 53
-#define GRP_Line04 54
-#define GRP_Box280 55
-#define GRP_LH_TSM_bonnet 56
-#define GRP_Cylinder165 57
-#define GRP_Line05 58
-#define GRP_Cylinder12 59
-#define GRP_LH_T0_umbilicals 60
-#define GRP_Box279 61
-#define GRP_Box03 62
-#define GRP_RH_TSM_bonnet 63
-#define GRP_Box11 64
-#define GRP_Cylinder129 65
-#define GRP_Line02 66
-#define GRP_RH_T0_umbilicals 67
-#define GRP_RSRB_water_bag_water 68
-#define GRP_LSRB_water_bag_water 69
-#define GRP_Stairs_decks 70

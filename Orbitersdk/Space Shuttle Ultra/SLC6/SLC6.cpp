@@ -89,7 +89,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
 	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
-	ahHDP = CreateAttachment(false, _V(0, 6, -1.9), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
+	ahHDP = CreateAttachment(false, _V(0, 7.29, -1.3), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
 	DefineAnimations();
 	DefineROFIs();
@@ -494,7 +494,7 @@ void SLC6::DefineAnimations()
 	AddAnimationComponent(anim_AccessArm, 0.0, 1.0, pAccessArm);
 
 	static UINT VentArmGrp[4] = {GRP_GOX_VENT_PIPES, GRP_GVA_SWING_ARM, GRP_NORTH_GOX_VENT_CYLINDER_01, GRP_SOUTH_GOX_VENT_CYLINDER_01};
-	MGROUP_ROTATE* pVentArm = DefineRotation(tower_mesh_idx, VentArmGrp, 4, _V(3.3, 60.876, -23.148), _V(0, -1, 0), static_cast<float>(77.5*RAD));
+	MGROUP_ROTATE* pVentArm = DefineRotation(tower_mesh_idx, VentArmGrp, 4, _V(3.3, 60.876, -23.148), _V(0, -1, 0), static_cast<float>(76.6*RAD));
 	anim_VentArm = CreateAnimation(0.0);
 	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_VentArm, 0.0, 1.0, pVentArm);
 	MGROUP_ROTATE* pVentVector = DefineRotation(LOCALVERTEXLIST, MAKEGROUPARRAY(goxVentPos), 3, _V(0.0, 0.0, 0.0), _V(0, 1, 0), static_cast<float>(0.0));
@@ -516,13 +516,13 @@ void SLC6::DefineAnimations()
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, pIAA);
 
-	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH_T0_UMBILICALS};
+	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH2_T0_UMBILICALS};
 	MGROUP_ROTATE* pLeftT0Umb = DefineRotation(pad_mesh_idx, LeftT0UmbGrp, 1, _V(5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, 0.9962), (float)(17.0*RAD));
 	static UINT RightT0UmbGrp[1] = {GRP_SLC6_PAD_RH_T0_UMBILICALS};
 	MGROUP_ROTATE* pRightT0Umb = DefineRotation(pad_mesh_idx, RightT0UmbGrp, 1, _V(-5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, -0.9962), (float)(17.0*RAD));
-	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH_TSM_BONNET};
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH2_TSM_BONNET};
 	MGROUP_ROTATE* pLeftT0UmbCover = DefineRotation(pad_mesh_idx, LeftT0UmbCoverGrp, 1, _V(5.75, 16.36, 6.088), _V(0.0867, 0.0, -0.9962), (float)(90.0*RAD));
-	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_RH_TSM_BONNET};
+	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LOX_TSM_BONNET};
 	MGROUP_ROTATE* pRightT0UmbCover = DefineRotation(pad_mesh_idx, RightT0UmbCoverGrp, 1, _V(-5.75, 16.36, 6.088), _V(0.0867, 0.0, 0.9962), (float)(90.0*RAD));
 	anim_T0Umb = CreateAnimation(0.0);
 	AddAnimationComponent(anim_T0Umb, 0.5, 1, pLeftT0Umb);

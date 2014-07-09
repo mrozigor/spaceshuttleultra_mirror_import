@@ -10,14 +10,14 @@ static const char* SHUTTLE_CLASS_NAME = "SpaceShuttleUltra";
 static const char* CRAWLER_CLASS_NAME = "SSU_CT";
 static const char* CRAWLER_1980_CLASS_NAME = "SSU_CT_1980";
 
-const double CRAWLER_HEIGHT_OFFSET = 50.0;
-const double PAD_HEIGHT_OFFSET = 55.0;
+const double CRAWLER_HEIGHT_OFFSET = 45.0;
+const double PAD_HEIGHT_OFFSET = 50.0;
 
 const double MAX_TARGET_RANGE = 1000.0; // max distance from light to shuttle
 const double PAN_RANGE = 360.0*RAD;
 const double TILT_RANGE = 90.0*RAD;
 
-VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 0.488), _V(2.395, 1.526, 0.488)};
+VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 1.0), _V(2.395, 1.526, 1.0)};
 
 class XenonLights : public VESSEL3
 {

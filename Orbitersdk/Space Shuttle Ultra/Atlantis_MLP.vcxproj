@@ -209,7 +209,7 @@
   <ItemGroup>
     <ClInclude Include="..\Atlantis.h" />
     <ClInclude Include="..\..\include\DlgCtrl.h" />
-    <ClInclude Include="..\MLP\meshres_MLP.h" />
+    <ClInclude Include="MLP\meshres_MLP.h" />
     <ClInclude Include="MLP\MLP.h" />
     <ClInclude Include="..\..\include\OrbiterAPI.h" />
     <ClInclude Include="..\..\include\Orbitersdk.h" />

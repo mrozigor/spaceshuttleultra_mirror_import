@@ -15,7 +15,7 @@ static const char* DEFAULT_MESHNAME_WATERTOWER="SSU/LC-39_watertower";
 
 const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 
-const double ORBITER_ACCESS_ARM_RATE = 0.005263;
+const double ORBITER_ACCESS_ARM_RATE = 0.007692;
 const double GVA_RATE = 0.023810;
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
@@ -29,18 +29,14 @@ const double FSS_RBUS_RATE = 0.35;
 const double FSS_OWP_BRACKET_LENGTH = 12.4;
 const double FSS_OWP_STRUT_LENGTH = 18.02;
 const double FSS_OWP_STRUT_OFFSET = 13.427;
-const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
+const double FSS_OWP_STRUT_NULL_ANGLE = 84.5; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int LC39_LIGHT_COUNT = 5;
 
-//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
-//const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
-//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
-//const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
-const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.95, 77.47, 19.72); //North duct
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-9.11, 77.47, 21.96); //South duct
+const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-0.425300945173, 0.853695922526, 0.300536816213);
 
 const int RSS_ROTATE_SOUND = 1;
 static const char* RSS_ROTATE_SOUND_FILE = "RSS_Rotation.wav";

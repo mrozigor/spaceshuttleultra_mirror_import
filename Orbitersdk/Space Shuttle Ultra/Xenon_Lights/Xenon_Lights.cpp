@@ -76,22 +76,22 @@ void XenonLights::CreateLights()
 
 	//VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 0.488), _V(2.395, 1.526, 0.488)};
 
-	const COLOUR4 LIGHT_DIFFUSE = {1, 1, 1, 0};
-	const COLOUR4 LIGHT_SPECULAR = {0, 0, 0, 0};
-	const COLOUR4 LIGHT_AMBIENT = {0.1f, 0.1f, 0.1f, 0.1f};
-	const double LIGHT_RANGE = 450;
+	const COLOUR4 LIGHT_DIFFUSE = {1, 0.96, 0.96, 0};
+	const COLOUR4 LIGHT_SPECULAR = {1, 0.96, 0.96, 0};
+	const COLOUR4 LIGHT_AMBIENT = {1, 0.96, 0.96, 0};
+	const double LIGHT_RANGE = 800;
 	const double LIGHT_ATT0 = 1e-3;
 	const double LIGHT_ATT1 = 0;
-	const double LIGHT_ATT2 = 0.00005;
+	const double LIGHT_ATT2 = 0.00004;
 
 	for(int i=0;i<2;i++) {
 		pLights[i] = AddSpotLight(LIGHT_POS[i], _V(0, 0, 1),
-			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 4.5*RAD, 10.0*RAD,
+			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 7.5*RAD, 25.0*RAD,
 			LIGHT_DIFFUSE, LIGHT_SPECULAR, LIGHT_AMBIENT);
 
 		// create fake thruster to simulate glare from lights
 		thLights[i] = CreateThruster(LIGHT_POS[i], _V(0, 0, 1), 0.0, phLights, 1.0, 1.0);
-		AddExhaust(thLights[i], 0.0, 0.5);
+		AddExhaust(thLights[i], 0.0, 2.0);
 	}
 }
 
@@ -99,7 +99,7 @@ void XenonLights::clbkPreStep(double simT, double simDT, double MJD)
 {
 	updateClock -= simDT;
 	if(updateClock < 0.0) {
-		updateClock = 60.0;
+		updateClock = 10.0;
 
 		VECTOR3 lightDir = _V(0, 0, 1);
 		// if target has not been found previously, try again
@@ -143,7 +143,7 @@ bool XenonLights::IsDay() const
 		oapiGetGlobalPos(Sun, &SunPosGlobal);
 		Global2Local(SunPosGlobal, SunPos);
 		double angle=acos(SunPos.y/length(SunPos))*DEG;
-		if(angle>85.0)
+		if(angle>170.0)
 			return false;
 	}
 	return true;

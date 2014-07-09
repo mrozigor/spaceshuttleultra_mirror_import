@@ -105,9 +105,9 @@ const double JACKING_MAX_HEIGHT = 1.8;
 // max distance the crawler platform can be jacked up from the drivetrucks
 // According to various sources maxing jacking height is 6 ft(1.8 m)
 
-const int JACK_HEIGHT_COUNT = 3; // # of predefined jacking levels
-const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.4, 0.9, 1.8};
-// max down, docking, clearance
+const int JACK_HEIGHT_COUNT = 5; // # of predefined jacking levels
+const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.15, 0.4, 0.225, 0.95, 1.8};
+	// max down, travelling, docking, clearance, max up
 // heights in meters
 
 const double MAX_TURN_ANGLE = 6.0*RAD;

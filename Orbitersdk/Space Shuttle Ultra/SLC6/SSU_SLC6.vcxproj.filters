@@ -30,6 +30,9 @@
     <ClInclude Include="..\BaseSSUPad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_Pad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SLC6.cpp">

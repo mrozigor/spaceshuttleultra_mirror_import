@@ -18,11 +18,11 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 };
 
 const VECTOR3 LC39_LIGHT_POS[LC39_LIGHT_COUNT] = {
-	_V(-58.2, -0.75, 1.3) + _V(4.126, 32, -41.503), //POS of SE light
-	_V(-58.2, -0.75, 1.3) + _V(55.574, 27, -43.662), // POS of E light
-	_V(-58.2, -0.75, 1.3) + _V(107.217, 32, -41.615),  // POS of NE light
-	_V(-58.2, -0.75, 1.3) + _V(117.091, 32, 30.015),  // POS of NW light
-	_V(-58.2, -0.75, 1.3) + _V(-10.551, 32, 23.754) // POS of SW light
+	_V(-55.975, -1.25, 0.825) + _V(4.74, 31, -41.16), //POS of SE light
+	_V(-55.975, -1.25, 0.825) + _V(55.574, 26, -42.2), // POS of E light
+	_V(-55.975, -1.25, 0.825) + _V(106.65, 31, -40.60),  // POS of NE light
+	_V(-55.975, -1.25, 0.825) + _V(115.90, 31, 29.2),  // POS of NW light
+	_V(-55.975, -1.25, 0.825) + _V(-9.2, 31, 23.20) // POS of SW light
 };
 
 const VECTOR3 LC39_LIGHT_DIR[LC39_LIGHT_COUNT] = {
@@ -32,15 +32,15 @@ const VECTOR3 LC39_LIGHT_DIR[LC39_LIGHT_COUNT] = {
 	_V(-0.7071, 0.0, -0.7071), // DIR of NW light
 	_V(0.7071, 0.0, -0.7071) // DIR of SW light
 };
-const COLOUR4 LC39_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
-const COLOUR4 LC39_LIGHT_SPECULAR = {0,0,0,0};
-const COLOUR4 LC39_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
-const double LC39_LIGHT_RANGE = 100.0;
+const COLOUR4 LC39_LIGHT_DIFFUSE = {0.525f, 0.65f, 0.525f, 1.0f};//{0.8f, 1.0f, 0.8f, 1.0f};
+const COLOUR4 LC39_LIGHT_SPECULAR = {0.525f, 0.625f, 0.525f, 1.0};
+const COLOUR4 LC39_LIGHT_AMBIENT = {0.525f, 0.625f, 0.525f, 1.0};//{0.8f, 1.0f, 0.8f, 1.0f};
+const double LC39_LIGHT_RANGE = 500.0;
 const double LC39_LIGHT_ATT0 = 1e-3;
 const double LC39_LIGHT_ATT1 = 0;
-const double LC39_LIGHT_ATT2 = 1e-3;
-const double LC39_LIGHT_UMBRA = 45.0*RAD;
-const double LC39_LIGHT_PENUMBRA = 180.0*RAD;
+const double LC39_LIGHT_ATT2 = 0.0005;
+const double LC39_LIGHT_UMBRA = 75.0*RAD;
+const double LC39_LIGHT_PENUMBRA = 80.0*RAD;
 
 //global functions
 DLLCLBK void InitModule(HINSTANCE hDLL)
@@ -183,7 +183,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	
 	vtx_goxvent[0] = FSS_POS_GOXVENTL;
 	vtx_goxvent[1] = FSS_POS_GOXVENTR;
-	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
+	vtx_goxvent[2] = FSS_POS_GOXVENTL + FSS_POS_GOXVENTDIR;
 
 	SoundID=-1;
 
@@ -200,12 +200,12 @@ SSUPad::~SSUPad()
 void SSUPad::DefineAnimations()
 {
 	//orbiter access arm
-	static UINT AccessArmGrp[2] = {GRP_Orbiter_Access_Arm_FSS, GRP_White_Room_FSS};
+	static UINT AccessArmGrp[2] = {GRP_ORBITER_ACCESS_ARM_FSS, GRP_WHITE_ROOM_FSS};
 	static UINT AccessArmGrp_1985[2] = {GRP_Orbiter_Access_Arm_FSS_1985, GRP_White_Room_FSS_1985};
 	/*static MGROUP_ROTATE AccessArm(fss_mesh_idx, AccessArmGrp, 2,
 		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));*/
 	MGROUP_ROTATE* AccessArm = DefineRotation(fss_mesh_idx, bPad1985 ? AccessArmGrp_1985 : AccessArmGrp, 2,
-		_V(-3, 64.791, 22), _V(0, -1, 0), (float)(70.0*RAD));
+		_V(-3.97, 14.791, 22), _V(0, -1, 0), (float)(70.0*RAD));
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	anim_AccessArm=CreateAnimation(0.0);
 	AddAnimationComponent(anim_AccessArm, 0.0, 1.0, AccessArm);
@@ -213,11 +213,11 @@ void SSUPad::DefineAnimations()
 	//GOX arm
 	VentArmState.Set(AnimState::CLOSED, 0.0);
 	anim_VentArm=CreateAnimation(0.0);
-	static UINT GVAGrp[3] = {GRP_GVA_swing_arm_fences_FSS, GRP_GVA_swing_arm_FSS,  GRP_GOX_vent_pipes_FSS};
-	static UINT GVAGrp_1985[3] = {GRP_GVA_swing_arm_fences_FSS_1985, GRP_GVA_swing_arm_FSS_1985,  GRP_GOX_vent_pipes_FSS_1985};
-	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 3,
+	static UINT GVAGrp[2] = {GRP_GVA_SWING_ARM_FSS,  GRP_GOX_VENT_PIPES_FSS};
+	static UINT GVAGrp_1985[2] = {GRP_GVA_swing_arm_FSS_1985,  GRP_GOX_vent_pipes_FSS_1985};
+	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 2,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
-	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
+	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 2,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_VentArm, 0.0, 1.0, GVA);
@@ -226,7 +226,7 @@ void SSUPad::DefineAnimations()
 	//GOX hood
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	anim_VentHood=CreateAnimation(1.0);
-	static UINT VentHoodGrp[9] = {GRP_GOX_Vent_Hood_FSS, GRP_North_GOX_dockseal_FSS, GRP_South_GOX_dockseal_FSS, GRP_South_GOX_vent_cylinder_01_FSS, GRP_South_GOX_vent_cylinder_02_FSS, GRP_South_GOX_vent_cylinder_03_FSS, GRP_North_GOX_vent_cylinder_01_FSS, GRP_North_GOX_vent_cylinder_02_FSS, GRP_North_GOX_vent_cylinder_03_FSS};
+	static UINT VentHoodGrp[9] = {GRP_GOX_VENT_HOOD_FSS, GRP_NORTH_GOX_DOCKSEAL_FSS, GRP_SOUTH_GOX_DOCKSEAL_FSS, GRP_SOUTH_GOX_VENT_CYLINDER_01_FSS, GRP_SOUTH_GOX_VENT_CYLINDER_02_FSS, GRP_SOUTH_GOX_VENT_CYLINDER_03_FSS, GRP_NORTH_GOX_VENT_CYLINDER_01_FSS, GRP_NORTH_GOX_VENT_CYLINDER_02_FSS, GRP_NORTH_GOX_VENT_CYLINDER_03_FSS};
 	static UINT VentHoodGrp_1985[9] = {GRP_GOX_Vent_Hood_FSS_1985, GRP_North_GOX_dockseal_FSS_1985, GRP_South_GOX_dockseal_FSS_1985, GRP_South_GOX_vent_cylinder_01_FSS_1985, GRP_South_GOX_vent_cylinder_02_FSS_1985, GRP_South_GOX_vent_cylinder_03_FSS_1985, GRP_North_GOX_vent_cylinder_01_FSS_1985, GRP_North_GOX_vent_cylinder_02_FSS_1985, GRP_North_GOX_vent_cylinder_03_FSS_1985};
 	MGROUP_ROTATE* VentHood = DefineRotation(fss_mesh_idx, bPad1985 ? VentHoodGrp_1985 : VentHoodGrp, 9,
 		_V(-16, 82, 21.709), _V(0, 0, 1), (float)(48.0*RAD));
@@ -234,18 +234,18 @@ void SSUPad::DefineAnimations()
 
 	//GH2 Vent Arm
 	GH2VentlineState.Set(AnimState::CLOSED, 0.0);
-	static UINT FSS_GH2_Arm[3] = {GRP_GH2_fwd_vent_flex_line_FSS, GRP_GH2_vent_hard_line_FSS, GRP_GUCP_FSS};
+	static UINT FSS_GH2_Arm[3] = {GRP_GH2_FWD_VENT_FLEX_LINE_FSS, GRP_GH2_VENT_HARD_LINE_FSS, GRP_GUCP_FSS};
 	static UINT FSS_GH2_Arm_1985[3] = {GRP_GH2_fwd_vent_flex_line_FSS_1985, GRP_GH2_vent_hard_line_FSS_1985, GRP_GUCP_FSS_1985};
 	MGROUP_ROTATE* FSS_GH2_ArmRot = DefineRotation(fss_mesh_idx, bPad1985 ? FSS_GH2_Arm_1985 : FSS_GH2_Arm, 3,
-		_V(5.07, 65.5287, 11.6944), _V(-0.843, 0.0, 0.536), (float)(90.0*RAD));
+		_V(4.9, 65.5287, 11.6944), _V(-0.843, 0.0, 0.536), (float)(90.0*RAD));
 	anim_GH2Ventline=CreateAnimation(0.0);
 	AddAnimationComponent(anim_GH2Ventline, 0.0, 1.0, FSS_GH2_ArmRot);
 
 	////IAA rotation
 	IAAState.Set(AnimState::CLOSED, 0.0);
-	static UINT IAAGrp[2] = {GRP_Intertank_Access_Arm_FSS, GRP_IAA_extensible_platform_FSS};
+	static UINT IAAGrp[2] = {GRP_INTERTANK_ACCESS_ARM_FSS, GRP_IAA_EXTENSIBLE_PLATFORM_FSS};
 	static UINT IAAGrp_1985[2] = {GRP_Intertank_Access_Arm_FSS_1985, GRP_IAA_extensible_platform_FSS_1985};
-	MGROUP_ROTATE* IAA_Deploy = DefineRotation(fss_mesh_idx, bPad1985 ? IAAGrp_1985 : IAAGrp, 2, _V(8.98, 63.7142, 16), 
+	MGROUP_ROTATE* IAA_Deploy = DefineRotation(fss_mesh_idx, bPad1985 ? IAAGrp_1985 : IAAGrp, 2, _V(8.68, 63.7142, 16), 
 		_V(0.0, 1.0, 0.0), static_cast<float>(210.0 * RAD));
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, IAA_Deploy);
@@ -261,33 +261,33 @@ void SSUPad::DefineAnimations()
 	else {
 		//FSS OWP
 		FSS_OWP_State.Set(AnimState::CLOSED, 0.0);
-		static UINT FSS_Y_OWPRotGrp[2] = {GRP_Outer_OWP_Curtain_Wall_panel_FSS, 
-			GRP_Outer_OWP_Curtain_Wall_struts_FSS};
+		static UINT FSS_Y_OWPRotGrp[2] = {GRP_OUTER_OWP_CURTAIN_WALL_PANEL_FSS, 
+			GRP_OUTER_OWP_CURTAIN_WALL_STRUTS_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 2,
-			_V(-6.37, 0.0, 22), _V(0, 1.0, 0.0), (float)(PI/2));
+			_V(-6.88, 0.0, 22), _V(0, 1.0, 0.0), (float)(PI/2));
 		anim_fss_y_owp=CreateAnimation(0.0);
 		parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.769, &FSS_Y_OWPRot);
-		static UINT FSS_Y_OWPTransGrp[2] = {GRP_Inner_OWP_Curtain_Wall_structure_FSS, GRP_Inner_OWP_Curtain_Wall_panel_FSS};
+		static UINT FSS_Y_OWPTransGrp[2] = {GRP_INNER_OWP_CURTAIN_WALL_STRUCTURE_FSS, GRP_INNER_OWP_CURTAIN_WALL_PANEL_FSS};
 		static MGROUP_TRANSLATE FSS_Y_OWPTrans(fss_mesh_idx, FSS_Y_OWPTransGrp, 2, _V(7.2, 0.0, 0.0));
 		AddAnimationComponent(anim_fss_y_owp, 0.769, 1.0, &FSS_Y_OWPTrans, parent);
-		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_North_Cutrain_Wall_struts_FSS};
+		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_NORTH_CUTRAIN_WALL_STRUTS_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
 			_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
 		anim_fss_y_owp_strut=CreateAnimation(0.5);
 		AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
 		//RSS OWP
 		RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
-		static UINT RSS_Y_LOWPGrp[2] = {GRP_OWP_Curtain_Wall, GRP_SRB_IEA_platform};
+		static UINT RSS_Y_LOWPGrp[2] = {GRP_OWP_CURTAIN_WALL, GRP_OWP_CURTAIN_WALL_PLATFORMS_GRATES};
 		static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 12.1));
-		static UINT RSS_Y_UOWPGrp[2] = {GRP_Metal_Panel_flip_right, GRP_Metal_Panel_flip_right_lower};
+		static UINT RSS_Y_UOWPGrp[2] = {GRP_METAL_PANEL_FLIP_RIGHT, GRP_METAL_PANEL_FLIP_RIGHT_LOWER};
 		static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 2,
-			_V(0, 34.94, -4.57), _V(-1, 0, 0), (float)(33.0*RAD));
-		static UINT RSS_flip_upperGrp[1] = {GRP_Metal_Panel_flip_upper_left};
+			_V(-20, 34.58, -7.96), _V(-1, 0, 0), (float)(27.3*RAD));
+		static UINT RSS_flip_upperGrp[1] = {GRP_METAL_PANEL_FLIP_UPPER_LEFT};
 		static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
-			_V(0, 45.71, 4.515), _V(1, 0, 0), (float)(90.0*RAD));
-		static UINT RSS_flip_lowerGrp[2] = {GRP_Metal_Panel_flip_lower_left, GRP_Line06};
+			_V(-20, 45.76, 1.10), _V(1, 0, 0), (float)(90.0*RAD));
+		static UINT RSS_flip_lowerGrp[2] = {GRP_METAL_PANEL_FLIP_LOWER_LEFT, GRP_LINE06};
 		static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 2,
-			_V(-20.75, 34.40, 6.06), _V(0, 1, 0), (float)(105.0*RAD));
+			_V(-20.85, 36.91, 2.72), _V(0, 1, 0), (float)(105.0*RAD));
 		anim_rss_y_owp=CreateAnimation(0.0);
 		AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_Y_UOWP);
 		AddAnimationComponent(anim_rss_y_owp, 0, 0.35, &RSS_flip_upper);
@@ -298,11 +298,11 @@ void SSUPad::DefineAnimations()
 	//RSS rotation
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
-		_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
-	static UINT RSS_DoorGrp[1] = {GRP_FRCS_Room_door};
+		_V(-29.08, 0, 19.49), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
+	static UINT RSS_DoorGrp[1] = {GRP_FRCS_ROOM_DOOR};
 	static UINT RSS_DoorGrp_1985[1] = {GRP_FRCS_Room_door_1985};
 	MGROUP_SCALE* RSS_door1 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp_1985 : RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
-	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_Room_door};
+	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_ROOM_DOOR};
 	static UINT RSS_DoorGrp2_1985[1] = {GRP_FRCS_Room_door_1985};
 	MGROUP_SCALE* RSS_door2 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp2_1985 : RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
 	anim_rss=CreateAnimation(0.0);
@@ -642,12 +642,12 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.8, 15, 7, 0, 3, 1.25, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.2, 40, 15, 0, 1, 1, 0.0, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
 
-	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
+	gox_stream.tex = oapiRegisterParticleTexture ("Contrail1"); //("SSU\\GOX_stream");
 
 
 	VECTOR3 dir = (vtx_goxvent[2] - vtx_goxvent[0]);
@@ -682,18 +682,16 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	}
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	WaterTowerMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_WATERTOWER);
-	const VECTOR3 rss_ofs=_V(14, 15.5, 1);
-	const VECTOR3 hs_ofs=_V(-58.2, -1.75, 1.3);
+	// Vectors are (+North/-South, Vertical, +West/-East)
+	const VECTOR3 rss_ofs=_V(11.9, 15.6, 4.475);
+	const VECTOR3 hs_ofs=_V(-55.975, -1.25, 0.825);
 	const VECTOR3 wt_ofs=_V(100, 45, -63);
 	fss_mesh_idx=AddMesh(FSSMesh);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 	wt_mesh_idx=AddMesh(WaterTowerMesh, &wt_ofs);
 
-	SetTouchdownPoints(_V(1.0, -2.0, 0.0), _V(-1.0, -2.0, 1.0), _V(-1.0, -2.0, -1.0));
-
-	//if(bPad1985) DefineAnimations1985();
-	//else DefineAnimations();
+	SetTouchdownPoints(_V(1.0, -1.4, 0.0), _V(-1.0, -1.4, 1.0), _V(-1.0, -1.4, -1.0));
 	DefineAnimations();
 
 	CreateGOXVentThrusters();
@@ -707,9 +705,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	CreateLights(FSS_POS_LIGHT, FSS_NUM_LIGHTS);
 	CreateStadiumLights(LC39_LIGHT_POS, LC39_LIGHT_DIR, LC39_LIGHT_COUNT, LC39_LIGHT_RANGE, LC39_LIGHT_ATT0, LC39_LIGHT_ATT1, LC39_LIGHT_ATT2, LC39_LIGHT_UMBRA, LC39_LIGHT_PENUMBRA, LC39_LIGHT_DIFFUSE, LC39_LIGHT_SPECULAR, LC39_LIGHT_AMBIENT);
 
-	//if(bPad1985) CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
-	//else CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
-	CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
+	CreateAttachment(false, _V(4.5, 20.5, 0.8), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 }
 
 void SSUPad::UpdateGOXVents() {
