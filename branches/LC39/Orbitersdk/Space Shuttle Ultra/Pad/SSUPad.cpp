@@ -217,7 +217,7 @@ void SSUPad::DefineAnimations()
 	static UINT GVAGrp_1985[2] = {GRP_GVA_swing_arm_FSS_1985,  GRP_GOX_vent_pipes_FSS_1985};
 	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 2,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
-	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 2,
+	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_VentArm, 0.0, 1.0, GVA);
