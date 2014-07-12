@@ -30,34 +30,70 @@ BEGIN_CAMERA
 END_CAMERA
 
 BEGIN_MFD Left
-  TYPE Surface
-  SPDMODE 1
-END_MFD
-
-BEGIN_MFD Right
   TYPE User
   MODE CRT
   Mode2 0
   Display 1
 END_MFD
 
+BEGIN_MFD Right
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
 BEGIN_MFD 3
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
+BEGIN_MFD 4
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 5
   TYPE User
   MODE CRT
   Mode2 1
   Display 2
 END_MFD
 
-BEGIN_MFD 4
-  TYPE Surface
-  SPDMODE 1
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
 END_MFD
 
-BEGIN_MFD 5
+BEGIN_MFD 7
+  TYPE Orbit
+  PROJ Ship
+  FRAME Equator
+  ALT
+  REF Earth
+END_MFD
+
+BEGIN_MFD 8
   TYPE User
   MODE CRT
   Mode2 0
   Display 2
+END_MFD
+
+BEGIN_MFD 9
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD 10
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
 END_MFD
 
 BEGIN_VC
@@ -478,6 +514,10 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR

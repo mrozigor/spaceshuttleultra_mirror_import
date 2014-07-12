@@ -29,15 +29,70 @@ BEGIN_HUD
 END_HUD
 
 BEGIN_MFD Left
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD Right
   TYPE Surface
   SPDMODE 1
 END_MFD
 
-BEGIN_MFD Right
+BEGIN_MFD 3
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
+BEGIN_MFD 4
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 5
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 7
   TYPE Orbit
   PROJ Ship
-  FRAME Ecliptic
+  FRAME Equator
+  ALT
   REF Earth
+END_MFD
+
+BEGIN_MFD 8
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 9
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD 10
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
 END_MFD
 
 
@@ -287,6 +342,10 @@ STS-101:SpaceShuttleUltra
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
   @ENDPANEL 
   @PANEL O17
   "EIU L-C" ON
