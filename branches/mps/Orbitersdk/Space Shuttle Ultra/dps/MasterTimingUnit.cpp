@@ -219,13 +219,13 @@ void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 				fEvent[timer][1] = fEvent[timer][0] + fDeltaT;
 				break;
 			case COUNT_DOWN:
-				if(fEvent[timer][0] > fDeltaT) {
+				//if(fEvent[timer][0] > fDeltaT) {
 					fEvent[timer][1] = fEvent[timer][0] - fDeltaT;
-				} else
-				{
-					fEvent[timer][1] = 0.0;
-					event_control[timer][1] = COUNT_STOPPED;
-				}
+				//} else
+				//{
+					//fEvent[timer][1] = 0.0;
+					//event_control[timer][1] = COUNT_STOPPED;
+				//}
 				break;
 			}
 			break;
@@ -287,8 +287,8 @@ void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 		event_control[timer][0] = event_control[timer][1];
 
 
-		fSeconds = fmod(fEvent[timer][0], 60.0);
-		sEventMinutes[timer] = (short)((fEvent[timer][0] - fSeconds)/60.0);
+		fSeconds = fmod(fabs( fEvent[timer][0] ), 60.0);
+		sEventMinutes[timer] = (short)((fabs( fEvent[timer][0] ) - fSeconds)/60.0);
 		sEventSeconds[timer] = (short)fSeconds;
 
 		if(event_mode[timer][0] == COUNT_TEST) {
