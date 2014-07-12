@@ -56,6 +56,14 @@ namespace vc
 
 		StandardSwitchCover* pSSMESDPBCover[3];
 		PushButton* pSSMESDPB[3];
+
+		StdSwitch2* pSRBSEPSW;
+		StandardSwitchCover* pSRBSEPCover;
+		PushButton* pSRBSEPPB;
+
+		LockableLever2* pETSEPSW;
+		StandardSwitchCover* pETSEPCover;
+		PushButton* pETSEPPB;
 	};
 };
 

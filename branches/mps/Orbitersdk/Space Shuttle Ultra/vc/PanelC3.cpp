@@ -48,10 +48,21 @@ namespace vc
 		Add( pSSMESDPBCover[0] = new StandardSwitchCover( _sts, "SSME Left S/D PB Cover" ) );
 		Add( pSSMESDPBCover[1] = new StandardSwitchCover( _sts, "SSME Ctr S/D PB Cover" ) );
 		Add( pSSMESDPBCover[2] = new StandardSwitchCover( _sts, "SSME Right S/D PB Cover" ) );
-
 		Add( pSSMESDPB[0] = new PushButton( _sts, "SSME Left S/D PB" ) );
 		Add( pSSMESDPB[1] = new PushButton( _sts, "SSME Ctr S/D PB" ) );
 		Add( pSSMESDPB[2] = new PushButton( _sts, "SSME Right S/D PB" ) );
+
+		Add( pSRBSEPSW = new StdSwitch2( _sts, "SRB Separation" ) );
+		pSRBSEPSW->SetLabel( 0, "AUTO" );
+		pSRBSEPSW->SetLabel( 1, "MAN/AUTO" );
+		Add( pSRBSEPCover = new StandardSwitchCover( _sts, "SRB Separation PB Cover" ) );
+		Add( pSRBSEPPB = new PushButton( _sts, "SRB Separation PB" ) );
+
+		Add( pETSEPSW = new LockableLever2( _sts, "ET Separation" ) );
+		pETSEPSW->SetLabel( 0, "AUTO" );
+		pETSEPSW->SetLabel( 1, "MAN" );
+		Add( pETSEPCover = new StandardSwitchCover( _sts, "ET Separation PB Cover" ) );
+		Add( pETSEPPB = new PushButton( _sts, "ET Separation PB" ) );
 	}
 
 	PanelC3::~PanelC3()
@@ -232,6 +243,35 @@ namespace vc
 		pSSMESDPB[2]->SetMouseRegion( 0.515987f, 0.296511f, 0.556983f, 0.331199f );
 		pSSMESDPB[2]->SetReference( _V( 0.197, 1.7466, 14.16 ), _V( 0, 0, 1 ) );
 		pSSMESDPB[2]->DefineGroup( GRP_RIGHT_SSME_SHTDN_PB_VC );
+
+		pSRBSEPSW->SetMouseRegion( 0.462571f, 0.414336f, 0.509469f, 0.491312f );
+		pSRBSEPSW->SetReference( _V( 0.006, 1.7, 14.079 ), switch_rot );// TODO ask for more accurate coordinates
+		pSRBSEPSW->DefineSwitchGroup( GRP_C3B16_VC );
+		pSRBSEPSW->SetInitialAnimState( 0.5f );
+
+		pSRBSEPCover->SetMouseRegion( 0, 0.533090f, 0.424105f, 0.586752f, 0.485038f );
+		pSRBSEPCover->SetMouseRegion( 1, 0.532972f, 0.381586f, 0.579912f, 0.430505f );
+		pSRBSEPCover->SetReference( _V( -0.031, 1.734, 14.096 ), switch_rot );
+		pSRBSEPCover->DefineCoverGroup( GRP_C3COVER4_VC );
+		
+		pSRBSEPPB->SetMouseRegion( 0.537215f, 0.435073f, 0.574794f, 0.470203f );
+		pSRBSEPPB->SetReference( _V( -0.031, 1.734, 14.096 ), _V( 0, 0, 1 ) );
+		pSRBSEPPB->DefineGroup( GRP_SRB_SEP_PB_VC );
+
+		pETSEPSW->SetMouseRegion( 0.629313f, 0.420718f, 0.675625f, 0.520487f );
+		pETSEPSW->SetReference( _V( -0.083, 1.7, 14.075 ), switch_rot );// TODO ask for more accurate coordinates
+		pETSEPSW->SetPullDirection( pull_dir );
+		pETSEPSW->DefineSwitchGroup( GRP_C3B17_VC );
+		pETSEPSW->SetInitialAnimState( 0.5f );
+		
+		pETSEPCover->SetMouseRegion( 0, 0.691866f, 0.422427f, 0.745989f, 0.482821f );
+		pETSEPCover->SetMouseRegion( 1, 0.703331f, 0.380311f, 0.735696f, 0.423886f );
+		pETSEPCover->SetReference( _V( -0.119, 1.734, 14.096 ), switch_rot );
+		pETSEPCover->DefineCoverGroup( GRP_C3COVER5_VC );
+
+		pETSEPPB->SetMouseRegion( 0.698907f, 0.432862f, 0.731796f, 0.463562f );
+		pETSEPPB->SetReference( _V( -0.119, 1.734, 14.096 ), _V( 0, 0, 1 ) );
+		pETSEPPB->DefineGroup( GRP_ET_SEP_PB_VC );
 	}
 
 	void PanelC3::Realize()
@@ -272,6 +312,12 @@ namespace vc
 		pSSMESDPB[0]->output.Connect( pBundle, 2 );// L
 		pSSMESDPB[1]->output.Connect( pBundle, 3 );// C
 		pSSMESDPB[2]->output.Connect( pBundle, 4 );// R
+
+		pBundle = STS()->BundleManager()->CreateBundle( "C3_SEP", 4 );
+		pSRBSEPSW->ConnectPort( 1, pBundle, 0 );
+		pSRBSEPPB->output.Connect( pBundle, 1 );
+		pETSEPSW->ConnectPort( 1, pBundle, 2 );
+		pETSEPPB->output.Connect( pBundle, 3 );
 
 		// VC component DiscPorts need to be connected before Realize() is called
 		AtlantisPanel::Realize();
