@@ -1230,11 +1230,11 @@ void Atlantis::SetLaunchConfiguration (void)
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
   srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
   srb_contrail.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
+  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
+  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
   for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
   AddExhaustStream (th_srb[0], &srb_exhaust); 
   AddExhaustStream (th_srb[1], &srb_exhaust);
-  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
-  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
 
   //Add slag effect streams
   for(i=0;i<2;i++) {
