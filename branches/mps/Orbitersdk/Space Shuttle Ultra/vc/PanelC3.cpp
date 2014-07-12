@@ -245,7 +245,7 @@ namespace vc
 		pSSMESDPB[2]->DefineGroup( GRP_RIGHT_SSME_SHTDN_PB_VC );
 
 		pSRBSEPSW->SetMouseRegion( 0.462571f, 0.414336f, 0.509469f, 0.491312f );
-		pSRBSEPSW->SetReference( _V( 0.006, 1.7, 14.079 ), switch_rot );// TODO ask for more accurate coordinates
+		pSRBSEPSW->SetReference( _V( 0.00608, 1.70746, 14.0791 ), switch_rot );
 		pSRBSEPSW->DefineSwitchGroup( GRP_C3B16_VC );
 		pSRBSEPSW->SetInitialAnimState( 0.5f );
 
@@ -259,7 +259,7 @@ namespace vc
 		pSRBSEPPB->DefineGroup( GRP_SRB_SEP_PB_VC );
 
 		pETSEPSW->SetMouseRegion( 0.629313f, 0.420718f, 0.675625f, 0.520487f );
-		pETSEPSW->SetReference( _V( -0.083, 1.7, 14.075 ), switch_rot );// TODO ask for more accurate coordinates
+		pETSEPSW->SetReference( _V( -0.08218, 1.69955, 14.06513 ), switch_rot );
 		pETSEPSW->SetPullDirection( pull_dir );
 		pETSEPSW->DefineSwitchGroup( GRP_C3B17_VC );
 		pETSEPSW->SetInitialAnimState( 0.5f );
