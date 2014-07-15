@@ -143,7 +143,7 @@ bool XenonLights::IsDay() const
 		oapiGetGlobalPos(Sun, &SunPosGlobal);
 		Global2Local(SunPosGlobal, SunPos);
 		double angle=acos(SunPos.y/length(SunPos))*DEG;
-		if(angle>170.0)
+		if(angle>80.0)
 			return false;
 	}
 	return true;

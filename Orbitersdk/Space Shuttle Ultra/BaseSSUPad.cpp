@@ -75,7 +75,13 @@ void BaseSSUPad::ToggleLights(bool enable)
 
 	for(unsigned int i=0;i<pStadiumLights.size();i++) {
 		pStadiumLights[i]->Activate(enable);
-		SetThrusterLevel(thStadiumLights[i], 1.0);
+		if(enable) {
+			SetPropellantMass(phStadiumLights, 1.0); // make sure fake thrusters have propellant (fix for old scenarios which might not set propellant level)
+			SetThrusterLevel(thStadiumLights[i], 1.0);
+		}
+		else {
+			SetThrusterLevel(thStadiumLights[i], 0.0);
+		}
 		//stadium_lights[i].active = enable;
 	}
 }
@@ -104,7 +110,7 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	VESSEL3::clbkPreStep(simt, simdt, mjd);
 
 	if(simt > fNextLightUpdate) {
-		fNextLightUpdate = simt + -20.0;
+		fNextLightUpdate = simt + 10.0;
 
 		if(bLightsOn && !IsNight()) {
 			ToggleLights(false);
