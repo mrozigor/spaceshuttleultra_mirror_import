@@ -683,7 +683,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	WaterTowerMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_WATERTOWER);
 	// Vectors are (+North/-South, Vertical, +West/-East)
-	const VECTOR3 rss_ofs=_V(11.9, 15.6, 4.475);
+	const VECTOR3 rss_ofs=_V(14.2, 15.6, 3.9);
 	const VECTOR3 hs_ofs=_V(-55.975, -1.25, 0.825);
 	const VECTOR3 wt_ofs=_V(100, 45, -63);
 	fss_mesh_idx=AddMesh(FSSMesh);
