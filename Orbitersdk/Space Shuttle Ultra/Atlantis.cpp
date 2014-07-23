@@ -6827,7 +6827,11 @@ void Atlantis::SetSSMEGH2burn( int eng, bool burn )
 	assert( (eng >= 1) && (eng <= 3) && " Atlantis::SetSSMEGH2burn.eng" );
 	if (SSMEGH2burn[eng - 1] != NULL) DelExhaustStream( SSMEGH2burn[eng - 1] );
 
-	if (burn == false) return;
+	if (burn == false)
+	{
+		SSMEGH2burn[eng - 1] = NULL;
+		return;
+	}
 
 	static PARTICLESTREAMSPEC psSSMEGH2burn = {
 	0,
