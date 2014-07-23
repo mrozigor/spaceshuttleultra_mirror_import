@@ -74,8 +74,7 @@ namespace mission {
 
 		bool bPerformRTHU;
 		bool bUseOMSAssist;
-		double OMSAssistStart;
-		double OMSAssistEnd;
+		double OMSAssistDuration;// sec
 		//bool bUseRTHU;
 		//double RTHUVelocity;
 		double fMaxSSMEThrust;
@@ -159,15 +158,14 @@ namespace mission {
 		
 
 		virtual bool UseDirectAscent() const;
+		/**
+		 * returns enable status of OMS Assist
+		 */
 		virtual bool UseOMSAssist() const;
 		/**
-		 * MET at which OMS Assist starts
+		 * returns duration of OMS Assist
 		 */
-		virtual double GetOMSAssistStart() const;
-		/**
-		 * MET at which OMS Assist ends
-		 */
-		virtual double GetOMSAssistEnd() const;
+		virtual double GetOMSAssistDuration() const;
 		/**
 		 * Returns true if roll to heads up should be performed
 		 */
