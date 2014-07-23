@@ -32,8 +32,6 @@ namespace dps
 			{
 				active = true;
 				t_MECO = SimT;
-
-				pIO_Control->SetCommand( PNEU_L_HE_XOVR_OP, true );// HACK should it be in SSME OPS?
 			}
 		}
 		else

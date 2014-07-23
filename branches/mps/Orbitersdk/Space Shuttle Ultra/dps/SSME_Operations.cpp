@@ -33,6 +33,10 @@ namespace dps
 
 		MECOConfirmed = false;
 
+		ZeroThrust = false;
+
+		timerMECOConfirmed = 999999;
+
 		LimitSwitch = 1;
 
 		otherSSMEs[0][0] = 1;
@@ -239,20 +243,43 @@ namespace dps
 		}
 
 		// step 30
-		if ((ManualShutdownFlag[0] == true) && (ManualShutdownFlag[1] == true) && (ManualShutdownFlag[2] == true)) MECOCommand = true;
-
-		// K
-		if ((MECOConfirmed == false) && (
-			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30)) ||
-			((pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30)) ||
-			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30)) ||
-			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == true))))
+		if ((MECOConfirmed == false) && (ManualShutdownFlag[0] == true) && (ManualShutdownFlag[1] == true) && (ManualShutdownFlag[2] == true))
 		{
 			MECOCommand = true;
 			MECOConfirmed = true;
-			//oapiWriteLog( "MECO Confirmed" );
+			timerMECOConfirmed = SimT + TIME_TO_ZERO_THRUST;
+
+			pIO_Control->SetCommand( PNEU_L_HE_XOVR_OP, true );// open LV10
+
+			char buffer[64];
+			sprintf_s( buffer, 64, "MECO Confirmed (PB) @ MET %.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
+			oapiWriteLog( buffer );
+		}
+
+		// K
+		if ((MECOConfirmed == false) && (
+			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
+			((pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
+			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
+			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == true) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false))))
+		{
+			MECOCommand = true;
+			MECOConfirmed = true;
+			timerMECOConfirmed = SimT + TIME_TO_ZERO_THRUST;
+
+			pIO_Control->SetCommand( PNEU_L_HE_XOVR_OP, true );// open LV10
+
 			char buffer[64];
 			sprintf_s( buffer, 64, "MECO Confirmed @ MET %.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
+			oapiWriteLog( buffer );
+		}
+
+		if ((timerMECOConfirmed <= SimT) && (ZeroThrust == false))
+		{
+			ZeroThrust = true;
+
+			char buffer[64];
+			sprintf_s( buffer, 64, "Zero Thrust @ MET %.2f", STS()->GetMET() );
 			oapiWriteLog( buffer );
 		}
 
@@ -260,7 +287,7 @@ namespace dps
 		if ((STS()->GetETPropellant_B() <= 0.2) && (MECOCommand == false))// 0.2% is enough to shutdown the engines
 		{
 			MECOCommand = true;
-			//oapiWriteLog( "MECO Low Level Cutoff" );
+
 			char buffer[64];
 			sprintf_s( buffer, 64, "MECO Low Level Cutoff @ MET %.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
 			oapiWriteLog( buffer );
@@ -289,6 +316,8 @@ namespace dps
 	{
 		switch (newMajorMode)
 		{
+			case 104:
+				MECOConfirmed = true;
 			case 102:
 			case 103:
 			case 601:
@@ -312,6 +341,11 @@ namespace dps
 	bool SSME_Operations::GetMECOConfirmedFlag( void ) const
 	{
 		return MECOConfirmed;
+	}
+
+	bool SSME_Operations::GetZeroThrustFlag( void ) const
+	{
+		return ZeroThrust;
 	}
 
 	bool SSME_Operations::GetFailFlag( int eng ) const
