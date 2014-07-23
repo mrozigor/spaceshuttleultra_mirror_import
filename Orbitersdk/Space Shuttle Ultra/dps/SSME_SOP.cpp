@@ -131,6 +131,7 @@ namespace dps
 
 								if (DataFailCounter[i] == DATA_FAIL)
 								{
+									PercentChamberPress[i] = 0;// so it displays 0 on data path failure
 									FlightDataPathFailure[i] = true;
 								}
 							}
