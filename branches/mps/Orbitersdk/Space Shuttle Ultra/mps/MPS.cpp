@@ -83,9 +83,9 @@ namespace mps
 		ptrPV21 = new PressureActuatedValve( 0, 100, nullptr, ptrLV78, nullptr, nullptr );
 		//ptrPV22 = new ValveTypeBool( false, 50 );// Normal closing response of the valve is less than 2 seconds (signal to switch).
 
-		ptrPD1 = new PressureActuatedValve( 1, 100, ptrLV46, ptrLV47, nullptr, nullptr );
-		ptrPD2 = new PressureActuatedValve( 1, 100, ptrLV48, ptrLV49, nullptr, nullptr );
-		ptrPD3 = new PressureActuatedValve( 1, 100, ptrLV50, ptrLV51, nullptr, nullptr );
+		ptrPD1 = new PressureActuatedValve( 1, 50, ptrLV46, ptrLV47, nullptr, nullptr );
+		ptrPD2 = new PressureActuatedValve( 1, 50, ptrLV48, ptrLV49, nullptr, nullptr );
+		ptrPD3 = new PressureActuatedValve( 1, 50, ptrLV50, ptrLV51, nullptr, nullptr );
 
 		LOXManifPress = 105;
 		LH2ManifPress = 45;
@@ -295,7 +295,14 @@ namespace mps
 		ptrPV20->ConnectIndication( false, 0, bundle, 10 );
 		ptrPV21->ConnectIndication( false, 0, bundle, 11 );
 
-		//bundle = BundleManager()->CreateBundle( "MPS_CLInd_B", 16 );
+		ptrPD1->ConnectIndication( false, 0, bundle, 13 );
+		ptrPD1->ConnectIndication( false, 1, bundle, 14 );
+		ptrPD2->ConnectIndication( false, 0, bundle, 15 );
+
+		bundle = BundleManager()->CreateBundle( "MPS_CLInd_B", 16 );
+		ptrPD2->ConnectIndication( false, 1, bundle, 0 );
+
+		ptrPD3->ConnectIndication( false, 0, bundle, 7 );
 
 		bundle = BundleManager()->CreateBundle( "MPS_OPInd_A", 16 );
 		ptrPV4->ConnectIndication( true, 0, bundle, 3 );

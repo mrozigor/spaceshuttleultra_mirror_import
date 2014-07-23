@@ -14,6 +14,9 @@
 #include "MPS_Dump.h"
 #include "MM801.h"
 #include "IO_Control.h"
+#include "TransitionDAP.h"
+#include "ETSepSequence.h"
+#include "SRBSepSequence.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -35,6 +38,9 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back(new AerojetDAP(this));
 	vSoftware.push_back(new MM801(this));
 	vSoftware.push_back( new IO_Control( this ) );
+	vSoftware.push_back( new TransitionDAP( this ) );
+	vSoftware.push_back( new ETSepSequence( this ) );
+	vSoftware.push_back( new SRBSepSequence( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

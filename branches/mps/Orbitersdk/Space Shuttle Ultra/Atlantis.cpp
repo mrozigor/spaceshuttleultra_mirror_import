@@ -4716,20 +4716,20 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		}
 		//sprintf(oapiDebugString(),"met: %f",met);
-		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
-			SeparateBoosters (met);
-			bManualSeparate = false;
-			pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
-		}
-		else {
+		//if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
+		//	SeparateBoosters (met);
+		//	bManualSeparate = false;
+		//	pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
+		//}
+		//else {
 			if(met>0.0) {
-				if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
+				/*if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
 				{
 					char buffer[100];
 					sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
 					oapiWriteLog(buffer);
 					bSRBCutoffFlag = true;
-				}
+				}*/
 
 
 				// extract current thrust level and propellant level as a function of time
@@ -4753,7 +4753,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-		}
+		//}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
 		break;
@@ -5013,11 +5013,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				SpdbkThrotPLTOut.ResetLine();
 			}
 		}
-		else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
-		{
-			BodyFlapAutoOut.ResetLine();
-			BodyFlapManOut.ResetLine();
-		}
+		//else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
+		//{
+		//	BodyFlapAutoOut.ResetLine();
+		//	BodyFlapManOut.ResetLine();
+		//}
 
 		break;
 	}
@@ -7010,7 +7010,7 @@ short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
 {
 	if(which_srb < 2 && status < 2)
 	{
-		return (short)(1000 * GetThrusterLevel(th_srb[which_srb]));
+		return (short)(530 * GetThrusterLevel(th_srb[which_srb]));
 	}
 	else
 		return 0;

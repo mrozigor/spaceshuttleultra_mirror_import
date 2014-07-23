@@ -4,7 +4,6 @@
 
 #include "SimpleGPCSoftware.h"
 #include "StateVectorSoftware.h"
-#include "SSME_Operations.h"
 #include <PIDControl.h>
 #include "../Atlantis.h"
 #include "discsignals.h"
@@ -116,7 +115,6 @@ private:
 	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
 	
 	StateVectorSoftware* pStateVector;
-	SSME_Operations* pSSME_Operations;
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
 	virtual ~OrbitDAP();
