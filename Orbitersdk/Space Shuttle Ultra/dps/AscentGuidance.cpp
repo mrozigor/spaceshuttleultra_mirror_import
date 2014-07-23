@@ -1,6 +1,5 @@
 #include "AscentGuidance.h"
 #include "../Atlantis.h"
-#include "../ParameterValues.h"
 #include <UltraMath.h>
 #include "SSME_SOP.h"
 #include "SSME_Operations.h"
@@ -15,7 +14,6 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
   stage1GuidanceVelTable(DEFAULT_STAGE1_GUIDANCE_TABLE_VEL, DEFAULT_STAGE1_GUIDANCE_TABLE_VEL+STAGE1_GUIDANCE_TABLE_SIZE),
   stage1GuidancePitchTable(DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH, DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH+STAGE1_GUIDANCE_TABLE_SIZE),
   bMECO(false),
-  ETSepTranslationInProg(false), ETSepMinusZDV(ET_SEP_RATE),
   tLastMajorCycle(-1.0)
 {
 	// set PID controller gains
@@ -54,6 +52,8 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	J = 0;
 
 	AGT_done = false;
+
+	bNullSRBNozzles = false;
 }
 
 AscentGuidance::~AscentGuidance()
@@ -66,9 +66,6 @@ void AscentGuidance::Realize()
 	OMSCommand[LEFT].Connect(pBundle, 2);
 	pBundle = BundleManager()->CreateBundle("ROMS", 5);
 	OMSCommand[RIGHT].Connect(pBundle, 2);
-
-	pBundle = STS()->BundleManager()->CreateBundle("THRUSTER_CMD", 16);
-	ZTransCommand.Connect(pBundle, 5);
 
 	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpdbkThrotAutoIn.Connect(pBundle, 0);
@@ -90,10 +87,17 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 			Throttle(DeltaT);
 			FirstStageRateCommand();
-			GimbalSRBs(DeltaT);
+			if (bNullSRBNozzles == true)
+			{
+				STS()->SetSRBGimbalAngles( static_cast<SIDE> (0), 0, 0 );
+				STS()->SetSRBGimbalAngles( static_cast<SIDE> (1), 0, 0 );
+			}
+			else GimbalSRBs(DeltaT);
 			GimbalSSMEs(DeltaT);
 			break;
 		case 103:
+			if (pSSME_Operations->GetZeroThrustFlag() == true) return;
+
 			if (pSSME_Operations->GetMECOCommandFlag() == false){//if(!bMECO) {
 				STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 				Navigate();
@@ -106,30 +110,12 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 				Throttle(DeltaT);
 			}
 			else { //post MECO
-				if (bMECO == false)// for low level c/o
-				{
-					bMECO = true;
-					tMECO = STS()->GetMET();
-				}
-				else if(STS()->HasTank() && !ETSepTranslationInProg && tMECO+ET_SEP_TIME<=STS()->GetMET() && pSSME_Operations->GetMECOConfirmedFlag())
-				{
-					STS()->SeparateTank();
-					ETSepTranslationInProg = true;
-				}
-				else if(!STS()->HasTank()) {
-					if(ETSepMinusZDV <= 0.001) { //Z thrusting complete
-						ZTransCommand.ResetLine();
-						ETSepTranslationInProg = false;
-						SetMajorMode(104);
-					}
-					else { // -Z thrusting in progress
-						ZTransCommand.SetLine(-1.0f);
-						// calculate DV so far
-						VECTOR3 ThrustVector;
-						STS()->GetThrustVector(ThrustVector);
-						ETSepMinusZDV -= (ThrustVector.y/STS()->GetMass())*DeltaT;
-					}
-				}
+				// hold attitude
+				degReqdRates.data[PITCH] = 0.0;
+				degReqdRates.data[YAW] = 0.0;
+				degReqdRates.data[ROLL] = 0.0;
+
+				GimbalSSMEs(DeltaT);
 			}
 			break;
 	}
@@ -425,7 +411,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					{
 						pSSME_Operations->SetMECOCommandFlag();
 						bMECO = true;
-						tMECO = STS()->GetMET();
 
 						char buffer[64];
 						sprintf_s( buffer, 64, "MECO @ MET %.2f", STS()->GetMET() );
@@ -654,6 +639,12 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			sprintf_s( oapiDebugString(), 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
 		}
 	}
+	return;
+}
+
+void AscentGuidance::NullSRBNozzles( void )
+{
+	bNullSRBNozzles = true;
 	return;
 }
 

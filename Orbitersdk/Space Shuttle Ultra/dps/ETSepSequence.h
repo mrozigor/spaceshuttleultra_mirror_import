@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  MPS Dump definition
+  External Tank Separation Sequence definition
 
 
 
@@ -22,12 +22,19 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef _dps_MPS_Dump_H_
-#define _dps_MPS_Dump_H_
+#ifndef _dps_ETSEP_H_
+#define _dps_ETSEP_H_
 
 
 #include "SimpleGPCSoftware.h"
 #include "discsignals.h"
+
+
+const double ET_SEP_DELAY_MECO = 18;// sec
+const double ET_SEP_DELAY_MINUSZ = 0.16;// sec
+const double ET_SEP_ROLL_RATE_LIMIT = 0.7;// deg/sec (I-load)
+const double ET_SEP_PITCH_RATE_LIMIT = 0.7;// deg/sec (I-load)
+const double ET_SEP_YAW_RATE_LIMIT = 0.7;// deg/sec (I-load)
 
 
 using namespace discsignals;
@@ -35,62 +42,55 @@ using namespace discsignals;
 
 namespace dps
 {
-	const double DUMP_START_DELAY = 120;// from MECO confirmed
-
-	const double HE_IC_OP_DELAY = 20;// from MECO confirmed
-	const double HE_IC_CL_DELAY = 120;// from dump start
-
-	const double LOX_DUMP_START_DELAY = 0;// from dump start
-	const double LOX_DUMP_DURATION = 120;
-	const double LOX_DUMP_PRESS_DURATION = 90;
-
-	const double LH2_DUMP_START_DELAY = 0;// from MECO
-	const double LH2_DUMP_DURATION = 120;
-
-	const double LH2_DUMP_BU_VLV_START_DELAY = 11.4;// from MECO confirmed
-	const double LH2_DUMP_BU_VLV_DURATION = 228.6;
-
-	const double FIRST_AUTOMATED_VACUUM_INERT_START_DELAY = 1020;// from dump start
-	const double FIRST_AUTOMATED_VACUUM_INERT_DURATION = 120;
-
-	const double SECOND_AUTOMATED_VACUUM_INERT_START_DELAY = 0;// from MM106
-	const double SECOND_AUTOMATED_VACUUM_INERT_DURATION = 180;// approx
-
-
-	class SSME_SOP;
 	class SSME_Operations;
+	class TransitionDAP;
 	class IO_Control;
 
 
-	class MPS_Dump:public SimpleGPCSoftware
+	class ETSepSequence:public SimpleGPCSoftware
 	{
 		private:
-			SSME_SOP* pSSME_SOP;
 			SSME_Operations* pSSME_Operations;
+			TransitionDAP* pTransitionDAP;
 			IO_Control* pIO_Control;
 
-			DiscOutPort BodyFlapManLight;
+			DiscInPort ETSEPSW;
+			DiscInPort ETSEPPB;
 
-			double t_MECO;
-			double t_dump_start;
-			double t_last;
-			double t_MM106_trans;
+			DiscOutPort PD1_OP;
+			DiscOutPort PD1_CL;
+			DiscOutPort PD2_OP;
+			DiscOutPort PD2_CL;
+			DiscOutPort PD3_OP;
+			DiscOutPort PD3_CL;
+
+			DiscInPort PD1_CL_Ind_A;
+			DiscInPort PD1_CL_Ind_B;
+			DiscInPort PD2_CL_Ind_A;
+			DiscInPort PD2_CL_Ind_B;
+			DiscInPort PD3_CL_Ind;
 
 			bool active;
-			bool dump_started;
-			bool MM106_trans;
+			bool done;
+			bool autoETSEP;
+			bool ETSEPCommand;
+			bool ETSEPINH;
 
+			double timerMECO;
+			double timerSEP;
 		public:
-			MPS_Dump( SimpleGPCSystem* _gpc );
-			~MPS_Dump( void );
+			ETSepSequence( SimpleGPCSystem* _gpc );
+			~ETSepSequence( void );
 
-			void OnPreStep( double SimT, double DeltaT, double MJD );
+			void OnPostStep( double SimT, double DeltaT, double MJD );
 
 			void Realize( void );
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
+
+			bool GetETSEPINHFlag( void ) const;
 	};
 }
 
 
-#endif// _dps_MPS_Dump_H_
+#endif// _dps_ETSEP_H_

@@ -66,6 +66,8 @@ public:
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	void NullSRBNozzles( void );
 private:
 	void InitializeAutopilot();
 
@@ -135,7 +137,6 @@ private:
 	discsignals::DiscOutPort SpdbkThrotPLT;
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
-	discsignals::DiscOutPort ZTransCommand;
 
 	double lastSBTCCommand;
 
@@ -148,12 +149,10 @@ private:
 	std::vector<double> stage1GuidanceVelTable, stage1GuidancePitchTable;
 
 	bool bMECO;
-	bool ETSepTranslationInProg;
-	double ETSepMinusZDV;
 
 	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	//bool bAutopilot, bThrottle;
-	double tMECO, tSRBSep; //time(MET)
+	double tSRBSep; //time(MET)
 	double tLastMajorCycle;
 
 	double target_pitch; // target second stage pitch in degrees
@@ -195,6 +194,8 @@ private:
 	int J;
 
 	bool AGT_done;
+
+	bool bNullSRBNozzles;
 };
 	
 };

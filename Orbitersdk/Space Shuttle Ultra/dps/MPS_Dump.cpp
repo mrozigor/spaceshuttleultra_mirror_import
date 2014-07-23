@@ -168,7 +168,8 @@ namespace dps
 						pIO_Control->SetCommand( HE_ISOL_B_CTR_OP, false );
 						pIO_Control->SetCommand( HE_ISOL_B_LEFT_OP, false );
 						pIO_Control->SetCommand( HE_ISOL_B_RIGHT_OP, false );
-						// TODO turn off BODY FLAP lights on panels F2 and F4
+						// turn off BODY FLAP lights on panels F2 and F4
+						BodyFlapManLight.ResetLine();
 						oapiWriteLog( "MPS Dump Sequence complete" );
 					}
 
@@ -244,6 +245,9 @@ namespace dps
 		assert( (pSSME_Operations != NULL) && "MPS_Dump::Realize.pSSME_Operations" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
+
+		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle( "BODYFLAP_CONTROLS", 16 );
+		BodyFlapManLight.Connect( pBundle, 0 );
 		return;
 	}
 

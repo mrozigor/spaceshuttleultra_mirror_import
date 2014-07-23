@@ -507,25 +507,10 @@ void OrbitDAP::Realize()
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 
 	UpdateDAPParameters();
-
-	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 }
 
 void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	if (GetMajorMode() == 103)
-	{
-		if (pSSME_Operations->GetMECOConfirmedFlag() == true)
-		{
-			for(int i=0;i<24;i++) {
-			PBI_state[i] = GetPBIState(i);
-			if(PBI_state[i]) PBI_output[i].SetLine();
-			else PBI_output[i].ResetLine();
-			}
-		}
-		return;
-	}
-
 	GetAttitudeData();
 
 	for(int i=0;i<24;i++) {
@@ -560,10 +545,14 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
-	else if(!BodyFlapAuto && PCTActive) StopPCT();
-	if(!PCTActive) HandleTHCInput(DeltaT);
-	else PCTControl(SimT);
+	if ((GetMajorMode() / 100) == 2)
+	{
+		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
+		else if(!BodyFlapAuto && PCTActive) StopPCT();
+		if(!PCTActive) HandleTHCInput(DeltaT);
+		else PCTControl(SimT);
+	}
+	else HandleTHCInput(DeltaT);
 
 	if(GetRHCRequiredRates()) {
 		if(DAPControlMode == AUTO) {
@@ -634,7 +623,7 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
-	if(newMajorMode >= 103 && newMajorMode <= 303) {
+	if(newMajorMode >= 104 && newMajorMode <= 303) {
 		// perform initialization
 		return true;
 	}

@@ -440,6 +440,15 @@
     <ClCompile Include="dps\IO_Control.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\ETSepSequence.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\TransitionDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SRBSepSequence.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -818,6 +827,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\IO_Control.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\ETSepSequence.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\TransitionDAP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SRBSepSequence.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
