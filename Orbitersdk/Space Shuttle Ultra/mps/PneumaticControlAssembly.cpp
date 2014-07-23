@@ -11,7 +11,7 @@ namespace mps
 		BleedValvesControl_SV = new SolenoidValve( 1, RATE_BVC_SV, true, HeSys, nullptr );
 		EmergencyShutdown_SV = new SolenoidValve( 0, RATE_ES_SV, false, HeSys, nullptr );
 		
-		PurgeSequenceValve_PAV = new PressureActuatedValve( 1, RATE_PSV_PAV, nullptr, EmergencyShutdown_SV, EmergencyShutdown_SV, nullptr );
+		PurgeSequenceValve_PAV = new PressureActuatedValve( 1, RATE_PSV_PAV, nullptr, nullptr, EmergencyShutdown_SV, nullptr );
 
 		ShutdownPurge_SV = new SolenoidValve( 0, RATE_SP_SV, true, HeSys, PurgeSequenceValve_PAV );
 		HPOTPISPurge_SV = new SolenoidValve( 1, RATE_HPOTPISP_SV, true, HeSys, PurgeSequenceValve_PAV );

@@ -50,6 +50,15 @@ void PressureActuatedValve::ConnectIndication( bool openind, int output, Discret
 	return;
 }
 
+void PressureActuatedValve::SetPressureSources( PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent )
+{
+	if (OP != nullptr) this->OP = OP;
+	if (CL != nullptr) this->CL = CL;
+	if (psource != nullptr) this->psource = psource;
+	if (psourceinvent != nullptr) this->psourceinvent = psourceinvent;
+	return;
+}
+
 double PressureActuatedValve::GetPos( void ) const
 {
 	return pos;

@@ -20,16 +20,18 @@ namespace mps
 		PCA = new PneumaticControlAssembly( this, HeSys );
 		
 		// make valves
-		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, PCA->EmergencyShutdown_PAV );
-		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, PCA->EmergencyShutdown_PAV );
-		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, PCA->EmergencyShutdown_PAV );
-		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, PCA->EmergencyShutdown_PAV );
-		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, PCA->EmergencyShutdown_PAV );
+		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, 30, PCA->EmergencyShutdown_PAV, 0.57 );// HACK no clue about correct sequence valve value
+		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, 40, ptrOPOV );
+		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, 30, ptrOPOV, 0.4 );// HACK no clue about correct sequence valve value
+		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, 25, ptrFPOV );
+		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, 23, ptrFPOV, 0.05 );// TODO find "correct" sequence valve value
+		PCA->PurgeSequenceValve_PAV->SetPressureSources( nullptr, ptrCCV, nullptr, nullptr );
+
 		ptrAFV = new SolenoidValve( 0, RATE_AFV, true, nullptr, nullptr );
 		ptrHPV_SV = new SolenoidValve( 0, RATE_HPV_SV, true, HeSys, PCA->PurgeSequenceValve_PAV );
 		ptrOBV = new PressureActuatedValve( 1, RATE_OBV, PCA->OxidizerBleedValve_PAV, nullptr, nullptr, nullptr );
 		ptrFBV = new PressureActuatedValve( 1, RATE_FBV, PCA->BleedValvesControl_SV, nullptr, nullptr, nullptr );
-		ptrHPV = new PressureActuatedValve( 0, RATE_HPV, ptrHPV_SV, nullptr, nullptr, nullptr );
+		ptrHPV = new PressureActuatedValve( 0, RATE_HPV, ptrHPV_SV, nullptr, HeSys, nullptr );
 		ptrGCV = new PressureActuatedValve( 1, RATE_GCV, nullptr, ptrHPV_SV, nullptr, nullptr );
 		ptrRIV = new PressureActuatedValve( 0, RATE_RIV, nullptr, PCA->OxidizerBleedValve_PAV, nullptr, nullptr );
 
@@ -210,7 +212,7 @@ namespace mps
 		ptrHPV->tmestp( fDeltaT );
 		ptrGCV->tmestp( fDeltaT );
 		ptrRIV->tmestp( fDeltaT );
-
+		
 		// engine model
 		SSMERUN( fSimT, fDeltaT );
 
@@ -219,6 +221,8 @@ namespace mps
 
 		// run PCA
 		PCA->tmestp( fDeltaT );
+
+		ptrHPV->Use( 30 );// HACK no clue what value should be, probably much less than this
 		return;
 	}
 
