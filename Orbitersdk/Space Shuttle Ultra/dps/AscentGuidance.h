@@ -24,9 +24,8 @@ const double ALIM1 = 29.3218835;// m/s^2 | 2.99 g
 const double ALIM2 = 29.41995;// m/s^2 | 3.0 g
 
 // AGT params
-// HACK no clue on Vref_adjust
-const double Vref_adjust = 120;// m/s
-const double Tref_adjust = 19;// MET (sec)
+const double Vref_adjust = 368;// fps
+const double Tref_adjust = 17.87;// MET (sec)
 
 // VRel/SSME throttle table
 const double THROT1 = 104;
@@ -35,9 +34,9 @@ const double THROT3 = 72;
 const double THROT4 = 104;
 
 const double QPOLY1 = 18.288;
-const double QPOLY2 = 132.584;
-const double QPOLY3 = 232.022;
-const double QPOLY4 = 430.898;
+const double QPOLY2 = 116.7384;
+const double QPOLY3 = 188.0616;
+const double QPOLY4 = 425.8056;
 const double QPOLY5 = 99999;// fake
 
 const double FINECOUNT_THROTTLE = 67;
