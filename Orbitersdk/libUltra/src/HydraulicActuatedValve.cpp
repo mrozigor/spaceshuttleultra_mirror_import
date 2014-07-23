@@ -55,7 +55,7 @@ void HydraulicActuatedValve::tmestp( double dt )
 	{
 		// hyd
 		int SV = 0;// default SV A
-		if ((dipFailOperationalServoswitch[0].IsSet() == true) && (dipFailOperationalServoswitch[1].IsSet() == true)) SV = 1;// SV B
+		if ((dipFailOperationalServoswitch[0].IsSet() == true) || (dipFailOperationalServoswitch[1].IsSet() == true)) SV = 1;// SV B
 
 		double mpos = dipServovalve[SV].GetVoltage() / 5;
 
