@@ -216,7 +216,7 @@ namespace dps
 					if (MM106_trans == true)
 					{
 						// vac inert 2 start
-						if (((t_MM106_trans + SECOND_AUTOMATED_VACUUM_INERT_START_DELAY) <= SimT) && ((t_MM106_trans + SECOND_AUTOMATED_VACUUM_INERT_START_DELAY) > t_last))
+						if (((t_MM106_trans + SECOND_AUTOMATED_VACUUM_INERT_START_DELAY) < SimT) && ((t_MM106_trans + SECOND_AUTOMATED_VACUUM_INERT_START_DELAY) >= t_last))
 						{
 							pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, true );
 							pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, true );
