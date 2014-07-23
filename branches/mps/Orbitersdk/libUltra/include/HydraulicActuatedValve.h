@@ -26,13 +26,12 @@
 #define _g_HydraulicActuatedValve_H_
 
 
+#include "PressureSource.h"
 #include "DiscInPort.h"
 
 
 using class discsignals::DiscInPort;
 using class discsignals::DiscreteBundle;
-
-class PressureSource;
 
 
 // HACK no clue about right amounts
@@ -40,7 +39,7 @@ const double MIN_PRESS_CLOSE_HAV = 150;
 const double HE_USE_CLOSE_HAV = 20;
 
 
-class HydraulicActuatedValve
+class HydraulicActuatedValve:public PressureSource
 {
 	private:
 		DiscInPort dipServovalve[2];
@@ -53,7 +52,10 @@ class HydraulicActuatedValve
 		PressureSource* PneumaticClose;
 
 		double pos;
-		double rate;
+		double rate_hyd;
+		double rate_pneu;
+
+		double SequenceValveOpenPos;
 	public:
 		/**
 		 * Returns valve position
@@ -76,12 +78,23 @@ class HydraulicActuatedValve
 		/**
 		 * Create a new valve
 		 * @param initpos initial valve position
-		 * @param imaxrate maximum valve motion rate
+		 * @param rate_hyd valve motion rate under hydraulic pressure
 		 */
-		HydraulicActuatedValve( double initpos, double rate, PressureSource* PneumaticClose );
+		HydraulicActuatedValve( double initpos, double rate_hyd );
+		/**
+		 * Create a new valve
+		 * @param initpos initial valve position
+		 * @param rate_hyd valve motion rate under hydraulic pressure
+		 * @param rate_pneu valve motion rate under pneumatic pressure
+		 * @param PneumaticClose handle to PressureSource for pneumatic actuator close
+		 * @param SequenceValveOpenPos valve position at which the sequence valve opens
+		 */
+		HydraulicActuatedValve( double initpos, double rate_hyd, double rate_pneu, PressureSource* PneumaticClose, double SequenceValveOpenPos = 0 );
 		~HydraulicActuatedValve( void );
 
 		void Connect( DiscreteBundle* pBundle, DiscreteBundle* pBundleHYD );
+
+		double Use( double flow );// HACK just for sequence valve
 };
 
 

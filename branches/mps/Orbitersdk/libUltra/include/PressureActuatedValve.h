@@ -83,6 +83,8 @@ class PressureActuatedValve:public PressureSource
 
 		void ConnectIndication( bool openind, int output, DiscreteBundle* pBundle, int iLine );
 
+		void SetPressureSources( PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent );
+
 		double Use( double flow );
 };
 

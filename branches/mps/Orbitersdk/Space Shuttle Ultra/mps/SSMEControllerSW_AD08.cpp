@@ -42,15 +42,15 @@ namespace mps
 		DCU->RAM[RAM_AD08_TIME_STDN] = 0;
 		DCU->RAM[RAM_AD08_CH] = DCU->ch;
 
-		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
 		DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 1;
-		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
 		DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 1;
-		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
 		DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 1;
-		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
 		DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 1;
-		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
+		DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
 		DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 1;
 
 #ifdef _MPSDEBUG
@@ -88,6 +88,12 @@ namespace mps
 				DCU->RAM[RAM_AD08_MOV_CMD] = 0;
 				DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
 				DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
+
+				DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
 				break;
 			case 2:
 				fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4;
@@ -579,19 +585,20 @@ namespace mps
 					AddFID( FID_LossOfControllerRedundancy, Delimiter_IEA );
 					AddFID( FID_LossOfControllerRedundancy, Delimiter_OEA );
 					SensorsDesqualifyAll( RAM_AD08_SENSOR_A );
-					DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
-					DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
-					DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
-					DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
-					DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+					// chB hyd act take over
+					DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
+					DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
+					DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
+					DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
+					DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
 				}
 				return;
 			case INT_CCVSVAFI:
-				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
 				return;
 			case INT_CCVSVBFI:
 				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
-				if (DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				if (DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] == 0) return;// chA in control, do nothing
 				
 				if (Get_ESW_Phase() == ESW_Mainstage)
 				{
@@ -610,11 +617,11 @@ namespace mps
 				}
 				return;
 			case INT_MFVSVAFI:
-				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
 				return;
 			case INT_MFVSVBFI:
 				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
-				if (DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				if (DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] == 0) return;// chA in control, do nothing
 				
 				if (Get_ESW_Phase() == ESW_Mainstage)
 				{
@@ -633,11 +640,11 @@ namespace mps
 				}
 				return;
 			case INT_MOVSVAFI:
-				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
 				return;
 			case INT_MOVSVBFI:
 				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
-				if (DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				if (DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] == 0) return;// chA in control, do nothing
 				
 				if (Get_ESW_Phase() == ESW_Mainstage)
 				{
@@ -665,11 +672,11 @@ namespace mps
 				}
 				return;
 			case INT_FPOVSVAFI:
-				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
 				return;
 			case INT_FPOVSVBFI:
 				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
-				if (DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				if (DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] == 0) return;// chA in control, do nothing
 				
 				if (Get_ESW_Phase() == ESW_Mainstage)
 				{
@@ -688,11 +695,11 @@ namespace mps
 				}
 				return;
 			case INT_OPOVSVAFI:
-				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
+				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
 				return;
 			case INT_OPOVSVBFI:
 				if ((Get_ESW_Phase() == ESW_Shutdown) && (Get_ESW_Mode()== ESW_Shutdown_FailSafePneumatic)) return;// ignore errors during Pneu S/D
-				if (DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] == 1) return;// chA in control, do nothing
+				if (DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] == 0) return;// chA in control, do nothing
 				
 				if (Get_ESW_Phase() == ESW_Mainstage)
 				{
@@ -1687,15 +1694,15 @@ namespace mps
 				DCU->RAM[RAM_AD08_NXT_PHASE] = ESW_StartPrep;
 				DCU->RAM[RAM_AD08_NXT_MODE] = ESW_StartPrep_PSN4;
 				DCU->RAM[17] = DCU->RAM[RAM_AD08_TREF1];// setup
-				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_CCV_FO_SS_CMD] = 0;
 				DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 1;
-				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MFV_FO_SS_CMD] = 0;
 				DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 1;
-				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_MOV_FO_SS_CMD] = 0;
 				DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 1;
-				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_FPOV_FO_SS_CMD] = 0;
 				DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 1;
-				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 1;
+				DCU->RAM[RAM_AD08_OPOV_FO_SS_CMD] = 0;
 				DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 1;
 				RotateCommand();
 				return ESW_Accepted;
@@ -3134,7 +3141,7 @@ namespace mps
 		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
-		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 1;
 
 		// TODO check ignition confirmed vals with:
 		// MCC press
@@ -3190,8 +3197,8 @@ namespace mps
 		DCU->RAM[RAM_AD08_EMERGENCYSHUTDOWN_CMD] = 1;
 		DCU->RAM[RAM_AD08_SHUTDOWNPURGE_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
-		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
-		DCU->RAM[RAM_AD08_HPV_CMD] = 1;
+		DCU->RAM[RAM_AD08_AFV_CMD] = 1;
+		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
 
 		if (DCU->RAM[RAM_AD08_TIME_ESC] > 44000)// stay here until esc + 4.4 sec ???
 		{
