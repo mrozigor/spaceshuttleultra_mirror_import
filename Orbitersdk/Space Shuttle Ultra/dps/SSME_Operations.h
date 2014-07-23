@@ -38,6 +38,7 @@ namespace dps
 	const double TIME_DELAY_ADG = 4.5;// sec
 	const double TIME_DELAY_CFI = 2;// sec
 	const double TIME_DELAY_LH2_PVLV_CL = 4.9;// sec
+	const double TIME_TO_ZERO_THRUST = 3.75;// sec, I-load
 
 
 	class SSME_SOP;
@@ -63,6 +64,7 @@ namespace dps
 
 			bool MECOCommand;
 			bool MECOConfirmed;
+			bool ZeroThrust;
 
 			unsigned short counter_A;
 			unsigned short counter_B;
@@ -72,6 +74,7 @@ namespace dps
 			double timerADG[3];
 			double timerCFI[3];
 			double timerLH2PVLV[3];
+			double timerMECOConfirmed;
 
 			int LimitSwitch;// 0-INH, 1-AUTO, 2-ENA
 
@@ -103,6 +106,12 @@ namespace dps
 			 * @return		true = flag set
 			 */
 			bool GetMECOConfirmedFlag( void ) const;
+
+			/**
+			 * Returns an indication of whether the Zero Thrust Flag has been set.
+			 * @return		true = flag set
+			 */
+			bool GetZeroThrustFlag( void ) const;
 
 			/**
 			 * Returns an indication of whether the Fail Flag has been set for a SSME.
