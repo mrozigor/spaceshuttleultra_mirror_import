@@ -983,7 +983,7 @@ private:
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
 	//bool bPLBLights;
 	
-	LightEmitter* SRBLight;
+	LightEmitter* SRBLight[2];
 	LightEmitter* SSMELight;
 
 	//gear/drag chute
