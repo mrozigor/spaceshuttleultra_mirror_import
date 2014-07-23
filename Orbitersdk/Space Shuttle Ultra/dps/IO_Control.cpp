@@ -57,6 +57,8 @@ namespace dps
 		CMD[LOX_REPRESS_2_OP] = false;
 		CMD[LH2_REPRESS_1_OP] = false;
 		CMD[LH2_REPRESS_2_OP] = false;
+		CMD[LO2_FEEDLINE_RLF_ISOL_CL] = true;
+		CMD[LH2_FEEDLINE_RLF_ISOL_CL] = true;
 		return;
 	}
 
@@ -221,7 +223,7 @@ namespace dps
 		if (CMD[LOX_POGO_RECIRC_2] == true) dspOUTPUT[LOX_POGO_RECIRC_2].SetLine();
 		else dspOUTPUT[LOX_POGO_RECIRC_2].ResetLine();
 
-		// TODO add the switches and logic for the F/Ds below (still missing panel R4)
+		// TODO add the switches and logic for the F/Ds (and SOVs) below (still missing panel R4)
 		// LOX_OTBD_FD_VLV_CL
 		if (CMD[LOX_OTBD_FD_VLV_CL] == true) dspOUTPUT[LOX_OTBD_FD_VLV_CL].SetLine();
 		else dspOUTPUT[LOX_OTBD_FD_VLV_CL].ResetLine();
@@ -273,6 +275,14 @@ namespace dps
 		// LH2_REPRESS_2_OP
 		if (CMD[LH2_REPRESS_2_OP] == true) dspOUTPUT[LH2_REPRESS_2_OP].SetLine();
 		else dspOUTPUT[LH2_REPRESS_2_OP].ResetLine();
+
+		// LO2_FEEDLINE_RLF_ISOL_CL
+		if (CMD[LO2_FEEDLINE_RLF_ISOL_CL] == true) dspOUTPUT[LO2_FEEDLINE_RLF_ISOL_CL].SetLine();
+		else dspOUTPUT[LO2_FEEDLINE_RLF_ISOL_CL].ResetLine();
+
+		// LH2_FEEDLINE_RLF_ISOL_CL
+		if (CMD[LH2_FEEDLINE_RLF_ISOL_CL] == true) dspOUTPUT[LH2_FEEDLINE_RLF_ISOL_CL].SetLine();
+		else dspOUTPUT[LH2_FEEDLINE_RLF_ISOL_CL].ResetLine();
 		return;
 	}
 
@@ -358,6 +368,8 @@ namespace dps
 		dspOUTPUT[ME2_LH2_PVLV_CL].Connect( bundle, 4 );
 		dspOUTPUT[ME3_LH2_PVLV_OP].Connect( bundle, 5 );
 		dspOUTPUT[ME3_LH2_PVLV_CL].Connect( bundle, 6 );
+		dspOUTPUT[LO2_FEEDLINE_RLF_ISOL_CL].Connect( bundle, 7 );
+		dspOUTPUT[LH2_FEEDLINE_RLF_ISOL_CL].Connect( bundle, 8 );
 		dspOUTPUT[LOX_OTBD_FD_VLV_OP].Connect( bundle, 11 );
 		dspOUTPUT[LOX_OTBD_FD_VLV_CL].Connect( bundle, 12 );
 		dspOUTPUT[LOX_INBD_FD_VLV_OP].Connect( bundle, 13 );
