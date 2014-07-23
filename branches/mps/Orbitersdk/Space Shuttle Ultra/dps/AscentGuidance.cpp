@@ -624,27 +624,27 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 	oapiWriteLog( buffer );*/
 	if (AGT_done == false)
 	{
-		if (STS()->GetAirspeed() >= Vref_adjust)
+		if ((STS()->GetAirspeed() * MPS2FPS) > Vref_adjust)
 		{
 			double TDEL_adjust = STS()->GetMET() - Tref_adjust;// STS-117 data: between -0.21 and 0.21 is nominal
-			// HACK using -0.5 to +0.5 for nominal, and maximum adjust if outside -1 to +1
+			// HACK using -0.2 to +0.2 for nominal, and maximum adjust if outside -1 to +1
 			// TODO should be using ILOAD tables
-			// TODO should also change QPOLY (?) and pitch profile
+			// TODO should also change QPOLY and pitch profile
 			if (TDEL_adjust < -1)// hot
 			{
-				THROT[1] -= 21;
+				THROT[1] = round( THROT[1] - 21.5 );
 			}
-			else if (TDEL_adjust < -0.5)// hot
+			else if (TDEL_adjust < -0.2)// hot
 			{
-				THROT[1] += round( 21 * TDEL_adjust );
+				THROT[1] = round( THROT[1] + ((26.25 * TDEL_adjust) + 4.75) );
 			}
 			else if (TDEL_adjust > 1)// cold
 			{
-				THROT[2] += 6;
+				THROT[2] += 8;
 			}
-			else if (TDEL_adjust > 0.5)// cold
+			else if (TDEL_adjust > 0.2)// cold
 			{
-				THROT[2] += round( 6 * TDEL_adjust );
+				THROT[2] += round( (7.5 * TDEL_adjust) + 0.5 );
 			}
 
 			AGT_done = true;
