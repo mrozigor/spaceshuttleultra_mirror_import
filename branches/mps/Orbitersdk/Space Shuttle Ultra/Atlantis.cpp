@@ -835,6 +835,8 @@ pActiveLatches(3, NULL)
   thMPSDump[3] = NULL;
   thMPSDump[4] = NULL;
   thMPSDump[5] = NULL;
+  thMPSDump[6] = NULL;
+  thMPSDump[7] = NULL;
   th_srb[0] = th_srb[1] = NULL;
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
@@ -6819,7 +6821,7 @@ void Atlantis::IgniteSRBs()
 
 void Atlantis::SetMPSDumpLevel( int vent, double level )
 {
-	assert( (vent >= 0) && (vent <= 5) && " Atlantis::SetMPSDumpLevel.vent" );
+	assert( (vent >= 0) && (vent <= 7) && " Atlantis::SetMPSDumpLevel.vent" );
 	assert( (level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level" );
 	if (thMPSDump[vent] != NULL) SetThrusterLevel( thMPSDump[vent], level );
 	return;
@@ -7834,12 +7836,12 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	static PARTICLESTREAMSPEC psLH2dump_BU = {
 		0,
-		0.08,///<     particle size at creation [m]
+		0.0381,///<     particle size at creation [m]
 		200,///<     average particle creation rate [Hz]
 		15,///<     emission velocity [m/s]
 		0.2,///<     velocity spread during creation
 		0.3,///<     average particle lifetime [s]
-		4,///<     particle growth rate [m/s]
+		6,///<     particle growth rate [m/s]
 		7,///<     slowdown rate in atmosphere
 		PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PLIN,
@@ -7855,9 +7857,43 @@ void Atlantis::CreateMPSDumpVents( void )
 		200,///<     average particle creation rate [Hz]
 		15,///<     emission velocity [m/s]
 		0.2,///<     velocity spread during creation
-		0.3,///<     average particle lifetime [s]
-		4,///<     particle growth rate [m/s]
+		0.35,///<     average particle lifetime [s]
+		7,///<     particle growth rate [m/s]
 		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		20,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.4,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		5,///<     slowdown rate in atmosphere
 		PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PLIN,
 		0, 1,
@@ -7884,7 +7920,7 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 1, -0.2, 0 ), 60, phLH2dump, 60, 60 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
@@ -7896,6 +7932,16 @@ void Atlantis::CreateMPSDumpVents( void )
 	if (thMPSDump[5] != NULL) DelThruster( thMPSDump[5] );
 	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.83, -1.46, -12.28 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
 	AddExhaustStream( thMPSDump[5], &psLOXdump_FD );
+
+	// LH2 FDLN Relief vent
+	if (thMPSDump[6] != NULL) DelThruster( thMPSDump[6] );
+	thMPSDump[6] = CreateThruster( orbiter_ofs + _V( -0.434188, 1.5138, -10.8137 ), _V( 0, -0.993572, -0.113203 ), 34, phLH2dump, 60, 60 );
+	AddExhaustStream( thMPSDump[6], &psLH2dump_FDLN );
+
+	// LOX FDLN Relief vent
+	if (thMPSDump[7] != NULL) DelThruster( thMPSDump[7] );
+	thMPSDump[7] = CreateThruster( orbiter_ofs + _V( 2.92116, -3.44059, -10.8442 ), _V( -0.993373, -0.094977, -0.064729 ), 331, phLOXdump, 60, 60 );
+	AddExhaustStream( thMPSDump[7], &psLOXdump_FDLN );
 	return;
 }
 

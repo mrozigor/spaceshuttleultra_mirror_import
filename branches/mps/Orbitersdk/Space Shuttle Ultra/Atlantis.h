@@ -1014,15 +1014,17 @@ private:
 	 */
 	THRUSTER_HANDLE th_ssme_gox[3];
 	/**
-	 * To be used for visualizing the MPS dump after MECO.
+	 * To be used for visualizing the MPS dumps/vents.
 	 * 0 = SSME-1
 	 * 1 = SSME-2
 	 * 2 = SSME-3
 	 * 3 = LH2 B/U
 	 * 4 = LH2 F/D
 	 * 5 = LOX F/D
+	 * 6 = LH2 FDLN Relief
+	 * 7 = LOX FDLN Relief
 	 */
-	THRUSTER_HANDLE thMPSDump[6];
+	THRUSTER_HANDLE thMPSDump[8];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets

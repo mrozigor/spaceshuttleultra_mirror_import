@@ -56,8 +56,8 @@ namespace mps
 			PressureActuatedValve* ptrPV4;// ME-1 LH2 prevalve
 			PressureActuatedValve* ptrPV5;// ME-2 LH2 prevalve
 			PressureActuatedValve* ptrPV6;// ME-3 LH2 prevalve
-			/*ValveTypeBool* ptrPV7;// LOX Fdln Rlf SOV (NO)
-			ValveTypeBool* ptrPV8;// LH2 Fdln Rlf SOV (NO)*/
+			PressureActuatedValve* ptrPV7;// LOX Fdln Rlf SOV (NO)
+			PressureActuatedValve* ptrPV8;// LH2 Fdln Rlf SOV (NO)
 			PressureActuatedValve* ptrPV9;// LOX O/B F/D
 			PressureActuatedValve* ptrPV10;// LOX I/B F/D
 			PressureActuatedValve* ptrPV11;// LH2 O/B F/D
@@ -92,6 +92,8 @@ namespace mps
 			SolenoidValve* ptrLV21;// E2 LH2 Prevlv CL Pwr
 			SolenoidValve* ptrLV22;// E3 LH2 Prevlv OP Pwr
 			SolenoidValve* ptrLV23;// E3 LH2 Prevlv CL Pwr
+			SolenoidValve* ptrLV24;
+			SolenoidValve* ptrLV25;
 			/*LV26;// He Sply Blwdwn 1 OP Pwr
 			LV27;// He Sply Blwdwn 2 OP Pwr*/
 			SolenoidValve* ptrLV28;
@@ -164,6 +166,10 @@ namespace mps
 			PD16	GH2 TEST POINT COUPLING
 			PD17	LH2 Hi Pt Bl disconnect
 			*/
+
+			// RV
+			bool RV5;
+			bool RV6;
 
 		public:
 			MPS( AtlantisSubsystemDirector* _director, HeSysPneu* HeSys );

@@ -23,6 +23,8 @@ namespace mps
 		ptrLV21 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV22 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV23 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+		ptrLV24 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+		ptrLV25 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 
 		ptrLV28 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV29 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
@@ -67,8 +69,8 @@ namespace mps
 		ptrPV4 = new PressureActuatedValve( 0, 100, ptrLV18, ptrLV19, nullptr, nullptr );
 		ptrPV5 = new PressureActuatedValve( 0, 100, ptrLV20, ptrLV21, nullptr, nullptr );
 		ptrPV6 = new PressureActuatedValve( 0, 100, ptrLV22, ptrLV23, nullptr, nullptr );
-/*		ptrPV7 = new ValveTypeBool( true, 100 );
-		ptrPV8 = new ValveTypeBool( true, 100 );*/
+		ptrPV7 = new PressureActuatedValve( 0, 100, nullptr, ptrLV24, nullptr, nullptr );
+		ptrPV8 = new PressureActuatedValve( 0, 100, nullptr, ptrLV25, nullptr, nullptr );
 		ptrPV9 = new PressureActuatedValve( 0, 20, ptrLV28, ptrLV29, nullptr, nullptr );
 		ptrPV10 = new PressureActuatedValve( 0, 20, ptrLV30, ptrLV31, nullptr, nullptr );
 		ptrPV11 = new PressureActuatedValve( 0, 20, ptrLV32, ptrLV33, nullptr, nullptr );
@@ -92,6 +94,9 @@ namespace mps
 		LH2initpress = 33;
 
 		LOXrepress = 0;
+
+		RV5 = false;
+		RV6 = false;
 		return;
 	}
 
@@ -109,6 +114,8 @@ namespace mps
 		delete ptrLV21;
 		delete ptrLV22;
 		delete ptrLV23;
+		delete ptrLV24;
+		delete ptrLV25;
 
 		delete ptrLV28;
 		delete ptrLV29;
@@ -152,8 +159,8 @@ namespace mps
 		delete ptrPV4;
 		delete ptrPV5;
 		delete ptrPV6;
-		//delete ptrPV7;
-		//delete ptrPV8;
+		delete ptrPV7;
+		delete ptrPV8;
 		delete ptrPV9;
 		delete ptrPV10;
 		delete ptrPV11;
@@ -209,8 +216,8 @@ namespace mps
 		ptrLV21->Connect( 0, bundle, 4 );
 		ptrLV22->Connect( 0, bundle, 5 );
 		ptrLV23->Connect( 0, bundle, 6 );
-		//ptrLV24->Connect( 0, bundle, 7 );
-		//ptrLV25->Connect( 0, bundle, 8 );
+		ptrLV24->Connect( 0, bundle, 7 );
+		ptrLV25->Connect( 0, bundle, 8 );
 		//ptrLV26->Connect( 0, bundle, 9 );
 		//ptrLV27->Connect( 0, bundle, 10 );
 		ptrLV28->Connect( 0, bundle, 11 );
@@ -319,6 +326,8 @@ namespace mps
 		ptrLV21->tmestp( fDeltaT );
 		ptrLV22->tmestp( fDeltaT );
 		ptrLV23->tmestp( fDeltaT );
+		ptrLV24->tmestp( fDeltaT );
+		ptrLV25->tmestp( fDeltaT );
 
 		ptrLV28->tmestp( fDeltaT );
 		ptrLV29->tmestp( fDeltaT );
@@ -362,8 +371,8 @@ namespace mps
 		ptrPV4->tmestp( fDeltaT );
 		ptrPV5->tmestp( fDeltaT );
 		ptrPV6->tmestp( fDeltaT );
-		//ptrPV7->tmestp( fDeltaT );
-		//ptrPV8->tmestp( fDeltaT );
+		ptrPV7->tmestp( fDeltaT );
+		ptrPV8->tmestp( fDeltaT );
 		ptrPV9->tmestp( fDeltaT );
 		ptrPV10->tmestp( fDeltaT );
 		ptrPV11->tmestp( fDeltaT );
@@ -439,6 +448,33 @@ namespace mps
 			STS()->SetMPSDumpLevel( 3, ptrPV17->GetPos() * ptrPV18->GetPos() );
 			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.3 + ptrPV13->GetPos() * 0.7) );
 			STS()->SetMPSDumpLevel( 5, ptrPV9->GetPos() * ptrPV10->GetPos() );
+			// ********** ad-hoc RV6 **********
+			if (RV6 == false)
+			{
+				// closed, check if press > crack press (55psig -> 69.7psia)
+				if (LH2ManifPress > 69.7) RV6 = true;// open
+			}
+			else
+			{
+				// open, check press < reseat press (40psig -> 54.7psia)
+				if (LH2ManifPress < 54.7) RV6 = false;// close
+			}
+			// ********************************
+			STS()->SetMPSDumpLevel( 6, ptrPV8->GetPos() * (int)RV6 );
+
+			// ********** ad-hoc RV5 **********
+			if (RV5 == false)
+			{
+				// closed, check if press > crack press (220psig -> 234.7psia)
+				if (LOXManifPress > 234.7) RV5 = true;// open
+			}
+			else
+			{
+				// open, check press < reseat press (190psig -> 204.7psia)
+				if (LOXManifPress < 204.7) RV5 = false;// close
+			}
+			// ********************************
+			STS()->SetMPSDumpLevel( 7, ptrPV7->GetPos() * (int)RV5 );
 		}
 		else
 		{
@@ -479,6 +515,34 @@ namespace mps
 			STS()->SetMPSDumpLevel( 3, ptrPV17->GetPos() * ptrPV18->GetPos() * LH2ventlevel );
 			STS()->SetMPSDumpLevel( 4, ptrPV11->GetPos() * (ptrPV12->GetPos() * 0.05 + ptrPV13->GetPos() * 0.95) * LH2ventlevel );
 			STS()->SetMPSDumpLevel( 5, ptrPV9->GetPos() * ptrPV10->GetPos() * LOXventlevel );
+
+			// ********** ad-hoc RV6 **********
+			if (RV6 == false)
+			{
+				// closed, check if press > crack press (55psig -> 69.7psia)
+				if (LH2ManifPress > 69.7) RV6 = true;// open
+			}
+			else
+			{
+				// open, check press < reseat press (40psig -> 54.7psia)
+				if (LH2ManifPress < 54.7) RV6 = false;// close
+			}
+			// ********************************
+			STS()->SetMPSDumpLevel( 6, ptrPV8->GetPos() * LH2ventlevel * (int)RV6 );
+
+			// ********** ad-hoc RV5 **********
+			if (RV5 == false)
+			{
+				// closed, check if press > crack press (220psig -> 234.7psia)
+				if (LOXManifPress > 234.7) RV5 = true;// open
+			}
+			else
+			{
+				// open, check press < reseat press (190psig -> 204.7psia)
+				if (LOXManifPress < 204.7) RV5 = false;// close
+			}
+			// ********************************
+			STS()->SetMPSDumpLevel( 7, ptrPV7->GetPos() * LOXventlevel * (int)RV5 );
 		}
 
 		//char buffer[100];

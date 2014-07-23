@@ -101,7 +101,9 @@ namespace dps
 	const int LOX_REPRESS_2_OP = 48;
 	const int LH2_REPRESS_1_OP = 49;
 	const int LH2_REPRESS_2_OP = 50;
-	const int COUNT_OUTPUT = 51;
+	const int LO2_FEEDLINE_RLF_ISOL_CL = 51;
+	const int LH2_FEEDLINE_RLF_ISOL_CL = 52;
+	const int COUNT_OUTPUT = 53;
 
 	class IO_Control:public SimpleGPCSoftware
 	{
