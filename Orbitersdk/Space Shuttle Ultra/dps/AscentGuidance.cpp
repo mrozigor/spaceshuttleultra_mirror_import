@@ -170,10 +170,9 @@ void AscentGuidance::InitializeAutopilot()
 	QPOLY[2] = pMission->GetTHdownVelocity()/MPS2FPS;
 	QPOLY[3] = pMission->GetTHupVelocity()/MPS2FPS;
 	if(pMission->UseOMSAssist()) {
-		OMSAssistStart = pMission->GetOMSAssistStart();
-		OMSAssistEnd = pMission->GetOMSAssistEnd();
+		OMSAssistDuration = pMission->GetOMSAssistDuration();
 	}
-	else OMSAssistStart = OMSAssistEnd = 0.0;
+	else OMSAssistDuration = 0;
 
 	hEarth = STS()->GetSurfaceRef();
 	//calculate heading
@@ -409,7 +408,7 @@ void AscentGuidance::Throttle(double DeltaT)
 				break;
 			case 103: // STAGE 3
 				//OMS Assist
-				if(STS()->GetMET()>OMSAssistStart && STS()->GetMET()<OMSAssistEnd && !bMECO)
+				if ((STS()->GetMET() >= (tSRBSep + 10)) && (STS()->GetMET() < (tSRBSep + 10 + OMSAssistDuration)) && !bMECO)
 				{
 					OMSCommand[LEFT].SetLine();
 					OMSCommand[RIGHT].SetLine();

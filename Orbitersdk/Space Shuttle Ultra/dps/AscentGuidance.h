@@ -126,7 +126,7 @@ private:
 
 	// guidance parameters
 	double TgtInc, TgtFPA, TgtAlt, TgtSpd;
-	double OMSAssistStart, OMSAssistEnd;
+	double OMSAssistDuration;
 	bool PerformRTHU;
 
 	discsignals::DiscInPort SpdbkThrotPort;
