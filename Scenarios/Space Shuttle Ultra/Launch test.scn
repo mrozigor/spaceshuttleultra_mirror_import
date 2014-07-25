@@ -234,10 +234,12 @@ STS-101:SpaceShuttleUltra
   "F4_RY_CSS" 0
   @ENDPANEL 
   @PANEL F6
+  "Cdr Flt Cntlr Pwr" ON
   @ENDPANEL 
   @PANEL F7
   @ENDPANEL 
   @PANEL F8
+  "Plt Flt Cntlr Pwr" ON
   @ENDPANEL 
   @PANEL R2
   "Boiler1 N2 Supply" ON
