@@ -1,7 +1,7 @@
 #define STRICT 1
 #define ORBITER_MODULE
 #include "SSRMS.h"
-#include "OrbiterSoundSDK35.h"
+#include "OrbiterSoundSDK40.h"
 #include "UltraMath.h"
 
 //HINSTANCE g_hDLL;
@@ -856,8 +856,8 @@ void SSRMS::clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefault
 void SSRMS::clbkPostCreation()
 {
 	//turn off attitude control sound
-	OrbiterSoundHandle = ConnectToOrbiterSoundDLL3(GetHandle());
-	if(OrbiterSoundHandle!=-1)SoundOptionOnOff3(OrbiterSoundHandle, PLAYATTITUDETHRUST, FALSE);
+	OrbiterSoundHandle = ConnectToOrbiterSoundDLL(GetHandle());
+	if(OrbiterSoundHandle!=-1)SoundOptionOnOff(OrbiterSoundHandle, PLAYATTITUDETHRUST, FALSE);
 
 	pSubsystemDirector->RealizeAll();
 
