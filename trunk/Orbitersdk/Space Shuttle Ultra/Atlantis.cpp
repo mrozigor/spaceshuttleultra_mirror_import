@@ -5101,23 +5101,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		
 	}*/
 
-	if(SoundID!=-1) {
-		//play RCS sounds
-		/*if(RCSThrustersFiring()) {
-			if(!IsPlaying3(SoundID, RCS_SOUND)) PlayVesselWave3(SoundID, RCS_SOUND, LOOP);
-		}
-		else {
-			if(IsPlaying3(SoundID, RCS_SOUND)) StopVesselWave3(SoundID, RCS_SOUND);
-		}*/
-
-		//APU sounds
-		//STOP/START sounds are handled by APU instance; RUN sound applies to all 3 APUs and is handled here
-		if(pAPU[0]->IsRunning() || pAPU[1]->IsRunning() || pAPU[2]->IsRunning()) {
-			PlayVesselWave(SoundID, APU_RUNNING, LOOP);
-		}
-		else StopVesselWave(SoundID, APU_RUNNING); //all 3 APUs are off, so stop sound
-	}
-
 	//sprintf(oapiDebugString(), "%i", last_mfd);
 
 	VESSEL *aVessel;
