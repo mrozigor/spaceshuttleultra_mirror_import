@@ -1101,7 +1101,7 @@ pActiveLatches(3, NULL)
 	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
 	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
 	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,SSMEL_REF.y,SSMEL_REF.z), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z - 4), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
