@@ -117,7 +117,7 @@ namespace mps
 					// 2 bad
 					// 3 bad
 					RAM[RAM_PROM_BII_VALIDCMD] = NOP;
-					RAM[RAM_PROM_BII_ESW] += ESW_Rejected_A;
+					RAM[RAM_PROM_BII_ESW] += ESW_CommandRejected_A;
 				}
 			}
 		}
@@ -272,7 +272,7 @@ namespace mps
 				RAM[RAM_PROM_BII_ESW] += ESW_Accepted;
 				break;
 			default:
-				RAM[RAM_PROM_BII_ESW] += ESW_Rejected_B;
+				RAM[RAM_PROM_BII_ESW] += ESW_CommandRejected_B;
 				break;
 		}
 

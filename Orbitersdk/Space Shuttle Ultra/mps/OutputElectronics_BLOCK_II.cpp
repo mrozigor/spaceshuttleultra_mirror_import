@@ -65,6 +65,9 @@ namespace mps
 			FS_SS[2].ResetLine();
 			FS_SS[3].ResetLine();
 			FS_SS[4].ResetLine();
+
+			ONOFFCommandRegister[0] = 0;
+			ONOFFCommandRegister[1] = 0;
 			return;
 		}
 
@@ -246,6 +249,7 @@ namespace mps
 
 	void OutputElectronics_BLOCK_II::StorageRegister_write( unsigned short data, int ch )
 	{
+		if (PSE->Power() == false) return;
 		// check WDT, listen to who is working
 		if (!CIE[chA]->CheckWDTOwn( 0 ) && !CIE[chA]->CheckWDTOwn( 1 ))
 		{

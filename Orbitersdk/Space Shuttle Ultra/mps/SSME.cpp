@@ -24,7 +24,7 @@ namespace mps
 		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, 40, ptrOPOV );
 		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, 30, ptrOPOV, 0.4 );// HACK no clue about correct sequence valve value
 		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, 25, ptrFPOV );
-		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, 23, ptrFPOV, 0.05 );// TODO find "correct" sequence valve value
+		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, 23, ptrFPOV, 0.05 );// HACK no clue about correct sequence valve value
 		PCA->PurgeSequenceValve_PAV->SetPressureSources( nullptr, ptrCCV, nullptr, nullptr );
 
 		ptrAFV = new SolenoidValve( 0, RATE_AFV, true, nullptr, nullptr );

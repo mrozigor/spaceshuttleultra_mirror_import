@@ -33,14 +33,21 @@ namespace mps
 {
 	const int RAMSIZE_DCU_BII = 65536;
 
-	// TODO fix below
-	//////////////////////////////////
+
+	// Self-Test Status
+	const unsigned short ESW_EngineOK = 1;
+	const unsigned short ESW_MCF = 2;
+
+	// Phase/Mode
 	const unsigned short ESW_PROM = 0x0700;
 	const unsigned short ESW_Standby = 0x0800;
-	const unsigned short ESW_Rejected_A = 0x0002;
-	const unsigned short ESW_Rejected_B = 0x0004;
+
+	// Command Status
+	const unsigned short ESW_NoCommand = 0x0000;
+	const unsigned short ESW_CommandRejected_A = 0x0002;
+	const unsigned short ESW_CommandRejected_B = 0x0004;
 	const unsigned short ESW_Accepted = 0x0006;
-	//////////////////////////////////
+
 
 	const int RAM_PROM_BII_CH = 0;
 	const int RAM_PROM_BII_TREF = 1;

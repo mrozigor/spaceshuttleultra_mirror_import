@@ -67,7 +67,7 @@ namespace dps
 					oapiWriteLog( "Helium Interconnect valves open" );
 				}
 
-				if (dump_started == false)
+				if ((dump_started == false) && ((t_MECO + 16) <= SimT))
 				{
 					if (((t_MECO + DUMP_START_DELAY) <= SimT) || (pIO_Control->GetSWPos( SW_DUMPSEQUENCE ) == 2) || ((STS()->GetLH2ManifPress() > 60) && (STS()->GetLH2ManifPress() < 90)))// time, sw in start or overpressure
 					{
