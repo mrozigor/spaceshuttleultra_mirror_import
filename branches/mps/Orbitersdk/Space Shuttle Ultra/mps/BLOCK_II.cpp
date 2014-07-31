@@ -303,7 +303,7 @@ namespace mps
 		// is the controller commanding shutdown?
 		if ((ptrMFV->GetPos() < posMFV) || (ptrMOV->GetPos() < posMOV))// MFV/MOV closing?
 		{
-			// goto shudown
+			// goto shutdown
 			modeltime = time - AdjCOTime( STS()->GetSSMEThrustLevel( ID ) );
 			modelmode = 4;
 

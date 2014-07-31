@@ -199,6 +199,16 @@ namespace mps
 	const unsigned short Delimiter_IEB = 4;
 	const unsigned short Delimiter_OEA = 5;
 	const unsigned short Delimiter_OEB = 6;
+	const unsigned short Delimiter_CCVSEIIA = 7;
+	const unsigned short Delimiter_CCVSEIIB = 8;
+	const unsigned short Delimiter_MFVSEIIA = 9;
+	const unsigned short Delimiter_MFVSEIIB = 10;
+	const unsigned short Delimiter_MOVSEIIA = 11;
+	const unsigned short Delimiter_MOVSEIIB = 12;
+	const unsigned short Delimiter_FPOVSEIIA = 13;
+	const unsigned short Delimiter_FPOVSEIIB = 14;
+	const unsigned short Delimiter_OPOVSEIIA = 15;
+	const unsigned short Delimiter_OPOVSEIIB = 16;
 
 	const unsigned short Delimiter_HPFTDischargeTemperature = 1;
 	const unsigned short Delimiter_HPOTDischargeTemperature = 2;
@@ -233,6 +243,13 @@ namespace mps
 	const int RAM_AD08_START_ENA = 18;
 	const int RAM_AD08_SHUTDOWN_ENA = 19;
 
+	const int RAM_AD08_DCU_A_STATUS = 26;
+	const int RAM_AD08_DCU_B_STATUS = 27;
+	const int RAM_AD08_IE_A_STATUS = 28;
+	const int RAM_AD08_IE_B_STATUS = 29;
+	const int RAM_AD08_OE_A_STATUS = 30;
+	const int RAM_AD08_OE_B_STATUS = 31;
+
 	const int RAM_AD08_FID_BUFFER = 33;
 
 	const int RAM_AD08_WDT1 = 42;
@@ -264,6 +281,17 @@ namespace mps
 	const int RAM_AD08_OE_A_ONOFF_REG_2 = 376;
 	const int RAM_AD08_OE_B_ONOFF_REG_1 = 377;
 	const int RAM_AD08_OE_B_ONOFF_REG_2 = 378;
+
+	const int RAM_AD08_CCV_SEII_A_STATUS = 380;
+	const int RAM_AD08_CCV_SEII_B_STATUS = 381;
+	const int RAM_AD08_MFV_SEII_A_STATUS = 382;
+	const int RAM_AD08_MFV_SEII_B_STATUS = 383;
+	const int RAM_AD08_MOV_SEII_A_STATUS = 384;
+	const int RAM_AD08_MOV_SEII_B_STATUS = 385;
+	const int RAM_AD08_FPOV_SEII_A_STATUS = 386;
+	const int RAM_AD08_FPOV_SEII_B_STATUS = 387;
+	const int RAM_AD08_OPOV_SEII_A_STATUS = 388;
+	const int RAM_AD08_OPOV_SEII_B_STATUS = 389;
 
 	const int RAM_AD08_MCC_PC_QUAL_AVGR = 400;
 
