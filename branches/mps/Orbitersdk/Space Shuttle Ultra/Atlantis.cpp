@@ -6864,7 +6864,7 @@ void Atlantis::SetSSMEGH2burn( int eng, bool burn )
 	else
 	{
 		psSSMEGH2burn.srcrate = 80;
-		psSSMEGH2burn.growthrate = 10;
+		psSSMEGH2burn.growthrate = 15;
 		psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_LIN;
 		psSSMEGH2burn.tex = 0;
 	}
