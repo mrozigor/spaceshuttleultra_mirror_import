@@ -13,7 +13,6 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
   lastSBTCCommand(0.0),
   stage1GuidanceVelTable(DEFAULT_STAGE1_GUIDANCE_TABLE_VEL, DEFAULT_STAGE1_GUIDANCE_TABLE_VEL+STAGE1_GUIDANCE_TABLE_SIZE),
   stage1GuidancePitchTable(DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH, DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH+STAGE1_GUIDANCE_TABLE_SIZE),
-  bMECO(false),
   tLastMajorCycle(-1.0)
 {
 	// set PID controller gains
@@ -114,6 +113,10 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 				degReqdRates.data[PITCH] = 0.0;
 				degReqdRates.data[YAW] = 0.0;
 				degReqdRates.data[ROLL] = 0.0;
+
+				// stop any existing OMS dump
+				OMSCommand[LEFT].ResetLine();
+				OMSCommand[RIGHT].ResetLine();
 
 				GimbalSSMEs(DeltaT);
 			}
@@ -394,7 +397,7 @@ void AscentGuidance::Throttle(double DeltaT)
 				break;
 			case 103: // STAGE 3
 				//OMS Assist
-				if ((STS()->GetMET() >= (tSRBSep + 10)) && (STS()->GetMET() < (tSRBSep + 10 + OMSAssistDuration)) && !bMECO)
+				if ((STS()->GetMET() >= (tSRBSep + 10)) && (STS()->GetMET() < (tSRBSep + 10 + OMSAssistDuration)))
 				{
 					OMSCommand[LEFT].SetLine();
 					OMSCommand[RIGHT].SetLine();
@@ -410,7 +413,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					if (pSSME_Operations->GetMECOCommandFlag() == false)
 					{
 						pSSME_Operations->SetMECOCommandFlag();
-						bMECO = true;
 
 						char buffer[64];
 						sprintf_s( buffer, 64, "MECO @ MET %.2f", STS()->GetMET() );

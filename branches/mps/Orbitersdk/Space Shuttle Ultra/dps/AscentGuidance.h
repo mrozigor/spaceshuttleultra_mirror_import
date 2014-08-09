@@ -148,8 +148,6 @@ private:
 	double radTargetHeading, TAp, TPe, TTrA, TEcc, TgtRad;
 	std::vector<double> stage1GuidanceVelTable, stage1GuidancePitchTable;
 
-	bool bMECO;
-
 	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	//bool bAutopilot, bThrottle;
 	double tSRBSep; //time(MET)
