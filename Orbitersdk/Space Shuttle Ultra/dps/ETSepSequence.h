@@ -30,7 +30,12 @@
 #include "discsignals.h"
 
 
+// HACK little info on the time sequence
 const double ET_SEP_DELAY_MECO = 18;// sec
+const double ET_SEP_CLOSE_PD = 8;// sec
+const double ET_SEP_OPEN_SOV = 8;// sec
+const double ET_SEP_SSME_STOW = 8;// sec
+const double ET_SEP_ARM_SEP_PIC = 9.5;// sec
 const double ET_SEP_DELAY_MINUSZ = 0.16;// sec
 const double ET_SEP_ROLL_RATE_LIMIT = 0.7;// deg/sec (I-load)
 const double ET_SEP_PITCH_RATE_LIMIT = 0.7;// deg/sec (I-load)
@@ -45,6 +50,7 @@ namespace dps
 	class SSME_Operations;
 	class TransitionDAP;
 	class IO_Control;
+	class ATVC_SOP;
 
 
 	class ETSepSequence:public SimpleGPCSoftware
@@ -53,6 +59,7 @@ namespace dps
 			SSME_Operations* pSSME_Operations;
 			TransitionDAP* pTransitionDAP;
 			IO_Control* pIO_Control;
+			ATVC_SOP* pATVC_SOP;
 
 			DiscInPort ETSEPSW;
 			DiscInPort ETSEPPB;
@@ -76,7 +83,8 @@ namespace dps
 			bool ETSEPCommand;
 			bool ETSEPINH;
 
-			double timerMECO;
+			double t_MECO;
+			double t_last;
 			double timerSEP;
 		public:
 			ETSepSequence( SimpleGPCSystem* _gpc );

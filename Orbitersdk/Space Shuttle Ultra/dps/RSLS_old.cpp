@@ -1,6 +1,7 @@
 #include "RSLS_old.h"
 #include "SSME_SOP.h"
 #include "IO_Control.h"
+#include "ATVC_SOP.h"
 #include "assert.h"
 
 
@@ -34,6 +35,7 @@ namespace dps
 		eng1SDtime = 0;
 		eng2SDtime = 0;
 		eng3SDtime = 0;
+		launchconfiggimbal = false;
 	}
 
 	RSLS_old::~RSLS_old()
@@ -395,6 +397,16 @@ namespace dps
 			oapiWriteLog( "RSLS: ME-1 Ignition Command" );
 		}
 
+		// move 2Y and 3Y to launch config
+		if ((launchconfiggimbal == false) && (pSSME_SOP->GetPercentChamberPressVal( 1 ) > 90.0) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) > 90.0) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) > 90.0))
+		{
+			pATVC_SOP->SetSSMEActPos( 2, LAUNCHCONFIG_2P, LAUNCHCONFIG_2Y );
+			pATVC_SOP->SetSSMEActPos( 3, LAUNCHCONFIG_3P, LAUNCHCONFIG_3Y );
+
+			oapiWriteLog( "RSLS: SSME gimbal to Launch Configuration Command" );
+			launchconfiggimbal = true;
+		}
+
 		//launch
 		if(timeToLaunch<=0.0 && !STS()->GetLiftOffFlag() && !Aborted)
 		{
@@ -503,6 +515,13 @@ namespace dps
 				else engineSD = 2;// ME-2 and ME-3 in start prep
 			}
 			else engineSD = 3;// all in start prep
+
+			if (launchconfiggimbal == true)
+			{
+				// gimbal back to start config for shutdown
+				pATVC_SOP->SetSSMEActPos( 2, STARTCONFIG_2P, STARTCONFIG_2Y );
+				pATVC_SOP->SetSSMEActPos( 3, STARTCONFIG_3P, STARTCONFIG_3Y );
+			}
 		}
 
 		// engine shutdown
@@ -623,6 +642,8 @@ namespace dps
 		assert( (pSSME_SOP != NULL) && "RSLS_old::Realize.pSSME_SOP" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "RSLS_old::Realize.pIO_Control" );
+		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
+		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
 
 		discsignals::DiscreteBundle* bundle = BundleManager()->CreateBundle( "MPS_CLInd_A", 16 );
 		PV19_CLInd[0].Connect( bundle, 8 );

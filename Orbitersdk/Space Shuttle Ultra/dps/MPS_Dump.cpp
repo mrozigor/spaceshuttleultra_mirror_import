@@ -3,6 +3,7 @@
 #include "SSME_SOP.h"
 #include "SSME_Operations.h"
 #include "IO_Control.h"
+#include "ATVC_SOP.h"
 #include "assert.h"
 
 
@@ -168,6 +169,10 @@ namespace dps
 						pIO_Control->SetCommand( HE_ISOL_B_CTR_OP, false );
 						pIO_Control->SetCommand( HE_ISOL_B_LEFT_OP, false );
 						pIO_Control->SetCommand( HE_ISOL_B_RIGHT_OP, false );
+						// move SSMEs to entry config
+						pATVC_SOP->SetSSMEActPos( 1, ENTRYSTOWCONFIG_1P, ENTRYSTOWCONFIG_1Y );
+						pATVC_SOP->SetSSMEActPos( 2, ENTRYSTOWCONFIG_2P, ENTRYSTOWCONFIG_2Y );
+						pATVC_SOP->SetSSMEActPos( 3, ENTRYSTOWCONFIG_3P, ENTRYSTOWCONFIG_3Y );
 						// turn off BODY FLAP lights on panels F2 and F4
 						BodyFlapManLight.ResetLine();
 						oapiWriteLog( "MPS Dump Sequence complete" );
@@ -245,6 +250,8 @@ namespace dps
 		assert( (pSSME_Operations != NULL) && "MPS_Dump::Realize.pSSME_Operations" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
+		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
+		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
 
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle( "BODYFLAP_CONTROLS", 16 );
 		BodyFlapManLight.Connect( pBundle, 0 );

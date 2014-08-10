@@ -20,6 +20,8 @@ SSULCC::SSULCC(OBJHANDLE hVessel, int flightmodel)
 	MPSHeSupplyPressure1 = 2000;
 	MPSHeSupplyPressure2 = 4100 + (400 * oapiRand());// 4100 - 4500
 
+	MPSTVCProfile = false;
+
 	RSLSabort = false;
 	t_abort = -1;
 
@@ -121,6 +123,14 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			oapiWriteLog( "LCC: PSN4" );
 			pSSU->PSN4();
 		}
+
+		if ((timeToLaunch <= MPS_TVC_ACTR_PROFILE_TIME) && (lastTTL > MPS_TVC_ACTR_PROFILE_TIME))
+		{
+			MPSTVCProfile = true;
+			// TODO remove override
+			oapiWriteLog( "LCC: MPS Engine TVC Actuator Profile started" );
+		}
+
 		if(timeToLaunch<=RSLS_SEQUENCE_START_TIME && lastTTL>RSLS_SEQUENCE_START_TIME)
 		{
 			oapiWriteLog("LCC: T-31");
@@ -165,6 +175,84 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			}
 		}
 		/////////// MPS He Supply ///////////
+
+		/////////// MPS TVC Profile ///////////
+		if (MPSTVCProfile == true)
+		{
+			if (timeToLaunch > 207)
+			{
+				// hold null
+				pSSU->SetSSMEActPos( 1, 0, 0 );
+				pSSU->SetSSMEActPos( 2, 0, 0 );
+				pSSU->SetSSMEActPos( 3, 0, 0 );
+			}
+			else if (timeToLaunch > 205)
+			{
+				// move to "left-down" at 3º/s
+				pSSU->SetSSMEActPos( 1, (207 - timeToLaunch) * 3, (207 - timeToLaunch) * (-3) );
+				pSSU->SetSSMEActPos( 2, (207 - timeToLaunch) * 3, (207 - timeToLaunch) * (-3) );
+				pSSU->SetSSMEActPos( 3, (207 - timeToLaunch) * 3, (207 - timeToLaunch) * (-3) );
+			}
+			else if (timeToLaunch > 200)
+			{
+				// hold 5s
+				pSSU->SetSSMEActPos( 1, 6, -6 );
+				pSSU->SetSSMEActPos( 2, 6, -6 );
+				pSSU->SetSSMEActPos( 3, 6, -6 );
+			}
+			else if (timeToLaunch > 198)
+			{
+				// move to null at 3º/s
+				pSSU->SetSSMEActPos( 1, (timeToLaunch - 198) * 3, (timeToLaunch - 198) * (-3) );
+				pSSU->SetSSMEActPos( 2, (timeToLaunch - 198) * 3, (timeToLaunch - 198) * (-3) );
+				pSSU->SetSSMEActPos( 3, (timeToLaunch - 198) * 3, (timeToLaunch - 198) * (-3) );
+			}
+			else if (timeToLaunch > 197)
+			{
+				// hold 1s
+				pSSU->SetSSMEActPos( 1, 0, 0 );
+				pSSU->SetSSMEActPos( 2, 0, 0 );
+				pSSU->SetSSMEActPos( 3, 0, 0 );
+			}
+			else if (timeToLaunch > 195)
+			{
+				// move to "right-up" at 3º/s
+				pSSU->SetSSMEActPos( 1, (197 - timeToLaunch) * (-3), (197 - timeToLaunch) * 3 );
+				pSSU->SetSSMEActPos( 2, (197 - timeToLaunch) * (-3), (197 - timeToLaunch) * 3 );
+				pSSU->SetSSMEActPos( 3, (197 - timeToLaunch) * (-3), (197 - timeToLaunch) * 3 );
+			}
+			else if (timeToLaunch > 190)
+			{
+				// hold 5s
+				pSSU->SetSSMEActPos( 1, -6, 6 );
+				pSSU->SetSSMEActPos( 2, -6, 6 );
+				pSSU->SetSSMEActPos( 3, -6, 6 );
+			}
+			else if (timeToLaunch > 188)
+			{
+				// move to null at 3º/s
+				pSSU->SetSSMEActPos( 1, (timeToLaunch - 188) * (-3), (timeToLaunch - 188) * 3 );
+				pSSU->SetSSMEActPos( 2, (timeToLaunch - 188) * (-3), (timeToLaunch - 188) * 3 );
+				pSSU->SetSSMEActPos( 3, (timeToLaunch - 188) * (-3), (timeToLaunch - 188) * 3 );
+			}
+			else if (timeToLaunch > 135)
+			{
+				// hold null
+				pSSU->SetSSMEActPos( 1, 0, 0 );
+				pSSU->SetSSMEActPos( 2, 0, 0 );
+				pSSU->SetSSMEActPos( 3, 0, 0 );
+			}
+			else
+			{
+				// move to start config
+				pSSU->SetSSMEActPos( 1, 0, 0 );
+				pSSU->SetSSMEActPos( 2, 0, -3 );
+				pSSU->SetSSMEActPos( 3, 0, 3 );
+				MPSTVCProfile = false;
+				oapiWriteLog( "LCC: MPS Engine TVC Actuator Profile terminated" );
+			}
+		}
+		/////////// MPS TVC Profile ///////////
 
 		RSLSabort = pSSU->GetRSLSAbortFlag();
 		if (RSLSabort == true) t_abort = simt;

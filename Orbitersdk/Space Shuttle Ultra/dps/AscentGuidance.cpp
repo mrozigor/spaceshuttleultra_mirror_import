@@ -3,6 +3,7 @@
 #include <UltraMath.h>
 #include "SSME_SOP.h"
 #include "SSME_Operations.h"
+#include "ATVC_SOP.h"
 
 namespace dps
 {
@@ -73,17 +74,21 @@ void AscentGuidance::Realize()
 	SpdbkThrotAutoOut.SetLine(); // default to auto throttling
 
 	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	SpdbkThrotPort.Connect(pBundle, 6);	
+	SpdbkThrotPort.Connect(pBundle, 6);
+
+	pBundle = STS()->BundleManager()->CreateBundle( "THRUSTER_CMD", 16 );
+	SERC.Connect( pBundle, 6 );
 
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
+	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	switch(GetMajorMode()) {
 		case 102:
-			STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
+			STS()->CalcSSMEThrustAngles(0, ThrAngleP, ThrAngleY);
 			Throttle(DeltaT);
 			FirstStageRateCommand();
 			if (bNullSRBNozzles == true)
@@ -97,8 +102,8 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 		case 103:
 			if (pSSME_Operations->GetZeroThrustFlag() == true) return;
 
-			if (pSSME_Operations->GetMECOCommandFlag() == false){//if(!bMECO) {
-				STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
+			if (pSSME_Operations->GetMECOCommandFlag() == false){
+				STS()->CalcSSMEThrustAngles(0, ThrAngleP, ThrAngleY);
 				Navigate();
 				if(STS()->GetMET() >= (tLastMajorCycle + ASCENT_MAJOR_CYCLE)) {
 					MajorCycle();
@@ -117,6 +122,9 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 				// stop any existing OMS dump
 				OMSCommand[LEFT].ResetLine();
 				OMSCommand[RIGHT].ResetLine();
+
+				// stop any SERC firing
+				SERC.ResetLine();
 
 				GimbalSSMEs(DeltaT);
 			}
@@ -250,6 +258,7 @@ void AscentGuidance::GimbalSRBs(double DeltaT)
 		double yawGimbal = SRBGimbal[i][YAW].Step(degRateError.data[YAW], DeltaT);
 		double rollGimbal = SRBGimbal[i][ROLL].Step(degRateError.data[ROLL], DeltaT);
 		STS()->SetSRBGimbalAngles(static_cast<SIDE>(i), pitchGimbal+rollGimbal, yawGimbal);
+		//pATVC_SOP->SetSRBActPos( i + 1, pitchGimbal+rollGimbal, yawGimbal );
 	}
 }
 
@@ -262,15 +271,129 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	// see Section 5.4.3.4 of Ascent Guidance & Flight Control Workbook for more information on how roll is added to SSME gimbal angles
 	// TODO: handle engine failures
 	double pitchGimbal[3], yawGimbal[3];
-	pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+	/*pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
 	yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
 	pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
 	yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
 	pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
 	yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
+	*/
 
-	for(int i=0;i<3;i++) {
-		STS()->SetSSMEGimbalAngles(i+1, pitchGimbal[i], yawGimbal[i]);
+	switch (((int)pSSME_Operations->GetFailFlag( 3 ) * 4) + ((int)pSSME_Operations->GetFailFlag( 2 ) * 2) + (int)pSSME_Operations->GetFailFlag( 1 ))
+	{
+		case 0:// nom
+			pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
+			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
+			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
+
+			// In this case ME-2 and 3 not pointing thru c.g. in yaw, instead pointing strait forward.
+			// Need hard data to be sure, but looks like it's this way in reality.
+			pitchGimbal[0] += ThrAngleP + 16;
+			yawGimbal[0] += ThrAngleY;
+			pitchGimbal[1] += ThrAngleP + 10;
+			yawGimbal[1] += ThrAngleY + 3.5;
+			pitchGimbal[2] += ThrAngleP + 10;
+			yawGimbal[2] += ThrAngleY - 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
+			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
+			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
+			break;
+		case 1:// C out
+			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 1.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
+			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 1.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
+
+			STS()->CalcSSMEThrustAngles( 2, ThrAngleP, ThrAngleY );
+			pitchGimbal[1] += ThrAngleP + 10;
+			yawGimbal[1] += ThrAngleY - 3.5;
+
+			STS()->CalcSSMEThrustAngles( 3, ThrAngleP, ThrAngleY );
+			pitchGimbal[2] += ThrAngleP + 10;
+			yawGimbal[2] += ThrAngleY + 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
+			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
+			break;
+		case 2:// L out
+			pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
+			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
+
+			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", pitchGimbal[0], yawGimbal[0], pitchGimbal[2], yawGimbal[2], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
+
+			STS()->CalcSSMEThrustAngles( 1, ThrAngleP, ThrAngleY );
+			pitchGimbal[0] += ThrAngleP + 16;
+			yawGimbal[0] += ThrAngleY;
+
+			STS()->CalcSSMEThrustAngles( 3, ThrAngleP, ThrAngleY );
+			pitchGimbal[2] += ThrAngleP + 10;
+			yawGimbal[2] += ThrAngleY + 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
+			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
+			break;
+		case 3:// C, L out
+			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
+			// SERC
+			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
+			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
+
+			pitchGimbal[2] += ThrAngleP + 10;
+			yawGimbal[2] += ThrAngleY + 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
+			break;
+		case 4:// R out
+			pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
+			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
+			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
+
+			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", pitchGimbal[0], yawGimbal[0], pitchGimbal[1], yawGimbal[1], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
+
+			STS()->CalcSSMEThrustAngles( 1, ThrAngleP, ThrAngleY );
+			pitchGimbal[0] += ThrAngleP + 16;
+			yawGimbal[0] += ThrAngleY;
+
+			STS()->CalcSSMEThrustAngles( 2, ThrAngleP, ThrAngleY );
+			pitchGimbal[1] += ThrAngleP + 10;
+			yawGimbal[1] += ThrAngleY - 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
+			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
+			break;
+		case 5:// C, R out
+			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
+			// SERC
+			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
+			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
+
+			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", ThrAngleP + 10, ThrAngleY - 3.5, pitchGimbal[1], yawGimbal[1], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
+			pitchGimbal[1] += ThrAngleP + 10;
+			yawGimbal[1] += ThrAngleY - 3.5;
+
+			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
+			break;
+		case 6:// L, R out
+			pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
+			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0);
+			// SERC
+			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
+			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
+			
+			pitchGimbal[0] += ThrAngleP + 16;
+			yawGimbal[0] += ThrAngleY;
+
+			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
+			break;
 	}
 }
 void AscentGuidance::FirstStageRateCommand()
@@ -325,7 +448,8 @@ void AscentGuidance::SecondStageRateCommand()
 			double degBank = STS()->GetBank()*DEG;
 
 			degReqdRates.data[PITCH] = CmdPDot;
-			degReqdRates.data[YAW] = range(-2.5, 0.5*DEG*(radHeading-radTargetHeading), 2.5);
+			degReqdRates.data[YAW] = range(-2.5, 0.5*(DEG*(radHeading-radTargetHeading) + (sign( cos( degBank ) ) * ThrAngleY)), 2.5);
+			// applied the "+ (sign( cos( degBank ) ) * ThrAngleY)" factor to correct for "sideways" thrust (ME-2 or 3 out/low thrust)
 
 			if(!PerformRTHU ||  relativeVelocity<ROLL_TO_HEADS_UP_VELOCITY) 
 			{
@@ -450,7 +574,7 @@ void AscentGuidance::Throttle(double DeltaT)
 					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", finecountthrottle[EOcount], STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
-				sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
+				//sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
 		}
 	}
