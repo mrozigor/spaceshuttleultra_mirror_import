@@ -205,6 +205,8 @@ namespace mps
 		{
 			DCU->RAM[cmdaddr] = DCU->RAM[count + 1];
 		}
+
+		if (DCU->RAM[cmdaddr] > 4095) DCU->RAM[cmdaddr] = 4095;
 		return;
 	}
 
