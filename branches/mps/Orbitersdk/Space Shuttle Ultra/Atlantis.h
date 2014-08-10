@@ -61,6 +61,7 @@
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
 #include "ISSUMLP.h"
+#include "gnc/ATVC.h"
 
 
 
@@ -344,6 +345,7 @@ public:
 	MCA* pAMC1;
 	MCA* pAMC2;
 	MCA* pAMC3;
+	gnc::ATVC* pATVC;
 
 	dps::SimpleGPCSystem *pSimpleGPC;
 
@@ -536,7 +538,7 @@ public:
 
 	double CalcNetSSMEThrust() const;
 	double GetSSMEISP() const;
-	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
+	void CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const;
 
 	//Thruster Control; called from OrbitDAP class
 	void EnableThrusters(const int Thrusters[], int nThrusters);
@@ -601,6 +603,7 @@ public:
 	virtual bool HydraulicsOK();
 
 	virtual void PSN4( void );
+	virtual void SetSSMEActPos( int num, double Ppos, double Ypos );
 
 	virtual int GetSSMEPress( int eng );
 	virtual int GetHeTankPress( int sys ) const;
@@ -1135,7 +1138,9 @@ private:
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
-	VECTOR3 SSMENullDirection[3];
+	VECTOR3 SSMEInstalledNullPos[3];
+	VECTOR3 SSMECurrentPos[3];
+	//VECTOR3 SSMENullDirection[3];
 	VECTOR3 SRBNullDirection[3];
 
 	// Entry
@@ -1197,7 +1202,7 @@ private:
 
 	DiscOutPort SpdbkThrotPort;
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
-	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
+	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand;
 

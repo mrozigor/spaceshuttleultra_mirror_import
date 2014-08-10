@@ -60,6 +60,7 @@ namespace dps
 	class SSME_SOP;
 	class SSME_Operations;
 	class IO_Control;
+	class ATVC_SOP;
 
 
 	class MPS_Dump:public SimpleGPCSoftware
@@ -68,6 +69,7 @@ namespace dps
 			SSME_SOP* pSSME_SOP;
 			SSME_Operations* pSSME_Operations;
 			IO_Control* pIO_Control;
+			ATVC_SOP* pATVC_SOP;
 
 			DiscOutPort BodyFlapManLight;
 

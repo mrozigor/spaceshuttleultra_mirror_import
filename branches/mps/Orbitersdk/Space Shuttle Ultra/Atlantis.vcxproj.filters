@@ -449,6 +449,9 @@
     <ClCompile Include="dps\SRBSepSequence.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\ATVC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -836,6 +839,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\SRBSepSequence.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\ATVC_SOP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

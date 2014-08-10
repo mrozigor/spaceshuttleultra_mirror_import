@@ -10,6 +10,7 @@ const double MPS_HE_SUPPLY_START_TIME = 21600;// HACK T-6h, not sure
 const double ACCESS_ARM_RETRACT_TIME = 450.0;
 const double GOX_ARM_RETRACT_TIME = 150.0;
 const double PSN4_TIME = 239;
+const double MPS_TVC_ACTR_PROFILE_TIME = 210;
 const double RSLS_SEQUENCE_START_TIME = 31.0;
 const double APU_CHECK_TIME = 245.0;
 const double MPS_HE_SUPPLY_END_TIME = 12.5;
@@ -33,6 +34,7 @@ private:
 	double MPSHeSupplyPressure2;
 	bool _firstrun;
 	bool MPSHeSupply;
+	bool MPSTVCProfile;
 	bool RSLSabort;
 	double t_abort;
 	char PadName[256], ShuttleName[256];

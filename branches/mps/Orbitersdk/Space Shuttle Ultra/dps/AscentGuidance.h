@@ -46,6 +46,7 @@ const double FINECOUNT_THROTTLE_2EO = 91;
 
 class SSME_SOP;
 class SSME_Operations;
+class ATVC_SOP;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -137,6 +138,7 @@ private:
 	discsignals::DiscOutPort SpdbkThrotPLT;
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
+	discsignals::DiscOutPort SERC;
 
 	double lastSBTCCommand;
 
@@ -178,6 +180,7 @@ private:
 
 	SSME_SOP* pSSME_SOP;
 	SSME_Operations* pSSME_Operations;
+	ATVC_SOP* pATVC_SOP;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds

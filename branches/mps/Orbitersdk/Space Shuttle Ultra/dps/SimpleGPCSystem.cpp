@@ -17,6 +17,7 @@
 #include "TransitionDAP.h"
 #include "ETSepSequence.h"
 #include "SRBSepSequence.h"
+#include "ATVC_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -41,6 +42,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new TransitionDAP( this ) );
 	vSoftware.push_back( new ETSepSequence( this ) );
 	vSoftware.push_back( new SRBSepSequence( this ) );
+	vSoftware.push_back( new ATVC_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

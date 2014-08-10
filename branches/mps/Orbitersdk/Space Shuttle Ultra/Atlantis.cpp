@@ -71,6 +71,7 @@
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
+#include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
 #include <cassert>
 
@@ -674,6 +675,8 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
   psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
+  psubsystems->AddSubsystem( pATVC = new gnc::ATVC( psubsystems, "ATVC", 1 ) );// HACK should be 4 of this
+
   //psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
@@ -1068,7 +1071,14 @@ pActiveLatches(3, NULL)
   curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
   curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
 
-  for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
+  SSMEInstalledNullPos[0] = SSMET_INSTALLED_NULL_POS;
+  SSMEInstalledNullPos[1] = SSMEL_INSTALLED_NULL_POS;
+  SSMEInstalledNullPos[2] = SSMER_INSTALLED_NULL_POS;
+  SSMECurrentPos[0] = SSMET_INSTALLED_NULL_POS;
+  SSMECurrentPos[1] = SSMEL_INSTALLED_NULL_POS;
+  SSMECurrentPos[2] = SSMER_INSTALLED_NULL_POS;
+
+  //for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
   for(int i=0;i<2;i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
@@ -3109,14 +3119,29 @@ double Atlantis::GetSSMEISP() const
 	return GetThrusterIsp(th_main[0]);
 }
 
-void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
+void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const
 {
 	VECTOR3 N=_V(0, 0, 0);
-        for(int i=0;i<3;i++) {
-		N += SSMENullDirection[i]*GetThrusterLevel(th_main[i]);
+	VECTOR3 dir = _V( 0, 0, 0 );
+        if (eng == 0)
+	{
+		for(int i=0;i<3;i++) {
+			GetThrusterRef( th_main[i], dir );
+			dir = Normalize( -dir );
+			N += dir*GetThrusterLevel(th_main[i]);
+		}
 	}
-	degAngleP=DEG*asin(N.y/N.z);
-	degAngleY=DEG*asin(N.x/N.z);
+	else
+	{
+		GetThrusterRef( th_main[eng - 1], dir );
+		N = -dir;
+	}
+	//degAngleP=DEG*asin(N.y/N.z);
+	//degAngleY=DEG*asin(N.x/N.z);
+	degAngleP=DEG*atan2( N.y, N.z );
+	degAngleY=DEG*atan2( cos( degAngleP ) * N.x, N.z );
+	//degAngleP=DEG*atan2( N.y, N.z );
+	//degAngleY=DEG*atan2( cos( degAngleP ) * N.x, N.z );
 }
 
 void Atlantis::FailEngine(int engine)
@@ -4187,6 +4212,7 @@ void Atlantis::clbkPostCreation ()
 		temp.Connect(pBundle, i+3);
 		temp.ResetLine();
 	}
+	RotThrusterCommands[3].Connect( pBundle, 6 );// SERC RCS thrusters
 
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
@@ -4423,6 +4449,46 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_rollright, 0.0);
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
 		lastRotCommand[ROLL] = 0;
+	}
+
+	// SERC
+	if(RotThrusterCommands[3].GetVoltage() > 0.0001)
+	{
+		// roll left
+		SetThrusterLevel( th_att_rcs[4], RotThrusterCommands[3].GetVoltage() );// F2R, F4R
+		SetThrusterLevel( th_att_rcs[9], RotThrusterCommands[3].GetVoltage() );// L1U, L2U, L4U
+		SetThrusterLevel( th_att_rcs[8], RotThrusterCommands[3].GetVoltage() );// R2D, R3D, R4D
+		SetThrusterLevel( th_att_rcs[7], RotThrusterCommands[3].GetVoltage() );// R1R, R2R, R3R, R4R
+
+		SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
+		SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
+		SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
+		SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+	}
+	else if(RotThrusterCommands[3].GetVoltage() < -0.0001)
+	{
+		// roll right
+		SetThrusterLevel( th_att_rcs[6], -RotThrusterCommands[3].GetVoltage() );// F1L, F3L
+		SetThrusterLevel( th_att_rcs[10], -RotThrusterCommands[3].GetVoltage() );// L2D, L3D, L4D
+		SetThrusterLevel( th_att_rcs[5], -RotThrusterCommands[3].GetVoltage() );// L1L, L2L, L3L, L4L
+		SetThrusterLevel( th_att_rcs[11], -RotThrusterCommands[3].GetVoltage() );// R1U, R2U, R4U
+
+		SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
+		SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
+		SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
+		SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+	}
+	else
+	{
+		SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
+		SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
+		SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
+		SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+
+		SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
+		SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
+		SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
+		SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
 	}
 
 	if(TransThrusterCommands[0].GetVoltage() > 0.0001) {
@@ -6755,11 +6821,12 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 		return false; // error
 	}
 	else {
-		VECTOR3 dir=RotateVectorX(SSMENullDirection[usMPSNo-1], range(-10.5, degPitch, 10.5));
-		dir=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
+		VECTOR3 dir=RotateVectorX(SSMEInstalledNullPos[usMPSNo-1], range(-10.5, degPitch, 10.5));
+		SSMECurrentPos[usMPSNo-1]=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
 		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
 		//oapiWriteLog(oapiDebugString());
-		return SetSSMEDir(usMPSNo, dir);
+		UpdateSSMEGimbalAnimations();
+		return SetSSMEDir(usMPSNo, SSMECurrentPos[usMPSNo-1]);
 	}
 }
 
@@ -7128,18 +7195,20 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	const double YAWS = 2 * sin(8.5 * RAD);
 	const double PITCHS = 2 * sin(10 * RAD);
 	
-	VECTOR3 SSME_DIR;
+	//VECTOR3 SSME_DIR;
 	double fDeflYaw, fDeflPitch;
 
-	GetThrusterDir(th_main[0], SSME_DIR);
+	//GetThrusterDir(th_main[0], SSME_DIR);
 
 	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
 
 	//fDeflYaw = acos(SSME_DIR.x);
 	//fDeflPitch = acos(SSME_DIR.y/sin(fDeflYaw));
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	//fDeflPitch = asin(-SSME_DIR.y);
+	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	fDeflPitch = asin(-SSMECurrentPos[0].y);
+	fDeflYaw = asin(SSMECurrentPos[0].x / cos(fDeflPitch));
 
 	//sprintf(oapiDebugString(), "SSMET %f° %f° (%f, %f, %f)", fDeflPitch*DEG, fDeflYaw*DEG, SSME_DIR.x, SSME_DIR.y, SSME_DIR.z);
 
@@ -7150,42 +7219,43 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
 
 	if(th_ssme_gox[0] != NULL) {
-		SetThrusterDir(th_ssme_gox[0], SSME_DIR);
+		SetThrusterDir(th_ssme_gox[0], SSMECurrentPos[0]);
 		SetThrusterRef(th_ssme_gox[0], orbiter_ofs+SSMET_GOX_REF1);
 	}
 
 
-	GetThrusterDir(th_main[1], SSME_DIR);
+	//GetThrusterDir(th_main[1], SSME_DIR);
 	
 	if(th_ssme_gox[1] != NULL) {
-		SetThrusterDir(th_ssme_gox[1], SSME_DIR);
+		SetThrusterDir(th_ssme_gox[1], SSMECurrentPos[1]);
 		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
 	}
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	//fDeflPitch = asin(-SSME_DIR.y);
+	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+
+	fDeflPitch = asin(-SSMECurrentPos[1].y);
+	fDeflYaw = asin(SSMECurrentPos[1].x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
 
-	GetThrusterDir(th_main[2], SSME_DIR);
+	//GetThrusterDir(th_main[2], SSME_DIR);
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	//fDeflPitch = asin(-SSME_DIR.y);
+	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+
+	fDeflPitch = asin(-SSMECurrentPos[2].y);
+	fDeflYaw = asin(SSMECurrentPos[2].x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
 	if(th_ssme_gox[2] != NULL) {
-		SetThrusterDir(th_ssme_gox[2], SSME_DIR);
+		SetThrusterDir(th_ssme_gox[2], SSMECurrentPos[2]);
 		SetThrusterRef(th_ssme_gox[2], orbiter_ofs+SSMER_GOX_REF1);
-	}
-
-	
-	
-	
-	
+	}	
 }
 
 void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
@@ -7254,9 +7324,9 @@ void Atlantis::StartROFIs()
 void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 {
 	if(!bSSMEsDefined) {
-		th_main[0] = CreateThruster (ofs + SSMET_REF, _V(0.0, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[1] = CreateThruster (ofs + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[2] = CreateThruster (ofs + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
+		th_main[0] = CreateThruster (ofs + SSMET_REF, SSMECurrentPos[0]/*_V(0.0, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[1] = CreateThruster (ofs + SSMEL_REF, SSMECurrentPos[1]/*_V(0.065, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[2] = CreateThruster (ofs + SSMER_REF, SSMECurrentPos[2]/*_V(-0.065, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
 		bSSMEsDefined = true;
 		//thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
 	}
@@ -7286,13 +7356,13 @@ void Atlantis::DefineSSMEExhaust()
 void Atlantis::UpdateNullDirections()
 {
 	// calculate null direction for each engine 
-	for(unsigned short i=0;i<3;i++) {
+	/*for(unsigned short i=0;i<3;i++) {
 		if(th_main[i]) {
 			GetThrusterRef(th_main[i], SSMENullDirection[i]);
 			SSMENullDirection[i]=Normalize(-SSMENullDirection[i]);
 			SetThrusterDir(th_main[i], SSMENullDirection[i]);
 		}
-	}
+	}*/
 	if(status <= STATE_STAGE1) {
 		for(unsigned short i=0;i<2;i++) {
 			if(th_srb[i]) {
@@ -8197,6 +8267,13 @@ void Atlantis::PSN4( void )
 	pEIU[0]->command( 0xBC00 );
 	pEIU[1]->command( 0xBC00 );
 	pEIU[2]->command( 0xBC00 );
+}
+
+void Atlantis::SetSSMEActPos( int num, double Ppos, double Ypos )
+{
+	dps::ATVC_SOP* pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware( "ATVC_SOP" ));
+	pATVC_SOP->SetSSMEActPos( num, Ppos, Ypos );
+	return;
 }
 
 int Atlantis::GetSSMEPress( int eng )

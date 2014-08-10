@@ -3,6 +3,7 @@
 #include "SSME_Operations.h"
 #include "TransitionDAP.h"
 #include "IO_Control.h"
+#include "ATVC_SOP.h"
 #include "assert.h"
 
 
@@ -16,7 +17,8 @@ namespace dps
 		ETSEPCommand = false;
 		ETSEPINH = false;
 		
-		timerMECO = -1;
+		t_MECO = -1;
+		t_last = -1;
 		timerSEP = -1;
 		return;
 	}
@@ -47,29 +49,43 @@ namespace dps
 			}
 			else
 			{
-				if (timerMECO <= SimT)
+				if (((t_MECO + ET_SEP_DELAY_MECO) <= SimT) && ((t_MECO + ET_SEP_DELAY_MECO) > t_last))
 				{
 					autoETSEP = true;
 				}
 			}
 
-			// close feedline valves
-			PD1_OP.ResetLine();
-			PD1_CL.SetLine();
-			PD2_OP.ResetLine();
-			PD2_CL.SetLine();
-			PD3_OP.ResetLine();
-			PD3_CL.SetLine();
+			if (((t_MECO + ET_SEP_CLOSE_PD) <= SimT) && ((t_MECO + ET_SEP_CLOSE_PD) > t_last))
+			{
+				// close feedline valves
+				PD1_OP.ResetLine();
+				PD1_CL.SetLine();
+				PD2_OP.ResetLine();
+				PD2_CL.SetLine();
+				PD3_OP.ResetLine();
+				PD3_CL.SetLine();
+			}
 
-			// TODO time sequence
-			// 1.5s
-			// arm sep PICs
-			// 1.5s
-			// open feedline relief SOVs
-			pIO_Control->SetCommand( LO2_FEEDLINE_RLF_ISOL_CL, false );
-			pIO_Control->SetCommand( LH2_FEEDLINE_RLF_ISOL_CL, false );
+			if (((t_MECO + ET_SEP_OPEN_SOV) <= SimT) && ((t_MECO + ET_SEP_OPEN_SOV) > t_last))
+			{
+				// open feedline relief SOVs
+				pIO_Control->SetCommand( LO2_FEEDLINE_RLF_ISOL_CL, false );
+				pIO_Control->SetCommand( LH2_FEEDLINE_RLF_ISOL_CL, false );
+			}
 
-			// TODO SSME dump repo
+			if (((t_MECO + ET_SEP_SSME_STOW) <= SimT) && ((t_MECO + ET_SEP_SSME_STOW) > t_last))
+			{
+				// SSME dump repo
+				pATVC_SOP->SetSSMEActPos( 1, MPSDUMPCONFIG_1P, MPSDUMPCONFIG_1Y );
+				pATVC_SOP->SetSSMEActPos( 2, MPSDUMPCONFIG_2P, MPSDUMPCONFIG_2Y );
+				pATVC_SOP->SetSSMEActPos( 3, MPSDUMPCONFIG_3P, MPSDUMPCONFIG_3Y );
+			}
+
+			if (((t_MECO + ET_SEP_ARM_SEP_PIC) <= SimT) && ((t_MECO + ET_SEP_ARM_SEP_PIC) > t_last))
+			{
+				// TODO arm sep PICs
+			}
+
 			// TODO THC move stops auto sep
 
 			if (autoETSEP == true)
@@ -81,7 +97,7 @@ namespace dps
 				angvel *= DEG;
 
 				if ((fabs( angvel.z ) <= ET_SEP_ROLL_RATE_LIMIT) && // check rates
-					(fabs( angvel.x ) <= ET_SEP_PITCH_RATE_LIMIT) && // TODO < or <= ?
+					(fabs( angvel.x ) <= ET_SEP_PITCH_RATE_LIMIT) && 
 					(fabs( angvel.y ) <= ET_SEP_YAW_RATE_LIMIT) && 
 					(PD1_CL_Ind_A.IsSet() == true) && // check feedline valves closed
 					(PD1_CL_Ind_B.IsSet() == true) && 
@@ -129,7 +145,7 @@ namespace dps
 		{
 			if (pSSME_Operations->GetMECOConfirmedFlag() == true)
 			{
-				timerMECO = SimT + ET_SEP_DELAY_MECO;
+				t_MECO = SimT;
 				active = true;
 			}
 		}
@@ -144,6 +160,8 @@ namespace dps
 		assert( (pTransitionDAP != NULL) && "MPS_Dump::Realize.TransitionDAP" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
+		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
+		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
 
 
 		DiscreteBundle* bundle = BundleManager()->CreateBundle( "C3_SEP", 4 );
