@@ -310,11 +310,11 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 
 			STS()->CalcSSMEThrustAngles( 2, ThrAngleP, ThrAngleY );
 			pitchGimbal[1] += ThrAngleP + 10;
-			yawGimbal[1] += ThrAngleY - 3.5;
+			yawGimbal[1] += ThrAngleY + 3.5;
 
 			STS()->CalcSSMEThrustAngles( 3, ThrAngleP, ThrAngleY );
 			pitchGimbal[2] += ThrAngleP + 10;
-			yawGimbal[2] += ThrAngleY + 3.5;
+			yawGimbal[2] += ThrAngleY - 3.5;
 
 			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
 			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
@@ -333,7 +333,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 
 			STS()->CalcSSMEThrustAngles( 3, ThrAngleP, ThrAngleY );
 			pitchGimbal[2] += ThrAngleP + 10;
-			yawGimbal[2] += ThrAngleY + 3.5;
+			yawGimbal[2] += ThrAngleY - 3.5;
 
 			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
 			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
@@ -346,7 +346,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
 
 			pitchGimbal[2] += ThrAngleP + 10;
-			yawGimbal[2] += ThrAngleY + 3.5;
+			yawGimbal[2] += ThrAngleY - 3.5;
 
 			pATVC_SOP->SetSSMEActPos( 3, pitchGimbal[2], yawGimbal[2] );
 			break;
@@ -364,7 +364,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 
 			STS()->CalcSSMEThrustAngles( 2, ThrAngleP, ThrAngleY );
 			pitchGimbal[1] += ThrAngleP + 10;
-			yawGimbal[1] += ThrAngleY - 3.5;
+			yawGimbal[1] += ThrAngleY + 3.5;
 
 			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
 			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
@@ -378,7 +378,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 
 			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", ThrAngleP + 10, ThrAngleY - 3.5, pitchGimbal[1], yawGimbal[1], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
 			pitchGimbal[1] += ThrAngleP + 10;
-			yawGimbal[1] += ThrAngleY - 3.5;
+			yawGimbal[1] += ThrAngleY + 3.5;
 
 			pATVC_SOP->SetSSMEActPos( 2, pitchGimbal[1], yawGimbal[1] );
 			break;

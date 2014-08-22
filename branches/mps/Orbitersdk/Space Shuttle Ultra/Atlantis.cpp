@@ -3139,7 +3139,7 @@ void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngle
 	//degAngleP=DEG*asin(N.y/N.z);
 	//degAngleY=DEG*asin(N.x/N.z);
 	degAngleP=DEG*atan2( N.y, N.z );
-	degAngleY=DEG*atan2( cos( degAngleP ) * N.x, N.z );
+	degAngleY=-DEG*atan2( cos( RAD*degAngleP ) * N.x, N.z );
 	//degAngleP=DEG*atan2( N.y, N.z );
 	//degAngleY=DEG*atan2( cos( degAngleP ) * N.x, N.z );
 }
