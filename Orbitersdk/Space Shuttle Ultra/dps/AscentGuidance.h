@@ -47,6 +47,7 @@ const double FINECOUNT_THROTTLE_2EO = 91;
 class SSME_SOP;
 class SSME_Operations;
 class ATVC_SOP;
+class SRBSepSequence;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -181,12 +182,14 @@ private:
 	SSME_SOP* pSSME_SOP;
 	SSME_Operations* pSSME_Operations;
 	ATVC_SOP* pATVC_SOP;
+	SRBSepSequence* pSRBSepSequence;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds
 
+	bool enaSERC;
 	bool MEFail[3];
-	int EOcount;
+	int NSSME;
 	bool finecount;
 	double finecountthrottle[3];
 

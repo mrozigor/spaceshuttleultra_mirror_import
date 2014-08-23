@@ -705,7 +705,6 @@ public:
 
 
 
-
 private:
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
@@ -1140,7 +1139,6 @@ private:
 	bool bEngineFail;
 	VECTOR3 SSMEInstalledNullPos[3];
 	VECTOR3 SSMECurrentPos[3];
-	//VECTOR3 SSMENullDirection[3];
 	VECTOR3 SRBNullDirection[3];
 
 	// Entry
@@ -1165,6 +1163,8 @@ private:
 	
 	vc::MDU* mdus[11];
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
+
+	bool SERCstop;
 
 	//MNVR
 	double curOMSPitch[2], curOMSYaw[2];

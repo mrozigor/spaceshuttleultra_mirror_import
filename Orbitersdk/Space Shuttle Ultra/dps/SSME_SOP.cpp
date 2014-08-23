@@ -34,6 +34,7 @@ namespace dps
 			CommandPathFailure[i] = false;
 			MajorComponentFailure[i] = false;
 			LimitExceeded[i] = false;
+			ChannelFailure[i] = false;
 
 			PrimaryDataFail[i] = false;
 			SecondaryDataFail[i] = false;
@@ -152,60 +153,71 @@ namespace dps
 				ProcessPriData( i );
 			}
 
-			////////////////////////////////////////////////////////
-			// TODO finish logic below
-			//CommandPathFailure[i] = false;
-			//if ((CommandStatus[i] == 1) || (CommandStatus[i] == 2))
-			//{
-			//	CommandPathFailure[i] = true;
-			//}
-			////////////////////////////////////////////////////////
-
-			HydraulicLockupMode[i] = false;
-			ElectricalLockupMode[i] = false;
-
-			switch (Phase[i])
+			if ((PrimaryDataFail[i] = true) || (SecondaryDataFail[i] = true))
 			{
-				case 4:// Mainstage
-					switch (Mode[i])
-					{
-						case 4:// Hydraulic Lockup
-							HydraulicLockupMode[i] = true;
-							break;
-						case 5:// Electrical Lockup
-							ElectricalLockupMode[i] = true;
-							break;
-					}
-					break;
-				case 5:// Shutdown
-					ShutdownPhase[i] = true;
-					break;
-				case 6:// Post-Shutdown
-					ShutdownPhase[i] = false;
-					PostShutdownPhase[i] = true;
-					break;
-				case 2:// Start-Prep
-					if (Mode[i] == 5)// Engine Ready
-					{
-						EngineReadyMode[i] = true;
-					}
-					else
-					{
-						EngineReadyMode[i] = false;
-					}
-					break;
-			}
+				// HACK command and channel status not really perfect
+				if (CommandStatus[i] == 1)// || (CommandStatus[i] == 2))
+				{
+					CommandPathFailure[i] = true;
+				}
 
-			MajorComponentFailure[i] = false;
-			LimitExceeded[i] = false;
+				if (GetMajorMode() == 101)
+				{
+					if (CommandStatus[i] > 0)
+					{
+						if (ChannelStatus[i] != 0)
+						{
+							ChannelFailure[i] = true;
+						}
+					}
+				}
 
-			if (SelfTestStatus[i] == 2)
-			{
-				MajorComponentFailure[i] = true;
-			}
-			else if (SelfTestStatus[i] == 3)
-			{
-				LimitExceeded[i] = true;
+				HydraulicLockupMode[i] = false;
+				ElectricalLockupMode[i] = false;
+
+				switch (Phase[i])
+				{
+					case 4:// Mainstage
+						switch (Mode[i])
+						{
+							case 4:// Hydraulic Lockup
+								HydraulicLockupMode[i] = true;
+								break;
+							case 5:// Electrical Lockup
+								ElectricalLockupMode[i] = true;
+								break;
+						}
+						break;
+					case 5:// Shutdown
+						ShutdownPhase[i] = true;
+						break;
+					case 6:// Post-Shutdown
+						ShutdownPhase[i] = false;
+						PostShutdownPhase[i] = true;
+						break;
+					case 2:// Start-Prep
+						if (Mode[i] == 5)// Engine Ready
+						{
+							EngineReadyMode[i] = true;
+						}
+						else
+						{
+							EngineReadyMode[i] = false;
+						}
+						break;
+				}
+
+				MajorComponentFailure[i] = false;
+				LimitExceeded[i] = false;
+
+				if (SelfTestStatus[i] == 2)
+				{
+					MajorComponentFailure[i] = true;
+				}
+				else if (SelfTestStatus[i] == 3)
+				{
+					LimitExceeded[i] = true;
+				}
 			}
 		}
 		return;
@@ -316,6 +328,7 @@ namespace dps
 		Phase[eng] = (pridata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (pridata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (pridata[eng][2] & 0xC000) >> 14;
+		ChannelStatus[eng] = (pridata[eng][2] & 0x0038) >> 3;
 		CommandStatus[eng] = (pridata[eng][2] & 0x0006) >> 1;
 		return;
 	}
@@ -326,6 +339,7 @@ namespace dps
 		Phase[eng] = (secdata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (secdata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (secdata[eng][2] & 0xC000) >> 14;
+		ChannelStatus[eng] = (secdata[eng][2] & 0x0038) >> 3;
 		CommandStatus[eng] = (secdata[eng][2] & 0x0006) >> 1;
 		return;
 	}
@@ -361,7 +375,7 @@ namespace dps
 	bool SSME_SOP::SetThrottlePercent( double pct )
 	{
 		if ((pct < MPL) || (pct > FPL)) return false;
-
+		
 		CommandedThrottle = pct;
 		ThrottleCommand[0] = true;
 		ThrottleCommand[1] = true;
@@ -461,6 +475,12 @@ namespace dps
 	{
 		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetLimitExceededFlag.eng" );
 		return LimitExceeded[eng - 1];
+	}
+
+	bool SSME_SOP::GetChannelFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetChannelFailureFlag.eng" );
+		return ChannelFailure[eng - 1];
 	}
 
 	double SSME_SOP::GetPercentChamberPressVal( int eng ) const

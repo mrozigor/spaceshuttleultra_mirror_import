@@ -4,6 +4,7 @@
 #include "SSME_SOP.h"
 #include "SSME_Operations.h"
 #include "ATVC_SOP.h"
+#include "SRBSepSequence.h"
 
 namespace dps
 {
@@ -26,18 +27,20 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 
 	throttlecmd = 100;
 
+	enaSERC = false;
+
 	glimiting = false;
 	dt_thrt_glim = 0;
 
 	MEFail[0] = false;
 	MEFail[1] = false;
 	MEFail[2] = false;
-	EOcount = 0;
+	NSSME = 3;
 
 	finecount = false;
-	finecountthrottle[0] = FINECOUNT_THROTTLE;// TODO update to correct MPL from mission file
+	finecountthrottle[0] = FINECOUNT_THROTTLE_2EO;
 	finecountthrottle[1] = FINECOUNT_THROTTLE_1EO;
-	finecountthrottle[2] = FINECOUNT_THROTTLE_2EO;
+	finecountthrottle[2] = FINECOUNT_THROTTLE;// TODO update to correct MPL from mission file
 
 	// generic values, updated in InitializeAutopilot()
 	THROT[0] = THROT1;
@@ -82,6 +85,7 @@ void AscentGuidance::Realize()
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
+	pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -100,7 +104,12 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			GimbalSSMEs(DeltaT);
 			break;
 		case 103:
-			if (pSSME_Operations->GetZeroThrustFlag() == true) return;
+			if (pSSME_Operations->GetZeroThrustFlag() == true)
+			{
+				// stop any SERC firing, TransDAP takes over now
+				SERC.ResetLine();
+				return;
+			}
 
 			if (pSSME_Operations->GetMECOCommandFlag() == false){
 				STS()->CalcSSMEThrustAngles(0, ThrAngleP, ThrAngleY);
@@ -123,9 +132,6 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 				OMSCommand[LEFT].ResetLine();
 				OMSCommand[RIGHT].ResetLine();
 
-				// stop any SERC firing
-				SERC.ResetLine();
-
 				GimbalSSMEs(DeltaT);
 			}
 			break;
@@ -137,7 +143,6 @@ bool AscentGuidance::OnMajorModeChange(unsigned int newMajorMode)
 	if(newMajorMode == 102 || newMajorMode == 103) {
 		if(newMajorMode == 102) InitializeAutopilot();
 		else if(newMajorMode == 103) tSRBSep = STS()->GetMET();
-		//STS()->CalcSSMEThrustAngles(ThrAngleP, ThrAngleY);
 		return true;
 	}
 	return false;
@@ -271,13 +276,6 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	// see Section 5.4.3.4 of Ascent Guidance & Flight Control Workbook for more information on how roll is added to SSME gimbal angles
 	// TODO: handle engine failures
 	double pitchGimbal[3], yawGimbal[3];
-	/*pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
-	yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
-	pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
-	yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
-	pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
-	yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
-	*/
 
 	switch (((int)pSSME_Operations->GetFailFlag( 3 ) * 4) + ((int)pSSME_Operations->GetFailFlag( 2 ) * 2) + (int)pSSME_Operations->GetFailFlag( 1 ))
 	{
@@ -325,8 +323,6 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0) - range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
 			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
 
-			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", pitchGimbal[0], yawGimbal[0], pitchGimbal[2], yawGimbal[2], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
-
 			STS()->CalcSSMEThrustAngles( 1, ThrAngleP, ThrAngleY );
 			pitchGimbal[0] += ThrAngleP + 16;
 			yawGimbal[0] += ThrAngleY;
@@ -341,9 +337,6 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 		case 3:// C, L out
 			pitchGimbal[2] = -range(-8.0, degRateError.data[PITCH], 8.0);
 			yawGimbal[2] = -range(-8.0, degRateError.data[YAW], 8.0);
-			// SERC
-			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
-			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
 
 			pitchGimbal[2] += ThrAngleP + 10;
 			yawGimbal[2] += ThrAngleY - 3.5;
@@ -355,8 +348,6 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0) - range(-8.0, 0.75*degRateError.data[ROLL], 8.0);
 			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0) + range(-7.0, 2.5*degRateError.data[ROLL], 7.0);
 			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
-
-			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", pitchGimbal[0], yawGimbal[0], pitchGimbal[1], yawGimbal[1], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
 
 			STS()->CalcSSMEThrustAngles( 1, ThrAngleP, ThrAngleY );
 			pitchGimbal[0] += ThrAngleP + 16;
@@ -372,11 +363,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 		case 5:// C, R out
 			pitchGimbal[1] = -range(-8.0, degRateError.data[PITCH], 8.0);
 			yawGimbal[1] = -range(-8.0, degRateError.data[YAW], 8.0);
-			// SERC
-			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
-			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
 
-			sprintf_s( oapiDebugString(), 255, "%+.4f %+.4f  %+.4f %+.4f  %+.4f %+.4f %+.4f", ThrAngleP + 10, ThrAngleY - 3.5, pitchGimbal[1], yawGimbal[1], degRateError.data[PITCH], degRateError.data[YAW], degRateError.data[ROLL] );
 			pitchGimbal[1] += ThrAngleP + 10;
 			yawGimbal[1] += ThrAngleY + 3.5;
 
@@ -385,15 +372,19 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 		case 6:// L, R out
 			pitchGimbal[0] = -range(-8.0, degRateError.data[PITCH], 8.0);
 			yawGimbal[0] = -range(-8.0, degRateError.data[YAW], 8.0);
-			// SERC
-			if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
-			else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
 			
 			pitchGimbal[0] += ThrAngleP + 16;
 			yawGimbal[0] += ThrAngleY;
 
 			pATVC_SOP->SetSSMEActPos( 1, pitchGimbal[0], yawGimbal[0] );
 			break;
+	}
+
+	// SERC
+	if (enaSERC == true)
+	{
+		if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
+		else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
 	}
 }
 void AscentGuidance::FirstStageRateCommand()
@@ -448,8 +439,8 @@ void AscentGuidance::SecondStageRateCommand()
 			double degBank = STS()->GetBank()*DEG;
 
 			degReqdRates.data[PITCH] = CmdPDot;
-			degReqdRates.data[YAW] = range(-2.5, 0.5*(DEG*(radHeading-radTargetHeading) + (sign( cos( degBank ) ) * ThrAngleY)), 2.5);
-			// applied the "+ (sign( cos( degBank ) ) * ThrAngleY)" factor to correct for "sideways" thrust (ME-2 or 3 out/low thrust)
+			degReqdRates.data[YAW] = range(-2.5, 0.5*(DEG*(radHeading-radTargetHeading) - (sign( cos( degBank ) ) * ThrAngleY)), 2.5);
+			// applied the "- (sign( cos( degBank ) ) * ThrAngleY)" factor to correct for "sideways" thrust (ME-2 or 3 out/low thrust)
 
 			if(!PerformRTHU ||  relativeVelocity<ROLL_TO_HEADS_UP_VELOCITY) 
 			{
@@ -498,13 +489,16 @@ void AscentGuidance::Throttle(double DeltaT)
 			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
 			{
 				MEFail[i] = pSSME_Operations->GetFailFlag( i + 1 );
-				if (EOcount < 3) EOcount++;
+				NSSME--;
 				// update 1º stage throttle table to not throttle
 				THROT[1] = THROT[0];
 				THROT[2] = THROT[0];
 				AGT_done = true;// don't do AGT
+				glimiting = false;// reset g-limiting
+				dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
 				// throttle to mission power level
-				pSSME_SOP->SetThrottlePercent( THROT[0] );
+				throttlecmd = THROT[0];
+				pSSME_SOP->SetThrottlePercent( throttlecmd );
 			}
 		}
 
@@ -517,6 +511,11 @@ void AscentGuidance::Throttle(double DeltaT)
 					throttlecmd = THROT[J];
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					J++;
+				}
+				
+				if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
+				{
+					enaSERC = true;
 				}
 				break;
 			case 103: // STAGE 3
@@ -564,14 +563,20 @@ void AscentGuidance::Throttle(double DeltaT)
 					}
 				}
 
+				if (NSSME == 1)// enable SERC automatically in MM103
+				{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
+					enaSERC = true;
+				}
+
 				// fine count
 				// HACK only throttle back, no real count for now
 				if ((timeRemaining <= 6) && (finecount == false))
 				{
-					pSSME_SOP->SetThrottlePercent( finecountthrottle[EOcount] );
+					throttlecmd = finecountthrottle[NSSME - 1];
+					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					finecount = true;
 					char buffer[64];
-					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", finecountthrottle[EOcount], STS()->GetMET() );
+					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
 				//sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );

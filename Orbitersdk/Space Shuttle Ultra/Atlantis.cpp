@@ -1034,6 +1034,8 @@ pActiveLatches(3, NULL)
   ControlRMS=false;
   lastRMSSJCommand=0;
 
+  SERCstop = true;
+
   //I-loads
   //stage1guidance_size=0;
 
@@ -1078,7 +1080,6 @@ pActiveLatches(3, NULL)
   SSMECurrentPos[1] = SSMEL_INSTALLED_NULL_POS;
   SSMECurrentPos[2] = SSMER_INSTALLED_NULL_POS;
 
-  //for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
   for(int i=0;i<2;i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
@@ -3136,12 +3137,8 @@ void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngle
 		GetThrusterRef( th_main[eng - 1], dir );
 		N = -dir;
 	}
-	//degAngleP=DEG*asin(N.y/N.z);
-	//degAngleY=DEG*asin(N.x/N.z);
 	degAngleP=DEG*atan2( N.y, N.z );
 	degAngleY=-DEG*atan2( cos( RAD*degAngleP ) * N.x, N.z );
-	//degAngleP=DEG*atan2( N.y, N.z );
-	//degAngleY=DEG*atan2( cos( degAngleP ) * N.x, N.z );
 }
 
 void Atlantis::FailEngine(int engine)
@@ -4464,6 +4461,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
 		SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
 		SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+
+		SERCstop = false;
 	}
 	else if(RotThrusterCommands[3].GetVoltage() < -0.0001)
 	{
@@ -4477,18 +4476,25 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
 		SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
 		SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+
+		SERCstop = false;
 	}
 	else
 	{
-		SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
-		SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
-		SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
-		SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+		if (SERCstop == false)
+		{
+			SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
+			SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
+			SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
+			SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
 
-		SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
-		SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
-		SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
-		SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+			SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
+			SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
+			SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
+			SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+
+			SERCstop = true;
+		}
 	}
 
 	if(TransThrusterCommands[0].GetVoltage() > 0.0001) {
@@ -7355,14 +7361,7 @@ void Atlantis::DefineSSMEExhaust()
 
 void Atlantis::UpdateNullDirections()
 {
-	// calculate null direction for each engine 
-	/*for(unsigned short i=0;i<3;i++) {
-		if(th_main[i]) {
-			GetThrusterRef(th_main[i], SSMENullDirection[i]);
-			SSMENullDirection[i]=Normalize(-SSMENullDirection[i]);
-			SetThrusterDir(th_main[i], SSMENullDirection[i]);
-		}
-	}*/
+	// calculate null direction for each engine
 	if(status <= STATE_STAGE1) {
 		for(unsigned short i=0;i<2;i++) {
 			if(th_srb[i]) {
@@ -8467,10 +8466,8 @@ void Atlantis::UpdateCoG()
 		double prop = GetPropellantLevel(ph_tank);
 		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
 		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
-		//double LOXHeight = (LOXMass/LOX_DENSITY)/(2*PI*TANK_RADIUS); // height of LOX in cylindrical tank
-		//double LH2Height = (LH2Mass/LH2_DENSITY)/(2*PI*TANK_RADIUS); // height of LH2 in cylindrical tank
-		double LOXHeight = (LOXMass/LOX_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
-		double LH2Height = (LH2Mass/LH2_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+		double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+		double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
 		shuttleMass -= LOXMass;
 		shuttleMass -= LH2Mass;
 		masses.push_back(LOXMass);
