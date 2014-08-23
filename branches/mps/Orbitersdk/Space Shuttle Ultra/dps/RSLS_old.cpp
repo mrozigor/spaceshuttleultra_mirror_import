@@ -7,7 +7,7 @@
 
 namespace dps
 {
-	static char RSLSAbortCauses[13][255]={
+	static char RSLSAbortCauses[14][255]={
 	  "T%+f - MPS Engine %d Percent Ch Press",
 	  "T%+f - Hydraulic system failure (APUs not on?)",
 	  "T%+f - MPS E-%d in Shutdown Phase",
@@ -20,7 +20,8 @@ namespace dps
 	  "T%+f - MPS E-%d Limit Exceeded",
 	  "T%+f - MPS LO2 Overboard Bleed Valve Closed Indication Not Set",
 	  "T%+f - MPS E-%d LH2 Prevalve Open Indication Not Set",
-	  "T%+f - MPS LOX POGO Recirculation Valves Open Indication Not Set"
+	  "T%+f - MPS LOX POGO Recirculation Valves Open Indication Not Set",
+	  "T%+f - MPS E-%d Channel Fail"
 	};
 	
 	RSLS_old::RSLS_old( SimpleGPCSystem *_gpc ):SimpleGPCSoftware( _gpc, "RSLS_old" )
@@ -121,7 +122,7 @@ namespace dps
 				RSLSAbortCause=&RSLSAbortCauses[5][0];
 				RSLSAbortData=3;
 			}
-			else if (pSSME_SOP->GetMajorComponentFailureFlag( 1 ) == true)
+			else if (pSSME_SOP->GetMajorComponentFailureFlag( 1 ) == true)// check MCF
 			{
 				RSLSAbort=true;
 				RSLSAbortTime=timeToLaunch;
@@ -140,6 +141,27 @@ namespace dps
 				RSLSAbort=true;
 				RSLSAbortTime=timeToLaunch;
 				RSLSAbortCause=&RSLSAbortCauses[8][0];
+				RSLSAbortData=3;
+			}
+			else if (pSSME_SOP->GetChannelFailureFlag( 1 ) == true)// check check channel fail
+			{
+				RSLSAbort=true;
+				RSLSAbortTime=timeToLaunch;
+				RSLSAbortCause=&RSLSAbortCauses[13][0];
+				RSLSAbortData=1;
+			}
+			else if (pSSME_SOP->GetChannelFailureFlag( 2 ) == true)
+			{
+				RSLSAbort=true;
+				RSLSAbortTime=timeToLaunch;
+				RSLSAbortCause=&RSLSAbortCauses[13][0];
+				RSLSAbortData=2;
+			}
+			else if (pSSME_SOP->GetChannelFailureFlag( 3 ) == true)
+			{
+				RSLSAbort=true;
+				RSLSAbortTime=timeToLaunch;
+				RSLSAbortCause=&RSLSAbortCauses[13][0];
 				RSLSAbortData=3;
 			}
 			else if (pSSME_SOP->GetLimitExceededFlag( 1 ) == true)// check limits exceeded

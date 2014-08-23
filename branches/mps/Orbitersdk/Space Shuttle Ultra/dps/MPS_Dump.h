@@ -62,7 +62,11 @@ namespace dps
 	class IO_Control;
 	class ATVC_SOP;
 
-
+	/**
+	 * @brief	Implementation of the MPS Dump software running in the GPCs.
+	 * 
+	 * Controls the post-MECO MPS Dump sequence by issuing open and close commands to appropriate valves at specified times.
+	 */
 	class MPS_Dump:public SimpleGPCSoftware
 	{
 		private:

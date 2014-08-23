@@ -52,7 +52,11 @@ namespace dps
 	class IO_Control;
 	class ATVC_SOP;
 
-
+	/**
+	 * @brief	Implementation of the ET Separation Sequencer running in the GPCs.
+	 * 
+	 * Controls and executes the ET Separation, closing the appropriate valves and checking that separation conditions are met.
+	 */
 	class ETSepSequence:public SimpleGPCSoftware
 	{
 		private:
@@ -96,6 +100,10 @@ namespace dps
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
+			/**
+			 * Returns an indication of whether the ET Separation inhibit flag has been set.
+			 * @return		true = ET Separation inhibited
+			 */
 			bool GetETSEPINHFlag( void ) const;
 	};
 }

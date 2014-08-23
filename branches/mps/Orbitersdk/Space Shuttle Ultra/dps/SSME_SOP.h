@@ -49,7 +49,12 @@ namespace dps
 
 	const unsigned short DATA_FAIL = 4;// I-LOAD
 
-
+	/**
+	 * @brief	Implementation of the SSME SOP software that runs in the GPCs.
+	 * 
+	 * This class recieves commands to the SSMEs, formats and outputs them to the EIUs. It also reads from
+	 * the EIUs SSME data, which is processed.
+	 */
 	class SSME_SOP:public SimpleGPCSoftware
 	{
 		private:
@@ -58,6 +63,7 @@ namespace dps
 			unsigned short Mode[3];
 			unsigned short SelfTestStatus[3];
 			unsigned short CommandStatus[3];
+			unsigned short ChannelStatus[3];
 
 			// TODO KMIN, KMAX, KCMD
 			// command flags
@@ -91,6 +97,7 @@ namespace dps
 			bool CommandPathFailure[3];
 			bool MajorComponentFailure[3];
 			bool LimitExceeded[3];
+			bool ChannelFailure[3];
 
 			unsigned short pridata[3][32];
 			unsigned short secdata[3][6];
@@ -103,6 +110,15 @@ namespace dps
 			unsigned short SecondaryFailCounter[3];
 			unsigned short DataFailCounter[3];
 
+			/**
+			 * Processes Primary Data, decoding the status of the SSME and it's controller.
+			 */
+			void ProcessPriData( int eng );
+			/**
+			 * Processes Secondary Data, decoding the status of the SSME and it's controller.
+			 */
+			void ProcessSecData( int eng );
+
 		public:
 			SSME_SOP( SimpleGPCSystem* _gpc );
 			~SSME_SOP( void );
@@ -111,9 +127,6 @@ namespace dps
 			void OnPostStep( double SimT, double DeltaT, double MJD );// send commands
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
-
-			void ProcessPriData( int eng );
-			void ProcessSecData( int eng );
 
 			/**
 			 * Causes the Start Enable Command to be issued for a SSME.
@@ -158,7 +171,16 @@ namespace dps
 			 */
 			void SetLimitEnableCommandFlag( int eng );
 
+			/**
+			 * Causes the Oxidizer Dump Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
 			void SetOxidizerDumpStartCommandFlag( int eng );
+
+			/**
+			 * Causes the Terminate Sequence Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
 			void SetDumpStopCommandFlag( int eng );
 
 			/**
@@ -237,6 +259,13 @@ namespace dps
 			 * @return		true = limits exceeded
 			 */
 			bool GetLimitExceededFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a command channel has failed on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = channel failed
+			 */
+			bool GetChannelFailureFlag( int eng ) const;
 
 			/**
 			 * Gets the chamber pressure in percent of RPL of a SSME.

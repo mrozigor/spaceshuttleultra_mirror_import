@@ -37,12 +37,27 @@ namespace dps
 {
 	class SSME_SOP;
 
+	/**
+	 * @brief	Implementation of the MPS Dedicated Display Driver software running in the GPCs.
+	 * 
+	 * Currently in MEDS it only controls the MPS Engine Red and Amber lights, but before it also controlled the MPS Engine PC meters.
+	 */
 	class MPS_Dedicated_Display_Driver:public SimpleGPCSoftware
 	{
 		private:
+			/**
+			 * Pointer to SSME SOP class, source of data.
+			 */
 			SSME_SOP* pSSME_SOP;
 
+			/**
+			 * Signal output to Amber Status light in panel F7.
+			 */
 			DiscOutPort dspAmberStatusLight[3];
+
+			/**
+			 * Signal output to Red Status light in panel F7.
+			 */
 			DiscOutPort dpsRedStatusLight[3];
 		public:
 			MPS_Dedicated_Display_Driver( SimpleGPCSystem* _gpc );

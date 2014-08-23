@@ -63,6 +63,11 @@ namespace dps
 	class SSME_Operations;
 	class AscentGuidance;
 
+	/**
+	 * @brief	Implementation of the SRB Separation Sequencer running in the GPCs.
+	 * 
+	 * Controls and executes the SRB Separation, checking that separation conditions are met.
+	 */
 	class SRBSepSequence:public SimpleGPCSoftware
 	{
 		private:
@@ -90,8 +95,16 @@ namespace dps
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
+			/**
+			 * Returns an indication of whether the SRB PC < 50 flag has been set.
+			 * @return		true = PC < 50
+			 */
 			bool GetPC50Flag( void ) const;
 
+			/**
+			 * Returns an indication of whether the SRB Separation inhibit flag has been set.
+			 * @return		true = SRB Separation inhibited
+			 */
 			bool GetSRBSEPINHFlag( void ) const;
 	};
 }
