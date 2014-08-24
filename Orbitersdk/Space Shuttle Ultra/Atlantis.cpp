@@ -2865,7 +2865,7 @@ void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
 
 void Atlantis::SeparateTank (void)
 {
-	DetachChildAndUpdateMass(ahET, -1.0);
+	DetachChildAndUpdateMass(ahET, 0.0);
 
 	// Remove Tank from shuttle instance
 	DelPropellantResource (ph_tank);
@@ -7201,26 +7201,12 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	const double YAWS = 2 * sin(8.5 * RAD);
 	const double PITCHS = 2 * sin(10 * RAD);
 	
-	//VECTOR3 SSME_DIR;
 	double fDeflYaw, fDeflPitch;
 
-	//GetThrusterDir(th_main[0], SSME_DIR);
-
-	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
-
-	//fDeflYaw = acos(SSME_DIR.x);
-	//fDeflPitch = acos(SSME_DIR.y/sin(fDeflYaw));
-
-	//fDeflPitch = asin(-SSME_DIR.y);
-	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	// center engine
 	fDeflPitch = asin(-SSMECurrentPos[0].y);
 	fDeflYaw = asin(SSMECurrentPos[0].x / cos(fDeflPitch));
 
-	//sprintf(oapiDebugString(), "SSMET %f° %f° (%f, %f, %f)", fDeflPitch*DEG, fDeflYaw*DEG, SSME_DIR.x, SSME_DIR.y, SSME_DIR.z);
-
-
-	//fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
-	//	(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
 	SetAnimation(anim_ssmeTyaw, fDeflYaw/YAWS + 0.5);
 	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
 
@@ -7229,29 +7215,31 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 		SetThrusterRef(th_ssme_gox[0], orbiter_ofs+SSMET_GOX_REF1);
 	}
 
-
-	//GetThrusterDir(th_main[1], SSME_DIR);
-	
-	if(th_ssme_gox[1] != NULL) {
-		SetThrusterDir(th_ssme_gox[1], SSMECurrentPos[1]);
-		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
+	if (thMPSDump[0] != NULL)
+	{
+		SetThrusterDir( thMPSDump[0], SSMECurrentPos[0] );
+		SetThrusterRef( thMPSDump[0], orbiter_ofs + SSMET_GOX_REF1 + _V( -1.15, 0, -1 ) );
 	}
 
-	//fDeflPitch = asin(-SSME_DIR.y);
-	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
-
+	// left engine
 	fDeflPitch = asin(-SSMECurrentPos[1].y);
 	fDeflYaw = asin(SSMECurrentPos[1].x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
+	if(th_ssme_gox[1] != NULL) {
+		SetThrusterDir(th_ssme_gox[1], SSMECurrentPos[1]);
+		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
+	}
 
-	//GetThrusterDir(th_main[2], SSME_DIR);
+	if (thMPSDump[1] != NULL)
+	{
+		SetThrusterDir( thMPSDump[1], SSMECurrentPos[1] );
+		SetThrusterRef( thMPSDump[1], orbiter_ofs + SSMEL_GOX_REF1 + _V( 0, -1.15, -1 ) );
+	}
 
-	//fDeflPitch = asin(-SSME_DIR.y);
-	//fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
-
+	// right engine
 	fDeflPitch = asin(-SSMECurrentPos[2].y);
 	fDeflYaw = asin(SSMECurrentPos[2].x / cos(fDeflPitch));
 
@@ -7261,7 +7249,13 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	if(th_ssme_gox[2] != NULL) {
 		SetThrusterDir(th_ssme_gox[2], SSMECurrentPos[2]);
 		SetThrusterRef(th_ssme_gox[2], orbiter_ofs+SSMER_GOX_REF1);
-	}	
+	}
+
+	if (thMPSDump[2] != NULL)
+	{
+		SetThrusterDir( thMPSDump[2], SSMECurrentPos[2] );
+		SetThrusterRef( thMPSDump[2], orbiter_ofs + SSMER_GOX_REF1 + _V( -1.15, 0, -1 ) );
+	}
 }
 
 void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
@@ -7974,17 +7968,17 @@ void Atlantis::CreateMPSDumpVents( void )
 	// LOX dump -> dv = 9-11 fps
 	// LOX dump SSME 1
 	if (thMPSDump[0] != NULL) DelThruster( thMPSDump[0] );
-	thMPSDump[0] = CreateThruster( orbiter_ofs + _V( 0.0, 0.94,-16.8 ), _V( 0.0, -0.37489, 0.92707 ), 4000, phLOXdump, 80, 80 );
+	thMPSDump[0] = CreateThruster( orbiter_ofs + SSMET_GOX_REF1 + _V( -1.15, 0, -1 ), SSMECurrentPos[0], 4000, phLOXdump, 80, 80 );
 	AddExhaustStream( thMPSDump[0], &psLOXdump_SSME );
 
 	// LOX dump SSME 2
 	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
-	thMPSDump[1] = CreateThruster( orbiter_ofs + _V( -1.49, -1.95, -17.5 ), _V( 0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	thMPSDump[1] = CreateThruster( orbiter_ofs + SSMEL_GOX_REF1 + _V( 0, -1.15, -1 ), SSMECurrentPos[1], 4000, phLOXdump, 80, 80 );		
 	AddExhaustStream( thMPSDump[1], &psLOXdump_SSME );
 
 	// LOX dump SSME 3
 	if (thMPSDump[2] != NULL) DelThruster( thMPSDump[2] );
-	thMPSDump[2] = CreateThruster( orbiter_ofs + _V( 1.49, -1.95, -17.5 ), _V( -0.065, -0.2447, 0.9674 ), 4000, phLOXdump, 80, 80 );		
+	thMPSDump[2] = CreateThruster( orbiter_ofs + SSMER_GOX_REF1 + _V( -1.15, 0, -1 ), SSMECurrentPos[2], 4000, phLOXdump, 80, 80 );		
 	AddExhaustStream( thMPSDump[2], &psLOXdump_SSME );
 
 	// LH2 dump B/U
