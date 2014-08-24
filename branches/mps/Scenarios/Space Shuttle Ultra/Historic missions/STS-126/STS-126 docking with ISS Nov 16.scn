@@ -293,6 +293,11 @@ Endeavour:SpaceShuttleUltra
   CIE_chA config 2
   CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_R
+@SUBSYSTEM SimpleGPCSystem
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 2
+  @ENDSOFTWARE 
+@ENDSUBSYSTEM		;SimpleGPCSystem
 END
 Ultra_OBSS:SSU_OBSS
   STATUS Orbiting Earth
