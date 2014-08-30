@@ -39,6 +39,13 @@ const double MIN_PRESS_OPEN_PAV = 85;
 const double HE_USE_OPEN_PAV = 5;
 
 
+/**
+ * @brief	Implementation of the PressureActuatedValve class.
+ * 
+ * This class simulates a pressure actuated valve, that controls flow from
+ * a PressureSource instance. It can be one of 3 types: normally-closed,
+ * normally-open and bistable.
+ */
 class PressureActuatedValve:public PressureSource
 {
 	private:
@@ -56,27 +63,31 @@ class PressureActuatedValve:public PressureSource
 		double rate;
 	public:
 		/**
-		 * Returns valve position
-		 * @return valve position (range: 0 - closed, 1 - open)
+		 * Returns valve position.
+		 * @return	valve position (range: 0 - closed, 1 - open).
 		 */
 		double GetPos( void ) const;
 
 		/**
-		 * Updates valve position (call from time step functions)
-		 * @param dt sim dt
+		 * Updates valve position (call from time step functions).
+		 * @param	dt	sim dt
 		 */
 		void tmestp( double dt );
 
 		/**
-		 * Use from .scn loading function to set valve position
-		 * @param ipos valve position
+		 * Use from .scn loading function to set valve position.
+		 * @param[in]	ipos	valve position (between 0 and 1)
 		 */
 		void _backdoor( double ipos );
 
 		/**
-		 * Create a new valve
-		 * @param initpos initial valve position
-		 * @param imaxrate maximum valve motion rate
+		 * Class constructor. PressureSource parameters control valve type.
+		 * @param[in]	initpos	initial valve position
+		 * @param[in]	imaxrate	maximum valve motion rate
+		 * @param[in]	OP	pressure source to open the valve (nullptr if valve is normally-open)
+		 * @param[in]	CL	pressure source to close the valve (nullptr if valve is normally-closed)
+		 * @param[in]	psource	pressure source to be controlled by the valve
+		 * @param[in]	psourceinvent	pressure source "in the vent", used to open the valve (nullptr is not applicable)
 		 */
 		PressureActuatedValve( double initpos, double rate, PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent );
 		~PressureActuatedValve( void );

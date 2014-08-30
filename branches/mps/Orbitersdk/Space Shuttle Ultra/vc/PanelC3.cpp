@@ -314,9 +314,9 @@ namespace vc
 		pSSMESDPB[2]->output.Connect( pBundle, 4 );// R
 
 		pBundle = STS()->BundleManager()->CreateBundle( "C3_SEP", 4 );
-		pSRBSEPSW->ConnectPort( 1, pBundle, 0 );
+		pSRBSEPSW->ConnectPort( 1, pBundle, 0 );// MAN/AUTO
 		pSRBSEPPB->output.Connect( pBundle, 1 );
-		pETSEPSW->ConnectPort( 1, pBundle, 2 );
+		pETSEPSW->ConnectPort( 1, pBundle, 2 );// MAN
 		pETSEPPB->output.Connect( pBundle, 3 );
 
 		// VC component DiscPorts need to be connected before Realize() is called

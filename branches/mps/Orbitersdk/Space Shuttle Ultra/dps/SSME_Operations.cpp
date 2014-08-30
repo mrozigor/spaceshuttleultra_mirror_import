@@ -29,6 +29,27 @@ namespace dps
 		counter_A = 0;
 		counter_B = 0;
 
+		LowLevelSensorArm = false;
+		LO2LowLevelSensorDryFlag[0] = false;
+		LO2LowLevelSensorDryFlag[1] = false;
+		LO2LowLevelSensorDryFlag[2] = false;
+		LO2LowLevelSensorDryFlag[3] = false;
+		LH2LowLevelSensorDryFlag[0] = false;
+		LH2LowLevelSensorDryFlag[1] = false;
+		LH2LowLevelSensorDryFlag[2] = false;
+		LH2LowLevelSensorDryFlag[3] = false;
+		LO2LowLevelSensorDsblFlag[0] = false;
+		LO2LowLevelSensorDsblFlag[1] = false;
+		LO2LowLevelSensorDsblFlag[2] = false;
+		LO2LowLevelSensorDsblFlag[3] = false;
+		LH2LowLevelSensorDsblFlag[0] = false;
+		LH2LowLevelSensorDsblFlag[1] = false;
+		LH2LowLevelSensorDsblFlag[2] = false;
+		LH2LowLevelSensorDsblFlag[3] = false;
+		LowLevel1stRun = true;
+		LowLevelLO2timer = -1;
+		LowLevelLH2timer = -1;
+
 		MECOCommand = false;
 
 		MECOConfirmed = false;
@@ -114,7 +135,7 @@ namespace dps
 				}
 			}
 
-			if (dspSSMESDPB[i].IsSet() == true)
+			if (dipSSMESDPB[i].IsSet() == true)
 			{
 				if (ManualShutdownFlag[i] == false)// only log first PB use
 				{
@@ -133,7 +154,7 @@ namespace dps
 		}
 		else
 		{
-			if ((dspLimitSwitchInhibit.IsSet() == false) && (dspLimitSwitchEnable.IsSet() == false))
+			if ((dipLimitSwitchInhibit.IsSet() == false) && (dipLimitSwitchEnable.IsSet() == false))
 			{
 				// AUTO
 				counter_A = 0;
@@ -176,7 +197,7 @@ namespace dps
 				counter_DFH[0] = 0;
 				counter_DFH[1] = 0;
 				counter_DFH[2] = 0;
-				if (dspLimitSwitchEnable.IsSet() == true)
+				if (dipLimitSwitchEnable.IsSet() == true)
 				{
 					// ENA
 					counter_B = 0;
@@ -211,6 +232,110 @@ namespace dps
 		}
 
 		// G
+
+		if ((LowLevelSensorArm == true) && (MECOCommand == false))
+		{
+			if (LowLevel1stRun == false)
+			{
+				// 2 dry -> MECO
+				int LO2count = 0;
+				int LH2count = 0;
+
+				for (int i = 0; i < 4; i++)
+				{
+					// LOX
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false) LO2LowLevelSensorDryFlag[i] = true;
+					if ((LO2LowLevelSensorDryFlag[i] == true) && (LO2LowLevelSensorDsblFlag[i] == false)) LO2count++;
+
+					// LH2
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false) LH2LowLevelSensorDryFlag[i] = true;
+					if ((LH2LowLevelSensorDryFlag[i] == true) && (LH2LowLevelSensorDsblFlag[i] == false)) LH2count++;
+				}
+
+				if ((LO2count >= 2) && (LowLevelLO2timer == -1))
+				{
+					switch ((int)FailFlag[0] + (int)FailFlag[1] + (int)FailFlag[2])
+					{
+						case 0:
+							LowLevelLO2timer = SimT + NOM_LO2_LOW_LVL_TIME_DELAY_L;
+							break;
+						case 1:
+							LowLevelLO2timer = SimT + TWOENG_LO2_LOW_LVL_TIME_DELAY_L;
+							break;
+						case 2:
+							LowLevelLO2timer = SimT + ONEENG_LO2_LOW_LVL_TIME_DELAY_L;
+							break;
+					}
+				}
+				if ((LowLevelLO2timer <= SimT) && (LowLevelLO2timer != -1))
+				{
+					MECOCommand = true;
+
+					char buffer[64];
+					sprintf_s( buffer, 64, "MECO LOX Low Level Cutoff @ MET %.2f", STS()->GetMET() );
+					oapiWriteLog( buffer );
+				}
+
+				if ((LH2count >= 2) && (LowLevelLH2timer == -1))
+				{
+					switch ((int)FailFlag[0] + (int)FailFlag[1] + (int)FailFlag[2])
+					{
+						case 0:
+							LowLevelLH2timer = SimT + NOM_LH2_LOW_LVL_TIME_DELAY_L;
+							break;
+						case 1:
+							LowLevelLH2timer = SimT + TWOENG_LH2_LOW_LVL_TIME_DELAY_L;
+							break;
+						case 2:
+							LowLevelLH2timer = SimT + ONEENG_LH2_LOW_LVL_TIME_DELAY_L;
+							break;
+					}
+				}
+				if ((LowLevelLH2timer <= SimT) && (LowLevelLH2timer != -1))
+				{
+					MECOCommand = true;
+
+					char buffer[64];
+					sprintf_s( buffer, 64, "MECO LH2 Low Level Cutoff @ MET %.2f", STS()->GetMET() );
+					oapiWriteLog( buffer );
+				}
+			}
+			else
+			{
+				// 1st run, disable 1 dry (failed) sensor (if any)
+				char buffer[64];
+				sprintf_s( buffer, 64, "Low Level Sensors Arm @ MET %.2f", STS()->GetMET() );
+				oapiWriteLog( buffer );
+
+				// LOX
+				for (int i = 0; i < 4; i++)
+				{
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					{
+						LO2LowLevelSensorDsblFlag[i] = true;
+						
+						sprintf_s( buffer, 64, "LOX Low Level Sensor %d disabled", i + 1 );
+						oapiWriteLog( buffer );
+						break;
+					}
+				}
+
+				// LH2
+				for (int i = 0; i < 4; i++)
+				{
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					{
+						LH2LowLevelSensorDsblFlag[i] = true;
+
+						sprintf_s( buffer, 64, "LH2 Low Level Sensor %d disabled", i + 1 );
+						oapiWriteLog( buffer );
+						break;
+					}
+				}
+
+				LowLevel1stRun = false;
+			}
+		}
 
 		// H
 		for (int i = 0; i < 3; i++)
@@ -261,7 +386,8 @@ namespace dps
 			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
 			((pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
 			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == true) && (pSSME_SOP->GetPercentChamberPressVal( 3 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == false)) ||
-			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == true) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false))))
+			((pSSME_SOP->GetPercentChamberPressVal( 1 ) < 30) && (pSSME_SOP->GetPercentChamberPressVal( 2 ) < 30) && (pSSME_SOP->GetFlightDataPathFailureFlag( 3 ) == true) && (pSSME_SOP->GetFlightDataPathFailureFlag( 1 ) == false) && (pSSME_SOP->GetFlightDataPathFailureFlag( 2 ) == false)) ||
+			(GetMajorMode() == 104)))
 		{
 			MECOCommand = true;
 			MECOConfirmed = true;
@@ -283,27 +409,56 @@ namespace dps
 			oapiWriteLog( buffer );
 		}
 
-		// HACK ECO sensors
-		if ((STS()->GetETPropellant_B() <= 0.2) && (MECOCommand == false))// 0.2% is enough to shutdown the engines
-		{
-			MECOCommand = true;
+		// HACK makeshift DSC for FCV operation (no capability yet to reasign ullage sensors)
+		if ((dipLO2UllagePressureSensor[0].GetVoltage() * 10) < 34.7) pIO_Control->SetCommand( GOX_FCV_1, true );
+		else if ((dipLO2UllagePressureSensor[0].GetVoltage() * 10) > 39.7) pIO_Control->SetCommand( GOX_FCV_1, false );
 
-			char buffer[64];
-			sprintf_s( buffer, 64, "MECO Low Level Cutoff @ MET %.2f @ %.2f%% Prop", STS()->GetMET(), STS()->GetETPropellant_B() );
-			oapiWriteLog( buffer );
-		}
+		if ((dipLO2UllagePressureSensor[1].GetVoltage() * 10) < 34.7) pIO_Control->SetCommand( GOX_FCV_2, true );
+		else if ((dipLO2UllagePressureSensor[1].GetVoltage() * 10) > 39.7) pIO_Control->SetCommand( GOX_FCV_2, false );
+
+		if ((dipLO2UllagePressureSensor[2].GetVoltage() * 10) < 34.7) pIO_Control->SetCommand( GOX_FCV_3, true );
+		else if ((dipLO2UllagePressureSensor[2].GetVoltage() * 10) > 39.7) pIO_Control->SetCommand( GOX_FCV_3, false );
+
+		if ((dipLH2UllagePressureSensor[0].GetVoltage() * 10) < 32.6) pIO_Control->SetCommand( GH2_FCV_1, true );
+		else if ((dipLH2UllagePressureSensor[0].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_1, false );
+
+		if ((dipLH2UllagePressureSensor[1].GetVoltage() * 10) < 32.6) pIO_Control->SetCommand( GH2_FCV_2, true );
+		else if ((dipLH2UllagePressureSensor[1].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_2, false );
+
+		if ((dipLH2UllagePressureSensor[2].GetVoltage() * 10) < 32.6) pIO_Control->SetCommand( GH2_FCV_3, true );
+		else if ((dipLH2UllagePressureSensor[2].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_3, false );
+
 		return;
 	}
 
 	void SSME_Operations::Realize( void )
 	{
 		DiscreteBundle *pBundle = BundleManager()->CreateBundle( "C3_LIMITS_SSMEPB", 5 );
+		dipLimitSwitchInhibit.Connect( pBundle, 0 );
+		dipLimitSwitchEnable.Connect( pBundle, 1 );
+		dipSSMESDPB[1].Connect( pBundle, 2 );// L
+		dipSSMESDPB[0].Connect( pBundle, 3 );// C
+		dipSSMESDPB[2].Connect( pBundle, 4 );// R
 
-		dspLimitSwitchInhibit.Connect( pBundle, 0 );
-		dspLimitSwitchEnable.Connect( pBundle, 1 );
-		dspSSMESDPB[1].Connect( pBundle, 2 );// L
-		dspSSMESDPB[0].Connect( pBundle, 3 );// C
-		dspSSMESDPB[2].Connect( pBundle, 4 );// R
+		pBundle = BundleManager()->CreateBundle( "ET_LOX_SENSORS", 16 );
+		dipLO2LowLevelSensor[0].Connect( pBundle, 0 );
+		dipLO2LowLevelSensor[1].Connect( pBundle, 1 );
+		dipLO2LowLevelSensor[2].Connect( pBundle, 2 );
+		dipLO2LowLevelSensor[3].Connect( pBundle, 3 );
+		dipLO2UllagePressureSensor[0].Connect( pBundle, 12 );
+		dipLO2UllagePressureSensor[1].Connect( pBundle, 13 );
+		dipLO2UllagePressureSensor[2].Connect( pBundle, 14 );
+		dipLO2UllagePressureSensor[3].Connect( pBundle, 15 );
+
+		pBundle = BundleManager()->CreateBundle( "ET_LH2_SENSORS", 16 );
+		dipLH2LowLevelSensor[0].Connect( pBundle, 0 );
+		dipLH2LowLevelSensor[1].Connect( pBundle, 1 );
+		dipLH2LowLevelSensor[2].Connect( pBundle, 2 );
+		dipLH2LowLevelSensor[3].Connect( pBundle, 3 );
+		dipLH2UllagePressureSensor[0].Connect( pBundle, 12 );
+		dipLH2UllagePressureSensor[1].Connect( pBundle, 13 );
+		dipLH2UllagePressureSensor[2].Connect( pBundle, 14 );
+		dipLH2UllagePressureSensor[3].Connect( pBundle, 15 );
 
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 		assert( (pSSME_SOP != NULL) && "SSME_Operations::Realize.pSSME_SOP" );
@@ -316,10 +471,9 @@ namespace dps
 	{
 		switch (newMajorMode)
 		{
-			case 104:
-				MECOConfirmed = true;
 			case 102:
 			case 103:
+			case 104:
 			case 601:
 				return true;
 			default:
@@ -330,6 +484,27 @@ namespace dps
 	void SSME_Operations::SetMECOCommandFlag( void )
 	{
 		MECOCommand = true;
+		return;
+	}
+
+
+	void SSME_Operations::SetLowLevelSensorArmFlag( void )
+	{
+		LowLevelSensorArm = true;
+		return;
+	}
+
+	void SSME_Operations::SetLO2LowLevelSensorDsblFlag( int num )
+	{
+		assert( (num >= 1) && (num <= 4) && "SSME_Operations::SetLO2LowLevelSensorDsblFlag.num" );
+		LO2LowLevelSensorDsblFlag[num - 1] = true;
+		return;
+	}
+
+	void SSME_Operations::SetLH2LowLevelSensorDsblFlag( int num )
+	{
+		assert( (num >= 1) && (num <= 4) && "SSME_Operations::SetLH2LowLevelSensorDsblFlag.num" );
+		LH2LowLevelSensorDsblFlag[num - 1] = true;
 		return;
 	}
 

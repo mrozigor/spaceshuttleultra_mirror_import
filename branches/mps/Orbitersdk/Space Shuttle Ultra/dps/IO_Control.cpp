@@ -59,6 +59,12 @@ namespace dps
 		CMD[LH2_REPRESS_2_OP] = false;
 		CMD[LO2_FEEDLINE_RLF_ISOL_CL] = true;
 		CMD[LH2_FEEDLINE_RLF_ISOL_CL] = true;
+		CMD[GOX_FCV_1] = false;
+		CMD[GOX_FCV_2] = false;
+		CMD[GOX_FCV_3] = false;
+		CMD[GH2_FCV_1] = false;
+		CMD[GH2_FCV_2] = false;
+		CMD[GH2_FCV_3] = false;
 		return;
 	}
 
@@ -283,6 +289,39 @@ namespace dps
 		// LH2_FEEDLINE_RLF_ISOL_CL
 		if (CMD[LH2_FEEDLINE_RLF_ISOL_CL] == true) dspOUTPUT[LH2_FEEDLINE_RLF_ISOL_CL].SetLine();
 		else dspOUTPUT[LH2_FEEDLINE_RLF_ISOL_CL].ResetLine();
+
+		// GOX_FCV_1
+		if (CMD[GOX_FCV_1] == true) dspOUTPUT[GOX_FCV_1].ResetLine();
+		else dspOUTPUT[GOX_FCV_1].SetLine();
+
+		// GOX_FCV_2
+		if (CMD[GOX_FCV_2] == true) dspOUTPUT[GOX_FCV_2].ResetLine();
+		else dspOUTPUT[GOX_FCV_2].SetLine();
+
+		// GOX_FCV_3
+		if (CMD[GOX_FCV_3] == true) dspOUTPUT[GOX_FCV_3].ResetLine();
+		else dspOUTPUT[GOX_FCV_3].SetLine();
+
+		// GH2 FCVs
+		if (dspINPUT_1[SW_LH2ULLAGEPRESS].IsSet() == false)
+		{
+			// MAN (open)
+			dspOUTPUT[GH2_FCV_1].ResetLine();
+			dspOUTPUT[GH2_FCV_2].ResetLine();
+			dspOUTPUT[GH2_FCV_3].ResetLine();
+		}
+		else
+		{
+			// AUTO
+			if (CMD[GH2_FCV_1] == true) dspOUTPUT[GH2_FCV_1].ResetLine();
+			else dspOUTPUT[GH2_FCV_1].SetLine();
+
+			if (CMD[GH2_FCV_2] == true) dspOUTPUT[GH2_FCV_2].ResetLine();
+			else dspOUTPUT[GH2_FCV_2].SetLine();
+
+			if (CMD[GH2_FCV_3] == true) dspOUTPUT[GH2_FCV_3].ResetLine();
+			else dspOUTPUT[GH2_FCV_3].SetLine();
+		}
 		return;
 	}
 
@@ -300,12 +339,14 @@ namespace dps
 		*/
 
 		// INPUT
-		DiscreteBundle *bundle = BundleManager()->CreateBundle( "MPSDUMP_R2_SWITCHES", 4 );
+		DiscreteBundle *bundle = BundleManager()->CreateBundle( "MPSDUMP_LH2UP_R2_SWITCHES", 5 );
 		dspINPUT_1[SW_DUMPSEQUENCE].Connect( bundle, 1 );// DumpSequence Start
 		dspINPUT_2[SW_DUMPSEQUENCE].Connect( bundle, 0 );// DumpSequence Stop
 
 		dspINPUT_1[SW_BACKUPLH2VLV].Connect( bundle, 3 );// BackupLH2vlv Open
 		dspINPUT_2[SW_BACKUPLH2VLV].Connect( bundle, 2 );// BackupLH2vlv Close
+
+		dspINPUT_1[SW_LH2ULLAGEPRESS].Connect( bundle, 4 );// LH2UllagePress Auto
 
 
 		bundle = BundleManager()->CreateBundle( "PNEU_R2_SWITCHES", 4 );
@@ -387,6 +428,12 @@ namespace dps
 		dspOUTPUT[LH2_REPRESS_2_OP].Connect( bundle, 10 );
 
 		bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
+		dspOUTPUT[GOX_FCV_1].Connect( bundle, 4 );
+		dspOUTPUT[GOX_FCV_2].Connect( bundle, 5 );
+		dspOUTPUT[GOX_FCV_3].Connect( bundle, 6 );
+		dspOUTPUT[GH2_FCV_1].Connect( bundle, 7 );
+		dspOUTPUT[GH2_FCV_2].Connect( bundle, 8 );
+		dspOUTPUT[GH2_FCV_3].Connect( bundle, 9 );
 		dspOUTPUT[HE_IC_CTR_IN_OP].Connect( bundle, 10 );
 		dspOUTPUT[HE_IC_CTR_OUT_OP].Connect( bundle, 11 );
 		dspOUTPUT[HE_IC_LEFT_IN_OP].Connect( bundle, 12 );

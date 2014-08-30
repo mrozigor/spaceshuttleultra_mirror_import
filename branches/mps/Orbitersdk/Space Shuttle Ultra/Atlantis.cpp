@@ -52,7 +52,7 @@
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
 #include "MechActuator.h"
-#include "mps/BLOCK_II.h"
+#include "mps/SSME_BLOCK_II.h"
 #include "PanelA4.h"
 #include "PanelC2.h"
 #include "PanelO3.h"
@@ -800,12 +800,14 @@ pActiveLatches(3, NULL)
   ph_lrcs		  = NULL;
   ph_rrcs		  = NULL;
   ph_controller	  = NULL;
-  ph_tank         = NULL;
+  ph_mps         = NULL;
   ph_srb          = NULL;
   thg_main        = NULL;
   thg_retro		  = NULL;
   thg_srb         = NULL;
 
+	LOXmass = 0;
+	LH2mass = 0;
 
   for(i=0;i<4;i++)
   {
@@ -1036,6 +1038,11 @@ pActiveLatches(3, NULL)
 
   SERCstop = true;
 
+  LO2LowLevelSensor[0] = Sensor( 65, 80 );
+  LO2LowLevelSensor[1] = Sensor( 65, 80 );
+  LO2LowLevelSensor[2] = Sensor( 65, 80 );
+  LO2LowLevelSensor[3] = Sensor( 65, 80 );
+
   //I-loads
   //stage1guidance_size=0;
 
@@ -1219,12 +1226,14 @@ void Atlantis::SetLaunchConfiguration (void)
   // ************************* propellant specs **********************************
 
   
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+  if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
+  LOXmass = MPS_MANIFOLD_MASS_LOX;
+  LH2mass = MPS_MANIFOLD_MASS_LH2;
   if (!ph_srb)  ph_srb  = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
   
   CreateOrbiterTanks();
   
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+  //SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
 
@@ -1319,8 +1328,8 @@ void Atlantis::SetLaunchConfiguration (void)
   //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
-  phLOXdump = ph_tank;
-  phLH2dump = ph_tank;
+  phLOXdump = ph_mps;
+  phLH2dump = ph_mps;
   CreateMPSDumpVents();// must be after the AddOrbiterVisual call as it uses orbiter_ofs and it not initialized before the 1º run, feel free to "fix" if needed
 
   status = STATE_PRELAUNCH;
@@ -1357,11 +1366,11 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // ************************* propellant specs **********************************
 
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+  if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
 
   CreateOrbiterTanks();
 
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+  //SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
 
@@ -1373,8 +1382,8 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   CreateSSMEs(OFS_ZERO);
 
-  phLOXdump = ph_tank;
-  phLH2dump = ph_tank;
+  phLOXdump = ph_mps;
+  phLH2dump = ph_mps;
   CreateMPSDumpVents();
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
@@ -2867,14 +2876,14 @@ void Atlantis::SeparateTank (void)
 {
 	DetachChildAndUpdateMass(ahET, 0.0);
 
-	// Remove Tank from shuttle instance
-	DelPropellantResource (ph_tank);
-
 	// create separate tanks for MPS dumps
-	// 5400 lbs total prop -> estimates below for LO2 & LH2
-	phLOXdump = CreatePropellantResource( 2306 );
-	phLH2dump = CreatePropellantResource( /*144*/142 );// take out a little LH2 as some has been vented before ET sep
+	// using remaining mass in manifold to estimate LO2 & LH2 masses
+	phLOXdump = CreatePropellantResource( LOXmass );
+	phLH2dump = CreatePropellantResource( LH2mass );
 	CreateMPSDumpVents();
+
+	// delete joint mps manifold
+	DelPropellantResource( ph_mps );
 
 	// main engines are done
 	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
@@ -4245,6 +4254,12 @@ void Atlantis::clbkPostCreation ()
 	pBundle = bundleManager->CreateBundle( "C3_LIMITS_SSMEPB", 5 );
 	for(int i=0;i<3;i++) SSMEPBAnalog[i].Connect( pBundle, i + 2 );
 
+	pBundle = bundleManager->CreateBundle( "ET_LOX_SENSORS", 16 );
+	LO2LowLevelSensor[0].Connect( pBundle, 0 );
+	LO2LowLevelSensor[1].Connect( pBundle, 1 );
+	LO2LowLevelSensor[2].Connect( pBundle, 2 );
+	LO2LowLevelSensor[3].Connect( pBundle, 3 );
+
 	// ports for pan/tilt and cam settings
 	DiscreteBundle* pCamBundles[5];
 	pCamBundles[0] = bundleManager->CreateBundle("PLBD_CAM_A", 16);
@@ -4285,11 +4300,12 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 //	double dThrust;
 	//double steerforce, airspeed;
 
-	if(firstStep || status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
+	if(status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
 
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
+		UpdateCoG();// in the first time step UpdateCoG() must be called after UpdateMass() otherwise the first c.g. calc isn't good
 		if(status <= STATE_STAGE1) {
 			// update SRB thrusters to match values from SRB vessel
 			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
@@ -4365,7 +4381,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		case STATE_PRELAUNCH:
 		case STATE_STAGE1:
 		case STATE_STAGE2:
-			//for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
 			break;
 		case STATE_ORBITER:
 			break;
@@ -4730,7 +4745,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
 		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 		{
-			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
+			if(GetPropellantLevel(ph_mps) > 0.5) // TODO improve this venting with engine status
 			{
 				for(unsigned short i = 0; i<3; i++)
 				{
@@ -7100,17 +7115,34 @@ unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay
 
 short Atlantis::GetETPropellant() const
 {
-	if(status < 3)
-	{
-		return min((short)(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS), 99);
-	} else
-	 return -1;
+	Atlantis_Tank* et = GetTankInterface();
+	
+	if (et != NULL) return min((short)et->GetPropellantLevel(), 99);
+	else return -1;
 }
 
 double Atlantis::GetETPropellant_B( void ) const
 {
-	if (status < 3) return 100.0 * GetPropellantMass( ph_tank ) / TANK_MAX_PROPELLANT_MASS;
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetPropellantLevel();
 	else return -1;
+}
+
+double Atlantis::GetETLOXUllagePressure( void ) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLOXUllagePressure();
+	else return 0;
+}
+
+double Atlantis::GetETLH2UllagePressure( void ) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLH2UllagePressure();
+	else return 0;
 }
 
 dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
@@ -7324,9 +7356,9 @@ void Atlantis::StartROFIs()
 void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 {
 	if(!bSSMEsDefined) {
-		th_main[0] = CreateThruster (ofs + SSMET_REF, SSMECurrentPos[0]/*_V(0.0, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[1] = CreateThruster (ofs + SSMEL_REF, SSMECurrentPos[1]/*_V(0.065, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[2] = CreateThruster (ofs + SSMER_REF, SSMECurrentPos[2]/*_V(-0.065, -0.2447, 0.9674)*/, ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
+		th_main[0] = CreateThruster (ofs + SSMET_REF, SSMECurrentPos[0], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[1] = CreateThruster (ofs + SSMEL_REF, SSMECurrentPos[1], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[2] = CreateThruster (ofs + SSMER_REF, SSMECurrentPos[2], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
 		bSSMEsDefined = true;
 		//thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
 	}
@@ -7850,9 +7882,9 @@ TEX=Contrail1*/
 	gox_stream.tex = oapiRegisterParticleTexture ("contrail1");
 
 
-	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
 	
 	for(i = 0; i<3; i++)
 	{
@@ -8375,18 +8407,6 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 	}
 }
 
-//void Atlantis::SSMEEngControl(unsigned short usEng) const
-//{
-//	if(status>=STATE_ORBITER) return; //th_main not defined
-//
-//	if((MPSPwr[0][usEng] || MPSPwr[1][usEng]) && (MPSHeIsolA[usEng] || MPSHeIsolB[usEng])) {
-//		SetThrusterResource(th_main[usEng], ph_tank);
-//	}
-//	else {
-//		SetThrusterResource(th_main[usEng], NULL);
-//	}
-//}
-
 bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
 {
 	bool result = AttachChild(child, attachment, child_attachment);
@@ -8436,6 +8456,46 @@ void Atlantis::UpdateMass() const
 	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
+void Atlantis::ETPressurization( double GOXmass, double GH2mass )
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) et->PressurantFlow( GOXmass, GH2mass );
+	return;
+}
+
+void Atlantis::UpdateMPSManifold( void )
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et == NULL) return;
+	
+	double LH2deltamass = (LOXmass + LH2mass - GetPropellantMass( ph_mps )) / 7.032;
+	double LOXdeltamass = LH2deltamass * 6.032;
+
+	LOXmass -= LOXdeltamass;
+	LH2mass -= LH2deltamass;
+
+	et->PropellantFlow( LOXdeltamass, LH2deltamass );
+
+	LOXmass += LOXdeltamass;
+	if (LOXmass < 1) LOXmass = 0;// so it doesn't last forever
+	LH2mass += LH2deltamass;
+	if (LH2mass < 1) LH2mass = 0;// so it doesn't last forever
+
+	SetPropellantMass( ph_mps, LOXmass + LH2mass );
+
+	// HACK no clue... using 65-80% LOX mass
+	double lvl = 100 * LOXmass / MPS_MANIFOLD_MASS_LOX;
+	LO2LowLevelSensor[0].SetValue( lvl );
+	LO2LowLevelSensor[1].SetValue( lvl );
+	LO2LowLevelSensor[2].SetValue( lvl );
+	LO2LowLevelSensor[3].SetValue( lvl );
+	
+	UpdateMass();
+	return;
+}
+
 void Atlantis::UpdateCoG()
 {
 	// for the moment, only look at shuttle, ET and SRBs
@@ -8457,7 +8517,7 @@ void Atlantis::UpdateCoG()
 		positions.push_back(ET_EMPTY_CG);
 
 		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
-		double prop = GetPropellantLevel(ph_tank);
+		double prop = GetETPropellant_B();
 		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
 		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
 		double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank

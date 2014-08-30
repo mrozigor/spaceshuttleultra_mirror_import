@@ -43,6 +43,9 @@ const double FINECOUNT_THROTTLE = 67;
 const double FINECOUNT_THROTTLE_1EO = 91;
 const double FINECOUNT_THROTTLE_2EO = 91;
 
+// HACK the mass is just a guess, it's probably a little lower
+const double LOWLEVEL_ARM_MASS = 370000;// lbs
+
 
 class SSME_SOP;
 class SSME_Operations;
