@@ -1,13 +1,18 @@
 #include "Sensor.h"
+#include <stdlib.h>
 #include "assert.h"
 
 
-Sensor::Sensor( double MaxValue, double MinValue )
+Sensor::Sensor( double MinValue, double MaxValue, double FSerror )
 {
 	assert( (MinValue < MaxValue) && "Sensor::Sensor.(MinValue < MaxValue)" );
+	
 	this->MaxValue = MaxValue;
 	this->MinValue = MinValue;
+
 	conversor = 5 / (MaxValue - MinValue);
+
+	error = (MaxValue - MinValue) * FSerror * (((double)rand() / (RAND_MAX + 1)) - 0.5);
 	return;
 }
 
@@ -22,11 +27,20 @@ void Sensor::Connect( DiscreteBundle* pBundle, int iLine )
 	return;
 }
 
+void Sensor::Disconnect( void )
+{
+	dipOutput.ResetLine();// set to 0 before disconnecting
+	dipOutput.Disconnect();
+	return;
+}
+
 void Sensor::SetValue( double value )
 {
+	value += error;
+
 	if (value > MaxValue) value = MaxValue;
 	else if (value < MinValue) value = MinValue;
 
-	dipOutput.SetLine( value * conversor );
+	dipOutput.SetLine( (value - MinValue) * conversor );
 	return;
 }

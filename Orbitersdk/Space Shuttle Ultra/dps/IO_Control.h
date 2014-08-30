@@ -48,7 +48,8 @@ namespace dps
 	const int SW_HE_IC_CTR = 10;
 	const int SW_HE_IC_LEFT = 11;
 	const int SW_HE_IC_RIGHT = 12;
-	const int COUNT_INPUT = 13;
+	const int SW_LH2ULLAGEPRESS = 13;
+	const int COUNT_INPUT = 14;
 
 	const int LH2_INBD_BU_DV_OP = 0;
 	const int LH2_OTBD_BU_DV_OP = 1;
@@ -103,7 +104,13 @@ namespace dps
 	const int LH2_REPRESS_2_OP = 50;
 	const int LO2_FEEDLINE_RLF_ISOL_CL = 51;
 	const int LH2_FEEDLINE_RLF_ISOL_CL = 52;
-	const int COUNT_OUTPUT = 53;
+	const int GOX_FCV_1 = 53;
+	const int GOX_FCV_2 = 54;
+	const int GOX_FCV_3 = 55;
+	const int GH2_FCV_1 = 56;
+	const int GH2_FCV_2 = 57;
+	const int GH2_FCV_3 = 58;
+	const int COUNT_OUTPUT = 59;
 
 	class IO_Control:public SimpleGPCSoftware
 	{

@@ -49,6 +49,9 @@ namespace mps
 
 			double LOXrepress;
 
+			double GOXmass;// g
+			double GH2mass;// g
+
 			// PV
 			PressureActuatedValve* ptrPV1;// ME-1 LOX prevalve
 			PressureActuatedValve* ptrPV2;// ME-2 LOX prevalve
@@ -115,10 +118,14 @@ namespace mps
 			SolenoidValve* ptrLV49;// LH2 17in Disc Vlv CL Pwr
 			SolenoidValve* ptrLV50;// LH2 4in Disc Vlv Op Pwr
 			SolenoidValve* ptrLV51;// LH2 4in Disc Vlv Cl Pwr
-			//LV56;// GH2 Press FCV 1 CL Pwr (FCV are NO)
-			/*LV57;// GH2 Press FCV 2 CL Pwr
-			LV58;// GH2 Press FCV 3 CL Pwr
-			LV59;// E1 He Intcn In OP Pwr
+			// LV52;// GH2 Pressurization Line Vent Valve
+			SolenoidValve* ptrLV53;// GO2 Flow Control Valve 1
+			SolenoidValve* ptrLV54;// GO2 Flow Control Valve 2
+			SolenoidValve* ptrLV55;// GO2 Flow Control Valve 3
+			SolenoidValve* ptrLV56;// GH2 Press FCV 1 CL Pwr
+			SolenoidValve* ptrLV57;// GH2 Press FCV 2 CL Pwr
+			SolenoidValve* ptrLV58;// GH2 Press FCV 3 CL Pwr
+			/*LV59;// E1 He Intcn In OP Pwr
 			LV60;// E1 He Intcn Out OP Pwr
 			LV61;// E2 He Intcn In OP Pwr
 			LV62;// E2 He Intcn Out OP Pwr
@@ -183,8 +190,31 @@ namespace mps
 
 			double GetLOXManifPress( void ) const;
 			double GetLH2ManifPress( void ) const;
+
+			/**
+			 * This function is called by the SSMEs to get the position of its LOX prevalve.
+			 * This function should only be used for physics purposes.
+			 * @param[in]	eng	number of the calling SSME
+			 * @return		position of valve (between 0 and 1)
+			 */
 			double GetLOXPVPos( int eng ) const;
+
+			/**
+			 * This function is called by the SSMEs to get the position of its LH2 prevalve.
+			 * This function should only be used for physics purposes.
+			 * @param[in]	eng	number of the calling SSME
+			 * @return		position of valve (between 0 and 1)
+			 */
 			double GetLH2PVPos( int eng ) const;
+
+			/**
+			 * This function is called by the SSMEs to simulate pressurant flow.
+			 * It uses the positions of the flow control valves to control the flow.
+			 * @param[in]	eng	number of the calling SSME
+			 * @param[in]	GOXmass	mass of gaseous oxygen (in kg)
+			 * @param[in]	GH2mass	mass of gaseous hydrogen (in kg)
+			 */
+			void PressurantFlow( int eng, double GOXmass, double GH2mass );
 	};
 }
 

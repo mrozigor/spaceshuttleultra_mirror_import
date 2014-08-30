@@ -43,6 +43,10 @@ const VECTOR3 RSRB_OFFSET = _V(6.27, -9.75, 0.73); // offset between SRB and shu
 const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
 const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
 
+const double MPS_MANIFOLD_MASS_LOX = 2306;// kg
+const double MPS_MANIFOLD_MASS_LH2 = 144;// kg
+const double MPS_MANIFOLD_MASS_TOTAL = MPS_MANIFOLD_MASS_LOX + MPS_MANIFOLD_MASS_LH2;// estimated 5400 lbs LOX/LH2 in mps manifold
+
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
 const unsigned short MPS_SSME_LEFT = 2;

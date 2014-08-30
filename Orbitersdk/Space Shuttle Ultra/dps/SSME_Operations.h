@@ -35,6 +35,15 @@ using namespace discsignals;
 
 namespace dps
 {
+	// HACK only know the first 2 for sure, the rest is guess
+	const double NOM_LO2_LOW_LVL_TIME_DELAY_L = 0.358;// sec
+	const double TWOENG_LO2_LOW_LVL_TIME_DELAY_L = 0;// sec
+	const double ONEENG_LO2_LOW_LVL_TIME_DELAY_L = 0;// sec
+
+	const double NOM_LH2_LOW_LVL_TIME_DELAY_L = 0;// sec
+	const double TWOENG_LH2_LOW_LVL_TIME_DELAY_L = 0;// sec
+	const double ONEENG_LH2_LOW_LVL_TIME_DELAY_L = 0;// sec
+
 	const double TIME_DELAY_ADG = 4.5;// sec
 	const double TIME_DELAY_CFI = 2;// sec
 	const double TIME_DELAY_LH2_PVLV_CL = 4.9;// sec
@@ -44,16 +53,25 @@ namespace dps
 	class SSME_SOP;
 	class IO_Control;
 
-
+	/**
+	 * @brief	Implementation of the SSME Operations software running in the GPCs.
+	 * 
+	 * Controls the sequence of operations related to the SSMEs, also containing low-level engine cutoff
+	 * logic and also engine shutdown limits logic.
+	 */
 	class SSME_Operations:public SimpleGPCSoftware
 	{
 		private:
 			SSME_SOP* pSSME_SOP;
 			IO_Control* pIO_Control;
 
-			DiscInPort dspLimitSwitchInhibit;
-			DiscInPort dspLimitSwitchEnable;
-			DiscInPort dspSSMESDPB[3];
+			DiscInPort dipLimitSwitchInhibit;
+			DiscInPort dipLimitSwitchEnable;
+			DiscInPort dipSSMESDPB[3];
+			DiscInPort dipLO2LowLevelSensor[4];
+			DiscInPort dipLO2UllagePressureSensor[4];
+			DiscInPort dipLH2LowLevelSensor[4];
+			DiscInPort dipLH2UllagePressureSensor[4];
 
 			bool FailFlag[3];
 			bool ManualShutdownFlag[3];
@@ -61,6 +79,15 @@ namespace dps
 			bool ShutdownFlag_A[3];
 			bool PVLV_CL_CMD[3];
 			bool PVLV_CL_CMD_removed[3];
+
+			bool LowLevelSensorArm;
+			bool LO2LowLevelSensorDryFlag[4];
+			bool LH2LowLevelSensorDryFlag[4];
+			bool LO2LowLevelSensorDsblFlag[4];
+			bool LH2LowLevelSensorDsblFlag[4];
+			bool LowLevel1stRun;
+			double LowLevelLO2timer;
+			double LowLevelLH2timer;
 
 			bool MECOCommand;
 			bool MECOConfirmed;
@@ -94,6 +121,23 @@ namespace dps
 			 * Causes MECO to be issued.
 			 */
 			void SetMECOCommandFlag( void );
+
+			/**
+			 * Activates low-level sensor logic.
+			 */
+			void SetLowLevelSensorArmFlag( void );
+
+			/**
+			 * Sets the LO2 Low Level Sensor Disabled Flag for the specified sensor. For exclusive use by LPS.
+			 * @param[in]	num	sensor number
+			 */
+			void SetLO2LowLevelSensorDsblFlag( int num );
+
+			/**
+			 * Sets the LH2 Low Level Sensor Disabled Flag for the specified sensor. For exclusive use by LPS.
+			 * @param[in]	num	sensor number
+			 */
+			void SetLH2LowLevelSensorDsblFlag( int num );
 
 			/**
 			 * Returns an indication of whether the MECO Command has been issued.

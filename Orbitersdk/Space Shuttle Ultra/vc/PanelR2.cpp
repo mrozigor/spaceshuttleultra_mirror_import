@@ -551,11 +551,12 @@ namespace vc
 		pPneuHeIsol->outputA.Connect( pBundle, 2 );// CLOSE
 		pPneuHeIsol->outputB.Connect( pBundle, 3 );// OPEN
 
-		pBundle=STS()->BundleManager()->CreateBundle( "MPSDUMP_R2_SWITCHES", 4 );
+		pBundle=STS()->BundleManager()->CreateBundle( "MPSDUMP_LH2UP_R2_SWITCHES", 5 );
 		pMPSPRPLTDumpSequence->outputA.Connect( pBundle, 0 );// STOP
 		pMPSPRPLTDumpSequence->outputB.Connect( pBundle, 1 );// START
 		pMPSPRPLTBackupLH2vlv->outputA.Connect( pBundle, 2 );// CLOSE
 		pMPSPRPLTBackupLH2vlv->outputB.Connect( pBundle, 3 );// OPEN
+		pLH2UllagePress->ConnectPort( 1, pBundle, 4 );// AUTO
 
 		AtlantisPanel::Realize();
 	}

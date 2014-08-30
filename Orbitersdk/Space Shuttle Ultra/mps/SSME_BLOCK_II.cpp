@@ -1,4 +1,4 @@
-#include "BLOCK_II.h"
+#include "SSME_BLOCK_II.h"
 #include "PneumaticControlAssembly.h"
 #include "MPS.h"
 #include "MPSdefs.h"
@@ -27,52 +27,52 @@ namespace mps
 
 		IMSLHeUsage = 20.8 + (0.5 * oapiRand());// IMSL max 21.31884
 
-		Sensor_Press[SSME_BLOCK_II_FPB_PP] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_OPB_PP] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_LPOT_DP_A] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_LPOT_DP_B] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_LPFT_DP_A] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_LPFT_DP_B] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTP_DP_A] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTP_DP_B] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPFTP_DP_A] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPFTP_DP_B] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTPBP_DP_A] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTPBP_DP_B] = Sensor( 8000, 0 );
-		Sensor_Press[SSME_BLOCK_II_FS_PP_A] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_FS_PP_B] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_MCC_P_A1] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_MCC_P_B1] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_MCC_P_A2] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_MCC_P_B2] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B] = Sensor( 5000, 0 );
-		Sensor_Press[SSME_BLOCK_II_PNEU_SD_P_A] = Sensor( 1500, 0 );
-		Sensor_Press[SSME_BLOCK_II_PNEU_SD_P_B] = Sensor( 1500, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_A2] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_B2] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_A3] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_B3] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_A2] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_B2] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_A3] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_B3] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_PBP_DT_A] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_PBP_DT_B] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_LPFP_DT_A] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_LPFP_DT_B] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_MOV_HT_A] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_MOV_HT_B] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_MFV_HT_A] = Sensor( 2450, 0 );
-		Sensor_Temp[SSME_BLOCK_II_MFV_HT_B] = Sensor( 2450, 0 );
-		Sensor_Flow[SSME_BLOCK_II_FF_A1] = Sensor( 5000, 0 );
-		Sensor_Flow[SSME_BLOCK_II_FF_B1] = Sensor( 5000, 0 );
-		Sensor_Flow[SSME_BLOCK_II_FF_A2] = Sensor( 5000, 0 );
-		Sensor_Flow[SSME_BLOCK_II_FF_B2] = Sensor( 5000, 0 );
-		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_A] = Sensor( 40000, 0 );
-		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B] = Sensor( 40000, 0 );
-		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A] = Sensor( 40000, 0 );
-		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B] = Sensor( 40000, 0 );
+		Sensor_Press[SSME_BLOCK_II_FPB_PP] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_OPB_PP] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_LPOT_DP_A] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_LPOT_DP_B] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_LPFT_DP_A] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_LPFT_DP_B] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTP_DP_A] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTP_DP_B] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_HPFTP_DP_A] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_HPFTP_DP_B] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTPBP_DP_A] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTPBP_DP_B] = Sensor( 0, 8000 );
+		Sensor_Press[SSME_BLOCK_II_FS_PP_A] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_FS_PP_B] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_MCC_P_A1] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_MCC_P_B1] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_MCC_P_A2] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_MCC_P_B2] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_A] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_HPOTP_IS_B] = Sensor( 0, 5000 );
+		Sensor_Press[SSME_BLOCK_II_PNEU_SD_P_A] = Sensor( 0, 1500 );
+		Sensor_Press[SSME_BLOCK_II_PNEU_SD_P_B] = Sensor( 0, 1500 );
+		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_A2] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_B2] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_A3] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPFT_DT_B3] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_A2] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_B2] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_A3] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_HPOT_DT_B3] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_PBP_DT_A] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_PBP_DT_B] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_LPFP_DT_A] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_LPFP_DT_B] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_MOV_HT_A] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_MOV_HT_B] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_MFV_HT_A] = Sensor( 0, 2450 );
+		Sensor_Temp[SSME_BLOCK_II_MFV_HT_B] = Sensor( 0, 2450 );
+		Sensor_Flow[SSME_BLOCK_II_FF_A1] = Sensor( 0, 5000 );
+		Sensor_Flow[SSME_BLOCK_II_FF_B1] = Sensor( 0, 5000 );
+		Sensor_Flow[SSME_BLOCK_II_FF_A2] = Sensor( 0, 5000 );
+		Sensor_Flow[SSME_BLOCK_II_FF_B2] = Sensor( 0, 5000 );
+		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_A] = Sensor( 0, 40000 );
+		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B] = Sensor( 0, 40000 );
+		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A] = Sensor( 0, 40000 );
+		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B] = Sensor( 0, 40000 );
 
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " SSME_BLOCK_II::SSME_BLOCK_II out" );
@@ -298,6 +298,9 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 7 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 8 );
 
+		// HACK pressurant flow (GOX: 0.8618255kg/s GH2: 0.3311224kg/s @ 104.5%) using VERY simple power level correction
+		pMPS->PressurantFlow( ID, 0.8247134 * dt * (pc / 100) * ptrAFV->GetPos(), 0.3168635 * dt * (pc / 100) );
+
 		if (pc > 5) STS()->SetSSMEGH2burn( ID, false );
 
 		// is the controller commanding shutdown?
@@ -402,6 +405,9 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B].SetValue( 15680 );// Block IIA
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 34293 );// Block IIA
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 34293 );// Block IIA
+
+		// HACK pressurant flow (GOX: 0.8618255kg/s GH2: 0.3311224kg/s @ 104.5%) using VERY simple power level correction
+		pMPS->PressurantFlow( ID, 0.8247134 * dt * (pc / 100) * ptrAFV->GetPos(), 0.3168635 * dt * (pc / 100) );
 		return;
 	}
 
@@ -471,6 +477,9 @@ namespace mps
 		Sensor_Speed[SSME_BLOCK_II_LPFTP_SS_B].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_A].SetValue( 0 );
 		Sensor_Speed[SSME_BLOCK_II_HPFTP_SS_B].SetValue( 0 );
+
+		// HACK pressurant flow (GOX: 0.8618255kg/s GH2: 0.3311224kg/s @ 104.5%) using VERY simple power level correction
+		pMPS->PressurantFlow( ID, 0.8247134 * dt * (pc / 100) * ptrAFV->GetPos(), 0.3168635 * dt * (pc / 100) );
 
 		if (pc < 3) STS()->SetSSMEGH2burn( ID, false );
 

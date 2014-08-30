@@ -579,7 +579,11 @@ void AscentGuidance::Throttle(double DeltaT)
 					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
-				//sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
+
+				// low-level sensor arm
+				if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
+
+				sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
 		}
 	}

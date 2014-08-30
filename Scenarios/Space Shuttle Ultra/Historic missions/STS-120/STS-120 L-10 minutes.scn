@@ -351,6 +351,7 @@ Discovery:SpaceShuttleUltra
 END
 ET:SSU_Tank
   STATUS Orbiting Earth
+  PRPLEVEL 0:0.996000
   ATTACHED 0:20,Discovery
 END
 LSRB:SSU_LSRB

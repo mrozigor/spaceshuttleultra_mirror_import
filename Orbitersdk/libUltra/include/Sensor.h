@@ -33,21 +33,46 @@ using class discsignals::DiscOutPort;
 using class discsignals::DiscreteBundle;
 
 
+/**
+ * @brief	Implementation of the Sensor class.
+ * 
+ * This class simulates a sensor, receiving input data and converting it to
+ * a value from 0 to 5, and then sending it thru a discrete line. Minimum and
+ * maximum input values are specified as constructor arguments. The output is
+ * 0 for input values equal or less than MinValue, 5 for input values equal or
+ * greater than MaxValue, and varies linearly between 0 and 5 for input values
+ * between MinValue and MaxValue.
+ */
 class Sensor
 {
 	private:
 		DiscOutPort dipOutput;
 
 		double conversor;
+		double error;
 
 		double MaxValue;
 		double MinValue;
 	public:
-		Sensor( double MaxValue = 5000, double MinValue = 0 );
+		Sensor( double MinValue = 0, double MaxValue = 5000, double FSerror = 0 );
 		~Sensor( void );
 
+		/**
+		 * Connects the sensor to the specified discrete bundle at the specified line.
+		 * @param	pBundle	handle to discrete bundle
+		 * @param	iLine	line number in discrete bundle
+		 */
 		void Connect( DiscreteBundle* pBundle, int iLine );
 
+		/**
+		 * Disconnects sensor from discrete bundle.
+		 */
+		void Disconnect( void );
+
+		/**
+		 * Sets the sensor input.
+		 * @param	value	sensor input
+		 */
 		void SetValue( double value );
 };
 

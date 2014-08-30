@@ -125,9 +125,6 @@
     <ClCompile Include="dps\BIU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="mps\BLOCK_II.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\BusController.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -452,6 +449,9 @@
     <ClCompile Include="dps\ATVC_SOP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="mps\SSME_BLOCK_II.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -497,9 +497,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\BIU.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="mps\BLOCK_II.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="CommonDefs.h">
@@ -842,6 +839,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\ATVC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSME_BLOCK_II.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -318,7 +318,7 @@
     <ClCompile Include="vc\BasicRotarySwitch.cpp" />
     <ClCompile Include="vc\BasicSwitch.cpp" />
     <ClCompile Include="dps\BIU.cpp" />
-    <ClCompile Include="mps\BLOCK_II.cpp" />
+    <ClCompile Include="mps\SSME_BLOCK_II.cpp" />
     <ClCompile Include="dps\BusController.cpp" />
     <ClCompile Include="dps\BusTerminal.cpp" />
     <ClCompile Include="CommModeHandler.cpp" />
@@ -457,7 +457,7 @@
     <ClInclude Include="vc\BasicSwitch.h" />
     <ClInclude Include="vc\AtlantisVCComponent.h" />
     <ClInclude Include="dps\BIU.h" />
-    <ClInclude Include="mps\BLOCK_II.h" />
+    <ClInclude Include="mps\SSME_BLOCK_II.h" />
     <ClInclude Include="CommonDefs.h" />
     <ClInclude Include="dps\dps_defs.h" />
     <ClInclude Include="mps\EIU.h" />

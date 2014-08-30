@@ -2,6 +2,7 @@
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "HeliumSystem.h"
+#include "UltraMath.h"
 #include <assert.h>
 
 
@@ -47,6 +48,13 @@ namespace mps
 		ptrLV49 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV50 = new SolenoidValve( 1, 1000, true, HeSys, nullptr );
 		ptrLV51 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
+
+		ptrLV53 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
+		ptrLV54 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
+		ptrLV55 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
+		ptrLV56 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
+		ptrLV57 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
+		ptrLV58 = new SolenoidValve( 1, 500, false, nullptr, nullptr );
 
 		ptrLV72 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
 		ptrLV73 = new SolenoidValve( 0, 1000, true, HeSys, nullptr );
@@ -95,6 +103,9 @@ namespace mps
 
 		LOXrepress = 0;
 
+		GOXmass = 0;
+		GH2mass = 0;
+
 		RV5 = false;
 		RV6 = false;
 		return;
@@ -138,6 +149,13 @@ namespace mps
 		delete ptrLV49;
 		delete ptrLV50;
 		delete ptrLV51;
+
+		delete ptrLV53;
+		delete ptrLV54;
+		delete ptrLV55;
+		delete ptrLV56;
+		delete ptrLV57;
+		delete ptrLV58;
 
 		delete ptrLV72;
 		delete ptrLV73;
@@ -249,12 +267,12 @@ namespace mps
 		ptrLV50->Connect( 0, bundle, 1 );
 		ptrLV51->Connect( 0, bundle, 2 );
 		//ptrLV52->Connect( 0, bundle, 3 );
-		//ptrLV53->Connect( 0, bundle, 4 );
-		//ptrLV54->Connect( 0, bundle, 5 );
-		//ptrLV55->Connect( 0, bundle, 6 );
-		//ptrLV56->Connect( 0, bundle, 7 );
-		//ptrLV57->Connect( 0, bundle, 8 );
-		//ptrLV58->Connect( 0, bundle, 9 );
+		ptrLV53->Connect( 0, bundle, 4 );
+		ptrLV54->Connect( 0, bundle, 5 );
+		ptrLV55->Connect( 0, bundle, 6 );
+		ptrLV56->Connect( 0, bundle, 7 );
+		ptrLV57->Connect( 0, bundle, 8 );
+		ptrLV58->Connect( 0, bundle, 9 );
 		//ptrLV59->Connect( 0, bundle, 10 );
 		//ptrLV60->Connect( 0, bundle, 11 );
 		//ptrLV61->Connect( 0, bundle, 12 );
@@ -316,6 +334,20 @@ namespace mps
 
 		bundle = BundleManager()->CreateBundle( "MPS_OPInd_B", 16 );
 		ptrPV21->ConnectIndication( true, 0, bundle, 0 );
+
+		if (STS()->status == 3)
+		{
+			ptrPD1->_backdoor( 0 );
+			ptrPD2->_backdoor( 0 );
+			ptrPD3->_backdoor( 0 );
+
+			ptrLV46->_backdoor( 0 );
+			ptrLV47->_backdoor( 0 );
+			ptrLV48->_backdoor( 0 );
+			ptrLV49->_backdoor( 0 );
+			ptrLV50->_backdoor( 0 );
+			ptrLV51->_backdoor( 0 );
+		}
 		return;
 	}
 
@@ -358,6 +390,13 @@ namespace mps
 		ptrLV50->tmestp( fDeltaT );
 		ptrLV51->tmestp( fDeltaT );
 
+		ptrLV53->tmestp( fDeltaT );
+		ptrLV54->tmestp( fDeltaT );
+		ptrLV55->tmestp( fDeltaT );
+		ptrLV56->tmestp( fDeltaT );
+		ptrLV57->tmestp( fDeltaT );
+		ptrLV58->tmestp( fDeltaT );
+
 		ptrLV72->tmestp( fDeltaT );
 		ptrLV73->tmestp( fDeltaT );
 
@@ -396,26 +435,26 @@ namespace mps
 		ptrPD2->tmestp( fDeltaT );
 		ptrPD3->tmestp( fDeltaT );
 
+		STS()->ETPressurization( GOXmass, GH2mass );
+		// reset masses
+		GOXmass = 0;
+		GH2mass = 0;
 
-		PROPELLANT_HANDLE LOXTank = STS()->GetLOXTank();
 		double LOXTankLevel = 0;
 		double LH2TankLevel = 0;
-		double LOXTankMass = 0;
 
-		if (LOXTank != NULL)
+		if (ptrPD1->GetPos() > 0)// HACK should be one for each LOX and LH2
 		{
-			// all below refer to ET until ET SEP
-			LOXTankLevel = STS()->GetPropellantLevel( LOXTank ) / 100;
-			LH2TankLevel = STS()->GetPropellantLevel( STS()->GetLH2Tank() ) / 100;
-			LOXTankMass = STS()->GetPropellantMaxMass( LOXTank );
-		}
+			STS()->UpdateMPSManifold();
 
-		if (LOXTankMass > 5000)// simple ET vs manifold check
-		{
+			// ET
+			LOXTankLevel = STS()->GetETPropellant_B() / 100;
+			LH2TankLevel = LOXTankLevel;
+
 			double LH2Density = 70.85;// Kg/m^3
 			double LOXDensity = 1141;// Kg/m^3
-			double LH2UllagePress = 289579.8;// Pa (42 psia), in flight [this has to be psia->] 32-34psig (46.7-48.7psia)
-			double LOXUllagePress = 246142.8;// Pa (21+14.7=35.7 psia), in flight 20-25psig (34.7-39.7psia)
+			double LH2UllagePress = STS()->GetETLH2UllagePressure();//289579.8;// Pa
+			double LOXUllagePress = STS()->GetETLOXUllagePressure();//246142.8;// Pa
 			double LH2Height = 0 + (((LH2TankLevel * 104463.23) / LH2Density) / 55.4177);// m
 			double LOXHeight = 0;// m (42.7m at pre-press)
 			double LOXvol = (LOXTankLevel * 624252.0) / LOXDensity;
@@ -486,6 +525,14 @@ namespace mps
 		else
 		{
 			// manifold
+			PROPELLANT_HANDLE ph = STS()->GetLOXTank();
+			if (ph == NULL) LOXTankLevel = 0;
+			else LOXTankLevel = STS()->GetPropellantLevel( ph ) / 100;
+
+			ph = STS()->GetLH2Tank();
+			if (ph == NULL) LH2TankLevel = 0;
+			else LH2TankLevel = STS()->GetPropellantLevel( ph ) / 100;
+
 			// TODO use ideal gas here for temp increase?
 			LOXinitpress += 0.4 * fDeltaT * LOXTankLevel;// pressure rises due to heat soak back
 			LH2initpress += 1 * fDeltaT * LH2TankLevel;// pressure rises due to heat soak back (STS-1 data: ~1 psi/sec)
@@ -499,7 +546,7 @@ namespace mps
 			double LOXrepress_temp = ptrLV41->Use( 0 );// check press
 			if (LOXrepress_temp > 0)
 			{
-				if (LOXrepress_temp > 37) LOXrepress_temp = 37;// conflicting reports if 20-25psia ou psig... using psig
+				if (LOXrepress_temp > 37) LOXrepress_temp = 37;// conflicting reports if 20-25psia or psig... using psig
 				if (LOXrepress_temp > LOXManifPress)
 				{
 					LOXrepress_temp = (LOXrepress_temp - LOXManifPress) / 37;
@@ -552,8 +599,9 @@ namespace mps
 			STS()->SetMPSDumpLevel( 7, ptrPV7->GetPos() * LOXventlevel * (int)RV5 );
 		}
 
-		//char buffer[100];
+		char buffer[100];
 		//sprintf_s( buffer, 100, "%f,%f,%f,%f,%f", STS()->GetMET(), LH2initpress, LH2ManifPress, LH2ventlevel, STS()->GetPropellantLevel( STS()->GetLH2Tank() ) );
+		//sprintf_s( buffer, 100, "%f,%f,%f,%f,%f,%f",  ptrLV53->GetPos(), ptrLV54->GetPos(), ptrLV55->GetPos(), ptrLV56->GetPos(), ptrLV57->GetPos(), ptrLV58->GetPos() );
 		//oapiWriteLog( buffer );
 		//sprintf_s( oapiDebugString(), 255, buffer );
 		//sprintf_s( buffer, 100, "PV4 %f LV18 %f LV19 %f", ptrPV4->GetPos(), ptrLV18->GetPos(), ptrLV19->GetPos() );
@@ -574,28 +622,41 @@ namespace mps
 	double MPS::GetLOXPVPos( int eng ) const
 	{
 		assert( (eng >= 1) && (eng <= 3) && "MPS::GetLOXPVPos.eng" );
-		if (eng == 1)
-		{
-			return ptrPV1->GetPos();
-		}
-		else if (eng == 2)
-		{
-			return ptrPV2->GetPos();
-		}
+		if (eng == 1) return ptrPV1->GetPos();
+		else if (eng == 2) return ptrPV2->GetPos();
 		return ptrPV3->GetPos();
 	}
 
 	double MPS::GetLH2PVPos( int eng ) const
 	{
 		assert( (eng >= 1) && (eng <= 3) && "MPS::GetLH2PVPos.eng" );
-		if (eng == 1)
-		{
-			return ptrPV4->GetPos();
-		}
-		else if (eng == 2)
-		{
-			return ptrPV5->GetPos();
-		}
+		if (eng == 1) return ptrPV4->GetPos();
+		else if (eng == 2) return ptrPV5->GetPos();
 		return ptrPV6->GetPos();
+	}
+
+	void MPS::PressurantFlow( int eng, double GOXmass, double GH2mass )
+	{
+		assert( (eng >= 1) && (eng <= 3) && "MPS::PressurantFlow.eng" );
+		// INFO "current" GOX FCVs are fixed at 78% since STS-40 (eventually disconnected/removed?)
+		// original: 100%-42%, step I: 93%-55% ?, step II: 85%-66% ?, step III: 78%
+		// HACK using step I config as current ullage implementation is not good enough for step III
+		// INFO GH2 FCVs are limited from 70% to 31% from the mid-1990s (was 100% to 18%)
+		switch (eng)
+		{
+			case 1:
+				this->GOXmass += GOXmass * range( 0.55, ptrLV53->GetPos(), 0.93 );
+				this->GH2mass += GH2mass * range( 0.31, ptrLV56->GetPos(), 0.7 );
+				break;
+			case 2:
+				this->GOXmass += GOXmass * range( 0.55, ptrLV54->GetPos(), 0.93 );
+				this->GH2mass += GH2mass * range( 0.31, ptrLV57->GetPos(), 0.7 );
+				break;
+			case 3:
+				this->GOXmass += GOXmass * range( 0.55, ptrLV55->GetPos(), 0.93 );
+				this->GH2mass += GH2mass * range( 0.31, ptrLV58->GetPos(), 0.7 );
+				break;
+		}
+		return;
 	}
 }
