@@ -43,7 +43,7 @@ namespace dps
 					sprintf_s( buffer, 64, "PC < 50 @ MET %.2f", STS()->GetMET() );
 					oapiWriteLog( buffer );
 
-					sprintf_s( oapiDebugString(), 255, "PC < 50" );
+					//sprintf_s( oapiDebugString(), 255, "PC < 50" );
 				}
 				else if (STS()->GetMET() >= SRB_SEP_BACKUP_CUE_T)
 				{
@@ -88,7 +88,7 @@ namespace dps
 						{
 							// TODO C&W SEP INH
 							SRBSEPINH = true;
-							sprintf_s( oapiDebugString(), 255, "SEP INH" );
+							//sprintf_s( oapiDebugString(), 255, "SEP INH" );
 							return;
 						}
 
