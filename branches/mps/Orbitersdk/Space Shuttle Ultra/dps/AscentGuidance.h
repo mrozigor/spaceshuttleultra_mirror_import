@@ -51,6 +51,7 @@ class SSME_SOP;
 class SSME_Operations;
 class ATVC_SOP;
 class SRBSepSequence;
+class ETSepSequence;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -73,6 +74,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	void NullSRBNozzles( void );
+
+	bool OnPaint( int spec, vc::MDU* pMDU ) const;
 private:
 	void InitializeAutopilot();
 
@@ -186,6 +189,7 @@ private:
 	SSME_Operations* pSSME_Operations;
 	ATVC_SOP* pATVC_SOP;
 	SRBSepSequence* pSRBSepSequence;
+	ETSepSequence* pETSepSequence;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds
@@ -203,6 +207,8 @@ private:
 	bool AGT_done;
 
 	bool bNullSRBNozzles;
+
+	double EOVI[2];
 };
 	
 };

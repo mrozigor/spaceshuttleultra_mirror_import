@@ -116,7 +116,7 @@ namespace dps
 				{
 					// TODO C&W msg
 					ETSEPINH = true;
-					sprintf_s( oapiDebugString(), 255, "SEP INH" );
+					//sprintf_s( oapiDebugString(), 255, "SEP INH" );
 				}
 			}
 

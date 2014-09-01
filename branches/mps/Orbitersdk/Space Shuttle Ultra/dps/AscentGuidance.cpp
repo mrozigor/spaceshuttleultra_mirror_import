@@ -5,6 +5,8 @@
 #include "SSME_Operations.h"
 #include "ATVC_SOP.h"
 #include "SRBSepSequence.h"
+#include "ETSepSequence.h"
+#include "IDP.h"
 
 namespace dps
 {
@@ -57,6 +59,9 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	AGT_done = false;
 
 	bNullSRBNozzles = false;
+
+	EOVI[0] = 0;
+	EOVI[1] = 0;
 }
 
 AscentGuidance::~AscentGuidance()
@@ -86,6 +91,7 @@ void AscentGuidance::Realize()
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 	pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
+	pETSepSequence = static_cast<ETSepSequence*> (FindSoftware( "ETSepSequence" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -488,8 +494,11 @@ void AscentGuidance::Throttle(double DeltaT)
 		{
 			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
 			{
-				MEFail[i] = pSSME_Operations->GetFailFlag( i + 1 );
+				MEFail[i] = true;
 				NSSME--;
+				// record EO VI
+				if (NSSME == 2) EOVI[0] = STS()->GetAirspeed() * MPS2FPS;
+				else if (NSSME == 1) EOVI[1] = STS()->GetAirspeed() * MPS2FPS;
 				// update 1º stage throttle table to not throttle
 				THROT[1] = THROT[0];
 				THROT[2] = THROT[0];
@@ -783,5 +792,169 @@ void AscentGuidance::NullSRBNozzles( void )
 	return;
 }
 
-};
+bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
+{
+	if (spec != dps::MODE_UNDEFINED) return false;
+	
+	// PASS LAUNCH TRJ/PASS ASCENT TRAJ
+	switch(GetMajorMode())
+	{
+		case 101:
+			PrintCommonHeader( "LAUNCH TRAJ", pMDU );
+			break;
+		case 102:
+		case 103:
+			PrintCommonHeader( "ASCENT TRAJ", pMDU );
+			break;
+	}
 
+	// static parts (labels)
+	pMDU->mvprint( 9, 5, "CO" );
+	pMDU->mvprint( 25, 5, "PD" );
+	pMDU->mvprint( 32, 5, "PD3" );
+
+	pMDU->mvprint( 36, 6, "ABORT    ARM" );
+	pMDU->mvprint( 33, 7, "3 E/O" );
+	pMDU->mvprint( 33, 8, "2 E/O" );
+	pMDU->mvprint( 46, 8, "2" );
+	pMDU->mvprint( 31, 9, "ABORT      4" );
+	pMDU->mvprint( 31, 10, "YAW STEER  5" );
+
+	pMDU->mvprint( 10, 7, "GUID" );
+	pMDU->mvprint( 10, 8, "TMECO   :" );
+	pMDU->mvprint( 10, 9, "PRPLT" );
+	pMDU->mvprint( 7, 12, "6  SERC" );
+
+	pMDU->mvprint( 5, 13, "O" );
+
+	pMDU->mvprint( 46, 13, "GO" );
+	pMDU->mvprint( 39, 15, "RTLS" );
+
+
+	// static parts (lines)
+
+	//Nominal ascent line
+	pMDU->Line( 181, 212, 191, 176 );
+	pMDU->Line( 191, 176, 233, 128 );
+	pMDU->Line( 233, 128, 255, 117 );
+
+	//EO at Lift-Off line
+	pMDU->Line( 159, 212, 174, 138 );
+	pMDU->Line( 174, 138, 78, 195 );
+	pMDU->Line( 78, 195, 58, 201 );
+	pMDU->Line( 58, 201, 21, 176 );
+
+	pMDU->Line( 183, 119, 176, 122 );
+	pMDU->Line( 176, 122, 81, 187 );
+
+	//Q = 2 line
+	pMDU->Line( 38, 187, 11, 179 );
+
+	//Q = 10 line
+	pMDU->Line( 38, 171, 11, 157 );
+
+	//Hdot indicator
+	pMDU->Line( 17, 30, 11, 30 );
+	pMDU->Line( 11, 30, 11, 206 );
+	pMDU->Line( 11, 206, 17, 206 );
+	pMDU->Line( 11, 118, 17, 118 );
+
+	//DR indicator
+	pMDU->Line( 26, 27, 247, 27 );
+
+	//PD3 Mark
+	pMDU->Line( 164, 27, 164, 35 );
+
+	//PD Mark
+	pMDU->Line( 128, 27, 128, 35 );
+
+	//CO Mark
+	pMDU->Line( 47, 27, 47, 35 );
+
+
+	// dynamic parts
+	char cbuf[64];
+	int tmp = 0;
+
+	if ((GetMajorMode() == 103) && (pSSME_Operations->GetMECOConfirmedFlag() == false))
+	{
+		tmp = round( STS()->GetMET() + timeRemaining );
+		sprintf_s( cbuf, 64, "%02d", (tmp - (tmp % 60)) / 60 );
+		pMDU->mvprint( 16, 8, cbuf );
+		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );
+		pMDU->mvprint( 19, 8, cbuf );
+	}
+
+	tmp = STS()->GetETPropellant();
+	if (tmp < 0) tmp = 0;
+	sprintf_s( cbuf, 64, "%2d", tmp );
+	pMDU->mvprint( 19, 9, cbuf );
+
+	if ((pSRBSepSequence->GetPC50Flag() == true) && (GetMajorMode() == 102)) pMDU->mvprint( 10, 10, "PC<50" );
+
+	if ((pSRBSepSequence->GetSRBSEPINHFlag() == true) || (pETSepSequence->GetETSEPINHFlag() == true)) pMDU->mvprint( 10, 11, "SEP INH" );
+
+	if (enaSERC == true) pMDU->mvprint( 15, 12, "ON" );
+
+	if (EOVI[0] != 0)
+	{
+		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[0] );
+		pMDU->mvprint( 7, 13, cbuf );
+	}
+	if (EOVI[1] != 0)
+	{
+		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[1] );
+		pMDU->mvprint( 7, 14, cbuf, dps::DEUATT_OVERBRIGHT );// TODO update MDU to write text with DEUATT_OVERBRIGHT attribute
+	}
+
+	VECTOR3 LVLH_Vel;
+	STS()->GetGPCLVLHVel(0, LVLH_Vel);
+
+	double Ref_hdot = 0.0;
+	bool bShowHDot = (STS()->GetGPCRefHDot(0, Ref_hdot) == VARSTATE_OK);
+
+	//Hdot indicator
+	if(bShowHDot)
+	{
+		double HDot_Error = -LVLH_Vel.z - Ref_hdot;
+		double att = 0;
+
+		if(HDot_Error > 200.0)
+		{
+			HDot_Error = 200.0;
+			att = dps::DEUATT_FLASHING;
+		}
+		else if (HDot_Error < -200.0)
+		{
+			HDot_Error = -200.0;
+			att = dps::DEUATT_FLASHING;
+		}
+
+		short sHDot_pry = -static_cast<short>(HDot_Error/200.0 * 88);
+
+		pMDU->Line( 11, 118 + sHDot_pry, 6, 113 + sHDot_pry, att );
+		pMDU->Line( 6, 113 + sHDot_pry, 6, 123 + sHDot_pry, att );
+		pMDU->Line( 6, 123 + sHDot_pry, 11, 118 + sHDot_pry, att );
+	}
+
+	//Current vehicle state:
+	double VHI = LVLH_Vel.x;
+	double Altitude = STS()->GetAltitude() * MPS2FPS;
+
+	if(Altitude > 155500 && VHI < 10000)
+	{
+		//Draw triangle for state vector
+		short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
+		short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
+		pMDU->Line( stX, stY - 3, stX - 3, stY + 3 );
+		pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3 );
+		pMDU->Line( stX + 3, stY + 3, stX, stY - 3 );
+	}
+
+	// TODO 30s and 60s predictors
+	//pMDU->Ellipse( x1, y1, x2, y2 );
+	//pMDU->Ellipse( x1, y1, x2, y2 );
+	return true;
+}
+
+};
