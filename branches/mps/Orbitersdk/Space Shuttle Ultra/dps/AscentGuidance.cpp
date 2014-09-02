@@ -937,23 +937,48 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 		pMDU->Line( 6, 123 + sHDot_pry, 11, 118 + sHDot_pry, att );
 	}
 
-	//Current vehicle state:
-	double VHI = LVLH_Vel.x;
-	double Altitude = STS()->GetAltitude() * MPS2FPS;
-
-	if(Altitude > 155500 && VHI < 10000)
+	if (GetMajorMode() >= 103)// HACK because thrustAcceleration is only calculated in MM103
 	{
-		//Draw triangle for state vector
-		short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-		short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-		pMDU->Line( stX, stY - 3, stX - 3, stY + 3 );
-		pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3 );
-		pMDU->Line( stX + 3, stY + 3, stX, stY - 3 );
-	}
+		//Current vehicle state:
+		double VHI = LVLH_Vel.x;
+		double Altitude = STS()->GetAltitude() * MPS2FPS;
 
-	// TODO 30s and 60s predictors
-	//pMDU->Ellipse( x1, y1, x2, y2 );
-	//pMDU->Ellipse( x1, y1, x2, y2 );
+		if(Altitude > 155500 && VHI < 10000)
+		{
+			//Draw triangle for state vector
+			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
+			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
+			pMDU->Line( stX, stY - 3, stX - 3, stY + 3 );
+			pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3 );
+			pMDU->Line( stX + 3, stY + 3, stX, stY - 3 );
+		}
+		
+		// HACK using constant 12º for SSME offset
+		// 30s predictor
+		double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
+		VHI += dv30;
+		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
+
+		if(Altitude > 155500 && VHI < 10000)
+		{
+			//Draw circle for 30s predictor
+			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
+			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
+			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
+		}
+
+		// 60s predictor
+		VHI += dv30;
+		Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
+
+		if(Altitude > 155500 && VHI < 10000)
+		{
+			//Draw circle for 60s predictor
+			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
+			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
+			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
+		}
+	}
 	return true;
 }
 
