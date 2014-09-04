@@ -39,6 +39,12 @@ const double MIN_PRESS_CLOSE_HAV = 150;
 const double HE_USE_CLOSE_HAV = 20;
 
 
+/**
+ * @brief	Implementation of the HydraulicActuatedValve class.
+ * 
+ * This class simulates a hydraulic actuated valve, that controls flow from
+ * a PressureSource instance. Pneumatic closing capability is also provided.
+ */
 class HydraulicActuatedValve:public PressureSource
 {
 	private:
@@ -59,35 +65,36 @@ class HydraulicActuatedValve:public PressureSource
 	public:
 		/**
 		 * Returns valve position
-		 * @return valve position (range: 0 - closed, 1 - open)
+		 * @return	valve position (range: 0 - closed, 1 - open)
 		 */
 		double GetPos( void ) const;
 
 		/**
-		 * Updates valve position (call from time step functions)
-		 * @param dt sim dt
+		 * Updates valve position (call from time step functions).
+		 * @param	dt	sim dt
 		 */
 		void tmestp( double dt );
 
 		/**
-		 * Use from .scn loading function to set valve position
-		 * @param ipos valve position
+		 * Use from .scn loading function to set valve position.
+		 * @param[in]	ipos	valve position (range: 0 - closed, 1 - open)
 		 */
 		void _backdoor( double ipos );
 
 		/**
-		 * Create a new valve
-		 * @param initpos initial valve position
-		 * @param rate_hyd valve motion rate under hydraulic pressure
+		 * Create a new valve.
+		 * @param[in]	initpos	initial valve position (range: 0 - closed, 1 - open)
+		 * @param[in]	rate_hyd	valve motion rate under hydraulic pressure
 		 */
 		HydraulicActuatedValve( double initpos, double rate_hyd );
+
 		/**
-		 * Create a new valve
-		 * @param initpos initial valve position
-		 * @param rate_hyd valve motion rate under hydraulic pressure
-		 * @param rate_pneu valve motion rate under pneumatic pressure
-		 * @param PneumaticClose handle to PressureSource for pneumatic actuator close
-		 * @param SequenceValveOpenPos valve position at which the sequence valve opens
+		 * Create a new valve.
+		 * @param[in]	initpos	initial valve position
+		 * @param[in]	rate_hyd	valve motion rate under hydraulic pressure
+		 * @param[in]	rate_pneu	valve motion rate under pneumatic pressure
+		 * @param[in]	PneumaticClose	handle to PressureSource for pneumatic actuator close
+		 * @param[in]	SequenceValveOpenPos	valve position at which the sequence valve opens
 		 */
 		HydraulicActuatedValve( double initpos, double rate_hyd, double rate_pneu, PressureSource* PneumaticClose, double SequenceValveOpenPos = 0 );
 		~HydraulicActuatedValve( void );

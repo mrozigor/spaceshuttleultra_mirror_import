@@ -59,8 +59,8 @@ class Sensor
 
 		/**
 		 * Connects the sensor to the specified discrete bundle at the specified line.
-		 * @param	pBundle	handle to discrete bundle
-		 * @param	iLine	line number in discrete bundle
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
 		 */
 		void Connect( DiscreteBundle* pBundle, int iLine );
 
@@ -71,7 +71,7 @@ class Sensor
 
 		/**
 		 * Sets the sensor input.
-		 * @param	value	sensor input
+		 * @param[in]	value	sensor input
 		 */
 		void SetValue( double value );
 };

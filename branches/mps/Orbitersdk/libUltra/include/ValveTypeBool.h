@@ -29,6 +29,12 @@
 #include <BasicValve.h>
 
 
+/**
+ * @brief	Implementation of the ValveTypeBool class.
+ * 
+ * @deprecated	ValveTypeBool has been replaced by SolenoidValve, 
+ * PressureActuatedValve and HydraulicActuatedValve.
+ */
 class ValveTypeBool
 {
 private:

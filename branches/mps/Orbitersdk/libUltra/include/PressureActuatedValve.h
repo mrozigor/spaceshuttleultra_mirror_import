@@ -64,25 +64,25 @@ class PressureActuatedValve:public PressureSource
 	public:
 		/**
 		 * Returns valve position.
-		 * @return	valve position (range: 0 - closed, 1 - open).
+		 * @return	valve position (range: 0 - closed, 1 - open)
 		 */
 		double GetPos( void ) const;
 
 		/**
-		 * Updates valve position (call from time step functions).
-		 * @param	dt	sim dt
+		 * Updates valve position. Must be called at every time step.
+		 * @param[in]	dt	sim dt
 		 */
 		void tmestp( double dt );
 
 		/**
 		 * Use from .scn loading function to set valve position.
-		 * @param[in]	ipos	valve position (between 0 and 1)
+		 * @param[in]	ipos	valve position (range: 0 - closed, 1 - open).
 		 */
 		void _backdoor( double ipos );
 
 		/**
 		 * Class constructor. PressureSource parameters control valve type.
-		 * @param[in]	initpos	initial valve position
+		 * @param[in]	initpos	initial valve position (range: 0 - closed, 1 - open)
 		 * @param[in]	imaxrate	maximum valve motion rate
 		 * @param[in]	OP	pressure source to open the valve (nullptr if valve is normally-open)
 		 * @param[in]	CL	pressure source to close the valve (nullptr if valve is normally-closed)
@@ -92,8 +92,22 @@ class PressureActuatedValve:public PressureSource
 		PressureActuatedValve( double initpos, double rate, PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent );
 		~PressureActuatedValve( void );
 
+		/**
+		 * Used to connect valve position indicators.
+		 * @param[in]	openind	chooses between open position or closed position indicator.
+		 * @param[in]	output	chooses which of the 2 position indicator to connect
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
 		void ConnectIndication( bool openind, int output, DiscreteBundle* pBundle, int iLine );
 
+		/**
+		 * Used to set pressure sources when they are unavailable for the constructor.
+		 * @param[in]	OP	pressure source to open the valve (nullptr if valve is normally-open)
+		 * @param[in]	CL	pressure source to close the valve (nullptr if valve is normally-closed)
+		 * @param[in]	psource	pressure source to be controlled by the valve
+		 * @param[in]	psourceinvent	pressure source "in the vent", used to open the valve (nullptr is not applicable)
+		 */
 		void SetPressureSources( PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent );
 
 		double Use( double flow );
