@@ -56,10 +56,10 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 	LOXUllagePressureSensor[1] = Sensor( 0, 50, 0.005 );
 	LOXUllagePressureSensor[2] = Sensor( 0, 50, 0.005 );
 	LOXUllagePressureSensor[3] = Sensor( 0, 50, 0.005 );
-	LH2UllagePressureSensor[0] = Sensor( 0, 50, 0.005 );
-	LH2UllagePressureSensor[1] = Sensor( 0, 50, 0.005 );
-	LH2UllagePressureSensor[2] = Sensor( 0, 50, 0.005 );
-	LH2UllagePressureSensor[3] = Sensor( 0, 50, 0.005 );
+	LH2UllagePressureSensor[0] = Sensor( 12, 52, 0.02 );
+	LH2UllagePressureSensor[1] = Sensor( 12, 52, 0.02 );
+	LH2UllagePressureSensor[2] = Sensor( 12, 52, 0.02 );
+	LH2UllagePressureSensor[3] = Sensor( 12, 52, 0.02 );
 
 	sensorsconnected = false;
 	postsep = false;
