@@ -155,6 +155,10 @@ private:
 	bool sensorsconnected;
 	bool postsep;
 
+	// vent/relief valves
+	bool GO2VentReliefValveOpen;
+	bool GH2VentReliefValveOpen;
+
 	// vents
 	THRUSTER_HANDLE thGOXventNE;
 	THRUSTER_HANDLE thGOXventSW;
