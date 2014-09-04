@@ -63,6 +63,8 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 
 	sensorsconnected = false;
 	postsep = false;
+	GO2VentReliefValveOpen = false;
+	GH2VentReliefValveOpen = false;
 }
 
 void Atlantis_Tank::UseBurntETTexture()
@@ -293,31 +295,79 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 	// vent/relief valves
 	// HACK far from perfect but should only be used post sep, and only few care about the ET by then
 	// GOX
-	if ((LOXullagepress / PSI2PA) > 45.7)
-	{
-		// open vent
-		SetThrusterLevel( thGOXventNE, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
-		SetThrusterLevel( thGOXventSW, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
-		// decrease mass
-		GOXmass -= 6000 * simdt;
+	if (GO2VentReliefValveOpen == true)// opens at 31psig, closes at 29psig 
+	{// HACK using psia for now
+		// check if should close
+		if ((LOXullagepress / PSI2PA) < 43.7)
+		{
+			GO2VentReliefValveOpen = false;
+			// close
+			SetThrusterLevel( thGOXventNE, 0 );
+			SetThrusterLevel( thGOXventSW, 0 );
+		}
+		else
+		{
+			// keep open
+			SetThrusterLevel( thGOXventNE, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
+			SetThrusterLevel( thGOXventSW, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
+			// decrease mass
+			GOXmass -= 6000 * simdt;
+		}
 	}
 	else
 	{
-		SetThrusterLevel( thGOXventNE, 0 );
-		SetThrusterLevel( thGOXventSW, 0 );
+		// check if should open
+		if ((LOXullagepress / PSI2PA) > 45.7)
+		{
+			GO2VentReliefValveOpen = true;
+			// open
+			SetThrusterLevel( thGOXventNE, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
+			SetThrusterLevel( thGOXventSW, min( (LOXullagepress / PSI2PA) - 45, 1 ) );
+			// decrease mass
+			GOXmass -= 6000 * simdt;
+		}
+		else
+		{
+			// keep closed
+			SetThrusterLevel( thGOXventNE, 0 );
+			SetThrusterLevel( thGOXventSW, 0 );
+		}
 	}
 
 	// GH2
-	if ((LH2ullagepress / PSI2PA) > 50.7)
+	if (GH2VentReliefValveOpen == true)// opens at 50.7psia, closes at 48.7psia
 	{
-		// open vent
-		SetThrusterLevel( thGH2vent, min( (LH2ullagepress / PSI2PA) - 50, 1 ) );
-		// decrease mass
-		GH2mass -= 3000 * simdt;
+		// check if should close
+		if ((LH2ullagepress / PSI2PA) < 48.7)
+		{
+			GH2VentReliefValveOpen = false;
+			// close
+			SetThrusterLevel( thGH2vent, 0 );
+		}
+		else
+		{
+			// keep open
+			SetThrusterLevel( thGH2vent, min( (LH2ullagepress / PSI2PA) - 48, 1 ) );
+			// decrease mass
+			GH2mass -= 2000 * simdt;
+		}
 	}
 	else
 	{
-		SetThrusterLevel( thGH2vent, 0 );
+		// check if should open
+		if ((LH2ullagepress / PSI2PA) > 50.7)
+		{
+			GH2VentReliefValveOpen = true;
+			// open
+			SetThrusterLevel( thGH2vent, min( (LH2ullagepress / PSI2PA) - 48.7, 1 ) );
+			// decrease mass
+			GH2mass -= 2000 * simdt;
+		}
+		else
+		{
+			// keep closed
+			SetThrusterLevel( thGH2vent, 0 );
+		}
 	}
 
 	// post sep "reconfigure"
