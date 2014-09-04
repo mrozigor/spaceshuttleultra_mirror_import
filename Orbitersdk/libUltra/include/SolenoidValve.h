@@ -34,6 +34,13 @@ using class discsignals::DiscInPort;
 using class discsignals::DiscreteBundle;
 
 
+/**
+ * @brief	Implementation of the SolenoidValve class.
+ * 
+ * This class simulates a solenoid valve, that controls flow from a
+ * PressureSource instance. It can be one of 2 types: normally-closed
+ * or normally-open. The valve is controlled via discrete line.
+ */
 class SolenoidValve:public PressureSource
 {
 	private:
@@ -47,31 +54,40 @@ class SolenoidValve:public PressureSource
 		double rate;
 	public:
 		/**
-		 * Returns valve position
-		 * @return valve position (range: 0 - closed, 1 - open)
+		 * Returns valve position.
+		 * @return	valve	position (range: 0 - closed, 1 - open)
 		 */
 		double GetPos( void ) const;
 
 		/**
-		 * Updates valve position (call from time step functions)
-		 * @param dt sim dt
+		 * Updates valve position. Must be called at every time step.
+		 * @param[in]	dt	sim dt
 		 */
 		void tmestp( double dt );
 
 		/**
-		 * Use from .scn loading function to set valve position
-		 * @param ipos valve position
+		 * Use from .scn loading function to set valve position.
+		 * @param[in]	ipos	valve position (range: 0 - closed, 1 - open)
 		 */
 		void _backdoor( double ipos );
 
 		/**
-		 * Create a new valve
-		 * @param initpos initial valve position
-		 * @param imaxrate maximum valve motion rate
+		 * Creates a new valve.
+		 * @param[in]	initpos	initial valve position (range: 0 - closed, 1 - open)
+		 * @param[in]	imaxrate	maximum valve motion rate
+		 * @param[in]	NormallyClosed	indicates if valve is normally-closed
+		 * @param[in]	psource	pressure source to be controlled by the valve
+		 * @param[in]	psourceinvent	pressure source "in the vent", used to open the valve (nullptr is not applicable)
 		 */
 		SolenoidValve( double initpos, double rate, bool NormallyClosed, PressureSource* psource, PressureSource* psourceinvent );
 		~SolenoidValve( void );
 
+		/**
+		 * Connects the valve to the specified discrete bundle at the specified line.
+		 * @param[in]	input	chooses which of the 2 valve inputs to connect
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
 		void Connect( int input, DiscreteBundle* pBundle, int iLine );
 
 		double Use( double flow );

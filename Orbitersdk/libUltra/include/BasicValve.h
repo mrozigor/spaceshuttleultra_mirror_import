@@ -26,6 +26,12 @@
 #define _g_BasicValve_H_
 
 
+/**
+ * @brief	Implementation of the BasicValve class.
+ * 
+ * @deprecated	BasicValve has been replaced by SolenoidValve, 
+ * PressureActuatedValve and HydraulicActuatedValve.
+ */
 class BasicValve
 {
 private:
