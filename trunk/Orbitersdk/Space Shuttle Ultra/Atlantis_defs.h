@@ -18,6 +18,7 @@ const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
+const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
@@ -43,6 +44,7 @@ const VECTOR3 LSRB_OFFSET = _V(-6.4, -9.75, 1.13); // offset between SRB and shu
 const VECTOR3 RSRB_OFFSET = _V(6.4, -9.75, 1.13); // offset between SRB and shuttle mesh
 const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
 const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
+const VECTOR3 SILTS_OFFSET = _V( 0, -2.4, -1.6 );
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;

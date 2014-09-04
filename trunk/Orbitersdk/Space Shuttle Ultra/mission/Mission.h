@@ -83,6 +83,8 @@ namespace mission {
 
 		double fPayloadZPos[16];
 
+		bool bUseSILTS;
+
 		/**
 		 * Initializes parameters to default values
 		 */
@@ -181,6 +183,11 @@ namespace mission {
 		 */
 		virtual double GetTHupVelocity() const;
 		virtual bool HasKUBand() const;
+
+		/**
+		 * Returns true if SILTS pod is installed.
+		 */
+		virtual bool UseSILTS() const;
 
 		
 	};

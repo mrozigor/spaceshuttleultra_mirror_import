@@ -397,6 +397,7 @@ public:
 	UINT mesh_ods;							   // index for	ODS outside mesh
 	UINT mesh_loms;
 	UINT mesh_roms;
+	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
 	UINT mesh_heatshield;					   //index for heat shield mesh
@@ -639,6 +640,7 @@ public:
 	MESHHANDLE hExtALMesh;
 	MESHHANDLE hLOMSPodMesh;
 	MESHHANDLE hROMSPodMesh;
+	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;

@@ -2639,6 +2639,14 @@ void Atlantis::AddOrbiterVisual()
 	mesh_roms = AddMesh(hROMSPodMesh, &ROMS_OFFSET);
     SetMeshVisibilityMode(mesh_roms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
+    if (pMission->UseSILTS() == true)
+    {
+	    hSILTSMesh = oapiLoadMeshGlobal( SILTS_MESHNAME );
+		mesh_SILTS = AddMesh( hSILTSMesh, &SILTS_OFFSET );
+	    SetMeshVisibilityMode( mesh_SILTS, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS );
+	    oapiWriteLog( "SILTS pod mesh added" );
+    }
+
 	//ADD REENTRY MESH
 	oapiWriteLog("OFSET REENTRY SET");
 	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
