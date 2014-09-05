@@ -25,6 +25,13 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 
 	ROFILevel=0.0;
 	ROFIStartTime=0.0;
+
+	SSS_SSMELevel = 0;
+	SSS_LSRBLevel = 0;
+	SSS_RSRBLevel = 0;
+	SSS_RainbirdsLevel = 0;
+
+	bSSS_on = false;
 }
 
 MLP::~MLP()
@@ -47,6 +54,24 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
+
+	static PARTICLESTREAMSPEC sss_water_SSME = {
+		0, 0.05, 100.0, 11.0, 0.1, 0.8, 1.5, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
+	};
+
+	static PARTICLESTREAMSPEC sss_water_SRB = {
+		0, 0.5, 100.0, 11.0, 0.1, 0.8, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
+	};
+
+	static PARTICLESTREAMSPEC sss_water_Rainbirds = {
+		0, 0.5, 100.0, 20.0, 0.1, 0.7, 5.5, 2.5, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
+	};
 
 	static PARTICLESTREAMSPEC ROFI_Stream = {
 		0, 0.1, 300.0, 17.5, 0.1, 0.30, 0, 0.5, PARTICLESTREAMSPEC::EMISSIVE,
@@ -71,6 +96,47 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	AddParticleStream(&ROFI_Stream, AFT_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, AFT_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, AFT_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
+
+	// water SSME hole (east/west side)
+	for (int i = 0; i < 49; i++)
+	{
+		AddParticleStream( &sss_water_SSME, _V( 4.8, -0.4, -11.5 - (i * 0.2) ), _V( -0.7071, -0.7071, 0 ), &SSS_SSMELevel );
+		AddParticleStream( &sss_water_SSME, _V( -4.8, -0.4, -11.5 - (i * 0.2) ), _V( 0.7071, -0.7071, 0 ), &SSS_SSMELevel );
+	}
+
+	// water SSME hole (north/south side)
+	for (int i = 0; i < 46; i++)
+	{
+		AddParticleStream( &sss_water_SSME, _V( -4.6 + (i * 0.2), -0.4, -11 ), _V( 0, -0.7071, -0.7071 ), &SSS_SSMELevel );
+		AddParticleStream( &sss_water_SSME, _V( -4.6 + (i * 0.2), -0.4, -21.6 ), _V( 0, -0.7071, 0.7071 ), &SSS_SSMELevel );
+	}
+
+	// water SSME hole (TSM)
+	for (int i = 0; i < 8; i++)
+	{
+		AddParticleStream( &sss_water_SSME, _V( 4.25 - (0.025 * i), 0.55, -13.7 - (i * 0.3) ), _V( -0.7071, -0.7071, 0 ), &SSS_SSMELevel );
+		AddParticleStream( &sss_water_SSME, _V( -4.25 + (0.025 * i), 0.55, -13.7 - (i * 0.3) ), _V( 0.7071, -0.7071, 0 ), &SSS_SSMELevel );
+	}
+	
+	// water LH SRB hole
+	AddParticleStream( &sss_water_SRB, _V( -9, -3.8, -4.9 ), _V(  0.40825, -0.81650, -0.40825 ), &SSS_LSRBLevel );// NW
+	AddParticleStream( &sss_water_SRB, _V( -9, -3.8, -7.8 ), _V( 0.40825, -0.81650, 0.40825 ), &SSS_LSRBLevel );// SW
+	AddParticleStream( &sss_water_SRB, _V( -3.8, -3.8, -7.5 ), _V( -0.40825, -0.81650, 0.40825 ), &SSS_LSRBLevel );// SE
+	AddParticleStream( &sss_water_SRB, _V( -3.8, -3.8, -4.9 ), _V( -0.40825, -0.81650, -0.40825 ), &SSS_LSRBLevel );// NE
+	
+	// water RH SRB hole
+	AddParticleStream( &sss_water_SRB, _V( 9, -3.8, -4.9 ), _V( -0.40825, -0.81650, -0.40825 ), &SSS_RSRBLevel );// NE
+	AddParticleStream( &sss_water_SRB, _V( 9, -3.8, -7.8 ), _V( -0.40825, -0.81650, 0.40825 ), &SSS_RSRBLevel );// SE
+	AddParticleStream( &sss_water_SRB, _V( 3.8, -3.8, -7.5 ), _V( 0.40825, -0.81650, 0.40825 ), &SSS_RSRBLevel );// SW
+	AddParticleStream( &sss_water_SRB, _V( 3.8, -3.8, -4.9 ), _V( 0.40825, -0.81650, -0.40825 ), &SSS_RSRBLevel );// NW
+
+	// water rainbirds
+	AddParticleStream( &sss_water_Rainbirds, _V( 0, 3, 20 ), _V( 0, 0, -1 ), &SSS_RainbirdsLevel );// N
+	AddParticleStream( &sss_water_Rainbirds, _V( -13, 3, 15 ), _V( 0.7071, 0, -0.7071 ), &SSS_RainbirdsLevel );// NW
+	AddParticleStream( &sss_water_Rainbirds, _V( -13, 2.7, 1 ), _V( 0.7071, 0, 0.7071 ), &SSS_RainbirdsLevel );// SW
+	AddParticleStream( &sss_water_Rainbirds, _V( 0, 2.7, 1 ), _V( 0, 0, 1 ), &SSS_RainbirdsLevel );// S
+	AddParticleStream( &sss_water_Rainbirds, _V( 12.6, 2.7, 1 ), _V( -0.7071, 0, 0.7071 ), &SSS_RainbirdsLevel );// SE
+	AddParticleStream( &sss_water_Rainbirds, _V( 12.6, 3, 15 ), _V( -0.7071, 0, -0.7071 ), &SSS_RainbirdsLevel );// NE
 
 	if(!ahHDP)	{
 		ahHDP = CreateAttachment(false, HDP_POS, _V(0.0, 1.0, 0.0), _V(0.0, 0.0, -1.0), "XHDP");
@@ -110,6 +176,10 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 		{
 			bSSS_Active = true;
 		}
+
+		if ((fCountdown <= 16.0) && (fCountdown >= -5)) bSSS_on = true;// HACK stop at T+5s
+		else bSSS_on = false;
+
 		if(fCountdown < -30.0)
 		{
 			bStartSequence = false;
@@ -142,6 +212,21 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 			bSSS_Active?"ON":"OFF", fT_SSSActive, fSSMESteam, fSRBSteam);
 	}
 	*/
+
+	if (bSSS_on == true)// TODO control from LCC
+	{
+		SSS_SSMELevel = min( (14 - fCountdown) * 0.5, 1 );
+		SSS_LSRBLevel = min( (11 - fCountdown) * 0.5, 1 );
+		SSS_RSRBLevel = min( (12.5 - fCountdown) * 0.5, 1 );
+		SSS_RainbirdsLevel = min( -fCountdown, 1 );
+	}
+	else
+	{
+		SSS_SSMELevel = 0;
+		SSS_LSRBLevel = 0;
+		SSS_RSRBLevel = 0;
+		SSS_RainbirdsLevel = 0;
+	}
 
 	if(T0UmbilicalState.Moving()) {
 		double dp=fDeltaT*TSM_UMBILICAL_RETRACT_SPEED;
