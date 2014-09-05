@@ -55,6 +55,13 @@ private:
 	double ROFILevel;
 	double ROFIStartTime;
 
+	double SSS_SSMELevel;
+	double SSS_LSRBLevel;
+	double SSS_RSRBLevel;
+	double SSS_RainbirdsLevel;
+
+	bool bSSS_on;
+
 	double dTimer;
 	bool bPadLightsOn;
 	UINT msh_idx;
