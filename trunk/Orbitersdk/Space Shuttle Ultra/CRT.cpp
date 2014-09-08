@@ -498,7 +498,7 @@ void CRT::OMSMPS(HDC hDC)
 		}
 		Rectangle (hDC, 20+35*nPos, round( (154-0.012667*dNum) ), 33+35*nPos, 154);
 		
-		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]);
+		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() / 8618.44625);// HACK should have this in the sensor
 		sprintf(cbuf, "%03.0f", dNum);
 		TextOut(hDC, 16+35*nPos, 168, cbuf, strlen(cbuf));
 		if (dNum >= 80)
@@ -545,7 +545,7 @@ void CRT::OMSMPS(HDC hDC)
 	}
 	
 	// He Tank Press Pneu
-	dNum = 0;//sts->GetHeTankPress( 0 );
+	dNum = sts->GetHeTankPress( 0 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 100, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 3800)
@@ -563,7 +563,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 109, round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
 
 	// He Tank Press Eng 2
-	dNum = 0;//sts->GetHeTankPress( 2 );
+	dNum = sts->GetHeTankPress( 2 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 153, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -581,7 +581,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 162, round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
 
 	// He Tank Press Eng 1
-	dNum = 0;//sts->GetHeTankPress( 1 );
+	dNum = sts->GetHeTankPress( 1 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 188, 20, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -599,7 +599,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 197, round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
 
 	// He Tank Press Eng 3
-	dNum = 0;//sts->GetHeTankPress( 3 );
+	dNum = sts->GetHeTankPress( 3 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 223, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
@@ -617,7 +617,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 231, round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
 
 	// He Reg Press Pneu
-	dNum = 0;//sts->GetHeRegPress( 0 );
+	dNum = sts->GetHeRegPress( 0 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 100, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -635,7 +635,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 109, round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
 
 	// He Reg Press Eng 2
-	dNum = 0;//sts->GetHeRegPress( 2 );
+	dNum = sts->GetHeRegPress( 2 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 153, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -653,7 +653,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 162, round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
 
 	// He Reg Press Eng 1
-	dNum = 0;//sts->GetHeRegPress( 1 );
+	dNum = sts->GetHeRegPress( 1 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 188, 88, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -671,7 +671,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 197, round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
 
 	// He Reg Press Eng 3
-	dNum = 0;//sts->GetHeRegPress( 3 );
+	dNum = sts->GetHeRegPress( 3 );
 	sprintf( cbuf, "%04.0f", dNum );
 	TextOut( hDC, 223, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
@@ -689,7 +689,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 231, round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
 
 	// ENG MANF LO2
-	dNum = 0;// TODO get val
+	dNum = sts->GetLOXManifPress();
 	sprintf( cbuf, "%03.0f", dNum );
 	TextOut( hDC, 85, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 250)
@@ -707,7 +707,7 @@ void CRT::OMSMPS(HDC hDC)
 	Rectangle( hDC, 89, round( 238 - (0.123333 * dNum) ), 102, 238 );
 
 	// ENG MANF LH2
-	dNum = 0;// TODO get val
+	dNum = sts->GetLH2ManifPress();
 	sprintf( cbuf, "%03.0f", dNum );
 	TextOut( hDC, 118, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 66)
@@ -1278,7 +1278,7 @@ void CRT::APUHYD(HDC hDC)
 		Rectangle(hDC, 33+30*nPos, static_cast<int>(157-0.41*dNum), 46+30*nPos, 157);
 
 		//Fuel P
-		dNum = sts->pAPU[nPos]->GetFuelPressure();// TODO check possible bug/misslabeling in APU, as this value should be around 365 psi
+		dNum = sts->pAPU[nPos]->GetFuelPressure();
 		sprintf_s(cbuf, 10, "%04.0f", dNum);
 		TextOut(hDC, 159+33*nPos, 22, cbuf, strlen(cbuf));
 		SelectObject(hDC, GreenBrush);

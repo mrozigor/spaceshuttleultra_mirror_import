@@ -50,7 +50,7 @@ namespace vc {
 				return false;
 		}
 		return true;*/
-		if((_event & PANEL_MOUSE_LBDOWN) || (_event & PANEL_MOUSE_LBPRESSED)) {
+		if(_event & PANEL_MOUSE_LBDOWN) {
 			OnPress();
 			return true;
 		}

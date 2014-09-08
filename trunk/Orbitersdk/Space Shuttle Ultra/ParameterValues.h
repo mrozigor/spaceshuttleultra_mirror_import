@@ -147,7 +147,7 @@ const int AftRollThrusters[2] = {9, 11};
 // Some Tank-related parameters
 // ==========================================================
 
-const double ET_SEP_TIME = 18.00000; // ET Sep time (after MECO)
-const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
+//const double ET_SEP_TIME = 18.00000; // ET Sep time (after MECO)
+//const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
 
 #endif //_PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE

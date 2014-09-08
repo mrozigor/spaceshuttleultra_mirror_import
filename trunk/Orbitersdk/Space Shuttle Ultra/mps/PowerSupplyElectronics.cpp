@@ -1,5 +1,7 @@
 #include "PowerSupplyElectronics.h"
 #include "SSMEController.h"
+#include "DigitalComputerUnit.h"
+#include "ComputerInterfaceElectronics.h"
 #include "MPSdefs.h"
 
 
@@ -8,12 +10,11 @@ namespace mps
 	PowerSupplyElectronics::PowerSupplyElectronics( int ch, SSMEController* Controller )
 	{
 #ifdef _MPSDEBUG
-		char buffer[100];	
+		char buffer[100];
 		sprintf_s( buffer, 100, " PowerSupplyElectronics::PowerSupplyElectronics in" );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
-		AC = new DiscInPort;
 		this->ch = ch;
 		this->Controller = Controller;
 		PowerOn = true;
@@ -27,7 +28,6 @@ namespace mps
 
 	PowerSupplyElectronics::~PowerSupplyElectronics( void )
 	{
-		delete AC;
 		return;
 	}
 
@@ -39,28 +39,35 @@ namespace mps
 
 	bool PowerSupplyElectronics::OnParseLine( const char* line )
 	{
-		if (__OnParseLine( line )) return true;// check if derived class wants line
-		return false;
+		return __OnParseLine( line );// check if derived class wants line
+	}
+
+	void PowerSupplyElectronics::Realize( void )
+	{
+		DCU = Controller->DCU[ch];
+		if (ch == chA) CIEOpposite = Controller->CIE[chB];
+		else CIEOpposite = Controller->CIE[chA];
+		return;
 	}
 
 	void PowerSupplyElectronics::tmestp( double time )
 	{
-		if (AC->IsSet() == false)
+		if (AC.IsSet() == false)
 		{
 			if (PowerOn == true)
 			{
 				// power failure on the way
-				Controller->DCU_PowerFailureSense( ch );
-				// TODO PBDN
+				DCU->PowerFailureSense();
+				CIEOpposite->PowerBusDown();
 			}
 		}
-		PowerOn = AC->IsSet();
+		PowerOn = AC.IsSet();
 		return;
 	}
 
 	void PowerSupplyElectronics::ConnectPower( DiscreteBundle* AC )
 	{
-		this->AC->Connect( AC, ch );
+		this->AC.Connect( AC, ch );
 		return;
 	}
 

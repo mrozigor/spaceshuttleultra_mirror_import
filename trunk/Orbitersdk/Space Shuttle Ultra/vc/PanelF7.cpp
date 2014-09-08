@@ -123,7 +123,7 @@ namespace vc {
 		if(STS()->pMTU->GetEventTimerMin(dps::TIMER_FORWARD) != sTimerMinutes || 
 			STS()->pMTU->GetEventTimerSec(dps::TIMER_FORWARD) != sTimerSeconds)
 		{
-			oapiWriteLog("PanelF7::OnPostStep called");
+			//oapiWriteLog("PanelF7::OnPostStep called");
 
 			sTimerMinutes = STS()->pMTU->GetEventTimerMin(dps::TIMER_FORWARD);
 			sTimerSeconds = STS()->pMTU->GetEventTimerSec(dps::TIMER_FORWARD);
@@ -140,7 +140,7 @@ namespace vc {
 		
 		if(id == AID_F7_EVTTMR1)
 		{
-			oapiWriteLog("PanelF7::OnVCRedrawEvent called");
+			//oapiWriteLog("PanelF7::OnVCRedrawEvent called");
 
 			digit[0] = sTimerMinutes / 10;
 			digit[1] = sTimerMinutes % 10;

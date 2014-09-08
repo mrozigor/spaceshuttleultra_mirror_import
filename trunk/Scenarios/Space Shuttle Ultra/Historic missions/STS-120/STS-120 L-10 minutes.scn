@@ -1,5 +1,5 @@
 BEGIN_DESC
-STS-120/10A: All the required NTD/LD polls have been completed, 60 seconds to GLS autpsequence start, 10 minutes to launch.
+STS-120/10A: All the required NTD/LD polls have been completed, 60 seconds to GLS autosequence start, 10 minutes to launch.
 END_DESC
 
 BEGIN_ENVIRONMENT
@@ -26,15 +26,70 @@ BEGIN_CAMERA
 END_CAMERA
 
 BEGIN_MFD Left
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD Right
   TYPE Surface
   SPDMODE 1
 END_MFD
 
-BEGIN_MFD Right
+BEGIN_MFD 3
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
+BEGIN_MFD 4
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 5
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 7
   TYPE Orbit
   PROJ Ship
-  FRAME Ecliptic
+  FRAME Equator
+  ALT
   REF Earth
+END_MFD
+
+BEGIN_MFD 8
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 9
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD 10
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
 END_MFD
 
 BEGIN_VC
@@ -131,46 +186,6 @@ Discovery:SpaceShuttleUltra
   LEFT_AIRDATAPROBE 1 3 0
   RIGHT_AIRDATAPROBE 1 3 0
 @ENDSUBSYSTEM		;ADPS
-  BOILERN2SPLY0 0
-  BOILERN2SPLY1 0
-  BOILERN2SPLY2 0
-  BOILERCNTLR0 0
-  BOILERCNTLR1 0
-  BOILERCNTLR2 0
-  BOILERHTR0 0
-  BOILERHTR1 0
-  BOILERHTR2 0
-  APUFUTKVLV0 1
-  APUFUTKVLV1 1
-  APUFUTKVLV2 1
-  APUCNTLRPWR0 1
-  APUCNTLRPWR1 1
-  APUCNTLRPWR2 1
-  HYDCIRCPUMP0 1
-  HYDCIRCPUMP1 1
-  HYDCIRCPUMP2 1
-  APUAUTOSHTDN 0
-  APUSPDSEL0 1
-  APUSPDSEL1 1
-  APUSPDSEL2 1
-  APUCNTRL0 1
-  APUCNTRL1 1
-  APUCNTRL2 1
-  HYDMNPMPPRESS0 0
-  HYDMNPMPPRESS1 0
-  HYDMNPMPPRESS2 0
-  APU0 0
-  APU1 0
-  APU2 0
-  HYDRAULIC_PRESS0 0
-  HYDRAULIC_PRESS1 0
-  HYDRAULIC_PRESS2 0
-  FUEL_PRESS0 0
-  FUEL_PRESS1 0
-  FUEL_PRESS2 0
-  L_ET_UMB_DOOR 1.000
-  R_ET_UMB_DOOR 1.000
-  ET_DOOR_LATCHES 0.000000 1.000000 1.000000
   MTU_MET_RUNNING 0
   MTU_MET0 0.000
   MTU_MET1 0.000
@@ -193,64 +208,77 @@ Discovery:SpaceShuttleUltra
   STBD_MPM_LATCHES 0 0.0000
   STBD_MPM_ATTACHED_PAYLOAD Ultra_OBSS 0
 @ENDSUBSYSTEM		;STBD_MPM
+@SUBSYSTEM HeEng_C
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 4100
+  VALVES 1 1 0 
+@ENDSUBSYSTEM		;HePneu
 @SUBSYSTEM MPS_C
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_C
 @SUBSYSTEM MPS_L
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_L
 @SUBSYSTEM MPS_R
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_R
+@SUBSYSTEM SimpleGPCSystem
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 0
+  @ENDSOFTWARE 
+@ENDSUBSYSTEM		;SimpleGPCSystem
 @SUBSYSTEM ETUmbDoors
   ET_DOORS 1.000000 1.000000
   ET_DOOR_LATCHES 0.000000 1.000000 1.000000
 @ENDSUBSYSTEM		;ETUmbDoors
+  @PANEL F2
+  "F2_SPDBKTHROT_AUTO" 1
+  "F2_BODYFLAP_AUTO" 1
+  "F2_PITCH_AUTO" 1
+  "F2_PITCH_CSS" 0
+  "F2_RY_AUTO" 1
+  "F2_RY_CSS" 0
+  @ENDPANEL 
+  @PANEL F4
+  "F4_SPDBKTHROT_AUTO" 1
+  "F4_BODYFLAP_AUTO" 1
+  "F4_PITCH_AUTO" 1
+  "F4_PITCH_CSS" 0
+  "F4_RY_AUTO" 1
+  "F4_RY_CSS" 0
+  @ENDPANEL 
+  @PANEL F6
+  "Cdr Flt Cntlr Pwr" ON
+  @ENDPANEL 
+  @PANEL F8
+  "Plt Flt Cntlr Pwr" ON
+  @ENDPANEL 
   @PANEL R2
   "Boiler1 N2 Supply" ON
   "Boiler2 N2 Supply" ON
@@ -290,6 +318,14 @@ Discovery:SpaceShuttleUltra
   "MPS He Isol B Left" OPEN
   "MPS He Isol B Ctr" OPEN
   "MPS He Isol B Right" OPEN
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
@@ -302,10 +338,20 @@ Discovery:SpaceShuttleUltra
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
   @ENDPANEL 
 END
 ET:SSU_Tank
   STATUS Orbiting Earth
+  PRPLEVEL 0:0.996000
   ATTACHED 0:20,Discovery
 END
 LSRB:SSU_LSRB

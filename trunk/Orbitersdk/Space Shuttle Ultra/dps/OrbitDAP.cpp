@@ -465,11 +465,11 @@ void OrbitDAP::Realize()
 		PBI_output[i].Connect(pBundle, i-16);
 	}
 	
-	for(int i=0;i<24;i++) {
+	/*for(int i=0;i<24;i++) {
 		PBI_state[i] = GetPBIState(i);
 		if(PBI_state[i]) PBI_output[i].SetLine();
 		else PBI_output[i].ResetLine();
-	}	
+	}*/	
 
 	pBundle = BundleManager()->CreateBundle("LOMS", 5);
 	POMSGimbalCommand[LEFT].Connect(pBundle, 3);
@@ -545,10 +545,14 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
-	else if(!BodyFlapAuto && PCTActive) StopPCT();
-	if(!PCTActive) HandleTHCInput(DeltaT);
-	else PCTControl(SimT);
+	if ((GetMajorMode() / 100) == 2)
+	{
+		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
+		else if(!BodyFlapAuto && PCTActive) StopPCT();
+		if(!PCTActive) HandleTHCInput(DeltaT);
+		else PCTControl(SimT);
+	}
+	else HandleTHCInput(DeltaT);
 
 	if(GetRHCRequiredRates()) {
 		if(DAPControlMode == AUTO) {

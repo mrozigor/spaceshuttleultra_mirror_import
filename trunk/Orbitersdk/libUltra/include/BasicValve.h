@@ -26,6 +26,12 @@
 #define _g_BasicValve_H_
 
 
+/**
+ * @brief	Implementation of the BasicValve class.
+ * 
+ * @deprecated	BasicValve has been replaced by SolenoidValve, 
+ * PressureActuatedValve and HydraulicActuatedValve.
+ */
 class BasicValve
 {
 private:
@@ -75,7 +81,7 @@ public:
 	 * Returns valve position
 	 * @return valve position (range: 0 - closed, 1 - open)
 	 */
-	double GetPos( void );
+	double GetPos( void ) const;
 
 	/**
 	 * Updates valve position (call from time step functions)

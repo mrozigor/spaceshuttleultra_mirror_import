@@ -129,6 +129,8 @@ private:
 	THRUSTER_HANDLE th_bolt;    // separation bolt
 	THRUSTER_HANDLE thBSM[3];	//represent engines by a single logical thruster for each group.
 	ATTACHMENTHANDLE ahToOrbiter;
+
+	LightEmitter* SRBLight;
 };
 
 #endif

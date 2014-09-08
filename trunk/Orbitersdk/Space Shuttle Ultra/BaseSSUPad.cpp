@@ -7,6 +7,8 @@ BaseSSUPad::BaseSSUPad(OBJHANDLE hVessel, int flightmodel)
 	bLightsOn = false;
 
 	fNextLightUpdate = -20.0;
+
+	oaa_mode = OAA_RATE_NORMAL;
 }
 
 BaseSSUPad::~BaseSSUPad()
@@ -115,7 +117,7 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	}
 
 	if(AccessArmState.Moving()) {
-		AccessArmState.Move(simdt*orbiter_access_arm_rate);
+		AccessArmState.Move(simdt*orbiter_access_arm_rate[oaa_mode]);
 		SetAnimation(anim_AccessArm, AccessArmState.pos);
 	}
 
@@ -152,7 +154,7 @@ int BaseSSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 	switch(key) {
 		case OAPI_KEY_K:
 			if(AccessArmState.Open() || AccessArmState.Opening()) RetractOrbiterAccessArm();
-			else ExtendOrbiterAccessArm();
+			else ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 			return 1;
 		case OAPI_KEY_G:
 			if(VentHoodState.Closed()) ExtendGOXArmAndHood();
@@ -189,9 +191,9 @@ MGROUP_SCALE* BaseSSUPad::DefineScale(UINT mesh, UINT* grp, UINT ngrp, const VEC
 	vpAnimations.push_back(mgrp);
 	return mgrp;
 }
-void BaseSSUPad::SetOrbiterAccessArmRate(double rate)
+void BaseSSUPad::SetOrbiterAccessArmRate(double rate, int mode)
 {
-	orbiter_access_arm_rate = rate;
+	orbiter_access_arm_rate[mode] = rate;
 }
 
 void BaseSSUPad::SetGOXVentArmRate(double rate)
@@ -214,13 +216,15 @@ void BaseSSUPad::SetIntertankAccessArmRate(double rate)
 	iaa_rate = rate;
 }
 
-void BaseSSUPad::ExtendOrbiterAccessArm()
+void BaseSSUPad::ExtendOrbiterAccessArm( int mode )
 {
+	oaa_mode = mode;
 	AccessArmState.action=AnimState::OPENING;
 }
 
 void BaseSSUPad::RetractOrbiterAccessArm()
 {
+	oaa_mode = OAA_RATE_NORMAL;
 	AccessArmState.action=AnimState::CLOSING;
 }
 

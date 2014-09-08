@@ -43,6 +43,12 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 	slag1 = 0.0;
 	slag2 = 0.0;
 	slag3 = 0.0;
+
+	COLOUR4 col_diff = {1,1,1,0};
+	COLOUR4 col_zero = {0,0,0,0};
+	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
+	SRBLight = AddPointLight( _V( 0.484, 0.434, -25 ), 200, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient );
+	SRBLight->Activate( false );
 }
 
 void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_level, double prop_level)
@@ -54,6 +60,8 @@ void Atlantis_SRB::SetPostSeparationState(double launch_time, double thrust_leve
 	bMainEngine = true;
 	bSeparationEngine = true;
 	srb_separation_time = oapiGetSimTime();
+
+	SRBLight->Activate( true );
 }
 
 // ==============================================================
@@ -255,6 +263,7 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 		if (met >= SRB_CUTOUT_TIME) {
 			SetThrusterLevel (th_main, 0);
 			bMainEngine = false;
+			SRBLight->Activate( false );
 			// After the propellant is burnt out we should be airborne.
 			// Now we can prepare touchdown points for "landing"
 			SetTouchdownPoints (_V(0,9,3), _V(-1,1,-3), _V(1,1,-3));

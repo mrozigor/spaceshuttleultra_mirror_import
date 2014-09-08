@@ -125,9 +125,6 @@
     <ClCompile Include="dps\BIU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="mps\BLOCK_II.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\BusController.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -305,9 +302,6 @@
     <ClCompile Include="dps\SimpleGPCSystem.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\SimpleGPCSoftware.h">
-      <Filter>Includes</Filter>
-    </ClCompile>
     <ClCompile Include="dps\SimpleGPCSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -425,7 +419,39 @@
     <ClCompile Include="vc\PanelO17.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\MM801.cpp" />
+    <ClCompile Include="mps\HeliumSystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\PneumaticControlAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MM801.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SSME_Operations.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MPS_Dump.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\IO_Control.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\ETSepSequence.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\TransitionDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SRBSepSequence.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\ATVC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mps\SSME_BLOCK_II.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -471,9 +497,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\BIU.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="mps\BLOCK_II.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="CommonDefs.h">
@@ -738,6 +761,87 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\MM801.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SimpleGPCSoftware.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\HeliumSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\PneumaticControlAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSMEController.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSMEController_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSMEControllerSW.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSMEControllerSW_AD08.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\InputElectronics.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\InputElectronics_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\OutputElectronics.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\OutputElectronics_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\PowerSupplyElectronics.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\PowerSupplyElectronics_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\DigitalComputerUnit_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\ComputerInterfaceElectronics.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\DigitalComputerUnit.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\VehicleInterfaceElectronics.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SSME_Operations.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MPS_Dump.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\IO_Control.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\ETSepSequence.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\TransitionDAP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SRBSepSequence.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\ATVC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="mps\SSME_BLOCK_II.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

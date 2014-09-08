@@ -1,6 +1,7 @@
 #include "MPS_Dedicated_Display_Driver.h"
 #include "..\Atlantis.h"
 #include "SSME_SOP.h"
+#include "assert.h"
 
 
 namespace dps
@@ -32,7 +33,7 @@ namespace dps
 		{
 			for (int i = 1; i <= 3; i++)// red lights
 			{
-				if (//(i limits exceeded flag == true) || 
+				if ((pSSME_SOP->GetLimitExceededFlag( i ) == true) || 
 					(pSSME_SOP->GetShutdownPhaseFlag( i ) == true) || 
 					(pSSME_SOP->GetPostShutdownPhaseFlag( i ) == true))
 				{
@@ -69,6 +70,7 @@ namespace dps
 	void MPS_Dedicated_Display_Driver::Realize( void )
 	{
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
+		assert( (pSSME_SOP != NULL) && "MPS_Dedicated_Display_Driver::Realize.pSSME_SOP" );
 
 		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "MPS_STATUS_LIGHTS", 6 );
 
@@ -87,6 +89,7 @@ namespace dps
 			case 101:
 			case 102:
 			case 103:
+			case 104:
 			case 601:
 				return true;
 			default:

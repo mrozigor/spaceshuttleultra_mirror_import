@@ -103,7 +103,7 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				pad->RetractIAA();
 				return TRUE;
 			case IDC_CREWARM_EXTEND:
-				pad->ExtendOrbiterAccessArm();
+				pad->ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 				return TRUE;
 			case IDC_CREWARM_RETRACT:
 				pad->RetractOrbiterAccessArm();
@@ -642,7 +642,7 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.8, 15, 7, 0, 3, 1.25, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.8, 15, 7, 0, 1.2, 1, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
@@ -698,7 +698,8 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	CreateGOXVentThrusters();
 	
-	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE);
+	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_NORMAL, OAA_RATE_NORMAL);
+	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_EMERGENCY, OAA_RATE_EMERGENCY);
 	SetGOXVentArmRate(GVA_RATE);
 	SetGOXVentHoodRate(VENT_HOOD_RATE);
 	SetGH2VentlineRate(FSS_GH2_ARM_RATE);
