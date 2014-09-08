@@ -134,43 +134,6 @@ STS-116:SpaceShuttleUltra
   RPROBE 2
   LOMS 1
   ROMS 1
-  BOILERN2SPLY0 1
-  BOILERN2SPLY1 1
-  BOILERN2SPLY2 1
-  BOILERCNTLR0 1
-  BOILERCNTLR1 1
-  BOILERCNTLR2 1
-  BOILERHTR0 1
-  BOILERHTR1 1
-  BOILERHTR2 1
-  APUFUTKVLV0 1
-  APUFUTKVLV1 1
-  APUFUTKVLV2 1
-  APUCNTLRPWR0 1
-  APUCNTLRPWR1 1
-  APUCNTLRPWR2 1
-  HYDCIRCPUMP0 1
-  HYDCIRCPUMP1 1
-  HYDCIRCPUMP2 1
-  APUAUTOSHTDN 1
-  APUSPDSEL0 1
-  APUSPDSEL1 1
-  APUSPDSEL2 1
-  APUCNTRL0 1
-  APUCNTRL1 1
-  APUCNTRL2 1
-  HYDMNPMPPRESS0 1
-  HYDMNPMPPRESS1 1
-  HYDMNPMPPRESS2 1
-  APU0 0
-  APU1 0
-  APU2 0
-  HYDRAULIC_PRESS0 0
-  HYDRAULIC_PRESS1 0
-  HYDRAULIC_PRESS2 0
-  FUEL_PRESS0 0
-  FUEL_PRESS1 0
-  FUEL_PRESS2 0
   L_ET_UMB_DOOR 0.000
   R_ET_UMB_DOOR 0.000
   ET_DOOR_LATCHES 1.000000 0.000000 0.000000
@@ -206,6 +169,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   RELPOS_T2 0.000000 0.000000 0.600000
   BASE_TIME 0 0 0 0.0
   @ENDSOFTWARE 
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 2
+  @ENDSOFTWARE 
 @ENDSUBSYSTEM		;SimpleGPCSystem
 @SUBSYSTEM IDP1
   IDP1 SPEC 65535
@@ -223,59 +189,45 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   IDP4 SPEC 65535
   IDP4 DISP 65535
 @ENDSUBSYSTEM		;IDP4
+@SUBSYSTEM HeEng_C
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 1500
+  VALVES 0 0 0 
+@ENDSUBSYSTEM		;HePneu
 @SUBSYSTEM MPS_C
-  SSME_model 5
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 0
-  DCU_chB SW 0
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_C
 @SUBSYSTEM MPS_L
-  SSME_model 5
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 0
-  DCU_chB SW 0
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_L
 @SUBSYSTEM MPS_R
-  SSME_model 5
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 0
-  DCU_chB SW 0
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_R
   @PANEL F6
   @ENDPANEL 
@@ -327,6 +279,54 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "PYROS Bp" [0]
   "PYROS Cp" [0]
   @ENDPANEL 
+  @PANEL R2
+  "Boiler1 N2 Supply" OFF
+  "Boiler2 N2 Supply" OFF
+  "Boiler3 N2 Supply" OFF
+  "Boiler1 Cntlr" OFF
+  "Boiler2 Cntlr" OFF
+  "Boiler3 Cntlr" OFF
+  "Boiler1 Cntlr Pwr/Htr" OFF
+  "Boiler2 Cntlr Pwr/Htr" OFF
+  "Boiler3 Cntlr Pwr/Htr" OFF
+  "APU1 Run" OFF
+  "APU2 Run" OFF
+  "APU3 Run" OFF
+  "Hyd Main Pump Press 1" NORM
+  "Hyd Main Pump Press 2" NORM
+  "Hyd Main Pump Press 3" NORM
+  "APU1 Cntlr Pwr " OFF
+  "APU2 Cntlr Pwr " OFF
+  "APU3 Cntlr Pwr " OFF
+  "APU1 Fuel Tank Valve" CLOSE
+  "APU2 Fuel Tank Valve" CLOSE
+  "APU3 Fuel Tank Valve" CLOSE
+  "ET Umb Centerline Latch" GND
+  "ET Umb Left Door" OFF
+  "ET Umb Left Door Latch" OFF
+  "ET Umb Right Door" OFF
+  "ET Umb Right Door Latch" OFF
+  "MPS Pwr Left AC2" [0]
+  "MPS Pwr Ctr AC1" [0]
+  "MPS Pwr Right AC3" [0]
+  "MPS Pwr Left AC3" [0]
+  "MPS Pwr Ctr AC2" [0]
+  "MPS Pwr Right AC1" [0]
+  "MPS He Isol A Left" GPC
+  "MPS He Isol A Ctr" GPC
+  "MPS He Isol A Right" GPC
+  "MPS He Isol B Left" GPC
+  "MPS He Isol B Ctr" GPC
+  "MPS He Isol B Right" GPC
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" GPC
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
+  @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
   "ROMS Arm" ARM/PRESS
@@ -338,6 +338,15 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
   @ENDPANEL 
 @SUBSYSTEM ADPS
   LEFT_AIRDATAPROBE 1 3 0

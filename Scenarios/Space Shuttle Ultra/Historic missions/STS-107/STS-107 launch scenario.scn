@@ -39,16 +39,74 @@ BEGIN_HUD
 END_HUD
 
 BEGIN_MFD Left
-  TYPE Map
-  REF Earth
-  BTARGET Cape Canaveral
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
 END_MFD
 
 BEGIN_MFD Right
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
+BEGIN_MFD 3
+  TYPE Surface
+  SPDMODE 1
+END_MFD
+
+BEGIN_MFD 4
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 5
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+END_MFD
+
+BEGIN_MFD 7
   TYPE Orbit
   PROJ Ship
+  FRAME Equator
+  ALT
   REF Earth
 END_MFD
+
+BEGIN_MFD 8
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 2
+END_MFD
+
+BEGIN_MFD 9
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_MFD 10
+  TYPE User
+  MODE CRT
+  Mode2 0
+  Display 1
+END_MFD
+
+BEGIN_VC
+END_VC
 
 BEGIN_SHIPS
 LCC:SSU_LCC
@@ -117,59 +175,45 @@ Columbia:SpaceShuttleUltra
    PAYLOAD STBD3 -8.000000 0.000000 0
    PAYLOAD STBD4 0.000000 0.000000 0
   PLBD_CAM 0.0000 -90.0000 0.0000 90.0000 0.0000 -90.0000 0.0000 90.0000
+@SUBSYSTEM HeEng_C
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 4100
+  VALVES 1 1 0 
+@ENDSUBSYSTEM		;HePneu
 @SUBSYSTEM MPS_C
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_C
 @SUBSYSTEM MPS_L
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_L
 @SUBSYSTEM MPS_R
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_R
 @SUBSYSTEM FMC1
 @ENDSUBSYSTEM		;FMC1
@@ -294,6 +338,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @ENDSOFTWARE 
   @BEGINSOFTWARE RSLS_old
   @ENDSOFTWARE 
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 0
+  @ENDSOFTWARE 
 @ENDSUBSYSTEM		;SimpleGPCSystem
 @SUBSYSTEM ODS
   RING_STATE -1 0.0000
@@ -367,17 +414,17 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @PANEL F2
   "F2_SPDBKTHROT_AUTO" 1
   "F2_BODYFLAP_AUTO" 1
-  "F2_PITCH_AUTO" 0
+  "F2_PITCH_AUTO" 1
   "F2_PITCH_CSS" 0
-  "F2_RY_AUTO" 0
+  "F2_RY_AUTO" 1
   "F2_RY_CSS" 0
   @ENDPANEL 
   @PANEL F4
   "F4_SPDBKTHROT_AUTO" 1
   "F4_BODYFLAP_AUTO" 1
-  "F4_PITCH_AUTO" 0
+  "F4_PITCH_AUTO" 1
   "F4_PITCH_CSS" 0
-  "F4_RY_AUTO" 0
+  "F4_RY_AUTO" 1
   "F4_RY_CSS" 0
   @ENDPANEL 
   @PANEL F6
@@ -427,6 +474,14 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS He Isol B Left" OPEN
   "MPS He Isol B Ctr" OPEN
   "MPS He Isol B Right" OPEN
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
@@ -439,6 +494,15 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR
@@ -532,6 +596,7 @@ ET:SSU_LWT
   STATUS Landed Earth
   POS 0.0000000 0.0000000
   HEADING 0.00
+  PRPLEVEL 0:0.996000
   ATTACHED 0:20,Columbia
   AFCMODE 7
 END

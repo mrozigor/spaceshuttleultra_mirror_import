@@ -52,7 +52,7 @@
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
 #include "MechActuator.h"
-#include "mps/BLOCK_II.h"
+#include "mps/SSME_BLOCK_II.h"
 #include "PanelA4.h"
 #include "PanelC2.h"
 #include "PanelO3.h"
@@ -71,6 +71,7 @@
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
+#include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
 #include <cassert>
 
@@ -574,12 +575,20 @@ pActiveLatches(3, NULL)
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
+  pSSME_SOP = NULL;
 
   psubsystems	  = new AtlantisSubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08"));
+	psubsystems->AddSubsystem( pHeEng[0] = new mps::HeSysEng( psubsystems, "HeEng_C", 1 ) );
+	psubsystems->AddSubsystem( pHeEng[1] = new mps::HeSysEng( psubsystems, "HeEng_L", 2 ) );
+	psubsystems->AddSubsystem( pHeEng[2] = new mps::HeSysEng( psubsystems, "HeEng_R", 3 ) );
+	psubsystems->AddSubsystem( pHePneu = new mps::HeSysPneu( psubsystems, "HePneu" ) );
+
+	psubsystems->AddSubsystem( pMPS = new mps::MPS( psubsystems, pHePneu ) );
+
+	psubsystems->AddSubsystem( pSSME[0] = new mps::SSME_BLOCK_II( psubsystems, "MPS_C", 1, 2, "AD08", pHeEng[0] ) );
+	psubsystems->AddSubsystem( pSSME[1] = new mps::SSME_BLOCK_II( psubsystems, "MPS_L", 2, 2, "AD08", pHeEng[1] ) );
+	psubsystems->AddSubsystem( pSSME[2] = new mps::SSME_BLOCK_II( psubsystems, "MPS_R", 3, 2, "AD08", pHeEng[2] ) );
 
   psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
   psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
@@ -695,12 +704,13 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
   psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
+  psubsystems->AddSubsystem( pATVC = new gnc::ATVC( psubsystems, "ATVC", 1 ) );// HACK should be 4 of this
+
   //psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
 
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
   
-  pSSME_SOP = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -819,12 +829,14 @@ pActiveLatches(3, NULL)
   ph_lrcs		  = NULL;
   ph_rrcs		  = NULL;
   ph_controller	  = NULL;
-  ph_tank         = NULL;
+  ph_mps         = NULL;
   ph_srb          = NULL;
   thg_main        = NULL;
   thg_retro		  = NULL;
   thg_srb         = NULL;
 
+	LOXmass = 0;
+	LH2mass = 0;
 
   for(i=0;i<4;i++)
   {
@@ -842,7 +854,6 @@ pActiveLatches(3, NULL)
   {
 	th_main[i] = NULL;
 	th_ssme_gox[i] = NULL;
-	th_ssme_loxdump[i] = NULL;
 	thManLRCS1[i] = NULL;
 	thManLRCS2[i] = NULL;
 	thManLRCS3[i] = NULL;
@@ -852,6 +863,14 @@ pActiveLatches(3, NULL)
 	thManRRCS3[i] = NULL;
 	thManRRCS4[i] = NULL;
   }
+  thMPSDump[0] = NULL;
+  thMPSDump[1] = NULL;
+  thMPSDump[2] = NULL;
+  thMPSDump[3] = NULL;
+  thMPSDump[4] = NULL;
+  thMPSDump[5] = NULL;
+  thMPSDump[6] = NULL;
+  thMPSDump[7] = NULL;
   th_srb[0] = th_srb[1] = NULL;
   thManLRCS5[0] = thManLRCS5[1] = NULL;
   thManRRCS5[0] = thManRRCS5[1] = NULL;
@@ -868,10 +887,12 @@ pActiveLatches(3, NULL)
   bRCSDefined = false;
   bControllerThrustersDefined = false;
 
+  phLOXdump = NULL;
+  phLH2dump = NULL;
+
   oms_helium_tank[0] = NULL;
   oms_helium_tank[1] = NULL;
   for(i=0;i<3;i++) {
-	  mps_helium_tank[i] = NULL;
 	  ex_main[i] = NULL;
   }
 
@@ -1044,6 +1065,13 @@ pActiveLatches(3, NULL)
   ControlRMS=false;
   lastRMSSJCommand=0;
 
+  SERCstop = true;
+
+  LO2LowLevelSensor[0] = Sensor( 65, 80 );
+  LO2LowLevelSensor[1] = Sensor( 65, 80 );
+  LO2LowLevelSensor[2] = Sensor( 65, 80 );
+  LO2LowLevelSensor[3] = Sensor( 65, 80 );
+
   //I-loads
   //stage1guidance_size=0;
 
@@ -1081,7 +1109,13 @@ pActiveLatches(3, NULL)
   curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
   curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
 
-  for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
+  SSMEInstalledNullPos[0] = SSMET_INSTALLED_NULL_POS;
+  SSMEInstalledNullPos[1] = SSMEL_INSTALLED_NULL_POS;
+  SSMEInstalledNullPos[2] = SSMER_INSTALLED_NULL_POS;
+  SSMECurrentPos[0] = SSMET_INSTALLED_NULL_POS;
+  SSMECurrentPos[1] = SSMEL_INSTALLED_NULL_POS;
+  SSMECurrentPos[2] = SSMER_INSTALLED_NULL_POS;
+
   for(int i=0;i<2;i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
@@ -1112,8 +1146,9 @@ pActiveLatches(3, NULL)
 	COLOUR4 col_diff = {1,1,1,0};
 	COLOUR4 col_zero = {0,0,0,0};
 	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight = AddPointLight (_V(0,LSRB_OFFSET.y,LSRB_OFFSET.z-21.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,SSMEL_REF.y,SSMEL_REF.z), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
+	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
+	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z - 4), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
@@ -1135,7 +1170,9 @@ pActiveLatches(3, NULL)
 	reentry_flames = NULL;
 
 
-
+	SSMEGH2burn[0] = NULL;
+	SSMEGH2burn[1] = NULL;
+	SSMEGH2burn[2] = NULL;
 }
 
 // --------------------------------------------------------------
@@ -1218,12 +1255,14 @@ void Atlantis::SetLaunchConfiguration (void)
   // ************************* propellant specs **********************************
 
   
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+  if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
+  LOXmass = MPS_MANIFOLD_MASS_LOX;
+  LH2mass = MPS_MANIFOLD_MASS_LH2;
   if (!ph_srb)  ph_srb  = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
   
   CreateOrbiterTanks();
   
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+  //SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
 
@@ -1243,11 +1282,11 @@ void Atlantis::SetLaunchConfiguration (void)
   SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
   srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
   srb_contrail.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
+  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
+  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
   for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
   AddExhaustStream (th_srb[0], &srb_exhaust); 
   AddExhaustStream (th_srb[1], &srb_exhaust);
-  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
-  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
 
   //Add slag effect streams
   for(i=0;i<2;i++) {
@@ -1318,6 +1357,10 @@ void Atlantis::SetLaunchConfiguration (void)
   //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
   //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
+  phLOXdump = ph_mps;
+  phLH2dump = ph_mps;
+  CreateMPSDumpVents();// must be after the AddOrbiterVisual call as it uses orbiter_ofs and it not initialized before the 1º run, feel free to "fix" if needed
+
   status = STATE_PRELAUNCH;
   
 }
@@ -1352,11 +1395,11 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // ************************* propellant specs **********************************
 
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+  if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
 
   CreateOrbiterTanks();
 
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+  //SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
 
   // *********************** thruster definitions ********************************
 
@@ -1367,6 +1410,10 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // all times
 
   CreateSSMEs(OFS_ZERO);
+
+  phLOXdump = ph_mps;
+  phLH2dump = ph_mps;
+  CreateMPSDumpVents();
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
@@ -2864,10 +2911,16 @@ void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
 
 void Atlantis::SeparateTank (void)
 {
-	DetachChildAndUpdateMass(ahET, -1.0);
+	DetachChildAndUpdateMass(ahET, 0.0);
 
-	// Remove Tank from shuttle instance
-	DelPropellantResource (ph_tank);
+	// create separate tanks for MPS dumps
+	// using remaining mass in manifold to estimate LO2 & LH2 masses
+	phLOXdump = CreatePropellantResource( LOXmass );
+	phLH2dump = CreatePropellantResource( LH2mass );
+	CreateMPSDumpVents();
+
+	// delete joint mps manifold
+	DelPropellantResource( ph_mps );
 
 	// main engines are done
 	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
@@ -3113,14 +3166,25 @@ double Atlantis::GetSSMEISP() const
 	return GetThrusterIsp(th_main[0]);
 }
 
-void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
+void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const
 {
 	VECTOR3 N=_V(0, 0, 0);
-        for(int i=0;i<3;i++) {
-		N += SSMENullDirection[i]*GetThrusterLevel(th_main[i]);
+	VECTOR3 dir = _V( 0, 0, 0 );
+        if (eng == 0)
+	{
+		for(int i=0;i<3;i++) {
+			GetThrusterRef( th_main[i], dir );
+			dir = Normalize( -dir );
+			N += dir*GetThrusterLevel(th_main[i]);
+		}
 	}
-	degAngleP=DEG*asin(N.y/N.z);
-	degAngleY=DEG*asin(N.x/N.z);
+	else
+	{
+		GetThrusterRef( th_main[eng - 1], dir );
+		N = -dir;
+	}
+	degAngleP=DEG*atan2( N.y, N.z );
+	degAngleY=-DEG*atan2( cos( RAD*degAngleP ) * N.x, N.z );
 }
 
 void Atlantis::FailEngine(int engine)
@@ -4191,6 +4255,7 @@ void Atlantis::clbkPostCreation ()
 		temp.Connect(pBundle, i+3);
 		temp.ResetLine();
 	}
+	RotThrusterCommands[3].Connect( pBundle, 6 );// SERC RCS thrusters
 
 	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
 	RMSGrapple.Connect(pBundle, 0);
@@ -4210,25 +4275,6 @@ void Atlantis::clbkPostCreation ()
 	RMSDrivePlus.Connect(pBundle, 8);
 	RMSDriveMinus.Connect(pBundle, 9);
 
-	pBundle=bundleManager->CreateBundle("SSMEC_R2_SWITCHES", 4);
-	MPSPwr[0][0].Connect(pBundle, 0);
-	MPSPwr[1][0].Connect(pBundle, 1);
-	MPSHeIsolA[0].Connect(pBundle, 2);
-	MPSHeIsolB[0].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMEL_R2_SWITCHES", 4);
-	MPSPwr[0][1].Connect(pBundle, 0);
-	MPSPwr[1][1].Connect(pBundle, 1);
-	MPSHeIsolA[1].Connect(pBundle, 2);
-	MPSHeIsolB[1].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMER_R2_SWITCHES", 4);
-	MPSPwr[0][2].Connect(pBundle, 0);
-	MPSPwr[1][2].Connect(pBundle, 1);
-	MPSHeIsolA[2].Connect(pBundle, 2);
-	MPSHeIsolB[2].Connect(pBundle, 2);
-
-	pBundle = bundleManager->CreateBundle("SSME", 8);
-	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
-
 	pBundle=bundleManager->CreateBundle("LOMS", 5);
 	OMSArm[LEFT].Connect(pBundle, 0);
 	OMSArmPress[LEFT].Connect(pBundle, 1);
@@ -4241,6 +4287,15 @@ void Atlantis::clbkPostCreation ()
 	OMSFire[RIGHT].Connect(pBundle, 2);
 	OMSPitch[RIGHT].Connect(pBundle, 3);
 	OMSYaw[RIGHT].Connect(pBundle, 4);
+
+	pBundle = bundleManager->CreateBundle( "C3_LIMITS_SSMEPB", 5 );
+	for(int i=0;i<3;i++) SSMEPBAnalog[i].Connect( pBundle, i + 2 );
+
+	pBundle = bundleManager->CreateBundle( "ET_LOX_SENSORS", 16 );
+	LO2LowLevelSensor[0].Connect( pBundle, 0 );
+	LO2LowLevelSensor[1].Connect( pBundle, 1 );
+	LO2LowLevelSensor[2].Connect( pBundle, 2 );
+	LO2LowLevelSensor[3].Connect( pBundle, 3 );
 
 	// ports for pan/tilt and cam settings
 	DiscreteBundle* pCamBundles[5];
@@ -4282,11 +4337,12 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 //	double dThrust;
 	//double steerforce, airspeed;
 
-	if(firstStep || status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
+	if(status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
 
 	if(firstStep) {
 		firstStep = false;
 		UpdateMass();
+		UpdateCoG();// in the first time step UpdateCoG() must be called after UpdateMass() otherwise the first c.g. calc isn't good
 		if(status <= STATE_STAGE1) {
 			// update SRB thrusters to match values from SRB vessel
 			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
@@ -4362,7 +4418,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		case STATE_PRELAUNCH:
 		case STATE_STAGE1:
 		case STATE_STAGE2:
-			//for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
 			break;
 		case STATE_ORBITER:
 			break;
@@ -4443,6 +4498,55 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SetThrusterGroupLevel(thg_rollright, 0.0);
 		SetThrusterGroupLevel(thg_rollleft, 0.0);
 		lastRotCommand[ROLL] = 0;
+	}
+
+	// SERC
+	if(RotThrusterCommands[3].GetVoltage() > 0.0001)
+	{
+		// roll left
+		SetThrusterLevel( th_att_rcs[4], RotThrusterCommands[3].GetVoltage() );// F2R, F4R
+		SetThrusterLevel( th_att_rcs[9], RotThrusterCommands[3].GetVoltage() );// L1U, L2U, L4U
+		SetThrusterLevel( th_att_rcs[8], RotThrusterCommands[3].GetVoltage() );// R2D, R3D, R4D
+		SetThrusterLevel( th_att_rcs[7], RotThrusterCommands[3].GetVoltage() );// R1R, R2R, R3R, R4R
+
+		SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
+		SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
+		SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
+		SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+
+		SERCstop = false;
+	}
+	else if(RotThrusterCommands[3].GetVoltage() < -0.0001)
+	{
+		// roll right
+		SetThrusterLevel( th_att_rcs[6], -RotThrusterCommands[3].GetVoltage() );// F1L, F3L
+		SetThrusterLevel( th_att_rcs[10], -RotThrusterCommands[3].GetVoltage() );// L2D, L3D, L4D
+		SetThrusterLevel( th_att_rcs[5], -RotThrusterCommands[3].GetVoltage() );// L1L, L2L, L3L, L4L
+		SetThrusterLevel( th_att_rcs[11], -RotThrusterCommands[3].GetVoltage() );// R1U, R2U, R4U
+
+		SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
+		SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
+		SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
+		SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+
+		SERCstop = false;
+	}
+	else
+	{
+		if (SERCstop == false)
+		{
+			SetThrusterLevel( th_att_rcs[4], 0 );// F2R, F4R
+			SetThrusterLevel( th_att_rcs[9], 0 );// L1U, L2U, L4U
+			SetThrusterLevel( th_att_rcs[8], 0 );// R2D, R3D, R4D
+			SetThrusterLevel( th_att_rcs[7], 0 );// R1R, R2R, R3R, R4R
+
+			SetThrusterLevel( th_att_rcs[6], 0 );// F1L, F3L
+			SetThrusterLevel( th_att_rcs[10], 0 );// L2D, L3D, L4D
+			SetThrusterLevel( th_att_rcs[5], 0 );// L1L, L2L, L3L, L4L
+			SetThrusterLevel( th_att_rcs[11], 0 );// R1U, R2U, R4U
+
+			SERCstop = true;
+		}
 	}
 
 	if(TransThrusterCommands[0].GetVoltage() > 0.0001) {
@@ -4596,7 +4700,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	}
 
 	// during launch, turn engine light source on
-	if(status <= STATE_STAGE2 && GetSSMEThrustLevel(0) > 10.0) {
+	if(status <= STATE_STAGE2 && GetSSMEThrustLevel(0) > 1.0) {
 		SSMELight->Activate(true);
 		SSMELight->SetIntensity(GetSSMEThrustLevel(0)/SSME_MAX_POWER_LEVEL);
 	}
@@ -4604,10 +4708,12 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		SSMELight->Activate(false);
 	}
 	if(status == STATE_STAGE1 && GetLiftOffFlag()) {
-		SRBLight->Activate(true);
+		SRBLight[0]->Activate(true);
+		SRBLight[1]->Activate(true);
 	}
 	else {
-		SRBLight->Activate(false);
+		SRBLight[0]->Activate(false);
+		SRBLight[1]->Activate(false);
 	}
 
 	//double time=st.Stop();
@@ -4674,9 +4780,9 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		// check SSME state and trigger liftoff when required
 		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
-		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.05))
+		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 		{
-			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
+			if(GetPropellantLevel(ph_mps) > 0.5) // TODO improve this venting with engine status
 			{
 				for(unsigned short i = 0; i<3; i++)
 				{
@@ -4734,20 +4840,20 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		}
 		//sprintf(oapiDebugString(),"met: %f",met);
-		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
-			SeparateBoosters (met);
-			bManualSeparate = false;
-			pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
-		}
-		else {
+		//if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
+		//	SeparateBoosters (met);
+		//	bManualSeparate = false;
+		//	pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
+		//}
+		//else {
 			if(met>0.0) {
-				if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
+				/*if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
 				{
 					char buffer[100];
 					sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
 					oapiWriteLog(buffer);
 					bSRBCutoffFlag = true;
-				}
+				}*/
 
 
 				// extract current thrust level and propellant level as a function of time
@@ -4771,7 +4877,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				LaunchClamps ();
 			}
 			
-		}
+		//}
 		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
 		//GPC(simdt);
 		break;
@@ -5031,11 +5137,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				SpdbkThrotPLTOut.ResetLine();
 			}
 		}
-		else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
-		{
-			BodyFlapAutoOut.ResetLine();
-			BodyFlapManOut.ResetLine();
-		}
+		//else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
+		//{
+		//	BodyFlapAutoOut.ResetLine();
+		//	BodyFlapManOut.ResetLine();
+		//}
 
 		break;
 	}
@@ -6635,9 +6741,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		//gop->RevertLandingGear();
 		DeployLandingGear();
 		return 1;
-	case OAPI_KEY_MULTIPLY: // NUMPAD *
-		for(int i=0;i<3;i++) SSMEShutdown[i].SetLine();
-		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
 	case OAPI_KEY_LEFT:
 		AltKybdInput.y=-1.0;
 		return 1;
@@ -6656,6 +6759,9 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_DOWN:
 		AltKybdInput.z=-1.0;
 		return 1;
+	case OAPI_KEY_MULTIPLY: // NUMPAD *
+		for(int i=0;i<3;i++) SSMEPBAnalog[i].SetLine();
+		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
 	/*case OAPI_KEY_NUMPADENTER:
 		for(int i = 0; i<3; i++) {
 			SetThrusterLevel(th_main[i], 1.0);
@@ -6752,11 +6858,12 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 		return false; // error
 	}
 	else {
-		VECTOR3 dir=RotateVectorX(SSMENullDirection[usMPSNo-1], range(-10.5, degPitch, 10.5));
-		dir=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
+		VECTOR3 dir=RotateVectorX(SSMEInstalledNullPos[usMPSNo-1], range(-10.5, degPitch, 10.5));
+		SSMECurrentPos[usMPSNo-1]=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
 		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
 		//oapiWriteLog(oapiDebugString());
-		return SetSSMEDir(usMPSNo, dir);
+		UpdateSSMEGimbalAnimations();
+		return SetSSMEDir(usMPSNo, SSMECurrentPos[usMPSNo-1]);
 	}
 }
 
@@ -6814,6 +6921,60 @@ void Atlantis::IgniteSRBs()
 	GetSRB_State (0.0, thrust_level, prop_level);
 		for (int i = 0; i < 2; i++)
 			SetThrusterLevel (th_srb[i], thrust_level);
+}
+
+void Atlantis::SetMPSDumpLevel( int vent, double level )
+{
+	assert( (vent >= 0) && (vent <= 7) && " Atlantis::SetMPSDumpLevel.vent" );
+	assert( (level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level" );
+	if (thMPSDump[vent] != NULL) SetThrusterLevel( thMPSDump[vent], level );
+	return;
+}
+
+void Atlantis::SetSSMEGH2burn( int eng, bool burn )
+{
+	assert( (eng >= 1) && (eng <= 3) && " Atlantis::SetSSMEGH2burn.eng" );
+	if (SSMEGH2burn[eng - 1] != NULL) DelExhaustStream( SSMEGH2burn[eng - 1] );
+
+	if (burn == false)
+	{
+		SSMEGH2burn[eng - 1] = NULL;
+		return;
+	}
+
+	static PARTICLESTREAMSPEC psSSMEGH2burn = {
+	0,
+	0.2,
+	40,
+	35,
+	0.4,
+	0.4,
+	5,
+	5,
+	PARTICLESTREAMSPEC::EMISSIVE,
+	PARTICLESTREAMSPEC::LVL_FLAT,
+	1, 1,
+	PARTICLESTREAMSPEC::ATM_FLAT,
+	1, 1,
+	0
+	};
+	if (GetAtmPressure() > 25000)
+	{
+		//psSSMEGH2burn.srcrate = 40;
+		//psSSMEGH2burn.growthrate = 5;
+		//psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_FLAT;
+		psSSMEGH2burn.tex = oapiRegisterParticleTexture( "SSU\\SSMEstream" );
+	}
+	else
+	{
+		psSSMEGH2burn.srcrate = 80;
+		psSSMEGH2burn.growthrate = 15;
+		psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_LIN;
+		psSSMEGH2burn.tex = 0;
+	}
+
+	SSMEGH2burn[eng - 1] = AddExhaustStream( th_main[eng - 1], &psSSMEGH2burn );
+	return;
 }
 
 
@@ -6955,10 +7116,10 @@ short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
 {
 	if(which_srb < 2 && status < 2)
 	{
-		return (short)(1000 * GetThrusterLevel(th_srb[which_srb]));
+		return (short)(530 * GetThrusterLevel(th_srb[which_srb]));
 	}
 	else
-		return -1;
+		return 0;
 }
 
 unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short &usMin, unsigned short &usSec)
@@ -6972,17 +7133,34 @@ unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay
 
 short Atlantis::GetETPropellant() const
 {
-	if(status < 3)
-	{
-		return min((short)(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS), 99);
-	} else
-	 return -1;
+	Atlantis_Tank* et = GetTankInterface();
+	
+	if (et != NULL) return min((short)et->GetPropellantLevel(), 99);
+	else return -1;
 }
 
 double Atlantis::GetETPropellant_B( void ) const
 {
-	if (status < 3) return 100.0 * GetPropellantMass( ph_tank ) / TANK_MAX_PROPELLANT_MASS;
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetPropellantLevel();
 	else return -1;
+}
+
+double Atlantis::GetETLOXUllagePressure( void ) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLOXUllagePressure();
+	else return 0;
+}
+
+double Atlantis::GetETLH2UllagePressure( void ) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLH2UllagePressure();
+	else return 0;
 }
 
 dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
@@ -7073,64 +7251,61 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 	const double YAWS = 2 * sin(8.5 * RAD);
 	const double PITCHS = 2 * sin(10 * RAD);
 	
-	VECTOR3 SSME_DIR;
 	double fDeflYaw, fDeflPitch;
 
-	GetThrusterDir(th_main[0], SSME_DIR);
+	// center engine
+	fDeflPitch = asin(-SSMECurrentPos[0].y);
+	fDeflYaw = asin(SSMECurrentPos[0].x / cos(fDeflPitch));
 
-	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
-
-	//fDeflYaw = acos(SSME_DIR.x);
-	//fDeflPitch = acos(SSME_DIR.y/sin(fDeflYaw));
-
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
-
-	//sprintf(oapiDebugString(), "SSMET %f° %f° (%f, %f, %f)", fDeflPitch*DEG, fDeflYaw*DEG, SSME_DIR.x, SSME_DIR.y, SSME_DIR.z);
-
-
-	//fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
-	//	(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
 	SetAnimation(anim_ssmeTyaw, fDeflYaw/YAWS + 0.5);
 	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
 
 	if(th_ssme_gox[0] != NULL) {
-		SetThrusterDir(th_ssme_gox[0], SSME_DIR);
+		SetThrusterDir(th_ssme_gox[0], SSMECurrentPos[0]);
 		SetThrusterRef(th_ssme_gox[0], orbiter_ofs+SSMET_GOX_REF1);
 	}
 
-
-	GetThrusterDir(th_main[1], SSME_DIR);
-	
-	if(th_ssme_gox[1] != NULL) {
-		SetThrusterDir(th_ssme_gox[1], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
+	if (thMPSDump[0] != NULL)
+	{
+		SetThrusterDir( thMPSDump[0], SSMECurrentPos[0] );
+		SetThrusterRef( thMPSDump[0], orbiter_ofs + SSMET_GOX_REF1 + _V( -1.15, 0, -1 ) );
 	}
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	// left engine
+	fDeflPitch = asin(-SSMECurrentPos[1].y);
+	fDeflYaw = asin(SSMECurrentPos[1].x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
+	if(th_ssme_gox[1] != NULL) {
+		SetThrusterDir(th_ssme_gox[1], SSMECurrentPos[1]);
+		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
+	}
 
-	GetThrusterDir(th_main[2], SSME_DIR);
+	if (thMPSDump[1] != NULL)
+	{
+		SetThrusterDir( thMPSDump[1], SSMECurrentPos[1] );
+		SetThrusterRef( thMPSDump[1], orbiter_ofs + SSMEL_GOX_REF1 + _V( 0, -1.15, -1 ) );
+	}
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	// right engine
+	fDeflPitch = asin(-SSMECurrentPos[2].y);
+	fDeflYaw = asin(SSMECurrentPos[2].x / cos(fDeflPitch));
 
 	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD)/YAWS + 0.5);
 	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
 
 	if(th_ssme_gox[2] != NULL) {
-		SetThrusterDir(th_ssme_gox[2], SSME_DIR);
+		SetThrusterDir(th_ssme_gox[2], SSMECurrentPos[2]);
 		SetThrusterRef(th_ssme_gox[2], orbiter_ofs+SSMER_GOX_REF1);
 	}
 
-	
-	
-	
-	
+	if (thMPSDump[2] != NULL)
+	{
+		SetThrusterDir( thMPSDump[2], SSMECurrentPos[2] );
+		SetThrusterRef( thMPSDump[2], orbiter_ofs + SSMER_GOX_REF1 + _V( -1.15, 0, -1 ) );
+	}
 }
 
 void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
@@ -7199,9 +7374,9 @@ void Atlantis::StartROFIs()
 void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 {
 	if(!bSSMEsDefined) {
-		th_main[0] = CreateThruster (ofs + SSMET_REF, _V(0.0, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[1] = CreateThruster (ofs + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[2] = CreateThruster (ofs + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
+		th_main[0] = CreateThruster (ofs + SSMET_REF, SSMECurrentPos[0], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[1] = CreateThruster (ofs + SSMEL_REF, SSMECurrentPos[1], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[2] = CreateThruster (ofs + SSMER_REF, SSMECurrentPos[2], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
 		bSSMEsDefined = true;
 		//thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
 	}
@@ -7230,14 +7405,7 @@ void Atlantis::DefineSSMEExhaust()
 
 void Atlantis::UpdateNullDirections()
 {
-	// calculate null direction for each engine 
-	for(unsigned short i=0;i<3;i++) {
-		if(th_main[i]) {
-			GetThrusterRef(th_main[i], SSMENullDirection[i]);
-			SSMENullDirection[i]=Normalize(-SSMENullDirection[i]);
-			SetThrusterDir(th_main[i], SSMENullDirection[i]);
-		}
-	}
+	// calculate null direction for each engine
 	if(status <= STATE_STAGE1) {
 		for(unsigned short i=0;i<2;i++) {
 			if(th_srb[i]) {
@@ -7714,7 +7882,7 @@ AMAX=1
 TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0, 1.2, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  0, 0.06, 140, 10, 0, 0.8, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
 	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
@@ -7722,15 +7890,162 @@ TEX=Contrail1*/
 	gox_stream.tex = oapiRegisterParticleTexture ("contrail1");
 
 
-	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_mps, 250.0, 100.0);
 	
 	for(i = 0; i<3; i++)
 	{
 		AddExhaustStream(th_ssme_gox[i], &gox_stream);
 	}
 	
+}
+
+void Atlantis::CreateMPSDumpVents( void )
+{
+	static PARTICLESTREAMSPEC psLOXdump_SSME = {
+		0,
+		2,
+		80,
+		20,
+		0.4,
+		0.4,
+		10,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FD = {
+		0,
+		0.2,
+		80,
+		20,
+		0.4,
+		0.4,
+		5,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_BU = {
+		0,
+		0.0381,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		6,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FD = {
+		0,
+		0.2,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.35,///<     average particle lifetime [s]
+		7,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		20,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.4,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		5,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	// LOX dump -> dv = 9-11 fps
+	// LOX dump SSME 1
+	if (thMPSDump[0] != NULL) DelThruster( thMPSDump[0] );
+	thMPSDump[0] = CreateThruster( orbiter_ofs + SSMET_GOX_REF1 + _V( -1.15, 0, -1 ), SSMECurrentPos[0], 4000, phLOXdump, 80, 80 );
+	AddExhaustStream( thMPSDump[0], &psLOXdump_SSME );
+
+	// LOX dump SSME 2
+	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
+	thMPSDump[1] = CreateThruster( orbiter_ofs + SSMEL_GOX_REF1 + _V( 0, -1.15, -1 ), SSMECurrentPos[1], 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[1], &psLOXdump_SSME );
+
+	// LOX dump SSME 3
+	if (thMPSDump[2] != NULL) DelThruster( thMPSDump[2] );
+	thMPSDump[2] = CreateThruster( orbiter_ofs + SSMER_GOX_REF1 + _V( -1.15, 0, -1 ), SSMECurrentPos[2], 4000, phLOXdump, 80, 80 );		
+	AddExhaustStream( thMPSDump[2], &psLOXdump_SSME );
+
+	// LH2 dump B/U
+	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
+	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
+
+	// LH2 dump F/D
+	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
+	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.83, -1.46, -12.28 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
+	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
+
+	// LOX dump F/D
+	if (thMPSDump[5] != NULL) DelThruster( thMPSDump[5] );
+	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.83, -1.46, -12.28 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
+	AddExhaustStream( thMPSDump[5], &psLOXdump_FD );
+
+	// LH2 FDLN Relief vent
+	if (thMPSDump[6] != NULL) DelThruster( thMPSDump[6] );
+	thMPSDump[6] = CreateThruster( orbiter_ofs + _V( -0.434188, 1.5138, -10.8137 ), _V( 0, -0.993572, -0.113203 ), 34, phLH2dump, 60, 60 );
+	AddExhaustStream( thMPSDump[6], &psLH2dump_FDLN );
+
+	// LOX FDLN Relief vent
+	if (thMPSDump[7] != NULL) DelThruster( thMPSDump[7] );
+	thMPSDump[7] = CreateThruster( orbiter_ofs + _V( 2.92116, -3.44059, -10.8442 ), _V( -0.993373, -0.094977, -0.064729 ), 331, phLOXdump, 60, 60 );
+	AddExhaustStream( thMPSDump[7], &psLOXdump_FDLN );
+	return;
 }
 
 void Atlantis::RealizeSubsystemConnections() {
@@ -7974,6 +8289,12 @@ void Atlantis::StartRSLSSequence()
 	//if(rsls) rsls->StartRSLSSequence();
 }
 
+bool Atlantis::GetRSLSAbortFlag() const
+{
+	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
+	return pRSLS->GetRSLSAbortFlag();
+}
+
 void Atlantis::PSN4( void )
 {
 	pEIU[0]->command( 0xBC00 );
@@ -7981,10 +8302,58 @@ void Atlantis::PSN4( void )
 	pEIU[2]->command( 0xBC00 );
 }
 
+void Atlantis::SetSSMEActPos( int num, double Ppos, double Ypos )
+{
+	dps::ATVC_SOP* pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware( "ATVC_SOP" ));
+	pATVC_SOP->SetSSMEActPos( num, Ppos, Ypos );
+	return;
+}
+
 int Atlantis::GetSSMEPress( int eng )
 {
 	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware( "SSME_SOP" ));
 	return round(pSSME_SOP->GetPercentChamberPressVal( eng ));
+}
+
+int Atlantis::GetHeTankPress( int sys ) const
+{
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::GetHeTankPress" );
+	if (sys == 0) return pHePneu->GetTankPress();
+	return pHeEng[sys - 1]->GetTankPress();
+}
+
+int Atlantis::GetHeRegPress( int sys ) const
+{
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::GetHeRegPress" );
+	if (sys == 0) return pHePneu->GetRegPress();
+	return pHeEng[sys - 1]->GetRegPress();
+}
+
+void Atlantis::HeFillTank( int sys, double mass )
+{
+	assert( (sys >= 0) && (sys <= 3) && "Atlantis::HeFillTank" );
+	if (sys == 0) pHePneu->FillTank( mass );
+	else pHeEng[sys - 1]->FillTank( mass );
+}
+
+PROPELLANT_HANDLE Atlantis::GetLH2Tank( void ) const
+{
+	return phLH2dump;
+}
+
+PROPELLANT_HANDLE Atlantis::GetLOXTank( void ) const
+{
+	return phLOXdump;
+}
+
+double Atlantis::GetLOXManifPress( void ) const
+{
+	return pMPS->GetLOXManifPress();
+}
+
+double Atlantis::GetLH2ManifPress( void ) const
+{
+	return pMPS->GetLH2ManifPress();
 }
 
 void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
@@ -8046,18 +8415,6 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 	}
 }
 
-//void Atlantis::SSMEEngControl(unsigned short usEng) const
-//{
-//	if(status>=STATE_ORBITER) return; //th_main not defined
-//
-//	if((MPSPwr[0][usEng] || MPSPwr[1][usEng]) && (MPSHeIsolA[usEng] || MPSHeIsolB[usEng])) {
-//		SetThrusterResource(th_main[usEng], ph_tank);
-//	}
-//	else {
-//		SetThrusterResource(th_main[usEng], NULL);
-//	}
-//}
-
 bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
 {
 	bool result = AttachChild(child, attachment, child_attachment);
@@ -8107,6 +8464,46 @@ void Atlantis::UpdateMass() const
 	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
+void Atlantis::ETPressurization( double GOXmass, double GH2mass )
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) et->PressurantFlow( GOXmass, GH2mass );
+	return;
+}
+
+void Atlantis::UpdateMPSManifold( void )
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et == NULL) return;
+	
+	double LH2deltamass = (LOXmass + LH2mass - GetPropellantMass( ph_mps )) / 7.032;
+	double LOXdeltamass = LH2deltamass * 6.032;
+
+	LOXmass -= LOXdeltamass;
+	LH2mass -= LH2deltamass;
+
+	et->PropellantFlow( LOXdeltamass, LH2deltamass );
+
+	LOXmass += LOXdeltamass;
+	if (LOXmass < 1) LOXmass = 0;// so it doesn't last forever
+	LH2mass += LH2deltamass;
+	if (LH2mass < 1) LH2mass = 0;// so it doesn't last forever
+
+	SetPropellantMass( ph_mps, LOXmass + LH2mass );
+
+	// HACK no clue... using 65-80% LOX mass
+	double lvl = 100 * LOXmass / MPS_MANIFOLD_MASS_LOX;
+	LO2LowLevelSensor[0].SetValue( lvl );
+	LO2LowLevelSensor[1].SetValue( lvl );
+	LO2LowLevelSensor[2].SetValue( lvl );
+	LO2LowLevelSensor[3].SetValue( lvl );
+	
+	UpdateMass();
+	return;
+}
+
 void Atlantis::UpdateCoG()
 {
 	// for the moment, only look at shuttle, ET and SRBs
@@ -8128,13 +8525,11 @@ void Atlantis::UpdateCoG()
 		positions.push_back(ET_EMPTY_CG);
 
 		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
-		double prop = GetPropellantLevel(ph_tank);
+		double prop = GetETPropellant_B();
 		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
 		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
-		//double LOXHeight = (LOXMass/LOX_DENSITY)/(2*PI*TANK_RADIUS); // height of LOX in cylindrical tank
-		//double LH2Height = (LH2Mass/LH2_DENSITY)/(2*PI*TANK_RADIUS); // height of LH2 in cylindrical tank
-		double LOXHeight = (LOXMass/LOX_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
-		double LH2Height = (LH2Mass/LH2_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+		double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+		double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
 		shuttleMass -= LOXMass;
 		shuttleMass -= LH2Mass;
 		masses.push_back(LOXMass);

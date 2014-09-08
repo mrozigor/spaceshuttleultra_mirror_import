@@ -34,6 +34,7 @@ namespace mission {
 		fMECOFPA = 0.747083*RAD;
 
 		bUseOMSAssist = false;
+		OMSAssistDuration = 102;// standard 4000lbs OMS assist
 		bPerformRTHU = false;
 		fMaxSSMEThrust = 104.5;
 		//fTHdown = 834.0;
@@ -116,19 +117,14 @@ namespace mission {
 		{
 			fMECOFPA *= RAD;
 		}
-		
-		/*if(!oapiReadItem_bool(hFile, "UseOMSAssist", bUseOMSAssist))
-		{
-			bUseOMSAssist = false;
-		}*/
 
 		oapiReadItem_bool(hFile, "PerformRollToHeadsUp", bPerformRTHU);
 		double fTemp;
 		if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
-		if(oapiReadItem_float(hFile, "OMSAssistStart", OMSAssistStart) && oapiReadItem_float(hFile, "OMSAssistEnd", OMSAssistEnd))
-		{
-			bUseOMSAssist = true;
-		}
+		
+		oapiReadItem_bool( hFile, "OMSAssistEnable", bUseOMSAssist );
+		oapiReadItem_float( hFile, "OMSAssistDuration", OMSAssistDuration );
+
 		oapiReadItem_float(hFile, "MaxSSMEThrust", fMaxSSMEThrust);
 		oapiReadItem_float(hFile, "ThrottleDown", fTHdown);
 		oapiReadItem_float(hFile, "ThrottleUp", fTHup);
@@ -304,14 +300,9 @@ namespace mission {
 		return bUseOMSAssist;
 	}
 
-	double Mission::GetOMSAssistStart() const
+	double Mission::GetOMSAssistDuration() const
 	{
-		return OMSAssistStart;
-	}
-
-	double Mission::GetOMSAssistEnd() const
-	{
-		return OMSAssistEnd;
+		return OMSAssistDuration;
 	}
 
 	bool Mission::PerformRTHU() const

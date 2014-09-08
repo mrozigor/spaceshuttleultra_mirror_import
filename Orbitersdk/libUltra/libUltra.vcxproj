@@ -93,11 +93,15 @@
     <ClCompile Include="src\DiscreteBundle.cpp" />
     <ClCompile Include="src\DiscreteBundleManager.cpp" />
     <ClCompile Include="src\DiscretePort.cpp" />
+    <ClCompile Include="src\HydraulicActuatedValve.cpp" />
     <ClCompile Include="src\LambertBurnTargeting.cpp" />
     <ClCompile Include="src\MMUTapeImage.cpp" />
     <ClCompile Include="src\PEG4Targeting.cpp" />
     <ClCompile Include="src\PIDControl.cpp" />
+    <ClCompile Include="src\PressureActuatedValve.cpp" />
+    <ClCompile Include="src\Sensor.cpp" />
     <ClCompile Include="src\ShuttleBus.cpp" />
+    <ClCompile Include="src\SolenoidValve.cpp" />
     <ClCompile Include="src\StateVectorPropagator.cpp" />
     <ClCompile Include="src\UltraMath.cpp" />
     <ClCompile Include="src\ValveTypeBool.cpp" />
@@ -115,6 +119,7 @@
     <ClInclude Include="include\DiscretePort.h" />
     <ClInclude Include="include\discsignals.h" />
     <ClInclude Include="include\EngConst.h" />
+    <ClInclude Include="include\HydraulicActuatedValve.h" />
     <ClInclude Include="include\ISSULaunchTower.h" />
     <ClInclude Include="include\ISSUMLP.h" />
     <ClInclude Include="include\ISubsystem.h" />
@@ -123,7 +128,11 @@
     <ClInclude Include="include\PanelGroup.h" />
     <ClInclude Include="include\PEG4Targeting.h" />
     <ClInclude Include="include\PIDControl.h" />
+    <ClInclude Include="include\PressureActuatedValve.h" />
+    <ClInclude Include="include\PressureSource.h" />
+    <ClInclude Include="include\Sensor.h" />
     <ClInclude Include="include\ShuttleBus.h" />
+    <ClInclude Include="include\SolenoidValve.h" />
     <ClInclude Include="include\StateVectorPropagator.h" />
     <ClInclude Include="include\Subsystem.h" />
     <ClInclude Include="include\SubsystemDirector.h" />

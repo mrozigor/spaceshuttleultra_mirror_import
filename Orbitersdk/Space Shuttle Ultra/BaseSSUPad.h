@@ -10,6 +10,10 @@
  * Base class for SSU pads (SLC-6 and LC-39)
  * Controls lights and animations common to both pads (OAA, GVA/Hood, IAA and GH2 ventline)
  */
+
+const int OAA_RATE_NORMAL = 0;
+const int OAA_RATE_EMERGENCY = 1;
+
 class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 {
 	bool bLightsOn;
@@ -23,7 +27,8 @@ class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	double orbiter_access_arm_rate;
+	int oaa_mode;
+	double orbiter_access_arm_rate[2];
 	double vent_hood_rate;
 	double vent_arm_rate;
 	double gh2_arm_rate;
@@ -61,14 +66,14 @@ protected:
 	void ToggleLights(bool enable);
 	bool IsNight() const;
 	
-	void SetOrbiterAccessArmRate(double rate);
+	void SetOrbiterAccessArmRate(double rate, int mode);
 	void SetGOXVentArmRate(double rate);
 	void SetGOXVentHoodRate(double rate);
 	void SetGH2VentlineRate(double rate);
 	void SetIntertankAccessArmRate(double rate);
 	
 	// ISSULaunchTower
-	virtual void ExtendOrbiterAccessArm();
+	virtual void ExtendOrbiterAccessArm( int mode );
 	virtual void RetractOrbiterAccessArm();
 	virtual void HaltOrbiterAccessArm();
 

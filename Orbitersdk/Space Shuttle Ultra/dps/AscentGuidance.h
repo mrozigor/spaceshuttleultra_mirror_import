@@ -23,7 +23,35 @@ const double PEG_STOP_TIME = 7.000; // time (seconds) before expected MECO to st
 const double ALIM1 = 29.3218835;// m/s^2 | 2.99 g
 const double ALIM2 = 29.41995;// m/s^2 | 3.0 g
 
+// AGT params
+const double Vref_adjust = 368;// fps
+const double Tref_adjust = 17.87;// MET (sec)
+
+// VRel/SSME throttle table
+const double THROT1 = 104;
+const double THROT2 = 104;
+const double THROT3 = 72;
+const double THROT4 = 104;
+
+const double QPOLY1 = 18.288;
+const double QPOLY2 = 116.7384;
+const double QPOLY3 = 188.0616;
+const double QPOLY4 = 425.8056;
+const double QPOLY5 = 99999;// fake
+
+const double FINECOUNT_THROTTLE = 67;
+const double FINECOUNT_THROTTLE_1EO = 91;
+const double FINECOUNT_THROTTLE_2EO = 91;
+
+// HACK the mass is just a guess, it's probably a little lower
+const double LOWLEVEL_ARM_MASS = 370000;// lbs
+
+
 class SSME_SOP;
+class SSME_Operations;
+class ATVC_SOP;
+class SRBSepSequence;
+class ETSepSequence;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -44,6 +72,10 @@ public:
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	void NullSRBNozzles( void );
+
+	bool OnPaint( int spec, vc::MDU* pMDU ) const;
 private:
 	void InitializeAutopilot();
 
@@ -80,6 +112,8 @@ private:
 	void Estimate();
 	void Guide();
 
+	void AdaptiveGuidanceThrottling( void );
+
 	// utility functions required by PEG guidance
 	inline double b0(double TT) {
 		return -Isp*log(1-TT/tau);
@@ -102,18 +136,16 @@ private:
 
 	// guidance parameters
 	double TgtInc, TgtFPA, TgtAlt, TgtSpd;
-	double OMSAssistStart, OMSAssistEnd;
-	double ThrottleBucketStartVel, ThrottleBucketEndVel;
+	double OMSAssistDuration;
 	bool PerformRTHU;
 
 	discsignals::DiscInPort SpdbkThrotPort;
 	discsignals::DiscInPort SpdbkThrotAutoIn;
 	discsignals::DiscOutPort SpdbkThrotAutoOut;
 	discsignals::DiscOutPort SpdbkThrotPLT;
-	discsignals::DiscInPort SSMEShutdown[3];
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
-	discsignals::DiscOutPort ZTransCommand;
+	discsignals::DiscOutPort SERC;
 
 	double lastSBTCCommand;
 
@@ -125,13 +157,9 @@ private:
 	double radTargetHeading, TAp, TPe, TTrA, TEcc, TgtRad;
 	std::vector<double> stage1GuidanceVelTable, stage1GuidancePitchTable;
 
-	bool bMECO;
-	bool ETSepTranslationInProg;
-	double ETSepMinusZDV;
-
 	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	//bool bAutopilot, bThrottle;
-	double tMECO, tSRBSep; //time(MET)
+	double tSRBSep; //time(MET)
 	double tLastMajorCycle;
 
 	double target_pitch; // target second stage pitch in degrees
@@ -158,10 +186,29 @@ private:
 	double eCurrent;
 
 	SSME_SOP* pSSME_SOP;
+	SSME_Operations* pSSME_Operations;
+	ATVC_SOP* pATVC_SOP;
+	SRBSepSequence* pSRBSepSequence;
+	ETSepSequence* pETSepSequence;
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
-	bool SSME_throttle_event[3];
-	bool SSMEManualShutdown[3];
+	double dt_thrt_glim;// timer for g limiting throttle cmds
+
+	bool enaSERC;
+	bool MEFail[3];
+	int NSSME;
+	bool finecount;
+	double finecountthrottle[3];
+
+	double QPOLY[5];// SSME throttle velocity
+	double THROT[4];// SSME throttle command
+	int J;
+
+	bool AGT_done;
+
+	bool bNullSRBNozzles;
+
+	double EOVI[2];
 };
 	
 };

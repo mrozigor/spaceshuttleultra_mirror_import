@@ -29,6 +29,12 @@
 #include <BasicValve.h>
 
 
+/**
+ * @brief	Implementation of the ValveTypeBool class.
+ * 
+ * @deprecated	ValveTypeBool has been replaced by SolenoidValve, 
+ * PressureActuatedValve and HydraulicActuatedValve.
+ */
 class ValveTypeBool
 {
 private:
@@ -49,7 +55,7 @@ public:
 	 * Returns valve position
 	 * @return valve position (ON/OFF)
 	 */
-	bool GetPos( void );
+	bool GetPos( void ) const;
 
 	/**
 	 * Updates valve position (call from time step functions)

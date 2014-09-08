@@ -107,59 +107,45 @@ Discovery:SpaceShuttleUltra
   MPSGOXVENT 1
   PLBD_CAM 90.0000 -90.0000 90.0000 90.0000 90.0000 90.0000 90.0000 -90.0000
   PLB_LIGHTS 0
+@SUBSYSTEM HeEng_C
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 4100
+  VALVES 1 1 0 
+@ENDSUBSYSTEM		;HePneu
 @SUBSYSTEM MPS_C
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_C
 @SUBSYSTEM MPS_L
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_L
 @SUBSYSTEM MPS_R
-  SSME_model 1
-  SSME_Igniters 0 0 0 0 0 0
-  SSME_Valves 0.000000 0.000000 0.000000 0.000000 0.000000 0 0 0
-  SSME_BLOCK_II_pos 0.000000 0.000000
-  VIE_WDTstate 0
-  VIE_VehicleDataSwitch 1
-  OE_chA StorageRegister 0
-  OE_chA ONOFFCommandRegister 0 0
-  OE_chA SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  OE_chB StorageRegister 0
-  OE_chB ONOFFCommandRegister 0 0
-  OE_chB SH 0.000000 0.000000 0.000000 0.000000 0.000000
-  DCU_chA SW 11
-  DCU_chB SW 11
-  CIE_chA bWDT 0 0
-  CIE_chB bWDT 0 0
+  SSME config 1
+  VIE config 1
+  DCU_chA config 1
+  DCU_chB config 1
+  CIE_chA config 1
+  CIE_chB config 1
 @ENDSUBSYSTEM		;MPS_R
 @SUBSYSTEM FMC1
 @ENDSUBSYSTEM		;FMC1
@@ -280,6 +266,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
 @SUBSYSTEM MMU2
 @ENDSUBSYSTEM		;MMU2
 @SUBSYSTEM SimpleGPCSystem
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 0
+  @ENDSOFTWARE 
 @ENDSUBSYSTEM		;SimpleGPCSystem
 @SUBSYSTEM ODS
   RING_STATE -1 0.0000
@@ -417,12 +406,20 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS Pwr Left AC3" [1]
   "MPS Pwr Ctr AC2" [1]
   "MPS Pwr Right AC1" [1]
-  "MPS He Isol A Left" OPEN
-  "MPS He Isol A Ctr" OPEN
-  "MPS He Isol A Right" OPEN
-  "MPS He Isol B Left" OPEN
-  "MPS He Isol B Ctr" OPEN
-  "MPS He Isol B Right" OPEN
+  "MPS He Isol A Left" GPC
+  "MPS He Isol A Ctr" GPC
+  "MPS He Isol A Right" GPC
+  "MPS He Isol B Left" GPC
+  "MPS He Isol B Ctr" GPC
+  "MPS He Isol B Right" GPC
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" OFF
@@ -435,6 +432,15 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
   @ENDPANEL 
   @PANEL O6
   "L GLRSHLD FLOOD" VAR
@@ -542,6 +548,7 @@ ET:SSU_SLWT
   STATUS Landed Earth
   POS 0.0000000 0.0000000
   HEADING 0.00
+  PRPLEVEL 0:0.996000
   ATTACHED 0:20,Discovery
   AFCMODE 7
 END

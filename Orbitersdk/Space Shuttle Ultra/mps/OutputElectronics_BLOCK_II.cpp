@@ -1,6 +1,11 @@
 #include "OutputElectronics_BLOCK_II.h"
+#include "SSMEController.h"
+#include "PowerSupplyElectronics.h"
+#include "ComputerInterfaceElectronics.h"
+#include "DigitalComputerUnit.h"
 #include "SSME.h"
 #include "MPSdefs.h"
+#include <UltraMath.h>
 
 
 namespace mps
@@ -9,7 +14,7 @@ namespace mps
 	{
 #ifdef _MPSDEBUG
 		char buffer[100];
-		sprintf_s( buffer, 100, " OutputElectronics_BLOCK_II::OutputElectronics_BLOCK_II in" );
+		sprintf_s( buffer, 100, " OutputElectronics_BLOCK_II::OutputElectronics_BLOCK_II in || ch:%d", ch );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
@@ -35,21 +40,94 @@ namespace mps
 		return false;
 	}
 
-	void OutputElectronics_BLOCK_II::tmestp( double time )
+	void OutputElectronics_BLOCK_II::tmestp( double time, double tmestp )
 	{
-		// check power supply
-		if (Controller->PSE_Power( ch ) == false) return;// no power -> no play
+		// check power supply and at least one good DCU
+		if ((PSE->Power() == false) || ((CIE[chA]->CheckWDTOwn( 0 ) || CIE[chA]->CheckWDTOwn( 1 )) && (CIE[chB]->CheckWDTOwn( 0 ) || CIE[chB]->CheckWDTOwn( 1 ))))
+		{
+			HPOTPISPurge_SV.ResetLine();
+			EmergencyShutdown_SV.ResetLine();
+			ShutdownPurge_SV.ResetLine();
+			FuelSystemPurge_SV.ResetLine();
+			BleedValvesControl_SV.ResetLine();
+			AFV_SV.ResetLine();
+			HPV_SV.ResetLine();
+			eng->Igniter_MCC[ch] = false;
+			eng->Igniter_OPB[ch] = false;
+			eng->Igniter_FPB[ch] = false;
+			FO_SS[0].ResetLine();
+			FO_SS[1].ResetLine();
+			FO_SS[2].ResetLine();
+			FO_SS[3].ResetLine();
+			FO_SS[4].ResetLine();
+			FS_SS[0].ResetLine();
+			FS_SS[1].ResetLine();
+			FS_SS[2].ResetLine();
+			FS_SS[3].ResetLine();
+			FS_SS[4].ResetLine();
 
-		// if both DCUs out -> do nothing
-		if ((Controller->CIE_CheckWDTOwn( chA, 0 ) || Controller->CIE_CheckWDTOwn( chA, 1 )) && (Controller->CIE_CheckWDTOwn( chB, 0 ) || Controller->CIE_CheckWDTOwn( chB, 1 ))) return;
+			ONOFFCommandRegister[0] = 0;
+			ONOFFCommandRegister[1] = 0;
+			return;
+		}
 
 		this->time = time;
 
-		// TODO "issue" on/off cmds
-		// HACK
-		eng->Igniter_MCC[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_MCC ) >> 4 );
-		eng->Igniter_FPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_FPB ) >> 5 );
-		eng->Igniter_OPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_OPB ) >> 6 );
+		// "issue" on/off cmds
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_HPOTPISPURGE ) >> 4 ) == true) HPOTPISPurge_SV.SetLine();
+		else HPOTPISPurge_SV.ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_EMERGENCYSHUTDOWN ) >> 5 ) == true) EmergencyShutdown_SV.SetLine();
+		else EmergencyShutdown_SV.ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_SHUTDOWNPURGE ) >> 6 ) == true) ShutdownPurge_SV.SetLine();
+		else ShutdownPurge_SV.ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_FUELSYSTEMPURGE ) >> 8 ) == true) FuelSystemPurge_SV.SetLine();
+		else FuelSystemPurge_SV.ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], SV_BLEEDVALVESCONTROL ) >> 9 ) == true) BleedValvesControl_SV.SetLine();
+		else BleedValvesControl_SV.ResetLine();
+		
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], AFV ) >> 10 ) == true) AFV_SV.SetLine();
+		else AFV_SV.ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], HPV ) >> 11 ) == true) HPV_SV.SetLine();
+		else HPV_SV.ResetLine();
+
+		eng->Igniter_MCC[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_MCC ) >> 13 );
+		eng->Igniter_OPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_OPB ) >> 14 );
+		eng->Igniter_FPB[ch] = GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[0], IGNITER_FPB ) >> 15 );
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_CCV_FO ) >> 4 ) == true) FO_SS[0].SetLine();
+		else FO_SS[0].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_MFV_FO ) >> 5 ) == true) FO_SS[1].SetLine();
+		else FO_SS[1].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_MOV_FO ) >> 6 ) == true) FO_SS[2].SetLine();
+		else FO_SS[2].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_FPOV_FO ) >> 7 ) == true) FO_SS[3].SetLine();
+		else FO_SS[3].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_OPOV_FO ) >> 8 ) == true) FO_SS[4].SetLine();
+		else FO_SS[4].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_CCV_FS ) >> 9 ) == true) FS_SS[0].SetLine();
+		else FS_SS[0].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_MFV_FS ) >> 10 ) == true) FS_SS[1].SetLine();
+		else FS_SS[1].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_MOV_FS ) >> 11 ) == true) FS_SS[2].SetLine();
+		else FS_SS[2].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_FPOV_FS ) >> 12 ) == true) FS_SS[3].SetLine();
+		else FS_SS[3].ResetLine();
+
+		if (GetBoolFromInt( GetMaskVal( ONOFFCommandRegister[1], SS_OPOV_FS ) >> 13 ) == true) FS_SS[4].SetLine();
+		else FS_SS[4].ResetLine();
 
 		// TODO monitor igniters
 
@@ -59,21 +137,121 @@ namespace mps
 		POS[2] = eng->ptrMOV->GetPos();
 		POS[3] = eng->ptrFPOV->GetPos();
 		POS[4] = eng->ptrOPOV->GetPos();
+		/*POS[5] = eng->ptrFBV->GetPos();
+		POS[6] = eng->ptrOBV->GetPos();
+		POS[7] = eng->ptrAFV->GetPos();
+		POS[8] = eng->ptrRIV->GetPos();*/
 
 		// TODO servovalve drivers and models
 
-		eng->ptrCCV->Move( SH[0] );
-		eng->ptrMFV->Move( SH[1] );
-		eng->ptrMOV->Move( SH[2] );
-		eng->ptrFPOV->Move( SH[3] );
-		eng->ptrOPOV->Move( SH[4] );
+
+		// SV model
+		// propagate model
+		if ((SVmodel_tgt[0] - SVmodel_cur[0]) > 0)
+		{
+			SVmodel_cur[0] += (MAX_RATE_CCV / 100) * tmestp;
+			if (SVmodel_cur[0] > SVmodel_tgt[0]) SVmodel_cur[0] = SVmodel_tgt[0];
+		}
+		if ((SVmodel_tgt[0] - SVmodel_cur[0]) < 0)
+		{
+			SVmodel_cur[0] -= (MAX_RATE_CCV / 100) * tmestp;
+			if (SVmodel_cur[0] < SVmodel_tgt[0]) SVmodel_cur[0] = SVmodel_tgt[0];
+		}
+
+		if ((SVmodel_tgt[1] - SVmodel_cur[1]) > 0)
+		{
+			SVmodel_cur[1] += (MAX_RATE_MFV / 100) * tmestp;
+			if (SVmodel_cur[1] > SVmodel_tgt[1]) SVmodel_cur[1] = SVmodel_tgt[1];
+		}
+		if ((SVmodel_tgt[1] - SVmodel_cur[1]) < 0)
+		{
+			SVmodel_cur[1] -= (MAX_RATE_MFV / 100) * tmestp;
+			if (SVmodel_cur[1] < SVmodel_tgt[1]) SVmodel_cur[1] = SVmodel_tgt[1];
+		}
+
+		if ((SVmodel_tgt[2] - SVmodel_cur[2]) > 0)
+		{
+			SVmodel_cur[2] += (MAX_RATE_MOV / 100) * tmestp;
+			if (SVmodel_cur[2] > SVmodel_tgt[2]) SVmodel_cur[2] = SVmodel_tgt[2];
+		}
+		if ((SVmodel_tgt[2] - SVmodel_cur[2]) < 0)
+		{
+			SVmodel_cur[2] -= (MAX_RATE_MOV / 100) * tmestp;
+			if (SVmodel_cur[2] < SVmodel_tgt[2]) SVmodel_cur[2] = SVmodel_tgt[2];
+		}
+
+		if ((SVmodel_tgt[3] - SVmodel_cur[3]) > 0)
+		{
+			SVmodel_cur[3] += (MAX_RATE_FPOV / 100) * tmestp;
+			if (SVmodel_cur[3] > SVmodel_tgt[3]) SVmodel_cur[3] = SVmodel_tgt[3];
+		}
+		if ((SVmodel_tgt[3] - SVmodel_cur[3]) < 0)
+		{
+			SVmodel_cur[3] -= (MAX_RATE_FPOV / 100) * tmestp;
+			if (SVmodel_cur[3] < SVmodel_tgt[3]) SVmodel_cur[3] = SVmodel_tgt[3];
+		}
+
+		if ((SVmodel_tgt[4] - SVmodel_cur[4]) > 0)
+		{
+			SVmodel_cur[4] += (MAX_RATE_OPOV / 100) * tmestp;
+			if (SVmodel_cur[4] > SVmodel_tgt[4]) SVmodel_cur[4] = SVmodel_tgt[4];
+		}
+		if ((SVmodel_tgt[4] - SVmodel_cur[4]) < 0)
+		{
+			SVmodel_cur[4] -= (MAX_RATE_OPOV / 100) * tmestp;
+			if (SVmodel_cur[4] < SVmodel_tgt[4]) SVmodel_cur[4] = SVmodel_tgt[4];
+		}
+		// check differences
+		if (abs(SVmodel_cur[0] - POS[0]) > triplevel[ch])
+		{
+			// interrupt
+			CIE[chA]->Interrupt( INT_CCVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_CCVSVAFI + ch );
+		}
+		if (abs(SVmodel_cur[1] - POS[1]) > triplevel[ch])
+		{
+			// interrupt
+			CIE[chA]->Interrupt( INT_MFVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_MFVSVAFI + ch );
+		}
+		if (abs(SVmodel_cur[2] - POS[2]) > triplevel[ch])
+		{
+			// interrupt
+			CIE[chA]->Interrupt( INT_MOVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_MOVSVAFI + ch );
+		}
+		if (abs(SVmodel_cur[3] - POS[3]) > triplevel[ch])
+		{
+			// interrupt
+			CIE[chA]->Interrupt( INT_FPOVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_FPOVSVAFI + ch );
+		}
+		if (abs(SVmodel_cur[4] - POS[4]) > triplevel[ch])
+		{
+			// interrupt
+			CIE[chA]->Interrupt( INT_OPOVSVAFI + ch );
+			CIE[chB]->Interrupt( INT_OPOVSVAFI + ch );
+		}
+		SVmodel_tgt[0] = SH[0];
+		SVmodel_tgt[1] = SH[1];
+		SVmodel_tgt[2] = SH[2];
+		SVmodel_tgt[3] = SH[3];
+		SVmodel_tgt[4] = SH[4];
+
+		// actuate valves
+		HSV_pos[0].SetLine( SH[0] * 5 );
+		HSV_pos[1].SetLine( SH[1] * 5 );
+		HSV_pos[2].SetLine( SH[2] * 5 );
+		HSV_pos[3].SetLine( SH[3] * 5 );
+		HSV_pos[4].SetLine( SH[4] * 5 );
 		return;
 	}
 
 	void OutputElectronics_BLOCK_II::StorageRegister_write( unsigned short data, int ch )
 	{
+		if (PSE->Power() == false) return;
 		// check WDT, listen to who is working
-		if (!Controller->CIE_CheckWDTOwn( chA, 0 ) && !Controller->CIE_CheckWDTOwn( chA, 1 ))
+		if (!CIE[chA]->CheckWDTOwn( 0 ) && !CIE[chA]->CheckWDTOwn( 1 ))
 		{
 			// do chA
 			if (ch == chA)
@@ -84,7 +262,7 @@ namespace mps
 		}
 		else
 		{
-			if (!Controller->CIE_CheckWDTOwn( chB, 0 ) && !Controller->CIE_CheckWDTOwn( chB, 1 ))
+			if (!CIE[chB]->CheckWDTOwn( 0 ) && !CIE[chB]->CheckWDTOwn( 1 ))
 			{
 				// do chB
 				if (ch == chB)
@@ -99,12 +277,15 @@ namespace mps
 
 	unsigned short OutputElectronics_BLOCK_II::StorageRegister_read( void ) const
 	{
+		if (PSE->Power() == false) return 0;
 		return StorageRegister;
 	}
 
 	unsigned short OutputElectronics_BLOCK_II::ONOFFCommandRegister_read( int num ) const
 	{
-		return ONOFFCommandRegister[num - 1];// TODO check bounds
+		assert( (num >= 1) && (num <= 2) && "OutputElectronics_BLOCK_II::ONOFFCommandRegister_read.num" );
+		if (PSE->Power() == false) return 0;
+		return ONOFFCommandRegister[num - 1];
 	}
 
 	void OutputElectronics_BLOCK_II::CommandDecoder( void )
@@ -142,12 +323,14 @@ namespace mps
 
 	void OutputElectronics_BLOCK_II::GetSH( double* data )
 	{
+		if (PSE->Power() == false) return;
 		memcpy( data, SH, 5 * sizeof(double) );
 		return;
 	}
 
 	void OutputElectronics_BLOCK_II::GetPOS( double* data )
 	{
+		if (PSE->Power() == false) return;
 		// HACK fix the delay on vlv pos
 		// get valve position
 		POS[0] = eng->ptrCCV->GetPos();
@@ -155,8 +338,12 @@ namespace mps
 		POS[2] = eng->ptrMOV->GetPos();
 		POS[3] = eng->ptrFPOV->GetPos();
 		POS[4] = eng->ptrOPOV->GetPos();
+		POS[5] = eng->ptrFBV->GetPos();
+		POS[6] = eng->ptrOBV->GetPos();
+		POS[7] = eng->ptrAFV->GetPos();
+		POS[8] = eng->ptrRIV->GetPos();
 
-		memcpy( data, POS, 5 * sizeof(double) );
+		memcpy( data, POS, 9 * sizeof(double) );
 		return;
 	}
 }

@@ -86,11 +86,45 @@ STS-101:SpaceShuttleUltra
    PAYLOAD STBD3 -8.000000 0.000000 0
    PAYLOAD STBD4 0.000000 0.000000 0
   PLBD_CAM 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+@SUBSYSTEM HeEng_C
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 1500
+  VALVES 0 0 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 1500
+  VALVES 0 0 0 
+@ENDSUBSYSTEM		;HePneu
 @SUBSYSTEM MPS_C
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_C
 @SUBSYSTEM MPS_L
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_L
 @SUBSYSTEM MPS_R
+  SSME config 3
+  VIE config 1
+  DCU_chA config 0
+  DCU_chB config 0
+  CIE_chA config 2
+  CIE_chB config 2
 @ENDSUBSYSTEM		;MPS_R
 @SUBSYSTEM FMC1
 @ENDSUBSYSTEM		;FMC1
@@ -158,6 +192,11 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
 @ENDSUBSYSTEM		;GPC4
 @SUBSYSTEM GPC5
 @ENDSUBSYSTEM		;GPC5
+@SUBSYSTEM SimpleGPCSystem
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 2
+  @ENDSOFTWARE 
+@ENDSUBSYSTEM		;SimpleGPCSystem
 @SUBSYSTEM ODS
   RING_STATE -1 0.0000
 @ENDSUBSYSTEM		;ODS
@@ -295,6 +334,14 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS He Isol B Left" GPC
   "MPS He Isol B Ctr" GPC
   "MPS He Isol B Right" GPC
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" GPC
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
   "LOMS Arm" ARM/PRESS
@@ -307,6 +354,15 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "SSME Left S/D PB Cover" [0]
   "SSME Ctr S/D PB Cover" [0]
   "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
   @ENDPANEL 
   @PANEL R11
   @ENDPANEL 

@@ -62,7 +62,7 @@ bool BasicValve::Move( double tpos )
 	return true;
 }
 
-double BasicValve::GetPos( void )
+double BasicValve::GetPos( void ) const
 {
 	return pos;
 }

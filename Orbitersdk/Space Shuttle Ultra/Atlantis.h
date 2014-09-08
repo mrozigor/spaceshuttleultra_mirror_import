@@ -50,6 +50,8 @@
 #include "dps/SSME_SOP.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
+#include "mps/HeliumSystem.h"
+#include "mps/MPS.h"
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
@@ -59,6 +61,8 @@
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
 #include "ISSUMLP.h"
+#include "gnc/ATVC.h"
+#include "Sensor.h"
 
 
 
@@ -327,6 +331,9 @@ public:
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	dps::SSME_SOP* pSSME_SOP;
+	mps::HeSysEng* pHeEng[3];
+	mps::HeSysPneu* pHePneu;
+	mps::MPS* pMPS;
 	eps::Inverter* pInverter[3];
 	APU* pAPU[3];
 	MCA* pFMC1;
@@ -339,6 +346,7 @@ public:
 	MCA* pAMC1;
 	MCA* pAMC2;
 	MCA* pAMC3;
+	gnc::ATVC* pATVC;
 
 	dps::SimpleGPCSystem *pSimpleGPC;
 
@@ -442,6 +450,8 @@ public:
 	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant() const;
 	virtual double GetETPropellant_B( void ) const;
+	virtual double GetETLOXUllagePressure( void ) const;
+	virtual double GetETLH2UllagePressure( void ) const;
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
 	virtual double GetMET() const;
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
@@ -524,9 +534,31 @@ public:
 	 */
 	void SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw);
 
+	/**
+	 * Allows control of the following MPS vents:
+	 * 0 = SSME-1
+	 * 1 = SSME-2
+	 * 2 = SSME-3
+	 * 3 = LH2 B/U
+	 * 4 = LH2 F/D
+	 * 5 = LOX F/D
+	 * 6 = LH2 FDLN Relief
+	 * 7 = LOX FDLN Relief
+	 * @param[in]	vent	identification of vent to control
+	 * @param[in]	level	level of vent (between 0 and 1)
+	 */
+	void SetMPSDumpLevel( int vent, double level );
+
+	/**
+	 * Allows control of the SSME GH2 burning effect at ignition and shutdown.
+	 * @param[in]	eng	number of SSME
+	 * @param[in]	burn	controls if burn effect is on or off
+	 */
+	void SetSSMEGH2burn( int eng, bool burn );
+
 	double CalcNetSSMEThrust() const;
 	double GetSSMEISP() const;
-	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
+	void CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const;
 
 	//Thruster Control; called from OrbitDAP class
 	void EnableThrusters(const int Thrusters[], int nThrusters);
@@ -586,13 +618,22 @@ public:
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
+	virtual bool GetRSLSAbortFlag() const;
 
 	virtual bool HydraulicsOK();
 
 	virtual void PSN4( void );
+	virtual void SetSSMEActPos( int num, double Ppos, double Ypos );
 
 	virtual int GetSSMEPress( int eng );
-	
+	virtual int GetHeTankPress( int sys ) const;
+	virtual int GetHeRegPress( int sys ) const;
+	virtual void HeFillTank( int sys, double mass );
+	virtual PROPELLANT_HANDLE GetLH2Tank( void ) const;
+	virtual PROPELLANT_HANDLE GetLOXTank( void ) const;
+	virtual double GetLOXManifPress( void ) const;
+	virtual double GetLH2ManifPress( void ) const;
+
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
 	void UpdateMesh ();
@@ -683,7 +724,20 @@ public:
 
 	//OBJHANDLE ThisVessel;
 
+	/**
+	 * Bridge function between MPS and ET to "deliver" GO2 and GH2 for
+	 * tank pressurization. Note that no actual mass is sent from the
+	 * MPS to the ET, but the mass is directly decreased from the
+	 * propellant in the ET.
+	 * @param[in]	GOXmass	mass of gaseous oxygen (in kg)
+	 * @param[in]	GH2mass mass of gaseous hydrogen (in kg)
+	 */
+	void ETPressurization( double GOXmass, double GH2mass );
 
+	/**
+	 * Function called by MPS to "flow" mass from the ET to the MPS manifold.
+	 */
+	void UpdateMPSManifold( void );
 
 
 private:
@@ -737,7 +791,6 @@ private:
 	 */
 	void CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref);
 	
-	/*void SSMEEngControl(unsigned short usEng) const;*/
 	void OMSEngControl(unsigned short usEng);
 
 	void StopAllManifolds();
@@ -748,6 +801,7 @@ private:
 	void CreateFRCS(const VECTOR3& ref_pos);
 	void CreateSSMEs(const VECTOR3& ofs);
 	void CreateMPSGOXVents(const VECTOR3& ref_pos);
+	void CreateMPSDumpVents( void );
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
 	unsigned short usCurrentPlayerChar;
@@ -964,8 +1018,8 @@ private:
 	BEACONLIGHTSPEC PLB_bspec[6];
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
 	//bool bPLBLights;
-
-	LightEmitter* SRBLight;
+	
+	LightEmitter* SRBLight[2];
 	LightEmitter* SSMELight;
 
 	//gear/drag chute
@@ -977,7 +1031,7 @@ private:
 	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
 	AnimState DragChuteSpin;
 	
-	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
+	PROPELLANT_HANDLE ph_oms, ph_mps, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main (SSME) engines
 	THRUSTER_HANDLE th_oms[2];               // handles for orbiter OMS engines
@@ -988,13 +1042,35 @@ private:
 	bool bSSMEsDefined, bOMSDefined, bRCSDefined, bControllerThrustersDefined;
 
 	/**
+	 * Particle stream handle for SSME GH2 burn effect at ignition and shutdown.
+	 */
+	PSTREAM_HANDLE SSMEGH2burn[3];
+
+	/**
+	 * Propellant handle for MPS LOX manifold. Used for MPS dump.
+	 */
+	PROPELLANT_HANDLE phLOXdump;
+
+	/**
+	 * Propellant handle for MPS LH2 manifold. Used for MPS dump.
+	 */
+	PROPELLANT_HANDLE phLH2dump;
+	/**
 	 * Used for the preflight GOX venting of the SSMEs.
 	 */
 	THRUSTER_HANDLE th_ssme_gox[3];
 	/**
-	 * To be used for visualizing the LOX MPS dump after MECO. 
+	 * Thruster handles for the various MPS dumps/vents. List follows:
+	 * 0 = SSME-1
+	 * 1 = SSME-2
+	 * 2 = SSME-3
+	 * 3 = LH2 B/U
+	 * 4 = LH2 F/D
+	 * 5 = LOX F/D
+	 * 6 = LH2 FDLN Relief
+	 * 7 = LOX FDLN Relief
 	 */
-	THRUSTER_HANDLE th_ssme_loxdump[3];
+	THRUSTER_HANDLE thMPSDump[8];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets
@@ -1066,10 +1142,18 @@ private:
 	VECTOR3 SSMEL_GOX_REF1;
 	VECTOR3 SSMER_GOX_REF1;
 
+	/**
+	 * Mass of LOX in MPS manifold.
+	 */
+	double LOXmass;
+
+	/**
+	 * Mass of LH2 in MPS manifold.
+	 */
+	double LH2mass;
+
 	// Helium Tanks
-	PROPELLANT_HANDLE oms_helium_tank[2], mps_helium_tank[3];
-	int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
-	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
+	PROPELLANT_HANDLE oms_helium_tank[2];
 	int Hydraulic_Press[3];
 
 	bool RMS, STBDMPM;
@@ -1106,7 +1190,17 @@ private:
 	int EngineFail;
 	double EngineFailTime;
 	bool bEngineFail;
-	VECTOR3 SSMENullDirection[3];
+
+	/**
+	 * Thrust direction of each SSME when at the "installed position" (0º pitch
+	 * and yaw in the engine referencial).
+	 */
+	VECTOR3 SSMEInstalledNullPos[3];
+
+	/**
+	 * Current thrust direction of SSMEs.
+	 */
+	VECTOR3 SSMECurrentPos[3];
 	VECTOR3 SRBNullDirection[3];
 
 	// Entry
@@ -1131,6 +1225,8 @@ private:
 	
 	vc::MDU* mdus[11];
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
+
+	bool SERCstop;
 
 	//MNVR
 	double curOMSPitch[2], curOMSYaw[2];
@@ -1168,7 +1264,7 @@ private:
 
 	DiscOutPort SpdbkThrotPort;
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
-	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
+	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand;
 
@@ -1186,9 +1282,14 @@ private:
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
-	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
-	DiscOutPort SSMEShutdown[3]; // to allow MECO to be commanded from keyboard
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
+
+	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
+
+	/**
+	 * LOX low level sensors.
+	 */
+	Sensor LO2LowLevelSensor[4];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
 	//void TriggerLiftOff();
