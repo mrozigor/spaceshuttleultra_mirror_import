@@ -158,6 +158,8 @@ namespace dps {
 		bool IsCompleteLine() const;
 
 		virtual bool OnPaint(vc::MDU* pMDU);
+
+		bool IsDisp( int code ) const;
 		
 	};
 };
