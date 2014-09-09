@@ -209,8 +209,6 @@ namespace dps {
 		else {
 			std::string scratchPad=GetScratchPadLineString();
 			int ITEM=scratchPad.find("ITEM ");
-			int OPS=scratchPad.find("OPS ");
-			int SPEC=scratchPad.find("SPEC ");
 
 			if(ITEM!=string::npos) {
 				scratchPad=scratchPad.erase(ITEM, 5);
@@ -255,7 +253,6 @@ namespace dps {
 	void IDP::OnPro()
 	{
 		std::string scratchPad=GetScratchPadLineString();
-		int ITEM=scratchPad.find("ITEM ");
 		int OPS=scratchPad.find("OPS ");
 		int SPEC=scratchPad.find("SPEC ");
 
@@ -315,8 +312,6 @@ namespace dps {
 			return STS()->pSimpleGPC->OnPaint(GetDisp(), pMDU);
 		else
 			return STS()->pSimpleGPC->OnPaint(GetSpec(), pMDU);
-
-		return true;
 	}
 
 	void IDP::OnSysSummary() {

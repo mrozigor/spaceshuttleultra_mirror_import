@@ -1137,7 +1137,7 @@ double AerojetDAP::CSSRollInput(double DeltaT)
 void AerojetDAP::GetAttitudeData(double DeltaT)
 {
 	//double lastSideslip = degCurrentAttitude.data[YAW];
-	VECTOR3 degLastAttitude = degCurrentAttitude;
+	//VECTOR3 degLastAttitude = degCurrentAttitude;
 
 	// get AOA, sideslip and bank
 	if(GetMajorMode()==304)
@@ -1262,7 +1262,7 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 		lastRefVSpeed = avg_vspeed;
 		//last_vel = vec.y;
 
-		double actBank = CalculateCurrentLiftBank();
+		//double actBank = CalculateCurrentLiftBank();
 		tgtBank = tgtBankSign*CalculateRequiredLiftBank(target_vacc);
 		//if(ThrustersActive[PITCH]) {
 		/*if(STS()->GetMachNumber() > 15.0) {
@@ -1611,7 +1611,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 
 void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 {
-	double HeadingError = atan2(TgtPos.y, -TgtPos.x)*DEG;
+	//double HeadingError = atan2(TgtPos.y, -TgtPos.x)*DEG;
 	//sprintf_s(oapiDebugString(), 255, "TPos X: %f Y: %f Z: %f", TgtPos.x, TgtPos.y, TgtPos.z);
 	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f Z: %f HeadingError: %f", TgtPos.x, TgtPos.y, TgtPos.z, HeadingError);
 	TotalRange = sqrt(TgtPos.x*TgtPos.x + TgtPos.y*TgtPos.y);

@@ -170,8 +170,8 @@ namespace eva_docking {
 
 	void ODS::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		const double FEET = 1.0/0.3048;
-		const double INCH = 1.0/0.0254;
+		//const double FEET = 1.0/0.3048;
+		//const double INCH = 1.0/0.0254;
 		char pszBuffer[256];
 
 		STS()->GlobalRot(_V(1,0,0),eX);

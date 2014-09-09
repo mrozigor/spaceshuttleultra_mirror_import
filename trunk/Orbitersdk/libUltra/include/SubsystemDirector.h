@@ -252,7 +252,6 @@ bool SubsystemDirector<TVessel>::PostStep(double fSimT, double fDeltaT, double f
 	unsigned long i;
 	//const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
 	const double SUBSAMPLING_DELTAT = 0.04;	//40 ms
-	double tsf = 0.0;
 	
 
 	//Subsampling pass

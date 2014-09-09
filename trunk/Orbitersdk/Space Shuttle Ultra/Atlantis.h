@@ -373,8 +373,7 @@ public:
 	 * - 2 SRB's separated
 	 * - 3 Tank separated/orbiter only
 	 */
-	int status;  
-	bool bManualSeparate; // flag for user-induced booster or tank separation
+	int status;
 
 	double t0;          // reference time: designated liftoff time
 	double met;
@@ -822,8 +821,6 @@ private:
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
 	void AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
-	//void DisableAllRCS();
-	//void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 	/**
@@ -887,11 +884,6 @@ private:
 	void UpdateCoG();
 
 	void Twang(double timeToLaunch) const;
-	//Launch
-	//void Throttle(double dt);
-	void FailEngine(int engine);
-	//double CalcNetThrust();
-	//void CalcThrustAngles();
 
 	//OMS
 	/**
@@ -1185,11 +1177,6 @@ private:
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 
 	bool bEnableMCADebug;
-
-	//Launch
-	int EngineFail;
-	double EngineFailTime;
-	bool bEngineFail;
 
 	/**
 	 * Thrust direction of each SSME when at the "installed position" (0º pitch
