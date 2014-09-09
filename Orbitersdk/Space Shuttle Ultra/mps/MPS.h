@@ -30,6 +30,7 @@
 #include "..\Atlantis.h"
 #include "SolenoidValve.h"
 #include "PressureActuatedValve.h"
+#include "Sensor.h"
 
 
 namespace mps
@@ -177,6 +178,8 @@ namespace mps
 			// RV
 			bool RV5;
 			bool RV6;
+
+			Sensor ManifPress[2];// 1) LOX, 2) LH2
 
 		public:
 			MPS( AtlantisSubsystemDirector* _director, HeSysPneu* HeSys );

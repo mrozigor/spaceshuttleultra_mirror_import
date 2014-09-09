@@ -49,6 +49,9 @@ namespace vc
 
 		LockableLever3* pOMSArm[2];
 
+		StdSwitch2* pBFCCRTDisplay;
+		StdSwitch3* pBFCCRTSelect;
+
 		StdSwitch2* pAirDataProbeStowEnable[2];
 		LockableLever3* pAirDataProbeDeploy[2];
 

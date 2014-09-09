@@ -953,7 +953,7 @@ bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 {
 	char cbuf[255];
-	PrintCommonHeader("UNIV PTG", pMDU);
+	PrintCommonHeader("    UNIV PTG", pMDU);
 
 	double CUR_MNVR_COMPL[4];
 	if(DAPControlMode == INRTL || DAPControlMode == FREE) ConvertSecondsToDDHHMMSS(STS()->GetMET(), CUR_MNVR_COMPL);
@@ -1047,7 +1047,7 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 	int lim[3]={3, 5, 5};
 	int i, n;
 
-	PrintCommonHeader("DAP CONFIG", pMDU);
+	PrintCommonHeader("   DAP CONFIG", pMDU);
 
 	pMDU->mvprint(4, 2, "PRI");
 	pMDU->mvprint(9, 2, "1 DAP A");

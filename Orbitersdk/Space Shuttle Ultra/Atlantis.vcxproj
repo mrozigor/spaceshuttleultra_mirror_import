@@ -253,6 +253,7 @@
     <ClCompile Include="dps\AscentGuidance.cpp" />
     <ClCompile Include="dps\ATVC_SOP.cpp" />
     <ClCompile Include="dps\ETSepSequence.cpp" />
+    <ClCompile Include="dps\GeneralDisplays.cpp" />
     <ClCompile Include="dps\HALS_Compilations.cpp" />
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
@@ -402,6 +403,7 @@
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
     <ClInclude Include="dps\ETSepSequence.h" />
+    <ClInclude Include="dps\GeneralDisplays.h" />
     <ClInclude Include="dps\HALS_Compilations.h" />
     <ClInclude Include="dps\HALS_Types.h" />
     <ClInclude Include="dps\IOModule.h" />

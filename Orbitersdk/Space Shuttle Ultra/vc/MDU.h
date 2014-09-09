@@ -248,6 +248,54 @@ namespace vc {
 			Circle(5*x+2, 9*y, 1, attributes);
 		}
 
+		/**
+		 * Draws alpha character at specified location on MDU.
+		 */
+		inline void Alpha(int x, int y, char attributes = 0)
+		{
+			// TODO improve
+			Circle(5*x+1, 9*y+3, 2, attributes);
+			Circle(5*x+4, 9*y+2, 1, attributes);
+			Circle(5*x+4, 9*y+5, 1, attributes);
+		}
+
+		/**
+		 * Draws sigma character at specified location on MDU.
+		 */
+		inline void Sigma(int x, int y, char attributes = 0)
+		{
+			// TODO improve
+			Circle(5*x+2, 9*y+4, 1, attributes);
+			Circle(5*x+2, 9*y+5, 1, attributes);
+			Circle(5*x+1, 9*y+6, 1, attributes);
+			Circle(5*x, 9*y+5, 1, attributes);
+			Circle(5*x, 9*y+4, 1, attributes);
+			Circle(5*x+1, 9*y+3, 1, attributes);
+			Circle(5*x+2, 9*y+3, 1, attributes);
+			Circle(5*x+3, 9*y+3, 1, attributes);
+			Circle(5*x+4, 9*y+3, 1, attributes);
+		}
+
+		/**
+		 * Draws up arrow character at specified location on MDU.
+		 */
+		inline void UpArrow(int x, int y, char attributes = 0)
+		{
+			Line(5*x+2, 9*y+7, 5*x+2, 9*y+1, attributes);
+			Line(5*x, 9*y+3, 5*x+2, 9*y+1, attributes);
+			Line(5*x+4, 9*y+3, 5*x+2, 9*y+1, attributes);
+		}
+
+		/**
+		 * Draws down arrow character at specified location on MDU.
+		 */
+		inline void DownArrow(int x, int y, char attributes = 0)
+		{
+			Line(5*x+2, 9*y+1, 5*x+2, 9*y+7, attributes);
+			Line(5*x, 9*y+5, 5*x+2, 9*y+7, attributes);
+			Line(5*x+4, 9*y+5, 5*x+2, 9*y+7, attributes);
+		}
+
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
 		//	const VECTOR3& bottom_right);
 

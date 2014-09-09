@@ -24,6 +24,10 @@ namespace mps
 		vlvInIC = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
 		vlvOutIC = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
 
+		TankPressure = Sensor( 0, 5000 );
+		RegPressure[0] = Sensor( 0, 1000 );
+		RegPressure[1] = Sensor( 0, 1000 );
+
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " HeSysEng::HeSysEng out" );
 		oapiWriteLog( buffer );
@@ -55,6 +59,11 @@ namespace mps
 				vlvInIC->Connect( 0, bundle, 10 );
 				vlvOutIC->Connect( 0, bundle, 11 );
 
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 0 );
+				RegPressure[0].Connect( bundle, 1 );
+				RegPressure[1].Connect( bundle, 2 );
+
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_R" ));
 				break;
@@ -67,6 +76,11 @@ namespace mps
 				vlvInIC->Connect( 0, bundle, 12 );
 				vlvOutIC->Connect( 0, bundle, 13 );
 
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 3 );
+				RegPressure[0].Connect( bundle, 4 );
+				RegPressure[1].Connect( bundle, 5 );
+
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_R" ));
 				break;
@@ -78,6 +92,11 @@ namespace mps
 				bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
 				vlvInIC->Connect( 0, bundle, 14 );
 				vlvOutIC->Connect( 0, bundle, 15 );
+
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 6 );
+				RegPressure[0].Connect( bundle, 7 );
+				RegPressure[1].Connect( bundle, 8 );
 
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
@@ -181,6 +200,10 @@ namespace mps
 			RegPress -= 400 * fDeltaT;// to show a decay upon closing the isol vlvs
 			if (RegPress < 0) RegPress = 0;
 			TotalFlow = 0;
+
+			TankPressure.SetValue( TankPress );
+			RegPressure[0].SetValue( RegPress );
+			RegPressure[1].SetValue( RegPress );
 			return;
 		}
 
@@ -226,6 +249,10 @@ namespace mps
 		RegPress = 730 + (((maxregflow - TotalFlow) / maxregflow) * 55);
 		if (regheadpress < RegPress) RegPress = regheadpress;
 		TotalFlow = 0;
+
+		TankPressure.SetValue( TankPress );
+		RegPressure[0].SetValue( RegPress );
+		RegPressure[1].SetValue( RegPress );
 		return;
 	}
 
@@ -283,6 +310,9 @@ namespace mps
 		vlvISOL_B = new SolenoidValve( 1, 1000, true, nullptr, nullptr );
 
 		vlvLEngXOVR = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
+
+		TankPressure = Sensor( 0, 5000 );
+		RegPressure = Sensor( 0, 1000 );
 		return;
 	}
 
@@ -301,6 +331,10 @@ namespace mps
 		vlvISOL_A->Connect( 0, bundle, 6 );
 		vlvISOL_B->Connect( 0, bundle, 7 );
 		vlvLEngXOVR->Connect( 0, bundle, 9 );
+
+		bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+		TankPressure.Connect( bundle, 9 );
+		RegPressure.Connect( bundle, 10 );
 
 		sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 		sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
@@ -428,6 +462,9 @@ namespace mps
 			if (TankPress < RegPress) RegPress = TankPress;
 		}
 		TotalFlow = 0;
+
+		TankPressure.SetValue( TankPress );
+		RegPressure.SetValue( RegPress );
 		return;
 	}
 

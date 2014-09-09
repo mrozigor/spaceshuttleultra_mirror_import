@@ -800,11 +800,11 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 	switch(GetMajorMode())
 	{
 		case 101:
-			PrintCommonHeader( "LAUNCH TRAJ", pMDU );
+			PrintCommonHeader( "  LAUNCH TRAJ", pMDU );
 			break;
 		case 102:
 		case 103:
-			PrintCommonHeader( "ASCENT TRAJ", pMDU );
+			PrintCommonHeader( "  ASCENT TRAJ", pMDU );
 			break;
 	}
 
