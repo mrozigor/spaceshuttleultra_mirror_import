@@ -41,7 +41,7 @@ namespace dps
 
 	bool MM801::OnPaint(int spec, vc::MDU* pMDU) const
 	{
-		PrintCommonHeader("FCS/DED DIS C/O",pMDU);
+		PrintCommonHeader(" FCS/DED DIS C/O",pMDU);
 
 		//DED DIS SECTION
 		pMDU->mvprint(2,4,"DED DIS");

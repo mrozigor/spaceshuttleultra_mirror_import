@@ -452,6 +452,9 @@
     <ClCompile Include="mps\SSME_BLOCK_II.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\GeneralDisplays.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -842,6 +845,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="mps\SSME_BLOCK_II.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\GeneralDisplays.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

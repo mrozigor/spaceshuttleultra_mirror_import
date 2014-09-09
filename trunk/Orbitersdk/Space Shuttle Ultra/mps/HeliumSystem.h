@@ -29,6 +29,7 @@
 #include "PressureSource.h"
 #include "..\AtlantisSubsystem.h"
 #include "SolenoidValve.h"
+#include "Sensor.h"
 
 
 namespace mps
@@ -67,6 +68,9 @@ namespace mps
 			double TankPress;
 			double RegPress;// TODO one sensor per reg
 			double TotalFlow;
+
+			Sensor TankPressure;
+			Sensor RegPressure[2];
 		public:
 			HeSysEng( AtlantisSubsystemDirector* _director, const string& _ident, int ID );
 			~HeSysEng( void );
@@ -111,6 +115,9 @@ namespace mps
 			double TankPress;
 			double RegPress;
 			double TotalFlow;
+
+			Sensor TankPressure;
+			Sensor RegPressure;
 		public:
 			HeSysPneu( AtlantisSubsystemDirector* _director, const string& _ident );
 			~HeSysPneu( void );

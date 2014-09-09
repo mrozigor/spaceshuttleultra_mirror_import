@@ -7443,6 +7443,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 1:
 		case 2:
 		case 6:
+		case 99:
 			return true;
 		}
 		break;
@@ -7453,10 +7454,13 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 1:
 		case 6:
 		case 18:
+		case 19:// HACK BFS only
 		case 23:
 		case 50:
 		case 51:
 		case 53:
+		case 55:
+		case 99:
 			return true;
 		default:
 			return false;
@@ -7479,6 +7483,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 33:
 		case 34:
 		case 55:
+		case 99:
 			return true;
 		default:
 			return false;
@@ -7491,6 +7496,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 1:
 		case 6:
 		case 18:
+		case 19:// HACK BFS only
 		case 21:
 		case 22:
 		case 23:
@@ -7498,6 +7504,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 51:
 		case 53:
 		case 55:
+		case 99:
 			return true;
 		default:
 			return false;
@@ -7510,10 +7517,13 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 1:
 		case 6:
 		case 18:
+		case 19:// HACK BFS only
 		case 23:
 		case 50:
 		case 51:
 		case 53:
+		case 55:
+		case 99:
 			return true;
 		default:
 			return false;
@@ -7536,6 +7546,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 44:
 		case 45:
 		case 55:
+		case 99:
 			return true;
 		default:
 			return false;
@@ -7549,6 +7560,7 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 		case 6:
 		case 55:
 		case 62:
+		case 99:
 		case 100:
 		case 101:
 		case 102:

@@ -874,7 +874,7 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 {
 	char cbuf[51];
-	PrintCommonHeader("HORIZ SIT", pMDU);
+	PrintCommonHeader("    HORIZ SIT", pMDU);
 
 	pMDU->mvprint(0, 5, "41 LAND SITE");
 	sprintf_s(cbuf, 51, "%d", SITE_ID+1);
