@@ -153,7 +153,7 @@ namespace dps
 				ProcessPriData( i );
 			}
 
-			if ((PrimaryDataFail[i] = true) || (SecondaryDataFail[i] = true))
+			if ((PrimaryDataFail[i] == false) || (SecondaryDataFail[i] == false))
 			{
 				// HACK command and channel status not really perfect
 				if (CommandStatus[i] == 1)// || (CommandStatus[i] == 2))
