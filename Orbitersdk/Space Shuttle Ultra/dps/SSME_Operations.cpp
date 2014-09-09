@@ -420,13 +420,13 @@ namespace dps
 		else if ((dipLO2UllagePressureSensor[2].GetVoltage() * 10) > 39.7) pIO_Control->SetCommand( GOX_FCV_3, false );
 
 		if (((dipLH2UllagePressureSensor[0].GetVoltage() * 8) + 12) < 32.6) pIO_Control->SetCommand( GH2_FCV_1, true );
-		else if ((dipLH2UllagePressureSensor[0].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_1, false );
+		else if (((dipLH2UllagePressureSensor[0].GetVoltage() * 8) + 12) > 33.4) pIO_Control->SetCommand( GH2_FCV_1, false );
 
 		if (((dipLH2UllagePressureSensor[1].GetVoltage() * 8) + 12) < 32.6) pIO_Control->SetCommand( GH2_FCV_2, true );
-		else if ((dipLH2UllagePressureSensor[1].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_2, false );
+		else if (((dipLH2UllagePressureSensor[1].GetVoltage() * 8) + 12) > 33.4) pIO_Control->SetCommand( GH2_FCV_2, false );
 
 		if (((dipLH2UllagePressureSensor[2].GetVoltage() * 8) + 12) < 32.6) pIO_Control->SetCommand( GH2_FCV_3, true );
-		else if ((dipLH2UllagePressureSensor[2].GetVoltage() * 10) > 33.4) pIO_Control->SetCommand( GH2_FCV_3, false );
+		else if (((dipLH2UllagePressureSensor[2].GetVoltage() * 8) + 12) > 33.4) pIO_Control->SetCommand( GH2_FCV_3, false );
 
 		return;
 	}
