@@ -795,19 +795,6 @@ pActiveLatches(3, NULL)
   pshSlag2[0] = pshSlag2[1] = NULL;
   pshSlag3[0] = pshSlag3[1] = NULL;
 
-  /*
-  int mfdgrp[10] = {
-    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD2_VC, GRP_MFD3_VC, GRP_MFD4_VC, GRP_MFD5_VC,
-    GRP_MFD_aft_VC};
-  */
-
-  int mfdgrp[11] = {
-    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_AFT_VC, GRP_MFD2_VC, GRP_MFD5_VC,
-	NULL
-    };
-
   for (i = 0; i < 11; i++) {
     /*mfds[i].ngroup   = mfdgrp[i];
     mfds[i].flag     = MFD_SHOWMODELABELS;
@@ -943,7 +930,6 @@ pActiveLatches(3, NULL)
   //center_arm      = false;
   //arm_moved       = false;
   //mpm_moved		  = false;
-  bManualSeparate = false;
   //ofs_sts_sat     = _V(0,0,0);
   do_eva          = false;
   do_plat         = false;
@@ -1000,8 +986,6 @@ pActiveLatches(3, NULL)
   pl_mass=0.0;
 
   newmfd=NULL;
-
-  bEngineFail=false;
 
   // gpc
   SMOps=201;
@@ -1179,8 +1163,6 @@ pActiveLatches(3, NULL)
 // Destructor
 // --------------------------------------------------------------
 Atlantis::~Atlantis () {
-	//int i;
-
 	delete psubsystems;
 	delete pCommModeHandler;
 
@@ -1190,7 +1172,6 @@ Atlantis::~Atlantis () {
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
-	//delete rsls;
 
 	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 	  
@@ -1205,9 +1186,6 @@ Atlantis::~Atlantis () {
 
 	delete busManager;
 	delete bundleManager;
-
-	//delete [] stage1guidance[0];
-	//delete [] stage1guidance[1];
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -1262,8 +1240,6 @@ void Atlantis::SetLaunchConfiguration (void)
   
   CreateOrbiterTanks();
   
-  //SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
-
   // *********************** thruster definitions ********************************
 
   // The main and SRB thrusters are defined so as to minimise the angular momentum
@@ -1294,33 +1270,6 @@ void Atlantis::SetLaunchConfiguration (void)
 	  pshSlag2[i] = AddExhaustStream(th_srb[i], &srb_slag2);
 	  pshSlag3[i] = AddExhaustStream(th_srb[i], &srb_slag3);
   }
-
-  /*if(pshSlag1[0] == NULL) {
-	pshSlag1[0] = AddParticleStream(&srb_slag1, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag1);
-  }
-  if(pshSlag1[1] == NULL)
-  {
-	pshSlag1[1] = AddParticleStream(&srb_slag1, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag1);
-  }
-
-  //Add slag effect streams
-  if(pshSlag2[0] == NULL) {
-	pshSlag2[0] = AddParticleStream(&srb_slag2, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag2);
-  }
-  if(pshSlag2[1] == NULL)
-  {
-	pshSlag2[1] = AddParticleStream(&srb_slag2, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag2);
-  }
-
-  
-  //Add slag effect streams
-  if(pshSlag3[0] == NULL) {
-	pshSlag3[0] = AddParticleStream(&srb_slag3, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag3);
-  }
-  if(pshSlag3[1] == NULL)
-  {
-	pshSlag3[1] = AddParticleStream(&srb_slag3, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag3);
-  }*/
 
   //OMS
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
@@ -1353,9 +1302,6 @@ void Atlantis::SetLaunchConfiguration (void)
   // ************************ visual parameters **********************************
 
   AddOrbiterVisual();
-  //AddTankVisual    (OFS_LAUNCH_TANK);
-  //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
-  //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
 
   phLOXdump = ph_mps;
   phLH2dump = ph_mps;
@@ -1404,11 +1350,6 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // *********************** thruster definitions ********************************
 
   // Orbiter main engines
-  // The thruster directions are adjusted so as to generate no angular moment
-  // i.e. sum_{i=1}^3 thrusterpos_i x thrusterdir_i = 0
-  // This assumes that all 3 main engines generate the same amount of thrust at
-  // all times
-
   CreateSSMEs(OFS_ZERO);
 
   phLOXdump = ph_mps;
@@ -1465,7 +1406,6 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   SetSize (19.6);
   //SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
-  VECTOR3 r[2] = {{0,0,10},{0,0,-8}};
   SetPMI (_V(120.2,108.8,13.497));
   SetGravityGradientDamping (20.0);
   SetTrimScale (0.05);
@@ -1537,7 +1477,6 @@ void Atlantis::SetOrbiterConfiguration (void)
   // RCS (Reaction Control System)
   CreateAttControls_RCS (_V(0,0,0));
   CreateDummyThrusters();
-  //EnableAllRCS();
 
   discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
   pBundle = bundleManager->CreateBundle("C2_TO_IDP2", 16);
@@ -1855,48 +1794,6 @@ bool Atlantis::CreateDockingPort(const VECTOR3& pos)
 	}
 	return false;
 }
-
-/*void Atlantis::DisableAllRCS() {
-  return;
-  if(bUseRealRCS)
-		return;
-
-  if(!RCSEnabled) return;
-  DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
-  DelThrusterGroup(THGROUP_ATT_PITCHUP);
-  DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-  DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
-  DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-  DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-  CreateThrusterGroup (th_att_rcs+12,   1, THGROUP_ATT_PITCHUP);
-  CreateThrusterGroup (th_att_rcs+13,   1, THGROUP_ATT_PITCHDOWN);
-  CreateThrusterGroup (th_att_rcs+14,   1, THGROUP_ATT_YAWLEFT);
-  CreateThrusterGroup (th_att_rcs+15,   1, THGROUP_ATT_YAWRIGHT);
-  CreateThrusterGroup (th_att_rcs+16,   1, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+17,   1, THGROUP_ATT_BANKRIGHT);
-  RCSEnabled=false;
-}
-
-void Atlantis::EnableAllRCS() {
-  return;
-  if(bUseRealRCS)
-		return;
-
-  if(RCSEnabled) return;
-  DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
-  DelThrusterGroup(THGROUP_ATT_PITCHUP);
-  DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-  DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
-  DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-  DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-  CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
-  CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
-  CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
-  CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
-  CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
-  RCSEnabled=true;
-  }*/
 
 void Atlantis::PaintMarkings (SURFHANDLE tex) {
 	HDC hDC = oapiGetDC (tex);
@@ -2878,7 +2775,6 @@ void Atlantis::SeparateBoosters (double met)
 
 
   // reconfigure
-  RecordEvent ("JET", "SRB");
   SetOrbiterTankConfiguration();
   char cbuf[255];
   sprintf(cbuf, "Boosters separated");
@@ -2897,12 +2793,6 @@ void Atlantis::SeparateBoosters (double met)
 
 void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
 {
-	/*OBJHANDLE hSRB = GetAttachmentStatus(ahSRBAttach);
-	if(hSRB) {
-		Atlantis_SRB* pSRB = static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
-		DetachChildAndUpdateMass(ahSRBAttach);
-		pSRB->SetPostSeparationState(t0, thrust, prop);
-	}*/
 	Atlantis_SRB* pSRB = GetSRBInterface(side);
 	if(side==LEFT) DetachChildAndUpdateMass(ahLeftSRB);
 	else DetachChildAndUpdateMass(ahRightSRB);
@@ -2922,27 +2812,8 @@ void Atlantis::SeparateTank (void)
 	// delete joint mps manifold
 	DelPropellantResource( ph_mps );
 
-	// main engines are done
-	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
-
-	// clear launch attitude control system
-	//DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
-	//DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
-	//DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
-	//DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
-	//DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
-	//DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
-
-	// remove tank mesh and shift cg
-	//Test keeping animations - which are not defined on the ET.
-	//DelMesh (mesh_tank, true);
-	//ShiftCG (OFS_WITHTANK_ORBITER);
-
 	// reconfigure
-	RecordEvent ("JET", "ET"); 
 	SetOrbiterConfiguration ();
-
-	bManualSeparate = false;
 }
 
 bool Atlantis::HasSRBs() const
@@ -3185,12 +3056,6 @@ void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngle
 	}
 	degAngleP=DEG*atan2( N.y, N.z );
 	degAngleY=-DEG*atan2( cos( RAD*degAngleP ) * N.x, N.z );
-}
-
-void Atlantis::FailEngine(int engine)
-{
-	SetThrusterResource(th_main[engine], NULL);
-	bEngineFail=false;
 }
 
 void Atlantis::LaunchClamps ()
@@ -3672,29 +3537,6 @@ void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 
 
 	psubsystems->SetClassCaps(cfg);
-
-	/*
-	if(pA7A8Panel) 
-	{
-		  
-	}
-	*/
-
-	////REENTRY STREAM
-	//SURFHANDLE entry = oapiRegisterReentryTexture("Reentry1");
-	//SetReentryTexture(entry,302763);
-	//PS_REENTRY.srcrate = 60;
-	//PS_REENTRY.v0 = 300;
-	//PS_REENTRY.ltype = PS_REENTRY.EMISSIVE;
-	//PS_REENTRY.levelmap = PS_REENTRY.LVL_FLAT;
-	//PS_REENTRY.atmsmap = PS_REENTRY.ATM_FLAT;
-	////PS_REENTRY.amin = 1;
-	//PS_REENTRY.amax = 5;
-	//PS_REENTRY.lifetime = 100;
-	//PS_REENTRY.growthrate = 100;
-	//PS_REENTRY.srcsize = 100;
-	//PS_REENTRY.srcspread = 1000;
-
 }
 
 // --------------------------------------------------------------
@@ -3707,7 +3549,6 @@ void Atlantis::clbkSetStateEx (const void *status)
 
   oapiWriteLog("(ssu)Set Orbiter configuration.");
   // reset vessel-specific parameters to defaults
-  //status = 3;
   SetOrbiterConfiguration();
   
 }
@@ -3721,10 +3562,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
   char *line;
   char pszBuffer[256];
   char pszLogBuffer[256];
-  double srbtime = 0.0;
-  /*double sts_sat_x = 0.0;
-  double sts_sat_y = 0.0;
-  double sts_sat_z = 0.0;*/
+
   spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
   while (oapiReadScenario_nextline (scn, line)) {
@@ -3764,19 +3602,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 	} else if (!_strnicmp (line, "GEAR", 4)) {
 		sscan_state(line+4, gear_status);
 		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
-    } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
-		sscanf (line+17, "%lf", &srbtime);
-	} else if (!_strnicmp (line, "PLBD_CAM", 8)) {
+    } else if (!_strnicmp (line, "PLBD_CAM", 8)) {
 		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
 			&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
 		cameraMoved=true;
-    } /*else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_x);
-    } else if (!_strnicmp (line, "SAT_OFS_Y", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_y);
-    } else if (!_strnicmp (line, "SAT_OFS_Z", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_z);
-	}*/ else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
+    } else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
 		sscanf (line+12, "%lf", &pl_mass);
 	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
 		sscanf (line+17, "%s", cargo_static_mesh_name);
@@ -3795,35 +3625,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		unsigned int ops;
 		sscanf(line+3, "%u", &ops);
 		pSimpleGPC->SetMajorMode(ops);
-	/*} else if(!_strnicmp(line, "PEG7", 4)) {
-		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
-	} else if(!_strnicmp(line, "WT", 2)) {
-		sscanf(line+2, "%lf", &WT);
-	} else if(!_strnicmp(line, "TIG", 3)) {
-		sscanf(line+3, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
-	} else if(!_strnicmp(line, "TV_ROLL", 7)) {
-		sscanf_s(line+7, "%lf", &TV_ROLL);
-	} else if(!_strnicmp(line, "MNVR", 4)) {
-		sscanf_s(line+4, "%d %d", &MNVRLOAD, &MnvrToBurnAtt);*/
-	/*} else if(!_strnicmp(line, "ASSIST", 6)) {
-		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
-	} else if(!_strnicmp(line, "THROTTLE_BUCKET", 15)) {
-		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
-		Throttle_Bucket[0]=Throttle_Bucket[0]*fps_to_ms;
-		Throttle_Bucket[1]=Throttle_Bucket[1]*fps_to_ms;
-	} else if(!_strnicmp(line, "HEADS_UP", 8)) {
-		sscanf(line+8, "%lf", &RollToHeadsUp);
-		RollToHeadsUp=RollToHeadsUp*fps_to_ms;
-	} else if(!_strnicmp(line, "AUTOPILOT", 9)) {
-		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
-		bAutopilot=true;*/
-	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
-		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
-		bEngineFail=true;
-	/*} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
-		action = 0;
-		sscanf(line+10, "%d", &action);
-		bSSMEGOXVent = (action != 0);*/
 	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
 		ParsePayloadLine(line);
 	} else if (!_strnicmp(line, "@PANEL", 6)) {
@@ -3832,7 +3633,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
 			pszPanelName, line);
 		oapiWriteLog(pszBuffer);
-		//bool bFound = false;
 
 		if(pgLeft.HasPanel(pszPanelName))
 			pgLeft.ParsePanelBlock(pszPanelName, scn);
@@ -3884,9 +3684,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
       // unrecognised option - pass to Orbiter's generic parser
     }
   }
-  /*ofs_sts_sat.x=sts_sat_x;
-  ofs_sts_sat.y=sts_sat_y;
-  ofs_sts_sat.z=sts_sat_z;*/
 
   ClearMeshes();
   switch (status) {
@@ -3955,10 +3752,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	  oapiWriteLine(scn, "  RMS");
   }
 
-  /*oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
-  oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
-  oapiWriteScenario_float (scn, "SAT_OFS_Z", ofs_sts_sat.z);*/
-
   if (do_cargostatic) {
     oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
     if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
@@ -3970,11 +3763,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
 
   SavePayloadState(scn);
-
-  /*if(bSSMEGOXVent)
-  {
-	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
-  }*/
 
   sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
 			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
@@ -4139,7 +3927,6 @@ int Atlantis::clbkGeneric(int msgid, int prm, void *context)
 	default:
 		return 0;
 	}
-	return 0;
 }
 
 // --------------------------------------------------------------
@@ -4174,20 +3961,6 @@ void Atlantis::clbkPostCreation ()
 		RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
 		RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
 	}
-
-
-	/*if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
-		if(MNVRLOAD) {
-			LoadManeuver();
-			if(MnvrToBurnAtt) LoadBurnAttManeuver();
-		}
-	}
-	if(!MnvrToBurnAtt) {
-		if(MNVR) LoadInertialManeuver();
-		else if(TRK) LoadTrackManeuver();
-		else if(ROT) LoadRotationManeuver();
-	}*/
-
 
 
 	//oapiWriteLog("(ssu)Realize all subsystems");
@@ -4345,7 +4118,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		UpdateCoG();// in the first time step UpdateCoG() must be called after UpdateMass() otherwise the first c.g. calc isn't good
 		if(status <= STATE_STAGE1) {
 			// update SRB thrusters to match values from SRB vessel
-			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
 			VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
 			THRUSTER_HANDLE th_ref = pLeftSRB->GetGroupThruster(THGROUP_MAIN, 0);
 			CopyThrusterSettings(th_srb[0], pLeftSRB, th_ref);
@@ -4641,8 +4413,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 			aerosurfaces.speedbrake = 0.0;
 		}
 
-		double voltage = ElevonCommand.GetVoltage();
-		double alvoltage = AileronCommand.GetVoltage();
 		// set animations corresponding to aerosurface positions
 		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
 		//SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
@@ -4839,25 +4609,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			Twang(t0-simt);
 			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		}
-		//sprintf(oapiDebugString(),"met: %f",met);
-		//if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
-		//	SeparateBoosters (met);
-		//	bManualSeparate = false;
-		//	pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
-		//}
-		//else {
 			if(met>0.0) {
-				/*if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
-				{
-					char buffer[100];
-					sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
-					oapiWriteLog(buffer);
-					bSRBCutoffFlag = true;
-				}*/
-
-
 				// extract current thrust level and propellant level as a function of time
-				//DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
 				double thrust_level, prop_level;
 				GetSRB_State (met, thrust_level, prop_level);
 				for (unsigned short i = 0; i < 2; i++) {
@@ -4878,50 +4631,11 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 			
 		//}
-		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-		//GPC(simdt);
 		break;
 
 	case STATE_STAGE2: // post SRB separation
-		if (bManualSeparate) {
-			//SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
-			//for(unsigned short i=0;i<3;i++) SetSSMEThrustLevel(i, 0.00);
-			SetSSMEThrustLevel(0, 0.00);
-			SetThrusterLevel(th_oms[0], 0.00);
-			SetThrusterLevel(th_oms[1], 0.00);
-			SeparateTank();
-		}
-		/*if (GetSSMEThrustLevel(0) > 0.05) {
-			DisableAllRCS();
-		}*/
-		//else EnableAllRCS();
-		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-		//GPC(simdt);
 		break;
 	case STATE_ORBITER: // post tank separation
-		//EnableAllRCS();
-		//On entry, start shutting down RCS channels as appropriate
-		/*if(RollActive && GetDynPressure()>RollOff) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
-			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
-			DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);*
-			RollActive=false;
-		}
-		if(PitchActive && GetDynPressure()>PitchOff) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
-			DelThrusterGroup(THGROUP_ATT_PITCHUP);
-			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);*
-			PitchActive=false;
-		}
-		if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
-			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
-			DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);*
-			YawActive=false;
-		}*/
 		//Check if Control Surfaces are usable
 		if(ControlSurfacesEnabled && !panelr2->HydraulicPressure())
 		{
@@ -4931,118 +4645,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		{
 			EnableControlSurfaces();
 		}
-
-		//get THC and RHC input
-		/*if(ControlRMS) { // use RHC/THC input to control RMS
-			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
-			RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
-			RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
-			if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-				RMS_THCInput[0].SetLine(5.0f*(float)(AltKybdInput.x));
-				RMS_THCInput[1].SetLine(5.0f*(float)(AltKybdInput.y));
-				RMS_THCInput[2].SetLine(5.0f*(float)(-AltKybdInput.z));
-			}
-			else {
-				RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
-				RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-				RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
-			}
-			for(int i=0;i<3;i++) {
-				RHCInput.data[i]=0.0;
-				THCInput.data[i]=0.0;
-			}
-
-			// use RHC pitch commands to drive single joint input
-			// in theory, these discrete lines should only be set if RMS is in SINGLE or DIRECT mode
-			// in practice, RMS code only looks at these discrete lines if in appropriate mode
-			if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
-				RMSDrivePlus.SetLine();
-				RMSDriveMinus.ResetLine();
-				lastRMSSJCommand = 1;
-			}
-			else if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
-				RMSDrivePlus.ResetLine();
-				RMSDriveMinus.SetLine();
-				lastRMSSJCommand = -1;
-			}
-			else {
-				if(lastRMSSJCommand != 0) { // only reset lines once, so Panel A8 joint drive switch works
-					RMSDrivePlus.ResetLine();
-					RMSDriveMinus.ResetLine();
-					lastRMSSJCommand = 0;
-				}
-			}
-		}
-		else { // use RHC/THC input to control RCS
-			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
-			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
-				}
-				else {
-					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-				}
-			}
-			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr){ //aft RHC/THC
-				if(AftSense) { //-Z
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.z=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.x=-AltKybdInput.z;
-					}
-					else {
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-					}
-				}
-				else { //-X
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.x=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.z=AltKybdInput.z;
-					}
-					else {
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-					}
-				}
-			}
-			else {
-				RHCInput=_V(0, 0, 0);
-				THCInput=_V(0, 0, 0);
-			}
-
-			for(unsigned short i=0;i<3;i++) {
-				RMS_RHCInput[i].SetLine(0.0);
-				RMS_THCInput[i].SetLine(0.0);
-
-				RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-				THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
-			}
-		}*/
 		
-		/*
-		if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
-		DetachChild (sat_attach, 0.1);
-		bManualSeparate = false;
-		}
-		*/
-
 		//deploy gear
 		airspeed=GetAirspeed();
 		if(GetAltitude()<92.44 && gear_status.action==AnimState::CLOSED) {
@@ -5145,77 +4748,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		break;
 	}
-	// check inputs from GPC and set thrusters
-	/*if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-	}
-	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-	}
-	if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-	}
-	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-	}
-	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_rollleft, RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-	}
-	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_rollright, -RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-	}*/
-
-	// get aerosurface positions and thruster commands from GPC commands
-	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
-	/*if(ops==304 || ops==305) {
-		double elevonPos = 0.0;
-		double aileronPos = 0.0;
-		if(HydraulicsOK()) {
-			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*-33.0, 18.0);
-			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
-			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
-			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
-			aerosurfaces.leftElevon = range(-33.0, elevonPos+aileronPos, 18.0);
-			aerosurfaces.rightElevon = range(-33.0, elevonPos-aileronPos, 18.0);
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.speedbrake = spdb_proc*100.0;
-		}
-		else {
-			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.rudder = 0.0;
-			aerosurfaces.speedbrake = 0.0;
-		}
-		// set animations corresponding to aerosurface positions
-		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
-		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (aileronPos +1.0)/2.0);
-
-		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
-			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
-		
-	}*/
-
-	//sprintf(oapiDebugString(), "%i", last_mfd);
 
 	VESSEL *aVessel;
 	VESSELSTATUS vs;
@@ -5452,16 +4984,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 // --------------------------------------------------------------
 bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event)
 {
-  if (!_stricmp (event_type, "JET")) {
-    if (!_stricmp (event, "SRB")) {
-      bManualSeparate = true;
-      return true;
-    }
-    else if (!_stricmp (event, "ET")) {
-      bManualSeparate = true;
-      return true;
-    }
-  } else if (!_stricmp (event_type, "STATUS")) {
+  if (!_stricmp (event_type, "STATUS")) {
     if (!_stricmp (event, "SRB_IGNITION")) {
       status = 1;
       t0 = event_t + SRB_STABILISATION_TIME;
@@ -5729,7 +5252,6 @@ bool Atlantis::clbkLoadVC (int id)
 {
   bool ok = false;
   bool bUpdateVC = false;
-  double tilt = 0.0;
   std::set<int> InactiveMDUs;
 
     // Get the VC Mode.
@@ -6720,9 +6242,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	/*case OAPI_KEY_TAB:
 		pCommModeHandler->EnterCommMode();
 		break;*/
-    case OAPI_KEY_J:  // "Jettison"
-      if (!Playback()) bManualSeparate = true;
-      return 1;
     case OAPI_KEY_8:
       ToggleGrapple();
       return 1;
@@ -6762,11 +6281,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 	case OAPI_KEY_MULTIPLY: // NUMPAD *
 		for(int i=0;i<3;i++) SSMEPBAnalog[i].SetLine();
 		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
-	/*case OAPI_KEY_NUMPADENTER:
-		for(int i = 0; i<3; i++) {
-			SetThrusterLevel(th_main[i], 1.0);
-		}
-		return 1;*/
 	}
   }
   return 0;
@@ -6819,8 +6333,6 @@ bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fIS
 		fSSMEHandleErrorFlag = false;
 		return true;
 	}
-	fSSMEHandleErrorFlag = false;
-	return true;
 }
 
 bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
@@ -7877,21 +7389,6 @@ void Atlantis::DisplayCameraLabel(const char* pszLabel)
 void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)
 {
 	int i;
-/*SRCSIZE=0.06
-SRCRATE=140
-V0=10
-SRCSPREAD=0
-LIFETIME=1.25
-GROWTHRATE=1.1
-ATMSLOWDOWN=1.25
-LTYPE=EMISSIVE
-LEVELMAP=LVL_SQRT
-LMIN=0
-LMAX=1
-ATMSMAP=ATM_PLOG
-AMIN=1e-1140
-AMAX=1
-TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
 	  0, 0.06, 140, 10, 0, 0.8, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
@@ -8291,14 +7788,12 @@ void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
 	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
 	pRSLS->SychronizeCountdown( launch_mjd );
-	//if(rsls) rsls->SychronizeCountdown(launch_mjd);
 }
 
 void Atlantis::StartRSLSSequence()
 {
 	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
 	pRSLS->StartRSLSSequence();
-	//if(rsls) rsls->StartRSLSSequence();
 }
 
 bool Atlantis::GetRSLSAbortFlag() const

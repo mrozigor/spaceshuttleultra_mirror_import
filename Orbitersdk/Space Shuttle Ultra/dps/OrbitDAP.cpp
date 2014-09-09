@@ -218,8 +218,6 @@ bool OrbitDAP::GetRHCRequiredRates()
 
 void OrbitDAP::HandleTHCInput(double DeltaT)
 {
-	VECTOR3 ThrusterLevel=_V(0.0, 0.0, 0.0);
-
 	for(int i=0;i<3;i++) {
 		if(abs(THCInput[i].GetVoltage())>0.01) {
 			//if PCT is in progress, disable it when THC is moved out of detent
@@ -274,7 +272,6 @@ void OrbitDAP::CalcEulerAxisRates()
 	VECTOR3 RotationAxis;
 	double RotationAngle=CalcEulerAngle(attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
-	VECTOR3 RotationAxis_orig = RotationAxis;
 	RotationAxis = _V(RotationAxis.y, RotationAxis.z, RotationAxis.x); // change rotation axis so PYR axes are mapped correctly
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {

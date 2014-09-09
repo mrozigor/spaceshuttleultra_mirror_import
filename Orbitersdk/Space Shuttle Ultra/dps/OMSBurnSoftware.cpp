@@ -709,7 +709,6 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	int i;
 	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
 	//VECTOR3 ThrustVector;
-	bool bDone=false;
 	MnvrLoad=true;
 	tig = ConvertDDHHMMSSToSeconds(TIG);
 	
