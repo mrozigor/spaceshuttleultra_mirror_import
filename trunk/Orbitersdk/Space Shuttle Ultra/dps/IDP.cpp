@@ -269,7 +269,20 @@ namespace dps {
 		else if(SPEC != std::string::npos) { // SPEC entered
 			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
 			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
-			if(STS()->IsValidSPEC(0, newSpec)) SetSpec(static_cast<unsigned short>(newSpec));
+			if(STS()->IsValidSPEC(0, newSpec))
+			{
+				// choose between DISP and SPEC
+				if (IsDisp( newSpec ) == true)
+				{
+					SetSpec( dps::MODE_UNDEFINED );
+					SetDisp( static_cast<unsigned short>(newSpec) );
+				}
+				else
+				{
+					SetSpec(static_cast<unsigned short>(newSpec));
+					SetDisp( dps::MODE_UNDEFINED );
+				}
+			}
 		}
 	}
 
@@ -447,5 +460,40 @@ namespace dps {
 		}
 
 		return pszBuffer;
+	}
+
+	bool IDP::IsDisp( int code ) const
+	{
+		switch (code)
+		{
+			case 6:
+			case 18:
+			case 19:
+			case 66:
+			case 67:
+			case 68:
+			case 69:
+			case 76:
+			case 77:
+			case 78:
+			case 79:
+			case 86:
+			case 87:
+			case 88:
+			case 89:
+			case 95:
+			case 96:
+			case 97:
+			case 99:
+			case 106:
+			case 167:
+			case 168:
+			case 169:
+			case 177:
+			case 179:
+				return true;
+			default:
+				return false;
+		}
 	}
 };
