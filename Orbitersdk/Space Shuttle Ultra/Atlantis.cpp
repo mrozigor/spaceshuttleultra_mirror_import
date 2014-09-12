@@ -3355,9 +3355,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		bHasKUBand = pMission->HasKUBand();
 	} else if (!_strnicmp (line, "MET", 3)) {
 		sscanf (line+3, "%lf", &met);
-	} else if(!_strnicmp(line, "ODS", 3)) {
-		bHasODS = true;
-    } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
+	} else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
 		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
 		spdb_status = (AnimState::Action)(action+1);
     } else if (!_strnicmp (line, "GEAR", 4)) {
@@ -3374,14 +3372,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		do_cargostatic = true;
     } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
 		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if (!RMS && !_strnicmp (line, "RMS", 3)) {
-		RMS=true;
-		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-	} else if (!STBDMPM && !_strnicmp (line, "STBD_MPM", 8)) {
-		STBDMPM=true;
-		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
 	} else if(!_strnicmp(line, "OPS", 3)) {
 		unsigned int ops;
 		sscanf(line+3, "%u", &ops);
@@ -3475,11 +3465,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   // custom parameters
   oapiWriteScenario_int (scn, "CONFIGURATION", status);
 
-  if(bHasODS)
-  {
-	  oapiWriteLine(scn, "  ODS");
-  }
-
   /*if (status == 1)
     oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
   else oapiWriteScenario_float (scn, "MET", met);*/
@@ -3489,15 +3474,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
   WriteScenario_state(scn, "GEAR", gear_status);
-
-  if(STBDMPM) {
-	  oapiWriteLine(scn, "  STBD_MPM"); 
-	  //WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
-  }
-  
-  if(RMS) {
-	  oapiWriteLine(scn, "  RMS");
-  }
 
   if (do_cargostatic) {
     oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
