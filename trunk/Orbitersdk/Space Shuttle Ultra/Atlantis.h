@@ -222,7 +222,6 @@ typedef struct {
 
 class PanelA4;
 class PanelC2;
-//class PanelF7;
 class PanelO3;
 class AtlantisSubsystemDirector;
 class OMSSubsystem;
@@ -269,7 +268,6 @@ using class dps::MDM;
 
 class Atlantis: public VESSEL3 {
 	friend class PayloadBayOp;
-	friend class GearOp;
 	friend class PanelA4;
 	friend class PanelA8;
 	friend class PanelC2;
@@ -362,7 +360,6 @@ public:
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
-	char WingName[256];
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
@@ -395,10 +392,6 @@ public:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_panela8;						   // index for Panel A8 mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
-	//UINT mesh_rms;							   // index for RMS mesh
-	//UINT mesh_mpm;							   // index for STBD MPM mesh
-	//UINT mesh_tank;                            // index for external tank mesh
-	//UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
@@ -472,7 +465,6 @@ public:
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
 	void OperateSpeedbrake (AnimState::Action action);
-	void PaintMarkings (SURFHANDLE tex);
 	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
 	/* ***************************************************************
 	 * Setters
@@ -664,8 +656,6 @@ public:
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
-	//bool center_arm;
-	//bool arm_moved;
 	bool do_eva;
 	bool do_plat;
 	bool do_cargostatic;
@@ -674,7 +664,7 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, /*hOrbiterRMSMesh,*/ /*hOBSSMPMMesh, hTankMesh, hSRBMesh[2],*/
+		hMidDeckMesh,
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
@@ -693,10 +683,6 @@ public:
 	ATTACHMENTHANDLE ahHDP;
 	ATTACHMENTHANDLE ahTow;
 	//P-C attachments
-	/**
-	 * @deprecated
-	 */
-	//ATTACHMENTHANDLE ahRMS, ahOBSS;
 	ATTACHMENTHANDLE ahMMU[2];
 	ATTACHMENTHANDLE ahDockAux;
 	ATTACHMENTHANDLE ahExtAL[2];
@@ -709,19 +695,12 @@ public:
 	AtlantisSubsystemDirector* psubsystems;
 	
 	PayloadBayOp *plop; // control and status of payload bay operations
-	//GearOp *gop; // control and status of landing gear
 	PanelA4 *panela4;
-	//PanelA8 *panela8;
 	PanelC2 *panelc2;
-	//PanelC3 *panelc3; // PanelC3 operations
-	//PanelF7 *panelf7;
 	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;
-	//bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
-
-	//OBJHANDLE ThisVessel;
 
 	/**
 	 * Bridge function between MPS and ET to "deliver" GO2 and GH2 for
@@ -775,10 +754,6 @@ private:
 
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
-	//GPC programs
-	//dps::RSLS *rsls;
-	//dps::RSLS_old *rsls;
-
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
 
@@ -806,7 +781,6 @@ private:
 	unsigned short usCurrentPlayerChar;
 	bool bCommMode;
 	void DefineSSMEExhaust();
-	//void SignalGSEBreakHDP();
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
@@ -894,7 +868,6 @@ private:
 	 */
 	void GimbalOMS(int engine, double pitch, double yaw);
 	void OMSTVC(const VECTOR3 &Rates, double SimDT);
-	//void GimbalOMS(const VECTOR3 &Targets);
 
 	void UpdateTranslationForces();
 
@@ -906,10 +879,6 @@ private:
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad;                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
-	/*UINT anim_clatch1_4;					   // handle for center line latches 1-4
-	UINT anim_clatch5_8;						// handle for center line latches 5-8
-	UINT anim_clatch9_12;						// handle for center line latches 9-12
-	UINT anim_clatch13_16;						// handle for center line latches 13-16*/
 
 	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
@@ -958,14 +927,9 @@ private:
 	UINT anim_camBLpitch;					   // handle for back-left payload camera pitch animation 
 	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
 	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
-	//UINT anim_camRMSElbowPan;
-	//UINT anim_camRMSElbowTilt;
 	
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
 	double camYaw[4], camPitch[4];
-	//double camRMSElbowPan, camRMSElbowTilt;
-	//RMS Camera rot/direction
-	//VECTOR3 camRMSElbowLoc[2];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -1004,12 +968,10 @@ private:
 	LightEmitter* PLBLight[6];
 	LightEmitter* FwdBulkheadLight;
 	LightEmitter* DockingLight[2];
-	//void ControlPLBLights();
 	VECTOR3 PLBLightPosition[6];
 	VECTOR3 FwdBulkheadLightPos, DockingLightPos;
 	BEACONLIGHTSPEC PLB_bspec[6];
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
-	//bool bPLBLights;
 	
 	LightEmitter* SRBLight[2];
 	LightEmitter* SSMELight;
@@ -1123,7 +1085,6 @@ private:
 	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
 	PARTICLESTREAMSPEC RCS_PSSpec;
 	SURFHANDLE RCS_Exhaust_tex;
-	//bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	AIRFOILHANDLE hStackAirfoil;
@@ -1164,7 +1125,6 @@ private:
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
-	//EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;
 	//double dT;
@@ -1195,8 +1155,6 @@ private:
 	PIDControl PitchControl;
 
 	//GPC
-	//int ops, SMOps;
-	//unsigned int ops;
 	unsigned int SMOps;
 	int last_mfd;
 	bool firstStep; //call functions in first timestep
@@ -1204,7 +1162,6 @@ private:
 	KeyboardInput DataInput[3];
 	int CRT_SEL[2]; //0=CDR, 1=PLT
 	int item;
-	//CRT* Display[3];
 	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
@@ -1279,7 +1236,6 @@ private:
 	Sensor LO2LowLevelSensor[4];
 
 	void AddKUBandVisual(const VECTOR3 ofs);
-	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);
 };
 

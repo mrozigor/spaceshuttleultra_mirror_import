@@ -363,14 +363,6 @@ namespace vc {
 
 	void MDU::RegisterMFDContext(int id)
 	{
-		/*
-		mfds[i].ngroup   = mfdgrp[i];
-		mfds[i].flag     = MFD_SHOWMODELABELS;
-		mfds[i].nbt1     = 5;
-		mfds[i].nbt2     = 0;
-		mfds[i].bt_yofs  = 256/6;
-		mfds[i].bt_ydist = 256/7;
-		*/
 //		char pszBuffer[256];
 		mfdspec.nbt1 = 5;
 		mfdspec.nbt2 = 0;

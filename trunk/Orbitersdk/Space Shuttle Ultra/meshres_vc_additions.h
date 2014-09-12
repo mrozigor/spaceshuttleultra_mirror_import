@@ -79,7 +79,7 @@ Atlantis\gpc.dds
 Atlantis\r13l.dds
 */
 
-#define TEX_ATLANTIS		2
+//#define TEX_ATLANTIS		2
 
 #define TEX_A1SHADOW_VC		1
 #define TEX_PANELA1U_VC		2

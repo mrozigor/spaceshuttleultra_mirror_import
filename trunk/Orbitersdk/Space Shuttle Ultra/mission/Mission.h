@@ -49,7 +49,6 @@ namespace mission {
 		std::string strOrbiterTexName;
 		std::string strLOMSPodMeshName;
 		std::string strROMSPodMeshName;
-		bool bEnableWingPainting;
 		int iETVersion;
 		int iBranchCode;
 		int iRevisionCode;
@@ -146,8 +145,6 @@ namespace mission {
 		
 		virtual const std::string& GetLOMSPodMeshName() const;
 		virtual const std::string& GetROMSPodMeshName() const;
-
-		virtual bool WingPaintingEnabled() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
