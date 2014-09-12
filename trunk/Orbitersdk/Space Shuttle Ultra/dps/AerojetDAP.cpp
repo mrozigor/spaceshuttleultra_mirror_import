@@ -1981,10 +1981,52 @@ double AerojetDAP::CalculateDELAZ() const
 
 void AerojetDAP::LoadLandingSiteList()
 {
-	// for reference, landing site tables can be found in Ascent Checklists
-	vLandingSites.push_back(LandingSiteData(28.632944*RAD, -80.706035*RAD, 28.5970420*RAD, -80.6826540*RAD, 150.2505, "KSC15", "KSC33"));
-	for(int i=2;i<=44;i++) vLandingSites.push_back(LandingSiteData(0.0, 0.0, 0.0, 0.0, 0.0, "NUL00", "NUL00")); // add filler data so landing site indices are correct
-	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, "EDW22", "EDW04"));
+	// for reference, landing site tables can be found in Ascent Checklists (using STS-115 table)
+	vLandingSites.push_back(LandingSiteData(28.632944*RAD, -80.706035*RAD, 28.5970420*RAD, -80.6826540*RAD, 150.2505, "KSC15", "KSC33"));// 1
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
+	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, "MRN20", "MRN02" ) );// 3
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT14R" ) );// 7 (HACK should be NKT32L/NKT23R)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU14L" ) );// 8 (HACK should be NTU32R/NTU23L)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL10" ) );// 9 (HACK should be WAL28/WAL04)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV14" ) );// 10 (HACK should be DOV32/DOV19)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
+	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, "MRN20", "MRN02" ) );// 13
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH14" ) );// 16 (HACK should be FMH32/FMH23)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ05" ) );// 18 (HACK should be YHZ23/YHZ32)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "YYT29", "YYT11" ) );// 20
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "YQX21", "YQX03" ) );// 21 (HACK should be YQX21/YQX31)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR08" ) );// 22 (HACK should be YYR26/YYR34)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "LAJ15", "LAJ33" ) );// 23
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF02" ) );// 25 (HACK should be IKF20/IKF29)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
+	vLandingSites.push_back( LandingSiteData( 43.510688 * RAD, 4.933503 * RAD, 43.538959 * RAD, 4.908155 * RAD, 330, "FMI33", "FMI15" ) );// 29
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "JDG31", "JDG13" ) );// 32
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "AMB15", "AMB33" ) );// 33 (HACK should be AMB15/PTN14)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "HAO12", "HAO30" ) );// 39
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "NOR17", "NOR35" ) );// 42 (HACK should be NOR17/NOR23)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "NOR05", "NOR23" ) );// 43 (HACK should be NOR05/NOR35)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW33" ) );// 44 (HACK should be EDW15/EDW18L)
+	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, "EDW22", "EDW04"));// 45
 }
 
 };
