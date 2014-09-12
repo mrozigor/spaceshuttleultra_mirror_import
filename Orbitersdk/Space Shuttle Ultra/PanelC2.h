@@ -92,4 +92,4 @@ private:
 
 };
 
-#endif  // !__PANELC3_H
+#endif  // !__PANELC2_H

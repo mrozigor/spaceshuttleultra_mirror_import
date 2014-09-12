@@ -533,18 +533,8 @@ pActiveLatches(3, NULL)
   for(i=0;i<11;i++) mdus[i] = NULL;
 
   plop            = new PayloadBayOp (this);
-  //gop             = new GearOp (this);
   panela4		  = new PanelA4(this);
-  //panela8		  = new PanelA8(this);
-  //panelc3         = new PanelC3(this);
-  //panelr2       = new PanelR2(this);
   panelc2		  = new PanelC2(this);
-  //panelf7		  = new PanelF7(this);
-
-  //rsls			= new dps::RSLS_old(this);
-  //rsls = NULL;
-  //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
-  
 
   pgForward.AddPanel(new vc::PanelF2(this));
   pgForward.AddPanel(new vc::PanelF4(this));
@@ -721,8 +711,6 @@ pActiveLatches(3, NULL)
   pOMS = NULL;
 #endif
 
-  //pA7A8Panel = new vc::PanelA7A8ODS(this);
-
   pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 
   //connect CRT MDUs to IDPs
@@ -760,8 +748,6 @@ pActiveLatches(3, NULL)
   mesh_cockpit    = MESH_UNDEFINED;
   mesh_vc         = MESH_UNDEFINED;
   mesh_middeck    = MESH_UNDEFINED;
-  //mesh_tank       = MESH_UNDEFINED;
-  //mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
   mesh_kuband	  = MESH_UNDEFINED;
   mesh_extal	  = MESH_UNDEFINED;
   mesh_ods		  = MESH_UNDEFINED;
@@ -796,13 +782,6 @@ pActiveLatches(3, NULL)
   pshSlag3[0] = pshSlag3[1] = NULL;
 
   for (i = 0; i < 11; i++) {
-    /*mfds[i].ngroup   = mfdgrp[i];
-    mfds[i].flag     = MFD_SHOWMODELABELS;
-    mfds[i].nbt1     = 5;
-    mfds[i].nbt2     = 0;
-    mfds[i].bt_yofs  = 256/6;
-    mfds[i].bt_ydist = 256/7;*/
-
 	mfds[i]=-1;
   }
   for (i = 0; i < 11; i++)
@@ -910,35 +889,14 @@ pActiveLatches(3, NULL)
 
   ControlSurfacesEnabled = false;
   bIlluminated=false;
-
-   /*texScorchedET = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
-   
-   if(texScorchedET == NULL) {
-	   oapiWriteLog("[SpaceShuttleUltra]Failed loading scorched ET texture.");
-   }
-   texNormalET = oapiLoadTexture(DEFAULT_NORMAL_ET_TEXTURE);
-   if(texNormalET == NULL) {
-	   oapiWriteLog("[SpaceShuttleUltra]Failed loading normal ET texture.");
-   }*/
-   
   
-  //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
-
-  strcpy(WingName,"Atlantis");
-
   //DefineAnimations();
-  //center_arm      = false;
-  //arm_moved       = false;
-  //mpm_moved		  = false;
-  //ofs_sts_sat     = _V(0,0,0);
   do_eva          = false;
   do_plat         = false;
   do_cargostatic  = false;
   vis             = NULL;
   ahHDP			= NULL;
   ahTow			= NULL;
-  //ahRMS			= NULL;
-  //ahOBSS		= NULL;
   ahDockAux		= NULL;
   ahMMU[0]		= NULL;
   ahMMU[1]		= NULL;
@@ -955,8 +913,6 @@ pActiveLatches(3, NULL)
 	ahPortPL[i] = NULL;
 	ahStbdPL[i] = NULL;
   }
-  //080415, DaveS add: Added temporary OBSS MPM attachment point
-  //obss_attach     = NULL;
   
   cargo_static_ofs   =_V(0,0,0);
 
@@ -989,24 +945,12 @@ pActiveLatches(3, NULL)
 
   // gpc
   SMOps=201;
-  //ops=101;
   last_mfd=0;
   firstStep=true;
 
   //Displays
   CRT_SEL[0]=2; //CRT3
   CRT_SEL[1]=1; //CRT2
-  //MNVR
-  /*MNVRLOAD=false;
-  MnvrExecute=false;
-  MnvrToBurnAtt=false;
-  TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
-  OMSGimbal[0][0]=OMSGimbal[0][1]=0;
-  OMSGimbal[1][0]=OMSGimbal[1][1]=0;
-  OMS = 0;
-  TV_ROLL=0.0;
-  BurnInProg=false;
-  BurnCompleted=false;*/
   
   RHCInput = _V(0, 0, 0);
   THCInput = _V(0, 0, 0);
@@ -1016,15 +960,6 @@ pActiveLatches(3, NULL)
   for(i=0; i<3; i++) {
 	  lastRotCommand[i] = 0;
 	  lastTransCommand[i] = 0;
-	  //MNVR
-	  //PEG7.data[i]=0.0;
-	  //UNIV PTG
-	  //MNVR_OPTION.data[i]=0.0;
-	  //TRKROT_OPTION.data[i]=0.0;
-	  //REQD_ATT.data[i]=0.0;
-	  //RotationAxis.data[i]=0.0;
-	  //TargetAttOrbiter.data[i]=0.0;
-	  //TargetAttM50.data[i]=0.0;
 	  //Initialize Keyboard Input
 	  DataInput[i].OPS=false;
 	  DataInput[i].ITEM=false;
@@ -1035,7 +970,6 @@ pActiveLatches(3, NULL)
 	  //DataInput[i].input="";
 	  sprintf(DataInput[i].input, "");
 	  DataInput[i].InputSize=0;
-	  //Display[i]=NULL;
 	  RotationCommand.data[i]=0.0;
 	  TranslationCommand.data[i]=0.0; 
 	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
@@ -1055,9 +989,6 @@ pActiveLatches(3, NULL)
   LO2LowLevelSensor[1] = Sensor( 65, 80 );
   LO2LowLevelSensor[2] = Sensor( 65, 80 );
   LO2LowLevelSensor[3] = Sensor( 65, 80 );
-
-  //I-loads
-  //stage1guidance_size=0;
 
   pCommModeHandler->DefineAnnotations();
 
@@ -1280,7 +1211,6 @@ void Atlantis::SetLaunchConfiguration (void)
 	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
 	  for(i=0;i<2;i++) {
 		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
 		  OMSEngControl(i);
 	  }
   }
@@ -1294,7 +1224,6 @@ void Atlantis::SetLaunchConfiguration (void)
   hStackAirfoil = CreateAirfoil2(LIFT_VERTICAL, _V(0, 0, 0), AscentLiftCoeff, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
@@ -1364,7 +1293,6 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
 	  for(int i=0;i<2;i++) {
 		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
 		  OMSEngControl(i);
 	  }
   }
@@ -1379,7 +1307,6 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   hStackAirfoil = NULL;
   ClearVariableDragElements ();
   CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
@@ -1411,7 +1338,6 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetTrimScale (0.05);
   SetCW (ORBITER_CW[0], ORBITER_CW[1], ORBITER_CW[2], ORBITER_CW[3]);
   SetCrossSections (ORBITER_CS);
-  //gop->SetGearParameters(gop->gear_proc);
   DefineTouchdownPoints();
   SetMaxWheelbrakeForce(250000/2);
   UpdateMass();
@@ -1433,7 +1359,6 @@ void Atlantis::SetOrbiterConfiguration (void)
 
   ClearVariableDragElements ();
   //CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
   CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
   CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
@@ -1467,7 +1392,6 @@ void Atlantis::SetOrbiterConfiguration (void)
 	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
 	  for(i=0;i<2;i++) {
 		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
 		  OMSEngControl(i);
 	  }
   }
@@ -1497,9 +1421,6 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   //if(bRCSDefined) return;
 
   THRUSTER_HANDLE thTmp[10];
-  /*PitchActive=true;
-  YawActive=true;
-  RollActive=true;*/
 
   if(bUseRealRCS)
   {
@@ -1723,7 +1644,6 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_lin[9], center+_V(-0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F1F
   AddRCSExhaust (th_att_lin[9], center+_V( 0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F2F
 
-  //RCSEnabled=true;
   if(!bRCSDefined) {
 	  thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);
 	  thg_pitchdown = CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_USER);
@@ -1795,37 +1715,6 @@ bool Atlantis::CreateDockingPort(const VECTOR3& pos)
 	return false;
 }
 
-void Atlantis::PaintMarkings (SURFHANDLE tex) {
-	HDC hDC = oapiGetDC (tex);
-	HFONT hFont = CreateFont(47, 0, 1800, 1800, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	HFONT pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextColor (hDC, 0x202020);
-	SetBkMode (hDC, TRANSPARENT);
-	char cbuf[256];
-//	strncpy (cbuf, "Kwan's Excellent Space Shuttle Adventure", 256);
-	//strncpy (cbuf, this->GetName(), 256);
-	//
-	strncpy (cbuf, WingName, 256);
-	int len = strlen(cbuf);
-	TextOut (hDC, 570, 290, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextAlign (hDC, TA_CENTER);
-	TextOut (hDC, 1795, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 2700, 2700, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	TextOut (hDC, 1405, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	oapiReleaseDC (tex, hDC);
-}
-
-
-
 void Atlantis::DisableControlSurfaces()
 {
 	if(!ControlSurfacesEnabled) return;
@@ -1860,8 +1749,6 @@ void Atlantis::DefineAnimations (void)
 {
   UINT midx = mesh_orbiter; // mesh index for all external animations
   UINT vidx = mesh_vc; // mesh index for all VC animations
-  //UINT ridx = mesh_rms; // mesh index for all RMS animations
-  //UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
   BeginLoggingAnims();
@@ -1973,7 +1860,6 @@ void Atlantis::DefineAnimations (void)
   AddManagedAnimationComponent (anim_door, 0.8055, 1.0, pPORTPullRod2, parent);
 
   // ***** 2. Landing gear animation *****
-  //gop->DefineAnimations();
   static UINT LNosewheelDoorGrp[1] = {GRP_LEFT_NLG_DOOR};
   static MGROUP_ROTATE LNosewheelDoor (midx, LNosewheelDoorGrp, 1,
     _V(-0.651575,-3.71,15.85), _V(-0.00552807, 0.209956, 0.977695), (float)(-60.0*RAD));
@@ -2348,46 +2234,10 @@ void Atlantis::DefineAttachments (const VECTOR3& ofs0)
 		  _V(0, 0.997185, -0.0749787), "T");
 	}
 
-	
-
-		/*
-	Fixed:
-0. RMS End-effector
-1. OBSS
-2. MMU1 (historic, do we need them?)
-3. MMU2
-4. Docking port Aux (allow us simulating soft docking)
-*/
-
-		//if (!obss_attach) obss_attach = 
-    //if (!rms_attach) rms_attach = 
-
-
-	//Separate into UpdateRMSAttachment
-	/*if(ahRMS && !pRMS) //replace with ahRMSLEE?
-	{
-		//Update position
-		SetAttachmentParams(ahRMS, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], 
-			arm_tip[2]-arm_tip[0]);
-	}
-	else {
-		//create new attachment
-		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
-		if(pRMS) pRMS->DefineAttachmentPoint(ahRMS);
-	}*/
 	if(pRMS) pRMS->CreateAttachment();
 	// if RMS does not exist, create a placeholder attachment
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
-	//Separate into UpdateOBSSAttachment
-	/*if(ahOBSS)
-	{
-		SetAttachmentParams(ahOBSS, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1));
-	}
-	else {
-		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
-		if(pMPMs) pMPMs->DefineAttachmentPoint(ahOBSS);
-	}*/
 	if(pMPMs) pMPMs->CreateAttachment();
 	// if MPMs are not used, create a placeholder attachment
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
@@ -2452,7 +2302,6 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 		if(ahCenterPassive[i])
 		{
 			//update
-			//vPayloadPos.z = fPayloadZPos[i+3];
 			vPayloadPos.z = pMission->GetPayloadZPos(i+3);
 
 			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
@@ -2491,7 +2340,6 @@ The same starboard
 		if(ahPortPL[i])
 		{
 			//update
-			//vPayloadPos.z = fPayloadZPos[i+7];
 			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
 
 			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
@@ -2499,7 +2347,6 @@ The same starboard
 		}
 		else 
 		{
-			//vPayloadPos.z = fPayloadZPos[i+7];
 			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
 
 			//create
@@ -2516,13 +2363,11 @@ The same starboard
 		{
 			//update
 			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
-			//vPayloadPos.z = fPayloadZPos[i+11];
 			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL);
 		}
 		else 
 		{
-			//vPayloadPos.z = fPayloadZPos[i+11];
 			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			//create
 			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
@@ -2596,20 +2441,8 @@ void Atlantis::AddOrbiterVisual()
 	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
 	oapiWriteLog("REENTRY MESH ADDED");
 
-	if(pMission->WingPaintingEnabled()) {
-		strncpy(WingName, pMission->GetOrbiter().c_str(), 256);
-		SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
-		PaintMarkings (insignia_tex);
-	}
-
     mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
-
-	/*if(RMS) {
-		//add panelA8
-		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
-		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
-	}*/
 
 	AddKUBandVisual(OFS_ZERO);
 
@@ -2683,7 +2516,6 @@ void Atlantis::AddOrbiterVisual()
 	pgAftPort.DefineVC();
 	pgAftPort.DefineVCAnimations(mesh_vc);
 
-    //for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
     huds.nmesh = mesh_vc;
 
     if (do_cargostatic) {
@@ -2701,26 +2533,12 @@ void Atlantis::AddOrbiterVisual()
       AddMesh("shuttle_eva_plat", &plat_ofs);
     }
 
-	/*if(STBDMPM) {
-		VECTOR3 pos=ofs+STBDMPM_REF;
-		mesh_mpm = AddMesh (hOBSSMPMMesh, &pos);
-		SetMeshVisibilityMode (mesh_mpm, MESHVIS_NEVER);
-	}*/
-
-	
-
     // ***** Docking definitions
 
 	VECTOR3 DockPos = _V(ODS_POS.x+ODS_DOCKPOS_OFFSET.x, ODS_POS.y+ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos()+ODS_DOCKPOS_OFFSET.z);
 	SetDockParams (DockPos, _V(0,1,0), _V(0,0,-1));
 
     // ***** Attachment definitions
-
-    //if (!sat_attach) sat_attach = CreateAttachment (false, ofs+ofs_sts_sat, _V(0,1,0), _V(0,0,1), "X");
-	//080415, DaveS add: Added temporary OBSS MPM attachment point
-	//if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
-    //if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
-
 	DefineAttachments(OFS_ZERO);
 
     // ***** Cockpit camera definition
@@ -2769,10 +2587,6 @@ void Atlantis::SeparateBoosters (double met)
 	pshSlag2[i] = NULL;
 	pshSlag3[i] = NULL;
   }
-
-  // shift cg
-  //ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
-
 
   // reconfigure
   SetOrbiterTankConfiguration();
@@ -2864,47 +2678,9 @@ ISSUMLP* Atlantis::GetMLPInterface() const
 
 void Atlantis::ToggleGrapple (void)
 {
-  //OBJHANDLE hV = GetAttachmentStatus (ahRMS);
-
   if(!RMS) return; //no arm
   if (pRMS->Grappled()) {  // release satellite
-
-    //ATTACHMENTHANDLE hAtt = CanArrest();
-    //reduce mass of shuttle
-    /*pl_mass-=oapiGetMass(hV);
-	if(pl_mass<0.0) pl_mass=0.0;
-	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
-
-    //DetachChild (ahRMS);
 	pRMS->Ungrapple();
-    // check whether the object being ungrappled is ready to be clamped into the payload bay
-	/*
-    if (hAtt) {
-      AttachChild (hV, sat_attach, hAtt);
-      if (hDlg) {
-        SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Purge");
-        EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), TRUE);
-      }
-    }
-	*/
-
-#ifdef UNDEF
-    VECTOR3 pos, dir, rot, gbay, gpos;
-    GetAttachmentParams (sat_attach, pos, dir, rot);
-    Local2Global (pos, gbay);
-    VESSEL *v = oapiGetVesselInterface (hV);
-    DWORD nAttach = v->AttachmentCount (true);
-    for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points
-      ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-      v->GetAttachmentParams (hAtt, pos, dir, rot);
-      v->Local2Global (pos, gpos);
-      if (dist (gpos, gbay) < MAX_GRAPPLING_DIST) {
-        AttachChild (hV, sat_attach, hAtt);
-        return;
-      }
-    }
-#endif
-
   } else {             // grapple satellite
 	  ATTACHMENTHANDLE hV=pRMS->Grapple();
 	  if(hV) {
@@ -3084,7 +2860,6 @@ void Atlantis::LaunchClamps ()
 void Atlantis::UpdateMesh ()
 {
   // update animation states
-  //gop->UpdateMesh();
   SetAnimation (anim_spdb, spdb_proc);
   SetAnimation (anim_door, plop->BayDoorStatus.pos);
   for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
@@ -3092,8 +2867,6 @@ void Atlantis::UpdateMesh ()
   SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
   SetAnimation (anim_kualpha, plop->KuAntennaStatus.pos);
   SetAnimation (anim_kubeta, plop->KuAntennaStatus.pos);
-  //SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
-  //SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
 
   SetAnimationCameras(); // update camera positions
@@ -3279,12 +3052,6 @@ void Atlantis::SetAnimationCameras() {
 	anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_C]);
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
-	//RMS Elbow
-	/*anim_yaw=linterp(-170, 0, 170, 1, camRMSElbowPan);
-	SetAnimation(anim_camRMSElbowPan, anim_yaw);
-	anim_pitch=linterp(-170, 0, 170, 1, camRMSElbowTilt);
-	SetAnimation(anim_camRMSElbowTilt, anim_pitch);*/
-
 	if(oapiCameraInternal()) {
 		double a = 0;
 		double b = 0;
@@ -3314,10 +3081,6 @@ void Atlantis::SetAnimationCameras() {
 			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 			oapiCameraSetCockpitDir(0.0, 0.0);
 			break;
-			/*case VC_RMSCAM:
-			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-			SetCameraOffset(camRMSElbowLoc[0]);
-			break;*/
 		}
 	}
 }
@@ -3597,9 +3360,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
     } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
 		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
 		spdb_status = (AnimState::Action)(action+1);
-    } else if (!_strnicmp (line, "WING_NAME", 9)) {
-      strncpy(WingName,line+10,256);
-	} else if (!_strnicmp (line, "GEAR", 4)) {
+    } else if (!_strnicmp (line, "GEAR", 4)) {
 		sscan_state(line+4, gear_status);
 		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
     } else if (!_strnicmp (line, "PLBD_CAM", 8)) {
@@ -3662,20 +3423,7 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			pgAftPort.ParsePanelBlock(pszPanelName, scn);
 
 		oapiWriteLog("\tLeave @PANEL block.");
-	} /*else if(!_strnicmp(line,"PLB_LIGHTS",10)) {
-		int t;
-		sscanf_s(line+10,"%i",&t);
-		if(t==1)
-		{
-			bPLBLights = false;
-			ControlPLBLights();
-		}
-		else
-		{
-			bPLBLights = true;
-			ControlPLBLights();
-		}
-	}*/ else {
+	} else {
       if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
 	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
@@ -3740,7 +3488,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
     sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
     oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
   }
-  oapiWriteScenario_string (scn, "WING_NAME", WingName);
   WriteScenario_state(scn, "GEAR", gear_status);
 
   if(STBDMPM) {
@@ -3767,14 +3514,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
   sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
 			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
   oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
-  /*if(bPLBLights)
-  {
-	  oapiWriteScenario_int(scn,"PLB_LIGHTS",1);
-  }
-  else
-  {
-	  oapiWriteScenario_int(scn,"PLB_LIGHTS",0);
-  }*/
 
   oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
   psubsystems->SaveState(scn);
@@ -4186,15 +3925,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	OMSEngControl(LEFT);
 	OMSEngControl(RIGHT);
 
-	switch(status) {
-		case STATE_PRELAUNCH:
-		case STATE_STAGE1:
-		case STATE_STAGE2:
-			break;
-		case STATE_ORBITER:
-			break;
-	}
-
 	// disable all Orbitersim autopilots
 	for(int i=NAVMODE_KILLROT;i<=NAVMODE_HOLDALT;i++) DeactivateNavmode(i);
 	
@@ -4547,9 +4277,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	switch (status) {
 	case STATE_PRELAUNCH: // launch configuration
-		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
 		// check SSME state and trigger liftoff when required
-		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
 		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 		{
 			if(GetPropellantLevel(ph_mps) > 0.5) // TODO improve this venting with engine status
@@ -4578,8 +4306,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			RecordEvent ("STATUS", "SSME_IGNITION");
 			//play sounds
 			PlayVesselWave(SoundID, SSME_START, NOLOOP);
-			//if(bAutopilot) 
-				//InitializeAutopilot(); //setup autopilot for ascent
 
 			for(unsigned short i = 0; i<3; i++)
 			{
@@ -4588,7 +4314,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				}
 			}
 		}
-		//GPC(simdt);
 		break;
 	case STATE_STAGE1: // SRB's ignited
 		//play sounds
@@ -4600,37 +4325,30 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				SetThrusterLevel(th_ssme_gox[i], 0.0);
 			}
 		}
-		/*if(met >= 0.0 && !GetLiftOffFlag())
-		{
-			SignalGSEBreakHDP();
-			TriggerLiftOff();	
-		}*/
-		if(!GetLiftOffFlag()) {
-			Twang(t0-simt);
-			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
-		}
-			if(met>0.0) {
-				// extract current thrust level and propellant level as a function of time
-				double thrust_level, prop_level;
-				GetSRB_State (met, thrust_level, prop_level);
-				for (unsigned short i = 0; i < 2; i++) {
-					SetThrusterLevel (th_srb[i], thrust_level);
-					SetPropellantMass(ph_srb, prop_level*GetPropellantMaxMass(ph_srb));
-				}
 
-				if(met > 15.0)
-				{
-					slag1 = pow(1.0 - thrust_level, 3);
-					slag2 = pow(1.0 - thrust_level, 2);
-					slag3 = 1.0 - thrust_level;
-				}
-				if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
+		if(!GetLiftOffFlag()) Twang(t0-simt);
+
+		if(met>0.0) {
+			// extract current thrust level and propellant level as a function of time
+			double thrust_level, prop_level;
+			GetSRB_State (met, thrust_level, prop_level);
+			for (unsigned short i = 0; i < 2; i++) {
+				SetThrusterLevel (th_srb[i], thrust_level);
+				SetPropellantMass(ph_srb, prop_level*GetPropellantMaxMass(ph_srb));
 			}
-			else {
-				LaunchClamps ();
+
+			if(met > 15.0)
+			{
+				slag1 = pow(1.0 - thrust_level, 3);
+				slag2 = pow(1.0 - thrust_level, 2);
+				slag3 = 1.0 - thrust_level;
 			}
+			if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
+		}
+		else {
+			LaunchClamps ();
+		}
 			
-		//}
 		break;
 
 	case STATE_STAGE2: // post SRB separation
@@ -4994,7 +4712,6 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
     plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
   } else if (!_stricmp (event_type, "GEAR")) {
-    //gop->OperateLandingGear (!_stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
 	if(!_stricmp(event, "UP")) DeployLandingGear();
 	else RetractLandingGear();
     return true;
@@ -5044,8 +4761,6 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 
   UpdateMesh ();
 #endif
-  //UpdateOrbiterTexture();
-  //UpdateETTexture();
   if(!pMission->GetOrbiterTextureName().empty())
 	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
 
@@ -5096,156 +4811,6 @@ bool Atlantis::clbkLoadGenericCockpit ()
 }
 
 // --------------------------------------------------------------
-// register VC buttons for the 2 commander MFDs
-// (accessible from commander position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_CdrMFD ()
-{
-
-  // -0.9049484  2.118143 14.7288
-  // -0.8917124  2.114834
-  // -0.7282474  2.104245
-  //2.121287  14.70349
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BUTTONS, 
-	  _V(-0.900,  2.11, 14.703)+orbiter_ofs, _V(-0.725, 2.11, 14.703)+orbiter_ofs,  
-	  _V(-0.900, 2.09, 14.703)+orbiter_ofs, _V(-0.725, 2.09, 14.703)+orbiter_ofs);
-
-  //-0.6275758
-  //-0.4694053
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BUTTONS, 
-	  _V(-0.630, 2.11, 14.703)+orbiter_ofs,  _V(-0.469, 2.11, 14.703)+orbiter_ofs,
-	  _V(-0.630, 2.09, 14.703)+orbiter_ofs, _V(-0.469, 2.09, 14.703)+orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-  const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-
-  oapiVCRegisterArea (AID_CDR1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CDR2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical(AID_CDR1_PWR, _V(-0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);	
-  oapiVCSetAreaClickmode_Spherical(AID_CDR2_PWR, _V(-0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CDR1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CDR2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_CDR1_BRT, _V(-0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CDR2_BRT, _V(-0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the 2 pilot MFDs
-// (accessible from pilot position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_PltMFD ()
-{
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT1_BUTTONS, 
-	  _V(0.469, 2.11, 14.703) + orbiter_ofs, _V(0.630, 2.11, 14.703) + orbiter_ofs, 
-	  _V(0.469, 2.09, 14.703) + orbiter_ofs, _V(0.630, 2.09, 14.703) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT2_BUTTONS, 
-	  _V(0.725, 2.11, 14.703) + orbiter_ofs, _V(0.900,  2.11, 14.703) + orbiter_ofs, 
-	  _V(0.725, 2.09, 14.703) + orbiter_ofs, _V(0.900, 2.09, 14.703) + orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_PLT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_PLT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT1_PWR, _V( 0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT2_PWR, _V( 0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_PLT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_PLT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_PLT1_BRT, _V(0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_PLT2_BRT, _V(0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the 5 MFDs on the central panel
-// (accessible from commander and pilot positions)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_CntMFD ()
-{
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT1_BUTTONS, 
-	  _V(-0.346, 2.212, 14.728) + orbiter_ofs, _V(-0.176, 2.212, 14.728) + orbiter_ofs, 
-	  _V(-0.346, 2.2, 14.724) + orbiter_ofs, _V(-0.176, 2.2, 14.724) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT2_BUTTONS, 
-	  _V( 0.176, 2.212, 14.728) + orbiter_ofs, _V(0.346, 2.212, 14.728) + orbiter_ofs, 
-	  _V( 0.176, 2.2, 14.724) + orbiter_ofs, _V(0.346, 2.2, 14.724) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT3_BUTTONS, 
-	  _V(-0.082, 2.099, 14.696) + orbiter_ofs, _V(0.085, 2.099,14.696) + orbiter_ofs,
-	  _V(-0.082, 2.09, 14.693) + orbiter_ofs, _V(0.085, 2.09, 14.693) + orbiter_ofs);
-
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD1_BUTTONS, 
-	  _V(-0.346, 1.987, 14.466)+orbiter_ofs, _V(-0.176, 1.987, 14.466)+orbiter_ofs, 
-	  _V(-0.346, 1.977, 14.462)+orbiter_ofs, _V(-0.176, 1.977, 14.462)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD2_BUTTONS, 
-	  _V( 0.176, 1.987, 14.466) + orbiter_ofs, _V(0.346, 1.987, 14.466) + orbiter_ofs, 
-	  _V( 0.176, 1.977, 14.462) + orbiter_ofs, _V(0.346, 1.977, 14.464) + orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_CRT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT3_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical(AID_CRT1_PWR, _V(-0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_CRT2_PWR, _V( 0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_CRT3_PWR, _V(-0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_MFD1_PWR, _V(-0.366, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_MFD2_PWR, _V( 0.155, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CRT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT3_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical (AID_CRT1_BRT, _V(-0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT2_BRT, _V(0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT3_BRT, _V(0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_MFD1_BRT, _V(-0.155,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_MFD2_BRT, _V(0.366,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the aft MFD at the starbord panel
-// (accessible from payload control position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_AftMFD ()
-{
-  // register+activate aft MFD function buttons
-  //SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-  //oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT4_BUTTONS, 
-	  _V(1.352, 2.319, 13.54) + orbiter_ofs, _V(1.352, 2.319, 13.376) + orbiter_ofs, 
-	  _V(1.348, 2.315, 13.54) + orbiter_ofs, _V(1.348, 2.315, 13.376) + orbiter_ofs);
-
-  // register+activate MFD power button
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_CRT4_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_CRT4_PWR, _V(1.356, 2.321,13.563) + orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CRT4_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT4_BRT, _V(1.356, 2.321,13.35)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
 // Load virtual cockpit mode
 // --------------------------------------------------------------
 bool Atlantis::clbkLoadVC (int id)
@@ -5258,28 +4823,6 @@ bool Atlantis::clbkLoadVC (int id)
   VCMode = id;
   //Reset Clip Radius settings
   SetClipRadius(0.0);
-
-
-  // register MFD function buttons
-  // this needs to be done globally, so that the labels are correctly updated from all VC positions
-  //SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-  
-  /*
-  // commander MFD function buttons
-  oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CDR2_BUTTONS, _R(0,15,255,28), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  // pilot MFD function buttons
-  oapiVCRegisterArea (AID_PLT1_BUTTONS, _R(0,29,255,42), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_PLT2_BUTTONS, _R(0,43,255,56), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  // central console MFD function buttons
-  oapiVCRegisterArea (AID_CRT1_BUTTONS, _R(0, 57,255, 70), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT2_BUTTONS, _R(0, 99,255,112), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT3_BUTTONS, _R(0, 85,255, 98), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD1_BUTTONS, _R(0, 71,255, 84), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD2_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  */
-  
 
   // VC Cockpit not visible from Payload cameras or RMS camera.
   // 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
@@ -5323,15 +4866,10 @@ bool Atlantis::clbkLoadVC (int id)
 	pgLeft.RegisterVC();
 	pgOverhead.RegisterVC();
 
-    //RegisterVC_CdrMFD (); // activate commander MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-    //gop->RegisterVC ();  // register panel F6 interface
 	panela4->RegisterVC();
-	//panelc3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
@@ -5361,16 +4899,11 @@ bool Atlantis::clbkLoadVC (int id)
 	pgRight.RegisterVC();
 	pgOverhead.RegisterVC();
 
-    //RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -5400,7 +4933,6 @@ bool Atlantis::clbkLoadVC (int id)
     //RegisterVC_AftMFD (); // activate aft MFD controls
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
@@ -5428,8 +4960,6 @@ bool Atlantis::clbkLoadVC (int id)
   case VC_RMSCAM:
 		if(pRMS) {
 			DisplayCameraLabel(VC_LBL_ELBOWCAM);
-			/*SetCameraOffset(camRMSElbowLoc[0]);
-			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);*/
 			pRMS->SetElbowCamView(true);
 
 			oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
@@ -5520,9 +5050,7 @@ bool Atlantis::clbkLoadVC (int id)
 
     plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5554,9 +5082,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5585,7 +5111,6 @@ bool Atlantis::clbkLoadVC (int id)
 
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -5613,9 +5138,7 @@ bool Atlantis::clbkLoadVC (int id)
 		
 	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
 	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5642,18 +5165,11 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 
-
-    //RegisterVC_CdrMFD();
-	//RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -5678,17 +5194,11 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 
-    //RegisterVC_CdrMFD();
-	//RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
 	panela4->RegisterVC();
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -5770,14 +5280,9 @@ bool Atlantis::clbkLoadVC (int id)
 		}
 		// update panels
 		plop->UpdateVC();
-		//gop->UpdateVC();
 		panela4->UpdateVC();
-		//if(RMS && panela8) panela8->UpdateVC();
 		panelc2->UpdateVC();
-		//panelc3->UpdateVC();
-		//	panelf7->UpdateVC();
 		panelo3->UpdateVC();
-		//panelr2->UpdateVC();
 	}
 	oapiCameraSetCockpitDir(0, 0);
 	return ok;
@@ -5806,115 +5311,15 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   switch (id) 
   {
   // handle MFD selection buttons
-  /*case AID_CDR1_BUTTONS:
-  case AID_CDR2_BUTTONS:
-  case AID_PLT1_BUTTONS:
-  case AID_PLT2_BUTTONS:
-  case AID_CRT1_BUTTONS:
-  case AID_CRT2_BUTTONS:
-  case AID_CRT3_BUTTONS:
-  case AID_CRT4_BUTTONS:
-  case AID_MFD1_BUTTONS:
-  case AID_MFD2_BUTTONS:
-  case AID_AFD_BUTTONS: 
-	  {
-		  
-    int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-    int bt = (int)(p.x*5.99);
-    if (bt < 5) oapiProcessMFDButton (mfd, bt, _event);
-    else {
-      if (_event & PANEL_MOUSE_LBDOWN) {
-        t0 = oapiGetSysTime();
-        counting = true;
-      } else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-        oapiSendMFDKey (mfd, OAPI_KEY_F2);
-        counting = false;
-      } else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-        oapiSendMFDKey (mfd, OAPI_KEY_F1);
-        counting = false;
-      }
-    }
-	sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
-	
-    } return true;
-
-  // D. Beachy: handle power buttons
-  case AID_CDR1_PWR:
-  case AID_CDR2_PWR:
-  case AID_PLT1_PWR:
-  case AID_PLT2_PWR:
-  case AID_CRT1_PWR:
-  case AID_CRT2_PWR:
-  case AID_CRT3_PWR:
-  case AID_CRT4_PWR:
-  case AID_MFD1_PWR:
-  case AID_MFD2_PWR:
-  case AID_AFD_PWR: 
-	  {
-        int mfd = id - AID_CDR1_PWR+MFD_LEFT;
-		sprintf(oapiDebugString(), "POWER BUTTON %d", mfd);
-        //oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
-       } 
-	  return true;
-
-  // handle MFD brightness buttons
-  case AID_CDR1_BRT:
-  case AID_CDR2_BRT:
-  case AID_PLT1_BRT:
-  case AID_PLT2_BRT:
-  case AID_CRT1_BRT:
-  case AID_CRT2_BRT:
-  case AID_CRT3_BRT:
-  case AID_CRT4_BRT:
-  case AID_MFD1_BRT:
-  case AID_MFD2_BRT:
-  case AID_AFD_BRT: 
-	  {
-		static double t0, brt0;
-		static bool up;
-		int mfd = id-AID_CDR1_BRT;
-		sprintf(oapiDebugString(), "BRT BUTTON %d", mfd);
-
-		/*
-		if (event & PANEL_MOUSE_LBDOWN) {
-			up = (p.x >= 0.5);
-			t0 = oapiGetSysTime();
-			brt0 = mfdbright[mfd];
-		} else if (event & PANEL_MOUSE_LBPRESSED) 
-		{
-			double dt = oapiGetSysTime()-t0;
-			double brt, dbrt = dt * 0.2;
-			if (up) 
-				brt = min (1.0, brt0 + dbrt);
-			else    
-				brt = max (0.25, brt0 - dbrt);
-			mfdbright[mfd] = brt;
-			if (vis) {
-				MESHHANDLE hMesh = GetMesh (vis, mesh_vc);
-				MATERIAL *mat = oapiMeshMaterial (hMesh, 10+mfd);
-				mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
-			}
-		}
-		
-	} 
-	return false;*/
   // handle panel R13L events (payload bay operations)
   case AID_R13L:
     return plop->VCMouseEvent (id, _event, p);
   case AID_A4:
 	return panela4->VCMouseEvent (id, _event, p);
-  /*case AID_A8:
-	if(panela8) return panela8->VCMouseEvent (id, _event, p);
-	else break;*/
-  //case AID_F6:
-    //return gop->VCMouseEvent (id, _event, p);
   case AID_F7:
-//	return panelf7->VCMouseEvent(id, _event, p);
 	  return false;
   case AID_C2:
 	return panelc2->VCMouseEvent(id, _event, p);
-  //case AID_C3:
-	//return panelc3->VCMouseEvent (id, _event, p);
   case AID_O3:
 	return panelo3->VCMouseEvent(id, _event, p);
   case AID_KYBD_CDR:
@@ -5922,8 +5327,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
     return CDRKeyboard->VCMouseEvent(id, _event, p);
   case AID_KYBD_PLT:
     return PLTKeyboard->VCMouseEvent(id, _event, p);
-  //case AID_R2:
-	//return panelr2->VCMouseEvent (id, _event, p);
   }
 
   if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
@@ -5940,43 +5343,14 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
-	//switch (id) {
-		/*case AID_CDR1_BUTTONS:
-		case AID_CDR2_BUTTONS:
-		case AID_PLT1_BUTTONS:
-		case AID_PLT2_BUTTONS:
-		case AID_CRT1_BUTTONS:
-		case AID_CRT2_BUTTONS:
-		case AID_CRT3_BUTTONS:
-		case AID_CRT4_BUTTONS:
-		case AID_MFD1_BUTTONS:
-		case AID_MFD2_BUTTONS:
-		case AID_AFD_BUTTONS:
-			//int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-			//RedrawPanel_MFDButton (surf, mfd);
-			return true;*/
-	//	default:
-			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
-				return panela4->VCRedrawEvent (id, _event, surf);
-			/*if (id >= AID_A8_MIN && id <= AID_A8_MAX && panela8)
-				return panela8->VCRedrawEvent (id, _event, surf);*/
-			/*if (id >= AID_R2_MIN && id <= AID_R2_MAX)
-				return panelr2->VCRedrawEvent (id, _event, surf);*/
-			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
-				return plop->VCRedrawEvent (id, _event, surf);
-			//if (id >= AID_F6_MIN && id <= AID_F6_MAX)
-				//return gop->VCRedrawEvent (id, _event, surf);
-			//if (id >= AID_F7_MIN && id <= AID_F7_MAX)
-			//	return panelf7->VCRedrawEvent (id, event, surf);
-			//return false;
-			//if (id >= AID_C3_MIN && id <= AID_C3_MAX)
-				//return panelc3->VCRedrawEvent (id, _event, surf);
-			if (id >= AID_C2_MIN && id <= AID_C2_MAX)
-				return panelc2->VCRedrawEvent (id, _event, surf);
-			if (id >= AID_O3_MIN && id <= AID_O3_MAX)
-				return panelo3->VCRedrawEvent (id, _event, surf);		
-			//break;
-	//}
+	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
+		return panela4->VCRedrawEvent (id, _event, surf);
+	if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
+		return plop->VCRedrawEvent (id, _event, surf);
+	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
+		return panelc2->VCRedrawEvent (id, _event, surf);
+	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
+		return panelo3->VCRedrawEvent (id, _event, surf);
 	if(pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgCenter.OnVCRedrawEvent(id, _event, surf))
@@ -6013,75 +5387,6 @@ bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
 		return false;
 	}
 }
-
-/*void Atlantis::UpdateRMSAngles()
-{
-	sy_angle=linterp(0,-180,1,180,arm_sy);
-	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-	ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
-	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-	wr_angle=linterp(0, wrist_roll_min, 1, wrist_roll_max, arm_wr);
-}*/
-
-/*void Atlantis::AutoGrappleSequence()
-{
-	sprintf_s(oapiDebugString(), 255, "AutoGrapple: %d", EEGrappleMode);
-	if(!bGrappleInProgress) {
-		bGrappleInProgress=true;
-		bReleaseInProgress=false;
-		if(!Grapple.Closed()) {
-			Grapple.action=AnimState::CLOSING;
-			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-		}
-		else {
-			if(!Extend.Closed()) {
-				Extend.action=AnimState::CLOSING;
-				if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-			}
-			else {
-				Rigidize.action=AnimState::CLOSING;
-			}
-		}
-	}
-	else {
-		bGrappleInProgress=false;
-		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
-		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-	}
-	if(panela8) panela8->UpdateVC();
-}
-
-void Atlantis::AutoReleaseSequence()
-{
-	if(!bReleaseInProgress) {
-		bReleaseInProgress=true;
-		bGrappleInProgress=false;
-		if(!Rigidize.Open()) {
-			Rigidize.action=AnimState::OPENING;
-			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			if(Grapple.Moving()) Rigidize.action=AnimState::STOPPED;
-		}
-		else {
-			if(!Grapple.Open()) {
-				Grapple.action=AnimState::OPENING;
-				if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			}
-			else {
-				Extend.action=AnimState::OPENING;
-			}
-		}
-	}
-	else {
-		bReleaseInProgress=false;
-		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
-		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-	}
-	if(panela8) panela8->UpdateVC();
-}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
@@ -6149,7 +5454,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
       return 1;*/
 	case OAPI_KEY_G:
-		//gop->ArmGear();
 		ArmGear();
 		return 1;
 	case OAPI_KEY_A:
@@ -6187,21 +5491,12 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		}*
 		return 1;*/
 	case OAPI_KEY_1: //temporary
-		/*if(DisplayJointAngles) {
-			DisplayJointAngles=false;
-			sprintf(oapiDebugString(), "");
-		}
-		else DisplayJointAngles=true;*/
 		if(pRMS) pRMS->ToggleJointAngleDisplay();
 		return 1;
 	case OAPI_KEY_2:
 		FireAllNextManifold();
 		return 1;
 	case OAPI_KEY_3:
-		//if(pA7A8Panel)
-		//{
-		//	pA7A8Panel->ToggleCoordinateDisplayMode();
-		//}
 		pgForward.ToggleCoordinateDisplayMode();
 		pgCenter.ToggleCoordinateDisplayMode();
 		pgRight.ToggleCoordinateDisplayMode();
@@ -6257,7 +5552,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
 		return 1;
 	case OAPI_KEY_G:
-		//gop->RevertLandingGear();
 		DeployLandingGear();
 		return 1;
 	case OAPI_KEY_LEFT:
@@ -6890,7 +6184,6 @@ void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 		th_main[1] = CreateThruster (ofs + SSMEL_REF, SSMECurrentPos[1], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 		th_main[2] = CreateThruster (ofs + SSMER_REF, SSMECurrentPos[2], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
 		bSSMEsDefined = true;
-		//thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
 	}
 
 	CreateMPSGOXVents(ofs);
@@ -7127,8 +6420,6 @@ void Atlantis::CreateOrbiterTanks()
 	int i;
 	if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
 	for(i=0;i<3;i++) {
-	  //if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-		//pAPU[i]->CreateTanks();
 		PROPELLANT_HANDLE phTank = CreatePropellantResource(APU_FUEL_TANK_MASS);
 		pAPU[i]->DefineTank(phTank);
 	}
@@ -8097,28 +7388,6 @@ void Atlantis::Twang(double timeToLaunch) const
 	double s=sin(twangAngle);
 	//SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
 }
-
-/*void Atlantis::ControlPLBLights()
-{
-	if(bPLBLights)
-	{
-		for(int i=0; i<6; ++i)
-		{
-			PLBLight[i]->Activate(false);
-			bspec[i].active = false;
-		}
-		bPLBLights = false;
-	}
-	else
-	{
-		for(int i=0; i<6; ++i)
-		{
-			PLBLight[i]->Activate(true);
-			bspec[i].active = true;
-		}
-		bPLBLights = true;
-	}
-}*/
 
 void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
 {

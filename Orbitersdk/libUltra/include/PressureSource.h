@@ -30,7 +30,7 @@ class PressureSource
 {
 	public:
 		PressureSource( void ){};
-		~PressureSource( void ){};
+		virtual ~PressureSource( void ){};
 
 		virtual double Use( double flow ) = 0;
 };
