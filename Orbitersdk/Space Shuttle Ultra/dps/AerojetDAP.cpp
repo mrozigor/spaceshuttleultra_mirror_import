@@ -2010,7 +2010,7 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
-	vLandingSites.push_back( LandingSiteData( 43.510688 * RAD, 4.933503 * RAD, 43.538959 * RAD, 4.908155 * RAD, 330, "FMI33", "FMI15" ) );// 29
+	vLandingSites.push_back( LandingSiteData( 43.511010 * RAD, 4.933081 * RAD, 43.540203 * RAD, 4.909819 * RAD, 330, "FMI33", "FMI15" ) );// 29
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, "JDG31", "JDG13" ) );// 32
