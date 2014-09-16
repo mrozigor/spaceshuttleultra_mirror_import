@@ -296,6 +296,26 @@ namespace vc {
 			Line(5*x+4, 9*y+5, 5*x+2, 9*y+7, attributes);
 		}
 
+		/**
+		 * Draws left arrow character at specified location on MDU.
+		 */
+		inline void LeftArrow( int x, int y, char attributes = 0 )
+		{
+			Line( (5 * x) + 4, (9 * y) + 4, 5 * x, (9 * y) + 4, attributes );
+			Line( (5 * x) + 2, (9 * y) + 2, 5 * x, (9 * y) + 4, attributes );
+			Line( (5 * x) + 2, (9 * y) + 6, 5 * x, (9 * y) + 4, attributes );
+		}
+
+		/**
+		 * Draws right arrow character at specified location on MDU.
+		 */
+		inline void RightArrow( int x, int y, char attributes = 0 )
+		{
+			Line( 5 * x, (9 * y) + 4, (5 * x) + 4, (9 * y) + 4, attributes );
+			Line( (5 * x) + 2, (9 * y) + 2, (5 * x) + 4, (9 * y) + 4, attributes );
+			Line( (5 * x) + 2, (9 * y) + 6, (5 * x) + 4, (9 * y) + 4, attributes );
+		}
+
 		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
 		//	const VECTOR3& bottom_right);
 
