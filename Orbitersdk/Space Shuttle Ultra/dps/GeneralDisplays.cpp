@@ -7,6 +7,16 @@ namespace dps
 	GeneralDisplays::GeneralDisplays( SimpleGPCSystem* _gpc ):SimpleGPCSoftware( _gpc, "GeneralDisplays" )
 	{
 		He_T = 0;
+
+		for (int i = 0; i < 32; i++)
+		{
+			ITEM_STATE_SPEC112[i] = false;
+		}
+
+		for (int i = 0; i < 44; i++)
+		{
+			ITEM_STATE_SPEC113[i] = false;
+		}
 		return;
 	}
 
@@ -85,8 +95,36 @@ namespace dps
 
 	bool GeneralDisplays::ItemInput( int spec, int item, const char* Data )
 	{
-		// TODO SPEC item input
+		switch (spec)
+		{
+			/*case 51:
+				return true;
+			case 53:
+				return true;
+			case 55:
+				return true;
+			case 99:
+				return true;*/
+			case 112:
+				ItemInput_SPEC112( item, Data );
+				return true;
+			case 113:
+				ItemInput_SPEC113( item, Data );
+				return true;
+		}
 		return false;
+	}
+
+	void GeneralDisplays::ItemInput_SPEC112( int item, const char* Data )
+	{
+		// TODO
+		return;
+	}
+
+	void GeneralDisplays::ItemInput_SPEC113( int item, const char* Data )
+	{
+		// TODO
+		return;
 	}
 
 	bool GeneralDisplays::OnPaint( int spec, vc::MDU* pMDU ) const
@@ -118,7 +156,7 @@ namespace dps
 					switch (spec)
 					{
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -127,19 +165,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_PASS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_PASS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 51:
-							SPEC51_PASS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_PASS( pMDU );// OVERRIDE
 							return true;
 						case 53:
-							SPEC53_PASS( pMDU );// CONTROLS
+							OnPaint_SPEC53_PASS( pMDU );// CONTROLS
 							return true;
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -148,16 +186,16 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_PASS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_PASS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 19:
-							DISP19_PASS( pMDU );// GNC SYS SUMM 2
+							OnPaint_DISP19_PASS( pMDU );// GNC SYS SUMM 2
 							return true;
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -166,19 +204,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_PASS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_PASS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 51:
-							SPEC51_PASS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_PASS( pMDU );// OVERRIDE
 							return true;
 						case 53:
-							SPEC53_PASS( pMDU );// CONTROLS
+							OnPaint_SPEC53_PASS( pMDU );// CONTROLS
 							return true;
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -187,19 +225,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_PASS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_PASS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 51:
-							SPEC51_PASS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_PASS( pMDU );// OVERRIDE
 							return true;
 						case 53:
-							SPEC53_PASS( pMDU );// CONTROLS
+							OnPaint_SPEC53_PASS( pMDU );// CONTROLS
 							return true;
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -208,16 +246,16 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_PASS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_PASS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 19:
-							DISP19_PASS( pMDU );// GNC SYS SUMM 2
+							OnPaint_DISP19_PASS( pMDU );// GNC SYS SUMM 2
 							return true;
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -226,10 +264,16 @@ namespace dps
 					switch (spec)
 					{
 						case 55:
-							SPEC55_PASS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_PASS( pMDU );// FAULT
+							OnPaint_DISP99_PASS( pMDU );// FAULT
+							return true;
+						case 112:
+							OnPaint_SPEC112_PASS( pMDU );// GPC/BTU I/F
+							return true;
+						case 113:
+							OnPaint_SPEC113_PASS( pMDU );// ACTUATOR CONTROL
 							return true;
 						default:
 							return false;
@@ -247,7 +291,7 @@ namespace dps
 					switch (spec)
 					{
 						case 99:
-							DISP99_BFS( pMDU );// FAULT
+							OnPaint_DISP99_BFS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -256,19 +300,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_BFS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_BFS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 19:
-							DISP19_BFS( pMDU );// GNC SYS SUMM 2
+							OnPaint_DISP19_BFS( pMDU );// GNC SYS SUMM 2
 							return true;
 						case 51:
-							SPEC51_BFS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_BFS( pMDU );// OVERRIDE
 							return true;
 						case 55:
-							SPEC55_BFS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_BFS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_BFS( pMDU );// FAULT
+							OnPaint_DISP99_BFS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -277,19 +321,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_BFS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_BFS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 19:
-							DISP19_BFS( pMDU );// GNC SYS SUMM 2
+							OnPaint_DISP19_BFS( pMDU );// GNC SYS SUMM 2
 							return true;
 						case 51:
-							SPEC51_BFS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_BFS( pMDU );// OVERRIDE
 							return true;
 						case 55:
-							SPEC55_BFS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_BFS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_BFS( pMDU );// FAULT
+							OnPaint_DISP99_BFS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -298,19 +342,19 @@ namespace dps
 					switch (spec)
 					{
 						case 18:
-							DISP18_BFS( pMDU );// GNC SYS SUMM 1
+							OnPaint_DISP18_BFS( pMDU );// GNC SYS SUMM 1
 							return true;
 						case 19:
-							DISP19_BFS( pMDU );// GNC SYS SUMM 2
+							OnPaint_DISP19_BFS( pMDU );// GNC SYS SUMM 2
 							return true;
 						case 51:
-							SPEC51_BFS( pMDU );// OVERRIDE
+							OnPaint_SPEC51_BFS( pMDU );// OVERRIDE
 							return true;
 						case 55:
-							SPEC55_BFS( pMDU );// GPS STATUS
+							OnPaint_SPEC55_BFS( pMDU );// GPS STATUS
 							return true;
 						case 99:
-							DISP99_BFS( pMDU );// FAULT
+							OnPaint_DISP99_BFS( pMDU );// FAULT
 							return true;
 						default:
 							return false;
@@ -321,7 +365,7 @@ namespace dps
 		}
 	}
 
-	void GeneralDisplays::DISP18_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_DISP18_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 1", pMDU );
 
@@ -389,24 +433,24 @@ namespace dps
 		// RCS
 		pMDU->Line( 20, 18, 20, 171 );
 		pMDU->Line( 40, 18, 40, 171 );
-		pMDU->Line( 0, 36, 60, 36 );
-		pMDU->Line( 0, 81, 60, 81 );
-		pMDU->Line( 0, 126, 60, 126 );
+		pMDU->Line( 0, 35, 60, 35 );
+		pMDU->Line( 0, 80, 60, 80 );
+		pMDU->Line( 0, 125, 60, 125 );
 
 		// SURF
-		pMDU->Line( 70, 36, 160, 36 );
+		pMDU->Line( 70, 35, 160, 35 );
 
 		// DPS
-		pMDU->Line( 170, 36, 250, 36 );
+		pMDU->Line( 170, 35, 250, 35 );
 
 		// FCS
-		pMDU->Line( 170, 90, 240, 90 );
+		pMDU->Line( 170, 89, 240, 89 );
 
 		// NAV
-		pMDU->Line( 170, 126, 240, 126 );
+		pMDU->Line( 170, 125, 240, 125 );
 
 		// CNTRL
-		pMDU->Line( 80, 144, 140, 144 );
+		pMDU->Line( 80, 143, 140, 143 );
 
 
 		// dynamic parts
@@ -472,7 +516,7 @@ namespace dps
 		return;
 	}
 
-	void GeneralDisplays::DISP19_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_DISP19_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 2", pMDU );
 
@@ -537,20 +581,20 @@ namespace dps
 		pMDU->Line( 190, 126, 190, 216 );
 		pMDU->Line( 215, 126, 215, 216 );
 		pMDU->Line( 235, 126, 235, 216 );
-		pMDU->Line( 0, 54, 135, 54 );
-		pMDU->Line( 0, 72, 135, 72 );
-		pMDU->Line( 30, 99, 95, 99 );
-		pMDU->Line( 135, 126, 255, 126 );
-		pMDU->Line( 0, 144, 255, 144 );
-		pMDU->Line( 30, 171, 95, 171 );
-		pMDU->Line( 150, 171, 215, 171 );
+		pMDU->Line( 0, 53, 135, 53 );
+		pMDU->Line( 0, 71, 135, 71 );
+		pMDU->Line( 30, 98, 95, 98 );
+		pMDU->Line( 135, 125, 255, 125 );
+		pMDU->Line( 0, 143, 255, 143 );
+		pMDU->Line( 30, 170, 95, 170 );
+		pMDU->Line( 150, 170, 215, 170 );
 
 
 		// TODO dynamic parts
 		return;
 	}
 
-	void GeneralDisplays::SPEC51_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC51_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    OVERRIDE", pMDU );
 
@@ -647,16 +691,16 @@ namespace dps
 
 		// static parts (lines)
 		pMDU->Line( 85, 63, 85, 216 );
-		pMDU->Line( 85, 63, 255, 63 );
-		pMDU->Line( 85, 108, 255, 108 );
-		pMDU->Line( 85, 153, 255, 153 );
+		pMDU->Line( 85, 62, 255, 62 );
+		pMDU->Line( 85, 107, 255, 107 );
+		pMDU->Line( 85, 152, 255, 152 );
 
 
 		// TODO dynamic parts
 		return;
 	}
 
-	void GeneralDisplays::SPEC53_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC53_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "       CONTROLS", pMDU );
 
@@ -723,7 +767,7 @@ namespace dps
 		return;
 	}
 
-	void GeneralDisplays::SPEC55_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC55_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    GPS STATUS", pMDU );
 		
@@ -797,16 +841,16 @@ namespace dps
 		pMDU->Line( 70, 9, 70, 207 );
 		pMDU->Line( 100, 9, 100, 207 );
 		pMDU->Line( 130, 9, 130, 207 );
-		pMDU->Line( 0, 99, 255, 99 );
-		pMDU->Line( 130, 144, 255, 144 );
-		pMDU->Line( 0, 180, 130, 180 );
+		pMDU->Line( 0, 98, 255, 98 );
+		pMDU->Line( 130, 143, 255, 143 );
+		pMDU->Line( 0, 179, 130, 179 );
 
 
 		// TODO dynamic parts
 		return;
 	}
 
-	void GeneralDisplays::DISP99_PASS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_DISP99_PASS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    FAULT", pMDU );
 
@@ -817,7 +861,612 @@ namespace dps
 		return;
 	}
 
-	void GeneralDisplays::DISP18_BFS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC112_PASS( vc::MDU* pMDU ) const
+	{
+		PrintCommonHeader( "  GPC/BTU I/F", pMDU );
+
+		// static parts (labels)
+		// BTU SELECTION
+		pMDU->mvprint( 3, 2, "BTU SELECTION" );
+		pMDU->mvprint( 1, 3, "FF1 1   PCMMU 12" );
+		pMDU->mvprint( 3, 4, "2 2   MMU1  13" );
+		pMDU->mvprint( 3, 5, "3 3" );
+		pMDU->mvprint( 12, 5, "2  14" );
+		pMDU->mvprint( 3, 6, "4 4   MEC1  15" );
+		pMDU->mvprint( 1, 7, "FA1 5" );
+		pMDU->mvprint( 12, 7, "2  16" );
+		pMDU->mvprint( 3, 8, "2 6   EIU1  17" );
+		pMDU->mvprint( 3, 9, "3 7" );
+		pMDU->mvprint( 12, 9, "2  18" );
+		pMDU->mvprint( 3, 10, "4 8" );
+		pMDU->mvprint( 12, 10, "3  19" );
+		pMDU->mvprint( 1, 11, "PF1 9   DDU   20" );
+		pMDU->mvprint( 3, 12, "2 10  MCIU  21" );
+		pMDU->mvprint( 10, 13, "CMD  22" );
+		pMDU->mvprint( 10, 14, "SRB  23" );
+		pMDU->mvprint( 1, 15, "ALL" );
+		pMDU->mvprint( 1, 16, "MDMS 11" );
+		pMDU->mvprint( 11, 15, "DES" );
+		pMDU->mvprint( 11, 16, "ALL   24" );
+
+		// TEST STATUS
+		pMDU->mvprint( 20, 2, "TEST STATUS" );
+		pMDU->mvprint( 20, 4, "BTU ITEM" );
+		pMDU->mvprint( 20, 5, "STEP" );
+		pMDU->mvprint( 20, 6, "RDW" );
+		pMDU->mvprint( 20, 7, "BCE STAT RG" );
+
+		// MDM OUTPUT TEST
+		pMDU->mvprint( 33, 3, "MDM OUTPUT TEST" );
+		pMDU->mvprint( 37, 4, "MODULE" );
+
+		pMDU->mvprint( 33, 6, "ANALOG OUTPUTS" );
+		pMDU->mvprint( 34, 7, "0" );
+		pMDU->mvprint( 43, 7, "1" );
+		pMDU->mvprint( 34, 8, "2" );
+		pMDU->mvprint( 43, 8, "3" );
+		pMDU->mvprint( 34, 9, "4" );
+		pMDU->mvprint( 43, 9, "5" );
+		pMDU->mvprint( 34, 10, "6" );
+		pMDU->mvprint( 43, 10, "7" );
+		pMDU->mvprint( 34, 11, "8" );
+		pMDU->mvprint( 43, 11, "9" );
+		pMDU->mvprint( 33, 12, "10" );
+		pMDU->mvprint( 42, 12, "11" );
+		pMDU->mvprint( 33, 13, "12" );
+		pMDU->mvprint( 42, 13, "13" );
+		pMDU->mvprint( 33, 14, "14" );
+		pMDU->mvprint( 42, 14, "15" );
+
+		pMDU->mvprint( 33, 16, "DISCRETE OUTPUTS" );
+		pMDU->mvprint( 33, 17, "CHANNEL 0" );
+		pMDU->mvprint( 33, 18, "CHANNEL 1" );
+		pMDU->mvprint( 33, 19, "CHANNEL 2" );
+
+		// PORT SEL
+		pMDU->mvprint( 19, 10, "PORT SEL 1 31" );
+		pMDU->mvprint( 28, 11, "2 32" );
+
+		// TEST
+		pMDU->mvprint( 9, 18, "LEVEL 1    25" );
+		pMDU->mvprint( 1, 19, "TEST    LEVEL 2    26" );
+		pMDU->mvprint( 9, 20, "MDM OUTPUT 27" );
+		pMDU->mvprint( 1, 21, "CONTROL TERMINATE  28" );
+		pMDU->mvprint( 9, 22, "CONTINUE   29" );
+
+		// BTU
+		pMDU->mvprint( 31, 21, "BTU CYCLIC BITE 30" );
+
+
+		// dynamic parts
+		// TODO finish
+		char cbuf[64];
+
+		// BTU SELECTION
+		if (ITEM_STATE_SPEC112[0] == true) pMDU->mvprint( 6, 3, "*" );
+		if (ITEM_STATE_SPEC112[1] == true) pMDU->mvprint( 6, 4, "*" );
+		if (ITEM_STATE_SPEC112[2] == true) pMDU->mvprint( 6, 5, "*" );
+		if (ITEM_STATE_SPEC112[3] == true) pMDU->mvprint( 6, 6, "*" );
+		if (ITEM_STATE_SPEC112[4] == true) pMDU->mvprint( 6, 7, "*" );
+		if (ITEM_STATE_SPEC112[5] == true) pMDU->mvprint( 6, 8, "*" );
+		if (ITEM_STATE_SPEC112[6] == true) pMDU->mvprint( 6, 9, "*" );
+		if (ITEM_STATE_SPEC112[7] == true) pMDU->mvprint( 6, 10, "*" );
+		if (ITEM_STATE_SPEC112[8] == true) pMDU->mvprint( 6, 11, "*" );
+		if (ITEM_STATE_SPEC112[9] == true) pMDU->mvprint( 7, 12, "*" );
+		if (ITEM_STATE_SPEC112[10] == true) pMDU->mvprint( 8, 16, "*" );
+		if (ITEM_STATE_SPEC112[11] == true) pMDU->mvprint( 17, 3, "*" );
+		if (ITEM_STATE_SPEC112[12] == true) pMDU->mvprint( 17, 4, "*" );
+		if (ITEM_STATE_SPEC112[13] == true) pMDU->mvprint( 17, 5, "*" );
+		if (ITEM_STATE_SPEC112[14] == true) pMDU->mvprint( 17, 6, "*" );
+		if (ITEM_STATE_SPEC112[15] == true) pMDU->mvprint( 17, 7, "*" );
+		if (ITEM_STATE_SPEC112[16] == true) pMDU->mvprint( 17, 8, "*" );
+		if (ITEM_STATE_SPEC112[17] == true) pMDU->mvprint( 17, 9, "*" );
+		if (ITEM_STATE_SPEC112[18] == true) pMDU->mvprint( 17, 10, "*" );
+		if (ITEM_STATE_SPEC112[19] == true) pMDU->mvprint( 17, 11, "*" );
+		if (ITEM_STATE_SPEC112[20] == true) pMDU->mvprint( 17, 12, "*" );
+		if (ITEM_STATE_SPEC112[21] == true) pMDU->mvprint( 17, 13, "*" );
+		if (ITEM_STATE_SPEC112[22] == true) pMDU->mvprint( 17, 14, "*" );
+		if (ITEM_STATE_SPEC112[23] == true) pMDU->mvprint( 19, 16, "*" );
+
+		// TEST STATUS
+		/*if (abc == true) pMDU->mvprint( 27, 3, " ACT" );
+		else pMDU->mvprint( 27, 3, "CPLT" );
+
+		sprintf_s( cbuf, 64, "%2d", itmp );
+		pMDU->mvprint( 29, 4, cbuf );
+
+		sprintf_s( cbuf, 64, "%6d", itmp );
+		pMDU->mvprint( 25, 5, cbuf );
+
+		if (abc == true)
+		{
+			sprintf_s( cbuf, 64, "%4X", itmp );
+			pMDU->mvprint( 27, 6, cbuf );
+
+			sprintf_s( cbuf, 64, "%8X", itmp );
+			pMDU->mvprint( 23, 8, cbuf );
+		}*/
+
+		// MDM OUTPUT TEST
+		/*sprintf_s( cbuf, 64, "%2d", itmp );
+		pMDU->mvprint( 44, 4, cbuf );
+
+		if (abc == true)
+		{
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 7, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 7, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 8, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 8, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 9, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 9, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 10, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 10, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 11, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 11, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 12, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 12, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 13, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 13, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 36, 14, cbuf );
+			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
+			pMDU->mvprint( 45, 14, cbuf );
+		}
+
+		if (abc == true)
+		{
+			sprintf_s( cbuf, 64, "%6X", itmp );
+			pMDU->mvprint( 44, 17, cbuf );
+			sprintf_s( cbuf, 64, "%6X", itmp );
+			pMDU->mvprint( 44, 18, cbuf );
+			sprintf_s( cbuf, 64, "%6X", itmp );
+			pMDU->mvprint( 44, 19, cbuf );
+		}*/
+
+		// PORT SEL
+		if (ITEM_STATE_SPEC112[30] == true) pMDU->mvprint( 32, 10, "*" );
+		if (ITEM_STATE_SPEC112[31] == true) pMDU->mvprint( 32, 11, "*" );
+
+		// TEST
+		if (ITEM_STATE_SPEC112[24] == true) pMDU->mvprint( 22, 18, "*" );
+		if (ITEM_STATE_SPEC112[25] == true) pMDU->mvprint( 22, 19, "*" );
+		if (ITEM_STATE_SPEC112[26] == true) pMDU->mvprint( 22, 20, "*" );
+		//if (ITEM_STATE_SPEC112[27] == true) pMDU->mvprint( 0, 0, "*" );
+		//if (ITEM_STATE_SPEC112[28] == true) pMDU->mvprint( 0, 0, "*" );
+
+		// BTU
+		if (ITEM_STATE_SPEC112[29] == true) pMDU->mvprint( 49, 21, "*" );
+		return;
+	}
+
+	void GeneralDisplays::OnPaint_SPEC113_PASS( vc::MDU* pMDU ) const
+	{
+		PrintCommonHeader( "ACTUATOR CONTROL", pMDU );
+
+		// static parts (labels)
+		// MONITOR
+		pMDU->mvprint( 3, 1, "MONITOR" );
+		pMDU->mvprint( 1, 2, "CMD     POS  ACT" );
+		pMDU->mvprint( 15, 3, "SB  1" );
+		pMDU->mvprint( 14, 4, "RUD  2" );
+		pMDU->mvprint( 14, 5, "LIE  3" );
+		pMDU->mvprint( 14, 6, "RIE  4" );
+		pMDU->mvprint( 14, 7, "LOE  5" );
+		pMDU->mvprint( 14, 8, "ROE  6" );
+		pMDU->mvprint( 15, 9, "1P  7" );
+		pMDU->mvprint( 15, 10, "1Y  8" );
+		pMDU->mvprint( 15, 11, "2P  9" );
+		pMDU->mvprint( 15, 12, "2Y 10" );
+		pMDU->mvprint( 15, 13, "3P 12" );
+		pMDU->mvprint( 15, 14, "3Y 12" );
+		pMDU->mvprint( 14, 15, "RPA 13" );
+		pMDU->mvprint( 14, 16, "RPS 14" );
+		pMDU->mvprint( 14, 17, "RYA 15" );
+		pMDU->mvprint( 14, 18, "RYS 16" );
+		pMDU->mvprint( 14, 19, "LPA 17" );
+		pMDU->mvprint( 14, 20, "LPS 18" );
+		pMDU->mvprint( 14, 21, "LYA 19" );
+		pMDU->mvprint( 14, 22, "LYS 20" );
+		pMDU->mvprint( 15, 23, "BF 21" );
+
+		// FAIL
+		pMDU->mvprint( 23, 1, "FAIL" );
+		pMDU->mvprint( 22, 2, "A B C D" );
+
+		// ACTUATOR GIMBALING
+		pMDU->mvprint( 32, 2, "ACTUATOR GIMBALING" );
+		pMDU->mvprint( 30, 3, "RATE 29" );
+		pMDU->mvprint( 44, 3, "DEG/SEC" );
+		pMDU->mvprint( 30, 4, "FIN POS 30" );
+		pMDU->mvprint( 48, 4, "DEG" );
+		pMDU->mvprint( 30, 5, "START 31" );
+		pMDU->mvprint( 43, 5, "STOP 32" );
+		pMDU->mvprint( 40, 6, "STATUS" );
+		pMDU->mvprint( 40, 7, "ECP ERR" );
+		pMDU->mvprint( 41, 8, "BF MON 33" );
+
+		// HYD PR
+		pMDU->mvprint( 32, 7, "HYD PR" );
+		pMDU->mvprint( 32, 8, "1" );
+		pMDU->mvprint( 32, 9, "2" );
+		pMDU->mvprint( 32, 10, "3" );
+
+		// AI SRB/NW
+		pMDU->mvprint( 38, 11, "AI SRB/NW 34" );
+
+		// ME ISO V
+		pMDU->mvprint( 30, 12, "ME ISO V" );
+		pMDU->mvprint( 30, 13, "1  2" );
+		pMDU->mvprint( 36, 13, "3" );
+
+		// FC LIM CHNG
+		pMDU->mvprint( 40, 13, "FC LIM CHNG" );
+		pMDU->mvprint( 39, 14, "R/SB MAT 35" );
+		pMDU->mvprint( 35, 15, "R/SB RFG/FRT 36" );
+		pMDU->mvprint( 37, 16, "MAT P 40MS 37" );
+		pMDU->mvprint( 37, 17, "NOP CA RFG 38" );
+		pMDU->mvprint( 37, 18, "NOP CA FRT 39" );
+		pMDU->mvprint( 40, 19, "NOP OMS 40" );
+		pMDU->mvprint( 36, 20, "SRB S/S LIM 41" );
+		pMDU->mvprint( 37, 21, "EL POS LIM 42" );
+		pMDU->mvprint( 36, 22, "S/B POS LIM 43" );
+		pMDU->mvprint( 34, 23, "R RATE .5 PCM 44" );
+
+		// AI MODES
+		pMDU->mvprint( 24, 16, "AI MODES" );
+		pMDU->mvprint( 23, 17, "0 SAFE 22" );
+		pMDU->mvprint( 23, 18, "1 MDM  23" );
+		pMDU->mvprint( 23, 19, "2 FERY 24" );
+		pMDU->mvprint( 23, 20, "3 RAIN 25" );
+		pMDU->mvprint( 23, 21, "4 GRAV 26" );
+		pMDU->mvprint( 23, 22, "5 NULL 27" );
+		pMDU->mvprint( 23, 23, "6 TURN 28" );
+
+
+		// static parts (lines)
+		// ACTUATOR GIMBALING
+		pMDU->Line( 160, 26, 250, 26 );
+
+		pMDU->Line( 190, 35, 200, 35 );
+		pMDU->Line( 205, 35, 215, 35 );
+
+		pMDU->Line( 211, 44, 214, 44 );
+		pMDU->Line( 216, 44, 219, 44 );
+		pMDU->Line( 222, 44, 224, 44 );
+		pMDU->Line( 226, 44, 229, 44 );
+		pMDU->Line( 231, 44, 234, 44 );
+		
+		// HYD PR
+		pMDU->Line( 160, 71, 190, 71 );
+		
+		// ME ISO V
+		pMDU->Line( 150, 116, 190, 116 );
+		
+		// FC LIM CHNG
+		pMDU->Line( 200, 125, 255, 125 );
+		
+		// AI MODES
+		pMDU->Line( 120, 152, 160, 152 );
+
+
+		// dynamic parts
+		// TODO finish
+		char cbuf[64];
+
+		// MONITOR
+		/*sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 3, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 3, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 4, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 4, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 5, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 5, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 6, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 6, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 7, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 7, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 8, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 8, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 9, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 9, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 10, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 10, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 11, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 11, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 12, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 12, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 13, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 13, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 14, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 14, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 15, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 15, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 16, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 16, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 17, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 17, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 18, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 18, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 19, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 19, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 20, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 20, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 21, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 21, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 0, 22, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 22, cbuf );
+		sprintf_s( cbuf, 64, "%02.0f", dtmp );
+		pMDU->mvprint( 1, 23, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 7, 23, cbuf );*/
+
+		if (ITEM_STATE_SPEC113[0] == true) pMDU->mvprint( 20, 3, "*" );
+		if (ITEM_STATE_SPEC113[1] == true) pMDU->mvprint( 20, 4, "*" );
+		if (ITEM_STATE_SPEC113[2] == true) pMDU->mvprint( 20, 5, "*" );
+		if (ITEM_STATE_SPEC113[3] == true) pMDU->mvprint( 20, 6, "*" );
+		if (ITEM_STATE_SPEC113[4] == true) pMDU->mvprint( 20, 7, "*" );
+		if (ITEM_STATE_SPEC113[5] == true) pMDU->mvprint( 20, 8, "*" );
+		if (ITEM_STATE_SPEC113[6] == true) pMDU->mvprint( 20, 9, "*" );
+		if (ITEM_STATE_SPEC113[7] == true) pMDU->mvprint( 20, 10, "*" );
+		if (ITEM_STATE_SPEC113[8] == true) pMDU->mvprint( 20, 11, "*" );
+		if (ITEM_STATE_SPEC113[9] == true) pMDU->mvprint( 20, 12, "*" );
+		if (ITEM_STATE_SPEC113[10] == true) pMDU->mvprint( 20, 13, "*" );
+		if (ITEM_STATE_SPEC113[11] == true) pMDU->mvprint( 20, 14, "*" );
+		if (ITEM_STATE_SPEC113[12] == true) pMDU->mvprint( 20, 15, "*" );
+		if (ITEM_STATE_SPEC113[13] == true) pMDU->mvprint( 20, 16, "*" );
+		if (ITEM_STATE_SPEC113[14] == true) pMDU->mvprint( 20, 17, "*" );
+		if (ITEM_STATE_SPEC113[15] == true) pMDU->mvprint( 20, 18, "*" );
+		if (ITEM_STATE_SPEC113[16] == true) pMDU->mvprint( 20, 19, "*" );
+		if (ITEM_STATE_SPEC113[17] == true) pMDU->mvprint( 20, 20, "*" );
+		if (ITEM_STATE_SPEC113[18] == true) pMDU->mvprint( 20, 21, "*" );
+		if (ITEM_STATE_SPEC113[19] == true) pMDU->mvprint( 20, 22, "*" );
+		if (ITEM_STATE_SPEC113[20] == true) pMDU->mvprint( 20, 23, "*" );
+
+		// FAIL
+		/*if (abc == true) pMDU->DownArrow( 22, 3 );
+		else if (abc == true) pMDU->mvprint( 22, 3, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 3 );
+		else if (abc == true) pMDU->mvprint( 24, 3, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 3 );
+		else if (abc == true) pMDU->mvprint( 26, 3, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 3 );
+		else if (abc == true) pMDU->mvprint( 28, 3, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 4 );
+		else if (abc == true) pMDU->mvprint( 22, 4, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 4 );
+		else if (abc == true) pMDU->mvprint( 24, 4, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 4 );
+		else if (abc == true) pMDU->mvprint( 26, 4, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 4 );
+		else if (abc == true) pMDU->mvprint( 28, 4, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 5 );
+		else if (abc == true) pMDU->mvprint( 22, 5, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 5 );
+		else if (abc == true) pMDU->mvprint( 24, 5, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 5 );
+		else if (abc == true) pMDU->mvprint( 26, 5, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 5 );
+		else if (abc == true) pMDU->mvprint( 28, 5, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 6 );
+		else if (abc == true) pMDU->mvprint( 22, 6, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 6 );
+		else if (abc == true) pMDU->mvprint( 24, 6, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 6 );
+		else if (abc == true) pMDU->mvprint( 26, 6, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 6 );
+		else if (abc == true) pMDU->mvprint( 28, 6, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 7 );
+		else if (abc == true) pMDU->mvprint( 22, 7, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 7 );
+		else if (abc == true) pMDU->mvprint( 24, 7, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 7 );
+		else if (abc == true) pMDU->mvprint( 26, 7, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 7 );
+		else if (abc == true) pMDU->mvprint( 28, 7, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 8 );
+		else if (abc == true) pMDU->mvprint( 22, 8, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 8 );
+		else if (abc == true) pMDU->mvprint( 24, 8, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 8 );
+		else if (abc == true) pMDU->mvprint( 26, 8, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 8 );
+		else if (abc == true) pMDU->mvprint( 28, 8, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 9 );
+		else if (abc == true) pMDU->mvprint( 22, 9, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 9 );
+		else if (abc == true) pMDU->mvprint( 24, 9, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 9 );
+		else if (abc == true) pMDU->mvprint( 26, 9, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 9 );
+		else if (abc == true) pMDU->mvprint( 28, 9, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 10 );
+		else if (abc == true) pMDU->mvprint( 22, 10, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 10 );
+		else if (abc == true) pMDU->mvprint( 24, 10, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 10 );
+		else if (abc == true) pMDU->mvprint( 26, 10, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 10 );
+		else if (abc == true) pMDU->mvprint( 28, 10, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 11 );
+		else if (abc == true) pMDU->mvprint( 22, 11, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 11 );
+		else if (abc == true) pMDU->mvprint( 24, 11, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 11 );
+		else if (abc == true) pMDU->mvprint( 26, 11, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 11 );
+		else if (abc == true) pMDU->mvprint( 28, 11, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 12 );
+		else if (abc == true) pMDU->mvprint( 22, 12, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 12 );
+		else if (abc == true) pMDU->mvprint( 24, 12, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 12 );
+		else if (abc == true) pMDU->mvprint( 26, 12, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 12 );
+		else if (abc == true) pMDU->mvprint( 28, 12, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 13 );
+		else if (abc == true) pMDU->mvprint( 22, 13, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 13 );
+		else if (abc == true) pMDU->mvprint( 24, 13, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 13 );
+		else if (abc == true) pMDU->mvprint( 26, 13, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 13 );
+		else if (abc == true) pMDU->mvprint( 28, 13, "M" );
+
+		if (abc == true) pMDU->DownArrow( 22, 14 );
+		else if (abc == true) pMDU->mvprint( 22, 14, "M" );
+		if (abc == true) pMDU->DownArrow( 24, 14 );
+		else if (abc == true) pMDU->mvprint( 24, 14, "M" );
+		if (abc == true) pMDU->DownArrow( 26, 14 );
+		else if (abc == true) pMDU->mvprint( 26, 14, "M" );
+		if (abc == true) pMDU->DownArrow( 28, 14 );
+		else if (abc == true) pMDU->mvprint( 28, 14, "M" );*/
+
+		// ACTUATOR GIMBALING
+		/*sprintf_s( cbuf, 64, "%05.2f", dtmp );
+		pMDU->mvprint( 38, 3, cbuf );
+		sprintf_s( cbuf, 64, "%+06.2f", dtmp );
+		pMDU->mvprint( 41, 4, cbuf );*/
+
+		//if (ITEM_STATE_SPEC113[28] == true) pMDU->mvprint( 0, 0, "*" );
+		//if (ITEM_STATE_SPEC113[29] == true) pMDU->mvprint( 0, 0, "*" );
+		if (ITEM_STATE_SPEC113[30] == true)
+		{
+			pMDU->mvprint( 38, 5, "*" );
+
+			/*if (abc == true)
+			{
+				// speedbrake
+				if (abc == true)
+				{
+					pMDU->LeftArrow( 39, 5 );
+					pMDU->RightArrow( 40, 5 );
+				}
+				else
+				{
+					pMDU->RightArrow( 39, 5 );
+					pMDU->LeftArrow( 40, 5 );
+				}
+			}
+			else if (abc == true)
+			{
+				// other actuators (vertical)
+				if (abc == true) pMDU->UpArrow( 39, 5 );
+				else pMDU->DownArrow( 39, 5 );
+			}
+			else
+			{
+				// other actuators (horizontal)
+				if (abc == true) pMDU->LeftArrow( 39, 5 );
+				else pMDU->RightArrow( 39, 5 );
+			}*/
+		}
+		if (ITEM_STATE_SPEC113[31] == true) pMDU->mvprint( 50, 5, "*" );
+		if (ITEM_STATE_SPEC113[32] == true) pMDU->mvprint( 50, 8, "*" );
+
+		// HYD PR
+		sprintf_s( cbuf, 64, "%4.0f", STS()->pAPU[0]->GetHydraulicPressure() );
+		pMDU->mvprint( 34, 8, cbuf );
+		sprintf_s( cbuf, 64, "%4.0f", STS()->pAPU[1]->GetHydraulicPressure() );
+		pMDU->mvprint( 34, 9, cbuf );
+		sprintf_s( cbuf, 64, "%4.0f", STS()->pAPU[2]->GetHydraulicPressure() );
+		pMDU->mvprint( 34, 10, cbuf );
+
+		// AI SRB/NW
+		if (ITEM_STATE_SPEC113[33] == true) pMDU->mvprint( 50, 11, "*" );
+
+		// ME ISO V
+		/*if (abc == true) pMDU->mvprint( 31, 13, "C" );
+		if (abc == true) pMDU->mvprint( 34, 13, "C" );
+		if (abc == true) pMDU->mvprint( 37, 13, "C" );*/
+
+		// FC LIM CHNG
+		if (ITEM_STATE_SPEC113[34] == true) pMDU->mvprint( 50, 14, "*" );
+		if (ITEM_STATE_SPEC113[35] == true) pMDU->mvprint( 50, 15, "*" );
+		if (ITEM_STATE_SPEC113[36] == true) pMDU->mvprint( 50, 16, "*" );
+		if (ITEM_STATE_SPEC113[37] == true) pMDU->mvprint( 50, 17, "*" );
+		if (ITEM_STATE_SPEC113[38] == true) pMDU->mvprint( 50, 18, "*" );
+		if (ITEM_STATE_SPEC113[39] == true) pMDU->mvprint( 50, 19, "*" );
+		if (ITEM_STATE_SPEC113[40] == true) pMDU->mvprint( 50, 20, "*" );
+		if (ITEM_STATE_SPEC113[41] == true) pMDU->mvprint( 50, 21, "*" );
+		if (ITEM_STATE_SPEC113[42] == true) pMDU->mvprint( 50, 22, "*" );
+		if (ITEM_STATE_SPEC113[43] == true) pMDU->mvprint( 50, 23, "*" );
+
+		// AI MODES
+		if (ITEM_STATE_SPEC113[21] == true) pMDU->mvprint( 32, 17, "*" );
+		if (ITEM_STATE_SPEC113[22] == true) pMDU->mvprint( 32, 18, "*" );
+		if (ITEM_STATE_SPEC113[23] == true) pMDU->mvprint( 32, 19, "*" );
+		if (ITEM_STATE_SPEC113[24] == true) pMDU->mvprint( 32, 20, "*" );
+		if (ITEM_STATE_SPEC113[25] == true) pMDU->mvprint( 32, 21, "*" );
+		if (ITEM_STATE_SPEC113[26] == true) pMDU->mvprint( 32, 22, "*" );
+		if (ITEM_STATE_SPEC113[27] == true) pMDU->mvprint( 32, 23, "*" );
+		return;
+	}
+
+
+	void GeneralDisplays::OnPaint_DISP18_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 1", pMDU );
 		pMDU->mvprint( 34, 1, "BFS" );
@@ -876,17 +1525,17 @@ namespace dps
 
 
 		// static parts (lines)
-		pMDU->Line( 25, 36, 115, 36 );
+		pMDU->Line( 25, 35, 115, 35 );
 
-		pMDU->Line( 150, 36, 220, 36 );
+		pMDU->Line( 150, 35, 220, 35 );
 
-		pMDU->Line( 150, 90, 220, 90 );
+		pMDU->Line( 150, 89, 220, 89 );
 
-		pMDU->Line( 150, 126, 210, 126 );
+		pMDU->Line( 150, 125, 210, 125 );
 
-		pMDU->Line( 10, 126, 145, 126 );
+		pMDU->Line( 10, 125, 145, 125 );
 		pMDU->Line( 145, 126, 145, 153 );
-		pMDU->Line( 145, 153, 225, 153 );
+		pMDU->Line( 145, 152, 225, 152 );
 
 
 		// dynamic parts
@@ -1056,7 +1705,7 @@ namespace dps
 		return;
 	}
 
-	void GeneralDisplays::DISP19_BFS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_DISP19_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 2", pMDU );
 		pMDU->mvprint( 34, 1, "BFS" );
@@ -1123,20 +1772,20 @@ namespace dps
 		pMDU->Line( 190, 126, 190, 216 );
 		pMDU->Line( 215, 126, 215, 216 );
 		pMDU->Line( 235, 126, 235, 216 );
-		pMDU->Line( 0, 54, 135, 54 );
-		pMDU->Line( 0, 72, 135, 72 );
-		pMDU->Line( 30, 99, 95, 99 );
-		pMDU->Line( 135, 126, 255, 126 );
-		pMDU->Line( 0, 144, 255, 144 );
-		pMDU->Line( 30, 171, 95, 171 );
-		pMDU->Line( 150, 171, 215, 171 );
+		pMDU->Line( 0, 53, 135, 53 );
+		pMDU->Line( 0, 71, 135, 71 );
+		pMDU->Line( 30, 98, 95, 98 );
+		pMDU->Line( 135, 125, 255, 125 );
+		pMDU->Line( 0, 143, 255, 143 );
+		pMDU->Line( 30, 170, 95, 170 );
+		pMDU->Line( 150, 170, 215, 170 );
 
 
 		// TODO dynamic parts
 		return;
 	}
 
-	void GeneralDisplays::SPEC51_BFS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC51_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    OVERRIDE", pMDU );
 		pMDU->mvprint( 34, 1, "BFS" );
@@ -1226,7 +1875,7 @@ namespace dps
 		return;
 	}
 
-	void GeneralDisplays::SPEC55_BFS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_SPEC55_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    GPS STATUS", pMDU );
 		pMDU->mvprint( 34, 1, "BFS" );
@@ -1281,16 +1930,16 @@ namespace dps
 		pMDU->Line( 70, 9, 70, 207 );
 		pMDU->Line( 100, 9, 100, 207 );
 		pMDU->Line( 130, 9, 130, 207 );
-		pMDU->Line( 0, 99, 255, 99 );
-		pMDU->Line( 130, 144, 255, 144 );
-		pMDU->Line( 0, 180, 130, 180 );
+		pMDU->Line( 0, 98, 255, 98 );
+		pMDU->Line( 130, 143, 255, 143 );
+		pMDU->Line( 0, 179, 130, 179 );
 
 
 		// TODO dynamic parts
 		return;
 	}
 
-	void GeneralDisplays::DISP99_BFS( vc::MDU* pMDU ) const
+	void GeneralDisplays::OnPaint_DISP99_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    FAULT", pMDU );
 		pMDU->mvprint( 34, 1, "BFS" );
