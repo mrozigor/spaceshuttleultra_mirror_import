@@ -122,6 +122,13 @@ namespace dps {
 			case SSU_KEY_SPEC:
 			case SSU_KEY_OPS:
 				if(IsCompleteLine()) ClearScratchPadLine();
+				AppendScratchPadLine(cKey);
+				break;
+			case SSU_KEY_SYSSUMM:// HACK only GNC SYS SUMM for now
+				if (GetDisp() == 18) SetDisp( 19 );
+				else SetDisp( 18 );
+				SetSpec( dps::MODE_UNDEFINED );
+				break;
 			default:
 				AppendScratchPadLine(cKey);
 				break;

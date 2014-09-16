@@ -113,7 +113,12 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 
 	//second column of buttons
 	else if(p.x>=0.25 && p.x<0.5) {
-		if(p.y>=0.125 && p.y<0.25) {
+		if ((p.y >= 0) && (p.y < 0.125))
+		{
+			ClearInput();
+			PutKey( SSU_KEY_SYSSUMM );
+		}
+		else if(p.y>=0.125 && p.y<0.25) {
 			sts->DataInput[sts->CRT_SEL[keyboard]].input[sts->DataInput[sts->CRT_SEL[keyboard]].InputSize]='A';
 			sts->DataInput[sts->CRT_SEL[keyboard]].InputSize++;
 			PutKey(SSU_KEY_A);
