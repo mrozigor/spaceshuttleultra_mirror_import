@@ -83,6 +83,8 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 		return majorMode == 304;
 	case 801:
 		return majorMode == 201;
+	case 901:
+		return majorMode == 101;
 	default:
 		return false;
 	}

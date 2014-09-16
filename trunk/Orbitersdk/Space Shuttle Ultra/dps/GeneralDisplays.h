@@ -52,21 +52,28 @@ namespace dps
 			double He_T;
 
 			// PASS displays
-			void DISP18_PASS( vc::MDU* pMDU ) const;
-			void DISP19_PASS( vc::MDU* pMDU ) const;
-			void SPEC51_PASS( vc::MDU* pMDU ) const;
-			void SPEC53_PASS( vc::MDU* pMDU ) const;
-			void SPEC55_PASS( vc::MDU* pMDU ) const;
-			void DISP99_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP18_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP19_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC51_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC53_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC55_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP99_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC112_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC113_PASS( vc::MDU* pMDU ) const;
+
+			void ItemInput_SPEC112( int item, const char* Data );
+			void ItemInput_SPEC113( int item, const char* Data );
 
 			// BFS dislays
-			void DISP18_BFS( vc::MDU* pMDU ) const;
-			void DISP19_BFS( vc::MDU* pMDU ) const;
-			void SPEC51_BFS( vc::MDU* pMDU ) const;
-			void SPEC55_BFS( vc::MDU* pMDU ) const;
-			void DISP99_BFS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP18_BFS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP19_BFS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC51_BFS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC55_BFS( vc::MDU* pMDU ) const;
+			void OnPaint_DISP99_BFS( vc::MDU* pMDU ) const;
 
-
+			// item state lists for SPEC displays
+			bool ITEM_STATE_SPEC112[32];
+			bool ITEM_STATE_SPEC113[44];
 		public:
 			GeneralDisplays( SimpleGPCSystem* _gpc );
 			~GeneralDisplays( void );
