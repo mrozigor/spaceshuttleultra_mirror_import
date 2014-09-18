@@ -124,10 +124,8 @@ namespace dps {
 				if(IsCompleteLine()) ClearScratchPadLine();
 				AppendScratchPadLine(cKey);
 				break;
-			case SSU_KEY_SYSSUMM:// HACK only GNC SYS SUMM for now
-				if (GetDisp() == 18) SetDisp( 19 );
-				else SetDisp( 18 );
-				SetSpec( dps::MODE_UNDEFINED );
+			case SSU_KEY_SYSSUMM:
+				OnSysSummary();
 				break;
 			default:
 				AppendScratchPadLine(cKey);
@@ -321,7 +319,22 @@ namespace dps {
 			return STS()->pSimpleGPC->OnPaint(GetSpec(), pMDU);
 	}
 
-	void IDP::OnSysSummary() {
+	void IDP::OnSysSummary()
+	{
+		// TODO check here if DISP valid in current OPS?
+		if (GetMajfunc() == dps::GNC)
+		{
+			if (GetDisp() == 18) SetDisp( 19 );
+			else SetDisp( 18 );
+			SetSpec( dps::MODE_UNDEFINED );
+		}
+		else if (GetMajfunc() == dps::SM)
+		{
+			if (GetDisp() == 78) SetDisp( 79 );
+			else SetDisp( 78 );
+			SetSpec( dps::MODE_UNDEFINED );
+		}
+		return;
 	}
 
 
