@@ -43,6 +43,10 @@ const double FINECOUNT_THROTTLE = 67;
 const double FINECOUNT_THROTTLE_1EO = 91;
 const double FINECOUNT_THROTTLE_2EO = 91;
 
+const double SSME_TAILOFF_DV_67 = 90;// fps
+const double SSME_TAILOFF_DV_91_1EO = 75;// fps
+const double SSME_TAILOFF_DV_91_2EO = 35;// fps
+
 // HACK the mass is just a guess, it's probably a little lower
 const double LOWLEVEL_ARM_MASS = 370000;// lbs
 
@@ -209,6 +213,8 @@ private:
 	bool bNullSRBNozzles;
 
 	double EOVI[2];
+
+	double SSMETailoffDV[3];
 };
 	
 };
