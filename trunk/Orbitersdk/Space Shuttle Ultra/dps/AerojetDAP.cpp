@@ -498,11 +498,15 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 		if(item == 3) {
 			SEC = false;
 			InitializeRunwayData();
+			HACDirection = OVHD;// reset to overhead
+			SelectHAC();
 			return true;
 		}
 		else if(item == 4) {
 			SEC = true;
 			InitializeRunwayData();
+			HACDirection = OVHD;// reset to overhead
+			SelectHAC();
 			return true;
 		}
 		else if(item == 6) {
