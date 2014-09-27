@@ -1081,7 +1081,10 @@ void CRT::APUHYD(HDC hDC)
 
 	TextOut(hDC, 132, 120, "OIL", 3);
 	TextOut(hDC, 113, 130, "IN TEMP", 7);
-	TextOut(hDC, 137, 140, "ºF", 2);
+	SelectObject(hDC, WhitePen);
+	Ellipse( hDC, 134, 144, 137, 147 );// draw circle instead of "º" as it causes problems in current font in D3D9
+	SelectObject(hDC, GreenPen);
+	TextOut(hDC, 137, 140, "F", 1 );
 	Rectangle (hDC, 158, 95, 187, 111);
 	Rectangle (hDC, 191, 95, 220, 111);
 	Rectangle (hDC, 224, 95, 253, 111);
