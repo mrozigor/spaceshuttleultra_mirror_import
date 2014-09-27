@@ -31,6 +31,7 @@ const double MPS2MPH = 2.23693629; // meters per second to miles per hour
 const double PA2PSF = 0.02088545;
 const double PSI2PA = 6894.757;// pound per square inch to pascal
 const double NMI2M = 1852.0; // nautical mile to meter
+const double F2NM = 0.0001645784;// feet to nautical mile
 
 const double fps_to_ms=0.3048;
 const double kg_to_pounds=2.205;

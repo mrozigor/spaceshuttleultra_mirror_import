@@ -900,7 +900,7 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 
 	if ((pSRBSepSequence->GetSRBSEPINHFlag() == true) || (pETSepSequence->GetETSEPINHFlag() == true)) pMDU->mvprint( 10, 11, "SEP INH" );
 
-	if (enaSERC == true) pMDU->mvprint( 15, 12, "ON" );
+	if (enaSERC == true) pMDU->mvprint( 15, 12, "ON", dps::DEUATT_OVERBRIGHT );
 
 	if (EOVI[0] != 0)
 	{
@@ -910,7 +910,7 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 	if (EOVI[1] != 0)
 	{
 		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[1] );
-		pMDU->mvprint( 7, 14, cbuf, dps::DEUATT_OVERBRIGHT );// TODO update MDU to write text with DEUATT_OVERBRIGHT attribute
+		pMDU->mvprint( 7, 14, cbuf, dps::DEUATT_OVERBRIGHT );
 	}
 
 	VECTOR3 LVLH_Vel;
@@ -986,6 +986,17 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 		}
 	}
 	return true;
+}
+
+bool AscentGuidance::GetAutoThrottleState( void ) const
+{
+	return SpdbkThrotAutoIn.IsSet();
+}
+
+VECTOR3 AscentGuidance::GetAttitudeErrors( void ) const
+{
+	// HACK this is not the the attitude error (but it's better than nothing...?)
+	return degReqdRates;
 }
 
 };

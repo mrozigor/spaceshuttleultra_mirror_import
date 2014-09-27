@@ -180,6 +180,16 @@ private:
 	// all values in kPa
 	double filteredQBar;
 
+	/**
+	 * Time to HAC (seconds).
+	 */
+	double TimeToHAC;
+
+	/**
+	 * Vehicle distance to center of HAC (m).
+	 */
+	double DistanceToHACCenter;
+
 	/** Output guidance variables **/
 	double NZCommand; // MM305 output
 	double TargetBank;
@@ -211,6 +221,102 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	DragTable* dTable;
+
+	/**
+	 * Gets current state of pitch commanding.
+	 * @return	true if AUTO, false if CSS
+	 */
+	bool GetAutoPitchState( void ) const;
+
+	/**
+	 * Gets current state of roll/yaw commanding.
+	 * @return	true if AUTO, false if CSS
+	 */
+	bool GetAutoRollYawState( void ) const;
+
+	/**
+	 * Gets current state of speedrake commanding.
+	 * @return	true if AUTO, false if MAN
+	 */
+	bool GetAutoSpeedbrakeState( void ) const;
+
+	/**
+	 * Gets current target runway.
+	 * @return	string with runway name and number
+	 */
+	const std::string& GetSelectedRunway( void ) const;
+
+	/**
+	 * Gets current range to selected runway (feet).
+	 * @return	range to runway (feet)
+	 */
+	double GetRangeToRunway( void ) const;
+
+	/**
+	 * Gets current delta azimuth to WP-1 (degrees).
+	 * @return	delta azimuth (degrees)
+	 */
+	double GetdeltaAZ( void ) const;
+	
+	/**
+	 * Gets current state of vehicle in relation to the HAC.
+	 * @return	true if vehicle is on, or past HAC
+	 */
+	bool GetOnHACState( void ) const;
+
+	/**
+	 * Gets current state of Prefinal guidance.
+	 * @return	true if Prefinal guidance on
+	 */
+	bool GetPrefinalState( void ) const;
+	
+	/**
+	 * Gets current state of Approach and Land guidance.
+	 * @return	true if A/L guidance on
+	 */
+	bool GetApproachAndLandState( void ) const;
+
+	/**
+	 * Gets current vertical accelaration (fps^2).
+	 * @return	vertical accelaration (fps^2)
+	 */
+	double GetVacc( void ) const;
+
+	/**
+	 * Gets WOW indication.
+	 * @return	true if WOW indication has been set
+	 */
+	bool GetWOW( void ) const;
+
+	/**
+	 * Gets current vehicle attitude errors (deg).
+	 * @return	attitude errors (deg) (x=pitch, y=yaw, z=roll)
+	 */
+	VECTOR3 GetAttitudeErrors( void ) const;
+
+	/**
+	 * Gets current vehicle Y-runway error (ft).
+	 * @return	Y-runway error (ft)
+	 */
+	double GetYRunwayPositionError( void ) const;
+
+	/**
+	 * Gets time to HAC (seconds).
+	 * @return	time to HAC (seconds)
+	 */
+	double GetTimeToHAC( void ) const;
+
+	/**
+	 * Gets vehicle distance to center of HAC (NM).
+	 * @return	distance to center of HAC (NM)
+	 */
+	double GetDistanceToHACCenter( void ) const;
+
+	/**
+	 * Gets vehicle HAC radial error (ft).
+	 * @return	HAC radial error (ft)
+	 */
+	double GetHACRadialError( void ) const;
 private:
 	void SetThrusterLevels();
 	/**

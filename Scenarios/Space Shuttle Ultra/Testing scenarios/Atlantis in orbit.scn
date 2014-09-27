@@ -32,7 +32,7 @@ END_MFD
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 0
+  Mode2 2
   Display 2
 END_MFD
 
