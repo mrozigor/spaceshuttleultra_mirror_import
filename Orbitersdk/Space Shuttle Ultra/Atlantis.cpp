@@ -5801,6 +5801,8 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   }
 
   g_Param.deu_characters = LOADBMP (IDB_DEUCHARACTERS);
+
+  g_Param.deu_characters_overbright = LOADBMP (IDB_DEUCHARACTERSOVERBRIGHT);
   
   g_Param.ssme_lights = oapiCreateSurface (LOADBMP (IDB_SSMELIGHTS));
   if(g_Param.ssme_lights == NULL) {
@@ -5818,6 +5820,13 @@ DLLCLBK void InitModule (HINSTANCE hModule)
   //DeleteDC(TempDC);
   DeleteDC(Temp1DC);
 
+	Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
+	g_Param.DeuCharOvrBrgtBitmapDC=CreateCompatibleDC(Temp1DC);
+	SelectObject(g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright);
+	SetStretchBltMode(g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE);
+	StretchBlt(g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 80, 144, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 288, 528 , SRCCOPY);
+	DeleteDC(Temp1DC);
+
   // allocate GDI resources
   g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
 }
@@ -5826,6 +5835,7 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
 {
   oapiUnregisterCustomControls (hModule);
   DeleteDC(g_Param.DeuCharBitmapDC);
+	DeleteDC(g_Param.DeuCharOvrBrgtBitmapDC);
   if(g_Param.tkbk_label)
   {
 	oapiDestroySurface (g_Param.tkbk_label);
@@ -5850,6 +5860,11 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
   if(g_Param.deu_characters)
   {
 	  DeleteObject(g_Param.deu_characters);
+  }
+
+  if(g_Param.deu_characters_overbright)
+  {
+	  DeleteObject(g_Param.deu_characters_overbright);
   }
 
   // deallocate GDI resources

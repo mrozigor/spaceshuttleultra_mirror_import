@@ -224,6 +224,7 @@
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\bitmap1.bmp" />
+    <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram2.cd" />
     <None Include="ClassDiagram3.cd" />

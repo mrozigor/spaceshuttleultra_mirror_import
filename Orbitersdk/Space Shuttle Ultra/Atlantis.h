@@ -153,7 +153,9 @@ typedef struct {
 	SURFHANDLE odslights;
 	SURFHANDLE ssme_lights;
 	HBITMAP deu_characters;
+	HBITMAP deu_characters_overbright;
 	HDC DeuCharBitmapDC;
+	HDC DeuCharOvrBrgtBitmapDC;
 	HFONT font[1];
 } GDIParams;
 

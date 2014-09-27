@@ -16,6 +16,7 @@
 #define IDB_BITMAP1                     120
 #define IDB_ODSBUTTONS                  120
 #define IDB_SSMELIGHTS                  121
+#define IDB_DEUCHARACTERSOVERBRIGHT     122
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON5                     1004
