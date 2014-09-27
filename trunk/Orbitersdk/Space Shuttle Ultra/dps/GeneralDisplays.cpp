@@ -1469,7 +1469,7 @@ namespace dps
 	void GeneralDisplays::OnPaint_DISP18_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 1", pMDU );
-		pMDU->mvprint( 34, 1, "BFS" );
+		pMDU->mvprint( 34, 1, "BFS", dps::DEUATT_OVERBRIGHT );
 
 		// static parts (labels)
 		// SURF
@@ -1708,7 +1708,7 @@ namespace dps
 	void GeneralDisplays::OnPaint_DISP19_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( " GNC SYS SUMM 2", pMDU );
-		pMDU->mvprint( 34, 1, "BFS" );
+		pMDU->mvprint( 34, 1, "BFS", dps::DEUATT_OVERBRIGHT );
 
 		// static parts (labels)
 		// OMS
@@ -1788,7 +1788,7 @@ namespace dps
 	void GeneralDisplays::OnPaint_SPEC51_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    OVERRIDE", pMDU );
-		pMDU->mvprint( 34, 1, "BFS" );
+		pMDU->mvprint( 34, 1, "BFS", dps::DEUATT_OVERBRIGHT );
 
 		// static parts (labels)
 		// ABORT MODE
@@ -1878,7 +1878,7 @@ namespace dps
 	void GeneralDisplays::OnPaint_SPEC55_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    GPS STATUS", pMDU );
-		pMDU->mvprint( 34, 1, "BFS" );
+		pMDU->mvprint( 34, 1, "BFS", dps::DEUATT_OVERBRIGHT );
 		
 		// static parts (labels)
 		pMDU->mvprint( 9, 2, "GPS1  GPS2  GPS3" );
@@ -1942,7 +1942,7 @@ namespace dps
 	void GeneralDisplays::OnPaint_DISP99_BFS( vc::MDU* pMDU ) const
 	{
 		PrintCommonHeader( "    FAULT", pMDU );
-		pMDU->mvprint( 34, 1, "BFS" );
+		pMDU->mvprint( 34, 1, "BFS", dps::DEUATT_OVERBRIGHT );
 
 		// static parts (labels)
 		pMDU->mvprint( 4, 5, "CRT" );

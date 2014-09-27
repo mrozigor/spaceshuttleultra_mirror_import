@@ -263,8 +263,8 @@ namespace vc {
 		
 		int Save=SaveDC(hDC);
 		HDC CompatibleDC=CreateCompatibleDC(hDC);
-		HDC BitmapDC=CreateCompatibleDC(hDC);
-		SelectObject(BitmapDC, g_Param.deu_characters);
+		//HDC BitmapDC=CreateCompatibleDC(hDC);
+		//SelectObject(BitmapDC, g_Param.deu_characters);
 		HBITMAP BMP=CreateCompatibleBitmap(hDC, 816, 806);
 		SelectObject(CompatibleDC, BMP);
 
@@ -277,12 +277,17 @@ namespace vc {
 			for(int j=0;j<26;j++) {
 				char cbuf[2];
 				if(textBuffer[i][j].cSymbol>='!') {
+					int x, y;
 					switch(textBuffer[i][j].cAttr) {
 						case dps::DEUATT_FLASHING:
 							if(!flash) break;
+						case dps::DEUATT_OVERBRIGHT:
+							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
+							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharOvrBrgtBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
+							break;
 						default:
 							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-							int x, y;
 							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
 							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
 					}
@@ -317,7 +322,7 @@ namespace vc {
 		DeleteObject(hNormalPen);
 		DeleteObject(hOverbrightPen);
 		DeleteDC(CompatibleDC);
-		DeleteDC(BitmapDC);
+		//DeleteDC(BitmapDC);
 		DeleteObject(BMP);
 		return false;
 	}

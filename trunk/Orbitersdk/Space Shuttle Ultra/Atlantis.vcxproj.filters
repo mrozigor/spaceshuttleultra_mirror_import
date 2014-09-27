@@ -72,6 +72,7 @@
     <None Include="..\..\Orbiter.log" />
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
     <None Include="Bitmaps\tkbk_label.bmp" />
+    <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">
