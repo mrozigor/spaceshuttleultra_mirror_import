@@ -32,7 +32,6 @@
 
 const double SRB_SEP_SEQUENCE_START_TIME = 100;// sec
 const double SRB_SEP_PC50_DT = 5.5;// sec
-const double SRB_SEP_FWC_PC50_DT = 7;// sec
 const double SRB_SEP_BACKUP_CUE_T = 131.28;// sec (I-load)
 const double SRB_SEP_MOD_DELAY = 3.2;// sec
 const double SRB_SEP_CMD_DELAY = 4.9;// sec

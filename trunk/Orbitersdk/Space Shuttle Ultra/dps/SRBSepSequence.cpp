@@ -32,7 +32,7 @@ namespace dps
 			{
 				if ((STS()->GetSRBChamberPressure( 0 ) < 50) && (timePC50L == -1)) timePC50L = SimT;
 				if ((STS()->GetSRBChamberPressure( 1 ) < 50) && (timePC50R == -1)) timePC50R = SimT;
-				//STS()->pMission->
+				
 				if ((timePC50L != -1) && (timePC50R != -1) && (fabs( timePC50L - timePC50R ) <= SRB_SEP_PC50_DT))
 				{
 					PC50 = true;

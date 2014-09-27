@@ -41,7 +41,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VAB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +63,7 @@
 				AdditionalDependencies="Orbiter.lib OrbiterSDK.lib lua5.1.lib"
 				OutputFile="$(OutDir)\SSU_VAB.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\lib\Lua;..\..\lib"
+				AdditionalLibraryDirectories="G:\orbiter2010\Orbitersdk\lib\Lua"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
