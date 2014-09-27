@@ -1276,113 +1276,113 @@ namespace dps
 		if (ITEM_STATE_SPEC113[20] == true) pMDU->mvprint( 20, 23, "*" );
 
 		// FAIL
-		/*if (abc == true) pMDU->DownArrow( 22, 3 );
-		else if (abc == true) pMDU->mvprint( 22, 3, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 3 );
-		else if (abc == true) pMDU->mvprint( 24, 3, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 3 );
-		else if (abc == true) pMDU->mvprint( 26, 3, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 3 );
-		else if (abc == true) pMDU->mvprint( 28, 3, "M" );
+		/*if (abc == true) pMDU->DownArrow( 22, 3, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 3, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 3, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 3, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 3, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 3, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 3, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 3, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 4 );
-		else if (abc == true) pMDU->mvprint( 22, 4, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 4 );
-		else if (abc == true) pMDU->mvprint( 24, 4, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 4 );
-		else if (abc == true) pMDU->mvprint( 26, 4, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 4 );
-		else if (abc == true) pMDU->mvprint( 28, 4, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 4, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 4, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 4, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 4, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 4, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 4, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 4, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 4, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 5 );
-		else if (abc == true) pMDU->mvprint( 22, 5, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 5 );
-		else if (abc == true) pMDU->mvprint( 24, 5, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 5 );
-		else if (abc == true) pMDU->mvprint( 26, 5, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 5 );
-		else if (abc == true) pMDU->mvprint( 28, 5, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 5, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 5, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 5, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 5, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 5, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 5, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 5, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 5, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 6 );
-		else if (abc == true) pMDU->mvprint( 22, 6, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 6 );
-		else if (abc == true) pMDU->mvprint( 24, 6, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 6 );
-		else if (abc == true) pMDU->mvprint( 26, 6, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 6 );
-		else if (abc == true) pMDU->mvprint( 28, 6, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 6, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 6, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 6, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 6, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 6, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 6, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 6, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 6, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 7 );
-		else if (abc == true) pMDU->mvprint( 22, 7, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 7 );
-		else if (abc == true) pMDU->mvprint( 24, 7, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 7 );
-		else if (abc == true) pMDU->mvprint( 26, 7, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 7 );
-		else if (abc == true) pMDU->mvprint( 28, 7, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 7, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 7, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 7, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 7, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 7, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 7, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 7, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 7, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 8 );
-		else if (abc == true) pMDU->mvprint( 22, 8, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 8 );
-		else if (abc == true) pMDU->mvprint( 24, 8, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 8 );
-		else if (abc == true) pMDU->mvprint( 26, 8, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 8 );
-		else if (abc == true) pMDU->mvprint( 28, 8, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 8, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 8, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 8, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 8, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 8, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 8, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 8, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 8, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 9 );
-		else if (abc == true) pMDU->mvprint( 22, 9, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 9 );
-		else if (abc == true) pMDU->mvprint( 24, 9, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 9 );
-		else if (abc == true) pMDU->mvprint( 26, 9, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 9 );
-		else if (abc == true) pMDU->mvprint( 28, 9, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 9, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 9, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 9, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 9, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 9, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 9, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 9, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 9, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 10 );
-		else if (abc == true) pMDU->mvprint( 22, 10, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 10 );
-		else if (abc == true) pMDU->mvprint( 24, 10, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 10 );
-		else if (abc == true) pMDU->mvprint( 26, 10, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 10 );
-		else if (abc == true) pMDU->mvprint( 28, 10, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 10, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 10, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 10, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 10, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 10, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 10, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 10, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 10, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 11 );
-		else if (abc == true) pMDU->mvprint( 22, 11, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 11 );
-		else if (abc == true) pMDU->mvprint( 24, 11, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 11 );
-		else if (abc == true) pMDU->mvprint( 26, 11, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 11 );
-		else if (abc == true) pMDU->mvprint( 28, 11, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 11, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 11, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 11, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 11, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 11, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 11, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 11, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 11, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 12 );
-		else if (abc == true) pMDU->mvprint( 22, 12, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 12 );
-		else if (abc == true) pMDU->mvprint( 24, 12, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 12 );
-		else if (abc == true) pMDU->mvprint( 26, 12, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 12 );
-		else if (abc == true) pMDU->mvprint( 28, 12, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 12, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 12, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 12, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 12, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 12, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 12, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 12, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 12, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 13 );
-		else if (abc == true) pMDU->mvprint( 22, 13, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 13 );
-		else if (abc == true) pMDU->mvprint( 24, 13, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 13 );
-		else if (abc == true) pMDU->mvprint( 26, 13, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 13 );
-		else if (abc == true) pMDU->mvprint( 28, 13, "M" );
+		if (abc == true) pMDU->DownArrow( 22, 13, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 13, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 13, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 13, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 13, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 13, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 13, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 13, "M", dps::DEUATT_OVERBRIGHT );
 
-		if (abc == true) pMDU->DownArrow( 22, 14 );
-		else if (abc == true) pMDU->mvprint( 22, 14, "M" );
-		if (abc == true) pMDU->DownArrow( 24, 14 );
-		else if (abc == true) pMDU->mvprint( 24, 14, "M" );
-		if (abc == true) pMDU->DownArrow( 26, 14 );
-		else if (abc == true) pMDU->mvprint( 26, 14, "M" );
-		if (abc == true) pMDU->DownArrow( 28, 14 );
-		else if (abc == true) pMDU->mvprint( 28, 14, "M" );*/
+		if (abc == true) pMDU->DownArrow( 22, 14, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 22, 14, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 24, 14, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 24, 14, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 26, 14, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 26, 14, "M", dps::DEUATT_OVERBRIGHT );
+		if (abc == true) pMDU->DownArrow( 28, 14, dps::DEUATT_OVERBRIGHT );
+		else if (abc == true) pMDU->mvprint( 28, 14, "M", dps::DEUATT_OVERBRIGHT );*/
 
 		// ACTUATOR GIMBALING
 		/*sprintf_s( cbuf, 64, "%05.2f", dtmp );
@@ -1604,6 +1604,9 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%4.0f  %4.0f  %4.0f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 12, 14, cbuf );
+		if (tmp[1] < 1150) pMDU->DownArrow( 16, 14, dps::DEUATT_OVERBRIGHT );
+		if (tmp[0] < 1150) pMDU->DownArrow( 22, 14, dps::DEUATT_OVERBRIGHT );
+		if (tmp[2] < 1150) pMDU->DownArrow( 28, 14, dps::DEUATT_OVERBRIGHT );
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -1613,6 +1616,12 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%4.0f  %4.0f  %4.0f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 12, 15, cbuf );
+		if (tmp[1] < 680) pMDU->DownArrow( 16, 15, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[1] > 810) pMDU->UpArrow( 16, 15, dps::DEUATT_OVERBRIGHT );
+		if (tmp[0] < 680) pMDU->DownArrow( 22, 15, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[0] > 810) pMDU->UpArrow( 22, 15, dps::DEUATT_OVERBRIGHT );
+		if (tmp[2] < 680) pMDU->DownArrow( 28, 15, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[2] > 810) pMDU->UpArrow( 28, 15, dps::DEUATT_OVERBRIGHT );
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -1622,6 +1631,12 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%4.0f  %4.0f  %4.0f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 12, 16, cbuf );
+		if (tmp[1] < 680) pMDU->DownArrow( 16, 16, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[1] > 810) pMDU->UpArrow( 16, 16, dps::DEUATT_OVERBRIGHT );
+		if (tmp[0] < 680) pMDU->DownArrow( 22, 16, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[0] > 810) pMDU->UpArrow( 22, 16, dps::DEUATT_OVERBRIGHT );
+		if (tmp[2] < 680) pMDU->DownArrow( 28, 16, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[2] > 810) pMDU->UpArrow( 28, 16, dps::DEUATT_OVERBRIGHT );
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -1631,27 +1646,31 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%3.0f   %3.0f   %3.0f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 13, 17, cbuf );
-		if (He_dPdT[1] == 50) pMDU->UpArrow( 16, 17 );
-		if (He_dPdT[0] == 50) pMDU->UpArrow( 22, 17 );
-		if (He_dPdT[2] == 50) pMDU->UpArrow( 28, 17 );
+		if (He_dPdT[1] > 20) pMDU->UpArrow( 16, 17, dps::DEUATT_OVERBRIGHT );
+		if (He_dPdT[0] > 20) pMDU->UpArrow( 22, 17, dps::DEUATT_OVERBRIGHT );
+		if (He_dPdT[2] > 20) pMDU->UpArrow( 28, 17, dps::DEUATT_OVERBRIGHT );
 
 		tmp[0] = dipHeSysPressureSensor[9].GetVoltage() * 1000;
 		if (tmp[0] > 5000) tmp[0] = 5000;
 		else if (tmp[0] < 0) tmp[0] = 0;
 		sprintf_s( cbuf, 64, "%4.0f", tmp[0] );
 		pMDU->mvprint( 40, 19, cbuf );
+		if (tmp[0] < 3800) pMDU->DownArrow( 44, 19, dps::DEUATT_OVERBRIGHT );
 
 		tmp[0] = dipHeSysPressureSensor[10].GetVoltage() * 200;
 		if (tmp[0] > 1000) tmp[0] = 1000;
 		else if (tmp[0] < 0) tmp[0] = 0;
 		sprintf_s( cbuf, 64, "%4.0f", tmp[0] );
 		pMDU->mvprint( 40, 20, cbuf );
+		if (tmp[0] < 700) pMDU->DownArrow( 44, 20, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[0] > 810) pMDU->UpArrow( 44, 20, dps::DEUATT_OVERBRIGHT );
 
 		tmp[0] = dipHeSysPressureSensor[11].GetVoltage() * 200;
 		if (tmp[0] > 1000) tmp[0] = 1000;
 		else if (tmp[0] < 0) tmp[0] = 0;
 		sprintf_s( cbuf, 64, "%4.0f", tmp[0] );
 		pMDU->mvprint( 40, 21, cbuf );
+		if (tmp[0] < 700) pMDU->DownArrow( 44, 21, dps::DEUATT_OVERBRIGHT );
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -1662,12 +1681,12 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%4.1f  %4.1f  %4.1f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 12, 19, cbuf );
-		if (tmp[1] == 52) pMDU->UpArrow( 16, 19 );
-		else if (tmp[1] == 12) pMDU->DownArrow( 16, 19 );
-		if (tmp[0] == 52) pMDU->UpArrow( 22, 19 );
-		else if (tmp[0] == 12) pMDU->DownArrow( 22, 19 );
-		if (tmp[2] == 52) pMDU->UpArrow( 28, 19 );
-		else if (tmp[2] == 12) pMDU->DownArrow( 28, 19 );
+		if (tmp[1] < 28) pMDU->DownArrow( 16, 19, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[1] > 48.9) pMDU->UpArrow( 16, 19, dps::DEUATT_OVERBRIGHT );
+		if (tmp[0] < 28) pMDU->DownArrow( 22, 19, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[0] > 48.9) pMDU->UpArrow( 22, 19, dps::DEUATT_OVERBRIGHT );
+		if (tmp[2] < 28) pMDU->DownArrow( 28, 19, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[2] > 48.9) pMDU->UpArrow( 28, 19, dps::DEUATT_OVERBRIGHT );
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -1679,12 +1698,12 @@ namespace dps
 		}
 		sprintf_s( cbuf, 64, "%4.1f  %4.1f  %4.1f", tmp[1], tmp[0], tmp[2] );
 		pMDU->mvprint( 12, 20, cbuf );
-		if (tmp[1] == 30) pMDU->UpArrow( 16, 20 );
-		else if (tmp[1] == 0) pMDU->DownArrow( 16, 20 );
-		if (tmp[0] == 30) pMDU->UpArrow( 22, 20 );
-		else if (tmp[0] == 0) pMDU->DownArrow( 22, 20 );
-		if (tmp[2] == 30) pMDU->UpArrow( 28, 20 );
-		else if (tmp[2] == 0) pMDU->DownArrow( 28, 20 );
+		if (tmp[1] < 0) pMDU->DownArrow( 16, 20, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[1] > 28) pMDU->UpArrow( 16, 20, dps::DEUATT_OVERBRIGHT );
+		if (tmp[0] < 0) pMDU->DownArrow( 22, 20, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[0] > 28) pMDU->UpArrow( 22, 20, dps::DEUATT_OVERBRIGHT );
+		if (tmp[2] < 0) pMDU->DownArrow( 28, 20, dps::DEUATT_OVERBRIGHT );
+		else if (tmp[2] > 28) pMDU->UpArrow( 28, 20, dps::DEUATT_OVERBRIGHT );
 
 		/*sprintf_s( cbuf, 64, "%4.0f  %4.0f  %4.0f", abc, abc, abc );
 		pMDU->mvprint( 12, 22, cbuf );
@@ -1696,12 +1715,14 @@ namespace dps
 		else if (tmp[0] < 0) tmp[0] = 0;
 		sprintf_s( cbuf, 64, "%3.0f", tmp[0] );
 		pMDU->mvprint( 41, 22, cbuf );
+		if (tmp[0] > 65) pMDU->UpArrow( 44, 22, dps::DEUATT_OVERBRIGHT );
 
 		tmp[0] = dipMPSManifPressureSensor[0].GetVoltage() * 60;
 		if (tmp[0] > 300) tmp[0] = 300;
 		else if (tmp[0] < 0) tmp[0] = 0;
 		sprintf_s( cbuf, 64, "%3.0f", tmp[0] );
 		pMDU->mvprint( 41, 23, cbuf );
+		if (tmp[0] > 249) pMDU->UpArrow( 44, 23, dps::DEUATT_OVERBRIGHT );
 		return;
 	}
 
