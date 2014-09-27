@@ -44,6 +44,10 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	finecountthrottle[1] = FINECOUNT_THROTTLE_1EO;
 	finecountthrottle[2] = FINECOUNT_THROTTLE;// TODO update to correct MPL from mission file
 
+	SSMETailoffDV[0] = SSME_TAILOFF_DV_91_2EO;
+	SSMETailoffDV[1] = SSME_TAILOFF_DV_91_1EO;
+	SSMETailoffDV[2] = SSME_TAILOFF_DV_67;
+
 	// generic values, updated in InitializeAutopilot()
 	THROT[0] = THROT1;
 	THROT[1] = THROT2;
@@ -169,7 +173,7 @@ void AscentGuidance::InitializeAutopilot()
 	TgtInc=pMission->GetMECOInc()*DEG;
 	TgtFPA=pMission->GetMECOFPA()*DEG;
 	TgtAlt=pMission->GetMECOAlt();
-	TgtSpd=pMission->GetMECOVel();
+	TgtSpd=pMission->GetMECOVel() - (SSMETailoffDV[2] / MPS2FPS);
 	MaxThrust = pMission->GetMaxSSMEThrust();
 	THROT[0] = MaxThrust;
 	THROT[1] = MaxThrust;
@@ -508,6 +512,8 @@ void AscentGuidance::Throttle(double DeltaT)
 				// throttle to mission power level
 				throttlecmd = THROT[0];
 				pSSME_SOP->SetThrottlePercent( throttlecmd );
+				// update MECO targets
+				if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
 			}
 		}
 
