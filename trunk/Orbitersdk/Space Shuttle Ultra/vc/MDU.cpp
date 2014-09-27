@@ -2,6 +2,9 @@
 #include "MDU.h"
 #include "../dps/IDP.h"
 #include "../meshres_vc_additions.h"
+#include "..\dps\AscentGuidance.h"
+#include "..\dps\AerojetDAP.h"
+#include "..\dps\SSME_Operations.h"
 
 extern GDIParams g_Param;
 
@@ -36,10 +39,17 @@ namespace vc {
 		btnBrtYmin = 0.8350f; btnBrtYmax = 0.9144f;
 		edgekeyXmin = 0.2237f; edgekeyXmax = 0.7939f;
 		edgekeyYmin = 0.9185f; edgekeyYmax = 0.9601f;
+
+		CreateGDIObjects();
+
+		hDCTapes = NULL;
+		RangeAlpha[0] = 1;
+		RangeAlpha[1] = 0;
 	}
 
 	MDU::~MDU()
 	{
+		DestroyGDIObjects();
 	}
 
 	void MDU::ConnectToCRTMFD()
@@ -296,9 +306,6 @@ namespace vc {
 		}
 		BitBlt(hDC, 0, 0, 256, 256, CompatibleDC, 0, 0, SRCCOPY);
 
-		// TODO: make pens class members and only create/destroy them once
-		HPEN hOverbrightPen = CreatePen(PS_SOLID, 0, RGB(255, 255, 0));
-		HPEN hNormalPen = CreatePen(PS_SOLID, 0, RGB(128, 255, 0));
 		// draw lines/circles
 		for(unsigned int i=0;i<lines.size();i++) {
 			if(lines[i].cAttr != dps::DEUATT_FLASHING || flash) {
@@ -319,8 +326,6 @@ namespace vc {
 		}
 
 		RestoreDC(hDC, Save);
-		DeleteObject(hNormalPen);
-		DeleteObject(hOverbrightPen);
 		DeleteDC(CompatibleDC);
 		//DeleteDC(BitmapDC);
 		DeleteObject(BMP);
@@ -343,7 +348,7 @@ namespace vc {
 			SetBkMode (hDC, TRANSPARENT);
 			const char *label;
 			int x = 25;
-
+			
 			for (int bt = 0; bt < 5; bt++) {
 				if (label = oapiMFDButtonLabel (MFDID, bt)) {
 					TextOut (hDC, x, 23, label, strlen(label));
@@ -552,512 +557,6 @@ namespace vc {
 	{
 	}
 
-	/*void MDU::UNIVPTG()
-	{
-		char cbuf[255];
-		//PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
-		PrintToBuffer("2011/   /", 9, 1, 0, 0);
-		PrintToBuffer("UNIV PTG", 8, 19, 0, 0);
-		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-
-		PrintToBuffer("CUR MNVR COMPL", 14, 3, 2, 0);
-		sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
-			STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 2, 0);
-		
-		PrintToBuffer("MNVR OPTION", 11, 0, 4, 0);
-		sprintf_s(cbuf, 255, "5 R %6.2f", STS()->MNVR_OPTION.data[ROLL]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-		sprintf_s(cbuf, 255, "6 P %6.2f", STS()->MNVR_OPTION.data[PITCH]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 6, 0);
-		sprintf_s(cbuf, 255, "7 Y %6.2f", STS()->MNVR_OPTION.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 7, 0);
-
-		PrintToBuffer("TRK/ROT OPTIONS", 15, 0, 9, 0);
-		sprintf_s(cbuf, 255, "8 TGT ID %03d", STS()->TGT_ID);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-
-		PrintToBuffer("9  RA", 5, 1, 12, 0);
-		PrintToBuffer("10 DEC", 6, 1, 13, 0);
-		PrintToBuffer("11 LAT", 6, 1, 14, 0);
-		PrintToBuffer("12 LON", 6, 1, 15, 0);
-		PrintToBuffer("13 ALT", 6, 1, 16, 0);
-
-		sprintf_s(cbuf, 255, "14 BODY VECT %d", STS()->BODY_VECT);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 18, 0);
-		sprintf_s(cbuf, 255, "15 P  %6.2f", STS()->P);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 20, 0);
-		sprintf_s(cbuf, 255, "16 Y  %6.2f", STS()->Y);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
-		if(STS()->OM>=0.0) {
-			sprintf_s(cbuf, 255, "17 OM %6.2f", STS()->OM);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 22, 0);
-		}
-		else PrintToBuffer("17 OM", 6, 1, 22, 0);
-
-		PrintToBuffer("START MNVR 18", 13, 14, 4, 0);
-		PrintToBuffer("TRK  19", 7, 20, 5, 0);
-		PrintToBuffer("ROT  20", 7, 20, 6, 0);
-		PrintToBuffer("CNCL  21", 8, 19, 7, 0);
-		PrintToBuffer("CUR", 3, 28, 3, 0);
-		PrintToBuffer("FUT", 3, 32, 3, 0);
-		if(STS()->MNVR) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 4, 0);
-			else PrintToBuffer("X", 1, 33, 4, 0);
-		}
-		else if(STS()->TRK) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 5, 0);
-			else PrintToBuffer("X", 1, 33, 5, 0);
-		}
-		else if(STS()->ROT) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 6, 0);
-			else PrintToBuffer("X", 1, 33, 6, 0);
-		}
-
-		PrintToBuffer("ATT MON", 7, 19, 9, 0);
-		PrintToBuffer("22 MON AXIS", 11, 20, 10, 0);
-		PrintToBuffer("ERR TOT 23", 10, 20, 11, 0);
-		PrintToBuffer("ERR DAP 24", 10, 20, 11, 0);
-
-		PrintToBuffer("ROLL    PITCH    YAW", 20, 26, 14, 0);
-		sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", DEG*STS()->CurrentAttitude.data[ROLL], DEG*STS()->CurrentAttitude.data[PITCH], DEG*STS()->CurrentAttitude.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 15, 0);
-		sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", STS()->REQD_ATT.data[ROLL], STS()->REQD_ATT.data[PITCH], STS()->REQD_ATT.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 16, 0);
-		sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", STS()->PitchYawRoll.data[ROLL], STS()->PitchYawRoll.data[PITCH], STS()->PitchYawRoll.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
-		sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
-	}*/
-
-	/*void MDU::MNVR()
-	{
-		int minutes, seconds;
-		int timeDiff;
-		int TIMER[4];
-		int TGO[2];
-		char cbuf[255];
-
-		switch(STS()->ops) {
-		case 104:
-			DrawCommonHeader("OMS 1 MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-			}
-			break;
-		case 105:
-			DrawCommonHeader("OMS 2 MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 106:
-			DrawCommonHeader("OMS 2 MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 202:
-			DrawCommonHeader("ORBIT MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 301:
-			DrawCommonHeader("DEORB MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 302:
-			DrawCommonHeader("DEORB MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 303:
-			DrawCommonHeader("DEORB MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		}
-
-		timeDiff=(int)(STS()->tig-STS()->met+1);
-		if(true) { //for the moment, timer will always be drawn; this will change next version
-			TIMER[0]=timeDiff/86400;
-			TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
-			TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
-			TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
-			sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
-			PrintToBuffer(cbuf, strlen(cbuf), 38, 1, 0);
-		}
-
-		PrintToBuffer("OMS BOTH 1", 10, 1, 1, 0);
-		PrintToBuffer("L 2", 3, 8, 2, 0);
-		PrintToBuffer("R 3", 3, 8, 3, 0);
-		PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
-		PrintToBuffer("*", 1, 11, STS()->OMS+1, 0);
-
-		sprintf(cbuf, "5 TV ROLL %d", (int)(STS()->TV_ROLL));
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-		PrintToBuffer("TRIM LOAD", 9, 1, 6, 0);
-		sprintf(cbuf, "6 P  %+2.1f", STS()->Trim.data[0]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 7, 0);
-		sprintf(cbuf, "7 LY %+2.1f", STS()->Trim.data[1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 8, 0);
-		sprintf(cbuf, "8 RY %+2.1f", STS()->Trim.data[2]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 9, 0);
-		sprintf(cbuf, "9 WT %6.0f", STS()->WT);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-		PrintToBuffer("10 TIG", 6, 0, 11, 0);
-		sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", STS()->TIG[0], STS()->TIG[1], STS()->TIG[2], STS()->TIG[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 3, 12, 0);
-
-		PrintToBuffer("TGT PEG 4", 9, 0, 13, 0);
-		PrintToBuffer("14 C1", 5, 1, 14, 0);
-		PrintToBuffer("15 C2", 5, 1, 15, 0);
-		PrintToBuffer("16 HT", 5, 1, 16, 0);
-		PrintToBuffer("17  T", 5, 1, 17, 0); //theta symbol should be before T
-		//TextOut(hDC, 0, 153, " 17  T", 6);
-		//Ellipse(hDC, 28, 156, 34, 165);
-		//MoveToEx(hDC, 28, 160, NULL);
-		//LineTo(hDC, 34, 160);
-		PrintToBuffer("18 PRPLT", 5, 1, 18, 0);
-
-		PrintToBuffer("TGT PEG 7", 9, 0, 19, 0);
-		PrintToBuffer("19  VX", 6, 1, 20, 0);
-		PrintToBuffer("20  VY", 6, 1, 21, 0);
-		PrintToBuffer("21  VZ", 6, 1, 22, 0);
-		//TextOut(hDC, 0, 171, "TGT PEG 7", 9);
-		//TextOut(hDC, 0, 180, " 19  VX", 7);
-		//DrawDelta(hDC, 30, 184, 27, 33, 190);
-		//TextOut(hDC, 0, 189, " 20  VY", 7);
-		//DrawDelta(hDC, 30, 193, 27, 33, 199);
-		//TextOut(hDC, 0, 198, " 21  VZ", 7);
-		//DrawDelta(hDC, 30, 202, 27, 33, 208);
-		if(STS()->PEG7.x!=0.0 || STS()->PEG7.y!=0.0 || STS()->PEG7.z!=0.0) {
-			sprintf(cbuf, "%+7.1f", STS()->PEG7.x);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 20, 0);
-			sprintf(cbuf, "%+6.1f", STS()->PEG7.y);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 21, 0);
-			sprintf(cbuf, "%+6.1f", STS()->PEG7.z);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 22, 0);
-		}
-
-		if(STS()->MNVRLOAD) {
-			PrintToBuffer("LOAD 22/TIMER 23", 16, 0, 23, 0);
-			sprintf(cbuf, "24 R %-3.0f", STS()->BurnAtt.data[ROLL]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 3, 0);
-			sprintf(cbuf, "25 P %-3.0f", STS()->BurnAtt.data[PITCH]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 4, 0);
-			sprintf(cbuf, "26 Y %-3.0f", STS()->BurnAtt.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 5, 0);
-			if(!STS()->MnvrExecute && timeDiff<=15.0) PrintToBuffer("EXEC", 4, 46, 2, dps::DEUATT_FLASHING);
-		}
-		else {
-			PrintToBuffer("     22/TIMER 23", 16, 0, 23, 0);
-			PrintToBuffer("24 R", 4, 21, 3, 0);
-			PrintToBuffer("25 P", 4, 21, 4, 0);
-			PrintToBuffer("26 Y", 4, 21, 5, 0);
-		}
-
-		//MoveToEx(hDC, 98, 15, NULL);
-		//LineTo(hDC, 98, 218);
-
-		PrintToBuffer("BURN ATT", 8, 20, 2, 0);
-		if(!STS()->MnvrToBurnAtt) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
-		else PrintToBuffer("MNVR 27*", 8, 20, 6, 0);
-
-		PrintToBuffer("REI", 3, 20, 8, 0);
-		PrintToBuffer("GMBL", 4, 25, 10, 0);
-		PrintToBuffer("L", 1, 24, 11, 0);
-		PrintToBuffer("R", 1, 30, 11, 0);
-		sprintf(cbuf, "P %+02.1f %+02.1f", STS()->OMSGimbal[0][0], STS()->OMSGimbal[1][0]);
-		PrintToBuffer(cbuf, strlen(cbuf), 20, 12, 0);
-		sprintf(cbuf, "Y %+02.1f %+02.1f", STS()->OMSGimbal[0][1], STS()->OMSGimbal[1][1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 20, 13, 0);
-
-		PrintToBuffer("PRI 28   29", 11, 20, 15, 0);
-		PrintToBuffer("SEC 30   31", 11, 20, 16, 0);
-		PrintToBuffer("OFF 32   33", 11, 20, 17, 0);
-		PrintToBuffer("GMBL CK  34", 11, 20, 18, 0);
-
-		//MoveToEx(hDC, 156, 15, NULL);
-		//LineTo(hDC, 156, 111);
-		//LineTo(hDC, 250, 111);
-
-		if(!STS()->BurnInProg && !STS()->BurnCompleted) {
-			TGO[0]=(int)(STS()->BurnTime/60);
-			TGO[1]=(int)(STS()->BurnTime-(TGO[0]*60));
-		}
-		else if(!STS()->BurnCompleted) {
-			double btRemaining=STS()->IgnitionTime+STS()->BurnTime-STS()->met;
-			TGO[0]=(int)btRemaining/60;
-			TGO[1]=(int)btRemaining%60;
-		}
-		else TGO[0]=TGO[1]=0;
-		sprintf(cbuf, "VTOT   %6.2f", STS()->DeltaVTot);
-		PrintToBuffer(cbuf, strlen(cbuf), 37, 3, 0);
-		//DrawDelta(hDC, 161, 31, 158, 164, 37);
-		sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 4, 0);
-		sprintf(cbuf, "VGO X %+8.2f", STS()->VGO.x);
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 6, 0);
-		sprintf(cbuf, "Y  %+7.2f", STS()->VGO.y);
-		PrintToBuffer(cbuf, strlen(cbuf), 40, 7, 0);
-		sprintf(cbuf, "Z  %+7.2f", STS()->VGO.z);
-		PrintToBuffer(cbuf, strlen(cbuf), 40, 8, 0);
-		PrintToBuffer("HA     HP", 9, 40, 10, 0);
-		sprintf(cbuf, "TGT");
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 11, 0);
-		//TextOut(hDC, 158, 90, cbuf, strlen(cbuf));
-		sprintf(cbuf, "CUR");
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 12, 0);
-		//TextOut(hDC, 158, 99, cbuf, strlen(cbuf));
-
-		sprintf(cbuf, "35 ABORT TGT");
-		PrintToBuffer(cbuf, strlen(cbuf), 35, 15, 0);
-		//TextOut(hDC, 150, 126, cbuf, strlen(cbuf));
-
-		//TextOut(hDC, 185, 135, "FWD RCS", 7);
-		//TextOut(hDC, 185, 144, "  ARM  36", 9);
-		//TextOut(hDC, 185, 153, "  DUMP 37", 9);
-		//TextOut(hDC, 185, 162, "  OFF  38", 9);
-		//TextOut(hDC, 185, 171, "SURF DRIVE", 10);
-		//TextOut(hDC, 185, 180, "  ON   39", 9);
-		//TextOut(hDC, 185, 189, "  OFF  40", 9);
-	}*/
-
-
-	/*void MDU::DAP_CONFIG()
-	{
-		char *strings[3]={" ALL", "NOSE", "TAIL"};
-		char cbuf[255];
-		int lim[3]={3, 5, 5};
-		int i, n;
-
-		DrawCommonHeader("DAP CONFIG");
-		
-		//TextOut(hDC, 84, 9, "1 A", 3);
-		//TextOut(hDC, 149, 9, "2 B", 3);
-		//TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
-		//PrintToBuffer("*", 1, 7, 2+9*STS()->DAPMode[1], 0);
-		//TextOut(hDC, 200, 9, Edit[edit], strlen(Edit[edit]));
-		//TextOut(hDC, 200, 18, "8 LOAD", 6);
-
-		PrintToBuffer("PRI", 3, 4, 2, 0);
-		PrintToBuffer("1 DAP A", 7, 9, 2, 0);
-		PrintToBuffer("2 DAP B", 7, 20, 2, 0);
-		PrintToBuffer("PRI", 3, 33, 2, 0);
-		//TextOut(hDC, 14, 27, "3 PRI", 5);
-		PrintToBuffer("ROT RATE", 8, 0, 3, 0);
-		//TextOut(hDC, 0, 36, "ROT RATE", 8);
-		PrintToBuffer("ATT DB", 6, 0, 4, 0);
-		//TextOut(hDC, 0, 45, "ATT DB", 6);
-		PrintToBuffer("RATE DB", 7, 0, 5, 0);
-		//TextOut(hDC, 0, 54, "RATE DB", 7);
-		PrintToBuffer("ROT PLS", 7, 0, 6, 0);
-		//TextOut(hDC, 0, 63, "ROT PLS", 7);
-		PrintToBuffer("COMP", 4, 0, 7, 0);
-		//TextOut(hDC, 0, 72, "COMP", 4);
-		PrintToBuffer("P OPTION", 8, 0, 8, 0);
-		//TextOut(hDC, 0, 81, "P OPTION", 8);
-		PrintToBuffer("Y OPTION", 8, 0, 9, 0);
-		//TextOut(hDC, 0, 90, "Y OPTION", 8);
-		PrintToBuffer("TRAN PLS", 8, 0, 10, 0);
-		//TextOut(hDC, 0, 99, "TRAN PLS", 8);
-
-		PrintToBuffer("ALT", 3, 4, 11, 0);
-		PrintToBuffer("ALT", 3, 33, 11, 0);
-		//TextOut(hDC, 14, 108, "4 ALT", 5);
-		PrintToBuffer("RATE DB", 7, 0, 12, 0);
-		//TextOut(hDC, 0, 117, "RATE DB", 7);
-		PrintToBuffer("JET OPT", 7, 0, 13, 0);
-		//TextOut(hDC, 0, 126, "JET OPT", 7);
-		PrintToBuffer("# JETS", 6, 0, 14, 0);
-		//TextOut(hDC, 0, 135, "# JETS", 6);
-		PrintToBuffer("ON TIME", 7, 0, 15, 0);
-		//TextOut(hDC, 0, 144, "ON TIME", 7);
-		PrintToBuffer("DELAY", 5, 0, 16, 0);
-		//TextOut(hDC, 0, 153, "DELAY", 5);
-
-		PrintToBuffer("VERN", 4, 4, 17, 0);
-		PrintToBuffer("VERN", 4, 33, 17, 0);
-		//TextOut(hDC, 14, 162, "5 VERN", 6);
-		PrintToBuffer("ROT RATE", 8, 0, 18, 0);
-		//TextOut(hDC, 0, 171, "ROT RATE", 8);
-		PrintToBuffer("ATT DB", 6, 0, 19, 0);
-		//TextOut(hDC, 0, 180, "ATT DB", 6);
-		PrintToBuffer("RATE DB", 7, 0, 20, 0);
-		//TextOut(hDC, 0, 189, "RATE DB", 7);
-		PrintToBuffer("ROT PLS", 7, 0, 21, 0);
-		//TextOut(hDC, 0, 198, "ROT PLS", 7);
-		PrintToBuffer("COMP", 4, 0, 22, 0);
-		//TextOut(hDC, 0, 207, "COMP", 4);
-		PrintToBuffer("CNTL ACC", 8, 0, 23, 0);
-		//TextOut(hDC, 0, 216, "CNTL ACC", 8);
-		//if(sts->DAPMode[1]==0) TextOut(hDC, 20, 27, "*", 1);
-		//else if(sts->DAPMode[1]==1) TextOut(hDC, 20, 108, "*", 1);
-		//else TextOut(hDC, 20, 162, "*", 1);
-
-		//MoveToEx(hDC, 59, 38, NULL);
-		//LineTo (hDC, 59, 229);
-		//MoveToEx(hDC, 124, 38, NULL);
-		//LineTo (hDC, 124, 229);
-		//MoveToEx(hDC, 189, 38, NULL);
-		//LineTo (hDC, 189, 229);
-
-		int edit=2; //temporary
-		for(n=1, i=0;n<=lim[edit];n+=2, i++) {
-			sprintf_s(cbuf, 255, "%d %.4f", 10*n, STS()->DAP[i].PRI_ROT_RATE);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 3, 0);
-			//TextOut(hDC, 60+65*i, 36, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+1, STS()->DAP[i].PRI_ATT_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 4, 0);
-			//TextOut(hDC, 60+65*i, 45, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+2, STS()->DAP[i].PRI_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 5, 0);
-			//TextOut(hDC, 60+65*i, 54, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+3, STS()->DAP[i].PRI_ROT_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 6, 0);
-			//TextOut(hDC, 60+65*i, 63, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d  %.3f", 10*n+4, STS()->DAP[i].PRI_COMP);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 7, 0);
-			//TextOut(hDC, 60+65*i, 72, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %s", 10*n+5, strings[STS()->DAP[i].PRI_P_OPTION]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 8, 0);
-			//TextOut(hDC, 60+65*i, 81, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %s", 10*n+6, strings[STS()->DAP[i].PRI_Y_OPTION]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 9, 0);
-			//TextOut(hDC, 60+65*i, 90, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, STS()->DAP[i].PRI_TRAN_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 10, 0);
-			//TextOut(hDC, 60+65*i, 99, cbuf, strlen(cbuf));
-
-			sprintf(cbuf, "%d  %.3f", 10*n+8, STS()->DAP[i].ALT_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 12, 0);
-			//TextOut(hDC, 60+65*i, 117, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %s", 10*n+9, strings[STS()->DAP[i].ALT_JET_OPT]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 13, 0);
-			//TextOut(hDC, 60+65*i, 126, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d      %d", 10*n+10, STS()->DAP[i].ALT_JETS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 14, 0);
-			//TextOut(hDC, 60+65*i, 135, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+11, STS()->DAP[i].ALT_ON_TIME);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 15, 0);
-			//TextOut(hDC, 60+65*i, 144, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+12, STS()->DAP[i].ALT_DELAY);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 16, 0);
-			//TextOut(hDC, 60+65*i, 153, cbuf, strlen(cbuf));
-
-			sprintf(cbuf, "%d %.4f", 10*n+13, STS()->DAP[i].VERN_ROT_RATE);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 18, 0);
-			//TextOut(hDC, 60+65*i, 171, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+14, STS()->DAP[i].VERN_ATT_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 19, 0);
-			//TextOut(hDC, 60+65*i, 180, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d  %.3f", 10*n+15, STS()->DAP[i].VERN_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 20, 0);
-			//TextOut(hDC, 60+65*i, 189, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+16, STS()->DAP[i].VERN_ROT_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 21, 0);
-			//TextOut(hDC, 60+65*i, 198, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d  %.3f", 10*n+17, STS()->DAP[i].VERN_COMP);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 22, 0);
-			//TextOut(hDC, 60+65*i, 207, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d      %d", 10*n+18, STS()->DAP[i].VERN_CNTL_ACC);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 23, 0);
-			//TextOut(hDC, 60+65*i, 216, cbuf, strlen(cbuf));
-		}
-	}
-
-
-	void MDU::ORBIT_TGT()
-	{
-		DrawCommonHeader("ORBIT TGT");
-	}*/
-
 	void MDU::GPCMEMORY()
 	{
 	
@@ -1095,5 +594,2022 @@ namespace vc {
 		mvprint(42, 5, "WRITE 25");
 		mvprint(19, 6, "26 ENG UNITS");
 	}
-};
 
+	void MDU::AEPFD( HDC hDC )
+	{
+		char cbuf[64];
+		int MM = STS()->pSimpleGPC->GetMajorMode();
+		double dtmp = 0;
+		double dtmp2 = 0;
+		double dtmp3 = 0;
+		bool btmp = false;
+		POINT tri[3];
+		POINT diamond[4];
+		VECTOR3 vel;
+		STS()->GetHorizonAirspeedVector( vel );
+		vel *= MPS2FPS;
+		dps::AscentGuidance *adap = static_cast<dps::AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
+		dps::AerojetDAP *ajdap = static_cast<dps::AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+
+		int save = SaveDC( hDC );
+
+		// TODO remove when finished
+		TextOut( hDC, 100, 0, "A/E PFD", 7 );
+		TextOut( hDC, 100, 8, "WIP", 3 );
+
+		SelectObject( hDC, TahomaFont_h10w4 );
+
+		////<<<< header >>>>////
+		SetTextColor( hDC, CR_GRAY_DARK );
+		TextOut( hDC, 209, 4, "MM:", 3 );
+
+		char abortstr[4];
+		if (0) sprintf_s( abortstr, 4, "R  " );// RTLS
+		else if (0) sprintf_s( abortstr, 4, "T  " );// TAL
+		else if (0) sprintf_s( abortstr, 4, "ATO" );// ATO
+		else if (0) sprintf_s( abortstr, 4, "AOA" );// AOA
+		else if (0) sprintf_s( abortstr, 4, "CA " );// CA
+		else sprintf_s( abortstr, 4, "   " );// NOM
+		SetTextColor( hDC, CR_WHITE );
+		sprintf_s( cbuf, 64, "%d%s", MM, abortstr );
+		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
+
+		switch (MM)
+		{
+			case 101:
+			case 102:
+			case 103:
+			case 601:
+				{
+					dps::SSME_Operations *ssmeops = static_cast<dps::SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
+					if (ssmeops->GetMECOConfirmedFlag() == false)
+					{
+						SetTextColor( hDC, CR_GRAY_DARK );
+						TextOut( hDC, 9, 13, "THROT:", 6 );
+					
+						SetTextColor( hDC, CR_WHITE );
+						if (adap->GetAutoThrottleState() == true) TextOut( hDC, 40, 13, "Auto", 4 );
+						else
+						{
+							SelectObject( hDC, YellowPen );
+							SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+							Rectangle( hDC, 6, 13, 60, 23 );
+							TextOut( hDC, 40, 13, "MAN", 3 );
+						}
+					}
+				}
+			case 104:
+			case 105:
+			case 106:
+			case 301:
+			case 302:
+			case 303:
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 21, 4, "DAP:", 4 );
+				TextOut( hDC, 208, 13, "ATT:", 4 );
+
+				SetTextColor( hDC, CR_WHITE );
+				if ((MM == 101) || (MM == 102) || (MM == 103) || (MM == 601))
+				{
+					if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get AscentDAP state
+					else
+					{
+						SelectObject( hDC, YellowPen );
+						SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+						Rectangle( hDC, 6, 4, 60, 14 );
+						TextOut( hDC, 40, 4, "CSS", 3 );
+					}
+				}
+				else
+				{
+					if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get TransDAP state
+					else TextOut( hDC, 40, 4, "INRTL", 5 );
+				}
+
+				if (0) TextOut( hDC, 228, 13, "INRTL", 5 );// TODO
+				else if (1) TextOut( hDC, 228, 13, "LVLH", 4 );
+				else TextOut( hDC, 208, 228, "REF", 3 );
+				break;
+			case 304:
+			case 305:
+			case 602:
+			case 603:
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 16, 4, "Pitch:", 6 );
+				TextOut( hDC, 21, 13, "R/Y:", 4 );
+				TextOut( hDC, 210, 13, "SB:", 3 );
+
+				SetTextColor( hDC, CR_WHITE );
+				if (ajdap->GetAutoPitchState() == true) TextOut( hDC, 40, 4, "Auto", 4 );
+				else
+				{
+					if (STS()->GetMachNumber() > 1)
+					{
+						SelectObject( hDC, YellowPen );
+						SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+						Rectangle( hDC, 6, 4, 60, 14 );
+					}
+					TextOut( hDC, 40, 4, "CSS", 3 );
+				}
+
+				if (ajdap->GetAutoRollYawState() == true) TextOut( hDC, 40, 13, "Auto", 4 );
+				else
+				{
+					if (STS()->GetMachNumber() > 1)
+					{
+						SelectObject( hDC, YellowPen );
+						SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+						Rectangle( hDC, 6, 13, 60, 23 );
+					}
+					TextOut( hDC, 40, 13, "CSS", 3 );
+				}
+
+				if (ajdap->GetAutoSpeedbrakeState() == true) TextOut( hDC, 225, 13, "Auto", 4 );
+				else
+				{
+					SelectObject( hDC, YellowPen );
+					SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+					Rectangle( hDC, 207, 13, 245, 23 );
+					TextOut( hDC, 225, 13, "MAN", 3 );
+				}
+				break;
+		}
+
+		SelectObject( hDC, BlackBrush );
+		if (MM == 101)
+		{
+			////<<<< left tapes >>>>////
+			SelectObject( hDC, RedPen );
+			Rectangle( hDC, 9, 39, 33, 155 );
+			Rectangle( hDC, 9, 91, 33, 105 );
+			Rectangle( hDC, 9, 159, 33, 171 );
+			Rectangle( hDC, 37, 39, 60, 155 );
+			POINT poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
+			Polygon( hDC, poly, 5 );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			TextOut( hDC, 12, 30, "M/V", 3 );
+			TextOut( hDC, 12, 172, "KEAS", 4 );
+			SelectObject( hDC, GrayDarkPen );
+			::Ellipse( hDC, 46, 34, 50, 38 );
+			SetPixel( hDC, 50, 34, CR_GRAY_DARK );
+			SetPixel( hDC, 50, 37, CR_GRAY_DARK );
+
+			////<<<< right tapes >>>>////
+			SelectObject( hDC, RedPen );
+			Rectangle( hDC, 203, 39, 227, 155 );
+			Rectangle( hDC, 203, 91, 227, 105 );
+			Rectangle( hDC, 230, 39, 254, 155 );
+			Rectangle( hDC, 230, 91, 254, 105 );
+			TextOut( hDC, 212, 30, "H", 1 );
+			SetPixel( hDC, 241, 29, CR_GRAY_DARK );
+			TextOut( hDC, 239, 30, "H", 1 );
+		}
+		else
+		{
+			////<<<< left tapes >>>>////
+			SelectObject( hDC, WhitePen );
+			Rectangle( hDC, 9, 39, 33, 155 );
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 9, 159, 33, 171 );
+
+			dtmp = STS()->GetMachNumber();
+			dtmp2 = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
+			SetTextColor( hDC, CR_GRAY_DARK );
+			if (((MM == 305) || (MM == 603)) && (dtmp < 0.9))
+			{
+				TextOut( hDC, 12, 30, "KEAS", 4 );
+				TextOut( hDC, 12, 172, "M/VR", 4 );
+				Tape( hDC, 2, dtmp2 );
+				Rectangle( hDC, 9, 91, 33, 105 );
+				SetTextColor( hDC, CR_WHITE );
+				sprintf_s( cbuf, 64, "%3.0f", dtmp2 );
+				TextOut( hDC, 15, 93, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 64, "%5.2f", dtmp );
+				TextOut( hDC, 13, 160, cbuf, strlen( cbuf ) );
+			}
+			else
+			{
+				btmp = false;
+				if ((MM == 103) || (MM == 104) || ((MM == 601) && (0)))// TODO PPA status
+				{
+					TextOut( hDC, 12, 30, "M/VI", 4 );
+					VECTOR3 vi;
+					STS()->GetRelativeVel( STS()->GetSurfaceRef(), vi );
+					if (dtmp > 4)
+					{
+						dtmp = length( vi ) * MPS2FPS;
+						btmp = true;
+					}
+				}
+				else
+				{
+					TextOut( hDC, 12, 30, "M/VR", 4 );
+					if (dtmp > 4)
+					{
+						dtmp = STS()->GetAirspeed() * MPS2FPS;
+						btmp = true;
+					}
+				}
+				TextOut( hDC, 12, 172, "KEAS", 4 );
+				Tape( hDC, 1, dtmp );
+				Rectangle( hDC, 9, 91, 33, 105 );
+				SetTextColor( hDC, CR_WHITE );
+				if (btmp == true)
+				{
+					sprintf_s( cbuf, 64, "%5.0f", dtmp );// ft
+					TextOut( hDC, 11, 93, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					sprintf_s( cbuf, 64, "%5.2f", dtmp );// Mach
+					TextOut( hDC, 12, 93, cbuf, strlen( cbuf ) );
+				}
+				sprintf_s( cbuf, 64, "%3.0f", dtmp2 );
+				TextOut( hDC, 14, 160, cbuf, strlen( cbuf ) );
+			}
+
+			::Ellipse( hDC, 46, 34, 50, 38 );
+			SetPixel( hDC, 50, 34, CR_GRAY_DARK );
+			SetPixel( hDC, 50, 37, CR_GRAY_DARK );
+			SelectObject( hDC, WhitePen );
+			Rectangle( hDC, 37, 39, 60, 155 );
+			dtmp = STS()->GetAOA() * DEG;
+			Tape( hDC, 3, dtmp );
+
+			dtmp2 = STS()->GetMachNumber();
+			if (dtmp2 < 3)
+			{
+				// max L/D (linear aprox)
+				if (dtmp2 < 0.9) dtmp2 = 10.5;
+				else if (dtmp2 < 1.1) dtmp2 = (dtmp2 * 15) - 3;
+				else if (dtmp2 < 2) dtmp2 = (dtmp2 * 1.6667) + 11.6667;
+				else dtmp2 = (dtmp2 * 2) + 11;
+
+				dtmp2 -= dtmp;
+				if (fabs( dtmp2 ) < 10)
+				{
+					dtmp2 *= 5.7;
+					diamond[0].x = 56;// start at top moving cw
+					diamond[0].y = (int)(94 - dtmp2 + 0.5);
+					diamond[1].x = 60;
+					diamond[1].y = (int)(98 - dtmp2 + 0.5);
+					diamond[2].x = 56;
+					diamond[2].y = (int)(102 - dtmp2 + 0.5);
+					diamond[3].x = 52;
+					diamond[3].y = (int)(98 - dtmp2 + 0.5);
+					SelectObject( hDC, MagentaBrush );
+					SelectObject( hDC, BlackPen );
+					Polygon( hDC, diamond, 4 );
+
+					diamond[0].y += 3;
+					diamond[1].x = 57;
+					diamond[2].y -= 3;
+					diamond[3].x = 55;
+					SelectObject( hDC, BlackBrush );
+					Polygon( hDC, diamond, 4 );
+				}
+			}
+
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			POINT poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
+			Polygon( hDC, poly, 5 );
+			sprintf_s( cbuf, 64, "%6.1f", dtmp );
+			TextOut( hDC, 36, 93, cbuf, strlen( cbuf ) );
+
+			if ((((MM == 102) || (MM == 103)) && ((STS()->GetMET() < 150) && (STS()->GetAltitude() < 60960))) || (MM == 601))
+			{
+				Rectangle( hDC, 37, 159, 60, 171 );
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 41, 172, "Beta", 4 );
+
+				dtmp = STS()->GetSlipAngle() * DEG;
+				char side = 'R';
+				if (dtmp < 0) side = 'L';
+				SetTextColor( hDC, CR_WHITE );
+				sprintf_s( cbuf, 64, "%c%04.1f", side, fabs( dtmp ) );
+				TextOut( hDC, 39, 160, cbuf, strlen( cbuf ) );
+			}
+
+			////<<<< right tapes >>>>////
+			SetTextColor( hDC, CR_GRAY_DARK );
+			TextOut( hDC, 212, 30, "H", 1 );
+			SelectObject( hDC, WhitePen );
+			Rectangle( hDC, 203, 39, 227, 155 );
+			dtmp = STS()->GetAltitude() * MPS2FPS;
+			Tape( hDC, 4, dtmp );
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 203, 91, 227, 105 );
+
+			SetTextColor( hDC, CR_WHITE );
+			if (dtmp < 10000)
+			{
+				sprintf_s( cbuf, 64, "%4d", (int)dtmp );
+				TextOut( hDC, 207, 93, cbuf, strlen( cbuf ) );
+			}
+			else if (dtmp < 400000)
+			{
+				sprintf_s( cbuf, 64, "%3d", (int)dtmp / 1000 );
+				TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 220, 93, "K", 1 );
+			}
+			else
+			{
+				dtmp = STS()->GetAltitude() / NMI2M;
+				sprintf_s( cbuf, 64, "%3.0f", dtmp );
+				TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 220, 93, "M", 1 );
+			}
+
+			SetTextColor( hDC, CR_GRAY_DARK );
+			SetPixel( hDC, 241, 29, CR_GRAY_DARK );
+			TextOut( hDC, 239, 30, "H", 1 );
+			SelectObject( hDC, WhitePen );
+			Rectangle( hDC, 230, 39, 254, 155 );
+			dtmp = vel.y;
+			Tape( hDC, 5, dtmp );
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 230, 91, 254, 105 );
+
+			SetTextColor( hDC, CR_WHITE );
+			if ((dtmp < 1000) && (dtmp > -1000))
+			{
+				sprintf_s( cbuf, 64, "%4.0f", dtmp );
+				TextOut( hDC, 233, 93, cbuf, strlen( cbuf ) );
+			}
+			else
+			{
+				int itmp = (int)dtmp;
+				dtmp = itmp % 100;
+				if (dtmp == 0) dtmp = (double)itmp / 1000;
+				else dtmp = ((itmp - dtmp) / 1000);
+				sprintf_s( cbuf, 64, "%4.1f", dtmp );
+				TextOut( hDC, 231, 93, cbuf, strlen( cbuf ) );
+
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 245, 93, "K", 1 );
+			}
+
+			////<<<< bottom left (static part) >>>>////
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 40, 198, 66, 211 );
+
+			SelectObject( hDC, GrayLightPen );
+			Arc( hDC, 10, 193, 58, 241, 34, 193, 41, 224 );
+		
+			MoveToEx( hDC, 34, 193, NULL );
+			LineTo( hDC, 34, 189 );
+			MoveToEx( hDC, 17, 200, NULL );
+			LineTo( hDC, 14, 197 );
+			MoveToEx( hDC, 10, 217, NULL );
+			LineTo( hDC, 6, 217 );
+			MoveToEx( hDC, 17, 234, NULL );
+			LineTo( hDC, 14, 237 );
+			MoveToEx( hDC, 34, 241, NULL );
+			LineTo( hDC, 34, 245 );
+			MoveToEx( hDC, 50, 234, NULL );
+			LineTo( hDC, 54, 237 );
+
+			SetTextColor( hDC, CR_GRAY_LIGHT );
+			TextOut( hDC, 10, 193, "3", 1 );
+			TextOut( hDC, 2, 213, "2", 1 );
+			TextOut( hDC, 10, 231, "1", 1 );
+			TextOut( hDC, 32, 244, "0", 1 );
+			TextOut( hDC, 52, 234, "-1", 2 );
+		}
+
+		////<<<< center (RPY) >>>>////
+		SetTextColor( hDC, CR_GRAY_DARK );
+		TextOut( hDC, 174, 25, "R", 1 );
+		TextOut( hDC, 174, 32, "P", 1 );
+		TextOut( hDC, 174, 39, "Y", 1 );
+
+		SetTextColor( hDC, CR_WHITE );
+		dtmp = -STS()->GetBank() * DEG;
+		if (dtmp <= 0) dtmp += 360;
+		sprintf_s( cbuf, 64, "%03.0f", dtmp );
+		TextOut( hDC, 180, 25, cbuf, strlen( cbuf ) );
+
+		dtmp = STS()->GetPitch() * DEG;
+		if (dtmp <= 0) dtmp += 360;
+		sprintf_s( cbuf, 64, "%03.0f", dtmp );
+		TextOut( hDC, 180, 32, cbuf, strlen( cbuf ) );
+
+		dtmp = STS()->GetSlipAngle() * DEG;
+		if (dtmp <= 0) dtmp += 360;
+		sprintf_s( cbuf, 64, "%03.0f", dtmp );
+		TextOut( hDC, 180, 39, cbuf, strlen( cbuf ) );
+
+		////<<<< center (ADI) >>>>////
+		// center (122,94) r = 57
+		SelectObject( hDC, WhitePen );
+		::Ellipse( hDC, 65, 37, 179, 151 );
+		SelectObject( hDC, GrayLightPen );
+		::Ellipse( hDC, 73, 45, 171, 143 );
+
+		// TODO draw lines
+		SelectObject( hDC, TahomaFont_h7w3 );
+		SetTextColor( hDC, CR_GRAY_DARK );
+		TextOut( hDC, 148, 47, "33", 2 );
+		TextOut( hDC, 163, 63, "30", 2 );
+		TextOut( hDC, 163, 118, "24", 2 );
+		TextOut( hDC, 148, 134, "21", 2 );
+		TextOut( hDC, 89, 134, "15", 2 );
+		TextOut( hDC, 74, 118, "12", 2 );
+		TextOut( hDC, 74, 63, "06", 2 );
+		TextOut( hDC, 89, 47, "03", 2 );
+		SelectObject( hDC, GrayLightBrush );
+		diamond[0].x = 122;
+		diamond[0].y = 40;
+		diamond[1].x = 124;
+		diamond[1].y = 42;
+		diamond[2].x = 122;
+		diamond[2].y = 44;
+		diamond[3].x = 120;
+		diamond[3].y = 42;
+		Polygon( hDC, diamond, 4 );
+		diamond[0].x = 173;
+		diamond[0].y = 92;
+		diamond[1].x = 175;
+		diamond[1].y = 94;
+		diamond[2].x = 173;
+		diamond[2].y = 96;
+		diamond[3].x = 171;
+		diamond[3].y = 94;
+		Polygon( hDC, diamond, 4 );
+		diamond[0].x = 122;
+		diamond[0].y = 143;
+		diamond[1].x = 124;
+		diamond[1].y = 145;
+		diamond[2].x = 122;
+		diamond[2].y = 147;
+		diamond[3].x = 120;
+		diamond[3].y = 145;
+		Polygon( hDC, diamond, 4 );
+		diamond[0].x = 70;
+		diamond[0].y = 92;
+		diamond[1].x = 72;
+		diamond[1].y = 94;
+		diamond[2].x = 70;
+		diamond[2].y = 96;
+		diamond[3].x = 68;
+		diamond[3].y = 94;
+		Polygon( hDC, diamond, 4 );
+
+		// TODO ON/OFF flag
+		// TODO copy (or draw here?) "ball"
+
+		// flight director
+		SelectObject( hDC, GreenThickPen );
+		Arc( hDC, 116, 88, 128, 101, 116, 94, 128, 94 );
+		SelectObject( hDC, GreenPen );
+		SelectObject( hDC, GreenBrush );
+		Rectangle( hDC, 121, 77, 123, 111 );
+		Rectangle( hDC, 105, 93, 139, 95 );
+
+		// att needles
+		// top scale
+		SelectObject( hDC, MagentaPen );
+		SelectObject( hDC, MagentaBrush );
+		Arc( hDC, 67, 39, 177, 149, 147, 45, 97, 45 );
+		MoveToEx( hDC, 97, 45, NULL );
+		LineTo( hDC, 97, 48 );
+		MoveToEx( hDC, 102, 43, NULL );
+		LineTo( hDC, 102, 46 );
+		MoveToEx( hDC, 107, 41, NULL );
+		LineTo( hDC, 107, 44 );
+		MoveToEx( hDC, 112, 40, NULL );
+		LineTo( hDC, 112, 43 );
+		MoveToEx( hDC, 117, 39, NULL );
+		LineTo( hDC, 117, 42 );
+		MoveToEx( hDC, 127, 39, NULL );
+		LineTo( hDC, 127, 42 );
+		MoveToEx( hDC, 132, 40, NULL );
+		LineTo( hDC, 132, 43 );
+		MoveToEx( hDC, 137, 41, NULL );
+		LineTo( hDC, 137, 44 );
+		MoveToEx( hDC, 142, 43, NULL );
+		LineTo( hDC, 142, 46 );
+		MoveToEx( hDC, 147, 45, NULL );
+		LineTo( hDC, 147, 48 );
+
+		// side scale
+		Arc( hDC, 67, 39, 177, 149, 171, 119, 171, 69 );
+		MoveToEx( hDC, 171, 69, NULL );
+		LineTo( hDC, 168, 69 );
+		MoveToEx( hDC, 172, 74, NULL );
+		LineTo( hDC, 169, 74 );
+		MoveToEx( hDC, 174, 79, NULL );
+		LineTo( hDC, 171, 79 );
+		MoveToEx( hDC, 175, 84, NULL );
+		LineTo( hDC, 172, 84 );
+		MoveToEx( hDC, 176, 89, NULL );
+		LineTo( hDC, 173, 89 );
+		MoveToEx( hDC, 176, 99, NULL );
+		LineTo( hDC, 173, 99 );
+		MoveToEx( hDC, 175, 104, NULL );
+		LineTo( hDC, 172, 104 );
+		MoveToEx( hDC, 174, 109, NULL );
+		LineTo( hDC, 171, 109 );
+		MoveToEx( hDC, 172, 114, NULL );
+		LineTo( hDC, 169, 114 );
+		MoveToEx( hDC, 171, 119, NULL );
+		LineTo( hDC, 168, 119 );
+
+		// bottom scale
+		Arc( hDC, 67, 39, 177, 149, 97, 143, 147, 143 );
+		MoveToEx( hDC, 97, 143, NULL );
+		LineTo( hDC, 97, 140 );
+		MoveToEx( hDC, 102, 144, NULL );
+		LineTo( hDC, 102, 141 );
+		MoveToEx( hDC, 107, 146, NULL );
+		LineTo( hDC, 107, 143 );
+		MoveToEx( hDC, 112, 147, NULL );
+		LineTo( hDC, 112, 144 );
+		MoveToEx( hDC, 117, 148, NULL );
+		LineTo( hDC, 117, 145 );
+		MoveToEx( hDC, 127, 148, NULL );
+		LineTo( hDC, 127, 145 );
+		MoveToEx( hDC, 132, 147, NULL );
+		LineTo( hDC, 132, 144 );
+		MoveToEx( hDC, 137, 146, NULL );
+		LineTo( hDC, 137, 143 );
+		MoveToEx( hDC, 142, 144, NULL );
+		LineTo( hDC, 142, 141 );
+		MoveToEx( hDC, 147, 143, NULL );
+		LineTo( hDC, 147, 140 );
+
+		SetTextColor( hDC, CR_MAGENTA );
+		VECTOR3 atterr;
+		dtmp = 999;// "stowed" values
+		dtmp2 = 999;
+		dtmp3 = 999;
+		// TODO check the sign of the errors so the needles move in the right direction (they're fly-to indications)
+		switch (MM)
+		{
+			//case 101:
+			case 102:
+			case 103:
+			case 104:
+			case 105:
+			case 106:
+			case 601:
+			//case 201:
+			//case 202:
+			//case 801:
+			case 301:
+			case 302:
+			case 303:
+				if ((MM == 301) || (MM == 302) || (MM == 303)) atterr = ajdap->GetAttitudeErrors();
+				else atterr = adap->GetAttitudeErrors();
+
+				if (1)// TODO ADI ERROR sw High pos
+				{
+					// High
+					// 10/10/10
+					TextOut( hDC, 173, 64, "10", 2 );
+					TextOut( hDC, 173, 118, "10", 2 );
+
+					if (atterr.z > 10) dtmp = 10;
+					else if (atterr.z < -10) dtmp = -10;
+					else dtmp = atterr.z;
+
+					if (atterr.x > 10) dtmp2 = 10;
+					else if (atterr.x < -10) dtmp2 = -10;
+					else dtmp2 = atterr.x;
+
+					if (atterr.y > 10) dtmp3 = 10;
+					else if (atterr.y < -10) dtmp3 = -10;
+					else dtmp3 = atterr.y;
+
+					dtmp *= 2.5;
+					dtmp2 *= 2.5;
+					dtmp3 *= 2.5;
+				}
+				else if (0)// TODO ADI ERROR sw Med pos
+				{
+					// Med
+					// 5/5/5
+					TextOut( hDC, 173, 64, "5", 1 );
+					TextOut( hDC, 173, 118, "5", 1 );
+
+					if (atterr.z > 5) dtmp = 5;
+					else if (atterr.z < -5) dtmp = -5;
+					else dtmp = atterr.z;
+
+					if (atterr.x > 5) dtmp2 = 5;
+					else if (atterr.x < -5) dtmp2 = -5;
+					else dtmp2 = atterr.x;
+
+					if (atterr.y > 5) dtmp3 = 5;
+					else if (atterr.y < -5) dtmp3 = -5;
+					else dtmp3 = atterr.y;
+
+					dtmp *= 5;
+					dtmp2 *= 5;
+					dtmp3 *= 5;
+				}
+				else
+				{
+					// Low
+					// 1/1/1
+					TextOut( hDC, 173, 64, "1", 1 );
+					TextOut( hDC, 173, 118, "1", 1 );
+
+					if (atterr.z > 1) dtmp = 1;
+					else if (atterr.z < -1) dtmp = -1;
+					else dtmp = atterr.z;
+
+					if (atterr.x > 1) dtmp2 = 1;
+					else if (atterr.x < -1) dtmp2 = -1;
+					else dtmp2 = atterr.x;
+
+					if (atterr.y > 1) dtmp3 = 1;
+					else if (atterr.y < -1) dtmp3 = -1;
+					else dtmp3 = atterr.y;
+
+					dtmp *= 25;
+					dtmp2 *= 25;
+					dtmp3 *= 25;
+				}
+				break;
+			default:// 304, 305, 602, 603
+				if ((MM == 304) || ((MM == 602) && (0)))// TODO alpha recovery & alpha transition
+				{
+					atterr = ajdap->GetAttitudeErrors();// TODO correct source for 602
+					if (1)// TODO ADI ERROR sw High pos
+					{
+						// High
+						// 25/5/2.5
+						TextOut( hDC, 173, 64, "5", 1 );
+						TextOut( hDC, 173, 118, "5", 1 );
+
+						if (atterr.z > 25) dtmp = 25;
+						else if (atterr.z < -25) dtmp = -25;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 5) dtmp2 = 5;
+						else if (atterr.x < -5) dtmp2 = -5;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						//dtmp *= 1;
+						dtmp2 *= 5;
+						dtmp3 *= 10;
+					}
+					else if (0)// TODO ADI ERROR sw Med pos
+					{
+						// Med
+						// 25/2/2.5
+						TextOut( hDC, 173, 64, "2", 1 );
+						TextOut( hDC, 173, 118, "2", 1 );
+
+						if (atterr.z > 25) dtmp = 25;
+						else if (atterr.z < -25) dtmp = -25;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 2) dtmp2 = 2;
+						else if (atterr.x < -2) dtmp2 = -2;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						//dtmp *= 1;
+						dtmp2 *= 12.5;
+						dtmp3 *= 10;
+					}
+					else
+					{
+						// Low
+						// 10/1/2.5
+						TextOut( hDC, 173, 64, "1", 1 );
+						TextOut( hDC, 173, 118, "1", 1 );
+
+						if (atterr.z > 10) dtmp = 10;
+						else if (atterr.z < -10) dtmp = -10;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 1) dtmp2 = 1;
+						else if (atterr.x < -1) dtmp2 = -1;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						dtmp *= 2.5;
+						dtmp2 *= 25;
+						dtmp3 *= 10;
+					}
+				}
+				else if ((((MM == 305) || (MM == 603)) && (ajdap->GetWOW() == false)) || ((MM == 602) && (0)))// TODO NZ hold
+				{
+					atterr = ajdap->GetAttitudeErrors();// TODO correct source for 603
+					if (1)// TODO ADI ERROR sw High pos
+					{
+						// High
+						// 25/1.25g/2.5
+						TextOut( hDC, 173, 64, "1.25g", 5 );
+						TextOut( hDC, 173, 118, "1.25g", 5 );
+
+						if (atterr.z > 25) dtmp = 25;
+						else if (atterr.z < -25) dtmp = -25;
+						else dtmp = atterr.z;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						//dtmp *= 1;
+						dtmp2 = 0;// TODO pitch showing G
+						dtmp3 *= 10;
+					}
+					else if (0)// TODO ADI ERROR sw Med pos
+					{
+						// Med
+						// 25/1.25g/2.5
+						TextOut( hDC, 173, 64, "1.25g", 5 );
+						TextOut( hDC, 173, 118, "1.25g", 5 );
+
+						if (atterr.z > 25) dtmp = 25;
+						else if (atterr.z < -25) dtmp = -25;
+						else dtmp = atterr.z;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						//dtmp *= 1;
+						dtmp2 = 0;// TODO pitch showing G
+						dtmp3 *= 10;
+					}
+					else
+					{
+						// Low
+						// 10/0.5g/2.5
+						TextOut( hDC, 173, 64, "0.5g", 4 );
+						TextOut( hDC, 173, 118, "0.5g", 4 );
+
+						if (atterr.z > 10) dtmp = 10;
+						else if (atterr.z < -10) dtmp = -10;
+						else dtmp = atterr.z;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						dtmp *= 2.5;
+						dtmp2 = 0;// TODO pitch showing G
+						dtmp3 *= 10;
+					}
+				}
+				else if (((MM == 305) || (MM == 603)) && (ajdap->GetWOW() == true))
+				{
+					atterr = ajdap->GetAttitudeErrors();// TODO correct source for 603
+					if (1)// TODO ADI ERROR sw High pos
+					{
+						// High
+						// 20/10/2.5
+						TextOut( hDC, 173, 64, "10", 2 );
+						TextOut( hDC, 173, 118, "10", 2 );
+
+						if (atterr.z > 20) dtmp = 20;
+						else if (atterr.z < -20) dtmp = -20;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 10) dtmp2 = 10;
+						else if (atterr.x < -10) dtmp2 = -10;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						dtmp *= 1.25;
+						dtmp2 *= 2.5;
+						dtmp3 *= 10;
+					}
+					else if (0)// TODO ADI ERROR sw Med pos
+					{
+						// Med
+						// 5/5/2.5
+						TextOut( hDC, 173, 64, "5", 1 );
+						TextOut( hDC, 173, 118, "5", 1 );
+
+						if (atterr.z > 5) dtmp = 5;
+						else if (atterr.z < -5) dtmp = -5;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 5) dtmp2 = 5;
+						else if (atterr.x < -5) dtmp2 = -5;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						dtmp *= 5;
+						dtmp2 *= 5;
+						dtmp3 *= 10;
+					}
+					else
+					{
+						// Low
+						// 1/1/2.5
+						TextOut( hDC, 173, 64, "1", 1 );
+						TextOut( hDC, 173, 118, "1", 1 );
+
+						if (atterr.z > 1) dtmp = 1;
+						else if (atterr.z < -1) dtmp = -1;
+						else dtmp = atterr.z;
+
+						if (atterr.x > 1) dtmp2 = 1;
+						else if (atterr.x < -1) dtmp2 = -1;
+						else dtmp2 = atterr.x;
+
+						if (atterr.y > 2.5) dtmp3 = 2.5;
+						else if (atterr.y < -2.5) dtmp3 = -2.5;
+						else dtmp3 = atterr.y;
+
+						dtmp *= 25;
+						dtmp2 *= 25;
+						dtmp3 *= 10;
+					}
+				}
+				break;
+		}
+
+		if (dtmp != 999) Rectangle( hDC, (int)(121 + dtmp), (int)(94 - sqrt( 3156 - (dtmp * dtmp) )), (int)(123 + dtmp), 77 );
+		if (dtmp2 != 999) Rectangle( hDC, 139, (int)(93 + dtmp2), (int)(122 + sqrt( 3156 - (dtmp2 * dtmp2) )), (int)(95 + dtmp2) );
+		if (dtmp3 != 999) Rectangle( hDC, (int)(121 + dtmp3), 111, (int)(123 + dtmp3), (int)(94 + sqrt( 3156 - (dtmp3 * dtmp3) )) );
+		
+		// top scale
+		SetTextColor( hDC, CR_GRAY_DARK );
+		SelectObject( hDC, GrayDarkPen );
+		MoveToEx( hDC, 87, 27, NULL );
+		LineTo( hDC, 157, 27 );
+		MoveToEx( hDC, 87, 27, NULL );
+		LineTo( hDC, 87, 34 );
+		MoveToEx( hDC, 94, 27, NULL );
+		LineTo( hDC, 94, 32 );
+		MoveToEx( hDC, 101, 27, NULL );
+		LineTo( hDC, 101, 32 );
+		MoveToEx( hDC, 108, 27, NULL );
+		LineTo( hDC, 108, 32 );
+		MoveToEx( hDC, 115, 27, NULL );
+		LineTo( hDC, 115, 32 );
+		MoveToEx( hDC, 122, 27, NULL );
+		LineTo( hDC, 122, 34 );
+		MoveToEx( hDC, 129, 27, NULL );
+		LineTo( hDC, 129, 32 );
+		MoveToEx( hDC, 136, 27, NULL );
+		LineTo( hDC, 136, 32 );
+		MoveToEx( hDC, 143, 27, NULL );
+		LineTo( hDC, 143, 32 );
+		MoveToEx( hDC, 150, 27, NULL );
+		LineTo( hDC, 150, 32 );
+		MoveToEx( hDC, 157, 27, NULL );
+		LineTo( hDC, 157, 34 );
+		TextOut( hDC, 120, 18, "0", 1 );
+
+		// side scale
+		MoveToEx( hDC, 190, 59, NULL );
+		LineTo( hDC, 190, 129 );
+		MoveToEx( hDC, 190, 59, NULL );
+		LineTo( hDC, 183, 59 );
+		MoveToEx( hDC, 190, 66, NULL );
+		LineTo( hDC, 185, 66 );
+		MoveToEx( hDC, 190, 73, NULL );
+		LineTo( hDC, 185, 73 );
+		MoveToEx( hDC, 190, 80, NULL );
+		LineTo( hDC, 185, 80 );
+		MoveToEx( hDC, 190, 87, NULL );
+		LineTo( hDC, 185, 87 );
+		MoveToEx( hDC, 190, 94, NULL );
+		LineTo( hDC, 183, 94 );
+		MoveToEx( hDC, 190, 101, NULL );
+		LineTo( hDC, 185, 101 );
+		MoveToEx( hDC, 190, 108, NULL );
+		LineTo( hDC, 185, 108 );
+		MoveToEx( hDC, 190, 115, NULL );
+		LineTo( hDC, 185, 115 );
+		MoveToEx( hDC, 190, 122, NULL );
+		LineTo( hDC, 185, 122 );
+		MoveToEx( hDC, 190, 129, NULL );
+		LineTo( hDC, 183, 129 );
+		TextOut( hDC, 192, 90, "0", 1 );
+
+		// bottom scale
+		MoveToEx( hDC, 87, 163, NULL );
+		LineTo( hDC, 157, 163 );
+		MoveToEx( hDC, 87, 163, NULL );
+		LineTo( hDC, 87, 156 );
+		MoveToEx( hDC, 94, 163, NULL );
+		LineTo( hDC, 94, 158 );
+		MoveToEx( hDC, 101, 163, NULL );
+		LineTo( hDC, 101, 158 );
+		MoveToEx( hDC, 108, 163, NULL );
+		LineTo( hDC, 108, 158 );
+		MoveToEx( hDC, 115, 163, NULL );
+		LineTo( hDC, 115, 158 );
+		MoveToEx( hDC, 122, 163, NULL );
+		LineTo( hDC, 122, 156 );
+		MoveToEx( hDC, 129, 163, NULL );
+		LineTo( hDC, 129, 158 );
+		MoveToEx( hDC, 136, 163, NULL );
+		LineTo( hDC, 136, 158 );
+		MoveToEx( hDC, 143, 163, NULL );
+		LineTo( hDC, 143, 158 );
+		MoveToEx( hDC, 150, 163, NULL );
+		LineTo( hDC, 150, 158 );
+		MoveToEx( hDC, 157, 163, NULL );
+		LineTo( hDC, 157, 156 );
+		TextOut( hDC, 120, 163, "0", 1 );
+
+		VECTOR3 av;
+		STS()->GetAngularVel( av );
+		av *= DEG;
+		dtmp = -av.z;// roll
+		dtmp2 = -av.x;// pitch
+		dtmp3 = av.y;// yaw
+		SelectObject( hDC, TahomaFont_h10w4 );
+		SetTextColor( hDC, CR_WHITE );
+		if (0)// TODO ADI RATE sw High pos
+		{
+			// High
+			if ((MM == 305) || (MM == 603))
+			{
+				TextOut( hDC, 81, 23, "5", 1 );
+				TextOut( hDC, 159, 23, "5", 1 );
+
+				TextOut( hDC, 187, 50, "5", 1 );
+				TextOut( hDC, 187, 129, "5", 1 );
+
+				TextOut( hDC, 81, 159, "5", 1 );
+				TextOut( hDC, 159, 159, "5", 1 );
+
+				if (dtmp > 5) dtmp = 5;
+				else if (dtmp < -5) dtmp = -5;
+				dtmp = (int)((dtmp * 7) + 122);
+
+				if (dtmp2 > 5) dtmp2 = 5;
+				else if (dtmp2 < -5) dtmp2 = -5;
+				dtmp2 = (int)((dtmp2 * 7) + 94);
+
+				if (dtmp3 > 5) dtmp3 = 5;
+				else if (dtmp3 < -5) dtmp3 = -5;
+				dtmp3 = (int)((dtmp3 * 7) + 122);
+			}
+			else
+			{
+				TextOut( hDC, 78, 23, "10", 2 );
+				TextOut( hDC, 158, 23, "10", 2 );
+
+				TextOut( hDC, 187, 50, "10", 2 );
+				TextOut( hDC, 187, 129, "10", 2 );
+
+				TextOut( hDC, 78, 159, "10", 2 );
+				TextOut( hDC, 158, 159, "10", 2 );
+
+				if (dtmp > 10) dtmp = 10;
+				else if (dtmp < -10) dtmp = -10;
+				dtmp = (int)((dtmp * 3.5) + 122);
+
+				if (dtmp2 > 10) dtmp2 = 10;
+				else if (dtmp2 < -10) dtmp2 = -10;
+				dtmp2 = (int)((dtmp2 * 3.5) + 94);
+
+				if (dtmp3 > 10) dtmp3 = 10;
+				else if (dtmp3 < -10) dtmp3 = -10;
+				dtmp3 = (int)((dtmp3 * 3.5) + 122);
+			}
+		}
+		else if (1)// TODO ADI RATE sw Med pos
+		{
+			// Med
+			if ((MM == 305) || (MM == 603))
+			{
+				if ((STS()->GetAltitude() * MPS2FPS) < 6400)// HACK should use a 3sec timer starting at 7Kft, which expires about 6.4Kft 
+				{
+					// <7k + 3s
+					TextOut( hDC, 81, 23, "5", 1 );
+					TextOut( hDC, 159, 23, "5", 1 );
+
+					TextOut( hDC, 187, 50, "5", 1 );
+					TextOut( hDC, 187, 129, "5", 1 );
+
+					TextOut( hDC, 81, 159, "5", 1 );
+					TextOut( hDC, 159, 159, "5", 1 );
+
+					if (dtmp > 5) dtmp = 5;
+					else if (dtmp < -5) dtmp = -5;
+					dtmp = (int)((dtmp * 7) + 122);
+
+					if (dtmp2 > 5) dtmp2 = 5;
+					else if (dtmp2 < -5) dtmp2 = -5;
+					dtmp2 = (int)((dtmp2 * 7) + 94);
+
+					if (dtmp3 > 5) dtmp3 = 5;
+					else if (dtmp3 < -5) dtmp3 = -5;
+					dtmp3 = (int)((dtmp3 * 7) + 122);
+				}
+				else if ((STS()->GetAltitude() * MPS2FPS) < 7000)
+				{
+					// <7k
+					// blank
+					// blank
+					// blank
+					dtmp = 0;
+					dtmp2 = 0;
+					dtmp3 = 0;
+				}
+				else if (ajdap->GetPrefinalState() == true)
+				{
+					// PRFNL - 7k
+					// blank
+					// alt err +/-1k
+					// y-runway position err +/-1k
+					TextOut( hDC, 187, 50, "1K", 2 );
+					TextOut( hDC, 187, 129, "1K", 2 );
+
+					TextOut( hDC, 78, 159, "1K", 2 );
+					TextOut( hDC, 158, 159, "1K", 2 );
+
+					dtmp = 0;
+					dtmp2 = 0;// TODO get alt error (ft)
+					dtmp3 = -ajdap->GetYRunwayPositionError();
+
+					if (dtmp2 > 1000) dtmp2 = 1000;
+					else if (dtmp2 < -1000) dtmp2 = -1000;
+					dtmp2 = (int)((dtmp2 * 0.035) + 94);
+
+					if (dtmp3 > 1000) dtmp3 = 1000;
+					else if (dtmp3 < -1000) dtmp3 = -1000;
+					dtmp3 = (int)((dtmp3 * 0.035) + 122);
+				}
+				else if (ajdap->GetOnHACState() == true)
+				{
+					// HAC
+					// blank
+					// alt err +/-5k
+					// HAC x-range err +/-5k
+					TextOut( hDC, 187, 50, "5K", 2 );
+					TextOut( hDC, 187, 129, "5K", 2 );
+
+					TextOut( hDC, 78, 159, "5K", 2 );
+					TextOut( hDC, 158, 159, "5K", 2 );
+
+					dtmp = 0;
+					dtmp2 = 0;// TODO get alt error (ft)
+					dtmp3 = ajdap->GetHACRadialError();
+
+					if (dtmp2 > 5000) dtmp2 = 5000;
+					else if (dtmp2 < -5000) dtmp2 = -5000;
+					dtmp2 = (int)((dtmp2 * 0.007) + 94);
+
+					if (dtmp3 > 5000) dtmp3 = 5000;
+					else if (dtmp3 < -5000) dtmp3 = -5000;
+					dtmp3 = (int)((dtmp3 * 0.007) + 122);
+				}
+				else
+				{
+					// ACQ
+					// time to HAC 10s
+					// alt err +/-5k
+					// heading err +/-5º
+					TextOut( hDC, 81, 23, "0", 1 );// TODO what to show here?
+					TextOut( hDC, 159, 23, "0", 1 );
+
+					TextOut( hDC, 187, 50, "5K", 2 );
+					TextOut( hDC, 187, 129, "5K", 2 );
+
+					TextOut( hDC, 81, 159, "5", 1 );
+					TextOut( hDC, 159, 159, "5", 1 );
+
+					dtmp = ajdap->GetTimeToHAC();
+					dtmp2 = 0;// TODO get alt error (ft)
+					dtmp3 = 0;// TODO get heading error (deg)
+
+					if (dtmp > 0)
+					{
+						if (dtmp > 10) dtmp = 10;
+						dtmp = (int)((-dtmp * 7) + 157);
+					}
+					else if (dtmp < 0)
+					{
+						if (dtmp < -10) dtmp = -10;
+						dtmp = (int)((-dtmp * 7) + 87);
+					}
+
+					if (dtmp2 > 5000) dtmp2 = 5000;
+					else if (dtmp2 < -5000) dtmp2 = -5000;
+					dtmp2 = (int)((dtmp2 * 0.007) + 94);
+
+					if (dtmp3 > 5) dtmp3 = 5;
+					else if (dtmp3 < -5) dtmp3 = -5;
+					dtmp3 = (int)((dtmp3 * 7) + 122);
+				}
+			}
+			else
+			{
+				TextOut( hDC, 81, 23, "5", 1 );
+				TextOut( hDC, 159, 23, "5", 1 );
+
+				TextOut( hDC, 187, 50, "5", 1 );
+				TextOut( hDC, 187, 129, "5", 1 );
+
+				TextOut( hDC, 81, 159, "5", 1 );
+				TextOut( hDC, 159, 159, "5", 1 );
+
+				if (dtmp > 5) dtmp = 5;
+				else if (dtmp < -5) dtmp = -5;
+				dtmp = (int)((dtmp * 7) + 122);
+
+				if (dtmp2 > 5) dtmp2 = 5;
+				else if (dtmp2 < -5) dtmp2 = -5;
+				dtmp2 = (int)((dtmp2 * 7) + 94);
+
+				if (dtmp3 > 5) dtmp3 = 5;
+				else if (dtmp3 < -5) dtmp3 = -5;
+				dtmp3 = (int)((dtmp3 * 7) + 122);
+			}
+		}
+		else
+		{
+			// Low
+			if ((MM == 305) || (MM == 603))
+			{
+				TextOut( hDC, 81, 23, "5", 1 );
+				TextOut( hDC, 159, 23, "5", 1 );
+
+				TextOut( hDC, 187, 50, "5", 1 );
+				TextOut( hDC, 187, 129, "5", 1 );
+
+				TextOut( hDC, 81, 159, "5", 1 );
+				TextOut( hDC, 159, 159, "5", 1 );
+
+				if (dtmp > 5) dtmp = 5;
+				else if (dtmp < -5) dtmp = -5;
+				dtmp = (int)((dtmp * 7) + 122);
+
+				if (dtmp2 > 5) dtmp2 = 5;
+				else if (dtmp2 < -5) dtmp2 = -5;
+				dtmp2 = (int)((dtmp2 * 7) + 94);
+
+				if (dtmp3 > 5) dtmp3 = 5;
+				else if (dtmp3 < -5) dtmp3 = -5;
+				dtmp3 = (int)((dtmp3 * 7) + 122);
+			}
+			else
+			{
+				TextOut( hDC, 81, 23, "1", 1 );
+				TextOut( hDC, 159, 23, "1", 1 );
+
+				TextOut( hDC, 187, 50, "1", 1 );
+				TextOut( hDC, 187, 129, "1", 1 );
+
+				TextOut( hDC, 81, 159, "1", 1 );
+				TextOut( hDC, 159, 159, "1", 1 );
+
+				if (dtmp > 1) dtmp = 1;
+				else if (dtmp < -1) dtmp = -1;
+				dtmp = (int)((dtmp * 35) + 122);
+
+				if (dtmp2 > 1) dtmp2 = 1;
+				else if (dtmp2 < -1) dtmp2 = -1;
+				dtmp2 = (int)((dtmp2 * 35) + 94);
+
+				if (dtmp3 > 1) dtmp3 = 1;
+				else if (dtmp3 < -1) dtmp3 = -1;
+				dtmp3 = (int)((dtmp3 * 35) + 122);
+			}
+		}
+
+		// draw triangles
+		SelectObject( hDC, GreenPen );
+		SelectObject( hDC, GreenBrush );
+		if (dtmp != 0)
+		{
+			tri[0].x = (int)dtmp;
+			tri[0].y = 27;
+			tri[1].x = tri[0].x + 5;
+			tri[1].y = 19;
+			tri[2].x = tri[0].x - 5;
+			tri[2].y = 19;
+			Polygon( hDC, tri, 3 );
+		}
+
+		if (dtmp2 != 0)
+		{
+			tri[0].x = 190;
+			tri[0].y = (int)dtmp2;
+			tri[1].x = 198;
+			tri[1].y = tri[0].y - 5;
+			tri[2].x = 198;
+			tri[2].y = tri[0].y + 5;
+			Polygon( hDC, tri, 3 );
+		}
+
+		if (dtmp3 != 0)
+		{
+			tri[0].x = (int)dtmp3;
+			tri[0].y = 163;
+			tri[1].x = tri[0].x - 5;
+			tri[1].y = 171;
+			tri[2].x = tri[0].x + 5;
+			tri[2].y = 171;
+			Polygon( hDC, tri, 3 );
+		}
+
+		////<<<< bottom left (dynamic part) >>>>////
+		btmp = false;
+		SetTextColor( hDC, CR_GRAY_DARK );
+		switch (MM)
+		{
+			case 102:
+			case 103:
+			case 601:
+				{
+					VECTOR3 f;
+					TextOut( hDC, 43, 212, "Accel", 5 );
+					STS()->GetForceVector( f );
+					dtmp = (f.z / (STS()->GetMass() * G)) + sin( STS()->GetPitch() );
+					btmp = true;
+				}
+				break;
+			case 304:
+			case 305:
+			case 602:
+			case 603:
+				{
+					TextOut( hDC, 43, 212, "Nz", 2 );
+					VECTOR3 lift, drag, gravity;// code strait out of AerojetDAP
+					STS()->GetLiftVector(lift);
+					STS()->GetDragVector(drag);
+					STS()->GetWeightVector(gravity);
+					dtmp = (lift.y+drag.y)/length(gravity);
+					btmp = true;
+				}
+				break;
+		}
+		if (btmp == true)
+		{
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 64, "%4.1f g", dtmp );
+			TextOut( hDC, 43, 200, cbuf, strlen( cbuf ) );
+
+			if (dtmp > 4) dtmp = 4;
+			else if (dtmp < -1) dtmp = -1;
+			dtmp = ((dtmp * 45) - 90) * RAD;
+			SelectObject( hDC, GreenThickPen );
+			MoveToEx( hDC, 34, 217, NULL );// center
+			double xt = 34 - (21 * cos( dtmp ));
+			double yt = 217 - (21 * sin( dtmp ));
+			LineTo( hDC, (int)xt, (int)yt );
+
+			SelectObject( hDC, GreenPen );
+			SelectObject( hDC, GreenBrush );
+			dtmp = dtmp + (90 * RAD);
+			tri[0].x = (int)xt;
+			tri[0].y = (int)yt;
+			tri[1].x = (int)(xt - 3 * cos( dtmp ) + 6 * sin( dtmp ));
+			tri[1].y = (int)(yt - 3 * sin( dtmp ) - 6 * cos( dtmp ));
+			tri[2].x = (int)(xt + 3 * cos( dtmp ) + 6 * sin( dtmp ));
+			tri[2].y = (int)(yt + 3 * sin( dtmp ) - 6 * cos( dtmp ));
+			Polygon( hDC, tri, 3 );
+		}
+
+		////<<<< bottom right >>>>////
+		if ((MM == 304) || (MM == 305))
+		{
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			if (ajdap->GetOnHACState() == false)
+			{
+				MoveToEx( hDC, 149, 179, NULL );
+				LineTo( hDC, 151, 174 );
+				LineTo( hDC, 153, 179 );
+				LineTo( hDC, 149, 179 );
+				TextOut( hDC, 154, 172, "AZ", 2 );
+				dtmp = ajdap->GetdeltaAZ();
+			}
+			else
+			{
+				// HTA ?
+				TextOut( hDC, 149, 172, "HTA", 3 );
+				dtmp = 0;// TODO
+			}
+
+			// TODO flashing red for limits
+			Rectangle( hDC, 167, 171, 188, 183 );
+
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 64, "%.0f%c", dtmp, 248 );
+			TextOut( hDC, 170, 172, cbuf, strlen( cbuf ) );
+		}
+
+
+		if ((MM == 103) && (0))// TODO TAL
+		{
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			tri[0].x = 203;
+			tri[0].y = 168;
+			tri[1].x = 205;
+			tri[1].y = 173;
+			tri[2].x = 201;
+			tri[2].y = 173;
+			Polygon( hDC, tri, 3 );
+			TextOut( hDC, 208, 166, "X-Trk", 5 );
+			Rectangle( hDC, 229, 164, 252, 176 );
+			SetTextColor( hDC, CR_WHITE );
+			dtmp = 0;// TODO
+			sprintf_s( cbuf, 64, "%5.1f", dtmp );
+			TextOut( hDC, 232, 165, cbuf, strlen( cbuf ) );
+		}
+		if ((MM == 102) || ((MM == 103) && ((1) || (0) || (0))))// TODO TAL and ATO
+		{
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			TextOut( hDC, 207, 184, "X-Trk", 5 );
+			Rectangle( hDC, 229, 182, 252, 194 );
+			SetTextColor( hDC, CR_WHITE );
+			dtmp = 0;// TODO
+			sprintf_s( cbuf, 64, "%5.1f", dtmp );
+			TextOut( hDC, 232, 183, cbuf, strlen( cbuf ) );
+		}
+		if ((MM == 102) || ((MM == 103) && ((1) || (0) || (0) || (0))))// TODO TAL, ATO and AOA
+		{
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			tri[0].x = 205;
+			tri[0].y = 205;
+			tri[1].x = 207;
+			tri[1].y = 210;
+			tri[2].x = 203;
+			tri[2].y = 210;
+			Polygon( hDC, tri, 3 );
+			TextOut( hDC, 210, 203, "Inc", 3 );
+			Rectangle( hDC, 223, 201, 252, 213 );
+			SetTextColor( hDC, CR_WHITE );
+			ELEMENTS el;
+			STS()->GetElements( STS()->GetGravityRef(), el, NULL, 0, FRAME_EQU );
+			dtmp = fabs( STS()->pMission->GetMECOInc() - el.i ) * DEG;
+			sprintf_s( cbuf, 64, "%5.2f", dtmp );
+			TextOut( hDC, 226, 202, cbuf, strlen( cbuf ) );
+		}
+		if ((MM == 103) && (0))// TODO ATO
+		{
+			SelectObject( hDC, GrayDarkPen );
+			SelectObject( hDC, BlackBrush );
+			SetTextColor( hDC, CR_GRAY_DARK );
+			TextOut( hDC, 196, 222, "Tgt Inc", 7 );
+			Rectangle( hDC, 223, 220, 252, 232 );
+			SetTextColor( hDC, CR_WHITE );
+			dtmp = 0;// TODO
+			sprintf_s( cbuf, 64, "%5.2f", dtmp );
+			TextOut( hDC, 226, 221, cbuf, strlen( cbuf ) );
+		}
+
+		SelectObject( hDC, BlackBrush );
+		switch (MM)
+		{
+			case 305:
+			case 603:
+				SelectObject( hDC, GrayDarkPen );
+				Rectangle( hDC, 190, 231, 213, 244 );
+
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 190, 221, "HAC-C", 5 );
+
+				SetTextColor( hDC, CR_WHITE );
+				dtmp = ajdap->GetDistanceToHACCenter();
+				sprintf_s( cbuf, 64, "%4.0f", dtmp );
+				TextOut( hDC, 193, 233, cbuf, strlen( cbuf ) );
+			case 103:
+				if ((1) && (MM == 103)) break;// TODO if not TAL/ECAL/BDA break
+			case 304:
+			case 601:
+			case 602:
+				// TODO fix "colision" between this and "deltaInc" in MM103 TAL
+				SelectObject( hDC, GrayDarkPen );
+				Rectangle( hDC, 190, 206, 213, 219 );
+
+				SetTextColor( hDC, CR_GRAY_DARK );
+				TextOut( hDC, 189, 196, ajdap->GetSelectedRunway().c_str(), 6 );
+
+				SetTextColor( hDC, CR_WHITE );
+				dtmp = ajdap->GetRangeToRunway();
+				if (dtmp > 100) sprintf_s( cbuf, 64, "%4.0f", dtmp );
+				else sprintf_s( cbuf, 64, "%4.1f", dtmp );
+				TextOut( hDC, 193, 207, cbuf, strlen( cbuf ) );
+				break;
+		}
+
+		if ((MM == 305) || (MM == 603))
+		{
+			SelectObject( hDC, GrayDarkPen );
+			Rectangle( hDC, 217, 165, 224, 235 );
+			SelectObject( hDC, GrayDarkBrush );
+			::Ellipse( hDC, 219, 166, 222, 169 );
+			::Ellipse( hDC, 219, 183, 222, 186 );
+			::Ellipse( hDC, 219, 215, 222, 218 );
+			::Ellipse( hDC, 219, 231, 222, 234 );
+			MoveToEx( hDC, 217, 200, NULL );
+			LineTo( hDC, 221, 200 );
+
+			tri[0].x = 220;// starts at tip moving cw
+			tri[1].x = 228;
+			tri[2].x = 228;
+			dtmp = 0;// TODO get dist ABOVE glide path (ft)
+			if (ajdap->GetApproachAndLandState() == false)
+			{
+				// TAEM
+				TextOut( hDC, 216, 156, "5K", 2 );
+				TextOut( hDC, 216, 234, "5K", 2 );
+				if (dtmp > 5000) dtmp = 5000;
+				else if (dtmp < -5000) dtmp = -5000;
+				tri[0].y = (int)((dtmp * 0.0066) + 200);
+				tri[1].y = tri[0].y - 5;
+				tri[2].y = tri[0].y + 5;
+				SelectObject( hDC, GreenPen );
+				SelectObject( hDC, GreenBrush );
+				Polygon( hDC, tri, 3 );
+			}
+			else
+			{
+				// A/L
+				TextOut( hDC, 216, 156, "1K", 2 );
+				TextOut( hDC, 216, 234, "1K", 2 );
+
+				if ((STS()->GetAltitude() * MPS2FPS) < 1500)
+				{
+					// no tracking -> print GS label
+					SelectObject( hDC, RedPen );
+					SelectObject( hDC, RedBrush );
+					Rectangle( hDC, 215, 196, 226, 204 );
+					SetTextColor( hDC, CR_BLACK );
+					TextOut( hDC, 216, 195, "GS", 2 );
+				}
+				else
+				{
+					if (dtmp > 1000) dtmp = 1000;
+					else if (dtmp < -1000) dtmp = -1000;
+					tri[0].y = (int)((dtmp * 0.0033) + 200);
+					tri[1].y = tri[0].y - 5;
+					tri[2].y = tri[0].y + 5;
+					SelectObject( hDC, GreenPen );
+					SelectObject( hDC, GreenBrush );
+					Polygon( hDC, tri, 3 );
+				}
+			}
+		}
+
+		if ((MM == 304) || (MM == 602))
+		{
+			SelectObject( hDC, GrayDarkPen );
+			Rectangle( hDC, 234, 168, 241, 240 );
+			SelectObject( hDC, GrayDarkBrush );
+			MoveToEx( hDC, 241, 169, NULL );
+			LineTo( hDC, 244, 169 );
+			MoveToEx( hDC, 241, 176, NULL );
+			LineTo( hDC, 244, 176 );
+			MoveToEx( hDC, 241, 183, NULL );
+			LineTo( hDC, 244, 183 );
+			MoveToEx( hDC, 241, 190, NULL );
+			LineTo( hDC, 244, 190 );
+			MoveToEx( hDC, 241, 197, NULL );
+			LineTo( hDC, 244, 197 );
+			MoveToEx( hDC, 241, 204, NULL );
+			LineTo( hDC, 244, 204 );
+			MoveToEx( hDC, 241, 211, NULL );
+			LineTo( hDC, 244, 211 );
+			MoveToEx( hDC, 241, 218, NULL );
+			LineTo( hDC, 244, 218 );
+			MoveToEx( hDC, 241, 225, NULL );
+			LineTo( hDC, 244, 225 );
+			MoveToEx( hDC, 241, 232, NULL );
+			LineTo( hDC, 244, 232 );
+			MoveToEx( hDC, 241, 239, NULL );
+			LineTo( hDC, 244, 239 );
+			SetPixel( hDC, 236, 158, CR_GRAY_DARK );
+			SetPixel( hDC, 238, 158, CR_GRAY_DARK );
+			TextOut( hDC, 235, 159, "H", 1 );
+			TextOut( hDC, 244, 165, "10", 2 );
+			TextOut( hDC, 245, 200, "0", 1 );
+			TextOut( hDC, 244, 235, "-10", 3 );
+
+			tri[0].x = 237;// starts at tip moving cw
+			tri[1].x = 229;
+			tri[2].x = 229;
+			dtmp = ajdap->GetVacc();
+			if (dtmp > 10) dtmp = 10;
+			else if (dtmp < -10) dtmp = -10;
+			tri[0].y = (int)((-dtmp * 3.5) + 204);
+				
+			tri[1].y = tri[0].y + 5;
+			tri[2].y = tri[0].y - 5;
+			SelectObject( hDC, GreenPen );
+			SelectObject( hDC, GreenBrush );
+			Polygon( hDC, tri, 3 );
+		}
+
+		////<<<< bottom (HSI) >>>>////
+		// center (122,238) r = 57
+		SelectObject( hDC, WhitePen );
+		Arc( hDC, 65, 181, 179, 295, 176, 256, 68, 256 );
+		// TODO
+
+		RestoreDC( hDC, save );
+		return;
+	}
+
+	void MDU::ORBITPFD( HDC hDC )
+	{
+		TextOut( hDC, 100, 100, "ORBIT PFD", 9 );
+		TextOut( hDC, 100, 110, "WIP", 3 );
+		return;
+	}
+
+	void MDU::CreateGDIObjects()
+	{
+		BlackBrush = CreateSolidBrush( CR_BLACK );
+		WhiteBrush = CreateSolidBrush( CR_WHITE );
+		GrayLightBrush = CreateSolidBrush( CR_GRAY_LIGHT );
+		GrayDarkBrush = CreateSolidBrush( CR_GRAY_DARK );
+		GreenBrush = CreateSolidBrush( CR_GREEN );
+		MagentaBrush = CreateSolidBrush( CR_MAGENTA );
+		YellowBrush = CreateSolidBrush( CR_YELLOW );
+		RedBrush = CreateSolidBrush( CR_RED );
+
+		BlackPen = CreatePen( PS_SOLID, 0, CR_BLACK );
+		WhitePen = CreatePen( PS_SOLID, 0, CR_WHITE );
+		GrayLightPen = CreatePen( PS_SOLID, 0, CR_GRAY_LIGHT );
+		GrayDarkPen = CreatePen( PS_SOLID, 0, CR_GRAY_DARK );
+		RedPen = CreatePen( PS_SOLID, 0, CR_RED );
+		GreenPen = CreatePen( PS_SOLID, 0, CR_GREEN );
+		GreenThickPen = CreatePen( PS_SOLID, 2, CR_GREEN );
+		YellowPen = CreatePen( PS_SOLID, 0, CR_YELLOW );
+		MagentaPen = CreatePen( PS_SOLID, 0, CR_MAGENTA );
+		hOverbrightPen = CreatePen( PS_SOLID, 0, RGB( 255, 255, 0 ) );
+		hNormalPen = CreatePen( PS_SOLID, 0, RGB( 128, 255, 0 ) );
+
+		TahomaFont_h10w4 = CreateFont( 10, 4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
+		TahomaFont_h7w3 = CreateFont( 7, 3, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
+		return;
+	}
+
+	void MDU::DestroyGDIObjects()
+	{
+		DeleteObject( BlackBrush );
+		DeleteObject( WhiteBrush );
+		DeleteObject( GrayLightBrush );
+		DeleteObject( GrayDarkBrush );
+		DeleteObject( GreenBrush );
+		DeleteObject( MagentaBrush );
+		DeleteObject( YellowBrush );
+		DeleteObject( RedBrush );
+
+		DeleteObject( BlackPen );
+		DeleteObject( WhitePen );
+		DeleteObject( GrayLightPen );
+		DeleteObject( GrayDarkPen );
+		DeleteObject( RedPen );
+		DeleteObject( GreenPen );
+		DeleteObject( GreenThickPen );
+		DeleteObject( YellowPen );
+		DeleteObject( MagentaPen );
+		DeleteObject( hOverbrightPen );
+		DeleteObject( hNormalPen );
+
+		DeleteObject( TahomaFont_h10w4 );
+		DeleteObject( TahomaFont_h7w3 );
+		return;
+	}
+
+	void MDU::Tape( HDC hDC, int tapeID, double tapeVAL )
+	{
+		// setup
+		if (hDCTapes == NULL)
+		{
+			hDCTapes = CreateCompatibleDC( hDC );
+			HBITMAP hBM = CreateCompatibleBitmap( hDC, 113, 3500 );
+			SelectObject( hDCTapes, hBM );
+			SelectObject( hDCTapes, WhitePen );
+			SelectObject( hDCTapes, WhiteBrush );
+			Rectangle( hDCTapes, 0, 0, 113, 3500 );
+			SelectObject( hDCTapes, TahomaFont_h10w4 );
+			// TODO cleanup at end?
+
+			// draw tapes
+			int offset = 57;
+			char cbuf[8];
+			int y = 0;
+
+			// Mach
+			// 2.5K in window (1ft = 0.0456px) (4-27K)
+			// M0.5 in window (M1 = 228px) (0-4)
+			// 1048.8 + 912 = 1961px + offsets
+			SelectObject( hDCTapes, BlackPen );
+			SelectObject( hDCTapes, BlackBrush );
+			Rectangle( hDCTapes, 0, 1961 + offset, 22, 1961 + offset + offset );
+
+			SetTextColor( hDCTapes, CR_BLACK );
+			SetBkMode( hDCTapes, TRANSPARENT );
+			SelectObject( hDCTapes, BlackPen );
+			for (int i = 270; i >= 42; i -= 2)
+			{
+				y = (int)(((270 - i) * 4.56) + offset + 0.5);
+
+				if ((i % 10) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
+					TextOut( hDCTapes, 3, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 4, y, NULL );
+					LineTo( hDCTapes, 18, y );
+				}
+			}
+			for (int i = 40; i >= 0; i--)
+			{
+				y = (int)(((40 - i) * 22.8) + offset + 0.5) + 1049;
+
+				if ((i % 2) == 0)
+				{
+					if ((i % 10) == 0)
+					{
+						sprintf_s( cbuf, 8, "%2.0f", (double)i / 10 );
+						TextOut( hDCTapes, 6, y - 5, cbuf, strlen( cbuf ) );
+					}
+					else
+					{
+						sprintf_s( cbuf, 8, "%3.1f", (double)i / 10 );
+						TextOut( hDCTapes, 6, y - 5, cbuf, strlen( cbuf ) );
+					}
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 4, y, NULL );
+					LineTo( hDCTapes, 18, y );
+				}
+			}
+			
+			// KEAS
+			// 30KEAS in window (1KEAS = 3.8px) (500-0)
+			// 1900px + offsets
+			SelectObject( hDCTapes, BlackPen );
+			SelectObject( hDCTapes, BlackBrush );
+			Rectangle( hDCTapes, 23, 1900 + offset, 44, 1900 + offset + offset );
+
+			SetTextColor( hDCTapes, CR_BLACK );
+			SetBkMode( hDCTapes, TRANSPARENT );
+			SelectObject( hDCTapes, BlackPen );
+			for (int i = 500; i >= 0; i -= 5)
+			{
+				y = (int)(((500 - i) * 3.8) + offset + 0.5);
+
+				if ((i % 10) == 0)
+				{
+					sprintf_s( cbuf, 8, "%3d", i );
+					TextOut( hDCTapes, 28, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 27, y, NULL );
+					LineTo( hDCTapes, 41, y );
+				}
+			}
+
+			// alpha
+			// 20º in window (1º = 5.7px)
+			// 2052px long + offsets
+			SelectObject( hDCTapes, GrayLightPen );
+			SelectObject( hDCTapes, GrayLightBrush );
+			Rectangle( hDCTapes, 45, 1026 + offset, 67, 2052 + offset + offset );
+
+			SetTextColor( hDCTapes, CR_BLACK );
+			SetBkMode( hDCTapes, TRANSPARENT );
+			SelectObject( hDCTapes, BlackPen );
+			for (int i = 180; i >= -180; i--)
+			{
+				if (i < 0)// yes, not very efficient but the loop only runs once
+				{
+					SetTextColor( hDCTapes, CR_WHITE );
+					SelectObject( hDCTapes, WhitePen );
+				}
+
+				y = (int)(((180 - i) * 5.7) + offset + 0.5);
+
+				MoveToEx( hDCTapes, 62, y, NULL );
+				LineTo( hDCTapes, 67, y );
+
+				if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4d", i );
+					TextOut( hDCTapes, 45, y - 5, cbuf, strlen( cbuf ) );
+				}
+			}
+
+			// H
+			// NM scale 10NM in window (1NM = 11.4px) (165-65.83137NM)
+			// FT scale 100Kft in window (1ft = 0.00114px) (400-100Kft)
+			// FT scale 11.5Kft in window (1ft = 0.00991px) (100-30Kft)
+			// FT scale 6Kft in window (1ft = 0.019px) n1(n5K)/n1000 m0.5 (30-2Kft)
+			//0 FT scale 1000ft in window (1ft = 0.114px) (2000-200ft)
+			//0 FT scale 150ft in window (1ft = 0.76px) n50m10 (200-0ft)
+			//? FT scale 500ft in window (1ft = 0.228px) (0-(-100)ft)
+			//? FT scale 40ft in window (1ft = 0.057px) ((-100)-(-1100)ft)
+			// 1130.522382 + 342 + 693.7 + 532 + 205.2 + 152 + 0 + 0 = 0px long + offsets
+			SelectObject( hDCTapes, YellowPen );
+			SelectObject( hDCTapes, YellowBrush );
+			Rectangle( hDCTapes, 68, 2698 + offset, 90, 3055 + offset );
+
+			SelectObject( hDCTapes, GrayLightPen );
+			SelectObject( hDCTapes, GrayLightBrush );
+			Rectangle( hDCTapes, 68, 3055 + offset, 90, 3380 + offset + offset );
+
+			SetTextColor( hDCTapes, CR_BLACK );
+			SetBkMode( hDCTapes, TRANSPARENT );
+			SelectObject( hDCTapes, BlackPen );
+			for (int i = 165; i >= 67; i--)
+			{
+				y = (int)(((165 - i) * 11.4) + offset + 0.5);
+
+				if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%3dM", i );
+					TextOut( hDCTapes, 70, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 83, y, NULL );
+					LineTo( hDCTapes, 90, y );
+				}
+			}
+			for (int i = 400; i >= 100; i -= 5)
+			{
+				y = (int)(((400 - i) * 1.14) + offset + 0.5) + 1131;
+
+				if ((i % 50) == 0)
+				{
+					sprintf_s( cbuf, 8, "%3dK", i );
+					TextOut( hDCTapes, 71, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else if ((i % 10) == 0)
+				{
+					MoveToEx( hDCTapes, 68, y, NULL );
+					LineTo( hDCTapes, 79, y );
+				}
+			}
+			for (int i = 99; i >= 30; i--)
+			{
+				y = (int)(((100 - i) * 9.91) + offset + 0.5) + 1131 + 342;
+
+				if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%2dK", i );
+					TextOut( hDCTapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 72, y, NULL );
+					LineTo( hDCTapes, 86, y );
+				}
+			}
+			for (int i = 295; i > 20; i -= 5)
+			{
+				y = (int)(((300 - i) * 1.9) + offset + 0.5) + 1131 + 342 + 694;
+
+				if ((i % 50) == 0)
+				{
+					sprintf_s( cbuf, 8, "%2.0fK", (double)i / 10 );
+					TextOut( hDCTapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else if ((i % 10) == 0)
+				{
+					sprintf_s( cbuf, 8, "%2.0f", (double)i / 10 );
+					TextOut( hDCTapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 72, y, NULL );
+					LineTo( hDCTapes, 86, y );
+				}
+			}
+
+			for (int i = 20; i > 2; i -= 1)
+			{
+				y = (int)(((20 - i) * 11.4) + offset + 0.5) + 1131 + 342 + 694 + 532;
+
+				if ((i % 2) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4d", i * 100 );
+					TextOut( hDCTapes, 71, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 72, y, NULL );
+					LineTo( hDCTapes, 86, y );
+				}
+			}
+			for (int i = 20; i >= 0; i -= 1)
+			{
+				y = (int)(((20 - i) * 7.6) + offset + 0.5) + 1131 + 342 + 694 + 532 + 205;
+
+				if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%3d", i * 10 );
+					TextOut( hDCTapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 72, y, NULL );
+					LineTo( hDCTapes, 86, y );
+				}
+			}
+
+			// Hdot
+			// small scale 160ft in window (1ft = 0.7125px) (800-(-800))
+			// large scale 800ft in window (1ft = 0.1425px) (3000-800/(-800)-(-3000))
+			// 313.5 + 1140 + 313.5 = 1767px long + offsets
+			SelectObject( hDCTapes, GrayLightPen );
+			SelectObject( hDCTapes, GrayLightBrush );
+			Rectangle( hDCTapes, 91, 884 + offset, 113, 1767 + offset + offset );
+
+			SetTextColor( hDCTapes, CR_BLACK );
+			SetBkMode( hDCTapes, TRANSPARENT );
+			SelectObject( hDCTapes, BlackPen );
+			for (int i = 30; i >= 8; i--)
+			{
+				y = (int)(((30 - i) * 14.25) + offset + 0.5);
+
+				if (i < 10)
+				{
+					sprintf_s( cbuf, 8, "%4d", i * 100 );
+					TextOut( hDCTapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
+					TextOut( hDCTapes, 93, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 95, y, NULL );
+					LineTo( hDCTapes, 109, y );
+				}
+			}
+			for (int i = 79; i >= -79; i--)
+			{
+				y = (int)(((80 - i) * 7.125) + 313.5 + offset + 0.5);
+
+				if (i < 0)// yes, not very efficient but the loop only runs once
+				{
+					SetTextColor( hDCTapes, CR_WHITE );
+					SelectObject( hDCTapes, WhitePen );
+				}
+
+				if ((i % 2) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4d", i * 10 );
+					TextOut( hDCTapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 96, y, NULL );
+					LineTo( hDCTapes, 108, y );
+				}
+			}
+			for (int i = -8; i >= -30; i--)
+			{
+				y = (int)(((-8 - i) * 14.25) + 313.5 + 1140 + offset + 0.5);
+
+				if (i > -10)
+				{
+					sprintf_s( cbuf, 8, "%4d", i * 100 );
+					TextOut( hDCTapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else if ((i % 5) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
+					TextOut( hDCTapes, 93, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else
+				{
+					MoveToEx( hDCTapes, 95, y, NULL );
+					LineTo( hDCTapes, 109, y );
+				}
+			}
+		}
+
+		// copy to display
+		switch (tapeID)
+		{
+			case 1:// Mach
+				{
+					int pos;
+					if (tapeVAL <= 4)
+					{
+						pos = (int)(((4 - tapeVAL) * 228) + 0.5) + 1049;
+					}
+					else
+					{
+						pos = (int)(((27000 - tapeVAL) * 0.0456) + 0.5);
+					}
+
+					BitBlt( hDC, 10, 40, 22, 114, hDCTapes, 0, pos, SRCCOPY );
+				}
+				break;
+			case 2:// KEAS
+				if (tapeVAL > 500) tapeVAL = 500;
+				BitBlt( hDC, 10, 40, 22, 114, hDCTapes, 23, (int)(((500 - tapeVAL) * 3.8) + 0.5), SRCCOPY );
+				break;
+			case 3:// alpha
+				BitBlt( hDC, 38, 40, 21, 114, hDCTapes, 45, (int)(((180 - tapeVAL) * 5.7) + 0.5), SRCCOPY );
+				break;
+			case 4:// H
+				{
+					int pos;
+					if (tapeVAL > 400000)
+					{
+						tapeVAL *= F2NM;
+						if (tapeVAL > 165) tapeVAL = 165;
+						pos = (int)(((165 - tapeVAL) * 11.4) + 0.5);
+					}
+					else if (tapeVAL > 100000)
+					{
+						pos = (int)(((400000 - tapeVAL) * 0.00114) + 0.5) + 1131;
+					}
+					else if (tapeVAL > 30000)
+					{
+						pos = (int)(((100000 - tapeVAL) * 0.00991) + 0.5) + 1131 + 342;
+					}
+					else if (tapeVAL > 2000)
+					{
+						pos = (int)(((30000 - tapeVAL) * 0.019) + 0.5) + 1131 + 342 + 694;
+					}
+					else if (tapeVAL > 200)
+					{
+						pos = (int)(((2000 - tapeVAL) * 0.114) + 0.5) + 1131 + 342 + 694 + 532;
+					}
+					else if (tapeVAL > 0)
+					{
+						pos = (int)(((200 - tapeVAL) * 0.76) + 0.5) + 1131 + 342 + 694 + 532 + 205;
+					}
+					else if (tapeVAL > -100)
+					{
+						// TODO
+					}
+					else if (tapeVAL > -1100)
+					{
+						// TODO
+					}
+					else
+					{
+						if (tapeVAL < -1100) tapeVAL = -1100;
+					}
+
+					BitBlt( hDC, 204, 40, 22, 114, hDCTapes, 68, pos, SRCCOPY );
+				}
+				break;
+			case 5:// Hdot
+				{
+					int pos;
+					if (tapeVAL > 800)
+					{
+						if (tapeVAL > 3000) tapeVAL = 3000;
+						pos = (int)(((3000 - tapeVAL) * 0.1425) + 0.5);
+					}
+					else if (tapeVAL > -800)
+					{
+						pos = (int)(((800 - tapeVAL) * 0.7125) + 0.5 + 313.5);
+					}
+					else
+					{
+						if (tapeVAL < -3000) tapeVAL = -3000;
+						pos = (int)(((-800 - tapeVAL) * 0.1425) + 0.5 + 313.5 + 1140);
+					}
+					BitBlt( hDC, 231, 40, 22, 114, hDCTapes, 91, pos, SRCCOPY );
+				}
+				break;
+		}
+		return;
+	}
+};

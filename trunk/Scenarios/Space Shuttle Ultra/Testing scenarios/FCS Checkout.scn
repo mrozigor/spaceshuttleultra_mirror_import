@@ -25,22 +25,22 @@ END_HUD
 BEGIN_MFD 3
   TYPE User
   MODE CRT
-  Mode2 0
+  Mode2 2
   Display 2
 END_MFD
 
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 1
-  Display 2
+  Mode2 0
+  Display 1
 END_MFD
 
 BEGIN_MFD 8
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 2
+  Mode2 2
+  Display 3
 END_MFD
 
 BEGIN_VC

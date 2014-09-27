@@ -37,14 +37,14 @@ BEGIN_MFD 5
   TYPE User
   MODE CRT
   Mode2 0
-  MDU 9
+  Display 1
 END_MFD
 
 BEGIN_MFD 8
   TYPE User
   MODE CRT
-  Mode2 0
-  MDU 9
+  Mode2 2
+  Display 1
 END_MFD
 
 BEGIN_VC

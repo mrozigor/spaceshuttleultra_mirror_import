@@ -195,6 +195,8 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	LoadLandingSiteList(); // this might be done later in creation process
 
 	dTable = new DragTable();
+
+	TimeToHAC = 0;
 }
 
 AerojetDAP::~AerojetDAP()
@@ -1544,6 +1546,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	
 	//double rtan = 0.0;
 	double radius = length(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y, 0.0)); // RCIRC
+	DistanceToHACCenter = radius;// save distance
 	double pst = DEG*atan2(HAC_CENTER_Y-TgtPos.y, HAC_CENTER_X-TgtPos.x); // temporary variable for calculating HAC turn angle
 	double rtan = 0.0;
 	if(radius > HAC_TurnRadius) {
@@ -1585,6 +1588,10 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 		// check for transition to HDG phase
 		if(radius < 1.1*HAC_TurnRadius) TAEMGuidanceMode = HDG;
 		
+		TimeToHAC = (radius - 1.1*HAC_TurnRadius) / ( 0.6 * length( _V( horz_airspeed.x, 0.0, horz_airspeed.z )) );// HACK crude estimation of time to HAC
+		if (TimeToHAC < 0) TimeToHAC = 0;
+		if (HACSide == L) TimeToHAC = -TimeToHAC;// use sign to tell which direction to turn
+
 		//sprintf_s(oapiDebugString(), 255, "ACQ: X: %f Y: %f Z: %f pst: %f courseToRwy: %f headingToHAC: %f TargetBank: %f TotalRange: %f", velocity.x, velocity.y, velocity.z, pst, courseToRwy, headingToHAC, TargetBank, TotalRange);
 		//oapiWriteLog(oapiDebugString());
 	}
@@ -2039,4 +2046,175 @@ void AerojetDAP::LoadLandingSiteList()
 	//vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, -27.159263 * RAD, -109.436664 * RAD, 298.1, "EIP28", "EIP10" ) );
 }
 
+bool AerojetDAP::GetAutoPitchState( void ) const
+{
+	return PitchAuto.IsSet();
+}
+
+bool AerojetDAP::GetAutoRollYawState( void ) const
+{
+	return RollYawAuto.IsSet();
+}
+
+bool AerojetDAP::GetAutoSpeedbrakeState( void ) const
+{
+	return SpeedbrakeAuto.IsSet();
+}
+
+const std::string& AerojetDAP::GetSelectedRunway( void ) const
+{
+	if (SEC == true) return vLandingSites[SITE_ID].GetSecRwyName();
+	else return vLandingSites[SITE_ID].GetPriRwyName();
+}
+
+double AerojetDAP::GetRangeToRunway( void ) const
+{
+	if ((GetMajorMode() == 305) || (GetMajorMode() == 603)) return TotalRange / NMI2M;
+
+	// code comes from CalculateRangeAndDELAZ(), can't use it that as it changes HAC_TurnRadius and messes up range/HAC size at A/L
+	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
+	
+	double lng, lat, rad;
+	double tgtLong, tgtLat;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	STS()->GetEquPos(lng, lat, rad);
+	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
+
+	double cosGreatCircle = dotp(shuttlePos/length(shuttlePos), HAC_Center/length(HAC_Center)); // CTHVC
+	double sinGreatCircle = sqrt(1 - cosGreatCircle*cosGreatCircle);
+	double SINB = HAC_TurnRadius/oapiGetSize(hEarth);
+	double CTVWP1 = cosGreatCircle + 0.5*cosGreatCircle*SINB*SINB;
+	double SBARCR = SINB/sinGreatCircle;
+	double temp = range(-1, CTVWP1*SBARCR, 1);
+	double A2 = acos(temp);
+	temp = range(-1, CTVWP1, 1);
+	double rangeToWP1 = acos(temp)*oapiGetSize(hEarth);
+	double headingToHACCenter = atan2(sin(HAC_Long-lng)*cos(HAC_Lat), cos(lat)*sin(HAC_Lat) - sin(lat)*cos(HAC_Lat)*cos(HAC_Long-lng));
+	double A3 = 0.5*PI - A2 + YSGN*(vLandingSites[SITE_ID].GetRwyHeading(!SEC)*RAD - headingToHACCenter);
+	if(A3 < 0.0) A3 += 2*PI;
+	double HAC_TurnAngle = A3*DEG;
+	double HAC_range = FINAL_RADIUS*HAC_TurnAngle + 0.5*R1*HAC_TurnAngle*HAC_TurnAngle + (1/3)*R2*HAC_TurnAngle*HAC_TurnAngle*HAC_TurnAngle;
+	return (rangeToWP1 + HAC_range*RAD - HAC_CENTER_X) / NMI2M;
+}
+
+double AerojetDAP::GetdeltaAZ( void ) const
+{
+	// code comes from CalculateRangeAndDELAZ(), can't use it that as it changes HAC_TurnRadius and messes up range/HAC size at A/L
+	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
+	
+	double lng, lat, rad;
+	double tgtLong, tgtLat;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	STS()->GetEquPos(lng, lat, rad);
+	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
+	
+	VECTOR3 v;
+	STS()->GetHorizonAirspeedVector(v);
+	double actualHeading = atan2(v.x, v.z);
+
+	double cosGreatCircle = dotp(shuttlePos/length(shuttlePos), HAC_Center/length(HAC_Center)); // CTHVC
+	double sinGreatCircle = sqrt(1 - cosGreatCircle*cosGreatCircle);
+	double SINB = HAC_TurnRadius/oapiGetSize(hEarth);
+	double SBARCR = SINB/sinGreatCircle;
+	double temp = range(-1, SBARCR, 1);
+	double T8 = asin(temp);
+	double headingToHACCenter = atan2(sin(HAC_Long-lng)*cos(HAC_Lat), cos(lat)*sin(HAC_Lat) - sin(lat)*cos(HAC_Lat)*cos(HAC_Long-lng));
+	double headingToWP1 = headingToHACCenter - YSGN*T8; // this is not quite the same as in documents, but should work
+
+	return fabs( DEG*(actualHeading-headingToWP1) );
+}
+
+bool AerojetDAP::GetOnHACState( void ) const
+{
+	return (TAEMGuidanceMode >= HDG);
+}
+
+bool AerojetDAP::GetPrefinalState( void ) const
+{
+	return (TAEMGuidanceMode >= PRFNL);
+}
+
+bool AerojetDAP::GetApproachAndLandState( void ) const
+{
+	return (TAEMGuidanceMode >= OGS);
+}
+
+double AerojetDAP::GetVacc( void ) const
+{
+	// code below is heavily based on Hielor's post (http://www.orbiter-forum.com/showthread.php?t=5072)
+
+	double acc;
+	VECTOR3 force_vec, acc_vec, spd_vec;
+ 
+	// Get the vectors we need
+	STS()->GetShipAirspeedVector(spd_vec);
+	STS()->GetForceVector(force_vec);
+ 
+	// Normalize the speed vector
+	spd_vec = spd_vec / length(spd_vec);
+ 
+	// Calculate the acceleration vector
+	acc_vec = force_vec / STS()->GetMass();
+ 
+	// Take the dot product
+	acc = acc_vec.x * spd_vec.x + acc_vec.y * spd_vec.y + acc_vec.z * spd_vec.z;
+	
+	double vacc, lon, lat, radius, mag;
+	VECTOR3 horacc_vec;
+	VECTOR3 spd_vec2, glob_vpos, glob_rvel, loc_rvel;
+ 
+	// VACC
+	STS()->HorizonRot(acc_vec, horacc_vec);
+	vacc = horacc_vec.y;
+ 
+	// Account for "centrifugal acceleration"
+	// Get the relative velocity in the local frame
+	STS()->GetGlobalPos(glob_vpos);
+	STS()->GetRelativeVel(STS()->GetSurfaceRef(), glob_rvel);
+	STS()->Global2Local((glob_rvel + glob_vpos), loc_rvel);
+ 
+	// Transform to horizon reference frame
+	STS()->HorizonRot(loc_rvel, spd_vec2);
+ 
+	STS()->GetEquPos(lon, lat, radius);
+ 
+	// Determine the centrifugal acceleration
+	spd_vec2.y = 0;
+	mag = length(spd_vec2);
+	vacc += mag * mag / radius;
+	return vacc * MPS2FPS;
+}
+
+bool AerojetDAP::GetWOW( void ) const
+{
+	return bWONG;
+}
+
+VECTOR3 AerojetDAP::GetAttitudeErrors( void ) const
+{
+	// HACK this is not the the attitude error (but it's better than nothing...?)
+	return degTargetRates - degCurrentRates;
+}
+
+double AerojetDAP::GetYRunwayPositionError( void ) const
+{
+	return GetRunwayRelPos().y * MPS2FPS;
+}
+
+double AerojetDAP::GetTimeToHAC( void ) const
+{
+	return TimeToHAC;
+}
+
+double AerojetDAP::GetDistanceToHACCenter( void ) const
+{
+	return DistanceToHACCenter / NMI2M;
+}
+
+double AerojetDAP::GetHACRadialError( void ) const
+{
+	// use sign to tell which direction to turn
+	if (HACSide == L) return -(DistanceToHACCenter - HAC_TurnRadius) * MPS2FPS;
+	else return (DistanceToHACCenter - HAC_TurnRadius) * MPS2FPS;
+}
 };

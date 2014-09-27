@@ -30,6 +30,16 @@
 #include "AtlantisVCComponent.h"
 
 
+#define CR_BLACK RGB( 0, 0, 0 )
+#define CR_WHITE RGB( 255, 255, 255 )
+#define CR_GRAY_LIGHT RGB( 192, 192, 192 )
+#define CR_GRAY_DARK RGB( 128, 128, 128 )
+#define CR_RED RGB( 255, 0, 0 )
+#define CR_GREEN RGB( 0, 255, 0 )
+#define CR_YELLOW RGB( 255, 255, 0 )
+#define CR_MAGENTA RGB( 159, 110, 189 )
+
+
 namespace vc {
 
 
@@ -37,6 +47,39 @@ namespace vc {
 	{	
 		double t0;
 		bool counting;
+
+		HBRUSH BlackBrush;
+		HBRUSH WhiteBrush;
+		HBRUSH GrayLightBrush;
+		HBRUSH GrayDarkBrush;
+		HBRUSH GreenBrush;
+		HBRUSH MagentaBrush;
+		HBRUSH YellowBrush;
+		HBRUSH RedBrush;
+
+		HPEN BlackPen;
+		HPEN WhitePen;
+		HPEN GrayLightPen;
+		HPEN GrayDarkPen;
+		HPEN RedPen;
+		HPEN GreenPen;
+		HPEN GreenThickPen;
+		HPEN YellowPen;
+		HPEN MagentaPen;
+		HPEN hOverbrightPen;
+		HPEN hNormalPen;
+
+		HFONT TahomaFont_h10w4;
+		HFONT TahomaFont_h7w3;
+
+		void CreateGDIObjects();
+		void DestroyGDIObjects();
+
+		HDC hDCTapes;
+		double RangeAlpha[2];// min/max
+
+		void Tape( HDC hDC, int tapeID, double tapeVAL );
+
 	public:
 		typedef enum {
 			MDU_ADI_AVVI,
@@ -342,10 +385,15 @@ namespace vc {
 		 * Display functions
 		 * Update text buffer with appropriate data for display
 		 */
-		void ORBIT_TGT();
-		void PASSTRAJ();
-		void GNCSYSSUMM1();
 		void GPCMEMORY();
+
+		/**
+		 * MEDS Display functions
+		 * Still called from CRTMFD until its "retirement".
+		 * OMS/MPS, HYD/APU and SPI are still in CRTMFD and should (eventually) be moved here as well.
+		 */
+		virtual void AEPFD( HDC hDC );
+		virtual void ORBITPFD( HDC hDC );
 	};
 
 };

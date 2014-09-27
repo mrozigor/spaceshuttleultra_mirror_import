@@ -80,6 +80,18 @@ public:
 	void NullSRBNozzles( void );
 
 	bool OnPaint( int spec, vc::MDU* pMDU ) const;
+
+	/**
+	 * Gets current state of throttle commanding.
+	 * @return	true if AUTO, false if MAN
+	 */
+	bool GetAutoThrottleState( void ) const;
+
+	/**
+	 * Gets current vehicle attitude errors (deg).
+	 * @return	attitude errors (deg) (x=pitch, y=yaw, z=roll)
+	 */
+	VECTOR3 GetAttitudeErrors( void ) const;
 private:
 	void InitializeAutopilot();
 
@@ -176,8 +188,8 @@ private:
 	VECTOR3 posMoon,velMoon,rmh;
 	double vr,vtheta,vh;
 
-	double fh;
-	double pitch,yaw,roll;
+	//double fh;
+	//double pitch,yaw,roll;
 
 	double g;
 	double thrustAcceleration; // a0
