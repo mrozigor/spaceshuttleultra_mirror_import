@@ -188,7 +188,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	//BSM
 	if(Left)
 	{
-		thBSM[0] = CreateThruster(_V(0.752, 3.15, -19.5), _V(-0.219, -0.604, 0.765), 4*BSM_THRUST0, phBSM, BSM_ISP0);
+		thBSM[0] = CreateThruster(_V(0.752, 2.06, -20.5), _V(-0.219, -0.604, 0.765), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 		thBSM[1] = CreateThruster(_V(0.445, 1.22, 21), _V(-0.262, -0.719, 0.642), 4*BSM_THRUST0, phBSM, BSM_ISP0);
 	} else 
 	{

@@ -11,7 +11,8 @@ const double FWC_SRB_MAX_PROPELLANT_MASS = 501440.015; // see SLC-6 thread on O-
 //total impulse is 1.32466E9 Ns
 
 const double SRB_EMPTY_MASS = 87603.65;
-const double FWC_SRB_EMPTY_MASS = 53103.8731; // see SLC-6 thread on O-F; data from DM-6 test
+const double FWC_SRB_EMPTY_MASS = 76263.84;// value derived from the ~25000lbs weight reduction from HPM to FWC
+//const double FWC_SRB_EMPTY_MASS = 53103.8731; // see SLC-6 thread on O-F; data from DM-6 test
 // SRB empty mass [kg]
 
 //const double SRB_ISP0 = 3574.68;
