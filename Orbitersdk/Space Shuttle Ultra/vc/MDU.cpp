@@ -1316,7 +1316,8 @@ namespace vc {
 				else if ((((MM == 305) || (MM == 603)) && (ajdap->GetWOW() == false)) || ((MM == 602) && (0)))// TODO NZ hold
 				{
 					atterr = ajdap->GetAttitudeErrors();// TODO correct source for 603
-					if (1)// TODO ADI ERROR sw High pos
+					dtmp2 = ajdap->GetNZError();
+					if (0)// TODO ADI ERROR sw High pos
 					{
 						// High
 						// 25/1.25g/2.5
@@ -1327,12 +1328,15 @@ namespace vc {
 						else if (atterr.z < -25) dtmp = -25;
 						else dtmp = atterr.z;
 
+						if (dtmp2 > 1.25) dtmp2 = 1.25;
+						else if (dtmp2 < -1.25) dtmp2 = -1.25;
+
 						if (atterr.y > 2.5) dtmp3 = 2.5;
 						else if (atterr.y < -2.5) dtmp3 = -2.5;
 						else dtmp3 = atterr.y;
 
 						//dtmp *= 1;
-						dtmp2 = 0;// TODO pitch showing G
+						dtmp2 *= 20;
 						dtmp3 *= 10;
 					}
 					else if (0)// TODO ADI ERROR sw Med pos
@@ -1346,12 +1350,15 @@ namespace vc {
 						else if (atterr.z < -25) dtmp = -25;
 						else dtmp = atterr.z;
 
+						if (dtmp2 > 1.25) dtmp2 = 1.25;
+						else if (dtmp2 < -1.25) dtmp2 = -1.25;
+
 						if (atterr.y > 2.5) dtmp3 = 2.5;
 						else if (atterr.y < -2.5) dtmp3 = -2.5;
 						else dtmp3 = atterr.y;
 
 						//dtmp *= 1;
-						dtmp2 = 0;// TODO pitch showing G
+						dtmp2 *= 20;
 						dtmp3 *= 10;
 					}
 					else
@@ -1365,12 +1372,15 @@ namespace vc {
 						else if (atterr.z < -10) dtmp = -10;
 						else dtmp = atterr.z;
 
+						if (dtmp2 > 0.5) dtmp2 = 0.5;
+						else if (dtmp2 < -0.5) dtmp2 = -0.5;
+
 						if (atterr.y > 2.5) dtmp3 = 2.5;
 						else if (atterr.y < -2.5) dtmp3 = -2.5;
 						else dtmp3 = atterr.y;
 
 						dtmp *= 2.5;
-						dtmp2 = 0;// TODO pitch showing G
+						dtmp2 *= 50;
 						dtmp3 *= 10;
 					}
 				}
@@ -2208,11 +2218,11 @@ namespace vc {
 		if (hDCTapes == NULL)
 		{
 			hDCTapes = CreateCompatibleDC( hDC );
-			HBITMAP hBM = CreateCompatibleBitmap( hDC, 113, 3500 );
+			HBITMAP hBM = CreateCompatibleBitmap( hDC, 113, 3700 );
 			SelectObject( hDCTapes, hBM );
 			SelectObject( hDCTapes, WhitePen );
 			SelectObject( hDCTapes, WhiteBrush );
-			Rectangle( hDCTapes, 0, 0, 113, 3500 );
+			Rectangle( hDCTapes, 0, 0, 113, 3700 );
 			SelectObject( hDCTapes, TahomaFont_h10w4 );
 			// TODO cleanup at end?
 
@@ -2221,25 +2231,30 @@ namespace vc {
 			char cbuf[8];
 			int y = 0;
 
-			// Mach
-			// 2.5K in window (1ft = 0.0456px) (4-27K)
+			// Mach/V
+			// 1K in window (1ft = 0.114px) (4-27K)
 			// M0.5 in window (M1 = 228px) (0-4)
-			// 1048.8 + 912 = 1961px + offsets
+			// 2622 + 912 = 3534px + offsets
 			SelectObject( hDCTapes, BlackPen );
 			SelectObject( hDCTapes, BlackBrush );
-			Rectangle( hDCTapes, 0, 1961 + offset, 22, 1961 + offset + offset );
+			Rectangle( hDCTapes, 0, 3534 + offset, 22, 3534 + offset + offset );
 
 			SetTextColor( hDCTapes, CR_BLACK );
 			SetBkMode( hDCTapes, TRANSPARENT );
 			SelectObject( hDCTapes, BlackPen );
-			for (int i = 270; i >= 42; i -= 2)
+			for (int i = 270; i >= 42; i -= 1)
 			{
-				y = (int)(((270 - i) * 4.56) + offset + 0.5);
+				y = (int)(((270 - i) * 11.4) + offset + 0.5);
 
 				if ((i % 10) == 0)
 				{
 					sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
-					TextOut( hDCTapes, 3, y - 5, cbuf, strlen( cbuf ) );
+					TextOut( hDCTapes, 2, y - 5, cbuf, strlen( cbuf ) );
+				}
+				else if ((i % 2) == 0)
+				{
+					sprintf_s( cbuf, 8, "%4.1f", (double)i / 10 );
+					TextOut( hDCTapes, 4, y - 5, cbuf, strlen( cbuf ) );
 				}
 				else
 				{
@@ -2249,7 +2264,7 @@ namespace vc {
 			}
 			for (int i = 40; i >= 0; i--)
 			{
-				y = (int)(((40 - i) * 22.8) + offset + 0.5) + 1049;
+				y = (int)(((40 - i) * 22.8) + offset + 0.5) + 2622;
 
 				if ((i % 2) == 0)
 				{
@@ -2405,7 +2420,7 @@ namespace vc {
 				else if ((i % 10) == 0)
 				{
 					sprintf_s( cbuf, 8, "%2.0f", (double)i / 10 );
-					TextOut( hDCTapes, 73, y - 5, cbuf, strlen( cbuf ) );
+					TextOut( hDCTapes, 75, y - 5, cbuf, strlen( cbuf ) );
 				}
 				else
 				{
@@ -2467,7 +2482,7 @@ namespace vc {
 				}
 				else if ((i % 5) == 0)
 				{
-					sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
+					sprintf_s( cbuf, 8, "%3.1fK", (double)i / 10 );
 					TextOut( hDCTapes, 93, y - 5, cbuf, strlen( cbuf ) );
 				}
 				else
@@ -2476,15 +2491,26 @@ namespace vc {
 					LineTo( hDCTapes, 109, y );
 				}
 			}
-			for (int i = 79; i >= -79; i--)
+			for (int i = 79; i >= 0; i--)
 			{
 				y = (int)(((80 - i) * 7.125) + 313.5 + offset + 0.5);
 
-				if (i < 0)// yes, not very efficient but the loop only runs once
+				if ((i % 2) == 0)
 				{
-					SetTextColor( hDCTapes, CR_WHITE );
-					SelectObject( hDCTapes, WhitePen );
+					sprintf_s( cbuf, 8, "%3d", i * 10 );
+					TextOut( hDCTapes, 96, y - 5, cbuf, strlen( cbuf ) );
 				}
+				else
+				{
+					MoveToEx( hDCTapes, 96, y, NULL );
+					LineTo( hDCTapes, 108, y );
+				}
+			}
+			SetTextColor( hDCTapes, CR_WHITE );
+			SelectObject( hDCTapes, WhitePen );
+			for (int i = -1; i >= -79; i--)
+			{
+				y = (int)(((80 - i) * 7.125) + 313.5 + offset + 0.5);
 
 				if ((i % 2) == 0)
 				{
@@ -2522,16 +2548,16 @@ namespace vc {
 		// copy to display
 		switch (tapeID)
 		{
-			case 1:// Mach
+			case 1:// Mach/V
 				{
 					int pos;
 					if (tapeVAL <= 4)
 					{
-						pos = (int)(((4 - tapeVAL) * 228) + 0.5) + 1049;
+						pos = (int)(((4 - tapeVAL) * 228) + 0.5) + 2622;
 					}
 					else
 					{
-						pos = (int)(((27000 - tapeVAL) * 0.0456) + 0.5);
+						pos = (int)(((27000 - tapeVAL) * 0.114) + 0.5);
 					}
 
 					BitBlt( hDC, 10, 40, 22, 114, hDCTapes, 0, pos, SRCCOPY );

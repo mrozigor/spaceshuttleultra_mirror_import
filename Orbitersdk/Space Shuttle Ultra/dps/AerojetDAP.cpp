@@ -402,10 +402,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 				break;
 			}
 
+			double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
+			NZErr = NZCommand+NZSteadyState-averageNZ;
 			if(PitchAuto)
 			{
-				double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
-				double NZErr = NZCommand+NZSteadyState-averageNZ;
 				degTargetRates.data[PITCH] = range(-0.5, 5.0*NZErr, 0.5);
 				sprintf_s(oapiDebugString(), 255, "NZ Err: %f", NZErr);
 			}
@@ -2216,5 +2216,10 @@ double AerojetDAP::GetHACRadialError( void ) const
 	// use sign to tell which direction to turn
 	if (HACSide == L) return -(DistanceToHACCenter - HAC_TurnRadius) * MPS2FPS;
 	else return (DistanceToHACCenter - HAC_TurnRadius) * MPS2FPS;
+}
+
+double AerojetDAP::GetNZError( void ) const
+{
+	return NZErr / G;
 }
 };
