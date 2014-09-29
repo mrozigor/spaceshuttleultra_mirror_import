@@ -193,6 +193,7 @@ private:
 	/** Output guidance variables **/
 	double NZCommand; // MM305 output
 	double TargetBank;
+	double NZErr;
 
 	double elevonPos, aileronPos, rudderPos;
 
@@ -317,6 +318,12 @@ public:
 	 * @return	HAC radial error (ft)
 	 */
 	double GetHACRadialError( void ) const;
+
+	/**
+	 * Gets vehicle NZ error (g).
+	 * @return	NZ error (g)
+	 */
+	double GetNZError( void ) const;
 private:
 	void SetThrusterLevels();
 	/**
