@@ -141,7 +141,7 @@ Discovery:SpaceShuttleUltra
    PAYLOAD STBD3 -8.000000 0.000000 0
    PAYLOAD STBD4 0.000000 0.000000 0
   PLBD_CAM 90.0000 -90.0000 90.0000 90.0000 90.0000 90.0000 90.0000 -90.0000
-  PAYLOAD_MASS 10000 ;INFO using this to add payload mass, should be 14514.96 (32000 lbs) but currently it doesn't have the performance
+  PAYLOAD_MASS 8000 ;INFO using this to add payload mass, should be 14514.96 (32000 lbs) but currently it doesn't have the performance
 @SUBSYSTEM HeEng_C
   PRESS 4126.011245
   VALVES 1.000000 1.000000 0.000000 0.000000
