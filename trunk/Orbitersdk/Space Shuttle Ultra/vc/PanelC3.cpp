@@ -198,12 +198,12 @@ namespace vc
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
 		pBFCCRTDisplay->SetMouseRegion( 0.204959f, 0.071767f, 0.231104f, 0.138565f );
-		pBFCCRTDisplay->SetReference( _V( -0.153415, 1.73522, 14.2948 ), switch_rot );
+		pBFCCRTDisplay->SetReference( _V( -0.153415, 1.7302, 14.2963 ), switch_rot );
 		pBFCCRTDisplay->DefineSwitchGroup( GRP_C3B3_VC );
 		pBFCCRTDisplay->SetInitialAnimState( 0.5f );
 
 		pBFCCRTSelect->SetMouseRegion( 0.250595f, 0.071845f, 0.286626f, 0.133207f );
-		pBFCCRTSelect->SetReference( _V( -0.124915, 1.73522, 14.2948 ), switch_rot );
+		pBFCCRTSelect->SetReference( _V( -0.124915, 1.7302, 14.2954 ), switch_rot );
 		pBFCCRTSelect->DefineSwitchGroup( GRP_C3B4_VC );
 		pBFCCRTSelect->SetInitialAnimState( 0.5f );
 
