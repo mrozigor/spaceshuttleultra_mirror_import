@@ -49,39 +49,39 @@ bool DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderP
 	// draw line
 	if(ladderPitch < 0) { // 2 dashed lines
 		VECTOR3 line_seg1_end = line_pos + line_dir_vector*0.85*hps->Scale;
-		skp->Line(round(line_pos.x), round(line_pos.y),
-			round(line_seg1_end.x), round(line_seg1_end.y));
+		skp->Line(Round(line_pos.x), Round(line_pos.y),
+			Round(line_seg1_end.x), Round(line_seg1_end.y));
 		VECTOR3 line_seg2_start = line_seg1_end + line_dir_vector*0.3*hps->Scale;
 		VECTOR3 line_seg2_end = line_pos + line_dir_vector*2*hps->Scale;
-		skp->Line(round(line_seg2_start.x), round(line_seg2_start.y), round(line_seg2_end.x), round(line_seg2_end.y));
+		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_seg2_end.x), Round(line_seg2_end.y));
 		VECTOR3 line_seg3_start = line_end - line_dir_vector*2*hps->Scale;
 		VECTOR3 line_seg3_end = line_seg3_start + line_dir_vector*0.85*hps->Scale;
-		skp->Line(round(line_seg3_start.x), round(line_seg3_start.y),
-			round(line_seg3_end.x), round(line_seg3_end.y));
+		skp->Line(Round(line_seg3_start.x), Round(line_seg3_start.y),
+			Round(line_seg3_end.x), Round(line_seg3_end.y));
 		VECTOR3 line_seg4_start = line_seg3_end + line_dir_vector*0.3*hps->Scale;
-		skp->Line(round(line_seg4_start.x), round(line_seg4_start.y),
-			round(line_end.x), round(line_end.y));
+		skp->Line(Round(line_seg4_start.x), Round(line_seg4_start.y),
+			Round(line_end.x), Round(line_end.y));
 	}
 	else { //  2 solid lines
 		VECTOR3 line_seg1_end = line_pos + line_dir_vector*2*hps->Scale;
-		skp->Line(round(line_pos.x), round(line_pos.y), round(line_seg1_end.x), round(line_seg1_end.y));
+		skp->Line(Round(line_pos.x), Round(line_pos.y), Round(line_seg1_end.x), Round(line_seg1_end.y));
 		VECTOR3 line_seg2_start = line_end - line_dir_vector*2*hps->Scale;		
-		skp->Line(round(line_seg2_start.x), round(line_seg2_start.y), round(line_end.x), round(line_end.y));
+		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_end.x), Round(line_end.y));
 	}
 	// draw lines pointing toward horizon
 	if(ladderPitch > 0) {
 		line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
 		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
-		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
+		skp->Line(Round(left_line_end.x), Round(left_line_end.y), Round(line_pos.x), Round(line_pos.y));
 		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
-		skp->Line(round(right_line_end.x), round(right_line_end.y), round(line_end.x), round(line_end.y));
+		skp->Line(Round(right_line_end.x), Round(right_line_end.y), Round(line_end.x), Round(line_end.y));
 	}
 	else if(ladderPitch < 0) {
 		line_rot_vector = RotateVectorZ(_V(0, -1, 0), orbiterBank);
 		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
-		skp->Line(round(left_line_end.x), round(left_line_end.y), round(line_pos.x), round(line_pos.y));
+		skp->Line(Round(left_line_end.x), Round(left_line_end.y), Round(line_pos.x), Round(line_pos.y));
 		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
-		skp->Line(round(right_line_end.x), round(right_line_end.y), round(line_end.x), round(line_end.y));
+		skp->Line(Round(right_line_end.x), Round(right_line_end.y), Round(line_end.x), Round(line_end.y));
 	}
 
 	// print angle
@@ -91,7 +91,7 @@ bool DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderP
 		int textWidth = skp->GetTextWidth(pszBuf);
 		VECTOR3 textPos = line_end - line_dir_vector*(1+textWidth) + line_rot_vector*(1+textHeight);
 		//VECTOR3 textEnd = line_end - line_rot_vector*2;
-		skp->Text(round(textPos.x), round(textPos.y), pszBuf, strlen(pszBuf));
+		skp->Text(Round(textPos.x), Round(textPos.y), pszBuf, strlen(pszBuf));
 		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
 			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 	}
@@ -105,9 +105,9 @@ bool DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderP
  */
 void DrawTriangle(oapi::Sketchpad *skp, const VECTOR3& pt1, const VECTOR3& pt2, const VECTOR3& pt3)
 {
-	skp->Line(round(pt1.x), round(pt1.y), round(pt2.x), round(pt2.y));
-	skp->Line(round(pt1.x), round(pt1.y), round(pt3.x), round(pt3.y));
-	skp->Line(round(pt3.x), round(pt3.y), round(pt2.x), round(pt2.y));
+	skp->Line(Round(pt1.x), Round(pt1.y), Round(pt2.x), Round(pt2.y));
+	skp->Line(Round(pt1.x), Round(pt1.y), Round(pt3.x), Round(pt3.y));
+	skp->Line(Round(pt3.x), Round(pt3.y), Round(pt2.x), Round(pt2.y));
 }
 
 /**
@@ -605,18 +605,18 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		//prfnlBankFader -= oapiGetSimStep();
 		//sprintf_s(oapiDebugString(), 255, "Fader bank: %f Actual target: %f", TargetBank+dBank, bank);
 		//return TargetBank+dBank*oapiGetSimStep();
-			skp->Ellipse(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+			skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 		}
 		else {
 			// before PRFNL mode, we have square at center of HUD
 			glideslope_center_y = static_cast<double>(hps->H)/2.0 - 25.0;
 			glideslope_center_x = static_cast<double>(hps->CX);
-			skp->Rectangle(round(glideslope_center_x)-5, round(glideslope_center_y)-5, round(glideslope_center_x)+5, round(glideslope_center_y)+5);
+			skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 		}
 		// lines are the same for both VV and center square modes
-		skp->Line(round(glideslope_center_x)-10, round(glideslope_center_y), round(glideslope_center_x)-5, round(glideslope_center_y));
-		skp->Line(round(glideslope_center_x)+9, round(glideslope_center_y), round(glideslope_center_x)+4, round(glideslope_center_y));
-		skp->Line(round(glideslope_center_x), round(glideslope_center_y)-10, round(glideslope_center_x), round(glideslope_center_y)-5);
+		skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
+		skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
+		skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
 
 		if(TAEMGuidanceMode != FNLFL) {
 			double guidance_center_x, guidance_center_y;
@@ -651,11 +651,11 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				guidance_center_y = hps->H-57;
 			}
 			if(bValid || bHUDFlasher) {
-				skp->MoveTo(round(guidance_center_x)-5, round(guidance_center_y));
-				skp->LineTo(round(guidance_center_x), round(guidance_center_y)+5);
-				skp->LineTo(round(guidance_center_x)+5, round(guidance_center_y));
-				skp->LineTo(round(guidance_center_x), round(guidance_center_y)-5);
-				skp->LineTo(round(guidance_center_x)-5, round(guidance_center_y));
+				skp->MoveTo(Round(guidance_center_x)-5, Round(guidance_center_y));
+				skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)+5);
+				skp->LineTo(Round(guidance_center_x)+5, Round(guidance_center_y));
+				skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)-5);
+				skp->LineTo(Round(guidance_center_x)-5, Round(guidance_center_y));
 			}
 
 			// draw guidance triangles
@@ -762,8 +762,8 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		error[3] = camPos-rwy1_r;
 		int rwy_pos_x[4], rwy_pos_y[4];
 		for(int i=0;i<4;i++) {
-			rwy_pos_x[i] = hps->CX + static_cast<int>( round(hps->Scale*DEG*atan(error[i].x/error[i].z)) );
-			rwy_pos_y[i] = hps->CY + static_cast<int>( round(hps->Scale*DEG*atan(-error[i].y/error[i].z)) );
+			rwy_pos_x[i] = hps->CX + static_cast<int>( Round(hps->Scale*DEG*atan(error[i].x/error[i].z)) );
+			rwy_pos_y[i] = hps->CY + static_cast<int>( Round(hps->Scale*DEG*atan(-error[i].y/error[i].z)) );
 		}
 		// check if at least one of the points is visible
 		bool drawRunway = false;
@@ -933,17 +933,17 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	double scale_distance = max(length(TouchdownPos), length(HACExitPos)+HAC_TurnRadius); // make sure HAC circle and touchdown point are visible
 	scale_distance = range(20e3, scale_distance, 500e3); // limit distance covered by display to between 20km and 500km
 	double scale = scale_distance/128; // screen area is 256 pixels by 256 pixels
-	int touchdown_x = BUG_POINT_X - round(TouchdownPos.y/scale);
-	int touchdown_y = round(TouchdownPos.x/scale) + BUG_POINT_Y;
-	int hac_exit_x = BUG_POINT_X - round(HACExitPos.y/scale);
-	int hac_exit_y = round(HACExitPos.x/scale) + BUG_POINT_Y;
+	int touchdown_x = BUG_POINT_X - Round(TouchdownPos.y/scale);
+	int touchdown_y = Round(TouchdownPos.x/scale) + BUG_POINT_Y;
+	int hac_exit_x = BUG_POINT_X - Round(HACExitPos.y/scale);
+	int hac_exit_y = Round(HACExitPos.x/scale) + BUG_POINT_Y;
 	pMDU->Circle(touchdown_x, touchdown_y, 4);
 	pMDU->Line(hac_exit_x, hac_exit_y, touchdown_x, touchdown_y);
 
 	VECTOR3 HACCenter = -RotateVectorZ(_V(TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y, 0.0), degHeadingError);
-	int hac_center_x = BUG_POINT_X - round(HACCenter.y/scale);
-	int hac_center_y = BUG_POINT_Y + round(HACCenter.x/scale);
-	int hac_radius = round(HAC_TurnRadius/scale);
+	int hac_center_x = BUG_POINT_X - Round(HACCenter.y/scale);
+	int hac_center_y = BUG_POINT_Y + Round(HACCenter.x/scale);
+	int hac_radius = Round(HAC_TurnRadius/scale);
 	pMDU->Circle(hac_center_x, hac_center_y, hac_radius);
 
 	// draw position predictor circles
@@ -969,8 +969,8 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 		groundVelocity = groundVelocity + groundAcceleration*DELTA_T;
 
 		if(Eq(time, 20, 0.01) || Eq(time, 40, 0.01) || Eq(time, 60, 0.01)) {
-			int pos_x = BUG_POINT_X - round(pos.y/scale);
-			int pos_y = BUG_POINT_Y + round(pos.x/scale);
+			int pos_x = BUG_POINT_X - Round(pos.y/scale);
+			int pos_y = BUG_POINT_Y + Round(pos.x/scale);
 			pMDU->Circle(pos_x, pos_y, 4, dps::DEUATT_OVERBRIGHT);
 		}
 	}

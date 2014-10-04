@@ -278,7 +278,7 @@ namespace dps
 					}
 					else if (ThrottleCommand[i] == true)
 					{
-						STS()->pEIU[i]->command( THRT + (unsigned short)round( (CommandedThrottle - MPL) * 10 ) );
+						STS()->pEIU[i]->command( THRT + (unsigned short)Round( (CommandedThrottle - MPL) * 10 ) );
 						ThrottleCommand[i] = false;
 					}
 					else if (StartEnableCommand[i] == true)
@@ -324,7 +324,7 @@ namespace dps
 
 	void SSME_SOP::ProcessPriData( int eng )
 	{
-		PercentChamberPress[eng] = round( pridata[eng][5] / 27.46789 );
+		PercentChamberPress[eng] = Round( pridata[eng][5] / 27.46789 );
 		Phase[eng] = (pridata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (pridata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (pridata[eng][2] & 0xC000) >> 14;
@@ -335,7 +335,7 @@ namespace dps
 
 	void SSME_SOP::ProcessSecData( int eng )
 	{
-		PercentChamberPress[eng] = round( secdata[eng][5] / 27.46789 );
+		PercentChamberPress[eng] = Round( secdata[eng][5] / 27.46789 );
 		Phase[eng] = (secdata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (secdata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (secdata[eng][2] & 0xC000) >> 14;
