@@ -7101,7 +7101,7 @@ void Atlantis::SetSSMEActPos( int num, double Ppos, double Ypos )
 int Atlantis::GetSSMEPress( int eng )
 {
 	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware( "SSME_SOP" ));
-	return round(pSSME_SOP->GetPercentChamberPressVal( eng ));
+	return Round(pSSME_SOP->GetPercentChamberPressVal( eng ));
 }
 
 int Atlantis::GetHeTankPress( int sys ) const

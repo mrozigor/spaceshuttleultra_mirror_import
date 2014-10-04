@@ -572,7 +572,7 @@ void AscentGuidance::Throttle(double DeltaT)
 						if (dt_thrt_glim >= 0.1)// wait while throttling (10%/sec throttle change = 0.1s delay)
 						{
 							throttlecmd--;// throttle back 1%
-							throttlecmd = (double)round( throttlecmd );// round avoid x.5% cmds
+							throttlecmd = (double)Round( throttlecmd );// round avoid x.5% cmds
 							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
 							pSSME_SOP->SetThrottlePercent( throttlecmd );
 							dt_thrt_glim = 0;// reset
@@ -779,11 +779,11 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			// TODO should also change QPOLY and pitch profile
 			if (TDEL_adjust < -1)// hot
 			{
-				THROT[1] = round( THROT[1] - 21.5 );
+				THROT[1] = Round( THROT[1] - 21.5 );
 			}
 			else if (TDEL_adjust < -0.2)// hot
 			{
-				THROT[1] = round( THROT[1] + ((26.25 * TDEL_adjust) + 4.75) );
+				THROT[1] = Round( THROT[1] + ((26.25 * TDEL_adjust) + 4.75) );
 			}
 			else if (TDEL_adjust > 1)// cold
 			{
@@ -791,7 +791,7 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			}
 			else if (TDEL_adjust > 0.2)// cold
 			{
-				THROT[2] += round( (7.5 * TDEL_adjust) + 0.5 );
+				THROT[2] += Round( (7.5 * TDEL_adjust) + 0.5 );
 			}
 
 			AGT_done = true;
@@ -897,7 +897,7 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 
 	if ((GetMajorMode() == 103) && (pSSME_Operations->GetMECOConfirmedFlag() == false))
 	{
-		tmp = round( STS()->GetMET() + timeRemaining );
+		tmp = Round( STS()->GetMET() + timeRemaining );
 		sprintf_s( cbuf, 64, "%02d", (tmp - (tmp % 60)) / 60 );
 		pMDU->mvprint( 16, 8, cbuf );
 		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );

@@ -192,12 +192,12 @@ namespace mps
 		{
 			if (DCU->RAM[currentposaddr] < DCU->RAM[count + 1])// open
 			{
-				DCU->RAM[cmdaddr] += (unsigned short)round( DCU->dt * 10000 * ((double)(DCU->RAM[count + 1] - DCU->RAM[currentposaddr]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
+				DCU->RAM[cmdaddr] += (unsigned short)Round( DCU->dt * 10000 * ((double)(DCU->RAM[count + 1] - DCU->RAM[currentposaddr]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
 				if (DCU->RAM[cmdaddr] > DCU->RAM[count + 1]) DCU->RAM[cmdaddr] = DCU->RAM[count + 1];
 			}
 			if (DCU->RAM[currentposaddr] > DCU->RAM[count + 1])// close
 			{
-				DCU->RAM[cmdaddr] -= (unsigned short)round( DCU->dt * 10000 * ((double)(DCU->RAM[currentposaddr] - DCU->RAM[count + 1]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
+				DCU->RAM[cmdaddr] -= (unsigned short)Round( DCU->dt * 10000 * ((double)(DCU->RAM[currentposaddr] - DCU->RAM[count + 1]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
 				if ((signed short)DCU->RAM[cmdaddr] < DCU->RAM[count + 1]) DCU->RAM[cmdaddr] = DCU->RAM[count + 1];
 			}
 		}
@@ -487,16 +487,16 @@ namespace mps
 
 		// CCV
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 1] -= (unsigned short)round( 0.55825 * dPC );// TODO only do this under 100%
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 2] -= (unsigned short)round( 1.42094 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 1] -= (unsigned short)Round( 0.55825 * dPC );// TODO only do this under 100%
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 2] -= (unsigned short)Round( 1.42094 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 3] -= (unsigned short)round( 2.72494 * dPC );
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 4] += (unsigned short)round( 0.00687 * dPC );
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 5] -= (unsigned short)round( 1.19147 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 3] -= (unsigned short)Round( 2.72494 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 4] += (unsigned short)Round( 0.00687 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 5] -= (unsigned short)Round( 1.19147 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 6] -= (unsigned short)round( 2.96765 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 6] -= (unsigned short)Round( 2.96765 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 8] -= (unsigned short)round( 2.86836 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 8] -= (unsigned short)Round( 2.86836 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS + 9] = 65535;
 
@@ -505,54 +505,54 @@ namespace mps
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 1] = 4095;
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 2] = 1;
 
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 3] += (unsigned short)round( 0.69503 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 4] += (unsigned short)round( 0.00709 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 5] -= (unsigned short)round( 13.47015 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 3] += (unsigned short)Round( 0.69503 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 4] += (unsigned short)Round( 0.00709 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 5] -= (unsigned short)Round( 13.47015 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 6] -= (unsigned short)round( 2.43811 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 6] -= (unsigned short)Round( 2.43811 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 8] -= (unsigned short)round( 2.92352 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 8] -= (unsigned short)Round( 2.92352 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 9] = 65535;
 
 		// MOV
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 1] += (unsigned short)round( 0.0141 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 2] -= (unsigned short)round( 1.22457 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 1] += (unsigned short)Round( 0.0141 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 2] -= (unsigned short)Round( 1.22457 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 3] -= (unsigned short)round( 1.22457 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 3] -= (unsigned short)Round( 1.22457 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS + 4] = 0;
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 5] += (unsigned short)round( 0.08605 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 5] += (unsigned short)Round( 0.08605 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS + 6] = 65535;
 
 		// FPOV
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 1] += (unsigned short)round( 0.04174 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 2] -= (unsigned short)round( 5.18512 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 1] += (unsigned short)Round( 0.04174 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 2] -= (unsigned short)Round( 5.18512 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 3] -= (unsigned short)round( 5.18512 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 4] += (unsigned short)round( 0.02611 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 5] -= (unsigned short)round( 5.33957 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 3] -= (unsigned short)Round( 5.18512 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 4] += (unsigned short)Round( 0.02611 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 5] -= (unsigned short)Round( 5.33957 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 6] -= (unsigned short)round( 5.33957 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 6] -= (unsigned short)Round( 5.33957 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 8] -= (unsigned short)round( 5.48299 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 8] -= (unsigned short)Round( 5.48299 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS + 9] = 65535;
 
 		// OPOV
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 1] -= (unsigned short)round( 0.28285 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 1] -= (unsigned short)Round( 0.28285 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 2] = 2990;
 
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 3] = 2990;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 4] -= (unsigned short)round( 0.31488 * dPC );
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 5] -= (unsigned short)round( 0.51851 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 4] -= (unsigned short)Round( 0.31488 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 5] -= (unsigned short)Round( 0.51851 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 6] -= (unsigned short)round( 0.51851 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 6] -= (unsigned short)Round( 0.51851 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 8] -= (unsigned short)round( 0.81638 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 8] -= (unsigned short)Round( 0.81638 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 9] = 65535;
 		return;
@@ -1568,12 +1568,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + B + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 4 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 4 );
 					}
 					else
 					{
 						// A + B + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 3 );
 					}
 				}
 				else
@@ -1581,12 +1581,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + B + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// A + B
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B]) / 2 );
 					}
 				}
 			}
@@ -1597,12 +1597,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// A + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C]) / 2 );
 					}
 				}
 				else
@@ -1610,7 +1610,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -1629,12 +1629,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// B + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// B + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 2 );
 					}
 				}
 				else
@@ -1642,7 +1642,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// B + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -1658,7 +1658,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -2270,7 +2270,7 @@ namespace mps
 					if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
-					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
+					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)Round( pl * PC_100_C );
 					RotateCommand();
 					return ESW_Accepted;
 				}
@@ -3370,7 +3370,7 @@ namespace mps
 	{
 		if (DCU->RAM[RAM_AD08_TIME_ESC] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)round( DCU->dt * 10000 );// increment time from ESC
+			DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)Round( DCU->dt * 10000 );// increment time from ESC
 		}
 		else
 		{
@@ -3434,7 +3434,7 @@ namespace mps
 		// use PC_REF to reach PC_CMD
 		// check when PC_CMD achieved then go to mainstage
 
-		DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)round( DCU->dt * 10000 );// increment time from ESC
+		DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)Round( DCU->dt * 10000 );// increment time from ESC
 
 		// run valve ignition schedules
 		ValveSchedule( RAM_AD08_IGNT_CCV_POS, RAM_AD08_CCV_CMD, RAM_AD08_TIME_ESC, RAM_AD08_CCV_POS );
@@ -3479,14 +3479,14 @@ namespace mps
 			tempB = DCU->dt * PC_100_B;
 			tempB = DCU->RAM[RAM_AD08_PC_REF] + tempB;
 			if (tempB > DCU->RAM[RAM_AD08_PC_CMD]) tempB = DCU->RAM[RAM_AD08_PC_CMD];
-			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_PC_CMD] < DCU->RAM[RAM_AD08_PC_REF])// throttle down
 		{
 			tempB = DCU->dt * PC_100_B;
 			tempB = DCU->RAM[RAM_AD08_PC_REF] - tempB;
 			if (tempB < DCU->RAM[RAM_AD08_PC_CMD]) tempB = DCU->RAM[RAM_AD08_PC_CMD];
-			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)Round( tempB );
 		}
 
 		// CCV thrust command to position schedule
@@ -3497,7 +3497,7 @@ namespace mps
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
 				if (tempB > 4095) tempB = 4095;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 		}
 		else
@@ -3508,14 +3508,14 @@ namespace mps
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
 				if (tempB > temp) tempB = temp;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 			else if (DCU->RAM[RAM_AD08_CCV_CMD] > temp)// close
 			{
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] - tempB;
 				if (tempB < temp) tempB = temp;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 		}
 
@@ -3529,14 +3529,14 @@ namespace mps
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
 			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] + tempB;
 			if (tempB > temp) tempB = temp;
-			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_FPOV_CMD] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
 			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] - tempB;
 			if (tempB < temp) tempB = temp;
-			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
 
 		temp = DCU->RAM[RAM_AD08_PC_REF] / PC_100_C;
@@ -3546,14 +3546,14 @@ namespace mps
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
 			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] + tempB;
 			if (tempB > temp) tempB = temp;
-			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_OPOV_CMD] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
 			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] - tempB;
 			if (tempB < temp) tempB = temp;
-			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}
 
 		// on/off devs
@@ -3652,7 +3652,7 @@ namespace mps
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 10000 );// increment time from STDN
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 10000 );// increment time from STDN
 		}
 		else
 		{
@@ -3708,7 +3708,7 @@ namespace mps
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 1000 );// increment time
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 1000 );// increment time
 		}
 		else
 		{
@@ -3742,7 +3742,7 @@ namespace mps
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 1000 );// increment time from STDN
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 1000 );// increment time from STDN
 		}
 		else
 		{

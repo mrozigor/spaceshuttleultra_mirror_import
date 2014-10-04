@@ -399,7 +399,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, RedPen);
 			if (dNum < 0) dNum = 0;
 		}
-		Rectangle (hDC, 20+35*nPos, round( (89-0.0076*dNum) ), 33+35*nPos, 89);
+		Rectangle (hDC, 20+35*nPos, Round( (89-0.0076*dNum) ), 33+35*nPos, 89);
 
 		dNum = 0;// TODO get val
 		sprintf(cbuf, "%04.0f", dNum);
@@ -416,7 +416,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, RedPen);
 			if (dNum < 0) dNum = 0;
 		}
-		Rectangle (hDC, 20+35*nPos, round( (154-0.012667*dNum) ), 33+35*nPos, 154);
+		Rectangle (hDC, 20+35*nPos, Round( (154-0.012667*dNum) ), 33+35*nPos, 154);
 		
 		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() / 8618.44625);// HACK should have this in the sensor
 		sprintf(cbuf, "%03.0f", dNum);
@@ -438,7 +438,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, BlackPen);
 			if (dNum < 0) dNum = 0;
 		}
-		Rectangle(hDC, 20+35*nPos, round( 249 - (0.508333 * dNum) ), 33+35*nPos, 249);
+		Rectangle(hDC, 20+35*nPos, Round( 249 - (0.508333 * dNum) ), 33+35*nPos, 249);
 	}
 
 	//MPS
@@ -461,7 +461,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, RedPen);
 			if (dNum < 45) dNum = 45;
 		}
-		Rectangle( hDC, 162 + nLoc, round( 249 - 0.953125 * (dNum - 45) ), 175 + nLoc, 249 );
+		Rectangle( hDC, 162 + nLoc, Round( 249 - 0.953125 * (dNum - 45) ), 175 + nLoc, 249 );
 	}
 	
 	// He Tank Press Pneu
@@ -480,7 +480,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 3000) dNum = 3000;
 	}
-	Rectangle( hDC, 109, round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
+	Rectangle( hDC, 109, Round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
 
 	// He Tank Press Eng 2
 	dNum = sts->GetHeTankPress( 2 );
@@ -498,7 +498,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 162, round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
+	Rectangle( hDC, 162, Round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
 
 	// He Tank Press Eng 1
 	dNum = sts->GetHeTankPress( 1 );
@@ -516,7 +516,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 197, round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
+	Rectangle( hDC, 197, Round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
 
 	// He Tank Press Eng 3
 	dNum = sts->GetHeTankPress( 3 );
@@ -534,7 +534,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 231, round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
+	Rectangle( hDC, 231, Round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
 
 	// He Reg Press Pneu
 	dNum = sts->GetHeRegPress( 0 );
@@ -552,7 +552,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 109, round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
+	Rectangle( hDC, 109, Round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
 
 	// He Reg Press Eng 2
 	dNum = sts->GetHeRegPress( 2 );
@@ -570,7 +570,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 162, round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
+	Rectangle( hDC, 162, Round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
 
 	// He Reg Press Eng 1
 	dNum = sts->GetHeRegPress( 1 );
@@ -588,7 +588,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 197, round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
+	Rectangle( hDC, 197, Round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
 
 	// He Reg Press Eng 3
 	dNum = sts->GetHeRegPress( 3 );
@@ -606,7 +606,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 231, round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
+	Rectangle( hDC, 231, Round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
 
 	// ENG MANF LO2
 	dNum = sts->GetLOXManifPress();
@@ -624,7 +624,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, GreenPen);
 		if (dNum < 0) dNum = 0;
 	}
-	Rectangle( hDC, 89, round( 238 - (0.123333 * dNum) ), 102, 238 );
+	Rectangle( hDC, 89, Round( 238 - (0.123333 * dNum) ), 102, 238 );
 
 	// ENG MANF LH2
 	dNum = sts->GetLH2ManifPress();
@@ -642,7 +642,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, GreenPen);
 		if (dNum < 0) dNum = 0;
 	}
-	Rectangle( hDC, 122, round( 238 - (0.37 * dNum) ), 135, 238 );
+	Rectangle( hDC, 122, Round( 238 - (0.37 * dNum) ), 135, 238 );
 
 	RestoreDC(hDC, save);
 }

@@ -414,7 +414,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %d", round(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %d", Round(TV_ROLL));
 	pMDU->mvprint(1, 5, cbuf);
 	pMDU->mvprint(1, 6, "TRIM LOAD");
 	sprintf(cbuf, "6 P  %+2.1f", Trim.data[0]);
@@ -549,7 +549,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	if(MnvrLoad && !Eq(tgtApD, 0.0)) {
 		double ap = (tgtApD-earthRadius)/NMI2M;
 		double pe = (tgtPeD-earthRadius)/NMI2M;
-		sprintf(cbuf, "TGT %3d   %+4d", round(ap), round(pe));
+		sprintf(cbuf, "TGT %3d   %+4d", Round(ap), Round(pe));
 		pMDU->mvprint(36, 11, cbuf);
 	}
 	else {
@@ -559,7 +559,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	//double pe = (oparam.PeD-earthRadius)/NMI2M;
 	double ap = (ApD-earthRadius)/NMI2M;
 	double pe = (PeD-earthRadius)/NMI2M;
-	sprintf(cbuf, "CUR %3d   %+4d", round(ap), round(pe));
+	sprintf(cbuf, "CUR %3d   %+4d", Round(ap), Round(pe));
 	pMDU->mvprint(36, 12, cbuf);
 	//pMDU->mvprint(36, 12, "CUR");
 

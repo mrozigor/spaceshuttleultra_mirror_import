@@ -272,7 +272,7 @@ inline void ConvertSecondsToDDHHMMSS(double seconds, double ddhhmmss[])
 	ddhhmmss[3] = seconds;
 }
 
-inline int round(double value)
+inline int Round(double value)
 {
 	return static_cast<int>(floor(value+0.5));
 }
