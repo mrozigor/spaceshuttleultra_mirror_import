@@ -2928,10 +2928,9 @@ bool Atlantis::GearArmed() const
 
 void Atlantis::DeployDragChute()
 {
-	SetAnimation(anim_chute_deploy, 0.0);
+	SetAnimation(anim_chute_deploy, 1.0);
 	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_EXTERNAL);	
 
-	//DragChuteState=REEFED;
 	DragChuteState=DEPLOYING;
 	DragChuteSize=0.0;
 }
@@ -4357,18 +4356,18 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 			else if(DragChuteState==STOWED && DragChuteDeploying && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
 				DeployDragChute();
-			else if(DragChuteState==DEPLOYING) {
+			else if(DragChuteState==DEPLOYING) { // go from initial deployment to reefed state
 				DragChuteSize=min(0.4, DragChuteSize+CHUTE_DEPLOY_RATE*simdt);
 				SetAnimation(anim_chute_deploy, 1-DragChuteSize);
 				sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
 				if(Eq(DragChuteSize, 0.4, 0.001)) DragChuteState=REEFED;
 			}
-			else if(DragChuteState==REEFED) {
+			else if(DragChuteState==REEFED) { // maintain chute in reefed state until time to fully inflate chute
 				if((met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
 					DragChuteState=INFLATED;
 				}
 			}
-			else if(DragChuteState==INFLATED) {
+			else if(DragChuteState==INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
 				if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
 				else if(DragChuteSize<1.0) {
 					DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
