@@ -51,13 +51,14 @@ private:
 	{
 		double radPriLat, radPriLong;
 		double radSecLat, radSecLong;
-		double degPriHeading; // add 180 to get sec heading
+		double degPriHeading;
+		double degSecHeading;
 		std::string strPri, strSec;
 
 	public:
-		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, const char* pri, const char* sec)
+		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec)
 			: radPriLat(_radPriLat), radPriLong(_radPriLong), radSecLat(_radSecLat), radSecLong(_radSecLong),
-			degPriHeading(_degPriHeading),
+			degPriHeading(_degPriHeading), degSecHeading(_degSecHeading),
 			strPri(pri), strSec(sec)
 		{
 		}
@@ -81,11 +82,7 @@ private:
 		double GetRwyHeading(bool pri) const
 		{
 			if(pri) return degPriHeading;
-			else {
-				double heading = degPriHeading + 180.0;
-				if(heading >= 360.0) heading-=360.0;
-				return heading;
-			}
+			else return degSecHeading;
 		}
 
 		const std::string& GetPriRwyName() const
