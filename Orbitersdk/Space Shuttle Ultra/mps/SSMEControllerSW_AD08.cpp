@@ -2095,7 +2095,7 @@ namespace mps
 				{
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
-					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
+					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)Round( pl * PC_100_C );
 					RotateCommand();
 					return ESW_Accepted;
 				}
