@@ -245,9 +245,9 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			else
 			{
 				// move to start config
-				pSSU->SetSSMEActPos( 1, 0, 0 );
-				pSSU->SetSSMEActPos( 2, 0, -3 );
-				pSSU->SetSSMEActPos( 3, 0, 3 );
+				pSSU->SetSSMEActPos( 1, -3, 0 );
+				pSSU->SetSSMEActPos( 2, -9, 0 );
+				pSSU->SetSSMEActPos( 3, -9, 0 );
 				MPSTVCProfile = false;
 				oapiWriteLog( "LCC: MPS Engine TVC Actuator Profile terminated" );
 			}
