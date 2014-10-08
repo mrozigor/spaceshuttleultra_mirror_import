@@ -2868,6 +2868,7 @@ void Atlantis::UpdateMesh ()
   SetAnimation (anim_kualpha, plop->KuAntennaStatus.pos);
   SetAnimation (anim_kubeta, plop->KuAntennaStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
+  SetAnimation(anim_chute_deploy, 1-DragChuteSize);
 
   SetAnimationCameras(); // update camera positions
 
