@@ -197,6 +197,8 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	dTable = new DragTable();
 
 	TimeToHAC = 0;
+	NZErr = 0;
+	DistanceToHACCenter = 0;
 }
 
 AerojetDAP::~AerojetDAP()
