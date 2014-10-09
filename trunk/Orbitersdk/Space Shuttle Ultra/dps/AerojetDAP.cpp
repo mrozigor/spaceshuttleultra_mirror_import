@@ -732,15 +732,12 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		//skp->LineTo(hps->W/2 + wcomp2,hps->H/2 - hcomp2);
 		//sprintf(oapiDebugString(),"%lf %lf %lf %lf",end2.x,end2.y,end2.z,asin(wsin2)*DEG);
 
-		double lat1, lon1, lat2, lon2;
-		vLandingSites[SITE_ID].GetRwyPosition(true,lat1,lon1);
 		VECTOR3 rwy1_end, lrwy1;
-		oapiEquToGlobal(hEarth,lon1,lat1,oapiGetSize(hEarth),&rwy1_end);
+		oapiLocalToGlobal(hEarth, &RwyStart_EarthLocal, &rwy1_end);
 		STS()->Global2Local(rwy1_end,lrwy1);
 
-		vLandingSites[SITE_ID].GetRwyPosition(false,lat2,lon2);
 		VECTOR3 rwy2_end, lrwy2;
-		oapiEquToGlobal(hEarth,lon2,lat2,oapiGetSize(hEarth),&rwy2_end);
+		oapiLocalToGlobal(hEarth, &RwyEnd_EarthLocal, &rwy2_end);
 		STS()->Global2Local(rwy2_end,lrwy2);
 
 		VECTOR3 rwyDir = lrwy2 - lrwy1;
@@ -748,11 +745,11 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		VECTOR3 lvlh = RotateVectorZ( RotateVectorX(_V(0, 1, 0), -dPitch), -bank);
 		VECTOR3 rwyWidthDir = crossp(rwyDir, lvlh);
 
-		const double RUNWAY_WIDTH = 100.0; // works for KSC; might not work for other runways
-		VECTOR3 rwy1_l = lrwy1 - rwyWidthDir*(RUNWAY_WIDTH/2.0);
-		VECTOR3 rwy1_r = lrwy1 + rwyWidthDir*(RUNWAY_WIDTH/2.0);
-		VECTOR3 rwy2_l = lrwy2 - rwyWidthDir*(RUNWAY_WIDTH/2.0);
-		VECTOR3 rwy2_r = lrwy2 + rwyWidthDir*(RUNWAY_WIDTH/2.0);
+		double rwyWidth = vLandingSites[SITE_ID].GetRwyWidth(!SEC);
+		VECTOR3 rwy1_l = lrwy1 - rwyWidthDir*(rwyWidth/2.0);
+		VECTOR3 rwy1_r = lrwy1 + rwyWidthDir*(rwyWidth/2.0);
+		VECTOR3 rwy2_l = lrwy2 - rwyWidthDir*(rwyWidth/2.0);
+		VECTOR3 rwy2_r = lrwy2 + rwyWidthDir*(rwyWidth/2.0);
 
 		VECTOR3 camPos;
 		STS()->GetCameraOffset(camPos);
@@ -1884,7 +1881,6 @@ double AerojetDAP::CalculatePreflareNZ(const VECTOR3 &RwyPos, double DeltaT)
 
 void AerojetDAP::InitializeRunwayData()
 {
-	VECTOR3 end1, end2;
 	/*if(!SEC) {
 		end1 = GetPositionVector(hEarth, vLandingSites[SITE_ID].radPriLat, vLandingSites[SITE_ID].radPriLong, oapiGetSize(hEarth));
 		end2 = GetPositionVector(hEarth, vLandingSites[SITE_ID].radSecLat, vLandingSites[SITE_ID].radSecLong, oapiGetSize(hEarth));
@@ -1898,21 +1894,19 @@ void AerojetDAP::InitializeRunwayData()
 	}*/
 	double radLat, radLong;
 	vLandingSites[SITE_ID].GetRwyPosition(!SEC, radLat, radLong); // get lat/long for end we want to land on
-	end1 = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth));
-	vLandingSites[SITE_ID].GetRwyPosition(SEC, radLat, radLong); // get lat/long for opposite end of runway
-	end2 = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth));
-	degRwyHeading = vLandingSites[SITE_ID].GetRwyHeading(!SEC);
+	RwyStart_EarthLocal = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth));
+	VECTOR3 end1 = RwyStart_EarthLocal/length(RwyStart_EarthLocal);
 
-	RwyPos = end1; // store un-normalized value
-	end1 = end1/length(end1);
-	end2 = end2/length(end2);
-	VECTOR3 x = end2-end1;
-	x = x/length(x);
+	degRwyHeading = vLandingSites[SITE_ID].GetRwyHeading(!SEC);
+	VECTOR3 EastDir = _V(-sin(radLong), 0, cos(radLong));
+	VECTOR3 x = RotateVector(end1, RAD*(degRwyHeading-90.0), EastDir);
+	RwyEnd_EarthLocal = RwyStart_EarthLocal + x*vLandingSites[SITE_ID].GetRwyLength(!SEC);
+
 	VECTOR3 y = crossp(end1, x);
 	RwyRotMatrix = _M(x.x, x.y, x.z,
 		y.x, y.y, y.z,
 		-end1.x, -end1.y, -end1.z);
-	RwyPos = mul(RwyRotMatrix, RwyPos);
+	RwyPos = mul(RwyRotMatrix, RwyStart_EarthLocal);
 	
 	// calculate values used by entry guidance
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
@@ -1997,43 +1991,43 @@ void AerojetDAP::LoadLandingSiteList()
 	// for reference, landing site tables can be found in Ascent Checklists (using STS-115 table)
 	vLandingSites.push_back(LandingSiteData(28.632944*RAD, -80.706035*RAD, 28.5970420*RAD, -80.6826540*RAD, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
-	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, 20, "MRN20", "MRN02" ) );// 3
+	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT14R" ) );// 7 (HACK should be NKT32L/NKT23R)
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU14L" ) );// 8 (HACK should be NTU32R/NTU23L)
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL10" ) );// 9 (HACK should be WAL28/WAL04)
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV14" ) );// 10 (HACK should be DOV32/DOV19)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT23R" ) );// 7
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU23L" ) );// 8
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL04" ) );// 9
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV19" ) );// 10
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
-	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 37.171246 * RAD, -5.632307 * RAD, 197.8, 17.8, "MRN20", "MRN02" ) );// 13
+	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 37.171246 * RAD, -5.632307 * RAD, 197.8, 17.8, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 13
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH23" ) );// 16
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ32" ) );// 18
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
-	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11" ) );// 20
+	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YQX21", "YQX31" ) );// 21
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
-	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33" ) );// 23
+	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25 (HACK should be IKF20/IKF29)
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
-	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15" ) );// 29
+	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
-	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, -7.303044 * RAD, 72.387373 * RAD, 301, 121, "JDG31", "JDG13" ) );// 32
+	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, -7.303044 * RAD, 72.387373 * RAD, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AMB15", "PTN14" ) );// 33
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
-	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30" ) );// 39
+	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NOR17", "NOR23" ) );// 42

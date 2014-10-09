@@ -54,17 +54,32 @@ private:
 		double degPriHeading;
 		double degSecHeading;
 		std::string strPri, strSec;
+		double priRwyLength, priRwyWidth; // length and width in meters
+		double secRwyLength, secRwyWidth; // length and width in meters
 
 	public:
-		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec)
+		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec, double _rwyLength = 15000.0/MPS2FPS, double _rwyWidth = 100.0)
 			: radPriLat(_radPriLat), radPriLong(_radPriLong), radSecLat(_radSecLat), radSecLong(_radSecLong),
 			degPriHeading(_degPriHeading), degSecHeading(_degSecHeading),
-			strPri(pri), strSec(sec)
+			strPri(pri), strSec(sec),
+			priRwyLength(_rwyLength), priRwyWidth(_rwyWidth),
+			secRwyLength(_rwyLength), secRwyWidth(_rwyWidth)
 		{
 		}
 
 		~LandingSiteData()
 		{
+		}
+
+		void SetPriRunwayParameters(double length, double width)
+		{
+			priRwyLength = length;
+			priRwyWidth = width;
+		}
+		void SetSecRunwayParameters(double length, double width)
+		{
+			secRwyLength = length;
+			secRwyWidth = width;
 		}
 
 		void GetRwyPosition(bool pri, double& radLat, double& radLong) const
@@ -77,6 +92,18 @@ private:
 				radLat = radSecLat;
 				radLong = radSecLong;
 			}
+		}
+
+		double GetRwyLength(bool pri) const
+		{
+			if(pri) return priRwyLength;
+			else return secRwyLength;
+		}
+
+		double GetRwyWidth(bool pri) const
+		{
+			if(pri) return priRwyWidth;
+			else return secRwyWidth;
 		}
 
 		double GetRwyHeading(bool pri) const
@@ -159,8 +186,10 @@ private:
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
 	HAC_DIRECTION HACDirection;
 	HAC_SIDE HACSide;
+	VECTOR3 RwyStart_EarthLocal, RwyEnd_EarthLocal; // start and end points of runway in Orbitersim Earth local frame
+	// Runway frame: Same center as Orbitersim Earth local frame, but rotated so x axis is along rwy centerline and z axis corresponds to altitude (right-handed frame)
 	MATRIX3 RwyRotMatrix; // converts from Orbiter Earth local frame to runway frame
-	VECTOR3 RwyPos;
+	VECTOR3 RwyPos; // position of runway in runway frame
 	double degRwyHeading;
 	double degTargetGlideslope;
 	//double TargetPitchRate;
