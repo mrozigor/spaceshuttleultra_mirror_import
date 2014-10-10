@@ -84,8 +84,8 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	msh_idx=AddMesh(mshMLP);
 	DefineAnimations();
 
-	// touchdown points: -30.65 on y for pad, -16.25 for VAB; must set touchdown points to match pad height so shuttle stack has correct touchdown points at liftoff
-	SetTouchdownPoints(_V(0.0, -30.65, 25.0), _V(-25.0, -30.65, -25.0), _V(25.0, -30.65, -25.0));
+	// touchdown points: -30.35 on y for pad, -16.25 for VAB; must set touchdown points to match pad height so shuttle stack has correct touchdown points at liftoff
+	SetTouchdownPoints(_V(0.0, -30.35, 25.0), _V(-25.0, -30.35, -25.0), _V(25.0, -30.35, -25.0));
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
