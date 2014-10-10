@@ -3862,7 +3862,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 				VECTOR3 pt1, pt2, pt3;
 				v->GetTouchdownPoints(pt1, pt2, pt3);
 				// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
-				double touchdownZ = pt1.y-parentAttachPos.y - 25.71;
+				VECTOR3 pos = POS_HDP - currentCoG;
+				double touchdownZ = pt1.y-parentAttachPos.y + pos.z;
 				SetTouchdownPoints (_V(0,-10,touchdownZ), _V(-7,7,touchdownZ), _V(7,7,touchdownZ));
 			}
 		}
@@ -7377,7 +7378,7 @@ void Atlantis::Twang(double timeToLaunch) const
 	//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
 	double c=cos(twangAngle);
 	double s=sin(twangAngle);
-	//SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
+	SetAttachmentParams(ahHDP, POS_HDP-currentCoG, _V(0, -s, -c), _V(0.0, c, -s));
 }
 
 void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
