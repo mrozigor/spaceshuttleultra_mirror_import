@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSRMS", "SSRMS.vcxproj", "{
 		{EDA1260C-9F5C-478A-B18B-A687101FC234} = {EDA1260C-9F5C-478A-B18B-A687101FC234}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltra", "..\libUltra\libUltra.vcxproj", "{EDA1260C-9F5C-478A-B18B-A687101FC234}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltra", "..\libUltra\libUltra_2013.vcxproj", "{EDA1260C-9F5C-478A-B18B-A687101FC234}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
