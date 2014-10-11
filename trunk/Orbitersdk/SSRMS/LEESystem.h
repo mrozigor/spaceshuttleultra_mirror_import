@@ -45,6 +45,7 @@ public:
 
 	void AttachToBase();
 	void DetachFromBase();
+	ATTACHMENTHANDLE FindPayload(bool checkBaseAttachment, VESSEL** pVessel=NULL) const;
 
 	virtual void Realize();
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
@@ -60,7 +61,7 @@ protected:
 	//virtual void OnAttach() = 0;
 	//virtual void OnDetach() = 0;
 
-	ATTACHMENTHANDLE FindPayload(bool checkBaseAttachment, VESSEL** pVessel=NULL) const;
+//	ATTACHMENTHANDLE FindPayload(bool checkBaseAttachment, VESSEL** pVessel=NULL) const;
 	bool PayloadIsFree() const;
 	
 	VESSEL* attachedPayload;

@@ -3,8 +3,14 @@
 #include "SSRMS.h"
 #include "OrbiterSoundSDK40.h"
 #include "UltraMath.h"
+#include <stdio.h>
+#include <fstream>
 
-//HINSTANCE g_hDLL;
+HINSTANCE hDLL;
+
+// ==============================================================
+// Local prototypes
+BOOL CALLBACK SSRMS_DlgProc (HWND, UINT, WPARAM, LPARAM);
 
 
 // --------------------------------------------------------------
@@ -30,9 +36,6 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	pSubsystemDirector->AddSubsystem(pLEE[0] = new LEESystem(pSubsystemDirector, "LEE1", ATTACH_ID));
 	pSubsystemDirector->AddSubsystem(pLEE[1] = new LEESystem(pSubsystemDirector, "LEE2", ATTACH_ID));
 
-	//pLEE[0] = new LatchSystem(this, "LEE1", ATTACH_ID);
-	//pLEE[1] = new LatchSystem(this, "LEE2", ATTACH_ID);
-
 	//load mesh
 	hSSRMSMesh = oapiLoadMeshGlobal("SSRMSF");
 	mesh_ssrms = AddMesh(hSSRMSMesh);
@@ -44,14 +47,11 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 		joint_motion[i]=0;
 	}
 	arm_ee_pos = _V(15.90, 0.7, 0.59);
-	//arm_wrist_pos = WristPitchJoint-ShoulderPitchJoint;
 	arm_ee_dir = _V(1, 0, 0);
 	arm_ee_rot = _V(0, 1, 0);
 	arm_tip[0] = LEE_POS;
 	arm_tip[1] = LEE_POS + _V(0, 0, 1);
 	arm_tip[2] = LEE_POS + _V(0, 1, 0);
-	//arm_tip[1] = _V(-0.70, 0.59, 9.44);
-	//arm_tip[2] = _V(-0.70, 1.59, 8.44);
 	arm_tip[3] = LEE2_CAM_POS;
 	arm_tip[4] = LEE2_LIGHT_POS;
 	mesh_center = _V(0, 0, 0);
@@ -97,6 +97,10 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	cameraView = ACTIVE_LEE;
 
 	AltKybdInput = _V(0, 0, 0);
+	DialogInput = _V(0, 0, 0);
+
+	DiagPushed = false;
+	DiagPushed2 = false;
 
 	ShowAttachmentPoints=false;
 
@@ -107,12 +111,32 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 
 	DefineAnimations();
 	DefineThrusters();
+//
+// modifications DLH
+//
+	bFirstpass = false;
+	bDiag = false;
+	SpeedChange = true;
+	LightChange = true;
+
+	arm1_Br =arm2_Br =arm3_Br =arm4_Br = arm6_Br =0.0;
+	arm1_Bp =arm2_Bp =arm3_Bp =arm4_Bp = arm6_Bp =0.0;
+	arm1_By =arm2_By =arm3_By =arm4_By = arm6_By =0.0;
+	arm1_ep =arm2_ep =arm3_ep =arm4_ep = arm6_ep =0.0;
+	arm1_Ar =arm2_Ar =arm3_Ar =arm4_Ar = arm6_Ar =0.0;
+	arm1_Ap =arm2_Ap =arm3_Ap =arm4_Ap = arm6_Ap =0.0;
+	arm1_Ay =arm2_Ay =arm3_Ay =arm4_Ay = arm6_Ay =0.0;
+
+	arm1set = arm2set = arm3set = arm4set = false;
+	center_arm = false;
+	Seqindex = 0;
+
+
 }
 
 SSRMS::~SSRMS()
 {
 	delete pSubsystemDirector;
-	//for(int i=0;i<8;i++) delete rms_anim[i];
 }
 
 void SSRMS::DefineAnimations()
@@ -123,21 +147,18 @@ void SSRMS::DefineAnimations()
 	static MGROUP_ROTATE sr_anim (mesh_ssrms, ShoulderRollGrp, 1,
 		SR_JOINT, _V(0, 0, -1), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_ROLL] = CreateAnimation(0.5);
-	//anim_joint[SHOULDER_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_ROLL], 0, 1, &sr_anim);
 
 	static UINT ShoulderYawGrp[1] = {22};
 	static MGROUP_ROTATE sy_anim (mesh_ssrms, ShoulderYawGrp, 1,
 		SY_JOINT, _V(0, 1, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_YAW] = CreateAnimation(0.5);
-	//anim_joint[SHOULDER_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_YAW], 0, 1, &sy_anim, parent);
 
 	static UINT ShoulderPitchGrp[5] = {23, 24, 25, 29, 30};
 	static MGROUP_ROTATE sp_anim (mesh_ssrms, ShoulderPitchGrp, 5,
 		SP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][SHOULDER_PITCH] = CreateAnimation(0.5);
-	//anim_joint[SHOULDER_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][SHOULDER_PITCH], 0, 1, &sp_anim, parent);
 
 	static UINT ShoulderFoldGrp[3] = {28,31,32};
@@ -163,7 +184,6 @@ void SSRMS::DefineAnimations()
 	static MGROUP_ROTATE ep_anim(mesh_ssrms, ElbowPitchGrp, 4,
 		EP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][ELBOW_PITCH] = CreateAnimation(0.5);
-	//anim_joint[ELBOW_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][ELBOW_PITCH], 0, 1, &ep_anim, parent);
 
 	static UINT WristFoldGrp[3] = {33,35,38};
@@ -188,21 +208,18 @@ void SSRMS::DefineAnimations()
 	static MGROUP_ROTATE wp_anim (mesh_ssrms, WristPitchGrp, 1,
 		WP_JOINT, _V(-1, 0, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_PITCH] = CreateAnimation(0.5);
-	//anim_joint[WRIST_PITCH[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_PITCH], 0, 1, &wp_anim, parent);
 
 	static UINT WristYawGrp[1] = {43};
 	static MGROUP_ROTATE wy_anim(mesh_ssrms, WristYawGrp, 1,
 		WY_JOINT, _V(0, 1, 0), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_YAW] = CreateAnimation(0.5);
-	//anim_joint[WRIST_YAW[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_YAW], 0, 1, &wy_anim, parent);
 
 	static UINT WristRollGrp[21] = {44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64};
 	static MGROUP_ROTATE wr_anim(mesh_ssrms, WristRollGrp, 21,
 		LEE_POS, _V(0, 0, -1), static_cast<float>((JOINT_LIMITS[1]-JOINT_LIMITS[0])*RAD));
 	anim_joint[1][WRIST_ROLL] = CreateAnimation(0.5);
-	//anim_joint[WRIST_ROLL[1]] = CreateAnimation(0.5);
 	parent = AddAnimationComponent(anim_joint[1][WRIST_ROLL], 0, 1, &wr_anim, parent);
 
 	static MGROUP_ROTATE lee_anim(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
@@ -215,7 +232,6 @@ void SSRMS::DefineAnimations()
 
 void SSRMS::DefineThrusters()
 {
-	//THRUSTER_HANDLE tmp;
 	ph_null = CreatePropellantResource(1.0, 1.0);
 
 	for(int i=0;i<12;i++) rms_control[i] = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0.0, ph_null, 1.0, 1.0);
@@ -260,39 +276,30 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 	double offset_angle = asin(LEE_OFFSET/c_length);
 	//if(arm_wy_pos.x<0) offset_angle = -offset_angle;
 
-	//double sy_angle_r = -atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
 	double sy_angle_r = atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
-	new_joint_angles[SHOULDER_YAW] = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
+	double sy_angle_noError = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
+	double sy_angle_180Error = ResolveToNearestAngle((sy_angle_r + RAD*180.0 - 2*offset_angle)*DEG, joint_angle[SHOULDER_YAW]);
 	bool yaw180Error = false;
-	//double old_sy_angle_d = ResolveToNearestAngle(joint_angle[SHOULDER_YAW], 0.0);
-	//if(abs(old_sy_angle_d-sy_angle_r*DEG)>165.0) {
-	if(abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW])>95.0) {
-		sprintf_s(oapiDebugString(), 255, "MoveEE: 180-degree yaw error");
+	if(abs(joint_angle[SHOULDER_YAW]-sy_angle_noError) > abs(joint_angle[SHOULDER_YAW]-sy_angle_180Error)) {
+		//sprintf_s(oapiDebugString(), 255, "MoveEE: 180-degree yaw error: %f %f", abs(joint_angle[SHOULDER_YAW]-sy_angle_noError), offset_angle*DEG);
 		yaw180Error = true;
-		//sy_angle_r = -atan2(arm_wy_pos.y, arm_wy_pos.x)+offset_angle;
 		sy_angle_r = sy_angle_r + RAD*180.0 - 2*offset_angle;
-		new_joint_angles[SHOULDER_YAW] = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
+		new_joint_angles[SHOULDER_YAW] = sy_angle_180Error;
 
 		//arm_wy_pos = -arm_wy_pos;
 		//dir = -dir;
 		//rot = -rot;
 	}
-	//else sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f", abs(joint_angle[SHOULDER_YAW]-new_joint_angles[SHOULDER_YAW]));
-	oapiWriteLog(oapiDebugString());
+	else {
+		new_joint_angles[SHOULDER_YAW] = sy_angle_noError;
+		//sprintf_s(oapiDebugString(), 255, "MoveEE: no yaw error %f %f", abs(joint_angle[SHOULDER_YAW]-sy_angle_noError), offset_angle*DEG);
+	}
 	// calculate vector parallel to horizontal offset between booms
 	// offset_vector is perpendicular to boom plane
 	VECTOR3 offset_vector = RotateVectorZ(_V(0, 1, 0), sy_angle_r*DEG);
-	//VECTOR3 offset_vector = RotateVectorZ(_V(0, 1, 0), sy_angle_r*DEG);
-	//sprintf_s(oapiDebugString(), 255, "sy_angle: %f offset_angle: %f", DEG*sy_angle_r, DEG*offset_angle);
-	//if(offset_vector.y>0.0) offset_vector=-offset_vector; // make sure vector always points in -Y direction; simplifies math
-	//if(corrected_wy_pos.x<0.0) offset_vector=-offset_vector;
-	//VECTOR3 wp_dir = crossp(offset_vector, dir);
 	// wp_dir vector is vector in boom plane parallel to WY joint rotation axis
 	// if WR is 0, wp_dir is parallel to rot vector
 	VECTOR3 wp_dir = crossp(dir, offset_vector);
-	//VECTOR3 wp_dir;
-	//if(offset_vector.y<=0.0) wp_dir = crossp(offset_vector, newDir);
-	//else wp_dir = crossp(-offset_vector, newDir);
 	wp_dir/=length(wp_dir); // normalize vector
 	// calculate WP joint position after compensating for horizontal and vertical joint offsets
 	// we can now treat SSRMS as a single boom with multiple joints (like SRMS)
@@ -364,16 +371,9 @@ bool SSRMS::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &
 
 	//if(yaw180Error) sp_angle_d+=180.0;
 
-	//double sy_angle_d = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
-	//sy_angle_d = ResolveToNearestAngle(sy_angle_r*DEG, joint_angle[SHOULDER_YAW]);
 	// increment angles by 360 degrees to get them as close as possible to existing values
 	// this was already done for SY joint
 	for(int joint=SHOULDER_PITCH;joint<=WRIST_ROLL;joint++) new_joint_angles[joint] = ResolveToNearestAngle(new_joint_angles[joint], joint_angle[joint]);
-	/*sp_angle_d = ResolveToNearestAngle(sp_angle_d, joint_angle[SHOULDER_PITCH]);
-	ep_angle_d = ResolveToNearestAngle(ep_angle_d, joint_angle[ELBOW_PITCH]);
-	wp_angle_d = ResolveToNearestAngle(wp_angle_d, joint_angle[WRIST_PITCH]);
-	wy_angle_d = ResolveToNearestAngle(wy_angle_d, joint_angle[WRIST_YAW]);
-	wr_angle_d = ResolveToNearestAngle(wr_angle_d, joint_angle[WRIST_ROLL]);*/
 
 	// make sure angles are within limits
 	for(int joint=SHOULDER_YAW;joint<=WRIST_ROLL;joint++) {
@@ -586,6 +586,26 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			update_vectors=true;
 			update_camera = true;
 		}
+		else if(!_strnicmp(line, "ARM_SET1", 8)) {
+			sscanf(line+8, "%lf%lf%lf%lf%lf%lf%lf", &arm1_Br, &arm1_By, &arm1_Bp,
+				&arm1_ep, &arm1_Ap, &arm1_Ay, &arm1_Ar);
+			arm1set=true;
+		}
+		else if(!_strnicmp(line, "ARM_SET2", 8)) {
+			sscanf(line+8, "%lf%lf%lf%lf%lf%lf%lf", &arm2_Br, &arm2_By, &arm2_Bp,
+				&arm2_ep, &arm2_Ap, &arm2_Ay, &arm2_Ar);
+			arm2set=true;
+		}
+		else if(!_strnicmp(line, "ARM_SET3", 8)) {
+			sscanf(line+8, "%lf%lf%lf%lf%lf%lf%lf", &arm3_Br, &arm3_By, &arm3_Bp,
+				&arm3_ep, &arm3_Ap, &arm3_Ay, &arm3_Ar);
+			arm3set=true;
+		}
+		else if(!_strnicmp(line, "ARM_SET4", 8)) {
+			sscanf(line+8, "%lf%lf%lf%lf%lf%lf%lf", &arm4_Br, &arm4_By, &arm4_Bp,
+				&arm4_ep, &arm4_Ap, &arm4_Ay, &arm4_Ar);
+			arm4set=true;
+		}
 		else if(!_strnicmp(line, "ACTIVE_LEE", 10)) {
 			sscanf(line+10, "%d", &activeLEE);
 			passiveLEE=1-activeLEE;
@@ -607,6 +627,9 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscanf(line+10, "%lf%lf%lf%lf", &camAPan, &camATilt, &camBPan, &camBTilt);
 			update_camera = true;
 		}
+		else if (!_strnicmp (line, "DIALOG",6)) {
+			bDiag = true;
+		}
 		else if(!pSubsystemDirector->ParseScenarioLine(scn, line)) {
 			ParseScenarioLineEx(line, vs);
 		}
@@ -621,12 +644,35 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 	VESSEL3::clbkSaveState(scn);
 
 	char cbuf[255];
+	HWND hDlg;
 	sprintf(cbuf, "%f %f %f %f %f %f %f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
 				joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
+	if (arm1set){
+			sprintf(cbuf, "%f %f %f %f %f %f %f", arm1_Br, arm1_By, arm1_Bp,
+				arm1_ep, arm1_Ap, arm1_Ay, arm1_Ar);
+	oapiWriteScenario_string(scn, "ARM_SET1", cbuf);
+	}
+	if (arm2set){
+			sprintf(cbuf, "%f %f %f %f %f %f %f", arm2_Br, arm2_By, arm2_Bp,
+				arm2_ep, arm2_Ap, arm2_Ay, arm2_Ar);
+	oapiWriteScenario_string(scn, "ARM_SET2", cbuf);
+	}
+	if (arm3set){
+			sprintf(cbuf, "%f %f %f %f %f %f %f", arm3_Br, arm3_By, arm3_Bp,
+				arm3_ep, arm3_Ap, arm3_Ay, arm3_Ar);
+	oapiWriteScenario_string(scn, "ARM_SET3", cbuf);
+	}
+	if (arm4set){
+			sprintf(cbuf, "%f %f %f %f %f %f %f", arm4_Br, arm4_By, arm4_Bp,
+				arm4_ep, arm4_Ap, arm4_Ay, arm4_Ar);
+	oapiWriteScenario_string(scn, "ARM_SET4", cbuf);
+	}
 	oapiWriteScenario_int(scn, "ACTIVE_LEE", activeLEE);
 	WriteScenario_state(scn, "FOLDED", foldState);
 	if(LEELight[activeLEE]->IsActive()) oapiWriteLine(scn, "  LIGHT");
+		sprintf (cbuf, "");
+	if (hDlg = oapiFindDialog (hDLL, IDD_SSRMS)) oapiWriteLine(scn, "  DIALOG");
 	oapiWriteScenario_int(scn, "ACTIVE_CAMERA", static_cast<int>(cameraView));
 	sprintf(cbuf, "%f %f %f %f", camAPan, camATilt, camBPan, camBTilt);
 	oapiWriteScenario_string(scn, "CAM_STATUS", cbuf);
@@ -694,14 +740,30 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 			THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
 			THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
 		}
+
 		THCInput*=EE_TRANSLATION_SPEED*SimDT*SpeedFactor;
+
+		if (DiagPushed==true) {
+			THCInput = DialogInput;
+			DialogInput=_V(0, 0, 0);
+			DiagPushed=false;
+			THCInput*=EE_TRANSLATION_SPEED*SimDT2*SpeedFactor;
+		}
 
 		RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
 		RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 		RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
 		//sprintf_s(oapiDebugString(), 255, "R: %f P: %f Y: %f", RHCInput.data[ROLL], RHCInput.data[PITCH], RHCInput.data[YAW]);
+
 		RHCInput*=EE_ROTATION_SPEED*SimDT*SpeedFactor;
 			
+		if (DiagPushed2==true) {
+			RHCInput = DialogInput2;
+			DialogInput2=_V(0, 0, 0);
+			DiagPushed2=false;
+			RHCInput*=EE_ROTATION_SPEED*SimDT2*SpeedFactor;
+		}
+
 		//sprintf_s(oapiDebugString(), 255, "EETrans: %f %f %f", EETrans.x/length(EETrans), EETrans.y/length(EETrans), EETrans.z/length(EETrans));
 		if(!Eq(THCInput, _V(0.0, 0.0, 0.0), 0.0001) || !Eq(RHCInput, _V(0.0, 0.0, 0.0))) {
 			VECTOR3 EETrans, newDir, newRot;
@@ -741,7 +803,57 @@ void SSRMS::clbkPreStep(double SimT, double SimDT, double mjd)
 
 void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 {
+//
+// modifications DLH
+//
+	HWND hDlg;
+	VESSEL* pVessel=NULL;
+
+	// check child attach points first
+	CanGrapple=false;
+	ATTACHMENTHANDLE hAtt=pLEE[activeLEE]->FindPayload(false, &pVessel);
+	if(hAtt) {
+		CanGrapple=true;
+	}
+	else { // check for base PDGF
+		hAtt=pLEE[activeLEE]->FindPayload(true, &pVessel);		
+		if(hAtt) {
+			CanGrapple=true;
+		}
+	}
+
+	if ((bFirstpass==false) && (bDiag==true)){
+		oapiOpenDialogEx (hDLL, IDD_SSRMS, SSRMS_DlgProc, DLG_CAPTIONCLOSE, this);
+		bFirstpass=true;
+	}
+	if (hDlg = oapiFindDialog (hDLL, IDD_SSRMS)) {
+		EnableWindow (GetDlgItem (hDlg, IDC_HALT), center_arm ? TRUE:FALSE);
+		EnableWindow (GetDlgItem (hDlg, IDC_GRAPPLE), CanGrapple ? TRUE:FALSE);
+		EnableWindow (GetDlgItem (hDlg, IDC_RECALL1), arm1set ? TRUE:FALSE);
+		EnableWindow (GetDlgItem (hDlg, IDC_RECALL2), arm2set ? TRUE:FALSE);
+		EnableWindow (GetDlgItem (hDlg, IDC_RECALL3), arm3set ? TRUE:FALSE);
+		EnableWindow (GetDlgItem (hDlg, IDC_RECALL4), arm4set ? TRUE:FALSE);
+		if (LightChange){
+			SetWindowText (GetDlgItem (hDlg, IDC_LIGHT), "OFF");
+			if(LEELight[activeLEE]->IsActive())SetWindowText (GetDlgItem (hDlg, IDC_LIGHT), "ON");
+			LightChange=false;
+		}
+		if(SpeedChange){
+			SetWindowText (GetDlgItem (hDlg, IDC_SPEED), "Speed 1");
+			if(SpeedFactor==2.0) SetWindowText (GetDlgItem (hDlg, IDC_SPEED), "Speed 2");
+			if(SpeedFactor==5.0) SetWindowText (GetDlgItem (hDlg, IDC_SPEED), "Speed 5");
+			if(SpeedFactor==10.0) SetWindowText (GetDlgItem (hDlg, IDC_SPEED), "Speed 10");
+			SpeedChange=false;
+		}
+		if(bGrappled) SetWindowText (GetDlgItem (hDlg, IDC_GRAPPLE), pLEE[activeLEE]->Grappled() ? "Release" : "Grapple");
+
+	}
+
+	if (center_arm) SeqSSRMS();
+
 	pSubsystemDirector->PostStep(SimT, SimDT, MJD);
+
+	CheckFlags();
 
 	if(arm_moved) {
 		// calculate attitude
@@ -754,6 +866,7 @@ void SSRMS::clbkPostStep(double SimT, double SimDT, double MJD)
 								  ee_frame_x.y, ee_frame_y.y, ee_frame_z.y,
 								  ee_frame_x.z, ee_frame_y.z, ee_frame_z.z);
 		ee_angles_output = GetYZX_PYRAnglesFromMatrix(ee_frame_mat)*DEG;
+		if(activeLEE == 0) ee_angles_output.data[YAW] = -ee_angles_output.data[YAW];
 
 		// calculate position
 		// at the moment, this is just distance (in inches) from base LEE to active LEE (in selected frame)
@@ -783,28 +896,36 @@ bool SSRMS::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp)
 	//display joint angles
 	sprintf(cbuf, "   SR      SY      SP      EP      WP      WY      WR");
 	skp->Text(hps->W/3, hps->H/10, cbuf, strlen(cbuf));
-	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
+	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f    (current)", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
 		joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	skp->Text(hps->W/3, (hps->H/10)+(hps->Markersize/2), cbuf, strlen(cbuf));
+
+	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f    TGT", arm6_Br,arm6_By,arm6_Bp,arm6_ep,arm6_Ap,arm6_Ay,arm6_Ar);
+	skp->Text(hps->W/3, (hps->H/10)+(hps->Markersize), cbuf, strlen(cbuf));
+
+	sprintf(cbuf, "%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f    ERR", joint_angle[SHOULDER_ROLL]-arm6_Br, joint_angle[SHOULDER_YAW]-arm6_By, joint_angle[SHOULDER_PITCH]-arm6_Bp,
+		joint_angle[ELBOW_PITCH]-arm6_ep, joint_angle[WRIST_PITCH]-arm6_Ap, joint_angle[WRIST_YAW]-arm6_Ay, joint_angle[WRIST_ROLL]-arm6_Ar);
+	skp->Text(hps->W/3, (hps->H/10)+(1.5*hps->Markersize), cbuf, strlen(cbuf));
+
 	// position/attitude
 	sprintf(cbuf, "   X     Y     Z      Pitch   Yaw    Roll");
-	skp->Text(hps->W/3, hps->H/10 + hps->Markersize, cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, hps->H/10 + (2.5*hps->Markersize), cbuf, strlen(cbuf));
 	sprintf(cbuf, "%+5.0f %+5.0f %+5.0f    %+5.1f  %+4.1f  %+5.1f", ee_pos_output.x, ee_pos_output.y, ee_pos_output.z, ee_angles_output.data[PITCH], ee_angles_output.data[YAW], ee_angles_output.data[ROLL]);
-	skp->Text(hps->W/3, hps->H/10 + 1.5*hps->Markersize, cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, hps->H/10 + (3.0*hps->Markersize), cbuf, strlen(cbuf));
 
 	//rotation/translation speed
 	sprintf(cbuf, "Rotation speed: %d deg/sec", SpeedFactor);
-	skp->Text(hps->W/3, (hps->H/10)+(2.0*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(3.5*hps->Markersize), cbuf, strlen(cbuf));
 	sprintf(cbuf, "Translation speed: %d ft/sec", SpeedFactor);
-	skp->Text(hps->W/3, (hps->H/10)+(2.5*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(4.0*hps->Markersize), cbuf, strlen(cbuf));
 
 	if(RefFrame==EE_FRAME)
-		skp->Text(hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using EE frame", 14);
-	else skp->Text(hps->W/3, (hps->H/10)+(3.5*hps->Markersize), "Using shoulder frame", 20);
+		skp->Text(hps->W/3, (hps->H/10)+(4.5*hps->Markersize), "Using EE frame", 14);
+	else skp->Text(hps->W/3, (hps->H/10)+(4.5*hps->Markersize), "Using shoulder frame", 20);
 
 	if(pLEE[activeLEE]->Grappled()) sprintf(cbuf, "LEE%d - Latched", activeLEE+1);
 	else sprintf(cbuf, "LEE%d - Open", activeLEE+1);
-	skp->Text(hps->W/3, (hps->H/10)+(4.5*hps->Markersize), cbuf, strlen(cbuf));
+	skp->Text(hps->W/3, (hps->H/10)+(5.0*hps->Markersize), cbuf, strlen(cbuf));
 	sprintf(cbuf, "LEE%d - BASE", (1-activeLEE)+1);
 	skp->Text(hps->W/3, (hps->H/10)+(5.5*hps->Markersize), cbuf, strlen(cbuf));
 	
@@ -909,9 +1030,10 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			case OAPI_KEY_G:
 				//if(!down) ToggleGrapple();
 				if(!down) {
-					oapiWriteLog("Toggling Grapple");
+					//oapiWriteLog("Toggling Grapple");
 					if(pLEE[activeLEE]->Grappled()) pLEE[activeLEE]->Ungrapple();
 					else pLEE[activeLEE]->Grapple();
+					bGrappled=true;
 				}
 				return 1;
 			case OAPI_KEY_F:
@@ -927,8 +1049,19 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 				return 1;
 			case OAPI_KEY_L:
 				if(!down) {
+					LightChange=true;
 					if(!LEELight[activeLEE]->IsActive()) LEELight[activeLEE]->Activate(true);
 					else LEELight[activeLEE]->Activate(false);
+				}
+				return 1;
+			case OAPI_KEY_SPACE: // open SSRMS control dialog
+				if(down) {
+					oapiOpenDialogEx (hDLL, IDD_SSRMS, SSRMS_DlgProc, DLG_CAPTIONCLOSE, this);
+				}
+				return 1;
+			case OAPI_KEY_I: 
+				if(down) {
+					FULLINPUT();
 				}
 				return 1;
 			case OAPI_KEY_UP:
@@ -1019,6 +1152,7 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 				return 1;
 			case OAPI_KEY_S:
 				if(!down) {
+					SpeedChange=true;
 					if(SpeedFactor==1) SpeedFactor=2;
 					else if(SpeedFactor==2) SpeedFactor=5;
 					else if(SpeedFactor==5) SpeedFactor=10;
@@ -1060,7 +1194,8 @@ int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 // --------------------------------------------------------------
 DLLCLBK void InitModule (HINSTANCE hModule)
 {
-	//g_hDLL = hModule;
+	hDLL = hModule;
+
 }
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
@@ -1082,3 +1217,606 @@ DLLCLBK void ovcExit (VESSEL *vessel)
 {
 	if (vessel) delete static_cast<SSRMS*>(vessel);
 }
+// ==============================================================
+//
+// modifications DLH
+//
+//============================================================================================================================
+void SSRMS::LOADA ()
+{
+			arm6_Br = arm1_Br;
+			arm6_By = arm1_By;
+			arm6_Bp = arm1_Bp;
+			arm6_ep = arm1_ep;
+			arm6_Ap = arm1_Ap;
+			arm6_Ay = arm1_Ay;
+			arm6_Ar = arm1_Ar;
+
+}
+void SSRMS::LOADB()
+{
+			arm6_Br = arm2_Br;
+			arm6_By = arm2_By;
+			arm6_Bp = arm2_Bp;
+			arm6_ep = arm2_ep;
+			arm6_Ap = arm2_Ap;
+			arm6_Ay = arm2_Ay;
+			arm6_Ar = arm2_Ar;
+
+}
+void SSRMS::LOADC()
+{
+			arm6_Br = arm3_Br;
+			arm6_By = arm3_By;
+			arm6_Bp = arm3_Bp;
+			arm6_ep = arm3_ep;
+			arm6_Ap = arm3_Ap;
+			arm6_Ay = arm3_Ay;
+			arm6_Ar = arm3_Ar;
+
+}
+void SSRMS::LOADD()
+{
+			arm6_Br = arm4_Br;
+			arm6_By = arm4_By;
+			arm6_Bp = arm4_Bp;
+			arm6_ep = arm4_ep;
+			arm6_Ap = arm4_Ap;
+			arm6_Ay = arm4_Ay;
+			arm6_Ar = arm4_Ar;
+
+}
+void SSRMS::SAVEA ()
+{
+			arm1_Br = joint_angle[SHOULDER_ROLL];
+			arm1_By = joint_angle[SHOULDER_YAW];
+			arm1_Bp = joint_angle[SHOULDER_PITCH];
+			arm1_ep = joint_angle[ELBOW_PITCH];
+			arm1_Ap = joint_angle[WRIST_PITCH];
+			arm1_Ay = joint_angle[WRIST_YAW];
+			arm1_Ar = joint_angle[WRIST_ROLL];
+			arm1set = true;
+
+}
+void SSRMS::SAVEB()
+{
+			arm2_Br = joint_angle[SHOULDER_ROLL];
+			arm2_By = joint_angle[SHOULDER_YAW];
+			arm2_Bp = joint_angle[SHOULDER_PITCH];
+			arm2_ep = joint_angle[ELBOW_PITCH];
+			arm2_Ap = joint_angle[WRIST_PITCH];
+			arm2_Ay = joint_angle[WRIST_YAW];
+			arm2_Ar = joint_angle[WRIST_ROLL];
+			arm2set = true;
+
+}
+void SSRMS::SAVEC()
+{
+			arm3_Br = joint_angle[SHOULDER_ROLL];
+			arm3_By = joint_angle[SHOULDER_YAW];
+			arm3_Bp = joint_angle[SHOULDER_PITCH];
+			arm3_ep = joint_angle[ELBOW_PITCH];
+			arm3_Ap = joint_angle[WRIST_PITCH];
+			arm3_Ay = joint_angle[WRIST_YAW];
+			arm3_Ar = joint_angle[WRIST_ROLL];
+			arm3set = true;
+
+}
+void SSRMS::SAVED()
+{
+			arm4_Br = joint_angle[SHOULDER_ROLL];
+			arm4_By = joint_angle[SHOULDER_YAW];
+			arm4_Bp = joint_angle[SHOULDER_PITCH];
+			arm4_ep = joint_angle[ELBOW_PITCH];
+			arm4_Ap = joint_angle[WRIST_PITCH];
+			arm4_Ay = joint_angle[WRIST_YAW];
+			arm4_Ar = joint_angle[WRIST_ROLL];
+			arm4set = true;
+
+}
+// ==============================================================
+bool SSRMS::ItemChange (char *rstr)
+{
+	int ItemValue;
+	sscanf (rstr, "%d", &ItemValue);
+	DetermineArmSeq(ItemValue);
+	center_arm = true;
+	Seqindex = 0;
+	Seqfinished = false;
+
+	return true;
+}
+// ==============================================================
+void SSRMS::DetermineArmSeq (int ItemValue)
+{
+	armseq[0] = int(ItemValue/1e6);
+	ItemValue = ItemValue - (armseq[0]*1e6);
+	armseq[1] = int(ItemValue/1e5);
+	ItemValue = ItemValue - (armseq[1]*1e5);
+	armseq[2] = int(ItemValue/1e4);
+	ItemValue = ItemValue - (armseq[2]*1e4);
+	armseq[3] = int(ItemValue/1e3);
+	ItemValue = ItemValue - (armseq[3]*1e3);
+	armseq[4] = int(ItemValue/1e2);
+	ItemValue = ItemValue - (armseq[4]*1e2);
+	armseq[5] = int(ItemValue/1e1);
+	ItemValue = ItemValue - (armseq[5]*1e1);
+	armseq[6] = int(ItemValue);
+}
+// ==============================================================
+void SSRMS::SeqSSRMS()
+{
+	if (Seqfinished == true){
+		Seqfinished = false;
+		armseq[Seqindex] = 0;
+		Seqindex +=1;
+	}
+	if (Seqindex > 6) center_arm = false;
+	if (center_arm) PosSSRMS(Seqindex);
+}
+// ==============================================================
+void SSRMS::PosSSRMS (int i)
+{
+
+	double dt = oapiGetSimStep();       // time step
+	double da = JOINT_ROTATION_SPEED*dt*SpeedFactor;  // total rotation angle
+
+	switch (armseq[i])
+	{
+	case 1:
+		if ((joint_angle[0] != armM_Br)) {    // shoulder roll
+			if (da >= fabs(joint_angle[0]-armM_Br)) // finished
+				SetJointAngle(SHOULDER_ROLL, armM_Br), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(SHOULDER_ROLL,joint_angle[0]+((joint_angle[0] > armM_Br ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 2:
+		if ((joint_angle[1] != armM_By)) {    // shoulder yaw
+			if (da >= fabs(joint_angle[1]-armM_By)) // finished
+				SetJointAngle(SHOULDER_YAW, armM_By), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(SHOULDER_YAW,joint_angle[1]+((joint_angle[1] > armM_By ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 3:
+		if ((joint_angle[2] != armM_Bp)) {    // shoulder pitch
+			if (da >= fabs(joint_angle[2]-armM_Bp)) // finished
+				SetJointAngle(SHOULDER_PITCH, armM_Bp), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(SHOULDER_PITCH,joint_angle[2]+((joint_angle[2] > armM_Bp ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 4:
+		if ((joint_angle[3] != armM_ep)) {    // elbow pitch
+			if (da >= fabs(joint_angle[3]-armM_ep)) // finished
+				SetJointAngle(ELBOW_PITCH, armM_ep), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(ELBOW_PITCH,joint_angle[3]+((joint_angle[3] > armM_ep ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 5:
+		if ((joint_angle[4] != armM_Ap)) {    // wrist pitch
+			if (da >= fabs(joint_angle[4]-armM_Ap)) // finished
+				SetJointAngle(WRIST_PITCH, armM_Ap), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(WRIST_PITCH,joint_angle[4]+((joint_angle[4] > armM_Ap ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 6:
+		if ((joint_angle[5] != armM_Ay)) {    // wrist yaw
+			if (da >= fabs(joint_angle[5]-armM_Ay)) // finished
+				SetJointAngle(WRIST_YAW, armM_Ay), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(WRIST_YAW,joint_angle[5]+((joint_angle[5] > armM_Ay ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 7:
+		if ((joint_angle[6] != armM_Ar)) {    // wrist roll
+			if (da >= fabs(joint_angle[6]-armM_Ar)) // finished
+				SetJointAngle(WRIST_ROLL, armM_Ar), update_vectors=true, Seqfinished = true;
+			else 
+				SetJointAngle(WRIST_ROLL,joint_angle[6]+((joint_angle[6] > armM_Ar ? -da: da))), update_vectors=true;
+		}else{
+			Seqfinished = true;
+		}
+		break;
+	case 8:
+		if ((joint_angle[0] != armM_Br)||(joint_angle[1] != armM_By)||(joint_angle[2] != armM_Bp)||(joint_angle[3] != armM_ep)||(joint_angle[4] != armM_Ap)||(joint_angle[5] != armM_Ay)||(joint_angle[6] != armM_Ar)){
+			if (da >= fabs(joint_angle[0]-armM_Br)) // finished
+				SetJointAngle(SHOULDER_ROLL, armM_Br),update_vectors=true;
+			else 
+				SetJointAngle(SHOULDER_ROLL,joint_angle[0]+((joint_angle[0] > armM_Br ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[1]-armM_By)) // finished
+				SetJointAngle(SHOULDER_YAW, armM_By),update_vectors=true;
+			else 
+				SetJointAngle(SHOULDER_YAW,joint_angle[1]+((joint_angle[1] > armM_By ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[2]-armM_Bp)) // finished
+				SetJointAngle(SHOULDER_PITCH, armM_Bp),update_vectors=true;
+			else 
+				SetJointAngle(SHOULDER_PITCH,joint_angle[2]+((joint_angle[2] > armM_Bp ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[3]-armM_ep)) // finished
+				SetJointAngle(ELBOW_PITCH, armM_ep),update_vectors=true;
+			else 
+				SetJointAngle(ELBOW_PITCH,joint_angle[3]+((joint_angle[3] > armM_ep ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[4]-armM_Ap)) // finished
+				SetJointAngle(WRIST_PITCH, armM_Ap),update_vectors=true;
+			else 
+				SetJointAngle(WRIST_PITCH,joint_angle[4]+((joint_angle[4] > armM_Ap ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[5]-armM_Ay)) // finished
+				SetJointAngle(WRIST_YAW, armM_Ay),update_vectors=true;
+			else 
+				SetJointAngle(WRIST_YAW,joint_angle[5]+((joint_angle[5] > armM_Ay ? -da: da))),update_vectors=true;
+
+
+			if (da >= fabs(joint_angle[6]-armM_Ar)) // finished
+				SetJointAngle(WRIST_ROLL, armM_Ar), update_vectors=true;
+			else 
+				SetJointAngle(WRIST_ROLL,joint_angle[6]+((joint_angle[6] > armM_Ar ? -da: da))), update_vectors=true;
+		}else{
+			update_vectors=true;
+			Seqfinished = true;
+		}
+
+		
+		break;
+	case 0:
+		Seqfinished = true;
+		break;
+	}
+}
+bool IteminputJoint(void *id, char *str, void *data)
+{	
+		return ((SSRMS*)data)->ItemChangeJoint (str);
+}
+// ==============================================================
+bool SSRMS::ItemChangeJoint (char *rstr)
+{
+	int JointValue;
+	double JointAmt;
+	sscanf (rstr, "%d%lf", &JointValue, &JointAmt);
+	if (JointAmt > 270.0) JointAmt = 270.0;
+	if (JointAmt < -270.0) JointAmt = -270.0;
+	switch (JointValue){
+	case 1:
+		arm6_Br = JointAmt;
+		break;
+	case 2:
+		arm6_By = JointAmt;
+		break;
+	case 3:
+		arm6_Bp = JointAmt;
+		break;
+	case 4:
+		arm6_ep = JointAmt;
+		break;
+	case 5:
+		arm6_Ap = JointAmt;
+		break;
+	case 6:
+		arm6_Ay = JointAmt;
+		break;
+	case 7:
+		arm6_Ar = JointAmt;
+		break;
+	}
+return true;
+}
+void SSRMS::ARMINPUT()
+{
+			oapiOpenInputBox ("Joint (1-7) and Value (degrees)", IteminputJoint, 0, 20, (void*)this);
+}
+bool FullinputJoint(void *id, char *str, void *data)
+{	
+		return ((SSRMS*)data)->FullChangeJoint (str);
+}
+// ==============================================================
+bool SSRMS::FullChangeJoint (char *rstr)
+{
+	sscanf (rstr, "%lf%lf%lf%lf%lf%lf%lf", &arm6_Br, &arm6_By, &arm6_Bp, &arm6_ep, &arm6_Ap, &arm6_Ay, &arm6_Ar);
+
+return true;
+}
+void SSRMS::FULLINPUT()
+{
+			oapiOpenInputBox ("SR    SY    SP    EP    WP    WY    WR", FullinputJoint, 0, 60, (void*)this);
+}
+bool Iteminput(void *id, char *str, void *data)
+{	
+		return ((SSRMS*)data)->ItemChange (str);
+}
+void SSRMS::ARMSEQ()
+{
+			armM_Br = arm6_Br;
+			armM_Bp = arm6_Bp;
+			armM_By = arm6_By;
+			armM_ep = arm6_ep;
+			armM_Ap = arm6_Ap;
+			armM_Ay = arm6_Ay;
+			armM_Ar = arm6_Ar;
+			oapiOpenInputBox ("ARM SEQ", Iteminput, 0, 20, (void*)this);		
+
+}
+BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+//	HWND hDlg;
+	SSRMS *sts = (uMsg == WM_INITDIALOG ? (SSRMS*)lParam : (SSRMS*)oapiGetDialogContext (hWnd));
+
+	const double step = 0.05*RAD;
+	static double t0;
+	double t1;
+
+
+	switch (uMsg) {
+	case WM_INITDIALOG:
+		SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE), sts->pLEE[sts->activeLEE]->Grappled() ? "Release" : "Grapple");
+		SetTimer (hWnd, 1, 50, NULL);
+		t0 = oapiGetSimTime();
+		return FALSE;
+	case WM_DESTROY:
+		KillTimer (hWnd, 1);
+		return 0;
+	case WM_TIMER:
+		t1 = oapiGetSimTime();
+
+// Rotations
+
+		if (SendDlgItemMessage (hWnd, IDC_WRPA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_ROLL, sts->joint_angle[6]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WRNA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_ROLL, sts->joint_angle[6]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WYPA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_YAW, sts->joint_angle[5]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WYNA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_YAW, sts->joint_angle[5]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WPPA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_PITCH, sts->joint_angle[4]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WPNA, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->WRIST_PITCH, sts->joint_angle[4]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_EPP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_EPN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WPPB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_PITCH, sts->joint_angle[2]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WPNB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_PITCH, sts->joint_angle[2]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WYPB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_YAW, sts->joint_angle[1]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WYNB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_YAW, sts->joint_angle[1]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WRPB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_ROLL, sts->joint_angle[0]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+				sts->update_vectors=true;
+
+		} else if (SendDlgItemMessage (hWnd, IDC_WRNB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->SetJointAngle(sts->SHOULDER_ROLL, sts->joint_angle[0]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+				sts->update_vectors=true;
+
+// IK Translations
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_PX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.x=1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.y=1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_PZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.z=1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_MX, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.x=-1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.y=-1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_TRANS_MZ, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput.z=-1.0;
+				sts->DiagPushed=true;
+				sts->SimDT2=(t1-t0);
+
+// IK Rotations
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_PP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.x=1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_PY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.y=1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_PR, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.z=1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_MP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.x=-1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_MY, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.y=-1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		} else if (SendDlgItemMessage (hWnd, IDC_ROT_MR, BM_GETSTATE, 0, 0) & BST_PUSHED) {
+				sts->DialogInput2.z=-1.0;
+				sts->DiagPushed2=true;
+				sts->SimDT2=(t1-t0);
+
+		}
+		t0 = t1;
+		return 0;
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+	case IDCANCEL:
+		oapiCloseDialog (hWnd);
+		return TRUE;
+	case IDC_GRAPPLE:
+					//oapiWriteLog("Toggling Grapple");
+					if(sts->pLEE[sts->activeLEE]->Grappled()){
+						sts->pLEE[sts->activeLEE]->Ungrapple();
+						SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE),"Grapple");
+					}else{
+						sts->pLEE[sts->activeLEE]->Grapple();
+						if(sts->pLEE[sts->activeLEE]->Grappled()) SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE),"Release");
+					}
+		return 0;
+	case IDC_FRAME:
+					if(sts->RefFrame==sts->EE_FRAME) {
+						sts->RefFrame=sts->BASE_FRAME;
+						SetWindowText (GetDlgItem (hWnd, IDC_FRAME),"Shoulder Frame");
+					}else {
+						sts->RefFrame=sts->EE_FRAME;
+						SetWindowText (GetDlgItem (hWnd, IDC_FRAME),"EE Frame");
+					}
+		return 0;
+	case IDC_SHOWGRAPPLE:
+					if(!sts->ShowAttachmentPoints) {
+						sts->ShowAttachmentPoints=true;
+						SetWindowText (GetDlgItem (hWnd, IDC_SHOWGRAPPLE),"Hide");
+					}else{ 
+						sts->ShowAttachmentPoints=false;
+						SetWindowText (GetDlgItem (hWnd, IDC_SHOWGRAPPLE),"Display");
+					}
+					oapiSetShowGrapplePoints(sts->ShowAttachmentPoints);
+		return 0;
+	case IDC_SPEED:
+					if(sts->SpeedFactor==1) sts->SpeedFactor=2;
+					else if(sts->SpeedFactor==2) sts->SpeedFactor=5;
+					else if(sts->SpeedFactor==5) sts->SpeedFactor=10;
+					else sts->SpeedFactor=1;
+					sts->SpeedChange=true;
+		return 0;
+	case IDC_LIGHT:
+					if(!sts->LEELight[sts->activeLEE]->IsActive()) sts->LEELight[sts->activeLEE]->Activate(true);
+					else sts->LEELight[sts->activeLEE]->Activate(false);
+					sts->LightChange=true;
+		return 0;
+	case IDC_STORE1:
+		sts->SAVEA();
+		return 0;
+	case IDC_STORE2:
+		sts->SAVEB();
+		return 0;
+	case IDC_STORE3:
+		sts->SAVEC();
+		return 0;
+	case IDC_STORE4:
+		sts->SAVED();
+		return 0;
+	case IDC_RECALL1:
+		sts->LOADA();
+		return 0;
+	case IDC_RECALL2:
+		sts->LOADB();
+		return 0;
+	case IDC_RECALL3:
+		sts->LOADC();
+		return 0;
+	case IDC_RECALL4:
+		sts->LOADD();
+		return 0;
+	case IDC_SEQ:
+		sts->ARMSEQ();
+		return 0;
+	case IDC_HALT:
+		sts->StopMotion();
+		return 0;
+	case IDC_SEL:
+		sts->ARMINPUT();
+		return 0;
+	case IDC_ALL:
+		sts->FULLINPUT();
+		return 0;
+		}
+		break;
+	}
+	return oapiDefDialogProc (hWnd, uMsg, wParam, lParam);
+}
+// ==============================================================
+void SSRMS::StopMotion ()
+{
+	int i;
+//	for (i = 0; i < 15; i++) armmotion[i] = false;
+	center_arm = false;
+}
+// ==============================================================
+void SSRMS::CheckFlags()
+{
+	if (arm1set && arm1_Br==0.0 && arm1_By == 0.0 && arm1_Bp == 0.0
+		&& arm1_ep == 0.0 && arm1_Ar == 0.0 && arm1_Ay == 0.0 
+		&& arm1_Ap == 0.0) arm1set = false;
+	if (arm2set && arm2_Br==0.0 && arm2_By == 0.0 && arm2_Bp == 0.0
+		&& arm2_ep == 0.0 && arm2_Ar == 0.0 && arm2_Ay == 0.0 
+		&& arm2_Ap == 0.0) arm2set = false;
+	if (arm3set && arm3_Br==0.0 && arm3_By == 0.0 && arm3_Bp == 0.0
+		&& arm3_ep == 0.0 && arm3_Ar == 0.0 && arm3_Ay == 0.0 
+		&& arm3_Ap == 0.0) arm3set = false;
+	if (arm4set && arm4_Br==0.0 && arm4_By == 0.0 && arm4_Bp == 0.0
+		&& arm4_ep == 0.0 && arm4_Ar == 0.0 && arm4_Ay == 0.0 
+		&& arm4_Ap == 0.0) arm4set = false;
+	if (arm5set && arm5_Br==0.0 && arm5_By == 0.0 && arm5_Bp == 0.0
+		&& arm5_ep == 0.0 && arm5_Ar == 0.0 && arm5_Ay == 0.0 
+		&& arm5_Ap == 0.0) arm5set = false;
+}
+//============================================================================================================================

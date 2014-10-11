@@ -63,7 +63,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib;user32.lib</AdditionalDependencies>
       <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
@@ -80,7 +80,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib;user32.lib</AdditionalDependencies>
       <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
@@ -95,7 +95,7 @@
       <AdditionalIncludeDirectories>..\include;..\libUltra\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib;user32.lib</AdditionalDependencies>
       <OutputFile>..\..\Modules\SSRMSD.dll</OutputFile>
       <AdditionalLibraryDirectories>..\lib;..\libUltra\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;libcmtd</IgnoreSpecificDefaultLibraries>
@@ -110,10 +110,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LEESystem.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SSRMS.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Implementation Notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SSRMS.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
