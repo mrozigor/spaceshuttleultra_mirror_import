@@ -7,6 +7,7 @@
 #include "SubsystemDirector.h"
 #include "LEESystem.h"
 #include <cmath>
+#include "resource.h"
 
 static const char* ATTACH_ID = "GS";
 //static const char* ATTACH_ID = "A";
@@ -60,6 +61,11 @@ const double CAM_TILT_MIN = -92.0; // deg
 
 class SSRMS: public VESSEL3
 {
+//
+// modifications DLH
+//
+	friend BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 public:
 	typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
 	typedef enum {SHOULDER_ROLL=0, SHOULDER_YAW, SHOULDER_PITCH, ELBOW_PITCH, WRIST_PITCH, WRIST_YAW, WRIST_ROLL} SSRMS_JOINT;
@@ -78,9 +84,34 @@ public:
 	void clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefaultTex);
 	void clbkPostCreation();
 	int  clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
+//
+// modifications DLH
+//
+//============================================================================================================================
+	void StopMotion();
+	bool ItemChange (char *rstr);
+	bool ItemChangeJoint (char *rstr);
+	bool FullChangeJoint (char *rstr);
+//============================================================================================================================
 private:
 	void DefineAnimations();
 	void DefineThrusters();
+
+	void PosSSRMS(int i);
+	void SeqSSRMS();
+	void CheckFlags();
+	void DetermineArmSeq(int ItemValue);
+	void LOADA();
+	void LOADB();
+	void LOADC();
+	void LOADD();
+	void SAVEA();
+	void SAVEB();
+	void SAVEC();
+	void SAVED();
+	void ARMSEQ();
+	void ARMINPUT();
+	void FULLINPUT();
 
 	//SSRMS functions
 	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
@@ -146,7 +177,9 @@ private:
 	NOTEHANDLE nhCameraLabel; // annotation to display current camera view
 	double annotationDisplayTime; // counter used to show/hide camera label
 	
-	VECTOR3 AltKybdInput;
+	VECTOR3 AltKybdInput, DialogInput, DialogInput2;
+	bool DiagPushed, DiagPushed2;
+	bool CanGrapple;
 
 	VECTOR3 mesh_center; // used to shift meshes so active LEE is at centre of external view
 
@@ -168,6 +201,29 @@ private:
 
 	//ATTACHMENTHANDLE ahBase, ahGrapple;
 	//LatchSystem* pLEE[2];
+
+//
+// modifications DLH
+//
+//============================================================================================================================
+	double arm1_Ay, arm1_Ap, arm1_Ar, arm1_ep, arm1_Bp, arm1_By, arm1_Br;
+	double arm2_Ay, arm2_Ap, arm2_Ar, arm2_ep, arm2_Bp, arm2_By, arm2_Br;
+	double arm3_Ay, arm3_Ap, arm3_Ar, arm3_ep, arm3_Bp, arm3_By, arm3_Br;
+	double arm4_Ay, arm4_Ap, arm4_Ar, arm4_ep, arm4_Bp, arm4_By, arm4_Br;
+	double arm5_Ay, arm5_Ap, arm5_Ar, arm5_ep, arm5_Bp, arm5_By, arm5_Br;
+	double arm6_Ay, arm6_Ap, arm6_Ar, arm6_ep, arm6_Bp, arm6_By, arm6_Br;
+	double armM_Ay, armM_Ap, armM_Ar, armM_ep, armM_Bp, armM_By, armM_Br;
+
+	bool arm1set, arm2set, arm3set, arm4set, arm5set;
+	int armseq[8];
+	int Seqindex;
+	bool Seqfinished;
+	bool center_arm;
+
+	bool bFirstpass, bDiag;
+	bool SpeedChange, LightChange;
+	double SimDT2;
+	bool bGrappled;
 };
 
 #endif // !__SSRMS_H
