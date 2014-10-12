@@ -2031,7 +2031,7 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
 	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, -7.303044 * RAD, 72.387373 * RAD, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
 	vLandingSites.push_back( LandingSiteData( -27.624551 * RAD, 152.712429 * RAD, -14.512784 * RAD, 132.367147 * RAD, 159.3, 135, "AMB15", "PTN14", 10000 / MPS2FPS, 150 / MPS2FPS ) );// 33
-	vLandingSites.back().SetSecRunwayParameters( 9003 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
+	vLandingSites.back().SetSecRunwayParameters( 9003 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
