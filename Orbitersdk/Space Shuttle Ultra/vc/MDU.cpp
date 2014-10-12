@@ -2291,7 +2291,7 @@ namespace vc {
 			// 1900px + offsets
 			SelectObject( hDCTapes, BlackPen );
 			SelectObject( hDCTapes, BlackBrush );
-			Rectangle( hDCTapes, 23, 1900 + offset, 44, 1900 + offset + offset );
+			Rectangle( hDCTapes, 23, 1900 + offset, 45, 1900 + offset + offset );
 
 			SetTextColor( hDCTapes, CR_BLACK );
 			SetBkMode( hDCTapes, TRANSPARENT );
