@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EDA1260C-9F5C-478A-B18B-A687101FC234}</ProjectGuid>
+    <RootNamespace>libUltra</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>libUltra</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">./lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">./lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>./include;../include;./KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>./include;../include;./KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="KOST\kost_elements.cpp" />
+    <ClCompile Include="KOST\kost_linalg.cpp" />
+    <ClCompile Include="KOST\kost_math.cpp" />
+    <ClCompile Include="KOST\kost_propagate.cpp" />
+    <ClCompile Include="KOST\kost_shape.cpp" />
+    <ClCompile Include="src\AerodynamicLookupTables.cpp" />
+    <ClCompile Include="src\Averager.cpp" />
+    <ClCompile Include="src\BasicValve.cpp" />
+    <ClCompile Include="src\BIU.cpp" />
+    <ClCompile Include="src\BusController.cpp" />
+    <ClCompile Include="src\BusTerminal.cpp" />
+    <ClCompile Include="src\DiscInPort.cpp" />
+    <ClCompile Include="src\DiscOutPort.cpp" />
+    <ClCompile Include="src\DiscreteBundle.cpp" />
+    <ClCompile Include="src\DiscreteBundleManager.cpp" />
+    <ClCompile Include="src\DiscretePort.cpp" />
+    <ClCompile Include="src\HydraulicActuatedValve.cpp" />
+    <ClCompile Include="src\LambertBurnTargeting.cpp" />
+    <ClCompile Include="src\MMUTapeImage.cpp" />
+    <ClCompile Include="src\PEG4Targeting.cpp" />
+    <ClCompile Include="src\PIDControl.cpp" />
+    <ClCompile Include="src\PressureActuatedValve.cpp" />
+    <ClCompile Include="src\Sensor.cpp" />
+    <ClCompile Include="src\ShuttleBus.cpp" />
+    <ClCompile Include="src\SolenoidValve.cpp" />
+    <ClCompile Include="src\StateVectorPropagator.cpp" />
+    <ClCompile Include="src\UltraMath.cpp" />
+    <ClCompile Include="src\ValveTypeBool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AerodynamicLookupTables.h" />
+    <ClInclude Include="include\Averager.h" />
+    <ClInclude Include="include\BasicPanel.h" />
+    <ClInclude Include="include\BasicVCComponent.h" />
+    <ClInclude Include="include\BIU.h" />
+    <ClInclude Include="include\DiscInPort.h" />
+    <ClInclude Include="include\DiscOutPort.h" />
+    <ClInclude Include="include\DiscreteBundle.h" />
+    <ClInclude Include="include\DiscreteBundleManager.h" />
+    <ClInclude Include="include\DiscretePort.h" />
+    <ClInclude Include="include\discsignals.h" />
+    <ClInclude Include="include\EngConst.h" />
+    <ClInclude Include="include\HydraulicActuatedValve.h" />
+    <ClInclude Include="include\ISSULaunchTower.h" />
+    <ClInclude Include="include\ISSUMLP.h" />
+    <ClInclude Include="include\ISubsystem.h" />
+    <ClInclude Include="include\LambertBurnTargeting.h" />
+    <ClInclude Include="include\MMUTapeImage.h" />
+    <ClInclude Include="include\PanelGroup.h" />
+    <ClInclude Include="include\PEG4Targeting.h" />
+    <ClInclude Include="include\PIDControl.h" />
+    <ClInclude Include="include\PressureActuatedValve.h" />
+    <ClInclude Include="include\PressureSource.h" />
+    <ClInclude Include="include\Sensor.h" />
+    <ClInclude Include="include\ShuttleBus.h" />
+    <ClInclude Include="include\SolenoidValve.h" />
+    <ClInclude Include="include\StateVectorPropagator.h" />
+    <ClInclude Include="include\Subsystem.h" />
+    <ClInclude Include="include\SubsystemDirector.h" />
+    <ClInclude Include="include\Ultra.h" />
+    <ClInclude Include="include\UltraMath.h" />
+    <ClInclude Include="include\ValveTypeBool.h" />
+    <ClInclude Include="KOST\kost.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
