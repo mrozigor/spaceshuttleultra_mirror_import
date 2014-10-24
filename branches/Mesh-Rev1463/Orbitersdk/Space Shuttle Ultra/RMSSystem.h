@@ -38,12 +38,12 @@ const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RM
 const VECTOR3 RMS_MESH_OFFSET = _V(0.0, 0.0, 0.0);
 
 // RMS joint positions
-const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);
-const VECTOR3 RMS_SP_JOINT = _V(-2.632, -0.173, 7.124);
-const VECTOR3 RMS_EP_JOINT = _V(-2.581, -0.3285, 0.757);
-const VECTOR3 RMS_WP_JOINT = _V(-2.632, -0.173, -6.293);
-const VECTOR3 RMS_WY_JOINT = _V(-2.632, -0.173, -6.734);
-const VECTOR3 RMS_EE_POS = _V(-2.632, -0.173, -8.0);
+const VECTOR3 RMS_SY_JOINT = _V(-2.747, 1.771, 9.47);
+const VECTOR3 RMS_SP_JOINT = _V(-2.866, 2.131, 9.47);
+const VECTOR3 RMS_EP_JOINT = _V(-2.809, 1.97, 3.01);
+const VECTOR3 RMS_WP_JOINT = _V(-2.867, 2.132, -4.02);
+const VECTOR3 RMS_WY_JOINT = _V(-2.867, 2.132, -4.58);
+const VECTOR3 RMS_EE_POS = _V(-2.8657, 2.1299, -5.90);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
@@ -86,10 +86,12 @@ const double RMS_EXTEND_SPEED = 0.142857;
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
+//const VECTOR3 RMS_EE_CAM_OFFSET = {-0.091886, 0.276656, 0.666001};
+//const VECTOR3 RMS_EE_CAM_OFFSET = {0.0, 0.276656, 0.666001};
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.9597, 2.3707, -5.37); // Not true position of EE cam. Includes a fudge factor to account for a 0.03 m offset between the alignment target and grapple pin on Donamy's grapple fixture meshes
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
-const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.65, 0.65, 0.34);
-const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.6941, 2.5933, 2.01);
+const VECTOR3 RMS_EE_LIGHT_POS = _V(-3.011, 2.518, -5.366);
 
 const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
 const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
@@ -198,7 +200,6 @@ private:
 	DiscInPort CamLowSpeed;
 	DiscInPort ElbowCamTiltUp, ElbowCamTiltDown, ElbowCamPanLeft, ElbowCamPanRight;
 	
-	VECTOR3 EELightPos;
 	LightEmitter* pEELight;
 	BEACONLIGHTSPEC EELight_bspec;
 	DiscInPort EELightPower;

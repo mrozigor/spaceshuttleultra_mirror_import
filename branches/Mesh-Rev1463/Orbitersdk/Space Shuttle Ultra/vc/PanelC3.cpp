@@ -1,7 +1,6 @@
 #include "PanelC3.h"
 #include "../meshres_vc.h"
 #include "../meshres_vc_additions.h"
-#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -83,7 +82,7 @@ namespace vc
 		oapiWriteLog("Registering Panel C3");
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 		SURFHANDLE panelc3_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELC3_VC);
 		oapiVCRegisterArea (AID_C3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 

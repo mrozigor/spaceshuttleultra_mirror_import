@@ -6,7 +6,6 @@
 #include "DlgCtrl.h"
 #include <stdio.h>
 #include "meshres_vc_additions.h"
-#include "Atlantis_defs.h"
 
 extern GDIParams g_Param;
 extern HELPCONTEXT g_hc;
@@ -438,7 +437,7 @@ void PayloadBayOp::DefineAnimations (UINT vcidx)
 
 void PayloadBayOp::RegisterVC ()
 {
-	VECTOR3 ofs = sts->GetOrbiterCoGOffset() + VC_OFFSET;
+	VECTOR3 ofs = sts->orbiter_ofs;
 	SURFHANDLE tkbk_tex = oapiGetTextureHandle (sts->hOrbiterVCMesh, TEX_TALKBACK_VC);
 
 	// register the complete panel for mouse events

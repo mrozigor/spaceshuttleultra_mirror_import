@@ -4,7 +4,6 @@
 #include <string>
 #include "dps/dps_defs.h"
 #include "dps/IDP.h"
-#include "Atlantis_defs.h"
 
 // ==============================================================
 
@@ -14,7 +13,7 @@ Keyboard::Keyboard(Atlantis *_sts, int id): sts(_sts) {
 
 void Keyboard::RegisterVC()
 {
-	VECTOR3 ofs = sts->GetOrbiterCoGOffset() + VC_OFFSET;
+	VECTOR3 ofs = sts->orbiter_ofs;
 
 	if(keyboard==0) {
 		oapiVCRegisterArea (AID_KYBD_CDR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN);

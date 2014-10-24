@@ -1,7 +1,6 @@
 #include "PanelA7U.h"
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
-#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -229,7 +228,7 @@ namespace vc
 	{
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 
 		oapiVCRegisterArea(AID_A7U, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A7U,

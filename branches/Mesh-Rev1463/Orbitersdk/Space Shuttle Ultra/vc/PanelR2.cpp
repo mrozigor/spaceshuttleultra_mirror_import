@@ -2,7 +2,6 @@
 #include "../Atlantis.h"
 #include "../meshres_vc_additions.h"
 #include <UltraMath.h>
-#include "../Atlantis_defs.h"
 
 namespace vc
 {
@@ -156,7 +155,7 @@ namespace vc
 		oapiWriteLog("Registering PanelR2");
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 		SURFHANDLE panelr2_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELR2_VC);
 
 		oapiVCRegisterArea (AID_R2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBPRESSED | PANEL_MOUSE_LBUP);

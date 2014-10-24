@@ -1,6 +1,5 @@
 #include "PanelO17.h"
 #include "../Atlantis.h"
-#include "../Atlantis_defs.h"
 
 namespace vc
 {
@@ -51,7 +50,7 @@ void PanelO17::DefineVC()
 void PanelO17::RegisterVC()
 {
 	AtlantisPanel::RegisterVC();
-	VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
+	VECTOR3 ofs = STS()->orbiter_ofs;
 
 	oapiVCRegisterArea(AID_O17, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
 	oapiVCSetAreaClickmode_Quadrilateral(AID_O17, 

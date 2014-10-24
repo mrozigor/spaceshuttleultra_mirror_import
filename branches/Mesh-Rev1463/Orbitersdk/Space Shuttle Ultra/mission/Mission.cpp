@@ -22,8 +22,6 @@ namespace mission {
 
 	void Mission::SetDefaultValues()
 	{
-		strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
-		strROMSPodMeshName = "SSU\\ROMS_pod_standard";
 		fLaunchTimeMJD = -1.0;
 		fLandTimeMJD = -1.0;
 
@@ -51,7 +49,7 @@ namespace mission {
 		bUseSILTS = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-		fODSZPos = 8.25;
+		fODSZPos = 10.2;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -88,15 +86,6 @@ namespace mission {
 		{
 			strOrbiterTexName = "SSU\\" + std::string(buffer) + ".dds";
 			oapiWriteLog((char*)strOrbiterTexName.c_str());
-		}
-
-		if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
-		{
-			strLOMSPodMeshName = "SSU\\" + std::string(buffer);
-		}
-		if(oapiReadItem_string(hFile, "ROMSPodMesh", buffer))
-		{
-			strROMSPodMeshName = "SSU\\" + std::string(buffer);
 		}
 
 		oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
@@ -244,16 +233,6 @@ namespace mission {
 	const std::string& Mission::GetOrbiterTextureName() const
 	{
 		return strOrbiterTexName;
-	}
-
-	const std::string& Mission::GetLOMSPodMeshName() const
-	{
-		return strLOMSPodMeshName;
-	}
-
-	const std::string& Mission::GetROMSPodMeshName() const
-	{
-		return strROMSPodMeshName;
 	}
 
 	bool Mission::HasRMS() const
