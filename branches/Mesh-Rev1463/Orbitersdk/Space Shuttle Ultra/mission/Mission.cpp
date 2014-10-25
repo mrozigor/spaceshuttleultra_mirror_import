@@ -49,7 +49,7 @@ namespace mission {
 		bUseSILTS = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-		fODSZPos = 10.2;
+		fODSZPos = 10.1529;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
