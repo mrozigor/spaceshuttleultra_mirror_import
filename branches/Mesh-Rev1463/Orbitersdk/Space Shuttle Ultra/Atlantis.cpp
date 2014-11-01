@@ -870,6 +870,7 @@ pActiveLatches(3, NULL)
   hlaileron	= NULL;
   hraileron	= NULL;
 
+  orbiter_ofs = _V(0, 0, 0);
   currentCoG = _V(0.0, 0.0, 0.0);
   
   // preload meshes
@@ -1066,19 +1067,19 @@ pActiveLatches(3, NULL)
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
-	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2.dds");
-	RCS_PSSpec.srcsize=0.05;
-	RCS_PSSpec.srcrate=480;
-	RCS_PSSpec.v0=100;
+	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
+	RCS_PSSpec.srcsize=0.1;
+	RCS_PSSpec.srcrate=800;
+	RCS_PSSpec.v0=60;//100
 	RCS_PSSpec.srcspread=0;
-	RCS_PSSpec.lifetime=0.075;
-	RCS_PSSpec.growthrate=40;
-	RCS_PSSpec.atmslowdown=0.1;
+	RCS_PSSpec.lifetime=0.2;
+	RCS_PSSpec.growthrate=20;
+	RCS_PSSpec.atmslowdown=5;
 	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::EMISSIVE;
 	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_FLAT;
-	RCS_PSSpec.lmin=0.5;
+	RCS_PSSpec.lmin=1;
 	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;
-	RCS_PSSpec.amin=0.5;
+	RCS_PSSpec.amin=1;
 	RCS_PSSpec.tex=RCS_tex;
 	
 	reentry_flames = NULL;
@@ -1150,11 +1151,9 @@ void Atlantis::SetLaunchConfiguration (void)
   SetSize (30.0);
   //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
-  SetWingAspect (0.7);
-  SetWingEffectiveness (2.5);
-  SetCrossSections (_V(687.4,849.5,189.4));
+  SetCrossSections (_V(668.94,676.94,258.97));
   SetRotDrag (_V(0.7,0.1,0.3));
-  SetPMI (_V(179.1,176.8,29.3));
+  SetPMI (_V(249.62,239.97,67.43));
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
@@ -1209,8 +1208,9 @@ void Atlantis::SetLaunchConfiguration (void)
 	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 	  bOMSDefined = true;
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
 	  for(i=0;i<2;i++) {
-		  AddExhaust (th_oms[i], 0.0, 0.5);
+		  AddExhaust (th_oms[i], 0.0, 0.5, tex_oms);
 		  OMSEngControl(i);
 	  }
   }
@@ -1260,11 +1260,9 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   SetSize (28.8);
   //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
   SetCW (0.2, 0.5, 1.5, 1.5);
-  SetWingAspect (0.7);
-  SetWingEffectiveness (2.5);
-  SetCrossSections (_V(646.1,603.0,141.5));
+  SetCrossSections (_V(303.91,422.33,153.51));
   SetRotDrag (_V(0.7,0.1,0.3));
-  SetPMI (_V(173.3,161.0,24.0));
+  SetPMI (_V(131.82,131.49,59.28));
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-5,30), _V(-10,-10,-30), _V(10,0,-30));
@@ -1289,13 +1287,14 @@ void Atlantis::SetOrbiterTankConfiguration (void)
 
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   if(!bOMSDefined) {
-    th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	bOMSDefined = true;
-  }
-  for(int i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0.0, 0.5);
-	  OMSEngControl(i);
+	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  bOMSDefined = true;
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
+	  for(int i=0;i<2;i++) {
+		  AddExhaust (th_oms[i], 0.0, 0.5, tex_oms);
+		  OMSEngControl(i);
+	  }
   }
 
   //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
@@ -1384,17 +1383,17 @@ void Atlantis::SetOrbiterConfiguration (void)
   // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
   //VECTOR3 OMS_POS=_V(0,3.55,-13.04);
   if(!bOMSDefined) {
-	//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	bOMSDefined = true;
-	//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
-  }
-  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
-  for(i=0;i<2;i++) {
-	  AddExhaust (th_oms[i], 0, 1.5, tex_oms);
-	  OMSEngControl(i);
+	  //th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  //th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+	  bOMSDefined = true;
+	  //thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
+	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
+	  for(i=0;i<2;i++) {
+		  AddExhaust (th_oms[i], 0, 1.5, tex_oms);
+		  OMSEngControl(i);
+	  }
   }
 
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
@@ -1455,17 +1454,28 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   // set of attitude thrusters (idealised). The arrangement is such that no angular
   // momentum is created in linear mode, and no linear momentum is created in rotational mode.
   if(!bRCSDefined) {
-	  th_att_rcs[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[1] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[3] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[0] = CreateThruster (_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[1] = CreateThruster (_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[2] = CreateThruster (_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[3] = CreateThruster (_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
-	  th_att_lin[0] = CreateThruster (center+_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[3] = CreateThruster (center+_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[2] = CreateThruster (center+_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[1] = CreateThruster (center+_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[0] = CreateThruster (_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[3] = CreateThruster (_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[2] = CreateThruster (_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[1] = CreateThruster (_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  thg_transup = CreateThrusterGroup (th_att_lin,   2, THGROUP_USER);
 	  thg_transdown = CreateThrusterGroup (th_att_lin+2, 2, THGROUP_USER);
+  }
+  else { // update thruster positions
+	  SetThrusterRef(th_att_rcs[0], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_rcs[1], _V(0,0,-15.5));
+	  SetThrusterRef(th_att_rcs[2], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_rcs[3], _V(0,0,-15.5));
+	  
+	  SetThrusterRef(th_att_lin[0], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_lin[3], _V(0,0,-15.5));
+	  SetThrusterRef(th_att_lin[2], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_lin[1], _V(0,0,-15.5));
   }
 
   // DaveS edit: Fixed RCS exhaust defs to line up with nozzles on the scaled down orbiter mesh
@@ -1518,17 +1528,28 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_lin[1], center+_V( 3.15, 1.65,-12.78), _V( 0.2844,-0.9481,-0.1422));//R3D, fixed
 
   if(!bRCSDefined) {
-	  th_att_rcs[4] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[5] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[6] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[7] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[4] = CreateThruster (_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[5] = CreateThruster (_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[6] = CreateThruster (_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[7] = CreateThruster (_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
-	  th_att_lin[4] = CreateThruster (center+_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[7] = CreateThruster (center+_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[6] = CreateThruster (center+_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[5] = CreateThruster (center+_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[4] = CreateThruster (_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[7] = CreateThruster (_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[6] = CreateThruster (_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[5] = CreateThruster (_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  thg_transleft = CreateThrusterGroup (th_att_lin+4,   2, THGROUP_USER);
 	  thg_transright = CreateThrusterGroup (th_att_lin+6, 2, THGROUP_USER);
+  }
+  else { // update thruster positions
+	  SetThrusterRef(th_att_rcs[4], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_rcs[5], _V(0,0,-15.5));
+	  SetThrusterRef(th_att_rcs[6], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_rcs[7], _V(0,0,-15.5));
+	  
+	  SetThrusterRef(th_att_lin[4], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_lin[7], _V(0,0,-15.5));
+	  SetThrusterRef(th_att_lin[6], _V(0,0, 15.5));
+	  SetThrusterRef(th_att_lin[5], _V(0,0,-15.5));
   }
 
   AddRCSExhaust (th_att_rcs[4], center+_V( 1.8 ,-0.15 , 17.40 ), _V( 1,0,0));//F4R, fixed
@@ -1562,10 +1583,10 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_lin[5], center+_V( 4.0,  2.35,-12.9), _V( 1,0,0));//R1R, fixed
 
   if(!bRCSDefined) {
-	  th_att_rcs[8] = CreateThruster (center+_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[9] = CreateThruster (center+_V(-2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[10] = CreateThruster (center+_V(-2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[11] = CreateThruster (center+_V( 2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[8] = CreateThruster (_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[9] = CreateThruster (_V(-2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[10] = CreateThruster (_V(-2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_rcs[11] = CreateThruster (_V( 2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  //The virtual thrusters
 	  th_att_rcs[12] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  th_att_rcs[13] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1573,6 +1594,12 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  th_att_rcs[15] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  th_att_rcs[16] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  th_att_rcs[17] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+  }
+  else { // update thruster positions
+	  SetThrusterRef(th_att_rcs[8], _V( 2.7,0,0));
+	  SetThrusterRef(th_att_rcs[9], _V(-2.7,0,0));
+	  SetThrusterRef(th_att_rcs[10], _V(-2.7,0,0));
+	  SetThrusterRef(th_att_rcs[11], _V( 2.7,0,0));
   }
 
   AddRCSExhaust (th_att_rcs[8], center+_V( 1.60,-0.20, 18.78), _V( 0.4339,-0.8830,-0.1793));//F2D
@@ -1597,10 +1624,14 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[8], center+_V( 3.15, 1.65,-13.15), _V( 0.2844,-0.9481,-0.1422));//R3D
 
   if(!bRCSDefined) {
-	  th_att_lin[8] = CreateThruster (center+_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[9] = CreateThruster (center+_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[8] = CreateThruster (_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	  th_att_lin[9] = CreateThruster (_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 	  thg_transfwd = CreateThrusterGroup (th_att_lin+8, 1, THGROUP_USER);
 	  thg_transaft = CreateThrusterGroup (th_att_lin+9, 1, THGROUP_USER);
+  }
+  else { // update thruster positions
+	  SetThrusterRef(th_att_lin[8], _V(0,0,-16));
+	  SetThrusterRef(th_att_lin[9], _V(0,0, 16));
   }
 
   AddRCSExhaust (th_att_lin[8], center+_V(-3.59, 2.94 ,-13.33 ), _V(0,0,-1));//L1A, fixed
@@ -3049,9 +3080,9 @@ void Atlantis::SetAnimationCameras() {
 LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
 	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.8f, 0.8f, 1.0f, 0.0f};
+	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
 	const COLOUR4 amb = {0.0, 0.0, 0};
-	const COLOUR4 spec = {0.2f, 0.2f, 0.2f,0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 
 	bspec.active = false;
 	bspec.col = &color;
@@ -3411,8 +3442,11 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 {
   char cbuf[256];
 
-  // default vessel parameters
+  // save default vessel parameters
+  // set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
+  ShiftCG(-currentCoG);
   VESSEL3::clbkSaveState (scn);
+  ShiftCG(currentCoG); // reset CoG to correct position
 
   if(!pMission->GetMissionFileName().empty()) 
   {
@@ -6142,7 +6176,7 @@ void Atlantis::DefineSSMEExhaust()
 {
 	int i;
 
-	SURFHANDLE tex_main = oapiRegisterExhaustTexture ("Exhaust_atsme");
+	SURFHANDLE tex_main = oapiRegisterExhaustTexture ("SSU\\SSME_exhaust");
   	for(i = 0; i<3; i++)
 	{
 		if(ex_main[i])
@@ -7301,13 +7335,23 @@ void Atlantis::UpdateCoG()
 	}
 	CoG = CoG/totalMass;
 	if(length(CoG-currentCoG) > 0.1) { // to avoid rounding errors during launch, only shift CG when magnitude of change is large enough
-		ShiftCG (CoG-currentCoG);
+		VECTOR3 CoGShift = CoG-currentCoG;
+		ShiftCG (CoGShift);
 		currentCoG = CoG;
 		orbiter_ofs = -currentCoG;
 		//sprintf_s(oapiDebugString(), 255, "New CoG: %f %f %f", CoG.x, CoG.y, CoG.z);
 		//oapiWriteLog(oapiDebugString());
 
-		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoG-currentCoG, NULL, 0.0, 0.0, 0.0);
+		DefineTouchdownPoints();
+		
+		CreateAttControls_RCS(orbiter_ofs); // update RCS thruster positions
+		
+		// update PLBD light positions
+		for(int i=0;i<6;i++) PLBLightPosition[i] -= CoGShift;
+		DockingLightPos -= CoGShift;
+		FwdBulkheadLightPos -= CoGShift;
+
+		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
 
 		if(status <= STATE_STAGE2) UpdateNullDirections();
 	}
