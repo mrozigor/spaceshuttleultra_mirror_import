@@ -4350,7 +4350,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		//drag chute
 		if(GroundContact()) {
-			if(GetAirspeed()>1.0) SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
+			if(GetAirspeed()>1.0) {
+				SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
+				SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
+			}
 			//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
 			if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
 				DragChuteDeploying=true;
@@ -5522,11 +5525,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       return 1;*/
 	case OAPI_KEY_COMMA:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		if(!Playback() && !GroundContact() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
 		return 1;
 	case OAPI_KEY_PERIOD:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+		if(!Playback() && !GroundContact() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
 		return 1;
 	case OAPI_KEY_G:
 		DeployLandingGear();
