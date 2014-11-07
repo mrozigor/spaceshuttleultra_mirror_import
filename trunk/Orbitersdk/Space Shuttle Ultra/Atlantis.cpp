@@ -591,37 +591,37 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pAMC2 = new MCA(psubsystems, "AMC2"));
   psubsystems->AddSubsystem(pAMC3 = new MCA(psubsystems, "AMC3"));
 
-  psubsystems->AddSubsystem(pFF[0] = new MDM(psubsystems, "FF1", 10, 10));
-  psubsystems->AddSubsystem(pFF[1] = new MDM(psubsystems, "FF2", 11, 11));
-  psubsystems->AddSubsystem(pFF[2] = new MDM(psubsystems, "FF3", 12, 12));
-  psubsystems->AddSubsystem(pFF[3] = new MDM(psubsystems, "FF4", 13, 13));
+  psubsystems->AddSubsystem(pFF[0] = new dps::MDM(psubsystems, "FF1", 10, 10));
+  psubsystems->AddSubsystem(pFF[1] = new dps::MDM(psubsystems, "FF2", 11, 11));
+  psubsystems->AddSubsystem(pFF[2] = new dps::MDM(psubsystems, "FF3", 12, 12));
+  psubsystems->AddSubsystem(pFF[3] = new dps::MDM(psubsystems, "FF4", 13, 13));
   
-  psubsystems->AddSubsystem(pFA[0] = new MDM(psubsystems, "FA1", 14, 14));
-  psubsystems->AddSubsystem(pFA[1] = new MDM(psubsystems, "FA2", 15, 15));
-  psubsystems->AddSubsystem(pFA[2] = new MDM(psubsystems, "FA3", 16, 16));
-  psubsystems->AddSubsystem(pFA[3] = new MDM(psubsystems, "FA4", 17, 17));
+  psubsystems->AddSubsystem(pFA[0] = new dps::MDM(psubsystems, "FA1", 14, 14));
+  psubsystems->AddSubsystem(pFA[1] = new dps::MDM(psubsystems, "FA2", 15, 15));
+  psubsystems->AddSubsystem(pFA[2] = new dps::MDM(psubsystems, "FA3", 16, 16));
+  psubsystems->AddSubsystem(pFA[3] = new dps::MDM(psubsystems, "FA4", 17, 17));
 
-  psubsystems->AddSubsystem(pPL[0] = new MDM(psubsystems, "PL1", 20, 20));
-  psubsystems->AddSubsystem(pPL[1] = new MDM(psubsystems, "PL2", 21, 21));
+  psubsystems->AddSubsystem(pPL[0] = new dps::MDM(psubsystems, "PL1", 20, 20));
+  psubsystems->AddSubsystem(pPL[1] = new dps::MDM(psubsystems, "PL2", 21, 21));
   
-  psubsystems->AddSubsystem(pLF1 = new MDM(psubsystems, "LF1", 22, 22));
-  psubsystems->AddSubsystem(pLM1 = new MDM(psubsystems, "LM1", 24, 24));
-  psubsystems->AddSubsystem(pLA1 = new MDM(psubsystems, "LA1", 23, 23));
+  psubsystems->AddSubsystem(pLF1 = new dps::MDM(psubsystems, "LF1", 22, 22));
+  psubsystems->AddSubsystem(pLM1 = new dps::MDM(psubsystems, "LM1", 24, 24));
+  psubsystems->AddSubsystem(pLA1 = new dps::MDM(psubsystems, "LA1", 23, 23));
 
-  psubsystems->AddSubsystem(pOF[0] = new MDM(psubsystems, "OF1", 1, 1));
-  psubsystems->AddSubsystem(pOF[1] = new MDM(psubsystems, "OF2", 2, 2));
-  psubsystems->AddSubsystem(pOF[2] = new MDM(psubsystems, "OF3", 3, 3));
-  psubsystems->AddSubsystem(pOF[3] = new MDM(psubsystems, "OF4", 4, 4));
+  psubsystems->AddSubsystem(pOF[0] = new dps::MDM(psubsystems, "OF1", 1, 1));
+  psubsystems->AddSubsystem(pOF[1] = new dps::MDM(psubsystems, "OF2", 2, 2));
+  psubsystems->AddSubsystem(pOF[2] = new dps::MDM(psubsystems, "OF3", 3, 3));
+  psubsystems->AddSubsystem(pOF[3] = new dps::MDM(psubsystems, "OF4", 4, 4));
   
-  psubsystems->AddSubsystem(pOA[0] = new MDM(psubsystems, "OA1", 5, 5));
-  psubsystems->AddSubsystem(pOA[1] = new MDM(psubsystems, "OA2", 6, 6));
-  psubsystems->AddSubsystem(pOA[2] = new MDM(psubsystems, "OA3", 7, 7));  
+  psubsystems->AddSubsystem(pOA[0] = new dps::MDM(psubsystems, "OA1", 5, 5));
+  psubsystems->AddSubsystem(pOA[1] = new dps::MDM(psubsystems, "OA2", 6, 6));
+  psubsystems->AddSubsystem(pOA[2] = new dps::MDM(psubsystems, "OA3", 7, 7));  
 
-  psubsystems->AddSubsystem(pLL[0] = new MDM(psubsystems, "LL1", 25, 25));
-  psubsystems->AddSubsystem(pLL[1] = new MDM(psubsystems, "LL2", 26, 26));
+  psubsystems->AddSubsystem(pLL[0] = new dps::MDM(psubsystems, "LL1", 25, 25));
+  psubsystems->AddSubsystem(pLL[1] = new dps::MDM(psubsystems, "LL2", 26, 26));
   
-  psubsystems->AddSubsystem(pLR[0] = new MDM(psubsystems, "LR1", 27, 27));
-  psubsystems->AddSubsystem(pLR[1] = new MDM(psubsystems, "LR2", 28, 28));
+  psubsystems->AddSubsystem(pLR[0] = new dps::MDM(psubsystems, "LR1", 27, 27));
+  psubsystems->AddSubsystem(pLR[1] = new dps::MDM(psubsystems, "LR2", 28, 28));
   
   //Flexible MDMs
   //There are no flexible MDMs supported yet
@@ -1124,7 +1124,7 @@ DiscreteBundleManager* Atlantis::BundleManager() const
 	return bundleManager;
 }
 
-ShuttleBusManager* Atlantis::BusManager() const {
+dps::ShuttleBusManager* Atlantis::BusManager() const {
 	return busManager;
 }
 
@@ -6196,7 +6196,7 @@ void Atlantis::DefineSSMEExhaust()
 		{
 			DelExhaust(ex_main[i]);
 		}
-		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 0, tex_main);
+		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 2.0, tex_main);
 	}
 }
 
