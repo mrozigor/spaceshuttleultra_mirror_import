@@ -411,7 +411,7 @@ public:
 	~Atlantis();
 	void AddOrbiterVisual();
 	virtual DiscreteBundleManager* BundleManager() const;
-	virtual ShuttleBusManager* BusManager() const;
+	virtual dps::ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
