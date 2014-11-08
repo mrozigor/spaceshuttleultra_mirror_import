@@ -249,23 +249,34 @@ void MDM::InstallTacanModule(unsigned int module_id)
 	SCU_PROM[module_id] = 0x0500;
 }
 
-void MDM::LoadPROM(const std::string& prom_file)
+void MDM::LoadMDM(const std::string& prom_file)
 {
 	std::string filename;
 	std::ifstream prom;
+	char buffer[400];
 	
 	filename = prom_file;
 	
-	prom.open(filename.c_str(), std::ios::binary);
+	prom.open(filename.c_str());
 	if(!prom)
 	{
 		filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
-		prom.open(filename.c_str(), std::ios::binary);
+		prom.open(filename.c_str());
 	}
 
 	if(prom)
 	{
-		prom.read(reinterpret_cast<char*>(SCU_PROM), 1024);
+		
+		while (!prom.eof()) 
+		{
+			prom.getline(buffer, 400);
+			//Comments start with *
+			if (buffer[0] != '*' && strlen(buffer) > 0) 
+			{
+				
+				parseMDMFileLine(buffer);
+			}
+		}
 		prom.close();
 	}
 	else
@@ -288,5 +299,84 @@ void MDM::MasterReset(void)
 	}
 }
 
+void MDM::parseMDMFileLine(const char* line)
+{
+	char buffer[400];
+	unsigned int memloc = 0;
+	char command[10];
+	unsigned int module = 0;
+	unsigned int channel = 0;
+	unsigned int wordcount = 0;
+
+	command[0] = '\0';
+
+	int fields = sscanf_s(line, "%d %s %d %d %d", &memloc, command, &module, &channel, &wordcount);
+
+	if (memloc < 16) {
+		//Allow only module description fields
+		if (!_strnicmp(command, "DIL", 3)) {
+			InstallDILModule(memloc);
+		}
+		else if (!_strnicmp(command, "DIH", 3)) {
+			InstallDIHModule(memloc);
+		}
+		else if (!_strnicmp(command, "DOL", 3)) {
+			InstallDOLModule(memloc);
+		}
+		else if (!_strnicmp(command, "DOH", 3)) {
+			InstallDOHModule(memloc);
+		}
+		else if (!_strnicmp(command, "SIO", 3)) {
+			//InstallSIOModule(memloc);
+		}
+		else if (!_strnicmp(command, "AIS", 3)) {
+			InstallAISModule(memloc);
+		}
+		else if (!_strnicmp(command, "AID", 3)) {
+			InstallAIDModule(memloc);
+		}
+		else if (!_strnicmp(command, "AOD", 3)) {
+			InstallAODModule(memloc);
+		}
+		else if (!_strnicmp(command, "TACAN", 3)) {
+			//InstallTACANModule(memloc);
+		}
+		else {
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL MODULE TYPE %s IN LOCATION %d", command, memloc);
+			oapiWriteLog(buffer);
+		}
+	}
+	else if (memloc < 512) {
+		//Allow only IO commands
+		if (!_strnicmp(command, "BITE", 4))
+		{
+			//
+		}
+		else if (!_strnicmp(command, "BSEND", 5))
+		{
+			//
+		} 
+		else if (!_strnicmp(command, "CMD", 3))
+		{
+			//
+		}
+		else if (!_strnicmp(command, "RESP", 4))
+		{
+			//
+		}
+		else
+
+		{
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL OPERATION %s IN LOCATION %d", command, memloc);
+			oapiWriteLog(buffer);
+		}
+	}
+	else {
+		//ILLEGAL MEMORY ADDRESS
+		//MAYBE USE THIS FOR SPECIAL COMMANDS?
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL MEMORY LOCATION %d", memloc);
+		oapiWriteLog(buffer);
+	}
+}
 
 };

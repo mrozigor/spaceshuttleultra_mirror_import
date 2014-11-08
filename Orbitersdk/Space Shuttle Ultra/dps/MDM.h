@@ -66,6 +66,7 @@ protected:
 	word16 SCU_PROM[512];
 	IOModule* m_modules[16];
 	void MasterReset(void);
+	void parseMDMFileLine(const char* line);
 public:
 	/**
 	 * @brief standard constructor
@@ -85,15 +86,22 @@ public:
 	 * /brief destructor
 	 */
 	virtual ~MDM();
-
 	/**
-	 * Load a PROM image from a file without creating I/O modules.
+	* @brief Create the MDM modules based on the first 16 words in the PROM
+	*
+	* /callgraph
+	* /callergraph
+	*
+	*/
+	void createMDMConfigFromSource(const std::string& src_file);
+	/**
+	 * Load a PROM source file and create IO Modules
 	 * /param prom_file name of the PROM image file
 	 * 
 	 * /callgraph
 	 * /callergraph
 	 */
-	void LoadPROM(const std::string& prom_file);
+	void LoadMDM(const std::string& prom_file);
 	/**
 	 * Load a PROM image from a file and create the required
 	 * I/O modules

@@ -629,26 +629,26 @@ pActiveLatches(3, NULL)
 
   for(int i = 0; i<4; i++)
   {
-	  pFF[i]->LoadPROM("FF.rom");
-	  pFA[i]->LoadPROM("FA.rom");
-	  pOF[i]->LoadPROM("OF.rom");
+	  pFF[i]->LoadMDM("FF.mdm");
+	  pFA[i]->LoadMDM("FA.mdm");
+	  pOF[i]->LoadMDM("OF.mdm");
   }
 
   for(int i = 0; i<3; i++)
   {
-		pOA[i]->LoadPROM("OF.rom");
+		pOA[i]->LoadMDM("OF.mdm");
   }
 
   for(int i = 0; i<2; i++)
   {
-		pPL[i]->LoadPROM("PL.rom");
-		pLL[i]->LoadPROM("LL.rom");
-		pLR[i]->LoadPROM("LR.rom");
+		pPL[i]->LoadMDM("PL.mdm");
+		pLL[i]->LoadMDM("LL.mdm");
+		pLR[i]->LoadMDM("LR.mdm");
   }
 
-  pLF1->LoadPROM("LF1.rom");
-  pLM1->LoadPROM("LM1.rom");
-  pLA1->LoadPROM("LA1.rom");
+  pLF1->LoadMDM("LF1.mdm");
+  pLM1->LoadMDM("LM1.mdm");
+  pLA1->LoadMDM("LA1.mdm");
   
   
   psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
