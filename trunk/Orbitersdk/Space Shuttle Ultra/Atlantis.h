@@ -759,7 +759,7 @@ private:
 
 	void DetachSRB(SIDE side, double thrust, double prop) const;
 	void SeparateMMU (void);
-
+	void loadMDMConfiguration(void);
 	/**
 	 * Copies settings (thrust & ISP) from one thruster to another
 	 * \param th Thruster to change settings on
