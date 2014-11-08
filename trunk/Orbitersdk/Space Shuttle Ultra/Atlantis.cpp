@@ -4220,6 +4220,7 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		char buffer[400];
 		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkPreStep: %s", e.what());
 		oapiWriteLog(buffer);
+		exit(1);
 	}
 }	//Atlantis::clbkPreStep
 
@@ -4707,6 +4708,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		char buffer[400];
 		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkPostStep: %s", e.what());
 		oapiWriteLog(buffer);
+		exit(1);
 	}
 }   //Atlantis::clbkPostStep
 
