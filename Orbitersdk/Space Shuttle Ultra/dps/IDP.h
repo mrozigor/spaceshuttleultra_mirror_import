@@ -33,8 +33,8 @@
 #include <map>
 
 namespace dps {	
-	using class ::Keyboard;
-	using class discsignals::DiscInPort;
+	using ::Keyboard;
+	using discsignals::DiscInPort;
 
 	using namespace std;
 

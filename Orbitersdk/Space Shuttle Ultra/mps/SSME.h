@@ -54,7 +54,7 @@ namespace mps
 	class HeSysEng;
 	class MPS;
 
-	using class discsignals::DiscreteBundle;
+	using discsignals::DiscreteBundle;
 
 	class SSME:public AtlantisSubsystem
 	{

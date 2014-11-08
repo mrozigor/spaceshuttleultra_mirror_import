@@ -456,6 +456,9 @@
     <ClCompile Include="dps\GeneralDisplays.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\StandardLight2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -849,6 +852,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\GeneralDisplays.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\StandardLight2.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

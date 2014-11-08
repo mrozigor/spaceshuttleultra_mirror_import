@@ -37,7 +37,7 @@ using namespace std;
 template <class TVessel>
 class Subsystem;
 
-using class discsignals::DiscreteBundleManager;
+using discsignals::DiscreteBundleManager;
 //using class dps::ShuttleBusManager;
 
 template <class TVessel>

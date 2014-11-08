@@ -100,7 +100,7 @@ namespace mps
 	const int SSME_BLOCK_II_HPFTP_SS_B = 3;
 
 
-	using class discsignals::DiscreteBundle;
+	using discsignals::DiscreteBundle;
 
 
 	class SSME_BLOCK_II:public SSME
