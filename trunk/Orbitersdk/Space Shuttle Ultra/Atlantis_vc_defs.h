@@ -51,6 +51,9 @@ const int VC_PLBCAMBR = 15; // C
 const int VC_PLBCAMFR = 16; // D
 const int VC_RMSCAM = 17;
 const int VC_LEECAM = 18;
+//New panel positions for pilot and commander
+const int VC_PANELR4 = 20;
+const int VC_PANELL4 = 21;
 //Beginning of Mid deck positions
 const int VC_MIDDECK = 100;
 //Beginning of external airlock positions
@@ -60,6 +63,8 @@ const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_CDR = _V(-0.653, 2.589, 14.614);
 const VECTOR3 VC_HUDPOS_CDR = _V(-0.6515, 2.568, 14.614);
+
+
 const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
@@ -114,5 +119,12 @@ const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 const static char* VC_LBL_EXT_AL = "External Airlock";
 const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.1, 0.25);
 const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
+
+const static char* VC_LBL_PANELR4 = "Pilot - R4";
+const VECTOR3 VC_POS_PANELR4 = _V(1.271257, 2.229396, 14.2);
+
+const static char* VC_LBL_PANELL4 = "CDR - L4";
+const VECTOR3 VC_POS_PANELL4 = _V(-1.271257, 2.229396, 14.2);
+
 
 #endif //__ATLANTIS_VC_DEFS_H
