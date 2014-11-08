@@ -318,7 +318,7 @@ void MDM::parseMDMFileLine(const char* line)
 
 	command[0] = '\0';
 
-	int fields = sscanf_s(line, "%d %s %d %d %d", &memloc, command, &module, &channel, &wordcount);
+	int fields = sscanf_s(line, "%d %s %d %d %d", &memloc, command, 10, &module, &channel, &wordcount);
 
 	if (memloc < 16) {
 		//Allow only module description fields
