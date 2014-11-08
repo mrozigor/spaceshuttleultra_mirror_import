@@ -125,6 +125,7 @@ private:
 
 	bool bFirstStep, bSecondStep;
 
+	bool bWOW;
 	bool bWONG;
 
 	// Orbiter data

@@ -146,7 +146,7 @@ VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 
 AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AerojetDAP"),
-bFirstStep(true), bSecondStep(false), bWONG(false), OrbiterMass(1.0),
+bFirstStep(true), bSecondStep(false), bWOW(false), bWONG(false), OrbiterMass(1.0),
 //AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
@@ -445,13 +445,17 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			SetAerosurfaceCommands(DeltaT);
 			SetSpeedbrakeCommand(TotalRange, DeltaT);
 
-			// check for weight-on-nose-gear
-			if(STS()->GroundContact() && STS()->GetPitch() < -3.0*RAD) {
-				bWONG = true;
-				// set default positions of control surfaces to zero
-				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
-				STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
-				STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
+			// check for weight-on-weels
+			if(STS()->GroundContact()) {
+				bWOW = true;
+				// check for weight-on-nose-gear
+				if(STS()->GetPitch() < -3.0*RAD) {
+					bWONG = true;
+					// set default positions of control surfaces to zero
+					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
+					STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
+					STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
+				}
 			}
 		}
 		break;
@@ -1019,7 +1023,8 @@ void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 		if(!bSecondStep && !Eq(SpdbkThrotPort.GetVoltage(), lastSBTCCommand, 0.01)) SpeedbrakeAutoOut.ResetLine();
 		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
 		
-		STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(range, DeltaT)/100.0);
+		if(bWOW) STS()->SetSpeedbrake(1.0);
+		else STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(range, DeltaT)/100.0);
 	}
 	else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
 }

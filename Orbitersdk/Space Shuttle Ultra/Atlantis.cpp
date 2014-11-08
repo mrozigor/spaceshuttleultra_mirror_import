@@ -4350,10 +4350,8 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		//drag chute
 		if(GroundContact()) {
-			if(GetAirspeed()>1.0) {
-				SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
-				SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
-			}
+			if(GetAirspeed()>1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
+
 			//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
 			if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
 				DragChuteDeploying=true;
@@ -4480,7 +4478,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 	// ***** Animate speedbrake *****
 
-	if (spdb_status >= AnimState::CLOSING) {
+	if (spdb_status >= AnimState::CLOSING && panelr2->HydraulicPressure()) {
 		double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
 		double tgt = spdb_tgt; // once speedbrake has been opened, limit position to >15%
 		if(GetMachNumber() < 10.0) tgt = max(spdb_tgt, 0.15); // once speedbrake has been opened, limit position to >15%
@@ -5525,11 +5523,11 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
       return 1;*/
 	case OAPI_KEY_COMMA:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && !GroundContact() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		if(!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
 		return 1;
 	case OAPI_KEY_PERIOD:
 		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && !GroundContact() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+		if(!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
 		return 1;
 	case OAPI_KEY_G:
 		DeployLandingGear();
