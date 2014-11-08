@@ -33,8 +33,8 @@
 
 namespace vc
 {
-	using class discsignals::DiscOutPort;
-	using class discsignals::DiscInPort;
+	using discsignals::DiscOutPort;
+	using discsignals::DiscInPort;
 
 	class PushButtonIndicator: public StandardLight
 	{
