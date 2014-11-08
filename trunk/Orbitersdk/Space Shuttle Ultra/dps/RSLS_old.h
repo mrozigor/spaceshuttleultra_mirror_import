@@ -33,7 +33,7 @@
 #include "DiscInPort.h"
 
 
-using class discsignals::DiscInPort;
+using discsignals::DiscInPort;
 
 
 namespace dps

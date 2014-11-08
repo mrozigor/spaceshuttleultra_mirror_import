@@ -260,9 +260,9 @@ typedef enum {
 class CommModeHandler;
 class SSUOptions;
 
-using class discsignals::DiscreteBundleManager;
-using class dps::ShuttleBusManager;
-using class dps::MDM;
+using discsignals::DiscreteBundleManager;
+using dps::ShuttleBusManager;
+using dps::MDM;
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
@@ -413,6 +413,7 @@ public:
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual dps::ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
+	virtual VISHANDLE GetVisual() const;
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);

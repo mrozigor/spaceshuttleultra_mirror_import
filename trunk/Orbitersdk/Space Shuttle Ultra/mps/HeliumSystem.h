@@ -34,7 +34,7 @@
 
 namespace mps
 {
-	using class discsignals::DiscreteBundle;
+	using discsignals::DiscreteBundle;
 	class HeSysPneu;
 
 	const double R = 8.314;

@@ -30,8 +30,8 @@
 #include "DiscInPort.h"
 
 
-using class discsignals::DiscInPort;
-using class discsignals::DiscreteBundle;
+using discsignals::DiscInPort;
+using discsignals::DiscreteBundle;
 
 
 // HACK no clue about right amounts

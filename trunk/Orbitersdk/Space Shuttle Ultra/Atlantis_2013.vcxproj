@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Analysis (Debug)|Win32">
@@ -395,6 +395,7 @@
     <ClCompile Include="dps\ShuttleBus.cpp" />
     <ClCompile Include="mps\SSME.cpp" />
     <ClCompile Include="vc\StandardLight.cpp" />
+    <ClCompile Include="vc\StandardLight2.cpp" />
     <ClCompile Include="vc\StandardRotarySwitch.cpp" />
     <ClCompile Include="vc\StandardSwitch.cpp" />
     <ClCompile Include="vc\StandardSwitchCover.cpp" />
@@ -524,6 +525,7 @@
     <ClInclude Include="dps\ShuttleBus.h" />
     <ClInclude Include="mps\SSME.h" />
     <ClInclude Include="vc\StandardLight.h" />
+    <ClInclude Include="vc\StandardLight2.h" />
     <ClInclude Include="vc\StandardRotarySwitch.h" />
     <ClInclude Include="vc\StandardSwitch.h" />
     <ClInclude Include="vc\StandardSwitchCover.h" />
