@@ -626,31 +626,7 @@ pActiveLatches(3, NULL)
   //Flexible MDMs
   //There are no flexible MDMs supported yet
   pFMDM[0] = pFMDM[1] = NULL;	
-  oapiWriteLog("(SpaceShuttleUltra) [INFO] Loading MDM configuration");
-  for(int i = 0; i<4; i++)
-  {
-	  pFF[i]->LoadMDM("FF.mdm");
-	  pFA[i]->LoadMDM("FA.mdm");
-	  pOF[i]->LoadMDM("OF.mdm");
-  }
-
-  for(int i = 0; i<3; i++)
-  {
-		pOA[i]->LoadMDM("OF.mdm");
-  }
-
-  for(int i = 0; i<2; i++)
-  {
-		pPL[i]->LoadMDM("PL.mdm");
-		pLL[i]->LoadMDM("LL.mdm");
-		pLR[i]->LoadMDM("LR.mdm");
-  }
-
-  pLF1->LoadMDM("LF1.mdm");
-  pLM1->LoadMDM("LM1.mdm");
-  pLA1->LoadMDM("LA1.mdm");
   
-  oapiWriteLog("(SpaceShuttleUltra) [INFO] Finished MDM configuration");
   
   psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
   psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
@@ -3287,20 +3263,30 @@ void Atlantis::UpdateHandControllerSignals()
 
 void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
 {
+	try
+	{
+		options->Parse(cfg);
+		if (!oapiReadItem_bool(cfg, "RenderCockpit", render_cockpit))
+			render_cockpit = false;
 
-	options->Parse(cfg);
-	if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
-		render_cockpit = false;
+		if (!oapiReadItem_bool(cfg, "UseRealRCS", bUseRealRCS))
+			bUseRealRCS = false;
 
-	if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
-		bUseRealRCS = false;
-
-	if(!oapiReadItem_bool (cfg, "EnableMCADebug", bEnableMCADebug))
-		bEnableMCADebug = false;
-  
+		if (!oapiReadItem_bool(cfg, "EnableMCADebug", bEnableMCADebug))
+			bEnableMCADebug = false;
 
 
-	psubsystems->SetClassCaps(cfg);
+
+		psubsystems->SetClassCaps(cfg);
+		loadMDMConfiguration();
+	} 
+	catch (std::exception &e)
+	{
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkSetClassCaps: %s", e.what());
+		oapiWriteLog(buffer);
+		exit(999);
+	}
 }
 
 // --------------------------------------------------------------
@@ -3688,7 +3674,7 @@ void Atlantis::clbkPostCreation ()
 			RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
 			RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
 		}
-
+		
 
 		//oapiWriteLog("(ssu)Realize all subsystems");
 		psubsystems->RealizeAll();
@@ -7430,4 +7416,33 @@ void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTE
 VISHANDLE Atlantis::GetVisual() const 
 {
 	return NULL;
+}
+
+void Atlantis::loadMDMConfiguration()
+{
+	oapiWriteLog("(SpaceShuttleUltra) [INFO] Loading MDM configuration");
+	for (int i = 0; i<4; i++)
+	{
+		pFF[i]->LoadMDM("FF.mdm");
+		pFA[i]->LoadMDM("FA.mdm");
+		pOF[i]->LoadMDM("OF.mdm");
+	}
+
+	for (int i = 0; i<3; i++)
+	{
+		pOA[i]->LoadMDM("OF.mdm");
+	}
+
+	for (int i = 0; i<2; i++)
+	{
+		pPL[i]->LoadMDM("PL.mdm");
+		pLL[i]->LoadMDM("LL.mdm");
+		pLR[i]->LoadMDM("LR.mdm");
+	}
+
+	pLF1->LoadMDM("LF1.mdm");
+	pLM1->LoadMDM("LM1.mdm");
+	pLA1->LoadMDM("LA1.mdm");
+
+	oapiWriteLog("(SpaceShuttleUltra) [INFO] Finished MDM configuration");
 }
