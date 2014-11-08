@@ -254,36 +254,44 @@ void MDM::LoadMDM(const std::string& prom_file)
 	std::string filename;
 	std::ifstream prom;
 	char buffer[400];
-	
-	filename = prom_file;
-	
-	prom.open(filename.c_str());
-	if(!prom)
-	{
-		filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
-		prom.open(filename.c_str());
-	}
+	try {
+		filename = prom_file;
 
-	if(prom)
-	{
-		
-		while (!prom.eof()) 
+		prom.open(filename.c_str());
+		if (!prom)
 		{
-			prom.getline(buffer, 400);
-			//Comments start with *
-			if (buffer[0] != '*' && strlen(buffer) > 0) 
-			{
-				
-				parseMDMFileLine(buffer);
-			}
+			filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
+			prom.open(filename.c_str());
 		}
-		prom.close();
+
+		if (prom)
+		{
+
+			while (!prom.eof())
+			{
+				prom.getline(buffer, 400);
+				//Comments start with *
+				if (buffer[0] != '*' && strlen(buffer) > 0)
+				{
+
+					parseMDMFileLine(buffer);
+				}
+			}
+			prom.close();
+		}
+		else
+		{
+			char buffer[400];
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Can't load PROM image '%s' for '%s'",
+				filename.c_str(), GetQualifiedIdentifier().c_str());
+			oapiWriteLog(buffer);
+		}
 	}
-	else
+	catch (std::exception &e) 
 	{
-		char buffer[400];	
-		sprintf_s(buffer, 400, "(SpaceShuttleUltra)Can't load PROM image '%s' for '%s'",
-			filename.c_str(), GetQualifiedIdentifier().c_str());
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Can't load PROM image '%s' for '%s': Unknown exception : %s",
+			filename.c_str(), GetQualifiedIdentifier().c_str(), e.what());
 		oapiWriteLog(buffer);
 	}
 }

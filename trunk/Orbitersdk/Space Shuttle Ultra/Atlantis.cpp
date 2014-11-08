@@ -626,7 +626,7 @@ pActiveLatches(3, NULL)
   //Flexible MDMs
   //There are no flexible MDMs supported yet
   pFMDM[0] = pFMDM[1] = NULL;	
-
+  oapiWriteLog("(SpaceShuttleUltra) [INFO] Loading MDM configuration");
   for(int i = 0; i<4; i++)
   {
 	  pFF[i]->LoadMDM("FF.mdm");
@@ -650,6 +650,7 @@ pActiveLatches(3, NULL)
   pLM1->LoadMDM("LM1.mdm");
   pLA1->LoadMDM("LA1.mdm");
   
+  oapiWriteLog("(SpaceShuttleUltra) [INFO] Finished MDM configuration");
   
   psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
   psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
@@ -3649,6 +3650,7 @@ int Atlantis::clbkGeneric(int msgid, int prm, void *context)
 		char buffer[400];
 		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkGeneric: %s", e.what());
 		oapiWriteLog(buffer);
+		return 0;
 	}
 }
 
