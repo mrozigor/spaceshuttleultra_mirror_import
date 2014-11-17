@@ -330,27 +330,19 @@ namespace vc
 
 		PanelA6::PAYLOAD Payload = GetSelectedPayload();
 
-		//sprintf_s(oapiDebugString(), 255, "Active Payload: %d Latches:", Payload);
-
 		if(Payload != MON) {
 			for(int i=0;i<5;i++) {
 				if(LatchSwitch_Latch[i]) {
 					Latch_Latch[Payload][i].SetLine();
 					Latch_Release[Payload][i].ResetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s LAT", oapiDebugString());
 				}
 				else if(LatchSwitch_Release[i]) {
 					Latch_Latch[Payload][i].ResetLine();
 					Latch_Release[Payload][i].SetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s REL", oapiDebugString());
 				}
 				else {
 					Latch_Latch[Payload][i].ResetLine();
 					Latch_Release[Payload][i].ResetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s OFF", oapiDebugString());
 				}
 
 				if(Latch_Latched[Payload][i]) {

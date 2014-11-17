@@ -134,8 +134,6 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		UpdateGOXVents();
 	}
 
-	//sprintf_s(oapiDebugString(), 255, "VentArm: %d %f VentHood: %d %f", VentArmState.action, VentArmState.pos, VentHoodState.action, VentHoodState.pos);
-
 	if(GH2VentlineState.Moving()) {
 		GH2VentlineState.Move(simdt*gh2_arm_rate);
 		SetAnimation(anim_GH2Ventline, GH2VentlineState.pos);

@@ -234,12 +234,6 @@ void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 		
 		
 	}
-	//sprintf(oapiDebugString(), "GMT: %03d:%02d:%02d:%02d.%03d MET: %03d:%02d:%02d:%02d.%03d",
-	//	sGMTDays[0], sGMTHours[0], sGMTMinutes[0], sGMTSeconds[0], sGMTMillis[0],
-	//	sMETDays[0], sMETHours[0], sMETMinutes[0], sMETSeconds[0], sMETMillis[0]);
-
-	//sprintf(oapiDebugString(), "EVENT TIMER: %02d:%02d",
-	//	sEventMinutes[TIMER_FORWARD], sEventSeconds[TIMER_FORWARD]);
 }
 
 void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)

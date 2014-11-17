@@ -278,7 +278,6 @@ namespace vc {
 		HBITMAP BMP=CreateCompatibleBitmap(hDC, 816, 806);
 		SelectObject(CompatibleDC, BMP);
 
-		//sprintf_s(oapiDebugString(), 255, "IDP: %d", GetDrivingIDP());
 		int SimT=(int)oapiGetSimTime();
 		bool flash=(SimT%2)==1;
 

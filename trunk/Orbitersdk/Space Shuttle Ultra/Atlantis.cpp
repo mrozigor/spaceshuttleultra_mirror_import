@@ -283,9 +283,6 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	*cd = basicDrag+elevonDrag;
 	*cm = basicMoment+elevonMoment;*/
 
-	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
-	//sprint
-
 	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
 		if(abs(aoa) > 90.0*RAD) aoa = 0.0; // handle Orbitersim bug which results in very large AOA at first timestep
 
@@ -3204,7 +3201,6 @@ void Atlantis::UpdateHandControllerSignals()
 			}
 			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
 				if(AftSense) { //-Z
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
 					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
 					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
@@ -3220,7 +3216,6 @@ void Atlantis::UpdateHandControllerSignals()
 					}
 				}
 				else { //-X
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
 					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
@@ -3914,7 +3909,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		UpdateHandControllerSignals();
 
 		// check inputs from GPC and set thrusters
-		//sprintf_s(oapiDebugString(), 255, "RCS: %f %f %f", RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[YAW].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage());
 		if (RotThrusterCommands[PITCH].GetVoltage() > 0.0001) {
 			SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
 			SetThrusterGroupLevel(thg_pitchdown, 0.0);
@@ -4366,7 +4360,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			if (GroundContact()) {
 				if (GetAirspeed() > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
 
-				//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
 				if (!DragChuteDeploying && GetAirspeed() <= CHUTE_DEPLOY_SPEED && GetAirspeed() > CHUTE_JETTISON_SPEED) {
 					DragChuteDeploying = true;
 					DragChuteDeployTime = met;
@@ -4402,7 +4395,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 						if (Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action = AnimState::OPENING;
 					}
 					SetAnimation(anim_chute_spin, DragChuteSpin.pos);
-					//sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
 				}
 			}
 
@@ -4585,8 +4577,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			SetAnimationCameras();
 			cameraMoved = false;
 		}
-		//sprintf_s(oapiDebugString(), 255, "FL: %f %f FR: %f %f BL: %f %f BR: %f %f", camYaw[CAM_A], camPitch[CAM_A],
-		//camYaw[CAM_D], camPitch[CAM_D], camYaw[CAM_B], camPitch[CAM_B], camYaw[CAM_C], camPitch[CAM_C]);
 
 		// ----------------------------------------------------------
 		// Communication mode handler
@@ -4798,7 +4788,6 @@ void Atlantis::clbkMFDMode (int mfd, int mode)
 		newmfd->UpdateStatus=true;
 		newmfd=NULL; //reset newmfd so it can be used by next new instance of CRT MFD
 	}
-	//sprintf(oapiDebugString(), "%d", mfd);
 }
 
 // --------------------------------------------------------------
@@ -5392,7 +5381,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   case AID_O3:
 	return panelo3->VCMouseEvent(id, _event, p);
   case AID_KYBD_CDR:
-	//sprintf(oapiDebugString(), "AID_KYBD_CDR event");
     return CDRKeyboard->VCMouseEvent(id, _event, p);
   case AID_KYBD_PLT:
     return PLTKeyboard->VCMouseEvent(id, _event, p);
@@ -5735,8 +5723,6 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 	else {
 		VECTOR3 dir=RotateVectorX(SSMEInstalledNullPos[usMPSNo-1], range(-10.5, degPitch, 10.5));
 		SSMECurrentPos[usMPSNo-1]=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
-		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
-		//oapiWriteLog(oapiDebugString());
 		UpdateSSMEGimbalAnimations();
 		return SetSSMEDir(usMPSNo, SSMECurrentPos[usMPSNo-1]);
 	}
@@ -5785,8 +5771,6 @@ void Atlantis::SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw)
 {
 	VECTOR3 dir=RotateVectorX(SRBNullDirection[SRB], range(-5.0, degPitch, 5.0));
 	dir=RotateVectorY(dir, range(-5.0, degYaw, 5.0));
-	//sprintf_s(oapiDebugString(), 255, "SRB gimbal angles: %d %f %f", SRB, degPitch, degYaw);
-	//oapiWriteLog(oapiDebugString());
 	SetThrusterDir(th_srb[SRB], dir);
 }
 
@@ -7467,7 +7451,6 @@ void Atlantis::Twang(double timeToLaunch) const
 	double twangParam=(1.0-timeToLaunch/6.0);
 	if(twangParam<0 || twangParam>1) return;
 	double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
-	//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
 	double c=cos(twangAngle);
 	double s=sin(twangAngle);
 	SetAttachmentParams(ahHDP, POS_HDP-currentCoG, _V(0, -s, -c), _V(0.0, c, -s));

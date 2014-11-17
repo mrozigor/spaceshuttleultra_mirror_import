@@ -209,13 +209,11 @@ namespace eva_docking {
 		//simulate oscillations of structure
 
 		if(dscu_PowerOn.IsSet()) {
-			//sprintf_s(oapiDebugString(), 255, "POWER ON");
 			bPowerRelay = true;
 			bCircuitProtectionOff = false;
 		} 
 
 		if(dscu_PowerOff.IsSet()) {
-			//sprintf_s(oapiDebugString(), 255, "POWER OFF");
 			bPowerRelay = false;
 		}
 

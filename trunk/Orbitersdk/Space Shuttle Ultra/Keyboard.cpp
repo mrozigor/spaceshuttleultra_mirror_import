@@ -49,47 +49,7 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 		}
 		else if(p.y>=0.5 && p.y<0.625) {
 			sts->DataInput[sts->CRT_SEL[keyboard]].EXEC=true;
-
 			PutKey(SSU_KEY_EXEC);
-
-			/*if(sts->DataInput[sts->CRT_SEL[keyboard]].ITEM) {
-				//parse entry
-				int i;
-				bool delim=false;
-				string Data, Name;
-				for(i=0;i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize;i++) {
-					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
-						if(delim) break;
-						delim=true;
-					}
-					if(!delim) Name+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
-					else {
-						Data+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
-					}
-				}
-				sts->Input(sts->CRT_SEL[keyboard], 1, Name.c_str(), Data.c_str());
-				Data=""; //clear string
-				while(i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize) {
-					if(sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='+' || sts->DataInput[sts->CRT_SEL[keyboard]].input[i]=='-') {
-						if(Data.length()>0) {
-							sts->item++;
-							sts->Input(sts->CRT_SEL[keyboard], 3, Name.c_str(), Data.c_str());
-						}
-						Data=""; //clear string
-					}
-					Data+=sts->DataInput[sts->CRT_SEL[keyboard]].input[i];
-					i++;
-				}
-				if(Data.length()>0) {
-					sts->item++;
-					sts->Input(sts->CRT_SEL[keyboard], 3, Name.c_str(), Data.c_str());
-				}
-			}
-			else {
-				const char* scratchPad=sts->GetIDP(sts->CRT_SEL[keyboard]+1)->GetScratchPadLineScan();
-				sprintf_s(oapiDebugString(), 255, "Scratch Pad: %s %d", scratchPad, strlen(scratchPad));
-				if(strlen(scratchPad)==1) sts->Input(sts->CRT_SEL[keyboard], 10, NULL);
-			}*/
 			ClearInput();
 		}
 		else if(p.y>=0.625 && p.y<0.75) {
@@ -156,7 +116,6 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 				if(sts->DataInput[sts->CRT_SEL[keyboard]].InputSize>0) {
 					sts->DataInput[sts->CRT_SEL[keyboard]].InputSize--;
 					sts->DataInput[sts->CRT_SEL[keyboard]].input[sts->DataInput[sts->CRT_SEL[keyboard]].InputSize]='\0';
-					//sprintf(oapiDebugString(), "%s %d", sts->DataInput[sts->CRT_SEL[keyboard]].input, sts->DataInput[sts->CRT_SEL[keyboard]].InputSize);
 				}
 				else ClearInput();
 			}
@@ -246,10 +205,10 @@ bool Keyboard::VCMouseEvent(int id, int event, VECTOR3 &p)
 			else if(sts->DataInput[sts->CRT_SEL[keyboard]].SPEC)
 				sts->Input(sts->CRT_SEL[keyboard], 2, sts->DataInput[sts->CRT_SEL[keyboard]].input);*/
 		}
-	} else {
+	} /*else {
 		sprintf_s(oapiDebugString(), 255, "KEYBOARD %c| ID %d EVENT %d p %f %f %f",
 			(keyboard==0)?'C':'P', id, event,p.x,p.y,p.z);
-	}
+	}*/
 	return false; //check return value
 }
 
@@ -260,7 +219,6 @@ void Keyboard::ClearInput()
 	for(i=0;i<sts->DataInput[sts->CRT_SEL[keyboard]].InputSize;i++) {
 		sts->DataInput[sts->CRT_SEL[keyboard]].input[i]='\0';
 	}
-	//sprintf(oapiDebugString(), "%s %d", sts->DataInput[sts->CRT_SEL[keyboard]].input, sts->DataInput[sts->CRT_SEL[keyboard]].InputSize);
 	sts->DataInput[sts->CRT_SEL[keyboard]].InputSize=0;
 	sts->DataInput[sts->CRT_SEL[keyboard]].SPEC=false;
 	sts->DataInput[sts->CRT_SEL[keyboard]].ITEM=false;

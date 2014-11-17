@@ -257,7 +257,6 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 	else if(item>=10 && item<=13) {
 		if(item==13) dNew=atof(Data);
 		else dNew=atoi(Data);
-		//sprintf(oapiDebugString(), "%f", dNew);
 		if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
 			TIG[item-10]=dNew;
 		}
@@ -784,8 +783,6 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		VECTOR3 DeltaVDir = PEG7/length(PEG7);
 		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
 		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
-		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
-		//oapiWriteLog(oapiDebugString());
 
 		// convert LVLH angles to inertial angles at TIG
 		VECTOR3 rhEquPos = ConvertBetweenLHAndRHFrames(equPos);

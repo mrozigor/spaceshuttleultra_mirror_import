@@ -36,8 +36,6 @@ bool PanelA4::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	
 	if(id ==AID_A4_EVTTMR)
 	{
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: A4 Event Timer");
-
 		digit[0] = sTimerMinutes / 10;
 		digit[1] = sTimerMinutes % 10;
 		digit[2] = sTimerSeconds / 10;
@@ -51,8 +49,6 @@ bool PanelA4::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 	else if(id == AID_A4_METTMR1)
 	{
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: A4 MET display, section 1");
-
 		digit[0] = sMETDays /100;
 		digit[1] = (sMETDays / 10) % 10;
 		digit[2] = sMETDays %10;
@@ -70,8 +66,6 @@ bool PanelA4::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	}
 	else if(id == AID_A4_METTMR2)
 	{
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: A4 MET display, section 2");
-
 		digit[0] = sMETSeconds % 10;
 		
 		oapiBlt(surf, g_Param.digits_7seg, 0, 0, NUMX[digit[0]], NUMY[digit[0]], 64, 64);
@@ -199,7 +193,6 @@ void PanelA4::Step(double t, double dt)
 			sMETHours = sts->pMTU->GetMETHour(0);
 			sMETMinutes = sts->pMTU->GetMETMin(0);
 			
-			//sprintf(oapiDebugString(), "Panel A4::%d %d %d %d", sMETDays, sMETHours, sMETMinutes, sMETSeconds);
 			oapiVCTriggerRedrawArea(-1, AID_A4_METTMR1);
 		}
 		break;

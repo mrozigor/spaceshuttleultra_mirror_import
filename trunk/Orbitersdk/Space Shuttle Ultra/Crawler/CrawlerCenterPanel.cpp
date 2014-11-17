@@ -85,7 +85,6 @@ void CrawlerCenterPanel::OnPreStep(double SimT, double SimDT, double MJD)
 	double steeringAnim;
 	if(steering2DegRange) steeringAnim  = steering.GetVoltage()*1.5 + 0.5;
 	else steeringAnim = steering.GetVoltage()/2.0 + 0.5;
-	//sprintf_s(oapiDebugString(), 255, "Steering: %f", steering.GetVoltage());
 	V()->SetAnimation(anim_steering, steeringAnim);
 }
 

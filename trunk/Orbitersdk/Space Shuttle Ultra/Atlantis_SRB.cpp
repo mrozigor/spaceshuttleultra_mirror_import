@@ -245,7 +245,6 @@ void Atlantis_SRB::clbkPostCreation ()
 void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 {
 	extern void GetSRB_State (double, double&, double&);
-	//sprintf (oapiDebugString(), "SRB mass = %f", GetMass());
 	if (bMainEngine) {
 		double met = simt-t0;
 		if (met >= NO_SLAG_TIME)

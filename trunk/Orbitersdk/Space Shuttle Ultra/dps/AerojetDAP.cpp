@@ -285,26 +285,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(PitchAuto) {
 			const double MAX_PITCH_RATE = 0.5;
 			degTargetRates.data[PITCH] = range(-MAX_PITCH_RATE, 0.25*(targetAOA-degCurrentAttitude.data[PITCH]), MAX_PITCH_RATE);
-			//if(ThrustersActive[PITCH]) degAeroTargetRates.data[PITCH] += degRCSTargetRates.data[PITCH]; // when thrusters are firing, bias aerosurface pitch rate to encourage elevons to correct error
-			
-			//if(ThrustersActive[PITCH])
-				//ThrusterCommands[PITCH].SetLine(GetThrusterCommand(PITCH));
-
-			/*double elevonPos = 0.0;
-			double aileronPos = 0.0;
-			//double rudderPos = 0.0;
-			if(AerosurfacesActive[PITCH]) {
-				elevonPos = range(-1.0, AOA_ElevonPitch.Step(degTargetAttitude.data[PITCH]-degCurrentAttitude.data[PITCH], DeltaT), 1.0);
-			}
-			if(AerosurfacesActive[ROLL]) {
-				aileronPos = range(-1.0, Roll_AileronRoll.Step(degTargetAttitude.data[ROLL]-degCurrentAttitude.data[ROLL], DeltaT), 1.0);
-			}
-			ElevonCommand.SetLine(static_cast<float>(elevonPos));
-			AileronCommand.SetLine(static_cast<float>(aileronPos));*/
-						
-			//sprintf_s(oapiDebugString(), 255, "TargetAOA: %f ElevonPos: %f error: %f", targetAOA, elevonPos, targetAOA-CurrentAttitude.data[PITCH]);
-			//sprintf_s(oapiDebugString(), 255, "AOA: %f %f Beta: %f %f Bank: %f %f", degCurrentAttitude.data[PITCH], degCurrentRates.data[PITCH],
-				//degCurrentAttitude.data[YAW], degCurrentRates.data[YAW], degCurrentAttitude.data[ROLL], degCurrentRates.data[ROLL]);
 		}
 		else {
 			degTargetRates.data[PITCH] = CSSPitchInput(DeltaT);
@@ -327,10 +307,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		CalculateTargetRollYawRates(STS()->GetMachNumber(), STS()->GetAOA(), tgtBankRate, degTargetRates.data[ROLL], degTargetRates.data[YAW]);
 
-		//sprintf_s(oapiDebugString(), 255, "Bank rate error: %f", degAeroTargetRates.data[ROLL]-degCurrentRates.data[ROLL]);
-		//sprintf_s(oapiDebugString(), 255, "GALR: %f tgtBankRate: %f tgtRollRate: %f tgtYawRate: %f rollRateError: %f yawRateError: %f rollError: %f", GALR, tgtBankRate, degTargetRates.data[ROLL], degTargetRates.data[YAW], degTargetRates.data[ROLL]-degCurrentRates.data[ROLL], degTargetRates.data[YAW]-degCurrentRates.data[YAW], tgtBank-degCurrentAttitude.data[ROLL]);
-
-
 		// set thruster and aerosurface commands
 		for(int i=0;i<3;i++) {
 			//if(ThrustersActive[i] && (ThrustersActive[ROLL] || i != YAW))
@@ -352,15 +328,12 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			AileronCommand.SetLine(0.0f);
 			//Nosewheel steering
 			double airspeed=STS()->GetAirspeed();
-			//sprintf_s(oapiDebugString(), 255, "Pitch: %f", STS()->GetPitch()*DEG);
-			//oapiWriteLog(oapiDebugString());
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
 			//steerforce = 27500/3*steerforce*STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
 			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
-			//sprintf_s(oapiDebugString(), 255, "NWS force: %f", steerforce);
 		}
 		else {
 			//oapiWriteLog("No WONG");
@@ -409,7 +382,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(PitchAuto)
 			{
 				degTargetRates.data[PITCH] = range(-0.5, 5.0*NZErr, 0.5);
-				sprintf_s(oapiDebugString(), 255, "NZ Err: %f", NZErr);
 			}
 			else
 			{
@@ -609,7 +581,6 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			}
 		//double dBank = (bank-TargetBank)/prfnlBankFader;
 		//prfnlBankFader -= oapiGetSimStep();
-		//sprintf_s(oapiDebugString(), 255, "Fader bank: %f Actual target: %f", TargetBank+dBank, bank);
 		//return TargetBank+dBank*oapiGetSimStep();
 			skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 		}
@@ -631,13 +602,9 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			STS()->GetDragVector(drag);
 			//double NZ = (lift.y+drag.y)/gravity_force;
 			double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
-			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ SS: %f NZ Comm Inc: %f", NZ, NZSteadyState, NZCommand);
-			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f NZ Inc: %f", NZ, NZAccError+NZSteadyState, NZAccError);
-			//sprintf_s(oapiDebugString(), 255, " %s NZ: %f NZ Command: %f NZ SS: %f", oapiDebugString(), NZ, NZCommand, NZSteadyState);
 			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (10.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
 			else guidance_center_y = glideslope_center_y - (5.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
 			guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
-			//sprintf_s(oapiDebugString(), 255, "NZ: %f NZ Command: %f diff: %f", averageNZ, NZCommand, NZCommand+NZSteadyState-averageNZ);
 			// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
 			bool bValid = true;
 			if(guidance_center_x < 0.0) {
@@ -690,7 +657,6 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		}
 		skp->Text(30, hps->H-85, cbuf, strlen(cbuf));
 
-		//sprintf(oapiDebugString(), "%f", GetDrag());
 		//MoveToEx(hDC, (hps->W/2)-25, hps->H-85, NULL);
 		skp->MoveTo((hps->CX), hps->H-85);
 		skp->LineTo((hps->CX)+50, hps->H-85);
@@ -712,29 +678,6 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 		skp->LineTo((hps->CX)+commanded-5, hps->H-80);
 		skp->LineTo((hps->CX)+commanded+5, hps->H-80);
 		skp->LineTo((hps->CX)+commanded, hps->H-85);
-
-		//VECTOR3 rwypos = GetRunwayRelPos();
-		//double distance = length(rwypos);
-		//VECTOR3 rwynorm = rwypos;
-		//normalise(rwynorm);
-		//VECTOR3 end2 = rwypos + tmul(RwyRotMatrix,rwynorm)*4000;
-		//double maxsin = sin(fov/2);
-		////first end
-		//double hsin = rwypos.z/distance - sin(STS()->GetPitch());
-		//double wsin = rwypos.y/distance - sin(STS()->GetSlipAngle());
-		//double hcomp = (hps->H/2) * (hsin/maxsin);
-		//double wcomp = (hps->W/2) * (wsin/maxsin);
-
-
-		////second end
-		//double distance2 = length(end2);
-		//double hsin2 = end2.z/distance2 - sin(STS()->GetPitch());
-		//double wsin2 = end2.y/distance2 - sin(STS()->GetSlipAngle());
-		//double hcomp2 = (hps->H/2) * (hsin2/maxsin);
-		//double wcomp2 = (hps->W/2) * (wsin2/maxsin);
-		//skp->MoveTo(hps->W/2 + wcomp,hps->H/2 - hcomp);
-		//skp->LineTo(hps->W/2 + wcomp2,hps->H/2 - hcomp2);
-		//sprintf(oapiDebugString(),"%lf %lf %lf %lf",end2.x,end2.y,end2.z,asin(wsin2)*DEG);
 
 		VECTOR3 rwy1_end, lrwy1;
 		oapiLocalToGlobal(hEarth, &RwyStart_EarthLocal, &rwy1_end);
@@ -1011,9 +954,6 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 	ElevonCommand.SetLine(static_cast<float>(-elevonPos)); // PID controller output has opposite sign of required elevon direction
 	AileronCommand.SetLine(static_cast<float>(-aileronPos));
 	STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, rudderPos);
-
-	//sprintf_s(oapiDebugString(), 255, "Roll: %f Target Roll: %f Roll Rate: %f Commanded Aileron: %f",
-		//degCurrentAttitude.data[ROLL], degTargetAttitude.data[ROLL], degCurrentRates.data[ROLL], aileronPos);
 }
 
 void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
@@ -1177,7 +1117,6 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 	STS()->GetWeightVector(gravity);
 	double NY = (lift.x+drag.x+gravity.x)/OrbiterMass;
 	biasRates.data[YAW] = DEG*(NY/STS()->GetAirspeed()); // yaw rate required for turn coordination
-	//sprintf_s(oapiDebugString(), 255, "Bias rate: %f", biasRates.data[YAW]);
 	biasRates.data[ROLL] = 0.0;
 	degCurrentRates -= biasRates;
 }
@@ -1281,30 +1220,7 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 		if(abs(degCurrentAttitude.data[ROLL]) > 40.0 && abs(tgtBank) < 50.0) tgtBank = tgtBankSign*50.0;
 		}*/
 			
-		//sprintf_s(oapiDebugString(), 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f", target_altitude-STS()->GetAltitude(), vspeedAveraging.GetAvgValue(), vspeedAveraging.GetAvgValue()-vec.y, vaccAveraging.GetAvgValue(), target_vacc, actBank, tgtBank, tgtBank-actBank);
-		/*char cbuf[255];
-		//sprintf_s(cbuf, 255, "Target drag: %lf, Target altitude: %lf, Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Tgt VAcc: %f VAcc error: %f",target_drag,target_altitude,target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, target_vacc, target_vacc-cur_vacc);
-		//sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f Expected Vacc: %f", target_altitude-STS()->GetAltitude(), lastVspeedSum/lastVspeeds.size(), lastVspeedSum/lastVspeeds.size()-vec.y, lastVAccSum/lastVAccs.size(), target_vacc, actBank, tgtBank, tgtBank-actBank, expectedVacc);
-		sprintf_s(cbuf, 255, "Altitude error: %lf Tgt Vspeed: %f Vspeed error: %f Ref Vacc: %f Tgt VAcc: %f Bank: %f Tgt bank: %f Bank error: %f", target_altitude-STS()->GetAltitude(), vspeedAveraging.GetAvgValue(), vspeedAveraging.GetAvgValue()-vec.y, vaccAveraging.GetAvgValue(), target_vacc, actBank, tgtBank, tgtBank-actBank);
-		//sprintf_s(oapiDebugString(), 255, "Target drag: %lf, Actual drag: %lf, range: %lf, Target altitude: %lf, Altitude error: %lf Vspeed error: %f",target_drag,STS()->GetDrag()/STS()->GetMass(),r,target_altitude,target_altitude-STS()->GetAltitude(), target_vspeed-vec.y);
-		switch(EntryGuidanceMode) {
-		case TEMP_CONTROL:
-			sprintf_s(oapiDebugString(), 255, "TEMP_CONTROL: %s", cbuf);
-			break;
-		case EQU_GLIDE:
-			sprintf_s(oapiDebugString(), 255, "EQU_GLIDE: %s", cbuf);
-			break;
-		case CONST_DRAG:
-			sprintf_s(oapiDebugString(), 255, "CONST_DRAG: %s", cbuf);
-			break;
-		case TRANSITION:
-			sprintf_s(oapiDebugString(), 255, "TRANSITION: %s", cbuf);
-			break;
-		}*/
 	}
-	/*else {
-		sprintf_s(oapiDebugString(), 255, "PREENTRY");
-	}*/
 	return tgtBank;
 }
 
@@ -1331,8 +1247,6 @@ void AerojetDAP::CalculateTargetRollYawRates(double mach, double radAOA, double 
 
 	degTgtRollRate = (1.0-GALR)*degTgtBankRate*cos(radAOA) + (GALR*degCurrentRates.data[YAW]/tan(radAOA) + 2.0*degCurrentAttitude.data[YAW]*sin(radAOA)); // don't subtract Pcor (current roll rate); this is done in SetAerosurfaceCommands()
 	degTgtYawRate = degTgtBankRate*sin(radAOA) - 0.5*degCurrentAttitude.data[YAW]*cos(radAOA); // turn coordination biase is added when calculating current yaw rate
-
-	//sprintf_s(oapiDebugString(), 255, "GALR: %f tgtBankRate: %f tgtRollRate: %f tgtYawRate: %f rollRateError: %f yawRateError: %f", GALR, degTgtBankRate, degTgtRollRate, degTgtYawRate, degTgtRollRate-degCurrentRates.data[ROLL], degTgtYawRate-degCurrentRates.data[YAW]);
 }
 
 double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
@@ -1595,9 +1509,6 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 		TimeToHAC = (radius - 1.1*HAC_TurnRadius) / ( 0.6 * length( _V( horz_airspeed.x, 0.0, horz_airspeed.z )) );// HACK crude estimation of time to HAC
 		if (TimeToHAC < 0) TimeToHAC = 0;
 		if (HACSide == L) TimeToHAC = -TimeToHAC;// use sign to tell which direction to turn
-
-		//sprintf_s(oapiDebugString(), 255, "ACQ: X: %f Y: %f Z: %f pst: %f courseToRwy: %f headingToHAC: %f TargetBank: %f TotalRange: %f", velocity.x, velocity.y, velocity.z, pst, courseToRwy, headingToHAC, TargetBank, TotalRange);
-		//oapiWriteLog(oapiDebugString());
 	}
 	else {
 		double rdot = -(velocity.x*(HAC_CENTER_X-TgtPos.x) + velocity.y*(HAC_CENTER_Y-TgtPos.y))/radius;
@@ -1608,14 +1519,6 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	
 	NZCommand = CalculateNZCommand(velocity, TotalRange, -TgtPos.z, DeltaT);
 
-	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f TgtRadius: %f Radius: %f NZ: %f Bank: %f Angle: %f Range: %f", TgtPos.x-HAC_CENTER_X, TgtPos.y-HAC_CENTER_Y,
-			  //HAC_TurnRadius, radius, NZCommand, TargetBank, turn_angle, TotalRange);
-	//sprintf_s(oapiDebugString(), 255, "PX: %f PY: %f PZ: %f VX: %f VY: %f VZ: %f", TgtPos.x, TgtPos.y, TgtPos.z,
-		//velocity.x, velocity.y, velocity.z);
-
-	//double headingToRwy = atan2(TgtPos.y, -TgtPos.x)*DEG;
-	//sprintf_s(oapiDebugString(), 255, "HTR: %f dis: %f AoA: %f", headingToRwy, abs(HAC_CENTER_Z-TgtPos.z), STS()->GetAOA()*DEG);
-	//if(abs(headingToRwy)>=0.0 && abs(headingToRwy)<8.0 && abs(HAC_CENTER_X-TgtPos.x) < 5300.0/MPS2FPS) {
 	if(TotalRange < (-HAC_CENTER_X + DR3)) {
 		//oapiWriteLog("Starting PRFNL phase");
 		TAEMGuidanceMode = PRFNL;
@@ -1625,8 +1528,6 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 void AerojetDAP::CalculateTargetGlideslope(const VECTOR3& TgtPos, double DeltaT)
 {
 	//double HeadingError = atan2(TgtPos.y, -TgtPos.x)*DEG;
-	//sprintf_s(oapiDebugString(), 255, "TPos X: %f Y: %f Z: %f", TgtPos.x, TgtPos.y, TgtPos.z);
-	//sprintf_s(oapiDebugString(), 255, "X: %f Y: %f Z: %f HeadingError: %f", TgtPos.x, TgtPos.y, TgtPos.z, HeadingError);
 	TotalRange = sqrt(TgtPos.x*TgtPos.x + TgtPos.y*TgtPos.y);
 	if(TAEMGuidanceMode == PRFNL) {
 		if(true) {			
@@ -1688,9 +1589,6 @@ double AerojetDAP::CalculatePrefinalBank(const VECTOR3& RwyPos)
 	velocity = RotateVectorY(horz_airspeed, degRwyHeading);
 	velocity = _V(velocity.z, velocity.x, -velocity.y); // convert to rwy-coordinate frame
 
-	//sprintf_s(oapiDebugString(), 255, "PX: %f PY: %f PZ: %f VX: %f VY: %f VZ: %f TgtBank: %f", RwyPos.x, RwyPos.y, RwyPos.z,
-		//velocity.x, velocity.y, velocity.z, GY*RwyPos.y + GYDOT*velocity.y);
-
 	double bank = -GY*RwyPos.y - GYDOT*velocity.y;
 	if(prfnlBankFader > 1.0) {
 		double dBank = (bank-TargetBank)/prfnlBankFader;
@@ -1736,13 +1634,12 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	else {
 		tgtAlt = Y_AL_INTERCEPT - AL_GS*rangeToALI;
 		if(rangeToALI > 0.0) {
-			//sprintf_s(oapiDebugString(), 255, "Cubic alt profile");
+			// cubic alt profile
 			tgtAlt += rangeToALI*rangeToALI*(CUBIC_C3 + rangeToALI*CUBIC_C4);
 			tgtGs = AL_GS - rangeToALI*(2*CUBIC_C3 + 3*rangeToALI*CUBIC_C4);
 			tgtGs = range(AL_GS, tgtGs, -LINEAR_GLIDESLOPE);
 		}
 		else {
-			//sprintf_s(oapiDebugString(), 255, "Final approach alt profile");
 			// for the moment, assume we're on final
 			tgtGs = AL_GS;
 		}
@@ -1754,8 +1651,6 @@ double AerojetDAP::CalculateNZCommand(const VECTOR3& velocity, double predRange,
 	double gain = range(0.3, 2.0 - (7.0e-5)*(curAlt*MPS2FPS), 1.0);
 	double refHDot = horzSpeed*tgtGs;
 	double HDotErr = refHDot + velocity.z;
-
-	//sprintf_s(oapiDebugString(), 255, "Gain: %f TgtAlt: %f refHDot: %f HDotErr: %f DNZC: %f", gain, tgtAlt, refHDot, HDotErr, gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt)));
 
 	double NZC;
 	double deltaNZComm = gain*0.01*(HDotErr + 0.1*gain*(tgtAlt-curAlt));	
@@ -1800,12 +1695,9 @@ double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 		else {
 			refQbar = range(180.0, 180.0+QBC1*(rangeToALI-PBRCQ), 220.0);
 		}
-		//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f", refQbar, filteredQBar, refQbar-filteredQBar);
 		double QBarError = refQbar-filteredQBar;
 
 		double command = 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT);
-		//sprintf_s(oapiDebugString(), 255, "Ref QBar: %f QBar: %f Error: %f Command: %f", refQbar, filteredQBar, refQbar-filteredQBar, command);
-		//return range(LOWER_LIM, 65.0 - QBar_Speedbrake.Step(QBarError, DeltaT), UPPER_LIM);
 		return range(LOWER_LIM, command, UPPER_LIM);
 	}
 	else if(STS()->GetAltitude() > 3000.0/MPS2FPS) {
@@ -1870,11 +1762,6 @@ double AerojetDAP::CalculatePreflareNZ(const VECTOR3 &RwyPos, double DeltaT)
 	VECTOR3 TgtPos = _V(RwyPos.x-IGS_AIMPOINT, RwyPos.y, RwyPos.z);
 	double flareRate = (speed * ( cos(TGT_IGS)-cos(-curGlideslope)+tan(TGT_IGS)*(sin(TGT_IGS)-sin(-curGlideslope)) )) / (-TgtPos.z+TgtPos.x*tan(TGT_IGS));
 	flareRate = max(flareRate, 0.0);
-
-	//sprintf_s(oapiDebugString(), 255, "Flare Rate: %f GS: %f", flareRate, NZCommand);
-	//oapiWriteLog(oapiDebugString());
-	//sprintf_s(oapiDebugString(), 255, "TgtPos: %f %f %f", TgtPos.x, TgtPos.y, TgtPos.z);
-	//oapiWriteLog(oapiDebugString());
 	
 	degTargetGlideslope = min(degTargetGlideslope+(DeltaT*DEG*flareRate), -1.5);
 	double NZ = (PREFLARE_RADIUS*flareRate*flareRate)/G; // NZ required to accelerate in circle
