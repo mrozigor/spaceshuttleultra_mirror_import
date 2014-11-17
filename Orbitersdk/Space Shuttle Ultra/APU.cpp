@@ -174,7 +174,6 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			break;
 	}
-	//sprintf_s(oapiDebugString(), 255, "APU Fuel: %f %f APU State: %d", FuelLevel[0], FuelLevel[1], State);
 }
 
 void APU::OnPropagate(double SimT, double DeltaT, double MJD)

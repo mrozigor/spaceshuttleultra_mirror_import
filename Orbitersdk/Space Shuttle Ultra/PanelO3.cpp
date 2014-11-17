@@ -54,8 +54,6 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	
 	if(id == AID_O3_METTMR1)
 	{
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: O3 MET display, section 1 (%f s)", oapiGetSimTime());
-
 		digit[0] = sMETDays /100;
 		digit[1] = (sMETDays / 10) % 10;
 		digit[2] = sMETDays %10;
@@ -68,8 +66,6 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 	}
 	else if(id == AID_O3_METTMR2)
 	{
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: O3 MET display, section 2 (%f s)",  oapiGetSimTime());
-
 		digit[0] = sMETHours / 10;
 		digit[1] = sMETHours % 10;
 		digit[2] = sMETMinutes / 10;
@@ -92,13 +88,11 @@ bool PanelO3::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 		digit[4] = sOMSFuel[2] / 10;
 		digit[5] = sOMSFuel[2] % 10;
 
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: A4 MET display, section 2");
 		for(i = 0; i<6; i++)
 		{
 			oapiBlt(surf, g_Param.digits_7seg, i*64, 0, NUMX[digit[i]], NUMY[digit[i]], 64, 64);
 		}
 
-		//sprintf(oapiDebugString(), "PanelF7::VCRedrawEvent: O3 RCS display");
 	}
 
 //	double time_for_O3 = st.Stop();
@@ -133,8 +127,6 @@ void PanelO3::RegisterVC()
 	oapiVCRegisterArea (AID_O3_METTMR1, _R(320, 0, 512, 64), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_METTMR2, _R(0, 64, 384, 128), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 	oapiVCRegisterArea (AID_O3_RCS, _R(0, 256, 384, 320), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
-
-	//sprintf(oapiDebugString(), "O3 Registered");
 }
 
 bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
@@ -259,7 +251,6 @@ void PanelO3::Step(double t, double dt)
 			sMETMinutes = sts->pMTU->GetMETMin(0);
 			sMETSeconds = sts->pMTU->GetMETSec(0);
 			
-			//sprintf(oapiDebugString(), "Panel A4::%d %d %d %d", sMETDays, sMETHours, sMETMinutes, sMETSeconds);
 			oapiVCTriggerRedrawArea(-1, AID_O3_METTMR2);
 		}
 		break;

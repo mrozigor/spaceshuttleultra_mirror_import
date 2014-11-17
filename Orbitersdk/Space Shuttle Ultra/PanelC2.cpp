@@ -47,8 +47,6 @@ bool PanelC2::VCRedrawEvent(int id, int event, SURFHANDLE surf)
 
 	const int NUMX[10] = {0, 64, 128, 192, 0, 64, 128, 192, 0, 64};
 	const int NUMY[10] = {0, 0, 0, 0, 64, 64, 64, 64, 128, 128};
-	//sprintf(oapiDebugString(), "VCRedrawEvent %d %d", id, event);
-	//oapiWriteLog("PanelC2::VCRedrawEvent\n");
 	
 	switch(id)
 	{
@@ -92,9 +90,7 @@ void PanelC2::RegisterVC()
 	oapiVCSetAreaClickmode_Quadrilateral (AID_C2, _V(-0.140169, 1.95676, 14.5416)+ofs, _V(0.131577, 1.95676, 14.5416)+ofs, 
 		_V(-0.140169, 1.7619, 14.3552)+ofs, _V(0.131577, 1.7619, 14.3552)+ofs);
 	//oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.0804, 1.667, 14.52)+ofs, _V(-0.111, 1.667, 14.52)+ofs, _V(-0.0804, 1.667, 14.52)+ofs, _V(0.276, 1.618, 14.066)+ofs);
-	//sprintf(oapiDebugString(), "PanelC3 Registered");
 	//TODO: Register the 4 event timer setting elements.
-	//oapiWriteLog("end\n");
 }
 
 void PanelC2::CreateVisual(VISHANDLE hVisual)
@@ -110,7 +106,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 
 	if((_event & PANEL_MOUSE_DOWN) == 0)
 	{
-		//sprintf_s(oapiDebugString(), 255, "PANEL C2: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
 		return false;
 	}
 
@@ -378,9 +373,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[0] = tgtwheel_state[0] + 0.25;
-			//sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes up.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-			
 			action = true;
 		}
 		else if(p.y >0.72 && p.y < 0.79)
@@ -388,9 +380,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 			tgtwheel_state[0] -= 0.25;
 			if(tgtwheel_state[0] < 0)
 				tgtwheel_state[0] +=EVTTMR_WHEELMAX[0];
-			//sprintf(oapiDebugString(), "PANEL C2: counting 10 minutes down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-
 			action = true;
 		}
 	}
@@ -399,9 +388,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[1] = tgtwheel_state[1] + 0.25;
-			//sprintf(oapiDebugString(), "PANEL C2: counting 1 minute up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-			
 			action = true;
 		}
 		else if(p.y >0.72 && p.y < 0.79)
@@ -409,9 +395,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 			tgtwheel_state[1] -= 0.25;
 			if(tgtwheel_state[1] < 0)
 				tgtwheel_state[1] +=EVTTMR_WHEELMAX[1];
-			//sprintf(oapiDebugString(), "PANEL C2: counting 1 minute down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-
 			action = true;
 		}
 	}
@@ -420,8 +403,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[2] = tgtwheel_state[2] + 0.25;
-			//sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);			
 			action = true;
 		}
 		else if(p.y >0.72 && p.y < 0.79)
@@ -429,9 +410,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 			tgtwheel_state[2] -= 0.25;
 			if(tgtwheel_state[2] < 0)
 				tgtwheel_state[2] +=EVTTMR_WHEELMAX[2];
-			//sprintf(oapiDebugString(), "PANEL C2: counting 10 seconds down.%4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-
 			action = true;
 		}
 	}
@@ -440,9 +418,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 		if(p.y > 0.62 && p.y < 0.68)
 		{
 			tgtwheel_state[3] = tgtwheel_state[3] + 0.25;
-			//sprintf(oapiDebugString(), "PANEL C2: counting 1 second up. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-			
 			action = true;
 		}
 		else if(p.y >0.72 && p.y < 0.79)
@@ -450,9 +425,6 @@ bool PanelC2::VCMouseEvent(int id, int _event, VECTOR3 &p)
 			tgtwheel_state[3] -= 0.25;
 			if(tgtwheel_state[3] < 0)
 				tgtwheel_state[3] +=EVTTMR_WHEELMAX[3];
-			//sprintf(oapiDebugString(), "PANEL C2: counting 1 second down. %4.2f %4.2f %4.2f %4.2f", tgtwheel_state[0], 
-				//tgtwheel_state[1],tgtwheel_state[2],tgtwheel_state[3]);
-
 			action = true;
 		}
 	}
@@ -633,7 +605,6 @@ void PanelC2::DefineVCAnimations (UINT vcidx)
 void PanelC2::Step(double t, double dt)
 {
 	bool update = false;
-	//sprintf(oapiDebugString(), "Panel C2 installed");
 	double fCurrState = 0.0;
 	double fTgtState = 0.0;
 
@@ -717,19 +688,6 @@ void PanelC2::Step(double t, double dt)
 		oapiVCTriggerRedrawArea(-1, AID_C2_WND3);
 		oldwheelnumber[3] = wheelnumber[3];
 	}
-
-	/*
-	sprintf(oapiDebugString(), "PANEL C2: States %4.2f/%4.2f %4.2f/%4.2f %4.2f/%4.2f %4.2f/%4.2f",
-		wheelState[0], tgtwheel_state[0], wheelState[1], tgtwheel_state[1], wheelState[2], tgtwheel_state[2], 
-		wheelState[3], tgtwheel_state[3]);
-
-	*/
-
-	
-	//sprintf(oapiDebugString(), "PANEL C2: EVT TIMER: %1d%1d:%1d%1d", 
-	//	wheelnumber[0], wheelnumber[1], wheelnumber[2], wheelnumber[3]);
-
-	
 	
 	//Switch 9: EVENT TIMER MODE
 	if(switch_state[SWITCH9] == 2)

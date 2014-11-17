@@ -588,7 +588,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 		VECTOR3 rpos = CalcRelSurfPos(vhLC39[i], vs);
 
-		//sprintf_s(oapiDebugString(), 255, "RelPos: %f %f %f", rpos.x, rpos.y, rpos.z);
 		if(UpdateTouchdownPoints(rpos)) break;
 	}
 
@@ -1169,7 +1168,6 @@ bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
 
 bool Crawler::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	//sprintf_s(oapiDebugString(), 255, "VC Redraw event: %d", id);
 	if(pgFwdCab.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgRearCab.OnVCRedrawEvent(id, _event, surf))
@@ -1186,8 +1184,6 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	
 	front_dist = dist-20.0*abs(dCos);
 	back_dist = dist+20.0*abs(dCos);
-
-	//sprintf_s(oapiDebugString(), 255, "front_dist: %f back_dist: %f", front_dist, back_dist);
 
 	// ramp to LC39 starts 390 m from pad and ends 131.5 m from pad
 	if(front_dist < LC39_RAMP_START && abs(relPos.x)<10.0)
@@ -1220,9 +1216,6 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 
 		UpdateTouchdownPoints();
 
-		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
-		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
-		//sprintf_s(oapiDebugString(), 255, "Heights: Fwd %f %f %f Back %f %f %f Jack: %f", front_height, front_height2, back_height, back_height2);
 		return true;
 	}
 	else {

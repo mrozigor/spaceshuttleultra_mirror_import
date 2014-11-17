@@ -487,7 +487,6 @@ void AscentGuidance::SecondStageRateCommand()
 void AscentGuidance::Throttle(double DeltaT)
 {
 	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
-	//sprintf_s(oapiDebugString(), 255, "SBTCCommand: %f", SBTCCommand);
 
 	if(SpdbkThrotAutoIn) { // auto throttling
 		// check for manual takeover
@@ -600,8 +599,6 @@ void AscentGuidance::Throttle(double DeltaT)
 
 				// low-level sensor arm
 				if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
-
-				//sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
 		}
 	}
@@ -648,8 +645,6 @@ double AscentGuidance::CalculateAzimuth()
 	lnch_v[0]= fabs( tgt_orbit_v[0] - current_vel[0] );
 	lnch_v[1]= fabs( tgt_orbit_v[1] - current_vel[1] );
 
-	//sprintf_s(oapiDebugString(), 255, "current_vel: %f %f target vel: %f %f", current_vel[0], current_vel[1], tgt_orbit_v[0], tgt_orbit_v[1]);
-
 	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
 	/*if(lnch_v[0]==0.0) { //div by zero protection
 		if(lnch_v[1]>0) true_azimuth=PI/2;
@@ -663,8 +658,6 @@ double AscentGuidance::CalculateAzimuth()
 	//if(current_vel[1] < 0.0) true_azimuth = 2*PI - true_azimuth; // retrograde inclination
 
 	if ((dogleg == true) && (latitude < (TgtInc * RAD))) true_azimuth = PI - true_azimuth;
-
-	//sprintf_s(oapiDebugString(), 255, "current_vel: %f %f target vel: %f %f | %f | %f | %f", current_vel[0], current_vel[1], tgt_orbit_v[0], tgt_orbit_v[1], azimuth * DEG, atan2(lnch_v[1], lnch_v[0]) * DEG, true_azimuth * DEG);
 	
 	return true_azimuth;
 }

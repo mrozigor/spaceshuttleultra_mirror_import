@@ -123,31 +123,6 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 	// Not very scalable ...
 	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		/*if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
-		oapiGetGlobalPos (hV, &gpos);
-		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
-			VESSEL *v = oapiGetVesselInterface (hV);
-			DWORD nAttach = v->AttachmentCount (true);
-			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-				const char *id = v->GetAttachmentId (hAtt);
-				if (strncmp (id, AttachID.c_str(), AttachID.length())) 
-					continue; // attachment point not compatible
-
-				v->GetAttachmentParams (hAtt, pos, dir, rot);
-				v->Local2Global (pos, gpos);
-				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
-				//oapiWriteLog(oapiDebugString());
-				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
-					v->GlobalRot(dir, gdir);
-					double dot_product = range(-1, dotp(gdir, grmsdir), 1);
-					if(fabs(PI-acos(dot_product)) < MAX_GRAPPLING_ANGLE) {
-						if(pVessel) *pVessel=v;
-						return hAtt;
-					}
-				}
-			}
-		}*/
 		hAtt = CanAttach(hV, grms, grmsdir);
 		if(hAtt) {
 			if(pVessel) *pVessel = oapiGetVesselInterface(hV);
@@ -330,9 +305,6 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 	//double time = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Time: %f", time);
-
-	//sprintf_s(oapiDebugString(), 255, "Latch state: %f %f %f %f %f", LatchState[0].pos, LatchState[1].pos, LatchState[2].pos,
-		//LatchState[3].pos, LatchState[4].pos);
 }
 
 bool ActiveLatchGroup::OnParseLine(const char *line)
@@ -474,6 +446,5 @@ void ActiveLatchGroup::PopulatePayloadList()
 		if(hV == STS()->GetHandle()) continue;
 		oapiGetGlobalPos (hV, &gpos);
 		if(dist(grms, gpos) < 2*oapiGetSize(hV)) vhPayloads.push_back(hV);
-		//sprintf_s(oapiDebugString(), 255, "dist: %f", dist(grms, gpos));
 	}
 }

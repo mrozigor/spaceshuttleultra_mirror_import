@@ -131,9 +131,6 @@ namespace dps {
 				AppendScratchPadLine(cKey);
 				break;
 		}
-		/*sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
-			usIDPID, usKeyboardID, cKey, 
-			this->GetScratchPadLineString());*/
 		return true;
 	}
 

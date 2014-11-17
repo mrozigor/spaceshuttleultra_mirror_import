@@ -58,9 +58,6 @@ namespace vc
 
 		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
-		//if(CamTiltUp_In) sprintf_s(oapiDebugString(), 255, "Tilt up");
-		//else if(CamTiltDown_In) sprintf_s(oapiDebugString(), 255, "Tilt down");
-
 		// determine which camera (if any) is being operated
 		unsigned short cam = 5;
 		if(CamA) cam = 0;

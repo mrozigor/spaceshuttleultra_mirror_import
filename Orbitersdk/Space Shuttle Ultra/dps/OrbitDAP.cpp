@@ -182,8 +182,6 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
 		double Angle = CalcEulerAngle(AttError, Axis);
 		mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
-		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
-		//oapiWriteLog(oapiDebugString());
 		lastUpdateTime = 0.0;
 	}
 	else {
@@ -238,7 +236,6 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 			TransThrusterCommands[i].ResetLine();
 		}
 
-		//sprintf_s(oapiDebugString(), 255, "Pulse DV: %f %f %f", TransPulseDV.x, TransPulseDV.y, TransPulseDV.z);
 		if(TransPulseInProg[i]) {
 			if(!Eq(TransPulseDV.data[i], 0.0, 0.001)) {
 				TransThrusterCommands[i].SetLine(static_cast<float>( sign(TransPulseDV.data[i]) ));
@@ -344,7 +341,6 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 	VECTOR3 Error = degRates-degAngularVelocity;
 	Error.data[YAW] = Error.data[YAW]; // temporary
 	Error.data[ROLL] = Error.data[ROLL];
-	//sprintf_s(oapiDebugString(), 255, "Rate error: %f %f %f", Error.data[PITCH], Error.data[YAW], Error.data[ROLL]);
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -413,7 +409,6 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 		if(ControlMode==BOTH_OMS) Pitch+=dRoll;
 		if(!GimbalOMS(RIGHT, Pitch, Yaw)) RCSWraparound=true;
 	}
-	//sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
 
 	if(RCSWraparound) SetRates(Rates, SimDT);
 	else if(ControlMode!=BOTH_OMS) SetRates(_V(0.0, 0.0, Rates.data[ROLL]), SimDT); //for single-engine burns, use RCS for roll control

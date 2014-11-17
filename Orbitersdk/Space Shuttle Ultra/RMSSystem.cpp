@@ -527,16 +527,13 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		if(update_vectors) {
 			arm_ik_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ik_dir=ConvertVectorToRMSFrame(arm_ik_dir);
-			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
 
 			arm_ik_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
 			arm_ik_rot=ConvertVectorToRMSFrame(arm_ik_rot);
-			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
 
 			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
 			arm_ik_pos=RotateVectorZ(arm_tip[0]-RMS_SP_JOINT, -RMS_ROLLOUT_ANGLE);
 			arm_ik_pos=ConvertVectorToRMSFrame(arm_ik_pos);
-			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
 
 			if(!bFirstStep) update_vectors=false;
 		}
@@ -772,8 +769,6 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 		phi=DEG*acos(wp_normal.z);
 		if(newDir.z>0.0) phi=-phi;
 	}
-	/*sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
-		phi, beta_w);*/
 
 	new_joint_angles[WRIST_ROLL]=-acos(dotp(wp_normal, newRot))*DEG;
 	//if((newRot.x>wp_normal.x && newRot.y<wp_normal.y) || (newRot.x<wp_normal.x && newRot.y>wp_normal.y))
@@ -827,7 +822,6 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 {
 	double pos=linterp(RMS_JOINT_LIMITS[0][joint], 0.0, RMS_JOINT_LIMITS[1][joint], 1.0, angle);
-	//sprintf_s(oapiDebugString(), 255, "Joint Angle: %f %f", angle, pos);
 	if(pos>=0.0 && pos<=1.0) {
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
