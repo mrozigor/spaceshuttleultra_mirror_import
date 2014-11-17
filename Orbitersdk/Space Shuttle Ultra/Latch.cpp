@@ -289,7 +289,6 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
 			// if all latches are open, release payload
 			if(LatchState[i].Open()) {
-				sprintf_s(oapiDebugString(), 255, "%s: released latch %d", GetIdentifier().c_str(), i);
 				/*bool rel=true;
 				for(unsigned short j=0;j<usLatchNum;j++) {
 					if(!LatchState[j].Open()) rel=false;
@@ -323,7 +322,7 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	//Stopwatch st;
 	//st.Start();
 	if(CheckRTL()) {
-		sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
+		//sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
 		for(int i=0;i<5;i++) ReadyToLatch[i].SetLine();
 	}
 	else {

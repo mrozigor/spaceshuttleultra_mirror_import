@@ -476,7 +476,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset();
 		pEELight->SetPosition(EELightPos);
 		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
-		sprintf_s(oapiDebugString(), 255, "Light dir: %f %f %f", (arm_tip[1]-arm_tip[0]).x, (arm_tip[1]-arm_tip[0]).y, (arm_tip[1]-arm_tip[0]).z);
 	}
 
 	// if arm was moved, update attachment position and IK vectors/angles
@@ -927,7 +926,7 @@ void RMSSystem::UpdateEECamView() const
 		double angle = SignedAngle(orbiter_cam_rot, arm_tip[2]-arm_tip[0], dir);
 
 		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f dir: %f %f %f dot_prod: %f Angle: %f %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, dir.x, dir.y, dir.z, dot_prod, angle, angle*DEG);
-		sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f cam dir: %f %f %f dir: %f %f %f Angle: %f %f length: %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, arm_tip[2].x-arm_tip[0].x, arm_tip[2].y-arm_tip[0].y, arm_tip[2].z-arm_tip[0].z,  dir.x, dir.y, dir.z, angle, angle*DEG, length(dir));
+		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f cam dir: %f %f %f dir: %f %f %f Angle: %f %f length: %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, arm_tip[2].x-arm_tip[0].x, arm_tip[2].y-arm_tip[0].y, arm_tip[2].z-arm_tip[0].z,  dir.x, dir.y, dir.z, angle, angle*DEG, length(dir));
 		//sprintf_s(oapiDebugString(), 255, "dot_prod: %f Angle: %f %f", dot_prod, angle, angle*DEG);
 
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]+RMS_MESH_OFFSET);
@@ -959,7 +958,6 @@ void RMSSystem::AutoGrappleSequence()
 			Grapple_State.action=AnimState::CLOSING;
 			if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
 			if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
-			sprintf_s(oapiDebugString(), 255, "Grappling");
 		}
 		else if(!Extend_State.Closed()) {
 			Extend_State.action=AnimState::CLOSING;

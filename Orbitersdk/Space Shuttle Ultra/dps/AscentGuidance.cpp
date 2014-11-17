@@ -799,7 +799,6 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			char buffer[256];
 			sprintf_s( buffer, 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
 			oapiWriteLog( buffer );
-			sprintf_s( oapiDebugString(), 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
 		}
 	}
 	return;
