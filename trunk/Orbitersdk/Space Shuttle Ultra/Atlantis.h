@@ -839,7 +839,6 @@ private:
 	//RMS
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
-	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
 
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
 
