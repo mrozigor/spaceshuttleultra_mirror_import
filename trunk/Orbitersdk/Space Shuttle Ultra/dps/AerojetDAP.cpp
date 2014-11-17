@@ -1617,9 +1617,7 @@ void AerojetDAP::CalculateHACGuidance(double DeltaT)
 	//sprintf_s(oapiDebugString(), 255, "HTR: %f dis: %f AoA: %f", headingToRwy, abs(HAC_CENTER_Z-TgtPos.z), STS()->GetAOA()*DEG);
 	//if(abs(headingToRwy)>=0.0 && abs(headingToRwy)<8.0 && abs(HAC_CENTER_X-TgtPos.x) < 5300.0/MPS2FPS) {
 	if(TotalRange < (-HAC_CENTER_X + DR3)) {
-		sprintf_s(oapiDebugString(), 255, "Starting PRFNL phase range: %f angle: %f", TotalRange, turn_angle);
 		//oapiWriteLog("Starting PRFNL phase");
-		oapiWriteLog(oapiDebugString());
 		TAEMGuidanceMode = PRFNL;
 	}
 }

@@ -67,10 +67,7 @@ namespace vc
 		else if(CamB) cam = 1;
 		else if(CamC) cam = 2;
 		else if(CamD) cam = 3;
-		else if(CamRMS) {
-			cam = 4;
-			sprintf_s(oapiDebugString(), 255, "RMS Selected");
-		}
+		else if(CamRMS) cam = 4;
 
 		if(cam != 5) // make sure a camera is selected
 		{

@@ -141,7 +141,6 @@ bool PanelO3::VCMouseEvent(int id, int event, VECTOR3 &p)
 {
 	if (id != AID_O3) return false;
 	bool action = false;
-	sprintf_s(oapiDebugString(),255, "PANEL O3: id %d event %d p %f %f %f",id,event,p.x,p.y,p.z);
 
 	if(p.x>0.642 && p.x < 0.693)
 	{

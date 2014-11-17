@@ -692,9 +692,6 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 		double angleToLaunchSite = SignedAngle(launchSitePos, initialPos, crossp(initialPos, initialVel));
 		if(angleToLaunchSite < 0) angleToLaunchSite += 2*PI;
 		correctedThetaT -= angleToLaunchSite;
-
-		sprintf_s(oapiDebugString(), 255, "Angle to launch site at TIG: %f %f", DEG*angleToLaunchSite, DEG*correctedThetaT);
-		oapiWriteLog(oapiDebugString());
 	}
 	
 	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, correctedThetaT, initialPos, initialVel, acceleration);

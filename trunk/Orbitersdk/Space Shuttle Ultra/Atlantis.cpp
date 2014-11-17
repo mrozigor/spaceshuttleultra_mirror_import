@@ -4376,7 +4376,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				else if (DragChuteState == DEPLOYING) { // go from initial deployment to reefed state
 					DragChuteSize = min(0.4, DragChuteSize + CHUTE_DEPLOY_RATE*simdt);
 					SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-					sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
 					if (Eq(DragChuteSize, 0.4, 0.001)) DragChuteState = REEFED;
 				}
 				else if (DragChuteState == REEFED) { // maintain chute in reefed state until time to fully inflate chute
@@ -4389,7 +4388,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 					else if (DragChuteSize < 1.0) {
 						DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
 						SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-						sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
 					}
 				}
 

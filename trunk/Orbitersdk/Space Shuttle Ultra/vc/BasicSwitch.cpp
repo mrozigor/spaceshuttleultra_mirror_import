@@ -75,7 +75,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -83,7 +82,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -93,7 +91,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -101,7 +98,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}

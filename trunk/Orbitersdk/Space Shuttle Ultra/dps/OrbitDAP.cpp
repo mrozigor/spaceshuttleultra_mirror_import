@@ -334,8 +334,6 @@ void OrbitDAP::UpdateNullRates()
 	degNullRates.data[ROLL] = -orb_rad*sin(tgtLVLHAtt.data[YAW]);
 	degNullRates.data[PITCH] = -orb_rad*cos(tgtLVLHAtt.data[YAW])*cos(tgtLVLHAtt.data[ROLL]);
 	degNullRates.data[YAW] = orb_rad*cos(tgtLVLHAtt.data[YAW])*sin(tgtLVLHAtt.data[ROLL]);
-	sprintf_s(oapiDebugString(), 255, "Null rates: %f %f %f", degNullRates.data[PITCH], degNullRates.data[YAW], degNullRates.data[ROLL]);
-	oapiWriteLog(oapiDebugString());
 }
 
 void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
@@ -1520,7 +1518,6 @@ void OrbitDAP::UpdateDAPParameters()
 		Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
 		Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
 	}
-	sprintf_s(oapiDebugString(), 255, "Rate: %f AttDb %f RateDb: %f", degRotRate, degAttDeadband, degRateDeadband);
 }
 
 double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const MATRIX3& tgtLVLHMatrix, const MATRIX3& curLVLHMatrix, double degOrbitalRate) const
