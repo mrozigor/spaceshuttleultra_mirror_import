@@ -397,8 +397,6 @@ public:
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
-	UINT mesh_loms;
-	UINT mesh_roms;
 	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
@@ -670,8 +668,6 @@ public:
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
-	MESHHANDLE hLOMSPodMesh;
-	MESHHANDLE hROMSPodMesh;
 	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;

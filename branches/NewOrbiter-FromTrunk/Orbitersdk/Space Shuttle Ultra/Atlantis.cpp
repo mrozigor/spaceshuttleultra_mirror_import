@@ -2417,13 +2417,6 @@ void Atlantis::AddOrbiterVisual()
 
     mesh_orbiter = AddMesh (hOrbiterMesh, &OFS_ZERO);
     SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	
-	hLOMSPodMesh = oapiLoadMeshGlobal(pMission->GetLOMSPodMeshName().c_str());
-	mesh_loms = AddMesh(hLOMSPodMesh, &LOMS_OFFSET);
-    SetMeshVisibilityMode(mesh_loms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	hROMSPodMesh = oapiLoadMeshGlobal(pMission->GetROMSPodMeshName().c_str());
-	mesh_roms = AddMesh(hROMSPodMesh, &ROMS_OFFSET);
-    SetMeshVisibilityMode(mesh_roms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
 
     if (pMission->UseSILTS() == true)
     {
