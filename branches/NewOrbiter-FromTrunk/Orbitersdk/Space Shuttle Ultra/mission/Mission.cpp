@@ -47,6 +47,7 @@ namespace mission {
 		bHasODS = false;
 		bHasExtAL = false;
 		bHasBulkheadFloodlights = false;
+		bHasDragChute = true;
 
 		bUseSILTS = false;
 
@@ -132,6 +133,7 @@ namespace mission {
 		oapiReadItem_bool(hFile, "UseODS", bHasODS);
 		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
 		oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
+		oapiReadItem_bool(hFile, "HasDragChute", bHasDragChute);
 
 		for(int i = 0; i<16; i++)
 		{
@@ -279,6 +281,11 @@ namespace mission {
 	bool Mission::HasBulkheadFloodlights() const
 	{
 		return bHasBulkheadFloodlights;
+	}
+
+	bool Mission::HasDragChute() const
+	{
+		return bHasDragChute;
 	}
 
 	bool Mission::UseDirectAscent() const

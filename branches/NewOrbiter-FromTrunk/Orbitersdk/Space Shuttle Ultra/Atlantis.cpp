@@ -4336,45 +4336,48 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//drag chute
 		if(GroundContact()) {
 			if(GetAirspeed()>1.0) SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
-			//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
-			if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
-				DragChuteDeploying=true;
-				DragChuteDeployTime=met;
-			}
-			else if(DragChuteState==STOWED && DragChuteDeploying && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
-				DeployDragChute();
-			else if(DragChuteState==DEPLOYING) { // go from initial deployment to reefed state
-				DragChuteSize=min(0.4, DragChuteSize+CHUTE_DEPLOY_RATE*simdt);
-				SetAnimation(anim_chute_deploy, 1-DragChuteSize);
-				sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
-				if(Eq(DragChuteSize, 0.4, 0.001)) DragChuteState=REEFED;
-			}
-			else if(DragChuteState==REEFED) { // maintain chute in reefed state until time to fully inflate chute
-				if((met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
-					DragChuteState=INFLATED;
+
+			if(pMission->HasDragChute()) {
+				//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
+				if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
+					DragChuteDeploying=true;
+					DragChuteDeployTime=met;
 				}
-			}
-			else if(DragChuteState==INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
-				if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
-				else if(DragChuteSize<1.0) {
-					DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
+				else if(DragChuteState==STOWED && DragChuteDeploying && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
+					DeployDragChute();
+				else if(DragChuteState==DEPLOYING) { // go from initial deployment to reefed state
+					DragChuteSize=min(0.4, DragChuteSize+CHUTE_DEPLOY_RATE*simdt);
 					SetAnimation(anim_chute_deploy, 1-DragChuteSize);
 					sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
+					if(Eq(DragChuteSize, 0.4, 0.001)) DragChuteState=REEFED;
 				}
-			}
+				else if(DragChuteState==REEFED) { // maintain chute in reefed state until time to fully inflate chute
+					if((met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
+						DragChuteState=INFLATED;
+					}
+				}
+				else if(DragChuteState==INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
+					if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
+					else if(DragChuteSize<1.0) {
+						DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
+						SetAnimation(anim_chute_deploy, 1-DragChuteSize);
+						sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
+					}
+				}
 
-			//spin chute
-			if(DragChuteState>=DEPLOYING && DragChuteState<JETTISONED) {
-				if(DragChuteSpin.Opening()) {
-					DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+CHUTE_SPIN_RATE*simdt);
-					if(Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action=AnimState::CLOSING;
+				//spin chute
+				if(DragChuteState>=DEPLOYING && DragChuteState<JETTISONED) {
+					if(DragChuteSpin.Opening()) {
+						DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+CHUTE_SPIN_RATE*simdt);
+						if(Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action=AnimState::CLOSING;
+					}
+					else {
+						DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-CHUTE_SPIN_RATE*simdt);
+						if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
+					}
+					SetAnimation(anim_chute_spin, DragChuteSpin.pos);
+					//sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
 				}
-				else {
-					DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-CHUTE_SPIN_RATE*simdt);
-					if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
-				}
-				SetAnimation(anim_chute_spin, DragChuteSpin.pos);
-				//sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
 			}
 		}
 
@@ -4725,6 +4728,15 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 #endif
   if(!pMission->GetOrbiterTextureName().empty())
 	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
+
+  // hide tail which is not used on this flight
+  GROUPEDITSPEC grpSpec;
+  grpSpec.flags = GRPEDIT_SETUSERFLAG;
+  grpSpec.UsrFlag = 0x00000002; // hide group
+  if(pMission->HasDragChute())
+	  oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_NO_CHUTE, &grpSpec);
+  else
+	  oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_CHUTE, &grpSpec);
 
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
