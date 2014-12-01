@@ -932,6 +932,7 @@ private:
 	
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
 	double camYaw[4], camPitch[4];
+	VECTOR3 plbdCamPos[4];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -941,16 +942,6 @@ private:
 	
 	// Selected camera for control
 	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR 4:RMS Elbow
-	
-	// Transform for the cameras
-	MGROUP_TRANSFORM *CameraFLYaw;
-	MGROUP_TRANSFORM *CameraFLPitch;
-	MGROUP_TRANSFORM *CameraFRYaw;
-	MGROUP_TRANSFORM *CameraFRPitch;
-	MGROUP_TRANSFORM *CameraBLYaw;
-	MGROUP_TRANSFORM *CameraBLPitch;
-	MGROUP_TRANSFORM *CameraBRYaw;
-	MGROUP_TRANSFORM *CameraBRPitch;
 	
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();

@@ -31,8 +31,7 @@ const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
 //const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
 //const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
-const VECTOR3 VC_OFFSET = _V(0.0, -2.31, -2.27);
-const VECTOR3 VCext_OFFSET = _V(0.0, -2.35, -2.3);
+const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
 
 const VECTOR3 ODS_POS = _V(0.0, -2.05, 7);//Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
 const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS mesh position and docking port position
@@ -56,9 +55,9 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.418, -2.424, -13.938);
-const VECTOR3 SSMEL_REF = _V(-1.418, -2.424, -13.938);
-const VECTOR3 SSMET_REF = _V(0.0, 0.341, -13.363);
+const VECTOR3 SSMER_REF = _V(1.411, -1.696, -14.119);
+const VECTOR3 SSMEL_REF = _V(-1.411, -1.696, -14.119);
+const VECTOR3 SSMET_REF = _V(0.0, 1.004, -13.4325);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
 const VECTOR3 SSMET_INSTALLED_NULL_POS = _V( 0, -0.275637355816999, 0.961261695938319 );
@@ -78,19 +77,19 @@ const VECTOR3 POS_TOW = _V(0.0, -5.64, 14.73);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
-const VECTOR3 PROBEL_REF = _V(-1.11, -3.1, 16.78);
-const VECTOR3 PROBER_REF = _V( 1.11, -3.1, 16.78);
+const VECTOR3 PROBEL_REF = _V(-1.134,-2.346,17.092);
+const VECTOR3 PROBER_REF = _V( 1.134,-2.346,17.092);
 
-const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
+const VECTOR3 PROBE_AXIS = _V(-0.0918181,0.94801,0.304708);
 
 // ============================================================
 // Star Tracker Door Animation Constants
 // ============================================================
-const VECTOR3 STZD_REF = _V(-1.068, -0.468, 13.405);
-const VECTOR3 STZD_AXIS = _V(-0.277668498282, 0.924453407012, 0.26131609848);
-const VECTOR3 STYD_REF = _V(-1.857, -1.178, 13.243);
-const VECTOR3 STYD_AXIS = _V(-0.949661355181, 0.177721991852, 0.257988767367);
-const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(110.0 * RAD);
+const VECTOR3 STZD_REF = _V(-1.178,0.404,13.55);
+const VECTOR3 STZD_AXIS = _V(-0.241377,0.928995,0.280545);
+const VECTOR3 STYD_REF = _V(-1.965,-0.244,13.509);
+const VECTOR3 STYD_AXIS = _V(0.874892,-0.359366,-0.324684);
+const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(95.0 * RAD);
 
 
 const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 2.349, -13.972);
