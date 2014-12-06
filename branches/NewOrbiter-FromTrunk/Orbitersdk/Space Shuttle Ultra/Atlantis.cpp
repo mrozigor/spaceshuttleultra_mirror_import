@@ -1472,55 +1472,55 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  SetThrusterRef(th_att_lin[1], _V(0,0,-15.5));
   }
 
-  AddRCSExhaust (th_att_rcs[0], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_rcs[0], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_rcs[0], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_rcs[0], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+  AddRCSExhaust (th_att_rcs[0], center+_V( 1.561, -1.249, 15.992), _V( 0.4339,-0.8830,-0.1793));//F2D
+  AddRCSExhaust (th_att_rcs[0], center+_V( 1.647, -1.228, 15.647), _V( 0.4339,-0.8830,-0.1793));//F4D
+  AddRCSExhaust (th_att_rcs[0], center+_V(-1.561, -1.249, 15.992), _V(-0.4339,-0.8830,-0.1793));//F1D
+  AddRCSExhaust (th_att_rcs[0], center+_V(-1.647, -1.228, 15.647), _V(-0.4339,-0.8830,-0.1793));//F3D
 
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+  AddRCSExhaust (th_att_rcs[1], center+_V(-3.395, 1.893, -14.167), _V(0, 1,0));//L4U
+  AddRCSExhaust (th_att_rcs[1], center+_V(-3.395, 1.893, -14.487), _V(0, 1,0));//L2U
+  AddRCSExhaust (th_att_rcs[1], center+_V(-3.395, 1.893, -14.806), _V(0, 1,0));//L1U
 
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+  AddRCSExhaust (th_att_rcs[1], center+_V(3.395, 1.893, -14.167), _V(0, 1,0));//R4U
+  AddRCSExhaust (th_att_rcs[1], center+_V(3.395, 1.893, -14.487), _V(0, 1,0));//R2U
+  AddRCSExhaust (th_att_rcs[1], center+_V(3.395, 1.893, -14.806), _V(0, 1,0));//R1U
 
-  AddRCSExhaust (th_att_rcs[2], center+_V(-0.341, -0.877, 15.36), _V(0, 1,0));//F1U
-  AddRCSExhaust (th_att_rcs[2], center+_V( 0.0  , -0.877, 15.36), _V(0, 1,0));//F3U
-  AddRCSExhaust (th_att_rcs[2], center+_V( 0.341, -0.877, 15.36), _V(0, 1,0));//F2U
+  AddRCSExhaust (th_att_rcs[2], center+_V(-0.367, -0.006, 15.51), _V(0, 1,0));//F1U
+  AddRCSExhaust (th_att_rcs[2], center+_V( 0.0  , -0.006, 15.51), _V(0, 1,0));//F3U
+  AddRCSExhaust (th_att_rcs[2], center+_V( 0.367, -0.006, 15.51), _V(0, 1,0));//F2U
 
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
 
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+  AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.236, -14.244), _V(0.2844,-0.9481,-0.1422));//R4D
+  AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.303, -14.573), _V(0.2844,-0.9481,-0.1422));//R2D
+  AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.369, -14.909), _V(0.2844,-0.9481,-0.1422));//R3D
 
-  AddRCSExhaust (th_att_lin[0], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_lin[0], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_lin[0], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_lin[0], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+  AddRCSExhaust (th_att_lin[0], center+_V( 1.561, -1.249, 15.992), _V( 0.4339,-0.8830,-0.1793));//F2D
+  AddRCSExhaust (th_att_lin[0], center+_V( 1.647, -1.228, 15.647), _V( 0.4339,-0.8830,-0.1793));//F4D
+  AddRCSExhaust (th_att_lin[0], center+_V(-1.561, -1.249, 15.992), _V(-0.4339,-0.8830,-0.1793));//F1D
+  AddRCSExhaust (th_att_lin[0], center+_V(-1.647, -1.228, 15.647), _V(-0.4339,-0.8830,-0.1793));//F3D
 
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.395, 1.893, -14.167), _V(0, 1,0));//L4U
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.395, 1.893, -14.487), _V(0, 1,0));//L2U
+  AddRCSExhaust (th_att_lin[3], center+_V(-3.395, 1.893, -14.806), _V(0, 1,0));//L1U
 
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+  AddRCSExhaust (th_att_lin[3], center+_V(3.395, 1.893, -14.167), _V(0, 1,0));//R4U
+  AddRCSExhaust (th_att_lin[3], center+_V(3.395, 1.893, -14.487), _V(0, 1,0));//R2U
+  AddRCSExhaust (th_att_lin[3], center+_V(3.395, 1.893, -14.806), _V(0, 1,0));//R1U
 
-  AddRCSExhaust (th_att_lin[2], center+_V(-0.341, -0.877, 15.36), _V(0, 1,0));//F1U
-  AddRCSExhaust (th_att_lin[2], center+_V( 0.0  , -0.877, 15.36), _V(0, 1,0));//F3U
-  AddRCSExhaust (th_att_lin[2], center+_V( 0.341, -0.877, 15.36), _V(0, 1,0));//F2U
+  AddRCSExhaust (th_att_lin[2], center+_V(-0.367, -0.006, 15.51), _V(0, 1,0));//F1U
+  AddRCSExhaust (th_att_lin[2], center+_V( 0.0  , -0.006, 15.51), _V(0, 1,0));//F3U
+  AddRCSExhaust (th_att_lin[2], center+_V( 0.367, -0.006, 15.51), _V(0, 1,0));//F2U
 
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+  AddRCSExhaust (th_att_lin[1], center+_V(-2.839, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
+  AddRCSExhaust (th_att_lin[1], center+_V(-2.839, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
+  AddRCSExhaust (th_att_lin[1], center+_V(-2.839, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
 
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+  AddRCSExhaust (th_att_lin[1], center+_V(2.839, 0.236, -14.244), _V(0.2844,-0.9481,-0.1422));//R4D
+  AddRCSExhaust (th_att_lin[1], center+_V(2.839, 0.303, -14.573), _V(0.2844,-0.9481,-0.1422));//R2D
+  AddRCSExhaust (th_att_lin[1], center+_V(2.839, 0.369, -14.909), _V(0.2844,-0.9481,-0.1422));//R3D
 
   if(!bRCSDefined) {
 	  th_att_rcs[4] = CreateThruster (_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1547,35 +1547,35 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  SetThrusterRef(th_att_lin[5], _V(0,0,-15.5));
   }
 
-  AddRCSExhaust (th_att_rcs[4], center+_V( 1.554,-1.96, 15.14 ), _V( 1,0,0));//F2R
-  AddRCSExhaust (th_att_rcs[4], center+_V( 1.614,-2.32, 15.091), _V( 1,0,0));//F4R
-  AddRCSExhaust (th_att_rcs[6], center+_V(-1.554,-1.96, 15.14 ), _V(-1,0,0));//F1L
-  AddRCSExhaust (th_att_rcs[6], center+_V(-1.614,-2.32, 15.091), _V(-1,0,0));//F3L
+  AddRCSExhaust (th_att_rcs[4], center+_V( 1.733, -1.084, 15.266), _V( 1,0,0));//F2R
+  AddRCSExhaust (th_att_rcs[4], center+_V( 1.740, -1.451, 15.222), _V( 1,0,0));//F4R
+  AddRCSExhaust (th_att_rcs[6], center+_V(-1.733, -1.084, 15.266), _V(-1,0,0));//F1L
+  AddRCSExhaust (th_att_rcs[6], center+_V(-1.740, -1.451, 15.222), _V(-1,0,0));//F3L
 
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -1.849), _V(-1,0,0));//L4L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.167), _V(-1,0,0));//L2L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.494), _V(-1,0,0));//L3L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.804), _V(-1,0,0));//L1L
+  AddRCSExhaust (th_att_rcs[5], center+_V(-3.688, 1.051, -14.254), _V(-1,0,0));//L4L
+  AddRCSExhaust (th_att_rcs[5], center+_V(-3.698, 1.051, -14.563), _V(-1,0,0));//L2L
+  AddRCSExhaust (th_att_rcs[5], center+_V(-3.704, 1.051, -14.876), _V(-1,0,0));//L3L
+  AddRCSExhaust (th_att_rcs[5], center+_V(-3.711, 1.051, -15.179), _V(-1,0,0));//L1L
 
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -1.849), _V(1,0,0));//R4R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.167), _V(1,0,0));//R2R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.494), _V(1,0,0));//R3R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.804), _V(1,0,0));//R1R
+  AddRCSExhaust (th_att_rcs[7], center+_V(3.688, 1.051, -14.254), _V(1,0,0));//R4R
+  AddRCSExhaust (th_att_rcs[7], center+_V(3.698, 1.051, -14.563), _V(1,0,0));//R2R
+  AddRCSExhaust (th_att_rcs[7], center+_V(3.704, 1.051, -14.876), _V(1,0,0));//R3R
+  AddRCSExhaust (th_att_rcs[7], center+_V(3.711, 1.051, -15.179), _V(1,0,0));//R1R
 
-  AddRCSExhaust (th_att_lin[4], center+_V( 1.554,-1.96, 15.14 ), _V( 1,0,0));//F2R
-  AddRCSExhaust (th_att_lin[4], center+_V( 1.614,-2.32, 15.091), _V( 1,0,0));//F4R
-  AddRCSExhaust (th_att_lin[6], center+_V(-1.554,-1.96, 15.14 ), _V(-1,0,0));//F1L
-  AddRCSExhaust (th_att_lin[6], center+_V(-1.614,-2.32, 15.091), _V(-1,0,0));//F3L
+  AddRCSExhaust (th_att_lin[4], center+_V( 1.733, -1.084, 15.266), _V( 1,0,0));//F2R
+  AddRCSExhaust (th_att_lin[4], center+_V( 1.740, -1.451, 15.222), _V( 1,0,0));//F4R
+  AddRCSExhaust (th_att_lin[6], center+_V(-1.733, -1.084, 15.266), _V(-1,0,0));//F1L
+  AddRCSExhaust (th_att_lin[6], center+_V(-1.740, -1.451, 15.222), _V(-1,0,0));//F3L
 
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -1.849), _V(-1,0,0));//L4L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.167), _V(-1,0,0));//L2L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.494), _V(-1,0,0));//L3L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.804), _V(-1,0,0));//L1L
+  AddRCSExhaust (th_att_lin[7], center+_V(-3.688, 1.051, -14.254), _V(-1,0,0));//L4L
+  AddRCSExhaust (th_att_lin[7], center+_V(-3.698, 1.051, -14.563), _V(-1,0,0));//L2L
+  AddRCSExhaust (th_att_lin[7], center+_V(-3.704, 1.051, -14.876), _V(-1,0,0));//L3L
+  AddRCSExhaust (th_att_lin[7], center+_V(-3.711, 1.051, -15.179), _V(-1,0,0));//L1L
 
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -1.849), _V(1,0,0));//R4R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.167), _V(1,0,0));//R2R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.494), _V(1,0,0));//R3R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.804), _V(1,0,0));//R1R
+  AddRCSExhaust (th_att_lin[5], center+_V(3.688, 1.051, -14.254), _V(1,0,0));//R4R
+  AddRCSExhaust (th_att_lin[5], center+_V(3.698, 1.051, -14.563), _V(1,0,0));//R2R
+  AddRCSExhaust (th_att_lin[5], center+_V(3.704, 1.051, -14.876), _V(1,0,0));//R3R
+  AddRCSExhaust (th_att_lin[5], center+_V(3.711, 1.051, -15.179), _V(1,0,0));//R1R
 
   if(!bRCSDefined) {
 	  th_att_rcs[8] = CreateThruster (_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1597,26 +1597,26 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  SetThrusterRef(th_att_rcs[11], _V( 2.7,0,0));
   }
 
-  AddRCSExhaust (th_att_rcs[8], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_rcs[8], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_rcs[10], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_rcs[10], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+  AddRCSExhaust (th_att_rcs[8],  center+_V( 1.561, -1.249, 15.992), _V( 0.4339,-0.8830,-0.1793));//F2D
+  AddRCSExhaust (th_att_rcs[8],  center+_V( 1.647, -1.228, 15.647), _V( 0.4339,-0.8830,-0.1793));//F4D
+  AddRCSExhaust (th_att_rcs[10], center+_V(-1.561, -1.249, 15.992), _V(-0.4339,-0.8830,-0.1793));//F1D
+  AddRCSExhaust (th_att_rcs[10], center+_V(-1.647, -1.228, 15.647), _V(-0.4339,-0.8830,-0.1793));//F3D
 
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.395, 1.893, -14.167), _V(0, 1,0));//L4U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.395, 1.893, -14.487), _V(0, 1,0));//L2U
+  AddRCSExhaust (th_att_rcs[9], center+_V(-3.395, 1.893, -14.806), _V(0, 1,0));//L1U
 
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+  AddRCSExhaust (th_att_rcs[11], center+_V(3.395, 1.893, -14.167), _V(0, 1,0));//R4U
+  AddRCSExhaust (th_att_rcs[11], center+_V(3.395, 1.893, -14.487), _V(0, 1,0));//R2U
+  AddRCSExhaust (th_att_rcs[11], center+_V(3.395, 1.893, -14.806), _V(0, 1,0));//R1U
 
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+  AddRCSExhaust (th_att_rcs[10], center+_V(-2.839, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
+  AddRCSExhaust (th_att_rcs[10], center+_V(-2.839, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
+  AddRCSExhaust (th_att_rcs[10], center+_V(-2.839, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
 
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+  AddRCSExhaust (th_att_rcs[8], center+_V(2.839, 0.236, -14.244), _V(0.2844,-0.9481,-0.1422));//R4D
+  AddRCSExhaust (th_att_rcs[8], center+_V(2.839, 0.303, -14.573), _V(0.2844,-0.9481,-0.1422));//R2D
+  AddRCSExhaust (th_att_rcs[8], center+_V(2.839, 0.369, -14.909), _V(0.2844,-0.9481,-0.1422));//R3D
 
   if(!bRCSDefined) {
 	  th_att_lin[8] = CreateThruster (_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
@@ -1629,14 +1629,14 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
 	  SetThrusterRef(th_att_lin[9], _V(0,0, 16));
   }
 
-  AddRCSExhaust (th_att_lin[8], center+LOMS_OFFSET+_V(-1.112, -0.215, -3.07), _V(0,0,-1));//L1A
-  AddRCSExhaust (th_att_lin[8], center+LOMS_OFFSET+_V(-1.391, -0.215, -3.07), _V(0,0,-1));//L3A
-  AddRCSExhaust (th_att_lin[8], center+ROMS_OFFSET+_V( 1.112, -0.215, -3.07), _V(0,0,-1));//R1A
-  AddRCSExhaust (th_att_lin[8], center+ROMS_OFFSET+_V( 1.391, -0.215, -3.07), _V(0,0,-1));//R3A
+  AddRCSExhaust (th_att_lin[8], center+_V(-3.212, 1.501, -15.475), _V(0,0,-1));//L1A
+  AddRCSExhaust (th_att_lin[8], center+_V(-3.505, 1.501, -15.475), _V(0,0,-1));//L3A
+  AddRCSExhaust (th_att_lin[8], center+_V( 3.212, 1.501, -15.475), _V(0,0,-1));//R1A
+  AddRCSExhaust (th_att_lin[8], center+_V( 3.505, 1.501, -15.475), _V(0,0,-1));//R3A
 
-  AddRCSExhaust (th_att_lin[9], center+_V( 0.0  , -1.353, 16.139), _V(0, 0.0499, 0.9988));//F3F
-  AddRCSExhaust (th_att_lin[9], center+_V(-0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F1F
-  AddRCSExhaust (th_att_lin[9], center+_V( 0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F2F
+  AddRCSExhaust (th_att_lin[9], center+_V( 0.0  , -0.487, 16.286), _V(0, 0.0499, 0.9988));//F3F
+  AddRCSExhaust (th_att_lin[9], center+_V(-0.446, -0.487, 16.286), _V(0, 0.0499, 0.9988));//F1F
+  AddRCSExhaust (th_att_lin[9], center+_V( 0.446, -0.487, 16.286), _V(0, 0.0499, 0.9988));//F2F
 
   if(!bRCSDefined) {
 	  thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);

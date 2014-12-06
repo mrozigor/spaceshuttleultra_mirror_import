@@ -41,8 +41,6 @@ const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS m
 const VECTOR3 ET_OFFSET = _V(0.0, -8.975, 3.925); // offset between ET and shuttle meshes
 const VECTOR3 LSRB_OFFSET = _V(-6.4, -9.46, 1.09); // offset between SRB and shuttle mesh
 const VECTOR3 RSRB_OFFSET = _V(6.4, -9.46, 1.09); // offset between SRB and shuttle mesh
-const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
-const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
 const VECTOR3 KU_OFFSET = _V(0.035, 1.01, -0.05);
 
@@ -95,10 +93,8 @@ const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(95.0 * RAD);
 
 const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 3.1655, -14.3915);
 
-//const VECTOR3 L_OMS_REF = _V(-2.311, 3.297, -11.967);
-//const VECTOR3 R_OMS_REF = _V(2.311, 3.297, -11.967);
-const VECTOR3 L_OMS_REF = _V(0.0, 0.2805, -1.713) + LOMS_OFFSET;
-const VECTOR3 R_OMS_REF = _V(0.0, 0.2805, -1.713) + ROMS_OFFSET;
+const VECTOR3 L_OMS_REF = _V(-2.15, 1.986, -14.269);
+const VECTOR3 R_OMS_REF = _V(2.15, 1.986, -14.269);
 const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.272280247041, 0.955535713334);
 const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.272280247041, 0.955535713334);
 
