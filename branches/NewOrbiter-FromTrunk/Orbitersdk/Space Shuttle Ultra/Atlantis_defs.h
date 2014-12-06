@@ -44,6 +44,7 @@ const VECTOR3 RSRB_OFFSET = _V(6.4, -9.46, 1.09); // offset between SRB and shut
 const VECTOR3 LOMS_OFFSET = _V(-2.16889, 0.729989, -11.787);
 const VECTOR3 ROMS_OFFSET = _V(2.16889, 0.729989, -11.787);
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
+const VECTOR3 KU_OFFSET = _V(0.035, 1.01, -0.05);
 
 const double MPS_MANIFOLD_MASS_LOX = 2306;// kg
 const double MPS_MANIFOLD_MASS_LH2 = 144;// kg

@@ -2434,7 +2434,7 @@ void Atlantis::AddOrbiterVisual()
     mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
     SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
 
-	AddKUBandVisual(OFS_ZERO);
+	AddKUBandVisual(KU_OFFSET);
 
 	if(mesh_extal == MESH_UNDEFINED) {
 		VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
