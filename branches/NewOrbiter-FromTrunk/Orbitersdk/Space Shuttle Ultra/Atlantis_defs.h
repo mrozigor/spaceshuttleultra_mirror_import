@@ -227,7 +227,7 @@ const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 // =====================================================================
 // CG definitions (location of CG relative to center of Orbiter mesh)
 // =====================================================================
-const VECTOR3 ORBITER_CG = _V(0.0, -2.01062, -3.70822) + _V(0.0, 0.19888279332, 0.2939726193); // second term is fudge factor added so OMS gimbal angles are correct (SiameseCat, 131225)
+const VECTOR3 ORBITER_CG = _V(0.0, -1.23562, -3.52522);// + _V(0.0, 0.28491595177, -0.5908348442); // second term is fudge factor added so OMS gimbal angles are correct (SiameseCat, 141205)
 const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
 const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
 const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
