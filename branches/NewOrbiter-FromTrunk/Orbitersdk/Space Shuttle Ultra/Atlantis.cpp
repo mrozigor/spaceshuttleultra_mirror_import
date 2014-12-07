@@ -1969,14 +1969,14 @@ void Atlantis::DefineAnimations (void)
   // FRONT LEFT
   static UINT camFLYawGrp[1] = {GRP_PANTILT_CAM_A};
   MGROUP_ROTATE* CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(-1.778,0.739,9.464), _V(0,1,0), (float)(340*RAD));
+    _V(-1.816,0.909,9.464), _V(0,1,0), (float)(340*RAD));
   anim_camFLyaw = CreateAnimation (0.5);
   LogAnim("anim_camFLyaw", anim_camFLyaw);
   parent = AddManagedAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
 
   static UINT camFLPitchGrp[1] = {GRP_CAM_A};
   MGROUP_ROTATE* CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(-1.778,0.961,9.464), _V(1,0,0), (float)(340*RAD));
+    _V(-1.816,0.909,9.464), _V(1,0,0), (float)(340*RAD));
   anim_camFLpitch = CreateAnimation (0.5);
   //anim_camFLpitch = CreateAnimation (0.7647);
   LogAnim("anim_camFLpitch", anim_camFLpitch);
@@ -1988,14 +1988,14 @@ void Atlantis::DefineAnimations (void)
   // FRONT RIGHT
   static UINT camFRYawGrp[1] = {GRP_PANTILT_CAM_D};
   MGROUP_ROTATE* CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(1.778,0.739,9.464), _V(0,1,0), (float)(340*RAD));
+    _V(1.816,0.909,9.464), _V(0,1,0), (float)(340*RAD));
   anim_camFRyaw = CreateAnimation (0.5);
   LogAnim("anim_camFRyaw", anim_camFRyaw);
   parent = AddManagedAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
 
   static UINT camFRPitchGrp[1] = {GRP_CAM_D};
   MGROUP_ROTATE* CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(1.778,0.961,9.464), _V(1,0,0), (float)(340*RAD));
+    _V(1.816,0.909,9.464), _V(1,0,0), (float)(340*RAD));
   anim_camFRpitch = CreateAnimation (0.5);
   LogAnim("anim_camFRpitch", anim_camFRpitch);
   parent = AddManagedAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
@@ -2006,14 +2006,14 @@ void Atlantis::DefineAnimations (void)
   // BACK LEFT
   static UINT camBLYawGrp[1] = {GRP_PANTILT_CAM_B};
   MGROUP_ROTATE* CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(-2.251,0.739,-8.41), _V(0,1,0), (float)(340*RAD));
+    _V(-2.21,0.909,-8.438), _V(0,1,0), (float)(340*RAD));
   anim_camBLyaw = CreateAnimation (0.5);
   LogAnim("anim_camBLyaw", anim_camBLyaw);
   parent = AddManagedAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
 
   static UINT camBLPitchGrp[1] = {GRP_CAM_B};
   MGROUP_ROTATE* CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(-2.251,0.961,-8.41), _V(-1,0,0), (float)(340*RAD));
+    _V(-2.21,0.909,-8.438), _V(-1,0,0), (float)(340*RAD));
   anim_camBLpitch = CreateAnimation (0.5);
   LogAnim("anim_camBLpitch", anim_camBLpitch);
   parent = AddManagedAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
@@ -2024,14 +2024,14 @@ void Atlantis::DefineAnimations (void)
   // BACK RIGHT
   static UINT camBRYawGrp[1] = {GRP_PANTILT_CAM_C};
   MGROUP_ROTATE* CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(2.251,0.739,-8.41), _V(0,1,0), (float)(340*RAD));
+    _V(2.21,0.909,-8.438), _V(0,1,0), (float)(340*RAD));
   anim_camBRyaw = CreateAnimation (0.5);
   LogAnim("anim_camBRyaw", anim_camBRyaw);
   parent = AddManagedAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
 
   static UINT camBRPitchGrp[1] = {GRP_CAM_C};
   MGROUP_ROTATE* CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(2.251,0.961,-8.41), _V(-1,0,0), (float)(340*RAD));
+    _V(2.21,0.909,-8.438), _V(-1,0,0), (float)(340*RAD));
   anim_camBRpitch = CreateAnimation (0.5);
   LogAnim("anim_camBRpitch", anim_camBRpitch);
   parent = AddManagedAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
