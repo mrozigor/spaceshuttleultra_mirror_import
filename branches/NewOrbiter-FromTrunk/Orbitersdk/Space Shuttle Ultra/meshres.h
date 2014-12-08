@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon Nov 17 23:08:09 2014
+// Date of conversion : Mon Dec 08 11:13:06 2014
 
-// Input file: ../Meshes/ssu/Orbiter.msh
+// Input file: ../Meshes/SSU/Orbiter.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP = 125;
+const unsigned int NUMGRP = 126;
 
 const unsigned int GRP_NLG_UPPER_TORQUE_ARM	=	0;	//NLG_UPPER_TORQUE_ARM
 const unsigned int GRP_NLG_LOWER_TORQUE_ARM	=	1;	//NLG_LOWER_TORQUE_ARM
@@ -133,5 +133,6 @@ const unsigned int GRP_FUSELAGE	=	120;	//FUSELAGE
 const unsigned int GRP_HATCH	=	121;	//hatch
 const unsigned int GRP_WING_RCC	=	122;	//Wing_RCC
 const unsigned int GRP_FRCS_MODULE	=	123;	//FRCS_MODULE
-const unsigned int GRP_WINDOWS	=	124;	//WINDOWS
+const unsigned int GRP_BAYPFR	=	124;	//BayPFR
+const unsigned int GRP_WINDOWS	=	125;	//WINDOWS
 
