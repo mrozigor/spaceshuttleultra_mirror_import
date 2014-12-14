@@ -397,8 +397,6 @@ public:
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
-	UINT mesh_loms;
-	UINT mesh_roms;
 	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
@@ -671,8 +669,6 @@ public:
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
-	MESHHANDLE hLOMSPodMesh;
-	MESHHANDLE hROMSPodMesh;
 	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
@@ -932,6 +928,7 @@ private:
 	
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
 	double camYaw[4], camPitch[4];
+	VECTOR3 plbdCamPos[4];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -941,16 +938,6 @@ private:
 	
 	// Selected camera for control
 	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR 4:RMS Elbow
-	
-	// Transform for the cameras
-	MGROUP_TRANSFORM *CameraFLYaw;
-	MGROUP_TRANSFORM *CameraFLPitch;
-	MGROUP_TRANSFORM *CameraFRYaw;
-	MGROUP_TRANSFORM *CameraFRPitch;
-	MGROUP_TRANSFORM *CameraBLYaw;
-	MGROUP_TRANSFORM *CameraBLPitch;
-	MGROUP_TRANSFORM *CameraBRYaw;
-	MGROUP_TRANSFORM *CameraBRPitch;
 	
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();

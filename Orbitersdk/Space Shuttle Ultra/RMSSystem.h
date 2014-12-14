@@ -35,7 +35,7 @@ const static char* RMS_MESHNAME = "SSU/RMS";
 const double RMS_ROLLOUT_ANGLE = 19.48; // angle between RMS and vertical when RMS is deployed (in degrees)
 const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RMS is stowed (in degrees)
 
-const VECTOR3 RMS_MESH_OFFSET = _V(0.0, 0.0, 0.0);
+const VECTOR3 RMS_MESH_OFFSET = _V(-0.13, 1.04, 0.0326);
 
 // RMS joint positions
 const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);

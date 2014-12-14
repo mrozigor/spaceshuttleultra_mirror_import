@@ -107,9 +107,13 @@ const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
 const static char* VC_LBL_LEECAM = "RMS EE camera";
 const static char* VC_LBL_ELBOWCAM = "RMS Elbow camera";
 const static char* VC_LBL_PLBCAMFL = "Payload bay A camera";
+const VECTOR3 CAM_A_POS = _V(-1.7765, 0.965, 9.268);
 const static char* VC_LBL_PLBCAMFR = "Payload bay D camera";
+const VECTOR3 CAM_D_POS = _V(1.7765, 0.965, 9.268);
 const static char* VC_LBL_PLBCAMBL = "Payload bay B camera";
+const VECTOR3 CAM_B_POS = _V(-2.2495, 0.9655, -8.21);
 const static char* VC_LBL_PLBCAMBR = "Payload bay C camera";
+const VECTOR3 CAM_C_POS = _V(2.2495, 0.9655, -8.21);
 
 const static char* VC_LBL_MIDDECK = "Mid Deck";
 const VECTOR3 VC_POS_MIDDECK = _V(-1.44, 0.0, 13.353);
