@@ -8,7 +8,7 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 : VESSEL2(hVessel, iFlightModel)
 {
 	mshMLP = oapiLoadMeshGlobal("SSU\\MLP-2");
-	fT_SSSActive = 20.0;	//seconds of water
+	fT_SSSActive = 35.0;	//seconds of water, this is timed from a video of the May 7 2004 A2202 Flow Test at Pad A
 
 	fSRBSteam = 0.0;
 	fSSMESteam = 0.0;

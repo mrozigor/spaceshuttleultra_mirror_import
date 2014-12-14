@@ -114,7 +114,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		{
 			if(!pSSU->HydraulicsOK())
 			{
-				sprintf_s(oapiDebugString(), 255, "Launch aborted: No hydraulic pressure (check APUs)");
+				sprintf_s(oapiDebugString(), 255, "Countdown clock will hold at T-4 minutes due to a failure");
 				timeToLaunch = mjd-1.0; // set launch time to date in past
 			}
 		}
