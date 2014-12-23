@@ -42,7 +42,7 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
 	
-	EELightPos = RMS_EE_LIGHT_POS;
+	EELightPos = RMS_EE_LIGHT_POS+RMS_MESH_OFFSET;
 
 	bLastCamInternal = false;
 
@@ -136,7 +136,7 @@ void RMSSystem::Realize()
 	EELight_bspec.size = 0.1;
 	EELight_bspec.tofs = 0;
 	STS()->AddBeacon(&EELight_bspec);
-	pEELight = STS()-> AddSpotLight(arm_tip[5],arm_tip[1]-arm_tip[0],20,0.25,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
+	pEELight = STS()-> AddSpotLight(arm_tip[5]+RMS_MESH_OFFSET,arm_tip[1]-arm_tip[0],20,0.25,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
 	    diff,spec,amb);
 	//EELight_bspec.active = true;
 
@@ -473,7 +473,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	
 	// update end effector light position/direction
 	if(arm_moved || MPMRollout.Moving()) {
-		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset();
+		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
 		pEELight->SetPosition(EELightPos);
 		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
 	}
