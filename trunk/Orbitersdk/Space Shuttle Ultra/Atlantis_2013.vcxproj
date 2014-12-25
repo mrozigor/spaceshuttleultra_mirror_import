@@ -441,6 +441,7 @@
     <ClInclude Include="mps\HeliumSystem.h" />
     <ClInclude Include="mps\InputElectronics.h" />
     <ClInclude Include="mps\InputElectronics_BLOCK_II.h" />
+    <ClInclude Include="mps\MPSdefs.h" />
     <ClInclude Include="mps\OutputElectronics.h" />
     <ClInclude Include="mps\OutputElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\PneumaticControlAssembly.h" />
