@@ -33,9 +33,6 @@
 #include "DiscInPort.h"
 
 
-#define _EIU_DATA_RECORDER
-
-
 namespace mps
 {
 	class SSME;
@@ -50,11 +47,12 @@ namespace mps
 
 			unsigned short DataPri[32];
 			unsigned short DataSec[6];
-#ifdef _EIU_DATA_RECORDER
+
 			FILE* fp;
 
+			bool DataRecorderOn;
+
 			void DataRecorder( unsigned short* data, char* type );
-#endif// _EIU_DATA_RECORDER
 		public:
 			dps::BusTerminal mia[4];
 

@@ -33,26 +33,18 @@ namespace mps
 		// give ref
 		eng->Controller->GetEIURef( this );
 
-#ifdef _EIU_DATA_RECORDER
-		char fname[32];
-		sprintf_s( fname, 32, "EIU_data_ch%d.txt", ID );
-		fp = fopen( fname, "w" );// empty file
-		fclose( fp );
-		fp = fopen( fname, "a" );
-#endif// _EIU_DATA_RECORDER
-
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " EIU::EIU out" );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
+
+		DataRecorderOn = false;
 		return;
 	}
 
 	EIU::~EIU( void )
 	{
-#ifdef _EIU_DATA_RECORDER
-		fclose( fp );
-#endif// _EIU_DATA_RECORDER
+		if (DataRecorderOn == true) fclose( fp );
 		delete ACchA;
 		delete ACchB;
 		return;
@@ -82,17 +74,15 @@ namespace mps
 		{
 			// pri data
 			memcpy( DataPri, data, 32 * sizeof(unsigned short) );// partial data for GPCs
-#ifdef _EIU_DATA_RECORDER
-			DataRecorder( data, "PRI" );// save all telemetry
-#endif// _EIU_DATA_RECORDER
+
+			if (DataRecorderOn == true) DataRecorder( data, "PRI" );// save all telemetry
 		}
 		else
 		{
 			// sec data
 			memcpy( DataSec, data, 6 * sizeof(unsigned short) );// partial data for GPCs
-#ifdef _EIU_DATA_RECORDER
-			DataRecorder( data, "SEC" );// save all telemetry
-#endif// _EIU_DATA_RECORDER
+
+			if (DataRecorderOn == true) DataRecorder( data, "SEC" );// save all telemetry
 		}
 		return;
 	}
@@ -122,6 +112,14 @@ namespace mps
 				ACchA->Connect( O17_to_EIU_AC, 2 );
 				ACchB->Connect( O17_to_EIU_AC, 1 );
 				break;
+		}
+
+		if (STS()->GetMissionData()->LogSSMEData() == true)
+		{
+			char fname[32];
+			sprintf_s( fname, 32, "EIU_data_ch%d.txt", ID );
+			fp = fopen( fname, "w" );
+			if (fp != NULL) DataRecorderOn = true;
 		}
 		return;
 	}
@@ -192,7 +190,6 @@ namespace mps
 		return;
 	}
 
-#ifdef _EIU_DATA_RECORDER
 	void EIU::DataRecorder( unsigned short* data, char* type )
 	{
 		int count = 0;
@@ -206,5 +203,4 @@ namespace mps
 		fprintf( fp, "\n" );
 		return;
 	}
-#endif// _EIU_DATA_RECORDER
 }
