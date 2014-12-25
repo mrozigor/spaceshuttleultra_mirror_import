@@ -851,6 +851,9 @@
     <ClInclude Include="dps\GeneralDisplays.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="mps\MPSdefs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
