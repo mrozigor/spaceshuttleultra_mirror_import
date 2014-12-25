@@ -2450,12 +2450,12 @@ void Atlantis::SeparateBoosters (double met)
   //stop playing sound
   StopVesselWave(SoundID, SSME_RUNNING);
 
-  // change ET texture
-  OBJHANDLE hTank = GetAttachmentStatus(ahET);
+  // change ET texture (TODO: uncomment this code once ET burn texture is fixed)
+  /*OBJHANDLE hTank = GetAttachmentStatus(ahET);
   if(hTank) {
 	Atlantis_Tank* pTank = static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
 	pTank->UseBurntETTexture();
-  }
+  }*/
 }
 
 void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
