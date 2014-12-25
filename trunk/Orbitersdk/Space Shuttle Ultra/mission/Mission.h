@@ -84,6 +84,8 @@ namespace mission {
 
 		bool bUseSILTS;
 
+		bool bLogSSMEData;
+
 		/**
 		 * Initializes parameters to default values
 		 */
@@ -185,8 +187,11 @@ namespace mission {
 		 * Returns true if SILTS pod is installed.
 		 */
 		virtual bool UseSILTS() const;
-
 		
+		/**
+		 * Returns true if SSME data arriving at the EIU is to be logged.
+		 */
+		virtual bool LogSSMEData() const;
 	};
 
 };

@@ -53,6 +53,8 @@ namespace mission {
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
 		fODSZPos = 8.25;
+
+		bLogSSMEData = false;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -147,6 +149,8 @@ namespace mission {
 		oapiReadItem_float(hFile, "ODSZPos", fODSZPos);
 
 		if (strOrbiter == "Columbia") oapiReadItem_bool( hFile, "SILTS", bUseSILTS );
+
+		oapiReadItem_bool( hFile, "LogSSMEData", bLogSSMEData );
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -326,5 +330,10 @@ namespace mission {
 	bool Mission::UseSILTS() const
 	{
 		return bUseSILTS;
+	}
+
+	bool Mission::LogSSMEData() const
+	{
+		return bLogSSMEData;
 	}
 };
