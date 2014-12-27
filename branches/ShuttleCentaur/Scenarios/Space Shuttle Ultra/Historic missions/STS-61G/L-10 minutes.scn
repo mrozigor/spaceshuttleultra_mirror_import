@@ -532,7 +532,7 @@ CentaurG_Prime:SSU_CentaurGPrime
   AROT -154.36 -80.27 170.79
   VROT -0.06 0.00 -0.01
   ATTACHED 0:0,CISS_CentaurG_Prime
-  PRPLEVEL 0:1.000000 1:1.000000
+  PRPLEVEL 0:0.954121 1:1.000000
 END
 Galileo:Carina
   STATUS Orbiting Earth

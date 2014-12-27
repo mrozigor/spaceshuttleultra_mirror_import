@@ -545,7 +545,7 @@ END
 CentaurG_Prime:SSU_CentaurGPrime
   STATUS Orbiting Earth
   ATTACHED 0:0,CISS_CentaurG_Prime
-  PRPLEVEL 0:1.000000 1:1.000000
+  PRPLEVEL 0:0.954121 1:1.000000
 END
 Galileo:Carina
   STATUS Orbiting Earth
