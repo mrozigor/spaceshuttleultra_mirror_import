@@ -32,7 +32,7 @@
 const static char* G_MESHNAME = "SSU\\CISS_CentaurG";
 const static char* GPRIME_MESHNAME = "SSU\\CISS_CentaurG_Prime";
 
-const double G_EMPTY_MASS = 2605;// Kg
+const double G_EMPTY_MASS = 7149.6;// Kg
 const double GPRIME_EMPTY_MASS = 7212.7;// Kg
 
 
