@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis", "Atlantis_2013.vcxproj", "{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EDA1260C-9F5C-478A-B18B-A687101FC234} = {EDA1260C-9F5C-478A-B18B-A687101FC234}
@@ -12,7 +14,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_SRB", "Atlantis_SR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Tank", "Atlantis_Tank_2013.vcxproj", "{EE67E0BD-7B53-48FB-893A-C63884245A5D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomMFD", "CRT_2013.vcxproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRT", "CRT_2013.vcxproj", "{4AE6E2AE-A177-494E-AA66-976B4102DA67}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Chute", "Atlantis_Chute_2013.vcxproj", "{66D11E71-6424-4736-B0B9-5198C3123337}"
 EndProject
@@ -37,6 +39,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltraTests", "..\libUltra\libUltraTests\libUltraTests_2013.vcxproj", "{122CACA7-0C6C-4106-8587-3BE5CA849B65}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_SLC6", "SLC6\SSU_SLC6_2013.vcxproj", "{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_Centaur", "Centaur\SSU_Centaur\SSU_Centaur_2013.vcxproj", "{7D997EE8-F918-4635-AF54-ACA3B5F95C36}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_CISS", "Centaur\SSU_CISS\SSU_CISS_2013.vcxproj", "{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +153,18 @@ Global
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Debug|Win32.Build.0 = Debug|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.ActiveCfg = Release|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.Build.0 = Release|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Debug|Win32.Build.0 = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.ActiveCfg = Release|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.Build.0 = Release|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Debug|Win32.Build.0 = Debug|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Release|Win32.ActiveCfg = Release|Win32
+		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
