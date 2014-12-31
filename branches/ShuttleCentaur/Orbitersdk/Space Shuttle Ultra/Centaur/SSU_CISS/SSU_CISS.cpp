@@ -2,6 +2,7 @@
 
 
 #include "SSU_CISS.h"
+#include "meshres_GPrime.h"
 
 
 DLLCLBK VESSEL *ovcInit( OBJHANDLE hVessel, int flightmodel )
@@ -22,7 +23,7 @@ DLLCLBK void ovcSetState( VESSEL *Vessel, const VESSELSTATUS *Status )
 
 SSU_CISS::SSU_CISS( OBJHANDLE hVessel ):VESSEL2( hVessel )
 {
-	return;
+	bFirstStep = true;
 }
 
 SSU_CISS::~SSU_CISS( void )
@@ -34,21 +35,27 @@ void SSU_CISS::clbkSetClassCaps( FILEHANDLE cfg )
 {
 	char pszBuffer[255];
 	bool bFoundData = oapiReadItem_string( cfg, "Type", pszBuffer );
+	bool isGPrime = true;
 
 	if (!bFoundData || !_strnicmp( pszBuffer, "GPrime", 6 ))
 	{
 		SetEmptyMass( GPRIME_EMPTY_MASS );
 		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
 		ahToOV = CreateAttachment( true, _V( 0, -2.35, 0.5 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVCISS" );
-		ahToCentaur = CreateAttachment( false, _V( 0, -0.03, -1.16 ), _V( 0, -1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
+		centaurAttachment[0] = _V( 0, -0.03, -1.16 );
+		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, -1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
 	}
 	else if (!_strnicmp( pszBuffer, "G", 1 ))
 	{
+		isGPrime = false;
 		SetEmptyMass( G_EMPTY_MASS );
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
 		ahToOV = CreateAttachment( true, _V( 0, -2.3, -2.3 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVCISS" );
-		ahToCentaur = CreateAttachment( false, _V( 0, 0, 5 ), _V( 0, -1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
+		centaurAttachment[0] = _V( 0, 0, 5 );
+		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, -1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
 	}
+	centaurAttachment[1] = centaurAttachment[0] + _V(0, -1, 0);
+	centaurAttachment[2] = centaurAttachment[0] + _V(0, 0, -1);
 
 	mesh_idx = AddMesh( hMesh );
 
@@ -60,7 +67,91 @@ void SSU_CISS::clbkSetClassCaps( FILEHANDLE cfg )
 	SetSize( 30 );
 	SetCrossSections( _V( 30.30, 31.63, 14.41 ) );
 	SetPMI( _V( 6.56, 6.86, 2.44 ) );
+
+	// define rotation animation
+	if(isGPrime) DefineCentaurGPrimeAnimations();
+	else DefineCentaurGAnimations();
 	return;
+}
+
+void SSU_CISS::DefineCentaurGPrimeAnimations()
+{
+	anim_rotate = CreateAnimation(0.0);
+	rotateAnimState.Set(AnimState::CLOSED, 0.0);
+
+	static UINT DA_GRP[25] = {GRP_DEPLOYMENT_ADAPTER_GPRIME,
+							  GRP_GOX_DUCT_BELLOW_1_GPRIME,
+							  GRP_GOX_DUCT_BELLOW_2_GPRIME,
+							  GRP_GOX_DUCT_BELLOW_3_GPRIME,
+							  GRP_GOX_DUCT_SEGMENT_1_GPRIME,
+							  GRP_GOX_DUCT_SEGMENT_2_GPRIME,
+							  GRP_GOX_DUCT_SEGMENT_3_GPRIME,
+							  GRP_LOX_DUCT_BELLOW_1_GPRIME,
+							  GRP_LOX_DUCT_BELLOW_2_GPRIME,
+							  GRP_LOX_DUCT_BELLOW_3_GPRIME,
+							  GRP_LOX_DUCT_SEGMENT_1_GPRIME,
+							  GRP_LOX_DUCT_SEGMENT_2_GPRIME,
+							  GRP_LOX_DUCT_SEGMENT_3_GPRIME,
+							  GRP_LH2_DUCT_BELLOW_1_GPRIME,
+							  GRP_LH2_DUCT_BELLOW_2_GPRIME,
+							  GRP_LH2_DUCT_BELLOW_3_GPRIME,
+							  GRP_LH2_DUCT_SEGMENT_1_GPRIME,
+							  GRP_LH2_DUCT_SEGMENT_2_GPRIME,
+							  GRP_LH2_DUCT_SEGMENT_3_GPRIME,
+							  GRP_GH2_DUCT_BELLOW_1_GPRIME,
+							  GRP_GH2_DUCT_BELLOW_2_GPRIME,
+							  GRP_GH2_DUCT_BELLOW_3_GPRIME,
+							  GRP_GH2_DUCT_SEGMENT_1_GPRIME,
+							  GRP_GH2_DUCT_SEGMENT_2_GPRIME,
+							  GRP_GH2_DUCT_SEGMENT_3_GPRIME};
+	static MGROUP_ROTATE DA (mesh_idx, DA_GRP, 25, _V(0,-0.04,-2.12), _V(-1,0,0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &DA);
+
+	/*static UINT GOX_VentLine_Seg1_Grp[6] = {GRP_GOX_DUCT_BELLOW_1_GPRIME,
+											GRP_GOX_DUCT_BELLOW_2_GPRIME,
+											GRP_GOX_DUCT_BELLOW_3_GPRIME,
+											GRP_GOX_DUCT_SEGMENT_1_GPRIME,
+											GRP_GOX_DUCT_SEGMENT_2_GPRIME,
+											GRP_GOX_DUCT_SEGMENT_3_GPRIME};
+	static MGROUP_ROTATE GOX_VentLine_Seg1 (mesh_idx, GOX_VentLine_Seg1_Grp, 6, _V(-1.77,-0.47,-2.12), _V(-1, 0, 0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &GOX_VentLine_Seg1);
+
+	static UINT LOX_VentLine_Seg1_Grp[6] = {GRP_LOX_DUCT_BELLOW_1_GPRIME,
+											GRP_LOX_DUCT_BELLOW_2_GPRIME,
+											GRP_LOX_DUCT_BELLOW_3_GPRIME,
+											GRP_LOX_DUCT_SEGMENT_1_GPRIME,
+											GRP_LOX_DUCT_SEGMENT_2_GPRIME,
+											GRP_LOX_DUCT_SEGMENT_3_GPRIME};
+	static MGROUP_ROTATE LOX_VentLine_Seg1 (mesh_idx, LOX_VentLine_Seg1_Grp, 6, _V(-1.58,-0.66,-2.17), _V(-1, 0, 0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &LOX_VentLine_Seg1);
+
+	static UINT GH2_VentLine_Seg1_Grp[6] = {GRP_GH2_DUCT_BELLOW_1_GPRIME,
+											GRP_GH2_DUCT_BELLOW_2_GPRIME,
+											GRP_GH2_DUCT_BELLOW_3_GPRIME,
+											GRP_GH2_DUCT_SEGMENT_1_GPRIME,
+											GRP_GH2_DUCT_SEGMENT_2_GPRIME,
+											GRP_GH2_DUCT_SEGMENT_3_GPRIME};
+	static MGROUP_ROTATE GH2_VentLine_Seg1 (mesh_idx, GH2_VentLine_Seg1_Grp, 6, _V(1.77,-0.47,-2.12), _V(-1, 0, 0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &GH2_VentLine_Seg1);
+
+	static UINT LH2_VentLine_Seg1_Grp[6] = {GRP_LH2_DUCT_BELLOW_1_GPRIME,
+											GRP_LH2_DUCT_BELLOW_2_GPRIME,
+											GRP_LH2_DUCT_BELLOW_3_GPRIME,
+											GRP_LH2_DUCT_SEGMENT_1_GPRIME,
+											GRP_LH2_DUCT_SEGMENT_2_GPRIME,
+											GRP_LH2_DUCT_SEGMENT_3_GPRIME};
+	static MGROUP_ROTATE LH2_VentLine_Seg1 (mesh_idx, LH2_VentLine_Seg1_Grp, 6, _V(1.58,-0.66,-2.17), _V(-1, 0, 0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &LH2_VentLine_Seg1);*/
+
+	static MGROUP_ROTATE AttachmentTrack (LOCALVERTEXLIST, MAKEGROUPARRAY(centaurAttachment), 3, _V(0,-0.04,-2.12), _V(-1, 0, 0), static_cast<float>(45.0*RAD));
+	AddAnimationComponent(mesh_idx, 0, 1, &AttachmentTrack);
+}
+
+void SSU_CISS::DefineCentaurGAnimations()
+{
+	anim_rotate = CreateAnimation(0.0);
+	rotateAnimState.Set(AnimState::CLOSED, 0.0);
+	// TODO: implement animation (once mesh has been created)
 }
 
 int SSU_CISS::clbkConsumeBufferedKey( DWORD key, bool down, char* keystate )
@@ -70,16 +161,54 @@ int SSU_CISS::clbkConsumeBufferedKey( DWORD key, bool down, char* keystate )
 	switch (key)
 	{
 		case OAPI_KEY_G:
-			// TODO raise table
+			rotateAnimState.action = AnimState::OPENING;
 			return 1;
 		case OAPI_KEY_L:
-			// TODO lower table
+			rotateAnimState.action = AnimState::CLOSING;
 			return 1;
 		case OAPI_KEY_J:
 			// sep centaur
-			// TODO add table position checks
-			DetachChild( ahToCentaur, 0.3 );
+			if(rotateAnimState.Open())
+				DetachChild( ahToCentaur, 0.3 );
 			return 1;
 	}
 	return 0;
+}
+
+void SSU_CISS::clbkPostStep(double simT, double simDT, double mjd)
+{
+	VESSEL2::clbkPostStep(simT, simDT, mjd);
+
+	if(bFirstStep) { // required to make sure Centaur is positioned correctly
+		bFirstStep = false;
+		SetAnimation(anim_rotate, rotateAnimState.pos);
+		SetAttachmentParams(ahToCentaur, centaurAttachment[0], centaurAttachment[1]-centaurAttachment[0], centaurAttachment[2]-centaurAttachment[0]);
+	}
+
+	if(rotateAnimState.Moving()) {
+		rotateAnimState.Move(simDT*CISS_ROTATION_RATE);
+		SetAnimation(anim_rotate, rotateAnimState.pos);
+		SetAttachmentParams(ahToCentaur, centaurAttachment[0], centaurAttachment[1]-centaurAttachment[0], centaurAttachment[2]-centaurAttachment[0]);
+	}
+}
+
+void SSU_CISS::clbkSaveState(FILEHANDLE scn)
+{
+	VESSEL2::clbkSaveState(scn);
+	WriteScenario_state(scn, "ROTATION", rotateAnimState);
+}
+
+void SSU_CISS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
+{
+	char *line;
+	while (oapiReadScenario_nextline (scn, line)) {
+		if(!_strnicmp(line, "ROTATION", 8)) {
+			sscan_state(line+8, rotateAnimState);
+			SetAnimation(anim_rotate, rotateAnimState.pos);
+			SetAttachmentParams(ahToCentaur, centaurAttachment[0], centaurAttachment[1]-centaurAttachment[0], centaurAttachment[2]-centaurAttachment[0]);
+		}
+		else {
+			ParseScenarioLineEx (line, vs);
+		}
+	}
 }

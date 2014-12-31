@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="meshres_GPrime.h" />
     <ClInclude Include="SSU_CISS.h" />
   </ItemGroup>
   <ItemGroup>
