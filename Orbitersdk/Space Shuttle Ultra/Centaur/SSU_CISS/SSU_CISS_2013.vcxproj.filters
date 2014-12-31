@@ -18,6 +18,9 @@
     <ClInclude Include="SSU_CISS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_GPrime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SSU_CISS.cpp">

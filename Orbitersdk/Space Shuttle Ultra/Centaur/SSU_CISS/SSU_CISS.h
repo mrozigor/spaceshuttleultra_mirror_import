@@ -35,6 +35,7 @@ const static char* GPRIME_MESHNAME = "SSU\\CISS_CentaurG_Prime";
 const double G_EMPTY_MASS = 7149.6;// Kg
 const double GPRIME_EMPTY_MASS = 7212.7;// Kg
 
+const double CISS_ROTATION_RATE = (1/58.0); // rate at which table rotates to deploy position
 
 class SSU_CISS: public VESSEL2
 {
@@ -44,11 +45,25 @@ class SSU_CISS: public VESSEL2
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
 		int clbkConsumeBufferedKey( DWORD key, bool down, char* keystate );
+
+		void clbkPostStep(double simT, double simDT, double mjd);
+
+		void clbkSaveState (FILEHANDLE scn);
+		void clbkLoadStateEx (FILEHANDLE scn, void *vs);
 	private:
+		void DefineCentaurGPrimeAnimations();
+		void DefineCentaurGAnimations();
+
 		MESHHANDLE hMesh;
 		UINT mesh_idx;
 		ATTACHMENTHANDLE ahToOV;
 		ATTACHMENTHANDLE ahToCentaur;
+
+		UINT anim_rotate;
+		VECTOR3 centaurAttachment[3];
+		AnimState rotateAnimState;
+
+		bool bFirstStep;
 };
 
 #endif// __SSUCISS_H
