@@ -45,8 +45,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetSize( 25 );
 		SetCrossSections( _V( 26.07, 25.9, 14.52 ) );
 		SetPMI( _V( 6.74, 6.75, 2.20 ) );
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.38 ), _V( 0, 1, 0 ), _V( 0, 0, -1 ), "SSU_CENTAURPAYLOAD" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.5 ), _V( 0, 1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.38 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CENTAURPAYLOAD" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.5 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
 	}
 	else if (!_strnicmp( pszBuffer, "G", 1 ))
 	{
@@ -56,8 +56,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetSize( 20 );
 		SetCrossSections( _V( 19.09, 20.21, 14.23 ) );
 		SetPMI( _V( 4.55, 5.04, 2.68 ) );
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 1.95 ), _V( 0, 1, 0 ), _V( 0, 0, -1 ), "SSU_CENTAURPAYLOAD" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.659 ), _V( 0, 1, 0 ), _V( 0, 0, -1 ), "SSU_CISSCENTAUR" );
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 1.95 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CENTAURPAYLOAD" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.659 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
 	}
 
 	mesh_idx = AddMesh( hMesh );
@@ -83,7 +83,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		25,
 		0,
 		0.1,
-		5,
+		3,
 		10,
 		PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_SQRT,
@@ -114,7 +114,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		25,
 		50,
 		0,
-		0.2,
+		0.15,
 		20,
 		5,
 		PARTICLESTREAMSPEC::EMISSIVE,
