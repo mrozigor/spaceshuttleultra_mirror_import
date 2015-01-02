@@ -4795,7 +4795,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  pgCenter.RegisterVC();
 	  pgForward.RegisterVC();
-	  pgRight.RegisterVC();
+	  pgLeft.RegisterVC();
 	  pgOverhead.RegisterVC();
 
 	  panelo3->RegisterVC();

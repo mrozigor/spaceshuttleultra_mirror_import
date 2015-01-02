@@ -84,7 +84,7 @@ bool StateVectorSoftware::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp(keyword, "T0_POS", 6)) {
-		sscanf(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
+		sscanf_s(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
 		return true;
 	}
 	return false;

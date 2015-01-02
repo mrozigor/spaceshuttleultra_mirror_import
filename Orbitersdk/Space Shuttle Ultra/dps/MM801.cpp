@@ -233,18 +233,18 @@ namespace dps
 
 	void MM801::PrintElevonPos(double pos, char* buff) const
 	{
-		if(pos >= 0) sprintf(buff,"D%04.1f",pos);
-		else sprintf(buff,"U%04.1f",-pos);
+		if(pos >= 0) sprintf_s(buff, 6, "D%04.1f",pos);
+		else sprintf_s(buff, 6, "U%04.1f",-pos);
 	}
 
 	void MM801::PrintRudderPos(double pos, char* buff) const
 	{
-		if(pos >= 0) sprintf(buff,"R%04.1f",pos);
-		else sprintf(buff,"L%04.1f",-pos);
+		if(pos >= 0) sprintf_s(buff, 6, "R%04.1f",pos);
+		else sprintf_s(buff, 6, "L%04.1f",-pos);
 	}
 
 	void MM801::PrintSpeedbrakePos(double pos, char* buff) const
 	{
-		sprintf(buff, "%05.1f", pos);
+		sprintf_s(buff, 6, "%05.1f", pos);
 	}
 };

@@ -450,7 +450,7 @@ namespace dps
 			abortfirstrun = false;
 			engineSD = 0;
 
-			sprintf(oapiDebugString(),RSLSAbortCause,RSLSAbortTime,RSLSAbortData);
+			sprintf_s(oapiDebugString(), 255, RSLSAbortCause,RSLSAbortTime,RSLSAbortData);
 
 			char buffer[100];
 			sprintf_s( buffer, 100, RSLSAbortCause, -RSLSAbortTime, RSLSAbortData );
