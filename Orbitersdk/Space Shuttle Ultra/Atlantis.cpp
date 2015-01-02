@@ -903,14 +903,14 @@ pActiveLatches(3, NULL)
   plbdCamPos[3] = CAM_D_POS;
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.4, -3.05, 5.49); //forward stbd
-  PLBLightPosition[1] = _V(-1.4,-3.05, 5.49); //forward port
-  PLBLightPosition[2] = _V(1.4, -3.05, -0.21);//mid stbd
-  PLBLightPosition[3] = _V(-1.4, -3.05, -0.21);//mid port
-  PLBLightPosition[4] = _V(1.4, -3.05, -4.26);//aft stbd
-  PLBLightPosition[5] = _V(-1.4, -3.05, -4.26);//aft port
-  FwdBulkheadLightPos = _V(0.0, 0.763, 9.652);//fwd bulkhead
-  DockingLightPos = _V(0.0, 0.947, 9.652);//docking light
+  PLBLightPosition[0] = _V(1.64, -2.35, 5.5); //forward stbd
+  PLBLightPosition[1] = _V(-1.55,-2.35, 5.13); //forward port
+  PLBLightPosition[2] = _V(1.64, -2.35, -0.3);//mid stbd
+  PLBLightPosition[3] = _V(-1.64, -2.35, -0.3);//mid port
+  PLBLightPosition[4] = _V(1.64, -2.35, -4.4);//aft stbd
+  PLBLightPosition[5] = _V(-1.64, -2.35, -4.4);//aft port
+  FwdBulkheadLightPos = _V(0.0, 1.75, 9.65);//fwd bulkhead
+  DockingLightPos = _V(0.0, 2.02, 9.6);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
