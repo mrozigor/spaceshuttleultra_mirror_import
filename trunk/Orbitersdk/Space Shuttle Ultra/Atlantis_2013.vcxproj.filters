@@ -860,6 +860,15 @@
     <ClInclude Include="mps\MPSdefs.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="dps\simple\Partition.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\simple\FCOS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\simple\MF_GNC.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

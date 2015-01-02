@@ -397,7 +397,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	if (enaSERC == true)
 	{
 		if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
-		else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
+		else SERC.SetLine( static_cast<float>(-range( -1, 0.5 * degRateError.data[ROLL], 1 )) );
 	}
 }
 void AscentGuidance::FirstStageRateCommand()
@@ -928,7 +928,7 @@ bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
 	if(bShowHDot)
 	{
 		double HDot_Error = -LVLH_Vel.z - Ref_hdot;
-		double att = 0;
+		char att = 0;
 
 		if(HDot_Error > 200.0)
 		{

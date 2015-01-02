@@ -22,7 +22,7 @@ void DragTable::LoadFromFile()
 		while(std::getline(file,line))
 		{
 			double alt, rho;
-			sscanf(line.c_str(),"%lf%lf",&alt,&rho);
+			sscanf_s(line.c_str(),"%lf%lf",&alt,&rho);
 			dTable.push_back(std::pair<double,double>(alt,rho));
 			line.clear();
 			alt = rho = 0;

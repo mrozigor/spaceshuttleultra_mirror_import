@@ -940,8 +940,6 @@ namespace dps
 
 		// dynamic parts
 		// TODO finish
-		char cbuf[64];
-
 		// BTU SELECTION
 		if (ITEM_STATE_SPEC112[0] == true) pMDU->mvprint( 6, 3, "*" );
 		if (ITEM_STATE_SPEC112[1] == true) pMDU->mvprint( 6, 4, "*" );
@@ -968,74 +966,7 @@ namespace dps
 		if (ITEM_STATE_SPEC112[22] == true) pMDU->mvprint( 17, 14, "*" );
 		if (ITEM_STATE_SPEC112[23] == true) pMDU->mvprint( 19, 16, "*" );
 
-		// TEST STATUS
-		/*if (abc == true) pMDU->mvprint( 27, 3, " ACT" );
-		else pMDU->mvprint( 27, 3, "CPLT" );
 
-		sprintf_s( cbuf, 64, "%2d", itmp );
-		pMDU->mvprint( 29, 4, cbuf );
-
-		sprintf_s( cbuf, 64, "%6d", itmp );
-		pMDU->mvprint( 25, 5, cbuf );
-
-		if (abc == true)
-		{
-			sprintf_s( cbuf, 64, "%4X", itmp );
-			pMDU->mvprint( 27, 6, cbuf );
-
-			sprintf_s( cbuf, 64, "%8X", itmp );
-			pMDU->mvprint( 23, 8, cbuf );
-		}*/
-
-		// MDM OUTPUT TEST
-		/*sprintf_s( cbuf, 64, "%2d", itmp );
-		pMDU->mvprint( 44, 4, cbuf );
-
-		if (abc == true)
-		{
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 7, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 7, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 8, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 8, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 9, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 9, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 10, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 10, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 11, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 11, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 12, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 12, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 13, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 13, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 36, 14, cbuf );
-			sprintf_s( cbuf, 64, "%+5.2f", dtmp );
-			pMDU->mvprint( 45, 14, cbuf );
-		}
-
-		if (abc == true)
-		{
-			sprintf_s( cbuf, 64, "%6X", itmp );
-			pMDU->mvprint( 44, 17, cbuf );
-			sprintf_s( cbuf, 64, "%6X", itmp );
-			pMDU->mvprint( 44, 18, cbuf );
-			sprintf_s( cbuf, 64, "%6X", itmp );
-			pMDU->mvprint( 44, 19, cbuf );
-		}*/
 
 		// PORT SEL
 		if (ITEM_STATE_SPEC112[30] == true) pMDU->mvprint( 32, 10, "*" );

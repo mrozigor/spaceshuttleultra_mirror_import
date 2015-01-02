@@ -244,11 +244,11 @@ namespace dps
 				for (int i = 0; i < 4; i++)
 				{
 					// LOX
-					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false) LO2LowLevelSensorDryFlag[i] = true;
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3f ) == false) LO2LowLevelSensorDryFlag[i] = true;
 					if ((LO2LowLevelSensorDryFlag[i] == true) && (LO2LowLevelSensorDsblFlag[i] == false)) LO2count++;
 
 					// LH2
-					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false) LH2LowLevelSensorDryFlag[i] = true;
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3f ) == false) LH2LowLevelSensorDryFlag[i] = true;
 					if ((LH2LowLevelSensorDryFlag[i] == true) && (LH2LowLevelSensorDsblFlag[i] == false)) LH2count++;
 				}
 
@@ -310,7 +310,7 @@ namespace dps
 				// LOX
 				for (int i = 0; i < 4; i++)
 				{
-					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3f ) == false)
 					{
 						LO2LowLevelSensorDsblFlag[i] = true;
 						
@@ -323,7 +323,7 @@ namespace dps
 				// LH2
 				for (int i = 0; i < 4; i++)
 				{
-					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3f ) == false)
 					{
 						LH2LowLevelSensorDsblFlag[i] = true;
 
