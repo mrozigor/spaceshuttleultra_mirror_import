@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon Dec 29 17:55:42 2014
+// Date of conversion : Fri Jan 09 11:27:41 2015
 
 // Input file: ../Meshes/SSU/Orbiter.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP = 127;
+const unsigned int NUMGRP = 140;
 
 const unsigned int GRP_NLG_UPPER_TORQUE_ARM	=	0;	//NLG_UPPER_TORQUE_ARM
 const unsigned int GRP_NLG_LOWER_TORQUE_ARM	=	1;	//NLG_LOWER_TORQUE_ARM
@@ -136,4 +136,17 @@ const unsigned int GRP_FRCS_MODULE	=	123;	//FRCS_MODULE
 const unsigned int GRP_BAYPFR	=	124;	//BayPFR
 const unsigned int GRP_OMS_OVERLAP	=	125;	//OMS_overlap
 const unsigned int GRP_WINDOWS	=	126;	//WINDOWS
+const unsigned int GRP_BAY1_LONGERON	=	127;	//Bay1_longeron
+const unsigned int GRP_BAY2_LONGERON	=	128;	//Bay2_longeron
+const unsigned int GRP_BAY3_LONGERON	=	129;	//Bay3_longeron
+const unsigned int GRP_BAY4_LONGERON	=	130;	//Bay4_longeron
+const unsigned int GRP_BAY5_LONGERON	=	131;	//Bay5_longeron
+const unsigned int GRP_BAY6_LONGERON	=	132;	//Bay6_longeron
+const unsigned int GRP_BAY7_LONGERON	=	133;	//Bay7_longeron
+const unsigned int GRP_BAY8_LONGERON	=	134;	//Bay8_longeron
+const unsigned int GRP_BAY9_LONGERON	=	135;	//Bay9_longeron
+const unsigned int GRP_BAY10_LONGERON	=	136;	//Bay10_longeron
+const unsigned int GRP_BAY11_LONGERON	=	137;	//Bay11_longeron
+const unsigned int GRP_BAY12_LONGERON	=	138;	//Bay12_longeron
+const unsigned int GRP_BAY13_LONGERON	=	139;	//Bay13_longeron
 
