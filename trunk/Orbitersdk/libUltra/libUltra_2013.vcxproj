@@ -142,6 +142,7 @@
     <ClInclude Include="include\SubsystemDirector.h" />
     <ClInclude Include="include\Ultra.h" />
     <ClInclude Include="include\UltraMath.h" />
+    <ClInclude Include="include\UltraUtils.h" />
     <ClInclude Include="include\ValveTypeBool.h" />
     <ClInclude Include="KOST\kost.h" />
   </ItemGroup>
