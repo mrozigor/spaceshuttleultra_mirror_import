@@ -1,6 +1,8 @@
 #include "Mission.h"
 #include "OrbiterAPI.h"
+#include "UltraUtils.h"
 #include <limits>
+#include <vector>
 
 namespace mission {
 
@@ -53,6 +55,8 @@ namespace mission {
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
 		fODSZPos = 8.25;
+
+		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
 		bLogSSMEData = false;
 	}
@@ -147,6 +151,15 @@ namespace mission {
 			}
 		}
 		oapiReadItem_float(hFile, "ODSZPos", fODSZPos);
+
+		if(oapiReadItem_string(hFile, "Bridgerails", buffer)) {
+			std::vector<int> bridgerails;
+			ReadCSVLine(buffer, bridgerails);
+			for(int i=0;i<bridgerails.size();i++) {
+				if(bridgerails[i] >= 0 && bridgerails[i] < 13)
+					bHasBridgerail[bridgerails[i]] = true;
+			}
+		}
 
 		if (strOrbiter == "Columbia") oapiReadItem_bool( hFile, "SILTS", bUseSILTS );
 
@@ -260,6 +273,12 @@ namespace mission {
 	const std::string& Mission::GetROMSPodMeshName() const
 	{
 		return strROMSPodMeshName;
+	}
+
+	bool Mission::HasBridgerail(unsigned int index) const
+	{
+		if(index > 13) return false;
+		return bHasBridgerail[index];
 	}
 
 	bool Mission::HasRMS() const
