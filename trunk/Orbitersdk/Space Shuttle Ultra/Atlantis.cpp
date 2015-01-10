@@ -4596,6 +4596,11 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   else
 	  oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_CHUTE, &grpSpec);
 
+  // hide bridgerails
+  for(unsigned int i=0;i<13;i++) {
+	  if(!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON+i, &grpSpec);
+  }
+
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 

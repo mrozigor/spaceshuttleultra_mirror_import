@@ -82,6 +82,8 @@ namespace mission {
 
 		double fPayloadZPos[16];
 
+		bool bHasBridgerail[13]; // true if bridgerail is present, false otherwise
+
 		bool bUseSILTS;
 
 		bool bLogSSMEData;
@@ -151,6 +153,8 @@ namespace mission {
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
+
+		virtual bool HasBridgerail(unsigned int index) const;
 		
 		virtual bool HasRMS() const;
 		virtual bool HasSTBDMPMs() const;
