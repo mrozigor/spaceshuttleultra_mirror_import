@@ -180,14 +180,14 @@ namespace vc {
 
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
-		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
+		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
 
 		if(MFDID!=-1) {
 			if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+					//sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
 					bIsConnectedToCRTMFD = false;
 					//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
 					oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
@@ -195,7 +195,7 @@ namespace vc {
 			}
 			else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
 			{
-				sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+				//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
 			}
 			else if (y >= edgekeyYmin && y <= edgekeyYmax)
 			{
@@ -206,7 +206,7 @@ namespace vc {
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
 						oapiProcessMFDButton (MFDID, 0, _event);
 					}
 				}
@@ -214,7 +214,7 @@ namespace vc {
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
 						oapiProcessMFDButton (MFDID, 1, _event);
 					}
 				}
@@ -222,7 +222,7 @@ namespace vc {
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
 						oapiProcessMFDButton (MFDID, 2, _event);
 					}
 				} 
@@ -230,7 +230,7 @@ namespace vc {
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
 						oapiProcessMFDButton (MFDID, 3, _event);
 					}
 				}
@@ -238,7 +238,7 @@ namespace vc {
 				{
 					if(_event & PANEL_MOUSE_LBDOWN)
 					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
 						oapiProcessMFDButton (MFDID, 4, _event);
 					}
 				}
@@ -246,14 +246,14 @@ namespace vc {
 				{
 					if (_event & PANEL_MOUSE_LBDOWN) {
 						t0 = oapiGetSysTime();
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
 						counting = true;
 					} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
 						oapiSendMFDKey (MFDID, OAPI_KEY_F2);
 						counting = false;
 					} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
 						bIsConnectedToCRTMFD = false;
 						oapiSendMFDKey (MFDID, OAPI_KEY_F1);
 						counting = false;		
@@ -286,19 +286,23 @@ namespace vc {
 			for(int j=0;j<26;j++) {
 				char cbuf[2];
 				if(textBuffer[i][j].cSymbol>='!') {
-					int x, y;
-					switch(textBuffer[i][j].cAttr) {
-						case dps::DEUATT_FLASHING:
-							if(!flash) break;
-						case dps::DEUATT_OVERBRIGHT:
-							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+					if (((textBuffer[i][j].cAttr & dps::DEUATT_FLASHING) == 0) || (flash == true))
+					{
+						int x, y;
+						sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
+						vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+
+						if ((textBuffer[i][j].cAttr & dps::DEUATT_OVERBRIGHT) != 0)
+						{
+							// overbright intensity
 							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharOvrBrgtBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
-							break;
-						default:
-							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
+						}
+						else
+						{
+							// default
+							// normal intensity
 							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
+						}
 					}
 				}
 			}

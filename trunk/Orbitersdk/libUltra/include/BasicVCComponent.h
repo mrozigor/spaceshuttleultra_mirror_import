@@ -425,7 +425,7 @@ bool BasicVCComponent<TVessel>::SetAnimation(UINT anim, double fState)
 {
 	if(bHasAnimations)
 	{
-		sprintf_s(oapiDebugString(), 255, "SET ANIMATION");
+		//sprintf_s(oapiDebugString(), 255, "SET ANIMATION");
 		V()->SetAnimation(anim, fState);
 		return true;
 	}
