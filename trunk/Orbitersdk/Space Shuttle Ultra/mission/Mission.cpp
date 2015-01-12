@@ -155,7 +155,7 @@ namespace mission {
 		if(oapiReadItem_string(hFile, "Bridgerails", buffer)) {
 			std::vector<int> bridgerails;
 			ReadCSVLine(buffer, bridgerails);
-			for(int i=0;i<bridgerails.size();i++) {
+			for(unsigned int i=0; i<bridgerails.size(); i++) {
 				if(bridgerails[i] >= 0 && bridgerails[i] < 13)
 					bHasBridgerail[bridgerails[i]] = true;
 			}
