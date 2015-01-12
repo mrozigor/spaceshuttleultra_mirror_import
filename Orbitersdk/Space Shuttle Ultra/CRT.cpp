@@ -101,7 +101,7 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 
 
 	if(!strcmp(pV->GetClassName(), "Atlantis") || 
-		!stricmp(pV->GetClassName(), STD_CLASS_NAME)) {
+		!_stricmp(pV->GetClassName(), STD_CLASS_NAME)) {
 
 		sts=static_cast<Atlantis*>(pV);
 
@@ -158,10 +158,10 @@ void CRT::Update (HDC hDC)
 	if(mode==10001) {
 			int n;
 			char cbuf[255];
-			sprintf(cbuf, vessel->GetClassName());
+			sprintf_s(cbuf, 255, vessel->GetClassName());
 			TextOut(hDC, 0, 5, cbuf, strlen(cbuf));
 			n=strlen(cbuf);
-			sprintf(cbuf, "%i", n);
+			sprintf_s(cbuf, 255, "%i", n);
 			TextOut(hDC, 0, 15, cbuf, strlen(cbuf));
 			TextOut(hDC, 0, 25, "ERROR: Vessel not from Atlantis class", 37);
 			return;
@@ -214,7 +214,7 @@ void CRT::OMSMPS(HDC hDC)
 	SelectObject(hDC, TurquoisePen);
 	SelectObject(hDC, BlackBrush);
 
-	TextOut(hDC, 33.5, 0, "OMS", 3);
+	TextOut(hDC, 34, 0, "OMS", 3);
 	TextOut(hDC, 150, 0, "MPS", 3);
 	MoveToEx(hDC, 80, 6, NULL);
 	LineTo(hDC, 80, 250);
@@ -385,7 +385,7 @@ void CRT::OMSMPS(HDC hDC)
 	//OMS
 	for(nPos=0;nPos<2;nPos++) {
 		dNum=sts->GetPropellantMass(sts->oms_helium_tank[nPos])*228.6;
-		sprintf(cbuf, "%04.0f", dNum);
+		sprintf_s(cbuf, 255, "%04.0f", dNum);
 		TextOut(hDC, 13+35*nPos, 31, cbuf, strlen(cbuf));
 		if (dNum >= 1500)
 		{
@@ -402,7 +402,7 @@ void CRT::OMSMPS(HDC hDC)
 		Rectangle (hDC, 20+35*nPos, Round( (89-0.0076*dNum) ), 33+35*nPos, 89);
 
 		dNum = 0;// TODO get val
-		sprintf(cbuf, "%04.0f", dNum);
+		sprintf_s(cbuf, 255, "%04.0f", dNum);
 		TextOut(hDC, 13+35*nPos, 96, cbuf, strlen(cbuf));
 		if (dNum >= 1200)
 		{
@@ -419,7 +419,7 @@ void CRT::OMSMPS(HDC hDC)
 		Rectangle (hDC, 20+35*nPos, Round( (154-0.012667*dNum) ), 33+35*nPos, 154);
 		
 		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() / 8618.44625);// HACK should have this in the sensor
-		sprintf(cbuf, "%03.0f", dNum);
+		sprintf_s(cbuf, 255, "%03.0f", dNum);
 		TextOut(hDC, 16+35*nPos, 168, cbuf, strlen(cbuf));
 		if (dNum >= 80)
 		{
@@ -446,7 +446,7 @@ void CRT::OMSMPS(HDC hDC)
 		nLoc=35*EngConvert[nPos];
 		if (sts->status <= 2) dNum = sts->GetSSMEPress( nPos + 1 );
 		else dNum = 0.0;
-		sprintf(cbuf, "%03.0f", dNum);
+		sprintf_s(cbuf, 255, "%03.0f", dNum);
 		if(EngConvert[nPos]!=1) TextOut(hDC, 157+nLoc, 168, cbuf, strlen(cbuf));
 		else TextOut(hDC, 157+nLoc, 163, cbuf, strlen(cbuf));
 		if (dNum >= 65)
@@ -466,7 +466,7 @@ void CRT::OMSMPS(HDC hDC)
 	
 	// He Tank Press Pneu
 	dNum = sts->GetHeTankPress( 0 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 100, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 3800)
 	{
@@ -484,7 +484,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Tank Press Eng 2
 	dNum = sts->GetHeTankPress( 2 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 153, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
@@ -502,7 +502,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Tank Press Eng 1
 	dNum = sts->GetHeTankPress( 1 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 188, 20, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
@@ -520,7 +520,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Tank Press Eng 3
 	dNum = sts->GetHeTankPress( 3 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 223, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
@@ -538,7 +538,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Reg Press Pneu
 	dNum = sts->GetHeRegPress( 0 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 100, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
@@ -556,7 +556,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Reg Press Eng 2
 	dNum = sts->GetHeRegPress( 2 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 153, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
@@ -574,7 +574,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Reg Press Eng 1
 	dNum = sts->GetHeRegPress( 1 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 188, 88, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
@@ -592,7 +592,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// He Reg Press Eng 3
 	dNum = sts->GetHeRegPress( 3 );
-	sprintf( cbuf, "%04.0f", dNum );
+	sprintf_s( cbuf, 255, "%04.0f", dNum );
 	TextOut( hDC, 223, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
@@ -610,7 +610,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// ENG MANF LO2
 	dNum = sts->GetLOXManifPress();
-	sprintf( cbuf, "%03.0f", dNum );
+	sprintf_s( cbuf, 255, "%03.0f", dNum );
 	TextOut( hDC, 85, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 250)
 	{
@@ -628,7 +628,7 @@ void CRT::OMSMPS(HDC hDC)
 
 	// ENG MANF LH2
 	dNum = sts->GetLH2ManifPress();
-	sprintf( cbuf, "%03.0f", dNum );
+	sprintf_s( cbuf, 255, "%03.0f", dNum );
 	TextOut( hDC, 118, 180, cbuf, strlen( cbuf ) );
 	if (dNum >= 66)
 	{
@@ -681,7 +681,7 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, 55, nPos);
 		MoveToEx(hDC, 71, nPos, NULL);
 		LineTo(hDC, 65, nPos);
-		sprintf(cbuf,"%+d", 10*((nPos-55)/30)-30);
+		sprintf_s(cbuf, 255, "%+d", 10*((nPos-55)/30)-30);
 		TextOut(hDC, 27, nPos-7, cbuf, strlen(cbuf));
 	}
 	for(nPos=190;nPos<=220;nPos+=30) {
@@ -693,7 +693,7 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, 55, nPos);
 		MoveToEx(hDC, 71, nPos, NULL);
 		LineTo(hDC, 65, nPos);
-		sprintf(cbuf,"%+d", 10*((nPos-55)/30)-30);
+		sprintf_s(cbuf, 255, "%+d", 10*((nPos-55)/30)-30);
 		TextOut(hDC, 27, nPos-7, cbuf, strlen(cbuf));
 	}
 	for(nPos=55;nPos<=220;nPos+=30) {
@@ -807,7 +807,7 @@ void CRT::SPI(HDC hDC)
 	for(nPos=55;nPos<=220;nPos+=33) {
 		MoveToEx(hDC, 101, nPos, NULL);
 		LineTo(hDC, 95, nPos);
-		sprintf(cbuf,"%d", 20*((nPos-40)/33));
+		sprintf_s(cbuf, 255, "%d", 20*((nPos-40)/33));
 		TextOut(hDC, 102, nPos-7, cbuf, strlen(cbuf));
 	}
 	SelectObject(hDC,PurpleBrush);
@@ -848,13 +848,13 @@ void CRT::SPI(HDC hDC)
 	for(nPos=130;nPos<=170;nPos+=20) {
 		MoveToEx(hDC, nPos, 53, NULL);
 		LineTo(hDC, nPos, 60);
-		sprintf(cbuf,"%d", abs(30-10*((nPos-130)/20)));
+		sprintf_s(cbuf, 255, "%d", abs(30-10*((nPos-130)/20)));
 		TextOut(hDC, nPos-7, 40, cbuf, strlen(cbuf));
 	}
 	for(nPos=210;nPos<=250;nPos+=20) {
 		MoveToEx(hDC, nPos, 53, NULL);
 		LineTo(hDC, nPos, 60);
-		sprintf(cbuf,"%d", abs(30-10*((nPos-130)/20)));
+		sprintf_s(cbuf, 255, "%d", abs(30-10*((nPos-130)/20)));
 		TextOut(hDC, nPos-7, 40, cbuf, strlen(cbuf));
 	}
 	for(nPos=140;nPos<=250;nPos+=20) {
@@ -943,7 +943,7 @@ void CRT::SPI(HDC hDC)
 	Rectangle(hDC,220,175,250,190);
 	double Actual = sts->aerosurfaces.speedbrake;
 	char ActualBuf[3];
-	sprintf(ActualBuf,"%.0lf",Actual);
+	sprintf_s(ActualBuf, 3, "%.0lf",Actual);
 	TextOut(hDC,223,175,ActualBuf,strlen(ActualBuf));
 	SelectObject(hDC,PurpleThinPen);
 	SetTextColor(hDC,WHITE);
@@ -951,7 +951,7 @@ void CRT::SPI(HDC hDC)
 	for(int i=140; i<=240; i+=20)
 	{
 		char captbuf[3];
-		sprintf(captbuf,"%.0lf",capt);
+		sprintf_s(captbuf, 3, "%.0lf",capt);
 		TextOut(hDC,i-7,190,captbuf, strlen( captbuf ) );
 		capt+=20;
 	}
@@ -990,7 +990,7 @@ void CRT::SPI(HDC hDC)
 	Rectangle(hDC,220,230,250,245);
 	double Command = sts->spdb_tgt*100;
 	char CommandBuf[3];
-	sprintf(CommandBuf,"%.0lf",Command);
+	sprintf_s(CommandBuf, 3, "%.0lf",Command);
 	TextOut(hDC,223,230,CommandBuf,strlen(CommandBuf));
 
 	SelectObject(hDC,YellowPen);
@@ -1439,13 +1439,13 @@ void CRT::ReadStatus(FILEHANDLE scn)
 {
 	char *line;
 	while (oapiReadScenario_nextline (scn, line)) {
-		if (!strnicmp (line, "Mode2", 5)) {
-			sscanf (line+5, "%d", &mode);
+		if (!_strnicmp (line, "Mode2", 5)) {
+			sscanf_s (line+5, "%d", &mode);
 		}
-		else if(!strnicmp(line, "Display", 7)) {
-			sscanf(line+7, "%d", &display);
+		else if(!_strnicmp(line, "Display", 7)) {
+			sscanf_s(line+7, "%d", &display);
 		}
-		else if (!strnicmp (line, "END_MFD", 7)) break;
+		else if (!_strnicmp (line, "END_MFD", 7)) break;
 	}
 }
 
