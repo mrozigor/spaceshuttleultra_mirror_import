@@ -41,8 +41,10 @@ BEGIN_CAMERA
 END_CAMERA
 
 BEGIN_MFD Left
-  TYPE Surface
-  SPDMODE 1
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 3
 END_MFD
 
 BEGIN_MFD Right
@@ -53,8 +55,10 @@ BEGIN_MFD Right
 END_MFD
 
 BEGIN_MFD 3
-  TYPE Surface
-  SPDMODE 1
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 4
 END_MFD
 
 BEGIN_MFD 4
@@ -67,15 +71,15 @@ END_MFD
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 1
+  Mode2 3
+  Display 0
 END_MFD
 
 BEGIN_MFD 6
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 1
+  Mode2 3
+  Display 0
 END_MFD
 
 BEGIN_MFD 7
@@ -90,14 +94,14 @@ BEGIN_MFD 8
   TYPE User
   MODE CRT
   Mode2 2
-  Display 2
+  Display 4
 END_MFD
 
 BEGIN_MFD 9
   TYPE User
   MODE CRT
   Mode2 2
-  Display 1
+  Display 3
 END_MFD
 
 BEGIN_VC
@@ -234,7 +238,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
 @ENDSUBSYSTEM		;IDP1
 @SUBSYSTEM IDP2
   IDP2 SPEC 65535
-  IDP2 DISP 65535
+  IDP2 DISP 18
 @ENDSUBSYSTEM		;IDP2
 @SUBSYSTEM IDP3
   IDP3 SPEC 65535
@@ -410,6 +414,8 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @PANEL C3
   "LOMS Arm" ARM/PRESS
   "ROMS Arm" ARM/PRESS
+  "BFC CRT Display" ON
+  "BFC CRT Select" 2+3
   "LADP Stow Enable" INHIBIT
   "RADP Stow Enable" INHIBIT
   "LADP Deploy" STOW

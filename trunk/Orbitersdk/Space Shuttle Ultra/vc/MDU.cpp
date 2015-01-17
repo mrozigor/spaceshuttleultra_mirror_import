@@ -346,19 +346,88 @@ namespace vc {
 			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		} else {   // MFD powered on
 			HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
-			SetTextColor (hDC, RGB(0,255,216));
+			SetTextColor (hDC, CR_MENU_COLOR );
 			SetTextAlign (hDC, TA_CENTER);
 			SetBkMode (hDC, TRANSPARENT);
 			const char *label;
-			int x = 25;
+			int x = 28;
+			int menu = -1;
 			
 			for (int bt = 0; bt < 5; bt++) {
-				if (label = oapiMFDButtonLabel (MFDID, bt)) {
-					TextOut (hDC, x, 23, label, strlen(label));
-					x += 40;
+				if (label = oapiMFDButtonLabel (MFDID, bt))
+				{
+					if (strcmp( label, "UP" ) == 0)
+					{
+						// draw up arrow 
+						SelectObject( hDC, GetStockObject( NULL_BRUSH ) );
+						SelectObject( hDC, MenuPen );
+						POINT arrow[7] = {{28, 22}, {43, 31}, {35, 31}, {35, 40}, {21, 40}, {21, 31}, {13, 31}};// CW from top
+						Polygon( hDC, arrow, 7 );
+						TextOut( hDC, x, 25, "UP", 2);
+						menu = 3;// "inside" our menu, default to dps menu
+					}
+					else if (strcmp( label, "FLT" ) == 0)
+					{
+						TextOut( hDC, x, 21, "FLT", 3 );
+						TextOut( hDC, x, 30, "INST", 4 );
+						menu = 0;
+					}
+					else if (strcmp( label, "SUB" ) == 0)
+					{
+						TextOut( hDC, x, 21, "SUBSYS", 6 );
+						TextOut( hDC, x, 30, "STATUS", 6 );
+					}
+					else if (strcmp( label, "A/E" ) == 0)
+					{
+						TextOut( hDC, x, 21, "A/E", 3 );
+						TextOut( hDC, x, 30, "PFD", 3 );
+						menu = 1;
+					}
+					else if (strcmp( label, "ORBIT" ) == 0)
+					{
+						TextOut( hDC, x, 21, "ORBIT", 5 );
+						TextOut( hDC, x, 30, "PFD", 3 );
+					}
+					else if (strcmp( label, "OMS" ) == 0)
+					{
+						TextOut( hDC, x, 21, "OMS/", 4 );
+						TextOut( hDC, x, 30, "MPS", 3 );
+						menu = 2;
+					}
+					else if (strcmp( label, "HYD" ) == 0)
+					{
+						TextOut( hDC, x, 21, "HYD/", 4 );
+						TextOut( hDC, x, 30, "APU", 3 );
+					}
+					else
+					{
+						TextOut (hDC, x, 25, label, strlen(label));
+					}
+					x += 39;
 				} else break;
 			}
-			TextOut (hDC, 224, 23, "PG", 2);
+
+			// print title
+			switch (menu)
+			{
+				case 0:
+					TextOut( hDC, 128, 8, "MAIN MENU", 9 );
+					break;
+				case 1:
+					TextOut( hDC, 128, 8, "FLIGHT INSTRUMENTATION MENU", 27 );
+					break;
+				case 2:
+					TextOut( hDC, 128, 8, "SUBSYSTEM MENU", 14 );
+					break;
+				case 3:
+					TextOut( hDC, 128, 8, "DPS MENU", 8 );
+					break;
+				default:
+					// print nothing
+					break;
+			}
+
+			TextOut (hDC, 222, 25, "PG", 2);
 			SelectObject (hDC, pFont);
 		}
 
@@ -2181,6 +2250,7 @@ namespace vc {
 		MagentaPen = CreatePen( PS_SOLID, 0, CR_MAGENTA );
 		hOverbrightPen = CreatePen( PS_SOLID, 0, RGB( 255, 255, 0 ) );
 		hNormalPen = CreatePen( PS_SOLID, 0, RGB( 128, 255, 0 ) );
+		MenuPen = CreatePen( PS_SOLID, 0, CR_MENU_COLOR );
 
 		TahomaFont_h10w4 = CreateFont( 10, 4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
 		TahomaFont_h7w3 = CreateFont( 7, 3, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
@@ -2209,6 +2279,7 @@ namespace vc {
 		DeleteObject( MagentaPen );
 		DeleteObject( hOverbrightPen );
 		DeleteObject( hNormalPen );
+		DeleteObject( MenuPen );
 
 		DeleteObject( TahomaFont_h10w4 );
 		DeleteObject( TahomaFont_h7w3 );

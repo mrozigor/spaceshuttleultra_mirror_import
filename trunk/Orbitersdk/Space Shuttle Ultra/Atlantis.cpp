@@ -5747,7 +5747,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 	DeleteDC(Temp1DC);
 
   // allocate GDI resources
-  g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+  g_Param.font[0] = CreateFont (-11, -3, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
 }
 
 DLLCLBK void ExitModule (HINSTANCE hModule)

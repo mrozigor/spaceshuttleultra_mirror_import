@@ -38,6 +38,7 @@
 #define CR_GREEN RGB( 0, 255, 0 )
 #define CR_YELLOW RGB( 255, 255, 0 )
 #define CR_MAGENTA RGB( 159, 110, 189 )
+#define CR_MENU_COLOR RGB( 0, 255, 216 )
 
 
 namespace vc {
@@ -68,6 +69,7 @@ namespace vc {
 		HPEN MagentaPen;
 		HPEN hOverbrightPen;
 		HPEN hNormalPen;
+		HPEN MenuPen;
 
 		HFONT TahomaFont_h10w4;
 		HFONT TahomaFont_h7w3;
