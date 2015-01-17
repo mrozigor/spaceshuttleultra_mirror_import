@@ -370,7 +370,7 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 118, 164, "LH2", 3 );
 	TextOut( hDC, 109, 191, "P", 1 );
 	TextOut( hDC, 109, 201, "S", 1 );
-	TextOut( hDC, 109, 211, "I", 1 );
+	TextOut( hDC, 111, 211, "I", 1 );// font isn't monospace so must "center" this letter
 	TextOut( hDC, 109, 221, "A", 1 );
 	Rectangle( hDC, 88, 200, 103, 239 );
 	Rectangle( hDC, 121, 200, 136, 239 );
@@ -942,16 +942,16 @@ void CRT::SPI(HDC hDC)
 	SelectObject(hDC,BoldWhitePen);
 	Rectangle(hDC,220,175,250,190);
 	double Actual = sts->aerosurfaces.speedbrake;
-	char ActualBuf[3];
-	sprintf_s(ActualBuf, 3, "%.0lf",Actual);
+	char ActualBuf[4];
+	sprintf_s(ActualBuf, 4, "%03.0lf",Actual);
 	TextOut(hDC,223,175,ActualBuf,strlen(ActualBuf));
 	SelectObject(hDC,PurpleThinPen);
 	SetTextColor(hDC,WHITE);
 	double capt = 0;
 	for(int i=140; i<=240; i+=20)
 	{
-		char captbuf[3];
-		sprintf_s(captbuf, 3, "%.0lf",capt);
+		char captbuf[4];
+		sprintf_s(captbuf, 4, "%.0lf",capt);
 		TextOut(hDC,i-7,190,captbuf, strlen( captbuf ) );
 		capt+=20;
 	}
@@ -989,8 +989,8 @@ void CRT::SPI(HDC hDC)
 	SelectObject(hDC,BoldWhitePen);
 	Rectangle(hDC,220,230,250,245);
 	double Command = sts->spdb_tgt*100;
-	char CommandBuf[3];
-	sprintf_s(CommandBuf, 3, "%.0lf",Command);
+	char CommandBuf[4];
+	sprintf_s(CommandBuf, 4, "%03.0lf",Command);
 	TextOut(hDC,223,230,CommandBuf,strlen(CommandBuf));
 
 	SelectObject(hDC,YellowPen);
