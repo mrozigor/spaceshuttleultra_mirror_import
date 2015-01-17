@@ -42,21 +42,21 @@ BEGIN_MFD 4
   TYPE User
   MODE CRT
   Mode2 2
-  Display 2
+  Display 4
 END_MFD
 
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 1
+  Mode2 3
+  Display 0
 END_MFD
 
 BEGIN_MFD 8
   TYPE User
   MODE CRT
   Mode2 2
-  Display 3
+  Display 5
 END_MFD
 
 BEGIN_VC
