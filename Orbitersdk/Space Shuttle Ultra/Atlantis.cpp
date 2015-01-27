@@ -934,18 +934,19 @@ pActiveLatches(3, NULL)
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
-	RCS_PSSpec.srcsize=0.1;
-	RCS_PSSpec.srcrate=800;
-	RCS_PSSpec.v0=60;//100
-	RCS_PSSpec.srcspread=0;
-	RCS_PSSpec.lifetime=0.2;
-	RCS_PSSpec.growthrate=20;
-	RCS_PSSpec.atmslowdown=5;
-	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::EMISSIVE;
-	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_FLAT;
-	RCS_PSSpec.lmin=1;
-	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;
-	RCS_PSSpec.amin=1;
+	RCS_PSSpec.srcsize=0.1;//0.1
+	RCS_PSSpec.srcrate=3000;//800
+	RCS_PSSpec.v0=10;//100
+	RCS_PSSpec.srcspread=0;//0
+	RCS_PSSpec.lifetime=0.2;//0.25
+	RCS_PSSpec.growthrate=3.5;//10
+	RCS_PSSpec.atmslowdown=0;//0
+	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
+	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
+	RCS_PSSpec.lmin=0.1;//0.25
+	RCS_PSSpec.lmax=0.5;//0.25
+	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;//ATM_FLAT
+	RCS_PSSpec.amin=1;//1
 	RCS_PSSpec.tex=RCS_tex;
 	
 	reentry_flames = NULL;
