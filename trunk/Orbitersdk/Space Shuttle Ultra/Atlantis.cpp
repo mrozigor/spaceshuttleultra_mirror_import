@@ -711,6 +711,7 @@ pActiveLatches(3, NULL)
   thg_transleft=thg_transright=NULL;
   thg_transup=thg_transdown=NULL;
 
+  bSSMEGOXVent = true;
   bSSMEsDefined = false;
   bOMSDefined = false;
   bRCSDefined = false;
@@ -3134,126 +3135,157 @@ void Atlantis::clbkSetStateEx (const void *status)
 // --------------------------------------------------------------
 void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 {
-  int action;
-  char *line;
-  char pszBuffer[256];
-  char pszLogBuffer[256];
+	int action;
+	char *line;
+	char pszBuffer[256];
+	char pszLogBuffer[256];
 
-  spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
+	spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
-  while (oapiReadScenario_nextline (scn, line)) {
-      if (!_strnicmp (line, "CONFIGURATION", 13)) {
-            sscanf (line+13, "%d", &status);
-    } else if (!_strnicmp (line, "MISSION", 7)) {
-		strncpy(pszBuffer, line+8, 255);
-		
-		sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
-		oapiWriteLog(pszLogBuffer);
-		
-		pMission = ssuGetMission(pszBuffer);
-
-		// add additional components defined in Mission file
-		RMS = pMission->HasRMS();
-		STBDMPM = pMission->HasSTBDMPMs();
-
-		if(RMS) {
-			psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+	while (oapiReadScenario_nextline (scn, line))
+	{
+		if (!_strnicmp (line, "CONFIGURATION", 13))
+		{
+			sscanf (line+13, "%d", &status);
 		}
-		if(STBDMPM) {
-			psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+		else if (!_strnicmp (line, "MISSION", 7))
+		{
+			strncpy(pszBuffer, line+8, 255);
+		
+			sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
+			oapiWriteLog(pszLogBuffer);
+		
+			pMission = ssuGetMission(pszBuffer);
+
+			// add additional components defined in Mission file
+			RMS = pMission->HasRMS();
+			STBDMPM = pMission->HasSTBDMPMs();
+
+			if (RMS)
+			{
+				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+			if (STBDMPM)
+			{
+				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+
+			bHasKUBand = pMission->HasKUBand();
 		}
+		else if (!_strnicmp (line, "MET", 3))
+		{
+			sscanf (line+3, "%lf", &met);
+		}
+		else if (!_strnicmp (line, "SPEEDBRAKE", 10))
+		{
+			sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
+			spdb_status = (AnimState::Action)(action+1);
+		}
+		else if (!_strnicmp (line, "GEAR", 4))
+		{
+			sscan_state(line+4, gear_status);
+			if (gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
+		}
+		else if (!_strnicmp (line, "PLBD_CAM", 8))
+		{
+			sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
+				&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
+			cameraMoved=true;
+		}
+		else if (!_strnicmp (line, "PAYLOAD_MASS", 12))
+		{
+			sscanf (line+12, "%lf", &pl_mass);
+		}
+		else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17))
+		{
+			sscanf (line+17, "%s", cargo_static_mesh_name);
+			do_cargostatic = true;
+		}
+		else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16))
+		{
+			sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
+		}
+		else if (!_strnicmp(line, "OPS", 3))
+		{
+			unsigned int ops;
+			sscanf(line+3, "%u", &ops);
+			pSimpleGPC->SetMajorMode(ops);
+		}
+		else if (!_strnicmp(line, "PAYLOAD", 7))
+		{
+			ParsePayloadLine(line);
+		}
+		else if (_strnicmp( line, "GOXVENTSOFF", 11 ) == 0)
+		{
+			if (status == STATE_PRELAUNCH) bSSMEGOXVent = false;
+		}
+		else if (!_strnicmp(line, "@PANEL", 6))
+		{
+			char pszPanelName[30];
+			sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
+			sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", pszPanelName, line);
+			oapiWriteLog(pszBuffer);
 
-		bHasKUBand = pMission->HasKUBand();
-	} else if (!_strnicmp (line, "MET", 3)) {
-		sscanf (line+3, "%lf", &met);
-	} else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
-		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
-		spdb_status = (AnimState::Action)(action+1);
-    } else if (!_strnicmp (line, "GEAR", 4)) {
-		sscan_state(line+4, gear_status);
-		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
-    } else if (!_strnicmp (line, "PLBD_CAM", 8)) {
-		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
-			&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
-		cameraMoved=true;
-    } else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
-		sscanf (line+12, "%lf", &pl_mass);
-	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
-		sscanf (line+17, "%s", cargo_static_mesh_name);
-		do_cargostatic = true;
-    } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
-		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if(!_strnicmp(line, "OPS", 3)) {
-		unsigned int ops;
-		sscanf(line+3, "%u", &ops);
-		pSimpleGPC->SetMajorMode(ops);
-	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
-		ParsePayloadLine(line);
-	} else if (!_strnicmp(line, "@PANEL", 6)) {
-		char pszPanelName[30];
-		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
-		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
-			pszPanelName, line);
-		oapiWriteLog(pszBuffer);
+			if (pgLeft.HasPanel(pszPanelName))
+				pgLeft.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgLeft.HasPanel(pszPanelName))
-			pgLeft.ParsePanelBlock(pszPanelName, scn);
+			if (pgForward.HasPanel(pszPanelName))
+				pgForward.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgForward.HasPanel(pszPanelName))
-			pgForward.ParsePanelBlock(pszPanelName, scn);
+			if (pgRight.HasPanel(pszPanelName))
+				pgRight.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgRight.HasPanel(pszPanelName))
-			pgRight.ParsePanelBlock(pszPanelName, scn);
+			if (pgCenter.HasPanel(pszPanelName)) 
+				pgCenter.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgCenter.HasPanel(pszPanelName)) 
-			pgCenter.ParsePanelBlock(pszPanelName, scn);
+			if (pgOverhead.HasPanel(pszPanelName))
+				pgOverhead.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgOverhead.HasPanel(pszPanelName))
-			pgOverhead.ParsePanelBlock(pszPanelName, scn);
+			if (pgOverheadAft.HasPanel(pszPanelName))
+				pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgOverheadAft.HasPanel(pszPanelName))
-			pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
+			if (pgAftStbd.HasPanel(pszPanelName))
+				pgAftStbd.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAftStbd.HasPanel(pszPanelName))
-			pgAftStbd.ParsePanelBlock(pszPanelName, scn);
+			if (pgAft.HasPanel(pszPanelName))
+				pgAft.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAft.HasPanel(pszPanelName))
-			pgAft.ParsePanelBlock(pszPanelName, scn);
+			if (pgAftPort.HasPanel(pszPanelName)) 
+				pgAftPort.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAftPort.HasPanel(pszPanelName)) 
-			pgAftPort.ParsePanelBlock(pszPanelName, scn);
+			oapiWriteLog("\tLeave @PANEL block.");
+		}
+		else
+		{
+			if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
+			if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
+			if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
+			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
+			ParseScenarioLineEx (line, vs);// unrecognised option - pass to Orbiter's generic parser
+		}
+	}
 
-		oapiWriteLog("\tLeave @PANEL block.");
-	} else {
-      if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
-	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
-	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
-	  if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
-      ParseScenarioLineEx (line, vs);
-      // unrecognised option - pass to Orbiter's generic parser
-    }
-  }
+	ClearMeshes();
+	switch (status)
+	{
+		case 0:
+			SetLaunchConfiguration();
+			break;
+		case 1:
+			SetPostLaunchConfiguration (met);
+			break;
+		case 2:
+			SetOrbiterTankConfiguration();
+			break;
+		case 3:
+			SetOrbiterConfiguration();
+			break;
+	}
+	if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
 
-  ClearMeshes();
-  switch (status) {
-  case 0:
-    SetLaunchConfiguration();
-    break;
-  case 1:
-    SetPostLaunchConfiguration (met);
-    break;
-  case 2:
-    SetOrbiterTankConfiguration();
-    break;
-  case 3:
-    SetOrbiterConfiguration();
-    break;
-  }
-  if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
-
-  UpdateMesh ();
+	UpdateMesh ();
 }
 
 // --------------------------------------------------------------
@@ -3261,72 +3293,70 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 // --------------------------------------------------------------
 void Atlantis::clbkSaveState (FILEHANDLE scn)
 {
-  char cbuf[256];
+	char cbuf[256];
 
-  // save default vessel parameters
-  // set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
-  ShiftCG(-currentCoG);
-  VESSEL3::clbkSaveState (scn);
-  ShiftCG(currentCoG); // reset CoG to correct position
+	// save default vessel parameters
+	// set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
+	ShiftCG(-currentCoG);
+	VESSEL3::clbkSaveState (scn);
+	ShiftCG(currentCoG); // reset CoG to correct position
 
-  if(!pMission->GetMissionFileName().empty()) 
-  {
-	  strcpy(cbuf, pMission->GetMissionFileName().c_str());
-	  oapiWriteScenario_string(scn, "MISSION", cbuf);
-  }
+	if (!pMission->GetMissionFileName().empty()) 
+	{
+		strcpy(cbuf, pMission->GetMissionFileName().c_str());
+		oapiWriteScenario_string(scn, "MISSION", cbuf);
+	}
 
-  // custom parameters
-  oapiWriteScenario_int (scn, "CONFIGURATION", status);
+	// custom parameters
+	oapiWriteScenario_int (scn, "CONFIGURATION", status);
 
-  /*if (status == 1)
-    oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-  else oapiWriteScenario_float (scn, "MET", met);*/
+	/*if (status == 1)
+		oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
+	else oapiWriteScenario_float (scn, "MET", met);*/
 
-  if (spdb_status != AnimState::CLOSED) {
-    sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
-    oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
-  }
-  WriteScenario_state(scn, "GEAR", gear_status);
+	if (spdb_status != AnimState::CLOSED)
+	{
+		sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
+		oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
+	}
+	WriteScenario_state(scn, "GEAR", gear_status);
 
-  if (do_cargostatic) {
-    oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
-    if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
-      oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
-  } 
-  if(pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
+	if (do_cargostatic)
+	{
+		oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
+		if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
+			oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
+	} 
+	if (pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
 
-  //GPC
-  oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
+	//GPC
+	oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
 
-  SavePayloadState(scn);
+	SavePayloadState(scn);
 
-  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
-			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
-  oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
+	sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
+		camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
+	oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
 
-  oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  psubsystems->SaveState(scn);
+	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
+	psubsystems->SaveState(scn);
 
-  // save bay door operations status
-  plop->SaveState (scn);
-  panela4->SaveState(scn);
-  panelc2->SaveState(scn);
+	// save bay door operations status
+	plop->SaveState (scn);
+	panela4->SaveState(scn);
+	panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
-  pgLeft.OnSaveState(scn);
-  pgForward.OnSaveState(scn);
-  pgRight.OnSaveState(scn);
-  pgCenter.OnSaveState(scn);
-  pgOverhead.OnSaveState(scn);
-  pgOverheadAft.OnSaveState(scn);
-  oapiWriteLog("\tAft flight deck");
-  pgAftStbd.OnSaveState(scn);
-  pgAft.OnSaveState(scn);
-  pgAftPort.OnSaveState(scn);
-
-
-	//oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  //psubsystems->SaveState(scn);
+	pgLeft.OnSaveState(scn);
+	pgForward.OnSaveState(scn);
+	pgRight.OnSaveState(scn);
+	pgCenter.OnSaveState(scn);
+	pgOverhead.OnSaveState(scn);
+	pgOverheadAft.OnSaveState(scn);
+	oapiWriteLog("\tAft flight deck");
+	pgAftStbd.OnSaveState(scn);
+	pgAft.OnSaveState(scn);
+	pgAftPort.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
 }
@@ -4096,7 +4126,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			// check SSME state and trigger liftoff when required
 			if (Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 			{
-				if (GetPropellantLevel(ph_mps) > 0.5) // TODO improve this venting with engine status
+				if ((GetPropellantLevel(ph_mps) > 0.5) && (bSSMEGOXVent == true)) // TODO improve this venting with engine status
 				{
 					for (unsigned short i = 0; i < 3; i++)
 					{
@@ -5373,10 +5403,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		RMSGrapple.ResetLine();
 		RMSRelease.SetLine();
 		return 1;
-	/*case OAPI_KEY_X: //temporary
+	case OAPI_KEY_X: //temporary
 		if(status == STATE_PRELAUNCH)
 		{
-			bSSMEGOXVent = !bSSMEGOXVent;
+			bSSMEGOXVent = true;//!bSSMEGOXVent;
 		}
 		/*else if(status == STATE_ORBITER)
 		{
@@ -5388,8 +5418,8 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 					RMSRollout.action=AnimState::CLOSING;
 				}
 			}
-		}*
-		return 1;*/
+		}*/
+		return 1;
 	case OAPI_KEY_1: //temporary
 		if(pRMS) pRMS->ToggleJointAngleDisplay();
 		return 1;

@@ -1098,6 +1098,8 @@ private:
 	PROPELLANT_HANDLE oms_helium_tank[2];
 	int Hydraulic_Press[3];
 
+	bool bSSMEGOXVent;
+
 	bool RMS, STBDMPM;
 
 	bool ControlRMS;
