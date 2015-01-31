@@ -7321,7 +7321,7 @@ void Atlantis::UpdateCoG()
 
 void Atlantis::Twang(double timeToLaunch) const
 {
-	double twangParam=(1.0-timeToLaunch/6.0);
+	double twangParam=(1.0-timeToLaunch/5.0);
 	if(twangParam<0 || twangParam>1) return;
 	double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
 	double c=cos(twangAngle);
