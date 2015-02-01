@@ -448,6 +448,7 @@ pActiveLatches(3, NULL)
   PLTKeyboard     = new Keyboard(this, 1);
 
   pPanelA8 = NULL;
+  pA7A8Panel = NULL;
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
@@ -543,8 +544,6 @@ pActiveLatches(3, NULL)
 
   psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
 
-  psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
-
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
   psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
@@ -573,8 +572,6 @@ pActiveLatches(3, NULL)
 #else
   pOMS = NULL;
 #endif
-
-  pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 
   //connect CRT MDUs to IDPs
   mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
@@ -3170,6 +3167,11 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			{
 				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
 				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+			if(pMission->HasODS())
+			{
+				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
+				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 			}
 
 			bHasKUBand = pMission->HasKUBand();
