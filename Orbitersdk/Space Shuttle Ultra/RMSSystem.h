@@ -110,7 +110,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual bool SingleParamParseLine() const {return true;};
 
-	virtual double GetSubsystemEmptyMass() const {return 0.0;};
+	// mass value from Shuttle Systems Weight & Performance Monthly Status Report, Dec. 30 1983 (NASA-TM-85494)
+	virtual double GetSubsystemEmptyMass() const {return 426.8304;};
 
 	virtual void CreateAttachment();
 

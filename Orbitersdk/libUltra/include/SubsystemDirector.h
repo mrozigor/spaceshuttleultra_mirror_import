@@ -55,6 +55,8 @@ public:
 	bool ExistsSubsystem(const std::string& name) const;
 	Subsystem<TVessel>* GetSubsystemByName(const std::string& name) const;
 
+	double GetTotalSubsystemMass() const;
+
 	void SetClassCaps(FILEHANDLE cfg);
 	bool ParseScenarioLine(FILEHANDLE scn, char* line);
 	bool PlaybackEvent(double fSimT, double fEventT, const char* event_t, const char* event);
@@ -133,7 +135,7 @@ bool SubsystemDirector<TVessel>::ExistsSubsystem(const std::string& name) const
 		if((*iter)->GetIdentifier() == name) {
 			return true;
 		}
-		iter++;
+		++iter;
 	}
 	return false;
 }
@@ -147,9 +149,22 @@ Subsystem<TVessel>* SubsystemDirector<TVessel>::GetSubsystemByName(const std::st
 		if((*iter)->GetIdentifier() == name) {
 			return (*iter);
 		}
-		iter++;
+		++iter;
 	}
 	return NULL;
+}
+
+template <class TVessel>
+double SubsystemDirector<TVessel>::GetTotalSubsystemMass() const
+{
+	double mass = 0.0;
+	std::vector< Subsystem<TVessel>* >::const_iterator iter = subsystems.begin();
+	while(iter != subsystems.end())
+	{
+		mass += (*iter)->GetSubsystemEmptyMass();
+		++iter;
+	}
+	return mass;
 }
 
 template <class TVessel>

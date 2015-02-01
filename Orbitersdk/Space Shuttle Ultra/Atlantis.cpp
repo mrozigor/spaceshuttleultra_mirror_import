@@ -7282,6 +7282,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 {
 	// for the moment, only look at shuttle, ET and SRBs
 	// ignore payloads and shuttle consumables
+	// TODO: include subsystem CoG in calculations (at the moment, subsystem mass is assumed to be located at ORBITER_CG)
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
@@ -7309,7 +7310,8 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		if(payloadMass > 0.1) payloadCoG = payloadCoG/payloadMass;
 		else payloadCoG = _V(0, 0, 0);
 
-		SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + payloadMass);
+		double subsystemMass = psubsystems->GetTotalSubsystemMass();
+		SetEmptyMass(ORBITER_EMPTY_MASS + subsystemMass + pl_mass + payloadMass);
 	}
 	if(status <= STATE_STAGE2) {
 		double stackMass = 0.0; // mass of ET & SRBs (if attached)
@@ -7322,7 +7324,8 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		OBJHANDLE hET = GetAttachmentStatus(ahET);
 		if(hET) stackMass += oapiGetMass(hET);
 
-		SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + payloadMass + stackMass);
+		double subsystemMass = psubsystems->GetTotalSubsystemMass();
+		SetEmptyMass(ORBITER_EMPTY_MASS + subsystemMass + pl_mass + payloadMass + stackMass);
 	}
 
 	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter

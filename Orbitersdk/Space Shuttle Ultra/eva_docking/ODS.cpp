@@ -160,7 +160,7 @@ namespace eva_docking {
 	}
 
 	double ODS::GetSubsystemEmptyMass() const {
-		return 0.0;
+		return 1585.5; // From STS-71 press kit: the ODS weighs more than 3,500 lbs (1585.5 kg)
 	}
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
