@@ -143,6 +143,43 @@ inline void EndLoggingAnims(void)
 	animlog.close();
 }
 
+/**
+ * Computes mass and CoG of vessel, including attached payload
+ * Return mass and CoG in local reference frame of vessel
+ */
+double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
+{
+	double mass = v->GetMass();
+	CoG = _V(0, 0, 0);
+	// iterate over attached children
+	DWORD ahCount = v->AttachmentCount(false);
+	for(DWORD i=0;i<ahCount;i++) {
+		ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
+		OBJHANDLE hV = v->GetAttachmentStatus(ah);
+		if(hV) {
+			VESSEL* pV = oapiGetVesselInterface(hV);
+			VECTOR3 childCoG;
+			double childMass = GetMassAndCoG(pV, childCoG);
+			// convert child CoG to CoG in frame of this vessel
+			VECTOR3 rpos;
+			pV->GetRelativePos(v->GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			v->GetRotationMatrix(LocalToGlob);
+			pV->GetRotationMatrix(ChildToGlob);
+			childCoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG)+rpos);
+			// calculate CoG of payload relative to center of Orbiter mesh
+			CoG += childCoG*childMass;
+			mass += childMass;
+
+			char cbuf[255];
+			sprintf_s(cbuf, 255, "Parent: %s Child: %s dist: %f", v->GetName(), pV->GetName(), length(childCoG));
+			oapiWriteLog(cbuf);
+		}
+	}
+	CoG = CoG/mass;
+	return mass;
+}
+
 // ==============================================================
 // Local prototypes
 
@@ -733,6 +770,9 @@ pActiveLatches(3, NULL)
 
   orbiter_ofs = _V(0, 0, 0);
   currentCoG = _V(0.0, 0.0, 0.0);
+
+  payloadMass = 0.0;
+  payloadCoG = _V(0, 0, 0);
   
   // preload meshes
   hOrbiterMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
@@ -1013,7 +1053,6 @@ void Atlantis::SetLaunchConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
-  UpdateMass();
   SetGravityGradientDamping(0.05);
   //SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
@@ -1122,7 +1161,6 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-5,30), _V(-10,-10,-30), _V(10,0,-30));
-  UpdateMass();
 
   // ************************* propellant specs **********************************
 
@@ -1196,7 +1234,6 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetCrossSections (ORBITER_CS);
   DefineTouchdownPoints();
   SetMaxWheelbrakeForce(250000/2);
-  UpdateMass();
 
   // ************************* aerodynamics **************************************
 
@@ -2457,7 +2494,7 @@ void Atlantis::SeparateBoosters (double met)
   }*/
 }
 
-void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
+void Atlantis::DetachSRB(SIDE side, double thrust, double prop)
 {
 	Atlantis_SRB* pSRB = GetSRBInterface(side);
 	if(side==LEFT) DetachChildAndUpdateMass(ahLeftSRB);
@@ -3689,12 +3726,9 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	//double steerforce, airspeed;
 	try
 	{
-		if (status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
-
 		if (firstStep) {
-			firstStep = false;
-			UpdateMass();
-			UpdateCoG();// in the first time step UpdateCoG() must be called after UpdateMass() otherwise the first c.g. calc isn't good
+			UpdateMassAndCoG(); // update visual before simulation starts
+
 			if (status <= STATE_STAGE1) {
 				// update SRB thrusters to match values from SRB vessel
 				VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
@@ -4059,6 +4093,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		//double time=st.Stop();
 		//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
 		//oapiWriteLog(oapiDebugString());
+
+		if (status > STATE_PRELAUNCH) UpdateMassAndCoG(); // TODO: refine
 	}
 	catch (std::exception &e)
 	{
@@ -4086,6 +4122,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			oapiWriteLog("(Atlantis::clbkPostStep) Entering.");
 		}
 
+		if(firstStep) {
+			firstStep = false;
+			UpdateMassAndCoG(true);
+		}
 
 		if (!___PostStep_flag)
 		{
@@ -7156,53 +7196,46 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 	}
 }
 
-bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
+bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment)
 {
 	bool result = AttachChild(child, attachment, child_attachment);
 	if(result) {
-		double mass = GetEmptyMass();
-		mass += oapiGetMass(child);
-		SetEmptyMass(mass);
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel) const
+bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel)
 {
 	OBJHANDLE hChild = GetAttachmentStatus(attachment);
 	bool result = DetachChild(attachment, vel);
 	if(result && hChild) {
-		double mass = GetEmptyMass();
-		mass -= oapiGetMass(hChild);
-		SetEmptyMass(mass);
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-double Atlantis::GetMassOfAttachedObjects() const
+double Atlantis::GetMassAndCoGOfAttachedObject(ATTACHMENTHANDLE ah, VECTOR3& CoG) const
 {
 	double mass = 0.0;
-	DWORD count = AttachmentCount(false);
-	//int attachedCount = 0;
-	for(DWORD i=0;i<count;i++) {
-		ATTACHMENTHANDLE hAtt = GetAttachmentHandle(false, i);
-		OBJHANDLE hV=GetAttachmentStatus(hAtt);
-		if(hV) {
-			mass += oapiGetMass(hV);
-			//attachedCount++;
+	CoG = _V(0, 0, 0);
+	OBJHANDLE hV= GetAttachmentStatus(ah);
+	if(hV) {
+		VESSEL* v = oapiGetVesselInterface(hV);
+		if(v) {
+			VECTOR3 childCoG;
+			mass = GetMassAndCoG(v, childCoG);
+			// get CoG of payload in Orbiter frame
+			VECTOR3 rpos;
+			v->GetRelativePos(GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			GetRotationMatrix(LocalToGlob);
+			v->GetRotationMatrix(ChildToGlob);
+			CoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG)+rpos) + currentCoG;
 		}
 	}
 
-	/*char pszBuf[50];
-	sprintf_s(pszBuf, 50, "Attach count: %d dMass: %f", attachedCount, mass);
-	oapiWriteLog(pszBuf);*/
-
 	return mass;
-}
-
-void Atlantis::UpdateMass() const
-{
-	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
 void Atlantis::ETPressurization( double GOXmass, double GH2mass )
@@ -7241,18 +7274,61 @@ void Atlantis::UpdateMPSManifold( void )
 	LO2LowLevelSensor[2].SetValue( lvl );
 	LO2LowLevelSensor[3].SetValue( lvl );
 	
-	UpdateMass();
+	UpdateMassAndCoG();
 	return;
 }
 
-void Atlantis::UpdateCoG()
+void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 {
 	// for the moment, only look at shuttle, ET and SRBs
 	// ignore payloads and shuttle consumables
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
+	if(bUpdateAttachedVessels) {
+		payloadMass = 0.0;
+		payloadCoG = _V(0,0,0);
+		
+		DWORD attachmentCount = AttachmentCount(false);
+		for(DWORD i=0;i<attachmentCount;i++) {
+			ATTACHMENTHANDLE ah = GetAttachmentHandle(false, i);
+			if(ah != ahET && ah != ahLeftSRB && ah != ahRightSRB) {
+				if(GetAttachmentStatus(ah)) {
+					double mass;
+					VECTOR3 CoG;
+					mass = GetMassAndCoGOfAttachedObject(ah, CoG);
+					payloadMass += mass;
+					payloadCoG += CoG*mass;
+
+					char cbuf[255];
+					sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
+					oapiWriteLog(cbuf);
+				}
+			}
+		}
+		if(payloadMass > 0.1) payloadCoG = payloadCoG/payloadMass;
+		else payloadCoG = _V(0, 0, 0);
+
+		SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + payloadMass);
+	}
+	if(status <= STATE_STAGE2) {
+		double stackMass = 0.0; // mass of ET & SRBs (if attached)
+		if(status <= STATE_STAGE1) {
+			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
+			if(hLeftSRB) stackMass += oapiGetMass(hLeftSRB);
+			OBJHANDLE hRightSRB = GetAttachmentStatus(ahRightSRB);
+			if(hRightSRB) stackMass += oapiGetMass(hRightSRB);
+		}
+		OBJHANDLE hET = GetAttachmentStatus(ahET);
+		if(hET) stackMass += oapiGetMass(hET);
+
+		SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + payloadMass + stackMass);
+	}
+
 	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter
+	shuttleMass -= payloadMass;
+	masses.push_back(payloadMass);
+	positions.push_back(payloadCoG);
 	if(status <= STATE_STAGE2) { // add ET mass
 		// density in kg/m^3 (calculated from ET tank mass/volume values in SCOM)
 		const double LOX_DENSITY = 1138.43342579;
@@ -7260,32 +7336,36 @@ void Atlantis::UpdateCoG()
 		const double TANK_RADIUS = 4.2;
 
 		VESSEL* pTank = GetTankInterface();
-		double ETMass = pTank->GetEmptyMass();
-		shuttleMass -= ETMass;
-		masses.push_back(ETMass);
-		positions.push_back(ET_EMPTY_CG);
+		if(pTank) {
+			double ETMass = pTank->GetEmptyMass();
+			shuttleMass -= ETMass;
+			masses.push_back(ETMass);
+			positions.push_back(ET_EMPTY_CG);
 
-		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
-		double prop = GetETPropellant_B();
-		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
-		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
-		double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
-		double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
-		shuttleMass -= LOXMass;
-		shuttleMass -= LH2Mass;
-		masses.push_back(LOXMass);
-		positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
-		masses.push_back(LH2Mass);
-		positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+			// approximate propellant tanks as cylinders where position of bottom of cylinder is known
+			double prop = GetETPropellant_B();
+			double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
+			double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
+			double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+			double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+			shuttleMass -= LOXMass;
+			shuttleMass -= LH2Mass;
+			masses.push_back(LOXMass);
+			positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
+			masses.push_back(LH2Mass);
+			positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+		}
 	}
 	if(status <= STATE_STAGE1) { // add SRB mass (assume SRB CG doesn't change and SRBs are symmetric)
 		VESSEL* pLSRB = GetSRBInterface(LEFT);
-		double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
-		shuttleMass -= 2.0*SRBMass;
-		masses.push_back(SRBMass);
-		positions.push_back(LSRB_CG);
-		masses.push_back(SRBMass);
-		positions.push_back(RSRB_CG);
+		if(pLSRB) {
+			double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
+			shuttleMass -= 2.0*SRBMass;
+			masses.push_back(SRBMass);
+			positions.push_back(LSRB_CG);
+			masses.push_back(SRBMass);
+			positions.push_back(RSRB_CG);
+		}
 	}
 	masses.push_back(shuttleMass);
 	positions.push_back(ORBITER_CG);
