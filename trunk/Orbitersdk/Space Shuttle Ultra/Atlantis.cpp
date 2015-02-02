@@ -1848,10 +1848,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT SB1Grp[1] = {GRP_RIGHT_RSB_PANEL};
   static MGROUP_ROTATE SB1 (midx, SB1Grp, 1,
-    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(-49.3*RAD));
+    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(49.3*RAD));
   static UINT SB2Grp[1] = {GRP_LEFT_RSB_PANEL};
   static MGROUP_ROTATE SB2 (midx, SB2Grp, 1,
-    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(49.3*RAD));
+    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(-49.3*RAD));
 
   anim_spdb = CreateAnimation (0);
   LogAnim("anim_spdb", anim_spdb);
