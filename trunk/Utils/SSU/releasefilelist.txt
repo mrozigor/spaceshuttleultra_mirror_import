@@ -79,8 +79,6 @@ Config\Vessels\VandenbergAFB\SLC-6_STS_MST.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
 Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
-
-
 Doc\Space Shuttle Ultra\125852main_ius93f2.pdf
 Doc\Space Shuttle Ultra\Changelog.txt
 Doc\Space Shuttle Ultra\Compiling SSU.txt
@@ -239,8 +237,6 @@ Missions\SSU\STS-61F.cfg
 Missions\SSU\STS-61G.cfg
 Missions\SSU\STS-62A.cfg
 Missions\SSU\STS-62B.cfg
-Modules\Atlantis_SRB.dll
-Modules\Atlantis_Tank.dll
 Modules\SpaceShuttleUltra.dll
 Modules\SSUChute.dll
 Modules\SSU_Centaur.dll
