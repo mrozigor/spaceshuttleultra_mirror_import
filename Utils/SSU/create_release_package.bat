@@ -13,7 +13,7 @@ set /P "REVISION="
 
 cls
 
-set OUTPUT_NAME="SSU_v%MAJOR_VERSION%.%MINOR_VERSION%r%REVISION%.rar"
+set OUTPUT_NAME="SSU_v%MAJOR_VERSION%.%MINOR_VERSION%r%REVISION%.zip"
 
 echo creating %OUTPUT_NAME% in orbiter base directory...
 
