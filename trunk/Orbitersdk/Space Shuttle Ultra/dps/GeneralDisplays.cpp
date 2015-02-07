@@ -847,6 +847,36 @@ namespace dps
 
 
 		// TODO dynamic parts
+		int mm = GetMajorMode();
+		if (((mm / 100) != 9) && ((mm / 100) != 1) && (mm != 601))
+		{
+			char cbuf[16];
+			double lon = 0;
+			double lat = 0;
+			double rad = 0;
+			STS()->GetEquPos( lon, lat, rad );
+
+			lon *= DEG;
+			lat *= DEG;
+			rad -= 6371010;
+			if ((mm == 304) || (mm == 305) || (mm == 602) || (mm == 603)) rad *= (MPS2FPS / 1000);// kft
+			else rad /= NMI2M;// nm
+			
+			if (lat >= 0) pMDU->mvprint( 28, 8, "N" );
+			else pMDU->mvprint( 28, 8, "S" );
+
+			sprintf_s( cbuf, 16, "%05.2f", fabs( lat ) );
+			pMDU->mvprint( 28, 9, cbuf );
+
+			if (lon >= 0) pMDU->mvprint( 36, 8, "E" );
+			else pMDU->mvprint( 36, 8, "W" );
+
+			sprintf_s( cbuf, 16, "%06.2f", fabs( lon ) );
+			pMDU->mvprint( 35, 9, cbuf );
+
+			sprintf_s( cbuf, 16, "%08.4f", rad );
+			pMDU->mvprint( 43, 9, cbuf );
+		}
 		return;
 	}
 
