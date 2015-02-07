@@ -1112,6 +1112,11 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 		sprintf_s(cbuf, 255, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
 		pMDU->mvprint(9+11*i, 23, cbuf);
 	}
+
+	pMDU->Line( 95, 18, 95, 225 );
+	pMDU->Line( 150, 18, 150, 225 );
+	pMDU->Line( 205, 72, 205, 225 );
+	pMDU->Line( 205, 72, 255, 72 );
 }
 
 bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
