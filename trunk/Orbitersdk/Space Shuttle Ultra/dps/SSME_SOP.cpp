@@ -305,6 +305,61 @@ namespace dps
 		return;
 	}
 
+	bool SSME_SOP::OnParseLine( const char* keyword, const char* value )
+	{
+		int config = 0;
+
+		if (!_stricmp( keyword, "ShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[2] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[2] = (config != 0);
+			return true;
+		}
+		return false;
+	}
+
+	void SSME_SOP::OnSaveState( FILEHANDLE scn ) const
+	{
+		oapiWriteScenario_int( scn, "ShutdownPhase_1", (int)ShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_2", (int)ShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_3", (int)ShutdownPhase[2] );
+
+		oapiWriteScenario_int( scn, "PostShutdownPhase_1", (int)PostShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_2", (int)PostShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_3", (int)PostShutdownPhase[2] );
+		return;
+	}
+
 	bool SSME_SOP::OnMajorModeChange( unsigned int newMajorMode )
 	{
 		switch (newMajorMode)

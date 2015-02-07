@@ -71,7 +71,7 @@ namespace mps
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4) return 2;
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady) return 3;
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby) return 4;
-		return 1;// default to PSN3
+		return 4;// default to post-shutdown standby
 	}
 
 	void SSMEControllerSW_AD08::SetConfig( int config )

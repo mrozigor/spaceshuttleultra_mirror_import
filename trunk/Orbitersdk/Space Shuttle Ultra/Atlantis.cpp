@@ -1165,6 +1165,8 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   // ************************* propellant specs **********************************
 
   if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
+  LOXmass = MPS_MANIFOLD_MASS_LOX;
+  LH2mass = MPS_MANIFOLD_MASS_LH2;
 
   CreateOrbiterTanks();
 
