@@ -39,8 +39,8 @@ const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS m
 // mesh offsets
 // Orbiter mesh is always at (0,0,0)
 const VECTOR3 ET_OFFSET = _V(0.0, -8.975, 3.925); // offset between ET and shuttle meshes
-const VECTOR3 LSRB_OFFSET = _V(-6.4, -9.46, 1.09); // offset between SRB and shuttle mesh
-const VECTOR3 RSRB_OFFSET = _V(6.4, -9.46, 1.09); // offset between SRB and shuttle mesh
+const VECTOR3 LSRB_OFFSET = _V(-6.4, -9.46, 0.59); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.4, -9.46, 0.59); // offset between SRB and shuttle mesh
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
 const VECTOR3 KU_OFFSET = _V(0.035, 1.01, -0.05);
 
@@ -54,9 +54,9 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.411, -1.696, -14.119);
-const VECTOR3 SSMEL_REF = _V(-1.411, -1.696, -14.119);
-const VECTOR3 SSMET_REF = _V(0.0, 1.004, -13.4325);
+const VECTOR3 SSMER_REF = _V(1.4, -1.7890, -13.7540);
+const VECTOR3 SSMEL_REF = _V(-1.4, -1.7890, -13.7540);
+const VECTOR3 SSMET_REF = _V(0.0, 0.9, -13.0652);
 //const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
 
 const VECTOR3 SSMET_INSTALLED_NULL_POS = _V( 0, -0.275637355816999, 0.961261695938319 );
