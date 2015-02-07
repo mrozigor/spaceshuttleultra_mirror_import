@@ -48,7 +48,9 @@ namespace dps
 				{
 					pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, true );
 					pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, true );
-					oapiWriteLog( "LH2 Backup Dump Valves open" );
+					char buffer[128];
+					sprintf_s( buffer, 128, "LH2 Backup Dump Valves open @ MET %.2f", STS()->GetMET() );
+					oapiWriteLog( buffer );
 				}
 
 				// LH2 B/U dump end
@@ -56,7 +58,9 @@ namespace dps
 				{
 					pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, false );
 					pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, false );
-					oapiWriteLog( "LH2 Backup Dump Valves close" );
+					char buffer[128];
+					sprintf_s( buffer, 128, "LH2 Backup Dump Valves close @ MET %.2f", STS()->GetMET() );
+					oapiWriteLog( buffer );
 				}
 
 				// He I/Cs
@@ -65,7 +69,9 @@ namespace dps
 					pIO_Control->SetCommand( HE_IC_CTR_OUT_OP, true );
 					pIO_Control->SetCommand( HE_IC_LEFT_IN_OP, true );
 					pIO_Control->SetCommand( HE_IC_RIGHT_OUT_OP, true );
-					oapiWriteLog( "Helium Interconnect valves open" );
+					char buffer[128];
+					sprintf_s( buffer, 128, "Helium Interconnect valves open @ MET %.2f", STS()->GetMET() );
+					oapiWriteLog( buffer );
 				}
 
 				if ((dump_started == false) && ((t_MECO + 16) <= SimT))
@@ -77,7 +83,9 @@ namespace dps
 						{
 							dump_started = true;
 							t_dump_start = SimT;
-							oapiWriteLog( "MPS Dump Sequence start" );
+							char buffer[128];
+							sprintf_s( buffer, 128, "MPS Dump Sequence start @ MET %.2f", STS()->GetMET() );
+							oapiWriteLog( buffer );
 						}
 					}
 				}
@@ -104,7 +112,9 @@ namespace dps
 						pIO_Control->SetCommand( ME1_LOX_PVLV_CL_B, false );
 						pIO_Control->SetCommand( ME2_LOX_PVLV_CL_B, false );
 						pIO_Control->SetCommand( ME3_LOX_PVLV_CL_B, false );
-						oapiWriteLog( "LOX Dump start" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "LOX Dump start @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// LOX dump end
@@ -124,7 +134,9 @@ namespace dps
 						pIO_Control->SetCommand( ME1_LOX_PVLV_OP_B, false );
 						pIO_Control->SetCommand( ME2_LOX_PVLV_OP_B, false );
 						pIO_Control->SetCommand( ME3_LOX_PVLV_OP_B, false );
-						oapiWriteLog( "LOX Dump complete" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "LOX Dump complete @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// LH2 dump start
@@ -141,7 +153,9 @@ namespace dps
 						pIO_Control->SetCommand( ME1_LH2_PVLV_CL, false );
 						pIO_Control->SetCommand( ME2_LH2_PVLV_CL, false );
 						pIO_Control->SetCommand( ME3_LH2_PVLV_CL, false );
-						oapiWriteLog( "LH2 Dump start" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "LH2 Dump start @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// LH2 dump end
@@ -154,7 +168,9 @@ namespace dps
 						pIO_Control->SetCommand( ME1_LH2_PVLV_OP, false );
 						pIO_Control->SetCommand( ME2_LH2_PVLV_OP, false );
 						pIO_Control->SetCommand( ME3_LH2_PVLV_OP, false );
-						oapiWriteLog( "LH2 Dump complete" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "LH2 Dump complete @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// end of dump
@@ -175,7 +191,9 @@ namespace dps
 						pATVC_SOP->SetSSMEActPos( 3, ENTRYSTOWCONFIG_3P, ENTRYSTOWCONFIG_3Y );
 						// turn off BODY FLAP lights on panels F2 and F4
 						BodyFlapManLight.ResetLine();
-						oapiWriteLog( "MPS Dump Sequence complete" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "MPS Dump Sequence complete @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// contingency LH2 vac inert
@@ -186,7 +204,9 @@ namespace dps
 							pIO_Control->SetCommand( LH2_OTBD_FD_VLV_CL, false );
 							pIO_Control->SetCommand( LH2_OTBD_FD_VLV_OP, true );
 							pIO_Control->SetCommand( LH2_TOPPING_VLV_OP, true );
-							oapiWriteLog( "Contingency LH2 Vacuum Inert start" );
+							char buffer[128];
+							sprintf_s( buffer, 128, "Contingency LH2 Vacuum Inert start @ MET %.2f", STS()->GetMET() );
+							oapiWriteLog( buffer );
 						}
 					}
 
@@ -199,7 +219,9 @@ namespace dps
 						pIO_Control->SetCommand( LOX_INBD_FD_VLV_OP, true );
 						pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, true );
 						pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, true );
-						oapiWriteLog( "Automated Vacuum Inert 1 start" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "Automated Vacuum Inert 1 start @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					// vac inert 1 end
@@ -214,7 +236,9 @@ namespace dps
 						pIO_Control->SetCommand( LH2_OTBD_FD_VLV_CL, true );
 						pIO_Control->SetCommand( LH2_OTBD_FD_VLV_OP, false );
 						pIO_Control->SetCommand( LH2_TOPPING_VLV_OP, false );
-						oapiWriteLog( "Automated Vacuum Inert 1 complete" );
+						char buffer[128];
+						sprintf_s( buffer, 128, "Automated Vacuum Inert 1 complete @ MET %.2f", STS()->GetMET() );
+						oapiWriteLog( buffer );
 					}
 
 					if (MM106_trans == true)
@@ -224,7 +248,9 @@ namespace dps
 						{
 							pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, true );
 							pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, true );
-							oapiWriteLog( "Automated Vacuum Inert 2 start" );
+							char buffer[128];
+							sprintf_s( buffer, 128, "Automated Vacuum Inert 2 start @ MET %.2f", STS()->GetMET() );
+							oapiWriteLog( buffer );
 						}
 
 						// vac inert 2 end
@@ -232,7 +258,9 @@ namespace dps
 						{
 							pIO_Control->SetCommand( LH2_INBD_BU_DV_OP, false );
 							pIO_Control->SetCommand( LH2_OTBD_BU_DV_OP, false );
-							oapiWriteLog( "Automated Vacuum Inert 2 complete" );
+							char buffer[128];
+							sprintf_s( buffer, 128, "Automated Vacuum Inert 2 complete @ MET %.2f", STS()->GetMET() );
+							oapiWriteLog( buffer );
 						}
 					}
 				}

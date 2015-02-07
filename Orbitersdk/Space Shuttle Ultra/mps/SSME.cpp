@@ -293,7 +293,7 @@ namespace mps
 
 					modelmode = 1;
 					break;
-				case 3:// orbit
+				default:// post-shutdown
 					ptrCCV->_backdoor( 0 );
 					ptrMFV->_backdoor( 0 );
 					ptrMOV->_backdoor( 0 );
