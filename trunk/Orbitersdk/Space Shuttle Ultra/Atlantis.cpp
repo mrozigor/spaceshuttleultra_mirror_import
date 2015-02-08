@@ -6189,7 +6189,7 @@ void Atlantis::DefineSSMEExhaust()
 		{
 			DelExhaust(ex_main[i]);
 		}
-		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 2.0, tex_main);
+		ex_main[i] = AddExhaust(th_main[i], 55.0, 3.0, 3.5, tex_main);
 	}
 }
 
