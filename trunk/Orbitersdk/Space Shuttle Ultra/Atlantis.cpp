@@ -967,7 +967,7 @@ pActiveLatches(3, NULL)
 	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
 	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
 	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z - 4), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z -2.9348 ), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
@@ -6808,7 +6808,7 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.7458, -2.0289, -10.6115 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.7458, -2.5827, -9.4044 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
@@ -6824,7 +6824,7 @@ void Atlantis::CreateMPSDumpVents( void )
 	// LH2 FDLN Relief vent
 	if (thMPSDump[6] != NULL) DelThruster( thMPSDump[6] );
 	thMPSDump[6] = CreateThruster( orbiter_ofs + _V( -0.4171, 1.5138, -11.1097 ), _V( 0, -0.993572, -0.113203 ), 34, phLH2dump, 60, 60 );
-	//AddExhaustStream( thMPSDump[6], &psLH2dump_FDLN );
+	AddExhaustStream( thMPSDump[6], &psLH2dump_FDLN );
 
 	// LOX FDLN Relief vent
 	if (thMPSDump[7] != NULL) DelThruster( thMPSDump[7] );
