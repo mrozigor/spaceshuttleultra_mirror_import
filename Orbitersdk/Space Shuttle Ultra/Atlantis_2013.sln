@@ -1,14 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis", "Atlantis_2013.vcxproj", "{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EDA1260C-9F5C-478A-B18B-A687101FC234} = {EDA1260C-9F5C-478A-B18B-A687101FC234}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtlantisConfig", "AtlantisConfig_2013.vcxproj", "{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_SRB", "Atlantis_SRB_2013.vcxproj", "{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}"
 EndProject
@@ -71,12 +69,6 @@ Global
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Debug|Win32.Build.0 = Debug|Win32
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Release|Win32.ActiveCfg = Release|Win32
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Release|Win32.Build.0 = Release|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Debug|Win32.Build.0 = Debug|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Release|Win32.ActiveCfg = Release|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Release|Win32.Build.0 = Release|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Debug|Win32.ActiveCfg = Debug|Win32

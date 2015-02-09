@@ -464,9 +464,6 @@
     <ClInclude Include="gnc\AA.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="AC_resource.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\AftMDU.h">
       <Filter>Includes</Filter>
     </ClInclude>
