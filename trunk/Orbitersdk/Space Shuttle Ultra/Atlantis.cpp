@@ -1627,7 +1627,8 @@ void Atlantis::EnableControlSurfaces()
 	if(ControlSurfacesEnabled) return;
 	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 0.0, 0.0, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, 5.0);
     hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
-	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	//hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hrudder = CreateControlSurface2 (AIRCTRL_RUDDERTRIM,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
@@ -3625,6 +3626,7 @@ void Atlantis::clbkPostCreation ()
 		//RightElevonCommand.Connect(pBundle, 1);
 		ElevonCommand.Connect(pBundle, 0);
 		AileronCommand.Connect(pBundle, 1);
+		RudderCommand.Connect(pBundle, 2);
 
 		pBundle = bundleManager->CreateBundle("THRUSTER_CMD", 16);
 		for (unsigned int i = 0; i < 3; i++) {
@@ -4011,6 +4013,10 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 				aerosurfaces.speedbrake = spdb_proc*100.0;
 				//if(pSimpleGPC->GetMajorMode() == 801)
 				//aerosurfaces.bodyFlap = (ElevonCommand.GetVoltage() + 1.0)/2.0 * 100.0;
+
+				// TODO: limit combined rudder and speedbrake deflection
+				aerosurfaces.rudder = range(-27.1, RudderCommand.GetVoltage()*27.1, 27.1);
+				SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, RudderCommand.GetVoltage());
 			}
 			else {
 				aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;

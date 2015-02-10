@@ -152,7 +152,7 @@ private:
 	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
-	DiscOutPort ElevonCommand, AileronCommand;
+	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
 
 	double lastSBTCCommand; // used to check if speedbrake has moved
 	

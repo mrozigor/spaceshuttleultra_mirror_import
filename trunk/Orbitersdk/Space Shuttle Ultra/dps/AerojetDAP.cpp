@@ -219,6 +219,7 @@ void AerojetDAP::Realize()
 	//RightElevonCommand.Connect(pBundle, 1);
 	ElevonCommand.Connect(pBundle, 0);
 	AileronCommand.Connect(pBundle, 1);
+	RudderCommand.Connect(pBundle, 2);
 
 	pBundle=STS()->BundleManager()->CreateBundle("THRUSTER_CMD", 16);
 	for(unsigned int i=0;i<3;i++) {
@@ -326,11 +327,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			// load relief
 			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
 			AileronCommand.SetLine(0.0f);
+			RudderCommand.SetLine(0.0f); // TODO: check if rudder is used after WONG, or if nosewheel steering only is used
 			//Nosewheel steering
 			double airspeed=STS()->GetAirspeed();
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
-			//steerforce = 27500/3*steerforce*STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER);
 			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
 			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
@@ -420,10 +421,13 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			// check for weight-on-weels
 			if(STS()->GroundContact()) {
 				bWOW = true;
+				// use rudder to steer shuttle after touchdown
+				RudderCommand.SetLine(RHCInput[YAW].GetVoltage());
 				// check for weight-on-nose-gear
 				if(STS()->GetPitch() < -3.0*RAD) {
 					bWONG = true;
 					// set default positions of control surfaces to zero
+					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, 0.0);
 					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
 					STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
 					STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
@@ -951,9 +955,12 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 		//rudderPos = Yaw_RudderYaw.Step(-STS()->GetSlipAngle()*DEG, DeltaT);
 		rudderPos = Yaw_RudderYaw.Step(degTargetRates.data[YAW]-degCurrentRates.data[YAW], DeltaT);
 	}
+	else {
+		rudderPos = 0.0;
+	}
 	ElevonCommand.SetLine(static_cast<float>(-elevonPos)); // PID controller output has opposite sign of required elevon direction
 	AileronCommand.SetLine(static_cast<float>(-aileronPos));
-	STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, rudderPos);
+	RudderCommand.SetLine(static_cast<float>(rudderPos));
 }
 
 void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)

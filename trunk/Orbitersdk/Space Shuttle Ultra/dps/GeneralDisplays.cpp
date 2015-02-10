@@ -493,7 +493,7 @@ namespace dps
 		sprintf_s( cbuf, 64, "%c%4.1f", pos, fabs( tmp ) );
 		pMDU->mvprint( 22, 8, cbuf );
 
-		tmp = STS()->GetControlSurfaceLevel( AIRCTRL_RUDDER ) * 27.1 ;
+		tmp = STS()->aerosurfaces.rudder;
 		if (tmp > 0) pos = 'R';
 		else if (tmp < 0) pos = 'L';
 		else pos = ' ';
@@ -1537,7 +1537,7 @@ namespace dps
 		sprintf_s( cbuf, 64, "%c%4.1f", pos, fabs( tmp[0] ) );
 		pMDU->mvprint( 13, 8, cbuf );
 
-		tmp[0] = STS()->GetControlSurfaceLevel( AIRCTRL_RUDDER ) * 27.1 ;
+		tmp[0] = STS()->aerosurfaces.rudder;
 		if (tmp[0] > 0) pos = 'R';
 		else if (tmp[0] < 0) pos = 'L';
 		else pos = ' ';

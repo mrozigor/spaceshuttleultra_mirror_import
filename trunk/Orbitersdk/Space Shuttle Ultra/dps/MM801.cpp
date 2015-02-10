@@ -28,6 +28,7 @@ namespace dps
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD",16);
 		ElevonCommand.Connect(pBundle,0);
 		AileronCommand.Connect(pBundle,1);
+		RudderCommand.Connect(pBundle,2);
 		ElevonCommandRead.Connect(pBundle,0);
 		//AileronCommandRead.Connect(pBundle,1);
 	}
@@ -152,7 +153,7 @@ namespace dps
 		PrintElevonPos(STS()->aerosurfaces.rightElevon, buff);
 		pMDU->mvprint(35,15,buff);
 		pMDU->mvprint(35,16,buff);
-		PrintRudderPos(STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1, buff);
+		PrintRudderPos(STS()->aerosurfaces.rudder, buff);
 		pMDU->mvprint(35,17,buff);
 		PrintSpeedbrakePos(STS()->GetActSpeedbrakePosition()*100.0, buff);
 		pMDU->mvprint(35,18,buff);
@@ -171,7 +172,7 @@ namespace dps
 			SpeedbrakeTargetIdx = FV1;
 
 			ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
-			RudderTarget = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
+			RudderTarget = STS()->aerosurfaces.rudder;
 			SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
 			return true;
 		}
@@ -199,7 +200,7 @@ namespace dps
 			ElevonCommand.SetLine(static_cast<float>(ElevonTarget/33.0));
 
 			RudderTarget = GetAerosurfaceCommand(RudderTarget, DeltaT, RudderTargetIdx, RUDDER_RATE, RUDDER_POSITIONS);
-			STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, RudderTarget/27.1);
+			RudderCommand.SetLine(static_cast<float>(RudderTarget/27.1));
 			
 			SpeedbrakeTarget = GetAerosurfaceCommand(SpeedbrakeTarget, DeltaT, SpeedbrakeTargetIdx, SPEEDBRAKE_RATE, SPEEDBRAKE_POSITIONS);
 			STS()->SetSpeedbrake(SpeedbrakeTarget/100.0);
@@ -209,7 +210,7 @@ namespace dps
 			// if all aerosurfaces have reached their final position, set test state to inactive
 			if(bFCSTestEnding) {
 				double elevonPos = STS()->aerosurfaces.leftElevon;
-				double rudderPos = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
+				double rudderPos = STS()->aerosurfaces.rudder;
 				double speedbrakePos = STS()->GetActSpeedbrakePosition()*100.0;
 				if(Eq(elevonPos, ELEVON_POSITIONS[FV3], 0.01) && Eq(rudderPos, RUDDER_POSITIONS[FV3], 0.01) && Eq(speedbrakePos, SPEEDBRAKE_POSITIONS[FV3], 0.001)) {
 					bFCSTestActive = false;
