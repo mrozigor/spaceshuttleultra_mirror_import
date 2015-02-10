@@ -903,9 +903,9 @@ void CRT::SPI(HDC hDC)
 	MoveToEx(hDC, 190, 53, NULL);
 	LineTo(hDC, 190, 60);
 
-	if(sts->HydraulicsOK()) dNum=-sts->GetControlSurfaceLevel(AIRCTRL_RUDDER);
+	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.rudder;
 	else dNum=0.0;
-	nPos=static_cast<int>(190.0+dNum*-54.2);
+	nPos=static_cast<int>(190.0+dNum);
 	tri[0].x = nPos;
 	tri[0].y = 56;
 	tri[1].x = nPos - 4;
