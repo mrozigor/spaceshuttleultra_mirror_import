@@ -6814,17 +6814,17 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.7458, -2.5827, -9.4044 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.7432, -2.4155, -9.4365 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
 	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
-	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.9877, -0.5162, -12.5279 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
+	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.9718, -0.4596, -12.4591 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
 	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
 
 	// LOX dump F/D
 	if (thMPSDump[5] != NULL) DelThruster( thMPSDump[5] );
-	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.9877, -0.5162, -12.5279 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
+	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.9718, -0.4596, -12.4591 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
 	AddExhaustStream( thMPSDump[5], &psLOXdump_FD );
 
 	// LH2 FDLN Relief vent
