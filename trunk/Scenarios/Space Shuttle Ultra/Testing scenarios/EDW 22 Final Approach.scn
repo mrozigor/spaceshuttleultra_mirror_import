@@ -23,19 +23,24 @@ BEGIN_HUD
 END_HUD
 
 BEGIN_MFD Left
-  TYPE Surface
-  SPDMODE 1
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 3
 END_MFD
 
 BEGIN_MFD Right
   TYPE User
-  MODE GPC MFD
-  ILOAD 0
-  MODE 3
-  SITE 2
-  RUNWAY 0
-  HAC 0
-  MET 6981
+  MODE CRT
+  Mode2 1
+  Display 1
+END_MFD
+
+BEGIN_MFD 3
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 1
 END_MFD
 
 BEGIN_MFD 4
@@ -52,7 +57,28 @@ BEGIN_MFD 5
   Display 0
 END_MFD
 
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
+END_MFD
+
+BEGIN_MFD 7
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
+END_MFD
+
 BEGIN_MFD 8
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 4
+END_MFD
+
+BEGIN_MFD 9
   TYPE User
   MODE CRT
   Mode2 2
