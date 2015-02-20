@@ -41,15 +41,15 @@ END_MFD
 BEGIN_MFD 3
   TYPE User
   MODE CRT
-  Mode2 2
-  Display 4
+  Mode2 1
+  Display 1
 END_MFD
 
 BEGIN_MFD 4
   TYPE User
   MODE CRT
-  Mode2 1
-  Display 1
+  Mode2 2
+  Display 4
 END_MFD
 
 BEGIN_MFD 5
