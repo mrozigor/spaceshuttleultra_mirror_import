@@ -123,6 +123,7 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(APU_HydPumpPress) 
 				FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[0]*DeltaT;
 			else FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[1]*DeltaT;
+			if (FuelLevel[1] < 0) FuelLevel[1] = 0;
 
 			if(State==START) {
 				if(APUSpeed[1]>=95.0) {
