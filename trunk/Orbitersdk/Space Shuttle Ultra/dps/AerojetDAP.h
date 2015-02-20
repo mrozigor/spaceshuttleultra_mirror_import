@@ -22,12 +22,14 @@ const double IGS_AIMPOINT = 1000.0/MPS2FPS;
 /**
  * Offset between OGS aimpoint and rwy threshold
  */
-const double OGS_AIMPOINT = -7500/MPS2FPS;
+const double OGS_AIMPOINT_NOM = -7500/MPS2FPS;
+const double OGS_AIMPOINT_CLOSE = -6500/MPS2FPS;
+//const double OGS_AIMPOINT = -7500/MPS2FPS;
 const double AL_GS = tan(-20.0*RAD);
 const double Y_AL_INTERCEPT = 10018.0/MPS2FPS;
-const double X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
+//const double X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
 
-const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+//const double HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
 const double FINAL_RADIUS = 14000.0/MPS2FPS; // center of HAC in Y direction is +/- FINAL_RADIUS
 const double R1 = 0.0;
 const double R2 = 0.093/MPS2FPS;
@@ -46,6 +48,7 @@ private:
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STRT} HAC_DIRECTION;
+	typedef enum {NOM, SHORT} SB_CONTROL_LOGIC;
 
 	class LandingSiteData
 	{
@@ -187,6 +190,7 @@ private:
 	TAEM_GUIDANCE_MODE TAEMGuidanceMode;
 	HAC_DIRECTION HACDirection;
 	HAC_SIDE HACSide;
+	SB_CONTROL_LOGIC SBControlLogic;
 	VECTOR3 RwyStart_EarthLocal, RwyEnd_EarthLocal; // start and end points of runway in Orbitersim Earth local frame
 	// Runway frame: Same center as Orbitersim Earth local frame, but rotated so x axis is along rwy centerline and z axis corresponds to altitude (right-handed frame)
 	MATRIX3 RwyRotMatrix; // converts from Orbiter Earth local frame to runway frame
@@ -207,6 +211,10 @@ private:
 	// all values in kPa
 	double filteredQBar;
 
+	double OGS_AIMPOINT;
+	double X_AL_INTERCEPT;
+	double HAC_CENTER_X;
+
 	/**
 	 * Time to HAC (seconds).
 	 */
@@ -216,6 +224,17 @@ private:
 	 * Vehicle distance to center of HAC (m).
 	 */
 	double DistanceToHACCenter;
+
+	/**
+	 * Data for ENTRY TRAJ and VERT SIT displays.
+	 */
+	double ET_MachHistory[5];
+	double ET_RangeHistory[5];
+	double ET_AltitudeHistory[5];
+	double ET_History_updatetime;
+	double ET_Mach;
+	double ETVS_Range;
+	double ETVS_Altitude;
 
 	/** Output guidance variables **/
 	double NZCommand; // MM305 output
@@ -275,8 +294,8 @@ public:
 	const std::string& GetSelectedRunway( void ) const;
 
 	/**
-	 * Gets current range to selected runway (feet).
-	 * @return	range to runway (feet)
+	 * Gets current range to selected runway (NM).
+	 * @return	range to runway (NM)
 	 */
 	double GetRangeToRunway( void ) const;
 
@@ -351,6 +370,30 @@ public:
 	 * @return	NZ error (g)
 	 */
 	double GetNZError( void ) const;
+
+	/**
+	 * Gets vehicle HAC turn angle (deg).
+	 * @return	HAC turn angle (deg)
+	 */
+	double GetHTA( void ) const;
+
+	/**
+	 * Gets vehicle distance to glide slope (ft).
+	 * @return	distance to glide slope (ft) (>0 -> above)
+	 */
+	double GetGlideSlopeDistance( void ) const;
+
+	/**
+	 * Gets vehicle NZ (g).
+	 * @return	NZ (g)
+	 */
+	double GetNZ( void ) const;
+
+	/**
+	 * Returns current delta azimuth limit.
+	 * @return	delta azimuth limit (DEG)
+	 */
+	double GetdeltaAZLimit( double mach ) const;
 private:
 	void SetThrusterLevels();
 	/**
@@ -499,6 +542,13 @@ private:
 	void LoadLandingSiteList();
 
 	void PaintHORIZSITDisplay(vc::MDU* pMDU) const;
+	void PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const;
+	void PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const;
+	void PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const;
+	void PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const;
+	void PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const;
+	void PaintVERTSIT1Display( vc::MDU* pMDU ) const;
+	void PaintVERTSIT2Display( vc::MDU* pMDU ) const;
 };
 
 };

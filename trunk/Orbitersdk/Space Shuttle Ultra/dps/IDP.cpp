@@ -1,5 +1,10 @@
 #include "IDP.h"
 #include "SimpleGPCSystem.h"
+#include "IO_Control.h"
+#include "SSME_Operations.h"
+#include "AscentGuidance.h"
+#include "AerojetDAP.h"
+
 
 namespace dps {
 
@@ -23,8 +28,16 @@ namespace dps {
 
 	IDP::~IDP()
 	{
-		
-	}	
+	}
+
+	void IDP::Realize()
+	{
+		pIO_Control =  static_cast<IO_Control*> (STS()->pSimpleGPC->FindSoftware( "IO_Control" ));
+		pSSME_Operations =  static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
+		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
+		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+		return;
+	}
 
 	BUS_COMMAND_WORD IDP::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, unsigned long num_data, word16* cdw)
 	{
@@ -507,5 +520,173 @@ namespace dps {
 			default:
 				return false;
 		}
+	}
+
+	int IDP::GetADIAttitude( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F8 );
+			case 4:
+				// no working ADI switches in panel A6U
+				return 1;
+			default:
+				return 1;// switch in LVLH
+		}
+	}
+
+	int IDP::GetADIError( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_F8 );
+			case 4:
+				// no working ADI switches in panel A6U
+				return 1;
+			default:
+				return 1;// switch in MED
+		}
+	}
+
+	int IDP::GetADIRate( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_RATE_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_RATE_F8 );
+			case 4:
+				// no working ADI switches in panel A6U
+				return 1;
+			default:
+				return 1;// switch in MED
+		}
+	}
+
+	bool IDP::GetMECOConfirmedFlag( void ) const
+	{
+		return pSSME_Operations->GetMECOConfirmedFlag();
+	}
+
+	bool IDP::GetAutoThrottleState( void ) const
+	{
+		return pAscentGuidance->GetAutoThrottleState();
+	}
+
+	VECTOR3 IDP::GetAttitudeErrors_AscentGuidance( void ) const
+	{
+		return pAscentGuidance->GetAttitudeErrors();
+	}
+
+	VECTOR3 IDP::GetAttitudeErrors_AerojetDAP( void ) const
+	{
+		return pAerojetDAP->GetAttitudeErrors();
+	}
+	
+	bool IDP::GetAutoPitchState( void ) const
+	{
+		return pAerojetDAP->GetAutoPitchState();
+	}
+
+	bool IDP::GetAutoRollYawState( void ) const
+	{
+		return pAerojetDAP->GetAutoRollYawState();
+	}
+
+	bool IDP::GetAutoSpeedbrakeState( void ) const
+	{
+		return pAerojetDAP->GetAutoSpeedbrakeState();
+	}
+
+	bool IDP::GetWOW( void ) const
+	{
+		return pAerojetDAP->GetWOW();
+	}
+
+	double IDP::GetNZError( void ) const
+	{
+		return pAerojetDAP->GetNZError();
+	}
+
+	bool IDP::GetPrefinalState( void ) const
+	{
+		return pAerojetDAP->GetPrefinalState();
+	}
+
+	double IDP::GetYRunwayPositionError( void ) const
+	{
+		return pAerojetDAP->GetYRunwayPositionError();
+	}
+
+	bool IDP::GetOnHACState( void ) const
+	{
+		return pAerojetDAP->GetOnHACState();
+	}
+
+	double IDP::GetHACRadialError( void ) const
+	{
+		return pAerojetDAP->GetHACRadialError();
+	}
+
+	double IDP::GetTimeToHAC( void ) const
+	{
+		return pAerojetDAP->GetTimeToHAC();
+	}
+
+	double IDP::GetdeltaAZ( void ) const
+	{
+		return pAerojetDAP->GetdeltaAZ();
+	}
+
+	double IDP::GetDistanceToHACCenter( void ) const
+	{
+		return pAerojetDAP->GetDistanceToHACCenter();
+	}
+
+	const std::string& IDP::GetSelectedRunway( void ) const
+	{
+		return pAerojetDAP->GetSelectedRunway();
+	}
+
+	double IDP::GetRangeToRunway( void ) const
+	{
+		return pAerojetDAP->GetRangeToRunway();
+	}
+
+	bool IDP::GetApproachAndLandState( void ) const
+	{
+		return pAerojetDAP->GetApproachAndLandState();
+	}
+
+	double IDP::GetVacc( void ) const
+	{
+		return pAerojetDAP->GetVacc();
+	}
+
+	double IDP::GetHTA( void ) const
+	{
+		return pAerojetDAP->GetHTA();
+	}
+
+	double IDP::GetGlideSlopeDistance( void ) const
+	{
+		return pAerojetDAP->GetGlideSlopeDistance();
+	}
+
+	double IDP::GetNZ( void ) const
+	{
+		return pAerojetDAP->GetNZ();
+	}
+
+	double IDP::GetdeltaAZLimit( double mach ) const
+	{
+		return pAerojetDAP->GetdeltaAZLimit( mach );
 	}
 };
