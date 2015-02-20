@@ -978,7 +978,7 @@ pActiveLatches(3, NULL)
 	RCS_PSSpec.srcspread=0;//0
 	RCS_PSSpec.lifetime=0.2;//0.25
 	RCS_PSSpec.growthrate=3.5;//10
-	RCS_PSSpec.atmslowdown=0;//0
+	RCS_PSSpec.atmslowdown=0.5;//0
 	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
 	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
 	RCS_PSSpec.lmin=0.1;//0.25
