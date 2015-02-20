@@ -452,7 +452,7 @@ void CRT::OMSMPS(HDC hDC)
 		}
 		Rectangle (hDC, 20+35*nPos, Round( (154-0.012667*dNum) ), 33+35*nPos, 154);
 		
-		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() / 8618.44625);// HACK should have this in the sensor
+		dNum=100.0*sts->GetThrusterLevel(sts->th_oms[nPos]) + (sts->GetAtmPressure() * 0.00011603);// HACK should have this in the sensor
 		sprintf_s(cbuf, 255, "%03.0f", dNum);
 		TextOut(hDC, 16+35*nPos, 168, cbuf, strlen(cbuf));
 		if (dNum >= 80)
@@ -495,7 +495,7 @@ void CRT::OMSMPS(HDC hDC)
 			SelectObject(hDC, RedPen);
 			if (dNum < 45) dNum = 45;
 		}
-		Rectangle( hDC, 162 + nLoc, Round( 249 - 0.953125 * (dNum - 45) ), 175 + nLoc, 249 );
+		Rectangle( hDC, 162 + nLoc, Round( 291.890625 - (0.953125 * dNum) ), 175 + nLoc, 249 );
 	}
 	
 	// He Tank Press Pneu
@@ -514,7 +514,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 3000) dNum = 3000;
 	}
-	Rectangle( hDC, 109, Round( 81 - 0.019 * (dNum - 3000) ), 122, 81 );
+	Rectangle( hDC, 109, Round( 138 - (0.019 * dNum) ), 122, 81 );
 
 	// He Tank Press Eng 2
 	dNum = sts->GetHeTankPress( 2 );
@@ -532,7 +532,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 162, Round( 81 - 0.0095 * (dNum - 1000) ), 175, 81 );
+	Rectangle( hDC, 162, Round( 90.5 - (0.0095 * dNum) ), 175, 81 );
 
 	// He Tank Press Eng 1
 	dNum = sts->GetHeTankPress( 1 );
@@ -550,7 +550,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 197, Round( 81 - 0.0095 * (dNum - 1000) ), 210, 81 );
+	Rectangle( hDC, 197, Round( 90.5 - (0.0095 * dNum) ), 210, 81 );
 
 	// He Tank Press Eng 3
 	dNum = sts->GetHeTankPress( 3 );
@@ -568,7 +568,7 @@ void CRT::OMSMPS(HDC hDC)
 		SelectObject(hDC, RedPen);
 		if (dNum < 1000) dNum = 1000;
 	}
-	Rectangle( hDC, 231, Round( 81 - 0.0095 * (dNum - 1000) ), 244, 81 );
+	Rectangle( hDC, 231, Round( 90.5 - (0.0095 * dNum) ), 244, 81 );
 
 	// He Reg Press Pneu
 	dNum = sts->GetHeRegPress( 0 );
@@ -586,7 +586,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 109, Round( 144 - 0.11 * (dNum - 600) ), 122, 144 );
+	Rectangle( hDC, 109, Round( 210 - (0.11 * dNum) ), 122, 144 );
 
 	// He Reg Press Eng 2
 	dNum = sts->GetHeRegPress( 2 );
@@ -604,7 +604,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 162, Round( 144 - 0.11 * (dNum - 600) ), 175, 144 );
+	Rectangle( hDC, 162, Round( 210 - (0.11 * dNum) ), 175, 144 );
 
 	// He Reg Press Eng 1
 	dNum = sts->GetHeRegPress( 1 );
@@ -622,7 +622,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 197, Round( 144 - 0.11 * (dNum - 600) ), 210, 144 );
+	Rectangle( hDC, 197, Round( 210 - (0.11 * dNum) ), 210, 144 );
 
 	// He Reg Press Eng 3
 	dNum = sts->GetHeRegPress( 3 );
@@ -640,7 +640,7 @@ void CRT::OMSMPS(HDC hDC)
 		if (dNum < 600) dNum = 600;
 		if (dNum > 900) dNum = 900;
 	}
-	Rectangle( hDC, 231, Round( 144 - 0.11 * (dNum - 600) ), 244, 144 );
+	Rectangle( hDC, 231, Round( 210 - (0.11 * dNum) ), 244, 144 );
 
 	// ENG MANF LO2
 	dNum = sts->GetLOXManifPress();
@@ -766,7 +766,7 @@ void CRT::SPI(HDC hDC)
 
 	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.leftElevon;
 	else dNum=0.0;
-	nPos=static_cast<int>(145.0+(3.0*dNum))+15;
+	nPos= static_cast<int>(160 + (3.0 * dNum));
 	tri[0].x = 6;
 	tri[0].y = nPos;
 	tri[1].x = 14;
@@ -783,7 +783,7 @@ void CRT::SPI(HDC hDC)
 	Polygon( hDC, tri, 3 );
 	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.rightElevon;
 	else dNum=0.0;
-	nPos=static_cast<int>(145.0+(3.0*dNum))+15;
+	nPos= static_cast<int>(160 + (3.0 * dNum));
 	tri[0].x = 51;
 	tri[0].y = nPos;
 	tri[1].x = 59;
@@ -861,7 +861,7 @@ void CRT::SPI(HDC hDC)
 	
 	if(sts->HydraulicsOK()) dNum=sts->aerosurfaces.bodyFlap;
 	else dNum=0.0;
-	nPos=static_cast<int>(55 + (4.825 * (dNum + 11.7)));// assuming dNum ranges from -11.7º to +22.5º
+	nPos=static_cast<int>(111.4525 + (4.825 * dNum));// assuming dNum ranges from -11.7º to +22.5º
 	tri[0].x = 99;
 	tri[0].y = nPos;
 	tri[1].x = 91;
@@ -950,7 +950,7 @@ void CRT::SPI(HDC hDC)
 	MoveToEx(hDC, 190, 119, NULL);
 	LineTo(hDC, 190, 125);
 
-	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon-sts->aerosurfaces.rightElevon)/2.0;
+	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon-sts->aerosurfaces.rightElevon)* 0.5;
 	else dNum=0.0;
 
 	nPos=static_cast<int>(190.0+12.0*dNum);
