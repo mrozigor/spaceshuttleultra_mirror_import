@@ -179,7 +179,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	CreateThrusterGroup(&th_main, 1, THGROUP_MAIN);
 	
 	AddExhaust (th_main, 16.0, 2.0, tex);
-	AddExhaustStream (th_main, _V(0.484,0.434,-25), &srb_exhaust);
+	AddExhaustStream (th_main, _V(0.484,0.434,-23), &srb_exhaust);
 	AddExhaustStream (th_main, _V(0.484,0.434,-100), &srb_contrail);
 
 	// separation bolts
