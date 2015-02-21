@@ -41,6 +41,8 @@
 #define CR_MAGENTA RGB( 159, 110, 189 )
 #define CR_TURQUOISE RGB( 0, 183, 146 )
 #define CR_MENU_COLOR RGB( 0, 255, 216 )
+#define CR_DPS_NORMAL RGB( 128, 255, 0 )
+#define CR_DPS_OVERBRIGHT RGB( 255, 255, 0 )
 
 
 namespace vc {
@@ -77,6 +79,7 @@ namespace vc {
 
 		HFONT TahomaFont_h10w4;
 		HFONT TahomaFont_h7w3;
+		HFONT TahomaFont_h17w6;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();

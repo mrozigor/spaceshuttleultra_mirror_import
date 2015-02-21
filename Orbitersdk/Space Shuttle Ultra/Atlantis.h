@@ -278,6 +278,7 @@ class Atlantis: public VESSEL3 {
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
+	friend class dps::IDP;
 	friend class vc::DAPControl;
 public:
 	SSUOptions* options;
