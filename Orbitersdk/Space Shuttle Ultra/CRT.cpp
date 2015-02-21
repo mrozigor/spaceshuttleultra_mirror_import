@@ -1061,7 +1061,7 @@ void CRT::APUHYD(HDC hDC)
 	SelectObject(hDC, ArialFont_h13w6);
 	SelectObject(hDC, GreenPen);
 	SelectObject(hDC, BlackBrush);
-	SelectDefaultFont(hDC, 0);
+	//SelectDefaultFont(hDC, 0);
 
 	SetTextColor(hDC, GREEN);
 	TextOut(hDC, 127, 0, "APU", 3);
@@ -1327,7 +1327,7 @@ void CRT::APUHYD(HDC hDC)
 		//Hydraulic Press
 		dNum = sts->pAPU[nPos]->GetHydraulicPressure();
 		sprintf_s(cbuf, 10, "%04.0f", dNum);
-		TextOut(hDC, 159+33*nPos, 187, cbuf, strlen(cbuf));
+		TextOut(hDC, 159+33*nPos, 189, cbuf, strlen(cbuf));
 		if (dNum >= 2400)
 		{
 			SelectObject(hDC, GreenBrush);
