@@ -455,7 +455,7 @@ void AscentGuidance::SecondStageRateCommand()
 			degReqdRates.data[YAW] = range(-2.5, 0.5*(DEG*(radHeading-radTargetHeading) - (sign( cos( degBank ) ) * ThrAngleY)), 2.5);
 			// applied the "- (sign( cos( degBank ) ) * ThrAngleY)" factor to correct for "sideways" thrust (ME-2 or 3 out/low thrust)
 
-			if(!PerformRTHU ||  relativeVelocity<ROLL_TO_HEADS_UP_VELOCITY) 
+			if(!PerformRTHU || STS()->GetAirspeed()<ROLL_TO_HEADS_UP_VELOCITY) 
 			{
 				if(degBank>0) degReqdRates.data[ROLL] = 2.5*(degBank-180.0);
 				else degReqdRates.data[ROLL] = 2.5*(degBank+180.0);
@@ -503,8 +503,11 @@ void AscentGuidance::Throttle(double DeltaT)
 				MEFail[i] = true;
 				NSSME--;
 				// record EO VI
-				if (NSSME == 2) EOVI[0] = STS()->GetAirspeed() * MPS2FPS;
-				else if (NSSME == 1) EOVI[1] = STS()->GetAirspeed() * MPS2FPS;
+				VECTOR3 v3vi;
+				STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+				double vi = length( v3vi ) * MPS2FPS;
+				if (NSSME == 2) EOVI[0] = vi;
+				else if (NSSME == 1) EOVI[1] = vi;
 				// update 1º stage throttle table to not throttle
 				THROT[1] = THROT[0];
 				THROT[2] = THROT[0];
@@ -548,7 +551,7 @@ void AscentGuidance::Throttle(double DeltaT)
 					OMSCommand[RIGHT].ResetLine();
 				}
 
-				if(relativeVelocity>=TgtSpd) {
+				if(inertialVelocity>=TgtSpd) {
 					//reached target speed
 					if (pSSME_Operations->GetMECOCommandFlag() == false)
 					{
@@ -668,7 +671,7 @@ void AscentGuidance::Navigate()
 	STS()->GetRelativePos(STS()->GetSurfaceRef(),rv);
 	STS()->GetRelativeVel(STS()->GetSurfaceRef(),vv);
 	radius=length(rv);
-	relativeVelocity=length(vv);
+	inertialVelocity=length(vv);
 	hv=crossp(rv,vv);
 	h=length(hv);
 	rh=rv*(1/radius);

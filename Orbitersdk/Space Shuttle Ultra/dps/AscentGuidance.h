@@ -183,7 +183,7 @@ private:
 	double CmdPDot; // commanded second stage pitch rate in deg/sec
 	VECTOR3 rh0;
 	double radius; // distance from centre of Earth (r)
-	double relativeVelocity; // velocity relative to Earth (v)
+	double inertialVelocity; // velocity relative to Earth's center (v)
 	double r,h,theta,omega,phi;
 	VECTOR3 rh,thetah,hh;
 	VECTOR3 posMoon,velMoon,rmh;
