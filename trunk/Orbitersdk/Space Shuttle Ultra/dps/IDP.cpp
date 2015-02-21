@@ -113,12 +113,22 @@ namespace dps {
 		return false;
 	}
 
+	int IDP::GetActiveKeyboard( void ) const
+	{
+		int kb = 0;
+		if ((STS()->CRT_SEL[0] + 1) == usIDPID) kb += 1;
+		if ((STS()->CRT_SEL[1] + 1) == usIDPID) kb += 2;
+		return kb;
+	}
+
 	bool IDP::PutKey(unsigned short usKeyboardID, char cKey) {
 		
 		//TODO: Implement checking of active keyboard
 		switch(cKey) {
 			case SSU_KEY_RESUME:
 				OnResume();
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
 				break;
 			case SSU_KEY_CLEAR:
 				OnClear();
@@ -477,6 +487,9 @@ namespace dps {
 					break;
 				case SSU_KEY_IORESET:
 					strcat_s(pszBuffer, "I/O RESET");
+					break;
+				case SSU_KEY_RESUME:
+					strcat_s( pszBuffer, "RESUME" );
 					break;
 				default:
 					break;

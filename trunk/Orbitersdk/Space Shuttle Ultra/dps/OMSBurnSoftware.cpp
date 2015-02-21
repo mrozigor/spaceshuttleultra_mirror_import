@@ -477,7 +477,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 		unsigned int majorMode = GetMajorMode();
 		if(majorMode == 104 || majorMode == 105 || majorMode == 202 || majorMode == 302) {
-			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING + dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	else pMDU->mvprint(6, 23, "22/TIMER 23");

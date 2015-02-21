@@ -325,6 +325,26 @@ namespace vc {
 			}
 		}
 
+		// driving IDP and active keyboards display
+		SelectObject( hDC, hNormalPen );
+		Rectangle( hDC, 118, 235, 138, 255 );
+		SelectObject( hDC, TahomaFont_h17w6 );
+		SetTextColor( hDC, CR_DPS_NORMAL );
+		char cbuf[2];
+		sprintf_s( cbuf, 2, "%d", GetDrivingIDP() );
+		TextOut( hDC, 124, 236, cbuf, 1 );
+		int kb = GetIDP()->GetActiveKeyboard();
+		if ((kb & 1) == 1)// CDR
+		{
+			SelectObject( hDC, RedPen );
+			Rectangle( hDC, 118, 249, 54, 251 );
+		}
+		if ((kb & 2) == 2)// PLT
+		{
+			SelectObject( hDC, YellowPen );
+			Rectangle( hDC, 138, 249, 202, 251 );
+		}
+
 		RestoreDC(hDC, Save);
 		DeleteDC(CompatibleDC);
 		//DeleteDC(BitmapDC);
@@ -785,6 +805,8 @@ namespace vc {
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
 				HSI( hDC, STS()->GetYaw() );
+				AEPFD_XTRK( hDC );// TODO only NOM, TAL and ATO
+				AEPFD_dINC( hDC );
 				break;
 			case 105:
 				AEPFD_Header_TransDAP( hDC, 105, adiatt );
@@ -981,15 +1003,16 @@ namespace vc {
 		YellowPen = CreatePen( PS_SOLID, 0, CR_YELLOW );
 		MagentaPen = CreatePen( PS_SOLID, 0, CR_MAGENTA );
 		TurquoisePen = CreatePen( PS_SOLID, 0, CR_TURQUOISE );
-		hOverbrightPen = CreatePen( PS_SOLID, 0, RGB( 255, 255, 0 ) );
-		hNormalPen = CreatePen( PS_SOLID, 0, RGB( 128, 255, 0 ) );
-		LOGBRUSH lb = {BS_SOLID, RGB( 128, 255, 0 ), 0};
+		hOverbrightPen = CreatePen( PS_SOLID, 0, CR_DPS_OVERBRIGHT );
+		hNormalPen = CreatePen( PS_SOLID, 0, CR_DPS_NORMAL );
+		LOGBRUSH lb = {BS_SOLID, CR_DPS_NORMAL, 0};
 		DWORD pstyle[2] = {2, 1};
 		hDashedNormalPen = ExtCreatePen( PS_COSMETIC | PS_USERSTYLE, 1, &lb, 2, pstyle );
 		MenuPen = CreatePen( PS_SOLID, 0, CR_MENU_COLOR );
 
 		TahomaFont_h10w4 = CreateFont( 10, 4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
 		TahomaFont_h7w3 = CreateFont( 7, 3, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
+		TahomaFont_h17w6 = CreateFont( 17, 6, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
 		return;
 	}
 
@@ -1021,6 +1044,7 @@ namespace vc {
 
 		DeleteObject( TahomaFont_h10w4 );
 		DeleteObject( TahomaFont_h7w3 );
+		DeleteObject( TahomaFont_h17w6 );
 		return;
 	}
 

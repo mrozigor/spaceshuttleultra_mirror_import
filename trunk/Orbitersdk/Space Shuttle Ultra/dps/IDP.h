@@ -169,6 +169,15 @@ namespace dps {
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
 
+		/**
+		 * Returns active keyboards:
+		 * 0 none
+		 * 1 CDR
+		 * 2 PLT
+		 * 3 CDR & PLT
+		 */
+		int GetActiveKeyboard( void ) const;
+
 		virtual bool OnPaint(vc::MDU* pMDU);
 
 		bool IsDisp( int code ) const;
