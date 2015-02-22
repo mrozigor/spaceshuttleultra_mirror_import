@@ -686,6 +686,8 @@ pActiveLatches(3, NULL)
   huds.ngroup       = GRP_VIRTUALHUD_VC;
   huds.size         = 0.176558;
 
+  scnVCMode = 0;
+  
   // propellant resources
   ph_oms          = NULL;
   ph_frcs		  = NULL;
@@ -3190,6 +3192,10 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		{
 			sscanf (line+13, "%d", &status);
 		}
+		else if (!_strnicmp (line, "VC_POS", 6))
+		{
+			sscanf (line+6, "%d", &scnVCMode);
+		}
 		else if (!_strnicmp (line, "MISSION", 7))
 		{
 			strncpy(pszBuffer, line+8, 255);
@@ -3356,6 +3362,7 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 
 	// custom parameters
 	oapiWriteScenario_int (scn, "CONFIGURATION", status);
+	oapiWriteScenario_int (scn, "VC_POS", VCMode);
 
 	/*if (status == 1)
 		oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
@@ -3737,6 +3744,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	{
 		if (firstStep) {
 			UpdateMassAndCoG(); // update visual before simulation starts
+
+			SetVCPosition(scnVCMode);
 
 			if (status <= STATE_STAGE1) {
 				// update SRB thrusters to match values from SRB vessel
@@ -4736,6 +4745,11 @@ bool Atlantis::clbkLoadGenericCockpit ()
 // Load virtual cockpit mode
 // --------------------------------------------------------------
 bool Atlantis::clbkLoadVC (int id)
+{
+	return SetVCPosition(id);
+}
+
+bool Atlantis::SetVCPosition(int id)
 {
   bool ok = false;
   bool bUpdateVC = false;

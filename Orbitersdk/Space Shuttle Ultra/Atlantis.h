@@ -366,6 +366,7 @@ public:
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
+	int scnVCMode; // VC view loaded from scenario
 	/**
 	 * Structural configuration
 	 * - 0 launch configuration
@@ -832,6 +833,7 @@ private:
 	 * and back.
 	 */
 	void ToggleVCMode();
+	bool SetVCPosition(int id);
 	
 	//RMS
 	bool SatStowed() const;
