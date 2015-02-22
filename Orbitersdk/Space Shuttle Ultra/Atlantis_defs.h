@@ -34,7 +34,7 @@ const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
 
 const VECTOR3 ODS_POS = _V(0.0, -1.1, 7);// Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
-const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.1, -0.242); // offset between ODS mesh position and docking port position
+const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.2680, -0.319862); // offset between ODS mesh position and docking port position
 
 // mesh offsets
 // Orbiter mesh is always at (0,0,0)
