@@ -44,10 +44,10 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 	slag2 = 0.0;
 	slag3 = 0.0;
 
-	COLOUR4 col_diff = {1,1,1,0};
-	COLOUR4 col_zero = {0,0,0,0};
+	COLOUR4 col_diff = {1.0,0.733,0.196,0};
+	COLOUR4 col_zero = {0.0,0.0,0.0,0.0};
 	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight = AddPointLight( _V( 0.484, 0.434, -25 ), 200, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient );
+	SRBLight = AddPointLight( _V( 0.484, 0.434, -25.8 ), 300, 1e-3, 0, 0.0025, col_diff, col_zero, col_ambient );
 	SRBLight->Activate( false );
 }
 
