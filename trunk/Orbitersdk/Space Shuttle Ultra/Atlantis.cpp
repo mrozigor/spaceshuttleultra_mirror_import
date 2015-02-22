@@ -962,23 +962,28 @@ pActiveLatches(3, NULL)
 	}
 
 	// light for engines during launch
-	COLOUR4 col_diff = {1,1,1,0};
-	COLOUR4 col_zero = {0,0,0,0};
-	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z -2.9348 ), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	//SSME light
+	COLOUR4 col_diff_SSME = {1.0,1.0,1.0,0};
+	COLOUR4 col_zero_SSME = {0,0,0,0};
+	COLOUR4 col_ambient_SSME = {0.5,0.5,0.5,0};
+	//SRB light
+    COLOUR4 col_diff_SRB = {1.0,0.733,0.196,0};
+	COLOUR4 col_zero_SRB = {0,0,0,0};
+	COLOUR4 col_ambient_SRB = {0.5,0.5,0.5,0};
+	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z -2.9348 ), 300, 5e-3, 0, 5e-2, col_diff_SSME, col_zero_SSME, col_ambient_SSME);
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
 	RCS_PSSpec.srcsize=0.1;//0.1
-	RCS_PSSpec.srcrate=3000;//800
-	RCS_PSSpec.v0=10;//100
+	RCS_PSSpec.srcrate=3000;//3000
+	RCS_PSSpec.v0=50;//10
 	RCS_PSSpec.srcspread=0;//0
-	RCS_PSSpec.lifetime=0.2;//0.25
-	RCS_PSSpec.growthrate=3.5;//10
-	RCS_PSSpec.atmslowdown=0.5;//0
+	RCS_PSSpec.lifetime=0.2;//0.2
+	RCS_PSSpec.growthrate=25;//3.5
+	RCS_PSSpec.atmslowdown=0.5;//0.5
 	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
 	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
 	RCS_PSSpec.lmin=0.1;//0.25
