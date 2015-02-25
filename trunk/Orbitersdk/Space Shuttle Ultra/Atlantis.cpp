@@ -1301,7 +1301,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
 
   // RCS (Reaction Control System)
-  CreateAttControls_RCS (_V(0,0,0));
+  CreateAttControls_RCS (orbiter_ofs);
   CreateDummyThrusters();
 
   discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
