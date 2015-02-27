@@ -108,7 +108,10 @@ namespace dps {
 		while(i < 120 && cScratchPadLine[i] != '\0') 
 			i++;
 		if(i>0) {
-			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || cScratchPadLine[i-1]==SSU_KEY_PRO) return true;
+			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || 
+				cScratchPadLine[i-1]==SSU_KEY_PRO || 
+				cScratchPadLine[i-1]==SSU_KEY_RESUME ||
+				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM) return true;
 		}
 		return false;
 	}
@@ -149,6 +152,8 @@ namespace dps {
 				break;
 			case SSU_KEY_SYSSUMM:
 				OnSysSummary();
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
 				break;
 			default:
 				AppendScratchPadLine(cKey);
@@ -490,6 +495,9 @@ namespace dps {
 					break;
 				case SSU_KEY_RESUME:
 					strcat_s( pszBuffer, "RESUME" );
+					break;
+				case SSU_KEY_SYSSUMM:
+					strcat_s( pszBuffer, "SYS SUMM" );
 					break;
 				default:
 					break;
