@@ -396,25 +396,75 @@ namespace vc {
 					}
 					else if (strcmp( label, "A/E" ) == 0)
 					{
-						TextOut( hDC, x, 21, "A/E", 3 );
-						TextOut( hDC, x, 30, "PFD", 3 );
+						if (display == 1)
+						{
+							SetTextColor (hDC, CR_WHITE );
+							TextOut( hDC, x, 21, "A/E", 3 );
+							TextOut( hDC, x, 30, "PFD", 3 );
+							SetTextColor (hDC, CR_MENU_COLOR );
+						}
+						else
+						{
+							TextOut( hDC, x, 21, "A/E", 3 );
+							TextOut( hDC, x, 30, "PFD", 3 );
+						}
 						menu = 1;
 					}
 					else if (strcmp( label, "ORBIT" ) == 0)
 					{
-						TextOut( hDC, x, 21, "ORBIT", 5 );
-						TextOut( hDC, x, 30, "PFD", 3 );
+						if (display == 2)
+						{
+							SetTextColor (hDC, CR_WHITE );
+							TextOut( hDC, x, 21, "ORBIT", 5 );
+							TextOut( hDC, x, 30, "PFD", 3 );
+							SetTextColor (hDC, CR_MENU_COLOR );
+						}
+						else
+						{
+							TextOut( hDC, x, 21, "ORBIT", 5 );
+							TextOut( hDC, x, 30, "PFD", 3 );
+						}
 					}
 					else if (strcmp( label, "OMS" ) == 0)
 					{
-						TextOut( hDC, x, 21, "OMS/", 4 );
-						TextOut( hDC, x, 30, "MPS", 3 );
+						if (display == 3)
+						{
+							SetTextColor (hDC, CR_WHITE );
+							TextOut( hDC, x, 21, "OMS/", 4 );
+							TextOut( hDC, x, 30, "MPS", 3 );
+							SetTextColor (hDC, CR_MENU_COLOR );
+						}
+						else
+						{
+							TextOut( hDC, x, 21, "OMS/", 4 );
+							TextOut( hDC, x, 30, "MPS", 3 );
+						}
 						menu = 2;
 					}
 					else if (strcmp( label, "HYD" ) == 0)
 					{
-						TextOut( hDC, x, 21, "HYD/", 4 );
-						TextOut( hDC, x, 30, "APU", 3 );
+						if (display == 4)
+						{
+							SetTextColor (hDC, CR_WHITE );
+							TextOut( hDC, x, 21, "HYD/", 4 );
+							TextOut( hDC, x, 30, "APU", 3 );
+							SetTextColor (hDC, CR_MENU_COLOR );
+						}
+						else
+						{
+							TextOut( hDC, x, 21, "HYD/", 4 );
+							TextOut( hDC, x, 30, "APU", 3 );
+						}
+					}
+					else if (strcmp( label, "SPI" ) == 0)
+					{
+						if (display == 5)
+						{
+							SetTextColor (hDC, CR_WHITE );
+							TextOut( hDC, x, 25, "SPI", 3 );
+							SetTextColor (hDC, CR_MENU_COLOR );
+						}
+						else TextOut( hDC, x, 25, "SPI", 3 );
 					}
 					else
 					{
