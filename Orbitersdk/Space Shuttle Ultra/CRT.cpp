@@ -151,6 +151,8 @@ void CRT::Update (HDC hDC)
 {
 	if(UpdateStatus) {
 		RecallStatus();
+		vc::MDU* mdu = sts->GetMDU( MDUID );
+		if (mdu) mdu->Set_display( display );
 		InvalidateButtons();
 		UpdateStatus=false;
 	}
@@ -167,39 +169,6 @@ void CRT::Update (HDC hDC)
 			return;
 	}
 
-	//switch (mode)
-	//{
-	//	case 0:// "CRT display"
-	//		if (MDUID >= 0)
-	//		{
-	//			vc::MDU* pMDU=sts->GetMDU(MDUID);
-	//			pMDU->Paint(hDC);
-	//		}
-	//		else
-	//		{
-	//			oapiWriteLog("CRT MFD not connected to MDU (m0)");
-	//		}
-	//		break;
-	//	case 1:// FLT INST
-	//		if (display == 1)
-	//		{
-	//			vc::MDU* mdu = sts->GetMDU( MDUID );
-	//			if (mdu) mdu->AEPFD( hDC );// A/E PFD
-	//			else oapiWriteLog( "CRT MFD not connected to MDU (m1d1)" );
-	//		}
-	//		else if (display == 2)
-	//		{
-	//			vc::MDU* mdu = sts->GetMDU( MDUID );
-	//			if (mdu) mdu->ORBITPFD( hDC );// ORBIT PFD
-	//			else oapiWriteLog( "CRT MFD not connected to MDU (m1d2)" );
-	//		}
-	//		break;
-	//	case 2:// SUBSYS STATUS
-	//		if (display == 1) OMSMPS( hDC );
-	//		else if (display == 2) APUHYD( hDC );
-	//		else if (display == 3) SPI( hDC );
-	//		break;
-	//}
 	switch (display)
 	{
 		case 0:// "CRT display"
@@ -820,7 +789,7 @@ void CRT::SPI(HDC hDC)
 	MoveToEx(hDC,5,240,NULL);
 	LineTo(hDC,35,240);
 	SetTextColor(hDC,GREEN);
-	TextOut(hDC,40,233,"TE DW",5);
+	TextOut(hDC,40,233,"TE DN",5);
 	MoveToEx(hDC,80,240,NULL);
 	LineTo(hDC,115,240);
 	MoveToEx(hDC,115,240,NULL);
@@ -1380,6 +1349,7 @@ int CRT::ButtonMenu (const MFDBUTTONMENU **menu) const
 
 bool CRT::ConsumeKeyBuffered (DWORD key)
 {
+	vc::MDU* mdu;
 	switch (mode)
 	{
 		case 0:// MAIN MENU
@@ -1396,6 +1366,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 				case OAPI_KEY_3:
 					mode = 3;
 					display = 0;
+					vc::MDU* mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
 					InvalidateButtons();
 					return true;
@@ -1410,11 +1382,17 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 					return true;
 				case OAPI_KEY_1:
 					display = 1;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
+					InvalidateButtons();
 					return true;
 				case OAPI_KEY_2:
 					display = 2;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
+					InvalidateButtons();
 					return true;
 			}
 			break;
@@ -1427,15 +1405,24 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 					return true;
 				case OAPI_KEY_1:
 					display = 3;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
+					InvalidateButtons();
 					return true;
 				case OAPI_KEY_2:
 					display = 4;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
+					InvalidateButtons();
 					return true;
 				case OAPI_KEY_3:
 					display = 5;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_display( display );
 					InvalidateDisplay();
+					InvalidateButtons();
 					return true;
 			}
 			break;

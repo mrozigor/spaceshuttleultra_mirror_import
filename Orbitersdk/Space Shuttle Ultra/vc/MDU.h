@@ -164,6 +164,8 @@ namespace vc {
 		double fBrightness;
 		bool bPower;
 		bool bIsConnectedToCRTMFD;
+
+		int display;
 		
 		std::vector<dps::DEU_LINE> lines;
 		std::vector<dps::DEU_ELLIPSE> ellipses;
@@ -489,6 +491,11 @@ namespace vc {
 		 */
 		virtual void AEPFD( HDC hDC );
 		virtual void ORBITPFD( HDC hDC );
+
+		virtual void Set_display( int display )
+		{
+			this->display = display;
+		}
 	};
 
 };
