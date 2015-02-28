@@ -149,14 +149,6 @@ CRT::~CRT ()
 
 void CRT::Update (HDC hDC)
 {
-	if(UpdateStatus) {
-		RecallStatus();
-		vc::MDU* mdu = sts->GetMDU( MDUID );
-		if (mdu) mdu->Set_display( display );
-		InvalidateButtons();
-		UpdateStatus=false;
-	}
-
 	if(mode==10001) {
 			int n;
 			char cbuf[255];
@@ -167,6 +159,14 @@ void CRT::Update (HDC hDC)
 			TextOut(hDC, 0, 15, cbuf, strlen(cbuf));
 			TextOut(hDC, 0, 25, "ERROR: Vessel not from Atlantis class", 37);
 			return;
+	}
+
+	if(UpdateStatus) {
+		RecallStatus();
+		vc::MDU* mdu = sts->GetMDU( MDUID );
+		if (mdu) mdu->Set_display( display );
+		InvalidateButtons();
+		UpdateStatus=false;
 	}
 
 	switch (display)
