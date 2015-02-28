@@ -24,6 +24,8 @@ DLLCLBK void ovcSetState( VESSEL *Vessel, const VESSELSTATUS *Status )
 SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL2( hVessel )
 {
 	enginesENA = false;
+	AdapterOffset = 0;
+	AdapterMass = 0;
 	return;
 }
 
@@ -37,44 +39,51 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 	char pszBuffer[255];
 	bool bFoundData = oapiReadItem_string( cfg, "Type", pszBuffer );
 
-	if (!bFoundData || !_strnicmp( pszBuffer, "GPrime", 6 ))
+	if ((bFoundData == true) && (_strnicmp( pszBuffer, "G", 2 ) == 0))
 	{
-		SetEmptyMass( GPRIME_EMPTY_MASS );
-		phTank = CreatePropellantResource( GPRIME_RL10_PROPELLANT_MASS );
-		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
-		SetSize( 25 );
-		SetCrossSections( _V( 26.07, 25.9, 14.52 ) );
-		SetPMI( _V( 6.74, 6.75, 2.20 ) );
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.38 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CENTAURPAYLOAD" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.5 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
-	}
-	else if (!_strnicmp( pszBuffer, "G", 1 ))
-	{
+		// set G
 		SetEmptyMass( G_EMPTY_MASS );
 		phTank = CreatePropellantResource( G_RL10_PROPELLANT_MASS );
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
 		SetSize( 20 );
 		SetCrossSections( _V( 19.09, 20.21, 14.23 ) );
 		SetPMI( _V( 4.55, 5.04, 2.68 ) );
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 1.95 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CENTAURPAYLOAD" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.659 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 1.95 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -2.659 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
+	}
+	else// pszBuffer = "GPrime"
+	{
+		// set GPrime
+		// default
+		SetEmptyMass( GPRIME_EMPTY_MASS );
+		phTank = CreatePropellantResource( GPRIME_RL10_PROPELLANT_MASS );
+		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
+		SetSize( 25 );
+		SetCrossSections( _V( 26.07, 25.9, 14.52 ) );
+		SetPMI( _V( 6.74, 6.75, 2.20 ) );
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.38 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -3.9 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CGP" );
 	}
 
 	mesh_idx = AddMesh( hMesh );
-
+	
 	phACS = CreatePropellantResource( ACS_PROPELLANT_MASS );
-	thACS[0] = CreateThruster( ACS_1_POS, ACS_1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[1] = CreateThruster( ACS_2_POS, ACS_2_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[2] = CreateThruster( ACS_3_POS, ACS_3_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[3] = CreateThruster( ACS_4_POS, ACS_4_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[4] = CreateThruster( ACS_5_POS, ACS_5_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[5] = CreateThruster( ACS_6_POS, ACS_6_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[6] = CreateThruster( ACS_7_POS, ACS_7_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[7] = CreateThruster( ACS_8_POS, ACS_8_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[8] = CreateThruster( ACS_9_POS, ACS_9_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[9] = CreateThruster( ACS_10_POS, ACS_10_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[10] = CreateThruster( ACS_11_POS, ACS_11_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
-	thACS[11] = CreateThruster( ACS_12_POS, ACS_12_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	// quad I
+	thACS[0] = CreateThruster( ACS_P1_POS, ACS_P1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[1] = CreateThruster( ACS_Y1_POS, ACS_Y1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	// quad II
+	thACS[2] = CreateThruster( ACS_Y2_POS, ACS_Y2_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[3] = CreateThruster( ACS_S2A_POS, ACS_S2A_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[4] = CreateThruster( ACS_S2B_POS, ACS_S2B_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[5] = CreateThruster( ACS_P2_POS, ACS_P2_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	// quad III
+	thACS[6] = CreateThruster( ACS_P3_POS, ACS_P3_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[7] = CreateThruster( ACS_Y3_POS, ACS_Y3_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	// quad IV
+	thACS[8] = CreateThruster( ACS_Y4_POS, ACS_Y4_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[9] = CreateThruster( ACS_S4A_POS, ACS_S4A_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[10] = CreateThruster( ACS_S4B_POS, ACS_S4B_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
+	thACS[11] = CreateThruster( ACS_P4_POS, ACS_P4_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
 
 	PARTICLESTREAMSPEC psACS = {
 		0,
@@ -82,7 +91,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		25,
 		25,
 		0,
-		0.1,
+		0.05,
 		3,
 		10,
 		PARTICLESTREAMSPEC::DIFFUSE,
@@ -105,8 +114,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 	AddExhaustStream( thACS[10], &psACS );
 	AddExhaustStream( thACS[11], &psACS );
 
-	thRL10[0] = CreateThruster( RL10_L_POS, RL10_L_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
-	thRL10[1] = CreateThruster( RL10_R_POS, RL10_R_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
+	thRL10[0] = CreateThruster( RL10_C1_POS, RL10_C1_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
+	thRL10[1] = CreateThruster( RL10_C2_POS, RL10_C2_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
 
 	PARTICLESTREAMSPEC psRL10 = {
 		0,
@@ -114,7 +123,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		25,
 		50,
 		0,
-		0.15,
+		0.12,
 		20,
 		5,
 		PARTICLESTREAMSPEC::EMISSIVE,
@@ -140,28 +149,32 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 		CreateThrusterGroup( thRL10, 2, THGROUP_MAIN );
 
 		THRUSTER_HANDLE thTEMP[4];
-		thTEMP[0] = thACS[1];
-		thTEMP[1] = thACS[2];
+		thTEMP[0] = thACS[0];// P1
+		thTEMP[1] = thACS[11];// P4
 		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_PITCHUP );
-		thTEMP[0] = thACS[7];
-		thTEMP[1] = thACS[8];
+		thTEMP[0] = thACS[5];// P2
+		thTEMP[1] = thACS[6];// P3
 		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_PITCHDOWN );
-		thTEMP[0] = thACS[0];
-		thTEMP[1] = thACS[11];
+		thTEMP[0] = thACS[7];// Y3
+		thTEMP[1] = thACS[8];// Y4
 		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_YAWLEFT );
-		thTEMP[0] = thACS[5];
-		thTEMP[1] = thACS[6];
+		thTEMP[0] = thACS[1];// Y1
+		thTEMP[1] = thACS[2];// Y2
 		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_YAWRIGHT );
-		thTEMP[0] = thACS[1];
-		thTEMP[1] = thACS[7];
-		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_BANKLEFT );
-		thTEMP[0] = thACS[2];
-		thTEMP[1] = thACS[8];
-		CreateThrusterGroup( thTEMP, 2, THGROUP_ATT_BANKRIGHT );
-		thTEMP[0] = thACS[3];
-		thTEMP[1] = thACS[4];
-		thTEMP[2] = thACS[9];
-		thTEMP[3] = thACS[10];
+		thTEMP[0] = thACS[1];// Y1
+		thTEMP[1] = thACS[5];// P2
+		thTEMP[2] = thACS[7];// Y3
+		thTEMP[3] = thACS[11];// P4
+		CreateThrusterGroup( thTEMP, 4, THGROUP_ATT_BANKLEFT );
+		thTEMP[0] = thACS[0];// P1
+		thTEMP[1] = thACS[2];// Y2
+		thTEMP[2] = thACS[6];// P3
+		thTEMP[3] = thACS[8];// Y4
+		CreateThrusterGroup( thTEMP, 4, THGROUP_ATT_BANKRIGHT );
+		thTEMP[0] = thACS[3];// S2A
+		thTEMP[1] = thACS[4];// S2B
+		thTEMP[2] = thACS[9];// S4A
+		thTEMP[3] = thACS[10];// S4B
 		CreateThrusterGroup( thTEMP, 4, THGROUP_ATT_FORWARD );
 
 		enginesENA = true;
@@ -169,15 +182,76 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 	return;
 }
 
-int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* keystate )
+int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 {
 	if (!down) return 0;
 
-	if ((key == OAPI_KEY_J) && (GetAttachmentStatus( ahToCISS ) == NULL))
+	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == false) && (KEYMOD_ALT( kstate ) == false))// no key modifiers
 	{
-		// payload sep only after deployment
-		DetachChild( ahToPayload, 0.3 );
-		return 1;
+		if (key == OAPI_KEY_J)
+		{
+			if (GetAttachmentStatus( ahToCISS ) == NULL)// payload sep only after deployment
+			{
+				DetachChild( ahToPayload, 0.3 );
+				return 1;
+			}
+		}
 	}
 	return 0;
+}
+
+void SSU_Centaur::clbkSaveState( FILEHANDLE scn )
+{
+	VESSEL2::clbkSaveState( scn );
+	oapiWriteScenario_string( scn, "ADAPTER_MESH", (char*)AdapterMeshName.c_str() );
+	oapiWriteScenario_float( scn, "ADAPTER_OFFSET", AdapterOffset );
+	oapiWriteScenario_float( scn, "ADAPTER_MASS", AdapterMass );
+	return;
+}
+
+void SSU_Centaur::clbkLoadStateEx( FILEHANDLE scn, void *status )
+{
+	char* line;
+
+	while (oapiReadScenario_nextline( scn, line ))
+	{
+		if (!_strnicmp( line, "ADAPTER_MESH", 12 ))
+		{
+			AdapterMeshName = line + 13;
+		}
+		else if (!_strnicmp( line, "ADAPTER_OFFSET", 14 ))
+		{
+			sscanf( line + 14, "%lf", &AdapterOffset );
+		}
+		else if (!_strnicmp( line, "ADAPTER_MASS", 12 ))
+		{
+			sscanf( line + 12, "%lf", &AdapterMass );
+		}
+		else ParseScenarioLineEx( line, status );
+	}
+
+	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// small sanity checks
+	{
+		VECTOR3 pos;
+		VECTOR3 dir;
+		VECTOR3 rot;
+		GetAttachmentParams( ahToPayload, pos, dir, rot );
+		pos.z += AdapterOffset;
+
+		// add mesh
+		hAdapterMesh = oapiLoadMeshGlobal( AdapterMeshName.c_str() );
+		mesh_Adapter_idx = AddMesh( hAdapterMesh, &pos );
+		SetMeshVisibilityMode( mesh_Adapter_idx, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+		
+		// correct spacecraft attachment
+		SetAttachmentParams( ahToPayload, pos, dir, rot );
+
+		// correct mass
+		SetEmptyMass( GetEmptyMass() + AdapterMass );
+
+		char buffer[128];
+		sprintf_s( buffer, 128, "(Shuttle Centaur) added payload adapter: mesh:%s|height:%lf|mass:%lf", AdapterMeshName.c_str(), AdapterOffset, AdapterMass );
+		oapiWriteLog( buffer );
+	}
+	return;
 }

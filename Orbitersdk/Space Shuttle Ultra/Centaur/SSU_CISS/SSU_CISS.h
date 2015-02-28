@@ -44,7 +44,7 @@ class SSU_CISS: public VESSEL2
 		~SSU_CISS( void );
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
-		int clbkConsumeBufferedKey( DWORD key, bool down, char* keystate );
+		int clbkConsumeBufferedKey( DWORD key, bool down, char* kstate );
 
 		void clbkPostStep(double simT, double simDT, double mjd);
 
