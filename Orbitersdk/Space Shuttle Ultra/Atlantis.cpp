@@ -969,7 +969,7 @@ pActiveLatches(3, NULL)
 	COLOUR4 col_zero_SSME = {0,0,0,0};
 	COLOUR4 col_ambient_SSME = {0.5,0.5,0.5,0};
 	//SRB light
-    COLOUR4 col_diff_SRB = {1.0,0.733,0.196,0};
+    COLOUR4 col_diff_SRB = {1.0,0.733f,0.196f,0};
 	COLOUR4 col_zero_SRB = {0,0,0,0};
 	COLOUR4 col_ambient_SRB = {0.5,0.5,0.5,0};
 	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
