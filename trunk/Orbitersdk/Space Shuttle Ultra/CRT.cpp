@@ -100,8 +100,10 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
 
 
-	if(!strcmp(pV->GetClassName(), "Atlantis") || 
-		!_stricmp(pV->GetClassName(), STD_CLASS_NAME)) {
+	/*if(!strcmp(pV->GetClassName(), "Atlantis") || 
+		!_stricmp(pV->GetClassName(), STD_CLASS_NAME)) */
+	if(!_stricmp(pV->GetClassName(), STD_CLASS_NAME)) 
+	{
 
 		sts=static_cast<Atlantis*>(pV);
 
@@ -157,7 +159,9 @@ void CRT::Update (HDC hDC)
 			n=strlen(cbuf);
 			sprintf_s(cbuf, 255, "%i", n);
 			TextOut(hDC, 0, 15, cbuf, strlen(cbuf));
-			TextOut(hDC, 0, 25, "ERROR: Vessel not from Atlantis class", 37);
+			//TextOut(hDC, 0, 25, "ERROR: Vessel not from Atlantis class", 37);
+			TextOut(hDC, 0, 25, "ERROR: Vessel not from", 22);
+			TextOut(hDC, 120, 35, "SpaceShuttleUltra class", 23);
 			return;
 	}
 
