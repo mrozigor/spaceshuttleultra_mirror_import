@@ -32,38 +32,38 @@
 const static char* G_MESHNAME = "SSU\\CentaurG";
 const static char* GPRIME_MESHNAME = "SSU\\CentaurG_Prime";
 
-const VECTOR3 RL10_L_POS = _V( -0.785, 0, -4.5 );
-const VECTOR3 RL10_L_DIR = _V( 0, 0, 1 );
-const VECTOR3 RL10_R_POS = _V( 0.785, 0, -4.5 );
-const VECTOR3 RL10_R_DIR = _V( 0, 0, 1 );
-
-const VECTOR3 ACS_1_POS = _V( -1.06112, 0.751872, -2.92064 );
-const VECTOR3 ACS_1_DIR = _V( -0.840362, -0.0981861, -0.533059 );
-const VECTOR3 ACS_2_POS = _V( -0.920389, 0.894691, -2.91137 );
-const VECTOR3 ACS_2_DIR = _V( 0.144188, 0.882767, -0.447137 );
-
-const VECTOR3 ACS_3_POS = _V( 0.993467, 0.931987, -2.9481 );
-const VECTOR3 ACS_3_DIR = _V(-0.00410334, 0.840309, -0.542092);
-const VECTOR3 ACS_4_POS = _V( 1.01708, 0.784585, -2.9354 );
-const VECTOR3 ACS_4_DIR = _V(0.280308, 0.485194, 0.828259);
-const VECTOR3 ACS_5_POS = _V(0.280308, 0.485194, 0.828259);
-const VECTOR3 ACS_5_DIR = _V( 0.280308, 0.485194, 0.828259 );
-const VECTOR3 ACS_6_POS = _V( 1.17345, 0.707999, -2.89724 );
-const VECTOR3 ACS_6_DIR = _V(0.947194, -0.144266, -0.286375);
-
-const VECTOR3 ACS_7_POS = _V( 1.05051, 0.921445, -2.9037 );
-const VECTOR3 ACS_7_DIR = _V(0.946922, 0.144193, -0.287311);
-const VECTOR3 ACS_8_POS = _V( 0.950936, -1.03279, -2.933 );
-const VECTOR3 ACS_8_DIR = _V(-0.00410506, -0.840504, -0.54179);
-
-const VECTOR3 ACS_9_POS = _V( -0.780553, -1.08102, -2.92859 );
-const VECTOR3 ACS_9_DIR = _V(0.098237, -0.840524, -0.532794);
-const VECTOR3 ACS_10_POS = _V( -0.808875, -0.955035, -2.92294 );
-const VECTOR3 ACS_10_DIR = _V(-0.41986, -0.485129, 0.767051);
-const VECTOR3 ACS_11_POS = _V(0.857318, -0.906415, -2.9187 );
-const VECTOR3 ACS_11_DIR = _V(-0.41986, -0.485129, 0.767051);
-const VECTOR3 ACS_12_POS = _V(-1.00633, -0.88639, -2.91207);
-const VECTOR3 ACS_12_DIR = _V(-0.882732, 0.144208, -0.447201);
+const VECTOR3 RL10_C1_POS = _V( 0, 0.67, -5.9 );
+const VECTOR3 RL10_C1_DIR = _V( 0, 0, 1 );
+const VECTOR3 RL10_C2_POS = _V( 0, -0.67, -5.9 );
+const VECTOR3 RL10_C2_DIR = _V( 0, 0, 1 );
+// quad I
+const VECTOR3 ACS_P1_POS = _V( 0.9524, 1.1165, -4.1463 );
+const VECTOR3 ACS_P1_DIR = _V( 0, -1, 0 );
+const VECTOR3 ACS_Y1_POS = _V( 1.0825, 0.9864, -4.1463 );
+const VECTOR3 ACS_Y1_DIR = _V( -1, 0, 0 );
+// quad II
+const VECTOR3 ACS_Y2_POS = _V( 1.0825, -0.9864, -4.1463 );
+const VECTOR3 ACS_Y2_DIR = _V( -1, 0, 0 );
+const VECTOR3 ACS_S2A_POS = _V( 1.0038, -1.0122, -4.2222 );
+const VECTOR3 ACS_S2A_DIR = _V( 0, 0, 1 );
+const VECTOR3 ACS_S2B_POS = _V( 0.9732, -1.0422, -4.2222 );
+const VECTOR3 ACS_S2B_DIR = _V( 0, 0, 1 );
+const VECTOR3 ACS_P2_POS = _V( 0.9524, -1.1165, -4.1463 );
+const VECTOR3 ACS_P2_DIR = _V( 0, 1, 0 );
+// quad III
+const VECTOR3 ACS_P3_POS = _V( -0.9524, -1.1165, -4.1463 );
+const VECTOR3 ACS_P3_DIR = _V( 0, 1, 0 );
+const VECTOR3 ACS_Y3_POS = _V( -1.0825, -0.9864, -4.1463 );
+const VECTOR3 ACS_Y3_DIR = _V( 1, 0, 0 );
+// quad IV
+const VECTOR3 ACS_Y4_POS = _V( -1.0825, 0.9864, -4.1463 );
+const VECTOR3 ACS_Y4_DIR = _V( 1, 0, 0 );
+const VECTOR3 ACS_S4A_POS = _V( -1.0038, 1.0122, -4.2222 );
+const VECTOR3 ACS_S4A_DIR = _V( 0, 0, 1 );
+const VECTOR3 ACS_S4B_POS = _V( -0.9732, 1.0422, -4.2222 );
+const VECTOR3 ACS_S4B_DIR = _V( 0, 0, 1 );
+const VECTOR3 ACS_P4_POS = _V( -0.9524, 1.1165, -4.1463 );
+const VECTOR3 ACS_P4_DIR = _V( 0, -1, 0 );
 
 const double G_EMPTY_MASS = 2559.15;// Kg
 const double G_RL10_PROPELLANT_MASS = 13178.25;// Kg
@@ -86,10 +86,19 @@ class SSU_Centaur: public VESSEL2
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
 		void clbkPreStep( double simt, double simdt, double mjd );
-		int clbkConsumeBufferedKey( DWORD key, bool down, char* keystate );
+		int clbkConsumeBufferedKey( DWORD key, bool down, char* kstate );
+		void clbkSaveState( FILEHANDLE scn );
+		void clbkLoadStateEx( FILEHANDLE scn, void *status );
 	private:
 		MESHHANDLE hMesh;
 		UINT mesh_idx;
+
+		std::string AdapterMeshName;
+		double AdapterOffset;// m
+		double AdapterMass;// Kg
+		MESHHANDLE hAdapterMesh;
+		UINT mesh_Adapter_idx;
+
 		ATTACHMENTHANDLE ahToPayload;
 		ATTACHMENTHANDLE ahToCISS;
 		PROPELLANT_HANDLE phTank;
