@@ -32,37 +32,51 @@
 const static char* G_MESHNAME = "SSU\\CentaurG";
 const static char* GPRIME_MESHNAME = "SSU\\CentaurG_Prime";
 
-const VECTOR3 RL10_C1_POS = _V( 0, 0.67, -5.9 );
+const VECTOR3 RL10_C1_POS_G = _V( 0, 0.67, -2.3156 );
+const VECTOR3 RL10_C1_POS_GPRIME = _V( 0, 0.67, -5.9 );
 const VECTOR3 RL10_C1_DIR = _V( 0, 0, 1 );
-const VECTOR3 RL10_C2_POS = _V( 0, -0.67, -5.9 );
+const VECTOR3 RL10_C2_POS_G = _V( 0, -0.67, -2.3156 );
+const VECTOR3 RL10_C2_POS_GPRIME = _V( 0, -0.67, -5.9 );
 const VECTOR3 RL10_C2_DIR = _V( 0, 0, 1 );
 // quad I
-const VECTOR3 ACS_P1_POS = _V( 0.9524, 1.1165, -4.1463 );
+const VECTOR3 ACS_P1_POS_G = _V( 0.9524, 1.1165, -0.5619 );
+const VECTOR3 ACS_P1_POS_GPRIME = _V( 0.9524, 1.1165, -4.1463 );
 const VECTOR3 ACS_P1_DIR = _V( 0, -1, 0 );
-const VECTOR3 ACS_Y1_POS = _V( 1.0825, 0.9864, -4.1463 );
+const VECTOR3 ACS_Y1_POS_G = _V( 1.0825, 0.9864, -0.5619 );
+const VECTOR3 ACS_Y1_POS_GPRIME = _V( 1.0825, 0.9864, -4.1463 );
 const VECTOR3 ACS_Y1_DIR = _V( -1, 0, 0 );
 // quad II
-const VECTOR3 ACS_Y2_POS = _V( 1.0825, -0.9864, -4.1463 );
+const VECTOR3 ACS_Y2_POS_G = _V( 1.0825, -0.9864, -0.5619 );
+const VECTOR3 ACS_Y2_POS_GPRIME = _V( 1.0825, -0.9864, -4.1463 );
 const VECTOR3 ACS_Y2_DIR = _V( -1, 0, 0 );
-const VECTOR3 ACS_S2A_POS = _V( 1.0038, -1.0122, -4.2222 );
+const VECTOR3 ACS_S2A_POS_G = _V( 1.0038, -1.0122, -0.6378 );
+const VECTOR3 ACS_S2A_POS_GPRIME = _V( 1.0038, -1.0122, -4.2222 );
 const VECTOR3 ACS_S2A_DIR = _V( 0, 0, 1 );
-const VECTOR3 ACS_S2B_POS = _V( 0.9732, -1.0422, -4.2222 );
+const VECTOR3 ACS_S2B_POS_G = _V( 0.9732, -1.0422, -0.6378 );
+const VECTOR3 ACS_S2B_POS_GPRIME = _V( 0.9732, -1.0422, -4.2222 );
 const VECTOR3 ACS_S2B_DIR = _V( 0, 0, 1 );
-const VECTOR3 ACS_P2_POS = _V( 0.9524, -1.1165, -4.1463 );
+const VECTOR3 ACS_P2_POS_G = _V( 0.9524, -1.1165, -0.5619 );
+const VECTOR3 ACS_P2_POS_GPRIME = _V( 0.9524, -1.1165, -4.1463 );
 const VECTOR3 ACS_P2_DIR = _V( 0, 1, 0 );
 // quad III
-const VECTOR3 ACS_P3_POS = _V( -0.9524, -1.1165, -4.1463 );
+const VECTOR3 ACS_P3_POS_G = _V( -0.9524, -1.1165, -0.5619 );
+const VECTOR3 ACS_P3_POS_GPRIME = _V( -0.9524, -1.1165, -4.1463 );
 const VECTOR3 ACS_P3_DIR = _V( 0, 1, 0 );
-const VECTOR3 ACS_Y3_POS = _V( -1.0825, -0.9864, -4.1463 );
+const VECTOR3 ACS_Y3_POS_G = _V( -1.0825, -0.9864, -0.5619 );
+const VECTOR3 ACS_Y3_POS_GPRIME = _V( -1.0825, -0.9864, -4.1463 );
 const VECTOR3 ACS_Y3_DIR = _V( 1, 0, 0 );
 // quad IV
-const VECTOR3 ACS_Y4_POS = _V( -1.0825, 0.9864, -4.1463 );
+const VECTOR3 ACS_Y4_POS_G = _V( -1.0825, 0.9864, -0.5619 );
+const VECTOR3 ACS_Y4_POS_GPRIME = _V( -1.0825, 0.9864, -4.1463 );
 const VECTOR3 ACS_Y4_DIR = _V( 1, 0, 0 );
-const VECTOR3 ACS_S4A_POS = _V( -1.0038, 1.0122, -4.2222 );
+const VECTOR3 ACS_S4A_POS_G = _V( -1.0038, 1.0122, -0.6378 );
+const VECTOR3 ACS_S4A_POS_GPRIME = _V( -1.0038, 1.0122, -4.2222 );
 const VECTOR3 ACS_S4A_DIR = _V( 0, 0, 1 );
-const VECTOR3 ACS_S4B_POS = _V( -0.9732, 1.0422, -4.2222 );
+const VECTOR3 ACS_S4B_POS_G = _V( -0.9732, 1.0422, -0.6378 );
+const VECTOR3 ACS_S4B_POS_GPRIME = _V( -0.9732, 1.0422, -4.2222 );
 const VECTOR3 ACS_S4B_DIR = _V( 0, 0, 1 );
-const VECTOR3 ACS_P4_POS = _V( -0.9524, 1.1165, -4.1463 );
+const VECTOR3 ACS_P4_POS_G = _V( -0.9524, 1.1165, -0.5619 );
+const VECTOR3 ACS_P4_POS_GPRIME = _V( -0.9524, 1.1165, -4.1463 );
 const VECTOR3 ACS_P4_DIR = _V( 0, -1, 0 );
 
 const double G_EMPTY_MASS = 2559.15;// Kg
@@ -76,6 +90,9 @@ const double ACS_THRUST_VAC = 26.64;// N
 const double ACS_ISP_VAC = 324 * G;// m/s
 const double GHe_MASS = 2;// Kg
 
+const double ACS_ENA_DELAY = 300;// s
+const double RL10_ENA_DELAY = 300;//2700;// s
+// also using a delay of 5 minutes for the RL-10s as currently there's not ignition sequence, etc...
 
 
 class SSU_Centaur: public VESSEL2
@@ -106,7 +123,11 @@ class SSU_Centaur: public VESSEL2
 		THRUSTER_HANDLE thRL10[2];
 		THRUSTER_HANDLE thACS[12];
 
-		bool enginesENA;
+		bool separated;
+		double timer_ACS;
+		bool ENAtimer_ACS;
+		double timer_RL10;
+		bool ENAtimer_RL10;
 };
 
 #endif// __SSUSC_H
