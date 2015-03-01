@@ -72,8 +72,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
 		SetSize( 20 );
-		SetCrossSections( _V( 19.09, 20.21, 14.23 ) );
-		SetPMI( _V( 4.55, 5.04, 2.68 ) );
+		SetCrossSections( _V( 19.49, 18.88, 15.71 ) );
+		SetPMI( _V( 4.32, 4.35, 2.69 ) );
 
 		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.8 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
 		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
@@ -108,8 +108,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 
 		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
 		SetSize( 25 );
-		SetCrossSections( _V( 26.07, 25.9, 14.52 ) );
-		SetPMI( _V( 6.74, 6.75, 2.20 ) );
+		SetCrossSections( _V( 30.84, 30.86, 15.74 ) );
+		SetPMI( _V( 5.70, 5.66, 2.66 ) );
 
 		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.38 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
 		ahToCISS = CreateAttachment( true, _V( 0, 0, -3.9 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CGP" );
