@@ -4,6 +4,7 @@
 #include "SSME_Operations.h"
 #include "AscentGuidance.h"
 #include "AerojetDAP.h"
+#include "OMSBurnSoftware.h"
 
 
 namespace dps {
@@ -36,6 +37,7 @@ namespace dps {
 		pSSME_Operations =  static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
 		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
 		return;
 	}
 
@@ -611,6 +613,11 @@ namespace dps {
 		return pAerojetDAP->GetAttitudeErrors();
 	}
 	
+	VECTOR3 IDP::GetAttitudeCommandErrors( void ) const
+	{
+		return pOMSBurnSoftware->GetAttitudeCommandErrors();
+	}
+
 	bool IDP::GetAutoPitchState( void ) const
 	{
 		return pAerojetDAP->GetAutoPitchState();

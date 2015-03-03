@@ -42,6 +42,7 @@ namespace dps {
 	class SSME_Operations;
 	class AscentGuidance;
 	class AerojetDAP;
+	class OMSBurnSoftware;
 
 	const char DEUATT_NORMAL = 0;
 	const char DEUATT_OVERBRIGHT = 1;
@@ -110,6 +111,7 @@ namespace dps {
 		SSME_Operations* pSSME_Operations;
 		AscentGuidance* pAscentGuidance;
 		AerojetDAP* pAerojetDAP;
+		OMSBurnSoftware* pOMSBurnSoftware;
 
 		
 		void AppendScratchPadLine(char cKey);
@@ -189,6 +191,7 @@ namespace dps {
 		bool GetAutoThrottleState( void ) const;
 		VECTOR3 GetAttitudeErrors_AscentGuidance( void ) const;
 		VECTOR3 GetAttitudeErrors_AerojetDAP( void ) const;
+		VECTOR3 GetAttitudeCommandErrors( void ) const;
 		bool GetAutoPitchState( void ) const;
 		bool GetAutoRollYawState( void ) const;
 		bool GetAutoSpeedbrakeState( void ) const;
