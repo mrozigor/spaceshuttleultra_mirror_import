@@ -482,11 +482,25 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	}
 	else pMDU->mvprint(6, 23, "22/TIMER 23");
 
-	pMDU->mvprint(20, 2, "BURN ATT");
-	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
-	else pMDU->mvprint(20, 6, "MNVR 27*");
-	// display selected DAP mode
 	OrbitDAP::DAP_CONTROL_MODE dapMode = pOrbitDAP->GetDAPMode();
+
+	pMDU->mvprint(20, 2, "BURN ATT");
+	pMDU->mvprint( 21, 7, "TTG" );
+	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
+	else
+	{
+		pMDU->mvprint(20, 6, "MNVR 27*");
+		double ttg;
+		if ((dapMode == OrbitDAP::AUTO) && (BurnInProg == false) && (BurnCompleted == false) && (pOrbitDAP->GetTimeToAttitude( ttg ) == true))
+		{
+			char att = 0;
+			if ((ttg > (timeDiff - 30)) || (((GetMajorMode() / 100) == 2) && (ttg > 3599))) att = dps::DEUATT_OVERBRIGHT;
+
+			sprintf_s( cbuf, 255, "%02d:%02d", (int)ttg / 60, (int)ttg % 60 );
+			pMDU->mvprint( 25, 7, cbuf, att );
+		}
+	}
+	// display selected DAP mode
 	std::string text;
 	switch(dapMode) {
 	case OrbitDAP::AUTO:
@@ -836,4 +850,9 @@ void OMSBurnSoftware::UpdateBurnPropagator()
 	propagator.UpdateStateVector(pos, vel, tig);
 }
 
+VECTOR3 OMSBurnSoftware::GetAttitudeCommandErrors() const
+{
+	if ((BurnInProg == false) || (OMS != 3)) return pOrbitDAP->GetAttitudeErrors(); // OMS || no burn
+	else return VGO;// RCS
+}
 };

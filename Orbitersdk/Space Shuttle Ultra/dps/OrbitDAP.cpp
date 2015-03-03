@@ -87,6 +87,8 @@ pStateVector(NULL)
 		DAPConfiguration[i].VERN_COMP=0.0;
 		DAPConfiguration[i].VERN_CNTL_ACC=0;
 	}
+
+	ERRTOT = true;
 }
 
 OrbitDAP::~OrbitDAP()
@@ -579,6 +581,16 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		else {
 			tgtM50Matrix = ActiveManeuver.tgtMatrix;
+
+			if (((STS()->GetMET()-lastUpdateTime) > 10.0) && (ManeuverStatus < MNVR_COMPLETE))
+			{
+				// recalculate time to reach target attitude
+				VECTOR3 Axis;
+				MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, ActiveManeuver.tgtMatrix);
+				double Angle = CalcEulerAngle(AttError, Axis);
+				mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
+				lastUpdateTime = STS()->GetMET();
+			}
 		}
 		
 		attErrorMatrix = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
@@ -622,9 +634,9 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 
 bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 {
-	if(GetMajorMode()!=201) return false;
-
 	if(spec==dps::MODE_UNDEFINED) {
+		if(GetMajorMode()!=201) return false;
+
 		if(item>=1 && item<=4) {
 			int nNew=atoi(Data);
 			if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
@@ -732,6 +744,8 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			//StartINRTLManeuver(radCurrentOrbiterAtt);
 			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
+		else if (item == 23) ERRTOT = true;// ERR TOT
+		else if (item == 24) ERRTOT = false;// ERR DAP
 		return true;
 	}
 	else if(spec==20) {
@@ -1017,7 +1031,9 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(19, 9, "ATT MON");
 	pMDU->mvprint(20, 10, "22 MON AXIS");
 	pMDU->mvprint(20, 11, "ERR TOT 23");
-	pMDU->mvprint(20, 11, "ERR DAP 24");
+	pMDU->mvprint(20, 12, "ERR DAP 24");
+	if (ERRTOT == true) pMDU->mvprint( 30, 11, "*" );// ERR TOT
+	else pMDU->mvprint( 30, 12, "*" );// ERR DAP
 
 	pMDU->mvprint(26, 14, "ROLL    PITCH    YAW");
 	sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", CUR_ATT.data[ROLL], CUR_ATT.data[PITCH], CUR_ATT.data[YAW]);
@@ -1556,6 +1572,18 @@ MATRIX3 OrbitDAP::GetCurrentLVLHRefMatrix() const
 MATRIX3 OrbitDAP::GetCurrentLVLHAttMatrix() const
 {
 	return GetRotationErrorMatrix(GetCurrentLVLHRefMatrix(), curM50Matrix);
+}
+
+VECTOR3 OrbitDAP::GetAttitudeErrors( void ) const
+{
+	return ATT_ERR;
+}
+
+bool OrbitDAP::GetTimeToAttitude( double& time ) const
+{
+	if (ManeuverStatus != MNVR_IN_PROGRESS) return false;
+	time = mnvrCompletionMET - STS()->GetMET();
+	return true;
 }
 
 };
