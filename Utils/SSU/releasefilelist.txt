@@ -374,13 +374,8 @@ Textures\SSU\Casing_FWC.dds
 Textures\SSU\Casing_OFT.dds
 Textures\SSU\CCTVMon.dds
 Textures\SSU\CentaurG_LO2dome_foil.dds
-Textures\SSU\CentaurG_LO2dome_foil_norm.dds
-Textures\SSU\CentaurG_LO2dome_foil_refl.dds
 Textures\SSU\Centaur_G_adapter.dds
 Textures\SSU\Centaur_G_tex.dds
-Textures\SSU\Centaur_G_tex_norm.dds
-Textures\SSU\Centaur_G_tex_refl.dds
-Textures\SSU\Centaur_G_tex_spec.dds
 Textures\SSU\Challenger_3rdmod.dds
 Textures\SSU\chute.dds
 Textures\SSU\CISS_tex.dds
@@ -427,7 +422,6 @@ Textures\SSU\label.dds
 Textures\SSU\label2.dds
 Textures\SSU\LaunchComplex39FixedServiceStructure.dds
 Textures\SSU\LWT_ETtex.dds
-Textures\SSU\LWT_ETtex_bump.dds
 Textures\SSU\Main_Concrete_Hardstand_texture.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_1.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_2.dds
