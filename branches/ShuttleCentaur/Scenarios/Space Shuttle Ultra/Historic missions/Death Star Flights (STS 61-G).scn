@@ -545,9 +545,9 @@ END
 CentaurG_Prime:SSU_CentaurGPrime
   STATUS Orbiting Earth
   ATTACHED 0:0,CISS_CentaurG_Prime
-  PRPLEVEL 0:0.954121 1:1.000000
+  PRPLEVEL 0:0.974 1:0.500000
 END
-Galileo:Carina
+Galileo:SSU_GenericPayload
   STATUS Orbiting Earth
   ATTACHED 0:0,CentaurG_Prime
   AFCMODE 7
