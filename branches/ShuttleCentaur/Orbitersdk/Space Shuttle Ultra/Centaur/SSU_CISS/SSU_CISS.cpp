@@ -37,25 +37,22 @@ void SSU_CISS::clbkSetClassCaps( FILEHANDLE cfg )
 	bool bFoundData = oapiReadItem_string( cfg, "Type", pszBuffer );
 	bool isGPrime = true;
 
-	if ((bFoundData == true) && (_strnicmp( pszBuffer, "G", 2 ) == 0))
+	if (!bFoundData || !_strnicmp( pszBuffer, "GPrime", 6 ))
 	{
-		// set G
+		SetEmptyMass( GPRIME_EMPTY_MASS );
+		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
+		ahToOV = CreateAttachment( true, _V( 0, -2.9, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVCISS" );
+		centaurAttachment[0] = _V( 0, -0.2174, -1.3409 );
+		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
+	}
+	else if (!_strnicmp( pszBuffer, "G", 1 ))
+	{
 		isGPrime = false;
 		SetEmptyMass( G_EMPTY_MASS );
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
-		ahToOV = CreateAttachment( true, _V( 0, -2.3, -2.3 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
-		centaurAttachment[0] = _V( 0, 0, 5 );
-		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, -1, 0 ), "SSU_CG" );
-	}
-	else// pszBuffer = "GPrime"
-	{
-		// set GPrime
-		// default
-		SetEmptyMass( GPRIME_EMPTY_MASS );
-		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
-		ahToOV = CreateAttachment( true, _V( 0, -2.35, 0.5 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
-		centaurAttachment[0] = _V( 0, -0.03, -1.16 );
-		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, -1, 0 ), "SSU_CGP" );
+		ahToOV = CreateAttachment( true, _V( 0, -2.9, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVCISS" );
+		centaurAttachment[0] = _V( 0, -0.2174, -1.3409 );
+		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 1, 0, 0 ), "SSU_CISSCENTAUR" );
 	}
 	centaurAttachment[1] = centaurAttachment[0] + _V(0, 0, 1);
 	centaurAttachment[2] = centaurAttachment[0] + _V(1, 0, 0);
@@ -157,25 +154,23 @@ void SSU_CISS::DefineCentaurGAnimations()
 	// TODO: implement animation (once mesh has been created)
 }
 
-int SSU_CISS::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
+int SSU_CISS::clbkConsumeBufferedKey( DWORD key, bool down, char* keystate )
 {
 	if (!down) return 0;
 
-	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == false) && (KEYMOD_ALT( kstate ) == false))// no key modifiers
+	switch (key)
 	{
-		switch (key)
-		{
-			case OAPI_KEY_G:
-				rotateAnimState.action = AnimState::OPENING;
-				return 1;
-			case OAPI_KEY_L:
-				rotateAnimState.action = AnimState::CLOSING;
-				return 1;
-			case OAPI_KEY_J:
-				// centaur sep only after ciss rotation complete
-				if (rotateAnimState.Open()) DetachChild( ahToCentaur, 0.3 );
-				return 1;
-		}
+		case OAPI_KEY_G:
+			rotateAnimState.action = AnimState::OPENING;
+			return 1;
+		case OAPI_KEY_L:
+			rotateAnimState.action = AnimState::CLOSING;
+			return 1;
+		case OAPI_KEY_J:
+			// sep centaur
+			if(rotateAnimState.Open())
+				DetachChild( ahToCentaur, 0.3 );
+			return 1;
 	}
 	return 0;
 }
