@@ -547,7 +547,7 @@ CentaurG_Prime:SSU_CentaurGPrime
   ATTACHED 0:0,CISS_CentaurG_Prime
   PRPLEVEL 0:1.000000 1:1.000000
 END
-Ulysses:Carina
+Ulysses:SSU_GenericPayload
   STATUS Orbiting Earth
   ATTACHED 0:0,CentaurG_Prime
   AFCMODE 7
