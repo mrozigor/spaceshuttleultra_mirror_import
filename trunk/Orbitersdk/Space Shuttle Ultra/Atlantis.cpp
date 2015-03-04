@@ -7338,7 +7338,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		else payloadCoG = _V(0, 0, 0);
 
 		double subsystemMass = psubsystems->GetTotalSubsystemMass();
-		SetEmptyMass(ORBITER_EMPTY_MASS + subsystemMass + pl_mass + payloadMass);
+		SetEmptyMass( pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass);
 	}
 	if(status <= STATE_STAGE2) {
 		double stackMass = 0.0; // mass of ET & SRBs (if attached)
@@ -7352,7 +7352,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		if(hET) stackMass += oapiGetMass(hET);
 
 		double subsystemMass = psubsystems->GetTotalSubsystemMass();
-		SetEmptyMass(ORBITER_EMPTY_MASS + subsystemMass + pl_mass + payloadMass + stackMass);
+		SetEmptyMass( pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass + stackMass);
 	}
 
 	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter

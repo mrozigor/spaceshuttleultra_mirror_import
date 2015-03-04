@@ -4,8 +4,12 @@
 #include "OrbiterAPI.h"
 #include "EngConst.h"
 
-const double ORBITER_EMPTY_MASS = 81100.0;
-// Orbiter empty mass [kg]
+const double ORBITER_EMPTY_MASS_OV102 = 80739.44;
+const double ORBITER_EMPTY_MASS_OV099 = 79429.01;
+const double ORBITER_EMPTY_MASS_OV103 = 77564.3;
+const double ORBITER_EMPTY_MASS_OV104 = 77564.3;
+const double ORBITER_EMPTY_MASS_OV105 = 78017.89;
+// Orbiter empty masses [kg]
 
 const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
 // Amount of fuel the orbiter can hold in internal OMS tanks
@@ -15,7 +19,7 @@ const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
 
 //const double SSME_RATED_THRUST = 2090664.159; //100% thrust
 const double ORBITER_MAIN_THRUST = 2170732.15; //Nominal "104%" thrust
-const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
+//const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
 // Vacuum thrust rating per main engine [N]
 const double SSME_MAX_POWER_LEVEL = 109.0;
 
@@ -78,11 +82,11 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 // Deployment speed of the speedbrake (1/sec)
 // cycle is 4.93 sec
 
-const double AIR_DATA_PROBE_SPEED = 0.06666667;
+//const double AIR_DATA_PROBE_SPEED = 0.06666667;
 
-const double DYNP_MAX = 100e3;
+//const double DYNP_MAX = 100e3;
 // Max. allowed dynamic pressure [Pa]
-const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
+//const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
 // Max. safe gear deploy speed [m/s]
 
 const double DOOR_OPERATING_SPEED = 0.007353;
@@ -142,12 +146,5 @@ const int AftPitchThrusters[2] = {1, 3};
 const int AftYawThrusters[2] = {5, 7};
 const int AftRollThrusters[2] = {9, 11};
 //RCS Thruster Groups
-
-// ==========================================================
-// Some Tank-related parameters
-// ==========================================================
-
-//const double ET_SEP_TIME = 18.00000; // ET Sep time (after MECO)
-//const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
 
 #endif //_PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE
