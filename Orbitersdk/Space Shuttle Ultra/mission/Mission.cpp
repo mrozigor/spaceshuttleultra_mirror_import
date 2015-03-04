@@ -1,6 +1,7 @@
 #include "Mission.h"
 #include "OrbiterAPI.h"
 #include "UltraUtils.h"
+#include "..\ParameterValues.h"
 #include <limits>
 #include <vector>
 
@@ -42,6 +43,8 @@ namespace mission {
 		//fTHup = 1174.0;
 		fTHdown = 792.0;
 		fTHup = 1304.0;
+
+		OVmass = ORBITER_EMPTY_MASS_OV104;// default to Atlantis
 
 		bUseRMS = false;
 		bHasKUBand = true;
@@ -90,6 +93,12 @@ namespace mission {
 		{
 			strOrbiter = buffer;
 		}
+		if (strOrbiter == "Columbia") OVmass = ORBITER_EMPTY_MASS_OV102;
+		else if (strOrbiter == "Challenger") OVmass = ORBITER_EMPTY_MASS_OV099;
+		else if (strOrbiter == "Discovery") OVmass = ORBITER_EMPTY_MASS_OV103;
+		//else if (strOrbiter == "Atlantis") OVmass = ORBITER_EMPTY_MASS_OV104;
+		else if (strOrbiter == "Endeavour") OVmass = ORBITER_EMPTY_MASS_OV105;
+		// default already loaded ORBITER_EMPTY_MASS_OV104
 
 		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
 		{
@@ -309,6 +318,11 @@ namespace mission {
 	bool Mission::HasDragChute() const
 	{
 		return bHasDragChute;
+	}
+
+	double Mission::GetOrbiterMass( void ) const
+	{
+		return OVmass;
 	}
 
 	bool Mission::UseDirectAscent() const

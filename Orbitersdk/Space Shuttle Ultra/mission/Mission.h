@@ -80,6 +80,8 @@ namespace mission {
 		double fMaxSSMEThrust;
 		unsigned short usExtAirlockMode;
 
+		double OVmass;
+
 		double fPayloadZPos[16];
 
 		bool bHasBridgerail[13]; // true if bridgerail is present, false otherwise
@@ -162,7 +164,12 @@ namespace mission {
 		virtual bool HasExtAL() const;
 		virtual bool HasBulkheadFloodlights() const;
 		virtual bool HasDragChute() const;
-		
+
+		/**
+		 * returns mass of the defined Orbiter Vehicle.
+		 * @return	mass of Orbiter Vehicle (kg)
+		 */
+		virtual double GetOrbiterMass( void ) const;
 
 		virtual bool UseDirectAscent() const;
 		/**
