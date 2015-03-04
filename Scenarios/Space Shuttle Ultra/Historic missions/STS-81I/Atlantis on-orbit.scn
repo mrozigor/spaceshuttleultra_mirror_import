@@ -564,7 +564,7 @@ CentaurG:SSU_CentaurG
   ADAPTER_OFFSET 0.000000
   ADAPTER_MASS 0.000000
 END
-VRM:Carina
+Magellan:SSU_GenericPayload
   STATUS Orbiting Earth
   ATTACHED 0:0,CentaurG
   AFCMODE 7

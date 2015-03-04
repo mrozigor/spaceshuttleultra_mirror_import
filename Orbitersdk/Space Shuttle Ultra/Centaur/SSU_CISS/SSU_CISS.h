@@ -32,8 +32,8 @@
 const static char* G_MESHNAME = "SSU\\CISS_CentaurG";
 const static char* GPRIME_MESHNAME = "SSU\\CISS_CentaurG_Prime";
 
-const double G_EMPTY_MASS = 7149.6;// Kg
-const double GPRIME_EMPTY_MASS = 7212.7;// Kg
+const double G_EMPTY_MASS = 3832.856;// Kg
+const double GPRIME_EMPTY_MASS = 4036.972;// Kg
 
 const double CISS_ROTATION_RATE = (1/58.0); // rate at which table rotates to deploy position
 

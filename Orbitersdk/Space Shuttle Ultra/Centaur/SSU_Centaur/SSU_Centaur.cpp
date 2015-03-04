@@ -52,7 +52,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		thRL10[0] = CreateThruster( RL10_C1_POS_G, RL10_C1_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
 		thRL10[1] = CreateThruster( RL10_C2_POS_G, RL10_C2_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
 
-		phACS = CreatePropellantResource( ACS_PROPELLANT_MASS );
+		phACS = CreatePropellantResource( G_ACS_PROPELLANT_MASS );
 		// quad I
 		thACS[0] = CreateThruster( ACS_P1_POS_G, ACS_P1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
 		thACS[1] = CreateThruster( ACS_Y1_POS_G, ACS_Y1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
@@ -88,7 +88,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		thRL10[0] = CreateThruster( RL10_C1_POS_GPRIME, RL10_C1_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
 		thRL10[1] = CreateThruster( RL10_C2_POS_GPRIME, RL10_C2_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
 
-		phACS = CreatePropellantResource( ACS_PROPELLANT_MASS );
+		phACS = CreatePropellantResource( GPRIME_ACS_PROPELLANT_MASS );
 		// quad I
 		thACS[0] = CreateThruster( ACS_P1_POS_GPRIME, ACS_P1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
 		thACS[1] = CreateThruster( ACS_Y1_POS_GPRIME, ACS_Y1_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
@@ -227,6 +227,14 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 		ENAtimer_ACS = true;
 		ENAtimer_RL10 = true;
 		separated = true;
+
+		// add payload mass to centaur dry mass
+		OBJHANDLE ohPL = GetAttachmentStatus( ahToPayload );
+		if (ohPL)
+		{
+			VESSEL* vPL = oapiGetVesselInterface( ohPL );
+			SetEmptyMass( GetEmptyMass() + vPL->GetMass() );
+		}
 	}
 	return;
 }
@@ -241,6 +249,14 @@ int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 		{
 			if (GetAttachmentStatus( ahToCISS ) == NULL)// payload sep only after deployment
 			{
+				// remove payload mass from centaur dry mass
+				OBJHANDLE ohPL = GetAttachmentStatus( ahToPayload );
+				if (ohPL)
+				{
+					VESSEL* vPL = oapiGetVesselInterface( ohPL );
+					SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
+				}
+				// separate payload
 				DetachChild( ahToPayload, 0.3 );
 				return 1;
 			}
