@@ -37,8 +37,8 @@ const unsigned int LC39_LIGHT_COUNT = 5;
 
 //const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
 //const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78, 20.5);//_V(-8.5, 78.2, 19.5); //North duct
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78, 23.0);//_V(-8.5, 78.2, 22.0); //South duct
 //const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
 //const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
