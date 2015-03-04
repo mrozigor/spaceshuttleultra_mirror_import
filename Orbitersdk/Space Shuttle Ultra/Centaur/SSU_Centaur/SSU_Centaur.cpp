@@ -76,7 +76,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetPMI( _V( 4.32, 4.35, 2.69 ) );
 
 		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.8373 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5363 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5225 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
 	}
 	else// pszBuffer = "GPrime"
 	{
@@ -112,7 +112,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetPMI( _V( 5.70, 5.66, 2.66 ) );
 
 		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.4542 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -4.0574 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CGP" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -4.0439 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CGP" );
 	}
 
 	mesh_idx = AddMesh( hMesh );
