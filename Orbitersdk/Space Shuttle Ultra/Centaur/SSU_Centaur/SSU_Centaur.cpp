@@ -297,25 +297,52 @@ void SSU_Centaur::clbkLoadStateEx( FILEHANDLE scn, void *status )
 
 	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// small sanity checks
 	{
+		char buffer[128];
 		VECTOR3 pos;
 		VECTOR3 dir;
 		VECTOR3 rot;
 		GetAttachmentParams( ahToPayload, pos, dir, rot );
-		pos.z += AdapterOffset;
 
 		// add mesh
 		hAdapterMesh = oapiLoadMeshGlobal( AdapterMeshName.c_str() );
+		if (hAdapterMesh == NULL)
+		{
+			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_MESH file not found" );
+			oapiWriteLog( buffer );
+			return;
+		}
 		mesh_Adapter_idx = AddMesh( hAdapterMesh, &pos );
 		SetMeshVisibilityMode( mesh_Adapter_idx, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
 		
 		// correct spacecraft attachment
+		pos.z += AdapterOffset;
 		SetAttachmentParams( ahToPayload, pos, dir, rot );
 
 		// correct mass
 		SetEmptyMass( GetEmptyMass() + AdapterMass );
 
-		char buffer[128];
 		sprintf_s( buffer, 128, "(Shuttle Centaur) added payload adapter: mesh:%s|height:%lf|mass:%lf", AdapterMeshName.c_str(), AdapterOffset, AdapterMass );
+		oapiWriteLog( buffer );
+	}
+	else
+	{
+		char buffer[128];
+		if (AdapterMeshName.length() > 0)
+		{
+			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_MESH was not specified" );
+		}
+		oapiWriteLog( buffer );
+
+		if (AdapterOffset > 0)
+		{
+			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_OFFSET was not specified or isn't greater than 0" );
+		}
+		oapiWriteLog( buffer );
+
+		if (AdapterMass > 0)
+		{
+			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_MASS was not specified or isn't greater than 0" );
+		}
 		oapiWriteLog( buffer );
 	}
 	return;
