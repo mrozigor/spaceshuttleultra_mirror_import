@@ -1582,7 +1582,7 @@ VECTOR3 OrbitDAP::GetAttitudeErrors( void ) const
 bool OrbitDAP::GetTimeToAttitude( double& time ) const
 {
 	if (ManeuverStatus != MNVR_IN_PROGRESS) return false;
-	time = mnvrCompletionMET - STS()->GetMET();
+	time = max( mnvrCompletionMET - STS()->GetMET(), 0 );
 	return true;
 }
 
