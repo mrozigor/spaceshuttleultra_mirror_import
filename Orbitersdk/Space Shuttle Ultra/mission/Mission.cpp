@@ -25,10 +25,10 @@ namespace mission {
 
 	void Mission::SetDefaultValues()
 	{
-		strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
-		strROMSPodMeshName = "SSU\\ROMS_pod_standard";
-		fLaunchTimeMJD = -1.0;
-		fLandTimeMJD = -1.0;
+		//strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
+		//strROMSPodMeshName = "SSU\\ROMS_pod_standard";
+		//fLaunchTimeMJD = -1.0;
+		//fLandTimeMJD = -1.0;
 
 		fTargetInc = 28.5*RAD;
 		fMECOAlt = 105000;
@@ -106,18 +106,18 @@ namespace mission {
 			oapiWriteLog((char*)strOrbiterTexName.c_str());
 		}
 
-		if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
+		/*if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
 		{
 			strLOMSPodMeshName = "SSU\\" + std::string(buffer);
 		}
 		if(oapiReadItem_string(hFile, "ROMSPodMesh", buffer))
 		{
 			strROMSPodMeshName = "SSU\\" + std::string(buffer);
-		}
+		}*/
 
-		oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
+		//oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
 		
-		oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD);
+		//oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD);
 
 		if(oapiReadItem_float(hFile, "TargetInc", fTargetInc))
 		{
@@ -132,8 +132,8 @@ namespace mission {
 		}
 
 		oapiReadItem_bool(hFile, "PerformRollToHeadsUp", bPerformRTHU);
-		double fTemp;
-		if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
+		//double fTemp;
+		//if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
 		
 		oapiReadItem_bool( hFile, "OMSAssistEnable", bUseOMSAssist );
 		oapiReadItem_float( hFile, "OMSAssistDuration", OMSAssistDuration );
@@ -191,25 +191,25 @@ namespace mission {
 	}
 	
 
-	double Mission::GetFirstLandingMET() const
+	/*double Mission::GetFirstLandingMET() const
 	{
 		return std::numeric_limits<double>::infinity();
-	}
+	}*/
 
 	double Mission::GetLaunchAzimuth() const 
 	{
 		return 90.0 * RAD;
 	}
 
-	double Mission::GetLaunchMJD() const
+	/*double Mission::GetLaunchMJD() const
 	{
 		return fLaunchTimeMJD;
-	}
+	}*/
 
-	unsigned int Mission::GetLaunchSite() const
+	/*unsigned int Mission::GetLaunchSite() const
 	{
 		return 0;
-	}
+	}*/
 
 	double Mission::GetMECOInc() const
 	{
@@ -236,10 +236,10 @@ namespace mission {
 		return fMaxSSMEThrust;
 	}
 
-	unsigned int Mission::GetNumberOfOMSBurns() const
+	/*unsigned int Mission::GetNumberOfOMSBurns() const
 	{
 		return 0;
-	}
+	}*/
 
 	double Mission::GetPayloadZPos(unsigned int iIndex) const
 	{
@@ -274,7 +274,7 @@ namespace mission {
 		return strOrbiterTexName;
 	}
 
-	const std::string& Mission::GetLOMSPodMeshName() const
+	/*const std::string& Mission::GetLOMSPodMeshName() const
 	{
 		return strLOMSPodMeshName;
 	}
@@ -282,7 +282,7 @@ namespace mission {
 	const std::string& Mission::GetROMSPodMeshName() const
 	{
 		return strROMSPodMeshName;
-	}
+	}*/
 
 	bool Mission::HasBridgerail(unsigned int index) const
 	{
@@ -325,10 +325,10 @@ namespace mission {
 		return OVmass;
 	}
 
-	bool Mission::UseDirectAscent() const
+	/*bool Mission::UseDirectAscent() const
 	{
 		return true;
-	}
+	}*/
 	
 	bool Mission::UseOMSAssist() const
 	{
