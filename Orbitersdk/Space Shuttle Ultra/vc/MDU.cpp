@@ -376,12 +376,14 @@ namespace vc {
 					if (strcmp( label, "UP" ) == 0)
 					{
 						// draw up arrow 
-						SelectObject( hDC, GetStockObject( NULL_BRUSH ) );
-						SelectObject( hDC, MenuPen );
+						HBRUSH tmpbrush = (HBRUSH)SelectObject( hDC, GetStockObject( NULL_BRUSH ) );
+						HPEN tmppen = (HPEN)SelectObject( hDC, MenuPen );
 						POINT arrow[7] = {{28, 22}, {43, 31}, {35, 31}, {35, 40}, {21, 40}, {21, 31}, {13, 31}};// CW from top
 						Polygon( hDC, arrow, 7 );
 						TextOut( hDC, x, 25, "UP", 2);
 						menu = 3;// "inside" our menu, default to dps menu
+						SelectObject( hDC, tmpbrush );
+						SelectObject( hDC, tmppen );
 					}
 					else if (strcmp( label, "FLT" ) == 0)
 					{
