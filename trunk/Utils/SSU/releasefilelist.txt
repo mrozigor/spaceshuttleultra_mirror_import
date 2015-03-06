@@ -80,21 +80,15 @@ Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
 Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
 Doc\Space Shuttle Ultra\125852main_ius93f2.pdf
-Doc\Space Shuttle Ultra\Changelog.txt
 Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\Flightdeck Panel Locator.svg
-Doc\Space Shuttle Ultra\FLIGHT_DATA_FILES.tex
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MEDS.pdf
-Doc\Space Shuttle Ultra\MISSION_FILES.tex
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
-Doc\Space Shuttle Ultra\SCENARIO_FILES.tex
 Doc\Space Shuttle Ultra\Space_Shuttle_Ultra_Manual.tex
 Doc\Space Shuttle Ultra\SSU Ops Manual V1.XX Rev. B.pdf
-Doc\Space Shuttle Ultra\SSU_Mission_File_Description.docx
-Doc\Space Shuttle Ultra\SSU_SYSTEMS.tex
+Doc\Space Shuttle Ultra\SSU_Mission_File_Description.pdf
 Doc\Space Shuttle Ultra\STS-126 launch cam views.txt
-Doc\Space Shuttle Ultra\architecture\mission-infrastructure-architecture.odt
 Doc\Space Shuttle Ultra\Images\Crew Cabin (Cutaway).jpg
 Doc\Space Shuttle Ultra\Images\DAPPBI.png
 Doc\Space Shuttle Ultra\Images\FD_Codes_Chart.jpg
@@ -109,7 +103,6 @@ Doc\Space Shuttle Ultra\Images\SSU_Attachments.png
 Doc\Space Shuttle Ultra\Images\SSU_ICON.png
 Doc\Space Shuttle Ultra\Images\SSU_ICON_2.png
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
-Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Ku band deployed assembly and gimbal.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Ku band IRCS for the Shuttle.pdf
