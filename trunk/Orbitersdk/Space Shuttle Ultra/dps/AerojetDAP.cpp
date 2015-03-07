@@ -3538,7 +3538,8 @@ double AerojetDAP::CalculateDELAZ() const
 
 void AerojetDAP::LoadLandingSiteList()
 {
-	// for reference, landing site tables can be found in Ascent Checklists (using STS-115 table)
+	// for reference, landing site tables can be found in Ascent Checklists
+	// (using a modified STS-115 table, where the numbers within brackets are the changes)
 	vLandingSites.push_back(LandingSiteData(28.633112*RAD, -80.706234*RAD, 28.596660*RAD, -80.682413*RAD, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
 	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
@@ -3570,7 +3571,8 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
+	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 34.750617 * RAD, -120.601304 * RAD, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
@@ -3584,9 +3586,12 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.back().SetSecRunwayParameters( 9003 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
+	vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 32.364412 * RAD, -64.692156 * RAD, 282, 102, "BDA30", "BDA12", 8892 / MPS2FPS, 150 / MPS2FPS ) );// [36]
+	vLandingSites.back().SetSecRunwayParameters( 9212 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway [36]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
+	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, -27.159263 * RAD, -109.436664 * RAD, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
 	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
@@ -3597,12 +3602,6 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, 58.16, "EDW22", "EDW04"));// 45
-
-
-	// landing sites not on the STS-115 table
-	// data here for future use when landing table customization is available
-	//vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 32.364412 * RAD, -64.692156 * RAD, 282, "BDA30", "BDA12" ) );
-	//vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, -27.159263 * RAD, -109.436664 * RAD, 298.1, "EIP28", "EIP10" ) );
 }
 
 bool AerojetDAP::GetAutoPitchState( void ) const

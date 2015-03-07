@@ -89,6 +89,7 @@ Doc\Space Shuttle Ultra\Space_Shuttle_Ultra_Manual.tex
 Doc\Space Shuttle Ultra\SSU Ops Manual V1.XX Rev. B.pdf
 Doc\Space Shuttle Ultra\SSU_Mission_File_Description.pdf
 Doc\Space Shuttle Ultra\STS-126 launch cam views.txt
+Doc\Space Shuttle Ultra\Landing Sites currently available in SSU.pdf
 Doc\Space Shuttle Ultra\Images\Crew Cabin (Cutaway).jpg
 Doc\Space Shuttle Ultra\Images\DAPPBI.png
 Doc\Space Shuttle Ultra\Images\FD_Codes_Chart.jpg
