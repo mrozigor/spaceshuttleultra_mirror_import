@@ -1397,9 +1397,9 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[2], center+_V( 0.0  , -0.006, 15.51), _V(0, 1,0));//F3U
   AddRCSExhaust (th_att_rcs[2], center+_V( 0.367, -0.006, 15.51), _V(0, 1,0));//F2U
 
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.112, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.097, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.081, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
 
   AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.236, -14.244), _V(0.2844,-0.9481,-0.1422));//R4D
   AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.303, -14.573), _V(0.2844,-0.9481,-0.1422));//R2D
@@ -7177,7 +7177,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 3, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
