@@ -370,6 +370,7 @@ Textures\SSU\CCTVMon.dds
 Textures\SSU\CentaurG_LO2dome_foil.dds
 Textures\SSU\Centaur_G_adapter.dds
 Textures\SSU\Centaur_G_tex.dds
+Textures\SSU\Challenger_original.dds
 Textures\SSU\Challenger_3rdmod.dds
 Textures\SSU\chute.dds
 Textures\SSU\CISS_tex.dds
