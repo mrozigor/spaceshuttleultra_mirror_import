@@ -350,7 +350,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		ETVS_Altitude = STS()->GetAltitude() * MPS2FPS;
 		if (SimT >= ET_History_updatetime)
 		{
-			ET_History_updatetime = SimT + 28.8;
+			if (ET_Mach > 14) ET_History_updatetime = SimT + 28.8;// ET1, ET2
+			else ET_History_updatetime = SimT + 15.36;// ET3, ET4, ET5
 			memmove( ET_MachHistory + 1, ET_MachHistory, sizeof(double) * 4 );
 			ET_MachHistory[0] = ET_Mach;
 			memmove( ET_RangeHistory + 1, ET_RangeHistory, sizeof(double) * 4 );
@@ -588,11 +589,11 @@ bool AerojetDAP::OnPaint(int spec, vc::MDU* pMDU) const
 		if (GetMajorMode() == 304)
 		{
 			// MM304
-			if (ET_Mach > 17) PaintENTRYTRAJ1Display( pMDU );// EntryTraj1 (25kfps-17kfps / 4000nm-1000nm)
-			else if (ET_Mach > 14) PaintENTRYTRAJ2Display( pMDU );// EntryTraj2 (17kfps-14kfps / 1500nm-500nm)
-			else if (ET_Mach > 10) PaintENTRYTRAJ3Display( pMDU );// EntryTraj3 (14kfps-10kfps / 700nm-350nm)
-			else if ((ET_Mach * ETVS_Altitude) > 750000) PaintENTRYTRAJ4Display( pMDU );// EntryTraj4 (1.8Mft-750kft(10kfps-6.5kfps) / 400nm-180nm)
-			else PaintENTRYTRAJ5Display( pMDU );// EntryTraj5 (750kft-200kft(6.5kfps-2.5kfps) / 200nm-50nm)
+			if (ET_Mach > 17) PaintENTRYTRAJ1Display( pMDU );// EntryTraj1 (24.5kfps-17kfps / 3800nm-800nm)
+			else if (ET_Mach > 14) PaintENTRYTRAJ2Display( pMDU );// EntryTraj2 (17kfps-14kfps / 1300nm-425nm)
+			else if (ET_Mach > 10.5) PaintENTRYTRAJ3Display( pMDU );// EntryTraj3 (14kfps-10.5kfps / 800nm-315nm)
+			else if ((ET_Mach * ETVS_Altitude) > 750000) PaintENTRYTRAJ4Display( pMDU );// EntryTraj4 (1.8Mft-750kft(10kfps-6.5kfps) / 480nm-145nm)
+			else PaintENTRYTRAJ5Display( pMDU );// EntryTraj5 (750kft-200kft(6.5kfps-2.5kfps) / 220nm-55nm)
 			return false;
 		}
 		else
@@ -1487,10 +1488,6 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	/*refDrag; // DREFP
-	double referenceDrag23; // D23
-	double constDragLevel; // T2
-	double constDragStartVel; // VCG*/
 	att = 0;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
@@ -1530,8 +1527,8 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->Line( 17, pos - 3, 14, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 0.091071) - 91.071429 );
-	int y = Round( 731.25 - (ET_Mach * 29.25) );
+	int x = Round( (ETVS_Range * 0.215333) - 154.133333 - (ETVS_Range * ETVS_Range * 0.0000283333) );
+	int y = Round( 664.8 - (ET_Mach * 26.4) );
 	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
 	else att = dps::DEUATT_OVERBRIGHT;
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1541,8 +1538,8 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.091071) - 91.071429 );
-			y = Round( 731.25 - (ET_MachHistory[i] * 29.25) );
+			x = Round( (ET_RangeHistory[i] * 0.215333) - 154.133333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.0000283333) );
+			y = Round( 664.8 - (ET_MachHistory[i] * 26.4) );
 			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
@@ -1750,8 +1747,8 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->Line( 17, pos - 3, 14, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 0.255) - 127.5 );
-	int y = 1326 - Round( ET_Mach * 78 );
+	int x = x = Round( (ETVS_Range * 0.865959) - 307.873469 - (ETVS_Range * ETVS_Range * 0.000333061) );
+	int y = 1140 - Round( ET_Mach * 66 );
 	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
 	else att = dps::DEUATT_OVERBRIGHT;
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1761,8 +1758,8 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.255) - 127.5 );
-			y = 1326 - Round( ET_MachHistory[i] * 78 );
+			x = Round( (ET_RangeHistory[i] * 0.865959) - 307.873469 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.000333061) );
+			y = 1140 - Round( ET_MachHistory[i] * 66 );
 			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
@@ -1964,8 +1961,8 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->Line( 17, pos - 3, 14, pos, att );
 
 	// orbiter symbol
-	int x = Round( ETVS_Range * 0.728571 ) - 255;
-	int y = 819 - Round( ET_Mach * 58.5 );
+	int x = Round( (ETVS_Range * 1.73451) - 438.803805 - (ETVS_Range * ETVS_Range * 0.00108407) );
+	int y = 810 - Round( ET_Mach * 56.571429 );
 	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
 	else att = dps::DEUATT_OVERBRIGHT;
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1975,8 +1972,8 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( ET_RangeHistory[i] * 0.728571 ) - 255;
-			y = 819 - Round( ET_MachHistory[i] * 58.5 );
+			x = Round( (ET_RangeHistory[i] * 1.73451) - 438.803805 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00108407) );
+			y = 810 - Round( ET_MachHistory[i] * 56.571429 );
 			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
@@ -2187,8 +2184,8 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->Line( 17, pos - 3, 14, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 1.159091) - 208.636364 );
-	int y = Round( 401.142857 - (ET_Mach * ETVS_Altitude * 0.000223) );
+	int x = Round( (ETVS_Range * 2.181332) - 268.519715 - (ETVS_Range * ETVS_Range * 0.00227222) );
+	int y = Round( 357.428571 - (ET_Mach * ETVS_Altitude * 0.000188571) );
 	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
 	else att = dps::DEUATT_OVERBRIGHT;
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2198,8 +2195,8 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 1.159091) - 208.636364 );
-			y = Round( 401.142857 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000223) );
+			x = Round( (ET_RangeHistory[i] * 2.181332) - 268.519715 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00227222) );
+			y = Round( 357.428571 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000188571) );
 			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
@@ -2410,8 +2407,8 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->Line( 17, pos - 3, 14, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 1.7) ) - 85;
-	int y = Round( 319.090909 - (ET_Mach * ETVS_Altitude * 0.000425) );
+	int x = Round( (ETVS_Range * 4.121212) - 198.333333 - (ETVS_Range * ETVS_Range * 0.00936639) );
+	int y = 288 - Round( ET_Mach * ETVS_Altitude * 0.00036 );
 	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
 	else att = dps::DEUATT_OVERBRIGHT;
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2421,8 +2418,8 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 1.7) ) - 85;
-			y = Round( 319.090909 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000425) );
+			x = Round( (ET_RangeHistory[i] * 4.121212) - 198.333333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00936639) );
+			y = 288 - Round( ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.00036 );
 			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
 			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
@@ -2477,7 +2474,7 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	pMDU->Line( 21, 72, 5, 81 );
 	pMDU->Line( 105, 40, 5, 63, dps::DEUATT_DASHED );
 
-	// E/W scale
+	// theta / E/W scale
 	pMDU->Line( 232, 74, 232, 218 );
 	pMDU->Line( 230, 115, 235, 115 );
 	pMDU->Line( 231, 135, 238, 135, dps::DEUATT_OVERBRIGHT );
@@ -2504,8 +2501,10 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 
 	// orbiter symbol
 	int x = Round( (ETVS_Range - 10) * 4.25 );
-	int y = Round( 334.285714 - (ETVS_Altitude * 0.003343) );
-	double rot = STS()->GetPitch() - STS()->GetAOA();// HACK using gamma
+	int y = Round( 300.8571428571 - (ETVS_Altitude * 0.0028285714) );
+	VECTOR3 vel;
+	STS()->GetHorizonAirspeedVector( vel );
+	double rot = atan( vel.y / (0.192 * sqrt( vel.x * vel.x + vel.z * vel.z )) );
 	pMDU->OrbiterSymbolSide( x, y, rot, dps::DEUATT_OVERBRIGHT );
 	return;
 }
@@ -2553,7 +2552,7 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 
 	pMDU->Line( 36, 173, 36, 188 );
 
-	// E/W scale
+	// theta / E/W scale
 	pMDU->Line( 232, 53, 232, 218 );
 	pMDU->Line( 230, 103, 235, 103 );
 	pMDU->Line( 231, 133, 238, 133, dps::DEUATT_OVERBRIGHT );
@@ -2580,8 +2579,10 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 
 	// orbiter symbol
 	int x = Round( (ETVS_Range - 5) * 12.75 );
-	int y = Round( 319.090909 - (ETVS_Altitude * 0.010636) );
-	double rot = STS()->GetPitch() - STS()->GetAOA();// HACK using gamma
+	int y = 288 - Round( ETVS_Altitude * 0.009 );
+	VECTOR3 vel;
+	STS()->GetHorizonAirspeedVector( vel );
+	double rot = atan( vel.y / (0.181 * sqrt( vel.x * vel.x + vel.z * vel.z )) );
 	pMDU->OrbiterSymbolSide( x, y, rot, dps::DEUATT_OVERBRIGHT );
 	return;
 }
