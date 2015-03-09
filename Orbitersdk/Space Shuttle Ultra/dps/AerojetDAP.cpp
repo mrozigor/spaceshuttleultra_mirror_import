@@ -561,6 +561,7 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 			if (GetApproachAndLandState() == false)// valid until A/L
 			{
 				if (SBControlLogic == NOM) SBControlLogic = SHORT;
+				else if (SBControlLogic == SHORT) SBControlLogic = ELS;
 				else SBControlLogic = NOM;
 			}
 			return true;
@@ -965,7 +966,8 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint( 0, 16, "S/B" );
 	pMDU->mvprint( 11, 16, "39" );
 	if (SBControlLogic == NOM) pMDU->mvprint( 7, 16, "NOM" );
-	else pMDU->mvprint( 5, 16, "SHORT", dps::DEUATT_OVERBRIGHT );
+	else if (SBControlLogic == SHORT) pMDU->mvprint( 5, 16, "SHORT", dps::DEUATT_OVERBRIGHT );
+	else pMDU->mvprint( 7, 16, "ELS", dps::DEUATT_OVERBRIGHT );
 
 	pMDU->mvprint( 42, 2, "NAV DATA" );
 	pMDU->Delta( 44, 3 );
@@ -3365,8 +3367,9 @@ double AerojetDAP::CalculateSpeedbrakeCommand(double predRange, double DeltaT)
 	}
 	else {
 		// what should happen is speedbrake is set to constant value below 3000 feet, and then updated at 500 feet
-		// for the moment, just used fixed value of 15% (updated to 15% when S/B = NOM, and 28% when S/B = SHORT)
+		// for the moment, just used fixed value of 15% (updated to 15% when S/B = NOM, 28% when S/B = SHORT, and 48% when S/B = ELS)
 		if (SBControlLogic == SHORT) return 28.0;// SCOM reports about 12-13% extra for short field option
+		else if (SBControlLogic == ELS) return 48.0;// ELS adds 20º to SHORT setting
 		else return 15.0;
 	}
 }
