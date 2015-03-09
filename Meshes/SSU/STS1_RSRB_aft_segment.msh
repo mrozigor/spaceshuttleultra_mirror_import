@@ -21958,7 +21958,7 @@ MATERIAL SRB white
 0.9 0.9 0.9 1.0 0.0
 0.0 0.0 0.0 1.0
 TEXTURES 4
-Casing_OFT.dds
-ThermalCurtain.dds
-AftSkirt_bottom_foam.dds
-Nozzle.dds
+SSU\Casing_OFT.dds
+SSU\ThermalCurtain.dds
+SSU\AftSkirt_bottom_foam.dds
+SSU\Nozzle.dds
