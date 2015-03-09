@@ -48,7 +48,7 @@ private:
 	typedef enum {ACQ, HDG, PRFNL, OGS, FLARE, FNLFL} TAEM_GUIDANCE_MODE;
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STRT} HAC_DIRECTION;
-	typedef enum {NOM, SHORT} SB_CONTROL_LOGIC;
+	typedef enum {NOM, SHORT, ELS} SB_CONTROL_LOGIC;
 
 	class LandingSiteData
 	{
