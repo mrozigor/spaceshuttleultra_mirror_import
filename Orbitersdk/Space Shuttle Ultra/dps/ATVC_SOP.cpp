@@ -153,7 +153,7 @@ namespace dps
 			}
 		}
 		
-		oapiWriteScenario_int( scn, "CONFIG", 1 );
+		oapiWriteScenario_int( scn, "CONFIG", config );
 		return;
 	}
 
