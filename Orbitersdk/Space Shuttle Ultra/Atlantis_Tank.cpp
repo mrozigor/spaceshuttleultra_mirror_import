@@ -144,17 +144,20 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	// see what type of tank this is
 	char pszBuffer[255];
 	bool bFoundData = oapiReadItem_string(cfg, "Type", pszBuffer);
-	if(!bFoundData || !_strnicmp(pszBuffer, "SLWT", 4)) { // default to SLWT tank
-		SetEmptyMass (SLWT_EMPTY_MASS);
-		hTankMesh = oapiLoadMeshGlobal (SLWT_MESHNAME_ET);
+
+	if ((bFoundData == true) && (!_strnicmp(pszBuffer, "SWT", 4))) {
+		SetEmptyMass (SWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SWT_MESHNAME_ET);
 	}
-	else if(!_strnicmp(pszBuffer, "LWT", 3)) {
+	else if ((bFoundData == true) && (!_strnicmp(pszBuffer, "LWT", 4))) {
 		SetEmptyMass (LWT_EMPTY_MASS);
 		hTankMesh = oapiLoadMeshGlobal (LWT_MESHNAME_ET);
 	}
-	else if(!_strnicmp(pszBuffer, "SWT", 3)) {
-		SetEmptyMass (SWT_EMPTY_MASS);
-		hTankMesh = oapiLoadMeshGlobal (SWT_MESHNAME_ET);
+	else// pszBuffer = "SLWT"
+	{
+		// default to SLWT tank
+		SetEmptyMass (SLWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SLWT_MESHNAME_ET);
 	}
 
 	phET = CreatePropellantResource( TANK_MAX_PROPELLANT_MASS );
