@@ -365,7 +365,8 @@ Textures\SSU\Cabletray_tex_SWT.dds
 Textures\SSU\cargobay.dds
 Textures\SSU\Casing.dds
 Textures\SSU\Casing_FWC.dds
-Textures\SSU\Casing_OFT.dds
+Textures\SSU\Casing_OFT_LH.dds
+Textures\SSU\Casing_OFT_RH.dds
 Textures\SSU\CCTVMon.dds
 Textures\SSU\CentaurG_LO2dome_foil.dds
 Textures\SSU\Centaur_G_adapter.dds
