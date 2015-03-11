@@ -833,7 +833,6 @@ private:
 	 * and back.
 	 */
 	void ToggleVCMode();
-	bool SetVCPosition(int id);
 	
 	//RMS
 	bool SatStowed() const;

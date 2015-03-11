@@ -3745,8 +3745,6 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		if (firstStep) {
 			UpdateMassAndCoG(); // update visual before simulation starts
 
-			SetVCPosition(scnVCMode);
-
 			if (status <= STATE_STAGE1) {
 				// update SRB thrusters to match values from SRB vessel
 				VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
@@ -4746,14 +4744,12 @@ bool Atlantis::clbkLoadGenericCockpit ()
 // --------------------------------------------------------------
 bool Atlantis::clbkLoadVC (int id)
 {
-	return SetVCPosition(id);
-}
-
-bool Atlantis::SetVCPosition(int id)
-{
   bool ok = false;
   bool bUpdateVC = false;
   std::set<int> InactiveMDUs;
+
+  // when loading scenario, use cockpit position loaded from scenario instead of default position
+  if(firstStep) id = scnVCMode;
 
     // Get the VC Mode.
   VCMode = id;
