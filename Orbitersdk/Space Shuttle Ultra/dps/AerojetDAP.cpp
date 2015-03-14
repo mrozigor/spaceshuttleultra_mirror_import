@@ -1450,7 +1450,7 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 46, 16, cbuf );
 
 	// scale data
-	char att = 0;
+	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
 	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
@@ -1458,28 +1458,28 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	if (alpha > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
 	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
 	pMDU->Line( 6, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1490,34 +1490,34 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
 	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
 	pMDU->Line( 18, pos - 3, 14, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -1670,7 +1670,7 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 46, 15, cbuf );
 
 	// scale data
-	char att = 0;
+	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
 	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
@@ -1678,28 +1678,28 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	if (alpha > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
 	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
 	pMDU->Line( 6, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1710,34 +1710,34 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
 	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
 	pMDU->Line( 18, pos - 3, 14, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -1884,7 +1884,7 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 46, 15, cbuf );
 
 	// scale data
-	char att = 0;
+	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
 	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
@@ -1892,28 +1892,28 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	if (alpha > 45)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
 	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
 	pMDU->Line( 6, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1924,34 +1924,34 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
 	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
 	pMDU->Line( 18, pos - 3, 14, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -2107,7 +2107,7 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 46, 15, cbuf );
 
 	// scale data
-	char att = 0;
+	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
 	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
@@ -2115,28 +2115,28 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	if (alpha > 45)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
 	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
 	pMDU->Line( 6, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -2147,34 +2147,34 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
 	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
 	pMDU->Line( 18, pos - 3, 14, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -2330,7 +2330,7 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 46, 15, cbuf );
 
 	// scale data
-	char att = 0;
+	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
 	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
@@ -2338,28 +2338,28 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	if (alpha > 30)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 5)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 238 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
 	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
 	pMDU->Line( 6, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 30)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 5)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 238 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -2370,34 +2370,34 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
 	pMDU->Line( 7, pos - 3, 10, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
 	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
 	pMDU->Line( 18, pos - 3, 14, pos, att );
 
-	att = 0;
+	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
 		pos = 22;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att = dps::DEUATT_FLASHING;
+		att += dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
