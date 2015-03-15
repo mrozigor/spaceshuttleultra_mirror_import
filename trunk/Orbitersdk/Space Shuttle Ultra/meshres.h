@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Mar 14 13:47:52 2015
+// Date of conversion : Mon Mar 16 00:00:34 2015
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -9,13 +9,13 @@
 
 const unsigned int NUMGRP = 140;
 
-const unsigned int GRP_OMS_BASE_TILES	=	0;	//OMS_base_tiles
-const unsigned int GRP_LEFT_OME	=	1;	//LEFT_OME
-const unsigned int GRP_LEFT_OMSPOD	=	2;	//LEFT_OMSpod
-const unsigned int GRP_RIGHT_OME	=	3;	//RIGHT_OME
-const unsigned int GRP_RIGHT_OMSPOD	=	4;	//RIGHT_OMSpod
-const unsigned int GRP_RIGHT_OMS_RCS	=	5;	//RIGHT_OMS_RCS
-const unsigned int GRP_LEFT_OMS_RCS	=	6;	//LEFT_OMS_RCS
+const unsigned int GRP_LEFT_OMS_RCS	=	0;	//LEFT_OMS_RCS
+const unsigned int GRP_OMS_BASE_TILES	=	1;	//OMS_base_tiles
+const unsigned int GRP_LEFT_OME	=	2;	//LEFT_OME
+const unsigned int GRP_LEFT_OMSPOD	=	3;	//LEFT_OMSpod
+const unsigned int GRP_RIGHT_OME	=	4;	//RIGHT_OME
+const unsigned int GRP_RIGHT_OMSPOD	=	5;	//RIGHT_OMSpod
+const unsigned int GRP_RIGHT_OMS_RCS	=	6;	//RIGHT_OMS_RCS
 const unsigned int GRP_PLB_TCS	=	7;	//PLB_TCS
 const unsigned int GRP_PLB_LIGHTS	=	8;	//PLB_LIGHTS
 const unsigned int GRP_PLB_VENTS	=	9;	//PLB_VENTS
@@ -107,46 +107,46 @@ const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_4	=	94;	//PORT_MIDBODY_AVS_DOOR_4
 const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_7	=	95;	//PORT_MIDBODY_AVS_DOOR_7
 const unsigned int GRP_PORT_AFT_AVS_DOOR_8	=	96;	//PORT_AFT_AVS_DOOR_8
 const unsigned int GRP_PORT_AFT_AVS_DOOR_9	=	97;	//PORT_AFT_AVS_DOOR_9
-const unsigned int GRP_XSTARTRACKER_IMAGE	=	98;	//Xstartracker_image
-const unsigned int GRP_ZSTARTRACKER_IMAGE	=	99;	//Zstartracker_image
-const unsigned int GRP_STARTRACKER_INDENT	=	100;	//startracker_indent
-const unsigned int GRP_ZSTARTRACKER_DOOR	=	101;	//Zstartracker_door
-const unsigned int GRP_XSTARTRACKER_DOOR	=	102;	//Xstartracker_door
-const unsigned int GRP_TRANSPARENT	=	103;	//transparent
-const unsigned int GRP_BAYPFR	=	104;	//BayPFR
-const unsigned int GRP_OMS_OVERLAP	=	105;	//OMS_overlap
-const unsigned int GRP_WINDOWS	=	106;	//WINDOWS
-const unsigned int GRP_BAY1_LONGERON	=	107;	//Bay1_longeron
-const unsigned int GRP_BAY2_LONGERON	=	108;	//Bay2_longeron
-const unsigned int GRP_BAY3_LONGERON	=	109;	//Bay3_longeron
-const unsigned int GRP_BAY4_LONGERON	=	110;	//Bay4_longeron
-const unsigned int GRP_BAY5_LONGERON	=	111;	//Bay5_longeron
-const unsigned int GRP_BAY6_LONGERON	=	112;	//Bay6_longeron
-const unsigned int GRP_BAY7_LONGERON	=	113;	//Bay7_longeron
-const unsigned int GRP_BAY8_LONGERON	=	114;	//Bay8_longeron
-const unsigned int GRP_BAY9_LONGERON	=	115;	//Bay9_longeron
-const unsigned int GRP_BAY10_LONGERON	=	116;	//Bay10_longeron
-const unsigned int GRP_BAY11_LONGERON	=	117;	//Bay11_longeron
-const unsigned int GRP_BAY12_LONGERON	=	118;	//Bay12_longeron
-const unsigned int GRP_BAY13_LONGERON	=	119;	//Bay13_longeron
-const unsigned int GRP_CAM_A	=	120;	//CAM_A
-const unsigned int GRP_FUSELAGE	=	121;	//FUSELAGE
-const unsigned int GRP_RIGHT_INBOARD_ELEVON	=	122;	//RIGHT_INBOARD_ELEVON
-const unsigned int GRP_RIGHT_OUTBOARD_ELEVON	=	123;	//RIGHT_OUTBOARD_ELEVON
-const unsigned int GRP_LEFT_OUTBOARD_ELEVON	=	124;	//LEFT_OUTBOARD_ELEVON
-const unsigned int GRP_LEFT_INBOARD_ELEVON	=	125;	//LefT_INBOARD_ELEVON
-const unsigned int GRP_STBD_PLBD_INTERIOR	=	126;	//STBD_PLBD_INTERIOR
-const unsigned int GRP_RIGHT_PLBD_EXT	=	127;	//RIGHT_PLBD_EXT
-const unsigned int GRP_LEFT_PLBD_EXT	=	128;	//LEFT_PLBD_EXT
-const unsigned int GRP_PORT_PLBD_INTERIOR	=	129;	//PORT_PLBD_INTERIOR
-const unsigned int GRP_FWD_HOOKS	=	130;	//FWD_HOOKS
-const unsigned int GRP_MID_FWD_HOOKS	=	131;	//MID_FWD_HOOKS
-const unsigned int GRP_MID_AFT_HOOKS	=	132;	//MID_AFT_HOOKS
-const unsigned int GRP_AFT_HOOKS	=	133;	//AFT_HOOKS
-const unsigned int GRP_PLB_SILL_EQUIPMENT	=	134;	//PLB_SILL_EQUIPMENT
-const unsigned int GRP_XO576_BULKHEAD_EQUIPMENT	=	135;	//Xo576_BULKHEAD_EQUIPMENT
-const unsigned int GRP_PLB_WIRE_TRAY	=	136;	//PLB_WIRE_TRAY
-const unsigned int GRP_XO1307_BULKHEAD	=	137;	//Xo1307_BULKHEAD
-const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_3	=	138;	//PORT_MIDBODY_AVS_DOOR_3
-const unsigned int GRP_STARBOARD_MIDBODY_AVS_DOOR_3	=	139;	//STARBOARD_MIDBODY_AVS_DOOR_3
+const unsigned int GRP_BAYPFR	=	98;	//BayPFR
+const unsigned int GRP_OMS_OVERLAP	=	99;	//OMS_overlap
+const unsigned int GRP_WINDOWS	=	100;	//WINDOWS
+const unsigned int GRP_BAY1_LONGERON	=	101;	//Bay1_longeron
+const unsigned int GRP_BAY2_LONGERON	=	102;	//Bay2_longeron
+const unsigned int GRP_BAY3_LONGERON	=	103;	//Bay3_longeron
+const unsigned int GRP_BAY4_LONGERON	=	104;	//Bay4_longeron
+const unsigned int GRP_BAY5_LONGERON	=	105;	//Bay5_longeron
+const unsigned int GRP_BAY6_LONGERON	=	106;	//Bay6_longeron
+const unsigned int GRP_BAY7_LONGERON	=	107;	//Bay7_longeron
+const unsigned int GRP_BAY8_LONGERON	=	108;	//Bay8_longeron
+const unsigned int GRP_BAY9_LONGERON	=	109;	//Bay9_longeron
+const unsigned int GRP_BAY10_LONGERON	=	110;	//Bay10_longeron
+const unsigned int GRP_BAY11_LONGERON	=	111;	//Bay11_longeron
+const unsigned int GRP_BAY12_LONGERON	=	112;	//Bay12_longeron
+const unsigned int GRP_BAY13_LONGERON	=	113;	//Bay13_longeron
+const unsigned int GRP_CAM_A	=	114;	//CAM_A
+const unsigned int GRP_RIGHT_INBOARD_ELEVON	=	115;	//RIGHT_INBOARD_ELEVON
+const unsigned int GRP_RIGHT_OUTBOARD_ELEVON	=	116;	//RIGHT_OUTBOARD_ELEVON
+const unsigned int GRP_LEFT_OUTBOARD_ELEVON	=	117;	//LEFT_OUTBOARD_ELEVON
+const unsigned int GRP_LEFT_INBOARD_ELEVON	=	118;	//LefT_INBOARD_ELEVON
+const unsigned int GRP_STBD_PLBD_INTERIOR	=	119;	//STBD_PLBD_INTERIOR
+const unsigned int GRP_RIGHT_PLBD_EXT	=	120;	//RIGHT_PLBD_EXT
+const unsigned int GRP_LEFT_PLBD_EXT	=	121;	//LEFT_PLBD_EXT
+const unsigned int GRP_PORT_PLBD_INTERIOR	=	122;	//PORT_PLBD_INTERIOR
+const unsigned int GRP_FWD_HOOKS	=	123;	//FWD_HOOKS
+const unsigned int GRP_MID_FWD_HOOKS	=	124;	//MID_FWD_HOOKS
+const unsigned int GRP_MID_AFT_HOOKS	=	125;	//MID_AFT_HOOKS
+const unsigned int GRP_AFT_HOOKS	=	126;	//AFT_HOOKS
+const unsigned int GRP_PLB_SILL_EQUIPMENT	=	127;	//PLB_SILL_EQUIPMENT
+const unsigned int GRP_XO576_BULKHEAD_EQUIPMENT	=	128;	//Xo576_BULKHEAD_EQUIPMENT
+const unsigned int GRP_PLB_WIRE_TRAY	=	129;	//PLB_WIRE_TRAY
+const unsigned int GRP_XO1307_BULKHEAD	=	130;	//Xo1307_BULKHEAD
+const unsigned int GRP_PORT_MIDBODY_AVS_DOOR_3	=	131;	//PORT_MIDBODY_AVS_DOOR_3
+const unsigned int GRP_STARBOARD_MIDBODY_AVS_DOOR_3	=	132;	//STARBOARD_MIDBODY_AVS_DOOR_3
+const unsigned int GRP_XSTARTRACKER_IMAGE	=	133;	//Xstartracker_image
+const unsigned int GRP_ZSTARTRACKER_IMAGE	=	134;	//Zstartracker_image
+const unsigned int GRP_STARTRACKER_INDENT	=	135;	//startracker_indent
+const unsigned int GRP_ZSTARTRACKER_DOOR	=	136;	//Zstartracker_door
+const unsigned int GRP_XSTARTRACKER_DOOR	=	137;	//Xstartracker_door
+const unsigned int GRP_TRANSPARENT	=	138;	//transparent
+const unsigned int GRP_FUSELAGE	=	139;	//FUSELAGE
 
