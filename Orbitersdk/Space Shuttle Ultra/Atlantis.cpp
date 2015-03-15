@@ -2091,13 +2091,13 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE STZD_Open (midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
   static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
 
-  anim_stzd = CreateAnimation(1.0);
+  anim_stzd = CreateAnimation(0.0);
   LogAnim("anim_stzd", anim_stzd);
   AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
 
   pSTZDoorMotor->SetObjectAnim(anim_stzd);
 
-  anim_styd = CreateAnimation(1.0);
+  anim_styd = CreateAnimation(0.0);
   LogAnim("anim_styd", anim_styd);
   AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
 
