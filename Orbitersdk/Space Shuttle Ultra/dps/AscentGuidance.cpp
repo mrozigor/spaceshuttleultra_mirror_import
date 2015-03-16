@@ -949,10 +949,10 @@ void AscentGuidance::ASCENTTRAJ2( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ
 	int tmp = 0;
 
 	// Vr scale
-	if (((STS()->pMission->GetMECOVel() * MPS2FPS) > 25000) && ((STS()->pMission->GetMECOVel() * MPS2FPS) < 26000))
+	if (((TgtSpd * MPS2FPS) > 25000) && ((TgtSpd * MPS2FPS) < 26000))// TODO update for MECO speeds > 25K???
 	{
 		// CO mark
-		tmp = Round( ((((STS()->pMission->GetMECOVel() * MPS2FPS) - 25000)) * 0.199) ) + 50;
+		tmp = Round( ((((TgtSpd * MPS2FPS) - 25000)) * 0.199) ) + 50;
 		pMDU->Line( tmp, 31, tmp, 36 );
 		tmp = Round( tmp * 0.2 ) - 1;
 		pMDU->mvprint( tmp, 4, "CO" );
@@ -1025,12 +1025,11 @@ void AscentGuidance::ASCENTTRAJ2( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ
 	VECTOR3 LVLH_Vel;
 	STS()->GetGPCLVLHVel(0, LVLH_Vel);
 
-	//Current vehicle state:
+	//Current vehicle state (57NM insertion altitude):
 	double VHI = LVLH_Vel.x;
 	double Altitude = STS()->GetAltitude() * MPS2FPS;
-
 	//Draw triangle for state vector
-	short stY = static_cast<short>(299.783784 - (Altitude * 0.000540541));
+	short stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
 	short stX = static_cast<short>(VHI * 0.0102);
 	pMDU->Line( stX, stY - 3, stX - 3, stY + 3, dps::DEUATT_OVERBRIGHT );
 	pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
@@ -1041,26 +1040,18 @@ void AscentGuidance::ASCENTTRAJ2( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ
 	double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
 	VHI += dv30;
 	Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
-
-	if(Altitude > 155500)
-	{
-		//Draw circle for 30s predictor
-		short stY = static_cast<short>(288.8028 - (Altitude * 0.000496151));
-		short stX = static_cast<short>(VHI * 0.0102);
-		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	}
+	//Draw circle for 30s predictor
+	stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+	stX = static_cast<short>(VHI * 0.0102);
+	pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
 
 	// 60s predictor
 	VHI += dv30;
 	Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
-
-	if(Altitude > 155500)
-	{
-		//Draw circle for 60s predictor
-		short stY = static_cast<short>(288.8028 - (Altitude * 0.000496151));
-		short stX = static_cast<short>(VHI * 0.0102);
-		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	}
+	//Draw circle for 60s predictor
+	stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+	stX = static_cast<short>(VHI * 0.0102);
+	pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
 	return;
 }
 
