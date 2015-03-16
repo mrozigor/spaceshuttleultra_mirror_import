@@ -1453,17 +1453,17 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
-	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
+	if (fabs( alpha - alphacmd ) > 2) att |= dps::DEUATT_FLASHING;
 	int pos;
 	if (alpha > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
@@ -1474,12 +1474,12 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	if (alphacmd > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1495,12 +1495,12 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
@@ -1512,12 +1512,12 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -1531,8 +1531,8 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	// orbiter symbol
 	int x = Round( (ETVS_Range * 0.215333) - 154.133333 - (ETVS_Range * ETVS_Range * 0.0000283333) );
 	int y = Round( 664.8 - (ET_Mach * 26.4) );
-	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
-	else att = dps::DEUATT_OVERBRIGHT;
+	att = dps::DEUATT_OVERBRIGHT;
+	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
 
 	// orbiter trailers
@@ -1673,17 +1673,17 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
-	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
+	if (fabs( alpha - alphacmd ) > 2) att |= dps::DEUATT_FLASHING;
 	int pos;
 	if (alpha > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
@@ -1694,12 +1694,12 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	if (alphacmd > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 382 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1715,12 +1715,12 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
@@ -1732,12 +1732,12 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -1751,8 +1751,8 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	// orbiter symbol
 	int x = x = Round( (ETVS_Range * 0.865959) - 307.873469 - (ETVS_Range * ETVS_Range * 0.000333061) );
 	int y = 1140 - Round( ET_Mach * 66 );
-	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
-	else att = dps::DEUATT_OVERBRIGHT;
+	att = dps::DEUATT_OVERBRIGHT;
+	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
 
 	// orbiter trailers
@@ -1887,17 +1887,17 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
-	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
+	if (fabs( alpha - alphacmd ) > 2) att |= dps::DEUATT_FLASHING;
 	int pos;
 	if (alpha > 45)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
@@ -1908,12 +1908,12 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	if (alphacmd > 45)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -1929,12 +1929,12 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
@@ -1946,12 +1946,12 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -1965,8 +1965,8 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	// orbiter symbol
 	int x = Round( (ETVS_Range * 1.73451) - 438.803805 - (ETVS_Range * ETVS_Range * 0.00108407) );
 	int y = 810 - Round( ET_Mach * 56.571429 );
-	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
-	else att = dps::DEUATT_OVERBRIGHT;
+	att = dps::DEUATT_OVERBRIGHT;
+	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
 
 	// orbiter trailers
@@ -2110,17 +2110,17 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
-	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
+	if (fabs( alpha - alphacmd ) > 2) att |= dps::DEUATT_FLASHING;
 	int pos;
 	if (alpha > 45)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
@@ -2131,12 +2131,12 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	if (alphacmd > 45)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 346 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -2152,12 +2152,12 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
@@ -2169,12 +2169,12 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -2188,8 +2188,8 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	// orbiter symbol
 	int x = Round( (ETVS_Range * 2.181332) - 268.519715 - (ETVS_Range * ETVS_Range * 0.00227222) );
 	int y = Round( 357.428571 - (ET_Mach * ETVS_Altitude * 0.000188571) );
-	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
-	else att = dps::DEUATT_OVERBRIGHT;
+	att = dps::DEUATT_OVERBRIGHT;
+	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
 
 	// orbiter trailers
@@ -2333,17 +2333,17 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	char att = dps::DEUATT_OVERBRIGHT;
 	double alpha = STS()->GetAOA() * DEG;
 	double alphacmd = CalculateTargetAOA(STS()->GetMachNumber());
-	if (fabs( alpha - alphacmd ) > 2) att = dps::DEUATT_FLASHING;
+	if (fabs( alpha - alphacmd ) > 2) att |= dps::DEUATT_FLASHING;
 	int pos;
 	if (alpha > 30)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 5)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 238 - Round( 7.2 * alpha );
 	pMDU->Line( 10, pos, 6, pos + 3, att );
@@ -2354,12 +2354,12 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	if (alphacmd > 30)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 5)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 238 - Round( 7.2 * alphacmd );
 	pMDU->Line( 10, pos, 7, pos + 3, att );
@@ -2375,12 +2375,12 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 18, pos + 3, att );
@@ -2392,12 +2392,12 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	if (tmp > 50)
 	{
 		pos = 22;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
 		pos = 202;
-		att += dps::DEUATT_FLASHING;
+		att |= dps::DEUATT_FLASHING;
 	}
 	else pos = 202 - Round( 3.6 * tmp );
 	pMDU->Line( 14, pos, 17, pos + 3, att );
@@ -2411,8 +2411,8 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	// orbiter symbol
 	int x = Round( (ETVS_Range * 4.121212) - 198.333333 - (ETVS_Range * ETVS_Range * 0.00936639) );
 	int y = 288 - Round( ET_Mach * ETVS_Altitude * 0.00036 );
-	if (0) att = dps::DEUATT_OVERBRIGHT + dps::DEUATT_FLASHING;// TODO on roll reversal
-	else att = dps::DEUATT_OVERBRIGHT;
+	att = dps::DEUATT_OVERBRIGHT;
+	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
 
 	// orbiter trailers
