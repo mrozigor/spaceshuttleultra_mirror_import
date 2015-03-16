@@ -83,11 +83,11 @@ const VECTOR3 PROBE_AXIS = _V(-0.0918181,0.94801,0.304708);
 // ============================================================
 // Star Tracker Door Animation Constants
 // ============================================================
-const VECTOR3 STZD_REF = _V(-1.178,0.404,13.55);
-const VECTOR3 STZD_AXIS = _V(-0.241377,0.928995,0.280545);
-const VECTOR3 STYD_REF = _V(-1.965,-0.244,13.509);
-const VECTOR3 STYD_AXIS = _V(0.874892,-0.359366,-0.324684);
-const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(95.0 * RAD);
+const VECTOR3 STZD_REF = _V(-1.1169,0.4198,13.5551);
+const VECTOR3 STZD_AXIS = _V(0.372101, -0.864888, -0.336913);
+const VECTOR3 STYD_REF = _V(-1.9407,-0.2329,13.5354);
+const VECTOR3 STYD_AXIS = _V(-0.849865, 0.354425, 0.390016);
+const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(77.0 * RAD);
 
 
 const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 3.1655, -14.3915);
