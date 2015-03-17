@@ -300,7 +300,7 @@ public:
 	double GetRangeToRunway( void ) const;
 
 	/**
-	 * Gets current delta azimuth to WP-1 (degrees).
+	 * Gets current delta azimuth to WP-1, in degrees, with range -180 to +180, and >0 for runway left of vehicle.
 	 * @return	delta azimuth (degrees)
 	 */
 	double GetdeltaAZ( void ) const;
@@ -535,7 +535,7 @@ private:
 	/**
 	 * Calculates range and azimuth error to selected runway.
 	 * /param range updated with range to rwy [m]
-	 * /param delaz updated with azimuth error to rwy threshold [deg]
+	 * /param delaz updated with azimuth error to WP1 [deg], range [-180;+180], >0 for runway left of vehicle
 	 */
 	void CalculateRangeAndDELAZ(double& Range, double& delaz);
 
