@@ -3514,6 +3514,8 @@ void AerojetDAP::CalculateRangeAndDELAZ(double& Range, double& delaz)
 	Range = rangeToWP1 + HAC_range*RAD - HAC_CENTER_X;
 
 	delaz = DEG*(actualHeading-headingToWP1);
+	if (delaz < -180) delaz += 360;
+	else if (delaz > 180) delaz -= 360;
 }
 
 /*double AerojetDAP::CalculateRangeToRunway() const
@@ -3683,7 +3685,10 @@ double AerojetDAP::GetdeltaAZ( void ) const
 	double headingToHACCenter = atan2(sin(HAC_Long-lng)*cos(HAC_Lat), cos(lat)*sin(HAC_Lat) - sin(lat)*cos(HAC_Lat)*cos(HAC_Long-lng));
 	double headingToWP1 = headingToHACCenter - YSGN*T8; // this is not quite the same as in documents, but should work
 
-	return fabs( DEG*(actualHeading-headingToWP1) );
+	double dAZ = DEG*(actualHeading-headingToWP1);
+	if (dAZ < -180) dAZ += 360;
+	else if (dAZ > 180) dAZ -= 360;
+	return dAZ;
 }
 
 bool AerojetDAP::GetOnHACState( void ) const

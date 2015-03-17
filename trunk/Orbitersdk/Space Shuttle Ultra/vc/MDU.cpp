@@ -4097,7 +4097,7 @@ namespace vc {
 			LineTo( hDC, 153, 179 );
 			LineTo( hDC, 149, 179 );
 			TextOut( hDC, 154, 172, "AZ", 2 );
-			dtmp = GetIDP()->GetdeltaAZ();
+			dtmp = fabs( GetIDP()->GetdeltaAZ() );
 			if (dtmp >= GetIDP()->GetdeltaAZLimit( MachNumber ))
 			{
 				// rectangle flashes red for limits
