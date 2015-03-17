@@ -46,7 +46,7 @@ The flight instruments and subsystem status displays replace the analog instrume
 In SSU, each MDU is an Orbitersim MFD. CRT MFD, which is part of SSU, simulates the shuttle MEDS displays. In the future, SSU will only display accurate displays in the MDU; some displays have not been implemented yet, and so Orbitersim MFD equivalents have to be used.
 Section \ref{sec:dps-displays} describes the DPS displays that have been implemented so far.
 The 3 subsystem status displays (\textit{OMS/MPS}, \textit{APU/HYD} and \textit{SPI}) have been implemented in CRT MFD.
-The flight instrument displays are only partially implemented. All displays in the Ascent/Entry Primary Flight Display are working except for the ADI and HSI. The Orbit Primary Flight Display is not implemented.
+The flight instrument displays are only partially implemented. All displays in the Ascent/Entry Primary Flight Display are working except for the ADI and HSI.
 \end{multicols*}
 
 \subsection{DPS Displays}
@@ -74,6 +74,12 @@ This display is used in MM 201 and MM 202 to compute rendezvous burns. In real l
 % TODO: reference scenario file
 The real-life ORBIT TGT display can load rendezvous targets by specifying a TGT NO (ITEM 1); in SSU, each parameter has to be set individually. SSU doesn't support the EL parameter (ITEM 6), which allows the burn TIG to be computed to match a desired elevation angle; instead, the TIG must be specified.
 SSU can only be used to compute the T1 burn (ITEM 28), and not the T2 burn. In real life, the T2 burn computations are not used.
+
+\subsubsection{ENTRY TRAJ}
+These displays are used during entry to monitor the shuttle's trajectory.
+
+\subsubsection{VERT TRAJ}
+These displays are used during TAEM to monitor the shuttle's trajectory.
 
 \subsubsection{HORIZ SIT}
 This display is used during deorbit and entry to specify the landing site and monitor the position of the shuttle relative to the HAC and the runway.
