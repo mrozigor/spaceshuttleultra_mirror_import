@@ -855,7 +855,7 @@ void AscentGuidance::ASCENTTRAJ1( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ
 	sprintf_s( cbuf, 64, "%3d", (int)throttlecmd );
 	pMDU->mvprint( 44, 17, cbuf );
 
-	if (pSRBSepSequence->GetPC50Flag() == true) pMDU->mvprint( 22, 9, "PC<50", dps::DEUATT_OVERBRIGHT );
+	if (pSRBSepSequence->GetPC50Flag() == true) pMDU->mvprint( 22, 9, "PC<50", dps::DEUATT_OVERBRIGHT | dps::DEUATT_FLASHING );
 
 	//if (pSRBSepSequence->GetSRBSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
 
