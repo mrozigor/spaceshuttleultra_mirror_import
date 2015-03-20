@@ -381,7 +381,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(20, 9, cbuf);
 	}
 	else {
-		if(PeT<ApT && PeT>=STS()->GetMET()) {
+		if ((PeT<ApT && PeT>=STS()->GetMET()) || ((PeT > ApT) && (ApT < STS()->GetMET()))) {
 			double TTP = PeT - STS()->GetMET();
 			minutes=(int)(TTP/60);
 			seconds=(int)(TTP-(60*minutes));
