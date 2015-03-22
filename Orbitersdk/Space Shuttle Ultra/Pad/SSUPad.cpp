@@ -630,12 +630,12 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 		}
 	}
 
-	switch(key) {
+	/*switch(key) {
 		case OAPI_KEY_O:
 			//Recharge GOX_Vent .. test
 			SetPropellantMass(phGOXVent, 8000000000000000.0);
 			return 1;
-	}
+	}*/
 	return BaseSSUPad::clbkConsumeBufferedKey(key, down, keystate);
 }
 
@@ -691,6 +691,12 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	wt_mesh_idx=AddMesh(WaterTowerMesh, &wt_ofs);
 
 	SetTouchdownPoints(_V(1.0, -2.0, 0.0), _V(-1.0, -2.0, 1.0), _V(-1.0, -2.0, -1.0));
+
+	if (bPad1985 == true)// update GOX vents position, as it appears there's an offset between the "regular" pad and the "1985" pad
+	{
+		vtx_goxvent[0] = FSS_POS_GOXVENTL_1985;
+		vtx_goxvent[1] = FSS_POS_GOXVENTR_1985;
+	}
 
 	//if(bPad1985) DefineAnimations1985();
 	//else DefineAnimations();
