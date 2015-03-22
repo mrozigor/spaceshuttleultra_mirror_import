@@ -243,7 +243,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 
 int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 {
-	if(down) {
+	/*if(down) {
 		if(KEYMOD_CONTROL(keystate)) {
 			switch(key) {
 				//for debugging ROFIs
@@ -253,7 +253,7 @@ int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 					return 1;
 			}
 		}
-	}
+	}*/
 	return 0;
 }
 
