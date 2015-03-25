@@ -943,12 +943,12 @@ pActiveLatches(3, NULL)
   plbdCamPos[3] = CAM_D_POS;
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.64, -2.35, 5.5); //forward stbd
-  PLBLightPosition[1] = _V(-1.55,-2.35, 5.13); //forward port
-  PLBLightPosition[2] = _V(1.64, -2.35, -0.3);//mid stbd
-  PLBLightPosition[3] = _V(-1.64, -2.35, -0.3);//mid port
-  PLBLightPosition[4] = _V(1.64, -2.35, -4.4);//aft stbd
-  PLBLightPosition[5] = _V(-1.64, -2.35, -4.4);//aft port
+  PLBLightPosition[0] = _V(1.6380, -2.1207, 5.5686); //forward stbd
+  PLBLightPosition[1] = _V(-1.6380,-2.1207, 5.5686); //forward port
+  PLBLightPosition[2] = _V(1.6380, -2.1207, -0.2724);//mid stbd
+  PLBLightPosition[3] = _V(-1.6380, -2.1207, -0.2724);//mid port
+  PLBLightPosition[4] = _V(1.6380, -2.1207, -4.3755);//aft stbd
+  PLBLightPosition[5] = _V(-1.6380, -2.1207, -4.3755);//aft port
   FwdBulkheadLightPos = _V(0.0, 1.75, 9.65);//fwd bulkhead
   DockingLightPos = _V(0.0, 2.02, 9.6);//docking light
 
@@ -1661,10 +1661,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RCargoDoorGrp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4,};
   MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
-    _V(2.694,0.245,0.0), _V(0, 0, 1), (float)(-175.5*RAD));
+    _V(2.6942,0.2449,0.0), _V(0, 0, 1), (float)(-175.5*RAD));
   static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
   MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
-    _V(-2.694,0.245,0.0), _V(0, 0, 1), (float)(175.5*RAD)); 
+    _V(-2.6942,0.2449,0.0), _V(0, 0, 1), (float)(175.5*RAD)); 
 
   static UINT RRadiatorGrp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
   MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 3,
@@ -1700,19 +1700,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);
@@ -2938,7 +2938,8 @@ void Atlantis::SetAnimationCameras() {
 LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
 	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
+	//const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f}; //RGB for metal halide but it doesn't quite match up with actual photos
+	const COLOUR4 diff = {0.847f, 0.968f, 1.0f, 0.0f}; //RGB for mercury vapor, this better matches photos
 	const COLOUR4 amb = {0.0, 0.0, 0};
 	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 
@@ -2952,7 +2953,7 @@ LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double de
 	bspec.size = 0.25;
 	bspec.tofs = 0;
 	AddBeacon(&bspec);
-	return AddSpotLight(pos,dir,20,0.5,0.8,0.001, degWidth*RAD, degWidth*1.1*RAD,
+	return AddSpotLight(pos,dir,20,0.5,0.0,0.05, degWidth*RAD, degWidth*1.1*RAD,
 						 diff,spec,amb);
 }
 
@@ -6140,7 +6141,7 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
-    _V(2.46,-1.1058,9.44), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
+    _V(2.4551,-0.6979,9.4404), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
 
   static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
