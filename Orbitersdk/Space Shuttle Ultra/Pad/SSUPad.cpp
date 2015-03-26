@@ -18,23 +18,23 @@ VECTOR3 FSS_POS_LIGHT[FSS_NUM_LIGHTS] = {
 };
 
 const VECTOR3 LC39_LIGHT_POS[LC39_LIGHT_COUNT] = {
-	_V(-58.2, -0.75, 1.3) + _V(4.126, 32, -41.503), //POS of SE light
-	_V(-58.2, -0.75, 1.3) + _V(55.574, 27, -43.662), // POS of E light
-	_V(-58.2, -0.75, 1.3) + _V(107.217, 32, -41.615),  // POS of NE light
-	_V(-58.2, -0.75, 1.3) + _V(117.091, 32, 30.015),  // POS of NW light
-	_V(-58.2, -0.75, 1.3) + _V(-10.551, 32, 23.754) // POS of SW light
+	_V(-58.2, -0.75, 1.3) + _V(4.4093, 31.8574, -41.2937), //POS of SE light
+	_V(-58.2, -0.75, 1.3) + _V(55.5674, 27.0605, -43.3116), // POS of E light
+	_V(-58.2, -0.75, 1.3) + _V(107.0480, 31.8574, -41.3088),  // POS of NE light
+	_V(-58.2, -0.75, 1.3) + _V(116.7850, 31.8574, 29.8456),  // POS of NW light
+	_V(-58.2, -0.75, 1.3) + _V(-10.2032, 31.8573, 23.6686) // POS of SW light
 };
 
 const VECTOR3 LC39_LIGHT_DIR[LC39_LIGHT_COUNT] = {
-	_V(0.7071, 0.0, 0.7071), // DIR of SE light
+	_V(0.791015, 0.0193902, 0.61149), // DIR of SE light
 	_V(0.0, 0.0, -1.0), // DIR of E light
-	_V(-0.7071, 0.0, 0.7071), // DIR of NE light
-	_V(-0.7071, 0.0, -0.7071), // DIR of NW light
-	_V(0.7071, 0.0, -0.7071) // DIR of SW light
+	_V(-0.477215, 0.0192925, 0.878575), // DIR of NE light
+	_V(-0.878479, 0.0193991, -0.477387), // DIR of NW light
+	_V(0.956121, 0.0193869, -0.292329) // DIR of SW light
 };
-const COLOUR4 LC39_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
+const COLOUR4 LC39_LIGHT_DIFFUSE = {0.8f, 1.0f, 0.8f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
 const COLOUR4 LC39_LIGHT_SPECULAR = {0,0,0,0};
-const COLOUR4 LC39_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
+const COLOUR4 LC39_LIGHT_AMBIENT = {0.8f, 1.0f, 0.8f, 1.0f};
 const double LC39_LIGHT_RANGE = 100.0;
 const double LC39_LIGHT_ATT0 = 1e-3;
 const double LC39_LIGHT_ATT1 = 0;
