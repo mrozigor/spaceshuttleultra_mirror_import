@@ -454,12 +454,12 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "MPS Pwr Left AC3" [1]
   "MPS Pwr Ctr AC2" [1]
   "MPS Pwr Right AC1" [1]
-  "MPS He Isol A Left" GPC
-  "MPS He Isol A Ctr" GPC
-  "MPS He Isol A Right" GPC
-  "MPS He Isol B Left" GPC
-  "MPS He Isol B Ctr" GPC
-  "MPS He Isol B Right" GPC
+  "MPS He Isol A Left" OPEN
+  "MPS He Isol A Ctr" OPEN
+  "MPS He Isol A Right" OPEN
+  "MPS He Isol B Left" OPEN
+  "MPS He Isol B Ctr" OPEN
+  "MPS He Isol B Right" OPEN
   "MPS PRPLT Dump Sequence" GPC
   "MPS PRPLT Backup LH2 vlv" GPC
   "Pneu L Eng He XOVR" GPC
@@ -470,8 +470,8 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
-  "LOMS Arm" OFF
-  "ROMS Arm" OFF
+  "LOMS Arm" ARM/PRESS
+  "ROMS Arm" ARM/PRESS
   "BFC CRT Display" ON
   "BFC CRT Select" 3+1
   "LADP Stow Enable" INHIBIT
