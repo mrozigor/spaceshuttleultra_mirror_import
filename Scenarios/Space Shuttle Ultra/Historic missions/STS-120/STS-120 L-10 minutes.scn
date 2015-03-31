@@ -133,7 +133,6 @@ LC39A:SSU_Pad
   RSS 1 1.0000
   FSS_GH2 0 0.0000
   FSS_IAA 0 0.0000
-  GOX_SEQUENCE 2
 END
 Discovery:SpaceShuttleUltra
   STATUS Landed Earth
