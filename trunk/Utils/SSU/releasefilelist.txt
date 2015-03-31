@@ -56,6 +56,7 @@ Config\Vessels\SSU_DFI_pallet.cfg
 Config\Vessels\SSU_LCC.cfg
 Config\Vessels\SSU_LSRB.cfg
 Config\Vessels\SSU_LSRB_FWC.cfg
+Config\Vessels\SSU_LSRB_RSRM.cfg
 Config\Vessels\SSU_LWT.cfg
 Config\Vessels\SSU_MLP.cfg
 Config\Vessels\SSU_OBSS.cfg
@@ -64,6 +65,7 @@ Config\Vessels\SSU_Pad1985.cfg
 Config\Vessels\SSU_PLB.cfg
 Config\Vessels\SSU_RSRB.cfg
 Config\Vessels\SSU_RSRB_FWC.cfg
+Config\Vessels\SSU_RSRB_RSRM.cfg
 Config\Vessels\SSU_SLC6.cfg
 Config\Vessels\SSU_SLWT.cfg
 Config\Vessels\SSU_SWT.cfg
