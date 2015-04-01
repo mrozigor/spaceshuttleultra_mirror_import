@@ -6,9 +6,10 @@
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
 \noindent
+\\
 This section discusses in greater detail each of the orbiter systems that are currently simulated. The subsections are organized alphabetically, with detailed internal table of contents provided for each.\\
 \\
-These are not ment to provide all information about the real orbiter system but to provide a working knowlege required to understand what is happening in the simulation. For full, detailed reading, each subsection provides references to relavent sections in the Shuttle Crew Operations Manual (SCOM) and should be read for a better understanding for that system.
+These are not meant to provide all information about the real orbiter system but to provide a working knowlege required to understand what is happening in the simulation. For full, detailed reading, each subsection provides references to relavent sections in the Shuttle Crew Operations Manual (SCOM) and should be read for a better understanding for that system.
 \end{multicols*}
 
 \subsection{AUXILIARY POWER UNIT/HYDRAULICS (APU/HYD)}
@@ -27,6 +28,8 @@ All 3 APUs are shut down after landing.
 \begin{multicols*}{2}
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
+\noindent
+\\
 The DPS consists of the shuttle's General Purpose Computers (GPCs), associated systems, and the software run by the GPCs. The 11 MDUs (Multifunction Display Units) are also part of the DPS.
 \subsubsection{GPCs}
 The real shuttle has 5 identical computers. Up to 4 of the 5 GPCs run the Primary Avionics Software System (PASS). The remaining computer runs the Backup Flight System (BFS). The PASS software is further divided into 3 Major Functions: \textit{GNC} (Guidance, Navigation \& Control), \textit{SM} (Systems Management) and \textit{PL} (Payload) software. The \textit{GNC} software is responsible for controlling the orbiter during flight. During critical phases of flight, such as launch and entry, multiple GPCs will run the PASS \textit{GNC} software simultaneously; this provides redundacy if one of the GPCs fails. The \textit{SM} software monitors various orbiter systems. The \textit{PL} software is not used during flight. The BFS was written separately from the PASS, and implements a subset of the PASS \textit{GNC} functions. The BFS is meant to be used in the event of a PASS failure. \\
@@ -54,6 +57,8 @@ The flight instrument displays are only partially implemented. All displays in t
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
 \label{sec:dps-displays}
+\noindent
+\\
 The NASA DPS Dictionary describes each display in detail. This section lists the displays that have been implemented so far and describes the differences between the real shuttle and the SSU implementation.
 
 \subsubsection{ASCENT TRAJ}
@@ -77,18 +82,21 @@ SSU can only be used to compute the T1 burn (ITEM 28), and not the T2 burn. In r
 
 \subsubsection{ENTRY TRAJ}
 These displays are used during entry to monitor the shuttle's trajectory.
+Currently no item entries are supported.
 
 \subsubsection{VERT TRAJ}
 These displays are used during TAEM to monitor the shuttle's trajectory.
+Currently no item entries are supported.
 
 \subsubsection{HORIZ SIT}
 This display is used during deorbit and entry to specify the landing site and monitor the position of the shuttle relative to the HAC and the runway.
-The HORIZ SIT display in SSU is simplified compared to the real life version. Only ITEMs 3, 4, 6 and 41 are supported. These ITEM 41 selects the landing site, ITEMs 3 and 4 switch between the primary and secondary runway, and ITEM 6 switches between a straight-in and overhead approach. These parameters all affect the entry autopilot, so they should be set before Entry Interface (EI).
+The HORIZ SIT display in SSU is simplified compared to the real life version. Only ITEMs 3, 4, 6, 8, 39 and 41 are supported. ITEM 41 selects the landing site, ITEMs 3 and 4 switch between the primary and secondary runway. ITEM 6 switches between a straight-in and overhead approach, ITEM 8 switches the aim point between nominal and close, and ITEM 39 switches between nominal, short and ELS (Emergency Landing Site) speedbrake configurations for final approach.
+These parameters all affect the entry autopilot, so they should be set before Entry Interface (EI).
 Table \ref{tab:LandingSites} shows the list of landing sites currently supported by SSU.
 
 \begin{table*}[tb]
   \centering
-  \begin{tabular}{l | l l l}
+  \begin{tabular}{l | c l l}
     \textbf{SITE} & \textbf{Location} & \textbf{PRI RWY} & \textbf{SEC RWY} \\
     \hline
     1 & KSC & KSC 15 & KSC 33 \\
@@ -96,9 +104,12 @@ Table \ref{tab:LandingSites} shows the list of landing sites currently supported
     13 & Moron & MRN 20 & MRN 02 \\
     20 & St. John's International & YYT 29 & YYT 11 \\
     23 & Lajes & LAJ 15 & LAJ 33 \\
+    24 & Vandenberg AFB & VBG 30 & VBG 12 \\
     29 & Istres & FMI 33 & FMI 15 \\
     32 & Diego Garcia & JDG 31 & JDG 13 \\
     33 & RAAF Amberley/Tindall & AMB 15 & PTN 14 \\
+    36 & Bermuda & BDA 30 & BDA 12 \\
+    38 & Easter Island & EIP 28 & EIP 10 \\
     39 & Hao Atoll & HAO 12 & HAO 30 \\
     45 & Edwards AFB & EDW 22 & EDW 04
   \end{tabular}

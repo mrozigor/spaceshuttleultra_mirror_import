@@ -108,14 +108,14 @@ This document is formated to look the same as the SCOM to facilitate changing fr
 \section{INSTALLATION INSTRUCTIONS}
 SSU requires the following addons to be installed:
 \begin{enumerate}
-\item \href{http://orbiter.dansteph.com/index.php?disp=d}{OrbiterSound 4.0}
-\item \href{http://www.orbithangar.com/searchid.php?ID=5583}{KSC hires tiles}
-\item \href{http://www.orbithangar.com/searchid.php?ID=2380}{Vandenberg AFB}
-\item \href{http://users.swing.be/vinka/}{Spacecraft3} (optional; required only for STS-61G scenarios)
+\item OrbiterSound 4.0 (\url{http://orbiter.dansteph.com/index.php?disp=d})
+\item KSC hires tiles (\url{http://www.orbithangar.com/searchid.php?ID=5583})
+\item Vandenberg AFB (\url{http://www.orbithangar.com/searchid.php?ID=2380})
 \end{enumerate}
 After extracting SSU, the following lines need to be added to \texttt{Config/Base.cfg}:\\
 \texttt{CONCRETE\_014\\CONCRETE\_015\\CONCRETE\_016}
 \\
+CRT MFD needs to be enabled (Orbiter Launchpad $\rightarrow$ Modules $\rightarrow$ check \textit{CRT} box).
 
 Using the D3D9 graphics client is strongly recommended (although not required). The \textit{Enable geometry instancing} option in the D3D9 Advanced Setup dialog (Orbiter Launchpad $\rightarrow$ Video $\rightarrow$ Advanced) should be unchecked.
 
@@ -136,6 +136,7 @@ Using the D3D9 graphics client is strongly recommended (although not required). 
 %\end{tabular}
 %\\[0.4cm]
 \noindent
+\\
 The section provides general background information about the obiter, its configuration and coordinate system, the nominal mission profile, and general procedures followed during a shuttle mission.
 \\
 Also included in this section is keyboard commands for SSU but will not include standard Orbiter keyboard commands. See Orbiter.pdf for standard Orbiter keyboard commands.
@@ -243,7 +244,7 @@ Figures \ref{fig:FlightDeckLocCodes1} and \ref{fig:FlightDeckLocCodes2} show the
 \newpage
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{Flight_Deck_Loc_Codes_1.jpg}
+  \includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{Flight_Deck_Loc_Codes_1.jpg}
   \caption{}
   \label{fig:FlightDeckLocCodes1}
 \end{figure}
@@ -305,7 +306,7 @@ The RHCs on the real shuttle have a "soft stop" and a "hard stop" (the mechanica
 On the real shuttle, the Speedbrake/Thrust Controller (SBTC) controls both SSME throttling during ascent and the speedbrake during entry. In Orbiter, the SBTC is simulated using the main engine key controls. The Orbitersim throttle setting is mapped to the SBTC range. During ascent, 0\% Orbitersim main thrust corresponds to 67\% SSME throttle; 100\% Orbitersim main thrust corresponds to 104.5\% (109\% during some abort cases) SSME thrust. During entry, 0\% Orbitersim main thrust corresponds to the speedbrake being \textbf{fully open}; 100\% Orbitersim main thrust corresponds to the speedbrake being commanded \textbf{fully closed}.
 
 \paragraph{Ascent}
-During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit. To takeover manual control, move the SBTC (by changing the Orbitersim main engine throttle) to match the current autopilot command. At this point, both \textit{AUTO} PBIs will go out and the PLT \textit{SBD BK/THROT MAN} PBI will be lit (the CDR PBI will not be lit; in real life, only the PLT SBTC can be used during ascent, although SSU allows the SBTC to be used from both CDR and PLT seats). MECO is commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} pushbuttons on Panel C3; this is not possible in Orbiter).
+During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit. To takeover manual control, move the SBTC (by changing the Orbitersim main engine throttle) to match the current autopilot command. At this point, both \textit{AUTO} PBIs will go out and the PLT \textit{SBD BK/THROT MAN} PBI will be lit (the CDR PBI will not be lit; in real life, only the PLT SBTC can be used during ascent, although SSU allows the SBTC to be used from both CDR and PLT seats). A manual MECO can be commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} pushbuttons on Panel C3; this is not possible in Orbiter).
 
 \paragraph{Entry}
 \label{sec:entry}
@@ -320,7 +321,7 @@ SSU includes the four payload bay cameras and the docking port centerline camera
 \paragraph{Navigating the Virtual Cockpit}
 Changing between Virtual Cockpit (VC) views is identical to the system used in the default Atlantis but with several more positions around the cockpit that we call stations. You can switch between different stations using the Ctrl+Arrow key combination (See Chart below for all combinations.) The Commander (CDR) Station is the front left seat on the flight deck, while the Pilot (PLT) station is the right seat (while looking forward).\\
 
-The table below is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.\\
+Table \ref{tab:VC_navigation} is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.\\
 \end{multicols*}
 \begin{table}[H]
   \centering
@@ -352,7 +353,7 @@ The table below is set up to show the different ways to move about the crew modu
 \newpage
 \subsection{Payload Operations Overview}
 %\addcontentsline{toc}{subsection}{ Payload Operations Overview}
-Payloads are attached through standard Orbiter attachment points. The diagram below will assist in visializing the available attachment locations.\\
+Payloads are attached through standard Orbiter attachment points. Figure \ref{fig:SSUAttachments} below will assist in visializing the available attachment locations. The image on the left show the attachment locations without the ODS and the image on the rights shows the attachment locations with the ODS.\\
 \\
 \begin{figure}[H]
   \centering
@@ -360,7 +361,8 @@ Payloads are attached through standard Orbiter attachment points. The diagram be
   \caption{SSU attachment locations}
   \label{fig:SSUAttachments}
 \end{figure}
-Currently no payload bay bridgerails are shown; this makes payload berthing in the bay difficult. If the payload is one that is deployed and later put back into the bay (example: MPLM), be sure to take note of the SRMS joint angles and orbiter XYZ coordinates displayed on panel A8U.
+%Currently no payload bay bridgerails are shown; this makes payload berthing in the bay difficult.
+If the payload is one that is deployed and later put back into the bay (example: MPLM), be sure to take note of the SRMS joint angles and orbiter XYZ coordinates displayed on panel A8U.
 % For more information on the payload deploment and retreval systems see section 2.9.
 The mission file entries to define the payload attachment positions are defined in Section \ref{sec:mission-files} of this manual.
 The scenario file entries needed to add payloads to SSU are covered in Section \ref{sec:scenario-files} of this manual. \\
