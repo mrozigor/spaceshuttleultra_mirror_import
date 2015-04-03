@@ -113,7 +113,8 @@ namespace vc {
 		void ADI_ERROR_D( HDC hDC, double pitch, double roll, double yaw, int adierr );// 20/5/1 10/5/1 2.5/2.5/2.5
 		void ADI_ERROR_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
 
-		void HSI( HDC hDC, double heading );
+		void HSI_A( HDC hDC, double heading, double roll );
+		void HSI_E( HDC hDC, double heading );
 
 		void AEPFD_Header_AscentDAP( HDC hDC, int MM, int adiatt );
 		void AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt );
