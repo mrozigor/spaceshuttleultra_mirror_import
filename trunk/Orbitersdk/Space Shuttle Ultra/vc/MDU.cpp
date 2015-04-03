@@ -778,7 +778,7 @@ namespace vc {
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( hDC, 0, 0, 0, adierr );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				break;
 			case 102:
 				AEPFD_Header_AscentDAP( hDC, 102, adiatt );
@@ -793,7 +793,7 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI( hDC, STS()->GetYaw() );// TODO invert (when heads-down) and set 0 as tgt plane
+				HSI_A( hDC, STS()->GetYaw(), STS()->GetBank() );// TODO set 0 as tgt plane
 				AEPFD_XTRK( hDC );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( hDC );
 				break;
@@ -816,7 +816,7 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI( hDC, STS()->GetYaw() );// TODO invert (when heads-down) and set 0 as tgt plane
+				HSI_A( hDC, STS()->GetYaw(), STS()->GetBank() );// TODO set 0 as tgt plane
 				if (0)// TODO TAL
 				{
 					AEPFD_dXTRK( hDC );
@@ -856,7 +856,7 @@ namespace vc {
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				AEPFD_XTRK( hDC );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( hDC );
 				break;
@@ -918,7 +918,7 @@ namespace vc {
 				ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				AEPFD_HACCEL( hDC );
@@ -937,7 +937,7 @@ namespace vc {
 				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( hDC, MachNumber );
@@ -960,7 +960,7 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				break;
@@ -977,7 +977,7 @@ namespace vc {
 				else ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				AEPFD_HACCEL( hDC );
@@ -996,7 +996,7 @@ namespace vc {
 				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( hDC, MachNumber );
@@ -1013,7 +1013,7 @@ namespace vc {
 				ADI_STATIC( hDC );// TODO no rate and error scales
 				ADI( hDC, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( hDC );
-				HSI( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw() );
 				break;
 			default:
 				break;
@@ -3649,7 +3649,110 @@ namespace vc {
 		return;
 	}
 
-	void MDU::HSI( HDC hDC, double heading )
+	void MDU::HSI_A( HDC hDC, double heading, double roll )
+	{
+		double sgn = sign( (90 * RAD) - fabs( roll ) );
+		// center (122,238) r = 57
+		SelectObject( hDC, TurquoisePen );
+		MoveToEx( hDC, 65, 238, NULL );
+		LineTo( hDC, 61, 238 );
+		MoveToEx( hDC, 82, 198, NULL );
+		LineTo( hDC, 79, 195 );
+		MoveToEx( hDC, 122, 186, NULL );
+		LineTo( hDC, 122, 177 );
+		MoveToEx( hDC, 162, 198, NULL );
+		LineTo( hDC, 165, 195 );
+		MoveToEx( hDC, 179, 238, NULL );
+		LineTo( hDC, 183, 238 );
+
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, GrayLightBrush );
+		::Ellipse( hDC, 70, 186, 175, 291 );
+
+		SelectObject( hDC, BlackBrush );
+		::Ellipse( hDC, 89, 205, 156, 272 );
+
+		Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+
+		int x1;
+		int y1;
+		int x2;
+		int y2;
+		double cosi;
+		double sini;
+		SetTextColor( hDC, CR_WHITE );
+		for (int i = 90; i != 0; i -= 10)// big lines
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 46 * cosi );
+			y2 = Round( 46 * sini );
+
+			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
+			LineTo( hDC, 122 + x2, 238 - y2 );
+
+			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
+			LineTo( hDC, 122 + y2, 238 + x2 );
+
+			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
+			LineTo( hDC, 122 - x2, 238 + y2 );
+
+			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
+			LineTo( hDC, 122 - y2, 238 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 48 * cosi );
+			y2 = Round( 48 * sini );
+
+			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
+			LineTo( hDC, 122 + x2, 238 - y2 );
+
+			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
+			LineTo( hDC, 122 + y2, 238 + x2 );
+
+			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
+			LineTo( hDC, 122 - x2, 238 + y2 );
+
+			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
+			LineTo( hDC, 122 - y2, 238 - x2 );
+		}
+
+		XFORM WTroll;
+		char cbuf[4];
+		SetGraphicsMode( hDC, GM_ADVANCED );
+		for (int i = 0; i <= 33; i += 3)
+		{
+			// rotate
+			WTroll.eM11 = (FLOAT)cos( (heading * sgn) - i * 10 * RAD * sgn );
+			WTroll.eM12 = (FLOAT)(-sin( (heading * sgn) - i * 10 * RAD * sgn ));
+			WTroll.eM21 = -WTroll.eM12;
+			WTroll.eM22 = WTroll.eM11;
+			WTroll.eDx = (FLOAT)(122 - (122 * WTroll.eM11) - (238 * WTroll.eM21));
+			WTroll.eDy = (FLOAT)(238 - (238 * WTroll.eM11) + (122 * WTroll.eM21));
+			SetWorldTransform( hDC, &WTroll );
+
+			// paint
+			sprintf_s( cbuf, 4, "%d", i );// number
+			TextOut( hDC, 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+
+			// de-rotate
+			ModifyWorldTransform( hDC, &WTroll, MWT_IDENTITY );
+		}
+		SetGraphicsMode( hDC, GM_COMPATIBLE );
+		return;
+	}
+
+	void MDU::HSI_E( HDC hDC, double heading )
 	{
 		// center (122,238) r = 57
 		SelectObject( hDC, TurquoisePen );
@@ -3666,12 +3769,12 @@ namespace vc {
 
 		SelectObject( hDC, WhitePen );
 		SelectObject( hDC, GrayLightBrush );
-		::Ellipse( hDC, 70, 186, 175, 291 );//::Ellipse( hDC, 70, 186, 174, 290 );
+		::Ellipse( hDC, 70, 186, 175, 291 );
 
 		SelectObject( hDC, BlackBrush );
-		::Ellipse( hDC, 89, 205, 156, 272 );//::Ellipse( hDC, 89, 205, 155, 271 );
+		::Ellipse( hDC, 89, 205, 156, 272 );
 
-		Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );//Arc( hDC, 65, 181, 179, 295, 176, 256, 68, 256 );
+		Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
 
 		int x1;
 		int y1;
@@ -3741,7 +3844,11 @@ namespace vc {
 			SetWorldTransform( hDC, &WTroll );
 
 			// paint
-			sprintf_s( cbuf, 3, "%d", i );// number
+			if ((i % 9) != 0) sprintf_s( cbuf, 4, "%d", i );// number
+			else if (i == 0) sprintf_s( cbuf, 4, "N" );// letter
+			else if (i == 9) sprintf_s( cbuf, 4, "E" );// letter
+			else if (i == 18) sprintf_s( cbuf, 4, "S" );// letter
+			else sprintf_s( cbuf, 4, "W" );// letter
 			TextOut( hDC, 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
 
 			// de-rotate
