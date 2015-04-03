@@ -15,7 +15,7 @@ const VECTOR3 FWD_RIGHT_ROFI_POS = _V( 4.1, 2.137968, -16.35 );
 const VECTOR3 AFT_LEFT_ROFI_POS = _V( -4.1, 2.137968, -13.2 );
 const VECTOR3 AFT_RIGHT_ROFI_POS = _V( 4.1, 2.137968, -13.2 );
 
-const VECTOR3 HDP_POS = _V(0, -0.51, -5.55);
+const VECTOR3 HDP_POS = _V(0, -0.68, -5.0);
 
 const double TSM_UMBILICAL_RETRACT_SPEED = 1.5;
 
