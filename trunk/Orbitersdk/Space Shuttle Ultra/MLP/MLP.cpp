@@ -149,7 +149,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	}
 
 	if(!ahBase) {
-		ahBase = CreateAttachment(true, _V(0, -8.35, 0), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
+		ahBase = CreateAttachment(true, _V(0, -8.35, 0.325), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
 	}
 }
 

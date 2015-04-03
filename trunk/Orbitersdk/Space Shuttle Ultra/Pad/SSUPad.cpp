@@ -277,15 +277,15 @@ void SSUPad::DefineAnimations()
 		AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
 		//RSS OWP
 		RSS_OWP_State.Set(AnimState::CLOSED, 0.0);
-		static UINT RSS_Y_LOWPGrp[2] = {GRP_OWP_Curtain_Wall, GRP_SRB_IEA_platform};
+		static UINT RSS_Y_LOWPGrp[2] = {GRP_OWP_CURTAIN_WALL, GRP_SRB_IEA_PLATFORM};
 		static MGROUP_TRANSLATE RSS_Y_LOWP(rss_mesh_idx, RSS_Y_LOWPGrp, 2, _V(0.0, 0.0, 12.1));
-		static UINT RSS_Y_UOWPGrp[2] = {GRP_Metal_Panel_flip_right, GRP_Metal_Panel_flip_right_lower};
+		static UINT RSS_Y_UOWPGrp[2] = {GRP_METAL_PANEL_FLIP_RIGHT, GRP_METAL_PANEL_FLIP_RIGHT_LOWER};
 		static MGROUP_ROTATE RSS_Y_UOWP(rss_mesh_idx, RSS_Y_UOWPGrp, 2,
 			_V(0, 34.94, -4.57), _V(-1, 0, 0), (float)(33.0*RAD));
-		static UINT RSS_flip_upperGrp[1] = {GRP_Metal_Panel_flip_upper_left};
+		static UINT RSS_flip_upperGrp[1] = {GRP_METAL_PANEL_FLIP_UPPER_LEFT};
 		static MGROUP_ROTATE RSS_flip_upper(rss_mesh_idx, RSS_flip_upperGrp, 1,
 			_V(0, 45.71, 4.515), _V(1, 0, 0), (float)(90.0*RAD));
-		static UINT RSS_flip_lowerGrp[2] = {GRP_Metal_Panel_flip_lower_left, GRP_Line06};
+		static UINT RSS_flip_lowerGrp[2] = {GRP_METAL_PANEL_FLIP_UPPER_LEFT, GRP_LINE06};
 		static MGROUP_ROTATE RSS_flip_lower(rss_mesh_idx, RSS_flip_lowerGrp, 2,
 			_V(-20.75, 34.40, 6.06), _V(0, 1, 0), (float)(105.0*RAD));
 		anim_rss_y_owp=CreateAnimation(0.0);
@@ -299,11 +299,11 @@ void SSUPad::DefineAnimations()
 	RSS_State.Set(AnimState::CLOSED, 0.0);
 	static MGROUP_ROTATE RSS_Retract(rss_mesh_idx, NULL, 0,
 		_V(-28.838, 0, 23.024), _V(0.0, 1.0, 0.0), (float)(120.0*RAD));
-	static UINT RSS_DoorGrp[1] = {GRP_FRCS_Room_door};
-	static UINT RSS_DoorGrp_1985[1] = {GRP_FRCS_Room_door_1985};
+	static UINT RSS_DoorGrp[1] = {GRP_FRCS_ROOM_DOOR};
+	static UINT RSS_DoorGrp_1985[1] = {GRP_FRCS_ROOM_DOOR_1985};
 	MGROUP_SCALE* RSS_door1 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp_1985 : RSS_DoorGrp, 1, _V(-20.894, 50.993, 0.654), _V(1,0.01,1));
-	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_Room_door};
-	static UINT RSS_DoorGrp2_1985[1] = {GRP_FRCS_Room_door_1985};
+	static UINT RSS_DoorGrp2[1] = {GRP_FRCS_ROOM_DOOR};
+	static UINT RSS_DoorGrp2_1985[1] = {GRP_FRCS_ROOM_DOOR_1985};
 	MGROUP_SCALE* RSS_door2 = DefineScale(rss_mesh_idx, bPad1985 ? RSS_DoorGrp2_1985 : RSS_DoorGrp2, 1, _V(-20.894, 50.993, 0.654), _V(1,100,1));
 	anim_rss=CreateAnimation(0.0);
 	AddAnimationComponent(anim_rss, 0, 0.05, RSS_door1);
@@ -683,7 +683,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	HardStandMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_HARDSTAND);
 	WaterTowerMesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_WATERTOWER);
 	const VECTOR3 rss_ofs=_V(14, 15.5, 1);
-	const VECTOR3 hs_ofs=_V(-57.5, -1.75, 1.3);
+	const VECTOR3 hs_ofs=_V(-58, -1.75, 1.3);
 	const VECTOR3 wt_ofs=_V(100, 45, -63);
 	fss_mesh_idx=AddMesh(FSSMesh);
 	rss_mesh_idx=AddMesh(RSSMesh, &rss_ofs);
@@ -716,7 +716,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	//if(bPad1985) CreateAttachment(false, _V(4.45, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 	//else CreateAttachment(false, _V(2.00, 21.50, -0.95), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
-	CreateAttachment(false, _V(5.15, 20, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
+	CreateAttachment(false, _V(5.0, 20.5, 1.25), _V(0, -1, 0), _V(1, 0, 0), "XMLP");
 }
 
 void SSUPad::UpdateGOXVents() {
