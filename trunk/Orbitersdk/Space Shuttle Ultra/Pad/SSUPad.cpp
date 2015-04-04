@@ -6,6 +6,7 @@
 #include "meshres_RSS.h"
 #include "meshres_FSS_1985.h"
 #include "meshres_RSS_1985.h"
+#include "meshres_Hardstand.h"
 #include <dlgctrl.h>
 #include <OrbiterSoundSDK40.h>
 
@@ -141,29 +142,33 @@ BOOL CALLBACK SSUPad_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case IDC_RBUS_RETRACT:
 				pad->MoveRBUS(AnimState::OPENING);
 				return TRUE;
+			case IDC_SRBEAST_EXTEND:
+				pad->MoveEastSRBSFD( AnimState::OPENING );
+				return TRUE;
+			case IDC_SRBEAST_RETRACT:
+				pad->MoveEastSRBSFD( AnimState::CLOSING );
+				return TRUE;
+			case IDC_SRBWEST_EXTEND:
+				pad->MoveWestSRBSFD( AnimState::OPENING );
+				return TRUE;
+			case IDC_SRBWEST_RETRACT:
+				pad->MoveWestSRBSFD( AnimState::CLOSING );
+				return TRUE;
 		}
 	}
-	//else if(uMsg==WM_CREATE) {
 	else if(uMsg==WM_SHOWWINDOW) {
 		SSUPad* pad=static_cast<SSUPad*>(oapiGetDialogContext(hWnd));
-		//oapiWriteLog("WM_CREATE message");
 		if(pad->bPad1985) {
-			//oapiWriteLog("Changing dialog");
-			// change title of OWP group box
-			SendDlgItemMessage(hWnd, IDC_GROUP_OWP, WM_SETTEXT, 0, (LPARAM)("RBUS"));
-			// hide OWP buttons and labels
-			//SendDlgItemMessage(hWnd, IDC_LABEL_FSSOWP, WM_SHOWWINDOW, FALSE, 0);
-			ShowWindow(GetDlgItem(hWnd, IDC_LABEL_FSSOWP), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_LABEL_RSSOWP), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_RSSOWP_OPEN), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_RSSOWP_CLOSE), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_FSSOWP_OPEN), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_FSSOWP_CLOSE), SW_HIDE);
+			// disable OWP buttons
+			EnableWindow( GetDlgItem(hWnd, IDC_RSSOWP_OPEN), FALSE );
+			EnableWindow( GetDlgItem(hWnd, IDC_RSSOWP_CLOSE), FALSE );
+			EnableWindow( GetDlgItem(hWnd, IDC_FSSOWP_OPEN), FALSE );
+			EnableWindow( GetDlgItem(hWnd, IDC_FSSOWP_CLOSE), FALSE );
 		}
 		else {
-			// hide RBUS buttons
-			ShowWindow(GetDlgItem(hWnd, IDC_RBUS_EXTEND), SW_HIDE);
-			ShowWindow(GetDlgItem(hWnd, IDC_RBUS_RETRACT), SW_HIDE);
+			// disable RBUS buttons
+			EnableWindow( GetDlgItem(hWnd, IDC_RBUS_EXTEND), FALSE );
+			EnableWindow( GetDlgItem(hWnd, IDC_RBUS_RETRACT), FALSE );
 		}
 		// let Orbiter perform default actions
 		return oapiDefDialogProc(hWnd, uMsg, wParam, lParam);
@@ -310,6 +315,22 @@ void SSUPad::DefineAnimations()
 	AddAnimationComponent(anim_rss, 0.06, 0.95, &RSS_Retract);
 	AddAnimationComponent(anim_rss, 0.96, 1.00, RSS_door2);
 	//SetAnimation(anim_rss, 1.0);
+
+	// east SRB side flame deflector
+	static UINT East_SRB_SFD_group[2] = {GRP_BOX310, GRP_LINE13};
+	static MGROUP_TRANSLATE East_SRB_SFD_Translate = MGROUP_TRANSLATE( hs_mesh_idx, East_SRB_SFD_group, 2, _V( -43, 0, 0 ) );
+	anim_East_SRB_SFD = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_East_SRB_SFD, 0, 1, &East_SRB_SFD_Translate );
+	East_SRB_SFD_State.Set( AnimState::OPEN, 1.0 );
+	SetAnimation( anim_East_SRB_SFD, East_SRB_SFD_State.pos );// default to launch position
+
+	// west SRB side flame deflector
+	static UINT West_SRB_SFD_group[2] = {GRP_BOX311, GRP_LINE18};
+	static MGROUP_TRANSLATE West_SRB_SFD_Translate = MGROUP_TRANSLATE( hs_mesh_idx, West_SRB_SFD_group, 2, _V( -43, 0, 0 ) );
+	anim_West_SRB_SFD = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_West_SRB_SFD, 0, 1, &West_SRB_SFD_Translate );
+	West_SRB_SFD_State.Set( AnimState::OPEN, 1.0 );
+	SetAnimation( anim_West_SRB_SFD, West_SRB_SFD_State.pos );// default to launch position
 }
 
 void SSUPad::OnT0()
@@ -378,6 +399,18 @@ void SSUPad::MoveRBUS(AnimState::Action action)
 	if(!bPad1985) return; // RBUS is only on 1985 pad
 	if(action == AnimState::CLOSING || action == AnimState::OPENING)
 		FSS_RBUS_UmbilicalState.action = action;
+}
+
+void SSUPad::MoveEastSRBSFD( AnimState::Action action )
+{
+	if ((action == AnimState::CLOSING) || (action == AnimState::OPENING)) East_SRB_SFD_State.action = action;
+	return;
+}
+
+void SSUPad::MoveWestSRBSFD( AnimState::Action action )
+{
+	if ((action == AnimState::CLOSING) || (action == AnimState::OPENING)) West_SRB_SFD_State.action = action;
+	return;
 }
 
 void SSUPad::AnimateFSSOWPStrut()
@@ -463,6 +496,17 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_fss_rbus,FSS_RBUS_UmbilicalState.pos);
 	}
 
+	if (East_SRB_SFD_State.Moving() == true)
+	{
+		East_SRB_SFD_State.Move( simdt * SRB_SFD_RATE );
+		SetAnimation( anim_East_SRB_SFD, East_SRB_SFD_State.pos );
+	}
+	if (West_SRB_SFD_State.Moving() == true)
+	{
+		West_SRB_SFD_State.Move( simdt * SRB_SFD_RATE );
+		SetAnimation( anim_West_SRB_SFD, West_SRB_SFD_State.pos );
+	}
+
 	UpdateGOXVents();
 	
 	
@@ -537,7 +581,8 @@ void SSUPad::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "FSS_GH2", GH2VentlineState);
 	WriteScenario_state(scn, "FSS_IAA", IAAState);
 	if(bPad1985) WriteScenario_state(scn, "RBUS", FSS_RBUS_UmbilicalState);
-	//oapiWriteScenario_int(scn, "GOX_SEQUENCE", GOXArmAction);
+	WriteScenario_state( scn, "EAST_SRB_SFD", East_SRB_SFD_State );
+	WriteScenario_state( scn, "WEST_SRB_SFD", West_SRB_SFD_State );
 	oapiWriteScenario_string(scn,"SHUTTLE", (char*)ShuttleName.c_str());
 }
 
@@ -592,6 +637,16 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if(bPad1985 && !_strnicmp(line,"RBUS",4)){
 			sscan_state(line+4, FSS_RBUS_UmbilicalState);
 			SetAnimation(anim_fss_rbus, FSS_RBUS_UmbilicalState.pos);
+		}
+		else if (!_strnicmp( line, "EAST_SRB_SFD", 12 ))
+		{
+			sscan_state( line + 12, East_SRB_SFD_State );
+			SetAnimation( anim_East_SRB_SFD, East_SRB_SFD_State.pos );
+		}
+		else if (!_strnicmp( line, "WEST_SRB_SFD", 12 ))
+		{
+			sscan_state( line + 12, West_SRB_SFD_State );
+			SetAnimation( anim_West_SRB_SFD, West_SRB_SFD_State.pos );
 		}
 		else ParseScenarioLineEx(line, status);
 	}
