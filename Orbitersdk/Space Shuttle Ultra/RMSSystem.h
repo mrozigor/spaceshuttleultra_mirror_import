@@ -88,7 +88,7 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 
 const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
-const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.647, 0.341, -0.188);
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.37968, 0.296129, -0.0332794);
 const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
 
 const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
