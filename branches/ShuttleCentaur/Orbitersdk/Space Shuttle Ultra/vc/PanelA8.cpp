@@ -129,7 +129,7 @@ namespace vc
 		pRMSMode->SetLabel(1, "DIRECT");
 		pRMSMode->SetLabel(0, "TEST");
 
-		EnableCoordinateDisplayMode();
+		//EnableCoordinateDisplayMode();
 
 		for(int i=0;i<3;i++) LEDValues[i]=0.0;
 	}

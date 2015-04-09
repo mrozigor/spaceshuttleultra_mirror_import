@@ -1,5 +1,5 @@
 BEGIN_DESC
-CT-1 has recently undergone some modifications amd maintenance. As is standard procedure, it needs tp be roadtested. So just move it a few hundred meters while commanding a bit of left/right steering and then return to the starting point.
+CT-1 has recently undergone some modifications amd maintenance. As is standard procedure, it needs to be roadtested. So just move it a few hundred meters while commanding a bit of left/right steering and then return to the starting point.
 END_DESC
 
 BEGIN_ENVIRONMENT
@@ -76,6 +76,8 @@ LC39A:SSU_Pad
   RSS 1 1.0000
   FSS_GH2 1 1.0000
   FSS_IAA 0 0.0000
+  EAST_SRB_SFD 0 0.0000
+  WEST_SRB_SFD 0 0.0000
   SHUTTLE 
 END
 END_SHIPS

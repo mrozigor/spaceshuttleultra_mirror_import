@@ -172,32 +172,32 @@ void RMSSystem::CreateArm()
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, pRMS_sy_anim, parent);
 
 	//shoulder pitch
-	static UINT RMSShoulderPitchGrp[1] = {GRP_HUMERUS};
+	static UINT RMSShoulderPitchGrp[1] = {GRP_SHOULDER_BOOM};
 	MGROUP_ROTATE* pRMS_sp_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderPitchGrp, 1,
 		RMS_SP_JOINT, PitchAxis, (float)(147.0*RAD)); // -2 .. +145
 	anim_joint[SHOULDER_PITCH] = STS()->CreateAnimation (0.0136);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, pRMS_sp_anim, parent);
 
 	//elbow pitch
-	static UINT RMSElbowPitchGrp[2] = {GRP_BOX, GRP_CAMBASE};
+	static UINT RMSElbowPitchGrp[2] = {GRP_ELBOW_BOOM, GRP_ELBOW_CAM_BASE};
 	MGROUP_ROTATE* pRMS_ep_anim = new MGROUP_ROTATE(mesh_index, RMSElbowPitchGrp, 2,
 		RMS_EP_JOINT, PitchAxis, (float)(163.4*RAD));
 	anim_joint[ELBOW_PITCH] = STS()->CreateAnimation (0.985312);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, pRMS_ep_anim, parent);
 
 	//RMS elbow camera
-	static UINT RMSElbowCamGrp[2] = {GRP_ELBOWCAM, GRP_CAMSWIVEL};
+	static UINT RMSElbowCamGrp[2] = {GRP_ELBOW_CAM, GRP_PANTILT_ELBOW_CAM};
 	MGROUP_ROTATE* pRMSElbowCamPan = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp+1, 1,
-		_V(-2.68, 0.12, 0.07), _V(0.124034734589, 0.992277876713, 0.0), (float)(340*RAD));
+		_V(-2.5594, 0.1833, 0.1668), _V(0.397185, 0.917739, 0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
 	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
-		_V(-2.65, 0.34, 0.07), _V(0.992277876713, -0.124034734589, 0.0), (float)(340*RAD));
+		_V(-2.47476, 0.392612, 0.16463), _V(0.917758, -0.397141, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
 	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
-		_V(-2.65, 0.34, -0.19), _V(1, 0, 0), 0.0f);
+		_V(-2.37968, 0.296129, -0.0332794), _V(1, 0, 0), 0.0f);
 	STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamLoc, parent2);
 
 	//wrist pitch

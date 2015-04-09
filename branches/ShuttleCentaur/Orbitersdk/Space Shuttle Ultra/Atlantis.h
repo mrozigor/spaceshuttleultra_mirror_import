@@ -278,6 +278,7 @@ class Atlantis: public VESSEL3 {
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
+	friend class dps::IDP;
 	friend class vc::DAPControl;
 public:
 	SSUOptions* options;
@@ -365,6 +366,7 @@ public:
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
+	int scnVCMode; // VC view loaded from scenario
 	/**
 	 * Structural configuration
 	 * - 0 launch configuration
@@ -560,12 +562,12 @@ public:
 	 * Calls VESSEL::AttachChild and adds mass of child to shuttle mass
 	 * Should always be called instead of AttachChild.
 	 */
-	bool AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const;
+	bool AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment);
 	/**
 	 * Calls VESSEL::DetachChild and subtracts mass of child from shuttle mass
 	 * Should always be called instead of DetachChild.
 	 */
-	bool DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel = 0.0) const;
+	bool DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel = 0.0);
 
 	bool AreMCADebugMessagesEnabled() const throw();
 
@@ -753,7 +755,7 @@ private:
 
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
-	void DetachSRB(SIDE side, double thrust, double prop) const;
+	void DetachSRB(SIDE side, double thrust, double prop);
 	void SeparateMMU (void);
 	void loadMDMConfiguration(void);
 	/**
@@ -842,18 +844,12 @@ private:
 	Atlantis_SRB* GetSRBInterface(SIDE side) const;
 	ISSUMLP* GetMLPInterface() const;
 
-	/**
-	 * Called from clbkPostCreation.
-	 * Loops through child attachments and adds their mass to shuttle mass.
-	 */
-	double GetMassOfAttachedObjects() const;
-	void UpdateMass() const;
-
+	double GetMassAndCoGOfAttachedObject(ATTACHMENTHANDLE ah, VECTOR3& CoG) const;
 	/**
 	 * Updates shuttle CoG.
 	 * Estimates center of gravity relative to center of Orbiter mesh, then calls ShiftCG to update CG.
 	 */
-	void UpdateCoG();
+	void UpdateMassAndCoG(bool bUpdateAttachedVessels = false);
 
 	void Twang(double timeToLaunch) const;
 
@@ -1098,6 +1094,8 @@ private:
 	PROPELLANT_HANDLE oms_helium_tank[2];
 	int Hydraulic_Press[3];
 
+	bool bSSMEGOXVent;
+
 	bool RMS, STBDMPM;
 
 	bool ControlRMS;
@@ -1121,6 +1119,8 @@ private:
 	//VESSELSTATUS Status;
 
 	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh
+	VECTOR3 payloadCoG;
+	double payloadMass;
 
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
@@ -1199,7 +1199,7 @@ private:
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
 	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
-	DiscInPort ElevonCommand, AileronCommand;
+	DiscInPort ElevonCommand, AileronCommand, RudderCommand;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam
 	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow

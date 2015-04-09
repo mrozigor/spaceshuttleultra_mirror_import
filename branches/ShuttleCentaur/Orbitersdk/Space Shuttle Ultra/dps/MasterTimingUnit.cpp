@@ -354,7 +354,7 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 	int iTmpA = 0, iTmpB = 0;
 	float fTmpA = 0.0;
 
-	strcpy(pszTempA, line);
+	strcpy_s(pszTempA, 40, line);
 	oapiWriteLog(pszTempA);
 
 	if(!_stricmp(keyword, "RUNNING")) {
@@ -384,7 +384,7 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 	} else if(!_strnicmp( keyword, "EVENT_TIMER", 11 )) {
 		sscanf_s( keyword + 11, "%d", &iTmpA );
 		const char* pLine2 = line;
-		strcpy(pszTempA, line);
+		strcpy_s(pszTempA, 40, line);
 		oapiWriteLog(pszTempA);
 		sscanf_s(pLine2, "%f %s %s",
 			&fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
@@ -392,21 +392,21 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 		{
 			//fEvent[iTmpA][0] = fTmpA;
 			fEvent[iTmpA][1] = fTmpA;
-			if(!stricmp(pszTempA, "DOWN")) {
+			if(!_stricmp(pszTempA, "DOWN")) {
 				event_mode[iTmpA][0] = COUNT_DOWN;
 				event_mode[iTmpA][1] = COUNT_DOWN;
-			} else if(!stricmp(pszTempA, "UP")) {
+			} else if(!_stricmp(pszTempA, "UP")) {
 				event_mode[iTmpA][0] = COUNT_UP;
 				event_mode[iTmpA][1] = COUNT_UP;
-			} else if(!stricmp(pszTempA, "TEST")) {
+			} else if(!_stricmp(pszTempA, "TEST")) {
 				event_mode[iTmpA][0] = COUNT_TEST;
 				event_mode[iTmpA][1] = COUNT_TEST;
 			}
 
-			if(!stricmp(pszTempB, "STARTED")) {
+			if(!_stricmp(pszTempB, "STARTED")) {
 				event_control[iTmpA][0] = COUNT_STARTED;
 				event_control[iTmpA][1] = COUNT_STARTED;
-			} else if(!stricmp(pszTempB, "STOPPED")) {
+			} else if(!_stricmp(pszTempB, "STOPPED")) {
 				event_control[iTmpA][0] = COUNT_STOPPED;
 				event_control[iTmpA][1] = COUNT_STOPPED;
 			}

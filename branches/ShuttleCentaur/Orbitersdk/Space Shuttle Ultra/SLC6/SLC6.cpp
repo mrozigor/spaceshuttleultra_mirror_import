@@ -143,7 +143,7 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 		else {
 			if(timeToLaunch < 16.0) SSSLevel = 1.0;
-			if(timeToLaunch < 6.6) SSS_SSMESteam = 1.0;
+			if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
 			if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
 		}
 	}
@@ -432,10 +432,15 @@ void SLC6::DefineROFIs()
 void SLC6::DefineSSS()
 {
 	static PARTICLESTREAMSPEC sss_steam = {
-		0, 8, 20, 250.0, 0.3, 10, 3, 5, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 8, 20, 400.0, 0.3, 10, 6, 4, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
+	static PARTICLESTREAMSPEC sss_steam_SRB = {
+		0, 10, 200, 1500.0, 0.5, 10, 7, 45, PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
+		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
+	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_water = {
 		0, 0.05, 100.0, 12.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
@@ -455,8 +460,8 @@ void SLC6::DefineSSS()
 		AddParticleStream(&sss_water, _V(1.75, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
 	}
 	AddParticleStream(&sss_steam, _V(-63.0, -7.0, 50.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SSMESteam);
-	AddParticleStream(&sss_steam, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
-	AddParticleStream(&sss_steam, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
+	AddParticleStream(&sss_steam_SRB, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
+	AddParticleStream(&sss_steam_SRB, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
 }
 
 void SLC6::DefineGOXVents()

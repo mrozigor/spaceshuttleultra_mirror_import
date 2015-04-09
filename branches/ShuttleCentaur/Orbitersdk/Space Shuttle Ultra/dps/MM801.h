@@ -33,6 +33,7 @@ namespace dps
 			DiscInPort ElevonCommandRead;
 			//DiscInPort AileronCommandRead;
 			DiscOutPort AileronCommand;
+			DiscOutPort RudderCommand;
 
 			bool bFCSTestActive, bFCSTestEnding;
 			AEROSURFACE_DRIVE_TARGET ElevonTargetIdx;

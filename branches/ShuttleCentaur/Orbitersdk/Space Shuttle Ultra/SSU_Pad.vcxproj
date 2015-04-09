@@ -213,6 +213,7 @@
     <ClInclude Include="BaseSSUPad.h" />
     <ClInclude Include="Pad\meshres_FSS.h" />
     <ClInclude Include="Pad\meshres_FSS_1985.h" />
+    <ClInclude Include="Pad\meshres_Hardstand.h" />
     <ClInclude Include="Pad\meshres_RSS.h" />
     <ClInclude Include="Pad\meshres_RSS_1985.h" />
     <ClInclude Include="Pad\Pad_Resource.h" />

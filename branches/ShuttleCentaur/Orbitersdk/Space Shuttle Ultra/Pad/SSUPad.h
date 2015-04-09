@@ -25,6 +25,7 @@ const double RSS_RATE = 0.00066666667;
 const double FSS_GH2_ARM_RATE = 2.0;
 const double FSS_IAA_RATE = 1.0/200.0;
 const double FSS_RBUS_RATE = 0.35;
+const double SRB_SFD_RATE = 0.00333333;// 300sec
 
 //FSS OWP strut animation constants
 const double FSS_OWP_BRACKET_LENGTH = 12.4;
@@ -37,8 +38,10 @@ const unsigned int LC39_LIGHT_COUNT = 5;
 
 //const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
 //const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.5); //North duct
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.7); //North duct
 const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
+const VECTOR3 FSS_POS_GOXVENTL_1985	= _V(-8.5, 78, 20.5); //North duct
+const VECTOR3 FSS_POS_GOXVENTR_1985	= _V(-8.5, 78, 23.0); //South duct
 //const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
 //const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
 const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
@@ -71,6 +74,8 @@ public:
 	void MoveFSS_OWP(AnimState::Action action);
 	void MoveRSS(AnimState::Action action);
 	void MoveRBUS(AnimState::Action action);
+	void MoveEastSRBSFD( AnimState::Action action );
+	void MoveWestSRBSFD( AnimState::Action action );
 	
 private:
 	void DefineAnimations();
@@ -97,6 +102,8 @@ private:
 	UINT anim_fss_y_owp, anim_fss_y_owp_strut;
 	UINT anim_rss; //NOTE: OPEN(1.0) corresponds to t0 state
 	UINT anim_fss_rbus;
+	UINT anim_East_SRB_SFD;
+	UINT anim_West_SRB_SFD;
 
 	//Vertex positions for the GN2/GOX vents and reference for direction
 	VECTOR3 vtx_goxvent[3];
@@ -116,6 +123,8 @@ private:
 	//AnimState FSS_GH2_VentArmState;
 	//AnimState::Action GOXArmAction;
 	AnimState FSS_RBUS_UmbilicalState;
+	AnimState East_SRB_SFD_State;
+	AnimState West_SRB_SFD_State;
 
 	/**
 	 * Creates MGROUP_ROTATE struct, adds it to animation list, and returns pointer to struct

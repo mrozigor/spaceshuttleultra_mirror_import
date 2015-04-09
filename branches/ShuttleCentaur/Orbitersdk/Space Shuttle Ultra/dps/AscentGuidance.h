@@ -50,6 +50,8 @@ const double SSME_TAILOFF_DV_91_2EO = 35;// fps
 // HACK the mass is just a guess, it's probably a little lower
 const double LOWLEVEL_ARM_MASS = 370000;// lbs
 
+const double DROOP_ALT = 265000;// ft
+
 
 class SSME_SOP;
 class SSME_Operations;
@@ -130,6 +132,9 @@ private:
 
 	void AdaptiveGuidanceThrottling( void );
 
+	void ASCENTTRAJ1( vc::MDU* pMDU ) const;
+	void ASCENTTRAJ2( vc::MDU* pMDU ) const;
+
 	// utility functions required by PEG guidance
 	inline double b0(double TT) {
 		return -Isp*log(1-TT/tau);
@@ -183,7 +188,7 @@ private:
 	double CmdPDot; // commanded second stage pitch rate in deg/sec
 	VECTOR3 rh0;
 	double radius; // distance from centre of Earth (r)
-	double relativeVelocity; // velocity relative to Earth (v)
+	double inertialVelocity; // velocity relative to Earth's center (v)
 	double r,h,theta,omega,phi;
 	VECTOR3 rh,thetah,hh;
 	VECTOR3 posMoon,velMoon,rmh;

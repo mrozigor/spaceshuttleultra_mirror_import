@@ -44,10 +44,10 @@ Atlantis_SRB::Atlantis_SRB (OBJHANDLE hObj)
 	slag2 = 0.0;
 	slag3 = 0.0;
 
-	COLOUR4 col_diff = {1,1,1,0};
-	COLOUR4 col_zero = {0,0,0,0};
+	COLOUR4 col_diff = {1.0,0.733f,0.196f,0};
+	COLOUR4 col_zero = {0.0,0.0,0.0,0.0};
 	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight = AddPointLight( _V( 0.484, 0.434, -25 ), 200, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient );
+	SRBLight = AddPointLight( _V( 0.484, 0.434, -25.8 ), 300, 1e-3, 0, 0.0025, col_diff, col_zero, col_ambient );
 	SRBLight->Activate( false );
 }
 
@@ -81,49 +81,78 @@ void Atlantis_SRB::clbkVisualDestroyed(VISHANDLE vis, int refcount)
 // Set SRB class specs
 void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 {
-	bool Left, FWC;
+	SRM_TYPE SRMtype;
+	bool Left;
 	oapiReadItem_bool(cfg, "Left", Left);
 	char pszBuffer[255];
 	bool bFoundData = oapiReadItem_string(cfg, "Type", pszBuffer);
-	if(bFoundData && !_strnicmp(pszBuffer, "FWC", 4)) FWC = true;
-	else FWC = false;
+	
+	if ((bFoundData == true) && (!_strnicmp( pszBuffer, "SRM", 4 )))
+	{
+		SRMtype = SRM;
+	}
+	else if ((bFoundData == true) && (!_strnicmp( pszBuffer, "FWC", 4 )))
+	{
+		SRMtype = FWC;
+	}
+	else// pszBuffer = "RSRM"
+	{
+		// default to RSRM
+		SRMtype = RSRM;
+	}
 
 	if(Left) 
 	{
-		//hSRBMesh = hSRBMesh_Left;
-	//	oapiWriteLog("Create Left SRB\n");
-		if(FWC) {
-			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/FWC_LSRB_aft_segment");
-			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/FWC_LSRB_aft_center_segment");
-			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/FWC_LSRB_fwd_center_segment");
-			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/FWC_LSRB_fwd_segment");
-			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_skirt_assy");
-		}
-		else {
+		if (SRMtype == SRM)
+		{
 			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/STS1_LSRB_aft_segment");
 			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/STS1_LSRB_aft_center_segment");
 			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_center_segment");
 			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_segment");
 			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_skirt_assy");
 		}
+		else if (SRMtype == FWC)
+		{
+			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/FWC_LSRB_aft_segment");
+			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/FWC_LSRB_aft_center_segment");
+			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/FWC_LSRB_fwd_center_segment");
+			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/FWC_LSRB_fwd_segment");
+			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_LSRB_fwd_skirt_assy");
+		}
+		else
+		{
+			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/RSRM_LSRB_aft_segment");
+			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/RSRM_LSRB_aft_center_segment");
+			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/RSRM_LSRB_fwd_center_segment");
+			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/RSRM_LSRB_fwd_segment");
+			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/RSRM_LSRB_fwd_skirt_assy");
+		}
 	}
 	else 
 	{
-		//hSRBMesh = hSRBMesh_Right;
-	//	oapiWriteLog("Create Right SRB\n");
-		if(FWC) {
+		if (SRMtype == SRM)
+		{
+			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_segment");
+			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_center_segment");
+			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_center_segment");
+			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_segment");
+			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_skirt_assy");
+		}
+		else if (SRMtype == FWC)
+		{
 			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/FWC_RSRB_aft_segment");
 			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/FWC_RSRB_aft_center_segment");
 			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/FWC_RSRB_fwd_center_segment");
 			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/FWC_RSRB_fwd_segment");
 			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_skirt_assy");
 		}
-		else {
-			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_segment");
-			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/STS1_RSRB_aft_center_segment");
-			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_center_segment");
-			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_segment");
-			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/STS1_RSRB_fwd_skirt_assy");
+		else
+		{
+			hSRMSegmentMesh[0] = oapiLoadMeshGlobal("SSU/RSRM_RSRB_aft_segment");
+			hSRMSegmentMesh[1] = oapiLoadMeshGlobal("SSU/RSRM_RSRB_aft_center_segment");
+			hSRMSegmentMesh[2] = oapiLoadMeshGlobal("SSU/RSRM_RSRB_fwd_center_segment");
+			hSRMSegmentMesh[3] = oapiLoadMeshGlobal("SSU/RSRM_RSRB_fwd_segment");
+			hSRMSegmentMesh[4] = oapiLoadMeshGlobal("SSU/RSRM_RSRB_fwd_skirt_assy");
 		}
 	}
 
@@ -143,13 +172,15 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// *********************** physical parameters *********************************
 
 	SetSize (23.0);
-	if(FWC) SetEmptyMass (FWC_SRB_EMPTY_MASS);
-	else SetEmptyMass (SRB_EMPTY_MASS);
+	
+	if (SRMtype == SRM) SetEmptyMass( SRB_EMPTY_MASS );
+	else if (SRMtype == FWC) SetEmptyMass( FWC_SRB_EMPTY_MASS );
+	else SetEmptyMass( RSRM_SRB_EMPTY_MASS );
+
 	SetCW (0.1, 0.3, 1.4, 1.4);
 	SetCrossSections (_V(167.42,172.64,22.92));
 	SetRotDrag (_V(0.7,0.7,0.1));
 	SetPMI (_V(128.72,128.64,2.31));
-	//SetGravityGradientDamping (10.0);
 	SetTouchdownPoints (_V(0,-2,-21.1), _V(-2,1,-21.1), _V(2,1,-21.1));
 	SetLiftCoeffFunc (0);
 
@@ -157,8 +188,9 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 
 	// ************************* propellant specs **********************************
 
-	if(FWC) ph_main = CreatePropellantResource (FWC_SRB_MAX_PROPELLANT_MASS);
-	else ph_main = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS);
+	if (SRMtype == SRM) ph_main = CreatePropellantResource( SRB_MAX_PROPELLANT_MASS );
+	else if (SRMtype == FWC) ph_main = CreatePropellantResource( FWC_SRB_MAX_PROPELLANT_MASS );
+	else ph_main = CreatePropellantResource( RSRM_SRB_MAX_PROPELLANT_MASS );
 
 	//75 pounds of fuel unburned
 
@@ -170,8 +202,10 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	// *********************** thruster definitions ********************************
 
 	// main engine
-	if(FWC) th_main = CreateThruster (_V(0.484,0.434,-21), _V(0,0,1), FWC_SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1);
-	else th_main = CreateThruster (_V(0.484,0.434,-21), _V(0,0,1), SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1);
+	if (SRMtype == SRM) th_main = CreateThruster( _V( 0.484, 0.434, -21 ), _V( 0, 0, 1 ), SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1 );
+	else if (SRMtype == FWC) th_main = CreateThruster( _V( 0.484, 0.434, -21 ), _V( 0, 0, 1 ), FWC_SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1 );
+	else th_main = CreateThruster( _V( 0.484, 0.434, -21 ), _V( 0, 0, 1 ), RSRM_SRB_THRUST, ph_main, SRB_ISP0, SRB_ISP1 );
+
 	SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
 	bsm_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
 	srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
@@ -179,7 +213,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	CreateThrusterGroup(&th_main, 1, THGROUP_MAIN);
 	
 	AddExhaust (th_main, 16.0, 2.0, tex);
-	AddExhaustStream (th_main, _V(0.484,0.434,-25), &srb_exhaust);
+	AddExhaustStream (th_main, _V(0.484,0.434,-23), &srb_exhaust);
 	AddExhaustStream (th_main, _V(0.484,0.434,-100), &srb_contrail);
 
 	// separation bolts
@@ -216,7 +250,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	//mesh_idx = AddMesh (hSRBMesh);
 
 	// show meshes
-	UpdateVisual(FWC);
+	UpdateVisual( (SRMtype == FWC) );
 }
 
 void Atlantis_SRB::UpdateVisual(bool FWC) const

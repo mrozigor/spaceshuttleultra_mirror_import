@@ -49,7 +49,13 @@ namespace dps
 	const int SW_HE_IC_LEFT = 11;
 	const int SW_HE_IC_RIGHT = 12;
 	const int SW_LH2ULLAGEPRESS = 13;
-	const int COUNT_INPUT = 14;
+	const int SW_ADI_ATTITUDE_F6 = 14;
+	const int SW_ADI_ERROR_F6 = 15;
+	const int SW_ADI_RATE_F6 = 16;
+	const int SW_ADI_ATTITUDE_F8 = 17;
+	const int SW_ADI_ERROR_F8 = 18;
+	const int SW_ADI_RATE_F8 = 19;
+	const int COUNT_INPUT = 20;
 
 	const int LH2_INBD_BU_DV_OP = 0;
 	const int LH2_OTBD_BU_DV_OP = 1;
@@ -133,7 +139,7 @@ namespace dps
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
-			int GetSWPos( int sw );
+			int GetSWPos( int sw ) const;
 			void SetCommand( int output, bool cmd );
 	};
 }

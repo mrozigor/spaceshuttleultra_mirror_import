@@ -12,9 +12,21 @@ namespace vc {
 		Add(pPLT1 = new MDU(_sts, "PLT1", MDUID_PLT1, true));
 		Add(pPLT2 = new MDU(_sts, "PLT2", MDUID_PLT2, true));
 		Add(pFltCntlrPower = new StdSwitch2(_sts, "Plt Flt Cntlr Pwr"));
+		Add( pADIAttitude = new StdSwitch3( _sts, "ADI Attitude" ) );
+		Add( pADIError = new StdSwitch3( _sts, "ADI Error" ) );
+		Add( pADIRate = new StdSwitch3( _sts, "ADI Rate" ) );
 
 		pFltCntlrPower->SetLabel(0, "OFF");
 		pFltCntlrPower->SetLabel(1, "ON");
+		pADIAttitude->SetLabel( 0, "REF" );
+		pADIAttitude->SetLabel( 1, "LVLH" );
+		pADIAttitude->SetLabel( 2, "INRTL" );
+		pADIError->SetLabel( 0, "LOW" );
+		pADIError->SetLabel( 1, "MED" );
+		pADIError->SetLabel( 2, "HIGH" );
+		pADIRate->SetLabel( 0, "LOW" );
+		pADIRate->SetLabel( 1, "MED" );
+		pADIRate->SetLabel( 2, "HIGH" );
 	}
 
 	PanelF8::~PanelF8()
@@ -39,6 +51,21 @@ namespace vc {
 		pFltCntlrPower->SetInitialAnimState(0.5);
 		pFltCntlrPower->SetReference(_V(-0.734, 1.99, 14.685), switch_rot);
 		pFltCntlrPower->SetMouseRegion(0.372206f, 0.851179f, 0.428169f, 0.928952f);
+
+		pADIAttitude->DefineSwitchGroup( GRP_F8SWITCH6_VC );
+		pADIAttitude->SetInitialAnimState( 0.5 );
+		pADIAttitude->SetReference( _V( -0.633, 2.045, 14.7004 ), switch_rot );
+		pADIAttitude->SetMouseRegion( 0.576194f, 0.689506f, 0.618179f, 0.755844f );
+
+		pADIError->DefineSwitchGroup( GRP_F8SWITCH7_VC );
+		pADIError->SetInitialAnimState( 0.5 );
+		pADIError->SetReference( _V( -0.5921, 2.0469, 14.7009 ), switch_rot );
+		pADIError->SetMouseRegion( 0.655636f, 0.686714f, 0.698151f, 0.754200f );
+
+		pADIRate->DefineSwitchGroup( GRP_F8SWITCH8_VC );
+		pADIRate->SetInitialAnimState( 0.5 );
+		pADIRate->SetReference( _V( -0.5627, 2.0463, 14.7008 ), switch_rot );
+		pADIRate->SetMouseRegion( 0.710745f, 0.687697f, 0.753016f, 0.750151f );
 	}
 
 	void PanelF8::RegisterVC()
@@ -55,6 +82,14 @@ namespace vc {
 	{
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("Controllers", 16);
 		pFltCntlrPower->ConnectPort(1, pBundle, 2);
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ADI_Switches_F6_F8", 12 );
+		pADIAttitude->outputA.Connect( pBundle, 6 );// REF
+		pADIAttitude->outputB.Connect( pBundle, 7 );// INRTL
+		pADIError->outputA.Connect( pBundle, 8 );// LOW
+		pADIError->outputB.Connect( pBundle, 9 );// HIGH
+		pADIRate->outputA.Connect( pBundle, 10 );// LOW
+		pADIRate->outputB.Connect( pBundle, 11 );// HIGH
 		
 		AtlantisPanel::Realize();
 	}

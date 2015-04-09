@@ -143,6 +143,43 @@ inline void EndLoggingAnims(void)
 	animlog.close();
 }
 
+/**
+ * Computes mass and CoG of vessel, including attached payload
+ * Return mass and CoG in local reference frame of vessel
+ */
+double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
+{
+	double mass = v->GetMass();
+	CoG = _V(0, 0, 0);
+	// iterate over attached children
+	DWORD ahCount = v->AttachmentCount(false);
+	for(DWORD i=0;i<ahCount;i++) {
+		ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
+		OBJHANDLE hV = v->GetAttachmentStatus(ah);
+		if(hV) {
+			VESSEL* pV = oapiGetVesselInterface(hV);
+			VECTOR3 childCoG;
+			double childMass = GetMassAndCoG(pV, childCoG);
+			// convert child CoG to CoG in frame of this vessel
+			VECTOR3 rpos;
+			pV->GetRelativePos(v->GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			v->GetRotationMatrix(LocalToGlob);
+			pV->GetRotationMatrix(ChildToGlob);
+			childCoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG)+rpos);
+			// calculate CoG of payload relative to center of Orbiter mesh
+			CoG += childCoG*childMass;
+			mass += childMass;
+
+			char cbuf[255];
+			sprintf_s(cbuf, 255, "Parent: %s Child: %s dist: %f", v->GetName(), pV->GetName(), length(childCoG));
+			oapiWriteLog(cbuf);
+		}
+	}
+	CoG = CoG/mass;
+	return mass;
+}
+
 // ==============================================================
 // Local prototypes
 
@@ -448,6 +485,7 @@ pActiveLatches(3, NULL)
   PLTKeyboard     = new Keyboard(this, 1);
 
   pPanelA8 = NULL;
+  pA7A8Panel = NULL;
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
@@ -543,8 +581,6 @@ pActiveLatches(3, NULL)
 
   psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
 
-  psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
-
   psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
   psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
@@ -573,8 +609,6 @@ pActiveLatches(3, NULL)
 #else
   pOMS = NULL;
 #endif
-
-  pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 
   //connect CRT MDUs to IDPs
   mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
@@ -652,6 +686,8 @@ pActiveLatches(3, NULL)
   huds.ngroup       = GRP_VIRTUALHUD_VC;
   huds.size         = 0.176558;
 
+  scnVCMode = 0;
+  
   // propellant resources
   ph_oms          = NULL;
   ph_frcs		  = NULL;
@@ -711,6 +747,7 @@ pActiveLatches(3, NULL)
   thg_transleft=thg_transright=NULL;
   thg_transup=thg_transdown=NULL;
 
+  bSSMEGOXVent = true;
   bSSMEsDefined = false;
   bOMSDefined = false;
   bRCSDefined = false;
@@ -735,6 +772,9 @@ pActiveLatches(3, NULL)
 
   orbiter_ofs = _V(0, 0, 0);
   currentCoG = _V(0.0, 0.0, 0.0);
+
+  payloadMass = 0.0;
+  payloadCoG = _V(0, 0, 0);
   
   // preload meshes
   hOrbiterMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
@@ -903,14 +943,14 @@ pActiveLatches(3, NULL)
   plbdCamPos[3] = CAM_D_POS;
 
   //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.4, -3.05, 5.49); //forward stbd
-  PLBLightPosition[1] = _V(-1.4,-3.05, 5.49); //forward port
-  PLBLightPosition[2] = _V(1.4, -3.05, -0.21);//mid stbd
-  PLBLightPosition[3] = _V(-1.4, -3.05, -0.21);//mid port
-  PLBLightPosition[4] = _V(1.4, -3.05, -4.26);//aft stbd
-  PLBLightPosition[5] = _V(-1.4, -3.05, -4.26);//aft port
-  FwdBulkheadLightPos = _V(0.0, 0.763, 9.652);//fwd bulkhead
-  DockingLightPos = _V(0.0, 0.947, 9.652);//docking light
+  PLBLightPosition[0] = _V(1.6380, -2.1207, 5.5686); //forward stbd
+  PLBLightPosition[1] = _V(-1.6380,-2.1207, 5.5686); //forward port
+  PLBLightPosition[2] = _V(1.6380, -2.1207, -0.2724);//mid stbd
+  PLBLightPosition[3] = _V(-1.6380, -2.1207, -0.2724);//mid port
+  PLBLightPosition[4] = _V(1.6380, -2.1207, -4.3755);//aft stbd
+  PLBLightPosition[5] = _V(-1.6380, -2.1207, -4.3755);//aft port
+  FwdBulkheadLightPos = _V(0.0, 1.75, 9.65);//fwd bulkhead
+  DockingLightPos = _V(0.0, 2.02, 9.6);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
@@ -924,28 +964,34 @@ pActiveLatches(3, NULL)
 	}
 
 	// light for engines during launch
-	COLOUR4 col_diff = {1,1,1,0};
-	COLOUR4 col_zero = {0,0,0,0};
-	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z - 4), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	//SSME light
+	COLOUR4 col_diff_SSME = {1.0,1.0,1.0,0};
+	COLOUR4 col_zero_SSME = {0,0,0,0};
+	COLOUR4 col_ambient_SSME = {0.5,0.5,0.5,0};
+	//SRB light
+    COLOUR4 col_diff_SRB = {1.0,0.733f,0.196f,0};
+	COLOUR4 col_zero_SRB = {0,0,0,0};
+	COLOUR4 col_ambient_SRB = {0.5,0.5,0.5,0};
+	SRBLight[0] = AddPointLight (_V(LSRB_OFFSET.x,LSRB_OFFSET.y,LSRB_OFFSET.z-25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SRBLight[1] = AddPointLight (_V(RSRB_OFFSET.x,RSRB_OFFSET.y,RSRB_OFFSET.z-25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SSMELight = AddPointLight (_V(0,(SSMET_REF.y + SSMEL_REF.y) / 2,SSMEL_REF.z -2.9348 ), 300, 5e-3, 0, 5e-2, col_diff_SSME, col_zero_SSME, col_ambient_SSME);
 
 	// RCS exhaust
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
-	RCS_PSSpec.srcsize=0.1;
-	RCS_PSSpec.srcrate=800;
-	RCS_PSSpec.v0=60;//100
-	RCS_PSSpec.srcspread=0;
-	RCS_PSSpec.lifetime=0.2;
-	RCS_PSSpec.growthrate=20;
-	RCS_PSSpec.atmslowdown=5;
-	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::EMISSIVE;
-	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_FLAT;
-	RCS_PSSpec.lmin=1;
-	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;
-	RCS_PSSpec.amin=1;
+	RCS_PSSpec.srcsize=0.1;//0.1
+	RCS_PSSpec.srcrate=3000;//3000
+	RCS_PSSpec.v0=50;//10
+	RCS_PSSpec.srcspread=0;//0
+	RCS_PSSpec.lifetime=0.2;//0.2
+	RCS_PSSpec.growthrate=25;//3.5
+	RCS_PSSpec.atmslowdown=5.0;//0.5
+	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
+	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
+	RCS_PSSpec.lmin=0.1;//0.25
+	RCS_PSSpec.lmax=0.5;//0.25
+	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;//ATM_FLAT
+	RCS_PSSpec.amin=1;//1
 	RCS_PSSpec.tex=RCS_tex;
 	
 	reentry_flames = NULL;
@@ -1014,7 +1060,6 @@ void Atlantis::SetLaunchConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
-  UpdateMass();
   SetGravityGradientDamping(0.05);
   //SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
@@ -1123,11 +1168,12 @@ void Atlantis::SetOrbiterTankConfiguration (void)
   SetTrimScale (0.05);
   SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
   SetTouchdownPoints (_V(0,-5,30), _V(-10,-10,-30), _V(10,0,-30));
-  UpdateMass();
 
   // ************************* propellant specs **********************************
 
   if (!ph_mps) ph_mps = CreatePropellantResource( MPS_MANIFOLD_MASS_TOTAL );    // mps manifold
+  LOXmass = MPS_MANIFOLD_MASS_LOX;
+  LH2mass = MPS_MANIFOLD_MASS_LH2;
 
   CreateOrbiterTanks();
 
@@ -1197,7 +1243,6 @@ void Atlantis::SetOrbiterConfiguration (void)
   SetCrossSections (ORBITER_CS);
   DefineTouchdownPoints();
   SetMaxWheelbrakeForce(250000/2);
-  UpdateMass();
 
   // ************************* aerodynamics **************************************
 
@@ -1256,7 +1301,7 @@ void Atlantis::SetOrbiterConfiguration (void)
   CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
 
   // RCS (Reaction Control System)
-  CreateAttControls_RCS (_V(0,0,0));
+  CreateAttControls_RCS (orbiter_ofs);
   CreateDummyThrusters();
 
   discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
@@ -1352,9 +1397,9 @@ void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
   AddRCSExhaust (th_att_rcs[2], center+_V( 0.0  , -0.006, 15.51), _V(0, 1,0));//F3U
   AddRCSExhaust (th_att_rcs[2], center+_V( 0.367, -0.006, 15.51), _V(0, 1,0));//F2U
 
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[3], center+_V(-2.839, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.112, 0.236, -14.244), _V(-0.2844,-0.9481,-0.1422));//L4D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.097, 0.303, -14.573), _V(-0.2844,-0.9481,-0.1422));//L2D
+  AddRCSExhaust (th_att_rcs[3], center+_V(-3.081, 0.369, -14.909), _V(-0.2844,-0.9481,-0.1422));//L3D
 
   AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.236, -14.244), _V(0.2844,-0.9481,-0.1422));//R4D
   AddRCSExhaust (th_att_rcs[3], center+_V(2.839, 0.303, -14.573), _V(0.2844,-0.9481,-0.1422));//R2D
@@ -1589,7 +1634,8 @@ void Atlantis::EnableControlSurfaces()
 	if(ControlSurfacesEnabled) return;
 	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 0.0, 0.0, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, 5.0);
     hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
-	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	//hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hrudder = CreateControlSurface2 (AIRCTRL_RUDDERTRIM,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
@@ -1615,10 +1661,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RCargoDoorGrp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4,};
   MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
-    _V(2.694,0.245,0.0), _V(0, 0, 1), (float)(-175.5*RAD));
+    _V(2.6942,0.2449,0.0), _V(0, 0, 1), (float)(-175.5*RAD));
   static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
   MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
-    _V(-2.694,0.245,0.0), _V(0, 0, 1), (float)(175.5*RAD)); 
+    _V(-2.6942,0.2449,0.0), _V(0, 0, 1), (float)(175.5*RAD)); 
 
   static UINT RRadiatorGrp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
   MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 3,
@@ -1654,19 +1700,19 @@ void Atlantis::DefineAnimations (void)
   //latches
   static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
   static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
   static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
   static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
   static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.023,2.19,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(0.0234,2.1905,0.0), _V(0,0,1), (float)(90 * RAD));
 
   anim_door = CreateAnimation (0);
   LogAnim("anim_door", anim_door);
@@ -1765,9 +1811,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE RElevator_up (midx, RElevGrp, 2,
 	_V(7.833,-3.204,-10.82), _V(0.995219,0.0976717,-0.000432872), (float)(-34.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_up (midx, LElevDoorGrp, 2,
-    _V(-7.837,-2.697,-10.329), _V(-0.995219,0.0976717,-0.000432872), (float)(22.0*RAD));
+    _V(-7.837,-2.697,-10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(22.0*RAD));
   static MGROUP_ROTATE RElevatorDoor_up (midx, RElevDoorGrp, 2,
-    _V(7.837,-2.697,-10.329), _V(0.995219,0.0976717,-0.000432872), (float)(-22.0*RAD));
+    _V(7.837,-2.697,-10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-22.0*RAD));
  
   // ***** 4B. Downward animation of elevons *****
   static MGROUP_ROTATE LElevator_down (midx, LElevGrp, 2,
@@ -1775,9 +1821,9 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE RElevator_down (midx, RElevGrp, 2,
     _V(7.833,-3.204,-10.82), _V(0.995219,0.0976717,-0.000432872), (float)(-18.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_down (midx, LElevDoorGrp, 2,
-    _V(-7.837,-2.697,-10.329), _V(-0.995219,0.0976717,-0.000432872), (float)(5*RAD));
+    _V(-7.837,-2.697,-10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(5*RAD));
   static MGROUP_ROTATE RElevatorDoor_down (midx, RElevDoorGrp, 2,
-    _V(7.837,-2.697,-10.329), _V(0.995219,0.0976717,-0.000432872), (float)(-5*RAD));
+    _V(7.837,-2.697,-10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-5*RAD));
   anim_lelevon = CreateAnimation (0.5);
   anim_relevon = CreateAnimation (0.5);
   LogAnim("anim_lelevon", anim_lelevon);
@@ -1803,7 +1849,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT RudderGrp[2] = {GRP_RIGHT_RSB_PANEL,GRP_LEFT_RSB_PANEL};
   static MGROUP_ROTATE Rudder (midx, RudderGrp, 2,
-    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(54.2*RAD));
+    _V(0,4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(54.2*RAD));
   anim_rudder = CreateAnimation (0.5);
   LogAnim("anim_rudder", anim_rudder);
   AddAnimationComponent (anim_rudder, 0, 1, &Rudder);
@@ -1812,10 +1858,10 @@ void Atlantis::DefineAnimations (void)
 
   static UINT SB1Grp[1] = {GRP_RIGHT_RSB_PANEL};
   static MGROUP_ROTATE SB1 (midx, SB1Grp, 1,
-    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(-49.3*RAD));
+    _V(0,4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(49.3*RAD));
   static UINT SB2Grp[1] = {GRP_LEFT_RSB_PANEL};
   static MGROUP_ROTATE SB2 (midx, SB2Grp, 1,
-    _V(0,4.347, -13.765), _V(0, -0.817648, 0.575719), (float)(49.3*RAD));
+    _V(0,4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(-49.3*RAD));
 
   anim_spdb = CreateAnimation (0);
   LogAnim("anim_spdb", anim_spdb);
@@ -2045,13 +2091,13 @@ void Atlantis::DefineAnimations (void)
   static MGROUP_ROTATE STZD_Open (midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
   static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
 
-  anim_stzd = CreateAnimation(1.0);
+  anim_stzd = CreateAnimation(0.0);
   LogAnim("anim_stzd", anim_stzd);
   AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
 
   pSTZDoorMotor->SetObjectAnim(anim_stzd);
 
-  anim_styd = CreateAnimation(1.0);
+  anim_styd = CreateAnimation(0.0);
   LogAnim("anim_styd", anim_styd);
   AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
 
@@ -2458,7 +2504,7 @@ void Atlantis::SeparateBoosters (double met)
   }*/
 }
 
-void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
+void Atlantis::DetachSRB(SIDE side, double thrust, double prop)
 {
 	Atlantis_SRB* pSRB = GetSRBInterface(side);
 	if(side==LEFT) DetachChildAndUpdateMass(ahLeftSRB);
@@ -2892,7 +2938,8 @@ void Atlantis::SetAnimationCameras() {
 LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
 	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
+	//const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f}; //RGB for metal halide but it doesn't quite match up with actual photos
+	const COLOUR4 diff = {0.847f, 0.968f, 1.0f, 0.0f}; //RGB for mercury vapor, this better matches photos
 	const COLOUR4 amb = {0.0, 0.0, 0};
 	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
 
@@ -2906,7 +2953,7 @@ LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double de
 	bspec.size = 0.25;
 	bspec.tofs = 0;
 	AddBeacon(&bspec);
-	return AddSpotLight(pos,dir,20,0.5,0.8,0.001, degWidth*RAD, degWidth*1.1*RAD,
+	return AddSpotLight(pos,dir,20,0.5,0.0,0.05, degWidth*RAD, degWidth*1.1*RAD,
 						 diff,spec,amb);
 }
 
@@ -3133,126 +3180,166 @@ void Atlantis::clbkSetStateEx (const void *status)
 // --------------------------------------------------------------
 void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 {
-  int action;
-  char *line;
-  char pszBuffer[256];
-  char pszLogBuffer[256];
+	int action;
+	char *line;
+	char pszBuffer[256];
+	char pszLogBuffer[256];
 
-  spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
+	spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
 
-  while (oapiReadScenario_nextline (scn, line)) {
-      if (!_strnicmp (line, "CONFIGURATION", 13)) {
-            sscanf (line+13, "%d", &status);
-    } else if (!_strnicmp (line, "MISSION", 7)) {
-		strncpy(pszBuffer, line+8, 255);
-		
-		sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
-		oapiWriteLog(pszLogBuffer);
-		
-		pMission = ssuGetMission(pszBuffer);
-
-		// add additional components defined in Mission file
-		RMS = pMission->HasRMS();
-		STBDMPM = pMission->HasSTBDMPMs();
-
-		if(RMS) {
-			psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+	while (oapiReadScenario_nextline (scn, line))
+	{
+		if (!_strnicmp (line, "CONFIGURATION", 13))
+		{
+			sscanf (line+13, "%d", &status);
 		}
-		if(STBDMPM) {
-			psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+		else if (!_strnicmp (line, "VC_POS", 6))
+		{
+			sscanf (line+6, "%d", &scnVCMode);
 		}
+		else if (!_strnicmp (line, "MISSION", 7))
+		{
+			strncpy(pszBuffer, line+8, 255);
+		
+			sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
+			oapiWriteLog(pszLogBuffer);
+		
+			pMission = ssuGetMission(pszBuffer);
 
-		bHasKUBand = pMission->HasKUBand();
-	} else if (!_strnicmp (line, "MET", 3)) {
-		sscanf (line+3, "%lf", &met);
-	} else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
-		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
-		spdb_status = (AnimState::Action)(action+1);
-    } else if (!_strnicmp (line, "GEAR", 4)) {
-		sscan_state(line+4, gear_status);
-		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
-    } else if (!_strnicmp (line, "PLBD_CAM", 8)) {
-		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
-			&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
-		cameraMoved=true;
-    } else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
-		sscanf (line+12, "%lf", &pl_mass);
-	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
-		sscanf (line+17, "%s", cargo_static_mesh_name);
-		do_cargostatic = true;
-    } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
-		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if(!_strnicmp(line, "OPS", 3)) {
-		unsigned int ops;
-		sscanf(line+3, "%u", &ops);
-		pSimpleGPC->SetMajorMode(ops);
-	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
-		ParsePayloadLine(line);
-	} else if (!_strnicmp(line, "@PANEL", 6)) {
-		char pszPanelName[30];
-		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
-		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
-			pszPanelName, line);
-		oapiWriteLog(pszBuffer);
+			// add additional components defined in Mission file
+			RMS = pMission->HasRMS();
+			STBDMPM = pMission->HasSTBDMPMs();
 
-		if(pgLeft.HasPanel(pszPanelName))
-			pgLeft.ParsePanelBlock(pszPanelName, scn);
+			if (RMS)
+			{
+				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+			if (STBDMPM)
+			{
+				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+			}
+			if(pMission->HasODS())
+			{
+				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
+				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
+			}
 
-		if(pgForward.HasPanel(pszPanelName))
-			pgForward.ParsePanelBlock(pszPanelName, scn);
+			bHasKUBand = pMission->HasKUBand();
+		}
+		else if (!_strnicmp (line, "MET", 3))
+		{
+			sscanf (line+3, "%lf", &met);
+		}
+		else if (!_strnicmp (line, "SPEEDBRAKE", 10))
+		{
+			sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
+			spdb_status = (AnimState::Action)(action+1);
+		}
+		else if (!_strnicmp (line, "GEAR", 4))
+		{
+			sscan_state(line+4, gear_status);
+			if (gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
+		}
+		else if (!_strnicmp (line, "PLBD_CAM", 8))
+		{
+			sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
+				&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
+			cameraMoved=true;
+		}
+		else if (!_strnicmp (line, "PAYLOAD_MASS", 12))
+		{
+			sscanf (line+12, "%lf", &pl_mass);
+		}
+		else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17))
+		{
+			sscanf (line+17, "%s", cargo_static_mesh_name);
+			do_cargostatic = true;
+		}
+		else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16))
+		{
+			sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
+		}
+		else if (!_strnicmp(line, "OPS", 3))
+		{
+			unsigned int ops;
+			sscanf(line+3, "%u", &ops);
+			pSimpleGPC->SetMajorMode(ops);
+		}
+		else if (!_strnicmp(line, "PAYLOAD", 7))
+		{
+			ParsePayloadLine(line);
+		}
+		else if (_strnicmp( line, "GOXVENTSOFF", 11 ) == 0)
+		{
+			if (status == STATE_PRELAUNCH) bSSMEGOXVent = false;
+		}
+		else if (!_strnicmp(line, "@PANEL", 6))
+		{
+			char pszPanelName[30];
+			sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
+			sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", pszPanelName, line);
+			oapiWriteLog(pszBuffer);
 
-		if(pgRight.HasPanel(pszPanelName))
-			pgRight.ParsePanelBlock(pszPanelName, scn);
+			if (pgLeft.HasPanel(pszPanelName))
+				pgLeft.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgCenter.HasPanel(pszPanelName)) 
-			pgCenter.ParsePanelBlock(pszPanelName, scn);
+			if (pgForward.HasPanel(pszPanelName))
+				pgForward.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgOverhead.HasPanel(pszPanelName))
-			pgOverhead.ParsePanelBlock(pszPanelName, scn);
+			if (pgRight.HasPanel(pszPanelName))
+				pgRight.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgOverheadAft.HasPanel(pszPanelName))
-			pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
+			if (pgCenter.HasPanel(pszPanelName)) 
+				pgCenter.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAftStbd.HasPanel(pszPanelName))
-			pgAftStbd.ParsePanelBlock(pszPanelName, scn);
+			if (pgOverhead.HasPanel(pszPanelName))
+				pgOverhead.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAft.HasPanel(pszPanelName))
-			pgAft.ParsePanelBlock(pszPanelName, scn);
+			if (pgOverheadAft.HasPanel(pszPanelName))
+				pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
 
-		if(pgAftPort.HasPanel(pszPanelName)) 
-			pgAftPort.ParsePanelBlock(pszPanelName, scn);
+			if (pgAftStbd.HasPanel(pszPanelName))
+				pgAftStbd.ParsePanelBlock(pszPanelName, scn);
 
-		oapiWriteLog("\tLeave @PANEL block.");
-	} else {
-      if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
-	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
-	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
-	  if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
-      ParseScenarioLineEx (line, vs);
-      // unrecognised option - pass to Orbiter's generic parser
-    }
-  }
+			if (pgAft.HasPanel(pszPanelName))
+				pgAft.ParsePanelBlock(pszPanelName, scn);
 
-  ClearMeshes();
-  switch (status) {
-  case 0:
-    SetLaunchConfiguration();
-    break;
-  case 1:
-    SetPostLaunchConfiguration (met);
-    break;
-  case 2:
-    SetOrbiterTankConfiguration();
-    break;
-  case 3:
-    SetOrbiterConfiguration();
-    break;
-  }
-  if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
+			if (pgAftPort.HasPanel(pszPanelName)) 
+				pgAftPort.ParsePanelBlock(pszPanelName, scn);
 
-  UpdateMesh ();
+			oapiWriteLog("\tLeave @PANEL block.");
+		}
+		else
+		{
+			if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
+			if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
+			if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
+			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
+			ParseScenarioLineEx (line, vs);// unrecognised option - pass to Orbiter's generic parser
+		}
+	}
+
+	ClearMeshes();
+	switch (status)
+	{
+		case 0:
+			SetLaunchConfiguration();
+			break;
+		case 1:
+			SetPostLaunchConfiguration (met);
+			break;
+		case 2:
+			SetOrbiterTankConfiguration();
+			break;
+		case 3:
+			SetOrbiterConfiguration();
+			break;
+	}
+	if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
+
+	UpdateMesh ();
 }
 
 // --------------------------------------------------------------
@@ -3260,72 +3347,71 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 // --------------------------------------------------------------
 void Atlantis::clbkSaveState (FILEHANDLE scn)
 {
-  char cbuf[256];
+	char cbuf[256];
 
-  // save default vessel parameters
-  // set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
-  ShiftCG(-currentCoG);
-  VESSEL3::clbkSaveState (scn);
-  ShiftCG(currentCoG); // reset CoG to correct position
+	// save default vessel parameters
+	// set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
+	ShiftCG(-currentCoG);
+	VESSEL3::clbkSaveState (scn);
+	ShiftCG(currentCoG); // reset CoG to correct position
 
-  if(!pMission->GetMissionFileName().empty()) 
-  {
-	  strcpy(cbuf, pMission->GetMissionFileName().c_str());
-	  oapiWriteScenario_string(scn, "MISSION", cbuf);
-  }
+	if (!pMission->GetMissionFileName().empty()) 
+	{
+		strcpy(cbuf, pMission->GetMissionFileName().c_str());
+		oapiWriteScenario_string(scn, "MISSION", cbuf);
+	}
 
-  // custom parameters
-  oapiWriteScenario_int (scn, "CONFIGURATION", status);
+	// custom parameters
+	oapiWriteScenario_int (scn, "CONFIGURATION", status);
+	oapiWriteScenario_int (scn, "VC_POS", VCMode);
 
-  /*if (status == 1)
-    oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-  else oapiWriteScenario_float (scn, "MET", met);*/
+	/*if (status == 1)
+		oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
+	else oapiWriteScenario_float (scn, "MET", met);*/
 
-  if (spdb_status != AnimState::CLOSED) {
-    sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
-    oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
-  }
-  WriteScenario_state(scn, "GEAR", gear_status);
+	if (spdb_status != AnimState::CLOSED)
+	{
+		sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
+		oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
+	}
+	WriteScenario_state(scn, "GEAR", gear_status);
 
-  if (do_cargostatic) {
-    oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
-    if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
-      oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
-  } 
-  if(pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
+	if (do_cargostatic)
+	{
+		oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
+		if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
+			oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
+	} 
+	if (pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
 
-  //GPC
-  oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
+	//GPC
+	oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
 
-  SavePayloadState(scn);
+	SavePayloadState(scn);
 
-  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
-			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
-  oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
+	sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
+		camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
+	oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
 
-  oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  psubsystems->SaveState(scn);
+	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
+	psubsystems->SaveState(scn);
 
-  // save bay door operations status
-  plop->SaveState (scn);
-  panela4->SaveState(scn);
-  panelc2->SaveState(scn);
+	// save bay door operations status
+	plop->SaveState (scn);
+	panela4->SaveState(scn);
+	panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
-  pgLeft.OnSaveState(scn);
-  pgForward.OnSaveState(scn);
-  pgRight.OnSaveState(scn);
-  pgCenter.OnSaveState(scn);
-  pgOverhead.OnSaveState(scn);
-  pgOverheadAft.OnSaveState(scn);
-  oapiWriteLog("\tAft flight deck");
-  pgAftStbd.OnSaveState(scn);
-  pgAft.OnSaveState(scn);
-  pgAftPort.OnSaveState(scn);
-
-
-	//oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  //psubsystems->SaveState(scn);
+	pgLeft.OnSaveState(scn);
+	pgForward.OnSaveState(scn);
+	pgRight.OnSaveState(scn);
+	pgCenter.OnSaveState(scn);
+	pgOverhead.OnSaveState(scn);
+	pgOverheadAft.OnSaveState(scn);
+	oapiWriteLog("\tAft flight deck");
+	pgAftStbd.OnSaveState(scn);
+	pgAft.OnSaveState(scn);
+	pgAftPort.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
 }
@@ -3553,6 +3639,7 @@ void Atlantis::clbkPostCreation ()
 		//RightElevonCommand.Connect(pBundle, 1);
 		ElevonCommand.Connect(pBundle, 0);
 		AileronCommand.Connect(pBundle, 1);
+		RudderCommand.Connect(pBundle, 2);
 
 		pBundle = bundleManager->CreateBundle("THRUSTER_CMD", 16);
 		for (unsigned int i = 0; i < 3; i++) {
@@ -3656,12 +3743,9 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 	//double steerforce, airspeed;
 	try
 	{
-		if (status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
-
 		if (firstStep) {
-			firstStep = false;
-			UpdateMass();
-			UpdateCoG();// in the first time step UpdateCoG() must be called after UpdateMass() otherwise the first c.g. calc isn't good
+			UpdateMassAndCoG(); // update visual before simulation starts
+
 			if (status <= STATE_STAGE1) {
 				// update SRB thrusters to match values from SRB vessel
 				VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
@@ -3942,6 +4026,10 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 				aerosurfaces.speedbrake = spdb_proc*100.0;
 				//if(pSimpleGPC->GetMajorMode() == 801)
 				//aerosurfaces.bodyFlap = (ElevonCommand.GetVoltage() + 1.0)/2.0 * 100.0;
+
+				// TODO: limit combined rudder and speedbrake deflection
+				aerosurfaces.rudder = range(-27.1, RudderCommand.GetVoltage()*27.1, 27.1);
+				SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, RudderCommand.GetVoltage());
 			}
 			else {
 				aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
@@ -4026,6 +4114,8 @@ void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
 		//double time=st.Stop();
 		//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
 		//oapiWriteLog(oapiDebugString());
+
+		if (status > STATE_PRELAUNCH) UpdateMassAndCoG(); // TODO: refine
 	}
 	catch (std::exception &e)
 	{
@@ -4053,6 +4143,10 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			oapiWriteLog("(Atlantis::clbkPostStep) Entering.");
 		}
 
+		if(firstStep) {
+			firstStep = false;
+			UpdateMassAndCoG(true);
+		}
 
 		if (!___PostStep_flag)
 		{
@@ -4095,7 +4189,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			// check SSME state and trigger liftoff when required
 			if (Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 			{
-				if (GetPropellantLevel(ph_mps) > 0.5) // TODO improve this venting with engine status
+				if ((GetPropellantLevel(ph_mps) > 0.5) && (bSSMEGOXVent == true)) // TODO improve this venting with engine status
 				{
 					for (unsigned short i = 0; i < 3; i++)
 					{
@@ -4596,6 +4690,11 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   else
 	  oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_CHUTE, &grpSpec);
 
+  // hide bridgerails
+  for(unsigned int i=0;i<13;i++) {
+	  if(!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON+i, &grpSpec);
+  }
+
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
@@ -4649,6 +4748,9 @@ bool Atlantis::clbkLoadVC (int id)
   bool ok = false;
   bool bUpdateVC = false;
   std::set<int> InactiveMDUs;
+
+  // when loading scenario, use cockpit position loaded from scenario instead of default position
+  if(firstStep) id = scnVCMode;
 
     // Get the VC Mode.
   VCMode = id;
@@ -4795,7 +4897,7 @@ bool Atlantis::clbkLoadVC (int id)
 
 	  pgCenter.RegisterVC();
 	  pgForward.RegisterVC();
-	  pgRight.RegisterVC();
+	  pgLeft.RegisterVC();
 	  pgOverhead.RegisterVC();
 
 	  panelo3->RegisterVC();
@@ -4910,7 +5012,7 @@ bool Atlantis::clbkLoadVC (int id)
     break;
   case VC_DOCKCAM: //Docking camera
 	  DisplayCameraLabel(VC_LBL_DOCKCAM);
-	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+ODS_POS.y+1.15,orbiter_ofs.z+pMission->GetODSZPos()-0.242));
+	  SetCameraOffset (_V(orbiter_ofs.x-0.0015,orbiter_ofs.y+ODS_POS.y+1.15,orbiter_ofs.z+pMission->GetODSZPos()-0.319862));
 	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
 	  SetCameraRotationRange(0, 0, 0, 0);
 	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
@@ -5367,10 +5469,10 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		RMSGrapple.ResetLine();
 		RMSRelease.SetLine();
 		return 1;
-	/*case OAPI_KEY_X: //temporary
+	case OAPI_KEY_X: //temporary
 		if(status == STATE_PRELAUNCH)
 		{
-			bSSMEGOXVent = !bSSMEGOXVent;
+			bSSMEGOXVent = true;//!bSSMEGOXVent;
 		}
 		/*else if(status == STATE_ORBITER)
 		{
@@ -5382,8 +5484,8 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 					RMSRollout.action=AnimState::CLOSING;
 				}
 			}
-		}*
-		return 1;*/
+		}*/
+		return 1;
 	case OAPI_KEY_1: //temporary
 		if(pRMS) pRMS->ToggleJointAngleDisplay();
 		return 1;
@@ -5742,7 +5844,7 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 	DeleteDC(Temp1DC);
 
   // allocate GDI resources
-  g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+  g_Param.font[0] = CreateFont (-11, -3, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
 }
 
 DLLCLBK void ExitModule (HINSTANCE hModule)
@@ -6039,7 +6141,7 @@ void Atlantis::DefineKUBandAnimations()
 
   static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
   static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
-    _V(2.46,-1.1058,9.44), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
+    _V(2.4551,-0.6979,9.4404), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
 
   static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
@@ -6109,7 +6211,7 @@ void Atlantis::DefineSSMEExhaust()
 		{
 			DelExhaust(ex_main[i]);
 		}
-		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 2.0, tex_main);
+		ex_main[i] = AddExhaust(th_main[i], 55.0, 3.0, 3.5, tex_main);
 	}
 }
 
@@ -6718,7 +6820,7 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	// LOX dump SSME 2
 	if (thMPSDump[1] != NULL) DelThruster( thMPSDump[1] );
-	thMPSDump[1] = CreateThruster( orbiter_ofs + SSMEL_GOX_REF1 + _V( 0, -1.15, -1 ), SSMECurrentPos[1], 4000, phLOXdump, 80, 80 );		
+	thMPSDump[1] = CreateThruster( orbiter_ofs + SSMEL_GOX_REF1 + _V( -1.15, 0, -1 ), SSMECurrentPos[1], 4000, phLOXdump, 80, 80 );		
 	AddExhaustStream( thMPSDump[1], &psLOXdump_SSME );
 
 	// LOX dump SSME 3
@@ -6728,27 +6830,27 @@ void Atlantis::CreateMPSDumpVents( void )
 
 	// LH2 dump B/U
 	if (thMPSDump[3] != NULL) DelThruster( thMPSDump[3] );
-	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.73, -3.29, -9.30 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
+	thMPSDump[3] = CreateThruster( orbiter_ofs + _V( -2.7432, -2.4155, -9.4365 ), _V( 0.993373, -0.094977, -0.064729 ), 60, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[3], &psLH2dump_BU );
 
 	// LH2 dump F/D
 	if (thMPSDump[4] != NULL) DelThruster( thMPSDump[4] );
-	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.83, -1.46, -12.28 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
+	thMPSDump[4] = CreateThruster( orbiter_ofs + _V( -2.9718, -0.4596, -12.4591 ), _V( 1, 0, 0 ), 90, phLH2dump, 30, 30 );
 	AddExhaustStream( thMPSDump[4], &psLH2dump_FD );
 
 	// LOX dump F/D
 	if (thMPSDump[5] != NULL) DelThruster( thMPSDump[5] );
-	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.83, -1.46, -12.28 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
+	thMPSDump[5] = CreateThruster( orbiter_ofs + _V( 2.9718, -0.4596, -12.4591 ), _V( -1, 0, 0 ), 600, phLOXdump, 60, 60 );
 	AddExhaustStream( thMPSDump[5], &psLOXdump_FD );
 
 	// LH2 FDLN Relief vent
 	if (thMPSDump[6] != NULL) DelThruster( thMPSDump[6] );
-	thMPSDump[6] = CreateThruster( orbiter_ofs + _V( -0.434188, 1.5138, -10.8137 ), _V( 0, -0.993572, -0.113203 ), 34, phLH2dump, 60, 60 );
+	thMPSDump[6] = CreateThruster( orbiter_ofs + _V( -0.4171, 1.5138, -11.1097 ), _V( 0, -0.993572, -0.113203 ), 34, phLH2dump, 60, 60 );
 	AddExhaustStream( thMPSDump[6], &psLH2dump_FDLN );
 
 	// LOX FDLN Relief vent
 	if (thMPSDump[7] != NULL) DelThruster( thMPSDump[7] );
-	thMPSDump[7] = CreateThruster( orbiter_ofs + _V( 2.92116, -3.44059, -10.8442 ), _V( -0.993373, -0.094977, -0.064729 ), 331, phLOXdump, 60, 60 );
+	thMPSDump[7] = CreateThruster( orbiter_ofs + _V( 2.92116, -2.5624, -11.4256 ), _V( -0.993373, -0.094977, -0.064729 ), 331, phLOXdump, 60, 60 );
 	AddExhaustStream( thMPSDump[7], &psLOXdump_FDLN );
 	return;
 }
@@ -7072,7 +7174,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
@@ -7118,53 +7220,46 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 	}
 }
 
-bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
+bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment)
 {
 	bool result = AttachChild(child, attachment, child_attachment);
 	if(result) {
-		double mass = GetEmptyMass();
-		mass += oapiGetMass(child);
-		SetEmptyMass(mass);
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel) const
+bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel)
 {
 	OBJHANDLE hChild = GetAttachmentStatus(attachment);
 	bool result = DetachChild(attachment, vel);
 	if(result && hChild) {
-		double mass = GetEmptyMass();
-		mass -= oapiGetMass(hChild);
-		SetEmptyMass(mass);
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-double Atlantis::GetMassOfAttachedObjects() const
+double Atlantis::GetMassAndCoGOfAttachedObject(ATTACHMENTHANDLE ah, VECTOR3& CoG) const
 {
 	double mass = 0.0;
-	DWORD count = AttachmentCount(false);
-	//int attachedCount = 0;
-	for(DWORD i=0;i<count;i++) {
-		ATTACHMENTHANDLE hAtt = GetAttachmentHandle(false, i);
-		OBJHANDLE hV=GetAttachmentStatus(hAtt);
-		if(hV) {
-			mass += oapiGetMass(hV);
-			//attachedCount++;
+	CoG = _V(0, 0, 0);
+	OBJHANDLE hV= GetAttachmentStatus(ah);
+	if(hV) {
+		VESSEL* v = oapiGetVesselInterface(hV);
+		if(v) {
+			VECTOR3 childCoG;
+			mass = GetMassAndCoG(v, childCoG);
+			// get CoG of payload in Orbiter frame
+			VECTOR3 rpos;
+			v->GetRelativePos(GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			GetRotationMatrix(LocalToGlob);
+			v->GetRotationMatrix(ChildToGlob);
+			CoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG)+rpos) + currentCoG;
 		}
 	}
 
-	/*char pszBuf[50];
-	sprintf_s(pszBuf, 50, "Attach count: %d dMass: %f", attachedCount, mass);
-	oapiWriteLog(pszBuf);*/
-
 	return mass;
-}
-
-void Atlantis::UpdateMass() const
-{
-	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
 }
 
 void Atlantis::ETPressurization( double GOXmass, double GH2mass )
@@ -7203,18 +7298,64 @@ void Atlantis::UpdateMPSManifold( void )
 	LO2LowLevelSensor[2].SetValue( lvl );
 	LO2LowLevelSensor[3].SetValue( lvl );
 	
-	UpdateMass();
+	UpdateMassAndCoG();
 	return;
 }
 
-void Atlantis::UpdateCoG()
+void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 {
 	// for the moment, only look at shuttle, ET and SRBs
 	// ignore payloads and shuttle consumables
+	// TODO: include subsystem CoG in calculations (at the moment, subsystem mass is assumed to be located at ORBITER_CG)
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
+	if(bUpdateAttachedVessels) {
+		payloadMass = 0.0;
+		payloadCoG = _V(0,0,0);
+		
+		DWORD attachmentCount = AttachmentCount(false);
+		for(DWORD i=0;i<attachmentCount;i++) {
+			ATTACHMENTHANDLE ah = GetAttachmentHandle(false, i);
+			if(ah != ahET && ah != ahLeftSRB && ah != ahRightSRB) {
+				if(GetAttachmentStatus(ah)) {
+					double mass;
+					VECTOR3 CoG;
+					mass = GetMassAndCoGOfAttachedObject(ah, CoG);
+					payloadMass += mass;
+					payloadCoG += CoG*mass;
+
+					char cbuf[255];
+					sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
+					oapiWriteLog(cbuf);
+				}
+			}
+		}
+		if(payloadMass > 0.1) payloadCoG = payloadCoG/payloadMass;
+		else payloadCoG = _V(0, 0, 0);
+
+		double subsystemMass = psubsystems->GetTotalSubsystemMass();
+		SetEmptyMass( pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass);
+	}
+	if(status <= STATE_STAGE2) {
+		double stackMass = 0.0; // mass of ET & SRBs (if attached)
+		if(status <= STATE_STAGE1) {
+			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
+			if(hLeftSRB) stackMass += oapiGetMass(hLeftSRB);
+			OBJHANDLE hRightSRB = GetAttachmentStatus(ahRightSRB);
+			if(hRightSRB) stackMass += oapiGetMass(hRightSRB);
+		}
+		OBJHANDLE hET = GetAttachmentStatus(ahET);
+		if(hET) stackMass += oapiGetMass(hET);
+
+		double subsystemMass = psubsystems->GetTotalSubsystemMass();
+		SetEmptyMass( pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass + stackMass);
+	}
+
 	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter
+	shuttleMass -= payloadMass;
+	masses.push_back(payloadMass);
+	positions.push_back(payloadCoG);
 	if(status <= STATE_STAGE2) { // add ET mass
 		// density in kg/m^3 (calculated from ET tank mass/volume values in SCOM)
 		const double LOX_DENSITY = 1138.43342579;
@@ -7222,32 +7363,36 @@ void Atlantis::UpdateCoG()
 		const double TANK_RADIUS = 4.2;
 
 		VESSEL* pTank = GetTankInterface();
-		double ETMass = pTank->GetEmptyMass();
-		shuttleMass -= ETMass;
-		masses.push_back(ETMass);
-		positions.push_back(ET_EMPTY_CG);
+		if(pTank) {
+			double ETMass = pTank->GetEmptyMass();
+			shuttleMass -= ETMass;
+			masses.push_back(ETMass);
+			positions.push_back(ET_EMPTY_CG);
 
-		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
-		double prop = GetETPropellant_B();
-		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
-		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
-		double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
-		double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
-		shuttleMass -= LOXMass;
-		shuttleMass -= LH2Mass;
-		masses.push_back(LOXMass);
-		positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
-		masses.push_back(LH2Mass);
-		positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+			// approximate propellant tanks as cylinders where position of bottom of cylinder is known
+			double prop = GetETPropellant_B();
+			double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
+			double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
+			double LOXHeight = LOXMass/(LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+			double LH2Height = LH2Mass/(LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+			shuttleMass -= LOXMass;
+			shuttleMass -= LH2Mass;
+			masses.push_back(LOXMass);
+			positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
+			masses.push_back(LH2Mass);
+			positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+		}
 	}
 	if(status <= STATE_STAGE1) { // add SRB mass (assume SRB CG doesn't change and SRBs are symmetric)
 		VESSEL* pLSRB = GetSRBInterface(LEFT);
-		double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
-		shuttleMass -= 2.0*SRBMass;
-		masses.push_back(SRBMass);
-		positions.push_back(LSRB_CG);
-		masses.push_back(SRBMass);
-		positions.push_back(RSRB_CG);
+		if(pLSRB) {
+			double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
+			shuttleMass -= 2.0*SRBMass;
+			masses.push_back(SRBMass);
+			positions.push_back(LSRB_CG);
+			masses.push_back(SRBMass);
+			positions.push_back(RSRB_CG);
+		}
 	}
 	masses.push_back(shuttleMass);
 	positions.push_back(ORBITER_CG);
@@ -7285,7 +7430,7 @@ void Atlantis::UpdateCoG()
 
 void Atlantis::Twang(double timeToLaunch) const
 {
-	double twangParam=(1.0-timeToLaunch/6.0);
+	double twangParam=(1.0-timeToLaunch/5.0);
 	if(twangParam<0 || twangParam>1) return;
 	double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
 	double c=cos(twangAngle);

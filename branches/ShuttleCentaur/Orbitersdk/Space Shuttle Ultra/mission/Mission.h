@@ -47,14 +47,14 @@ namespace mission {
 		std::string strMissionName;
 		std::string strOrbiter;
 		std::string strOrbiterTexName;
-		std::string strLOMSPodMeshName;
-		std::string strROMSPodMeshName;
+		//std::string strLOMSPodMeshName;
+		//std::string strROMSPodMeshName;
 		int iETVersion;
 		int iBranchCode;
 		int iRevisionCode;
 
-		double fLaunchTimeMJD;
-		double fLandTimeMJD;
+		//double fLaunchTimeMJD;
+		//double fLandTimeMJD;
 		double fMECOAlt;
 		double fMECOVel;
 		double fMECOFPA;
@@ -75,12 +75,14 @@ namespace mission {
 		bool bPerformRTHU;
 		bool bUseOMSAssist;
 		double OMSAssistDuration;// sec
-		//bool bUseRTHU;
-		//double RTHUVelocity;
 		double fMaxSSMEThrust;
 		unsigned short usExtAirlockMode;
 
+		double OVmass;
+
 		double fPayloadZPos[16];
+
+		bool bHasBridgerail[13]; // true if bridgerail is present, false otherwise
 
 		bool bUseSILTS;
 
@@ -105,7 +107,7 @@ namespace mission {
 		 * @return Planned time of the first nominal landing 
 		 * opportunity in seconds MET.
 		 */
-		virtual double GetFirstLandingMET() const;
+		//virtual double GetFirstLandingMET() const;
 		
 		/**
 		 * @return Launch azimuth in radians
@@ -114,13 +116,13 @@ namespace mission {
 		/**
 		 * @return Initially planned lift-off time (L-0) as MJD
 		 */
-		virtual double GetLaunchMJD() const;
+		//virtual double GetLaunchMJD() const;
 		/**
 		 * @return
 		 * 1 = KSC
 		 * 2 = Vandenberg
 		 */
-		virtual unsigned int GetLaunchSite() const;
+		//virtual unsigned int GetLaunchSite() const;
 
 		/**
 		 * @return target equ inclination at MECO in radians
@@ -135,7 +137,7 @@ namespace mission {
 		 */
 		virtual double GetMaxSSMEThrust() const;
 
-		virtual unsigned int GetNumberOfOMSBurns() const;
+		//virtual unsigned int GetNumberOfOMSBurns() const;
 		
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
@@ -146,11 +148,13 @@ namespace mission {
 		 */
 		virtual const std::string& GetOrbiterTextureName() const;
 		
-		virtual const std::string& GetLOMSPodMeshName() const;
-		virtual const std::string& GetROMSPodMeshName() const;
+		//virtual const std::string& GetLOMSPodMeshName() const;
+		//virtual const std::string& GetROMSPodMeshName() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
 		virtual double GetODSZPos() const;
+
+		virtual bool HasBridgerail(unsigned int index) const;
 		
 		virtual bool HasRMS() const;
 		virtual bool HasSTBDMPMs() const;
@@ -158,9 +162,14 @@ namespace mission {
 		virtual bool HasExtAL() const;
 		virtual bool HasBulkheadFloodlights() const;
 		virtual bool HasDragChute() const;
-		
 
-		virtual bool UseDirectAscent() const;
+		/**
+		 * returns mass of the defined Orbiter Vehicle.
+		 * @return	mass of Orbiter Vehicle (kg)
+		 */
+		virtual double GetOrbiterMass( void ) const;
+
+		//virtual bool UseDirectAscent() const;
 		/**
 		 * returns enable status of OMS Assist
 		 */
