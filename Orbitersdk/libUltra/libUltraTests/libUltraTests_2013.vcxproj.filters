@@ -36,6 +36,9 @@
     <ClCompile Include="src\MathTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UltraUtilsTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="TestFiles\FourDLookupTest.csv" />

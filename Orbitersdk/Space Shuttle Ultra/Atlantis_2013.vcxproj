@@ -427,13 +427,15 @@
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPCSoftware.h" />
     <ClInclude Include="dps\SimpleGPCSystem.h" />
+    <ClInclude Include="dps\simple\FCOS.h" />
+    <ClInclude Include="dps\simple\MF_GNC.h" />
+    <ClInclude Include="dps\simple\Partition.h" />
     <ClInclude Include="dps\SRBSepSequence.h" />
     <ClInclude Include="dps\SSME_Operations.h" />
     <ClInclude Include="dps\SSME_SOP.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="gnc\AA.h" />
-    <ClInclude Include="AC_resource.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />

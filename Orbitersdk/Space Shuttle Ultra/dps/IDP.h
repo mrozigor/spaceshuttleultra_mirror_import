@@ -38,10 +38,17 @@ namespace dps {
 
 	using namespace std;
 
+	class IO_Control;
+	class SSME_Operations;
+	class AscentGuidance;
+	class AerojetDAP;
+	class OMSBurnSoftware;
+
 	const char DEUATT_NORMAL = 0;
 	const char DEUATT_OVERBRIGHT = 1;
 	const char DEUATT_FLASHING = 2;
 	const char DEUATT_UNDERLINED = 4;
+	const char DEUATT_DASHED = 8;
 
 	/**
 	 * Used to set IDP SPEC/DISP to undefined (not set)
@@ -100,6 +107,12 @@ namespace dps {
 
 		word16 usDisplayBuffer[4096];
 
+		IO_Control* pIO_Control;
+		SSME_Operations* pSSME_Operations;
+		AscentGuidance* pAscentGuidance;
+		AerojetDAP* pAerojetDAP;
+		OMSBurnSoftware* pOMSBurnSoftware;
+
 		
 		void AppendScratchPadLine(char cKey);
 		void ClearScratchPadLine();
@@ -120,6 +133,7 @@ namespace dps {
 	public:
 		IDP(AtlantisSubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
 		virtual ~IDP();
+		void Realize();
 		virtual void busCommandPhase(BusController* biu);
 		virtual void busReadPhase(BusController* biu);
 		virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
@@ -157,9 +171,46 @@ namespace dps {
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
 
+		/**
+		 * Returns active keyboards:
+		 * 0 none
+		 * 1 CDR
+		 * 2 PLT
+		 * 3 CDR & PLT
+		 */
+		int GetActiveKeyboard( void ) const;
+
 		virtual bool OnPaint(vc::MDU* pMDU);
 
 		bool IsDisp( int code ) const;
-		
+
+		int GetADIAttitude( void );
+		int GetADIError( void );
+		int GetADIRate( void );
+		bool GetMECOConfirmedFlag( void ) const;
+		bool GetAutoThrottleState( void ) const;
+		VECTOR3 GetAttitudeErrors_AscentGuidance( void ) const;
+		VECTOR3 GetAttitudeErrors_AerojetDAP( void ) const;
+		VECTOR3 GetAttitudeCommandErrors( void ) const;
+		bool GetAutoPitchState( void ) const;
+		bool GetAutoRollYawState( void ) const;
+		bool GetAutoSpeedbrakeState( void ) const;
+		bool GetWOW( void ) const;
+		double GetNZError( void ) const;
+		bool GetPrefinalState( void ) const;
+		double GetYRunwayPositionError( void ) const;
+		bool GetOnHACState( void ) const;
+		double GetHACRadialError( void ) const;
+		double GetTimeToHAC( void ) const;
+		double GetdeltaAZ( void ) const;
+		double GetDistanceToHACCenter( void ) const;
+		const std::string& GetSelectedRunway( void ) const;
+		double GetRangeToRunway( void ) const;
+		bool GetApproachAndLandState( void ) const;
+		double GetVacc( void ) const;
+		double GetHTA( void ) const;
+		double GetGlideSlopeDistance( void ) const;
+		double GetNZ( void ) const;
+		double GetdeltaAZLimit( double mach ) const;
 	};
 };

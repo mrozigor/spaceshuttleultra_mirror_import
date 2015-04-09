@@ -160,7 +160,7 @@ namespace eva_docking {
 	}
 
 	double ODS::GetSubsystemEmptyMass() const {
-		return 0.0;
+		return 1585.5; // From STS-71 press kit: the ODS weighs more than 3,500 lbs (1585.5 kg)
 	}
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
@@ -416,19 +416,19 @@ namespace eva_docking {
 			static UINT grps_coil[3] = {GRP_3SPIRAL_1_ODS, 
 				GRP_3SPIRAL_2_ODS, GRP_3SPIRAL_3_ODS};
 			static UINT grps_rod1l0[1] = {GRP_1L_DR_ROD_ODS};
-			static UINT grps_rod1l1[1] = {GRP_1L_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod1l1[1] = {GRP_1L_DRING_EXTENDBASE_ODS};
 			static UINT grps_rod1r0[1] = {GRP_1R_DR_ROD_ODS};
-			static UINT grps_rod1r1[1] = {GRP_1R_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod1r1[1] = {GRP_1R_DRING_EXTENDBASE_ODS};
 
 			static UINT grps_rod2l0[1] = {GRP_2L_DR_ROD_ODS};
-			static UINT grps_rod2l1[1] = {GRP_2L_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod2l1[1] = {GRP_2L_DRING_EXTENDBASE_ODS};
 			static UINT grps_rod2r0[1] = {GRP_2R_DR_ROD_ODS};
-			static UINT grps_rod2r1[1] = {GRP_2R_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod2r1[1] = {GRP_2R_DRING_EXTENDBASE_ODS};
 
 			static UINT grps_rod3l0[1] = {GRP_3L_DR_ROD_ODS};
-			static UINT grps_rod3l1[1] = {GRP_3L_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod3l1[1] = {GRP_3L_DRING_EXTENDBASE_ODS};
 			static UINT grps_rod3r0[1] = {GRP_3R_DR_ROD_ODS};
-			static UINT grps_rod3r1[1] = {GRP_3R_D_RING_EXTENDBASE_ODS};
+			static UINT grps_rod3r1[1] = {GRP_3R_DRING_EXTENDBASE_ODS};
 			
 
 		ExtAirlock::DefineAirlockAnimations(midx_extal, 

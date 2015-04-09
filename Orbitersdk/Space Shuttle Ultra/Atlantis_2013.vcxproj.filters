@@ -464,9 +464,6 @@
     <ClInclude Include="gnc\AA.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="AC_resource.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\AftMDU.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -858,6 +855,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="mps\MPSdefs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\simple\Partition.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\simple\FCOS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\simple\MF_GNC.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

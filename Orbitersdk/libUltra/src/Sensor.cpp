@@ -41,6 +41,6 @@ void Sensor::SetValue( double value )
 	if (value > MaxValue) value = MaxValue;
 	else if (value < MinValue) value = MinValue;
 
-	dipOutput.SetLine( (value - MinValue) * conversor );
+	dipOutput.SetLine( static_cast<float>((value - MinValue) * conversor) );
 	return;
 }

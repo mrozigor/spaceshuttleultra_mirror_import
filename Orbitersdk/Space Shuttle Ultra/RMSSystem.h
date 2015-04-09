@@ -35,7 +35,7 @@ const static char* RMS_MESHNAME = "SSU/RMS";
 const double RMS_ROLLOUT_ANGLE = 19.48; // angle between RMS and vertical when RMS is deployed (in degrees)
 const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RMS is stowed (in degrees)
 
-const VECTOR3 RMS_MESH_OFFSET = _V(-0.13, 1.04, 0.0326);
+const VECTOR3 RMS_MESH_OFFSET = _V(-0.1, 1.04, 0.0326);
 
 // RMS joint positions
 const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);
@@ -88,7 +88,7 @@ const double SHOULDER_BRACE_SPEED = 0.11765;
 
 const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
-const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.647, 0.341, -0.188);
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.37968, 0.296129, -0.0332794);
 const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
 
 const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
@@ -110,7 +110,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual bool SingleParamParseLine() const {return true;};
 
-	virtual double GetSubsystemEmptyMass() const {return 0.0;};
+	// mass value from Shuttle Systems Weight & Performance Monthly Status Report, Dec. 30 1983 (NASA-TM-85494)
+	virtual double GetSubsystemEmptyMass() const {return 426.8304;};
 
 	virtual void CreateAttachment();
 

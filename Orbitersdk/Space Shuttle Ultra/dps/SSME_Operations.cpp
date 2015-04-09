@@ -244,11 +244,11 @@ namespace dps
 				for (int i = 0; i < 4; i++)
 				{
 					// LOX
-					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false) LO2LowLevelSensorDryFlag[i] = true;
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3f ) == false) LO2LowLevelSensorDryFlag[i] = true;
 					if ((LO2LowLevelSensorDryFlag[i] == true) && (LO2LowLevelSensorDsblFlag[i] == false)) LO2count++;
 
 					// LH2
-					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false) LH2LowLevelSensorDryFlag[i] = true;
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3f ) == false) LH2LowLevelSensorDryFlag[i] = true;
 					if ((LH2LowLevelSensorDryFlag[i] == true) && (LH2LowLevelSensorDsblFlag[i] == false)) LH2count++;
 				}
 
@@ -310,7 +310,7 @@ namespace dps
 				// LOX
 				for (int i = 0; i < 4; i++)
 				{
-					if (dipLO2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					if (dipLO2LowLevelSensor[i].IsSet( 0.3f ) == false)
 					{
 						LO2LowLevelSensorDsblFlag[i] = true;
 						
@@ -323,7 +323,7 @@ namespace dps
 				// LH2
 				for (int i = 0; i < 4; i++)
 				{
-					if (dipLH2LowLevelSensor[i].IsSet( 0.3 ) == false)
+					if (dipLH2LowLevelSensor[i].IsSet( 0.3f ) == false)
 					{
 						LH2LowLevelSensorDsblFlag[i] = true;
 
@@ -466,6 +466,127 @@ namespace dps
 		assert( (pIO_Control != NULL) && "SSME_Operations::Realize.pIO_Control" );
 		return;
 	}
+
+	/*bool SSME_Operations::OnParseLine( const char* keyword, const char* value )
+	{
+		int config = 0;
+
+		if (!_stricmp( keyword, "MECOCommand" ))
+		{
+			sscanf_s( value, "%d", &config );
+			MECOCommand = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "MECOConfirmed" ))
+		{
+			sscanf_s( value, "%d", &config );
+			MECOConfirmed = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ZeroThrust" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ZeroThrust = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LowLevelSensorArm" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LowLevelSensorArm = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LO2LowLevelSensorDsblFlag_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LO2LowLevelSensorDsblFlag[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LO2LowLevelSensorDsblFlag_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LO2LowLevelSensorDsblFlag[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LO2LowLevelSensorDsblFlag_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LO2LowLevelSensorDsblFlag[2] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LO2LowLevelSensorDsblFlag_4" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LO2LowLevelSensorDsblFlag[3] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LH2LowLevelSensorDsblFlag_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LH2LowLevelSensorDsblFlag[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LH2LowLevelSensorDsblFlag_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LH2LowLevelSensorDsblFlag[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LH2LowLevelSensorDsblFlag_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LH2LowLevelSensorDsblFlag[2] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "LH2LowLevelSensorDsblFlag_4" ))
+		{
+			sscanf_s( value, "%d", &config );
+			LH2LowLevelSensorDsblFlag[3] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "FailFlag_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			FailFlag[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "FailFlag_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			FailFlag[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "FailFlag_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			FailFlag[2] = (config != 0);
+			return true;
+		}
+		return false;
+	}
+
+	void SSME_Operations::OnSaveState( FILEHANDLE scn ) const
+	{
+		oapiWriteScenario_int( scn, "MECOCommand", (int)MECOCommand );
+		oapiWriteScenario_int( scn, "MECOConfirmed", (int)MECOConfirmed );
+		oapiWriteScenario_int( scn, "ZeroThrust", (int)ZeroThrust );
+
+		oapiWriteScenario_int( scn, "LowLevelSensorArm", (int)LowLevelSensorArm );
+
+		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_1", (int)LO2LowLevelSensorDsblFlag[0] );
+		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_2", (int)LO2LowLevelSensorDsblFlag[1] );
+		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_3", (int)LO2LowLevelSensorDsblFlag[2] );
+		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_4", (int)LO2LowLevelSensorDsblFlag[3] );
+
+		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_1", (int)LH2LowLevelSensorDsblFlag[0] );
+		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_2", (int)LH2LowLevelSensorDsblFlag[1] );
+		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_3", (int)LH2LowLevelSensorDsblFlag[2] );
+		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_4", (int)LH2LowLevelSensorDsblFlag[3] );
+
+		oapiWriteScenario_int( scn, "FailFlag_1", (int)FailFlag[0] );
+		oapiWriteScenario_int( scn, "FailFlag_2", (int)FailFlag[2] );
+		oapiWriteScenario_int( scn, "FailFlag_3", (int)FailFlag[3] );
+		return;
+	}*/
 
 	bool SSME_Operations::OnMajorModeChange( unsigned int newMajorMode )
 	{

@@ -50,10 +50,16 @@ bool MLP::clbkLoadVC(int id) {
 void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 {
 	static PARTICLESTREAMSPEC sss_steam = {
-		0, 5, 20, 250.0, 0.3, 15, 6, 5, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 5, 50, 500.0, 0.3, 15, 7, 8, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
+
+	static PARTICLESTREAMSPEC sss_steam_SRB = {
+		0, 7, 200, 2000, 0.3, 15, 9, 40, PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
+		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
+	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 
 	static PARTICLESTREAMSPEC sss_water_SSME = {
 		0, 0.05, 100.0, 11.0, 0.1, 0.8, 1.5, 2, PARTICLESTREAMSPEC::EMISSIVE,
@@ -88,7 +94,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	SetTouchdownPoints(_V(0.0, -30.35, 25.0), _V(-25.0, -30.35, -25.0), _V(25.0, -30.35, -25.0));
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
-	AddParticleStream(&sss_steam, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
+	AddParticleStream(&sss_steam_SRB, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);
 
 	AddParticleStream(&ROFI_Stream, FWD_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, FWD_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
@@ -143,7 +149,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	}
 
 	if(!ahBase) {
-		ahBase = CreateAttachment(true, _V(0, -8.35, 0), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
+		ahBase = CreateAttachment(true, _V(0, -8.35, 0.325), _V(0, 1, 0), _V(0, 0, 1), "XMLP");
 	}
 }
 
@@ -237,7 +243,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 
 int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 {
-	if(down) {
+	/*if(down) {
 		if(KEYMOD_CONTROL(keystate)) {
 			switch(key) {
 				//for debugging ROFIs
@@ -247,7 +253,7 @@ int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 					return 1;
 			}
 		}
-	}
+	}*/
 	return 0;
 }
 
@@ -432,15 +438,15 @@ void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 	Local2Global(_V(5, -0.8581532,  -10), M2);
 	Local2Global(_V(-5, -0.8581532,  -10), M3);
 
-	Local2Global(_V(-9.764171, -0.8581532, -7.124301), L0);
-	Local2Global(_V(-3.252589, -0.8581532, -7.30518), L1);
-	Local2Global(_V(-3.343028, -0.8581532,  3.999652), L2);
-	Local2Global(_V(-9.854609, -0.8581532,  4.09009), L3);
+	Local2Global(_V(-9.764171, -3, -7.124301), L0);
+	Local2Global(_V(-3.252589, -3, -7.30518), L1);
+	Local2Global(_V(-3.343028, -3,  3.999652), L2);
+	Local2Global(_V(-9.854609, -3,  4.09009), L3);
 
-	Local2Global(_V(9.764171, -0.8581532, -7.124301), R0);
-	Local2Global(_V(3.252589, -0.8581532, -7.30518), R1);
-	Local2Global(_V(3.343028, -0.8581532,  3.999652), R2);
-	Local2Global(_V(9.854609, -0.8581532,  4.09009), R3);
+	Local2Global(_V(9.764171, -3, -7.124301), R0);
+	Local2Global(_V(3.252589, -3, -7.30518), R1);
+	Local2Global(_V(3.343028, -3,  3.999652), R2);
+	Local2Global(_V(9.854609, -3,  4.09009), R3);
 
 
 	//for(DWORD c=0; c<oapiGetVesselCount(); c++)
@@ -510,15 +516,15 @@ void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 	double fPowerL = CalculateThrustPower(L0, L1, L2, L3);
 	double fPowerR = CalculateThrustPower(R0, R1, R2, R3);
 
-	if(fPowerM > 2.0E6 && bSSS_Active)
+	if(fPowerM > 0.5E8 && bSSS_Active)
 	{
-		fSSMESteam = min(1.0, (fPowerM-2.0E6)/10E6);			
+		fSSMESteam = min(1.0, (fPowerM-0.5E8)/17E9);			
 	} else
 	{
 		fSSMESteam = 0.0;
 	}
 
-	if(fPowerL + fPowerR > 2.0E6 && bSSS_Active)
+	if(fPowerL + fPowerR > 0 && bSSS_Active)
 	{
 		fSRBSteam = min(1.0, (fPowerM-2.0E6)/10E6);			
 	} else
