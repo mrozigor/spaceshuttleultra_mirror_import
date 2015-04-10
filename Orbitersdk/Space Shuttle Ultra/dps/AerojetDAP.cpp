@@ -595,7 +595,7 @@ bool AerojetDAP::OnPaint(int spec, vc::MDU* pMDU) const
 			else if (ET_Mach > 10.5) PaintENTRYTRAJ3Display( pMDU );// EntryTraj3 (14kfps-10.5kfps / 800nm-315nm)
 			else if ((ET_Mach * ETVS_Altitude) > 750000) PaintENTRYTRAJ4Display( pMDU );// EntryTraj4 (1.8Mft-750kft(10kfps-6.5kfps) / 480nm-145nm)
 			else PaintENTRYTRAJ5Display( pMDU );// EntryTraj5 (750kft-200kft(6.5kfps-2.5kfps) / 220nm-55nm)
-			return false;
+			return true;
 		}
 		else
 		{
