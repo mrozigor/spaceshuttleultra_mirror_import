@@ -14,8 +14,8 @@ namespace dps
 			//virtual void OnPropagate(double SimT, double DeltaT, double MJD);
 
 			virtual bool OnMajorModeChange(unsigned int newMajorMode);
-			//virtual bool OnParseLine(const char* keyword, const char* value);
-			//virtual void OnSaveState(FILEHANDLE scn) const;
+			virtual bool OnParseLine(const char* keyword, const char* value);
+			virtual void OnSaveState(FILEHANDLE scn) const;
 			virtual bool ItemInput(int spec, int item, const char* Data);
 			//virtual bool ExecPressed(int spec);
 			virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
