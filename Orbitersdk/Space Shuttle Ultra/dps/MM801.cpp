@@ -248,4 +248,26 @@ namespace dps
 	{
 		sprintf_s(buff, 6, "%05.1f", pos);
 	}
+
+	bool MM801::OnParseLine( const char* keyword, const char* value )
+	{
+		if(!_strnicmp( keyword, "SURF_DR", 7 ))
+		{
+			if (!_strnicmp( value, "ACTIVE", 6 ))
+			{
+				bFCSTestActive = true;
+				ElevonTargetIdx = FV1;
+				RudderTargetIdx = FV1;
+				SpeedbrakeTargetIdx = FV1;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void MM801::OnSaveState( FILEHANDLE scn ) const
+	{
+		if (bFCSTestActive == true) oapiWriteScenario_string( scn, "SURF_DR", "ACTIVE" );
+		else  oapiWriteScenario_string( scn, "SURF_DR", "INACTIVE" );
+	}
 };
