@@ -12,7 +12,7 @@ This section discusses in greater detail each of the orbiter systems that are cu
 These are not meant to provide all information about the real orbiter system but to provide a working knowlege required to understand what is happening in the simulation. For full, detailed reading, each subsection provides references to relavent sections in the Shuttle Crew Operations Manual (SCOM) and should be read for a better understanding for that system.
 \end{multicols*}
 
-\subsection{AUXILIARY POWER UNIT/HYDRAULICS (APU/HYD)}
+\subsection{Auxiliary Power Unit/Hydraulics (APU/HYD)}
 \begin{multicols*}{2}
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
@@ -61,39 +61,6 @@ The flight instrument displays are only partially implemented. All displays in t
 \\
 The NASA DPS Dictionary describes each display in detail. This section lists the displays that have been implemented so far and describes the differences between the real shuttle and the SSU implementation.
 
-\subsubsection{ASCENT TRAJ}
-This display is used in MM 102 and MM 103. The ITEMs on this display are related to abort options and are not supported by SSU.
-
-\subsubsection{UNIV PTG}
-This display is used in MM 201, and is used to control the attitude of the orbiter. Most of the functions in this display have been implemented. ITEM 8 (TGT ID) only supports an entry of 2 at the moment, and ITEMS 9-13 are not supported. ITEM 20 (TRK) is not supported. Finally, ITEMs 22-24 (which affect how the attitude error is displayed) are not implemented.
-
-\subsubsection{OMS MNVR EXEC}
-This display is used in MM 104 (OMS 1 MNVR EXEC), MM 105 (OMS 2 MNVR EXEC), MM 106 (OMS 2 MNVR COAST), MM 202 (ORBIT MNVR EXEC), MM 301 (DEORB MNVR COAST), MM 302 (DEORB MNVR EXEC) and MM303 (DEORB MNVR COAST). It is used mainly to perform OMS enginer burns to change the shuttle's orbit.
-This display is almost completely implemented in SSU. ITEMs 28-40 (OMS gimbal check, FWD RCS dump and SURF DRIVE) have not been implemented yet.
-
-\subsubsection{DAP CONFIG}
-This display is used in MM 201 and MM 202, and control the Digital Autopilot (DAP) settings. In real life, there are 15 DAP A configurations and 15 DAP B configurations; at any time, 1 DAP A and 1 DAP B configuration is active, and the crew selects between DAP A and B using the PBIs on Panels C3 and A6. In SSU, there is only 1 DAP A configuration and 1 DAP B configuration. As a result, ITEMS 1 and 2 (which select the active DAP A \& B configuration) are not implemented. Also ITEMs 3 and 4 (which, in real life, select a DAP configuration and load it into the EDIT column) simply select between loading DAP A and DAP B into the EDIT column.
-
-\subsubsection{ORBIT TGT}
-This display is used in MM 201 and MM 202 to compute rendezvous burns. In real life, the state vectors for the rendezvous target are uploaded from Mission Control. In SSU, the name of the target vessel is specified in the scenario file.
-% TODO: reference scenario file
-The real-life ORBIT TGT display can load rendezvous targets by specifying a TGT NO (ITEM 1); in SSU, each parameter has to be set individually. SSU doesn't support the EL parameter (ITEM 6), which allows the burn TIG to be computed to match a desired elevation angle; instead, the TIG must be specified.
-SSU can only be used to compute the T1 burn (ITEM 28), and not the T2 burn. In real life, the T2 burn computations are not used.
-
-\subsubsection{ENTRY TRAJ}
-These displays are used during entry to monitor the shuttle's trajectory.
-Currently no item entries are supported.
-
-\subsubsection{VERT TRAJ}
-These displays are used during TAEM to monitor the shuttle's trajectory.
-Currently no item entries are supported.
-
-\subsubsection{HORIZ SIT}
-This display is used during deorbit and entry to specify the landing site and monitor the position of the shuttle relative to the HAC and the runway.
-The HORIZ SIT display in SSU is simplified compared to the real life version. Only ITEMs 3, 4, 6, 8, 39 and 41 are supported. ITEM 41 selects the landing site, ITEMs 3 and 4 switch between the primary and secondary runway. ITEM 6 switches between a straight-in and overhead approach, ITEM 8 switches the aim point between nominal and close, and ITEM 39 switches between nominal, short and ELS (Emergency Landing Site) speedbrake configurations for final approach.
-These parameters all affect the entry autopilot, so they should be set before Entry Interface (EI).
-Table \ref{tab:LandingSites} shows the list of landing sites currently supported by SSU.
-
 \begin{table*}[tb]
   \centering
   \begin{tabular}{l | c l l}
@@ -116,6 +83,90 @@ Table \ref{tab:LandingSites} shows the list of landing sites currently supported
   \caption{Landing Site Table}
   \label{tab:LandingSites}
 \end{table*}
+
+\subsubsection{ASCENT TRAJ}
+This display is used in MM 102 and MM 103 to monitor the vehicle's trajectory during ascent. The DROOP ALT digital output is not being driven. The ITEMs on this display are related to abort options and are not supported by SSU.
+
+\subsubsection{UNIV PTG}
+This display is used in MM 201, and is used to control the attitude of the orbiter. Most of the functions in this display have been implemented. ITEM 8 (TGT ID) only supports an entry of 2 at the moment, and ITEMS 9-13 are not supported. ITEM 20 (TRK) is not supported. Finally, ITEMs 22-24 (which affect how the attitude error is displayed) are not implemented.
+
+\subsubsection{OMS MNVR EXEC}
+This display is used in MM 104 (OMS 1 MNVR EXEC), MM 105 (OMS 2 MNVR EXEC), MM 106 (OMS 2 MNVR COAST), MM 202 (ORBIT MNVR EXEC), MM 301 (DEORB MNVR COAST), MM 302 (DEORB MNVR EXEC) and MM303 (DEORB MNVR COAST). It is used mainly to perform OMS enginer burns to change the shuttle's orbit.
+This display is almost completely implemented in SSU. ITEMs 28-40 (OMS gimbal check, FWD RCS dump and SURF DRIVE) have not been implemented yet.
+
+\subsubsection{DAP CONFIG}
+This display is used in MM 201 and MM 202, and control the Digital Autopilot (DAP) settings. In real life, there are 15 DAP A configurations and 15 DAP B configurations; at any time, 1 DAP A and 1 DAP B configuration is active, and the crew selects between DAP A and B using the PBIs on Panels C3 and A6. In SSU, there is only 1 DAP A configuration and 1 DAP B configuration. As a result, ITEMS 1 and 2 (which select the active DAP A \& B configuration) are not implemented. Also ITEMs 3 and 4 (which, in real life, select a DAP configuration and load it into the EDIT column) simply select between loading DAP A and DAP B into the EDIT column.
+
+\subsubsection{ORBIT TGT}
+This display is used in MM 201 and MM 202 to compute rendezvous burns. In real life, the state vectors for the rendezvous target are uploaded from Mission Control. In SSU, the name of the target vessel is specified in the scenario file.
+% TODO: reference scenario file
+The real-life ORBIT TGT display can load rendezvous targets by specifying a TGT NO (ITEM 1); in SSU, each parameter has to be set individually. SSU doesn't support the EL parameter (ITEM 6), which allows the burn TIG to be computed to match a desired elevation angle; instead, the TIG must be specified.
+SSU can only be used to compute the T1 burn (ITEM 28), and not the T2 burn. In real life, the T2 burn computations are not used.
+
+\subsubsection{ENTRY TRAJ}
+These displays are used during entry to monitor the vehicle's trajectory. Currently the only digital outputs being driven are the q-bar, delta-AZ and NY outputs. The guidance box and trailers are not displayed, the phugoid scale is not driven and no item entries are supported.
+
+\subsubsection{VERT SIT}
+These displays are used during TAEM to monitor the vehicle's trajectory. Currently the only digital outputs being driven are the SPD BK, SPD BK CMD and NY outputs. The Theta scale and the E/W scale are not driven.
+
+\subsubsection{HORIZ SIT}
+This display is used during deorbit and entry to specify the landing site and monitor the position of the shuttle relative to the HAC and the runway.
+The HORIZ SIT display in SSU is simplified compared to the real life version.
+Currently the vertical error scale is not driven prior to A/L interface, and only ITEMs 3, 4, 6, 8, 39 and 41 are supported. 
+ITEM 41 selects the landing site, ITEMs 3 and 4 switch between the primary and secondary runway. ITEM 6 switches between a straight-in and overhead approach, ITEM 8 switches the aim point between nominal and close, and ITEM 39 switches between nominal, short and ELS (Emergency Landing Site) speedbrake configurations for final approach.
+These parameters all affect the entry autopilot, so they should be set before Entry Interface (EI).
+Table \ref{tab:LandingSites} shows the list of landing sites currently supported by SSU.
+\end{multicols*}
+
+\subsection{MEDS Displays}
+\begin{multicols*}{2}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\label{sec:meds-displays}
+
+\subsubsection{A/E PFD}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{AEPFD.png}
+  \caption{A/E PFD}
+  \label{fig:AE_PFD}
+\end{figure}
+The A/E PFD display shows several parameters relevant to Ascent and Entry. Currently the attitude error needles are not properly driven, so they are not to be trusted. The ADI is operating in LVLH mode only with yaw zeroed, so the ADI ATT switches have no effect. During TAEM, and up until A/L interface, the vertical position error is not being driven, and the heading error is not being driven. The HSI is missing all the bearing pointers, and during launch it is not referenced from the target plane. The X-Trk value is not being driven.
+OMS/MPS
+The OMS/MPS display provides information about various pressures in the OMS and MPS systems. The OMS He TK P and N2 TK P meters are not driven.
+
+\subsubsection{ORBIT PFD}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{ORBITPFD.png}
+  \caption{Orbit PFD}
+  \label{fig:Orbit_PFD}
+\end{figure}
+The Orbit PFD is used for on-orbit display of vehicle attitude. Currently the attitude error needles currently are not being driven properly, so they are not to be trusted. The ADI currently operates only in the LVLH mode with yaw zeroed, so the ADI ATT switches have no effect.
+\end{multicols*}
+
+\begin{multicols*}{2}
+\subsubsection{OMS/MPS}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{OMSMPS.png}
+  \caption{OMS/MPS display}
+  \label{fig:OMS_MPS_MEDS}
+\end{figure}
+The OMS/MPS display provides information about various pressures in the OMS and MPS systems. The OMS He TK P and N2 TK P meters are not driven.
+
+\subsubsection{APU/HYD}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{HYDAPU.png}
+  \caption{APU/HYD display}
+  \label{fig:APU_HYD_MEDS}
+\end{figure}
+The APU/HYD display shows pressures, quantities and temperatures related to the hydraulic system. The APU H2O QTY \%, OIL IN TEMP $^\circ$F and HYDRAULIC QTY \% meters are not driven.
+
+\subsubsection{SPI}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{SPI.png}
+  \caption{SPI display}
+  \label{fig:SPI_MEDS}
+\end{figure}
+The SPI display shows the position of the orbiter's aerosurfaces. The BODY FLAP \% indicator is non-functional.
 \end{multicols*}
 
 \end{document}
