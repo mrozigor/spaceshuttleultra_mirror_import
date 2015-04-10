@@ -163,7 +163,7 @@ Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
 lastSBTCCommand(1.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
-tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0),
+tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0), vspeedUpdateSimT(-1.0), vaccUpdateSimT(-1.0),
 tgtBankSign(1.0), performedFirstRollReversal(false),
 TAEMGuidanceMode(ACQ), HACDirection(OVHD), HACSide(L), SBControlLogic(NOM),
 degTargetGlideslope(-20.0), // default OGS glideslope
@@ -2849,6 +2849,7 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 	UpdateRollDirection(mach, delaz);
 
 	double target_drag = CalculateTargetDrag(DeltaT, r);
+
 	double tgtBank = 0.0;
 
 	if (EntryGuidanceMode != PREENTRY) {
@@ -2865,8 +2866,6 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 		double target_vspeed = avg_vspeed + 1e-2*(target_altitude - STS()->GetAltitude());
 		double target_vacc = vaccAveraging.GetAvgValue() + 5e-2*(target_vspeed - vec.y);
 		
-		lastTgtAltitude = target_altitude;
-		lastRefVSpeed = avg_vspeed;
 		//last_vel = vec.y;
 
 		//double actBank = CalculateCurrentLiftBank();
@@ -3052,13 +3051,25 @@ void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double Delt
 {
 	tgtAltAveraging.NewValue(targetAltitude, SimT);
 
-	double ref_vspeed = range(-250.0, (tgtAltAveraging.GetAvgValue()-lastTgtAltitude)/DeltaT, 250.0);
-	//if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
-	vspeedAveraging.NewValue(ref_vspeed, SimT);
+	if(SimT >= vspeedUpdateSimT) {
+		double dt = SimT - (vspeedUpdateSimT-0.2);
+		double ref_vspeed = range(-250.0, (tgtAltAveraging.GetAvgValue()-lastTgtAltitude)/dt, 250.0);
+		//if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
+		vspeedAveraging.NewValue(ref_vspeed, SimT);
 
-	double ref_vacc = range(-10.0, (vspeedAveraging.GetAvgValue()-lastRefVSpeed)/DeltaT, 10.0);
-	//if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
-	vaccAveraging.NewValue(ref_vacc, SimT);
+		vspeedUpdateSimT = SimT + 0.2;
+		lastTgtAltitude = tgtAltAveraging.GetAvgValue();
+	}
+
+	if(SimT >= vaccUpdateSimT) {
+		double dt = SimT - (vaccUpdateSimT-1.0);
+		double ref_vacc = range(-10.0, (vspeedAveraging.GetAvgValue()-lastRefVSpeed)/dt, 10.0);
+		//if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
+		vaccAveraging.NewValue(ref_vacc, SimT);
+
+		vaccUpdateSimT = SimT + 1.0;
+		lastRefVSpeed = vspeedAveraging.GetAvgValue();
+	}
 }
 
 void AerojetDAP::UpdateRollDirection(double mach, double delaz)
