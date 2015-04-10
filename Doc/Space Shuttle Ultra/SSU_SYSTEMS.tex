@@ -85,6 +85,11 @@ The NASA DPS Dictionary describes each display in detail. This section lists the
 \end{table*}
 
 \subsubsection{ASCENT TRAJ}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{ASCENTTRAJ2.png}
+  \caption{ASCENT TRAJ display}
+  \label{fig:ASCENT_TRAJ}
+\end{figure}
 This display is used in MM 102 and MM 103 to monitor the vehicle's trajectory during ascent. The DROOP ALT digital output is not being driven. The ITEMs on this display are related to abort options and are not supported by SSU.
 
 \subsubsection{UNIV PTG}
@@ -104,12 +109,27 @@ The real-life ORBIT TGT display can load rendezvous targets by specifying a TGT 
 SSU can only be used to compute the T1 burn (ITEM 28), and not the T2 burn. In real life, the T2 burn computations are not used.
 
 \subsubsection{ENTRY TRAJ}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{ENTRYTRAJ1.png}
+  \caption{ENTRY TRAJ display}
+  \label{fig:ENTRY_TRAJ}
+\end{figure}
 These displays are used during entry to monitor the vehicle's trajectory. Currently the only digital outputs being driven are the q-bar, delta-AZ and NY outputs. The guidance box and trailers are not displayed, the phugoid scale is not driven and no item entries are supported.
 
 \subsubsection{VERT SIT}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{VERTSIT1.png}
+  \caption{VERT SIT display}
+  \label{fig:VERT_SIT}
+\end{figure}
 These displays are used during TAEM to monitor the vehicle's trajectory. Currently the only digital outputs being driven are the SPD BK, SPD BK CMD and NY outputs. The Theta scale and the E/W scale are not driven.
 
 \subsubsection{HORIZ SIT}
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{HORIZSIT.png}
+  \caption{HORIZ SIT display}
+  \label{fig:HORIZ_SIT}
+\end{figure}
 This display is used during deorbit and entry to specify the landing site and monitor the position of the shuttle relative to the HAC and the runway.
 The HORIZ SIT display in SSU is simplified compared to the real life version.
 Currently the vertical error scale is not driven prior to A/L interface, and only ITEMs 3, 4, 6, 8, 39 and 41 are supported. 
