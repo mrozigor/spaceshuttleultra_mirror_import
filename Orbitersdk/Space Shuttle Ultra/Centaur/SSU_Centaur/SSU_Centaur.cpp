@@ -49,8 +49,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetEmptyMass( G_EMPTY_MASS );
 		phTank = CreatePropellantResource( G_RL10_PROPELLANT_MASS );
 		// RL-10
-		thRL10[0] = CreateThruster( RL10_C1_POS_G, RL10_C1_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
-		thRL10[1] = CreateThruster( RL10_C2_POS_G, RL10_C2_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
+		thRL10[0] = CreateThruster( RL10_C1_POS_G, RL10_C1_DIR, RL10A33B_THRUST_VAC, phTank, RL10A33B_ISP_VAC );
+		thRL10[1] = CreateThruster( RL10_C2_POS_G, RL10_C2_DIR, RL10A33B_THRUST_VAC, phTank, RL10A33B_ISP_VAC );
 
 		phACS = CreatePropellantResource( G_ACS_PROPELLANT_MASS );
 		// quad I
@@ -85,8 +85,8 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetEmptyMass( GPRIME_EMPTY_MASS );
 		phTank = CreatePropellantResource( GPRIME_RL10_PROPELLANT_MASS );
 		// RL-10
-		thRL10[0] = CreateThruster( RL10_C1_POS_GPRIME, RL10_C1_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
-		thRL10[1] = CreateThruster( RL10_C2_POS_GPRIME, RL10_C2_DIR, RL10_THRUST_VAC, phTank, RL10_ISP_VAC );
+		thRL10[0] = CreateThruster( RL10_C1_POS_GPRIME, RL10_C1_DIR, RL10A33A_THRUST_VAC, phTank, RL10A33A_ISP_VAC );
+		thRL10[1] = CreateThruster( RL10_C2_POS_GPRIME, RL10_C2_DIR, RL10A33A_THRUST_VAC, phTank, RL10A33A_ISP_VAC );
 
 		phACS = CreatePropellantResource( GPRIME_ACS_PROPELLANT_MASS );
 		// quad I
