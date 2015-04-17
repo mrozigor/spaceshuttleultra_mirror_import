@@ -61,6 +61,12 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 
+	static PARTICLESTREAMSPEC ROFI_Stream = {
+		0, 0.1, 300.0, 17.5, 0.1, 0.30, 0, 0.5, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1};
+	ROFI_Stream.tex = oapiRegisterParticleTexture("contrail3");
+
 	static PARTICLESTREAMSPEC sss_water_SSME = {
 		0, 0.05, 100.0, 11.0, 0.1, 0.8, 1.5, 2, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
@@ -75,12 +81,6 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 
 	static PARTICLESTREAMSPEC sss_water_Rainbirds = {
 		0, 0.5, 100.0, 20.0, 0.1, 0.7, 5.5, 2.5, PARTICLESTREAMSPEC::EMISSIVE,
-		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
-		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
-	};
-
-	static PARTICLESTREAMSPEC ROFI_Stream = {
-		0, 0.1, 300.0, 17.5, 0.1, 0.30, 0, 0.5, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
@@ -540,22 +540,22 @@ void MLP::DefineAnimations()
 
 	static UINT LeftT0UmbGrp[1] = {GRP_LH_T0_umbilicals};
 	static MGROUP_ROTATE LeftT0Umb(msh_idx, LeftT0UmbGrp, 1,
-		_V(-5.337, -0.167, -14.805), _V(-0.086, 0.163, 0.982), (float)(17.0*RAD));
+		_V(-5.337, -0.167, -14.805), _V(-0.0871575, 0, 0.996195), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &LeftT0Umb);
 
 	static UINT RightT0UmbGrp[1] = {GRP_RH_T0_umbilicals};
 	static MGROUP_ROTATE RightT0Umb(msh_idx, RightT0UmbGrp, 1,
-		_V(5.337, -0.167, -14.805), _V(0.086, 0.163, -0.982), (float)(17.0*RAD));
+		_V(5.337, -0.167, -14.805), _V(-0.0871575, 0, -0.996195), (float)(17.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0, 0.5, &RightT0Umb);
 
 	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_bonnet};
 	static MGROUP_ROTATE LeftT0UmbCover(msh_idx, LeftT0UmbCoverGrp, 1,
-		_V(-6.267, 6.527, -14.216), _V(0, 0, -1), (float)(90.0*RAD));
+		_V(-6.267, 6.527, -14.216), _V(-0.0871575, 0, 0.996195), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &LeftT0UmbCover);
 
 	static UINT RightT0UmbCoverGrp[1] = {GRP_RH_TSM_bonnet};
 	static MGROUP_ROTATE RightT0UmbCover(msh_idx, RightT0UmbCoverGrp, 1,
-		_V(6.164, 6.527, -14.216), _V(0, 0, 1), (float)(90.0*RAD));
+		_V(6.164, 6.527, -14.216), _V(0.0871575, 0, -0.996195), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &RightT0UmbCover);
 }
 
