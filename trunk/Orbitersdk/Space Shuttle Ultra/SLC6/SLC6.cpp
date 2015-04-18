@@ -89,7 +89,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
 	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
-	ahHDP = CreateAttachment(false, _V(0, 6, -1.9), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
+	ahHDP = CreateAttachment(false, _V( 0, 6.1, -2.7 ), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
 	DefineAnimations();
 	DefineROFIs();
