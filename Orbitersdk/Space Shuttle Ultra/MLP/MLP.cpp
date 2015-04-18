@@ -550,12 +550,12 @@ void MLP::DefineAnimations()
 
 	static UINT LeftT0UmbCoverGrp[1] = {GRP_LH_TSM_bonnet};
 	static MGROUP_ROTATE LeftT0UmbCover(msh_idx, LeftT0UmbCoverGrp, 1,
-		_V(-6.267, 6.527, -14.216), _V(-0.0871575, 0, 0.996195), (float)(90.0*RAD));
+		_V(-6.267, 6.8, -14.216), _V(0.0871575, 0, -0.996195), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &LeftT0UmbCover);
 
 	static UINT RightT0UmbCoverGrp[1] = {GRP_RH_TSM_bonnet};
 	static MGROUP_ROTATE RightT0UmbCover(msh_idx, RightT0UmbCoverGrp, 1,
-		_V(6.164, 6.527, -14.216), _V(0.0871575, 0, -0.996195), (float)(90.0*RAD));
+		_V(6.267, 6.8, -14.216), _V(0.0871575, 0, 0.996195), (float)(90.0*RAD));
 	AddAnimationComponent(anim_t0umb, 0.45, 1, &RightT0UmbCover);
 }
 
