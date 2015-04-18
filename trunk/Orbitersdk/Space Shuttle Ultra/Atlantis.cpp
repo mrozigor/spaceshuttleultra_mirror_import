@@ -944,13 +944,13 @@ pActiveLatches(3, NULL)
 
   //PLB LIGHTS
   PLBLightPosition[0] = _V(1.6380, -2.1207, 5.5686); //forward stbd
-  PLBLightPosition[1] = _V(-1.6380,-2.1207, 5.5686); //forward port
+  PLBLightPosition[1] = _V(-1.5549,-2.1732, 5.1957); //forward port
   PLBLightPosition[2] = _V(1.6380, -2.1207, -0.2724);//mid stbd
   PLBLightPosition[3] = _V(-1.6380, -2.1207, -0.2724);//mid port
   PLBLightPosition[4] = _V(1.6380, -2.1207, -4.3755);//aft stbd
   PLBLightPosition[5] = _V(-1.6380, -2.1207, -4.3755);//aft port
-  FwdBulkheadLightPos = _V(0.0, 1.75, 9.65);//fwd bulkhead
-  DockingLightPos = _V(0.0, 2.02, 9.6);//docking light
+  FwdBulkheadLightPos = _V(0.0, 1.7550, 9.6065);//fwd bulkhead
+  DockingLightPos = _V(0.0, 2.0162, 9.6057);//docking light
 
 	//CREATE LIGHTS
 	for(int i=0; i<6; ++i)
@@ -1679,7 +1679,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
   MGROUP_ROTATE* pPORT_CLAMP = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.623,0.158,0.0), _V(0,0,1), (float)(90 * RAD));
+	  _V(-2.6289,0.1321,0.0), _V(0,0,1), (float)(90 * RAD));
 
   static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
   MGROUP_ROTATE* pPORTPullRod = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
@@ -1691,7 +1691,7 @@ void Atlantis::DefineAnimations (void)
 
   static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
   MGROUP_ROTATE* pSTBD_CLAMP = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-	  _V(2.623,0.158,0.0), _V(0,0,1), (float)(-90 * RAD));
+	  _V(2.6289,0.1321,0.0), _V(0,0,1), (float)(-90 * RAD));
 
   static UINT STBD_PullRodGrp[1] = {GRP_STBDDOOR_PULL};
   MGROUP_ROTATE* pSTBDPullRod = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
@@ -1840,7 +1840,7 @@ void Atlantis::DefineAnimations (void)
   // ***** 5. Bodyflap animation *****
   static UINT bfGrp[1] = {GRP_BODYFLAP};
   static MGROUP_ROTATE BodyFlap (midx, bfGrp, 1,
-    _V(0,-4.19,-14.19), _V(1,0,0), (float)(22.5*RAD));
+    _V(0,-3.3191,-14.5522), _V(1,0,0), (float)(22.5*RAD));
   anim_bf = CreateAnimation (0.5);
   LogAnim("anim_bf", anim_bf);
   AddAnimationComponent (anim_bf, 0, 1, &BodyFlap);
@@ -6139,17 +6139,17 @@ void Atlantis::DefineKUBandAnimations()
   UINT kidx = mesh_kuband;
 	  // ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
-  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
-    _V(2.4551,-0.6979,9.4404), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
+  static UINT KuBand1Grp[3] = {GRP_DEA_KU, GRP_DEA_MOUNT_KU, GRP_DEA_EQUIPMENT_KU};
+  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 3,
+    _V(2.5299,0.3521,9.4444), _V(0,1,0), (float)(-138*RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
 
   static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
   static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-	_V(2.22355, -0.236643, 8.5895), _V(0.503871025524, 0.0, 0.863778900898), (float)(7.8*RAD)); //Data from the Ku band System Workbook
+	_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(7.8*RAD)); //Data from the Ku band System Workbook
 
   static UINT KuBand3Grp[4] = {GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU};
   static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
-	_V(2.094,-0.128,8.45), _V(-0.468631, 0.841773, 0.267962), (float)(4.25*RAD));//Data from the Ku band System Workbook
+	_V(2.1733, 0.852241,8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(4.25*RAD));//Data from the Ku band System Workbook
 
   anim_kubd = CreateAnimation (0);
   LogAnim("anim_kubd", anim_kubd);
@@ -7174,7 +7174,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if(!hDevOrbiterMesh) return; // no mesh handle
 	if(strTextureName.length()==0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 3, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
