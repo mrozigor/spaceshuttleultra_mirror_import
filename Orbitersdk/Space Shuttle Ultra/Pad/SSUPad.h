@@ -17,12 +17,12 @@ const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 
 const double ORBITER_ACCESS_ARM_RATE_NORMAL = 0.007692;// 130sec
 const double ORBITER_ACCESS_ARM_RATE_EMERGENCY = 0.066666;// 15sec
-const double GVA_RATE = 0.023810;
+const double GVA_RATE = 0.03;
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
 const double FSS_OWP_RATE = 0.005;
 const double RSS_RATE = 0.00066666667;
-const double FSS_GH2_ARM_RATE = 2.0;
+const double FSS_GH2_ARM_RATE = 0.5;
 const double FSS_IAA_RATE = 1.0/200.0;
 const double FSS_RBUS_RATE = 0.35;
 const double SRB_SFD_RATE = 0.00333333;// 300sec

@@ -160,7 +160,7 @@ namespace eva_docking {
 	}
 
 	double ODS::GetSubsystemEmptyMass() const {
-		return 1585.5; // From STS-71 press kit: the ODS weighs more than 3,500 lbs (1585.5 kg)
+		return 419.025; // According to a SSP PRCB presentation on the STS-125 pros/cons of Single Pad vs Dual Pad ops for LON, ODS mass is 925 lbs, this is for the ODS alone, not including the airlock hardware
 	}
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
