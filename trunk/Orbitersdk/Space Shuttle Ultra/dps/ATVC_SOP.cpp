@@ -159,7 +159,8 @@ namespace dps
 
 	bool ATVC_SOP::OnMajorModeChange( unsigned int newMajorMode )
 	{
-		switch (newMajorMode)
+		return true;
+		/*switch (newMajorMode)
 		{
 			case 101:
 			case 102:
@@ -173,7 +174,7 @@ namespace dps
 				return true;
 			default:
 				return false;
-		}
+		}*/
 	}
 
 	void ATVC_SOP::SetSSMEActPos( int num, double Ppos, double Ypos )
