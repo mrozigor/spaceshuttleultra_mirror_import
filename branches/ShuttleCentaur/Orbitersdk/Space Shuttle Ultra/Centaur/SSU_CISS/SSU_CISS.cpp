@@ -43,8 +43,8 @@ void SSU_CISS::clbkSetClassCaps( FILEHANDLE cfg )
 		isGPrime = false;
 		SetEmptyMass( G_EMPTY_MASS );
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
-		ahToOV = CreateAttachment( true, _V( 0, -2.9, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
-		centaurAttachment[0] = _V( 0, -0.2174, -1.3521 );
+		ahToOV = CreateAttachment( true, _V( 0, -2.75, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
+		centaurAttachment[0] = _V( 0, 0.0, -1.3521 );
 		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, -1, 0 ), "SSU_CG" );
 	}
 	else// pszBuffer = "GPrime"
@@ -53,8 +53,8 @@ void SSU_CISS::clbkSetClassCaps( FILEHANDLE cfg )
 		// default
 		SetEmptyMass( GPRIME_EMPTY_MASS );
 		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
-		ahToOV = CreateAttachment( true, _V( 0, -2.9, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
-		centaurAttachment[0] = _V( 0, -0.2174, -1.3521 );
+		ahToOV = CreateAttachment( true, _V( 0, -2.75, 0.75 ), _V( 0, -1, 0 ), _V( 0, 0, 1 ), "SSU_OVC" );
+		centaurAttachment[0] = _V( 0, 0.0, -1.3521 );
 		ahToCentaur = CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, -1, 0 ), "SSU_CGP" );
 	}
 	centaurAttachment[1] = centaurAttachment[0] + _V(0, 0, 1);
