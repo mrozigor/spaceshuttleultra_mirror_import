@@ -76,7 +76,7 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		SetPMI( _V( 4.32, 4.35, 2.69 ) );
 
 		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.8373 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5225 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5224 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
 	}
 	else// pszBuffer = "GPrime"
 	{
