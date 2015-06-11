@@ -176,7 +176,7 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 	}
 
-	if(VentHoodState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
+	if(VentHoodState.Open() && VentArmState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
 		double fFlow = static_cast<double>(pSTS->GetETPropellant())/100.0;
 		SetThrusterLevel(thGOXVent[0], fFlow/5.0);
 		SetThrusterLevel(thGOXVent[1], fFlow/5.0);
