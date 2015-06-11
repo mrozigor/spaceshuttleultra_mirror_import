@@ -510,7 +510,7 @@ void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	UpdateGOXVents();
 	
 	
-	if(VentHoodState.Open() && pSTS) {
+	if(VentHoodState.Open() && VentArmState.Open() && pSTS) {
 		short sGOXLevel = pSTS->GetETPropellant();
 		if(sGOXLevel >= 60) {
 			SetPropellantMass(phGOXVent, 100.0); // we don't care what the actual mass is, just make sure it's nonzero
