@@ -222,7 +222,7 @@ void SSUPad::DefineAnimations()
 	static UINT GVAGrp_1985[5] = {GRP_GVA_SWING_ARM_FENCES_FSS_1985, GRP_GVA_SWING_ARM_FSS_1985,  GRP_GOX_VENT_PIPES_FSS_1985, GRP_SOUTH_GOX_VENT_CYLINDER_01_FSS_1985, GRP_NORTH_GOX_VENT_CYLINDER_01_FSS_1985};
 	MGROUP_ROTATE* GVA = DefineRotation(fss_mesh_idx, bPad1985 ? GVAGrp_1985 : GVAGrp, 5,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
-	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 5,
+	static MGROUP_ROTATE GVA_VTX(LOCALVERTEXLIST, MAKEGROUPARRAY(vtx_goxvent), 3,
 		_V(3, -6.87, 21.709), _V(0, -1, 0), (float)(73*RAD));
 
 	ANIMATIONCOMPONENT_HANDLE parent=AddAnimationComponent(anim_VentArm, 0.0, 1.0, GVA);
@@ -605,8 +605,8 @@ void SSUPad::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		}
 		/*else if(!_strnicmp(line, "GOX_SEQUENCE", 12)) {
 			sscanf(line+12, "%d", &GOXArmAction);
-		}
-		else*/ if (!bPad1985 && !_strnicmp(line, "FSS_OWP", 7)) {
+		}*/
+		else if (!bPad1985 && !_strnicmp(line, "FSS_OWP", 7)) {
 			sscan_state(line+7, FSS_OWP_State);
 			SetAnimation(anim_fss_y_owp, FSS_OWP_State.pos);
 			AnimateFSSOWPStrut();
