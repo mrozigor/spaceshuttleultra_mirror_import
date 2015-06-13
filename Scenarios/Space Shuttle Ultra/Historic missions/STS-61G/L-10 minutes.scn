@@ -571,6 +571,9 @@ CentaurG_Prime:SSU_CentaurGPrime
   STATUS Orbiting Earth
   ATTACHED 0:0,CISS_CentaurG_Prime
   PRPLEVEL 0:0.954121 1:1.000000
+  ADAPTER_MESH SSU\Centaur_DemoSat_adapter
+  ADAPTER_OFFSET 0.010000
+  ADAPTER_MASS 300.000000
 END
 Galileo:SSU_GenericPayload
   STATUS Orbiting Earth
