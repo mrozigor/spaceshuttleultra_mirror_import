@@ -1807,9 +1807,9 @@ void Atlantis::DefineAnimations (void)
   static UINT LElevDoorGrp[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
   static UINT RElevDoorGrp[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
   static MGROUP_ROTATE LElevator_up (midx, LElevGrp, 2,
-	_V(-7.833,-3.204,-10.82), _V(-0.995219,0.0976717,-0.000432872), (float)(34.0*RAD));
+	_V(-7.83304,-3.37684,-10.70273), _V(-0.994826, -0.101587, -0.00088665), (float)(34.0*RAD));
   static MGROUP_ROTATE RElevator_up (midx, RElevGrp, 2,
-	_V(7.833,-3.204,-10.82), _V(0.995219,0.0976717,-0.000432872), (float)(-34.0*RAD));
+	_V(7.83304,-3.37684,-10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-34.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_up (midx, LElevDoorGrp, 2,
     _V(-7.837,-2.697,-10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(22.0*RAD));
   static MGROUP_ROTATE RElevatorDoor_up (midx, RElevDoorGrp, 2,
@@ -1817,9 +1817,9 @@ void Atlantis::DefineAnimations (void)
  
   // ***** 4B. Downward animation of elevons *****
   static MGROUP_ROTATE LElevator_down (midx, LElevGrp, 2,
-    _V(-7.833,-3.204,-10.82), _V(-0.995219,0.0976717,-0.000432872), (float)(18.0*RAD));
+    _V(-7.83304,-3.37684,-10.70273), _V(-0.994826, 0.101587, -0.00088665), (float)(18.0*RAD));
   static MGROUP_ROTATE RElevator_down (midx, RElevGrp, 2,
-    _V(7.833,-3.204,-10.82), _V(0.995219,0.0976717,-0.000432872), (float)(-18.0*RAD));
+    _V(7.83304,-3.37684,-10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-18.0*RAD));
   static MGROUP_ROTATE LElevatorDoor_down (midx, LElevDoorGrp, 2,
     _V(-7.837,-2.697,-10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(5*RAD));
   static MGROUP_ROTATE RElevatorDoor_down (midx, RElevDoorGrp, 2,
@@ -2336,8 +2336,8 @@ void Atlantis::AddOrbiterVisual()
     }
 
 	//ADD REENTRY MESH
-	oapiWriteLog("OFSET REENTRY SET");
-	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
+	oapiWriteLog("OFFSET REENTRY MESH SET");
+	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ENTRY);
 	oapiWriteLog("REENTRY MESH ADDED");
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
@@ -4551,7 +4551,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		oapiCloseFile(f3,FILE_APP);
 		}*/
 
-
+		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
 		double dens = GetAtmDensity();
 		double speed = GetAirspeed();
 		double flux = (dens*pow(speed, 3)) / 3 / 1000000;
