@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sat Jun 20 15:02:34 2015
+// Date of conversion : Sat Jun 20 20:31:40 2015
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -10,8 +10,8 @@
 const unsigned int NUMGRP = 145;
 
 const unsigned int GRP_PLB_BAY13_COVERS	=	0;	//PLB_BAY13_COVERS
-const unsigned int GRP_MIDBODY_T0_UMBILICAL_CAVITIES_CUTOUTS	=	1;	//MIDBODY_T0_UMBILICAL_CAVITIES_CUTOUTS
-const unsigned int GRP_MIDBODY_T0_UMBILICAL_CAVITIES	=	2;	//MIDBODY_T0_UMBILICAL_CAVITIES
+const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES	=	1;	//MIDBODYT0_UMBILICAL_CAVITIES
+const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY	=	2;	//MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY
 const unsigned int GRP_PLB_TCS	=	3;	//PLB_TCS
 const unsigned int GRP_LEFT__OMSPOD	=	4;	//LEFT _OMSpod
 const unsigned int GRP_RIGHT_PLBD_EXT	=	5;	//RIGHT_PLBD_EXT
