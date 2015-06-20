@@ -2337,7 +2337,7 @@ void Atlantis::AddOrbiterVisual()
 
 	//ADD REENTRY MESH
 	oapiWriteLog("OFFSET REENTRY MESH SET");
-	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ENTRY);
+	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
 	oapiWriteLog("REENTRY MESH ADDED");
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
