@@ -2337,7 +2337,7 @@ void Atlantis::AddOrbiterVisual()
 
 	//ADD REENTRY MESH
 	oapiWriteLog("OFFSET REENTRY MESH SET");
-	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
+	mesh_heatshield = AddMesh(hHeatShieldMesh,&ENTRY_OFFSET);
 	oapiWriteLog("REENTRY MESH ADDED");
 
     mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
@@ -4554,7 +4554,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
 		double dens = GetAtmDensity();
 		double speed = GetAirspeed();
-		double flux = (dens*pow(speed, 3)) / 3 / 1000000;
+		double flux = (dens*pow(speed, 3)) / 3 / 8000;
 		double heating_factor = flux / 4 - 3.5;
 		double heating_scalar = 0;
 		if (heating_factor >= 1)
