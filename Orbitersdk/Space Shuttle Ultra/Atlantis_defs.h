@@ -32,7 +32,6 @@ const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
 //const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
-
 const VECTOR3 ODS_POS = _V(0.0, -1.1, 7);// Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
 const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.2680, -0.319862); // offset between ODS mesh position and docking port position
 
@@ -43,6 +42,8 @@ const VECTOR3 LSRB_OFFSET = _V(-6.4, -8.9, 0.95); // offset between SRB and shut
 const VECTOR3 RSRB_OFFSET = _V(6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
 const VECTOR3 KU_OFFSET = _V(0.0, 0, 0.0);
+const VECTOR3 ENTRY_OFFSET = _V(0.0, -1.5, -2.0);
+
 
 const double MPS_MANIFOLD_MASS_LOX = 2306;// kg
 const double MPS_MANIFOLD_MASS_LH2 = 144;// kg
