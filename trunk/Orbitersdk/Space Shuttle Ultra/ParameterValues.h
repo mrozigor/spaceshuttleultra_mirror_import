@@ -11,8 +11,9 @@ const double ORBITER_EMPTY_MASS_OV104 = 77564.3;
 const double ORBITER_EMPTY_MASS_OV105 = 78017.89;
 // Orbiter empty masses [kg]
 
-const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
-// Amount of fuel the orbiter can hold in internal OMS tanks
+const double ORBITER_MAX_PROPELLANT_MASS = 11284.23 + 2162.622;
+// Per SODB Vol 1, 3.4.3.3, maximum propellant load in the OMS tanks is 4711.5 lbs (2134.3095 kg) of fuel and 7743.5 lbs (3507.8055 kg) of oxidizer per pod. Min load is 2038 (923.214 kg) lbs of fuel and 3362 lbs (1522.986 kg) of oxidizer per pod.
+// This parameter for now includes the propellant mass of the Aft RCS fuel and oxidizer
 
 const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
 // Amount of fuel in forward RCS tanks
