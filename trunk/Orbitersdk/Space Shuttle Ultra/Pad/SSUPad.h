@@ -36,15 +36,11 @@ const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int LC39_LIGHT_COUNT = 5;
 
-//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.895552, 78.30047, 20.00000);
-//const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.895552, 78.30047, 22.25000);
-const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.5, 78.2, 19.7); //North duct
-const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.5, 78.2, 22.0); //South duct
-const VECTOR3 FSS_POS_GOXVENTL_1985	= _V(-8.5, 78, 20.5); //North duct
-const VECTOR3 FSS_POS_GOXVENTR_1985	= _V(-8.5, 78, 23.0); //South duct
-//const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.3, 78.30047, 24);
-//const VECTOR3 FSS_POS_GOXVENTR		= _V(-7.9, 78.30047, 26.5);
-const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-9.469907,  80.14687, 20.18538);
+const VECTOR3 FSS_POS_GOXVENTL		= _V(-8.45499, 78.72330, 19.76280); //North duct
+const VECTOR3 FSS_POS_GOXVENTR		= _V(-8.61133, 78.72330, 21.99860); //South duct
+const VECTOR3 FSS_POS_GOXVENTL_1985		= _V(-8.45499, 78.72330, 19.76280); //North duct
+const VECTOR3 FSS_POS_GOXVENTR_1985		= _V(-8.61133, 78.72330, 21.99860); //South duct
+const VECTOR3 FSS_POS_GOXVENTDIR	= _V(-0.226652, 0.973976, 0);
 
 const int RSS_ROTATE_SOUND = 1;
 static const char* RSS_ROTATE_SOUND_FILE = "RSS_Rotation.wav";
