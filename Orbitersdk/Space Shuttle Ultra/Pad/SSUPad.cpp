@@ -188,7 +188,7 @@ SSUPad::SSUPad(OBJHANDLE hVessel, int flightmodel)
 	
 	vtx_goxvent[0] = FSS_POS_GOXVENTL;
 	vtx_goxvent[1] = FSS_POS_GOXVENTR;
-	vtx_goxvent[2] = FSS_POS_GOXVENTDIR;
+	vtx_goxvent[2] = FSS_POS_GOXVENTL + FSS_POS_GOXVENTDIR;
 
 	SoundID=-1;
 
@@ -697,8 +697,8 @@ int SSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate)
 void SSUPad::CreateGOXVentThrusters() {
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.8, 15, 7, 0, 1.2, 1, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
-	  PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
+	  0, 0.3, 140, 5, 0, 0.8, 1.6, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
 	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
 	  };
 

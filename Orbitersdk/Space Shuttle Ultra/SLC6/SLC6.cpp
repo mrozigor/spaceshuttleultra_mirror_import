@@ -42,7 +42,7 @@ const COLOUR4 SLC6_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
 const double SLC6_LIGHT_RANGE = 100.0;
 const double SLC6_LIGHT_ATT0 = 1e-3;
 const double SLC6_LIGHT_ATT1 = 0;
-const double SLC6_LIGHT_ATT2 = 1e-3;
+const double SLC6_LIGHT_ATT2 = 0.0005;
 const double SLC6_LIGHT_UMBRA = 45.0*RAD;
 const double SLC6_LIGHT_PENUMBRA = 180.0*RAD;
 
@@ -60,7 +60,7 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 
 	goxVentPos[0] = GOXVENT_LEFT;
 	goxVentPos[1] = GOXVENT_RIGHT;
-	goxVentPos[2] = GOXVENT_DIRREF;
+	goxVentPos[2] = GOXVENT_LEFT + GOXVENT_DIRREF;
 
 	phGOXVent = NULL;
 	thGOXVent[0] = thGOXVent[1] = NULL;
@@ -468,10 +468,10 @@ void SLC6::DefineSSS()
 void SLC6::DefineGOXVents()
 {
 	static PARTICLESTREAMSPEC gox_stream = {
-		0, 0.8, 15, 7, 0, 1.2, 1, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
-		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
-		PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
-	};
+	  0, 0.3, 140, 5, 0, 0.8, 1.6, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
+	  };
 
 	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
 
