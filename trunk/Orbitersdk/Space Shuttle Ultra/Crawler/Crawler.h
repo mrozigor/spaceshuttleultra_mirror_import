@@ -112,8 +112,8 @@ const double JACKING_HEIGHTS[JACK_HEIGHT_COUNT] = {0.4, 0.9, 1.8};
 
 const double MAX_TURN_ANGLE = 6.0*RAD;
 // max angle (in radians) each set of tracks can be turned
-const double TRACK_TURN_SPEED = 0.125;
-// speed (in degrees/sec) at which Crawler tracks turn
+const double TRACK_TURN_SPEED = 0.0357142857143*RAD;
+// speed (in rad/sec) at which Crawler tracks turn
 const double STEERING_SPEED = 0.2;
 // speed (in degrees/sec) at which commanded deflection changes
 
