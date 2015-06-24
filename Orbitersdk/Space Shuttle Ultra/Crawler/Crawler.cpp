@@ -550,12 +550,12 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		double steeringError = steeringCommanded[i]-steeringActual[i];
 		if(steeringError < -0.0001) {
 			double dAngle = TRACK_TURN_SPEED * simdt;
-			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-dAngle);
+			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-(dAngle/MAX_TURN_ANGLE));
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 		else if(steeringError > 0.0001) {			
 			double dAngle = TRACK_TURN_SPEED * simdt;
-			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+dAngle);
+			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+(dAngle/MAX_TURN_ANGLE));
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 	}
