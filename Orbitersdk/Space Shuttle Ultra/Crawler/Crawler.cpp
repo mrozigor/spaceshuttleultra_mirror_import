@@ -519,23 +519,23 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	if(port_steering2Degrees) steeringAngleScaleFactor = 2.0/(MAX_TURN_ANGLE*DEG);
 	else steeringAngleScaleFactor = 1.0;
 	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
-		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = max(-steeringAngleScaleFactor,steeringCommanded[viewPos] - dAngle);
-			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
-		}	
+		double dAngle = STEERING_SPEED * simdt*(1.0/oapiGetTimeAcceleration()) * steeringAngleScaleFactor;
+		steeringCommanded[viewPos] = max(-steeringAngleScaleFactor,steeringCommanded[viewPos] - dAngle);
+
+		if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+		else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+
+		port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+		port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
-		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = min(steeringAngleScaleFactor, steeringCommanded[viewPos] + dAngle);
-			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
-		}
+		double dAngle = STEERING_SPEED * simdt*(1.0/oapiGetTimeAcceleration()) * steeringAngleScaleFactor;
+		steeringCommanded[viewPos] = min(steeringAngleScaleFactor, steeringCommanded[viewPos] + dAngle);
+
+		if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+		else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+
+		port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+		port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 	} else if (keyCenter) {
 		for(unsigned short i=0;i<2;i++) {
 			steeringCommanded[i] = 0;
