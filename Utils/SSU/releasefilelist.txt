@@ -25,10 +25,7 @@ Config\Earth\SSU\Shannon.cfg
 Config\Earth\SSU\St_Johns.cfg
 Config\Earth\SSU\Tindal_RAAF.cfg
 Config\Earth\SSU\Vandenberg.cfg
-Config\GC\SpaceShuttleUltra.cfg
 Config\GC\SpaceShuttleUltra_ecam.cfg
-Config\Spacecraft\S6PV.ini
-Config\Spacecraft\VAB.ini
 Config\SSU\MDM\FA.mdm
 Config\SSU\MDM\FF.mdm
 Config\SSU\MDM\LA1.mdm
@@ -40,13 +37,8 @@ Config\SSU\MDM\OF.mdm
 Config\SSU\MDM\PL.mdm
 Config\SSU\MDM\test.mdm
 Config\Vessels\107payloads.cfg
-Config\Vessels\EDO_cryokit.cfg
-Config\Vessels\fssb.ini
-Config\Vessels\payload.ini
-Config\Vessels\PortTSA.cfg
 Config\Vessels\SpaceShuttleUltra.cfg
 Config\Vessels\SSRMSD.cfg
-Config\Vessels\SSUAtlantis.ini
 Config\Vessels\SSU_CentaurGPrime.cfg
 Config\Vessels\SSU_Chute.cfg
 Config\Vessels\SSU_CISS_CentaurGPrime.cfg
@@ -72,8 +64,6 @@ Config\Vessels\SSU_SWT.cfg
 Config\Vessels\SSU_Tank.cfg
 Config\Vessels\SSU_VAB.cfg
 Config\Vessels\SSU_Xenon_Lights.cfg
-Config\Vessels\StbdTSA.cfg
-Config\Vessels\VAB_MLP_stands.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_AT.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_LaunchMount.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_MAS.cfg
@@ -83,33 +73,18 @@ Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
 Doc\Space Shuttle Ultra\125852main_ius93f2.pdf
 Doc\Space Shuttle Ultra\Compiling SSU.txt
-Doc\Space Shuttle Ultra\Flightdeck Panel Locator.svg
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MEDS.pdf
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
-Doc\Space Shuttle Ultra\Space_Shuttle_Ultra_Manual.tex
 Doc\Space Shuttle Ultra\SSU Ops Manual V1.XX Rev. B.pdf
 Doc\Space Shuttle Ultra\SSU_Mission_File_Description.pdf
-Doc\Space Shuttle Ultra\STS-126 launch cam views.txt
-Doc\Space Shuttle Ultra\Landing Sites currently available in SSU.pdf
-Doc\Space Shuttle Ultra\Images\Crew Cabin (Cutaway).jpg
-Doc\Space Shuttle Ultra\Images\DAPPBI.png
-Doc\Space Shuttle Ultra\Images\FD_Codes_Chart.jpg
-Doc\Space Shuttle Ultra\Images\Flight_Deck_Loc_Codes_1.jpg
-Doc\Space Shuttle Ultra\Images\Flight_Deck_Loc_Codes_2.jpg
-Doc\Space Shuttle Ultra\Images\Orbiter.jpg
-Doc\Space Shuttle Ultra\Images\SLWT.png
-Doc\Space Shuttle Ultra\Images\Space Shuttle Stats.jpg
-Doc\Space Shuttle Ultra\Images\SRB.png
-Doc\Space Shuttle Ultra\Images\SSP.jpg
-Doc\Space Shuttle Ultra\Images\SSU_Attachments.png
-Doc\Space Shuttle Ultra\Images\SSU_ICON.png
-Doc\Space Shuttle Ultra\Images\SSU_ICON_2.png
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Ku band deployed assembly and gimbal.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Ku band IRCS for the Shuttle.pdf
 Doc\Space Shuttle Ultra\Tech Notes\KU OPS 21002.pdf
+Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad A Xenon lights positions.txt
+Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad B Xenon lights positions.txt
 Doc\Space Shuttle Ultra\Tech Notes\PCWS Channels.ods
 Doc\Space Shuttle Ultra\Tech Notes\refman.pdf
 Doc\Space Shuttle Ultra\Tech Notes\RMS IK Code.odt
@@ -121,7 +96,6 @@ Doc\Space Shuttle Ultra\Tech Notes\Space Shuttle System Summary - 1980.pdf
 Doc\Space Shuttle Ultra\Tech Notes\SSRMS IK Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
-Meshes\EDO_cryokit.msh
 Meshes\SSRMSF.msh
 Meshes\SSU\CentaurG_Prime.msh
 Meshes\SSU\CISS_CentaurG_Prime.msh
@@ -173,6 +147,16 @@ Meshes\SSU\OTS_Vandenberg.msh
 Meshes\SSU\parachute.msh
 Meshes\SSU\RMS.msh
 Meshes\SSU\RMSVC.msh
+Meshes\SSU\RSRM_LSRB_aft_center_segment.msh
+Meshes\SSU\RSRM_LSRB_aft_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_center_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_skirt_assy.msh
+Meshes\SSU\RSRM_RSRB_aft_center_segment.msh
+Meshes\SSU\RSRM_RSRB_aft_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_center_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_skirt_assy.msh
 Meshes\SSU\RWY_marker_10K.msh
 Meshes\SSU\RWY_marker_11K.msh
 Meshes\SSU\RWY_marker_12K.msh
@@ -256,6 +240,9 @@ Scenarios\Space Shuttle Ultra\Historic missions\STS-107\De-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Entry Interface.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Post-insertion PLBD opening.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\STS-107 launch scenario.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Launch.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Post-OMS2.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Tanking Test scenario.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-120\STS-120 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 docking with ISS Nov 16.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 launch.scn
@@ -276,7 +263,6 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
-Scenarios\Space Shuttle Ultra\Testing scenarios\Tanking Test scenario.scn
 Scenarios\SSRMS\Grapple test.scn
 Scenarios\SSRMS\SSRMS Folded.scn
 Scenarios\SSRMS\SSRMS test.scn
@@ -326,12 +312,6 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Heater-Re
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-No-errors.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-PLT-in-Work.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Visors-and-O2.wav
-Textures\CONCRETE_014.dds
-Textures\CONCRETE_015.dds
-Textures\CONCRETE_016.dds
-Textures\EDOcryokit_tex.dds
-Textures\FSStex_1.dds
-Textures\MPESS_FREESTAR_tex.dds
 Textures\SSU\10K_marker.dds
 Textures\SSU\11K_marker.dds
 Textures\SSU\12K_marker.dds
@@ -357,24 +337,18 @@ Textures\SSU\AftSkirt_bottom_foam.dds
 Textures\SSU\AftTimer.dds
 Textures\SSU\Atlantis_5thmod.dds
 Textures\SSU\Atlantis_original.dds
-Textures\SSU\Bridgerail.dds
-Textures\SSU\bridgerails.dds
 Textures\SSU\C&Wlights.dds
 Textures\SSU\c2.dds
 Textures\SSU\c3.dds
 Textures\SSU\Cabletray_tex.dds
 Textures\SSU\Cabletray_tex_SWT.dds
-Textures\SSU\cargobay.dds
 Textures\SSU\Casing.dds
 Textures\SSU\Casing_FWC.dds
 Textures\SSU\Casing_OFT_LH.dds
 Textures\SSU\Casing_OFT_RH.dds
 Textures\SSU\CCTVMon.dds
 Textures\SSU\CentaurG_LO2dome_foil.dds
-Textures\SSU\Centaur_G_adapter.dds
-Textures\SSU\Centaur_G_tex.dds
 Textures\SSU\Challenger_original.dds
-Textures\SSU\Challenger_3rdmod.dds
 Textures\SSU\chute.dds
 Textures\SSU\CISS_tex.dds
 Textures\SSU\clocknums.dds
@@ -389,6 +363,7 @@ Textures\SSU\CrawlerTransporter_tex_earlyshuttle.dds
 Textures\SSU\CrawlerTransporter_tex_postSTS114.dds
 Textures\SSU\CrawlerTubing.dds
 Textures\SSU\DFI_pallet_boxtex.dds
+Textures\SSU\DFI_pallet_boxtex_norm.dds
 Textures\SSU\digitPOS.dds
 Textures\SSU\digits.dds
 Textures\SSU\Discovery_9thmod.dds
@@ -415,23 +390,22 @@ Textures\SSU\KSC_SSMEPF_Roof.dds
 Textures\SSU\KSC_Surge_Facility_Side2.dds
 Textures\SSU\ku.dds
 Textures\SSU\ku_norm.dds
+Textures\SSU\ku_refl.dds
+Textures\SSU\ku_spec.dds
 Textures\SSU\L4.dds
 Textures\SSU\label.dds
 Textures\SSU\label2.dds
-Textures\SSU\LaunchComplex39FixedServiceStructure.dds
 Textures\SSU\LWT_ETtex.dds
 Textures\SSU\Main_Concrete_Hardstand_texture.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_1.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_2.dds
 Textures\SSU\MDLForwa.dds
 Textures\SSU\MDLRear3.dds
-Textures\SSU\MGAtlantis.dds
-Textures\SSU\MLP-1_main_tex.dds
 Textures\SSU\MLP-2_main_tex.dds
-Textures\SSU\MLP_main_tex.dds
 Textures\SSU\MLP_Side1_decks_grating.dds
 Textures\SSU\MON1veiw.dds
 Textures\SSU\MON2view.dds
+Textures\SSU\MPESS_FREESTAR_tex.dds
 Textures\SSU\Nozzle.dds
 Textures\SSU\O1.dds
 Textures\SSU\O13_17.dds
@@ -455,6 +429,7 @@ Textures\SSU\panelF6.dds
 Textures\SSU\panelF8.dds
 Textures\SSU\panelR4.dds
 Textures\SSU\PORT_OMSpod.dds
+Textures\SSU\PORT_OMSpod_spec.dds
 Textures\SSU\ps-rcs2.dds
 Textures\SSU\R10_L9.dds
 Textures\SSU\R11.dds
@@ -465,11 +440,13 @@ Textures\SSU\r2.dds
 Textures\SSU\RETAtlantis.dds
 Textures\SSU\RMS.dds
 Textures\SSU\RMS_grapple_fixture.dds
+Textures\SSU\RSRM_Casing.dds
+Textures\SSU\RSRM_LSRB_FWD_Skirt_Assy.dds
+Textures\SSU\RSRM_RSRB_FWD_Skirt_Assy.dds
 Textures\SSU\RSStex_1.dds
 Textures\SSU\Seat2.dds
 Textures\SSU\ShuttleOTS_tex.dds
 Textures\SSU\SLWT_ETtex.dds
-Textures\SSU\SpaceShuttle_VABTex.dds
 Textures\SSU\SpaceShuttle_VABTex_1980.dds
 Textures\SSU\SpaceShuttle_VABTex_2009.dds
 Textures\SSU\SRB_Contrail.dds
@@ -480,11 +457,11 @@ Textures\SSU\SSME_Exhaust.dds
 Textures\SSU\SSME_TEX.dds
 Textures\SSU\SSME_TEX_spec.dds
 Textures\SSU\SSUbay.dds
-Textures\SSU\SSUbay_norm.dds
 Textures\SSU\SSUbay_refl.dds
 Textures\SSU\SSUbay_spec.dds
 Textures\SSU\SSU_Bridgerail.dds
 Textures\SSU\STBD_OMSpod.dds
+Textures\SSU\STBD_OMSpod_spec.dds
 Textures\SSU\STScargobay.dds
 Textures\SSU\STSinstruments.dds
 Textures\SSU\stsvc01.dds
