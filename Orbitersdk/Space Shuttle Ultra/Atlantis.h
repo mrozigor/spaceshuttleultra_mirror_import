@@ -677,9 +677,6 @@ public:
 	DEVMESHHANDLE hDevOrbiterMesh;
 	char cargo_static_mesh_name[256];
 
-	double fPayloadZPos[16];
-	double fPayloadMass[16];
-	unsigned short usPayloadType[16];
 	//C-P attachments
 	ATTACHMENTHANDLE ahHDP;
 	ATTACHMENTHANDLE ahTow;
@@ -824,9 +821,6 @@ private:
 
 	void RealizeSubsystemConnections();
 
-	//
-	void SavePayloadState(FILEHANDLE scn) const;
-	bool ParsePayloadLine(const char* pszLine);
 
 	/**
 	 * React on Key "V", switching the view from flight deck to Mid Deck

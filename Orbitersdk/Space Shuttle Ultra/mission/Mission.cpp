@@ -153,7 +153,7 @@ namespace mission {
 		for(int i = 0; i<16; i++)
 		{
 			double x;
-			sprintf_s(buffer, "PayloadZPos%d", i);
+			sprintf_s(buffer, "PayloadZPos%d", i + 5);
 			if(oapiReadItem_float(hFile, buffer, x))
 			{
 				fPayloadZPos[i] = x;

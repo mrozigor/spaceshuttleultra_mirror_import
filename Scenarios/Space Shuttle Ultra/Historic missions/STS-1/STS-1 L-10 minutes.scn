@@ -543,6 +543,6 @@ RSRB:SSU_RSRB
 END
 DFI_pallet:SSU_DFI_Pallet
   STATUS Orbiting Earth
-  ATTACHED 0:5,Columbia
+  ATTACHED 0:9,Columbia
 END
 END_SHIPS
