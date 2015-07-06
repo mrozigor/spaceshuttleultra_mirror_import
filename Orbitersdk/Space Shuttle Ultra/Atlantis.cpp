@@ -4437,7 +4437,7 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
 		double dens = GetAtmDensity();
 		double speed = GetAirspeed();
-		double flux = (dens*pow(speed, 3)) / 3 / 8000;
+		double flux = (dens*pow(speed, 3)) / 3 / 1000000;
 		double heating_factor = flux / 4 - 3.5;
 		double heating_scalar = 0;
 		if (heating_factor >= 1)
