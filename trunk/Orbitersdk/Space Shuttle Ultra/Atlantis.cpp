@@ -627,13 +627,6 @@ pActiveLatches(3, NULL)
 	  if(mdus[i+vc::MDUID_CRT1]) mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
   }*/
 
-  for(int i = 0; i<16; i++)
-  {
-	fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-	fPayloadMass[i] = 0.0;
-	usPayloadType[i] = 0;
-  }
-
   met = 0.0;
 
   status          = STATE_ORBITER;
@@ -2205,17 +2198,15 @@ dynamic centerline payloads, controlled by the payload 1-3 interfaces
 	
 	for(int i = 0; i<4; i++)
 	{
+		vPayloadPos.z = pMission->GetPayloadZPos(i+3);
 		if(ahCenterPassive[i])
 		{
 			//update
-			vPayloadPos.z = pMission->GetPayloadZPos(i+3);
-
 			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL);
 		}
 		else 
 		{
-			vPayloadPos.z = fPayloadZPos[i+3];
 			//create
 			ahCenterPassive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
 				ROT_CENTERPL, "XS");
@@ -2243,18 +2234,15 @@ The same starboard
 	
 	for(int i = 0; i<4; i++)
 	{
+		vPayloadPos.z = pMission->GetPayloadZPos(i+7);
 		if(ahPortPL[i])
 		{
 			//update
-			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-
 			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL);
 		}
 		else 
 		{
-			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-
 			//create
 			ahPortPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_PORTPL, 
 				ROT_PORTPL, "XS");
@@ -2265,16 +2253,15 @@ The same starboard
 	
 	for(int i = 0; i<4; i++)
 	{
+		vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 		if(ahStbdPL[i])
 		{
 			//update
-			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL);
 		}
 		else 
 		{
-			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			//create
 			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
 				ROT_STBDPL, "XS");
@@ -3267,10 +3254,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			sscanf(line+3, "%u", &ops);
 			pSimpleGPC->SetMajorMode(ops);
 		}
-		else if (!_strnicmp(line, "PAYLOAD", 7))
-		{
-			ParsePayloadLine(line);
-		}
 		else if (_strnicmp( line, "GOXVENTSOFF", 11 ) == 0)
 		{
 			if (status == STATE_PRELAUNCH) bSSMEGOXVent = false;
@@ -3387,8 +3370,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	//GPC
 	oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
 
-	SavePayloadState(scn);
-
 	sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
 		camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
 	oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
@@ -3414,104 +3395,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	pgAftPort.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
-}
-
-void Atlantis::SavePayloadState(FILEHANDLE scn) const
-{
-	char pszBuffer[256];
-	for(int i = 0; i<3; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD CACTIVE%1d %f %f %d",
-			i+1, fPayloadZPos[i], fPayloadMass[i], usPayloadType[i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD CPASSIVE%1d %f %f %d",
-			i+1, fPayloadZPos[3+i], fPayloadMass[3+i], usPayloadType[3+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD PORT%1d %f %f %d",
-			i+1, fPayloadZPos[7+i], fPayloadMass[7+i], usPayloadType[7+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD STBD%1d %f %f %d",
-			i+1, fPayloadZPos[11+i], fPayloadMass[11+i], usPayloadType[11+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-}
-
-bool Atlantis::ParsePayloadLine(const char* pszLine)
-{
-	char pszKey[100];
-	char pszBuffer[256];
-	float zpos = 0.0, mass = 0.0;
-	int x = 0;
-	sscanf_s(pszLine + 8, "%s",
-		pszKey, sizeof(pszKey));
-
-	sscanf_s(pszLine + 9 + strlen(pszKey), "%f %f %d",
-		&zpos, &mass, &x);
-
-
-	sprintf_s(pszBuffer, 256, "PAYLOAD %s %f %f %d",
-		pszKey, zpos, mass, x);
-	oapiWriteLog(pszBuffer);
-	
-
-	if(!_strnicmp(pszKey, "CACTIVE", 7))
-	{
-		int i = atoi(pszKey+7) - 1;
-		
-		if(i>=0 && i<4)
-		{
-			fPayloadZPos[i] = zpos;
-			fPayloadMass[i] = mass;
-			usPayloadType[i] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "CPASSIVE", 8))
-	{
-		int i = atoi(pszKey+8) - 1;
-		
-		if(i>=0 && i<4)
-		{
-			fPayloadZPos[i+3] = zpos;
-			fPayloadMass[i+3] = mass;
-			usPayloadType[i+3] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "PORT", 4))
-	{
-		int i = atoi(pszKey+4) - 1;
-		
-		if(i>=0 && i<5)
-		{
-			fPayloadZPos[i+7] = zpos;
-			fPayloadMass[i+7] = mass;
-			usPayloadType[i+7] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "STBD", 4))
-	{
-		int i = atoi(pszKey+4) - 1;
-		if(i>=0 && i<5)
-		{
-			fPayloadZPos[i+11] = zpos;
-			fPayloadMass[i+11] = mass;
-			usPayloadType[i+11] = (unsigned short)(x);
-		}
-	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 // --------------------------------------------------------------

@@ -28,11 +28,11 @@
 #include <string>
 
 const double DEFAULT_PAYLOAD_ZPOS[16] = 
-{ 8.0, 0.0, -8.0,		//Center active
-  4.0, 2.0, -6.0,		//Center passive
-  7.0, 3.0, -2.0, -8.0,	//Port
-  7.0, 3.0, -2.0, -8.0,	//Starboard
-  0.0, 0.0};			//spare
+{ 8.0, 0.0, -8.0,		//Center active (attachments 5, 6, 7)
+  4.0, 2.0, -6.0, -6.0,		//Center passive (attachments 8, 9, 10, 11)
+  7.0, 3.0, -2.0, -8.0,	//Port (attachments 12, 13, 14, 15)
+  7.0, 3.0, -2.0, -8.0,	//Starboard (attachments 16, 17, 18, 19)
+  0.0};			//spare
 
 /**
  * Contains all class definitions related to Mission Data Files and 
