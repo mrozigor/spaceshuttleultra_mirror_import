@@ -311,6 +311,7 @@ const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
 const unsigned int AID_A7A3 = 11000;
 const unsigned int AID_ODSLIGHTS = 11001;
 const unsigned int AID_A8A3 = 11010;
+const unsigned int AID_A8LIGHTS = 11100;
 
 
 #define SWITCH1		0

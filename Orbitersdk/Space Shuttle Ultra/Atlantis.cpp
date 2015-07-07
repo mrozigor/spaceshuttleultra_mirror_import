@@ -5708,6 +5708,12 @@ DLLCLBK void InitModule (HINSTANCE hModule)
 	  oapiWriteLog("Loading bitmap \"SSME_LIGHTS\" failed.");
   }
 
+	g_Param.a8_lights = oapiCreateSurface( LOADBMP( IDB_A8LIGHTS ) );
+	if( g_Param.a8_lights == NULL)
+	{
+		oapiWriteLog( "Loading bitmap \"A8_LIGHTS\" failed." );
+	}
+
   HDC Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
   //HDC TempDC=CreateCompatibleDC(Temp1DC);
   g_Param.DeuCharBitmapDC=CreateCompatibleDC(Temp1DC);
@@ -5755,6 +5761,16 @@ DLLCLBK void ExitModule (HINSTANCE hModule)
   {
 	oapiDestroySurface (g_Param.odslights);
   }
+
+	if (g_Param.ssme_lights)
+	{
+		oapiDestroySurface( g_Param.ssme_lights );
+	}
+
+	if (g_Param.a8_lights)
+	{
+		oapiDestroySurface( g_Param.a8_lights );
+	}
 
   if(g_Param.deu_characters)
   {

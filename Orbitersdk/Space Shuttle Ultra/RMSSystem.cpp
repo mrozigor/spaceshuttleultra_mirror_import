@@ -107,6 +107,11 @@ void RMSSystem::Realize()
 	for(int i=0;i<12;i++) RMSMode[i].Connect(pBundle, i);
 	RMSSpeed.Connect(pBundle, 12);
 
+	pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
+	for (int i = 0; i < 12; i++) CWLights[i].Connect( pBundle, i );
+	SoftStopTB.Connect( pBundle, 12 );
+	SoftStopTB.SetLine();
+
 	pBundle = STS()->BundleManager()->CreateBundle("RMS_ELBOW_CAM", 16);
 	ElbowCamPanLeft.Connect(pBundle, 0);
 	ElbowCamPanRight.Connect(pBundle, 1);
@@ -562,6 +567,18 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		//oapiWriteLog("RMSSystem: first step");
 		bFirstStep = false;
 	}
+
+	// check reach limits
+	CWLights[10].ResetLine();
+	for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
+	{
+		if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
+		{
+			CWLights[10].SetLine();// reach lim light on
+			break;
+		}
+	}
+
 }
 
 bool RMSSystem::OnParseLine(const char* line)
@@ -793,11 +810,13 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 
 	// check values are within bounds
 	// make sure speed of each joint is within limits
+	SoftStopTB.SetLine();
 	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
 		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
 		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			//sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			SoftStopTB.ResetLine();
 			return false;
 		}
 		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;

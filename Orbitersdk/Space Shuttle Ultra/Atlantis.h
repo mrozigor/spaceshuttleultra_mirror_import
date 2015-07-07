@@ -152,6 +152,7 @@ typedef struct {
 	SURFHANDLE digits_7seg;
 	SURFHANDLE odslights;
 	SURFHANDLE ssme_lights;
+	SURFHANDLE a8_lights;
 	HBITMAP deu_characters;
 	HBITMAP deu_characters_overbright;
 	HDC DeuCharBitmapDC;
