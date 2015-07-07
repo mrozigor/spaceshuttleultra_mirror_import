@@ -51,7 +51,6 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\bitmap1.bmp" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram2.cd" />
     <None Include="ClassDiagram3.cd" />
@@ -73,6 +72,8 @@
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
     <None Include="Bitmaps\tkbk_label.bmp" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <None Include="Bitmaps\A8lights.bmp" />
+    <None Include="Bitmaps\SSME_lights.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">

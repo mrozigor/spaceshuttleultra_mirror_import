@@ -72,10 +72,40 @@ namespace vc
 		Add(pEERigid = new Std2SegTalkback(_sts, "EE Rigid", 1));
 		Add(pEEDerigid = new Std2SegTalkback(_sts, "EE Derigid", 1));
 		Add(pShoulderBraceTb = new Std2SegTalkback(_sts, "Shoulder Brace", 1));
+		Add( pSoftStopTB = new Std2SegTalkback( _sts, "Software Stop", 1 ) );
 
 		Add(pLEDParameter = new RotaryDemuxSwitch(_sts, "Parameter", 8));
 		Add(pLEDJoint = new RotaryDemuxSwitch(_sts, "Joint", 8));
 		Add(pRMSMode = new RotaryDemuxSwitch(_sts, "RMS Mode", 12));
+
+		Add( pModeLights[0] = new StandardLight( _sts, "TEST" ) );
+		Add( pModeLights[1] = new StandardLight( _sts, "DIRECT" ) );
+		Add( pModeLights[2] = new StandardLight( _sts, "SINGLE" ) );
+		Add( pModeLights[3] = new StandardLight( _sts, "PL" ) );
+		Add( pModeLights[4] = new StandardLight( _sts, "ORB_LD" ) );
+		Add( pModeLights[5] = new StandardLight( _sts, "END_EFF" ) );
+		Add( pModeLights[6] = new StandardLight( _sts, "ORB_UNL" ) );
+		Add( pModeLights[7] = new StandardLight( _sts, "AUTO_4" ) );
+		Add( pModeLights[8] = new StandardLight( _sts, "AUTO_3" ) );
+		Add( pModeLights[9] = new StandardLight( _sts, "AUTO_2" ) );
+		Add( pModeLights[10] = new StandardLight( _sts, "AUTO_1" ) );
+		Add( pModeLights[11] = new StandardLight( _sts, "OPR_CMD" ) );
+
+		Add( pCWLights[0] = new StandardLight( _sts, "MASTER_ALARM" ) );
+		Add( pCWLights[1] = new StandardLight( _sts, "MCIU" ) );
+		Add( pCWLights[2] = new StandardLight( _sts, "ABE" ) );
+		Add( pCWLights[3] = new StandardLight( _sts, "GPC_DATA" ) );
+		Add( pCWLights[4] = new StandardLight( _sts, "SINGULAR" ) );
+		Add( pCWLights[5] = new StandardLight( _sts, "CONTR_ERR" ) );
+		Add( pCWLights[6] = new StandardLight( _sts, "STBD_TEMP" ) );
+		Add( pCWLights[7] = new StandardLight( _sts, "DERIZIDIZE" ) );
+		Add( pCWLights[8] = new StandardLight( _sts, "RELEASE" ) );
+		Add( pCWLights[9] = new StandardLight( _sts, "CHECK_CRT" ) );
+		Add( pCWLights[10] = new StandardLight( _sts, "REACH_LIM" ) );
+		Add( pCWLights[11] = new StandardLight( _sts, "PORT_TEMP" ) );
+
+		Add( pSequenceLights[0] = new StandardLight( _sts, "READY" ) );
+		Add( pSequenceLights[1] = new StandardLight( _sts, "IN_PROG" ) );
 
 		pPortMRL->SetLabel(2, "REL");
 		pPortMRL->SetLabel(1, "OFF");
@@ -122,9 +152,14 @@ namespace vc
 		pLEDJoint->SetLabel(1, "EE_TEMP");
 		pLEDJoint->SetLabel(0, "CRIT_TEMP");
 		pRMSMode->SetLabel(11, "OPR_CMD");
+		pRMSMode->SetLabel(10, "AUTO_1");
+		pRMSMode->SetLabel(9, "AUTO_2");
+		pRMSMode->SetLabel(8, "AUTO_3");
+		pRMSMode->SetLabel(7, "AUTO_4");
 		pRMSMode->SetLabel(6, "ORB_UNL");
-		pRMSMode->SetLabel(5, "END_EE");
+		pRMSMode->SetLabel(5, "END_EFF");
 		pRMSMode->SetLabel(4, "ORB_LD");
+		pRMSMode->SetLabel(3, "PL");
 		pRMSMode->SetLabel(2, "SINGLE");
 		pRMSMode->SetLabel(1, "DIRECT");
 		pRMSMode->SetLabel(0, "TEST");
@@ -300,11 +335,16 @@ namespace vc
 		oapiVCRegisterArea(AID_A8_TKBK18, _R(821, 327, 848, 355), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		// EE DERIGID
 		oapiVCRegisterArea(AID_A8_TKBK19, _R(821, 392, 848, 420), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+		// Software Stop
+		oapiVCRegisterArea( AID_A8_TKBK20, _R( 469, 56, 497, 84 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex );
 		// LED displays
 		//oapiVCRegisterArea(AID_A8_LED1, _R(230, 506, 252, 528), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		oapiVCRegisterArea(AID_A8_LED1, _R(207, 506, 317, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		oapiVCRegisterArea(AID_A8_LED2, _R(466, 506, 576, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
 		oapiVCRegisterArea(AID_A8_LED3, _R(725, 506, 835, 528), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela8t_tex);
+
+		SURFHANDLE shA8lights = oapiGetTextureHandle( hPanelMesh, 7 );
+		oapiVCRegisterArea( AID_A8LIGHTS, _R( 0, 0, 512, 512 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_BACKGROUND, shA8lights );
 	}
 
 	void PanelA8::DefineVC()
@@ -440,6 +480,11 @@ namespace vc
 		pEEDerigid->SetTalkbackLocation(0, 0);
 		pEEDerigid->SetInactiveSegment(0, TB_GRAY);
 
+		pSoftStopTB->AddAIDToRedrawEventList( AID_A8_TKBK20 );
+		pSoftStopTB->SetDimensions( 28, 28 );
+		pSoftStopTB->SetTalkbackLocation( 0, 0 );
+		pSoftStopTB->SetInactiveSegment( 0, TB_GRAY );
+
 		pLEDParameter->SetMouseRegion(0.45049f, 0.440562f, 0.531691f, 0.494226f);
 		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_VC);
 		pLEDParameter->SetReference(_V(-0.536, 2.534, 12.401), rotary_switch_rot);
@@ -461,6 +506,190 @@ namespace vc
 		pRMSMode->SetWraparound(true);
 		pRMSMode->DefineRotationAngle(330.0f);
 		pRMSMode->SetOffset(-180.0f);
+
+		// lights
+		// auto 1
+		pModeLights[10]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[10]->SetBase( 5, 206 );
+		pModeLights[10]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[10]->SetSourceCoords( true, 5, 206 );
+		pModeLights[10]->SetSourceCoords( false, 4, 5 );
+		pModeLights[10]->SetDimensions( 93, 31 );
+		// auto 2
+		pModeLights[9]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[9]->SetBase( 5, 237 );
+		pModeLights[9]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[9]->SetSourceCoords( true, 5, 237 );
+		pModeLights[9]->SetSourceCoords( false, 4, 36 );
+		pModeLights[9]->SetDimensions( 93, 31 );
+		// auto 3
+		pModeLights[8]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[8]->SetBase( 5, 268 );
+		pModeLights[8]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[8]->SetSourceCoords( true, 5, 268 );
+		pModeLights[8]->SetSourceCoords( false, 4, 67 );
+		pModeLights[8]->SetDimensions( 93, 31 );
+		// auto 4
+		pModeLights[7]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[7]->SetBase( 5, 299 );
+		pModeLights[7]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[7]->SetSourceCoords( true, 5, 299 );
+		pModeLights[7]->SetSourceCoords( false, 4, 98 );
+		pModeLights[7]->SetDimensions( 93, 31 );
+		// opr cmd
+		pModeLights[11]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[11]->SetBase( 5, 330 );
+		pModeLights[11]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[11]->SetSourceCoords( true, 5, 330 );
+		pModeLights[11]->SetSourceCoords( false, 4, 129 );
+		pModeLights[11]->SetDimensions( 93, 31 );
+		// test
+		pModeLights[0]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[0]->SetBase( 5, 361 );
+		pModeLights[0]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[0]->SetSourceCoords( true, 5, 361 );
+		pModeLights[0]->SetSourceCoords( false, 4, 160 );
+		pModeLights[0]->SetDimensions( 93, 31 );
+		// orb unl
+		pModeLights[6]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[6]->SetBase( 99, 206 );
+		pModeLights[6]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[6]->SetSourceCoords( true, 99, 206 );
+		pModeLights[6]->SetSourceCoords( false, 98, 5 );
+		pModeLights[6]->SetDimensions( 93, 31 );
+		// end eff
+		pModeLights[5]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[5]->SetBase( 99, 237 );
+		pModeLights[5]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[5]->SetSourceCoords( true, 99, 237 );
+		pModeLights[5]->SetSourceCoords( false, 98, 36 );
+		pModeLights[5]->SetDimensions( 93, 31 );
+		// orb ld
+		pModeLights[4]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[4]->SetBase( 99, 268 );
+		pModeLights[4]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[4]->SetSourceCoords( true, 99, 268 );
+		pModeLights[4]->SetSourceCoords( false, 98, 67 );
+		pModeLights[4]->SetDimensions( 93, 31 );
+		// payload
+		pModeLights[3]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[3]->SetBase( 99, 299 );
+		pModeLights[3]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[3]->SetSourceCoords( true, 99, 299 );
+		pModeLights[3]->SetSourceCoords( false, 98, 98 );
+		pModeLights[3]->SetDimensions( 93, 31 );
+		// single
+		pModeLights[2]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[2]->SetBase( 99, 330 );
+		pModeLights[2]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[2]->SetSourceCoords( true, 99, 330 );
+		pModeLights[2]->SetSourceCoords( false, 98, 129 );
+		pModeLights[2]->SetDimensions( 93, 31 );
+		// direct
+		pModeLights[1]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pModeLights[1]->SetBase( 99, 361 );
+		pModeLights[1]->SetSourceImage( g_Param.a8_lights );
+		pModeLights[1]->SetSourceCoords( true, 99, 361 );
+		pModeLights[1]->SetSourceCoords( false, 98, 160 );
+		pModeLights[1]->SetDimensions( 93, 31 );
+		// master alarm
+		pCWLights[0]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[0]->SetBase( 437, 325 );
+		pCWLights[0]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[0]->SetSourceCoords( true, 437, 325 );
+		pCWLights[0]->SetSourceCoords( false, 437, 267 );
+		pCWLights[0]->SetDimensions( 66, 48 );
+		// mciu
+		pCWLights[1]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[1]->SetBase( 211, 205 );
+		pCWLights[1]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[1]->SetSourceCoords( true, 211, 205 );
+		pCWLights[1]->SetSourceCoords( false, 210, 5 );
+		pCWLights[1]->SetDimensions( 93, 31 );
+		// abe
+		pCWLights[2]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[2]->SetBase( 211, 236 );
+		pCWLights[2]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[2]->SetSourceCoords( true, 211, 236 );
+		pCWLights[2]->SetSourceCoords( false, 210, 35 );
+		pCWLights[2]->SetDimensions( 93, 31 );
+		// gpc data
+		pCWLights[3]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[3]->SetBase( 211, 267 );
+		pCWLights[3]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[3]->SetSourceCoords( true, 211, 267 );
+		pCWLights[3]->SetSourceCoords( false, 210, 66 );
+		pCWLights[3]->SetDimensions( 93, 31 );
+		// singular
+		pCWLights[4]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[4]->SetBase( 211, 298 );
+		pCWLights[4]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[4]->SetSourceCoords( true, 211, 298 );
+		pCWLights[4]->SetSourceCoords( false, 210, 96 );
+		pCWLights[4]->SetDimensions( 93, 31 );
+		// contr err
+		pCWLights[5]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[5]->SetBase( 211, 329 );
+		pCWLights[5]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[5]->SetSourceCoords( true, 211, 329 );
+		pCWLights[5]->SetSourceCoords( false, 210, 127 );
+		pCWLights[5]->SetDimensions( 93, 31 );
+		// stbd temp
+		pCWLights[6]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[6]->SetBase( 211, 360 );
+		pCWLights[6]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[6]->SetSourceCoords( true, 211, 360 );
+		pCWLights[6]->SetSourceCoords( false, 210, 158 );
+		pCWLights[6]->SetDimensions( 93, 31 );
+		// derizidize
+		pCWLights[7]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[7]->SetBase( 304, 205 );
+		pCWLights[7]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[7]->SetSourceCoords( true, 304, 205 );
+		pCWLights[7]->SetSourceCoords( false, 303, 4 );
+		pCWLights[7]->SetDimensions( 93, 31 );
+		// release
+		pCWLights[8]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[8]->SetBase( 304, 236 );
+		pCWLights[8]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[8]->SetSourceCoords( true, 304, 236 );
+		pCWLights[8]->SetSourceCoords( false, 303, 35 );
+		pCWLights[8]->SetDimensions( 93, 31 );
+		// check crt
+		pCWLights[9]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[9]->SetBase( 304, 298 );
+		pCWLights[9]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[9]->SetSourceCoords( true, 304, 298 );
+		pCWLights[9]->SetSourceCoords( false, 303, 96 );
+		pCWLights[9]->SetDimensions( 93, 31 );
+		// reach lim
+		pCWLights[10]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[10]->SetBase( 304, 329 );
+		pCWLights[10]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[10]->SetSourceCoords( true, 304, 329 );
+		pCWLights[10]->SetSourceCoords( false, 303, 127 );
+		pCWLights[10]->SetDimensions( 93, 31 );
+		// port temp
+		pCWLights[11]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pCWLights[11]->SetBase( 304, 360 );
+		pCWLights[11]->SetSourceImage( g_Param.a8_lights );
+		pCWLights[11]->SetSourceCoords( true, 304, 360 );
+		pCWLights[11]->SetSourceCoords( false, 303, 159 );
+		pCWLights[11]->SetDimensions( 93, 31 );
+		// ready
+		pSequenceLights[0]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pSequenceLights[0]->SetBase( 434, 127 );
+		pSequenceLights[0]->SetSourceImage( g_Param.a8_lights );
+		pSequenceLights[0]->SetSourceCoords( true, 434, 127 );
+		pSequenceLights[0]->SetSourceCoords( false, 435, 47 );
+		pSequenceLights[0]->SetDimensions( 73, 33 );
+		// in prog
+		pSequenceLights[1]->AddAIDToRedrawEventList( AID_A8LIGHTS );
+		pSequenceLights[1]->SetBase( 434, 163 );
+		pSequenceLights[1]->SetSourceImage( g_Param.a8_lights );
+		pSequenceLights[1]->SetSourceCoords( true, 434, 163 );
+		pSequenceLights[1]->SetSourceCoords( false, 435, 81 );
+		pSequenceLights[1]->SetDimensions( 73, 33 );
 	}
 
 	void PanelA8::DefineVCAnimations(UINT vcidx)
@@ -482,7 +711,11 @@ namespace vc
 		pRMSSelect->outputB.Connect(pBundle, 6);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
-		for(unsigned short i=0;i<12;i++) pRMSMode->ConnectOutputSignal(i, pBundle, i);
+		for(unsigned short i=0;i<12;i++)
+		{
+			pRMSMode->ConnectOutputSignal(i, pBundle, i);
+			pModeLights[i]->input.Connect( pBundle, i );
+		}
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_DATA", 16);
 		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i);
@@ -536,6 +769,10 @@ namespace vc
 		}
 		pSingleDirectDrive->outputB.Connect(pBundle, 8);
 		pSingleDirectDrive->outputA.Connect(pBundle, 9);
+
+		pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
+		for (int i = 0; i < 12; i++) pCWLights[i]->input.Connect( pBundle, i );
+		pSoftStopTB->SetInput( 0, pBundle, 12, TB_GRAY );
 
 		AtlantisPanel::Realize();
 	}
