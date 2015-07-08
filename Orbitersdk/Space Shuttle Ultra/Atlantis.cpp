@@ -2747,6 +2747,7 @@ void Atlantis::DeployLandingGear()
 {
 	if(status==STATE_ORBITER && GearArmed() && gear_status.action!=AnimState::OPEN) {
 		gear_status.action=AnimState::OPENING;
+		LandingGearArmDeployLT[1].SetLine();
 		RecordEvent ("GEAR", "DOWN");
 	}
 }
@@ -2762,6 +2763,7 @@ void Atlantis::RetractLandingGear()
 void Atlantis::ArmGear()
 {
 	gear_armed=true;
+	LandingGearArmDeployLT[0].SetLine();
 }
 
 bool Atlantis::GearArmed() const
@@ -3606,6 +3608,20 @@ void Atlantis::clbkPostCreation ()
 			DockingLightDim.Connect(pBundle, 7);
 			DockingLightBright.Connect(pBundle, 8);
 		}
+
+		pBundle = bundleManager->CreateBundle( "LANDING_GEAR", 16 );
+		LandingGearPosition[0].Connect( pBundle, 0 );
+		LandingGearPosition[1].Connect( pBundle, 1 );
+		LandingGearPosition[2].Connect( pBundle, 2 );
+		LandingGearPosition[3].Connect( pBundle, 3 );
+		LandingGearPosition[4].Connect( pBundle, 4 );
+		LandingGearPosition[5].Connect( pBundle, 5 );
+		LandingGearArmDeployLT[0].Connect( pBundle, 6 );
+		LandingGearArmDeployLT[1].Connect( pBundle, 7 );
+		LandingGearArmDeployPB[0].Connect( pBundle, 8 );
+		LandingGearArmDeployPB[1].Connect( pBundle, 9 );
+		LandingGearArmDeployPB[2].Connect( pBundle, 10 );
+		LandingGearArmDeployPB[3].Connect( pBundle, 11 );
 	}
 	catch (std::exception &e)
 	{
@@ -4481,6 +4497,48 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 				mat1 = NULL;
 			}
 
+		}
+
+		// landing gear PB
+		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
+		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
+
+		// landing gear position switches
+		if (gear_status.action == AnimState::CLOSED)
+		{
+			// uplock on / downlock off
+			LandingGearPosition[0].SetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].SetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].SetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+		else if (gear_status.action == AnimState::OPEN)
+		{
+			// uplock off / downlock on
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].SetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].SetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].SetLine();
+		}
+		else
+		{
+			// uplock off / downlock off
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].ResetLine();
 		}
 
 		//double time = st.Stop();

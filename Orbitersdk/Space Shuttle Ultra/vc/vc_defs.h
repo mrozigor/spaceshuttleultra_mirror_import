@@ -81,6 +81,8 @@
 #define AID_F6_TKBK1   201
 #define AID_F6_TKBK2   202
 #define AID_F6_TKBK3   203
+#define AID_F6_PB1   204
+#define AID_F6_PB2   205
 #define AID_F6_MAX     219
 // Panel F7 (event timer and MPS status)
 #define AID_F7_MIN	     260
@@ -208,6 +210,11 @@
 
 #define AID_F8_MIN	   460
 #define AID_F8		   460
+#define AID_F8_TKBK1	461
+#define AID_F8_TKBK2	462
+#define AID_F8_TKBK3	463
+#define AID_F8_PB1	464
+#define AID_F8_PB2	465
 #define AID_F8_MAX	   470
 
 #define AID_A6_MIN     500
@@ -355,6 +362,8 @@ namespace vc {
 	const int TB_GRAY = 8;
 	const int TB_DPY = 9;
 	const int TB_REL = 10;
+	const int TB_DN = 11;
+	const int TB_UP = 12;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

@@ -1212,6 +1212,10 @@ private:
 	DiscOutPort RMSSpeedOut;
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
 
+	DiscOutPort LandingGearPosition[6];
+	DiscOutPort LandingGearArmDeployLT[2];
+	DiscInPort LandingGearArmDeployPB[4];
+
 	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 
 	/**
