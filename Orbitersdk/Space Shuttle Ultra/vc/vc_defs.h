@@ -74,6 +74,8 @@
 #define AID_R13L_TKBK4   104
 #define AID_R13L_TKBK5   105
 #define AID_R13L_TKBK6   106
+#define AID_R13L_TKBK7   107
+#define AID_R13L_TKBK8   108
 #define AID_R13L_MAX     120
 // Panel F6 (commander's panel)
 #define AID_F6_MIN     200

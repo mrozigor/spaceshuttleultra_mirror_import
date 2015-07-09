@@ -24,7 +24,6 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK40.h>
-#include "PlBayOp.h"
 #include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
@@ -52,6 +51,7 @@
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
 #include "MechActuator.h"
+#include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
 #include "PanelA4.h"
 #include "PanelC2.h"
@@ -69,6 +69,7 @@
 #include "vc/PanelA7U.h"
 #include "vc/PanelR2.h"
 #include "vc/PanelR11.h"
+#include "vc/PanelR13L.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
 #include "dps/ATVC_SOP.h"
@@ -455,7 +456,6 @@ pActiveLatches(3, NULL)
   // initialize mdu pointers to NULL, otherwise we may get CTDs
   for(i=0;i<11;i++) mdus[i] = NULL;
 
-  plop            = new PayloadBayOp (this);
   panela4		  = new PanelA4(this);
   panelc2		  = new PanelC2(this);
 
@@ -478,7 +478,7 @@ pActiveLatches(3, NULL)
   pgAft.AddPanel(new vc::PanelA7U(this));
 
   pgAftStbd.AddPanel(new vc::PanelR11(this));
-  
+	pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
 
   panelo3		  = new PanelO3(this);
   CDRKeyboard     = new Keyboard(this, 0);
@@ -594,6 +594,8 @@ pActiveLatches(3, NULL)
   psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
   psubsystems->AddSubsystem( pATVC = new gnc::ATVC( psubsystems, "ATVC", 1 ) );// HACK should be 4 of this
+
+  psubsystems->AddSubsystem( pPayloadBay = new PayloadBay( psubsystems ) );
 
   //psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
 
@@ -1002,7 +1004,6 @@ Atlantis::~Atlantis () {
 	delete psubsystems;
 	delete pCommModeHandler;
 
-	delete plop;
 	delete panela4;
 	delete panelo3;
 	delete panelc2;
@@ -2099,7 +2100,6 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   // VC animation definitions
   // ======================================================
-  plop->DefineAnimations (vidx);
   panela4->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
@@ -2703,12 +2703,12 @@ void Atlantis::UpdateMesh ()
 {
   // update animation states
   SetAnimation (anim_spdb, spdb_proc);
-  SetAnimation (anim_door, plop->BayDoorStatus.pos);
-  for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
-  SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
-  SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
-  SetAnimation (anim_kualpha, plop->KuAntennaStatus.pos);
-  SetAnimation (anim_kubeta, plop->KuAntennaStatus.pos);
+  SetAnimation (anim_door, pPayloadBay->BayDoorStatus.pos);
+  for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], pPayloadBay->CLBayDoorLatch[i].pos);
+  SetAnimation (anim_rad,  pPayloadBay->RadiatorStatus.pos);
+  SetAnimation (anim_kubd, pPayloadBay->KuAntennaStatus.pos);
+  SetAnimation (anim_kualpha, pPayloadBay->KuAntennaStatus.pos);
+  SetAnimation (anim_kubeta, pPayloadBay->KuAntennaStatus.pos);
   SetAnimation(anim_gear, gear_status.pos);
   SetAnimation(anim_chute_deploy, 1-DragChuteSize);
 
@@ -3298,7 +3298,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		}
 		else
 		{
-			if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
 			if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 			if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
@@ -3380,7 +3379,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	psubsystems->SaveState(scn);
 
 	// save bay door operations status
-	plop->SaveState (scn);
 	panela4->SaveState(scn);
 	panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
@@ -4298,7 +4296,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 
 		// Execute payload bay operations
-		plop->Step(simt, simdt);
 		panela4->Step(simt, simdt);
 		panelc2->Step(simt, simdt);
 		panelo3->Step(simt, simdt);
@@ -4566,20 +4563,20 @@ bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event
       t0 = event_t + SRB_STABILISATION_TIME;
       return true;
     }
-  } else if (!_stricmp (event_type, "CARGODOOR")) {
+  }/* else if (!_stricmp (event_type, "CARGODOOR")) {
     plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if (!_stricmp (event_type, "GEAR")) {
+  }*/ else if (!_stricmp (event_type, "GEAR")) {
 	if(!_stricmp(event, "UP")) DeployLandingGear();
 	else RetractLandingGear();
     return true;
   } else if (!_stricmp (event_type,"SPEEDBRAKE")) {
     OperateSpeedbrake (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if (!_stricmp (event_type, "KUBAND")) {
+  }/* else if (!_stricmp (event_type, "KUBAND")) {
     plop->SetKuAntennaAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
     return true;
-  } else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
+  }*/ else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
 	  return true;
   }
 
@@ -4873,7 +4870,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 
     //RegisterVC_AftMFD (); // activate aft MFD controls
-    plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
@@ -4985,8 +4981,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-
-    plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
@@ -5017,8 +5011,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-
-	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
@@ -5046,8 +5038,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-
-	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
@@ -5073,8 +5063,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-		
-	plop->RegisterVC ();  // register panel R13L interface
 	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
@@ -5217,7 +5205,6 @@ bool Atlantis::clbkLoadVC (int id)
 			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL+i);
 		}
 		// update panels
-		plop->UpdateVC();
 		panela4->UpdateVC();
 		panelc2->UpdateVC();
 		panelo3->UpdateVC();
@@ -5249,9 +5236,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   switch (id) 
   {
   // handle MFD selection buttons
-  // handle panel R13L events (payload bay operations)
-  case AID_R13L:
-    return plop->VCMouseEvent (id, _event, p);
   case AID_A4:
 	return panela4->VCMouseEvent (id, _event, p);
   case AID_F7:
@@ -5282,8 +5266,6 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
 	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
 		return panela4->VCRedrawEvent (id, _event, surf);
-	if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
-		return plop->VCRedrawEvent (id, _event, surf);
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
 		return panelc2->VCRedrawEvent (id, _event, surf);
 	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
@@ -5415,17 +5397,6 @@ int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
 		{
 			bSSMEGOXVent = true;//!bSSMEGOXVent;
 		}
-		/*else if(status == STATE_ORBITER)
-		{
-			if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
-				if(RMSRollout.action==AnimState::CLOSED) {
-					RMSRollout.action=AnimState::OPENING;
-				}
-				else {
-					RMSRollout.action=AnimState::CLOSING;
-				}
-			}
-		}*/
 		return 1;
 	case OAPI_KEY_1: //temporary
 		if(pRMS) pRMS->ToggleJointAngleDisplay();
