@@ -238,6 +238,16 @@ Discovery:SpaceShuttleUltra
   ET_DOORS 1.000000 1.000000
   ET_DOOR_LATCHES 0.000000 1.000000 1.000000
 @ENDSUBSYSTEM		;ETUmbDoors
+@SUBSYSTEM PayloadBay
+  CARGODOOR 0 0.0000
+  RADIATOR 0 0.0000
+  RADLATCH 0 0.0000
+  KUBAND 0 0.0000
+  BAYDOORLATCH0 0 0.0000
+  BAYDOORLATCH1 0 0.0000
+  BAYDOORLATCH2 0 0.0000
+  BAYDOORLATCH3 0 0.0000
+@ENDSUBSYSTEM		;PayloadBay
   @PANEL F2
   "F2_SPDBKTHROT_AUTO" 1
   "F2_BODYFLAP_AUTO" 1
@@ -330,6 +340,19 @@ Discovery:SpaceShuttleUltra
   "EIU L-C" ON
   "EIU C-R" ON
   "EIU R-L" ON
+  @ENDPANEL 
+  @PANEL R13L
+  "PL Bay Door SYS 1" DISABLE
+  "PL Bay Door SYS 2" DISABLE
+  "PL Bay Mech PWR SYS 1" OFF
+  "PL Bay Mech PWR SYS 2" OFF
+  "PL Bay Door" STOP
+  "Latch Control SYS A" OFF
+  "Latch Control SYS B" OFF
+  "Radiator Control SYS A" OFF
+  "Radiator Control SYS B" OFF
+  "KU Antenna Direct Stow" OFF
+  "KU Antenna" GND
   @ENDPANEL 
 END
 ET:SSU_Tank

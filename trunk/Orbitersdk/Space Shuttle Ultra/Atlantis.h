@@ -234,6 +234,7 @@ class StbdMPMSystem;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
+class PayloadBay;
 
 class Atlantis_Tank;
 class Atlantis_SRB;
@@ -361,6 +362,8 @@ public:
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
+
+	PayloadBay* pPayloadBay;
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
@@ -693,7 +696,6 @@ public:
 	
 	AtlantisSubsystemDirector* psubsystems;
 	
-	PayloadBayOp *plop; // control and status of payload bay operations
 	PanelA4 *panela4;
 	PanelC2 *panelc2;
 	PanelO3 *panelo3;

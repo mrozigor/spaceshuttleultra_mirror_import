@@ -299,6 +299,7 @@
     <ClCompile Include="mps\SSMEController_BLOCK_II.cpp" />
     <ClCompile Include="mps\VehicleInterfaceElectronics.cpp" />
     <ClCompile Include="mps\VehicleInterfaceElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="PayloadBay.cpp" />
     <ClCompile Include="ReentryDragTable.cpp" />
     <ClCompile Include="SSULua.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
@@ -371,15 +372,8 @@
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
+    <ClCompile Include="vc\PanelR13L.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
-    <ClCompile Include="PlBayOp.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="vc\PushButton.cpp" />
     <ClCompile Include="vc\PushButtonIndicator.cpp" />
     <ClCompile Include="dps\RAM32.cpp" />
@@ -445,6 +439,7 @@
     <ClInclude Include="mps\SSMEController_BLOCK_II.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h" />
+    <ClInclude Include="PayloadBay.h" />
     <ClInclude Include="ReentryDragTable.h" />
     <ClInclude Include="vc\AftMDU.h" />
     <ClInclude Include="dps\AP101S.h" />
@@ -506,9 +501,9 @@
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />
+    <ClInclude Include="vc\PanelR13L.h" />
     <ClInclude Include="vc\PanelR2.h" />
     <ClInclude Include="ParameterValues.h" />
-    <ClInclude Include="PlBayOp.h" />
     <ClInclude Include="vc\PushButton.h" />
     <ClInclude Include="vc\PushButtonIndicator.h" />
     <ClInclude Include="dps\RAM16.h" />

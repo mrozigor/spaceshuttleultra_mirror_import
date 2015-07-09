@@ -250,9 +250,6 @@
     <ClCompile Include="vc\PanelR2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PlBayOp.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PushButton.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -457,6 +454,12 @@
     <ClCompile Include="dps\GeneralDisplays.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelR13L.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PayloadBay.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -631,9 +634,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="ParameterValues.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="PlBayOp.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PushButton.h">
@@ -850,6 +850,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="mps\MPSdefs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelR13L.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PayloadBay.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
