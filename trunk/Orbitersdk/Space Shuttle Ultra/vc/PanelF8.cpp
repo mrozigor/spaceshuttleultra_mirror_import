@@ -93,13 +93,13 @@ namespace vc {
 		pLandingGearTB[2]->SetTalkbackLocation( 0, 0 );
 
 		pLandingGearArmDeployCover[0]->SetMouseRegion( 0, 0.067760f, 0.823818f, 0.131444f, 0.893443f );
-		pLandingGearArmDeployCover[0]->SetMouseRegion( 1, 0.004029f, 0.889020f, 0.029792f, 0.960046f );////////////
-		pLandingGearArmDeployCover[0]->SetReference( _V( 0.92, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );////////////////
+		pLandingGearArmDeployCover[0]->SetMouseRegion( 1, 0.000289f, 0.880336f, 0.033147f, 0.960580f );
+		pLandingGearArmDeployCover[0]->SetReference( _V( 0.444, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[0]->DefineCoverGroup( GRP_F8COVER1_VC );
 
 		pLandingGearArmDeployCover[1]->SetMouseRegion( 0, 0.152777f, 0.820686f, 0.213770f, 0.893461f );
-		pLandingGearArmDeployCover[1]->SetMouseRegion( 1, 0.082762f, 0.910630f, 0.126002f, 0.935335f );//////////////
-		pLandingGearArmDeployCover[1]->SetReference( _V( 0.87370, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );/////////
+		pLandingGearArmDeployCover[1]->SetMouseRegion( 1, 0.095527f, 0.903222f, 0.133964f, 0.957603f );
+		pLandingGearArmDeployCover[1]->SetReference( _V( 0.4913, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[1]->DefineCoverGroup( GRP_F8COVER2_VC );
 
 		pLandingGearArmDeploy[0]->AddAIDToRedrawEventList( AID_F8_PB1 );
