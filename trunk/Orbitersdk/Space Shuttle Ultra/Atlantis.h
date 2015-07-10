@@ -223,7 +223,6 @@ typedef struct {
 } AerosurfacePositions;
 
 
-class PanelA4;
 class PanelC2;
 class PanelO3;
 class AtlantisSubsystemDirector;
@@ -696,7 +695,6 @@ public:
 	
 	AtlantisSubsystemDirector* psubsystems;
 	
-	PanelA4 *panela4;
 	PanelC2 *panelc2;
 	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary

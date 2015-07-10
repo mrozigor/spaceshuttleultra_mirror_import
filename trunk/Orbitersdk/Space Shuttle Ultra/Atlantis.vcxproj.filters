@@ -202,9 +202,6 @@
     <ClCompile Include="eva_docking\ODS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelA4.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelA6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -458,6 +455,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="PayloadBay.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA4.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -856,6 +856,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="PayloadBay.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA4.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
