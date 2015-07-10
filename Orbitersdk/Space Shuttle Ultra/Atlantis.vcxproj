@@ -355,8 +355,8 @@
     <ClCompile Include="MPMSystems.cpp" />
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
-    <ClCompile Include="PanelA4.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA4.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
     <ClCompile Include="vc\PanelA7U.cpp" />
@@ -486,6 +486,7 @@
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
     <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA4.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />
     <ClInclude Include="vc\PanelA7U.h" />

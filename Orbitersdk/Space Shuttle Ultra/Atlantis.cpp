@@ -53,7 +53,6 @@
 #include "MechActuator.h"
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
-#include "PanelA4.h"
 #include "PanelC2.h"
 #include "PanelO3.h"
 #include "vc/PanelA7A8ODS.h"
@@ -64,6 +63,7 @@
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelO17.h"
+#include "vc/PanelA4.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
@@ -456,7 +456,6 @@ pActiveLatches(3, NULL)
   // initialize mdu pointers to NULL, otherwise we may get CTDs
   for(i=0;i<11;i++) mdus[i] = NULL;
 
-  panela4		  = new PanelA4(this);
   panelc2		  = new PanelC2(this);
 
   pgForward.AddPanel(new vc::PanelF2(this));
@@ -476,6 +475,7 @@ pActiveLatches(3, NULL)
   pgAft.AddPanel(new vc::PanelA6(this));
   pgAft.AddPanel(new vc::AftMDU(this));
   pgAft.AddPanel(new vc::PanelA7U(this));
+	pgAft.AddPanel( new vc::PanelA4( this ) );
 
   pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
@@ -1004,7 +1004,6 @@ Atlantis::~Atlantis () {
 	delete psubsystems;
 	delete pCommModeHandler;
 
-	delete panela4;
 	delete panelo3;
 	delete panelc2;
 	delete CDRKeyboard;
@@ -2100,7 +2099,6 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   // VC animation definitions
   // ======================================================
-  panela4->DefineVCAnimations (vidx);
   panelc2->DefineVCAnimations (vidx);
   panelo3->DefineVCAnimations (vidx);
 
@@ -3298,7 +3296,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		}
 		else
 		{
-			if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
 			if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
 			ParseScenarioLineEx (line, vs);// unrecognised option - pass to Orbiter's generic parser
@@ -3379,7 +3376,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	psubsystems->SaveState(scn);
 
 	// save bay door operations status
-	panela4->SaveState(scn);
 	panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
@@ -4296,7 +4292,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		}
 
 		// Execute payload bay operations
-		panela4->Step(simt, simdt);
 		panelc2->Step(simt, simdt);
 		panelo3->Step(simt, simdt);
 
@@ -4737,7 +4732,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgLeft.RegisterVC();
 	pgOverhead.RegisterVC();
 
-	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -4771,7 +4765,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverhead.RegisterVC();
 
 	panelo3->RegisterVC();
-	panela4->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -4805,7 +4798,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgOverhead.RegisterVC();
 
 	  panelo3->RegisterVC();
-	  panela4->RegisterVC();
 	  panelc2->RegisterVC();
 	  CDRKeyboard->RegisterVC();
 	  PLTKeyboard->RegisterVC();
@@ -4839,7 +4831,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgOverhead.RegisterVC();
 
 	  panelo3->RegisterVC();
-	  panela4->RegisterVC();
 	  panelc2->RegisterVC();
 	  CDRKeyboard->RegisterVC();
 	  PLTKeyboard->RegisterVC();
@@ -4870,7 +4861,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 
     //RegisterVC_AftMFD (); // activate aft MFD controls
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
@@ -4981,7 +4971,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -5011,7 +5000,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -5038,7 +5026,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -5063,7 +5050,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
@@ -5091,7 +5077,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -5120,7 +5105,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 
-	panela4->RegisterVC();
 	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
@@ -5205,7 +5189,6 @@ bool Atlantis::clbkLoadVC (int id)
 			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL+i);
 		}
 		// update panels
-		panela4->UpdateVC();
 		panelc2->UpdateVC();
 		panelo3->UpdateVC();
 	}
@@ -5236,8 +5219,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   switch (id) 
   {
   // handle MFD selection buttons
-  case AID_A4:
-	return panela4->VCMouseEvent (id, _event, p);
   case AID_F7:
 	  return false;
   case AID_C2:
@@ -5264,8 +5245,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
-	if (id >= AID_A4_MIN && id <= AID_A4_MAX)
-		return panela4->VCRedrawEvent (id, _event, surf);
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
 		return panelc2->VCRedrawEvent (id, _event, surf);
 	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
