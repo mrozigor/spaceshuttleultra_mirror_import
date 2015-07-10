@@ -140,12 +140,12 @@ namespace vc
 				STS()->pMTU->GetGMTSec(0) != sMETSeconds ||
 				STS()->pMTU->GetGMTMin(0) != sMETMinutes) {
 				if(STS()->pMTU->GetGMTSec(0) != sMETSeconds) {
+					sMETSeconds = STS()->pMTU->GetGMTSec(0);
 					oapiVCTriggerRedrawArea(-1, AID_A4_METTMR2);
 				}
 				sMETDays = STS()->pMTU->GetGMTDay(0);
 				sMETHours = STS()->pMTU->GetGMTHour(0);
 				sMETMinutes = STS()->pMTU->GetGMTMin(0);
-				sMETSeconds = STS()->pMTU->GetGMTSec(0);
 				oapiVCTriggerRedrawArea(-1, AID_A4_METTMR1);
 			}
 		}
