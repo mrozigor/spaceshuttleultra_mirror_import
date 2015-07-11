@@ -117,7 +117,6 @@ private:
 	bool bUseBurntTexture;
 
 	// values specified in scenario
-	double scenarioMass;
 	std::string strScenarioTexture, strScenarioTextureName;
 	std::string strScenarioBurnTex, strScenarioBurnTexName;
 

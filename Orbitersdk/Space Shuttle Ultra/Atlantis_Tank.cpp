@@ -25,7 +25,7 @@
 
 // Constructor
 Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
-: VESSEL2(hObj), bUseBurntTexture(false), scenarioMass(-1.0)
+: VESSEL2(hObj), bUseBurntTexture(false)
 {
 	// preload mesh
 	mesh_idx = MESH_UNDEFINED;
@@ -478,10 +478,6 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		if(!_strnicmp(line, "USE_BURNT_TEX", 13)) {
 			bUseBurntTexture = true;
 		}
-		else if(!_strnicmp(line, "EMPTY_MASS", 10)) {
-			sscanf_s(line+10, "%lf", scenarioMass);
-			SetEmptyMass(scenarioMass);
-		}
 		else if(!_strnicmp(line, "ET_TEX_NAME", 11)) {
 			strScenarioTextureName = line+12;
 			strScenarioTexture = "SSU\\" + strScenarioTextureName + ".dds";
@@ -499,7 +495,6 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 	VESSEL2::clbkSaveState(scn);
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
-	if(scenarioMass>0.0) oapiWriteScenario_float(scn, "EMPTY_MASS", scenarioMass);
 	if(!strScenarioTextureName.empty()) oapiWriteScenario_string(scn, "ET_TEX_NAME", const_cast<char*>(strScenarioTextureName.c_str()));
 	if(!strScenarioBurnTexName.empty()) oapiWriteScenario_string(scn, "BURNT_TEX_NAME", const_cast<char*>(strScenarioBurnTexName.c_str()));
 }

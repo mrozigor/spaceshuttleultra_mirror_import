@@ -35,13 +35,11 @@ namespace dps
 		dipLO2UllagePressureSensor[0].Connect( pBundle, 12 );
 		dipLO2UllagePressureSensor[1].Connect( pBundle, 13 );
 		dipLO2UllagePressureSensor[2].Connect( pBundle, 14 );
-		dipLO2UllagePressureSensor[3].Connect( pBundle, 15 );
 
 		pBundle = BundleManager()->CreateBundle( "ET_LH2_SENSORS", 16 );
 		dipLH2UllagePressureSensor[0].Connect( pBundle, 12 );
 		dipLH2UllagePressureSensor[1].Connect( pBundle, 13 );
 		dipLH2UllagePressureSensor[2].Connect( pBundle, 14 );
-		dipLH2UllagePressureSensor[3].Connect( pBundle, 15 );
 
 		pBundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
 		dipHeSysPressureSensor[0].Connect( pBundle, 0 );
