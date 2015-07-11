@@ -79,33 +79,33 @@ namespace vc {
 
 		Add(pGPCPowerCover[0] = new StandardSwitchCover(_sts, "GPC_POWER_1_COVER"));
 		pGPCPowerCover[0]->SetMouseRegion(0, 0.4798f, 0.5008f, 0.5473f, 0.5570f);
-		pGPCPowerCover[0]->SetMouseRegion(1, 0.4798f, 0.4808f, 0.5473f, 0.5008f);
+		pGPCPowerCover[0]->SetMouseRegion(1, 0.483795f, 0.561731f, 0.535098f, 0.576666f);
 		pGPCPowerCover[0]->DefineCoverGroup(GRP_O6SCOVER1_VC);
-		pGPCPowerCover[0]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		pGPCPowerCover[0]->SetReference(_V( -0.4652, 3.0908, 13.9972 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCPowerCover[1] = new StandardSwitchCover(_sts, "GPC_POWER_2_COVER"));
 		pGPCPowerCover[1]->SetMouseRegion(0, 0.5587f, 0.5008f, 0.6032f, 0.5570f);
-		pGPCPowerCover[1]->SetMouseRegion(1, 0.5587f, 0.4808f, 0.6032f, 0.5008f);
+		pGPCPowerCover[1]->SetMouseRegion(1, 0.551317f, 0.561731f, 0.606547f, 0.576666f);
 		pGPCPowerCover[1]->DefineCoverGroup(GRP_O6SCOVER2_VC);
-		pGPCPowerCover[1]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		pGPCPowerCover[1]->SetReference(_V( -0.4652, 3.0908, 13.9972 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCPowerCover[2] = new StandardSwitchCover(_sts, "GPC_POWER_3_COVER"));
 		pGPCPowerCover[2]->SetMouseRegion(0, 0.6212f, 0.5008f, 0.6657f, 0.5570f);
-		pGPCPowerCover[2]->SetMouseRegion(1, 0.6212f, 0.4808f, 0.6657f, 0.5008f);
+		pGPCPowerCover[2]->SetMouseRegion(1, 0.619886f, 0.561731f, 0.675091f, 0.576666f);
 		pGPCPowerCover[2]->DefineCoverGroup(GRP_O6SCOVER3_VC);
-		pGPCPowerCover[2]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		pGPCPowerCover[2]->SetReference(_V( -0.4652, 3.0908, 13.9972 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCPowerCover[3] = new StandardSwitchCover(_sts, "GPC_POWER_4_COVER"));
 		pGPCPowerCover[3]->SetMouseRegion(0, 0.6828f, 0.5008f, 0.7375f, 0.5570f);
-		pGPCPowerCover[3]->SetMouseRegion(1, 0.6828f, 0.4808f, 0.7375f, 0.5008f);
+		pGPCPowerCover[3]->SetMouseRegion(1, 0.688901f, 0.561731f, 0.743673f, 0.576666f);
 		pGPCPowerCover[3]->DefineCoverGroup(GRP_O6SCOVER4_VC);
-		pGPCPowerCover[3]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		pGPCPowerCover[3]->SetReference(_V( -0.4652, 3.0908, 13.9972 ), -SWITCH_VERTICAL);
 
 		Add(pGPCPowerCover[4] = new StandardSwitchCover(_sts, "GPC_POWER_5_COVER"));
 		pGPCPowerCover[4]->SetMouseRegion(0, 0.7538f, 0.5008f, 0.8021f, 0.5570f);
-		pGPCPowerCover[4]->SetMouseRegion(1, 0.7538f, 0.4808f, 0.8021f, 0.5008f);
+		pGPCPowerCover[4]->SetMouseRegion(1, 0.759426f, 0.561731f, 0.811709f, 0.576666f);
 		pGPCPowerCover[4]->DefineCoverGroup(GRP_O6SCOVER5_VC);
-		pGPCPowerCover[4]->SetReference(_V(0.0, 3.099385, 13.96612), SWITCH_VERTICAL);
+		pGPCPowerCover[4]->SetReference(_V( -0.4652, 3.0908, 13.9972 ), -SWITCH_VERTICAL);
 		/*
 		_V(0.0, 3.09556, 13.98215)
 		StdSwitch2* pGPC1Pwr;
@@ -184,33 +184,33 @@ namespace vc {
 
 		Add(pGPCOutputCover[0] = new StandardSwitchCover(_sts, "GPC_OUTPUT_1_COVER"));
 		pGPCOutputCover[0]->SetMouseRegion(0, 0.4798f, 0.6438f, 0.5473f, 0.7007f);
-		pGPCOutputCover[0]->SetMouseRegion(1, 0.4798f, 0.6238f, 0.5473f, 0.6438f);
+		pGPCOutputCover[0]->SetMouseRegion(1, 0.483795f, 0.705872f, 0.535098f, 0.723074f);
 		pGPCOutputCover[0]->DefineCoverGroup(GRP_O6SCOVER6_VC);
-		pGPCOutputCover[0]->SetReference(_V(-0.0, 3.075613, 14.06777), SWITCH_VERTICAL);
+		pGPCOutputCover[0]->SetReference(_V( -0.4653, 3.0668, 14.0986 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCOutputCover[1] = new StandardSwitchCover(_sts, "GPC_OUTPUT_2_COVER"));
 		pGPCOutputCover[1]->SetMouseRegion(0, 0.5587f, 0.6438f, 0.6032f, 0.7007f);
-		pGPCOutputCover[1]->SetMouseRegion(1, 0.5587f, 0.6238f, 0.6032f, 0.6438f);
+		pGPCOutputCover[1]->SetMouseRegion(1, 0.551317f, 0.705872f, 0.606547f, 0.723074f);
 		pGPCOutputCover[1]->DefineCoverGroup(GRP_O6SCOVER7_VC);
-		pGPCOutputCover[1]->SetReference(_V(-0.0, 3.075613, 14.06777), SWITCH_VERTICAL);
+		pGPCOutputCover[1]->SetReference(_V( -0.4653, 3.0668, 14.0986 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCOutputCover[2] = new StandardSwitchCover(_sts, "GPC_OUTPUT_3_COVER"));
 		pGPCOutputCover[2]->SetMouseRegion(0, 0.6212f, 0.6438f, 0.6657f, 0.7007f);
-		pGPCOutputCover[2]->SetMouseRegion(1, 0.6212f, 0.6238f, 0.6657f, 0.6438f);
+		pGPCOutputCover[2]->SetMouseRegion(1, 0.619886f, 0.705872f, 0.675091f, 0.723074f);
 		pGPCOutputCover[2]->DefineCoverGroup(GRP_O6SCOVER8_VC);
-		pGPCOutputCover[2]->SetReference(_V(-0.0, 3.075613, 14.06777), SWITCH_VERTICAL);
+		pGPCOutputCover[2]->SetReference(_V( -0.4653, 3.0668, 14.0986 ), -SWITCH_VERTICAL);
 		
 		Add(pGPCOutputCover[3] = new StandardSwitchCover(_sts, "GPC_OUTPUT_4_COVER"));
 		pGPCOutputCover[3]->SetMouseRegion(0, 0.6828f, 0.6438f, 0.7375f, 0.7007f);
-		pGPCOutputCover[3]->SetMouseRegion(1, 0.6828f, 0.6238f, 0.7375f, 0.6438f);
+		pGPCOutputCover[3]->SetMouseRegion(1, 0.688901f, 0.705872f, 0.743673f, 0.723074f);
 		pGPCOutputCover[3]->DefineCoverGroup(GRP_O6SCOVER9_VC);
-		pGPCOutputCover[3]->SetReference(_V(-0.0, 3.075613, 14.06777), SWITCH_VERTICAL);
+		pGPCOutputCover[3]->SetReference(_V( -0.4653, 3.0668, 14.0986 ), -SWITCH_VERTICAL);
 
 		Add(pGPCOutputCover[4] = new StandardSwitchCover(_sts, "GPC_OUTPUT_5_COVER"));
 		pGPCOutputCover[4]->SetMouseRegion(0, 0.7538f, 0.6438f, 0.8021f, 0.7007f);
-		pGPCOutputCover[4]->SetMouseRegion(1, 0.7538f, 0.6238f, 0.8021f, 0.6438f);
+		pGPCOutputCover[4]->SetMouseRegion(1, 0.759426f, 0.705872f, 0.811709f, 0.723074f);
 		pGPCOutputCover[4]->DefineCoverGroup(GRP_O6SCOVER10_VC);
-		pGPCOutputCover[4]->SetReference(_V(-0.0, 3.075613, 14.06777), SWITCH_VERTICAL);
+		pGPCOutputCover[4]->SetReference(_V( -0.4653, 3.0668, 14.0986 ), -SWITCH_VERTICAL);
 
 		/*
 		_V(0.0,  3.07197,  14.08016)
