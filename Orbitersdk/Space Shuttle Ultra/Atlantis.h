@@ -55,6 +55,7 @@
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
+#include "vc/PanelO3.h"
 #include "APU.h"
 #include <EngConst.h>
 #include "Discsignals.h"
@@ -224,7 +225,6 @@ typedef struct {
 
 
 class PanelC2;
-class PanelO3;
 class AtlantisSubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
@@ -270,12 +270,9 @@ using dps::MDM;
 // ==========================================================
 
 class Atlantis: public VESSEL3 {
-	friend class PayloadBayOp;
-	friend class PanelA4;
-	friend class PanelA8;
 	friend class PanelC2;
 	friend class vc::PanelF7;
-	friend class PanelO3;
+	friend class vc::PanelO3;
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
@@ -696,7 +693,6 @@ public:
 	AtlantisSubsystemDirector* psubsystems;
 	
 	PanelC2 *panelc2;
-	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary
 	Keyboard *CDRKeyboard;
 	Keyboard *PLTKeyboard;

@@ -54,7 +54,6 @@
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
 #include "PanelC2.h"
-#include "PanelO3.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
 #include "vc/PanelF4.h"
@@ -468,6 +467,7 @@ pActiveLatches(3, NULL)
 
   pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
 
+	pgOverhead.AddPanel( new vc::PanelO3( this ) );
   pgOverhead.AddPanel(new vc::PanelO6(this));
 
   pgOverheadAft.AddPanel(new vc::PanelO17(this));
@@ -480,7 +480,6 @@ pActiveLatches(3, NULL)
   pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
 
-  panelo3		  = new PanelO3(this);
   CDRKeyboard     = new Keyboard(this, 0);
   PLTKeyboard     = new Keyboard(this, 1);
 
@@ -1004,7 +1003,6 @@ Atlantis::~Atlantis () {
 	delete psubsystems;
 	delete pCommModeHandler;
 
-	delete panelo3;
 	delete panelc2;
 	delete CDRKeyboard;
 	delete PLTKeyboard;
@@ -2100,7 +2098,6 @@ void Atlantis::DefineAnimations (void)
   // VC animation definitions
   // ======================================================
   panelc2->DefineVCAnimations (vidx);
-  panelo3->DefineVCAnimations (vidx);
 
   EndLoggingAnims();
 }
@@ -4293,7 +4290,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 
 		// Execute payload bay operations
 		panelc2->Step(simt, simdt);
-		panelo3->Step(simt, simdt);
 
 
 
@@ -4735,7 +4731,6 @@ bool Atlantis::clbkLoadVC (int id)
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
-	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -4764,7 +4759,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgRight.RegisterVC();
 	pgOverhead.RegisterVC();
 
-	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -4797,7 +4791,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgRight.RegisterVC();
 	  pgOverhead.RegisterVC();
 
-	  panelo3->RegisterVC();
 	  panelc2->RegisterVC();
 	  CDRKeyboard->RegisterVC();
 	  PLTKeyboard->RegisterVC();
@@ -4830,7 +4823,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgLeft.RegisterVC();
 	  pgOverhead.RegisterVC();
 
-	  panelo3->RegisterVC();
 	  panelc2->RegisterVC();
 	  CDRKeyboard->RegisterVC();
 	  PLTKeyboard->RegisterVC();
@@ -4861,7 +4853,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 
     //RegisterVC_AftMFD (); // activate aft MFD controls
-	panelo3->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -4971,7 +4962,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5000,7 +4990,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5026,7 +5015,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAft.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5050,7 +5038,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgAftStbd.RegisterVC();
 	pgAftPort.RegisterVC();
 
-	panelo3->RegisterVC();
 	ok = true;
 	bUpdateVC=true;
 	break;
@@ -5077,7 +5064,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 
-	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -5105,7 +5091,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 
-	panelo3->RegisterVC();
 	panelc2->RegisterVC();
 	CDRKeyboard->RegisterVC();
 	PLTKeyboard->RegisterVC();
@@ -5190,7 +5175,6 @@ bool Atlantis::clbkLoadVC (int id)
 		}
 		// update panels
 		panelc2->UpdateVC();
-		panelo3->UpdateVC();
 	}
 	oapiCameraSetCockpitDir(0, 0);
 	return ok;
@@ -5223,8 +5207,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 	  return false;
   case AID_C2:
 	return panelc2->VCMouseEvent(id, _event, p);
-  case AID_O3:
-	return panelo3->VCMouseEvent(id, _event, p);
   case AID_KYBD_CDR:
     return CDRKeyboard->VCMouseEvent(id, _event, p);
   case AID_KYBD_PLT:
@@ -5247,8 +5229,6 @@ bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
 	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
 		return panelc2->VCRedrawEvent (id, _event, surf);
-	if (id >= AID_O3_MIN && id <= AID_O3_MAX)
-		return panelo3->VCRedrawEvent (id, _event, surf);
 	if(pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgCenter.OnVCRedrawEvent(id, _event, surf))

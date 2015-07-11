@@ -235,9 +235,6 @@
     <ClCompile Include="vc\PanelF8.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelO3.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelO6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -458,6 +455,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA4.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -859,6 +859,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelA4.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO3.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
