@@ -166,9 +166,6 @@
     <ClCompile Include="eps\Inverter.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Latch.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -212,9 +209,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA8.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="PanelC2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelC3.cpp">
@@ -460,6 +454,12 @@
     <ClCompile Include="vc\PanelO3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelC2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\Keyboard.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -598,9 +598,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelA8.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="PanelC2.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelC3.h">
@@ -862,6 +859,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelO3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelC2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\Keyboard.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

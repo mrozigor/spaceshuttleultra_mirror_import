@@ -27,13 +27,13 @@
 #include <vector>
 #include "../vc/vc_defs.h"
 #include "dps_defs.h"
+#include "../Atlantis.h"
+#include "../AtlantisSubsystem.h"
 #include "BIU.h"
-#include "../Keyboard.h"
 #include "DiscInPort.h"
 #include <map>
 
 namespace dps {	
-	using ::Keyboard;
 	using discsignals::DiscInPort;
 
 	using namespace std;
@@ -91,15 +91,12 @@ namespace dps {
 		unsigned short usOPS;
 		unsigned short usSPEC;
 		unsigned short usDISP;
-		Keyboard* pKeyboardA;
-		Keyboard* pKeyboardB;
-		bool bUseKeyboardA;
 		char cScratchPadLine[120];
 		short sScratchPadLength;
 		unsigned short usGPCDriver;
 		unsigned short usSelectedFC;
-		DiscInPort KeybSelectA;
-		DiscInPort KeybSelectB;
+		DiscInPort KeybSelectA;// Left IDP/CRT Sel
+		DiscInPort KeybSelectB;// Right IDP/CRT Sel
 		DiscInPort MajorFuncGNC;
 		DiscInPort MajorFuncPL;
 
@@ -139,12 +136,11 @@ namespace dps {
 		virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
 			unsigned long num_data, word16 *cdw);
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
-		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;
 		unsigned short GetOps() const;
 		unsigned short GetSpec() const;
 		unsigned short GetDisp() const;
-		unsigned short GetKeyboardSelection() const;
+		bool IsKeyboardSelected( unsigned short usKeyboardID ) const;
 		virtual MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
 		virtual const char* GetScratchPadLineScan() const;

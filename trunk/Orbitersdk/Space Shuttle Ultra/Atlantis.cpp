@@ -24,7 +24,6 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK40.h>
-#include "Keyboard.h"
 #include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
@@ -53,7 +52,6 @@
 #include "MechActuator.h"
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
-#include "PanelC2.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
 #include "vc/PanelF4.h"
@@ -70,6 +68,7 @@
 #include "vc/PanelR11.h"
 #include "vc/PanelR13L.h"
 #include "vc/AftMDU.h"
+#include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
 #include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
@@ -455,14 +454,13 @@ pActiveLatches(3, NULL)
   // initialize mdu pointers to NULL, otherwise we may get CTDs
   for(i=0;i<11;i++) mdus[i] = NULL;
 
-  panelc2		  = new PanelC2(this);
-
   pgForward.AddPanel(new vc::PanelF2(this));
   pgForward.AddPanel(new vc::PanelF4(this));
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
   pgForward.AddPanel(new vc::PanelF8(this));
 
+	pgCenter.AddPanel( new vc::PanelC2( this ) );
   pgCenter.AddPanel(new vc::PanelC3(this));
 
   pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
@@ -479,9 +477,6 @@ pActiveLatches(3, NULL)
 
   pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
-
-  CDRKeyboard     = new Keyboard(this, 0);
-  PLTKeyboard     = new Keyboard(this, 1);
 
   pPanelA8 = NULL;
   pA7A8Panel = NULL;
@@ -845,9 +840,6 @@ pActiveLatches(3, NULL)
   last_mfd=0;
   firstStep=true;
 
-  //Displays
-  CRT_SEL[0]=2; //CRT3
-  CRT_SEL[1]=1; //CRT2
   
   RHCInput = _V(0, 0, 0);
   THCInput = _V(0, 0, 0);
@@ -857,16 +849,6 @@ pActiveLatches(3, NULL)
   for(i=0; i<3; i++) {
 	  lastRotCommand[i] = 0;
 	  lastTransCommand[i] = 0;
-	  //Initialize Keyboard Input
-	  DataInput[i].OPS=false;
-	  DataInput[i].ITEM=false;
-	  DataInput[i].SPEC=false;
-	  DataInput[i].PRO=false;
-	  DataInput[i].EXEC=false;
-	  DataInput[i].NewEntry=false;
-	  //DataInput[i].input="";
-	  sprintf(DataInput[i].input, "");
-	  DataInput[i].InputSize=0;
 	  RotationCommand.data[i]=0.0;
 	  TranslationCommand.data[i]=0.0; 
 	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
@@ -1002,10 +984,6 @@ pActiveLatches(3, NULL)
 Atlantis::~Atlantis () {
 	delete psubsystems;
 	delete pCommModeHandler;
-
-	delete panelc2;
-	delete CDRKeyboard;
-	delete PLTKeyboard;
 
 	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 
@@ -1294,10 +1272,6 @@ void Atlantis::SetOrbiterConfiguration (void)
   // RCS (Reaction Control System)
   CreateAttControls_RCS (orbiter_ofs);
   CreateDummyThrusters();
-
-  discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
-  pBundle = bundleManager->CreateBundle("C2_TO_IDP2", 16);
-  pBundle = bundleManager->CreateBundle("C2_TO_IDP3", 16);
 
   // ************************ visual parameters **********************************
 
@@ -2097,7 +2071,6 @@ void Atlantis::DefineAnimations (void)
   // ======================================================
   // VC animation definitions
   // ======================================================
-  panelc2->DefineVCAnimations (vidx);
 
   EndLoggingAnims();
 }
@@ -3293,7 +3266,6 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 		}
 		else
 		{
-			if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
 			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
 			ParseScenarioLineEx (line, vs);// unrecognised option - pass to Orbiter's generic parser
 		}
@@ -3372,8 +3344,6 @@ void Atlantis::clbkSaveState (FILEHANDLE scn)
 	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
 	psubsystems->SaveState(scn);
 
-	// save bay door operations status
-	panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
 	pgLeft.OnSaveState(scn);
@@ -4288,11 +4258,6 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			reset_mmu = false;
 		}
 
-		// Execute payload bay operations
-		panelc2->Step(simt, simdt);
-
-
-
 		// ***** Animate speedbrake *****
 
 		if (spdb_status >= AnimState::CLOSING && panelr2->HydraulicPressure()) {
@@ -4728,9 +4693,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgLeft.RegisterVC();
 	pgOverhead.RegisterVC();
 
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -4759,9 +4721,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgRight.RegisterVC();
 	pgOverhead.RegisterVC();
 
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -4791,9 +4750,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgRight.RegisterVC();
 	  pgOverhead.RegisterVC();
 
-	  panelc2->RegisterVC();
-	  CDRKeyboard->RegisterVC();
-	  PLTKeyboard->RegisterVC();
 	  ok = true;
 	  bUpdateVC = true;
 	  break;
@@ -4823,9 +4779,6 @@ bool Atlantis::clbkLoadVC (int id)
 	  pgLeft.RegisterVC();
 	  pgOverhead.RegisterVC();
 
-	  panelc2->RegisterVC();
-	  CDRKeyboard->RegisterVC();
-	  PLTKeyboard->RegisterVC();
 	  ok = true;
 	  bUpdateVC = true;
 	  break;
@@ -5064,9 +5017,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAft.RegisterVC();
 
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -5091,9 +5041,6 @@ bool Atlantis::clbkLoadVC (int id)
 	pgOverheadAft.RegisterVC();
 	pgAftStbd.RegisterVC();
 
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
     ok = true;
 	bUpdateVC=true;
     break;
@@ -5173,8 +5120,6 @@ bool Atlantis::clbkLoadVC (int id)
 			}
 			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL+i);
 		}
-		// update panels
-		panelc2->UpdateVC();
 	}
 	oapiCameraSetCockpitDir(0, 0);
 	return ok;
@@ -5205,12 +5150,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
   // handle MFD selection buttons
   case AID_F7:
 	  return false;
-  case AID_C2:
-	return panelc2->VCMouseEvent(id, _event, p);
-  case AID_KYBD_CDR:
-    return CDRKeyboard->VCMouseEvent(id, _event, p);
-  case AID_KYBD_PLT:
-    return PLTKeyboard->VCMouseEvent(id, _event, p);
   }
 
   if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
@@ -5227,8 +5166,6 @@ bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
 {
-	if (id >= AID_C2_MIN && id <= AID_C2_MAX)
-		return panelc2->VCRedrawEvent (id, _event, surf);
 	if(pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgCenter.OnVCRedrawEvent(id, _event, surf))

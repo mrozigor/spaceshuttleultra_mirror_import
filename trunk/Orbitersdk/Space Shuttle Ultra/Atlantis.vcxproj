@@ -343,13 +343,12 @@
     <ClCompile Include="dps\IDP.cpp" />
     <ClCompile Include="gnc\IMU.cpp" />
     <ClCompile Include="eps\Inverter.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Latch.cpp" />
     <ClCompile Include="dps\MasterTimingUnit.cpp" />
     <ClCompile Include="MCA.cpp" />
     <ClCompile Include="dps\MDM.cpp" />
+    <ClCompile Include="vc\Keyboard.cpp" />
     <ClCompile Include="vc\MDU.cpp" />
-    <ClCompile Include="MechActuator.cpp" />
     <ClCompile Include="mission\Mission.cpp" />
     <ClCompile Include="MissionFileManagement.cpp" />
     <ClCompile Include="MPMSystems.cpp" />
@@ -361,7 +360,7 @@
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
     <ClCompile Include="vc\PanelA7U.cpp" />
     <ClCompile Include="vc\PanelA8.cpp" />
-    <ClCompile Include="PanelC2.cpp" />
+    <ClCompile Include="vc\PanelC2.cpp" />
     <ClCompile Include="vc\PanelC3.cpp" />
     <ClCompile Include="vc\PanelF2.cpp" />
     <ClCompile Include="vc\PanelF4.cpp" />
@@ -472,6 +471,7 @@
     <ClInclude Include="Latch.h" />
     <ClInclude Include="dps\MasterTimingUnit.h" />
     <ClInclude Include="MCA.h" />
+    <ClInclude Include="vc\Keyboard.h" />
     <ClInclude Include="vc\MDU.h" />
     <ClInclude Include="MechActuator.h" />
     <ClInclude Include="meshres.h" />
@@ -491,7 +491,7 @@
     <ClInclude Include="vc\PanelA7A8ODS.h" />
     <ClInclude Include="vc\PanelA7U.h" />
     <ClInclude Include="vc\PanelA8.h" />
-    <ClInclude Include="PanelC2.h" />
+    <ClInclude Include="vc\PanelC2.h" />
     <ClInclude Include="vc\PanelC3.h" />
     <ClInclude Include="vc\PanelF2.h" />
     <ClInclude Include="vc\PanelF4.h" />
