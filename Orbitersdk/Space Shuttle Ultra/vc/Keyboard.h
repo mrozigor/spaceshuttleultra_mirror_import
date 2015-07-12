@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Panel R11 definition
+  Keyboard VC Component
 
 
 
@@ -22,33 +22,29 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#pragma once
+#ifndef __KEYBOARD_H
+#define __KEYBOARD_H
 
-#ifndef _PANELR11_H
-#define _PANELR11_H
 
-#include "AtlantisPanel.h"
-#include "MDU.h"
-#include "Keyboard.h"
+#include "AtlantisVCComponent.h"
+#include "../dps/IDP.h"
+
 
 namespace vc
 {
-	class PanelR11 : public AtlantisPanel
+	class Keyboard:public AtlantisVCComponent
 	{
-	private:
-		MDU* pCRT4;
+			int ID;
 
-		Keyboard* pKeyboardAft;
+			dps::IDP* pIDP[2];
+		public:
+			Keyboard( Atlantis* _sts, const std::string& _ident, int ID );
+			virtual ~Keyboard();
 
-		StdSwitch2* pIDPCRTPower;
-		StdSwitch3* pIDPCRTMajFunc;
-	public:
-		PanelR11(Atlantis* _sts);
-		virtual ~PanelR11();
-		virtual void DefineVC();
-		virtual void RegisterVC();
-		virtual void Realize();
+			void ConnectIDP( int num, dps::IDP* p_idp );
+
+			virtual bool OnMouseEvent( int _event, float x, float y );
 	};
 };
 
-#endif //_PANELR11_H
+#endif //__TALKBACK_H

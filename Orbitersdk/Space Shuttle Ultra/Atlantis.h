@@ -210,13 +210,6 @@ typedef struct {
 } AttManeuver;
 
 typedef struct {
-	bool OPS, ITEM, SPEC, EXEC, PRO;
-	bool NewEntry; //used by CRT MFD to output scratch pad
-	char input[255];
-	int InputSize; //number of chars used
-} KeyboardInput;
-
-typedef struct {
 	double leftElevon, rightElevon;
 	double bodyFlap;
 	double speedbrake;
@@ -224,7 +217,6 @@ typedef struct {
 } AerosurfacePositions;
 
 
-class PanelC2;
 class AtlantisSubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
@@ -270,7 +262,6 @@ using dps::MDM;
 // ==========================================================
 
 class Atlantis: public VESSEL3 {
-	friend class PanelC2;
 	friend class vc::PanelF7;
 	friend class vc::PanelO3;
 	friend class Keyboard;
@@ -692,10 +683,7 @@ public:
 	
 	AtlantisSubsystemDirector* psubsystems;
 	
-	PanelC2 *panelc2;
 	vc::PanelR2 *panelr2; // temporary
-	Keyboard *CDRKeyboard;
-	Keyboard *PLTKeyboard;
 
 	/**
 	 * Bridge function between MPS and ET to "deliver" GO2 and GH2 for
@@ -1139,9 +1127,6 @@ private:
 	int last_mfd;
 	bool firstStep; //call functions in first timestep
 	//Data Input
-	KeyboardInput DataInput[3];
-	int CRT_SEL[2]; //0=CDR, 1=PLT
-	int item;
 	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;

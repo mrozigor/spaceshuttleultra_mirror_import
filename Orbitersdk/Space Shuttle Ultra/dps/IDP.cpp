@@ -38,6 +38,12 @@ namespace dps {
 		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
 		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
+
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "C2_R11_IDP", 14 );
+		MajorFuncPL.Connect( pBundle, usIDPID + 3 );
+		MajorFuncGNC.Connect( pBundle, usIDPID + 7 );
+		KeybSelectA.Connect( pBundle, 12 );// not used by IDP4
+		KeybSelectB.Connect( pBundle, 13 );// not used by IDP4
 		return;
 	}
 
@@ -121,14 +127,49 @@ namespace dps {
 	int IDP::GetActiveKeyboard( void ) const
 	{
 		int kb = 0;
-		if ((STS()->CRT_SEL[0] + 1) == usIDPID) kb += 1;
-		if ((STS()->CRT_SEL[1] + 1) == usIDPID) kb += 2;
+
+		switch (usIDPID)
+		{
+			case 1:
+				if (KeybSelectA.IsSet()) kb = 1;
+				break;
+			case 2:
+				if (KeybSelectB.IsSet() == false) kb = 2;
+				break;
+			case 3:
+				if (KeybSelectA.IsSet() == false) kb = 1;
+				if (KeybSelectB.IsSet()) kb += 2;
+				break;
+		}
 		return kb;
 	}
 
-	bool IDP::PutKey(unsigned short usKeyboardID, char cKey) {
-		
-		//TODO: Implement checking of active keyboard
+	bool IDP::IsKeyboardSelected( unsigned short usKeyboardID ) const
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet())) return true;
+				else return false;
+			case 2:
+				if ((usKeyboardID == 2) && (KeybSelectB.IsSet() == false)) return true;
+				else return false;
+			case 3:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet() == false)) return true;
+				else if ((usKeyboardID == 2) && (KeybSelectB.IsSet())) return true;
+				else return false;
+			case 4:
+				if (usKeyboardID == 3) return true;
+				else return false;
+			default:
+				return false;
+		}
+	}
+
+	bool IDP::PutKey(unsigned short usKeyboardID, char cKey)
+	{
+		if (IsKeyboardSelected( usKeyboardID ) == false) return false;
+
 		switch(cKey) {
 			case SSU_KEY_RESUME:
 				OnResume();
