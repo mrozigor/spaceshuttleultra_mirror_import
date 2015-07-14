@@ -274,6 +274,7 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine_shutdown.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine_startup.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Cryo_noise.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\key_press.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Master_Alarm.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Orbiter_AC.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\RCS_Jet_Fire.wav
