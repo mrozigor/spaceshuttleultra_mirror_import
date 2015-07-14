@@ -349,6 +349,7 @@
     <ClCompile Include="dps\MDM.cpp" />
     <ClCompile Include="vc\Keyboard.cpp" />
     <ClCompile Include="vc\MDU.cpp" />
+    <ClCompile Include="MechActuator.cpp" />
     <ClCompile Include="mission\Mission.cpp" />
     <ClCompile Include="MissionFileManagement.cpp" />
     <ClCompile Include="MPMSystems.cpp" />
@@ -363,6 +364,7 @@
     <ClCompile Include="vc\PanelC2.cpp" />
     <ClCompile Include="vc\PanelC3.cpp" />
     <ClCompile Include="vc\PanelF2.cpp" />
+    <ClCompile Include="vc\PanelF3.cpp" />
     <ClCompile Include="vc\PanelF4.cpp" />
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
@@ -494,6 +496,7 @@
     <ClInclude Include="vc\PanelC2.h" />
     <ClInclude Include="vc\PanelC3.h" />
     <ClInclude Include="vc\PanelF2.h" />
+    <ClInclude Include="vc\PanelF3.h" />
     <ClInclude Include="vc\PanelF4.h" />
     <ClInclude Include="vc\PanelF6.h" />
     <ClInclude Include="vc\PanelF7.h" />

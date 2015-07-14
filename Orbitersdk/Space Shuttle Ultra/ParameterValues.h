@@ -74,6 +74,8 @@ const double CHUTE_DEPLOY_SPEED = 165.0/MPS2KTS;
 // Speed at which chute is deployed (m/s)
 const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;
 // Speed at which chute is jettisoned (m/s)
+const double CHUTE_FAIL_SPEED = 230.0/MPS2KTS;
+// Lowest speed at which chute breaks off if deployed (m/s)
 
 const double GEAR_OPERATING_SPEED = 0.3;
 // Opening/closing speed of landing gear (1/sec)
