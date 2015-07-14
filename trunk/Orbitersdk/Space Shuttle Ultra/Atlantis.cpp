@@ -3434,6 +3434,7 @@ void Atlantis::clbkPostCreation ()
 
 			RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
 			RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
+			RequestLoadVesselWave( SoundID, KEY_PRESS_SOUND, const_cast<char*>(KEY_PRESS_FILE), INTERNAL_ONLY );
 		}
 		
 
