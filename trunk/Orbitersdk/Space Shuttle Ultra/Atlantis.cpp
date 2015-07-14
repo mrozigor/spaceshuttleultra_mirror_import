@@ -54,6 +54,7 @@
 #include "mps/SSME_BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
+#include "vc/PanelF3.h"
 #include "vc/PanelF4.h"
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
@@ -455,6 +456,7 @@ pActiveLatches(3, NULL)
   for(i=0;i<11;i++) mdus[i] = NULL;
 
   pgForward.AddPanel(new vc::PanelF2(this));
+	pgForward.AddPanel( new vc::PanelF3( this ) );
   pgForward.AddPanel(new vc::PanelF4(this));
   pgForward.AddPanel(new vc::PanelF6(this));
   pgForward.AddPanel(new vc::PanelF7(this));
@@ -2768,6 +2770,8 @@ void Atlantis::JettisonDragChute()
 	strcpy_s(name, GetName()); 
 	strcat_s(name, "-Chute");
 	oapiCreateVesselEx(name, "SSU_Chute", &vs);
+
+	DragChuteARMDPYJETTLT[2].SetLine();
 }
 
 void Atlantis::DefineTouchdownPoints()
@@ -3583,6 +3587,17 @@ void Atlantis::clbkPostCreation ()
 		LandingGearArmDeployPB[1].Connect( pBundle, 9 );
 		LandingGearArmDeployPB[2].Connect( pBundle, 10 );
 		LandingGearArmDeployPB[3].Connect( pBundle, 11 );
+
+		pBundle = bundleManager->CreateBundle( "DRAG_CHUTE", 16 );
+		DragChuteARMDPYJETTLT[0].Connect( pBundle, 0 );
+		DragChuteARMDPYJETTLT[1].Connect( pBundle, 1 );
+		DragChuteARMDPYJETTLT[2].Connect( pBundle, 2 );
+		DragChuteARM[0].Connect( pBundle, 3 );
+		DragChuteARM[1].Connect( pBundle, 4 );
+		DragChuteDPY[0].Connect( pBundle, 5 );
+		DragChuteDPY[1].Connect( pBundle, 6 );
+		DragChuteJETT[0].Connect( pBundle, 7 );
+		DragChuteJETT[1].Connect( pBundle, 8 );
 	}
 	catch (std::exception &e)
 	{
@@ -4140,47 +4155,52 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 			}
 			else if (GetAltitude() < 609.6) ArmGear();
 
-			//drag chute
-			if (GroundContact()) {
+			if (GroundContact())
 				if (GetAirspeed() > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
+			
+			//drag chute
+			if(pMission->HasDragChute()) {
+				if (!DragChuteDeploying && 
+					(((GetAirspeed() <= CHUTE_DEPLOY_SPEED) && (GetAirspeed() > CHUTE_JETTISON_SPEED) && GroundContact()) || 
+					DragChuteARM[0].IsSet() || DragChuteARM[1].IsSet() || DragChuteDPY[0].IsSet() || DragChuteDPY[1].IsSet())) {
+					DragChuteDeploying = true;
+					DragChuteDeployTime = met;
 
-				if(pMission->HasDragChute()) {
-					if (!DragChuteDeploying && GetAirspeed() <= CHUTE_DEPLOY_SPEED && GetAirspeed() > CHUTE_JETTISON_SPEED) {
-						DragChuteDeploying = true;
-						DragChuteDeployTime = met;
+					DragChuteARMDPYJETTLT[0].SetLine();
+					DragChuteARMDPYJETTLT[1].SetLine();
+				}
+				else if (DragChuteState == STOWED && DragChuteDeploying && (met - DragChuteDeployTime) > CHUTE_DEPLOY_TIME)
+					DeployDragChute();
+				else if (DragChuteState == DEPLOYING) { // go from initial deployment to reefed state
+					DragChuteSize = min(0.4, DragChuteSize + CHUTE_DEPLOY_RATE*simdt);
+					SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
+					if (Eq(DragChuteSize, 0.4, 0.001)) DragChuteState = REEFED;
+				}
+				else if (DragChuteState == REEFED) { // maintain chute in reefed state until time to fully inflate chute
+					if ((met - DragChuteDeployTime) > CHUTE_INFLATE_TIME) {
+						DragChuteState = INFLATED;
 					}
-					else if (DragChuteState == STOWED && DragChuteDeploying && (met - DragChuteDeployTime) > CHUTE_DEPLOY_TIME)
-						DeployDragChute();
-					else if (DragChuteState == DEPLOYING) { // go from initial deployment to reefed state
-						DragChuteSize = min(0.4, DragChuteSize + CHUTE_DEPLOY_RATE*simdt);
+				}
+				else if (DragChuteState == INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
+					// also jettison if airspeed is too high (it breaks away) or if user jettisons it
+					if ((GetAirspeed() < CHUTE_JETTISON_SPEED) || (GetAirspeed() > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
+					else if (DragChuteSize < 1.0) {
+						DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
 						SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-						if (Eq(DragChuteSize, 0.4, 0.001)) DragChuteState = REEFED;
 					}
-					else if (DragChuteState == REEFED) { // maintain chute in reefed state until time to fully inflate chute
-						if ((met - DragChuteDeployTime) > CHUTE_INFLATE_TIME) {
-							DragChuteState = INFLATED;
-						}
-					}
-					else if (DragChuteState == INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
-						if (GetAirspeed() < CHUTE_JETTISON_SPEED) JettisonDragChute();
-						else if (DragChuteSize < 1.0) {
-							DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
-							SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-						}
-					}
+				}
 
-					//spin chute
-					if (DragChuteState >= DEPLOYING && DragChuteState < JETTISONED) {
-						if (DragChuteSpin.Opening()) {
-							DragChuteSpin.pos = min(1.0, DragChuteSpin.pos + CHUTE_SPIN_RATE*simdt);
-							if (Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action = AnimState::CLOSING;
-						}
-						else {
-							DragChuteSpin.pos = max(0.0, DragChuteSpin.pos - CHUTE_SPIN_RATE*simdt);
-							if (Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action = AnimState::OPENING;
-						}
-						SetAnimation(anim_chute_spin, DragChuteSpin.pos);
+				//spin chute
+				if (DragChuteState >= DEPLOYING && DragChuteState < JETTISONED) {
+					if (DragChuteSpin.Opening()) {
+						DragChuteSpin.pos = min(1.0, DragChuteSpin.pos + CHUTE_SPIN_RATE*simdt);
+						if (Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action = AnimState::CLOSING;
 					}
+					else {
+						DragChuteSpin.pos = max(0.0, DragChuteSpin.pos - CHUTE_SPIN_RATE*simdt);
+						if (Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action = AnimState::OPENING;
+					}
+					SetAnimation(anim_chute_spin, DragChuteSpin.pos);
 				}
 			}
 

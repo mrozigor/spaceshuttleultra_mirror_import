@@ -271,6 +271,8 @@
 #define AID_F2_RY_CSS	586
 #define AID_F2_P_AUTO	587
 #define AID_F2_RY_AUTO	588
+#define AID_F2_DC_ARM	589
+#define AID_F2_DC_DPY	590
 #define AID_F2_MAX		599
 
 #define AID_F4_MIN		600
@@ -283,6 +285,7 @@
 #define AID_F4_RY_CSS	606
 #define AID_F4_P_AUTO	607
 #define AID_F4_RY_AUTO	608
+#define AID_F4_DC_JETT	609
 #define AID_F4_MAX		620
 
 #define AID_A7U_MIN		640
@@ -297,6 +300,14 @@
 #define AID_A7U_MAX		660
 
 #define AID_O17 		661
+
+
+#define AID_F3_MIN	700
+#define AID_F3		700		
+#define AID_F3_DC_ARM	701
+#define AID_F3_DC_DPY	702
+#define AID_F3_DC_JETT	703
+#define AID_F3_MAX	710
 
 
 #define AID_MDU_CDR1	1000

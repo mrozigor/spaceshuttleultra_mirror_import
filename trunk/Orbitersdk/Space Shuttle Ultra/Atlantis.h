@@ -1197,6 +1197,11 @@ private:
 	DiscOutPort LandingGearArmDeployLT[2];
 	DiscInPort LandingGearArmDeployPB[4];
 
+	DiscOutPort DragChuteARMDPYJETTLT[3];
+	DiscInPort DragChuteARM[2];
+	DiscInPort DragChuteDPY[2];
+	DiscInPort DragChuteJETT[2];
+
 	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 
 	/**

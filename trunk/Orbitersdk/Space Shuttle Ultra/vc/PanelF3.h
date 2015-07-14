@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Panel F4 definition
+  Panel F3 definition
 
 
 
@@ -22,45 +22,35 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef __PANELF4_H
-#define __PANELF4_H
-#pragma once
+#ifndef __PANELF3_H
+#define __PANELF3_H
+
 
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 #include "StandardSwitchCover.h"
 
+
 namespace vc
 {
-	class PanelF4: public AtlantisPanel
+	class PanelF3:public AtlantisPanel
 	{
-		PushButtonIndicator *pBodyFlap, *pSbdbkThrot; //handles AUTO light
-		StandardLight *pBodyFlapMan, *pSbdbkThrotMan;
-		
-		PushButtonIndicator *pPitchAuto;
-		PushButtonIndicator *pPitchCSS;
-		PBIDiscPortGroup PitchPortGroup;
-		PushButtonIndicator *pRollYawAuto;
-		PushButtonIndicator *pRollYawCSS;
-		PBIDiscPortGroup RollYawPortGroup;
-
+		StandardSwitchCover* pDragChuteARMCover;
+		StandardSwitchCover* pDragChuteDPYCover;
 		StandardSwitchCover* pDragChuteJETTCover;
 
+		PushButtonIndicator* pDragChuteARM;
+		PushButtonIndicator* pDragChuteDPY;
 		PushButtonIndicator* pDragChuteJETT;
-
 	public:
-		PanelF4(Atlantis* _sts);
-		~PanelF4();
+		PanelF3( Atlantis* _sts );
+		~PanelF3();
 
 		virtual void Realize();
 
 		virtual void DefineVC();
 		virtual void RegisterVC();
-
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-	private:
-		void SetCommonPBIParameters(PushButtonIndicator* pPBI);
 	};
 };
 
-#endif //__PANELF4_H
+#endif //__PANELF3_H
