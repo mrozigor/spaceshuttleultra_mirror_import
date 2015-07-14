@@ -26,15 +26,26 @@ namespace vc {
 		pSTZDoorPosition->SetDimensions(50, 31);
 		pSTZDoorPosition->SetTalkbackLocation(0, 0);
 
+		Add( pSTRKDoorControlSys1Cover = new StandardSwitchCover( _sts, "S TRK DR CNTL SYS1 Cover" ) );
+		pSTRKDoorControlSys1Cover->SetMouseRegion( 0, 0.656091f, 0.175973f, 0.700474f, 0.227679f );
+		pSTRKDoorControlSys1Cover->SetMouseRegion( 1, 0.656091f, 0.236236f, 0.700474f, 0.251363f );
+		pSTRKDoorControlSys1Cover->DefineCoverGroup( GRP_O6SCOVER11_VC );
+		pSTRKDoorControlSys1Cover->SetReference( _V( -0.3814, 3.1445, 13.7718 ), -SWITCH_VERTICAL );
+
+		Add( pSTRKDoorControlSys2Cover = new StandardSwitchCover( _sts, "S TRK DR CNTL SYS2 Cover" ) );
+		pSTRKDoorControlSys2Cover->SetMouseRegion( 0, 0.724671f, 0.175973f, 0.764189f, 0.227679f );
+		pSTRKDoorControlSys2Cover->SetMouseRegion( 1, 0.724671f, 0.236236f, 0.764189f, 0.251363f );
+		pSTRKDoorControlSys2Cover->DefineCoverGroup( GRP_O6SCOVER12_VC );
+		pSTRKDoorControlSys2Cover->SetReference( _V( -0.3814, 3.1445, 13.7718 ), -SWITCH_VERTICAL );
+
 		Add(pSTRKDoorControlSys1	= new StdSwitch3(_sts, "S TRK DR CNTL SYS1"));		 
 		pSTRKDoorControlSys1->SetLabel(0, "CLOSE");
 		pSTRKDoorControlSys1->SetLabel(1, "OFF");
 		pSTRKDoorControlSys1->SetLabel(2, "OPEN");
 		pSTRKDoorControlSys1->DefineSwitchGroup(GRP_O6S2_VC);
 		pSTRKDoorControlSys1->SetMouseRegion(0.64f, 0.1767f, 0.7078f, 0.2315f);
-		//-0.382601  3.152154  13.74688
-		pSTRKDoorControlSys1->SetReference(_V(-0.0, 3.152154, 13.74688), SWITCH_VERTICAL);
-		pSTRKDoorControlSys1->SetInitialAnimState(0.0f);
+		pSTRKDoorControlSys1->SetReference(_V(-0.3818, 3.1533, 13.7537), SWITCH_VERTICAL);
+		pSTRKDoorControlSys1->SetInitialAnimState(0.5f);
 		
 		Add(pSTRKDoorControlSys2	= new StdSwitch3(_sts, "S TRK DR CNTL SYS2"));		 
 		pSTRKDoorControlSys2->SetLabel(0, "CLOSE");
@@ -42,8 +53,8 @@ namespace vc {
 		pSTRKDoorControlSys2->SetLabel(2, "OPEN");
 		pSTRKDoorControlSys2->DefineSwitchGroup(GRP_O6S3_VC);
 		pSTRKDoorControlSys2->SetMouseRegion(0.7267f, 0.1767f, 0.7706f, 0.2315f);
-		pSTRKDoorControlSys2->SetReference(_V(-0.0, 3.152154, 13.74688), SWITCH_VERTICAL);
-		pSTRKDoorControlSys2->SetInitialAnimState(0.0f);
+		pSTRKDoorControlSys2->SetReference(_V(-0.3818, 3.1533, 13.7537), SWITCH_VERTICAL);
+		pSTRKDoorControlSys2->SetInitialAnimState(0.5f);
 		
 		
 		/*		

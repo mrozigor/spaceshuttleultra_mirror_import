@@ -39,6 +39,8 @@ namespace vc {
 		Std2SegTalkback* pSTZDoorPosition;
 		StdSwitch3* pSTRKDoorControlSys1;
 		StdSwitch3* pSTRKDoorControlSys2;
+		StandardSwitchCover* pSTRKDoorControlSys1Cover;
+		StandardSwitchCover* pSTRKDoorControlSys2Cover;
 		StdSwitch2* pSTRKPowerNY;
 		StdSwitch2* pSTRKPowerNZ;
 		StdSwitch3* pLeftSeatCenterFlood;
