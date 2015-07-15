@@ -2918,7 +2918,7 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 	const double E1 = 0.01/MPS2FPS;
 	const double EEF4 = 2.0e6/(MPS2FPS*MPS2FPS); // changed from value in 80FM23; document has erroneous value of 2.0e-6 instead of 2.0e6
 	const double ETRAN = 0.5998473e8/(MPS2FPS*MPS2FPS);
-	const double GS2 = 0.0001;
+	//const double GS2 = 0.0001;
 	const double RPT1 = 29.44*NMI2M;
 
 	const double RCG1 = (VSIT2-VQ2)/(2*ALFM);

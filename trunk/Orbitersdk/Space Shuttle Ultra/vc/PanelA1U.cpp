@@ -100,8 +100,8 @@ namespace vc
 
 	void PanelA1U::DefineVC()
 	{
-		const VECTOR3 switch_rot_vert =  _V(-1, 0, 0);
-		const VECTOR3 switch_rot_horz = _V(0.0, -0.9499, 0.3126);
+		//const VECTOR3 switch_rot_vert =  _V(-1, 0, 0);
+		//const VECTOR3 switch_rot_horz = _V(0.0, -0.9499, 0.3126);
 		//VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
 
 		AddAIDToMouseEventList(AID_A1U1);

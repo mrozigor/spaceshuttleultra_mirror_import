@@ -535,21 +535,21 @@ namespace mps
 	class SSMEControllerSW_AD08:public SSMEControllerSW
 	{
 		private:
-			int (SSMEControllerSW_AD08::*fptrSensorInput)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrSensorInput)( void );
 
-			int (SSMEControllerSW_AD08::*fptrSensorScale)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrSensorScale)( void );
 
-			int (SSMEControllerSW_AD08::*fptrVehicleCommands)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrVehicleCommands)( void );
 
-			int (SSMEControllerSW_AD08::*fptrMonitorSDLimits)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrMonitorSDLimits)( void );
 
-			int (SSMEControllerSW_AD08::*fptrEngineOperations)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrEngineOperations)( void );
 
-			int (SSMEControllerSW_AD08::*fptrCommandActuators)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrCommandActuators)( void );
 
-			int (SSMEControllerSW_AD08::*fptrCommandONOFFDevices)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrCommandONOFFDevices)( void );
 
-			int (SSMEControllerSW_AD08::*fptrOutputVDT)( void );
+			unsigned short (SSMEControllerSW_AD08::*fptrOutputVDT)( void );
 		public:
 			SSMEControllerSW_AD08( DigitalComputerUnit* DCU );
 			~SSMEControllerSW_AD08( void );
@@ -559,13 +559,13 @@ namespace mps
 
 			void Executive( void );
 
-			int SelfTest( void );
+			unsigned short SelfTest( void );
 
 			void ChangePhaseMode( void );
 
-			int SensorInput( void );
+			unsigned short SensorInput( void );
 
-			int SensorScale( void );
+			unsigned short SensorScale( void );
 			void SensorQualification_Upper( unsigned short addr_snsr, unsigned short qual_limit_upper );
 			void SensorQualification_Lower( unsigned short addr_snsr, unsigned short qual_limit_lower );
 			void SensorQualification_UpperLower( unsigned short addr_snsr, unsigned short qual_limit_upper, unsigned short qual_limit_lower );
@@ -573,53 +573,53 @@ namespace mps
 			//unsigned short CalcSensorAverage2( unsigned short addr_snsr_A, unsigned short addr_snsr_B );
 			unsigned short CalcSensorAverage4( unsigned short addr_snsr_A, unsigned short addr_snsr_B, unsigned short addr_snsr_C, unsigned short addr_snsr_D );
 
-			int VehicleCommands_Checkout_Standby( void );
-			int VehicleCommands_StartPrep_PSN1( void );
-			int VehicleCommands_StartPrep_PSN2( void );
-			int VehicleCommands_StartPrep_PSN3( void );
-			int VehicleCommands_StartPrep_PSN4( void );
-			int VehicleCommands_StartPrep_EngineReady( void );
-			int VehicleCommands_Start_StartInitiation( void );
-			int VehicleCommands_Start_ThrustBuildup( void );
-			int VehicleCommands_Mainstage_NormalControl( void );
-			int VehicleCommands_Mainstage_FixedDensity( void );
-			int VehicleCommands_Mainstage_ThrustLimiting( void );
-			int VehicleCommands_Mainstage_HydraulicLockup( void );
-			int VehicleCommands_Mainstage_ElectricalLockup( void );
-			int VehicleCommands_Shutdown_ThrottleTo0( void );
-			int VehicleCommands_Shutdown_PropellantValvesClosed( void );
-			int VehicleCommands_Shutdown_FailSafePneumatic( void );
-			int VehicleCommands_PostShutdown_Standby( void );
-			int VehicleCommands_PostShutdown_OxidizerDump( void );
-			int VehicleCommands_PostShutdown_TerminateSequence( void );
+			unsigned short VehicleCommands_Checkout_Standby( void );
+			unsigned short VehicleCommands_StartPrep_PSN1( void );
+			unsigned short VehicleCommands_StartPrep_PSN2( void );
+			unsigned short VehicleCommands_StartPrep_PSN3( void );
+			unsigned short VehicleCommands_StartPrep_PSN4( void );
+			unsigned short VehicleCommands_StartPrep_EngineReady( void );
+			unsigned short VehicleCommands_Start_StartInitiation( void );
+			unsigned short VehicleCommands_Start_ThrustBuildup( void );
+			unsigned short VehicleCommands_Mainstage_NormalControl( void );
+			unsigned short VehicleCommands_Mainstage_FixedDensity( void );
+			unsigned short VehicleCommands_Mainstage_ThrustLimiting( void );
+			unsigned short VehicleCommands_Mainstage_HydraulicLockup( void );
+			unsigned short VehicleCommands_Mainstage_ElectricalLockup( void );
+			unsigned short VehicleCommands_Shutdown_ThrottleTo0( void );
+			unsigned short VehicleCommands_Shutdown_PropellantValvesClosed( void );
+			unsigned short VehicleCommands_Shutdown_FailSafePneumatic( void );
+			unsigned short VehicleCommands_PostShutdown_Standby( void );
+			unsigned short VehicleCommands_PostShutdown_OxidizerDump( void );
+			unsigned short VehicleCommands_PostShutdown_TerminateSequence( void );
 
-			int MonitorSDLimits_Mainstage_NormalControl( void );
+			unsigned short MonitorSDLimits_Mainstage_NormalControl( void );
 
-			int EngineOperations_Checkout_Standby( void );
-			int EngineOperations_StartPrep_PSN1( void );
-			int EngineOperations_StartPrep_PSN2( void );
-			int EngineOperations_StartPrep_PSN3( void );
-			int EngineOperations_StartPrep_PSN4( void );
-			int EngineOperations_StartPrep_EngineReady( void );
-			int EngineOperations_Start_StartInitiation( void );
-			int EngineOperations_Start_ThrustBuildup( void );
-			int EngineOperations_Mainstage_NormalControl( void );
-			int EngineOperations_Mainstage_FixedDensity( void );
-			int EngineOperations_Mainstage_ThrustLimiting( void );
-			int EngineOperations_Mainstage_HydraulicLockup( void );
-			int EngineOperations_Mainstage_ElectricalLockup( void );
-			int EngineOperations_Shutdown_ThrottleTo0( void );
-			int EngineOperations_Shutdown_PropellantValvesClosed( void );
-			int EngineOperations_Shutdown_FailSafePneumatic( void );
-			int EngineOperations_PostShutdown_Standby( void );
-			int EngineOperations_PostShutdown_OxidizerDump( void );
-			int EngineOperations_PostShutdown_TerminateSequence( void );
+			unsigned short EngineOperations_Checkout_Standby( void );
+			unsigned short EngineOperations_StartPrep_PSN1( void );
+			unsigned short EngineOperations_StartPrep_PSN2( void );
+			unsigned short EngineOperations_StartPrep_PSN3( void );
+			unsigned short EngineOperations_StartPrep_PSN4( void );
+			unsigned short EngineOperations_StartPrep_EngineReady( void );
+			unsigned short EngineOperations_Start_StartInitiation( void );
+			unsigned short EngineOperations_Start_ThrustBuildup( void );
+			unsigned short EngineOperations_Mainstage_NormalControl( void );
+			unsigned short EngineOperations_Mainstage_FixedDensity( void );
+			unsigned short EngineOperations_Mainstage_ThrustLimiting( void );
+			unsigned short EngineOperations_Mainstage_HydraulicLockup( void );
+			unsigned short EngineOperations_Mainstage_ElectricalLockup( void );
+			unsigned short EngineOperations_Shutdown_ThrottleTo0( void );
+			unsigned short EngineOperations_Shutdown_PropellantValvesClosed( void );
+			unsigned short EngineOperations_Shutdown_FailSafePneumatic( void );
+			unsigned short EngineOperations_PostShutdown_Standby( void );
+			unsigned short EngineOperations_PostShutdown_OxidizerDump( void );
+			unsigned short EngineOperations_PostShutdown_TerminateSequence( void );
 
-			int CommandActuators( void );
+			unsigned short CommandActuators( void );
 
-			int CommandONOFFDevices( void );
+			unsigned short CommandONOFFDevices( void );
 
-			int OutputVDT( void );
+			unsigned short OutputVDT( void );
 
 
 			void Set_ESW_SelfTestStatus( unsigned short SelfTestStatus );
@@ -644,7 +644,7 @@ namespace mps
 			void RotateCommand( void );// TODO inline this?
 			void AddFID( unsigned short FID, unsigned short Delimiter );
 			unsigned short GetFID( void );
-			int CommandVoting( void );
+			unsigned short CommandVoting( void );
 
 			void ValveSchedule( int tableaddr, int cmdaddr, int timeaddr, int currentposaddr );
 

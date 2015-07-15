@@ -447,7 +447,6 @@ public:
 	virtual dps::IDP* GetIDP(unsigned short usIDPNumber) const;
 	virtual bool GetLiftOffFlag() const;
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
-	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
 	virtual bool HasExternalAirlock() const;

@@ -1072,9 +1072,9 @@ namespace mps
 		return;
 	}
 
-	int SSMEControllerSW_AD08::SelfTest( void )
+	unsigned short SSMEControllerSW_AD08::SelfTest( void )
 	{
-		int retval = 0;
+		unsigned short retval = 0;
 
 		// check other channel
 		DCU->RAM[RAM_AD08_WDT1] = DCU->CIE->CheckWDTOpposite( 0 );
@@ -1328,7 +1328,7 @@ namespace mps
 		return;
 	}
 
-	int SSMEControllerSW_AD08::SensorInput( void )
+	unsigned short SSMEControllerSW_AD08::SensorInput( void )
 	{
 		// first sensor is enough, it's all sequencial
 		// IE chA
@@ -1362,7 +1362,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::SensorScale( void )
+	unsigned short SSMEControllerSW_AD08::SensorScale( void )
 	{
 		// TODO desqualification of all redline sensors gives MCF
 
@@ -1684,7 +1684,7 @@ namespace mps
 	}
 
 
-	int SSMEControllerSW_AD08::VehicleCommands_Checkout_Standby( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Checkout_Standby( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1741,7 +1741,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN1( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN1( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1807,7 +1807,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN2( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN2( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1878,7 +1878,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1955,7 +1955,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2021,7 +2021,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady( void )
 	{
 		// validation -> voting and agreement with mode
 		int votes = CommandVoting();
@@ -2125,7 +2125,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Start_StartInitiation( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Start_StartInitiation( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2163,7 +2163,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Start_ThrustBuildup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Start_ThrustBuildup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2201,7 +2201,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_NormalControl( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2290,7 +2290,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_FixedDensity( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_FixedDensity( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2370,7 +2370,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_ThrustLimiting( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_ThrustLimiting( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2450,7 +2450,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2530,7 +2530,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_ElectricalLockup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_ElectricalLockup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2610,7 +2610,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_ThrottleTo0( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_ThrottleTo0( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2636,7 +2636,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_PropellantValvesClosed( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_PropellantValvesClosed( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2662,7 +2662,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_FailSafePneumatic( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_FailSafePneumatic( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2688,7 +2688,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2745,7 +2745,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_OxidizerDump( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_OxidizerDump( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2784,7 +2784,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_TerminateSequence( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_TerminateSequence( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2819,7 +2819,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::CommandVoting( void )
+	unsigned short SSMEControllerSW_AD08::CommandVoting( void )
 	{
 		DCU->RAM[RAM_AD08_CMD1] = DCU->DIO_in( DEV_CIE_VIE_CMD1 );
 		DCU->RAM[RAM_AD08_CMD2] = DCU->DIO_in( DEV_CIE_VIE_CMD2 );
@@ -2895,9 +2895,9 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl( void )
 	{
-		int retval = 0;
+		unsigned short retval = 0;
 		int count = 0;
 		/*
 		HPFT TURBINE DISCHARGE TEMPERATURE
@@ -3198,12 +3198,12 @@ namespace mps
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Checkout_Standby( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Checkout_Standby( void )
 	{
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN1( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN1( void )
 	{
 		// purge Oxidizer System and intermediate seal with GSE N2 press
 
@@ -3231,7 +3231,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN2( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN2( void )
 	{
 		// purge Fuel System + PSN1
 
@@ -3259,7 +3259,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN3( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN3( void )
 	{// TODO learn from LCC SSME-10
 		// propellant recirculation
 		
@@ -3287,7 +3287,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN4( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN4( void )
 	{// TODO learn from LCC SSME-10
 		// purge Fuel System after propellant drop
 		// TODO fuel sys purge for 180sec every 60min
@@ -3337,7 +3337,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_EngineReady( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_EngineReady( void )
 	{
 		// TODO if needed go back to psn4
 
@@ -3362,11 +3362,10 @@ namespace mps
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
-
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Start_StartInitiation( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Start_StartInitiation( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_ESC] != 0xFFFF)
 		{
@@ -3428,7 +3427,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Start_ThrustBuildup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Start_ThrustBuildup( void )
 	{
 		// 3.8 CL mix control (FPOV)
 		// use PC_REF to reach PC_CMD
@@ -3467,7 +3466,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_NormalControl( void )
 	{
 		double temp;
 		double tempB;
@@ -3571,7 +3570,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_FixedDensity( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_FixedDensity( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3587,7 +3586,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ThrustLimiting( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_ThrustLimiting( void )
 	{
 		// TODO OPOV cmd limit
 		// Mode initiated whenever OPOV position command is limited for at least 3 consecutive major cycles.
@@ -3607,7 +3606,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3628,7 +3627,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ElectricalLockup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_ElectricalLockup( void )
 	{
 		// TODO if all MCC pc sensors are desqualified come to here
 
@@ -3648,7 +3647,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_ThrottleTo0( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_ThrottleTo0( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
@@ -3704,7 +3703,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_PropellantValvesClosed( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_PropellantValvesClosed( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
@@ -3738,7 +3737,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_FailSafePneumatic( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_FailSafePneumatic( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
@@ -3791,7 +3790,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_Standby( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_Standby( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3808,7 +3807,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_OxidizerDump( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_OxidizerDump( void )
 	{
 		// open MOV
 		DCU->RAM[RAM_AD08_MOV_CMD] = 4095;
@@ -3827,7 +3826,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
 	{
 		// All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch valves are then deenergized.
 
@@ -3870,11 +3869,11 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::CommandActuators( void )
+	unsigned short SSMEControllerSW_AD08::CommandActuators( void )
 	{
 		if ((DCU->RAM[RAM_AD08_CH] == chB) && (DCU->RAM[RAM_AD08_DCU_A_STATUS] == 0)) return 0;// if chB, and chA is working, don't bother
 
-		int retval = 0;
+		unsigned short retval = 0;
 		int cmdCCV = (DCU->RAM[RAM_AD08_CCV_CMD] << 4) + DEV_OE_CCV;
 		int cmdMFV = (DCU->RAM[RAM_AD08_MFV_CMD] << 4) + DEV_OE_MFV;
 		int cmdMOV = (DCU->RAM[RAM_AD08_MOV_CMD] << 4) + DEV_OE_MOV;
@@ -3941,7 +3940,7 @@ namespace mps
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::CommandONOFFDevices( void )
+	unsigned short SSMEControllerSW_AD08::CommandONOFFDevices( void )
 	{
 		if ((DCU->RAM[RAM_AD08_CH] == chB) && (DCU->RAM[RAM_AD08_DCU_A_STATUS] == 0)) return 0;// if chB, and chA is working, don't bother
 
@@ -3967,7 +3966,7 @@ namespace mps
 			(DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] << 12) + 
 			(DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] << 13);
 
-		int retval = 0;
+		unsigned short retval = 0;
 
 		// OE chA output and test
 		if (DCU->RAM[RAM_AD08_OE_A_STATUS] == 0)
@@ -3997,7 +3996,7 @@ namespace mps
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::OutputVDT( void )
+	unsigned short SSMEControllerSW_AD08::OutputVDT( void )
 	{
 		memset( &DCU->RAM[RAM_AD08_VRC_1], 0, 128 * sizeof(unsigned short) );// zeroing
 

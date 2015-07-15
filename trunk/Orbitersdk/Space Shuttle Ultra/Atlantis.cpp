@@ -1618,7 +1618,6 @@ void Atlantis::EnableControlSurfaces()
 void Atlantis::DefineAnimations (void)
 {
   UINT midx = mesh_orbiter; // mesh index for all external animations
-  UINT vidx = mesh_vc; // mesh index for all VC animations
 
   ANIMATIONCOMPONENT_HANDLE parent;
   BeginLoggingAnims();
@@ -2070,9 +2069,6 @@ void Atlantis::DefineAnimations (void)
 
   pSTYDoorMotor->SetObjectAnim(anim_styd);
 
-  // ======================================================
-  // VC animation definitions
-  // ======================================================
 
   EndLoggingAnims();
 }
@@ -6083,11 +6079,6 @@ void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
 		SetAnimation(anim_kualpha, fAlpha);
 		SetAnimation(anim_kubeta, fbeta);
 	}
-}
-
-double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
-{
-	return 50.0;
 }
 
 bool Atlantis::IsValidSPEC(int gpc, int spec) const
