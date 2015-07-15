@@ -262,7 +262,6 @@ namespace vc
 	{
 		VECTOR3 switch_rot = _V( 1, 0, 0 );
 		VECTOR3 switch_rotH = _V( 0, 0.707107, 0.707107 );
-		VECTOR3 wheel_rot = _V( 1, 0, 0 );
 
 		AddAIDToMouseEventList( AID_C2 );
 

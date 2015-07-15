@@ -741,11 +741,6 @@ namespace vc {
 		int MM = STS()->pSimpleGPC->GetMajorMode();
 		double MachNumber = STS()->GetMachNumber();
 		double Altitude_ft = STS()->GetAltitude() * MPS2FPS;
-		double dtmp = 0;
-		double dtmp2 = 0;
-		double dtmp3 = 0;
-		int itmp = 0;
-		bool btmp = false;
 		int adiatt = 1;//GetIDP()->GetADIAttitude();
 		int adierr = GetIDP()->GetADIError();
 		int adirate = GetIDP()->GetADIRate();
@@ -1025,7 +1020,7 @@ namespace vc {
 	void MDU::ORBITPFD( HDC hDC )
 	{
 		int MM = STS()->pSimpleGPC->GetMajorMode();
-		int adiatt = 1;//GetIDP()->GetADIAttitude();
+		//int adiatt = GetIDP()->GetADIAttitude();
 		int adierr = GetIDP()->GetADIError();
 		int adirate = GetIDP()->GetADIRate();
 		VECTOR3 av;// x = pitch, y = yaw, z = roll
@@ -3120,6 +3115,7 @@ namespace vc {
 					if (roll <= -10) pos_roll = 157;
 					else pos_roll = 87 - Round( roll * 7 );
 				}
+				else pos_roll = 0;
 
 				if (pitch > 5000) pos_pitch = 129;
 				else if (pitch < -5000) pos_pitch = 59;

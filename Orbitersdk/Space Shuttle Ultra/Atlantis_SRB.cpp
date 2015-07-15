@@ -338,7 +338,7 @@ void Atlantis_SRB::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		if(!_strnicmp(line, "SECTION_COUNT", 13)) {
 			int temp;
 			sscanf_s(line+14, "%d", &temp);
-			usSectionCount = static_cast<int>(temp);
+			usSectionCount = static_cast<unsigned short>(temp);
 		}
 		else ParseScenarioLineEx(line, status);
 	}

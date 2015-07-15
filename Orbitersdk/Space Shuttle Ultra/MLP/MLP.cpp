@@ -429,8 +429,8 @@ void MLP::CalculateSteamProduction(double fSimT, double fDeltaT)
 	VECTOR3 L0, L1, L2, L3;	//Left SRB Hole
 	VECTOR3 R0, R1, R2, R3;	//Right SRB Hole
 
-	bool bHitSSME = false;
-	bool bHitSRB = false;
+	//bool bHitSSME = false;
+	//bool bHitSRB = false;
 
 
 	Local2Global(_V(-5, -0.8581532, -20), M0);

@@ -174,7 +174,6 @@ namespace vc
 	{
 		AtlantisPanel::OnPreStep( SimT, DeltaT, MJD );
 
-		bool update = false;
 		short fuel;
 		//Check forward event timer for changes and update clock if needed
 
