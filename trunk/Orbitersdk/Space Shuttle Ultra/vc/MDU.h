@@ -331,7 +331,7 @@ namespace vc {
 		 */
 		inline void Theta(int x, int y, char attributes = 0)
 		{
-			Ellipse(5*x, 9*y+2, 5*x+4, 9*y+8, attributes);
+			Ellipse(5*x, 9*y+1, 5*x+4, 9*y+8, attributes);
 			Line(5*x, 9*y+4, 5*x+4, 9*y+4, attributes);
 		}
 
@@ -349,10 +349,9 @@ namespace vc {
 		 */
 		inline void Alpha(int x, int y, char attributes = 0)
 		{
-			// TODO improve
-			Circle(5*x+1, 9*y+3, 2, attributes);
-			Circle(5*x+4, 9*y+2, 1, attributes);
-			Circle(5*x+4, 9*y+5, 1, attributes);
+			Circle(5*x+2, 9*y+5, 2, attributes);
+			Line(5*x+4, 9*y+3, 5*x+3, 9*y+3, attributes);
+			Line(5*x+4, 9*y+6, 5*x+3, 9*y+6, attributes);
 		}
 
 		/**
@@ -360,16 +359,8 @@ namespace vc {
 		 */
 		inline void Sigma(int x, int y, char attributes = 0)
 		{
-			// TODO improve
-			Circle(5*x+2, 9*y+4, 1, attributes);
-			Circle(5*x+2, 9*y+5, 1, attributes);
-			Circle(5*x+1, 9*y+6, 1, attributes);
-			Circle(5*x, 9*y+5, 1, attributes);
-			Circle(5*x, 9*y+4, 1, attributes);
-			Circle(5*x+1, 9*y+3, 1, attributes);
-			Circle(5*x+2, 9*y+3, 1, attributes);
-			Circle(5*x+3, 9*y+3, 1, attributes);
-			Circle(5*x+4, 9*y+3, 1, attributes);
+			Line(5*x+4, 9*y+3, 5*x+2, 9*y+3, attributes);
+			Circle(5*x+2, 9*y+5, 2, attributes);
 		}
 
 		/**
@@ -377,7 +368,7 @@ namespace vc {
 		 */
 		inline void UpArrow(int x, int y, char attributes = 0)
 		{
-			Line(5*x+2, 9*y+7, 5*x+2, 9*y+1, attributes);
+			Line(5*x+2, 9*y+7, 5*x+2, 9*y, attributes);
 			Line(5*x, 9*y+3, 5*x+2, 9*y+1, attributes);
 			Line(5*x+4, 9*y+3, 5*x+2, 9*y+1, attributes);
 		}
@@ -387,7 +378,7 @@ namespace vc {
 		 */
 		inline void DownArrow(int x, int y, char attributes = 0)
 		{
-			Line(5*x+2, 9*y+1, 5*x+2, 9*y+7, attributes);
+			Line(5*x+2, 9*y+1, 5*x+2, 9*y+8, attributes);
 			Line(5*x, 9*y+5, 5*x+2, 9*y+7, attributes);
 			Line(5*x+4, 9*y+5, 5*x+2, 9*y+7, attributes);
 		}
@@ -397,7 +388,7 @@ namespace vc {
 		 */
 		inline void LeftArrow( int x, int y, char attributes = 0 )
 		{
-			Line( (5 * x) + 4, (9 * y) + 4, 5 * x, (9 * y) + 4, attributes );
+			Line( (5 * x) + 4, (9 * y) + 4, (5 * x) - 1, (9 * y) + 4, attributes );
 			Line( (5 * x) + 2, (9 * y) + 2, 5 * x, (9 * y) + 4, attributes );
 			Line( (5 * x) + 2, (9 * y) + 6, 5 * x, (9 * y) + 4, attributes );
 		}
@@ -407,7 +398,7 @@ namespace vc {
 		 */
 		inline void RightArrow( int x, int y, char attributes = 0 )
 		{
-			Line( 5 * x, (9 * y) + 4, (5 * x) + 4, (9 * y) + 4, attributes );
+			Line( 5 * x, (9 * y) + 4, (5 * x) + 5, (9 * y) + 4, attributes );
 			Line( (5 * x) + 2, (9 * y) + 2, (5 * x) + 4, (9 * y) + 4, attributes );
 			Line( (5 * x) + 2, (9 * y) + 6, (5 * x) + 4, (9 * y) + 4, attributes );
 		}
