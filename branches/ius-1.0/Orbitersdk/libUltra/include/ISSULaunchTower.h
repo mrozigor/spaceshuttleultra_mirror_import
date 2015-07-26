@@ -11,7 +11,7 @@ class ISSULaunchTower
 public:
 	virtual void OnT0() = 0;
 
-	virtual void ExtendOrbiterAccessArm() = 0;
+	virtual void ExtendOrbiterAccessArm( int mode ) = 0;
 	virtual void RetractOrbiterAccessArm() = 0;
 	virtual void HaltOrbiterAccessArm() = 0;
 

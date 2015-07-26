@@ -31,7 +31,7 @@
 
 namespace vc {
 
-	using class discsignals::DiscInPort;
+	using discsignals::DiscInPort;
 
 	class StandardLight: public BasicLight {
 		SURFHANDLE shSource;
@@ -52,6 +52,11 @@ namespace vc {
 //		virtual bool Connect(unsigned short usPort, ::discsignals::DiscreteBundle* pBundle, unsigned short usLine);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
 		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
+		/**
+		 * Connect light to specifed port.
+		 * \param usPort 0 to connect input port, 1 to connect test port
+		 */
+		virtual bool Connect(unsigned short usPort, discsignals::DiscreteBundle* pBundle, unsigned short usLine);
 
 		DiscInPort input;
 		DiscInPort test;

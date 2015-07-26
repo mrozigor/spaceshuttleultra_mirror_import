@@ -29,42 +29,63 @@
 #include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "..\Atlantis.h"
-#include "ValveTypeBool.h"
+#include "SolenoidValve.h"
+#include "PressureActuatedValve.h"
+#include "HydraulicActuatedValve.h"
 
 
 namespace mps
 {
-	const double MAX_RATE_CCV = 120;// DONO max rate
-	const double MAX_RATE_MOV = 120;// DONO max rate
-	const double MAX_RATE_MFV = 150;// DONO max rate
-	const double MAX_RATE_FPOV = 170;// DONO max rate
-	const double MAX_RATE_OPOV = 210;// DONO max rate
-	const double MAX_RATE_OBV = 50;// DONO max rate
-	const double MAX_RATE_FBV = 50;// DONO max rate
-	const double MAX_RATE_AFV = 50;// DONO max rate
+	// HACK very little ideia about the real numbers
+	const double MAX_RATE_CCV = 120;
+	const double MAX_RATE_MOV = 120;
+	const double MAX_RATE_MFV = 150;
+	const double MAX_RATE_FPOV = 170;
+	const double MAX_RATE_OPOV = 210;
+	const double RATE_AFV = 100;
+	const double RATE_HPV_SV = 1000;
+	const double RATE_OBV = 100;
+	const double RATE_FBV = 100;
+	const double RATE_HPV = 100;
+	const double RATE_GCV = 100;
+	const double RATE_RIV = 100;
 
-	class SSMEController;
+
+	class HeSysEng;
+	class MPS;
+
+	using discsignals::DiscreteBundle;
 
 	class SSME:public AtlantisSubsystem
 	{
 		friend class EIU;
 		friend class SSMEController;
+		friend class OutputElectronics;
 		friend class OutputElectronics_BLOCK_II;
 		friend class InputElectronics_BLOCK_II;
+		friend class PneumaticControlAssembly;
 
 		protected:
 			unsigned short ID;// engine ID (1 - C, 2 - L, 3 - R)
 
-			BasicValve* ptrCCV;
-			BasicValve* ptrMFV;
-			BasicValve* ptrMOV;
-			BasicValve* ptrFPOV;
-			BasicValve* ptrOPOV;
-			ValveTypeBool* ptrFBV;
-			ValveTypeBool* ptrOBV;
-			ValveTypeBool* ptrAFV;
+			HydraulicActuatedValve* ptrCCV;
+			HydraulicActuatedValve* ptrMFV;
+			HydraulicActuatedValve* ptrMOV;
+			HydraulicActuatedValve* ptrFPOV;
+			HydraulicActuatedValve* ptrOPOV;
+			SolenoidValve* ptrAFV;
+			SolenoidValve* ptrHPV_SV;
+			PressureActuatedValve* ptrFBV;
+			PressureActuatedValve* ptrOBV;
+			PressureActuatedValve* ptrHPV;
+			PressureActuatedValve* ptrGCV;
+			PressureActuatedValve* ptrRIV;
 
 			SSMEController* Controller;
+			
+			PneumaticControlAssembly* PCA;
+
+			MPS* pMPS;
 
 			bool Igniter_MCC[2];
 			bool Igniter_FPB[2];
@@ -76,22 +97,6 @@ namespace mps
 			double RPL_PC_PRESS;
 			int MPL;// % RPL
 			int FPL;// % RPL
-
-			// sfx for lox dump
-			PROPELLANT_HANDLE phLOXdump;
-			THRUSTER_HANDLE thLOXdump;
-			VECTOR3 posLOXdump;
-			VECTOR3 dirLOXdump;
-
-			// sensor table
-			double* SENSOR_P;// pressure sensors
-			double* SENSOR_T;// temperature sensors
-			double* SENSOR_S;// speed sensors
-			double* SENSOR_F;// flow sensors
-			int numP;// number of pressure sensors
-			int numT;// number of temperature sensors
-			int numS;// number of speed sensors
-			int numF;// number of flow sensors
 
 			/**
 			 * Converts engine level from percentage to chamber pressure (psi)
@@ -125,6 +130,8 @@ namespace mps
 
 			double AdjCOTime( double pc );
 
+			virtual void ConnectSensors( DiscreteBundle* IEchA_Press, DiscreteBundle* IEchB_Press, DiscreteBundle* IEchA_Temp, DiscreteBundle* IEchB_Temp, DiscreteBundle* IEchA_Flow, DiscreteBundle* IEchB_Flow, DiscreteBundle* IEchA_Speed, DiscreteBundle* IEchB_Speed ) = 0;
+
 		public:
 			/**
 			 * Create a new SSME object.
@@ -133,12 +140,9 @@ namespace mps
 			 * @param nID identification number of the SSME
 			 * @param controllertype identification of the SSME controller version
 			 * @param sw identification of the software version of the SSME controller
-			 * @param numP number of presure sensors
-			 * @param numT number of temperature sensors
-			 * @param numS number of speed sensors
-			 * @param numF number of flow sensors
+			 * @param HeSys Helium System supplying the engine
 			 */
-			SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short nID, int controllertype, const string& sw, int numP, int numT, int numS, int numF );
+			SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short nID, int controllertype, const string& sw, HeSysEng* HeSys );
 			virtual ~SSME( void );
 
 			/**
@@ -149,7 +153,6 @@ namespace mps
 			void Realize( void );
 
 			void OnPostStep( double fSimT, double fDeltaT, double fMJD );
-			//void OnPreStep( double fSimT, double fDeltaT, double fMJD );
 
 			bool SingleParamParseLine() const {return true;};
 
@@ -159,8 +162,6 @@ namespace mps
 			// for use by the derived class
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
-
-			void PCA( void );
 	};
 }
 

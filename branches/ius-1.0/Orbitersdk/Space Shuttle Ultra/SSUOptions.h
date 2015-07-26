@@ -16,7 +16,7 @@ public:
 
 	SSUOptions(void)
 		: m_available(false), m_complex_GPC(false), 
-		  m_complex_IDP(false), m_romfile_path("Config\\SSU\\ROM")
+		  m_complex_IDP(false), m_romfile_path("Config\\SSU\\MDM")
 	{
 	}
 

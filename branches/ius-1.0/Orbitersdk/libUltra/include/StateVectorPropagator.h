@@ -81,6 +81,33 @@ private:
 };
 
 /**
+ * Used with StateVectorPropagator to correct for OMS burn
+ * Currently assumes constant acceleration (not quite correct, but should be good approximation)
+ */
+class OMSBurnPropagator : public PropagatorPerturbation
+{
+	VECTOR3 equBurnDirection;
+	double deltaV;
+	double TIG;
+	double acc;
+	bool burnInProgress, burnCompleted;
+	double VGO; // used to track DeltaV applied so far
+	double lastMET; // used for calculating interval between calls
+
+	VECTOR3 cutoffPos, cutoffVel;
+	VECTOR3 tigPos, tigVel;
+public:
+	OMSBurnPropagator();
+	~OMSBurnPropagator();
+
+	void SetBurnData(double TIG, const VECTOR3 &equDeltaV, double acceleration);
+	void GetTIGStateVector(VECTOR3& pos, VECTOR3& vel) const;
+	void GetCutoffStateVector(VECTOR3& pos, VECTOR3& vel) const;
+	
+	VECTOR3 GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel);
+};
+
+/**
  * Returns time (from epoch of elements passed) when spacecraft will next pass through given altitude.
  * Assumes altitude is between apogee and perigee of elements.
  * \radius distance (from centre of Earth) in meters

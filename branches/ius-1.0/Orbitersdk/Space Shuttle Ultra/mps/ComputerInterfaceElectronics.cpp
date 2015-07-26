@@ -1,7 +1,9 @@
 #include "ComputerInterfaceElectronics.h"
 #include "VehicleInterfaceElectronics.h"
+#include "PowerSupplyElectronics.h"
 #include "DigitalComputerUnit.h"
 #include "InputElectronics.h"
+#include "OutputElectronics.h"
 #include "SSMEController.h"
 #include "MPSdefs.h"
 
@@ -38,16 +40,13 @@ namespace mps
 
 	void ComputerInterfaceElectronics::OnSaveState( FILEHANDLE scn ) const
 	{
-		char cbuf[255];
-		char cbuf_ch[255];
+		char cbuf[32];
+		int config = 1;
 
-		/*sprintf_s( cbuf_ch, 255, "ComputerInterfaceElectronics_ch%d dWDT", ch );
-		sprintf_s( cbuf, 255, "%lf %lf", dWDT[0], dWDT[1] );
-		oapiWriteScenario_string( scn, cbuf_ch, cbuf );*/
+		if (bWDT[0] == true) config = 2;
 
-		sprintf_s( cbuf_ch, 255, "CIE_ch%c bWDT", ch + 65 );
-		sprintf_s( cbuf, 255, "%d %d", bWDT[0], bWDT[1] );
-		oapiWriteScenario_string( scn, cbuf_ch, cbuf );
+		sprintf_s( cbuf, 32, "CIE_ch%c config", ch + 65 );
+		oapiWriteScenario_int( scn, cbuf, config );
 
 		__OnSaveState( scn );// write derived class
 		return;
@@ -55,44 +54,38 @@ namespace mps
 
 	bool ComputerInterfaceElectronics::OnParseLine( const char* line )
 	{
-		int read_i1 = 0;
-		int read_i2 = 0;
-		double read_f1 = 0;
-		double read_f2 = 0;
-		char cbuf_ch[255];
+		int read_i = 0;
+		char cbuf_ch[16];
 #ifdef _MPSDEBUG
 		char buffer[150];
 #endif// _MPSDEBUG
 
-		sprintf_s( cbuf_ch, 255, "CIE_ch%c", ch + 65 );
+		sprintf_s( cbuf_ch, 16, "CIE_ch%c", ch + 65 );
 
 		if (!_strnicmp( line, cbuf_ch, 7 ))
 		{
-			/*if (!_strnicmp( line + 8, "dWDT", 4 ))
+			if (!_strnicmp( line + 8, "config", 6 ))
 			{
-				sscanf_s( line + 12, "%lf %lf", &read_f1, &read_f2 );
-				dWDT[0] = read_f1;
-				dWDT[1] = read_f2;
+				sscanf_s( line + 14, "%d", &read_i );
+				if (read_i == 1)
+				{
+					bWDT[0] = false;
+					bWDT[1] = false;
+				}
+				else
+				{
+					bWDT[0] = true;
+					bWDT[1] = true;
+				}
 #ifdef _MPSDEBUG
-				sprintf_s( buffer, 150, " ComputerInterfaceElectronics::OnParseLine || %s dWDT:%lf|%lf", cbuf_ch, dWDT[0], dWDT[1] );
-				oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-				return true;
-			}
-			else */if (!_strnicmp( line + 8, "bWDT", 4 ))
-			{
-				sscanf_s( line + 12, "%d %d", &read_i1, &read_i2 );
-				bWDT[0] = GetBoolFromInt( read_i1 );
-				bWDT[1] = GetBoolFromInt( read_i2 );
-#ifdef _MPSDEBUG
-				sprintf_s( buffer, 150, " ComputerInterfaceElectronics::OnParseLine || %s bWDT:%d|%d", cbuf_ch, bWDT[0], bWDT[1] );
+				sprintf_s( buffer, 150, " ComputerInterfaceElectronics::OnParseLine || %s config:%d", cbuf_ch, read_i );
 				oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 				return true;
 			}
 		}
-		if (__OnParseLine( line )) return true;// check if derived class wants line
-		return false;
+
+		return __OnParseLine( line );// check if derived class wants line
 	}
 
 	void ComputerInterfaceElectronics::tmestp( double time, double dt )
@@ -102,17 +95,22 @@ namespace mps
 		return;
 	}
 
-	void ComputerInterfaceElectronics::GiveRefs( DigitalComputerUnit* DCU, InputElectronics* IEchA, InputElectronics* IEchB, ComputerInterfaceElectronics* CIEOpposite )
+	void ComputerInterfaceElectronics::Realize( void )
 	{
-		this->DCU = DCU;
-		this->IE[chA] = IEchA;
-		this->IE[chB] = IEchB;
-		this->CIEOpposite = CIEOpposite;
+		PSE = Controller->PSE[ch];
+		DCU = Controller->DCU[ch];
+		VIE = Controller->VIE;
+		IE[chA] = Controller->IE[chA];
+		IE[chB] = Controller->IE[chB];
+		OE[chA] = Controller->OE[chA];
+		OE[chB] = Controller->OE[chB];
+		if (ch == chA) CIEOpposite = Controller->CIE[chB];
+		else CIEOpposite = Controller->CIE[chA];
 		return;
 	}
 
-	void ComputerInterfaceElectronics::DMA_ch1( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength )
-	{// TODO remove selectcontrol here?
+	void ComputerInterfaceElectronics::DMA_ch1( unsigned short readaddress, unsigned short readlength )
+	{
 		// read data to VIE
 		// data recorder A
 		unsigned short data[128];
@@ -125,12 +123,12 @@ namespace mps
 			readaddress++;
 			count++;
 		}
-		Controller->VIE_RecorderDataConverter_chA( data, ch );
+		VIE->RecorderDataConverter_chA( data, ch );
 		return;
 	}
 
-	void ComputerInterfaceElectronics::DMA_ch2( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength )
-	{// TODO remove selectcontrol here?
+	void ComputerInterfaceElectronics::DMA_ch2( unsigned short readaddress, unsigned short readlength )
+	{
 		// read data to VIE
 		// data recorder B
 		unsigned short data[128];
@@ -143,15 +141,17 @@ namespace mps
 			readaddress++;
 			count++;
 		}
-		Controller->VIE_RecorderDataConverter_chB( data, ch );
+		VIE->RecorderDataConverter_chB( data, ch );
 		return;
 	}
 
 	void ComputerInterfaceElectronics::DMA_ch3( unsigned short selectcontrol, unsigned short writeaddress, unsigned short writelength )
 	{
 		// write data from IE
-		unsigned short data;
-		int IEch = GetMaskVal( selectcontrol, 0xF000 ) >> 13;// TODO check bounds
+		unsigned short data = 0;
+		int IEch = GetMaskVal( selectcontrol, 0xF000 ) >> 13;
+
+		assert( (IEch >= 0) && (IEch <= 1) && "ComputerInterfaceElectronics::DMA_ch3.IEch" );
 
 		while (writelength > 0)
 		{
@@ -175,11 +175,11 @@ namespace mps
 						switch (GetMaskVal( control, 0x0F00 ))
 						{
 							case DIO_DEV_OE_STORAGE_REG:
-								return Controller->OE_StorageRegister_read( chA );
+								return OE[chA]->StorageRegister_read();
 							case DIO_DEV_OE_ONOFF_REG_1:
-								return Controller->OE_ONOFFCommandRegister_read( chA, 1 );
+								return OE[chA]->ONOFFCommandRegister_read( 1 );
 							case DIO_DEV_OE_ONOFF_REG_2:
-								return Controller->OE_ONOFFCommandRegister_read( chA, 2 );
+								return OE[chA]->ONOFFCommandRegister_read( 2 );
 							default:
 								char buffer[100];
 								sprintf_s( buffer, 100, " ComputerInterfaceElectronics::DIO || DIO_DEV_OEchA || %d %d", control, data );
@@ -190,11 +190,11 @@ namespace mps
 						switch (GetMaskVal( control, 0x0F00 ))
 						{
 							case DIO_DEV_OE_STORAGE_REG:
-								return Controller->OE_StorageRegister_read( chB );
+								return OE[chB]->StorageRegister_read();
 							case DIO_DEV_OE_ONOFF_REG_1:
-								return Controller->OE_ONOFFCommandRegister_read( chB, 1 );
+								return OE[chB]->ONOFFCommandRegister_read( 1 );
 							case DIO_DEV_OE_ONOFF_REG_2:
-								return Controller->OE_ONOFFCommandRegister_read( chB, 2 );
+								return OE[chB]->ONOFFCommandRegister_read( 2 );
 							default:
 								char buffer[100];
 								sprintf_s( buffer, 100, " ComputerInterfaceElectronics::DIO || DIO_DEV_OEchB || %d %d", control, data );
@@ -205,11 +205,11 @@ namespace mps
 						switch (GetMaskVal( control, 0x0F00 ))
 						{
 							case DIO_DEV_VIE_CMD1:
-								return Controller->VIE_CommandDataConverter_read( 1 );
+								return VIE->CommandDataConverter_read( chA );
 							case DIO_DEV_VIE_CMD2:
-								return Controller->VIE_CommandDataConverter_read( 2 );
+								return VIE->CommandDataConverter_read( chB );
 							case DIO_DEV_VIE_CMD3:
-								return Controller->VIE_CommandDataConverter_read( 3 );
+								return VIE->CommandDataConverter_read( chC );
 							default:
 								char buffer[100];
 								sprintf_s( buffer, 100, " ComputerInterfaceElectronics::DIO || DIO_DEV_VIE || %d %d", control, data );
@@ -226,10 +226,10 @@ namespace mps
 				switch (GetMaskVal( control, 0x7000 ))
 				{
 					case DIO_DEV_OEchA:
-						Controller->OE_StorageRegister_write( chA, data, ch );
+						OE[chA]->StorageRegister_write( data, ch );
 						break;
 					case DIO_DEV_OEchB:
-						Controller->OE_StorageRegister_write( chB, data, ch );
+						OE[chB]->StorageRegister_write( data, ch );
 						break;
 					default:
 						char buffer[100];
@@ -246,21 +246,27 @@ namespace mps
 	}
 
 	void ComputerInterfaceElectronics::InitializeWDT( int nWDT )
-	{// TODO check bounds
+	{
 		// TODO use both DCU and OE
+		assert( (nWDT >= 0) && (nWDT <= 1) && "ComputerInterfaceElectronics::InitializeWDT.nWDT" );
+
 		bWDT[nWDT] = false;
 		dWDT[nWDT] = time;
 		return;
 	}
 
 	void ComputerInterfaceElectronics::ResetWDT( int nWDT )
-	{// TODO check bounds
+	{
+		assert( (nWDT >= 0) && (nWDT <= 1) && "ComputerInterfaceElectronics::ResetWDT.nWDT" );
+
 		dWDT[nWDT] = time;
 		return;
 	}
 
 	bool ComputerInterfaceElectronics::CheckWDTOwn( int nWDT )// TODO improve WDTs
-	{// TODO check bounds
+	{
+		assert( (nWDT >= 0) && (nWDT <= 1) && "ComputerInterfaceElectronics::CheckWDTOwn.nWDT" );
+
 		if (bWDT[nWDT] == false)
 		{
 			if (time == dWDT[nWDT]) 
@@ -277,7 +283,9 @@ namespace mps
 	}
 
 	bool ComputerInterfaceElectronics::CheckWDTOpposite( int nWDT )
-	{// TODO check bounds
+	{
+		assert( (nWDT >= 0) && (nWDT <= 1) && "ComputerInterfaceElectronics::CheckWDTOpposite.nWDT" );
+
 		if (ch == chA)
 		{
 			if (CIEOpposite->bWDT[nWDT] == false)
@@ -312,15 +320,27 @@ namespace mps
 		}
 	}
 
+	void ComputerInterfaceElectronics::Interrupt( int num )
+	{
+		DCU->Interrupt( num );
+		return;
+	}
+
+	void ComputerInterfaceElectronics::PowerBusDown( void )
+	{
+		DCU->Interrupt( INT_PBDI );
+		return;
+	}
+
 	void ComputerInterfaceElectronics::SwitchVRC( void )
 	{
-		Controller->VIE_SwitchVRC();
+		VIE->SwitchVRC();
 		return;
 	}
 
 	void ComputerInterfaceElectronics::RestoreVRC( void )
 	{
-		Controller->VIE_RestoreVRC();
+		VIE->RestoreVRC();
 		return;
 	}
 }

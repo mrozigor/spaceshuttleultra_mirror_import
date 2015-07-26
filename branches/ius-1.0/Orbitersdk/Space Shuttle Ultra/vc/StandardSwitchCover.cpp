@@ -4,7 +4,7 @@
 namespace vc
 {
 	StandardSwitchCover::StandardSwitchCover(Atlantis* _sts, const std::string& _ident)
-		: BasicSwitch(_sts, 2, _ident)
+	: BasicSwitch(_sts, 2, _ident, SWITCH_GUARD_SOUND)
 	{
 		anim_cover=NULL;
 		pcoverrot=NULL;
@@ -44,6 +44,7 @@ namespace vc
 
 	void StandardSwitchCover::OnPositionChange(unsigned short usNewPosition)
 	{
+		BasicSwitch::OnPositionChange(usNewPosition);
 		if(bHasAnimations)
 		{
 			SetAnimation(anim_cover, usNewPosition);

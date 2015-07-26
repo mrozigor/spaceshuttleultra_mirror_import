@@ -22,7 +22,7 @@ bool ValveTypeBool::Close( void )
 	return vlv->Close();
 }
 
-bool ValveTypeBool::GetPos( void )
+bool ValveTypeBool::GetPos( void ) const
 {
 	return pos;
 }

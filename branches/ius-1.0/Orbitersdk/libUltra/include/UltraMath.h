@@ -56,10 +56,6 @@ VECTOR3 RotateVector(const VECTOR3 &Axis, double radAngle, const VECTOR3 &v);
  */
 void RotateVector(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
 /**
- * Rotates vector around specified Euler angles in XYZ order in left-handed frame
- */
-void RotateVectorLH(const VECTOR3 &Initial, const VECTOR3 &Angles, VECTOR3 &Result);
-/**
  * Returns Euler angles (in radians); Pitch=X axis, Yaw=Y axis, Roll=Z axis
  */
 VECTOR3 GetZYX_RYPAnglesFromMatrix(const MATRIX3 &RotMatrix); //returns angles in radians
@@ -138,6 +134,14 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM);
  * \returns rotation matrix
  */
 MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness = false);
+
+/**
+ * Calculates rotation angle to be passed to SetCameraDefaultDirection function
+ * \param dir Camera direction vector (if equal to +/- Y-axis, will be changed slightly so Orbitersim doesn't ignore rotation angle)
+ * \param rot Vector in direction of vertical axis for camera view
+ * \returns rotation angle about direction vector
+ */
+double CalculateCameraRotationAngle(VECTOR3& dir, const VECTOR3& rot);
 
 //VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 //void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
@@ -268,7 +272,7 @@ inline void ConvertSecondsToDDHHMMSS(double seconds, double ddhhmmss[])
 	ddhhmmss[3] = seconds;
 }
 
-inline int round(double value)
+inline int Round(double value)
 {
 	return static_cast<int>(floor(value+0.5));
 }

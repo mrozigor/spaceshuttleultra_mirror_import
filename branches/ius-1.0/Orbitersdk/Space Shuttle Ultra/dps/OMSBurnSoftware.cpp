@@ -5,6 +5,7 @@
 #include <UltraMath.h>
 #include "../util/Stopwatch.h"
 #include "IDP.h"
+#include <kost_elements.h>
 
 namespace dps
 {
@@ -37,7 +38,8 @@ bShowTimer(false),
 bCalculatingPEG4Burn(false),
 lastUpdateSimTime(-100.0),
 //propagatedState(0.05, 20, 3600.0),
-//propagator(0.2, 50, 7200.0),
+propagator(0.2, 50, 7200.0),
+lastMET(0.0),
 pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
@@ -50,6 +52,9 @@ pOrbitDAP(NULL), pStateVector(NULL)
 	C2 = 0.0;
 	HT = 0.0;
 	ThetaT = 0.0;
+	
+	VGO = _V(0.0, 0.0, 0.0);
+	DeltaVTot = 0.0;
 
 	hEarth = NULL;
 }
@@ -85,6 +90,7 @@ void OMSBurnSoftware::Realize()
 	double J2 = 0;
 	if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
 	peg4Targeting.SetPlanetParameters(oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
+	propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
 	
 	if(MnvrLoad) {
 		LoadManeuver(false); // BurnAtt should have been loaded from scenario; don't have state vectors, so it can't be calculated here
@@ -99,36 +105,10 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 	//if((SimT-lastUpdateSimTime) > 10.0) {
 	if((SimT-lastUpdateSimTime) > 60.0) {
 		UpdateOrbitData();
-		//ELEMENTS el;
-		//ORBITPARAM oparam;
-		//STS()->GetElements(hEarth, el, &oparam, 0, FRAME_EQU);
-
-		/*MATRIX3 obliquityMat;
-		oapiGetPlanetObliquityMatrix(hEarth, &obliquityMat);
-		VECTOR3 pos, vel;
-		STS()->GetRelativePos(hEarth, pos);
-		STS()->GetRelativeVel(hEarth, vel);
-		pos=tmul(obliquityMat, pos);
-		vel=tmul(obliquityMat, vel);
-		propagator.UpdateStateVector(pos, vel, STS()->GetMET());
-		//if(lastUpdateSimTime < 0.0) propagator.UpdateStateVector(pos, vel, STS()->GetMET());
-		sprintf_s(oapiDebugString(), 255, "MET: %f Pos: %f %f %f Vel: %f %f %f", STS()->GetMET(), pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
-		oapiWriteLog(oapiDebugString());
-		// update perigee/apogee data
-		if(lastUpdateSimTime > 0.0) {
-			//Stopwatch st;
-			//st.Start();
-			//propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-			//propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
-			//double time = st.Stop();
-			//sprintf_s(oapiDebugString(), 255, "ApD: %f PeD: %f MET_Apo: %f MET_Peri: %f", ApD, PeD, ApT, PeT);
-		}*/
-		/*if(GetMajorMode() == 303) metAt400KFeet = propagator.GetMETAtAltitude(STS()->GetMET(), 400e3/MPS2FPS + oapiGetSize(hEarth));
-		else {
-			propagator.GetApogeeData(STS()->GetMET(), ApD, ApT);
-			propagator.GetPerigeeData(STS()->GetMET(), PeD, PeT);
-		}*/
-
+		// if burn has been loaded, calculate apogee/perigee at end of burn
+		if(MnvrLoad && !(BurnInProg || BurnCompleted)) {
+			UpdateBurnPropagator();
+		}
 		lastUpdateSimTime = SimT;
 	}
 	/*else {
@@ -160,8 +140,29 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 	}
+
+	if(MnvrLoad && !(BurnInProg || BurnCompleted)) propagator.Step(STS()->GetMET(), DeltaT);
 	
 	if(!MnvrLoad || met<tig) return; // no burn to perform, or we haven't reached TIG yet
+	unsigned int majorMode = GetMajorMode();
+	if(majorMode != 104 && majorMode != 105 && majorMode != 202 && majorMode != 302) return; // make sure we are in MM which allows burns
+	
+	// get VGO in orbitersim global frame; this vector will be updated every timestep
+	// do this at TIG so we get correct vector in global frame
+	if(lastMET < tig) {
+		VECTOR3 pos, vel;
+		// this gets Orbitersim state vectors
+		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
+		STS()->GetRelativePos(hEarth, pos);
+		STS()->GetRelativeVel(hEarth, vel);
+		MATRIX3 GlobalToLVLH_TIG = GetGlobalToLVLHMatrix(pos, vel, true);
+		VGO_Global = tmul(GlobalToLVLH_TIG, DeltaV);
+		// convert VGO_Global to body coordinates (and to fps) for display
+		MATRIX3 LocalToGlobal;
+		STS()->GetRotationMatrix(LocalToGlobal);
+		VGO = tmul(LocalToGlobal, VGO_Global);
+		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
+	}
 
 	// update VGO values
 	// we need to update global (orbitersim frame) VGO, then convert VGOs to shuttle body coordinates for display
@@ -176,87 +177,52 @@ void OMSBurnSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
 	}
 
-	if(BurnInProg && MnvrExecute) // check if engines should be shut down
-	{
-		if(met>=(IgnitionTime+BurnTime)) {
-			//sprintf(oapiDebugString(), "Shutdown");
-			//SetThrusterGroupLevel(thg_main, 0.00);
-			omsEngineCommand[0].ResetLine();
-			omsEngineCommand[1].ResetLine();
-			BurnCompleted=true;
-			BurnInProg=false;
-			pOrbitDAP->UseRCS();
-			//pStateVector->UpdatePropagatorStateVectors();
-			//UpdateOrbitData();
-			//lastUpdateSimTime = SimT; // force elements to be updated
+	if(OMS != 4) { // start/stop OMS engines
+		if(BurnInProg && MnvrExecute) // check if engines should be shut down
+		{
+			if(met>=(IgnitionTime+BurnTime)) TerminateBurn();
+			UpdateOrbitData();
 		}
-		UpdateOrbitData();
-	}
-	else if(!BurnInProg && !BurnCompleted) // check if burn should start
-	{
-		//sprintf(oapiDebugString(), "Burning");
-		BurnInProg=true;
-		IgnitionTime=met;
-
-		// get VGO in orbitersim global frame; this vector will be updated every timestep
-		VECTOR3 pos, vel;
-		// this gets Orbitersim state vectors
-		// it would be more realistic to get vectors from StateVectorSoftware, but this would make local->global->LVLH_TIG coordinate transformations harder (no IMUs)
-		STS()->GetRelativePos(hEarth, pos);
-		STS()->GetRelativeVel(hEarth, vel);
-		MATRIX3 GlobalToLVLH_TIG = GetGlobalToLVLHMatrix(pos, vel, true);
-		VGO_Global = tmul(GlobalToLVLH_TIG, DeltaV);
-		// convert VGO_Global to body coordinates (and to fps) for display
-		MATRIX3 LocalToGlobal;
-		STS()->GetRotationMatrix(LocalToGlobal);
-		VGO = tmul(LocalToGlobal, VGO_Global);
-		VGO = _V(VGO.z, VGO.x, -VGO.y)*MPS2FPS;
-
-		if(MnvrExecute) {
-			//ignite engines
-			//if(OMS==0) SetThrusterGroupLevel(thg_main, 1.00);
-			//else SetThrusterLevel(th_oms[OMS-1], 1.00);
-			if(OMS==0) {
-				omsEngineCommand[0].SetLine();
-				omsEngineCommand[1].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::BOTH_OMS, Trim);
-			}
-			else if(OMS==1) {
-				omsEngineCommand[0].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::LEFT_OMS, Trim);
-			}
-			else if(OMS==2) {
-				omsEngineCommand[1].SetLine();
-				pOrbitDAP->UseOMSTVC(OrbitDAP::RIGHT_OMS, Trim);
-			}
+		else if(!BurnInProg && !BurnCompleted && MnvrExecute) // check if burn should start
+		{
+			StartBurn();
 		}
 	}
+	
+	lastMET = met;
 }
 
 bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 {
+	// cancel any ongoing burn
+	if(BurnInProg) {
+		TerminateBurn();
+	}
 	if(newMajorMode == 104 || newMajorMode == 105 || newMajorMode == 106 ||
 		newMajorMode == 202 ||
 		newMajorMode == 301 || newMajorMode == 302 || newMajorMode == 303)
 	{
 		WT=STS()->GetMass()*kg_to_pounds;
-		BurnInProg=false;
-		BurnCompleted=false;
-		MnvrExecute=false;
-		MnvrToBurnAtt=false;
 		if(newMajorMode == 303) {
 			CalculateEIMinus5Att(BurnAtt);
+			MnvrToBurnAtt = false;
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
-		MnvrLoad=false;
-		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
-		VGO = _V(0, 0, 0);
-		DeltaVTot = 0.0;
 		return true;
 	}
 	else {
-		bShowTimer = false; // if leaving OMS MNVR EXEC display, turn off timer (so it will be disable the next time we entrer OMS MNVR EXEC)
+		// when leaving OMS MNVR EXEC display, turn off timer and mnvr flags (so it will be disabled the next time we enter OMS MNVR EXEC)
+		bShowTimer = false;
+		MnvrLoad=false;
+		MnvrExecute=false;
+		MnvrToBurnAtt=false;
+		// reset burn flags
+		BurnInProg=false;
+		BurnCompleted=false;
+		// reset burn data (VGO, TGO, etc.) displayed on CRT screen
+		VGO = _V(0, 0, 0);
+		DeltaVTot = 0.0;
 	}
 	return false;
 }
@@ -291,7 +257,6 @@ bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
 	else if(item>=10 && item<=13) {
 		if(item==13) dNew=atof(Data);
 		else dNew=atoi(Data);
-		//sprintf(oapiDebugString(), "%f", dNew);
 		if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
 			TIG[item-10]=dNew;
 		}
@@ -416,7 +381,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(20, 9, cbuf);
 	}
 	else {
-		if(PeT<ApT && PeT>=STS()->GetMET()) {
+		if ((PeT<ApT && PeT>=STS()->GetMET()) || ((PeT > ApT) && (ApT < STS()->GetMET()))) {
 			double TTP = PeT - STS()->GetMET();
 			minutes=(int)(TTP/60);
 			seconds=(int)(TTP-(60*minutes));
@@ -448,34 +413,34 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %d", round(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %d", Round(TV_ROLL));
 	pMDU->mvprint(1, 5, cbuf);
 	pMDU->mvprint(1, 6, "TRIM LOAD");
-	sprintf(cbuf, "6 P  %+2.1f", Trim.data[0]);
+	sprintf_s(cbuf, 255, "6 P  %+2.1f", Trim.data[0]);
 	pMDU->mvprint(2, 7, cbuf);
-	sprintf(cbuf, "7 LY %+2.1f", Trim.data[1]);
+	sprintf_s(cbuf, 255, "7 LY %+2.1f", Trim.data[1]);
 	pMDU->mvprint(2, 8, cbuf);
-	sprintf(cbuf, "8 RY %+2.1f", Trim.data[2]);
+	sprintf_s(cbuf, 255, "8 RY %+2.1f", Trim.data[2]);
 	pMDU->mvprint(2, 9, cbuf);
-	sprintf(cbuf, "9 WT  %6.0f", WT);
+	sprintf_s(cbuf, 255, "9 WT  %6.0f", WT);
 	pMDU->mvprint(1, 10, cbuf);
 	pMDU->mvprint(0, 11, "10 TIG");
-	sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
+	sprintf_s(cbuf, 255, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	pMDU->mvprint(3, 12, cbuf);
 
 	pMDU->mvprint(0, 13, "TGT PEG 4");
 	pMDU->mvprint(1, 14, "14 C1");
-	sprintf(cbuf, "%05.0f", C1);
+	sprintf_s(cbuf, 255, "%05.0f", C1);
 	pMDU->mvprint(12, 14, cbuf);
 	pMDU->mvprint(1, 15, "15 C2");
-	sprintf(cbuf, "%+06.4f", C2);
+	sprintf_s(cbuf, 255, "%+06.4f", C2);
 	pMDU->mvprint(10, 15, cbuf);
 	pMDU->mvprint(1, 16, "16 HT");
-	sprintf(cbuf, "%07.3f", HT);
+	sprintf_s(cbuf, 255, "%07.3f", HT);
 	pMDU->mvprint(10, 16, cbuf);
 	pMDU->Theta(4, 17);
 	pMDU->mvprint(1, 17, "17  T");
-	sprintf(cbuf, "%07.3f", ThetaT);
+	sprintf_s(cbuf, 255, "%07.3f", ThetaT);
 	pMDU->mvprint(10, 17, cbuf);
 	pMDU->mvprint(1, 18, "18 PRPLT");
 
@@ -485,20 +450,20 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 22, "21  VZ");
 	for(int i=20;i<=22;i++) pMDU->Delta(4, i); // delta symbols for DV X/Y/Z
 	if(PEG7.x!=0.0 || PEG7.y!=0.0 || PEG7.z!=0.0) {
-		sprintf(cbuf, "%+7.1f", PEG7.x);
+		sprintf_s(cbuf, 255, "%+7.1f", PEG7.x);
 		pMDU->mvprint(9, 20, cbuf);
-		sprintf(cbuf, "%+6.1f", PEG7.y);
+		sprintf_s(cbuf, 255, "%+6.1f", PEG7.y);
 		pMDU->mvprint(10, 21, cbuf);
-		sprintf(cbuf, "%+6.1f", PEG7.z);
+		sprintf_s(cbuf, 255, "%+6.1f", PEG7.z);
 		pMDU->mvprint(10, 22, cbuf);
 	}
 
 	if(MnvrLoad || GetMajorMode()==303) {
-		sprintf(cbuf, "24 R %-3.0f", BurnAtt.data[ROLL]);
+		sprintf_s(cbuf, 255, "24 R %-3.0f", BurnAtt.data[ROLL]);
 		pMDU->mvprint(21, 3, cbuf);
-		sprintf(cbuf, "25 P %-3.0f", BurnAtt.data[PITCH]);
+		sprintf_s(cbuf, 255, "25 P %-3.0f", BurnAtt.data[PITCH]);
 		pMDU->mvprint(21, 4, cbuf);
-		sprintf(cbuf, "26 Y %-3.0f", BurnAtt.data[YAW]);
+		sprintf_s(cbuf, 255, "26 Y %-3.0f", BurnAtt.data[YAW]);
 		pMDU->mvprint(21, 5, cbuf);
 	}
 	else {
@@ -509,15 +474,33 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 	if(MnvrLoad) {
 		pMDU->mvprint(0, 23, "LOAD  22/TIMER 23");
-		if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+
+		unsigned int majorMode = GetMajorMode();
+		if(majorMode == 104 || majorMode == 105 || majorMode == 202 || majorMode == 302) {
+			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING + dps::DEUATT_OVERBRIGHT );
+		}
 	}
 	else pMDU->mvprint(6, 23, "22/TIMER 23");
 
-	pMDU->mvprint(20, 2, "BURN ATT");
-	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
-	else pMDU->mvprint(20, 6, "MNVR 27*");
-	// display selected DAP mode
 	OrbitDAP::DAP_CONTROL_MODE dapMode = pOrbitDAP->GetDAPMode();
+
+	pMDU->mvprint(20, 2, "BURN ATT");
+	pMDU->mvprint( 21, 7, "TTG" );
+	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
+	else
+	{
+		pMDU->mvprint(20, 6, "MNVR 27*");
+		double ttg;
+		if ((dapMode == OrbitDAP::AUTO) && (BurnInProg == false) && (BurnCompleted == false) && (pOrbitDAP->GetTimeToAttitude( ttg ) == true))
+		{
+			char att = 0;
+			if ((ttg > (timeDiff - 30)) || (((GetMajorMode() / 100) == 2) && (ttg > 3599))) att = dps::DEUATT_OVERBRIGHT;
+
+			sprintf_s( cbuf, 255, "%02d:%02d", (int)ttg / 60, (int)ttg % 60 );
+			pMDU->mvprint( 25, 7, cbuf, att );
+		}
+	}
+	// display selected DAP mode
 	std::string text;
 	switch(dapMode) {
 	case OrbitDAP::AUTO:
@@ -541,9 +524,9 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(25, 10, "GMBL");
 	pMDU->mvprint(24, 11, "L");
 	pMDU->mvprint(30, 11, "R");
-	sprintf(cbuf, "P %+02.1f %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
+	sprintf_s(cbuf, 255, "P %+02.1f %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
 	pMDU->mvprint(20, 12, cbuf);
-	sprintf(cbuf, "Y %+02.1f %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
+	sprintf_s(cbuf, 255, "Y %+02.1f %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
 	pMDU->mvprint(20, 13, cbuf);
 
 	pMDU->mvprint(20, 15, "PRI 28   29");
@@ -563,25 +546,33 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		TGO[1]=max(0, (int)btRemaining%60);
 	}
 	else TGO[0]=TGO[1]=0;
-	sprintf(cbuf, "VTOT   %6.2f", DeltaVTot);
+	sprintf_s(cbuf, 255, "VTOT   %6.2f", DeltaVTot);
 	pMDU->mvprint(37, 3, cbuf);
 	pMDU->Delta(36, 3);
-	sprintf(cbuf, "TGO      %2d:%.2d", TGO[0], TGO[1]);
+	sprintf_s(cbuf, 255, "TGO      %2d:%.2d", TGO[0], TGO[1]);
 	pMDU->mvprint(36, 4, cbuf);
-	sprintf(cbuf, "VGO X %+8.2f", VGO.x);
+	sprintf_s(cbuf, 255, "VGO X %+8.2f", VGO.x);
 	pMDU->mvprint(36, 6, cbuf);
-	sprintf(cbuf, "Y  %+7.2f", VGO.y);
+	sprintf_s(cbuf, 255, "Y  %+7.2f", VGO.y);
 	pMDU->mvprint(40, 7, cbuf);
-	sprintf(cbuf, "Z  %+7.2f", VGO.z);
+	sprintf_s(cbuf, 255, "Z  %+7.2f", VGO.z);
 	pMDU->mvprint(40, 8, cbuf);
 	pMDU->mvprint(40, 10, "HA     HP");
-	pMDU->mvprint(36, 11, "TGT");
 	double earthRadius = oapiGetSize(STS()->GetGravityRef());
+	if(MnvrLoad && !Eq(tgtApD, 0.0)) {
+		double ap = (tgtApD-earthRadius)/NMI2M;
+		double pe = (tgtPeD-earthRadius)/NMI2M;
+		sprintf_s(cbuf, 255, "TGT %3d   %+4d", Round(ap), Round(pe));
+		pMDU->mvprint(36, 11, cbuf);
+	}
+	else {
+		pMDU->mvprint(36, 11, "TGT");
+	}
 	//double ap = (oparam.ApD-earthRadius)/NMI2M;
 	//double pe = (oparam.PeD-earthRadius)/NMI2M;
 	double ap = (ApD-earthRadius)/NMI2M;
 	double pe = (PeD-earthRadius)/NMI2M;
-	sprintf(cbuf, "CUR %3d   %+4d", round(ap), round(pe));
+	sprintf_s(cbuf, 255, "CUR %3d   %+4d", Round(ap), Round(pe));
 	pMDU->mvprint(36, 12, cbuf);
 	//pMDU->mvprint(36, 12, "CUR");
 
@@ -593,31 +584,31 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 {
 	if(!_strnicmp(keyword, "OMS", 3)) {
-		sscanf(value, "%d", &OMS);
+		sscanf_s(value, "%d", &OMS);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PEG7", 4)) {
-		sscanf(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
+		sscanf_s(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PEG4", 4)) {
-		sscanf(value, "%lf%lf%lf%lf", &C1, &C2, &HT, &ThetaT);
+		sscanf_s(value, "%lf%lf%lf%lf", &C1, &C2, &HT, &ThetaT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "Trim", 4)) {
-		sscanf(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
+		sscanf_s(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "BURN_ATT", 8)) {
-		sscanf(value, "%lf%lf%lf", &BurnAtt.x, &BurnAtt.y, &BurnAtt.z);
+		sscanf_s(value, "%lf%lf%lf", &BurnAtt.x, &BurnAtt.y, &BurnAtt.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "WT", 2)) {
-		sscanf(value, "%lf", &WT);
+		sscanf_s(value, "%lf", &WT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TIG", 3)) {
-		sscanf(value, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
+		sscanf_s(value, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TV_ROLL", 7)) {
@@ -661,6 +652,38 @@ void OMSBurnSoftware::SetManeuverData(double maneuverTIG, const VECTOR3& maneuve
 	PEG7 = maneuverDV*MPS2FPS;
 }
 
+void OMSBurnSoftware::StartBurn()
+{
+	BurnInProg=true;
+	IgnitionTime=STS()->GetMET();
+	//ignite engines
+	if(OMS==0) {
+		omsEngineCommand[0].SetLine();
+		omsEngineCommand[1].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::BOTH_OMS, Trim);
+	}
+	else if(OMS==1) {
+		omsEngineCommand[0].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::LEFT_OMS, Trim);
+	}
+	else if(OMS==2) {
+		omsEngineCommand[1].SetLine();
+		pOrbitDAP->UseOMSTVC(OrbitDAP::RIGHT_OMS, Trim);
+	}
+}
+
+void OMSBurnSoftware::TerminateBurn()
+{
+	omsEngineCommand[0].ResetLine();
+	omsEngineCommand[1].ResetLine();
+	BurnCompleted=true;
+	BurnInProg=false;
+	pOrbitDAP->UseRCS();
+	//pStateVector->UpdatePropagatorStateVectors();
+	//UpdateOrbitData();
+	//lastUpdateSimTime = SimT; // force elements to be updated
+}
+
 void OMSBurnSoftware::StartCalculatingPEG4Targets()
 {
 	bCalculatingPEG4Burn = true;
@@ -682,9 +705,6 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 		double angleToLaunchSite = SignedAngle(launchSitePos, initialPos, crossp(initialPos, initialVel));
 		if(angleToLaunchSite < 0) angleToLaunchSite += 2*PI;
 		correctedThetaT -= angleToLaunchSite;
-
-		sprintf_s(oapiDebugString(), 255, "Angle to launch site at TIG: %f %f", DEG*angleToLaunchSite, DEG*correctedThetaT);
-		oapiWriteLog(oapiDebugString());
 	}
 	
 	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, correctedThetaT, initialPos, initialVel, acceleration);
@@ -697,11 +717,10 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;
-	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
+	double StartWeight, EndWeight, /*EndWeightLast=0.0,*/ FuelRate, ThrustFactor=1.0;
 	//VECTOR3 ThrustVector;
-	bool bDone=false;
 	MnvrLoad=true;
-	tig=TIG[0]*86400+TIG[1]*3600+TIG[2]*60+TIG[3];
+	tig = ConvertDDHHMMSSToSeconds(TIG);
 	
 	//dV
 	for(i=0;i<3;i++) {
@@ -730,39 +749,13 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		ThrustDir=ThrustDir/ThrustFactor; //normalize vector
 	}
 	else if(OMS==1 || OMS==2) {
-		omsPitchCommand[OMS-1].SetLine(Trim.data[0]/OMS_PITCH_RANGE);
-		omsYawCommand[OMS-1].SetLine(Trim.data[OMS]/OMS_YAW_RANGE);
+		omsPitchCommand[OMS-1].SetLine(static_cast<float>(Trim.data[0]/OMS_PITCH_RANGE));
+		omsYawCommand[OMS-1].SetLine(static_cast<float>(Trim.data[OMS]/OMS_YAW_RANGE));
 		//ThrustDir = STS()->GimbalOMS(OMS-1, Trim.data[0], Trim.data[OMS]);
 		ThrustDir = CalcOMSThrustDir(OMS-1, Trim.data[0], Trim.data[OMS]);
 	}
 	else {
 		ThrustDir=_V(0.0, 0.0, 1.0); //+X RCS
-	}
-
-	//sprintf_s(oapiDebugString(), 255, "Thrust Dir: %f %f %f %f", ThrustDir.x, ThrustDir.y, ThrustDir.z, TV_ROLL);
-	if(calculateBurnAtt) {
-		// calculate LVLH burn attitude
-		MATRIX3 ThrustToBodyMatrix = Transpose(GetRotationMatrix(_V(ThrustDir.z, ThrustDir.x, -ThrustDir.y), 0.0));
-		VECTOR3 DeltaVDir = PEG7/length(PEG7);
-		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
-		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
-		//VECTOR3 radLVLHBurnAtt = GetYZXAnglesFromMatrix(LVLHToBurnAttMatrix);
-		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
-		//oapiWriteLog(oapiDebugString());
-
-		// convert LVLH angles to inertial angles at TIG
-		VECTOR3 equPos, equVel, eclPos, eclVel;
-		// TODO: use VesselState class here
-		//ELEMENTS el;
-		//ORBITPARAM oparam;
-		//STS()->GetElements(NULL, el, &oparam, 0, FRAME_EQU);
-		//PropagateStateVector(hEarth, timeToBurn, el, pos, vel, STS()->NonsphericalGravityEnabled(), STS()->GetMass());
-		//propagator.GetStateVectors(tig, equPos, equVel);
-		pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
-		equPos = ConvertBetweenLHAndRHFrames(equPos);
-		equVel = ConvertBetweenLHAndRHFrames(equVel);
-		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
-		BurnAtt = ConvertLVLHMatrixToM50Angles(LVLHToBurnAttMatrix, equPos, equVel)*DEG;
 	}
 
 	//use rocket equation (TODO: Check math/formulas here)
@@ -777,6 +770,40 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 	VGO.x=DeltaVTot*ThrustDir.z;
 	VGO.y=DeltaVTot*ThrustDir.x;
 	VGO.z=-DeltaVTot*ThrustDir.y;
+
+	// setup propagator to calculate apogee/perigee at end of burn
+	VECTOR3 equPos, equVel;
+	pStateVector->GetPropagatedStateVectors(tig, equPos, equVel);
+	VECTOR3 equDeltaV = tmul(GetGlobalToLVLHMatrix(equPos, equVel), DeltaV); // calculate DV in equatorial (inertial) frame
+	double acceleration = (ORBITER_OMS_THRUST*ThrustFactor)/StartWeight;
+	omsBurnPropagator.SetBurnData(tig, equDeltaV, acceleration);
+	propagator.DefinePerturbations(&omsBurnPropagator);
+	UpdateBurnPropagator();
+	//tgtApD = tgtPeD = 0.0;
+	// get initial value for target apogee/perigee by ignoring perturbations and assuming instantaneous burn
+	kostStateVector postBurnState;
+	kostElements elements;
+	kostOrbitParam params;
+	postBurnState.pos = ConvertBetweenLHAndRHFrames(equPos);
+	postBurnState.vel = ConvertBetweenLHAndRHFrames(equVel + equDeltaV);
+	double mu = GGRAV*(oapiGetMass(hEarth) + StartWeight);
+	kostStateVector2Elements(mu, &postBurnState, &elements, &params);
+	tgtApD = params.ApD;
+	tgtPeD = params.PeD;
+
+	if(calculateBurnAtt) {
+		// calculate LVLH burn attitude
+		MATRIX3 ThrustToBodyMatrix = Transpose(GetRotationMatrix(_V(ThrustDir.z, ThrustDir.x, -ThrustDir.y), 0.0));
+		VECTOR3 DeltaVDir = PEG7/length(PEG7);
+		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
+		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
+
+		// convert LVLH angles to inertial angles at TIG
+		VECTOR3 rhEquPos = ConvertBetweenLHAndRHFrames(equPos);
+		VECTOR3 rhEquVel = ConvertBetweenLHAndRHFrames(equVel);
+		//MATRIX3 M50Matrix=ConvertLVLHAnglesToM50Matrix(radLVLHBurnAtt, eclPos, eclVel);
+		BurnAtt = ConvertLVLHMatrixToM50Angles(LVLHToBurnAttMatrix, rhEquPos, rhEquVel)*DEG;
+	}
 }
 
 void OMSBurnSoftware::CalculateEIMinus5Att(VECTOR3& degAtt) const
@@ -802,5 +829,30 @@ void OMSBurnSoftware::UpdateOrbitData()
 		pStateVector->GetApogeeData(ApD, ApT);
 		pStateVector->GetPerigeeData(PeD, PeT);
 	}
+	if(MnvrLoad && !(BurnInProg || BurnCompleted)) {
+		double tgtApT, tgtPeT;
+		//propagator.GetApogeeData(STS()->GetMET(), tgtApD, tgtApT);
+		//propagator.GetPerigeeData(STS()->GetMET(), tgtPeD, tgtPeT);
+		propagator.GetApogeeData(tig+1000.0, tgtApD, tgtApT);
+		propagator.GetPerigeeData(tig+1000.0, tgtPeD, tgtPeT);
+		char cbuf[255];
+		sprintf_s(cbuf, 255, "MET: %f Tgt ApD: %f PeD: %f", STS()->GetMET(), tgtApD, tgtPeD);
+		oapiWriteLog(cbuf);
+	}
+}
+
+void OMSBurnSoftware::UpdateBurnPropagator()
+{
+	VECTOR3 pos, vel;
+	pStateVector->GetPropagatedStateVectors(tig, pos, vel);
+
+	propagator.UpdateVesselMass(STS()->GetMass());
+	propagator.UpdateStateVector(pos, vel, tig);
+}
+
+VECTOR3 OMSBurnSoftware::GetAttitudeCommandErrors() const
+{
+	if ((BurnInProg == false) || (OMS != 3)) return pOrbitDAP->GetAttitudeErrors(); // OMS || no burn
+	else return VGO;// RCS
 }
 };

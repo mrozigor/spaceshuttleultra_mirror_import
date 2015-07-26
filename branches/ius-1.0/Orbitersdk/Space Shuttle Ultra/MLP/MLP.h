@@ -10,12 +10,12 @@ const VECTOR3 POS_SRB_SMOKE = _V(0.0, -15.0, +20.0);
 const VECTOR3 DIR_MPS_SMOKE = _V(0.0, 0.0, -1.0);
 const VECTOR3 DIR_SRB_SMOKE = _V(0.0, 0.0, 1.0);
 
-const VECTOR3 FWD_LEFT_ROFI_POS = _V(-4.868061, 2.137968, -14.134);
-const VECTOR3 FWD_RIGHT_ROFI_POS = _V(5.022561, 2.137968, -14.134);
-const VECTOR3 AFT_LEFT_ROFI_POS = _V(-4.519, 2.137968, -11.186);
-const VECTOR3 AFT_RIGHT_ROFI_POS = _V(4.518, 2.137968, -11.186);
+const VECTOR3 FWD_LEFT_ROFI_POS = _V( -4.1, 2.137968, -16.35 );
+const VECTOR3 FWD_RIGHT_ROFI_POS = _V( 4.1, 2.137968, -16.35 );
+const VECTOR3 AFT_LEFT_ROFI_POS = _V( -4.1, 2.137968, -13.2 );
+const VECTOR3 AFT_RIGHT_ROFI_POS = _V( 4.1, 2.137968, -13.2 );
 
-const VECTOR3 HDP_POS = _V(0, -0.56, -5.75);
+const VECTOR3 HDP_POS = _V(0, -0.68, -5.0);
 
 const double TSM_UMBILICAL_RETRACT_SPEED = 1.5;
 
@@ -54,6 +54,13 @@ private:
 	double fSSMESteam;
 	double ROFILevel;
 	double ROFIStartTime;
+
+	double SSS_SSMELevel;
+	double SSS_LSRBLevel;
+	double SSS_RSRBLevel;
+	double SSS_RainbirdsLevel;
+
+	bool bSSS_on;
 
 	double dTimer;
 	bool bPadLightsOn;

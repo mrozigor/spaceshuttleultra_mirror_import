@@ -29,9 +29,11 @@
 namespace mps
 {
 	// must be the same values as in CIE
+	// out
 	const unsigned short DEV_CIE_OEchA = 0x0000;// 0000 0000 0000 0000
 	const unsigned short DEV_CIE_OEchB = 0x1000;// 0001 0000 0000 0000
 
+	// oe out
 	const unsigned short DEV_OE_ON_OFF_1 = 0x0001;// 0000 0000 0000 0001
 	const unsigned short DEV_OE_ON_OFF_2 = 0x0002;// 0000 0000 0000 0010
 	const unsigned short DEV_OE_CCV = 0x0003;// 0000 0000 0000 0011
@@ -40,9 +42,16 @@ namespace mps
 	const unsigned short DEV_OE_FPOV = 0x0006;// 0000 0000 0000 0110
 	const unsigned short DEV_OE_OPOV = 0x0007;// 0000 0000 0000 0111
 
+	// in
 	const unsigned short DEV_CIE_VIE_CMD1 = 0x2000;// 0010 0000 0000 0000
 	const unsigned short DEV_CIE_VIE_CMD2 = 0x2100;// 0010 0001 0000 0000
 	const unsigned short DEV_CIE_VIE_CMD3 = 0x2200;// 0010 0010 0000 0000
+
+	// oe in
+	const unsigned short DEV_CIE_OE_STORAGE_REG = 0x0000;
+	const unsigned short DEV_CIE_ONOFF_REG_1 = 0x0100;
+	const unsigned short DEV_CIE_ONOFF_REG_2 = 0x0200;
+
 
 	class DigitalComputerUnit;
 
@@ -54,46 +63,12 @@ namespace mps
 			SSMEControllerSW( DigitalComputerUnit* DCU );
 			virtual ~SSMEControllerSW( void );
 
-			virtual void Checkout_HydraulicConditioning( void ) = 0;
-			virtual void Checkout_Standby( void ) = 0;
-			virtual void Checkout_ActuatorCheckout( void ) = 0;
-			virtual void Checkout_EngineLeakDetection( void ) = 0;
-			virtual void Checkout_IgniterCheckout( void ) = 0;
-			virtual void Checkout_PneumaticCheckout( void ) = 0;
-			virtual void Checkout_SensorCheckout( void ) = 0;
-			virtual void Checkout_ControllerCheckout( void ) = 0;
+			virtual int GetConfig( void ) = 0;
+			virtual void SetConfig( int config ) = 0;
 
-			virtual void StartPrep_PSN1( void ) = 0;
-			virtual void StartPrep_PSN2( void ) = 0;
-			virtual void StartPrep_PSN3( void ) = 0;
-			virtual void StartPrep_PSN4( void ) = 0;
-			virtual void StartPrep_EngineReady( void ) = 0;
+			virtual void Executive( void ) = 0;
 
-			virtual void Start_StartInitiation( void ) = 0;
-			virtual void Start_ThrustBuildup( void ) = 0;
-
-			virtual void Mainstage_NormalControl( void ) = 0;
-			virtual void Mainstage_FixedDensity( void ) = 0;
-			virtual void Mainstage_ThrustLimiting( void ) = 0;
-			virtual void Mainstage_HydraulicLockup( void ) = 0;
-			virtual void Mainstage_ElectricalLockup( void ) = 0;
-
-			virtual void Shutdown_ThrottleTo0( void ) = 0;
-			virtual void Shutdown_PropellantValvesClosed( void ) = 0;
-			virtual void Shutdown_FailSafePneumatic( void ) = 0;
-
-			virtual void PostShutdown_Standby( void ) = 0;
-			virtual void PostShutdown_OxidizerDump( void ) = 0;
-			virtual void PostShutdown_TerminateSequence( void ) = 0;
-
-			void GetCommands( void );
-			void ValidateCommands( void );
-
-			void SensorInput( void );
-
-			virtual void BuiltVDT( void ) = 0;
-
-			virtual void PowerFailureSense( void ) = 0;
+			virtual void Interrupt( int num ) = 0;
 	};
 }
 

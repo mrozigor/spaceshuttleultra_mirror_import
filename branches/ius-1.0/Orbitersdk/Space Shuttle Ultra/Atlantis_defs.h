@@ -18,25 +18,36 @@ const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
+const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
-const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
-const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
+//const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
+//const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
 //const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.2,-1.91,-5.68 };
 //const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.2,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.5,-1.91,-5.68 };
-const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.5,-1.91,-5.68 };
-const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
-const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
-const VECTOR3 ORBITER_DOCKPOS      = { 0.0, 2.3729,10.1529};
+//const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.27,-1.91,-5.68 };
+//const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
+//const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
+//const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
+const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
+const VECTOR3 ODS_POS = _V(0.0, -1.1, 7);// Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
+const VECTOR3 ODS_DOCKPOS_OFFSET = _V(0.0, 2.2680, -0.319862); // offset between ODS mesh position and docking port position
 
-const VECTOR3 ODS_POS = _V(0.0, 0.85, 10.1529);//080728, DaveS edit: Fixed ODS vertical offset in the payload bay
+// mesh offsets
+// Orbiter mesh is always at (0,0,0)
+const VECTOR3 ET_OFFSET = _V(0.0, -8.975, 3.925); // offset between ET and shuttle meshes
+const VECTOR3 LSRB_OFFSET = _V(-6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
+const VECTOR3 RSRB_OFFSET = _V(6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
+const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
+const VECTOR3 KU_OFFSET = _V(0.0, 0, 0.0);
+const VECTOR3 ENTRY_OFFSET = _V(0.0, -1.5, -2.0);
 
-const VECTOR3 ET_ATTACH_POS = _V(0.0, -7.95, 13.709);
-const VECTOR3 LSRB_ATTACH_POS = _V(-6.3, -7.7, 2.8);
-const VECTOR3 RSRB_ATTACH_POS = _V(6.3, -7.7, 2.8);
+
+const double MPS_MANIFOLD_MASS_LOX = 2306;// kg
+const double MPS_MANIFOLD_MASS_LH2 = 144;// kg
+const double MPS_MANIFOLD_MASS_TOTAL = MPS_MANIFOLD_MASS_LOX + MPS_MANIFOLD_MASS_LH2;// estimated 5400 lbs LOX/LH2 in mps manifold
 
 const unsigned short MPS_SSME_NONE = 0;
 const unsigned short MPS_SSME_CENTER = 1;
@@ -44,53 +55,48 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.458, -0.194, -11.7875);
-const VECTOR3 SSMEL_REF = _V(-1.458, -0.194, -11.7875);
-const VECTOR3 SSMET_REF = _V(0.0, 1.945, -10.76250);
-//const VECTOR3 SSMET_REF = _V(0.0, 3.2,-15.5);
+const VECTOR3 SSMER_REF = _V(1.4484, -1.5694, -14.6918);// (1.4326, -1.6865, -13.7139);
+const VECTOR3 SSMEL_REF = _V(-1.4484, -1.5694, -14.6918);// (-1.4326, -1.6865, -13.7139);
+const VECTOR3 SSMET_REF = _V(0.0, 1.3289, -14.1236);// (0.0, 0.9939, -13.1244);
 
-const VECTOR3 SSMET_GOX_REF = _V(1.246, 3.236, -14.129);
-const VECTOR3 SSMEL_GOX_REF = _V(-1.57, 1.385, -14.456);
-const VECTOR3 SSMER_GOX_REF = _V(2.691, 0.209, -14.661);
+const VECTOR3 SSMET_INSTALLED_NULL_POS = _V( 0, -0.275637355816999, 0.961261695938319 );
+const VECTOR3 SSMEL_INSTALLED_NULL_POS = _V( 0.060121075043999, -0.173648177666930, 0.982970888037132 );
+const VECTOR3 SSMER_INSTALLED_NULL_POS = _V( -0.060121075043999, -0.173648177666930, 0.982970888037132 );
 
-const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
+const VECTOR3 SSMET_GOX_REF = _V(1.17425, 1.97127, -16.1533);
+const VECTOR3 SSMEL_GOX_REF = _V(-1.62164, -0.02995, -16.5744);
+const VECTOR3 SSMER_GOX_REF = _V(2.76173, -1.14272, -16.7011);
+
+//const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
+const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
-const VECTOR3 POS_HDP = _V(0.0, -1.91, -25.8);
-const VECTOR3 POS_TOW = _V(0.0, -1.91, 25.8);
-
-const VECTOR3 UMBDOORL_REF = _V(-1.17, -2.65, -7.60);
-const VECTOR3 UMBDOORR_REF = _V(1.17, -2.65, -7.60);
-//const VECTOR3 UMBDOORR_REF = _V(1.3343, -2.8067, -7.2918);
-const VECTOR3 UMBDOOR_AXIS = _V(0, -0.05, 0.99875);
+const VECTOR3 POS_HDP = _V(0.0, -10.25, -19.6);
+const VECTOR3 POS_TOW = _V(0.0, -5.64, 14.73);
 
 //const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
-const VECTOR3 PROBEL_REF = _V(-1.20, -1.0894815, 19.4175);
-const VECTOR3 PROBER_REF = _V( 1.20, -1.0894815, 19.4175);
+const VECTOR3 PROBEL_REF = _V(-1.134,-2.346,17.092);
+const VECTOR3 PROBER_REF = _V( 1.134,-2.346,17.092);
 
-const VECTOR3 PROBE_AXIS = _V(0.0, cos(15 * RAD), sin(15*RAD));
+const VECTOR3 PROBE_AXIS = _V(-0.0918181,0.94801,0.304708);
 
 // ============================================================
 // Star Tracker Door Animation Constants
 // ============================================================
-const VECTOR3 STZD_REF = _V(-1.11,1.74,15.85);
-const VECTOR3 STZD_AXIS = _V(0.375937,-0.859628,-0.345993);
-const VECTOR3 STYD_REF = _V(-1.75,1.32,15.75);
-const VECTOR3 STYD_AXIS = _V(0.720496,-0.63336,-0.282385);
-const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(-110.0 * RAD);
+const VECTOR3 STZD_REF = _V(-1.1169,0.4198,13.5551);
+const VECTOR3 STZD_AXIS = _V(0.372101, -0.864888, -0.336913);
+const VECTOR3 STYD_REF = _V(-1.9407,-0.2329,13.5354);
+const VECTOR3 STYD_AXIS = _V(-0.849865, 0.354425, 0.390016);
+const float STAR_TRACKER_DOOR_ANIMATION_ANGLE = static_cast<float>(77.0 * RAD);
 
 
-const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 4.6, -12.03);
+const VECTOR3 CHUTE_ATTACH_POINT = _V(0, 3.1655, -14.3915);
 
-//const VECTOR3 L_OMS_REF = _V(-2.311, 3.297, -11.967);
-//const VECTOR3 R_OMS_REF = _V(2.311, 3.297, -11.967);
-const VECTOR3 L_OMS_REF = _V(-2.464, 3.595, -13.11);
-const VECTOR3 R_OMS_REF = _V(2.464, 3.595, -13.11);
-//const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.2708080775, 0.955953983);
-//const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.2708080775, 0.955953983);
-const VECTOR3 L_OMS_DIR = _V(0.108917, -0.272560, 0.955954);
-const VECTOR3 R_OMS_DIR = _V(-0.108917, -0.272560, 0.955954);
+const VECTOR3 L_OMS_REF = _V(-2.15, 1.986, -14.269);
+const VECTOR3 R_OMS_REF = _V(2.15, 1.986, -14.269);
+const VECTOR3 L_OMS_DIR = _V(0.1132032138, -0.272280247041, 0.955535713334);
+const VECTOR3 R_OMS_DIR = _V(-0.1132032138, -0.272280247041, 0.955535713334);
 
 const int STATE_PRELAUNCH = 0;
 const int STATE_STAGE1 = 1;	//SRBs ignited
@@ -198,9 +204,9 @@ const VECTOR3 RCS_F4R_DIR = _V(-1,0,0);
 const VECTOR3 RCS_F4D_OFS = _V( 1.68,-0.18, 17.9);
 const VECTOR3 RCS_F4D_DIR = _V(-0.4339,0.8830,0.1793);
 
-const double PL_ATTACH_CENTER_Y = -1.80;
-const double PL_ATTACH_SIDE_Y = 0.80;
-const double PL_ATTACH_SIDE_X = 2.45;
+const double PL_ATTACH_CENTER_Y = -2.933;
+const double PL_ATTACH_SIDE_Y = -0.546;
+const double PL_ATTACH_SIDE_X = 2.424;
 
 const VECTOR3 DIR_CENTERPL = _V(0.0, 1.0, 0.0);
 const VECTOR3 ROT_CENTERPL = _V(0.0, 0.0, 1.0);
@@ -215,6 +221,15 @@ const VECTOR3 ROT_STBDPL = _V(0.0, -1.0, 0.0);
 const VECTOR3 OFS_PORTMMU = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 const VECTOR3 OFS_STBDMMU = _V( PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 8.0);
 
+// =====================================================================
+// CG definitions (location of CG relative to center of Orbiter mesh)
+// =====================================================================
+const VECTOR3 ORBITER_CG = _V(0.0, -1.23562, -3.52522);// + _V(0.0, 0.28491595177, -0.5908348442); // second term is fudge factor added so OMS gimbal angles are correct (SiameseCat, 141205)
+const VECTOR3 ET_EMPTY_CG = ET_OFFSET + _V(0.0, 0.62484, 4.6927);
+const VECTOR3 LSRB_CG = LSRB_OFFSET + _V(0.0, 0.0, 2.61217);
+const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
+const VECTOR3 ET_LH2_BASE = ET_OFFSET + _V(0.0, 0.0, -15.8);
+const VECTOR3 ET_LOX_BASE = ET_OFFSET + _V(0.0, 0.0, 15.0); // might not be exactly correct
 
 static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
 	"XS1A", "XS3A", "XS5A"};

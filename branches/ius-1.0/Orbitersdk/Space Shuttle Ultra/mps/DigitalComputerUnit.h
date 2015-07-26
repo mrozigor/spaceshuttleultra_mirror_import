@@ -28,14 +28,29 @@
 
 #include <string>
 #include <orbitersdk.h>
-#include "SSMEController.h"
-#include "SSMEControllerSW_AD08.h"
 
 
 namespace mps
 {
-	class SSMEControllerSW;
-	class ComputerInterfaceElectronics;
+	// interrupts (BLOCK I): 17 external (+2?) (12 SV failure)
+	const int INT_PFI = 1;// power failure
+	const int INT_PRI = 2;// power recovery
+	const int INT_PBDI = 3;// power bus down (opposite)
+	const int INT_CCVSVAFI = 4;// CCV SV chA failure
+	const int INT_CCVSVBFI = 5;// CCV SV chB failure
+	const int INT_MFVSVAFI = 6;// MFV SV chA failure
+	const int INT_MFVSVBFI = 7;// MFV SV chB failure
+	const int INT_MOVSVAFI = 8;// MOV SV chA failure
+	const int INT_MOVSVBFI = 9;// MOV SV chB failure
+	const int INT_FPOVSVAFI = 10;// FPOV SV chA failure
+	const int INT_FPOVSVBFI = 11;// FPOV SV chB failure
+	const int INT_OPOVSVAFI = 12;// OPOV SV chA failure
+	const int INT_OPOVSVBFI = 13;// OPOV SV chB failure
+	const int INT_CMD_RCVD = 14;// command received
+
+
+	class SSMEController;
+	class PowerSupplyElectronics;
 
 	class DigitalComputerUnit
 	{
@@ -46,9 +61,10 @@ namespace mps
 		protected:
 			int ch;
 			int ramsize;
-			SSMEControllerSW* sw;
-			SSMEController* Controller;
+			PowerSupplyElectronics* PSE;
 			ComputerInterfaceElectronics* CIE;
+			SSMEController* Controller;
+			SSMEControllerSW* sw;
 			unsigned short* RAM;
 
 			double time;
@@ -68,7 +84,7 @@ namespace mps
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
 
-			void GiveRefs( ComputerInterfaceElectronics* CIE );
+			void Realize( void );
 
 			virtual void tmestp( double time, double tmestp ) = 0;
 
@@ -79,6 +95,7 @@ namespace mps
 			void DMA_read( unsigned short selectcontrol, unsigned short readaddress, unsigned short readlength );
 
 			void PowerFailureSense( void );
+			void Interrupt( int num );
 	};
 }
 

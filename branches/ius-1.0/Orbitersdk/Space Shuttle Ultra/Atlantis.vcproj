@@ -61,7 +61,7 @@
 				ExecutionBucket="6"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../include;../libUltra/include"
+				AdditionalIncludeDirectories="../include;../libUltra/include;../libUltra/KOST"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ExecutionBucket="9"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltra.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua5.1.lib libUltra.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -160,7 +160,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include;../libUltra/include"
+				AdditionalIncludeDirectories="../include;../libUltra/include;../libUltra/KOST"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/Atlantis.pch"
@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua5.1.lib libUltrad.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua5.1.lib libUltrad.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -256,7 +256,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/analyze&#x0D;&#x0A;/wd4100"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include;../libUltra/include"
+				AdditionalIncludeDirectories="../include;../libUltra/include;../libUltra/KOST"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/Atlantis.pch"
@@ -281,7 +281,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK35.lib lua51.lib"
+				AdditionalDependencies="orbiter.lib OrbiterSDK.lib DlgCtrl.lib OrbiterSoundSDK40.lib lua51.lib"
 				OutputFile="..\..\Modules\SpaceShuttleUltra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -661,6 +661,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\MPS_Dedicated_Display_Driver.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\eva_docking\ODS.cpp"
 				>
 			</File>
@@ -734,6 +738,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF8.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelO17.cpp"
 				>
 			</File>
 			<File
@@ -997,10 +1005,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BasicValve.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dps\BIU.h"
 				>
 			</File>
@@ -1177,6 +1181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dps\MPS_Dedicated_Display_Driver.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mps\MPSdefs.h"
 				>
 			</File>
@@ -1197,7 +1205,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\OrbiterSoundSDK35.h"
+				RelativePath="..\..\include\OrbiterSoundSDK40.h"
 				>
 			</File>
 			<File
@@ -1258,6 +1266,10 @@
 			</File>
 			<File
 				RelativePath=".\vc\PanelF8.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vc\PanelO17.h"
 				>
 			</File>
 			<File

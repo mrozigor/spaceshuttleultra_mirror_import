@@ -30,11 +30,17 @@
 #include "SimpleGPCSoftware.h"
 #include "../Atlantis.h"
 #include "dps_defs.h"
+#include "DiscInPort.h"
+
+
+using discsignals::DiscInPort;
 
 
 namespace dps
 {
 	class SSME_SOP;
+	class IO_Control;
+	class ATVC_SOP;
 
 	class RSLS_old:public SimpleGPCSoftware
 	{
@@ -48,20 +54,36 @@ namespace dps
 		bool SychronizeCountdown(double mjd);
 		void StartRSLSSequence();
 
+		void Abort( void );
+
 		void Realize();
 		bool OnMajorModeChange( unsigned int newMajorMode );
+
+		bool GetRSLSAbortFlag( void ) const;
 	private:
 		SSME_SOP* pSSME_SOP;
+		IO_Control* pIO_Control;
+		ATVC_SOP* pATVC_SOP;
 		double launch_mjd, timeToLaunch, lastTTL, RSLSAbortTime;
 		bool Active,Aborted;
 		char* RSLSAbortCause;
 		int RSLSAbortData;
 		bool RSLSAbort;
 		bool abortfirstrun;
-		short abortend;
+		bool launchconfiggimbal;
+		short engineSD;
 		double eng1SDtime;
 		double eng2SDtime;
 		double eng3SDtime;
+		double PV123CLtime[3];
+		double PV456CLtime[3];
+
+		DiscInPort PV19_CLInd[2];
+		DiscInPort PV4_OPInd[2];
+		DiscInPort PV5_OPInd[2];
+		DiscInPort PV6_OPInd[2];
+		DiscInPort PV20_OPInd;
+		DiscInPort PV21_OPInd;
 	};
 };
 

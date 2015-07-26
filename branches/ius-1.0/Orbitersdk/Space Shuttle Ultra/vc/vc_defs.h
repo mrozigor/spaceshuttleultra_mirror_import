@@ -74,6 +74,8 @@
 #define AID_R13L_TKBK4   104
 #define AID_R13L_TKBK5   105
 #define AID_R13L_TKBK6   106
+#define AID_R13L_TKBK7   107
+#define AID_R13L_TKBK8   108
 #define AID_R13L_MAX     120
 // Panel F6 (commander's panel)
 #define AID_F6_MIN     200
@@ -81,15 +83,23 @@
 #define AID_F6_TKBK1   201
 #define AID_F6_TKBK2   202
 #define AID_F6_TKBK3   203
-#define AID_F6_MAX     220
+#define AID_F6_PB1   204
+#define AID_F6_PB2   205
+#define AID_F6_MAX     219
 // Panel F7 (event timer and MPS status)
-#define AID_F7_MIN	   270
-#define AID_F7	       270
-#define AID_F7_EVTTMR1 271
-#define AID_F7_EVTTMR2 272
-#define AID_F7_EVTTMR3 273
-#define AID_F7_EVTTMR4 274
-#define AID_F7_MAX	   279
+#define AID_F7_MIN	     260
+#define AID_F7	         260
+#define AID_F7_EVTTMR1   261
+#define AID_F7_EVTTMR2   262
+#define AID_F7_EVTTMR3   263
+#define AID_F7_EVTTMR4   264
+#define AID_F7_SSME_C_R  265
+#define AID_F7_SSME_C_Y  266
+#define AID_F7_SSME_L_R  267
+#define AID_F7_SSME_L_Y  268
+#define AID_F7_SSME_R_R  269
+#define AID_F7_SSME_R_Y  270
+#define AID_F7_MAX	     279
 // Panel C2 (event timer and CRT assignments)
 #define AID_C2_MIN     280
 #define AID_C2		   280
@@ -202,6 +212,11 @@
 
 #define AID_F8_MIN	   460
 #define AID_F8		   460
+#define AID_F8_TKBK1	461
+#define AID_F8_TKBK2	462
+#define AID_F8_TKBK3	463
+#define AID_F8_PB1	464
+#define AID_F8_PB2	465
 #define AID_F8_MAX	   470
 
 #define AID_A6_MIN     500
@@ -256,6 +271,8 @@
 #define AID_F2_RY_CSS	586
 #define AID_F2_P_AUTO	587
 #define AID_F2_RY_AUTO	588
+#define AID_F2_DC_ARM	589
+#define AID_F2_DC_DPY	590
 #define AID_F2_MAX		599
 
 #define AID_F4_MIN		600
@@ -268,6 +285,7 @@
 #define AID_F4_RY_CSS	606
 #define AID_F4_P_AUTO	607
 #define AID_F4_RY_AUTO	608
+#define AID_F4_DC_JETT	609
 #define AID_F4_MAX		620
 
 #define AID_A7U_MIN		640
@@ -280,6 +298,16 @@
 #define AID_A7U_PBI6	646
 #define AID_A7U_PBI7	647
 #define AID_A7U_MAX		660
+
+#define AID_O17 		661
+
+
+#define AID_F3_MIN	700
+#define AID_F3		700		
+#define AID_F3_DC_ARM	701
+#define AID_F3_DC_DPY	702
+#define AID_F3_DC_JETT	703
+#define AID_F3_MAX	710
 
 
 #define AID_MDU_CDR1	1000
@@ -303,6 +331,7 @@ const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
 const unsigned int AID_A7A3 = 11000;
 const unsigned int AID_ODSLIGHTS = 11001;
 const unsigned int AID_A8A3 = 11010;
+const unsigned int AID_A8LIGHTS = 11100;
 
 
 #define SWITCH1		0
@@ -346,6 +375,8 @@ namespace vc {
 	const int TB_GRAY = 8;
 	const int TB_DPY = 9;
 	const int TB_REL = 10;
+	const int TB_DN = 11;
+	const int TB_UP = 12;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

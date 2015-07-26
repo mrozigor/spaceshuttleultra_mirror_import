@@ -1,6 +1,7 @@
 #include "PanelA7U.h"
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
+#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -27,6 +28,7 @@ namespace vc
 		Add(pPLBDLights[5] = new StdSwitch2(_sts, "PLBD FLOOD AFT PORT"));
 		Add(pPLBDLights[6] = new StdSwitch2(_sts, "PLBD FWD BHD"));
 		Add(pDockingLight = new StdSwitch3(_sts, "PLBD DOCKING"));
+		Add(pRMSLight = new StdSwitch2(_sts, "RMS SPOTLIGHT PORT"));
 
 		pPanTiltRate->SetLabel(0, "LOW");
 		pPanTiltRate->SetLabel(1, "HIGH");
@@ -37,6 +39,9 @@ namespace vc
 			pPLBDLights[i]->SetLabel(1, "ON");
 			pPLBDLights[i]->SetInitialPosition(0);
 		}
+		pRMSLight->SetLabel(0, "OFF");
+		pRMSLight->SetLabel(1, "ON");
+		pRMSLight->SetInitialPosition(0);
 		pDockingLight->SetLabel(0, "OFF");
 		pDockingLight->SetLabel(1, "DIM");
 		pDockingLight->SetLabel(2, "BRIGHT");
@@ -53,19 +58,13 @@ namespace vc
 
 		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 
-		//if(CamTiltUp_In) sprintf_s(oapiDebugString(), 255, "Tilt up");
-		//else if(CamTiltDown_In) sprintf_s(oapiDebugString(), 255, "Tilt down");
-
 		// determine which camera (if any) is being operated
 		unsigned short cam = 5;
 		if(CamA) cam = 0;
 		else if(CamB) cam = 1;
 		else if(CamC) cam = 2;
 		else if(CamD) cam = 3;
-		else if(CamRMS) {
-			cam = 4;
-			sprintf_s(oapiDebugString(), 255, "RMS Selected");
-		}
+		else if(CamRMS) cam = 4;
 
 		if(cam != 5) // make sure a camera is selected
 		{
@@ -206,12 +205,17 @@ namespace vc
 		pPLBDLights[5]->SetReference(_V(0.1635, 2.7795, 12.311), switch_rot_vert);
 
 		pPLBDLights[6]->DefineSwitchGroup(GRP_A7U8_VC);
-		pPLBDLights[6]->SetMouseRegion(0.777841, 0.683267, 0.843850, 0.776423);
+		pPLBDLights[6]->SetMouseRegion(0.777841f, 0.683267f, 0.843850f, 0.776423f);
 		pPLBDLights[6]->SetReference(_V(0.1635, 2.6155, 12.363), switch_rot_vert);
+
+		pRMSLight->SetInitialAnimState(0.5);
+		pRMSLight->DefineSwitchGroup(GRP_A7U10_VC);
+		pRMSLight->SetMouseRegion(0.779664f, 0.831828f, 0.849279f, 0.906662f);
+		pRMSLight->SetReference(_V(0.1635, 2.5595, 12.3805), switch_rot_vert);
 
 		pDockingLight->SetInitialAnimState(0.5);
 		pDockingLight->DefineSwitchGroup(GRP_A7U7_VC);
-		pDockingLight->SetMouseRegion(0.870177, 0.691057, 0.931207, 0.773388);
+		pDockingLight->SetMouseRegion(0.870177f, 0.691057f, 0.931207f, 0.773388f);
 		pDockingLight->SetReference(_V(0.207, 2.6155, 12.363), switch_rot_vert);
 	}
 
@@ -219,7 +223,7 @@ namespace vc
 	{
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
 		oapiVCRegisterArea(AID_A7U, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A7U,
@@ -288,6 +292,7 @@ namespace vc
 		pDockingLight->ConnectPort(2, pBundle, 8); // BRIGHT
 		pDockingLight->ConnectSwitchPosition(1, 1);
 		pDockingLight->ConnectSwitchPosition(2, 2);
+		pRMSLight->ConnectPort(1, pBundle, 9);
 
 		AtlantisPanel::Realize();
 	}

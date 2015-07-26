@@ -116,38 +116,13 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 	VECTOR3 grms, pos, dir, rot, grmsdir;
 	ATTACHMENTHANDLE hAtt;
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
+	STS()->Local2Global (pos, grms);  // global position of attachment point
 	STS()->GlobalRot(dir, grmsdir);
 
 	// Search the complete vessel list for a grappling candidate.
 	// Not very scalable ...
 	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		/*if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
-		oapiGetGlobalPos (hV, &gpos);
-		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
-			VESSEL *v = oapiGetVesselInterface (hV);
-			DWORD nAttach = v->AttachmentCount (true);
-			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-				const char *id = v->GetAttachmentId (hAtt);
-				if (strncmp (id, AttachID.c_str(), AttachID.length())) 
-					continue; // attachment point not compatible
-
-				v->GetAttachmentParams (hAtt, pos, dir, rot);
-				v->Local2Global (pos, gpos);
-				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
-				//oapiWriteLog(oapiDebugString());
-				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
-					v->GlobalRot(dir, gdir);
-					double dot_product = range(-1, dotp(gdir, grmsdir), 1);
-					if(fabs(PI-acos(dot_product)) < MAX_GRAPPLING_ANGLE) {
-						if(pVessel) *pVessel=v;
-						return hAtt;
-					}
-				}
-			}
-		}*/
 		hAtt = CanAttach(hV, grms, grmsdir);
 		if(hAtt) {
 			if(pVessel) *pVessel = oapiGetVesselInterface(hV);
@@ -289,7 +264,6 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
 			// if all latches are open, release payload
 			if(LatchState[i].Open()) {
-				sprintf_s(oapiDebugString(), 255, "%s: released latch %d", GetIdentifier().c_str(), i);
 				/*bool rel=true;
 				for(unsigned short j=0;j<usLatchNum;j++) {
 					if(!LatchState[j].Open()) rel=false;
@@ -323,7 +297,7 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	//Stopwatch st;
 	//st.Start();
 	if(CheckRTL()) {
-		sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
+		//sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
 		for(int i=0;i<5;i++) ReadyToLatch[i].SetLine();
 	}
 	else {
@@ -331,9 +305,6 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 	//double time = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Time: %f", time);
-
-	//sprintf_s(oapiDebugString(), 255, "Latch state: %f %f %f %f %f", LatchState[0].pos, LatchState[1].pos, LatchState[2].pos,
-		//LatchState[3].pos, LatchState[4].pos);
 }
 
 bool ActiveLatchGroup::OnParseLine(const char *line)
@@ -425,7 +396,7 @@ ATTACHMENTHANDLE ActiveLatchGroup::FindPayload(VESSEL** pVessel) const
 	VECTOR3 glatchpos, glatchdir, pos, dir, rot;
 
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, glatchpos);
+	STS()->Local2Global (pos, glatchpos);
 	STS()->GlobalRot(dir, glatchdir);
 
 	for(unsigned int i=0;i<vhPayloads.size();i++) {
@@ -463,7 +434,7 @@ void ActiveLatchGroup::PopulatePayloadList()
 {
 	VECTOR3 gpos, grms, pos, dir, rot;
 	STS()->GetAttachmentParams(hAttach, pos, dir, rot);
-	STS()->Local2Global (STS()->GetOrbiterCoGOffset()+pos, grms);  // global position of RMS tip
+	STS()->Local2Global (pos, grms);  // global position of attachment point
 
 	// clear list
 	vhPayloads.clear();
@@ -475,6 +446,5 @@ void ActiveLatchGroup::PopulatePayloadList()
 		if(hV == STS()->GetHandle()) continue;
 		oapiGetGlobalPos (hV, &gpos);
 		if(dist(grms, gpos) < 2*oapiGetSize(hV)) vhPayloads.push_back(hV);
-		//sprintf_s(oapiDebugString(), 255, "dist: %f", dist(grms, gpos));
 	}
 }

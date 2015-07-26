@@ -170,10 +170,11 @@ void LEESystem::DetachPayload()
 ATTACHMENTHANDLE LEESystem::FindPayload(bool checkBaseAttachment, VESSEL** pVessel) const
 {
 	oapiWriteLog("Looking for payload");
-	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir;
+	VECTOR3 gpos, gdir, grms, pos, dir, rot, grmsdir, grmsrot;
 	V()->GetAttachmentParams(hEEAttach, pos, dir, rot); // both attach points are at the same position; we can use either one
 	V()->Local2Global (pos, grms);  // global position of RMS tip
-	V()->GlobalRot(dir, grmsdir);
+	V()->GlobalRot(dir, grmsdir); // direction of LEE attachment point in global frame
+	V()->GlobalRot(rot, grmsrot);
 
 	// Search the complete vessel list for a grappling candidate.
 	// Not very scalable ...
@@ -187,7 +188,7 @@ ATTACHMENTHANDLE LEESystem::FindPayload(bool checkBaseAttachment, VESSEL** pVess
 			DWORD nAttach = v->AttachmentCount (!checkBaseAttachment);
 			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
 				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (!checkBaseAttachment, j);
-				if(CanAttach(v, hAtt, grms, grmsdir)) {
+				if(CanAttach(v, hAtt, grms, grmsdir, grmsrot)) {
 					if(pVessel) *pVessel=v;
 					return hAtt;
 				}
@@ -198,7 +199,7 @@ ATTACHMENTHANDLE LEESystem::FindPayload(bool checkBaseAttachment, VESSEL** pVess
 	return NULL;
 }
 
-bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchpos, const VECTOR3& glatchdir) const
+bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchpos, const VECTOR3& glatchdir, const VECTOR3& glatchrot) const
 {
 	const char *id = v->GetAttachmentId (ah);
 	//oapiWriteLog(const_cast<char*>(id));
@@ -206,13 +207,19 @@ bool LEESystem::CanAttach(VESSEL* v, ATTACHMENTHANDLE ah, const VECTOR3& glatchp
 		//return false; // attachment point not compatible
 
 	VECTOR3 pos, dir, rot;
-	VECTOR3 gpos, gdir;
+	VECTOR3 gpos, gdir, grot;
 	v->GetAttachmentParams (ah, pos, dir, rot);
 	v->Local2Global (pos, gpos);
 	if (dist (gpos, glatchpos) < MAX_GRAPPLING_DIST) {
 		v->GlobalRot(dir, gdir);
-		if(Eq(-1.0, dotp(gdir, glatchdir), MAX_GRAPPLING_ANGLE_COS_ERR)) return true;
-		else sprintf_s(oapiDebugString(), 255, "Angle error cos: %f", dotp(gdir, glatchdir));
+		if(Eq(-1.0, dotp(gdir, glatchdir), MAX_GRAPPLING_ANGLE_COS_ERR)) {
+			v->GlobalRot(rot, grot);
+			if(Eq(1.0, dotp(grot, glatchrot), MAX_GRAPPLING_ANGLE_COS_ERR)) return true;
+			else sprintf_s(oapiDebugString(), 255, "Unable to grapple: Rotation error: %f", DEG*acos(dotp(grot, glatchrot)));
+		}
+		else {
+			sprintf_s(oapiDebugString(), 255, "Unable to grapple: Angle error: %f", DEG*acos(dotp(gdir, glatchdir)));
+		}
 	}
 	return false;
 }

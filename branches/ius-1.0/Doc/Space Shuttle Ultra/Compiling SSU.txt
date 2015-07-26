@@ -1,6 +1,6 @@
 This document describes how to setup the libraries required to compile SSU.
 
-OrbiterSound: Copy the OrbiterSDK35 .lib and .h files (in Sound/OrbiterSound_SDK/VESSELSOUND_SDK) into the orbitersdk/lib and orbitersdk/include folders, respectively.
+OrbiterSound: Copy the OrbiterSDK40 .lib and .h files (in Sound/OrbiterSound_SDK/VESSELSOUND_SDK) into the orbitersdk/lib and orbitersdk/include folders, respectively.
 
 
 If you don't want to run the unit tests, you can simply unload the libUltraTests project in Visual Studio, and the tests will not be compiled.

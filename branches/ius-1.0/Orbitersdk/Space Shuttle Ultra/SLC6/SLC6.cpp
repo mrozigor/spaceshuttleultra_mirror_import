@@ -1,17 +1,56 @@
 #define ORBITER_MODULE
+#include "../Atlantis.h"
 #include "SLC6.h"
 #include "UltraMath.h"
 #include "meshres_Tower.h"
+#include "meshres_Pad.h"
 #include "meshres_SAB.h"
 #include "resource.h"
 #include <DlgCtrl.h>
 
 HINSTANCE hModule;
 
+const unsigned int SLC6_LIGHT_COUNT = 10;
+const VECTOR3 SLC6_LIGHT_OFFSET = _V(0.0, -13.5, -99.75);
+const VECTOR3 SLC6_LIGHT_POS[SLC6_LIGHT_COUNT] = {
+	_V(-56.546, 33.334, 66.734) + SLC6_LIGHT_OFFSET, // Cylinder01
+	_V(-45.87, 33.334, 75.326) + SLC6_LIGHT_OFFSET, // Cylinder03
+	_V(-56.546, 33.334, 31.012) + SLC6_LIGHT_OFFSET, // Cylinder04
+	_V(-56.546, 33.334, 3.683) + SLC6_LIGHT_OFFSET, // Cylinder05
+	_V(-56.546, 33.334, -25.767) + SLC6_LIGHT_OFFSET, // Cylinder06
+	_V(-45.87, 33.334, 117.66) + SLC6_LIGHT_OFFSET, // Cylinder07
+	_V(30.134, 33.334, 133.743) + SLC6_LIGHT_OFFSET, // Cylinder08
+	_V(46.991, 33.334, 72.154) + SLC6_LIGHT_OFFSET, // Cylinder09
+	_V(39.889, 33.334, 66.295) + SLC6_LIGHT_OFFSET, // Cylinder10
+	_V(30.134, 33.334, 181.533) + SLC6_LIGHT_OFFSET // Cylinder11
+};
+const VECTOR3 SLC6_LIGHT_DIR[SLC6_LIGHT_COUNT] = {
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0),
+	_V(-1, 0, 0)
+};
+const COLOUR4 SLC6_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
+const COLOUR4 SLC6_LIGHT_SPECULAR = {0,0,0,0};
+const COLOUR4 SLC6_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
+const double SLC6_LIGHT_RANGE = 100.0;
+const double SLC6_LIGHT_ATT0 = 1e-3;
+const double SLC6_LIGHT_ATT1 = 0;
+const double SLC6_LIGHT_ATT2 = 0.0005;
+const double SLC6_LIGHT_UMBRA = 45.0*RAD;
+const double SLC6_LIGHT_PENUMBRA = 180.0*RAD;
+
 SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
-	: VESSEL3(hVessel, flightmodel), ROFILevel(0.0), ROFIStartTime(0.0),
-	SSSLevel(0.0), SSS_SSMESteam(0.0), SSS_SRBSteam(0.0),
-	bGLSAutoSeq(false), timeToLaunch(31.0)
+	: BaseSSUPad(hVessel, flightmodel), ROFILevel(0.0), ROFIStartTime(0.0),
+	  SSSLevel(0.0), SSS_SSMESteam(0.0), SSS_SRBSteam(0.0),
+	  bFirstStep(true), bGLSAutoSeq(false), timeToLaunch(31.0),
+	  pSTS(NULL)
 {
 	hPadMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_PAD);
 	hTowerMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_TOWER);
@@ -19,10 +58,18 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 	hSABMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_SAB);
 	hMSTMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MST);
 
+	goxVentPos[0] = GOXVENT_LEFT;
+	goxVentPos[1] = GOXVENT_RIGHT;
+	goxVentPos[2] = GOXVENT_LEFT + GOXVENT_DIRREF;
+
+	phGOXVent = NULL;
+	thGOXVent[0] = thGOXVent[1] = NULL;
+
 	AccessArmState.Set(AnimState::CLOSED, 0.0);
 	VentArmState.Set(AnimState::CLOSED, 0.0);
 	VentHoodState.Set(AnimState::OPEN, 1.0);
 	GH2VentlineState.Set(AnimState::CLOSED, 0.0);
+	T0UmbilicalState.Set(AnimState::CLOSED, 0.0);
 	IAAState.Set(AnimState::CLOSED, 0.0);
 	PCRState.Set(AnimState::CLOSED, 0.0);
 	SABState.Set(AnimState::CLOSED, 0.0);
@@ -32,7 +79,6 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 
 SLC6::~SLC6()
 {
-	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
 }
 
 void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
@@ -43,20 +89,49 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
 	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
-	ahHDP = CreateAttachment(false, _V(0, 6, -1.9), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
+	ahHDP = CreateAttachment(false, _V( 0, 6.1, -2.7 ), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
 	DefineAnimations();
 	DefineROFIs();
 	DefineSSS();
+	DefineGOXVents();
+	
+	SetOrbiterAccessArmRate(SLC6_ORBITER_ACCESS_ARM_RATE_NORMAL, OAA_RATE_NORMAL);
+	SetOrbiterAccessArmRate(SLC6_ORBITER_ACCESS_ARM_RATE_EMERGENCY, OAA_RATE_EMERGENCY);
+	SetGOXVentArmRate(SLC6_VENT_ARM_RATE);
+	SetGOXVentHoodRate(SLC6_VENT_HOOD_RATE);
+	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
+	SetIntertankAccessArmRate(SLC6_IAA_RATE);
+	
+	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT, SLC6_LIGHT_RANGE, SLC6_LIGHT_ATT0, SLC6_LIGHT_ATT1, SLC6_LIGHT_ATT2, SLC6_LIGHT_UMBRA, SLC6_LIGHT_PENUMBRA, SLC6_LIGHT_DIFFUSE, SLC6_LIGHT_SPECULAR, SLC6_LIGHT_AMBIENT);
 }
 
 void SLC6::clbkPostCreation()
 {
+	UpdateGOXVents();
+	SetPropellantMass(phGOXVent, 0.01); // ensure that fake propellant tank for GOX venting has fuel
 }
 
 void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 {
-	VESSEL3::clbkPreStep(simt, simdt, mjd);
+	BaseSSUPad::clbkPreStep(simt, simdt, mjd);
+
+	if(bFirstStep) {
+		OBJHANDLE hSTS = GetAttachmentStatus(ahHDP);
+		if(hSTS!=NULL)
+		{
+			VESSEL *pVessel = oapiGetVesselInterface(hSTS);
+			if(pVessel && !_strnicmp(pVessel->GetClassName(), "SpaceShuttleUltra",17))
+				pSTS = static_cast<Atlantis*>(pVessel);
+			else
+				pSTS = NULL;
+		}
+
+		//UpdateGOXVents();
+		//SetPropellantMass(phGOXVent, 0.01); // ensure that fake propellant tank for GOX venting has fuel
+
+		bFirstStep = false;
+	}
 
 	if(bGLSAutoSeq) {
 		timeToLaunch -= simdt;
@@ -68,37 +143,15 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 		else {
 			if(timeToLaunch < 16.0) SSSLevel = 1.0;
-			if(timeToLaunch < 6.6) SSS_SSMESteam = 1.0;
+			if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
 			if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
 		}
 	}
 
-	if(AccessArmState.Moving()) {
-		AccessArmState.Move(simdt*SLC6_ORBITER_ACCESS_ARM_RATE);
-		SetAnimation(anim_AccessArm, AccessArmState.pos);
-	}
-
-	// only allow vent hood to move when vent arm is fully extended or stopped
-	// only allow arm to move when hood is closed (retracted)
-	if(VentHoodState.Moving() && (Eq(VentArmState.pos, 1.0, 0.001) || VentArmState.Static())) {
-		VentHoodState.Move(simdt*SLC6_VENT_HOOD_RATE);
-		SetAnimation(anim_VentHood, VentHoodState.pos);
-	}
-	else if(VentArmState.Moving() && Eq(VentHoodState.pos, 0.0, 0.001)) {
-		VentArmState.Move(simdt*SLC6_VENT_ARM_RATE);
-		SetAnimation(anim_VentArm, VentArmState.pos);
-	}
-
-	//sprintf_s(oapiDebugString(), 255, "VentArm: %d %f VentHood: %d %f", VentArmState.action, VentArmState.pos, VentHoodState.action, VentHoodState.pos);
-
-	if(GH2VentlineState.Moving()) {
-		GH2VentlineState.Move(simdt*SLC6_GH2_ARM_RATE);
-		SetAnimation(anim_GH2Ventline, GH2VentlineState.pos);
-	}
-
-	if(IAAState.Moving()) {
-		IAAState.Move(simdt*SLC6_IAA_RATE);
-		SetAnimation(anim_IAA, IAAState.pos);
+	if(T0UmbilicalState.Moving()) {
+		double dp=simdt*SLC6_TSM_UMBILICAL_RETRACT_SPEED;
+		T0UmbilicalState.Move(dp);
+		SetAnimation(anim_T0Umb, T0UmbilicalState.pos);
 	}
 
 	if(PCRState.Moving()) {
@@ -116,8 +169,24 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 	}
 
 	if(MSTState.Moving()) {
-		MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
-		SetAnimation(anim_MST, MSTState.pos);
+		// only allow MST to move if IAA is retracted and GH2 ventline is detached
+		if(IAAState.Closed() && GH2VentlineState.Open()) {
+			MSTState.Move(simdt*SLC6_MST_TRANSLATE_RATE);
+			SetAnimation(anim_MST, MSTState.pos);
+		}
+	}
+
+	if(VentHoodState.Open() && VentArmState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
+		double fFlow = static_cast<double>(pSTS->GetETPropellant())/100.0;
+		SetThrusterLevel(thGOXVent[0], fFlow/5.0);
+		SetThrusterLevel(thGOXVent[1], fFlow/5.0);
+
+		UpdateGOXVents();
+	}
+	else
+	{
+		SetThrusterLevel(thGOXVent[0], 0.0);
+		SetThrusterLevel(thGOXVent[1], 0.0);
 	}
 
 	if(ROFILevel>0.01 && (simt-ROFIStartTime)>10.0) ROFILevel=0.0;
@@ -125,12 +194,13 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 
 void SLC6::clbkSaveState(FILEHANDLE scn)
 {
-	VESSEL3::clbkSaveState(scn); //default parameters
+	BaseSSUPad::clbkSaveState(scn); //default parameters
 
 	WriteScenario_state(scn, "ACCESS_ARM", AccessArmState);
 	WriteScenario_state(scn, "VENT_ARM", VentArmState);
 	WriteScenario_state(scn, "VENT_HOOD", VentHoodState);
 	WriteScenario_state(scn, "GH2_VENTLINE", GH2VentlineState);
+	WriteScenario_state(scn, "T0_UMB", T0UmbilicalState);
 	WriteScenario_state(scn, "IAA", IAAState);
 	WriteScenario_state(scn, "PCR", PCRState);
 	WriteScenario_state(scn, "SAB", SABState);
@@ -158,6 +228,10 @@ void SLC6::clbkLoadStateEx(FILEHANDLE scn, void * status)
 		else if(!_strnicmp(line, "GH2_VENTLINE", 12)) {
 			sscan_state(line+12, GH2VentlineState);
 			SetAnimation(anim_GH2Ventline, GH2VentlineState.pos);
+		}
+		else if(!_strnicmp(line, "T0_UMB", 6)) {
+			sscan_state(line+6, T0UmbilicalState);
+			SetAnimation(anim_T0Umb, T0UmbilicalState.pos);
 		}
 		else if(!_strnicmp(line, "IAA", 3)) {
 			sscan_state(line+3, IAAState);
@@ -206,21 +280,6 @@ int SLC6::clbkConsumeBufferedKey(DWORD key, bool down, char * keystate)
 	}*/
 
 	switch(key) {
-		case OAPI_KEY_K:
-			if(AccessArmState.Open()) RetractOrbiterAccessArm();
-			else ExtendOrbiterAccessArm();
-			return 1;
-		case OAPI_KEY_G:
-			if(VentHoodState.Closed()) ExtendGOXArmAndHood();
-			else RetractGOXArmAndHood();
-			return 1;
-		case OAPI_KEY_V:
-			DetachGH2Ventline();
-			return 1;
-		case OAPI_KEY_A:
-			if(IAAState.Open()) RetractIAA();
-			else DeployIAA();
-			return 1;
 		case OAPI_KEY_C:
 			if(PCRState.Closed()) ExtendPCR();
 			else RetractPCR();
@@ -252,6 +311,7 @@ void SLC6::OnT0()
 {
 	DetachGH2Ventline();
 	DetachShuttle();
+	T0UmbilicalState.action=AnimState::CLOSING;
 }
 
 void SLC6::TriggerROFIs()
@@ -264,94 +324,6 @@ void SLC6::ActivateSSS()
 {
 	//bSSSActive = true;
 	SSSLevel = 1.0;
-}
-
-void SLC6::ExtendOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::OPENING;
-}
-
-void SLC6::RetractOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::CLOSING;
-}
-
-void SLC6::HaltOrbiterAccessArm()
-{
-	AccessArmState.action=AnimState::STOPPED;
-}
-
-void SLC6::ExtendGOXArm()
-{
-	VentArmState.action=AnimState::OPENING;
-}
-
-void SLC6::RetractGOXArm()
-{
-	VentArmState.action=AnimState::CLOSING;
-}
-
-void SLC6::HaltGOXArm()
-{
-	VentArmState.action=AnimState::STOPPED;
-}
-
-void SLC6::AttachGH2Ventline()
-{
-	GH2VentlineState.action=AnimState::CLOSING;
-}
-
-void SLC6::DetachGH2Ventline()
-{
-	GH2VentlineState.action=AnimState::OPENING;
-}
-
-void SLC6::RaiseVentHood()
-{
-	VentHoodState.action=AnimState::CLOSING;
-}
-
-void SLC6::LowerVentHood()
-{
-	VentHoodState.action=AnimState::OPENING;
-}
-
-void SLC6::HaltVentHood()
-{
-	VentHoodState.action=AnimState::STOPPED;
-}
-
-void SLC6::ExtendGOXArmAndHood()
-{
-	ExtendGOXArm();
-	LowerVentHood();
-}
-
-void SLC6::RetractGOXArmAndHood()
-{
-	RetractGOXArm();
-	RaiseVentHood();
-}
-
-void SLC6::HaltGOXArmAndHood()
-{
-	HaltGOXArm();
-	HaltVentHood();
-}
-
-void SLC6::DeployIAA()
-{
-	IAAState.action=AnimState::OPENING;
-}
-
-void SLC6::HaltIAA()
-{
-	IAAState.action=AnimState::STOPPED;
-}
-
-void SLC6::RetractIAA()
-{
-	IAAState.action=AnimState::CLOSING;
 }
 
 void SLC6::ExtendPCR()
@@ -401,7 +373,9 @@ void SLC6::CloseSABDoor()
 
 void SLC6::ExtendMST()
 {
-	MSTState.action = AnimState::OPENING;
+	// only extend MST if IAA is retracted and GH2 ventline is detached
+	if(IAAState.Closed() && GH2VentlineState.Open())
+		MSTState.action = AnimState::OPENING;
 }
 
 void SLC6::HaltMST()
@@ -448,6 +422,7 @@ void SLC6::DefineROFIs()
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
+	ROFI_Stream.tex = oapiRegisterParticleTexture( "contrail3" );
 
 	AddParticleStream(&ROFI_Stream, FWD_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, FWD_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
@@ -458,10 +433,15 @@ void SLC6::DefineROFIs()
 void SLC6::DefineSSS()
 {
 	static PARTICLESTREAMSPEC sss_steam = {
-		0, 8, 20, 250.0, 0.3, 10, 3, 5, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 8, 20, 400.0, 0.3, 10, 6, 4, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
+	static PARTICLESTREAMSPEC sss_steam_SRB = {
+		0, 10, 200, 1500.0, 0.5, 10, 7, 45, PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
+		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
+	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_water = {
 		0, 0.05, 100.0, 12.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
@@ -481,8 +461,36 @@ void SLC6::DefineSSS()
 		AddParticleStream(&sss_water, _V(1.75, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
 	}
 	AddParticleStream(&sss_steam, _V(-63.0, -7.0, 50.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SSMESteam);
-	AddParticleStream(&sss_steam, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
-	AddParticleStream(&sss_steam, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
+	AddParticleStream(&sss_steam_SRB, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
+	AddParticleStream(&sss_steam_SRB, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
+}
+
+void SLC6::DefineGOXVents()
+{
+	static PARTICLESTREAMSPEC gox_stream = {
+	  0, 0.3, 140, 5, 0, 0.8, 1.6, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
+	  };
+
+	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
+
+	//AddParticleStream(&gox_stream, 
+	phGOXVent = CreatePropellantResource(0.01);
+	VECTOR3 dir = Normalize(goxVentPos[2]-goxVentPos[0]);
+	for(int i=0;i<2;i++) {
+		thGOXVent[i] = CreateThruster(goxVentPos[i], dir, 0.0, phGOXVent);
+		AddExhaustStream(thGOXVent[i], &gox_stream);
+	}
+}
+
+void SLC6::UpdateGOXVents()
+{
+	VECTOR3 dir = Normalize(goxVentPos[2]-goxVentPos[0]);
+	for(int i=0;i<2;i++) {
+		SetThrusterRef(thGOXVent[i], goxVentPos[i]+TOWER_MESH_OFFSET);
+		SetThrusterDir(thGOXVent[i], dir);
+	}
 }
 
 void SLC6::DefineAnimations()
@@ -496,6 +504,8 @@ void SLC6::DefineAnimations()
 	MGROUP_ROTATE* pVentArm = DefineRotation(tower_mesh_idx, VentArmGrp, 4, _V(3.3, 60.876, -23.148), _V(0, -1, 0), static_cast<float>(77.5*RAD));
 	anim_VentArm = CreateAnimation(0.0);
 	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_VentArm, 0.0, 1.0, pVentArm);
+	MGROUP_ROTATE* pVentVector = DefineRotation(LOCALVERTEXLIST, MAKEGROUPARRAY(goxVentPos), 3, _V(0.0, 0.0, 0.0), _V(0, 1, 0), static_cast<float>(0.0));
+	AddAnimationComponent(anim_VentArm, 0.0, 1.0, pVentVector, parent);
 
 	static UINT VentHoodGrp[5] = {GRP_GOX_VENT_HOOD, GRP_NORTH_GOX_VENT_CYLINDER_02, GRP_NORTH_GOX_VENT_CYLINDER_03,
 		GRP_SOUTH_GOX_VENT_CYLINDER_02, GRP_SOUTH_GOX_VENT_CYLINDER_03};
@@ -513,6 +523,20 @@ void SLC6::DefineAnimations()
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, pIAA);
 
+	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH_T0_UMBILICALS};
+	MGROUP_ROTATE* pLeftT0Umb = DefineRotation(pad_mesh_idx, LeftT0UmbGrp, 1, _V(5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, 0.9962), (float)(17.0*RAD));
+	static UINT RightT0UmbGrp[1] = {GRP_SLC6_PAD_RH_T0_UMBILICALS};
+	MGROUP_ROTATE* pRightT0Umb = DefineRotation(pad_mesh_idx, RightT0UmbGrp, 1, _V(-5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, -0.9962), (float)(17.0*RAD));
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH_TSM_BONNET};
+	MGROUP_ROTATE* pLeftT0UmbCover = DefineRotation(pad_mesh_idx, LeftT0UmbCoverGrp, 1, _V(5.75, 16.36, 6.088), _V(0.0867, 0.0, -0.9962), (float)(90.0*RAD));
+	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_RH_TSM_BONNET};
+	MGROUP_ROTATE* pRightT0UmbCover = DefineRotation(pad_mesh_idx, RightT0UmbCoverGrp, 1, _V(-5.75, 16.36, 6.088), _V(0.0867, 0.0, 0.9962), (float)(90.0*RAD));
+	anim_T0Umb = CreateAnimation(0.0);
+	AddAnimationComponent(anim_T0Umb, 0.5, 1, pLeftT0Umb);
+	AddAnimationComponent(anim_T0Umb, 0.5, 1, pRightT0Umb);
+	AddAnimationComponent(anim_T0Umb, 0, 0.55, pLeftT0UmbCover);
+	AddAnimationComponent(anim_T0Umb, 0, 0.55, pRightT0UmbCover);
+
 	MGROUP_TRANSLATE* pPCR = DefineTranslation(pcr_mesh_idx, NULL, 0, _V(0, 0, -223));
 	anim_PCR = CreateAnimation(0.0);
 	AddAnimationComponent(anim_PCR, 0.0, 1.0, pPCR);
@@ -524,6 +548,11 @@ void SLC6::DefineAnimations()
 	MGROUP_TRANSLATE* pMST = DefineTranslation(mst_mesh_idx, NULL, 0, _V(0, 0, 115));
 	anim_MST = CreateAnimation(0.0);
 	AddAnimationComponent(anim_MST, 0.0, 1.0, pMST);
+	// rotate IAA structure out of way when MST is extended
+	// in theory, the IAA and GH2 ventline animations should be children of this animation component; for the moment, we just prevent the MST from moving when the IAA is deployed or the GH2 ventline is attached
+	static UINT IAAStructureGrp[9] = {GRP_IAA_STRUCTURE, GRP_GH2_AFT_VENT_FLEX_HOSE, GRP_GH2_AFT_VENT_HARD_LINE, GRP_GH2_PIVOT_POINT, GRP_GH2_VENT_LINE_HAUNCH, GRP_GH2_FWD_VENT_FLEX_LINE, GRP_GH2_VENT_HARD_LINE, GRP_GUCP, GRP_INTERTANK_ACCESS_ARM};
+	MGROUP_ROTATE* pIAAStructure = DefineRotation(tower_mesh_idx, IAAStructureGrp, 9, _V(4.348, 0.0, -25.298), _V(0, 1, 0), static_cast<float>(-90.0*RAD)); // rotation angle is just a guess
+	AddAnimationComponent(anim_MST, 0.0, 0.05, pIAAStructure);
 
 	static UINT SABDoorGrp[7] = {GRP_Door_panel7_SAB, GRP_Door_panel6_SAB, GRP_Door_panel5_SAB, GRP_Door_panel4_SAB, GRP_Door_panel3_SAB, GRP_Door_panel2_SAB, GRP_Door_panel1_SAB};
 	MGROUP_TRANSLATE* pSABDoor[7];
@@ -534,20 +563,6 @@ void SLC6::DefineAnimations()
 		AddAnimationComponent(anim_SABDoor, start, 1.0, pSABDoor[i]);
 		start += 1.0/7.0;
 	}
-}
-
-MGROUP_ROTATE* SLC6::DefineRotation(UINT mesh, UINT * grp, UINT ngrp, const VECTOR3 & ref, const VECTOR3 & axis, float angle)
-{
-	MGROUP_ROTATE* mgrp = new MGROUP_ROTATE(mesh, grp, ngrp, ref, axis, angle);
-	vpAnimations.push_back(mgrp);
-	return mgrp;
-}
-
-MGROUP_TRANSLATE* SLC6::DefineTranslation(UINT mesh, UINT* grp, UINT ngrp, const VECTOR3& shift)
-{
-	MGROUP_TRANSLATE* mgrp = new MGROUP_TRANSLATE(mesh, grp, ngrp, shift);
-	vpAnimations.push_back(mgrp);
-	return mgrp;
 }
 
 //global functions
@@ -581,7 +596,7 @@ BOOL CALLBACK SLC6_DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				oapiCloseDialog(hWnd);
 				return TRUE;
 			case IDC_OAA_DEPLOY:
-				pad->ExtendOrbiterAccessArm();
+				pad->ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 				return TRUE;
 			case IDC_OAA_HALT:
 				pad->HaltOrbiterAccessArm();

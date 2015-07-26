@@ -1,0 +1,557 @@
+SSU Readme First.txt
+Config\Earth.cfg
+Config\SSU_Aero.csv
+Config\SSU_Aileron.csv
+Config\SSU_BodyFlap.csv
+Config\SSU_Density.csv
+Config\SSU_Elevon.csv
+Config\SSU_GroundEffect.csv
+Config\SSU_GroundEffectBodyFlap.csv
+Config\SSU_HorizontalAero.csv
+Config\Earth\SSU\Amberley.cfg
+Config\Earth\SSU\Banjul.cfg
+Config\Earth\SSU\Bermuda.cfg
+Config\Earth\SSU\Canaveral.cfg
+Config\Earth\SSU\Diego_Garcia.cfg
+Config\Earth\SSU\EDW.cfg
+Config\Earth\SSU\EFD.cfg
+Config\Earth\SSU\Gander.cfg
+Config\Earth\SSU\Hao.cfg
+Config\Earth\SSU\Istres.cfg
+Config\Earth\SSU\Lajes.cfg
+Config\Earth\SSU\Mataveri.cfg
+Config\Earth\SSU\Moron.cfg
+Config\Earth\SSU\Shannon.cfg
+Config\Earth\SSU\St_Johns.cfg
+Config\Earth\SSU\Tindal_RAAF.cfg
+Config\Earth\SSU\Vandenberg.cfg
+Config\GC\SpaceShuttleUltra_ecam.cfg
+Config\SSU\MDM\FA.mdm
+Config\SSU\MDM\FF.mdm
+Config\SSU\MDM\LA1.mdm
+Config\SSU\MDM\LF1.mdm
+Config\SSU\MDM\LL.mdm
+Config\SSU\MDM\LM1.mdm
+Config\SSU\MDM\LR.mdm
+Config\SSU\MDM\OF.mdm
+Config\SSU\MDM\PL.mdm
+Config\SSU\MDM\test.mdm
+Config\Vessels\107payloads.cfg
+Config\Vessels\SpaceShuttleUltra.cfg
+Config\Vessels\SSRMSD.cfg
+Config\Vessels\SSU_CentaurGPrime.cfg
+Config\Vessels\SSU_Chute.cfg
+Config\Vessels\SSU_CISS_CentaurGPrime.cfg
+Config\Vessels\SSU_CT.cfg
+Config\Vessels\SSU_CT_1980.cfg
+Config\Vessels\SSU_DFI_pallet.cfg
+Config\Vessels\SSU_LCC.cfg
+Config\Vessels\SSU_LSRB.cfg
+Config\Vessels\SSU_LSRB_FWC.cfg
+Config\Vessels\SSU_LSRB_RSRM.cfg
+Config\Vessels\SSU_LWT.cfg
+Config\Vessels\SSU_MLP.cfg
+Config\Vessels\SSU_OBSS.cfg
+Config\Vessels\SSU_Pad.cfg
+Config\Vessels\SSU_Pad1985.cfg
+Config\Vessels\SSU_PLB.cfg
+Config\Vessels\SSU_RSRB.cfg
+Config\Vessels\SSU_RSRB_FWC.cfg
+Config\Vessels\SSU_RSRB_RSRM.cfg
+Config\Vessels\SSU_SLC6.cfg
+Config\Vessels\SSU_SLWT.cfg
+Config\Vessels\SSU_SWT.cfg
+Config\Vessels\SSU_VAB.cfg
+Config\Vessels\SSU_Xenon_Lights.cfg
+Config\Vessels\VandenbergAFB\SLC-6_STS_AT.cfg
+Config\Vessels\VandenbergAFB\SLC-6_STS_LaunchMount.cfg
+Config\Vessels\VandenbergAFB\SLC-6_STS_MAS.cfg
+Config\Vessels\VandenbergAFB\SLC-6_STS_MST.cfg
+Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
+Data\SSU\MMU1_TEST.dat
+Data\SSU\MMU2_TEST.dat
+Doc\Space Shuttle Ultra\125852main_ius93f2.pdf
+Doc\Space Shuttle Ultra\Compiling SSU.txt
+Doc\Space Shuttle Ultra\GPL.txt
+Doc\Space Shuttle Ultra\MEDS.pdf
+Doc\Space Shuttle Ultra\MPS scenario file samples.doc
+Doc\Space Shuttle Ultra\SSU Ops Manual V1.XX Rev. B.pdf
+Doc\Space Shuttle Ultra\SSU_Mission_File_Description.pdf
+Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
+Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
+Doc\Space Shuttle Ultra\Tech Notes\Ku band deployed assembly and gimbal.pdf
+Doc\Space Shuttle Ultra\Tech Notes\Ku band IRCS for the Shuttle.pdf
+Doc\Space Shuttle Ultra\Tech Notes\KU OPS 21002.pdf
+Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad A Xenon lights positions.txt
+Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad B Xenon lights positions.txt
+Doc\Space Shuttle Ultra\Tech Notes\PCWS Channels.ods
+Doc\Space Shuttle Ultra\Tech Notes\refman.pdf
+Doc\Space Shuttle Ultra\Tech Notes\RMS IK Code.odt
+Doc\Space Shuttle Ultra\Tech Notes\SCAN0004.jpg
+Doc\Space Shuttle Ultra\Tech Notes\SCAN0005.jpg
+Doc\Space Shuttle Ultra\Tech Notes\SCAN0006.jpg
+Doc\Space Shuttle Ultra\Tech Notes\Shuttle_Ku_gimbal_equations.jpg
+Doc\Space Shuttle Ultra\Tech Notes\Space Shuttle System Summary - 1980.pdf
+Doc\Space Shuttle Ultra\Tech Notes\SSRMS IK Code.odt
+Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
+Meshes\107payload.msh
+Meshes\SSRMSF.msh
+Meshes\SSU\CentaurG_Prime.msh
+Meshes\SSU\CISS_CentaurG_Prime.msh
+Meshes\SSU\Cockpit.msh
+Meshes\SSU\Crawler_drivetrucks.msh
+Meshes\SSU\Crawler_drivetrucks_reversed.msh
+Meshes\SSU\Crawler_mainbody.msh
+Meshes\SSU\Crawler_mainbody_1980.msh
+Meshes\SSU\Crawler_VC_panels.msh
+Meshes\SSU\Crawler_VC_panels_reversed.msh
+Meshes\SSU\DFI_pallet.msh
+Meshes\SSU\EDW_Lakebed_Compass_Rose.msh
+Meshes\SSU\EDW_Lakebed_RWY22_line.msh
+Meshes\SSU\EDW_Lakebed_RWY23_line.msh
+Meshes\SSU\ExtAL.msh
+Meshes\SSU\FWC_LSRB_aft_center_segment.msh
+Meshes\SSU\FWC_LSRB_aft_segment.msh
+Meshes\SSU\FWC_LSRB_fwd_center_segment.msh
+Meshes\SSU\FWC_LSRB_fwd_segment.msh
+Meshes\SSU\FWC_RSRB_aft_center_segment.msh
+Meshes\SSU\FWC_RSRB_aft_segment.msh
+Meshes\SSU\FWC_RSRB_fwd_center_segment.msh
+Meshes\SSU\FWC_RSRB_fwd_segment.msh
+Meshes\SSU\KSC_Crawler_yard_buildings.msh
+Meshes\SSU\KSC_RPSF.msh
+Meshes\SSU\KSC_SSMEPF.msh
+Meshes\SSU\KSC_Surge_Facility.msh
+Meshes\SSU\KSC_xenon_lights_trailer.msh
+Meshes\SSU\Ku_band_DA.msh
+Meshes\SSU\LC-39_watertower.msh
+Meshes\SSU\LC39A_FSS.msh
+Meshes\SSU\LC39A_FSS_1985.msh
+Meshes\SSU\LC39A_hardstand.msh
+Meshes\SSU\LC39A_RSS.msh
+Meshes\SSU\LC39A_RSS_1985.msh
+Meshes\SSU\LWT.msh
+Meshes\SSU\MateDemateDevice.msh
+Meshes\SSU\MidDeck.msh
+Meshes\SSU\MLP-2.msh
+Meshes\SSU\MLP_VAB_stands.msh
+Meshes\SSU\OBSS.msh
+Meshes\SSU\OBSSMPMs.msh
+Meshes\SSU\ODS.msh
+Meshes\SSU\ODSVC.msh
+Meshes\SSU\OPF1_2.msh
+Meshes\SSU\OPF3.msh
+Meshes\SSU\Orbiter.msh
+Meshes\SSU\OTS_Vandenberg.msh
+Meshes\SSU\parachute.msh
+Meshes\SSU\RMS.msh
+Meshes\SSU\RMSVC.msh
+Meshes\SSU\RSRM_LSRB_aft_center_segment.msh
+Meshes\SSU\RSRM_LSRB_aft_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_center_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_segment.msh
+Meshes\SSU\RSRM_LSRB_fwd_skirt_assy.msh
+Meshes\SSU\RSRM_RSRB_aft_center_segment.msh
+Meshes\SSU\RSRM_RSRB_aft_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_center_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_segment.msh
+Meshes\SSU\RSRM_RSRB_fwd_skirt_assy.msh
+Meshes\SSU\RWY_marker_10K.msh
+Meshes\SSU\RWY_marker_11K.msh
+Meshes\SSU\RWY_marker_12K.msh
+Meshes\SSU\RWY_marker_13K.msh
+Meshes\SSU\RWY_marker_14K.msh
+Meshes\SSU\RWY_marker_15K.msh
+Meshes\SSU\RWY_marker_1K.msh
+Meshes\SSU\RWY_marker_2K.msh
+Meshes\SSU\RWY_marker_3K.msh
+Meshes\SSU\RWY_marker_4K.msh
+Meshes\SSU\RWY_marker_5K.msh
+Meshes\SSU\RWY_marker_6K.msh
+Meshes\SSU\RWY_marker_7K.msh
+Meshes\SSU\RWY_marker_8K.msh
+Meshes\SSU\RWY_marker_9K.msh
+Meshes\SSU\SILTSpod.msh
+Meshes\SSU\SLWT.msh
+Meshes\SSU\SRM_aft_segment_pallet.msh
+Meshes\SSU\SRM_lifting_sling.msh
+Meshes\SSU\SRM_segment_pallet.msh
+Meshes\SSU\SRM_segment_transporter.msh
+Meshes\SSU\SSU_entry.msh
+Meshes\SSU\STS1_LSRB_aft_center_segment.msh
+Meshes\SSU\STS1_LSRB_aft_segment.msh
+Meshes\SSU\STS1_LSRB_fwd_center_segment.msh
+Meshes\SSU\STS1_LSRB_fwd_segment.msh
+Meshes\SSU\STS1_LSRB_fwd_skirt_assy.msh
+Meshes\SSU\STS1_RSRB_aft_center_segment.msh
+Meshes\SSU\STS1_RSRB_aft_segment.msh
+Meshes\SSU\STS1_RSRB_fwd_center_segment.msh
+Meshes\SSU\STS1_RSRB_fwd_segment.msh
+Meshes\SSU\STS1_RSRB_fwd_skirt_assy.msh
+Meshes\SSU\SWT.msh
+Meshes\SSU\VAB_exterior_1980.msh
+Meshes\SSU\VAB_interior_structure.msh
+Meshes\SSU\VAB_interior_structure_low-res.msh
+Meshes\SSU\VC.msh
+Meshes\SSU\CXO\Chandra_AXAF.msh
+Meshes\SSU\IUS\IUS_ASE.msh
+Meshes\SSU\IUS\IUS_SRM1.msh
+Meshes\SSU\IUS\IUS_SRM2.msh
+Meshes\VandenbergAFB\OrbiterLiftingFrame.msh
+Meshes\VandenbergAFB\SLC-6_STS.msh
+Meshes\VandenbergAFB\SLC-6_STS_AT.msh
+Meshes\VandenbergAFB\SLC-6_STS_LaunchMount.msh
+Meshes\VandenbergAFB\SLC-6_STS_MAS.msh
+Meshes\VandenbergAFB\SLC-6_STS_MST.msh
+Meshes\VandenbergAFB\SLC-6_STS_OMCF.msh
+Meshes\VandenbergAFB\SLC-6_STS_PCR.msh
+Meshes\VandenbergAFB\SLC-6_STS_PPR.msh
+Missions\SSU\STS-1.cfg
+Missions\SSU\STS-3.cfg
+Missions\SSU\STS-101.cfg
+Missions\SSU\STS-107.cfg
+Missions\SSU\STS-114.cfg
+Missions\SSU\STS-120.cfg
+Missions\SSU\STS-126.cfg
+Missions\SSU\STS-61F.cfg
+Missions\SSU\STS-61G.cfg
+Missions\SSU\STS-62A.cfg
+Missions\SSU\STS-62B.cfg
+Modules\SpaceShuttleUltra.dll
+Modules\SSUChute.dll
+Modules\SSU_Centaur.dll
+Modules\SSU_CISS.dll
+Modules\SSU_Crawler.dll
+Modules\SSU_LCC.dll
+Modules\SSU_MLP.dll
+Modules\SSU_Pad.dll
+Modules\SSU_SLC6.dll
+Modules\SSU_SRB.dll
+Modules\SSU_Tank.dll
+Modules\SSU_VAB.dll
+Modules\SSU_Xenon_Lights.dll
+Modules\Plugin\CRT.dll
+Scenarios\Space Shuttle Ultra\Launch test.scn
+Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-F).scn
+Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-G).scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-107\De-orbit.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Entry Interface.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Post-insertion PLBD opening.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-107\STS-107 launch scenario.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Launch.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Post-OMS2.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Tanking Test scenario.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-120\STS-120 L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 docking with ISS Nov 16.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 launch.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-61G\Atlantis on orbit.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-61G\L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-62B\STS-62B T-45s.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\Atlantis in orbit.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\CT-1 roadtest.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\EDW 22 Final Approach.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\EDW 22 TAEM.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\EDW Entry.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\FCS Checkout.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\FMI33 TAEM.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\KSC15 final approach.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\MLP roll-off.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\Payload Latch Test.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
+Scenarios\SSRMS\Grapple test.scn
+Scenarios\SSRMS\SSRMS Folded.scn
+Scenarios\SSRMS\SSRMS test.scn
+Scenarios\SSRMS\Walkoff test.scn
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_continues.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_shut_down.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_start_up.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine_shutdown.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\CrawlerEngine_startup.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Cryo_noise.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\key_press.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Master_Alarm.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Orbiter_AC.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\RCS_Jet_Fire.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\RSS_Rotation.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_ignition.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_shutdown.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_sustain.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_guard.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_throw.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-10-Seconds-SSME-Go.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-15-Second-Hack.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-60-Second-Hack.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-90-Second-Hack.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Activate-Recorders.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Autosequence-Start.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Clock-Resume-MARK.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Close-and-Lock-Visors.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Go-no-Go.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-LH2-Pressurization.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-LO2-Pressurization.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-MMT-Go-no-Go.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-NTD-Ready.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Orbiter-Arm-Retract.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Perform-Prestart.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Purge-4.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Strip-Chart-Activate.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-APU-Prestart-Complete.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-APU-Prestart.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Busses-Fuel-Cells.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CDR-is-Go.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CW-Clear.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CW-Memory-Clear.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Heater-Reconfig.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-No-errors.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-PLT-in-Work.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Visors-and-O2.wav
+Textures\SSU\10K_marker.dds
+Textures\SSU\11K_marker.dds
+Textures\SSU\12K_marker.dds
+Textures\SSU\13K_marker.dds
+Textures\SSU\14K_marker.dds
+Textures\SSU\15K_marker.dds
+Textures\SSU\1K_marker.dds
+Textures\SSU\2K_marker.dds
+Textures\SSU\3K_marker.dds
+Textures\SSU\4K_marker.dds
+Textures\SSU\5K_marker.dds
+Textures\SSU\6K_marker.dds
+Textures\SSU\7K_marker.dds
+Textures\SSU\8K_marker.dds
+Textures\SSU\9K_marker.dds
+Textures\SSU\A1shadow.dds
+Textures\SSU\A2panel.dds
+Textures\SSU\A6A7.dds
+Textures\SSU\A8bottom.dds
+Textures\SSU\A8lights.dds
+Textures\SSU\A8top.dds
+Textures\SSU\AftSkirt_bottom_foam.dds
+Textures\SSU\AftTimer.dds
+Textures\SSU\Atlantis_5thmod.dds
+Textures\SSU\Atlantis_original.dds
+Textures\SSU\C&Wlights.dds
+Textures\SSU\c2.dds
+Textures\SSU\c3.dds
+Textures\SSU\Cabletray_tex.dds
+Textures\SSU\Cabletray_tex_SWT.dds
+Textures\SSU\Casing.dds
+Textures\SSU\Casing_FWC.dds
+Textures\SSU\Casing_OFT_LH.dds
+Textures\SSU\Casing_OFT_RH.dds
+Textures\SSU\CCTVMon.dds
+Textures\SSU\CentaurG_LO2dome_foil.dds
+Textures\SSU\Challenger_original.dds
+Textures\SSU\chute.dds
+Textures\SSU\CISS_tex.dds
+Textures\SSU\clocknums.dds
+Textures\SSU\COAS.dds
+Textures\SSU\Columbia_8thmod.dds
+Textures\SSU\Columbia_original.dds
+Textures\SSU\Concrete_hardstand_MLPpedestals.dds
+Textures\SSU\CrawlerTransporter_panels.dds
+Textures\SSU\CrawlerTransporter_panels_gauges.dds
+Textures\SSU\CrawlerTransporter_tex_2004.dds
+Textures\SSU\CrawlerTransporter_tex_earlyshuttle.dds
+Textures\SSU\CrawlerTransporter_tex_postSTS114.dds
+Textures\SSU\CrawlerTubing.dds
+Textures\SSU\DFI_pallet_boxtex.dds
+Textures\SSU\DFI_pallet_boxtex_norm.dds
+Textures\SSU\digitPOS.dds
+Textures\SSU\digits.dds
+Textures\SSU\Discovery_9thmod.dds
+Textures\SSU\Discovery_original.dds
+Textures\SSU\docking_ring.dds
+Textures\SSU\Endeavour_3rdmod.dds
+Textures\SSU\Endeavour_original.dds
+Textures\SSU\ET-125_detailtex_launch.dds
+Textures\SSU\ETburntex.dds
+Textures\SSU\exhaust_atrcs.dds
+Textures\SSU\F9panel.dds
+Textures\SSU\Fpanels.dds
+Textures\SSU\Frustrum.dds
+Textures\SSU\FSStex_1.dds
+Textures\SSU\FSS_metal_grating.dds
+Textures\SSU\FSS_tex.dds
+Textures\SSU\GOX_stream.dds
+Textures\SSU\gpc.dds
+Textures\SSU\H2tank.dds
+Textures\SSU\Instafoam.dds
+Textures\SSU\KSC_OPF_Tex.dds
+Textures\SSU\KSC_RPSF.dds
+Textures\SSU\KSC_SSMEPF_Roof.dds
+Textures\SSU\KSC_Surge_Facility_Side2.dds
+Textures\SSU\ku.dds
+Textures\SSU\ku_norm.dds
+Textures\SSU\ku_refl.dds
+Textures\SSU\ku_spec.dds
+Textures\SSU\L4.dds
+Textures\SSU\label.dds
+Textures\SSU\label2.dds
+Textures\SSU\LWT_ETtex.dds
+Textures\SSU\Main_Concrete_Hardstand_texture.dds
+Textures\SSU\Main_Concrete_Hardstand_texture_1.dds
+Textures\SSU\Main_Concrete_Hardstand_texture_2.dds
+Textures\SSU\MDLForwa.dds
+Textures\SSU\MDLRear3.dds
+Textures\SSU\MLP-2_main_tex.dds
+Textures\SSU\MLP_Side1_decks_grating.dds
+Textures\SSU\MON1veiw.dds
+Textures\SSU\MON2view.dds
+Textures\SSU\MPESS_FREESTAR_tex.dds
+Textures\SSU\Nozzle.dds
+Textures\SSU\O1.dds
+Textures\SSU\O13_17.dds
+Textures\SSU\O17.dds
+Textures\SSU\O3.dds
+Textures\SSU\O5O9.dds
+Textures\SSU\O6.dds
+Textures\SSU\O6talkbacks.dds
+Textures\SSU\O7.dds
+Textures\SSU\O8.dds
+Textures\SSU\ODSbuttons.dds
+Textures\SSU\OFT_FWDSkirt.dds
+Textures\SSU\OMSExhaust.dds
+Textures\SSU\Orbiter_blank.dds
+Textures\SSU\overlay.dds
+Textures\SSU\panelA1L.dds
+Textures\SSU\panelA1R.dds
+Textures\SSU\panelA1U.dds
+Textures\SSU\panelA7A8.dds
+Textures\SSU\panelF6.dds
+Textures\SSU\panelF8.dds
+Textures\SSU\panelR4.dds
+Textures\SSU\PORT_OMSpod.dds
+Textures\SSU\PORT_OMSpod_spec.dds
+Textures\SSU\ps-rcs2.dds
+Textures\SSU\R10_L9.dds
+Textures\SSU\R11.dds
+Textures\SSU\r13l.dds
+Textures\SSU\R13U.dds
+Textures\SSU\r1l1.dds
+Textures\SSU\r2.dds
+Textures\SSU\RETAtlantis.dds
+Textures\SSU\RMS.dds
+Textures\SSU\RMS_grapple_fixture.dds
+Textures\SSU\RSRM_Casing.dds
+Textures\SSU\RSRM_LSRB_FWD_Skirt_Assy.dds
+Textures\SSU\RSRM_RSRB_FWD_Skirt_Assy.dds
+Textures\SSU\RSStex_1.dds
+Textures\SSU\Seat2.dds
+Textures\SSU\ShuttleOTS_tex.dds
+Textures\SSU\SLWT_ETtex.dds
+Textures\SSU\SpaceShuttle_VABTex_1980.dds
+Textures\SSU\SpaceShuttle_VABTex_2009.dds
+Textures\SSU\SRB_Contrail.dds
+Textures\SSU\SRB_exhaust.dds
+Textures\SSU\SRM_segment_transporter.dds
+Textures\SSU\SSMEstream.dds
+Textures\SSU\SSME_Exhaust.dds
+Textures\SSU\SSME_TEX.dds
+Textures\SSU\SSME_TEX_spec.dds
+Textures\SSU\SSUbay.dds
+Textures\SSU\SSUbay_refl.dds
+Textures\SSU\SSUbay_spec.dds
+Textures\SSU\SSU_Bridgerail.dds
+Textures\SSU\STBD_OMSpod.dds
+Textures\SSU\STBD_OMSpod_spec.dds
+Textures\SSU\STScargobay.dds
+Textures\SSU\STSinstruments.dds
+Textures\SSU\stsvc01.dds
+Textures\SSU\stsvc02.dds
+Textures\SSU\stsvc03.dds
+Textures\SSU\SWT_ETtex.dds
+Textures\SSU\talkback.dds
+Textures\SSU\ThermalCurtain.dds
+Textures\SSU\timer.dds
+Textures\SSU\TXT_Esca.dds
+Textures\SSU\TXT_Floo.dds
+Textures\SSU\TXT_Food.dds
+Textures\SSU\TXT_FWDM.dds
+Textures\SSU\TXT_Gall.dds
+Textures\SSU\TXT_Hand.dds
+Textures\SSU\TXT_Infl.dds
+Textures\SSU\TXT_Inte.dds
+Textures\SSU\TXT_Ladd.dds
+Textures\SSU\TXT_Left.dds
+Textures\SSU\TXT_MidC.dds
+Textures\SSU\TXT_MidF.dds
+Textures\SSU\TXT_MidR.dds
+Textures\SSU\TXT_Mid_.dds
+Textures\SSU\TXT_Pan3.dds
+Textures\SSU\TXT_Pan4.dds
+Textures\SSU\TXT_Side.dds
+Textures\SSU\TXT_Stan.dds
+Textures\SSU\TXT_Sto3.dds
+Textures\SSU\TXT_Sto4.dds
+Textures\SSU\VAB_floor.dds
+Textures\SSU\VAB_HLD.dds
+Textures\SSU\VAB_interior_beams_1.dds
+Textures\SSU\VAB_VLD.dds
+Textures\SSU\CXO\Chandra_XO_goldfoil.dds
+Textures\SSU\CXO\Chandra_XO_goldfoil_norm.dds
+Textures\SSU\CXO\Chandra_XO_silverfoil.dds
+Textures\SSU\CXO\Chandra_XO_silverfoil_norm.dds
+Textures\SSU\CXO\Chandra_XO_silverfoil_refl.dds
+Textures\SSU\CXO\Chandra_XO_solar_array.dds
+Textures\SSU\IUS\IUSgoldfoil.dds
+Textures\SSU\IUS\IUS_ASE_tex1.dds
+Textures\SSU\IUS\IUS_ASE_tex2.dds
+Textures\SSU\IUS\IUS_interstage_civilian.dds
+Textures\STS-107payloads\EDOcryokit_tex.dds
+Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
+Textures\STS-107payloads\SpaceHAB_RDM.dds
+Textures\VandenbergAFB\SLC-6_STS_general_tex.dds
+Textures\VandenbergAFB\slc6_org.dds
+Textures\VandenbergAFB\VAFB_SLC6_MSTtex.dds
+Textures\VandenbergAFB\VLS_OMCF_accesspath.dds
+Textures2\Earth_1_W0335_N0098.dds
+Textures2\Earth_1_W0335_N0099.dds
+Textures2\Earth_1_W0336_N0098.dds
+Textures2\Earth_1_W0336_N0099.dds
+Textures2\Earth_1_W0337_N0098.dds
+Textures2\Earth_1_W0337_N0099.dds
+Textures2\Earth_4_W2679_N0792.dds
+Textures2\Earth_4_W2679_N0793.dds
+Textures2\Earth_4_W2679_N0794.dds
+Textures2\Earth_4_W2679_N0795.dds
+Textures2\Earth_4_W2679_N0796.dds
+Textures2\Earth_4_W2680_N0792.dds
+Textures2\Earth_4_W2680_N0793.dds
+Textures2\Earth_4_W2680_N0794.dds
+Textures2\Earth_4_W2680_N0795.dds
+Textures2\Earth_4_W2680_N0796.dds
+Textures2\Earth_4_W2681_N0792.dds
+Textures2\Earth_4_W2681_N0793.dds
+Textures2\Earth_4_W2681_N0794.dds
+Textures2\Earth_4_W2681_N0795.dds
+Textures2\Earth_4_W2681_N0796.dds
+Textures2\Earth_4_W2682_N0792.dds
+Textures2\Earth_4_W2682_N0793.dds
+Textures2\Earth_4_W2682_N0794.dds
+Textures2\Earth_4_W2682_N0795.dds
+Textures2\Earth_4_W2682_N0796.dds
+Textures2\Earth_4_W2683_N0792.dds
+Textures2\Earth_4_W2683_N0793.dds
+Textures2\Earth_4_W2683_N0794.dds
+Textures2\Earth_4_W2683_N0795.dds
+Textures2\Earth_4_W2683_N0796.dds
+Textures2\Earth_4_W2684_N0792.dds
+Textures2\Earth_4_W2684_N0793.dds
+Textures2\Earth_4_W2684_N0794.dds
+Textures2\Earth_4_W2684_N0795.dds
+Textures2\Earth_4_W2684_N0796.dds
+Textures2\Earth_4_W2685_N0792.dds
+Textures2\Earth_4_W2685_N0793.dds
+Textures2\Earth_4_W2685_N0794.dds
+Textures2\Earth_4_W2685_N0795.dds
+Textures2\Earth_4_W2685_N0796.dds

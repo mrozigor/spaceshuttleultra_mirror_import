@@ -29,18 +29,20 @@ void StateVectorSoftware::Realize()
 {
 	hEarth = STS()->GetGravityRef();
 	if(!targetVesselName.empty()) SetTargetVessel(const_cast<char*>(targetVesselName.c_str()));
+
+	double J2 = 0;
+	if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
+	propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
+	targetPropagator.SetParameters(1.0, oapiGetMass(hEarth), oapiGetSize(hEarth), J2); // we may not have valid target vessel pointer, so use placeholder mass
+
+	UpdatePropagatorStateVectors();
+	if(pTargetVessel) UpdateTargetStateVectors();
 }
 
 void StateVectorSoftware::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	double timeBetweenUpdates = max(4.0, 4.0*oapiGetTimeAcceleration());
 	if((SimT-lastUpdateSimTime) > timeBetweenUpdates) {
-		if(lastUpdateSimTime < 0.0) {
-			double J2 = 0;
-			if(STS()->NonsphericalGravityEnabled()) J2 = oapiGetPlanetJCoeff(hEarth, 0);
-			propagator.SetParameters(STS()->GetMass(), oapiGetMass(hEarth), oapiGetSize(hEarth), J2);
-			targetPropagator.SetParameters(1.0, oapiGetMass(hEarth), oapiGetSize(hEarth), J2); // we may not have valid target vessel pointer, so use placeholder mass
-		}
 		UpdatePropagatorStateVectors();
 		propagator.UpdateVesselMass(STS()->GetMass());
 		if(pTargetVessel) {
@@ -82,7 +84,7 @@ bool StateVectorSoftware::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp(keyword, "T0_POS", 6)) {
-		sscanf(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
+		sscanf_s(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
 		return true;
 	}
 	return false;
@@ -148,6 +150,9 @@ bool StateVectorSoftware::UpdatePropagatorStateVectors()
 {
 	VECTOR3 pos, vel;
 	GetStateVectors(STS(), hEarth, pos, vel);
+	char cbuf[255];
+	sprintf_s(cbuf, 255, "Pos: %f %f %f Vel: %f %f %f", pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+	//oapiWriteLog(cbuf);
 	return propagator.UpdateStateVector(pos, vel, STS()->GetMET());
 }
 

@@ -1,6 +1,6 @@
 #include "CrawlerEngine.h"
 #include "Crawler.h"
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 
 CrawlerEngine::CrawlerEngine(SubsystemDirector<Crawler>* _director)
 : Subsystem(_director, "Engine"),
@@ -72,22 +72,22 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 	if(engineDirection[FWD] || engineDirection[REV]) {
 		if(engineState==OFF || engineState==SHUTDOWN) {
 			engineState = STARTING;
-			PlayVesselWave3(V()->GetSoundID(), ENGINE_START_SOUND_ID);
+			PlayVesselWave(V()->GetSoundID(), ENGINE_START_SOUND_ID);
 		}
-		else if(engineState==STARTING && !IsPlaying3(V()->GetSoundID(), ENGINE_START_SOUND_ID)) {
+		else if(engineState==STARTING && !IsPlaying(V()->GetSoundID(), ENGINE_START_SOUND_ID)) {
 			engineState = ON;
 		}
 		else if(engineState==ON) {
-			PlayVesselWave3(V()->GetSoundID(), ENGINE_SOUND_ID, LOOP);
+			PlayVesselWave(V()->GetSoundID(), ENGINE_SOUND_ID, LOOP);
 		}
 	}
 	else { // NEUT
 		if(engineState==ON || engineState==STARTING) {
 			engineState = SHUTDOWN;
-			PlayVesselWave3(V()->GetSoundID(), ENGINE_STOP_SOUND_ID);
-			StopVesselWave3(V()->GetSoundID(), ENGINE_SOUND_ID);
+			PlayVesselWave(V()->GetSoundID(), ENGINE_STOP_SOUND_ID);
+			StopVesselWave(V()->GetSoundID(), ENGINE_SOUND_ID);
 		}
-		else if(engineState==SHUTDOWN && !IsPlaying3(V()->GetSoundID(), ENGINE_STOP_SOUND_ID)) {
+		else if(engineState==SHUTDOWN && !IsPlaying(V()->GetSoundID(), ENGINE_STOP_SOUND_ID)) {
 			engineState = OFF;
 		}
 	}
@@ -136,7 +136,7 @@ void CrawlerEngine::OnPreStep(double SimT, double SimDT, double MJD)
 		enginePower = 0.0;
 	}
 	currentAcceleration = enginePower*0.01;
-	commandVoltage.SetLine(enginePower);
+	commandVoltage.SetLine(static_cast<float>(enginePower));
 
 }
 

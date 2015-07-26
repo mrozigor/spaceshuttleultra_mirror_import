@@ -1,39 +1,39 @@
 #include "SSME.h"
 #include "SSMEController_BLOCK_II.h"
+#include "PneumaticControlAssembly.h"
+#include "MPS.h"
 #include "MPSdefs.h"
 
 
 namespace mps
 {
-	SSME::SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short ID, int controllertype, const string& sw, int numP, int numT, int numS, int numF ):AtlantisSubsystem( _director, _ident )
+	SSME::SSME( AtlantisSubsystemDirector* _director, const string& _ident, unsigned short ID, int controllertype, const string& sw, HeSysEng* HeSys ):AtlantisSubsystem( _director, _ident )
 	{
 #ifdef _MPSDEBUG
 		char buffer[100];
-		sprintf_s( buffer, 100, " SSME::SSME in || name:%s|ID:%d|controllertype:%d|sw:%s|numP:%d|numT:%d|numS:%d|numF:%d", _ident.c_str(), ID, controllertype, sw.c_str(), numP, numT, numS, numF );
+		sprintf_s( buffer, 100, " SSME::SSME in || name:%s|ID:%d|controllertype:%d|sw:%s", _ident.c_str(), ID, controllertype, sw.c_str() );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
 		this->ID = ID;
-		this->numP = numP;
-		this->numT = numT;
-		this->numS = numS;
-		this->numF = numF;
 
-		// create sensor arrays with correct size for the engine model
-		SENSOR_P = new double[numP];
-		SENSOR_T = new double[numT];
-		SENSOR_S = new double[numS];
-		SENSOR_F = new double[numF];
-
+		PCA = new PneumaticControlAssembly( this, HeSys );
+		
 		// make valves
-		ptrCCV = new BasicValve( 0, MAX_RATE_CCV );
-		ptrMOV = new BasicValve( 0, MAX_RATE_MOV );
-		ptrMFV = new BasicValve( 0, MAX_RATE_MFV );
-		ptrFPOV = new BasicValve( 0, MAX_RATE_FPOV );
-		ptrOPOV = new BasicValve( 0, MAX_RATE_OPOV );
-		ptrOBV = new ValveTypeBool( 0, MAX_RATE_OBV );
-		ptrFBV = new ValveTypeBool( 0, MAX_RATE_FBV );
-		ptrAFV = new ValveTypeBool( 0, MAX_RATE_AFV );
+		ptrOPOV = new HydraulicActuatedValve( 0, MAX_RATE_OPOV, 30, PCA->EmergencyShutdown_PAV, 0.57 );// HACK no clue about correct sequence valve value
+		ptrMOV = new HydraulicActuatedValve( 0, MAX_RATE_MOV, 40, ptrOPOV );
+		ptrFPOV = new HydraulicActuatedValve( 0, MAX_RATE_FPOV, 30, ptrOPOV, 0.4 );// HACK no clue about correct sequence valve value
+		ptrMFV = new HydraulicActuatedValve( 0, MAX_RATE_MFV, 25, ptrFPOV );
+		ptrCCV = new HydraulicActuatedValve( 0, MAX_RATE_CCV, 23, ptrFPOV, 0.05 );// HACK no clue about correct sequence valve value
+		PCA->PurgeSequenceValve_PAV->SetPressureSources( nullptr, ptrCCV, nullptr, nullptr );
+
+		ptrAFV = new SolenoidValve( 0, RATE_AFV, true, nullptr, nullptr );
+		ptrHPV_SV = new SolenoidValve( 0, RATE_HPV_SV, true, HeSys, PCA->PurgeSequenceValve_PAV );
+		ptrOBV = new PressureActuatedValve( 1, RATE_OBV, PCA->OxidizerBleedValve_PAV, nullptr, nullptr, nullptr );
+		ptrFBV = new PressureActuatedValve( 1, RATE_FBV, PCA->BleedValvesControl_SV, nullptr, nullptr, nullptr );
+		ptrHPV = new PressureActuatedValve( 0, RATE_HPV, ptrHPV_SV, nullptr, HeSys, nullptr );
+		ptrGCV = new PressureActuatedValve( 1, RATE_GCV, nullptr, ptrHPV_SV, nullptr, nullptr );
+		ptrRIV = new PressureActuatedValve( 0, RATE_RIV, nullptr, PCA->OxidizerBleedValve_PAV, nullptr, nullptr );
 
 		// hardware model stuff
 		modelmode = 1;
@@ -48,7 +48,6 @@ namespace mps
 		Igniter_OPB[1] = false;
 
 		// make controller
-		// TODO move to realize???
 		/*if (controllertype == 1)// TODO improve/add error checking
 		{
 			Controller = new SSMEController_BLOCK_I( this, sw );
@@ -57,25 +56,6 @@ namespace mps
 		{*/
 			Controller = new SSMEController_BLOCK_II( this, sw );
 		//}
-		
-		// LOX dump stuff
-		thLOXdump = NULL;
-		phLOXdump = NULL;
-		switch (ID)
-		{
-			case 1:
-				posLOXdump = _V( 0.0, 1.945, -10.76250 ) + _V( 0.0, 6.1, -13.5 );
-				dirLOXdump = _V( 0.0, -0.37489, 0.92707 );
-				break;
-			case 2:
-				posLOXdump = _V( -1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
-				dirLOXdump = _V( 0.065, -0.2447, 0.9674 );
-				break;
-			case 3:
-				posLOXdump = _V( 1.458, -0.194, -11.7875 ) + _V( 0.0, 5.4, -13.5 );
-				dirLOXdump = _V( -0.065, -0.2447, 0.9674 );
-				break;
-		}
 
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " SSME::SSME out" );
@@ -91,29 +71,119 @@ namespace mps
 		delete ptrMFV;
 		delete ptrFPOV;
 		delete ptrOPOV;
+		delete ptrAFV;
+		delete ptrHPV_SV;
 		delete ptrOBV;
 		delete ptrFBV;
-		delete ptrAFV;
+		delete ptrHPV;
+		delete ptrGCV;
+		delete ptrRIV;
+
 		delete Controller;
 
-		delete[] SENSOR_P;
-		delete[] SENSOR_T;
-		delete[] SENSOR_S;
-		delete[] SENSOR_F;
-
-		if (thLOXdump != NULL)
-		{
-			STS()->DelThruster( thLOXdump );
-			STS()->DelPropellantResource( phLOXdump );
-		}
+		delete PCA;
 		return;
 	}
 
 	void SSME::Realize()
 	{
+		pMPS = static_cast<MPS*>(director->GetSubsystemByName( "MPS" ));
+
 		STS()->SetSSMEParams( ID, FPL_THRUST, ISP0, ISP1 );
 
-		Controller->Realize();
+		// connect AC to PSE
+		discsignals::DiscreteBundle* bundle_hyd;
+		discsignals::DiscreteBundle* bundle_power;
+		discsignals::DiscreteBundle* bundle_OEout;// TODO separate chs?
+		discsignals::DiscreteBundle* bundle_OEoutCCV;
+		discsignals::DiscreteBundle* bundle_OEoutMFV;
+		discsignals::DiscreteBundle* bundle_OEoutMOV;
+		discsignals::DiscreteBundle* bundle_OEoutFPOV;
+		discsignals::DiscreteBundle* bundle_OEoutOPOV;
+		discsignals::DiscreteBundle* bundle_IEchA_Press;
+		discsignals::DiscreteBundle* bundle_IEchB_Press;
+		discsignals::DiscreteBundle* bundle_IEchA_Temp;
+		discsignals::DiscreteBundle* bundle_IEchB_Temp;
+		discsignals::DiscreteBundle* bundle_IEchA_Flow;
+		discsignals::DiscreteBundle* bundle_IEchB_Flow;
+		discsignals::DiscreteBundle* bundle_IEchA_Speed;
+		discsignals::DiscreteBundle* bundle_IEchB_Speed;
+
+		switch (ID)
+		{
+			case 1:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU1", 16 );
+				bundle_power = BundleManager()->CreateBundle( "SSMEC_R2_SWITCHES", 8 );
+				break;
+			case 2:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU2", 16 );
+				bundle_power = BundleManager()->CreateBundle( "SSMEL_R2_SWITCHES", 8 );
+				break;
+			case 3:
+				bundle_hyd = BundleManager()->CreateBundle( "R2_To_APU3", 16 );
+				bundle_power = BundleManager()->CreateBundle( "SSMER_R2_SWITCHES", 8 );
+				break;
+		}
+
+		char cbuf[32];
+		sprintf_s( cbuf, 32, "OE_SSME_%d", ID );
+		bundle_OEout = BundleManager()->CreateBundle( cbuf, 14 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_CCV", ID );
+		bundle_OEoutCCV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_MFV", ID );
+		bundle_OEoutMFV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_MOV", ID );
+		bundle_OEoutMOV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_FPOV", ID );
+		bundle_OEoutFPOV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "OE_SSME_%d_OPOV", ID );
+		bundle_OEoutOPOV = BundleManager()->CreateBundle( cbuf, 6 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchA_Press", ID );
+		bundle_IEchA_Press = BundleManager()->CreateBundle( cbuf, 15 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchB_Press", ID );
+		bundle_IEchB_Press = BundleManager()->CreateBundle( cbuf, 15 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchA_Temp", ID );
+		bundle_IEchA_Temp = BundleManager()->CreateBundle( cbuf, 8 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchB_Temp", ID );
+		bundle_IEchB_Temp = BundleManager()->CreateBundle( cbuf, 8 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchA_Flow", ID );
+		bundle_IEchA_Flow = BundleManager()->CreateBundle( cbuf, 4 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchB_Flow", ID );
+		bundle_IEchB_Flow = BundleManager()->CreateBundle( cbuf, 4 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchA_Speed", ID );
+		bundle_IEchA_Speed = BundleManager()->CreateBundle( cbuf, 3 );
+
+		sprintf_s( cbuf, 32, "SSME_%d_IEchB_Speed", ID );
+		bundle_IEchB_Speed = BundleManager()->CreateBundle( cbuf, 3 );
+
+		Controller->Realize( bundle_power, bundle_OEout, bundle_OEoutCCV, bundle_OEoutMFV, bundle_OEoutMOV, bundle_OEoutFPOV, bundle_OEoutOPOV, bundle_IEchA_Press, bundle_IEchB_Press, bundle_IEchA_Temp, bundle_IEchB_Temp, bundle_IEchA_Flow, bundle_IEchB_Flow, bundle_IEchA_Speed, bundle_IEchB_Speed );
+
+		ConnectSensors( bundle_IEchA_Press, bundle_IEchB_Press, bundle_IEchA_Temp, bundle_IEchB_Temp, bundle_IEchA_Flow, bundle_IEchB_Flow, bundle_IEchA_Speed, bundle_IEchB_Speed );
+
+		PCA->Realize( bundle_OEout );
+
+		ptrAFV->Connect( 0, bundle_OEout, 10 );
+		ptrAFV->Connect( 1, bundle_OEout, 11 );
+		ptrHPV_SV->Connect( 0, bundle_OEout, 12 );
+		ptrHPV_SV->Connect( 1, bundle_OEout, 13 );
+
+		ptrCCV->Connect( bundle_OEoutCCV, bundle_hyd );
+		ptrMFV->Connect( bundle_OEoutMFV, bundle_hyd );
+		ptrMOV->Connect( bundle_OEoutMOV, bundle_hyd );
+		ptrFPOV->Connect( bundle_OEoutFPOV, bundle_hyd );
+		ptrOPOV->Connect( bundle_OEoutOPOV, bundle_hyd );
 		return;
 	}
 
@@ -127,11 +197,6 @@ namespace mps
 		return ((pcPSI * 100) / RPL_PC_PRESS);
 	}
 
-	/*void SSME::OnPreStep( double fSimT, double fDeltaT, double fMJD )
-	{
-		return;
-	}*/
-
 	void SSME::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
 		// valves first
@@ -140,29 +205,36 @@ namespace mps
 		ptrMFV->tmestp( fDeltaT );
 		ptrFPOV->tmestp( fDeltaT );
 		ptrOPOV->tmestp( fDeltaT );
+		ptrAFV->tmestp( fDeltaT );
+		ptrHPV_SV->tmestp( fDeltaT );
 		ptrOBV->tmestp( fDeltaT );
 		ptrFBV->tmestp( fDeltaT );
-
+		ptrHPV->tmestp( fDeltaT );
+		ptrGCV->tmestp( fDeltaT );
+		ptrRIV->tmestp( fDeltaT );
+		
 		// engine model
 		SSMERUN( fSimT, fDeltaT );
 
 		// run controller
 		Controller->tmestp( fSimT, fDeltaT );
+
+		// run PCA
+		PCA->tmestp( fDeltaT );
+
+		ptrHPV->Use( 30 );// HACK no clue what value should be, probably much less than this
 		return;
 	}
 
 	void SSME::OnSaveState( FILEHANDLE scn ) const
 	{
-		char cbuf[255];
+		char cbuf[16];
+		int config = modelmode;
 
-		sprintf_s( cbuf, 255, "%d", modelmode );
-		oapiWriteScenario_string( scn, "SSME_model", cbuf );
+		if ((modelmode == 1) && (ptrCCV->GetPos() > 0)) config = 2;
 
-		sprintf_s( cbuf, 255, "%d %d %d %d %d %d", Igniter_MCC[0], Igniter_MCC[1], Igniter_FPB[0], Igniter_FPB[1], Igniter_OPB[0], Igniter_OPB[1] );
-		oapiWriteScenario_string( scn, "SSME_Igniters", cbuf );
-
-		sprintf_s( cbuf, 255, "%lf %lf %lf %lf %lf %d %d %d", ptrCCV->GetPos(), ptrMFV->GetPos(), ptrMOV->GetPos(), ptrFPOV->GetPos(), ptrOPOV->GetPos(), ptrFBV->GetPos(), ptrOBV->GetPos(), ptrAFV->GetPos() );
-		oapiWriteScenario_string( scn, "SSME_Valves", cbuf );
+		sprintf_s( cbuf, 16, "SSME config" );
+		oapiWriteScenario_int( scn, cbuf, config );
 
 		__OnSaveState( scn );// write derived class
 		Controller->__OnSaveState( scn );// write controller
@@ -171,67 +243,82 @@ namespace mps
 
 	bool SSME::OnParseLine( const char* line )
 	{
-		int read_i1 = 0;
-		int read_i2 = 0;
-		int read_i3 = 0;
-		int read_i4 = 0;
-		int read_i5 = 0;
-		int read_i6 = 0;
-		double read_f1 = 0;
-		double read_f2 = 0;
-		double read_f3 = 0;
-		double read_f4 = 0;
-		double read_f5 = 0;
+		int read_i = 0;
 #ifdef _MPSDEBUG
 		char buffer[100];
 #endif// _MPSDEBUG
 
-		if (!_strnicmp( line, "SSME_model", 10 ))
+		if (!_strnicmp( line, "SSME config", 11 ))
 		{
-			sscanf_s( line + 10, "%d", &read_i1 );
-			modelmode = read_i1;
+			sscanf_s( line + 11, "%d", &read_i );
+
+			switch (read_i)
+			{
+				case 1:// pre-launch psn-3
+					ptrCCV->_backdoor( 0 );
+					ptrMFV->_backdoor( 0 );
+					ptrMOV->_backdoor( 0 );
+					ptrFPOV->_backdoor( 0 );
+					ptrOPOV->_backdoor( 0 );
+					ptrFBV->_backdoor( 1 );
+					ptrOBV->_backdoor( 1 );
+					ptrAFV->_backdoor( 0 );
+					ptrHPV->_backdoor( 0 );
+					ptrGCV->_backdoor( 1 );
+					ptrRIV->_backdoor( 0 );
+					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
+					PCA->EmergencyShutdown_PAV->_backdoor( 1 );
+					PCA->EmergencyShutdown_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
+					PCA->HPOTPISPurge_SV->_backdoor( 0 );
+					PCA->HPOTPISPurge_PAV->_backdoor( 0 );
+
+					modelmode = 1;
+					break;
+				case 2:// pre-launch post psn-4
+					ptrCCV->_backdoor( 1 );
+					ptrMFV->_backdoor( 0 );
+					ptrMOV->_backdoor( 0 );
+					ptrFPOV->_backdoor( 0 );
+					ptrOPOV->_backdoor( 0 );
+					ptrFBV->_backdoor( 1 );
+					ptrOBV->_backdoor( 1 );
+					ptrAFV->_backdoor( 0 );
+					ptrHPV->_backdoor( 0 );
+					ptrGCV->_backdoor( 1 );
+					ptrRIV->_backdoor( 0 );
+					PCA->FuelSystemPurge_SV->_backdoor( 1 );
+					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
+
+					modelmode = 1;
+					break;
+				default:// post-shutdown
+					ptrCCV->_backdoor( 0 );
+					ptrMFV->_backdoor( 0 );
+					ptrMOV->_backdoor( 0 );
+					ptrFPOV->_backdoor( 0 );
+					ptrOPOV->_backdoor( 0 );
+					ptrFBV->_backdoor( 0 );
+					ptrOBV->_backdoor( 0 );
+					ptrAFV->_backdoor( 0 );
+					ptrHPV->_backdoor( 0 );
+					ptrGCV->_backdoor( 1 );
+					ptrRIV->_backdoor( 1 );
+					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
+
+					modelmode = 5;
+					break;
+			}
 #ifdef _MPSDEBUG
-			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_model:%d", modelmode );
-			oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-			return true;
-		}
-		else if (!_strnicmp( line, "SSME_Igniters", 13 ))
-		{
-			sscanf_s( line + 13, "%d %d %d %d %d %d", &read_i1, &read_i2, &read_i3, &read_i4, &read_i5, &read_i6 );
-			Igniter_MCC[0] = GetBoolFromInt( read_i1 );
-			Igniter_MCC[1] = GetBoolFromInt( read_i2 );
-			Igniter_FPB[0] = GetBoolFromInt( read_i3 );
-			Igniter_FPB[1] = GetBoolFromInt( read_i4 );
-			Igniter_OPB[0] = GetBoolFromInt( read_i5 );
-			Igniter_OPB[1] = GetBoolFromInt( read_i6 );
-#ifdef _MPSDEBUG
-			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_Igniters:%d|%d|%d|%d|%d|%d", Igniter_MCC[0], Igniter_MCC[1], Igniter_FPB[0], Igniter_FPB[1], Igniter_OPB[0], Igniter_OPB[1] );
-			oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-			return true;
-		}
-		else if (!_strnicmp( line, "SSME_Valves", 11 ))
-		{
-			sscanf_s( line + 11, "%lf %lf %lf %lf %lf %d %d %d", &read_f1, &read_f2, &read_f3, &read_f4, &read_f5, &read_i1, &read_i2, &read_i3 );
-			ptrCCV->_backdoor( read_f1 );
-			ptrMFV->_backdoor( read_f2 );
-			ptrMOV->_backdoor( read_f3 );
-			ptrFPOV->_backdoor( read_f4 );
-			ptrOPOV->_backdoor( read_f5 );
-			ptrFBV->_backdoor( GetBoolFromInt( read_i1 ) );
-			ptrOBV->_backdoor( GetBoolFromInt( read_i2 ) );
-			ptrAFV->_backdoor( GetBoolFromInt( read_i3 ) );
-#ifdef _MPSDEBUG
-			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_Valves:%lf|%lf|%lf|%lf|%lf|%d|%d|%d", ptrCCV->GetPos(), ptrMFV->GetPos(), ptrMOV->GetPos(), ptrFPOV->GetPos(), ptrOPOV->GetPos(), ptrFBV->GetPos(), ptrOBV->GetPos(), ptrAFV->GetPos() );
+			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_config:%d", read_i );
 			oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 			return true;
 		}
 
 		if (__OnParseLine( line )) return true;// check if derived class wants line
-		if (Controller->__OnParseLine( line )) return true;// check if controller wants line
-		return false;
+		return Controller->__OnParseLine( line );// check if controller wants line
 	}
 
 
@@ -258,26 +345,19 @@ namespace mps
 		return;
 	}
 
-	void SSME::PCA( void )
-	{// HACK for pneumatic shutdown for now, to develop into full PCA class
-		// HACK vlvs don't close at full rate
-		ptrCCV->Close();
-		ptrMFV->Close();
-		ptrMOV->Close();
-		ptrFPOV->Close();
-		ptrOPOV->Close();
-		return;
-	}
-
 	// data cookup
 	// ESC
 	double SSME::dcPC_ESC( double tme )
 	{
 		double pc;
 
-		if (tme <= 0.95)
+		if (tme <= 0.1)
 		{
 			pc = 0;
+		}
+		else if (tme <= 0.95)
+		{
+			pc = 0.1;
 		}
 		else if (tme <= 1.5)
 		{

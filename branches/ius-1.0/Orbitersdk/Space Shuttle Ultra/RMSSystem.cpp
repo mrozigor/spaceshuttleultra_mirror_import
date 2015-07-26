@@ -15,12 +15,13 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	arm_tip[0] = RMS_EE_POS;
 	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // to calculate EE attachment direction (-Z coordinate of attachment point is negative, so subtract 1 here)
 	//arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
-	arm_tip[2] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate rot vector for attachment
-	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, 1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
+	arm_tip[2] = RMS_EE_POS+RMS_Z_AXIS; // to calculate rot vector for attachment
+	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, -1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
 	arm_tip[4] = RMS_EE_CAM_POS; // to calculate EE camera position
-	arm_ee_dir = _V(1.0, 0.0, 0.0);
-	arm_ee_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
-	arm_ee_rot = _V(0.0, 1.0, 0.0);
+	arm_tip[5] = RMS_EE_LIGHT_POS;
+	arm_ik_pos = _V(RMS_SP_JOINT.z - RMS_EE_POS.z, 0.0, 0.0);
+	arm_ik_dir = _V(1.0, 0.0, 0.0);
+	arm_ik_rot = _V(0.0, 0.0, 1.0);
 	arm_ee_angles = _V(0.0, 0.0, 0.0);
 
 	// default EE to grapple open and derigidized
@@ -40,6 +41,8 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	camRMSElbow[PAN] = 0.0;
 	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
+	
+	EELightPos = RMS_EE_LIGHT_POS+RMS_MESH_OFFSET;
 
 	bLastCamInternal = false;
 
@@ -104,16 +107,43 @@ void RMSSystem::Realize()
 	for(int i=0;i<12;i++) RMSMode[i].Connect(pBundle, i);
 	RMSSpeed.Connect(pBundle, 12);
 
+	pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
+	for (int i = 0; i < 12; i++) CWLights[i].Connect( pBundle, i );
+	SoftStopTB.Connect( pBundle, 12 );
+	SoftStopTB.SetLine();
+
 	pBundle = STS()->BundleManager()->CreateBundle("RMS_ELBOW_CAM", 16);
 	ElbowCamPanLeft.Connect(pBundle, 0);
 	ElbowCamPanRight.Connect(pBundle, 1);
 	ElbowCamTiltUp.Connect(pBundle, 2);
 	ElbowCamTiltDown.Connect(pBundle, 3);
 	CamLowSpeed.Connect(pBundle, 4);
+	
+	pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
+	EELightPower.Connect(pBundle, 9);
 
 	CreateArm();
 	//MPM animation is only added in CreateArm function, so we have to set initial MPM position here
 	STS()->SetAnimation(anim_mpm, MPMRollout.pos);
+	
+	// add end effector light
+	static VECTOR3 color = _V(1.0,0.839,0.666);
+	const COLOUR4 diff = {1.0f, 0.839f, 0.666f, 0.0f};
+	const COLOUR4 amb = {0.0, 0.0, 0};
+	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
+	EELight_bspec.active = false;
+	EELight_bspec.col = &color;
+	EELight_bspec.duration = 0;
+	EELight_bspec.falloff = 0.4;
+	EELight_bspec.period = 0;
+	EELight_bspec.pos = &EELightPos;
+	EELight_bspec.shape = BEACONSHAPE_DIFFUSE;
+	EELight_bspec.size = 0.1;
+	EELight_bspec.tofs = 0;
+	STS()->AddBeacon(&EELight_bspec);
+	pEELight = STS()-> AddSpotLight(arm_tip[5]+RMS_MESH_OFFSET,arm_tip[1]-arm_tip[0],20,0.25,0.8,0.001, 80.0*RAD, 80.0*1.1*RAD,
+	    diff,spec,amb);
+	//EELight_bspec.active = true;
 
 	// set lines
 	if(Grappled()) EECapture.SetLine();
@@ -133,70 +163,70 @@ void RMSSystem::CreateArm()
 	const VECTOR3 YawAxis = RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE);
 
 	//rollout animation
-	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMs, GRP_base};
+	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMS, GRP_BASE};
 	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.55784, 1.12081, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
+		_V(-2.34, -0.97, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
 	//shoulder yaw
-	static UINT RMSShoulderYawGrp[1] = {GRP_Shoulder_Yaw};
+	static UINT RMSShoulderYawGrp[1] = {GRP_SHOULDER_YAW};
 	MGROUP_ROTATE* pRMS_sy_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderYawGrp, 1,
 		RMS_SY_JOINT, YawAxis, (float)(-360*RAD)); // -180 .. +180
 	anim_joint[SHOULDER_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_YAW], 0, 1, pRMS_sy_anim, parent);
 
 	//shoulder pitch
-	static UINT RMSShoulderPitchGrp[1] = {GRP_Humerus};
+	static UINT RMSShoulderPitchGrp[1] = {GRP_SHOULDER_BOOM};
 	MGROUP_ROTATE* pRMS_sp_anim = new MGROUP_ROTATE(mesh_index, RMSShoulderPitchGrp, 1,
 		RMS_SP_JOINT, PitchAxis, (float)(147.0*RAD)); // -2 .. +145
 	anim_joint[SHOULDER_PITCH] = STS()->CreateAnimation (0.0136);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[SHOULDER_PITCH], 0, 1, pRMS_sp_anim, parent);
 
 	//elbow pitch
-	static UINT RMSElbowPitchGrp[2] = {GRP_box, GRP_cambase};
+	static UINT RMSElbowPitchGrp[2] = {GRP_ELBOW_BOOM, GRP_ELBOW_CAM_BASE};
 	MGROUP_ROTATE* pRMS_ep_anim = new MGROUP_ROTATE(mesh_index, RMSElbowPitchGrp, 2,
 		RMS_EP_JOINT, PitchAxis, (float)(163.4*RAD));
 	anim_joint[ELBOW_PITCH] = STS()->CreateAnimation (0.985312);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[ELBOW_PITCH], 0, 1, pRMS_ep_anim, parent);
 
 	//RMS elbow camera
-	static UINT RMSElbowCamGrp[2] = {GRP_elbowcam, GRP_camswivel};
+	static UINT RMSElbowCamGrp[2] = {GRP_ELBOW_CAM, GRP_PANTILT_ELBOW_CAM};
 	MGROUP_ROTATE* pRMSElbowCamPan = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp+1, 1,
-		_V(-2.78466, 2.29563, 2.05612), _V(0.309015, 0.951057, 0), (float)(340*RAD));
+		_V(-2.5594, 0.1833, 0.1668), _V(0.397185, 0.917739, 0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
 	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
-		_V(-2.71472, 2.52002, 2.05612), _V(0.951057, -0.309014, 0), (float)(340*RAD));
+		_V(-2.47476, 0.392612, 0.16463), _V(0.917758, -0.397141, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
 	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
-		_V(-2.765, 2.373, 2.073), _V(1, 0, 0), 0.0f);
+		_V(-2.37968, 0.296129, -0.0332794), _V(1, 0, 0), 0.0f);
 	STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamLoc, parent2);
 
 	//wrist pitch
-	static UINT RMSWristPitchGrp[1] = {GRP_Wristpitch};
+	static UINT RMSWristPitchGrp[1] = {GRP_WRISTPITCH};
 	MGROUP_ROTATE* pRMS_wp_anim = new MGROUP_ROTATE(mesh_index, RMSWristPitchGrp, 1,
 		RMS_WP_JOINT, PitchAxis, (float)(242.8*RAD)); // -121.4 .. +121.4
 	anim_joint[WRIST_PITCH] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_PITCH], 0, 1, pRMS_wp_anim, parent);
 
 	//wrist yaw
-	static UINT RMSWristYawGrp[1] = {GRP_Wrist_Yaw};
+	static UINT RMSWristYawGrp[1] = {GRP_WRIST_YAW};
 	MGROUP_ROTATE* pRMS_wy_anim = new MGROUP_ROTATE(mesh_index, RMSWristYawGrp, 1,
 		RMS_WY_JOINT, YawAxis, (float)(242.6*RAD)); // -121.3 .. +121.3
 	anim_joint[WRIST_YAW] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_YAW], 0, 1, pRMS_wy_anim, parent);
 
 	//wrist roll
-	static UINT RMSEndEffectorGrp[1] = {GRP_Endeffector};
+	static UINT RMSEndEffectorGrp[1] = {GRP_ENDEFFECTOR};
 	MGROUP_ROTATE* pRMS_wr_anim = new MGROUP_ROTATE(mesh_index, RMSEndEffectorGrp, 1,
 		RMS_EE_POS, _V(0, 0, 1), (float)(894*RAD));  // -447 .. +447
 	anim_joint[WRIST_ROLL] = STS()->CreateAnimation (0.5);
 	parent = STS()->AddManagedAnimationComponent (anim_joint[WRIST_ROLL], 0, 1, pRMS_wr_anim, parent);
 
-	MGROUP_ROTATE* pRMS_ee_anim = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 5,
+	MGROUP_ROTATE* pRMS_ee_anim = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(arm_tip), 6,
 		RMS_EE_POS, _V(0,0,1), (float)(0.0));
 	anim_rms_ee = STS()->CreateAnimation (0.0);
 	STS()->AddManagedAnimationComponent (anim_rms_ee, 0, 1, pRMS_ee_anim, parent);
@@ -233,6 +263,11 @@ bool RMSSystem::Movable() const
 void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPreStep(SimT, DeltaT, MJD);
+	
+	// update light state
+	bool lightOn = EELightPower.IsSet();
+	pEELight->Activate(lightOn);
+	EELight_bspec.active = lightOn;
 
 	// make sure RMS is powered and can be operated
 	if(!RMSSelect) return;
@@ -268,9 +303,9 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}*/
 		else { // not in single joint mode
-			VECTOR3 newPos = arm_ee_pos;
-			VECTOR3 newDir = arm_ee_dir;
-			VECTOR3 newRot = arm_ee_rot;
+			VECTOR3 newPos = arm_ik_pos;
+			VECTOR3 newDir = arm_ik_dir;
+			VECTOR3 newRot = arm_ik_rot;
 			bool rotateEE=false, translateEE=false;
 
 			// EE rotation
@@ -440,6 +475,13 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
 			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	}
+	
+	// update end effector light position/direction
+	if(arm_moved || MPMRollout.Moving()) {
+		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
+		pEELight->SetPosition(EELightPos);
+		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
+	}
 
 	// if arm was moved, update attachment position and IK vectors/angles
 	// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
@@ -468,16 +510,14 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
 
 		// calculate attitude
-		VECTOR3 arm_ee_dir_orb[3]; // reference frame define by EE direction
-		arm_ee_dir_orb[0]=arm_tip[0]-arm_tip[1];
-		arm_ee_dir_orb[1]=-arm_tip[0]+arm_tip[2];
-		arm_ee_dir_orb[2]=crossp(arm_ee_dir_orb[1], arm_ee_dir_orb[0]);
-		MATRIX3 arm_ee_dir_mat = _M(arm_ee_dir_orb[2].x, arm_ee_dir_orb[2].y, arm_ee_dir_orb[2].z,
-									arm_ee_dir_orb[1].x, arm_ee_dir_orb[1].y, arm_ee_dir_orb[1].z,
-									arm_ee_dir_orb[0].x, arm_ee_dir_orb[0].y, arm_ee_dir_orb[0].z);
-		VECTOR3 ee_att_output = GetZYX_RYPAnglesFromMatrix(arm_ee_dir_mat);
-		// reference frame is a bit odd here, so we need this to get the math to work
-		ee_att_output.data[PITCH]=-ee_att_output.data[PITCH];
+		VECTOR3 ee_frame_x, ee_frame_y, ee_frame_z; // reference frame define by EE direction
+		ee_frame_x=ConvertVectorToRMSFrame(arm_tip[1]-arm_tip[0]);
+		ee_frame_z=ConvertVectorToRMSFrame(arm_tip[0]-arm_tip[2]);
+		ee_frame_y=crossp(ee_frame_z, ee_frame_x);
+		MATRIX3 ee_frame_mat = _M(ee_frame_x.x, ee_frame_y.x, ee_frame_z.x,
+								  ee_frame_x.y, ee_frame_y.y, ee_frame_z.y,
+								  ee_frame_x.z, ee_frame_y.z, ee_frame_z.z);
+		VECTOR3 ee_att_output = GetYZX_PYRAnglesFromMatrix(ee_frame_mat);
 		for(int i=0;i<3;i++) {
 			if(ee_att_output.data[i]<0.0) ee_att_output.data[i]+=2*PI;
 
@@ -490,18 +530,15 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		}
 
 		if(update_vectors) {
-			arm_ee_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_dir=_V(-arm_ee_dir.z, -arm_ee_dir.x, arm_ee_dir.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated dir: %f %f %f", arm_ee_dir.x, arm_ee_dir.y, arm_ee_dir.z);
+			arm_ik_dir=RotateVectorZ(arm_tip[1]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ik_dir=ConvertVectorToRMSFrame(arm_ik_dir);
 
-			arm_ee_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_rot=_V(-arm_ee_rot.z, -arm_ee_rot.x, arm_ee_rot.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated rot: %f %f %f", arm_ee_rot.x, arm_ee_rot.y, arm_ee_rot.z);
+			arm_ik_rot=RotateVectorZ(arm_tip[3]-arm_tip[0], -RMS_ROLLOUT_ANGLE);
+			arm_ik_rot=ConvertVectorToRMSFrame(arm_ik_rot);
 
 			//arm_ee_pos=RotateVectorZ(_V(-2.84, 2.13, 9.02)-arm_tip[0], -18.435);
-			arm_ee_pos=RotateVectorZ(RMS_SP_JOINT-arm_tip[0], -RMS_ROLLOUT_ANGLE);
-			arm_ee_pos=_V(arm_ee_pos.z, arm_ee_pos.x, -arm_ee_pos.y);
-			//sprintf_s(oapiDebugString(), 255, "Calculated EE pos: %f %f %f", arm_ee_pos.x, arm_ee_pos.y, arm_ee_pos.z);
+			arm_ik_pos=RotateVectorZ(arm_tip[0]-RMS_SP_JOINT, -RMS_ROLLOUT_ANGLE);
+			arm_ik_pos=ConvertVectorToRMSFrame(arm_ik_pos);
 
 			if(!bFirstStep) update_vectors=false;
 		}
@@ -530,6 +567,18 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		//oapiWriteLog("RMSSystem: first step");
 		bFirstStep = false;
 	}
+
+	// check reach limits
+	CWLights[10].ResetLine();
+	for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
+	{
+		if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
+		{
+			CWLights[10].SetLine();// reach lim light on
+			break;
+		}
+	}
+
 }
 
 bool RMSSystem::OnParseLine(const char* line)
@@ -617,22 +666,19 @@ void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 {
 	if(RMSMode[5].IsSet()) { // END EFF
 		// Reference Frame:
-		// X: in direction of EE (arm_ee_dir) Z: opposite to camera direction (-arm_ee_rot) Y: completes RH frame
-		
-		/*VECTOR3 change=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE)*dPos.x;
-		change+=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE)*dPos.z;
-		change+=RotateVectorX(crossp(arm_ee_rot, arm_ee_dir), RMS_ROLLOUT_ANGLE)*dPos.y;
-		//RotateVectorX(change, -RMS_ROLLOUT_ANGLE);*/
-
-		//VECTOR3 cdPos=RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
-		//VECTOR3 change=arm_ee_dir*cdPos.x+arm_ee_rot*cdPos.z+crossp(arm_ee_rot, arm_ee_dir)*cdPos.y;
-		VECTOR3 change=arm_ee_dir*dPos.x-arm_ee_rot*dPos.z+crossp(-arm_ee_rot, arm_ee_dir)*dPos.y;
-		//MoveEE(arm_ee_pos+change, arm_ee_dir, arm_ee_rot);
-		newPos = arm_ee_pos+change;
+		// X: in direction of EE Z: opposite to camera direction Y: completes RH frame
+		VECTOR3 y_axis = crossp(arm_ik_rot, arm_ik_dir);
+		// create rotation matrix to convert vector from EE frame to Orbiter body frame
+		MATRIX3 EERotMatrix = _M(arm_ik_dir.x, y_axis.x, arm_ik_rot.x,
+							   arm_ik_dir.y, y_axis.y, arm_ik_rot.y,
+							   arm_ik_dir.z, y_axis.z, arm_ik_rot.z);
+		// matrix to convert vector from EE frame to IK frame
+		MATRIX3 IKRotMatrix = mul(EERotMatrix, Transpose(GetRotationMatrix(_V(1, 0, 0), RMS_Z_AXIS_ANGLE)));
+		newPos = arm_ik_pos+mul(IKRotMatrix, dPos);
 	}
 	else if(RMSMode[6].IsSet()) { // ORB LD
 		//MoveEE(arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE), arm_ee_dir, arm_ee_rot);
-		newPos = arm_ee_pos+RotateVectorX(dPos, -RMS_ROLLOUT_ANGLE);
+		newPos = arm_ik_pos+RotateVectorX(dPos, RMS_ROLLOUT_ANGLE);
 	}
 }
 
@@ -646,23 +692,26 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		// NOTE: EE mode rotates relative to camera orientation
 		// we do not need to compensate for angle with RMS and shuttle frames
 		// in EE mode, Z-axis is in opposited direction to arm_ee_rot
-		VECTOR3 y_axis = crossp(-arm_ee_rot, arm_ee_dir);
+		VECTOR3 y_axis = crossp(arm_ik_rot, arm_ik_dir);
 		// create rotation matrix corresponding to current orientation
-		MATRIX3 RotMatrix = _M(arm_ee_dir.x, y_axis.x, -arm_ee_rot.x,
-							   arm_ee_dir.y, y_axis.y, -arm_ee_rot.y,
-							   arm_ee_dir.z, y_axis.z, -arm_ee_rot.z);
-		//MATRIX3 RotMatrix = RotationMatrix(arm_ee_dir, , arm_ee_rot);
+		MATRIX3 RotMatrix = _M(arm_ik_dir.x, y_axis.x, arm_ik_rot.x,
+							   arm_ik_dir.y, y_axis.y, arm_ik_rot.y,
+							   arm_ik_dir.z, y_axis.z, arm_ik_rot.z);
+		// convert rotation matrix from IK frame to EE frame
+		RotMatrix = mul(RotMatrix, GetRotationMatrix(_V(1, 0, 0), -RMS_Z_AXIS_ANGLE));
+		// update rotation matrix to adjust for new angles
 		MATRIX3 RotMatrixRoll, RotMatrixPitch, RotMatrixYaw;
 		GetRotMatrixX(dAngles.data[ROLL], RotMatrixRoll);
 		GetRotMatrixY(dAngles.data[PITCH], RotMatrixPitch);
 		GetRotMatrixZ(dAngles.data[YAW], RotMatrixYaw);
-		// update rotation matrix to adjust for new angles
 		RotMatrix = mul(RotMatrix, RotMatrixPitch);
 		RotMatrix = mul(RotMatrix, RotMatrixYaw);
 		RotMatrix = mul(RotMatrix, RotMatrixRoll);
+		// convert rotation matrix from EE frame to IK frame
+		RotMatrix = mul(RotMatrix, GetRotationMatrix(_V(1, 0, 0), RMS_Z_AXIS_ANGLE));
 
 		newDir = _V(RotMatrix.m11, RotMatrix.m21, RotMatrix.m31);
-		newRot = -_V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
+		newRot = _V(RotMatrix.m13, RotMatrix.m23, RotMatrix.m33);
 
 		/*VECTOR3 ee_dir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
 		// NOTE: for math to work, we need to swap yaw and pitch angles
@@ -676,8 +725,7 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		//MoveEE(arm_ee_pos, newDir, newRot);
 		update_angles=true;
 	}
-
-	else if(RMSMode[6].IsSet()) { // ORB LD
+	else if(RMSMode[6].IsSet()) { // ORB UNL
 		/*VECTOR3 newAngles=arm_ee_angles+dAngles;
 		RotateVectorPYR(inDir, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newDir);
 		RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
@@ -691,13 +739,12 @@ void RMSSystem::Rotate(const VECTOR3 &dAngles, VECTOR3& newDir, VECTOR3& newRot)
 		//RotateVectorPYR(inRot, _V(-newAngles.data[PITCH], newAngles.data[YAW], newAngles.data[ROLL]), newRot);
 		//newDir=_V(-newDir.z, -newDir.x, newDir.y);
 		//newRot=_V(-newRot.z, -newRot.x, newRot.y);
-		newDir=RotateVectorX(arm_ee_dir, RMS_ROLLOUT_ANGLE);
-		newRot=RotateVectorX(arm_ee_rot, RMS_ROLLOUT_ANGLE);
-		// NOTE: internal IK frame is left-handed, so use LH rotations
-		RotateVectorLH(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
-		RotateVectorLH(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
-		newDir=RotateVectorX(newDir, -RMS_ROLLOUT_ANGLE);
-		newRot=RotateVectorX(newRot, -RMS_ROLLOUT_ANGLE);
+		newDir=RotateVectorX(arm_ik_dir, -RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(arm_ik_rot, -RMS_ROLLOUT_ANGLE);
+		RotateVector(newDir, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newDir);
+		RotateVector(newRot, _V(dAngles.data[ROLL], dAngles.data[PITCH], dAngles.data[YAW]), newRot);
+		newDir=RotateVectorX(newDir, RMS_ROLLOUT_ANGLE);
+		newRot=RotateVectorX(newRot, RMS_ROLLOUT_ANGLE);
 
 		//if(MoveEE(arm_ee_pos, newDir, newRot)) arm_ee_angles=newAngles;
 		update_angles=true;
@@ -737,12 +784,10 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	else {
 		wp_normal/=length(wp_normal);
 		phi=DEG*acos(wp_normal.z);
-		if(newDir.z<0.0) phi=-phi;
+		if(newDir.z>0.0) phi=-phi;
 	}
-	/*sprintf_s(oapiDebugString(), 255, "normal: %f %f %f wp_normal: %f %f %f phi: %f, beta_w: %f", normal.x, normal.y, normal.z, wp_normal.x, wp_normal.y, wp_normal.z,
-		phi, beta_w);*/
 
-	new_joint_angles[WRIST_ROLL]=acos(dotp(wp_normal, newRot))*DEG;
+	new_joint_angles[WRIST_ROLL]=-acos(dotp(wp_normal, newRot))*DEG;
 	//if((newRot.x>wp_normal.x && newRot.y<wp_normal.y) || (newRot.x<wp_normal.x && newRot.y>wp_normal.y))
 	VECTOR3 cross_product=crossp(wp_normal, newRot);
 	if(Eq(1.0, dotp(cross_product/length(cross_product), newDir), 0.05))
@@ -759,37 +804,22 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	new_joint_angles[ELBOW_PITCH]=DEG*acos(cos_phibar_e)-180.0-RMS_EP_NULL_ANGLE-RMS_SP_NULL_ANGLE;
 	double cos_phi_s2=(RMS_EP_WP_DIST*RMS_EP_WP_DIST-RMS_SP_EP_DIST*RMS_SP_EP_DIST-r*r)/(-2*RMS_SP_EP_DIST*r);
 	if(fabs(cos_phi_s2)>1) return false; //Can't reach with shoulder
-	new_joint_angles[SHOULDER_PITCH]=DEG*(atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
-
-	// make sure values calculated are within bounds
-	// make sure speed of each joint is within limits
-	for(int i=SHOULDER_YAW;i<=ELBOW_PITCH;i++)
-	{
-		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
-		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
-			return false;
-		}
-		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
-		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
-		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
-			return false;
-		}
-	}
+	new_joint_angles[SHOULDER_PITCH]=DEG*(-atan2(arm_wp_cpos.z,rho)+acos(cos_phi_s2))+RMS_SP_NULL_ANGLE;
 
 	new_joint_angles[WRIST_PITCH]=phi-new_joint_angles[SHOULDER_PITCH]-new_joint_angles[ELBOW_PITCH];
 
 	// check values are within bounds
 	// make sure speed of each joint is within limits
-	for(int i=WRIST_PITCH;i<=WRIST_YAW;i++)
+	SoftStopTB.SetLine();
+	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
 		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
 		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
-			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			//sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
+			SoftStopTB.ResetLine();
 			return false;
 		}
-		double speed = (new_joint_angles[i]-joint_angle[i])/DeltaT;
+		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;
 		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
 		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
@@ -801,9 +831,9 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 		SetJointAngle(static_cast<RMS_JOINT>(i), new_joint_angles[i]);
 	}
 
-	arm_ee_pos=newPos;
-	arm_ee_dir=newDir;
-	arm_ee_rot=newRot;
+	arm_ik_pos=newPos;
+	arm_ik_dir=newDir;
+	arm_ik_rot=newRot;
 
 	return true;
 }
@@ -811,7 +841,6 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 void RMSSystem::SetJointAngle(RMS_JOINT joint, double angle)
 {
 	double pos=linterp(RMS_JOINT_LIMITS[0][joint], 0.0, RMS_JOINT_LIMITS[1][joint], 1.0, angle);
-	//sprintf_s(oapiDebugString(), 255, "Joint Angle: %f %f", angle, pos);
 	if(pos>=0.0 && pos<=1.0) {
 		STS()->SetAnimation(anim_joint[joint], pos);
 		joint_pos[joint]=pos;
@@ -910,7 +939,7 @@ void RMSSystem::UpdateEECamView() const
 		double angle = SignedAngle(orbiter_cam_rot, arm_tip[2]-arm_tip[0], dir);
 
 		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f dir: %f %f %f dot_prod: %f Angle: %f %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, dir.x, dir.y, dir.z, dot_prod, angle, angle*DEG);
-		sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f cam dir: %f %f %f dir: %f %f %f Angle: %f %f length: %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, arm_tip[2].x-arm_tip[0].x, arm_tip[2].y-arm_tip[0].y, arm_tip[2].z-arm_tip[0].z,  dir.x, dir.y, dir.z, angle, angle*DEG, length(dir));
+		//sprintf_s(oapiDebugString(), 255, "Rot Vec: %f %f %f cam dir: %f %f %f dir: %f %f %f Angle: %f %f length: %f", orbiter_cam_rot.x, orbiter_cam_rot.y, orbiter_cam_rot.z, arm_tip[2].x-arm_tip[0].x, arm_tip[2].y-arm_tip[0].y, arm_tip[2].z-arm_tip[0].z,  dir.x, dir.y, dir.z, angle, angle*DEG, length(dir));
 		//sprintf_s(oapiDebugString(), 255, "dot_prod: %f Angle: %f %f", dot_prod, angle, angle*DEG);
 
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+arm_tip[4]+RMS_MESH_OFFSET);
@@ -924,7 +953,7 @@ void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
 		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-		STS()->SetCameraOffset(camRMSElbowLoc[0]+RMS_MESH_OFFSET);
+		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }
@@ -942,7 +971,6 @@ void RMSSystem::AutoGrappleSequence()
 			Grapple_State.action=AnimState::CLOSING;
 			if(Extend_State.Moving()) Extend_State.action=AnimState::STOPPED;
 			if(Rigid_State.Moving()) Rigid_State.action=AnimState::STOPPED;
-			sprintf_s(oapiDebugString(), 255, "Grappling");
 		}
 		else if(!Extend_State.Closed()) {
 			Extend_State.action=AnimState::CLOSING;

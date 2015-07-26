@@ -1,70 +1,49 @@
 #include "SSME_SOP.h"
 #include "..\Atlantis.h"
 #include <UltraMath.h>
+#include "assert.h"
 
 
 namespace dps
 {
 	SSME_SOP::SSME_SOP( SimpleGPCSystem *_gpc ):SimpleGPCSoftware( _gpc, "SSME_SOP" )
 	{
-		StartEnableCommand[0] = false;
-		StartEnableCommand[1] = false;
-		StartEnableCommand[2] = false;
+		for (int i = 0; i < 3; i++)
+		{
+			StartEnableCommand[i] = false;
+			EngineStartCommand[i] = false;
+			ShutdownEnableCommand[i] = false;
+			ShutdownCommand[i] = false;
+			ThrottleCommand[i] = false;
+			OxidizerDumpStartCommand[i] = false;
+			DumpStopCommand[i] = false;
+			LimitInhibitCommand[i] = false;
+			LimitEnableCommand[i] = false;
+			DCUSwitchVDTCommand[i] = false;
 
-		EngineStartCommand[0] = false;
-		EngineStartCommand[1] = false;
-		EngineStartCommand[2] = false;
+			ShutdownEnableCommandIssued[i] = false;
 
-		ShutdownEnableCommand[0] = false;
-		ShutdownEnableCommand[1] = false;
-		ShutdownEnableCommand[2] = false;
+			ShutdownPhase[i] = false;
+			PostShutdownPhase[i] = false;
+			HydraulicLockupMode[i] = false;
+			ElectricalLockupMode[i] = false;
+			EngineReadyMode[i] = false;
 
-		ShutdownCommand[0] = false;
-		ShutdownCommand[1] = false;
-		ShutdownCommand[2] = false;
+			PadDataPathFailure[i] = false;
+			FlightDataPathFailure[i] = false;
+			CommandPathFailure[i] = false;
+			MajorComponentFailure[i] = false;
+			LimitExceeded[i] = false;
+			ChannelFailure[i] = false;
 
-		Throttle[0] = false;
-		Throttle[1] = false;
-		Throttle[2] = false;
+			PrimaryDataFail[i] = false;
+			SecondaryDataFail[i] = false;
+			DCUProcess[i] = false;
 
-		OxidizerDumpStart[0] = false;
-		OxidizerDumpStart[1] = false;
-		OxidizerDumpStart[2] = false;
-
-		DumpStop[0] = false;
-		DumpStop[1] = false;
-		DumpStop[2] = false;
-
-		MECOCommand = false;
-
-		MECOConfirmed = false;
-
-		ShutdownEnableCommandIssued[0] = false;
-		ShutdownEnableCommandIssued[1] = false;
-		ShutdownEnableCommandIssued[2] = false;
-
-		ShutdownPhase[0] = false;
-		ShutdownPhase[1] = false;
-		ShutdownPhase[2] = false;
-
-		PostShutdownPhase[0] = false;
-		PostShutdownPhase[1] = false;
-		PostShutdownPhase[2] = false;
-
-		DataPathFailure[0] = false;
-		DataPathFailure[1] = false;
-		DataPathFailure[2] = false;
-
-		PrimaryDataFail[0] = false;
-		PrimaryDataFail[1] = false;
-		PrimaryDataFail[2] = false;
-
-		SecondaryDataFail[0] = false;
-		SecondaryDataFail[1] = false;
-		SecondaryDataFail[2] = false;
-
-		LOXDumptimeA = 99999;
-		LOXDumptimeB = 99999;
+			PrimaryFailCounter[i] = 0;
+			SecondaryFailCounter[i] = 0;
+			DataFailCounter[i] = 0;
+		}
 		return;
 	}
 
@@ -81,26 +60,92 @@ namespace dps
 
 			STS()->pEIU[i]->readpri( pridata[i] );
 			STS()->pEIU[i]->readsec( secdata[i] );
+			
+			/*A data path failure occurs when the GPC’s (PASS or BFS) either do not see the main engine time reference
+			word (TREF) updating or when the two main engine identification words (ID words 1 & 2) are not one’s
+			complements.*/
+			PadDataPathFailure[i] = false;
 
 			if (!Eq( pridata[i][0] + ((double)pridata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
 			{
-				PrimaryDataFail[i] = true;
-			}
-
-			if (PrimaryDataFail[i] == true)
-			{
-				if (!Eq( secdata[i][0] + ((double)secdata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+				if (PrimaryDataFail[i] == true)
 				{
-					SecondaryDataFail[i] = true;
-				}
-
-				if (SecondaryDataFail[i] == true)
-				{
-					DataPathFailure[i] = true;
+					PadDataPathFailure[i] = true;
 				}
 				else
 				{
-					ProcessSecData( i );
+					PrimaryDataFail[i] = true;
+				}
+			}
+			else
+			{
+				PrimaryDataFail[i] = false;
+				PrimaryFailCounter[i] = 0;
+			}
+
+			if ((PrimaryDataFail[i] == true) || (GetMajorMode() == 101))// SRB not ignited
+			{
+				if (!Eq( secdata[i][0] + ((double)secdata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+				{
+					if (SecondaryDataFail[i] == true)
+					{
+						PadDataPathFailure[i] = true;
+					}
+					else
+					{
+						SecondaryDataFail[i] = true;
+					}
+				}
+				else
+				{
+					SecondaryDataFail[i] = false;
+					SecondaryFailCounter[i] = 0;
+				}
+
+				if (PrimaryDataFail[i] == true)
+				{
+					if (SecondaryDataFail[i] == true)
+					{
+						if (DCUProcess[i] == false)
+						{
+							DataFailCounter[i]++;
+
+							if (DataFailCounter[i] == 2)
+							{
+								// set TVC servo bypass ovrd flag
+							}
+							else
+							{
+								if (DataFailCounter[i] == 4)
+								{
+									DCUSwitchVDTCommand[i] = true;
+									DCUProcess[i] = true;
+									DataFailCounter[i] = 0;
+								}
+							}
+						}
+						else
+						{
+							if (FlightDataPathFailure[i] == false)
+							{
+								DataFailCounter[i]++;
+
+								if (DataFailCounter[i] == DATA_FAIL)
+								{
+									PercentChamberPress[i] = 0;// so it displays 0 on data path failure
+									FlightDataPathFailure[i] = true;
+								}
+							}
+						}
+					}
+					else
+					{
+						ProcessSecData( i );
+					}
+				}
+				else
+				{
+					ProcessPriData( i );
 				}
 			}
 			else
@@ -108,45 +153,71 @@ namespace dps
 				ProcessPriData( i );
 			}
 
-			
-		}
-
-		if (GetMajorMode() >= 102)
-		{
-			if ((MECOConfirmed == false) && (
-				((PercentChamberPress[0] < 30) && (PercentChamberPress[1] < 30) && (PercentChamberPress[2] < 30)) ||
-				((DataPathFailure[0] == true) && (PercentChamberPress[1] < 30) && (PercentChamberPress[2] < 30)) ||
-				((PercentChamberPress[0] < 30) && (DataPathFailure[1] == true) && (PercentChamberPress[2] < 30)) ||
-				((PercentChamberPress[0] < 30) && (PercentChamberPress[1] < 30) && (DataPathFailure[2] == true))))
+			if ((PrimaryDataFail[i] == false) || (SecondaryDataFail[i] == false))
 			{
-				MECOConfirmed = true;
-				oapiWriteLog( "MECO Confirmed" );
-				// HACK LOX dump here for now
-				LOXDumptimeA = SimT;
-			}
+				// HACK command and channel status not really perfect
+				if (CommandStatus[i] == 1)// || (CommandStatus[i] == 2))
+				{
+					CommandPathFailure[i] = true;
+				}
 
-			if ((SimT - LOXDumptimeA) > 120)// wait 120s for dump start
-			{
-				OxidizerDumpStart[0] = true;
-				OxidizerDumpStart[1] = true;
-				OxidizerDumpStart[2] = true;
-				LOXDumptimeA = 99999;
-				LOXDumptimeB = SimT;
-			}
+				if (GetMajorMode() == 101)
+				{
+					if (CommandStatus[i] > 0)
+					{
+						if (ChannelStatus[i] != 0)
+						{
+							ChannelFailure[i] = true;
+						}
+					}
+				}
 
-			if ((SimT - LOXDumptimeB) > 120)// stop dump after 120s
-			{
-				DumpStop[0] = true;
-				DumpStop[1] = true;
-				DumpStop[2] = true;
-				LOXDumptimeB = 99999;
-			}
+				HydraulicLockupMode[i] = false;
+				ElectricalLockupMode[i] = false;
 
-			// HACK ECO sensors
-			if ((STS()->GetETPropellant_B() <= 0.2) && (MECOCommand == false))// 0.2% is enough to shutdown the engines
-			{
-				SetMECOCommandFlag();
-				oapiWriteLog( "MECO Low Level Cutoff" );
+				switch (Phase[i])
+				{
+					case 4:// Mainstage
+						switch (Mode[i])
+						{
+							case 4:// Hydraulic Lockup
+								HydraulicLockupMode[i] = true;
+								break;
+							case 5:// Electrical Lockup
+								ElectricalLockupMode[i] = true;
+								break;
+						}
+						break;
+					case 5:// Shutdown
+						ShutdownPhase[i] = true;
+						break;
+					case 6:// Post-Shutdown
+						ShutdownPhase[i] = false;
+						PostShutdownPhase[i] = true;
+						break;
+					case 2:// Start-Prep
+						if (Mode[i] == 5)// Engine Ready
+						{
+							EngineReadyMode[i] = true;
+						}
+						else
+						{
+							EngineReadyMode[i] = false;
+						}
+						break;
+				}
+
+				MajorComponentFailure[i] = false;
+				LimitExceeded[i] = false;
+
+				if (SelfTestStatus[i] == 2)
+				{
+					MajorComponentFailure[i] = true;
+				}
+				else if (SelfTestStatus[i] == 3)
+				{
+					LimitExceeded[i] = true;
+				}
 			}
 		}
 		return;
@@ -187,10 +258,28 @@ namespace dps
 						ShutdownEnableCommand[i] = false;
 						ShutdownEnableCommandIssued[i] = true;
 					}
-					else if (Throttle[i] == true)
+					else if (DCUSwitchVDTCommand[i] == true)
 					{
-						STS()->pEIU[i]->command( THRT + (unsigned short)round( (CommandedThrottle * 1023) / 109 ) );
-						Throttle[i] = false;
+						STS()->pEIU[i]->command( SVRC );
+						LastCommand[i] = SVRC;
+						DCUSwitchVDTCommand[i] = false;
+					}
+					else if (LimitInhibitCommand[i] == true)
+					{
+						STS()->pEIU[i]->command( INLS );
+						LastCommand[i] = INLS;
+						LimitInhibitCommand[i] = false;
+					}
+					else if (LimitEnableCommand[i] == true)
+					{
+						STS()->pEIU[i]->command( ENLS );
+						LastCommand[i] = ENLS;
+						LimitEnableCommand[i] = false;
+					}
+					else if (ThrottleCommand[i] == true)
+					{
+						STS()->pEIU[i]->command( THRT + (unsigned short)Round( (CommandedThrottle - MPL) * 10 ) );
+						ThrottleCommand[i] = false;
 					}
 					else if (StartEnableCommand[i] == true)
 					{
@@ -198,17 +287,17 @@ namespace dps
 						LastCommand[i] = STEN;
 						StartEnableCommand[i] = false;
 					}
-					else if (OxidizerDumpStart[i] == true)
+					else if (OxidizerDumpStartCommand[i] == true)
 					{
 						STS()->pEIU[i]->command( LOXD );
 						LastCommand[i] = LOXD;
-						OxidizerDumpStart[i] = false;
+						OxidizerDumpStartCommand[i] = false;
 					}
-					else if (DumpStop[i] == true)
+					else if (DumpStopCommand[i] == true)
 					{
 						STS()->pEIU[i]->command( TMSQ );
 						LastCommand[i] = TMSQ;
-						OxidizerDumpStart[i] = false;
+						DumpStopCommand[i] = false;
 					}
 				}
 			}
@@ -218,16 +307,56 @@ namespace dps
 
 	bool SSME_SOP::OnParseLine( const char* keyword, const char* value )
 	{
+		int config = 0;
+
+		if (!_stricmp( keyword, "ShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[2] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[2] = (config != 0);
+			return true;
+		}
 		return false;
 	}
 
 	void SSME_SOP::OnSaveState( FILEHANDLE scn ) const
 	{
-		return;
-	}
+		oapiWriteScenario_int( scn, "ShutdownPhase_1", (int)ShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_2", (int)ShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_3", (int)ShutdownPhase[2] );
 
-	void SSME_SOP::Realize( void )
-	{
+		oapiWriteScenario_int( scn, "PostShutdownPhase_1", (int)PostShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_2", (int)PostShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_3", (int)PostShutdownPhase[2] );
 		return;
 	}
 
@@ -239,7 +368,9 @@ namespace dps
 			case 102:
 			case 103:
 			case 104:
-			case 105:
+			case 601:
+			case 602:
+			case 603:
 				return true;
 			default:
 				return false;
@@ -248,135 +379,168 @@ namespace dps
 
 	void SSME_SOP::ProcessPriData( int eng )
 	{
-		PercentChamberPress[eng] = pridata[eng][5] / 27.46789;
-
-		// phase
-		switch (pridata[eng][3] & 0x0E00)
-		{
-			case 5:
-				ShutdownPhase[eng] = true;
-				PostShutdownPhase[eng] = false;
-				break;
-			case 6:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = true;
-				break;
-			default:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = false;
-				break;
-		}
+		PercentChamberPress[eng] = Round( pridata[eng][5] / 27.46789 );
+		Phase[eng] = (pridata[eng][2] & 0x0700) >> 8;
+		Mode[eng] = (pridata[eng][2] & 0x3800) >> 11;
+		SelfTestStatus[eng] = (pridata[eng][2] & 0xC000) >> 14;
+		ChannelStatus[eng] = (pridata[eng][2] & 0x0038) >> 3;
+		CommandStatus[eng] = (pridata[eng][2] & 0x0006) >> 1;
 		return;
 	}
 
 	void SSME_SOP::ProcessSecData( int eng )
 	{
-		PercentChamberPress[eng] = secdata[eng][5] / 27.46789;
-
-		// phase
-		switch (secdata[eng][3] & 0x0E00)
-		{
-			case 5:
-				ShutdownPhase[eng] = true;
-				PostShutdownPhase[eng] = false;
-				break;
-			case 6:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = true;
-				break;
-			default:
-				ShutdownPhase[eng] = false;
-				PostShutdownPhase[eng] = false;
-				break;
-		}
+		PercentChamberPress[eng] = Round( secdata[eng][5] / 27.46789 );
+		Phase[eng] = (secdata[eng][2] & 0x0700) >> 8;
+		Mode[eng] = (secdata[eng][2] & 0x3800) >> 11;
+		SelfTestStatus[eng] = (secdata[eng][2] & 0xC000) >> 14;
+		ChannelStatus[eng] = (secdata[eng][2] & 0x0038) >> 3;
+		CommandStatus[eng] = (secdata[eng][2] & 0x0006) >> 1;
 		return;
 	}
 
 	void SSME_SOP::SetStartEnableCommandFlag( int eng )
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetStartEnableCommandFlag.eng" );
 		StartEnableCommand[eng - 1] = true;
 		return;
 	}
 
 	void SSME_SOP::SetEngineStartCommandFlag( int eng )
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetEngineStartCommandFlag.eng" );
 		EngineStartCommand[eng - 1] = true;
 		return;
 	}
 
 	void SSME_SOP::SetShutdownEnableCommandFlag( int eng )
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetShutdownEnableCommandFlag.eng" );
 		ShutdownEnableCommand[eng - 1] = true;
 		return;
 	}
 
 	void SSME_SOP::SetShutdownCommandFlag( int eng )
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetShutdownCommandFlag.eng" );
 		ShutdownCommand[eng - 1] = true;
 		return;
 	}
 
-	void SSME_SOP::SetThrottlePercent( double pct )
+	bool SSME_SOP::SetThrottlePercent( double pct )
 	{
+		if ((pct < MPL) || (pct > FPL)) return false;
+		
 		CommandedThrottle = pct;
-		Throttle[0] = true;
-		Throttle[1] = true;
-		Throttle[2] = true;
+		ThrottleCommand[0] = true;
+		ThrottleCommand[1] = true;
+		ThrottleCommand[2] = true;
+		return true;
+	}
+
+	void SSME_SOP::SetLimitInhibitCommandFlag( int eng )
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetLimitInhibitCommandFlag.eng" );
+		LimitInhibitCommand[eng - 1] = true;
 		return;
 	}
 
-	void SSME_SOP::SetMECOCommandFlag( void )
+	void SSME_SOP::SetLimitEnableCommandFlag( int eng )
 	{
-		ShutdownEnableCommand[0] = true;
-		ShutdownEnableCommand[1] = true;
-		ShutdownEnableCommand[2] = true;
-		ShutdownCommand[0] = true;
-		ShutdownCommand[1] = true;
-		ShutdownCommand[2] = true;
-
-		MECOCommand = true;
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetLimitEnableCommandFlag.eng" );
+		LimitEnableCommand[eng - 1] = true;
 		return;
 	}
 
-	/*void SSME_SOP::SetOxidizerDumpStartFlag( int eng )
+	void SSME_SOP::SetOxidizerDumpStartCommandFlag( int eng )
 	{
-		OxidizerDumpStart[eng - 1] = true;
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetOxidizerDumpStartCommandFlag.eng" );
+		OxidizerDumpStartCommand[eng - 1] = true;
 		return;
 	}
 
-	void SSME_SOP::SetDumpStopFlag( int eng )
+	void SSME_SOP::SetDumpStopCommandFlag( int eng )
 	{
-		DumpStop[eng - 1] = true;
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::SetDumpStopCommandFlag.eng" );
+		DumpStopCommand[eng - 1] = true;
 		return;
-	}*/
-
-	bool SSME_SOP::GetMECOCommandFlag( void ) const
-	{
-		return MECOCommand;
-	}
-
-	bool SSME_SOP::GetMECOConfirmedFlag( void ) const
-	{
-		return MECOConfirmed;
 	}
 
 	bool SSME_SOP::GetShutdownEnableCommandIssuedFlag( int eng ) const
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetShutdownEnableCommandIssuedFlag.eng" );
 		return ShutdownEnableCommandIssued[eng - 1];
 	}
 
 	bool SSME_SOP::GetShutdownPhaseFlag( int eng ) const
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetShutdownPhaseFlag.eng" );
 		return ShutdownPhase[eng - 1];
 	}
 
 	bool SSME_SOP::GetPostShutdownPhaseFlag( int eng ) const
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetPostShutdownPhaseFlag.eng" );
 		return PostShutdownPhase[eng - 1];
+	}
+
+	bool SSME_SOP::GetHydraulicLockupModeFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetHydraulicLockupModeFlag.eng" );
+		return HydraulicLockupMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetElectricalLockupModeFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetElectricalLockupModeFlag.eng" );
+		return ElectricalLockupMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetEngineReadyModeFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetEngineReadyModeFlag.eng" );
+		return EngineReadyMode[eng - 1];
+	}
+
+	bool SSME_SOP::GetPadDataPathFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetPadDataPathFailureFlag.eng" );
+		return PadDataPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetFlightDataPathFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetFlightDataPathFailureFlag.eng" );
+		return FlightDataPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetCommandPathFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetCommandPathFailureFlag.eng" );
+		return CommandPathFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetMajorComponentFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetMajorComponentFailureFlag.eng" );
+		return MajorComponentFailure[eng - 1];
+	}
+
+	bool SSME_SOP::GetLimitExceededFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetLimitExceededFlag.eng" );
+		return LimitExceeded[eng - 1];
+	}
+
+	bool SSME_SOP::GetChannelFailureFlag( int eng ) const
+	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetChannelFailureFlag.eng" );
+		return ChannelFailure[eng - 1];
 	}
 
 	double SSME_SOP::GetPercentChamberPressVal( int eng ) const
 	{
+		assert( (eng >= 1) && (eng <= 3) && "SSME_SOP::GetPercentChamberPressVal.eng" );
 		return PercentChamberPress[eng - 1];
 	}
 }

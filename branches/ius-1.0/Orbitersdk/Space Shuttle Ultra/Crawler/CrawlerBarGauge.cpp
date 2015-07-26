@@ -27,7 +27,7 @@ bool CrawlerBarGauge::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 	int midPos;
 	RECT litRect;
 	if(!bVertical) {
-		float barSize = (usWidth*input.GetVoltage()*fScale)/abs(max-min);
+		double barSize = (usWidth*input.GetVoltage()*fScale)/abs(max-min);
 		int segmentCount = static_cast<int>(barSize)/usBarWidth; // get integer number of segments
 		//midPos = static_cast<int>(usWidth*((1.0+max+min)/2.0));
 		midPos = static_cast<int>(usWidth*(-min/(max-min)));
@@ -44,7 +44,7 @@ bool CrawlerBarGauge::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 		}
 	}
 	else {
-		float barSize = (usHeight*input.GetVoltage()*fScale)/abs(max-min);
+		double barSize = (usHeight*input.GetVoltage()*fScale)/abs(max-min);
 		int segmentCount = static_cast<int>(barSize)/usBarWidth; // get integer number of segments
 		//midPos = static_cast<int>(usHeight*((1.0+max+min)/2.0));
 		midPos = static_cast<int>(usHeight*(1.0 + min/(max-min)));

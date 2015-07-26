@@ -1,6 +1,6 @@
 #include "APU.h"
 #include "Atlantis.h"
-#include <OrbiterSoundSDK35.h>
+#include <OrbiterSoundSDK40.h>
 
 APU::APU(AtlantisSubsystemDirector *_director, const std::string &_ident, int _ID)
 	: AtlantisSubsystem(_director, _ident), ID(_ID), phTank(NULL)
@@ -33,7 +33,13 @@ double APU::GetHydraulicPressure() const
 
 double APU::GetFuelPressure() const
 {
-	return FuelPress[0];
+	// GLS: the "FUEL P" measurement in CRTMFD is tank pressure not pump outlet pressure
+	// as this function returns. I will not update the code in OnPreStep (at least not now)
+	// because probably the calculated FuelPress is needed for other things. Instead I just
+	// replaced the returned value of this function with a simple formula calculating tank
+	// pressure from quantity (it's the other way around in reality).
+	return (FuelLevel[0] / APU_FUEL_TANK_MASS) * 365;// psia
+	//return FuelPress[0];
 }
 
 double APU::GetFuelLevel() const
@@ -75,9 +81,9 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	switch(State) {
 		case SHUTDOWN:
-			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_SHUTDOWN)) {
-				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
-				else PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP, 0);
+			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
+			if(STS()->GetSoundID()!=-1 && IsPlaying(STS()->GetSoundID(), APU_SHUTDOWN)) {
+				PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
 			}
 		case OFF:
 			if(APUSpeed[1]>5) APUSpeed[1]=max(APUSpeed[1]-15.0*DeltaT, 0.0);
@@ -94,27 +100,30 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 				APU_ReadyToStart.SetLine();
 				if(APU_Run) {
 					State=START;
-					if(STS()->GetSoundID()!=-1) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
+					if(STS()->GetSoundID()!=-1) PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
 				}
 			}
 			else APU_ReadyToStart.ResetLine();
 
 			break;
 		case START:
-			if(STS()->GetSoundID()!=-1 && IsPlaying3(STS()->GetSoundID(), APU_START)) {
-				if(!oapiCameraInternal()) PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP);
-				else PlayVesselWave3(STS()->GetSoundID(), APU_START, NOLOOP, 0);
-			}
 		case ON:
+			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
+			if(STS()->GetSoundID()!=-1) {
+				if(State==START && IsPlaying(STS()->GetSoundID(), APU_START)) PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
+				else PlayVesselWave(STS()->GetSoundID(), APU_RUNNING, LOOP);
+			}
+
 			if(FuelLevel[0]<=0.0) State=SHUTDOWN;
 			if(!APU_Run) {
 				State=SHUTDOWN;
-				if(STS()->GetSoundID()!=-1) PlayVesselWave3(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
+				if(STS()->GetSoundID()!=-1) PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
 			}
 
 			if(APU_HydPumpPress) 
 				FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[0]*DeltaT;
 			else FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[1]*DeltaT;
+			if (FuelLevel[1] < 0) FuelLevel[1] = 0;
 
 			if(State==START) {
 				if(APUSpeed[1]>=95.0) {
@@ -166,7 +175,6 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			break;
 	}
-	//sprintf_s(oapiDebugString(), 255, "APU Fuel: %f %f APU State: %d", FuelLevel[0], FuelLevel[1], State);
 }
 
 void APU::OnPropagate(double SimT, double DeltaT, double MJD)

@@ -67,56 +67,6 @@ VECTOR3 CalculatePEG7Targets(double C1, double C2, double transferAngle, const V
 	return required_vel-initialVel;
 }
 
-PEG4Propagator::PEG4Propagator()
-: burnInProgress(false), burnCompleted(false)
-{
-}
-
-PEG4Propagator::~PEG4Propagator()
-{
-}
-
-void PEG4Propagator::SetBurnData(double TIG, const VECTOR3 &equDeltaV, double acceleration)
-{
-	burnInProgress = false;
-	burnCompleted = false;
-	this->TIG = TIG;
-	lastMET = TIG;
-	VGO = length(equDeltaV);
-	equBurnDirection = equDeltaV/VGO; // normalise DV vector
-	acc = acceleration;
-}
-
-void PEG4Propagator::GetCutoffStateVector(VECTOR3& pos, VECTOR3& vel) const
-{
-	pos = cutoffPos;
-	vel = cutoffVel;
-}
-
-VECTOR3 PEG4Propagator::GetAcceleration(double MET, const VECTOR3& equPos, const VECTOR3& equVel)
-{
-	//char cbuf[255];
-	if(!burnInProgress && !burnCompleted && MET>=TIG) burnInProgress = true;
-
-	if(burnInProgress) {
-		VGO -= acc*(MET-lastMET);
-		if(VGO <= 0.0) {
-			burnCompleted = true;
-			burnInProgress = false;
-			cutoffPos = equPos;
-			cutoffVel = equVel;
-			//sprintf_s(cbuf, 255, "MET: %f burn completeted", MET);
-			//oapiWriteLog(cbuf);
-		}
-		//sprintf_s(cbuf, 255, "MET: %f VGO: %f burn in progress", MET, VGO);
-		//oapiWriteLog(cbuf);
-		lastMET = MET;
-		return equBurnDirection*acc;
-	}
-	
-	return _V(0, 0, 0);
-}
-
 PEG4Targeting::PEG4Targeting()
 : propagator(PROPAGATOR_STEP_LENGTH, PROPAGATOR_STEP_COUNT, 7200), currentState(ERR)
 {

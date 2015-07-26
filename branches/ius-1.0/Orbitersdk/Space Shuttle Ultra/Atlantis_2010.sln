@@ -6,8 +6,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis", "Atlantis.vcxpro
 		{EDA1260C-9F5C-478A-B18B-A687101FC234} = {EDA1260C-9F5C-478A-B18B-A687101FC234}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtlantisConfig", "AtlantisConfig.vcxproj", "{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_SRB", "Atlantis_SRB.vcxproj", "{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis_Tank", "Atlantis_Tank.vcxproj", "{EE67E0BD-7B53-48FB-893A-C63884245A5D}"
@@ -51,12 +49,6 @@ Global
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Debug|Win32.Build.0 = Debug|Win32
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Release|Win32.ActiveCfg = Release|Win32
 		{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}.Release|Win32.Build.0 = Release|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Debug|Win32.Build.0 = Debug|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Release|Win32.ActiveCfg = Release|Win32
-		{6DE7925E-777B-494F-8CD8-FE5BC961A1E5}.Release|Win32.Build.0 = Release|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
 		{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -102,7 +94,6 @@ Global
 		{3343BD03-0738-4D55-8FBA-206D6309793F}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
 		{3343BD03-0738-4D55-8FBA-206D6309793F}.Analysis (Debug)|Win32.Build.0 = Analysis (Debug)|Win32
 		{3343BD03-0738-4D55-8FBA-206D6309793F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3343BD03-0738-4D55-8FBA-206D6309793F}.Debug|Win32.Build.0 = Debug|Win32
 		{3343BD03-0738-4D55-8FBA-206D6309793F}.Release|Win32.ActiveCfg = Release|Win32
 		{3343BD03-0738-4D55-8FBA-206D6309793F}.Release|Win32.Build.0 = Release|Win32
 		{BAAA2ADB-0507-4E33-9E80-23CEE3B74E37}.Analysis (Debug)|Win32.ActiveCfg = Analysis (Debug)|Win32
@@ -132,13 +123,11 @@ Global
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Debug|Win32.Build.0 = Debug|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.ActiveCfg = Release|Win32
 		{139BA578-15BC-4528-81C5-75841E1A1ABE}.Release|Win32.Build.0 = Release|Win32
 		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
 		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
 		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Debug|Win32.ActiveCfg = Debug|Win32
-		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Debug|Win32.Build.0 = Debug|Win32
 		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Release|Win32.ActiveCfg = Release|Win32
 		{122CACA7-0C6C-4106-8587-3BE5CA849B65}.Release|Win32.Build.0 = Release|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32

@@ -29,7 +29,7 @@
 
 namespace vc {
 
-	using class discsignals::DiscOutPort;
+	using discsignals::DiscOutPort;
 
 	class PushButton: public AtlantisVCComponent {
 		UINT anim_pb;

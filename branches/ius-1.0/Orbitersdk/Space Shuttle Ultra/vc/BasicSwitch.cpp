@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "BasicSwitch.h"
+#include "../Atlantis.h"
+#include <OrbiterSoundSDK40.h>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -10,9 +12,10 @@
 
 namespace vc {
 
-BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident)
+BasicSwitch::BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident, int switchSoundID)
 : AtlantisVCComponent(_sts, _ident), bOrientation(false), bSpringLoaded(false), usCurrentPosition(0),
-	vbSpringLoaded(usNumPositions, false)
+  vbSpringLoaded(usNumPositions, false),
+  switchSound(switchSoundID)
 {
 	this->usNumPositions = usNumPositions;
 	labels.resize(usNumPositions);
@@ -72,7 +75,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -80,7 +82,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -90,7 +91,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -98,7 +98,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -130,6 +129,7 @@ bool BasicSwitch::OnParseLine(const char* line) {
 
 void BasicSwitch::OnPositionChange(unsigned short usNewPosition)
 {
+	if(switchSound > 0) PlayVesselWave(STS()->GetSoundID(), switchSound);
 }
 
 void BasicSwitch::OnPositionUp()

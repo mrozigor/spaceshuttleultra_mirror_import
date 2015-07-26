@@ -38,7 +38,7 @@
 
 using namespace std;
 using namespace discsignals;
-using class dps::ShuttleBusManager;
+using dps::ShuttleBusManager;
 
 class Atlantis;
 class AtlantisSubsystemDirector;
@@ -72,7 +72,7 @@ public:
 	 * Return the currently used data bus managing object. 
 	 * @return pointer to the bus manager
 	 */
-	ShuttleBusManager* BusManager() const;
+	dps::ShuttleBusManager* BusManager() const;
 };
 
 class AtlantisEmptySubsystem: AtlantisSubsystem {

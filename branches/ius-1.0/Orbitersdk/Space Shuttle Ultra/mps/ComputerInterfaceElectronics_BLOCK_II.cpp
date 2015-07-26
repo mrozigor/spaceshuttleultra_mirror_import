@@ -8,7 +8,7 @@ namespace mps
 	ComputerInterfaceElectronics_BLOCK_II::ComputerInterfaceElectronics_BLOCK_II( int ch, SSMEController* Controller ):ComputerInterfaceElectronics( ch, Controller )
 	{
 #ifdef _MPSDEBUG
-		char buffer[100];	
+		char buffer[100];
 		sprintf_s( buffer, 100, " ComputerInterfaceElectronics_BLOCK_II::ComputerInterfaceElectronics_BLOCK_II in" );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG

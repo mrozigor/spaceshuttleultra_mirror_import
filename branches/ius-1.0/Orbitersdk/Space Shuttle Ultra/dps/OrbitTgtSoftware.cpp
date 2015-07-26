@@ -125,7 +125,7 @@ bool OrbitTgtSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 	char cbuf[51];
 
-	PrintCommonHeader("ORBIT TGT", pMDU);
+	PrintCommonHeader("   ORBIT TGT", pMDU);
 
 	pMDU->mvprint(1, 2, "MNVR");
 	pMDU->mvprint(11, 2, "TIG");

@@ -25,7 +25,6 @@ void CrawlerPanelLight::OnPostStep(double SimT, double DeltaT, double MJD)
 
 bool CrawlerPanelLight::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	sprintf_s(oapiDebugString(), 255, "%s handling redraw event", GetIdentifier().c_str());
 	if(bHasSourceImage) {
 		if(bCurrentState) {
 			oapiBlt(surf, shSource, redrawBase.x, redrawBase.y,

@@ -27,8 +27,11 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 IDB_CLOCKDIGITS         BITMAP                  "Bitmaps\\clocknums.bmp"
 IDB_7SEGDIGITS          BITMAP                  "Bitmaps\\digits.bmp"
 IDB_DEUCHARACTERS       BITMAP                  "Bitmaps\\DEU_Raw.bmp"
+IDB_DEUCHARACTERSOVERBRIGHT BITMAP                  "Bitmaps\\DEU_Raw_overbright.bmp"
 IDB_PBILIGHTS           BITMAP                  "Bitmaps\\OrbitDAP_PBI_lights.bmp"
 IDB_ODSBUTTONS          BITMAP                  "Bitmaps\\ODSbuttons.bmp"
+IDB_SSMELIGHTS          BITMAP                  "Bitmaps\\SSME_lights.bmp"
+IDB_A8LIGHTS            BITMAP                  "Bitmaps\\A8lights.bmp"
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 

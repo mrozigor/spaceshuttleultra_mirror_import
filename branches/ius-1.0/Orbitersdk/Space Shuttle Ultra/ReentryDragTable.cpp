@@ -22,7 +22,7 @@ void DragTable::LoadFromFile()
 		while(std::getline(file,line))
 		{
 			double alt, rho;
-			sscanf(line.c_str(),"%lf%lf",&alt,&rho);
+			sscanf_s(line.c_str(),"%lf%lf",&alt,&rho);
 			dTable.push_back(std::pair<double,double>(alt,rho));
 			line.clear();
 			alt = rho = 0;
@@ -36,24 +36,27 @@ double DragTable::Interpolate(double rho)
 {
 	std::vector<std::pair<double,double>>::iterator it;
 
-	for(it = dTable.begin(); it != dTable.end(); it++)
+	/*if(rho >= 1.16696)
+		return 500;
+
+	else if(rho <= 5.98467e-007)
+		return 100000;*/
+	if(rho >= dTable.front().second)
+		return dTable.front().first;
+	else if(rho <= dTable.back().second)
+		return dTable.back().first;
+
+	for(it = dTable.begin(); it != dTable.end(); ++it)
 	{
-		if(rho >= 1.16696)
-			return 500;
-
-		else if(rho <= 5.98467e-007)
-			return 100000;
-
-		else
+		if(it<dTable.end()-1)
 		{
-			if(it<dTable.end()-1)
-			{
-				if((rho>it->second && rho < (it+1)->second) || (rho<it->second && rho > (it+1)->second))
-					return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
-			}
+			if((rho>it->second && rho < (it+1)->second) || (rho<it->second && rho > (it+1)->second))
+				return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
 		}
 	}
-	
+	// shouldn't reach this point
+	it = dTable.end()-2;
+	return linterp(it->second,it->first,(it+1)->second,(it+1)->first,rho);
 }
 
 double DragTable::GetAirDensity(double altitude)
@@ -63,9 +66,9 @@ double DragTable::GetAirDensity(double altitude)
 
 double DragTable::TargetAltitude(double target_drag, double speed, double AOA, double mass, double cd)
 {
-	double cd1 = -0.07854;
-	double cd2 = -6.15920/1000*AOA;
-	double cd3 = -6.21408/10000*pow(AOA,2);
+	//double cd1 = -0.07854;
+	//double cd2 = -6.15920/1000*AOA;
+	//double cd3 = -6.21408/10000*pow(AOA,2);
 	//double drag = 0.5*GetAirDensity(alt)*pow(speed,2)*(cd1+cd2+cd3)*250/2*mass;
 	double density = (target_drag*2*mass)/(pow(speed,2)*cd*ORBITER_WING_AREA);
 	return Interpolate(density);
