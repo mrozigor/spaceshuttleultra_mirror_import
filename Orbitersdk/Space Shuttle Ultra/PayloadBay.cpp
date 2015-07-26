@@ -16,6 +16,8 @@ PayloadBay::PayloadBay( AtlantisSubsystemDirector* _director ):AtlantisSubsystem
 
 	// Ku-band antenna
 	KuAntennaStatus.Set (AnimState::CLOSED, 0);
+
+	hasAntenna = true;
 	return;
 }
 
@@ -52,7 +54,7 @@ void PayloadBay::OnSaveState( FILEHANDLE scn ) const
 	WriteScenario_state (scn, "CARGODOOR", BayDoorStatus);
 	WriteScenario_state (scn, "RADIATOR", RadiatorStatus);
 	WriteScenario_state (scn, "RADLATCH", RadLatchStatus);
-	WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
+	if (hasAntenna == true) WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
 	for(int i=0;i<4;i++) {
 		sprintf_s(cbuf, 255, "BAYDOORLATCH%d", i);
 		WriteScenario_state (scn, cbuf, CLBayDoorLatch[i]);
@@ -98,6 +100,10 @@ void PayloadBay::Realize( void )
 	KUAntenna_DPY.Connect( pBundle, 2 );
 	KUAntennaTB_STO.Connect( pBundle, 3 );
 	KUAntennaTB_DPY.Connect( pBundle, 4 );
+
+	hasAntenna = STS()->pMission->HasKUBand();
+
+	SetTalkbacks();
 	return;
 }
 
@@ -354,7 +360,12 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		if (KuAntennaStatus.Moving()) KuAntennaStatus.action = AnimState::STOPPED;
 	}
 
+	SetTalkbacks();
+	return;
+}
 
+void PayloadBay::SetTalkbacks( void )
+{
 	// talkback output
 	if (BayDoorStatus.Open())
 	{
@@ -416,18 +427,27 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		RadiatorPORTTB_DPY.ResetLine();
 	}
 
-	if (KuAntennaStatus.Closed())
+	if (hasAntenna == true)
 	{
-		KUAntennaTB_STO.SetLine();
-		KUAntennaTB_DPY.ResetLine();
-	}
-	else if (KuAntennaStatus.Open())
-	{
-		KUAntennaTB_STO.ResetLine();
-		KUAntennaTB_DPY.SetLine();
+		if (KuAntennaStatus.Closed())
+		{
+			KUAntennaTB_STO.SetLine();
+			KUAntennaTB_DPY.ResetLine();
+		}
+		else if (KuAntennaStatus.Open())
+		{
+			KUAntennaTB_STO.ResetLine();
+			KUAntennaTB_DPY.SetLine();
+		}
+		else
+		{
+			KUAntennaTB_STO.ResetLine();
+			KUAntennaTB_DPY.ResetLine();
+		}
 	}
 	else
 	{
+		// no antenna -> no animation -> have talkback always as barberpole
 		KUAntennaTB_STO.ResetLine();
 		KUAntennaTB_DPY.ResetLine();
 	}
