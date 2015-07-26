@@ -117,7 +117,7 @@ namespace dps {
 	protected:
 		virtual void OnMMChange(unsigned short usNewMM);
 		virtual void OnSysSummary();
-		virtual void OnFaultSummary();
+		virtual void OnFaultSummary( bool ClearList );
 		virtual void OnMsgReset();
 		virtual void OnAck();
 		virtual void OnClear();

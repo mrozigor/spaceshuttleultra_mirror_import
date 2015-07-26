@@ -198,6 +198,11 @@ namespace dps {
 				ClearScratchPadLine();
 				AppendScratchPadLine( cKey );
 				break;
+			case SSU_KEY_FAULTSUMM:
+				OnFaultSummary( false );
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
+				break;
 			default:
 				AppendScratchPadLine(cKey);
 				break;
@@ -366,7 +371,11 @@ namespace dps {
 		}
 	}
 
-	void IDP::OnFaultSummary() {
+	void IDP::OnFaultSummary( bool ClearList )
+	{
+		if (ClearList){} // TODO clear list
+		SetDisp( 99 );
+		return;
 	}
 
 

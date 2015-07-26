@@ -134,15 +134,15 @@ namespace dps
 
 		if (pMDU->GetIdentifier() == "CRT1")
 		{
-			if ((dipBFCCRTDisplay.IsSet() == true) && (dipBFCCRTSelect[1].IsSet() == true)) outputBFSdisplay = true;
+			if (dipBFCCRTDisplay.IsSet() & dipBFCCRTSelect[1].IsSet()) outputBFSdisplay = true;
 		}
 		else if (pMDU->GetIdentifier() == "CRT2")
 		{
-			if ((dipBFCCRTDisplay.IsSet() == true) && (dipBFCCRTSelect[0].IsSet() == false) && (dipBFCCRTSelect[1].IsSet() == false)) outputBFSdisplay = true;
+			if (dipBFCCRTDisplay.IsSet() & !dipBFCCRTSelect[0].IsSet() & !dipBFCCRTSelect[1].IsSet()) outputBFSdisplay = true;
 		}
 		else if (pMDU->GetIdentifier() == "CRT3")
 		{
-			if ((dipBFCCRTDisplay.IsSet() == true) && (dipBFCCRTSelect[0].IsSet() == true)) outputBFSdisplay = true;
+			if (dipBFCCRTDisplay.IsSet() & dipBFCCRTSelect[0].IsSet()) outputBFSdisplay = true;
 		}
 
 		if (outputBFSdisplay == false)

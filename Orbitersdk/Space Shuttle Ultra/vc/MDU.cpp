@@ -3882,7 +3882,6 @@ namespace vc {
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		sprintf_s( cbuf, 8, "%d", MM ); 
 		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
 
 		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 40, 13, "Auto", 4 );
@@ -3914,7 +3913,7 @@ namespace vc {
 		if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get TransDAP state
 		else TextOut( hDC, 40, 4, "INRTL", 5 );
 
-		sprintf_s( cbuf, 4, "%d", MM ); 
+		sprintf_s( cbuf, 4, "%d", MM );
 		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
 
 		if (adiatt == 2) TextOut( hDC, 228, 13, "INRTL", 5 );
@@ -3966,7 +3965,6 @@ namespace vc {
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		sprintf_s( cbuf, 8, "%d", MM ); 
 		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
 
 		if (GetIDP()->GetAutoSpeedbrakeState() == true) TextOut( hDC, 225, 13, "Auto", 4 );
