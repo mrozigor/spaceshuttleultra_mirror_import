@@ -1253,7 +1253,7 @@ namespace mps
 						break;
 					case ESW_Mainstage_HydraulicLockup:
 						fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup;
-						fptrMonitorSDLimits = &SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl;// HACK ???
+						fptrMonitorSDLimits = &SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_HydraulicLockup;
 						fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup;
 						Set_ESW_Phase( ESW_Mainstage );
 						Set_ESW_Mode( ESW_Mainstage_HydraulicLockup );
@@ -2917,7 +2917,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2936,7 +2936,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2955,7 +2955,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2974,7 +2974,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2998,7 +2998,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3017,7 +3017,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3036,7 +3036,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3055,56 +3055,10 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
-
-		/*
-		HPOTP INTERMEDIATE SEAL PRESSURE
-		<159 PSIA
-		*/
-		// HPOTP Intermediate Seal A
-		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
-		{
-			count++;
-			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
-			{
-				// redline exceeded, add strike
-				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
-			}
-			else
-			{
-				// clear redline strikes
-				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
-			}
-		}
-		// HPOTP Intermediate Seal B
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
-		{
-			count++;
-			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
-			{
-				// redline exceeded, add strike
-				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
-			}
-			else
-			{
-				// clear redline strikes
-				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
-			}
-		}
-
-		if (count > 0)
-		{
-			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
-			{
-				// redline exceeded, take action
-				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
-				retval = 2;// pneumatic shutdown
-			}
-		}
 
 		/*
 		MCC PC SENSOR AVERAGE
@@ -3191,7 +3145,354 @@ namespace mps
 				// redline exceeded, take action
 				AddFID( FID_RedlineExceeded, Delimiter_MCCPC );
 				retval = 1;// hyd shutdown
-				// TODO finish ^^
+			}
+		}
+
+		/*
+		HPOTP INTERMEDIATE SEAL PRESSURE
+		<159 PSIA
+		*/
+		// HPOTP Intermediate Seal A
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+		// HPOTP Intermediate Seal B
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
+				retval = 2;// pneumatic shutdown
+			}
+		}
+		
+		return retval;
+	}
+
+	unsigned short SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_HydraulicLockup( void )
+	{
+		unsigned short retval = 0;
+		int count = 0;
+		/*
+		HPFT TURBINE DISCHARGE TEMPERATURE
+		>1860 R
+		*/
+		// HPFT Discharge Temperature A2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 15] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature A3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 16] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature B2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 15] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature B3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 16] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		///*
+		//HPOT TURBINE DISCHARGE TEMPERATURE
+		//>1660 R
+		//<720 R
+		//*/
+		//// HPOT Discharge Temperature A2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 17] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature A3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 18] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature B2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 17] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature B3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 18] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		/*
+		MCC PC SENSOR AVERAGE
+		PC CHANNEL AVG <
+		PC REF - 200 PSI (STEADY STATE)
+		AND
+		PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+		*/
+		// HACK using just sensor X1 below to keep track of strike counts
+		// MCC PC A1/A2
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_A + 8] + DCU->RAM[RAM_AD08_SENSOR_A + 9]) / 2);
+			if ((abs( DCU->RAM[RAM_AD08_PC_REF] - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] ) < 30) && (DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] >= (0.75 * PC_100)))// HACK considering throttling as +/-1% diff
+			{
+				// PC REF - 200 PSI (STEADY STATE)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 200))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+			else
+			{
+				// PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 400))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+		}
+		//MCC PC B1/B2
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_B + 8] + DCU->RAM[RAM_AD08_SENSOR_B + 9]) / 2);
+			if ((abs( DCU->RAM[RAM_AD08_PC_REF] - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] ) < 30) && (DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] >= (0.75 * PC_100)))// HACK considering throttling as +/-1% diff
+			{
+				// PC REF - 200 PSI (STEADY STATE)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 200))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+			else
+			{
+				// PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 400))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_MCCPC );
+				retval = 2;// pneumatic shutdown
+			}
+		}
+
+		/*
+		HPOTP INTERMEDIATE SEAL PRESSURE
+		<159 PSIA
+		*/
+		// HPOTP Intermediate Seal A
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+		// HPOTP Intermediate Seal B
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
+				retval = 2;// pneumatic shutdown
 			}
 		}
 		

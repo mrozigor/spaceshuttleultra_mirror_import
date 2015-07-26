@@ -133,12 +133,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // I-Loaded values
 // ==========================================================
 
-const double defaultStage1Guidance[2][8] = {{0.0, 136.855, 219.456, 363.3216, 562.9656, 882.0912, 1236.8784, 1516.38}, //speed
-											{90.0, 78.0, 68.0, 61.0, 53.0, 39.0, 30.0, 20.5}}; //pitch
-
-const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
-
-
 
 const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -163,11 +157,6 @@ typedef struct {
 	HFONT font[1];
 } GDIParams;
 
-typedef struct {
-	VECTOR3 Pitch;
-	VECTOR3 Yaw;
-	VECTOR3 Roll;			
-} RefPoints;
 
 struct DAPConfig {
 	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;

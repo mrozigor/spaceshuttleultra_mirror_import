@@ -594,6 +594,7 @@ namespace mps
 			unsigned short VehicleCommands_PostShutdown_TerminateSequence( void );
 
 			unsigned short MonitorSDLimits_Mainstage_NormalControl( void );
+			unsigned short MonitorSDLimits_Mainstage_HydraulicLockup( void );
 
 			unsigned short EngineOperations_Checkout_Standby( void );
 			unsigned short EngineOperations_StartPrep_PSN1( void );
@@ -641,7 +642,7 @@ namespace mps
 
 
 			void GetTime( void );
-			void RotateCommand( void );// TODO inline this?
+			void RotateCommand( void );
 			void AddFID( unsigned short FID, unsigned short Delimiter );
 			unsigned short GetFID( void );
 			unsigned short CommandVoting( void );

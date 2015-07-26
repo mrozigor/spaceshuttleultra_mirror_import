@@ -364,12 +364,13 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	case 305:
 		if(bWONG) {
 			//oapiWriteLog("WONG");
+			double airspeed=STS()->GetAirspeed();
 			// load relief
 			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
 			AileronCommand.SetLine(0.0f);
-			RudderCommand.SetLine(0.0f); // TODO: check if rudder is used after WONG, or if nosewheel steering only is used
+			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( RHCInput[YAW].GetVoltage() );// rudder available above 100 KGS
+			else RudderCommand.SetLine(0.0f);
 			//Nosewheel steering
-			double airspeed=STS()->GetAirspeed();
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
 			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
