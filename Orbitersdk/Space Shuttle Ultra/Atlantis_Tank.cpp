@@ -31,6 +31,8 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 	mesh_idx = MESH_UNDEFINED;
 	//hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
 
+	useFRL = false;
+
 	LOXPct5LevelSensor = Sensor( 4.85, 5 );
 	LOXPct98LevelSensor[0] = Sensor( 97.85, 98 );
 	LOXPct98LevelSensor[1] = Sensor( 97.85, 98 );
@@ -420,14 +422,30 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 			postsep = true;
 		}
 
-		// "vaporize" 0.005% LOX mass remaining per second, and 0.05% LH2
-		double tmp = LOXmass * 0.00005 * oapiRand() * simdt;
-		GOXmass += tmp * 1000;
-		LOXmass -= tmp;
+		// "vaporize" 0.6Kg/s LOX mass remaining and 0.9Kg/s LH2
+		double tmp = 0.6 * oapiRand() * simdt;
+		if ((LOXmass - tmp) < 0)
+		{
+			GOXmass += LOXmass * 1000;
+			LOXmass = 0;
+		}
+		else
+		{
+			GOXmass += tmp * 1000;
+			LOXmass -= tmp;
+		}
 
-		tmp = LH2mass * 0.0005 * oapiRand() * simdt;
-		GH2mass += tmp * 1000;
-		LH2mass -= tmp;
+		tmp = 0.9 * oapiRand() * simdt;
+		if ((LH2mass - tmp) < 0)
+		{
+			GH2mass += LH2mass * 1000;
+			LH2mass = 0;
+		}
+		else
+		{
+			GH2mass += tmp * 1000;
+			LH2mass -= tmp;
+		}
 	}
 	return;
 }
@@ -486,6 +504,13 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 			strScenarioBurnTexName = line+15;
 			strScenarioBurnTex = "SSU\\" + strScenarioBurnTexName + ".dds";
 		}
+		else if(!_strnicmp(line, "FRL", 3)) {
+			if (GetEmptyMass() == SWT_EMPTY_MASS)// allow FRL only on SWT
+			{
+				SetEmptyMass( SWT_FRL_EMPTY_MASS );
+				useFRL = true;
+			}
+		}
 		else ParseScenarioLineEx(line, status);
 	}
 }
@@ -497,6 +522,7 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
 	if(!strScenarioTextureName.empty()) oapiWriteScenario_string(scn, "ET_TEX_NAME", const_cast<char*>(strScenarioTextureName.c_str()));
 	if(!strScenarioBurnTexName.empty()) oapiWriteScenario_string(scn, "BURNT_TEX_NAME", const_cast<char*>(strScenarioBurnTexName.c_str()));
+	if (useFRL == true) oapiWriteLine( scn, "  FRL" );
 }
 
 void Atlantis_Tank::clbkPostCreation( void )
@@ -531,6 +557,7 @@ void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
 
 	if(bUseBurntTexture) UseBurntETTexture();
 	if(!strScenarioTexture.empty()) UseETTexture(strScenarioTexture.c_str());
+	else if (useFRL == true) UseETTexture( "SSU\\SWT_FRL_ETtex.dds" );
 }
 
 void Atlantis_Tank::clbkVisualDestroyed(VISHANDLE vis, int refcount)

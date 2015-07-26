@@ -61,7 +61,6 @@ Config\Vessels\SSU_RSRB_RSRM.cfg
 Config\Vessels\SSU_SLC6.cfg
 Config\Vessels\SSU_SLWT.cfg
 Config\Vessels\SSU_SWT.cfg
-Config\Vessels\SSU_Tank.cfg
 Config\Vessels\SSU_VAB.cfg
 Config\Vessels\SSU_Xenon_Lights.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_AT.cfg
@@ -208,6 +207,7 @@ Meshes\VandenbergAFB\SLC-6_STS_OMCF.msh
 Meshes\VandenbergAFB\SLC-6_STS_PCR.msh
 Meshes\VandenbergAFB\SLC-6_STS_PPR.msh
 Missions\SSU\STS-1.cfg
+Missions\SSU\STS-3.cfg
 Missions\SSU\STS-101.cfg
 Missions\SSU\STS-107.cfg
 Missions\SSU\STS-114.cfg
@@ -236,6 +236,7 @@ Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-F).sc
 Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-G).scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\De-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Entry Interface.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Post-insertion PLBD opening.scn
