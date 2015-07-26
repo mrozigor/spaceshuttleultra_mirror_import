@@ -607,7 +607,7 @@ void AscentGuidance::Throttle(double DeltaT)
 		}
 	}
 	else { // manual throttling
-		pSSME_SOP->SetThrottlePercent( SBTCCommand );
+		pSSME_SOP->SetThrottlePercent( Round( 2 * SBTCCommand ) * 0.5 );// rounded to the nearest 0.5%
 	}
 	
 	lastSBTCCommand = SBTCCommand;
