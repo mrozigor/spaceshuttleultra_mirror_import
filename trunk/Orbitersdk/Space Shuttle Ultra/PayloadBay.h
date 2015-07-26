@@ -72,6 +72,10 @@ class PayloadBay:public AtlantisSubsystem
 		AnimState RadiatorStatus;
 		AnimState RadLatchStatus;
 		AnimState KuAntennaStatus;
+
+		bool hasAntenna;
+
+		void SetTalkbacks( void );
 	public:
 		PayloadBay( AtlantisSubsystemDirector* _director );
 		~PayloadBay( void );
