@@ -42,6 +42,7 @@ const double TANK_MAX_PROPELLANT_MASS = LOX_MAX_PROPELLANT_MASS+LH2_MAX_PROPELLA
 
 // Main tank empty mass
 const double SWT_EMPTY_MASS = 35425.0;	//STS-1 to STS-5 tank 76000lb 35425.0kg
+const double SWT_FRL_EMPTY_MASS = SWT_EMPTY_MASS + 260;// same as SWT plus FRL weight (~260kg)
 const double LWT_EMPTY_MASS = 29937.0;	//Light weight tank 66000lb 29937kg, STS-6 to STS-90
 const double SLWT_EMPTY_MASS = 26535.0;	//Super light weight tank, 58500lb, STS-91 on
 
@@ -108,6 +109,8 @@ private:
 	 * This function updates the output of the pressure and level sensors.
 	 */
 	void UpdateSensors( void );
+
+	bool useFRL;
 
 	VISHANDLE hVis;
 

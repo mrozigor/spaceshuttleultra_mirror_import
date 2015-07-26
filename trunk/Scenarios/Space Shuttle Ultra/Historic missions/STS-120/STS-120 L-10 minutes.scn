@@ -354,7 +354,7 @@ Discovery:SpaceShuttleUltra
   "KU Antenna" GND
   @ENDPANEL 
 END
-ET:SSU_Tank
+ET:SSU_SLWT
   STATUS Orbiting Earth
   PRPLEVEL 0:0.996000
   ATTACHED 0:20,Discovery
