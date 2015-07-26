@@ -290,6 +290,7 @@ namespace vc {
 		pIPLSource->SetMouseRegion(0.8518f, 0.7391f, 0.8936f, 0.7720f);
 		pIPLSource->DefineSwitchGroup(GRP_O6S45_VC);
 		pIPLSource->SetReference(_V(0.0, 3.056848, 14.14088), SWITCH_VERTICAL);
+		pIPLSource->SetInitialAnimState( 0.5f );
 
 		Add(pIPL1 = new PushButton(_sts, "IPL1"));
 		pIPL1->SetMouseRegion(0.4949f, 0.7365f, 0.5439f, 0.7741f);
@@ -328,49 +329,54 @@ namespace vc {
 		pGPCMode[4]->SetTalkbackLocation(0, 0);
 
 		//0.0,  3.033531,  14.23673
-		Add(pGPC1Mode = new StdSwitch3(_sts, "GPC MODE 1"));
+		Add(pGPC1Mode = new LockableLever3(_sts, "GPC MODE 1"));
 		pGPC1Mode->SetLabel(0, "RUN");
 		pGPC1Mode->SetLabel(1, "STBY");
 		pGPC1Mode->SetLabel(2, "HALT");
 		pGPC1Mode->SetMouseRegion(0.4798f, 0.8718f, 0.5473f, 0.9117f);
 		pGPC1Mode->DefineSwitchGroup(GRP_O6S46_VC);
 		pGPC1Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
+		pGPC1Mode->SetPullDirection( _V( 0.0, -0.971961, -0.235142 ) );
 		pGPC1Mode->SetInitialAnimState(0.5f);
 
-		Add(pGPC2Mode = new StdSwitch3(_sts, "GPC MODE 2"));
+		Add(pGPC2Mode = new LockableLever3(_sts, "GPC MODE 2"));
 		pGPC2Mode->SetLabel(0, "RUN");
 		pGPC2Mode->SetLabel(1, "STBY");
 		pGPC2Mode->SetLabel(2, "HALT");
 		pGPC2Mode->SetMouseRegion(0.5587f, 0.8718f, 0.6032f, 0.9117f);
 		pGPC2Mode->DefineSwitchGroup(GRP_O6S47_VC);
 		pGPC2Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
+		pGPC2Mode->SetPullDirection( _V( 0.0, -0.971961, -0.235142 ) );
 		pGPC2Mode->SetInitialAnimState(0.5f);
 
-		Add(pGPC3Mode = new StdSwitch3(_sts, "GPC MODE 3"));
+		Add(pGPC3Mode = new LockableLever3(_sts, "GPC MODE 3"));
 		pGPC3Mode->SetLabel(0, "RUN");
 		pGPC3Mode->SetLabel(1, "STBY");
 		pGPC3Mode->SetLabel(2, "HALT");
 		pGPC3Mode->SetMouseRegion(0.6212f, 0.8718f, 0.6657f, 0.9117f);
 		pGPC3Mode->DefineSwitchGroup(GRP_O6S48_VC);
 		pGPC3Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
+		pGPC3Mode->SetPullDirection( _V( 0.0, -0.971961, -0.235142 ) );
 		pGPC3Mode->SetInitialAnimState(0.5f);
 
-		Add(pGPC4Mode = new StdSwitch3(_sts, "GPC MODE 4"));
+		Add(pGPC4Mode = new LockableLever3(_sts, "GPC MODE 4"));
 		pGPC4Mode->SetLabel(0, "RUN");
 		pGPC4Mode->SetLabel(1, "STBY");
 		pGPC4Mode->SetLabel(2, "HALT");
 		pGPC4Mode->SetMouseRegion(0.6828f, 0.8718f, 0.7375f, 0.9117f);
 		pGPC4Mode->DefineSwitchGroup(GRP_O6S49_VC);
 		pGPC4Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
+		pGPC4Mode->SetPullDirection( _V( 0.0, -0.971961, -0.235142 ) );
 		pGPC4Mode->SetInitialAnimState(0.5f);
 
-		Add(pGPC5Mode = new StdSwitch3(_sts, "GPC MODE 5"));
+		Add(pGPC5Mode = new LockableLever3(_sts, "GPC MODE 5"));
 		pGPC5Mode->SetLabel(0, "RUN");
 		pGPC5Mode->SetLabel(1, "STBY");
 		pGPC5Mode->SetLabel(2, "HALT");
 		pGPC5Mode->SetMouseRegion(0.7538f, 0.8718f, 0.8021f, 0.9117f);
 		pGPC5Mode->DefineSwitchGroup(GRP_O6S50_VC);
 		pGPC5Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
+		pGPC5Mode->SetPullDirection( _V( 0.0, -0.971961, -0.235142 ) );
 		pGPC5Mode->SetInitialAnimState(0.5f);
 		oapiWriteLog("(PanelO6::PanelO6) Leave constructor.");
 	}
@@ -403,40 +409,40 @@ namespace vc {
 		pGPC1Output->outputA.Connect(pBundle, 1);
 		pGPC1Output->outputB.Connect(pBundle, 2);
 		pIPL1->output.Connect(pBundle, 3);
-		pGPC1Mode->outputA.Connect(pBundle, 4);
-		pGPC1Mode->outputB.Connect(pBundle, 5);
+		pGPC1Mode->ConnectPort( 1, pBundle, 4 );
+		pGPC1Mode->ConnectPort( 2, pBundle, 5 );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC2", 16);
 		pGPC2Pwr->output.Connect(pBundle, 0);
 		pGPC2Output->outputA.Connect(pBundle, 1);
 		pGPC2Output->outputB.Connect(pBundle, 2);
 		pIPL2->output.Connect(pBundle, 3);
-		pGPC2Mode->outputA.Connect(pBundle, 4);
-		pGPC2Mode->outputB.Connect(pBundle, 5);
+		pGPC2Mode->ConnectPort( 1, pBundle, 4 );
+		pGPC2Mode->ConnectPort( 2, pBundle, 5 );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC3", 16);
 		pGPC3Pwr->output.Connect(pBundle, 0);
 		pGPC3Output->outputA.Connect(pBundle, 1);
 		pGPC3Output->outputB.Connect(pBundle, 2);
 		pIPL3->output.Connect(pBundle, 3);
-		pGPC3Mode->outputA.Connect(pBundle, 4);
-		pGPC3Mode->outputB.Connect(pBundle, 5);
+		pGPC3Mode->ConnectPort( 1, pBundle, 4 );
+		pGPC3Mode->ConnectPort( 2, pBundle, 5 );
 
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC4", 16);
 		pGPC4Pwr->output.Connect(pBundle, 0);
 		pGPC4Output->outputA.Connect(pBundle, 1);
 		pGPC4Output->outputB.Connect(pBundle, 2);
 		pIPL4->output.Connect(pBundle, 3);
-		pGPC4Mode->outputA.Connect(pBundle, 4);
-		pGPC4Mode->outputB.Connect(pBundle, 5);
+		pGPC4Mode->ConnectPort( 1, pBundle, 4 );
+		pGPC4Mode->ConnectPort( 2, pBundle, 5 );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC5", 16);
 		pGPC5Pwr->output.Connect(pBundle, 0);
 		pGPC5Output->outputA.Connect(pBundle, 1);
 		pGPC5Output->outputB.Connect(pBundle, 2);
 		pIPL5->output.Connect(pBundle, 3);
-		pGPC5Mode->outputA.Connect(pBundle, 4);
-		pGPC5Mode->outputB.Connect(pBundle, 5);
+		pGPC5Mode->ConnectPort( 1, pBundle, 4 );
+		pGPC5Mode->ConnectPort( 2, pBundle, 5 );
 
 		pBundle = STS()->BundleManager()->CreateBundle("O6_IPL", 16);
 		pIPLSource->outputA.Connect(pBundle, 0);
@@ -451,7 +457,7 @@ namespace vc {
 		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
-		oapiVCRegisterArea(AID_O6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
+		oapiVCRegisterArea(AID_O6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
 		oapiVCSetAreaClickmode_Quadrilateral (AID_O6, 
 			_V(-0.726224, 3.18582, 13.6082)+ofs, _V(-0.217782, 3.18582, 13.6082)+ofs, 
 			_V(-0.726224, 3.01496, 14.3133) + ofs, _V(-0.217782, 3.01496, 14.3133)+ofs);

@@ -595,8 +595,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_A6U );
 			default:
 				return 1;// switch in LVLH
 		}
@@ -611,8 +610,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_ERROR_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_A6U );
 			default:
 				return 1;// switch in MED
 		}
@@ -627,8 +625,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_RATE_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_RATE_A6U );
 			default:
 				return 1;// switch in MED
 		}

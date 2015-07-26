@@ -95,11 +95,11 @@ namespace vc {
 
 		Std2SegTalkback* pGPCMode[5];
 
-		StdSwitch3* pGPC1Mode;
-		StdSwitch3* pGPC2Mode;
-		StdSwitch3* pGPC3Mode;
-		StdSwitch3* pGPC4Mode;
-		StdSwitch3* pGPC5Mode;
+		LockableLever3* pGPC1Mode;
+		LockableLever3* pGPC2Mode;
+		LockableLever3* pGPC3Mode;
+		LockableLever3* pGPC4Mode;
+		LockableLever3* pGPC5Mode;
 	public:
 		PanelO6(Atlantis* psts);
 		virtual ~PanelO6();

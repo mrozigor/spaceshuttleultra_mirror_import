@@ -55,7 +55,10 @@ namespace dps
 	const int SW_ADI_ATTITUDE_F8 = 17;
 	const int SW_ADI_ERROR_F8 = 18;
 	const int SW_ADI_RATE_F8 = 19;
-	const int COUNT_INPUT = 20;
+	const int SW_ADI_ATTITUDE_A6U = 20;
+	const int SW_ADI_ERROR_A6U = 21;
+	const int SW_ADI_RATE_A6U = 22;
+	const int COUNT_INPUT = 23;
 
 	const int LH2_INBD_BU_DV_OP = 0;
 	const int LH2_OTBD_BU_DV_OP = 1;
