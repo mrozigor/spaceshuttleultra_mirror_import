@@ -1099,11 +1099,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	}
 
 	// draw shuttle bug (this is always at fixed position)
-	pMDU->OrbiterSymbolTop( BUG_POINT_X, BUG_POINT_Y );
+	double nz = GetNZ();
+	char att = 0;
+	if ((nz > 2.5) || (nz < -1)) att = dps::DEUATT_FLASHING;// limits are true most of the time, but not 100% accurate
 
-	sprintf_s( cbuf, 51, "%3.1f", GetNZ() );
-	pMDU->mvprint( 21, 15, cbuf );
+	pMDU->OrbiterSymbolTop( BUG_POINT_X, BUG_POINT_Y, att );
 
+	sprintf_s( cbuf, 51, "%3.1f", nz );
+	pMDU->mvprint( 21, 15, cbuf, att );
+
+	// scales
 	if (((GetMajorMode() == 305) || (GetMajorMode() == 603)) && (STS()->GetAltitude() > 2133.6))// blank under 7kft
 	{
 		// top scale
