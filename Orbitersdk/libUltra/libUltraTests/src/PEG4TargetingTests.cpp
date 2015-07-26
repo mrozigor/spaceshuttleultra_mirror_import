@@ -141,9 +141,9 @@ TEST(PEG4TargetingTest, DeorbitPerturbations) {
 	//VECTOR3 reqdVel = targeting.GetDeltaV() + INITIAL_VEL;
 
 	const double PROPAGATOR_STEP = 1e-2;
-	const double PROPAGATOR_ITERATIONS = 100;
+	const int PROPAGATOR_ITERATIONS = 100;
 	StateVectorPropagator propagator(PROPAGATOR_STEP, PROPAGATOR_ITERATIONS, 3600.0);
-	PEG4Propagator omsProp;
+	OMSBurnPropagator omsProp;
 	omsProp.SetBurnData(0.0, targeting.GetDeltaV(), ACCELERATION);
 	propagator.SetParameters(1.0, EARTH_MASS, EARTH_RADIUS, J2);
 	propagator.DefinePerturbations(&omsProp);
@@ -201,9 +201,9 @@ TEST(PEG4TargetingTest, OMS2Perturbations) {
 	//VECTOR3 reqdVel = targeting.GetDeltaV() + INITIAL_VEL;
 
 	const double PROPAGATOR_STEP = 1e-2;
-	const double PROPAGATOR_ITERATIONS = 100;
+	const int PROPAGATOR_ITERATIONS = 100;
 	StateVectorPropagator propagator(PROPAGATOR_STEP, PROPAGATOR_ITERATIONS, 3600.0);
-	PEG4Propagator omsProp;
+	OMSBurnPropagator omsProp;
 	omsProp.SetBurnData(0.0, targeting.GetDeltaV(), ACCELERATION);
 	propagator.SetParameters(1.0, EARTH_MASS, EARTH_RADIUS, J2);
 	propagator.DefinePerturbations(&omsProp);
@@ -262,9 +262,9 @@ TEST(PEG4TargetingTest, TransferAngle180) {
 	//VECTOR3 reqdVel = targeting.GetDeltaV() + INITIAL_VEL;
 
 	const double PROPAGATOR_STEP = 1e-2;
-	const double PROPAGATOR_ITERATIONS = 100;
+	const int PROPAGATOR_ITERATIONS = 100;
 	StateVectorPropagator propagator(PROPAGATOR_STEP, PROPAGATOR_ITERATIONS, 3600.0);
-	PEG4Propagator omsProp;
+	OMSBurnPropagator omsProp;
 	omsProp.SetBurnData(0.0, targeting.GetDeltaV(), ACCELERATION);
 	propagator.SetParameters(1.0, EARTH_MASS, EARTH_RADIUS, J2);
 	propagator.DefinePerturbations(&omsProp);

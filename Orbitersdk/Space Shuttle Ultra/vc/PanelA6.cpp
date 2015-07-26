@@ -1,6 +1,7 @@
 #include "PanelA6.h"
 #include "../meshres_vc.h"
 #include "../meshres_vc_additions.h"
+#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -36,6 +37,9 @@ namespace vc
 		Add(pLatchRTL[2] = new StandardTalkback(_sts, "Payload Latch3 RTL", 1));
 		Add(pLatchRTL[3] = new StandardTalkback(_sts, "Payload Latch4 RTL", 1));
 		Add(pLatchRTL[4] = new StandardTalkback(_sts, "Payload Latch5 RTL", 1));
+		Add( pADIAttitude = new StdSwitch3( _sts, "ADI Attitude" ) );
+		Add( pADIError = new StdSwitch3( _sts, "ADI Error" ) );
+		Add( pADIRate = new StdSwitch3( _sts, "ADI Rate" ) );
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
@@ -60,6 +64,16 @@ namespace vc
 		pPayloadSelect->SetLabel(2, "2");
 		pPayloadSelect->SetLabel(3, "MON1");
 		pPayloadSelect->SetLabel(4, "1");
+
+		pADIAttitude->SetLabel( 0, "REF" );
+		pADIAttitude->SetLabel( 1, "LVLH" );
+		pADIAttitude->SetLabel( 2, "INRTL" );
+		pADIError->SetLabel( 0, "LOW" );
+		pADIError->SetLabel( 1, "MED" );
+		pADIError->SetLabel( 2, "HIGH" );
+		pADIRate->SetLabel( 0, "LOW" );
+		pADIRate->SetLabel( 1, "MED" );
+		pADIRate->SetLabel( 2, "HIGH" );
 	}
 
 	PanelA6::~PanelA6()
@@ -117,6 +131,21 @@ namespace vc
 		pPayloadSelect->SetOffset(-60.0f);
 		pPayloadSelect->SetMouseRegion(0.811500f, 0.842076f, 0.881687f, 0.940961f);
 
+		pADIAttitude->DefineSwitchGroup( GRP_A6U5_VC );
+		pADIAttitude->SetInitialAnimState( 0.5 );
+		pADIAttitude->SetReference( _V( 0.6908, 2.6717, 12.3472 ), switch_rot );
+		pADIAttitude->SetMouseRegion( 0.889962f, 0.547700f, 0.925561f, 0.612007f );
+
+		pADIError->DefineSwitchGroup( GRP_A6U6_VC );
+		pADIError->SetInitialAnimState( 0.5 );
+		pADIError->SetReference( _V( 0.6908, 2.6717, 12.3472 ), switch_rot );
+		pADIError->SetMouseRegion( 0.802425f, 0.547700f, 0.841630f, 0.612007f );
+
+		pADIRate->DefineSwitchGroup( GRP_A6U7_VC );
+		pADIRate->SetInitialAnimState( 0.5 );
+		pADIRate->SetReference( _V( 0.6908, 2.6717, 12.3472 ), switch_rot );
+		pADIRate->SetMouseRegion( 0.749505f, 0.547700f, 0.783608f, 0.612007f );
+
 		for(int i=0;i<24;i++) {
 			pPBIs[i]->AddAIDToRedrawEventList(AID_A6_PBI1+i);
 			pPBIs[i]->SetSourceImage(g_Param.pbi_lights);
@@ -166,7 +195,7 @@ namespace vc
 		AtlantisPanel::RegisterVC();
 		oapiWriteLog("PanelA6: RegisterVC called");
 
-		VECTOR3 ofs=STS()->GetOrbiterCoGOffset();
+		VECTOR3 ofs=STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
 		oapiVCRegisterArea(AID_A6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A6,
@@ -319,6 +348,14 @@ namespace vc
 			Latch_Released[2][i].Connect(pBundle2, 3*i+1);
 			Latch_RTL[2][i].Connect(pBundle2, 3*i+2);
 		}
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ADI_Switches_A6U", 6 );
+		pADIAttitude->outputA.Connect( pBundle, 0 );// REF
+		pADIAttitude->outputB.Connect( pBundle, 1 );// INRTL
+		pADIError->outputA.Connect( pBundle, 2 );// LOW
+		pADIError->outputB.Connect( pBundle, 3 );// HIGH
+		pADIRate->outputA.Connect( pBundle, 4 );// LOW
+		pADIRate->outputB.Connect( pBundle, 5 );// HIGH
 		
 		AtlantisPanel::Realize();
 	}
@@ -329,27 +366,19 @@ namespace vc
 
 		PanelA6::PAYLOAD Payload = GetSelectedPayload();
 
-		//sprintf_s(oapiDebugString(), 255, "Active Payload: %d Latches:", Payload);
-
 		if(Payload != MON) {
 			for(int i=0;i<5;i++) {
 				if(LatchSwitch_Latch[i]) {
 					Latch_Latch[Payload][i].SetLine();
 					Latch_Release[Payload][i].ResetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s LAT", oapiDebugString());
 				}
 				else if(LatchSwitch_Release[i]) {
 					Latch_Latch[Payload][i].ResetLine();
 					Latch_Release[Payload][i].SetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s REL", oapiDebugString());
 				}
 				else {
 					Latch_Latch[Payload][i].ResetLine();
 					Latch_Release[Payload][i].ResetLine();
-
-					//sprintf_s(oapiDebugString(), 255, "%s OFF", oapiDebugString());
 				}
 
 				if(Latch_Latched[Payload][i]) {

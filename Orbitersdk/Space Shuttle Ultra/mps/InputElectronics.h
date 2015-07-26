@@ -27,11 +27,17 @@
 
 
 #include <orbitersdk.h>
+#include "DiscInPort.h"
 
 
 namespace mps
 {
-	class SSME;
+	class PowerSupplyElectronics;
+	class OutputElectronics;
+
+	using class discsignals::DiscInPort;
+	using class discsignals::DiscreteBundle;
+
 
 	class InputElectronics
 	{
@@ -39,31 +45,20 @@ namespace mps
 
 		protected:
 			int ch;
-			SSME* eng;
 			SSMEController* Controller;
+			PowerSupplyElectronics* PSE;
+			OutputElectronics* OE;
 
 			// sensor input
-			double* press;
-			double* temp;
-			double* speed;
-			double* flow;
-			double* actpos;
-			double* samplehold;
-
-			// sensor count
-			int numP;
-			int numT;
-			int numS;
-			int numF;
-
-			// flight data sensor count
-			int FD_P;
-			int FD_T;
-			int FD_F;
-			int FD_S;
+			DiscInPort press[15];
+			DiscInPort temp[8];
+			DiscInPort speed[3];
+			DiscInPort flow[4];
+			double actpos[9];
+			double samplehold[5];
 
 		public:
-			InputElectronics( int ch, SSME* eng, SSMEController* Controller, int numP, int numT, int numS, int numF, int FD_P, int FD_T, int FD_S, int FD_F );
+			InputElectronics( int ch, SSMEController* Controller );
 			virtual ~InputElectronics( void );
 
 			void OnSaveState( FILEHANDLE scn ) const;
@@ -73,9 +68,9 @@ namespace mps
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
 
-			virtual void tmestp( double time ) = 0;
+			void Realize( DiscreteBundle* Press, DiscreteBundle* Temp, DiscreteBundle* Flow, DiscreteBundle* Speed );
 
-			void CopySensorData( int count, int startsource, int startdest, double* source, double* dest );
+			virtual void tmestp( double time ) = 0;
 
 			void GetData( unsigned short device, unsigned short* data );
 	};

@@ -1,0 +1,564 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Analysis (Debug)|Win32">
+      <Configuration>Analysis (Debug)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}</ProjectGuid>
+    <RootNamespace>Atlantis</RootNamespace>
+    <ProjectName>Atlantis</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\..\..\Modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\$(TargetName)\</IntDir>
+    <CustomBuildAfterTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildAfterTargets>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EmbedManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\Modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\$(TargetName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">$(Configuration)\$(TargetName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">true</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SpaceShuttleUltra</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">SpaceShuttleUltra</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SpaceShuttleUltra</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\..\..\..\Modules/Atlantis.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../include;../libUltra/include;../libUltra/KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;IS_SSU_DLL_MODULE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>.\Release/Atlantis.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>$(Configuration)\$(TargetName)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcirt.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+      <ImportLibrary>.\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Manifest>
+      <VerboseOutput>true</VerboseOutput>
+    </Manifest>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\..\..\..\Modules/Atlantis.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\..\..\..\Modules/Atlantis.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../include;../libUltra/include;../libUltra/KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>.\Debug/Atlantis.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>$(Configuration)\$(TargetName)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcirt.lib;msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\..\..\..\Modules/Atlantis.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\..\..\..\Modules/Atlantis.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/analyze
+/wd4100 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../include;../libUltra/include;../libUltra/KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>.\Debug/Atlantis.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>$(Configuration)\$(TargetName)\</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcirt.lib;msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\..\..\..\Modules/Atlantis.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\Meshes\SSU\Cockpit.msh" />
+    <None Include="..\..\Meshes\SSU\ET125.msh" />
+    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh" />
+    <None Include="..\..\Meshes\SSU\KU.msh" />
+    <None Include="..\..\Meshes\SSU\lsrb.msh" />
+    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh" />
+    <None Include="..\..\Meshes\SSU\ODS.msh" />
+    <None Include="..\..\Meshes\SSU\ODSVC.msh" />
+    <None Include="..\..\Meshes\SSU\Orbiter.msh" />
+    <None Include="..\..\Meshes\SSU\RMS.msh" />
+    <None Include="..\..\Meshes\SSU\rsrb.msh" />
+    <None Include="..\..\Meshes\SSU\VC.msh" />
+    <None Include="..\..\Scenarios\(Current state).scn" />
+    <None Include="Bitmaps\bitmap1.bmp" />
+    <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
+    <None Include="ClassDiagram3.cd" />
+    <None Include="ClassDiagram4.cd" />
+    <None Include="ClassDiagram5.cd" />
+    <None Include="ClassDiagram6.cd" />
+    <None Include="Bitmaps\clocknums.bmp" />
+    <None Include="Bitmaps\DEU_Raw.bmp" />
+    <None Include="Bitmaps\digits.bmp" />
+    <None Include="down.ico" />
+    <None Include="ico00001.ico" />
+    <None Include="ico00002.ico" />
+    <None Include="ico00003.ico" />
+    <None Include="ico00004.ico" />
+    <None Include="icon1.ico" />
+    <None Include="Bitmaps\ODSbuttons.bmp" />
+    <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
+    <None Include="..\..\Orbiter.log" />
+    <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
+    <None Include="Bitmaps\tkbk_label.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="commDeployedAssembly.cpp" />
+    <ClCompile Include="commGCIL.cpp" />
+    <ClCompile Include="dps\AerojetDAP.cpp" />
+    <ClCompile Include="dps\AODModule.cpp" />
+    <ClCompile Include="dps\AscentGuidance.cpp" />
+    <ClCompile Include="dps\ATVC_SOP.cpp" />
+    <ClCompile Include="dps\ETSepSequence.cpp" />
+    <ClCompile Include="dps\GeneralDisplays.cpp" />
+    <ClCompile Include="dps\HALS_Compilations.cpp" />
+    <ClCompile Include="dps\HALS_Types.cpp" />
+    <ClCompile Include="dps\IOModule.cpp" />
+    <ClCompile Include="dps\IO_Control.cpp" />
+    <ClCompile Include="dps\MM801.cpp" />
+    <ClCompile Include="dps\MMU.cpp" />
+    <ClCompile Include="dps\MPS_Dedicated_Display_Driver.cpp" />
+    <ClCompile Include="dps\MPS_Dump.cpp" />
+    <ClCompile Include="dps\OMSBurnSoftware.cpp" />
+    <ClCompile Include="dps\OrbitDAP.cpp" />
+    <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
+    <ClCompile Include="dps\RSLS.cpp" />
+    <ClCompile Include="dps\SimpleGPC.cpp" />
+    <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
+    <ClCompile Include="dps\SimpleGPCSystem.cpp" />
+    <ClCompile Include="dps\SRBSepSequence.cpp" />
+    <ClCompile Include="dps\SSME_Operations.cpp" />
+    <ClCompile Include="dps\SSME_SOP.cpp" />
+    <ClCompile Include="dps\StateVectorSoftware.cpp" />
+    <ClCompile Include="dps\Symbol.cpp" />
+    <ClCompile Include="dps\TransitionDAP.cpp" />
+    <ClCompile Include="eps\ACBus.cpp" />
+    <ClCompile Include="eps\ACBusSystem.cpp" />
+    <ClCompile Include="eps\ACMotor.cpp" />
+    <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
+    <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="mps\DigitalComputerUnit.cpp" />
+    <ClCompile Include="mps\DigitalComputerUnit_BLOCK_II.cpp" />
+    <ClCompile Include="mps\HeliumSystem.cpp" />
+    <ClCompile Include="mps\InputElectronics.cpp" />
+    <ClCompile Include="mps\InputElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="mps\OutputElectronics.cpp" />
+    <ClCompile Include="mps\OutputElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="mps\PneumaticControlAssembly.cpp" />
+    <ClCompile Include="mps\PowerSupplyElectronics.cpp" />
+    <ClCompile Include="mps\PowerSupplyElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="mps\SSMEController.cpp" />
+    <ClCompile Include="mps\SSMEControllerSW.cpp" />
+    <ClCompile Include="mps\SSMEControllerSW_AD08.cpp" />
+    <ClCompile Include="mps\SSMEController_BLOCK_II.cpp" />
+    <ClCompile Include="mps\VehicleInterfaceElectronics.cpp" />
+    <ClCompile Include="mps\VehicleInterfaceElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="ReentryDragTable.cpp" />
+    <ClCompile Include="SSULua.cpp" />
+    <ClCompile Include="vc\AftMDU.cpp" />
+    <ClCompile Include="AirDataProbeSystem.cpp" />
+    <ClCompile Include="dps\AP101S.cpp" />
+    <ClCompile Include="APU.cpp" />
+    <ClCompile Include="Atlantis.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="AtlantisSubsystem.cpp" />
+    <ClCompile Include="AtlantisSubsystemDirector.cpp" />
+    <ClCompile Include="gnc\ATVC.cpp" />
+    <ClCompile Include="eva_docking\BasicExtAirlock.cpp" />
+    <ClCompile Include="vc\BasicLight.cpp" />
+    <ClCompile Include="vc\BasicRotarySwitch.cpp" />
+    <ClCompile Include="vc\BasicSwitch.cpp" />
+    <ClCompile Include="dps\BIU.cpp" />
+    <ClCompile Include="mps\SSME_BLOCK_II.cpp" />
+    <ClCompile Include="dps\BusController.cpp" />
+    <ClCompile Include="dps\BusTerminal.cpp" />
+    <ClCompile Include="CommModeHandler.cpp" />
+    <ClCompile Include="Common.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="mps\EIU.cpp" />
+    <ClCompile Include="ETUmbDoorSystem.cpp" />
+    <ClCompile Include="eva_docking\ExtAirlock.cpp" />
+    <ClCompile Include="dps\GPC.cpp" />
+    <ClCompile Include="dps\GPCSoftware.cpp" />
+    <ClCompile Include="hydraulics\HydActuator.cpp" />
+    <ClCompile Include="dps\IDP.cpp" />
+    <ClCompile Include="gnc\IMU.cpp" />
+    <ClCompile Include="eps\Inverter.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Latch.cpp" />
+    <ClCompile Include="dps\MasterTimingUnit.cpp" />
+    <ClCompile Include="MCA.cpp" />
+    <ClCompile Include="dps\MDM.cpp" />
+    <ClCompile Include="vc\MDU.cpp" />
+    <ClCompile Include="MechActuator.cpp" />
+    <ClCompile Include="mission\Mission.cpp" />
+    <ClCompile Include="MissionFileManagement.cpp" />
+    <ClCompile Include="MPMSystems.cpp" />
+    <ClCompile Include="mps\MPS.cpp" />
+    <ClCompile Include="eva_docking\ODS.cpp" />
+    <ClCompile Include="PanelA4.cpp" />
+    <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA6.cpp" />
+    <ClCompile Include="vc\PanelA7A8ODS.cpp" />
+    <ClCompile Include="vc\PanelA7U.cpp" />
+    <ClCompile Include="vc\PanelA8.cpp" />
+    <ClCompile Include="PanelC2.cpp" />
+    <ClCompile Include="vc\PanelC3.cpp" />
+    <ClCompile Include="vc\PanelF2.cpp" />
+    <ClCompile Include="vc\PanelF4.cpp" />
+    <ClCompile Include="vc\PanelF6.cpp" />
+    <ClCompile Include="vc\PanelF7.cpp" />
+    <ClCompile Include="vc\PanelF8.cpp" />
+    <ClCompile Include="PanelO3.cpp" />
+    <ClCompile Include="vc\PanelO17.cpp" />
+    <ClCompile Include="vc\PanelO6.cpp" />
+    <ClCompile Include="vc\PanelR11.cpp" />
+    <ClCompile Include="vc\PanelR2.cpp" />
+    <ClCompile Include="PlBayOp.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="vc\PushButton.cpp" />
+    <ClCompile Include="vc\PushButtonIndicator.cpp" />
+    <ClCompile Include="dps\RAM32.cpp" />
+    <ClCompile Include="dps\RAM32S.cpp" />
+    <ClCompile Include="RMSSystem.cpp" />
+    <ClCompile Include="dps\RSLS_old.cpp" />
+    <ClCompile Include="dps\ShuttleBus.cpp" />
+    <ClCompile Include="mps\SSME.cpp" />
+    <ClCompile Include="vc\StandardLight.cpp" />
+    <ClCompile Include="vc\StandardLight2.cpp" />
+    <ClCompile Include="vc\StandardRotarySwitch.cpp" />
+    <ClCompile Include="vc\StandardSwitch.cpp" />
+    <ClCompile Include="vc\StandardSwitchCover.cpp" />
+    <ClCompile Include="StbdMPMSystem.cpp" />
+    <ClCompile Include="util\Stopwatch.cpp" />
+    <ClCompile Include="vc\Talkback.cpp" />
+    <ClCompile Include="WSB.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Atlantis_defs.h" />
+    <ClInclude Include="commGCIL.h" />
+    <ClInclude Include="DeployedAssembly.h" />
+    <ClInclude Include="dps\AerojetDAP.h" />
+    <ClInclude Include="dps\AscentGuidance.h" />
+    <ClInclude Include="dps\ATVC_SOP.h" />
+    <ClInclude Include="dps\ETSepSequence.h" />
+    <ClInclude Include="dps\GeneralDisplays.h" />
+    <ClInclude Include="dps\HALS_Compilations.h" />
+    <ClInclude Include="dps\HALS_Types.h" />
+    <ClInclude Include="dps\IOModule.h" />
+    <ClInclude Include="dps\IO_Control.h" />
+    <ClInclude Include="dps\MDM.h" />
+    <ClInclude Include="dps\MM801.h" />
+    <ClInclude Include="dps\MPS_Dedicated_Display_Driver.h" />
+    <ClInclude Include="dps\MPS_Dump.h" />
+    <ClInclude Include="dps\OMSBurnSoftware.h" />
+    <ClInclude Include="dps\OrbitDAP.h" />
+    <ClInclude Include="dps\OrbitTgtSoftware.h" />
+    <ClInclude Include="dps\RSLS.h" />
+    <ClInclude Include="dps\SimpleGPCSoftware.h" />
+    <ClInclude Include="dps\SimpleGPCSystem.h" />
+    <ClInclude Include="dps\simple\FCOS.h" />
+    <ClInclude Include="dps\simple\MF_GNC.h" />
+    <ClInclude Include="dps\simple\Partition.h" />
+    <ClInclude Include="dps\SRBSepSequence.h" />
+    <ClInclude Include="dps\SSME_Operations.h" />
+    <ClInclude Include="dps\SSME_SOP.h" />
+    <ClInclude Include="dps\StateVectorSoftware.h" />
+    <ClInclude Include="dps\TransitionDAP.h" />
+    <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
+    <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
+    <ClInclude Include="mps\DigitalComputerUnit.h" />
+    <ClInclude Include="mps\DigitalComputerUnit_BLOCK_II.h" />
+    <ClInclude Include="mps\HeliumSystem.h" />
+    <ClInclude Include="mps\InputElectronics.h" />
+    <ClInclude Include="mps\InputElectronics_BLOCK_II.h" />
+    <ClInclude Include="mps\MPSdefs.h" />
+    <ClInclude Include="mps\OutputElectronics.h" />
+    <ClInclude Include="mps\OutputElectronics_BLOCK_II.h" />
+    <ClInclude Include="mps\PneumaticControlAssembly.h" />
+    <ClInclude Include="mps\PowerSupplyElectronics.h" />
+    <ClInclude Include="mps\PowerSupplyElectronics_BLOCK_II.h" />
+    <ClInclude Include="mps\SSMEController.h" />
+    <ClInclude Include="mps\SSMEControllerSW.h" />
+    <ClInclude Include="mps\SSMEControllerSW_AD08.h" />
+    <ClInclude Include="mps\SSMEController_BLOCK_II.h" />
+    <ClInclude Include="mps\VehicleInterfaceElectronics.h" />
+    <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h" />
+    <ClInclude Include="ReentryDragTable.h" />
+    <ClInclude Include="vc\AftMDU.h" />
+    <ClInclude Include="dps\AP101S.h" />
+    <ClInclude Include="APU.h" />
+    <ClInclude Include="Atlantis.h" />
+    <ClInclude Include="Atlantis_vc_defs.h" />
+    <ClInclude Include="AtlantisSubsystem.h" />
+    <ClInclude Include="AtlantisSubsystemDirector.h" />
+    <ClInclude Include="gnc\ATVC.h" />
+    <ClInclude Include="eva_docking\BasicExtAirlock.h" />
+    <ClInclude Include="vc\BasicLight.h" />
+    <ClInclude Include="vc\AtlantisPanel.h" />
+    <ClInclude Include="vc\BasicRotarySwitch.h" />
+    <ClInclude Include="vc\BasicSwitch.h" />
+    <ClInclude Include="vc\AtlantisVCComponent.h" />
+    <ClInclude Include="dps\BIU.h" />
+    <ClInclude Include="mps\SSME_BLOCK_II.h" />
+    <ClInclude Include="CommonDefs.h" />
+    <ClInclude Include="dps\dps_defs.h" />
+    <ClInclude Include="mps\EIU.h" />
+    <ClInclude Include="eps\eps_defs.h" />
+    <ClInclude Include="ETUmbDoorSystem.h" />
+    <ClInclude Include="vc\EventTimer.h" />
+    <ClInclude Include="eva_docking\ExtAirlock.h" />
+    <ClInclude Include="dps\GPC.h" />
+    <ClInclude Include="dps\GPCSoftware.h" />
+    <ClInclude Include="hydraulics\HydActuator.h" />
+    <ClInclude Include="dps\IDP.h" />
+    <ClInclude Include="gnc\IMU.h" />
+    <ClInclude Include="Latch.h" />
+    <ClInclude Include="dps\MasterTimingUnit.h" />
+    <ClInclude Include="MCA.h" />
+    <ClInclude Include="vc\MDU.h" />
+    <ClInclude Include="MechActuator.h" />
+    <ClInclude Include="meshres.h" />
+    <ClInclude Include="meshres_ods.h" />
+    <ClInclude Include="meshres_odsvc.h" />
+    <ClInclude Include="meshres_RMS.h" />
+    <ClInclude Include="meshres_vc.h" />
+    <ClInclude Include="meshres_vc_additions.h" />
+    <ClInclude Include="mission\Mission.h" />
+    <ClInclude Include="dps\MMU.h" />
+    <ClInclude Include="MPMSystems.h" />
+    <ClInclude Include="mps\MPS.h" />
+    <ClInclude Include="eva_docking\ODS.h" />
+    <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA6.h" />
+    <ClInclude Include="vc\PanelA7A8ODS.h" />
+    <ClInclude Include="vc\PanelA7U.h" />
+    <ClInclude Include="vc\PanelA8.h" />
+    <ClInclude Include="PanelC2.h" />
+    <ClInclude Include="vc\PanelC3.h" />
+    <ClInclude Include="vc\PanelF2.h" />
+    <ClInclude Include="vc\PanelF4.h" />
+    <ClInclude Include="vc\PanelF6.h" />
+    <ClInclude Include="vc\PanelF7.h" />
+    <ClInclude Include="vc\PanelF8.h" />
+    <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelO17.h" />
+    <ClInclude Include="vc\PanelO6.h" />
+    <ClInclude Include="vc\PanelR11.h" />
+    <ClInclude Include="vc\PanelR2.h" />
+    <ClInclude Include="ParameterValues.h" />
+    <ClInclude Include="PlBayOp.h" />
+    <ClInclude Include="vc\PushButton.h" />
+    <ClInclude Include="vc\PushButtonIndicator.h" />
+    <ClInclude Include="dps\RAM16.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="RMSSystem.h" />
+    <ClInclude Include="dps\RSLS_old.h" />
+    <ClInclude Include="dps\ShuttleBus.h" />
+    <ClInclude Include="mps\SSME.h" />
+    <ClInclude Include="vc\StandardLight.h" />
+    <ClInclude Include="vc\StandardLight2.h" />
+    <ClInclude Include="vc\StandardRotarySwitch.h" />
+    <ClInclude Include="vc\StandardSwitch.h" />
+    <ClInclude Include="vc\StandardSwitchCover.h" />
+    <ClInclude Include="StbdMPMSystem.h" />
+    <ClInclude Include="..\libUltra\include\Subsystem.h" />
+    <ClInclude Include="..\libUltra\include\SubsystemDirector.h" />
+    <ClInclude Include="vc\Talkback.h" />
+    <ClInclude Include="ValveTypeBool.h" />
+    <ClInclude Include="vc\vc_defs.h" />
+    <ClInclude Include="..\include\VesselAPI.h" />
+    <ClInclude Include="WSB.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Atlantis.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libUltra\libUltra_2013.vcxproj">
+      <Project>{eda1260c-9f5c-478a-b18b-a687101fc234}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

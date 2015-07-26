@@ -47,17 +47,23 @@
 #include "eps/eps_defs.h"
 #include "gnc/IMU.h"
 #include "mission/Mission.h"
+#include "dps/SSME_SOP.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
+#include "mps/HeliumSystem.h"
+#include "mps/MPS.h"
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
+#include "vc/PanelO3.h"
 #include "APU.h"
 #include <EngConst.h>
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "PIDControl.h"
 #include "ISSUMLP.h"
+#include "gnc/ATVC.h"
+#include "Sensor.h"
 
 
 
@@ -87,20 +93,28 @@ const short VARSTATE_OFFSCALE_HIGH = 5;
 static const char* STD_CLASS_NAME = "SpaceShuttleUltra";
 
 //Sound IDs
+const static char* SOUND_DIRECTORY = "Sound\\_CustomVesselsSounds\\SpaceShuttleUltra\\";
+const static char* AIR_CONDITIONING_SOUND_FILE = "Orbiter_AC.wav";
 const int RCS_SOUND = 1;
-const static char* RCS_SOUND_FILE = "Sound\\ShuttleUltra\\RCS_Jet_Fire.wav";
+const static char* RCS_SOUND_FILE = "RCS_Jet_Fire.wav";
 const int MASTER_ALARM = 2;
-const static char* MASTER_ALARM_FILE = "Sound\\ShuttleUltra\\Master_Alarm.wav";
+const static char* MASTER_ALARM_FILE = "Master_Alarm.wav";
 const int APU_START = 3;
-const static char* APU_START_FILE = "Sound\\ShuttleUltra\\APU_start_up.wav";
+const static char* APU_START_FILE = "APU_start_up.wav";
 const int APU_RUNNING = 4;
-const static char* APU_RUNNING_FILE = "Sound\\ShuttleUltra\\APU_continues.wav";
+const static char* APU_RUNNING_FILE = "APU_continues.wav";
 const int APU_SHUTDOWN = 5;
-const static char* APU_SHUTDOWN_FILE = "Sound\\ShuttleUltra\\APU_shut_down.wav";
+const static char* APU_SHUTDOWN_FILE = "APU_shut_down.wav";
 const int SSME_START = 6;
-const static char* SSME_START_FILE = "Sound\\ShuttleUltra\\SSME_ignition.wav";
+const static char* SSME_START_FILE = "SSME_ignition.wav";
 const int SSME_RUNNING = 7;
-const static char* SSME_RUNNING_FILE = "Sound\\ShuttleUltra\\SSME_sustain.wav";
+const static char* SSME_RUNNING_FILE = "SSME_sustain.wav";
+const int SWITCH_GUARD_SOUND = 8;
+const static char* SWITCH_GUARD_FILE = "switch_guard.wav";
+const int SWITCH_THROW_SOUND = 9;
+const static char* SWITCH_THROW_FILE = "switch_throw.wav";
+const int KEY_PRESS_SOUND = 10;
+const static char* KEY_PRESS_FILE = "key_press.wav";
 
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
 const static char* TEXT_RMSCONTROL = "Controlling RMS";
@@ -111,19 +125,13 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 
  const int MFDGROUPS[11] = {
 	GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-	GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_aft_VC, GRP_MFD2_VC, GRP_MFD5_VC,
+	GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_AFT_VC, GRP_MFD2_VC, GRP_MFD5_VC,
 	GRP_MFD11_VC
 	};
 
 // ==========================================================
 // I-Loaded values
 // ==========================================================
-
-const double defaultStage1Guidance[2][8] = {{0.0, 136.855, 219.456, 363.3216, 562.9656, 882.0912, 1236.8784, 1516.38}, //speed
-											{90.0, 78.0, 68.0, 61.0, 53.0, 39.0, 30.0, 20.5}}; //pitch
-
-const double LAUNCH_SITE[2] = {28.608, 34.581}; // 0=KSC, 1=VAFB
-
 
 
 const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -140,16 +148,15 @@ typedef struct {
 	SURFHANDLE clock_digits;
 	SURFHANDLE digits_7seg;
 	SURFHANDLE odslights;
+	SURFHANDLE ssme_lights;
+	SURFHANDLE a8_lights;
 	HBITMAP deu_characters;
+	HBITMAP deu_characters_overbright;
 	HDC DeuCharBitmapDC;
+	HDC DeuCharOvrBrgtBitmapDC;
 	HFONT font[1];
 } GDIParams;
 
-typedef struct {
-	VECTOR3 Pitch;
-	VECTOR3 Yaw;
-	VECTOR3 Roll;			
-} RefPoints;
 
 struct DAPConfig {
 	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
@@ -194,13 +201,6 @@ typedef struct {
 } AttManeuver;
 
 typedef struct {
-	bool OPS, ITEM, SPEC, EXEC, PRO;
-	bool NewEntry; //used by CRT MFD to output scratch pad
-	char input[255];
-	int InputSize; //number of chars used
-} KeyboardInput;
-
-typedef struct {
 	double leftElevon, rightElevon;
 	double bodyFlap;
 	double speedbrake;
@@ -208,10 +208,6 @@ typedef struct {
 } AerosurfacePositions;
 
 
-class PanelA4;
-class PanelC2;
-//class PanelF7;
-class PanelO3;
 class AtlantisSubsystemDirector;
 class OMSSubsystem;
 class AirDataProbeSystem;
@@ -220,6 +216,7 @@ class StbdMPMSystem;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
+class PayloadBay;
 
 class Atlantis_Tank;
 class Atlantis_SRB;
@@ -247,25 +244,21 @@ typedef enum {
 class CommModeHandler;
 class SSUOptions;
 
-using class discsignals::DiscreteBundleManager;
-using class dps::ShuttleBusManager;
-using class dps::MDM;
+using discsignals::DiscreteBundleManager;
+using dps::ShuttleBusManager;
+using dps::MDM;
 
 // ==========================================================
 // Interface for derived vessel class: Atlantis
 // ==========================================================
 
 class Atlantis: public VESSEL3 {
-	friend class PayloadBayOp;
-	friend class GearOp;
-	friend class PanelA4;
-	friend class PanelA8;
-	friend class PanelC2;
 	friend class vc::PanelF7;
-	friend class PanelO3;
+	friend class vc::PanelO3;
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
+	friend class dps::IDP;
 	friend class vc::DAPControl;
 public:
 	SSUOptions* options;
@@ -318,6 +311,10 @@ public:
 	gnc::IMU* pIMU[3];
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
+	dps::SSME_SOP* pSSME_SOP;
+	mps::HeSysEng* pHeEng[3];
+	mps::HeSysPneu* pHePneu;
+	mps::MPS* pMPS;
 	eps::Inverter* pInverter[3];
 	APU* pAPU[3];
 	MCA* pFMC1;
@@ -330,6 +327,7 @@ public:
 	MCA* pAMC1;
 	MCA* pAMC2;
 	MCA* pAMC3;
+	gnc::ATVC* pATVC;
 
 	dps::SimpleGPCSystem *pSimpleGPC;
 
@@ -343,12 +341,14 @@ public:
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
 
+	PayloadBay* pPayloadBay;
+
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
-	char WingName[256];
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
+	int scnVCMode; // VC view loaded from scenario
 	/**
 	 * Structural configuration
 	 * - 0 launch configuration
@@ -356,8 +356,7 @@ public:
 	 * - 2 SRB's separated
 	 * - 3 Tank separated/orbiter only
 	 */
-	int status;  
-	bool bManualSeparate; // flag for user-induced booster or tank separation
+	int status;
 
 	double t0;          // reference time: designated liftoff time
 	double met;
@@ -379,13 +378,10 @@ public:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_panela8;						   // index for Panel A8 mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
-	//UINT mesh_rms;							   // index for RMS mesh
-	//UINT mesh_mpm;							   // index for STBD MPM mesh
-	//UINT mesh_tank;                            // index for external tank mesh
-	//UINT mesh_srb[2];                          // index for SRB meshes
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
 	UINT mesh_ods;							   // index for	ODS outside mesh
+	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
 	UINT mesh_heatshield;					   //index for heat shield mesh
@@ -395,14 +391,14 @@ public:
 	//**********************************************************
 	Atlantis (OBJHANDLE hObj, int fmodel);
 	~Atlantis();
-	void AddOrbiterVisual (const VECTOR3 &ofs);
+	void AddOrbiterVisual();
 	virtual DiscreteBundleManager* BundleManager() const;
-	virtual ShuttleBusManager* BusManager() const;
+	virtual dps::ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
+	virtual VISHANDLE GetVisual() const;
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
-	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
 	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp);
 	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
 	virtual int clbkGeneric(int msgid = 0, int prm = 0, void *context = 0);
@@ -431,15 +427,15 @@ public:
 	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant() const;
 	virtual double GetETPropellant_B( void ) const;
+	virtual double GetETLOXUllagePressure( void ) const;
+	virtual double GetETLH2UllagePressure( void ) const;
 	virtual unsigned short GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short& usMin, unsigned short &usSec);
 	virtual double GetMET() const;
 	virtual short GetGPCRefHDot(unsigned short usGPCID, double& fRefHDot);
 	virtual unsigned short GetGPCLVLHVel(unsigned short usGPCID, VECTOR3& vel);
 	virtual dps::IDP* GetIDP(unsigned short usIDPNumber) const;
-	virtual short GetLastCreatedMFD() const;
 	virtual bool GetLiftOffFlag() const;
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
-	virtual double GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id);
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
 	virtual bool HasExternalAirlock() const;
@@ -453,9 +449,7 @@ public:
 	double GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const;
 	double GetPropellantLevel(PROPELLANT_HANDLE ph) const;
 	void OperateSpeedbrake (AnimState::Action action);
-	void PaintMarkings (SURFHANDLE tex);
 	virtual bool RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU);
-	void RevertSpeedbrake ();
 	/* ***************************************************************
 	 * Setters
 	 *****************************************************************/
@@ -465,7 +459,6 @@ public:
 	void SetETUmbDoorPosition(double pos, int door);
 	void SetKuAntennaPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
-	void SetLastCreatedMFD(unsigned short usMDU);
 	void SetLaunchConfiguration (void);
 	void SetOrbiterConfiguration (void);
 	void SetOrbiterTankConfiguration (void);
@@ -516,9 +509,31 @@ public:
 	 */
 	void SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw);
 
+	/**
+	 * Allows control of the following MPS vents:
+	 * 0 = SSME-1
+	 * 1 = SSME-2
+	 * 2 = SSME-3
+	 * 3 = LH2 B/U
+	 * 4 = LH2 F/D
+	 * 5 = LOX F/D
+	 * 6 = LH2 FDLN Relief
+	 * 7 = LOX FDLN Relief
+	 * @param[in]	vent	identification of vent to control
+	 * @param[in]	level	level of vent (between 0 and 1)
+	 */
+	void SetMPSDumpLevel( int vent, double level );
+
+	/**
+	 * Allows control of the SSME GH2 burning effect at ignition and shutdown.
+	 * @param[in]	eng	number of SSME
+	 * @param[in]	burn	controls if burn effect is on or off
+	 */
+	void SetSSMEGH2burn( int eng, bool burn );
+
 	double CalcNetSSMEThrust() const;
 	double GetSSMEISP() const;
-	void CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const;
+	void CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const;
 
 	//Thruster Control; called from OrbitDAP class
 	void EnableThrusters(const int Thrusters[], int nThrusters);
@@ -528,12 +543,12 @@ public:
 	 * Calls VESSEL::AttachChild and adds mass of child to shuttle mass
 	 * Should always be called instead of AttachChild.
 	 */
-	bool AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const;
+	bool AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment);
 	/**
 	 * Calls VESSEL::DetachChild and subtracts mass of child from shuttle mass
 	 * Should always be called instead of DetachChild.
 	 */
-	bool DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel = 0.0) const;
+	bool DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel = 0.0);
 
 	bool AreMCADebugMessagesEnabled() const throw();
 
@@ -578,10 +593,21 @@ public:
 	//Communication with LCC
 	virtual void SynchronizeCountdown(double launch_mjd);
 	virtual void StartRSLSSequence();
+	virtual bool GetRSLSAbortFlag() const;
 
 	virtual bool HydraulicsOK();
 
 	virtual void PSN4( void );
+	virtual void SetSSMEActPos( int num, double Ppos, double Ypos );
+
+	virtual int GetSSMEPress( int eng );
+	virtual int GetHeTankPress( int sys ) const;
+	virtual int GetHeRegPress( int sys ) const;
+	virtual void HeFillTank( int sys, double mass );
+	virtual PROPELLANT_HANDLE GetLH2Tank( void ) const;
+	virtual PROPELLANT_HANDLE GetLOXTank( void ) const;
+	virtual double GetLOXManifPress( void ) const;
+	virtual double GetLH2ManifPress( void ) const;
 
 	void ToggleGrapple (void);
 	void ToggleArrest (void);
@@ -614,8 +640,6 @@ public:
 	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
-	//bool center_arm;
-	//bool arm_moved;
 	bool do_eva;
 	bool do_plat;
 	bool do_cargostatic;
@@ -624,26 +648,20 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh, /*hOrbiterRMSMesh,*/ /*hOBSSMPMMesh, hTankMesh, hSRBMesh[2],*/
+		hMidDeckMesh,
 		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
+	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
 	char cargo_static_mesh_name[256];
 
-	double fPayloadZPos[16];
-	double fPayloadMass[16];
-	unsigned short usPayloadType[16];
 	//C-P attachments
 	ATTACHMENTHANDLE ahHDP;
 	ATTACHMENTHANDLE ahTow;
 	//P-C attachments
-	/**
-	 * @deprecated
-	 */
-	//ATTACHMENTHANDLE ahRMS, ahOBSS;
 	ATTACHMENTHANDLE ahMMU[2];
 	ATTACHMENTHANDLE ahDockAux;
 	ATTACHMENTHANDLE ahExtAL[2];
@@ -655,22 +673,22 @@ public:
 	
 	AtlantisSubsystemDirector* psubsystems;
 	
-	PayloadBayOp *plop; // control and status of payload bay operations
-	//GearOp *gop; // control and status of landing gear
-	PanelA4 *panela4;
-	//PanelA8 *panela8;
-	PanelC2 *panelc2;
-	//PanelC3 *panelc3; // PanelC3 operations
-	//PanelF7 *panelf7;
-	PanelO3 *panelo3;
 	vc::PanelR2 *panelr2; // temporary
-	Keyboard *CDRKeyboard;
-	Keyboard *PLTKeyboard;
-	//bool PitchActive,YawActive,RollActive;     // Are RCS channels active?
 
-	//OBJHANDLE ThisVessel;
+	/**
+	 * Bridge function between MPS and ET to "deliver" GO2 and GH2 for
+	 * tank pressurization. Note that no actual mass is sent from the
+	 * MPS to the ET, but the mass is directly decreased from the
+	 * propellant in the ET.
+	 * @param[in]	GOXmass	mass of gaseous oxygen (in kg)
+	 * @param[in]	GH2mass mass of gaseous hydrogen (in kg)
+	 */
+	void ETPressurization( double GOXmass, double GH2mass );
 
-
+	/**
+	 * Function called by MPS to "flow" mass from the ET to the MPS manifold.
+	 */
+	void UpdateMPSManifold( void );
 
 
 private:
@@ -697,6 +715,7 @@ private:
 	vc::PanelGroup<Atlantis> pgCenter;
 	vc::PanelGroup<Atlantis> pgRight;
 	vc::PanelGroup<Atlantis> pgOverhead;
+	vc::PanelGroup<Atlantis> pgOverheadAft;
 	vc::PanelGroup<Atlantis> pgAftStbd;
 	vc::PanelGroup<Atlantis> pgAft;
 	vc::PanelGroup<Atlantis> pgAftPort;
@@ -708,13 +727,9 @@ private:
 
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
-	//GPC programs
-	//dps::RSLS *rsls;
-	//dps::RSLS_old *rsls;
-
-	void DetachSRB(SIDE side, double thrust, double prop) const;
+	void DetachSRB(SIDE side, double thrust, double prop);
 	void SeparateMMU (void);
-
+	void loadMDMConfiguration(void);
 	/**
 	 * Copies settings (thrust & ISP) from one thruster to another
 	 * \param th Thruster to change settings on
@@ -723,7 +738,6 @@ private:
 	 */
 	void CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref);
 	
-	/*void SSMEEngControl(unsigned short usEng) const;*/
 	void OMSEngControl(unsigned short usEng);
 
 	void StopAllManifolds();
@@ -734,12 +748,12 @@ private:
 	void CreateFRCS(const VECTOR3& ref_pos);
 	void CreateSSMEs(const VECTOR3& ofs);
 	void CreateMPSGOXVents(const VECTOR3& ref_pos);
+	void CreateMPSDumpVents( void );
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
 	unsigned short usCurrentPlayerChar;
 	bool bCommMode;
 	void DefineSSMEExhaust();
-	//void SignalGSEBreakHDP();
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
@@ -754,8 +768,6 @@ private:
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
 	void AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
-	//void DisableAllRCS();
-	//void EnableAllRCS();
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 	/**
@@ -768,6 +780,11 @@ private:
 	 */
 	void UpdateHandControllerSignals();
 
+	/**
+	 * Calculates direction in which SSMEs/SRBs must thrust to point through CoG
+	 */
+	void UpdateNullDirections();
+
 	//Landing Gear
 	void DeployLandingGear();
 	void RetractLandingGear();
@@ -779,9 +796,6 @@ private:
 
 	void RealizeSubsystemConnections();
 
-	//
-	void SavePayloadState(FILEHANDLE scn) const;
-	bool ParsePayloadLine(const char* pszLine);
 
 	/**
 	 * React on Key "V", switching the view from flight deck to Mid Deck
@@ -792,7 +806,6 @@ private:
 	//RMS
 	bool SatStowed() const;
 	//ATTACHMENTHANDLE CanArrest() const;
-	ATTACHMENTHANDLE GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel=NULL) const;
 
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
 
@@ -800,19 +813,14 @@ private:
 	Atlantis_SRB* GetSRBInterface(SIDE side) const;
 	ISSUMLP* GetMLPInterface() const;
 
+	double GetMassAndCoGOfAttachedObject(ATTACHMENTHANDLE ah, VECTOR3& CoG) const;
 	/**
-	 * Called from clbkPostCreation.
-	 * Loops through child attachments and adds their mass to shuttle mass.
+	 * Updates shuttle CoG.
+	 * Estimates center of gravity relative to center of Orbiter mesh, then calls ShiftCG to update CG.
 	 */
-	double GetMassOfAttachedObjects() const;
-	void UpdateMass() const;
+	void UpdateMassAndCoG(bool bUpdateAttachedVessels = false);
 
 	void Twang(double timeToLaunch) const;
-	//Launch
-	//void Throttle(double dt);
-	void FailEngine(int engine);
-	//double CalcNetThrust();
-	//void CalcThrustAngles();
 
 	//OMS
 	/**
@@ -823,7 +831,6 @@ private:
 	 */
 	void GimbalOMS(int engine, double pitch, double yaw);
 	void OMSTVC(const VECTOR3 &Rates, double SimDT);
-	//void GimbalOMS(const VECTOR3 &Targets);
 
 	void UpdateTranslationForces();
 
@@ -835,18 +842,13 @@ private:
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad;                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
-	/*UINT anim_clatch1_4;					   // handle for center line latches 1-4
-	UINT anim_clatch5_8;						// handle for center line latches 5-8
-	UINT anim_clatch9_12;						// handle for center line latches 9-12
-	UINT anim_clatch13_16;						// handle for center line latches 13-16*/
 
 	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
-	UINT anim_elev;                            // handle for elevator animation
+	UINT anim_lelevon;                         // handle for left elevator animation
+	UINT anim_relevon;                         // handle for right elevator animation
 	UINT anim_bf;                              // handle for body flap animation
-	UINT anim_laileron;						   // handle for left aileron animation
-	UINT anim_raileron;						   // handle for right aileron animation
 	UINT anim_rudder;						   // handle for rudder animation
 	UINT anim_spdb;                            // handle for speed brake animation
 	UINT anim_dummy;						   // handle for dummy animation
@@ -888,14 +890,10 @@ private:
 	UINT anim_camBLpitch;					   // handle for back-left payload camera pitch animation 
 	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
 	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
-	//UINT anim_camRMSElbowPan;
-	//UINT anim_camRMSElbowTilt;
 	
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
 	double camYaw[4], camPitch[4];
-	//double camRMSElbowPan, camRMSElbowTilt;
-	//RMS Camera rot/direction
-	//VECTOR3 camRMSElbowLoc[2];
+	VECTOR3 plbdCamPos[4];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -906,16 +904,6 @@ private:
 	// Selected camera for control
 	int cameraControl;  // 0:FL 1:FR 2:BL 3:BR 4:RMS Elbow
 	
-	// Transform for the cameras
-	MGROUP_TRANSFORM *CameraFLYaw;
-	MGROUP_TRANSFORM *CameraFLPitch;
-	MGROUP_TRANSFORM *CameraFRYaw;
-	MGROUP_TRANSFORM *CameraFRPitch;
-	MGROUP_TRANSFORM *CameraBLYaw;
-	MGROUP_TRANSFORM *CameraBLPitch;
-	MGROUP_TRANSFORM *CameraBRYaw;
-	MGROUP_TRANSFORM *CameraBRPitch;
-	
 	// Sets the camera positions and animations.
 	void SetAnimationCameras();
 
@@ -925,19 +913,22 @@ private:
 	/**
 	 * Defines payload bay light (LightEmitter and associated beacon)
 	 * \param pos position of light
+	 * \param dir direction of beam
+	 * \param degWidth angular width of umbra (in degrees); penumbra is 1.1 times specified width
 	 * \param bspec Beacon spec to be initialized with data
 	 * \returns LightEmitter pointer
 	 */
-	LightEmitter* AddPayloadBayLight(VECTOR3& pos, BEACONLIGHTSPEC& bspec);
+	LightEmitter* AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec);
 	LightEmitter* PLBLight[6];
 	LightEmitter* FwdBulkheadLight;
 	LightEmitter* DockingLight[2];
-	//void ControlPLBLights();
 	VECTOR3 PLBLightPosition[6];
 	VECTOR3 FwdBulkheadLightPos, DockingLightPos;
 	BEACONLIGHTSPEC PLB_bspec[6];
 	BEACONLIGHTSPEC FwdBulkhead_bspec, Docking_bspec[2];
-	//bool bPLBLights;
+	
+	LightEmitter* SRBLight[2];
+	LightEmitter* SSMELight;
 
 	//gear/drag chute
 	AnimState gear_status;
@@ -948,7 +939,7 @@ private:
 	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
 	AnimState DragChuteSpin;
 	
-	PROPELLANT_HANDLE ph_oms, ph_tank, ph_srb, ph_frcs; // handles for propellant resources
+	PROPELLANT_HANDLE ph_oms, ph_mps, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
 	THRUSTER_HANDLE th_main[3];                // handles for orbiter main (SSME) engines
 	THRUSTER_HANDLE th_oms[2];               // handles for orbiter OMS engines
@@ -959,13 +950,35 @@ private:
 	bool bSSMEsDefined, bOMSDefined, bRCSDefined, bControllerThrustersDefined;
 
 	/**
+	 * Particle stream handle for SSME GH2 burn effect at ignition and shutdown.
+	 */
+	PSTREAM_HANDLE SSMEGH2burn[3];
+
+	/**
+	 * Propellant handle for MPS LOX manifold. Used for MPS dump.
+	 */
+	PROPELLANT_HANDLE phLOXdump;
+
+	/**
+	 * Propellant handle for MPS LH2 manifold. Used for MPS dump.
+	 */
+	PROPELLANT_HANDLE phLH2dump;
+	/**
 	 * Used for the preflight GOX venting of the SSMEs.
 	 */
 	THRUSTER_HANDLE th_ssme_gox[3];
 	/**
-	 * To be used for visualizing the LOX MPS dump after MECO. 
+	 * Thruster handles for the various MPS dumps/vents. List follows:
+	 * 0 = SSME-1
+	 * 1 = SSME-2
+	 * 2 = SSME-3
+	 * 3 = LH2 B/U
+	 * 4 = LH2 F/D
+	 * 5 = LOX F/D
+	 * 6 = LH2 FDLN Relief
+	 * 7 = LOX FDLN Relief
 	 */
-	THRUSTER_HANDLE th_ssme_loxdump[3];
+	THRUSTER_HANDLE thMPSDump[8];
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets
@@ -1026,9 +1039,9 @@ private:
 	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
 	PARTICLESTREAMSPEC RCS_PSSpec;
 	SURFHANDLE RCS_Exhaust_tex;
-	//bool RCSEnabled;
 	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
+	AIRFOILHANDLE hStackAirfoil;
 	bool ControlSurfacesEnabled;
 
 	//CLR
@@ -1036,11 +1049,21 @@ private:
 	VECTOR3 SSMEL_GOX_REF1;
 	VECTOR3 SSMER_GOX_REF1;
 
+	/**
+	 * Mass of LOX in MPS manifold.
+	 */
+	double LOXmass;
+
+	/**
+	 * Mass of LH2 in MPS manifold.
+	 */
+	double LH2mass;
+
 	// Helium Tanks
-	PROPELLANT_HANDLE oms_helium_tank[2], mps_helium_tank[3];
-	int MPS_Manifold_Press[2]; //0=LO2, 1=LH2
-	int MPS_He_Reg_Press[4], MPS_He_Tank_Press[4];
+	PROPELLANT_HANDLE oms_helium_tank[2];
 	int Hydraulic_Press[3];
+
+	bool bSSMEGOXVent;
 
 	bool RMS, STBDMPM;
 
@@ -1058,40 +1081,42 @@ private:
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
-	unsigned short usLastMDUID;
-	//EXTMFDSPEC mfds[11];
 	double mfdbright[11];
 	double pl_mass;
 	//double dT;
 	VECTOR3 GVesselPos, GVesselVel;
 	//VESSELSTATUS Status;
 
+	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh
+	VECTOR3 payloadCoG;
+	double payloadMass;
+
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 
 	bool bEnableMCADebug;
 
-	//Launch
-	int EngineFail;
-	double EngineFailTime;
-	bool bEngineFail;
-	VECTOR3 EngineNullPosition[3];
+	/**
+	 * Thrust direction of each SSME when at the "installed position" (0º pitch
+	 * and yaw in the engine referencial).
+	 */
+	VECTOR3 SSMEInstalledNullPos[3];
+
+	/**
+	 * Current thrust direction of SSMEs.
+	 */
+	VECTOR3 SSMECurrentPos[3];
+	VECTOR3 SRBNullDirection[3];
 
 	// Entry
 	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
 	PIDControl PitchControl;
 
 	//GPC
-	//int ops, SMOps;
-	//unsigned int ops;
 	unsigned int SMOps;
 	int last_mfd;
 	bool firstStep; //call functions in first timestep
 	//Data Input
-	KeyboardInput DataInput[3];
-	int CRT_SEL[2]; //0=CDR, 1=PLT
-	int item;
-	//CRT* Display[3];
 	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
@@ -1099,6 +1124,8 @@ private:
 	
 	vc::MDU* mdus[11];
 	UINT mfds[11]; //stores MDUID for corresponding MFD index
+
+	bool SERCstop;
 
 	//MNVR
 	double curOMSPitch[2], curOMSYaw[2];
@@ -1132,17 +1159,13 @@ private:
 	DiscOutPort SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
-	DiscInPort PitchAutoIn, RollYawAutoIn;
-	//DiscOutPort PitchAutoOut, RollYawAutoOut;
-	//DiscInPort PitchCSSIn, RollYawCSSIn;
-	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort SpdbkThrotPort;
 	DiscOutPort RHCInputPort[3], THCInputPort[3];
-	DiscInPort RotThrusterCommands[3], TransThrusterCommands[3];
+	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
-	DiscInPort ElevonCommand, AileronCommand;
+	DiscInPort ElevonCommand, AileronCommand, RudderCommand;
 
 	// Pan/Tilt PLBD cameras and RMS elbow cam
 	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow
@@ -1158,12 +1181,25 @@ private:
 	DiscOutPort RMS_RHCInput[3], RMS_THCInput[3], RMSDrivePlus, RMSDriveMinus;
 	DiscInPort RMSSpeedIn;
 	DiscOutPort RMSSpeedOut;
-	DiscInPort MPSPwr[2][3], MPSHeIsolA[3], MPSHeIsolB[3];
-	DiscOutPort SSMEShutdown[3]; // to allow MECO to be commanded from keyboard
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
 
+	DiscOutPort LandingGearPosition[6];
+	DiscOutPort LandingGearArmDeployLT[2];
+	DiscInPort LandingGearArmDeployPB[4];
+
+	DiscOutPort DragChuteARMDPYJETTLT[3];
+	DiscInPort DragChuteARM[2];
+	DiscInPort DragChuteDPY[2];
+	DiscInPort DragChuteJETT[2];
+
+	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
+
+	/**
+	 * LOX low level sensors.
+	 */
+	Sensor LO2LowLevelSensor[4];
+
 	void AddKUBandVisual(const VECTOR3 ofs);
-	//void TriggerLiftOff();
 	void DisplayCameraLabel(const char* pszLabel);
 };
 
@@ -1171,7 +1207,7 @@ VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw);
 /**
 * Calculates lift, drag and moment coefficients for given mach, AOA and aerosurface positions
 */
-void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double* cl, double* cm, double* cd);
+void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, double altitude, const AerosurfacePositions* aerosurfaces, double* cl, double* cm, double* cd);
 
 
 

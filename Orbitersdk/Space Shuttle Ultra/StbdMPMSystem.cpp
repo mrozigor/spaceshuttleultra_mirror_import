@@ -18,9 +18,9 @@ void StbdMPMSystem::Realize()
 	MPMSystem::Realize();
 
 	// MPM animation
-	static UINT STBDMPMGrp[1] = {0}; //only group in mesh
-	MGROUP_ROTATE* pMPMAnim = new MGROUP_ROTATE(mesh_index, STBDMPMGrp, 1,
-		_V(-0.17937, -0.508637, 0), _V(0, 0, 1), (float)(-31.36*RAD));
+	static UINT STBDMPMGrp[2] = {0,2};
+	MGROUP_ROTATE* pMPMAnim = new MGROUP_ROTATE(mesh_index, STBDMPMGrp, 2,
+		_V(-0.16, -0.34, 0), _V(0, 0, 1), (float)(-31.36*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pMPMAnim);
 
@@ -131,10 +131,10 @@ int StbdMPMSystem::FindOBSS() const
 		VESSEL* v=oapiGetVesselInterface(vhOBSS[i]);
 		v->GetAttachmentParams (vhOBSSAttach[i], pos, dir, rot);
 		v->Local2Global (pos, gpos);
-		sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
+		//sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
 		if (dist (gpos, gattach) < MAX_ATTACHMENT_DIST) { 
 			v->GlobalRot(dir, gdir);
-			sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
+			//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
 			if(fabs(PI-acos(range(-1.0, dotp(gdir, gattachdir), 1.0))) < MAX_ATTACHMENT_ANGLE) {  // found one!
 				return i;
 			}

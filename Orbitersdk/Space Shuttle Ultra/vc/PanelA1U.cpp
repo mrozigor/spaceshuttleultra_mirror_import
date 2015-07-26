@@ -1,6 +1,7 @@
 #include "PanelA1U.h"
 #include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
+#include "../Atlantis_defs.h"
 
 extern GDIParams g_Param;
 
@@ -99,8 +100,8 @@ namespace vc
 
 	void PanelA1U::DefineVC()
 	{
-		const VECTOR3 switch_rot_vert =  _V(-1, 0, 0);
-		const VECTOR3 switch_rot_horz = _V(0.0, -0.9499, 0.3126);
+		//const VECTOR3 switch_rot_vert =  _V(-1, 0, 0);
+		//const VECTOR3 switch_rot_horz = _V(0.0, -0.9499, 0.3126);
 		//VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
 
 		AddAIDToMouseEventList(AID_A1U1);
@@ -179,7 +180,7 @@ namespace vc
 	{
 		AtlantisPanel::RegisterVC();
 
-		VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
+		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
 		oapiVCRegisterArea(AID_A1U1, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		oapiVCSetAreaClickmode_Quadrilateral(AID_A1U1,

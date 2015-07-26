@@ -1,28 +1,24 @@
-// ========================================================
-// Mesh resource file for RMS.msh
-// Generated with meshc on Mon Nov 19 21:39:13 2012
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Sun Apr 05 23:55:41 2015
 
-// ========================================================
+// Input file: RMS.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP 12
+#pragma once
 
-// Number of materials:
-#define NMAT 2
+//const unsigned int NUMGRP = 12;
 
-// Number of textures:
-#define NTEX 2
+const unsigned int GRP_ELBOW_BOOM	=	0;	//ELBOW_BOOM
+const unsigned int GRP_PANTILT_ELBOW_CAM	=	1;	//PANTILT_ELBOW_CAM
+const unsigned int GRP_ELBOW_CAM	=	2;	//ELBOW_CAM
+const unsigned int GRP_ELBOW_CAM_BASE	=	3;	//ELBOW_CAM_BASE
+const unsigned int GRP_WRIST_YAW	=	4;	//Wrist_Yaw
+const unsigned int GRP_WRISTPITCH	=	5;	//Wristpitch
+const unsigned int GRP_SHOULDER_YAW	=	6;	//Shoulder_Yaw
+const unsigned int GRP_RMS_MPMS	=	7;	//RMS_MPMs
+const unsigned int GRP_BASE	=	8;	//base
+const unsigned int GRP_MPM_BASES	=	9;	//MPM_bases
+const unsigned int GRP_SHOULDER_BOOM	=	10;	//SHOULDER_BOOM
+const unsigned int GRP_ENDEFFECTOR	=	11;	//Endeffector
 
-// Named mesh groups:
-#define GRP_Endeffector 0
-#define GRP_box 1
-#define GRP_box 2
-#define GRP_base 3
-#define GRP_RMS_MPMs 4
-#define GRP_Shoulder_Yaw 5
-#define GRP_Humerus 6
-#define GRP_Wristpitch 7
-#define GRP_Wrist_Yaw 8
-#define GRP_cambase 9
-#define GRP_elbowcam 10
-#define GRP_camswivel 11

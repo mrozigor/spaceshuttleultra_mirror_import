@@ -7,30 +7,32 @@
 #include "SubsystemDirector.h"
 #include "LEESystem.h"
 #include <cmath>
+#include "resource.h"
 
 static const char* ATTACH_ID = "GS";
 //static const char* ATTACH_ID = "A";
 
-const double JOINT_ROTATION_SPEED = 1.0; // deg/s
+const double JOINT_ROTATION_SPEED = 1.0; // rotation speed for single joint ops (deg/s)
+//const double JOINT_SPEED_LIMIT = 4.0; // maximum possible joint rotation speed (deg/s) - at the moment, this number is just a guess
 const double EE_ROTATION_SPEED = RAD*1.0; // rad/s
 const double EE_TRANSLATION_SPEED = 0.1048; // 1 fps
 
-// joint positions
-const VECTOR3 SR_JOINT = _V(0.70, 0.59, -8.44); // coincides with LEE position
-const VECTOR3 SY_JOINT = _V(0.69, 0.59, -7.47);
-const VECTOR3 SP_JOINT = _V(0.0, 0.00, -7.47);
-const VECTOR3 EP_JOINT = _V(0.0, 0.0, 0.0);
-const VECTOR3 WP_JOINT = _V(0.0, 0.0, 7.47);
-const VECTOR3 WY_JOINT = _V(-0.69, 0.59, 7.47);
-const VECTOR3 LEE_POS = _V(-0.70 ,0.59, 8.44); // coincides with WR joint position
+const double SSRMS_UNFOLD_SPEED = 1/10.0; // time for SSRMS unfolding animation
 
-/*const unsigned short SHOULDER_ROLL[] =	{6, 0};
-const unsigned short SHOULDER_YAW[] =	{5, 1};
-const unsigned short SHOULDER_PITCH[] =	{4, 2};
-const unsigned short ELBOW_PITCH[] =	{3, 3};
-const unsigned short WRIST_PITCH[] =	{2, 4};
-const unsigned short WRIST_YAW[] =		{1, 5};
-const unsigned short WRIST_ROLL[] =		{0, 6};*/
+// joint positions
+const VECTOR3 SR_JOINT = _V(0.826, 0.703, -8.605); // coincides with LEE position
+const VECTOR3 SY_JOINT = _V(0.826, 0.703, -7.298);
+const VECTOR3 SP_JOINT = _V(0.0,0.00,-7.298);
+const VECTOR3 EP_JOINT = _V(0.0,0.00,0.0);
+const VECTOR3 WP_JOINT = _V(0.0,0.00,7.299);
+const VECTOR3 WY_JOINT = _V(-0.829,0.703,7.299);
+const VECTOR3 LEE_POS = _V(-0.829,0.703,8.605); // coincides with WR joint position
+
+const VECTOR3 LEE1_CAM_POS = _V(0.826, 0.985, -8.217);
+const VECTOR3 LEE2_CAM_POS = _V(-0.826, 0.985, 8.217);
+
+const VECTOR3 LEE1_LIGHT_POS = _V(0.828, 1.033, -8.217);
+const VECTOR3 LEE2_LIGHT_POS = _V(-0.832, 1.033, 8.217);
 
 const double SR_SY_DIST = length(SY_JOINT-SR_JOINT);
 // distance (metres) from SR joint to SY joint
@@ -51,13 +53,24 @@ const double LEE_OFFSET = SY_JOINT.x-LEE_POS.x;
 const double JOINT_LIMITS[2] = {-280.0, +280.0};
 const double JOINT_SOFTSTOPS[2] = {-270.0, +270.0}; // from ISS ROBO Console Handbook, 1.2-29 (p. 58)
 
-enum FRAME{EE_FRAME, BASE_FRAME};
+const double CAM_PAN_TILT_RATE = 6.0; //rate in deg/s
+const double CAM_PAN_MAX = 175.0; // deg
+const double CAM_PAN_MIN = -175.0; // deg
+const double CAM_TILT_MAX = 90.0; // deg
+const double CAM_TILT_MIN = -92.0; // deg
 
-class SSRMS: public VESSEL2
+class SSRMS: public VESSEL3
 {
+//
+// modifications DLH
+//
+	friend BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 public:
 	typedef SubsystemDirector<SSRMS> SSRMSSubsystemDirector;
 	typedef enum {SHOULDER_ROLL=0, SHOULDER_YAW, SHOULDER_PITCH, ELBOW_PITCH, WRIST_PITCH, WRIST_YAW, WRIST_ROLL} SSRMS_JOINT;
+	typedef enum FRAME{EE_FRAME, BASE_FRAME};
+	typedef enum CAMERA_VIEW{ACTIVE_LEE, BOOM_A, BOOM_B};
 
 	SSRMS(OBJHANDLE hObj, int fmodel);
 	~SSRMS();
@@ -67,15 +80,41 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 	void clbkPreStep(double simt, double simdt, double mjd);
 	void clbkPostStep(double SimT, double SimDT, double MJD);
-	void clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, HDC hDC);
+	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp);
+	void clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefaultTex);
 	void clbkPostCreation();
 	int  clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
+//
+// modifications DLH
+//
+//============================================================================================================================
+	void StopMotion();
+	bool ItemChange (char *rstr);
+	bool ItemChangeJoint (char *rstr);
+	bool FullChangeJoint (char *rstr);
+//============================================================================================================================
 private:
 	void DefineAnimations();
 	void DefineThrusters();
 
+	void PosSSRMS(int i);
+	void SeqSSRMS();
+	void CheckFlags();
+	void DetermineArmSeq(int ItemValue);
+	void LOADA();
+	void LOADB();
+	void LOADC();
+	void LOADD();
+	void SAVEA();
+	void SAVEB();
+	void SAVEC();
+	void SAVED();
+	void ARMSEQ();
+	void ARMINPUT();
+	void FULLINPUT();
+
 	//SSRMS functions
-	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot);
+	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
 	/**
 	 * Sets joint angle
 	 * @parameter angle - angle in degrees
@@ -88,23 +127,61 @@ private:
 	 * @returns - true is active LEE was changed; false otherwise
 	 */
 	bool ChangeActiveLEE();
+	/**
+	 * Shifts SSRMS mesh and attachment points so active LEE is at centre of external view
+	 */
+	void UpdateMeshPosition();
+	/**
+	 * Updates cockpit view to match LEE camera position
+	 */
+	void UpdateCameraView();
+	void UpdateCameraAnimations();
 	void CalculateVectors();
+	
+	/**
+	 * Displays label indicating current camera view
+	 */
+	void ShowCameraViewLabel();
+
+	/**
+	 * Converts vector from Orbitersim frame to SSRMS IK frame
+	 */
+	VECTOR3 ConvertVectorToSSRMSFrame(const VECTOR3& v) const
+	{
+		return _V(v.z, v.x, -v.y);
+	}
 
 private:
 	SSRMSSubsystemDirector* pSubsystemDirector;
 	LEESystem* pLEE[2];
 
-	VECTOR3 arm_tip[3];
-	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot, arm_ee_angles;
+	VECTOR3 arm_tip[5];
+	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
+	VECTOR3 ee_pos_output, ee_angles_output;
 	double joint_angle[7]; // angles in degrees
-	bool arm_moved, update_angles, update_vectors;
+	bool arm_moved, update_vectors, update_camera;
 
 	int activeLEE, passiveLEE; // either 0 or 1
 	short joint_motion[7]; // 0=stationary, -1=negative, +1=positive
 	unsigned short SpeedFactor;
 	FRAME RefFrame;
 
-	VECTOR3 old_arm_tip; // used to shift meshes so active LEE is at centre of external view
+	LightEmitter* LEELight[2];
+
+	CAMERA_VIEW cameraView;
+	double camAPan, camATilt, camBPan, camBTilt;
+	bool bTiltUp, bTiltDown, bPanLeft, bPanRight;
+	VECTOR3 cameraA[3], cameraB[3]; // pos/dir/rot vectors for boom cameras
+	UINT anim_CamATilt, anim_CamAPan, anim_CamBTilt, anim_CamBPan;
+	
+	NOTEHANDLE nhCameraLabel; // annotation to display current camera view
+	double annotationDisplayTime; // counter used to show/hide camera label
+	
+	VECTOR3 AltKybdInput, DialogInput, DialogInput2;
+	bool DiagPushed, DiagPushed2;
+	bool CanGrapple;
+
+	VECTOR3 mesh_center; // used to shift meshes so active LEE is at centre of external view
 
 	int OrbiterSoundHandle;
 
@@ -112,7 +189,10 @@ private:
 	MESHHANDLE hSSRMSMesh;
 	UINT mesh_ssrms;
 	UINT anim_joint[2][7], anim_lee;
+	UINT anim_fold;
 	//UINT anim_joint[7], anim_lee;
+	
+	AnimState foldState;
 
 	bool ShowAttachmentPoints;
 
@@ -121,6 +201,29 @@ private:
 
 	//ATTACHMENTHANDLE ahBase, ahGrapple;
 	//LatchSystem* pLEE[2];
+
+//
+// modifications DLH
+//
+//============================================================================================================================
+	double arm1_Ay, arm1_Ap, arm1_Ar, arm1_ep, arm1_Bp, arm1_By, arm1_Br;
+	double arm2_Ay, arm2_Ap, arm2_Ar, arm2_ep, arm2_Bp, arm2_By, arm2_Br;
+	double arm3_Ay, arm3_Ap, arm3_Ar, arm3_ep, arm3_Bp, arm3_By, arm3_Br;
+	double arm4_Ay, arm4_Ap, arm4_Ar, arm4_ep, arm4_Bp, arm4_By, arm4_Br;
+	double arm5_Ay, arm5_Ap, arm5_Ar, arm5_ep, arm5_Bp, arm5_By, arm5_Br;
+	double arm6_Ay, arm6_Ap, arm6_Ar, arm6_ep, arm6_Bp, arm6_By, arm6_Br;
+	double armM_Ay, armM_Ap, armM_Ar, armM_ep, armM_Bp, armM_By, armM_Br;
+
+	bool arm1set, arm2set, arm3set, arm4set, arm5set;
+	int armseq[8];
+	int Seqindex;
+	bool Seqfinished;
+	bool center_arm;
+
+	bool bFirstpass, bDiag;
+	bool SpeedChange, LightChange;
+	double SimDT2;
+	bool bGrappled;
 };
 
 #endif // !__SSRMS_H

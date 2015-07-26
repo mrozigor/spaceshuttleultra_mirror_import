@@ -44,7 +44,10 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	double ApD, ApT, PeD, PeT;
 	double metAt400KFeet;
 	double lastUpdateSimTime;
-	//StateVectorPropagator propagator;
+	double lastMET;
+	StateVectorPropagator propagator;
+	OMSBurnPropagator omsBurnPropagator;
+	double tgtApD, tgtPeD;
 
 	DiscOutPort omsEngineCommand[2], omsPitchCommand[2], omsYawCommand[2];
 	DiscInPort omsPitchGimbal[2], omsYawGimbal[2];
@@ -74,11 +77,17 @@ public:
 	 * \param maneuverDV DeltaV of burn in m/s
 	 */
 	void SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV);
+
+	VECTOR3 GetAttitudeCommandErrors() const;
 private:
+	void StartBurn();
+	void TerminateBurn();
+	
 	void StartCalculatingPEG4Targets();
 	void LoadManeuver(bool calculateBurnAtt = true);
 	void CalculateEIMinus5Att(VECTOR3& degAtt) const;
 	void UpdateOrbitData();
+	void UpdateBurnPropagator();
 };
 
 };

@@ -35,8 +35,8 @@ const static char* ODS_MESHNAME = "ODS";
  */
 namespace eva_docking {
 
-	using class discsignals::DiscInPort;
-	using class discsignals::DiscOutPort;
+	using discsignals::DiscInPort;
+	using discsignals::DiscOutPort;
 
 	using namespace std;
 

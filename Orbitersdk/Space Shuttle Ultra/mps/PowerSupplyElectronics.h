@@ -33,6 +33,8 @@
 namespace mps
 {
 	class SSMEController;
+	class DigitalComputerUnit;
+	class ComputerInterfaceElectronics;
 
 	using class discsignals::DiscInPort;
 	using class discsignals::DiscreteBundle;
@@ -42,10 +44,12 @@ namespace mps
 		protected:
 			int ch;
 			SSMEController* Controller;
+			DigitalComputerUnit* DCU;
+			ComputerInterfaceElectronics* CIEOpposite;
 
 			bool PowerOn;
 		public:
-			DiscInPort* AC;
+			DiscInPort AC;
 
 			PowerSupplyElectronics( int ch, SSMEController* Controller );
 			virtual ~PowerSupplyElectronics( void );
@@ -58,6 +62,8 @@ namespace mps
 			// for use by the derived class
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
+
+			void Realize( void );
 
 			void ConnectPower( DiscreteBundle* AC );
 

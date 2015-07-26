@@ -233,8 +233,8 @@ void MDM::InstallAISModule(unsigned int module_id)
 
 void MDM::InstallAODModule(unsigned int module_id)
 {
-	if(m_modules[module_id]) delete m_modules[module_id];
-	m_modules[module_id] = new AODModule(this);
+	/*if(m_modules[module_id]) delete m_modules[module_id];
+	m_modules[module_id] = new AODModule(this);*/
 
 	SCU_PROM[module_id] = 0x0600;
 }
@@ -249,30 +249,58 @@ void MDM::InstallTacanModule(unsigned int module_id)
 	SCU_PROM[module_id] = 0x0500;
 }
 
-void MDM::LoadPROM(const std::string& prom_file)
+void MDM::LoadMDM(const std::string& prom_file)
 {
 	std::string filename;
 	std::ifstream prom;
+	char buffer[400];
 	
-	filename = prom_file;
-	
-	prom.open(filename.c_str(), std::ios::binary);
-	if(!prom)
-	{
-		filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
-		prom.open(filename.c_str(), std::ios::binary);
-	}
+	try {
+		filename = prom_file;
 
-	if(prom)
-	{
-		prom.read(reinterpret_cast<char*>(SCU_PROM), 1024);
-		prom.close();
+		prom.open(filename.c_str());
+		if (!prom.is_open())
+		{
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [INFO] Looking for MDM configuration %s in default folder", prom_file.c_str());
+			oapiWriteLog(buffer);
+			filename = STS()->options->GetROMFilePath() + string("\\") + prom_file;
+			prom.open(filename.c_str());
+		}
+		
+		if (prom.is_open())
+		{
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [INFO] Loading MDM configuration %s for %s", 
+				prom_file.c_str(), GetQualifiedIdentifier().c_str());
+			oapiWriteLog(buffer);
+
+			while (!prom.eof())
+			{
+				
+				prom.getline(buffer, 400);
+				
+				//Comments start with *
+				if (buffer[0] != '*' && strlen(buffer) > 0)
+				{
+
+					parseMDMFileLine(buffer);
+				}
+				
+			}
+			prom.close();
+		}
+		else
+		{
+			char buffer[400];
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Can't load PROM image '%s' for '%s'",
+				filename.c_str(), GetQualifiedIdentifier().c_str());
+			oapiWriteLog(buffer);
+		}
 	}
-	else
+	catch (std::exception &e) 
 	{
-		char buffer[400];	
-		sprintf_s(buffer, 400, "(SpaceShuttleUltra)Can't load PROM image '%s' for '%s'",
-			filename.c_str(), GetQualifiedIdentifier().c_str());
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Can't load PROM image '%s' for '%s': Unknown exception : %s",
+			filename.c_str(), GetQualifiedIdentifier().c_str(), e.what());
 		oapiWriteLog(buffer);
 	}
 }
@@ -288,5 +316,102 @@ void MDM::MasterReset(void)
 	}
 }
 
+void MDM::parseMDMFileLine(const char* line)
+{
+	char buffer[400];
+	unsigned int memloc = 0;
+	static char command[10];
+	char tmpline[400];
+	unsigned int module = 0;
+	unsigned int channel = 0;
+	unsigned int wordcount = 0;
+
+	strcpy(command, "XXXXX");
+
+	try
+	{
+		
+		/*sprintf_s(buffer, 400, "(SpaceShuttleUltra) [DEBUG] MDM: TRY TO PARSE: '%s'", line);
+		oapiWriteLog(buffer);*/
+
+		strcpy(tmpline, line);
+		/*strcat(tmpline, " ");*/
+
+		int fields = sscanf_s(tmpline, "%u %s %u %u %u", &memloc, command, 9, &module, &channel, &wordcount);
+
+		/*sprintf_s(buffer, 400, "(SpaceShuttleUltra) [DEBUG] MDM: %d > %d %s %d %d %d", fields, memloc, command, module, channel, wordcount);
+		oapiWriteLog(buffer);*/
+
+		if (memloc < 16) {
+			//Allow only module description fields
+			if (!_strnicmp(command, "DIL", 3)) {
+				InstallDILModule(memloc);
+			}
+			else if (!_strnicmp(command, "DIH", 3)) {
+				InstallDIHModule(memloc);
+			}
+			else if (!_strnicmp(command, "DOL", 3)) {
+				InstallDOLModule(memloc);
+			}
+			else if (!_strnicmp(command, "DOH", 3)) {
+				InstallDOHModule(memloc);
+			}
+			else if (!_strnicmp(command, "SIO", 3)) {
+				//InstallSIOModule(memloc);
+			}
+			else if (!_strnicmp(command, "AIS", 3)) {
+				InstallAISModule(memloc);
+			}
+			else if (!_strnicmp(command, "AID", 3)) {
+				InstallAIDModule(memloc);
+			}
+			else if (!_strnicmp(command, "AOD", 3)) {
+				InstallAODModule(memloc);
+			}
+			else if (!_strnicmp(command, "TACAN", 3)) {
+				//InstallTACANModule(memloc);
+			}
+			else {
+				sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL MODULE TYPE %s IN LOCATION %d", command, memloc);
+				oapiWriteLog(buffer);
+			}
+		}
+		else if (memloc < 512) {
+			//Allow only IO commands
+			if (!_strnicmp(command, "BITE", 4))
+			{
+				//
+			}
+			else if (!_strnicmp(command, "BSEND", 5))
+			{
+				
+			}
+			else if (!_strnicmp(command, "CMD", 3))
+			{
+				//
+			}
+			else if (!_strnicmp(command, "RESP", 4))
+			{
+				//
+			}
+			else
+			{
+				sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL OPERATION %s IN LOCATION %d", command, memloc);
+				oapiWriteLog(buffer);
+			}
+		}
+		else {
+			//ILLEGAL MEMORY ADDRESS
+			//MAYBE USE THIS FOR SPECIAL COMMANDS?
+			sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: ILLEGAL MEMORY LOCATION %d", memloc);
+			oapiWriteLog(buffer);
+		}
+	}
+	catch (std::exception &e)
+	{
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] MDM: UNKNOWN EXCEPTION WHILE PARSING %s : %s", line, e.what());
+		oapiWriteLog(buffer);
+	}
+}
 
 };

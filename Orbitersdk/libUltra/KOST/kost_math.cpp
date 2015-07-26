@@ -23,12 +23,12 @@
 #include "kost_math.h"
 
 
-double acosh(double x)
+double Acosh(double x)
 {
 	return log(x + sqrt(x*x - 1));
 }
 
-double asinh(double x)
+double Asinh(double x)
 {
 	return log(x + sqrt(x*x + 1));
 }

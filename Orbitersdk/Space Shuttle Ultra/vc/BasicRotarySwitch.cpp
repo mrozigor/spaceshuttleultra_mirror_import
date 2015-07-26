@@ -118,7 +118,6 @@ namespace vc
 
 		VECTOR3 curRot=RotateVectorZ(_V(0.0, 1.0, 0.0), fAngle);
 		VECTOR3 cross_product=crossp(curRot, _V(x-0.5, y-0.5, 0.0));
-		sprintf_s(oapiDebugString(), 255, "Angle: %f cp: %f", fAngle, cross_product.z);
 
 		if(cross_product.z>0.05) {
 			OnRotateLeft();

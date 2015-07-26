@@ -29,6 +29,8 @@
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushbuttonIndicator.h"
+#include "PushButton.h"
+#include "StandardSwitchCover.h"
 
 namespace vc
 {
@@ -47,8 +49,24 @@ namespace vc
 
 		LockableLever3* pOMSArm[2];
 
+		StdSwitch2* pBFCCRTDisplay;
+		StdSwitch3* pBFCCRTSelect;
+
 		StdSwitch2* pAirDataProbeStowEnable[2];
 		LockableLever3* pAirDataProbeDeploy[2];
+
+		StdSwitch3* pSSMELimitShutDn;
+
+		StandardSwitchCover* pSSMESDPBCover[3];
+		PushButton* pSSMESDPB[3];
+
+		StdSwitch2* pSRBSEPSW;
+		StandardSwitchCover* pSRBSEPCover;
+		PushButton* pSRBSEPPB;
+
+		LockableLever2* pETSEPSW;
+		StandardSwitchCover* pETSEPCover;
+		PushButton* pETSEPPB;
 	};
 };
 

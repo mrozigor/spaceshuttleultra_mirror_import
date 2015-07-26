@@ -47,6 +47,8 @@ private:
 	ROT_MODE RotMode[3];
 	TRANS_MODE TransMode[3]; // 0=X, 1=Y, 2=Z
 
+	bool ERRTOT;// attitude error output: true = "ERR TOT", false = "ERR DAP"
+
 	int editDAP; // -1=None, 0=A, 1=B
 	DAPConfig DAPConfiguration[3]; //0=A, 1=B, 2=Edit
 
@@ -56,6 +58,7 @@ private:
 	double degRotRate, degAttDeadband, degRateDeadband;
 
 	bool RotatingAxis[3];
+	bool NullingRates[3];
 	bool RotPulseInProg[3];
 	bool TransPulseInProg[3];
 	VECTOR3 TransPulseDV; //negative DV for pulses along negative axes
@@ -142,6 +145,9 @@ public:
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	VECTOR3 GetAttitudeErrors( void ) const;
+	bool GetTimeToAttitude( double& time ) const;
 private:
 	/**
 	 * Updates variables with current attitude data.

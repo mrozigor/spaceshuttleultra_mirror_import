@@ -1,0 +1,411 @@
+BEGIN_DESC
+  STS-101 mission is about 32.5 seconds from launch, about to enter the RSLS
+  (Redundant sequence launch sequencer, onboard program to control liftoff).
+  Hydraulics and engines are on and shuttle is ready in all respects to lift
+  off. This is primarily a test of the interactions of the pad, MLP, and 
+  launch sequence, but is also an excellent place to start for a quick-launch.
+END_DESC
+
+BEGIN_ENVIRONMENT
+  System Sol
+  Date MJD 51683.424051
+  Context SSU
+END_ENVIRONMENT
+
+BEGIN_FOCUS
+  Ship STS-101
+END_FOCUS
+
+BEGIN_CAMERA
+  TARGET STS-101
+  MODE Extern
+  POS 5.28 52.17 43.23
+  TRACKMODE GlobalFrame
+  FOV 40.00
+END_CAMERA
+
+BEGIN_MFD Left
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 3
+END_MFD
+
+BEGIN_MFD Right
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 1
+END_MFD
+
+BEGIN_MFD 3
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 1
+END_MFD
+
+BEGIN_MFD 4
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 4
+END_MFD
+
+BEGIN_MFD 5
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
+END_MFD
+
+BEGIN_MFD 6
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
+END_MFD
+
+BEGIN_MFD 7
+  TYPE Orbit
+  PROJ Ship
+  FRAME Equator
+  ALT
+  REF Earth
+END_MFD
+
+BEGIN_MFD 8
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 4
+END_MFD
+
+BEGIN_MFD 9
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 3
+END_MFD
+
+BEGIN_VC
+END_VC
+
+BEGIN_SHIPS
+ISS:ProjectAlpha_ISS
+  STATUS Orbiting Earth
+  RPOS -6025002.08 -2396043.70 1843678.15
+  RVEL -3146.174 6884.841 -1333.517
+  AROT 110.00 -10.00 80.00
+  PRPLEVEL 0:1.000
+  IDS 0:1 100 1:2 100 2:3 100 3:4 100 4:5 100
+  NAVFREQ 0 0
+  XPDR 466
+END
+LC39A:SSU_Pad
+  STATUS Landed Earth
+  POS -80.6040720 28.6083850
+  HEADING 270.00
+  NAVFREQ 0 0
+  FUEL 1.0000
+  ACCESS_ARM 0 0.0000
+  GVA 0 0.0000
+  VENTHOOD 0 0.0000
+  FSS_OWP 0 0.0000
+  RSS_OWP 0 0.0000
+  RSS 1 1.0000
+END
+LCC:SSU_LCC
+  STATUS Landed Earth
+  POS -80.6040745 28.6083855
+  HEADING 270.00
+  NAVFREQ 0 0
+  LAUNCH_MJD 51683.424421
+  PAD_NAME LC39A
+  SHUTTLE_NAME STS-101
+END
+MLP2:SSU_MLP
+  STATUS Landed Earth
+  ATTACHED 0:0,LC39A
+  HEADING 0.00
+  NAVFREQ 0 0
+  T0_UMB 0 0.0000
+END
+STS-101:SpaceShuttleUltra
+  STATUS Landed Earth
+  POS 0.0000000 0.0000000
+  HEADING 0.00
+  ATTACHED 0:0,MLP2
+  PRPLEVEL 0:1.000 1:1.000 2:1.000 3:0.998 4:0.998 5:0.998 6:1.000 7:1.000 8:1.000 11:0.020
+  NAVFREQ 0 0
+  MISSION STS-101
+  CONFIGURATION 0
+  MET 0.000
+  GEAR 0 0.0000
+  OPS 101
+@SUBSYSTEM HeEng_C
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_C
+@SUBSYSTEM HeEng_L
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_L
+@SUBSYSTEM HeEng_R
+  PRESS 4100
+  VALVES 1 1 0 0
+@ENDSUBSYSTEM		;HeEng_R
+@SUBSYSTEM HePneu
+  PRESS 4100
+  VALVES 1 1 0 
+@ENDSUBSYSTEM		;HePneu
+@SUBSYSTEM MPS_C
+  SSME config 2
+  VIE config 1
+  DCU_chA config 3
+  DCU_chB config 3
+  CIE_chA config 1
+  CIE_chB config 1
+@ENDSUBSYSTEM		;MPS_C
+@SUBSYSTEM MPS_L
+  SSME config 2
+  VIE config 1
+  DCU_chA config 3
+  DCU_chB config 3
+  CIE_chA config 1
+  CIE_chB config 1
+@ENDSUBSYSTEM		;MPS_L
+@SUBSYSTEM MPS_R
+  SSME config 2
+  VIE config 1
+  DCU_chA config 3
+  DCU_chB config 3
+  CIE_chA config 1
+  CIE_chB config 1
+@ENDSUBSYSTEM		;MPS_R
+@SUBSYSTEM SimpleGPCSystem
+  @BEGINSOFTWARE ATVC_SOP
+  CONFIG 1
+  @ENDSOFTWARE 
+@ENDSUBSYSTEM		;SimpleGPCSystem
+@SUBSYSTEM ETUmbDoors
+  ET_DOORS 1.000000 1.000000
+  ET_DOOR_LATCHES 0.000000 1.000000 1.000000
+@ENDSUBSYSTEM		;ETUmbDoors
+@SUBSYSTEM PayloadBay
+  CARGODOOR 0 0.0000
+  RADIATOR 0 0.0000
+  RADLATCH 0 0.0000
+  KUBAND 0 0.0000
+  BAYDOORLATCH0 0 0.0000
+  BAYDOORLATCH1 0 0.0000
+  BAYDOORLATCH2 0 0.0000
+  BAYDOORLATCH3 0 0.0000
+@ENDSUBSYSTEM		;PayloadBay
+@SUBSYSTEM RMS
+  ARM_STATUS 0.500000 0.013605 0.014688 0.500000 0.500000 0.500000
+  SHOULDER_BRACE 0.000000
+  GRAPPLE 1 1.0000
+  RIGIDIZE 1 1.0000
+  EXTEND 1 1.0000
+  RMS_ELBOW_CAM 0.0000 0.0000
+  RMS_ROLLOUT 0 0.0000
+  RMS_LATCHES 0 0.0000
+@ENDSUBSYSTEM		;RMS
+  @PANEL F2
+  "F2_SPDBKTHROT_AUTO" 1
+  "F2_BODYFLAP_AUTO" 1
+  "F2_PITCH_AUTO" 1
+  "F2_PITCH_CSS" 0
+  "F2_RY_AUTO" 1
+  "F2_RY_CSS" 0
+  @ENDPANEL 
+  @PANEL F4
+  "F4_SPDBKTHROT_AUTO" 1
+  "F4_BODYFLAP_AUTO" 1
+  "F4_PITCH_AUTO" 1
+  "F4_PITCH_CSS" 0
+  "F4_RY_AUTO" 1
+  "F4_RY_CSS" 0
+  @ENDPANEL 
+  @PANEL F6
+  "Cdr Flt Cntlr Pwr" ON
+  @ENDPANEL 
+  @PANEL F7
+  @ENDPANEL 
+  @PANEL F8
+  "Plt Flt Cntlr Pwr" ON
+  @ENDPANEL 
+  @PANEL R2
+  "Boiler1 N2 Supply" ON
+  "Boiler2 N2 Supply" ON
+  "Boiler3 N2 Supply" ON
+  "Boiler1 Cntlr" ON
+  "Boiler2 Cntlr" ON
+  "Boiler3 Cntlr" ON
+  "Boiler1 Cntlr Pwr/Htr" A
+  "Boiler2 Cntlr Pwr/Htr" A
+  "Boiler3 Cntlr Pwr/Htr" A
+  "APU1 Run" START/RUN
+  "APU2 Run" START/RUN
+  "APU3 Run" START/RUN
+  "Hyd Main Pump Press 1" NORM
+  "Hyd Main Pump Press 2" NORM
+  "Hyd Main Pump Press 3" NORM
+  "APU1 Cntlr Pwr " ON
+  "APU2 Cntlr Pwr " ON
+  "APU3 Cntlr Pwr " ON
+  "APU1 Fuel Tank Valve" OPEN
+  "APU2 Fuel Tank Valve" OPEN
+  "APU3 Fuel Tank Valve" OPEN
+  "ET Umb Centerline Latch" GND
+  "ET Umb Left Door" OFF
+  "ET Umb Left Door Latch" OFF
+  "ET Umb Right Door" OFF
+  "ET Umb Right Door Latch" OFF
+  "MPS Pwr Left AC2" [1]
+  "MPS Pwr Ctr AC1" [1]
+  "MPS Pwr Right AC3" [1]
+  "MPS Pwr Left AC3" [1]
+  "MPS Pwr Ctr AC2" [1]
+  "MPS Pwr Right AC1" [1]
+  "MPS He Isol A Left" OPEN
+  "MPS He Isol A Ctr" OPEN
+  "MPS He Isol A Right" OPEN
+  "MPS He Isol B Left" OPEN
+  "MPS He Isol B Ctr" OPEN
+  "MPS He Isol B Right" OPEN
+  "MPS PRPLT Dump Sequence" GPC
+  "MPS PRPLT Backup LH2 vlv" GPC
+  "Pneu L Eng He XOVR" GPC
+  "Pneu He Isol" OPEN
+  "He Interconnect Left" GPC
+  "He Interconnect Ctr" GPC
+  "He Interconnect Right" GPC
+  "LH2 Ullage Press" AUTO
+  @ENDPANEL
+  @PANEL O6
+  "L GLRSHLD FLOOD" OFF
+  "S TRK DR CNTL SYS1" CLOSE
+  "S TRK DR CNTL SYS2" CLOSE
+  @ENDPANEL 
+  @PANEL R11
+  @ENDPANEL 
+  @PANEL R13L
+  "PL Bay Door SYS 1" DISABLE
+  "PL Bay Door SYS 2" DISABLE
+  "PL Bay Mech PWR SYS 1" OFF
+  "PL Bay Mech PWR SYS 2" OFF
+  "PL Bay Door" STOP
+  "Latch Control SYS A" OFF
+  "Latch Control SYS B" OFF
+  "Radiator Control SYS A" OFF
+  "Radiator Control SYS B" OFF
+  "KU Antenna Direct Stow" OFF
+  "KU Antenna" GND
+  @ENDPANEL 
+  @PANEL A6
+  "SENSE" [0]
+  @ENDPANEL 
+  @PANEL AftMDU
+  @ENDPANEL 
+  @PANEL A7A3/A8A3
+  "SYSTEM POWER MNA" [0]
+  "SYSTEM POWER MNB" [0]
+  "PYRO POWER MNA" [0]
+  "PYRO POWER MNC" [0]
+  "SYS1 VENT ISOL" [0]
+  "SYS1 VENT" [0]
+  "SYS2 VENT ISOL" [0]
+  "SYS2 VENT" [0]
+  "PSU POWER MNA" [0]
+  "PSU POWER MNB" [0]
+  "LIGHTS AIRLOCK 1-4" [0]
+  "LIGHTS AIRLOCK 2-3" [0]
+  "LIGHTS DOCKING TRUSS FWD" [0]
+  "LIGHTS DOCKING TRUSS AFT" [0]
+  "ARLK/TNL FAN A" [0]
+  "ARLK/TNL FAN B" [0]
+  "LIGHTS C/L VESTIBULE PORT" [0]
+  "LIGHTS C/L VESTIBULE STBD" [0]
+  "CNTL PNL PWR A" OFF
+  "CNTL PNL PWR B" OFF
+  "CNTL PNL PWR C" OFF
+  "HTRS/DCU PWR H1" OFF
+  "HTRS/DCU PWR H2/DCU" OFF
+  "HTRS/DCU PWR H3/DCU" OFF
+  "APDS PWR A" OFF
+  "APDS PWR B" OFF
+  "APDS PWR C" OFF
+  "PYROS Ap" [0]
+  "PYROS Bp" [0]
+  "PYROS Cp" [0]
+  @ENDPANEL 
+  @PANEL C3
+  "LOMS Arm" ARM/PRESS
+  "ROMS Arm" ARM/PRESS
+  "BFC CRT Display" ON
+  "BFC CRT Select" 2+3
+  "LADP Stow Enable" INHIBIT
+  "RADP Stow Enable" INHIBIT
+  "LADP Deploy" STOW
+  "RADP Deploy" STOW
+  "MAIN ENGINE LIMIT SHUT DN" AUTO
+  "SSME Left S/D PB Cover" [0]
+  "SSME Ctr S/D PB Cover" [0]
+  "SSME Right S/D PB Cover" [0]
+  "SRB Separation" AUTO
+  "SRB Separation PB Cover" [0]
+  "ET Separation" AUTO
+  "ET Separation PB Cover" [0]
+  @ENDPANEL 
+  @PANEL O17
+  "EIU L-C" ON
+  "EIU C-R" ON
+  "EIU R-L" ON
+  @ENDPANEL 
+  MTU_MET_RUNNING 0
+  MTU_MET0 0.000
+  MTU_MET1 0.000
+  MTU_MET2 0.000
+   EVENT_TIMER0 540.000000 DOWN STOPPED
+   EVENT_TIMER1 0.000000 DOWN STOPPED
+  IDP1 SPEC 65535
+  IDP1 DISP 65535
+  IDP2 SPEC 65535
+  IDP2 DISP 18
+  IDP3 SPEC 65535
+  IDP3 DISP 65535
+  IDP4 SPEC 65535
+  IDP4 DISP 65535
+@SUBSYSTEM ADPS
+  LEFT_AIRDATAPROBE 1 3 0
+  RIGHT_AIRDATAPROBE 1 3 0
+@ENDSUBSYSTEM		;ADPS
+  APU1_State 2
+  APU1_FuelPress 1473.383
+  APU1_HydPress 2654.671
+  APU1_Speed 98.387
+  APU2_State 2
+  APU2_FuelPress 1463.459
+  APU2_HydPress 2624.647
+  APU2_Speed 92.506
+  APU3_State 2
+  APU3_FuelPress 1435.394
+  APU3_HydPress 2647.471
+  APU3_Speed 103.869
+END
+ET:SSU_SLWT
+  STATUS Orbiting Earth
+  PRPLEVEL 0:0.996000
+  ATTACHED 0:20,STS-101
+END
+LSRB:SSU_LSRB_RSRM
+  STATUS Orbiting Earth
+  ATTACHED 0:21,STS-101
+END
+RSRB:SSU_RSRB_RSRM
+  STATUS Orbiting Earth
+  ATTACHED 0:22,STS-101
+END
+END_SHIPS

@@ -219,13 +219,13 @@ void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 				fEvent[timer][1] = fEvent[timer][0] + fDeltaT;
 				break;
 			case COUNT_DOWN:
-				if(fEvent[timer][0] > fDeltaT) {
+				//if(fEvent[timer][0] > fDeltaT) {
 					fEvent[timer][1] = fEvent[timer][0] - fDeltaT;
-				} else
-				{
-					fEvent[timer][1] = 0.0;
-					event_control[timer][1] = COUNT_STOPPED;
-				}
+				//} else
+				//{
+					//fEvent[timer][1] = 0.0;
+					//event_control[timer][1] = COUNT_STOPPED;
+				//}
 				break;
 			}
 			break;
@@ -234,12 +234,6 @@ void MasterTimingUnit::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 		
 		
 	}
-	//sprintf(oapiDebugString(), "GMT: %03d:%02d:%02d:%02d.%03d MET: %03d:%02d:%02d:%02d.%03d",
-	//	sGMTDays[0], sGMTHours[0], sGMTMinutes[0], sGMTSeconds[0], sGMTMillis[0],
-	//	sMETDays[0], sMETHours[0], sMETMinutes[0], sMETSeconds[0], sMETMillis[0]);
-
-	//sprintf(oapiDebugString(), "EVENT TIMER: %02d:%02d",
-	//	sEventMinutes[TIMER_FORWARD], sEventSeconds[TIMER_FORWARD]);
 }
 
 void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
@@ -287,8 +281,8 @@ void MasterTimingUnit::OnPropagate(double fSimT, double fDeltaT, double fMJD)
 		event_control[timer][0] = event_control[timer][1];
 
 
-		fSeconds = fmod(fEvent[timer][0], 60.0);
-		sEventMinutes[timer] = (short)((fEvent[timer][0] - fSeconds)/60.0);
+		fSeconds = fmod(fabs( fEvent[timer][0] ), 60.0);
+		sEventMinutes[timer] = (short)((fabs( fEvent[timer][0] ) - fSeconds)/60.0);
 		sEventSeconds[timer] = (short)fSeconds;
 
 		if(event_mode[timer][0] == COUNT_TEST) {
@@ -357,10 +351,10 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 {
 	char pszTempA[40] = "";
 	char pszTempB[40] = "";
-	int iTmpA = 0, iTmpB = 0;
+	int iTmpA = 0;
 	float fTmpA = 0.0;
 
-	strcpy(pszTempA, line);
+	strcpy_s(pszTempA, 40, line);
 	oapiWriteLog(pszTempA);
 
 	if(!_stricmp(keyword, "RUNNING")) {
@@ -380,31 +374,31 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 			oapiWriteLog("B");
 		}
 		return true;
-	} else if(!_stricmp(keyword, "EVENT_TIMER")) {
+	} else if(!_strnicmp( keyword, "EVENT_TIMER", 11 )) {
+		sscanf_s( keyword + 11, "%d", &iTmpA );
 		const char* pLine2 = line;
-		strcpy(pszTempA, line);
+		strcpy_s(pszTempA, 40, line);
 		oapiWriteLog(pszTempA);
-		sscanf_s(pLine2, "%d %f %s %s",
-			&iTmpA, &fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
+		sscanf_s(pLine2, "%f %s %s",
+			&fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
 		if(iTmpA >=0 && iTmpA < 2)
 		{
-			//fEvent[iTmpA][0] = fTmpA;
 			fEvent[iTmpA][1] = fTmpA;
-			if(!stricmp(pszTempA, "DOWN")) {
+			if(!_stricmp(pszTempA, "DOWN")) {
 				event_mode[iTmpA][0] = COUNT_DOWN;
 				event_mode[iTmpA][1] = COUNT_DOWN;
-			} else if(!stricmp(pszTempA, "UP")) {
+			} else if(!_stricmp(pszTempA, "UP")) {
 				event_mode[iTmpA][0] = COUNT_UP;
 				event_mode[iTmpA][1] = COUNT_UP;
-			} else if(!stricmp(pszTempA, "TEST")) {
+			} else if(!_stricmp(pszTempA, "TEST")) {
 				event_mode[iTmpA][0] = COUNT_TEST;
 				event_mode[iTmpA][1] = COUNT_TEST;
 			}
 
-			if(!stricmp(pszTempB, "STARTED")) {
+			if(!_stricmp(pszTempB, "STARTED")) {
 				event_control[iTmpA][0] = COUNT_STARTED;
 				event_control[iTmpA][1] = COUNT_STARTED;
-			} else if(!stricmp(pszTempB, "STOPPED")) {
+			} else if(!_stricmp(pszTempB, "STOPPED")) {
 				event_control[iTmpA][0] = COUNT_STOPPED;
 				event_control[iTmpA][1] = COUNT_STOPPED;
 			}

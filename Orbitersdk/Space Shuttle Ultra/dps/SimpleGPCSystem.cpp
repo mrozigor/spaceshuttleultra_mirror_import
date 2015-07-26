@@ -8,15 +8,29 @@
 #include "OrbitTgtSoftware.h"
 #include "AerojetDAP.h"
 #include "SSME_SOP.h"
+#include "SSME_Operations.h"
 #include "RSLS_old.h"
+#include "MPS_Dedicated_Display_Driver.h"
+#include "MPS_Dump.h"
+#include "MM801.h"
+#include "IO_Control.h"
+#include "TransitionDAP.h"
+#include "ETSepSequence.h"
+#include "SRBSepSequence.h"
+#include "ATVC_SOP.h"
+#include "GeneralDisplays.h"
 #include "../Atlantis.h"
 
 namespace dps
 {
 
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
-: AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101)
+: AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101), newMajorMode(0)
 {
+	//TODO: Move this all to Partition model
+	vSoftware.push_back( new MPS_Dump( this ) );
+	vSoftware.push_back( new MPS_Dedicated_Display_Driver( this ) );
+	vSoftware.push_back( new SSME_Operations( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
 	vSoftware.push_back( new RSLS_old( this ) );
 	vSoftware.push_back(new AscentGuidance(this));
@@ -25,6 +39,13 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back(new OMSBurnSoftware(this));
 	vSoftware.push_back(new OrbitTgtSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
+	vSoftware.push_back(new MM801(this));
+	vSoftware.push_back( new IO_Control( this ) );
+	vSoftware.push_back( new TransitionDAP( this ) );
+	vSoftware.push_back( new ETSepSequence( this ) );
+	vSoftware.push_back( new SRBSepSequence( this ) );
+	vSoftware.push_back( new ATVC_SOP( this ) );
+	vSoftware.push_back( new GeneralDisplays( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()
@@ -35,16 +56,13 @@ SimpleGPCSystem::~SimpleGPCSystem()
 
 void SimpleGPCSystem::SetMajorMode(unsigned int newMM)
 {
-	vActiveSoftware.clear();
-	for(unsigned int i=0;i<vSoftware.size();i++) {
-		if(vSoftware[i]->OnMajorModeChange(newMM))
-			vActiveSoftware.push_back(vSoftware[i]);
-	}
-	majorMode = newMM;
+	//TODO: Move to Memory Configuration and Redundant Set (Partition)
+	newMajorMode = newMM;
 }
 
 bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) const
 {
+	//TODO: Replace by table in memory configuration
 	switch(newMajorMode) {
 	case 104:
 		return majorMode == 103;
@@ -53,7 +71,7 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 	case 106:
 		return majorMode == 105;
 	case 201:
-		return (majorMode == 106 || majorMode == 202 || majorMode == 301);
+		return (majorMode == 106 || majorMode == 202 || majorMode == 301 || majorMode == 801);
 	case 202:
 		return majorMode == 201;
 	case 301:
@@ -66,6 +84,10 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 		return majorMode == 303;
 	case 305:
 		return majorMode == 304;
+	case 801:
+		return majorMode == 201;
+	case 901:
+		return majorMode == 101;
 	default:
 		return false;
 	}
@@ -79,7 +101,17 @@ void SimpleGPCSystem::Realize()
 
 void SimpleGPCSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	//assert(majorMode == STS()->GetGPCMajorMode()); // TODO: change major mode only in this class
+	// if major mode changed sometime in the last timestep, update major mode
+	if(newMajorMode != 0) {
+		vActiveSoftware.clear();
+		for(unsigned int i=0;i<vSoftware.size();i++) {
+			if(vSoftware[i]->OnMajorModeChange(newMajorMode))
+				vActiveSoftware.push_back(vSoftware[i]);
+		}
+		majorMode = newMajorMode;
+		newMajorMode = 0;
+	}
+
 	for(unsigned int i=0;i<vActiveSoftware.size();i++)
 		vActiveSoftware[i]->OnPreStep(SimT, DeltaT, MJD);
 }
@@ -147,6 +179,8 @@ void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 		vSoftware[i]->OnSaveState(scn);
 		oapiWriteScenario_string(scn, "@ENDSOFTWARE", "");
 	}*/
+	//TODO Save number of memory configuration
+
 	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
 		oapiWriteScenario_string(scn, "@BEGINSOFTWARE", const_cast<char*>(vActiveSoftware[i]->GetIdentifier().c_str()));
 		vActiveSoftware[i]->OnSaveState(scn);

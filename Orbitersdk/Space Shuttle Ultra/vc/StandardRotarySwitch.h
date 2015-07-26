@@ -31,9 +31,9 @@
 
 namespace vc
 {
-	using class ::discsignals::DiscreteBundle;
-	using class ::discsignals::DiscOutPort;
-	using class ::discsignals::DiscInPort;
+	using ::discsignals::DiscreteBundle;
+	using ::discsignals::DiscOutPort;
+	using ::discsignals::DiscInPort;
 
 	/**
 	 * Rotary switch that sends single input signal to multiple possible output signals

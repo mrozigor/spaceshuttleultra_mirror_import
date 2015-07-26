@@ -27,13 +27,18 @@
 
 
 #include "orbitersdk.h"
+#include "assert.h"
 
 
-//#define _MPSDEBUG
+#define _MPSDEBUG
 
 
 namespace mps
 {
+	const int chA = 0;
+	const int chB = 1;
+	const int chC = 2;
+
 	inline unsigned short GetMaskVal( unsigned short in, unsigned short mask )
 	{
 		return in & mask;

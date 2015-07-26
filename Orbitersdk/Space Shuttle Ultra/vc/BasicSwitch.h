@@ -46,8 +46,14 @@ protected:
 	vector<string> labels;
 	vector<bool> vbSpringLoaded;
 	unsigned short usCurrentPosition;
+	int switchSound; // if zero, don't play sound
 public:
-	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident);
+	/**
+	 * \param usNumPositions number of switch positions
+	 * \param _ident identifying string (i.e. switch name)
+	 * \param switchSoundID ID of sound to play when switch changes position (if 0, no sound is played)
+	 */
+	BasicSwitch(Atlantis* _sts, unsigned short usNumPositions, const string& _ident, int switchSoundID=0);
 	virtual ~BasicSwitch();
 	const string& GetLabel(int iPosition) const;
 	void SetLabel(int iPosition, const string& _label);

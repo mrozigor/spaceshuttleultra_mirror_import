@@ -31,7 +31,11 @@
 
 namespace dps
 {
+	const unsigned short MPL = 67;
+	const unsigned short FPL = 109;
+
 	// commands
+	const unsigned short SVRC = 0x2000;
 	const unsigned short LOXD = 0xA400;
 	const unsigned short XPOW = 0xAC00;
 	const unsigned short STEN = 0xC000;
@@ -43,47 +47,78 @@ namespace dps
 	const unsigned short ENLS = 0xE000;
 	const unsigned short INLS = 0xE400;
 
+	const unsigned short DATA_FAIL = 4;// I-LOAD
+
+	/**
+	 * @brief	Implementation of the SSME SOP software that runs in the GPCs.
+	 * 
+	 * This class recieves commands to the SSMEs, formats and outputs them to the EIUs. It also reads from
+	 * the EIUs SSME data, which is processed.
+	 */
 	class SSME_SOP:public SimpleGPCSoftware
 	{
 		private:
-			unsigned short LastCommand[3];
+			double PercentChamberPress[3];
+			unsigned short Phase[3];
+			unsigned short Mode[3];
+			unsigned short SelfTestStatus[3];
+			unsigned short CommandStatus[3];
+			unsigned short ChannelStatus[3];
 
+			// TODO KMIN, KMAX, KCMD
 			// command flags
 			bool StartEnableCommand[3];
 			bool EngineStartCommand[3];
 			bool ShutdownEnableCommand[3];
 			bool ShutdownCommand[3];
-			bool Throttle[3];
-			bool OxidizerDumpStart[3];
-			bool DumpStop[3];
-			bool MECOCommand;
+			bool ThrottleCommand[3];
+			bool OxidizerDumpStartCommand[3];
+			bool DumpStopCommand[3];
+			bool LimitInhibitCommand[3];
+			bool LimitEnableCommand[3];
+			bool DCUSwitchVDTCommand[3];
 
-			bool MECOConfirmed;
+			unsigned short LastCommand[3];
 
-			bool ShutdownEnableCommandIssued[3];
-
-			// phase/mode flags
-			//bool EngineReadyMode[3]
-			bool ShutdownPhase[3];
-			bool PostShutdownPhase[3];
+			bool ShutdownEnableCommandIssued[3];// TODO have a StartEnableCommandIssued????
 
 			double CommandedThrottle;
 
+			// phase/mode flags
+			bool ShutdownPhase[3];
+			bool PostShutdownPhase[3];
+			bool HydraulicLockupMode[3];
+			bool ElectricalLockupMode[3];
+			bool EngineReadyMode[3];
+
 			// status flags
-			bool DataPathFailure[3];
-			//bool CommandPathFailure[3];
-
-			double PercentChamberPress[3];
-
+			bool PadDataPathFailure[3];
+			bool FlightDataPathFailure[3];
+			bool CommandPathFailure[3];
+			bool MajorComponentFailure[3];
+			bool LimitExceeded[3];
+			bool ChannelFailure[3];
 
 			unsigned short pridata[3][32];
 			unsigned short secdata[3][6];
 
 			bool PrimaryDataFail[3];
 			bool SecondaryDataFail[3];
+			bool DCUProcess[3];
 
-			double LOXDumptimeA;
-			double LOXDumptimeB;
+			unsigned short PrimaryFailCounter[3];
+			unsigned short SecondaryFailCounter[3];
+			unsigned short DataFailCounter[3];
+
+			/**
+			 * Processes Primary Data, decoding the status of the SSME and it's controller.
+			 */
+			void ProcessPriData( int eng );
+			/**
+			 * Processes Secondary Data, decoding the status of the SSME and it's controller.
+			 */
+			void ProcessSecData( int eng );
+
 		public:
 			SSME_SOP( SimpleGPCSystem* _gpc );
 			~SSME_SOP( void );
@@ -94,27 +129,152 @@ namespace dps
 			bool OnParseLine( const char* keyword, const char* value );
 			void OnSaveState( FILEHANDLE scn ) const;
 
-			void Realize( void );
-
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
-			void ProcessPriData( int eng );
-			void ProcessSecData( int eng );
-
+			/**
+			 * Causes the Start Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
 			void SetStartEnableCommandFlag( int eng );
-			void SetEngineStartCommandFlag( int eng );
-			void SetShutdownEnableCommandFlag( int eng );
-			void SetShutdownCommandFlag( int eng );
-			void SetThrottlePercent( double pct );
-			void SetMECOCommandFlag( void );
-			/*void SetOxidizerDumpStartFlag( int eng );
-			void SetDumpStopFlag( int eng );*/
 
-			bool GetMECOCommandFlag( void ) const;
-			bool GetMECOConfirmedFlag( void ) const;
+			/**
+			 * Causes the Engine Start Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetEngineStartCommandFlag( int eng );
+
+			/**
+			 * Causes the Shutdown Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetShutdownEnableCommandFlag( int eng );
+
+			/**
+			 * Causes the Shutdown Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetShutdownCommandFlag( int eng );
+
+			/**
+			 * Causes a Throttle Command to be issued to all SSMEs.
+			 * @param[in]	pct	new throttle setting in percent of RPL
+			 * @return		true = valid value
+			 */
+			bool SetThrottlePercent( double pct );
+
+			/**
+			 * Causes the Limit Inhibit Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetLimitInhibitCommandFlag( int eng );
+
+			/**
+			 * Causes the Limit Enable Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetLimitEnableCommandFlag( int eng );
+
+			/**
+			 * Causes the Oxidizer Dump Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetOxidizerDumpStartCommandFlag( int eng );
+
+			/**
+			 * Causes the Terminate Sequence Command to be issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 */
+			void SetDumpStopCommandFlag( int eng );
+
+			/**
+			 * Returns an indication of whether the Shutdown Enable Command has been issued for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = command issued
+			 */
 			bool GetShutdownEnableCommandIssuedFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the phase in effect in a SSME is Shutdown.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Shutdown Phase
+			 */
 			bool GetShutdownPhaseFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the phase in effect in a SSME is Post-Shutdown.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Post-Shutdown Phase
+			 */
 			bool GetPostShutdownPhaseFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Hydraulic Lockup.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Hydraulic Lockup Mode
+			 */
+			bool GetHydraulicLockupModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Electrical Lockup.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Electrical Lockup Mode
+			 */
+			bool GetElectricalLockupModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether the operating mode in a SSME is Engine Ready.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Engine Ready Mode
+			 */
+			bool GetEngineReadyModeFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Pad Data Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Pad Data Path Failure
+			 */
+			bool GetPadDataPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Flight Data Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Flight Data Path Failure
+			 */
+			bool GetFlightDataPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a Command Path Failure has occurred for a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = Command Path Failure
+			 */
+			bool GetCommandPathFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a MCF has been posted on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = MCF
+			 */
+			bool GetMajorComponentFailureFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether limits have been exceeded on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = limits exceeded
+			 */
+			bool GetLimitExceededFlag( int eng ) const;
+
+			/**
+			 * Returns an indication of whether a command channel has failed on a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		true = channel failed
+			 */
+			bool GetChannelFailureFlag( int eng ) const;
+
+			/**
+			 * Gets the chamber pressure in percent of RPL of a SSME.
+			 * @param[in]	eng	SSME number
+			 * @return		Chamber pressure in percent of RPL
+			 */
 			double GetPercentChamberPressVal( int eng ) const;
 	};
 }

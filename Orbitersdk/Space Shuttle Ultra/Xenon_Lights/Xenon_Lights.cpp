@@ -76,17 +76,17 @@ void XenonLights::CreateLights()
 
 	//VECTOR3 LIGHT_POS[2] = { _V(-2.395, 1.526, 0.488), _V(2.395, 1.526, 0.488)};
 
-	const COLOUR4 LIGHT_DIFFUSE = {0.75, 0.75, 0.75, 0};
+	const COLOUR4 LIGHT_DIFFUSE = {1.0f, 0.9f, 0.9f, 0};
 	const COLOUR4 LIGHT_SPECULAR = {0, 0, 0, 0};
-	const COLOUR4 LIGHT_AMBIENT = {0, 0, 0, 0};
-	const double LIGHT_RANGE = 450;
+	const COLOUR4 LIGHT_AMBIENT = {0.2f, 0.1f, 0.1f, 0.1f};
+	const double LIGHT_RANGE = 800;
 	const double LIGHT_ATT0 = 1e-3;
 	const double LIGHT_ATT1 = 0;
-	const double LIGHT_ATT2 = 0.000075;
+	const double LIGHT_ATT2 = 0.000025;
 
 	for(int i=0;i<2;i++) {
 		pLights[i] = AddSpotLight(LIGHT_POS[i], _V(0, 0, 1),
-			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 4.5*RAD, 8.0*RAD,
+			LIGHT_RANGE, LIGHT_ATT0, LIGHT_ATT1, LIGHT_ATT2, 4.5*RAD, 10.0*RAD,
 			LIGHT_DIFFUSE, LIGHT_SPECULAR, LIGHT_AMBIENT);
 
 		// create fake thruster to simulate glare from lights
@@ -152,7 +152,7 @@ bool XenonLights::IsDay() const
 bool XenonLights::FindTarget()
 {
 	DWORD vesselCount = oapiGetVesselCount();
-	for(int i=0;i<vesselCount;i++) {
+	for(unsigned int i=0;i<vesselCount;i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex(i);
 		VESSEL* v = oapiGetVesselInterface(hV);
 		if(!_stricmp(v->GetClassName(), SHUTTLE_CLASS_NAME)) {

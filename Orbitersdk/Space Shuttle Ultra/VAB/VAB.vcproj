@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Orbiter.lib OrbiterSDK.lib lua51.lib"
+				AdditionalDependencies="Orbiter.lib OrbiterSDK.lib lua5.1.lib"
 				OutputFile="$(OutDir)\SSU_VAB.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="G:\orbiter2010\Orbitersdk\lib\Lua"
@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Orbiter.lib OrbiterSDK.lib lua51.lib"
+				AdditionalDependencies="Orbiter.lib OrbiterSDK.lib lua5.1.lib"
 				OutputFile="..\..\..\Modules\SSU_VAB.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../lib/Lua;../../lib"
@@ -232,7 +232,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\OrbiterSoundSDK35.h"
+				RelativePath="..\..\include\OrbiterSoundSDK40.h"
 				>
 			</File>
 			<File
