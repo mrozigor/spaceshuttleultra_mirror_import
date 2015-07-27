@@ -17,6 +17,7 @@ const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
+const static char* DEFAULT_MESHNAME_PANELL10 = "SSU\\panelL10_IUS";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 

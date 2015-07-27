@@ -49,6 +49,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "ASE_IUS.h"
 #include "MechActuator.h"
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
@@ -71,6 +72,7 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL10.h"
 #include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
 #include <cassert>
@@ -482,6 +484,7 @@ pActiveLatches(3, NULL)
 
   pPanelA8 = NULL;
   pA7A8Panel = NULL;
+	pPanelL10 = NULL;
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
@@ -598,6 +601,7 @@ pActiveLatches(3, NULL)
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
   
+	pASE_IUS = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -779,6 +783,7 @@ pActiveLatches(3, NULL)
   hHeatShieldMesh       = oapiLoadMeshGlobal ("SSU/SSU_entry");
   hDevOrbiterMesh = NULL;
   hDevHeatShieldMesh = NULL;
+	hDevVCMesh = NULL;
 
 
   ControlSurfacesEnabled = false;
@@ -788,7 +793,6 @@ pActiveLatches(3, NULL)
   do_eva          = false;
   do_plat         = false;
   do_cargostatic  = false;
-  vis             = NULL;
   ahHDP			= NULL;
   ahTow			= NULL;
   ahDockAux		= NULL;
@@ -2240,6 +2244,8 @@ The same starboard
 22. RSRB
 */
 	CreateETAndSRBAttachments(ofs0);
+
+	if (pASE_IUS) pASE_IUS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
@@ -2340,6 +2346,8 @@ void Atlantis::AddOrbiterVisual()
 		pA7A8Panel->Realize();*/
 	}
 	if(pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+
+	if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
 
 	pgForward.DefineVC();
 	pgForward.DefineVCAnimations(mesh_vc);
@@ -3181,6 +3189,13 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			{
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
+			}
+
+			if (pMission->UseASE_IUS())
+			{
+				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
+				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
 			}
 
 			bHasKUBand = pMission->HasKUBand();
@@ -4575,6 +4590,7 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
   oapiWriteLog("GETTING DEVMESH");
   hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
+	hDevVCMesh = GetDevMesh( vis, mesh_vc );
 
 #ifdef UNDEF
   // note: orbiter re-applies the animations to the mesh before calling
@@ -4606,6 +4622,19 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
 	  if(!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON+i, &grpSpec);
   }
 
+	// update UVs for talkbacks and lights
+	oapiWriteLog( "Started Panels UpdateUVState" );
+	pgForward.UpdateUVState();
+	pgLeft.UpdateUVState();
+	pgCenter.UpdateUVState();
+	pgRight.UpdateUVState();
+	pgOverhead.UpdateUVState();
+	pgOverheadAft.UpdateUVState();
+	pgAftStbd.UpdateUVState();
+	pgAft.UpdateUVState();
+	pgAftPort.UpdateUVState();
+	oapiWriteLog( "Ended Panels UpdateUVState" );
+
   oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
@@ -4616,6 +4645,7 @@ void Atlantis::clbkVisualDestroyed (VISHANDLE _vis, int refcount)
 {
   if (vis == _vis) vis = NULL;
   hDevHeatShieldMesh = NULL;
+	hDevVCMesh = NULL;
 }
 
 // --------------------------------------------------------------

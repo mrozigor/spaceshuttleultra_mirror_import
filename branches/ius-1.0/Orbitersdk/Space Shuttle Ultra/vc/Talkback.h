@@ -97,6 +97,41 @@ namespace vc
 		unsigned short flags[MAX_INPUTS];
 		DiscInPort input[MAX_INPUTS];
 	};
+
+	const float TALKBACK_U_OFFSET[15] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.250980f, 0.250980f, 0.0f, 0.250980f, 0.250980f, 0.250980f, 0.250980f, 0.250980f, 0.501961f};
+	const float TALKBACK_V_OFFSET[15] = {0.0f, 0.564706f, 0.282353f, 0.705882f, 0.847059f, 0.423529f, 0.0f, 0.141176f, 0.141176f, 0.282353f, 0.423529f, 0.564706f, 0.705882f, 0.847059f, 0.0f};
+
+	class StandardTalkback_2 : public BasicTalkback
+	{
+	protected:
+		unsigned short usInputs;
+		unsigned short usInactiveFlag;
+		unsigned short tkbk_state;
+		unsigned short tkbk_default_state;
+		unsigned short tkbk_next_state;
+		UINT panelmesh;
+		UINT grpIndex;
+
+		void UpdateUV( void );
+
+	public:
+		// maximum number of different inputs to talkback
+		static const int MAX_INPUTS = 3;
+
+		StandardTalkback_2(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs=MAX_INPUTS);
+		virtual ~StandardTalkback_2();
+
+		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
+
+		void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
+		void SetInitialState( unsigned short _usFlag );
+		void SetInput(unsigned short idx, DiscreteBundle* pBundle, unsigned short usLine, unsigned short usFlag);
+		void SetInactiveSegment( unsigned short _usFlag );
+		virtual void UpdateUVState( void );
+
+		unsigned short flags[MAX_INPUTS];
+		DiscInPort input[MAX_INPUTS];
+	};
 };
 
 #endif //__TALKBACK_H
