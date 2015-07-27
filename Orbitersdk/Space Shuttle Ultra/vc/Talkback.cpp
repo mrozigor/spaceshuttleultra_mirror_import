@@ -208,4 +208,122 @@ namespace vc
 		
 		return true;
 	}
+
+	StandardTalkback_2::StandardTalkback_2(Atlantis* _sts, const std::string& _ident, unsigned short _usInputs)
+		: BasicTalkback(_sts, _ident)
+	{
+		assert(_usInputs <= MAX_INPUTS);
+		usInputs=_usInputs;
+		usInactiveFlag=TB_BARBERPOLE;
+		grpIndex = 0;
+		tkbk_state = TB_BARBERPOLE;
+		tkbk_next_state = TB_BARBERPOLE;
+		tkbk_default_state = TB_BARBERPOLE;
+		panelmesh = (UINT)(-1);;
+	}
+
+	StandardTalkback_2::~StandardTalkback_2()
+	{
+	}
+
+	void StandardTalkback_2::OnPreStep(double SimT, double DeltaT, double MJD)
+	{
+		for(int i=0;i<usInputs;i++) {
+			if(input[i]) {
+				if(flags[i]!=tkbk_state)
+				{
+					tkbk_next_state = flags[i];
+					UpdateUV();
+				}
+				return;
+			}
+		}
+		
+		if(tkbk_state!=usInactiveFlag)
+		{
+			tkbk_next_state = usInactiveFlag;
+			UpdateUV();
+		}
+	}
+
+	void StandardTalkback_2::UpdateUV( void )
+	{
+		if (STS()->vis == 0) return;
+		MESHHANDLE panelTemplate = STS()->GetMeshTemplate( panelmesh );
+		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex );
+		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
+
+		NTVERTEX* Vtx = new NTVERTEX[mg->nVtx];
+		for (unsigned short i = 0; i < mg->nVtx; i++)
+		{
+			Vtx[i].tu = mg->Vtx[i].tu + TALKBACK_U_OFFSET[tkbk_next_state];
+			Vtx[i].tv = mg->Vtx[i].tv + TALKBACK_V_OFFSET[tkbk_next_state];
+		}
+		tkbk_state = tkbk_next_state;
+
+		GROUPEDITSPEC grpSpec;
+		grpSpec.flags = GRPEDIT_VTXTEX;
+		grpSpec.Vtx = Vtx;
+		grpSpec.nVtx = mg->nVtx;
+		grpSpec.vIdx = NULL;
+
+		oapiEditMeshGroup( hDevpanelmesh, grpIndex, &grpSpec );
+
+		delete[] Vtx;
+		/*
+		if (STS()->hDevVCMesh == 0) return;
+		MESHHANDLE VCMeshTemplate = STS()->GetMeshTemplate( STS()->mesh_vc );
+		MESHGROUPEX* mg = oapiMeshGroupEx( VCMeshTemplate, grpIndex );
+
+		NTVERTEX* Vtx = new NTVERTEX[mg->nVtx];
+		for (unsigned short i = 0; i < mg->nVtx; i++)
+		{
+			Vtx[i].tu = mg->Vtx[i].tu + TALKBACK_U_OFFSET[tkbk_next_state];
+			Vtx[i].tv = mg->Vtx[i].tv + TALKBACK_V_OFFSET[tkbk_next_state];
+		}
+		tkbk_state = tkbk_next_state;
+
+		GROUPEDITSPEC grpSpec;
+		grpSpec.flags = GRPEDIT_VTXTEX;
+		grpSpec.Vtx = Vtx;
+		grpSpec.nVtx = mg->nVtx;
+		grpSpec.vIdx = NULL;
+		oapiEditMeshGroup( STS()->hDevVCMesh, grpIndex, &grpSpec );
+
+		delete[] Vtx;
+		*/
+		return;
+	}
+
+	void StandardTalkback_2::DefineMeshGroup( UINT _panelmesh, UINT _grpIndex )
+	{
+		panelmesh = _panelmesh;
+		grpIndex = _grpIndex;
+		return;
+	}
+
+	void StandardTalkback_2::SetInitialState( unsigned short _usFlag )
+	{
+		tkbk_default_state = _usFlag;
+		tkbk_state = _usFlag;
+		return;
+	}
+
+	void StandardTalkback_2::SetInput(unsigned short idx, DiscreteBundle* pBundle, unsigned short usLine, unsigned short usFlag)
+	{
+		input[idx].Connect(pBundle, usLine);
+		flags[idx]=usFlag;
+	}
+
+	void StandardTalkback_2::SetInactiveSegment( unsigned short _usFlag )
+	{
+		usInactiveFlag=_usFlag;
+	}
+
+	void StandardTalkback_2::UpdateUVState( void )
+	{
+		tkbk_state = tkbk_default_state;// return state to default
+		UpdateUV();
+		return;
+	}
 };

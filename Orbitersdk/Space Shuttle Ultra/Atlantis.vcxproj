@@ -248,6 +248,7 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ASE_IUS.cpp" />
     <ClCompile Include="commDeployedAssembly.cpp" />
     <ClCompile Include="commGCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
@@ -369,6 +370,7 @@
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
+    <ClCompile Include="vc\PanelL10.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
@@ -393,6 +395,7 @@
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="commGCIL.h" />
     <ClInclude Include="DeployedAssembly.h" />
@@ -421,6 +424,7 @@
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="meshres_vc_l10.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -502,6 +506,7 @@
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelL10.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />

@@ -213,6 +213,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class ASE_IUS;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -340,6 +341,8 @@ public:
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
+
+	ASE_IUS* pASE_IUS;
 
 	PayloadBay* pPayloadBay;
 
@@ -633,7 +636,8 @@ public:
 	 * Pointer to the A8 (RMS) panel region
 	 */
 	vc::AtlantisPanel* pPanelA8;
-	
+
+	vc::AtlantisPanel* pPanelL10;
 
 
 	AerosurfacePositions aerosurfaces;
@@ -656,6 +660,7 @@ public:
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
+	DEVMESHHANDLE hDevVCMesh;
 	char cargo_static_mesh_name[256];
 
 	//C-P attachments

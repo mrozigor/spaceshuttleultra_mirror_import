@@ -58,6 +58,7 @@ namespace vc {
 		bool ToggleCoordinateDisplayMode();
 		void HidePanels();
 		void ShowPanels();
+		void UpdateUVState();
 	};
 
 	template <class TVessel>
@@ -234,5 +235,12 @@ namespace vc {
 	{
 		for(unsigned int i=0;i<panels.size();i++)
 			panels.at(i)->SetMeshVisibility(true);
+	}
+
+	template <class TVessel>
+	void PanelGroup<TVessel>::UpdateUVState()
+	{
+		for(unsigned int i = 0; i<panels.size(); i++)
+			panels.at(i)->UpdateUVState();
 	}
 };

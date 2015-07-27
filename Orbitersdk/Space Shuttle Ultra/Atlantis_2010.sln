@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltraTests", "..\libUltr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_SLC6", "SLC6\SSU_SLC6.vcxproj", "{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_IUS", "IUS\SSU_IUS.vcxproj", "{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis (Debug)|Win32 = Analysis (Debug)|Win32
@@ -136,6 +138,12 @@ Global
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Debug|Win32.Build.0 = Debug|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.ActiveCfg = Release|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.Build.0 = Release|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Debug|Win32.Build.0 = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Release|Win32.ActiveCfg = Release|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

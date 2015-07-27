@@ -62,6 +62,9 @@ namespace mission {
 		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
 		bLogSSMEData = false;
+
+		bUseASE_IUS = false;
+		bASE_IUS_Aft_Location = false;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -173,6 +176,9 @@ namespace mission {
 		if (strOrbiter == "Columbia") oapiReadItem_bool( hFile, "SILTS", bUseSILTS );
 
 		oapiReadItem_bool( hFile, "LogSSMEData", bLogSSMEData );
+
+		oapiReadItem_bool( hFile, "UseASE_IUS", bUseASE_IUS );
+		oapiReadItem_bool( hFile, "ASE_IUS_AftLocation", bASE_IUS_Aft_Location );
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -368,5 +374,15 @@ namespace mission {
 	bool Mission::LogSSMEData() const
 	{
 		return bLogSSMEData;
+	}
+
+	bool Mission::UseASE_IUS() const
+	{
+		return bUseASE_IUS;
+	}
+
+	bool Mission::IsASELocationAft() const
+	{
+		return bASE_IUS_Aft_Location;
 	}
 };
