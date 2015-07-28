@@ -77,6 +77,8 @@ class ASE_IUS:public AtlantisSubsystem
 		ATTACHMENTHANDLE hIUSattach;
 		VECTOR3 IUSattachpoints[3];
 
+		bool firststep;
+
 		DiscInPort pTiltTableActuatorDriveEnablePri1Intermediate;
 		DiscInPort pTiltTableActuatorDriveEnablePri1Maximum;
 		DiscInPort pTiltTableActuatorDriveEnableAlt2Intermediate;
@@ -114,8 +116,10 @@ class ASE_IUS:public AtlantisSubsystem
 
 		virtual void Realize();
 		virtual void OnPreStep( double SimT, double DeltaT, double MJD );
+		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 		virtual bool OnParseLine( const char* line );
 		virtual void OnSaveState( FILEHANDLE scn ) const;
+		bool SingleParamParseLine() const {return true;};
 		virtual double GetSubsystemEmptyMass() const;
 		void AddMesh();
 		void DefineAnimations();

@@ -10,6 +10,10 @@ ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):Atlan
 
 	hIUSattach = NULL;
 
+	asTiltTable.Set( AnimState::STOPPED, 0.090909 );// 0º position
+
+	firststep = true;
+
 	// TODO "use" attachment 7 (aft active keel)
 
 	if (AftLocation == true)
@@ -83,6 +87,11 @@ void ASE_IUS::Realize()
 
 void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 {
+	if (firststep)// set initial animation/attachment (part 1)
+	{
+		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
+	}
+
 	// panel inputs
 	PyroBusPri = pPyroBusPriOn.IsSet() | (PyroBusPri & !pPyroBusPriOff.IsSet());
 	PyroBusAlt = pPyroBusAltOn.IsSet() | (PyroBusAlt & !pPyroBusAltOff.IsSet());
@@ -137,12 +146,21 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	return;
 }
 
+void ASE_IUS::OnPostStep( double SimT, double DeltaT, double MJD )
+{
+	if (firststep)// set initial animation/attachment (part 2)
+	{
+		STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
+		firststep = false;
+	}
+	return;
+}
+
 bool ASE_IUS::OnParseLine( const char* line )
 {
 	if (!_strnicmp( line, "TILT_TABLE", 10 ))
 	{
 		sscan_state( (char*)(line + 10), asTiltTable );
-		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
 		return true;
 	}
 	else return false;
@@ -184,7 +202,6 @@ void ASE_IUS::DefineAnimations()
 	};
 	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 11, _V( 0, 0.3985, -1.3304 ), _V( -1, 0, 0 ), (float)(66.0 * RAD) );
 	animTiltTable = STS()->CreateAnimation( 0.090909 );// 0º position
-	asTiltTable.Set( AnimState::STOPPED, 0.090909 );// 0º position
 	STS()->AddAnimationComponent( animTiltTable, 0, 1, &TiltTable_Rotate );
 
 	static MGROUP_ROTATE IUSattachment_Rotate( LOCALVERTEXLIST, MAKEGROUPARRAY( IUSattachpoints ), 3, _V( 0, 0.3985, -1.3304 ) + ASEoffset, _V( -1, 0, 0 ), (float)(66.0 * RAD) );
@@ -208,10 +225,3 @@ bool ASE_IUS::IsIUSAttached()
 {
 	return (STS()->GetAttachmentStatus( hIUSattach ) != NULL);
 }
-
-
-/*
-
-2404
-
-*/
