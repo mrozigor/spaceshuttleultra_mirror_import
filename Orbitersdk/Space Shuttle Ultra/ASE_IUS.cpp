@@ -7,6 +7,10 @@ ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):Atlan
 	PyroBusAlt = false;
 	IUSDeploymentEnaPri = false;
 	IUSDeploymentEnaAlt = false;
+	TiltTableActuatorMotionPri1Lower = false;
+	TiltTableActuatorMotionPri1Raise = false;
+	TiltTableActuatorMotionAlt2Lower = false;
+	TiltTableActuatorMotionAlt2Raise = false;
 
 	hIUSattach = NULL;
 
@@ -53,8 +57,8 @@ void ASE_IUS::Realize()
 	pTiltTableActuatorMotionPri1Raise.Connect( pBundle, 1 );
 	pTiltTableActuatorMotionAlt2Lower.Connect( pBundle, 2 );
 	pTiltTableActuatorMotionAlt2Raise.Connect( pBundle, 3 );
-	// tb
-	// tb
+	pTiltTableActuatorMotionPri1TB.Connect( pBundle, 4 );
+	pTiltTableActuatorMotionAlt2TB.Connect( pBundle, 5 );
 	// tb
 	// tb
 	// tb
@@ -98,25 +102,30 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	IUSDeploymentEnaPri = (pIUSDeploymentEnaPriEnable.IsSet() | (IUSDeploymentEnaPri & !pIUSDeploymentEnaPriOff.IsSet())) & PyroBusPri;
 	IUSDeploymentEnaAlt = (pIUSDeploymentEnaAltEnable.IsSet() | (IUSDeploymentEnaAlt & !pIUSDeploymentEnaAltOff.IsSet())) & PyroBusAlt;
 
+	TiltTableActuatorMotionPri1Lower = (pTiltTableActuatorMotionPri1Lower.IsSet() | TiltTableActuatorMotionPri1Lower) & (pTiltTableActuatorDriveEnablePri1Maximum.IsSet() | pTiltTableActuatorDriveEnablePri1Intermediate.IsSet());
+	TiltTableActuatorMotionPri1Raise = (pTiltTableActuatorMotionPri1Raise.IsSet() | TiltTableActuatorMotionPri1Raise) & (pTiltTableActuatorDriveEnablePri1Maximum.IsSet() | pTiltTableActuatorDriveEnablePri1Intermediate.IsSet());
+	TiltTableActuatorMotionAlt2Lower = (pTiltTableActuatorMotionAlt2Lower.IsSet() | TiltTableActuatorMotionAlt2Lower) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
+	TiltTableActuatorMotionAlt2Raise = (pTiltTableActuatorMotionAlt2Raise.IsSet() | TiltTableActuatorMotionAlt2Raise) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
+
 	// move tilt table
 	double speed_1 = (ASE_IUS_TILT_TABLE_INTERMEDIATE_SPEED * (int)pTiltTableActuatorDriveEnablePri1Intermediate.IsSet()) + 
 		(ASE_IUS_TILT_TABLE_MAXIMUM_SPEED * (int)pTiltTableActuatorDriveEnablePri1Maximum.IsSet());
 	double speed_2 = (ASE_IUS_TILT_TABLE_INTERMEDIATE_SPEED * (int)pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet()) + 
 		(ASE_IUS_TILT_TABLE_MAXIMUM_SPEED * (int)pTiltTableActuatorDriveEnableAlt2Maximum.IsSet());
-	double da = DeltaT * 
-		(((int)pTiltTableActuatorMotionPri1Raise.IsSet() * speed_1) + 
-		(-(int)pTiltTableActuatorMotionPri1Lower.IsSet() * speed_1) + 
-		((int)pTiltTableActuatorMotionAlt2Raise.IsSet() * (speed_2)) + 
-		(-(int)pTiltTableActuatorMotionAlt2Lower.IsSet() * (speed_2)));
 
-	if (da > 0) // raise
+	if (TiltTableActuatorMotionPri1Raise | TiltTableActuatorMotionAlt2Raise) // raise
 	{
+		double da = DeltaT * (
+			((int)TiltTableActuatorMotionPri1Raise * speed_1) + 
+			((int)TiltTableActuatorMotionAlt2Raise * (speed_2)));
 		asTiltTable.action = AnimState::OPENING;
 		asTiltTable.Move( da );
 	}
-	else if (da < 0)// lower
+	else if (TiltTableActuatorMotionPri1Lower | TiltTableActuatorMotionAlt2Lower)// lower
 	{
-		da = -da;
+		double da = DeltaT * (
+			((int)TiltTableActuatorMotionPri1Lower * speed_1) + 
+			((int)TiltTableActuatorMotionAlt2Lower * (speed_2)));
 		asTiltTable.action = AnimState::CLOSING;
 		if ((IsIUSAttached() == true) && ((asTiltTable.pos - da) < 0.090909)) da = asTiltTable.pos - 0.090909;// limit motion if IUS still attached
 		asTiltTable.Move( da );
@@ -136,6 +145,9 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 
 	pIUSDeploymentEnaPriTB.SetLine( (int)IUSDeploymentEnaPri * 5.0f );
 	pIUSDeploymentEnaAltTB.SetLine( (int)IUSDeploymentEnaAlt * 5.0f );
+
+	pTiltTableActuatorMotionPri1TB.SetLine( (int)(TiltTableActuatorMotionPri1Lower | TiltTableActuatorMotionPri1Raise) * 5.0f );
+	pTiltTableActuatorMotionAlt2TB.SetLine( (int)(TiltTableActuatorMotionAlt2Lower | TiltTableActuatorMotionAlt2Raise) * 5.0f );
 
 	// run tilt table animation
 	if (asTiltTable.Moving())

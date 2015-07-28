@@ -65,6 +65,10 @@ class ASE_IUS:public AtlantisSubsystem
 		bool PyroBusAlt;
 		bool IUSDeploymentEnaPri;
 		bool IUSDeploymentEnaAlt;
+		bool TiltTableActuatorMotionPri1Lower;
+		bool TiltTableActuatorMotionPri1Raise;
+		bool TiltTableActuatorMotionAlt2Lower;
+		bool TiltTableActuatorMotionAlt2Raise;
 
 		UINT mesh_index;
 		MESHHANDLE hMesh;
@@ -107,6 +111,9 @@ class ASE_IUS:public AtlantisSubsystem
 
 		DiscOutPort pIUSDeploymentEnaPriTB;
 		DiscOutPort pIUSDeploymentEnaAltTB;
+
+		DiscOutPort pTiltTableActuatorMotionPri1TB;
+		DiscOutPort pTiltTableActuatorMotionAlt2TB;
 
 		bool IsIUSAttached();
 
