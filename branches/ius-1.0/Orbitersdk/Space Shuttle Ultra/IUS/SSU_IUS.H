@@ -32,9 +32,9 @@
 const static char* STAGE_1_MESHNAME = "SSU\\IUS\\IUS_SRM1";
 const static char* STAGE_2_MESHNAME = "SSU\\IUS\\IUS_SRM2";
 
-const int STAGE2_EEC_STRUTS_GRP = 4;// TODO animate struts
-const int STAGE2_EEC_STRUTS_BRACKETS_GRP = 5;// TODO animate struts
-const int STAGE2_ECC_GRP = 9;
+const int STAGE2_EEC_STRUTS_GRP = 5;
+const int STAGE2_EEC_STRUTS_BRACKETS_GRP = 6;
+const int STAGE2_ECC_GRP = 10;
 
 const VECTOR3 SRM1_POS = _V( 0, 0, -4.1 );
 const VECTOR3 SRM1_DIR = _V( 0, 0, 1 );
