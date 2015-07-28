@@ -207,10 +207,16 @@ void SSU_IUS::clbkPostStep(double simt, double simdt, double mjd)
 
 void SSU_IUS::DefineAnimations(void)
 {
-	static UINT EECGrp[1] = {STAGE2_ECC_GRP};
-	static MGROUP_TRANSLATE NOZZLE( mesh_stage2, EECGrp, 1, _V( 0, 0, -0.5 ) );
+	double animstart = STAGE2_EEC_DEPLOY_DELAY / (STAGE2_EEC_DEPLOY_DELAY + (1 / STAGE2_EEC_DEPLOY_RATE));
+
+	static UINT EECGrp[2] = {STAGE2_ECC_GRP, STAGE2_EEC_STRUTS_BRACKETS_GRP};
+	static MGROUP_TRANSLATE NOZZLE( mesh_stage2, EECGrp, 2, _V( 0, 0, -0.5 ) );
 	anim_EXTENDNOZZLE = CreateAnimation( 0.0 );
-	AddAnimationComponent(anim_EXTENDNOZZLE, STAGE2_EEC_DEPLOY_DELAY / (STAGE2_EEC_DEPLOY_DELAY + (1 / STAGE2_EEC_DEPLOY_RATE)), 1, &NOZZLE);
+	AddAnimationComponent(anim_EXTENDNOZZLE, animstart, 1, &NOZZLE);
+
+	static UINT EECStrutsGrp[1] = {STAGE2_EEC_STRUTS_GRP};
+	static MGROUP_SCALE NOZZLE_STRUTS( mesh_stage2, EECStrutsGrp, 1, _V( 0, 0, -0.2308 ), _V( 1, 1, 14 ) );
+	AddAnimationComponent( anim_EXTENDNOZZLE, animstart, 1, &NOZZLE_STRUTS );
 
 	asEXTENDNOZZLE.Set( AnimState::CLOSED, 0.0 );
 	SetAnimation( anim_EXTENDNOZZLE, asEXTENDNOZZLE.pos );
