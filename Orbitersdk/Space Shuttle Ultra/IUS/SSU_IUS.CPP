@@ -20,6 +20,9 @@ SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL2( hObj )
 {
 	MainExternalMeshVisual = NULL;
 	thg_main = NULL;
+
+	propload[0] = 1;
+	propload[1] = 1;
 	
 	separated = false;
 	STAGE1separated = false;
@@ -74,7 +77,7 @@ void SSU_IUS::clbkSetClassCaps(FILEHANDLE cfg)
 	AddExhaust( th_main[0], 5, 0.5 ); //EXHAUST location OF 1ST STAGE
 	AddExhaustStream( th_main[0], &psSRM );
 
-	th_main[1] = CreateThruster( SRM2_POS, SRM2_DIR, STAGE2_THRUST_VAC, ph_main[1], STAGE2_ISP_VAC );//THRUSTER FOR 2ND STAGE ALONE
+	th_main[1] = CreateThruster( SRM2_POS, SRM2_DIR, STAGE2_THRUST_VAC, ph_main[1], STAGE2_EEC_ISP_VAC );//THRUSTER FOR 2ND STAGE ALONE
 	AddExhaust( th_main[1], 5, 0.5 ); //EXHAUST location OF 2ND STAGE
 	AddExhaustStream( th_main[1], &psSRM );
 
@@ -329,12 +332,14 @@ void SSU_IUS::clbkSaveState(FILEHANDLE scn)
 
 	if (STAGE1separated == true) oapiWriteLine( scn, "  STAGE2" );
 
-	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// small sanity checks
+	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// only save if used
 	{
 		oapiWriteScenario_string( scn, "ADAPTER_MESH", (char*)AdapterMeshName.c_str() );
 		oapiWriteScenario_float( scn, "ADAPTER_OFFSET", AdapterOffset );
 		oapiWriteScenario_float( scn, "ADAPTER_MASS", AdapterMass );
 	}
+	if (propload[0] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE1", propload[0] );
+	if (propload[1] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE2", propload[1] );
 }
 
 void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
@@ -348,6 +353,26 @@ void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if (!_strnicmp(line, "STAGE2", 6)) {
 			STAGE1separated = true;
 			SetStage2Config();
+		}
+		else if (!_strnicmp( line, "LOAD_STAGE1", 11 ))
+		{
+			double tmp = 0;
+			sscanf( line + 11, "%lf", &tmp );
+			if ((tmp >= 0.5) && (tmp <= 1))
+			{
+				propload[0] = tmp;
+				SetPropellantMaxMass( ph_main[0], GetPropellantMaxMass( ph_main[0] ) * propload[0] );
+			}
+		}
+		else if (!_strnicmp( line, "LOAD_STAGE2", 11 ))
+		{
+			double tmp = 0;
+			sscanf( line + 11, "%lf", &tmp );
+			if ((tmp >= 0.5) && (tmp <= 1))
+			{
+				propload[1] = tmp;
+				SetPropellantMaxMass( ph_main[1], GetPropellantMaxMass( ph_main[1] ) * propload[1] );
+			}
 		}
 		else if (!_strnicmp( line, "ADAPTER_MESH", 12 ))
 		{
