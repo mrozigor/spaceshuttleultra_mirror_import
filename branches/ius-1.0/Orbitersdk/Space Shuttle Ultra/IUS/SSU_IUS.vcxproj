@@ -89,6 +89,7 @@
     <ClCompile Include="SSU_IUS.CPP" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="meshres_IUS_SRM2.h" />
     <ClInclude Include="SSU_IUS.H" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

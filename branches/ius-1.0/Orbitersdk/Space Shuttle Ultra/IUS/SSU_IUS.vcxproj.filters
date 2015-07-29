@@ -23,5 +23,8 @@
     <ClInclude Include="SSU_IUS.H">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_IUS_SRM2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 
 
 #include "SSU_IUS.h"
+#include "meshres_IUS_SRM2.h"
 
 
 DLLCLBK VESSEL *ovcInit( OBJHANDLE hvessel, int flightmodel )
@@ -209,12 +210,12 @@ void SSU_IUS::DefineAnimations(void)
 {
 	double animstart = STAGE2_EEC_DEPLOY_DELAY / (STAGE2_EEC_DEPLOY_DELAY + (1 / STAGE2_EEC_DEPLOY_RATE));
 
-	static UINT EECGrp[2] = {STAGE2_ECC_GRP, STAGE2_EEC_STRUTS_BRACKETS_GRP};
+	static UINT EECGrp[2] = {GRP_EXTENDABLE_EXITCONE_IUS_SRM2, GRP_EEC_STRUTS_BRACKETS_IUS_SRM2};
 	static MGROUP_TRANSLATE NOZZLE( mesh_stage2, EECGrp, 2, _V( 0, 0, -0.5 ) );
 	anim_EXTENDNOZZLE = CreateAnimation( 0.0 );
 	AddAnimationComponent(anim_EXTENDNOZZLE, animstart, 1, &NOZZLE);
 
-	static UINT EECStrutsGrp[1] = {STAGE2_EEC_STRUTS_GRP};
+	static UINT EECStrutsGrp[1] = {GRP_EEC_STRUTS_IUS_SRM2};
 	static MGROUP_SCALE NOZZLE_STRUTS( mesh_stage2, EECStrutsGrp, 1, _V( 0, 0, -0.2308 ), _V( 1, 1, 14 ) );
 	AddAnimationComponent( anim_EXTENDNOZZLE, animstart, 1, &NOZZLE_STRUTS );
 
