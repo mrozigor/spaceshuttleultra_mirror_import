@@ -368,7 +368,7 @@ namespace vc
 
 		pPanelMode->SetInitialAnimState( 0.5f );
 		pPanelMode->DefineSwitchGroup( GRP_L10TOGGLE1_VC );
-		pPanelMode->SetReference( _V( -1.4704, 2.3879, 13.5557 ), SWITCH_ROT );
+		pPanelMode->SetReference( _V( -1.4702, 2.3884, 13.5557 ), SWITCH_ROT );
 		pPanelMode->SetMouseRegion( 0.852753f, 0.124612f, 0.882422f, 0.166456f );
 		pPanelMode->SetPullDirection( SWITCH_PULL );
 
@@ -636,14 +636,14 @@ namespace vc
 
 		pTiltTableActuatorAltDrAct1->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorAltDrAct1->DefineSwitchGroup( GRP_L10TOGGLE2_VC );
-		pTiltTableActuatorAltDrAct1->SetReference( _V( -1.1769, 2.2007, 13.5538 ), SWITCH_ROT );
+		pTiltTableActuatorAltDrAct1->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
 		pTiltTableActuatorAltDrAct1->SetMouseRegion( 0.754145f, 0.717768f, 0.787739f, 0.759606f );
 		pTiltTableActuatorAltDrAct1->SetPullDirection( SWITCH_PULL );
 		pTiltTableActuatorAltDrAct1->SetSpringLoaded( true, 1 );
 
 		pCmdPathEnabled->SetInitialAnimState( 0.5f );
 		pCmdPathEnabled->DefineSwitchGroup( GRP_L10TOGGLE3_VC );
-		pCmdPathEnabled->SetReference( _V( -1.1769, 2.2007, 13.5538 ), SWITCH_ROT );
+		pCmdPathEnabled->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
 		pCmdPathEnabled->SetMouseRegion( 0.838003f, 0.717705f, 0.870962f, 0.759780f );
 		pCmdPathEnabled->SetPullDirection( SWITCH_PULL );
 
@@ -677,14 +677,14 @@ namespace vc
 
 		pUmbilicalsRelPri->SetInitialAnimState( 0.5f );
 		pUmbilicalsRelPri->DefineSwitchGroup( GRP_L10TOGGLE4_VC );
-		pUmbilicalsRelPri->SetReference( _V( -1.0922, 2.1459, 13.3103 ), SWITCH_ROT );
+		pUmbilicalsRelPri->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
 		pUmbilicalsRelPri->SetMouseRegion( 0.395237f, 0.887448f, 0.424710f, 0.930452f );
 		pUmbilicalsRelPri->SetPullDirection( SWITCH_PULL );
 		pUmbilicalsRelPri->SetSpringLoaded( true, 1 );
 
 		pUmbilicalsRelAlt->SetInitialAnimState( 0.5f );
 		pUmbilicalsRelAlt->DefineSwitchGroup( GRP_L10TOGGLE5_VC );
-		pUmbilicalsRelAlt->SetReference( _V( -1.0922, 2.1459, 13.3103 ), SWITCH_ROT );
+		pUmbilicalsRelAlt->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
 		pUmbilicalsRelAlt->SetMouseRegion( 0.449887f, 0.889443f, 0.480940f, 0.931571f );
 		pUmbilicalsRelAlt->SetPullDirection( SWITCH_PULL );
 		pUmbilicalsRelAlt->SetSpringLoaded( true, 1 );
@@ -705,21 +705,21 @@ namespace vc
 
 		pIUSDeploymentDpyPri->SetInitialAnimState( 0.5f );
 		pIUSDeploymentDpyPri->DefineSwitchGroup( GRP_L10TOGGLE6_VC );
-		pIUSDeploymentDpyPri->SetReference( _V( -1.0922, 2.1459, 13.3103 ), SWITCH_ROT );
+		pIUSDeploymentDpyPri->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
 		pIUSDeploymentDpyPri->SetMouseRegion( 0.666605f, 0.889142f, 0.699841f, 0.929472f );
 		pIUSDeploymentDpyPri->SetPullDirection( SWITCH_PULL );
 		pIUSDeploymentDpyPri->SetSpringLoaded( true, 1 );
 
 		pIUSDeploymentDpyAlt->SetInitialAnimState( 0.5f );
 		pIUSDeploymentDpyAlt->DefineSwitchGroup( GRP_L10TOGGLE7_VC );
-		pIUSDeploymentDpyAlt->SetReference( _V( -1.0922, 2.1459, 13.3103 ), SWITCH_ROT );
+		pIUSDeploymentDpyAlt->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
 		pIUSDeploymentDpyAlt->SetMouseRegion( 0.726243f, 0.889508f, 0.758000f, 0.929481f );
 		pIUSDeploymentDpyAlt->SetPullDirection( SWITCH_PULL );
 		pIUSDeploymentDpyAlt->SetSpringLoaded( true, 1 );
 
 		pPowerKill->SetInitialAnimState( 0.5f );
 		pPowerKill->DefineSwitchGroup( GRP_L10TOGGLE8_VC );
-		pPowerKill->SetReference( _V( -1.1144, 2.1571, 13.5453 ), SWITCH_ROT );
+		pPowerKill->SetReference( _V( -1.1141, 2.1573, 13.5453 ), SWITCH_ROT );
 		pPowerKill->SetMouseRegion( 0.834209f, 0.848043f, 0.869189f, 0.889788f );
 		pPowerKill->SetPullDirection( SWITCH_PULL );
 		pPowerKill->SetSpringLoaded( true, 1 );
