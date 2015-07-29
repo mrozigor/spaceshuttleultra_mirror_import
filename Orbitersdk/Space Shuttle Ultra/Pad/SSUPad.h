@@ -28,10 +28,36 @@ const double FSS_RBUS_RATE = 0.35;
 const double SRB_SFD_RATE = 0.00333333;// 300sec
 
 //FSS OWP strut animation constants
-const double FSS_OWP_BRACKET_LENGTH = 12.4;
-const double FSS_OWP_STRUT_LENGTH = 18.02;
-const double FSS_OWP_STRUT_OFFSET = 13.427;
-const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
+
+//Measured from mesh:
+//FSS_OWP_BRACKET_LENGTH: 11.8745
+//FSS_OWP_STRUT_OFFSET : 17.305
+//FSS_OWP_STRUT_LENGTH : 17.9491
+//FSS_OWP_STRUT_NULL_ANGLE : 83°s
+
+//FSS_OWP_STRUT_NULL_ANGLE : 72.3892° calculated by given lengths
+//FSS_OWP_BRACKET_LENGTH   : 11.894 m calculated by animations
+//FSS_OWP_STRUT_NULL_ANGLE : 72.4545° calculated by animations
+
+//DaveS: Rail X-Pos is 7.1742
+//FSS_OWP_STRUT_OFFSET : 13.5442 by the new rail position
+//FSS_OWP_STRUT_NULL_ANGLE : 84.725° calculated by rail position
+//DaveS: FSS_OWP_STRUT_LENGTH : 16.7456 m
+//FSS_OWP_STRUT_NULL_ANGLE : 84.345° calculated by new strut length
+
+const VECTOR3 FSS_OWP_BRACKET_ROTATION_REF = _V(-6.37, 0.0, 22);
+const VECTOR3 FSS_OWP_STRUT_ROTATION_REF = _V(5.524, 0.0, 22);
+
+const double FSS_OWP_BRACKET_LENGTH = 11.894;		
+const double FSS_OWP_STRUT_LENGTH = 16.7456;
+const double FSS_OWP_STRUT_OFFSET = 13.5442;
+const double FSS_OWP_STRUT_NULL_ANGLE = 84.345; //angle in degrees
+
+//OLD DATA:
+//const double FSS_OWP_BRACKET_LENGTH = 12.4;
+//const double FSS_OWP_STRUT_LENGTH = 18.02;
+//const double FSS_OWP_STRUT_OFFSET = 13.427;
+//const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int LC39_LIGHT_COUNT = 5;
