@@ -387,6 +387,7 @@ void SSU_IUS::SetStage2Config( void )
 
 	SetSize(3.0);
 	SetEmptyMass( GetEmptyMass() - STAGE1_EMPTYMASS );
+	SetPropellantMass( ph_main[0], 0 );
 	SetCrossSections(_V(4.29,8.18,4.18));
 	SetPMI(_V(.88, .99, .84));
 
