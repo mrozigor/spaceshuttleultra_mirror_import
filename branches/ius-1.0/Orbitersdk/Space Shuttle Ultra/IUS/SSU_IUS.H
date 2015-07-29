@@ -111,6 +111,8 @@ class SSU_IUS:public VESSEL2
 		PROPELLANT_HANDLE ph_main[2];
 		PROPELLANT_HANDLE ph_rcs;
 
+		double propload[2];
+
 		THRUSTER_HANDLE th_main[2];
 		THRUSTER_HANDLE th_rcs[12];
 		THGROUP_HANDLE thg_main;
