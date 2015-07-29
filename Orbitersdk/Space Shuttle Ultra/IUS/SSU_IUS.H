@@ -92,7 +92,7 @@ const double RCS_THRUST_VAC = 157.6;// N (or 133N???)
 const double RCS_ISP_VAC = 320 * G;// m/s
 
 const double RCS_ENA_DELAY = 600;// s
-const double SRM_ENA_DELAY = 600;//3600;// s
+const double SRM_ENA_DELAY = 3600;// s
 
 const double STAGE2_EEC_DEPLOY_RATE = 0.1;// s^-1
 const double STAGE2_EEC_DEPLOY_DELAY = 7;// s
@@ -136,6 +136,7 @@ class SSU_IUS:public VESSEL2
 		void clbkSetClassCaps(FILEHANDLE cfg);
 		void clbkPostStep(double simtt, double simdt, double mjd);
 		void DefineAnimations(void);
+		void clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC );
 		int clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 		void clbkAnimate( double simt );
 		void clbkVisualCreated(VISHANDLE vis, int refcount);
