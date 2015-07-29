@@ -225,6 +225,28 @@ void SSU_IUS::DefineAnimations(void)
 	RegisterAnimation();
 }
 
+void SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC )
+{
+	char cbufRCSprop[64];
+	sprintf_s( cbufRCSprop, 64, "RCS available: %.2fKg", GetPropellantMass( ph_rcs ) );
+	TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbufRCSprop, strlen( cbufRCSprop ) );
+
+	if (ENAtimer_SRM)
+	{
+		char cbufSRMtimer[64];
+		sprintf_s( cbufSRMtimer, 64, "SRM inhibits removed in: %.0fs", timer_SRM - oapiGetSimTime() );
+		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.35), cbufSRMtimer, strlen( cbufSRMtimer ) );
+	}
+
+	if (ENAtimer_RCS)
+	{
+		char cbufRCStimer[64];
+		sprintf_s( cbufRCStimer, 64, "RCS inhibits removed in: %.0fs", timer_RCS - oapiGetSimTime() );
+		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.4), cbufRCStimer, strlen( cbufRCStimer ) );
+	}
+	return;
+}
+
 int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 {
 	if (!down) return 0;
