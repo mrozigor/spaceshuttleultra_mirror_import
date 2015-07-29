@@ -42,35 +42,35 @@ const VECTOR3 SRM2_POS = _V( 0, 0, -1.7 );
 const VECTOR3 SRM2_DIR = _V( 0, 0, 1 );
 
 // REM 1
-const VECTOR3 RCS1_POS = _V( -0.31, 1.53, 0.98 );
-const VECTOR3 RCS1_DIR = _V( 0.0422781, -0.255162, 0.965973 );
-const VECTOR3 RCS2_POS = _V( -0.19, 1.56, 0.98 );
-const VECTOR3 RCS2_DIR = _V( 0.0422746, -0.255462, 0.965894 );
+const VECTOR3 RCS1_POS = _V( -0.2355, 1.3854, 0.8408 );
+const VECTOR3 RCS1_DIR = _V( 0.0, 0.0, 1.0 );
+const VECTOR3 RCS2_POS = _V( -0.1563, 1.3966, 0.8408 );
+const VECTOR3 RCS2_DIR = _V( 0.0, 0.0, 1.0 );
 // REM 6
-const VECTOR3 RCS3_POS = _V( 1.56, 0.14, 0.99 );
-const VECTOR3 RCS3_DIR = _V( -0.258819, -0.965926, 0.0 );
-const VECTOR3 RCS4_POS = _V( 1.56, 0.05, 0.98 );
-const VECTOR3 RCS4_DIR = _V( -0.258819, 0.0, 0.965926 );
+const VECTOR3 RCS3_POS = _V( 1.4055, 0.2083, 0.8598 );
+const VECTOR3 RCS3_DIR = _V( 0.0, -1.0, 0.0 );
+const VECTOR3 RCS4_POS = _V( 1.4051, 0.0609, 0.8408 );
+const VECTOR3 RCS4_DIR = _V( 0.0, 0.0, 1.0 );
 //REM 5
-const VECTOR3 RCS5_POS = _V( 1.56, -0.06, 0.98 );
-const VECTOR3 RCS5_DIR = _V( -0.258819, 0.0, 0.965926 );
-const VECTOR3 RCS6_POS = _V( 1.57, -0.14, 0.99 );
-const VECTOR3 RCS6_DIR = _V( -0.258819, 0.965926, 0.0 );
+const VECTOR3 RCS5_POS = _V( 1.4051, -0.0609, 0.8408 );
+const VECTOR3 RCS5_DIR = _V( 0.0, 0.0, 1.0 );
+const VECTOR3 RCS6_POS = _V( 1.4055, -0.2083, 0.8598 );
+const VECTOR3 RCS6_DIR = _V( 0.0, 1.0, 0.0 );
 // REM 4
-const VECTOR3 RCS7_POS = _V( 0.61, -1.44, 0.98 );
-const VECTOR3 RCS7_DIR = _V( -0.09107, 0.242185, 0.965947 );
-const VECTOR3 RCS8_POS = _V( 0.50, -1.48, 0.98 );
-const VECTOR3 RCS8_DIR = _V( -0.0910628, 0.24249, 0.965871 );
+const VECTOR3 RCS7_POS = _V( 0.2355, -1.3854, 0.8408 );
+const VECTOR3 RCS7_DIR = _V( 0.0, 0.0, 1.0 );
+const VECTOR3 RCS8_POS = _V( 0.1563, -1.3966, 0.8408 );
+const VECTOR3 RCS8_DIR = _V( 0.0, 0.0, 1.0 );
 // REM 3
-const VECTOR3 RCS9_POS = _V( -1.57, -0.13, 0.99 );
-const VECTOR3 RCS9_DIR = _V( 0.258819, 0.965926, 0.0 );
-const VECTOR3 RCS10_POS = _V( -1.57, -0.05, 0.98 );
-const VECTOR3 RCS10_DIR = _V( 0.258819, 0.0, 0.965926 );
+const VECTOR3 RCS9_POS = _V( -1.4055, -0.2083, 0.8598 );
+const VECTOR3 RCS9_DIR = _V( 0.0, 1.0, 0.0 );
+const VECTOR3 RCS10_POS = _V( -1.4051, -0.0609, 0.8408 );
+const VECTOR3 RCS10_DIR = _V( 0.0, 0.0, 1.0 );
 // REM 2
-const VECTOR3 RCS11_POS = _V( -1.57, 0.06, 0.98 );
-const VECTOR3 RCS11_DIR = _V( 0.258819, 0.0, 0.965926 );
-const VECTOR3 RCS12_POS = _V( -1.57, 0.14, 0.99 );
-const VECTOR3 RCS12_DIR = _V( 0.258819, -0.965926, 0.0 );
+const VECTOR3 RCS11_POS = _V( -1.4051, 0.0609, 0.8408 );
+const VECTOR3 RCS11_DIR = _V( 0.0, 0.0, 1.0 );
+const VECTOR3 RCS12_POS = _V( -1.4055, 0.2083, 0.8598 );
+const VECTOR3 RCS12_DIR = _V( 0.0, -1.0, 0.0 );
 
 
 const VECTOR3 STAGE1_OFFSET = _V( 0, 0, -1.95 );
