@@ -269,7 +269,7 @@ void SSUPad::DefineAnimations()
 		static UINT FSS_Y_OWPRotGrp[2] = {GRP_OUTER_OWP_CURTAIN_WALL_PANEL_FSS, 
 			GRP_OUTER_OWP_CURTAIN_WALL_STRUTS_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPRot(fss_mesh_idx, FSS_Y_OWPRotGrp, 2,
-			_V(-6.37, 0.0, 22), _V(0, 1.0, 0.0), (float)(PI/2));
+			FSS_OWP_BRACKET_ROTATION_REF, _V(0, 1.0, 0.0), (float)(PI / 2));
 		anim_fss_y_owp=CreateAnimation(0.0);
 		parent=AddAnimationComponent(anim_fss_y_owp, 0.0, 0.769, &FSS_Y_OWPRot);
 		static UINT FSS_Y_OWPTransGrp[2] = {GRP_INNER_OWP_CURTAIN_WALL_STRUCTURE_FSS, GRP_INNER_OWP_CURTAIN_WALL_PANEL_FSS};
@@ -277,7 +277,7 @@ void SSUPad::DefineAnimations()
 		AddAnimationComponent(anim_fss_y_owp, 0.769, 1.0, &FSS_Y_OWPTrans, parent);
 		static UINT FSS_Y_OWPStrutGrp[1] = {GRP_NORTH_CUTRAIN_WALL_STRUTS_FSS};
 		static MGROUP_ROTATE FSS_Y_OWPStrut(fss_mesh_idx, FSS_Y_OWPStrutGrp, 1,
-			_V(5.524, 0.0, 22.468), _V(0.0, 1.0, 0.0), (float)(PI));
+			FSS_OWP_STRUT_ROTATION_REF, _V(0.0, 1.0, 0.0), (float)(PI));
 		anim_fss_y_owp_strut=CreateAnimation(0.5);
 		AddAnimationComponent(anim_fss_y_owp_strut, 0.0, 1.0, &FSS_Y_OWPStrut, parent);
 		//RSS OWP
@@ -422,7 +422,7 @@ void SSUPad::AnimateFSSOWPStrut()
 	double YPos=FSS_OWP_BRACKET_LENGTH*cos(angle);
 	//calculate angle between struts and OWP bracket
 	double StrutAngle=acos((FSS_OWP_STRUT_OFFSET-YPos)/FSS_OWP_STRUT_LENGTH)+angle;
-	double pos=(FSS_OWP_STRUT_NULL_ANGLE-StrutAngle*DEG)/180.0 + 0.5;
+	double pos = (FSS_OWP_STRUT_NULL_ANGLE - StrutAngle*DEG) / 180.0 + 0.5;
 	pos=min(1, max(0, pos)); //make sure pos value is within limits
 	SetAnimation(anim_fss_y_owp_strut, pos);
 }
