@@ -660,7 +660,6 @@ public:
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
-	DEVMESHHANDLE hDevVCMesh;
 	char cargo_static_mesh_name[256];
 
 	//C-P attachments
