@@ -81,29 +81,29 @@ void SSU_IUS::clbkSetClassCaps(FILEHANDLE cfg)
 	ph_rcs = CreatePropellantResource( RCS_PROPELLANT_MASS );
 
 	th_rcs[0] = CreateThruster( RCS1_POS, RCS1_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[0], 1, 0.05 );
+	AddExhaust( th_rcs[0], 0.5, 0.05 );
 	th_rcs[1] = CreateThruster( RCS2_POS, RCS2_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[1], 1, 0.05 );
+	AddExhaust( th_rcs[1], 0.5, 0.05 );
 	th_rcs[2] = CreateThruster( RCS3_POS, RCS3_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[2], 1, 0.05 );
+	AddExhaust( th_rcs[2], 0.5, 0.05 );
 	th_rcs[3] = CreateThruster( RCS4_POS, RCS4_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[3], 1, 0.05 );
+	AddExhaust( th_rcs[3], 0.5, 0.05 );
 	th_rcs[4] = CreateThruster( RCS5_POS, RCS5_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[4], 1, 0.05 );
+	AddExhaust( th_rcs[4], 0.5, 0.05 );
 	th_rcs[5] = CreateThruster( RCS6_POS, RCS6_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[5], 1, 0.05 );
+	AddExhaust( th_rcs[5], 0.5, 0.05 );
 	th_rcs[6] = CreateThruster( RCS7_POS, RCS7_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[6], 1, 0.05 );
+	AddExhaust( th_rcs[6], 0.5, 0.05 );
 	th_rcs[7] = CreateThruster( RCS8_POS, RCS8_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[7], 1, 0.05 );
+	AddExhaust( th_rcs[7], 0.5, 0.05 );
 	th_rcs[8] = CreateThruster( RCS9_POS, RCS9_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[8], 1, 0.05 );
+	AddExhaust( th_rcs[8], 0.5, 0.05 );
 	th_rcs[9] = CreateThruster( RCS10_POS, RCS10_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[9], 1, 0.05 );
+	AddExhaust( th_rcs[9], 0.5, 0.05 );
 	th_rcs[10] = CreateThruster( RCS11_POS, RCS11_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[10], 1, 0.05 );
+	AddExhaust( th_rcs[10], 0.5, 0.05 );
 	th_rcs[11] = CreateThruster( RCS12_POS, RCS12_DIR, RCS_THRUST_VAC, ph_rcs, RCS_ISP_VAC );
-	AddExhaust( th_rcs[11], 1, 0.05 );
+	AddExhaust( th_rcs[11], 0.5, 0.05 );
 
 	DefineAnimations();
 }
