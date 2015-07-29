@@ -783,7 +783,6 @@ pActiveLatches(3, NULL)
   hHeatShieldMesh       = oapiLoadMeshGlobal ("SSU/SSU_entry");
   hDevOrbiterMesh = NULL;
   hDevHeatShieldMesh = NULL;
-	hDevVCMesh = NULL;
 
 
   ControlSurfacesEnabled = false;
@@ -4590,7 +4589,6 @@ void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
   hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
   oapiWriteLog("GETTING DEVMESH");
   hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
-	hDevVCMesh = GetDevMesh( vis, mesh_vc );
 
 #ifdef UNDEF
   // note: orbiter re-applies the animations to the mesh before calling
@@ -4645,7 +4643,6 @@ void Atlantis::clbkVisualDestroyed (VISHANDLE _vis, int refcount)
 {
   if (vis == _vis) vis = NULL;
   hDevHeatShieldMesh = NULL;
-	hDevVCMesh = NULL;
 }
 
 // --------------------------------------------------------------

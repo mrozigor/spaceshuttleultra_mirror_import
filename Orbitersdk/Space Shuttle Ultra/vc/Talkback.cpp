@@ -253,11 +253,11 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 
-		NTVERTEX* Vtx = new NTVERTEX[mg->nVtx];
+		static NTVERTEX Vtx[8];// all talkbacks seem to have 4 vertices, but we'll play it safe and be ready for 8
 		for (unsigned short i = 0; i < mg->nVtx; i++)
 		{
-			Vtx[i].tu = mg->Vtx[i].tu + TALKBACK_U_OFFSET[tkbk_next_state];
-			Vtx[i].tv = mg->Vtx[i].tv + TALKBACK_V_OFFSET[tkbk_next_state];
+			Vtx[i].tu = mg->Vtx[i].tu + (TALKBACK_U_OFFSET[tkbk_next_state] - TALKBACK_U_OFFSET[tkbk_default_state]);
+			Vtx[i].tv = mg->Vtx[i].tv + (TALKBACK_V_OFFSET[tkbk_next_state] - TALKBACK_V_OFFSET[tkbk_default_state]);
 		}
 		tkbk_state = tkbk_next_state;
 
@@ -268,30 +268,6 @@ namespace vc
 		grpSpec.vIdx = NULL;
 
 		oapiEditMeshGroup( hDevpanelmesh, grpIndex, &grpSpec );
-
-		delete[] Vtx;
-		/*
-		if (STS()->hDevVCMesh == 0) return;
-		MESHHANDLE VCMeshTemplate = STS()->GetMeshTemplate( STS()->mesh_vc );
-		MESHGROUPEX* mg = oapiMeshGroupEx( VCMeshTemplate, grpIndex );
-
-		NTVERTEX* Vtx = new NTVERTEX[mg->nVtx];
-		for (unsigned short i = 0; i < mg->nVtx; i++)
-		{
-			Vtx[i].tu = mg->Vtx[i].tu + TALKBACK_U_OFFSET[tkbk_next_state];
-			Vtx[i].tv = mg->Vtx[i].tv + TALKBACK_V_OFFSET[tkbk_next_state];
-		}
-		tkbk_state = tkbk_next_state;
-
-		GROUPEDITSPEC grpSpec;
-		grpSpec.flags = GRPEDIT_VTXTEX;
-		grpSpec.Vtx = Vtx;
-		grpSpec.nVtx = mg->nVtx;
-		grpSpec.vIdx = NULL;
-		oapiEditMeshGroup( STS()->hDevVCMesh, grpIndex, &grpSpec );
-
-		delete[] Vtx;
-		*/
 		return;
 	}
 
