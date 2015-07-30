@@ -14,7 +14,8 @@ ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):Atlan
 
 	hIUSattach = NULL;
 
-	asTiltTable.Set( AnimState::STOPPED, 0.090909 );// 0º position
+	asTiltTable.Set( AnimState::STOPPED, ASE_IUS_TILT_TABLE_POS_0 );// 0º position
+	oldposition = ASE_IUS_TILT_TABLE_POS_0;
 
 	firststep = true;
 
@@ -59,8 +60,8 @@ void ASE_IUS::Realize()
 	pTiltTableActuatorMotionAlt2Raise.Connect( pBundle, 3 );
 	pTiltTableActuatorMotionPri1TB.Connect( pBundle, 4 );
 	pTiltTableActuatorMotionAlt2TB.Connect( pBundle, 5 );
-	// tb
-	// tb
+	pTiltTableActuatorPositionPri1TB.Connect( pBundle, 6 );
+	pTiltTableActuatorPositionAlt2TB.Connect( pBundle, 7 );
 	// tb
 	// tb
 	//pTiltTableActuatorAltDrAct1->ConnectPort( 1, pBundle, 10 );
@@ -93,6 +94,11 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 {
 	if (firststep)// set initial animation/attachment (part 1)
 	{
+		if ((IsIUSAttached()) && (asTiltTable.pos < ASE_IUS_TILT_TABLE_POS_0))
+		{
+			asTiltTable.pos = ASE_IUS_TILT_TABLE_POS_0;
+			oldposition = asTiltTable.pos;
+		}
 		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
 	}
 
@@ -107,37 +113,64 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	TiltTableActuatorMotionAlt2Lower = (pTiltTableActuatorMotionAlt2Lower.IsSet() | TiltTableActuatorMotionAlt2Lower) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
 	TiltTableActuatorMotionAlt2Raise = (pTiltTableActuatorMotionAlt2Raise.IsSet() | TiltTableActuatorMotionAlt2Raise) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
 
-	// move tilt table
-	double speed_1 = (ASE_IUS_TILT_TABLE_INTERMEDIATE_SPEED * (int)pTiltTableActuatorDriveEnablePri1Intermediate.IsSet()) + 
-		(ASE_IUS_TILT_TABLE_MAXIMUM_SPEED * (int)pTiltTableActuatorDriveEnablePri1Maximum.IsSet());
-	double speed_2 = (ASE_IUS_TILT_TABLE_INTERMEDIATE_SPEED * (int)pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet()) + 
-		(ASE_IUS_TILT_TABLE_MAXIMUM_SPEED * (int)pTiltTableActuatorDriveEnableAlt2Maximum.IsSet());
 
-	if (TiltTableActuatorMotionPri1Raise | TiltTableActuatorMotionAlt2Raise) // raise
+	// move tilt table
+	double da = DeltaT * ASE_IUS_TILT_TABLE_SPEED * (
+		(int)(TiltTableActuatorMotionPri1Raise | TiltTableActuatorMotionAlt2Raise) - 
+		(int)(TiltTableActuatorMotionPri1Lower | TiltTableActuatorMotionAlt2Lower));
+
+	if (da > 0) // raise
 	{
-		double da = DeltaT * (
-			((int)TiltTableActuatorMotionPri1Raise * speed_1) + 
-			((int)TiltTableActuatorMotionAlt2Raise * (speed_2)));
 		asTiltTable.action = AnimState::OPENING;
 		asTiltTable.Move( da );
+		RunAnimation();
 	}
-	else if (TiltTableActuatorMotionPri1Lower | TiltTableActuatorMotionAlt2Lower)// lower
+	else if (da < 0)// lower
 	{
-		double da = DeltaT * (
-			((int)TiltTableActuatorMotionPri1Lower * speed_1) + 
-			((int)TiltTableActuatorMotionAlt2Lower * (speed_2)));
+		da = -da;
 		asTiltTable.action = AnimState::CLOSING;
-		if ((IsIUSAttached() == true) && ((asTiltTable.pos - da) < 0.090909)) da = asTiltTable.pos - 0.090909;// limit motion if IUS still attached
+		if ((IsIUSAttached() == true) && ((asTiltTable.pos - da) < ASE_IUS_TILT_TABLE_POS_0)) da = asTiltTable.pos - ASE_IUS_TILT_TABLE_POS_0;// limit motion if IUS still attached
 		asTiltTable.Move( da );
+		RunAnimation();
 	}
 	else asTiltTable.action = AnimState::STOPPED;// stop
 	
+	// release umbilicals
+	// TODO
+
 	// deploy IUS
 	if ((pIUSDeploymentDpyPriDeploy.IsSet() & IUSDeploymentEnaPri) | (pIUSDeploymentDpyAltDeploy.IsSet() & IUSDeploymentEnaAlt))
 	{
 		// deploy ius
 		STS()->DetachChild( hIUSattach, IUS_JETTISON_VELOCITY );
 	}
+
+
+	// check for actuator stop
+	if (pTiltTableActuatorDriveEnablePri1Intermediate.IsSet())
+	{
+		if ((((asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_28) && (oldposition < ASE_IUS_TILT_TABLE_POS_28)) || 
+			((asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_58) && (oldposition < ASE_IUS_TILT_TABLE_POS_58))) && 
+			(TiltTableActuatorMotionPri1Raise)) TiltTableActuatorMotionPri1Raise = false;
+		if ((oldposition >= ASE_IUS_TILT_TABLE_POS_28) && (asTiltTable.pos < ASE_IUS_TILT_TABLE_POS_28) && (TiltTableActuatorMotionPri1Lower))
+			TiltTableActuatorMotionPri1Lower = false;
+	}
+	if (pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet())
+	{
+		if ((asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_30) && (oldposition < ASE_IUS_TILT_TABLE_POS_30) && (TiltTableActuatorMotionAlt2Raise))
+			TiltTableActuatorMotionAlt2Raise = false;
+		if ((oldposition >= ASE_IUS_TILT_TABLE_POS_30) && (asTiltTable.pos < ASE_IUS_TILT_TABLE_POS_30) && (TiltTableActuatorMotionAlt2Lower))
+			TiltTableActuatorMotionAlt2Lower = false;
+	}
+	if ((asTiltTable.pos == ASE_IUS_TILT_TABLE_POS_06) || (asTiltTable.pos == ASE_IUS_TILT_TABLE_POS_61))
+	{
+		TiltTableActuatorMotionPri1Lower = false;
+		TiltTableActuatorMotionPri1Raise = false;
+		TiltTableActuatorMotionAlt2Lower = false;
+		TiltTableActuatorMotionAlt2Raise = false;
+	}
+	oldposition = asTiltTable.pos;
+
 
 	// panel outputs
 	pPyroBusPriTB.SetLine( (int)PyroBusPri * 5.0f );
@@ -149,12 +182,8 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	pTiltTableActuatorMotionPri1TB.SetLine( (int)(TiltTableActuatorMotionPri1Lower | TiltTableActuatorMotionPri1Raise) * 5.0f );
 	pTiltTableActuatorMotionAlt2TB.SetLine( (int)(TiltTableActuatorMotionAlt2Lower | TiltTableActuatorMotionAlt2Raise) * 5.0f );
 
-	// run tilt table animation
-	if (asTiltTable.Moving())
-	{
-		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
-		STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
-	}
+	pTiltTableActuatorPositionPri1TB.SetLine( (int)(Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_0, 0.001 ) | Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_265, ASE_IUS_TILT_TABLE_DP ) | Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_57, ASE_IUS_TILT_TABLE_DP )) * 5.0f );
+	pTiltTableActuatorPositionAlt2TB.SetLine( (int)(Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_0, 0.001 ) | Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_295, ASE_IUS_TILT_TABLE_DP ) | Eq( asTiltTable.pos, ASE_IUS_TILT_TABLE_POS_595, ASE_IUS_TILT_TABLE_DP )) * 5.0f );
 	return;
 }
 
@@ -173,6 +202,7 @@ bool ASE_IUS::OnParseLine( const char* line )
 	if (!_strnicmp( line, "TILT_TABLE", 10 ))
 	{
 		sscan_state( (char*)(line + 10), asTiltTable );
+		oldposition = asTiltTable.pos;
 		return true;
 	}
 	else return false;
@@ -212,11 +242,11 @@ void ASE_IUS::DefineAnimations()
 		GRP_ASE_Actuator_Controller_A_ASE, 
 		GRP_ASE_Actuator_Controller_B_ASE
 	};
-	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 11, _V( 0, 0.3985, -1.3304 ), _V( -1, 0, 0 ), (float)(66.0 * RAD) );
-	animTiltTable = STS()->CreateAnimation( 0.090909 );// 0º position
+	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 11, _V( 0, 0.3985, -1.3304 ), _V( -1, 0, 0 ), (float)(67.0 * RAD) );
+	animTiltTable = STS()->CreateAnimation( ASE_IUS_TILT_TABLE_POS_0 );// 0º position
 	STS()->AddAnimationComponent( animTiltTable, 0, 1, &TiltTable_Rotate );
 
-	static MGROUP_ROTATE IUSattachment_Rotate( LOCALVERTEXLIST, MAKEGROUPARRAY( IUSattachpoints ), 3, _V( 0, 0.3985, -1.3304 ) + ASEoffset, _V( -1, 0, 0 ), (float)(66.0 * RAD) );
+	static MGROUP_ROTATE IUSattachment_Rotate( LOCALVERTEXLIST, MAKEGROUPARRAY( IUSattachpoints ), 3, _V( 0, 0.3985, -1.3304 ) + ASEoffset, _V( -1, 0, 0 ), (float)(67.0 * RAD) );
 	STS()->AddAnimationComponent( animTiltTable, 0, 1, &IUSattachment_Rotate );
 	return;
 }
@@ -236,4 +266,11 @@ void ASE_IUS::CreateAttachment()
 bool ASE_IUS::IsIUSAttached()
 {
 	return (STS()->GetAttachmentStatus( hIUSattach ) != NULL);
+}
+
+void ASE_IUS::RunAnimation()
+{
+	STS()->SetAnimation( animTiltTable, asTiltTable.pos );
+	STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
+	return;
 }
