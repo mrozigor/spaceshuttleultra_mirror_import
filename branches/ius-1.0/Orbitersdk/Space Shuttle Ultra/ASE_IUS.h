@@ -50,10 +50,23 @@ const VECTOR3 ASE_IUS_OFFSET_FORWARD_LOCATION = _V( 0, -0.35, -4.4 );
 const VECTOR3 IUS_ATTACHMENT_OFFSET_AFT_LOCATION = _V( 0, -0.35, -6.95 );
 const VECTOR3 IUS_ATTACHMENT_OFFSET_FORWARD_LOCATION = _V( 0, -0.35, -5.5 );
 
-const double ASE_IUS_TILT_TABLE_INTERMEDIATE_SPEED = 0.005;// s^-1
-const double ASE_IUS_TILT_TABLE_MAXIMUM_SPEED = 0.01;// s^-1
+const double ASE_IUS_TILT_TABLE_SPEED = 0.001493;// s^-1 (= 0.1º/s)
 const double ASE_IUS_MASS = 2531.7;// kg
 const double IUS_JETTISON_VELOCITY = 0.12192;// m/s
+
+// animation position for ASE angle
+const double ASE_IUS_TILT_TABLE_POS_61 = 1.0;
+const double ASE_IUS_TILT_TABLE_POS_595 = 0.977612;
+const double ASE_IUS_TILT_TABLE_POS_58 = 0.955224;
+const double ASE_IUS_TILT_TABLE_POS_57 = 0.940299;
+const double ASE_IUS_TILT_TABLE_POS_30 = 0.537313;
+const double ASE_IUS_TILT_TABLE_POS_295 = 0.529851;
+const double ASE_IUS_TILT_TABLE_POS_28 = 0.507463;
+const double ASE_IUS_TILT_TABLE_POS_265 = 0.485075;
+const double ASE_IUS_TILT_TABLE_POS_0 = 0.089552;
+const double ASE_IUS_TILT_TABLE_POS_06 = 0.0;
+// 0.5º delta position window
+const double ASE_IUS_TILT_TABLE_DP = 0.007463;
 
 
 using namespace discsignals;
@@ -77,6 +90,8 @@ class ASE_IUS:public AtlantisSubsystem
 
 		UINT animTiltTable;
 		AnimState asTiltTable;
+
+		double oldposition;
 
 		ATTACHMENTHANDLE hIUSattach;
 		VECTOR3 IUSattachpoints[3];
@@ -115,7 +130,11 @@ class ASE_IUS:public AtlantisSubsystem
 		DiscOutPort pTiltTableActuatorMotionPri1TB;
 		DiscOutPort pTiltTableActuatorMotionAlt2TB;
 
+		DiscOutPort pTiltTableActuatorPositionPri1TB;
+		DiscOutPort pTiltTableActuatorPositionAlt2TB;
+
 		bool IsIUSAttached();
+		void RunAnimation();
 
 	public:
 		ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation = false );

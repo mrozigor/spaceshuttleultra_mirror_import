@@ -371,6 +371,7 @@ namespace vc
 		pPanelMode->SetReference( _V( -1.4702, 2.3884, 13.5557 ), SWITCH_ROT );
 		pPanelMode->SetMouseRegion( 0.852753f, 0.124612f, 0.882422f, 0.166456f );
 		pPanelMode->SetPullDirection( SWITCH_PULL );
+		pPanelMode->SetInitialPosition( 2 );
 
 		pPowerSourceASEBatteriesPri->SetInitialAnimState( 0.5f );
 		pPowerSourceASEBatteriesPri->DefineSwitchGroup( GRP_L10SWITCH1_VC );
@@ -646,6 +647,7 @@ namespace vc
 		pCmdPathEnabled->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
 		pCmdPathEnabled->SetMouseRegion( 0.838003f, 0.717705f, 0.870962f, 0.759780f );
 		pCmdPathEnabled->SetPullDirection( SWITCH_PULL );
+		pCmdPathEnabled->SetInitialPosition( 0 );
 
 		pPyroBusPri->SetInitialAnimState( 0.5f );
 		pPyroBusPri->DefineSwitchGroup( GRP_L10SWITCH39_VC );
