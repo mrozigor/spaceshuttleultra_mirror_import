@@ -6,6 +6,8 @@
 #include "../BaseSSUPad.h"
 //#include "../Atlantis.h"
 
+const boolean DEBUG_DISPLAY_OWP_STRUT_ANIMATION_VALUES = false;
+
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 static const char* DEFAULT_MESHNAME_FSS_1985="SSU/LC39A_FSS_1985";
@@ -45,11 +47,13 @@ const double SRB_SFD_RATE = 0.00333333;// 300sec
 //DaveS: FSS_OWP_STRUT_LENGTH : 16.7456 m
 //FSS_OWP_STRUT_NULL_ANGLE : 84.345° calculated by new strut length
 
-const VECTOR3 FSS_OWP_BRACKET_ROTATION_REF = _V(-6.37, 0.0, 22);
-const VECTOR3 FSS_OWP_STRUT_ROTATION_REF = _V(5.524, 0.0, 22);
+const double FSS_OWP_ROTATION_INTERVAL_END = 0.769;
+
+const VECTOR3 FSS_OWP_BRACKET_ROTATION_REF = _V(-6.9, 0.0, 22.0);
+const VECTOR3 FSS_OWP_STRUT_ROTATION_REF = _V(4.924, 0.0, 22.0);
 
 const double FSS_OWP_BRACKET_LENGTH = 11.894;		
-const double FSS_OWP_STRUT_LENGTH = 16.7456;
+const double FSS_OWP_STRUT_LENGTH = 17.0456;
 const double FSS_OWP_STRUT_OFFSET = 13.5442;
 const double FSS_OWP_STRUT_NULL_ANGLE = 84.345; //angle in degrees
 
