@@ -509,8 +509,8 @@
     <ClInclude Include="vc\PanelF6.h" />
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
-    <ClInclude Include="vc\PanelGroup.h" />
     <ClInclude Include="vc\PanelO17.h" />
+    <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />
     <ClInclude Include="vc\PanelR2.h" />

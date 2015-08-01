@@ -626,9 +626,6 @@
     <ClInclude Include="vc\PanelF8.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\PanelGroup.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PanelO6.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -876,6 +873,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelF3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO3.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
