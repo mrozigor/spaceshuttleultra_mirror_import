@@ -16,6 +16,11 @@ const double ORBITER_MAX_PROPELLANT_MASS = 11284.23 + 2162.622;
 // This parameter for now includes the propellant mass of the Aft RCS fuel and oxidizer
 
 const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
+
+const double ORBITER_LEFT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
+const double ORBITER_RIGHT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
 // Amount of fuel in forward RCS tanks
 
 //const double SSME_RATED_THRUST = 2090664.159; //100% thrust

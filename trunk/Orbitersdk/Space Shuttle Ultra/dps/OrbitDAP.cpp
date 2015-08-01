@@ -339,10 +339,15 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
 	const VECTOR3 PRI_LIMITS = _V(0.005, 0.005, 0.005);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
+	//static char buf[100];
+
+
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
 	Error.data[YAW] = Error.data[YAW]; // temporary
 	Error.data[ROLL] = Error.data[ROLL];
+
+
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -383,6 +388,10 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
 		}
 	}
+
+
+
+
 }
 
 void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
