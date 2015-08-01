@@ -394,6 +394,8 @@ namespace vc {
 
 	void PanelO6::Realize()
 	{
+	
+
 		//Warning: This is not correct, panel should talk to FMCA
 		discsignals::DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
@@ -448,7 +450,7 @@ namespace vc {
 		pIPLSource->outputA.Connect(pBundle, 0);
 		pIPLSource->outputB.Connect(pBundle, 1);
 		
-		
+		AtlantisPanel::Realize();
 	}
 
 	void PanelO6::RegisterVC()

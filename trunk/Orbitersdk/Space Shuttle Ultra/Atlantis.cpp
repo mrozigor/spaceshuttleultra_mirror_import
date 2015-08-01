@@ -3977,6 +3977,17 @@ void Atlantis::clbkPostCreation()
 		DragChuteDPY[1].Connect(pBundle, 6);
 		DragChuteJETT[0].Connect(pBundle, 7);
 		DragChuteJETT[1].Connect(pBundle, 8);
+
+		pgCenter.LogPanels("Center");
+		pgForward.LogPanels("Forward");
+		pgOverhead.LogPanels("Overhead");
+		pgLeft.LogPanels("Left");
+		pgRight.LogPanels("Right");
+		pgAft.LogPanels("Aft");
+		pgAftPort.LogPanels("Aft Port");
+		pgAftStbd.LogPanels("Aft Starboard");
+		pgOverheadAft.LogPanels("Aft Overhead");
+
 	}
 	catch (std::exception &e)
 	{
@@ -4660,13 +4671,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			//	BodyFlapAutoOut.ResetLine();
 			//	BodyFlapManOut.ResetLine();
 			//}
-
-			sprintf_s(oapiDebugString(), 255, "RCS: %+5.2f %+5.2f %+5.2f ==> %4.2f/%4.2f",
-				RotThrusterCommands[PITCH].GetVoltage(),
-				RotThrusterCommands[YAW].GetVoltage(),
-				RotThrusterCommands[ROLL].GetVoltage(),
-				GetThrusterGroupLevel(thg_pitchup), GetThrusterGroupLevel(thg_pitchdown)
-				);
 
 			break;
 		}
