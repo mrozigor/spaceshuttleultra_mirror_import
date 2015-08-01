@@ -248,6 +248,59 @@ using discsignals::DiscreteBundleManager;
 using dps::ShuttleBusManager;
 using dps::MDM;
 
+//======================================
+// RCS table indices for each RCS module
+// ordered as in ODB
+//======================================
+//Forward RCS
+const int RCS_F2F = 0;
+const int RCS_F3F = 1;
+const int RCS_F1F = 2;
+const int RCS_F1L = 3;
+const int RCS_F3L = 4;
+const int RCS_F2R = 5;
+const int RCS_F4R = 6;
+const int RCS_F2U = 7;
+const int RCS_F3U = 8;
+const int RCS_F1U = 9;
+const int RCS_F2D = 10;
+const int RCS_F1D = 11;
+const int RCS_F4D = 12;
+const int RCS_F3D = 13;
+const int RCS_F5R = 14;
+const int RCS_F5L = 15;
+
+//Left RCS
+const int RCS_L3A = 0;
+const int RCS_L1A = 1;
+const int RCS_L4L = 2;
+const int RCS_L2L = 3;
+const int RCS_L3L = 4;
+const int RCS_L1L = 5;
+const int RCS_L4U = 6;
+const int RCS_L2U = 7;
+const int RCS_L1U = 8;
+const int RCS_L4D = 9;
+const int RCS_L2D = 10;
+const int RCS_L3D = 11;
+const int RCS_L5D = 12;
+const int RCS_L5L = 13;
+//Right RCS
+const int RCS_R3A = 0;
+const int RCS_R1A = 1;
+const int RCS_R4R = 2;
+const int RCS_R2R = 3;
+const int RCS_R3R = 4;
+const int RCS_R1R= 5;
+const int RCS_R4U = 6;
+const int RCS_R2U = 7;
+const int RCS_R1U = 8;
+const int RCS_R4D = 9;
+const int RCS_R2D = 10;
+const int RCS_R3D = 11;
+const int RCS_R5D = 12;
+const int RCS_R5R = 13;
+
 // ==========================================================
 // Interface for derived vessel class: Atlantis
 // ==========================================================
@@ -614,6 +667,10 @@ public:
 	void UpdateMesh ();
 	void UpdateSSMEGimbalAnimations();
 
+	//**********************************************************
+	// RCS Thruster interface functions
+	//**********************************************************
+
 	/*
 	void RegisterVC_CdrMFD ();
 	void RegisterVC_PltMFD ();
@@ -742,10 +799,40 @@ private:
 
 	void StopAllManifolds();
 	void FireAllNextManifold();
+
+	
+	//Helper functions for RCS creation
+	//
 	void AddPrimaryRCSExhaust(THRUSTER_HANDLE thX);
+	void AddVernierRCSExhaust(THRUSTER_HANDLE thX);
+	void AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
+	void AddVRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
+
+
+	inline void CreateOrRedefineRCSThruster(THRUSTER_HANDLE *thX, const VECTOR3& pos, const VECTOR3& dir, double vacThrust, PROPELLANT_HANDLE phY, double isp0, double ispsl)
+	{
+		if (*thX == NULL)
+		{
+			*thX = CreateThruster(pos, dir, vacThrust, phY, isp0, ispsl);
+		}
+		else
+		{
+			SetThrusterRef(*thX, pos);
+		}
+		if (vacThrust < 50.0 * LBF)
+		{
+			AddVernierRCSExhaust(*thX);
+		}
+		else
+		{
+			AddPrimaryRCSExhaust(*thX);
+		}
+	}
+	//Functions for creating real RCS
 	void CreateRightARCS(const VECTOR3& ref_pos);
 	void CreateLeftARCS(const VECTOR3& ref_pos);
 	void CreateFRCS(const VECTOR3& ref_pos);
+	//-------------------------------------------------
 	void CreateSSMEs(const VECTOR3& ofs);
 	void CreateMPSGOXVents(const VECTOR3& ref_pos);
 	void CreateMPSDumpVents( void );
@@ -767,7 +854,7 @@ private:
 	void DefineKUBandAnimations();
 	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
-	void AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir);
+
 	void DisableControlSurfaces();
 	void EnableControlSurfaces();
 	/**
@@ -982,53 +1069,57 @@ private:
 
 	//<<<< Begin new RCS model here
 	//Array collecting all primary jets
+
+	THRUSTER_HANDLE thFRCS[16];
+	THRUSTER_HANDLE thLRCS[14];
+	THRUSTER_HANDLE thRRCS[14];
 	/** Forward Manifold 1
 	 */
-	THRUSTER_HANDLE thManFRCS1[4];		
-	/** Forward Manifold 2
-	 */
-	THRUSTER_HANDLE thManFRCS2[4];
-	/** Forward Manifold 3
-	 */
-	THRUSTER_HANDLE thManFRCS3[4];		
-	/** Forward Manifold 4
-	 */
-	THRUSTER_HANDLE thManFRCS4[2];
-	/** Forward Manifold 5
-	 */
-	THRUSTER_HANDLE thManFRCS5[2];		
+	//THRUSTER_HANDLE thManFRCS1[4];		
+	///** Forward Manifold 2
+	// */
+	//THRUSTER_HANDLE thManFRCS2[4];
+	///** Forward Manifold 3
+	// */
+	//THRUSTER_HANDLE thManFRCS3[4];		
+	///** Forward Manifold 4
+	// */
+	//THRUSTER_HANDLE thManFRCS4[2];
+	///** Forward Manifold 5
+	// */
+	//THRUSTER_HANDLE thManFRCS5[2];		
 
-	/** Left Manifold 1
-	 */
-	THRUSTER_HANDLE thManLRCS1[3];		
-	/** Left Manifold 2
-	 */
-	THRUSTER_HANDLE thManLRCS2[3];
-	/** Left Manifold 3
-	 */
-	THRUSTER_HANDLE thManLRCS3[3];		
-	/** Left Manifold 4
-	 */
-	THRUSTER_HANDLE thManLRCS4[3];
-	/** Left Manifold 5
-	 */
-	THRUSTER_HANDLE thManLRCS5[2];
+	///** Left Manifold 1
+	// */
+	//THRUSTER_HANDLE thManLRCS1[3];		
+	///** Left Manifold 2
+	// */
+	//THRUSTER_HANDLE thManLRCS2[3];
+	///** Left Manifold 3
+	// */
+	//THRUSTER_HANDLE thManLRCS3[3];		
+	///** Left Manifold 4
+	// */
+	//THRUSTER_HANDLE thManLRCS4[3];
+	///** Left Manifold 5
+	// */
+	//THRUSTER_HANDLE thManLRCS5[2];
 
-	/** Right Manifold 1
-	 */
-	THRUSTER_HANDLE thManRRCS1[3];		
-	/** Right Manifold 2
-	 */
-	THRUSTER_HANDLE thManRRCS2[3];
-	/** Right Manifold 3
-	 */
-	THRUSTER_HANDLE thManRRCS3[3];		
-	/** Right Manifold 4
-	 */
-	THRUSTER_HANDLE thManRRCS4[3];
-	/** Right Manifold 5
-	 */
-	THRUSTER_HANDLE thManRRCS5[2];
+	///** Right Manifold 1
+	// */
+	//THRUSTER_HANDLE thManRRCS1[3];		
+	///** Right Manifold 2
+	// */
+	//THRUSTER_HANDLE thManRRCS2[3];
+	///** Right Manifold 3
+	// */
+	//THRUSTER_HANDLE thManRRCS3[3];		
+	///** Right Manifold 4
+	// */
+	//THRUSTER_HANDLE thManRRCS4[3];
+	///** Right Manifold 5
+	// */
+	//THRUSTER_HANDLE thManRRCS5[2];
 	//>>>> End of new RCS model
 	THGROUP_HANDLE thg_pitchup, thg_pitchdown, thg_yawleft, thg_yawright, thg_rollleft, thg_rollright;
 	THGROUP_HANDLE thg_transfwd, thg_transaft, thg_transup, thg_transdown, thg_transright, thg_transleft;
