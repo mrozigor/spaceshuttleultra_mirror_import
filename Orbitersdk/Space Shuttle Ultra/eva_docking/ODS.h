@@ -79,15 +79,16 @@ namespace eva_docking {
 		EXTEND_GOAL extend_goal;
 
 		UINT anim_ring;
+		UINT anim_rods;
 		MGROUP_TRANSLATE*	pRingAnim;
 		MGROUP_TRANSLATE*	pRingAnimV;
 		MGROUP_SCALE*		pCoilAnim;
-		MGROUP_ROTATE*		pRod1LAnim[3];
-		MGROUP_ROTATE*		pRod2LAnim[3];
-		MGROUP_ROTATE*		pRod3LAnim[3];
-		MGROUP_ROTATE*		pRod1RAnim[3];
-		MGROUP_ROTATE*		pRod2RAnim[3];
-		MGROUP_ROTATE*		pRod3RAnim[3];
+		MGROUP_ROTATE*		pRod1LAnim[2];
+		MGROUP_ROTATE*		pRod2LAnim[2];
+		MGROUP_ROTATE*		pRod3LAnim[2];
+		MGROUP_ROTATE*		pRod1RAnim[2];
+		MGROUP_ROTATE*		pRod2RAnim[2];
+		MGROUP_ROTATE*		pRod3RAnim[2];
 
 		bool bPowerRelay;
 		bool bCircuitProtectionOff;
@@ -105,7 +106,7 @@ namespace eva_docking {
 		bool FindClosestDockingRing();
 		bool FindClosestDockingRing(OBJHANDLE hVessel);
 		void AnalyseVessel(OBJHANDLE hVessel);
-		
+		void CalculateRodAnimation();
 
 
 	public:
