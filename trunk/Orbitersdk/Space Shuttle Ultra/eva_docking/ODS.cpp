@@ -6,6 +6,49 @@
 
 namespace eva_docking {
 
+	const VECTOR3 ODS_RING_TRANSLATION = _V(0.0, 0.45, 0.0);
+
+	//const double ODS_ROD_REF_Y = 1.662;
+	const double ODS_ROD_REF_Y = 2.262;
+	//const double ODS_ROD_ACT_REF_Y = 1.372;
+	const double ODS_ROD_ACT_REF_Y = 1.972;
+	
+
+	const VECTOR3 ODS_ROD1L_REF = _V(-0.569, ODS_ROD_REF_Y, 0.197);
+	const VECTOR3 ODS_ROD1L_DIR = _V(-0.866, 0, 0.5);
+	const VECTOR3 ODS_ROD1L_ACT_REF = _V(-0.668, ODS_ROD_ACT_REF_Y, 0.02);
+	const VECTOR3 ODS_ROD1L_ACT_DIR = _V(-0.866, 0, 0.5);
+
+	const VECTOR3 ODS_ROD1R_REF = _V(-0.452, ODS_ROD_REF_Y, 0.396);
+	const VECTOR3 ODS_ROD1R_DIR = _V(0.866, 0, -0.5);
+	const VECTOR3 ODS_ROD1R_ACT_REF = _V(-0.353, ODS_ROD_ACT_REF_Y, 0.568);
+	const VECTOR3 ODS_ROD1R_ACT_DIR = _V(0.866, 0, -0.5);
+
+	const VECTOR3 ODS_ROD2L_REF = _V(0.452, ODS_ROD_REF_Y, 0.396);
+	const VECTOR3 ODS_ROD2L_DIR = _V(0.866, 0, 0.5);
+	const VECTOR3 ODS_ROD2L_ACT_REF = _V(0.353, ODS_ROD_ACT_REF_Y, 0.568);
+	const VECTOR3 ODS_ROD2L_ACT_DIR = _V(0.866, 0, 0.5);
+
+	const VECTOR3 ODS_ROD2R_REF = _V(0.569, ODS_ROD_REF_Y, 0.197);
+	const VECTOR3 ODS_ROD2R_DIR = _V(-0.866, 0, -0.5);
+	const VECTOR3 ODS_ROD2R_ACT_REF = _V(0.668, ODS_ROD_ACT_REF_Y, 0.02);
+	const VECTOR3 ODS_ROD2R_ACT_DIR = _V(-0.866, 0, -0.5);
+
+	const VECTOR3 ODS_ROD3L_REF = _V(0.117, ODS_ROD_REF_Y, 0);
+	const VECTOR3 ODS_ROD3L_DIR = _V(0, 0, -1);
+	const VECTOR3 ODS_ROD3L_ACT_REF = _V(0.315, ODS_ROD_ACT_REF_Y, 0);
+	const VECTOR3 ODS_ROD3L_ACT_DIR = _V(0, 0, -1);
+
+	const VECTOR3 ODS_ROD3R_REF = _V(-0.117,ODS_ROD_REF_Y,0);
+	const VECTOR3 ODS_ROD3R_DIR = _V(0, 0, 1);
+	const VECTOR3 ODS_ROD3R_ACT_REF = _V(-0.315, ODS_ROD_ACT_REF_Y, 0);
+	const VECTOR3 ODS_ROD3R_ACT_DIR = _V(0, 0, 1);
+
+	const VECTOR3 ODS_ROD_DISPLACEMENT = ODS_ROD3L_REF - ODS_ROD3L_ACT_REF;
+
+	const double ODS_ROD_NULLANGLE = atan2(ODS_ROD_DISPLACEMENT.y, fabs(ODS_ROD_DISPLACEMENT.x));
+	const float ODS_ROD_ROTATION = static_cast<float>(20.0f * RAD);
+
 	ODS::ODS(AtlantisSubsystemDirector* pdirect, const string& _ident)
 		: ExtAirlock(pdirect, _ident),
 		bPowerRelay(false),
@@ -36,22 +79,22 @@ namespace eva_docking {
 			delete pCoilAnim;
 			delete pRod1LAnim[0];
 			delete pRod1LAnim[1];
-			delete pRod1LAnim[2];
+			
 			delete pRod1RAnim[0];
 			delete pRod1RAnim[1];
-			delete pRod1RAnim[2];
+			
 			delete pRod2LAnim[0];
 			delete pRod2LAnim[1];
-			delete pRod2LAnim[2];
+			
 			delete pRod2RAnim[0];
 			delete pRod2RAnim[1];
-			delete pRod2RAnim[2];
+			
 			delete pRod3LAnim[0];
 			delete pRod3LAnim[1];
-			delete pRod3LAnim[2];
+			
 			delete pRod3RAnim[0];
 			delete pRod3RAnim[1];
-			delete pRod3RAnim[2];
+			
 		}
 	}
 
@@ -161,6 +204,21 @@ namespace eva_docking {
 
 	double ODS::GetSubsystemEmptyMass() const {
 		return 419.025; // According to a SSP PRCB presentation on the STS-125 pros/cons of Single Pad vs Dual Pad ops for LON, ODS mass is 925 lbs, this is for the ODS alone, not including the airlock hardware
+	}
+
+	void ODS::CalculateRodAnimation() 
+	{
+		double ringPos = RingState.pos * ODS_RING_TRANSLATION.y;
+		
+
+		double angle = atan2(ringPos + ODS_ROD_DISPLACEMENT.y, fabs(ODS_ROD_DISPLACEMENT.x));
+
+		double pos = min(max((angle - ODS_ROD_NULLANGLE) / ODS_ROD_ROTATION, 0.0), 1.0);
+
+		sprintf_s(oapiDebugString(), 255, "ODS ROD ANIMATION: %.1f cm ==> %5.2f°/%5.2f° ==> %5.3f pos",
+			ringPos * 100.0, angle * DEG, ODS_ROD_NULLANGLE * DEG, pos);
+
+		STS()->SetAnimation(anim_rods, pos);
 	}
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
@@ -278,6 +336,8 @@ namespace eva_docking {
 				STS()->UpdateODSAttachment(STS()->GetOrbiterCoGOffset() + odsAttachVec[0], 
 					odsAttachVec[1]-odsAttachVec[0], 
 					odsAttachVec[2]-odsAttachVec[0]);
+
+				CalculateRodAnimation();
 			}
 
 			if(RingState.pos < 0.0631944) {
@@ -441,7 +501,7 @@ namespace eva_docking {
 			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 			
 			pRingAnim = new MGROUP_TRANSLATE(midx_ods, grps_ring, 1, 
-				_V(0.0, 0.45, 0.0));
+				ODS_RING_TRANSLATION);
 
 			pRingAnimV = new MGROUP_TRANSLATE(LOCALVERTEXLIST, MAKEGROUPARRAY(odsAttachVec), 3, 
 				_V(0.0, 0.45, 0.0));
@@ -450,61 +510,51 @@ namespace eva_docking {
 				_V(0,1.00,0), _V(1,1.4,1));
 
 			pRod1LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1l0, 1, 
-				_V(-0.569,1.662,0.197), _V(-0.866,0,0.5), (float)(22.0f * RAD));
+				ODS_ROD1L_REF, ODS_ROD1L_DIR, -ODS_ROD_ROTATION);
 
 			pRod1LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
-				_V(-0.668,1.372,0.02), _V(-0.866,0,0.5), (float)(13.0f * RAD));
-
-			pRod1LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
-				_V(-0.668,1.372,0.02), _V(-0.866,0,0.5), (float)(3.0f * RAD));
-
-			pRod1RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1r0, 1, 
-				_V(-0.452,1.662,0.396), _V(0.866,0,-0.5), (float)(22.0f * RAD));
-
-			pRod1RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
-				_V(-0.353,1.372,0.568), _V(0.866,0,-0.5), (float)(13.0f * RAD));
-
-			pRod1RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
-				_V(-0.353,1.372,0.568), _V(0.866,0,-0.5), (float)(3.0f * RAD));
-
-			pRod2LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2l0, 1, 
-				_V(0.452,1.662,0.396), _V(0.866,0,0.5), (float)(22.0f * RAD));
-
-			pRod2LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
-				_V(0.353,1.372,0.568), _V(0.866,0,0.5), (float)(13.0f * RAD));
-
-			pRod2LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
-				_V(0.353,1.372,0.568), _V(0.866,0,0.5), (float)(3.0f * RAD));
-
-			pRod2RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2r0, 1, 
-				_V(0.569,1.662,0.197), _V(-0.866,0,-0.5), (float)(22.0f * RAD));
-
-			pRod2RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
-				_V(0.668,1.372,0.02), _V(-0.866,0,-0.5), (float)(13.0f * RAD));
-
-			pRod2RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
-				_V(0.668,1.372,0.02), _V(-0.866,0,-0.5), (float)(3.0f * RAD));
+				ODS_ROD1L_ACT_REF, ODS_ROD1L_ACT_DIR, ODS_ROD_ROTATION);
 
 			
+			pRod1RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1r0, 1, 
+				ODS_ROD1R_REF, ODS_ROD1R_DIR, -ODS_ROD_ROTATION);
+
+			pRod1RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
+				ODS_ROD1R_ACT_REF, ODS_ROD1R_ACT_DIR, ODS_ROD_ROTATION);
+
+			
+			pRod2LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2l0, 1, 
+				ODS_ROD2L_REF, ODS_ROD2L_DIR, -ODS_ROD_ROTATION);
+
+			pRod2LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
+				ODS_ROD2L_ACT_REF, ODS_ROD2L_ACT_DIR, ODS_ROD_ROTATION);
+
+			
+			pRod2RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2r0, 1, 
+				ODS_ROD2R_REF, ODS_ROD2R_DIR, -ODS_ROD_ROTATION);
+
+			pRod2RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
+				ODS_ROD2R_ACT_REF, ODS_ROD2R_ACT_DIR, ODS_ROD_ROTATION);
+
+		
+			
 			pRod3LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3l0, 1, 
-				_V(0.117,1.662,0), _V(0,0,-1), (float)(22.0f * RAD));
+				ODS_ROD3L_REF, ODS_ROD3L_DIR, -ODS_ROD_ROTATION);
 
 			pRod3LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3l1, 1, 
-				_V(0.315,1.372,0), _V(0,0,-1), (float)(13.0f * RAD));
+				ODS_ROD3L_ACT_REF, ODS_ROD3L_ACT_DIR, ODS_ROD_ROTATION);
 
-			pRod3LAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod3l1, 1, 
-				_V(0.315,1.372,0), _V(0,0,-1), (float)(3.0f * RAD));
-
+			
 			pRod3RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3r0, 1, 
-				_V(-0.117,1.662,0), _V(0,0,1), (float)(22.0f * RAD));
+				ODS_ROD3R_REF, ODS_ROD3R_REF, -ODS_ROD_ROTATION);
 
 			pRod3RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
-				_V(-0.315,1.372,0), _V(0,0,1), (float)(13.0f * RAD));
+				ODS_ROD3R_ACT_REF, ODS_ROD3R_ACT_DIR, ODS_ROD_ROTATION);
 
-			pRod3RAnim[2] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
-				_V(-0.315,1.372,0), _V(0,0,1), (float)(3.0f * RAD));
-
+		
 			anim_ring = STS()->CreateAnimation(0.0);
+			anim_rods = STS()->CreateAnimation(0.0);
+
 			ANIMATIONCOMPONENT_HANDLE parent = 
 				STS()->AddAnimationComponent(anim_ring, 
 				0.05, 1.0, pRingAnim);
@@ -515,47 +565,43 @@ namespace eva_docking {
 			STS()->AddAnimationComponent(anim_ring, 0.05, 1.0, 
 				pCoilAnim);
 
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+
+			//Counterclockwise actuator of pair 1
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod1LAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod1LAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod1LAnim[2]);
-
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+		
+			//Clockwise actuator of pair 1
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0,
 				pRod1RAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod1RAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod1RAnim[2]);
-
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+		
+			//Counterclockwise actuator of pair 2
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2LAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2LAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod2LAnim[2]);
-
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+		
+			//Clockwise actuator of pair 2
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2RAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2RAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod2RAnim[2]);
-
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+		
+			//Counterclockwise actuator of pair 3
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3LAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3LAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod3LAnim[2]);
-
-			STS()->AddAnimationComponent(anim_ring, 0.00, 0.95, 
+		
+			//Clockwise actuator of pair 3
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3RAnim[0], parent);
-			STS()->AddAnimationComponent(anim_ring, 0.0, 0.5, 
+			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3RAnim[1]);
-			STS()->AddAnimationComponent(anim_ring, 0.5, 1.0, 
-				pRod3RAnim[2]);
+		
 
 			
 			
