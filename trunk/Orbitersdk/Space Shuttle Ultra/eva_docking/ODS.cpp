@@ -16,38 +16,49 @@ namespace eva_docking {
 
 	const VECTOR3 ODS_ROD1L_REF = _V(-0.386292, ODS_ROD_REF_Y, -0.181387);
 	const VECTOR3 ODS_ROD1L_DIR = _V(-0.866, 0, 0.5);
-	const VECTOR3 ODS_ROD1L_ACT_REF = _V(-0.668, ODS_ROD_ACT_REF_Y, 0.02);
+	const VECTOR3 ODS_ROD1L_ROTAXIS = _V(-0.287224, -0.824477, -0.487587);
+	const VECTOR3 ODS_ROD1L_ACT_REF = _V(-0.454016, 2.00183, -0.31743);
 	const VECTOR3 ODS_ROD1L_ACT_DIR = _V(-0.866, 0, 0.5);
 
 	const VECTOR3 ODS_ROD1R_REF = _V(-0.313801, ODS_ROD_REF_Y, -0.0558456);
 	const VECTOR3 ODS_ROD1R_DIR = _V(0.866, 0, -0.5);
-	const VECTOR3 ODS_ROD1R_ACT_REF = _V(-0.353, ODS_ROD_ACT_REF_Y, 0.568);
+	const VECTOR3 ODS_ROD1R_ROTAXIS = _V(0.278716, -0.824529, 0.492411);
+	const VECTOR3 ODS_ROD1R_ACT_REF = _V(-0.229847, 2.00183, 0.0708301);
 	const VECTOR3 ODS_ROD1R_ACT_DIR = _V(0.866, 0, -0.5);
 
 	const VECTOR3 ODS_ROD2L_REF = _V(0.386292, ODS_ROD_REF_Y, -0.181387);
 	const VECTOR3 ODS_ROD2L_DIR = _V(-0.866, 0, -0.5);
-	const VECTOR3 ODS_ROD2L_ACT_REF = _V(0.353, ODS_ROD_ACT_REF_Y, 0.568);
+	const VECTOR3 ODS_ROD2L_ROTAXIS = _V(-0.278716, -0.824529, 0.492411);
+	const VECTOR3 ODS_ROD2L_ACT_REF = _V(0.242712, 2.0039, 0.0715625);
 	const VECTOR3 ODS_ROD2L_ACT_DIR = _V(0.866, 0, 0.5);
 
 	const VECTOR3 ODS_ROD2R_REF = _V(0.313801, ODS_ROD_REF_Y, -0.0558456);
 	const VECTOR3 ODS_ROD2R_DIR = _V(0.866, 0, 0.5);
-	const VECTOR3 ODS_ROD2R_ACT_REF = _V(0.668, ODS_ROD_ACT_REF_Y, 0.02);
+	const VECTOR3 ODS_ROD2R_ROTAXIS = _V(0.287224, -0.824477, -0.487587);
+	const VECTOR3 ODS_ROD2R_ACT_REF = _V(0.46688, 2.0039, -0.316662);
 	const VECTOR3 ODS_ROD2R_ACT_DIR = _V(-0.866, 0, -0.5);
 
 	const VECTOR3 ODS_ROD3L_REF = _V(0.0724755, ODS_ROD_REF_Y, -0.746854);
 	const VECTOR3 ODS_ROD3L_DIR = _V(0, 0, -1);
-	const VECTOR3 ODS_ROD3L_ACT_REF = _V(0.315, ODS_ROD_ACT_REF_Y, 0);
+	const VECTOR3 ODS_ROD3L_ROTAXIS = _V(0.565876, -0.824436, 0.00943811);
+	const VECTOR3 ODS_ROD3L_ACT_REF = _V(0.22416, 2.00286, -0.733517);
 	const VECTOR3 ODS_ROD3L_ACT_DIR = _V(0, 0, 1);
 
 	const VECTOR3 ODS_ROD3R_REF = _V(-0.0724755, ODS_ROD_REF_Y, -0.746854);
 	const VECTOR3 ODS_ROD3R_DIR = _V(0, 0, 1);
-	const VECTOR3 ODS_ROD3R_ACT_REF = _V(-0.315, ODS_ROD_ACT_REF_Y, 0);
+	const VECTOR3 ODS_ROD3R_ROTAXIS = _V(-0.565876, -0.824436, 0.00943811);
+	const VECTOR3 ODS_ROD3R_ACT_REF = _V(-0.224176, 2.00286, -0.733546);
 	const VECTOR3 ODS_ROD3R_ACT_DIR = _V(0, 0, -1);
 
 	const VECTOR3 ODS_ROD_DISPLACEMENT = ODS_ROD3L_REF - ODS_ROD3L_ACT_REF;
+	const double ODS_ROD_DISPLACEMENT_LEN = length(ODS_ROD_DISPLACEMENT);
 
 	const double ODS_ROD_NULLANGLE = atan2(ODS_ROD_DISPLACEMENT.y, fabs(ODS_ROD_DISPLACEMENT.x));
-	const float ODS_ROD_ROTATION = static_cast<float>(20.0f * RAD);
+	const float ODS_ROD_ROTATION = static_cast<float>(30.0f * RAD);
+	
+
+	//20 rotations per meter
+	const float ODS_RODDRIVE_ROTATION = static_cast<float>(400.0 * PI);
 
 	ODS::ODS(AtlantisSubsystemDirector* pdirect, const string& _ident)
 		: ExtAirlock(pdirect, _ident),
@@ -77,23 +88,18 @@ namespace eva_docking {
 			delete pRingAnim;
 			delete pRingAnimV;
 			delete pCoilAnim;
-			delete pRod1LAnim[0];
-			delete pRod1LAnim[1];
-			
-			delete pRod1RAnim[0];
-			delete pRod1RAnim[1];
-			
-			delete pRod2LAnim[0];
-			delete pRod2LAnim[1];
-			
-			delete pRod2RAnim[0];
-			delete pRod2RAnim[1];
-			
-			delete pRod3LAnim[0];
-			delete pRod3LAnim[1];
-			
-			delete pRod3RAnim[0];
-			delete pRod3RAnim[1];
+
+			for (int i = 0; i < 2; ++i) 
+			{
+				delete pRod1LAnim[i];
+				delete pRod1RAnim[i];
+
+				delete pRod2LAnim[i];
+				delete pRod2RAnim[i];
+
+				delete pRod3LAnim[i];
+				delete pRod3RAnim[i];
+			}
 			
 		}
 	}
@@ -210,15 +216,15 @@ namespace eva_docking {
 	{
 		double ringPos = RingState.pos * ODS_RING_TRANSLATION.y;
 		
-
 		double angle = atan2(ringPos + ODS_ROD_DISPLACEMENT.y, fabs(ODS_ROD_DISPLACEMENT.x));
 
 		double pos = min(max((angle - ODS_ROD_NULLANGLE) / ODS_ROD_ROTATION, 0.0), 1.0);
-
+		
 		sprintf_s(oapiDebugString(), 255, "ODS ROD ANIMATION: %.1f cm ==> %5.2f°/%5.2f° ==> %5.3f pos",
 			ringPos * 100.0, angle * DEG, ODS_ROD_NULLANGLE * DEG, pos);
 
 		STS()->SetAnimation(anim_rods, pos);
+		
 	}
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
@@ -515,12 +521,14 @@ namespace eva_docking {
 			pRod1LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
 				ODS_ROD1L_ACT_REF, ODS_ROD1L_ACT_DIR, ODS_ROD_ROTATION);
 
-			
+					
 			pRod1RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1r0, 1, 
 				ODS_ROD1R_REF, ODS_ROD1R_DIR, ODS_ROD_ROTATION);
 
 			pRod1RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
 				ODS_ROD1R_ACT_REF, ODS_ROD1R_ACT_DIR, ODS_ROD_ROTATION);
+
+			
 
 			
 			pRod2LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2l0, 1, 
@@ -530,13 +538,14 @@ namespace eva_docking {
 				ODS_ROD2L_ACT_REF, ODS_ROD2L_ACT_DIR, ODS_ROD_ROTATION);
 
 			
+
 			pRod2RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2r0, 1, 
 				ODS_ROD2R_REF, ODS_ROD2R_DIR, -ODS_ROD_ROTATION);
 
 			pRod2RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
 				ODS_ROD2R_ACT_REF, ODS_ROD2R_ACT_DIR, ODS_ROD_ROTATION);
 
-		
+					
 			
 			pRod3LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3l0, 1, 
 				ODS_ROD3L_REF, ODS_ROD3L_DIR, ODS_ROD_ROTATION);
@@ -545,24 +554,26 @@ namespace eva_docking {
 				ODS_ROD3L_ACT_REF, ODS_ROD3L_ACT_DIR, -ODS_ROD_ROTATION);
 
 			
+			
 			pRod3RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3r0, 1, 
 				ODS_ROD3R_REF, ODS_ROD3R_DIR, ODS_ROD_ROTATION);
 
 			pRod3RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
 				ODS_ROD3R_ACT_REF, ODS_ROD3R_ACT_DIR, -ODS_ROD_ROTATION);
 
+			
 		
 			anim_ring = STS()->CreateAnimation(0.0);
 			anim_rods = STS()->CreateAnimation(0.0);
-
+		
 			ANIMATIONCOMPONENT_HANDLE parent = 
 				STS()->AddAnimationComponent(anim_ring, 
-				0.05, 1.0, pRingAnim);
+				0.00, 1.0, pRingAnim);
 
 			STS()->AddAnimationComponent(anim_ring, 
-				0.05, 1.0, pRingAnimV);
+				0.00, 1.0, pRingAnimV);
 
-			STS()->AddAnimationComponent(anim_ring, 0.05, 1.0, 
+			STS()->AddAnimationComponent(anim_ring, 0.00, 1.0, 
 				pCoilAnim);
 
 
@@ -571,6 +582,7 @@ namespace eva_docking {
 				pRod1LAnim[0], parent);
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod1LAnim[1]);
+			
 		
 			//Clockwise actuator of pair 1
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0,
@@ -578,11 +590,13 @@ namespace eva_docking {
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod1RAnim[1]);
 		
+		
 			//Counterclockwise actuator of pair 2
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2LAnim[0], parent);
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2LAnim[1]);
+		
 		
 			//Clockwise actuator of pair 2
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
@@ -590,17 +604,20 @@ namespace eva_docking {
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod2RAnim[1]);
 		
+		
 			//Counterclockwise actuator of pair 3
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3LAnim[0], parent);
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3LAnim[1]);
 		
+		
 			//Clockwise actuator of pair 3
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3RAnim[0], parent);
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3RAnim[1]);
+		
 		
 
 			
