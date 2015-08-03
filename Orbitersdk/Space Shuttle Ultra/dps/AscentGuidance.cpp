@@ -981,7 +981,7 @@ void AscentGuidance::ASCENTTRAJ2( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ
 		VECTOR3 vr3;
 		STS()->GetHorizonAirspeedVector( vr3 );
 		if ((vr3.y * MPS2FPS) < 1850) pMDU->mvprint( 12, 7, "GREEN" );
-		else pMDU->mvprint( 12, 6, "BLUE" );
+		else pMDU->mvprint( 13, 7, "BLUE" );
 	}
 
 	//if (pETSepSequence->GetETSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
