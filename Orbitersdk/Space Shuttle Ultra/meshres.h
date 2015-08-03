@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon Aug 03 13:46:21 2015
+// Date of conversion : Mon Aug 03 14:35:13 2015
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -17,28 +17,28 @@ const unsigned int GRP_STARTRACKER_INDENT	=	4;	//startracker_indent
 const unsigned int GRP_ZSTARTRACKER_DOOR	=	5;	//Zstartracker_door
 const unsigned int GRP_XSTARTRACKER_DOOR	=	6;	//Xstartracker_door
 const unsigned int GRP_TRANSPARENT	=	7;	//transparent
-const unsigned int GRP_PLB_TCS	=	8;	//PLB_TCS
-const unsigned int GRP_RIGHT_PLBD_EXT	=	9;	//RIGHT_PLBD_EXT
-const unsigned int GRP_STBD_PLB_RADIATOR_1	=	10;	//STBD_PLB_RADIATOR_1
-const unsigned int GRP_STBD_PLB_RADIATOR_2	=	11;	//STBD_PLB_RADIATOR_2
-const unsigned int GRP_STBD_PLB_RADIATOR_3	=	12;	//STBD_PLB_RADIATOR_3
-const unsigned int GRP_STBD_PLB_RADIATOR_4	=	13;	//STBD_PLB_RADIATOR_4
-const unsigned int GRP_STBD_FWD_RADIATOR_COOLANT_LINES	=	14;	//STBD_FWD_RADIATOR_COOLANT_LINES
-const unsigned int GRP_STBDDOOR_PULL	=	15;	//STBDdoor_pull
-const unsigned int GRP_STBD_CLAMP	=	16;	//STBD_clamp
-const unsigned int GRP_STBDPUSH_ROD	=	17;	//STBDpush_rod
-const unsigned int GRP_PORTPUSH_ROD	=	18;	//PORTpush_rod
-const unsigned int GRP_PORT_CLAMP	=	19;	//PORT_clamp
-const unsigned int GRP_PORTDOOR_PULL	=	20;	//PORTdoor_pull
-const unsigned int GRP_FUSELAGE	=	21;	//FUSELAGE
-const unsigned int GRP_CENTER_SSME	=	22;	//CENTER_SSME
-const unsigned int GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL	=	23;	//LEFT_OUTBOARD_ELEVON_SEAL_PANEL
-const unsigned int GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL	=	24;	//LEFT_INBOARD_ELEVON_SEAL_PANEL
-const unsigned int GRP_LEFT_INBOARD_ELEVON	=	25;	//LEFT_INBOARD_ELEVON
-const unsigned int GRP_LEFT_OUTBOARD_ELEVON	=	26;	//LEFT_OUTBOARD_ELEVON
-const unsigned int GRP_ELEVON_HINGES	=	27;	//ELEVON_HINGES
-const unsigned int GRP_PORT_PLBD_INTERIOR	=	28;	//PORT_PLBD_INTERIOR
-const unsigned int GRP_PLB_SILL_EQUIPMENT	=	29;	//PLB_SILL_EQUIPMENT
+const unsigned int GRP_STBD_PLBD_INTERIOR	=	8;	//STBD_PLBD_INTERIOR
+const unsigned int GRP_PLB_TCS	=	9;	//PLB_TCS
+const unsigned int GRP_RIGHT_PLBD_EXT	=	10;	//RIGHT_PLBD_EXT
+const unsigned int GRP_STBD_PLB_RADIATOR_1	=	11;	//STBD_PLB_RADIATOR_1
+const unsigned int GRP_STBD_PLB_RADIATOR_2	=	12;	//STBD_PLB_RADIATOR_2
+const unsigned int GRP_STBD_PLB_RADIATOR_3	=	13;	//STBD_PLB_RADIATOR_3
+const unsigned int GRP_STBD_PLB_RADIATOR_4	=	14;	//STBD_PLB_RADIATOR_4
+const unsigned int GRP_STBD_FWD_RADIATOR_COOLANT_LINES	=	15;	//STBD_FWD_RADIATOR_COOLANT_LINES
+const unsigned int GRP_STBDDOOR_PULL	=	16;	//STBDdoor_pull
+const unsigned int GRP_STBD_CLAMP	=	17;	//STBD_clamp
+const unsigned int GRP_STBDPUSH_ROD	=	18;	//STBDpush_rod
+const unsigned int GRP_PORTPUSH_ROD	=	19;	//PORTpush_rod
+const unsigned int GRP_PORT_CLAMP	=	20;	//PORT_clamp
+const unsigned int GRP_PORTDOOR_PULL	=	21;	//PORTdoor_pull
+const unsigned int GRP_FUSELAGE	=	22;	//FUSELAGE
+const unsigned int GRP_CENTER_SSME	=	23;	//CENTER_SSME
+const unsigned int GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL	=	24;	//LEFT_OUTBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL	=	25;	//LEFT_INBOARD_ELEVON_SEAL_PANEL
+const unsigned int GRP_LEFT_INBOARD_ELEVON	=	26;	//LEFT_INBOARD_ELEVON
+const unsigned int GRP_LEFT_OUTBOARD_ELEVON	=	27;	//LEFT_OUTBOARD_ELEVON
+const unsigned int GRP_ELEVON_HINGES	=	28;	//ELEVON_HINGES
+const unsigned int GRP_PORT_PLBD_INTERIOR	=	29;	//PORT_PLBD_INTERIOR
 const unsigned int GRP_BODYFLAP	=	30;	//BODYFLAP
 const unsigned int GRP_AFT_EVA_WINCH_HOOK	=	31;	//AFT_EVA_WINCH_HOOK
 const unsigned int GRP_RIGHT_ARCS_POD	=	32;	//RIGHT_ARCS_POD
@@ -148,9 +148,9 @@ const unsigned int GRP_RIGHT_OMSPOD	=	135;	//RIGHT_OMSpod
 const unsigned int GRP_XO576_BULKHEAD_EQUIPMENT	=	136;	//Xo576_BULKHEAD_EQUIPMENT
 const unsigned int GRP_XO576_BULKHEAD_	=	137;	//Xo576_BULKHEAD 
 const unsigned int GRP_ROME	=	138;	//ROME
-const unsigned int GRP_STBD_PLBD_INTERIOR	=	139;	//STBD_PLBD_INTERIOR
-const unsigned int GRP_LEFT_PLBD_EXT	=	140;	//LEFT_PLBD_EXT
-const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES	=	141;	//MIDBODYT0_UMBILICAL_CAVITIES
-const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY	=	142;	//MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY
-const unsigned int GRP_PLB_BAY13_COVERS	=	143;	//PLB_BAY13_COVERS
+const unsigned int GRP_LEFT_PLBD_EXT	=	139;	//LEFT_PLBD_EXT
+const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES	=	140;	//MIDBODYT0_UMBILICAL_CAVITIES
+const unsigned int GRP_MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY	=	141;	//MIDBODYT0_UMBILICAL_CAVITIES_TRANSPARENCY
+const unsigned int GRP_PLB_BAY13_COVERS	=	142;	//PLB_BAY13_COVERS
+const unsigned int GRP_PLB_SILL_EQUIPMENT	=	143;	//PLB_SILL_EQUIPMENT
 
