@@ -466,6 +466,7 @@ namespace eva_docking {
 
 		STS()->SetAnimation(anim_ring, RingState.pos);
 
+		CalculateRodAnimation();
 		
 	}
 
