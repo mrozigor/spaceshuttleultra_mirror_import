@@ -489,6 +489,54 @@ void AscentGuidance::Throttle(double DeltaT)
 {
 	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
 
+	// detect EO
+	for (int i = 0; i < 3; i++)
+	{
+		if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
+		{
+			MEFail[i] = true;
+			NSSME--;
+			// record EO VI
+			VECTOR3 v3vi;
+			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+			double vi = length( v3vi ) * MPS2FPS;
+			if (NSSME == 2) EOVI[0] = vi;
+			else if (NSSME == 1) EOVI[1] = vi;
+			// update 1º stage throttle table to not throttle
+			THROT[1] = THROT[0];
+			THROT[2] = THROT[0];
+			AGT_done = true;// don't do AGT
+			glimiting = false;// reset g-limiting
+			dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
+			// throttle to mission power level
+			throttlecmd = THROT[0];
+			if (J > 0) J--;
+			// update MECO targets
+			if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
+		}
+	}
+
+	// SERC
+	switch (GetMajorMode())
+	{
+		case 102:
+			if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
+			{
+				enaSERC = true;
+			}
+			break;
+		case 103:
+			if (NSSME == 1)// enable SERC automatically in MM103
+			{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
+				enaSERC = true;
+			}
+			break;
+	}
+
+	// low-level sensor arm
+	if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
+
+
 	if(SpdbkThrotAutoIn) { // auto throttling
 		// check for manual takeover
 		if(Eq(STS()->GetSSMEThrustLevel(0), SBTCCommand, 4.0) && !Eq(SBTCCommand, lastSBTCCommand, 1e-2)) {
@@ -496,32 +544,6 @@ void AscentGuidance::Throttle(double DeltaT)
 			SpdbkThrotPLT.SetLine();
 		}
 		else SpdbkThrotPLT.ResetLine();
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
-			{
-				MEFail[i] = true;
-				NSSME--;
-				// record EO VI
-				VECTOR3 v3vi;
-				STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
-				double vi = length( v3vi ) * MPS2FPS;
-				if (NSSME == 2) EOVI[0] = vi;
-				else if (NSSME == 1) EOVI[1] = vi;
-				// update 1º stage throttle table to not throttle
-				THROT[1] = THROT[0];
-				THROT[2] = THROT[0];
-				AGT_done = true;// don't do AGT
-				glimiting = false;// reset g-limiting
-				dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
-				// throttle to mission power level
-				throttlecmd = THROT[0];
-				pSSME_SOP->SetThrottlePercent( throttlecmd );
-				// update MECO targets
-				if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
-			}
-		}
 
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
@@ -532,11 +554,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					throttlecmd = THROT[J];
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					J++;
-				}
-				
-				if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
-				{
-					enaSERC = true;
 				}
 				break;
 			case 103: // STAGE 3
@@ -584,11 +601,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					}
 				}
 
-				if (NSSME == 1)// enable SERC automatically in MM103
-				{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
-					enaSERC = true;
-				}
-
 				// fine count
 				// HACK only throttle back, no real count for now
 				if ((timeRemaining <= 6) && (finecount == false))
@@ -600,9 +612,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
-
-				// low-level sensor arm
-				if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
 				break;
 		}
 	}
