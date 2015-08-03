@@ -7553,8 +7553,8 @@ void Atlantis::UpdateMPSManifold(void)
 	LO2LowLevelSensor[1].SetValue(lvl);
 	LO2LowLevelSensor[2].SetValue(lvl);
 	LO2LowLevelSensor[3].SetValue(lvl);
-
-	UpdateMassAndCoG();
+	
+	//UpdateMassAndCoG();
 	return;
 }
 
