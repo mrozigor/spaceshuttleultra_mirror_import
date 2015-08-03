@@ -80,15 +80,16 @@ namespace eva_docking {
 
 		UINT anim_ring;
 		UINT anim_rods;
+		UINT anim_screw;
 		MGROUP_TRANSLATE*	pRingAnim;
 		MGROUP_TRANSLATE*	pRingAnimV;
 		MGROUP_SCALE*		pCoilAnim;
-		MGROUP_ROTATE*		pRod1LAnim[2];
-		MGROUP_ROTATE*		pRod2LAnim[2];
-		MGROUP_ROTATE*		pRod3LAnim[2];
-		MGROUP_ROTATE*		pRod1RAnim[2];
-		MGROUP_ROTATE*		pRod2RAnim[2];
-		MGROUP_ROTATE*		pRod3RAnim[2];
+		MGROUP_ROTATE*		pRod1LAnim[3];
+		MGROUP_ROTATE*		pRod2LAnim[3];
+		MGROUP_ROTATE*		pRod3LAnim[3];
+		MGROUP_ROTATE*		pRod1RAnim[3];
+		MGROUP_ROTATE*		pRod2RAnim[3];
+		MGROUP_ROTATE*		pRod3RAnim[3];
 
 		bool bPowerRelay;
 		bool bCircuitProtectionOff;
