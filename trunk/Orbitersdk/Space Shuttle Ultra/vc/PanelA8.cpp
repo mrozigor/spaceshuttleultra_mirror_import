@@ -211,7 +211,7 @@ namespace vc
 		}
 		else if(LED_ParameterSelect[4].IsSet()) { // JOINT ANGLE
 			if(LED_JointSelect[7].IsSet()) { // SHOULDER YAW
-				NewLEDValues[1]=RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;
+				NewLEDValues[1]=-RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;// minus added to fix wrong sign coming from RMSSystem
 				NewLEDValues[0]=NewLEDValues[2]=0.0;
 			}
 			else if(LED_JointSelect[6].IsSet()) { // SHOULDER PITCH
