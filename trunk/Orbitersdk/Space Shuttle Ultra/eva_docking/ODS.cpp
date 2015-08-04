@@ -220,8 +220,8 @@ namespace eva_docking {
 
 		double pos = min(max((angle - ODS_ROD_NULLANGLE) / ODS_ROD_ROTATION, 0.0), 1.0);
 		
-		sprintf_s(oapiDebugString(), 255, "ODS ROD ANIMATION: %.1f cm ==> %5.2f°/%5.2f° ==> %5.3f pos",
-			ringPos * 100.0, angle * DEG, ODS_ROD_NULLANGLE * DEG, pos);
+		/*sprintf_s(oapiDebugString(), 255, "ODS ROD ANIMATION: %.1f cm ==> %5.2f°/%5.2f° ==> %5.3f pos",
+			ringPos * 100.0, angle * DEG, ODS_ROD_NULLANGLE * DEG, pos);*/
 
 		STS()->SetAnimation(anim_rods, pos);
 		
