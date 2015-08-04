@@ -652,17 +652,14 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	mesh_extal = MESH_UNDEFINED;
 	mesh_ods = MESH_UNDEFINED;
 	mesh_cargo_static = MESH_UNDEFINED;
-	mesh_panela8 = MESH_UNDEFINED;
 	mesh_dragchute = MESH_UNDEFINED;
 	mesh_heatshield = MESH_UNDEFINED;
 
 	vis = NULL;
 
 	reset_mmu = false;
-	reset_sat = false;
 	jettison_time = 0.0;
 	render_cockpit = false;
-	bSRBCutoffFlag = false;
 	bLiftOff = false;
 	bHasKUBand = true;
 	bUseRealRCS = true;
@@ -790,7 +787,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 
 	ControlSurfacesEnabled = false;
-	bIlluminated = false;
 
 	//DefineAnimations();
 	do_eva = false;
@@ -805,10 +801,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	ahExtAL[0] = NULL;
 	ahExtAL[1] = NULL;
 
-	for (int i = 0; i < 3; i++)
+	/*for (int i = 0; i < 3; i++)
 	{
 		ahCenterActive[i] = NULL;
-	}
+	}*/
 	for (int i = 0; i < 4; i++)
 	{
 		ahCenterPassive[i] = NULL;
@@ -846,8 +842,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	newmfd = NULL;
 
 	// gpc
-	SMOps = 201;
-	last_mfd = 0;
 	firstStep = true;
 
 
@@ -855,7 +849,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	THCInput = _V(0, 0, 0);
 	AltKybdInput = _V(0, 0, 0);
 
-	ReqdRates = _V(0, 0, 0);
 	for (i = 0; i < 3; i++) {
 		lastRotCommand[i] = 0;
 		lastTransCommand[i] = 0;
@@ -1156,8 +1149,6 @@ void Atlantis::SetOrbiterTankConfiguration(void)
 
 	CreateOrbiterTanks();
 
-	//SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
-
 	// *********************** thruster definitions ********************************
 
 	// Orbiter main engines
@@ -1179,7 +1170,6 @@ void Atlantis::SetOrbiterTankConfiguration(void)
 		}
 	}
 
-	//if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
 	CreateAttControls_RCS(OFS_ZERO);
 	CreateDummyThrusters();
 
@@ -1199,9 +1189,6 @@ void Atlantis::SetOrbiterTankConfiguration(void)
 	status = STATE_STAGE2;
 
 	AddOrbiterVisual();
-	//AddTankVisual    (OFS_WITHTANK_TANK);
-
-	//status = STATE_STAGE2;
 }
 
 // --------------------------------------------------------------
@@ -1214,7 +1201,6 @@ void Atlantis::SetOrbiterConfiguration(void)
 	// *********************** physical parameters *********************************
 
 	SetSize(19.6);
-	//SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
 	SetPMI(_V(120.2, 108.8, 13.497));
 	SetGravityGradientDamping(20.0);
 	SetTrimScale(0.05);
@@ -1284,9 +1270,7 @@ void Atlantis::SetOrbiterConfiguration(void)
 	CreateDummyThrusters();
 
 	// ************************ visual parameters **********************************
-
 	AddOrbiterVisual();
-
 
 	status = 3;
 }
@@ -1751,18 +1735,6 @@ void Atlantis::CreateDummyThrusters()
 	CreateThrusterGroup(&thTmp, 1, THGROUP_MAIN);
 
 	bControllerThrustersDefined = true;
-}
-
-bool Atlantis::CreateDockingPort(const VECTOR3& pos)
-{
-	if (hODSDock == NULL)
-	{
-		//return true;
-	}
-	else {
-
-	}
-	return false;
 }
 
 void Atlantis::DisableControlSurfaces()
@@ -2433,17 +2405,6 @@ void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 	oapiWriteLog(pszBuf);
 }
 
-bool Atlantis::SatStowed() const
-{
-	for (int i = 0; i < 3; i++)
-	{
-		if (GetAttachmentStatus(ahCenterActive[i]) != NULL)
-			return true;
-	}
-
-	return false;
-}
-
 void Atlantis::AddOrbiterVisual()
 {
 	huds.hudcnt = _V(-0.671257, 2.523535, 14.969);
@@ -2596,7 +2557,6 @@ void Atlantis::AddOrbiterVisual()
 
 void Atlantis::SeparateBoosters(double met)
 {
-	//int i;
 	char buffer[120];
 
 	double thrust_level, prop_level;
@@ -2664,11 +2624,6 @@ void Atlantis::SeparateTank(void)
 	SetOrbiterConfiguration();
 }
 
-bool Atlantis::HasSRBs() const
-{
-	return (status <= STATE_STAGE1);
-}
-
 bool Atlantis::HasTank() const
 {
 	return (status <= STATE_STAGE2);
@@ -2725,10 +2680,6 @@ void Atlantis::ToggleGrapple(void)
 			SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 		}
 	}
-}
-
-void Atlantis::ToggleArrest(void)
-{
 }
 
 void Atlantis::ToggleVCMode()
@@ -4004,8 +3955,7 @@ void Atlantis::clbkPostCreation()
 void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 {
 	static bool ___PreStep_flag = false;
-	//	double dThrust;
-	//double steerforce, airspeed;
+
 	try
 	{
 		if (firstStep) {
@@ -4424,9 +4374,9 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 {
 	static bool ___PostStep_flag = false;
-	//double met;
+	
 	double airspeed;
-	//int i;
+	
 	OBJHANDLE hvessel;
 	try
 	{
@@ -5710,9 +5660,6 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 
 	if (KEYMOD_CONTROL(kstate)) {
 		switch (key) {
-			/*case OAPI_KEY_SPACE: // open RMS control dialog
-			  oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
-			  return 1;*/
 		case OAPI_KEY_G:
 			ArmGear();
 			return 1;
@@ -6093,14 +6040,10 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 	}
 
 	HDC Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	//HDC TempDC=CreateCompatibleDC(Temp1DC);
 	g_Param.DeuCharBitmapDC = CreateCompatibleDC(Temp1DC);
-	//HBITMAP BMP=CreateCompatibleBitmap(Temp1DC, 816, 806);
-	//SelectObject(g_Param.DeuCharBitmapDC, BMP);
 	SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
 	SetStretchBltMode(g_Param.DeuCharBitmapDC, HALFTONE);
 	StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528, SRCCOPY);
-	//DeleteDC(TempDC);
 	DeleteDC(Temp1DC);
 
 	Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
@@ -6409,13 +6352,10 @@ void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 {
 	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand)
 	{
-
 		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
 
 		SetMeshVisibilityMode(mesh_kuband, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
-
 	}
-
 }
 
 void Atlantis::DefineKUBandAnimations()
@@ -6446,8 +6386,6 @@ void Atlantis::DefineKUBandAnimations()
 	anim_kubeta = CreateAnimation(0.0);
 	LogAnim("anim_kubeta", anim_kubeta);
 	AddAnimationComponent(anim_kubeta, 0.61, 0.8, &KuBand3, parent);
-
-
 }
 
 void Atlantis::GLSAutoSeqStart()
@@ -6665,8 +6603,6 @@ bool Atlantis::IsValidSPEC(int gpc, int spec) const
 			return false;
 		}
 		break;
-
-
 	}
 	return false;
 }
@@ -6878,14 +6814,6 @@ void Atlantis::FireAllNextManifold()
 		return;
 	}
 }
-
-double Atlantis::GetETGOXMassFlow() const {
-	return 0.0;
-}
-double Atlantis::GetETGH2MassFlow() const {
-	return 0.0;
-}
-
 
 void Atlantis::StopAllManifolds()
 {
@@ -7698,11 +7626,6 @@ void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTE
 {
 	SetThrusterMax0(th, v->GetThrusterMax0(th_ref));
 	SetThrusterIsp(th, v->GetThrusterIsp0(th_ref), v->GetThrusterIsp(th_ref, 101.4e3), 101.4e3);
-}
-
-VISHANDLE Atlantis::GetVisual() const
-{
-	return NULL;
 }
 
 void Atlantis::loadMDMConfiguration()

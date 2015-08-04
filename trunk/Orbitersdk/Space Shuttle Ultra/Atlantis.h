@@ -413,8 +413,6 @@ public:
 
 	double t0;          // reference time: designated liftoff time
 	double met;
-	//int MET[4], Launch_time[4], MET_Add[4]; // day,hour,min,sec
-	WORD srb_id1, srb_id2;
 
 	enum {
 		VCM_FLIGHTDECK = 0,
@@ -429,7 +427,6 @@ public:
 	UINT mesh_orbiter;                         // index for orbiter mesh
 	UINT mesh_cockpit;                         // index for cockpit mesh for external view
 	UINT mesh_vc;                              // index for virtual cockpit mesh
-	UINT mesh_panela8;						   // index for Panel A8 mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_extal;						   // index for external airlock mesh
@@ -448,7 +445,6 @@ public:
 	virtual DiscreteBundleManager* BundleManager() const;
 	virtual dps::ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
-	virtual VISHANDLE GetVisual() const;
 	// Overloaded callback functions
 	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
@@ -476,8 +472,6 @@ public:
 	/* **********************************************************
 	 * Getters
 	 * **********************************************************/
-	virtual double GetETGOXMassFlow() const;
-	virtual double GetETGH2MassFlow() const;
 	virtual short GetETPropellant() const;
 	virtual double GetETPropellant_B( void ) const;
 	virtual double GetETLOXUllagePressure( void ) const;
@@ -609,16 +603,6 @@ public:
 	virtual ATTACHMENTHANDLE GetODSAttachment() const;
 
 	/**
-	 * If no docking port yet defined, create new only docking port at that location
-	 * If docking port already defined and no vessel docked, move to new position.
-	 * Otherwise, the function fails.
-	 * 
-	 * @param pos The desired position of the docking port in body coordinates
-	 * @return true if successful and docking port at the desired location, false if failed. 
-	 */
-	virtual bool CreateDockingPort(const VECTOR3& pos);
-
-	/**
 	 * Wrapper for AddAnimationComponent
 	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by Atlantis destructor
 	 */
@@ -634,10 +618,6 @@ public:
 	void SeparateBoosters (double srb_time);
 	void SeparateTank (void);
 
-	/**
-	 * Return true if SRBs are attached to shuttle
-	 */
-	bool HasSRBs() const;
 	/**
 	 * Return true if ET is attached to shuttle
 	 */
@@ -663,24 +643,12 @@ public:
 	virtual double GetLH2ManifPress( void ) const;
 
 	void ToggleGrapple (void);
-	void ToggleArrest (void);
 	void UpdateMesh ();
 	void UpdateSSMEGimbalAnimations();
 
 	//**********************************************************
 	// RCS Thruster interface functions
 	//**********************************************************
-
-	/*
-	void RegisterVC_CdrMFD ();
-	void RegisterVC_PltMFD ();
-	void RegisterVC_CntMFD ();
-	void RegisterVC_AftMFD ();
-	void RedrawPanel_MFDButton (SURFHANDLE surf, int mfd);
-	*/
-
-	
-	//mission::Mission* the_mission;
 	
 	/**
 	 * Pointer to the A7A8 custom panel region
@@ -701,12 +669,11 @@ public:
 	bool do_plat;
 	bool do_cargostatic;
 	VECTOR3 orbiter_ofs;
-	VECTOR3 ofs_sts_sat;
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
 		hMidDeckMesh,
-		hODSMesh, hPanelA8Mesh, hDragChuteMesh; // mesh handles
+		hODSMesh, hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hExtALMesh;
 	MESHHANDLE hSILTSMesh;
@@ -722,7 +689,7 @@ public:
 	ATTACHMENTHANDLE ahMMU[2];
 	ATTACHMENTHANDLE ahDockAux;
 	ATTACHMENTHANDLE ahExtAL[2];
-	ATTACHMENTHANDLE ahCenterActive[3];
+	//ATTACHMENTHANDLE ahCenterActive[3];
 	ATTACHMENTHANDLE ahCenterPassive[4];
 	ATTACHMENTHANDLE ahStbdPL[4];
 	ATTACHMENTHANDLE ahPortPL[4];
@@ -755,7 +722,6 @@ private:
 	PSTREAM_HANDLE reentry_flames;
 	PARTICLESTREAMSPEC PS_REENTRY;
 
-	bool bSRBCutoffFlag;
 	bool bLiftOff;
 	bool bHasKUBand;
 	bool bHasODS;
@@ -838,7 +804,6 @@ private:
 	void CreateMPSDumpVents( void );
 	bool bUseRealRCS;
 	void CreateOrbiterTanks();
-	unsigned short usCurrentPlayerChar;
 	bool bCommMode;
 	void DefineSSMEExhaust();
 	//-----------------------------------
@@ -889,10 +854,6 @@ private:
 	 * and back.
 	 */
 	void ToggleVCMode();
-	
-	//RMS
-	bool SatStowed() const;
-	//ATTACHMENTHANDLE CanArrest() const;
 
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
 
@@ -938,7 +899,6 @@ private:
 	UINT anim_bf;                              // handle for body flap animation
 	UINT anim_rudder;						   // handle for rudder animation
 	UINT anim_spdb;                            // handle for speed brake animation
-	UINT anim_dummy;						   // handle for dummy animation
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
 	UINT anim_gear;                            // handle for landing gear animation
@@ -1165,18 +1125,13 @@ private:
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 
-	MGROUP_TRANSFORM *sat_anim, *sat_ref;
-
-	bool reset_mmu, reset_sat;
-	OBJHANDLE hMMU, hSAT;
+	bool reset_mmu;
+	OBJHANDLE hMMU;
 	double jettison_time;
 	bool render_cockpit;
 	VCHUDSPEC huds;
 	double mfdbright[11];
 	double pl_mass;
-	//double dT;
-	VECTOR3 GVesselPos, GVesselVel;
-	//VESSELSTATUS Status;
 
 	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh
 	VECTOR3 payloadCoG;
@@ -1203,9 +1158,6 @@ private:
 	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
 	PIDControl PitchControl;
 
-	//GPC
-	unsigned int SMOps;
-	int last_mfd;
 	bool firstStep; //call functions in first timestep
 	//Data Input
 	CRT* newmfd;
@@ -1221,16 +1173,9 @@ private:
 	//MNVR
 	double curOMSPitch[2], curOMSYaw[2];
 
-	//DAP
-	VECTOR3 ReqdRates;
-
-	vector<double> stage1guidance[2];
-
 	double fTimeCameraLabel;
 	NOTEHANDLE nhCameraLabel;
 	char pszCameraLabelBuffer[80];
-
-	bool bIlluminated;
 
 	//sound
 	int SoundID;
