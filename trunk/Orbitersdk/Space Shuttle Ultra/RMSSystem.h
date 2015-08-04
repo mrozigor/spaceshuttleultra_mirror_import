@@ -231,8 +231,10 @@ private:
 	DiscOutPort ShoulderBraceReleased;
 
 	DiscOutPort CWLights[12];
+	DiscOutPort ModeLights[12];
 
 	DiscOutPort SoftStopTB;// input inverted to display barberpole when "on"
+	bool SoftStop;
 
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;

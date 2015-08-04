@@ -711,11 +711,7 @@ namespace vc
 		pRMSSelect->outputB.Connect(pBundle, 6);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
-		for(unsigned short i=0;i<12;i++)
-		{
-			pRMSMode->ConnectOutputSignal(i, pBundle, i);
-			pModeLights[i]->input.Connect( pBundle, i );
-		}
+		for(unsigned short i=0;i<12;i++) pRMSMode->ConnectOutputSignal(i, pBundle, i);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_DATA", 16);
 		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i);
@@ -773,6 +769,9 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
 		for (int i = 0; i < 12; i++) pCWLights[i]->input.Connect( pBundle, i );
 		pSoftStopTB->SetInput( 0, pBundle, 12, TB_GRAY );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "RMS_MODELIGHTS", 16 );
+		for (int i = 0; i < 12; i++) pModeLights[i]->input.Connect( pBundle, i );
 
 		AtlantisPanel::Realize();
 	}
