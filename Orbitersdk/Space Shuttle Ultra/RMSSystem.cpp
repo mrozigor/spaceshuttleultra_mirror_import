@@ -53,6 +53,8 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	for(int i=0;i<3;i++) ee_translation[i]=0;
 
 	display_angles=false;
+
+	SoftStop = false;
 }
 
 RMSSystem::~RMSSystem()
@@ -111,6 +113,9 @@ void RMSSystem::Realize()
 	for (int i = 0; i < 12; i++) CWLights[i].Connect( pBundle, i );
 	SoftStopTB.Connect( pBundle, 12 );
 	SoftStopTB.SetLine();
+
+	pBundle = STS()->BundleManager()->CreateBundle( "RMS_MODELIGHTS", 16 );
+	for (int i = 0; i < 12; i++) ModeLights[i].Connect( pBundle, i );
 
 	pBundle = STS()->BundleManager()->CreateBundle("RMS_ELBOW_CAM", 16);
 	ElbowCamPanLeft.Connect(pBundle, 0);
@@ -568,17 +573,30 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		bFirstStep = false;
 	}
 
-	// check reach limits
+	// handle light and talkback outputs
 	CWLights[10].ResetLine();
-	for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
+	if (RMSSelect)
 	{
-		if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
+		// check reach limits
+		for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
 		{
-			CWLights[10].SetLine();// reach lim light on
-			break;
+			if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
+			{
+				CWLights[10].SetLine();// reach lim light on
+				break;
+			}
 		}
-	}
 
+		for (int i = 0; i < 12; i++) ModeLights[i].SetLine( (int)RMSMode[i] * 5 );
+
+		SoftStopTB.SetLine( (int)SoftStop * 5 );
+	}
+	else
+	{
+		for (int i = 0; i < 12; i++) ModeLights[i].ResetLine();
+
+		SoftStopTB.ResetLine();
+	}
 }
 
 bool RMSSystem::OnParseLine(const char* line)
@@ -810,13 +828,13 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 
 	// check values are within bounds
 	// make sure speed of each joint is within limits
-	SoftStopTB.SetLine();
+	SoftStop = false;
 	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
 		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
 		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
 			//sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
-			SoftStopTB.ResetLine();
+			SoftStop = true;
 			return false;
 		}
 		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;
