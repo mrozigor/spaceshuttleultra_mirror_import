@@ -49,14 +49,14 @@ namespace vc
 
 		pRCSOMS_PRESS->DefineSwitchGroup( GRP_O3S10_VC );
 		pRCSOMS_PRESS->DefineRotationAngle( 64.0f );
-		pRCSOMS_PRESS->SetOffset( -148.0f );
+		pRCSOMS_PRESS->SetOffset( -32.0f );
 		pRCSOMS_PRESS->SetInitialAnimState( 1.0f );
 		pRCSOMS_PRESS->SetReference( _V( 0.2147, 2.7921, 14.3509 ), rotary_switch_rot );
 		pRCSOMS_PRESS->SetMouseRegion( 0.142551f, 0.704583f, 0.202544f, 0.829816f );
 
 		pRCSOMS_PRPLTQTY->DefineSwitchGroup( GRP_O3S11_VC );
 		pRCSOMS_PRPLTQTY->DefineRotationAngle( 130.0f );
-		pRCSOMS_PRPLTQTY->SetOffset( -115.0f );
+		pRCSOMS_PRPLTQTY->SetOffset( -65.0f );
 		pRCSOMS_PRPLTQTY->SetInitialAnimState( 0.75f );
 		pRCSOMS_PRPLTQTY->SetReference( _V( 0.3653, 2.7950, 14.3503 ), rotary_switch_rot );
 		pRCSOMS_PRPLTQTY->SetMouseRegion( 0.398181f, 0.692892f, 0.454926f, 0.814155f );
