@@ -42,7 +42,7 @@ namespace vc
 
 	void StandardLight2::modifyTexture(float u1, float v1, float u2, float v2)
 	{
-		VISHANDLE vis = STS()->GetVisual();
+		/*VISHANDLE vis = STS()->GetVisual();
 		if (vis != NULL)
 		{
 			DEVMESHHANDLE dmsh = STS()->GetDevMesh(vis, midx);
@@ -63,6 +63,6 @@ namespace vc
 			changes[3].tu = u1;
 			changes[3].tv = v2;
 			oapiEditMeshGroup(dmsh, mshgrp, &grpEditSpec);
-		}
+		}*/
 	}
 }
