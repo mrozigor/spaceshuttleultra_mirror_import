@@ -7358,7 +7358,7 @@ void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
 	if (strTextureName.length() == 0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
 }
 
 ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
