@@ -234,7 +234,6 @@ private:
 	DiscOutPort ModeLights[12];
 
 	DiscOutPort SoftStopTB;// input inverted to display barberpole when "on"
-	bool SoftStop;
 
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
@@ -249,6 +248,15 @@ private:
 	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
+
+	bool bSoftStop;
+
+	bool bEECapture;
+	bool bEEExtended;
+	bool bEEClosed;
+	bool bEEOpened;
+	bool bEERigidized;
+	bool bEEDerigidized;
 
 	// for LED displays on panel A8
 	DiscOutPort JointAngles[6], EEPosition[3], EEAttitude[3];
