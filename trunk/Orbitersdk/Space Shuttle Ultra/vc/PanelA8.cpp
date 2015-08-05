@@ -491,6 +491,7 @@ namespace vc
 		pLEDParameter->SetInitialAnimState(1.0f);
 		pLEDParameter->DefineRotationAngle(210.0f);
 		pLEDParameter->SetOffset(-90.0f);
+		pLEDParameter->SetInitialPosition( 6 );
 
 		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
@@ -757,6 +758,13 @@ namespace vc
 			LED_ParameterSelect[i].Connect(pBundle, i);
 			pLEDParameter->ConnectOutputSignal(i, pBundle, i);
 		}
+		for (int i = 0; i < 12; i++)// for light test
+		{
+			pModeLights[i]->test.Connect( pBundle, 7 );
+			pCWLights[i]->test.Connect( pBundle, 7 );
+		}
+		pSequenceLights[0]->test.Connect( pBundle, 7 );
+		pSequenceLights[1]->test.Connect( pBundle, 7 );
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_SINGLE_JOINT", 16);
 		for(int i=0;i<8;i++) {

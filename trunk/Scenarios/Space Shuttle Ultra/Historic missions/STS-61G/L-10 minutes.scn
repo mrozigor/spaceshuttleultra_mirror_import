@@ -525,7 +525,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Shoulder Brace Release" OFF
   "RMS SELECT" OFF
   "Single/Direct Drive" OFF
-  "Parameter" TEST
+  "Parameter" POSITION
   "Joint" SHOULDER_YAW
   "RMS Mode" OPR_CMD
   @ENDPANEL 

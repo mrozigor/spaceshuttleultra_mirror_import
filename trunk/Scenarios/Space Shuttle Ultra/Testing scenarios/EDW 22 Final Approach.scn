@@ -576,7 +576,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Stbd MPM Deploy" OFF
   "EE Mode" OFF
   "RMS SELECT" OFF
-  "Parameter" TEST
+  "Parameter" POSITION
   "Joint" SHOULDER_YAW
   "RMS Mode" OPR_CMD
   @ENDPANEL 
