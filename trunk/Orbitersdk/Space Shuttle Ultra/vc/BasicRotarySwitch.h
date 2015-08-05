@@ -71,6 +71,12 @@ namespace vc
 		virtual void OnRotateLeft();
 		virtual void OnRotateRight();
 		virtual void OnPositionChange(unsigned short usNewPosition);
+
+		/**
+		 * Sets initial position of switch
+		 * Has to be called in DefineVC function
+		 */
+		void SetInitialPosition(unsigned short usInPos);
 	};
 };
 
