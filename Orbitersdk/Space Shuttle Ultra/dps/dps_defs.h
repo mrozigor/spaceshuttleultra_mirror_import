@@ -24,38 +24,38 @@
   **************************************************************************/
 #pragma once
 
-const char SSU_KEY_FAULTSUMM = 0;
-const char SSU_KEY_SYSSUMM = 1;
-const char SSU_KEY_MSGRESET = 2;
-const char SSU_KEY_ACK = 3;
-const char SSU_KEY_GPCIDP = 4;
-const char SSU_KEY_A = 5;
-const char SSU_KEY_B = 6;
-const char SSU_KEY_C = 7;
-const char SSU_KEY_IORESET = 8;
-const char SSU_KEY_D = 9;
-const char SSU_KEY_E = 10;
-const char SSU_KEY_F = 11;
-const char SSU_KEY_ITEM = 12;
-const char SSU_KEY_1 = 13;
-const char SSU_KEY_2 = 14;
-const char SSU_KEY_3 = 15;
-const char SSU_KEY_EXEC = 16;
-const char SSU_KEY_4 = 17;
-const char SSU_KEY_5 = 18;
-const char SSU_KEY_6 = 19;
-const char SSU_KEY_OPS = 20;
-const char SSU_KEY_7 = 21;
-const char SSU_KEY_8 = 22;
-const char SSU_KEY_9 = 23;
-const char SSU_KEY_SPEC = 24;
-const char SSU_KEY_MINUS = 25;
-const char SSU_KEY_0 = 26;
-const char SSU_KEY_PLUS = 27;
-const char SSU_KEY_RESUME = 28;
-const char SSU_KEY_CLEAR = 29;
-const char SSU_KEY_DOT = 30;
-const char SSU_KEY_PRO = 31;
+const char SSU_KEY_FAULTSUMM = 1;
+const char SSU_KEY_SYSSUMM = 2;
+const char SSU_KEY_MSGRESET = 3;
+const char SSU_KEY_ACK = 4;
+const char SSU_KEY_GPCIDP = 5;
+const char SSU_KEY_A = 6;
+const char SSU_KEY_B = 7;
+const char SSU_KEY_C = 8;
+const char SSU_KEY_IORESET = 9;
+const char SSU_KEY_D = 10;
+const char SSU_KEY_E = 11;
+const char SSU_KEY_F = 12;
+const char SSU_KEY_ITEM = 13;
+const char SSU_KEY_1 = 14;
+const char SSU_KEY_2 = 15;
+const char SSU_KEY_3 = 16;
+const char SSU_KEY_EXEC = 17;
+const char SSU_KEY_4 = 18;
+const char SSU_KEY_5 = 19;
+const char SSU_KEY_6 = 20;
+const char SSU_KEY_OPS = 21;
+const char SSU_KEY_7 = 22;
+const char SSU_KEY_8 = 23;
+const char SSU_KEY_9 = 24;
+const char SSU_KEY_SPEC = 25;
+const char SSU_KEY_MINUS = 26;
+const char SSU_KEY_0 = 27;
+const char SSU_KEY_PLUS = 28;
+const char SSU_KEY_RESUME = 29;
+const char SSU_KEY_CLEAR = 30;
+const char SSU_KEY_DOT = 31;
+const char SSU_KEY_PRO = 32;
 
 
 namespace dps {
