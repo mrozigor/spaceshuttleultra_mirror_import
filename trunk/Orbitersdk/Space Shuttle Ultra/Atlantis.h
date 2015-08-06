@@ -111,11 +111,13 @@ const int SSME_START = 6;
 const static char* SSME_START_FILE = "SSME_ignition.wav";
 const int SSME_RUNNING = 7;
 const static char* SSME_RUNNING_FILE = "SSME_sustain.wav";
-const int SWITCH_GUARD_SOUND = 8;
+const int SSME_SHUTDOWN = 8;
+const static char* SSME_SHUTDOWN_FILE = "SSME_shutdown.wav";
+const int SWITCH_GUARD_SOUND = 9;
 const static char* SWITCH_GUARD_FILE = "switch_guard.wav";
-const int SWITCH_THROW_SOUND = 9;
+const int SWITCH_THROW_SOUND = 10;
 const static char* SWITCH_THROW_FILE = "switch_throw.wav";
-const int KEY_PRESS_SOUND = 10;
+const int KEY_PRESS_SOUND = 11;
 const static char* KEY_PRESS_FILE = "key_press.wav";
 
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
