@@ -38,7 +38,6 @@
 #include "dps/MasterTimingUnit.h"
 #include "dps/MDM.h"
 #include "dps/RSLS.h"
-#include "dps/RSLS_old.h"
 #include "dps/ShuttleBus.h"
 #include "dps/SimpleGPCSystem.h"
 #include "eva_docking/ODS.h"
@@ -71,7 +70,6 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
-#include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
 #include <cassert>
 
@@ -497,8 +495,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pExtAirlock = NULL;
 	hODSDock = NULL;
 
-	pSSME_SOP = NULL;
-
 	psubsystems = new AtlantisSubsystemDirector(this);
 
 	psubsystems->AddSubsystem(pHeEng[0] = new mps::HeSysEng(psubsystems, "HeEng_C", 1));
@@ -588,6 +584,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pMMU[1]->SetTapeImage("Data/SSU/MMU2_TEST.dat");
 
 	psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
+	pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
+	pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
+	pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
 
 	psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
@@ -7267,19 +7266,16 @@ void Atlantis::RealizeSubsystemConnections() {
 
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
-	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	pRSLS->SychronizeCountdown(launch_mjd);
 }
 
 void Atlantis::StartRSLSSequence()
 {
-	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	pRSLS->StartRSLSSequence();
 }
 
 bool Atlantis::GetRSLSAbortFlag() const
 {
-	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	return pRSLS->GetRSLSAbortFlag();
 }
 
@@ -7292,14 +7288,12 @@ void Atlantis::PSN4(void)
 
 void Atlantis::SetSSMEActPos(int num, double Ppos, double Ypos)
 {
-	dps::ATVC_SOP* pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
 	pATVC_SOP->SetSSMEActPos(num, Ppos, Ypos);
 	return;
 }
 
 int Atlantis::GetSSMEPress(int eng)
 {
-	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
 	return Round(pSSME_SOP->GetPercentChamberPressVal(eng));
 }
 

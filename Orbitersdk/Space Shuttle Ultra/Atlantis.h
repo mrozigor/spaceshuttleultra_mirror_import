@@ -48,6 +48,8 @@
 #include "gnc/IMU.h"
 #include "mission/Mission.h"
 #include "dps/SSME_SOP.h"
+#include "dps/ATVC_SOP.h"
+#include "dps/RSLS_old.h"
 #include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "mps/HeliumSystem.h"
@@ -365,6 +367,8 @@ public:
 	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	dps::SSME_SOP* pSSME_SOP;
+	dps::RSLS_old* pRSLS;
+	dps::ATVC_SOP* pATVC_SOP;
 	mps::HeSysEng* pHeEng[3];
 	mps::HeSysPneu* pHePneu;
 	mps::MPS* pMPS;
