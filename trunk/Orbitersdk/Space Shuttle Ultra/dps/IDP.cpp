@@ -119,7 +119,8 @@ namespace dps {
 			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || 
 				cScratchPadLine[i-1]==SSU_KEY_PRO || 
 				cScratchPadLine[i-1]==SSU_KEY_RESUME ||
-				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM) return true;
+				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM ||
+				cScratchPadLine[i-1]==SSU_KEY_FAULTSUMM) return true;
 		}
 		return false;
 	}
@@ -550,6 +551,9 @@ namespace dps {
 					break;
 				case SSU_KEY_SYSSUMM:
 					strcat_s( pszBuffer, "SYS SUMM" );
+					break;
+				case SSU_KEY_FAULTSUMM:
+					strcat_s( pszBuffer, "FAULT SUMM" );
 					break;
 				default:
 					break;
