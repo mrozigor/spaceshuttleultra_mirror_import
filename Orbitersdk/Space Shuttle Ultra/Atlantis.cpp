@@ -3754,6 +3754,7 @@ void Atlantis::clbkPostCreation()
 			SoundOptionOnOff(SoundID, PLAYUSERTHRUST, FALSE);
 			RequestLoadVesselWave(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
 			RequestLoadVesselWave(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+			RequestLoadVesselWave(SoundID, SSME_SHUTDOWN, (char*)SSME_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
 
 			//APU sounds
 			RequestLoadVesselWave(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
@@ -4470,7 +4471,7 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			break;
 		case STATE_STAGE1: // SRB's ignited
 			//play sounds
-			if (!IsPlaying(SoundID, SSME_START))
+			if (!IsPlaying(SoundID, SSME_START) && !pRSLS->GetRSLSAbortFlag())
 				PlayVesselWave(SoundID, SSME_RUNNING, LOOP);
 			for (unsigned short i = 0; i < 3; i++)
 			{
@@ -4500,6 +4501,12 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			}
 			else {
 				LaunchClamps();
+
+				if (pRSLS->GetRSLSAbortFlag())// handle pad abort (sound wise)
+				{
+					if (IsPlaying( SoundID, SSME_RUNNING )) PlayVesselWave( SoundID, SSME_SHUTDOWN, NOLOOP );
+					StopVesselWave( SoundID, SSME_RUNNING );
+				}
 			}
 
 			break;
