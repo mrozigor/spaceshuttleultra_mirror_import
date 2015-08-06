@@ -143,8 +143,16 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 		else {
 			if(timeToLaunch < 16.0) SSSLevel = 1.0;
-			if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
-			if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
+			if (pSTS->GetRSLSAbortFlag())
+			{
+				SSS_SSMESteam = 0.0;
+				SSS_SRBSteam = 0.0;
+			}
+			else
+			{
+				if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
+				if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
+			}
 		}
 	}
 

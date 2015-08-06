@@ -225,7 +225,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 		SSS_SSMELevel = min( (14 - fCountdown) * 0.5, 1 );
 		SSS_LSRBLevel = min( (11 - fCountdown) * 0.5, 1 );
 		SSS_RSRBLevel = min( (12.5 - fCountdown) * 0.5, 1 );
-		SSS_RainbirdsLevel = min( -fCountdown, 1 );
+		if (T0UmbilicalState.Closed() == false) SSS_RainbirdsLevel = min( -fCountdown, 1 );// HACK using T0UmbilicalState as indication of liftoff
 	}
 	else
 	{
