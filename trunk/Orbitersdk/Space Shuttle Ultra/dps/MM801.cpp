@@ -1,4 +1,5 @@
 #include "MM801.h"
+#include "IDP.h"
 #include "../Atlantis.h"
 #include <UltraMath.h>
 
@@ -42,6 +43,8 @@ namespace dps
 
 	bool MM801::OnPaint(int spec, vc::MDU* pMDU) const
 	{
+		if (spec != dps::MODE_UNDEFINED) return false;
+
 		PrintCommonHeader(" FCS/DED DIS C/O",pMDU);
 
 		//DED DIS SECTION
