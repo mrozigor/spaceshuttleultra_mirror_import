@@ -77,7 +77,12 @@ void Atlantis_Tank::UseBurntETTexture()
 
 void Atlantis_Tank::UseETTexture(const char* pszTexName)
 {
-	SURFHANDLE texture = oapiLoadTexture(pszTexName);
+	SURFHANDLE texture = oapiLoadTexture(pszTexName, true);
+	if (texture == NULL)
+	{
+		oapiWriteLog("(Atlantis_Tank) ERROR: Could not load texture");
+		return;
+	}
 	if(!oapiSetTexture(hDevTankMesh, 1, texture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
 }
