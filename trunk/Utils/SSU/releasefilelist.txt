@@ -39,9 +39,7 @@ Config\SSU\MDM\test.mdm
 Config\Vessels\107payloads.cfg
 Config\Vessels\SpaceShuttleUltra.cfg
 Config\Vessels\SSRMSD.cfg
-Config\Vessels\SSU_CentaurGPrime.cfg
 Config\Vessels\SSU_Chute.cfg
-Config\Vessels\SSU_CISS_CentaurGPrime.cfg
 Config\Vessels\SSU_CT.cfg
 Config\Vessels\SSU_CT_1980.cfg
 Config\Vessels\SSU_DFI_pallet.cfg
@@ -96,8 +94,6 @@ Doc\Space Shuttle Ultra\Tech Notes\SSRMS IK Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
 Meshes\SSRMSF.msh
-Meshes\SSU\CentaurG_Prime.msh
-Meshes\SSU\CISS_CentaurG_Prime.msh
 Meshes\SSU\Cockpit.msh
 Meshes\SSU\Crawler_drivetrucks.msh
 Meshes\SSU\Crawler_drivetrucks_reversed.msh
@@ -193,10 +189,6 @@ Meshes\SSU\VAB_exterior_1980.msh
 Meshes\SSU\VAB_interior_structure.msh
 Meshes\SSU\VAB_interior_structure_low-res.msh
 Meshes\SSU\VC.msh
-Meshes\SSU\CXO\Chandra_AXAF.msh
-Meshes\SSU\IUS\IUS_ASE.msh
-Meshes\SSU\IUS\IUS_SRM1.msh
-Meshes\SSU\IUS\IUS_SRM2.msh
 Meshes\VandenbergAFB\OrbiterLiftingFrame.msh
 Meshes\VandenbergAFB\SLC-6_STS.msh
 Meshes\VandenbergAFB\SLC-6_STS_AT.msh
@@ -213,14 +205,10 @@ Missions\SSU\STS-107.cfg
 Missions\SSU\STS-114.cfg
 Missions\SSU\STS-120.cfg
 Missions\SSU\STS-126.cfg
-Missions\SSU\STS-61F.cfg
-Missions\SSU\STS-61G.cfg
 Missions\SSU\STS-62A.cfg
 Missions\SSU\STS-62B.cfg
 Modules\SpaceShuttleUltra.dll
 Modules\SSUChute.dll
-Modules\SSU_Centaur.dll
-Modules\SSU_CISS.dll
 Modules\SSU_Crawler.dll
 Modules\SSU_LCC.dll
 Modules\SSU_MLP.dll
@@ -232,8 +220,6 @@ Modules\SSU_VAB.dll
 Modules\SSU_Xenon_Lights.dll
 Modules\Plugin\CRT.dll
 Scenarios\Space Shuttle Ultra\Launch test.scn
-Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-F).scn
-Scenarios\Space Shuttle Ultra\Historic missions\Death Star Flights (STS 61-G).scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
@@ -247,8 +233,6 @@ Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Tanking Test scenario.sc
 Scenarios\Space Shuttle Ultra\Historic missions\STS-120\STS-120 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 docking with ISS Nov 16.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 launch.scn
-Scenarios\Space Shuttle Ultra\Historic missions\STS-61G\Atlantis on orbit.scn
-Scenarios\Space Shuttle Ultra\Historic missions\STS-61G\L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-62B\STS-62B T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Atlantis in orbit.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\CT-1 roadtest.scn
@@ -287,33 +271,6 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_guard.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_throw.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-10-Seconds-SSME-Go.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-15-Second-Hack.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-60-Second-Hack.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-90-Second-Hack.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Activate-Recorders.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Autosequence-Start.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Clock-Resume-MARK.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Close-and-Lock-Visors.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Go-no-Go.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-LH2-Pressurization.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-LO2-Pressurization.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-MMT-Go-no-Go.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-NTD-Ready.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Orbiter-Arm-Retract.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Perform-Prestart.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Purge-4.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_212-Strip-Chart-Activate.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-APU-Prestart-Complete.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-APU-Prestart.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Busses-Fuel-Cells.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CDR-is-Go.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CW-Clear.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-CW-Memory-Clear.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Heater-Reconfig.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-No-errors.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-PLT-in-Work.wav
-Sound\_CustomVesselsSounds\SpaceShuttleUltra\Prelaunch\Launch-Comm_UHF-Visors-and-O2.wav
 Textures\SSU\10K_marker.dds
 Textures\SSU\11K_marker.dds
 Textures\SSU\12K_marker.dds
@@ -349,10 +306,8 @@ Textures\SSU\Casing_FWC.dds
 Textures\SSU\Casing_OFT_LH.dds
 Textures\SSU\Casing_OFT_RH.dds
 Textures\SSU\CCTVMon.dds
-Textures\SSU\CentaurG_LO2dome_foil.dds
 Textures\SSU\Challenger_original.dds
 Textures\SSU\chute.dds
-Textures\SSU\CISS_tex.dds
 Textures\SSU\clocknums.dds
 Textures\SSU\COAS.dds
 Textures\SSU\Columbia_8thmod.dds
@@ -497,16 +452,6 @@ Textures\SSU\VAB_floor.dds
 Textures\SSU\VAB_HLD.dds
 Textures\SSU\VAB_interior_beams_1.dds
 Textures\SSU\VAB_VLD.dds
-Textures\SSU\CXO\Chandra_XO_goldfoil.dds
-Textures\SSU\CXO\Chandra_XO_goldfoil_norm.dds
-Textures\SSU\CXO\Chandra_XO_silverfoil.dds
-Textures\SSU\CXO\Chandra_XO_silverfoil_norm.dds
-Textures\SSU\CXO\Chandra_XO_silverfoil_refl.dds
-Textures\SSU\CXO\Chandra_XO_solar_array.dds
-Textures\SSU\IUS\IUSgoldfoil.dds
-Textures\SSU\IUS\IUS_ASE_tex1.dds
-Textures\SSU\IUS\IUS_ASE_tex2.dds
-Textures\SSU\IUS\IUS_interstage_civilian.dds
 Textures\STS-107payloads\EDOcryokit_tex.dds
 Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
 Textures\STS-107payloads\SpaceHAB_RDM.dds
