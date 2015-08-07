@@ -2464,7 +2464,6 @@ void Atlantis::AddOrbiterVisual()
 		//Only make visible when actually inside the mid deck
 		bMidDeckVisible = false;
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
-		//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
 
 		VECTOR3 chute_ofs = CHUTE_ATTACH_POINT;
 		mesh_dragchute = AddMesh(hDragChuteMesh, &chute_ofs);
@@ -2472,14 +2471,7 @@ void Atlantis::AddOrbiterVisual()
 
 		/* Add optional A7A3/A8A3 panel meshes
 		*/
-		if (pA7A8Panel)
-		{
-			pA7A8Panel->AddMeshes(VC_OFFSET);
-			// functions below should be called by panel group
-			/*pA7A8Panel->DefineVC();
-			pA7A8Panel->DefineVCAnimations(mesh_vc);
-			pA7A8Panel->Realize();*/
-		}
+		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 
 		pgForward.DefineVC();
@@ -2547,9 +2539,6 @@ void Atlantis::AddOrbiterVisual()
 			pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos()));
 			oapiWriteLog("\tDONE.");
 		}
-
-
-
 
 	}
 }
@@ -2815,14 +2804,14 @@ void Atlantis::UpdateMesh()
 
 
 	// update MFD brightness
-	if (vis) {
+	/*if (vis) {
 		int i;
 		MESHHANDLE hMesh = GetMesh(vis, mesh_vc);
 		for (i = 0; i < 10; i++) {
 			MATERIAL *mat = oapiMeshMaterial(hMesh, 10 + i);
 			mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)mfdbright[i];
 		}
-	}
+	}*/
 }
 
 void Atlantis::ShowMidDeck()
@@ -3516,10 +3505,6 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			bHasKUBand = pMission->HasKUBand();
 		}
-		else if (!_strnicmp(line, "MET", 3))
-		{
-			sscanf(line + 3, "%lf", &met);
-		}
 		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
 		{
 			sscanf(line + 10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
@@ -3645,10 +3630,6 @@ void Atlantis::clbkSaveState(FILEHANDLE scn)
 	// custom parameters
 	oapiWriteScenario_int(scn, "CONFIGURATION", status);
 	oapiWriteScenario_int(scn, "VC_POS", VCMode);
-
-	/*if (status == 1)
-		oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-		else oapiWriteScenario_float (scn, "MET", met);*/
 
 	if (spdb_status != AnimState::CLOSED)
 	{
@@ -5529,35 +5510,23 @@ bool Atlantis::clbkLoadVC(int id)
 // --------------------------------------------------------------
 bool Atlantis::clbkVCMouseEvent(int id, int _event, VECTOR3 &p)
 {
-	bool bRet = false;
-	static bool counting = false;
-	static double t0 = 0.0;
-
-	//sprintf_s(oapiDebugString(), 255, "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
-
-	bRet = pgForward.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgLeft.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgRight.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgCenter.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgOverhead.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgOverheadAft.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgAft.OnVCMouseEvent(id, _event, p);
-	if (!bRet) bRet = pgAftStbd.OnVCMouseEvent(id, _event, p);
-
-	switch (id)
-	{
-		// handle MFD selection buttons
-	case AID_F7:
-		return false;
-	}
-
-	if (AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
-	{
-		if (pA7A8Panel)
-			pA7A8Panel->OnVCMouseEvent(id, _event, p);
-	}
-
-	return bRet;
+	if (pgForward.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgLeft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgRight.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgCenter.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgOverhead.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgOverheadAft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAftStbd.OnVCMouseEvent( id, _event, p ))
+		return true;
+	return false;
 }
 
 // --------------------------------------------------------------
@@ -7482,8 +7451,6 @@ void Atlantis::UpdateMPSManifold(void)
 	LO2LowLevelSensor[1].SetValue(lvl);
 	LO2LowLevelSensor[2].SetValue(lvl);
 	LO2LowLevelSensor[3].SetValue(lvl);
-	
-	//UpdateMassAndCoG();
 	return;
 }
 

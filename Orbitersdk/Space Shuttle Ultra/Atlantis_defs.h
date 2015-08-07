@@ -9,11 +9,7 @@ const static char* DEFAULT_MESHNAME_VC = "SSU/VC";
 const static char* DEFAULT_MESHNAME_KU = "SSU/Ku_band_DA";
 const static char* DEFAULT_MESHNAME_COCKPIT = "SSU/Cockpit";
 const static char* DEFAULT_MESHNAME_MIDDECK = "SSU/MidDeck";
-//const static char* DEFAULT_MESHNAME_RMS = "SSU/RMS";
-//const static char* DEFAULT_MESHNAME_MPM = "SSU/OBSSMPMs";
 const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
-//const static char* DEFAULT_MESHNAME_LSRB = "SSU/LSRB";
-//const static char* DEFAULT_MESHNAME_RSRB = "SSU/RSRB";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_EXTAL = "SSU/ExtAL";
 const static char* DEFAULT_MESHNAME_ODS = "SSU/ODS";
@@ -23,14 +19,6 @@ const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
-//const VECTOR3 OFS_LAUNCH_ORBITER   = { 0.0, 6.04,-7.989};
-//const VECTOR3 OFS_LAUNCH_TANK      = { 0.0,-1.91, 5.72 };
-//const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.2,-1.91,-5.68 };
-//const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.2,-1.91,-5.68 };
-//const VECTOR3 OFS_LAUNCH_RIGHTSRB  = { 6.27,-1.91,-5.68 };
-//const VECTOR3 OFS_LAUNCH_LEFTSRB   = {-6.27,-1.91,-5.68 };
-//const VECTOR3 OFS_WITHTANK_ORBITER = { 0.0, 4.658,-9.414};
-//const VECTOR3 OFS_WITHTANK_TANK    = { 0.0,-3.34, 4.33 };
 const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
 const VECTOR3 ODS_POS = _V(0.0, -1.1, 7);// Only X and Y axes used. Z pos is set in Mission.cpp (fODSZPos)
@@ -56,9 +44,9 @@ const unsigned short MPS_SSME_LEFT = 2;
 const unsigned short MPS_SSME_RIGHT = 3;
 const unsigned short MPS_SSME_ALL = 6;
 
-const VECTOR3 SSMER_REF = _V(1.4484, -1.5694, -14.6918);// (1.4326, -1.6865, -13.7139);
-const VECTOR3 SSMEL_REF = _V(-1.4484, -1.5694, -14.6918);// (-1.4326, -1.6865, -13.7139);
-const VECTOR3 SSMET_REF = _V(0.0, 1.3289, -14.1236);// (0.0, 0.9939, -13.1244);
+const VECTOR3 SSMER_REF = _V(1.4484, -1.5694, -14.6918);
+const VECTOR3 SSMEL_REF = _V(-1.4484, -1.5694, -14.6918);
+const VECTOR3 SSMET_REF = _V(0.0, 1.3289, -14.1236);
 
 const VECTOR3 SSMET_INSTALLED_NULL_POS = _V( 0, -0.275637355816999, 0.961261695938319 );
 const VECTOR3 SSMEL_INSTALLED_NULL_POS = _V( 0.060121075043999, -0.173648177666930, 0.982970888037132 );
@@ -68,14 +56,11 @@ const VECTOR3 SSMET_GOX_REF = _V(1.17425, 1.97127, -16.1533);
 const VECTOR3 SSMEL_GOX_REF = _V(-1.62164, -0.02995, -16.5744);
 const VECTOR3 SSMER_GOX_REF = _V(2.76173, -1.14272, -16.7011);
 
-//const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.069338, 0.99759);
 const VECTOR3 SRB_THRUST_DIR = _V(0.0, 0.0, 1.0);
 
 
 const VECTOR3 POS_HDP = _V(0.0, -10.25, -19.6);
 const VECTOR3 POS_TOW = _V(0.0, -5.64, 14.73);
-
-//const VECTOR3 STBDMPM_REF = _V(2.81, 1.60, 1.68);
 
 const VECTOR3 PROBEL_REF = _V(-1.134,-2.346,17.092);
 const VECTOR3 PROBER_REF = _V( 1.134,-2.346,17.092);
@@ -351,13 +336,5 @@ const VECTOR3 ET_LOX_BASE = ET_OFFSET + _V(0.0, 0.0, 15.0); // might not be exac
 
 static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
 	"XS1A", "XS3A", "XS5A"};
-
-//const double DEFAULT_PAYLOAD_ZPOS[16] = 
-//{ 8.0, 0.0, -8.0,		//Center active
-//  4.0, 2.0, -6.0,		//Center passive
-//  7.0, 3.0, -2.0, -8.0,	//Port
-//  7.0, 3.0, -2.0, -8.0,	//Starboard
-//  0.0, 0.0};			//spare
-
 
 #endif _ATLANTISDEFS_H_B4CB100F_2A86_4D6A_ADAA_746D20EACCFF
