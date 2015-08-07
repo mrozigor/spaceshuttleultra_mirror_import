@@ -451,23 +451,55 @@ void SLC6::DefineSSS()
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_water = {
-		0, 0.05, 100.0, 12.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		0, 0.05, 30.0, 16.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
 
-	for(int i=0;i<=19;i++) {
+	for(int i=0;i<=19;i++) {// SSME hole
 		double zpos = 4+0.4*i;
-		AddParticleStream(&sss_water, _V(-4.11, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(4.11, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
+		AddParticleStream(&sss_water, _V(-4.11, 6.48, zpos), _V(0.866025, -0.5, 0), &SSSLevel);
+		AddParticleStream(&sss_water, _V(4.11, 6.48, zpos), _V(-0.866025, -0.5, 0), &SSSLevel);
 	}
-	for(int i=0;i<=10;i++) {
-		double zpos = -2.73+0.3*i;
-		AddParticleStream(&sss_water, _V(-9.52, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(-1.75, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(9.52, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(1.75, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
+
+	for (int i = 0; i <= 15; i++)// SRB hole (horizontal)
+	{
+		double zpos = -13.9 + (i * 0.51);
+		AddParticleStream( &sss_water, _V( -13.0, -0.7, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -1.75, -0.7, zpos ), _V( -1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 1.75, -0.9, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 13.0, -0.9, zpos ), _V( -1, 0, 0 ), &SSSLevel );
 	}
+
+	for (int i = 0; i <= 14; i++)// SRB hole (vertical)
+	{
+		double ypos = 4.9 - (i * 0.4);
+		AddParticleStream( &sss_water, _V( -10.68, ypos, -5.1765 ), _V( 1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -3.2, ypos, -5.1765 ), _V( -1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 3.2, ypos, -5.1765 ), _V( 1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 10.68, ypos, -5.1765 ), _V( -1, 0, 0), &SSSLevel );
+	}
+
+	for (int i = 0; i <= 7; i++)// pad east surface
+	{
+		double xpos = 4.8 + (i * 1.05);
+		AddParticleStream( &sss_water, _V( xpos, -0.4, -16.2 ), _V( 0, 0, -1 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -xpos, -0.4, -16.2 ), _V( 0, 0, -1 ), &SSSLevel );
+	}
+
+	// corner jets
+	AddParticleStream( &sss_water, _V( 14.5, -0.4, -15.2 ), _V( 0.866025, 0, -0.5 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( 13.5, -0.4, -16.2 ), _V( 0.5, 0, -0.866025 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( -13.5, -0.4, -16.2 ), _V( -0.5, 0, -0.866025 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( -14.5, -0.4, -15.2 ), _V( -0.866025, 0, -0.5 ), &SSSLevel );
+
+	for (int i = 0; i <= 7; i++)// pad north & south surfaces
+	{
+		double zpos = -6.0 - (i * 1.1);
+		AddParticleStream( &sss_water, _V( 14.5, -0.4, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -14.5, -0.4, zpos ), _V( -1, 0, 0 ), &SSSLevel );
+	}
+
 	AddParticleStream(&sss_steam, _V(-63.0, -7.0, 50.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SSMESteam);
 	AddParticleStream(&sss_steam_SRB, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
 	AddParticleStream(&sss_steam_SRB, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
