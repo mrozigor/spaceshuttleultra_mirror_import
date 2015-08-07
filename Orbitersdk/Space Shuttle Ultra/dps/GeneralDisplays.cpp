@@ -2057,9 +2057,11 @@ namespace dps
 		thr /= STS()->GetMass();
 		VECTOR3 LVLH_Vel;
 		STS()->GetGPCLVLHVel(0, LVLH_Vel);
+		double AOA = STS()->GetAOA();
+		double Pitch = STS()->GetPitch();
 		// 20s predictor
-		VR += (length( thr ) * cos( -STS()->GetAOA() - atan( thr.y / thr.z ) ) - G * sin( PI - STS()->GetPitch() - STS()->GetAOA() )) * 20 * MPS2FPS;
-		Altitude += -LVLH_Vel.z * 20 + ((length( thr ) * sin( STS()->GetPitch() + atan( thr.y / thr.z ) ) - G) * 400) * MPS2FPS;
+		VR += (length( thr ) * cos( -AOA - atan( thr.y / thr.z ) ) - G * sin( PI - Pitch - AOA )) * 20 * MPS2FPS;
+		Altitude += -LVLH_Vel.z * 20 + ((length( thr ) * sin( Pitch + atan( thr.y / thr.z ) ) - G) * 400) * MPS2FPS;
 		if (VR < 0) VR = 0;
 		if (Altitude < 0) Altitude = 0;
 		stY = static_cast<short>(208 - (Altitude * 0.00105556));
@@ -2210,12 +2212,14 @@ namespace dps
 		
 		// HACK using constant 12º for SSME offset
 		// 30s predictor
+		double earthR = 20902200;//6371010 * MPS2FPS;
 		double thrustAcceleration = pAscentGuidance->GetThrustAcceleration();
 		double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
 		VHI += dv30;
 		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
 		//Draw circle for 30s predictor
-		stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+		//stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+		stY = static_cast<short>(315.358974 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 900) - earthR) * 0.000641026));
 		stX = static_cast<short>(VHI * 0.0102);
 		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
 
@@ -2223,7 +2227,8 @@ namespace dps
 		VHI += dv30;
 		Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
 		//Draw circle for 60s predictor
-		stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+		//stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
+		stY = static_cast<short>(315.358974 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 3600) - earthR) * 0.000641026));
 		stX = static_cast<short>(VHI * 0.0102);
 		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
 		return;
