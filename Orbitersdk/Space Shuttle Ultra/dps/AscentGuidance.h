@@ -50,14 +50,11 @@ const double SSME_TAILOFF_DV_91_2EO = 35;// fps
 // HACK the mass is just a guess, it's probably a little lower
 const double LOWLEVEL_ARM_MASS = 370000;// lbs
 
-const double DROOP_ALT = 265000;// ft
-
 
 class SSME_SOP;
 class SSME_Operations;
 class ATVC_SOP;
 class SRBSepSequence;
-class ETSepSequence;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -73,15 +70,11 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	//virtual bool ItemInput(int spec, int item, const char* Data);
-	//virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	void NullSRBNozzles( void );
-
-	bool OnPaint( int spec, vc::MDU* pMDU ) const;
 
 	/**
 	 * Gets current state of throttle commanding.
@@ -94,6 +87,14 @@ public:
 	 * @return	attitude errors (deg) (x=pitch, y=yaw, z=roll)
 	 */
 	VECTOR3 GetAttitudeErrors( void ) const;
+
+	double GetThrottleCommand( void ) const;
+	bool SERCenabled( void ) const;
+	double GetEOVI( int EO ) const;
+	double GetTgtSpd( void ) const;
+	double GetInertialVelocity( void ) const;
+	double GetThrustAcceleration( void ) const;
+	double GetTimeRemaining( void ) const;
 private:
 	void InitializeAutopilot();
 
@@ -131,9 +132,6 @@ private:
 	void Guide();
 
 	void AdaptiveGuidanceThrottling( void );
-
-	void ASCENTTRAJ1( vc::MDU* pMDU ) const;
-	void ASCENTTRAJ2( vc::MDU* pMDU ) const;
 
 	// utility functions required by PEG guidance
 	inline double b0(double TT) {
@@ -211,7 +209,7 @@ private:
 	SSME_Operations* pSSME_Operations;
 	ATVC_SOP* pATVC_SOP;
 	SRBSepSequence* pSRBSepSequence;
-	ETSepSequence* pETSepSequence;
+	
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds
