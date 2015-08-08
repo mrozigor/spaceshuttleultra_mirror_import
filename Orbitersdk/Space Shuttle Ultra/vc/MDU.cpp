@@ -68,7 +68,7 @@ namespace vc {
 		//
 	}
 
-	void MDU::DrawCommonHeader(const char* cDispTitle)
+	/*void MDU::DrawCommonHeader(const char* cDispTitle)
 	{
 		char cbuf[200];
 		char cspecbuf[4];
@@ -105,18 +105,18 @@ namespace vc {
 
 	
 		mvprint(0, 0, cbuf);
-	}
+	}*/
 
-	const string& MDU::GetEdgekeyMenu() const
+	/*const string& MDU::GetEdgekeyMenu() const
 	{
 		static string r = "MAIN MENU";
 		return r;
-	}
+	}*/
 
-	char* MDU::GetEdgeKeyMenuLabel(int iButton)
+	/*char* MDU::GetEdgeKeyMenuLabel(int iButton)
 	{
 		return NULL;
-	}
+	}*/
 
 	short MDU::GetPortConfig() const
 	{
@@ -599,8 +599,6 @@ namespace vc {
 
 	void MDU::UpdateTextBuffer()
 	{
-		//char cbuf[255];
-
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
 				textBuffer[i][j].cSymbol=0;
@@ -616,29 +614,6 @@ namespace vc {
 		else {
 			PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 		}
-		/*if(!prim_idp->OnPaint(this)) {
-			if(STS()->ops==201) {
-				if(prim_idp) {
-					//if DISP is not set, show appropriate SPEC/default display
-					if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-						if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
-						else if(prim_idp->GetSpec()==20) DAP_CONFIG();
-						else {
-							char cbuf[55];
-							sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
-						}
-					}
-					else {
-						char cbuf[55];
-						sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
-					}
-					//else UNIVPTG();
-				}
-				else {
-					PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
-				}
-			}
-		}*/
 		
 		//print Scratch Pad line
 		const char* scratch_pad=prim_idp->GetScratchPadLineString();
@@ -661,18 +636,6 @@ namespace vc {
 		}
 	}
 
-
-	
-
-	/*
-	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
-		const VECTOR3& bottom_left, const VECTOR3& bottom_right)
-	{
-		//Create VC definitions for creating a independent MDU
-		return NULL;
-	}
-	*/
-
 	unsigned short MDU::GetDrivingIDP() const
 	{
 		if(this->bUseSecondaryPort)
@@ -694,11 +657,7 @@ namespace vc {
 		
 	}
 
-	void MDU::SwitchMFDMode()
-	{
-	}
-
-	void MDU::GPCMEMORY()
+	/*void MDU::GPCMEMORY()
 	{
 	
 		DrawCommonHeader("GPC MEMORY");
@@ -734,7 +693,7 @@ namespace vc {
 		mvprint(29, 5, "BIT RST 23");
 		mvprint(42, 5, "WRITE 25");
 		mvprint(19, 6, "26 ENG UNITS");
-	}
+	}*/
 
 	void MDU::AEPFD( HDC hDC )
 	{

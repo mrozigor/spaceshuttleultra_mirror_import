@@ -31,7 +31,7 @@ namespace mission {
 		//fLandTimeMJD = -1.0;
 
 		fTargetInc = 28.5*RAD;
-		fMECOAlt = 105000;
+		fMECOAlt = 105564;
 		fMECOVel = 7869.635088;
 		fMECOFPA = 0.747083*RAD;
 
@@ -132,9 +132,7 @@ namespace mission {
 		}
 
 		oapiReadItem_bool(hFile, "PerformRollToHeadsUp", bPerformRTHU);
-		//double fTemp;
-		//if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
-		
+
 		oapiReadItem_bool( hFile, "OMSAssistEnable", bUseOMSAssist );
 		oapiReadItem_float( hFile, "OMSAssistDuration", OMSAssistDuration );
 
@@ -236,11 +234,6 @@ namespace mission {
 		return fMaxSSMEThrust;
 	}
 
-	/*unsigned int Mission::GetNumberOfOMSBurns() const
-	{
-		return 0;
-	}*/
-
 	double Mission::GetPayloadZPos(unsigned int iIndex) const
 	{
 		if(iIndex > 15)
@@ -324,11 +317,6 @@ namespace mission {
 	{
 		return OVmass;
 	}
-
-	/*bool Mission::UseDirectAscent() const
-	{
-		return true;
-	}*/
 	
 	bool Mission::UseOMSAssist() const
 	{
