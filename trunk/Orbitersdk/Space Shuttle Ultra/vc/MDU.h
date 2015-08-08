@@ -184,8 +184,7 @@ namespace vc {
 		//Use a paint buffer for storing primitives?
 	protected:
 		virtual void RegisterMFDContext(int id);
-		virtual void SwitchMFDMode();
-		void DrawCommonHeader(const char* cDispTitle);
+		//void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 
 	public:
@@ -194,7 +193,7 @@ namespace vc {
 		//bool PrintChar(unsigned short x, unsigned short y, DEUCHAR c);
 		//bool PrintString(unsigned short x, unsigned short y, char* pText, short sLength, char cAttr = DEUATT_NORMAL);
 		//DEUCHAR GetTextBuffer(unsigned short x, unsigned short y) const;
-		virtual char* GetEdgeKeyMenuLabel(int iButton);
+		//virtual char* GetEdgeKeyMenuLabel(int iButton);
 		bool SetPrimaryIDP(dps::IDP* idp);
 		bool SetSecondaryIDP(dps::IDP* idp);
 		inline dps::IDP* GetIDP() const {
@@ -454,11 +453,8 @@ namespace vc {
 			Line( x + 7, y + 1, x, y + 1, attributes );*/
 		}
 
-		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
-		//	const VECTOR3& bottom_right);
-
 		virtual bool GetViewAngle() const;
-		virtual const string& GetEdgekeyMenu() const;
+		//virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
 		virtual bool GetSelectedPort() const;
 
@@ -480,7 +476,7 @@ namespace vc {
 		 * Display functions
 		 * Update text buffer with appropriate data for display
 		 */
-		void GPCMEMORY();
+		//void GPCMEMORY();
 
 		/**
 		 * MEDS Display functions

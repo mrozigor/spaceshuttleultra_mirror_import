@@ -136,8 +136,6 @@ namespace mission {
 		 * @return maximum SSME thrust during standard launch profile
 		 */
 		virtual double GetMaxSSMEThrust() const;
-
-		//virtual unsigned int GetNumberOfOMSBurns() const;
 		
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
@@ -168,8 +166,6 @@ namespace mission {
 		 * @return	mass of Orbiter Vehicle (kg)
 		 */
 		virtual double GetOrbiterMass( void ) const;
-
-		//virtual bool UseDirectAscent() const;
 		/**
 		 * returns enable status of OMS Assist
 		 */
@@ -190,13 +186,14 @@ namespace mission {
 		 * Returns MaxQ throttle up velocity in fps
 		 */
 		virtual double GetTHupVelocity() const;
+		/**
+		 * Returns true if KU-band antenna is installed.
+		 */
 		virtual bool HasKUBand() const;
-
 		/**
 		 * Returns true if SILTS pod is installed.
 		 */
 		virtual bool UseSILTS() const;
-		
 		/**
 		 * Returns true if SSME data arriving at the EIU is to be logged.
 		 */
