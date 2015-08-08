@@ -91,9 +91,9 @@ The basis for this addon was the Space Shuttle Deluxe but through adding additio
 \\
 Other good NASA references are the Shuttle Crew Operations Manual (SCOM), the DPS Dictionary, and the various Workbooks and Handbooks that are available on the Internet (these can also be found at the above link). \\
 \\
-This document contains the condensed material taken from various NASA documents as well and Orbiter and SSU specific information.  The goal of this document is to provide a typical Orbiter User the information need to perform basic SSU flights as well as  to aid in basic custum mission creation.  Separate documents will be provided for developers who would like to create a SSU compatible payloads and scenarios.\\
+This document contains the condensed material taken from various NASA documents as well and Orbiter and SSU specific information.  The goal of this document is to provide a typical Orbiter User the information need to perform basic SSU flights as well as  to aid in basic custom mission creation.  Separate documents will be provided for developers who would like to create a SSU compatible payloads and scenarios.\\
 \\
-This document is formated to look the same as the SCOM to facilitate changing from one document to the other.  Additional information or clarification is presented in three formats: notes, cautions, and warnings. Notes provide amplifying information of a general nature. Cautions provide information and instructions necessary to prevent hardware damage or malfunction (not yet simulated). Warnings provide information and instructions necessary to ensure crew safety (also not simulated). The formats in which this material appears are illustrated below.\\
+This document is formatted to look the same as the SCOM to facilitate changing from one document to the other.  Additional information or clarification is presented in three formats: notes, cautions, and warnings. Notes provide amplifying information of a general nature. Cautions provide information and instructions necessary to prevent hardware damage or malfunction (not yet simulated). Warnings provide information and instructions necessary to ensure crew safety (also not simulated). The formats in which this material appears are illustrated below.\\
 \\
 \NOTE{A barberpole APU/HYD READY TO START talkback will not inhibit a start.}
 \CAUTION{After an APU auto shutdown, the APU FUEL TK VLV switch must be taken to CLOSE prior to inhibiting auto shutdown logic. Failure to do so can allow the fuel tank isolation valves to reopen and flow fuel to an APU gas generator bed that is above the temperature limits for safe restart.}
@@ -112,9 +112,7 @@ SSU requires the following addons to be installed:
 \item KSC hires tiles (\url{http://www.orbithangar.com/searchid.php?ID=5583})
 \item Vandenberg AFB (\url{http://www.orbithangar.com/searchid.php?ID=2380})
 \end{enumerate}
-After extracting SSU, the following lines need to be added to \texttt{Config/Base.cfg}:\\
-\texttt{CONCRETE\_014\\CONCRETE\_015\\CONCRETE\_016}
-\\
+
 CRT MFD needs to be enabled (Orbiter Launchpad $\rightarrow$ Modules $\rightarrow$ check \textit{CRT} box).
 
 Using the D3D9 graphics client is strongly recommended (although not required). The \textit{Enable geometry instancing} option in the D3D9 Advanced Setup dialog (Orbiter Launchpad $\rightarrow$ Video $\rightarrow$ Advanced) should be unchecked.
@@ -137,7 +135,7 @@ Using the D3D9 graphics client is strongly recommended (although not required). 
 %\\[0.4cm]
 \noindent
 \\
-The section provides general background information about the obiter, its configuration and coordinate system, the nominal mission profile, and general procedures followed during a shuttle mission.
+The section provides general background information about the orbiter, its configuration and coordinate system, the nominal mission profile, and general procedures followed during a shuttle mission.
 \\
 Also included in this section is keyboard commands for SSU but will not include standard Orbiter keyboard commands. See Orbiter.pdf for standard Orbiter keyboard commands.
 \end{multicols*}
@@ -205,7 +203,7 @@ It should be noted that the Body Axis Coordinate frame is different from the nor
 
 \subsubsection{Shuttle Location Codes}
 %\addcontentsline{toc}{subsection}{Shuttle Location Codes}
-Orbiter location codes enable crewmembers to locate displays and controls, stowage comparments and lockers, access panels, and wall-mounted equipment in the orbiter crew compartments. The crew compartments are the flight deck, middeck, and airlock. Because of compartment functions and geometry, each has a unique location coding format.
+Orbiter location codes enable crewmembers to locate displays and controls, stowage compartments and lockers, access panels, and wall-mounted equipment in the orbiter crew compartments. The crew compartments are the flight deck, middeck, and airlock. Because of compartment functions and geometry, each has a unique location coding format.
 \\
 Currently SSU only simulates the flight deck panels. Eventually panels in the middeck will be simulated and at that time the middeck location coding will be included in this manual.
 \\
@@ -272,7 +270,7 @@ Figures \ref{fig:FlightDeckLocCodes1} and \ref{fig:FlightDeckLocCodes2} show the
 
 \subsubsection{SSU Keyboard Commands}
 %\addcontentsline{toc}{subsection}{SSU Keyboard Commands}
-The ultimate goal of SSU is to provide a complete simulation of the Space Shuttle.  This means that most of the imput is done with in-simulation controls (ie. cockpit switches, GNC keyboards, and dialog windows). This results in very few keyboard commands to operate the shuttle.
+The ultimate goal of SSU is to provide a complete simulation of the Space Shuttle.  This means that most of the input is done with in-simulation controls (i.e. cockpit switches, GNC keyboards, and dialog windows). This results in very few keyboard commands to operate the shuttle.
 
 \begin{center}
   \textbf{General}\\
@@ -297,7 +295,7 @@ The ultimate goal of SSU is to provide a complete simulation of the Space Shuttl
 
 \begin{multicols*}{2}
 \subsubsection{RHC/THC}
-The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the RHC \& THC. When controlling the RCS thrusters, the appropiate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
+The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the RHC \& THC. When controlling the RCS thrusters, the appropriate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
 \\
 \\
 The RHCs on the real shuttle have a "soft stop" and a "hard stop" (the mechanical limit of movement). Moving the RHC out of detent (up to the soft stop) will command either a constant rotation rate or a pulse of RCS firings to change the rotation rate by a specified amount (depending on whether \textit{DISC RATE} or \textit{PULSE} has been selected). Moving the RHC past the soft stop will result in continuous thruster firings in the appropriate axis. In SSU, a thruster command of <75\% is considered to be within the soft stop; a thruster command of >75\% is treated as RHC deflection beyond the soft stop. When using keyboard controls, the normal keyboard controls are equivalent to full RHC deflection, while holding down the Ctrl key is equivalent to deflection within the soft stop. The THC (and the RMS controls) does not have this idea of a soft stop. When \textit{NORM} is selected in a translational axis, the thrusters will fire continuously if the THC is moved out of detent. When \textit{PULSE} is selected, the thrusters will fire to provide a specified $\Delta$V (the TRAN PLS rate specified on the SPEC 20 DAP CONFIG display). When controlling the RMS, the commanded rotation/translation rates are always directly proportional to the RHC/THC deflection.
@@ -353,7 +351,7 @@ Table \ref{tab:VC_navigation} is set up to show the different ways to move about
 \newpage
 \subsection{Payload Operations Overview}
 %\addcontentsline{toc}{subsection}{ Payload Operations Overview}
-Payloads are attached through standard Orbiter attachment points. Figure \ref{fig:SSUAttachments} below will assist in visializing the available attachment locations. The image on the left show the attachment locations without the ODS and the image on the rights shows the attachment locations with the ODS.\\
+Payloads are attached through standard Orbiter attachment points. Figure \ref{fig:SSUAttachments} below will assist in visualizing the available attachment locations. The image on the left show the attachment locations without the ODS and the image on the rights shows the attachment locations with the ODS.\\
 \\
 \begin{figure}[H]
   \centering
