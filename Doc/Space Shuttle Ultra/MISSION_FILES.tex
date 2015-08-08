@@ -1,8 +1,150 @@
 \documentclass[Space_Shuttle_Ultra_Manual.tex]{subfiles} 
 \begin{document}
-\begin{multicols}{2}
-\section{MISSION FILES}
-\label{sec:mission-files}
 
-\end{multicols}
+\section{MISSION FILES}
+\begin{multicols*}{2}
+\label{sec:mission-files}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\end{multicols*}
+
+\subsection{General}
+\begin{multicols*}{2}
+\noindent
+Space Shuttle Ultra uses the mission file to specify several parameters about the vehicle and the mission. Mission files are declared in the scenario file with the entry \textbf{MISSION} followed by the name of the mission file, and must be placed in the directory <orbiter\_installation\textbackslash Missions\textbackslash SSU>.
+\\
+Parameter values are specified by having the parameter name, followed by the equal sign and then the value. Parameters not specified in the mission file will use a hardcoded default value. Here is an example mission file for simulation of mission STS-107$\colon $
+\\
+\\
+\textit{Name=STS-107}
+\\
+\textit{Orbiter=Columbia}
+\\
+\textit{OrbiterTexture=Columbia\_8thmod}
+\\
+\textit{TargetInc=39.000000}
+\\
+\textit{TargetLAN=0.000000}
+\\
+\textit{MECOAlt=105564.000000}
+\\
+\textit{MECOVel=7882.719007}
+\\
+\textit{MECOFPA=0.827612}
+\\
+\textit{UseExtAL=FALSE}
+\\
+\textit{UseRMS=FALSE}
+\\
+\textit{UseODS=FALSE}
+\\
+\textit{PerformRollToHeadsUp=TRUE}
+\\
+\textit{OMSAssistEnable=true}
+\\
+\textit{OMSAssistDuration=102.000000}
+\\
+\textit{ThrottleDown=843.333}
+\\
+\textit{ThrottleUp=1154.266}
+\\
+\textit{SILTS=TRUE}
+\\
+\textit{Bridgerails=2,3,7,9,11}
+\\
+\\
+The SSU installation already has some mission files for the included scenarios.
+
+\end{multicols*}
+
+\newpage
+
+\subsection{Parameter List}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|p{1.5cm}|p{8cm}|l|}
+	\hline
+	\rule{0pt}{2ex}
+	\textbf{Option Name} & \textbf{Type} & \textbf{Description} & \textbf{Default}\\
+	\hline
+	\rule{0pt}{2ex}
+	Name & String & Mission name & -\\
+	\hline
+	\rule{0pt}{2ex}
+	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass), valid values$\colon $ Columbia, Challenger, Discovery, Atlantis, Endeavour & Atlantis\\
+	\hline
+	\rule{0pt}{2ex}
+	TargetInc & Number & Target inclination for MECO (deg) & 28.5\\
+	\hline
+	\rule{0pt}{2ex}
+	MECOAlt & Number & Target altitude for MECO (m) & 105564\\
+	\hline
+	\rule{0pt}{2ex}
+	MECOVel & Number & Target velocity for MECO (m/s) & 7869.635088\\
+	\hline
+	\rule{0pt}{2ex}
+	MECOFPA & Number & Target flight path angle for MECO (deg) & 0.747083\\
+	\hline
+	\rule{0pt}{2ex}
+	PerformRollToHeadsUp & Boolean & Roll to heads up is performed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	OMSAssistEnable & Boolean & OMS assist burn is performed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	OMSAssistDuration & Number & OMS assist burn duration (seconds) & 102\\
+	\hline
+	\rule{0pt}{2ex}
+	MaxSSMEThrust & Number & Maximum SSME throttles commanded by GPC (\%) & 104.5\\
+	\hline
+	\rule{0pt}{2ex}
+	ThrottleDown & Number & $1^{st}$ stage SSME throttle down velocity (fps) & 792\\
+	\hline
+	\rule{0pt}{2ex}
+	ThrottleUp & Number & $1^{st}$ stage SSME throttle up velocity (fps) & 1304\\
+	\hline
+	\rule{0pt}{2ex}
+	UseRMS & Boolean & RMS is installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	UseKUBand & Boolean & KU-Band antenna is installed & TRUE\\
+	\hline
+	\rule{0pt}{2ex}
+	UseSTBDMPM & Boolean & Starboard MPMs are installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	UseODS & Boolean & ODS is installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	UseExtAL & Boolean & OV has external airlock & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	HasBulkheadFloodlights & Boolean & TRUE if the FWD bulkhead floodlight and docking lights are installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	HasDragChute & Boolean & OV has drag chute & TRUE\\
+	\hline
+	\rule{0pt}{2ex}
+	Bridgerails & Comma-separated numbers & Comma-separated list of numbers indicating which bridgerails are present. Each number in list should be between 0 and 12 inclusive & -\\
+	\hline
+	\rule{0pt}{2ex}
+	PayloadZPos<N> & Number & The Z coordinate (in the Orbitersim frame) of payload attachment point N.\newline
+N = 5-7 $\rightarrow$ Centerline active attachment\newline
+N = 8-11 $\rightarrow$ Centerline passive attachment\newline
+N = 12-15 $\rightarrow$ Port attachment\newline
+N = 16-19 $\rightarrow$ Starboard attachment & - \\
+	\hline
+	\rule{0pt}{2ex}
+	ODSZPos & Number & The Z coordinate (in the Orbitersim frame) of the ODS or External airlock & 8.25\\
+	\hline
+	\rule{0pt}{2ex}
+	SILTS & Boolean & SILTS pod (OV-102 only) & FALSE\\
+	\hline\rule{0pt}{2ex}
+	LogSSMEData & Boolean & Enables SSME data logging & FALSE\\
+	\hline
+  \end{tabular}
+  \caption{Mission File}
+  \label{tab:Mission_File}
+\end{table}
+
 \end{document}
