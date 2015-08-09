@@ -424,6 +424,7 @@ Textures\SSU\STSinstruments.dds
 Textures\SSU\stsvc01.dds
 Textures\SSU\stsvc02.dds
 Textures\SSU\stsvc03.dds
+Textures\SSU\SWT_FRL_ETtex.dds
 Textures\SSU\SWT_ETtex.dds
 Textures\SSU\talkback.dds
 Textures\SSU\ThermalCurtain.dds
