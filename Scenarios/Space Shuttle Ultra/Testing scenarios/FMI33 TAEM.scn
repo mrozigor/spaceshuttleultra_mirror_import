@@ -26,7 +26,7 @@ BEGIN_MFD Left
   TYPE User
   MODE CRT
   Mode2 2
-  Display 3
+  Display 5
 END_MFD
 
 BEGIN_MFD Right
@@ -435,10 +435,12 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "LH2 Ullage Press" AUTO
   @ENDPANEL 
   @PANEL C3
-  "LOMS Arm" ARM/PRESS
-  "ROMS Arm" ARM/PRESS
-  "LADP Stow Enable" ENABLE
-  "RADP Stow Enable" ENABLE
+  "LOMS Arm" OFF
+  "ROMS Arm" OFF
+  "BFC CRT Display" OFF
+  "BFC CRT Select" 3+1
+  "LADP Stow Enable" INHIBIT
+  "RADP Stow Enable" INHIBIT
   "LADP Deploy" DEPLOY
   "RADP Deploy" DEPLOY
   "MAIN ENGINE LIMIT SHUT DN" AUTO
