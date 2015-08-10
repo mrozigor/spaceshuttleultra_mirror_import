@@ -126,7 +126,7 @@ namespace vc
 
 		pPayloadSelect->DefineSwitchGroup(GRP_A6US37_VC);
 		pPayloadSelect->SetInitialAnimState(1.0f);
-		pPayloadSelect->SetReference(_V(0.707, 2.552, 12.392), -switch_pull);
+		pPayloadSelect->SetReference(_V(0.7079, 2.5535, 12.3926), -switch_pull);
 		pPayloadSelect->DefineRotationAngle(120.0f);
 		pPayloadSelect->SetOffset(-60.0f);
 		pPayloadSelect->SetMouseRegion(0.811500f, 0.842076f, 0.881687f, 0.940961f);
