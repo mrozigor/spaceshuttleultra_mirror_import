@@ -473,7 +473,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @PANEL C3
   "LOMS Arm" ARM/PRESS
   "ROMS Arm" ARM/PRESS
-  "BFC CRT Display" ON
+  "BFC CRT Display" OFF
   "BFC CRT Select" 3+1
   "LADP Stow Enable" INHIBIT
   "RADP Stow Enable" INHIBIT
