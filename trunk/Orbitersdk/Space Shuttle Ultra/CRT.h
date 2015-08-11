@@ -28,6 +28,8 @@ public:
 
 	Atlantis *sts;
 
+	static void InitializeSavedParameters();
+
 private:
 	// GDI stuff
 	HBRUSH GreenBrush;
