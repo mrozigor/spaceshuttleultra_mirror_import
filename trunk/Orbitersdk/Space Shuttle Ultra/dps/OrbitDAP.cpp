@@ -67,7 +67,7 @@ pStateVector(NULL)
 		NullingRates[i] = false;
 
 		//Initialize DAP Config
-		DAPConfiguration[i].PRI_ROT_RATE=0.2;
+		DAPConfiguration[i].PRI_ROT_RATE=2.0;
 		DAPConfiguration[i].PRI_ATT_DB=5.0;
 		DAPConfiguration[i].PRI_RATE_DB=0.2;
 		DAPConfiguration[i].PRI_ROT_PLS=0.1;
@@ -80,7 +80,7 @@ pStateVector(NULL)
 		DAPConfiguration[i].ALT_DELAY=0.0;
 		DAPConfiguration[i].ALT_JET_OPT=0;
 		DAPConfiguration[i].ALT_JETS=2;
-		DAPConfiguration[i].VERN_ROT_RATE=0.2;
+		DAPConfiguration[i].VERN_ROT_RATE=0.1;
 		DAPConfiguration[i].VERN_ATT_DB=1.0;
 		DAPConfiguration[i].VERN_RATE_DB=0.020;
 		DAPConfiguration[i].VERN_ROT_PLS=0.01;
