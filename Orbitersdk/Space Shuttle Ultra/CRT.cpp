@@ -44,6 +44,7 @@ DLLCLBK void InitModule (HINSTANCE hDLL)
 	mfd_gparam.hDLL = hDLL;
 	mfd_gparam.hCRTFont = CreateFont(10,10, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 		CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial");
+	CRT::InitializeSavedParameters();
 	
 }
 
@@ -56,6 +57,18 @@ DLLCLBK void ExitModule (HINSTANCE hDLL)
 
 // ==============================================================
 // MFD class implementation
+
+/**
+ * Initialize the common memory for all MFDs using the CRT mode. 
+ */
+void CRT::InitializeSavedParameters() 
+{
+	for (int i = 0; i < 11; i++) {
+		CRT::saveprm.bValid[i] = false;
+		CRT::saveprm.mode[i] = 3;
+		CRT::saveprm.display[i] = 0;
+	}
+}
 
 CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 : MFD (w, h, v)
@@ -175,7 +188,7 @@ void CRT::Update (HDC hDC)
 
 	switch (display)
 	{
-		case 0:// "CRT display"
+		case 0:// "DPS display"
 			if (MDUID >= 0)
 			{
 				vc::MDU* mdu = sts->GetMDU( MDUID );
@@ -1470,6 +1483,7 @@ void CRT::WriteStatus(FILEHANDLE scn) const
 {
 	oapiWriteScenario_int (scn, "Mode2", mode);
 	oapiWriteScenario_int (scn, "Display", display);
+	oapiWriteScenario_int(scn, "MDUID", MDUID);
 }
 
 void CRT::ReadStatus(FILEHANDLE scn)
