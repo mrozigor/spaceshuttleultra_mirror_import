@@ -62,6 +62,9 @@ namespace mission {
 		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
 		bLogSSMEData = false;
+
+		bUseCISS = false;
+		bCISS_GPrime = true;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -173,6 +176,10 @@ namespace mission {
 		if (strOrbiter == "Columbia") oapiReadItem_bool( hFile, "SILTS", bUseSILTS );
 
 		oapiReadItem_bool( hFile, "LogSSMEData", bLogSSMEData );
+
+		oapiReadItem_bool( hFile, "UseCISS", bUseCISS );
+		oapiReadItem_bool( hFile, "CISS_GPrime", bCISS_GPrime );
+
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -368,5 +375,14 @@ namespace mission {
 	bool Mission::LogSSMEData() const
 	{
 		return bLogSSMEData;
+	}
+
+	bool Mission::UseCISS() const
+	{
+		return bUseCISS;
+	}
+	bool Mission::IsCISSGPrime() const
+	{
+		return bCISS_GPrime;
 	}
 };

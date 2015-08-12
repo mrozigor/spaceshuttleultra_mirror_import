@@ -2,6 +2,8 @@
 
 
 #include "SSU_Centaur.h"
+#include "meshres_Centaur_G.h"
+#include "meshres_Centaur_GPrime.h"
 
 
 
@@ -71,12 +73,15 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		thACS[11] = CreateThruster( ACS_P4_POS_G, ACS_P4_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
 
 		hMesh = oapiLoadMeshGlobal( G_MESHNAME );
+		mesh_idx = AddMesh( hMesh );
 		SetSize( 20 );
 		SetCrossSections( _V( 19.49, 18.88, 15.71 ) );
 		SetPMI( _V( 4.32, 4.35, 2.69 ) );
 
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.8373 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.5224 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CG" );
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 3.3602 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -0.4703 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CG" );
+
+		DefineGAnimations();
 	}
 	else// pszBuffer = "GPrime"
 	{
@@ -107,15 +112,16 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		thACS[11] = CreateThruster( ACS_P4_POS_GPRIME, ACS_P4_DIR, ACS_THRUST_VAC, phACS, ACS_ISP_VAC );
 
 		hMesh = oapiLoadMeshGlobal( GPRIME_MESHNAME );
+		mesh_idx = AddMesh( hMesh );
 		SetSize( 25 );
 		SetCrossSections( _V( 30.84, 30.86, 15.74 ) );
 		SetPMI( _V( 5.70, 5.66, 2.66 ) );
 
-		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.4542 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
-		ahToCISS = CreateAttachment( true, _V( 0, 0, -4.0439 ), _V( 0, 0, -1 ), _V( 0, -1, 0 ), "SSU_CGP" );
-	}
+		ahToPayload = CreateAttachment( false, _V( 0, 0, 2.5617 ), _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CPL" );
+		ahToCISS = CreateAttachment( true, _V( 0, 0, -3.9864 ), _V( 0, 0, -1 ), _V( 1, 0, 0 ), "SSU_CGP" );
 
-	mesh_idx = AddMesh( hMesh );
+		DefineGPrimeAnimations();
+	}
 
 	PARTICLESTREAMSPEC psRL10 = {
 		0,
@@ -218,6 +224,8 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 			// if "first" cycle and separated from CISS, assume it separated a long time ago and enable all engines without delay
 			timer_ACS = simt;
 			timer_RL10 = simt;
+
+			asANTENNA.pos = 1.0;
 		}
 		else
 		{
@@ -235,9 +243,74 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 			VESSEL* vPL = oapiGetVesselInterface( ohPL );
 			SetEmptyMass( GetEmptyMass() + vPL->GetMass() );
 		}
+
+		// deploy antennas
+		asANTENNA.action = AnimState::OPENING;
+	}
+
+	if (asANTENNA.Opening() == true) asANTENNA.Move( simdt / (ANTENNA_DEPLOY_DELAY + (1 / ANTENNA_DEPLOY_RATE)) );
+	return;
+}
+
+void SSU_Centaur::DefineGAnimations( void )
+{
+	double animstart = ANTENNA_DEPLOY_DELAY / (ANTENNA_DEPLOY_DELAY + (1 / ANTENNA_DEPLOY_RATE));
+
+	static UINT ANTENNA1Grp[1] = {GRP_QUAD1_ANTENNA_G};
+	static MGROUP_ROTATE ANTENNA1( mesh_idx, ANTENNA1Grp, 1, _V( -0.0782, 2.1877, 2.1566 ), _V( 0, 0, 1 ), static_cast<float>(90.0*RAD) );
+	anim_ANTENNA = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_ANTENNA, animstart, 1, &ANTENNA1 );
+
+	static UINT ANTENNA2Grp[1] = {GRP_QUAD2_ANTENNA_G};
+	static MGROUP_ROTATE ANTENNA2( mesh_idx, ANTENNA2Grp, 1, _V( -0.0782, -2.1877, 2.1566 ), _V( 0, 0, -1 ), static_cast<float>(90.0*RAD) );
+	AddAnimationComponent( anim_ANTENNA, animstart, 1, &ANTENNA2 );
+
+	asANTENNA.Set( AnimState::CLOSED, 0.0 );
+	SetAnimation( anim_ANTENNA, asANTENNA.pos );
+
+	RegisterAnimation();
+}
+
+void SSU_Centaur::DefineGPrimeAnimations( void )
+{
+	double animstart = ANTENNA_DEPLOY_DELAY / (ANTENNA_DEPLOY_DELAY + (1 / ANTENNA_DEPLOY_RATE));
+
+	static UINT ANTENNA1Grp[1] = {GRP_QUAD1_ANTENNA_GPRIME};
+	static MGROUP_ROTATE ANTENNA1( mesh_idx, ANTENNA1Grp, 1, _V( -0.0782, 2.1877, 1.3591 ), _V( 0, 0, 1 ), static_cast<float>(90.0*RAD) );
+	anim_ANTENNA = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_ANTENNA, animstart, 1, &ANTENNA1 );
+
+	static UINT ANTENNA2Grp[1] = {GRP_QUAD2_ANTENNA_GPRIME};
+	static MGROUP_ROTATE ANTENNA2( mesh_idx, ANTENNA2Grp, 1, _V( -0.0782, -2.1877, 1.3591 ), _V( 0, 0, -1 ), static_cast<float>(90.0*RAD) );
+	AddAnimationComponent( anim_ANTENNA, animstart, 1, &ANTENNA2 );
+
+	asANTENNA.Set( AnimState::CLOSED, 0.0 );
+	SetAnimation( anim_ANTENNA, asANTENNA.pos );
+
+	RegisterAnimation();
+}
+
+
+void SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC )
+{
+	char cbuf[64];
+	sprintf_s( cbuf, 64, "ACS available: %.2fKg", GetPropellantMass( phACS ) );
+	TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
+
+	if (ENAtimer_RL10)
+	{
+		sprintf_s( cbuf, 64, "RL-10 inhibits removed in: %.0fs", timer_RL10 - oapiGetSimTime() );
+		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
+	}
+
+	if (ENAtimer_ACS)
+	{
+		sprintf_s( cbuf, 64, "ACS inhibits removed in: %.0fs", timer_ACS - oapiGetSimTime() );
+		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
 	}
 	return;
 }
+
 
 int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 {
@@ -265,38 +338,84 @@ int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 	return 0;
 }
 
+void SSU_Centaur::clbkAnimate( double simt )
+{
+	SetAnimation( anim_ANTENNA, asANTENNA.pos );
+}
+
+void SSU_Centaur::clbkVisualCreated( VISHANDLE vis, int refcount )
+{
+	MainExternalMeshVisual = GetMesh(vis, 0);
+
+	SetAnimation( anim_ANTENNA, asANTENNA.pos );
+}
+
+void SSU_Centaur::clbkVisualDestroyed( VISHANDLE vis, int refcount )
+{
+	MainExternalMeshVisual = 0;
+}
+
 void SSU_Centaur::clbkSaveState( FILEHANDLE scn )
 {
 	VESSEL2::clbkSaveState( scn );
-	oapiWriteScenario_string( scn, "ADAPTER_MESH", (char*)AdapterMeshName.c_str() );
-	oapiWriteScenario_float( scn, "ADAPTER_OFFSET", AdapterOffset );
-	oapiWriteScenario_float( scn, "ADAPTER_MASS", AdapterMass );
+	
+	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// only save if used
+	{
+		oapiWriteScenario_string( scn, "ADAPTER_MESH", (char*)AdapterMeshName.c_str() );
+		oapiWriteScenario_float( scn, "ADAPTER_OFFSET", AdapterOffset );
+		oapiWriteScenario_float( scn, "ADAPTER_MASS", AdapterMass );
+	}
+
 	return;
 }
 
 void SSU_Centaur::clbkLoadStateEx( FILEHANDLE scn, void *status )
 {
 	char* line;
+	bool adapterON = false;
 
 	while (oapiReadScenario_nextline( scn, line ))
 	{
 		if (!_strnicmp( line, "ADAPTER_MESH", 12 ))
 		{
 			AdapterMeshName = line + 13;
+			adapterON = true;
 		}
 		else if (!_strnicmp( line, "ADAPTER_OFFSET", 14 ))
 		{
 			sscanf( line + 14, "%lf", &AdapterOffset );
+			adapterON = true;
 		}
 		else if (!_strnicmp( line, "ADAPTER_MASS", 12 ))
 		{
 			sscanf( line + 12, "%lf", &AdapterMass );
+			adapterON = true;
 		}
 		else ParseScenarioLineEx( line, status );
 	}
 
-	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// small sanity checks
+
+	if (adapterON)
 	{
+		// small sanity checks
+		if (AdapterMeshName.length() == 0)
+		{
+			oapiWriteLog( "(Shuttle Centaur) ERROR: ADAPTER_MESH was not specified" );
+			return;
+		}
+
+		if (AdapterOffset <= 0)
+		{
+			oapiWriteLog( "(Shuttle Centaur) ERROR: ADAPTER_OFFSET was not specified or isn't greater than 0" );
+			return;
+		}
+
+		if (AdapterMass <= 0)
+		{
+			oapiWriteLog( "(Shuttle Centaur) ERROR: ADAPTER_MASS was not specified or isn't greater than 0" );
+			return;
+		}
+		
 		char buffer[128];
 		VECTOR3 pos;
 		VECTOR3 dir;
@@ -311,8 +430,7 @@ void SSU_Centaur::clbkLoadStateEx( FILEHANDLE scn, void *status )
 			oapiWriteLog( buffer );
 			return;
 		}
-		mesh_Adapter_idx = AddMesh( hAdapterMesh, &pos );
-		SetMeshVisibilityMode( mesh_Adapter_idx, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+		SetMeshVisibilityMode( AddMesh( hAdapterMesh, &pos ), MESHVIS_EXTERNAL | MESHVIS_EXTPASS );
 		
 		// correct spacecraft attachment
 		pos.z += AdapterOffset;
@@ -322,27 +440,6 @@ void SSU_Centaur::clbkLoadStateEx( FILEHANDLE scn, void *status )
 		SetEmptyMass( GetEmptyMass() + AdapterMass );
 
 		sprintf_s( buffer, 128, "(Shuttle Centaur) added payload adapter: mesh:%s|height:%lf|mass:%lf", AdapterMeshName.c_str(), AdapterOffset, AdapterMass );
-		oapiWriteLog( buffer );
-	}
-	else
-	{
-		char buffer[128];
-		if (AdapterMeshName.length() > 0)
-		{
-			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_MESH was not specified" );
-		}
-		oapiWriteLog( buffer );
-
-		if (AdapterOffset > 0)
-		{
-			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_OFFSET was not specified or isn't greater than 0" );
-		}
-		oapiWriteLog( buffer );
-
-		if (AdapterMass > 0)
-		{
-			sprintf_s( buffer, 128, "(Shuttle Centaur) ERROR: ADAPTER_MASS was not specified or isn't greater than 0" );
-		}
 		oapiWriteLog( buffer );
 	}
 	return;

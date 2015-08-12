@@ -88,6 +88,9 @@ namespace mission {
 
 		bool bLogSSMEData;
 
+		bool bUseCISS;
+		bool bCISS_GPrime;
+
 		/**
 		 * Initializes parameters to default values
 		 */
@@ -201,6 +204,16 @@ namespace mission {
 		 * Returns true if SSME data arriving at the EIU is to be logged.
 		 */
 		virtual bool LogSSMEData() const;
+
+		/**
+		 * Returns true if the CISS is used.
+		 */
+		virtual bool UseCISS() const;
+
+		/**
+		 * Returns true if the CISS used is the G Prime version.
+		 */
+		virtual bool IsCISSGPrime() const;
 	};
 
 };

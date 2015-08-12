@@ -247,6 +247,7 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CISS.cpp" />
     <ClCompile Include="commDeployedAssembly.cpp" />
     <ClCompile Include="commGCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
@@ -367,6 +368,7 @@
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
     <ClCompile Include="PanelO3.cpp" />
+    <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
@@ -398,6 +400,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Atlantis_defs.h" />
+    <ClInclude Include="CISS.h" />
     <ClInclude Include="commGCIL.h" />
     <ClInclude Include="DeployedAssembly.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
@@ -425,6 +428,9 @@
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="meshres_CISS_G.h" />
+    <ClInclude Include="meshres_CISS_GPrime.h" />
+    <ClInclude Include="meshres_vc_l12u.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -502,6 +508,7 @@
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelL12U.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />

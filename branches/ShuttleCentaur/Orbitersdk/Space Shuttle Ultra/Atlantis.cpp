@@ -51,6 +51,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "CISS.h"
 #include "MechActuator.h"
 #include "mps/SSME_BLOCK_II.h"
 #include "PanelA4.h"
@@ -71,6 +72,7 @@
 #include "vc/PanelR11.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL12U.h"
 #include "dps/ATVC_SOP.h"
 #include <UltraMath.h>
 #include <cassert>
@@ -486,6 +488,7 @@ pActiveLatches(3, NULL)
 
   pPanelA8 = NULL;
   pA7A8Panel = NULL;
+	pPanelL12U = NULL;
   pExtAirlock = NULL;
   hODSDock = NULL;
 	
@@ -600,6 +603,7 @@ pActiveLatches(3, NULL)
   pRMS=NULL; //don't create RMS unless it is used on the shuttle
   pMPMs=NULL;
   
+	pCISS = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -2287,6 +2291,8 @@ The same starboard
 22. RSRB
 */
 	CreateETAndSRBAttachments(ofs0);
+
+	if (pCISS) pCISS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
@@ -2387,6 +2393,8 @@ void Atlantis::AddOrbiterVisual()
 		pA7A8Panel->Realize();*/
 	}
 	if(pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+
+	if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
 
 	pgForward.DefineVC();
 	pgForward.DefineVCAnimations(mesh_vc);
@@ -3224,6 +3232,13 @@ void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 			{
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
+			}
+
+			if (pMission->UseCISS())
+			{
+				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
+				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
 			}
 
 			bHasKUBand = pMission->HasKUBand();

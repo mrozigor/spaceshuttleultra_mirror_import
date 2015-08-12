@@ -230,6 +230,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class CISS;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -360,6 +361,8 @@ public:
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
+
+	CISS* pCISS;
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
@@ -652,7 +655,8 @@ public:
 	 * Pointer to the A8 (RMS) panel region
 	 */
 	vc::AtlantisPanel* pPanelA8;
-	
+
+	vc::AtlantisPanel* pPanelL12U;	
 
 
 	AerosurfacePositions aerosurfaces;
