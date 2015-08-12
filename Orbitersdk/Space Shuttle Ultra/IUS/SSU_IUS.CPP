@@ -16,7 +16,7 @@ DLLCLBK void ovcExit( VESSEL *vessel )
 }
 
 
-SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL2( hObj )
+SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL3( hObj )
 {
 	MainExternalMeshVisual = NULL;
 	thg_main = NULL;
@@ -228,26 +228,24 @@ void SSU_IUS::DefineAnimations(void)
 	RegisterAnimation();
 }
 
-void SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC )
+bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
 {
-	char cbufRCSprop[64];
-	sprintf_s( cbufRCSprop, 64, "RCS available: %.2fKg", GetPropellantMass( ph_rcs ) );
-	TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbufRCSprop, strlen( cbufRCSprop ) );
+	char cbuf[64];
+	sprintf_s( cbuf, 64, "RCS available: %.2fKg", GetPropellantMass( ph_rcs ) );
+	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
 
 	if (ENAtimer_SRM)
 	{
-		char cbufSRMtimer[64];
-		sprintf_s( cbufSRMtimer, 64, "SRM inhibits removed in: %.0fs", timer_SRM - oapiGetSimTime() );
-		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.35), cbufSRMtimer, strlen( cbufSRMtimer ) );
+		sprintf_s( cbuf, 64, "SRM inhibits removed in: %.0fs", timer_SRM - oapiGetSimTime() );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
 	}
 
 	if (ENAtimer_RCS)
 	{
-		char cbufRCStimer[64];
-		sprintf_s( cbufRCStimer, 64, "RCS inhibits removed in: %.0fs", timer_RCS - oapiGetSimTime() );
-		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.4), cbufRCStimer, strlen( cbufRCStimer ) );
+		sprintf_s( cbuf, 64, "RCS inhibits removed in: %.0fs", timer_RCS - oapiGetSimTime() );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
 	}
-	return;
+	return true;
 }
 
 int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
@@ -345,6 +343,8 @@ void SSU_IUS::clbkSaveState(FILEHANDLE scn)
 void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 {
 	char *line;
+	bool adapterON = false;
+
 	while (oapiReadScenario_nextline(scn, line))
 	{
 		if (!_strnicmp(line, "EEC", 3)) {
@@ -377,20 +377,42 @@ void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 		else if (!_strnicmp( line, "ADAPTER_MESH", 12 ))
 		{
 			AdapterMeshName = line + 13;
+			adapterON = true;
 		}
 		else if (!_strnicmp( line, "ADAPTER_OFFSET", 14 ))
 		{
 			sscanf( line + 14, "%lf", &AdapterOffset );
+			adapterON = true;
 		}
 		else if (!_strnicmp( line, "ADAPTER_MASS", 12 ))
 		{
 			sscanf( line + 12, "%lf", &AdapterMass );
+			adapterON = true;
 		}
 		else ParseScenarioLineEx(line, status);
 	}
 
-	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// small sanity checks
+	if (adapterON)
 	{
+		// small sanity checks
+		if (AdapterMeshName.length() == 0)
+		{
+			oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_MESH was not specified" );
+			return;
+		}
+
+		if (AdapterOffset <= 0)
+		{
+			oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_OFFSET was not specified or isn't greater than 0" );
+			return;
+		}
+
+		if (AdapterMass <= 0)
+		{
+			oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_MASS was not specified or isn't greater than 0" );
+			return;
+		}
+
 		char buffer[128];
 		VECTOR3 pos;
 		VECTOR3 dir;
@@ -416,14 +438,6 @@ void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 
 		sprintf_s( buffer, 128, "(SSU IUS) added payload adapter: mesh:%s|height:%lf|mass:%lf", AdapterMeshName.c_str(), AdapterOffset, AdapterMass );
 		oapiWriteLog( buffer );
-	}
-	else
-	{
-		if (AdapterMeshName.length() > 0) oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_MESH was not specified" );
-
-		if (AdapterOffset > 0) oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_OFFSET was not specified or isn't greater than 0" );
-
-		if (AdapterMass > 0) oapiWriteLog( "(SSU IUS) ERROR: ADAPTER_MASS was not specified or isn't greater than 0" );
 	}
 
 	SetAnimation( anim_EXTENDNOZZLE, asEXTENDNOZZLE.pos );

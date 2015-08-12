@@ -98,7 +98,7 @@ const double STAGE2_EEC_DEPLOY_RATE = 0.1;// s^-1
 const double STAGE2_EEC_DEPLOY_DELAY = 7;// s
 
 
-class SSU_IUS:public VESSEL2
+class SSU_IUS:public VESSEL3
 {
 	private:
 		VISHANDLE MainExternalMeshVisual;
@@ -138,7 +138,7 @@ class SSU_IUS:public VESSEL2
 		void clbkSetClassCaps(FILEHANDLE cfg);
 		void clbkPostStep(double simtt, double simdt, double mjd);
 		void DefineAnimations(void);
-		void clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC );
+		bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 		void clbkAnimate( double simt );
 		void clbkVisualCreated(VISHANDLE vis, int refcount);
