@@ -23,7 +23,7 @@ DLLCLBK void ovcSetState( VESSEL *Vessel, const VESSELSTATUS *Status )
 }
 
 
-SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL2( hVessel )
+SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL3( hVessel )
 {
 	separated = false;
 	timer_ACS = 0;
@@ -290,25 +290,24 @@ void SSU_Centaur::DefineGPrimeAnimations( void )
 	RegisterAnimation();
 }
 
-
-void SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC )
+bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
 {
 	char cbuf[64];
 	sprintf_s( cbuf, 64, "ACS available: %.2fKg", GetPropellantMass( phACS ) );
-	TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
+	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
 
 	if (ENAtimer_RL10)
 	{
 		sprintf_s( cbuf, 64, "RL-10 inhibits removed in: %.0fs", timer_RL10 - oapiGetSimTime() );
-		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
 	}
 
 	if (ENAtimer_ACS)
 	{
 		sprintf_s( cbuf, 64, "ACS inhibits removed in: %.0fs", timer_ACS - oapiGetSimTime() );
-		TextOut( hDC, (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
 	}
-	return;
+	return true;
 }
 
 
