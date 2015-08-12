@@ -504,7 +504,7 @@ CentaurG_Prime:SSU_CentaurGPrime
   ATTACHED 0:23,Atlantis
   PRPLEVEL 0:0.954121 1:1.000000
   ADAPTER_MESH SSU\Centaur\Centaur_DemoSat_adapter
-  ADAPTER_OFFSET 0.010000
+  ADAPTER_OFFSET 0.59
   ADAPTER_MASS 300.000000
 END
 Galileo:SSU_GenericPayload

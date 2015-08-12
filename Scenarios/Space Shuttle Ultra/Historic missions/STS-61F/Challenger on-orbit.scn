@@ -1,5 +1,5 @@
 BEGIN_DESC
-STS-61G: Working Post-Insertion C/L, PLBD opening (Block 4) completed, MET 000/01:33:06.
+STS-61F: Working Post-Insertion C/L, PLBD opening (Block 4) completed, MET 000/01:33:06.
 END_DESC
 
 BEGIN_ENVIRONMENT
@@ -526,7 +526,7 @@ CentaurG_Prime:SSU_CentaurGPrime
   PRPLEVEL 0:1.000000 1:1.000000
   NAVFREQ 0 0
   ADAPTER_MESH SSU\Centaur\Centaur_DemoSat_adapter
-  ADAPTER_OFFSET 0.010000
+  ADAPTER_OFFSET 0.59
   ADAPTER_MASS 300.000000
 END
 Ulysses:SSU_GenericPayload
