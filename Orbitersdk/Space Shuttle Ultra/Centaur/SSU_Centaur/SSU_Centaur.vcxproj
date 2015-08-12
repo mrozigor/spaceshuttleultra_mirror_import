@@ -87,6 +87,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="meshres_Centaur_G.h" />
+    <ClInclude Include="meshres_Centaur_GPrime.h" />
     <ClInclude Include="SSU_Centaur.h" />
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,12 @@
     <ClInclude Include="SSU_Centaur.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_Centaur_G.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_Centaur_GPrime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SSU_Centaur.cpp">
