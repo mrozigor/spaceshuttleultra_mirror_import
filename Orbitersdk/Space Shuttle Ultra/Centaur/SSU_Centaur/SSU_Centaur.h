@@ -100,7 +100,7 @@ const double ANTENNA_DEPLOY_RATE = 2;// 1/s
 const double ANTENNA_DEPLOY_DELAY = 60;// s
 
 
-class SSU_Centaur: public VESSEL2
+class SSU_Centaur: public VESSEL3
 {
 	public:
 		SSU_Centaur( OBJHANDLE hVessel );
@@ -108,7 +108,7 @@ class SSU_Centaur: public VESSEL2
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
 		void clbkPreStep( double simt, double simdt, double mjd );
-		void clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, HDC hDC );
+		bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey( DWORD key, bool down, char* kstate );
 		void clbkAnimate( double simt );
 		void clbkVisualCreated( VISHANDLE vis, int refcount );
