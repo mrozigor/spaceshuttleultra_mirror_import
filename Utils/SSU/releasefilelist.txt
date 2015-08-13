@@ -38,7 +38,6 @@ Config\SSU\MDM\PL.mdm
 Config\SSU\MDM\test.mdm
 Config\Vessels\107payloads.cfg
 Config\Vessels\SpaceShuttleUltra.cfg
-Config\Vessels\SSRMSD.cfg
 Config\Vessels\SSU_Chute.cfg
 Config\Vessels\SSU_CT.cfg
 Config\Vessels\SSU_CT_1980.cfg
@@ -89,10 +88,8 @@ Doc\Space Shuttle Ultra\Tech Notes\SCAN0005.jpg
 Doc\Space Shuttle Ultra\Tech Notes\SCAN0006.jpg
 Doc\Space Shuttle Ultra\Tech Notes\Shuttle_Ku_gimbal_equations.jpg
 Doc\Space Shuttle Ultra\Tech Notes\Space Shuttle System Summary - 1980.pdf
-Doc\Space Shuttle Ultra\Tech Notes\SSRMS IK Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
-Meshes\SSRMSF.msh
 Meshes\SSU\Cockpit.msh
 Meshes\SSU\Crawler_drivetrucks.msh
 Meshes\SSU\Crawler_drivetrucks_reversed.msh
@@ -199,6 +196,7 @@ Meshes\VandenbergAFB\SLC-6_STS_PCR.msh
 Meshes\VandenbergAFB\SLC-6_STS_PPR.msh
 Missions\SSU\STS-1.cfg
 Missions\SSU\STS-3.cfg
+Missions\SSU\STS-76.cfg
 Missions\SSU\STS-101.cfg
 Missions\SSU\STS-107.cfg
 Missions\SSU\STS-114.cfg
@@ -222,6 +220,7 @@ Scenarios\Space Shuttle Ultra\Launch test.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-76\STS-76 Launch T-1 minute.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\De-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Entry Interface.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Post-insertion PLBD opening.scn
@@ -247,10 +246,6 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
-Scenarios\SSRMS\Grapple test.scn
-Scenarios\SSRMS\SSRMS Folded.scn
-Scenarios\SSRMS\SSRMS test.scn
-Scenarios\SSRMS\Walkoff test.scn
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_continues.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_shut_down.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_start_up.wav
