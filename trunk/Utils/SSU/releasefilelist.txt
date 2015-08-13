@@ -453,7 +453,7 @@ Textures\SSU\VAB_floor.dds
 Textures\SSU\VAB_HLD.dds
 Textures\SSU\VAB_interior_beams_1.dds
 Textures\SSU\VAB_VLD.dds
-Textures\SSUS\Airlock.dds
+Textures\SSU\Airlock.dds
 Textures\STS-107payloads\EDOcryokit_tex.dds
 Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
 Textures\STS-107payloads\SpaceHAB_RDM.dds
