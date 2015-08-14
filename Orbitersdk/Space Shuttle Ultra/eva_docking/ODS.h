@@ -28,7 +28,6 @@
 #include "DiscInPort.h"
 #include <set>
 
-const static char* ODS_MESHNAME = "ODS";
 
 /**
  * EVA and Docking systems

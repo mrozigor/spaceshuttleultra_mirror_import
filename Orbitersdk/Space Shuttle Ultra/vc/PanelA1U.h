@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Panel A6 definition
+  Panel A1U definition
 
 
 
@@ -44,12 +44,7 @@ namespace vc
 
 		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
-		//virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
-		//virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	private:
-		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
-		//void UpdatePBIs();
-
 		StdSwitch3* pSignalStrengthSelect;
 		StdSwitch3* pSlewAzimuth;
 		StdSwitch3* pSlewElevation;
