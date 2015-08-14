@@ -3515,7 +3515,7 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sscan_state(line + 4, gear_status);
 			if (gear_status.action == AnimState::STOPPED) gear_status.action = AnimState::CLOSED;
 		}
-		else if (!_strnicmp(line, "PLBD_CAM", 8))
+		else if (!_strnicmp(line, "PLB_CAM", 7))
 		{
 			sscanf(line + 8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
 				&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
@@ -3651,7 +3651,7 @@ void Atlantis::clbkSaveState(FILEHANDLE scn)
 
 	sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
 		camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
-	oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
+	oapiWriteScenario_string(scn, "PLB_CAM", cbuf);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
 	psubsystems->SaveState(scn);
@@ -3858,10 +3858,10 @@ void Atlantis::clbkPostCreation()
 
 		// ports for pan/tilt and cam settings
 		DiscreteBundle* pCamBundles[5];
-		pCamBundles[0] = bundleManager->CreateBundle("PLBD_CAM_A", 16);
-		pCamBundles[1] = bundleManager->CreateBundle("PLBD_CAM_B", 16);
-		pCamBundles[2] = bundleManager->CreateBundle("PLBD_CAM_C", 16);
-		pCamBundles[3] = bundleManager->CreateBundle("PLBD_CAM_D", 16);
+		pCamBundles[0] = bundleManager->CreateBundle("PLB_CAM_A", 16);
+		pCamBundles[1] = bundleManager->CreateBundle("PLB_CAM_B", 16);
+		pCamBundles[2] = bundleManager->CreateBundle("PLB_CAM_C", 16);
+		pCamBundles[3] = bundleManager->CreateBundle("PLB_CAM_D", 16);
 		pCamBundles[4] = bundleManager->CreateBundle("RMS_ELBOW_CAM", 16);
 		for (unsigned short i = 0; i < 5; i++) {
 			PLBDCamPanLeft[i].Connect(pCamBundles[i], 0);
@@ -4711,20 +4711,20 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			else camRate = PTU_HIGHRATE_SPEED;
 
 			if (PLBDCamPanLeft[i])  {
-				camYaw[i] = max(-MAX_PLBD_CAM_TILT, camYaw[i] - camRate*simdt);
+				camYaw[i] = max(-MAX_PLB_CAM_TILT, camYaw[i] - camRate*simdt);
 				cameraMoved = true;
 			}
 			else if (PLBDCamPanRight[i]) {
-				camYaw[i] = min(MAX_PLBD_CAM_TILT, camYaw[i] + camRate*simdt);
+				camYaw[i] = min(MAX_PLB_CAM_TILT, camYaw[i] + camRate*simdt);
 				cameraMoved = true;
 			}
 
 			if (PLBDCamTiltDown[i]) {
-				camPitch[i] = max(-MAX_PLBD_CAM_TILT, camPitch[i] - camRate*simdt);
+				camPitch[i] = max(-MAX_PLB_CAM_TILT, camPitch[i] - camRate*simdt);
 				cameraMoved = true;
 			}
 			else if (PLBDCamTiltUp[i]) {
-				camPitch[i] = min(MAX_PLBD_CAM_TILT, camPitch[i] + camRate*simdt);
+				camPitch[i] = min(MAX_PLB_CAM_TILT, camPitch[i] + camRate*simdt);
 				cameraMoved = true;
 			}
 		}

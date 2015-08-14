@@ -134,8 +134,8 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 const double PTU_HIGHRATE_SPEED = 12;
 const double PTU_LOWRATE_SPEED = 1.2;
 // Payload camera speed rates (deg/sec)
-const double MAX_PLBD_CAM_TILT = 170.0;
-const double MAX_PLBD_CAM_PAN = 170.0;
+const double MAX_PLB_CAM_TILT = 170.0;
+const double MAX_PLB_CAM_PAN = 170.0;
 
 //Post Contact Thrusting
 const double PCT_STAGE1 = 0.56;
