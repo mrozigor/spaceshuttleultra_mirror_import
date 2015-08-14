@@ -944,7 +944,7 @@ private:
 	UINT anim_camBRyaw;						   // handle for back-right payload camera yaw animation 
 	UINT anim_camBRpitch;					   // handle for back-right payload camera pitch animation 
 	
-	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLBD_CAM;
+	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLB_CAM;
 	double camYaw[4], camPitch[4];
 	VECTOR3 plbdCamPos[4];
 	

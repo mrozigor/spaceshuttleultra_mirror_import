@@ -124,7 +124,7 @@ Discovery:SpaceShuttleUltra
   CONFIGURATION 0
   GEAR 0 0.0000
   OPS 101
-  PLBD_CAM 90.0000 -90.0000 90.0000 90.0000 90.0000 90.0000 90.0000 -90.0000
+  PLB_CAM 0 -90.00000 0 90.0000 0 -90.0000 0 90.0000
   PAYLOAD_MASS 8000 ;INFO using this to add payload mass, should be 14514.96 (32000 lbs) but currently it doesn't have the performance
 @SUBSYSTEM HeEng_C
   PRESS 4126.011245

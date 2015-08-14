@@ -446,23 +446,23 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}*/
 	if(ElbowCamPanLeft) {
-		if(CamLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_PAN);
-		else camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLBD_CAM_PAN);
+		if(CamLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
+		else camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
 		camera_moved=true;
 	}
 	else if(ElbowCamPanRight) {
-		if(CamLowSpeed) camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_PAN);
-		else camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_PAN);
+		if(CamLowSpeed) camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLB_CAM_PAN);
+		else camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLB_CAM_PAN);
 		camera_moved=true;
 	}
 	if(ElbowCamTiltDown) {
-		if(CamLowSpeed) camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLBD_CAM_TILT);
-		else camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLBD_CAM_TILT);
+		if(CamLowSpeed) camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLB_CAM_TILT);
+		else camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLB_CAM_TILT);
 		camera_moved=true;
 	}
 	else if(ElbowCamTiltUp) {
-		if(CamLowSpeed) camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
-		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLBD_CAM_TILT);
+		if(CamLowSpeed) camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLB_CAM_TILT);
+		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLB_CAM_TILT);
 		camera_moved=true;
 	}
 
@@ -566,9 +566,9 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		if(!bFirstStep) arm_moved=false;
 	}
 	else if(camera_moved /*&& RMSCameraMode==ELBOW*/) {
-		double anim=linterp(-MAX_PLBD_CAM_PAN, 0, MAX_PLBD_CAM_PAN, 1, camRMSElbow[PAN]);
+		double anim=linterp(-MAX_PLB_CAM_PAN, 0, MAX_PLB_CAM_PAN, 1, camRMSElbow[PAN]);
 		STS()->SetAnimation(anim_camRMSElbow[PAN], anim);
-		anim=linterp(-MAX_PLBD_CAM_TILT, 0, MAX_PLBD_CAM_TILT, 1, camRMSElbow[TILT]);
+		anim=linterp(-MAX_PLB_CAM_TILT, 0, MAX_PLB_CAM_TILT, 1, camRMSElbow[TILT]);
 		STS()->SetAnimation(anim_camRMSElbow[TILT], anim);
 
 		if(RMSCameraMode==ELBOW) UpdateElbowCamView();
