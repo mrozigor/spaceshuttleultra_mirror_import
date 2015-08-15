@@ -387,7 +387,7 @@ namespace vc {
 					}
 					else if (strcmp( label, "FLT" ) == 0)
 					{
-						TextOut( hDC, x, 21, "FLT", 3 );
+						TextOut( hDC, x, 21, "FLT ", 4 );
 						TextOut( hDC, x, 30, "INST", 4 );
 						menu = 0;
 					}
@@ -433,13 +433,13 @@ namespace vc {
 						{
 							SetTextColor (hDC, CR_WHITE );
 							TextOut( hDC, x, 21, "OMS/", 4 );
-							TextOut( hDC, x, 30, "MPS", 3 );
+							TextOut( hDC, x, 30, " MPS", 4 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
 						else
 						{
 							TextOut( hDC, x, 21, "OMS/", 4 );
-							TextOut( hDC, x, 30, "MPS", 3 );
+							TextOut( hDC, x, 30, " MPS", 4 );
 						}
 						menu = 2;
 					}
@@ -449,13 +449,13 @@ namespace vc {
 						{
 							SetTextColor (hDC, CR_WHITE );
 							TextOut( hDC, x, 21, "HYD/", 4 );
-							TextOut( hDC, x, 30, "APU", 3 );
+							TextOut( hDC, x, 30, " APU", 4 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
 						else
 						{
 							TextOut( hDC, x, 21, "HYD/", 4 );
-							TextOut( hDC, x, 30, "APU", 3 );
+							TextOut( hDC, x, 30, " APU", 4 );
 						}
 					}
 					else if (strcmp( label, "SPI" ) == 0)
@@ -463,10 +463,14 @@ namespace vc {
 						if (display == 5)
 						{
 							SetTextColor (hDC, CR_WHITE );
-							TextOut( hDC, x, 25, "SPI", 3 );
+							TextOut( hDC, x, 21, "SPI", 3 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
-						else TextOut( hDC, x, 25, "SPI", 3 );
+						else TextOut( hDC, x, 21, "SPI", 3 );
+					}
+					else if (strcmp( label, "DPS" ) == 0)
+					{
+						TextOut( hDC, x, 21, "DPS", 3 );
 					}
 					else
 					{
