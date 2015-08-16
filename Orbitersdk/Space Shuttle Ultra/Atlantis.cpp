@@ -5110,7 +5110,6 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
-		//huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
 		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
 		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
@@ -5139,7 +5138,6 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
-		//huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
 		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS1);
 		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS1);
@@ -5172,7 +5170,6 @@ bool Atlantis::clbkLoadVC(int id)
 		// Outside cameras neighbours
 		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
 		else oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION);
-		//oapiVCSetNeighbours (1, 0, 3, 0);
 
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -5184,7 +5181,6 @@ bool Atlantis::clbkLoadVC(int id)
 		pgAftStbd.RegisterVC();
 		pgAft.RegisterVC();
 
-		//RegisterVC_AftMFD (); // activate aft MFD controls
 		ok = true;
 		bUpdateVC = true;
 		break;
@@ -5234,7 +5230,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_PLBCAMFR);
 		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
 		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
-		oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
+		else oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
 
 		//HideMidDeck();
 
@@ -5244,7 +5240,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_PLBCAMBL);
 		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
 		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
-		oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
+		else oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
 
 		//HideMidDeck();
 
@@ -5254,7 +5250,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_PLBCAMBR);
 		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
 		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
-		oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
+		else oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
 
 		//HideMidDeck();
 
