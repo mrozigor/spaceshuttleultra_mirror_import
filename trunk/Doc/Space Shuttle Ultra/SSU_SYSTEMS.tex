@@ -7,9 +7,47 @@
 \localtableofcontents
 \noindent
 \\
-This section discusses in greater detail each of the orbiter systems that are currently simulated. The subsections are organized alphabetically, with detailed internal table of contents provided for each.\\
+%This section discusses in greater detail each of the orbiter systems that are currently simulated. The subsections are organized alphabetically, with detailed internal table of contents provided for each.\\
+This section discusses in greater detail each of the space shuttle systems that are currently simulated.\\
 \\
 These are not meant to provide all information about the real orbiter system but to provide a working knowledge required to understand what is happening in the simulation. For full, detailed reading, each subsection provides references to relevant sections in the Shuttle Crew Operations Manual (SCOM) and should be read for a better understanding for that system.
+\end{multicols*}
+
+\subsection{External Tank (ET)}
+\begin{figure}[b!]
+  \includegraphics[width=1.0\textwidth]{SLWT.png}
+  \caption{External Tank}
+  \label{fig:ET}
+\end{figure}
+\begin{multicols*}{2}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\subsubsection{Description}
+The External Tank (ET) holds the liquid hydrogen and liquid oxygen propellants for the Main Propulsion System, and serves as a backbone for the whole space shuttle vehicle.\\
+There are 3 versions of ETs$\colon$\\
+$\Rightarrow$ Standard Weight Tank (SWT), the original ET to which can be added a cover of Fire Retardant Latex (FRL) paint;\\
+$\Rightarrow$ Light Weight Tank (LWT), lighter weight ET resulting from structural changes;\\
+$\Rightarrow$ Super Light Weight Tank (SLWT), further weight reductions to improve payload capability.\\
+The scenario file entries needed to define the ET vessel are covered in Section \ref{sec:scenario-files} of this manual.
+\end{multicols*}
+
+\subsection{Solid Rocket Boosters (SRB)}
+\begin{figure}[b!]
+  \includegraphics[width=1.0\textwidth]{SRB.png}
+  \caption{Solid Rocket Booster}
+  \label{fig:SRB}
+\end{figure}
+\begin{multicols*}{2}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\subsubsection{Description}
+The Solid Rocket Boosters (SRB) are solid propellant rockets that provide thrust during the early phases of the launch. The main component of the SRB is the Solid Rocket Motor (SRM).\\
+There are 4 types of SRMs$\colon$\\
+$\Rightarrow$ Standard Performance Motor (SPM), the original SRM (not yet available in SSU);\\
+$\Rightarrow$ High Performance Motor (HPM), upgrade to the SPM;\\
+$\Rightarrow$ Filament Wound Case (FWC), lighter case SRM planned to be used from SLC-6;\\
+$\Rightarrow$ Redesigned Solid Rocket Motor (RSRM), developed in response to the Challenger accident.\\
+The scenario file entries needed to define the SRB vessels are covered in Section \ref{sec:scenario-files} of this manual.
 \end{multicols*}
 
 \subsection{Auxiliary Power Unit/Hydraulics (APU/HYD)}
@@ -22,6 +60,18 @@ The APUs are started 5 minutes before launch and shut down shortly after MECO.
 The day before entry, a single APU is started for the FCS checkout.
 A single APU is started 5 minutes before the deorbit burn (this is done to ensure at least 1 APU is functioning before committing to entry). The remaining APUs are started 13 minutes before Entry Interface.
 All 3 APUs are shut down after landing.
+\end{multicols*}
+
+\subsection{Main Propulsion System (MPS)}
+\begin{multicols*}{2}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\subsubsection{Description}
+The Main Propulsion System (MPS) is composed of the External Tank that holds the propellants, 3 Space Shuttle Main Engines (SSME) that provide thrust during the whole launch, and propellant manifolds to carry the propellants from the tanks to the engines.
+\subsubsection{Space Shuttle Main Engines (SSME)}
+The SSMEs are high performance liquid propellant rocket engines located in the aft compartment of the orbiter. They can operate between 67\% and 109\% of their rated thrust (370000lbs), and are throttled down temporarily early in the ascent to reduce aerodynamic loads on the vehicle, and then again late in the ascent to keep the acceleration under 3g.
+\subsubsection{MPS Dump}
+Following MECO and ET separation, the MPS Dump is automatically started to vent remaining MPS propellants from the engines and the manifolds. Liquid oxygen is vented thru the SSMEs and the liquid hydrogen is vented thru the backup LH2 dump valves and thru the fill and drain valves located on the port sidewall of the orbiter.
 \end{multicols*}
 
 \subsection{Data Processing System (DPS)}
@@ -42,7 +92,7 @@ At the moment, SSU only simulates the PASS \textit{GNC} software. Also, loading 
 The shuttle originally had 4 CRT displays, and multiple analog instruments.
 The CRTs allowed the crew to interact with the shuttle computers, while the analog instruments displayed subsystem status and flight instruments.
 Starting with STS-101, the analog instruments were replaced with the MDUs.
-The shuttle has 11 MDUs: CDR 1 and 2 on panel F6; CRT 1, 2, and 3; MFD 1 and 2 on panel F7; PLT 1 and 2 on panel F8; CRT 4 on panel R12; and AFD 1 in the aft station.
+The shuttle has 11 MDUs: CDR 1 and 2 on panel F6; CRT 1, 2, and 3, and MFD 1 and 2 on panel F7; PLT 1 and 2 on panel F8; CRT 4 on panel R11; and AFD 1 in the aft station.
 In real life, the MDUs display either DPS displays, flight instrument displays, or subsystem status displays.
 The flight instruments and subsystem status displays replace the analog instruments, while the DPS displays are almost identical to the CRT displays.\\
 \\
@@ -70,8 +120,10 @@ The NASA DPS Dictionary describes each display in detail. This section lists the
     3 & Moron & MRN 20 & MRN 02 \\
     13 & Moron & MRN 20 & MRN 02 \\
     20 & St. John's International & YYT 29 & YYT 11 \\
+		%21 & Gander & YQX ***** & YQX ***** \\
     23 & Lajes & LAJ 15 & LAJ 33 \\
     24 & Vandenberg AFB & VBG 30 & VBG 12 \\
+		%26 & Shannon & INN 06 & INN 24 \\
     29 & Istres & FMI 33 & FMI 15 \\
     32 & Diego Garcia & JDG 31 & JDG 13 \\
     33 & RAAF Amberley/Tindall & AMB 15 & PTN 14 \\
@@ -187,6 +239,25 @@ The APU/HYD display shows pressures, quantities and temperatures related to the 
   \label{fig:SPI_MEDS}
 \end{figure}
 The SPI display shows the position of the orbiter's aerosurfaces. The BODY FLAP \% indicator is non-functional.
+\end{multicols*}
+
+\begin{multicols*}{2}
+\subsection{Launch Pads}
+SSU can be launched from 2 launch pads: Launch Complex 39 (LC39) at the Kennedy Space Center in Florida, or Space Launch Complex 6 (SLC-6) at the Vandenberg Air Force Base in California.
+\begin{figure}[H]
+  \includegraphics[width=0.5\textwidth]{LC39.png}
+  \caption{Launch Complex 39}
+  \label{fig:LC39}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=0.5\textwidth]{SLC6.png}
+  \caption{Space Launch Complex 6}
+  \label{fig:SLC6}
+\end{figure}
+\noindent
+Most pad structures are controlled automatically during the countdown, but manual control is available for all of them via a dialog window which is opened by the keys Ctrl+Space.\\
+%Most pad structures are controlled automatically during the countdown, but all can be controlled manually via a dialog window which is opened by the keys Ctrl+Space.\\
+The scenario file entries needed to define the launch pad vessels are covered in Section \ref{sec:scenario-files} of this manual.
 \end{multicols*}
 
 \end{document}

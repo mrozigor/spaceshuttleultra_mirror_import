@@ -181,6 +181,7 @@ Meshes\SSU\STS1_RSRB_fwd_center_segment.msh
 Meshes\SSU\STS1_RSRB_fwd_segment.msh
 Meshes\SSU\STS1_RSRB_fwd_skirt_assy.msh
 Meshes\SSU\SWT.msh
+Meshes\SSU\TAA.msh
 Meshes\SSU\VAB_exterior_1980.msh
 Meshes\SSU\VAB_interior_structure.msh
 Meshes\SSU\VAB_interior_structure_low-res.msh
