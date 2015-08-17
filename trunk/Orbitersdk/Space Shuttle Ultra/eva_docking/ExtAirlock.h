@@ -42,7 +42,7 @@ namespace eva_docking
 		UINT mesh_extal;
 		MESHHANDLE hExtALMesh;
 	public:
-		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident = "External Airlock");
+		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident);
 		virtual ~ExtAirlock();
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void DefineAnimations(const VECTOR3& ofs);
