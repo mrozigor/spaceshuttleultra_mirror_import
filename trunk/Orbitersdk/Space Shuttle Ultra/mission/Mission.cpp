@@ -51,13 +51,14 @@ namespace mission {
 		bHasMPMs = false;
 		bHasODS = false;
 		bHasExtAL = false;
+		bHasTAA = false;
+		bAftTAA = false;
 		bHasBulkheadFloodlights = false;
 		bHasDragChute = true;
 
 		bUseSILTS = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-		fODSZPos = 8.25;
 
 		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
@@ -145,6 +146,8 @@ namespace mission {
 		oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs);
 		oapiReadItem_bool(hFile, "UseODS", bHasODS);
 		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
+		oapiReadItem_bool( hFile, "UseTAA", bHasTAA );
+		oapiReadItem_bool( hFile, "AftTAA", bAftTAA );
 		oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
 		oapiReadItem_bool(hFile, "HasDragChute", bHasDragChute);
 
@@ -157,7 +160,6 @@ namespace mission {
 				fPayloadZPos[i] = x;
 			}
 		}
-		oapiReadItem_float(hFile, "ODSZPos", fODSZPos);
 
 		if(oapiReadItem_string(hFile, "Bridgerails", buffer)) {
 			std::vector<int> bridgerails;
@@ -242,9 +244,16 @@ namespace mission {
 			return fPayloadZPos[iIndex];
 	}
 
-	double Mission::GetODSZPos() const
+	double Mission::GetExternalAirlockZPos() const
 	{
-		return fODSZPos;
+		if (bHasTAA & !bAftTAA) return TAA_EXTERNAL_AIRLOCK_Z_POSITION;
+		else return EXTERNAL_AIRLOCK_Z_POSITION;
+	}
+
+	double Mission::GetTunnelAdapterAssemblyZPos() const
+	{
+		if (bAftTAA) return TAA_AFT_POSITION;
+		else return TAA_FORWARD_POSITION;
 	}
 		
 	const std::string& Mission::GetOrbiter() const
@@ -301,6 +310,16 @@ namespace mission {
 	bool Mission::HasExtAL() const
 	{
 		return (bHasExtAL || bHasODS);
+	}
+
+	bool Mission::HasTAA() const
+	{
+		return bHasTAA;
+	}
+
+	bool Mission::AftTAA() const
+	{
+		return bAftTAA;
 	}
 
 	bool Mission::HasBulkheadFloodlights() const

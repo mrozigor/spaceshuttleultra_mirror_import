@@ -3,6 +3,8 @@
 #include "../meshres_ods.h"
 #include "ODS.h"
 #include "VesselAPI.h"
+#include "..\CommonDefs.h"
+
 
 namespace eva_docking {
 
@@ -78,9 +80,15 @@ namespace eva_docking {
 		pRingAnim = NULL;
 		RingState.Set(AnimState::STOPPED, 0.0);
 		odsAttachVec[0] = ODS_DOCKPOS_OFFSET;
-		odsAttachVec[1] = _V(0.0, 1.0, 0.0);
-		odsAttachVec[2] = _V(0.0, 0.0, 1.0);
+		odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
+		odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 		target_pos = _V(0.0, 2000.0, 0.0);
+
+		mesh_ods = MESH_UNDEFINED;
+		hODSMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_ODS );
+		oapiWriteLog( "ODS mesh loaded" );
+
+		ahDockAux = NULL;
 	}
 
 	ODS::~ODS() {
@@ -109,7 +117,8 @@ namespace eva_docking {
 		VESSEL* pV = oapiGetVesselInterface(hVessel);
 		bool bHasOneAPASPort = false;
 
-		for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
+		//for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
+		for(unsigned long j = pV->AttachmentCount(true) - 1; j>0; j--) {
 			ATTACHMENTHANDLE ahX = 	pV->GetAttachmentHandle(true, j);
 
 			if(!_strnicmp(pV->GetAttachmentId(ahX), "APAS", 4)) {
@@ -234,9 +243,7 @@ namespace eva_docking {
 
 	void ODS::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		//const double FEET = 1.0/0.3048;
-		//const double INCH = 1.0/0.0254;
-		char pszBuffer[256];
+		//char pszBuffer[256];
 
 		STS()->GlobalRot(_V(1,0,0),eX);
 		STS()->GlobalRot(_V(0,1,0),eY);
@@ -244,7 +251,7 @@ namespace eva_docking {
 
 		//If no target captured
 		//Locate and update objects in 2m cylinder, closest wins
-		if(FindClosestDockingRing())
+		/*if(FindClosestDockingRing())
 		{
 			VESSEL* pV;
 			oapiGetObjectName(ohTarget, pszBuffer, 255);
@@ -253,17 +260,14 @@ namespace eva_docking {
 			pV = oapiGetVesselInterface(ohTarget);
 			iD = pV->GetAttachmentIndex(ahTarget);
 
-/*			sprintf_s(oapiDebugString(), 255, 
-				"ODS: LOCK %s:%d | %5.2f\" %5.2f' %5.2f\" | %5.2f %5.2f %5.2f", 
-				pszBuffer, iD, target_pos.x * INCH, 
-				target_pos.y * FEET, target_pos.z * INCH,
-				target_vel.x * FEET, target_vel.y * FEET, 
-				target_vel.z * FEET); */
+			sprintf_s(oapiDebugString(), 255, 
+				"ODS: LOCK %s:%d | %5.4f\" %5.4f' %5.4f\" | %5.4f %5.4f %5.4f", 
+				pszBuffer, iD, target_pos.x / INCH, target_pos.y / MPS2FPS, target_pos.z / INCH,
+				target_vel.x / MPS2FPS, target_vel.y / MPS2FPS, target_vel.z / MPS2FPS);
 		} else {
-			/*
 			sprintf_s(oapiDebugString(), 255, "ODS: NUM KNOWN %d (%d W/O APAS)",
-				known_objects.size(), non_apas_objects.size()); */
-		}
+				known_objects.size(), non_apas_objects.size());
+		}*/
 
 		//If target in range:
 		//Calculate contacts and trigger initial contact signal.
@@ -339,9 +343,7 @@ namespace eva_docking {
 				}
 
 				STS()->SetAnimation(anim_ring, RingState.pos);
-				STS()->UpdateODSAttachment(STS()->GetOrbiterCoGOffset() + odsAttachVec[0], 
-					odsAttachVec[1]-odsAttachVec[0], 
-					odsAttachVec[2]-odsAttachVec[0]);
+				//UpdateODSAttachment(STS()->GetOrbiterCoGOffset());
 
 				CalculateRodAnimation();
 			}
@@ -429,7 +431,6 @@ namespace eva_docking {
 
 	void ODS::Realize() {
 		oapiWriteLog("(ssu)Realize ODS...");
-		//STS()->SetExternalAirlockVisual(true, true);
 
 		DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
@@ -476,8 +477,7 @@ namespace eva_docking {
 		return ExtAirlock::OnSaveState(scn);
 	}
 
-	void ODS::DefineAirlockAnimations(UINT midx_extal, 
-		UINT midx_ods, const VECTOR3& ofs) {
+	void ODS::DefineAnimations(const VECTOR3& ofs) {
 
 			static UINT grps_ring[1] = {GRP_DOCKING_RING_ODS};
 			static UINT grps_coil[3] = {GRP_3SPIRAL_1_ODS, 
@@ -498,8 +498,7 @@ namespace eva_docking {
 			static UINT grps_rod3r1[1] = {GRP_3R_DRING_EXTENDBASE_ODS};
 			
 
-		ExtAirlock::DefineAirlockAnimations(midx_extal, 
-			midx_ods, ofs);
+		ExtAirlock::DefineAnimations( ofs );
 
 		if(!pRingAnim) {
 
@@ -507,59 +506,59 @@ namespace eva_docking {
 			odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
 			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 			
-			pRingAnim = new MGROUP_TRANSLATE(midx_ods, grps_ring, 1, 
+			pRingAnim = new MGROUP_TRANSLATE(mesh_ods, grps_ring, 1, 
 				ODS_RING_TRANSLATION);
 
 			pRingAnimV = new MGROUP_TRANSLATE(LOCALVERTEXLIST, MAKEGROUPARRAY(odsAttachVec), 3, 
 				_V(0.0, 0.45, 0.0));
 
-			pCoilAnim = new MGROUP_SCALE(midx_ods, grps_coil, 3, 
+			pCoilAnim = new MGROUP_SCALE(mesh_ods, grps_coil, 3, 
 				_V(0,1.00,0), _V(1,1.4,1));
 
-			pRod1LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1l0, 1, 
+			pRod1LAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod1l0, 1, 
 				ODS_ROD1L_REF, ODS_ROD1L_DIR, ODS_ROD_ROTATION);
 
-			pRod1LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1l1, 1, 
+			pRod1LAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod1l1, 1, 
 				ODS_ROD1L_ACT_REF, ODS_ROD1L_ACT_DIR, ODS_ROD_ROTATION);
 
 					
-			pRod1RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod1r0, 1, 
+			pRod1RAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod1r0, 1, 
 				ODS_ROD1R_REF, ODS_ROD1R_DIR, ODS_ROD_ROTATION);
 
-			pRod1RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod1r1, 1, 
+			pRod1RAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod1r1, 1, 
 				ODS_ROD1R_ACT_REF, ODS_ROD1R_ACT_DIR, ODS_ROD_ROTATION);
 
 			
 
 			
-			pRod2LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2l0, 1, 
+			pRod2LAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod2l0, 1, 
 				ODS_ROD2L_REF, ODS_ROD2L_DIR, -ODS_ROD_ROTATION);
 
-			pRod2LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2l1, 1, 
+			pRod2LAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod2l1, 1, 
 				ODS_ROD2L_ACT_REF, ODS_ROD2L_ACT_DIR, ODS_ROD_ROTATION);
 
 			
 
-			pRod2RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod2r0, 1, 
+			pRod2RAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod2r0, 1, 
 				ODS_ROD2R_REF, ODS_ROD2R_DIR, -ODS_ROD_ROTATION);
 
-			pRod2RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod2r1, 1, 
+			pRod2RAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod2r1, 1, 
 				ODS_ROD2R_ACT_REF, ODS_ROD2R_ACT_DIR, ODS_ROD_ROTATION);
 
 					
 			
-			pRod3LAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3l0, 1, 
+			pRod3LAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod3l0, 1, 
 				ODS_ROD3L_REF, ODS_ROD3L_DIR, ODS_ROD_ROTATION);
 
-			pRod3LAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3l1, 1, 
+			pRod3LAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod3l1, 1, 
 				ODS_ROD3L_ACT_REF, ODS_ROD3L_ACT_DIR, -ODS_ROD_ROTATION);
 
 			
 			
-			pRod3RAnim[0] = new MGROUP_ROTATE(midx_ods, grps_rod3r0, 1, 
+			pRod3RAnim[0] = new MGROUP_ROTATE(mesh_ods, grps_rod3r0, 1, 
 				ODS_ROD3R_REF, ODS_ROD3R_DIR, ODS_ROD_ROTATION);
 
-			pRod3RAnim[1] = new MGROUP_ROTATE(midx_ods, grps_rod3r1, 1, 
+			pRod3RAnim[1] = new MGROUP_ROTATE(mesh_ods, grps_rod3r1, 1, 
 				ODS_ROD3R_ACT_REF, ODS_ROD3R_ACT_DIR, -ODS_ROD_ROTATION);
 
 			
@@ -625,7 +624,7 @@ namespace eva_docking {
 			
 		}
 
-
+		
 	}
 
 	bool ODS::HasDSCUPower() const {
@@ -644,5 +643,33 @@ namespace eva_docking {
 		}
 	}
 
+	void ODS::AddMeshes( const VECTOR3 &ofs )
+	{
+		if (mesh_ods == MESH_UNDEFINED)
+		{
+			VECTOR3 pos = _V( EXTERNAL_AIRLOCK_POS.x, EXTERNAL_AIRLOCK_POS.y, ofs.z );
+			mesh_ods = STS()->AddMesh( hODSMesh, &pos );
+			oapiWriteLog( "ODS mesh added" );
+		}
+		STS()->SetMeshVisibilityMode( mesh_ods, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+
+		ExtAirlock::AddMeshes( ofs );
+		return;
+	}
+
+	void ODS::SetDockParams( double EALzpos )
+	{
+		VECTOR3 DockPos = _V( EXTERNAL_AIRLOCK_POS.x + ODS_DOCKPOS_OFFSET.x, EXTERNAL_AIRLOCK_POS.y + ODS_DOCKPOS_OFFSET.y, EALzpos + ODS_DOCKPOS_OFFSET.z );
+		STS()->SetDockParams( DockPos, _V( 0, 1, 0 ), _V( 0, 0, -1 ) );
+		return;
+	}
+
+	void ODS::UpdateODSAttachment( const VECTOR3 &ofs )
+	{
+		VECTOR3 pos = ofs + ODS_DOCKPOS_OFFSET + EXTERNAL_AIRLOCK_POS;
+		if (ahDockAux) STS()->SetAttachmentParams( ahDockAux, pos, odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0] );
+		else ahDockAux = STS()->CreateAttachment( false, pos, odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0], "APAS" );
+		return;
+	}
 };
 

@@ -62,6 +62,7 @@
 #include <EngConst.h>
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
+#include "eva_docking\TunnelAdapterAssembly.h"
 #include "PIDControl.h"
 #include "ISSUMLP.h"
 #include "gnc/ATVC.h"
@@ -396,6 +397,9 @@ public:
 	 * Strategy pattern for the external airlock subsystem
 	 */
 	eva_docking::BasicExternalAirlock* pExtAirlock;
+
+	eva_docking::TunnelAdapterAssembly* pTAA;
+	
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
@@ -435,8 +439,6 @@ public:
 	UINT mesh_vc;                              // index for virtual cockpit mesh
 	UINT mesh_middeck;                         // index for mid deck mesh
 	UINT mesh_kuband;						   // index for KU band antenna mesh
-	UINT mesh_extal;						   // index for external airlock mesh
-	UINT mesh_ods;							   // index for	ODS outside mesh
 	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_dragchute;					   // index for drag chute mesh
@@ -491,7 +493,6 @@ public:
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
-	virtual bool HasExternalAirlock() const;
 	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
 	virtual double GetTgtSpeedbrakePosition() const;
@@ -519,7 +520,6 @@ public:
 	void SetRadiatorPosition (double pos);
 	void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
-	//virtual void SetExternalAirlockVisual(bool fExtAl, bool fODS);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
 	 * @param fThrust0 Vacuum thrust
@@ -605,9 +605,6 @@ public:
 
 	bool AreMCADebugMessagesEnabled() const throw();
 
-	virtual void UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up);
-	virtual ATTACHMENTHANDLE GetODSAttachment() const;
-
 	/**
 	 * Wrapper for AddAnimationComponent
 	 * MGROUP_TRANSFORM passed MUST be allocated with new and will be deleted by Atlantis destructor
@@ -679,9 +676,8 @@ public:
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
 		hMidDeckMesh,
-		hODSMesh, hDragChuteMesh; // mesh handles
+		hDragChuteMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
-	MESHHANDLE hExtALMesh;
 	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
@@ -693,7 +689,6 @@ public:
 	ATTACHMENTHANDLE ahTow;
 	//P-C attachments
 	ATTACHMENTHANDLE ahMMU[2];
-	ATTACHMENTHANDLE ahDockAux;
 	ATTACHMENTHANDLE ahExtAL[2];
 	//ATTACHMENTHANDLE ahCenterActive[3];
 	ATTACHMENTHANDLE ahCenterPassive[4];
@@ -724,7 +719,6 @@ public:
 private:
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
-	DOCKHANDLE hODSDock;
 	PSTREAM_HANDLE reentry_flames;
 	PARTICLESTREAMSPEC PS_REENTRY;
 
@@ -815,10 +809,6 @@ private:
 	//-----------------------------------
 	void ShowMidDeck();
 	void HideMidDeck();
-	void ShowODS() const;
-	void HideODS() const;
-	void ShowExtAL() const;
-	void HideExtAL() const;
 	int Lua_InitInterpreter (void *context);
 	int Lua_InitInstance (void *context);
 	//-----------------------------------

@@ -281,6 +281,7 @@
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
     <ClCompile Include="mps\DigitalComputerUnit.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="dps\SSME_SOP.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
