@@ -879,6 +879,9 @@
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_ExtAL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

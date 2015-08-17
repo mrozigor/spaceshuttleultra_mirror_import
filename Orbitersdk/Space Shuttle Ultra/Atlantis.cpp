@@ -5238,7 +5238,7 @@ bool Atlantis::clbkLoadVC(int id)
 		break;
 	case VC_DOCKCAM: //Docking camera
 		DisplayCameraLabel(VC_LBL_DOCKCAM);
-		SetCameraOffset(_V(orbiter_ofs.x - 0.0015, orbiter_ofs.y - 1.1/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.319862));
+		SetCameraOffset(_V(orbiter_ofs.x - 0.0015, orbiter_ofs.y - 1.03/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.319862));
 		SetCameraDefaultDirection(_V(0.0, 1.0, 0.0), PI);
 		SetCameraRotationRange(0, 0, 0, 0);
 		oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
