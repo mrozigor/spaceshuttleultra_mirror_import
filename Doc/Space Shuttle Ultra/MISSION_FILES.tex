@@ -119,6 +119,12 @@ The SSU installation already has some mission files for the included scenarios.
 	UseExtAL & Boolean & OV has external airlock & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
+	UseTAA & Boolean & Tunnel Adapter Assembly is installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	AftTAA & Boolean & Tunnel Adapter Assembly is installed aft of the External Airlock & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
 	HasBulkheadFloodlights & Boolean & TRUE if the FWD bulkhead floodlight and docking lights are installed & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
@@ -135,12 +141,22 @@ N = 12-15 $\rightarrow$ Port attachment\newline
 N = 16-19 $\rightarrow$ Starboard attachment & - \\
 	\hline
 	\rule{0pt}{2ex}
-	ODSZPos & Number & The Z coordinate (in the Orbitersim frame) of the ODS or External airlock & 8.25\\
+	SILTS & Boolean & SILTS pod (OV-102 only) & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
-	SILTS & Boolean & SILTS pod (OV-102 only) & FALSE\\
-	\hline\rule{0pt}{2ex}
 	LogSSMEData & Boolean & Enables SSME data logging & FALSE\\
+%	\hline
+%	\rule{0pt}{2ex}
+%	UseCISS & Boolean & CISS is installed & FALSE\\
+%	\hline
+%	\rule{0pt}{2ex}
+%	CISS\_GPrime & Boolean & CISS installed is for Centaur G Prime & TRUE\\
+%	\hline
+%	\rule{0pt}{2ex}
+%	UseASE\_IUS & Boolean & ASE for the IUS is installed & FALSE\\
+%	\hline
+%	\rule{0pt}{2ex}
+%	ASE\_IUS\_AftLocation & Boolean & ASE for the IUS is installed in the aft position & FALSE\\
 	\hline
   \end{tabular}
   \caption{Mission File}
