@@ -39,12 +39,15 @@ namespace eva_docking
 		double fHatchState;
 		double fExtALPress[2];
 
+		bool HideTopCover;
+
 		UINT mesh_extal;
 		MESHHANDLE hExtALMesh;
 	public:
-		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident);
+		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident, bool HideTopCover = false);
 		virtual ~ExtAirlock();
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void DefineAnimations(const VECTOR3& ofs);
+		void VisualCreated( VISHANDLE vis );
 	};
 };

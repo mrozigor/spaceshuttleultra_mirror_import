@@ -4947,6 +4947,8 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 		if (!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON + i, &grpSpec);
 	}
 
+	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
+
 	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
