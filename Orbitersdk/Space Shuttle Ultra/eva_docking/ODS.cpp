@@ -63,7 +63,7 @@ namespace eva_docking {
 	const float ODS_RODDRIVE_ROTATION = static_cast<float>(400.0 * PI);
 
 	ODS::ODS(AtlantisSubsystemDirector* pdirect, const string& _ident)
-		: ExtAirlock(pdirect, _ident),
+		: ExtAirlock(pdirect, _ident, true),
 		bPowerRelay(false),
 		bCircuitProtectionOff(false),
 		extend_goal(RETRACT_TO_FINAL),
