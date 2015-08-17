@@ -493,7 +493,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pExtAirlock = NULL;
-	hODSDock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
 
@@ -609,6 +608,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pRMS = NULL; //don't create RMS unless it is used on the shuttle
 	pMPMs = NULL;
 
+	pTAA = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -648,8 +648,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	mesh_vc = MESH_UNDEFINED;
 	mesh_middeck = MESH_UNDEFINED;
 	mesh_kuband = MESH_UNDEFINED;
-	mesh_extal = MESH_UNDEFINED;
-	mesh_ods = MESH_UNDEFINED;
 	mesh_cargo_static = MESH_UNDEFINED;
 	mesh_dragchute = MESH_UNDEFINED;
 	mesh_heatshield = MESH_UNDEFINED;
@@ -777,8 +775,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	hOrbiterVCMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_VC);
 	hMidDeckMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MIDDECK);
 	hKUBandMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_KU);
-	hExtALMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_EXTAL);
-	hODSMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_ODS);
 	hDragChuteMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_CHUTE);
 	hHeatShieldMesh = oapiLoadMeshGlobal("SSU/SSU_entry");
 	hDevOrbiterMesh = NULL;
@@ -794,7 +790,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	vis = NULL;
 	ahHDP = NULL;
 	ahTow = NULL;
-	ahDockAux = NULL;
 	ahMMU[0] = NULL;
 	ahMMU[1] = NULL;
 	ahExtAL[0] = NULL;
@@ -2280,11 +2275,10 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	}
 
 
-
-	//Move to UpdateDockAuxAttach(), include animation of docking port.
-	//reject attaching when no docking port available
-	UpdateODSAttachment(ofs0 + _V(ODS_POS.x + ODS_DOCKPOS_OFFSET.x, ODS_POS.y + ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos() + ODS_DOCKPOS_OFFSET.z), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0));
-
+	/*eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
+	if (pODS) pODS->UpdateODSAttachment( ofs0 + _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+	else */CreateAttachment( false, _V( 0, 0, 0 ), _V( 1, 0, 0 ), _V( 0, 1, 0 ), "INVALID" );
+	
 
 	/*
 	dynamic centerline payloads, controlled by the payload 1-3 interfaces
@@ -2439,25 +2433,20 @@ void Atlantis::AddOrbiterVisual()
 
 		AddKUBandVisual(KU_OFFSET);
 
-		if (mesh_extal == MESH_UNDEFINED) {
-			VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-			mesh_extal = AddMesh(hExtALMesh, &x);
-			SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
+		if (pExtAirlock)
+		{
+			pExtAirlock->AddMeshes( _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+			
+			eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
+			if (pODS) pODS->SetDockParams( pMission->GetExternalAirlockZPos() );
+			
+			pExtAirlock->DefineAnimations( _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
 		}
 
-		if (mesh_ods == MESH_UNDEFINED) {
-			VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-			mesh_ods = AddMesh(hODSMesh, &x);
-			SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
-		}
-
-		if (bHasODS) {
-			ShowODS(); // also shows external airlock
-		}
-		else {
-			HideODS();
-			if (bHasExtAL) ShowExtAL();
-			else HideExtAL();
+		if (pTAA)
+		{
+			pTAA->AddMeshes( _V( 0, 0, pMission->GetTunnelAdapterAssemblyZPos() ) );
+			//pTAA->DefineAnimations( _V( 0, 0, pMission->GetTunnelAdapterAssemblyZPos() ) );
 		}
 
 		mesh_middeck = AddMesh(hMidDeckMesh, &VC_OFFSET);
@@ -2519,11 +2508,6 @@ void Atlantis::AddOrbiterVisual()
 			AddMesh("shuttle_eva_plat", &plat_ofs);
 		}
 
-		// ***** Docking definitions
-
-		VECTOR3 DockPos = _V(ODS_POS.x + ODS_DOCKPOS_OFFSET.x, ODS_POS.y + ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos() + ODS_DOCKPOS_OFFSET.z);
-		SetDockParams(DockPos, _V(0, 1, 0), _V(0, 0, -1));
-
 		// ***** Attachment definitions
 		DefineAttachments(OFS_ZERO);
 
@@ -2533,13 +2517,6 @@ void Atlantis::AddOrbiterVisual()
 		oapiVCRegisterHUD(&huds); // register changes in HUD parameters
 
 		DefineAnimations();
-
-		if (pExtAirlock) {
-			oapiWriteLog("Create External Airlock animations");
-			pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos()));
-			oapiWriteLog("\tDONE.");
-		}
-
 	}
 }
 
@@ -3502,6 +3479,9 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
 			}
+			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+
+			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
 
 			bHasKUBand = pMission->HasKUBand();
 		}
@@ -5258,7 +5238,7 @@ bool Atlantis::clbkLoadVC(int id)
 		break;
 	case VC_DOCKCAM: //Docking camera
 		DisplayCameraLabel(VC_LBL_DOCKCAM);
-		SetCameraOffset(_V(orbiter_ofs.x - 0.0015, orbiter_ofs.y + ODS_POS.y + 1.15, orbiter_ofs.z + pMission->GetODSZPos() - 0.319862));
+		SetCameraOffset(_V(orbiter_ofs.x - 0.0015, orbiter_ofs.y - 1.1/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.319862));
 		SetCameraDefaultDirection(_V(0.0, 1.0, 0.0), PI);
 		SetCameraRotationRange(0, 0, 0, 0);
 		oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
@@ -5428,7 +5408,7 @@ bool Atlantis::clbkLoadVC(int id)
 
 		//ShowMidDeck();
 		// Default camera rotation
-		if (HasExternalAirlock())
+		if (pMission->HasExtAL())
 		{
 			oapiVCSetNeighbours(-1, -1, VC_PORTSTATION, VC_EXT_AL);
 		}
@@ -5442,7 +5422,7 @@ bool Atlantis::clbkLoadVC(int id)
 		break;
 	case VC_EXT_AL:
 		DisplayCameraLabel(VC_LBL_EXT_AL);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL);
+		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ));
 		SetCameraDefaultDirection(VC_DIR_EXT_AL);
 
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -5709,7 +5689,7 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_8:
 			ToggleGrapple();
 			return 1;
-			/*case OAPI_KEY_E:
+		/*case OAPI_KEY_E:
 			  do_eva = true;
 			  return 1;*/
 		case OAPI_KEY_COMMA:
@@ -5747,29 +5727,6 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		}
 	}
 	return 0;
-}
-
-void Atlantis::ShowODS() const
-{
-	ShowExtAL();
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
-}
-
-void Atlantis::HideODS() const
-{
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
-}
-
-void Atlantis::ShowExtAL() const
-{
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
-	oapiWriteLog("Showing ExtAL");
-}
-
-void Atlantis::HideExtAL() const
-{
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
-	oapiWriteLog("Hiding ExtAL");
 }
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
@@ -6243,11 +6200,6 @@ vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
 	}
 	else
 		return NULL;
-}
-
-bool Atlantis::HasExternalAirlock() const
-{
-	return true;
 }
 
 inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
@@ -7222,20 +7174,6 @@ void Atlantis::RealizeSubsystemConnections() {
 
 }
 
-/*void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
-	if(fExtAl) {
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
-	} else {
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
-	}
-
-	if(fODS) {
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
-	} else {
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
-	}
-	}*/
-
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
 	pRSLS->SychronizeCountdown(launch_mjd);
@@ -7310,25 +7248,11 @@ double Atlantis::GetLH2ManifPress(void) const
 	return pMPS->GetLH2ManifPress();
 }
 
-void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
-	if (ahDockAux)
-	{
-		SetAttachmentParams(ahDockAux, pos, dir, up);
-	}
-	else {
-		ahDockAux = CreateAttachment(false, pos, dir, up, "APAS");
-	}
-}
-
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
 	if (strTextureName.length() == 0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
 	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
-}
-
-ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
-	return ahDockAux;
 }
 
 int Atlantis::GetSoundID() const {

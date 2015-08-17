@@ -34,6 +34,11 @@
  */
 namespace eva_docking {
 
+	const static char* DEFAULT_MESHNAME_ODS = "SSU\\ODS";
+
+	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.2560, -0.319862 ); // offset between ODS mesh position and docking port position
+	//const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.3380, -0.319862 ); // offset between ODS mesh position and docking port position
+
 	using discsignals::DiscInPort;
 	using discsignals::DiscOutPort;
 
@@ -102,6 +107,11 @@ namespace eva_docking {
 
 		VECTOR3 odsAttachVec[3];
 
+		UINT mesh_ods;
+		MESHHANDLE hODSMesh;
+
+		ATTACHMENTHANDLE ahDockAux;
+
 		bool HasDSCUPower() const;
 		bool FindClosestDockingRing();
 		bool FindClosestDockingRing(OBJHANDLE hVessel);
@@ -113,14 +123,16 @@ namespace eva_docking {
 		ODS(AtlantisSubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();
 		virtual void Realize();
-		//virtual void AddMeshes(const VECTOR3& ofs);
+		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual double GetSubsystemEmptyMass() const;
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
+		virtual void DefineAnimations(const VECTOR3& ofs);
 		virtual bool OnParseLine(const char* keyword, const char* line);
+		void SetDockParams( double EALzpos );
+		void UpdateODSAttachment( const VECTOR3 &ofs );
 
 		DiscInPort dscu_PowerOn;
 		DiscInPort dscu_PowerOff;

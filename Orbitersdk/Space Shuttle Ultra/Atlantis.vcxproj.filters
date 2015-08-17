@@ -463,6 +463,9 @@
     <ClCompile Include="vc\PanelF3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -871,6 +874,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelF3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

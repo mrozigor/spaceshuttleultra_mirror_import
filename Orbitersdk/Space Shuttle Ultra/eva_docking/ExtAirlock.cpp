@@ -1,23 +1,35 @@
 #include "ExtAirlock.h"
+#include "..\CommonDefs.h"
 
-namespace eva_docking {
 
-	ExtAirlock::ExtAirlock(AtlantisSubsystemDirector *pdirect, const std::string &_ident)
-		: BasicExternalAirlock(pdirect, _ident) 
+namespace eva_docking
+{
+	ExtAirlock::ExtAirlock(AtlantisSubsystemDirector *pdirect, const std::string &_ident):BasicExternalAirlock(pdirect, _ident) 
 	{
 		fHatchState = 0.0;
+
+		mesh_extal = MESH_UNDEFINED;
+		hExtALMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_EXTAL );
+		oapiWriteLog( "ExtAL mesh loaded" );
 	}
 
-	ExtAirlock::~ExtAirlock() {
+	ExtAirlock::~ExtAirlock()
+	{
 	}
 
-	void ExtAirlock::AddMeshes(const VECTOR3 &ofs) {
-
+	void ExtAirlock::AddMeshes( const VECTOR3 &ofs )
+	{
+		if (mesh_extal == MESH_UNDEFINED)
+		{
+			VECTOR3 pos = _V( EXTERNAL_AIRLOCK_POS.x, EXTERNAL_AIRLOCK_POS.y, ofs.z );
+			mesh_extal = STS()->AddMesh( hExtALMesh, &pos );
+			oapiWriteLog( "ExtAL mesh added" );
+		}
+		STS()->SetMeshVisibilityMode( mesh_extal, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+		return;
 	}
 
-	void ExtAirlock::DefineAirlockAnimations(UINT midx_extal, 
-		UINT midx_ods, const VECTOR3& ofs) {
+	void ExtAirlock::DefineAnimations(const VECTOR3& ofs) {
 			//No animations
 	}
-
 };

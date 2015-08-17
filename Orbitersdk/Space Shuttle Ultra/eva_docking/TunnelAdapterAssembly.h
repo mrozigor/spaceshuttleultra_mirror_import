@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  External Airlock subsystem definition
+  Tunnel Adapter Assembly System definition
 
 
 
@@ -22,29 +22,38 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#pragma once
-#include "BasicExtAirlock.h"
-#include "..\Atlantis.h"
+#ifndef __TAA_H_
+#define __TAA_H_
+
+
+#include "..\AtlantisSubsystem.h"
 
 
 namespace eva_docking
 {
-	const static char* DEFAULT_MESHNAME_EXTAL = "SSU\\ExtAL";
+	const static char* DEFAULT_MESHNAME_TAA_FORWARD = "SSU\\TAA";
+	const static char* DEFAULT_MESHNAME_TAA_AFT = "SSU\\TAA";// TODO uses the same for now (should have struts)
 
-	const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.03, 0 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
-	//const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.1, 7 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
-	
-	class ExtAirlock: public BasicExternalAirlock {
-	protected:
-		double fHatchState;
-		double fExtALPress[2];
+	const VECTOR3 TAA_POS = _V( 0.0, -1.03, 0.0 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetTunnelAdapterAssemblyZPos)
 
-		UINT mesh_extal;
-		MESHHANDLE hExtALMesh;
-	public:
-		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident = "External Airlock");
-		virtual ~ExtAirlock();
-		virtual void AddMeshes(const VECTOR3& ofs);
-		virtual void DefineAnimations(const VECTOR3& ofs);
+	const double TAA_MASS = 200;// Kg
+
+
+	class TunnelAdapterAssembly:public AtlantisSubsystem
+	{
+		private:
+			MESHHANDLE hMesh;
+			UINT mesh_idx;
+		public:
+			TunnelAdapterAssembly( AtlantisSubsystemDirector* _director, bool aftTAA = false );
+			~TunnelAdapterAssembly( void );
+
+			double GetSubsystemEmptyMass( void ) const {return TAA_MASS;};
+
+			void AddMeshes( const VECTOR3 &ofs );
+			void DefineAnimations( const VECTOR3& ofs );
 	};
 };
+
+
+#endif// __TAA_H_

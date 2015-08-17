@@ -34,6 +34,15 @@ const double DEFAULT_PAYLOAD_ZPOS[16] =
   7.0, 3.0, -2.0, -8.0,	//Starboard (attachments 16, 17, 18, 19)
   0.0};			//spare
 
+
+// Z-position (in OrbiterSim coordinates of ODS/AL mesh)
+const double EXTERNAL_AIRLOCK_Z_POSITION = 8.25;
+const double TAA_EXTERNAL_AIRLOCK_Z_POSITION = 6.13;
+
+const double TAA_FORWARD_POSITION = 8.5;// between bulkhead and ExtAL
+const double TAA_AFT_POSITION = 5.83;// aft of ExtAL
+
+
 /**
  * Contains all class definitions related to Mission Data Files and 
  * handling mission data in the simulation
@@ -66,11 +75,11 @@ namespace mission {
 		bool bHasMPMs;
 		bool bHasODS;
 		bool bHasExtAL;
+		bool bHasTAA;
+		bool bAftTAA;
 		bool bHasKUBand;
 		bool bHasBulkheadFloodlights;
 		bool bHasDragChute;
-
-		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
 
 		bool bPerformRTHU;
 		bool bUseOMSAssist;
@@ -150,7 +159,8 @@ namespace mission {
 		//virtual const std::string& GetROMSPodMeshName() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
-		virtual double GetODSZPos() const;
+		virtual double GetExternalAirlockZPos() const;
+		virtual double GetTunnelAdapterAssemblyZPos() const;
 
 		virtual bool HasBridgerail(unsigned int index) const;
 		
@@ -158,6 +168,8 @@ namespace mission {
 		virtual bool HasSTBDMPMs() const;
 		virtual bool HasODS() const;
 		virtual bool HasExtAL() const;
+		virtual bool HasTAA() const;
+		virtual bool AftTAA() const;
 		virtual bool HasBulkheadFloodlights() const;
 		virtual bool HasDragChute() const;
 
