@@ -36,7 +36,7 @@ namespace eva_docking {
 
 	const static char* DEFAULT_MESHNAME_ODS = "SSU\\ODS";
 
-	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.2560, -0.319862 ); // offset between ODS mesh position and docking port position
+	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.00444299, 2.25302, -0.317876 ); // offset between ODS mesh position and docking port position
 	//const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.3380, -0.319862 ); // offset between ODS mesh position and docking port position
 
 	using discsignals::DiscInPort;
