@@ -47,6 +47,9 @@ namespace eva_docking
 			grpSpec.flags = GRPEDIT_SETUSERFLAG;
 			grpSpec.UsrFlag = 2;
 			oapiEditMeshGroup( hExtALDevMesh, GRP_OUTER_HATCH_FLAP_ExtAL, &grpSpec );
+
+			mg = oapiMeshGroupEx( hExtALTemplateMesh, GRP_OUTER_HATCH_FLAPA_ExtAL );
+			oapiEditMeshGroup( hExtALDevMesh, GRP_OUTER_HATCH_FLAPA_ExtAL, &grpSpec );
 		}
 		return;
 	}
