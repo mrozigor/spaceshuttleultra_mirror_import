@@ -479,7 +479,7 @@ namespace eva_docking {
 
 	void ODS::DefineAnimations(const VECTOR3& ofs) {
 
-			static UINT grps_ring[1] = {GRP_DOCKING_RING_ODS};
+			static UINT grps_ring[2] = {GRP_DOCKING_RING_ODS, GRP_DOCKING_SIGHT_ODS};
 			static UINT grps_coil[3] = {GRP_3SPIRAL_1_ODS, 
 				GRP_3SPIRAL_2_ODS, GRP_3SPIRAL_3_ODS};
 			static UINT grps_rod1l0[1] = {GRP_1L_DR_ROD_ODS};
@@ -506,7 +506,7 @@ namespace eva_docking {
 			odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
 			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
 			
-			pRingAnim = new MGROUP_TRANSLATE(mesh_ods, grps_ring, 1, 
+			pRingAnim = new MGROUP_TRANSLATE(mesh_ods, grps_ring, 2, 
 				ODS_RING_TRANSLATION);
 
 			pRingAnimV = new MGROUP_TRANSLATE(LOCALVERTEXLIST, MAKEGROUPARRAY(odsAttachVec), 3, 
