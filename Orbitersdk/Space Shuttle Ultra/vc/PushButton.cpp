@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "PushButton.h"
+#include <OrbiterSoundSDK40.h>
 
 namespace vc {
 
@@ -59,6 +60,7 @@ namespace vc {
 			SetAnimation(anim_pb, 1.0);
 		}
 		output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
 	void PushButton::OnDepress() {
