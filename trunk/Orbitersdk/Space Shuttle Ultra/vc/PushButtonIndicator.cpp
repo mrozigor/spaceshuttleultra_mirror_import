@@ -1,4 +1,5 @@
 #include "PushButtonIndicator.h"
+#include <OrbiterSoundSDK40.h>
 
 namespace vc
 {
@@ -69,6 +70,7 @@ namespace vc
 		}
 		if(bAllowReset && input) output.ResetLine();
 		else output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
 	void PushButtonIndicator::OnRelease()
