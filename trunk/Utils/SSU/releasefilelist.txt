@@ -67,27 +67,17 @@ Config\Vessels\VandenbergAFB\SLC-6_STS_MST.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
 Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
-Doc\Space Shuttle Ultra\125852main_ius93f2.pdf
 Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\GPL.txt
-Doc\Space Shuttle Ultra\MEDS.pdf
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
 Doc\Space Shuttle Ultra\SSU Ops Manual V3.0.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
-Doc\Space Shuttle Ultra\Tech Notes\Ku band deployed assembly and gimbal.pdf
-Doc\Space Shuttle Ultra\Tech Notes\Ku band IRCS for the Shuttle.pdf
-Doc\Space Shuttle Ultra\Tech Notes\KU OPS 21002.pdf
 Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad A Xenon lights positions.txt
 Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad B Xenon lights positions.txt
 Doc\Space Shuttle Ultra\Tech Notes\PCWS Channels.ods
-Doc\Space Shuttle Ultra\Tech Notes\refman.pdf
 Doc\Space Shuttle Ultra\Tech Notes\RMS IK Code.odt
-Doc\Space Shuttle Ultra\Tech Notes\SCAN0004.jpg
-Doc\Space Shuttle Ultra\Tech Notes\SCAN0005.jpg
-Doc\Space Shuttle Ultra\Tech Notes\SCAN0006.jpg
 Doc\Space Shuttle Ultra\Tech Notes\Shuttle_Ku_gimbal_equations.jpg
-Doc\Space Shuttle Ultra\Tech Notes\Space Shuttle System Summary - 1980.pdf
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
 Meshes\SSU\Cockpit.msh
