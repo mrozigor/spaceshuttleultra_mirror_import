@@ -25,6 +25,7 @@ Config\Earth\SSU\Shannon.cfg
 Config\Earth\SSU\St_Johns.cfg
 Config\Earth\SSU\Tindal_RAAF.cfg
 Config\Earth\SSU\Vandenberg.cfg
+Config\Earth\SSU\White_Sands.cfg
 Config\GC\SpaceShuttleUltra_ecam.cfg
 Config\SSU\MDM\FA.mdm
 Config\SSU\MDM\FF.mdm
@@ -348,6 +349,8 @@ Textures\SSU\MLP_Side1_decks_grating.dds
 Textures\SSU\MON1veiw.dds
 Textures\SSU\MON2view.dds
 Textures\SSU\MPESS_FREESTAR_tex.dds
+Textures\SSU\NOR1735tex.dds
+Textures\SSU\NOR2305tex.dds
 Textures\SSU\Nozzle.dds
 Textures\SSU\O1.dds
 Textures\SSU\O13_17.dds
