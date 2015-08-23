@@ -1,7 +1,7 @@
 ﻿<RibbonWindow x:Class="SSUWorkbench.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        
+        xmlns:local="clr-namespace:SSUWorkbench"
         Title="SSU Workbench" Height="768" Width="1024">
     <RibbonWindow.Resources>
         <BitmapImage x:Key="SSU_ICON" UriSource="images/SSU_ICON_2.png"/>
@@ -188,6 +188,9 @@
             <TabItem Header="PAYLOAD"/>
             <TabItem Header="MISSION"/>
             <TabItem Header="FLT PLAN"/>
+            <TabItem Header="MECO">
+                <local:MECOTool />
+            </TabItem>
         </TabControl>
     </Grid>
 </RibbonWindow>
