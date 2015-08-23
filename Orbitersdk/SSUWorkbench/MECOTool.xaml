@@ -1,0 +1,122 @@
+﻿<UserControl x:Class="SSUWorkbench.MECOTool"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:SSUWorkbench"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ObjectDataProvider MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}"
+                            x:Key="InsertionModes">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:InsertionMode" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="30"/>
+            <!--<ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>-->
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Column="0" Grid.Row="0">Target Inc:</Label>
+        <TextBox Grid.Column="1" Text="{Binding TargetInc}"/>
+        <Label Grid.Column="0" Grid.Row="1">Target Alt:</Label>
+        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding TargetAlt}"/>
+        <Label Grid.Column="0" Grid.Row="2">Target LAN:</Label>
+        <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding TargetLAN}"/>
+        <Label Grid.Column="0" Grid.Row="3">Mode:</Label>
+        <ComboBox Name="LaunchSite" Grid.Column="1" Grid.Row="3" ItemsSource="{Binding Source={StaticResource InsertionModes}}" SelectedItem="{Binding InsertionMode}"/>
+        <Button Grid.Column="1" Grid.Row="5" Click="btnCalculateClick">Calculate</Button>
+        <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="100" />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Column="0" Grid.Row="0" Header="MECO">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="*" />                        
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0">Vel</Label>
+                    <TextBox Grid.Row="0" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOVel}" />
+                    <Label Grid.Row="1" Grid.Column="0">FPA</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOFPA}" />
+                    <Label Grid.Row="2" Grid.Column="0">Alt</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOAlt}" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Grid.Row="0" Header="OMS-1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0">TIG</Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS1TIG}" />
+                    <Label Grid.Row="1" Grid.Column="0">DVX</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VX}" />
+                    <Label Grid.Row="2" Grid.Column="0">DVY</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VY}" />
+                    <Label Grid.Row="3" Grid.Column="0">DVZ</Label>
+                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VZ}" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Column="2" Grid.Row="0" Header="OMS-2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="28" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0">TIG</Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS2TIG}" />
+                    <Label Grid.Row="1" Grid.Column="0">DVX</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VX}" />
+                    <Label Grid.Row="2" Grid.Column="0">DVY</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VY}" />
+                    <Label Grid.Row="3" Grid.Column="0">DVZ</Label>
+                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VZ}" />
+                </Grid>
+            </GroupBox>
+            <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Text="{Binding FileOutput}" />
+        </Grid>
+    </Grid>
+</UserControl>
