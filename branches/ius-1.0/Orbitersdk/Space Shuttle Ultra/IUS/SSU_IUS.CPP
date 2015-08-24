@@ -192,17 +192,15 @@ void SSU_IUS::clbkPostStep(double simt, double simdt, double mjd)
 	if (SRMignited == false)
 	{
 		//check for ignition
-		if (thg_main != NULL)
+		if ((thg_main != NULL) && (GetThrusterGroupLevel( thg_main ) != 0))
 		{
-			if (GetThrusterGroupLevel( thg_main ) != 0)
-			{
-				// it has ignited -> give it all
-				SetThrusterGroupLevel( thg_main, 1 );
-				SRMignited = true;
-			}
+			// it has ignited -> give it all and remove from user control
+			SetThrusterGroupLevel( thg_main, 1 );
+			DelThrusterGroup( thg_main );
+			thg_main = NULL;
+			SRMignited = true;
 		}
 	}
-	else SetThrusterGroupLevel( thg_main, 1 );// keep at full thrust
 
 	// animation
 	if (asEXTENDNOZZLE.Opening() == true) asEXTENDNOZZLE.Move( simdt / (STAGE2_EEC_DEPLOY_DELAY + (1 / STAGE2_EEC_DEPLOY_RATE)) );
@@ -251,25 +249,24 @@ bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *s
 int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 {
 	if (!down) return 0;
-	if ((thg_main != NULL) && (GetThrusterGroupLevel( thg_main ) != 0)) return 0;// no separations while engines are firing
+	if (((th_main[0] != NULL) && (GetThrusterLevel( th_main[0] ) != 0)) || // no separations while SRM-1 is firing
+		((th_main[1] != NULL) && (GetThrusterLevel( th_main[1] ) != 0)) || // or while SRM-2 is firing
+		(GetAttachmentStatus( ahASE ) != NULL)) return 0;// or while attached to ASE
 
-	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == false) && (KEYMOD_ALT( kstate ) == false))// no key modifiers
+	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
 	{
 		if (key == OAPI_KEY_J)
 		{
-			if (GetAttachmentStatus( ahASE ) == NULL)// payload sep only after deployment
+			// remove payload mass from centaur dry mass
+			OBJHANDLE ohPL = GetAttachmentStatus( ahPayload );
+			if (ohPL)
 			{
-				// remove payload mass from centaur dry mass
-				OBJHANDLE ohPL = GetAttachmentStatus( ahPayload );
-				if (ohPL)
-				{
-					VESSEL* vPL = oapiGetVesselInterface( ohPL );
-					SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
-				}
-				// separate payload
-				DetachChild( ahPayload, 0.3 );
-				return 1;
+				VESSEL* vPL = oapiGetVesselInterface( ohPL );
+				SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
 			}
+			// separate payload
+			DetachChild( ahPayload, 0.3 );
+			return 1;
 		}
 		else if (key == OAPI_KEY_G)
 		{
@@ -454,7 +451,7 @@ void SSU_IUS::SetStage2Config( void )
 	SetPMI(_V(.88, .99, .84));
 
 	SRMignited = false;
-	DelThrusterGroup( thg_main );
+	if (thg_main) DelThrusterGroup( thg_main );
 	thg_main = CreateThrusterGroup( th_main + 1, 1, THGROUP_MAIN );
 	SetDefaultPropellantResource( ph_main[1] );
 	return;
