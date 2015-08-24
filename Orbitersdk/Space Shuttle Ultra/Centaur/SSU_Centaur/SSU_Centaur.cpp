@@ -128,9 +128,9 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		0.4,
 		25,
 		50,
-		0,
+		0.5,
 		0.12,
-		20,
+		22,
 		5,
 		PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_SQRT,
@@ -139,7 +139,9 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 		1, 1,
 		0};
 	AddExhaustStream( thRL10[0], &psRL10 );
+	AddExhaust( thRL10[0], 3, 0.6, 0.5 );
 	AddExhaustStream( thRL10[1], &psRL10 );
+	AddExhaust( thRL10[1], 3, 0.6, 0.5 );
 
 	PARTICLESTREAMSPEC psACS = {
 		0,
@@ -315,7 +317,7 @@ int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 {
 	if (!down) return 0;
 
-	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == false) && (KEYMOD_ALT( kstate ) == false))// no key modifiers
+	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
 	{
 		if (key == OAPI_KEY_J)
 		{
