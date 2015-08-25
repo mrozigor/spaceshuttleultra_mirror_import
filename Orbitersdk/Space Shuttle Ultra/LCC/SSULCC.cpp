@@ -93,7 +93,8 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	int hours = static_cast<int>(floor(timeToLaunch/3600));
 	int minutes = static_cast<int>(floor((timeToLaunch - (hours*3600)) / 60));
 	double seconds = timeToLaunch - (hours*3600) - (minutes*60);
-	sprintf(oapiDebugString(),"T -%02i:%02i:%04.1f",hours,minutes,seconds);
+	if (timeToLaunch >= 0.0) sprintf_s( oapiDebugString(), 256, "T-%02i:%02i:%04.1f",hours,minutes,seconds);
+	else sprintf_s( oapiDebugString(), 256, "" );
 
 	if(pFSS) {
 		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
@@ -114,7 +115,7 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 		{
 			if(!pSSU->HydraulicsOK())
 			{
-				sprintf_s(oapiDebugString(), 255, "Launch aborted: No hydraulic pressure (check APUs)");
+				sprintf_s(oapiDebugString(), 255, "Countdown clock will hold at T-4 minutes due to a failure");
 				timeToLaunch = mjd-1.0; // set launch time to date in past
 			}
 		}
@@ -245,9 +246,9 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 			else
 			{
 				// move to start config
-				pSSU->SetSSMEActPos( 1, 0, 0 );
-				pSSU->SetSSMEActPos( 2, 0, -3 );
-				pSSU->SetSSMEActPos( 3, 0, 3 );
+				pSSU->SetSSMEActPos( 1, -3, 0 );
+				pSSU->SetSSMEActPos( 2, -9, 0 );
+				pSSU->SetSSMEActPos( 3, -9, 0 );
 				MPSTVCProfile = false;
 				oapiWriteLog( "LCC: MPS Engine TVC Actuator Profile terminated" );
 			}

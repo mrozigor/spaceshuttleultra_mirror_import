@@ -92,6 +92,7 @@ $(TargetDir)$(TargetFileName)</Command>
     <ClCompile Include="src\MathTests.cpp" />
     <ClCompile Include="src\PEG4TargetingTests.cpp" />
     <ClCompile Include="src\StateVectorPropagatorTests.cpp" />
+    <ClCompile Include="src\UltraUtilsTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libUltra.vcxproj">

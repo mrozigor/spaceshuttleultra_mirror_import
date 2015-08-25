@@ -13,8 +13,9 @@ namespace mps
 #endif// _MPSDEBUG
 
 		this->ID = ID;
+		TankTemp = INITIAL_TANK_TEMP_ENG;
 		HeMass = INITIAL_HE_MASS_ENG;// + (INITIAL_HE_MASS_ENG * 0.1 * (oapiRand() - 0.5));// +/-5% variance
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		TankPress = (((HeMass / AR_HE) * R * TankTemp) / TANK_VOL_ENG) / 6894.757;
 		RegPress = 785;
 		TotalFlow = 0;
 
@@ -23,6 +24,10 @@ namespace mps
 
 		vlvInIC = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
 		vlvOutIC = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
+
+		TankPressure = Sensor( 0, 5000 );
+		RegPressure[0] = Sensor( 0, 1000 );
+		RegPressure[1] = Sensor( 0, 1000 );
 
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " HeSysEng::HeSysEng out" );
@@ -55,6 +60,11 @@ namespace mps
 				vlvInIC->Connect( 0, bundle, 10 );
 				vlvOutIC->Connect( 0, bundle, 11 );
 
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 0 );
+				RegPressure[0].Connect( bundle, 1 );
+				RegPressure[1].Connect( bundle, 2 );
+
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_R" ));
 				break;
@@ -67,6 +77,11 @@ namespace mps
 				vlvInIC->Connect( 0, bundle, 12 );
 				vlvOutIC->Connect( 0, bundle, 13 );
 
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 3 );
+				RegPressure[0].Connect( bundle, 4 );
+				RegPressure[1].Connect( bundle, 5 );
+
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_R" ));
 				break;
@@ -78,6 +93,11 @@ namespace mps
 				bundle = BundleManager()->CreateBundle( "MPS_LV_D", 16 );// LV49 - LV64
 				vlvInIC->Connect( 0, bundle, 14 );
 				vlvOutIC->Connect( 0, bundle, 15 );
+
+				bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+				TankPressure.Connect( bundle, 6 );
+				RegPressure[0].Connect( bundle, 7 );
+				RegPressure[1].Connect( bundle, 8 );
 
 				sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 				sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
@@ -118,7 +138,7 @@ namespace mps
 			if ((read_f1 >= 0) && (read_f1 <= 4500))
 			{
 				TankPress = read_f1;
-				HeMass = (TankPress * 6894.757 * TANK_VOL_ENG * AR_HE) / ( R * TANK_TEMP);
+				HeMass = (TankPress * 6894.757 * TANK_VOL_ENG * AR_HE) / ( R * INITIAL_TANK_TEMP_ENG);
 			}
 #ifdef _MPSDEBUG
 			sprintf_s( buffer, 128, " HeSysEng::OnParseLine || TankPress:%f HeMass:%f", TankPress, HeMass );
@@ -181,6 +201,10 @@ namespace mps
 			RegPress -= 400 * fDeltaT;// to show a decay upon closing the isol vlvs
 			if (RegPress < 0) RegPress = 0;
 			TotalFlow = 0;
+
+			TankPressure.SetValue( TankPress );
+			RegPressure[0].SetValue( RegPress );
+			RegPressure[1].SetValue( RegPress );
 			return;
 		}
 
@@ -226,6 +250,10 @@ namespace mps
 		RegPress = 730 + (((maxregflow - TotalFlow) / maxregflow) * 55);
 		if (regheadpress < RegPress) RegPress = regheadpress;
 		TotalFlow = 0;
+
+		TankPressure.SetValue( TankPress );
+		RegPressure[0].SetValue( RegPress );
+		RegPressure[1].SetValue( RegPress );
 		return;
 	}
 
@@ -239,16 +267,27 @@ namespace mps
 
 	double HeSysEng::UseTank( double mass )
 	{
-		HeMass -= mass;
-		if (HeMass < 0) HeMass = 0;
-		TankPress = (((HeMass / 4.002602) * 8.314 * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass - mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
 	double HeSysEng::FillTank( double mass )
 	{
-		HeMass += mass;
-		TankPress = (((HeMass / 4.002602) * 8.314 * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass + mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
@@ -274,8 +313,9 @@ namespace mps
 
 	HeSysPneu::HeSysPneu( AtlantisSubsystemDirector* _director, const string& _ident ):AtlantisSubsystem( _director, _ident )
 	{
+		TankTemp = INITIAL_TANK_TEMP_PNEU;
 		HeMass = INITIAL_HE_MASS_PNEU;// + (INITIAL_HE_MASS_PNEU * 0.1 * (oapiRand() - 0.5));// +/-5% variance
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		TankPress = (((HeMass / AR_HE) * R * TankTemp) / TANK_VOL_PNEU) / 6894.757;
 		RegPress = 770;
 		TotalFlow = 0;
 
@@ -283,6 +323,9 @@ namespace mps
 		vlvISOL_B = new SolenoidValve( 1, 1000, true, nullptr, nullptr );
 
 		vlvLEngXOVR = new SolenoidValve( 0, 1000, true, nullptr, nullptr );
+
+		TankPressure = Sensor( 0, 5000 );
+		RegPressure = Sensor( 0, 1000 );
 		return;
 	}
 
@@ -301,6 +344,10 @@ namespace mps
 		vlvISOL_A->Connect( 0, bundle, 6 );
 		vlvISOL_B->Connect( 0, bundle, 7 );
 		vlvLEngXOVR->Connect( 0, bundle, 9 );
+
+		bundle = BundleManager()->CreateBundle( "MPS_HE_SENSORS", 12 );
+		TankPressure.Connect( bundle, 9 );
+		RegPressure.Connect( bundle, 10 );
 
 		sys1 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_C" ));
 		sys2 = static_cast<HeSysEng*>(director->GetSubsystemByName( "HeEng_L" ));
@@ -337,7 +384,7 @@ namespace mps
 			if ((read_f1 >= 0) && (read_f1 <= 4500))
 			{
 				TankPress = read_f1;
-				HeMass = (TankPress * 6894.757 * TANK_VOL_PNEU * AR_HE) / ( R * TANK_TEMP);
+				HeMass = (TankPress * 6894.757 * TANK_VOL_PNEU * AR_HE) / ( R * INITIAL_TANK_TEMP_PNEU);
 			}
 #ifdef _MPSDEBUG
 			sprintf_s( buffer, 128, " HeSysPneu::OnParseLine || TankPress:%f HeMass:%f", TankPress, HeMass );
@@ -428,6 +475,9 @@ namespace mps
 			if (TankPress < RegPress) RegPress = TankPress;
 		}
 		TotalFlow = 0;
+
+		TankPressure.SetValue( TankPress );
+		RegPressure.SetValue( RegPress );
 		return;
 	}
 
@@ -441,16 +491,26 @@ namespace mps
 
 	double HeSysPneu::UseTank( double mass )
 	{
-		HeMass -= mass;
-		if (HeMass < 0) HeMass = 0;
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass - mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
 	double HeSysPneu::FillTank( double mass )
 	{
-		HeMass += mass;
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass + mass;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 

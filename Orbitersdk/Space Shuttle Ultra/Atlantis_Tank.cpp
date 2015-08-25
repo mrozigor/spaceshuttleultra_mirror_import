@@ -17,6 +17,7 @@
 #include "Atlantis_Tank.h"
 #include "CommonDefs.h"
 #include "math.h"
+#include <string>
 
 // ==============================================================
 // Specialised vessel class Atlantis_Tank
@@ -24,14 +25,14 @@
 
 // Constructor
 Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
-: VESSEL2(hObj), bUseBurntTexture(false), scenarioMass(-1.0)
+: VESSEL2(hObj), bUseBurntTexture(false)
 {
 	// preload mesh
 	mesh_idx = MESH_UNDEFINED;
 	//hTankMesh = oapiLoadMeshGlobal (DEFAULT_MESHNAME_ET);
 
-	pszScenarioTexture[0] = NULL;
-	
+	useFRL = false;
+
 	LOXPct5LevelSensor = Sensor( 4.85, 5 );
 	LOXPct98LevelSensor[0] = Sensor( 97.85, 98 );
 	LOXPct98LevelSensor[1] = Sensor( 97.85, 98 );
@@ -70,12 +71,18 @@ Atlantis_Tank::Atlantis_Tank (OBJHANDLE hObj)
 void Atlantis_Tank::UseBurntETTexture()
 {
 	bUseBurntTexture = true;
-	UseETTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+	if(strScenarioBurnTex.empty()) UseETTexture(DEFAULT_SCORCHED_ET_TEXTURE);
+	else UseETTexture(strScenarioBurnTex.c_str());
 }
 
 void Atlantis_Tank::UseETTexture(const char* pszTexName)
 {
-	SURFHANDLE texture = oapiLoadTexture(pszTexName);
+	SURFHANDLE texture = oapiLoadTexture(pszTexName, true);
+	if (texture == NULL)
+	{
+		oapiWriteLog("(Atlantis_Tank) ERROR: Could not load texture");
+		return;
+	}
 	if(!oapiSetTexture(hDevTankMesh, 1, texture))
 		oapiWriteLog("(Atlantis_Tank) ERROR: Could not update texture");
 }
@@ -144,17 +151,20 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	// see what type of tank this is
 	char pszBuffer[255];
 	bool bFoundData = oapiReadItem_string(cfg, "Type", pszBuffer);
-	if(!bFoundData || !_strnicmp(pszBuffer, "SLWT", 4)) { // default to SLWT tank
-		SetEmptyMass (SLWT_EMPTY_MASS);
-		hTankMesh = oapiLoadMeshGlobal (SLWT_MESHNAME_ET);
+
+	if ((bFoundData == true) && (!_strnicmp(pszBuffer, "SWT", 4))) {
+		SetEmptyMass (SWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SWT_MESHNAME_ET);
 	}
-	else if(!_strnicmp(pszBuffer, "LWT", 3)) {
+	else if ((bFoundData == true) && (!_strnicmp(pszBuffer, "LWT", 4))) {
 		SetEmptyMass (LWT_EMPTY_MASS);
 		hTankMesh = oapiLoadMeshGlobal (LWT_MESHNAME_ET);
 	}
-	else if(!_strnicmp(pszBuffer, "SWT", 3)) {
-		SetEmptyMass (SWT_EMPTY_MASS);
-		hTankMesh = oapiLoadMeshGlobal (SWT_MESHNAME_ET);
+	else// pszBuffer = "SLWT"
+	{
+		// default to SLWT tank
+		SetEmptyMass (SLWT_EMPTY_MASS);
+		hTankMesh = oapiLoadMeshGlobal (SLWT_MESHNAME_ET);
 	}
 
 	phET = CreatePropellantResource( TANK_MAX_PROPELLANT_MASS );
@@ -417,14 +427,30 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 			postsep = true;
 		}
 
-		// "vaporize" 0.005% LOX mass remaining per second, and 0.05% LH2
-		double tmp = LOXmass * 0.00005 * oapiRand() * simdt;
-		GOXmass += tmp * 1000;
-		LOXmass -= tmp;
+		// "vaporize" 0.6Kg/s LOX mass remaining and 0.9Kg/s LH2
+		double tmp = 0.6 * oapiRand() * simdt;
+		if ((LOXmass - tmp) < 0)
+		{
+			GOXmass += LOXmass * 1000;
+			LOXmass = 0;
+		}
+		else
+		{
+			GOXmass += tmp * 1000;
+			LOXmass -= tmp;
+		}
 
-		tmp = LH2mass * 0.0005 * oapiRand() * simdt;
-		GH2mass += tmp * 1000;
-		LH2mass -= tmp;
+		tmp = 0.9 * oapiRand() * simdt;
+		if ((LH2mass - tmp) < 0)
+		{
+			GH2mass += LH2mass * 1000;
+			LH2mass = 0;
+		}
+		else
+		{
+			GH2mass += tmp * 1000;
+			LH2mass -= tmp;
+		}
 	}
 	return;
 }
@@ -472,15 +498,23 @@ void Atlantis_Tank::clbkLoadStateEx(FILEHANDLE scn, void *status)
 	char* line;
 
 	while(oapiReadScenario_nextline(scn, line)) {
-		if(!_strnicmp(line, "BURNT_TEX", 9)) {
+		if(!_strnicmp(line, "USE_BURNT_TEX", 13)) {
 			bUseBurntTexture = true;
 		}
-		else if(!_strnicmp(line, "EMPTY_MASS", 10)) {
-			sscanf_s(line+10, "%lf", scenarioMass);
-			SetEmptyMass(scenarioMass);
-		}
 		else if(!_strnicmp(line, "ET_TEX_NAME", 11)) {
-			strcpy(pszScenarioTexture, line+12);
+			strScenarioTextureName = line+12;
+			strScenarioTexture = "SSU\\" + strScenarioTextureName + ".dds";
+		}
+		else if(!_strnicmp(line, "BURNT_TEX_NAME", 14)) {
+			strScenarioBurnTexName = line+15;
+			strScenarioBurnTex = "SSU\\" + strScenarioBurnTexName + ".dds";
+		}
+		else if(!_strnicmp(line, "FRL", 3)) {
+			if (GetEmptyMass() == SWT_EMPTY_MASS)// allow FRL only on SWT
+			{
+				SetEmptyMass( SWT_FRL_EMPTY_MASS );
+				useFRL = true;
+			}
 		}
 		else ParseScenarioLineEx(line, status);
 	}
@@ -491,8 +525,9 @@ void Atlantis_Tank::clbkSaveState(FILEHANDLE scn)
 	VESSEL2::clbkSaveState(scn);
 
 	if(bUseBurntTexture) oapiWriteLine(scn, "  BURNT_TEX");
-	if(scenarioMass>0.0) oapiWriteScenario_float(scn, "EMPTY_MASS", scenarioMass);
-	if(pszScenarioTexture[0]!=NULL) oapiWriteScenario_string(scn, "ET_TEX_NAME", pszScenarioTexture);
+	if(!strScenarioTextureName.empty()) oapiWriteScenario_string(scn, "ET_TEX_NAME", const_cast<char*>(strScenarioTextureName.c_str()));
+	if(!strScenarioBurnTexName.empty()) oapiWriteScenario_string(scn, "BURNT_TEX_NAME", const_cast<char*>(strScenarioBurnTexName.c_str()));
+	if (useFRL == true) oapiWriteLine( scn, "  FRL" );
 }
 
 void Atlantis_Tank::clbkPostCreation( void )
@@ -526,7 +561,8 @@ void Atlantis_Tank::clbkVisualCreated(VISHANDLE vis, int refcount)
 	hDevTankMesh = GetDevMesh(vis, mesh_idx);
 
 	if(bUseBurntTexture) UseBurntETTexture();
-	if(pszScenarioTexture[0]!=NULL) UseETTexture(pszScenarioTexture);
+	if(!strScenarioTexture.empty()) UseETTexture(strScenarioTexture.c_str());
+	else if (useFRL == true) UseETTexture( "SSU\\SWT_FRL_ETtex.dds" );
 }
 
 void Atlantis_Tank::clbkVisualDestroyed(VISHANDLE vis, int refcount)

@@ -417,6 +417,18 @@ MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool chang
 				z_unit.x, z_unit.y, z_unit.z);
 }
 
+double CalculateCameraRotationAngle(VECTOR3& dir, const VECTOR3& rot)
+{
+	// if camera is pointing straight up or down, make it slightly offset from (0,1,0) vector
+	if(Eq(dotp(dir, _V(0, -1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, -0.999999984769, 0.0);
+	else if(Eq(dotp(dir, _V(0, 1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, 0.999999984769, 0.0);
+
+	VECTOR3 cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
+	cam_rot /= length(cam_rot);
+	if(cam_rot.y < 0) cam_rot = -cam_rot;
+	return SignedAngle(cam_rot, rot, dir);
+}
+
 /*VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 {
 	VECTOR3 v;

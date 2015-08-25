@@ -53,7 +53,7 @@ void CrawlerCenterPanel::DefineVC()
 
 void CrawlerCenterPanel::DefineVCAnimations(UINT vcidx)
 {	
-	static UINT SteeringWheel[2] = {GRP_Steering_wheel_VC, GRP_Steering_wheel_degrees_VC};
+	static UINT SteeringWheel[2] = {GRP_STEERING_WHEEL_VC, GRP_STEERING_WHEEL_DEGREES_VC};
 	MGROUP_ROTATE *pSteeringWheel = new MGROUP_ROTATE(vcidx, SteeringWheel, 2, TransformVector(_V(0.0, 0.099, -0.164)),
 		TransformVector(_V(0, -0.50104, -0.86543)), static_cast<float>((180.0*RAD)*(MAX_TURN_ANGLE*DEG/6.0)));
 	anim_steering = V()->CreateAnimation(0.5);
@@ -85,7 +85,6 @@ void CrawlerCenterPanel::OnPreStep(double SimT, double SimDT, double MJD)
 	double steeringAnim;
 	if(steering2DegRange) steeringAnim  = steering.GetVoltage()*1.5 + 0.5;
 	else steeringAnim = steering.GetVoltage()/2.0 + 0.5;
-	//sprintf_s(oapiDebugString(), 255, "Steering: %f", steering.GetVoltage());
 	V()->SetAnimation(anim_steering, steeringAnim);
 }
 

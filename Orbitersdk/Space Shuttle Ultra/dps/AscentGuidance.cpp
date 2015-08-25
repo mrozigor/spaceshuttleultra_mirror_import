@@ -5,8 +5,8 @@
 #include "SSME_Operations.h"
 #include "ATVC_SOP.h"
 #include "SRBSepSequence.h"
-#include "ETSepSequence.h"
 #include "IDP.h"
+#include "assert.h"
 
 namespace dps
 {
@@ -44,6 +44,10 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 	finecountthrottle[1] = FINECOUNT_THROTTLE_1EO;
 	finecountthrottle[2] = FINECOUNT_THROTTLE;// TODO update to correct MPL from mission file
 
+	SSMETailoffDV[0] = SSME_TAILOFF_DV_91_2EO;
+	SSMETailoffDV[1] = SSME_TAILOFF_DV_91_1EO;
+	SSMETailoffDV[2] = SSME_TAILOFF_DV_67;
+
 	// generic values, updated in InitializeAutopilot()
 	THROT[0] = THROT1;
 	THROT[1] = THROT2;
@@ -62,6 +66,8 @@ AscentGuidance::AscentGuidance(SimpleGPCSystem* _gpc)
 
 	EOVI[0] = 0;
 	EOVI[1] = 0;
+
+	dogleg = false;
 }
 
 AscentGuidance::~AscentGuidance()
@@ -91,7 +97,6 @@ void AscentGuidance::Realize()
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 	pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
-	pETSepSequence = static_cast<ETSepSequence*> (FindSoftware( "ETSepSequence" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -110,6 +115,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 			GimbalSSMEs(DeltaT);
 			break;
 		case 103:
+			Navigate();// update speed post MECO
 			if (pSSME_Operations->GetZeroThrustFlag() == true)
 			{
 				// stop any SERC firing, TransDAP takes over now
@@ -119,7 +125,7 @@ void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			if (pSSME_Operations->GetMECOCommandFlag() == false){
 				STS()->CalcSSMEThrustAngles(0, ThrAngleP, ThrAngleY);
-				Navigate();
+				//Navigate();
 				if(STS()->GetMET() >= (tLastMajorCycle + ASCENT_MAJOR_CYCLE)) {
 					MajorCycle();
 					tLastMajorCycle = STS()->GetMET();
@@ -169,7 +175,7 @@ void AscentGuidance::InitializeAutopilot()
 	TgtInc=pMission->GetMECOInc()*DEG;
 	TgtFPA=pMission->GetMECOFPA()*DEG;
 	TgtAlt=pMission->GetMECOAlt();
-	TgtSpd=pMission->GetMECOVel();
+	TgtSpd=pMission->GetMECOVel() - (SSMETailoffDV[2] / MPS2FPS);
 	MaxThrust = pMission->GetMaxSSMEThrust();
 	THROT[0] = MaxThrust;
 	THROT[1] = MaxThrust;
@@ -188,7 +194,8 @@ void AscentGuidance::InitializeAutopilot()
 	STS()->GetEquPos(longitude, latitude, EarthRadius);
 	if(abs(cos(TgtInc*RAD))>abs(cos(latitude))) {
 		radTargetHeading=PI/2;
-		TgtInc = latitude*DEG;
+		//TgtInc = latitude*DEG;
+		dogleg = true;
 	}
 	else {
 		// there are two possible launch headings: going north and going south
@@ -390,7 +397,7 @@ void AscentGuidance::GimbalSSMEs(double DeltaT)
 	if (enaSERC == true)
 	{
 		if (abs( degRateError.data[ROLL] ) < 0.1) SERC.ResetLine();
-		else SERC.SetLine( -range( -1, 0.5 * degRateError.data[ROLL], 1 ) );
+		else SERC.SetLine( static_cast<float>(-range( -1, 0.5 * degRateError.data[ROLL], 1 )) );
 	}
 }
 void AscentGuidance::FirstStageRateCommand()
@@ -448,7 +455,7 @@ void AscentGuidance::SecondStageRateCommand()
 			degReqdRates.data[YAW] = range(-2.5, 0.5*(DEG*(radHeading-radTargetHeading) - (sign( cos( degBank ) ) * ThrAngleY)), 2.5);
 			// applied the "- (sign( cos( degBank ) ) * ThrAngleY)" factor to correct for "sideways" thrust (ME-2 or 3 out/low thrust)
 
-			if(!PerformRTHU ||  relativeVelocity<ROLL_TO_HEADS_UP_VELOCITY) 
+			if(!PerformRTHU || STS()->GetAirspeed()<ROLL_TO_HEADS_UP_VELOCITY) 
 			{
 				if(degBank>0) degReqdRates.data[ROLL] = 2.5*(degBank-180.0);
 				else degReqdRates.data[ROLL] = 2.5*(degBank+180.0);
@@ -480,7 +487,54 @@ void AscentGuidance::SecondStageRateCommand()
 void AscentGuidance::Throttle(double DeltaT)
 {
 	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
-	//sprintf_s(oapiDebugString(), 255, "SBTCCommand: %f", SBTCCommand);
+
+	// detect EO
+	for (int i = 0; i < 3; i++)
+	{
+		if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
+		{
+			MEFail[i] = true;
+			NSSME--;
+			// record EO VI
+			VECTOR3 v3vi;
+			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+			double vi = length( v3vi ) * MPS2FPS;
+			if (NSSME == 2) EOVI[0] = vi;
+			else if (NSSME == 1) EOVI[1] = vi;
+			// update 1º stage throttle table to not throttle
+			THROT[1] = THROT[0];
+			THROT[2] = THROT[0];
+			AGT_done = true;// don't do AGT
+			glimiting = false;// reset g-limiting
+			dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
+			// throttle to mission power level
+			throttlecmd = THROT[0];
+			if (J > 0) J--;
+			// update MECO targets
+			if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
+		}
+	}
+
+	// SERC
+	switch (GetMajorMode())
+	{
+		case 102:
+			if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
+			{
+				enaSERC = true;
+			}
+			break;
+		case 103:
+			if (NSSME == 1)// enable SERC automatically in MM103
+			{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
+				enaSERC = true;
+			}
+			break;
+	}
+
+	// low-level sensor arm
+	if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
+
 
 	if(SpdbkThrotAutoIn) { // auto throttling
 		// check for manual takeover
@@ -489,27 +543,6 @@ void AscentGuidance::Throttle(double DeltaT)
 			SpdbkThrotPLT.SetLine();
 		}
 		else SpdbkThrotPLT.ResetLine();
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
-			{
-				MEFail[i] = true;
-				NSSME--;
-				// record EO VI
-				if (NSSME == 2) EOVI[0] = STS()->GetAirspeed() * MPS2FPS;
-				else if (NSSME == 1) EOVI[1] = STS()->GetAirspeed() * MPS2FPS;
-				// update 1º stage throttle table to not throttle
-				THROT[1] = THROT[0];
-				THROT[2] = THROT[0];
-				AGT_done = true;// don't do AGT
-				glimiting = false;// reset g-limiting
-				dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
-				// throttle to mission power level
-				throttlecmd = THROT[0];
-				pSSME_SOP->SetThrottlePercent( throttlecmd );
-			}
-		}
 
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
@@ -520,11 +553,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					throttlecmd = THROT[J];
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					J++;
-				}
-				
-				if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
-				{
-					enaSERC = true;
 				}
 				break;
 			case 103: // STAGE 3
@@ -540,7 +568,7 @@ void AscentGuidance::Throttle(double DeltaT)
 					OMSCommand[RIGHT].ResetLine();
 				}
 
-				if(relativeVelocity>=TgtSpd) {
+				if(inertialVelocity>=TgtSpd) {
 					//reached target speed
 					if (pSSME_Operations->GetMECOCommandFlag() == false)
 					{
@@ -563,18 +591,13 @@ void AscentGuidance::Throttle(double DeltaT)
 						if (dt_thrt_glim >= 0.1)// wait while throttling (10%/sec throttle change = 0.1s delay)
 						{
 							throttlecmd--;// throttle back 1%
-							throttlecmd = (double)round( throttlecmd );// round avoid x.5% cmds
+							throttlecmd = (double)Round( throttlecmd );// round avoid x.5% cmds
 							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
 							pSSME_SOP->SetThrottlePercent( throttlecmd );
 							dt_thrt_glim = 0;// reset
 						}
 						else dt_thrt_glim += DeltaT;
 					}
-				}
-
-				if (NSSME == 1)// enable SERC automatically in MM103
-				{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
-					enaSERC = true;
 				}
 
 				// fine count
@@ -588,16 +611,11 @@ void AscentGuidance::Throttle(double DeltaT)
 					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
-
-				// low-level sensor arm
-				if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
-
-				sprintf_s( oapiDebugString(), 255, "tr%f", timeRemaining );
 				break;
 		}
 	}
 	else { // manual throttling
-		pSSME_SOP->SetThrottlePercent( SBTCCommand );
+		pSSME_SOP->SetThrottlePercent( Round( 2 * SBTCCommand ) * 0.5 );// rounded to the nearest 0.5%
 	}
 	
 	lastSBTCCommand = SBTCCommand;
@@ -614,7 +632,7 @@ double AscentGuidance::CalculateAzimuth()
 {
 	double true_azimuth=0;
 	double latitude, longitude;
-	double azimuth,equator_v/*,target_radius*/;
+	double azimuth/*,equator_v/*,target_radius*/;
 	double tgt_orbit_v[2],lnch_v[2],current_vel[2]; //vectors
 	VECTOR3 vel, horizonvel;
 	double temp;
@@ -628,14 +646,16 @@ double AscentGuidance::CalculateAzimuth()
 	current_vel[1] = horizonvel.data[0]; //East
 	current_vel[0] = horizonvel.data[2];  // North
 
-	azimuth = asin(range(-1, cos(TgtInc*RAD)/cos(latitude), 1));  // this equ doesn't take rotation into accout
-	equator_v=EarthRadius*(2*PI/SidDay);   //equator velocity
-	tgt_orbit_v[0]=TgtSpd*cos(TgtFPA*RAD)*cos(azimuth); // northern velocity
+	if (latitude > (TgtInc * RAD)) azimuth = PI / 2;
+	else azimuth = asin(range(-1, cos(TgtInc*RAD)/cos(latitude), 1));  // this equ doesn't take rotation into accout
+	//equator_v=EarthRadius*(2*PI/SidDay);   //equator velocity
+	if ((dogleg == true) && (latitude < (TgtInc * RAD))) tgt_orbit_v[0]=-TgtSpd*cos(TgtFPA*RAD)*cos(azimuth);
+	else tgt_orbit_v[0]=TgtSpd*cos(TgtFPA*RAD)*cos(azimuth) * sign( 65 - TgtInc ); // northern velocity
 	tgt_orbit_v[1]=TgtSpd*cos(TgtFPA*RAD)*sin(azimuth); // eastern velocity
-	lnch_v[0]= abs(tgt_orbit_v[0]) - abs(current_vel[0]); // taking current velocity into accout for CC (North); assume both values have same sign
-	lnch_v[1]= abs(tgt_orbit_v[1]) - abs(current_vel[1]); // taking current velocity into accout for CC (East); assume both values have same sign
-
-	//sprintf_s(oapiDebugString(), 255, "current_vel: %f %f target vel: %f %f", current_vel[0], current_vel[1], tgt_orbit_v[0], tgt_orbit_v[1]);
+	//lnch_v[0]= abs(tgt_orbit_v[0]) - abs(current_vel[0]); // taking current velocity into accout for CC (North); assume both values have same sign
+	//lnch_v[1]= abs(tgt_orbit_v[1]) - abs(current_vel[1]); // taking current velocity into accout for CC (East); assume both values have same sign
+	lnch_v[0]= fabs( tgt_orbit_v[0] - current_vel[0] );
+	lnch_v[1]= fabs( tgt_orbit_v[1] - current_vel[1] );
 
 	//if (lnch_v[0]==0) lnch_v[0]=0.01; //div by zero protection	
 	/*if(lnch_v[0]==0.0) { //div by zero protection
@@ -644,9 +664,13 @@ double AscentGuidance::CalculateAzimuth()
 	}*/
 	//else true_azimuth = atan(lnch_v[1]/lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
 	true_azimuth = atan2(lnch_v[1], lnch_v[0]); // tan(azimuth) = eastern_vel / northern_vel
-	if(current_vel[0] < 0.0) true_azimuth = PI - true_azimuth; // we are heading south, so need to use southerly heading
-	if(current_vel[1] < 0.0) true_azimuth = 2*PI - true_azimuth; // retrograde inclination
+	if ((current_vel[0] < 0.0) && (TgtInc > 65)) true_azimuth = PI + true_azimuth;
+	if ((tgt_orbit_v[1] > 0.0) && (TgtInc > 65)) true_azimuth = 2*PI - true_azimuth;
+	//if(current_vel[0] < 0.0) true_azimuth = PI - true_azimuth; // we are heading south, so need to use southerly heading
+	//if(current_vel[1] < 0.0) true_azimuth = 2*PI - true_azimuth; // retrograde inclination
 
+	if ((dogleg == true) && (latitude < (TgtInc * RAD))) true_azimuth = PI - true_azimuth;
+	
 	return true_azimuth;
 }
 
@@ -656,7 +680,7 @@ void AscentGuidance::Navigate()
 	STS()->GetRelativePos(STS()->GetSurfaceRef(),rv);
 	STS()->GetRelativeVel(STS()->GetSurfaceRef(),vv);
 	radius=length(rv);
-	relativeVelocity=length(vv);
+	inertialVelocity=length(vv);
 	hv=crossp(rv,vv);
 	h=length(hv);
 	rh=rv*(1/radius);
@@ -760,11 +784,11 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			// TODO should also change QPOLY and pitch profile
 			if (TDEL_adjust < -1)// hot
 			{
-				THROT[1] = round( THROT[1] - 21.5 );
+				THROT[1] = Round( THROT[1] - 21.5 );
 			}
 			else if (TDEL_adjust < -0.2)// hot
 			{
-				THROT[1] = round( THROT[1] + ((26.25 * TDEL_adjust) + 4.75) );
+				THROT[1] = Round( THROT[1] + ((26.25 * TDEL_adjust) + 4.75) );
 			}
 			else if (TDEL_adjust > 1)// cold
 			{
@@ -772,7 +796,7 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			}
 			else if (TDEL_adjust > 0.2)// cold
 			{
-				THROT[2] += round( (7.5 * TDEL_adjust) + 0.5 );
+				THROT[2] += Round( (7.5 * TDEL_adjust) + 0.5 );
 			}
 
 			AGT_done = true;
@@ -780,7 +804,6 @@ void AscentGuidance::AdaptiveGuidanceThrottling( void )
 			char buffer[256];
 			sprintf_s( buffer, 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
 			oapiWriteLog( buffer );
-			sprintf_s( oapiDebugString(), 256, "TDEL_adjust:%.2f THROT2:%.1f THROT3:%.1f", TDEL_adjust, THROT[1], THROT[2] );
 		}
 	}
 	return;
@@ -792,194 +815,51 @@ void AscentGuidance::NullSRBNozzles( void )
 	return;
 }
 
-bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
+bool AscentGuidance::GetAutoThrottleState( void ) const
 {
-	if (spec != dps::MODE_UNDEFINED) return false;
-	
-	// PASS LAUNCH TRJ/PASS ASCENT TRAJ
-	switch(GetMajorMode())
-	{
-		case 101:
-			PrintCommonHeader( "LAUNCH TRAJ", pMDU );
-			break;
-		case 102:
-		case 103:
-			PrintCommonHeader( "ASCENT TRAJ", pMDU );
-			break;
-	}
+	return SpdbkThrotAutoIn.IsSet();
+}
 
-	// static parts (labels)
-	pMDU->mvprint( 9, 5, "CO" );
-	pMDU->mvprint( 25, 5, "PD" );
-	pMDU->mvprint( 32, 5, "PD3" );
+VECTOR3 AscentGuidance::GetAttitudeErrors( void ) const
+{
+	// HACK this is not the the attitude error (but it's better than nothing...?)
+	return degReqdRates;
+}
 
-	pMDU->mvprint( 36, 6, "ABORT    ARM" );
-	pMDU->mvprint( 33, 7, "3 E/O" );
-	pMDU->mvprint( 33, 8, "2 E/O" );
-	pMDU->mvprint( 46, 8, "2" );
-	pMDU->mvprint( 31, 9, "ABORT      4" );
-	pMDU->mvprint( 31, 10, "YAW STEER  5" );
+double AscentGuidance::GetThrottleCommand( void ) const
+{
+	return throttlecmd;
+}
 
-	pMDU->mvprint( 10, 7, "GUID" );
-	pMDU->mvprint( 10, 8, "TMECO   :" );
-	pMDU->mvprint( 10, 9, "PRPLT" );
-	pMDU->mvprint( 7, 12, "6  SERC" );
+bool AscentGuidance::SERCenabled( void ) const
+{
+	return enaSERC;
+}
 
-	pMDU->mvprint( 5, 13, "O" );
+double AscentGuidance::GetEOVI( int EO ) const
+{
+	assert( (EO >= 1) && (EO <= 2) && "AscentGuidance::GetEOVI.EO" );
+	return EOVI[EO - 1];
+}
 
-	pMDU->mvprint( 46, 13, "GO" );
-	pMDU->mvprint( 39, 15, "RTLS" );
+double AscentGuidance::GetTgtSpd( void ) const
+{
+	return TgtSpd;
+}
 
+double AscentGuidance::GetInertialVelocity( void ) const
+{
+	return inertialVelocity;
+}
 
-	// static parts (lines)
+double AscentGuidance::GetThrustAcceleration( void ) const
+{
+	return thrustAcceleration;
+}
 
-	//Nominal ascent line
-	pMDU->Line( 181, 212, 191, 176 );
-	pMDU->Line( 191, 176, 233, 128 );
-	pMDU->Line( 233, 128, 255, 117 );
-
-	//EO at Lift-Off line
-	pMDU->Line( 159, 212, 174, 138 );
-	pMDU->Line( 174, 138, 78, 195 );
-	pMDU->Line( 78, 195, 58, 201 );
-	pMDU->Line( 58, 201, 21, 176 );
-
-	pMDU->Line( 183, 119, 176, 122 );
-	pMDU->Line( 176, 122, 81, 187 );
-
-	//Q = 2 line
-	pMDU->Line( 38, 187, 11, 179 );
-
-	//Q = 10 line
-	pMDU->Line( 38, 171, 11, 157 );
-
-	//Hdot indicator
-	pMDU->Line( 17, 30, 11, 30 );
-	pMDU->Line( 11, 30, 11, 206 );
-	pMDU->Line( 11, 206, 17, 206 );
-	pMDU->Line( 11, 118, 17, 118 );
-
-	//DR indicator
-	pMDU->Line( 26, 27, 247, 27 );
-
-	//PD3 Mark
-	pMDU->Line( 164, 27, 164, 35 );
-
-	//PD Mark
-	pMDU->Line( 128, 27, 128, 35 );
-
-	//CO Mark
-	pMDU->Line( 47, 27, 47, 35 );
-
-
-	// dynamic parts
-	char cbuf[64];
-	int tmp = 0;
-
-	if ((GetMajorMode() == 103) && (pSSME_Operations->GetMECOConfirmedFlag() == false))
-	{
-		tmp = round( STS()->GetMET() + timeRemaining );
-		sprintf_s( cbuf, 64, "%02d", (tmp - (tmp % 60)) / 60 );
-		pMDU->mvprint( 16, 8, cbuf );
-		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );
-		pMDU->mvprint( 19, 8, cbuf );
-	}
-
-	tmp = STS()->GetETPropellant();
-	if (tmp < 0) tmp = 0;
-	sprintf_s( cbuf, 64, "%2d", tmp );
-	pMDU->mvprint( 19, 9, cbuf );
-
-	if ((pSRBSepSequence->GetPC50Flag() == true) && (GetMajorMode() == 102)) pMDU->mvprint( 10, 10, "PC<50" );
-
-	if ((pSRBSepSequence->GetSRBSEPINHFlag() == true) || (pETSepSequence->GetETSEPINHFlag() == true)) pMDU->mvprint( 10, 11, "SEP INH" );
-
-	if (enaSERC == true) pMDU->mvprint( 15, 12, "ON" );
-
-	if (EOVI[0] != 0)
-	{
-		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[0] );
-		pMDU->mvprint( 7, 13, cbuf );
-	}
-	if (EOVI[1] != 0)
-	{
-		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[1] );
-		pMDU->mvprint( 7, 14, cbuf, dps::DEUATT_OVERBRIGHT );// TODO update MDU to write text with DEUATT_OVERBRIGHT attribute
-	}
-
-	VECTOR3 LVLH_Vel;
-	STS()->GetGPCLVLHVel(0, LVLH_Vel);
-
-	double Ref_hdot = 0.0;
-	bool bShowHDot = (STS()->GetGPCRefHDot(0, Ref_hdot) == VARSTATE_OK);
-
-	//Hdot indicator
-	if(bShowHDot)
-	{
-		double HDot_Error = -LVLH_Vel.z - Ref_hdot;
-		double att = 0;
-
-		if(HDot_Error > 200.0)
-		{
-			HDot_Error = 200.0;
-			att = dps::DEUATT_FLASHING;
-		}
-		else if (HDot_Error < -200.0)
-		{
-			HDot_Error = -200.0;
-			att = dps::DEUATT_FLASHING;
-		}
-
-		short sHDot_pry = -static_cast<short>(HDot_Error/200.0 * 88);
-
-		pMDU->Line( 11, 118 + sHDot_pry, 6, 113 + sHDot_pry, att );
-		pMDU->Line( 6, 113 + sHDot_pry, 6, 123 + sHDot_pry, att );
-		pMDU->Line( 6, 123 + sHDot_pry, 11, 118 + sHDot_pry, att );
-	}
-
-	if (GetMajorMode() >= 103)// HACK because thrustAcceleration is only calculated in MM103
-	{
-		//Current vehicle state:
-		double VHI = LVLH_Vel.x;
-		double Altitude = STS()->GetAltitude() * MPS2FPS;
-
-		if(Altitude > 155500 && VHI < 10000)
-		{
-			//Draw triangle for state vector
-			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-			pMDU->Line( stX, stY - 3, stX - 3, stY + 3 );
-			pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3 );
-			pMDU->Line( stX + 3, stY + 3, stX, stY - 3 );
-		}
-		
-		// HACK using constant 12º for SSME offset
-		// 30s predictor
-		double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
-		VHI += dv30;
-		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
-
-		if(Altitude > 155500 && VHI < 10000)
-		{
-			//Draw circle for 30s predictor
-			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
-		}
-
-		// 60s predictor
-		VHI += dv30;
-		Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
-
-		if(Altitude > 155500 && VHI < 10000)
-		{
-			//Draw circle for 60s predictor
-			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
-		}
-	}
-	return true;
+double AscentGuidance::GetTimeRemaining( void ) const
+{
+	return timeRemaining;
 }
 
 };

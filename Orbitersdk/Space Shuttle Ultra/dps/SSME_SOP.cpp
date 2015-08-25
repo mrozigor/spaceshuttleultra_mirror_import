@@ -153,7 +153,7 @@ namespace dps
 				ProcessPriData( i );
 			}
 
-			if ((PrimaryDataFail[i] = true) || (SecondaryDataFail[i] = true))
+			if ((PrimaryDataFail[i] == false) || (SecondaryDataFail[i] == false))
 			{
 				// HACK command and channel status not really perfect
 				if (CommandStatus[i] == 1)// || (CommandStatus[i] == 2))
@@ -278,7 +278,7 @@ namespace dps
 					}
 					else if (ThrottleCommand[i] == true)
 					{
-						STS()->pEIU[i]->command( THRT + (unsigned short)round( (CommandedThrottle - MPL) * 10 ) );
+						STS()->pEIU[i]->command( THRT + (unsigned short)Round( (CommandedThrottle - MPL) * 10 ) );
 						ThrottleCommand[i] = false;
 					}
 					else if (StartEnableCommand[i] == true)
@@ -305,6 +305,61 @@ namespace dps
 		return;
 	}
 
+	bool SSME_SOP::OnParseLine( const char* keyword, const char* value )
+	{
+		int config = 0;
+
+		if (!_stricmp( keyword, "ShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "ShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			ShutdownPhase[2] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_1" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[0] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_2" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[1] = (config != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PostShutdownPhase_3" ))
+		{
+			sscanf_s( value, "%d", &config );
+			PostShutdownPhase[2] = (config != 0);
+			return true;
+		}
+		return false;
+	}
+
+	void SSME_SOP::OnSaveState( FILEHANDLE scn ) const
+	{
+		oapiWriteScenario_int( scn, "ShutdownPhase_1", (int)ShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_2", (int)ShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "ShutdownPhase_3", (int)ShutdownPhase[2] );
+
+		oapiWriteScenario_int( scn, "PostShutdownPhase_1", (int)PostShutdownPhase[0] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_2", (int)PostShutdownPhase[1] );
+		oapiWriteScenario_int( scn, "PostShutdownPhase_3", (int)PostShutdownPhase[2] );
+		return;
+	}
+
 	bool SSME_SOP::OnMajorModeChange( unsigned int newMajorMode )
 	{
 		switch (newMajorMode)
@@ -324,7 +379,7 @@ namespace dps
 
 	void SSME_SOP::ProcessPriData( int eng )
 	{
-		PercentChamberPress[eng] = round( pridata[eng][5] / 27.46789 );
+		PercentChamberPress[eng] = Round( pridata[eng][5] / 27.46789 );
 		Phase[eng] = (pridata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (pridata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (pridata[eng][2] & 0xC000) >> 14;
@@ -335,7 +390,7 @@ namespace dps
 
 	void SSME_SOP::ProcessSecData( int eng )
 	{
-		PercentChamberPress[eng] = round( secdata[eng][5] / 27.46789 );
+		PercentChamberPress[eng] = Round( secdata[eng][5] / 27.46789 );
 		Phase[eng] = (secdata[eng][2] & 0x0700) >> 8;
 		Mode[eng] = (secdata[eng][2] & 0x3800) >> 11;
 		SelfTestStatus[eng] = (secdata[eng][2] & 0xC000) >> 14;

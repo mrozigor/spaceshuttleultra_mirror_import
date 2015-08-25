@@ -126,6 +126,9 @@ namespace dps
 			void OnPreStep( double SimT, double DeltaT, double MJD );// read data
 			void OnPostStep( double SimT, double DeltaT, double MJD );// send commands
 
+			bool OnParseLine( const char* keyword, const char* value );
+			void OnSaveState( FILEHANDLE scn ) const;
+
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
 			/**

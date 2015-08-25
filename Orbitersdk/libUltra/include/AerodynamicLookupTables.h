@@ -6,8 +6,6 @@
 
 namespace Aerodynamics
 {
-	
-void ReadCSVLine(const std::string &line, std::vector<double> &data);
 
 /**
  * 2D lookup tables for cl, cd and cm values.

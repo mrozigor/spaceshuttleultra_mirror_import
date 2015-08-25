@@ -28,11 +28,20 @@
 #include <string>
 
 const double DEFAULT_PAYLOAD_ZPOS[16] = 
-{ 8.0, 0.0, -8.0,		//Center active
-  4.0, 2.0, -6.0,		//Center passive
-  7.0, 3.0, -2.0, -8.0,	//Port
-  7.0, 3.0, -2.0, -8.0,	//Starboard
-  0.0, 0.0};			//spare
+{ 8.0, 0.0, -8.0,		//Center active (attachments 5, 6, 7)
+  4.0, 2.0, -6.0, -6.0,		//Center passive (attachments 8, 9, 10, 11)
+  7.0, 3.0, -2.0, -8.0,	//Port (attachments 12, 13, 14, 15)
+  7.0, 3.0, -2.0, -8.0,	//Starboard (attachments 16, 17, 18, 19)
+  0.0};			//spare
+
+
+// Z-position (in OrbiterSim coordinates of ODS/AL mesh)
+const double EXTERNAL_AIRLOCK_Z_POSITION = 8.25;
+const double TAA_EXTERNAL_AIRLOCK_Z_POSITION = 6.13;
+
+const double TAA_FORWARD_POSITION = 8.5;// between bulkhead and ExtAL
+const double TAA_AFT_POSITION = 5.83;// aft of ExtAL
+
 
 /**
  * Contains all class definitions related to Mission Data Files and 
@@ -47,15 +56,14 @@ namespace mission {
 		std::string strMissionName;
 		std::string strOrbiter;
 		std::string strOrbiterTexName;
-		std::string strLOMSPodMeshName;
-		std::string strROMSPodMeshName;
-		bool bEnableWingPainting;
+		//std::string strLOMSPodMeshName;
+		//std::string strROMSPodMeshName;
 		int iETVersion;
 		int iBranchCode;
 		int iRevisionCode;
 
-		double fLaunchTimeMJD;
-		double fLandTimeMJD;
+		//double fLaunchTimeMJD;
+		//double fLandTimeMJD;
 		double fMECOAlt;
 		double fMECOVel;
 		double fMECOFPA;
@@ -67,20 +75,27 @@ namespace mission {
 		bool bHasMPMs;
 		bool bHasODS;
 		bool bHasExtAL;
+		bool bHasTAA;
+		bool bAftTAA;
 		bool bHasKUBand;
 		bool bHasBulkheadFloodlights;
-
-		double fODSZPos; // Z-position (in OrbiterSim coordinates of ODS/AL mesh)
+		bool bHasDragChute;
 
 		bool bPerformRTHU;
 		bool bUseOMSAssist;
 		double OMSAssistDuration;// sec
-		//bool bUseRTHU;
-		//double RTHUVelocity;
 		double fMaxSSMEThrust;
 		unsigned short usExtAirlockMode;
 
+		double OVmass;
+
 		double fPayloadZPos[16];
+
+		bool bHasBridgerail[13]; // true if bridgerail is present, false otherwise
+
+		bool bUseSILTS;
+
+		bool bLogSSMEData;
 
 		/**
 		 * Initializes parameters to default values
@@ -101,7 +116,7 @@ namespace mission {
 		 * @return Planned time of the first nominal landing 
 		 * opportunity in seconds MET.
 		 */
-		virtual double GetFirstLandingMET() const;
+		//virtual double GetFirstLandingMET() const;
 		
 		/**
 		 * @return Launch azimuth in radians
@@ -110,13 +125,13 @@ namespace mission {
 		/**
 		 * @return Initially planned lift-off time (L-0) as MJD
 		 */
-		virtual double GetLaunchMJD() const;
+		//virtual double GetLaunchMJD() const;
 		/**
 		 * @return
 		 * 1 = KSC
 		 * 2 = Vandenberg
 		 */
-		virtual unsigned int GetLaunchSite() const;
+		//virtual unsigned int GetLaunchSite() const;
 
 		/**
 		 * @return target equ inclination at MECO in radians
@@ -130,8 +145,6 @@ namespace mission {
 		 * @return maximum SSME thrust during standard launch profile
 		 */
 		virtual double GetMaxSSMEThrust() const;
-
-		virtual unsigned int GetNumberOfOMSBurns() const;
 		
 		virtual const std::string& GetOrbiter() const;
 		virtual const std::string& GetMissionName() const;
@@ -142,22 +155,29 @@ namespace mission {
 		 */
 		virtual const std::string& GetOrbiterTextureName() const;
 		
-		virtual const std::string& GetLOMSPodMeshName() const;
-		virtual const std::string& GetROMSPodMeshName() const;
-
-		virtual bool WingPaintingEnabled() const;
+		//virtual const std::string& GetLOMSPodMeshName() const;
+		//virtual const std::string& GetROMSPodMeshName() const;
 		
 		virtual double GetPayloadZPos(unsigned int iIndex) const;
-		virtual double GetODSZPos() const;
+		virtual double GetExternalAirlockZPos() const;
+		virtual double GetTunnelAdapterAssemblyZPos() const;
+
+		virtual bool HasBridgerail(unsigned int index) const;
 		
 		virtual bool HasRMS() const;
 		virtual bool HasSTBDMPMs() const;
 		virtual bool HasODS() const;
 		virtual bool HasExtAL() const;
+		virtual bool HasTAA() const;
+		virtual bool AftTAA() const;
 		virtual bool HasBulkheadFloodlights() const;
-		
+		virtual bool HasDragChute() const;
 
-		virtual bool UseDirectAscent() const;
+		/**
+		 * returns mass of the defined Orbiter Vehicle.
+		 * @return	mass of Orbiter Vehicle (kg)
+		 */
+		virtual double GetOrbiterMass( void ) const;
 		/**
 		 * returns enable status of OMS Assist
 		 */
@@ -178,9 +198,18 @@ namespace mission {
 		 * Returns MaxQ throttle up velocity in fps
 		 */
 		virtual double GetTHupVelocity() const;
+		/**
+		 * Returns true if KU-band antenna is installed.
+		 */
 		virtual bool HasKUBand() const;
-
-		
+		/**
+		 * Returns true if SILTS pod is installed.
+		 */
+		virtual bool UseSILTS() const;
+		/**
+		 * Returns true if SSME data arriving at the EIU is to be logged.
+		 */
+		virtual bool LogSSMEData() const;
 	};
 
 };

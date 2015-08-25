@@ -4,21 +4,10 @@
 #include <cassert>
 #include "AerodynamicLookupTables.h"
 #include <UltraMath.h>
+#include <UltraUtils.h>
 
 namespace Aerodynamics
 {
-	
-void ReadCSVLine(const std::string &line, std::vector<double> &data)
-{
-	data.clear(); // empty vector before adding data
-	std::istringstream inputStream(line);
-	while(!inputStream.eof()) {
-		double value;
-		inputStream>>value;
-		data.push_back(value);
-		inputStream.ignore(1, ',');
-	}
-}
 
 TwoDLookup::TwoDLookup()
 : xLowerIndex(0), yLowerIndex(0), xUpperIndex(1), yUpperIndex(1)

@@ -18,7 +18,7 @@ void LoadAttManeuver(const char* value, AttManeuver& maneuver)
 {
 	int nTemp;
 	VECTOR3 vTemp;
-	sscanf(value, "%d%lf%lf%lf", &nTemp, &vTemp.data[PITCH], &vTemp.data[YAW], &vTemp.data[ROLL]);
+	sscanf_s(value, "%d%lf%lf%lf", &nTemp, &vTemp.data[PITCH], &vTemp.data[YAW], &vTemp.data[ROLL]);
 
 	if(nTemp == AttManeuver::MNVR || nTemp == AttManeuver::TRK) {
 		maneuver.IsValid = true;
@@ -67,7 +67,7 @@ pStateVector(NULL)
 		NullingRates[i] = false;
 
 		//Initialize DAP Config
-		DAPConfiguration[i].PRI_ROT_RATE=0.2;
+		DAPConfiguration[i].PRI_ROT_RATE=2.0;
 		DAPConfiguration[i].PRI_ATT_DB=5.0;
 		DAPConfiguration[i].PRI_RATE_DB=0.2;
 		DAPConfiguration[i].PRI_ROT_PLS=0.1;
@@ -80,13 +80,15 @@ pStateVector(NULL)
 		DAPConfiguration[i].ALT_DELAY=0.0;
 		DAPConfiguration[i].ALT_JET_OPT=0;
 		DAPConfiguration[i].ALT_JETS=2;
-		DAPConfiguration[i].VERN_ROT_RATE=0.2;
+		DAPConfiguration[i].VERN_ROT_RATE=0.1;
 		DAPConfiguration[i].VERN_ATT_DB=1.0;
 		DAPConfiguration[i].VERN_RATE_DB=0.020;
 		DAPConfiguration[i].VERN_ROT_PLS=0.01;
 		DAPConfiguration[i].VERN_COMP=0.0;
 		DAPConfiguration[i].VERN_CNTL_ACC=0;
 	}
+
+	ERRTOT = true;
 }
 
 OrbitDAP::~OrbitDAP()
@@ -182,8 +184,6 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
 		double Angle = CalcEulerAngle(AttError, Axis);
 		mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
-		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
-		//oapiWriteLog(oapiDebugString());
 		lastUpdateTime = 0.0;
 	}
 	else {
@@ -218,8 +218,6 @@ bool OrbitDAP::GetRHCRequiredRates()
 
 void OrbitDAP::HandleTHCInput(double DeltaT)
 {
-	VECTOR3 ThrusterLevel=_V(0.0, 0.0, 0.0);
-
 	for(int i=0;i<3;i++) {
 		if(abs(THCInput[i].GetVoltage())>0.01) {
 			//if PCT is in progress, disable it when THC is moved out of detent
@@ -240,7 +238,6 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 			TransThrusterCommands[i].ResetLine();
 		}
 
-		//sprintf_s(oapiDebugString(), 255, "Pulse DV: %f %f %f", TransPulseDV.x, TransPulseDV.y, TransPulseDV.z);
 		if(TransPulseInProg[i]) {
 			if(!Eq(TransPulseDV.data[i], 0.0, 0.001)) {
 				TransThrusterCommands[i].SetLine(static_cast<float>( sign(TransPulseDV.data[i]) ));
@@ -274,7 +271,6 @@ void OrbitDAP::CalcEulerAxisRates()
 	VECTOR3 RotationAxis;
 	double RotationAngle=CalcEulerAngle(attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
-	VECTOR3 RotationAxis_orig = RotationAxis;
 	RotationAxis = _V(RotationAxis.y, RotationAxis.z, RotationAxis.x); // change rotation axis so PYR axes are mapped correctly
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {
@@ -337,19 +333,21 @@ void OrbitDAP::UpdateNullRates()
 	degNullRates.data[ROLL] = -orb_rad*sin(tgtLVLHAtt.data[YAW]);
 	degNullRates.data[PITCH] = -orb_rad*cos(tgtLVLHAtt.data[YAW])*cos(tgtLVLHAtt.data[ROLL]);
 	degNullRates.data[YAW] = orb_rad*cos(tgtLVLHAtt.data[YAW])*sin(tgtLVLHAtt.data[ROLL]);
-	sprintf_s(oapiDebugString(), 255, "Null rates: %f %f %f", degNullRates.data[PITCH], degNullRates.data[YAW], degNullRates.data[ROLL]);
-	oapiWriteLog(oapiDebugString());
 }
 
 void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
 	const VECTOR3 PRI_LIMITS = _V(0.005, 0.005, 0.005);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
+	//static char buf[100];
+
+
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
 	Error.data[YAW] = Error.data[YAW]; // temporary
 	Error.data[ROLL] = Error.data[ROLL];
-	//sprintf_s(oapiDebugString(), 255, "Rate error: %f %f %f", Error.data[PITCH], Error.data[YAW], Error.data[ROLL]);
+
+
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -390,6 +388,10 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
 		}
 	}
+
+
+
+
 }
 
 void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
@@ -418,7 +420,6 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 		if(ControlMode==BOTH_OMS) Pitch+=dRoll;
 		if(!GimbalOMS(RIGHT, Pitch, Yaw)) RCSWraparound=true;
 	}
-	//sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
 
 	if(RCSWraparound) SetRates(Rates, SimDT);
 	else if(ControlMode!=BOTH_OMS) SetRates(_V(0.0, 0.0, Rates.data[ROLL]), SimDT); //for single-engine burns, use RCS for roll control
@@ -589,6 +590,16 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		else {
 			tgtM50Matrix = ActiveManeuver.tgtMatrix;
+
+			if (((STS()->GetMET()-lastUpdateTime) > 10.0) && (ManeuverStatus < MNVR_COMPLETE))
+			{
+				// recalculate time to reach target attitude
+				VECTOR3 Axis;
+				MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, ActiveManeuver.tgtMatrix);
+				double Angle = CalcEulerAngle(AttError, Axis);
+				mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
+				lastUpdateTime = STS()->GetMET();
+			}
 		}
 		
 		attErrorMatrix = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
@@ -632,9 +643,9 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 
 bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 {
-	if(GetMajorMode()!=201) return false;
-
 	if(spec==dps::MODE_UNDEFINED) {
+		if(GetMajorMode()!=201) return false;
+
 		if(item>=1 && item<=4) {
 			int nNew=atoi(Data);
 			if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
@@ -742,6 +753,8 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
 			//StartINRTLManeuver(radCurrentOrbiterAtt);
 			StartManeuver(curM50Matrix, AttManeuver::MNVR);
 		}
+		else if (item == 23) ERRTOT = true;// ERR TOT
+		else if (item == 24) ERRTOT = false;// ERR DAP
 		return true;
 	}
 	else if(spec==20) {
@@ -953,7 +966,7 @@ bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 {
 	char cbuf[255];
-	PrintCommonHeader("UNIV PTG", pMDU);
+	PrintCommonHeader("    UNIV PTG", pMDU);
 
 	double CUR_MNVR_COMPL[4];
 	if(DAPControlMode == INRTL || DAPControlMode == FREE) ConvertSecondsToDDHHMMSS(STS()->GetMET(), CUR_MNVR_COMPL);
@@ -1027,7 +1040,9 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(19, 9, "ATT MON");
 	pMDU->mvprint(20, 10, "22 MON AXIS");
 	pMDU->mvprint(20, 11, "ERR TOT 23");
-	pMDU->mvprint(20, 11, "ERR DAP 24");
+	pMDU->mvprint(20, 12, "ERR DAP 24");
+	if (ERRTOT == true) pMDU->mvprint( 30, 11, "*" );// ERR TOT
+	else pMDU->mvprint( 30, 12, "*" );// ERR DAP
 
 	pMDU->mvprint(26, 14, "ROLL    PITCH    YAW");
 	sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", CUR_ATT.data[ROLL], CUR_ATT.data[PITCH], CUR_ATT.data[YAW]);
@@ -1047,7 +1062,7 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 	int lim[3]={3, 5, 5};
 	int i, n;
 
-	PrintCommonHeader("DAP CONFIG", pMDU);
+	PrintCommonHeader("   DAP CONFIG", pMDU);
 
 	pMDU->mvprint(4, 2, "PRI");
 	pMDU->mvprint(9, 2, "1 DAP A");
@@ -1098,89 +1113,94 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
 		pMDU->mvprint(9+11*i, 10, cbuf);
 
-		sprintf(cbuf, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
 		pMDU->mvprint(9+11*i, 12, cbuf);
-		sprintf(cbuf, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
+		sprintf_s(cbuf, 255, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
 		pMDU->mvprint(9+11*i, 13, cbuf);
-		sprintf(cbuf, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
+		sprintf_s(cbuf, 255, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
 		pMDU->mvprint(9+11*i, 14, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
 		pMDU->mvprint(9+11*i, 15, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
 		pMDU->mvprint(9+11*i, 16, cbuf);
 
-		sprintf(cbuf, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
+		sprintf_s(cbuf, 255, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
 		pMDU->mvprint(9+11*i, 18, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
 		pMDU->mvprint(9+11*i, 19, cbuf);
-		sprintf(cbuf, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
 		pMDU->mvprint(9+11*i, 20, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
 		pMDU->mvprint(9+11*i, 21, cbuf);
-		sprintf(cbuf, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
 		pMDU->mvprint(9+11*i, 22, cbuf);
-		sprintf(cbuf, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
+		sprintf_s(cbuf, 255, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
 		pMDU->mvprint(9+11*i, 23, cbuf);
 	}
+
+	pMDU->Line( 95, 18, 95, 225 );
+	pMDU->Line( 150, 18, 150, 225 );
+	pMDU->Line( 205, 72, 205, 225 );
+	pMDU->Line( 205, 72, 255, 72 );
 }
 
 bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
 {
 	if(!_strnicmp(keyword, "TGT_ID", 6)) {
-		sscanf(value, "%d", &TGT_ID);
+		sscanf_s(value, "%d", &TGT_ID);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "BODY_VECT", 9)) {
-		sscanf(value, "%d", &BODY_VECT);
+		sscanf_s(value, "%d", &BODY_VECT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "P_ANGLE", 7)) {
-		sscanf(value, "%lf", &P);
+		sscanf_s(value, "%lf", &P);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "Y_ANGLE", 7)) {
-		sscanf(value, "%lf", &Y);
+		sscanf_s(value, "%lf", &Y);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "OM_ANGLE", 8)) {
-		sscanf(value, "%lf", &OM);
+		sscanf_s(value, "%lf", &OM);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "ROLL", 4)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[ROLL]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[ROLL]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PITCH", 5)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[PITCH]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[PITCH]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "YAW", 3)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[YAW]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[YAW]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "DAP_MODE", 8)) {
 		int nTemp1, nTemp2;
-		sscanf(value, "%d %d", &nTemp1, &nTemp2);
+		sscanf_s(value, "%d %d", &nTemp1, &nTemp2);
 		DAPSelect = static_cast<DAP_SELECT>(nTemp1);
 		DAPMode = static_cast<DAP_MODE>(nTemp2);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "ROT_MODE", 8)) {
 		int nTemp[3];
-		sscanf(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
+		sscanf_s(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
 		for(int i=0;i<3;i++) RotMode[i] = static_cast<ROT_MODE>(nTemp[i]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TRANS_MODE", 10)) {
 		int nTemp[3];
-		sscanf(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
+		sscanf_s(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
 		for(int i=0;i<3;i++) TransMode[i] = static_cast<TRANS_MODE>(nTemp[i]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "CONTROL_MODE", 12)) {
 		//sscanf(value, "%d", &ControlMode);
 		int nTemp;
-		sscanf(value, "%d", &nTemp);
+		sscanf_s(value, "%d", &nTemp);
 		if(nTemp==0) DAPControlMode=AUTO;
 		else if(nTemp==1) DAPControlMode=INRTL;
 		else if(nTemp==2) DAPControlMode=LVLH;
@@ -1202,7 +1222,7 @@ bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp (keyword, "FUT_START_TIME", 14)) {
-		sscanf(value, "%lf", &FutMnvrStartTime);
+		sscanf_s(value, "%lf", &FutMnvrStartTime);
 		return true;
 	}
 
@@ -1523,7 +1543,6 @@ void OrbitDAP::UpdateDAPParameters()
 		Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
 		Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
 	}
-	sprintf_s(oapiDebugString(), 255, "Rate: %f AttDb %f RateDb: %f", degRotRate, degAttDeadband, degRateDeadband);
 }
 
 double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const MATRIX3& tgtLVLHMatrix, const MATRIX3& curLVLHMatrix, double degOrbitalRate) const
@@ -1562,6 +1581,18 @@ MATRIX3 OrbitDAP::GetCurrentLVLHRefMatrix() const
 MATRIX3 OrbitDAP::GetCurrentLVLHAttMatrix() const
 {
 	return GetRotationErrorMatrix(GetCurrentLVLHRefMatrix(), curM50Matrix);
+}
+
+VECTOR3 OrbitDAP::GetAttitudeErrors( void ) const
+{
+	return ATT_ERR;
+}
+
+bool OrbitDAP::GetTimeToAttitude( double& time ) const
+{
+	if (ManeuverStatus != MNVR_IN_PROGRESS) return false;
+	time = max( mnvrCompletionMET - STS()->GetMET(), 0 );
+	return true;
 }
 
 };

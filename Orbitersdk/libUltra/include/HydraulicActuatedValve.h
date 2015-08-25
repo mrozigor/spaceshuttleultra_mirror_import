@@ -30,13 +30,13 @@
 #include "DiscInPort.h"
 
 
-using class discsignals::DiscInPort;
-using class discsignals::DiscreteBundle;
+using discsignals::DiscInPort;
+using discsignals::DiscreteBundle;
 
 
 // HACK no clue about right amounts
-const double MIN_PRESS_CLOSE_HAV = 150;
-const double HE_USE_CLOSE_HAV = 20;
+const double MIN_PRESS_CLOSE_HAV = 150;// psia
+const double HE_USE_CLOSE_HAV = 20;// g
 
 
 /**

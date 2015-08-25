@@ -31,7 +31,7 @@
 
 namespace vc {
 
-	using class discsignals::DiscInPort;
+	using discsignals::DiscInPort;
 
 	class StandardLight: public BasicLight {
 		SURFHANDLE shSource;

@@ -84,7 +84,7 @@ bool StateVectorSoftware::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp(keyword, "T0_POS", 6)) {
-		sscanf(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
+		sscanf_s(value, "%lf%lf%lf", &t0Pos.x, &t0Pos.y, &t0Pos.z);
 		return true;
 	}
 	return false;
@@ -152,7 +152,7 @@ bool StateVectorSoftware::UpdatePropagatorStateVectors()
 	GetStateVectors(STS(), hEarth, pos, vel);
 	char cbuf[255];
 	sprintf_s(cbuf, 255, "Pos: %f %f %f Vel: %f %f %f", pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
-	oapiWriteLog(cbuf);
+	//oapiWriteLog(cbuf);
 	return propagator.UpdateStateVector(pos, vel, STS()->GetMET());
 }
 

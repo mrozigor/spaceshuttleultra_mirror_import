@@ -24,12 +24,9 @@ void WSB::OnPreStep(double SimT, double DeltaT, double MJD)
 	// indicate if WSB is ready for APU start
 	if(BoilerN2Supply && (ControllerA || ControllerB)) {
 		Ready.SetLine();
-		//sprintf_s(oapiDebugString(), 255, "WSB%d Ready", usID);
 	}
 	else {
 		Ready.ResetLine();
-		//sprintf_s(oapiDebugString(), 255, "WSB%d Not Ready", usID);
-		//if(BoilerN2Supply) sprintf_s(oapiDebugString(), 255, "%s Supply ON", oapiDebugString());
 	}
 }
 

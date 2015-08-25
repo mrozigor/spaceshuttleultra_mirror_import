@@ -31,9 +31,9 @@
 
 namespace dps {
 
-	using class discsignals::DiscDemultiplex16;
-	using class discsignals::DiscMultiplex16;
-	using class discsignals::DiscInPort;
+	using discsignals::DiscDemultiplex16;
+	using discsignals::DiscMultiplex16;
+	using discsignals::DiscInPort;
 
 	class GPCSoftware;
 
