@@ -131,10 +131,10 @@ int StbdMPMSystem::FindOBSS() const
 		VESSEL* v=oapiGetVesselInterface(vhOBSS[i]);
 		v->GetAttachmentParams (vhOBSSAttach[i], pos, dir, rot);
 		v->Local2Global (pos, gpos);
-		sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
+		//sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
 		if (dist (gpos, gattach) < MAX_ATTACHMENT_DIST) { 
 			v->GlobalRot(dir, gdir);
-			sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
+			//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
 			if(fabs(PI-acos(range(-1.0, dotp(gdir, gattachdir), 1.0))) < MAX_ATTACHMENT_ANGLE) {  // found one!
 				return i;
 			}

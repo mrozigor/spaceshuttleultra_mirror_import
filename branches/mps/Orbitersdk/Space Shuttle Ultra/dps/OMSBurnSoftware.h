@@ -77,6 +77,8 @@ public:
 	 * \param maneuverDV DeltaV of burn in m/s
 	 */
 	void SetManeuverData(double maneuverTIG, const VECTOR3& maneuverDV);
+
+	VECTOR3 GetAttitudeCommandErrors() const;
 private:
 	void StartBurn();
 	void TerminateBurn();

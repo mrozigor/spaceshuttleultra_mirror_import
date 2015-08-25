@@ -29,11 +29,12 @@
 #include "PressureSource.h"
 #include "..\AtlantisSubsystem.h"
 #include "SolenoidValve.h"
+#include "Sensor.h"
 
 
 namespace mps
 {
-	using class discsignals::DiscreteBundle;
+	using discsignals::DiscreteBundle;
 	class HeSysPneu;
 
 	const double R = 8.314;
@@ -41,7 +42,8 @@ namespace mps
 	const double TANK_VOL_ENG = 0.7560598;// m^3
 	const double TANK_VOL_PNEU = 0.1330892;// m^3
 
-	const int TANK_TEMP = 303;// K
+	const int INITIAL_TANK_TEMP_ENG = 310;//303;// K
+	const int INITIAL_TANK_TEMP_PNEU = 290;//303;// K
 	const int INITIAL_HE_MASS_ENG = 34000;//30500;// g
 	const int INITIAL_HE_MASS_PNEU = 5897;// g
 	const int MAX_REG_FLOW = 400;// g/s
@@ -63,10 +65,14 @@ namespace mps
 			SolenoidValve* vlvInIC;// LV59 / LV61 / LV63
 			SolenoidValve* vlvOutIC;// LV60 / LV62 / LV64
 
-			double HeMass;
-			double TankPress;
+			double HeMass;// g
+			double TankPress;// psia
+			double TankTemp;// K
 			double RegPress;// TODO one sensor per reg
 			double TotalFlow;
+
+			Sensor TankPressure;
+			Sensor RegPressure[2];
 		public:
 			HeSysEng( AtlantisSubsystemDirector* _director, const string& _ident, int ID );
 			~HeSysEng( void );
@@ -107,10 +113,14 @@ namespace mps
 
 			SolenoidValve* vlvLEngXOVR;// LV10
 
-			double HeMass;
-			double TankPress;
+			double HeMass;// g
+			double TankPress;// psia
+			double TankTemp;// K
 			double RegPress;
 			double TotalFlow;
+
+			Sensor TankPressure;
+			Sensor RegPressure;
 		public:
 			HeSysPneu( AtlantisSubsystemDirector* _director, const string& _ident );
 			~HeSysPneu( void );

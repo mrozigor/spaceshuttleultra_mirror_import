@@ -71,7 +71,7 @@ namespace mps
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4) return 2;
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady) return 3;
 		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby) return 4;
-		return 1;// default to PSN3
+		return 4;// default to post-shutdown standby
 	}
 
 	void SSMEControllerSW_AD08::SetConfig( int config )
@@ -192,12 +192,12 @@ namespace mps
 		{
 			if (DCU->RAM[currentposaddr] < DCU->RAM[count + 1])// open
 			{
-				DCU->RAM[cmdaddr] += (unsigned short)round( DCU->dt * 10000 * ((double)(DCU->RAM[count + 1] - DCU->RAM[currentposaddr]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
+				DCU->RAM[cmdaddr] += (unsigned short)Round( DCU->dt * 10000 * ((double)(DCU->RAM[count + 1] - DCU->RAM[currentposaddr]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
 				if (DCU->RAM[cmdaddr] > DCU->RAM[count + 1]) DCU->RAM[cmdaddr] = DCU->RAM[count + 1];
 			}
 			if (DCU->RAM[currentposaddr] > DCU->RAM[count + 1])// close
 			{
-				DCU->RAM[cmdaddr] -= (unsigned short)round( DCU->dt * 10000 * ((double)(DCU->RAM[currentposaddr] - DCU->RAM[count + 1]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
+				DCU->RAM[cmdaddr] -= (unsigned short)Round( DCU->dt * 10000 * ((double)(DCU->RAM[currentposaddr] - DCU->RAM[count + 1]) / (DCU->RAM[count + 2] - DCU->RAM[timeaddr])) );
 				if ((signed short)DCU->RAM[cmdaddr] < DCU->RAM[count + 1]) DCU->RAM[cmdaddr] = DCU->RAM[count + 1];
 			}
 		}
@@ -487,16 +487,16 @@ namespace mps
 
 		// CCV
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 1] -= (unsigned short)round( 0.55825 * dPC );// TODO only do this under 100%
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 2] -= (unsigned short)round( 1.42094 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 1] -= (unsigned short)Round( 0.55825 * dPC );// TODO only do this under 100%
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 2] -= (unsigned short)Round( 1.42094 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 3] -= (unsigned short)round( 2.72494 * dPC );
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 4] += (unsigned short)round( 0.00687 * dPC );
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 5] -= (unsigned short)round( 1.19147 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 3] -= (unsigned short)Round( 2.72494 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 4] += (unsigned short)Round( 0.00687 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 5] -= (unsigned short)Round( 1.19147 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 6] -= (unsigned short)round( 2.96765 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 6] -= (unsigned short)Round( 2.96765 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_CCV_POS + 8] -= (unsigned short)round( 2.86836 * dPC );
+		DCU->RAM[RAM_AD08_STDN_CCV_POS + 8] -= (unsigned short)Round( 2.86836 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_CCV_POS + 9] = 65535;
 
@@ -505,54 +505,54 @@ namespace mps
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 1] = 4095;
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 2] = 1;
 
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 3] += (unsigned short)round( 0.69503 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 4] += (unsigned short)round( 0.00709 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 5] -= (unsigned short)round( 13.47015 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 3] += (unsigned short)Round( 0.69503 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 4] += (unsigned short)Round( 0.00709 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 5] -= (unsigned short)Round( 13.47015 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 6] -= (unsigned short)round( 2.43811 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 6] -= (unsigned short)Round( 2.43811 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_MFV_POS + 8] -= (unsigned short)round( 2.92352 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MFV_POS + 8] -= (unsigned short)Round( 2.92352 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_MFV_POS + 9] = 65535;
 
 		// MOV
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 1] += (unsigned short)round( 0.0141 * dPC );
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 2] -= (unsigned short)round( 1.22457 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 1] += (unsigned short)Round( 0.0141 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 2] -= (unsigned short)Round( 1.22457 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 3] -= (unsigned short)round( 1.22457 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 3] -= (unsigned short)Round( 1.22457 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS + 4] = 0;
-		DCU->RAM[RAM_AD08_STDN_MOV_POS + 5] += (unsigned short)round( 0.08605 * dPC );
+		DCU->RAM[RAM_AD08_STDN_MOV_POS + 5] += (unsigned short)Round( 0.08605 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_MOV_POS + 6] = 65535;
 
 		// FPOV
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 1] += (unsigned short)round( 0.04174 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 2] -= (unsigned short)round( 5.18512 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 1] += (unsigned short)Round( 0.04174 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 2] -= (unsigned short)Round( 5.18512 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 3] -= (unsigned short)round( 5.18512 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 4] += (unsigned short)round( 0.02611 * dPC );
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 5] -= (unsigned short)round( 5.33957 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 3] -= (unsigned short)Round( 5.18512 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 4] += (unsigned short)Round( 0.02611 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 5] -= (unsigned short)Round( 5.33957 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 6] -= (unsigned short)round( 5.33957 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 6] -= (unsigned short)Round( 5.33957 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 8] -= (unsigned short)round( 5.48299 * dPC );
+		DCU->RAM[RAM_AD08_STDN_FPOV_POS + 8] -= (unsigned short)Round( 5.48299 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_FPOV_POS + 9] = 65535;
 
 		// OPOV
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS] = 0;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 1] -= (unsigned short)round( 0.28285 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 1] -= (unsigned short)Round( 0.28285 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 2] = 2990;
 
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 3] = 2990;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 4] -= (unsigned short)round( 0.31488 * dPC );
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 5] -= (unsigned short)round( 0.51851 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 4] -= (unsigned short)Round( 0.31488 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 5] -= (unsigned short)Round( 0.51851 * dPC );
 
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 6] -= (unsigned short)round( 0.51851 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 6] -= (unsigned short)Round( 0.51851 * dPC );
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 7] = 0;
-		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 8] -= (unsigned short)round( 0.81638 * dPC );
+		DCU->RAM[RAM_AD08_STDN_OPOV_POS + 8] -= (unsigned short)Round( 0.81638 * dPC );
 
 		//DCU->RAM[RAM_AD08_STDN_OPOV_POS + 9] = 65535;
 		return;
@@ -1072,9 +1072,9 @@ namespace mps
 		return;
 	}
 
-	int SSMEControllerSW_AD08::SelfTest( void )
+	unsigned short SSMEControllerSW_AD08::SelfTest( void )
 	{
-		int retval = 0;
+		unsigned short retval = 0;
 
 		// check other channel
 		DCU->RAM[RAM_AD08_WDT1] = DCU->CIE->CheckWDTOpposite( 0 );
@@ -1253,7 +1253,7 @@ namespace mps
 						break;
 					case ESW_Mainstage_HydraulicLockup:
 						fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup;
-						fptrMonitorSDLimits = &SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl;// HACK ???
+						fptrMonitorSDLimits = &SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_HydraulicLockup;
 						fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup;
 						Set_ESW_Phase( ESW_Mainstage );
 						Set_ESW_Mode( ESW_Mainstage_HydraulicLockup );
@@ -1328,7 +1328,7 @@ namespace mps
 		return;
 	}
 
-	int SSMEControllerSW_AD08::SensorInput( void )
+	unsigned short SSMEControllerSW_AD08::SensorInput( void )
 	{
 		// first sensor is enough, it's all sequencial
 		// IE chA
@@ -1362,7 +1362,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::SensorScale( void )
+	unsigned short SSMEControllerSW_AD08::SensorScale( void )
 	{
 		// TODO desqualification of all redline sensors gives MCF
 
@@ -1568,12 +1568,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + B + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 4 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 4 );
 					}
 					else
 					{
 						// A + B + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 3 );
 					}
 				}
 				else
@@ -1581,12 +1581,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + B + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// A + B
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_B]) / 2 );
 					}
 				}
 			}
@@ -1597,12 +1597,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// A + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_C]) / 2 );
 					}
 				}
 				else
@@ -1610,7 +1610,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// A + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_A] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -1629,12 +1629,12 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// B + C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 3 );
 					}
 					else
 					{
 						// B + C
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_C]) / 2 );
 					}
 				}
 				else
@@ -1642,7 +1642,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// B + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_B] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -1658,7 +1658,7 @@ namespace mps
 					if ((DCU->RAM[addr_snsr_D + SENSOR_COUNT] & 0xC000) != 0xC000)
 					{
 						// C + D
-						return (unsigned short)round( (DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 2 );
+						return (unsigned short)Round( (DCU->RAM[addr_snsr_C] + DCU->RAM[addr_snsr_D]) / 2 );
 					}
 					else
 					{
@@ -1684,7 +1684,7 @@ namespace mps
 	}
 
 
-	int SSMEControllerSW_AD08::VehicleCommands_Checkout_Standby( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Checkout_Standby( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1741,7 +1741,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN1( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN1( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1807,7 +1807,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN2( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN2( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1878,7 +1878,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -1955,7 +1955,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2021,7 +2021,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady( void )
 	{
 		// validation -> voting and agreement with mode
 		int votes = CommandVoting();
@@ -2095,7 +2095,7 @@ namespace mps
 				{
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
-					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
+					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)Round( pl * PC_100_C );
 					RotateCommand();
 					return ESW_Accepted;
 				}
@@ -2125,7 +2125,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Start_StartInitiation( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Start_StartInitiation( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2163,7 +2163,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Start_ThrustBuildup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Start_ThrustBuildup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2201,7 +2201,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_NormalControl( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2270,7 +2270,7 @@ namespace mps
 					if (votes < 2) return ESW_CommandRejected_A;// requires (at least) 2 of 3
 					double pl = MPL + ((double)GetMaskVal( DCU->RAM[RAM_AD08_VALIDCMD], 0x03FF ) / 10);
 					if ((pl < MPL) || (pl > FPL)) return ESW_CommandRejected_B;
-					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)round( pl * PC_100_C );
+					DCU->RAM[RAM_AD08_PC_CMD] = (unsigned short)Round( pl * PC_100_C );
 					RotateCommand();
 					return ESW_Accepted;
 				}
@@ -2290,7 +2290,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_FixedDensity( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_FixedDensity( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2370,7 +2370,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_ThrustLimiting( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_ThrustLimiting( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2450,7 +2450,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_HydraulicLockup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2530,7 +2530,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Mainstage_ElectricalLockup( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Mainstage_ElectricalLockup( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2610,7 +2610,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_ThrottleTo0( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_ThrottleTo0( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2636,7 +2636,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_PropellantValvesClosed( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_PropellantValvesClosed( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2662,7 +2662,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_Shutdown_FailSafePneumatic( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_Shutdown_FailSafePneumatic( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2688,7 +2688,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2745,7 +2745,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_OxidizerDump( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_OxidizerDump( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2784,7 +2784,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::VehicleCommands_PostShutdown_TerminateSequence( void )
+	unsigned short SSMEControllerSW_AD08::VehicleCommands_PostShutdown_TerminateSequence( void )
 	{
 		// validation -> voting and agreement with mode
 
@@ -2819,7 +2819,7 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::CommandVoting( void )
+	unsigned short SSMEControllerSW_AD08::CommandVoting( void )
 	{
 		DCU->RAM[RAM_AD08_CMD1] = DCU->DIO_in( DEV_CIE_VIE_CMD1 );
 		DCU->RAM[RAM_AD08_CMD2] = DCU->DIO_in( DEV_CIE_VIE_CMD2 );
@@ -2895,9 +2895,9 @@ namespace mps
 		}
 	}
 
-	int SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_NormalControl( void )
 	{
-		int retval = 0;
+		unsigned short retval = 0;
 		int count = 0;
 		/*
 		HPFT TURBINE DISCHARGE TEMPERATURE
@@ -2917,7 +2917,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2936,7 +2936,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2955,7 +2955,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2974,7 +2974,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -2998,7 +2998,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3017,7 +3017,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3036,7 +3036,7 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB2 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
@@ -3055,56 +3055,10 @@ namespace mps
 		//		{
 		//			// redline exceeded
 		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB3 );
-		//			retval = 1;
+		//			retval = 1;// hyd shutdown
 		//		}
 		//	}
 		//}
-
-		/*
-		HPOTP INTERMEDIATE SEAL PRESSURE
-		<159 PSIA
-		*/
-		// HPOTP Intermediate Seal A
-		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
-		{
-			count++;
-			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
-			{
-				// redline exceeded, add strike
-				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
-			}
-			else
-			{
-				// clear redline strikes
-				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
-			}
-		}
-		// HPOTP Intermediate Seal B
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
-		{
-			count++;
-			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
-			{
-				// redline exceeded, add strike
-				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
-			}
-			else
-			{
-				// clear redline strikes
-				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
-			}
-		}
-
-		if (count > 0)
-		{
-			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
-			{
-				// redline exceeded, take action
-				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
-				retval = 2;// pneumatic shutdown
-			}
-		}
 
 		/*
 		MCC PC SENSOR AVERAGE
@@ -3191,19 +3145,366 @@ namespace mps
 				// redline exceeded, take action
 				AddFID( FID_RedlineExceeded, Delimiter_MCCPC );
 				retval = 1;// hyd shutdown
-				// TODO finish ^^
+			}
+		}
+
+		/*
+		HPOTP INTERMEDIATE SEAL PRESSURE
+		<159 PSIA
+		*/
+		// HPOTP Intermediate Seal A
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+		// HPOTP Intermediate Seal B
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
+				retval = 2;// pneumatic shutdown
 			}
 		}
 		
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Checkout_Standby( void )
+	unsigned short SSMEControllerSW_AD08::MonitorSDLimits_Mainstage_HydraulicLockup( void )
+	{
+		unsigned short retval = 0;
+		int count = 0;
+		/*
+		HPFT TURBINE DISCHARGE TEMPERATURE
+		>1860 R
+		*/
+		// HPFT Discharge Temperature A2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 15] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 15 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature A3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_A + 16] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 16 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureA3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature B2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 15] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 15 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPFT Discharge Temperature B3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if (DCU->RAM[RAM_AD08_SENSOR_B + 16] <= 1860)// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 16 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPFTDischargeTemperatureB3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		///*
+		//HPOT TURBINE DISCHARGE TEMPERATURE
+		//>1660 R
+		//<720 R
+		//*/
+		//// HPOT Discharge Temperature A2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 17] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 17 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature A3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_A + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_A + 18] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_A + 18 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureA3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature B2
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 17] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 17] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 17 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB2 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		//// HPOT Discharge Temperature B3
+		//if ((DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] & 0x8000) == 0)// check if qualified
+		//{
+		//	if ((DCU->RAM[RAM_AD08_SENSOR_B + 18] >= 720) && (DCU->RAM[RAM_AD08_SENSOR_B + 18] <= 1660))// check redline
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] = 0;
+		//	}
+		//	else
+		//	{
+		//		DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30]++;
+		//		if (DCU->RAM[RAM_AD08_SENSOR_B + 18 + 30] >= 3)
+		//		{
+		//			// redline exceeded
+		//			AddFID( FID_RedlineExceeded, Delimiter_HPOTDischargeTemperatureB3 );
+		//			retval = 2;// pneumatic shutdown
+		//		}
+		//	}
+		//}
+
+		/*
+		MCC PC SENSOR AVERAGE
+		PC CHANNEL AVG <
+		PC REF - 200 PSI (STEADY STATE)
+		AND
+		PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+		*/
+		// HACK using just sensor X1 below to keep track of strike counts
+		// MCC PC A1/A2
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_A + 8] + DCU->RAM[RAM_AD08_SENSOR_A + 9]) / 2);
+			if ((abs( DCU->RAM[RAM_AD08_PC_REF] - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] ) < 30) && (DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] >= (0.75 * PC_100)))// HACK considering throttling as +/-1% diff
+			{
+				// PC REF - 200 PSI (STEADY STATE)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 200))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+			else
+			{
+				// PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 400))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+		}
+		//MCC PC B1/B2
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_B + 8] + DCU->RAM[RAM_AD08_SENSOR_B + 9]) / 2);
+			if ((abs( DCU->RAM[RAM_AD08_PC_REF] - DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] ) < 30) && (DCU->RAM[RAM_AD08_MCC_PC_QUAL_AVGR] >= (0.75 * PC_100)))// HACK considering throttling as +/-1% diff
+			{
+				// PC REF - 200 PSI (STEADY STATE)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 200))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+			else
+			{
+				// PC REF - 400 PSI (DURING THROTTLING OR WHEN < 75% RPL)
+				if (temp < (DCU->RAM[RAM_AD08_PC_REF] - 400))// check redline
+				{
+					// redline exceeded, add strike
+					if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT]++;
+				}
+				else
+				{
+					// clear redline strikes
+					DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] &= 0xFFFC;
+				}
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_MCCPC );
+				retval = 2;// pneumatic shutdown
+			}
+		}
+
+		/*
+		HPOTP INTERMEDIATE SEAL PRESSURE
+		<159 PSIA
+		*/
+		// HPOTP Intermediate Seal A
+		count = 0;
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+		// HPOTP Intermediate Seal B
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		{
+			count++;
+			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
+			{
+				// redline exceeded, add strike
+				if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003) < 3) DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT]++;
+			}
+			else
+			{
+				// clear redline strikes
+				DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] &= 0xFFFC;
+			}
+		}
+
+		if (count > 0)
+		{
+			if (((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x0003) + (DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x0003)) == (count * 3))
+			{
+				// redline exceeded, take action
+				AddFID( FID_RedlineExceeded, Delimiter_HPOTPIntermediateSealPressure );
+				retval = 2;// pneumatic shutdown
+			}
+		}
+		
+		return retval;
+	}
+
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Checkout_Standby( void )
 	{
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN1( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN1( void )
 	{
 		// purge Oxidizer System and intermediate seal with GSE N2 press
 
@@ -3231,7 +3532,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN2( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN2( void )
 	{
 		// purge Fuel System + PSN1
 
@@ -3259,7 +3560,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN3( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN3( void )
 	{// TODO learn from LCC SSME-10
 		// propellant recirculation
 		
@@ -3287,7 +3588,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN4( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN4( void )
 	{// TODO learn from LCC SSME-10
 		// purge Fuel System after propellant drop
 		// TODO fuel sys purge for 180sec every 60min
@@ -3337,7 +3638,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_StartPrep_EngineReady( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_StartPrep_EngineReady( void )
 	{
 		// TODO if needed go back to psn4
 
@@ -3362,15 +3663,14 @@ namespace mps
 		DCU->RAM[RAM_AD08_HPOTPISPURGE_CMD] = 1;
 		DCU->RAM[RAM_AD08_AFV_CMD] = 0;
 		DCU->RAM[RAM_AD08_HPV_CMD] = 0;
-
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Start_StartInitiation( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Start_StartInitiation( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_ESC] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)round( DCU->dt * 10000 );// increment time from ESC
+			DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)Round( DCU->dt * 10000 );// increment time from ESC
 		}
 		else
 		{
@@ -3428,13 +3728,13 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Start_ThrustBuildup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Start_ThrustBuildup( void )
 	{
 		// 3.8 CL mix control (FPOV)
 		// use PC_REF to reach PC_CMD
 		// check when PC_CMD achieved then go to mainstage
 
-		DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)round( DCU->dt * 10000 );// increment time from ESC
+		DCU->RAM[RAM_AD08_TIME_ESC] += (unsigned short)Round( DCU->dt * 10000 );// increment time from ESC
 
 		// run valve ignition schedules
 		ValveSchedule( RAM_AD08_IGNT_CCV_POS, RAM_AD08_CCV_CMD, RAM_AD08_TIME_ESC, RAM_AD08_CCV_POS );
@@ -3467,7 +3767,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_NormalControl( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_NormalControl( void )
 	{
 		double temp;
 		double tempB;
@@ -3479,14 +3779,14 @@ namespace mps
 			tempB = DCU->dt * PC_100_B;
 			tempB = DCU->RAM[RAM_AD08_PC_REF] + tempB;
 			if (tempB > DCU->RAM[RAM_AD08_PC_CMD]) tempB = DCU->RAM[RAM_AD08_PC_CMD];
-			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_PC_CMD] < DCU->RAM[RAM_AD08_PC_REF])// throttle down
 		{
 			tempB = DCU->dt * PC_100_B;
 			tempB = DCU->RAM[RAM_AD08_PC_REF] - tempB;
 			if (tempB < DCU->RAM[RAM_AD08_PC_CMD]) tempB = DCU->RAM[RAM_AD08_PC_CMD];
-			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_PC_REF] = (unsigned short)Round( tempB );
 		}
 
 		// CCV thrust command to position schedule
@@ -3497,7 +3797,7 @@ namespace mps
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
 				if (tempB > 4095) tempB = 4095;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 		}
 		else
@@ -3508,14 +3808,14 @@ namespace mps
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
 				if (tempB > temp) tempB = temp;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 			else if (DCU->RAM[RAM_AD08_CCV_CMD] > temp)// close
 			{
 				tempB = DCU->dt * 393.3657;
 				tempB = DCU->RAM[RAM_AD08_CCV_CMD] - tempB;
 				if (tempB < temp) tempB = temp;
-				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)round( tempB );
+				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
 		}
 
@@ -3529,14 +3829,14 @@ namespace mps
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
 			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] + tempB;
 			if (tempB > temp) tempB = temp;
-			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_FPOV_CMD] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
 			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] - tempB;
 			if (tempB < temp) tempB = temp;
-			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
 
 		temp = DCU->RAM[RAM_AD08_PC_REF] / PC_100_C;
@@ -3546,14 +3846,14 @@ namespace mps
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
 			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] + tempB;
 			if (tempB > temp) tempB = temp;
-			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}
 		else if (DCU->RAM[RAM_AD08_OPOV_CMD] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
 			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] - tempB;
 			if (tempB < temp) tempB = temp;
-			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)round( tempB );
+			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}
 
 		// on/off devs
@@ -3571,7 +3871,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_FixedDensity( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_FixedDensity( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3587,7 +3887,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ThrustLimiting( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_ThrustLimiting( void )
 	{
 		// TODO OPOV cmd limit
 		// Mode initiated whenever OPOV position command is limited for at least 3 consecutive major cycles.
@@ -3607,7 +3907,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_HydraulicLockup( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3628,7 +3928,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Mainstage_ElectricalLockup( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Mainstage_ElectricalLockup( void )
 	{
 		// TODO if all MCC pc sensors are desqualified come to here
 
@@ -3648,11 +3948,11 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_ThrottleTo0( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_ThrottleTo0( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 10000 );// increment time from STDN
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 10000 );// increment time from STDN
 		}
 		else
 		{
@@ -3704,11 +4004,11 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_PropellantValvesClosed( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_PropellantValvesClosed( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 1000 );// increment time
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 1000 );// increment time
 		}
 		else
 		{
@@ -3738,11 +4038,11 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_Shutdown_FailSafePneumatic( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_Shutdown_FailSafePneumatic( void )
 	{
 		if (DCU->RAM[RAM_AD08_TIME_STDN] != 0xFFFF)
 		{
-			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)round( DCU->dt * 1000 );// increment time from STDN
+			DCU->RAM[RAM_AD08_TIME_STDN] += (unsigned short)Round( DCU->dt * 1000 );// increment time from STDN
 		}
 		else
 		{
@@ -3791,7 +4091,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_Standby( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_Standby( void )
 	{
 		// on/off devs
 		DCU->RAM[RAM_AD08_MCC_IGNITER_CMD] = 0;
@@ -3808,7 +4108,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_OxidizerDump( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_OxidizerDump( void )
 	{
 		// open MOV
 		DCU->RAM[RAM_AD08_MOV_CMD] = 4095;
@@ -3827,7 +4127,7 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
+	unsigned short SSMEControllerSW_AD08::EngineOperations_PostShutdown_TerminateSequence( void )
 	{
 		// All valves are being closed while a purge or dump sequence is being terminated. All solenoid and servoswitch valves are then deenergized.
 
@@ -3870,11 +4170,11 @@ namespace mps
 		return 0;
 	}
 
-	int SSMEControllerSW_AD08::CommandActuators( void )
+	unsigned short SSMEControllerSW_AD08::CommandActuators( void )
 	{
 		if ((DCU->RAM[RAM_AD08_CH] == chB) && (DCU->RAM[RAM_AD08_DCU_A_STATUS] == 0)) return 0;// if chB, and chA is working, don't bother
 
-		int retval = 0;
+		unsigned short retval = 0;
 		int cmdCCV = (DCU->RAM[RAM_AD08_CCV_CMD] << 4) + DEV_OE_CCV;
 		int cmdMFV = (DCU->RAM[RAM_AD08_MFV_CMD] << 4) + DEV_OE_MFV;
 		int cmdMOV = (DCU->RAM[RAM_AD08_MOV_CMD] << 4) + DEV_OE_MOV;
@@ -3941,7 +4241,7 @@ namespace mps
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::CommandONOFFDevices( void )
+	unsigned short SSMEControllerSW_AD08::CommandONOFFDevices( void )
 	{
 		if ((DCU->RAM[RAM_AD08_CH] == chB) && (DCU->RAM[RAM_AD08_DCU_A_STATUS] == 0)) return 0;// if chB, and chA is working, don't bother
 
@@ -3967,7 +4267,7 @@ namespace mps
 			(DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] << 12) + 
 			(DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] << 13);
 
-		int retval = 0;
+		unsigned short retval = 0;
 
 		// OE chA output and test
 		if (DCU->RAM[RAM_AD08_OE_A_STATUS] == 0)
@@ -3997,7 +4297,7 @@ namespace mps
 		return retval;
 	}
 
-	int SSMEControllerSW_AD08::OutputVDT( void )
+	unsigned short SSMEControllerSW_AD08::OutputVDT( void )
 	{
 		memset( &DCU->RAM[RAM_AD08_VRC_1], 0, 128 * sizeof(unsigned short) );// zeroing
 

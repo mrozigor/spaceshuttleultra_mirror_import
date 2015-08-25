@@ -72,6 +72,10 @@ namespace vc
 		StandardTalkback* pLatchState[5];
 		StandardTalkback* pLatchRTL[5];
 
+		StdSwitch3* pADIAttitude;
+		StdSwitch3* pADIError;
+		StdSwitch3* pADIRate;
+
 		//PBI lights
 		//bool PBI_Lights[24]; //true if light on
 	};

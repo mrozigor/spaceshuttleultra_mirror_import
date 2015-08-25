@@ -43,6 +43,10 @@ const double FINECOUNT_THROTTLE = 67;
 const double FINECOUNT_THROTTLE_1EO = 91;
 const double FINECOUNT_THROTTLE_2EO = 91;
 
+const double SSME_TAILOFF_DV_67 = 90;// fps
+const double SSME_TAILOFF_DV_91_1EO = 75;// fps
+const double SSME_TAILOFF_DV_91_2EO = 35;// fps
+
 // HACK the mass is just a guess, it's probably a little lower
 const double LOWLEVEL_ARM_MASS = 370000;// lbs
 
@@ -51,7 +55,6 @@ class SSME_SOP;
 class SSME_Operations;
 class ATVC_SOP;
 class SRBSepSequence;
-class ETSepSequence;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -67,15 +70,31 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	//virtual bool ItemInput(int spec, int item, const char* Data);
-	//virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	void NullSRBNozzles( void );
 
-	bool OnPaint( int spec, vc::MDU* pMDU ) const;
+	/**
+	 * Gets current state of throttle commanding.
+	 * @return	true if AUTO, false if MAN
+	 */
+	bool GetAutoThrottleState( void ) const;
+
+	/**
+	 * Gets current vehicle attitude errors (deg).
+	 * @return	attitude errors (deg) (x=pitch, y=yaw, z=roll)
+	 */
+	VECTOR3 GetAttitudeErrors( void ) const;
+
+	double GetThrottleCommand( void ) const;
+	bool SERCenabled( void ) const;
+	double GetEOVI( int EO ) const;
+	double GetTgtSpd( void ) const;
+	double GetInertialVelocity( void ) const;
+	double GetThrustAcceleration( void ) const;
+	double GetTimeRemaining( void ) const;
 private:
 	void InitializeAutopilot();
 
@@ -156,6 +175,7 @@ private:
 	// copied from Atlantis.h
 	double radTargetHeading, TAp, TPe, TTrA, TEcc, TgtRad;
 	std::vector<double> stage1GuidanceVelTable, stage1GuidancePitchTable;
+	bool dogleg;
 
 	double MaxThrust; // maximum thrust that can be commanded; usually 104.5
 	//bool bAutopilot, bThrottle;
@@ -166,14 +186,14 @@ private:
 	double CmdPDot; // commanded second stage pitch rate in deg/sec
 	VECTOR3 rh0;
 	double radius; // distance from centre of Earth (r)
-	double relativeVelocity; // velocity relative to Earth (v)
+	double inertialVelocity; // velocity relative to Earth's center (v)
 	double r,h,theta,omega,phi;
 	VECTOR3 rh,thetah,hh;
 	VECTOR3 posMoon,velMoon,rmh;
 	double vr,vtheta,vh;
 
-	double fh;
-	double pitch,yaw,roll;
+	//double fh;
+	//double pitch,yaw,roll;
 
 	double g;
 	double thrustAcceleration; // a0
@@ -189,7 +209,7 @@ private:
 	SSME_Operations* pSSME_Operations;
 	ATVC_SOP* pATVC_SOP;
 	SRBSepSequence* pSRBSepSequence;
-	ETSepSequence* pETSepSequence;
+	
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress
 	double dt_thrt_glim;// timer for g limiting throttle cmds
@@ -209,6 +229,8 @@ private:
 	bool bNullSRBNozzles;
 
 	double EOVI[2];
+
+	double SSMETailoffDV[3];
 };
 	
 };

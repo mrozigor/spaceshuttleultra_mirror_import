@@ -22,6 +22,15 @@ namespace vc
 		Add(pOMSArm[LEFT] = new LockableLever3(_sts, "LOMS Arm"));
 		Add(pOMSArm[RIGHT] = new LockableLever3(_sts, "ROMS Arm"));
 
+		Add( pBFCCRTDisplay = new StdSwitch2( _sts, "BFC CRT Display" ) );
+		pBFCCRTDisplay->SetLabel( 0, "OFF" );
+		pBFCCRTDisplay->SetLabel( 1, "ON" );
+
+		Add( pBFCCRTSelect = new StdSwitch3( _sts, "BFC CRT Select" ) );
+		pBFCCRTSelect->SetLabel( 0, "3+1" );
+		pBFCCRTSelect->SetLabel( 1, "2+3" );
+		pBFCCRTSelect->SetLabel( 2, "1+2" );
+
 		Add(pAirDataProbeStowEnable[LEFT] = new StdSwitch2(_sts, "LADP Stow Enable"));
 		Add(pAirDataProbeStowEnable[RIGHT] = new StdSwitch2(_sts, "RADP Stow Enable"));
 		Add(pAirDataProbeDeploy[LEFT] = new LockableLever3(_sts, "LADP Deploy"));
@@ -175,26 +184,36 @@ namespace vc
 		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
 
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
-		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot);
+		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.7215, 14.2841), switch_rot);
 		pOMSArm[LEFT]->SetPullDirection(pull_dir);
 		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3B1_VC);
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
 		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
-		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot);
+		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.7215, 14.2841), switch_rot);
 		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
 		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3B2_VC);
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
+		pBFCCRTDisplay->SetMouseRegion( 0.204959f, 0.071767f, 0.231104f, 0.138565f );
+		pBFCCRTDisplay->SetReference( _V( -0.153415, 1.7302, 14.2963 ), switch_rot );
+		pBFCCRTDisplay->DefineSwitchGroup( GRP_C3B3_VC );
+		pBFCCRTDisplay->SetInitialAnimState( 0.5f );
+
+		pBFCCRTSelect->SetMouseRegion( 0.250595f, 0.071845f, 0.286626f, 0.133207f );
+		pBFCCRTSelect->SetReference( _V( -0.124915, 1.7302, 14.2954 ), switch_rot );
+		pBFCCRTSelect->DefineSwitchGroup( GRP_C3B4_VC );
+		pBFCCRTSelect->SetInitialAnimState( 0.5f );
+
 		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
-		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3B10_VC);
 		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
-		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3B11_VC);
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
@@ -295,6 +314,11 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle("ROMS", 2);
 		pOMSArm[RIGHT]->ConnectPort(2, pBundle, 0); // ARM
 		pOMSArm[RIGHT]->ConnectPort(1, pBundle, 1); // ARM/PRESS
+
+		pBundle = STS()->BundleManager()->CreateBundle( "BFCCRT", 3 );
+		pBFCCRTDisplay->output.Connect( pBundle, 0 );// ON
+		pBFCCRTSelect->ConnectPort( 1, pBundle, 1 ); // 3+1
+		pBFCCRTSelect->ConnectPort( 2, pBundle, 2 ); // 1+2
 
 		pBundle=STS()->BundleManager()->CreateBundle("LADP", 3);
 		pAirDataProbeStowEnable[LEFT]->output.Connect(pBundle, 0);

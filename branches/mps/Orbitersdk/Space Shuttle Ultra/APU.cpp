@@ -83,7 +83,7 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 		case SHUTDOWN:
 			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
 			if(STS()->GetSoundID()!=-1 && IsPlaying(STS()->GetSoundID(), APU_SHUTDOWN)) {
-				PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP, 0);
+				PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
 			}
 		case OFF:
 			if(APUSpeed[1]>5) APUSpeed[1]=max(APUSpeed[1]-15.0*DeltaT, 0.0);
@@ -107,11 +107,13 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			break;
 		case START:
-			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
-			if(STS()->GetSoundID()!=-1 && IsPlaying(STS()->GetSoundID(), APU_START)) {
-				PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
-			}
 		case ON:
+			// sound only plays in external view, so keep calling PlayVesselWave to make sure sound plays if we switch to external view
+			if(STS()->GetSoundID()!=-1) {
+				if(State==START && IsPlaying(STS()->GetSoundID(), APU_START)) PlayVesselWave(STS()->GetSoundID(), APU_START, NOLOOP);
+				else PlayVesselWave(STS()->GetSoundID(), APU_RUNNING, LOOP);
+			}
+
 			if(FuelLevel[0]<=0.0) State=SHUTDOWN;
 			if(!APU_Run) {
 				State=SHUTDOWN;
@@ -121,6 +123,7 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(APU_HydPumpPress) 
 				FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[0]*DeltaT;
 			else FuelLevel[1]-=APU_FUEL_TANK_FLOWRATE[1]*DeltaT;
+			if (FuelLevel[1] < 0) FuelLevel[1] = 0;
 
 			if(State==START) {
 				if(APUSpeed[1]>=95.0) {
@@ -172,7 +175,6 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			break;
 	}
-	//sprintf_s(oapiDebugString(), 255, "APU Fuel: %f %f APU State: %d", FuelLevel[0], FuelLevel[1], State);
 }
 
 void APU::OnPropagate(double SimT, double DeltaT, double MJD)

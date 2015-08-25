@@ -29,7 +29,7 @@
 
 namespace vc {
 
-	using class discsignals::DiscreteBundle;
+	using discsignals::DiscreteBundle;
 
 
 	class BasicLight:public AtlantisVCComponent {

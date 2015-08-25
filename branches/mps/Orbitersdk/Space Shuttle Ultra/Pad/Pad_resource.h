@@ -36,6 +36,10 @@
 #define IDC_GH2_RETRACT                 1025
 #define IDC_RBUS_EXTEND                 1026
 #define IDC_RBUS_RETRACT                1027
+#define IDC_SRBEAST_RETRACT             1028
+#define IDC_SRBWEST_RETRACT             1029
+#define IDC_SRBEAST_EXTEND              1030
+#define IDC_SRBWEST_EXTEND              1031
 
 // Next default values for new objects
 // 

@@ -51,6 +51,9 @@ const int VC_PLBCAMBR = 15; // C
 const int VC_PLBCAMFR = 16; // D
 const int VC_RMSCAM = 17;
 const int VC_LEECAM = 18;
+//New panel positions for pilot and commander
+const int VC_PANELR4 = 20;
+const int VC_PANELL4 = 21;
 //Beginning of Mid deck positions
 const int VC_MIDDECK = 100;
 //Beginning of external airlock positions
@@ -59,11 +62,13 @@ const int VC_EXT_AL = 200;
 const static char* VC_LBL_CDR = "Commander seat";
 const VECTOR3 VC_POS_CDR = _V(-0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_CDR = _V(-0.653, 2.589, 14.614);
-const VECTOR3 VC_HUDPOS_CDR = _V(-0.655, 2.568, 14.614);
+const VECTOR3 VC_HUDPOS_CDR = _V(-0.6515, 2.568, 14.614);
+
+
 const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
-const VECTOR3 VC_HUDPOS_PLT = _V(0.655, 2.568, 14.614);
+const VECTOR3 VC_HUDPOS_PLT = _V(0.6515, 2.568, 14.614);
 
 const static char* VC_LBL_MS1 = "MS2/FE seat";
 const VECTOR3 VC_POS_MS1 = _V(0, 2.629396, 13.25);
@@ -77,24 +82,24 @@ const static char* VC_LBL_COAS = "COAS";
 const VECTOR3 VC_POS_COAS = _V( 0.4, 3.15, 12.6);
 const VECTOR3 VC_DIR_COAS = _V( 0.0, 0.45399, -0.891007);
 
-const static char* VC_LBL_PORTSTATION = "Port workstation";
+const static char* VC_LBL_PORTSTATION = "Port Work Station";
 const VECTOR3 VC_POS_PORTSTATION = _V(-0.6, 2.95, 13.0);
 const VECTOR3 VC_DIR_PORTSTATION = _V(-cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
-const static char* VC_LBL_AFTPILOT = "Aft pilot station";
+const static char* VC_LBL_AFTPILOT = "Aft Pilot Station";
 const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.7); //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
 const VECTOR3 VC_DIR_AFTPILOT = _V(0, 0, -1);
 const VECTOR3 VC_OFSFWD_AFTPILOT = VC_POS_COAS - VC_POS_AFTPILOT;
 
-const static char* VC_LBL_RMSSTATION = "RMS work station"; //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
+const static char* VC_LBL_RMSSTATION = "RMS Work Station"; //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
 const VECTOR3 VC_POS_RMSSTATION = _V(-0.4, 3.15, 12.7);
 const VECTOR3 VC_DIR_RMSSTATION = _V(0.0, 0.0, -1.0);
 
-const static char* VC_LBL_STBDSTATION = "Starboard workstation";
+const static char* VC_LBL_STBDSTATION = "Starboard Work Station";
 const VECTOR3 VC_POS_STBDSTATION = _V(0.6, 2.95, 13.0);
 const VECTOR3 VC_DIR_STBDSTATION = _V(cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
-const static char* VC_LBL_AFTWORKSTATION = "Aft Workstation";
+const static char* VC_LBL_AFTWORKSTATION = "Aft Work Station";
 const VECTOR3 VC_POS_AFTWORKSTATION = _V(0.0, 2.95, 13.2);
 const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 
@@ -102,9 +107,13 @@ const static char* VC_LBL_DOCKCAM = "ODS centerline camera";
 const static char* VC_LBL_LEECAM = "RMS EE camera";
 const static char* VC_LBL_ELBOWCAM = "RMS Elbow camera";
 const static char* VC_LBL_PLBCAMFL = "Payload bay A camera";
+const VECTOR3 CAM_A_POS = _V(-1.7765, 0.965, 9.268);
 const static char* VC_LBL_PLBCAMFR = "Payload bay D camera";
+const VECTOR3 CAM_D_POS = _V(1.7765, 0.965, 9.268);
 const static char* VC_LBL_PLBCAMBL = "Payload bay B camera";
+const VECTOR3 CAM_B_POS = _V(-2.2495, 0.9655, -8.21);
 const static char* VC_LBL_PLBCAMBR = "Payload bay C camera";
+const VECTOR3 CAM_C_POS = _V(2.2495, 0.9655, -8.21);
 
 const static char* VC_LBL_MIDDECK = "Mid Deck";
 const VECTOR3 VC_POS_MIDDECK = _V(-1.44, 0.0, 13.353);
@@ -112,7 +121,14 @@ const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 
 const static char* VC_LBL_EXT_AL = "External Airlock";
-const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.1, 0.25);
+const VECTOR3 VC_POS_EXT_AL = _V(0.0, 0.1, 2.0);
 const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
+
+const static char* VC_LBL_PANELR4 = "Pilot - R4";
+const VECTOR3 VC_POS_PANELR4 = _V(1.271257, 2.229396, 14.2);
+
+const static char* VC_LBL_PANELL4 = "CDR - L4";
+const VECTOR3 VC_POS_PANELL4 = _V(-1.271257, 2.229396, 14.2);
+
 
 #endif //__ATLANTIS_VC_DEFS_H

@@ -239,11 +239,11 @@ namespace mps
 		SVmodel_tgt[4] = SH[4];
 
 		// actuate valves
-		HSV_pos[0].SetLine( SH[0] * 5 );
-		HSV_pos[1].SetLine( SH[1] * 5 );
-		HSV_pos[2].SetLine( SH[2] * 5 );
-		HSV_pos[3].SetLine( SH[3] * 5 );
-		HSV_pos[4].SetLine( SH[4] * 5 );
+		HSV_pos[0].SetLine( static_cast<float>(SH[0] * 5.0) );
+		HSV_pos[1].SetLine( static_cast<float>(SH[1] * 5.0) );
+		HSV_pos[2].SetLine( static_cast<float>(SH[2] * 5.0) );
+		HSV_pos[3].SetLine( static_cast<float>(SH[3] * 5.0) );
+		HSV_pos[4].SetLine( static_cast<float>(SH[4] * 5.0) );
 		return;
 	}
 

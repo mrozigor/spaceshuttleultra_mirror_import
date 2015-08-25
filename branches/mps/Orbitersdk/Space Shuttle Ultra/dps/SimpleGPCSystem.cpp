@@ -18,6 +18,7 @@
 #include "ETSepSequence.h"
 #include "SRBSepSequence.h"
 #include "ATVC_SOP.h"
+#include "GeneralDisplays.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -26,6 +27,7 @@ namespace dps
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101), newMajorMode(0)
 {
+	//TODO: Move this all to Partition model
 	vSoftware.push_back( new MPS_Dump( this ) );
 	vSoftware.push_back( new MPS_Dedicated_Display_Driver( this ) );
 	vSoftware.push_back( new SSME_Operations( this ) );
@@ -43,6 +45,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new ETSepSequence( this ) );
 	vSoftware.push_back( new SRBSepSequence( this ) );
 	vSoftware.push_back( new ATVC_SOP( this ) );
+	vSoftware.push_back( new GeneralDisplays( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()
@@ -53,11 +56,13 @@ SimpleGPCSystem::~SimpleGPCSystem()
 
 void SimpleGPCSystem::SetMajorMode(unsigned int newMM)
 {
+	//TODO: Move to Memory Configuration and Redundant Set (Partition)
 	newMajorMode = newMM;
 }
 
 bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) const
 {
+	//TODO: Replace by table in memory configuration
 	switch(newMajorMode) {
 	case 104:
 		return majorMode == 103;
@@ -81,6 +86,8 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 		return majorMode == 304;
 	case 801:
 		return majorMode == 201;
+	case 901:
+		return majorMode == 101;
 	default:
 		return false;
 	}
@@ -172,6 +179,8 @@ void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 		vSoftware[i]->OnSaveState(scn);
 		oapiWriteScenario_string(scn, "@ENDSOFTWARE", "");
 	}*/
+	//TODO Save number of memory configuration
+
 	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
 		oapiWriteScenario_string(scn, "@BEGINSOFTWARE", const_cast<char*>(vActiveSoftware[i]->GetIdentifier().c_str()));
 		vActiveSoftware[i]->OnSaveState(scn);

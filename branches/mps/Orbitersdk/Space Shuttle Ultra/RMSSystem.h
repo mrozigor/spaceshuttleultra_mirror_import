@@ -27,6 +27,7 @@
 #pragma once
 
 #include "MPMSystems.h"
+#include <UltraMath.h>
 #include <EngConst.h>
 
 const static char* RMS_MESHNAME = "SSU/RMS";
@@ -34,7 +35,7 @@ const static char* RMS_MESHNAME = "SSU/RMS";
 const double RMS_ROLLOUT_ANGLE = 19.48; // angle between RMS and vertical when RMS is deployed (in degrees)
 const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RMS is stowed (in degrees)
 
-const VECTOR3 RMS_MESH_OFFSET = _V(0.0, 0.0, 0.0);
+const VECTOR3 RMS_MESH_OFFSET = _V(-0.1, 1.04, 0.0326);
 
 // RMS joint positions
 const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);
@@ -60,7 +61,9 @@ const double RMS_EP_NULL_ANGLE = DEG * acos((RMS_EP_JOINT.z-RMS_WP_JOINT.z)/RMS_
 const double RMS_JOINT_LIMITS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -447.0},
 									{+180.0, +145.0, +2.4, +121.4, +121.3, +447.0}};
 const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6, -442.0},
-										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
+									{+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
+const double RMS_JOINT_REACHLIMITS[2][6] = {{-175.4, +2.6, -155.6, -114.4, -114.6, -440.0},
+									{+175.4, +140.4, -2.4, +114.4, +114.6, +440.0}};
 
 //const double RMS_JOINT_ROTATION_SPEED = 1.5;
 const double RMS_JOINT_MAX_ROTATION_SPEED[6] = {40.0, 40.0, 40.0, 40.0, 40.0, 40.0}; // mechanical limits; numbers are made up
@@ -85,11 +88,13 @@ const double RMS_EXTEND_SPEED = 0.142857;
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.66, 0.08, -7.45); // Not true position of EE cam. Includes a fudge factor to account for a 0.03 m offset between the alignment target and grapple pin on Donamy's grapple fixture meshes
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
-const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.65, 0.65, 0.34);
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.37968, 0.296129, -0.0332794);
 const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
 
+const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
+const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
 
 class RMSSystem : public MPMSystem
 {
@@ -107,7 +112,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 	virtual bool SingleParamParseLine() const {return true;};
 
-	virtual double GetSubsystemEmptyMass() const {return 0.0;};
+	// mass value from Shuttle Systems Weight & Performance Monthly Status Report, Dec. 30 1983 (NASA-TM-85494)
+	virtual double GetSubsystemEmptyMass() const {return 426.8304;};
 
 	virtual void CreateAttachment();
 
@@ -161,6 +167,14 @@ private:
 	bool MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTOR3 &newRot, double DeltaT);
 	void SetJointAngle(RMS_JOINT joint, double angle); //angle in degrees
 	void SetJointPos(RMS_JOINT joint, double pos);
+	/**
+	 * Converts vector from Orbitersim frame to RMS frame
+	 * Does not rotate vector to correct for RMS rollout angle
+	 */
+	VECTOR3 ConvertVectorToRMSFrame(const VECTOR3& v) const
+	{
+		return _V(-v.z, -v.x, -v.y);
+	}
 
 	int GetSelectedJoint() const;
 
@@ -198,9 +212,9 @@ private:
 	 * +X: Towards tail
 	 * +Y: towards port side (right from aft windows)
 	 * +Z: Down
-	 * arm_ee_dir and arm_ee_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame
+	 * arm_ik_dir and arm_ik_rot define frame oriented along RMS joints; this is slightly rotated from shuttle frame (and from EE frame)
 	 */
-	VECTOR3 arm_ee_pos, arm_ee_dir, arm_ee_rot;
+	VECTOR3 arm_ik_pos, arm_ik_dir, arm_ik_rot;
 	VECTOR3 arm_ee_angles; // angles in radians; used for some IK modes
 	VECTOR3 arm_tgt_pos, arm_tgt_dir;
 	double joint_pos[6], joint_angle[6]; // angles in degrees
@@ -216,6 +230,11 @@ private:
 	DiscInPort ShoulderBrace;
 	DiscOutPort ShoulderBraceReleased;
 
+	DiscOutPort CWLights[12];
+	DiscOutPort ModeLights[12];
+
+	DiscOutPort SoftStopTB;// input inverted to display barberpole when "on"
+
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
 	DiscOutPort EECapture, EEExtended, EEClosed, EEOpened, EERigidized, EEDerigidized;
@@ -229,6 +248,15 @@ private:
 	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
+
+	bool bSoftStop;
+
+	bool bEECapture;
+	bool bEEExtended;
+	bool bEEClosed;
+	bool bEEOpened;
+	bool bEERigidized;
+	bool bEEDerigidized;
 
 	// for LED displays on panel A8
 	DiscOutPort JointAngles[6], EEPosition[3], EEAttitude[3];

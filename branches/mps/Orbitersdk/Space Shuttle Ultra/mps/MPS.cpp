@@ -108,6 +108,9 @@ namespace mps
 
 		RV5 = false;
 		RV6 = false;
+
+		ManifPress[0] = Sensor( 0, 300 );
+		ManifPress[1] = Sensor( 0, 100 );
 		return;
 	}
 
@@ -334,6 +337,10 @@ namespace mps
 
 		bundle = BundleManager()->CreateBundle( "MPS_OPInd_B", 16 );
 		ptrPV21->ConnectIndication( true, 0, bundle, 0 );
+
+		bundle = BundleManager()->CreateBundle( "MPS_SENSORS", 2 );
+		ManifPress[0].Connect( bundle, 0 );
+		ManifPress[1].Connect( bundle, 1 );
 
 		if (STS()->status == 3)
 		{
@@ -599,7 +606,10 @@ namespace mps
 			STS()->SetMPSDumpLevel( 7, ptrPV7->GetPos() * LOXventlevel * (int)RV5 );
 		}
 
-		char buffer[100];
+		ManifPress[0].SetValue( LOXManifPress );
+		ManifPress[1].SetValue( LH2ManifPress );
+
+		//char buffer[100];
 		//sprintf_s( buffer, 100, "%f,%f,%f,%f,%f", STS()->GetMET(), LH2initpress, LH2ManifPress, LH2ventlevel, STS()->GetPropellantLevel( STS()->GetLH2Tank() ) );
 		//sprintf_s( buffer, 100, "%f,%f,%f,%f,%f,%f",  ptrLV53->GetPos(), ptrLV54->GetPos(), ptrLV55->GetPos(), ptrLV56->GetPos(), ptrLV57->GetPos(), ptrLV58->GetPos() );
 		//oapiWriteLog( buffer );

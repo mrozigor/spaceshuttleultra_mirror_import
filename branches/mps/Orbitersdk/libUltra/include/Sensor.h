@@ -29,8 +29,8 @@
 #include "DiscOutPort.h"
 
 
-using class discsignals::DiscOutPort;
-using class discsignals::DiscreteBundle;
+using discsignals::DiscOutPort;
+using discsignals::DiscreteBundle;
 
 
 /**

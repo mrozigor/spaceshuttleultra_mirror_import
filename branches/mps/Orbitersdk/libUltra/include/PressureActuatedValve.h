@@ -30,13 +30,13 @@
 #include "DiscOutPort.h"
 
 
-using class discsignals::DiscOutPort;
-using class discsignals::DiscreteBundle;
+using discsignals::DiscOutPort;
+using discsignals::DiscreteBundle;
 
 
 // HACK no clue about right amounts
-const double MIN_PRESS_OPEN_PAV = 85;
-const double HE_USE_OPEN_PAV = 5;
+const double MIN_PRESS_OPEN_PAV = 85;// psia
+const double HE_USE_OPEN_PAV = 20;// g
 
 
 /**

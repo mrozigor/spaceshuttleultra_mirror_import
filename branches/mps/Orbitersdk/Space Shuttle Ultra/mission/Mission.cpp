@@ -1,6 +1,9 @@
 #include "Mission.h"
 #include "OrbiterAPI.h"
+#include "UltraUtils.h"
+#include "..\ParameterValues.h"
 #include <limits>
+#include <vector>
 
 namespace mission {
 
@@ -22,14 +25,13 @@ namespace mission {
 
 	void Mission::SetDefaultValues()
 	{
-		strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
-		strROMSPodMeshName = "SSU\\ROMS_pod_standard";
-		bEnableWingPainting = false;
-		fLaunchTimeMJD = -1.0;
-		fLandTimeMJD = -1.0;
+		//strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
+		//strROMSPodMeshName = "SSU\\ROMS_pod_standard";
+		//fLaunchTimeMJD = -1.0;
+		//fLandTimeMJD = -1.0;
 
 		fTargetInc = 28.5*RAD;
-		fMECOAlt = 105000;
+		fMECOAlt = 105564;
 		fMECOVel = 7869.635088;
 		fMECOFPA = 0.747083*RAD;
 
@@ -42,15 +44,25 @@ namespace mission {
 		fTHdown = 792.0;
 		fTHup = 1304.0;
 
+		OVmass = ORBITER_EMPTY_MASS_OV104;// default to Atlantis
+
 		bUseRMS = false;
 		bHasKUBand = true;
 		bHasMPMs = false;
 		bHasODS = false;
 		bHasExtAL = false;
+		bHasTAA = false;
+		bAftTAA = false;
 		bHasBulkheadFloodlights = false;
+		bHasDragChute = true;
+
+		bUseSILTS = false;
 
 		for(int i=0;i<16;i++) fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-		fODSZPos = 8.25;
+
+		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
+
+		bLogSSMEData = false;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -82,8 +94,12 @@ namespace mission {
 		{
 			strOrbiter = buffer;
 		}
-
-		oapiReadItem_bool(hFile, "EnableWingPainting", bEnableWingPainting);
+		if (strOrbiter == "Columbia") OVmass = ORBITER_EMPTY_MASS_OV102;
+		else if (strOrbiter == "Challenger") OVmass = ORBITER_EMPTY_MASS_OV099;
+		else if (strOrbiter == "Discovery") OVmass = ORBITER_EMPTY_MASS_OV103;
+		//else if (strOrbiter == "Atlantis") OVmass = ORBITER_EMPTY_MASS_OV104;
+		else if (strOrbiter == "Endeavour") OVmass = ORBITER_EMPTY_MASS_OV105;
+		// default already loaded ORBITER_EMPTY_MASS_OV104
 
 		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
 		{
@@ -91,18 +107,18 @@ namespace mission {
 			oapiWriteLog((char*)strOrbiterTexName.c_str());
 		}
 
-		if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
+		/*if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
 		{
 			strLOMSPodMeshName = "SSU\\" + std::string(buffer);
 		}
 		if(oapiReadItem_string(hFile, "ROMSPodMesh", buffer))
 		{
 			strROMSPodMeshName = "SSU\\" + std::string(buffer);
-		}
+		}*/
 
-		oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
+		//oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
 		
-		oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD);
+		//oapiReadItem_float(hFile, "FirstReturnOpport", fLandTimeMJD);
 
 		if(oapiReadItem_float(hFile, "TargetInc", fTargetInc))
 		{
@@ -117,9 +133,7 @@ namespace mission {
 		}
 
 		oapiReadItem_bool(hFile, "PerformRollToHeadsUp", bPerformRTHU);
-		double fTemp;
-		if(oapiReadItem_float(hFile, "RollToHeadsUpStartVelocity", fTemp)) bPerformRTHU = true; // hack to handle old mission files (when RTHU velocity was specified in the mission file)
-		
+
 		oapiReadItem_bool( hFile, "OMSAssistEnable", bUseOMSAssist );
 		oapiReadItem_float( hFile, "OMSAssistDuration", OMSAssistDuration );
 
@@ -132,18 +146,33 @@ namespace mission {
 		oapiReadItem_bool(hFile, "UseSTBDMPM", bHasMPMs);
 		oapiReadItem_bool(hFile, "UseODS", bHasODS);
 		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
+		oapiReadItem_bool( hFile, "UseTAA", bHasTAA );
+		oapiReadItem_bool( hFile, "AftTAA", bAftTAA );
 		oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
+		oapiReadItem_bool(hFile, "HasDragChute", bHasDragChute);
 
 		for(int i = 0; i<16; i++)
 		{
 			double x;
-			sprintf_s(buffer, "PayloadZPos%d", i);
+			sprintf_s(buffer, "PayloadZPos%d", i + 5);
 			if(oapiReadItem_float(hFile, buffer, x))
 			{
 				fPayloadZPos[i] = x;
 			}
 		}
-		oapiReadItem_float(hFile, "ODSZPos", fODSZPos);
+
+		if(oapiReadItem_string(hFile, "Bridgerails", buffer)) {
+			std::vector<int> bridgerails;
+			ReadCSVLine(buffer, bridgerails);
+			for(unsigned int i=0; i<bridgerails.size(); i++) {
+				if(bridgerails[i] >= 0 && bridgerails[i] < 13)
+					bHasBridgerail[bridgerails[i]] = true;
+			}
+		}
+
+		if (strOrbiter == "Columbia") oapiReadItem_bool( hFile, "SILTS", bUseSILTS );
+
+		oapiReadItem_bool( hFile, "LogSSMEData", bLogSSMEData );
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -162,25 +191,25 @@ namespace mission {
 	}
 	
 
-	double Mission::GetFirstLandingMET() const
+	/*double Mission::GetFirstLandingMET() const
 	{
 		return std::numeric_limits<double>::infinity();
-	}
+	}*/
 
 	double Mission::GetLaunchAzimuth() const 
 	{
 		return 90.0 * RAD;
 	}
 
-	double Mission::GetLaunchMJD() const
+	/*double Mission::GetLaunchMJD() const
 	{
 		return fLaunchTimeMJD;
-	}
+	}*/
 
-	unsigned int Mission::GetLaunchSite() const
+	/*unsigned int Mission::GetLaunchSite() const
 	{
 		return 0;
-	}
+	}*/
 
 	double Mission::GetMECOInc() const
 	{
@@ -207,11 +236,6 @@ namespace mission {
 		return fMaxSSMEThrust;
 	}
 
-	unsigned int Mission::GetNumberOfOMSBurns() const
-	{
-		return 0;
-	}
-
 	double Mission::GetPayloadZPos(unsigned int iIndex) const
 	{
 		if(iIndex > 15)
@@ -220,9 +244,16 @@ namespace mission {
 			return fPayloadZPos[iIndex];
 	}
 
-	double Mission::GetODSZPos() const
+	double Mission::GetExternalAirlockZPos() const
 	{
-		return fODSZPos;
+		if (bHasTAA & !bAftTAA) return TAA_EXTERNAL_AIRLOCK_Z_POSITION;
+		else return EXTERNAL_AIRLOCK_Z_POSITION;
+	}
+
+	double Mission::GetTunnelAdapterAssemblyZPos() const
+	{
+		if (bAftTAA) return TAA_AFT_POSITION;
+		else return TAA_FORWARD_POSITION;
 	}
 		
 	const std::string& Mission::GetOrbiter() const
@@ -245,7 +276,7 @@ namespace mission {
 		return strOrbiterTexName;
 	}
 
-	const std::string& Mission::GetLOMSPodMeshName() const
+	/*const std::string& Mission::GetLOMSPodMeshName() const
 	{
 		return strLOMSPodMeshName;
 	}
@@ -253,13 +284,13 @@ namespace mission {
 	const std::string& Mission::GetROMSPodMeshName() const
 	{
 		return strROMSPodMeshName;
-	}
+	}*/
 
-	bool Mission::WingPaintingEnabled() const
+	bool Mission::HasBridgerail(unsigned int index) const
 	{
-		return bEnableWingPainting;
+		if(index > 13) return false;
+		return bHasBridgerail[index];
 	}
-	
 
 	bool Mission::HasRMS() const
 	{
@@ -281,14 +312,29 @@ namespace mission {
 		return (bHasExtAL || bHasODS);
 	}
 
+	bool Mission::HasTAA() const
+	{
+		return bHasTAA;
+	}
+
+	bool Mission::AftTAA() const
+	{
+		return bAftTAA;
+	}
+
 	bool Mission::HasBulkheadFloodlights() const
 	{
 		return bHasBulkheadFloodlights;
 	}
 
-	bool Mission::UseDirectAscent() const
+	bool Mission::HasDragChute() const
 	{
-		return true;
+		return bHasDragChute;
+	}
+
+	double Mission::GetOrbiterMass( void ) const
+	{
+		return OVmass;
 	}
 	
 	bool Mission::UseOMSAssist() const
@@ -319,5 +365,15 @@ namespace mission {
 	bool Mission::HasKUBand() const
 	{
 		return bHasKUBand;
+	}
+
+	bool Mission::UseSILTS() const
+	{
+		return bUseSILTS;
+	}
+
+	bool Mission::LogSSMEData() const
+	{
+		return bLogSSMEData;
 	}
 };

@@ -31,7 +31,6 @@ void SSUChute::DefineAnimations()
 void SSUChute::clbkPreStep(double simt, double simdt, double mjd)
 {
 	if(anim_collapse_state>0.0) {
-		sprintf_s(oapiDebugString(), 255, "Chute size: %f", anim_collapse_state);
 		anim_collapse_state=max(anim_collapse_state-simdt*CHUTE_DEFLATE_TIME, 0.0);
 		SetAnimation(anim_collapse, anim_collapse_state);
 	}
