@@ -482,6 +482,28 @@ namespace dps
 		return true;
 	}
 
+	bool IO_Control::OnParseLine( const char* keyword, const char* value )
+	{
+		if (!_stricmp( keyword, "cmd" ))
+		{
+			if (strlen( value ) == COUNT_OUTPUT) for (int i = 0; i < COUNT_OUTPUT; i++) CMD[i] = (value[i] != 48);
+			else oapiWriteLog( "ERROR IO_Control::OnParseLine length mismatch" );
+			return true;
+		}
+		return false;
+	}
+
+	void IO_Control::OnSaveState( FILEHANDLE scn ) const
+	{
+		char cbuf[COUNT_OUTPUT + 1];
+
+		cbuf[COUNT_OUTPUT] = 0;
+		for (int i = 0; i < COUNT_OUTPUT; i++) cbuf[i] = (int)CMD[i] + 48;
+
+		oapiWriteScenario_string( scn, "cmd", cbuf );
+		return;
+	}
+
 	int IO_Control::GetSWPos( int sw ) const
 	{
 		assert( (sw >= 0) && (sw < COUNT_INPUT) && "IO_Control::GetSWPos.sw" );

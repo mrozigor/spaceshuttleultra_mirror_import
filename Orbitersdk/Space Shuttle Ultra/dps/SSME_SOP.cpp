@@ -350,13 +350,13 @@ namespace dps
 
 	void SSME_SOP::OnSaveState( FILEHANDLE scn ) const
 	{
-		oapiWriteScenario_int( scn, "ShutdownPhase_1", (int)ShutdownPhase[0] );
-		oapiWriteScenario_int( scn, "ShutdownPhase_2", (int)ShutdownPhase[1] );
-		oapiWriteScenario_int( scn, "ShutdownPhase_3", (int)ShutdownPhase[2] );
+		if (ShutdownPhase[0]) oapiWriteScenario_int( scn, "ShutdownPhase_1", 1 );
+		if (ShutdownPhase[1]) oapiWriteScenario_int( scn, "ShutdownPhase_2", 1 );
+		if (ShutdownPhase[2]) oapiWriteScenario_int( scn, "ShutdownPhase_3", 1 );
 
-		oapiWriteScenario_int( scn, "PostShutdownPhase_1", (int)PostShutdownPhase[0] );
-		oapiWriteScenario_int( scn, "PostShutdownPhase_2", (int)PostShutdownPhase[1] );
-		oapiWriteScenario_int( scn, "PostShutdownPhase_3", (int)PostShutdownPhase[2] );
+		if (PostShutdownPhase[0]) oapiWriteScenario_int( scn, "PostShutdownPhase_1", 1 );
+		if (PostShutdownPhase[1]) oapiWriteScenario_int( scn, "PostShutdownPhase_2", 1 );
+		if (PostShutdownPhase[2]) oapiWriteScenario_int( scn, "PostShutdownPhase_3", 1 );
 		return;
 	}
 
