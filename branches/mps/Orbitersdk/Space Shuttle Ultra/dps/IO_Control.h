@@ -142,6 +142,9 @@ namespace dps
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
+			bool OnParseLine( const char* keyword, const char* value );
+			void OnSaveState( FILEHANDLE scn ) const;
+
 			int GetSWPos( int sw ) const;
 			void SetCommand( int output, bool cmd );
 	};

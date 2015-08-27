@@ -467,7 +467,7 @@ namespace dps
 		return;
 	}
 
-	/*bool SSME_Operations::OnParseLine( const char* keyword, const char* value )
+	bool SSME_Operations::OnParseLine( const char* keyword, const char* value )
 	{
 		int config = 0;
 
@@ -566,27 +566,27 @@ namespace dps
 
 	void SSME_Operations::OnSaveState( FILEHANDLE scn ) const
 	{
-		oapiWriteScenario_int( scn, "MECOCommand", (int)MECOCommand );
-		oapiWriteScenario_int( scn, "MECOConfirmed", (int)MECOConfirmed );
-		oapiWriteScenario_int( scn, "ZeroThrust", (int)ZeroThrust );
+		if (MECOCommand) oapiWriteScenario_int( scn, "MECOCommand", 1 );
+		if (MECOConfirmed) oapiWriteScenario_int( scn, "MECOConfirmed", 1 );
+		if (ZeroThrust) oapiWriteScenario_int( scn, "ZeroThrust", 1 );
 
-		oapiWriteScenario_int( scn, "LowLevelSensorArm", (int)LowLevelSensorArm );
+		if (LowLevelSensorArm) oapiWriteScenario_int( scn, "LowLevelSensorArm", 1 );
 
-		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_1", (int)LO2LowLevelSensorDsblFlag[0] );
-		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_2", (int)LO2LowLevelSensorDsblFlag[1] );
-		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_3", (int)LO2LowLevelSensorDsblFlag[2] );
-		oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_4", (int)LO2LowLevelSensorDsblFlag[3] );
+		if (LO2LowLevelSensorDsblFlag[0]) oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_1", 1 );
+		if (LO2LowLevelSensorDsblFlag[1]) oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_2", 1 );
+		if (LO2LowLevelSensorDsblFlag[2]) oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_3", 1 );
+		if (LO2LowLevelSensorDsblFlag[3]) oapiWriteScenario_int( scn, "LO2LowLevelSensorDsblFlag_4", 1 );
 
-		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_1", (int)LH2LowLevelSensorDsblFlag[0] );
-		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_2", (int)LH2LowLevelSensorDsblFlag[1] );
-		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_3", (int)LH2LowLevelSensorDsblFlag[2] );
-		oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_4", (int)LH2LowLevelSensorDsblFlag[3] );
+		if (LH2LowLevelSensorDsblFlag[0]) oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_1", 1 );
+		if (LH2LowLevelSensorDsblFlag[1]) oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_2", 1 );
+		if (LH2LowLevelSensorDsblFlag[2]) oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_3", 1 );
+		if (LH2LowLevelSensorDsblFlag[3]) oapiWriteScenario_int( scn, "LH2LowLevelSensorDsblFlag_4", 1 );
 
-		oapiWriteScenario_int( scn, "FailFlag_1", (int)FailFlag[0] );
-		oapiWriteScenario_int( scn, "FailFlag_2", (int)FailFlag[2] );
-		oapiWriteScenario_int( scn, "FailFlag_3", (int)FailFlag[3] );
+		if (FailFlag[0]) oapiWriteScenario_int( scn, "FailFlag_1", 1 );
+		if (FailFlag[1]) oapiWriteScenario_int( scn, "FailFlag_2", 1 );
+		if (FailFlag[2]) oapiWriteScenario_int( scn, "FailFlag_3", 1 );
 		return;
-	}*/
+	}
 
 	bool SSME_Operations::OnMajorModeChange( unsigned int newMajorMode )
 	{

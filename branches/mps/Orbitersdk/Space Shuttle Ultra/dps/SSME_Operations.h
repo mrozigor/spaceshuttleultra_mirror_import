@@ -115,8 +115,8 @@ namespace dps
 
 			void Realize( void );
 
-			//bool OnParseLine( const char* keyword, const char* value );
-			//void OnSaveState( FILEHANDLE scn ) const;
+			bool OnParseLine( const char* keyword, const char* value );
+			void OnSaveState( FILEHANDLE scn ) const;
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
