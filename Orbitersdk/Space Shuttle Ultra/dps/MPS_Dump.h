@@ -95,6 +95,9 @@ namespace dps
 			void Realize( void );
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
+
+			bool OnParseLine( const char* keyword, const char* value );
+			void OnSaveState( FILEHANDLE scn ) const;
 	};
 }
 

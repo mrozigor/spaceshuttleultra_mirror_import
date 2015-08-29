@@ -307,4 +307,66 @@ namespace dps
 				return false;
 		}
 	}
+
+	bool MPS_Dump::OnParseLine( const char* keyword, const char* value )
+	{
+		int tmp = 0;
+
+		if (!_strnicmp( keyword, "active", 6 ))
+		{
+			sscanf_s( value, "%d", &tmp );
+			active = (tmp != 0);
+			return true;
+		}
+		else if (!_strnicmp( keyword, "t_MECO", 6 ))
+		{
+			sscanf_s( value, "%lf", &t_MECO );
+			return true;
+		}
+		else if (!_strnicmp( keyword, "dump_started", 12 ))
+		{
+			sscanf_s( value, "%d", &tmp );
+			dump_started = (tmp != 0);
+			return true;
+		}
+		else if (!_strnicmp( keyword, "t_dump_start", 12 ))
+		{
+			sscanf_s( value, "%lf", &t_dump_start );
+			return true;
+		}
+		else if (!_strnicmp( keyword, "MM106_trans", 11 ))
+		{
+			sscanf_s( value, "%d", &tmp );
+			MM106_trans = (tmp != 0);
+			return true;
+		}
+		else if (!_strnicmp( keyword, "t_MM106_trans", 13 ))
+		{
+			sscanf_s( value, "%lf", &t_MM106_trans );
+			return true;
+		}
+		return false;
+	}
+
+	void MPS_Dump::OnSaveState( FILEHANDLE scn ) const
+	{
+		if (active)
+		{
+			oapiWriteScenario_int( scn, "active", 1 );
+			oapiWriteScenario_float( scn, "t_MECO", t_MECO - t_last );
+
+			if (dump_started)
+			{
+				oapiWriteScenario_int( scn, "dump_started", 1 );
+				oapiWriteScenario_float( scn, "t_dump_start", t_dump_start - t_last );
+
+				if (MM106_trans)
+				{
+					oapiWriteScenario_int( scn, "MM106_trans", 1 );
+					oapiWriteScenario_float( scn, "t_MM106_trans", t_MM106_trans - t_last );
+				}
+			}
+		}
+		return;
+	}
 }

@@ -63,8 +63,7 @@ namespace mps
 			SSMEControllerSW( DigitalComputerUnit* DCU );
 			virtual ~SSMEControllerSW( void );
 
-			virtual int GetConfig( void ) = 0;
-			virtual void SetConfig( int config ) = 0;
+			virtual void SetConfig( void ) = 0;
 
 			virtual void Executive( void ) = 0;
 

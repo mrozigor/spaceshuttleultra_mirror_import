@@ -154,7 +154,11 @@ bool AscentGuidance::OnMajorModeChange(unsigned int newMajorMode)
 {
 	if(newMajorMode == 102 || newMajorMode == 103) {
 		if(newMajorMode == 102) InitializeAutopilot();
-		else if(newMajorMode == 103) tSRBSep = STS()->GetMET();
+		else if(newMajorMode == 103)
+		{
+			if (hEarth == NULL) InitializeAutopilot();// for scenarios starting in MM103
+			tSRBSep = STS()->GetMET();
+		}
 		return true;
 	}
 	return false;
@@ -162,11 +166,32 @@ bool AscentGuidance::OnMajorModeChange(unsigned int newMajorMode)
 
 bool AscentGuidance::OnParseLine(const char* keyword, const char* value)
 {
+	int itmp = 0;
+
+	if (!_stricmp( keyword, "AGT_done" ))
+	{
+		sscanf_s( value, "%d", &itmp );
+		AGT_done = (itmp != 0);
+		return true;
+	}
+	else if (!_stricmp( keyword, "EOVI_1" ))
+	{
+		sscanf_s( value, "%lf", &EOVI[0] );
+		return true;
+	}
+	else if (!_stricmp( keyword, "EOVI_2" ))
+	{
+		sscanf_s( value, "%lf", &EOVI[1] );
+		return true;
+	}
 	return false;
 }
 
 void AscentGuidance::OnSaveState(FILEHANDLE scn) const
 {
+	if (AGT_done) oapiWriteScenario_int( scn, "AGT_done", 1 );
+	if (EOVI[0]) oapiWriteScenario_float( scn, "EOVI_1", EOVI[0] );
+	if (EOVI[1]) oapiWriteScenario_float( scn, "EOVI_2", EOVI[1] );
 }
 
 void AscentGuidance::InitializeAutopilot()

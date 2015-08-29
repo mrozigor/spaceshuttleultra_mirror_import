@@ -110,6 +110,8 @@ namespace dps
 			unsigned short SecondaryFailCounter[3];
 			unsigned short DataFailCounter[3];
 
+			bool firststep;
+
 			/**
 			 * Processes Primary Data, decoding the status of the SSME and it's controller.
 			 */

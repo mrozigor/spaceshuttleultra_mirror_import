@@ -554,8 +554,7 @@ namespace mps
 			SSMEControllerSW_AD08( DigitalComputerUnit* DCU );
 			~SSMEControllerSW_AD08( void );
 
-			int GetConfig( void );
-			void SetConfig( int config );
+			void SetConfig( void );
 
 			void Executive( void );
 
