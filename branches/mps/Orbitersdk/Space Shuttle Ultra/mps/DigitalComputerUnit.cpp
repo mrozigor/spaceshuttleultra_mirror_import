@@ -49,12 +49,20 @@ namespace mps
 	void DigitalComputerUnit::OnSaveState( FILEHANDLE scn ) const
 	{
 		char cbuf[32];
-		int config = 0;
-
-		if (funct != nullptr) config = sw->GetConfig();
+		char cbuf2[32];
 
 		sprintf_s( cbuf, 32, "DCU_ch%c config", ch + 65 );
-		oapiWriteScenario_int( scn, cbuf, config );
+		oapiWriteScenario_int( scn, cbuf, (int)(funct != nullptr) );
+
+		sprintf_s( cbuf, 32, "DCU_ch%c RAM", ch + 65 );
+		for (int i = 3; i < 20; i++)
+		{
+			if (RAM[i] != 0)
+			{
+				sprintf_s( cbuf2, 32, "%d %hu", i, RAM[i] );
+				oapiWriteScenario_string( scn, cbuf, cbuf2 );
+			}
+		}
 
 		__OnSaveState( scn );// write derived class
 		return;
@@ -63,10 +71,8 @@ namespace mps
 	bool DigitalComputerUnit::OnParseLine( const char* line )
 	{
 		int read_i = 0;
+		unsigned short read_us = 0;
 		char cbuf_ch[16];
-#ifdef _MPSDEBUG
-		char buffer[150];
-#endif// _MPSDEBUG
 
 		sprintf_s( cbuf_ch, 16, "DCU_ch%c", ch + 65 );
 
@@ -76,17 +82,23 @@ namespace mps
 			{
 				sscanf_s( line + 14, "%d", &read_i );
 
-				if (read_i == 0)
-				{
-					funct = NULL;// PROM
-				}
-				else
-				{
-					funct = &SSMEControllerSW::Executive;
-					sw->SetConfig( read_i );
-				}
+				if (read_i == 0) funct = NULL;// PROM
+				else funct = &SSMEControllerSW::Executive;
+
 #ifdef _MPSDEBUG
+				char buffer[150];
 				sprintf_s( buffer, 150, " DigitalComputerUnit::OnParseLine || %s config:%d", cbuf_ch, read_i );
+				oapiWriteLog( buffer );
+#endif// _MPSDEBUG
+				return true;
+			}
+			else if (!_strnicmp( line + 8, "RAM", 3 ))
+			{
+				sscanf_s( line + 11, "%d %hu", &read_i, &read_us );
+				if (read_i < ramsize) RAM[read_i] = read_us;
+#ifdef _MPSDEBUG
+				char buffer[150];
+				sprintf_s( buffer, 150, " DigitalComputerUnit::OnParseLine || %s RAM:%d|%d", cbuf_ch, read_i, read_us );
 				oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 				return true;
@@ -98,6 +110,8 @@ namespace mps
 
 	void DigitalComputerUnit::Realize( void )
 	{
+		sw->SetConfig();// finish load state in sw
+
 		PSE = Controller->PSE[ch];
 		CIE = Controller->CIE[ch];
 		return;

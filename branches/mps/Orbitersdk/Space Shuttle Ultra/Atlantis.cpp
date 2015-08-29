@@ -503,9 +503,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	psubsystems->AddSubsystem(pMPS = new mps::MPS(psubsystems, pHePneu));
 
-	psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08", pHeEng[0]));
-	psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08", pHeEng[1]));
-	psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08", pHeEng[2]));
+	psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "SSME1", 1, 2, "AD08", pHeEng[0]));
+	psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "SSME2", 2, 2, "AD08", pHeEng[1]));
+	psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "SSME3", 3, 2, "AD08", pHeEng[2]));
 
 	psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
 	psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));

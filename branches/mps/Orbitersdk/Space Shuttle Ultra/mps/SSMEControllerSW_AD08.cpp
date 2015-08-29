@@ -65,70 +65,11 @@ namespace mps
 		return;
 	}
 
-	int SSMEControllerSW_AD08::GetConfig( void )
+	void SSMEControllerSW_AD08::SetConfig( void )
 	{
-		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3) return 1;
-		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4) return 2;
-		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady) return 3;
-		if (fptrVehicleCommands == &SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby) return 4;
-		return 4;// default to post-shutdown standby
-	}
-
-	void SSMEControllerSW_AD08::SetConfig( int config )
-	{
-		switch (config)
-		{
-			case 1:
-				fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN3;
-				fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN3;
-				Set_ESW_Mode( ESW_StartPrep_PSN3 );
-				Set_ESW_Phase( ESW_StartPrep );
-				DCU->RAM[RAM_AD08_CCV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MFV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
-
-				DCU->RAM[RAM_AD08_CCV_FS_SS_CMD] = 0;
-				DCU->RAM[RAM_AD08_MFV_FS_SS_CMD] = 0;
-				DCU->RAM[RAM_AD08_MOV_FS_SS_CMD] = 0;
-				DCU->RAM[RAM_AD08_FPOV_FS_SS_CMD] = 0;
-				DCU->RAM[RAM_AD08_OPOV_FS_SS_CMD] = 0;
-				break;
-			case 2:
-				fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_StartPrep_PSN4;
-				fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_StartPrep_PSN4;
-				Set_ESW_Mode( ESW_StartPrep_PSN4 );
-				Set_ESW_Phase( ESW_StartPrep );
-				DCU->RAM[RAM_AD08_CCV_CMD] = 4095;
-				DCU->RAM[RAM_AD08_MFV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
-				break;
-			case 3:
-				fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_StartPrep_EngineReady;
-				fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_StartPrep_EngineReady;
-				Set_ESW_Mode( ESW_StartPrep_EngineReady );
-				Set_ESW_Phase( ESW_StartPrep );
-				DCU->RAM[RAM_AD08_CCV_CMD] = 4095;
-				DCU->RAM[RAM_AD08_MFV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
-				break;
-			case 4:
-				fptrVehicleCommands = &SSMEControllerSW_AD08::VehicleCommands_PostShutdown_Standby;
-				fptrEngineOperations = &SSMEControllerSW_AD08::EngineOperations_PostShutdown_Standby;
-				Set_ESW_Mode( ESW_PostShutdown_Standby );
-				Set_ESW_Phase( ESW_PostShutdown );
-				DCU->RAM[RAM_AD08_CCV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MFV_CMD] = 0;
-				DCU->RAM[RAM_AD08_MOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_FPOV_CMD] = 0;
-				DCU->RAM[RAM_AD08_OPOV_CMD] = 0;
-				break;
-		}
+		DCU->RAM[RAM_AD08_NXT_PHASE] = Get_ESW_Phase();
+		DCU->RAM[RAM_AD08_NXT_MODE] = Get_ESW_Mode();
+		ChangePhaseMode();
 		return;
 	}
 
@@ -3792,10 +3733,10 @@ namespace mps
 		// CCV thrust command to position schedule
 		if (DCU->RAM[RAM_AD08_PC_REF] >= PC_100)// 100%
 		{
-			if (DCU->RAM[RAM_AD08_CCV_CMD] < 4095)// open
+			if (DCU->RAM[RAM_AD08_CCV_POS] < 4095)// open
 			{
 				tempB = DCU->dt * 393.3657;
-				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
+				tempB = DCU->RAM[RAM_AD08_CCV_POS] + tempB;
 				if (tempB > 4095) tempB = 4095;
 				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
@@ -3803,17 +3744,17 @@ namespace mps
 		else
 		{
 			temp = (((31.7 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) + 130) / 33) * 40.95;
-			if (DCU->RAM[RAM_AD08_CCV_CMD] < temp)// open
+			if (DCU->RAM[RAM_AD08_CCV_POS] < temp)// open
 			{
 				tempB = DCU->dt * 393.3657;
-				tempB = DCU->RAM[RAM_AD08_CCV_CMD] + tempB;
+				tempB = DCU->RAM[RAM_AD08_CCV_POS] + tempB;
 				if (tempB > temp) tempB = temp;
 				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
-			else if (DCU->RAM[RAM_AD08_CCV_CMD] > temp)// close
+			else if (DCU->RAM[RAM_AD08_CCV_POS] > temp)// close
 			{
 				tempB = DCU->dt * 393.3657;
-				tempB = DCU->RAM[RAM_AD08_CCV_CMD] - tempB;
+				tempB = DCU->RAM[RAM_AD08_CCV_POS] - tempB;
 				if (tempB < temp) tempB = temp;
 				DCU->RAM[RAM_AD08_CCV_CMD] = (unsigned short)Round( tempB );
 			}
@@ -3824,34 +3765,34 @@ namespace mps
 		DCU->RAM[RAM_AD08_MOV_CMD] = 4095;
 		
 		temp = ((0.0035 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C) * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - (0.3168 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) + 74.978) * 40.95;
-		if (DCU->RAM[RAM_AD08_FPOV_CMD] < temp)// open
+		if (DCU->RAM[RAM_AD08_FPOV_POS] < temp)// open
 		{
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
-			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] + tempB;
+			tempB = DCU->RAM[RAM_AD08_FPOV_POS] + tempB;
 			if (tempB > temp) tempB = temp;
 			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
-		else if (DCU->RAM[RAM_AD08_FPOV_CMD] > temp)// close
+		else if (DCU->RAM[RAM_AD08_FPOV_POS] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.007 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3168);
-			tempB = DCU->RAM[RAM_AD08_FPOV_CMD] - tempB;
+			tempB = DCU->RAM[RAM_AD08_FPOV_POS] - tempB;
 			if (tempB < temp) tempB = temp;
 			DCU->RAM[RAM_AD08_FPOV_CMD] = (unsigned short)Round( tempB );
 		}
 
 		temp = DCU->RAM[RAM_AD08_PC_REF] / PC_100_C;
 		temp = ((0.004 * temp * temp) - (0.3679 * temp) + 61.024) * 40.95;
-		if (DCU->RAM[RAM_AD08_OPOV_CMD] < temp)// open
+		if (DCU->RAM[RAM_AD08_OPOV_POS] < temp)// open
 		{
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
-			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] + tempB;
+			tempB = DCU->RAM[RAM_AD08_OPOV_POS] + tempB;
 			if (tempB > temp) tempB = temp;
 			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}
-		else if (DCU->RAM[RAM_AD08_OPOV_CMD] > temp)// close
+		else if (DCU->RAM[RAM_AD08_OPOV_POS] > temp)// close
 		{
 			tempB = DCU->dt * 4095 * ((0.008 * (DCU->RAM[RAM_AD08_PC_REF] / PC_100_C)) - 0.3679);
-			tempB = DCU->RAM[RAM_AD08_OPOV_CMD] - tempB;
+			tempB = DCU->RAM[RAM_AD08_OPOV_POS] - tempB;
 			if (tempB < temp) tempB = temp;
 			DCU->RAM[RAM_AD08_OPOV_CMD] = (unsigned short)Round( tempB );
 		}

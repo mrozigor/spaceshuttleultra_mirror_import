@@ -228,13 +228,37 @@ namespace mps
 
 	void SSME::OnSaveState( FILEHANDLE scn ) const
 	{
-		char cbuf[16];
-		int config = modelmode;
+		char cbuf[512];
 
-		if ((modelmode == 1) && (ptrCCV->GetPos() > 0)) config = 2;
+		oapiWriteScenario_int( scn, "config", modelmode );
 
-		sprintf_s( cbuf, 16, "SSME config" );
-		oapiWriteScenario_int( scn, cbuf, config );
+		sprintf_s( cbuf, 512, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f", 
+			ptrCCV->GetPos(), 
+			ptrMFV->GetPos(), 
+			ptrMOV->GetPos(), 
+			ptrFPOV->GetPos(), 
+			ptrOPOV->GetPos(), 
+			ptrAFV->GetPos(), 
+			ptrHPV_SV->GetPos(), 
+			ptrFBV->GetPos(), 
+			ptrOBV->GetPos(), 
+			ptrHPV->GetPos(), 
+			ptrGCV->GetPos(), 
+			ptrRIV->GetPos(), 
+			PCA->FuelSystemPurge_SV->GetPos(), 
+			PCA->BleedValvesControl_SV->GetPos(), 
+			PCA->EmergencyShutdown_SV->GetPos(), 
+			PCA->PurgeSequenceValve_PAV->GetPos(), 
+			PCA->ShutdownPurge_SV->GetPos(), 
+			PCA->HPOTPISPurge_SV->GetPos(), 
+			PCA->FuelSystemPurge_PAV->GetPos(), 
+			PCA->OxidizerBleedValve_PAV->GetPos(), 
+			PCA->EmergencyShutdown_PAV->GetPos(), 
+			PCA->OxidizerSystemPurge_PAV->GetPos(), 
+			PCA->FuelPreburnerPurge_PAV->GetPos(), 
+			PCA->OxidizerPreburnerPurge_PAV->GetPos(), 
+			PCA->HPOTPISPurge_PAV->GetPos() );
+		oapiWriteScenario_string( scn, "valves", cbuf );
 
 		__OnSaveState( scn );// write derived class
 		Controller->__OnSaveState( scn );// write controller
@@ -243,77 +267,95 @@ namespace mps
 
 	bool SSME::OnParseLine( const char* line )
 	{
-		int read_i = 0;
-#ifdef _MPSDEBUG
-		char buffer[100];
-#endif// _MPSDEBUG
-
-		if (!_strnicmp( line, "SSME config", 11 ))
+		if (!_strnicmp( line, "config", 6 ))
 		{
-			sscanf_s( line + 11, "%d", &read_i );
-
-			switch (read_i)
-			{
-				case 1:// pre-launch psn-3
-					ptrCCV->_backdoor( 0 );
-					ptrMFV->_backdoor( 0 );
-					ptrMOV->_backdoor( 0 );
-					ptrFPOV->_backdoor( 0 );
-					ptrOPOV->_backdoor( 0 );
-					ptrFBV->_backdoor( 1 );
-					ptrOBV->_backdoor( 1 );
-					ptrAFV->_backdoor( 0 );
-					ptrHPV->_backdoor( 0 );
-					ptrGCV->_backdoor( 1 );
-					ptrRIV->_backdoor( 0 );
-					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
-					PCA->EmergencyShutdown_PAV->_backdoor( 1 );
-					PCA->EmergencyShutdown_SV->_backdoor( 1 );
-					PCA->FuelSystemPurge_SV->_backdoor( 1 );
-					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
-					PCA->HPOTPISPurge_SV->_backdoor( 0 );
-					PCA->HPOTPISPurge_PAV->_backdoor( 0 );
-
-					modelmode = 1;
-					break;
-				case 2:// pre-launch post psn-4
-					ptrCCV->_backdoor( 1 );
-					ptrMFV->_backdoor( 0 );
-					ptrMOV->_backdoor( 0 );
-					ptrFPOV->_backdoor( 0 );
-					ptrOPOV->_backdoor( 0 );
-					ptrFBV->_backdoor( 1 );
-					ptrOBV->_backdoor( 1 );
-					ptrAFV->_backdoor( 0 );
-					ptrHPV->_backdoor( 0 );
-					ptrGCV->_backdoor( 1 );
-					ptrRIV->_backdoor( 0 );
-					PCA->FuelSystemPurge_SV->_backdoor( 1 );
-					PCA->FuelSystemPurge_PAV->_backdoor( 1 );
-
-					modelmode = 1;
-					break;
-				default:// post-shutdown
-					ptrCCV->_backdoor( 0 );
-					ptrMFV->_backdoor( 0 );
-					ptrMOV->_backdoor( 0 );
-					ptrFPOV->_backdoor( 0 );
-					ptrOPOV->_backdoor( 0 );
-					ptrFBV->_backdoor( 0 );
-					ptrOBV->_backdoor( 0 );
-					ptrAFV->_backdoor( 0 );
-					ptrHPV->_backdoor( 0 );
-					ptrGCV->_backdoor( 1 );
-					ptrRIV->_backdoor( 1 );
-					PCA->PurgeSequenceValve_PAV->_backdoor( 0 );
-
-					modelmode = 5;
-					break;
-			}
+			sscanf_s( line + 6, "%d", &modelmode );
 #ifdef _MPSDEBUG
-			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_config:%d", read_i );
+			char buffer[100];
+			sprintf_s( buffer, 100, " SSME::OnParseLine || SSME_config:%d", modelmode );
 			oapiWriteLog( buffer );
 #endif// _MPSDEBUG
+			return true;
+		}
+		else if (!_strnicmp( line, "valves", 6 ))
+		{
+			float ccv = 0;
+			float mfv = 0;
+			float mov = 0;
+			float fpov = 0;
+			float opov = 0;
+			float afv = 0;
+			float hpvsv = 0;
+			float fbv = 0;
+			float obv = 0;
+			float hpv = 0;
+			float gcv = 0;
+			float riv = 0;
+			float fspsv = 0;
+			float bvcsv = 0;
+			float essv = 0;
+			float psvpav = 0;
+			float spsv = 0;
+			float hispsv = 0;
+			float fsppav = 0;
+			float obvpav = 0;
+			float espav = 0;
+			float osppav = 0;
+			float fpppav = 0;
+			float opppav = 0;
+			float hisppav = 0;
+			sscanf_s( line + 6, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f", 
+				&ccv, 
+				&mfv, 
+				&mov, 
+				&fpov, 
+				&opov, 
+				&afv, 
+				&hpvsv, 
+				&fbv, 
+				&obv, 
+				&hpv, 
+				&gcv, 
+				&riv, 
+				&fspsv, 
+				&bvcsv, 
+				&essv, 
+				&psvpav, 
+				&spsv, 
+				&hispsv, 
+				&fsppav, 
+				&obvpav, 
+				&espav, 
+				&osppav, 
+				&fpppav, 
+				&opppav, 
+				&hisppav );
+
+			ptrCCV->_backdoor( ccv );
+			ptrMFV->_backdoor( mfv );
+			ptrMOV->_backdoor( mov );
+			ptrFPOV->_backdoor( fpov );
+			ptrOPOV->_backdoor( opov );
+			ptrAFV->_backdoor( afv );
+			ptrHPV_SV->_backdoor( hpvsv );
+			ptrFBV->_backdoor( fbv );
+			ptrOBV->_backdoor( obv );
+			ptrHPV->_backdoor( hpv );
+			ptrGCV->_backdoor( gcv );
+			ptrRIV->_backdoor( riv );
+			PCA->FuelSystemPurge_SV->_backdoor( fspsv );
+			PCA->BleedValvesControl_SV->_backdoor( bvcsv );
+			PCA->EmergencyShutdown_SV->_backdoor( essv );
+			PCA->PurgeSequenceValve_PAV->_backdoor( psvpav );
+			PCA->ShutdownPurge_SV->_backdoor( spsv );
+			PCA->HPOTPISPurge_SV->_backdoor( hispsv );
+			PCA->FuelSystemPurge_PAV->_backdoor( fsppav );
+			PCA->OxidizerBleedValve_PAV->_backdoor( obvpav );
+			PCA->EmergencyShutdown_PAV->_backdoor( espav );
+			PCA->OxidizerSystemPurge_PAV->_backdoor( osppav );
+			PCA->FuelPreburnerPurge_PAV->_backdoor( fpppav );
+			PCA->OxidizerPreburnerPurge_PAV->_backdoor( opppav );
+			PCA->HPOTPISPurge_PAV->_backdoor( hisppav );
 			return true;
 		}
 

@@ -43,7 +43,16 @@ namespace dps
 			PrimaryFailCounter[i] = 0;
 			SecondaryFailCounter[i] = 0;
 			DataFailCounter[i] = 0;
+
+			PercentChamberPress[i] = 0;
+			Phase[i] = 2;
+			Mode[i] = 5;
+			SelfTestStatus[i] = 1;
+			ChannelStatus[i] = 0;
+			CommandStatus[i] = 0;
 		}
+
+		firststep = true;
 		return;
 	}
 
@@ -54,6 +63,12 @@ namespace dps
 
 	void SSME_SOP::OnPreStep( double SimT, double DeltaT, double MJD )
 	{
+		if (firststep)
+		{
+			firststep = false;
+			return;
+		}
+
 		for (int i = 0; i < 3; i++)
 		{
 			// always gets previous time
@@ -307,42 +322,132 @@ namespace dps
 
 	bool SSME_SOP::OnParseLine( const char* keyword, const char* value )
 	{
-		int config = 0;
+		int itmp = 0;
 
 		if (!_stricmp( keyword, "ShutdownPhase_1" ))
 		{
-			sscanf_s( value, "%d", &config );
-			ShutdownPhase[0] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			ShutdownPhase[0] = (itmp != 0);
 			return true;
 		}
 		else if (!_stricmp( keyword, "ShutdownPhase_2" ))
 		{
-			sscanf_s( value, "%d", &config );
-			ShutdownPhase[1] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			ShutdownPhase[1] = (itmp != 0);
 			return true;
 		}
 		else if (!_stricmp( keyword, "ShutdownPhase_3" ))
 		{
-			sscanf_s( value, "%d", &config );
-			ShutdownPhase[2] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			ShutdownPhase[2] = (itmp != 0);
 			return true;
 		}
 		else if (!_stricmp( keyword, "PostShutdownPhase_1" ))
 		{
-			sscanf_s( value, "%d", &config );
-			PostShutdownPhase[0] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			PostShutdownPhase[0] = (itmp != 0);
 			return true;
 		}
 		else if (!_stricmp( keyword, "PostShutdownPhase_2" ))
 		{
-			sscanf_s( value, "%d", &config );
-			PostShutdownPhase[1] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			PostShutdownPhase[1] = (itmp != 0);
 			return true;
 		}
 		else if (!_stricmp( keyword, "PostShutdownPhase_3" ))
 		{
-			sscanf_s( value, "%d", &config );
-			PostShutdownPhase[2] = (config != 0);
+			sscanf_s( value, "%d", &itmp );
+			PostShutdownPhase[2] = (itmp != 0);
+			return true;
+		}
+		else if (!_stricmp( keyword, "PercentChamberPress_1" ))
+		{
+			sscanf_s( value, "%lf", &PercentChamberPress[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "PercentChamberPress_2" ))
+		{
+			sscanf_s( value, "%lf", &PercentChamberPress[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "PercentChamberPress_3" ))
+		{
+			sscanf_s( value, "%lf", &PercentChamberPress[2] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Phase_1" ))
+		{
+			sscanf_s( value, "%hu", &Phase[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Phase_2" ))
+		{
+			sscanf_s( value, "%hu", &Phase[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Phase_3" ))
+		{
+			sscanf_s( value, "%hu", &Phase[2] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Mode_1" ))
+		{
+			sscanf_s( value, "%hu", &Mode[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Mode_2" ))
+		{
+			sscanf_s( value, "%hu", &Mode[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "Mode_3" ))
+		{
+			sscanf_s( value, "%hu", &Mode[2] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "SelfTestStatus_1" ))
+		{
+			sscanf_s( value, "%hu", &SelfTestStatus[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "SelfTestStatus_2" ))
+		{
+			sscanf_s( value, "%hu", &SelfTestStatus[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "SelfTestStatus_3" ))
+		{
+			sscanf_s( value, "%hu", &SelfTestStatus[2] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "ChannelStatus_1" ))
+		{
+			sscanf_s( value, "%hu", &ChannelStatus[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "ChannelStatus_2" ))
+		{
+			sscanf_s( value, "%hu", &ChannelStatus[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "ChannelStatus_3" ))
+		{
+			sscanf_s( value, "%hu", &ChannelStatus[2] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "CommandStatus_1" ))
+		{
+			sscanf_s( value, "%hu", &CommandStatus[0] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "CommandStatus_2" ))
+		{
+			sscanf_s( value, "%hu", &CommandStatus[1] );
+			return true;
+		}
+		else if (!_stricmp( keyword, "CommandStatus_3" ))
+		{
+			sscanf_s( value, "%hu", &CommandStatus[2] );
 			return true;
 		}
 		return false;
@@ -357,6 +462,30 @@ namespace dps
 		if (PostShutdownPhase[0]) oapiWriteScenario_int( scn, "PostShutdownPhase_1", 1 );
 		if (PostShutdownPhase[1]) oapiWriteScenario_int( scn, "PostShutdownPhase_2", 1 );
 		if (PostShutdownPhase[2]) oapiWriteScenario_int( scn, "PostShutdownPhase_3", 1 );
+
+		if (PercentChamberPress[0] > 0) oapiWriteScenario_float( scn, "PercentChamberPress_1", PercentChamberPress[0] );
+		if (PercentChamberPress[1] > 0) oapiWriteScenario_float( scn, "PercentChamberPress_2", PercentChamberPress[1] );
+		if (PercentChamberPress[2] > 0) oapiWriteScenario_float( scn, "PercentChamberPress_3", PercentChamberPress[2] );
+
+		if (Phase[0] != 2) oapiWriteScenario_int( scn, "Phase_1", Phase[0] );
+		if (Phase[1] != 2) oapiWriteScenario_int( scn, "Phase_2", Phase[1] );
+		if (Phase[2] != 2) oapiWriteScenario_int( scn, "Phase_3", Phase[2] );
+
+		if (Mode[0] != 5) oapiWriteScenario_int( scn, "Mode_1", Mode[0] );
+		if (Mode[1] != 5) oapiWriteScenario_int( scn, "Mode_2", Mode[1] );
+		if (Mode[2] != 5) oapiWriteScenario_int( scn, "Mode_3", Mode[2] );
+
+		if (SelfTestStatus[0] != 1) oapiWriteScenario_int( scn, "SelfTestStatus_1", SelfTestStatus[0] );
+		if (SelfTestStatus[1] != 1) oapiWriteScenario_int( scn, "SelfTestStatus_2", SelfTestStatus[1] );
+		if (SelfTestStatus[2] != 1) oapiWriteScenario_int( scn, "SelfTestStatus_3", SelfTestStatus[2] );
+
+		if (ChannelStatus[0] != 0) oapiWriteScenario_int( scn, "ChannelStatus_1", ChannelStatus[0] );
+		if (ChannelStatus[1] != 0) oapiWriteScenario_int( scn, "ChannelStatus_2", ChannelStatus[1] );
+		if (ChannelStatus[2] != 0) oapiWriteScenario_int( scn, "ChannelStatus_3", ChannelStatus[2] );
+
+		if (CommandStatus[0] != 0) oapiWriteScenario_int( scn, "CommandStatus_1", CommandStatus[0] );
+		if (CommandStatus[1] != 0) oapiWriteScenario_int( scn, "CommandStatus_2", CommandStatus[1] );
+		if (CommandStatus[2] != 0) oapiWriteScenario_int( scn, "CommandStatus_3", CommandStatus[2] );
 		return;
 	}
 
