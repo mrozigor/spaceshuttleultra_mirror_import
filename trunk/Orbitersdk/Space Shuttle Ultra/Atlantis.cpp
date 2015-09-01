@@ -60,6 +60,7 @@
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelO17.h"
+#include "vc/PanelA1U.h"
 #include "vc/PanelA4.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
@@ -486,10 +487,11 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgAft.AddPanel(new vc::AftMDU(this));
 	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::PanelA4(this));
-
+	pgAft.AddPanel( new vc::PanelA1U( this ) );
+	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel(new vc::PanelR13L(this));
-
+	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pExtAirlock = NULL;
@@ -5259,7 +5261,7 @@ bool Atlantis::clbkLoadVC(int id)
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(0.4, 0.0, 0.0), 0, 0,
+			_V( 0.5, -0.5, 0.0 ), 20.0 * RAD, -10.0 * RAD,
 			_V(-0.4, 0.0, 0.0), 0, 0);
 		// Outside cameras neighbours
 		if (bHasODS) oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
