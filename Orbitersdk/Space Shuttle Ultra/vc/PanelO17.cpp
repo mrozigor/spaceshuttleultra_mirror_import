@@ -21,6 +21,22 @@ PanelO17::PanelO17(Atlantis* psts)
 	pEIUPowerRL->SetLabel(1, "OFF");
 	pEIUPowerRL->SetLabel(0, "ON");
 	pEIUPowerRL->SetOnPosition(0);
+
+	Add( pATVC1 = new StdSwitch2( psts, "ATVC 1" ) );
+	pATVC1->SetLabel( 0, "ON" );
+	pATVC1->SetLabel( 1, "OFF" );
+
+	Add( pATVC2 = new StdSwitch2( psts, "ATVC 2" ) );
+	pATVC2->SetLabel( 0, "ON" );
+	pATVC2->SetLabel( 1, "OFF" );
+
+	Add( pATVC3 = new StdSwitch2( psts, "ATVC 3" ) );
+	pATVC3->SetLabel( 0, "ON" );
+	pATVC3->SetLabel( 1, "OFF" );
+	
+	Add( pATVC4 = new StdSwitch2( psts, "ATVC 4" ) );
+	pATVC4->SetLabel( 0, "ON" );
+	pATVC4->SetLabel( 1, "OFF" );
 }
 
 PanelO17::~PanelO17()
@@ -46,6 +62,26 @@ void PanelO17::DefineVC()
 	pEIUPowerRL->DefineSwitchGroup(GRP_O17S9_VC);
 	pEIUPowerRL->SetReference(_V(0.81725, 3.1105, 13.3365), SWITCH_ROT);
 	pEIUPowerRL->SetMouseRegion(0.270f, 0.625f, 0.362f, 0.7f);
+
+	pATVC1->SetInitialAnimState( 0.5f );
+	pATVC1->DefineSwitchGroup( GRP_O17S1_VC );
+	pATVC1->SetReference( _V( 0.7567, 3.1587, 13.2782 ), SWITCH_ROT );
+	pATVC1->SetMouseRegion( 0.103174f, 0.790438f, 0.166405f, 0.843446f );
+
+	pATVC2->SetInitialAnimState( 0.5f );
+	pATVC2->DefineSwitchGroup( GRP_O17S2_VC );
+	pATVC2->SetReference( _V( 0.7567, 3.1587, 13.2782 ), SWITCH_ROT );
+	pATVC2->SetMouseRegion( 0.197668f, 0.790624f, 0.259918f, 0.845494f );
+
+	pATVC3->SetInitialAnimState( 0.5f );
+	pATVC3->DefineSwitchGroup( GRP_O17S3_VC );
+	pATVC3->SetReference( _V( 0.7567, 3.1587, 13.2782 ), SWITCH_ROT );
+	pATVC3->SetMouseRegion( 0.297184f, 0.790073f, 0.359735f, 0.842862f );
+
+	pATVC4->SetInitialAnimState( 0.5f );
+	pATVC4->DefineSwitchGroup( GRP_O17S4_VC );
+	pATVC4->SetReference( _V( 0.7567, 3.1587, 13.2782 ), SWITCH_ROT );
+	pATVC4->SetMouseRegion( 0.392647f, 0.789922f, 0.453516f, 0.844299f );
 }
 
 void PanelO17::RegisterVC()
@@ -61,11 +97,17 @@ void PanelO17::RegisterVC()
 
 void PanelO17::Realize()
 {
-	DiscreteBundle* O17_to_EIU_AC = STS()->BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
+	DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
 
-	pEIUPowerLC->output.Connect( O17_to_EIU_AC, 0 );// AC2
-	pEIUPowerCR->output.Connect( O17_to_EIU_AC, 1 );// AC1
-	pEIUPowerRL->output.Connect( O17_to_EIU_AC, 2 );// AC3
+	pEIUPowerLC->output.Connect( pBundle, 0 );// AC2
+	pEIUPowerCR->output.Connect( pBundle, 1 );// AC1
+	pEIUPowerRL->output.Connect( pBundle, 2 );// AC3
+
+	pBundle = STS()->BundleManager()->CreateBundle( "O17_to_ATVC", 3 );
+	pATVC1->output.Connect( pBundle, 0 );
+	pATVC2->output.Connect( pBundle, 1 );
+	pATVC3->output.Connect( pBundle, 2 );
+	pATVC4->output.Connect( pBundle, 3 );
 
 	AtlantisPanel::Realize();
 }
