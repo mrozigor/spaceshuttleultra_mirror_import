@@ -28,7 +28,7 @@
 #include "StandardSwitch.h"
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
-#include "PushButtonIndicator.h"
+
 
 namespace vc
 {
