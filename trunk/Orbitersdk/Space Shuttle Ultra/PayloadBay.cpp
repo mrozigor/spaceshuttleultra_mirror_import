@@ -324,7 +324,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	}
 
 	// ku antenna
-	if (PLBayMECHPWRSYS_ON[0].IsSet() && PLBayMECHPWRSYS_ON[1].IsSet())
+	if (PLBayMECHPWRSYS_ON[0].IsSet() && PLBayMECHPWRSYS_ON[1].IsSet() && BayDoorStatus.Open())
 	{
 		double da = fDeltaT * KU_OPERATING_SPEED;
 		if (KUAntennaDirectStow_ON.IsSet() || KUAntenna_STO.IsSet())
