@@ -1926,9 +1926,9 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE RElevator_up(midx, RElevGrp, 2,
 		_V(7.83304, -3.37684, -10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-34.0*RAD));
 	static MGROUP_ROTATE LElevatorDoor_up(midx, LElevDoorGrp, 2,
-		_V(-7.837, -2.697, -10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(22.0*RAD));
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, 0.000550051), (float)(22.0*RAD));
 	static MGROUP_ROTATE RElevatorDoor_up(midx, RElevDoorGrp, 2,
-		_V(7.837, -2.697, -10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-22.0*RAD));
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, 0.000550051), (float)(-22.0*RAD));
 
 	// ***** 4B. Downward animation of elevons *****
 	static MGROUP_ROTATE LElevator_down(midx, LElevGrp, 2,
@@ -1936,9 +1936,9 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE RElevator_down(midx, RElevGrp, 2,
 		_V(7.83304, -3.37684, -10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-18.0*RAD));
 	static MGROUP_ROTATE LElevatorDoor_down(midx, LElevDoorGrp, 2,
-		_V(-7.837, -2.697, -10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(5 * RAD));
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, -0.000550051), (float)(5 * RAD));
 	static MGROUP_ROTATE RElevatorDoor_down(midx, RElevDoorGrp, 2,
-		_V(7.837, -2.697, -10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-5 * RAD));
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, -0.000550051), (float)(-5 * RAD));
 	anim_lelevon = CreateAnimation(0.5);
 	anim_relevon = CreateAnimation(0.5);
 	LogAnim("anim_lelevon", anim_lelevon);
@@ -1964,7 +1964,7 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT RudderGrp[2] = { GRP_RIGHT_RSB_PANEL, GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE Rudder(midx, RudderGrp, 2,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(54.2*RAD));
+		_V(0, 6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(54.2*RAD));
 	anim_rudder = CreateAnimation(0.5);
 	LogAnim("anim_rudder", anim_rudder);
 	AddAnimationComponent(anim_rudder, 0, 1, &Rudder);
@@ -1973,10 +1973,10 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT SB1Grp[1] = { GRP_RIGHT_RSB_PANEL };
 	static MGROUP_ROTATE SB1(midx, SB1Grp, 1,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(49.3*RAD));
+		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(49.3*RAD));
 	static UINT SB2Grp[1] = { GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE SB2(midx, SB2Grp, 1,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(-49.3*RAD));
+		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(-49.3*RAD));
 
 	anim_spdb = CreateAnimation(0);
 	LogAnim("anim_spdb", anim_spdb);
