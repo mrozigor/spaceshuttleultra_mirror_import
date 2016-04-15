@@ -280,16 +280,36 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(DirectDrivePlus) {
 				int joint=GetSelectedJoint();
 				if(joint!=-1) {
-					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
-					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					if (joint == 0)
+					{
+						// hack to fix the wrong sign in the shoulder yaw joint (without touching the IK part)
+						// a fix for the display angle exists in PanelA8.cpp:214
+						if(!RMSSpeed) SetJointAngle(SHOULDER_YAW, joint_angle[0]-RMS_JOINT_COARSE_ROTATION_SPEEDS[0]*DeltaT);
+						else SetJointAngle(SHOULDER_YAW, joint_angle[0]-RMS_JOINT_VERN_ROTATION_SPEEDS[0]*DeltaT);
+					}
+					else
+					{
+						if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+						else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					}
 				}
 				update_vectors=true;
 			}
 			else if(DirectDriveMinus) {
 				int joint=GetSelectedJoint();
 				if(joint!=-1) {
-					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
-					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					if (joint == 0)
+					{
+						// hack to fix the wrong sign in the shoulder yaw joint (without touching the IK part)
+						// a fix for the display angle exists in PanelA8.cpp:214
+						if(!RMSSpeed) SetJointAngle(SHOULDER_YAW, joint_angle[0]+RMS_JOINT_COARSE_ROTATION_SPEEDS[0]*DeltaT);
+						else SetJointAngle(SHOULDER_YAW, joint_angle[0]+RMS_JOINT_VERN_ROTATION_SPEEDS[0]*DeltaT);
+					}
+					else
+					{
+						if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+						else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					}
 				}
 				update_vectors=true;
 			}
