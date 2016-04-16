@@ -109,7 +109,7 @@ SLC-6:SSU_SLC6
   PCR 0 0.0000
   SAB 0 0.0000
   MST 0 0.0000
-  SABDoor 0 0.0000
+  SABDoor 1 1.0000
 END
 Discovery:SpaceShuttleUltra
   STATUS Landed Earth
