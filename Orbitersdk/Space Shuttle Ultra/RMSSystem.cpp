@@ -521,6 +521,10 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
 		pEELight->SetPosition(EELightPos);
 		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
+
+		// roll camera views
+		if (RMSCameraMode == ELBOW) UpdateElbowCamView();
+		else if (RMSCameraMode == EE) UpdateEECamView();
 	}
 
 	// if arm was moved, update attachment position and IK vectors/angles
@@ -1023,7 +1027,7 @@ void RMSSystem::UpdateEECamView() const
 void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
-		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0], 0.4189 + ((1 - MPMRollout.pos) * ((RMS_ROLLOUT_ANGLE + RMS_STOWED_ANGLE) * RAD)));// 0.4189rad = 24º when MPMs deployed
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
