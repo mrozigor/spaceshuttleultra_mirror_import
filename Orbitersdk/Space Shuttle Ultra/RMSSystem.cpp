@@ -525,11 +525,9 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		// roll camera views
 		if (RMSCameraMode == ELBOW) UpdateElbowCamView();
 		else if (RMSCameraMode == EE) UpdateEECamView();
-	}
 
-	// if arm was moved, update attachment position and IK vectors/angles
-	// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
-	if(arm_moved) {
+		// if arm was moved, update attachment position and IK vectors/angles
+		// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
@@ -544,9 +542,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 				}
 			}
 		}
-
-		if(RMSCameraMode==EE) UpdateEECamView();
-		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
 
 		/*** Update output lines to LEDs ***/
 		// calculate position
