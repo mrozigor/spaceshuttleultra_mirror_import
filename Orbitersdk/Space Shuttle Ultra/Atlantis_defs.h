@@ -330,7 +330,5 @@ const VECTOR3 RSRB_CG = RSRB_OFFSET + _V(0.0, 0.0, 2.61217);
 const VECTOR3 ET_LH2_BASE = ET_OFFSET + _V(0.0, 0.0, -15.8);
 const VECTOR3 ET_LOX_BASE = ET_OFFSET + _V(0.0, 0.0, 15.0); // might not be exactly correct
 
-static const char* PAYLOADTYPE[6] = {"XS1P", "XS3P", "XS5P",
-	"XS1A", "XS3A", "XS5A"};
 
 #endif _ATLANTISDEFS_H_B4CB100F_2A86_4D6A_ADAA_746D20EACCFF
