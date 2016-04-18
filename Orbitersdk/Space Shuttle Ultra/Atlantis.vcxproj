@@ -248,8 +248,10 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="commDeployedAssembly.cpp" />
-    <ClCompile Include="commGCIL.cpp" />
+    <ClCompile Include="comm\DeployedAssembly.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
+    <ClCompile Include="comm\GCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
     <ClCompile Include="dps\AscentGuidance.cpp" />
@@ -357,6 +359,7 @@
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA2.cpp" />
     <ClCompile Include="vc\PanelA4.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
@@ -395,8 +398,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Atlantis_defs.h" />
-    <ClInclude Include="commGCIL.h" />
-    <ClInclude Include="DeployedAssembly.h" />
+    <ClInclude Include="comm\DeployedAssembly.h" />
+    <ClInclude Include="comm\ElectronicsAssembly1.h" />
+    <ClInclude Include="comm\ElectronicsAssembly2.h" />
+    <ClInclude Include="comm\GCIL.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
@@ -491,6 +496,7 @@
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
     <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA2.h" />
     <ClInclude Include="vc\PanelA4.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />

@@ -42,8 +42,6 @@ namespace vc
 		virtual void RegisterVC();
 		virtual void Realize();
 
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-
 	private:
 		StdSwitch3* pSignalStrengthSelect;
 		StdSwitch3* pSlewAzimuth;

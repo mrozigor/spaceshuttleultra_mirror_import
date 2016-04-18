@@ -61,6 +61,7 @@
 #include "vc/PanelO6.h"
 #include "vc/PanelO17.h"
 #include "vc/PanelA1U.h"
+#include "vc/PanelA2.h"
 #include "vc/PanelA4.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
@@ -71,6 +72,10 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "comm\GCIL.h"
+#include "comm\DeployedAssembly.h"
+#include "comm\ElectronicsAssembly1.h"
+#include "comm\ElectronicsAssembly2.h"
 #include <UltraMath.h>
 #include <cassert>
 
@@ -488,6 +493,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::PanelA4(this));
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
+	pgAft.AddPanel( new vc::PanelA2( this ) );
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel(new vc::PanelR13L(this));
@@ -601,11 +607,15 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
 	psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
+	psubsystems->AddSubsystem( new comm::GCIL( psubsystems ) );
+
 	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
 
 	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
 
 	//psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
+
+	pDeployedAssembly = NULL;
 
 	pRMS = NULL; //don't create RMS unless it is used on the shuttle
 	pMPMs = NULL;
@@ -2773,9 +2783,12 @@ void Atlantis::UpdateMesh()
 	SetAnimation(anim_door, pPayloadBay->BayDoorStatus.pos);
 	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->CLBayDoorLatch[i].pos);
 	SetAnimation(anim_rad, pPayloadBay->RadiatorStatus.pos);
-	SetAnimation(anim_kubd, pPayloadBay->KuAntennaStatus.pos);
-	SetAnimation(anim_kualpha, pPayloadBay->KuAntennaStatus.pos);
-	SetAnimation(anim_kubeta, pPayloadBay->KuAntennaStatus.pos);
+	SetAnimation( anim_kubd, pPayloadBay->KuAntennaStatus.pos );
+	if (pDeployedAssembly)
+	{
+		SetAnimation( anim_kualpha, pDeployedAssembly->GetAlphaAnimation() );
+		SetAnimation( anim_kubeta, pDeployedAssembly->GetBetaAnimation() );
+	}
 	SetAnimation(anim_gear, gear_status.pos);
 	SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
 
@@ -2910,11 +2923,9 @@ void Atlantis::SetRadiatorPosition(double pos)
 	SetAnimation(anim_rad, pos);
 }
 
-void Atlantis::SetKuAntennaPosition(double pos)
+void Atlantis::SetKuAntennaDAPosition(double pos)
 {
 	SetAnimation(anim_kubd, pos);
-	SetAnimation(anim_kualpha, pos);
-	SetAnimation(anim_kubeta, pos);
 }
 
 void Atlantis::SetETUmbDoorPosition(double pos, int door)
@@ -3486,6 +3497,13 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
 
 			bHasKUBand = pMission->HasKUBand();
+
+			if (bHasKUBand)
+			{
+				psubsystems->AddSubsystem( pDeployedAssembly = new comm::DeployedAssembly( psubsystems ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly1( psubsystems, pDeployedAssembly ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly2( psubsystems, pDeployedAssembly ) );
+			}
 		}
 		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
 		{
@@ -6296,23 +6314,23 @@ void Atlantis::DefineKUBandAnimations()
 
 	static UINT KuBand2Grp[1] = { GRP_ALPHA_GIMBAL_KU };
 	static MGROUP_ROTATE KuBand2(kidx, KuBand2Grp, 1,
-		_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(7.8*RAD)); //Data from the Ku band System Workbook
+		_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(360*RAD)); //Data from the Ku band System Workbook
 
 	static UINT KuBand3Grp[4] = { GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU };
 	static MGROUP_ROTATE KuBand3(kidx, KuBand3Grp, 4,
-		_V(2.1733, 0.852241, 8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(4.25*RAD));//Data from the Ku band System Workbook
+		_V(2.1733, 0.852241, 8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(160*RAD));//Data from the Ku band System Workbook
 
 	anim_kubd = CreateAnimation(0);
 	LogAnim("anim_kubd", anim_kubd);
-	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_kubd, 0, 0.5, &KuBand1);
+	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_kubd, 0, 1, &KuBand1);
 
-	anim_kualpha = CreateAnimation(0.0);
+	anim_kualpha = CreateAnimation( 0.773611 );// 124.3º
 	LogAnim("anim_kualpha", anim_kualpha);
-	parent = AddAnimationComponent(anim_kualpha, 0.81, 1, &KuBand2, parent);
+	parent = AddAnimationComponent(anim_kualpha, 0, 1, &KuBand2, parent);
 
-	anim_kubeta = CreateAnimation(0.0);
+	anim_kubeta = CreateAnimation( 0.296875 );// -27.5º
 	LogAnim("anim_kubeta", anim_kubeta);
-	AddAnimationComponent(anim_kubeta, 0.61, 0.8, &KuBand3, parent);
+	AddAnimationComponent(anim_kubeta, 0, 1, &KuBand3, parent);
 }
 
 void Atlantis::GLSAutoSeqStart()
@@ -6379,14 +6397,10 @@ void Atlantis::UpdateNullDirections()
 	}
 }
 
-void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
+void Atlantis::SetKuGimbalAngles( double fAlpha, double fBeta )
 {
-	//No checking of subsystem state or latches, only animation
-	if (bHasKUBand)
-	{
-		SetAnimation(anim_kualpha, fAlpha);
-		SetAnimation(anim_kubeta, fbeta);
-	}
+	SetAnimation( anim_kualpha, fAlpha );
+	SetAnimation( anim_kubeta, fBeta );
 }
 
 bool Atlantis::IsValidSPEC(int gpc, int spec) const

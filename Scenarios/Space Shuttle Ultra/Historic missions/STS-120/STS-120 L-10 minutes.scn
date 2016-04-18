@@ -385,6 +385,14 @@ Discovery:SpaceShuttleUltra
   "KU Antenna Direct Stow" OFF
   "KU Antenna" GND
   @ENDPANEL 
+  @PANEL A1U
+  "SLEW RATE" SLOW
+  "CONTROL" PANEL
+  "STEERING MODE" MAN SLEW
+  "POWER" OFF
+  "MODE" RDR PASSIVE
+  "RADAR OUTPUT" LOW
+  @ENDPANEL 
 END
 ET:SSU_SLWT
   STATUS Orbiting Earth
