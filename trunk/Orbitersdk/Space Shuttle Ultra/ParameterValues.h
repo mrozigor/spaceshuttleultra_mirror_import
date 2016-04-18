@@ -114,8 +114,8 @@ const double RADLATCH_OPERATING_SPEED = 0.0384615385;
 // Release/engaging speed of radiator latches (1/sec)
 // => radiator latch cycle = 26 sec
 
-const double KU_OPERATING_SPEED = 0.0275;
-// Deployment speed of the Ku Band antenna (1/sec)
+const double KU_OPERATING_SPEED = 0.0217391304;
+// Deployment speed of the Ku Band antenna (1/sec) (single motor)
 // Specified cycle is 23 sec, although actual observed cycle is ~19 sec
 
 const VECTOR3 ORBITER_CS = {304.62,457.57,149.27};

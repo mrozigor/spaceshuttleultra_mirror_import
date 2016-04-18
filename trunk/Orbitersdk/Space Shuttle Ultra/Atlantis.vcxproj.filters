@@ -328,12 +328,6 @@
     <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="commDeployedAssembly.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="commGCIL.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\MMU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -464,6 +458,21 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\DeployedAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\GCIL.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -726,16 +735,10 @@
     <ClInclude Include="vc\PanelA1U.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="commGCIL.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\RSLS_old.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\RSLS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="DeployedAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AtlantisPanel.h">
@@ -880,6 +883,21 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_ExtAL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\GCIL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\DeployedAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA2.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

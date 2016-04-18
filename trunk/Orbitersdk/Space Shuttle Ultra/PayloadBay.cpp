@@ -94,12 +94,14 @@ void PayloadBay::Realize( void )
 	RadiatorPORTTB_STO.Connect( pBundle, 6 );
 	RadiatorPORTTB_DPY.Connect( pBundle, 7 );
 
-	pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 5 );
+	pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 16 );
 	KUAntennaDirectStow_ON.Connect( pBundle, 0 );
-	KUAntenna_STO.Connect( pBundle, 1 );
+	KUAntenna_STO.Connect( pBundle, 1 );// BOOM
 	KUAntenna_DPY.Connect( pBundle, 2 );
 	KUAntennaTB_STO.Connect( pBundle, 3 );
-	KUAntennaTB_DPY.Connect( pBundle, 4 );
+	KUAntennaTB_DPY.Connect( pBundle, 4 );// XMIT
+	BoomStowEnableI.Connect( pBundle, 5 );
+	BoomStowEnableII.Connect( pBundle, 6 );
 
 	hasAntenna = STS()->pMission->HasKUBand();
 
@@ -323,36 +325,39 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		if (RadLatchStatus.Moving()) RadLatchStatus.action = AnimState::STOPPED;
 	}
 
-	// ku antenna
-	if (PLBayMECHPWRSYS_ON[0].IsSet() && PLBayMECHPWRSYS_ON[1].IsSet() && BayDoorStatus.Open())
+	// ku antenna boom
+	bool KUAntenna_GND = !(KUAntenna_DPY | KUAntenna_STO);
+	bool cmd_V54K0003N = false;
+	bool cmd_V54K0013N = false;
+	bool cmd_V54K0014N = false;
+	bool cmd_V54K0004N = false;
+
+	// motor 1
+	double m1 = (int)(((KUAntenna_DPY | KUAntenna_GND) & (!KuRndz_Radar_Dpy_Ind[0] & (KUAntenna_DPY | cmd_V54K0003N))) & // K72
+		((KUAntenna_DPY | KUAntenna_GND) & (!KuRndz_Radar_Dpy_Ind[0] & (KUAntenna_DPY | cmd_V54K0013N)))) - // K70
+		(int)(((KUAntenna_STO | KUAntennaDirectStow_ON) & (!KuRndz_Radar_Stow_Ind[0] & (BoomStowEnableII | KUAntennaDirectStow_ON))) & // K14
+		((KUAntenna_STO | KUAntennaDirectStow_ON) & (!KuRndz_Radar_Stow_Ind[0] & (BoomStowEnableI | KUAntennaDirectStow_ON))));// K68
+
+	// motor 2
+	double m2 = (int)(((KUAntenna_DPY | KUAntenna_GND) & (!KuRndz_Radar_Dpy_Ind[1] & (KUAntenna_DPY | cmd_V54K0014N))) & // K27
+		((KUAntenna_DPY | KUAntenna_GND) & (!KuRndz_Radar_Dpy_Ind[1] & (KUAntenna_DPY | cmd_V54K0004N)))) - // K37
+		(int)(((KUAntenna_STO | KUAntennaDirectStow_ON) & (!KuRndz_Radar_Stow_Ind[1] & (BoomStowEnableI | KUAntennaDirectStow_ON))) & // K25
+		((KUAntenna_STO | KUAntennaDirectStow_ON) & (!KuRndz_Radar_Stow_Ind[1] & (BoomStowEnableII | KUAntennaDirectStow_ON))));// K2
+
+	double da = (m1 * (int)PLBayMECHPWRSYS_ON[0] + m2 * (int)PLBayMECHPWRSYS_ON[1]) * KU_OPERATING_SPEED * fDeltaT;
+	if (da > 0)
 	{
-		double da = fDeltaT * KU_OPERATING_SPEED;
-		if (KUAntennaDirectStow_ON.IsSet() || KUAntenna_STO.IsSet())
-		{
-			// stow
-			if (KuAntennaStatus.pos > 0.0)
-			{
-				KuAntennaStatus.action = AnimState::CLOSING;
-				KuAntennaStatus.pos = max (0.0, KuAntennaStatus.pos-da);
-			}
-			else KuAntennaStatus.action = AnimState::CLOSED;
-		}
-		else if (KUAntenna_DPY.IsSet())
-		{
-			// deploy
-			if (KuAntennaStatus.pos < 1.0)
-			{
-				KuAntennaStatus.action = AnimState::OPENING;
-				KuAntennaStatus.pos = min (1.0, KuAntennaStatus.pos+da);
-			}
-			else KuAntennaStatus.action = AnimState::OPEN;
-		}
-		else
-		{
-			// stop
-			if (KuAntennaStatus.Moving()) KuAntennaStatus.action = AnimState::STOPPED;
-		}
-		STS()->SetKuAntennaPosition (KuAntennaStatus.pos);
+		// deploy
+		KuAntennaStatus.action = AnimState::OPENING;
+		KuAntennaStatus.Move( da );
+		STS()->SetKuAntennaDAPosition( KuAntennaStatus.pos );
+	}
+	else if (da < 0)
+	{
+		// stow
+		KuAntennaStatus.action = AnimState::CLOSING;
+		KuAntennaStatus.Move( -da );
+		STS()->SetKuAntennaDAPosition( KuAntennaStatus.pos );
 	}
 	else
 	{
@@ -360,6 +365,30 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		if (KuAntennaStatus.Moving()) KuAntennaStatus.action = AnimState::STOPPED;
 	}
 
+	// set boom position indications
+	if (KuAntennaStatus.Closed())
+	{
+		KuRndz_Radar_Stow_Ind[0] = true;
+		KuRndz_Radar_Stow_Ind[1] = true;
+		KuRndz_Radar_Dpy_Ind[0] = false;
+		KuRndz_Radar_Dpy_Ind[1] = false;
+	}
+	else if (KuAntennaStatus.Open())
+	{
+		KuRndz_Radar_Stow_Ind[0] = false;
+		KuRndz_Radar_Stow_Ind[1] = false;
+		KuRndz_Radar_Dpy_Ind[0] = true;
+		KuRndz_Radar_Dpy_Ind[1] = true;
+	}
+	else
+	{
+		KuRndz_Radar_Stow_Ind[0] = false;
+		KuRndz_Radar_Stow_Ind[1] = false;
+		KuRndz_Radar_Dpy_Ind[0] = false;
+		KuRndz_Radar_Dpy_Ind[1] = false;
+	}
+
+	
 	SetTalkbacks();
 	return;
 }
@@ -429,21 +458,8 @@ void PayloadBay::SetTalkbacks( void )
 
 	if (hasAntenna == true)
 	{
-		if (KuAntennaStatus.Closed())
-		{
-			KUAntennaTB_STO.SetLine();
-			KUAntennaTB_DPY.ResetLine();
-		}
-		else if (KuAntennaStatus.Open())
-		{
-			KUAntennaTB_STO.ResetLine();
-			KUAntennaTB_DPY.SetLine();
-		}
-		else
-		{
-			KUAntennaTB_STO.ResetLine();
-			KUAntennaTB_DPY.ResetLine();
-		}
+		KUAntennaTB_STO.SetLine( 5.0f * (int)(KuRndz_Radar_Stow_Ind[0] | KuRndz_Radar_Stow_Ind[1]) );
+		KUAntennaTB_DPY.SetLine( 5.0f * (int)(KuRndz_Radar_Dpy_Ind[0] | KuRndz_Radar_Dpy_Ind[1]) );
 	}
 	else
 	{

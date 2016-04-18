@@ -66,6 +66,7 @@
 #include "PIDControl.h"
 #include "ISSUMLP.h"
 #include "gnc/ATVC.h"
+#include "comm\DeployedAssembly.h"
 #include "Sensor.h"
 
 
@@ -406,6 +407,8 @@ public:
 
 	PayloadBay* pPayloadBay;
 
+	comm::DeployedAssembly* pDeployedAssembly;
+
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
 
@@ -511,7 +514,7 @@ public:
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
-	void SetKuAntennaPosition (double pos);
+	void SetKuAntennaDAPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void SetLaunchConfiguration (void);
 	void SetOrbiterConfiguration (void);
