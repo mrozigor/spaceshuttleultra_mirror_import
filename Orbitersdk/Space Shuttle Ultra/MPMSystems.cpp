@@ -71,44 +71,48 @@ void MPMSystem::Realize()
 		MPM_Deployed.ResetLine();
 		MPM_Stowed.ResetLine();
 	}
+
+	pBundle = STS()->BundleManager()->CreateBundle( "RadiatorControlSW", 10 );
+	PLBayMECHPWRSYS_ON[0].Connect( pBundle, 0 );
+	PLBayMECHPWRSYS_ON[1].Connect( pBundle, 1 );
 }
 
 void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
 
-	if(Deploy && !MPMRollout.Open()) {
+	if(Deploy && (PLBayMECHPWRSYS_ON[0] || PLBayMECHPWRSYS_ON[1]) && !MPMRollout.Open()) {
 		if(!MPMRollout.Opening()) {
 			MPMRollout.action=AnimState::OPENING;
 			MPM_Stowed.ResetLine();
 		}
-		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED);
+		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED * (((int)PLBayMECHPWRSYS_ON[0] + (int)PLBayMECHPWRSYS_ON[1]) * 0.5) );
 		STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 		mpm_moved=true;
 		if(MPMRollout.Open()) {
 			MPM_Deployed.SetLine();
 		}
 	}
-	else if(Stow && !MPMRollout.Closed()) {
+	else if(Stow && (PLBayMECHPWRSYS_ON[0] || PLBayMECHPWRSYS_ON[1]) && !MPMRollout.Closed()) {
 		if(!MPMRollout.Closing()) {
 			MPMRollout.action=AnimState::CLOSING;
 			MPM_Deployed.ResetLine();
 		}
-		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED);
+		MPMRollout.Move(DeltaT*MPM_DEPLOY_SPEED * (((int)PLBayMECHPWRSYS_ON[0] + (int)PLBayMECHPWRSYS_ON[1]) * 0.5) );
 		STS()->SetAnimation(anim_mpm, MPMRollout.pos);
 		mpm_moved=true;
 		if(MPMRollout.Closed()) MPM_Stowed.SetLine();
 	}
 	//else mpm_moved=false;
 
-	if(Release && !MRLLatches.Open()) {
+	if(Release && (PLBayMECHPWRSYS_ON[0] || PLBayMECHPWRSYS_ON[1]) && !MRLLatches.Open()) {
 		if(!MRLLatches.Opening()) {
 			MRLLatches.action=AnimState::OPENING;
 			for(int i=0;i<3;i++) MRL_Lat_Microswitches[i].ResetLine();
 			MRL_Latched.ResetLine();
 			MRL_Released.ResetLine();
 		}
-		MRLLatches.Move(DeltaT*MRL_LATCH_SPEED);
+		MRLLatches.Move(DeltaT*MRL_LATCH_SPEED * (((int)PLBayMECHPWRSYS_ON[0] + (int)PLBayMECHPWRSYS_ON[1]) * 0.5) );
 		if(MRLLatches.Open()) {
 			for(int i=0;i<3;i++) MRL_Rel_Microswitches[i].SetLine();
 			MRL_Released.SetLine();
@@ -116,14 +120,14 @@ void MPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			OnMRLReleased();
 		}
 	}
-	else if(Latch && !MRLLatches.Closed()) {
+	else if(Latch && (PLBayMECHPWRSYS_ON[0] || PLBayMECHPWRSYS_ON[1]) && !MRLLatches.Closed()) {
 		if(!MRLLatches.Closing()) {
 			MRLLatches.action=AnimState::CLOSING;
 			for(int i=0;i<3;i++) MRL_Rel_Microswitches[i].ResetLine();
 			MRL_Latched.ResetLine();
 			MRL_Released.ResetLine();
 		}
-		MRLLatches.Move(DeltaT*MRL_LATCH_SPEED);
+		MRLLatches.Move(DeltaT*MRL_LATCH_SPEED * (((int)PLBayMECHPWRSYS_ON[0] + (int)PLBayMECHPWRSYS_ON[1]) * 0.5) );
 		if(MRLLatches.Closed()) {
 			for(int i=0;i<3;i++) MRL_Lat_Microswitches[i].SetLine();
 			MRL_Latched.SetLine();
