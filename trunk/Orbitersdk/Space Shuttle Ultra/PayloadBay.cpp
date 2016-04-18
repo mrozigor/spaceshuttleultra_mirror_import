@@ -105,6 +105,29 @@ void PayloadBay::Realize( void )
 
 	hasAntenna = STS()->pMission->HasKUBand();
 
+	// set boom position indications
+	if (KuAntennaStatus.Closed())
+	{
+		KuRndz_Radar_Stow_Ind[0] = true;
+		KuRndz_Radar_Stow_Ind[1] = true;
+		KuRndz_Radar_Dpy_Ind[0] = false;
+		KuRndz_Radar_Dpy_Ind[1] = false;
+	}
+	else if (KuAntennaStatus.Open())
+	{
+		KuRndz_Radar_Stow_Ind[0] = false;
+		KuRndz_Radar_Stow_Ind[1] = false;
+		KuRndz_Radar_Dpy_Ind[0] = true;
+		KuRndz_Radar_Dpy_Ind[1] = true;
+	}
+	else
+	{
+		KuRndz_Radar_Stow_Ind[0] = false;
+		KuRndz_Radar_Stow_Ind[1] = false;
+		KuRndz_Radar_Dpy_Ind[0] = false;
+		KuRndz_Radar_Dpy_Ind[1] = false;
+	}
+
 	SetTalkbacks();
 	return;
 }
