@@ -5,8 +5,8 @@
 #include "SSME_Operations.h"
 #include "ATVC_SOP.h"
 #include "SRBSepSequence.h"
-#include "ETSepSequence.h"
 #include "IDP.h"
+#include "assert.h"
 
 namespace dps
 {
@@ -97,7 +97,6 @@ void AscentGuidance::Realize()
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 	pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
-	pETSepSequence = static_cast<ETSepSequence*> (FindSoftware( "ETSepSequence" ));
 }
 
 void AscentGuidance::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -489,6 +488,54 @@ void AscentGuidance::Throttle(double DeltaT)
 {
 	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
 
+	// detect EO
+	for (int i = 0; i < 3; i++)
+	{
+		if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
+		{
+			MEFail[i] = true;
+			NSSME--;
+			// record EO VI
+			VECTOR3 v3vi;
+			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+			double vi = length( v3vi ) * MPS2FPS;
+			if (NSSME == 2) EOVI[0] = vi;
+			else if (NSSME == 1) EOVI[1] = vi;
+			// update 1º stage throttle table to not throttle
+			THROT[1] = THROT[0];
+			THROT[2] = THROT[0];
+			AGT_done = true;// don't do AGT
+			glimiting = false;// reset g-limiting
+			dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
+			// throttle to mission power level
+			throttlecmd = THROT[0];
+			if (J > 0) J--;
+			// update MECO targets
+			if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
+		}
+	}
+
+	// SERC
+	switch (GetMajorMode())
+	{
+		case 102:
+			if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
+			{
+				enaSERC = true;
+			}
+			break;
+		case 103:
+			if (NSSME == 1)// enable SERC automatically in MM103
+			{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
+				enaSERC = true;
+			}
+			break;
+	}
+
+	// low-level sensor arm
+	if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
+
+
 	if(SpdbkThrotAutoIn) { // auto throttling
 		// check for manual takeover
 		if(Eq(STS()->GetSSMEThrustLevel(0), SBTCCommand, 4.0) && !Eq(SBTCCommand, lastSBTCCommand, 1e-2)) {
@@ -496,32 +543,6 @@ void AscentGuidance::Throttle(double DeltaT)
 			SpdbkThrotPLT.SetLine();
 		}
 		else SpdbkThrotPLT.ResetLine();
-
-		for (int i = 0; i < 3; i++)
-		{
-			if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
-			{
-				MEFail[i] = true;
-				NSSME--;
-				// record EO VI
-				VECTOR3 v3vi;
-				STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
-				double vi = length( v3vi ) * MPS2FPS;
-				if (NSSME == 2) EOVI[0] = vi;
-				else if (NSSME == 1) EOVI[1] = vi;
-				// update 1º stage throttle table to not throttle
-				THROT[1] = THROT[0];
-				THROT[2] = THROT[0];
-				AGT_done = true;// don't do AGT
-				glimiting = false;// reset g-limiting
-				dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
-				// throttle to mission power level
-				throttlecmd = THROT[0];
-				pSSME_SOP->SetThrottlePercent( throttlecmd );
-				// update MECO targets
-				if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
-			}
-		}
 
 		switch(GetMajorMode()) {
 			case 102: // STAGE 1
@@ -532,11 +553,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					throttlecmd = THROT[J];
 					pSSME_SOP->SetThrottlePercent( throttlecmd );
 					J++;
-				}
-				
-				if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
-				{
-					enaSERC = true;
 				}
 				break;
 			case 103: // STAGE 3
@@ -584,11 +600,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					}
 				}
 
-				if (NSSME == 1)// enable SERC automatically in MM103
-				{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
-					enaSERC = true;
-				}
-
 				// fine count
 				// HACK only throttle back, no real count for now
 				if ((timeRemaining <= 6) && (finecount == false))
@@ -600,9 +611,6 @@ void AscentGuidance::Throttle(double DeltaT)
 					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
-
-				// low-level sensor arm
-				if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
 				break;
 		}
 	}
@@ -807,445 +815,6 @@ void AscentGuidance::NullSRBNozzles( void )
 	return;
 }
 
-bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
-{
-	if (spec != dps::MODE_UNDEFINED) return false;
-
-	if (GetMajorMode() == 102) ASCENTTRAJ1( pMDU );
-	else ASCENTTRAJ2( pMDU );
-	return true;
-}
-
-void AscentGuidance::ASCENTTRAJ1( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ 1
-{
-	PrintCommonHeader( "  ASCENT TRAJ 1", pMDU );
-	
-	// static parts (labels)
-	pMDU->mvprint( 7, 5, "CONT ABORT" );
-	pMDU->mvprint( 8, 6, "3EO BLUE" );
-	pMDU->mvprint( 1, 7, "2  ARM 2EO BLUE" );
-	pMDU->mvprint( 1, 8, "4  ABORT" );
-	pMDU->mvprint( 1, 10, "5 INH YAW STEER" );
-	pMDU->mvprint( 1, 12, "6  SERC" );
-	pMDU->mvprint( 38, 17, "THROT" );
-	pMDU->mvprint( 18, 22, "7 INH DRP 1EO" );
-
-	pMDU->mvprint( 31, 15, "40" );
-	pMDU->mvprint( 24, 18, "50" );
-	pMDU->mvprint( 19, 20, "60" );
-	pMDU->mvprint( 11, 23, "70" );
-
-	// static parts (lines)
-	pMDU->Line( 39, 208, 58, 205 );
-	pMDU->Line( 58, 205, 77, 195 );
-	pMDU->Line( 77, 195, 104, 170 );
-	pMDU->Line( 104, 170, 177, 114 );
-	pMDU->Line( 177, 114, 214, 82 );
-	pMDU->Line( 214, 82, 222, 70 );
-	pMDU->Line( 222, 70, 230, 45 );
-
-	pMDU->Line( 157, 124, 157, 131 );
-	pMDU->Line( 123, 151, 123, 158 );
-	pMDU->Line( 95, 173, 95, 180 );
-	pMDU->Line( 55, 203, 55, 210 );
-
-	// dynamic parts
-	char cbuf[64];
-
-	sprintf_s( cbuf, 64, "%3d", (int)throttlecmd );
-	pMDU->mvprint( 44, 17, cbuf );
-
-	if (pSRBSepSequence->GetPC50Flag() == true) pMDU->mvprint( 22, 9, "PC<50", dps::DEUATT_OVERBRIGHT | dps::DEUATT_FLASHING );
-
-	//if (pSRBSepSequence->GetSRBSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
-
-	if (enaSERC == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
-
-	if (EOVI[0] != 0)
-	{
-		sprintf_s( cbuf, 64, "1ST EO VI %5.0f", EOVI[0] );
-		pMDU->mvprint( 34, 22, cbuf );
-	}
-	if (EOVI[1] != 0)
-	{
-		sprintf_s( cbuf, 64, "2ND EO VI %5.0f", EOVI[1] );
-		pMDU->mvprint( 34, 23, cbuf, dps::DEUATT_OVERBRIGHT );
-	}
-
-	double VR = STS()->GetAirspeed() * MPS2FPS;
-	double Altitude = STS()->GetAltitude() * MPS2FPS;
-
-	//Draw triangle for state vector
-	short stY = static_cast<short>(208 - (Altitude * 0.00105556));
-	short stX = static_cast<short>(27 + (VR * 0.0506667));
-	pMDU->Line( stX, stY - 3, stX - 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( stX + 3, stY + 3, stX, stY - 3, dps::DEUATT_OVERBRIGHT );
-
-	VECTOR3 thr;
-	STS()->GetThrustVector( thr );
-	thr /= STS()->GetMass();
-	VECTOR3 LVLH_Vel;
-	STS()->GetGPCLVLHVel(0, LVLH_Vel);
-	// 20s predictor
-	VR += (length( thr ) * cos( -STS()->GetAOA() - atan( thr.y / thr.z ) ) - G * sin( PI - STS()->GetPitch() - STS()->GetAOA() )) * 20 * MPS2FPS;
-	Altitude += -LVLH_Vel.z * 20 + ((length( thr ) * sin( STS()->GetPitch() + atan( thr.y / thr.z ) ) - G) * 400) * MPS2FPS;
-	if (VR < 0) VR = 0;
-	if (Altitude < 0) Altitude = 0;
-	stY = static_cast<short>(208 - (Altitude * 0.00105556));
-	stX = static_cast<short>(27 + (VR * 0.0506667));
-	pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	return;
-}
-
-void AscentGuidance::ASCENTTRAJ2( vc::MDU* pMDU ) const// OI-32 PASS ASCENT TRAJ 2
-{
-	PrintCommonHeader( "  ASCENT TRAJ 2", pMDU );
-	
-	// static parts (labels)
-	pMDU->mvprint( 9, 4, "25" );
-	pMDU->mvprint( 49, 4, "26" );
-	pMDU->mvprint( 38, 5, "TGO   :" );
-	pMDU->mvprint( 7, 5, "CONT ABORT" );
-	pMDU->mvprint( 8, 6, "3EO" );
-	pMDU->mvprint( 1, 7, "2  ARM 2EO" );
-	pMDU->mvprint( 1, 8, "4  ABORT" );
-	pMDU->mvprint( 1, 10, "5 INH YAW STEER" );
-	pMDU->mvprint( 1, 12, "6  SERC" );
-	pMDU->mvprint( 38, 17, "THROT" );
-	pMDU->mvprint( 38, 18, "PRPLT" );
-	pMDU->mvprint( 38, 20, "TMECO   :" );
-	pMDU->mvprint( 19, 19, "DROOP ALT   8" );
-	pMDU->mvprint( 18, 22, "7     DRP 1EO" );
-
-
-	// static parts (lines)
-	//Nominal ascent line
-	pMDU->Line( 58, 186, 63, 165 );
-	pMDU->Line( 63, 165, 68, 152 );
-	pMDU->Line( 68, 152, 73, 140 );
-	pMDU->Line( 73, 140, 83, 126 );
-	pMDU->Line( 83, 126, 98, 115 );
-	pMDU->Line( 98, 115, 106, 111 );
-	pMDU->Line( 106, 111, 121, 108 );
-	pMDU->Line( 121, 108, 136, 108 );
-	pMDU->Line( 136, 108, 188, 114 );
-	pMDU->Line( 188, 114, 225, 116 );
-	pMDU->Line( 225, 116, 248, 115 );
-
-	pMDU->Line( 135, 97, 161, 102 );
-	pMDU->Line( 161, 102, 194, 107 );
-	pMDU->Line( 194, 107, 234, 107 );
-
-	// Vr line
-	pMDU->Line( 50, 31, 249, 31 );
-	// 25K mark
-	pMDU->Line( 50, 31, 50, 36 );
-	// 26K mark
-	pMDU->Line( 249, 31, 249, 36 );
-
-	// dynamic parts
-	char cbuf[64];
-	int tmp = 0;
-
-	// Vr scale
-	if (((TgtSpd * MPS2FPS) > 25000) && ((TgtSpd * MPS2FPS) < 26000))// TODO update for MECO speeds > 25K???
-	{
-		// CO mark
-		tmp = Round( ((((TgtSpd * MPS2FPS) - 25000)) * 0.199) ) + 50;
-		pMDU->Line( tmp, 31, tmp, 36 );
-		tmp = Round( tmp * 0.2 ) - 1;
-		pMDU->mvprint( tmp, 4, "CO" );
-	}
-	if ((inertialVelocity * MPS2FPS) < 25000) tmp = 50;
-	else if ((inertialVelocity * MPS2FPS) > 26000) tmp = 249;
-	else tmp = Round( ((((inertialVelocity * MPS2FPS) - 25000)) * 0.199) ) + 50;
-	pMDU->Line( tmp, 30, tmp - 3, 26, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( tmp - 3, 26, tmp + 3, 26, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( tmp + 3, 26, tmp, 30, dps::DEUATT_OVERBRIGHT );
-
-	sprintf_s( cbuf, 64, "%3d", (int)throttlecmd );
-	pMDU->mvprint( 44, 17, cbuf );
-
-	tmp = STS()->GetETPropellant();
-	if (tmp < 0) tmp = 0;
-	sprintf_s( cbuf, 64, "%2d", tmp );
-	pMDU->mvprint( 44, 18, cbuf );
-
-	// contigency abort boundaries
-	// 3EO
-	if ((inertialVelocity * MPS2FPS) < 18000) pMDU->mvprint( 12, 6, "GREEN" );
-	// 2EO
-	if ((inertialVelocity * MPS2FPS) < 12100)
-	{
-		VECTOR3 vr3;
-		STS()->GetHorizonAirspeedVector( vr3 );
-		if ((vr3.y * MPS2FPS) < 1850) pMDU->mvprint( 12, 7, "GREEN" );
-		else pMDU->mvprint( 12, 6, "BLUE" );
-	}
-
-	//if (pETSepSequence->GetETSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
-
-	if (enaSERC == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
-
-	if (EOVI[0] != 0)
-	{
-		sprintf_s( cbuf, 64, "1ST EO VI %5.0f", EOVI[0] );
-		pMDU->mvprint( 34, 22, cbuf );
-	}
-	if (EOVI[1] != 0)
-	{
-		sprintf_s( cbuf, 64, "2ND EO VI %5.0f", EOVI[1] );
-		pMDU->mvprint( 34, 23, cbuf, dps::DEUATT_OVERBRIGHT );
-	}
-	else pMDU->mvprint( 20, 22, "INH" );
-
-	if ((pSSME_Operations->GetMECOConfirmedFlag() == false) && (pSSME_Operations->GetMECOCommandFlag() == false))
-	{
-		// TGO
-		tmp = Round( timeRemaining );
-		sprintf_s( cbuf, 64, "%2d", (tmp - (tmp % 60)) / 60 );
-		pMDU->mvprint( 42, 5, cbuf );
-		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );
-		pMDU->mvprint( 45, 5, cbuf );
-		// TMECO
-		tmp = Round( STS()->GetMET() + timeRemaining );
-		sprintf_s( cbuf, 64, "%2d", (tmp - (tmp % 60)) / 60 );
-		pMDU->mvprint( 44, 20, cbuf );
-		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );
-		pMDU->mvprint( 47, 20, cbuf );
-
-		double droopH = DROOP_ALT;// TODO
-		char att = 0;
-		if (droopH < DROOP_ALT) att = dps::DEUATT_FLASHING;
-		sprintf_s( cbuf, 64, "DROOP ALT %3.0f", droopH * 0.001 );
-		pMDU->mvprint( 19, 19, cbuf, att );
-	}
-
-	VECTOR3 LVLH_Vel;
-	STS()->GetGPCLVLHVel(0, LVLH_Vel);
-
-	//Current vehicle state (57NM insertion altitude):
-	double VHI = LVLH_Vel.x;
-	double Altitude = STS()->GetAltitude() * MPS2FPS;
-	//Draw triangle for state vector
-	short stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-	short stX = static_cast<short>(VHI * 0.0102);
-	pMDU->Line( stX, stY - 3, stX - 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( stX + 3, stY + 3, stX, stY - 3, dps::DEUATT_OVERBRIGHT );
-		
-	// HACK using constant 12º for SSME offset
-	// 30s predictor
-	double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
-	VHI += dv30;
-	Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
-	//Draw circle for 30s predictor
-	stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-	stX = static_cast<short>(VHI * 0.0102);
-	pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-
-	// 60s predictor
-	VHI += dv30;
-	Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
-	//Draw circle for 60s predictor
-	stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-	stX = static_cast<short>(VHI * 0.0102);
-	pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-	return;
-}
-
-// INFO below is the pre OI-32 PASS ASCENT TRAJ display
-//bool AscentGuidance::OnPaint( int spec, vc::MDU* pMDU ) const
-//{
-//	if (spec != dps::MODE_UNDEFINED) return false;
-//	
-//	// PASS LAUNCH TRJ/PASS ASCENT TRAJ
-//	switch(GetMajorMode())
-//	{
-//		case 101:
-//			PrintCommonHeader( "  LAUNCH TRAJ", pMDU );
-//			break;
-//		case 102:
-//		case 103:
-//			PrintCommonHeader( "  ASCENT TRAJ", pMDU );
-//			break;
-//	}
-//
-//	// static parts (labels)
-//	pMDU->mvprint( 9, 5, "CO" );
-//	pMDU->mvprint( 25, 5, "PD" );
-//	pMDU->mvprint( 32, 5, "PD3" );
-//
-//	pMDU->mvprint( 36, 6, "ABORT    ARM" );
-//	pMDU->mvprint( 33, 7, "3 E/O" );
-//	pMDU->mvprint( 33, 8, "2 E/O" );
-//	pMDU->mvprint( 46, 8, "2" );
-//	pMDU->mvprint( 31, 9, "ABORT      4" );
-//	pMDU->mvprint( 31, 10, "YAW STEER  5" );
-//
-//	pMDU->mvprint( 10, 7, "GUID" );
-//	pMDU->mvprint( 10, 8, "TMECO   :" );
-//	pMDU->mvprint( 10, 9, "PRPLT" );
-//	pMDU->mvprint( 7, 12, "6  SERC" );
-//
-//	pMDU->mvprint( 5, 13, "O" );
-//
-//	pMDU->mvprint( 46, 13, "GO" );
-//	pMDU->mvprint( 39, 15, "RTLS" );
-//
-//
-//	// static parts (lines)
-//
-//	//Nominal ascent line
-//	pMDU->Line( 181, 212, 191, 176 );
-//	pMDU->Line( 191, 176, 233, 128 );
-//	pMDU->Line( 233, 128, 255, 117 );
-//
-//	//EO at Lift-Off line
-//	pMDU->Line( 159, 212, 174, 138 );
-//	pMDU->Line( 174, 138, 78, 195 );
-//	pMDU->Line( 78, 195, 58, 201 );
-//	pMDU->Line( 58, 201, 21, 176 );
-//
-//	pMDU->Line( 183, 119, 176, 122 );
-//	pMDU->Line( 176, 122, 81, 187 );
-//
-//	//Q = 2 line
-//	pMDU->Line( 38, 187, 11, 179 );
-//
-//	//Q = 10 line
-//	pMDU->Line( 38, 171, 11, 157 );
-//
-//	//Hdot indicator
-//	pMDU->Line( 17, 30, 11, 30 );
-//	pMDU->Line( 11, 30, 11, 206 );
-//	pMDU->Line( 11, 206, 17, 206 );
-//	pMDU->Line( 11, 118, 17, 118 );
-//
-//	//DR indicator
-//	pMDU->Line( 26, 27, 247, 27 );
-//
-//	//PD3 Mark
-//	pMDU->Line( 164, 27, 164, 35 );
-//
-//	//PD Mark
-//	pMDU->Line( 128, 27, 128, 35 );
-//
-//	//CO Mark
-//	pMDU->Line( 47, 27, 47, 35 );
-//
-//
-//	// dynamic parts
-//	char cbuf[64];
-//	int tmp = 0;
-//
-//	if ((GetMajorMode() == 103) && (pSSME_Operations->GetMECOConfirmedFlag() == false))
-//	{
-//		tmp = Round( STS()->GetMET() + timeRemaining );
-//		sprintf_s( cbuf, 64, "%02d", (tmp - (tmp % 60)) / 60 );
-//		pMDU->mvprint( 16, 8, cbuf );
-//		sprintf_s( cbuf, 64, "%02d", (tmp % 60) );
-//		pMDU->mvprint( 19, 8, cbuf );
-//	}
-//
-//	tmp = STS()->GetETPropellant();
-//	if (tmp < 0) tmp = 0;
-//	sprintf_s( cbuf, 64, "%2d", tmp );
-//	pMDU->mvprint( 19, 9, cbuf );
-//
-//	if ((pSRBSepSequence->GetPC50Flag() == true) && (GetMajorMode() == 102)) pMDU->mvprint( 10, 10, "PC<50" );
-//
-//	if ((pSRBSepSequence->GetSRBSEPINHFlag() == true) || (pETSepSequence->GetETSEPINHFlag() == true)) pMDU->mvprint( 10, 11, "SEP INH" );
-//
-//	if (enaSERC == true) pMDU->mvprint( 15, 12, "ON", dps::DEUATT_OVERBRIGHT );
-//
-//	if (EOVI[0] != 0)
-//	{
-//		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[0] );
-//		pMDU->mvprint( 7, 13, cbuf );
-//	}
-//	if (EOVI[1] != 0)
-//	{
-//		sprintf_s( cbuf, 64, "EO VI %5.0f", EOVI[1] );
-//		pMDU->mvprint( 7, 14, cbuf, dps::DEUATT_OVERBRIGHT );
-//	}
-//
-//	VECTOR3 LVLH_Vel;
-//	STS()->GetGPCLVLHVel(0, LVLH_Vel);
-//
-//	double Ref_hdot = 0.0;
-//	bool bShowHDot = (STS()->GetGPCRefHDot(0, Ref_hdot) == VARSTATE_OK);
-//
-//	//Hdot indicator
-//	if(bShowHDot)
-//	{
-//		double HDot_Error = -LVLH_Vel.z - Ref_hdot;
-//		char att = dps::DEUATT_OVERBRIGHT;
-//
-//		if(HDot_Error > 200.0)
-//		{
-//			HDot_Error = 200.0;
-//			att += dps::DEUATT_FLASHING;
-//		}
-//		else if (HDot_Error < -200.0)
-//		{
-//			HDot_Error = -200.0;
-//			att += dps::DEUATT_FLASHING;
-//		}
-//
-//		short sHDot_pry = -static_cast<short>(HDot_Error/200.0 * 88);
-//
-//		pMDU->Line( 11, 118 + sHDot_pry, 6, 113 + sHDot_pry, att );
-//		pMDU->Line( 6, 113 + sHDot_pry, 6, 123 + sHDot_pry, att );
-//		pMDU->Line( 6, 123 + sHDot_pry, 11, 118 + sHDot_pry, att );
-//	}
-//
-//	if (GetMajorMode() >= 103)// HACK because thrustAcceleration is only calculated in MM103
-//	{
-//		//Current vehicle state:
-//		double VHI = LVLH_Vel.x;
-//		double Altitude = STS()->GetAltitude() * MPS2FPS;
-//
-//		if(Altitude > 155500 && VHI < 10000)
-//		{
-//			//Draw triangle for state vector
-//			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-//			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-//			pMDU->Line( stX, stY - 3, stX - 3, stY + 3 );
-//			pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3 );
-//			pMDU->Line( stX + 3, stY + 3, stX, stY - 3 );
-//		}
-//		
-//		// HACK using constant 12º for SSME offset
-//		// 30s predictor
-//		double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
-//		VHI += dv30;
-//		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
-//
-//		if(Altitude > 155500 && VHI < 10000)
-//		{
-//			//Draw circle for 30s predictor
-//			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-//			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-//			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
-//		}
-//
-//		// 60s predictor
-//		VHI += dv30;
-//		Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
-//
-//		if(Altitude > 155500 && VHI < 10000)
-//		{
-//			//Draw circle for 60s predictor
-//			short stY = static_cast<short>(255*(1.13256 - (Altitude/513955.985)));
-//			short stX = static_cast<short>(255*(0.36194 + (VHI/15672.3964)));
-//			pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3 );
-//		}
-//	}
-//	return true;
-//}
-
 bool AscentGuidance::GetAutoThrottleState( void ) const
 {
 	return SpdbkThrotAutoIn.IsSet();
@@ -1255,6 +824,42 @@ VECTOR3 AscentGuidance::GetAttitudeErrors( void ) const
 {
 	// HACK this is not the the attitude error (but it's better than nothing...?)
 	return degReqdRates;
+}
+
+double AscentGuidance::GetThrottleCommand( void ) const
+{
+	return throttlecmd;
+}
+
+bool AscentGuidance::SERCenabled( void ) const
+{
+	return enaSERC;
+}
+
+double AscentGuidance::GetEOVI( int EO ) const
+{
+	assert( (EO >= 1) && (EO <= 2) && "AscentGuidance::GetEOVI.EO" );
+	return EOVI[EO - 1];
+}
+
+double AscentGuidance::GetTgtSpd( void ) const
+{
+	return TgtSpd;
+}
+
+double AscentGuidance::GetInertialVelocity( void ) const
+{
+	return inertialVelocity;
+}
+
+double AscentGuidance::GetThrustAcceleration( void ) const
+{
+	return thrustAcceleration;
+}
+
+double AscentGuidance::GetTimeRemaining( void ) const
+{
+	return timeRemaining;
 }
 
 };

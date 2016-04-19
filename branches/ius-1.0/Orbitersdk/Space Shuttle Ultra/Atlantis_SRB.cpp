@@ -214,7 +214,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	
 	AddExhaust (th_main, 16.0, 2.0, tex);
 	AddExhaustStream (th_main, _V(0.484,0.434,-23), &srb_exhaust);
-	AddExhaustStream (th_main, _V(0.484,0.434,-100), &srb_contrail);
+	AddExhaustStream (th_main, _V(0.484,0.434,-250), &srb_contrail);
 
 	// separation bolts
 	//th_bolt = CreateThruster (_V(0,0,1.3), _V(1,0,0), 3e6, ph_main, 1e7);

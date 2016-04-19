@@ -6,6 +6,8 @@
 #include "../BaseSSUPad.h"
 //#include "../Atlantis.h"
 
+const boolean DEBUG_DISPLAY_OWP_STRUT_ANIMATION_VALUES = false;
+
 static const char* DEFAULT_MESHNAME_FSS="SSU/LC39A_FSS";
 static const char* DEFAULT_MESHNAME_RSS="SSU/LC39A_RSS";
 static const char* DEFAULT_MESHNAME_FSS_1985="SSU/LC39A_FSS_1985";
@@ -22,16 +24,44 @@ const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
 const double FSS_OWP_RATE = 0.005;
 const double RSS_RATE = 0.000325;
-const double FSS_GH2_ARM_RATE = 0.5;
+const double FSS_GH2_ARM_RATE = 0.666666;// 1.5sec
 const double FSS_IAA_RATE = 1.0/200.0;
 const double FSS_RBUS_RATE = 0.35;
 const double SRB_SFD_RATE = 0.00333333;// 300sec
 
 //FSS OWP strut animation constants
-const double FSS_OWP_BRACKET_LENGTH = 12.4;
-const double FSS_OWP_STRUT_LENGTH = 18.02;
-const double FSS_OWP_STRUT_OFFSET = 13.427;
-const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
+
+//Measured from mesh:
+//FSS_OWP_BRACKET_LENGTH: 11.8745
+//FSS_OWP_STRUT_OFFSET : 17.305
+//FSS_OWP_STRUT_LENGTH : 17.9491
+//FSS_OWP_STRUT_NULL_ANGLE : 83°s
+
+//FSS_OWP_STRUT_NULL_ANGLE : 72.3892° calculated by given lengths
+//FSS_OWP_BRACKET_LENGTH   : 11.894 m calculated by animations
+//FSS_OWP_STRUT_NULL_ANGLE : 72.4545° calculated by animations
+
+//DaveS: Rail X-Pos is 7.1742
+//FSS_OWP_STRUT_OFFSET : 13.5442 by the new rail position
+//FSS_OWP_STRUT_NULL_ANGLE : 84.725° calculated by rail position
+//DaveS: FSS_OWP_STRUT_LENGTH : 16.7456 m
+//FSS_OWP_STRUT_NULL_ANGLE : 84.345° calculated by new strut length
+
+const double FSS_OWP_ROTATION_INTERVAL_END = 0.769;
+
+const VECTOR3 FSS_OWP_BRACKET_ROTATION_REF = _V(-6.9, 0.0, 22.0);
+const VECTOR3 FSS_OWP_STRUT_ROTATION_REF = _V(4.924, 0.0, 22.0);
+
+const double FSS_OWP_BRACKET_LENGTH = 11.894;		
+const double FSS_OWP_STRUT_LENGTH = 17.0456;
+const double FSS_OWP_STRUT_OFFSET = 13.5442;
+const double FSS_OWP_STRUT_NULL_ANGLE = 84.345; //angle in degrees
+
+//OLD DATA:
+//const double FSS_OWP_BRACKET_LENGTH = 12.4;
+//const double FSS_OWP_STRUT_LENGTH = 18.02;
+//const double FSS_OWP_STRUT_OFFSET = 13.427;
+//const double FSS_OWP_STRUT_NULL_ANGLE = 88.5; //angle in degrees
 
 const unsigned int FSS_NUM_LIGHTS = 1;
 const unsigned int LC39_LIGHT_COUNT = 5;

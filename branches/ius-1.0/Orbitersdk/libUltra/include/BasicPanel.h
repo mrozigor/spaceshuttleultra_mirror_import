@@ -40,6 +40,14 @@ namespace vc
 
 using namespace std;
 
+enum PanelState {
+	PS_UNKNOWN = 0,
+	PS_CREATED,
+	PS_DEFINED,
+	PS_REGISTERED,
+	PS_REALIZED
+};
+
 //template <class TVessel>
 //class BasicVCComponent;
 class BasicSwitch;
@@ -57,6 +65,8 @@ class BasicPanel
 
 	bool bHasOwnVCMesh;
 	bool bCoordinateDisplayMode;
+
+	PanelState pstate;
 protected:
 	//bool AddSwitch(BasicSwitch* pSwitch);
 	BasicSwitch* CreateSwitch2(const string& _name, const VECTOR3& _RefPos, UINT _GrpNum, RECT _r);
@@ -112,7 +122,15 @@ public:
 	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
 
 	void UpdateUVState();
+	inline void SetPanelState(PanelState s)
+	{
+		pstate = s;
+	}
 
+	inline PanelState GetPanelState() const 
+	{
+		return pstate;
+	}
 };
 
 template <class TVessel>
@@ -122,6 +140,7 @@ BasicPanel<TVessel>::BasicPanel(TVessel* _v, const string& _name)
 	name = _name;
 	pv = _v;
 	bCoordinateDisplayMode = false;
+	pstate = PS_CREATED;
 }
 
 template <class TVessel>
@@ -163,6 +182,13 @@ template <class TVessel>
 void BasicPanel<TVessel>::DefineVCAnimations(UINT vcidx)
 {
 	char pszBuffer[256];
+	static char buf[100];
+	if (pstate != PS_CREATED)
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not created at DefineVCAnimations", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
+
 	sprintf_s(pszBuffer, 255, "BasicPanel[%s]:\tDefine VC Animations. %d components", 
 		GetQualifiedIdentifier().c_str(), components.size());
 	//local_vcidx = vcidx;
@@ -174,6 +200,7 @@ void BasicPanel<TVessel>::DefineVCAnimations(UINT vcidx)
 		(*iter)->DefineVCAnimations(vcidx);
 		iter++;
 	}
+	pstate = PS_DEFINED;
 }
 
 template <class TVessel>
@@ -233,23 +260,40 @@ UINT BasicPanel<TVessel>::GetVCMeshIndex() const
 template <class TVessel>
 void BasicPanel<TVessel>::RegisterVC()
 {
+	static char buf[100];
+	if (pstate != PS_REALIZED) 
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not realized at RegisterVC()", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
+
 	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
 	while(iter != components.end())
 	{
 		(*iter)->RegisterVC();
 		iter++;
 	}
+
+	pstate = PS_REGISTERED;
 }
 
 template <class TVessel>
 void BasicPanel<TVessel>::Realize()
 {
+	static char buf[100];
+	if (pstate != PS_DEFINED)
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not defined at Realize()", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
 	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
 	while(iter != components.end())
 	{
 		(*iter)->Realize();
 		iter++;
 	}
+
+	pstate = PS_REALIZED;
 }
 
 template <class TVessel>

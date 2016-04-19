@@ -68,7 +68,7 @@ namespace vc {
 		//
 	}
 
-	void MDU::DrawCommonHeader(const char* cDispTitle)
+	/*void MDU::DrawCommonHeader(const char* cDispTitle)
 	{
 		char cbuf[200];
 		char cspecbuf[4];
@@ -105,18 +105,18 @@ namespace vc {
 
 	
 		mvprint(0, 0, cbuf);
-	}
+	}*/
 
-	const string& MDU::GetEdgekeyMenu() const
+	/*const string& MDU::GetEdgekeyMenu() const
 	{
 		static string r = "MAIN MENU";
 		return r;
-	}
+	}*/
 
-	char* MDU::GetEdgeKeyMenuLabel(int iButton)
+	/*char* MDU::GetEdgeKeyMenuLabel(int iButton)
 	{
 		return NULL;
-	}
+	}*/
 
 	short MDU::GetPortConfig() const
 	{
@@ -387,7 +387,7 @@ namespace vc {
 					}
 					else if (strcmp( label, "FLT" ) == 0)
 					{
-						TextOut( hDC, x, 21, "FLT", 3 );
+						TextOut( hDC, x, 21, "FLT ", 4 );
 						TextOut( hDC, x, 30, "INST", 4 );
 						menu = 0;
 					}
@@ -433,13 +433,13 @@ namespace vc {
 						{
 							SetTextColor (hDC, CR_WHITE );
 							TextOut( hDC, x, 21, "OMS/", 4 );
-							TextOut( hDC, x, 30, "MPS", 3 );
+							TextOut( hDC, x, 30, " MPS", 4 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
 						else
 						{
 							TextOut( hDC, x, 21, "OMS/", 4 );
-							TextOut( hDC, x, 30, "MPS", 3 );
+							TextOut( hDC, x, 30, " MPS", 4 );
 						}
 						menu = 2;
 					}
@@ -449,13 +449,13 @@ namespace vc {
 						{
 							SetTextColor (hDC, CR_WHITE );
 							TextOut( hDC, x, 21, "HYD/", 4 );
-							TextOut( hDC, x, 30, "APU", 3 );
+							TextOut( hDC, x, 30, " APU", 4 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
 						else
 						{
 							TextOut( hDC, x, 21, "HYD/", 4 );
-							TextOut( hDC, x, 30, "APU", 3 );
+							TextOut( hDC, x, 30, " APU", 4 );
 						}
 					}
 					else if (strcmp( label, "SPI" ) == 0)
@@ -463,10 +463,14 @@ namespace vc {
 						if (display == 5)
 						{
 							SetTextColor (hDC, CR_WHITE );
-							TextOut( hDC, x, 25, "SPI", 3 );
+							TextOut( hDC, x, 21, "SPI", 3 );
 							SetTextColor (hDC, CR_MENU_COLOR );
 						}
-						else TextOut( hDC, x, 25, "SPI", 3 );
+						else TextOut( hDC, x, 21, "SPI", 3 );
+					}
+					else if (strcmp( label, "DPS" ) == 0)
+					{
+						TextOut( hDC, x, 21, "DPS", 3 );
 					}
 					else
 					{
@@ -599,8 +603,6 @@ namespace vc {
 
 	void MDU::UpdateTextBuffer()
 	{
-		//char cbuf[255];
-
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
 				textBuffer[i][j].cSymbol=0;
@@ -616,29 +618,6 @@ namespace vc {
 		else {
 			PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 		}
-		/*if(!prim_idp->OnPaint(this)) {
-			if(STS()->ops==201) {
-				if(prim_idp) {
-					//if DISP is not set, show appropriate SPEC/default display
-					if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-						if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
-						else if(prim_idp->GetSpec()==20) DAP_CONFIG();
-						else {
-							char cbuf[55];
-							sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
-						}
-					}
-					else {
-						char cbuf[55];
-						sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
-					}
-					//else UNIVPTG();
-				}
-				else {
-					PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
-				}
-			}
-		}*/
 		
 		//print Scratch Pad line
 		const char* scratch_pad=prim_idp->GetScratchPadLineString();
@@ -661,18 +640,6 @@ namespace vc {
 		}
 	}
 
-
-	
-
-	/*
-	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
-		const VECTOR3& bottom_left, const VECTOR3& bottom_right)
-	{
-		//Create VC definitions for creating a independent MDU
-		return NULL;
-	}
-	*/
-
 	unsigned short MDU::GetDrivingIDP() const
 	{
 		if(this->bUseSecondaryPort)
@@ -694,11 +661,7 @@ namespace vc {
 		
 	}
 
-	void MDU::SwitchMFDMode()
-	{
-	}
-
-	void MDU::GPCMEMORY()
+	/*void MDU::GPCMEMORY()
 	{
 	
 		DrawCommonHeader("GPC MEMORY");
@@ -734,7 +697,7 @@ namespace vc {
 		mvprint(29, 5, "BIT RST 23");
 		mvprint(42, 5, "WRITE 25");
 		mvprint(19, 6, "26 ENG UNITS");
-	}
+	}*/
 
 	void MDU::AEPFD( HDC hDC )
 	{
@@ -823,13 +786,13 @@ namespace vc {
 				if (0) AEPFD_TGTINC( hDC );// TODO ATO
 				break;
 			case 104:
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 21, 4, "DAP:", 4 );
 				SetTextColor( hDC, CR_WHITE );
 				if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get TransDAP state
 				else TextOut( hDC, 40, 4, "INRTL", 5 );
 
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 209, 4, "MM:", 3 );
 				SetTextColor( hDC, CR_WHITE );
 				if (0) TextOut( hDC, 225, 4, "104T", 4 );// TAL
@@ -838,7 +801,7 @@ namespace vc {
 				else if (0) TextOut( hDC, 225, 4, "104CA", 5 );// CA
 				else TextOut( hDC, 225, 4, "104", 3 );// NOM
 
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 208, 13, "ATT:", 4 );
 				SetTextColor( hDC, CR_WHITE );
 				if (adiatt == 2) TextOut( hDC, 228, 13, "INRTL", 5 );
@@ -1057,24 +1020,25 @@ namespace vc {
 	void MDU::CreateGDIObjects()
 	{
 		BlackBrush = CreateSolidBrush( CR_BLACK );
+		DarkGrayBrush = CreateSolidBrush( CR_DARK_GRAY );
+		LightGrayBrush = CreateSolidBrush( CR_LIGHT_GRAY );
 		WhiteBrush = CreateSolidBrush( CR_WHITE );
-		GrayLightBrush = CreateSolidBrush( CR_GRAY_LIGHT );
-		GrayDarkBrush = CreateSolidBrush( CR_GRAY_DARK );
-		GreenBrush = CreateSolidBrush( CR_GREEN );
-		MagentaBrush = CreateSolidBrush( CR_MAGENTA );
-		YellowBrush = CreateSolidBrush( CR_YELLOW );
 		RedBrush = CreateSolidBrush( CR_RED );
+		YellowBrush = CreateSolidBrush( CR_YELLOW );
+		MagentaBrush = CreateSolidBrush( CR_MAGENTA );
+		LightGreenBrush = CreateSolidBrush( CR_LIGHT_GREEN );
 
 		BlackPen = CreatePen( PS_SOLID, 0, CR_BLACK );
+		DarkGrayPen = CreatePen( PS_SOLID, 0, CR_DARK_GRAY );
+		LightGrayPen = CreatePen( PS_SOLID, 0, CR_LIGHT_GRAY );
 		WhitePen = CreatePen( PS_SOLID, 0, CR_WHITE );
-		GrayLightPen = CreatePen( PS_SOLID, 0, CR_GRAY_LIGHT );
-		GrayDarkPen = CreatePen( PS_SOLID, 0, CR_GRAY_DARK );
 		RedPen = CreatePen( PS_SOLID, 0, CR_RED );
-		GreenPen = CreatePen( PS_SOLID, 0, CR_GREEN );
-		GreenThickPen = CreatePen( PS_SOLID, 2, CR_GREEN );
 		YellowPen = CreatePen( PS_SOLID, 0, CR_YELLOW );
+		CyanPen = CreatePen( PS_SOLID, 0, CR_CYAN );
 		MagentaPen = CreatePen( PS_SOLID, 0, CR_MAGENTA );
-		TurquoisePen = CreatePen( PS_SOLID, 0, CR_TURQUOISE );
+		LightGreenPen = CreatePen( PS_SOLID, 0, CR_LIGHT_GREEN );
+		LightGreenThickPen = CreatePen( PS_SOLID, 2, CR_LIGHT_GREEN );
+		
 		hOverbrightPen = CreatePen( PS_SOLID, 0, CR_DPS_OVERBRIGHT );
 		hNormalPen = CreatePen( PS_SOLID, 0, CR_DPS_NORMAL );
 		LOGBRUSH lb = {BS_SOLID, CR_DPS_NORMAL, 0};
@@ -1091,24 +1055,25 @@ namespace vc {
 	void MDU::DestroyGDIObjects()
 	{
 		DeleteObject( BlackBrush );
+		DeleteObject( DarkGrayBrush );
+		DeleteObject( LightGrayBrush );
 		DeleteObject( WhiteBrush );
-		DeleteObject( GrayLightBrush );
-		DeleteObject( GrayDarkBrush );
-		DeleteObject( GreenBrush );
-		DeleteObject( MagentaBrush );
-		DeleteObject( YellowBrush );
 		DeleteObject( RedBrush );
+		DeleteObject( YellowBrush );
+		DeleteObject( MagentaBrush );
+		DeleteObject( LightGreenBrush );
 
 		DeleteObject( BlackPen );
+		DeleteObject( DarkGrayPen );
+		DeleteObject( LightGrayPen );
 		DeleteObject( WhitePen );
-		DeleteObject( GrayLightPen );
-		DeleteObject( GrayDarkPen );
 		DeleteObject( RedPen );
-		DeleteObject( GreenPen );
-		DeleteObject( GreenThickPen );
 		DeleteObject( YellowPen );
+		DeleteObject( CyanPen );
 		DeleteObject( MagentaPen );
-		DeleteObject( TurquoisePen );
+		DeleteObject( LightGreenPen );
+		DeleteObject( LightGreenThickPen );
+
 		DeleteObject( hOverbrightPen );
 		DeleteObject( hNormalPen );
 		DeleteObject( hDashedNormalPen );
@@ -1220,8 +1185,8 @@ namespace vc {
 		// alpha
 		// 20º in window (1º = 5.7px)
 		// 2052px long + offsets
-		SelectObject( hDC_Tapes, GrayLightPen );
-		SelectObject( hDC_Tapes, GrayLightBrush );
+		SelectObject( hDC_Tapes, LightGrayPen );
+		SelectObject( hDC_Tapes, LightGrayBrush );
 		Rectangle( hDC_Tapes, 45, 1026 + offset, 67, 2052 + offset + offset );
 
 		SetTextColor( hDC_Tapes, CR_BLACK );
@@ -1261,8 +1226,8 @@ namespace vc {
 		SelectObject( hDC_Tapes, YellowBrush );
 		Rectangle( hDC_Tapes, 68, 2698 + offset, 90, 3055 + offset );
 
-		SelectObject( hDC_Tapes, GrayLightPen );
-		SelectObject( hDC_Tapes, GrayLightBrush );
+		SelectObject( hDC_Tapes, LightGrayPen );
+		SelectObject( hDC_Tapes, LightGrayBrush );
 		Rectangle( hDC_Tapes, 68, 3055 + offset, 90, 3380 + offset + offset );
 
 		SetTextColor( hDC_Tapes, CR_BLACK );
@@ -1385,8 +1350,8 @@ namespace vc {
 		// small scale 160ft in window (1ft = 0.7125px) (800-(-800))
 		// large scale 800ft in window (1ft = 0.1425px) (3000-800/(-800)-(-3000))
 		// 313.5 + 1140 + 313.5 = 1767px long + offsets
-		SelectObject( hDC_Tapes, GrayLightPen );
-		SelectObject( hDC_Tapes, GrayLightBrush );
+		SelectObject( hDC_Tapes, LightGrayPen );
+		SelectObject( hDC_Tapes, LightGrayBrush );
 		Rectangle( hDC_Tapes, 91, 884 + offset, 113, 1767 + offset + offset );
 
 		SetTextColor( hDC_Tapes, CR_BLACK );
@@ -1502,9 +1467,9 @@ namespace vc {
 		SelectObject( hDC, WhitePen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 9, 39, 33, 155 );
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		Rectangle( hDC, 9, 159, 33, 171 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 12, 30, "KEAS", 4 );
 		TextOut( hDC, 12, 172, "M/VR", 4 );
 
@@ -1529,9 +1494,9 @@ namespace vc {
 		SelectObject( hDC, WhitePen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 9, 39, 33, 155 );
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		Rectangle( hDC, 9, 159, 33, 171 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 12, 30, "M/VR", 4 );
 		TextOut( hDC, 12, 172, "KEAS", 4 );
 		SetTextColor( hDC, CR_WHITE );
@@ -1568,9 +1533,9 @@ namespace vc {
 		SelectObject( hDC, WhitePen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 9, 39, 33, 155 );
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		Rectangle( hDC, 9, 159, 33, 171 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 12, 30, "M/VI", 4 );
 		TextOut( hDC, 12, 172, "KEAS", 4 );
 		SetTextColor( hDC, CR_WHITE );
@@ -1603,11 +1568,11 @@ namespace vc {
 
 	void MDU::Tape_Alpha( HDC hDC, double MachNumber )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, LightGrayPen );
 		SelectObject( hDC, BlackBrush );
 		::Ellipse( hDC, 46, 34, 50, 38 );
-		SetPixel( hDC, 50, 34, CR_GRAY_DARK );
-		SetPixel( hDC, 50, 37, CR_GRAY_DARK );
+		SetPixel( hDC, 50, 34, CR_LIGHT_GRAY );
+		SetPixel( hDC, 50, 37, CR_LIGHT_GRAY );
 		SelectObject( hDC, WhitePen );
 		Rectangle( hDC, 37, 39, 60, 155 );
 
@@ -1650,7 +1615,7 @@ namespace vc {
 			}
 		}
 
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		POINT poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
 		Polygon( hDC, poly, 5 );
@@ -1662,7 +1627,7 @@ namespace vc {
 
 	void MDU::Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot )
 	{
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 212, 30, "H", 1 );
 		SelectObject( hDC, WhitePen );
 		Rectangle( hDC, 203, 39, 227, 155 );
@@ -1709,7 +1674,7 @@ namespace vc {
 		}*/
 		BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
 
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 203, 91, 227, 105 );
 		SetTextColor( hDC, CR_WHITE );
@@ -1723,19 +1688,19 @@ namespace vc {
 		{
 			sprintf_s( cbuf, 8, "%3d", (int)Altitude_ft / 1000 );
 			TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
-			SetTextColor( hDC, CR_GRAY_DARK );
+			SetTextColor( hDC, CR_LIGHT_GRAY );
 			TextOut( hDC, 220, 93, "K", 1 );
 		}
 		else
 		{
 			sprintf_s( cbuf, 8, "%3.0f", Altitude_NM );
 			TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
-			SetTextColor( hDC, CR_GRAY_DARK );
+			SetTextColor( hDC, CR_LIGHT_GRAY );
 			TextOut( hDC, 220, 93, "M", 1 );
 		}
 
-		SetTextColor( hDC, CR_GRAY_DARK );
-		SetPixel( hDC, 241, 29, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
+		SetPixel( hDC, 241, 29, CR_LIGHT_GRAY );
 		TextOut( hDC, 239, 30, "H", 1 );
 		SelectObject( hDC, WhitePen );
 		Rectangle( hDC, 230, 39, 254, 155 );
@@ -1755,7 +1720,7 @@ namespace vc {
 		}
 		BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
 
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 230, 91, 254, 105 );
 
@@ -1774,7 +1739,7 @@ namespace vc {
 			sprintf_s( cbuf, 8, "%4.1f", Hdot );
 			TextOut( hDC, 231, 93, cbuf, strlen( cbuf ) );
 
-			SetTextColor( hDC, CR_GRAY_DARK );
+			SetTextColor( hDC, CR_LIGHT_GRAY );
 			TextOut( hDC, 245, 93, "K", 1 );
 		}
 		return;
@@ -1796,24 +1761,24 @@ namespace vc {
 		Rectangle( hDC, 230, 39, 254, 155 );
 		Rectangle( hDC, 230, 91, 254, 105 );
 
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 12, 30, "M/V", 3 );
 		TextOut( hDC, 12, 172, "KEAS", 4 );
 
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, LightGrayPen );
 		::Ellipse( hDC, 46, 34, 50, 38 );
-		SetPixel( hDC, 50, 34, CR_GRAY_DARK );
-		SetPixel( hDC, 50, 37, CR_GRAY_DARK );
+		SetPixel( hDC, 50, 34, CR_LIGHT_GRAY );
+		SetPixel( hDC, 50, 37, CR_LIGHT_GRAY );
 
 		TextOut( hDC, 212, 30, "H", 1 );
-		SetPixel( hDC, 241, 29, CR_GRAY_DARK );
+		SetPixel( hDC, 241, 29, CR_LIGHT_GRAY );
 		TextOut( hDC, 239, 30, "H", 1 );
 		return;
 	}
 
 	void MDU::ADI_STATIC( HDC hDC )
 	{
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 174, 25, "R", 1 );
 		TextOut( hDC, 174, 32, "P", 1 );
 		TextOut( hDC, 174, 39, "Y", 1 );
@@ -1823,7 +1788,7 @@ namespace vc {
 
 		// rate scales
 		// top scale
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		MoveToEx( hDC, 87, 27, NULL );
 		LineTo( hDC, 157, 27 );
 		MoveToEx( hDC, 87, 27, NULL );
@@ -1938,7 +1903,7 @@ namespace vc {
 		// 170º/350º
 		MoveToEx( hDC, 113, 145, NULL );
 		LineTo( hDC, 131, 43 );
-		//SelectObject( hDC, GrayDarkPen );// TODO thick pen
+		//SelectObject( hDC, DarkGrayPen );// TODO thick pen
 		// 30º/210º
 		MoveToEx( hDC, 96, 49, NULL );
 		LineTo( hDC, 148, 139 );
@@ -1966,8 +1931,8 @@ namespace vc {
 		TextOut( hDC, 74, 63, "06", 2 );
 		TextOut( hDC, 89, 47, "03", 2 );
 		SelectObject( hDC, TahomaFont_h10w4 );
-		SelectObject( hDC, GrayLightPen );
-		SelectObject( hDC, GrayLightBrush );
+		SelectObject( hDC, LightGrayPen );
+		SelectObject( hDC, LightGrayBrush );
 		POINT diamond[4];
 		diamond[0].x = 122;
 		diamond[0].y = 40;
@@ -2082,7 +2047,7 @@ namespace vc {
 
 	void MDU::ADI_STATIC_ORBIT( HDC hDC )
 	{
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 186, 42, "R", 1 );
 		TextOut( hDC, 186, 50, "P", 1 );
 		TextOut( hDC, 186, 58, "Y", 1 );
@@ -2092,7 +2057,7 @@ namespace vc {
 
 		// rate scales
 		// top scale
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		MoveToEx( hDC, 89, 53, NULL );
 		LineTo( hDC, 167, 53 );
 		MoveToEx( hDC, 89, 53, NULL );
@@ -2207,7 +2172,7 @@ namespace vc {
 		// 170º/350º
 		MoveToEx( hDC, 118, 185, NULL );
 		LineTo( hDC, 138, 71 );
-		//SelectObject( hDC, GrayDarkPen );// TODO thick pen
+		//SelectObject( hDC, DarkGrayPen );// TODO thick pen
 		// 30º/210º
 		MoveToEx( hDC, 99, 77, NULL );
 		LineTo( hDC, 157, 179 );
@@ -2233,8 +2198,8 @@ namespace vc {
 		TextOut( hDC, 74, 155, "12", 2 );
 		TextOut( hDC, 74, 93, "06", 2 );
 		TextOut( hDC, 91, 75, "03", 2 );
-		SelectObject( hDC, GrayLightPen );
-		SelectObject( hDC, GrayLightBrush );
+		SelectObject( hDC, LightGrayPen );
+		SelectObject( hDC, LightGrayBrush );
 		POINT diamond[4];
 		diamond[0].x = 128;
 		diamond[0].y = 66;
@@ -2381,8 +2346,8 @@ namespace vc {
 				SelectObject( hDC_ADI, WhiteBrush );
 				SelectObject( hDC_ADI, WhitePen );
 				Rectangle( hDC_ADI, 0, 0, 100, 50 );
-				SelectObject( hDC_ADI, GrayLightBrush );
-				SelectObject( hDC_ADI, GrayLightPen );
+				SelectObject( hDC_ADI, LightGrayBrush );
+				SelectObject( hDC_ADI, LightGrayPen );
 				Chord( hDC_ADI, -19, 50 - hP, 119, 50 + hP, 119, 50, -19, 50 );
 				Rectangle( hDC_ADI, 0, 50, 100, 100 );
 				SelectObject( hDC_ADI, BlackPen );
@@ -2390,8 +2355,8 @@ namespace vc {
 			}
 			else
 			{
-				SelectObject( hDC_ADI, GrayLightBrush );
-				SelectObject( hDC_ADI, GrayLightPen );
+				SelectObject( hDC_ADI, LightGrayBrush );
+				SelectObject( hDC_ADI, LightGrayPen );
 				Rectangle( hDC_ADI, 0, 50, 100, 100 );
 				SelectObject( hDC_ADI, WhiteBrush );
 				SelectObject( hDC_ADI, WhitePen );
@@ -2411,12 +2376,12 @@ namespace vc {
 		}
 		else
 		{
-			SelectObject( hDC_ADI, GrayLightBrush );
+			SelectObject( hDC_ADI, LightGrayBrush );
 			Rectangle( hDC_ADI, 0, 0, 100, 100 );
 		}
 
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
-		SelectObject( hDC_ADI, GrayDarkPen );
+		SelectObject( hDC_ADI, DarkGrayPen );
 		// +30º
 		if (fabs( pitch - 30 ) <= 45)
 		{
@@ -2476,7 +2441,7 @@ namespace vc {
 		// pitch lines/labels for -30º/-60º/-90º/-120º/-150º
 		SelectObject( hDC_ADI, WhitePen );
 		SetTextColor( hDC_ADI, CR_WHITE );
-		SetBkColor( hDC_ADI, CR_GRAY_LIGHT );
+		SetBkColor( hDC_ADI, CR_LIGHT_GRAY );
 		// -30º
 		if (fabs( pitch + 30 ) <= 45)
 		{
@@ -2539,11 +2504,11 @@ namespace vc {
 		SelectObject( hDC_ADI, WhiteBrush );
 		SelectObject( hDC_ADI, BlackPen );
 		Rectangle( hDC_ADI, 48, 0, 52, 100 );
-		SelectObject( hDC_ADI, GrayDarkPen );
+		SelectObject( hDC_ADI, DarkGrayPen );
 		MoveToEx( hDC_ADI, 50, 0, NULL );
 		LineTo( hDC_ADI, 50, 100 );
 
-		SelectObject( hDC_ADI, GrayDarkPen );
+		SelectObject( hDC_ADI, DarkGrayPen );
 		// yaw line 30º (above horizon)
 		MoveToEx( hDC_ADI, 85, 0, NULL );
 		LineTo( hDC_ADI, 85, 50 + Round( 60.012096 * sinpitch ) );
@@ -2561,8 +2526,8 @@ namespace vc {
 		// TODO yaw labels
 
 		// roll triangle
-		SelectObject( hDC_ADI, GreenPen );
-		SelectObject( hDC_ADI, GreenBrush );
+		SelectObject( hDC_ADI, LightGreenPen );
+		SelectObject( hDC_ADI, LightGreenBrush );
 		POINT tri[3];
 		tri[0].x = 50;
 		tri[0].y = 1;
@@ -2577,10 +2542,10 @@ namespace vc {
 		SetGraphicsMode( hDC_ADI, GM_COMPATIBLE );
 
 		// flight director
-		SelectObject( hDC_ADI, GreenThickPen );
+		SelectObject( hDC_ADI, LightGreenThickPen );
 		Arc( hDC_ADI, 44, 44, 56, 57, 44, 50, 56, 50 );
-		SelectObject( hDC_ADI, GreenPen );
-		SelectObject( hDC_ADI, GreenBrush );
+		SelectObject( hDC_ADI, LightGreenPen );
+		SelectObject( hDC_ADI, LightGreenBrush );
 		Rectangle( hDC_ADI, 49, 33, 51, 67 );
 		Rectangle( hDC_ADI, 33, 49, 67, 51 );
 
@@ -2634,8 +2599,8 @@ namespace vc {
 				SelectObject( hDC_ADI_ORBIT, WhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, WhitePen );
 				Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 56 );
-				SelectObject( hDC_ADI_ORBIT, GrayLightBrush );
-				SelectObject( hDC_ADI_ORBIT, GrayLightPen );
+				SelectObject( hDC_ADI_ORBIT, LightGrayBrush );
+				SelectObject( hDC_ADI_ORBIT, LightGrayPen );
 				Chord( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
 				Rectangle( hDC_ADI_ORBIT, 0, 56, 112, 112 );
 				SelectObject( hDC_ADI_ORBIT, BlackPen );
@@ -2643,8 +2608,8 @@ namespace vc {
 			}
 			else
 			{
-				SelectObject( hDC_ADI_ORBIT, GrayLightBrush );
-				SelectObject( hDC_ADI_ORBIT, GrayLightPen );
+				SelectObject( hDC_ADI_ORBIT, LightGrayBrush );
+				SelectObject( hDC_ADI_ORBIT, LightGrayPen );
 				Rectangle( hDC_ADI_ORBIT, 0, 56, 112, 112 );
 				SelectObject( hDC_ADI_ORBIT, WhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, WhitePen );
@@ -2664,12 +2629,12 @@ namespace vc {
 		}
 		else
 		{
-			SelectObject( hDC_ADI_ORBIT, GrayLightBrush );
+			SelectObject( hDC_ADI_ORBIT, LightGrayBrush );
 			Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 112 );
 		}
 
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
-		SelectObject( hDC_ADI_ORBIT, GrayDarkPen );
+		SelectObject( hDC_ADI_ORBIT, DarkGrayPen );
 		// +30º
 		if (fabs( pitch - 30 ) <= 45)
 		{
@@ -2729,7 +2694,7 @@ namespace vc {
 		// pitch lines/labels for -30º/-60º/-90º/-120º/-150º
 		SelectObject( hDC_ADI_ORBIT, WhitePen );
 		SetTextColor( hDC_ADI_ORBIT, CR_WHITE );
-		SetBkColor( hDC_ADI_ORBIT, CR_GRAY_LIGHT );
+		SetBkColor( hDC_ADI_ORBIT, CR_LIGHT_GRAY );
 		// -30º
 		if (fabs( pitch + 30 ) <= 45)
 		{
@@ -2792,11 +2757,11 @@ namespace vc {
 		SelectObject( hDC_ADI_ORBIT, WhiteBrush );
 		SelectObject( hDC_ADI_ORBIT, BlackPen );
 		Rectangle( hDC_ADI_ORBIT, 54, 0, 58, 112 );
-		SelectObject( hDC_ADI_ORBIT, GrayDarkPen );
+		SelectObject( hDC_ADI_ORBIT, DarkGrayPen );
 		MoveToEx( hDC_ADI_ORBIT, 56, 0, NULL );
 		LineTo( hDC_ADI_ORBIT, 56, 112 );
 
-		SelectObject( hDC_ADI_ORBIT, GrayDarkPen );
+		SelectObject( hDC_ADI_ORBIT, DarkGrayPen );
 		// yaw line 30º (above horizon)
 		MoveToEx( hDC_ADI_ORBIT, 95, 0, NULL );
 		LineTo( hDC_ADI_ORBIT, 95, 56 + Round( 67.360968 * sinpitch ) );
@@ -2814,8 +2779,8 @@ namespace vc {
 		// TODO yaw labels
 
 		// roll triangle
-		SelectObject( hDC_ADI_ORBIT, GreenPen );
-		SelectObject( hDC_ADI_ORBIT, GreenBrush );
+		SelectObject( hDC_ADI_ORBIT, LightGreenPen );
+		SelectObject( hDC_ADI_ORBIT, LightGreenBrush );
 		POINT tri[3];
 		tri[0].x = 56;
 		tri[0].y = 1;
@@ -2830,10 +2795,10 @@ namespace vc {
 		SetGraphicsMode( hDC_ADI_ORBIT, GM_COMPATIBLE );
 
 		// flight director
-		SelectObject( hDC_ADI_ORBIT, GreenThickPen );
+		SelectObject( hDC_ADI_ORBIT, LightGreenThickPen );
 		Arc( hDC_ADI_ORBIT, 49, 49, 63, 64, 49, 56, 63, 56 );
-		SelectObject( hDC_ADI_ORBIT, GreenPen );
-		SelectObject( hDC_ADI_ORBIT, GreenBrush );
+		SelectObject( hDC_ADI_ORBIT, LightGreenPen );
+		SelectObject( hDC_ADI_ORBIT, LightGreenBrush );
 		Rectangle( hDC_ADI_ORBIT, 55, 37, 57, 75 );
 		Rectangle( hDC_ADI_ORBIT, 37, 55, 75, 57 );
 
@@ -2860,7 +2825,7 @@ namespace vc {
 		int pos_yaw;
 
 		SelectObject( hDC, TahomaFont_h7w3 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 121, 19, "0", 1 );
 		TextOut( hDC, 192, 91, "0", 1 );
 		TextOut( hDC, 121, 164, "0", 1 );
@@ -2940,8 +2905,8 @@ namespace vc {
 		}
 
 		// draw triangles
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		POINT tri[3];
 		tri[0].x = pos_roll;
 		tri[0].y = 27;
@@ -2992,7 +2957,7 @@ namespace vc {
 				TextOut( hDC, 159, 159, "5", 1 );
 
 				SelectObject( hDC, TahomaFont_h7w3 );
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 121, 19, "0", 1 );
 				TextOut( hDC, 192, 91, "0", 1 );
 				TextOut( hDC, 121, 164, "0", 1 );
@@ -3033,7 +2998,7 @@ namespace vc {
 				TextOut( hDC, 158, 159, "1K", 2 );
 
 				SelectObject( hDC, TahomaFont_h7w3 );
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 192, 91, "0", 1 );
 				TextOut( hDC, 121, 164, "0", 1 );
 				SelectObject( hDC, TahomaFont_h10w4 );
@@ -3063,7 +3028,7 @@ namespace vc {
 				TextOut( hDC, 158, 159, "5K", 2 );
 
 				SelectObject( hDC, TahomaFont_h7w3 );
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 192, 91, "0", 1 );
 				TextOut( hDC, 121, 164, "0", 1 );
 				SelectObject( hDC, TahomaFont_h10w4 );
@@ -3096,7 +3061,7 @@ namespace vc {
 				TextOut( hDC, 159, 159, "5", 1 );
 
 				SelectObject( hDC, TahomaFont_h7w3 );
-				SetTextColor( hDC, CR_GRAY_DARK );
+				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 192, 91, "0", 1 );
 				TextOut( hDC, 121, 164, "0", 1 );
 				SelectObject( hDC, TahomaFont_h10w4 );
@@ -3139,7 +3104,7 @@ namespace vc {
 			TextOut( hDC, 159, 159, "5", 1 );
 
 			SelectObject( hDC, TahomaFont_h7w3 );
-			SetTextColor( hDC, CR_GRAY_DARK );
+			SetTextColor( hDC, CR_LIGHT_GRAY );
 			TextOut( hDC, 121, 19, "0", 1 );
 			TextOut( hDC, 192, 91, "0", 1 );
 			TextOut( hDC, 121, 164, "0", 1 );
@@ -3159,8 +3124,8 @@ namespace vc {
 		}
 		
 		// draw triangles
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		POINT tri[3];
 		if (pos_roll != 0)
 		{
@@ -3201,7 +3166,7 @@ namespace vc {
 		int pos_pitch;
 		int pos_yaw;
 
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 126, 43, "0", 1 );
 		TextOut( hDC, 207, 124, "0", 1 );
 		TextOut( hDC, 126, 206, "0", 1 );
@@ -3280,8 +3245,8 @@ namespace vc {
 		}
 
 		// draw triangles
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		POINT tri[3];
 		tri[0].x = pos_roll;
 		tri[0].y = 53;
@@ -3649,7 +3614,7 @@ namespace vc {
 	{
 		double sgn = sign( (90 * RAD) - fabs( roll ) );
 		// center (122,238) r = 57
-		SelectObject( hDC, TurquoisePen );
+		SelectObject( hDC, CyanPen );
 		MoveToEx( hDC, 65, 238, NULL );
 		LineTo( hDC, 61, 238 );
 		MoveToEx( hDC, 82, 198, NULL );
@@ -3662,7 +3627,7 @@ namespace vc {
 		LineTo( hDC, 183, 238 );
 
 		SelectObject( hDC, WhitePen );
-		SelectObject( hDC, GrayLightBrush );
+		SelectObject( hDC, LightGrayBrush );
 		::Ellipse( hDC, 70, 186, 175, 291 );
 
 		SelectObject( hDC, BlackBrush );
@@ -3745,13 +3710,30 @@ namespace vc {
 			ModifyWorldTransform( hDC, &WTroll, MWT_IDENTITY );
 		}
 		SetGraphicsMode( hDC, GM_COMPATIBLE );
+
+		POINT ov_symbol[6];
+		ov_symbol[0].x = 122;
+		ov_symbol[0].y = 229;
+		ov_symbol[1].x = 120;
+		ov_symbol[1].y = 244;
+		ov_symbol[2].x = 117;
+		ov_symbol[2].y = 247;
+		ov_symbol[3].x = 122;
+		ov_symbol[3].y = 252;
+		ov_symbol[4].x = 127;
+		ov_symbol[4].y = 247;
+		ov_symbol[5].x = 124;
+		ov_symbol[5].y = 244;
+		SelectObject( hDC, LightGrayBrush );
+		SelectObject( hDC, LightGrayPen );
+		Polygon( hDC, ov_symbol, 6 );
 		return;
 	}
 
 	void MDU::HSI_E( HDC hDC, double heading )
 	{
 		// center (122,238) r = 57
-		SelectObject( hDC, TurquoisePen );
+		SelectObject( hDC, CyanPen );
 		MoveToEx( hDC, 65, 238, NULL );
 		LineTo( hDC, 61, 238 );
 		MoveToEx( hDC, 82, 198, NULL );
@@ -3764,7 +3746,7 @@ namespace vc {
 		LineTo( hDC, 183, 238 );
 
 		SelectObject( hDC, WhitePen );
-		SelectObject( hDC, GrayLightBrush );
+		SelectObject( hDC, LightGrayBrush );
 		::Ellipse( hDC, 70, 186, 175, 291 );
 
 		SelectObject( hDC, BlackBrush );
@@ -3851,13 +3833,30 @@ namespace vc {
 			ModifyWorldTransform( hDC, &WTroll, MWT_IDENTITY );
 		}
 		SetGraphicsMode( hDC, GM_COMPATIBLE );
+
+		POINT ov_symbol[6];
+		ov_symbol[0].x = 122;
+		ov_symbol[0].y = 229;
+		ov_symbol[1].x = 120;
+		ov_symbol[1].y = 244;
+		ov_symbol[2].x = 117;
+		ov_symbol[2].y = 247;
+		ov_symbol[3].x = 122;
+		ov_symbol[3].y = 252;
+		ov_symbol[4].x = 127;
+		ov_symbol[4].y = 247;
+		ov_symbol[5].x = 124;
+		ov_symbol[5].y = 244;
+		SelectObject( hDC, LightGrayBrush );
+		SelectObject( hDC, LightGrayPen );
+		Polygon( hDC, ov_symbol, 6 );
 		return;
 	}
 
 	void MDU::AEPFD_Header_AscentDAP( HDC hDC, int MM, int adiatt )
 	{
 		char cbuf[8];
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 21, 4, "DAP:", 4 );
 
 		TextOut( hDC, 209, 4, "MM:", 3 );
@@ -3902,7 +3901,7 @@ namespace vc {
 	void MDU::AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt )
 	{
 		char cbuf[4];
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 21, 4, "DAP:", 4 );
 
 		TextOut( hDC, 209, 4, "MM:", 3 );
@@ -3925,7 +3924,7 @@ namespace vc {
 	void MDU::AEPFD_Header_AerojetDAP( HDC hDC, int MM, double MachNumber )
 	{
 		char cbuf[8];
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 16, 4, "Pitch:", 6 );
 
 		TextOut( hDC, 21, 13, "R/Y:", 4 );
@@ -3980,10 +3979,10 @@ namespace vc {
 
 	void MDU::AEPFD_BETA( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 37, 159, 60, 171 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 41, 172, "Beta", 4 );
 
 		double beta = STS()->GetSlipAngle() * DEG;
@@ -3998,11 +3997,11 @@ namespace vc {
 
 	void MDU::AEPFD_GMETER_STATIC( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 40, 198, 66, 211 );
 
-		SelectObject( hDC, GrayLightPen );
+		SelectObject( hDC, LightGrayPen );
 		Arc( hDC, 10, 193, 58, 241, 34, 193, 41, 224 );
 		
 		MoveToEx( hDC, 34, 193, NULL );
@@ -4018,7 +4017,7 @@ namespace vc {
 		MoveToEx( hDC, 50, 234, NULL );
 		LineTo( hDC, 54, 237 );
 
-		SetTextColor( hDC, CR_GRAY_LIGHT );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 10, 193, "3", 1 );
 		TextOut( hDC, 2, 213, "2", 1 );
 		TextOut( hDC, 10, 231, "1", 1 );
@@ -4029,7 +4028,7 @@ namespace vc {
 
 	void MDU::AEPFD_GMETER_ACCEL( HDC hDC )
 	{
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 43, 212, "Accel", 5 );
 		VECTOR3 f;
 		STS()->GetForceVector( f );
@@ -4055,11 +4054,11 @@ namespace vc {
 		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
 		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
 
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		Polygon( hDC, arrow, 3 );
 
-		SelectObject( hDC, GreenThickPen );
+		SelectObject( hDC, LightGreenThickPen );
 		MoveToEx( hDC, 34, 217, NULL );
 		LineTo( hDC, arrow[0].x, arrow[0].y );
 		return;
@@ -4067,7 +4066,7 @@ namespace vc {
 
 	void MDU::AEPFD_GMETER_NZ( HDC hDC )
 	{
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 43, 212, "Nz", 2 );
 		double dtmp = GetIDP()->GetNZ();
 
@@ -4091,11 +4090,11 @@ namespace vc {
 		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
 		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
 
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		Polygon( hDC, arrow, 3 );
 
-		SelectObject( hDC, GreenThickPen );
+		SelectObject( hDC, LightGreenThickPen );
 		MoveToEx( hDC, 34, 217, NULL );
 		LineTo( hDC, arrow[0].x, arrow[0].y );
 		return;
@@ -4103,8 +4102,15 @@ namespace vc {
 
 	void MDU::AEPFD_HACCEL( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		Rectangle( hDC, 234, 168, 241, 240 );
+		SelectObject( hDC, WhiteBrush );
+		Rectangle( hDC, 234, 168, 241, 205 );
+		SelectObject( hDC, LightGrayBrush );
+		SelectObject( hDC, LightGrayPen );
+		Rectangle( hDC, 235, 204, 240, 239 );
+		SelectObject( hDC, DarkGrayPen );
+		SelectObject( hDC, BlackBrush );
 		MoveToEx( hDC, 241, 169, NULL );
 		LineTo( hDC, 244, 169 );
 		MoveToEx( hDC, 241, 176, NULL );
@@ -4127,9 +4133,9 @@ namespace vc {
 		LineTo( hDC, 244, 232 );
 		MoveToEx( hDC, 241, 239, NULL );
 		LineTo( hDC, 244, 239 );
-		SetPixel( hDC, 236, 158, CR_GRAY_DARK );
-		SetPixel( hDC, 238, 158, CR_GRAY_DARK );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetPixel( hDC, 236, 158, CR_LIGHT_GRAY );
+		SetPixel( hDC, 238, 158, CR_LIGHT_GRAY );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 235, 159, "H", 1 );
 		SetTextColor( hDC, CR_WHITE );
 		TextOut( hDC, 244, 165, "10", 2 );
@@ -4148,18 +4154,18 @@ namespace vc {
 		tri[2].x = 229;
 		tri[2].y = tri[0].y - 5;
 
-		SelectObject( hDC, GreenPen );
-		SelectObject( hDC, GreenBrush );
+		SelectObject( hDC, LightGreenPen );
+		SelectObject( hDC, LightGreenBrush );
 		Polygon( hDC, tri, 3 );
 		return;
 	}
 
 	void MDU::AEPFD_RANGERW( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 190, 206, 213, 219 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 189, 196, GetIDP()->GetSelectedRunway().c_str(), 5 );
 		SetTextColor( hDC, CR_WHITE );
 		double dtmp = GetIDP()->GetRangeToRunway();
@@ -4172,10 +4178,10 @@ namespace vc {
 
 	void MDU::AEPFD_RANGEHACC( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 190, 231, 213, 244 );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 190, 221, "HAC-C", 5 );
 		SetTextColor( hDC, CR_WHITE );
 		char cbuf[8];
@@ -4188,12 +4194,12 @@ namespace vc {
 	{
 		double dtmp;
 		char cbuf[8];
-		SelectObject( hDC, GrayDarkPen );
 		SelectObject( hDC, BlackBrush );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		if (GetIDP()->GetOnHACState() == false)
 		{
 			MoveToEx( hDC, 149, 179, NULL );
+			SelectObject( hDC, LightGrayPen );
 			LineTo( hDC, 151, 174 );
 			LineTo( hDC, 153, 179 );
 			LineTo( hDC, 149, 179 );
@@ -4205,6 +4211,7 @@ namespace vc {
 				if (GetFlash() == false) SelectObject( hDC, BlackPen );
 				else SelectObject( hDC, RedPen );
 			}
+			else SelectObject( hDC, DarkGrayPen );
 		}
 		else
 		{
@@ -4222,9 +4229,9 @@ namespace vc {
 
 	void MDU::AEPFD_dXTRK( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		POINT tri[3] = {{203, 168}, {205, 173}, {201, 173}};
 		Polygon( hDC, tri, 3 );
 		TextOut( hDC, 208, 166, "X-Trk", 5 );
@@ -4239,9 +4246,9 @@ namespace vc {
 
 	void MDU::AEPFD_XTRK( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 207, 184, "X-Trk", 5 );
 		Rectangle( hDC, 229, 182, 252, 194 );
 		SetTextColor( hDC, CR_WHITE );
@@ -4254,9 +4261,9 @@ namespace vc {
 
 	void MDU::AEPFD_dINC( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		POINT tri[3] = {{205, 205}, {207, 210}, {203, 210}};
 		Polygon( hDC, tri, 3 );
 		TextOut( hDC, 210, 203, "Inc", 3 );
@@ -4272,9 +4279,9 @@ namespace vc {
 
 	void MDU::AEPFD_TGTINC( HDC hDC )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
-		SetTextColor( hDC, CR_GRAY_DARK );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 196, 222, "Tgt Inc", 7 );
 		Rectangle( hDC, 223, 220, 252, 232 );
 		SetTextColor( hDC, CR_WHITE );
@@ -4287,10 +4294,10 @@ namespace vc {
 
 	void MDU::AEPFD_GSI( HDC hDC, double Altitude_ft )
 	{
-		SelectObject( hDC, GrayDarkPen );
+		SelectObject( hDC, DarkGrayPen );
 		SelectObject( hDC, BlackBrush );
 		Rectangle( hDC, 217, 165, 224, 235 );
-		SelectObject( hDC, GrayDarkBrush );
+		SelectObject( hDC, DarkGrayBrush );
 		::Ellipse( hDC, 219, 166, 222, 169 );
 		::Ellipse( hDC, 219, 183, 222, 186 );
 		::Ellipse( hDC, 219, 215, 222, 218 );
@@ -4356,8 +4363,8 @@ namespace vc {
 
 			tri[1].y = tri[0].y - 5;
 			tri[2].y = tri[0].y + 5;
-			SelectObject( hDC, GreenPen );
-			SelectObject( hDC, GreenBrush );
+			SelectObject( hDC, LightGreenPen );
+			SelectObject( hDC, LightGreenBrush );
 			Polygon( hDC, tri, 3 );
 		}
 		return;

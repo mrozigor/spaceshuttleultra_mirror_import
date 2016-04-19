@@ -24,17 +24,30 @@
   **************************************************************************/
 #pragma once
 #include "BasicExtAirlock.h"
+#include "..\Atlantis.h"
 
-namespace eva_docking {
+
+namespace eva_docking
+{
+	const static char* DEFAULT_MESHNAME_EXTAL = "SSU\\ExtAL";
+
+	const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.03, 0 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
+	//const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.1, 7 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
 	
 	class ExtAirlock: public BasicExternalAirlock {
 	protected:
 		double fHatchState;
 		double fExtALPress[2];
+
+		bool HideTopCover;
+
+		UINT mesh_extal;
+		MESHHANDLE hExtALMesh;
 	public:
-		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident = "External Airlock");
+		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident, bool HideTopCover = false);
 		virtual ~ExtAirlock();
 		virtual void AddMeshes(const VECTOR3& ofs);
-		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
+		virtual void DefineAnimations(const VECTOR3& ofs);
+		void VisualCreated( VISHANDLE vis );
 	};
 };

@@ -16,6 +16,11 @@ const double ORBITER_MAX_PROPELLANT_MASS = 11284.23 + 2162.622;
 // This parameter for now includes the propellant mass of the Aft RCS fuel and oxidizer
 
 const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
+
+const double ORBITER_LEFT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
+const double ORBITER_RIGHT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
 // Amount of fuel in forward RCS tanks
 
 //const double SSME_RATED_THRUST = 2090664.159; //100% thrust
@@ -92,10 +97,10 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 //const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
 // Max. safe gear deploy speed [m/s]
 
-const double DOOR_OPERATING_SPEED = 0.007353;
+const double DOOR_OPERATING_SPEED = 0.00537634;
 // Opening/closing speed of payload bay doors (1/sec)
-// This contains the door opening sequence (63 sec for each door) and an
-// interval of 10 sec between the two door operations
+// This contains the door opening sequence (63 sec for each door)
+// plus 30 sec before each door opening for bulkhead latches
 
 const double DOORLATCH_OPERATING_SPEED = 0.05;
 // Opening/closing speed of payload bay door latch gang (1/sec)
@@ -109,8 +114,8 @@ const double RADLATCH_OPERATING_SPEED = 0.0384615385;
 // Release/engaging speed of radiator latches (1/sec)
 // => radiator latch cycle = 26 sec
 
-const double KU_OPERATING_SPEED = 0.0275;
-// Deployment speed of the Ku Band antenna (1/sec)
+const double KU_OPERATING_SPEED = 0.0217391304;
+// Deployment speed of the Ku Band antenna (1/sec) (single motor)
 // Specified cycle is 23 sec, although actual observed cycle is ~19 sec
 
 const VECTOR3 ORBITER_CS = {304.62,457.57,149.27};
@@ -129,8 +134,8 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 const double PTU_HIGHRATE_SPEED = 12;
 const double PTU_LOWRATE_SPEED = 1.2;
 // Payload camera speed rates (deg/sec)
-const double MAX_PLBD_CAM_TILT = 170.0;
-const double MAX_PLBD_CAM_PAN = 170.0;
+const double MAX_PLB_CAM_TILT = 170.0;
+const double MAX_PLB_CAM_PAN = 170.0;
 
 //Post Contact Thrusting
 const double PCT_STAGE1 = 0.56;

@@ -231,11 +231,13 @@ void ActiveLatchGroup::Realize()
 {
 	LatchSystem::Realize();
 
-	DiscreteBundle* pBundle = BundleManager()->CreateBundle(GetIdentifier(), 10);
+	DiscreteBundle* pBundle = BundleManager()->CreateBundle(GetIdentifier(), 12);
 	for(unsigned short i=0;i<5;i++) {
 		LatchSignal[i].Connect(pBundle, 2*i);
 		ReleaseSignal[i].Connect(pBundle, 2*i+1);
 	}
+	LogicPowerSys[0].Connect( pBundle, 10 );
+	LogicPowerSys[1].Connect( pBundle, 11 );
 
 	pBundle = BundleManager()->CreateBundle(GetIdentifier()+"_STATE", 15);
 	for(unsigned short i=0;i<5;i++) {
@@ -243,6 +245,10 @@ void ActiveLatchGroup::Realize()
 		Released[i].Connect(pBundle, 3*i+1);
 		ReadyToLatch[i].Connect(pBundle, 3*i+2);
 	}
+
+	pBundle = STS()->BundleManager()->CreateBundle( "RadiatorControlSW", 10 );
+	PLBayMechPWR[0].Connect( pBundle, 0 );
+	PLBayMechPWR[1].Connect( pBundle, 1 );
 }
 
 void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -250,18 +256,18 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
 
 	for(unsigned short i=0;i<usLatchNum;i++) {
-		if(LatchSignal[i] && !LatchState[i].Closed()) {
+		if(LatchSignal[i] && ((PLBayMechPWR[0] && LogicPowerSys[0]) || (PLBayMechPWR[1] && LogicPowerSys[1])) && !LatchState[i].Closed()) {
 			LatchState[i].action=AnimState::CLOSING;
-			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			LatchState[i].Move(DeltaT * LATCH_OPERATION_SPEED * ((int)(PLBayMechPWR[0] & LogicPowerSys[0]) + (int)(PLBayMechPWR[1] & LogicPowerSys[1])) );
 			// if even one latch is closed, we can latch payload
 			if(LatchState[i].Closed()) {
 				Latch();
 				//sprintf_s(oapiDebugString(), 255, "%s: latched latch %d", GetIdentifier().c_str(), i);
 			}
 		}
-		else if(ReleaseSignal[i] && !LatchState[i].Open()) {
+		else if(ReleaseSignal[i] && ((PLBayMechPWR[0] && LogicPowerSys[0]) || (PLBayMechPWR[1] && LogicPowerSys[1])) && !LatchState[i].Open()) {
 			LatchState[i].action=AnimState::OPENING;
-			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			LatchState[i].Move(DeltaT * LATCH_OPERATION_SPEED * ((int)(PLBayMechPWR[0] & LogicPowerSys[0]) + (int)(PLBayMechPWR[1] & LogicPowerSys[1])) );
 			// if all latches are open, release payload
 			if(LatchState[i].Open()) {
 				/*bool rel=true;

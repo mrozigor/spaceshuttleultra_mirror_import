@@ -326,8 +326,14 @@
 #define AID_MDU_PLT2	1009
 #define AID_MDU_AFD1	1010
 
-#define AID_A1U1         1011
-#define AID_A1U2         1012
+#define AID_A1U         1011
+
+#define AID_A2_MIN	1020
+#define AID_A2		1020
+#define AID_A2_LED1	1021
+#define AID_A2_LED2	1022
+#define AID_A2_MAX	1030
+
 
 const unsigned int AID_CUSTOM_PANELS_MIN = 10000;
 const unsigned int AID_CUSTOM_PANELS_MAX = 30000;

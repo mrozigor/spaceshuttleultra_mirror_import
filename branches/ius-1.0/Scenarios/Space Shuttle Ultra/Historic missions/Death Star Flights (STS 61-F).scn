@@ -83,11 +83,10 @@ BEGIN_MFD 6
 END_MFD
 
 BEGIN_MFD 7
-  TYPE Orbit
-  PROJ Ship
-  FRAME Equator
-  ALT
-  REF Earth
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
 END_MFD
 
 BEGIN_MFD 8
@@ -155,7 +154,6 @@ Challenger:SpaceShuttleUltra
   NAVFREQ 466 0
   MISSION STS-61F
   CONFIGURATION 0
-  MET 0.000
   GEAR 0 0.0000
   OPS 101
   PLBD_CAM 90.0000 -90.0000 -90.0000 -90.0000 90.0000 -90.0000 -90.0000 -90.0000
@@ -507,7 +505,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Shoulder Brace Release" OFF
   "RMS SELECT" OFF
   "Single/Direct Drive" OFF
-  "Parameter" TEST
+  "Parameter" POSITION
   "Joint" SHOULDER_YAW
   "RMS Mode" OPR_CMD
   @ENDPANEL 

@@ -211,7 +211,7 @@ namespace vc
 		}
 		else if(LED_ParameterSelect[4].IsSet()) { // JOINT ANGLE
 			if(LED_JointSelect[7].IsSet()) { // SHOULDER YAW
-				NewLEDValues[1]=RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;
+				NewLEDValues[1]=-RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage()*1999.8;// minus added to fix wrong sign coming from RMSSystem
 				NewLEDValues[0]=NewLEDValues[2]=0.0;
 			}
 			else if(LED_JointSelect[6].IsSet()) { // SHOULDER PITCH
@@ -487,21 +487,22 @@ namespace vc
 
 		pLEDParameter->SetMouseRegion(0.45049f, 0.440562f, 0.531691f, 0.494226f);
 		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_VC);
-		pLEDParameter->SetReference(_V(-0.536, 2.534, 12.401), rotary_switch_rot);
+		pLEDParameter->SetReference(_V(-0.5354, 2.534, 12.4013), rotary_switch_rot);
 		pLEDParameter->SetInitialAnimState(1.0f);
 		pLEDParameter->DefineRotationAngle(210.0f);
 		pLEDParameter->SetOffset(-90.0f);
+		pLEDParameter->SetInitialPosition( 6 );
 
 		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
-		pLEDJoint->SetReference(_V(-0.699, 2.533, 12.401), rotary_switch_rot);
+		pLEDJoint->SetReference(_V(-0.6984, 2.5339, 12.4013), rotary_switch_rot);
 		pLEDJoint->SetInitialAnimState(1.0f);
 		pLEDJoint->DefineRotationAngle(210.0f);
 		pLEDJoint->SetOffset(-150.0f);
 
 		pRMSMode->SetMouseRegion(0.77292f, 0.177526f, 0.855731f, 0.234343f);
 		pRMSMode->DefineSwitchGroup(GRP_A8RS1_VC);
-		pRMSMode->SetReference(_V(-0.364, 2.736, 12.337), rotary_switch_rot);
+		pRMSMode->SetReference(_V(-0.3639, 2.7365, 12.3378), rotary_switch_rot);
 		pRMSMode->SetInitialAnimState(1.0f);
 		pRMSMode->SetWraparound(true);
 		pRMSMode->DefineRotationAngle(330.0f);
@@ -711,11 +712,7 @@ namespace vc
 		pRMSSelect->outputB.Connect(pBundle, 6);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
-		for(unsigned short i=0;i<12;i++)
-		{
-			pRMSMode->ConnectOutputSignal(i, pBundle, i);
-			pModeLights[i]->input.Connect( pBundle, i );
-		}
+		for(unsigned short i=0;i<12;i++) pRMSMode->ConnectOutputSignal(i, pBundle, i);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_DATA", 16);
 		for(int i=0;i<6;i++) RMSJointAngles[i].Connect(pBundle, i);
@@ -761,6 +758,13 @@ namespace vc
 			LED_ParameterSelect[i].Connect(pBundle, i);
 			pLEDParameter->ConnectOutputSignal(i, pBundle, i);
 		}
+		for (int i = 0; i < 12; i++)// for light test
+		{
+			pModeLights[i]->test.Connect( pBundle, 7 );
+			pCWLights[i]->test.Connect( pBundle, 7 );
+		}
+		pSequenceLights[0]->test.Connect( pBundle, 7 );
+		pSequenceLights[1]->test.Connect( pBundle, 7 );
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_SINGLE_JOINT", 16);
 		for(int i=0;i<8;i++) {
@@ -773,6 +777,9 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
 		for (int i = 0; i < 12; i++) pCWLights[i]->input.Connect( pBundle, i );
 		pSoftStopTB->SetInput( 0, pBundle, 12, TB_GRAY );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "RMS_MODELIGHTS", 16 );
+		for (int i = 0; i < 12; i++) pModeLights[i]->input.Connect( pBundle, i );
 
 		AtlantisPanel::Realize();
 	}

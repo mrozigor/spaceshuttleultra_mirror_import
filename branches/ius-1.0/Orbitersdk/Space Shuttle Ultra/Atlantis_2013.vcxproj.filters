@@ -165,9 +165,6 @@
     <ClCompile Include="eps\Inverter.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Latch.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -201,9 +198,6 @@
     <ClCompile Include="eva_docking\ODS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelA4.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelA6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -214,9 +208,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA8.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="PanelC2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelC3.cpp">
@@ -237,9 +228,6 @@
     <ClCompile Include="vc\PanelF8.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelO3.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelO6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -247,9 +235,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelR2.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="PlBayOp.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PushButton.cpp">
@@ -459,6 +444,27 @@
     <ClCompile Include="vc\StandardLight2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelC2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA4.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\Keyboard.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelR13L.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PayloadBay.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -618,9 +624,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelF8.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="vc\PanelGroup.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelO6.h">
@@ -864,6 +867,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\simple\MF_GNC.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PayloadBay.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO3.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
