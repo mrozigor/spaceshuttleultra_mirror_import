@@ -11,8 +11,10 @@ PayloadBay::PayloadBay( AtlantisSubsystemDirector* _director ):AtlantisSubsystem
 	for(int i = 0; i < 4; i++) CLBayDoorLatch[i].Set(AnimState::CLOSED, 0);
 
 	// Radiators
-	RadiatorStatus.Set (AnimState::CLOSED, 0);
-	RadLatchStatus.Set (AnimState::CLOSED, 0);
+	RadiatorStatus[0].Set( AnimState::CLOSED, 0 );
+	RadiatorStatus[1].Set( AnimState::CLOSED, 0 );
+	RadLatchStatus[0].Set( AnimState::CLOSED, 0 );
+	RadLatchStatus[1].Set( AnimState::CLOSED, 0 );
 
 	// Ku-band antenna
 	KuAntennaStatus.Set (AnimState::CLOSED, 0);
@@ -30,11 +32,17 @@ bool PayloadBay::OnParseLine( const char* line )
 	if (!_strnicmp (line, "CARGODOOR", 9)) {
 		sscan_state ((char*)(line+9), BayDoorStatus);
 		return true;
-	} else if (!_strnicmp (line, "RADIATOR", 8)) {
-		sscan_state ((char*)(line+8), RadiatorStatus);
+	} else if (!_strnicmp (line, "RADIATOR_PORT", 13)) {
+		sscan_state ((char*)(line+13), RadiatorStatus[0]);
 		return true;
-	} else if (!_strnicmp (line, "RADLATCH", 8)) {
-		sscan_state ((char*)(line+8), RadLatchStatus);
+	} else if (!_strnicmp (line, "RADIATOR_STBD", 13)) {
+		sscan_state ((char*)(line+13), RadiatorStatus[1]);
+		return true;
+	} else if (!_strnicmp (line, "RADLATCH_PORT", 13)) {
+		sscan_state ((char*)(line+13), RadLatchStatus[0]);
+		return true;
+	} else if (!_strnicmp (line, "RADLATCH_PSTBD", 13)) {
+		sscan_state ((char*)(line+13), RadLatchStatus[1]);
 		return true;
 	} else if (!_strnicmp (line, "KUBAND", 6)) {
 		sscan_state ((char*)(line+6), KuAntennaStatus);
@@ -52,8 +60,10 @@ void PayloadBay::OnSaveState( FILEHANDLE scn ) const
 	char cbuf[256];
 
 	WriteScenario_state (scn, "CARGODOOR", BayDoorStatus);
-	WriteScenario_state (scn, "RADIATOR", RadiatorStatus);
-	WriteScenario_state (scn, "RADLATCH", RadLatchStatus);
+	WriteScenario_state (scn, "RADIATOR_PORT", RadiatorStatus[0]);
+	WriteScenario_state (scn, "RADIATOR_STBD", RadiatorStatus[1]);
+	WriteScenario_state (scn, "RADLATCH_PORT", RadLatchStatus[0]);
+	WriteScenario_state (scn, "RADLATCH_STBD", RadLatchStatus[1]);
 	if (hasAntenna == true) WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
 	for(int i=0;i<4;i++) {
 		sprintf_s(cbuf, 255, "BAYDOORLATCH%d", i);
@@ -276,76 +286,102 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	}
 
 	// radiators
-	if (PLBayMECHPWRSYS_ON[0].IsSet() && PLBayMECHPWRSYS_ON[1].IsSet())
+	if (PLBayMECHPWRSYS_ON[0] || PLBayMECHPWRSYS_ON[1])
 	{
-		// latches
-		double da;
-		if (LatchControlSYS_LATCH[0].IsSet() == LatchControlSYS_LATCH[1].IsSet()) da = fDeltaT * RADLATCH_OPERATING_SPEED;
-		else da = fDeltaT * RADLATCH_OPERATING_SPEED * 0.5; //only one motor working
-
-		if ((LatchControlSYS_LATCH[0].IsSet() || LatchControlSYS_LATCH[1].IsSet()) && (!LatchControlSYS_RELEASE[0].IsSet() && !LatchControlSYS_RELEASE[1].IsSet()))
-		{
-			// latch
-			if (RadLatchStatus.pos > 0.0)
-			{
-				RadLatchStatus.action = AnimState::CLOSING;
-				RadLatchStatus.pos = max (0.0, RadLatchStatus.pos-da);
-			}
-			else RadLatchStatus.action = AnimState::CLOSED;
-		}
-		else if ((LatchControlSYS_RELEASE[0].IsSet() || LatchControlSYS_RELEASE[1].IsSet()) && (!LatchControlSYS_LATCH[0].IsSet() && !LatchControlSYS_LATCH[1].IsSet()))
+		// port latches
+		double da = fDeltaT * RADLATCH_OPERATING_SPEED * 0.5 * 
+			(((int)PLBayMECHPWRSYS_ON[0] * ((int)LatchControlSYS_RELEASE[0] - (int)LatchControlSYS_LATCH[0])) + 
+			((int)PLBayMECHPWRSYS_ON[1] * ((int)LatchControlSYS_RELEASE[1] - (int)LatchControlSYS_LATCH[1])));
+		if (da > 0)
 		{
 			// release
-			if (RadLatchStatus.pos < 1.0)
-			{
-				RadLatchStatus.action = AnimState::OPENING;
-				RadLatchStatus.pos = min (1.0, RadLatchStatus.pos+da);
-			}
-			else RadLatchStatus.action = AnimState::OPEN;
+			RadLatchStatus[0].action = AnimState::OPENING;
+			RadLatchStatus[0].Move( da );
+		}
+		else if (da < 0)
+		{
+			// latch
+			RadLatchStatus[0].action = AnimState::CLOSING;
+			RadLatchStatus[0].Move( -da );
 		}
 		else
 		{
 			// stop
-			if (RadLatchStatus.Moving()) RadLatchStatus.action = AnimState::STOPPED;
+			if (RadLatchStatus[0].Moving()) RadLatchStatus[0].action = AnimState::STOPPED;
 		}
-		STS()->SetRadLatchPosition (RadLatchStatus.pos);
 
-		// radiators
-		if (RadiatorControlSYS_STOW[0].IsSet() == RadiatorControlSYS_STOW[1].IsSet()) da = fDeltaT * RAD_OPERATING_SPEED;
-		else da = fDeltaT * RAD_OPERATING_SPEED * 0.5;
-
-		if ((RadiatorControlSYS_STOW[0].IsSet() || RadiatorControlSYS_STOW[1].IsSet()) && (!RadiatorControlSYS_DEPLOY[0].IsSet() && !RadiatorControlSYS_DEPLOY[1].IsSet()) && BayDoorStatus.Open())
+		// stbd latches
+		da = fDeltaT * RADLATCH_OPERATING_SPEED * 0.5 * 
+			(((int)PLBayMECHPWRSYS_ON[0] * ((int)LatchControlSYS_RELEASE[1] - (int)LatchControlSYS_LATCH[1])) + 
+			((int)PLBayMECHPWRSYS_ON[1] * ((int)LatchControlSYS_RELEASE[0] - (int)LatchControlSYS_LATCH[0])));
+		if (da > 0)
 		{
-			// stow
-			if (RadiatorStatus.pos > 0.0)
-			{
-				RadiatorStatus.action = AnimState::CLOSING;
-				RadiatorStatus.pos = max (0.0, RadiatorStatus.pos-da);
-			}
-			else RadiatorStatus.action = AnimState::CLOSED;
+			// release
+			RadLatchStatus[1].action = AnimState::OPENING;
+			RadLatchStatus[1].Move( da );
 		}
-		else if ((RadiatorControlSYS_DEPLOY[0].IsSet() || RadiatorControlSYS_DEPLOY[1].IsSet()) && (!RadiatorControlSYS_STOW[0].IsSet() && !RadiatorControlSYS_STOW[1].IsSet()) && BayDoorStatus.Open() && RadLatchStatus.Open())
+		else if (da < 0)
+		{
+			// latch
+			RadLatchStatus[1].action = AnimState::CLOSING;
+			RadLatchStatus[1].Move( -da );
+		}
+		else
+		{
+			// stop
+			if (RadLatchStatus[1].Moving()) RadLatchStatus[1].action = AnimState::STOPPED;
+		}
+
+		// port drive
+		da = fDeltaT * RAD_OPERATING_SPEED * 0.5 * 
+			(((int)PLBayMECHPWRSYS_ON[0] * ((int)RadiatorControlSYS_DEPLOY[0] - (int)RadiatorControlSYS_STOW[0])) + 
+			((int)PLBayMECHPWRSYS_ON[1] * ((int)RadiatorControlSYS_DEPLOY[1] - (int)RadiatorControlSYS_STOW[1])));
+		if ((da > 0) && BayDoorStatus.Open() && RadLatchStatus[0].Open())
 		{
 			// deploy
-			if (RadiatorStatus.pos < 1.0)
-			{
-				RadiatorStatus.action = AnimState::OPENING;
-				RadiatorStatus.pos = min (1.0, RadiatorStatus.pos+da);
-			}
-			else RadiatorStatus.action = AnimState::OPEN;
+			RadiatorStatus[0].action = AnimState::OPENING;
+			RadiatorStatus[0].Move( da );
+		}
+		else if ((da < 0) && BayDoorStatus.Open())
+		{
+			// stow
+			RadiatorStatus[0].action = AnimState::CLOSING;
+			RadiatorStatus[0].Move( -da );
 		}
 		else
 		{
 			// stop
-			if (RadiatorStatus.Moving()) RadiatorStatus.action = AnimState::STOPPED;
+			if (RadiatorStatus[0].Moving()) RadiatorStatus[0].action = AnimState::STOPPED;
 		}
-		STS()->SetRadiatorPosition (RadiatorStatus.pos);
+		STS()->SetRadiatorPosition( RadiatorStatus[0].pos, 0 );
+
+		// stbd drive
+		if ((da > 0) && BayDoorStatus.Open() && RadLatchStatus[1].Open())
+		{
+			// deploy
+			RadiatorStatus[1].action = AnimState::OPENING;
+			RadiatorStatus[1].Move( da );
+		}
+		else if ((da < 0) && BayDoorStatus.Open())
+		{
+			// stow
+			RadiatorStatus[1].action = AnimState::CLOSING;
+			RadiatorStatus[1].Move( -da );
+		}
+		else
+		{
+			// stop
+			if (RadiatorStatus[1].Moving()) RadiatorStatus[1].action = AnimState::STOPPED;
+		}
+		STS()->SetRadiatorPosition( RadiatorStatus[1].pos, 1 );
 	}
 	else
 	{
 		// stop everything
-		if (RadiatorStatus.Moving()) RadiatorStatus.action = AnimState::STOPPED;
-		if (RadLatchStatus.Moving()) RadLatchStatus.action = AnimState::STOPPED;
+		if (RadiatorStatus[0].Moving()) RadiatorStatus[0].action = AnimState::STOPPED;
+		if (RadiatorStatus[1].Moving()) RadiatorStatus[1].action = AnimState::STOPPED;
+		if (RadLatchStatus[0].Moving()) RadLatchStatus[0].action = AnimState::STOPPED;
+		if (RadLatchStatus[1].Moving()) RadLatchStatus[1].action = AnimState::STOPPED;
 	}
 
 	// ku antenna boom
@@ -435,48 +471,66 @@ void PayloadBay::SetTalkbacks( void )
 		PLBayDoorTB_CL.ResetLine();
 	}
 
-	if (RadLatchStatus.Closed())
+	if (RadLatchStatus[0].Closed())
 	{
-		LatchSTBDTB_LAT.SetLine();
-		LatchSTBDTB_REL.ResetLine();
 		LatchPORTTB_LAT.SetLine();
 		LatchPORTTB_REL.ResetLine();
 	}
-	else if (RadLatchStatus.Open())
+	else if (RadLatchStatus[0].Open())
 	{
-		LatchSTBDTB_LAT.ResetLine();
-		LatchSTBDTB_REL.SetLine();
 		LatchPORTTB_LAT.ResetLine();
 		LatchPORTTB_REL.SetLine();
 	}
 	else
 	{
-		LatchSTBDTB_LAT.ResetLine();
-		LatchSTBDTB_REL.ResetLine();
 		LatchPORTTB_LAT.ResetLine();
 		LatchPORTTB_REL.ResetLine();
 	}
-
-	if (RadiatorStatus.Closed())
+	if (RadLatchStatus[1].Closed())
 	{
-		RadiatorSTBDTB_STO.SetLine();
-		RadiatorSTBDTB_DPY.ResetLine();
+		LatchSTBDTB_LAT.SetLine();
+		LatchSTBDTB_REL.ResetLine();
+	}
+	else if (RadLatchStatus[1].Open())
+	{
+		LatchSTBDTB_LAT.ResetLine();
+		LatchSTBDTB_REL.SetLine();
+	}
+	else
+	{
+		LatchSTBDTB_LAT.ResetLine();
+		LatchSTBDTB_REL.ResetLine();
+	}
+
+	if (RadiatorStatus[0].Closed())
+	{
 		RadiatorPORTTB_STO.SetLine();
 		RadiatorPORTTB_DPY.ResetLine();
 	}
-	else if (RadiatorStatus.Open())
+	else if (RadiatorStatus[0].Open())
 	{
-		RadiatorSTBDTB_STO.ResetLine();
-		RadiatorSTBDTB_DPY.SetLine();
 		RadiatorPORTTB_STO.ResetLine();
 		RadiatorPORTTB_DPY.SetLine();
 	}
 	else
 	{
-		RadiatorSTBDTB_STO.ResetLine();
-		RadiatorSTBDTB_DPY.ResetLine();
 		RadiatorPORTTB_STO.ResetLine();
 		RadiatorPORTTB_DPY.ResetLine();
+	}
+	if (RadiatorStatus[1].Closed())
+	{
+		RadiatorSTBDTB_STO.SetLine();
+		RadiatorSTBDTB_DPY.ResetLine();
+	}
+	else if (RadiatorStatus[1].Open())
+	{
+		RadiatorSTBDTB_STO.ResetLine();
+		RadiatorSTBDTB_DPY.SetLine();
+	}
+	else
+	{
+		RadiatorSTBDTB_STO.ResetLine();
+		RadiatorSTBDTB_DPY.ResetLine();
 	}
 
 	if (hasAntenna == true)
