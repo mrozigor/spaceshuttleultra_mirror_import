@@ -97,10 +97,10 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 //const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
 // Max. safe gear deploy speed [m/s]
 
-const double DOOR_OPERATING_SPEED = 0.007353;
+const double DOOR_OPERATING_SPEED = 0.00537634;
 // Opening/closing speed of payload bay doors (1/sec)
-// This contains the door opening sequence (63 sec for each door) and an
-// interval of 10 sec between the two door operations
+// This contains the door opening sequence (63 sec for each door)
+// plus 30 sec before each door opening for bulkhead latches
 
 const double DOORLATCH_OPERATING_SPEED = 0.05;
 // Opening/closing speed of payload bay door latch gang (1/sec)
