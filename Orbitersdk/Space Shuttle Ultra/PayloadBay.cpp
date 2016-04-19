@@ -145,13 +145,13 @@ void PayloadBay::Realize( void )
 void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 {
 	// payload bay doors
-	if (PLBayDoorSYS_ENABLE[0].IsSet() && PLBayDoorSYS_ENABLE[1].IsSet())
+	if (PLBayDoorSYS_ENABLE[0].IsSet() || PLBayDoorSYS_ENABLE[1].IsSet())
 	{
 		if (PLBayDoor_CLOSE.IsSet())
 		{
 			if (!BayDoorStatus.Closed())
 			{
-				double da = fDeltaT * DOOR_OPERATING_SPEED;
+				double da = fDeltaT * DOOR_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// close doors
 				if (BayDoorStatus.pos > 0.0)
 				{
@@ -163,7 +163,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 			}
 			else if (!CLBayDoorLatch[0].Closed())
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED;
+				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// close latches 1 and 4
 				if (CLBayDoorLatch[0].pos > 0.0)
 				{
@@ -182,7 +182,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 			}
 			else
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED;
+				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// close latches 2 and 3
 				if (CLBayDoorLatch[1].pos > 0.0)
 				{
@@ -204,7 +204,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		{
 			if (!CLBayDoorLatch[1].Open())
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED;
+				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// open latches 2 and 3
 				if(CLBayDoorLatch[1].pos < 1.0)
 				{
@@ -223,7 +223,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 			}
 			else if (!CLBayDoorLatch[0].Open())
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED;
+				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// open latches 1 and 4
 				if(CLBayDoorLatch[0].pos < 1.0)
 				{
@@ -242,7 +242,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 			}
 			else
 			{
-				double da = fDeltaT * DOOR_OPERATING_SPEED;
+				double da = fDeltaT * DOOR_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
 				// open doors
 				if (BayDoorStatus.pos < 1.0)
 				{

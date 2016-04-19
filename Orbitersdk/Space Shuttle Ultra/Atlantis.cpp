@@ -1759,7 +1759,7 @@ void Atlantis::DefineAnimations(void)
 	// **************************************************************************************
 	//right (starboard) side
 	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.0, 0.4632, pRCargoDoor);
+	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pRCargoDoor);
 	AddManagedAnimationComponent(anim_rad[1], 0, 1, pRRadiator, parent);
 	//latches
 	AddAnimationComponent(anim_clatch[0], 0, 1, &CLatch1_4, parent);
@@ -1767,16 +1767,16 @@ void Atlantis::DefineAnimations(void)
 	AddAnimationComponent(anim_clatch[2], 0, 1, &CLatch9_12, parent);
 	AddAnimationComponent(anim_clatch[3], 0, 1, &CLatch13_16, parent);
 	//right push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBD_CLAMP);
+	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pSTBD_CLAMP);
 	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPullRod, parent);
 	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPushRod, parent);
 	// **************************************************************************************
 	//left(port) side
 	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pLCargoDoor);
+	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pLCargoDoor);
 	AddManagedAnimationComponent(anim_rad[0], 0, 1, pLRadiator, parent);
 	//left push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORT_CLAMP);
+	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pPORT_CLAMP);
 	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPullRod, parent);
 	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPushRod, parent);
 
