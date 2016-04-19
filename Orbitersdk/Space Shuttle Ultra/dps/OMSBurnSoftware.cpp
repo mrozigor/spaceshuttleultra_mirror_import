@@ -209,6 +209,19 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
+		else if (newMajorMode == 105)
+		{
+			bShowTimer = false;
+			MnvrLoad=false;
+			MnvrExecute=false;
+			MnvrToBurnAtt=false;
+			// reset burn flags
+			BurnInProg=false;
+			BurnCompleted=false;
+			// reset burn data (VGO, TGO, etc.) displayed on CRT screen
+			VGO = _V(0, 0, 0);
+			DeltaVTot = 0.0;
+		}
 		return true;
 	}
 	else {
@@ -717,7 +730,7 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;
-	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
+	double StartWeight, EndWeight, /*EndWeightLast=0.0,*/ FuelRate, ThrustFactor=1.0;
 	//VECTOR3 ThrustVector;
 	MnvrLoad=true;
 	tig = ConvertDDHHMMSSToSeconds(TIG);

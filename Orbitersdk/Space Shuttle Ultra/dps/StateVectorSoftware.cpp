@@ -152,7 +152,7 @@ bool StateVectorSoftware::UpdatePropagatorStateVectors()
 	GetStateVectors(STS(), hEarth, pos, vel);
 	char cbuf[255];
 	sprintf_s(cbuf, 255, "Pos: %f %f %f Vel: %f %f %f", pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
-	oapiWriteLog(cbuf);
+	//oapiWriteLog(cbuf);
 	return propagator.UpdateStateVector(pos, vel, STS()->GetMET());
 }
 

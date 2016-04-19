@@ -351,7 +351,7 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 {
 	char pszTempA[40] = "";
 	char pszTempB[40] = "";
-	int iTmpA = 0, iTmpB = 0;
+	int iTmpA = 0;
 	float fTmpA = 0.0;
 
 	strcpy_s(pszTempA, 40, line);
@@ -374,13 +374,6 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 			oapiWriteLog("B");
 		}
 		return true;
-	/*} else if(!_stricmp(keyword, "EVENT_TIMER")) {
-		const char* pLine2 = line;
-		strcpy(pszTempA, line);
-		oapiWriteLog(pszTempA);
-		sscanf_s(pLine2, "%d %f %s %s",
-			&iTmpA, &fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));*/
-	// GLS: fixing difference between OnParseLine and OnSaveState
 	} else if(!_strnicmp( keyword, "EVENT_TIMER", 11 )) {
 		sscanf_s( keyword + 11, "%d", &iTmpA );
 		const char* pLine2 = line;
@@ -390,7 +383,6 @@ bool MasterTimingUnit::OnParseLine(const char* keyword, const char* line)
 			&fTmpA, pszTempA, sizeof(pszTempA), pszTempB, sizeof(pszTempB));
 		if(iTmpA >=0 && iTmpA < 2)
 		{
-			//fEvent[iTmpA][0] = fTmpA;
 			fEvent[iTmpA][1] = fTmpA;
 			if(!_stricmp(pszTempA, "DOWN")) {
 				event_mode[iTmpA][0] = COUNT_DOWN;

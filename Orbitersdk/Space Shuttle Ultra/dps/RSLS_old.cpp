@@ -319,7 +319,8 @@ namespace dps
 			}
 		}
 
-		if(timeToLaunch<=2.0)
+		// disabled for now as it causes (false) aborts when frame rate is low
+		/*if(timeToLaunch<=2.0)
 		{
 			if (pSSME_SOP->GetPercentChamberPressVal( 1 ) <= 90.0)
 			{
@@ -342,7 +343,7 @@ namespace dps
 				RSLSAbortCause=&RSLSAbortCauses[0][0];
 				RSLSAbortData=3;
 			}
-		}
+		}*/
 
 		if(!STS()->HydraulicsOK())
 		{

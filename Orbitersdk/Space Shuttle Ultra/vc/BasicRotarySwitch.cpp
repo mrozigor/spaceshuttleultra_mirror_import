@@ -166,4 +166,9 @@ namespace vc
 			//else sprintf_s(oapiDebugString(), 255, "%s: invalid switch position %d", GetIdentifier().c_str(), static_cast<int>(usNewPosition));
 		}
 	}
+
+	void BasicRotarySwitch::SetInitialPosition(unsigned short usPos)
+	{
+		usCurrentPosition=usPos;
+	}
 };

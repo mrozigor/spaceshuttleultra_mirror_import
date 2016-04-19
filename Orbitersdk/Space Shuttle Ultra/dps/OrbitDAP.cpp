@@ -67,7 +67,7 @@ pStateVector(NULL)
 		NullingRates[i] = false;
 
 		//Initialize DAP Config
-		DAPConfiguration[i].PRI_ROT_RATE=0.2;
+		DAPConfiguration[i].PRI_ROT_RATE=2.0;
 		DAPConfiguration[i].PRI_ATT_DB=5.0;
 		DAPConfiguration[i].PRI_RATE_DB=0.2;
 		DAPConfiguration[i].PRI_ROT_PLS=0.1;
@@ -80,7 +80,7 @@ pStateVector(NULL)
 		DAPConfiguration[i].ALT_DELAY=0.0;
 		DAPConfiguration[i].ALT_JET_OPT=0;
 		DAPConfiguration[i].ALT_JETS=2;
-		DAPConfiguration[i].VERN_ROT_RATE=0.2;
+		DAPConfiguration[i].VERN_ROT_RATE=0.1;
 		DAPConfiguration[i].VERN_ATT_DB=1.0;
 		DAPConfiguration[i].VERN_RATE_DB=0.020;
 		DAPConfiguration[i].VERN_ROT_PLS=0.01;
@@ -339,10 +339,15 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
 	const VECTOR3 PRI_LIMITS = _V(0.005, 0.005, 0.005);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
+	//static char buf[100];
+
+
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
 	Error.data[YAW] = Error.data[YAW]; // temporary
 	Error.data[ROLL] = Error.data[ROLL];
+
+
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -383,6 +388,10 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
 		}
 	}
+
+
+
+
 }
 
 void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)

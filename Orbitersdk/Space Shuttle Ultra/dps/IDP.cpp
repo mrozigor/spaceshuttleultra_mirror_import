@@ -38,6 +38,12 @@ namespace dps {
 		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
 		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
+
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "C2_R11_IDP", 14 );
+		MajorFuncPL.Connect( pBundle, usIDPID + 3 );
+		MajorFuncGNC.Connect( pBundle, usIDPID + 7 );
+		KeybSelectA.Connect( pBundle, 12 );// not used by IDP4
+		KeybSelectB.Connect( pBundle, 13 );// not used by IDP4
 		return;
 	}
 
@@ -113,7 +119,8 @@ namespace dps {
 			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || 
 				cScratchPadLine[i-1]==SSU_KEY_PRO || 
 				cScratchPadLine[i-1]==SSU_KEY_RESUME ||
-				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM) return true;
+				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM ||
+				cScratchPadLine[i-1]==SSU_KEY_FAULTSUMM) return true;
 		}
 		return false;
 	}
@@ -121,14 +128,49 @@ namespace dps {
 	int IDP::GetActiveKeyboard( void ) const
 	{
 		int kb = 0;
-		if ((STS()->CRT_SEL[0] + 1) == usIDPID) kb += 1;
-		if ((STS()->CRT_SEL[1] + 1) == usIDPID) kb += 2;
+
+		switch (usIDPID)
+		{
+			case 1:
+				if (KeybSelectA.IsSet()) kb = 1;
+				break;
+			case 2:
+				if (KeybSelectB.IsSet() == false) kb = 2;
+				break;
+			case 3:
+				if (KeybSelectA.IsSet() == false) kb = 1;
+				if (KeybSelectB.IsSet()) kb += 2;
+				break;
+		}
 		return kb;
 	}
 
-	bool IDP::PutKey(unsigned short usKeyboardID, char cKey) {
-		
-		//TODO: Implement checking of active keyboard
+	bool IDP::IsKeyboardSelected( unsigned short usKeyboardID ) const
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet())) return true;
+				else return false;
+			case 2:
+				if ((usKeyboardID == 2) && (KeybSelectB.IsSet() == false)) return true;
+				else return false;
+			case 3:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet() == false)) return true;
+				else if ((usKeyboardID == 2) && (KeybSelectB.IsSet())) return true;
+				else return false;
+			case 4:
+				if (usKeyboardID == 3) return true;
+				else return false;
+			default:
+				return false;
+		}
+	}
+
+	bool IDP::PutKey(unsigned short usKeyboardID, char cKey)
+	{
+		if (IsKeyboardSelected( usKeyboardID ) == false) return false;
+
 		switch(cKey) {
 			case SSU_KEY_RESUME:
 				OnResume();
@@ -154,6 +196,11 @@ namespace dps {
 				break;
 			case SSU_KEY_SYSSUMM:
 				OnSysSummary();
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
+				break;
+			case SSU_KEY_FAULTSUMM:
+				OnFaultSummary( false );
 				ClearScratchPadLine();
 				AppendScratchPadLine( cKey );
 				break;
@@ -325,7 +372,11 @@ namespace dps {
 		}
 	}
 
-	void IDP::OnFaultSummary() {
+	void IDP::OnFaultSummary( bool ClearList )
+	{
+		if (ClearList){} // TODO clear list
+		SetDisp( 99 );
+		return;
 	}
 
 
@@ -501,6 +552,9 @@ namespace dps {
 				case SSU_KEY_SYSSUMM:
 					strcat_s( pszBuffer, "SYS SUMM" );
 					break;
+				case SSU_KEY_FAULTSUMM:
+					strcat_s( pszBuffer, "FAULT SUMM" );
+					break;
 				default:
 					break;
 			}
@@ -554,8 +608,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_A6U );
 			default:
 				return 1;// switch in LVLH
 		}
@@ -570,8 +623,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_ERROR_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_A6U );
 			default:
 				return 1;// switch in MED
 		}
@@ -586,8 +638,7 @@ namespace dps {
 			case 2:
 				return pIO_Control->GetSWPos( SW_ADI_RATE_F8 );
 			case 4:
-				// no working ADI switches in panel A6U
-				return 1;
+				return pIO_Control->GetSWPos( SW_ADI_RATE_A6U );
 			default:
 				return 1;// switch in MED
 		}

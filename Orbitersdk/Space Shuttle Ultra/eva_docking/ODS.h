@@ -28,12 +28,16 @@
 #include "DiscInPort.h"
 #include <set>
 
-const static char* ODS_MESHNAME = "ODS";
 
 /**
  * EVA and Docking systems
  */
 namespace eva_docking {
+
+	const static char* DEFAULT_MESHNAME_ODS = "SSU\\ODS";
+
+	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.00444299, 2.25302, -0.317876 ); // offset between ODS mesh position and docking port position
+	//const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.3380, -0.319862 ); // offset between ODS mesh position and docking port position
 
 	using discsignals::DiscInPort;
 	using discsignals::DiscOutPort;
@@ -79,6 +83,8 @@ namespace eva_docking {
 		EXTEND_GOAL extend_goal;
 
 		UINT anim_ring;
+		UINT anim_rods;
+		UINT anim_screw;
 		MGROUP_TRANSLATE*	pRingAnim;
 		MGROUP_TRANSLATE*	pRingAnimV;
 		MGROUP_SCALE*		pCoilAnim;
@@ -101,25 +107,32 @@ namespace eva_docking {
 
 		VECTOR3 odsAttachVec[3];
 
+		UINT mesh_ods;
+		MESHHANDLE hODSMesh;
+
+		ATTACHMENTHANDLE ahDockAux;
+
 		bool HasDSCUPower() const;
 		bool FindClosestDockingRing();
 		bool FindClosestDockingRing(OBJHANDLE hVessel);
 		void AnalyseVessel(OBJHANDLE hVessel);
-		
+		void CalculateRodAnimation();
 
 
 	public:
 		ODS(AtlantisSubsystemDirector* pdirect, const string& _ident);
 		virtual ~ODS();
 		virtual void Realize();
-		//virtual void AddMeshes(const VECTOR3& ofs);
+		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual double GetSubsystemEmptyMass() const;
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
 		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
+		virtual void DefineAnimations(const VECTOR3& ofs);
 		virtual bool OnParseLine(const char* keyword, const char* line);
+		void SetDockParams( double EALzpos );
+		void UpdateODSAttachment( const VECTOR3 &ofs );
 
 		DiscInPort dscu_PowerOn;
 		DiscInPort dscu_PowerOff;

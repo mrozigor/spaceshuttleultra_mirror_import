@@ -1,5 +1,6 @@
 #include "../Atlantis.h"
 #include "PushButton.h"
+#include <OrbiterSoundSDK40.h>
 
 namespace vc {
 
@@ -38,18 +39,6 @@ namespace vc {
 	}
 
 	bool PushButton::OnMouseEvent(int _event, float x, float y) {
-		/*switch(_event) {
-			case PANEL_MOUSE_LBDOWN:
-			case PANEL_MOUSE_LBPRESSED:
-				OnPress();
-				break;
-			case PANEL_MOUSE_LBUP:
-				OnDepress();
-				break;
-			default:
-				return false;
-		}
-		return true;*/
 		if(_event & PANEL_MOUSE_LBDOWN) {
 			OnPress();
 			return true;
@@ -71,6 +60,7 @@ namespace vc {
 			SetAnimation(anim_pb, 1.0);
 		}
 		output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
 	void PushButton::OnDepress() {

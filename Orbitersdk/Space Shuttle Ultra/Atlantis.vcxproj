@@ -223,8 +223,9 @@
     <None Include="..\..\Meshes\SSU\rsrb.msh" />
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\bitmap1.bmp" />
+    <None Include="Bitmaps\A8lights.bmp" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <None Include="Bitmaps\SSME_lights.bmp" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram2.cd" />
     <None Include="ClassDiagram3.cd" />
@@ -248,8 +249,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CISS.cpp" />
-    <ClCompile Include="commDeployedAssembly.cpp" />
-    <ClCompile Include="commGCIL.cpp" />
+    <ClCompile Include="comm\DeployedAssembly.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
+    <ClCompile Include="comm\GCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
     <ClCompile Include="dps\AscentGuidance.cpp" />
@@ -281,6 +284,7 @@
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
     <ClCompile Include="mps\DigitalComputerUnit.cpp" />
@@ -299,6 +303,7 @@
     <ClCompile Include="mps\SSMEController_BLOCK_II.cpp" />
     <ClCompile Include="mps\VehicleInterfaceElectronics.cpp" />
     <ClCompile Include="mps\VehicleInterfaceElectronics_BLOCK_II.cpp" />
+    <ClCompile Include="PayloadBay.cpp" />
     <ClCompile Include="ReentryDragTable.cpp" />
     <ClCompile Include="SSULua.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
@@ -342,11 +347,11 @@
     <ClCompile Include="dps\IDP.cpp" />
     <ClCompile Include="gnc\IMU.cpp" />
     <ClCompile Include="eps\Inverter.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Latch.cpp" />
     <ClCompile Include="dps\MasterTimingUnit.cpp" />
     <ClCompile Include="MCA.cpp" />
     <ClCompile Include="dps\MDM.cpp" />
+    <ClCompile Include="vc\Keyboard.cpp" />
     <ClCompile Include="vc\MDU.cpp" />
     <ClCompile Include="MechActuator.cpp" />
     <ClCompile Include="mission\Mission.cpp" />
@@ -354,33 +359,28 @@
     <ClCompile Include="MPMSystems.cpp" />
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
-    <ClCompile Include="PanelA4.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA2.cpp" />
+    <ClCompile Include="vc\PanelA4.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
     <ClCompile Include="vc\PanelA7U.cpp" />
     <ClCompile Include="vc\PanelA8.cpp" />
-    <ClCompile Include="PanelC2.cpp" />
+    <ClCompile Include="vc\PanelC2.cpp" />
     <ClCompile Include="vc\PanelC3.cpp" />
     <ClCompile Include="vc\PanelF2.cpp" />
+    <ClCompile Include="vc\PanelF3.cpp" />
     <ClCompile Include="vc\PanelF4.cpp" />
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
-    <ClCompile Include="PanelO3.cpp" />
     <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
+    <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
+    <ClCompile Include="vc\PanelR13L.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
-    <ClCompile Include="PlBayOp.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="vc\PushButton.cpp" />
     <ClCompile Include="vc\PushButtonIndicator.cpp" />
     <ClCompile Include="dps\RAM32.cpp" />
@@ -401,8 +401,10 @@
   <ItemGroup>
     <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="CISS.h" />
-    <ClInclude Include="commGCIL.h" />
-    <ClInclude Include="DeployedAssembly.h" />
+    <ClInclude Include="comm\DeployedAssembly.h" />
+    <ClInclude Include="comm\ElectronicsAssembly1.h" />
+    <ClInclude Include="comm\ElectronicsAssembly2.h" />
+    <ClInclude Include="comm\GCIL.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
@@ -427,7 +429,9 @@
     <ClInclude Include="dps\SSME_SOP.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="meshres_CISS_G.h" />
     <ClInclude Include="meshres_CISS_GPrime.h" />
     <ClInclude Include="meshres_vc_l12u.h" />
@@ -450,6 +454,7 @@
     <ClInclude Include="mps\SSMEController_BLOCK_II.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h" />
+    <ClInclude Include="PayloadBay.h" />
     <ClInclude Include="ReentryDragTable.h" />
     <ClInclude Include="vc\AftMDU.h" />
     <ClInclude Include="dps\AP101S.h" />
@@ -482,6 +487,7 @@
     <ClInclude Include="Latch.h" />
     <ClInclude Include="dps\MasterTimingUnit.h" />
     <ClInclude Include="MCA.h" />
+    <ClInclude Include="vc\Keyboard.h" />
     <ClInclude Include="vc\MDU.h" />
     <ClInclude Include="MechActuator.h" />
     <ClInclude Include="meshres.h" />
@@ -496,13 +502,16 @@
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
     <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA2.h" />
+    <ClInclude Include="vc\PanelA4.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />
     <ClInclude Include="vc\PanelA7U.h" />
     <ClInclude Include="vc\PanelA8.h" />
-    <ClInclude Include="PanelC2.h" />
+    <ClInclude Include="vc\PanelC2.h" />
     <ClInclude Include="vc\PanelC3.h" />
     <ClInclude Include="vc\PanelF2.h" />
+    <ClInclude Include="vc\PanelF3.h" />
     <ClInclude Include="vc\PanelF4.h" />
     <ClInclude Include="vc\PanelF6.h" />
     <ClInclude Include="vc\PanelF7.h" />
@@ -510,11 +519,12 @@
     <ClInclude Include="vc\PanelGroup.h" />
     <ClInclude Include="vc\PanelL12U.h" />
     <ClInclude Include="vc\PanelO17.h" />
+    <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />
+    <ClInclude Include="vc\PanelR13L.h" />
     <ClInclude Include="vc\PanelR2.h" />
     <ClInclude Include="ParameterValues.h" />
-    <ClInclude Include="PlBayOp.h" />
     <ClInclude Include="vc\PushButton.h" />
     <ClInclude Include="vc\PushButtonIndicator.h" />
     <ClInclude Include="dps\RAM16.h" />

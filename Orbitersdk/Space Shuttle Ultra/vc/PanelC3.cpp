@@ -184,14 +184,14 @@ namespace vc
 		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
 
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
-		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot);
+		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.7215, 14.2841), switch_rot);
 		pOMSArm[LEFT]->SetPullDirection(pull_dir);
 		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3B1_VC);
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
 		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
-		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot);
+		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.7215, 14.2841), switch_rot);
 		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
 		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3B2_VC);
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
@@ -208,12 +208,12 @@ namespace vc
 		pBFCCRTSelect->SetInitialAnimState( 0.5f );
 
 		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
-		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3B10_VC);
 		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
-		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
+		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3B11_VC);
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 

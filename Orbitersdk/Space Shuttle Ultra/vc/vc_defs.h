@@ -74,6 +74,8 @@
 #define AID_R13L_TKBK4   104
 #define AID_R13L_TKBK5   105
 #define AID_R13L_TKBK6   106
+#define AID_R13L_TKBK7   107
+#define AID_R13L_TKBK8   108
 #define AID_R13L_MAX     120
 // Panel F6 (commander's panel)
 #define AID_F6_MIN     200
@@ -81,6 +83,8 @@
 #define AID_F6_TKBK1   201
 #define AID_F6_TKBK2   202
 #define AID_F6_TKBK3   203
+#define AID_F6_PB1   204
+#define AID_F6_PB2   205
 #define AID_F6_MAX     219
 // Panel F7 (event timer and MPS status)
 #define AID_F7_MIN	     260
@@ -208,6 +212,11 @@
 
 #define AID_F8_MIN	   460
 #define AID_F8		   460
+#define AID_F8_TKBK1	461
+#define AID_F8_TKBK2	462
+#define AID_F8_TKBK3	463
+#define AID_F8_PB1	464
+#define AID_F8_PB2	465
 #define AID_F8_MAX	   470
 
 #define AID_A6_MIN     500
@@ -262,6 +271,8 @@
 #define AID_F2_RY_CSS	586
 #define AID_F2_P_AUTO	587
 #define AID_F2_RY_AUTO	588
+#define AID_F2_DC_ARM	589
+#define AID_F2_DC_DPY	590
 #define AID_F2_MAX		599
 
 #define AID_F4_MIN		600
@@ -274,6 +285,7 @@
 #define AID_F4_RY_CSS	606
 #define AID_F4_P_AUTO	607
 #define AID_F4_RY_AUTO	608
+#define AID_F4_DC_JETT	609
 #define AID_F4_MAX		620
 
 #define AID_A7U_MIN		640
@@ -299,6 +311,12 @@
 #define AID_L12U_TKBK6	906
 #define AID_L12U_MAX	910
 
+#define AID_F3_MIN	700
+#define AID_F3		700		
+#define AID_F3_DC_ARM	701
+#define AID_F3_DC_DPY	702
+#define AID_F3_DC_JETT	703
+#define AID_F3_MAX	710
 
 
 #define AID_MDU_CDR1	1000
@@ -313,8 +331,14 @@
 #define AID_MDU_PLT2	1009
 #define AID_MDU_AFD1	1010
 
-#define AID_A1U1         1011
-#define AID_A1U2         1012
+#define AID_A1U         1011
+
+#define AID_A2_MIN	1020
+#define AID_A2		1020
+#define AID_A2_LED1	1021
+#define AID_A2_LED2	1022
+#define AID_A2_MAX	1030
+
 
 const unsigned int AID_CUSTOM_PANELS_MIN = 10000;
 const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
@@ -322,6 +346,7 @@ const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
 const unsigned int AID_A7A3 = 11000;
 const unsigned int AID_ODSLIGHTS = 11001;
 const unsigned int AID_A8A3 = 11010;
+const unsigned int AID_A8LIGHTS = 11100;
 
 
 #define SWITCH1		0
@@ -365,6 +390,8 @@ namespace vc {
 	const int TB_GRAY = 8;
 	const int TB_DPY = 9;
 	const int TB_REL = 10;
+	const int TB_DN = 11;
+	const int TB_UP = 12;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

@@ -28,6 +28,7 @@
 
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
+#include "StandardSwitchCover.h"
 
 namespace vc
 {
@@ -44,6 +45,12 @@ namespace vc
 		PushButtonIndicator *pRollYawAuto;
 		PushButtonIndicator *pRollYawCSS;
 		PBIDiscPortGroup RollYawPortGroup;
+
+		StandardSwitchCover* pDragChuteARMCover;
+		StandardSwitchCover* pDragChuteDPYCover;
+
+		PushButtonIndicator* pDragChuteARM;
+		PushButtonIndicator* pDragChuteDPY;
 
 	public:
 		PanelF2(Atlantis* _sts);

@@ -1,4 +1,5 @@
 #include "PushButtonIndicator.h"
+#include <OrbiterSoundSDK40.h>
 
 namespace vc
 {
@@ -50,17 +51,6 @@ namespace vc
 	}
 
 	bool PushButtonIndicator::OnMouseEvent(int _event, float x, float y) {
-		/*switch(_event) {
-			case PANEL_MOUSE_LBDOWN:
-				OnPress();
-				break;
-			case PANEL_MOUSE_LBUP:
-				OnRelease();
-				break;
-			default:
-				return false;
-		}
-		return true;*/
 		if(_event & PANEL_MOUSE_LBDOWN) {
 			OnPress();
 			return true;
@@ -80,6 +70,7 @@ namespace vc
 		}
 		if(bAllowReset && input) output.ResetLine();
 		else output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
 	void PushButtonIndicator::OnRelease()

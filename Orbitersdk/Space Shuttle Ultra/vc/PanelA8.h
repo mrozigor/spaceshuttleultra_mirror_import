@@ -31,6 +31,8 @@
 #include "StandardSwitchCover.h"
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
+#include "StandardLight.h"
+
 
 namespace vc
 {
@@ -63,10 +65,15 @@ namespace vc
 		Std2SegTalkback* pEERigid;
 		Std2SegTalkback* pEEDerigid;
 		Std2SegTalkback* pShoulderBraceTb;
+		Std2SegTalkback* pSoftStopTB;
 
 		RotaryDemuxSwitch* pLEDParameter;
 		RotaryDemuxSwitch* pLEDJoint;
 		RotaryDemuxSwitch* pRMSMode;
+
+		StandardLight* pModeLights[12];
+		StandardLight* pCWLights[12];
+		StandardLight* pSequenceLights[2];
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();

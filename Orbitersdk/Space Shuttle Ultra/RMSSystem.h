@@ -61,7 +61,9 @@ const double RMS_EP_NULL_ANGLE = DEG * acos((RMS_EP_JOINT.z-RMS_WP_JOINT.z)/RMS_
 const double RMS_JOINT_LIMITS[2][6] = {{-180.0, -2.0, -161.0, -121.4, -121.3, -447.0},
 									{+180.0, +145.0, +2.4, +121.4, +121.3, +447.0}};
 const double RMS_JOINT_SOFTSTOPS[2][6] = {{-177.4, +0.6, -157.6, -116.4, -116.6, -442.0},
-										  {+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
+									{+177.4, +142.4, -0.4, +116.4, +116.6, +442.0}};
+const double RMS_JOINT_REACHLIMITS[2][6] = {{-175.4, +2.6, -155.6, -114.4, -114.6, -440.0},
+									{+175.4, +140.4, -2.4, +114.4, +114.6, +440.0}};
 
 //const double RMS_JOINT_ROTATION_SPEED = 1.5;
 const double RMS_JOINT_MAX_ROTATION_SPEED[6] = {40.0, 40.0, 40.0, 40.0, 40.0, 40.0}; // mechanical limits; numbers are made up
@@ -228,6 +230,11 @@ private:
 	DiscInPort ShoulderBrace;
 	DiscOutPort ShoulderBraceReleased;
 
+	DiscOutPort CWLights[12];
+	DiscOutPort ModeLights[12];
+
+	DiscOutPort SoftStopTB;// input inverted to display barberpole when "on"
+
 	AnimState Grapple_State, Rigid_State, Extend_State;
 	DiscInPort EEAuto, EEMan, EERigid, EEDerigid, EEGrapple, EERelease;
 	DiscOutPort EECapture, EEExtended, EEClosed, EEOpened, EERigidized, EEDerigidized;
@@ -241,6 +248,15 @@ private:
 	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
+
+	bool bSoftStop;
+
+	bool bEECapture;
+	bool bEEExtended;
+	bool bEEClosed;
+	bool bEEOpened;
+	bool bEERigidized;
+	bool bEEDerigidized;
 
 	// for LED displays on panel A8
 	DiscOutPort JointAngles[6], EEPosition[3], EEAttitude[3];
