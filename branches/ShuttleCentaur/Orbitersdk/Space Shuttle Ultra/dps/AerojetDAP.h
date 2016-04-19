@@ -183,6 +183,7 @@ private:
 	Averager tgtAltAveraging;
 	Averager vspeedAveraging;
 	Averager vaccAveraging;
+	double vspeedUpdateSimT, vaccUpdateSimT;
 	double tgtBankSign; // changed at each roll reversal
 	bool performedFirstRollReversal;
 

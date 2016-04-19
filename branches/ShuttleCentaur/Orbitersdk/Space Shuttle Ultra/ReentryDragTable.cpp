@@ -66,9 +66,9 @@ double DragTable::GetAirDensity(double altitude)
 
 double DragTable::TargetAltitude(double target_drag, double speed, double AOA, double mass, double cd)
 {
-	double cd1 = -0.07854;
-	double cd2 = -6.15920/1000*AOA;
-	double cd3 = -6.21408/10000*pow(AOA,2);
+	//double cd1 = -0.07854;
+	//double cd2 = -6.15920/1000*AOA;
+	//double cd3 = -6.21408/10000*pow(AOA,2);
 	//double drag = 0.5*GetAirDensity(alt)*pow(speed,2)*(cd1+cd2+cd3)*250/2*mass;
 	double density = (target_drag*2*mass)/(pow(speed,2)*cd*ORBITER_WING_AREA);
 	return Interpolate(density);

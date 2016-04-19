@@ -13,8 +13,9 @@ namespace mps
 #endif// _MPSDEBUG
 
 		this->ID = ID;
+		TankTemp = INITIAL_TANK_TEMP_ENG;
 		HeMass = INITIAL_HE_MASS_ENG;// + (INITIAL_HE_MASS_ENG * 0.1 * (oapiRand() - 0.5));// +/-5% variance
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		TankPress = (((HeMass / AR_HE) * R * TankTemp) / TANK_VOL_ENG) / 6894.757;
 		RegPress = 785;
 		TotalFlow = 0;
 
@@ -137,7 +138,7 @@ namespace mps
 			if ((read_f1 >= 0) && (read_f1 <= 4500))
 			{
 				TankPress = read_f1;
-				HeMass = (TankPress * 6894.757 * TANK_VOL_ENG * AR_HE) / ( R * TANK_TEMP);
+				HeMass = (TankPress * 6894.757 * TANK_VOL_ENG * AR_HE) / ( R * INITIAL_TANK_TEMP_ENG);
 			}
 #ifdef _MPSDEBUG
 			sprintf_s( buffer, 128, " HeSysEng::OnParseLine || TankPress:%f HeMass:%f", TankPress, HeMass );
@@ -266,16 +267,27 @@ namespace mps
 
 	double HeSysEng::UseTank( double mass )
 	{
-		HeMass -= mass;
-		if (HeMass < 0) HeMass = 0;
-		TankPress = (((HeMass / 4.002602) * 8.314 * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass - mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
 	double HeSysEng::FillTank( double mass )
 	{
-		HeMass += mass;
-		TankPress = (((HeMass / 4.002602) * 8.314 * TANK_TEMP) / TANK_VOL_ENG) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass + mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
@@ -301,8 +313,9 @@ namespace mps
 
 	HeSysPneu::HeSysPneu( AtlantisSubsystemDirector* _director, const string& _ident ):AtlantisSubsystem( _director, _ident )
 	{
+		TankTemp = INITIAL_TANK_TEMP_PNEU;
 		HeMass = INITIAL_HE_MASS_PNEU;// + (INITIAL_HE_MASS_PNEU * 0.1 * (oapiRand() - 0.5));// +/-5% variance
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		TankPress = (((HeMass / AR_HE) * R * TankTemp) / TANK_VOL_PNEU) / 6894.757;
 		RegPress = 770;
 		TotalFlow = 0;
 
@@ -371,7 +384,7 @@ namespace mps
 			if ((read_f1 >= 0) && (read_f1 <= 4500))
 			{
 				TankPress = read_f1;
-				HeMass = (TankPress * 6894.757 * TANK_VOL_PNEU * AR_HE) / ( R * TANK_TEMP);
+				HeMass = (TankPress * 6894.757 * TANK_VOL_PNEU * AR_HE) / ( R * INITIAL_TANK_TEMP_PNEU);
 			}
 #ifdef _MPSDEBUG
 			sprintf_s( buffer, 128, " HeSysPneu::OnParseLine || TankPress:%f HeMass:%f", TankPress, HeMass );
@@ -478,16 +491,26 @@ namespace mps
 
 	double HeSysPneu::UseTank( double mass )
 	{
-		HeMass -= mass;
-		if (HeMass < 0) HeMass = 0;
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass - mass;
+		if (m2 < 0) m2 = 0;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 
 	double HeSysPneu::FillTank( double mass )
 	{
-		HeMass += mass;
-		TankPress = (((HeMass / AR_HE) * R * TANK_TEMP) / TANK_VOL_PNEU) / 6894.757;
+		double P1 = TankPress * 6894.757;
+		double m2 = HeMass + mass;
+		double P2 = P1 * pow( HeMass / m2, -1.66 );
+		double T2 = TankTemp * pow( P2 / P1, 0.397590 );
+		TankPress = P2 / 6894.757;
+		TankTemp = T2;
+		HeMass = m2;
 		return TankPress;
 	}
 

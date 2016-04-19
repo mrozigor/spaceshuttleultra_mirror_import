@@ -42,7 +42,7 @@ const COLOUR4 SLC6_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
 const double SLC6_LIGHT_RANGE = 100.0;
 const double SLC6_LIGHT_ATT0 = 1e-3;
 const double SLC6_LIGHT_ATT1 = 0;
-const double SLC6_LIGHT_ATT2 = 1e-3;
+const double SLC6_LIGHT_ATT2 = 0.0005;
 const double SLC6_LIGHT_UMBRA = 45.0*RAD;
 const double SLC6_LIGHT_PENUMBRA = 180.0*RAD;
 
@@ -60,7 +60,7 @@ SLC6::SLC6(OBJHANDLE hVessel, int flightmodel)
 
 	goxVentPos[0] = GOXVENT_LEFT;
 	goxVentPos[1] = GOXVENT_RIGHT;
-	goxVentPos[2] = GOXVENT_DIRREF;
+	goxVentPos[2] = GOXVENT_LEFT + GOXVENT_DIRREF;
 
 	phGOXVent = NULL;
 	thGOXVent[0] = thGOXVent[1] = NULL;
@@ -89,7 +89,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
 	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
-	ahHDP = CreateAttachment(false, _V(0, 6, -1.9), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
+	ahHDP = CreateAttachment(false, _V( 0, 6.1, -2.7 ), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
 	DefineAnimations();
 	DefineROFIs();
@@ -102,6 +102,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	SetGOXVentHoodRate(SLC6_VENT_HOOD_RATE);
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(SLC6_IAA_RATE);
+	SetEmptyMass(2000001);
 	
 	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT, SLC6_LIGHT_RANGE, SLC6_LIGHT_ATT0, SLC6_LIGHT_ATT1, SLC6_LIGHT_ATT2, SLC6_LIGHT_UMBRA, SLC6_LIGHT_PENUMBRA, SLC6_LIGHT_DIFFUSE, SLC6_LIGHT_SPECULAR, SLC6_LIGHT_AMBIENT);
 }
@@ -143,8 +144,16 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 		else {
 			if(timeToLaunch < 16.0) SSSLevel = 1.0;
-			if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
-			if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
+			if (pSTS->GetRSLSAbortFlag())
+			{
+				SSS_SSMESteam = 0.0;
+				SSS_SRBSteam = 0.0;
+			}
+			else
+			{
+				if(timeToLaunch < 4.0) SSS_SSMESteam = 1.0;// added delay due to long flame tunnel
+				if(timeToLaunch < 0.0) SSS_SRBSteam = 1.0;
+			}
 		}
 	}
 
@@ -176,7 +185,7 @@ void SLC6::clbkPreStep(double simt, double simdt, double mjd)
 		}
 	}
 
-	if(VentHoodState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
+	if(VentHoodState.Open() && VentArmState.Open() && pSTS && pSTS->GetETPropellant()>=60) {
 		double fFlow = static_cast<double>(pSTS->GetETPropellant())/100.0;
 		SetThrusterLevel(thGOXVent[0], fFlow/5.0);
 		SetThrusterLevel(thGOXVent[1], fFlow/5.0);
@@ -422,6 +431,7 @@ void SLC6::DefineROFIs()
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
+	ROFI_Stream.tex = oapiRegisterParticleTexture( "contrail3" );
 
 	AddParticleStream(&ROFI_Stream, FWD_LEFT_ROFI_POS, _V(1, 0, 0), &ROFILevel);
 	AddParticleStream(&ROFI_Stream, FWD_RIGHT_ROFI_POS, _V(-1, 0, 0), &ROFILevel);
@@ -442,23 +452,55 @@ void SLC6::DefineSSS()
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_water = {
-		0, 0.05, 100.0, 12.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		0, 0.05, 30.0, 16.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
 
-	for(int i=0;i<=19;i++) {
+	for(int i=0;i<=19;i++) {// SSME hole
 		double zpos = 4+0.4*i;
-		AddParticleStream(&sss_water, _V(-4.11, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(4.11, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
+		AddParticleStream(&sss_water, _V(-4.11, 6.48, zpos), _V(0.866025, -0.5, 0), &SSSLevel);
+		AddParticleStream(&sss_water, _V(4.11, 6.48, zpos), _V(-0.866025, -0.5, 0), &SSSLevel);
 	}
-	for(int i=0;i<=10;i++) {
-		double zpos = -2.73+0.3*i;
-		AddParticleStream(&sss_water, _V(-9.52, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(-1.75, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(9.52, 6.48, zpos), _V(-1, 0, 0), &SSSLevel);
-		AddParticleStream(&sss_water, _V(1.75, 6.48, zpos), _V(1, 0, 0), &SSSLevel);
+
+	for (int i = 0; i <= 15; i++)// SRB hole (horizontal)
+	{
+		double zpos = -13.9 + (i * 0.51);
+		AddParticleStream( &sss_water, _V( -13.0, -0.7, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -1.75, -0.7, zpos ), _V( -1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 1.75, -0.9, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 13.0, -0.9, zpos ), _V( -1, 0, 0 ), &SSSLevel );
 	}
+
+	for (int i = 0; i <= 14; i++)// SRB hole (vertical)
+	{
+		double ypos = 4.9 - (i * 0.4);
+		AddParticleStream( &sss_water, _V( -10.68, ypos, -5.1765 ), _V( 1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -3.2, ypos, -5.1765 ), _V( -1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 3.2, ypos, -5.1765 ), _V( 1, 0, 0), &SSSLevel );
+		AddParticleStream( &sss_water, _V( 10.68, ypos, -5.1765 ), _V( -1, 0, 0), &SSSLevel );
+	}
+
+	for (int i = 0; i <= 7; i++)// pad east surface
+	{
+		double xpos = 4.8 + (i * 1.05);
+		AddParticleStream( &sss_water, _V( xpos, -0.4, -16.2 ), _V( 0, 0, -1 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -xpos, -0.4, -16.2 ), _V( 0, 0, -1 ), &SSSLevel );
+	}
+
+	// corner jets
+	AddParticleStream( &sss_water, _V( 14.5, -0.4, -15.2 ), _V( 0.866025, 0, -0.5 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( 13.5, -0.4, -16.2 ), _V( 0.5, 0, -0.866025 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( -13.5, -0.4, -16.2 ), _V( -0.5, 0, -0.866025 ), &SSSLevel );
+	AddParticleStream( &sss_water, _V( -14.5, -0.4, -15.2 ), _V( -0.866025, 0, -0.5 ), &SSSLevel );
+
+	for (int i = 0; i <= 7; i++)// pad north & south surfaces
+	{
+		double zpos = -6.0 - (i * 1.1);
+		AddParticleStream( &sss_water, _V( 14.5, -0.4, zpos ), _V( 1, 0, 0 ), &SSSLevel );
+		AddParticleStream( &sss_water, _V( -14.5, -0.4, zpos ), _V( -1, 0, 0 ), &SSSLevel );
+	}
+
 	AddParticleStream(&sss_steam, _V(-63.0, -7.0, 50.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SSMESteam);
 	AddParticleStream(&sss_steam_SRB, _V(-75.0, -5.0, -10.0), _V(-cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
 	AddParticleStream(&sss_steam_SRB, _V(50.0, -5.0, -10.0), _V(cos(10.0*RAD), sin(10.0*RAD), 0), &SSS_SRBSteam);
@@ -467,10 +509,10 @@ void SLC6::DefineSSS()
 void SLC6::DefineGOXVents()
 {
 	static PARTICLESTREAMSPEC gox_stream = {
-		0, 0.8, 15, 7, 0, 1.2, 1, 3.0, PARTICLESTREAMSPEC::DIFFUSE, 
-		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 1, 
-		PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
-	};
+	  0, 0.3, 140, 5, 0, 0.8, 1.6, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
+	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
+	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
+	  };
 
 	gox_stream.tex = oapiRegisterParticleTexture ("SSU\\GOX_stream");
 

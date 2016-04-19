@@ -272,10 +272,10 @@ namespace vc
 		pPanTiltRate->outputA.Connect(pBundle, 4);
 
 		DiscreteBundle* pCamBundles[5];
-		pCamBundles[0] = STS()->BundleManager()->CreateBundle("PLBD_CAM_A", 16);
-		pCamBundles[1] = STS()->BundleManager()->CreateBundle("PLBD_CAM_B", 16);
-		pCamBundles[2] = STS()->BundleManager()->CreateBundle("PLBD_CAM_C", 16);
-		pCamBundles[3] = STS()->BundleManager()->CreateBundle("PLBD_CAM_D", 16);
+		pCamBundles[0] = STS()->BundleManager()->CreateBundle("PLB_CAM_A", 16);
+		pCamBundles[1] = STS()->BundleManager()->CreateBundle("PLB_CAM_B", 16);
+		pCamBundles[2] = STS()->BundleManager()->CreateBundle("PLB_CAM_C", 16);
+		pCamBundles[3] = STS()->BundleManager()->CreateBundle("PLB_CAM_D", 16);
 		pCamBundles[4] = STS()->BundleManager()->CreateBundle("RMS_ELBOW_CAM", 16);
 		for(int i=0;i<5;i++) {
 			CamPanLeft_Out[i].Connect(pCamBundles[i], 0);

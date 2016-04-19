@@ -9,6 +9,7 @@ namespace dps {
 		class Partition;
 		class VirtualIOP;
 		class GPCProcess;
+		class MemoryOverlayProvider;
 
 		/**
 		 * \brief Provides equivalents to the FCOS operating system calls of the PASS operating system
@@ -80,6 +81,9 @@ namespace dps {
 		protected:
 			FCOSServiceProvider fcos;
 			VirtualIOP iop;
+			std::vector<GPC*> partitionGPCs;
+
+			void checkAssignedGPCs();
 		public:
 			Partition(dps::SimpleGPCSystem* host);
 
@@ -88,6 +92,7 @@ namespace dps {
 			bool isEmpty() const;
 			void execute(double fSimT, double fSimDT);
 			void saveState(FILEHANDLE scn);
+			bool parseLine(char* line);
 		};
 	}
 }

@@ -1,4 +1,5 @@
 #include "MM801.h"
+#include "IDP.h"
 #include "../Atlantis.h"
 #include <UltraMath.h>
 
@@ -42,6 +43,8 @@ namespace dps
 
 	bool MM801::OnPaint(int spec, vc::MDU* pMDU) const
 	{
+		if (spec != dps::MODE_UNDEFINED) return false;
+
 		PrintCommonHeader(" FCS/DED DIS C/O",pMDU);
 
 		//DED DIS SECTION
@@ -247,5 +250,27 @@ namespace dps
 	void MM801::PrintSpeedbrakePos(double pos, char* buff) const
 	{
 		sprintf_s(buff, 6, "%05.1f", pos);
+	}
+
+	bool MM801::OnParseLine( const char* keyword, const char* value )
+	{
+		if(!_strnicmp( keyword, "SURF_DR", 7 ))
+		{
+			if (!_strnicmp( value, "ACTIVE", 6 ))
+			{
+				bFCSTestActive = true;
+				ElevonTargetIdx = FV1;
+				RudderTargetIdx = FV1;
+				SpeedbrakeTargetIdx = FV1;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void MM801::OnSaveState( FILEHANDLE scn ) const
+	{
+		if (bFCSTestActive == true) oapiWriteScenario_string( scn, "SURF_DR", "ACTIVE" );
+		else  oapiWriteScenario_string( scn, "SURF_DR", "INACTIVE" );
 	}
 };

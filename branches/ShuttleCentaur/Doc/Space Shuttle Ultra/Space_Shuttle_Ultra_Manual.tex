@@ -15,6 +15,7 @@
 \usepackage{fancybox}
 \usepackage{multirow}
 \usepackage{tabularx}
+\usepackage{threeparttable}
 
 \graphicspath{{Images//}}
 % set fond
@@ -26,7 +27,7 @@
 % define page header/footer
 \lhead{}
 \chead{}
-\rhead{Space Shuttle Ultra Manual\\ Rev. B}
+\rhead{Space Shuttle Ultra Manual}
 \lfoot{}
 \cfoot{\thepage}
 %\rfoot{\leftmark\\ \rightmark}
@@ -50,7 +51,7 @@
 }
 \newcommand{\WARNING}[1]{
   \doublebox{
-    \begin{minipage}{1.0\linewidth}
+    \begin{minipage}{0.934\linewidth}
       \begin{center}
         \textbf{WARNING} \\
       \end{center}
@@ -62,7 +63,7 @@
 
 \begin{document}
 %\dosecttoc
-\pagenumbering{roman}
+%\pagenumbering{roman}
 \begin{titlepage}
 
 \begin{center}
@@ -71,7 +72,7 @@
 
 \textsc{\LARGE Space Shuttle Ultra}\\[1.5cm]
 
-\textsc{\Large Version 1.XX  Rev. B}\\[0.5cm]
+\textsc{\Large Version 3.0}\\[0.5cm]
 
 \huge \bfseries SSU Operations Manual\\[0.4cm]
 
@@ -80,8 +81,25 @@
 {\large \today}
 
 \end{center}
-
 \end{titlepage}
+
+
+\newpage
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{quote}
+\centering
+\textit{The Space Shuttle had a 30 year run like none other. Four times I was blessed with the opportunity to travel to space aboard this marvelous spacecraft. There has never been a vehicle quite like it$\colon$ a reusable spacecraft, with the beauty of an airplane, the capacity to carry eight astronauts to space and a 60-foot payload bay. The Shuttle's three-decade long run was nothing short of remarkable.}
+\end{quote}
+\begin{flushright}
+Charles F. Bolden Jr. - NASA Administrator, 2015
+\end{flushright}
+\vspace*{\fill}
+\newpage
+
+
+\pagenumbering{roman}
+
 \section*{PREFACE}
 \begin{multicols*}{2}
 %\addcontentsline{toc}{section}{PREFACE}
@@ -89,12 +107,13 @@ Space Shuttle Ultra (SSU) is an addon for Orbiter Space Flight Simulator.  The p
 \\
 The basis for this addon was the Space Shuttle Deluxe but through adding additional subsystems and taking full advantage of the 2010 version of Orbiter, the current SSU has few similarities to the original Deluxe.  Currently, SSU simulates a number of systems, displays, and procedures of the real shuttle and can be used along with real NASA Flight Data File (FDF) checklists to complete tasks.  These checklists can be found at the \href{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}{NASA Flight Data Files} web page (\url{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}), and provide a good reference for other procedures. The NASA Flight Data Files site includes checklists for all missions after STS-107, as well as generic checklists. \\
 \\
+Additional documentation containing background information about the shuttle and its systems can be found \href{http://sourceforge.net/projects/shuttleultra/files/References/}{here} (\url{http://sourceforge.net/projects/shuttleultra/files/References/}).\\
+\\
 Other good NASA references are the Shuttle Crew Operations Manual (SCOM), the DPS Dictionary, and the various Workbooks and Handbooks that are available on the Internet (these can also be found at the above link). \\
 \\
-This document contains the condensed material taken from various NASA documents as well and Orbiter and SSU specific information.  The goal of this document is to provide a typical Orbiter User the information need to perform basic SSU flights as well as  to aid in basic custum mission creation.  Separate documents will be provided for developers who would like to create a SSU compatible payloads and scenarios.\\
+This document contains the condensed material taken from various NASA documents as well and Orbiter and SSU specific information.  The goal of this document is to provide a typical Orbiter User the information need to perform basic SSU flights as well as  to aid in basic custom mission creation.  Separate documents will be provided for developers who would like to create a SSU compatible payloads and scenarios.\\
 \\
-This document is formated to look the same as the SCOM to facilitate changing from one document to the other.  Additional information or clarification is presented in three formats: notes, cautions, and warnings. Notes provide amplifying information of a general nature. Cautions provide information and instructions necessary to prevent hardware damage or malfunction (not yet simulated). Warnings provide information and instructions necessary to ensure crew safety (also not simulated). The formats in which this material appears are illustrated below.\\
-\\
+This document is formatted to look the same as the SCOM to facilitate changing from one document to the other.  Additional information or clarification is presented in three formats: notes, cautions, and warnings. Notes provide amplifying information of a general nature. Cautions provide information and instructions necessary to prevent hardware damage or malfunction (not yet simulated). Warnings provide information and instructions necessary to ensure crew safety (also not simulated). The formats in which this material appears are illustrated below.\\
 \NOTE{A barberpole APU/HYD READY TO START talkback will not inhibit a start.}
 \CAUTION{After an APU auto shutdown, the APU FUEL TK VLV switch must be taken to CLOSE prior to inhibiting auto shutdown logic. Failure to do so can allow the fuel tank isolation valves to reopen and flow fuel to an APU gas generator bed that is above the temperature limits for safe restart.}
 \WARNING{The FUEL CELL REAC switches on panel R1 are in a vertical column with FUEL CELL 1 REAC on top, FUEL CELL 3 REAC in the middle, and FUEL CELL 2 REAC on the bottom. This was done to allow the schematic to be placed on the panel. Because the switches are not in numerical order, it is possible to inadvertently close the wrong fuel cell reactant valve when shutting down a fuel cell.}
@@ -106,18 +125,24 @@ This document is formated to look the same as the SCOM to facilitate changing fr
 
 \pagenumbering{arabic}
 \section{INSTALLATION INSTRUCTIONS}
+\begin{multicols*}{2}
+\noindent
 SSU requires the following addons to be installed:
 \begin{enumerate}
 \item OrbiterSound 4.0 (\url{http://orbiter.dansteph.com/index.php?disp=d})
 \item KSC hires tiles (\url{http://www.orbithangar.com/searchid.php?ID=5583})
 \item Vandenberg AFB (\url{http://www.orbithangar.com/searchid.php?ID=2380})
 \end{enumerate}
-After extracting SSU, the following lines need to be added to \texttt{Config/Base.cfg}:\\
-\texttt{CONCRETE\_014\\CONCRETE\_015\\CONCRETE\_016}
+CRT MFD needs to be enabled (Orbiter Launchpad $\rightarrow$ Modules $\rightarrow$ check \textit{CRT} box).\\
+The following lines need to be added to the list of textures of the <orbiter\_installation\textbackslash Config\textbackslash Base.cfg> file$\colon$\\
+$\rightarrow$ NOR1735tex\\
+$\rightarrow$ NOR2305tex\\
+Using the D3D9 graphics client is strongly recommended (although not required). The \textit{Enable geometry instancing} option in the D3D9 Advanced Setup dialog (Orbiter Launchpad $\rightarrow$ Video $\rightarrow$ Advanced) should be unchecked.\\
+If you encounter the error ''msvcp120.dll is missing'' you need to download the Microsoft Visual C++ Redistributable for Visual Studio 2013.\\
 \\
-CRT MFD needs to be enabled (Orbiter Launchpad $\rightarrow$ Modules $\rightarrow$ check \textit{CRT} box).
-
-Using the D3D9 graphics client is strongly recommended (although not required). The \textit{Enable geometry instancing} option in the D3D9 Advanced Setup dialog (Orbiter Launchpad $\rightarrow$ Video $\rightarrow$ Advanced) should be unchecked.
+\noindent
+\WARNING{The SSU installation overwrites the default Earth.cfg file.}
+\end{multicols*}
 
 \newpage
 \section{GENERAL DESCRIPTION}
@@ -137,12 +162,12 @@ Using the D3D9 graphics client is strongly recommended (although not required). 
 %\\[0.4cm]
 \noindent
 \\
-The section provides general background information about the obiter, its configuration and coordinate system, the nominal mission profile, and general procedures followed during a shuttle mission.
+The section provides general background information about the orbiter, its configuration and coordinate system, the nominal mission profile, and general procedures followed during a shuttle mission.
 \\
 Also included in this section is keyboard commands for SSU but will not include standard Orbiter keyboard commands. See Orbiter.pdf for standard Orbiter keyboard commands.
 \end{multicols*}
 
-\subsection{OVERVIEW}
+\subsection{Overview}
 \begin{multicols*}{2}
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
@@ -160,7 +185,7 @@ Also included in this section is keyboard commands for SSU but will not include 
 \subsubsection{Nominal Mission Profile}
 %\addcontentsline{toc}{subsection}{Nominal Mission Profile}
 SSU has reached a point of development that almost a full mission profile can be simulated.
-\\
+
 \paragraph{Launch}
 The launch is controlled by autopilot. The autopilot targets a set of desired parameters defined in the mission file (altitude, velocity and inclination) at main engine cutoff (MECO).
 After MECO, the ET is jettisoned and the +Z RCS thrusters are automatically fired to translate the orbiter away from the ET. \\
@@ -187,7 +212,7 @@ At the completion of orbital operations, the RCS is used to orient the orbiter i
 \\
 Procedures for deorbit prep and the deorbit burn are in the Deorbit Prep Checklist and the Entry Checklist. Mission-specific details are in the Entry Flight Supplement.
 \paragraph{Entry}
-In real life, reentry is normally controlled automatically by the Aerojet Digital Autopilot (DAP) from entry interface (EI) through TAEM, to $\sim$ Mach 1, where the CDR takes control of the orbiter. SSU has a fully functioning entry autopilot which provides guidance and control from EI to 2000 ft (the start of the preflare). It is also possible to fly the shuttle manually. The speedbrake is usually controlled automatically throughout entry, but can be controlled manually. See Section \ref{sec:entry} for more details.
+In real life, reentry is normally controlled automatically by the Aerojet Digital Autopilot (DAP) from entry interface (EI) through Terminal Area Energy Management (TAEM), to $\sim$ Mach 1, where the CDR takes control of the orbiter. SSU has a fully functioning entry autopilot which provides guidance and control from EI to 2000 ft (the start of the preflare). It is also possible to fly the shuttle manually. The speedbrake is usually controlled automatically throughout entry, but can be controlled manually. See Section \ref{sec:entry} for more details.
 The Heads-Up Display (HUD) becomes active at Mach 2.5. Guidance commands are displayed on the HUD from Mach 2.5 until the start of the final flare phase. \\
 \\
 The landing gear are automatically armed at 2000 ft and deployed at 300 ft. In real life, this is done manually by the PLT. \\
@@ -196,7 +221,7 @@ Procedures for entry and found in the Entry Checklist. Mission-specific details 
 \vfill
 \subsubsection{Shuttle Coordinate Frame}
 \begin{figure}[H]
-  \includegraphics[scale=0.5]{ShuttleBodyAxisSystem.png}
+  \includegraphics[width=0.5\textwidth]{ShuttleBodyAxisSystem.png}
   \caption{Body Axis Coordinate System (image from SCOM)}
   \label{fig:BodyAxisSystem}
 \end{figure}
@@ -205,7 +230,7 @@ It should be noted that the Body Axis Coordinate frame is different from the nor
 
 \subsubsection{Shuttle Location Codes}
 %\addcontentsline{toc}{subsection}{Shuttle Location Codes}
-Orbiter location codes enable crewmembers to locate displays and controls, stowage comparments and lockers, access panels, and wall-mounted equipment in the orbiter crew compartments. The crew compartments are the flight deck, middeck, and airlock. Because of compartment functions and geometry, each has a unique location coding format.
+Orbiter location codes enable crewmembers to locate displays and controls, stowage compartments and lockers, access panels, and wall-mounted equipment in the orbiter crew compartments. The crew compartments are the flight deck, middeck, and airlock. Because of compartment functions and geometry, each has a unique location coding format.
 \\
 Currently SSU only simulates the flight deck panels. Eventually panels in the middeck will be simulated and at that time the middeck location coding will be included in this manual.
 \\
@@ -256,7 +281,7 @@ Figures \ref{fig:FlightDeckLocCodes1} and \ref{fig:FlightDeckLocCodes2} show the
 \end{figure}
 
 \newpage
-\subsection{ORBITER AND SSU}
+\subsection{Orbiter and SSU}
 \renewcommand{\cfttoctitlefont}{\bf}
 \localtableofcontents
 %\begin{tabular}{|p{7cm} p{0.25cm}|}
@@ -272,7 +297,7 @@ Figures \ref{fig:FlightDeckLocCodes1} and \ref{fig:FlightDeckLocCodes2} show the
 
 \subsubsection{SSU Keyboard Commands}
 %\addcontentsline{toc}{subsection}{SSU Keyboard Commands}
-The ultimate goal of SSU is to provide a complete simulation of the Space Shuttle.  This means that most of the imput is done with in-simulation controls (ie. cockpit switches, GNC keyboards, and dialog windows). This results in very few keyboard commands to operate the shuttle.
+The ultimate goal of SSU is to provide a complete simulation of the Space Shuttle.  This means that most of the input is done with in-simulation controls (i.e. cockpit switches, GNC keyboards, and dialog windows). This results in very few keyboard commands to operate the shuttle.
 
 \begin{center}
   \textbf{General}\\
@@ -297,7 +322,7 @@ The ultimate goal of SSU is to provide a complete simulation of the Space Shuttl
 
 \begin{multicols*}{2}
 \subsubsection{RHC/THC}
-The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the RHC \& THC. When controlling the RCS thrusters, the appropiate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
+The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the RHC \& THC. When controlling the RCS thrusters, the appropriate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
 \\
 \\
 The RHCs on the real shuttle have a "soft stop" and a "hard stop" (the mechanical limit of movement). Moving the RHC out of detent (up to the soft stop) will command either a constant rotation rate or a pulse of RCS firings to change the rotation rate by a specified amount (depending on whether \textit{DISC RATE} or \textit{PULSE} has been selected). Moving the RHC past the soft stop will result in continuous thruster firings in the appropriate axis. In SSU, a thruster command of <75\% is considered to be within the soft stop; a thruster command of >75\% is treated as RHC deflection beyond the soft stop. When using keyboard controls, the normal keyboard controls are equivalent to full RHC deflection, while holding down the Ctrl key is equivalent to deflection within the soft stop. The THC (and the RMS controls) does not have this idea of a soft stop. When \textit{NORM} is selected in a translational axis, the thrusters will fire continuously if the THC is moved out of detent. When \textit{PULSE} is selected, the thrusters will fire to provide a specified $\Delta$V (the TRAN PLS rate specified on the SPEC 20 DAP CONFIG display). When controlling the RMS, the commanded rotation/translation rates are always directly proportional to the RHC/THC deflection.
@@ -321,46 +346,79 @@ SSU includes the four payload bay cameras and the docking port centerline camera
 \paragraph{Navigating the Virtual Cockpit}
 Changing between Virtual Cockpit (VC) views is identical to the system used in the default Atlantis but with several more positions around the cockpit that we call stations. You can switch between different stations using the Ctrl+Arrow key combination (See Chart below for all combinations.) The Commander (CDR) Station is the front left seat on the flight deck, while the Pilot (PLT) station is the right seat (while looking forward).\\
 
-Table \ref{tab:VC_navigation} is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.\\
+Table \ref{tab:VC_navigation} is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.
+\\
+\\
+\WARNING{Scenario saving during the launch phase (MM102, 103 and 104) is currently not supported by SSU.}
+
 \end{multicols*}
 \begin{table}[H]
+\begin{threeparttable}
   \centering
-  \begin{tabular}{l|c c c c }
-	Cockpit View & Left & Right & Up & Down \\
-	\hline
-	Commander Seat & CDR - L4 & Pilot Seat & ODS Camera & MS Seat \\
-	Pilot Seat & Commander Seat & Pilot - R4 & ODS Camera & MS2/FE Seat \\
-	CDR - L4 & Port Workstation & Commander Seat & ODS Camera & MS Seat \\
-	Pilot - R4 & Pilot Seat & Stbd Workstation & ODS Camera & MS2/FE Seat \\
-	MS Seat & Port Workstation & MS2/FE Seat & Commander Seat & ODS Camera\\
-	MS2/FE Seat & MS Seat & Stbd Workstation & Pilot Seat & ODS Camera\\
-	Port Workstation & RMS Work Station & Commander Seat & ODS Camera & Middeck\\
-	Stbd Workstation & Pilot Seat & Aft Pilot Station & ODS Camera & Aft Workstation\\
-	Aft Workstation & Stbd Workstation & Port Workstation & RMS Work Station & MS Seat\\
-	Aft Pilot Station & Stbd Workstation & RMS Work Station & ODS Camera & Aft Workstation\\
-	RMS Work Station & Aft Pilot Station & Port Station & ODS Camera & Aft Workstation\\
-	RMS EE & RMS Elbow & - & - & RMS Work Station\\
-	RMS Elbow & - & RMS EE & - & RMS Work Station\\
-	PLB Camera A & PLB Camera D & PLB Camera B & RMS EE & ODS Camera\\
-	PLB Camera D & PLB Camera C & PLB Camera A & RMS EE & ODS Camera\\
-	PLB Camera B & PLB Camera A & PLB Camera C & RMS EE & ODS Camera\\
-	PLB Camera C & PLB Camera B & PLB Camera D & RMS EE & ODS Camera\\
-	ODS Camera & - & - & PLB Camera D & Aft Pilot Station\\
+  \begin{tabular}{l|p{2.88cm} p{2.88cm} p{2.88cm} p{2.88cm} }
+	\textbf{Cockpit View} & \textbf{Left} & \textbf{Right} & \textbf{Up} & \textbf{Down} \\
+	\hline\rule{0pt}{2ex}
+	Commander Seat & CDR - L4 & Pilot Seat & PLB Camera A \textit{or} ODS Camera\tnote{c} & MS Seat \\
+	\hline\rule{0pt}{2ex}
+	Pilot Seat & Commander Seat & Pilot - R4 & PLB Camera D \textit{or} ODS Camera\tnote{c} & MS2/FE Seat \\
+	\hline\rule{0pt}{2ex}
+	CDR - L4 & Port Workstation & Commander Seat & PLB Camera D \textit{or} ODS Camera\tnote{c} & MS Seat \\
+	\hline\rule{0pt}{2ex}
+	Pilot - R4 & Pilot Seat & Stbd Work Station & PLB Camera D \textit{or} ODS Camera\tnote{c} & MS2/FE Seat \\
+	\hline\rule{0pt}{2ex}
+	MS Seat & Port Workstation & MS2/FE Seat & Commander Seat & PLB Camera A \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	MS2/FE Seat & MS Seat & Stbd Work Station & Pilot Seat & PLB Camera A \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	Port Work Station & RMS Work Station & Commander Seat & PLB Camera A \textit{or} ODS Camera\tnote{c} & Mid Deck\\
+	\hline\rule{0pt}{2ex}
+	Stbd Work Station & Pilot Seat & Aft Pilot Station & PLB Camera D \textit{or} ODS Camera\tnote{c} & Aft Work Station\\
+	\hline\rule{0pt}{2ex}
+	Aft Work Station & Stbd Work Station & Port Workstation & RMS Work Station & MS Seat\\
+	\hline\rule{0pt}{2ex}
+	Aft Pilot Station & Stbd Work Station & RMS Work Station & PLB Camera D \textit{or} ODS Camera\tnote{c} & Aft Work Station\\
+	\hline\rule{0pt}{2ex}
+	RMS Work Station & Aft Pilot Station & Port Work Station & PLB Camera A \textit{or} ODS Camera\tnote{c} & Aft Work Station\\
+	\hline\rule{0pt}{2ex}
+	RMS EE\tnote{a} & RMS Elbow & - & - & RMS Work Station\\
+	\hline\rule{0pt}{2ex}
+	RMS Elbow\tnote{a} & - & RMS EE & - & RMS Work Station\\
+	\hline\rule{0pt}{2ex}
+	PLB Camera A & PLB Camera D & PLB Camera B & RMS EE\tnote{a,c} & RMS Work Station \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	PLB Camera B & PLB Camera A & PLB Camera C & RMS EE\tnote{a,c} & RMS Work Station \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	PLB Camera C & PLB Camera B & PLB Camera D & RMS EE\tnote{a,c} & Aft Pilot Station \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	PLB Camera D & PLB Camera C & PLB Camera A & RMS EE\tnote{a,c} & Aft Pilot Station \textit{or} ODS Camera\tnote{c}\\
+	\hline\rule{0pt}{2ex}
+	ODS Camera\tnote{c} & - & - & PLB Camera A & Aft Pilot Station\\
+	\hline\rule{0pt}{2ex}
+	Mid Deck & - & - & Port Work Station & External Airlock\tnote{b}\\
+	\hline\rule{0pt}{2ex}
+	External Airlock\tnote{b} & - & - & Mid Deck & ODS Camera\tnote{c}\\
   \end{tabular}
+	\begin{tablenotes}
+		\item[a] only when RMS is installed
+		\item[b] only when External Airlock is installed
+		\item[c] only when ODS is installed
+	\end{tablenotes}
+	\end{threeparttable}
   \caption{VC navigation}
   \label{tab:VC_navigation}
 \end{table}
 \newpage
+
 \subsection{Payload Operations Overview}
-%\addcontentsline{toc}{subsection}{ Payload Operations Overview}
-Payloads are attached through standard Orbiter attachment points. Figure \ref{fig:SSUAttachments} below will assist in visializing the available attachment locations. The image on the left show the attachment locations without the ODS and the image on the rights shows the attachment locations with the ODS.\\
-\\
-\begin{figure}[H]
+\begin{figure}[b!]
   \centering
   \includegraphics[width=1\textwidth]{SSU_Attachments.png}
   \caption{SSU attachment locations}
   \label{fig:SSUAttachments}
 \end{figure}
+\begin{multicols*}{2}
+%\addcontentsline{toc}{subsection}{ Payload Operations Overview}
+Payloads are attached through standard Orbiter attachment points. Figure \ref{fig:SSUAttachments} below will assist in visualizing the available attachment locations. The image on the left show the attachment locations without the ODS and the image on the rights shows the attachment locations with the ODS. Attachments 5 thru 11 are located just below the payload bay liner, so to have a correct vertical positioning of the payload, the attachment coordinates of the payload must be in its keel pin. Attachments 12 thru 19 are located on the side wall of the payload bay, just below the sill.\\
 %Currently no payload bay bridgerails are shown; this makes payload berthing in the bay difficult.
 If the payload is one that is deployed and later put back into the bay (example: MPLM), be sure to take note of the SRMS joint angles and orbiter XYZ coordinates displayed on panel A8U.
 % For more information on the payload deploment and retreval systems see section 2.9.
@@ -368,7 +426,22 @@ The mission file entries to define the payload attachment positions are defined 
 The scenario file entries needed to add payloads to SSU are covered in Section \ref{sec:scenario-files} of this manual. \\
 
 \newpage
+%\begin{multicols*}{2}
+\subsection{Extra Vehicular Activities and Docking Operations Overview}
+Extra Vehicular Activity (EVA), or spacewalk, is used on some missions for work outside the shuttle, either for retrieving a satellite or most recently, for the assembly of the ISS. Independently of mission tasks, all missions have contingency EVA capability for manual payload bay door closure. EVA requires the use of an airlock, which on the shuttle can be located inside the middeck (Internal Airlock), or outside on the payload bay (External Airlock). EVA is currently not supported by SSU.\\
+For missions requiring docking with the ISS or Mir, the orbiter need to be fitted with the Orbiter Docking System (ODS). The ODS is mounted on top of the External Airlock, and is controlled by buttons on panel A7L, allowing ODS powerup and docking ring extension and retraction.\\
+\\
+\WARNING{The next version of SSU will introduce changes to the docking port format. In addition to the docking port, there must exist an child attachment, in the same location, with the id ''APAS'' to achieve soft-docking. Without the attachment, docking will not be possible.}\\
+\\
+\\
+For missions requiring the ODS to be located aft of its normal position (e.g. STS-88), the Tunnel Adapter Assembly (TAA) is positioned between the External Airlock and the forward bulkhead, effectively acting as a spacer. The TAA must also be used on missions carrying the Spacelab or the SpaceHAB modules. It must be placed at the forward end of the tunnel to provide a way in/out of the airlock during an EVA.\\
+The mission file entries to define the ODS, External Airlock and TAA are defined in Section \ref{sec:mission-files} of this manual.
+\end{multicols*}
+
+\newpage
 \subfile{SSU_SYSTEMS}
+%\newpage
+%\subfile{UPPER_STAGES}
 \newpage
 \subfile{FLIGHT_DATA_FILES}
 \newpage
@@ -380,7 +453,8 @@ The scenario file entries needed to add payloads to SSU are covered in Section \
 \section{CREDITS}
 Space Shuttle Ultra was originally based on Space Shuttle Deluxe. Large parts of the launch autopilot were copied (with minor modifications) from PEG MFD.
 Some of the attitude control code was derived from Attitude MFD V3.
-SSU also uses the KOST library. \\
+SSU also uses the KOST library.
+SLC-6 uses part of VandenbergAFB-2006 by Usonian.\\
 \\
 This addon is open-source and is released under the GNU GPL. \\
 \\

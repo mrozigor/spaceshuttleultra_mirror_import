@@ -41,14 +41,14 @@ namespace eva_docking {
 		virtual bool OnParseLine(const char* line);
 		virtual void OnSaveState(FILEHANDLE scn) const;
 		virtual void OnDumpToLog() const;
-		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs) = 0;
+		virtual void DefineAnimations(const VECTOR3& ofs) = 0;
 	};
 
 	class NoExtAirlock: public BasicExternalAirlock {
 	public:
 		NoExtAirlock(AtlantisSubsystemDirector* pdirect);
 		virtual ~NoExtAirlock();
-		virtual void DefineAirlockAnimations(UINT midx_extal, UINT midx_ods, const VECTOR3& ofs);
+		virtual void DefineAnimations(const VECTOR3& ofs);
 	};
 
 };

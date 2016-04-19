@@ -51,7 +51,6 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\bitmap1.bmp" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram2.cd" />
     <None Include="ClassDiagram3.cd" />
@@ -73,6 +72,8 @@
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
     <None Include="Bitmaps\tkbk_label.bmp" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <None Include="Bitmaps\A8lights.bmp" />
+    <None Include="Bitmaps\SSME_lights.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">
@@ -165,9 +166,6 @@
     <ClCompile Include="eps\Inverter.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Latch.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -201,9 +199,6 @@
     <ClCompile Include="eva_docking\ODS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelA4.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelA6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -214,9 +209,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA8.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="PanelC2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelC3.cpp">
@@ -237,9 +229,6 @@
     <ClCompile Include="vc\PanelF8.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="PanelO3.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelO6.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -247,9 +236,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelR2.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="PlBayOp.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PushButton.cpp">
@@ -340,12 +326,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\RSLS.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="commDeployedAssembly.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="commGCIL.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\MMU.cpp">
@@ -460,6 +440,45 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelL12U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelR13L.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PayloadBay.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA4.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelC2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\Keyboard.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelF3.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\DeployedAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\GCIL.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -602,9 +621,6 @@
     <ClInclude Include="vc\PanelA8.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="PanelC2.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PanelC3.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -636,9 +652,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="ParameterValues.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="PlBayOp.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PushButton.h">
@@ -728,16 +741,10 @@
     <ClInclude Include="vc\PanelA1U.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="commGCIL.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\RSLS_old.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\RSLS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="DeployedAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AtlantisPanel.h">
@@ -870,6 +877,48 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_vc_l12u.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelR13L.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="PayloadBay.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA4.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelC2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\Keyboard.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelF3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_ExtAL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\GCIL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\DeployedAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA2.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

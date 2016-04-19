@@ -277,7 +277,7 @@ namespace vc
 		AB2 = TransformVector(_V(-0.4253329933,0.4015539587,-0.1361487955));
 
 		//LDS ALIGNMENT BAR ANIMATION
-		static UINT LDSBarGrp[1] = {GRP_Alignment_bar_VC};
+		static UINT LDSBarGrp[1] = {GRP_ALIGNMENT_BAR_VC};
 		VECTOR3 BResult = _V(AB2.x-AB1.x,AB2.y-AB1.y,AB2.z-AB1.z);
 		VECTOR3 BNormalised = BResult/dist(AB1,AB2);
 		MGROUP_TRANSLATE *pLDSTranslate = new MGROUP_TRANSLATE(vcidx,LDSBarGrp,1,BResult);
@@ -285,7 +285,7 @@ namespace vc
 		V()->AddAnimationComponent(LDSBarAnim,0,1,pLDSTranslate);
 		LDSAnimation.push_back(pLDSTranslate);
 		
-		static UINT CabSelectionSwitchGrp[1] = {GRP_LDS_cab_switch_VC};
+		static UINT CabSelectionSwitchGrp[1] = {GRP_LDS_CAB_SWITCH_VC};
 		MGROUP_ROTATE* pCabSelectionSwitch = new MGROUP_ROTATE(vcidx, CabSelectionSwitchGrp, 1, TransformVector(_V(-0.503, 0.392, 0.013)), _V(0, -1, 0), static_cast<float>(90.0*RAD));
 		CabSelectionSwitchAnim = V()->CreateAnimation(0.5);
 		V()->AddAnimationComponent(CabSelectionSwitchAnim, 0, 1, pCabSelectionSwitch);

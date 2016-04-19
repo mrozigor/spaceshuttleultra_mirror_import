@@ -63,7 +63,7 @@
 #define GRP_InnerShoe_41_TRUCK 46
 #define GRP_InnerShoe_42_TRUCK 47
 #define GRP_InnerShoe_43_TRUCK 48
-#define GRP_InnerShoe_43_TRUCK 49
+#define GRP_InnerShoe_44_TRUCK 49
 #define GRP_InnerShoe_45_TRUCK 50
 #define GRP_InnerShoe_46_TRUCK 51
 #define GRP_InnerShoe_47_TRUCK 52
@@ -137,7 +137,7 @@
 #define GRP_OuterShoe_56_TRUCK 120
 #define GRP_OuterShoe_57_TRUCK 121
 #define GRP_OuterShoe_58_TRUCK 122
-#define GRP_OuterShoe_58_TRUCK 123
+#define GRP_OuterShoe_59_TRUCK 123
 #define GRP_Sprockets_TRUCK 124
 #define GRP_Steering_arms_TRUCK 125
 #define GRP_DC_traction_motor_brake_discs_outer_TRUCK 126

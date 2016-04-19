@@ -163,7 +163,7 @@ Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
 lastSBTCCommand(1.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
-tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0),
+tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0), vspeedUpdateSimT(-1.0), vaccUpdateSimT(-1.0),
 tgtBankSign(1.0), performedFirstRollReversal(false),
 TAEMGuidanceMode(ACQ), HACDirection(OVHD), HACSide(L), SBControlLogic(NOM),
 degTargetGlideslope(-20.0), // default OGS glideslope
@@ -364,12 +364,13 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	case 305:
 		if(bWONG) {
 			//oapiWriteLog("WONG");
+			double airspeed=STS()->GetAirspeed();
 			// load relief
 			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
 			AileronCommand.SetLine(0.0f);
-			RudderCommand.SetLine(0.0f); // TODO: check if rudder is used after WONG, or if nosewheel steering only is used
+			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( RHCInput[YAW].GetVoltage() );// rudder available above 100 KGS
+			else RudderCommand.SetLine(0.0f);
 			//Nosewheel steering
-			double airspeed=STS()->GetAirspeed();
 			double steerforce = (95.0-airspeed);
 			if(airspeed<6.0) steerforce*=(airspeed/6);
 			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
@@ -595,7 +596,7 @@ bool AerojetDAP::OnPaint(int spec, vc::MDU* pMDU) const
 			else if (ET_Mach > 10.5) PaintENTRYTRAJ3Display( pMDU );// EntryTraj3 (14kfps-10.5kfps / 800nm-315nm)
 			else if ((ET_Mach * ETVS_Altitude) > 750000) PaintENTRYTRAJ4Display( pMDU );// EntryTraj4 (1.8Mft-750kft(10kfps-6.5kfps) / 480nm-145nm)
 			else PaintENTRYTRAJ5Display( pMDU );// EntryTraj5 (750kft-200kft(6.5kfps-2.5kfps) / 220nm-55nm)
-			return false;
+			return true;
 		}
 		else
 		{
@@ -1099,11 +1100,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	}
 
 	// draw shuttle bug (this is always at fixed position)
-	pMDU->OrbiterSymbolTop( BUG_POINT_X, BUG_POINT_Y );
+	double nz = GetNZ();
+	char att = 0;
+	if ((nz > 2.5) || (nz < -1)) att = dps::DEUATT_FLASHING;// limits are true most of the time, but not 100% accurate
 
-	sprintf_s( cbuf, 51, "%3.1f", GetNZ() );
-	pMDU->mvprint( 21, 15, cbuf );
+	pMDU->OrbiterSymbolTop( BUG_POINT_X, BUG_POINT_Y, att );
 
+	sprintf_s( cbuf, 51, "%3.1f", nz );
+	pMDU->mvprint( 21, 15, cbuf, att );
+
+	// scales
 	if (((GetMajorMode() == 305) || (GetMajorMode() == 603)) && (STS()->GetAltitude() > 2133.6))// blank under 7kft
 	{
 		// top scale
@@ -2849,6 +2855,7 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 	UpdateRollDirection(mach, delaz);
 
 	double target_drag = CalculateTargetDrag(DeltaT, r);
+
 	double tgtBank = 0.0;
 
 	if (EntryGuidanceMode != PREENTRY) {
@@ -2865,8 +2872,6 @@ double AerojetDAP::CalculateTargetBank(double mach, double targetAOA, double Del
 		double target_vspeed = avg_vspeed + 1e-2*(target_altitude - STS()->GetAltitude());
 		double target_vacc = vaccAveraging.GetAvgValue() + 5e-2*(target_vspeed - vec.y);
 		
-		lastTgtAltitude = target_altitude;
-		lastRefVSpeed = avg_vspeed;
 		//last_vel = vec.y;
 
 		//double actBank = CalculateCurrentLiftBank();
@@ -2919,7 +2924,7 @@ double AerojetDAP::CalculateTargetDrag(double DeltaT, double range)
 	const double E1 = 0.01/MPS2FPS;
 	const double EEF4 = 2.0e6/(MPS2FPS*MPS2FPS); // changed from value in 80FM23; document has erroneous value of 2.0e-6 instead of 2.0e6
 	const double ETRAN = 0.5998473e8/(MPS2FPS*MPS2FPS);
-	const double GS2 = 0.0001;
+	//const double GS2 = 0.0001;
 	const double RPT1 = 29.44*NMI2M;
 
 	const double RCG1 = (VSIT2-VQ2)/(2*ALFM);
@@ -3052,13 +3057,25 @@ void AerojetDAP::UpdateRequiredStateAveraging(double targetAltitude, double Delt
 {
 	tgtAltAveraging.NewValue(targetAltitude, SimT);
 
-	double ref_vspeed = range(-250.0, (tgtAltAveraging.GetAvgValue()-lastTgtAltitude)/DeltaT, 250.0);
-	//if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
-	vspeedAveraging.NewValue(ref_vspeed, SimT);
+	if(SimT >= vspeedUpdateSimT) {
+		double dt = SimT - (vspeedUpdateSimT-0.2);
+		double ref_vspeed = range(-250.0, (tgtAltAveraging.GetAvgValue()-lastTgtAltitude)/dt, 250.0);
+		//if(lastTargetAltitudes.size() <= 1) ref_vspeed = 0.0;
+		vspeedAveraging.NewValue(ref_vspeed, SimT);
 
-	double ref_vacc = range(-10.0, (vspeedAveraging.GetAvgValue()-lastRefVSpeed)/DeltaT, 10.0);
-	//if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
-	vaccAveraging.NewValue(ref_vacc, SimT);
+		vspeedUpdateSimT = SimT + 0.2;
+		lastTgtAltitude = tgtAltAveraging.GetAvgValue();
+	}
+
+	if(SimT >= vaccUpdateSimT) {
+		double dt = SimT - (vaccUpdateSimT-1.0);
+		double ref_vacc = range(-10.0, (vspeedAveraging.GetAvgValue()-lastRefVSpeed)/dt, 10.0);
+		//if(lastVspeeds.size() <= 1) ref_vacc = 0.0;
+		vaccAveraging.NewValue(ref_vacc, SimT);
+
+		vaccUpdateSimT = SimT + 1.0;
+		lastRefVSpeed = vspeedAveraging.GetAvgValue();
+	}
 }
 
 void AerojetDAP::UpdateRollDirection(double mach, double delaz)
@@ -3572,16 +3589,18 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
 	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YQX21", "YQX31" ) );// 21
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 48.946406 * RAD, -54.554009 * RAD, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
+	vLandingSites.back().SetSecRunwayParameters( 8040 / MPS2FPS, 200 / MPS2FPS );// length/width data above is for primary runway
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
+	//vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 13.348584 * RAD, -16.664848 * RAD, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
 	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
 	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
 	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 34.750617 * RAD, -120.601304 * RAD, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
+	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 52.710227 * RAD, -8.910320 * RAD, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
+	vLandingSites.back().SetSecRunwayParameters( 9699 / MPS2FPS, 148 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
 	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
@@ -3601,10 +3620,10 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NOR17", "NOR23" ) );// 42
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NOR05", "NOR35" ) );// 43
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 32.521818 * RAD, -106.210183 * RAD, 32.512529 * RAD, -106.193168 * RAD, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
+	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 32.494757 * RAD, -106.237123 * RAD, 32.481026 * RAD, -106.216290 * RAD, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
+	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, 58.16, "EDW22", "EDW04"));// 45

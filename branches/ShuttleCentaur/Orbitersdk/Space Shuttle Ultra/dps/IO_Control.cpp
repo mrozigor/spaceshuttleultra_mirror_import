@@ -395,6 +395,14 @@ namespace dps
 		dspINPUT_1[SW_ADI_RATE_F8].Connect( bundle, 11 );// HIGH
 		dspINPUT_2[SW_ADI_RATE_F8].Connect( bundle, 10 );// LOW
 
+		bundle = BundleManager()->CreateBundle( "ADI_Switches_A6U", 6 );
+		dspINPUT_1[SW_ADI_ATTITUDE_A6U].Connect( bundle, 1 );// ADI ATTITUDE INRTL
+		dspINPUT_2[SW_ADI_ATTITUDE_A6U].Connect( bundle, 0 );// ADI ATTITUDE REF
+		dspINPUT_1[SW_ADI_ERROR_A6U].Connect( bundle, 3 );// HIGH
+		dspINPUT_2[SW_ADI_ERROR_A6U].Connect( bundle, 2 );// LOW
+		dspINPUT_1[SW_ADI_RATE_A6U].Connect( bundle, 5 );// HIGH
+		dspINPUT_2[SW_ADI_RATE_A6U].Connect( bundle, 4 );// LOW
+
 
 		// OUTPUT
 		bundle = BundleManager()->CreateBundle( "MPS_LV_A", 16 );// LV1 - LV16
