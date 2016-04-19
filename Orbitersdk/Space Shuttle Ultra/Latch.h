@@ -37,8 +37,7 @@ const double MAX_GRAPPLING_ANGLE = 0.087266;
 // max angle between EE and grapple for successful grappling (radians)
 
 
-const double LATCH_CLOSE_TIME = 30.0;
-// time(sec) for latch to open/close
+const double LATCH_OPERATION_SPEED = 0.0166666;// 60 sec (single motor)
 
 /**
  * This class essentially acts as a wrapper for a single ATTACHMENTHANDLE.
@@ -148,6 +147,8 @@ private:
 	DiscInPort LatchSignal[5], ReleaseSignal[5];
 	DiscOutPort Latched[5], Released[5];
 	DiscOutPort ReadyToLatch[5];
+	DiscInPort LogicPowerSys[2];
+	DiscInPort PLBayMechPWR[2];
 
 	AnimState LatchState[5];
 

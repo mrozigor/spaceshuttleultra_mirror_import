@@ -3589,16 +3589,18 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
 	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YQX21", "YQX31" ) );// 21
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 48.946406 * RAD, -54.554009 * RAD, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
+	vLandingSites.back().SetSecRunwayParameters( 8040 / MPS2FPS, 200 / MPS2FPS );// length/width data above is for primary runway
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
+	//vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 13.348584 * RAD, -16.664848 * RAD, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
 	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
 	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
 	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 34.750617 * RAD, -120.601304 * RAD, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "INN06", "INN24" ) );// 26
+	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 52.710227 * RAD, -8.910320 * RAD, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
+	vLandingSites.back().SetSecRunwayParameters( 9699 / MPS2FPS, 148 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
 	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
@@ -3618,10 +3620,10 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NOR17", "NOR23" ) );// 42
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NOR05", "NOR35" ) );// 43
-	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 32.521818 * RAD, -106.210183 * RAD, 32.512529 * RAD, -106.193168 * RAD, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
+	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
+	vLandingSites.push_back( LandingSiteData( 32.494757 * RAD, -106.237123 * RAD, 32.481026 * RAD, -106.216290 * RAD, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
+	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, 58.16, "EDW22", "EDW04"));// 45

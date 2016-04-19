@@ -82,24 +82,24 @@ const static char* VC_LBL_COAS = "COAS";
 const VECTOR3 VC_POS_COAS = _V( 0.4, 3.15, 12.6);
 const VECTOR3 VC_DIR_COAS = _V( 0.0, 0.45399, -0.891007);
 
-const static char* VC_LBL_PORTSTATION = "Port workstation";
+const static char* VC_LBL_PORTSTATION = "Port Work Station";
 const VECTOR3 VC_POS_PORTSTATION = _V(-0.6, 2.95, 13.0);
 const VECTOR3 VC_DIR_PORTSTATION = _V(-cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
-const static char* VC_LBL_AFTPILOT = "Aft pilot station";
+const static char* VC_LBL_AFTPILOT = "Aft Pilot Station";
 const VECTOR3 VC_POS_AFTPILOT = _V(0.4, 3.15, 12.7); //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
 const VECTOR3 VC_DIR_AFTPILOT = _V(0, 0, -1);
 const VECTOR3 VC_OFSFWD_AFTPILOT = VC_POS_COAS - VC_POS_AFTPILOT;
 
-const static char* VC_LBL_RMSSTATION = "RMS work station"; //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
+const static char* VC_LBL_RMSSTATION = "RMS Work Station"; //080509, DaveS edit: Moved the position 20 cm forward for better panel readability
 const VECTOR3 VC_POS_RMSSTATION = _V(-0.4, 3.15, 12.7);
 const VECTOR3 VC_DIR_RMSSTATION = _V(0.0, 0.0, -1.0);
 
-const static char* VC_LBL_STBDSTATION = "Starboard workstation";
+const static char* VC_LBL_STBDSTATION = "Starboard Work Station";
 const VECTOR3 VC_POS_STBDSTATION = _V(0.6, 2.95, 13.0);
 const VECTOR3 VC_DIR_STBDSTATION = _V(cos(25.0 * RAD), -sin(25.0 * RAD), 0);
 
-const static char* VC_LBL_AFTWORKSTATION = "Aft Workstation";
+const static char* VC_LBL_AFTWORKSTATION = "Aft Work Station";
 const VECTOR3 VC_POS_AFTWORKSTATION = _V(0.0, 2.95, 13.2);
 const VECTOR3 VC_DIR_AFTWORKSTATION = _V(0.0, 0.0, -1.0);
 
@@ -121,7 +121,7 @@ const VECTOR3 VC_DIR_MIDDECK = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 
 const static char* VC_LBL_EXT_AL = "External Airlock";
-const VECTOR3 VC_POS_EXT_AL = ODS_POS + _V(0.0, 0.1, 0.25);
+const VECTOR3 VC_POS_EXT_AL = _V(0.0, 0.1, 2.0);
 const VECTOR3 VC_DIR_EXT_AL = _V(0.0, -sin(24.5*RAD), cos(24.5 * RAD));
 
 const static char* VC_LBL_PANELR4 = "Pilot - R4";

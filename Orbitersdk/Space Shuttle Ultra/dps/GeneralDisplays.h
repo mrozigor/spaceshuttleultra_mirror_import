@@ -30,14 +30,27 @@
 #include "discsignals.h"
 
 
+const double DROOP_ALT = 265000;// ft
+
+
 using namespace discsignals; 
 
 
 namespace dps
 {
+	class AscentGuidance;
+	class SSME_Operations;
+	class SRBSepSequence;
+	//class ETSepSequence;
+
 	class GeneralDisplays:public SimpleGPCSoftware
 	{
 		private:
+			AscentGuidance* pAscentGuidance;
+			SSME_Operations* pSSME_Operations;
+			SRBSepSequence* pSRBSepSequence;
+			//ETSepSequence* pETSepSequence;
+
 			DiscInPort dipBFCCRTDisplay;
 			DiscInPort dipBFCCRTSelect[2];
 
@@ -60,6 +73,9 @@ namespace dps
 			void OnPaint_DISP99_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_SPEC112_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_SPEC113_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_LAUNCHTRAJ1_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_ASCENTTRAJ1_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_ASCENTTRAJ2_PASS( vc::MDU* pMDU ) const;
 
 			void ItemInput_SPEC112( int item, const char* Data );
 			void ItemInput_SPEC113( int item, const char* Data );

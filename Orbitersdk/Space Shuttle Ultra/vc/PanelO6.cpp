@@ -127,40 +127,40 @@ namespace vc {
 		*/
 
 		Add(pGPC1Pwr = new StdSwitch2(_sts, "GPC POWER 1"));
-		pGPC1Pwr->SetLabel(0, "ON");
-		pGPC1Pwr->SetLabel(1, "OFF");
+		pGPC1Pwr->SetLabel(0, "OFF");
+		pGPC1Pwr->SetLabel(1, "ON");
 		pGPC1Pwr->SetMouseRegion(0.4798f, 0.5008f, 0.5473f, 0.5570f);
 		pGPC1Pwr->DefineSwitchGroup(GRP_O6S30_VC);
 		pGPC1Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC1Pwr->SetInitialAnimState(0.5f);
 
 		Add(pGPC2Pwr = new StdSwitch2(_sts, "GPC POWER 2"));
-		pGPC2Pwr->SetLabel(0, "ON");
-		pGPC2Pwr->SetLabel(1, "OFF");
+		pGPC2Pwr->SetLabel(0, "OFF");
+		pGPC2Pwr->SetLabel(1, "ON");
 		pGPC2Pwr->SetMouseRegion(0.5587f, 0.5008f, 0.6032f, 0.5570f);
 		pGPC2Pwr->DefineSwitchGroup(GRP_O6S31_VC);
 		pGPC2Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC2Pwr->SetInitialAnimState(0.5f);
 
 		Add(pGPC3Pwr = new StdSwitch2(_sts, "GPC POWER 3"));
-		pGPC3Pwr->SetLabel(0, "ON");
-		pGPC3Pwr->SetLabel(1, "OFF");
+		pGPC3Pwr->SetLabel(0, "OFF");
+		pGPC3Pwr->SetLabel(1, "ON");
 		pGPC3Pwr->SetMouseRegion(0.6212f, 0.5008f, 0.6657f, 0.5570f);
 		pGPC3Pwr->DefineSwitchGroup(GRP_O6S32_VC);
 		pGPC3Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC3Pwr->SetInitialAnimState(0.5f);
 
 		Add(pGPC4Pwr = new StdSwitch2(_sts, "GPC POWER 4"));
-		pGPC4Pwr->SetLabel(0, "ON");
-		pGPC4Pwr->SetLabel(1, "OFF");
+		pGPC4Pwr->SetLabel(0, "OFF");
+		pGPC4Pwr->SetLabel(1, "ON");
 		pGPC4Pwr->SetMouseRegion(0.6828f, 0.5008f, 0.7375f, 0.5570f);
 		pGPC4Pwr->DefineSwitchGroup(GRP_O6S33_VC);
 		pGPC4Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC4Pwr->SetInitialAnimState(0.5f);
 
 		Add(pGPC5Pwr = new StdSwitch2(_sts, "GPC POWER 5"));
-		pGPC5Pwr->SetLabel(0, "ON");
-		pGPC5Pwr->SetLabel(1, "OFF");
+		pGPC5Pwr->SetLabel(0, "OFF");
+		pGPC5Pwr->SetLabel(1, "ON");
 		pGPC5Pwr->SetMouseRegion(0.7538f, 0.5008f, 0.8021f, 0.5570f);
 		pGPC5Pwr->DefineSwitchGroup(GRP_O6S34_VC);
 		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
@@ -233,45 +233,45 @@ namespace vc {
 		*/
 
 		Add(pGPC1Output = new StdSwitch3(_sts, "GPC OUTPUT 1"));
-		pGPC1Output->SetLabel(0, "BACKUP");
+		pGPC1Output->SetLabel(0, "TERMINATE");
 		pGPC1Output->SetLabel(1, "NORMAL");
-		pGPC1Output->SetLabel(2, "TERMINATE");
+		pGPC1Output->SetLabel(2, "BACKUP");
 		pGPC1Output->SetMouseRegion(0.4798f, 0.6438f, 0.5473f, 0.7007f);
 		pGPC1Output->DefineSwitchGroup(GRP_O6S35_VC);
 		pGPC1Output->SetReference(_V(0.0,  3.07197,  14.08016), SWITCH_VERTICAL);
 		pGPC1Output->SetInitialAnimState(0.5f);
 
 		Add(pGPC2Output = new StdSwitch3(_sts, "GPC OUTPUT 2"));
-		pGPC2Output->SetLabel(0, "BACKUP");
+		pGPC2Output->SetLabel(0, "TERMINATE");
 		pGPC2Output->SetLabel(1, "NORMAL");
-		pGPC2Output->SetLabel(2, "TERMINATE");
+		pGPC2Output->SetLabel(2, "BACKUP");
 		pGPC2Output->SetMouseRegion(0.5587f, 0.6438f, 0.6032f, 0.7007f);
 		pGPC2Output->DefineSwitchGroup(GRP_O6S36_VC);
 		pGPC2Output->SetReference(_V(0.0,  3.07197,  14.08016), SWITCH_VERTICAL);
 		pGPC2Output->SetInitialAnimState(0.5f);
 
 		Add(pGPC3Output = new StdSwitch3(_sts, "GPC OUTPUT 3"));
-		pGPC3Output->SetLabel(0, "BACKUP");
+		pGPC3Output->SetLabel(0, "TERMINATE");
 		pGPC3Output->SetLabel(1, "NORMAL");
-		pGPC3Output->SetLabel(2, "TERMINATE");
+		pGPC3Output->SetLabel(2, "BACKUP");
 		pGPC3Output->SetMouseRegion(0.6212f, 0.6438f, 0.6657f, 0.7007f);
 		pGPC3Output->DefineSwitchGroup(GRP_O6S37_VC);
 		pGPC3Output->SetReference(_V(0.0,  3.07197,  14.08016), SWITCH_VERTICAL);
 		pGPC3Output->SetInitialAnimState(0.5f);
 
 		Add(pGPC4Output = new StdSwitch3(_sts, "GPC OUTPUT 4"));
-		pGPC4Output->SetLabel(0, "BACKUP");
+		pGPC4Output->SetLabel(0, "TERMINATE");
 		pGPC4Output->SetLabel(1, "NORMAL");
-		pGPC4Output->SetLabel(2, "TERMINATE");
+		pGPC4Output->SetLabel(2, "BACKUP");
 		pGPC4Output->SetMouseRegion(0.6828f, 0.6438f, 0.7375f, 0.7007f);
 		pGPC4Output->DefineSwitchGroup(GRP_O6S38_VC);
 		pGPC4Output->SetReference(_V(0.0,  3.07197,  14.08016), SWITCH_VERTICAL);
 		pGPC4Output->SetInitialAnimState(0.5f);
 
 		Add(pGPC5Output = new StdSwitch3(_sts, "GPC OUTPUT 5"));
-		pGPC5Output->SetLabel(0, "BACKUP");
+		pGPC5Output->SetLabel(0, "TERMINATE");
 		pGPC5Output->SetLabel(1, "NORMAL");
-		pGPC5Output->SetLabel(2, "TERMINATE");
+		pGPC5Output->SetLabel(2, "BACKUP");
 		pGPC5Output->SetMouseRegion(0.7538f, 0.6438f, 0.8021f, 0.7007f);
 		pGPC5Output->DefineSwitchGroup(GRP_O6S39_VC);
 		pGPC5Output->SetReference(_V(0.0,  3.07197,  14.08016), SWITCH_VERTICAL);
@@ -284,9 +284,9 @@ namespace vc {
 		*/
 
 		Add(pIPLSource = new StdSwitch3(_sts, "IPL SOURCE"));
-		pIPLSource->SetLabel(0, "MMU1");
+		pIPLSource->SetLabel(0, "MMU2");
 		pIPLSource->SetLabel(1, "OFF");
-		pIPLSource->SetLabel(2, "MMU2");
+		pIPLSource->SetLabel(2, "MMU1");
 		pIPLSource->SetMouseRegion(0.8518f, 0.7391f, 0.8936f, 0.7720f);
 		pIPLSource->DefineSwitchGroup(GRP_O6S45_VC);
 		pIPLSource->SetReference(_V(0.0, 3.056848, 14.14088), SWITCH_VERTICAL);
@@ -330,9 +330,9 @@ namespace vc {
 
 		//0.0,  3.033531,  14.23673
 		Add(pGPC1Mode = new LockableLever3(_sts, "GPC MODE 1"));
-		pGPC1Mode->SetLabel(0, "RUN");
+		pGPC1Mode->SetLabel(0, "HALT");
 		pGPC1Mode->SetLabel(1, "STBY");
-		pGPC1Mode->SetLabel(2, "HALT");
+		pGPC1Mode->SetLabel(2, "RUN");
 		pGPC1Mode->SetMouseRegion(0.4798f, 0.8718f, 0.5473f, 0.9117f);
 		pGPC1Mode->DefineSwitchGroup(GRP_O6S46_VC);
 		pGPC1Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
@@ -340,9 +340,9 @@ namespace vc {
 		pGPC1Mode->SetInitialAnimState(0.5f);
 
 		Add(pGPC2Mode = new LockableLever3(_sts, "GPC MODE 2"));
-		pGPC2Mode->SetLabel(0, "RUN");
+		pGPC2Mode->SetLabel(0, "HALT");
 		pGPC2Mode->SetLabel(1, "STBY");
-		pGPC2Mode->SetLabel(2, "HALT");
+		pGPC2Mode->SetLabel(2, "RUN");
 		pGPC2Mode->SetMouseRegion(0.5587f, 0.8718f, 0.6032f, 0.9117f);
 		pGPC2Mode->DefineSwitchGroup(GRP_O6S47_VC);
 		pGPC2Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
@@ -350,9 +350,9 @@ namespace vc {
 		pGPC2Mode->SetInitialAnimState(0.5f);
 
 		Add(pGPC3Mode = new LockableLever3(_sts, "GPC MODE 3"));
-		pGPC3Mode->SetLabel(0, "RUN");
+		pGPC3Mode->SetLabel(0, "HALT");
 		pGPC3Mode->SetLabel(1, "STBY");
-		pGPC3Mode->SetLabel(2, "HALT");
+		pGPC3Mode->SetLabel(2, "RUN");
 		pGPC3Mode->SetMouseRegion(0.6212f, 0.8718f, 0.6657f, 0.9117f);
 		pGPC3Mode->DefineSwitchGroup(GRP_O6S48_VC);
 		pGPC3Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
@@ -360,9 +360,9 @@ namespace vc {
 		pGPC3Mode->SetInitialAnimState(0.5f);
 
 		Add(pGPC4Mode = new LockableLever3(_sts, "GPC MODE 4"));
-		pGPC4Mode->SetLabel(0, "RUN");
+		pGPC4Mode->SetLabel(0, "HALT");
 		pGPC4Mode->SetLabel(1, "STBY");
-		pGPC4Mode->SetLabel(2, "HALT");
+		pGPC4Mode->SetLabel(2, "RUN");
 		pGPC4Mode->SetMouseRegion(0.6828f, 0.8718f, 0.7375f, 0.9117f);
 		pGPC4Mode->DefineSwitchGroup(GRP_O6S49_VC);
 		pGPC4Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
@@ -370,9 +370,9 @@ namespace vc {
 		pGPC4Mode->SetInitialAnimState(0.5f);
 
 		Add(pGPC5Mode = new LockableLever3(_sts, "GPC MODE 5"));
-		pGPC5Mode->SetLabel(0, "RUN");
+		pGPC5Mode->SetLabel(0, "HALT");
 		pGPC5Mode->SetLabel(1, "STBY");
-		pGPC5Mode->SetLabel(2, "HALT");
+		pGPC5Mode->SetLabel(2, "RUN");
 		pGPC5Mode->SetMouseRegion(0.7538f, 0.8718f, 0.8021f, 0.9117f);
 		pGPC5Mode->DefineSwitchGroup(GRP_O6S50_VC);
 		pGPC5Mode->SetReference(_V(0.0,  3.033531,  14.23673), SWITCH_VERTICAL);
@@ -387,13 +387,13 @@ namespace vc {
 	void PanelO6::DefineVC()
 	{
 		oapiWriteLog("(PanelO6::Define VC)");
-		//Define VC regions
-		//AddAIDToMouseEventList(AID_A7A3);
 		AddAIDToMouseEventList(AID_O6);
 	}
 
 	void PanelO6::Realize()
 	{
+	
+
 		//Warning: This is not correct, panel should talk to FMCA
 		discsignals::DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
@@ -448,7 +448,7 @@ namespace vc {
 		pIPLSource->outputA.Connect(pBundle, 0);
 		pIPLSource->outputB.Connect(pBundle, 1);
 		
-		
+		AtlantisPanel::Realize();
 	}
 
 	void PanelO6::RegisterVC()

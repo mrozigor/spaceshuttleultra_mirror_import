@@ -31,15 +31,21 @@
 #include <UltraMath.h>
 
 
-#define CR_BLACK RGB( 0, 0, 0 )
+#define CR_BLACK RGB( 0, 0, 0 )//RGB( 0, 0, 25 )
+#define CR_DARK_GRAY RGB( 60, 60, 80 )
+#define CR_LIGHT_GRAY RGB( 180, 180, 200 )
 #define CR_WHITE RGB( 255, 255, 255 )
-#define CR_GRAY_LIGHT RGB( 192, 192, 192 )
-#define CR_GRAY_DARK RGB( 128, 128, 128 )
+//#define CR_ORANGE RGB( 255, 128, 0 )
 #define CR_RED RGB( 255, 0, 0 )
-#define CR_GREEN RGB( 0, 255, 0 )
 #define CR_YELLOW RGB( 255, 255, 0 )
-#define CR_MAGENTA RGB( 159, 110, 189 )
-#define CR_TURQUOISE RGB( 0, 183, 146 )
+#define CR_CYAN RGB( 0, 255, 255 )
+#define CR_MAGENTA RGB( 255, 0, 255 )
+#define CR_LIGHT_GREEN RGB( 0, 255, 0 )
+//#define CR_DARK_GREEN RGB( 0, 160, 0 )
+//#define CR_BLUE RGB( 0, 0, 255 )
+//#define CR_PINK RGB( 220, 150, 220 )
+//#define CR_BROWN RGB( 190, 50, 30 )
+
 #define CR_MENU_COLOR RGB( 0, 255, 216 )
 #define CR_DPS_NORMAL RGB( 128, 255, 0 )
 #define CR_DPS_OVERBRIGHT RGB( 255, 255, 0 )
@@ -54,24 +60,25 @@ namespace vc {
 		bool counting;
 
 		HBRUSH BlackBrush;
+		HBRUSH DarkGrayBrush;
+		HBRUSH LightGrayBrush;
 		HBRUSH WhiteBrush;
-		HBRUSH GrayLightBrush;
-		HBRUSH GrayDarkBrush;
-		HBRUSH GreenBrush;
-		HBRUSH MagentaBrush;
-		HBRUSH YellowBrush;
 		HBRUSH RedBrush;
-
+		HBRUSH YellowBrush;
+		HBRUSH MagentaBrush;
+		HBRUSH LightGreenBrush;
+		
 		HPEN BlackPen;
+		HPEN DarkGrayPen;
+		HPEN LightGrayPen;
 		HPEN WhitePen;
-		HPEN GrayLightPen;
-		HPEN GrayDarkPen;
 		HPEN RedPen;
-		HPEN GreenPen;
-		HPEN GreenThickPen;
 		HPEN YellowPen;
+		HPEN CyanPen;
 		HPEN MagentaPen;
-		HPEN TurquoisePen;
+		HPEN LightGreenPen;
+		HPEN LightGreenThickPen;
+		
 		HPEN hOverbrightPen;
 		HPEN hNormalPen;
 		HPEN hDashedNormalPen;
@@ -184,8 +191,7 @@ namespace vc {
 		//Use a paint buffer for storing primitives?
 	protected:
 		virtual void RegisterMFDContext(int id);
-		virtual void SwitchMFDMode();
-		void DrawCommonHeader(const char* cDispTitle);
+		//void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 
 	public:
@@ -194,7 +200,7 @@ namespace vc {
 		//bool PrintChar(unsigned short x, unsigned short y, DEUCHAR c);
 		//bool PrintString(unsigned short x, unsigned short y, char* pText, short sLength, char cAttr = DEUATT_NORMAL);
 		//DEUCHAR GetTextBuffer(unsigned short x, unsigned short y) const;
-		virtual char* GetEdgeKeyMenuLabel(int iButton);
+		//virtual char* GetEdgeKeyMenuLabel(int iButton);
 		bool SetPrimaryIDP(dps::IDP* idp);
 		bool SetSecondaryIDP(dps::IDP* idp);
 		inline dps::IDP* GetIDP() const {
@@ -454,11 +460,8 @@ namespace vc {
 			Line( x + 7, y + 1, x, y + 1, attributes );*/
 		}
 
-		//static MDU* CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right, const VECTOR3& bottom_left,
-		//	const VECTOR3& bottom_right);
-
 		virtual bool GetViewAngle() const;
-		virtual const string& GetEdgekeyMenu() const;
+		//virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
 		virtual bool GetSelectedPort() const;
 
@@ -480,7 +483,7 @@ namespace vc {
 		 * Display functions
 		 * Update text buffer with appropriate data for display
 		 */
-		void GPCMEMORY();
+		//void GPCMEMORY();
 
 		/**
 		 * MEDS Display functions

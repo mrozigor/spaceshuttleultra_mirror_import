@@ -58,6 +58,7 @@ namespace vc {
 		bool ToggleCoordinateDisplayMode();
 		void HidePanels();
 		void ShowPanels();
+		void LogPanels(char *grp);
 		void UpdateUVState();
 	};
 
@@ -185,8 +186,10 @@ namespace vc {
 	bool PanelGroup<TVessel>::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 	{
 		bool r = false;
-		for(unsigned int i = 0; i<panels.size(); i++)
+		for (unsigned int i = 0; i < panels.size(); i++) 
+		{
 			r |= panels.at(i)->OnVCMouseEvent(id, _event, p);
+		}
 		return r;
 	}
 
@@ -235,6 +238,40 @@ namespace vc {
 	{
 		for(unsigned int i=0;i<panels.size();i++)
 			panels.at(i)->SetMeshVisibility(true);
+	}
+
+	template <class TVessel> 
+	void PanelGroup<TVessel>::LogPanels(char * panelgroup) {
+		static char buf[100];
+
+		char *state;
+
+		sprintf_s(buf, 100, "Panel group dump for group \"%s\": ", panelgroup);
+		oapiWriteLog(buf);
+
+		for (unsigned int i = 0; i < panels.size(); i++)
+		{
+			switch (panels.at(i)->GetPanelState()) 
+			{
+			case PS_CREATED:
+				state = "CREATED";
+				break;
+			case PS_DEFINED:
+				state = "DEFINED";
+				break;
+			case PS_REGISTERED:
+				state = "REGISTERED";
+				break;
+			case PS_REALIZED:
+				state = "REALIZED";
+				break;
+			case PS_UNKNOWN:
+			default:
+				state = "UNKNOWN";
+			}
+			sprintf_s(buf, 100, "   %s  : %s ", panels.at(i)->GetQualifiedIdentifier().c_str(), state);
+			oapiWriteLog(buf);
+		}
 	}
 
 	template <class TVessel>

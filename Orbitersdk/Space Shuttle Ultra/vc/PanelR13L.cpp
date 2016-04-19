@@ -227,7 +227,7 @@ namespace vc
 		pRadiator[1]->SetInput( 0, pBundle, 6, TB_STO );
 		pRadiator[1]->SetInput( 1, pBundle, 7, TB_DPY );
 
-		pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 5 );
+		pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 16 );
 		pKUAntennaDirectStow->ConnectPort(1, pBundle, 0 );
 		pKUAntenna->ConnectPort( 1, pBundle, 1 );
 		pKUAntenna->ConnectPort( 2, pBundle, 2 );

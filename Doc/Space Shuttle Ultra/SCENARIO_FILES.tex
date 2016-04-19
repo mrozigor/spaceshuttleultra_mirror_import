@@ -1,8 +1,151 @@
 \documentclass[Space_Shuttle_Ultra_Manual.tex]{subfiles} 
 \begin{document}
-\begin{multicols}{2}
-\section{SCENARIO FILES}
-\label{sec:scenario-files}
 
-\end{multicols}
+\section{SCENARIO FILES}
+\begin{multicols*}{2}
+\label{sec:scenario-files}
+\renewcommand{\cfttoctitlefont}{\bf}
+\localtableofcontents
+\noindent
+\\
+Space Shuttle Ultra uses the scenario file to define the state of the associated vessels. The next sections will provide an list of available parameters (in addition to the default Orbiter ones) for each SSU vessel.
+\end{multicols*}
+
+\begin{multicols*}{2}
+\subsection{Space Shuttle Ultra orbiter Parameter List}
+\noindent
+Space Shuttle Ultra orbiter vessel. Versions available:
+\\
+\textit{SpaceShuttleUltra}
+\\
+\\
+TODO
+\\
+
+\subsection{External Tank Parameter List}
+\noindent
+External Tank vessel. Versions available:
+\\
+\textit{ET\_SWT} $\rightarrow$ the original External Tank
+\\
+\textit{ET\_LWT} $\rightarrow$ the Light Weight External Tank
+\\
+\textit{ET\_SLWT} $\rightarrow$ the Super-Light Weight External Tank
+\\
+\\
+\textbf{PRPLEVEL} 0:0.996000 $\rightarrow$ propellant level
+\\
+\textbf{ATTACHED} 0:20,Atlantis $\rightarrow$ attachment to \textit{SpaceShuttleUltra} vessel
+\\
+\textbf{FRL} $\rightarrow$ add Fire Retardant Latex paint (only for \textit{ET\_SWT})
+\\
+
+\subsection{Solid Rocket Booster Parameter List}
+\noindent
+Solid Rocket Booster vessel. Versions available:
+\\
+\textit{SSU\_LSRB} and \textit{SSU\_RSRB} $\rightarrow$ SRB with the High Performance Motor SRM
+\\
+\textit{SSU\_LSRB\_FWC} and \textit{SSU\_RSRB\_FWC} $\rightarrow$ SRB with the Filament Wound Case SRM
+\\
+\textit{SSU\_LSRB\_RSRM} and \textit{SSU\_RSRB\_RSRM} $\rightarrow$ SRB with the Redesigned SRM
+\\
+\\
+\textbf{ATTACHED} 0:21,Atlantis $\rightarrow$ attachment to \textit{SpaceShuttleUltra} vessel (only for \textit{SSU\_LSRB} or \textit{SSU\_LSRB\_FWC} or \textit{SSU\_LSRB\_RSRM})
+\\
+\textbf{ATTACHED} 0:22,Atlantis $\rightarrow$ attachment to \textit{SpaceShuttleUltra} vessel (only for \textit{SSU\_RSRB} or \textit{SSU\_RSRB\_FWC} or \textit{SSU\_RSRB\_RSRM})
+\\
+\textbf{PRPLEVEL} 1:1.000000 $\rightarrow$ propellant level
+\\
+\textbf{SECTION\_COUNT} $\rightarrow$ not used
+\\
+
+\subsection{Launch Control Center Parameter List}
+\noindent
+Launch Control Center vessel. Versions available:
+\\
+\textit{SSU\_LCC}
+\\
+\\
+\textbf{LAUNCH\_MJD} $\rightarrow$ MJD of launch
+\\
+\textbf{PAD\_NAME} $\rightarrow$ name of the \textit{SSU\_Pad} or \textit{SSU\_Pad1985} or \textit{SSU\_SLC6} vessel
+\\
+\textbf{SHUTTLE\_NAME} $\rightarrow$ name of \textit{SpaceShuttleUltra} vessel
+\\
+
+\subsection{Launch Complex 39 Parameter List}
+\noindent
+Launch Complex 39 vessel. Versions available:
+\\
+\textit{SSU\_Pad} $\rightarrow$ the Launch Complex 39 for more recent launches
+\\
+\textit{SSU\_Pad1985} $\rightarrow$ the Launch Complex 39 for the early launches
+\\
+\\
+\textbf{ACCESS\_ARM} $\rightarrow$ animation state for the OAA
+\\
+\textbf{GVA} $\rightarrow$ animation state for the GO2 Vent Arm
+\\
+\textbf{VENTHOOD} $\rightarrow$ animation state for the GO2 Vent Hood
+\\
+\textbf{FSS\_OWP} $\rightarrow$ animation state for the FSS mounted OWP (only for \textit{SSU\_Pad})
+\\
+\textbf{RSS\_OWP} $\rightarrow$ animation state for the RSS mounted OWP (only for \textit{SSU\_Pad})
+\\
+\textbf{RBUS} $\rightarrow$ animation state for the RBUS (only for \textit{SSU\_Pad1985})
+\\
+\textbf{RSS} $\rightarrow$ animation state for the RSS
+\\
+\textbf{FSS\_GH2} $\rightarrow$ animation state for the GH2 Vent Arm
+\\
+\textbf{FSS\_IAA} $\rightarrow$ animation state for the Intertank Access Arm
+\\
+\textbf{EAST\_SRB\_SFD} $\rightarrow$ animation state for the East SRB Side Flame Deflector
+\\
+\textbf{WEST\_SRB\_SFD} $\rightarrow$ animation state for the West SRB Side Flame Deflector
+\\
+\textbf{SHUTTLE} $\rightarrow$ name of \textit{SpaceShuttleUltra} vessel
+\\
+
+\subsection{Mobile Launcher Platform Parameter List}
+\noindent
+Mobile Launcher Platform vessel. Versions available:
+\\
+\textit{SSU\_MLP}
+\\
+\\
+\textbf{ATTACHED} 0:0,LC39A $\rightarrow$ attachment to the \textit{SSU\_Pad} or \textit{SSU\_Pad1985} vessels
+\\
+\textbf{T0\_UMB} $\rightarrow$ animation state for the T0 umbilical
+\\
+
+\subsection{Space Launch Complex 6 Parameter List}
+\noindent
+Space Launch Complex 6 vessel. Versions available:
+\\
+\textit{SSU\_SLC6}
+\\
+\\
+\textbf{ACCESS\_ARM} $\rightarrow$ animation state for the OAA
+\\
+\textbf{VENT\_ARM} $\rightarrow$ animation state for the GO2 Vent Arm
+\\
+\textbf{VENT\_HOOD} $\rightarrow$ animation state for the GO2 Vent Hood
+\\
+\textbf{GH2\_VENTLINE} $\rightarrow$ animation state for the GH2 Vent Arm
+\\
+\textbf{IAA} $\rightarrow$ animation state for the Intertank Access Arm
+\\
+\textbf{T0\_UMB} $\rightarrow$ animation state for the T0 umbilical
+\\
+\textbf{PCR} $\rightarrow$ animation state for the Payload Changeout Room
+\\
+\textbf{SAB} $\rightarrow$ animation state for the Shuttle Assembly Building
+\\
+\textbf{SABDoor} $\rightarrow$ animation state for the Shuttle Assembly Building Door
+\\
+\textbf{MST} $\rightarrow$ animation state for the Mobile Service Structure
+\end{multicols*}
+
 \end{document}
