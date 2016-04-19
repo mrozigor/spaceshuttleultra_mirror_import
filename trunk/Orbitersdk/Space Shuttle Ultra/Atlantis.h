@@ -520,8 +520,8 @@ public:
 	void SetOrbiterConfiguration (void);
 	void SetOrbiterTankConfiguration (void);
 	void SetPostLaunchConfiguration (double srbtime);
-	void SetRadiatorPosition (double pos);
-	void SetRadLatchPosition (double pos) {}
+	void SetRadiatorPosition (double pos, int side);
+	//void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -887,7 +887,7 @@ private:
 	// Animations
 	// *******************************************************************************
 	UINT anim_door;                            // handle for cargo door animation
-	UINT anim_rad;                             // handle for radiator animation
+	UINT anim_rad[2];                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
 
 	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)

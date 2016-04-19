@@ -1748,8 +1748,10 @@ void Atlantis::DefineAnimations(void)
 
 	anim_door = CreateAnimation(0);
 	LogAnim("anim_door", anim_door);
-	anim_rad = CreateAnimation(0);
-	LogAnim("anim_rad", anim_rad);
+	anim_rad[0] = CreateAnimation(0);
+	LogAnim("anim_rad[0]", anim_rad[0]);
+	anim_rad[1] = CreateAnimation(0);
+	LogAnim("anim_rad[1]", anim_rad[1]);
 	anim_clatch[0] = CreateAnimation(0);
 	anim_clatch[1] = CreateAnimation(0);
 	anim_clatch[2] = CreateAnimation(0);
@@ -1758,7 +1760,7 @@ void Atlantis::DefineAnimations(void)
 	//right (starboard) side
 	// **************************************************************************************
 	parent = AddManagedAnimationComponent(anim_door, 0.0, 0.4632, pRCargoDoor);
-	AddManagedAnimationComponent(anim_rad, 0, 1, pRRadiator, parent);
+	AddManagedAnimationComponent(anim_rad[1], 0, 1, pRRadiator, parent);
 	//latches
 	AddAnimationComponent(anim_clatch[0], 0, 1, &CLatch1_4, parent);
 	AddAnimationComponent(anim_clatch[1], 0, 1, &CLatch5_8, parent);
@@ -1772,7 +1774,7 @@ void Atlantis::DefineAnimations(void)
 	//left(port) side
 	// **************************************************************************************
 	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pLCargoDoor);
-	AddManagedAnimationComponent(anim_rad, 0, 1, pLRadiator, parent);
+	AddManagedAnimationComponent(anim_rad[0], 0, 1, pLRadiator, parent);
 	//left push/pull rods
 	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORT_CLAMP);
 	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPullRod, parent);
@@ -2689,7 +2691,8 @@ void Atlantis::UpdateMesh()
 	SetAnimation(anim_spdb, spdb_proc);
 	SetAnimation(anim_door, pPayloadBay->BayDoorStatus.pos);
 	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->CLBayDoorLatch[i].pos);
-	SetAnimation(anim_rad, pPayloadBay->RadiatorStatus.pos);
+	SetAnimation(anim_rad[0], pPayloadBay->RadiatorStatus[0].pos);
+	SetAnimation(anim_rad[1], pPayloadBay->RadiatorStatus[1].pos);
 	SetAnimation( anim_kubd, pPayloadBay->KuAntennaStatus.pos );
 	if (pDeployedAssembly)
 	{
@@ -2825,9 +2828,9 @@ void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
 	SetAnimation(anim_clatch[gang], pos);
 }
 
-void Atlantis::SetRadiatorPosition(double pos)
+void Atlantis::SetRadiatorPosition(double pos, int side)
 {
-	SetAnimation(anim_rad, pos);
+	SetAnimation(anim_rad[side], pos);
 }
 
 void Atlantis::SetKuAntennaDAPosition(double pos)
