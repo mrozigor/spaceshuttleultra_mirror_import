@@ -97,6 +97,9 @@ namespace mission {
 
 		bool bLogSSMEData;
 
+		bool bUseASE_IUS;
+		bool bASE_IUS_Aft_Location;
+
 		bool bUseCISS;
 		bool bCISS_GPrime;
 
@@ -213,6 +216,16 @@ namespace mission {
 		 * Returns true if SSME data arriving at the EIU is to be logged.
 		 */
 		virtual bool LogSSMEData() const;
+
+		/**
+		 * Returns true is the ASE for the IUS is used.
+		 */
+		bool UseASE_IUS() const;
+
+		/**
+		 * Returns true if the ASE for the IUS is located in its aft position in the payload bay (ignored if the ASE is not used).
+		 */
+		bool IsASELocationAft() const;
 
 		/**
 		 * Returns true if the CISS is used.

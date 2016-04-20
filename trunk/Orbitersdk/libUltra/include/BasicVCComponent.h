@@ -163,6 +163,8 @@ public:
 	 */
 	virtual const string& GetIdentifier() const;
 	virtual bool OnFail(const string& strFailureCode);
+
+	virtual void UpdateUVState();
 };
 
 template <class TVessel>
@@ -496,6 +498,11 @@ template <class TVessel>
 bool BasicVCComponent<TVessel>::WriteScenarioVector(FILEHANDLE scn, const std::string &key, const VECTOR3 &vector) const
 {
 	return false;
+}
+
+template <class TVessel>
+void BasicVCComponent<TVessel>::UpdateUVState()
+{
 }
 
 };

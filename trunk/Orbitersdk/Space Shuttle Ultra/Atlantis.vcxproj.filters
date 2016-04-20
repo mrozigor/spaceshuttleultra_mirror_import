@@ -463,6 +463,12 @@
     <ClCompile Include="vc\PanelF3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="ASE_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL10.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -898,6 +904,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelF3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ASE_IUS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL10.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l10.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">

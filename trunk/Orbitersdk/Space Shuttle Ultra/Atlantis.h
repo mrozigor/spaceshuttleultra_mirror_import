@@ -219,6 +219,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class ASE_IUS;
 class CISS;
 class ActiveLatchGroup;
 class MCA;
@@ -405,6 +406,8 @@ public:
 	AirDataProbeSystem* pADPS;
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
+
+	ASE_IUS* pASE_IUS;
 
 	CISS* pCISS;
 	PayloadBay* pPayloadBay;
@@ -667,6 +670,7 @@ public:
 	 */
 	vc::AtlantisPanel* pPanelA8;
 
+	vc::AtlantisPanel* pPanelL10;
 	vc::AtlantisPanel* pPanelL12U;	
 
 

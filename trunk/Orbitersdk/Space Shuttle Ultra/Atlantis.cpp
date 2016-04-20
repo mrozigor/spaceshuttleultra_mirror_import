@@ -48,6 +48,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "ASE_IUS.h"
 #include "CISS.h"
 #include "MechActuator.h"
 #include "PayloadBay.h"
@@ -73,6 +74,7 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL10.h"
 #include "vc/PanelL12U.h"
 #include "comm\GCIL.h"
 #include "comm\DeployedAssembly.h"
@@ -409,6 +411,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
+	pPanelL10 = NULL;
 	pPanelL12U = NULL;
 	pExtAirlock = NULL;
 
@@ -504,6 +507,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
 	pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
+	pASE_IUS = NULL;
 	pCISS = NULL;
 
 	psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
@@ -2312,7 +2316,9 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	*/
 	CreateETAndSRBAttachments(ofs0);
 
-	if (pCISS) pCISS->CreateAttachment();// 23
+	// only one will be created
+	if (pASE_IUS) pASE_IUS->CreateAttachment();// 23
+	else if (pCISS) pCISS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
@@ -2389,6 +2395,7 @@ void Atlantis::AddOrbiterVisual()
 		*/
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
 		if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
@@ -3412,6 +3419,13 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
 
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
+
+			if (pMission->UseASE_IUS())
+			{
+				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
+				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+			}
 
 			if (pMission->UseCISS())
 			{
@@ -4892,6 +4906,19 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	}
 
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
+
+	// update UVs for talkbacks and lights
+	oapiWriteLog( "Started Panels UpdateUVState" );
+	pgForward.UpdateUVState();
+	pgLeft.UpdateUVState();
+	pgCenter.UpdateUVState();
+	pgRight.UpdateUVState();
+	pgOverhead.UpdateUVState();
+	pgOverheadAft.UpdateUVState();
+	pgAftStbd.UpdateUVState();
+	pgAft.UpdateUVState();
+	pgAftPort.UpdateUVState();
+	oapiWriteLog( "Ended Panels UpdateUVState" );
 
 	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
