@@ -220,6 +220,7 @@ class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
 class ASE_IUS;
+class CISS;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -408,6 +409,7 @@ public:
 
 	ASE_IUS* pASE_IUS;
 
+	CISS* pCISS;
 	PayloadBay* pPayloadBay;
 
 	comm::DeployedAssembly* pDeployedAssembly;
@@ -669,6 +671,7 @@ public:
 	vc::AtlantisPanel* pPanelA8;
 
 	vc::AtlantisPanel* pPanelL10;
+	vc::AtlantisPanel* pPanelL12U;	
 
 
 	AerosurfacePositions aerosurfaces;

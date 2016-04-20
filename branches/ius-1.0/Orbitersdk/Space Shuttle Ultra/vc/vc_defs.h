@@ -301,7 +301,6 @@
 
 #define AID_O17 		661
 
-
 #define AID_F3_MIN	700
 #define AID_F3		700		
 #define AID_F3_DC_ARM	701
@@ -313,6 +312,15 @@
 #define AID_L10		800
 #define AID_L10_MAX	810
 
+#define AID_L12U_MIN	900
+#define AID_L12U	900
+#define AID_L12U_TKBK1	901
+#define AID_L12U_TKBK2	902
+#define AID_L12U_TKBK3	903
+#define AID_L12U_TKBK4	904
+#define AID_L12U_TKBK5	905
+#define AID_L12U_TKBK6	906
+#define AID_L12U_MAX	910
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
