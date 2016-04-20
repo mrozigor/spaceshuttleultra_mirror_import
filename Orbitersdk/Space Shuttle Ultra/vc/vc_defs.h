@@ -310,6 +310,17 @@
 #define AID_F3_MAX	710
 
 
+#define AID_L12U_MIN	900
+#define AID_L12U	900
+#define AID_L12U_TKBK1	901
+#define AID_L12U_TKBK2	902
+#define AID_L12U_TKBK3	903
+#define AID_L12U_TKBK4	904
+#define AID_L12U_TKBK5	905
+#define AID_L12U_TKBK6	906
+#define AID_L12U_MAX	910
+
+
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
 #define AID_MDU_CRT1	1002

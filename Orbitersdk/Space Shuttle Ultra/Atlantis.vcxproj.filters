@@ -436,6 +436,12 @@
     <ClCompile Include="dps\GeneralDisplays.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="CISS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL12U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="vc\PanelR13L.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -856,6 +862,21 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="mps\MPSdefs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_CISS_GPrime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CISS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_CISS_G.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelR13L.h">

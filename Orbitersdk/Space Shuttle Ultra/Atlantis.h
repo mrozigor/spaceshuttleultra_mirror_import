@@ -219,6 +219,7 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class CISS;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -405,6 +406,7 @@ public:
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
 
+	CISS* pCISS;
 	PayloadBay* pPayloadBay;
 
 	comm::DeployedAssembly* pDeployedAssembly;
@@ -664,7 +666,8 @@ public:
 	 * Pointer to the A8 (RMS) panel region
 	 */
 	vc::AtlantisPanel* pPanelA8;
-	
+
+	vc::AtlantisPanel* pPanelL12U;	
 
 
 	AerosurfacePositions aerosurfaces;
