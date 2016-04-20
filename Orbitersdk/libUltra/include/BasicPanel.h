@@ -121,6 +121,7 @@ public:
 	bool DisableCoordinateDisplayMode() {bCoordinateDisplayMode = false; return true;};
 	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
 
+	void UpdateUVState();
 	inline void SetPanelState(PanelState s)
 	{
 		pstate = s;
@@ -560,6 +561,17 @@ void BasicPanel<TVessel>::AddAIDToMouseEventList(UINT aid)
 	if(availableForMouse.find(aid) == availableForMouse.end())
 	{
 		availableForMouse.insert(aid);
+	}
+}
+
+template <class TVessel>
+void BasicPanel<TVessel>::UpdateUVState()
+{
+	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
+	while(iter != components.end())
+	{
+		(*iter)->UpdateUVState();
+		iter++;
 	}
 }
 

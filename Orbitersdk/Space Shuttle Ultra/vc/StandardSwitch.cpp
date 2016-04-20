@@ -69,6 +69,13 @@ namespace vc {
 	bool LockableLever::OnMouseEvent(int _event, float x, float y)
 	{
 		if((_event & PANEL_MOUSE_LBUP) && bIsPulled) { // switch released
+			// WARNING: this code assumes that on a 3 position LL, the center is never loaded
+			if (vbSpringLoaded.at( usCurrentPosition ))
+			{
+				if (usCurrentPosition == 0) OnPositionUp();
+				else if (usCurrentPosition == (usNumPositions - 1)) OnPositionDown();
+			}
+
 			bIsPulled=false;
 			OnRelease();
 

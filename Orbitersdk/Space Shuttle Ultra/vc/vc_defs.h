@@ -301,7 +301,6 @@
 
 #define AID_O17 		661
 
-
 #define AID_F3_MIN	700
 #define AID_F3		700		
 #define AID_F3_DC_ARM	701
@@ -309,6 +308,9 @@
 #define AID_F3_DC_JETT	703
 #define AID_F3_MAX	710
 
+#define AID_L10_MIN	800
+#define AID_L10		800
+#define AID_L10_MAX	810
 
 #define AID_L12U_MIN	900
 #define AID_L12U	900
@@ -319,7 +321,6 @@
 #define AID_L12U_TKBK5	905
 #define AID_L12U_TKBK6	906
 #define AID_L12U_MAX	910
-
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
@@ -394,6 +395,8 @@ namespace vc {
 	const int TB_REL = 10;
 	const int TB_DN = 11;
 	const int TB_UP = 12;
+	const int TB_RUN = 13;
+	const int TB_HALT = 14;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;

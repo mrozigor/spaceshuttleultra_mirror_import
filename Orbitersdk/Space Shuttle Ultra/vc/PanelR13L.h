@@ -46,11 +46,11 @@ namespace vc
 			LockableLever3* pPLBayDoorLL;
 			LockableLever2* pKUAntennaDirectStow;
 
-			StandardTalkback* pPLBayDoorTB;
-			StandardTalkback* pLatch[2];
-			StandardTalkback* pRadiator[2];
-			StandardTalkback* pKUAntennaTB;
-			StandardTalkback* pMMUGN2SPLYISOLVLVTB[2];
+			StandardTalkback_2* pPLBayDoorTB;
+			StandardTalkback_2* pLatch[2];
+			StandardTalkback_2* pRadiator[2];
+			StandardTalkback_2* pKUAntennaTB;
+			StandardTalkback_2* pMMUGN2SPLYISOLVLVTB[2];
 		public:
 			PanelR13L( Atlantis* psts );
 			virtual ~PanelR13L();
