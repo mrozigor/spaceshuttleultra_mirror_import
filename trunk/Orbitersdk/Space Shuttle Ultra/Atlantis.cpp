@@ -48,6 +48,7 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "CISS.h"
 #include "MechActuator.h"
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
@@ -72,6 +73,7 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL12U.h"
 #include "comm\GCIL.h"
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
@@ -407,6 +409,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
+	pPanelL12U = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -501,6 +504,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
 	pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
+	pCISS = NULL;
 
 	psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
@@ -2307,6 +2311,8 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	22. RSRB
 	*/
 	CreateETAndSRBAttachments(ofs0);
+
+	if (pCISS) pCISS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
@@ -2383,6 +2389,7 @@ void Atlantis::AddOrbiterVisual()
 		*/
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+		if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
@@ -3405,6 +3412,13 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
 
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
+
+			if (pMission->UseCISS())
+			{
+				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
+				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+			}
 
 			bHasKUBand = pMission->HasKUBand();
 

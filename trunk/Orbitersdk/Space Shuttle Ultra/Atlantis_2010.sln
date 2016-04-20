@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libUltraTests", "..\libUltr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_SLC6", "SLC6\SSU_SLC6.vcxproj", "{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_Centaur", "Centaur\SSU_Centaur\SSU_Centaur.vcxproj", "{7D997EE8-F918-4635-AF54-ACA3B5F95C36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis (Debug)|Win32 = Analysis (Debug)|Win32
@@ -139,6 +141,12 @@ Global
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Debug|Win32.Build.0 = Debug|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.ActiveCfg = Release|Win32
 		{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}.Release|Win32.Build.0 = Release|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Debug|Win32.Build.0 = Debug|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.ActiveCfg = Release|Win32
+		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
