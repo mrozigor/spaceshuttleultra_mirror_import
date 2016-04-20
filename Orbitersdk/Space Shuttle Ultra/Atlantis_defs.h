@@ -13,6 +13,7 @@ const static char* DEFAULT_MESHNAME_ORBITER = "SSU/Orbiter";
 const static char* ODSPANEL_MESHNAME = "SSU/ODSVC";
 const static char* DEFAULT_MESHNAME_PANELA8 = "SSU/RMSVC";
 const static char* DEFAULT_MESHNAME_PANELL10 = "SSU\\panelL10_IUS";
+const static char* DEFAULT_MESHNAME_PANELL12U = "SSU\\L12U_SSP_Centaur";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 

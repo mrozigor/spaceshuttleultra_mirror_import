@@ -249,6 +249,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ASE_IUS.cpp" />
+    <ClCompile Include="CISS.cpp" />
     <ClCompile Include="comm\DeployedAssembly.cpp" />
     <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
     <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
@@ -375,6 +376,7 @@
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
     <ClCompile Include="vc\PanelL10.cpp" />
+    <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
@@ -401,6 +403,7 @@
   <ItemGroup>
     <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
+    <ClInclude Include="CISS.h" />
     <ClInclude Include="comm\DeployedAssembly.h" />
     <ClInclude Include="comm\ElectronicsAssembly1.h" />
     <ClInclude Include="comm\ElectronicsAssembly2.h" />
@@ -433,6 +436,9 @@
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="meshres_vc_l10.h" />
+    <ClInclude Include="meshres_CISS_G.h" />
+    <ClInclude Include="meshres_CISS_GPrime.h" />
+    <ClInclude Include="meshres_vc_l12u.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -516,6 +522,7 @@
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
     <ClInclude Include="vc\PanelL10.h" />
+    <ClInclude Include="vc\PanelL12U.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />

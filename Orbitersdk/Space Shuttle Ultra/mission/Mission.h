@@ -100,6 +100,9 @@ namespace mission {
 		bool bUseASE_IUS;
 		bool bASE_IUS_Aft_Location;
 
+		bool bUseCISS;
+		bool bCISS_GPrime;
+
 		/**
 		 * Initializes parameters to default values
 		 */
@@ -223,6 +226,16 @@ namespace mission {
 		 * Returns true if the ASE for the IUS is located in its aft position in the payload bay (ignored if the ASE is not used).
 		 */
 		bool IsASELocationAft() const;
+
+		/**
+		 * Returns true if the CISS is used.
+		 */
+		virtual bool UseCISS() const;
+
+		/**
+		 * Returns true if the CISS used is the G Prime version.
+		 */
+		virtual bool IsCISSGPrime() const;
 	};
 
 };
