@@ -74,7 +74,6 @@
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
 #include "vc/PanelL10.h"
-#include "dps/ATVC_SOP.h"
 #include "comm\GCIL.h"
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
