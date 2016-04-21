@@ -48,6 +48,8 @@ namespace vc
 
 		PushButtonIndicator* pDragChuteJETT;
 
+		StdSwitch3* pHUDMode;
+
 	public:
 		PanelF4(Atlantis* _sts);
 		~PanelF4();
