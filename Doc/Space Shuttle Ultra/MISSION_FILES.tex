@@ -60,9 +60,9 @@ The SSU installation already has some mission files for the included scenarios.
 \newpage
 
 \subsection{Parameter List}
-\begin{table}[H]
-  \centering
-  \begin{tabular}{|l|p{1.5cm}|p{7.5cm}|l|}
+%\begin{table}[H]
+ % \centering
+  \begin{longtable}{|l|p{1.5cm}|p{7.5cm}|l|}
 	\hline
 	\rule{0pt}{2ex}
 	\textbf{Option Name} & \textbf{Type} & \textbf{Description} & \textbf{Default}\\
@@ -71,7 +71,24 @@ The SSU installation already has some mission files for the included scenarios.
 	Name & String & Mission name & -\\
 	\hline
 	\rule{0pt}{2ex}
-	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass), valid values$\colon$ Columbia, Challenger, Discovery, Atlantis, Endeavour & Atlantis\\
+	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass), valid values$\colon$ ''Columbia'', ''Challenger'', ''Discovery'', ''Atlantis'', ''Endeavour'' & Atlantis\\
+	\hline
+	\rule{0pt}{2ex}
+	OrbiterTexture & String & Orbiter texture name (located in <orbiter\_installation\textbackslash Textures\textbackslash SSU>. Currently available textures for each Orbiter$\colon$ \newline
+Columbia$\colon$ \newline
+$\Rightarrow$ ''Columbia\_original''\newline
+$\Rightarrow$ ''Columbia\_8thmod''\newline
+Challenger$\colon$\newline
+$\Rightarrow$ ''Challenger\_original''\newline
+Discovery$\colon$\newline
+$\Rightarrow$ ''Discovery\_original''\newline
+$\Rightarrow$ ''Discovery\_9thmod''\newline
+Endeavour$\colon$\newline
+$\Rightarrow$ ''Endeavour\_original''\newline
+$\Rightarrow$ ''Endeavour\_3rdmod''\newline
+Atlantis$\colon$\newline
+$\Rightarrow$ ''Atlantis\_original''\newline
+$\Rightarrow$ ''Atlantis\_5thmod''	& -\\
 	\hline
 	\rule{0pt}{2ex}
 	TargetInc & Number & Target inclination for MECO (deg) & 28.5\\
@@ -145,22 +162,22 @@ N = 16-19 $\rightarrow$ Starboard attachment & - \\
 	\hline
 	\rule{0pt}{2ex}
 	LogSSMEData & Boolean & Enables SSME data logging & FALSE\\
-%	\hline
-%	\rule{0pt}{2ex}
-%	UseCISS & Boolean & CISS is installed & FALSE\\
-%	\hline
-%	\rule{0pt}{2ex}
-%	CISS\_GPrime & Boolean & CISS installed is for Centaur G Prime & TRUE\\
-%	\hline
-%	\rule{0pt}{2ex}
-%	UseASE\_IUS & Boolean & ASE for the IUS is installed & FALSE\\
-%	\hline
-%	\rule{0pt}{2ex}
-%	ASE\_IUS\_AftLocation & Boolean & ASE for the IUS is installed in the aft position & FALSE\\
 	\hline
-  \end{tabular}
-  \caption{Mission File}
+	\rule{0pt}{2ex}
+	UseCISS & Boolean & CISS is installed & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	CISS\_GPrime & Boolean & CISS installed is for Centaur G Prime & TRUE\\
+	\hline
+	\rule{0pt}{2ex}
+	UseASE\_IUS & Boolean & ASE for the IUS is installed (is TRUE, the UseCISS parameter is ignored) & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	ASE\_IUS\_AftLocation & Boolean & ASE for the IUS is installed in the aft position & FALSE\\
+	\hline
+	\caption{Mission File}
   \label{tab:Mission_File}
-\end{table}
+	\end{longtable}
+%\end{table}
 
 \end{document}
