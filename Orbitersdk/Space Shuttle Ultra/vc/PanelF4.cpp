@@ -22,6 +22,13 @@ namespace vc
 		Add( pDragChuteJETTCover = new StandardSwitchCover( _sts, "Drag Chute JETT Cover" ) );
 
 		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT", true ) );
+
+		Add( pHUDMode = new StdSwitch3( _sts, "HUD Mode" ) );// HACK this should be located on panel F8, but is here due to panel click areas
+
+		pHUDMode->SetLabel( 0, "DCLT" );
+		pHUDMode->SetLabel( 1, "NORM" );
+		pHUDMode->SetLabel( 2, "TEST" );
+		pHUDMode->SetSpringLoaded( true, 0 );
 	}
 
 	PanelF4::~PanelF4()
@@ -59,6 +66,14 @@ namespace vc
 		//pDragChuteDPY->output.Connect( pBundle, 6 );// dpy pb (F3)
 		//pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
 		pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
+
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD", 16 );
+		//pHUDPower[0]->output.Connect( pBundle, 0 );// power cdr (F3)
+		//pHUDPower[1]->output.Connect( pBundle, 1 );// power plt (F3)
+		//pHUDMode->outputA.Connect( pBundle, 2 );// mode dclt cdr (F6)
+		//pHUDMode->outputB.Connect( pBundle, 3 );// mode test cdr (F6)
+		pHUDMode->outputA.Connect( pBundle, 4 );// mode dclt plt (F8)
+		//pHUDMode->outputB.Connect( pBundle, 5 );// mode test plt (F8)
 		
 		AtlantisPanel::Realize();
 	}
@@ -143,6 +158,11 @@ namespace vc
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
 		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
 		pDragChuteJETTCover->DefineCoverGroup( GRP_F4COVERS10_VC );
+
+		pHUDMode->DefineSwitchGroup( GRP_F8HUDTEST_VC );
+		pHUDMode->SetInitialAnimState( 0.5 );
+		pHUDMode->SetReference( _V( -0.5996, 2.4685, 14.5712 ), _V( 1, 0, 0 ) );
+		pHUDMode->SetMouseRegion( 0.048451f, 0.220342f, 0.080458f, 0.288456f );
 	}
 
 	void PanelF4::SetCommonPBIParameters(PushButtonIndicator* pPBI)

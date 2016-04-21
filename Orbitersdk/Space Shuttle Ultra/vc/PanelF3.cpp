@@ -17,6 +17,14 @@ namespace vc
 		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM", true ) );
 		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY", true ) );
 		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT", true ) );
+
+		Add( pHUDPower[0] = new StdSwitch2( _sts, "HUD Power CDR" ) );
+		Add( pHUDPower[1] = new StdSwitch2( _sts, "HUD Power PLT" ) );
+
+		pHUDPower[0]->SetLabel( 0, "OFF" );
+		pHUDPower[0]->SetLabel( 1, "ON" );
+		pHUDPower[1]->SetLabel( 0, "OFF" );
+		pHUDPower[1]->SetLabel( 1, "ON" );
 	}
 
 	PanelF3::~PanelF3()
@@ -36,12 +44,22 @@ namespace vc
 		pDragChuteDPY->output.Connect( pBundle, 6 );// dpy pb (F3)
 		pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
 		//pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
-		
+
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD", 16 );
+		pHUDPower[0]->output.Connect( pBundle, 0 );// power cdr (F3)
+		pHUDPower[1]->output.Connect( pBundle, 1 );// power plt (F3)
+		//pHUDMode->outputA.Connect( pBundle, 2 );// mode dclt cdr (F6)
+		//pHUDMode->outputB.Connect( pBundle, 3 );// mode test cdr (F6)
+		//pHUDMode->outputA.Connect( pBundle, 4 );// mode dclt plt (F8)
+		//pHUDMode->outputB.Connect( pBundle, 5 );// mode test plt (F8)
+
 		AtlantisPanel::Realize();
 	}
 
 	void PanelF3::DefineVC()
 	{
+		VECTOR3 switch_rot = _V( 1, 0, 0 );
+
 		AddAIDToMouseEventList( AID_F3 );
 
 		pDragChuteARM->AddAIDToRedrawEventList( AID_F3_DC_ARM );
@@ -70,18 +88,28 @@ namespace vc
 
 		pDragChuteARMCover->SetMouseRegion( 0, 0.938748f, 0.117915f, 0.963932f, 0.419314f );
 		pDragChuteARMCover->SetMouseRegion( 1, 0.933402f, 0.0f, 0.952428f, 0.066717f );
-		pDragChuteARMCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
+		pDragChuteARMCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteARMCover->DefineCoverGroup( GRP_F3COVERS8_VC );
 
 		pDragChuteDPYCover->SetMouseRegion( 0, 0.968342f, 0.117915f, 0.992407f, 0.419314f );
 		pDragChuteDPYCover->SetMouseRegion( 1, 0.961976f, 0.0f, 0.986786f, 0.066717f );
-		pDragChuteDPYCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
+		pDragChuteDPYCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteDPYCover->DefineCoverGroup( GRP_F3COVERS9_VC );
 
 		pDragChuteJETTCover->SetMouseRegion( 0, 0.025776f, 0.120962f, 0.051179f, 0.428174f );
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.025775f, 0.0f, 0.052357f, 0.073427f );
-		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
+		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteJETTCover->DefineCoverGroup( GRP_F3COVERS10_VC );
+		
+		pHUDPower[0]->DefineSwitchGroup( GRP_F3S1_VC );
+		pHUDPower[0]->SetInitialAnimState( 0.5 );
+		pHUDPower[0]->SetReference( _V( 0.5358, 2.4529, 14.5890 ), switch_rot );
+		pHUDPower[0]->SetMouseRegion( 0.021770f, 0.649764f, 0.044223f, 0.888632f );
+
+		pHUDPower[1]->DefineSwitchGroup( GRP_F3S6_VC );
+		pHUDPower[1]->SetInitialAnimState( 0.5 );
+		pHUDPower[1]->SetReference( _V( -0.5374, 2.4530, 14.5890 ), switch_rot );
+		pHUDPower[1]->SetMouseRegion( 0.976221f, 0.656113f, 0.997667f, 0.889501f );
 	}
 
 	void PanelF3::RegisterVC()

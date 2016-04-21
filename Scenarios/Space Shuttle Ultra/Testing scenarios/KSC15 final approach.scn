@@ -370,6 +370,16 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "F2_RY_AUTO" 0
   "F2_RY_CSS" 1
   @ENDPANEL 
+  @PANEL F3
+  "Drag Chute ARM Cover" [0]
+  "Drag Chute DPY Cover" [0]
+  "Drag Chute JETT Cover" [0]
+  "Drag Chute ARM" 0
+  "Drag Chute DPY" 0
+  "Drag Chute JETT" 0
+  "HUD Power CDR" ON
+  "HUD Power PLT" ON
+  @ENDPANEL 
   @PANEL F4
   "F4_SPDBKTHROT_AUTO" 0
   "F4_BODYFLAP_AUTO" 1

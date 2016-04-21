@@ -224,6 +224,14 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	ET_Mach = 0;
 	ETVS_Range = 0;
 	ETVS_Altitude = 0;
+
+	dclt_sw_on[0] = false;
+	dclt_sw_on[1] = false;
+	declutter_level[0] = 0;
+	declutter_level[1] = 0;
+
+	tCSS = -1;
+	tGear = -1;
 }
 
 AerojetDAP::~AerojetDAP()
@@ -260,6 +268,12 @@ void AerojetDAP::Realize()
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
 	SpeedbrakeAutoOut.Connect(pBundle, 0);
+
+	pBundle = STS()->BundleManager()->CreateBundle( "HUD", 16 );
+	HUDPower[0].Connect( pBundle, 0 );
+	HUDPower[1].Connect( pBundle, 1 );
+	pHUDDCLT[0].Connect( pBundle, 2 );
+	pHUDDCLT[1].Connect( pBundle, 4 );
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -481,6 +495,36 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		break;
 	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		if (HUDPower[i].IsSet() && pHUDDCLT[i].IsSet())
+		{
+			if (!dclt_sw_on[i])
+			{
+				dclt_sw_on[i] = true;
+				declutter_level[i]++;
+				if (declutter_level[i] == 4) declutter_level[i] = 0;
+			}
+		}
+		else dclt_sw_on[i] = false;
+	}
+
+	if (tCSS == -1)
+	{
+		if (!GetAutoPitchState() && !GetAutoRollYawState()) tCSS = DeltaT;
+	}
+	else
+	{
+		if (GetAutoPitchState() || GetAutoRollYawState()) tCSS = -1;
+		else tCSS += DeltaT;
+	}
+
+	if (tGear == -1)
+	{
+		if (STS()->GetGearState() == AnimState::OPEN) tGear = DeltaT;
+	}
+	else tGear += DeltaT;
 	
 	bFirstStep = false;
 	bSecondStep = false;
@@ -611,261 +655,307 @@ bool AerojetDAP::OnPaint(int spec, vc::MDU* pMDU) const
 
 bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 {
-	if(GetMajorMode() == 305) {
-		char cbuf[255];
-		VECTOR3 Velocity;
-		double dOut;
-		int commanded, act;
+	// if in PLT seat use PLT settings, otherwise use CDR
+	bool power = HUDPower[0].IsSet();
+	int dclt = declutter_level[0];
+	if (STS()->VCMode == 1)// VC_PLT
+	{
+		power = HUDPower[1].IsSet();
+		dclt = declutter_level[1];
+	}
 
-		// show gear deployment status
-		if (STS()->GetGearState()==AnimState::OPEN) {
-			skp->Text(hps->CX-60, hps->CY+5, "GR-DN", 5);
-		}
-		else if (STS()->GetGearState()==AnimState::OPENING) {
-			skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
-		}
-
-		STS()->GetHorizonAirspeedVector(Velocity);
-		//dOut = 661.47 * STS()->GetMachNumber() * sqrt(STS()->GetAtmPressure()/101325.0);
-		dOut = STS()->GetKEAS();
-		sprintf_s(cbuf, 255, "KEAS:%.0f", dOut);
-		skp->Text(hps->W-100,(hps->H)/2-25,cbuf,strlen(cbuf));
-		dOut=(STS()->GetAltitude()*3.280833)-17;
-		sprintf_s(cbuf, 255, "ALT:%.0f",dOut);
-		skp->Text(10,(hps->H)/2-25,cbuf,strlen(cbuf));
-
-		// draw pitch ladder
-		double dPitch = STS()->GetPitch()*DEG;
-		int nPitch = static_cast<int>(dPitch);
-		int pitchBar = nPitch - (nPitch%5); // display lines at 5-degree increments
-		double bank = STS()->GetBank()*DEG;
-		
-		// create rotated font for HUD pitch markings
-		oapi::Font* pFont = oapiCreateFont(12, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
-		oapi::Font* pOldFont = skp->SetFont(pFont);
-		// draw pitch lines
-		int curPitchLine = pitchBar;
-		while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
-			curPitchLine+=5;	
-		curPitchLine = pitchBar-5;
-		while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
-			curPitchLine-=5;
-		// deselect rotated font
-		skp->SetFont(pOldFont);
-		oapiReleaseFont(pFont);
-		//skp->Line(hps->CX-20, hps->CY, hps->CX+20, hps->CY);
-
+	if ((GetMajorMode() == 305) && power)
+	{
 		// draw cross at center
 		skp->Line(hps->CX-5, hps->CY, hps->CX+5, hps->CY);
 		skp->Line(hps->CX, hps->CY-5, hps->CX, hps->CY+5);
 
-		// draw velocity vector
-		double glideslope_center_y, glideslope_center_x;
-		if(TAEMGuidanceMode>=PRFNL) {
-			glideslope_center_y = hps->CY + STS()->GetAOA()*DEG*hps->Scale;
-			glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG*hps->Scale;
-			if(prfnlBankFader > 1.0) {
-				double HUD_Center_X = static_cast<double>(hps->CX);
-				double HUD_Center_Y = static_cast<double>(hps->H)/2.0 - 25.0;
-				glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
-				glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
-			}
-		//double dBank = (bank-TargetBank)/prfnlBankFader;
-		//prfnlBankFader -= oapiGetSimStep();
-		//return TargetBank+dBank*oapiGetSimStep();
-			skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
-		}
-		else {
-			// before PRFNL mode, we have square at center of HUD
-			glideslope_center_y = static_cast<double>(hps->H)/2.0 - 25.0;
-			glideslope_center_x = static_cast<double>(hps->CX);
-			skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
-		}
-		// lines are the same for both VV and center square modes
-		skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
-		skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
-		skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
-
-		if(TAEMGuidanceMode != FNLFL) {
-			double guidance_center_x, guidance_center_y;
-			VECTOR3 lift, drag;
-			STS()->GetLiftVector(lift);
-			STS()->GetDragVector(drag);
-			//double NZ = (lift.y+drag.y)/gravity_force;
-			double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
-			if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (10.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
-			else guidance_center_y = glideslope_center_y - (5.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
-			guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
-			// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
-			bool bValid = true;
-			if(guidance_center_x < 0.0) {
-				bValid = false;
-				guidance_center_x = 0.0;
-			}
-			else if(guidance_center_x > hps->W) {
-				bValid = false;
-				guidance_center_x = hps->W;
-			}
-			if(guidance_center_y < 0.0) {
-				bValid = false;
-				guidance_center_y = 0.0;
-			}
-			else if(guidance_center_y > hps->H-57) {
-				bValid = false;
-				guidance_center_y = hps->H-57;
-			}
-			if(bValid || bHUDFlasher) {
-				skp->MoveTo(Round(guidance_center_x)-5, Round(guidance_center_y));
-				skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)+5);
-				skp->LineTo(Round(guidance_center_x)+5, Round(guidance_center_y));
-				skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)-5);
-				skp->LineTo(Round(guidance_center_x)-5, Round(guidance_center_y));
-			}
-
-			// draw guidance triangles
-			if(TAEMGuidanceMode >= OGS) DrawHUDGuidanceTriangles(skp, hps, degTargetGlideslope, dPitch, bank);
-		}
-
-		switch(TAEMGuidanceMode) {
-		case ACQ:
-			strcpy_s(cbuf, "ACQ");
-			break;
-		case HDG:
-			strcpy_s(cbuf, "HDG");
-			break;
-		case PRFNL:
-			strcpy_s(cbuf, "PRFNL");
-			break;
-		case OGS:
-			strcpy_s(cbuf, "OGS");
-			break;
-		case FLARE:
-			strcpy_s(cbuf, "FLARE");
-			break;
-		case FNLFL:
-			strcpy_s(cbuf, "FNLFL");
-			break;
-		}
-		skp->Text(30, hps->H-85, cbuf, strlen(cbuf));
-
-		//MoveToEx(hDC, (hps->W/2)-25, hps->H-85, NULL);
-		skp->MoveTo((hps->CX), hps->H-85);
-		skp->LineTo((hps->CX)+50, hps->H-85);
-		for(int i=0;i<=50;i+=10)
+		if (dclt != 3)
 		{
-			skp->Line((hps->CX)+i, hps->H-80, (hps->CX)+i, hps->H-90);
-		}
-		double spdb_tgt = STS()->GetTgtSpeedbrakePosition();
-		double spdb_act = STS()->GetActSpeedbrakePosition();
-		commanded=(int)(spdb_tgt*50);
-		act=(int)(spdb_act*50);
-		//actual
-		skp->MoveTo((hps->CX)+act, hps->H-85);
-		skp->LineTo((hps->CX)+act-5, hps->H-90);
-		skp->LineTo((hps->CX)+act+5, hps->H-90);
-		skp->LineTo((hps->CX)+act, hps->H-85);
-		//commanded
-		skp->MoveTo((hps->CX)+commanded, hps->H-85);
-		skp->LineTo((hps->CX)+commanded-5, hps->H-80);
-		skp->LineTo((hps->CX)+commanded+5, hps->H-80);
-		skp->LineTo((hps->CX)+commanded, hps->H-85);
+			char cbuf[255];
+			double dPitch = STS()->GetPitch()*DEG;
+			double bank = STS()->GetBank()*DEG;
+			VECTOR3 Velocity;
+			STS()->GetHorizonAirspeedVector(Velocity);
 
-		VECTOR3 rwy1_end, lrwy1;
-		oapiLocalToGlobal(hEarth, &RwyStart_EarthLocal, &rwy1_end);
-		STS()->Global2Local(rwy1_end,lrwy1);
+			// show gear deployment status
+			if ((tGear > 0) && (tGear < 5)) skp->Text(hps->CX-60, hps->CY+5, "GR-DN", 5);
+			else if (STS()->GetGearState()==AnimState::OPENING) skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
 
-		VECTOR3 rwy2_end, lrwy2;
-		oapiLocalToGlobal(hEarth, &RwyEnd_EarthLocal, &rwy2_end);
-		STS()->Global2Local(rwy2_end,lrwy2);
+			// guidance mode
+			if (!bWOW)
+			{
+				switch(TAEMGuidanceMode) {
+				case ACQ:
+					strcpy_s(cbuf, "ACQ");
+					break;
+				case HDG:
+					strcpy_s(cbuf, "HDG");
+					break;
+				case PRFNL:
+					strcpy_s(cbuf, "PRFNL");
+					break;
+				case OGS:
+					strcpy_s(cbuf, "OGS");
+					break;
+				case FLARE:
+					strcpy_s(cbuf, "FLARE");
+					break;
+				case FNLFL:
+					strcpy_s(cbuf, "FNLFL");
+					break;
+				}
+				skp->Text(30, hps->H-85, cbuf, strlen(cbuf));
+			}
 
-		VECTOR3 rwyDir = lrwy2 - lrwy1;
-		normalise(rwyDir);
-		VECTOR3 lvlh = RotateVectorZ( RotateVectorX(_V(0, 1, 0), -dPitch), -bank);
-		VECTOR3 rwyWidthDir = crossp(rwyDir, lvlh);
+			// speedbrake
+			skp->MoveTo((hps->CX), hps->H-85);
+			skp->LineTo((hps->CX)+50, hps->H-85);
+			for(int i=0;i<=50;i+=10)
+			{
+				skp->Line((hps->CX)+i, hps->H-80, (hps->CX)+i, hps->H-90);
+			}
+			double spdb_tgt = STS()->GetTgtSpeedbrakePosition();
+			double spdb_act = STS()->GetActSpeedbrakePosition();
+			int commanded=(int)(spdb_tgt*50);
+			int act=(int)(spdb_act*50);
+			//actual
+			skp->MoveTo((hps->CX)+act, hps->H-85);
+			skp->LineTo((hps->CX)+act-4, hps->H-90);
+			skp->LineTo((hps->CX)+act+4, hps->H-90);
+			skp->LineTo((hps->CX)+act, hps->H-85);
+			//commanded
+			skp->MoveTo((hps->CX)+commanded, hps->H-85);
+			skp->LineTo((hps->CX)+commanded-4, hps->H-80);
+			skp->LineTo((hps->CX)+commanded+4, hps->H-80);
+			skp->LineTo((hps->CX)+commanded, hps->H-85);
+			skp->Line( hps->CX + commanded, hps->H - 80, hps->CX + commanded, hps->H - 75 );
 
-		double rwyWidth = vLandingSites[SITE_ID].GetRwyWidth(!SEC);
-		VECTOR3 rwy1_l = lrwy1 - rwyWidthDir*(rwyWidth/2.0);
-		VECTOR3 rwy1_r = lrwy1 + rwyWidthDir*(rwyWidth/2.0);
-		VECTOR3 rwy2_l = lrwy2 - rwyWidthDir*(rwyWidth/2.0);
-		VECTOR3 rwy2_r = lrwy2 + rwyWidthDir*(rwyWidth/2.0);
+			// draw velocity vector
+			double glideslope_center_y, glideslope_center_x;
+			if(TAEMGuidanceMode>=PRFNL) {
+				glideslope_center_y = hps->CY + STS()->GetAOA()*DEG*hps->Scale;
+				glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG*hps->Scale;
+				if(prfnlBankFader > 1.0) {
+					double HUD_Center_X = static_cast<double>(hps->CX);
+					double HUD_Center_Y = static_cast<double>(hps->H)/2.0 - 25.0;
+					glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
+					glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
+				}
+				skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+			}
+			else {
+				// before PRFNL mode, we have square at center of HUD
+				glideslope_center_y = static_cast<double>(hps->H)/2.0 - 25.0;
+				glideslope_center_x = static_cast<double>(hps->CX);
+				skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+			}
+			// lines are the same for both VV and center square modes
+			skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
+			skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
+			skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
 
-		VECTOR3 camPos;
-		STS()->GetCameraOffset(camPos);
+			if(TAEMGuidanceMode != FNLFL) {
+				double guidance_center_x, guidance_center_y;
+				VECTOR3 lift, drag;
+				STS()->GetLiftVector(lift);
+				STS()->GetDragVector(drag);
+				double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
+				if(TAEMGuidanceMode < FLARE) guidance_center_y = glideslope_center_y - (10.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
+				else guidance_center_y = glideslope_center_y - (5.0*(NZCommand+NZSteadyState-averageNZ))*hps->Scale;
+				guidance_center_x = hps->CX + (STS()->GetBank()*DEG+TargetBank)*hps->Scale;
+				// if guidance diamond is within HUD area, draw it normally; otherwise, draw flashing diamond at edge of HUD
+				bool bValid = true;
+				if(guidance_center_x < 0.0) {
+					bValid = false;
+					guidance_center_x = 0.0;
+				}
+				else if(guidance_center_x > hps->W) {
+					bValid = false;
+					guidance_center_x = hps->W;
+				}
+				if(guidance_center_y < 0.0) {
+					bValid = false;
+					guidance_center_y = 0.0;
+				}
+				else if(guidance_center_y > hps->H-57) {
+					bValid = false;
+					guidance_center_y = hps->H-57;
+				}
+				if(bValid || bHUDFlasher) {
+					skp->MoveTo(Round(guidance_center_x)-5, Round(guidance_center_y));
+					skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)+5);
+					skp->LineTo(Round(guidance_center_x)+5, Round(guidance_center_y));
+					skp->LineTo(Round(guidance_center_x), Round(guidance_center_y)-5);
+					skp->LineTo(Round(guidance_center_x)-5, Round(guidance_center_y));
+				}
 
-		VECTOR3 error[4];
-		error[0] = camPos-rwy1_l;
-		error[1] = camPos-rwy2_l;
-		error[2] = camPos-rwy2_r;
-		error[3] = camPos-rwy1_r;
-		int rwy_pos_x[4], rwy_pos_y[4];
-		for(int i=0;i<4;i++) {
-			rwy_pos_x[i] = hps->CX + static_cast<int>( Round(hps->Scale*DEG*atan(error[i].x/error[i].z)) );
-			rwy_pos_y[i] = hps->CY + static_cast<int>( Round(hps->Scale*DEG*atan(-error[i].y/error[i].z)) );
-		}
-		// check if at least one of the points is visible
-		bool drawRunway = false;
-		for(int i=0;i<4;i++) {
-			if((rwy_pos_x[i] >= 0 && rwy_pos_x[i] < hps->W) || (rwy_pos_y[i] >= 0 && rwy_pos_y[i] < hps->H)) {
-				drawRunway = true;
-				break;
+				// draw guidance triangles
+				if(TAEMGuidanceMode >= OGS) DrawHUDGuidanceTriangles(skp, hps, degTargetGlideslope, dPitch, bank);
+			}
+
+			// nz accel
+			if (TAEMGuidanceMode < PRFNL)
+			{
+				sprintf_s( cbuf, 255, "%.1f G", GetNZ() );
+				skp->Text( hps->CX - 50, hps->CY + 50, cbuf, strlen( cbuf ) );
+			}
+
+			// css status
+			if (!bWOW)
+			{
+				if (tCSS > 0)
+				{
+					if (tCSS < 5)
+					{
+						if (bHUDFlasher) skp->Text( hps->W - 75, 70, "CSS", 3 );// window 2 (flashing)
+					}
+					else skp->Text( 20, hps->H - 70, "CSS", 3 );// window 4
+				}
+			}
+
+			if (dclt == 0)
+			{
+				// runway overlay
+				VECTOR3 rwy1_end, lrwy1;
+				oapiLocalToGlobal(hEarth, &RwyStart_EarthLocal, &rwy1_end);
+				STS()->Global2Local(rwy1_end,lrwy1);
+
+				VECTOR3 rwy2_end, lrwy2;
+				oapiLocalToGlobal(hEarth, &RwyEnd_EarthLocal, &rwy2_end);
+				STS()->Global2Local(rwy2_end,lrwy2);
+
+				VECTOR3 rwyDir = lrwy2 - lrwy1;
+				normalise(rwyDir);
+				VECTOR3 lvlh = RotateVectorZ( RotateVectorX(_V(0, 1, 0), -dPitch), -bank);
+				VECTOR3 rwyWidthDir = crossp(rwyDir, lvlh);
+
+				double rwyWidth = vLandingSites[SITE_ID].GetRwyWidth(!SEC);
+				VECTOR3 rwy1_l = lrwy1 - rwyWidthDir*(rwyWidth/2.0);
+				VECTOR3 rwy1_r = lrwy1 + rwyWidthDir*(rwyWidth/2.0);
+				VECTOR3 rwy2_l = lrwy2 - rwyWidthDir*(rwyWidth/2.0);
+				VECTOR3 rwy2_r = lrwy2 + rwyWidthDir*(rwyWidth/2.0);
+
+				VECTOR3 camPos;
+				STS()->GetCameraOffset(camPos);
+
+				VECTOR3 error[4];
+				error[0] = camPos-rwy1_l;
+				error[1] = camPos-rwy2_l;
+				error[2] = camPos-rwy2_r;
+				error[3] = camPos-rwy1_r;
+				int rwy_pos_x[4], rwy_pos_y[4];
+				for(int i=0;i<4;i++) {
+					rwy_pos_x[i] = hps->CX + static_cast<int>( Round(hps->Scale*DEG*atan(error[i].x/error[i].z)) );
+					rwy_pos_y[i] = hps->CY + static_cast<int>( Round(hps->Scale*DEG*atan(-error[i].y/error[i].z)) );
+				}
+				// check if at least one of the points is visible
+				bool drawRunway = false;
+				for(int i=0;i<4;i++) {
+					if((rwy_pos_x[i] >= 0 && rwy_pos_x[i] < hps->W) || (rwy_pos_y[i] >= 0 && rwy_pos_y[i] < hps->H)) {
+						drawRunway = true;
+						break;
+					}
+				}
+				if(drawRunway) {
+					skp->Line(rwy_pos_x[0], rwy_pos_y[0], rwy_pos_x[1], rwy_pos_y[1]);
+					skp->Line(rwy_pos_x[1], rwy_pos_y[1], rwy_pos_x[2], rwy_pos_y[2]);
+					skp->Line(rwy_pos_x[2], rwy_pos_y[2], rwy_pos_x[3], rwy_pos_y[3]);
+					skp->Line(rwy_pos_x[3], rwy_pos_y[3], rwy_pos_x[0], rwy_pos_y[0]);
+				}
+			}
+
+			// draw pitch ladder
+			int nPitch = static_cast<int>(dPitch);
+			int pitchBar = nPitch - (nPitch%5); // display lines at 5-degree increments
+			if ((dclt == 0) || (dclt == 1))
+			{
+				// create rotated font for HUD pitch markings
+				oapi::Font* pFont = oapiCreateFont(12, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
+				oapi::Font* pOldFont = skp->SetFont(pFont);
+				// draw pitch lines
+				int curPitchLine = pitchBar+5;
+				while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
+					curPitchLine+=5;	
+				curPitchLine = pitchBar-5;
+				while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
+					curPitchLine-=5;
+				// deselect rotated font
+				skp->SetFont(pOldFont);
+				oapiReleaseFont(pFont);
+			}
+
+			// horizon line
+			DrawHUDPitchLine( skp, hps, 0, dPitch, bank );
+
+			// alt/vel
+			double keas = STS()->GetKEAS();
+			double alt = (int)(STS()->GetAltitude()*3.280833)-17;
+			if (dclt == 2)
+			{
+				// numeric
+				sprintf_s(cbuf, 255, "%.0f", keas);
+				skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+
+				int tmpalt;
+				if (alt > 1000) tmpalt = Round( alt * 0.005 ) * 200;
+				else if (alt > 400) tmpalt = Round( alt * 0.01 ) * 100;
+				else if (alt > 50) tmpalt = Round( alt * 0.1 ) * 10;
+				else tmpalt = Round( alt );
+				sprintf_s( cbuf, 255, "%d", tmpalt );
+				skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+			}
+			else
+			{
+				// tape
+				int yline = (int)(hps->H / 2.0) - 25;
+				int ikeas = Round( keas * 0.2 ) * 5;
+				int offset = yline + (int)((ikeas - keas) * 4);// 5/20px
+				int tmp;
+				int ytmp;
+				for (int i = 0; i < 7; i++)
+				{
+					tmp = ikeas + ((i - 3) * 5);
+					ytmp = offset + ((i - 3) * 20);
+					if (tmp % 10 == 0)
+					{
+						// number
+						sprintf_s( cbuf, 255, "%d", tmp );
+						skp->Text( 20, ytmp - 7, cbuf, strlen( cbuf ) );
+					}
+					else skp->Line( 20, ytmp, 25, ytmp );// line
+				}
+				skp->Line( 10, yline - 1, 20, yline - 1 );
+				skp->Line( 10, yline, 20, yline );
+				skp->Line( 10, yline + 1, 20, yline + 1 );
+
+				int tmpalt = Round( alt );
+				int ialt = Round( alt * 0.002 ) * 500;
+				offset = yline + (int)((tmpalt - ialt) * 0.04);// 500/20px
+				for (int i = 0; i < 7; i++)
+				{
+					tmp = ialt + ((3 - i) * 500);
+					ytmp = offset - ((3 - i) * 20);
+					if (tmp % 5000 == 0)
+					{
+						// number w 'K'
+						sprintf_s( cbuf, 255, "%2dK", (int)(tmp * 0.001) );
+						skp->Text( hps->W - 40, ytmp - 7, cbuf, strlen( cbuf ) );
+					}
+					else if (tmp % 1000 == 0)
+					{
+						// number w/o 'K'
+						sprintf_s( cbuf, 255, "%3d", (int)(tmp * 0.001) );
+						skp->Text( hps->W - 40, ytmp - 7, cbuf, strlen( cbuf ) );
+					}
+					else skp->Line( hps->W - 25, ytmp, hps->W - 20, ytmp );// line
+				}
+				skp->Line( hps->W - 20, yline - 1, hps->W - 10, yline - 1 );
+				skp->Line( hps->W - 20, yline, hps->W - 10, yline );
+				skp->Line( hps->W - 20, yline + 1, hps->W - 10, yline + 1 );
 			}
 		}
-		if(drawRunway) {
-			skp->Line(rwy_pos_x[0], rwy_pos_y[0], rwy_pos_x[1], rwy_pos_y[1]);
-			skp->Line(rwy_pos_x[1], rwy_pos_y[1], rwy_pos_x[2], rwy_pos_y[2]);
-			skp->Line(rwy_pos_x[2], rwy_pos_y[2], rwy_pos_x[3], rwy_pos_y[3]);
-			skp->Line(rwy_pos_x[3], rwy_pos_y[3], rwy_pos_x[0], rwy_pos_y[0]);
-		}
-
-		//UPPER LEFT CORNER
-		/*VECTOR3 left1 = lrwy1 - (rotDir*40);
-		left1-=camPos;
-		double wcomp_left1 = (left1.x/(left1.z*tan(fov))+1)*hps->W/2;
-		double hcomp_left1 = (-left1.y/(left1.z*tan(fov))+1)*hps->H/2;
-
-		//UPPER RIGHT CORNER
-		VECTOR3 right1 = lrwy1 + (rotDir*40);
-		right1-=camPos;
-		double wcomp_right1 = (right1.x/(right1.z*tan(fov))+1)*hps->W/2;
-		double hcomp_right1 = (-right1.y/(right1.z*tan(fov))+1)*hps->H/2;
-
-		//LOWER RIGHT CORNER
-		VECTOR3 right2 = lrwy2 + rotDir*40;
-		right2-=camPos;
-		double wcomp_right2 = (right2.x/(right2.z*tan(fov))+1)*hps->W/2;
-		double hcomp_right2 = (-right2.y/(right2.z*tan(fov))+1)*hps->H/2;
-
-		//LOWER LEFT CORNER
-		VECTOR3 left2 = lrwy2 - rotDir*40;
-		left2-=camPos;
-		double wcomp_left2 = (left2.x/(left2.z*tan(fov))+1)*hps->W/2;
-		double hcomp_left2 = (-left2.y/(left2.z*tan(fov))+1)*hps->H/2;
-
-		//DRAW RUNWAY
-		skp->MoveTo(wcomp_left1,hcomp_left1);
-		skp->LineTo(wcomp_right1,hcomp_right1);
-		skp->LineTo(wcomp_right2,hcomp_right2);
-		skp->LineTo(wcomp_left2,hcomp_left2);
-		skp->LineTo(wcomp_left1,hcomp_left1);*/
-
-
-
-
-		////move to first end
-		//VECTOR3 vector_end1 = lrwy2 - camPos;
-		//double hcomp2 = (-vector_end1.y/(vector_end1.z*tan(fov))+1)*hps->H/2;
-		//double wcomp2 = (vector_end1.x/(vector_end1.z*tan(fov))+1)*hps->W/2;
-		//skp->MoveTo(wcomp2,hcomp2);
-		//
-		////draw line to second end
-		//VECTOR3 vector_end2 = lrwy1 - camPos;
-		//double hcomp1 = (-vector_end2.y/(vector_end2.z*tan(fov))+1)*hps->H/2;
-		//double wcomp1 = (vector_end2.x/(vector_end2.z*tan(fov))+1)*hps->W/2;
-		//skp->LineTo(wcomp1,hcomp1);
-
 	}
-
-
 	return true;
 }
 
