@@ -303,7 +303,7 @@ namespace mission {
 
 	bool Mission::HasBridgerail(unsigned int index) const
 	{
-		if(index > 13) return false;
+		if(index >= 13) return false;
 		return bHasBridgerail[index];
 	}
 
