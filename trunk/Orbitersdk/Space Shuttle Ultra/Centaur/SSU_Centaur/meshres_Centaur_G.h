@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Wed Aug 12 00:17:22 2015
+// Date of conversion : Fri Apr 22 21:01:37 2016
 
 // Input file: CentaurG.msh
 // ======================================================
@@ -40,40 +40,40 @@ const unsigned int GRP_PROPELLANT_DISCONNECTS_G	=	27;	//PROPELLANT_DISCONNECTS
 const unsigned int GRP_PROPELLANT_DISCONNECT_PANELS_G	=	28;	//PROPELLANT_DISCONNECT_PANELS
 const unsigned int GRP_KEEL_TRUNNION_PINS_G	=	29;	//KEEL_TRUNNION_PINS
 const unsigned int GRP_FWD_PURGE_DIAPHRAGM_G	=	30;	//FWD_PURGE_DIAPHRAGM
-const unsigned int GRP_SIU_ATTACH_BOLTS_G	=	31;	//SIU_ATTACH_BOLTS
-const unsigned int GRP_SIU_G	=	32;	//SIU
-const unsigned int GRP_SEU_ATTACH_BOLTS_G	=	33;	//SEU_ATTACH_BOLTS
-const unsigned int GRP_SEU_G	=	34;	//SEU
-const unsigned int GRP_SCU_ATTACH_BOLTS_G	=	35;	//SCU_ATTACH_BOLTS
-const unsigned int GRP_SCU_G	=	36;	//SCU
-const unsigned int GRP_SC_ATTACH_BOLTS_G	=	37;	//SC_ATTACH_BOLTS
-const unsigned int GRP_SC_G	=	38;	//SC
-const unsigned int GRP_RMU_ATTACH_BOLTS_G	=	39;	//RMU_ATTACH_BOLTS
-const unsigned int GRP_RMU_G	=	40;	//RMU
-const unsigned int GRP_QUAD2_ANTENNA_G	=	41;	//QUAD2_ANTENNA
-const unsigned int GRP_QUAD1_ANTENNA_G	=	42;	//QUAD1_ANTENNA
-const unsigned int GRP_PURGE_PLENUM_G	=	43;	//PURGE_PLENUM
-const unsigned int GRP_PROPELLANT_TANKS_INSULATION_G	=	44;	//PROPELLANT_TANKS_INSULATION
-const unsigned int GRP_PICU2_ATTACH_BOLTS_G	=	45;	//PICU2_ATTACH_BOLTS
-const unsigned int GRP_PICU2_G	=	46;	//PICU2
-const unsigned int GRP_PICU1_ATTACH_BOLTS_G	=	47;	//PICU1_ATTACH_BOLTS
-const unsigned int GRP_PICU1_G	=	48;	//PICU1
-const unsigned int GRP_PA_ATTACH_BOLTS_G	=	49;	//PA_ATTACH_BOLTS
-const unsigned int GRP_PA_G	=	50;	//PA
-const unsigned int GRP_MVB_ATTACH_BOLTS_G	=	51;	//MVB_ATTACH_BOLTS
-const unsigned int GRP_MVB_G	=	52;	//MVB
-const unsigned int GRP_KEEL_TRUNNION_SUPPORTS_G	=	53;	//KEEL_TRUNNION_SUPPORTS
-const unsigned int GRP_FWD_PURGE_VENT_DUCT_G	=	54;	//FWD_PURGE_VENT_DUCT
-const unsigned int GRP_FIB2_ATTACH_BOLTS_G	=	55;	//FIB2_ATTACH_BOLTS
-const unsigned int GRP_FIB2_G	=	56;	//FIB2
-const unsigned int GRP_FIB1_ATTACH_BOLTS_G	=	57;	//FIB1_ATTACH_BOLTS
-const unsigned int GRP_FIB1_G	=	58;	//FIB1
-const unsigned int GRP_EQUIPMENT_MODULE_G	=	59;	//EQUIPMENT_MODULE
-const unsigned int GRP_DUFTAS_ATTACH_BOLTS_G	=	60;	//DUFTAS_ATTACH_BOLTS
-const unsigned int GRP_DUFTAS_G	=	61;	//DUFTAS
-const unsigned int GRP_DCU_ATTACH_BOLTS_G	=	62;	//DCU_ATTACH_BOLTS
-const unsigned int GRP_DCU_G	=	63;	//DCU
-const unsigned int GRP_ANTENNA_SHROUDS_G	=	64;	//ANTENNA_SHROUDS
-const unsigned int GRP_ANTENNA_DRIVE_MECHANIMS_G	=	65;	//ANTENNA_DRIVE_MECHANIMS
-const unsigned int GRP_INTERMEDIATE_PURGE_VENTS_G	=	66;	//INTERMEDIATE_PURGE_VENTS
+const unsigned int GRP_INTERMEDIATE_PURGE_VENTS_G	=	31;	//INTERMEDIATE_PURGE_VENTS
+const unsigned int GRP_SIU_ATTACH_BOLTS_G	=	32;	//SIU_ATTACH_BOLTS
+const unsigned int GRP_SIU_G	=	33;	//SIU
+const unsigned int GRP_SEU_ATTACH_BOLTS_G	=	34;	//SEU_ATTACH_BOLTS
+const unsigned int GRP_SEU_G	=	35;	//SEU
+const unsigned int GRP_SCU_ATTACH_BOLTS_G	=	36;	//SCU_ATTACH_BOLTS
+const unsigned int GRP_SCU_G	=	37;	//SCU
+const unsigned int GRP_SC_ATTACH_BOLTS_G	=	38;	//SC_ATTACH_BOLTS
+const unsigned int GRP_SC_G	=	39;	//SC
+const unsigned int GRP_RMU_ATTACH_BOLTS_G	=	40;	//RMU_ATTACH_BOLTS
+const unsigned int GRP_RMU_G	=	41;	//RMU
+const unsigned int GRP_QUAD2_ANTENNA_G	=	42;	//QUAD2_ANTENNA
+const unsigned int GRP_QUAD1_ANTENNA_G	=	43;	//QUAD1_ANTENNA
+const unsigned int GRP_PURGE_PLENUM_G	=	44;	//PURGE_PLENUM
+const unsigned int GRP_PROPELLANT_TANKS_INSULATION_G	=	45;	//PROPELLANT_TANKS_INSULATION
+const unsigned int GRP_PICU2_ATTACH_BOLTS_G	=	46;	//PICU2_ATTACH_BOLTS
+const unsigned int GRP_PICU2_G	=	47;	//PICU2
+const unsigned int GRP_PICU1_ATTACH_BOLTS_G	=	48;	//PICU1_ATTACH_BOLTS
+const unsigned int GRP_PICU1_G	=	49;	//PICU1
+const unsigned int GRP_PA_ATTACH_BOLTS_G	=	50;	//PA_ATTACH_BOLTS
+const unsigned int GRP_PA_G	=	51;	//PA
+const unsigned int GRP_MVB_ATTACH_BOLTS_G	=	52;	//MVB_ATTACH_BOLTS
+const unsigned int GRP_MVB_G	=	53;	//MVB
+const unsigned int GRP_KEEL_TRUNNION_SUPPORTS_G	=	54;	//KEEL_TRUNNION_SUPPORTS
+const unsigned int GRP_FWD_PURGE_VENT_DUCT_G	=	55;	//FWD_PURGE_VENT_DUCT
+const unsigned int GRP_FIB2_ATTACH_BOLTS_G	=	56;	//FIB2_ATTACH_BOLTS
+const unsigned int GRP_FIB2_G	=	57;	//FIB2
+const unsigned int GRP_FIB1_ATTACH_BOLTS_G	=	58;	//FIB1_ATTACH_BOLTS
+const unsigned int GRP_FIB1_G	=	59;	//FIB1
+const unsigned int GRP_EQUIPMENT_MODULE_G	=	60;	//EQUIPMENT_MODULE
+const unsigned int GRP_DUFTAS_ATTACH_BOLTS_G	=	61;	//DUFTAS_ATTACH_BOLTS
+const unsigned int GRP_DUFTAS_G	=	62;	//DUFTAS
+const unsigned int GRP_DCU_ATTACH_BOLTS_G	=	63;	//DCU_ATTACH_BOLTS
+const unsigned int GRP_DCU_G	=	64;	//DCU
+const unsigned int GRP_ANTENNA_SHROUDS_G	=	65;	//ANTENNA_SHROUDS
+const unsigned int GRP_ANTENNA_DRIVE_MECHANIMS_G	=	66;	//ANTENNA_DRIVE_MECHANIMS
 
