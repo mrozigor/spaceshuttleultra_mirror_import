@@ -327,9 +327,6 @@
     <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="commDeployedAssembly.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="commGCIL.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -465,6 +462,26 @@
     <ClCompile Include="vc\PanelF3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\DeployedAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ASE_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CISS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL10.cpp" />
+    <ClCompile Include="vc\PanelL12U.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
+    <ClCompile Include="comm\GCIL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -876,6 +893,45 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelO3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_ExtAL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\DPSArchitectureModel.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbiterInst.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="ASE_IUS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CISS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA2.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL10.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelR13L.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\GCIL.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

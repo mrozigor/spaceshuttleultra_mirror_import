@@ -57,12 +57,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AbortSiteSelection.xaml.cs">
+      <DependentUpon>AbortSiteSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AbortTargets.xaml.cs">
+      <DependentUpon>AbortTargets.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LaunchTargets.cs" />
     <Compile Include="MECOTool.xaml.cs">
       <DependentUpon>MECOTool.xaml</DependentUpon>
     </Compile>
     <Compile Include="Orbiter.cs" />
+    <Compile Include="PayloadBayState.cs" />
+    <Compile Include="PLBPayload.cs" />
     <Compile Include="STSProgram.cs" />
+    <Page Include="AbortSiteSelection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AbortTargets.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -110,6 +126,20 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\SSU_ICON_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document-save-5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document-save-5-lrg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document-save-as-5-lrg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\edit-copy-2.png" />
+    <Resource Include="Images\edit-cut-8.png" />
+    <Resource Include="Images\edit-paste-6.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
