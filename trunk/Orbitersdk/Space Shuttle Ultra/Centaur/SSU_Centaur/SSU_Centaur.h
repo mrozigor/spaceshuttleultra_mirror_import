@@ -27,6 +27,7 @@
 
 
 #include "orbitersdk.h"
+#include "PIDControl.h"
 
 
 const static char* G_MESHNAME = "SSU\\Centaur\\CentaurG";
@@ -95,9 +96,14 @@ const double GHe_MASS = 2;// Kg
 
 const double ACS_ENA_DELAY = 300;// s
 const double RL10_ENA_DELAY = 2700;// s
+const double RL10_START_SEQ = 270;// s
 
 const double ANTENNA_DEPLOY_RATE = 2;// 1/s
 const double ANTENNA_DEPLOY_DELAY = 60;// s
+
+const double RL10_MAN_GIMBAL_RATE = 1;// deg/s
+const double RL10_AUTO_GIMBAL_RATE = 1;// deg/s
+const double RL10_GIMBAL_RANGE = 4;// deg
 
 
 class SSU_Centaur: public VESSEL3
@@ -135,14 +141,31 @@ class SSU_Centaur: public VESSEL3
 		THRUSTER_HANDLE thRL10[2];
 		THRUSTER_HANDLE thACS[12];
 
+		PIDControl ctrlRL10_P;
+		PIDControl ctrlRL10_Y;
+		PIDControl ctrlRL10_R;
+		double RL10_P;
+		double RL10_Y;
+		double RL10_R;
+		double manP;
+		double manY;
+		double manR;
+
 		bool separated;
-		double timer_ACS;
-		bool ENAtimer_ACS;
-		double timer_RL10;
-		bool ENAtimer_RL10;
+		double timer_ACS_ENA;
+		bool ACS_ENA;
+		double timer_RL10_ENA;
+		bool RL10_ENA;
+		double timer_RL10_startseq;
+		bool RL10_startseq;
+		double RL10_chill;
 
 		void DefineGAnimations( void );
 		void DefineGPrimeAnimations( void );
+
+		void EnableACS( void );
+		void EnablePitchYawRollACS( void );
+		void InhibitPitchYawRollACS( void );
 };
 
 #endif// __SSUSC_H

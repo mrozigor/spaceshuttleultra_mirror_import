@@ -27,6 +27,7 @@
 
 
 #include "orbitersdk.h"
+#include "PIDControl.h"
 
 
 const static char* STAGE_1_MESHNAME = "SSU\\IUS\\IUS_SRM1";
@@ -97,6 +98,11 @@ const double SRM_ENA_DELAY = 3600;// s
 const double STAGE2_EEC_DEPLOY_RATE = 0.1;// s^-1
 const double STAGE2_EEC_DEPLOY_DELAY = 7;// s
 
+const double SRM_MAN_GIMBAL_RATE = 1;// deg/s
+const double SRM_AUTO_GIMBAL_RATE = 1;// deg/s
+const double SRM1_GIMBAL_RANGE = 4;// deg
+const double SRM2_GIMBAL_RANGE = 7;// deg
+
 
 class SSU_IUS:public VESSEL3
 {
@@ -115,18 +121,24 @@ class SSU_IUS:public VESSEL3
 
 		THRUSTER_HANDLE th_main[2];
 		THRUSTER_HANDLE th_rcs[12];
-		THGROUP_HANDLE thg_main;
+		
+		PIDControl ctrlSRM_P;
+		PIDControl ctrlSRM_Y;
+		double SRM_P;
+		double SRM_Y;
+		double manP;
+		double manY;
 
 		AnimState asEXTENDNOZZLE;
 		UINT anim_EXTENDNOZZLE;
 
 		bool separated;
 		bool STAGE1separated;
-		double timer_RCS;
-		bool ENAtimer_RCS;
-		double timer_SRM;
-		bool ENAtimer_SRM;
-		bool SRMignited;
+		double timer_RCS_ENA;
+		bool RCS_ENA;
+		double timer_SRM_ENA;
+		bool SRM_ENA;
+		bool rollRCSonly;
 
 		std::string AdapterMeshName;
 		double AdapterOffset;// m
@@ -147,6 +159,10 @@ class SSU_IUS:public VESSEL3
 		void clbkSaveState(FILEHANDLE scn);
 
 		void SetStage2Config( void );
+
+		void EnableRCS( void );
+		void EnablePitchYawRCS( void );
+		void InhibitPitchYawRCS( void );
 };
 
 #endif// __SSUIUS_H
