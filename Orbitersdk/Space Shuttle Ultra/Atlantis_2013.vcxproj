@@ -254,8 +254,13 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="commDeployedAssembly.cpp" />
+    <ClCompile Include="ASE_IUS.cpp" />
+    <ClCompile Include="CISS.cpp" />
     <ClCompile Include="commGCIL.cpp" />
+    <ClCompile Include="comm\DeployedAssembly.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
+    <ClCompile Include="comm\GCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
     <ClCompile Include="dps\AscentGuidance.cpp" />
@@ -287,6 +292,7 @@
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
     <ClCompile Include="mps\DigitalComputerUnit.cpp" />
@@ -362,6 +368,7 @@
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA2.cpp" />
     <ClCompile Include="vc\PanelA4.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
@@ -375,6 +382,8 @@
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
+    <ClCompile Include="vc\PanelL10.cpp" />
+    <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
@@ -400,12 +409,18 @@
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
+    <ClInclude Include="CISS.h" />
     <ClInclude Include="commGCIL.h" />
+    <ClInclude Include="comm\ElectronicsAssembly1.h" />
+    <ClInclude Include="comm\ElectronicsAssembly2.h" />
+    <ClInclude Include="comm\GCIL.h" />
     <ClInclude Include="DeployedAssembly.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
+    <ClInclude Include="dps\DPSArchitectureModel.h" />
     <ClInclude Include="dps\ETSepSequence.h" />
     <ClInclude Include="dps\GeneralDisplays.h" />
     <ClInclude Include="dps\HALS_Compilations.h" />
@@ -430,7 +445,9 @@
     <ClInclude Include="dps\SSME_SOP.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
+    <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -450,6 +467,7 @@
     <ClInclude Include="mps\SSMEController_BLOCK_II.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics.h" />
     <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h" />
+    <ClInclude Include="OrbiterInst.h" />
     <ClInclude Include="PayloadBay.h" />
     <ClInclude Include="ReentryDragTable.h" />
     <ClInclude Include="vc\AftMDU.h" />
@@ -497,6 +515,7 @@
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
     <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA2.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />
     <ClInclude Include="vc\PanelA7U.h" />
@@ -509,10 +528,13 @@
     <ClInclude Include="vc\PanelF6.h" />
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
+    <ClInclude Include="vc\PanelL10.h" />
+    <ClInclude Include="vc\PanelL12U.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelR11.h" />
+    <ClInclude Include="vc\PanelR13L.h" />
     <ClInclude Include="vc\PanelR2.h" />
     <ClInclude Include="ParameterValues.h" />
     <ClInclude Include="PlBayOp.h" />
