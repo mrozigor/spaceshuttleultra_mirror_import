@@ -647,7 +647,6 @@ namespace vc
 		pCmdPathEnabled->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
 		pCmdPathEnabled->SetMouseRegion( 0.838003f, 0.717705f, 0.870962f, 0.759780f );
 		pCmdPathEnabled->SetPullDirection( SWITCH_PULL );
-		pCmdPathEnabled->SetInitialPosition( 0 );
 
 		pPyroBusPri->SetInitialAnimState( 0.5f );
 		pPyroBusPri->DefineSwitchGroup( GRP_L10SWITCH39_VC );

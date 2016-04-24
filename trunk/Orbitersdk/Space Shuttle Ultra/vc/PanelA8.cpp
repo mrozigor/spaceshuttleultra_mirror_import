@@ -143,6 +143,7 @@ namespace vc
 		pLEDParameter->SetLabel(2, "RATE");
 		pLEDParameter->SetLabel(1, "PORT_TEMP");
 		pLEDParameter->SetLabel(0, "STBD_TEMP");
+		pLEDParameter->SetInitialPosition( 6 );
 		pLEDJoint->SetLabel(7, "SHOULDER_YAW");
 		pLEDJoint->SetLabel(6, "SHOULDER_PITCH");
 		pLEDJoint->SetLabel(5, "ELBOW");
@@ -491,7 +492,6 @@ namespace vc
 		pLEDParameter->SetInitialAnimState(1.0f);
 		pLEDParameter->DefineRotationAngle(210.0f);
 		pLEDParameter->SetOffset(-90.0f);
-		pLEDParameter->SetInitialPosition( 6 );
 
 		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_VC);
