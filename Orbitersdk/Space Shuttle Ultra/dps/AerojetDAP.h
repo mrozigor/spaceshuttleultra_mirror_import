@@ -403,6 +403,12 @@ public:
 	 * @return	delta azimuth limit (DEG)
 	 */
 	double GetdeltaAZLimit( double mach ) const;
+
+	/**
+ 	 * Returns heading of selected runway
+ 	 * @return	heading of selected runway (deg)
+ 	 */
+	double GetSelectedRunwayHeading( void ) const;
 private:
 	void SetThrusterLevels();
 	/**

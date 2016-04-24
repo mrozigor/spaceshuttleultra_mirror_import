@@ -88,6 +88,12 @@ public:
 	 */
 	VECTOR3 GetAttitudeErrors( void ) const;
 
+	/**
+	 * Gets current target heading
+	 * @return target heading (rad)
+	 */
+	double GetTargetHeading( void ) const;
+
 	double GetThrottleCommand( void ) const;
 	bool SERCenabled( void ) const;
 	double GetEOVI( int EO ) const;

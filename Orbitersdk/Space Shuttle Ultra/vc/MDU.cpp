@@ -722,6 +722,7 @@ namespace vc {
 		if (attPitch <= 0) attPitch += 360;
 		double attYaw = 0;//STS()->GetSlipAngle() * DEG;
 		//if (attYaw <= 0) attYaw += 360;
+		double hsiheading;
 
 		int save = SaveDC( hDC );
 
@@ -736,7 +737,7 @@ namespace vc {
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( hDC, 0, 0, 0, adierr );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, 0, true, 0 );
 				break;
 			case 102:
 				AEPFD_Header_AscentDAP( hDC, 102, adiatt );
@@ -751,7 +752,8 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI_A( hDC, STS()->GetYaw(), STS()->GetBank() );// TODO set 0 as tgt plane
+				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
+				HSI_A( hDC, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
 				AEPFD_XTRK( hDC );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( hDC );
 				break;
@@ -774,7 +776,8 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI_A( hDC, STS()->GetYaw(), STS()->GetBank() );// TODO set 0 as tgt plane
+				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
+				HSI_A( hDC, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
 				if (0)// TODO TAL
 				{
 					AEPFD_dXTRK( hDC );
@@ -814,7 +817,7 @@ namespace vc {
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw(), true, 0 );
 				AEPFD_XTRK( hDC );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( hDC );
 				break;
@@ -876,7 +879,7 @@ namespace vc {
 				ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				AEPFD_HACCEL( hDC );
@@ -895,7 +898,7 @@ namespace vc {
 				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( hDC, MachNumber );
@@ -918,7 +921,7 @@ namespace vc {
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw(), true, 0 );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				break;
@@ -935,7 +938,7 @@ namespace vc {
 				else ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
 				AEPFD_dAZ_HTA( hDC, MachNumber );
 				AEPFD_RANGERW( hDC );
 				AEPFD_HACCEL( hDC );
@@ -954,7 +957,7 @@ namespace vc {
 				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_NZ( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( hDC, MachNumber );
@@ -971,7 +974,7 @@ namespace vc {
 				ADI_STATIC( hDC );// TODO no rate and error scales
 				ADI( hDC, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( hDC );
-				HSI_E( hDC, STS()->GetYaw() );
+				HSI_E( hDC, 0, true, 0 );
 				break;
 			default:
 				break;
@@ -1030,6 +1033,7 @@ namespace vc {
 
 		BlackPen = CreatePen( PS_SOLID, 0, CR_BLACK );
 		DarkGrayPen = CreatePen( PS_SOLID, 0, CR_DARK_GRAY );
+		DarkGrayThickPen = CreatePen( PS_SOLID, 3, CR_DARK_GRAY );
 		LightGrayPen = CreatePen( PS_SOLID, 0, CR_LIGHT_GRAY );
 		WhitePen = CreatePen( PS_SOLID, 0, CR_WHITE );
 		RedPen = CreatePen( PS_SOLID, 0, CR_RED );
@@ -1065,6 +1069,7 @@ namespace vc {
 
 		DeleteObject( BlackPen );
 		DeleteObject( DarkGrayPen );
+		DeleteObject( DarkGrayThickPen );
 		DeleteObject( LightGrayPen );
 		DeleteObject( WhitePen );
 		DeleteObject( RedPen );
@@ -1903,7 +1908,7 @@ namespace vc {
 		// 170º/350º
 		MoveToEx( hDC, 113, 145, NULL );
 		LineTo( hDC, 131, 43 );
-		//SelectObject( hDC, DarkGrayPen );// TODO thick pen
+		SelectObject( hDC, DarkGrayThickPen );
 		// 30º/210º
 		MoveToEx( hDC, 96, 49, NULL );
 		LineTo( hDC, 148, 139 );
@@ -1922,13 +1927,13 @@ namespace vc {
 		::Ellipse( hDC, 73, 45, 171, 143 );
 
 		SelectObject( hDC, TahomaFont_h7w3 );
-		TextOut( hDC, 148, 47, "33", 2 );
-		TextOut( hDC, 163, 63, "30", 2 );
-		TextOut( hDC, 163, 118, "24", 2 );
-		TextOut( hDC, 148, 134, "21", 2 );
+		TextOut( hDC, 149, 48, "33", 2 );
+		TextOut( hDC, 162, 61, "30", 2 );
+		TextOut( hDC, 162, 120, "24", 2 );
+		TextOut( hDC, 149, 134, "21", 2 );
 		TextOut( hDC, 89, 134, "15", 2 );
-		TextOut( hDC, 74, 118, "12", 2 );
-		TextOut( hDC, 74, 63, "06", 2 );
+		TextOut( hDC, 77, 121, "12", 2 );
+		TextOut( hDC, 76, 61, "06", 2 );
 		TextOut( hDC, 89, 47, "03", 2 );
 		SelectObject( hDC, TahomaFont_h10w4 );
 		SelectObject( hDC, LightGrayPen );
@@ -2172,7 +2177,7 @@ namespace vc {
 		// 170º/350º
 		MoveToEx( hDC, 118, 185, NULL );
 		LineTo( hDC, 138, 71 );
-		//SelectObject( hDC, DarkGrayPen );// TODO thick pen
+		SelectObject( hDC, DarkGrayThickPen );
 		// 30º/210º
 		MoveToEx( hDC, 99, 77, NULL );
 		LineTo( hDC, 157, 179 );
@@ -2190,13 +2195,13 @@ namespace vc {
 		SelectObject( hDC, BlackPen );
 		::Ellipse( hDC, 73, 73, 183, 183 );
 
-		TextOut( hDC, 157, 75, "33", 2 );
-		TextOut( hDC, 174, 93, "30", 2 );
-		TextOut( hDC, 174, 155, "24", 2 );
+		TextOut( hDC, 158, 75, "33", 2 );
+		TextOut( hDC, 173, 91, "30", 2 );
+		TextOut( hDC, 173, 156, "24", 2 );
 		TextOut( hDC, 157, 173, "21", 2 );
 		TextOut( hDC, 91, 173, "15", 2 );
-		TextOut( hDC, 74, 155, "12", 2 );
-		TextOut( hDC, 74, 93, "06", 2 );
+		TextOut( hDC, 75, 156, "12", 2 );
+		TextOut( hDC, 75, 90, "06", 2 );
 		TextOut( hDC, 91, 75, "03", 2 );
 		SelectObject( hDC, LightGrayPen );
 		SelectObject( hDC, LightGrayBrush );
@@ -3051,8 +3056,7 @@ namespace vc {
 				// time to HAC 10s
 				// alt err +/-5k
 				// heading err +/-5º
-				TextOut( hDC, 81, 23, "0", 1 );// TODO what to show here?
-				TextOut( hDC, 159, 23, "0", 1 );
+				// (roll scale output is below)
 
 				TextOut( hDC, 187, 50, "5K", 2 );
 				TextOut( hDC, 187, 129, "5K", 2 );
@@ -3072,11 +3076,15 @@ namespace vc {
 
 				if (roll > 0)
 				{
+					TextOut( hDC, 74, 23, "10s", 3 );
+					TextOut( hDC, 159, 23, "0", 1 );
 					if (roll >= 10) pos_roll = 87;
 					else pos_roll = 157 - Round( roll * 7 );
 				}
 				else if (roll < 0)
 				{
+					TextOut( hDC, 81, 23, "0", 1 );
+					TextOut( hDC, 159, 23, "10s", 3 );
 					if (roll <= -10) pos_roll = 157;
 					else pos_roll = 87 - Round( roll * 7 );
 				}
@@ -3610,7 +3618,7 @@ namespace vc {
 		return;
 	}
 
-	void MDU::HSI_A( HDC hDC, double heading, double roll )
+	void MDU::HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading )
 	{
 		double sgn = sign( (90 * RAD) - fabs( roll ) );
 		// center (122,238) r = 57
@@ -3711,6 +3719,8 @@ namespace vc {
 		}
 		SetGraphicsMode( hDC, GM_COMPATIBLE );
 
+		if (arrowon) HSI_Arrow( hDC, arrowheading * sgn );
+
 		POINT ov_symbol[6];
 		ov_symbol[0].x = 122;
 		ov_symbol[0].y = 229;
@@ -3730,7 +3740,7 @@ namespace vc {
 		return;
 	}
 
-	void MDU::HSI_E( HDC hDC, double heading )
+	void MDU::HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading )
 	{
 		// center (122,238) r = 57
 		SelectObject( hDC, CyanPen );
@@ -3834,6 +3844,8 @@ namespace vc {
 		}
 		SetGraphicsMode( hDC, GM_COMPATIBLE );
 
+		if (arrowon) HSI_Arrow( hDC, (heading * DEG) - arrowheading );
+
 		POINT ov_symbol[6];
 		ov_symbol[0].x = 122;
 		ov_symbol[0].y = 229;
@@ -3850,6 +3862,72 @@ namespace vc {
 		SelectObject( hDC, LightGrayBrush );
 		SelectObject( hDC, LightGrayPen );
 		Polygon( hDC, ov_symbol, 6 );
+		return;
+	}
+
+	void MDU::HSI_Arrow( HDC hDC, double heading )
+	{
+		SelectObject( hDC, WhiteBrush );
+		double cosH = cos( -heading * RAD );
+		double sinH = sin( -heading * RAD );
+		int dotLL_X;
+		int dotLL_Y;
+		int dotL_X;
+		int dotL_Y;
+		int dotR_X;
+		int dotR_Y;
+		int dotRR_X;
+		int dotRR_Y;
+		POINT arrow[10];
+
+		dotLL_X = 122 - Round( 24 * cosH );
+		dotLL_Y = 238 - Round( 24 * sinH );
+		dotL_X = 122 - Round( 12 * cosH );
+		dotL_Y = 238 - Round( 12 * sinH );
+		dotR_X = 122 + Round( 12 * cosH );
+		dotR_Y = 238 + Round( 12 * sinH );
+		dotRR_X = 122 + Round( 24 * cosH );
+		dotRR_Y = 238 + Round( 24 * sinH );
+
+		arrow[0].x = 122 + Round( 49 * sinH );
+		arrow[0].y = 238 - Round( 49 * cosH );
+		arrow[1].x = 122 - Round( 3 * cosH - 30 * sinH );
+		arrow[1].y = 238 - Round( 3 * sinH + 30 * cosH );
+		arrow[2].x = 122 - Round( 8 * cosH - 28 * sinH );
+		arrow[2].y = 238 - Round( 8 * sinH + 28 * cosH );
+		arrow[3].x = 122 - Round( 8 * cosH - 23 * sinH );
+		arrow[3].y = 238 - Round( 8 * sinH + 23 * cosH );
+		arrow[4].x = 122 - Round( 4 * cosH - 25 * sinH );
+		arrow[4].y = 238 - Round( 4 * sinH + 25 * cosH );
+		arrow[5].x = 122 + Round( 20 * sinH );
+		arrow[5].y = 238 - Round( 20 * cosH );
+		arrow[6].x = 122 + Round( 4 * cosH + 25 * sinH );
+		arrow[6].y = 238 + Round( 4 * sinH - 25 * cosH );
+		arrow[7].x = 122 + Round( 8 * cosH + 23 * sinH );
+		arrow[7].y = 238 + Round( 8 * sinH - 23 * cosH );
+		arrow[8].x = 122 + Round( 8 * cosH + 28 * sinH );
+		arrow[8].y = 238 + Round( 8 * sinH - 28 * cosH );
+		arrow[9].x = 122 + Round( 3 * cosH + 30 * sinH );
+		arrow[9].y = 238 + Round( 3 * sinH - 30 * cosH );
+
+		::Ellipse( hDC, dotLL_X - 2, dotLL_Y - 2, dotLL_X + 2, dotLL_Y + 2 );
+		::Ellipse( hDC, dotL_X - 2, dotL_Y - 2, dotL_X + 2, dotL_Y + 2 );
+		::Ellipse( hDC, dotR_X - 2, dotR_Y - 2, dotR_X + 2, dotR_Y + 2 );
+		::Ellipse( hDC, dotRR_X - 2, dotRR_Y - 2, dotRR_X + 2, dotRR_Y + 2 );
+
+		SelectObject( hDC, MagentaBrush );
+		SelectObject( hDC, BlackPen );
+		Polygon( hDC, arrow, 10 );
+
+		arrow[0].x = 122 - Round( 2 * cosH + 20 * sinH );
+		arrow[0].y = 238 - Round( 2 * sinH - 20 * cosH );
+		arrow[1].x = 122 - Round( 2 * cosH + 40 * sinH );
+		arrow[1].y = 238 - Round( 2 * sinH - 40 * cosH );
+		arrow[2].x = 122 + Round( 2 * cosH - 40 * sinH );
+		arrow[2].y = 238 + Round( 2 * sinH + 40 * cosH );
+		arrow[3].x = 122 + Round( 2 * cosH - 20 * sinH );
+		arrow[3].y = 238 + Round( 2 * sinH + 20 * cosH );
+		Polygon( hDC, arrow, 4 );
 		return;
 	}
 
@@ -4261,11 +4339,12 @@ namespace vc {
 
 	void MDU::AEPFD_dINC( HDC hDC )
 	{
-		SelectObject( hDC, DarkGrayPen );
+		SelectObject( hDC, LightGrayPen );
 		SelectObject( hDC, BlackBrush );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
 		POINT tri[3] = {{205, 205}, {207, 210}, {203, 210}};
 		Polygon( hDC, tri, 3 );
+		SelectObject( hDC, DarkGrayPen );
 		TextOut( hDC, 210, 203, "Inc", 3 );
 		Rectangle( hDC, 223, 201, 252, 213 );
 		SetTextColor( hDC, CR_WHITE );
