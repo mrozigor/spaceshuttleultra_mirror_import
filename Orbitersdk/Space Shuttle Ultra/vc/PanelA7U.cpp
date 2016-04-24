@@ -112,7 +112,6 @@ namespace vc
 
 		pCameraPan->DefineSwitchGroup(GRP_A7U44_VC);
 		pCameraPan->SetInitialAnimState(0.5);
-		pCameraPan->SetInitialPosition(1);
 		pCameraPan->SetMouseRegion(0.099787f, 0.768763f, 0.153872f, 0.873155f);
 		pCameraPan->SetReference(_V(-0.2, 2.584, 12.373), switch_rot_horz);
 		pCameraPan->SetOrientation(true);
@@ -120,7 +119,6 @@ namespace vc
 
 		pCameraTilt->DefineSwitchGroup(GRP_A7U43_VC);
 		pCameraTilt->SetInitialAnimState(0.5);
-		pCameraTilt->SetInitialPosition(1);
 		pCameraTilt->SetMouseRegion(0.174297f, 0.773431f, 0.231700f, 0.856463f);
 		pCameraTilt->SetReference(_V(-0.158, 2.583, 12.373), switch_rot_vert);
 		pCameraTilt->SetSpringLoaded(true);

@@ -33,6 +33,7 @@ namespace vc
 		pSteeringMode->SetLabel( 1, "AUTO TRACK" );
 		pSteeringMode->SetLabel( 2, "GPC DESIG" );
 		pSteeringMode->SetLabel( 3, "GPC" );
+		pSteeringMode->SetInitialPosition( 0 );
 
 		Add( pSearch = new StdSwitch2( _sts, "SEARCH" ) );
 		pSearch->SetLabel( 1, "SEARCH" );
@@ -96,7 +97,6 @@ namespace vc
 		pSteeringMode->SetReference( _V( 1.1953, 2.8678, 12.2315 ), rotary_switch_rot );
 		pSteeringMode->DefineRotationAngle( 90.0f );
 		pSteeringMode->SetOffset( 135.0f );
-		pSteeringMode->SetInitialPosition( 0 );
 
 		pSearch->SetInitialAnimState( 0.5f );
 		pSearch->DefineSwitchGroup( GRP_A1US8_VC );

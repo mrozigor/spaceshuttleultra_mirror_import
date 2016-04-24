@@ -15,11 +15,13 @@ namespace vc
 		Add( pIDPCRTPower = new StdSwitch2( _sts, "IDP/CRT 4 Power" ) );
 		pIDPCRTPower->SetLabel( 0, "OFF" );
 		pIDPCRTPower->SetLabel( 1, "ON" );
+		pIDPCRTPower->SetInitialPosition( 1 );
 
 		Add( pIDPCRTMajFunc = new StdSwitch3( _sts, "IDP/CRT 4 Maj Func" ) );
 		pIDPCRTMajFunc->SetLabel( 0, "PL" );
 		pIDPCRTMajFunc->SetLabel( 1, "SM" );
 		pIDPCRTMajFunc->SetLabel( 2, "GNC" );
+		pIDPCRTMajFunc->SetInitialPosition( 2 );
 	}
 
 	PanelR11::~PanelR11()
@@ -41,14 +43,12 @@ namespace vc
 		pIDPCRTPower->DefineSwitchGroup( GRP_R11LS1_VC );
 		pIDPCRTPower->SetReference( _V( 1.2491, 2.2434, 13.4210 ), switch_rot );
 		pIDPCRTPower->SetMouseRegion( 0.350223f, 0.567250f, 0.385167f, 0.609089f );
-		pIDPCRTPower->SetInitialPosition( 1 );
 
 
 		pIDPCRTMajFunc->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc->DefineSwitchGroup( GRP_R11LS2_VC );
 		pIDPCRTMajFunc->SetReference( _V( 1.1616, 2.1864, 13.4197 ), switch_rot );
 		pIDPCRTMajFunc->SetMouseRegion( 0.352497f, 0.743870f, 0.387197f, 0.785950f );
-		pIDPCRTMajFunc->SetInitialPosition( 2 );
 	}
 
 	void PanelR11::RegisterVC()
