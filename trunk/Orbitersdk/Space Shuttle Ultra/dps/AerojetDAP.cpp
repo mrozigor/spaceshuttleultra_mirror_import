@@ -616,6 +616,8 @@ bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
 			sscanf_s(Data, "%d", &nNew);
 			if(nNew>=0 && nNew<=static_cast<int>(vLandingSites.size())) {
 				SITE_ID = nNew-1;
+				SEC = false;// reset to PRI
+				HACDirection = OVHD;// reset to overhead
 				InitializeRunwayData();
 			}
 			return true;
@@ -742,7 +744,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 					glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
 					glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
 				}
-				skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+				if (!bWOW) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			else {
 				// before PRFNL mode, we have square at center of HUD
@@ -751,9 +753,12 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			// lines are the same for both VV and center square modes
-			skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
-			skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
-			skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
+			if (!bWOW)
+			{
+				skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
+				skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
+				skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
+			}
 
 			if(TAEMGuidanceMode != FNLFL) {
 				double guidance_center_x, guidance_center_y;
@@ -894,16 +899,26 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			if (dclt == 2)
 			{
 				// numeric
-				sprintf_s(cbuf, 255, "%.0f", keas);
-				skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+				sprintf_s(cbuf, 255, "%3.0f", keas);
+				if (!bWOW)
+				{
+					skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
 
-				int tmpalt;
-				if (alt > 1000) tmpalt = Round( alt * 0.005 ) * 200;
-				else if (alt > 400) tmpalt = Round( alt * 0.01 ) * 100;
-				else if (alt > 50) tmpalt = Round( alt * 0.1 ) * 10;
-				else tmpalt = Round( alt );
-				sprintf_s( cbuf, 255, "%d", tmpalt );
-				skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+					int tmpalt;
+					if (alt > 1000) tmpalt = Round( alt * 0.005 ) * 200;
+					else if (alt > 400) tmpalt = Round( alt * 0.01 ) * 100;
+					else if (alt > 50) tmpalt = Round( alt * 0.1 ) * 10;
+					else tmpalt = Round( alt );
+					sprintf_s( cbuf, 255, "%d", tmpalt );
+					skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+				}
+				else if (!bWONG) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+				else
+				{
+					skp->Text( hps->CX - 40, hps->CY - 14, "G", 1 );
+					sprintf_s(cbuf, 255, "%3.0f", keas);// TODO ground speed
+					skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+				}
 			}
 			else
 			{
@@ -916,6 +931,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				for (int i = 0; i < 7; i++)
 				{
 					tmp = ikeas + ((i - 3) * 5);
+					if (tmp < 0) continue;
 					ytmp = offset + ((i - 3) * 20);
 					if (tmp % 10 == 0)
 					{
@@ -935,6 +951,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				for (int i = 0; i < 7; i++)
 				{
 					tmp = ialt + ((3 - i) * 500);
+					if (tmp < 0) break;
 					ytmp = offset - ((3 - i) * 20);
 					if (tmp % 5000 == 0)
 					{
@@ -3937,4 +3954,11 @@ double AerojetDAP::GetNZ( void ) const
 	STS()->GetWeightVector(gravity);
 	return (lift.y+drag.y)/length(gravity);
 }
+
+double AerojetDAP::GetSelectedRunwayHeading( void ) const
+{
+	return degRwyHeading;
+}
+
+
 };

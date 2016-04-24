@@ -862,4 +862,8 @@ double AscentGuidance::GetTimeRemaining( void ) const
 	return timeRemaining;
 }
 
+double AscentGuidance::GetTargetHeading( void ) const
+{
+	return radTargetHeading;
+}
 };
