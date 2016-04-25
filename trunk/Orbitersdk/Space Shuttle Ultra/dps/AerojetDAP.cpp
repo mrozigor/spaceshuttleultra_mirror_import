@@ -269,11 +269,13 @@ void AerojetDAP::Realize()
 	SpeedbrakeAuto.Connect(pBundle, 0);
 	SpeedbrakeAutoOut.Connect(pBundle, 0);
 
-	pBundle = STS()->BundleManager()->CreateBundle( "HUD", 16 );
+	pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
 	HUDPower[0].Connect( pBundle, 0 );
-	HUDPower[1].Connect( pBundle, 1 );
-	pHUDDCLT[0].Connect( pBundle, 2 );
-	pHUDDCLT[1].Connect( pBundle, 4 );
+	pHUDDCLT[0].Connect( pBundle, 1 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
+	HUDPower[1].Connect( pBundle, 0 );
+	pHUDDCLT[1].Connect( pBundle, 1 );
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();

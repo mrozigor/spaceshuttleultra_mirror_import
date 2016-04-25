@@ -921,7 +921,7 @@ void CRT::SPI(HDC hDC)
 	MoveToEx(hDC, 190, 119, NULL);
 	LineTo(hDC, 190, 125);
 
-	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon-sts->aerosurfaces.rightElevon)* 0.5;
+	if(sts->HydraulicsOK()) dNum = range( -5, (sts->aerosurfaces.leftElevon - sts->aerosurfaces.rightElevon) * 0.5, 5 );
 	else dNum=0.0;
 
 	nPos=static_cast<int>(190.0+12.0*dNum);

@@ -49,6 +49,8 @@ namespace vc
 		PushButtonIndicator* pDragChuteJETT;
 
 		StdSwitch3* pHUDMode;
+		RotaryDemuxSwitch* pHUDBrightness;
+		StdSwitch3* pHUDBright;
 
 	public:
 		PanelF4(Atlantis* _sts);
