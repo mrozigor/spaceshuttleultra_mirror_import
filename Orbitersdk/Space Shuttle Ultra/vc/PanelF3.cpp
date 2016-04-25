@@ -45,13 +45,11 @@ namespace vc
 		pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
 		//pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
 
-		pBundle = STS()->BundleManager()->CreateBundle( "HUD", 16 );
-		pHUDPower[0]->output.Connect( pBundle, 0 );// power cdr (F3)
-		pHUDPower[1]->output.Connect( pBundle, 1 );// power plt (F3)
-		//pHUDMode->outputA.Connect( pBundle, 2 );// mode dclt cdr (F6)
-		//pHUDMode->outputB.Connect( pBundle, 3 );// mode test cdr (F6)
-		//pHUDMode->outputA.Connect( pBundle, 4 );// mode dclt plt (F8)
-		//pHUDMode->outputB.Connect( pBundle, 5 );// mode test plt (F8)
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
+		pHUDPower[0]->output.Connect( pBundle, 0 );// power cdr
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
+		pHUDPower[1]->output.Connect( pBundle, 0 );// power plt
 
 		AtlantisPanel::Realize();
 	}
