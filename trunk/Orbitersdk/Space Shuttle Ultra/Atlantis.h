@@ -1143,6 +1143,8 @@ private:
 	VECTOR3 payloadCoG;
 	double payloadMass;
 
+	bool hasCISS;// if true, bay 13 covers are hidden
+
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;
 

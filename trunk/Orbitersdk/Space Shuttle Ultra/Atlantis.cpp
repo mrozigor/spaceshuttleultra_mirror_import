@@ -900,6 +900,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	SSMEGH2burn[0] = NULL;
 	SSMEGH2burn[1] = NULL;
 	SSMEGH2burn[2] = NULL;
+
+	hasCISS = false;
 }
 
 // --------------------------------------------------------------
@@ -3432,6 +3434,7 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
 				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
 				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				hasCISS = true;
 			}
 
 			bHasKUBand = pMission->HasKUBand();
@@ -4904,6 +4907,9 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	for (unsigned int i = 0; i < 13; i++) {
 		if (!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON + i, &grpSpec);
 	}
+	
+	// hide bay 13 covers
+	if (hasCISS) oapiEditMeshGroup( hDevOrbiterMesh, GRP_PLB_BAY13_COVERS, &grpSpec );
 
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
 
