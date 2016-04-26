@@ -455,23 +455,20 @@ int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 
 	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
 	{
-		if (GetThrusterLevel( thRL10[0] ) != 0) return 0;// no separations while engines are firing
+		if ((GetThrusterLevel( thRL10[0] ) != 0) || GetAttachmentStatus( ahToCISS ) || !RL10_ENA) return 0;// no separations while engines are firing or still attached to CISS or nearby OV
 
 		if (key == OAPI_KEY_J)
 		{
-			if (GetAttachmentStatus( ahToCISS ) == NULL)// payload sep only after deployment
+			// remove payload mass from centaur dry mass
+			OBJHANDLE ohPL = GetAttachmentStatus( ahToPayload );
+			if (ohPL)
 			{
-				// remove payload mass from centaur dry mass
-				OBJHANDLE ohPL = GetAttachmentStatus( ahToPayload );
-				if (ohPL)
-				{
-					VESSEL* vPL = oapiGetVesselInterface( ohPL );
-					SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
-				}
-				// separate payload
-				DetachChild( ahToPayload, 0.3 );
-				return 1;
+				VESSEL* vPL = oapiGetVesselInterface( ohPL );
+				SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
 			}
+			// separate payload
+			DetachChild( ahToPayload, 0.3 );
+			return 1;
 		}
 	}
 	

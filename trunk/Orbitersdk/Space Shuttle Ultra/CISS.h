@@ -107,7 +107,6 @@ class CISS:public AtlantisSubsystem
 		DiscOutPort pPosition_BKUP_TB;
 		DiscOutPort pMECH_BKUP_PWR_TB;
 		
-		void AddMesh();
 		void DefineCISSGPrimeAnimations();
 		void DefineCISSGAnimations();
 		void RunAnimation();
@@ -124,6 +123,7 @@ class CISS:public AtlantisSubsystem
 		bool SingleParamParseLine() const {return true;};
 		virtual double GetSubsystemEmptyMass() const;
 		void CreateAttachment();
+		void AddMesh();
 };
 
 #endif// __CISS_H

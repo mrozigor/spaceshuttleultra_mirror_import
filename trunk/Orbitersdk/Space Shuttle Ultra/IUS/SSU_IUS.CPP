@@ -332,23 +332,20 @@ int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 
 	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
 	{
-		if ((GetThrusterLevel( th_main[0] ) != 0) || (GetThrusterLevel( th_main[1] ) != 0)) return 0;// no separations while engines are firing
+		if ((GetThrusterLevel( th_main[0] ) != 0) || (GetThrusterLevel( th_main[1] ) != 0) || GetAttachmentStatus( ahASE ) || !SRM_ENA) return 0;// no separations while engines are firing or still attached to ASE or nearby OV
 
 		if (key == OAPI_KEY_J)
 		{
-			if (GetAttachmentStatus( ahASE ) == NULL)// payload sep only after deployment
+			// remove payload mass from IUS dry mass
+			OBJHANDLE ohPL = GetAttachmentStatus( ahPayload );
+			if (ohPL)
 			{
-				// remove payload mass from IUS dry mass
-				OBJHANDLE ohPL = GetAttachmentStatus( ahPayload );
-				if (ohPL)
-				{
-					VESSEL* vPL = oapiGetVesselInterface( ohPL );
-					SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
-				}
-				// separate payload
-				DetachChild( ahPayload, 0.3 );
-				return 1;
+				VESSEL* vPL = oapiGetVesselInterface( ohPL );
+				SetEmptyMass( GetEmptyMass() - vPL->GetMass() );
 			}
+			// separate payload
+			DetachChild( ahPayload, 0.3 );
+			return 1;
 		}
 		else if (key == OAPI_KEY_G)
 		{

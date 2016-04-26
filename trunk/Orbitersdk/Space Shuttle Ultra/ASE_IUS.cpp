@@ -45,8 +45,6 @@ ASE_IUS::~ASE_IUS()
 
 void ASE_IUS::Realize()
 {
-	AddMesh();
-
 	DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "L10toASE_G", 16 );
 	pTiltTableActuatorDriveEnablePri1Intermediate.Connect( pBundle, 12 );
 	pTiltTableActuatorDriveEnablePri1Maximum.Connect( pBundle, 13 );
