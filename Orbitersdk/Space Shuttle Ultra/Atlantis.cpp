@@ -2343,6 +2343,8 @@ void Atlantis::AddOrbiterVisual()
 	if (mesh_orbiter == MESH_UNDEFINED) {
 
 		// ***** Load meshes
+		if (pCISS) pCISS->AddMesh();
+		if (pASE_IUS) pASE_IUS->AddMesh();
 
 		mesh_cockpit = AddMesh(hOrbiterCockpitMesh, &VC_OFFSET);
 		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL);

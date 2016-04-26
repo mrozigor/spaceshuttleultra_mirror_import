@@ -44,8 +44,6 @@ CISS::~CISS( void )
 
 void CISS::Realize()
 {
-	AddMesh();
-
 	DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "L12UtoCISS_PRI", 16 );
 	pSUPER_ZIP_PRI_FIRE.Connect( pBundle, 0 );
 	pSUPER_ZIP_PRI_ARM_ARM.Connect( pBundle, 1 );
