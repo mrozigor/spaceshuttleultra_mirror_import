@@ -368,7 +368,6 @@ namespace vc {
 			SetBkMode (hDC, TRANSPARENT);
 			const char *label;
 			int x = 28;
-			int menu = -1;
 			
 			for (int bt = 0; bt < 5; bt++) {
 				if (label = oapiMFDButtonLabel (MFDID, bt))
@@ -381,7 +380,6 @@ namespace vc {
 						POINT arrow[7] = {{28, 22}, {43, 31}, {35, 31}, {35, 40}, {21, 40}, {21, 31}, {13, 31}};// CW from top
 						Polygon( hDC, arrow, 7 );
 						TextOut( hDC, x, 25, "UP", 2);
-						menu = 3;// "inside" our menu, default to dps menu
 						SelectObject( hDC, tmpbrush );
 						SelectObject( hDC, tmppen );
 					}
@@ -389,7 +387,6 @@ namespace vc {
 					{
 						TextOut( hDC, x, 21, "FLT ", 4 );
 						TextOut( hDC, x, 30, "INST", 4 );
-						menu = 0;
 					}
 					else if (strcmp( label, "SUB" ) == 0)
 					{
@@ -410,7 +407,6 @@ namespace vc {
 							TextOut( hDC, x, 21, "A/E", 3 );
 							TextOut( hDC, x, 30, "PFD", 3 );
 						}
-						menu = 1;
 					}
 					else if (strcmp( label, "ORBIT" ) == 0)
 					{
@@ -441,7 +437,6 @@ namespace vc {
 							TextOut( hDC, x, 21, "OMS/", 4 );
 							TextOut( hDC, x, 30, " MPS", 4 );
 						}
-						menu = 2;
 					}
 					else if (strcmp( label, "HYD" ) == 0)
 					{
@@ -472,6 +467,20 @@ namespace vc {
 					{
 						TextOut( hDC, x, 21, "DPS", 3 );
 					}
+					else if (strcmp( label, "MEDS1" ) == 0)
+					{
+						TextOut( hDC, x + 1, 21, "MEDS", 4 );
+						TextOut( hDC, x, 30, "MAINT", 5 );
+					}
+					else if (strcmp( label, "CST" ) == 0)
+					{
+						TextOut( hDC, x, 21, "CST", 3 );
+					}
+					else if (strcmp( label, "S_IDP" ) == 0)
+					{
+						TextOut( hDC, x, 21, "START", 5 );
+						TextOut( hDC, x, 30, " IDP", 4 );
+					}
 					else
 					{
 						TextOut (hDC, x, 25, label, strlen(label));
@@ -484,16 +493,29 @@ namespace vc {
 			switch (menu)
 			{
 				case 0:
-					TextOut( hDC, 128, 8, "MAIN MENU", 9 );
+					TextOut( hDC, 128, 9, "MAIN MENU", 9 );
 					break;
 				case 1:
-					TextOut( hDC, 128, 8, "FLIGHT INSTRUMENTATION MENU", 27 );
+					TextOut( hDC, 128, 9, "FLIGHT INSTRUMENTATION MENU", 27 );
 					break;
 				case 2:
-					TextOut( hDC, 128, 8, "SUBSYSTEM MENU", 14 );
+					TextOut( hDC, 128, 9, "SUBSYSTEM MENU", 14 );
 					break;
 				case 3:
-					TextOut( hDC, 128, 8, "DPS MENU", 8 );
+					TextOut( hDC, 128, 9, "DPS MENU", 8 );
+					break;
+				case 4:
+					TextOut( hDC, 128, 9, "MAINTENANCE MENU", 16 );
+					break;
+				case 5:
+					TextOut( hDC, 128, 9, "CST MENU SELECTION", 18 );
+					break;
+				case 6:
+					{
+						char buf[32];
+						sprintf_s( buf, 32, "IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
+						TextOut( hDC, 128, 9, buf, strlen( buf ) );
+					}
 					break;
 				default:
 					// print nothing
@@ -698,6 +720,1900 @@ namespace vc {
 		mvprint(42, 5, "WRITE 25");
 		mvprint(19, 6, "26 ENG UNITS");
 	}*/
+
+	void MDU::SystemStatusDisplay_CSTMenu( HDC hDC )
+	{
+		char cbuf[8];
+		int save = SaveDC( hDC );
+
+		SelectObject( hDC, TahomaFont_h10w4 );
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// ADC1A
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 3, 3, 35, 39 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 10, 14, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 5, 27, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 7, 27, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 7, 27, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 6, 27, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 3, 3, 35, 39 );
+		}
+		MoveToEx( hDC, 3, 12, NULL );
+		LineTo( hDC, 35, 12 );
+		MoveToEx( hDC, 3, 25, NULL );
+		LineTo( hDC, 35, 25 );
+		TextOut( hDC, 7, 3, "ADC1A", 5 );
+
+		// ADC1B
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 39, 3, 71, 39 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 46, 14, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 41, 27, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 44, 27, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 44, 27, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 42, 27, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 39, 3, 71, 39 );
+		}
+		MoveToEx( hDC, 39, 12, NULL );
+		LineTo( hDC, 71, 12 );
+		MoveToEx( hDC, 39, 25, NULL );
+		LineTo( hDC, 71, 25 );
+		TextOut( hDC, 43, 3, "ADC1B", 5 );
+
+		// ADC2A
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 183, 3, 215, 39 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 190, 14, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 185, 27, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (1) TextOut( hDC, 187, 27, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 187, 27, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 186, 27, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 183, 3, 215, 39 );
+		}
+		MoveToEx( hDC, 183, 12, NULL );
+		LineTo( hDC, 215, 12 );
+		MoveToEx( hDC, 183, 25, NULL );
+		LineTo( hDC, 215, 25 );
+		TextOut( hDC, 187, 3, "ADC2A", 5 );
+
+		// ADC2B
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 219, 3, 251, 39 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 226, 14, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 221, 27, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 223, 27, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 223, 27, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 222, 27, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 219, 3, 251, 39 );
+		}
+		MoveToEx( hDC, 219, 12, NULL );
+		LineTo( hDC, 251, 12 );
+		MoveToEx( hDC, 219, 25, NULL );
+		LineTo( hDC, 251, 25 );
+		TextOut( hDC, 223, 3, "ADC2B", 5 );
+
+		SelectObject( hDC, BlackBrush );
+
+		// CDR1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 3, 61, 35, 125 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 1 );
+				TextOut( hDC, 13, 79, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 9, 88, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 11, 88, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 10, 97, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 5, 106, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 7, 106, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 7, 106, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 6, 106, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 6, 115, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 3, 61, 35, 125 );
+		}
+		MoveToEx( hDC, 3, 70, NULL );
+		LineTo( hDC, 35, 70 );
+		MoveToEx( hDC, 3, 79, NULL );
+		LineTo( hDC, 35, 79 );
+		MoveToEx( hDC, 3, 88, NULL );
+		LineTo( hDC, 35, 88 );
+		MoveToEx( hDC, 3, 97, NULL );
+		LineTo( hDC, 35, 97 );
+		MoveToEx( hDC, 3, 106, NULL );
+		LineTo( hDC, 35, 106 );
+		MoveToEx( hDC, 3, 115, NULL );
+		LineTo( hDC, 35, 115 );
+		MoveToEx( hDC, 19, 70, NULL );
+		LineTo( hDC, 19, 79 );
+		TextOut( hDC, 10, 61, "CDR1", 4 );
+		TextOut( hDC, 9, 70, "3", 1 );
+		TextOut( hDC, 25, 70, "1", 1 );
+
+		// CDR2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 39, 61, 71, 125 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 2 );
+				TextOut( hDC, 49, 79, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 45, 88, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 47, 88, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 46, 97, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 41, 106, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 43, 106, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 43, 106, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 42, 106, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 42, 115, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 39, 61, 71, 125 );
+		}
+		MoveToEx( hDC, 39, 70, NULL );
+		LineTo( hDC, 71, 70 );
+		MoveToEx( hDC, 39, 79, NULL );
+		LineTo( hDC, 71, 79 );
+		MoveToEx( hDC, 39, 88, NULL );
+		LineTo( hDC, 71, 88 );
+		MoveToEx( hDC, 39, 97, NULL );
+		LineTo( hDC, 71, 97 );
+		MoveToEx( hDC, 39, 106, NULL );
+		LineTo( hDC, 71, 106 );
+		MoveToEx( hDC, 39, 115, NULL );
+		LineTo( hDC, 71, 115 );
+		MoveToEx( hDC, 55, 70, NULL );
+		LineTo( hDC, 55, 79 );
+		TextOut( hDC, 46, 61, "CDR2", 4 );
+		TextOut( hDC, 45, 70, "1", 1 );
+		TextOut( hDC, 61, 70, "2", 1 );
+
+		// CRT1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 75, 16, 107, 80 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 3 );
+				TextOut( hDC, 85, 34, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 81, 43, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 83, 43, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 82, 52, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 77, 61, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 79, 61, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 79, 61, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 78, 61, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 78, 70, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 75, 16, 107, 80 );
+		}
+		MoveToEx( hDC, 75, 25, NULL );
+		LineTo( hDC, 107, 25 );
+		MoveToEx( hDC, 75, 34, NULL );
+		LineTo( hDC, 107, 34 );
+		MoveToEx( hDC, 75, 43, NULL );
+		LineTo( hDC, 107, 43 );
+		MoveToEx( hDC, 75, 52, NULL );
+		LineTo( hDC, 107, 52 );
+		MoveToEx( hDC, 75, 61, NULL );
+		LineTo( hDC, 107, 61 );
+		MoveToEx( hDC, 75, 70, NULL );
+		LineTo( hDC, 107, 70 );
+		MoveToEx( hDC, 91, 25, NULL );
+		LineTo( hDC, 91, 34 );
+		TextOut( hDC, 82, 16, "CRT1", 4 );
+		TextOut( hDC, 81, 25, "1", 1 );
+
+		// CRT2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 147, 16, 179, 80 );
+			if (4 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 4 );
+				TextOut( hDC, 157, 34, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 153, 43, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 155, 43, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 154, 52, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 149, 61, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 151, 61, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 151, 61, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 150, 61, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 150, 70, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 147, 16, 179, 80 );
+		}
+		MoveToEx( hDC, 147, 25, NULL );
+		LineTo( hDC, 179, 25 );
+		MoveToEx( hDC, 147, 34, NULL );
+		LineTo( hDC, 179, 34 );
+		MoveToEx( hDC, 147, 43, NULL );
+		LineTo( hDC, 179, 43 );
+		MoveToEx( hDC, 147, 52, NULL );
+		LineTo( hDC, 179, 52 );
+		MoveToEx( hDC, 147, 61, NULL );
+		LineTo( hDC, 179, 61 );
+		MoveToEx( hDC, 147, 70, NULL );
+		LineTo( hDC, 179, 70 );
+		MoveToEx( hDC, 163, 25, NULL );
+		LineTo( hDC, 163, 34 );
+		TextOut( hDC, 154, 16, "CRT2", 4 );
+		TextOut( hDC, 153, 25, "2", 1 );
+
+		// CRT3
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 111, 61, 143, 125 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 1 );
+				TextOut( hDC, 121, 79, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 117, 88, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 119, 88, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 118, 97, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 113, 106, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 114, 106, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 114, 106, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 114, 106, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 114, 115, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 111, 61, 143, 125 );
+		}
+		MoveToEx( hDC, 111, 70, NULL );
+		LineTo( hDC, 143, 70 );
+		MoveToEx( hDC, 111, 79, NULL );
+		LineTo( hDC, 143, 79 );
+		MoveToEx( hDC, 111, 88, NULL );
+		LineTo( hDC, 143, 88 );
+		MoveToEx( hDC, 111, 97, NULL );
+		LineTo( hDC, 143, 97 );
+		MoveToEx( hDC, 111, 106, NULL );
+		LineTo( hDC, 143, 106 );
+		MoveToEx( hDC, 111, 115, NULL );
+		LineTo( hDC, 143, 115 );
+		MoveToEx( hDC, 127, 70, NULL );
+		LineTo( hDC, 127, 79 );
+		TextOut( hDC, 118, 61, "CRT3", 4 );
+		TextOut( hDC, 117, 70, "3", 1 );
+
+		// MFD1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 75, 88, 107, 152 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 2 );
+				TextOut( hDC, 85, 106, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 81, 115, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 83, 115, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 82, 124, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 77, 133, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 79, 133, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 79, 133, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 78, 133, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 78, 142, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 75, 88, 107, 152 );
+		}
+		MoveToEx( hDC, 75, 97, NULL );
+		LineTo( hDC, 107, 97 );
+		MoveToEx( hDC, 75, 106, NULL );
+		LineTo( hDC, 107, 106 );
+		MoveToEx( hDC, 75, 115, NULL );
+		LineTo( hDC, 107, 115 );
+		MoveToEx( hDC, 75, 124, NULL );
+		LineTo( hDC, 107, 124 );
+		MoveToEx( hDC, 75, 133, NULL );
+		LineTo( hDC, 107, 133 );
+		MoveToEx( hDC, 75, 142, NULL );
+		LineTo( hDC, 107, 142 );
+		MoveToEx( hDC, 91, 97, NULL );
+		LineTo( hDC, 91, 106 );
+		TextOut( hDC, 82, 88, "MFD1", 4 );
+		TextOut( hDC, 81, 97, "2", 1 );
+		TextOut( hDC, 97, 97, "3", 1 );
+
+		// MFD2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 147, 88, 179, 152 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 3 );
+				TextOut( hDC, 157, 106, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 153, 115, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 155, 115, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 154, 124, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 149, 133, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 151, 133, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 151, 133, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 150, 133, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 150, 142, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 147, 88, 179, 152 );
+		}
+		MoveToEx( hDC, 147, 97, NULL );
+		LineTo( hDC, 179, 97 );
+		MoveToEx( hDC, 147, 106, NULL );
+		LineTo( hDC, 179, 106 );
+		MoveToEx( hDC, 147, 115, NULL );
+		LineTo( hDC, 179, 115 );
+		MoveToEx( hDC, 147, 124, NULL );
+		LineTo( hDC, 179, 124 );
+		MoveToEx( hDC, 147, 133, NULL );
+		LineTo( hDC, 179, 133 );
+		MoveToEx( hDC, 147, 142, NULL );
+		LineTo( hDC, 179, 142 );
+		MoveToEx( hDC, 163, 97, NULL );
+		LineTo( hDC, 163, 106 );
+		TextOut( hDC, 154, 88, "MFD2", 4 );
+		TextOut( hDC, 153, 97, "1", 1 );
+		TextOut( hDC, 169, 97, "3", 1 );
+
+		// PLT1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 183, 61, 215, 125 );
+			if (4 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 4 );
+				TextOut( hDC, 193, 79, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 189, 88, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 191, 88, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 190, 97, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 185, 106, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 187, 106, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 187, 106, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 186, 106, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 186, 115, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 183, 61, 215, 125 );
+		}
+		MoveToEx( hDC, 183, 70, NULL );
+		LineTo( hDC, 215, 70 );
+		MoveToEx( hDC, 183, 79, NULL );
+		LineTo( hDC, 215, 79 );
+		MoveToEx( hDC, 183, 88, NULL );
+		LineTo( hDC, 215, 88 );
+		MoveToEx( hDC, 183, 97, NULL );
+		LineTo( hDC, 215, 97 );
+		MoveToEx( hDC, 183, 106, NULL );
+		LineTo( hDC, 215, 106 );
+		MoveToEx( hDC, 183, 115, NULL );
+		LineTo( hDC, 215, 115 );
+		MoveToEx( hDC, 199, 70, NULL );
+		LineTo( hDC, 199, 79 );
+		TextOut( hDC, 190, 61, "PLT1", 4 );
+		TextOut( hDC, 189, 70, "2", 1 );
+		TextOut( hDC, 205, 70, "1", 1 );
+
+		// PLT2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 219, 61, 251, 125 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 1 );
+				TextOut( hDC, 229, 79, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 225, 88, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 227, 88, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 226, 97, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 221, 106, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 223, 106, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 223, 106, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 222, 106, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 222, 115, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 219, 61, 251, 125 );
+		}
+		MoveToEx( hDC, 219, 70, NULL );
+		LineTo( hDC, 251, 70 );
+		MoveToEx( hDC, 219, 79, NULL );
+		LineTo( hDC, 251, 79 );
+		MoveToEx( hDC, 219, 88, NULL );
+		LineTo( hDC, 251, 88 );
+		MoveToEx( hDC, 219, 97, NULL );
+		LineTo( hDC, 251, 97 );
+		MoveToEx( hDC, 219, 106, NULL );
+		LineTo( hDC, 251, 106 );
+		MoveToEx( hDC, 219, 115, NULL );
+		LineTo( hDC, 251, 115 );
+		MoveToEx( hDC, 235, 70, NULL );
+		LineTo( hDC, 235, 79 );
+		TextOut( hDC, 226, 61, "PLT2", 4 );
+		TextOut( hDC, 225, 70, "3", 1 );
+		TextOut( hDC, 241, 70, "2", 1 );
+
+		// CRT4
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 183, 161, 215, 225 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 2 );
+				TextOut( hDC, 193, 179, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 189, 188, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 191, 188, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 190, 197, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 185, 206, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 187, 206, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 187, 206, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 186, 206, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 186, 215, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 183, 161, 215, 225 );
+		}
+		MoveToEx( hDC, 183, 170, NULL );
+		LineTo( hDC, 215, 170 );
+		MoveToEx( hDC, 183, 179, NULL );
+		LineTo( hDC, 215, 179 );
+		MoveToEx( hDC, 183, 188, NULL );
+		LineTo( hDC, 215, 188 );
+		MoveToEx( hDC, 183, 197, NULL );
+		LineTo( hDC, 215, 197 );
+		MoveToEx( hDC, 183, 206, NULL );
+		LineTo( hDC, 215, 206 );
+		MoveToEx( hDC, 183, 215, NULL );
+		LineTo( hDC, 215, 215 );
+		MoveToEx( hDC, 199, 170, NULL );
+		LineTo( hDC, 199, 179 );
+		TextOut( hDC, 190, 161, "CRT4", 4 );
+		TextOut( hDC, 189, 170, "4", 1 );
+
+		// AFD1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 219, 161, 251, 225 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 8, "FC%d", 3 );
+				TextOut( hDC, 229, 179, cbuf, 3 );
+			}
+			if (1) TextOut( hDC, 225, 188, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 227, 188, "MAN", 3 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 226, 197, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 221, 206, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 223, 206, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 223, 206, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 222, 206, cbuf, strlen( cbuf ) );
+			}
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 222, 215, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 219, 161, 251, 225 );
+		}
+		MoveToEx( hDC, 219, 170, NULL );
+		LineTo( hDC, 251, 170 );
+		MoveToEx( hDC, 219, 179, NULL );
+		LineTo( hDC, 251, 179 );
+		MoveToEx( hDC, 219, 188, NULL );
+		LineTo( hDC, 251, 188 );
+		MoveToEx( hDC, 219, 197, NULL );
+		LineTo( hDC, 251, 197 );
+		MoveToEx( hDC, 219, 206, NULL );
+		LineTo( hDC, 251, 206 );
+		MoveToEx( hDC, 219, 215, NULL );
+		LineTo( hDC, 251, 215 );
+		MoveToEx( hDC, 235, 170, NULL );
+		LineTo( hDC, 235, 179 );
+		TextOut( hDC, 226, 161, "AFD1", 4 );
+		TextOut( hDC, 225, 170, "4", 1 );
+		TextOut( hDC, 241, 170, "2", 1 );
+
+		// IDP1
+		if (GetDrivingIDP() == 1)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 3, 179, 39, 225 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 13, 188, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 7, 197, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 9, 197, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 9, 197, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 8, 197, cbuf, strlen( cbuf ) );
+			}
+			if (1)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 4, 207, 12, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 6, 206, "1", 1 );
+			if (0)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 12, 207, 20, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 14, 206, "2", 1 );
+			if (1)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 20, 207, 29, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 22, 206, "3", 1 );
+			if (0)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 29, 207, 38, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 31, 206, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 8, 215, cbuf, strlen( cbuf ) );
+			SetTextColor( hDC, CR_WHITE );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 3, 179, 39, 225 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 6, 206, "1", 1 );
+			TextOut( hDC, 14, 206, "2", 1 );
+			TextOut( hDC, 22, 206, "3", 1 );
+			TextOut( hDC, 31, 206, "4", 1 );
+		}
+		MoveToEx( hDC, 3, 188, NULL );
+		LineTo( hDC, 39, 188 );
+		MoveToEx( hDC, 3, 197, NULL );
+		LineTo( hDC, 39, 197 );
+		MoveToEx( hDC, 3, 206, NULL );
+		LineTo( hDC, 39, 206 );
+		MoveToEx( hDC, 3, 215, NULL );
+		LineTo( hDC, 39, 215 );
+		TextOut( hDC, 13, 179, "IDP1", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP2
+		if (GetDrivingIDP() == 2)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 43, 179, 79, 225 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 53, 188, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 47, 197, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (1) TextOut( hDC, 49, 197, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 49, 197, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 48, 197, cbuf, strlen( cbuf ) );
+			}
+			if (0)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 44, 207, 52, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 46, 206, "1", 1 );
+			if (1)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 52, 207, 60, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 54, 206, "2", 1 );
+			if (0)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 60, 207, 69, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 62, 206, "3", 1 );
+			if (1)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 69, 207, 78, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 71, 206, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 48, 215, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 43, 179, 79, 225 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 46, 206, "1", 1 );
+			TextOut( hDC, 54, 206, "2", 1 );
+			TextOut( hDC, 62, 206, "3", 1 );
+			TextOut( hDC, 71, 206, "4", 1 );
+		}
+		MoveToEx( hDC, 43, 188, NULL );
+		LineTo( hDC, 79, 188 );
+		MoveToEx( hDC, 43, 197, NULL );
+		LineTo( hDC, 79, 197 );
+		MoveToEx( hDC, 43, 206, NULL );
+		LineTo( hDC, 79, 206 );
+		MoveToEx( hDC, 43, 215, NULL );
+		LineTo( hDC, 79, 215 );
+		TextOut( hDC, 53, 179, "IDP2", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP3
+		if (GetDrivingIDP() == 3)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 83, 179, 119, 225 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 93, 188, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 87, 197, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 89, 197, "EDUMP", 5 );
+			else if (1) TextOut( hDC, 89, 197, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 88, 197, cbuf, strlen( cbuf ) );
+			}
+			if (1)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 84, 207, 92, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 86, 206, "1", 1 );
+			if (0)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 92, 207, 100, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 94, 206, "2", 1 );
+			if (1)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 100, 207, 109, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 102, 206, "3", 1 );
+			if (0)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 109, 207, 118, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 111, 206, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 88, 215, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 83, 179, 119, 225 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 86, 206, "1", 1 );
+			TextOut( hDC, 94, 206, "2", 1 );
+			TextOut( hDC, 102, 206, "3", 1 );
+			TextOut( hDC, 111, 206, "4", 1 );
+		}
+		MoveToEx( hDC, 83, 188, NULL );
+		LineTo( hDC, 119, 188 );
+		MoveToEx( hDC, 83, 197, NULL );
+		LineTo( hDC, 119, 197 );
+		MoveToEx( hDC, 83, 206, NULL );
+		LineTo( hDC, 119, 206 );
+		MoveToEx( hDC, 83, 215, NULL );
+		LineTo( hDC, 119, 215 );
+		TextOut( hDC, 93, 179, "IDP3", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP4
+		if (GetDrivingIDP() == 4)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 123, 179, 159, 225 );
+			sprintf_s( cbuf, 8, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 133, 188, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 127, 197, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 129, 197, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 129, 197, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 8, "%06X", 0 );
+				TextOut( hDC, 128, 197, cbuf, strlen( cbuf ) );
+			}
+			if (0)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 124, 207, 132, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 126, 206, "1", 1 );
+			if (1)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 132, 207, 140, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 134, 206, "2", 1 );
+			if (0)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 140, 207, 149, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 142, 206, "3", 1 );
+			if (1)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 149, 207, 158, 215 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 151, 206, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+			sprintf_s( cbuf, 8, "V %02d%02d", 1, 2 );// SW version number
+			TextOut( hDC, 128, 215, cbuf, strlen( cbuf ) );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 123, 179, 159, 225 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 126, 206, "1", 1 );
+			TextOut( hDC, 134, 206, "2", 1 );
+			TextOut( hDC, 142, 206, "3", 1 );
+			TextOut( hDC, 151, 206, "4", 1 );
+		}
+		MoveToEx( hDC, 123, 188, NULL );
+		LineTo( hDC, 159, 188 );
+		MoveToEx( hDC, 123, 197, NULL );
+		LineTo( hDC, 159, 197 );
+		MoveToEx( hDC, 123, 206, NULL );
+		LineTo( hDC, 159, 206 );
+		MoveToEx( hDC, 123, 215, NULL );
+		LineTo( hDC, 159, 215 );
+		TextOut( hDC, 133, 179, "IDP4", 4 );
+
+		RestoreDC( hDC, save );
+		return;
+	}
+
+	void MDU::SystemStatusDisplay_IDPInteractiveCST( HDC hDC )
+	{
+		char cbuf[16];
+		int save = SaveDC( hDC );
+
+		SelectObject( hDC, TahomaFont_h10w4 );
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// ADC1A
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 3, 170, 35, 206 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 10, 181, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 5, 194, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 7, 194, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 7, 194, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 6, 194, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 3, 170, 35, 206 );
+		}
+		MoveToEx( hDC, 3, 179, NULL );
+		LineTo( hDC, 35, 179 );
+		MoveToEx( hDC, 3, 192, NULL );
+		LineTo( hDC, 35, 192 );
+		TextOut( hDC, 7, 170, "ADC1A", 5 );
+
+		// ADC1B
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 39, 170, 71, 206 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 46, 181, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 41, 194, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 44, 194, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 44, 194, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 42, 194, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 39, 170, 71, 206 );
+		}
+		MoveToEx( hDC, 39, 179, NULL );
+		LineTo( hDC, 71, 179 );
+		MoveToEx( hDC, 39, 192, NULL );
+		LineTo( hDC, 71, 192 );
+		TextOut( hDC, 43, 170, "ADC1B", 5 );
+
+		// ADC2A
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 75, 170, 107, 206 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 82, 181, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 77, 194, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (1) TextOut( hDC, 79, 194, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 79, 194, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 78, 194, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 75, 170, 107, 206 );
+		}
+		MoveToEx( hDC, 75, 179, NULL );
+		LineTo( hDC, 107, 179 );
+		MoveToEx( hDC, 75, 192, NULL );
+		LineTo( hDC, 107, 192 );
+		TextOut( hDC, 79, 170, "ADC2A", 5 );
+
+		// ADC2B
+		if (0)
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 111, 170, 143, 206 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 118, 181, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 113, 194, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 115, 194, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 115, 194, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 114, 194, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 111, 170, 143, 206 );
+		}
+		MoveToEx( hDC, 111, 179, NULL );
+		LineTo( hDC, 143, 179 );
+		MoveToEx( hDC, 111, 192, NULL );
+		LineTo( hDC, 143, 192 );
+		TextOut( hDC, 115, 170, "ADC2B", 5 );
+
+		SelectObject( hDC, BlackBrush );
+
+		// CDR1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 3, 48, 35, 103 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 1 );
+				TextOut( hDC, 13, 66, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 9, 75, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 11, 75, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 10, 84, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 5, 93, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 7, 93, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 7, 93, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 6, 93, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 3, 48, 35, 103 );
+		}
+		MoveToEx( hDC, 3, 57, NULL );
+		LineTo( hDC, 35, 57 );
+		MoveToEx( hDC, 3, 66, NULL );
+		LineTo( hDC, 35, 66 );
+		MoveToEx( hDC, 3, 75, NULL );
+		LineTo( hDC, 35, 75 );
+		MoveToEx( hDC, 3, 84, NULL );
+		LineTo( hDC, 35, 84 );
+		MoveToEx( hDC, 3, 93, NULL );
+		LineTo( hDC, 35, 93 );
+		MoveToEx( hDC, 19, 57, NULL );
+		LineTo( hDC, 19, 66 );
+		TextOut( hDC, 10, 48, "CDR1", 4 );
+		TextOut( hDC, 9, 57, "3", 1 );
+		TextOut( hDC, 25, 57, "1", 1 );
+
+		// CDR2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 39, 48, 71, 103 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 2 );
+				TextOut( hDC, 49, 66, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 45, 75, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 47, 75, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 46, 84, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 41, 93, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 43, 93, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 43, 93, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 42, 93, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 39, 48, 71, 103 );
+		}
+		MoveToEx( hDC, 39, 57, NULL );
+		LineTo( hDC, 71, 57 );
+		MoveToEx( hDC, 39, 66, NULL );
+		LineTo( hDC, 71, 66 );
+		MoveToEx( hDC, 39, 75, NULL );
+		LineTo( hDC, 71, 75 );
+		MoveToEx( hDC, 39, 84, NULL );
+		LineTo( hDC, 71, 84 );
+		MoveToEx( hDC, 39, 93, NULL );
+		LineTo( hDC, 71, 93 );
+		MoveToEx( hDC, 55, 57, NULL );
+		LineTo( hDC, 55, 66 );
+		TextOut( hDC, 46, 48, "CDR2", 4 );
+		TextOut( hDC, 45, 57, "1", 1 );
+		TextOut( hDC, 61, 57, "2", 1 );
+
+		// CRT1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 75, 3, 107, 58 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 3 );
+				TextOut( hDC, 85, 21, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 81, 30, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 83, 30, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 82, 39, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 77, 48, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 79, 48, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 79, 48, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 78, 48, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 75, 3, 107, 58 );
+		}
+		MoveToEx( hDC, 75, 12, NULL );
+		LineTo( hDC, 107, 12 );
+		MoveToEx( hDC, 75, 21, NULL );
+		LineTo( hDC, 107, 21 );
+		MoveToEx( hDC, 75, 30, NULL );
+		LineTo( hDC, 107, 30 );
+		MoveToEx( hDC, 75, 39, NULL );
+		LineTo( hDC, 107, 39 );
+		MoveToEx( hDC, 75, 48, NULL );
+		LineTo( hDC, 107, 48 );
+		MoveToEx( hDC, 91, 12, NULL );
+		LineTo( hDC, 91, 21 );
+		TextOut( hDC, 82, 3, "CRT1", 4 );
+		TextOut( hDC, 81, 12, "1", 1 );
+
+		// CRT2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 147, 3, 179, 58 );
+			if (4 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 4 );
+				TextOut( hDC, 157, 21, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 153, 30, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 155, 30, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 154, 39, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 149, 48, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 151, 48, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 151, 48, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 150, 48, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 147, 3, 179, 58 );
+		}
+		MoveToEx( hDC, 147, 12, NULL );
+		LineTo( hDC, 179, 12 );
+		MoveToEx( hDC, 147, 21, NULL );
+		LineTo( hDC, 179, 21 );
+		MoveToEx( hDC, 147, 30, NULL );
+		LineTo( hDC, 179, 30 );
+		MoveToEx( hDC, 147, 39, NULL );
+		LineTo( hDC, 179, 39 );
+		MoveToEx( hDC, 147, 48, NULL );
+		LineTo( hDC, 179, 48 );
+		MoveToEx( hDC, 163, 12, NULL );
+		LineTo( hDC, 163, 21 );
+		TextOut( hDC, 154, 3, "CRT2", 4 );
+		TextOut( hDC, 153, 12, "2", 1 );
+
+		// CRT3
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 111, 48, 143, 103 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 1 );
+				TextOut( hDC, 121, 66, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 117, 75, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 119, 75, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 118, 84, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 113, 93, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 114, 93, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 114, 93, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 114, 93, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 111, 48, 143, 103 );
+		}
+		MoveToEx( hDC, 111, 57, NULL );
+		LineTo( hDC, 143, 57 );
+		MoveToEx( hDC, 111, 66, NULL );
+		LineTo( hDC, 143, 66 );
+		MoveToEx( hDC, 111, 75, NULL );
+		LineTo( hDC, 143, 75 );
+		MoveToEx( hDC, 111, 84, NULL );
+		LineTo( hDC, 143, 84 );
+		MoveToEx( hDC, 111, 93, NULL );
+		LineTo( hDC, 143, 93 );
+		MoveToEx( hDC, 127, 57, NULL );
+		LineTo( hDC, 127, 66 );
+		TextOut( hDC, 118, 48, "CRT3", 4 );
+		TextOut( hDC, 117, 57, "3", 1 );
+
+		// MFD1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 75, 75, 107, 130 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 2 );
+				TextOut( hDC, 85, 93, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 81, 102, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 83, 102, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 82, 111, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 77, 120, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 79, 120, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 79, 120, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 78, 120, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 75, 75, 107, 130 );
+		}
+		MoveToEx( hDC, 75, 84, NULL );
+		LineTo( hDC, 107, 84 );
+		MoveToEx( hDC, 75, 93, NULL );
+		LineTo( hDC, 107, 93 );
+		MoveToEx( hDC, 75, 102, NULL );
+		LineTo( hDC, 107, 102 );
+		MoveToEx( hDC, 75, 111, NULL );
+		LineTo( hDC, 107, 111 );
+		MoveToEx( hDC, 75, 120, NULL );
+		LineTo( hDC, 107, 120 );
+		MoveToEx( hDC, 91, 84, NULL );
+		LineTo( hDC, 91, 93 );
+		TextOut( hDC, 82, 75, "MFD1", 4 );
+		TextOut( hDC, 81, 84, "2", 1 );
+		TextOut( hDC, 97, 84, "3", 1 );
+
+		// MFD2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 147, 75, 179, 130 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 3 );
+				TextOut( hDC, 157, 93, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 153, 102, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 155, 102, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 154, 111, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 149, 120, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 151, 120, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 151, 120, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 150, 120, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 147, 75, 179, 130 );
+		}
+		MoveToEx( hDC, 147, 84, NULL );
+		LineTo( hDC, 179, 84 );
+		MoveToEx( hDC, 147, 93, NULL );
+		LineTo( hDC, 179, 93 );
+		MoveToEx( hDC, 147, 102, NULL );
+		LineTo( hDC, 179, 102 );
+		MoveToEx( hDC, 147, 111, NULL );
+		LineTo( hDC, 179, 111 );
+		MoveToEx( hDC, 147, 120, NULL );
+		LineTo( hDC, 179, 120 );
+		MoveToEx( hDC, 163, 84, NULL );
+		LineTo( hDC, 163, 93 );
+		TextOut( hDC, 154, 75, "MFD2", 4 );
+		TextOut( hDC, 153, 84, "1", 1 );
+		TextOut( hDC, 169, 84, "3", 1 );
+
+		// PLT1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 183, 48, 215, 103 );
+			if (4 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 4 );
+				TextOut( hDC, 193, 66, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 189, 75, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 191, 75, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 190, 84, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 185, 93, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 187, 93, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 187, 93, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 186, 93, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 183, 48, 215, 103 );
+		}
+		MoveToEx( hDC, 183, 57, NULL );
+		LineTo( hDC, 215, 57 );
+		MoveToEx( hDC, 183, 66, NULL );
+		LineTo( hDC, 215, 66 );
+		MoveToEx( hDC, 183, 75, NULL );
+		LineTo( hDC, 215, 75 );
+		MoveToEx( hDC, 183, 84, NULL );
+		LineTo( hDC, 215, 84 );
+		MoveToEx( hDC, 183, 93, NULL );
+		LineTo( hDC, 215, 93 );
+		MoveToEx( hDC, 199, 57, NULL );
+		LineTo( hDC, 199, 66 );
+		TextOut( hDC, 190, 48, "PLT1", 4 );
+		TextOut( hDC, 189, 57, "2", 1 );
+		TextOut( hDC, 205, 57, "1", 1 );
+
+		// PLT2
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 219, 48, 251, 103 );
+			if (1 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 1 );
+				TextOut( hDC, 229, 66, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 225, 75, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 227, 75, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 226, 84, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 221, 93, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 223, 93, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 223, 93, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 222, 93, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 219, 48, 251, 103 );
+		}
+		MoveToEx( hDC, 219, 57, NULL );
+		LineTo( hDC, 251, 57 );
+		MoveToEx( hDC, 219, 66, NULL );
+		LineTo( hDC, 251, 66 );
+		MoveToEx( hDC, 219, 75, NULL );
+		LineTo( hDC, 251, 75 );
+		MoveToEx( hDC, 219, 84, NULL );
+		LineTo( hDC, 251, 84 );
+		MoveToEx( hDC, 219, 93, NULL );
+		LineTo( hDC, 251, 93 );
+		MoveToEx( hDC, 235, 57, NULL );
+		LineTo( hDC, 235, 66 );
+		TextOut( hDC, 226, 48, "PLT2", 4 );
+		TextOut( hDC, 225, 57, "3", 1 );
+		TextOut( hDC, 241, 57, "2", 1 );
+
+		// CRT4
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 183, 170, 215, 225 );
+			if (2 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 2 );
+				TextOut( hDC, 193, 188, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 189, 197, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 191, 197, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 190, 206, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 185, 215, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 187, 215, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 187, 215, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 186, 215, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 183, 170, 215, 225 );
+		}
+		MoveToEx( hDC, 183, 179, NULL );
+		LineTo( hDC, 215, 179 );
+		MoveToEx( hDC, 183, 188, NULL );
+		LineTo( hDC, 215, 188 );
+		MoveToEx( hDC, 183, 197, NULL );
+		LineTo( hDC, 215, 197 );
+		MoveToEx( hDC, 183, 206, NULL );
+		LineTo( hDC, 215, 206 );
+		MoveToEx( hDC, 183, 215, NULL );
+		LineTo( hDC, 215, 215 );
+		MoveToEx( hDC, 199, 179, NULL );
+		LineTo( hDC, 199, 188 );
+		TextOut( hDC, 190, 170, "CRT4", 4 );
+		TextOut( hDC, 189, 179, "4", 1 );
+
+		// AFD1
+		if (0)// IDP is commanding
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 219, 170, 251, 225 );
+			if (3 != 0)// FC bus
+			{
+				sprintf_s( cbuf, 16, "FC%d", 3 );
+				TextOut( hDC, 229, 188, cbuf, strlen( cbuf ) );
+			}
+			if (1) TextOut( hDC, 225, 197, "AUTO", 4 );// MDU port reconfiguration mode
+			else TextOut( hDC, 227, 197, "MAN", 3 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 226, 206, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 221, 215, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 223, 215, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 223, 215, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 222, 215, cbuf, strlen( cbuf ) );
+			}
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 219, 170, 251, 225 );
+		}
+		MoveToEx( hDC, 219, 179, NULL );
+		LineTo( hDC, 251, 179 );
+		MoveToEx( hDC, 219, 188, NULL );
+		LineTo( hDC, 251, 188 );
+		MoveToEx( hDC, 219, 197, NULL );
+		LineTo( hDC, 251, 197 );
+		MoveToEx( hDC, 219, 206, NULL );
+		LineTo( hDC, 251, 206 );
+		MoveToEx( hDC, 219, 215, NULL );
+		LineTo( hDC, 251, 215 );
+		MoveToEx( hDC, 235, 179, NULL );
+		LineTo( hDC, 235, 188 );
+		TextOut( hDC, 226, 170, "AFD1", 4 );
+		TextOut( hDC, 225, 179, "4", 1 );
+		TextOut( hDC, 241, 179, "2", 1 );
+
+		// IDP1
+		if (GetDrivingIDP() == 1)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 49, 131, 85, 168 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 59, 140, cbuf, strlen( cbuf ) );
+			if (1) TextOut( hDC, 53, 149, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 55, 149, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 55, 149, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 54, 149, cbuf, strlen( cbuf ) );
+			}
+			if (1)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 50, 159, 58, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 52, 158, "1", 1 );
+			if (0)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 58, 159, 66, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 60, 158, "2", 1 );
+			if (1)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 66, 159, 75, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 68, 158, "3", 1 );
+			if (0)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 75, 159, 84, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 77, 158, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 49, 131, 85, 168 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 54, 158, "1", 1 );
+			TextOut( hDC, 60, 158, "2", 1 );
+			TextOut( hDC, 68, 158, "3", 1 );
+			TextOut( hDC, 77, 158, "4", 1 );
+		}
+		MoveToEx( hDC, 49, 140, NULL );
+		LineTo( hDC, 85, 140 );
+		MoveToEx( hDC, 49, 149, NULL );
+		LineTo( hDC, 85, 149 );
+		MoveToEx( hDC, 49, 158, NULL );
+		LineTo( hDC, 85, 158 );
+		TextOut( hDC, 59, 131, "IDP1", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP2
+		if (GetDrivingIDP() == 2)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 89, 131, 125, 168 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 99, 140, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 93, 149, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (1) TextOut( hDC, 95, 149, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 95, 149, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 94, 149, cbuf, strlen( cbuf ) );
+			}
+			if (0)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 90, 159, 98, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 92, 158, "1", 1 );
+			if (1)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 98, 159, 106, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 100, 158, "2", 1 );
+			if (0)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 106, 159, 115, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 108, 158, "3", 1 );
+			if (1)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 115, 159, 124, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 117, 158, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 89, 131, 125, 168 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 92, 158, "1", 1 );
+			TextOut( hDC, 100, 158, "2", 1 );
+			TextOut( hDC, 108, 158, "3", 1 );
+			TextOut( hDC, 117, 158, "4", 1 );
+		}
+		MoveToEx( hDC, 89, 140, NULL );
+		LineTo( hDC, 125, 140 );
+		MoveToEx( hDC, 89, 149, NULL );
+		LineTo( hDC, 125, 149 );
+		MoveToEx( hDC, 89, 158, NULL );
+		LineTo( hDC, 125, 158 );
+		TextOut( hDC, 99, 131, "IDP2", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP3
+		if (GetDrivingIDP() == 3)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 129, 131, 165, 168 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 139, 140, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 133, 149, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 135, 149, "EDUMP", 5 );
+			else if (1) TextOut( hDC, 135, 149, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 134, 149, cbuf, strlen( cbuf ) );
+			}
+			if (1)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 130, 159, 138, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 132, 158, "1", 1 );
+			if (0)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 138, 159, 146, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 140, 158, "2", 1 );
+			if (1)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 146, 159, 155, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 148, 158, "3", 1 );
+			if (0)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 155, 159, 164, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 157, 158, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 129, 131, 165, 168 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 132, 158, "1", 1 );
+			TextOut( hDC, 140, 158, "2", 1 );
+			TextOut( hDC, 148, 158, "3", 1 );
+			TextOut( hDC, 157, 158, "4", 1 );
+		}
+		MoveToEx( hDC, 129, 140, NULL );
+		LineTo( hDC, 165, 140 );
+		MoveToEx( hDC, 129, 149, NULL );
+		LineTo( hDC, 165, 149 );
+		MoveToEx( hDC, 129, 158, NULL );
+		LineTo( hDC, 165, 158 );
+		TextOut( hDC, 139, 131, "IDP3", 4 );
+
+		SetTextColor( hDC, CR_WHITE );
+		SelectObject( hDC, WhitePen );
+		SelectObject( hDC, BlackBrush );
+
+		// IDP4
+		if (GetDrivingIDP() == 4)// commanding IDP
+		{
+			SelectObject( hDC, BlueBrush );
+			Rectangle( hDC, 169, 131, 205, 168 );
+			sprintf_s( cbuf, 16, "%04X", 0 );// Built In Test Summary
+			TextOut( hDC, 179, 140, cbuf, strlen( cbuf ) );
+			if (0) TextOut( hDC, 173, 149, "NO-CST", 6 );// Dump Status or Comprehensive Self Test Results
+			else if (0) TextOut( hDC, 175, 149, "EDUMP", 5 );
+			else if (0) TextOut( hDC, 179, 149, "RDUMP", 5 );
+			else
+			{
+				sprintf_s( cbuf, 16, "%06X", 0 );
+				TextOut( hDC, 174, 149, cbuf, strlen( cbuf ) );
+			}
+			if (0)// flight-critical buses selected (1)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 170, 159, 178, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 172, 158, "1", 1 );
+			if (1)// flight-critical buses selected (2)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 178, 159, 186, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 180, 158, "2", 1 );
+			if (0)// flight-critical buses selected (3)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 186, 159, 195, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 188, 158, "3", 1 );
+			if (1)// flight-critical buses selected (4)
+			{
+				SelectObject( hDC, WhitePen );
+				SelectObject( hDC, WhiteBrush );
+				Rectangle( hDC, 195, 159, 204, 167 );
+				SetTextColor( hDC, CR_BLACK );
+			}
+			else SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 197, 158, "4", 1 );
+			SetTextColor( hDC, CR_WHITE );
+		}
+		else
+		{
+			SelectObject( hDC, BlackBrush );
+			Rectangle( hDC, 169, 131, 205, 168 );
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 172, 158, "1", 1 );
+			TextOut( hDC, 180, 158, "2", 1 );
+			TextOut( hDC, 188, 158, "3", 1 );
+			TextOut( hDC, 197, 158, "4", 1 );
+		}
+		MoveToEx( hDC, 169, 140, NULL );
+		LineTo( hDC, 205, 140 );
+		MoveToEx( hDC, 169, 149, NULL );
+		LineTo( hDC, 205, 149 );
+		MoveToEx( hDC, 169, 158, NULL );
+		LineTo( hDC, 205, 158 );
+		TextOut( hDC, 179, 131, "IDP4", 4 );
+
+		// additional output
+		TextOut( hDC, 22, 225, "MAJOR FUNC:", 11 );// major function
+		if (GetIDP()->GetMajfunc() == dps::GNC) TextOut( hDC, 72, 225, "GNC", 3 );
+		else if (GetIDP()->GetMajfunc() == dps::PL) TextOut( hDC, 72, 225, "PL", 2 );
+		else TextOut( hDC, 72, 225, "SM", 2 );
+
+		TextOut( hDC, 22, 235, "IDP LOAD    :", 13 );
+		if (0) TextOut( hDC, 72, 235, "LOAD", 4 );// IDP loading
+
+		TextOut( hDC, 97, 225, "LEFT IDP SEL:", 13 );
+		if (1) TextOut( hDC, 147, 225, "1", 1 );// switch position
+		else TextOut( hDC, 147, 225, "3", 1 );
+		
+		TextOut( hDC, 97, 235, "RIGHT IDP SEL:", 14 );
+		if (0) TextOut( hDC, 153, 235, "2", 1 );// switch position
+		else TextOut( hDC, 153, 235, "3", 1 );
+
+		TextOut( hDC, 167, 225, "KYBD SEL A:", 11 );
+		if (1) TextOut( hDC, 214, 225, "ON", 2 );// keyboard port? related to switch position above?
+		else TextOut( hDC, 214, 225, "OFF", 3 );
+
+		TextOut( hDC, 167, 235, "KYBD SEL B:", 11 );
+		if (0) TextOut( hDC, 214, 235, "ON", 2 );// keyboard port? related to switch position above?
+		else TextOut( hDC, 214, 235, "OFF", 3 );
+
+		TextOut( hDC, 51, 245, "ACTIVE KYBD:", 12 );
+		sprintf_s( cbuf, 16, "%d", 2 );// ????
+		TextOut( hDC, 105, 245, cbuf, strlen( cbuf ) );
+
+		TextOut( hDC, 129, 245, "KEYSTROKE:", 10 );
+		sprintf_s( cbuf, 16, "%s", "SYS SUMM" );// latest keyboard input
+		TextOut( hDC, 180, 245, cbuf, strlen( cbuf ) );
+
+		RestoreDC( hDC, save );
+		return;
+	}
 
 	void MDU::AEPFD( HDC hDC )
 	{
@@ -1030,6 +2946,7 @@ namespace vc {
 		YellowBrush = CreateSolidBrush( CR_YELLOW );
 		MagentaBrush = CreateSolidBrush( CR_MAGENTA );
 		LightGreenBrush = CreateSolidBrush( CR_LIGHT_GREEN );
+		BlueBrush = CreateSolidBrush( CR_BLUE );
 
 		BlackPen = CreatePen( PS_SOLID, 0, CR_BLACK );
 		DarkGrayPen = CreatePen( PS_SOLID, 0, CR_DARK_GRAY );
@@ -1066,6 +2983,7 @@ namespace vc {
 		DeleteObject( YellowBrush );
 		DeleteObject( MagentaBrush );
 		DeleteObject( LightGreenBrush );
+		DeleteObject( BlueBrush );
 
 		DeleteObject( BlackPen );
 		DeleteObject( DarkGrayPen );
