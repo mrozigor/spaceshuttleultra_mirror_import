@@ -12,7 +12,6 @@
 #define CYAN RGB(0, 255, 255)
 #define DARK_GREEN RGB(0, 160, 0)
 #define WHITE RGB(255, 255, 255)
-#define BLUE RGB(0, 0, 255)
 #define DARK_GRAY RGB(60, 60, 80)
 #define BLACK RGB(0, 0, 0)
 
@@ -170,7 +169,11 @@ void CRT::Update (HDC hDC)
 	if(UpdateStatus) {
 		RecallStatus();
 		vc::MDU* mdu = sts->GetMDU( MDUID );
-		if (mdu) mdu->Set_display( display );
+		if (mdu)
+		{
+			mdu->Set_display( display );
+			mdu->Set_menu( mode );
+		}
 		InvalidateButtons();
 		UpdateStatus=false;
 	}
@@ -207,6 +210,20 @@ void CRT::Update (HDC hDC)
 			break;
 		case 5:// SPI
 			SPI( hDC );
+			break;
+		case 6:// CST Menu
+			{
+				vc::MDU* mdu = sts->GetMDU( MDUID );
+				if (mdu) mdu->SystemStatusDisplay_CSTMenu( hDC );
+				else oapiWriteLog( "CRT MFD not connected to MDU (d6)" );
+			}
+			break;
+		case 7:// IDP Interactive CST
+			{
+				vc::MDU* mdu = sts->GetMDU( MDUID );
+				if (mdu) mdu->SystemStatusDisplay_IDPInteractiveCST( hDC );
+				else oapiWriteLog( "CRT MFD not connected to MDU (d7)" );
+			}
 			break;
 	}
 }
@@ -1327,24 +1344,30 @@ void CRT::APUHYD(HDC hDC)
 
 char *CRT::ButtonLabel (int bt)
 {
-	static char *label[4][4] = {{"", "FLT", "SUB", "DPS"},
-	{"UP", "A/E", "ORBIT", ""},
-	{"UP", "OMS", "HYD", "SPI"},
-	{"UP", "", "", ""}};
-	return ((mode < 4 && bt < 4) ? label[mode][bt] : NULL);
+	static char *label[7][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
+	{"UP", "A/E", "ORBIT", "", ""},
+	{"UP", "OMS", "HYD", "SPI", ""},
+	{"UP", "", "", "", ""},
+	{"UP", "", "", "CST", ""},
+	{"UP", "", "S_IDP", "", ""},
+	{"UP", "", "", "", ""}};
+	return ((mode < 7 && bt < 5) ? label[mode][bt] : NULL);
 }
 
 // Return button menus
 int CRT::ButtonMenu (const MFDBUTTONMENU **menu) const
 {
-	static const MFDBUTTONMENU mnu[4][4] = {
-		{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}}
+	static const MFDBUTTONMENU mnu[7][5] = {
+		{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}, {"MEDS MAINT", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"START IDP", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
 	};
 	if (menu) *menu = mnu[mode];
-	return 4; // return the number of buttons used
+	return 5; // return the number of buttons used
 }
 
 bool CRT::ConsumeKeyBuffered (DWORD key)
@@ -1357,17 +1380,37 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_1:
 					mode = 1;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_2:
 					mode = 2;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_3:
 					mode = 3;
 					display = 0;
-					vc::MDU* mdu = sts->GetMDU( MDUID );
-					if (mdu) mdu->Set_display( display );
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_4:
+					mode = 4;
+					display = 6;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
 					InvalidateDisplay();
 					InvalidateButtons();
 					return true;
@@ -1378,6 +1421,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_1:
@@ -1401,6 +1446,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_1:
@@ -1431,6 +1478,65 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 4:// MAINTENANCE MENU
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_3:
+					mode = 5;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 5:// CST MENU SELECTION
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 4;
+					display = 6;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_2:
+					mode = 6;
+					display = 7;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 6:// IDPx INTERACTIVE CST
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 5;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 			}
@@ -1442,11 +1548,14 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 bool CRT::ConsumeButton (int bt, int event)
 {
   if (!(event & PANEL_MOUSE_LBDOWN)) return false;
-  static const DWORD btkey[4][4] = {{OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3}};
-  if (bt < 4) return ConsumeKeyBuffered (btkey[mode][bt]);
+  static const DWORD btkey[7][5] = {{OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4}};
+  if (bt < 5) return ConsumeKeyBuffered (btkey[mode][bt]);
   else return false;
 }
 

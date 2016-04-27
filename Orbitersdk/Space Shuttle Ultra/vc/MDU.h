@@ -42,7 +42,7 @@
 #define CR_MAGENTA RGB( 255, 0, 255 )
 #define CR_LIGHT_GREEN RGB( 0, 255, 0 )
 //#define CR_DARK_GREEN RGB( 0, 160, 0 )
-//#define CR_BLUE RGB( 0, 0, 255 )
+#define CR_BLUE RGB( 0, 0, 255 )
 //#define CR_PINK RGB( 220, 150, 220 )
 //#define CR_BROWN RGB( 190, 50, 30 )
 
@@ -67,6 +67,7 @@ namespace vc {
 		HBRUSH YellowBrush;
 		HBRUSH MagentaBrush;
 		HBRUSH LightGreenBrush;
+		HBRUSH BlueBrush;
 		
 		HPEN BlackPen;
 		HPEN DarkGrayPen;
@@ -182,6 +183,7 @@ namespace vc {
 		bool bIsConnectedToCRTMFD;
 
 		int display;
+		int menu;
 		
 		std::vector<dps::DEU_LINE> lines;
 		std::vector<dps::DEU_ELLIPSE> ellipses;
@@ -492,12 +494,19 @@ namespace vc {
 		 * Still called from CRTMFD until its "retirement".
 		 * OMS/MPS, HYD/APU and SPI are still in CRTMFD and should (eventually) be moved here as well.
 		 */
+		virtual void SystemStatusDisplay_CSTMenu( HDC hDC );
+		virtual void SystemStatusDisplay_IDPInteractiveCST( HDC hDC );
 		virtual void AEPFD( HDC hDC );
 		virtual void ORBITPFD( HDC hDC );
 
 		virtual void Set_display( int display )
 		{
 			this->display = display;
+		}
+
+		virtual void Set_menu( int menu )
+		{
+			this->menu = menu;
 		}
 	};
 
