@@ -96591,5 +96591,5 @@ MATERIAL He bottle material
 1 1 1 1 147
 0 0 0 1
 TEXTURES 2
-CISS_tex.dds
-H2tank.dds
+SSU\Centaur\CISS_tex.dds
+SSU\Centaur\H2tank.dds
