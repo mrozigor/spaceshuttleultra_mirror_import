@@ -383,7 +383,7 @@ void CISS::DefineCISSGPrimeAnimations()
 	STS()->SetAnimation( anim_lox_a, lox_aAnimState.pos );
 
 	/////// LOX A2 ///////
-	static UINT LOX_A2_GRP[1] = {GRP_LOX_DUCT_BELLOW1_GPRIME};
+	static UINT LOX_A2_GRP[1] = {GRP_LOX_DUCT_BELLOW3_GPRIME};
 	anim_lox_a2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LOX_A2( mesh_idx, LOX_A2_GRP, 1, CISS_GPRIME_P5, _V( 1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lox_a2, 0, 1, &LOX_A2, parent );
@@ -397,7 +397,7 @@ void CISS::DefineCISSGPrimeAnimations()
 	STS()->SetAnimation( anim_lox_b, lox_bAnimState.pos );
 
 	/////// LOX B2 ///////
-	static UINT LOX_B2_GRP[1] = {GRP_LOX_DUCT_BELLOW1A_GPRIME};
+	static UINT LOX_B2_GRP[1] = {GRP_LOX_DUCT_BELLOW1_GPRIME};
 	anim_lox_b2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LOX_B2( mesh_idx, LOX_B2_GRP, 1, CISS_GPRIME_P7, _V( -1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lox_b2, 0, 1, &LOX_B2 );
@@ -439,7 +439,7 @@ void CISS::DefineCISSGPrimeAnimations()
 	STS()->SetAnimation( anim_lh2_a, lh2_aAnimState.pos );
 
 	/////// LH2 A2 ///////
-	static UINT LH2_A2_GRP[1] = {GRP_LH2_DUCT_BELLOW1A_GPRIME};
+	static UINT LH2_A2_GRP[1] = {GRP_LH2_DUCT_BELLOW3_GPRIME};
 	anim_lh2_a2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LH2_A2( mesh_idx, LH2_A2_GRP, 1, CISS_GPRIME_P11, _V( 1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lh2_a2, 0, 1, &LH2_A2, parent );
@@ -532,7 +532,7 @@ void CISS::DefineCISSGAnimations()
 	STS()->SetAnimation( anim_lox_a, lox_aAnimState.pos );
 
 	/////// LOX A2 ///////
-	static UINT LOX_A2_GRP[1] = {GRP_LOX_DUCT_BELLOW1_G};
+	static UINT LOX_A2_GRP[1] = {GRP_LOX_DUCT_BELLOW3_G};
 	anim_lox_a2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LOX_A2( mesh_idx, LOX_A2_GRP, 1, CISS_G_P5, _V( 1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lox_a2, 0, 1, &LOX_A2, parent );
@@ -546,7 +546,7 @@ void CISS::DefineCISSGAnimations()
 	STS()->SetAnimation( anim_lox_b, lox_bAnimState.pos );
 
 	/////// LOX B2 ///////
-	static UINT LOX_B2_GRP[1] = {GRP_LOX_DUCT_BELLOW1A_G};
+	static UINT LOX_B2_GRP[1] = {GRP_LOX_DUCT_BELLOW1_G};
 	anim_lox_b2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LOX_B2( mesh_idx, LOX_B2_GRP, 1, CISS_G_P7, _V( -1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lox_b2, 0, 1, &LOX_B2 );
@@ -588,7 +588,7 @@ void CISS::DefineCISSGAnimations()
 	STS()->SetAnimation( anim_lh2_a, lh2_aAnimState.pos );
 
 	/////// LH2 A2 ///////
-	static UINT LH2_A2_GRP[1] = {GRP_LH2_DUCT_BELLOW1_G};
+	static UINT LH2_A2_GRP[1] = {GRP_LH2_DUCT_BELLOW3_G};
 	anim_lh2_a2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LH2_A2( mesh_idx, LH2_A2_GRP, 1, CISS_G_P11, _V( 1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lh2_a2, 0, 1, &LH2_A2, parent );
@@ -602,7 +602,7 @@ void CISS::DefineCISSGAnimations()
 	STS()->SetAnimation( anim_lh2_b, lh2_bAnimState.pos );
 
 	/////// LH2 B2 ///////
-	static UINT LH2_B2_GRP[1] = {GRP_LH2_DUCT_BELLOW1A_G};
+	static UINT LH2_B2_GRP[1] = {GRP_LH2_DUCT_BELLOW1_G};
 	anim_lh2_b2 = STS()->CreateAnimation( 0.0 );
 	static MGROUP_ROTATE LH2_B2( mesh_idx, LH2_B2_GRP, 1, CISS_G_P13, _V( -1, 0, 0 ), static_cast<float>(180.0*RAD) );
 	STS()->AddAnimationComponent( anim_lh2_b2, 0, 1, &LH2_B2 );
