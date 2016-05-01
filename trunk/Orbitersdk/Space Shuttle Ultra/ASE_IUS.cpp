@@ -228,17 +228,17 @@ void ASE_IUS::AddMesh()
 void ASE_IUS::DefineAnimations()
 {
 	static UINT TiltTable[11] = {
-		GRP_Aft_ASE_tilt_frame_ASE, 
-		GRP_IUS_frame_tube_ASE, 
-		GRP_Power_Control_Unit_ASE, 
-		GRP_Battery_1_ASE, 
-		GRP_Battery_2_ASE, 
-		GRP_Battery_3_ASE, 
-		GRP_Spacecraft_Converter_Regulator_Unit_ASE, 
-		GRP_IUS_Converter_Regulator_Unit_ASE, 
-		GRP_ASE_Converter_Regulator_Unit_ASE, 
-		GRP_ASE_Actuator_Controller_A_ASE, 
-		GRP_ASE_Actuator_Controller_B_ASE
+		GRP_AFT_ASE_TILT_FRAME_ASE, 
+		GRP_IUS_FRAME_TUBE_ASE, 
+		GRP_POWER_CONTROL_UNIT_ASE, 
+		GRP_BATTERY_1_ASE, 
+		GRP_BATTERY_2_ASE, 
+		GRP_BATTERY_3_ASE, 
+		GRP_SPACECRAFT_CONVERTER_REGULATOR_UNIT_ASE, 
+		GRP_IUS_CONVERTER_REGULATOR_UNIT_ASE, 
+		GRP_ASE_CONVERTER_REGULATOR_UNIT_ASE, 
+		GRP_ASE_ACTUATOR_CONTROLLER_A_ASE, 
+		GRP_ASE_ACTUATOR_CONTROLLER_B_ASE
 	};
 	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 11, _V( 0, 0.3985, -1.3304 ), _V( -1, 0, 0 ), (float)(67.0 * RAD) );
 	animTiltTable = STS()->CreateAnimation( ASE_IUS_TILT_TABLE_POS_0 );// 0º position
