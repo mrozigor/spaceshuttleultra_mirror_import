@@ -32,17 +32,29 @@
 
 const static char* ASE_IUS_MESHNAME = "SSU\\IUS\\IUS_ASE";
 
-const unsigned int GRP_Battery_2_ASE = 6;
-const unsigned int GRP_Power_Control_Unit_ASE = 7;
-const unsigned int GRP_IUS_frame_tube_ASE = 8;
-const unsigned int GRP_ASE_Converter_Regulator_Unit_ASE = 9;
-const unsigned int GRP_Battery_1_ASE = 10;
-const unsigned int GRP_Spacecraft_Converter_Regulator_Unit_ASE = 11;
-const unsigned int GRP_Battery_3_ASE = 12;
-const unsigned int GRP_IUS_Converter_Regulator_Unit_ASE = 13;
-const unsigned int GRP_ASE_Actuator_Controller_A_ASE = 14;
-const unsigned int GRP_Aft_ASE_tilt_frame_ASE = 15;
-const unsigned int GRP_ASE_Actuator_Controller_B_ASE = 16;
+const unsigned int GRP_AFT_FRAME_TRUNNION_PINS_ASE	=	0;	//Aft_frame_trunnion_pins
+const unsigned int GRP_FWD_FRAME_ASE	=	1;	//FWD_frame
+const unsigned int GRP_FWD_FRAME_LOW_RESPONSE_TORSION_SPRINGS_ASE	=	2;	//FWD_frame_low_response_torsion_springs
+const unsigned int GRP_FWD_FRAME_TRUNNION_PINS_ASE	=	3;	//FWD_frame_trunnion_pins
+const unsigned int GRP_FWD_PURGE_DUCT_ASE	=	4;	//FWD_purge_duct
+const unsigned int GRP_LOW_RESPONSE_SPREADER_BEAMS_ASE	=	5;	//Low_response_spreader_beams
+const unsigned int GRP_BATTERY_2_ASE	=	6;	//Battery_2
+const unsigned int GRP_POWER_CONTROL_UNIT_ASE	=	7;	//Power_Control_Unit
+const unsigned int GRP_IUS_FRAME_TUBE_ASE	=	8;	//IUS_frame_tube
+const unsigned int GRP_ASE_CONVERTER_REGULATOR_UNIT_ASE	=	9;	//ASE_Converter_Regulator_Unit
+const unsigned int GRP_BATTERY_1_ASE	=	10;	//Battery_1
+const unsigned int GRP_SPACECRAFT_CONVERTER_REGULATOR_UNIT_ASE	=	11;	//Spacecraft_Converter_Regulator_Unit
+const unsigned int GRP_BATTERY_3_ASE	=	12;	//Battery_3
+const unsigned int GRP_IUS_CONVERTER_REGULATOR_UNIT_ASE	=	13;	//IUS_Converter_Regulator_Unit
+const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_A_ASE	=	14;	//ASE_Actuator_Controller_A
+const unsigned int GRP_AFT_ASE_TILT_FRAME_ASE	=	15;	//Aft_ASE_tilt_frame
+const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_B_ASE	=	16;	//ASE_Actuator_Controller_B
+const unsigned int GRP_IUS_UMBILICAL_BOOM_FIXED_ASE	=	17;	//IUS_UMBILICAL_BOOM_FIXED
+const unsigned int GRP_IUS_UMBILICAL_BOOM_FOIL_ASE	=	18;	//IUS_UMBILICAL_BOOM_FOIL
+const unsigned int GRP_IUS_UMBILICAL_BOOM_MOVING_ASE	=	19;	//IUS_UMBILICAL_BOOM_MOVING
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PIVOT_CYLINDER_ASE	=	20;	//IUS_UMBILICAL_BOOM_PIVOT_CYLINDER
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG1_ASE	=	21;	//IUS_UMBILICAL_BOOM_PLUG1
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG2_ASE	=	22;	//IUS_UMBILICAL_BOOM_PLUG2
 
 const VECTOR3 ASE_IUS_OFFSET_AFT_LOCATION = _V( 0, -0.35, -5.85 );
 const VECTOR3 ASE_IUS_OFFSET_FORWARD_LOCATION = _V( 0, -0.35, -4.4 );
