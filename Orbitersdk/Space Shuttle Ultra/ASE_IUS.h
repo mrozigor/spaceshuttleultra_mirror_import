@@ -32,35 +32,14 @@
 
 const static char* ASE_IUS_MESHNAME = "SSU\\IUS\\IUS_ASE";
 
-const unsigned int GRP_AFT_FRAME_TRUNNION_PINS_ASE	=	0;	//Aft_frame_trunnion_pins
-const unsigned int GRP_FWD_FRAME_ASE	=	1;	//FWD_frame
-const unsigned int GRP_FWD_FRAME_LOW_RESPONSE_TORSION_SPRINGS_ASE	=	2;	//FWD_frame_low_response_torsion_springs
-const unsigned int GRP_FWD_FRAME_TRUNNION_PINS_ASE	=	3;	//FWD_frame_trunnion_pins
-const unsigned int GRP_FWD_PURGE_DUCT_ASE	=	4;	//FWD_purge_duct
-const unsigned int GRP_LOW_RESPONSE_SPREADER_BEAMS_ASE	=	5;	//Low_response_spreader_beams
-const unsigned int GRP_BATTERY_2_ASE	=	6;	//Battery_2
-const unsigned int GRP_POWER_CONTROL_UNIT_ASE	=	7;	//Power_Control_Unit
-const unsigned int GRP_IUS_FRAME_TUBE_ASE	=	8;	//IUS_frame_tube
-const unsigned int GRP_ASE_CONVERTER_REGULATOR_UNIT_ASE	=	9;	//ASE_Converter_Regulator_Unit
-const unsigned int GRP_BATTERY_1_ASE	=	10;	//Battery_1
-const unsigned int GRP_SPACECRAFT_CONVERTER_REGULATOR_UNIT_ASE	=	11;	//Spacecraft_Converter_Regulator_Unit
-const unsigned int GRP_BATTERY_3_ASE	=	12;	//Battery_3
-const unsigned int GRP_IUS_CONVERTER_REGULATOR_UNIT_ASE	=	13;	//IUS_Converter_Regulator_Unit
-const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_A_ASE	=	14;	//ASE_Actuator_Controller_A
-const unsigned int GRP_AFT_ASE_TILT_FRAME_ASE	=	15;	//Aft_ASE_tilt_frame
-const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_B_ASE	=	16;	//ASE_Actuator_Controller_B
-const unsigned int GRP_IUS_UMBILICAL_BOOM_FIXED_ASE	=	17;	//IUS_UMBILICAL_BOOM_FIXED
-const unsigned int GRP_IUS_UMBILICAL_BOOM_FOIL_ASE	=	18;	//IUS_UMBILICAL_BOOM_FOIL
-const unsigned int GRP_IUS_UMBILICAL_BOOM_MOVING_ASE	=	19;	//IUS_UMBILICAL_BOOM_MOVING
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PIVOT_CYLINDER_ASE	=	20;	//IUS_UMBILICAL_BOOM_PIVOT_CYLINDER
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG1_ASE	=	21;	//IUS_UMBILICAL_BOOM_PLUG1
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG2_ASE	=	22;	//IUS_UMBILICAL_BOOM_PLUG2
-
 const VECTOR3 ASE_IUS_OFFSET_AFT_LOCATION = _V( 0, -0.35, -5.85 );
 const VECTOR3 ASE_IUS_OFFSET_FORWARD_LOCATION = _V( 0, -0.35, -4.4 );
 
 const VECTOR3 IUS_ATTACHMENT_OFFSET_AFT_LOCATION = _V( 0, -0.35, -6.95 );
 const VECTOR3 IUS_ATTACHMENT_OFFSET_FORWARD_LOCATION = _V( 0, -0.35, -5.5 );
+
+const VECTOR3 ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS = _V( 0, 0.3985, -1.3304 );
+const VECTOR3 ASE_IUS_UMBILICAL_ROTATION_AXIS_POS = _V( 0.5169, -1.3133, -0.6282 );
 
 const double ASE_IUS_TILT_TABLE_SPEED = 0.001493;// s^-1 (= 0.1º/s)
 const double ASE_IUS_MASS = 2531.7;// kg
@@ -88,6 +67,8 @@ class ASE_IUS:public AtlantisSubsystem
 {
 		bool PyroBusPri;
 		bool PyroBusAlt;
+		bool UmbilicalsEnaPri;
+		bool UmbilicalsEnaAlt;
 		bool IUSDeploymentEnaPri;
 		bool IUSDeploymentEnaAlt;
 		bool TiltTableActuatorMotionPri1Lower;
@@ -101,7 +82,9 @@ class ASE_IUS:public AtlantisSubsystem
 		VECTOR3 IUSattachoffset;
 
 		UINT animTiltTable;
+		UINT animUmbilical;
 		AnimState asTiltTable;
+		AnimState asUmbilical;
 
 		double oldposition;
 
@@ -109,6 +92,7 @@ class ASE_IUS:public AtlantisSubsystem
 		VECTOR3 IUSattachpoints[3];
 
 		bool firststep;
+		bool umbilicalreleased;
 
 		DiscInPort pTiltTableActuatorDriveEnablePri1Intermediate;
 		DiscInPort pTiltTableActuatorDriveEnablePri1Maximum;
@@ -125,6 +109,13 @@ class ASE_IUS:public AtlantisSubsystem
 		DiscInPort pPyroBusAltOff;
 		DiscInPort pPyroBusAltOn;
 
+		DiscInPort pUmbilicalsEnaPriOff;
+		DiscInPort pUmbilicalsEnaPriEnable;
+		DiscInPort pUmbilicalsEnaAltOff;
+		DiscInPort pUmbilicalsEnaAltEnable;
+		DiscInPort pUmbilicalsRelPriRelease;
+		DiscInPort pUmbilicalsRelAltRelease;
+
 		DiscInPort pIUSDeploymentEnaPriOff;
 		DiscInPort pIUSDeploymentEnaPriEnable;
 		DiscInPort pIUSDeploymentEnaAltOff;
@@ -135,6 +126,11 @@ class ASE_IUS:public AtlantisSubsystem
 
 		DiscOutPort pPyroBusPriTB;
 		DiscOutPort pPyroBusAltTB;
+
+		DiscOutPort pUmbilicalsEnaPriTB;
+		DiscOutPort pUmbilicalsEnaAltTB;
+		DiscOutPort pUmbilicalsRelPriTB;
+		DiscOutPort pUmbilicalsRelAltTB;
 
 		DiscOutPort pIUSDeploymentEnaPriTB;
 		DiscOutPort pIUSDeploymentEnaAltTB;
