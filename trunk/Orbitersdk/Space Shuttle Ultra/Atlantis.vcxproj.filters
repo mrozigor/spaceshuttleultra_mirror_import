@@ -936,6 +936,9 @@
     <ClInclude Include="vc\PanelA2.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_IUS_ASE.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

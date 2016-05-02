@@ -1,10 +1,13 @@
 #include "ASE_IUS.h"
+#include "meshres_IUS_ASE.h"
 
 
 ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):AtlantisSubsystem( _director, "ASE_IUS" )
 {
 	PyroBusPri = false;
 	PyroBusAlt = false;
+	UmbilicalsEnaPri = false;
+	UmbilicalsEnaAlt = false;
 	IUSDeploymentEnaPri = false;
 	IUSDeploymentEnaAlt = false;
 	TiltTableActuatorMotionPri1Lower = false;
@@ -15,9 +18,11 @@ ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):Atlan
 	hIUSattach = NULL;
 
 	asTiltTable.Set( AnimState::STOPPED, ASE_IUS_TILT_TABLE_POS_0 );// 0º position
+	asUmbilical.Set( AnimState::STOPPED, 0.066667 );
 	oldposition = ASE_IUS_TILT_TABLE_POS_0;
 
 	firststep = true;
+	umbilicalreleased = false;
 
 	// TODO "use" attachment 7 (aft active keel)
 
@@ -72,7 +77,16 @@ void ASE_IUS::Realize()
 	pPyroBusAltOff.Connect( pBundle, 0 );
 	pPyroBusAltOn.Connect( pBundle, 1 );
 	pPyroBusAltTB.Connect( pBundle, 2 );
-
+	pUmbilicalsEnaPriOff.Connect( pBundle, 3 );
+	pUmbilicalsEnaPriEnable.Connect( pBundle, 4 );
+	pUmbilicalsEnaPriTB.Connect( pBundle, 5 );
+	pUmbilicalsEnaAltOff.Connect( pBundle, 6 );
+	pUmbilicalsEnaAltEnable.Connect( pBundle, 7 );
+	pUmbilicalsEnaAltTB.Connect( pBundle, 8 );
+	pUmbilicalsRelPriRelease.Connect( pBundle, 9 );
+	pUmbilicalsRelPriTB.Connect( pBundle, 10 );
+	pUmbilicalsRelAltRelease.Connect( pBundle, 11 );
+	pUmbilicalsRelAltTB.Connect( pBundle, 12 );
 	pIUSDeploymentEnaPriOff.Connect( pBundle, 13 );
 	pIUSDeploymentEnaPriEnable.Connect( pBundle, 14 );
 	pIUSDeploymentEnaPriTB.Connect( pBundle, 15 );
@@ -103,6 +117,8 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	// panel inputs
 	PyroBusPri = pPyroBusPriOn.IsSet() | (PyroBusPri & !pPyroBusPriOff.IsSet());
 	PyroBusAlt = pPyroBusAltOn.IsSet() | (PyroBusAlt & !pPyroBusAltOff.IsSet());
+	UmbilicalsEnaPri = (pUmbilicalsEnaPriEnable.IsSet() | (UmbilicalsEnaPri & !pUmbilicalsEnaPriOff.IsSet())) & PyroBusPri;
+	UmbilicalsEnaAlt = (pUmbilicalsEnaAltEnable.IsSet() | (UmbilicalsEnaAlt & !pUmbilicalsEnaAltOff.IsSet())) & PyroBusAlt;
 	IUSDeploymentEnaPri = (pIUSDeploymentEnaPriEnable.IsSet() | (IUSDeploymentEnaPri & !pIUSDeploymentEnaPriOff.IsSet())) & PyroBusPri;
 	IUSDeploymentEnaAlt = (pIUSDeploymentEnaAltEnable.IsSet() | (IUSDeploymentEnaAlt & !pIUSDeploymentEnaAltOff.IsSet())) & PyroBusAlt;
 
@@ -133,8 +149,41 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	}
 	else asTiltTable.action = AnimState::STOPPED;// stop
 	
-	// release umbilicals
-	// TODO
+	// release umbilical
+	if ((pUmbilicalsRelPriRelease.IsSet() & UmbilicalsEnaPri) | (pUmbilicalsRelAltRelease.IsSet() & UmbilicalsEnaAlt))
+	{
+		if (!umbilicalreleased)
+		{
+			asUmbilical.pos = 0.122222;// back off 5º (+6º)
+			umbilicalreleased = true;
+			RunAnimation();
+		}
+	}
+
+	if (umbilicalreleased)// "restrict" umbilical movement
+	{
+		if (asTiltTable.pos < 0.17)
+		{
+			asUmbilical.pos = asTiltTable.pos * 0.744444;// 67/90
+		}
+		else if (asTiltTable.pos > 0.6026)
+		{
+			double yt = 1.2;
+			double lu = 1.2;
+			double angleTT = asTiltTable.pos * 67;
+			double ru = sqrt( pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y, 2 ) + pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.z - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.z, 2 ) );
+			double ang0 = asin( (ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y) / ru );
+			double yu = ru * sin( ang0 - (angleTT * RAD) );
+			double angleUmb = asin( (yt - yu) / lu ) * DEG;
+			asUmbilical.pos = (angleUmb - 6) / 90;
+		}
+	}
+	else if (asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_30)// forcefull umbilical release
+	{
+		asUmbilical.pos = 0.122222;// back off 5º (+6º)
+		umbilicalreleased = true;
+		RunAnimation();
+	}
 
 	// deploy IUS
 	if ((pIUSDeploymentDpyPriDeploy.IsSet() & IUSDeploymentEnaPri) | (pIUSDeploymentDpyAltDeploy.IsSet() & IUSDeploymentEnaAlt))
@@ -173,6 +222,9 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	// panel outputs
 	pPyroBusPriTB.SetLine( (int)PyroBusPri * 5.0f );
 	pPyroBusAltTB.SetLine( (int)PyroBusAlt * 5.0f );
+
+	pUmbilicalsEnaPriTB.SetLine( (int)UmbilicalsEnaPri * 5.0f );
+	pUmbilicalsEnaAltTB.SetLine( (int)UmbilicalsEnaAlt * 5.0f );
 
 	pIUSDeploymentEnaPriTB.SetLine( (int)IUSDeploymentEnaPri * 5.0f );
 	pIUSDeploymentEnaAltTB.SetLine( (int)IUSDeploymentEnaAlt * 5.0f );
@@ -227,25 +279,39 @@ void ASE_IUS::AddMesh()
 
 void ASE_IUS::DefineAnimations()
 {
-	static UINT TiltTable[11] = {
-		GRP_AFT_ASE_TILT_FRAME_ASE, 
-		GRP_IUS_FRAME_TUBE_ASE, 
-		GRP_POWER_CONTROL_UNIT_ASE, 
-		GRP_BATTERY_1_ASE, 
-		GRP_BATTERY_2_ASE, 
-		GRP_BATTERY_3_ASE, 
-		GRP_SPACECRAFT_CONVERTER_REGULATOR_UNIT_ASE, 
-		GRP_IUS_CONVERTER_REGULATOR_UNIT_ASE, 
-		GRP_ASE_CONVERTER_REGULATOR_UNIT_ASE, 
-		GRP_ASE_ACTUATOR_CONTROLLER_A_ASE, 
-		GRP_ASE_ACTUATOR_CONTROLLER_B_ASE
+	/////// tilt table ///////
+	static UINT TiltTable[13] = {
+		GRP_AFT_ASE_TILT_FRAME_IUS_ASE, 
+		GRP_IUS_FRAME_TUBE_IUS_ASE, 
+		GRP_POWER_CONTROL_UNIT_IUS_ASE, 
+		GRP_BATTERY_1_IUS_ASE, 
+		GRP_BATTERY_2_IUS_ASE, 
+		GRP_BATTERY_3_IUS_ASE, 
+		GRP_SPACECRAFT_CONVERTER_REGULATOR_UNIT_IUS_ASE, 
+		GRP_IUS_CONVERTER_REGULATOR_UNIT_IUS_ASE, 
+		GRP_ASE_CONVERTER_REGULATOR_UNIT_IUS_ASE, 
+		GRP_ASE_ACTUATOR_CONTROLLER_A_IUS_ASE, 
+		GRP_ASE_ACTUATOR_CONTROLLER_B_IUS_ASE,
+		GRP_IUS_UMBILICAL_BOOM_FIXED_IUS_ASE,
+		GRP_IUS_UMBILICAL_BOOM_PIVOT_CYLINDER_IUS_ASE
 	};
-	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 11, _V( 0, 0.3985, -1.3304 ), _V( -1, 0, 0 ), (float)(67.0 * RAD) );
+	static MGROUP_ROTATE TiltTable_Rotate = MGROUP_ROTATE( mesh_index, TiltTable, 13, ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS, _V( -1, 0, 0 ), (float)(67.0 * RAD) );
 	animTiltTable = STS()->CreateAnimation( ASE_IUS_TILT_TABLE_POS_0 );// 0º position
-	STS()->AddAnimationComponent( animTiltTable, 0, 1, &TiltTable_Rotate );
+	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent( animTiltTable, 0, 1, &TiltTable_Rotate );
 
 	static MGROUP_ROTATE IUSattachment_Rotate( LOCALVERTEXLIST, MAKEGROUPARRAY( IUSattachpoints ), 3, _V( 0, 0.3985, -1.3304 ) + ASEoffset, _V( -1, 0, 0 ), (float)(67.0 * RAD) );
 	STS()->AddAnimationComponent( animTiltTable, 0, 1, &IUSattachment_Rotate );
+
+	/////// umbilical ///////
+	static UINT Umbilical[4] = {
+		GRP_IUS_UMBILICAL_BOOM_MOVING_IUS_ASE,
+		GRP_IUS_UMBILICAL_BOOM_FOIL_IUS_ASE,
+		GRP_IUS_UMBILICAL_BOOM_PLUG1_IUS_ASE,
+		GRP_IUS_UMBILICAL_BOOM_PLUG2_IUS_ASE
+	};
+	static MGROUP_ROTATE Umbilical_Rotate = MGROUP_ROTATE( mesh_index, Umbilical, 4, ASE_IUS_UMBILICAL_ROTATION_AXIS_POS, _V( 1, 0, 0 ), (float)(90.0 * RAD) );
+	animUmbilical = STS()->CreateAnimation( 0.066667 );
+	STS()->AddAnimationComponent( animUmbilical, 0, 1, &Umbilical_Rotate, parent );
 	return;
 }
 
@@ -269,6 +335,7 @@ bool ASE_IUS::IsIUSAttached()
 void ASE_IUS::RunAnimation()
 {
 	STS()->SetAnimation( animTiltTable, asTiltTable.pos );
+	STS()->SetAnimation( animUmbilical, asUmbilical.pos );
 	STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
 	return;
 }
