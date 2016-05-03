@@ -142,6 +142,7 @@ class ASE_IUS:public AtlantisSubsystem
 		DiscOutPort pTiltTableActuatorPositionAlt2TB;
 
 		bool IsIUSAttached();
+		void CalcUmbilicalAnimation( void );
 		void RunAnimation();
 
 	public:
