@@ -392,24 +392,47 @@ bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpa
 	if (!separated) return true;
 
 	char cbuf[64];
-	sprintf_s( cbuf, 64, "ACS available: %.2fKg", GetPropellantMass( phACS ) );
-	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
+	double Ypos = 0.3;
+
+	sprintf_s( cbuf, 64, "ACS available: %.2f Kg", GetPropellantMass( phACS ) );
+	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+	Ypos += 0.03;
 
 	if (!RL10_ENA)
 	{
-		sprintf_s( cbuf, 64, "RL-10 inhibits removed in: %.0fs", RL10_ENA_DELAY - timer_RL10_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 64, "RL-10 inhibits removed in: %.0f s", RL10_ENA_DELAY - timer_RL10_ENA );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+		Ypos += 0.03;
 	}
 	else if ((RL10_startseq) && (RL10_chill))
 	{
-		sprintf_s( cbuf, 64, "RL-10 ignition in: %.0fs", RL10_START_SEQ - timer_RL10_startseq );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 64, "RL-10 ignition in: %.0f s", RL10_START_SEQ - timer_RL10_startseq );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+		Ypos += 0.03;
 	}
 
 	if (!ACS_ENA)
 	{
-		sprintf_s( cbuf, 64, "ACS inhibits removed in: %.0fs", ACS_ENA_DELAY - timer_ACS_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 64, "ACS inhibits removed in: %.0f s", ACS_ENA_DELAY - timer_ACS_ENA );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+		Ypos += 0.03;
+	}
+
+	OBJHANDLE earth = GetGravityRef();
+	char str[8];
+	oapiGetObjectName( earth, str, 8 ); 
+	if (!_strnicmp( str, "Earth", 5 ))
+	{
+		VECTOR3 vel;
+		VECTOR3 pos;
+		GetRelativeVel( earth, vel );
+		GetRelativePos( earth, pos );
+		double v = length( vel );
+		double r = length( pos );
+		double mu = 398600439968871.19;
+		double C3 = ((0.5 * v * v) - (mu / r)) * 0.000002;
+		sprintf_s( cbuf, 64, "C3 energy: %.2f km^2/sec^2", C3 );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
 	}
 	return true;
 }

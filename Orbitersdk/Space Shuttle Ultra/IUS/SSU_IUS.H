@@ -88,7 +88,7 @@ const double STAGE1_ISP_VAC = 295.5 * G;// m/s
 const double STAGE2_ISP_VAC = 289.1 * G;// m/s
 const double STAGE2_EEC_ISP_VAC = 303.5 * G;// m/s
 
-const double RCS_PROPELLANT_MASS = 109;// kg
+const double RCS_TANK_PROPELLANT_MASS = 55.56507;// kg
 const double RCS_THRUST_VAC = 157.6;// N (or 133N???)
 const double RCS_ISP_VAC = 320 * G;// m/s
 
@@ -117,6 +117,8 @@ class SSU_IUS:public VESSEL3
 		PROPELLANT_HANDLE ph_main[2];
 		PROPELLANT_HANDLE ph_rcs;
 
+		int RCStanks;
+		bool FourAntennas;
 		double propload[2];
 
 		THRUSTER_HANDLE th_main[2];

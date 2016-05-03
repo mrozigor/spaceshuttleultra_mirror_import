@@ -111,14 +111,16 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 			asTiltTable.pos = ASE_IUS_TILT_TABLE_POS_0;
 			oldposition = asTiltTable.pos;
 		}
+		CalcUmbilicalAnimation();
 		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
+		STS()->SetAnimation( animUmbilical, asUmbilical.pos );
 	}
 
 	// panel inputs
 	PyroBusPri = pPyroBusPriOn.IsSet() | (PyroBusPri & !pPyroBusPriOff.IsSet());
 	PyroBusAlt = pPyroBusAltOn.IsSet() | (PyroBusAlt & !pPyroBusAltOff.IsSet());
-	UmbilicalsEnaPri = (pUmbilicalsEnaPriEnable.IsSet() | (UmbilicalsEnaPri & !pUmbilicalsEnaPriOff.IsSet())) & PyroBusPri;
-	UmbilicalsEnaAlt = (pUmbilicalsEnaAltEnable.IsSet() | (UmbilicalsEnaAlt & !pUmbilicalsEnaAltOff.IsSet())) & PyroBusAlt;
+	UmbilicalsEnaPri = pUmbilicalsEnaPriEnable.IsSet() | (UmbilicalsEnaPri & !pUmbilicalsEnaPriOff.IsSet());
+	UmbilicalsEnaAlt = pUmbilicalsEnaAltEnable.IsSet() | (UmbilicalsEnaAlt & !pUmbilicalsEnaAltOff.IsSet());
 	IUSDeploymentEnaPri = (pIUSDeploymentEnaPriEnable.IsSet() | (IUSDeploymentEnaPri & !pIUSDeploymentEnaPriOff.IsSet())) & PyroBusPri;
 	IUSDeploymentEnaAlt = (pIUSDeploymentEnaAltEnable.IsSet() | (IUSDeploymentEnaAlt & !pIUSDeploymentEnaAltOff.IsSet())) & PyroBusAlt;
 
@@ -127,6 +129,17 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	TiltTableActuatorMotionAlt2Lower = (pTiltTableActuatorMotionAlt2Lower.IsSet() | TiltTableActuatorMotionAlt2Lower) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
 	TiltTableActuatorMotionAlt2Raise = (pTiltTableActuatorMotionAlt2Raise.IsSet() | TiltTableActuatorMotionAlt2Raise) & (pTiltTableActuatorDriveEnableAlt2Maximum.IsSet() | pTiltTableActuatorDriveEnableAlt2Intermediate.IsSet());
 
+
+	// release umbilical
+	if ((pUmbilicalsRelPriRelease.IsSet() & UmbilicalsEnaPri) | (pUmbilicalsRelAltRelease.IsSet() & UmbilicalsEnaAlt))
+	{
+		if (!umbilicalreleased)
+		{
+			asUmbilical.pos = 0.122222;// back off 5º (+6º)
+			RunAnimation();
+			umbilicalreleased = true;
+		}
+	}
 
 	// move tilt table
 	double da = DeltaT * ASE_IUS_TILT_TABLE_SPEED * (
@@ -137,6 +150,7 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	{
 		asTiltTable.action = AnimState::OPENING;
 		asTiltTable.Move( da );
+		CalcUmbilicalAnimation();
 		RunAnimation();
 	}
 	else if (da < 0)// lower
@@ -145,45 +159,10 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 		asTiltTable.action = AnimState::CLOSING;
 		if ((IsIUSAttached() == true) && ((asTiltTable.pos - da) < ASE_IUS_TILT_TABLE_POS_0)) da = asTiltTable.pos - ASE_IUS_TILT_TABLE_POS_0;// limit motion if IUS still attached
 		asTiltTable.Move( da );
+		CalcUmbilicalAnimation();
 		RunAnimation();
 	}
 	else asTiltTable.action = AnimState::STOPPED;// stop
-	
-	// release umbilical
-	if ((pUmbilicalsRelPriRelease.IsSet() & UmbilicalsEnaPri) | (pUmbilicalsRelAltRelease.IsSet() & UmbilicalsEnaAlt))
-	{
-		if (!umbilicalreleased)
-		{
-			asUmbilical.pos = 0.122222;// back off 5º (+6º)
-			umbilicalreleased = true;
-			RunAnimation();
-		}
-	}
-
-	if (umbilicalreleased)// "restrict" umbilical movement
-	{
-		if (asTiltTable.pos < 0.17)
-		{
-			asUmbilical.pos = asTiltTable.pos * 0.744444;// 67/90
-		}
-		else if (asTiltTable.pos > 0.6026)
-		{
-			double yt = 1.2;
-			double lu = 1.2;
-			double angleTT = asTiltTable.pos * 67;
-			double ru = sqrt( pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y, 2 ) + pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.z - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.z, 2 ) );
-			double ang0 = asin( (ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y) / ru );
-			double yu = ru * sin( ang0 - (angleTT * RAD) );
-			double angleUmb = asin( (yt - yu) / lu ) * DEG;
-			asUmbilical.pos = (angleUmb - 6) / 90;
-		}
-	}
-	else if (asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_30)// forcefull umbilical release
-	{
-		asUmbilical.pos = 0.122222;// back off 5º (+6º)
-		umbilicalreleased = true;
-		RunAnimation();
-	}
 
 	// deploy IUS
 	if ((pIUSDeploymentDpyPriDeploy.IsSet() & IUSDeploymentEnaPri) | (pIUSDeploymentDpyAltDeploy.IsSet() & IUSDeploymentEnaAlt))
@@ -226,6 +205,9 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	pUmbilicalsEnaPriTB.SetLine( (int)UmbilicalsEnaPri * 5.0f );
 	pUmbilicalsEnaAltTB.SetLine( (int)UmbilicalsEnaAlt * 5.0f );
 
+	pUmbilicalsRelPriTB.SetLine( (int)(umbilicalreleased & UmbilicalsEnaPri) * 5.0f );
+	pUmbilicalsRelAltTB.SetLine( (int)(umbilicalreleased & UmbilicalsEnaAlt) * 5.0f );
+
 	pIUSDeploymentEnaPriTB.SetLine( (int)IUSDeploymentEnaPri * 5.0f );
 	pIUSDeploymentEnaAltTB.SetLine( (int)IUSDeploymentEnaAlt * 5.0f );
 
@@ -255,12 +237,18 @@ bool ASE_IUS::OnParseLine( const char* line )
 		oldposition = asTiltTable.pos;
 		return true;
 	}
+	else if (!_strnicmp( line, "UMBILICAL", 9 ))
+	{
+		umbilicalreleased = true;
+		return true;
+	}
 	else return false;
 }
 
 void ASE_IUS::OnSaveState( FILEHANDLE scn ) const
 {
 	WriteScenario_state( scn, "TILT_TABLE", asTiltTable );
+	if (umbilicalreleased) oapiWriteLine( scn, "UMBILICAL" );
 	return;
 }
 
@@ -330,6 +318,34 @@ void ASE_IUS::CreateAttachment()
 bool ASE_IUS::IsIUSAttached()
 {
 	return (STS()->GetAttachmentStatus( hIUSattach ) != NULL);
+}
+
+void ASE_IUS::CalcUmbilicalAnimation( void )
+{
+	if (umbilicalreleased)// "restrict" umbilical movement
+	{
+		if (asTiltTable.pos < 0.17)
+		{
+			asUmbilical.pos = asTiltTable.pos * 0.744444;// 67/90
+		}
+		else if (asTiltTable.pos > 0.6026)
+		{
+			double yt = 1.2;
+			double lu = 1.2;
+			double angleTT = asTiltTable.pos * 67;
+			double ru = sqrt( pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y, 2 ) + pow( ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.z - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.z, 2 ) );
+			double ang0 = asin( (ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS.y - ASE_IUS_UMBILICAL_ROTATION_AXIS_POS.y) / ru );
+			double yu = ru * sin( ang0 - (angleTT * RAD) );
+			double angleUmb = asin( (yt - yu) / lu ) * DEG;
+			asUmbilical.pos = (angleUmb - 6) / 90;
+		}
+	}
+	else if (asTiltTable.pos >= ASE_IUS_TILT_TABLE_POS_30)// forcefull umbilical release
+	{
+		asUmbilical.pos = 0.122222;// back off 5º (+6º)
+		umbilicalreleased = true;
+	}
+	return;
 }
 
 void ASE_IUS::RunAnimation()

@@ -21,6 +21,8 @@ SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL3( hObj )
 {
 	MainExternalMeshVisual = NULL;
 
+	RCStanks = 2;// default
+	FourAntennas = false;// default is 2
 	propload[0] = 1;
 	propload[1] = 1;
 
@@ -92,7 +94,7 @@ void SSU_IUS::clbkSetClassCaps(FILEHANDLE cfg)
 	AddExhaustStream( th_main[1], &psSRM );
 
 	// RCS
-	ph_rcs = CreatePropellantResource( RCS_PROPELLANT_MASS );
+	ph_rcs = CreatePropellantResource( RCS_TANK_PROPELLANT_MASS * RCStanks );
 	PARTICLESTREAMSPEC psRCS = {
 		0,
 		0.01,
@@ -285,19 +287,41 @@ bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *s
 	if (!separated) return true;
 
 	char cbuf[64];
-	sprintf_s( cbuf, 64, "RCS available: %.2fKg", GetPropellantMass( ph_rcs ) );
-	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.3), cbuf, strlen( cbuf ) );
+	double Ypos = 0.3;
+
+	sprintf_s( cbuf, 64, "RCS available: %.2f Kg", GetPropellantMass( ph_rcs ) );
+	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+	Ypos += 0.03;
 
 	if (!SRM_ENA)
 	{
-		sprintf_s( cbuf, 64, "SRM inhibits removed in: %.0fs", SRM_ENA_DELAY - timer_SRM_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.33), cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 64, "SRM inhibits removed in: %.0f s", SRM_ENA_DELAY - timer_SRM_ENA );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+		Ypos += 0.03;
 	}
 
 	if (!RCS_ENA)
 	{
-		sprintf_s( cbuf, 64, "RCS inhibits removed in: %.0fs", RCS_ENA_DELAY - timer_RCS_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * 0.36), cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 64, "RCS inhibits removed in: %.0f s", RCS_ENA_DELAY - timer_RCS_ENA );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
+		Ypos += 0.03;
+	}
+
+	OBJHANDLE earth = GetGravityRef();
+	char str[8];
+	oapiGetObjectName( earth, str, 8 ); 
+	if (!_strnicmp( str, "Earth", 5 ))
+	{
+		VECTOR3 vel;
+		VECTOR3 pos;
+		GetRelativeVel( earth, vel );
+		GetRelativePos( earth, pos );
+		double v = length( vel );
+		double r = length( pos );
+		double mu = 398600439968871.19;
+		double C3 = ((0.5 * v * v) - (mu / r)) * 0.000002;
+		sprintf_s( cbuf, 64, "C3 energy: %.2f km^2/sec^2", C3 );
+		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
 	}
 	return true;
 }
@@ -443,6 +467,16 @@ void SSU_IUS::clbkVisualCreated(VISHANDLE vis, int refcount)
 	MainExternalMeshVisual = GetMesh(vis, 0);
 
 	SetAnimation( anim_EXTENDNOZZLE, asEXTENDNOZZLE.pos );
+
+	if (!FourAntennas)
+	{
+		GROUPEDITSPEC grpSpec;
+		grpSpec.flags = GRPEDIT_SETUSERFLAG;
+		grpSpec.UsrFlag = 0x00000002;
+		DEVMESHHANDLE hDevStage2 = GetDevMesh( vis, mesh_stage2 );
+		oapiEditMeshGroup( hDevStage2, GRP_ANTENNA_1_IUS_SRM2, &grpSpec );
+		oapiEditMeshGroup( hDevStage2, GRP_ANTENNA_3_IUS_SRM2, &grpSpec );
+	}
 }
 
 void SSU_IUS::clbkVisualDestroyed(VISHANDLE vis, int refcount)
@@ -454,9 +488,16 @@ void SSU_IUS::clbkSaveState(FILEHANDLE scn)
 {
 	VESSEL2::clbkSaveState( scn );
 
+	if (STAGE1separated == true) oapiWriteLine( scn, "  STAGE2" );
+
 	WriteScenario_state( scn, "EEC", asEXTENDNOZZLE );
 
-	if (STAGE1separated == true) oapiWriteLine( scn, "  STAGE2" );
+	if (propload[0] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE1", propload[0] );
+	if (propload[1] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE2", propload[1] );
+
+	if (RCStanks != 2) oapiWriteScenario_int( scn, "RCS_TANKS", RCStanks );
+
+	if (FourAntennas) oapiWriteLine( scn, "  FOUR_ANTENNAS" );
 
 	if ((AdapterMeshName.length() > 0) && (AdapterOffset > 0) && (AdapterMass > 0))// only save if used
 	{
@@ -464,8 +505,6 @@ void SSU_IUS::clbkSaveState(FILEHANDLE scn)
 		oapiWriteScenario_float( scn, "ADAPTER_OFFSET", AdapterOffset );
 		oapiWriteScenario_float( scn, "ADAPTER_MASS", AdapterMass );
 	}
-	if (propload[0] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE1", propload[0] );
-	if (propload[1] < 1) oapiWriteScenario_float( scn, "LOAD_STAGE2", propload[1] );
 }
 
 void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
@@ -475,12 +514,14 @@ void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 
 	while (oapiReadScenario_nextline(scn, line))
 	{
-		if (!_strnicmp(line, "EEC", 3)) {
-			sscan_state( line + 3, asEXTENDNOZZLE );
-		}
-		else if (!_strnicmp(line, "STAGE2", 6)) {
+		if (!_strnicmp(line, "STAGE2", 6))
+		{
 			STAGE1separated = true;
 			SetStage2Config();
+		}
+		else if (!_strnicmp(line, "EEC", 3))
+		{
+			sscan_state( line + 3, asEXTENDNOZZLE );
 		}
 		else if (!_strnicmp( line, "LOAD_STAGE1", 11 ))
 		{
@@ -501,6 +542,17 @@ void SSU_IUS::clbkLoadStateEx(FILEHANDLE scn, void *status)
 				propload[1] = tmp;
 				SetPropellantMaxMass( ph_main[1], GetPropellantMaxMass( ph_main[1] ) * propload[1] );
 			}
+		}
+		else if (!_strnicmp( line, "RCS_TANKS", 9 ))
+		{
+			int tmp = 2;
+			sscanf( line + 9, "%d", &tmp );
+			if ((tmp >= 1) && (tmp <= 3)) RCStanks = tmp;
+			SetPropellantMaxMass( ph_rcs, RCS_TANK_PROPELLANT_MASS * RCStanks );
+		}
+		else if (!_strnicmp( line, "FOUR_ANTENNAS", 13 ))
+		{
+			FourAntennas = true;
 		}
 		else if (!_strnicmp( line, "ADAPTER_MESH", 12 ))
 		{

@@ -146,6 +146,46 @@ Space Launch Complex 6 vessel. Versions available:
 \textbf{SABDoor} $\rightarrow$ animation state for the Shuttle Assembly Building Door
 \\
 \textbf{MST} $\rightarrow$ animation state for the Mobile Service Structure
-\end{multicols*}
 
+\subsection{Centaur G Parameter List}
+\noindent
+Centaur G vessel. Versions available:
+\\
+\textit{SSU\_CentaurG} $\rightarrow$ optimized for GEO missions
+\\
+\textit{SSU\_CentaurGPrime} $\rightarrow$ optimized for Earth-escape missions
+\\
+\\
+\textbf{ADAPTER\_MESH} $\rightarrow$ defines the path and filename of the mesh file of the adapter
+\\
+\textbf{ADAPTER\_OFFSET} $\rightarrow$ defines the offset between the Centaur and the payload in meters (effectively the height of the adapter)
+\\
+\textbf{ADAPTER\_MASS} $\rightarrow$ defines the mass of the adapter in kilograms
+
+\subsection{Inertial Upper Stage Parameter List}
+\noindent
+Inertial Upper Stage vessel. Versions available:
+\\
+\textit{SSU\_IUS}
+\\
+\\
+\textbf{STAGE2} $\rightarrow$ is present, the $1^{st}$ stage has been jettisoned
+\\
+\textbf{EEC} $\rightarrow$ animation state for the Extendable Exit Cone
+\\
+\textbf{LOAD\_STAGE1} $\rightarrow$ controls $1^{st}$ stage SRM propellant load (range is between 0.5 (50\% offload) and 1.0 (0\% offload))
+\\
+\textbf{LOAD\_STAGE2} $\rightarrow$ controls $2^{nd}$ stage SRM propellant load (range is between 0.5 (50\% offload) and 1.0 (0\% offload))
+\\
+\textbf{RCS\_TANKS} $\rightarrow$ defines number of RCS tanks present (default is 2, range is between 1 and 3)
+\\
+\textbf{FOUR\_ANTENNAS} $\rightarrow$ if present, 4 omni-directional antennas will be shown, as opposed to the default 2 antennas
+\\
+\textbf{ADAPTER\_MESH} $\rightarrow$ defines the path and filename of the mesh file of the adapter
+\\
+\textbf{ADAPTER\_OFFSET} $\rightarrow$ defines the offset between the IUS and the payload in meters (effectively the height of the adapter)
+\\
+\textbf{ADAPTER\_MASS} $\rightarrow$ defines the mass of the adapter in kilograms
+
+\end{multicols*}
 \end{document}
