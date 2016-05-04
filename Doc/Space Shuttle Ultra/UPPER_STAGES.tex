@@ -17,7 +17,7 @@ Currently SSU supports the 2 biggest and more powerful Space Shuttle upper stage
 \localtableofcontents
 \subsubsection{Description}
 \noindent
-In the 1980s, NASA modified the Centaur upper stage with the intent to use it aboard the Space Shuttle to increase the payload capability of space probes and GEO satellites.
+In the 1980s, NASA modified the Centaur upper stage with the intent to use it aboard the Space Shuttle to increase the payload capability of space probes and GEO satellites.\\
 %In the 1980s, NASA modified the Centaur upper stage with the intent to use it aboard the Space Shuttle, thus allowing heavy payloads to be launched to anywhere from GEO to the depths of the Solar System.
 
 \begin{figure}[H]
@@ -40,7 +40,7 @@ Thrust is provided by 2 RL-10 engines, and the Attitude Control System (ACS) all
   \label{fig:centaurGP}
 \end{figure}
 
-\subsubsection{Performance (Centaur G)}
+\subsubsection{Performance}
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
@@ -48,18 +48,8 @@ Thrust is provided by 2 RL-10 engines, and the Attitude Control System (ACS) all
   \caption{Centaur G payload capability}
   \label{fig:Gpayload}
 \end{figure}
-TODO performance
+Although the Centaur G is suited for GEO satellite missions, it is also capable of launching spacecraft into Earth-escape trajectories. A plot of payload mass versus characteristic velocity achievable with the Centaur G in shown in figure \ref{fig:Gpayload}.
 
-\begin{figure}[H]
-	\centering
-	\captionsetup{justification=centering}
-  \includegraphics[width=0.99\hsize]{Gsize.png}
-  \caption{Dimensions of Centaur G and available payload volume}
-  \label{fig:Gsize}
-\end{figure}
-TODO payload envelope
-
-\subsubsection{Performance (Centaur G Prime)}
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
@@ -67,16 +57,15 @@ TODO payload envelope
   \caption{Centaur G Prime payload capability}
   \label{fig:GPpayload}
 \end{figure}
-TODO performance
+The greater propellant capability of the Centaur G Prime gives it the performance needed to launch heavy spacecraft to other planets. A plot of payload mass versus characteristic velocity achievable with the Centaur G Prime in shown in figure \ref{fig:GPpayload}.
 
-\begin{figure}[H]
-	\centering
-	\captionsetup{justification=centering}
-  \includegraphics[width=0.99\hsize]{GPsize.png}
-  \caption{Dimensions of Centaur G Prime and available payload volume}
-  \label{fig:Gpsize}
-\end{figure}
-TODO payload envelope
+\begin{figure*}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{payload_volume_centaur.png}
+  \caption{Centaur G and G Prime Payload Envelope (dimensions in meters}
+  \label{fig:payload_volume_centaur}
+\end{figure*}
+Figure \ref{fig:payload_volume_centaur} shows the allowable payload envelope for both Centaur versions. The higher performance of the Centaur G Prime comes at a cost in allowable payload volume.
 
 \subsubsection{Centaur Integrated Support Structure}
 The Centaur Integrated Support Structure (CISS) is the interface between the Centaur stage and the orbiter vehicle. The CISS has a tilt table, to which the Centaur is attached, allowing it to be raised above the payload bay for deployment.
@@ -134,12 +123,18 @@ The standard IUS configuration features 2 RCS tanks each with 55Kg of propellant
 The number of RCS tanks, omni-directional antennas and SRM propellant offload quantity are controlled by scenario file parameters (section \ref{sec:scenario-files}).
 
 \subsubsection{Performance}
-TODO performance
-\\
-TODO payload envelope
+TODO performance\\
+
+\begin{figure*}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{payload_volume_ius.png}
+  \caption{IUS Payload Envelope (dimensions in meters}
+  \label{fig:payload_volume_ius}
+\end{figure*}
+Figure \ref{fig:payload_volume_ius} shows the allowable payload envelope for both IUS positions. While the aft IUS position leaves more volume to the payload, it should only be used when necessary due to c.g. concerns.
 
 \subsubsection{Airborne Support Equipment}
-The Airborne Support Equipment (ASE) is the interface between the IUS and the orbiter vehicle. The ASE has a tilt table, to which the IUS is attached, allowing it to be raised above the payload bay for deployment.
+The Airborne Support Equipment (ASE) is the interface between the IUS and the orbiter vehicle. The ASE has a tilt table, to which the IUS is attached, allowing it to be raised above the payload bay for deployment. The ASE also has a boom-mounted IUS umbilical, that must be released before IUS deployment.
 \\
 \\
 TODO <insert image of empty ASE in PLB?>
@@ -162,7 +157,7 @@ After separation from the ASE and the engine inhibits have been removed, the IUS
 \\
 Manual command for the engine gimbal is available and when there is no user input, the rates will be nulled. Once ignited, the SRMs will burn to depletion.\\
 After $1^{st}$ stage burnout, its separation is done by pressing the ''Ctrl+G'' key combination. After $1^{st}$ stage separation, the Extendable Exit Cone in the $2^{nd}$ stage will automatically deploy.\\
-After each SRM burn, the RCS can be used for velocity fine tuning.\\
+At the end of each SRM burn, the RCS can be used for velocity fine tuning.\\
 After all the burns are performed, payload separation is done by pressing the ''Ctrl+J'' key combination.
 
 \subsubsection{Payload Interface}
