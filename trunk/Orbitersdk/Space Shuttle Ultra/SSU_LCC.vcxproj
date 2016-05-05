@@ -119,7 +119,6 @@
     <ClCompile Include="LCC\SSULCC.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Orbitersdk.h" />
     <ClInclude Include="LCC\SSULCC.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
