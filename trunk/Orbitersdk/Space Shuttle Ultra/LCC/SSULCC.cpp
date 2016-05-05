@@ -96,19 +96,6 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 	if (timeToLaunch >= 0.0) sprintf_s( oapiDebugString(), 256, "T-%02i:%02i:%04.1f",hours,minutes,seconds);
 	else sprintf_s( oapiDebugString(), 256, "" );
 
-	if(pFSS) {
-		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
-		{
-			oapiWriteLog("LCC: OAA retract");
-			pFSS->RetractOrbiterAccessArm();
-		}
-		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>GOX_ARM_RETRACT_TIME) //retract GOX arm
-		{
-			oapiWriteLog("LCC: GVA retract");
-			pFSS->RetractGOXArmAndHood();
-		}
-		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
-	}
 	if(pSSU) {
 		// these steps should really be done by GLS class, but we don't have one yet.
 		if(timeToLaunch<=APU_CHECK_TIME /*&& lastTTL>=RSLS_SEQUENCE_START_TIME*/)
@@ -257,6 +244,20 @@ void SSULCC::clbkPreStep(double simt, double simdt, double mjd)
 
 		RSLSabort = pSSU->GetRSLSAbortFlag();
 		if (RSLSabort == true) t_abort = simt;
+	}
+
+	if(pFSS) {
+		if(timeToLaunch<=ACCESS_ARM_RETRACT_TIME && lastTTL>ACCESS_ARM_RETRACT_TIME) //retract orbiter access arm
+		{
+			oapiWriteLog("LCC: OAA retract");
+			pFSS->RetractOrbiterAccessArm();
+		}
+		else if(timeToLaunch<=GOX_ARM_RETRACT_TIME && lastTTL>GOX_ARM_RETRACT_TIME) //retract GOX arm
+		{
+			oapiWriteLog("LCC: GVA retract");
+			pFSS->RetractGOXArmAndHood();
+		}
+		else if(timeToLaunch<=0.0 && lastTTL>=0.0) pFSS->OnT0();
 	}
 
 	lastTTL=timeToLaunch;
