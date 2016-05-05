@@ -217,16 +217,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\Meshes\SSU\Cockpit.msh" />
-    <None Include="..\..\Meshes\SSU\ET125.msh" />
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh" />
-    <None Include="..\..\Meshes\SSU\KU.msh" />
-    <None Include="..\..\Meshes\SSU\lsrb.msh" />
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh" />
     <None Include="..\..\Meshes\SSU\ODS.msh" />
     <None Include="..\..\Meshes\SSU\ODSVC.msh" />
     <None Include="..\..\Meshes\SSU\Orbiter.msh" />
     <None Include="..\..\Meshes\SSU\RMS.msh" />
-    <None Include="..\..\Meshes\SSU\rsrb.msh" />
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\A8lights.bmp" />
@@ -241,12 +235,6 @@
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
-    <None Include="down.ico" />
-    <None Include="ico00001.ico" />
-    <None Include="ico00002.ico" />
-    <None Include="ico00003.ico" />
-    <None Include="ico00004.ico" />
-    <None Include="icon1.ico" />
     <None Include="Bitmaps\ODSbuttons.bmp" />
     <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
@@ -555,7 +543,6 @@
     <ClInclude Include="vc\Talkback.h" />
     <ClInclude Include="ValveTypeBool.h" />
     <ClInclude Include="vc\vc_defs.h" />
-    <ClInclude Include="..\include\VesselAPI.h" />
     <ClInclude Include="WSB.h" />
   </ItemGroup>
   <ItemGroup>
