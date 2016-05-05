@@ -7352,7 +7352,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
-	if (bUpdateAttachedVessels) {
+	//if (bUpdateAttachedVessels) {
 		payloadMass = 0.0;
 		payloadCoG = _V(0, 0, 0);
 
@@ -7373,12 +7373,12 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 				}
 			}
 		}
-		if (payloadMass > 0.1) payloadCoG = payloadCoG / payloadMass;
+		if ((payloadMass > 0.1) && (bUpdateAttachedVessels)) payloadCoG = payloadCoG / payloadMass;
 		else payloadCoG = _V(0, 0, 0);
 
-		double subsystemMass = psubsystems->GetTotalSubsystemMass();
-		SetEmptyMass(pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass);
-	}
+		SetEmptyMass(pMission->GetOrbiterMass() + psubsystems->GetTotalSubsystemMass() + pl_mass + payloadMass);
+	//}
+
 	if (status <= STATE_STAGE2) {
 		double stackMass = 0.0; // mass of ET & SRBs (if attached)
 		if (status <= STATE_STAGE1) {
