@@ -426,57 +426,151 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %d", Round(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %3d", Round(TV_ROLL));
 	pMDU->mvprint(1, 5, cbuf);
+	pMDU->Underline( 11, 5 );
+	pMDU->Underline( 12, 5 );
+	pMDU->Underline( 13, 5 );
 	pMDU->mvprint(1, 6, "TRIM LOAD");
-	sprintf_s(cbuf, 255, "6 P  %+2.1f", Trim.data[0]);
+	sprintf_s(cbuf, 255, "6 P   %2.1f", fabs( Trim.data[0] ));
 	pMDU->mvprint(2, 7, cbuf);
-	sprintf_s(cbuf, 255, "7 LY %+2.1f", Trim.data[1]);
+	pMDU->NumberSignBracket( 7, 7, Trim.data[0] );
+	pMDU->Underline( 8, 7 );
+	pMDU->Underline( 9, 7 );
+	pMDU->Underline( 10, 7 );
+	sprintf_s(cbuf, 255, "7 LY  %2.1f", fabs( Trim.data[1] ));
 	pMDU->mvprint(2, 8, cbuf);
-	sprintf_s(cbuf, 255, "8 RY %+2.1f", Trim.data[2]);
+	pMDU->NumberSignBracket( 7, 8, Trim.data[1] );
+	sprintf_s(cbuf, 255, "8 RY  %2.1f", fabs( Trim.data[2] ));
 	pMDU->mvprint(2, 9, cbuf);
-	sprintf_s(cbuf, 255, "9 WT  %6.0f", WT);
+	pMDU->NumberSignBracket( 7, 9, Trim.data[2] );
+	sprintf_s(cbuf, 255, "9 WT %6.0f", WT);
 	pMDU->mvprint(1, 10, cbuf);
+	pMDU->Underline( 6, 10 );
+	pMDU->Underline( 7, 10 );
+	pMDU->Underline( 8, 10 );
+	pMDU->Underline( 9, 10 );
+	pMDU->Underline( 10, 10 );
+	pMDU->Underline( 11, 10 );
 	pMDU->mvprint(0, 11, "10 TIG");
 	sprintf_s(cbuf, 255, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	pMDU->mvprint(3, 12, cbuf);
+	pMDU->Underline( 3, 12 );
+	pMDU->Underline( 4, 12 );
+	pMDU->Underline( 5, 12 );
+	pMDU->Underline( 7, 12 );
+	pMDU->Underline( 8, 12 );
+	pMDU->Underline( 10, 12 );
+	pMDU->Underline( 11, 12 );
+	pMDU->Underline( 13, 12 );
+	pMDU->Underline( 14, 12 );
+	pMDU->Underline( 15, 12 );
+	pMDU->Underline( 16, 12 );
 
-	pMDU->mvprint(0, 13, "TGT PEG 4");
-	pMDU->mvprint(1, 14, "14 C1");
-	sprintf_s(cbuf, 255, "%05.0f", C1);
+	pMDU->mvprint(1, 13, "TGT PEG 4");
+	pMDU->mvprint(2, 14, "14 C1");
+	sprintf_s(cbuf, 255, "%5.0f", C1);
 	pMDU->mvprint(12, 14, cbuf);
-	pMDU->mvprint(1, 15, "15 C2");
-	sprintf_s(cbuf, 255, "%+06.4f", C2);
-	pMDU->mvprint(10, 15, cbuf);
-	pMDU->mvprint(1, 16, "16 HT");
-	sprintf_s(cbuf, 255, "%07.3f", HT);
+	pMDU->Underline( 12, 14 );
+	pMDU->Underline( 13, 14 );
+	pMDU->Underline( 14, 14 );
+	pMDU->Underline( 15, 14 );
+	pMDU->Underline( 16, 14 );
+	pMDU->mvprint(2, 15, "15 C2");
+	sprintf_s(cbuf, 255, "%6.4f", fabs( C2 ));
+	pMDU->mvprint(11, 15, cbuf);
+	pMDU->NumberSignBracket( 10, 15, C2 );
+	pMDU->Underline( 11, 15 );
+	pMDU->Underline( 12, 15 );
+	pMDU->Underline( 13, 15 );
+	pMDU->Underline( 14, 15 );
+	pMDU->Underline( 15, 15 );
+	pMDU->Underline( 16, 15 );
+	pMDU->mvprint(2, 16, "16 HT");
+	sprintf_s(cbuf, 255, "%7.3f", HT);
 	pMDU->mvprint(10, 16, cbuf);
-	pMDU->Theta(4, 17);
-	pMDU->mvprint(1, 17, "17  T");
-	sprintf_s(cbuf, 255, "%07.3f", ThetaT);
+	pMDU->Underline( 10, 16 );
+	pMDU->Underline( 11, 16 );
+	pMDU->Underline( 12, 16 );
+	pMDU->Underline( 13, 16 );
+	pMDU->Underline( 14, 16 );
+	pMDU->Underline( 15, 16 );
+	pMDU->Underline( 16, 16 );
+	pMDU->Theta(5, 17);
+	pMDU->mvprint(2, 17, "17  T");
+	sprintf_s(cbuf, 255, "%7.3f", ThetaT);
 	pMDU->mvprint(10, 17, cbuf);
-	pMDU->mvprint(1, 18, "18 PRPLT");
+	pMDU->Underline( 10, 17 );
+	pMDU->Underline( 11, 17 );
+	pMDU->Underline( 12, 17 );
+	pMDU->Underline( 13, 17 );
+	pMDU->Underline( 14, 17 );
+	pMDU->Underline( 15, 17 );
+	pMDU->Underline( 16, 17 );
+	pMDU->mvprint(2, 18, "18 PRPLT");
+	sprintf_s( cbuf, 255, "%5.0f", fabs( 0.0 ) );
+	pMDU->mvprint( 12, 18, cbuf );
+	pMDU->NumberSignBracket( 11, 18, 0.0 );
+	pMDU->Underline( 12, 18 );
+	pMDU->Underline( 13, 18 );
+	pMDU->Underline( 14, 18 );
+	pMDU->Underline( 15, 18 );
+	pMDU->Underline( 16, 18 );
 
-	pMDU->mvprint(0, 19, "TGT PEG 7");
-	pMDU->mvprint(1, 20, "19  VX");
-	pMDU->mvprint(1, 21, "20  VY");
-	pMDU->mvprint(1, 22, "21  VZ");
-	for(int i=20;i<=22;i++) pMDU->Delta(4, i); // delta symbols for DV X/Y/Z
+	pMDU->mvprint(1, 19, "TGT PEG 7");
+	pMDU->mvprint(2, 20, "19  VX");
+	pMDU->mvprint(2, 21, "20  VY");
+	pMDU->mvprint(2, 22, "21  VZ");
+	for(int i=20;i<=22;i++) pMDU->Delta(5, i); // delta symbols for DV X/Y/Z
 	if(PEG7.x!=0.0 || PEG7.y!=0.0 || PEG7.z!=0.0) {
-		sprintf_s(cbuf, 255, "%+7.1f", PEG7.x);
-		pMDU->mvprint(9, 20, cbuf);
-		sprintf_s(cbuf, 255, "%+6.1f", PEG7.y);
-		pMDU->mvprint(10, 21, cbuf);
-		sprintf_s(cbuf, 255, "%+6.1f", PEG7.z);
-		pMDU->mvprint(10, 22, cbuf);
+		sprintf_s(cbuf, 255, "%6.1f", fabs( PEG7.x ));
+		pMDU->mvprint(10, 20, cbuf);
+		pMDU->NumberSignBracket( 9, 20, PEG7.x );
+		sprintf_s(cbuf, 255, "%5.1f", fabs( PEG7.y ));
+		pMDU->mvprint(11, 21, cbuf);
+		pMDU->NumberSignBracket( 10, 21, PEG7.y );
+		sprintf_s(cbuf, 255, "%5.1f", fabs( PEG7.z ));
+		pMDU->mvprint(11, 22, cbuf);
+		pMDU->NumberSignBracket( 10, 22, PEG7.z );
 	}
+	else
+	{
+		pMDU->mvprint( 14, 20, "." );
+		pMDU->NumberSignBracket( 9, 20, 0.0 );
+		pMDU->mvprint( 14, 21, "." );
+		pMDU->NumberSignBracket( 10, 21, 0.0 );
+		pMDU->mvprint( 14, 22, "." );
+		pMDU->NumberSignBracket( 10, 22, 0.0 );
+	}
+	pMDU->Underline( 10, 20 );
+	pMDU->Underline( 11, 20 );
+	pMDU->Underline( 12, 20 );
+	pMDU->Underline( 13, 20 );
+	pMDU->Underline( 14, 20 );
+	pMDU->Underline( 15, 20 );
+	pMDU->Underline( 11, 21 );
+	pMDU->Underline( 12, 21 );
+	pMDU->Underline( 13, 21 );
+	pMDU->Underline( 14, 21 );
+	pMDU->Underline( 15, 21 );
+	pMDU->Underline( 11, 22 );
+	pMDU->Underline( 12, 22 );
+	pMDU->Underline( 13, 22 );
+	pMDU->Underline( 14, 22 );
+	pMDU->Underline( 15, 22 );
 
 	if(MnvrLoad || GetMajorMode()==303) {
-		sprintf_s(cbuf, 255, "24 R %-3.0f", BurnAtt.data[ROLL]);
+		double tmp = BurnAtt.data[ROLL];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "24 R %03.0f", tmp);
 		pMDU->mvprint(21, 3, cbuf);
-		sprintf_s(cbuf, 255, "25 P %-3.0f", BurnAtt.data[PITCH]);
+		tmp = BurnAtt.data[PITCH];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "25 P %03.0f", tmp);
 		pMDU->mvprint(21, 4, cbuf);
-		sprintf_s(cbuf, 255, "26 Y %-3.0f", BurnAtt.data[YAW]);
+		tmp = BurnAtt.data[YAW];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "26 Y %03.0f", tmp);
 		pMDU->mvprint(21, 5, cbuf);
 	}
 	else {
@@ -484,9 +578,12 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(21, 4, "25 P");
 		pMDU->mvprint(21, 5, "26 Y");
 	}
+	pMDU->Underline( 26, 3 );
+	pMDU->Underline( 27, 3 );
+	pMDU->Underline( 28, 3 );
 
 	if(MnvrLoad) {
-		pMDU->mvprint(0, 23, "LOAD  22/TIMER 23");
+		pMDU->mvprint(1, 23, "LOAD 22/TIMER 23");
 
 		unsigned int majorMode = GetMajorMode();
 		if(majorMode == 104 || majorMode == 105 || majorMode == 202 || majorMode == 302) {
@@ -529,24 +626,25 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		text = "FREE";
 		break;
 	}
-	if(MnvrToBurnAtt && dapMode != OrbitDAP::AUTO) pMDU->mvprint(30, 6, text.c_str(), dps::DEUATT_OVERBRIGHT);
-	else pMDU->mvprint(30, 6, text.c_str());
+	if(MnvrToBurnAtt && dapMode != OrbitDAP::AUTO) pMDU->mvprint(29, 6, text.c_str(), dps::DEUATT_OVERBRIGHT);
+	else pMDU->mvprint(29, 6, text.c_str());
 
 
 	pMDU->mvprint(20, 8, "REI");
 	pMDU->mvprint(25, 10, "GMBL");
 	pMDU->mvprint(24, 11, "L");
 	pMDU->mvprint(30, 11, "R");
-	sprintf_s(cbuf, 255, "P %+02.1f %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
+	sprintf_s(cbuf, 255, "P %+02.1f  %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
 	pMDU->mvprint(20, 12, cbuf);
-	sprintf_s(cbuf, 255, "Y %+02.1f %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
+	sprintf_s(cbuf, 255, "Y %+02.1f  %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
 	pMDU->mvprint(20, 13, cbuf);
 
 	pMDU->mvprint(20, 15, "PRI 28   29");
 	pMDU->mvprint(20, 16, "SEC 30   31");
 	pMDU->mvprint(20, 17, "OFF 32   33");
-	pMDU->mvprint(20, 18, "GMBL CK  34");
+	pMDU->mvprint(20, 19, "GMBL CK  34");
 
+	pMDU->Line( 90, 9, 90, 216 );
 	pMDU->Line(175, 117, 255, 117);
 	pMDU->Line(175, 18, 175, 117);
 	if(MnvrLoad && !BurnInProg && !BurnCompleted) {
@@ -564,32 +662,46 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->Delta(36, 3);
 	sprintf_s(cbuf, 255, "TGO      %2d:%.2d", TGO[0], TGO[1]);
 	pMDU->mvprint(36, 4, cbuf);
-	sprintf_s(cbuf, 255, "VGO X %+8.2f", VGO.x);
+	sprintf_s(cbuf, 255, "VGO X  %7.2f", fabs( VGO.x ));
 	pMDU->mvprint(36, 6, cbuf);
-	sprintf_s(cbuf, 255, "Y  %+7.2f", VGO.y);
+	pMDU->NumberSign( 42, 6, VGO.x );
+	sprintf_s(cbuf, 255, "Y   %6.2f", fabs( VGO.y ));
 	pMDU->mvprint(40, 7, cbuf);
-	sprintf_s(cbuf, 255, "Z  %+7.2f", VGO.z);
+	pMDU->NumberSign( 43, 7, VGO.y );
+	sprintf_s(cbuf, 255, "Z   %6.2f", fabs( VGO.z ));
 	pMDU->mvprint(40, 8, cbuf);
-	pMDU->mvprint(40, 10, "HA     HP");
+	pMDU->NumberSign( 43, 8, VGO.z );
+	pMDU->mvprint(41, 10, "HA    HP");
 	double earthRadius = oapiGetSize(STS()->GetGravityRef());
 	if(MnvrLoad && !Eq(tgtApD, 0.0)) {
 		double ap = (tgtApD-earthRadius)/NMI2M;
 		double pe = (tgtPeD-earthRadius)/NMI2M;
-		sprintf_s(cbuf, 255, "TGT %3d   %+4d", Round(ap), Round(pe));
+		sprintf_s(cbuf, 255, "TGT %3d    %3d", Round(ap), abs( Round(pe) ));
 		pMDU->mvprint(36, 11, cbuf);
+		pMDU->NumberSign( 46, 11, Round(pe) );
 	}
 	else {
 		pMDU->mvprint(36, 11, "TGT");
 	}
-	//double ap = (oparam.ApD-earthRadius)/NMI2M;
-	//double pe = (oparam.PeD-earthRadius)/NMI2M;
+	
 	double ap = (ApD-earthRadius)/NMI2M;
 	double pe = (PeD-earthRadius)/NMI2M;
-	sprintf_s(cbuf, 255, "CUR %3d   %+4d", Round(ap), Round(pe));
+	sprintf_s(cbuf, 255, "CUR %3d    %3d", Round(ap), abs( Round(pe) ));
 	pMDU->mvprint(36, 12, cbuf);
-	//pMDU->mvprint(36, 12, "CUR");
+	pMDU->NumberSign( 46, 12, Round(pe) );
 
 	pMDU->mvprint(35, 15, "35 ABORT TGT");
+	pMDU->Underline( 48, 15 );
+	pMDU->Underline( 49, 15 );
+
+	pMDU->mvprint( 37, 17, "FWD RCS" );
+	pMDU->mvprint( 39, 18, "ARM   36" );
+	pMDU->mvprint( 39, 19, "DUMP  37" );
+	pMDU->mvprint( 39, 20, "OFF   38" );
+
+	pMDU->mvprint( 37, 21, "SURF DRIVE" );
+	pMDU->mvprint( 39, 22, "ON    39" );
+	pMDU->mvprint( 39, 23, "OFF   40" );
 
 	return true;
 }

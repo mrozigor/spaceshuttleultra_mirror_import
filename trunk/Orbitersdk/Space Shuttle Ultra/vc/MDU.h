@@ -102,6 +102,7 @@ namespace vc {
 		void Tape_Create( void );
 		void ADI_Create( void );
 
+		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
 		void Tape_MVR_KEAS( HDC hDC, double MachNumber );
@@ -462,6 +463,43 @@ namespace vc {
 			Line( x + 8, y - 4, x + 6, y - 1, attributes );
 			Line( x + 7, y + 1, x + 9, y - 2, attributes );
 			Line( x + 7, y + 1, x, y + 1, attributes );*/
+		}
+
+		/**
+		 * Draws sign of number at specified location on MDU.
+		 */
+		inline void NumberSign( int x, int y, double number, char attributes = 0 )
+		{
+			if (number > 0) mvprint( x, y, "+", attributes );
+			else if (number < 0) mvprint( x, y, "-", attributes );
+			else mvprint( x, y, " ", attributes );
+		}
+
+		/**
+		 * Draws sign of number with brackets at specified location on MDU.
+		 */
+		inline void NumberSignBracket( int x, int y, double number, char attributes = 0 )
+		{
+			if (number > 0) mvprint( x, y, "+", attributes );
+			else if (number < 0) mvprint( x, y, "-", attributes );
+			else mvprint( x, y, " ", attributes );
+
+			Line( x * 5, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
+			Line( x * 5, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+
+			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
+			Line( (x * 5) + 4, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+
+			Line( x * 5, (y * 9) + 1, x * 5, (y * 9) + 7, attributes );
+			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 4, (y * 9) + 7, attributes );
+		}
+
+		/**
+		 * Draws underline the character at the specified location on MDU.
+		 */
+		inline void Underline( int x, int y, char attributes = 0 )
+		{
+			Line( (x * 5) + 1, (y * 9) + 7, (x * 5) + 4, (y * 9) + 7, attributes );
 		}
 
 		virtual bool GetViewAngle() const;
