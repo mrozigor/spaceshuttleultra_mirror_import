@@ -281,12 +281,10 @@ namespace vc {
 		//draw stuff
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
-				char cbuf[2];
 				if(textBuffer[i][j].cSymbol>='!') {
 					if (((textBuffer[i][j].cAttr & dps::DEUATT_FLASHING) == 0) || (flash == true))
 					{
 						int x, y;
-						sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
 						vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
 
 						if ((textBuffer[i][j].cAttr & dps::DEUATT_OVERBRIGHT) != 0)
@@ -493,28 +491,28 @@ namespace vc {
 			switch (menu)
 			{
 				case 0:
-					TextOut( hDC, 128, 9, "MAIN MENU", 9 );
+					TextOut( hDC, 112, 9, "MAIN MENU", 9 );
 					break;
 				case 1:
-					TextOut( hDC, 128, 9, "FLIGHT INSTRUMENTATION MENU", 27 );
+					TextOut( hDC, 112, 9, "FLIGHT INSTRUMENTATION MENU", 27 );
 					break;
 				case 2:
-					TextOut( hDC, 128, 9, "SUBSYSTEM MENU", 14 );
+					TextOut( hDC, 112, 9, "SUBSYSTEM MENU", 14 );
 					break;
 				case 3:
-					TextOut( hDC, 128, 9, "DPS MENU", 8 );
+					TextOut( hDC, 112, 9, "DPS MENU", 8 );
 					break;
 				case 4:
-					TextOut( hDC, 128, 9, "MAINTENANCE MENU", 16 );
+					TextOut( hDC, 112, 9, "MAINTENANCE MENU", 16 );
 					break;
 				case 5:
-					TextOut( hDC, 128, 9, "CST MENU SELECTION", 18 );
+					TextOut( hDC, 112, 9, "CST MENU SELECTION", 18 );
 					break;
 				case 6:
 					{
 						char buf[32];
 						sprintf_s( buf, 32, "IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
-						TextOut( hDC, 128, 9, buf, strlen( buf ) );
+						TextOut( hDC, 112, 9, buf, strlen( buf ) );
 					}
 					break;
 				default:
@@ -6213,6 +6211,7 @@ namespace vc {
 		{
 			TextOut( hDC, 149, 172, "HTA", 3 );
 			dtmp = GetIDP()->GetHTA();
+			SelectObject( hDC, DarkGrayPen );
 		}
 
 		Rectangle( hDC, 167, 171, 188, 183 );
