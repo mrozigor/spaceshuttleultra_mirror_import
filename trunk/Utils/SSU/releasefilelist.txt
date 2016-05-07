@@ -487,6 +487,8 @@ Textures\SSU\Centaur\Centaur_G_tex.dds
 Textures\SSU\Centaur\Centaur_G_tex_norm.dds
 Textures\SSU\Centaur\Centaur_G_tex_refl.dds
 Textures\SSU\Centaur\Centaur_G_tex_spec.dds
+Textures\SSU\Centaur\CISS_bellows.dds
+Textures\SSU\Centaur\CISS_bellows_norm.dds
 Textures\SSU\Centaur\CISS_tex.dds
 Textures\SSU\Centaur\CISS_tex_norm.dds
 Textures\SSU\Centaur\CISS_tex_refl.dds
