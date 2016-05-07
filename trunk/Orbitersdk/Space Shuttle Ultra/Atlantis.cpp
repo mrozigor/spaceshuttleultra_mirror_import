@@ -7367,9 +7367,12 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 					payloadMass += mass;
 					payloadCoG += CoG*mass;
 
-					char cbuf[255];
-					sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
-					oapiWriteLog(cbuf);
+					if (bUpdateAttachedVessels)
+					{
+						char cbuf[255];
+						sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
+						oapiWriteLog(cbuf);
+					}
 				}
 			}
 		}
