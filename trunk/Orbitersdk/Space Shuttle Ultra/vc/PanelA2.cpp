@@ -125,11 +125,8 @@ namespace vc
 					sprintf_s( cbuf, 8, "%05.1f", range_elevation );
 					decimalpoint = 3;
 				}
-				else
-				{
-					// XXXX.
-					sprintf_s( cbuf, 8, "%04.0f", range_elevation );
-				}
+				else if (range_elevation < 9999) sprintf_s( cbuf, 8, "%04.0f", range_elevation );// XXXX.
+				else sprintf_s( cbuf, 8, "9999" );
 
 				int num;
 				for (int i = 1, j = 0; i < 5; i++, j++)
@@ -218,13 +215,15 @@ namespace vc
 
 				char cbuf[8];
 				int decimalpoint = 4;
-				if (fabs( rangerate_azimuth ) <= 999.9)
+				if (fabs( range_elevation ) <= 999.9)
 				{
 					sprintf_s( cbuf, 8, "%05.1f", fabs( rangerate_azimuth ) );
 					decimalpoint = 3;
 				}
-				else if (fabs( rangerate_azimuth ) <= 9999) sprintf_s( cbuf, 8, "%04.0f", fabs( rangerate_azimuth ) );
-				else sprintf_s( cbuf, 8, "9999" );
+				else
+				{
+					sprintf_s( cbuf, 8, "%04.0f", fabs( rangerate_azimuth ) );
+				}
 
 				int num;
 				for (int i = 1, j = 0; i < 5; i++, j++)

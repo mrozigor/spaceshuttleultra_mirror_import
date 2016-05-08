@@ -52,6 +52,10 @@ namespace vc
 		pRadarOutput->SetLabel( 0, "LOW" );
 		pRadarOutput->SetLabel( 1, "MED" );
 		pRadarOutput->SetLabel( 2, "HIGH" );
+
+		Add( pScanWarnTB = new StandardTalkback_2( _sts, "Scan Warn TB", 1 ) );
+		Add( pTrackTB = new StandardTalkback_2( _sts, "Track TB", 1 ) );
+		Add( pSearchTB = new StandardTalkback_2( _sts, "Search TB", 1 ) );
 	}
 
 	PanelA1U::~PanelA1U()
@@ -118,6 +122,10 @@ namespace vc
 		pRadarOutput->DefineSwitchGroup( GRP_A1US14_VC );
 		pRadarOutput->SetMouseRegion( 0.353588f, 0.856309f, 0.416909f, 0.962201f );
 		pRadarOutput->SetReference( _V( 1.2504, 2.8016, 12.2231 ), switch_rot_vert );
+		
+		pScanWarnTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_SCANWARN_VC );
+		pTrackTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_TRACK_VC );
+		pSearchTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_SEARCH_VC );
 	}
 
 	void PanelA1U::RegisterVC()
@@ -143,9 +151,9 @@ namespace vc
 		pSearch->ConnectPort( 1, pBundle, 5 );
 		pRadarOutput->ConnectPort( 1, pBundle, 6 );
 		pRadarOutput->ConnectPort( 2, pBundle, 7 );
-		// tb search
-		// tb track
-		// tb scan
+		pScanWarnTB->SetInput( 0, pBundle, 8, TB_GRAY );
+		pTrackTB->SetInput( 0, pBundle, 9, TB_GRAY );
+		pSearchTB->SetInput( 0, pBundle, 10, TB_GRAY );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "A1U_SWITCHES_B", 16 );
 		pControl->ConnectPort( 1, pBundle, 0 );

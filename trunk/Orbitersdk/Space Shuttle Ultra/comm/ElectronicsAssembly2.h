@@ -32,6 +32,10 @@
 #include <DiscInPort.h>
 
 
+const VECTOR3 ANTENNA_OFFSET = _V( 3.5, 0.5, 10.5 );// m (approx)
+const double RADAR_MAINLOBE_HALF_CONE = 5;// deg
+
+
 namespace comm
 {
 	class DeployedAssembly;
@@ -40,10 +44,30 @@ namespace comm
 	{
 			DeployedAssembly* pDeployedAssembly;
 
-			discsignals::DiscInPort pPower_Off;
-			discsignals::DiscInPort pPower_On;
+			DiscInPort pPower_Off;
+			DiscInPort pPower_On;
+			DiscInPort KUaz;
+			DiscInPort KUel;
+			DiscInPort RADSTB;
+			DiscInPort RADON;
+			DiscInPort RADARPOWERLOW;
+			DiscInPort RADARPOWERMEDIUM;
 
-			bool FindTarget( double &rng, double &az, double &el );
+			DiscOutPort Range;
+			DiscOutPort RangeRate;
+			DiscOutPort Detect;
+			DiscOutPort TGTaz;
+			DiscOutPort TGTel;
+
+			OBJHANDLE target;
+			double rOLD;
+
+			OBJHANDLE FindTarget( double &r, double &az, double &el );
+			bool GetTargetInfo( OBJHANDLE hVessel, double &r, double &rr, double &az, double &el, double dt );
+
+			bool IsDetected( OBJHANDLE hVessel, double &r, double &az, double &el );
+			
+			double GetPower( void );
 
 		public:
 			ElectronicsAssembly2( AtlantisSubsystemDirector* _director, DeployedAssembly* pDeployedAssembly );

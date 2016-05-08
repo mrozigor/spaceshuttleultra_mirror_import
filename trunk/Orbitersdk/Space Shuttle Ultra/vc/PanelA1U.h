@@ -56,6 +56,9 @@ namespace vc
 		RotaryDemuxSwitch* pHighDataRateSP;
 		RotaryDemuxSwitch* pLowDataRateSP;
 		LockableLever2* pTAGSEncrypt;
+		StandardTalkback_2* pScanWarnTB;
+		StandardTalkback_2* pTrackTB;
+		StandardTalkback_2* pSearchTB;
 
 	};
 };
