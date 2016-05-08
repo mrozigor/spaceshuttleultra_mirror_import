@@ -42,6 +42,9 @@ namespace comm
 	const double COS_67 = 0.390731128489;
 	const double SIN_67 = 0.920504853452;
 
+	const double SCAN_CONE_HALF_ANGLE = 30;// deg
+
+
 	class DeployedAssembly;
 
 	class ElectronicsAssembly1:public AtlantisSubsystem
@@ -56,6 +59,9 @@ namespace comm
 			DiscInPort pSearch;
 			DiscInPort pRadarOutput_Low;
 			DiscInPort pRadarOutput_High;
+			//DiscOutPort pScanWarnTB;
+			DiscOutPort pTrackTB;
+			DiscOutPort pSearchTB;
 
 			DiscInPort pPower_Off;
 			DiscInPort pPower_On;
@@ -88,6 +94,18 @@ namespace comm
 			DiscInPort AlphaEncoder;
 			DiscInPort BetaEncoder;
 
+			DiscOutPort KUaz_EA2;
+			DiscOutPort KUel_EA2;
+			DiscOutPort RADSTB_EA2;
+			DiscOutPort RADON_EA2;
+			DiscOutPort RADARPOWERLOW_EA2;
+			DiscOutPort RADARPOWERMEDIUM_EA2;
+			DiscInPort Range_EA2;
+			DiscInPort RangeRate_EA2;
+			DiscInPort Detect_EA2;
+			DiscInPort TGTaz_EA2;
+			DiscInPort TGTel_EA2;
+
 			bool ValidDeploy;
 
 			double simt;
@@ -103,6 +121,18 @@ namespace comm
 			bool WiggleTestPass;
 			double WiggleTestAlpha;
 			double WiggleTestBeta;
+
+			bool scan;
+			bool scan_in;
+			double scan_az;
+			double scan_el;
+			double scan_az_delta;
+			double scan_el_delta;
+
+			bool target;
+
+			double tgt_elOLD;
+			double tgt_azOLD;
 
 			double old_alpha;
 			double old_beta;
@@ -147,7 +177,7 @@ namespace comm
 			bool WiggleTest( void );
 			bool GimbalStopCheck( void );
 
-			void PanelOutput( void );
+			void PanelOutput( double r, double rr );
 
 		public:
 			ElectronicsAssembly1( AtlantisSubsystemDirector* _director, DeployedAssembly* pDeployedAssembly );

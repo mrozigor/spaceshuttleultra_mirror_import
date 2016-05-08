@@ -15,8 +15,20 @@ namespace comm
 
 		deploy = 1;
 
+		scan = false;
+		scan_in = false;
+		scan_az = 0;
+		scan_el = 90;
+		scan_az_delta = 0;
+		scan_el_delta = 0;
+
+		target = false;
+
 		AlphaMIPdone = false;
 		BetaMIPdone = false;
+
+		tgt_elOLD = 0;
+		tgt_azOLD = 0;
 
 		old_alpha = -1;
 		old_beta = -1;
@@ -48,9 +60,9 @@ namespace comm
 		pSearch.Connect( pBundle, 5 );
 		pRadarOutput_Low.Connect( pBundle, 6 );
 		pRadarOutput_High.Connect( pBundle, 7 );
-		// tb search
-		// tb track
-		// tb scan
+		//pScanWarnTB->SetInput( pBundle, 8 );
+		pTrackTB.Connect( pBundle, 9 );
+		pSearchTB.Connect( pBundle, 10 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "A1U_SWITCHES_B", 16 );
 		pPower_Off.Connect( pBundle, 5 );
@@ -87,6 +99,19 @@ namespace comm
 		GimbalMotorBeta.Connect( pBundle, 11 );
 		AlphaEncoder.Connect( pBundle, 12 );
 		BetaEncoder.Connect( pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "EA1_EA2", 16 );
+		KUaz_EA2.Connect( pBundle, 0 );
+		KUel_EA2.Connect( pBundle, 1 );
+		RADSTB_EA2.Connect( pBundle, 2 );
+		RADON_EA2.Connect( pBundle, 3 );
+		RADARPOWERLOW_EA2.Connect( pBundle, 4 );
+		RADARPOWERMEDIUM_EA2.Connect( pBundle, 5 );
+		Range_EA2.Connect( pBundle, 6 );
+		RangeRate_EA2.Connect( pBundle, 7 );
+		Detect_EA2.Connect( pBundle, 8 );
+		TGTaz_EA2.Connect( pBundle, 9 );
+		TGTel_EA2.Connect( pBundle, 10 );
 		return;
 	}
 
@@ -133,8 +158,21 @@ namespace comm
 			BOOMST.ResetLine();
 			bBOOMST = false;
 			GimbalLockMotors.ResetLine();
+
+			KUaz_EA2.ResetLine();
+			KUel_EA2.ResetLine();
+			RADSTB_EA2.ResetLine();
+			RADON_EA2.ResetLine();
+			RADARPOWERLOW_EA2.ResetLine();
+			RADARPOWERMEDIUM_EA2.ResetLine();
+
+			pTrackTB.ResetLine();
+			pSearchTB.ResetLine();
 			return;
 		}
+
+		double range = 0;
+		double range_rate = 0;
 
 		simt = fSimT;
 		dt = fDeltaT;
@@ -176,9 +214,9 @@ namespace comm
 					else if (AUTO)
 					{
 						// auto
-						Procedure_Slew( false, false, false, false, false );
-						Procedure_Scan();
-						Procedure_Track();
+						Procedure_Slew( pSlewRate_Fast, pSlewAzimuth_R, pSlewAzimuth_L, pSlewElevation_Up, pSlewElevation_Down );
+						//Procedure_Scan();
+						//Procedure_Track();
 					}
 					else
 					{
@@ -217,11 +255,12 @@ namespace comm
 					}
 					else
 					{
-						// TODO radar stuff
+						// radar stuff
 						if (GPCDES)
 						{
 							// gpc desig
 							Procedure_Point();
+							target = false;
 						}
 						else if (GPC)
 						{
@@ -233,15 +272,19 @@ namespace comm
 						else if (AUTO)
 						{
 							// auto
-							Procedure_Slew( false, false, false, false, false );
-							Procedure_Scan();
-							Procedure_Track();
+							if (!scan && !target && !pSearch) Procedure_Slew( pSlewRate_Fast, pSlewAzimuth_R, pSlewAzimuth_L, pSlewElevation_Up, pSlewElevation_Down );
+							else if (!target && (pSearch || scan)) Procedure_Scan();
+							else if (target) Procedure_Track();
 						}
 						else
 						{
 							// man slew
 							Procedure_Slew( pSlewRate_Fast, pSlewAzimuth_R, pSlewAzimuth_L, pSlewElevation_Up, pSlewElevation_Down );
+							target = false;
 						}
+
+						range = Range_EA2.GetVoltage();
+						range_rate = RangeRate_EA2.GetVoltage();
 					}
 				}
 			}
@@ -267,44 +310,59 @@ namespace comm
 
 		lastsimt = fSimT;
 
-		PanelOutput();
+		PanelOutput( range, range_rate );
 
 		// output to DA
 		GimbalLockMotors.SetLine( (float)GimbalLockMotorsPower * (int)GimbalLockMotorsENA );
 		GimbalMotorAlpha.SetLine( (float)omegaalpha );
 		GimbalMotorBeta.SetLine( (float)omegabeta );
 
-
-		///////////////
-
-		// man slew
-		/*double tgt_AZ = cur_AZ;
-		double tgt_EL = cur_EL;
-		ManSlew( tgt_AZ, tgt_EL, fDeltaT );
-		if ((tgt_AZ != cur_AZ) || (tgt_EL != cur_EL))
-		{
-			double tgt_alpha;
-			double tgt_beta;
-			ShuttleToGimbal( tgt_EL, tgt_AZ, tgt_alpha, tgt_beta );
-			pDeployedAssembly->SetAlpha( tgt_alpha );
-			pDeployedAssembly->SetBeta( tgt_beta );
-		}*/
+		// output to EA-2
+		KUaz_EA2.SetLine( (float)cur_az );
+		KUel_EA2.SetLine( (float)cur_el );
+		RADSTB_EA2.SetLine( RADSTB.GetVoltage() );
+		RADON_EA2.SetLine( RADON.GetVoltage() );
+		RADARPOWERLOW_EA2.SetLine( pRadarOutput_Low.GetVoltage() );
+		RADARPOWERMEDIUM_EA2.SetLine( 5.0f * (int)(!pRadarOutput_Low.IsSet() && !pRadarOutput_High.IsSet()) );
 		return;
 	}
 
-	void ElectronicsAssembly1::PanelOutput( void )
+	void ElectronicsAssembly1::PanelOutput( double r, double rr )
 	{
+		// output to panel A1U
+		pTrackTB.SetLine( 5.0f * (int)target );
+		pSearchTB.SetLine( 5.0f * (int)scan );
+
 		// output to panel A2
 		pElevation.SetLine( (float)(cur_el * 0.01) );
 		pAzimuth.SetLine( (float)(cur_az * 0.01) );
-		// TODO radar output
-		pRange.SetLine( (float)(0) );
-		pRangeRate.SetLine( (float)(0) );
-		// TODO M1 output
-		pELrate0_20.SetLine( (float)(0) );
-		pELrate0_2.SetLine( (float)(0) );
-		pAZrate0_20.SetLine( (float)(0) );
-		pAZrate0_2.SetLine( (float)(0) );
+
+		if (target)
+		{
+			// radar output
+			pRange.SetLine( (float)(r * 0.0005) );
+			pRangeRate.SetLine( (float)(rr * 0.0005) );
+			// M1 output
+			double el1 = TGTel_EA2.GetVoltage() * RAD * 1000;
+			double az1 = TGTaz_EA2.GetVoltage() * RAD * 1000;
+			double el = (el1 - tgt_elOLD) / dt;
+			double az = (az1 - tgt_azOLD) / dt;
+			tgt_elOLD = el1;
+			tgt_azOLD = az1;
+			pELrate0_20.SetLine( (float)range( -5, el * 0.25, 5 ) );
+			pELrate0_2.SetLine( (float)range( -5, el * 2.5, 5 ) );
+			pAZrate0_20.SetLine( (float)range( -5, az * 0.25, 5 ) );
+			pAZrate0_2.SetLine( (float)range( -5, az * 2.5, 5 ) );
+		}
+		else
+		{
+			pRange.ResetLine();
+			pRangeRate.ResetLine();
+			pELrate0_20.ResetLine();
+			pELrate0_2.ResetLine();
+			pAZrate0_20.ResetLine();
+			pAZrate0_2.ResetLine();
+		}
 		return;
 	}
 
@@ -509,13 +567,97 @@ namespace comm
 		return;
 	}
 
-	void ElectronicsAssembly1::Procedure_Scan( void )
+	void ElectronicsAssembly1::Procedure_Scan( void )// very, very simplified and radar only
 	{
+		double des_alpha;
+		double des_beta;
+		double des_az;
+		double des_el;
+
+		if (scan)
+		{
+			if (Detect_EA2)
+			{
+				target = true;
+				scan = false;
+			}
+			else
+			{
+				scan_az += 35 * dt;
+				if (scan_az > 180) scan_az -= 360;
+
+				if (!scan_in)
+				{
+					scan_el -= 1 * dt;
+					if (scan_el < (90 - SCAN_CONE_HALF_ANGLE))
+					{
+						scan_el = (90 - SCAN_CONE_HALF_ANGLE);
+						scan_in = true;
+					}
+				}
+				else
+				{
+					scan_el += 1 * dt;
+					if (scan_el > 90)
+					{
+						scan_el = 90;
+						scan = false;
+					}
+				}
+			}
+		}
+		else
+		{
+			// setup
+			scan = true;
+			scan_in = false;
+			scan_az = 0;
+			scan_el = 90;
+			scan_az_delta = cur_az * RAD;
+			scan_el_delta = (cur_el - 90) * RAD;
+		}
+
+		// convert reference
+		VECTOR3 desA = _V( cos( scan_el * RAD ) * sin( -scan_az * RAD ), cos( scan_el * RAD ) * cos( scan_az * RAD ), sin( scan_el * RAD ) );
+		VECTOR3 desB;
+		VECTOR3 ang = _V( scan_el_delta, 0, scan_az_delta );
+		RotateVector( desA, ang, desB );
+		des_el = asin( desB.z ) * DEG;
+		des_az = atan2( desB.x, desB.y ) * DEG;
+		
+		ShuttleToGimbal( des_el, des_az, des_alpha, des_beta );
+		
+		omegaalpha = (des_alpha - cur_alpha) / dt;
+		omegabeta = (des_beta - cur_beta) / dt;
+		// limit output
+		if (omegaalpha > 40) omegaalpha = 40;
+		else if (omegaalpha < -40) omegaalpha = -40;
+		if (omegabeta > 40) omegabeta = 40;
+		else if (omegabeta < -40) omegabeta = -40;
 		return;
 	}
 
 	void ElectronicsAssembly1::Procedure_Track( void )
 	{
+		if (!Detect_EA2)
+		{
+			target = false;
+		}
+		else
+		{
+			// track
+			double des_alpha;
+			double des_beta;
+			ShuttleToGimbal( TGTel_EA2.GetVoltage(), TGTaz_EA2.GetVoltage(), des_alpha, des_beta );
+
+			omegaalpha = (des_alpha - cur_alpha) / dt;
+			omegabeta = (des_beta - cur_beta) / dt;
+			// limit output
+			if (omegaalpha > 20) omegaalpha = 20;
+			else if (omegaalpha < -20) omegaalpha = -20;
+			if (omegabeta > 20) omegabeta = 20;
+			else if (omegabeta < -20) omegabeta = -20;
+		}
 		return;
 	}
 
