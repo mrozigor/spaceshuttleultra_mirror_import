@@ -30,6 +30,10 @@
 #include "Talkback.h"
 #include "PushButtonIndicator.h"
 
+
+const double EVTTMR_WHEELMAX_A6[4] = {3.0, 5.0, 3.0, 5.0};
+
+
 namespace vc
 {
 	class PanelA6: public AtlantisPanel
@@ -44,8 +48,9 @@ namespace vc
 
 		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
-		//virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
-		//virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
+		virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
+		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
+		virtual void DefineVCAnimations( UINT vcidx );
 	private:
 		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
 		//void UpdatePBIs();
@@ -79,6 +84,24 @@ namespace vc
 		StdSwitch3* pADIAttitude;
 		StdSwitch3* pADIError;
 		StdSwitch3* pADIRate;
+
+		StdSwitch3* pEventTimerMode;
+		StdSwitch3* pEventTimerControl;
+		StdSwitch3* pEventTimerTimer;
+
+		DiscInPort pEventTimerMode_Up;
+		DiscInPort pEventTimerMode_Test;
+		DiscInPort pEventTimerControl_Start;
+		DiscInPort pEventTimerControl_Stop;
+		DiscInPort pEventTimerTimer_Set;
+		DiscInPort pEventTimerTimer_Reset;
+
+		UINT anim_VC_A6Wheel[4];
+
+		double tgtwheel_state[4];
+		short wheelnumber[4];
+		short oldwheelnumber[4];
+		double wheelState[4];
 
 		//PBI lights
 		//bool PBI_Lights[24]; //true if light on

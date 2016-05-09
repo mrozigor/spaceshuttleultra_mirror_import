@@ -255,6 +255,10 @@
 #define AID_A6_TKBK8   532
 #define AID_A6_TKBK9   533
 #define AID_A6_TKBK10  534
+#define AID_A6_WND0  535
+#define AID_A6_WND1  536
+#define AID_A6_WND2  537
+#define AID_A6_WND3  538
 #define AID_A6_MAX     539
 
 #define AID_R11_MIN		540

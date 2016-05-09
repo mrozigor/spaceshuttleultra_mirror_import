@@ -42,6 +42,9 @@ namespace vc
 		Add( pADIAttitude = new StdSwitch3( _sts, "ADI Attitude" ) );
 		Add( pADIError = new StdSwitch3( _sts, "ADI Error" ) );
 		Add( pADIRate = new StdSwitch3( _sts, "ADI Rate" ) );
+		Add( pEventTimerMode = new StdSwitch3( _sts, "Event Timer Mode" ) );
+		Add( pEventTimerControl = new StdSwitch3( _sts, "Event Timer Control" ) );
+		Add( pEventTimerTimer = new StdSwitch3( _sts, "Event Timer Timer" ) );
 
 		for(int i=0;i<24;i++) {
 			//PBI_Lights[i]=false;
@@ -82,10 +85,110 @@ namespace vc
 		pADIRate->SetLabel( 0, "LOW" );
 		pADIRate->SetLabel( 1, "MED" );
 		pADIRate->SetLabel( 2, "HIGH" );
+		
+		pEventTimerMode->SetLabel( 1, "DOWN" );
+		pEventTimerMode->SetLabel( 2, "UP" );
+
+		for (int i = 0; i < 4; i++)
+		{
+			tgtwheel_state[i] = 0;
+			wheelState[i] = 0.0;
+			wheelnumber[i] = 0;
+			oldwheelnumber[i] = 9;
+		}
 	}
 
 	PanelA6::~PanelA6()
 	{
+	}
+
+	bool PanelA6::OnVCMouseEvent( int id, int _event, VECTOR3 &p )
+	{
+		if (id != AID_A6) return false;
+		
+		if (_event & PANEL_MOUSE_LBDOWN)
+		{
+			if(p.x> 0.243644 && p.x < 0.264384)
+			{
+				if(p.y > 0.695075 && p.y < 0.723049)
+				{
+					tgtwheel_state[0] = tgtwheel_state[0] + 0.25;
+					return true;
+				}
+				else if(p.y > 0.747519 && p.y < 0.773890)
+				{
+					tgtwheel_state[0] -= 0.25;
+					if(tgtwheel_state[0] < 0) tgtwheel_state[0] +=EVTTMR_WHEELMAX_A6[0];
+					return true;
+				}
+			}
+			else if(p.x> 0.203010 && p.x < 0.225550)
+			{
+				if(p.y > 0.695075 && p.y < 0.723049)
+				{
+					tgtwheel_state[1] = tgtwheel_state[1] + 0.25;
+					return true;
+				}
+				else if(p.y > 0.747519 && p.y < 0.773890)
+				{
+					tgtwheel_state[1] -= 0.25;
+					if(tgtwheel_state[1] < 0) tgtwheel_state[1] +=EVTTMR_WHEELMAX_A6[1];
+					return true;
+				}
+			}
+			else if(p.x> 0.163198 && p.x < 0.186210)
+			{
+				if(p.y > 0.695075 && p.y < 0.723049)
+				{
+					tgtwheel_state[2] = tgtwheel_state[2] + 0.25;
+					return true;
+				}
+				else if(p.y > 0.747519 && p.y < 0.773890)
+				{
+					tgtwheel_state[2] -= 0.25;
+					if(tgtwheel_state[2] < 0) tgtwheel_state[2] +=EVTTMR_WHEELMAX_A6[2];
+					return true;
+				}
+			}
+			else if(p.x> 0.122897 && p.x < 0.146372)
+			{
+				if(p.y > 0.695075 && p.y < 0.723049)
+				{
+					tgtwheel_state[3] = tgtwheel_state[3] + 0.25;
+					return true;
+				}
+				else if(p.y > 0.747519 && p.y < 0.773890)
+				{
+					tgtwheel_state[3] -= 0.25;
+					if(tgtwheel_state[3] < 0) tgtwheel_state[3] +=EVTTMR_WHEELMAX_A6[3];
+					return true;
+				}
+			}
+		}
+		return AtlantisPanel::OnVCMouseEvent( id, _event, p );
+	}
+
+	bool PanelA6::OnVCRedrawEvent( int id, int _event, SURFHANDLE surf )
+	{
+		const int NUMX[10] = {0, 64, 128, 192, 0, 64, 128, 192, 0, 64};
+		const int NUMY[10] = {0, 0, 0, 0, 64, 64, 64, 64, 128, 128};
+	
+		switch (id)
+		{
+			case AID_A6_WND0:
+				oapiBlt(surf, g_Param.clock_digits, 0,0, NUMX[wheelnumber[0]], NUMY[wheelnumber[0]], 63, 63);
+				return true;
+			case AID_A6_WND1:
+				oapiBlt(surf, g_Param.clock_digits, 0,0, NUMX[wheelnumber[1]], NUMY[wheelnumber[1]], 63, 63);
+				return true;
+			case AID_A6_WND2:
+				oapiBlt(surf, g_Param.clock_digits, 0,0, NUMX[wheelnumber[2]], NUMY[wheelnumber[2]], 63, 63);
+				return true;
+			case AID_A6_WND3:
+				oapiBlt(surf, g_Param.clock_digits, 0,0, NUMX[wheelnumber[3]], NUMY[wheelnumber[3]], 63, 63);
+				return true;
+		}
+		return AtlantisPanel::OnVCRedrawEvent( id, _event, surf );
 	}
 
 	void PanelA6::DefineVC()
@@ -182,6 +285,26 @@ namespace vc
 			pLatchState[i]->SetTalkbackLocation(0, 0);
 			pLatchState[i]->SetDimensions(40, 22);
 		}
+
+		pEventTimerMode->SetInitialAnimState( 0.5f );
+		pEventTimerMode->DefineSwitchGroup( GRP_A6U39_VC );
+		pEventTimerMode->SetReference( _V( 0.3962, 2.5547, 12.3837 ), switch_rot );
+		pEventTimerMode->SetMouseRegion( 0.244218f, 0.854629f, 0.282415f, 0.920201f );
+		pEventTimerMode->SetSpringLoaded( true, 0 );
+
+		pEventTimerControl->SetInitialAnimState( 0.5f );
+		pEventTimerControl->DefineSwitchGroup( GRP_A6U40_VC );	
+		pEventTimerControl->SetReference( _V( 0.3667, 2.5549, 12.3836 ), switch_rot );
+		pEventTimerControl->SetMouseRegion( 0.184202f, 0.857520f, 0.230935f, 0.922421f );
+		pEventTimerControl->SetSpringLoaded( true, 0 );
+		pEventTimerControl->SetSpringLoaded( true, 2 );
+
+		pEventTimerTimer->SetInitialAnimState( 0.5f );
+		pEventTimerTimer->DefineSwitchGroup( GRP_A6U41_VC );
+		pEventTimerTimer->SetReference( _V( 0.3392, 2.5549, 12.3837 ), switch_rot );
+		pEventTimerTimer->SetMouseRegion( 0.134762f, 0.857368f, 0.171836f, 0.923072f );
+		pEventTimerTimer->SetSpringLoaded( true, 0 );
+		pEventTimerTimer->SetSpringLoaded( true, 2 );
 
 		//mouse regions
 		pPBIs[0]->SetMouseRegion(0.659691f, 0.112755f, 0.705132f, 0.174825f); //A
@@ -282,6 +405,48 @@ namespace vc
 		oapiVCRegisterArea(AID_A6_TKBK8, _R(910, 1809, 950, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		oapiVCRegisterArea(AID_A6_TKBK9, _R(1010, 1809, 1050, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		oapiVCRegisterArea(AID_A6_TKBK10, _R(1111, 1809, 1151, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
+		// event timer wheel numbers
+		SURFHANDLE digittex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_CLOCKNUMS_VC );
+		oapiVCRegisterArea( AID_A6_WND0, _R( 0, 64, 63, 127 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
+		oapiVCRegisterArea( AID_A6_WND1, _R( 64, 64, 127, 127 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
+		oapiVCRegisterArea( AID_A6_WND2, _R( 128, 64, 191, 127 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
+		oapiVCRegisterArea( AID_A6_WND3, _R( 192, 64, 255, 127 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
+	}
+
+	void PanelA6::DefineVCAnimations( UINT vcidx )
+	{
+		static VECTOR3 wheel_rot = {-1.0, 0, 0};
+
+		static UINT VC_A6Evt10MW_Grp = GRP_A6UTOG1_VC;
+
+		static MGROUP_ROTATE VC_A6Evt10MW (vcidx, &VC_A6Evt10MW_Grp, 1,
+			_V( 0.0, 2.6080, 12.3532 ), wheel_rot, (float)(360.0*RAD));
+		anim_VC_A6Wheel[0]=STS()->CreateAnimation (0.0);
+		STS()->AddAnimationComponent (anim_VC_A6Wheel[0], 0, 1, &VC_A6Evt10MW);
+
+		static UINT VC_A6Evt1MW_Grp = GRP_A6UTOG2_VC;
+
+		static MGROUP_ROTATE VC_A6Evt1MW (vcidx, &VC_A6Evt1MW_Grp, 1,
+			_V( 0.0, 2.6080, 12.3532 ), wheel_rot, (float)(360.0*RAD));
+		anim_VC_A6Wheel[1]=STS()->CreateAnimation (0.0);
+		STS()->AddAnimationComponent (anim_VC_A6Wheel[1], 0, 1, &VC_A6Evt1MW);
+
+		static UINT VC_A6Evt10SW_Grp = GRP_A6UTOG3_VC;
+
+		static MGROUP_ROTATE VC_A6Evt10SW (vcidx, &VC_A6Evt10SW_Grp, 1,
+			_V( 0.0, 2.6080, 12.3532 ), wheel_rot, (float)(360.0*RAD));
+		anim_VC_A6Wheel[2]=STS()->CreateAnimation (0.0);
+		STS()->AddAnimationComponent (anim_VC_A6Wheel[2], 0, 1, &VC_A6Evt10SW);
+
+		static UINT VC_A6Evt1SW_Grp = GRP_A6UTOG4_VC;
+
+		static MGROUP_ROTATE VC_A6Evt1SW (vcidx, &VC_A6Evt1SW_Grp, 1,
+			_V( 0.0, 2.6080, 12.3532 ), wheel_rot, (float)(360.0*RAD));
+		anim_VC_A6Wheel[3]=STS()->CreateAnimation (0.0);
+		STS()->AddAnimationComponent (anim_VC_A6Wheel[3], 0, 1, &VC_A6Evt1SW);
+
+		AtlantisPanel::DefineVCAnimations( vcidx );
+		return;
 	}
 
 	void PanelA6::Realize()
@@ -384,6 +549,20 @@ namespace vc
 		pADIError->outputB.Connect( pBundle, 3 );// HIGH
 		pADIRate->outputA.Connect( pBundle, 4 );// LOW
 		pADIRate->outputB.Connect( pBundle, 5 );// HIGH
+
+		pBundle = STS()->BundleManager()->CreateBundle( "A6_EventTimer", 6 );
+		pEventTimerMode->ConnectPort( 1, pBundle, 0 );
+		pEventTimerMode->ConnectPort( 2, pBundle, 1 );
+		pEventTimerControl->ConnectPort( 1, pBundle, 2 );
+		pEventTimerControl->ConnectPort( 2, pBundle, 3 );
+		pEventTimerTimer->ConnectPort( 1, pBundle, 4 );
+		pEventTimerTimer->ConnectPort( 2, pBundle, 5 );
+		pEventTimerMode_Up.Connect( pBundle, 1 );
+		pEventTimerMode_Test.Connect( pBundle, 0 );
+		pEventTimerControl_Start.Connect( pBundle, 3 );
+		pEventTimerControl_Stop.Connect( pBundle, 2 );
+		pEventTimerTimer_Set.Connect( pBundle, 5 );
+		pEventTimerTimer_Reset.Connect( pBundle, 4 );
 		
 		AtlantisPanel::Realize();
 	}
@@ -463,6 +642,98 @@ namespace vc
 				Latch_RTLTkbk[i].ResetLine();
 			}
 		}
+
+		//// event timer ////
+		double fCurrState = 0.0;
+		double fTgtState = 0.0;
+
+		double fDeltaWheel = 0.5 * DeltaT;
+
+		for(int i = 0; i<4; i++)
+		{
+			fCurrState = wheelState[i];
+			fTgtState = tgtwheel_state[i];
+
+	
+			if(0.0 == fCurrState && fTgtState >= EVTTMR_WHEELMAX_A6[i] - 0.5)
+			{
+				fCurrState = EVTTMR_WHEELMAX_A6[i];
+			}
+
+			if(fCurrState <= 0.5 && fTgtState == EVTTMR_WHEELMAX_A6[i])
+			{
+				fTgtState = 0.0;
+			}
+
+			if(fCurrState == fTgtState)
+			{
+				if(tgtwheel_state[i] >= EVTTMR_WHEELMAX_A6[i])
+				{
+					tgtwheel_state[i] -= EVTTMR_WHEELMAX_A6[i];
+				}
+				continue;
+			}
+			else if(fCurrState > fTgtState)
+			{
+				if(fCurrState - fDeltaWheel < fTgtState)
+					wheelState[i] = fTgtState;
+				else
+					wheelState[i] = fCurrState - fDeltaWheel;
+			}
+			else
+			{
+				if(fCurrState + fDeltaWheel > fTgtState)
+					wheelState[i] = fTgtState;
+				else
+					wheelState[i] = fCurrState + fDeltaWheel;
+			}
+
+			if(wheelState[i] >= EVTTMR_WHEELMAX_A6[i])
+			{
+				wheelState[i] -= EVTTMR_WHEELMAX_A6[i];
+				if(tgtwheel_state[i] > EVTTMR_WHEELMAX_A6[i])
+					tgtwheel_state[i] -= EVTTMR_WHEELMAX_A6[i];
+			}
+
+			wheelnumber[i] = (int)(fmod(wheelState[i]/ 0.25, EVTTMR_WHEELMAX_A6[i] * 2.0) );
+
+			STS()->SetAnimation(anim_VC_A6Wheel[i], fmod(wheelState[i], 1.0));
+		}
+
+
+		if(wheelnumber[0] != oldwheelnumber[0])
+		{
+			oapiVCTriggerRedrawArea(-1, AID_A6_WND0);
+			oldwheelnumber[0] = wheelnumber[0];
+		}
+
+		if(wheelnumber[1] != oldwheelnumber[1])
+		{
+			oapiVCTriggerRedrawArea(-1, AID_A6_WND1);
+			oldwheelnumber[1] = wheelnumber[1];
+		}
+
+		if(wheelnumber[2] != oldwheelnumber[2])
+		{
+			oapiVCTriggerRedrawArea(-1, AID_A6_WND2);
+			oldwheelnumber[2] = wheelnumber[2];
+		}
+
+		if(wheelnumber[3] != oldwheelnumber[3])
+		{
+			oapiVCTriggerRedrawArea(-1, AID_A6_WND3);
+			oldwheelnumber[3] = wheelnumber[3];
+		}
+
+		if (pEventTimerMode_Up.IsSet()) STS()->pMTU->SetEventTimerMode( dps::TIMER_AFT, dps::COUNT_UP );
+		else if (pEventTimerMode_Test.IsSet()) STS()->pMTU->SetEventTimerMode( dps::TIMER_AFT, dps::COUNT_TEST );
+		else STS()->pMTU->SetEventTimerMode( dps::TIMER_AFT, dps::COUNT_DOWN );
+
+		if (pEventTimerControl_Start.IsSet()) STS()->pMTU->StartEventTimer( dps::TIMER_AFT );
+		else if (pEventTimerControl_Stop.IsSet()) STS()->pMTU->StopEventTimer( dps::TIMER_AFT );
+
+		if (pEventTimerTimer_Set.IsSet()) STS()->pMTU->SetEventTimer( dps::TIMER_AFT, wheelnumber[0] * 10 + wheelnumber[1], wheelnumber[2] * 10 + wheelnumber[3] );
+		else if (pEventTimerTimer_Reset.IsSet()) STS()->pMTU->ResetEventTimer( dps::TIMER_AFT );
 	}
 
 	PanelA6::PAYLOAD PanelA6::GetSelectedPayload() const
