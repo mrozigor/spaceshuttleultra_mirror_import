@@ -189,9 +189,9 @@ double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
 			CoG += childCoG*childMass;
 			mass += childMass;
 
-			char cbuf[255];
+			/*char cbuf[255];
 			sprintf_s(cbuf, 255, "Parent: %s Child: %s dist: %f", v->GetName(), pV->GetName(), length(childCoG));
-			oapiWriteLog(cbuf);
+			oapiWriteLog(cbuf);*/
 		}
 	}
 	CoG = CoG / mass;

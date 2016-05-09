@@ -31,7 +31,7 @@
 #include "Keyboard.h"
 
 
-const double EVTTMR_WHEELMAX[4] = {3.0, 5.0, 3.0, 5.0};
+const double EVTTMR_WHEELMAX_C2[4] = {3.0, 5.0, 3.0, 5.0};
 
 
 namespace vc
