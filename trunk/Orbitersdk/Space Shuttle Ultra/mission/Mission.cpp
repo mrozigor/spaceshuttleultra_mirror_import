@@ -99,13 +99,29 @@ namespace mission {
 		if(oapiReadItem_string(hFile, "Orbiter", buffer))
 		{
 			strOrbiter = buffer;
+
+			if (strOrbiter == "Columbia")
+			{
+				OVmass = ORBITER_EMPTY_MASS_OV102;
+				strOrbiterTexName = "SSU\\Columbia_8thmod.dds";
+			}
+			else if (strOrbiter == "Challenger")
+			{
+				OVmass = ORBITER_EMPTY_MASS_OV099;
+				strOrbiterTexName = "SSU\\Challenger_original.dds";
+			}
+			else if (strOrbiter == "Discovery")
+			{
+				OVmass = ORBITER_EMPTY_MASS_OV103;
+				strOrbiterTexName = "SSU\\Discovery_9thmod.dds";
+			}
+			else if (strOrbiter == "Endeavour")
+			{
+				OVmass = ORBITER_EMPTY_MASS_OV105;
+				strOrbiterTexName = "SSU\\Endeavour_3rdmod.dds";
+			}
+			// default already loaded ORBITER_EMPTY_MASS_OV104 and "Atlantis_5thmod.dds" texture is default in mesh
 		}
-		if (strOrbiter == "Columbia") OVmass = ORBITER_EMPTY_MASS_OV102;
-		else if (strOrbiter == "Challenger") OVmass = ORBITER_EMPTY_MASS_OV099;
-		else if (strOrbiter == "Discovery") OVmass = ORBITER_EMPTY_MASS_OV103;
-		//else if (strOrbiter == "Atlantis") OVmass = ORBITER_EMPTY_MASS_OV104;
-		else if (strOrbiter == "Endeavour") OVmass = ORBITER_EMPTY_MASS_OV105;
-		// default already loaded ORBITER_EMPTY_MASS_OV104
 
 		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
 		{
