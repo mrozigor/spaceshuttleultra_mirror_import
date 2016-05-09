@@ -62,7 +62,7 @@ The SSU installation already has some mission files for the included scenarios.
 \subsection{Parameter List}
 %\begin{table}[H]
  % \centering
-  \begin{longtable}{|l|p{1.5cm}|p{7.5cm}|l|}
+  \begin{longtable}{|l|p{1.5cm}|p{7.5cm}|p{2.0cm}|}
 	\hline
 	\rule{0pt}{2ex}
 	\textbf{Option Name} & \textbf{Type} & \textbf{Description} & \textbf{Default}\\
@@ -71,7 +71,7 @@ The SSU installation already has some mission files for the included scenarios.
 	Name & String & Mission name & -\\
 	\hline
 	\rule{0pt}{2ex}
-	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass), valid values$\colon$ ''Columbia'', ''Challenger'', ''Discovery'', ''Atlantis'', ''Endeavour'' & Atlantis\\
+	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass and default texture), valid values$\colon$ ''Columbia'', ''Challenger'', ''Discovery'', ''Atlantis'', ''Endeavour'' & Atlantis\\
 	\hline
 	\rule{0pt}{2ex}
 	OrbiterTexture & String & Orbiter texture name (located in <orbiter\_installation\textbackslash Textures\textbackslash SSU>. Currently available textures for each Orbiter$\colon$ \newline
@@ -84,7 +84,7 @@ $\Rightarrow$ ''Discovery\_original'', ''Discovery\_9thmod''\newline
 Endeavour$\colon$\newline
 $\Rightarrow$ ''Endeavour\_original'', ''Endeavour\_3rdmod''\newline
 Atlantis$\colon$\newline
-$\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& -\\
+$\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& (the last on each Orbiter list)\\
 	\hline
 	\rule{0pt}{2ex}
 	TargetInc & Number & Target inclination for MECO (deg) & 28.5\\
