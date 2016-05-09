@@ -31,15 +31,21 @@
 #include <UltraMath.h>
 
 
-#define CR_BLACK RGB( 0, 0, 0 )
+#define CR_BLACK RGB( 0, 0, 0 )//RGB( 0, 0, 25 )
+#define CR_DARK_GRAY RGB( 60, 60, 80 )
+#define CR_LIGHT_GRAY RGB( 180, 180, 200 )
 #define CR_WHITE RGB( 255, 255, 255 )
-#define CR_GRAY_LIGHT RGB( 192, 192, 192 )
-#define CR_GRAY_DARK RGB( 128, 128, 128 )
+//#define CR_ORANGE RGB( 255, 128, 0 )
 #define CR_RED RGB( 255, 0, 0 )
-#define CR_GREEN RGB( 0, 255, 0 )
 #define CR_YELLOW RGB( 255, 255, 0 )
-#define CR_MAGENTA RGB( 159, 110, 189 )
-#define CR_TURQUOISE RGB( 0, 183, 146 )
+#define CR_CYAN RGB( 0, 255, 255 )
+#define CR_MAGENTA RGB( 255, 0, 255 )
+#define CR_LIGHT_GREEN RGB( 0, 255, 0 )
+//#define CR_DARK_GREEN RGB( 0, 160, 0 )
+#define CR_BLUE RGB( 0, 0, 255 )
+//#define CR_PINK RGB( 220, 150, 220 )
+//#define CR_BROWN RGB( 190, 50, 30 )
+
 #define CR_MENU_COLOR RGB( 0, 255, 216 )
 #define CR_DPS_NORMAL RGB( 128, 255, 0 )
 #define CR_DPS_OVERBRIGHT RGB( 255, 255, 0 )
@@ -54,24 +60,27 @@ namespace vc {
 		bool counting;
 
 		HBRUSH BlackBrush;
+		HBRUSH DarkGrayBrush;
+		HBRUSH LightGrayBrush;
 		HBRUSH WhiteBrush;
-		HBRUSH GrayLightBrush;
-		HBRUSH GrayDarkBrush;
-		HBRUSH GreenBrush;
-		HBRUSH MagentaBrush;
-		HBRUSH YellowBrush;
 		HBRUSH RedBrush;
-
+		HBRUSH YellowBrush;
+		HBRUSH MagentaBrush;
+		HBRUSH LightGreenBrush;
+		HBRUSH BlueBrush;
+		
 		HPEN BlackPen;
+		HPEN DarkGrayPen;
+		HPEN DarkGrayThickPen;
+		HPEN LightGrayPen;
 		HPEN WhitePen;
-		HPEN GrayLightPen;
-		HPEN GrayDarkPen;
 		HPEN RedPen;
-		HPEN GreenPen;
-		HPEN GreenThickPen;
 		HPEN YellowPen;
+		HPEN CyanPen;
 		HPEN MagentaPen;
-		HPEN TurquoisePen;
+		HPEN LightGreenPen;
+		HPEN LightGreenThickPen;
+		
 		HPEN hOverbrightPen;
 		HPEN hNormalPen;
 		HPEN hDashedNormalPen;
@@ -93,6 +102,7 @@ namespace vc {
 		void Tape_Create( void );
 		void ADI_Create( void );
 
+		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
 		void Tape_MVR_KEAS( HDC hDC, double MachNumber );
@@ -113,8 +123,9 @@ namespace vc {
 		void ADI_ERROR_D( HDC hDC, double pitch, double roll, double yaw, int adierr );// 20/5/1 10/5/1 2.5/2.5/2.5
 		void ADI_ERROR_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
 
-		void HSI_A( HDC hDC, double heading, double roll );
-		void HSI_E( HDC hDC, double heading );
+		void HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading );
+		void HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading );
+		void HSI_Arrow( HDC hDC, double heading );
 
 		void AEPFD_Header_AscentDAP( HDC hDC, int MM, int adiatt );
 		void AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt );
@@ -173,6 +184,7 @@ namespace vc {
 		bool bIsConnectedToCRTMFD;
 
 		int display;
+		int menu;
 		
 		std::vector<dps::DEU_LINE> lines;
 		std::vector<dps::DEU_ELLIPSE> ellipses;
@@ -453,6 +465,43 @@ namespace vc {
 			Line( x + 7, y + 1, x, y + 1, attributes );*/
 		}
 
+		/**
+		 * Draws sign of number at specified location on MDU.
+		 */
+		inline void NumberSign( int x, int y, double number, char attributes = 0 )
+		{
+			if (number > 0) mvprint( x, y, "+", attributes );
+			else if (number < 0) mvprint( x, y, "-", attributes );
+			else mvprint( x, y, " ", attributes );
+		}
+
+		/**
+		 * Draws sign of number with brackets at specified location on MDU.
+		 */
+		inline void NumberSignBracket( int x, int y, double number, char attributes = 0 )
+		{
+			if (number > 0) mvprint( x, y, "+", attributes );
+			else if (number < 0) mvprint( x, y, "-", attributes );
+			else mvprint( x, y, " ", attributes );
+
+			Line( x * 5, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
+			Line( x * 5, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+
+			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
+			Line( (x * 5) + 4, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+
+			Line( x * 5, (y * 9) + 1, x * 5, (y * 9) + 7, attributes );
+			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 4, (y * 9) + 7, attributes );
+		}
+
+		/**
+		 * Draws underline the character at the specified location on MDU.
+		 */
+		inline void Underline( int x, int y, char attributes = 0 )
+		{
+			Line( (x * 5) + 1, (y * 9) + 7, (x * 5) + 4, (y * 9) + 7, attributes );
+		}
+
 		virtual bool GetViewAngle() const;
 		//virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
@@ -483,12 +532,19 @@ namespace vc {
 		 * Still called from CRTMFD until its "retirement".
 		 * OMS/MPS, HYD/APU and SPI are still in CRTMFD and should (eventually) be moved here as well.
 		 */
+		virtual void SystemStatusDisplay_CSTMenu( HDC hDC );
+		virtual void SystemStatusDisplay_IDPInteractiveCST( HDC hDC );
 		virtual void AEPFD( HDC hDC );
 		virtual void ORBITPFD( HDC hDC );
 
 		virtual void Set_display( int display )
 		{
 			this->display = display;
+		}
+
+		virtual void Set_menu( int menu )
+		{
+			this->menu = menu;
 		}
 	};
 

@@ -65,18 +65,18 @@ namespace vc
 		pMMUGN2SPLYISOLVLV[1]->SetLabel( 1, "-" );
 		pMMUGN2SPLYISOLVLV[1]->SetLabel( 2, "OPEN" );
 
-		Add( pPLBayDoorTB = new StandardTalkback( psts, "PL Bay Door", 2 ) );
+		Add( pPLBayDoorTB = new StandardTalkback_2( psts, "PL Bay Door", 2 ) );
 
-		Add( pLatch[0] = new StandardTalkback( psts, "Latch STBD", 2 ) );
-		Add( pLatch[1] = new StandardTalkback( psts, "Latch PORT", 2 ) );
+		Add( pLatch[0] = new StandardTalkback_2( psts, "Latch STBD", 2 ) );
+		Add( pLatch[1] = new StandardTalkback_2( psts, "Latch PORT", 2 ) );
 
-		Add( pRadiator[0] = new StandardTalkback( psts, "Radiator STBD", 2 ) );
-		Add( pRadiator[1] = new StandardTalkback( psts, "Radiator PORT", 2 ) );
+		Add( pRadiator[0] = new StandardTalkback_2( psts, "Radiator STBD", 2 ) );
+		Add( pRadiator[1] = new StandardTalkback_2( psts, "Radiator PORT", 2 ) );
 
-		Add( pKUAntennaTB = new StandardTalkback( psts, "Ku Antenna", 2 ) );
+		Add( pKUAntennaTB = new StandardTalkback_2( psts, "Ku Antenna", 2 ) );
 
-		Add( pMMUGN2SPLYISOLVLVTB[0] = new StandardTalkback( psts, "MMU GN2 SPLY ISOL VLV A", 2 ) );
-		Add( pMMUGN2SPLYISOLVLVTB[1] = new StandardTalkback( psts, "MMU GN2 SPLY ISOL VLV B", 2 ) );
+		Add( pMMUGN2SPLYISOLVLVTB[0] = new StandardTalkback_2( psts, "MMU GN2 SPLY ISOL VLV A", 2 ) );
+		Add( pMMUGN2SPLYISOLVLVTB[1] = new StandardTalkback_2( psts, "MMU GN2 SPLY ISOL VLV B", 2 ) );
 
 		oapiWriteLog( "(PanelR13L::PanelR13L) Leave constructor." );
 	}
@@ -165,37 +165,21 @@ namespace vc
 		pKUAntennaDirectStow->SetPullDirection( SWITCH_PULL );
 
 
-		pPLBayDoorTB->AddAIDToRedrawEventList( AID_R13L_TKBK1 );
-		pPLBayDoorTB->SetDimensions( 32, 18 );
-		pPLBayDoorTB->SetTalkbackLocation( 0, 0 );
+		pPLBayDoorTB->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK1_VC );
 
-		pLatch[0]->AddAIDToRedrawEventList( AID_R13L_TKBK2 );
-		pLatch[0]->SetDimensions( 32, 18 );
-		pLatch[0]->SetTalkbackLocation( 0, 0 );
+		pLatch[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK2_VC );
 
-		pLatch[1]->AddAIDToRedrawEventList( AID_R13L_TKBK3 );
-		pLatch[1]->SetDimensions( 32, 18 );
-		pLatch[1]->SetTalkbackLocation( 0, 0 );
+		pLatch[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK3_VC );
 
-		pRadiator[0]->AddAIDToRedrawEventList( AID_R13L_TKBK4 );
-		pRadiator[0]->SetDimensions( 32, 18 );
-		pRadiator[0]->SetTalkbackLocation( 0, 0 );
+		pRadiator[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK4_VC );
 
-		pRadiator[1]->AddAIDToRedrawEventList( AID_R13L_TKBK5 );
-		pRadiator[1]->SetDimensions( 32, 18 );
-		pRadiator[1]->SetTalkbackLocation( 0, 0 );
+		pRadiator[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK5_VC );
 
-		pKUAntennaTB->AddAIDToRedrawEventList( AID_R13L_TKBK6 );
-		pKUAntennaTB->SetDimensions( 32, 18 );
-		pKUAntennaTB->SetTalkbackLocation( 0, 0 );
+		pKUAntennaTB->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK6_VC );
 
-		pMMUGN2SPLYISOLVLVTB[0]->AddAIDToRedrawEventList( AID_R13L_TKBK7 );
-		pMMUGN2SPLYISOLVLVTB[0]->SetDimensions( 32, 18 );
-		pMMUGN2SPLYISOLVLVTB[0]->SetTalkbackLocation( 0, 0 );
+		pMMUGN2SPLYISOLVLVTB[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK7_VC );
 
-		pMMUGN2SPLYISOLVLVTB[1]->AddAIDToRedrawEventList( AID_R13L_TKBK8 );
-		pMMUGN2SPLYISOLVLVTB[1]->SetDimensions( 32, 18 );
-		pMMUGN2SPLYISOLVLVTB[1]->SetTalkbackLocation( 0, 0 );
+		pMMUGN2SPLYISOLVLVTB[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK8_VC );
 		return;
 	}
 
@@ -208,27 +192,6 @@ namespace vc
 		oapiVCSetAreaClickmode_Quadrilateral( AID_R13L, 
 			_V( 1.32, 2.29, 12.56 ) + ofs, _V( 1.32, 2.29, 12.26 ) + ofs, 
 			_V( 1.06, 2.12, 12.56 ) + ofs, _V( 1.06, 2.12, 12.26 ) + ofs );
-
-		// INFO: looks like TEX_TALKBACK_VC (a.k.a talkback.dds) is in front of talkbacks of the panel, so the code below doesn't work
-		/*SURFHANDLE panel_tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_R13L_VC );
-		oapiVCRegisterArea( AID_R13L_TKBK1, _R( 175, 364, 223, 391 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK2, _R( 334, 364, 382, 391 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK3, _R( 496, 365, 544, 392 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK4, _R( 656, 364, 704, 391 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK5, _R( 815, 363, 863, 390 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK6, _R( 334, 705, 382, 732 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK7, _R( 656, 701, 704, 728 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK8, _R( 815, 702, 863, 729 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );*/
-
-		SURFHANDLE panel_tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_TALKBACK_VC );
-		oapiVCRegisterArea( AID_R13L_TKBK1, _R( 0, 0, 32, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK2, _R( 32, 0, 64, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK3, _R( 64, 0, 96, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK4, _R( 96, 0, 128, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK5, _R( 128, 0, 160, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK6, _R( 160, 0, 192, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK7, _R( 192, 0, 224, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_R13L_TKBK8, _R( 224, 0, 256, 18 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
 		return;
 	}
 
@@ -264,7 +227,7 @@ namespace vc
 		pRadiator[1]->SetInput( 0, pBundle, 6, TB_STO );
 		pRadiator[1]->SetInput( 1, pBundle, 7, TB_DPY );
 
-		pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 5 );
+		pBundle = STS()->BundleManager()->CreateBundle( "KUAntennaControl", 16 );
 		pKUAntennaDirectStow->ConnectPort(1, pBundle, 0 );
 		pKUAntenna->ConnectPort( 1, pBundle, 1 );
 		pKUAntenna->ConnectPort( 2, pBundle, 2 );

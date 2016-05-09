@@ -42,6 +42,9 @@ namespace vc
 		PushButtonIndicator* pDragChuteARM;
 		PushButtonIndicator* pDragChuteDPY;
 		PushButtonIndicator* pDragChuteJETT;
+
+		StdSwitch2* pHUDPower[2];
+
 	public:
 		PanelF3( Atlantis* _sts );
 		~PanelF3();

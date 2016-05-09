@@ -27,6 +27,8 @@ Config\Earth\SSU\Tindal_RAAF.cfg
 Config\Earth\SSU\Vandenberg.cfg
 Config\Earth\SSU\White_Sands.cfg
 Config\GC\SpaceShuttleUltra_ecam.cfg
+Config\GC\SSU_CentaurG.cfg
+Config\GC\SSU_CentaurGPrime.cfg
 Config\SSU\MDM\FA.mdm
 Config\SSU\MDM\FF.mdm
 Config\SSU\MDM\LA1.mdm
@@ -39,10 +41,15 @@ Config\SSU\MDM\PL.mdm
 Config\SSU\MDM\test.mdm
 Config\Vessels\107payloads.cfg
 Config\Vessels\SpaceShuttleUltra.cfg
+Config\Vessels\SSU_CentaurG.cfg
+Config\Vessels\SSU_CentaurGPrime.cfg
 Config\Vessels\SSU_Chute.cfg
 Config\Vessels\SSU_CT.cfg
 Config\Vessels\SSU_CT_1980.cfg
+Config\Vessels\SSU_DemoSat.cfg
 Config\Vessels\SSU_DFI_pallet.cfg
+Config\Vessels\SSU_IUS.CFG
+Config\Vessels\SSU_IUS_STAGE1.CFG
 Config\Vessels\SSU_LCC.cfg
 Config\Vessels\SSU_LSRB.cfg
 Config\Vessels\SSU_LSRB_FWC.cfg
@@ -88,6 +95,7 @@ Meshes\SSU\Crawler_mainbody.msh
 Meshes\SSU\Crawler_mainbody_1980.msh
 Meshes\SSU\Crawler_VC_panels.msh
 Meshes\SSU\Crawler_VC_panels_reversed.msh
+Meshes\SSU\DemoSat.msh
 Meshes\SSU\DFI_pallet.msh
 Meshes\SSU\EDW_Lakebed_Compass_Rose.msh
 Meshes\SSU\EDW_Lakebed_RWY22_line.msh
@@ -107,6 +115,8 @@ Meshes\SSU\KSC_SSMEPF.msh
 Meshes\SSU\KSC_Surge_Facility.msh
 Meshes\SSU\KSC_xenon_lights_trailer.msh
 Meshes\SSU\Ku_band_DA.msh
+Meshes\SSU\L12U_SSP_Centaur.msh
+Meshes\SSU\L12U_SSP_IUS.msh
 Meshes\SSU\LC-39_watertower.msh
 Meshes\SSU\LC39A_FSS.msh
 Meshes\SSU\LC39A_FSS_1985.msh
@@ -126,6 +136,7 @@ Meshes\SSU\OPF1_2.msh
 Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
 Meshes\SSU\OTS_Vandenberg.msh
+Meshes\SSU\panelL10_IUS.msh
 Meshes\SSU\parachute.msh
 Meshes\SSU\RMS.msh
 Meshes\SSU\RMSVC.msh
@@ -177,6 +188,16 @@ Meshes\SSU\VAB_exterior_1980.msh
 Meshes\SSU\VAB_interior_structure.msh
 Meshes\SSU\VAB_interior_structure_low-res.msh
 Meshes\SSU\VC.msh
+Meshes\SSU\Centaur\Centaur_DemoSat_adapter.msh
+Meshes\SSU\Centaur\Centaur_Mission_Kit_plumbing.msh
+Meshes\SSU\Centaur\CentaurG.msh
+Meshes\SSU\Centaur\CentaurG_Prime.msh
+Meshes\SSU\Centaur\CISS_CentaurG.msh
+Meshes\SSU\Centaur\CISS_CentaurG_Prime.msh
+Meshes\SSU\IUS\IUS_ASE.msh
+Meshes\SSU\IUS\IUS_DemoSat_adapter.msh
+Meshes\SSU\IUS\IUS_SRM1.msh
+Meshes\SSU\IUS\IUS_SRM2.msh
 Meshes\VandenbergAFB\OrbiterLiftingFrame.msh
 Meshes\VandenbergAFB\SLC-6_STS.msh
 Meshes\VandenbergAFB\SLC-6_STS_AT.msh
@@ -188,7 +209,11 @@ Meshes\VandenbergAFB\SLC-6_STS_PCR.msh
 Meshes\VandenbergAFB\SLC-6_STS_PPR.msh
 Missions\SSU\STS-1.cfg
 Missions\SSU\STS-3.cfg
+Missions\SSU\STS-26R.cfg
 Missions\SSU\STS-76.cfg
+Missions\SSU\STS-61F.cfg
+Missions\SSU\STS-61G.cfg
+Missions\SSU\STS-81I.cfg
 Missions\SSU\STS-101.cfg
 Missions\SSU\STS-107.cfg
 Missions\SSU\STS-114.cfg
@@ -198,7 +223,9 @@ Missions\SSU\STS-62A.cfg
 Missions\SSU\STS-62B.cfg
 Modules\SpaceShuttleUltra.dll
 Modules\SSUChute.dll
+Modules\SSU_Centaur.dll
 Modules\SSU_Crawler.dll
+Modules\SSU_IUS.dll
 Modules\SSU_LCC.dll
 Modules\SSU_MLP.dll
 Modules\SSU_Pad.dll
@@ -209,9 +236,12 @@ Modules\SSU_VAB.dll
 Modules\SSU_Xenon_Lights.dll
 Modules\Plugin\CRT.dll
 Scenarios\Space Shuttle Ultra\Launch test.scn
+Scenarios\Space Shuttle Ultra\Description.txt
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-26R\STS-26R IUS deploy.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-26R\STS-26R T-45s.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-76\STS-76 Launch T-1 minute.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\De-orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-107\Entry Interface.scn
@@ -223,7 +253,7 @@ Scenarios\Space Shuttle Ultra\Historic missions\STS-114\Tanking Test scenario.sc
 Scenarios\Space Shuttle Ultra\Historic missions\STS-120\STS-120 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 docking with ISS Nov 16.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-126\STS-126 launch.scn
-Scenarios\Space Shuttle Ultra\Historic missions\STS-62B\STS-62B T-45s.scn
+Scenarios\Space Shuttle Ultra\Historic missions\Description.txt
 Scenarios\Space Shuttle Ultra\Testing scenarios\Atlantis in orbit.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\CT-1 roadtest.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\EDW 22 Final Approach.scn
@@ -238,6 +268,15 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Centaur rotation to deploy.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Challenger on-orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61G\Atlantis on orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61G\L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-62B\STS-62B T-45s.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-81I\Atlantis on-orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-81I\L-10 minutes.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\Description.txt
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_continues.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_shut_down.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_start_up.wav
@@ -292,6 +331,7 @@ Textures\SSU\Casing_FWC.dds
 Textures\SSU\Casing_OFT_LH.dds
 Textures\SSU\Casing_OFT_RH.dds
 Textures\SSU\CCTVMon.dds
+Textures\SSU\Centaur_L12U_SSP.dds
 Textures\SSU\Challenger_original.dds
 Textures\SSU\chute.dds
 Textures\SSU\clocknums.dds
@@ -325,8 +365,8 @@ Textures\SSU\FSS_metal_grating.dds
 Textures\SSU\FSS_tex.dds
 Textures\SSU\GOX_stream.dds
 Textures\SSU\gpc.dds
-Textures\SSU\H2tank.dds
 Textures\SSU\Instafoam.dds
+Textures\SSU\IUS_L12U_SSP.dds
 Textures\SSU\KSC_OPF_Tex.dds
 Textures\SSU\KSC_RPSF.dds
 Textures\SSU\KSC_SSMEPF_Roof.dds
@@ -372,6 +412,7 @@ Textures\SSU\panelA1U.dds
 Textures\SSU\panelA7A8.dds
 Textures\SSU\panelF6.dds
 Textures\SSU\panelF8.dds
+Textures\SSU\panelL10_IUS.dds
 Textures\SSU\panelR4.dds
 Textures\SSU\PORT_OMSpod.dds
 Textures\SSU\PORT_OMSpod_spec.dds
@@ -442,6 +483,24 @@ Textures\SSU\VAB_HLD.dds
 Textures\SSU\VAB_interior_beams_1.dds
 Textures\SSU\VAB_VLD.dds
 Textures\SSU\Airlock.dds
+Textures\SSU\Centaur\Centaur_G_tex.dds
+Textures\SSU\Centaur\Centaur_G_tex_norm.dds
+Textures\SSU\Centaur\Centaur_G_tex_refl.dds
+Textures\SSU\Centaur\Centaur_G_tex_spec.dds
+Textures\SSU\Centaur\CISS_bellows.dds
+Textures\SSU\Centaur\CISS_bellows_norm.dds
+Textures\SSU\Centaur\CISS_tex.dds
+Textures\SSU\Centaur\CISS_tex_norm.dds
+Textures\SSU\Centaur\CISS_tex_refl.dds
+Textures\SSU\Centaur\CISS_tex_spec.dds
+Textures\SSU\Centaur\H2tank.dds
+Textures\SSU\Centaur\RL10_maintex.dds
+Textures\SSU\Centaur\RL10_maintex_norm.dds
+Textures\SSU\Centaur\RL10_maintex_refl.dds
+Textures\SSU\Centaur\RL10_maintex_spec.dds
+Textures\SSU\IUS\IUS_ASE_tex1.dds
+Textures\SSU\IUS\IUS_ASE_tex2.dds
+Textures\SSU\IUS\IUS_common_tex.dds
 Textures\STS-107payloads\EDOcryokit_tex.dds
 Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
 Textures\STS-107payloads\SpaceHAB_RDM.dds

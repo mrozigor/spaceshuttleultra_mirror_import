@@ -22,6 +22,19 @@ namespace vc
 		Add( pDragChuteJETTCover = new StandardSwitchCover( _sts, "Drag Chute JETT Cover" ) );
 
 		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT", true ) );
+
+		Add( pHUDMode = new StdSwitch3( _sts, "HUD Mode" ) );// HACK these 3 should be located on panel F8, but is here due to panel click areas
+		Add( pHUDBrightness = new RotaryDemuxSwitch( _sts, "HUD Brightness", 5 ) );
+		Add( pHUDBright = new StdSwitch3( _sts, "HUD Bright" ) );
+
+		pHUDMode->SetLabel( 0, "DCLT" );
+		pHUDMode->SetLabel( 1, "NORM" );
+		pHUDMode->SetLabel( 2, "TEST" );
+		pHUDMode->SetSpringLoaded( true, 0 );
+
+		pHUDBright->SetLabel( 0, "MAN NIGHT" );
+		pHUDBright->SetLabel( 1, "AUTO" );
+		pHUDBright->SetLabel( 2, "MAN DAY" );
 	}
 
 	PanelF4::~PanelF4()
@@ -59,6 +72,17 @@ namespace vc
 		//pDragChuteDPY->output.Connect( pBundle, 6 );// dpy pb (F3)
 		//pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
 		pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
+
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
+		pHUDMode->outputA.Connect( pBundle, 1 );// mode dclt plt
+		pHUDMode->outputB.Connect( pBundle, 2 );// mode test plt
+		pHUDBrightness->ConnectOutputSignal( 0, pBundle, 3 );// brightness lvl 1 plt
+		pHUDBrightness->ConnectOutputSignal( 1, pBundle, 4 );// brightness lvl 2 plt
+		pHUDBrightness->ConnectOutputSignal( 2, pBundle, 5 );// brightness lvl 3 plt
+		pHUDBrightness->ConnectOutputSignal( 3, pBundle, 6 );// brightness lvl 4 plt
+		pHUDBrightness->ConnectOutputSignal( 4, pBundle, 7 );// brightness lvl 5 plt
+		pHUDBright->outputA.Connect( pBundle, 8 );// bright man night plt
+		pHUDBright->outputB.Connect( pBundle, 9 );// bright man day plt
 		
 		AtlantisPanel::Realize();
 	}
@@ -143,6 +167,23 @@ namespace vc
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
 		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
 		pDragChuteJETTCover->DefineCoverGroup( GRP_F4COVERS10_VC );
+
+		pHUDMode->DefineSwitchGroup( GRP_F8HUDTEST_VC );
+		pHUDMode->SetInitialAnimState( 0.5 );
+		pHUDMode->SetReference( _V( -0.5996, 2.4685, 14.5712 ), _V( 1, 0, 0 ) );
+		pHUDMode->SetMouseRegion( 0.048451f, 0.220342f, 0.080458f, 0.288456f );
+
+		pHUDBrightness->DefineSwitchGroup( GRP_F8HUDDIM_VC );
+		pHUDBrightness->SetInitialAnimState( 0.5 );
+		pHUDBrightness->SetReference( _V( 0.6496, 2.4697, 14.5635 ), _V( 0, 0.275637, -0.961262 ) );
+		pHUDBrightness->DefineRotationAngle( 180.0f );
+		pHUDBrightness->SetOffset( -90.0f );
+		pHUDBrightness->SetMouseRegion( 0.135890f, 0.217720f, 0.186902f, 0.309858f );
+
+		pHUDBright->DefineSwitchGroup( GRP_F8HUDBRT_VC );
+		pHUDBright->SetInitialAnimState( 0.5 );
+		pHUDBright->SetReference( _V( -0.7070, 2.4680, 14.5712 ), _V( 1, 0, 0 ) );
+		pHUDBright->SetMouseRegion( 0.239172f, 0.220413f, 0.270920f, 0.289949f );
 	}
 
 	void PanelF4::SetCommonPBIParameters(PushButtonIndicator* pPBI)

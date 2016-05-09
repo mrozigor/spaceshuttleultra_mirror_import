@@ -22,5 +22,14 @@ namespace SSUWorkbench.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("12")]
+        public double MECO_DV {
+            get {
+                return ((double)(this["MECO_DV"]));
+            }
+        }
     }
 }

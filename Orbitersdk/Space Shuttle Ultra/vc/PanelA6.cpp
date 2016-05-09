@@ -21,6 +21,8 @@ namespace vc
 
 		Add(pSense=new StdSwitch2(_sts, "SENSE"));
 		Add(pFltCntlrPower = new LockableLever2(_sts, "Aft Flt Cntlr Pwr"));
+		Add(pPayloadRetentionLogicPowerSys[0] = new StdSwitch2( _sts, "Payload Retention Logic Power Sys 1" ) );
+		Add(pPayloadRetentionLogicPowerSys[1] = new StdSwitch2( _sts, "Payload Retention Logic Power Sys 2" ) );
 		Add(pPayloadRetentionLatches[0] = new StdSwitch3(_sts, "Payload Ret Latch 1"));
 		Add(pPayloadRetentionLatches[1] = new StdSwitch3(_sts, "Payload Ret Latch 2"));
 		Add(pPayloadRetentionLatches[2] = new StdSwitch3(_sts, "Payload Ret Latch 3"));
@@ -54,6 +56,12 @@ namespace vc
 		pSense->SetLabel(1, "-Z");
 		pFltCntlrPower->SetLabel(0, "OFF");
 		pFltCntlrPower->SetLabel(1, "ON");
+
+		pPayloadRetentionLogicPowerSys[0]->SetLabel( 0, "OFF" );
+		pPayloadRetentionLogicPowerSys[0]->SetLabel( 1, "ON" );
+		pPayloadRetentionLogicPowerSys[1]->SetLabel( 0, "OFF" );
+		pPayloadRetentionLogicPowerSys[1]->SetLabel( 1, "ON" );
+
 		for(int i=0;i<5;i++) {
 			pPayloadRetentionLatches[i]->SetLabel(0, "LATCH");
 			pPayloadRetentionLatches[i]->SetLabel(1, "OFF");
@@ -98,6 +106,16 @@ namespace vc
 		pFltCntlrPower->SetReference(_V(0.686, 2.781, 12.313), switch_rot);
 		pFltCntlrPower->SetPullDirection(switch_pull);
 		pFltCntlrPower->SetMouseRegion(0.772155f, 0.254109f, 0.836383f, 0.348049f);
+
+		pPayloadRetentionLogicPowerSys[0]->DefineSwitchGroup( GRP_A6U46_VC );
+		pPayloadRetentionLogicPowerSys[0]->SetInitialAnimState( 0.5f );
+		pPayloadRetentionLogicPowerSys[0]->SetReference( _V( 0.7303, 2.6068, 12.3675 ), switch_rot );
+		pPayloadRetentionLogicPowerSys[0]->SetMouseRegion( 0.881104f, 0.721166f, 0.917138f, 0.779604f );
+
+		pPayloadRetentionLogicPowerSys[1]->DefineSwitchGroup( GRP_A6U47_VC );
+		pPayloadRetentionLogicPowerSys[1]->SetInitialAnimState( 0.5f );
+		pPayloadRetentionLogicPowerSys[1]->SetReference( _V( 0.6757, 2.6068, 12.3675 ), switch_rot );
+		pPayloadRetentionLogicPowerSys[1]->SetMouseRegion( 0.775442f, 0.714653f, 0.813627f, 0.779674f );
 
 		pPayloadRetentionLatches[0]->DefineSwitchGroup(GRP_A6U36_VC);
 		pPayloadRetentionLatches[0]->SetInitialAnimState(0.5);
@@ -304,7 +322,9 @@ namespace vc
 		// connect 2 MON ports
 		pPayloadSelect->ConnectOutputSignal(3, pBundle, 13);
 		pPayloadSelect->ConnectOutputSignal(1, pBundle, 14);
-
+		pPayloadRetentionLogicPowerSys[0]->output.Connect( pBundle, 15 );// using available line
+		PLRetLogicPwrSysSwitch[0].Connect( pBundle, 15 );
+		
 		pBundle = STS()->BundleManager()->CreateBundle("A6_LATCH_TKBKS", 16);
 		for(int i=0;i<5;i++) {
 			Latch_LatchedTkbk[i].Connect(pBundle, i);
@@ -315,8 +335,10 @@ namespace vc
 			pLatchState[i]->SetInput(1, pBundle, i+5, TB_REL);
 			pLatchRTL[i]->SetInput(0, pBundle, i+10, TB_GRAY);
 		}
+		pPayloadRetentionLogicPowerSys[1]->output.Connect( pBundle, 15 );// using available line
+		PLRetLogicPwrSysSwitch[1].Connect( pBundle, 15 );
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH0", 10);
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH0", 12);
 		DiscreteBundle* pBundle2 = STS()->BundleManager()->CreateBundle("LATCH0_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[0][i].Connect(pBundle, 2*i);
@@ -326,8 +348,10 @@ namespace vc
 			Latch_Released[0][i].Connect(pBundle2, 3*i+1);
 			Latch_RTL[0][i].Connect(pBundle2, 3*i+2);
 		}
+		LogicPowerSys[0][0].Connect( pBundle, 10 );
+		LogicPowerSys[0][1].Connect( pBundle, 11 );
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH1", 10);
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH1", 12);
 		pBundle2 = STS()->BundleManager()->CreateBundle("LATCH1_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[1][i].Connect(pBundle, 2*i);
@@ -337,8 +361,10 @@ namespace vc
 			Latch_Released[1][i].Connect(pBundle2, 3*i+1);
 			Latch_RTL[1][i].Connect(pBundle2, 3*i+2);
 		}
+		LogicPowerSys[1][0].Connect( pBundle, 10 );
+		LogicPowerSys[1][1].Connect( pBundle, 11 );
 
-		pBundle=STS()->BundleManager()->CreateBundle("LATCH2", 10);
+		pBundle=STS()->BundleManager()->CreateBundle("LATCH2", 12);
 		pBundle2 = STS()->BundleManager()->CreateBundle("LATCH2_STATE", 15);
 		for(int i=0;i<5;i++) {
 			Latch_Latch[2][i].Connect(pBundle, 2*i);
@@ -348,6 +374,8 @@ namespace vc
 			Latch_Released[2][i].Connect(pBundle2, 3*i+1);
 			Latch_RTL[2][i].Connect(pBundle2, 3*i+2);
 		}
+		LogicPowerSys[2][0].Connect( pBundle, 10 );
+		LogicPowerSys[2][1].Connect( pBundle, 11 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "ADI_Switches_A6U", 6 );
 		pADIAttitude->outputA.Connect( pBundle, 0 );// REF
@@ -366,21 +394,48 @@ namespace vc
 
 		PanelA6::PAYLOAD Payload = GetSelectedPayload();
 
-		if(Payload != MON) {
-			for(int i=0;i<5;i++) {
+		// output
+		for (int pl = 0; pl < 3; pl++)
+		{
+			// lat/rel signals are the same for all 3 pl sys
+			for (int i=0;i<5;i++)
+			{
 				if(LatchSwitch_Latch[i]) {
-					Latch_Latch[Payload][i].SetLine();
-					Latch_Release[Payload][i].ResetLine();
+					Latch_Latch[pl][i].SetLine();
+					Latch_Release[pl][i].ResetLine();
 				}
 				else if(LatchSwitch_Release[i]) {
-					Latch_Latch[Payload][i].ResetLine();
-					Latch_Release[Payload][i].SetLine();
+					Latch_Latch[pl][i].ResetLine();
+					Latch_Release[pl][i].SetLine();
 				}
 				else {
-					Latch_Latch[Payload][i].ResetLine();
-					Latch_Release[Payload][i].ResetLine();
+					Latch_Latch[pl][i].ResetLine();
+					Latch_Release[pl][i].ResetLine();
 				}
+			}
 
+			// logic power sys 1/2 signals selected
+			if (pl == Payload)
+			{
+				for (int i = 0; i < 2; i++)
+				{
+					if (PLRetLogicPwrSysSwitch[i].IsSet())
+						LogicPowerSys[pl][i].SetLine();
+					else
+						LogicPowerSys[pl][i].ResetLine();
+				}
+			}
+			else
+			{
+				LogicPowerSys[pl][0].ResetLine();
+				LogicPowerSys[pl][1].ResetLine();
+			}
+		}
+
+		// input
+		if (Payload != MON)
+		{
+			for (int i=0;i<5;i++) {
 				if(Latch_Latched[Payload][i]) {
 					Latch_LatchedTkbk[i].SetLine();
 					Latch_ReleasedTkbk[i].ResetLine();
@@ -396,6 +451,16 @@ namespace vc
 
 				if(Latch_RTL[Payload][i]) Latch_RTLTkbk[i].SetLine();
 				else Latch_RTLTkbk[i].ResetLine();
+			}
+		}
+		else
+		{
+			for (int i=0;i<5;i++)
+			{
+				Latch_LatchedTkbk[i].ResetLine();
+				Latch_ReleasedTkbk[i].ResetLine();
+
+				Latch_RTLTkbk[i].ResetLine();
 			}
 		}
 	}

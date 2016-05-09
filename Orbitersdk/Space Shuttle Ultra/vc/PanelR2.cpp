@@ -112,6 +112,7 @@ namespace vc
 
 		pCenterlineLatch->SetLabel(0, "STOW");
 		pCenterlineLatch->SetLabel(1, "GND");
+		pCenterlineLatch->SetInitialPosition(1);
 
 		pLeftUmbDoor->SetLabel(0, "CLOSE");
 		pLeftUmbDoor->SetLabel(1, "OFF");
@@ -269,7 +270,6 @@ namespace vc
 		pCenterlineLatch->DefineSwitchGroup(GRP_R2B49_VC);
 		pCenterlineLatch->SetInitialAnimState(0.5f);
 		pCenterlineLatch->SetOnPosition(0);
-		pCenterlineLatch->SetInitialPosition(1);
 
 		pLeftUmbDoor->SetMouseRegion(0.292763f, 0.885751f, 0.351700f, 0.920420f);
 		pLeftUmbDoor->SetReference(_V(1.11, 1.787, 13.885), switch_rot);

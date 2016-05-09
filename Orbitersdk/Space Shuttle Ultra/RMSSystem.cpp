@@ -280,16 +280,36 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			if(DirectDrivePlus) {
 				int joint=GetSelectedJoint();
 				if(joint!=-1) {
-					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
-					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					if (joint == 0)
+					{
+						// hack to fix the wrong sign in the shoulder yaw joint (without touching the IK part)
+						// a fix for the display angle exists in PanelA8.cpp:214
+						if(!RMSSpeed) SetJointAngle(SHOULDER_YAW, joint_angle[0]-RMS_JOINT_COARSE_ROTATION_SPEEDS[0]*DeltaT);
+						else SetJointAngle(SHOULDER_YAW, joint_angle[0]-RMS_JOINT_VERN_ROTATION_SPEEDS[0]*DeltaT);
+					}
+					else
+					{
+						if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+						else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]+RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					}
 				}
 				update_vectors=true;
 			}
 			else if(DirectDriveMinus) {
 				int joint=GetSelectedJoint();
 				if(joint!=-1) {
-					if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
-					else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					if (joint == 0)
+					{
+						// hack to fix the wrong sign in the shoulder yaw joint (without touching the IK part)
+						// a fix for the display angle exists in PanelA8.cpp:214
+						if(!RMSSpeed) SetJointAngle(SHOULDER_YAW, joint_angle[0]+RMS_JOINT_COARSE_ROTATION_SPEEDS[0]*DeltaT);
+						else SetJointAngle(SHOULDER_YAW, joint_angle[0]+RMS_JOINT_VERN_ROTATION_SPEEDS[0]*DeltaT);
+					}
+					else
+					{
+						if(!RMSSpeed) SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_COARSE_ROTATION_SPEEDS[joint]*DeltaT);
+						else SetJointAngle((RMS_JOINT)joint, joint_angle[joint]-RMS_JOINT_VERN_ROTATION_SPEEDS[joint]*DeltaT);
+					}
 				}
 				update_vectors=true;
 			}
@@ -501,11 +521,13 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
 		pEELight->SetPosition(EELightPos);
 		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
-	}
 
-	// if arm was moved, update attachment position and IK vectors/angles
-	// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
-	if(arm_moved) {
+		// roll camera views
+		if (RMSCameraMode == ELBOW) UpdateElbowCamView();
+		else if (RMSCameraMode == EE) UpdateEECamView();
+
+		// if arm was moved, update attachment position and IK vectors/angles
+		// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
 		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
@@ -520,9 +542,6 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 				}
 			}
 		}
-
-		if(RMSCameraMode==EE) UpdateEECamView();
-		else if(RMSCameraMode==ELBOW) UpdateElbowCamView();
 
 		/*** Update output lines to LEDs ***/
 		// calculate position
@@ -1003,7 +1022,7 @@ void RMSSystem::UpdateEECamView() const
 void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
-		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
+		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0], 0.4189 + ((1 - MPMRollout.pos) * ((RMS_ROLLOUT_ANGLE + RMS_STOWED_ANGLE) * RAD)));// 0.4189rad = 24º when MPMs deployed
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}

@@ -66,6 +66,7 @@
 #include "PIDControl.h"
 #include "ISSUMLP.h"
 #include "gnc/ATVC.h"
+#include "comm\DeployedAssembly.h"
 #include "Sensor.h"
 
 
@@ -218,6 +219,8 @@ class OMSSubsystem;
 class AirDataProbeSystem;
 class RMSSystem;
 class StbdMPMSystem;
+class ASE_IUS;
+class CISS;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -404,7 +407,12 @@ public:
 	RMSSystem* pRMS;
 	StbdMPMSystem* pMPMs;
 
+	ASE_IUS* pASE_IUS;
+
+	CISS* pCISS;
 	PayloadBay* pPayloadBay;
+
+	comm::DeployedAssembly* pDeployedAssembly;
 
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
@@ -511,14 +519,14 @@ public:
 	void SetBayDoorLatchPosition (int gang, double pos);
 	void SetBayDoorPosition (double pos);
 	void SetETUmbDoorPosition(double pos, int door);
-	void SetKuAntennaPosition (double pos);
+	void SetKuAntennaDAPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
 	void SetLaunchConfiguration (void);
 	void SetOrbiterConfiguration (void);
 	void SetOrbiterTankConfiguration (void);
 	void SetPostLaunchConfiguration (double srbtime);
-	void SetRadiatorPosition (double pos);
-	void SetRadLatchPosition (double pos) {}
+	void SetRadiatorPosition (double pos, int side);
+	//void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -661,7 +669,9 @@ public:
 	 * Pointer to the A8 (RMS) panel region
 	 */
 	vc::AtlantisPanel* pPanelA8;
-	
+
+	vc::AtlantisPanel* pPanelL10;
+	vc::AtlantisPanel* pPanelL12U;	
 
 
 	AerosurfacePositions aerosurfaces;
@@ -884,7 +894,7 @@ private:
 	// Animations
 	// *******************************************************************************
 	UINT anim_door;                            // handle for cargo door animation
-	UINT anim_rad;                             // handle for radiator animation
+	UINT anim_rad[2];                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
 
 	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
@@ -1132,6 +1142,8 @@ private:
 	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh
 	VECTOR3 payloadCoG;
 	double payloadMass;
+
+	bool hasCISS;// if true, bay 13 covers are hidden
 
 	//base vectors;
 	VECTOR3 LVLH_X, LVLH_Y, LVLH_Z;

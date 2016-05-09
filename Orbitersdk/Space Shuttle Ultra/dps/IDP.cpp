@@ -768,4 +768,14 @@ namespace dps {
 	{
 		return pAerojetDAP->GetdeltaAZLimit( mach );
 	}
+
+	double IDP::GetSelectedRunwayHeading( void ) const
+	{
+		return pAerojetDAP->GetSelectedRunwayHeading();
+	}
+
+	double IDP::GetTargetHeading( void ) const
+	{
+		return pAscentGuidance->GetTargetHeading();
+	}
 };

@@ -74,7 +74,7 @@ namespace vc
 
 		/**
 		 * Sets initial position of switch
-		 * Has to be called in DefineVC function
+		 * If used, it has to be called as early as possible so it doesn't overwrite scenario entry.
 		 */
 		void SetInitialPosition(unsigned short usInPos);
 	};

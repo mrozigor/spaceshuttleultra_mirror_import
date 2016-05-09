@@ -48,6 +48,8 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "ASE_IUS.h"
+#include "CISS.h"
 #include "MechActuator.h"
 #include "PayloadBay.h"
 #include "mps/SSME_BLOCK_II.h"
@@ -61,6 +63,7 @@
 #include "vc/PanelO6.h"
 #include "vc/PanelO17.h"
 #include "vc/PanelA1U.h"
+#include "vc/PanelA2.h"
 #include "vc/PanelA4.h"
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
@@ -71,6 +74,12 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL10.h"
+#include "vc/PanelL12U.h"
+#include "comm\GCIL.h"
+#include "comm\DeployedAssembly.h"
+#include "comm\ElectronicsAssembly1.h"
+#include "comm\ElectronicsAssembly2.h"
 #include <UltraMath.h>
 #include <cassert>
 
@@ -101,8 +110,6 @@ extern int GrowStack();
 // Global (class-wide) parameters
 
 GDIParams g_Param;
-
-char *ActionString[5] = { "STOPPED", "ISCLOSED", "ISOPEN", "CLOSE", "OPEN" };
 
 HELPCONTEXT g_hc = {
 	"html/vessels/Atlantis.chm",
@@ -196,97 +203,6 @@ double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
 
 extern void GetSRB_State(double met, double &thrust_level, double &prop_level);
 
-// ==============================================================
-// Airfoil coefficient functions
-// Return lift, moment and zero-lift drag coefficients as a
-// function of angle of attack (alpha or beta)
-// ==============================================================
-
-// 1. vertical lift component (wings and body)
-
-const double RollOff = 10 * 47.880259;
-const double PitchOff = 40 * 47.880259;
-const double YawOff = 1.0;
-
-const int n_mach = 21;
-const double mach[n_mach] = { 0.25, 0.4, 0.6, 0.8, 0.85, 0.9, 0.92, 0.95, 0.98, 1.05, 1.1, 1.2, 1.3, 1.5, 2, 2.5, 3, 4, 5, 8, 10 };
-const int n_aoa1 = 19;
-const double aoa1[n_aoa1] = { -10, -5, -2.5, 0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 30, 35, 40, 45, 50 };
-const double clBase[n_aoa1][n_mach] = { { -0.50280, -0.51097, -0.52957, -0.58454, -0.59773, -0.61005, -0.62831, -0.65514, -0.65616, -0.64808, -0.64225, -0.61158, -0.57681, -0.48844, -0.36885, -0.31514, -0.29383, -0.22874, -0.19854, -0.18641, -0.18641 },
-{ -0.25906, -0.27397, -0.28670, -0.32761, -0.33790, -0.34601, -0.35039, -0.35897, -0.36172, -0.36027, -0.35685, -0.33449, -0.30454, -0.25188, -0.19695, -0.16705, -0.16922, -0.13893, -0.12424, -0.12402, -0.12402 },
-{ -0.15202, -0.16199, -0.17186, -0.19155, -0.19632, -0.20588, -0.21553, -0.21485, -0.19888, -0.20310, -0.19292, -0.18275, -0.16776, -0.12989, -0.09888, -0.10456, -0.10514, -0.10050, -0.09081, -0.08913, -0.08913 },
-{ -0.05000, -0.05000, -0.05500, -0.06500, -0.06200, -0.06000, -0.06000, -0.06000, -0.05500, -0.04700, -0.03600, -0.02500, -0.02300, -0.01500, -0.01700, -0.04290, -0.03700, -0.04430, -0.04724, -0.05540, -0.05540 },
-{ 0.06214, 0.06212, 0.07201, 0.06176, 0.06652, 0.07101, 0.07563, 0.08498, 0.09414, 0.10315, 0.10796, 0.10460, 0.10295, 0.09317, 0.08416, 0.02995, 0.02048, 0.01111, 0.00642, -0.02023, -0.02023 },
-{ 0.17453, 0.17448, 0.17928, 0.18859, 0.19295, 0.20356, 0.21579, 0.23947, 0.24762, 0.25552, 0.25513, 0.25014, 0.24043, 0.21606, 0.16125, 0.10468, 0.08600, 0.06174, 0.04301, 0.01774, 0.01774 },
-{ 0.29705, 0.29691, 0.30657, 0.31963, 0.31838, 0.32413, 0.34997, 0.38783, 0.38955, 0.39173, 0.39121, 0.38627, 0.37178, 0.32805, 0.24173, 0.18906, 0.15609, 0.11881, 0.09656, 0.05965, 0.05965 },
-{ 0.40448, 0.40924, 0.41674, 0.44384, 0.44172, 0.44572, 0.47690, 0.51887, 0.52899, 0.53602, 0.53054, 0.51767, 0.49146, 0.42874, 0.33103, 0.27135, 0.22528, 0.18185, 0.15220, 0.10604, 0.10604 },
-{ 0.51599, 0.52757, 0.54905, 0.56480, 0.56566, 0.56794, 0.58585, 0.64660, 0.66026, 0.66393, 0.66357, 0.63927, 0.61835, 0.54671, 0.41958, 0.35229, 0.29513, 0.24730, 0.21351, 0.16115, 0.16115 },
-{ 0.63581, 0.65002, 0.67426, 0.68162, 0.67309, 0.68323, 0.70567, 0.76535, 0.77783, 0.78377, 0.77863, 0.75952, 0.72567, 0.64381, 0.50777, 0.43483, 0.36604, 0.31897, 0.27892, 0.22632, 0.22632 },
-{ 0.77676, 0.78385, 0.79709, 0.79087, 0.77995, 0.79401, 0.81577, 0.86501, 0.89069, 0.89596, 0.89086, 0.85608, 0.83073, 0.74311, 0.60244, 0.52033, 0.44227, 0.39229, 0.35079, 0.29998, 0.29998 },
-{ 0.91657, 0.92529, 0.92851, 0.89578, 0.87690, 0.89485, 0.91619, 0.96428, 0.99805, 1.00286, 1.00255, 0.95636, 0.92538, 0.83834, 0.68871, 0.60168, 0.52215, 0.46559, 0.42351, 0.36492, 0.35587 },
-{ 1.00634, 1.01512, 1.01007, 0.93184, 0.91266, 0.92074, 0.95994, 1.00227, 1.04837, 1.06699, 1.06660, 1.03541, 1.00114, 0.91858, 0.76904, 0.67886, 0.60751, 0.53159, 0.49654, 0.44356, 0.43474 },
-{ 1.08364, 1.08846, 1.04489, 0.92283, 0.90795, 0.93837, 0.96751, 1.02232, 1.07579, 1.10328, 1.11188, 1.09985, 1.07176, 0.99205, 0.84561, 0.76551, 0.68386, 0.61884, 0.57019, 0.51805, 0.50936 },
-{ 1.30045, 1.30623, 1.25395, 1.10747, 1.08961, 1.12612, 1.16109, 1.22686, 1.29103, 1.32402, 1.33434, 1.31990, 1.28619, 1.19054, 0.99835, 0.91867, 0.84307, 0.76946, 0.72044, 0.66845, 0.64465 },
-{ 1.51313, 1.51986, 1.45902, 1.28858, 1.26781, 1.31028, 1.35097, 1.42751, 1.50217, 1.54055, 1.55256, 1.53576, 1.49654, 1.38524, 1.16162, 1.06891, 0.97219, 0.89530, 0.84607, 0.79881, 0.78382 },
-{ 1.69584, 1.70339, 1.63520, 1.44418, 1.42090, 1.46850, 1.51411, 1.59988, 1.68356, 1.72658, 1.74004, 1.72121, 1.67725, 1.55251, 1.30189, 1.19799, 1.07919, 1.00341, 0.96129, 0.91017, 0.88400 },
-{ 1.82367, 1.83178, 1.75845, 1.55304, 1.52800, 1.57919, 1.62823, 1.72047, 1.81045, 1.85672, 1.87119, 1.85095, 1.80367, 1.66953, 1.40002, 1.28828, 1.15575, 1.07904, 1.03683, 0.98747, 0.96803 },
-{ 1.91170, 1.92021, 1.84334, 1.62801, 1.60176, 1.65542, 1.70683, 1.80353, 1.89785, 1.94635, 1.96152, 1.94030, 1.89074, 1.75012, 1.46761, 1.35047, 1.21154, 1.13113, 1.08629, 1.03514, 1.02007 } };
-
-const double cdBase[n_aoa1][n_mach] = { { 0.11485, 0.11975, 0.13521, 0.16897, 0.18654, 0.19703, 0.20867, 0.22925, 0.25227, 0.26933, 0.27358, 0.27477, 0.27037, 0.25326, 0.21167, 0.18859, 0.17640, 0.15782, 0.14843, 0.14122, 0.14122 },
-{ 0.07985, 0.08119, 0.08489, 0.09953, 0.10785, 0.11831, 0.12552, 0.14223, 0.16817, 0.18470, 0.18942, 0.19259, 0.19067, 0.18445, 0.15837, 0.14100, 0.13105, 0.11936, 0.11165, 0.10501, 0.10501 },
-{ 0.07170, 0.07263, 0.07517, 0.08323, 0.08675, 0.09887, 0.10710, 0.12269, 0.14461, 0.16251, 0.16647, 0.17013, 0.16958, 0.16572, 0.14245, 0.12598, 0.11599, 0.10538, 0.09795, 0.09067, 0.09067 },
-{ 0.06740, 0.06610, 0.07020, 0.07630, 0.08000, 0.09070, 0.09900, 0.11450, 0.13460, 0.15410, 0.15840, 0.16140, 0.16110, 0.15770, 0.13490, 0.11860, 0.10680, 0.09430, 0.08760, 0.08000, 0.08000 },
-{ 0.06687, 0.05747, 0.07011, 0.07557, 0.08048, 0.09309, 0.10180, 0.11702, 0.13644, 0.16935, 0.16376, 0.16502, 0.16395, 0.15852, 0.13500, 0.11632, 0.10399, 0.08937, 0.08226, 0.07359, 0.07359 },
-{ 0.07038, 0.07096, 0.07350, 0.08175, 0.08916, 0.10574, 0.11515, 0.13127, 0.15286, 0.17724, 0.18173, 0.18139, 0.17763, 0.16938, 0.14189, 0.12068, 0.10700, 0.09063, 0.08096, 0.07142, 0.07140 },
-{ 0.08056, 0.06145, 0.08464, 0.10038, 0.10990, 0.12750, 0.13806, 0.15696, 0.18221, 0.20398, 0.20794, 0.20709, 0.20226, 0.18364, 0.15579, 0.13301, 0.11677, 0.09815, 0.08634, 0.07402, 0.07348 },
-{ 0.09599, 0.09775, 0.10146, 0.13088, 0.14389, 0.16155, 0.17477, 0.19588, 0.22487, 0.24256, 0.24485, 0.24298, 0.23613, 0.21755, 0.17850, 0.15244, 0.13324, 0.11238, 0.09853, 0.08216, 0.08059 },
-{ 0.10625, 0.12444, 0.13381, 0.17827, 0.19090, 0.21031, 0.22196, 0.24823, 0.27902, 0.29479, 0.29645, 0.29055, 0.28325, 0.25989, 0.20958, 0.17951, 0.15649, 0.13380, 0.11760, 0.09780, 0.09544 },
-{ 0.15784, 0.16278, 0.18832, 0.23803, 0.25555, 0.27066, 0.28350, 0.31191, 0.34859, 0.35909, 0.35895, 0.35301, 0.34037, 0.30958, 0.24932, 0.21476, 0.18711, 0.16342, 0.14482, 0.12245, 0.11931 },
-{ 0.21346, 0.21758, 0.26637, 0.30939, 0.31973, 0.34168, 0.35577, 0.38252, 0.41746, 0.43401, 0.43355, 0.42081, 0.40809, 0.37008, 0.30079, 0.25990, 0.22679, 0.20107, 0.18106, 0.15697, 0.15302 },
-{ 0.26859, 0.29389, 0.35519, 0.38857, 0.39759, 0.42137, 0.43584, 0.46452, 0.50331, 0.51932, 0.52016, 0.50090, 0.48367, 0.43922, 0.35911, 0.31286, 0.27582, 0.24672, 0.22523, 0.19614, 0.19178 },
-{ 0.36651, 0.37144, 0.43592, 0.45493, 0.46003, 0.48172, 0.50467, 0.53313, 0.57864, 0.59902, 0.59994, 0.58377, 0.56200, 0.51308, 0.42462, 0.37380, 0.33639, 0.29758, 0.27765, 0.24878, 0.24394 },
-{ 0.45537, 0.45790, 0.50401, 0.50538, 0.51675, 0.54316, 0.56348, 0.59974, 0.65071, 0.67457, 0.67979, 0.67010, 0.64751, 0.59368, 0.49836, 0.44700, 0.40275, 0.36614, 0.33893, 0.30876, 0.30372 },
-{ 0.62879, 0.63228, 0.69595, 0.69784, 0.71354, 0.75001, 0.77807, 0.82814, 0.89852, 0.93146, 0.93867, 0.92529, 0.89410, 0.81977, 0.67501, 0.61723, 0.56977, 0.52265, 0.49216, 0.45821, 0.44343 },
-{ 0.85388, 0.85863, 0.94509, 0.94766, 0.96898, 1.01850, 1.05660, 1.12460, 1.22017, 1.26491, 1.27470, 1.25653, 1.21417, 1.11323, 0.91665, 0.83819, 0.76478, 0.70975, 0.67287, 0.63575, 0.62404 },
-{ 1.11596, 1.12216, 1.23516, 1.23852, 1.26638, 1.33111, 1.38090, 1.46976, 1.59467, 1.65315, 1.66594, 1.64219, 1.58683, 1.45491, 1.19800, 1.09545, 0.99301, 0.92759, 0.89082, 0.84440, 0.82113 },
-{ 1.40622, 1.41403, 1.55642, 1.56065, 1.59576, 1.67732, 1.74007, 1.85204, 2.00944, 2.08312, 2.09924, 2.06932, 1.99956, 1.83333, 1.50959, 1.38037, 1.24741, 1.16885, 1.12550, 1.07445, 1.05430 },
-{ 1.74092, 1.75059, 1.92688, 1.93211, 1.97558, 2.07655, 2.15424, 2.29286, 2.48772, 2.57894, 2.59890, 2.56185, 2.47549, 2.26969, 1.86890, 1.70892, 1.54432, 1.44706, 1.38996, 1.33019, 1.31104 } };
-
-const double cmBase[n_aoa1][n_mach] = { { 0.03200, 0.03400, 0.04000, 0.05900, 0.06800, 0.09000, 0.10100, 0.12600, 0.14000, 0.15800, 0.16250, 0.16200, 0.14800, 0.01300, 0.04200, 0.00450, -0.01800, -0.02940, -0.03370, -0.03500, -0.03500 },
-{ 0.03000, 0.03200, 0.03650, 0.04900, 0.05400, 0.06100, 0.06700, 0.08200, 0.09800, 0.11400, 0.11800, 0.11200, 0.09200, 0.06000, 0.01750, -0.00800, -0.01800, -0.02700, -0.03070, -0.03280, -0.03280 },
-{ 0.02900, 0.03050, 0.03470, 0.04450, 0.04700, 0.04500, 0.05300, 0.06200, 0.07800, 0.08400, 0.08200, 0.07200, 0.05800, 0.03700, 0.00800, -0.01144, -0.01850, -0.02550, -0.02800, -0.03000, -0.03000 },
-{ 0.02800, 0.29000, 0.03300, 0.04000, 0.04000, 0.03500, 0.03800, 0.04200, 0.05500, 0.05500, 0.04700, 0.03400, 0.02500, 0.01400, -0.01300, -0.01480, -0.01900, -0.02310, -0.02400, -0.02700, -0.02700 },
-{ 0.02700, 0.02750, 0.03050, 0.03600, 0.03800, 0.03500, 0.02200, 0.02000, 0.03100, 0.02400, 0.01500, 0.00600, -0.00100, -0.00700, -0.01300, -0.01940, -0.01970, -0.02100, -0.02200, -0.02350, -0.02350 },
-{ 0.02600, 0.02600, 0.02800, 0.03150, 0.03200, 0.02250, 0.01600, 0.00000, 0.00500, -0.00300, -0.01050, -0.02000, -0.02350, -0.02500, -0.02380, -0.02300, -0.02050, -0.01880, -0.02000, -0.01900, -0.01900 },
-{ 0.02400, 0.02400, 0.02400, 0.02250, 0.02200, 0.02000, 0.01200, -0.01600, -0.01500, -0.02200, -0.02900, -0.04000, -0.04400, -0.04100, -0.03360, -0.02480, -0.02150, -0.01820, -0.01810, -0.01560, -0.01550 },
-{ 0.02300, 0.02200, 0.02050, 0.01800, 0.01700, 0.01500, 0.00400, -0.02700, -0.03000, -0.03400, -0.04000, -0.05400, -0.06000, -0.05500, -0.03850, -0.02740, -0.02250, -0.01830, -0.01660, -0.01250, -0.01200 },
-{ 0.02300, 0.02250, 0.02100, 0.01700, 0.01200, 0.00750, -0.00600, -0.04000, -0.04200, -0.04500, -0.04900, -0.06100, -0.07200, -0.07000, -0.04300, -0.03100, -0.02400, -0.01910, -0.01560, -0.00990, -0.00970 },
-{ 0.02400, 0.02200, 0.01600, 0.00600, 0.00050, -0.00250, -0.01800, -0.05000, -0.05200, -0.05800, -0.06200, -0.07200, -0.08300, -0.08200, -0.04720, -0.03510, -0.02700, -0.02010, -0.01520, -0.00725, -0.00780 },
-{ 0.01900, 0.01600, 0.00900, -0.00600, -0.01100, -0.01000, -0.02800, -0.05650, -0.06300, -0.07000, -0.07400, -0.08200, -0.09000, -0.09100, -0.05160, -0.03950, -0.03000, -0.02150, -0.01510, -0.00493, -0.00600 },
-{ 0.01400, 0.00800, -0.00400, -0.00500, -0.01000, -0.00300, -0.03000, -0.06000, -0.07200, -0.07700, -0.08100, -0.08800, -0.09300, -0.09700, -0.05810, -0.04400, -0.03400, -0.02310, -0.01550, -0.00300, -0.00600 },
-{ 0.01050, 0.01000, 0.00600, 0.00260, 0.02000, 0.02000, -0.01200, -0.03500, -0.04700, -0.06100, -0.06800, -0.08000, -0.09100, -0.09500, -0.06150, -0.05000, -0.03700, -0.02350, -0.01700, -0.00400, -0.00620 },
-{ 0.10000, 0.01200, 0.03300, 0.08000, 0.09000, 0.09000, 0.08700, 0.07000, 0.02000, -0.02300, -0.04200, -0.06400, -0.07700, -0.08200, -0.06490, -0.05530, -0.04200, -0.02780, -0.01840, -0.00590, -0.00800 },
-{ 0.12007, 0.01441, 0.03962, 0.09606, 0.10807, 0.10807, 0.10446, 0.08405, 0.02401, -0.02762, -0.05043, -0.07685, -0.09246, -0.09846, -0.05180, -0.06640, -0.05400, -0.03720, -0.02700, -0.01350, -0.01500 },
-{ 0.15655, 0.01879, 0.05166, 0.12524, 0.14089, 0.14089, 0.13619, 0.10958, 0.03131, -0.03601, -0.06575, -0.10019, -0.12054, -0.12837, -0.06753, -0.08657, -0.06600, -0.04850, -0.03940, -0.02570, -0.02600 },
-{ 0.19818, 0.02378, 0.06540, 0.15855, 0.17837, 0.17837, 0.17242, 0.13873, 0.03964, -0.04558, -0.08324, -0.12684, -0.15260, -0.16251, -0.08550, -0.10960, -0.08300, -0.06140, -0.05300, -0.04290, -0.04100 },
-{ 0.24466, 0.02936, 0.08074, 0.19573, 0.22020, 0.22020, 0.21286, 0.17126, 0.04893, -0.05627, -0.10276, -0.15658, -0.18839, -0.20062, -0.10555, -0.13530, -0.10000, -0.07580, -0.06750, -0.06150, -0.06100 },
-{ 0.32582, 0.03910, 0.10752, 0.26066, 0.29324, 0.29324, 0.28346, 0.22807, 0.06516, -0.07494, -0.13684, -0.20852, -0.25088, -0.26717, -0.14056, -0.18018, -0.13317, -0.10094, -0.08330, -0.08190, -0.08200 } };
-
-const int n_trimExt = 3;
-const double trimExt[n_trimExt] = { -11.7, 0, 22.5 };
-const double cmTrim[n_trimExt][n_mach] = { { 0.0158, 0.016, 0.0179, 0.0204, 0.020165, 0.01993, 0.020866, 0.02149, 0.01803, 0.01574, 0.0136, 0.0148, 0.01141, 0.00981, 0.00578, 0.004215, 0.00265, 0.00603, 0.00791, 0.012, 0.015 },
-{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-{ -0.0424, -0.0442, -0.0488, -0.05562, -0.0559, -0.05618, -0.058004, -0.05922, -0.05222, -0.05241, -0.04894, -0.04195, -0.03722, -0.02979, -0.02112, -0.016505, -0.01189, -0.0328, -0.0442, -0.061, -0.065 } };
-
-//const double OrbiterS=2690*0.3048*0.3048;
-//const double Orbiterb=78.056*0.3048; //Turns out span is not used...
-//const double Orbiterc=39.56*0.3048; //...but chord is
-//const double OrbiterA=Orbiterb*Orbiterb/OrbiterS; //Has to be passed, doesn't have to be correct
-void FlatPlateCoeff(double aoa, double *cl, double *cm, double *cd) {
-	*cl = 1.2*sin(aoa * 2);
-	*cd = 2 * sin(aoa);
-	*cm = 0;
-}
 
 // initialized in InitModule
 Aerodynamics::ThreeDLookup elevonVerticalLookup;
@@ -488,12 +404,15 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::PanelA4(this));
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
+	pgAft.AddPanel( new vc::PanelA2( this ) );
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel(new vc::PanelR13L(this));
 	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
+	pPanelL10 = NULL;
+	pPanelL12U = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -588,6 +507,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
 	pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
 	pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
+	pASE_IUS = NULL;
+	pCISS = NULL;
 
 	psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
 
@@ -601,11 +522,15 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
 	psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
 
+	psubsystems->AddSubsystem( new comm::GCIL( psubsystems ) );
+
 	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
 
 	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
 
 	//psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
+
+	pDeployedAssembly = NULL;
 
 	pRMS = NULL; //don't create RMS unless it is used on the shuttle
 	pMPMs = NULL;
@@ -975,6 +900,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	SSMEGH2burn[0] = NULL;
 	SSMEGH2burn[1] = NULL;
 	SSMEGH2burn[2] = NULL;
+
+	hasCISS = false;
 }
 
 // --------------------------------------------------------------
@@ -1831,8 +1758,10 @@ void Atlantis::DefineAnimations(void)
 
 	anim_door = CreateAnimation(0);
 	LogAnim("anim_door", anim_door);
-	anim_rad = CreateAnimation(0);
-	LogAnim("anim_rad", anim_rad);
+	anim_rad[0] = CreateAnimation(0);
+	LogAnim("anim_rad[0]", anim_rad[0]);
+	anim_rad[1] = CreateAnimation(0);
+	LogAnim("anim_rad[1]", anim_rad[1]);
 	anim_clatch[0] = CreateAnimation(0);
 	anim_clatch[1] = CreateAnimation(0);
 	anim_clatch[2] = CreateAnimation(0);
@@ -1840,24 +1769,24 @@ void Atlantis::DefineAnimations(void)
 	// **************************************************************************************
 	//right (starboard) side
 	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.0, 0.4632, pRCargoDoor);
-	AddManagedAnimationComponent(anim_rad, 0, 1, pRRadiator, parent);
+	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pRCargoDoor);
+	AddManagedAnimationComponent(anim_rad[1], 0, 1, pRRadiator, parent);
 	//latches
 	AddAnimationComponent(anim_clatch[0], 0, 1, &CLatch1_4, parent);
 	AddAnimationComponent(anim_clatch[1], 0, 1, &CLatch5_8, parent);
 	AddAnimationComponent(anim_clatch[2], 0, 1, &CLatch9_12, parent);
 	AddAnimationComponent(anim_clatch[3], 0, 1, &CLatch13_16, parent);
 	//right push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBD_CLAMP);
+	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pSTBD_CLAMP);
 	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPullRod, parent);
 	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPushRod, parent);
 	// **************************************************************************************
 	//left(port) side
 	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pLCargoDoor);
-	AddManagedAnimationComponent(anim_rad, 0, 1, pLRadiator, parent);
+	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pLCargoDoor);
+	AddManagedAnimationComponent(anim_rad[0], 0, 1, pLRadiator, parent);
 	//left push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORT_CLAMP);
+	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pPORT_CLAMP);
 	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPullRod, parent);
 	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPushRod, parent);
 
@@ -1926,9 +1855,9 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE RElevator_up(midx, RElevGrp, 2,
 		_V(7.83304, -3.37684, -10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-34.0*RAD));
 	static MGROUP_ROTATE LElevatorDoor_up(midx, LElevDoorGrp, 2,
-		_V(-7.837, -2.697, -10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(22.0*RAD));
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, 0.000550051), (float)(22.0*RAD));
 	static MGROUP_ROTATE RElevatorDoor_up(midx, RElevDoorGrp, 2,
-		_V(7.837, -2.697, -10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-22.0*RAD));
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, 0.000550051), (float)(-22.0*RAD));
 
 	// ***** 4B. Downward animation of elevons *****
 	static MGROUP_ROTATE LElevator_down(midx, LElevGrp, 2,
@@ -1936,9 +1865,9 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE RElevator_down(midx, RElevGrp, 2,
 		_V(7.83304, -3.37684, -10.70273), _V(0.994826, 0.101587, -0.00088665), (float)(-18.0*RAD));
 	static MGROUP_ROTATE LElevatorDoor_down(midx, LElevDoorGrp, 2,
-		_V(-7.837, -2.697, -10.329), _V(-0.999269, 0.0382131, -0.00143407), (float)(5 * RAD));
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, -0.000550051), (float)(5 * RAD));
 	static MGROUP_ROTATE RElevatorDoor_down(midx, RElevDoorGrp, 2,
-		_V(7.837, -2.697, -10.329), _V(0.999269, 0.0382131, -0.00143407), (float)(-5 * RAD));
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, -0.000550051), (float)(-5 * RAD));
 	anim_lelevon = CreateAnimation(0.5);
 	anim_relevon = CreateAnimation(0.5);
 	LogAnim("anim_lelevon", anim_lelevon);
@@ -1964,7 +1893,7 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT RudderGrp[2] = { GRP_RIGHT_RSB_PANEL, GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE Rudder(midx, RudderGrp, 2,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(54.2*RAD));
+		_V(0, 6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(54.2*RAD));
 	anim_rudder = CreateAnimation(0.5);
 	LogAnim("anim_rudder", anim_rudder);
 	AddAnimationComponent(anim_rudder, 0, 1, &Rudder);
@@ -1973,10 +1902,10 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT SB1Grp[1] = { GRP_RIGHT_RSB_PANEL };
 	static MGROUP_ROTATE SB1(midx, SB1Grp, 1,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(49.3*RAD));
+		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(49.3*RAD));
 	static UINT SB2Grp[1] = { GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE SB2(midx, SB2Grp, 1,
-		_V(0, 4.347, -13.765), _V(-0.000138579, -0.829462, 0.558564), (float)(-49.3*RAD));
+		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(-49.3*RAD));
 
 	anim_spdb = CreateAnimation(0);
 	LogAnim("anim_spdb", anim_spdb);
@@ -2388,6 +2317,10 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	22. RSRB
 	*/
 	CreateETAndSRBAttachments(ofs0);
+
+	// only one will be created
+	if (pASE_IUS) pASE_IUS->CreateAttachment();// 23
+	else if (pCISS) pCISS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
@@ -2410,6 +2343,8 @@ void Atlantis::AddOrbiterVisual()
 	if (mesh_orbiter == MESH_UNDEFINED) {
 
 		// ***** Load meshes
+		if (pCISS) pCISS->AddMesh();
+		if (pASE_IUS) pASE_IUS->AddMesh();
 
 		mesh_cockpit = AddMesh(hOrbiterCockpitMesh, &VC_OFFSET);
 		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL);
@@ -2464,6 +2399,8 @@ void Atlantis::AddOrbiterVisual()
 		*/
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
+		if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
@@ -2772,10 +2709,14 @@ void Atlantis::UpdateMesh()
 	SetAnimation(anim_spdb, spdb_proc);
 	SetAnimation(anim_door, pPayloadBay->BayDoorStatus.pos);
 	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->CLBayDoorLatch[i].pos);
-	SetAnimation(anim_rad, pPayloadBay->RadiatorStatus.pos);
-	SetAnimation(anim_kubd, pPayloadBay->KuAntennaStatus.pos);
-	SetAnimation(anim_kualpha, pPayloadBay->KuAntennaStatus.pos);
-	SetAnimation(anim_kubeta, pPayloadBay->KuAntennaStatus.pos);
+	SetAnimation(anim_rad[0], pPayloadBay->RadiatorStatus[0].pos);
+	SetAnimation(anim_rad[1], pPayloadBay->RadiatorStatus[1].pos);
+	SetAnimation( anim_kubd, pPayloadBay->KuAntennaStatus.pos );
+	if (pDeployedAssembly)
+	{
+		SetAnimation( anim_kualpha, pDeployedAssembly->GetAlphaAnimation() );
+		SetAnimation( anim_kubeta, pDeployedAssembly->GetBetaAnimation() );
+	}
 	SetAnimation(anim_gear, gear_status.pos);
 	SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
 
@@ -2905,16 +2846,14 @@ void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
 	SetAnimation(anim_clatch[gang], pos);
 }
 
-void Atlantis::SetRadiatorPosition(double pos)
+void Atlantis::SetRadiatorPosition(double pos, int side)
 {
-	SetAnimation(anim_rad, pos);
+	SetAnimation(anim_rad[side], pos);
 }
 
-void Atlantis::SetKuAntennaPosition(double pos)
+void Atlantis::SetKuAntennaDAPosition(double pos)
 {
 	SetAnimation(anim_kubd, pos);
-	SetAnimation(anim_kualpha, pos);
-	SetAnimation(anim_kubeta, pos);
 }
 
 void Atlantis::SetETUmbDoorPosition(double pos, int door)
@@ -3485,7 +3424,29 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
 
+			if (pMission->UseASE_IUS())
+			{
+				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
+				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+			}
+
+			if (pMission->UseCISS())
+			{
+				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
+				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				hasCISS = true;
+			}
+
 			bHasKUBand = pMission->HasKUBand();
+
+			if (bHasKUBand)
+			{
+				psubsystems->AddSubsystem( pDeployedAssembly = new comm::DeployedAssembly( psubsystems ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly1( psubsystems, pDeployedAssembly ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly2( psubsystems, pDeployedAssembly ) );
+			}
 		}
 		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
 		{
@@ -4948,8 +4909,24 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	for (unsigned int i = 0; i < 13; i++) {
 		if (!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON + i, &grpSpec);
 	}
+	
+	// hide bay 13 covers
+	if (hasCISS) oapiEditMeshGroup( hDevOrbiterMesh, GRP_PLB_BAY13_COVERS, &grpSpec );
 
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
+
+	// update UVs for talkbacks and lights
+	oapiWriteLog( "Started Panels UpdateUVState" );
+	pgForward.UpdateUVState();
+	pgLeft.UpdateUVState();
+	pgCenter.UpdateUVState();
+	pgRight.UpdateUVState();
+	pgOverhead.UpdateUVState();
+	pgOverheadAft.UpdateUVState();
+	pgAftStbd.UpdateUVState();
+	pgAft.UpdateUVState();
+	pgAftPort.UpdateUVState();
+	oapiWriteLog( "Ended Panels UpdateUVState" );
 
 	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
@@ -5171,14 +5148,7 @@ bool Atlantis::clbkLoadVC(int id)
 	case VC_LEECAM: //RMS End Effector Camera
 		if (pRMS) {
 			DisplayCameraLabel(VC_LBL_LEECAM);
-			/*tilt = wr_angle;
-			if(tilt<-180.0) tilt+=360.0;
-			else if(tilt>180.0) tilt-=360.0;
-
-			//SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-			SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-			//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
-			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);*/
+			
 			pRMS->SetEECameraView(true);
 			oapiVCSetNeighbours(VC_RMSCAM, -1, -1, VC_RMSSTATION);
 
@@ -6296,23 +6266,23 @@ void Atlantis::DefineKUBandAnimations()
 
 	static UINT KuBand2Grp[1] = { GRP_ALPHA_GIMBAL_KU };
 	static MGROUP_ROTATE KuBand2(kidx, KuBand2Grp, 1,
-		_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(7.8*RAD)); //Data from the Ku band System Workbook
+		_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(360*RAD)); //Data from the Ku band System Workbook
 
 	static UINT KuBand3Grp[4] = { GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU };
 	static MGROUP_ROTATE KuBand3(kidx, KuBand3Grp, 4,
-		_V(2.1733, 0.852241, 8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(4.25*RAD));//Data from the Ku band System Workbook
+		_V(2.1733, 0.852241, 8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(160*RAD));//Data from the Ku band System Workbook
 
 	anim_kubd = CreateAnimation(0);
 	LogAnim("anim_kubd", anim_kubd);
-	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_kubd, 0, 0.5, &KuBand1);
+	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_kubd, 0, 1, &KuBand1);
 
-	anim_kualpha = CreateAnimation(0.0);
+	anim_kualpha = CreateAnimation( 0.773611 );// 124.3º
 	LogAnim("anim_kualpha", anim_kualpha);
-	parent = AddAnimationComponent(anim_kualpha, 0.81, 1, &KuBand2, parent);
+	parent = AddAnimationComponent(anim_kualpha, 0, 1, &KuBand2, parent);
 
-	anim_kubeta = CreateAnimation(0.0);
+	anim_kubeta = CreateAnimation( 0.296875 );// -27.5º
 	LogAnim("anim_kubeta", anim_kubeta);
-	AddAnimationComponent(anim_kubeta, 0.61, 0.8, &KuBand3, parent);
+	AddAnimationComponent(anim_kubeta, 0, 1, &KuBand3, parent);
 }
 
 void Atlantis::GLSAutoSeqStart()
@@ -6379,14 +6349,10 @@ void Atlantis::UpdateNullDirections()
 	}
 }
 
-void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
+void Atlantis::SetKuGimbalAngles( double fAlpha, double fBeta )
 {
-	//No checking of subsystem state or latches, only animation
-	if (bHasKUBand)
-	{
-		SetAnimation(anim_kualpha, fAlpha);
-		SetAnimation(anim_kubeta, fbeta);
-	}
+	SetAnimation( anim_kualpha, fAlpha );
+	SetAnimation( anim_kubeta, fBeta );
 }
 
 bool Atlantis::IsValidSPEC(int gpc, int spec) const
@@ -7386,7 +7352,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
-	if (bUpdateAttachedVessels) {
+	//if (bUpdateAttachedVessels) {
 		payloadMass = 0.0;
 		payloadCoG = _V(0, 0, 0);
 
@@ -7401,18 +7367,21 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 					payloadMass += mass;
 					payloadCoG += CoG*mass;
 
-					char cbuf[255];
-					sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
-					oapiWriteLog(cbuf);
+					if (bUpdateAttachedVessels)
+					{
+						char cbuf[255];
+						sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
+						oapiWriteLog(cbuf);
+					}
 				}
 			}
 		}
-		if (payloadMass > 0.1) payloadCoG = payloadCoG / payloadMass;
+		if ((payloadMass > 0.1) && (bUpdateAttachedVessels)) payloadCoG = payloadCoG / payloadMass;
 		else payloadCoG = _V(0, 0, 0);
 
-		double subsystemMass = psubsystems->GetTotalSubsystemMass();
-		SetEmptyMass(pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass);
-	}
+		SetEmptyMass(pMission->GetOrbiterMass() + psubsystems->GetTotalSubsystemMass() + pl_mass + payloadMass);
+	//}
+
 	if (status <= STATE_STAGE2) {
 		double stackMass = 0.0; // mass of ET & SRBs (if attached)
 		if (status <= STATE_STAGE1) {

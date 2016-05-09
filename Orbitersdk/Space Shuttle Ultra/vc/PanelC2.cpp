@@ -17,29 +17,36 @@ namespace vc
 		Add( pIDPCRTPower[0] = new StdSwitch2( psts, "IDP/CRT 1 Power" ) );
 		pIDPCRTPower[0]->SetLabel( 0, "OFF" );
 		pIDPCRTPower[0]->SetLabel( 1, "ON" );
+		pIDPCRTPower[0]->SetInitialPosition( 1 );
 		Add( pIDPCRTPower[1] = new StdSwitch2( psts, "IDP/CRT 2 Power" ) );
 		pIDPCRTPower[1]->SetLabel( 0, "OFF" );
 		pIDPCRTPower[1]->SetLabel( 1, "ON" );
+		pIDPCRTPower[1]->SetInitialPosition( 1 );
 		Add( pIDPCRTPower[2] = new StdSwitch2( psts, "IDP/CRT 3 Power" ) );
 		pIDPCRTPower[2]->SetLabel( 0, "OFF" );
 		pIDPCRTPower[2]->SetLabel( 1, "ON" );
+		pIDPCRTPower[2]->SetInitialPosition( 1 );
 
 		Add( pIDPCRTMajFunc[0] = new StdSwitch3( psts, "IDP/CRT 1 Maj Func" ) );
 		pIDPCRTMajFunc[0]->SetLabel( 0, "PL" );
 		pIDPCRTMajFunc[0]->SetLabel( 1, "SM" );
 		pIDPCRTMajFunc[0]->SetLabel( 2, "GNC" );
+		pIDPCRTMajFunc[0]->SetInitialPosition( 2 );
 		Add( pIDPCRTMajFunc[1] = new StdSwitch3( psts, "IDP/CRT 2 Maj Func" ) );
 		pIDPCRTMajFunc[1]->SetLabel( 0, "PL" );
 		pIDPCRTMajFunc[1]->SetLabel( 1, "SM" );
 		pIDPCRTMajFunc[1]->SetLabel( 2, "GNC" );
+		pIDPCRTMajFunc[1]->SetInitialPosition( 2 );
 		Add( pIDPCRTMajFunc[2] = new StdSwitch3( psts, "IDP/CRT 3 Maj Func" ) );
 		pIDPCRTMajFunc[2]->SetLabel( 0, "PL" );
 		pIDPCRTMajFunc[2]->SetLabel( 1, "SM" );
 		pIDPCRTMajFunc[2]->SetLabel( 2, "GNC" );
+		pIDPCRTMajFunc[2]->SetInitialPosition( 2 );
 
 		Add( pCRTSEL[0] = new StdSwitch2( psts, "Left CRT Sel" ) );
 		pCRTSEL[0]->SetLabel( 0, "3" );
 		pCRTSEL[0]->SetLabel( 1, "1" );
+		pCRTSEL[0]->SetInitialPosition( 1 );
 		Add( pCRTSEL[1] = new StdSwitch2( psts, "Right CRT Sel" ) );
 		pCRTSEL[1]->SetLabel( 0, "2" );
 		pCRTSEL[1]->SetLabel( 1, "3" );
@@ -274,45 +281,38 @@ namespace vc
 		pIDPCRTPower[0]->DefineSwitchGroup( GRP_C2B1_VC );
 		pIDPCRTPower[0]->SetReference( _V( -0.10, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTPower[0]->SetMouseRegion( 0.289743f, 0.163456f, 0.324921f, 0.276103f );
-		pIDPCRTPower[0]->SetInitialPosition( 1 );
 
 		pIDPCRTPower[1]->SetInitialAnimState( 0.5f );
 		pIDPCRTPower[1]->DefineSwitchGroup( GRP_C2B5_VC );
 		pIDPCRTPower[1]->SetReference( _V( 0.07, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTPower[1]->SetMouseRegion( 0.613179f, 0.160406f, 0.650175f, 0.284562f );
-		pIDPCRTPower[1]->SetInitialPosition( 1 );
 
 		pIDPCRTPower[2]->SetInitialAnimState( 0.5f );
 		pIDPCRTPower[2]->DefineSwitchGroup( GRP_C2B3_VC );
 		pIDPCRTPower[2]->SetReference( _V( -0.02, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTPower[2]->SetMouseRegion( 0.449651f, 0.157388f, 0.487955f, 0.281491f );
-		pIDPCRTPower[2]->SetInitialPosition( 1 );
 
 
 		pIDPCRTMajFunc[0]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[0]->DefineSwitchGroup( GRP_C2B2_VC );
 		pIDPCRTMajFunc[0]->SetReference( _V( -0.07, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTMajFunc[0]->SetMouseRegion( 0.344109f, 0.162173f, 0.382536f, 0.283917f );
-		pIDPCRTMajFunc[0]->SetInitialPosition( 2 );
 
 		pIDPCRTMajFunc[1]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[1]->DefineSwitchGroup( GRP_C2B6_VC );
 		pIDPCRTMajFunc[1]->SetReference( _V( -0.10, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTMajFunc[1]->SetMouseRegion( 0.669981f, 0.161427f, 0.709157f, 0.283448f );
-		pIDPCRTMajFunc[1]->SetInitialPosition( 2 );
 
 		pIDPCRTMajFunc[2]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[2]->DefineSwitchGroup( GRP_C2B4_VC );
 		pIDPCRTMajFunc[2]->SetReference( _V( 0.01, 1.911417, 14.50198 ), switch_rot );
 		pIDPCRTMajFunc[2]->SetMouseRegion( 0.507477f, 0.156221f, 0.546810f, 0.282617f );
-		pIDPCRTMajFunc[2]->SetInitialPosition( 2 );
 
 
 		pCRTSEL[0]->SetInitialAnimState( 0.5f );
 		pCRTSEL[0]->DefineSwitchGroup( GRP_C2B7V_VC );
 		pCRTSEL[0]->SetReference( _V( -0.100152, 1.859752, 14.45152 ), switch_rotH );
 		pCRTSEL[0]->SetMouseRegion( 0.295351f, 0.438155f, 0.343899f, 0.542759f );
-		pCRTSEL[0]->SetInitialPosition( 1 );
 		pCRTSEL[0]->SetOrientation( true );
 
 

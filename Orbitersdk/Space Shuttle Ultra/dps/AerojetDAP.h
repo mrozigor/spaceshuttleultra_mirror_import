@@ -157,6 +157,14 @@ private:
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
 	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
 
+	DiscInPort HUDPower[2];
+	DiscInPort pHUDDCLT[2];
+	bool dclt_sw_on[2];
+	int declutter_level[2];
+
+	double tCSS;
+	double tGear;
+
 	double lastSBTCCommand; // used to check if speedbrake has moved
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
@@ -395,6 +403,12 @@ public:
 	 * @return	delta azimuth limit (DEG)
 	 */
 	double GetdeltaAZLimit( double mach ) const;
+
+	/**
+ 	 * Returns heading of selected runway
+ 	 * @return	heading of selected runway (deg)
+ 	 */
+	double GetSelectedRunwayHeading( void ) const;
 private:
 	void SetThrusterLevels();
 	/**

@@ -37,9 +37,24 @@ const string& BasicSwitch::GetLabel(int iPosition) const {
 	return labels.at(iPosition);
 }
 
+bool BasicSwitch::IsFullySpringLoaded( void )
+{
+	bool one = false;
+	for (unsigned short i = 0; i < usNumPositions; i++)
+	{
+		if (!vbSpringLoaded.at( i ))
+		{
+			if (one) return false;
+			else one = true;
+		}
+	}
+	return true;
+}
+
 bool BasicSwitch::GetStateString(unsigned long ulBufferSize, char* pszBuffer) {
 
-	if(bSpringLoaded) return false; // no need to save state, position is always 1
+	if (IsFullySpringLoaded()) return false;// no need to save state if the switch only has one non-spring loaded position
+
 	try {
 		if(labels.at(usCurrentPosition).compare("")) {
 			sprintf_s(pszBuffer, ulBufferSize, "%s", 
@@ -182,7 +197,6 @@ void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos)
 void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded)
 {
 	unsigned short usMidPosition = (usNumPositions - 1)/2;
-	//bSpringLoaded=IsSpringLoaded;
 	for(unsigned short i=0;i<usNumPositions;i++) {
 		SetSpringLoaded(IsSpringLoaded && (i!=usMidPosition), i);
 	}

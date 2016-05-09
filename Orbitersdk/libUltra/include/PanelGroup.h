@@ -59,6 +59,7 @@ namespace vc {
 		void HidePanels();
 		void ShowPanels();
 		void LogPanels(char *grp);
+		void UpdateUVState();
 	};
 
 	template <class TVessel>
@@ -271,5 +272,12 @@ namespace vc {
 			sprintf_s(buf, 100, "   %s  : %s ", panels.at(i)->GetQualifiedIdentifier().c_str(), state);
 			oapiWriteLog(buf);
 		}
+	}
+
+	template <class TVessel>
+	void PanelGroup<TVessel>::UpdateUVState()
+	{
+		for(unsigned int i = 0; i<panels.size(); i++)
+			panels.at(i)->UpdateUVState();
 	}
 };

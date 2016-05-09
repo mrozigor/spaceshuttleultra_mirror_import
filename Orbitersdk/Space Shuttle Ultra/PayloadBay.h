@@ -66,12 +66,18 @@ class PayloadBay:public AtlantisSubsystem
 		DiscOutPort KUAntennaTB_STO;
 		DiscOutPort KUAntennaTB_DPY;
 
+		DiscInPort BoomStowEnableI;
+		DiscInPort BoomStowEnableII;
+
 		// physical status
 		AnimState BayDoorStatus;
 		AnimState CLBayDoorLatch[4]; //1_4, 5_8, 9_12, 13_16
-		AnimState RadiatorStatus;
-		AnimState RadLatchStatus;
+		AnimState RadiatorStatus[2];// left, right
+		AnimState RadLatchStatus[2];// left, right
 		AnimState KuAntennaStatus;
+
+		bool KuRndz_Radar_Stow_Ind[2];
+		bool KuRndz_Radar_Dpy_Ind[2];
 
 		bool hasAntenna;
 
