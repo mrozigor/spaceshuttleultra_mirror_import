@@ -1,5 +1,4 @@
 #include "PanelA1U.h"
-#include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
 
@@ -25,11 +24,16 @@ namespace vc
 		pSlewRate->SetLabel( 0, "SLOW" );
 		pSlewRate->SetLabel( 1, "FAST" );
 
+		Add( pControl = new StdSwitch2( _sts, "CONTROL" ) );
+		pControl->SetLabel( 0, "PANEL" );
+		pControl->SetLabel( 1, "COMMAND" );
+
 		Add( pSteeringMode = new RotaryDemuxSwitch( _sts, "STEERING MODE", 4 ) );
-		pSteeringMode->SetLabel( 3, "MAN SLEW" );
-		pSteeringMode->SetLabel( 2, "AUTO TRACK" );
-		pSteeringMode->SetLabel( 1, "GPC DESIG" );
-		pSteeringMode->SetLabel( 0, "GPC" );
+		pSteeringMode->SetLabel( 0, "MAN SLEW" );
+		pSteeringMode->SetLabel( 1, "AUTO TRACK" );
+		pSteeringMode->SetLabel( 2, "GPC DESIG" );
+		pSteeringMode->SetLabel( 3, "GPC" );
+		pSteeringMode->SetInitialPosition( 0 );
 
 		Add( pSearch = new StdSwitch2( _sts, "SEARCH" ) );
 		pSearch->SetLabel( 1, "SEARCH" );
@@ -48,15 +52,14 @@ namespace vc
 		pRadarOutput->SetLabel( 0, "LOW" );
 		pRadarOutput->SetLabel( 1, "MED" );
 		pRadarOutput->SetLabel( 2, "HIGH" );
+
+		Add( pScanWarnTB = new StandardTalkback_2( _sts, "Scan Warn TB", 1 ) );
+		Add( pTrackTB = new StandardTalkback_2( _sts, "Track TB", 1 ) );
+		Add( pSearchTB = new StandardTalkback_2( _sts, "Search TB", 1 ) );
 	}
 
 	PanelA1U::~PanelA1U()
 	{
-	}
-
-	void PanelA1U::OnPreStep(double SimT, double DeltaT, double MJD)
-	{
-		return;
 	}
 
 	void PanelA1U::DefineVC()
@@ -87,13 +90,17 @@ namespace vc
 		pSlewRate->SetMouseRegion( 0.592866f, 0.272507f, 0.656497f, 0.376257f );
 		pSlewRate->SetReference( _V( 1.0690, 2.9781, 12.2231 ), switch_rot_vert );
 
+		pControl->SetInitialAnimState( 0.5f );
+		pControl->DefineSwitchGroup( GRP_A1US6_VC );
+		pControl->SetMouseRegion( 0.549356f, 0.490418f, 0.618453f, 0.598225f );
+		pControl->SetReference( _V( 1.0520, 2.9117, 12.2231 ), switch_rot_vert );
+
 		pSteeringMode->SetInitialAnimState( 1.0f );
 		pSteeringMode->DefineSwitchGroup( GRP_A1URS7_VC );
 		pSteeringMode->SetMouseRegion( 0.165013f, 0.627728f, 0.267503f, 0.750766f );
 		pSteeringMode->SetReference( _V( 1.1953, 2.8678, 12.2315 ), rotary_switch_rot );
 		pSteeringMode->DefineRotationAngle( 90.0f );
 		pSteeringMode->SetOffset( 135.0f );
-		pSteeringMode->SetInitialPosition( 0 );
 
 		pSearch->SetInitialAnimState( 0.5f );
 		pSearch->DefineSwitchGroup( GRP_A1US8_VC );
@@ -115,6 +122,10 @@ namespace vc
 		pRadarOutput->DefineSwitchGroup( GRP_A1US14_VC );
 		pRadarOutput->SetMouseRegion( 0.353588f, 0.856309f, 0.416909f, 0.962201f );
 		pRadarOutput->SetReference( _V( 1.2504, 2.8016, 12.2231 ), switch_rot_vert );
+		
+		pScanWarnTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_SCANWARN_VC );
+		pTrackTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_TRACK_VC );
+		pSearchTB->DefineMeshGroup( STS()->mesh_vc, GRP_A1U_TB_SEARCH_VC );
 	}
 
 	void PanelA1U::RegisterVC()
@@ -131,6 +142,30 @@ namespace vc
 
 	void PanelA1U::Realize()
 	{
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "A1U_SWITCHES_A", 16 );
+		pSlewAzimuth->ConnectPort( 1, pBundle, 0 );
+		pSlewAzimuth->ConnectPort( 2, pBundle, 1 );
+		pSlewElevation->ConnectPort( 1, pBundle, 2 );
+		pSlewElevation->ConnectPort( 2, pBundle, 3 );
+		pSlewRate->ConnectPort( 1, pBundle, 4 );
+		pSearch->ConnectPort( 1, pBundle, 5 );
+		pRadarOutput->ConnectPort( 1, pBundle, 6 );
+		pRadarOutput->ConnectPort( 2, pBundle, 7 );
+		pScanWarnTB->SetInput( 0, pBundle, 8, TB_GRAY );
+		pTrackTB->SetInput( 0, pBundle, 9, TB_GRAY );
+		pSearchTB->SetInput( 0, pBundle, 10, TB_GRAY );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "A1U_SWITCHES_B", 16 );
+		pControl->ConnectPort( 1, pBundle, 0 );
+		pSteeringMode->ConnectOutputSignal( 3, pBundle, 1 );
+		pSteeringMode->ConnectOutputSignal( 2, pBundle, 2 );
+		pSteeringMode->ConnectOutputSignal( 1, pBundle, 3 );
+		pSteeringMode->ConnectOutputSignal( 0, pBundle, 4 );
+		pPower->ConnectPort( 1, pBundle, 5 );
+		pPower->ConnectPort( 2, pBundle, 6 );
+		pMode->ConnectPort( 1, pBundle, 7 );
+		pMode->ConnectPort( 2, pBundle, 8 );
+
 		AtlantisPanel::Realize();
 	}
 };

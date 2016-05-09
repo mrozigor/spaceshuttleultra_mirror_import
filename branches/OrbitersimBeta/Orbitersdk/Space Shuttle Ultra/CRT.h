@@ -32,26 +32,21 @@ public:
 
 private:
 	// GDI stuff
-	HBRUSH GreenBrush;
-	HBRUSH TurquoiseBrush; 
+	HBRUSH LightGreenBrush;
+	HBRUSH CyanBrush; 
 	HBRUSH WhiteBrush;
 	HBRUSH BlackBrush;
 	HBRUSH RedBrush;
-	HBRUSH PurpleBrush;
+	HBRUSH DarkGrayBrush;
 	HBRUSH YellowBrush;
-	HBRUSH LightBlueBrush;
 	HPEN WhitePen;
-	HPEN GreenPen;
-	HPEN TurquoisePen;
+	HPEN LightGreenPen;
+	HPEN DarkGreenPen;
 	HPEN RedPen;
 	HPEN BlackPen;
-	HPEN PurplePen;
-	HPEN PurpleThinPen;
-	HPEN DarkPurplePen;
+	HPEN DarkGrayPen;
 	HPEN YellowPen;
-	HPEN YellowThickPen;
-	HPEN BoldWhitePen;
-	HPEN LightBluePen;
+	HPEN CyanPen;
 	HFONT ArialFont_h15w5;
 	HFONT ArialFont_h13w6;
 

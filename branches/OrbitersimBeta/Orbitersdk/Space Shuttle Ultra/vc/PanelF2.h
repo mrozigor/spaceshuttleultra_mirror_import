@@ -52,6 +52,10 @@ namespace vc
 		PushButtonIndicator* pDragChuteARM;
 		PushButtonIndicator* pDragChuteDPY;
 
+		StdSwitch3* pHUDMode;
+		RotaryDemuxSwitch* pHUDBrightness;
+		StdSwitch3* pHUDBright;
+
 	public:
 		PanelF2(Atlantis* _sts);
 		~PanelF2();

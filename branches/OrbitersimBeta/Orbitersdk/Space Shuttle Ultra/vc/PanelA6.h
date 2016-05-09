@@ -56,6 +56,8 @@ namespace vc
 		LockableLever2* pFltCntlrPower;
 		StdSwitch2* pSense;
 
+		StdSwitch2* pPayloadRetentionLogicPowerSys[2];
+
 		StdSwitch3* pPayloadRetentionLatches[5];
 
 		RotaryDemuxSwitch* pPayloadSelect;
@@ -67,7 +69,9 @@ namespace vc
 		DiscOutPort Latch_Latch[3][5], Latch_Release[3][5];
 		DiscInPort Latch_Latched[3][5], Latch_Released[3][5], Latch_RTL[3][5];
 		DiscOutPort Latch_LatchedTkbk[5], Latch_ReleasedTkbk[5], Latch_RTLTkbk[5];
-		DiscInPort PayloadSelect[5];
+		DiscInPort PayloadSelect[3];
+		DiscOutPort LogicPowerSys[3][2];
+		DiscInPort PLRetLogicPwrSysSwitch[2];
 
 		StandardTalkback* pLatchState[5];
 		StandardTalkback* pLatchRTL[5];

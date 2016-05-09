@@ -30,6 +30,7 @@ MLP::MLP(OBJHANDLE hVessel, int iFlightModel)
 	SSS_LSRBLevel = 0;
 	SSS_RSRBLevel = 0;
 	SSS_RainbirdsLevel = 0;
+	SRBwaterbagvapor_lvl = 0;
 
 	bSSS_on = false;
 }
@@ -81,6 +82,12 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 
 	static PARTICLESTREAMSPEC sss_water_Rainbirds = {
 		0, 0.5, 50.0, 20.0, 0.1, 0.7, 5.5, 2.5, PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
+	};
+
+	static PARTICLESTREAMSPEC SRBwaterbagvapor = {
+		0, 4, 30.0, 0.5, 0.1, 1, 0.5, 1, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
@@ -144,6 +151,10 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	AddParticleStream( &sss_water_Rainbirds, _V( 0, 2.7, 1 ), _V( 0, 0, 1 ), &SSS_RainbirdsLevel );// S
 	AddParticleStream( &sss_water_Rainbirds, _V( 12.6, 2.7, 1 ), _V( -0.7071, 0, 0.7071 ), &SSS_RainbirdsLevel );// SE
 	AddParticleStream( &sss_water_Rainbirds, _V( 12.6, 3, 15 ), _V( -0.7071, 0, -0.7071 ), &SSS_RainbirdsLevel );// NE
+
+	// SRB water bag vapor
+	AddParticleStream( &SRBwaterbagvapor, _V( -6.5, 0, 0 ), _V( 0, 0, 1 ), &SRBwaterbagvapor_lvl );// LH
+	AddParticleStream( &SRBwaterbagvapor, _V( 6.5, 0, 0 ), _V( 0, 0, 1 ), &SRBwaterbagvapor_lvl );// RH
 
 	if(!ahHDP)	{
 		ahHDP = CreateAttachment(false, HDP_POS, _V(0.0, 1.0, 0.0), _V(0.0, 0.0, -1.0), "XHDP");
@@ -226,6 +237,7 @@ void MLP::clbkPreStep(double fSimT, double fDeltaT, double mjd)
 		SSS_LSRBLevel = min( (11 - fCountdown) * 0.5, 1 );
 		SSS_RSRBLevel = min( (12.5 - fCountdown) * 0.5, 1 );
 		if (T0UmbilicalState.Closed() == false) SSS_RainbirdsLevel = min( -fCountdown, 1 );// HACK using T0UmbilicalState as indication of liftoff
+		if (SRBwaterbagvapor_lvl > 0) SRBwaterbagvapor_lvl -= 0.05;
 	}
 	else
 	{
@@ -261,6 +273,18 @@ int MLP::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 void MLP::clbkVisualCreated(VISHANDLE _vis, int refcount)
 {
 	vis=_vis;
+	
+	if (!T0UmbilicalState.Closed())
+	{
+		GROUPEDITSPEC grpSpec;
+		grpSpec.flags = GRPEDIT_SETUSERFLAG;
+		grpSpec.UsrFlag = 0x00000002;
+		DEVMESHHANDLE hDevMLP = GetDevMesh( vis, msh_idx );
+		oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag_water, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag_water, &grpSpec );
+	}
 }
 
 void MLP::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
@@ -275,6 +299,18 @@ void MLP::OnT0() {
 
 	//Trigger T0 animation
 	T0UmbilicalState.action=AnimState::OPENING;
+
+	// hide water bags
+	GROUPEDITSPEC grpSpec;
+	grpSpec.flags = GRPEDIT_SETUSERFLAG;
+	grpSpec.UsrFlag = 0x00000002;
+	DEVMESHHANDLE hDevMLP = GetDevMesh( vis, msh_idx );
+	oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag, &grpSpec );
+	oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag_water, &grpSpec );
+	oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag, &grpSpec );
+	oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag_water, &grpSpec );
+	// vaporize water
+	SRBwaterbagvapor_lvl = 1;
 }
 
 Atlantis* MLP::GetShuttleOnPad()
@@ -282,7 +318,7 @@ Atlantis* MLP::GetShuttleOnPad()
 	OBJHANDLE Handle=GetAttachmentStatus(ahHDP);
 	if(Handle) {
 		VESSEL* vessel=oapiGetVesselInterface(Handle);
-		if(!strcmp(vessel->GetClassName(), "Atlantis") || !strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
+		if(!strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
 			Atlantis* sts=static_cast<Atlantis*>(vessel);
 			return sts;
 		}

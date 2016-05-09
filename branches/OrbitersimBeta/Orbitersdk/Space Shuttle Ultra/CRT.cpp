@@ -7,15 +7,12 @@
 #include "CRT.h"
 
 #define RED RGB(255, 0, 0)
-#define GREEN RGB(0, 255, 0)
+#define LIGHT_GREEN RGB(0, 255, 0)
 #define YELLOW RGB(255, 255, 0)
-#define DARK_YELLOW RGB(128, 128, 0)
-#define TURQUOISE RGB(0, 183, 146)
-#define DARK_GREEN RGB(0, 128, 0)
+#define CYAN RGB(0, 255, 255)
+#define DARK_GREEN RGB(0, 160, 0)
 #define WHITE RGB(255, 255, 255)
-#define BLUE RGB(0, 0, 255)
-#define GRAY RGB(160, 160, 160)
-#define BRIGHTERGRAY RGB(200, 200, 200)
+#define DARK_GRAY RGB(60, 60, 80)
 #define BLACK RGB(0, 0, 0)
 
 // ==============================================================
@@ -75,26 +72,22 @@ CRT::CRT (DWORD w, DWORD h, VESSEL *v)
 {
 	char cbuf[200];
 
-	GreenBrush = CreateSolidBrush( GREEN );
-	TurquoiseBrush = CreateSolidBrush( TURQUOISE );
+	LightGreenBrush = CreateSolidBrush( LIGHT_GREEN );
+	CyanBrush = CreateSolidBrush( CYAN );
 	WhiteBrush = CreateSolidBrush( WHITE );
 	BlackBrush = CreateSolidBrush( BLACK );
 	RedBrush = CreateSolidBrush( RED );
-	PurpleBrush = CreateSolidBrush( RGB( 100, 100, 100 ) );
-	YellowBrush = CreateSolidBrush( RGB( 255, 255, 0 ) );
-	LightBlueBrush = CreateSolidBrush( RGB( 0, 255, 255 ) );
+	DarkGrayBrush = CreateSolidBrush( DARK_GRAY );
+	YellowBrush = CreateSolidBrush( YELLOW );
 	WhitePen = CreatePen( PS_SOLID, 0, WHITE );
-	GreenPen = CreatePen( PS_SOLID, 0, GREEN );
-	TurquoisePen = CreatePen( PS_SOLID, 0, TURQUOISE );
+	LightGreenPen = CreatePen( PS_SOLID, 0, LIGHT_GREEN );
+	DarkGreenPen = CreatePen( PS_SOLID, 0, DARK_GREEN );
 	RedPen = CreatePen( PS_SOLID, 0, RED );
 	BlackPen = CreatePen( PS_SOLID, 0, BLACK );
-	PurplePen = CreatePen( PS_SOLID, 2, RGB( 150, 50, 150 ) );
-	PurpleThinPen = CreatePen( PS_SOLID, 0, RGB(150, 50, 150 ) );
-	DarkPurplePen = CreatePen( PS_SOLID, 0, RGB( 100, 100, 100 ) );
-	YellowPen = CreatePen( PS_SOLID, 1, RGB( 255, 255, 0 ) );
-	YellowThickPen = CreatePen( PS_SOLID, 2, RGB( 255, 255, 0 ) );
-	BoldWhitePen = CreatePen( PS_SOLID, 2, WHITE );
-	LightBluePen = CreatePen( PS_SOLID, 0, RGB( 0, 255, 255 ) );
+	DarkGrayPen = CreatePen( PS_SOLID, 0, DARK_GRAY );
+	YellowPen = CreatePen( PS_SOLID, 1, YELLOW );
+	CyanPen = CreatePen( PS_SOLID, 0, CYAN );
+
 	ArialFont_h15w5 = CreateFont( 15, 5, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
 			CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH, "Arial" );
 	ArialFont_h13w6 = CreateFont( 13, 6, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, 
@@ -137,26 +130,21 @@ CRT::~CRT ()
 {
 	DeleteObject(hCRTFont);
 
-	DeleteObject( GreenBrush );
-	DeleteObject( TurquoiseBrush );
+	DeleteObject( LightGreenBrush );
+	DeleteObject( CyanBrush );
 	DeleteObject( WhiteBrush );
 	DeleteObject( BlackBrush );
 	DeleteObject( RedBrush );
-	DeleteObject( PurpleBrush );
+	DeleteObject( DarkGrayBrush );
 	DeleteObject( YellowBrush );
-	DeleteObject( LightBlueBrush );
 	DeleteObject( WhitePen );
-	DeleteObject( GreenPen );
-	DeleteObject( TurquoisePen );
+	DeleteObject( LightGreenPen );
+	DeleteObject( DarkGreenPen );
 	DeleteObject( RedPen );
 	DeleteObject( BlackPen );
-	DeleteObject( PurplePen );
-	DeleteObject( PurpleThinPen );
-	DeleteObject( DarkPurplePen );
+	DeleteObject( DarkGrayPen );
 	DeleteObject( YellowPen );
-	DeleteObject( YellowThickPen );
-	DeleteObject( BoldWhitePen );
-	DeleteObject( LightBluePen );
+	DeleteObject( CyanPen );
 	DeleteObject( ArialFont_h15w5 );
 	DeleteObject( ArialFont_h13w6 );
 	return;
@@ -181,7 +169,11 @@ void CRT::Update (HDC hDC)
 	if(UpdateStatus) {
 		RecallStatus();
 		vc::MDU* mdu = sts->GetMDU( MDUID );
-		if (mdu) mdu->Set_display( display );
+		if (mdu)
+		{
+			mdu->Set_display( display );
+			mdu->Set_menu( mode );
+		}
 		InvalidateButtons();
 		UpdateStatus=false;
 	}
@@ -219,6 +211,20 @@ void CRT::Update (HDC hDC)
 		case 5:// SPI
 			SPI( hDC );
 			break;
+		case 6:// CST Menu
+			{
+				vc::MDU* mdu = sts->GetMDU( MDUID );
+				if (mdu) mdu->SystemStatusDisplay_CSTMenu( hDC );
+				else oapiWriteLog( "CRT MFD not connected to MDU (d6)" );
+			}
+			break;
+		case 7:// IDP Interactive CST
+			{
+				vc::MDU* mdu = sts->GetMDU( MDUID );
+				if (mdu) mdu->SystemStatusDisplay_IDPInteractiveCST( hDC );
+				else oapiWriteLog( "CRT MFD not connected to MDU (d7)" );
+			}
+			break;
 	}
 }
 
@@ -229,9 +235,9 @@ void CRT::OMSMPS(HDC hDC)
 	char cbuf[255];
 
 	int save = SaveDC(hDC);
-	SetTextColor(hDC, TURQUOISE);
+	SetTextColor(hDC, DARK_GREEN);
 	SelectObject(hDC, ArialFont_h13w6);
-	SelectObject(hDC, TurquoisePen);
+	SelectObject(hDC, DarkGreenPen);
 	SelectObject(hDC, BlackBrush);
 
 	TextOut(hDC, 34, 0, "OMS", 3);
@@ -409,8 +415,8 @@ void CRT::OMSMPS(HDC hDC)
 		TextOut(hDC, 13+35*nPos, 31, cbuf, strlen(cbuf));
 		if (dNum >= 1500)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 			if (dNum > 5000) dNum = 5000;
 		}
 		else
@@ -426,8 +432,8 @@ void CRT::OMSMPS(HDC hDC)
 		TextOut(hDC, 13+35*nPos, 96, cbuf, strlen(cbuf));
 		if (dNum >= 1200)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 			if (dNum > 3000) dNum = 3000;
 		}
 		else
@@ -490,8 +496,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 100, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 3800)
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum > 5000) dNum = 5000;
 	}
 	else
@@ -508,8 +514,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 153, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum > 5000) dNum = 5000;
 	}
 	else
@@ -526,8 +532,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 188, 20, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum > 5000) dNum = 5000;
 	}
 	else
@@ -544,8 +550,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 223, 25, cbuf, strlen( cbuf ) );
 	if (dNum >= 1150)
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum > 5000) dNum = 5000;
 	}
 	else
@@ -562,8 +568,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 100, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 	}
 	else
 	{
@@ -580,8 +586,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 153, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 	}
 	else
 	{
@@ -598,8 +604,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 188, 88, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 	}
 	else
 	{
@@ -616,8 +622,8 @@ void CRT::OMSMPS(HDC hDC)
 	TextOut( hDC, 223, 93, cbuf, strlen( cbuf ) );
 	if ((dNum >= 680) && (dNum <= 810))
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 	}
 	else
 	{
@@ -640,8 +646,8 @@ void CRT::OMSMPS(HDC hDC)
 	}
 	else
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum < 0) dNum = 0;
 	}
 	Rectangle( hDC, 89, Round( 238 - (0.123333 * dNum) ), 102, 238 );
@@ -658,8 +664,8 @@ void CRT::OMSMPS(HDC hDC)
 	}
 	else
 	{
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum < 0) dNum = 0;
 	}
 	Rectangle( hDC, 122, Round( 238 - (0.37 * dNum) ), 135, 238 );
@@ -669,8 +675,6 @@ void CRT::OMSMPS(HDC hDC)
 
 void CRT::SPI(HDC hDC)
 {
-	HPEN GreenPen=CreatePen(PS_SOLID, 0, RGB(50,255,50));
-
 	POINT tri[3];
 
 	int savedDC = SaveDC(hDC);
@@ -680,7 +684,7 @@ void CRT::SPI(HDC hDC)
 	char cbuf[255];
 	//Elevons
 	SelectObject(hDC,ArialFont_h15w5);
-	SelectObject(hDC, PurplePen);
+	SelectObject(hDC, WhitePen);
 	SetTextColor(hDC, WHITE);
 	TextOut(hDC, 0, 5, "ELEVONS", 7);
 	TextOut(hDC, 12, 15, "DEG", 3);
@@ -727,8 +731,8 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, 65, nPos);
 	}
 	// yellow 0 and line
-	SetTextColor(hDC,RGB(255,255,0));
-	SelectObject(hDC,YellowThickPen);
+	SetTextColor(hDC,YELLOW);
+	SelectObject(hDC,YellowPen);
 	TextOut(hDC, 34, 153, "0", 1);
 	MoveToEx(hDC, 4, 160, NULL);
 	LineTo(hDC, 10, 160);
@@ -739,12 +743,12 @@ void CRT::SPI(HDC hDC)
 	MoveToEx(hDC, 71, 160, NULL);
 	LineTo(hDC, 65, 160);
 
-	//DRAW INSIDE OF BOXES WITH SLIGHTLY DARKER PURPLE
-	SelectObject(hDC, PurpleBrush);
-	SelectObject(hDC, DarkPurplePen);
+	//DRAW INSIDE OF BOXES
+	SelectObject(hDC, DarkGrayBrush);
+	SelectObject(hDC, DarkGrayPen);
 	Rectangle (hDC, 12, 50, 19, 226);
 	Rectangle (hDC, 57, 50, 64, 226);
-	SelectObject(hDC,GreenPen);
+	SelectObject(hDC,DarkGreenPen);
 	SelectObject(hDC,BlackBrush);
 
 	SelectObject(hDC,YellowPen);
@@ -785,15 +789,13 @@ void CRT::SPI(HDC hDC)
 	tri[2].y = nPos + 4;
 	Polygon( hDC, tri, 3 );
 
-	SelectObject(hDC,GreenPen);
-
 	//DRAW TE UP TE DW
-	SelectObject(hDC,GreenPen);
+	SelectObject(hDC,DarkGreenPen);
 	MoveToEx(hDC,5,45,NULL);
 	LineTo(hDC,5,35);
 	MoveToEx(hDC,5,35,NULL);
 	LineTo(hDC,35,35);
-	SetTextColor(hDC,GREEN);
+	SetTextColor(hDC,DARK_GREEN);
 	TextOut(hDC,40,28,"TE UP",5);
 	MoveToEx(hDC,80,35,NULL);
 	LineTo(hDC,115,35);
@@ -805,7 +807,7 @@ void CRT::SPI(HDC hDC)
 	LineTo(hDC,5,240);
 	MoveToEx(hDC,5,240,NULL);
 	LineTo(hDC,35,240);
-	SetTextColor(hDC,GREEN);
+	SetTextColor(hDC,DARK_GREEN);
 	TextOut(hDC,40,233,"TE DN",5);
 	MoveToEx(hDC,80,240,NULL);
 	LineTo(hDC,115,240);
@@ -817,7 +819,7 @@ void CRT::SPI(HDC hDC)
 	SetTextColor(hDC,WHITE);
 	TextOut(hDC, 60, 5, "BODY FLAP", 9);
 	TextOut(hDC, 87, 15, "%", 1);
-	SelectObject(hDC,PurplePen);
+	SelectObject(hDC,WhitePen);
 	MoveToEx(hDC,96,55,NULL);
 	LineTo(hDC,96,221);
 	for(nPos=70;nPos<=220;nPos+=33) {
@@ -830,8 +832,8 @@ void CRT::SPI(HDC hDC)
 		sprintf_s(cbuf, 255, "%d", 20*((nPos-40)/33));
 		TextOut(hDC, 102, nPos-7, cbuf, strlen(cbuf));
 	}
-	SelectObject(hDC,PurpleBrush);
-	SelectObject(hDC,DarkPurplePen);
+	SelectObject(hDC,DarkGrayBrush);
+	SelectObject(hDC,DarkGrayPen);
 	Rectangle (hDC, 87, 50, 94, 226);
 
 	SelectObject(hDC,YellowPen);
@@ -859,10 +861,10 @@ void CRT::SPI(HDC hDC)
 	//Rudder
 	SetTextColor(hDC,WHITE);
 	TextOut(hDC, 160, 25, "RUDDER-DEG", 10);
-	SelectObject(hDC,DarkPurplePen);
-	SelectObject(hDC,PurpleBrush);
+	SelectObject(hDC,DarkGrayPen);
+	SelectObject(hDC,DarkGrayBrush);
 	Rectangle (hDC, 125, 62, 256, 71);
-	SelectObject(hDC,PurpleThinPen);
+	SelectObject(hDC,WhitePen);
 	MoveToEx(hDC,130,60,NULL);
 	LineTo(hDC,251,60);
 	for(nPos=130;nPos<=170;nPos+=20) {
@@ -882,7 +884,7 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC, nPos, 60);
 	}
 	// yellow 0 and line
-	SetTextColor(hDC,RGB(255,255,0));
+	SetTextColor(hDC,YELLOW);
 	SelectObject(hDC,YellowPen);
 	SelectObject(hDC,YellowBrush);
 	TextOut(hDC, 187, 40, "0", 1);
@@ -900,21 +902,21 @@ void CRT::SPI(HDC hDC)
 	tri[2].y = 64;
 	Polygon( hDC, tri, 3 );
 
-	SetTextColor(hDC,GREEN);
+	SetTextColor(hDC,DARK_GREEN);
 	TextOut(hDC,125,73,"L RUD",5);
 	TextOut(hDC,210,73,"R RUD",5);
 	//Aileron
-	SelectObject(hDC,PurpleThinPen);
+	SelectObject(hDC,WhitePen);
 	MoveToEx(hDC,130,125,NULL);
 	LineTo(hDC,251,125);
-	SelectObject(hDC,DarkPurplePen);
-	SelectObject(hDC,PurpleBrush);
+	SelectObject(hDC,DarkGrayPen);
+	SelectObject(hDC,DarkGrayBrush);
 	SetTextColor(hDC,WHITE);
 	TextOut(hDC, 160, 90, "AILERON-DEG", 11);
 	Rectangle (hDC, 125, 127, 256, 135);
 	TextOut(hDC, 123, 105, "5", 1);
 	TextOut(hDC, 245, 105, "5", 1);
-	SelectObject(hDC,PurpleThinPen);
+	SelectObject(hDC,WhitePen);
 	for(nPos=130;nPos<=178;nPos+=12) {
 		MoveToEx(hDC, nPos, 119, NULL);
 		LineTo(hDC, nPos, 125);
@@ -929,14 +931,14 @@ void CRT::SPI(HDC hDC)
 	}
 
 	// yellow 0 and line
-	SetTextColor(hDC,RGB(255,255,0));
+	SetTextColor(hDC,YELLOW);
 	SelectObject(hDC,YellowPen);
 	SelectObject(hDC,YellowBrush);
 	TextOut(hDC, 187, 105, "0", 1);
 	MoveToEx(hDC, 190, 119, NULL);
 	LineTo(hDC, 190, 125);
 
-	if(sts->HydraulicsOK()) dNum=(sts->aerosurfaces.leftElevon-sts->aerosurfaces.rightElevon)* 0.5;
+	if(sts->HydraulicsOK()) dNum = range( -5, (sts->aerosurfaces.leftElevon - sts->aerosurfaces.rightElevon) * 0.5, 5 );
 	else dNum=0.0;
 
 	nPos=static_cast<int>(190.0+12.0*dNum);
@@ -948,7 +950,7 @@ void CRT::SPI(HDC hDC)
 	tri[2].y = 129;
 	Polygon( hDC, tri, 3 );
 	
-	SetTextColor(hDC,GREEN);
+	SetTextColor(hDC,DARK_GREEN);
 	TextOut(hDC,125,137,"L AIL",5);
 	TextOut(hDC,220,137,"R AIL",5);
 
@@ -956,16 +958,16 @@ void CRT::SPI(HDC hDC)
 	//SPEEDBRAKE
 	SetTextColor(hDC,WHITE);
 	TextOut(hDC, 140, 160, "SPEEDBRAKE %", 12);
-	SetTextColor(hDC,RGB(255,255,0));
+	SetTextColor(hDC,YELLOW);
 	TextOut(hDC, 160, 175,"ACTUAL",6);
 	SelectObject(hDC,BlackBrush);
-	SelectObject(hDC,BoldWhitePen);
+	SelectObject(hDC,WhitePen);
 	Rectangle(hDC,220,175,250,190);
 	double Actual = sts->aerosurfaces.speedbrake;
 	char ActualBuf[4];
 	sprintf_s(ActualBuf, 4, "%03.0lf",Actual);
 	TextOut(hDC,223,175,ActualBuf,strlen(ActualBuf));
-	SelectObject(hDC,PurpleThinPen);
+	SelectObject(hDC,WhitePen);
 	SetTextColor(hDC,WHITE);
 	double capt = 0;
 	for(int i=140; i<=240; i+=20)
@@ -987,11 +989,11 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC,i+20,203);
 	}
 
-	SelectObject(hDC,DarkPurplePen);
-	SelectObject(hDC,PurpleBrush);
+	SelectObject(hDC,DarkGrayPen);
+	SelectObject(hDC,DarkGrayBrush);
 	Rectangle(hDC,135,210,245,218);
 
-	SelectObject(hDC,PurpleThinPen);
+	SelectObject(hDC,WhitePen);
 	for(int i=140; i<240; i+=20)
 	{
 		MoveToEx(hDC,i,224,NULL);
@@ -1003,10 +1005,9 @@ void CRT::SPI(HDC hDC)
 		LineTo(hDC,i+20,224);
 	}
 
-	SetTextColor(hDC,RGB(0,255,255));
+	SetTextColor(hDC,CYAN);
 	TextOut(hDC, 155, 230,"COMMAND",7);
 	SelectObject(hDC,BlackBrush);
-	SelectObject(hDC,BoldWhitePen);
 	Rectangle(hDC,220,230,250,245);
 	double Command = sts->spdb_tgt*100;
 	char CommandBuf[4];
@@ -1023,8 +1024,8 @@ void CRT::SPI(HDC hDC)
 	tri[2].y = 212;
 	Polygon( hDC, tri, 3 );
 	
-	SelectObject(hDC,LightBluePen);
-	SelectObject(hDC,LightBlueBrush);
+	SelectObject(hDC,CyanPen);
+	SelectObject(hDC,CyanBrush);
 	tri[0].x = static_cast<int>(140+((Command/100)*100));
 	tri[0].y = 221;
 	tri[1].x = static_cast<int>(135+((Command/100)*100));
@@ -1034,7 +1035,6 @@ void CRT::SPI(HDC hDC)
 	Polygon( hDC, tri, 3 );
 
 	RestoreDC(hDC, savedDC); // deselect pens, brushes, etc. so we can delete them
-	DeleteObject(GreenPen);
 }
 
 void CRT::APUHYD(HDC hDC)
@@ -1045,11 +1045,11 @@ void CRT::APUHYD(HDC hDC)
 
 	int save = SaveDC(hDC);
 	SelectObject(hDC, ArialFont_h13w6);
-	SelectObject(hDC, GreenPen);
+	SelectObject(hDC, DarkGreenPen);
 	SelectObject(hDC, BlackBrush);
 	//SelectDefaultFont(hDC, 0);
 
-	SetTextColor(hDC, GREEN);
+	SetTextColor(hDC, DARK_GREEN);
 	TextOut(hDC, 127, 0, "APU", 3);
 	MoveToEx(hDC, 1, 6, NULL);
 	LineTo(hDC, 123, 6);
@@ -1103,7 +1103,7 @@ void CRT::APUHYD(HDC hDC)
 	TextOut(hDC, 113, 130, "IN TEMP", 7);
 	SelectObject(hDC, WhitePen);
 	Ellipse( hDC, 134, 144, 137, 147 );// draw circle instead of "º" as it causes problems in current font in D3D9
-	SelectObject(hDC, GreenPen);
+	SelectObject(hDC, DarkGreenPen);
 	TextOut(hDC, 137, 140, "F", 1 );
 	Rectangle (hDC, 158, 95, 187, 111);
 	Rectangle (hDC, 191, 95, 220, 111);
@@ -1224,8 +1224,8 @@ void CRT::APUHYD(HDC hDC)
 		TextOut(hDC, 29+30*nPos, 22, cbuf, strlen(cbuf));
 		if (dNum >= 20)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 			if (dNum > 100) dNum = 100;
 		}
 		else
@@ -1242,8 +1242,8 @@ void CRT::APUHYD(HDC hDC)
 		TextOut(hDC, 29+30*nPos, 97, cbuf, strlen(cbuf));
 		if (dNum >= 40)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 			if (dNum > 100) dNum = 100;
 		}
 		else
@@ -1258,8 +1258,8 @@ void CRT::APUHYD(HDC hDC)
 		dNum = sts->pAPU[nPos]->GetFuelPressure();
 		sprintf_s(cbuf, 10, "%04.0f", dNum);
 		TextOut(hDC, 159+33*nPos, 22, cbuf, strlen(cbuf));
-		SelectObject(hDC, GreenBrush);
-		SelectObject(hDC, GreenPen);
+		SelectObject(hDC, LightGreenBrush);
+		SelectObject(hDC, LightGreenPen);
 		if (dNum > 500) dNum = 500;
 		if (dNum < 0) dNum = 0;
 		Rectangle(hDC, 166+33*nPos, static_cast<int>(82-0.082*dNum), 179+33*nPos, 82);
@@ -1276,8 +1276,8 @@ void CRT::APUHYD(HDC hDC)
 		}
 		else if (dNum >= 45)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 		}
 		else
 		{
@@ -1299,8 +1299,8 @@ void CRT::APUHYD(HDC hDC)
 		}
 		else if (dNum >= 40)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 		}
 		else
 		{
@@ -1316,8 +1316,8 @@ void CRT::APUHYD(HDC hDC)
 		TextOut(hDC, 159+33*nPos, 189, cbuf, strlen(cbuf));
 		if (dNum >= 2400)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 			if (dNum > 4000) dNum = 4000;
 		}
 		else if (dNum >= 1001)
@@ -1327,8 +1327,8 @@ void CRT::APUHYD(HDC hDC)
 		}
 		else if (dNum >= 501)
 		{
-			SelectObject(hDC, GreenBrush);
-			SelectObject(hDC, GreenPen);
+			SelectObject(hDC, LightGreenBrush);
+			SelectObject(hDC, LightGreenPen);
 		}
 		else
 		{
@@ -1344,24 +1344,30 @@ void CRT::APUHYD(HDC hDC)
 
 char *CRT::ButtonLabel (int bt)
 {
-	static char *label[4][4] = {{"", "FLT", "SUB", "DPS"},
-	{"UP", "A/E", "ORBIT", ""},
-	{"UP", "OMS", "HYD", "SPI"},
-	{"UP", "", "", ""}};
-	return ((mode < 4 && bt < 4) ? label[mode][bt] : NULL);
+	static char *label[7][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
+	{"UP", "A/E", "ORBIT", "", ""},
+	{"UP", "OMS", "HYD", "SPI", ""},
+	{"UP", "", "", "", ""},
+	{"UP", "", "", "CST", ""},
+	{"UP", "", "S_IDP", "", ""},
+	{"UP", "", "", "", ""}};
+	return ((mode < 7 && bt < 5) ? label[mode][bt] : NULL);
 }
 
 // Return button menus
 int CRT::ButtonMenu (const MFDBUTTONMENU **menu) const
 {
-	static const MFDBUTTONMENU mnu[4][4] = {
-		{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}},
-		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}}
+	static const MFDBUTTONMENU mnu[7][5] = {
+		{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}, {"MEDS MAINT", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"START IDP", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+		{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
 	};
 	if (menu) *menu = mnu[mode];
-	return 4; // return the number of buttons used
+	return 5; // return the number of buttons used
 }
 
 bool CRT::ConsumeKeyBuffered (DWORD key)
@@ -1374,17 +1380,37 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_1:
 					mode = 1;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_2:
 					mode = 2;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_3:
 					mode = 3;
 					display = 0;
-					vc::MDU* mdu = sts->GetMDU( MDUID );
-					if (mdu) mdu->Set_display( display );
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_4:
+					mode = 4;
+					display = 6;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
 					InvalidateDisplay();
 					InvalidateButtons();
 					return true;
@@ -1395,6 +1421,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_1:
@@ -1418,6 +1446,8 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 				case OAPI_KEY_1:
@@ -1448,6 +1478,65 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 			{
 				case OAPI_KEY_U:
 					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 4:// MAINTENANCE MENU
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 0;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_3:
+					mode = 5;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 5:// CST MENU SELECTION
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 4;
+					display = 6;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+				case OAPI_KEY_2:
+					mode = 6;
+					display = 7;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu)
+					{
+						mdu->Set_display( display );
+						mdu->Set_menu( mode );
+					}
+					InvalidateDisplay();
+					InvalidateButtons();
+					return true;
+			}
+			break;
+		case 6:// IDPx INTERACTIVE CST
+			switch (key)
+			{
+				case OAPI_KEY_U:
+					mode = 5;
+					mdu = sts->GetMDU( MDUID );
+					if (mdu) mdu->Set_menu( mode );
 					InvalidateButtons();
 					return true;
 			}
@@ -1459,11 +1548,14 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 bool CRT::ConsumeButton (int bt, int event)
 {
   if (!(event & PANEL_MOUSE_LBDOWN)) return false;
-  static const DWORD btkey[4][4] = {{OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3},
-  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3}};
-  if (bt < 4) return ConsumeKeyBuffered (btkey[mode][bt]);
+  static const DWORD btkey[7][5] = {{OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4},
+  {OAPI_KEY_U, OAPI_KEY_1, OAPI_KEY_2, OAPI_KEY_3, OAPI_KEY_4}};
+  if (bt < 5) return ConsumeKeyBuffered (btkey[mode][bt]);
   else return false;
 }
 

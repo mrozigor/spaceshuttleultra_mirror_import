@@ -208,5 +208,7 @@ namespace dps {
 		double GetGlideSlopeDistance( void ) const;
 		double GetNZ( void ) const;
 		double GetdeltaAZLimit( double mach ) const;
+		double GetSelectedRunwayHeading( void ) const;
+		double GetTargetHeading( void ) const;
 	};
 };

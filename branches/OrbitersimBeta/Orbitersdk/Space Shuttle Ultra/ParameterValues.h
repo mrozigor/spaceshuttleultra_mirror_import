@@ -97,10 +97,10 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 //const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
 // Max. safe gear deploy speed [m/s]
 
-const double DOOR_OPERATING_SPEED = 0.007353;
+const double DOOR_OPERATING_SPEED = 0.00537634;
 // Opening/closing speed of payload bay doors (1/sec)
-// This contains the door opening sequence (63 sec for each door) and an
-// interval of 10 sec between the two door operations
+// This contains the door opening sequence (63 sec for each door)
+// plus 30 sec before each door opening for bulkhead latches
 
 const double DOORLATCH_OPERATING_SPEED = 0.05;
 // Opening/closing speed of payload bay door latch gang (1/sec)
@@ -114,8 +114,8 @@ const double RADLATCH_OPERATING_SPEED = 0.0384615385;
 // Release/engaging speed of radiator latches (1/sec)
 // => radiator latch cycle = 26 sec
 
-const double KU_OPERATING_SPEED = 0.0275;
-// Deployment speed of the Ku Band antenna (1/sec)
+const double KU_OPERATING_SPEED = 0.0217391304;
+// Deployment speed of the Ku Band antenna (1/sec) (single motor)
 // Specified cycle is 23 sec, although actual observed cycle is ~19 sec
 
 const VECTOR3 ORBITER_CS = {304.62,457.57,149.27};

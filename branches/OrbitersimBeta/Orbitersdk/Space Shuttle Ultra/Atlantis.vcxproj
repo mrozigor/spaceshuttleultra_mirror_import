@@ -87,10 +87,10 @@
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeaderOutputFile>.\Release/Atlantis.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
-      <ObjectFileName>.\Release/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
@@ -102,8 +102,10 @@
       <IgnoreSpecificDefaultLibraries>msvcirt.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
     <Manifest>
       <VerboseOutput>true</VerboseOutput>
@@ -128,14 +130,14 @@
       <AdditionalIncludeDirectories>../include;../libUltra/include;../libUltra/KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\Debug/Atlantis.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -152,9 +154,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -178,10 +182,10 @@
       <AdditionalIncludeDirectories>../include;../libUltra/include;../libUltra/KOST;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IS_SSU_DLL_MODULE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\Debug/Atlantis.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -201,8 +205,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -211,16 +217,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\Meshes\SSU\Cockpit.msh" />
-    <None Include="..\..\Meshes\SSU\ET125.msh" />
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh" />
-    <None Include="..\..\Meshes\SSU\KU.msh" />
-    <None Include="..\..\Meshes\SSU\lsrb.msh" />
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh" />
     <None Include="..\..\Meshes\SSU\ODS.msh" />
     <None Include="..\..\Meshes\SSU\ODSVC.msh" />
     <None Include="..\..\Meshes\SSU\Orbiter.msh" />
     <None Include="..\..\Meshes\SSU\RMS.msh" />
-    <None Include="..\..\Meshes\SSU\rsrb.msh" />
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\A8lights.bmp" />
@@ -235,12 +235,6 @@
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
-    <None Include="down.ico" />
-    <None Include="ico00001.ico" />
-    <None Include="ico00002.ico" />
-    <None Include="ico00003.ico" />
-    <None Include="ico00004.ico" />
-    <None Include="icon1.ico" />
     <None Include="Bitmaps\ODSbuttons.bmp" />
     <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
@@ -248,8 +242,12 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="commDeployedAssembly.cpp" />
-    <ClCompile Include="commGCIL.cpp" />
+    <ClCompile Include="ASE_IUS.cpp" />
+    <ClCompile Include="CISS.cpp" />
+    <ClCompile Include="comm\DeployedAssembly.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
+    <ClCompile Include="comm\GCIL.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
     <ClCompile Include="dps\AscentGuidance.cpp" />
@@ -357,6 +355,7 @@
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
+    <ClCompile Include="vc\PanelA2.cpp" />
     <ClCompile Include="vc\PanelA4.cpp" />
     <ClCompile Include="vc\PanelA6.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
@@ -370,6 +369,8 @@
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
+    <ClCompile Include="vc\PanelL10.cpp" />
+    <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
@@ -394,9 +395,13 @@
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
-    <ClInclude Include="commGCIL.h" />
-    <ClInclude Include="DeployedAssembly.h" />
+    <ClInclude Include="CISS.h" />
+    <ClInclude Include="comm\DeployedAssembly.h" />
+    <ClInclude Include="comm\ElectronicsAssembly1.h" />
+    <ClInclude Include="comm\ElectronicsAssembly2.h" />
+    <ClInclude Include="comm\GCIL.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
@@ -424,6 +429,11 @@
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="meshres_ExtAL.h" />
+    <ClInclude Include="meshres_IUS_ASE.h" />
+    <ClInclude Include="meshres_vc_l10.h" />
+    <ClInclude Include="meshres_CISS_G.h" />
+    <ClInclude Include="meshres_CISS_GPrime.h" />
+    <ClInclude Include="meshres_vc_l12u.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -491,6 +501,7 @@
     <ClInclude Include="mps\MPS.h" />
     <ClInclude Include="eva_docking\ODS.h" />
     <ClInclude Include="vc\PanelA1U.h" />
+    <ClInclude Include="vc\PanelA2.h" />
     <ClInclude Include="vc\PanelA4.h" />
     <ClInclude Include="vc\PanelA6.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />
@@ -505,6 +516,8 @@
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelL10.h" />
+    <ClInclude Include="vc\PanelL12U.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
@@ -530,7 +543,6 @@
     <ClInclude Include="vc\Talkback.h" />
     <ClInclude Include="ValveTypeBool.h" />
     <ClInclude Include="vc\vc_defs.h" />
-    <ClInclude Include="..\include\VesselAPI.h" />
     <ClInclude Include="WSB.h" />
   </ItemGroup>
   <ItemGroup>

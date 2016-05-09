@@ -42,8 +42,6 @@ namespace vc
 		virtual void RegisterVC();
 		virtual void Realize();
 
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-
 	private:
 		StdSwitch3* pSignalStrengthSelect;
 		StdSwitch3* pSlewAzimuth;
@@ -58,6 +56,9 @@ namespace vc
 		RotaryDemuxSwitch* pHighDataRateSP;
 		RotaryDemuxSwitch* pLowDataRateSP;
 		LockableLever2* pTAGSEncrypt;
+		StandardTalkback_2* pScanWarnTB;
+		StandardTalkback_2* pTrackTB;
+		StandardTalkback_2* pSearchTB;
 
 	};
 };

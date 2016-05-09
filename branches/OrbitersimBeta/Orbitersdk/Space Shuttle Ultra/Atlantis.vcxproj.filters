@@ -17,21 +17,6 @@
     <None Include="..\..\Meshes\SSU\Cockpit.msh">
       <Filter>Meshes</Filter>
     </None>
-    <None Include="..\..\Meshes\SSU\ET125.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\KU.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\lsrb.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh">
-      <Filter>Meshes</Filter>
-    </None>
     <None Include="..\..\Meshes\SSU\ODS.msh">
       <Filter>Meshes</Filter>
     </None>
@@ -42,9 +27,6 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Meshes\SSU\RMS.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\rsrb.msh">
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Meshes\SSU\VC.msh">
@@ -60,12 +42,6 @@
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
-    <None Include="down.ico" />
-    <None Include="ico00001.ico" />
-    <None Include="ico00002.ico" />
-    <None Include="ico00003.ico" />
-    <None Include="ico00004.ico" />
-    <None Include="icon1.ico" />
     <None Include="Bitmaps\ODSbuttons.bmp" />
     <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
@@ -328,12 +304,6 @@
     <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="commDeployedAssembly.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="commGCIL.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\MMU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -442,6 +412,12 @@
     <ClCompile Include="dps\GeneralDisplays.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="CISS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL12U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="vc\PanelR13L.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -463,7 +439,28 @@
     <ClCompile Include="vc\PanelF3.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="ASE_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL10.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\DeployedAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\GCIL.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelA2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -690,9 +687,6 @@
     <ClInclude Include="vc\vc_defs.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\VesselAPI.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="WSB.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -726,16 +720,10 @@
     <ClInclude Include="vc\PanelA1U.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="commGCIL.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\RSLS_old.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\RSLS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="DeployedAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AtlantisPanel.h">
@@ -855,6 +843,21 @@
     <ClInclude Include="mps\MPSdefs.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_CISS_GPrime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CISS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_CISS_G.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
     <ClInclude Include="vc\PanelR13L.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -876,10 +879,37 @@
     <ClInclude Include="vc\PanelF3.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="ASE_IUS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL10.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l10.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_ExtAL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\GCIL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\DeployedAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\ElectronicsAssembly2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_IUS_ASE.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

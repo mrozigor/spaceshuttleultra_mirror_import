@@ -59,6 +59,7 @@ private:
 	double SSS_LSRBLevel;
 	double SSS_RSRBLevel;
 	double SSS_RainbirdsLevel;
+	double SRBwaterbagvapor_lvl;
 
 	bool bSSS_on;
 
