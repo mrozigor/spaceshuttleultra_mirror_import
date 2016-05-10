@@ -3572,9 +3572,9 @@ void AerojetDAP::InitializeRunwayData()
 		degRwyHeading = vLandingSites[SITE_ID].degPriHeading+180.0;
 		if(degRwyHeading >= 360.0) degRwyHeading-=360.0;
 	}*/
-	double radLat, radLong;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, radLat, radLong); // get lat/long for end we want to land on
-	RwyStart_EarthLocal = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth));
+	double radLat, radLong, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, radLat, radLong, AMSL); // get lat/long for end we want to land on
+	RwyStart_EarthLocal = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth) + AMSL);
 	VECTOR3 end1 = RwyStart_EarthLocal/length(RwyStart_EarthLocal);
 
 	degRwyHeading = vLandingSites[SITE_ID].GetRwyHeading(!SEC);
@@ -3609,8 +3609,8 @@ void AerojetDAP::CalculateRangeAndDELAZ(double& Range, double& delaz)
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 	
@@ -3672,70 +3672,70 @@ void AerojetDAP::LoadLandingSiteList()
 {
 	// for reference, landing site tables can be found in Ascent Checklists
 	// (using a modified STS-115 table, where the numbers within brackets are the changes)
-	vLandingSites.push_back(LandingSiteData(28.633112*RAD, -80.706234*RAD, 28.596660*RAD, -80.682413*RAD, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
-	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT23R" ) );// 7
+	vLandingSites.push_back(LandingSiteData(28.633112*RAD, -80.706234*RAD, 3.0, 28.596660*RAD, -80.682413*RAD, 3.0, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
+	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 0, 37.171786 * RAD, -5.632640 * RAD, 0.0, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT23R" ) );// 7
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU23L" ) );// 8
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU23L" ) );// 8
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL04" ) );// 9
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL04" ) );// 9
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV19" ) );// 10
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV19" ) );// 10
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
-	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 37.171246 * RAD, -5.632307 * RAD, 197.8, 17.8, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 13
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH23" ) );// 16
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
+	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 0.0, 37.171246 * RAD, -5.632307 * RAD, 0.0, 197.8, 17.8, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 13
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH23" ) );// 16
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ32" ) );// 18
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ32" ) );// 18
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
-	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
-	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 48.946406 * RAD, -54.554009 * RAD, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
+	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 0.0, 47.622485 * RAD, -52.771932 * RAD, 0.0, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
+	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 0.0, 48.946406 * RAD, -54.554009 * RAD, 0.0, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
 	vLandingSites.back().SetSecRunwayParameters( 8040 / MPS2FPS, 200 / MPS2FPS );// length/width data above is for primary runway
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
 	//vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 13.348584 * RAD, -16.664848 * RAD, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
-	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
-	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 34.750617 * RAD, -120.601304 * RAD, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
+	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 0.0, 13.348584 * RAD, -16.664848 * RAD, 0.0, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
+	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 0.0, 38.742958 * RAD, -27.079116 * RAD, 0.0, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
+	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 0.0, 34.750617 * RAD, -120.601304 * RAD, 0.0, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 52.710227 * RAD, -8.910320 * RAD, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
+	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 0.0, 52.710227 * RAD, -8.910320 * RAD, 0.0, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
 	vLandingSites.back().SetSecRunwayParameters( 9699 / MPS2FPS, 148 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
-	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
-	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, -7.303044 * RAD, 72.387373 * RAD, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
-	vLandingSites.push_back( LandingSiteData( -27.624551 * RAD, 152.712429 * RAD, -14.512784 * RAD, 132.367147 * RAD, 159.3, 135, "AMB15", "PTN14", 10000 / MPS2FPS, 150 / MPS2FPS ) );// 33
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
+	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 0.0, 43.540647 * RAD, 4.910444 * RAD, 0.0, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
+	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, 0.0, -7.303044 * RAD, 72.387373 * RAD, 0.0, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
+	vLandingSites.push_back( LandingSiteData( -27.624551 * RAD, 152.712429 * RAD, 0.0, -14.512784 * RAD, 132.367147 * RAD, 0.0, 159.3, 135, "AMB15", "PTN14", 10000 / MPS2FPS, 150 / MPS2FPS ) );// 33
 	vLandingSites.back().SetSecRunwayParameters( 9003 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
-	vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 32.364412 * RAD, -64.692156 * RAD, 282, 102, "BDA30", "BDA12", 8892 / MPS2FPS, 150 / MPS2FPS ) );// [36]
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
+	vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 0.0, 32.364412 * RAD, -64.692156 * RAD, 0.0, 282, 102, "BDA30", "BDA12", 8892 / MPS2FPS, 150 / MPS2FPS ) );// [36]
 	vLandingSites.back().SetSecRunwayParameters( 9212 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway [36]
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
-	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, -27.159263 * RAD, -109.436664 * RAD, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
-	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
-	vLandingSites.push_back( LandingSiteData( 32.521818 * RAD, -106.210183 * RAD, 32.512529 * RAD, -106.193168 * RAD, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
+	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, 0.0, -27.159263 * RAD, -109.436664 * RAD, 0.0, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
+	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, 0.0, -18.084687 * RAD, -140.944897 * RAD, 0.0, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
+	vLandingSites.push_back( LandingSiteData( 32.521818 * RAD, -106.210183 * RAD, 0.0, 32.512529 * RAD, -106.193168 * RAD, 0.0, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
 	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 32.494757 * RAD, -106.237123 * RAD, 32.481026 * RAD, -106.216290 * RAD, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
+	vLandingSites.push_back( LandingSiteData( 32.494757 * RAD, -106.237123 * RAD, 0.0, 32.481026 * RAD, -106.216290 * RAD, 0.0, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
 	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, 58.16, "EDW22", "EDW04"));// 45
+	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 704.0, 34.8941050*RAD, -117.9051869*RAD, 704.0, 238.16, 58.16, "EDW22", "EDW04"));// 45
 }
 
 bool AerojetDAP::GetAutoPitchState( void ) const
@@ -3767,8 +3767,8 @@ double AerojetDAP::GetRangeToRunway( void ) const
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 
@@ -3795,8 +3795,8 @@ double AerojetDAP::GetdeltaAZ( void ) const
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 	
