@@ -59,14 +59,17 @@ private:
 		std::string strPri, strSec;
 		double priRwyLength, priRwyWidth; // length and width in meters
 		double secRwyLength, secRwyWidth; // length and width in meters
+		double priRwyAMSL;// meters above mean sea level
+		double secRwyAMSL;// meters above mean sea level
 
 	public:
-		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec, double _rwyLength = 15000.0/MPS2FPS, double _rwyWidth = 100.0)
+		LandingSiteData(double _radPriLat, double _radPriLong, double _priRwyAMSL, double _radSecLat, double _radSecLong, double _secRwyAMSL, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec, double _rwyLength = 15000.0/MPS2FPS, double _rwyWidth = 100.0)
 			: radPriLat(_radPriLat), radPriLong(_radPriLong), radSecLat(_radSecLat), radSecLong(_radSecLong),
 			degPriHeading(_degPriHeading), degSecHeading(_degSecHeading),
 			strPri(pri), strSec(sec),
 			priRwyLength(_rwyLength), priRwyWidth(_rwyWidth),
-			secRwyLength(_rwyLength), secRwyWidth(_rwyWidth)
+			secRwyLength(_rwyLength), secRwyWidth(_rwyWidth),
+			priRwyAMSL(_priRwyAMSL), secRwyAMSL(_secRwyAMSL)
 		{
 		}
 
@@ -85,15 +88,17 @@ private:
 			secRwyWidth = width;
 		}
 
-		void GetRwyPosition(bool pri, double& radLat, double& radLong) const
+		void GetRwyPosition(bool pri, double& radLat, double& radLong, double &AMSL ) const
 		{
 			if(pri) {
 				radLat = radPriLat;
 				radLong = radPriLong;
+				AMSL = priRwyAMSL;
 			}
 			else {
 				radLat = radSecLat;
 				radLong = radSecLong;
+				AMSL = secRwyAMSL;
 			}
 		}
 
