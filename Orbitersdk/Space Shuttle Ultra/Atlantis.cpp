@@ -5017,8 +5017,8 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraMovement(_V(0, 0, 0.3), 0, 0, _V(-0.3, 0, 0), 75 * RAD, -5 * RAD, _V(0.3, 0, 0), -20 * RAD, -27 * RAD);
 		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS1);
+		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
+		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 		InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -5045,8 +5045,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS2);
+		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1);
+		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 		InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -5072,8 +5072,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
+		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
+		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 		InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -5100,8 +5100,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS1);
+		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2);
+		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 		InactiveMDUs.insert(vc::MDUID_CRT4);
@@ -5124,7 +5124,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_STBDSTATION);
 		SetCameraOffset(VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
 		SetCameraDefaultDirection(VC_DIR_STBDSTATION);
-		//SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
+		SetCameraMovement( _V( 0.3, 0, 0 ), 0, -30.0 * RAD, _V( 0.3, 0, 0.2 ), 15.0 * RAD, -30.0 * RAD, _V( 0.3, 0, -0.2 ), -25.0 * RAD, -30.0 * RAD );
 		InactiveMDUs.insert(vc::MDUID_CDR1);
 		InactiveMDUs.insert(vc::MDUID_CDR2);
 
@@ -5262,7 +5262,7 @@ bool Atlantis::clbkLoadVC(int id)
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(0.4, 0, 0), 0, 0,
+			_V(0, -0.05, -0.35), 0, 0,
 			_V(0, -0.3, 0.15), 0, 0);
 
 		//ShowMidDeck();
@@ -5279,7 +5279,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_PORTSTATION);
 		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
 		SetCameraDefaultDirection(VC_DIR_PORTSTATION);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+		SetCameraMovement( _V( -0.3, 0, 0 ), 0, -30 * RAD, _V( -0.45, -0.2, -0.35 ), 20 * RAD, -25 * RAD, _V( -0.3, 0, 0.3 ), 0, -30 * RAD );
 
 		if (bHasODS) oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
 		else oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
@@ -5324,14 +5324,14 @@ bool Atlantis::clbkLoadVC(int id)
 		bUpdateVC = true;
 		break;
 
-	case VC_MS1:
-		DisplayCameraLabel(VC_LBL_MS1);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
-		SetCameraDefaultDirection(VC_DIR_MS1);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+	case VC_MS2:
+		DisplayCameraLabel(VC_LBL_MS2);
+		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
+		SetCameraDefaultDirection(VC_DIR_MS2);
+		SetCameraMovement( _V( 0, 0, 0.3 ), 0, 0, _V( -0.3, 0, 0.1 ), 0 * RAD, 70 * RAD, _V( 0.3, 0, 0.1 ), 0 * RAD, 70 * RAD );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_PLBCAMFL);
+		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
+		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 
@@ -5349,14 +5349,14 @@ bool Atlantis::clbkLoadVC(int id)
 		ok = true;
 		bUpdateVC = true;
 		break;
-	case VC_MS2:
-		DisplayCameraLabel(VC_LBL_MS2);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
-		SetCameraDefaultDirection(VC_DIR_MS2);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+	case VC_MS1:
+		DisplayCameraLabel(VC_LBL_MS1);
+		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
+		SetCameraDefaultDirection(VC_DIR_MS1);
+		SetCameraMovement( _V( 0.1, -0.1, 0.2 ), -20 * RAD, 0, _V( -0.1, -0.1, 0.1 ), 45 * RAD, -5 * RAD, _V( 0.1, 0, 0.1 ), -70 * RAD, -40 * RAD );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
+		if (bHasODS) oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
+		else oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
 
 		InactiveMDUs.insert(vc::MDUID_AFD);
 
