@@ -45,9 +45,9 @@ namespace vc
 			StdSwitch2* pACT_2_DISENG;
 			StdSwitch2* pACT_ORD_PREARM;
 
-			/*Std2SegTalkback* pACT_ORD_ARM_TB;
-			Std2SegTalkback* pIUS_RF_ANT_ENA_TB;
-			Std2SegTalkback* pIUS_RF_ANT_DSBL_TB;*/
+			StandardTalkback_2* pACT_ORD_ARM_TB;
+			StandardTalkback_2* pIUS_RF_ANT_ENA_TB;
+			StandardTalkback_2* pIUS_RF_ANT_DSBL_TB;
 
 		public:
 			PanelL12U_IUS( Atlantis* _sts );

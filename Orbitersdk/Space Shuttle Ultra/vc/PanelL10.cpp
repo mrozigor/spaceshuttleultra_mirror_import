@@ -25,7 +25,6 @@
 
 #include "PanelL10.h"
 #include "../meshres_vc_l10.h"
-#include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
 #include "../CommonDefs.h"

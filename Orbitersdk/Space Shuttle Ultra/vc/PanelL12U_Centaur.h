@@ -53,13 +53,13 @@ namespace vc
 			StdSwitch2* pSSP_BKUP_PWR;
 			StdSwitch3* pMECH_BKUP_PWR;
 
-			Std2SegTalkback* pMECH_PRI_PWR_TB;
-			Std2SegTalkback* pPosition_PRI_TB;
-			Std2SegTalkback* pSUPER_ZIP_PRI_ARM_TB;
+			StandardTalkback_2* pMECH_PRI_PWR_TB;
+			StandardTalkback_2* pPosition_PRI_TB;
+			StandardTalkback_2* pSUPER_ZIP_PRI_ARM_TB;
 
-			Std2SegTalkback* pMECH_BKUP_PWR_TB;
-			Std2SegTalkback* pPosition_BKUP_TB;
-			Std2SegTalkback* pSUPER_ZIP_BKUP_ARM_TB;
+			StandardTalkback_2* pMECH_BKUP_PWR_TB;
+			StandardTalkback_2* pPosition_BKUP_TB;
+			StandardTalkback_2* pSUPER_ZIP_BKUP_ARM_TB;
 
 		public:
 			PanelL12U_Centaur( Atlantis* _sts );
