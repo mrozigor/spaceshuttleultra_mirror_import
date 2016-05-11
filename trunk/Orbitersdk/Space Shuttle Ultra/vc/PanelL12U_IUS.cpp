@@ -25,7 +25,6 @@
 
 #include "PanelL12U_IUS.h"
 #include "../meshres_vc_l12u_ius.h"
-//#include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
 #include "../CommonDefs.h"
@@ -58,9 +57,9 @@ namespace vc
 		pACT_ORD_PREARM->SetLabel( 0, "OFF" );
 		pACT_ORD_PREARM->SetLabel( 1, "ARM" );
 
-		/*Add( pACT_ORD_ARM_TB = new Std2SegTalkback( _sts, "ACT ORD ARM TB", 1 ) );
-		Add( pIUS_RF_ANT_ENA_TB = new Std2SegTalkback( _sts, "IUS RF ANT ENA TB", 1 ) );
-		Add( pIUS_RF_ANT_DSBL_TB = new Std2SegTalkback( _sts, "IUS RF ANT DSBL TB", 1 ) );*/
+		Add( pACT_ORD_ARM_TB = new StandardTalkback_2( _sts, "ACT ORD ARM TB", 1 ) );
+		Add( pIUS_RF_ANT_ENA_TB = new StandardTalkback_2( _sts, "IUS RF ANT ENA TB", 1 ) );
+		Add( pIUS_RF_ANT_DSBL_TB = new StandardTalkback_2( _sts, "IUS RF ANT DSBL TB", 1 ) );
 		return;
 	}
 
@@ -111,6 +110,10 @@ namespace vc
 		pACT_ORD_PREARM->DefineSwitchGroup( GRP_L12US10_IUS_VC );
 		pACT_ORD_PREARM->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pACT_ORD_PREARM->SetMouseRegion( 0.260196f, 0.815091f, 0.303861f, 0.904874f );
+
+		pACT_ORD_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_ACT_ORD_ARM_IUS_VC );
+		pIUS_RF_ANT_ENA_TB->DefineMeshGroup( mesh_index, GRP_TB_IUS_RF_ANT_ENA_IUS_VC );
+		pIUS_RF_ANT_DSBL_TB->DefineMeshGroup( mesh_index, GRP_TB_IUS_RF_ANT_DSBL_IUS_VC );
 		return;
 	}
 

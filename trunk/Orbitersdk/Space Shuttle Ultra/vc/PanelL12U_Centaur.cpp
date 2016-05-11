@@ -25,7 +25,6 @@
 
 #include "PanelL12U_Centaur.h"
 #include "../meshres_vc_l12u_centaur.h"
-//#include "../meshres_vc_additions.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
 #include "../CommonDefs.h"
@@ -85,12 +84,12 @@ namespace vc
 		pMECH_BKUP_PWR->SetLabel( 0, "OFF" );
 		pMECH_BKUP_PWR->SetLabel( 2, "ON" );
 
-		Add( pMECH_PRI_PWR_TB = new Std2SegTalkback( _sts, "MECH PRI PWR TB", 1 ) );
-		Add( pPosition_PRI_TB = new Std2SegTalkback( _sts, "Position PRI TB", 1 ) );
-		Add( pSUPER_ZIP_PRI_ARM_TB = new Std2SegTalkback( _sts, "SUPER*ZIP PRI ARM TB", 1 ) );
-		Add( pMECH_BKUP_PWR_TB = new Std2SegTalkback( _sts, "MECH BKUP PWR TB", 1 ) );
-		Add( pPosition_BKUP_TB = new Std2SegTalkback( _sts, "Position BKUP TB", 1 ) );
-		Add( pSUPER_ZIP_BKUP_ARM_TB = new Std2SegTalkback( _sts, "SUPER*ZIP BKUP ARM TB", 1 ) );
+		Add( pMECH_PRI_PWR_TB = new StandardTalkback_2( _sts, "MECH PRI PWR TB", 1 ) );
+		Add( pPosition_PRI_TB = new StandardTalkback_2( _sts, "Position PRI TB", 1 ) );
+		Add( pSUPER_ZIP_PRI_ARM_TB = new StandardTalkback_2( _sts, "SUPER*ZIP PRI ARM TB", 1 ) );
+		Add( pMECH_BKUP_PWR_TB = new StandardTalkback_2( _sts, "MECH BKUP PWR TB", 1 ) );
+		Add( pPosition_BKUP_TB = new StandardTalkback_2( _sts, "Position BKUP TB", 1 ) );
+		Add( pSUPER_ZIP_BKUP_ARM_TB = new StandardTalkback_2( _sts, "SUPER*ZIP BKUP ARM TB", 1 ) );
 		return;
 	}
 
@@ -109,13 +108,6 @@ namespace vc
 			_V( -1.5330, 2.4258, 12.2205 ) + ofs, _V( -1.5330, 2.4258, 12.6776 ) + ofs, 
 			_V( -1.3427, 2.3011, 12.2205 ) + ofs, _V( -1.3427, 2.3011, 12.6776 ) + ofs );
 		
-		SURFHANDLE panel_tex = oapiGetTextureHandle( hPanelMesh, 1 );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK1, _R( 408, 182, 469, 233 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK2, _R( 659, 182, 720, 233 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK3, _R( 419, 645, 480, 696 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK4, _R( 1380, 181, 1441, 232 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK5, _R( 1630, 182, 1691, 233 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_L12U_CENTAUR_TKBK6, _R( 1418, 645, 1479, 696 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
 		return;
 	}
 
@@ -192,35 +184,13 @@ namespace vc
 		pMECH_BKUP_PWR->SetMouseRegion( 0.692812f, 0.812956f, 0.735333f, 0.902322f );
 		pMECH_BKUP_PWR->SetSpringLoaded( true );
 
-		pSUPER_ZIP_PRI_ARM_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK1 );
-		pSUPER_ZIP_PRI_ARM_TB->SetDimensions( 61, 51 );
-		pSUPER_ZIP_PRI_ARM_TB->SetTalkbackLocation( 0, 0 );
-		pSUPER_ZIP_PRI_ARM_TB->SetInactiveSegment( 0, TB_GRAY );
+		pSUPER_ZIP_PRI_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_PRI_ARM_CENTAUR_VC );
+		pPosition_PRI_TB->DefineMeshGroup( mesh_index, GRP_TB_DA_PRI_ROT_CENTAUR_VC );
+		pMECH_PRI_PWR_TB->DefineMeshGroup( mesh_index, GRP_TB_MECH_PRI_PWR_CENTAUR_VC );
 
-		pPosition_PRI_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK2 );
-		pPosition_PRI_TB->SetDimensions( 61, 51 );
-		pPosition_PRI_TB->SetTalkbackLocation( 0, 0 );
-		pPosition_PRI_TB->SetInactiveSegment( 0, TB_GRAY );
-
-		pMECH_PRI_PWR_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK3 );
-		pMECH_PRI_PWR_TB->SetDimensions( 61, 51 );
-		pMECH_PRI_PWR_TB->SetTalkbackLocation( 0, 0 );
-		pMECH_PRI_PWR_TB->SetInactiveSegment( 0, TB_GRAY );
-
-		pSUPER_ZIP_BKUP_ARM_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK4 );
-		pSUPER_ZIP_BKUP_ARM_TB->SetDimensions( 61, 51 );
-		pSUPER_ZIP_BKUP_ARM_TB->SetTalkbackLocation( 0, 0 );
-		pSUPER_ZIP_BKUP_ARM_TB->SetInactiveSegment( 0, TB_GRAY );
-
-		pPosition_BKUP_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK5 );
-		pPosition_BKUP_TB->SetDimensions( 61, 51 );
-		pPosition_BKUP_TB->SetTalkbackLocation( 0, 0 );
-		pPosition_BKUP_TB->SetInactiveSegment( 0, TB_GRAY );
-
-		pMECH_BKUP_PWR_TB->AddAIDToRedrawEventList( AID_L12U_CENTAUR_TKBK6 );
-		pMECH_BKUP_PWR_TB->SetDimensions( 61, 51 );
-		pMECH_BKUP_PWR_TB->SetTalkbackLocation( 0, 0 );
-		pMECH_BKUP_PWR_TB->SetInactiveSegment( 0, TB_GRAY );
+		pSUPER_ZIP_BKUP_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_BKUP_ARM_CENTAUR_VC );
+		pPosition_BKUP_TB->DefineMeshGroup( mesh_index, GRP_TB_DA_BKUP_ROT_CENTAUR_VC );
+		pMECH_BKUP_PWR_TB->DefineMeshGroup( mesh_index, GRP_TB_MECH_BKUP_PWR_CENTAUR_VC );
 		return;
 	}
 
