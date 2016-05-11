@@ -75,7 +75,8 @@
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
 #include "vc/PanelL10.h"
-#include "vc/PanelL12U.h"
+#include "vc/PanelL12U_IUS.h"
+#include "vc/PanelL12U_Centaur.h"
 #include "comm\GCIL.h"
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
@@ -412,7 +413,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pPanelL10 = NULL;
-	pPanelL12U = NULL;
+	pPanelL12U_IUS = NULL;
+	pPanelL12U_Centaur = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -2400,7 +2402,8 @@ void Atlantis::AddOrbiterVisual()
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
-		if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
+		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
+		if (pPanelL12U_Centaur) pPanelL12U_Centaur->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
@@ -3429,13 +3432,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
 				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
 				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAft.AddPanel( pPanelL12U_IUS = new vc::PanelL12U_IUS( this ) );
 			}
 
 			if (pMission->UseCISS())
 			{
 				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
-				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
-				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				//pgAftPort.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
+				pgAft.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
 				hasCISS = true;
 			}
 

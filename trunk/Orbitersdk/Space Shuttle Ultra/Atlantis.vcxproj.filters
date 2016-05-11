@@ -415,7 +415,7 @@
     <ClCompile Include="CISS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\PanelL12U.cpp">
+    <ClCompile Include="vc\PanelL12U_Centaur.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelR13L.cpp">
@@ -461,6 +461,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelA2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL12U_IUS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -849,13 +852,10 @@
     <ClInclude Include="CISS.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\PanelL12U.h">
+    <ClInclude Include="vc\PanelL12U_Centaur.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_CISS_G.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="meshres_vc_l12u.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelR13L.h">
@@ -910,6 +910,15 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_IUS_ASE.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u_centaur.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u_ius.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U_IUS.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
