@@ -671,7 +671,8 @@ public:
 	vc::AtlantisPanel* pPanelA8;
 
 	vc::AtlantisPanel* pPanelL10;
-	vc::AtlantisPanel* pPanelL12U;	
+	vc::AtlantisPanel* pPanelL12U_IUS;
+	vc::AtlantisPanel* pPanelL12U_Centaur;
 
 
 	AerosurfacePositions aerosurfaces;
