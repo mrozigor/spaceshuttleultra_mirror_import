@@ -253,7 +253,6 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetSize(40);
 	SetPMI(_V(133, 189, 89));
 
-	SetSurfaceFrictionCoeff(0.005, 0.5);
 	SetRotDrag (_V(0, 0, 0));
 	SetCW(0, 0, 0, 0);
 	SetPitchMomentScale(0);
@@ -315,7 +314,14 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
 	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
 
-	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, 0.01, 20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5, 0 ), 1e5, 1e2, 0.5}// new point just to make a closed shape (more are not needed as the crawler is unlikely to get upside down)
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	//ShiftCG(_V(0, -16, 0));
 
 	psubsystems->SetClassCaps(cfg);
@@ -1246,7 +1252,14 @@ void Crawler::UpdateTouchdownPoints() const
 		back_rot_anim_pos = -back_rot_anim_pos;
 	}
 
-	SetTouchdownPoints(_V(0, jackHeight+curFrontHeight, 20.0), _V(-10, jackHeight+curFrontHeight, -20.0), _V(10, jackHeight+curFrontHeight, -20.0));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, jackHeight + curFrontHeight, 20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5 + jackHeight + curFrontHeight, 0 ), 1e5, 1e2, 0.5},
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	for(int i=0;i<2;i++) {
 		SetAnimation(anim_truck_rot[i+usFwdIndex], 0.5+fwd_rot_anim_pos);
 		SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
