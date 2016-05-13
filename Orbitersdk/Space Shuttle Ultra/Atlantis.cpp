@@ -5062,7 +5062,6 @@ bool Atlantis::clbkLoadVC(int id)
 {
 	bool ok = false;
 	bool bUpdateVC = false;
-	std::set<int> InactiveMDUs;
 
 	// when loading scenario, use cockpit position loaded from scenario instead of default position
 	if (firstStep) id = scnVCMode;
@@ -5102,9 +5101,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS1);
 		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS1);
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
-
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD);
 
@@ -5130,9 +5126,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS2);
 		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS2);
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
-
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD);
 
@@ -5156,10 +5149,6 @@ bool Atlantis::clbkLoadVC(int id)
 
 		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
 		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
-
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
-
 
 		// Default camera rotarion
 		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
@@ -5185,10 +5174,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS1);
 		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS1);
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
-
-
 		// Default camera rotarion
 		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
 
@@ -5207,8 +5192,6 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraOffset(VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
 		SetCameraDefaultDirection(VC_DIR_STBDSTATION);
 		//SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
 
 		// Outside cameras neighbours
 		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
@@ -5307,8 +5290,6 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_AFTPILOT);
 		SetCameraOffset(VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
 		SetCameraDefaultDirection(VC_DIR_AFTPILOT);
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
 
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD);
@@ -5338,9 +5319,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
 		else oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
 
-		InactiveMDUs.insert(vc::MDUID_PLT1);
-		InactiveMDUs.insert(vc::MDUID_PLT2);
-
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
@@ -5366,9 +5344,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
 		else oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
 
-		InactiveMDUs.insert(vc::MDUID_PLT1);
-		InactiveMDUs.insert(vc::MDUID_PLT2);
-
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 
@@ -5388,8 +5363,6 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraDefaultDirection(VC_DIR_AFTWORKSTATION);
 		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
 		oapiVCSetNeighbours(VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
 
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -5415,8 +5388,6 @@ bool Atlantis::clbkLoadVC(int id)
 		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
 		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_PLBCAMFL);
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 
@@ -5439,8 +5410,6 @@ bool Atlantis::clbkLoadVC(int id)
 
 		if (bHasODS) oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
 		else oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
-
-		InactiveMDUs.insert(vc::MDUID_AFD);
 
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -5516,20 +5485,10 @@ bool Atlantis::clbkLoadVC(int id)
 		// register the HUDs (synced)
 		oapiVCRegisterHUD(&huds);
 		// register all MFD displays
-		for (int i = 0, counter = 0; i < 11; i++)
+		for (int i = 0; i < 11; i++)
 		{
-			//oapiRegisterMFD (MFD_LEFT+i, mfds+i);
-			mfds[i] = -1;
-			if (mdus[i])
-			{
-				if (InactiveMDUs.find(i) == InactiveMDUs.end()) {
-					mdus[i]->RealizeMFD(counter);
-					//mfds[i]=counter;
-					mfds[counter] = i;
-					counter++;
-				}
-				else mdus[i]->RealizeMFD(-1);
-			}
+			mdus[i]->RealizeMFD(i);
+			mfds[i] = i;
 			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + i);
 		}
 	}
