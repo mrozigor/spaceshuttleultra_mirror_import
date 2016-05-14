@@ -159,7 +159,7 @@ namespace vc
 	{
 		if(bHasAnimations)
 		{
-			if(usNewPosition>=0 && usNewPosition<usNumPositions) {
+			if(usNewPosition<usNumPositions) {
 				SetAnimation(anim_switch, (double)(usNewPosition)/(usNumPositions - 1));
 				//sprintf_s(oapiDebugString(), 255, "%s: animation %f %f", GetIdentifier().c_str(), rotAngle, (double)(usNewPosition)/(usNumPositions - 1));
 			}

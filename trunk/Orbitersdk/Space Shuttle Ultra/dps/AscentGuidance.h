@@ -193,23 +193,23 @@ private:
 	VECTOR3 rh0;
 	double radius; // distance from centre of Earth (r)
 	double inertialVelocity; // velocity relative to Earth's center (v)
-	double r,h,theta,omega,phi;
+	double /*r,*/h,/*theta,*/omega/*,phi*/;
 	VECTOR3 rh,thetah,hh;
-	VECTOR3 posMoon,velMoon,rmh;
-	double vr,vtheta,vh;
+	//VECTOR3 posMoon,velMoon,rmh;
+	double vr,vtheta/*,vh*/;
 
 	//double fh;
 	//double pitch,yaw,roll;
 
-	double g;
+	//double g;
 	double thrustAcceleration; // a0
 	double Isp, tau, ThrAngleP, ThrAngleY;
 	double timeRemaining; // timeRemaining - T
-	double deltatheta,thetaT;
-	double fr,fdotr;
-	double d1,d2,d3,d4;
+	//double deltatheta,thetaT;
+	//double fr,fdotr;
+	//double d1,d2,d3,d4;
 	double A,C;
-	double eCurrent;
+	//double eCurrent;
 
 	SSME_SOP* pSSME_SOP;
 	SSME_Operations* pSSME_Operations;

@@ -58,9 +58,9 @@ namespace mission {
 		std::string strOrbiterTexName;
 		//std::string strLOMSPodMeshName;
 		//std::string strROMSPodMeshName;
-		int iETVersion;
-		int iBranchCode;
-		int iRevisionCode;
+		//int iETVersion;
+		//int iBranchCode;
+		//int iRevisionCode;
 
 		//double fLaunchTimeMJD;
 		//double fLandTimeMJD;
@@ -85,7 +85,6 @@ namespace mission {
 		bool bUseOMSAssist;
 		double OMSAssistDuration;// sec
 		double fMaxSSMEThrust;
-		unsigned short usExtAirlockMode;
 
 		double OVmass;
 

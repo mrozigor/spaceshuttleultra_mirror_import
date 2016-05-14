@@ -313,19 +313,6 @@ void MLP::OnT0() {
 	SRBwaterbagvapor_lvl = 1;
 }
 
-Atlantis* MLP::GetShuttleOnPad()
-{
-	OBJHANDLE Handle=GetAttachmentStatus(ahHDP);
-	if(Handle) {
-		VESSEL* vessel=oapiGetVesselInterface(Handle);
-		if(!strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
-			Atlantis* sts=static_cast<Atlantis*>(vessel);
-			return sts;
-		}
-	}
-	return NULL;
-}
-
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
 }

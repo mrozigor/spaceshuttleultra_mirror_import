@@ -39,8 +39,6 @@ namespace eva_docking
 	{
 		if (HideTopCover == true)
 		{
-			MESHHANDLE hExtALTemplateMesh = STS()->GetMeshTemplate( mesh_extal );
-			MESHGROUPEX* mg = oapiMeshGroupEx( hExtALTemplateMesh, GRP_OUTER_HATCH_FLAP_ExtAL );
 			DEVMESHHANDLE hExtALDevMesh = STS()->GetDevMesh( vis, mesh_extal );
 			
 			GROUPEDITSPEC grpSpec;
@@ -48,7 +46,6 @@ namespace eva_docking
 			grpSpec.UsrFlag = 2;
 			oapiEditMeshGroup( hExtALDevMesh, GRP_OUTER_HATCH_FLAP_ExtAL, &grpSpec );
 
-			mg = oapiMeshGroupEx( hExtALTemplateMesh, GRP_OUTER_HATCH_FLAPA_ExtAL );
 			oapiEditMeshGroup( hExtALDevMesh, GRP_OUTER_HATCH_FLAPA_ExtAL, &grpSpec );
 		}
 		return;
