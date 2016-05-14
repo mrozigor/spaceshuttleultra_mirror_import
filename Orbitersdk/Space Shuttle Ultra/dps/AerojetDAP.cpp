@@ -3838,7 +3838,6 @@ double AerojetDAP::GetVacc( void ) const
 {
 	// code below is heavily based on Hielor's post (http://www.orbiter-forum.com/showthread.php?t=5072)
 
-	double acc;
 	VECTOR3 force_vec, acc_vec, spd_vec;
  
 	// Get the vectors we need
@@ -3850,10 +3849,7 @@ double AerojetDAP::GetVacc( void ) const
  
 	// Calculate the acceleration vector
 	acc_vec = force_vec / STS()->GetMass();
- 
-	// Take the dot product
-	acc = acc_vec.x * spd_vec.x + acc_vec.y * spd_vec.y + acc_vec.z * spd_vec.z;
-	
+
 	double vacc, lon, lat, radius, mag;
 	VECTOR3 horacc_vec;
 	VECTOR3 spd_vec2, glob_vpos, glob_rvel, loc_rvel;

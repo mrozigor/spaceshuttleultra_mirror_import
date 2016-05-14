@@ -855,13 +855,6 @@ private:
 
 	void RealizeSubsystemConnections();
 
-
-	/**
-	 * React on Key "V", switching the view from flight deck to Mid Deck
-	 * and back.
-	 */
-	void ToggleVCMode();
-
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
 
 	Atlantis_Tank* GetTankInterface() const;

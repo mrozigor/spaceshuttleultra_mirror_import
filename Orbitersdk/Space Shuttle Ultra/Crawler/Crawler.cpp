@@ -584,7 +584,7 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 	// check distance from pads; adjust touchdown points to simulate going up ramp
 	for(unsigned int i=0; i<vhLC39.size(); i++) {
-		VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
+		//VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
 
 		VECTOR3 rpos = CalcRelSurfPos(vhLC39[i], vs);
 

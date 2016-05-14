@@ -2017,7 +2017,7 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE ETUmbLDDMFwdRod2(midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-26.0*RAD));
 	anim_letumbdoor = CreateAnimation(0);
 	LogAnim("anim_letumbdoor", anim_letumbdoor);
-	parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
+	AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
 	parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwd1);
 	parent = AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMFwd2, parent);
 	parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwdRod1, parent);
@@ -2041,7 +2041,7 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE ETUmbRDDMFwdRod2(midx, ETUmbRDDMFwdRodGrp, 1, _V(1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(29.0*RAD));
 	anim_retumbdoor = CreateAnimation(0);
 	LogAnim("anim_retumbdoor", anim_retumbdoor);
-	parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+	AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
 	parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwd1);
 	parent = AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMFwd2, parent);
 	parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwdRod1, parent);
@@ -2586,21 +2586,6 @@ void Atlantis::ToggleGrapple(void)
 			//oapiWriteLog("pl_mass increased");
 			SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 		}
-	}
-}
-
-void Atlantis::ToggleVCMode()
-{
-	switch (vcDeckMode)
-	{
-	case VCM_FLIGHTDECK:
-		oapiSetPanel(VC_MIDDECK);
-		vcDeckMode = VCM_MIDDECK;
-		break;
-	case VCM_MIDDECK:
-		oapiSetPanel(VC_PORTSTATION);
-		vcDeckMode = VCM_FLIGHTDECK;
-		break;
 	}
 }
 
@@ -4460,12 +4445,12 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			else if (GetAltitude() < 609.6) ArmGear();
 
 			if (GroundContact())
-				if (GetAirspeed() > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
+				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
 
 			//drag chute
 			if (pMission->HasDragChute()) {
 				if (!DragChuteDeploying &&
-					(((GetAirspeed() <= CHUTE_DEPLOY_SPEED) && (GetAirspeed() > CHUTE_JETTISON_SPEED) && GroundContact()) ||
+					(((airspeed <= CHUTE_DEPLOY_SPEED) && (airspeed > CHUTE_JETTISON_SPEED) && GroundContact()) ||
 					DragChuteARM[0].IsSet() || DragChuteARM[1].IsSet() || DragChuteDPY[0].IsSet() || DragChuteDPY[1].IsSet())) {
 					DragChuteDeploying = true;
 					DragChuteDeployTime = met;
@@ -4487,7 +4472,7 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				}
 				else if (DragChuteState == INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
 					// also jettison if airspeed is too high (it breaks away) or if user jettisons it
-					if ((GetAirspeed() < CHUTE_JETTISON_SPEED) || (GetAirspeed() > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
+					if ((airspeed < CHUTE_JETTISON_SPEED) || (airspeed > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
 					else if (DragChuteSize < 1.0) {
 						DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
 						SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
@@ -5266,7 +5251,7 @@ bool Atlantis::clbkLoadVC(int id)
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(0, -0.05, -0.35), 0, 0,
+			_V(-0.07, -0.05, -0.35), 0, 0,
 			_V(0, -0.3, 0.15), 0, 0);
 
 		//ShowMidDeck();
@@ -6172,7 +6157,7 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 
 vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
 {
-	if (usMDUID >= 0 && usMDUID < 11)
+	if (usMDUID < 11)
 	{
 		return mdus[usMDUID];
 	}

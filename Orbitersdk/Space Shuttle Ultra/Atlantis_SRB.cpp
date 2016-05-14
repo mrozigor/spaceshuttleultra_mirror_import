@@ -306,7 +306,7 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 			SetThrusterLevel (th_main, thrust_level);
 		}
 		if (bSeparationEngine) {
-			static double bolt_t = 0.5;
+			//static double bolt_t = 0.5;
 			double srb_dt = simt - srb_separation_time;
 
 			if(srb_dt < 1.2)
