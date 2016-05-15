@@ -954,7 +954,16 @@ void Atlantis::SetLaunchConfiguration(void)
 	SetPMI(_V(249.62, 239.97, 67.43));
 	SetTrimScale(0.05);
 	SetLiftCoeffFunc(0); // simplification: we assume no lift during launch phase
-	SetTouchdownPoints(_V(0, -10, -55.8), _V(-7, 7, -55.8), _V(7, 7, -55.8));
+
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 0, 0 ), 1e5, 1e2, 0.5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
+	
 	SetGravityGradientDamping(0.05);
 	//SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 

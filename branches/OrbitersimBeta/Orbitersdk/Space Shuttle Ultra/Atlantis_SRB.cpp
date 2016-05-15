@@ -181,7 +181,16 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 	SetCrossSections (_V(167.42,172.64,22.92));
 	SetRotDrag (_V(0.7,0.7,0.1));
 	SetPMI (_V(128.72,128.64,2.31));
-	SetTouchdownPoints (_V(0,-2,-21.1), _V(-2,1,-21.1), _V(2,1,-21.1));
+
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 0, -2, -21.1 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -2, 1, -21.1 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 2, 1, -21.1 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 0, 0 ), 1e5, 1e2, 0.5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
+	
 	SetLiftCoeffFunc (0);
 
 	ahToOrbiter = CreateAttachment(true, _V(0, 0, 0), _V(1, 0, 0), _V(0, 0, 1), "SSU_SRB");
