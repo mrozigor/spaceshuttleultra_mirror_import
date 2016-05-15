@@ -352,17 +352,13 @@ void MLP::TriggerHDP()
 		st2.flag = 0;
 		GetStatusEx(&st2);
 
-
 		DetachChild(ahHDP, 0.00001);
 
-		if(hShuttle)
-		{
-			VESSEL* pV = oapiGetVesselInterface(hShuttle);
-			pV->GetStatusEx(&st);
-			st.rbody = st2.rbody;
-			st.rvel = st2.rvel;
-			pV->DefSetStateEx(&st);
-		}
+		VESSEL* pV = oapiGetVesselInterface(hShuttle);
+		pV->GetStatusEx(&st);
+		st.rbody = st2.rbody;
+		st.rvel = st2.rvel;
+		pV->DefSetStateEx(&st);
 		RecordEvent("MLPGSE", "GPC TRIGGER HDP");
 	}
 }
