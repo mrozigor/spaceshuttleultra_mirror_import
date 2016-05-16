@@ -85,7 +85,8 @@ short MasterTimingUnit::GetEventTimerSec(MTU_EVTTMR_INDEX timer) const
 
 short MasterTimingUnit::GetEventTimerMin(MTU_EVTTMR_INDEX timer) const
 {
-	return sEventMinutes[timer];
+	if (event_mode[timer][0] == COUNT_TEST) return sEventMinutes[timer];
+	else return sEventMinutes[timer] % 60;
 }
 
 void MasterTimingUnit::SetEventTimer(MTU_EVTTMR_INDEX timer, short Minutes, short Seconds)

@@ -671,7 +671,8 @@ public:
 	vc::AtlantisPanel* pPanelA8;
 
 	vc::AtlantisPanel* pPanelL10;
-	vc::AtlantisPanel* pPanelL12U;	
+	vc::AtlantisPanel* pPanelL12U_IUS;
+	vc::AtlantisPanel* pPanelL12U_Centaur;
 
 
 	AerosurfacePositions aerosurfaces;
@@ -853,13 +854,6 @@ private:
 	void JettisonDragChute();
 
 	void RealizeSubsystemConnections();
-
-
-	/**
-	 * React on Key "V", switching the view from flight deck to Mid Deck
-	 * and back.
-	 */
-	void ToggleVCMode();
 
 	void CreateETAndSRBAttachments(const VECTOR3 &ofs);
 

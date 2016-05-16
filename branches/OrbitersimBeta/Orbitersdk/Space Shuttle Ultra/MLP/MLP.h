@@ -73,8 +73,6 @@ private:
 
 	ATTACHMENTHANDLE ahBase; // used to attach to crawler/LC39/VAB
 
-	Atlantis* GetShuttleOnPad();
-
 	double CalculateThrustPower(
 		const VECTOR3& vtx_lt,
 		const VECTOR3& vtx_rt,

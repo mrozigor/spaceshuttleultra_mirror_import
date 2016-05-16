@@ -75,7 +75,8 @@
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
 #include "vc/PanelL10.h"
-#include "vc/PanelL12U.h"
+#include "vc/PanelL12U_IUS.h"
+#include "vc/PanelL12U_Centaur.h"
 #include "comm\GCIL.h"
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
@@ -189,9 +190,9 @@ double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
 			CoG += childCoG*childMass;
 			mass += childMass;
 
-			char cbuf[255];
+			/*char cbuf[255];
 			sprintf_s(cbuf, 255, "Parent: %s Child: %s dist: %f", v->GetName(), pV->GetName(), length(childCoG));
-			oapiWriteLog(cbuf);
+			oapiWriteLog(cbuf);*/
 		}
 	}
 	CoG = CoG / mass;
@@ -412,7 +413,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pPanelL10 = NULL;
-	pPanelL12U = NULL;
+	pPanelL12U_IUS = NULL;
+	pPanelL12U_Centaur = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -2024,7 +2026,7 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE ETUmbLDDMFwdRod2(midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-26.0*RAD));
 	anim_letumbdoor = CreateAnimation(0);
 	LogAnim("anim_letumbdoor", anim_letumbdoor);
-	parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
+	AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
 	parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwd1);
 	parent = AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMFwd2, parent);
 	parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwdRod1, parent);
@@ -2048,7 +2050,7 @@ void Atlantis::DefineAnimations(void)
 	static MGROUP_ROTATE ETUmbRDDMFwdRod2(midx, ETUmbRDDMFwdRodGrp, 1, _V(1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(29.0*RAD));
 	anim_retumbdoor = CreateAnimation(0);
 	LogAnim("anim_retumbdoor", anim_retumbdoor);
-	parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
+	AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
 	parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwd1);
 	parent = AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMFwd2, parent);
 	parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwdRod1, parent);
@@ -2409,7 +2411,8 @@ void Atlantis::AddOrbiterVisual()
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
-		if (pPanelL12U) pPanelL12U->AddMeshes( VC_OFFSET );
+		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
+		if (pPanelL12U_Centaur) pPanelL12U_Centaur->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
@@ -2592,21 +2595,6 @@ void Atlantis::ToggleGrapple(void)
 			//oapiWriteLog("pl_mass increased");
 			SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 		}
-	}
-}
-
-void Atlantis::ToggleVCMode()
-{
-	switch (vcDeckMode)
-	{
-	case VCM_FLIGHTDECK:
-		oapiSetPanel(VC_MIDDECK);
-		vcDeckMode = VCM_MIDDECK;
-		break;
-	case VCM_MIDDECK:
-		oapiSetPanel(VC_PORTSTATION);
-		vcDeckMode = VCM_FLIGHTDECK;
-		break;
 	}
 }
 
@@ -3520,13 +3508,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
 				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
 				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAft.AddPanel( pPanelL12U_IUS = new vc::PanelL12U_IUS( this ) );
 			}
 
 			if (pMission->UseCISS())
 			{
 				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
-				//pgAftPort.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
-				pgAft.AddPanel( pPanelL12U = new vc::PanelL12U( this ) );
+				//pgAftPort.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
+				pgAft.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
 				hasCISS = true;
 			}
 
@@ -4547,12 +4536,12 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			else if (GetAltitude() < 609.6) ArmGear();
 
 			if (GroundContact())
-				if (GetAirspeed() > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
+				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
 
 			//drag chute
 			if (pMission->HasDragChute()) {
 				if (!DragChuteDeploying &&
-					(((GetAirspeed() <= CHUTE_DEPLOY_SPEED) && (GetAirspeed() > CHUTE_JETTISON_SPEED) && GroundContact()) ||
+					(((airspeed <= CHUTE_DEPLOY_SPEED) && (airspeed > CHUTE_JETTISON_SPEED) && GroundContact()) ||
 					DragChuteARM[0].IsSet() || DragChuteARM[1].IsSet() || DragChuteDPY[0].IsSet() || DragChuteDPY[1].IsSet())) {
 					DragChuteDeploying = true;
 					DragChuteDeployTime = met;
@@ -4574,7 +4563,7 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				}
 				else if (DragChuteState == INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
 					// also jettison if airspeed is too high (it breaks away) or if user jettisons it
-					if ((GetAirspeed() < CHUTE_JETTISON_SPEED) || (GetAirspeed() > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
+					if ((airspeed < CHUTE_JETTISON_SPEED) || (airspeed > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
 					else if (DragChuteSize < 1.0) {
 						DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
 						SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
@@ -5107,8 +5096,8 @@ bool Atlantis::clbkLoadVC(int id)
 		SetCameraMovement(_V(0, 0, 0.3), 0, 0, _V(-0.3, 0, 0), 75 * RAD, -5 * RAD, _V(0.3, 0, 0), -20 * RAD, -27 * RAD);
 		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS1);
+		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
+		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
 
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD);
@@ -5132,8 +5121,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS2);
+		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1);
+		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1);
 
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD);
@@ -5156,8 +5145,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
+		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
+		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1);
 
 		// Default camera rotarion
 		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
@@ -5180,8 +5169,8 @@ bool Atlantis::clbkLoadVC(int id)
 			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
 			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS1);
+		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2);
+		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2);
 
 		// Default camera rotarion
 		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
@@ -5200,7 +5189,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_STBDSTATION);
 		SetCameraOffset(VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
 		SetCameraDefaultDirection(VC_DIR_STBDSTATION);
-		//SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
+		SetCameraMovement( _V( 0.3, 0, 0 ), 0, -30.0 * RAD, _V( 0.3, 0, 0.2 ), 15.0 * RAD, -30.0 * RAD, _V( 0.3, 0, -0.2 ), -25.0 * RAD, -30.0 * RAD );
 
 		// Outside cameras neighbours
 		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
@@ -5331,7 +5320,7 @@ bool Atlantis::clbkLoadVC(int id)
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(0.4, 0, 0), 0, 0,
+			_V(-0.07, -0.05, -0.35), 0, 0,
 			_V(0, -0.3, 0.15), 0, 0);
 
 		//ShowMidDeck();
@@ -5348,7 +5337,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_PORTSTATION);
 		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
 		SetCameraDefaultDirection(VC_DIR_PORTSTATION);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+		SetCameraMovement( _V( -0.3, 0, 0 ), 0, -30 * RAD, _V( -0.45, -0.2, -0.35 ), 20 * RAD, -25 * RAD, _V( -0.3, 0, 0.3 ), 0, -30 * RAD );
 
 		if (bHasODS) oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
 		else oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
@@ -5388,14 +5377,14 @@ bool Atlantis::clbkLoadVC(int id)
 		bUpdateVC = true;
 		break;
 
-	case VC_MS1:
-		DisplayCameraLabel(VC_LBL_MS1);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
-		SetCameraDefaultDirection(VC_DIR_MS1);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+	case VC_MS2:
+		DisplayCameraLabel(VC_LBL_MS2);
+		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
+		SetCameraDefaultDirection(VC_DIR_MS2);
+		SetCameraMovement( _V( 0, 0, 0.3 ), 0, 0, _V( -0.3, 0, 0.1 ), 0 * RAD, 70 * RAD, _V( 0.3, 0, 0.1 ), 0 * RAD, 70 * RAD );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS2, VC_CDR, VC_PLBCAMFL);
+		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
+		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL);
 
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -5411,14 +5400,14 @@ bool Atlantis::clbkLoadVC(int id)
 		ok = true;
 		bUpdateVC = true;
 		break;
-	case VC_MS2:
-		DisplayCameraLabel(VC_LBL_MS2);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
-		SetCameraDefaultDirection(VC_DIR_MS2);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+	case VC_MS1:
+		DisplayCameraLabel(VC_LBL_MS1);
+		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
+		SetCameraDefaultDirection(VC_DIR_MS1);
+		SetCameraMovement( _V( 0.1, -0.1, 0.2 ), -20 * RAD, 0, _V( -0.1, -0.1, 0.1 ), 45 * RAD, -5 * RAD, _V( 0.1, 0, 0.1 ), -70 * RAD, -40 * RAD );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_MS1, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
+		if (bHasODS) oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
+		else oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
 
 		// Default camera rotation
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
@@ -6218,7 +6207,7 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 
 vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
 {
-	if (usMDUID >= 0 && usMDUID < 11)
+	if (usMDUID < 11)
 	{
 		return mdus[usMDUID];
 	}
@@ -7270,7 +7259,6 @@ double Atlantis::GetLH2ManifPress(void) const
 
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
-	if (strTextureName.length() == 0) return; // no texture specified
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
 	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
 }

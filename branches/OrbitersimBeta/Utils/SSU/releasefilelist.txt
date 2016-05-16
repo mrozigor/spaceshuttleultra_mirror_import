@@ -404,7 +404,6 @@ Textures\SSU\O8.dds
 Textures\SSU\ODSbuttons.dds
 Textures\SSU\OFT_FWDSkirt.dds
 Textures\SSU\OMSExhaust.dds
-Textures\SSU\Orbiter_blank.dds
 Textures\SSU\overlay.dds
 Textures\SSU\panelA1L.dds
 Textures\SSU\panelA1R.dds

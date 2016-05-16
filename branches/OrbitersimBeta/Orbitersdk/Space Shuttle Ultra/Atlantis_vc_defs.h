@@ -70,13 +70,13 @@ const VECTOR3 VC_POS_PLT = _V(0.671257, 2.629396, 14.1);
 //const VECTOR3 VC_HUDPOS_PLT = _V(0.652, 2.589, 14.614);
 const VECTOR3 VC_HUDPOS_PLT = _V(0.6515, 2.568, 14.614);
 
-const static char* VC_LBL_MS1 = "MS2/FE seat";
-const VECTOR3 VC_POS_MS1 = _V(0, 2.629396, 13.25);
-const VECTOR3 VC_DIR_MS1 = _V(0.0, 0, 1.0);
+const static char* VC_LBL_MS2 = "MS2/FE seat";
+const VECTOR3 VC_POS_MS2 = _V(0, 2.629396, 13.25);
+const VECTOR3 VC_DIR_MS2 = _V(0.0, 0, 1.0);
 
-const static char* VC_LBL_MS2 = "MS seat";
-const VECTOR3 VC_POS_MS2 = _V(0.7, 2.75, 13.25);
-const VECTOR3 VC_DIR_MS2 = _V(0.0, 0.0, 1.0);
+const static char* VC_LBL_MS1 = "MS1 seat";
+const VECTOR3 VC_POS_MS1 = _V(0.7, 2.75, 13.25);
+const VECTOR3 VC_DIR_MS1 = _V(0.0, 0.0, 1.0);
 
 const static char* VC_LBL_COAS = "COAS";
 const VECTOR3 VC_POS_COAS = _V( 0.4, 3.15, 12.6);

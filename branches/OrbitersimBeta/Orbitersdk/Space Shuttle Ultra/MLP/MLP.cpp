@@ -313,19 +313,6 @@ void MLP::OnT0() {
 	SRBwaterbagvapor_lvl = 1;
 }
 
-Atlantis* MLP::GetShuttleOnPad()
-{
-	OBJHANDLE Handle=GetAttachmentStatus(ahHDP);
-	if(Handle) {
-		VESSEL* vessel=oapiGetVesselInterface(Handle);
-		if(!strcmp(vessel->GetClassName(), STD_CLASS_NAME)) {
-			Atlantis* sts=static_cast<Atlantis*>(vessel);
-			return sts;
-		}
-	}
-	return NULL;
-}
-
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
 }
@@ -365,17 +352,13 @@ void MLP::TriggerHDP()
 		st2.flag = 0;
 		GetStatusEx(&st2);
 
-
 		DetachChild(ahHDP, 0.00001);
 
-		if(hShuttle)
-		{
-			VESSEL* pV = oapiGetVesselInterface(hShuttle);
-			pV->GetStatusEx(&st);
-			st.rbody = st2.rbody;
-			st.rvel = st2.rvel;
-			pV->DefSetStateEx(&st);
-		}
+		VESSEL* pV = oapiGetVesselInterface(hShuttle);
+		pV->GetStatusEx(&st);
+		st.rbody = st2.rbody;
+		st.rvel = st2.rvel;
+		pV->DefSetStateEx(&st);
 		RecordEvent("MLPGSE", "GPC TRIGGER HDP");
 	}
 }

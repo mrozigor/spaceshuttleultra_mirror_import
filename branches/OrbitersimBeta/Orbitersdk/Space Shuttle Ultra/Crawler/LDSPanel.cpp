@@ -29,7 +29,6 @@ namespace vc
 
 		
 		std::vector< std::pair<VESSEL*, ATTACHMENTHANDLE> > attachments;
-		bool found = false;
 		OBJHANDLE hv = NULL;
 		VESSEL *pv = NULL;
 		std::string name;
@@ -101,7 +100,7 @@ namespace vc
 		MATRIX3 AttachFrame; // rotation matrix to convert cab offset vector to ref frame defined by attachment
 		GetRotMatrixY(angle, AttachFrame);
 		VECTOR3 TgtPos = pos + mul(AttachFrame, CabPos);
-		VECTOR3 temp = mul(AttachFrame, CabPos);
+		//VECTOR3 temp = mul(AttachFrame, CabPos);
 		//sprintf(oapiDebugString(), "TgtPos offset: %f %f %f", temp.x, temp.y, temp.z);
 		//oapiWriteLog(oapiDebugString());
 		pTgt->Local2Global(TgtPos, gTgtPos);
