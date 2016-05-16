@@ -34,8 +34,8 @@ void SolenoidValve::tmestp( double dt )
 {
 	double mpos = 0;
 
-	if ((dipInput[0].IsSet() == true) || (dipInput[1].IsSet() == true)) mpos = NormallyClosed;
-	else mpos = !NormallyClosed;
+	if ((dipInput[0].IsSet() == true) || (dipInput[1].IsSet() == true)) mpos = (float)NormallyClosed;
+	else mpos = (float)!NormallyClosed;
 
 	if (mpos != pos)
 	{

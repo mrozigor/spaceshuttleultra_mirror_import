@@ -3070,7 +3070,7 @@ namespace mps
 		// HACK using just sensor X1 below to keep track of strike counts
 		// MCC PC A1/A2
 		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_A + 8] + DCU->RAM[RAM_AD08_SENSOR_A + 9]) / 2);
@@ -3104,7 +3104,7 @@ namespace mps
 			}
 		}
 		//MCC PC B1/B2
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_B + 8] + DCU->RAM[RAM_AD08_SENSOR_B + 9]) / 2);
@@ -3154,7 +3154,7 @@ namespace mps
 		*/
 		// HPOTP Intermediate Seal A
 		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
@@ -3169,7 +3169,7 @@ namespace mps
 			}
 		}
 		// HPOTP Intermediate Seal B
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline
@@ -3372,7 +3372,7 @@ namespace mps
 		// HACK using just sensor X1 below to keep track of strike counts
 		// MCC PC A1/A2
 		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 8 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_A + 8] + DCU->RAM[RAM_AD08_SENSOR_A + 9]) / 2);
@@ -3406,7 +3406,7 @@ namespace mps
 			}
 		}
 		//MCC PC B1/B2
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 8 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			unsigned short temp = (unsigned short)((DCU->RAM[RAM_AD08_SENSOR_B + 8] + DCU->RAM[RAM_AD08_SENSOR_B + 9]) / 2);
@@ -3456,7 +3456,7 @@ namespace mps
 		*/
 		// HPOTP Intermediate Seal A
 		count = 0;
-		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_A + 10 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			if (DCU->RAM[RAM_AD08_SENSOR_A + 10] < 159)// check redline
@@ -3471,7 +3471,7 @@ namespace mps
 			}
 		}
 		// HPOTP Intermediate Seal B
-		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0x8000) != 0xC000)// check if qualified
+		if ((DCU->RAM[RAM_AD08_SENSOR_B + 10 + SENSOR_COUNT] & 0xC000) != 0xC000)// check if qualified
 		{
 			count++;
 			if (DCU->RAM[RAM_AD08_SENSOR_B + 10] < 159)// check redline

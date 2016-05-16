@@ -56,12 +56,12 @@ namespace vc
 		pEventTimerMode->SetLabel( 1, "Down" );
 		pEventTimerMode->SetLabel( 2, "Up" );
 
-		Add( pEventTimerControl = new StdSwitch3( psts, "Event Timer Mode" ) );
+		Add( pEventTimerControl = new StdSwitch3( psts, "Event Timer Control" ) );
 		pEventTimerControl->SetLabel( 0, "Stop" );
 		pEventTimerControl->SetLabel( 1, "-" );
 		pEventTimerControl->SetLabel( 2, "Start" );
 
-		Add( pTimer = new StdSwitch3( psts, "Event Timer Mode" ) );
+		Add( pTimer = new StdSwitch3( psts, "Event Timer Timer" ) );
 		pTimer->SetLabel( 0, "Reset" );
 		pTimer->SetLabel( 1, "-" );
 		pTimer->SetLabel( 2, "Set" );
@@ -94,21 +94,21 @@ namespace vc
 			fTgtState = tgtwheel_state[i];
 
 	
-			if(0.0 == fCurrState && fTgtState >= EVTTMR_WHEELMAX[i] - 0.5)
+			if(0.0 == fCurrState && fTgtState >= EVTTMR_WHEELMAX_C2[i] - 0.5)
 			{
-				fCurrState = EVTTMR_WHEELMAX[i];
+				fCurrState = EVTTMR_WHEELMAX_C2[i];
 			}
 
-			if(fCurrState <= 0.5 && fTgtState == EVTTMR_WHEELMAX[i])
+			if(fCurrState <= 0.5 && fTgtState == EVTTMR_WHEELMAX_C2[i])
 			{
 				fTgtState = 0.0;
 			}
 
 			if(fCurrState == fTgtState)
 			{
-				if(tgtwheel_state[i] >= EVTTMR_WHEELMAX[i])
+				if(tgtwheel_state[i] >= EVTTMR_WHEELMAX_C2[i])
 				{
-					tgtwheel_state[i] -= EVTTMR_WHEELMAX[i];
+					tgtwheel_state[i] -= EVTTMR_WHEELMAX_C2[i];
 				}
 				continue;
 			}
@@ -127,14 +127,14 @@ namespace vc
 					wheelState[i] = fCurrState + fDeltaWheel;
 			}
 
-			if(wheelState[i] >= EVTTMR_WHEELMAX[i])
+			if(wheelState[i] >= EVTTMR_WHEELMAX_C2[i])
 			{
-				wheelState[i] -= EVTTMR_WHEELMAX[i];
-				if(tgtwheel_state[i] > EVTTMR_WHEELMAX[i])
-					tgtwheel_state[i] -= EVTTMR_WHEELMAX[i];
+				wheelState[i] -= EVTTMR_WHEELMAX_C2[i];
+				if(tgtwheel_state[i] > EVTTMR_WHEELMAX_C2[i])
+					tgtwheel_state[i] -= EVTTMR_WHEELMAX_C2[i];
 			}
 
-			wheelnumber[i] = (int)(fmod(wheelState[i]/ 0.25, EVTTMR_WHEELMAX[i] * 2.0) );
+			wheelnumber[i] = (int)(fmod(wheelState[i]/ 0.25, EVTTMR_WHEELMAX_C2[i] * 2.0) );
 
 			STS()->SetAnimation(anim_VC_C2Wheel[i], fmod(wheelState[i], 1.0));
 		}
@@ -192,7 +192,7 @@ namespace vc
 				else if(p.y > 0.738849 && p.y < 0.790335)
 				{
 					tgtwheel_state[0] -= 0.25;
-					if(tgtwheel_state[0] < 0) tgtwheel_state[0] +=EVTTMR_WHEELMAX[0];
+					if(tgtwheel_state[0] < 0) tgtwheel_state[0] +=EVTTMR_WHEELMAX_C2[0];
 					return true;
 				}
 			}
@@ -206,7 +206,7 @@ namespace vc
 				else if(p.y > 0.738849 && p.y < 0.790335)
 				{
 					tgtwheel_state[1] -= 0.25;
-					if(tgtwheel_state[1] < 0) tgtwheel_state[1] +=EVTTMR_WHEELMAX[1];
+					if(tgtwheel_state[1] < 0) tgtwheel_state[1] +=EVTTMR_WHEELMAX_C2[1];
 					return true;
 				}
 			}
@@ -220,7 +220,7 @@ namespace vc
 				else if(p.y > 0.738849 && p.y < 0.790335)
 				{
 					tgtwheel_state[2] -= 0.25;
-					if(tgtwheel_state[2] < 0) tgtwheel_state[2] +=EVTTMR_WHEELMAX[2];
+					if(tgtwheel_state[2] < 0) tgtwheel_state[2] +=EVTTMR_WHEELMAX_C2[2];
 					return true;
 				}
 			}
@@ -234,7 +234,7 @@ namespace vc
 				else if(p.y > 0.738849 && p.y < 0.790335)
 				{
 					tgtwheel_state[3] -= 0.25;
-					if(tgtwheel_state[3] < 0) tgtwheel_state[3] +=EVTTMR_WHEELMAX[3];
+					if(tgtwheel_state[3] < 0) tgtwheel_state[3] +=EVTTMR_WHEELMAX_C2[3];
 					return true;
 				}
 			}
@@ -365,7 +365,6 @@ namespace vc
 
 	void PanelC2::DefineVCAnimations( UINT vcidx )
 	{
-		static VECTOR3 switch_rot = {-1,0,0};
 		static VECTOR3 wheel_rot = {1.0, 0, 0};
 
 		static UINT VC_C2Evt10MW_Grp = GRP_C2TOG1_VC;
