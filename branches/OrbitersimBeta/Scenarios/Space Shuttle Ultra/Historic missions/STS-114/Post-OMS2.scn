@@ -69,11 +69,18 @@ BEGIN_MFD 7
   Display 0
 END_MFD
 
-BEGIN_MFD 8
+BEGIN_MFD 9
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 0
+  Mode2 2
+  Display 4
+END_MFD
+
+BEGIN_MFD 10
+  TYPE User
+  MODE CRT
+  Mode2 2
+  Display 3
 END_MFD
 
 BEGIN_VC
