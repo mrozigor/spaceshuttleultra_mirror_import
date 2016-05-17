@@ -148,6 +148,7 @@ namespace vc
 		pDragChuteARM->SetSourceCoords( false, 0, 28 );
 		pDragChuteARM->SetDimensions( 46, 36 );
 		pDragChuteARM->SetMouseRegion( 0.598273f, 0.060357f, 0.626919f, 0.122262f );
+		pDragChuteARM->SetMomentary( true );
 
 		pDragChuteDPY->AddAIDToRedrawEventList( AID_F2_DC_DPY );
 		pDragChuteDPY->SetSourceImage( g_Param.pbi_lights );
@@ -156,6 +157,7 @@ namespace vc
 		pDragChuteDPY->SetSourceCoords( false, 0, 64 );
 		pDragChuteDPY->SetDimensions( 46, 36 );
 		pDragChuteDPY->SetMouseRegion( 0.653209f, 0.062580f, 0.681769f, 0.117574f );
+		pDragChuteDPY->SetMomentary( true );
 
 		pDragChuteARMCover->SetMouseRegion( 0, 0.585063f, 0.040947f, 0.633282f, 0.150854f );
 		pDragChuteARMCover->SetMouseRegion( 1, 0.583068f, 0.0f, 0.629692f, 0.027156f );
