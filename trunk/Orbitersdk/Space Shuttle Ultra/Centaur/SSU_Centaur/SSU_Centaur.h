@@ -94,9 +94,9 @@ const double ACS_THRUST_VAC = 26.64;// N
 const double ACS_ISP_VAC = 324 * G;// m/s
 const double GHe_MASS = 2;// Kg
 
-const double ACS_ENA_DELAY = 300;// s
-const double RL10_ENA_DELAY = 2700;// s
 const double RL10_START_SEQ = 270;// s
+const double ACS_ENA_DELAY = 300;// s
+const double RL10_ENA_DELAY = 2700 - RL10_START_SEQ;// s
 
 const double ANTENNA_DEPLOY_RATE = 2;// 1/s
 const double ANTENNA_DEPLOY_DELAY = 60;// s
