@@ -6255,11 +6255,11 @@ void Atlantis::DefineKUBandAnimations()
 
 	static UINT KuBand2Grp[1] = { GRP_ALPHA_GIMBAL_KU };
 	static MGROUP_ROTATE KuBand2(kidx, KuBand2Grp, 1,
-		_V(2.2113, 0.81235, 8.53828), _V(0.503871025524, 0.0, 0.863778900898), (float)(360*RAD)); //Data from the Ku band System Workbook
+		_V(2.30575, 0.81235, 8.66813), _V(0.503871025524, 0.0, 0.863778900898), (float)(360*RAD)); //Data from the Ku band System Workbook
 
 	static UINT KuBand3Grp[4] = { GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU };
 	static MGROUP_ROTATE KuBand3(kidx, KuBand3Grp, 4,
-		_V(2.1733, 0.852241, 8.42364), _V(-0.468631, 0.841773, 0.267962), (float)(160*RAD));//Data from the Ku band System Workbook
+		_V(2.2132, 0.7822, 8.44489), _V(-0.468631, 0.841773, 0.267962), (float)(160*RAD));//Data from the Ku band System Workbook
 
 	anim_kubd = CreateAnimation(0);
 	LogAnim("anim_kubd", anim_kubd);
