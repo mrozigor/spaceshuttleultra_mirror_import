@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Sun May 01 11:55:25 2016
+// Date of conversion : Sun May 22 17:07:04 2016
 
 // Input file: IUS_ASE.msh
 // ======================================================
@@ -26,10 +26,10 @@ const unsigned int GRP_IUS_CONVERTER_REGULATOR_UNIT_IUS_ASE	=	13;	//IUS_Converte
 const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_A_IUS_ASE	=	14;	//ASE_Actuator_Controller_A
 const unsigned int GRP_AFT_ASE_TILT_FRAME_IUS_ASE	=	15;	//Aft_ASE_tilt_frame
 const unsigned int GRP_ASE_ACTUATOR_CONTROLLER_B_IUS_ASE	=	16;	//ASE_Actuator_Controller_B
-const unsigned int GRP_IUS_UMBILICAL_BOOM_FIXED_IUS_ASE	=	17;	//IUS_UMBILICAL_BOOM_FIXED
-const unsigned int GRP_IUS_UMBILICAL_BOOM_FOIL_IUS_ASE	=	18;	//IUS_UMBILICAL_BOOM_FOIL
-const unsigned int GRP_IUS_UMBILICAL_BOOM_MOVING_IUS_ASE	=	19;	//IUS_UMBILICAL_BOOM_MOVING
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PIVOT_CYLINDER_IUS_ASE	=	20;	//IUS_UMBILICAL_BOOM_PIVOT_CYLINDER
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG1_IUS_ASE	=	21;	//IUS_UMBILICAL_BOOM_PLUG1
-const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG2_IUS_ASE	=	22;	//IUS_UMBILICAL_BOOM_PLUG2
+const unsigned int GRP_IUS_UMBILICAL_BOOM_FOIL_IUS_ASE	=	17;	//IUS_UMBILICAL_BOOM_FOIL
+const unsigned int GRP_IUS_UMBILICAL_BOOM_MOVING_IUS_ASE	=	18;	//IUS_UMBILICAL_BOOM_MOVING
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PIVOT_CYLINDER_IUS_ASE	=	19;	//IUS_UMBILICAL_BOOM_PIVOT_CYLINDER
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG1_IUS_ASE	=	20;	//IUS_UMBILICAL_BOOM_PLUG1
+const unsigned int GRP_IUS_UMBILICAL_BOOM_PLUG2_IUS_ASE	=	21;	//IUS_UMBILICAL_BOOM_PLUG2
+const unsigned int GRP_IUS_UMBILICAL_BOOM_FIXED_IUS_ASE	=	22;	//IUS_UMBILICAL_BOOM_FIXED
 
