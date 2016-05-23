@@ -13,7 +13,7 @@ Config\Earth\SSU\Banjul.cfg
 Config\Earth\SSU\Bermuda.cfg
 Config\Earth\SSU\Canaveral.cfg
 Config\Earth\SSU\Diego_Garcia.cfg
-Config\Earth\SSU\EDW.cfg
+Config\Earth\SSU\Edwards.cfg
 Config\Earth\SSU\EFD.cfg
 Config\Earth\SSU\Gander.cfg
 Config\Earth\SSU\Hao.cfg
@@ -424,6 +424,7 @@ Textures\SSU\r1l1.dds
 Textures\SSU\r2.dds
 Textures\SSU\RETAtlantis.dds
 Textures\SSU\RMS.dds
+Textures\SSU\RMS_norm.dds
 Textures\SSU\RMS_grapple_fixture.dds
 Textures\SSU\RSRM_Casing.dds
 Textures\SSU\RSRM_LSRB_FWD_Skirt_Assy.dds

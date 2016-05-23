@@ -10,6 +10,7 @@ namespace vc
 		pPushDown = NULL;
 		uiGroup = 0xFFFF;
 		bAllowReset=false;
+		bMomentary = false;
 	}
 
 	PushButtonIndicator::~PushButtonIndicator()
@@ -50,6 +51,11 @@ namespace vc
 		bAllowReset=allow;
 	}
 
+	void PushButtonIndicator::SetMomentary( bool momentary )
+	{
+		bMomentary = momentary;
+	}
+
 	bool PushButtonIndicator::OnMouseEvent(int _event, float x, float y) {
 		if(_event & PANEL_MOUSE_LBDOWN) {
 			OnPress();
@@ -68,7 +74,7 @@ namespace vc
 		{
 			SetAnimation(anim_pb, 1.0);
 		}
-		if(bAllowReset && input) output.ResetLine();
+		if(bAllowReset && input && !bMomentary) output.ResetLine();
 		else output.SetLine();
 		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
@@ -79,6 +85,7 @@ namespace vc
 		{
 			SetAnimation(anim_pb, 0.0);
 		}
+		if (bMomentary) output.ResetLine();
 	}
 
 	void PushButtonIndicator::Realize()
