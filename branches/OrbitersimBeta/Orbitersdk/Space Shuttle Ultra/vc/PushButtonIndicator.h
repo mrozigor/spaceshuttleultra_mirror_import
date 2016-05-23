@@ -44,6 +44,7 @@ namespace vc
 		bool bAllowReset;
 		bool bSaveState;
 		bool bInitialState; // state loaded from scenario file
+		bool bMomentary;// output is high only when button is pressed (no input is used, overrides bAllowReset)
 	public:
 		PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState=false);
 		~PushButtonIndicator();
@@ -64,6 +65,12 @@ namespace vc
 		 * If false, output line will be set every time PBI is pushed
 		 */
 		void AllowReset(bool allow);
+
+		/**
+		 * If true, input signal is ignored and output depends only on whether the switch is pressed (momentary contact)
+		 * @param[in]	momentary	boolean value to enable/disable momentary contact feature
+		 */
+		void SetMomentary( bool momentary );
 
 		DiscOutPort output; //generally same as input port
 	};

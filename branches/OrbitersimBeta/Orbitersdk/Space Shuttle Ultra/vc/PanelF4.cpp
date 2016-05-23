@@ -162,6 +162,7 @@ namespace vc
 		pDragChuteJETT->SetSourceCoords( false, 0, 14 );
 		pDragChuteJETT->SetDimensions( 42, 14 );
 		pDragChuteJETT->SetMouseRegion( 0.361020f, 0.060915f, 0.393703f, 0.122957f );
+		pDragChuteJETT->SetMomentary( true );
 
 		pDragChuteJETTCover->SetMouseRegion( 0, 0.352893f, 0.043177f, 0.399339f, 0.154601f );
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
