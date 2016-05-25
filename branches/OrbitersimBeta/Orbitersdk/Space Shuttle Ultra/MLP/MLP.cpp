@@ -69,13 +69,13 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	ROFI_Stream.tex = oapiRegisterParticleTexture("contrail3");
 
 	static PARTICLESTREAMSPEC sss_water_SSME = {
-		0, 0.05, 30.0, 11.0, 0.1, 0.8, 1.5, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		0, 0.05, 30.0, 11.0, 0.1, 0.8, 1.5, 0.8, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
 
 	static PARTICLESTREAMSPEC sss_water_SRB = {
-		0, 0.5, 30.0, 11.0, 0.1, 0.8, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		0, 0.5, 30.0, 11.0, 0.1, 0.8, 3, 0.8, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};
@@ -97,9 +97,15 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 	msh_idx=AddMesh(mshMLP);
 	DefineAnimations();
 
-	// touchdown points: -30.35 on y for pad, -16.25 for VAB; must set touchdown points to match pad height so shuttle stack has correct touchdown points at liftoff
-	//SetTouchdownPoints(_V(0.0, -30.35, 25.0), _V(-25.0, -30.35, -25.0), _V(25.0, -30.35, -25.0));
-	SetTouchdownPoints(_V(0.0, -30.84, 25.0), _V(-25.0, -30.84, -25.0), _V(25.0, -30.84, -25.0));// fix for ticket 86
+	// touchdown points: -30.84 on y for pad, -16.25 for VAB; must set touchdown points to match pad height so shuttle stack has correct touchdown points at liftoff
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 0.0, -30.84, 25.0 ), 1e8, 1e2, 5, 5},
+		{_V( -25.0, -30.84, -25.0 ), 1e8, 1e2, 5, 5},
+		{_V( 25.0, -30.84, -25.0 ), 1e8, 1e2, 5, 5},
+		{_V( 0, 10, 0 ), 1e8, 1e2, 5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, DIR_MPS_SMOKE, &fSSMESteam);
 	AddParticleStream(&sss_steam, POS_MPS_SMOKE, _V(0.0, sin(10.0 * RAD), -cos(10.0 * RAD)), &fSSMESteam);
 	AddParticleStream(&sss_steam_SRB, POS_SRB_SMOKE, DIR_SRB_SMOKE, &fSRBSteam);

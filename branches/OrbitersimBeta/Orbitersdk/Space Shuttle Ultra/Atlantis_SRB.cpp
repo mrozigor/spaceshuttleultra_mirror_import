@@ -308,7 +308,7 @@ void Atlantis_SRB::clbkPostStep (double simt, double simdt, double mjd)
 			SRBLight->Activate( false );
 			// After the propellant is burnt out we should be airborne.
 			// Now we can prepare touchdown points for "landing"
-			SetTouchdownPoints (_V(0,9,3), _V(-1,1,-3), _V(1,1,-3));
+			//SetTouchdownPoints (_V(0,9,3), _V(-1,1,-3), _V(1,1,-3));
 		} else {
 			double thrust_level, prop_level;
 			GetSRB_State (met, thrust_level, prop_level);

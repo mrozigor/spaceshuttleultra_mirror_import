@@ -103,6 +103,15 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(SLC6_IAA_RATE);
 	SetEmptyMass(2000001);
+
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 1.0, -4.5, 0.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -4.5, 1.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -4.5, -1.0 ), 1e8, 1e2, 5, 5},
+		{_V( 0, 50, 0 ), 1e8, 1e2, 5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	
 	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT, SLC6_LIGHT_RANGE, SLC6_LIGHT_ATT0, SLC6_LIGHT_ATT1, SLC6_LIGHT_ATT2, SLC6_LIGHT_UMBRA, SLC6_LIGHT_PENUMBRA, SLC6_LIGHT_DIFFUSE, SLC6_LIGHT_SPECULAR, SLC6_LIGHT_AMBIENT);
 }
