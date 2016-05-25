@@ -962,7 +962,7 @@ void Atlantis::SetLaunchConfiguration(void)
 		{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
 		{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
 		{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
-		{_V( 0, 0, 0 ), 1e5, 1e2, 0.5}
+		{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
 	};
 	SetTouchdownPoints( tdvtx, ntdvtx );
 	
@@ -3998,7 +3998,14 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 					// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
 					VECTOR3 pos = POS_HDP - currentCoG;
 					double touchdownZ = pt1.y - parentAttachPos.y + pos.z;
-					SetTouchdownPoints(_V(0, -10, touchdownZ), _V(-7, 7, touchdownZ), _V(7, 7, touchdownZ));
+					DWORD ntdvtx = 4;
+					static TOUCHDOWNVTX tdvtx[4] = {
+						{_V( 0, -10, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( -7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+					};
+					SetTouchdownPoints( tdvtx, ntdvtx );
 				}
 			}
 		}

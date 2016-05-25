@@ -754,7 +754,14 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	hs_mesh_idx=AddMesh(HardStandMesh, &hs_ofs);
 	wt_mesh_idx=AddMesh(WaterTowerMesh, &wt_ofs);
 
-	SetTouchdownPoints(_V(1.0, -2.0, 0.0), _V(-1.0, -2.0, 1.0), _V(-1.0, -2.0, -1.0));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 1.0, -2.0, 0.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -2.0, 1.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -2.0, -1.0 ), 1e8, 1e2, 5, 5},
+		{_V( 0, 50, 0 ), 1e8, 1e2, 5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 
 	if (bPad1985 == true)// update GOX vents position, as it appears there's an offset between the "regular" pad and the "1985" pad
 	{
