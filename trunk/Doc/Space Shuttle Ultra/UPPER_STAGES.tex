@@ -45,33 +45,33 @@ Thrust is provided by 2 RL-10 engines, and the Attitude Control System (ACS) all
 	\centering
 	\captionsetup{justification=centering}
   \includegraphics[width=0.99\hsize]{Gpayload.png}
-  \caption{Centaur G payload capability}
+  \caption{Centaur G payload capability for an Earth-escape trajectory}
   \label{fig:Gpayload}
 \end{figure}
+\noindent
 Although the Centaur G is suited for GEO satellite missions, it is also capable of launching spacecraft into Earth-escape trajectories. A plot of payload mass versus characteristic velocity achievable with the Centaur G in shown in figure \ref{fig:Gpayload}.
 
 \begin{figure}[H]
 	\centering
 	\captionsetup{justification=centering}
   \includegraphics[width=0.99\hsize]{GPpayload.png}
-  \caption{Centaur G Prime payload capability}
+  \caption{Centaur G Prime payload capability for an Earth-escape trajectory}
   \label{fig:GPpayload}
 \end{figure}
+\noindent
 The greater propellant capability of the Centaur G Prime gives it the performance needed to launch heavy spacecraft to other planets. A plot of payload mass versus characteristic velocity achievable with the Centaur G Prime in shown in figure \ref{fig:GPpayload}.
 
 \begin{figure*}[ht]
   \centering
   \includegraphics[width=1\textwidth]{payload_volume_centaur.png}
-  \caption{Centaur G and G Prime Payload Envelope (dimensions in meters)}
+  \caption{Centaur G and G Prime payload envelope (dimensions in meters)}
   \label{fig:payload_volume_centaur}
 \end{figure*}
+\noindent
 Figure \ref{fig:payload_volume_centaur} shows the allowable payload envelope for both Centaur versions. The higher performance of the Centaur G Prime comes at a cost in allowable payload volume.
 
 \subsubsection{Centaur Integrated Support Structure}
-The Centaur Integrated Support Structure (CISS) is the interface between the Centaur stage and the orbiter vehicle. The CISS has a tilt table, to which the Centaur is attached, allowing it to be raised above the payload bay for deployment.
-\\
-\\
-TODO <insert image of empty CISS in PLB?>
+The Centaur Integrated Support Structure (CISS) is the interface between the Centaur stage and the orbiter vehicle. Before Centaur deployment, the CISS provides the Centaur with fluid connections for propellant loading and dumping, electrical power and communications, and serves to secure it inside the payload bay. The CISS has a tilt table, to which the Centaur is attached, allowing it to be raised above the payload bay for deployment.
 
 \subsubsection{Deployment}
 The deployment sequence is similar for both Centaur versions, and is controlled by panel L12U. A checklist is available in section \ref{sec:flight-data-files}.
@@ -90,7 +90,7 @@ Manual command for the engine gimbal is available and when there is no user inpu
 \subsubsection{Payload Interface}
 The connection between the Centaur and its payload is done using a payload adapter. Its exclusive purpose is to interface the payload with the Centaur and is considered a part of the payload, even though on payload deployment the adapter remains with the Centaur.\\
 The payload adapter is specified in the Centaur vessel section of the scenario file (section \ref{sec:scenario-files}).
-For Centaur payload developers, the payload adapter must be 2.74 meters in diameter at the Centaur end, to correctly interface with the stage. SSU includes a demonstration payload adapter for interfacing the Centaur with SSU\_DemoSat.
+For Centaur payload developers, the payload adapter must be 2.74 meters in diameter at the Centaur end, to correctly interface with the stage. The payload adapter can be a solid tapered cone as shown in figures \ref{fig:centaurG} and \ref{fig:centaurGP} or a grid structure. SSU includes a demonstration payload adapter for interfacing the Centaur with SSU\_DemoSat.
 
 \end{multicols*}
 \newpage
@@ -110,37 +110,52 @@ The Inertial Upper Stage, or IUS, is a 2-stage solid propellant vehicle used in 
   \caption{Inertial Upper Stage installed in the payload bay with SSU\_DemoSat}
   \label{fig:ius}
 \end{figure}
-
+\noindent
 Thrust is provided by one Solid Rocket Motor (SRM) in each stage, and the Reaction Control System (RCS) allows 3-axis control of the stage, and also translation in the +Z direction (forward).\\
 
 \subsubsection{Configuration}
+\noindent
 The IUS can be installed in the payload bay in 2 possible positions: the forward position or the aft position (for large payloads). The position choice is defined in the mission file (section \ref{sec:mission-files}).\\
 The standard IUS configuration features 2 RCS tanks each with 55Kg of propellant. An additional tank can be used, for a total of 3, or only one tank can be used to reduce mass. In addition to the standard 2 omni-directional antennas in the $2^{nd}$ stage, a further 2 can be added, for a total of 4. Due to the nature of the solid propellant motors, fine control of the $\Delta$V is impossible during the burn, so the propellant quantity must be carefully set. Both SRMs have the capability to be offloaded up to 50\%.\\
 The number of RCS tanks, omni-directional antennas and SRM propellant offload quantity are controlled by scenario file parameters (section \ref{sec:scenario-files}).
 
 \subsubsection{Performance}
-TODO performance\\
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+  \includegraphics[width=0.99\hsize]{IUSpayloadGEO.png}
+  \caption{IUS payload capability to GEO}
+  \label{fig:IUSpayloadGEO}
+\end{figure}
+\noindent
+Specially suited for GEO missions, the IUS was designed to insert a 5000-pound (2268 Kg) payload into geostationary orbit. It can however launch heavier payloads at the expense of final orbit eccentricity and/or inclination. The relationship between payload mass and the corresponding achievable orbital parameters for a GEO mission is shown in figure \ref{fig:IUSpayloadGEO}.\\
 
-\begin{figure*}[ht]
+\begin{figure}[H]
+	\centering
+	\captionsetup{justification=centering}
+  \includegraphics[width=0.99\hsize]{IUSpayloadC3.png}
+  \caption{IUS payload capability for an Earth-escape trajectory}
+  \label{fig:IUSpayloadC3}
+\end{figure}
+\noindent
+Although designed for Earth-orbit missions, the IUS can also inject spacecrafts into low-energy Earth-escape trajectories. More capability can be obtained by including an additional stage in the spacecraft. The payload capability of the IUS versus C3 energy is presented in figure \ref{fig:IUSpayloadC3}.
+
+\begin{figure*}[t!]
   \centering
   \includegraphics[width=1\textwidth]{payload_volume_ius.png}
-  \caption{IUS Payload Envelope (dimensions in meters)}
+  \caption{IUS payload envelope (dimensions in meters)}
   \label{fig:payload_volume_ius}
 \end{figure*}
-Figure \ref{fig:payload_volume_ius} shows the allowable payload envelope for both IUS positions. While the aft IUS position leaves more volume to the payload, it should only be used when necessary due to c.g. concerns.
+\noindent
+Figure \ref{fig:payload_volume_ius} shows the allowable payload envelope for both IUS positions. While the aft IUS position allows a payload with greater volume to be carried, it should only be used when necessary due to orbiter vehicle c.g. concerns.
 
 \subsubsection{Airborne Support Equipment}
-The Airborne Support Equipment (ASE) is the interface between the IUS and the orbiter vehicle. The ASE has a tilt table, to which the IUS is attached, allowing it to be raised above the payload bay for deployment. The ASE also has a boom-mounted IUS umbilical, that must be released before IUS deployment.
-\\
-\\
-TODO <insert image of empty ASE in PLB?>
+The Airborne Support Equipment (ASE) is the interface between the IUS and the orbiter vehicle. Before IUS deployment, the ASE provides the IUS with electrical power and communications, and serves to secure it inside the payload bay. The ASE has a tilt table, to which the IUS is attached, allowing it to be raised above the payload bay for deployment. The ASE also has a boom-mounted IUS umbilical, that must be released before IUS deployment.
 
 \subsubsection{Deployment}
 The IUS deployment sequence is controlled by panel L10.
 \\
-\\
 TODO
-\\
 \\
 Inhibits are placed on the operation of the RCS and of the $1^{st}$ stage motor, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the HUD, as well as the remaining RCS propellant.
 
@@ -159,7 +174,7 @@ After all the burns are performed, payload separation is done by pressing the ''
 \subsubsection{Payload Interface}
 The connection between the IUS and its payload is done using a payload adapter. Its exclusive purpose is to interface the payload with the IUS and is considered a part of the payload, even though on payload deployment the adapter remains with the IUS.\\
 The payload adapter is specified in the IUS vessel section of the scenario file (section \ref{sec:scenario-files}).
-For IUS payload developers, the payload adapter must be 2.89 meters in diameter at the IUS end, to correctly interface with the stage. SSU includes a demonstration payload adapter for interfacing the IUS with SSU\_DemoSat.
+For IUS payload developers, the payload adapter must be 2.89 meters in diameter at the IUS end, to correctly interface with the stage. The payload adapter can be a solid tapered cone as shown in figure \ref{fig:ius} or a grid structure. SSU includes a demonstration payload adapter for interfacing the IUS with SSU\_DemoSat.\\
 
 \end{multicols*}
 \end{document}
