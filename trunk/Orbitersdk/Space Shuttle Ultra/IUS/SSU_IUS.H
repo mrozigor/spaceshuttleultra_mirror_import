@@ -74,11 +74,11 @@ const VECTOR3 STAGE1_OFFSET = _V( 0, 0, -1.95 );
 const VECTOR3 ASE_ATTACH_OFFSET = _V( 0, 0, -2.6 );
 const VECTOR3 PAYLOAD_ATTACH_OFFSET = _V( 0, 0, 0.95 );
 
-const double STAGE1_EMPTYMASS = 1134;// kg
-const double STAGE2_EMPTYMASS = 1170;// kg
+const double STAGE1_EMPTYMASS = 1123.276;// kg
+const double STAGE2_EMPTYMASS = 1010.649;// kg
 
-const double STAGE1_PROPELLANT_MAXMASS = 9631.8;// kg
-const double STAGE2_PROPELLANT_MAXMASS = 2727.45;// kg
+const double STAGE1_PROPELLANT_MAXMASS = 9708.6;// kg
+const double STAGE2_PROPELLANT_MAXMASS = 2749.133;// kg
 
 const double STAGE1_THRUST_VAC = 184752.84;// N
 const double STAGE2_THRUST_VAC = 78272;// N
