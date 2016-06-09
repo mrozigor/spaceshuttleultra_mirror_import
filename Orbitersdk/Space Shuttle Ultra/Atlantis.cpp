@@ -4715,19 +4715,10 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
 		double dens = GetAtmDensity();
 		double speed = GetAirspeed();
-		double flux = (dens*pow(speed, 3)) / 3 / 1000000;
-		double heating_factor = flux / 4 - 3.5;
-		double heating_scalar = 0;
-		if (heating_factor >= 1)
-			heating_scalar = 1;
-		else if (heating_factor <= 0)
-			heating_scalar = 0;
-		else
-			heating_scalar = heating_factor;
-
-		//sprintf(oapiDebugString(),"%lf",heating_scalar);
-
-
+		double flux = (dens * pow( speed, 4 )) / 1e11;
+		double heating_factor = flux - 0.5;
+		double heating_scalar = range( 0, heating_factor, 1 );
+		//sprintf( oapiDebugString(), "%f %f", flux, heating_scalar );
 
 		if (heating_scalar == 0)
 			SetMeshVisibilityMode(mesh_heatshield, MESHVIS_NEVER);
