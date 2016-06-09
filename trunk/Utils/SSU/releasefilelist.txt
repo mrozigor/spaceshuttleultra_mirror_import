@@ -75,6 +75,7 @@ Config\Vessels\VandenbergAFB\SLC-6_STS_MST.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
 Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
+Doc\Space Shuttle Ultra\Changelog.txt
 Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
