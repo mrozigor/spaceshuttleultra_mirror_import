@@ -96,9 +96,11 @@
     <ClInclude Include="meshres_Centaur_G.h" />
     <ClInclude Include="meshres_Centaur_GPrime.h" />
     <ClInclude Include="SSU_Centaur.h" />
+    <ClInclude Include="SSU_Centaur_MFD.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SSU_Centaur.cpp" />
+    <ClCompile Include="SSU_Centaur_MFD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\libUltra\libUltra.vcxproj">

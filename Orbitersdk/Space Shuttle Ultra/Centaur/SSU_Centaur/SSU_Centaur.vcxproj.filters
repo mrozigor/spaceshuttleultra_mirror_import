@@ -24,9 +24,15 @@
     <ClInclude Include="meshres_Centaur_GPrime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SSU_Centaur_MFD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SSU_Centaur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SSU_Centaur_MFD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
