@@ -2,6 +2,7 @@
 
 
 #include "SSU_Centaur.h"
+#include "SSU_Centaur_MFD.h"
 #include "meshres_Centaur_G.h"
 #include "meshres_Centaur_GPrime.h"
 #include <UltraMath.h>
@@ -23,7 +24,7 @@ DLLCLBK void ovcSetState( VESSEL *Vessel, const VESSELSTATUS *Status )
 }
 
 
-SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL3( hVessel )
+SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL4( hVessel )
 {
 	ctrlRL10_P.SetGains( 0.1, 0.01, 0 );
 	ctrlRL10_Y.SetGains( 0.1, 0.01, 0 );
@@ -46,11 +47,20 @@ SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL3( hVessel )
 
 	AdapterOffset = 0;
 	AdapterMass = 0;
+
+	static char *name = "SSU Centaur MFD";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_T;
+	spec.context = NULL;
+	spec.msgproc = SSU_Centaur_MFD::MsgProc;
+	mfdID = RegisterMFDMode( spec );
 	return;
 }
 
 SSU_Centaur::~SSU_Centaur( void )
 {
+	UnregisterMFDMode( mfdID );
 	return;
 }
 
@@ -387,7 +397,7 @@ void SSU_Centaur::DefineGPrimeAnimations( void )
 	RegisterAnimation();
 }
 
-bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
+/*bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
 {
 	if (!separated) return true;
 
@@ -435,7 +445,7 @@ bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpa
 		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
 	}
 	return true;
-}
+}*/
 
 
 int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )

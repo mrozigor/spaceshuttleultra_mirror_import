@@ -106,15 +106,17 @@ const double RL10_AUTO_GIMBAL_RATE = 1;// deg/s
 const double RL10_GIMBAL_RANGE = 4;// deg
 
 
-class SSU_Centaur: public VESSEL3
+class SSU_Centaur: public VESSEL4
 {
+	friend class SSU_Centaur_MFD;
+
 	public:
 		SSU_Centaur( OBJHANDLE hVessel );
 		~SSU_Centaur( void );
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
 		void clbkPreStep( double simt, double simdt, double mjd );
-		bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
+		//bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey( DWORD key, bool down, char* kstate );
 		void clbkAnimate( double simt );
 		void clbkVisualCreated( VISHANDLE vis, int refcount );
@@ -159,6 +161,8 @@ class SSU_Centaur: public VESSEL3
 		double timer_RL10_startseq;
 		bool RL10_startseq;
 		double RL10_chill;
+
+		int mfdID;
 
 		void DefineGAnimations( void );
 		void DefineGPrimeAnimations( void );
