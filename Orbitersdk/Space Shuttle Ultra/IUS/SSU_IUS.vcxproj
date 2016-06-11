@@ -94,10 +94,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SSU_IUS.CPP" />
+    <ClCompile Include="SSU_IUS_MFD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshres_IUS_SRM2.h" />
     <ClInclude Include="SSU_IUS.H" />
+    <ClInclude Include="SSU_IUS_MFD.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\libUltra\libUltra.vcxproj">
