@@ -6,12 +6,10 @@
 
 typedef struct {
 	HINSTANCE hDLL;
-	HFONT hCRTFont;
 } MFD_GDIPARAM;
 
 class CRT: public MFD {
 	friend class Atlantis;
-	friend class Keyboard;
 public:
 	CRT (DWORD w, DWORD h, VESSEL *vessel);
 	~CRT ();
@@ -31,31 +29,6 @@ public:
 	static void InitializeSavedParameters();
 
 private:
-	// GDI stuff
-	HBRUSH LightGreenBrush;
-	HBRUSH CyanBrush; 
-	HBRUSH WhiteBrush;
-	HBRUSH BlackBrush;
-	HBRUSH RedBrush;
-	HBRUSH DarkGrayBrush;
-	HBRUSH YellowBrush;
-	HPEN WhitePen;
-	HPEN LightGreenPen;
-	HPEN DarkGreenPen;
-	HPEN RedPen;
-	HPEN BlackPen;
-	HPEN DarkGrayPen;
-	HPEN YellowPen;
-	HPEN CyanPen;
-	HFONT ArialFont_h15w5;
-	HFONT ArialFont_h13w6;
-
-	//Display Functions
-	void OMSMPS(HDC hDC);
-	void SPI(HDC hDC);
-	void APUHYD(HDC hDC);
-
-
 	VESSEL *vessel;
 	
 	int width, height;
@@ -67,10 +40,6 @@ private:
 		int mode[11], display[11];
 		bool bValid[11];
 	} saveprm;
-
-	
-protected:
-	HFONT hCRTFont;
 };
 
 #endif // !__CRT_H

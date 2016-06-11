@@ -41,7 +41,7 @@
 #define CR_CYAN RGB( 0, 255, 255 )
 #define CR_MAGENTA RGB( 255, 0, 255 )
 #define CR_LIGHT_GREEN RGB( 0, 255, 0 )
-//#define CR_DARK_GREEN RGB( 0, 160, 0 )
+#define CR_DARK_GREEN RGB( 0, 160, 0 )
 #define CR_BLUE RGB( 0, 0, 255 )
 //#define CR_PINK RGB( 220, 150, 220 )
 //#define CR_BROWN RGB( 190, 50, 30 )
@@ -65,6 +65,7 @@ namespace vc {
 		HBRUSH WhiteBrush;
 		HBRUSH RedBrush;
 		HBRUSH YellowBrush;
+		HBRUSH CyanBrush;
 		HBRUSH MagentaBrush;
 		HBRUSH LightGreenBrush;
 		HBRUSH BlueBrush;
@@ -79,6 +80,7 @@ namespace vc {
 		HPEN CyanPen;
 		HPEN MagentaPen;
 		HPEN LightGreenPen;
+		HPEN DarkGreenPen;
 		HPEN LightGreenThickPen;
 		
 		HPEN hOverbrightPen;
@@ -89,6 +91,8 @@ namespace vc {
 		HFONT TahomaFont_h10w4;
 		HFONT TahomaFont_h7w3;
 		HFONT TahomaFont_h17w6;
+		HFONT ArialFont_h15w5;
+		HFONT ArialFont_h13w6;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();
@@ -530,12 +534,14 @@ namespace vc {
 		/**
 		 * MEDS Display functions
 		 * Still called from CRTMFD until its "retirement".
-		 * OMS/MPS, HYD/APU and SPI are still in CRTMFD and should (eventually) be moved here as well.
 		 */
 		virtual void SystemStatusDisplay_CSTMenu( HDC hDC );
 		virtual void SystemStatusDisplay_IDPInteractiveCST( HDC hDC );
 		virtual void AEPFD( HDC hDC );
 		virtual void ORBITPFD( HDC hDC );
+		virtual void OMSMPS( HDC hDC );
+		virtual void APUHYD( HDC hDC );
+		virtual void SPI( HDC hDC );
 
 		virtual void Set_display( int display )
 		{
