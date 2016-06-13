@@ -313,7 +313,7 @@ const int RCS_R5R = 13;
 // Interface for derived vessel class: Atlantis
 // ==========================================================
 
-class Atlantis: public VESSEL3 {
+class Atlantis: public VESSEL4 {
 	friend class vc::PanelF7;
 	friend class vc::PanelO3;
 	friend class Keyboard;
@@ -728,6 +728,8 @@ public:
 
 
 private:
+	int mfdID;
+
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
 	PSTREAM_HANDLE reentry_flames;
