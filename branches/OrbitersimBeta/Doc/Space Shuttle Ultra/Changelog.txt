@@ -1,5 +1,18 @@
-V1.20(Revision 130): 
-======================
-* Rescaled meshes, now the orbiter has the correct size in Orbiter.
-* Time display in Panel O3 working. 
-* Air data probe deployment animation
+*** Major changes from SSU 3.0 ***
+
+corrected orbiter vehicle textures
+corrections to external airlock and tunnel adapter
+fixed orbiter vehicle mesh
+fixed Item 27 issue for OMS-2
+small corrections to RMS systems and its cameras
+corrected colors in displays
+added some functionality to Ku-band antenna (radar and manual slew)
+added Centaur upper stage and its vc panel
+added IUS upper stage and its vc panels
+updated HUD graphics
+fixed wrong WT parameter in MNVR display
+fixed issue with timer
+new texture for RMS
+fixed position of PLB handrails
+fixed reentry mesh not showing
+corrected the painting scheme on FWC SRBs

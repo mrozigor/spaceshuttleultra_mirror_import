@@ -42,7 +42,7 @@ const VECTOR3 ASE_IUS_TILT_TABLE_ROTATION_AXIS_POS = _V( 0, 0.3985, -1.3304 );
 const VECTOR3 ASE_IUS_UMBILICAL_ROTATION_AXIS_POS = _V( 0.5169, -1.3438, -0.6282 );
 
 const double ASE_IUS_TILT_TABLE_SPEED = 0.001493;// s^-1 (= 0.1º/s)
-const double ASE_IUS_MASS = 2531.7;// kg
+const double ASE_IUS_MASS = 3684.213;// kg
 const double IUS_JETTISON_VELOCITY = 0.12192;// m/s
 
 // animation position for ASE angle
