@@ -2024,16 +2024,16 @@ void Atlantis::DefineAnimations(void)
 	static VECTOR3 etumbdoor_dummyvec[8];
 	static UINT ETUmbLDDMAftGrp[1] = { GRP_ET_DOOR_LEFT_DDM_ARM_AFT };
 	static UINT ETUmbLDDMAftRodGrp[1] = { GRP_ET_DOOR_LEFT_DDM_LINK_ROD_AFT };
-	static MGROUP_ROTATE ETUmbLDDMAft1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec), 1, _V(-1.242, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(-65.0*RAD));
+	static MGROUP_ROTATE ETUmbLDDMAft1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec), 1, _V(-1.292, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(-65.0*RAD));
 	static MGROUP_ROTATE ETUmbLDDMAft2(midx, ETUmbLDDMAftGrp, 1, _V(-1.242, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(-55.0*RAD));
-	static MGROUP_ROTATE ETUmbLDDMAftRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 1), 1, _V(-1.404, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(19.0*RAD));
-	static MGROUP_ROTATE ETUmbLDDMAftRod2(midx, ETUmbLDDMAftRodGrp, 1, _V(-1.404, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(-26 * RAD));
+	static MGROUP_ROTATE ETUmbLDDMAftRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 1), 1, _V(-1.454, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(19.0*RAD));
+	static MGROUP_ROTATE ETUmbLDDMAftRod2(midx, ETUmbLDDMAftRodGrp, 1, _V(-1.454, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(-26 * RAD));
 	static UINT ETUmbLDDMFwdGrp[1] = { GRP_ET_DOOR_LEFT_DDM_ARM_FWD };
 	static UINT ETUmbLDDMFwdRodGrp[1] = { GRP_ET_DOOR_LEFT_DDM_LINK_ROD_FWD };
-	static MGROUP_ROTATE ETUmbLDDMFwd1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 2), 1, _V(-1.242, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(-65.0*RAD));
+	static MGROUP_ROTATE ETUmbLDDMFwd1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 2), 1, _V(-1.292, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(-65.0*RAD));
 	static MGROUP_ROTATE ETUmbLDDMFwd2(midx, ETUmbLDDMFwdGrp, 1, _V(-1.242, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(-55.0*RAD));
-	static MGROUP_ROTATE ETUmbLDDMFwdRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 3), 1, _V(-1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(19.0*RAD));
-	static MGROUP_ROTATE ETUmbLDDMFwdRod2(midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-26.0*RAD));
+	static MGROUP_ROTATE ETUmbLDDMFwdRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 3), 1, _V(-1.454, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(19.0*RAD));
+	static MGROUP_ROTATE ETUmbLDDMFwdRod2(midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.454, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-26.0*RAD));
 	anim_letumbdoor = CreateAnimation(0);
 	LogAnim("anim_letumbdoor", anim_letumbdoor);
 	AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
@@ -2048,16 +2048,16 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT ETUmbRDDMAftGrp[1] = { GRP_ET_DOOR_RIGHT_DDM_ARM_AFT };
 	static UINT ETUmbRDDMAftRodGrp[1] = { GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT };
-	static MGROUP_ROTATE ETUmbRDDMAft1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 4), 1, _V(1.242, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(65.0*RAD));
+	static MGROUP_ROTATE ETUmbRDDMAft1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 4), 1, _V(1.292, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(65.0*RAD));
 	static MGROUP_ROTATE ETUmbRDDMAft2(midx, ETUmbRDDMAftGrp, 1, _V(1.242, -3.821, -10.024), _V(0, 0.060757, -0.998152), static_cast<float>(55.0*RAD));
-	static MGROUP_ROTATE ETUmbRDDMAftRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 5), 1, _V(1.404, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(-19.0*RAD));
-	static MGROUP_ROTATE ETUmbRDDMAftRod2(midx, ETUmbRDDMAftRodGrp, 1, _V(1.404, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(29 * RAD));
+	static MGROUP_ROTATE ETUmbRDDMAftRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 5), 1, _V(1.454, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(-19.0*RAD));
+	static MGROUP_ROTATE ETUmbRDDMAftRod2(midx, ETUmbRDDMAftRodGrp, 1, _V(1.454, -3.583, -10.013), _V(0, 0, -1), static_cast<float>(29 * RAD));
 	static UINT ETUmbRDDMFwdGrp[1] = { GRP_ET_DOOR_RIGHT_DDM_ARM_FWD };
 	static UINT ETUmbRDDMFwdRodGrp[1] = { GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_FWD };
-	static MGROUP_ROTATE ETUmbRDDMFwd1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 6), 1, _V(1.242, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(65.0*RAD));
+	static MGROUP_ROTATE ETUmbRDDMFwd1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 6), 1, _V(1.292, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(65.0*RAD));
 	static MGROUP_ROTATE ETUmbRDDMFwd2(midx, ETUmbRDDMFwdGrp, 1, _V(1.242, -3.888, -8.967), _V(0, 0.060757, -0.998152), static_cast<float>(55.0*RAD));
-	static MGROUP_ROTATE ETUmbRDDMFwdRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 7), 1, _V(1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-19.0*RAD));
-	static MGROUP_ROTATE ETUmbRDDMFwdRod2(midx, ETUmbRDDMFwdRodGrp, 1, _V(1.404, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(29.0*RAD));
+	static MGROUP_ROTATE ETUmbRDDMFwdRod1(LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec + 7), 1, _V(1.454, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(-19.0*RAD));
+	static MGROUP_ROTATE ETUmbRDDMFwdRod2(midx, ETUmbRDDMFwdRodGrp, 1, _V(1.454, -3.662, -8.953), _V(0, 0, -1), static_cast<float>(29.0*RAD));
 	anim_retumbdoor = CreateAnimation(0);
 	LogAnim("anim_retumbdoor", anim_retumbdoor);
 	AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
@@ -4823,19 +4823,10 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
 		double dens = GetAtmDensity();
 		double speed = GetAirspeed();
-		double flux = (dens*pow(speed, 3)) / 3 / 1000000;
-		double heating_factor = flux / 4 - 3.5;
-		double heating_scalar = 0;
-		if (heating_factor >= 1)
-			heating_scalar = 1;
-		else if (heating_factor <= 0)
-			heating_scalar = 0;
-		else
-			heating_scalar = heating_factor;
-
-		//sprintf(oapiDebugString(),"%lf",heating_scalar);
-
-
+		double flux = (dens * pow( speed, 4 )) / 1e11;
+		double heating_factor = flux - 0.5;
+		double heating_scalar = range( 0, heating_factor, 1 );
+		//sprintf( oapiDebugString(), "%f %f", flux, heating_scalar );
 
 		if (heating_scalar == 0)
 			SetMeshVisibilityMode(mesh_heatshield, MESHVIS_NEVER);
@@ -7277,7 +7268,7 @@ double Atlantis::GetLH2ManifPress(void) const
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
 	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
+	oapiSetTexture(hDevOrbiterMesh, 3, hTexture);
 }
 
 int Atlantis::GetSoundID() const {

@@ -75,10 +75,11 @@ Config\Vessels\VandenbergAFB\SLC-6_STS_MST.cfg
 Config\Vessels\VandenbergAFB\SLC-6_STS_PCR.cfg
 Data\SSU\MMU1_TEST.dat
 Data\SSU\MMU2_TEST.dat
+Doc\Space Shuttle Ultra\Changelog.txt
 Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
-Doc\Space Shuttle Ultra\SSU Ops Manual V3.0.pdf
+Doc\Space Shuttle Ultra\SSU Ops Manual V4.0.pdf
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
 Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad A Xenon lights positions.txt
