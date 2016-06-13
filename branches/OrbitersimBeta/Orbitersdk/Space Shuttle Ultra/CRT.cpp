@@ -1,5 +1,3 @@
-#define STRICT
-#define ORBITER_MODULE
 #include "Atlantis.h"
 #include "CRT.h"
 
@@ -11,32 +9,6 @@ int g_MFDmode; // identifier for new MFD mode
 
 CRT::SavePrm CRT::saveprm;
 
-MFD_GDIPARAM mfd_gparam;
-
-// ==============================================================
-// API interface
-
-DLLCLBK void InitModule (HINSTANCE hDLL)
-{
-	static char *name = "CRT";   // MFD mode name
-	MFDMODESPEC spec;
-	spec.name = name;
-	spec.key = OAPI_KEY_T;                // MFD mode selection key
-	spec.msgproc = CRT::MsgProc;  // MFD mode callback function
-
-	// Register the new MFD mode with Orbiter
-	g_MFDmode = oapiRegisterMFDMode (spec);
-
-	mfd_gparam.hDLL = hDLL;
-	CRT::InitializeSavedParameters();
-	
-}
-
-DLLCLBK void ExitModule (HINSTANCE hDLL)
-{
-	// Unregister the custom MFD mode when the module is unloaded
-	oapiUnregisterMFDMode (g_MFDmode);
-}
 
 // ==============================================================
 // MFD class implementation

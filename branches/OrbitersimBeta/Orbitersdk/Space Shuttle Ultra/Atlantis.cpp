@@ -359,7 +359,7 @@ void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, double altit
 // Constructor
 // --------------------------------------------------------------
 Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
-	: VESSEL3(hObj, fmodel),
+	: VESSEL4(hObj, fmodel),
 	BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
 	ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 	PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
@@ -904,6 +904,14 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	SSMEGH2burn[2] = NULL;
 
 	hasCISS = false;
+
+	static char *name = "CRT";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_T;
+	spec.context = NULL;
+	spec.msgproc = CRT::MsgProc;
+	mfdID = RegisterMFDMode( spec );
 }
 
 // --------------------------------------------------------------
@@ -917,6 +925,8 @@ Atlantis::~Atlantis() {
 
 	delete busManager;
 	delete bundleManager;
+
+	UnregisterMFDMode( mfdID );
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const

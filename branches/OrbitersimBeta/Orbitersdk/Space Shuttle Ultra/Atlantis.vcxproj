@@ -248,6 +248,7 @@
     <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
     <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
     <ClCompile Include="comm\GCIL.cpp" />
+    <ClCompile Include="CRT.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
     <ClCompile Include="dps\AscentGuidance.cpp" />
@@ -403,6 +404,7 @@
     <ClInclude Include="comm\ElectronicsAssembly1.h" />
     <ClInclude Include="comm\ElectronicsAssembly2.h" />
     <ClInclude Include="comm\GCIL.h" />
+    <ClInclude Include="CRT.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
     <ClInclude Include="dps\AscentGuidance.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
