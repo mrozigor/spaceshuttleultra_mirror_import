@@ -18,8 +18,7 @@ namespace vc {
 	}
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
-		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID), MFDID(-1),
-		bUseCRTMFD(_bUseCRTMFD),
+		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID),
 		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
 		bInverseX(false), counting(false)
 	{
@@ -28,7 +27,6 @@ namespace vc {
 		//Create display buffer
 		//Clear display buffer
 		shLabelTex = NULL;
-		bIsConnectedToCRTMFD = false;
 		
 		// set default button positions
 		btnPwrXmin = 0.038f; btnPwrXmax = 0.099f;
@@ -43,6 +41,9 @@ namespace vc {
 		Tape_Create();
 		ADI_Create();
 		//HSI_Create();
+
+		display = 0;
+		menu = 3;
 	}
 
 	MDU::~MDU()
@@ -50,9 +51,33 @@ namespace vc {
 		DestroyGDIObjects();
 	}
 
-	void MDU::ConnectToCRTMFD()
+	bool MDU::OnReadState( FILEHANDLE scn )
 	{
-		bIsConnectedToCRTMFD = true;
+		char* line;
+
+		while (oapiReadScenario_nextline( scn, line ))
+		{
+			if (!_strnicmp( line, "@ENDOBJECT", 10 ))
+			{
+				return true;
+			}
+			else if (!_strnicmp( line, "DISPLAY", 7 ))
+			{
+				sscanf_s( (char*)(line + 7), "%d", &display );
+			}
+			else if (!_strnicmp( line, "MENU", 4 ))
+			{
+				sscanf_s( (char*)(line + 4), "%d", &menu );
+			}
+		}
+		return false;
+	}
+
+	void MDU::OnSaveState( FILEHANDLE scn ) const
+	{
+		oapiWriteScenario_int( scn, "DISPLAY", display );
+		oapiWriteScenario_int( scn, "MENU", menu );
+		return;
 	}
 
 	bool MDU::DefineRegionAID(UINT aid)
@@ -179,86 +204,80 @@ namespace vc {
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
 		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
-
-		if(MFDID!=-1) {
-			if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		{
+			if(_event & PANEL_MOUSE_LBDOWN)
+			{
+				//sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+				oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+			}
+		}
+		else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		{
+			//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+		}
+		else if (y >= edgekeyYmin && y <= edgekeyYmax)
+		{
+			//const float edgekeyWidth = 0.0661;
+			//const float edgekeySpace = 0.12068;
+			float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
+			if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					//sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
-					bIsConnectedToCRTMFD = false;
-					//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
-					oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 0, _event);
 				}
 			}
-			else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+			else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
 			{
-				//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+				if(_event & PANEL_MOUSE_LBDOWN)
+				{
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 1, _event);
+				}
 			}
-			else if (y >= edgekeyYmin && y <= edgekeyYmax)
+			else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
 			{
-				//const float edgekeyWidth = 0.0661;
-				//const float edgekeySpace = 0.12068;
-				float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
-				if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
+				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 0, _event);
-					}
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 2, _event);
 				}
-				else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
+			} 
+			else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
+			{
+				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 1, _event);
-					}
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 3, _event);
 				}
-				else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 2, _event);
-					}
-				} 
-				else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 3, _event);
-					}
-				}
-				else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 4, _event);
-					}
-				}
-				else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
-				{
-					if (_event & PANEL_MOUSE_LBDOWN) {
-						t0 = oapiGetSysTime();
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
-						counting = true;
-					} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
-						oapiSendMFDKey (MFDID, OAPI_KEY_F2);
-						counting = false;
-					} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-						//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
-						bIsConnectedToCRTMFD = false;
-						oapiSendMFDKey (MFDID, OAPI_KEY_F1);
-						counting = false;		
-					}
-				}
-				//else sprintf_s(oapiDebugString(), 80, "MDU %s EDGEKEYS: %f", GetQualifiedIdentifier().c_str(), edgekeyClickPos);
 			}
+			else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
+			{
+				if(_event & PANEL_MOUSE_LBDOWN)
+				{
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 4, _event);
+				}
+			}
+			else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
+			{
+				if (_event & PANEL_MOUSE_LBDOWN) {
+					t0 = oapiGetSysTime();
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
+					counting = true;
+				} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
+					oapiSendMFDKey (usMDUID, OAPI_KEY_F2);
+					counting = false;
+				} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+					oapiSendMFDKey (usMDUID, OAPI_KEY_F1);
+					counting = false;		
+				}
+			}
+			//else sprintf_s(oapiDebugString(), 80, "MDU %s EDGEKEYS: %f", GetQualifiedIdentifier().c_str(), edgekeyClickPos);
 		}
 		return true;
 	}
@@ -350,13 +369,171 @@ namespace vc {
 		return false;
 	}
 
+	void MDU::PaintDisplay( HDC hDC )
+	{
+		switch (display)
+		{
+			case 0:// "DPS display"
+				Paint( hDC );
+				break;
+			case 1:// A/E PFD
+				AEPFD( hDC );
+				break;
+			case 2:// ORBIT PFD
+				ORBITPFD( hDC );
+				break;
+			case 3:// OMS/MPS
+				OMSMPS( hDC );
+				break;
+			case 4:// HYD/APU
+				APUHYD( hDC );
+				break;
+			case 5:// SPI
+				SPI( hDC );
+				break;
+			case 6:// CST Menu
+				SystemStatusDisplay_CSTMenu( hDC );
+				break;
+			case 7:// IDP Interactive CST
+				SystemStatusDisplay_IDPInteractiveCST( hDC );
+				break;
+		}
+		return;
+	}
+
+	int MDU::NavigateMenu( DWORD key )
+	{
+		switch (menu)
+		{
+			case 0:// MAIN MENU
+				switch (key)
+				{
+					case OAPI_KEY_1:
+						menu = 1;
+						return 1;
+					case OAPI_KEY_2:
+						menu = 2;
+						return 1;
+					case OAPI_KEY_3:
+						menu = 3;
+						display = 0;
+						return 3;
+					case OAPI_KEY_4:
+						menu = 4;
+						display = 6;
+						return 3;
+				}
+				break;
+			case 1:// FLT INST
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return 1;
+					case OAPI_KEY_1:
+						display = 1;
+						return 3;
+					case OAPI_KEY_2:
+						display = 2;
+						return 3;
+				}
+				break;
+			case 2:// SUBSYS STATUS
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return 1;
+					case OAPI_KEY_1:
+						display = 3;
+						return 3;
+					case OAPI_KEY_2:
+						display = 4;
+						return 3;
+					case OAPI_KEY_3:
+						display = 5;
+						return 3;
+				}
+				break;
+			case 3:// DPS MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return 1;
+				}
+				break;
+			case 4:// MAINTENANCE MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return 1;
+					case OAPI_KEY_3:
+						menu = 5;
+						return 1;
+				}
+				break;
+			case 5:// CST MENU SELECTION
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 4;
+						display = 6;
+						return 3;
+					case OAPI_KEY_2:
+						menu = 6;
+						display = 7;
+						return 3;
+				}
+				break;
+			case 6:// IDPx INTERACTIVE CST
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 5;
+						return 1;
+				}
+				break;
+		}
+		return 0;
+	}
+
+	char* MDU::ButtonLabel( int bt )
+	{
+		static char *label[7][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
+			{"UP", "A/E", "ORBIT", "", ""},
+			{"UP", "OMS", "HYD", "SPI", ""},
+			{"UP", "", "", "", ""},
+			{"UP", "", "", "CST", ""},
+			{"UP", "", "S_IDP", "", ""},
+			{"UP", "", "", "", ""}};
+
+		return ((menu < 7 && bt < 5) ? label[menu][bt] : NULL);
+	}
+
+	int MDU::ButtonMenu( const MFDBUTTONMENU **menu ) const
+	{
+		static const MFDBUTTONMENU mnu[7][5] = {
+			{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}, {"MEDS MAINT", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"START IDP", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
+			};
+
+		if (menu) *menu = mnu[this->menu];
+		return 5;// return the number of buttons used
+	}
+
 	bool MDU::PaintEdgeMenu(HDC hDC)
 	{
-		
 		//HDC hDC = oapiGetDC (surf);
 
 		// D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
-		if (MFDID==-1 || oapiGetMFDMode(MFDID) == MFD_NONE) {
+		if (oapiGetMFDMode(usMDUID) == MFD_NONE) {
 			RECT r = {0, 0, 256, 41};
 			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		} else {   // MFD powered on
@@ -368,7 +545,7 @@ namespace vc {
 			int x = 28;
 			
 			for (int bt = 0; bt < 5; bt++) {
-				if (label = oapiMFDButtonLabel (MFDID, bt))
+				if (label = oapiMFDButtonLabel (usMDUID, bt))
 				{
 					if (strcmp( label, "UP" ) == 0)
 					{
@@ -531,7 +708,6 @@ namespace vc {
 
 	bool MDU::RealizeMFD(int id)
 	{
-		MFDID=id;
 		if(id>=0) RegisterMFDContext(id);
 		return false;
 	}
@@ -544,7 +720,6 @@ namespace vc {
 		mfdspec.flag = MFD_SHOWMODELABELS;
 		mfdspec.bt_yofs  = 256/6;
 		mfdspec.bt_ydist = 256/7;
-		bIsConnectedToCRTMFD = false;
 		//oapiRegisterMFD (usMDUID, &mfdspec);
 		oapiRegisterMFD (id, &mfdspec);
 		//sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);

@@ -154,38 +154,17 @@ namespace vc {
 			return (SimT%2)==1;
 		}
 
-	public:
-		typedef enum {
-			MDU_ADI_AVVI,
-			MDU_HSI_AMI,
-			MDU_COMP_ADI_HSI,
-			MDU_ADI,
-			MDU_OMS_MPS,
-			MDU_HYD_APU,
-			MDU_SPI,
-			MDU_PORT_SELECT,
-			MDU_DPS,
-			MDU_FAULTSUMM,
-			MDU_CONFIGSTATUS,
-			MDU_CST,
-			MDU_MEMORYMGMT
-		} MDU_MODE;
 	protected:
 		unsigned short usMDUID;
-		int MFDID;
-		bool bUseCRTMFD;
-		SURFHANDLE shBackGround;
 		SURFHANDLE shLabelTex;
 		dps::DEUCHAR textBuffer[51][26];
 		dps::IDP* prim_idp;
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;
-		UINT myGroup;
 		EXTMFDSPEC mfdspec;
 		double fBrightness;
 		bool bPower;
-		bool bIsConnectedToCRTMFD;
 
 		int display;
 		int menu;
@@ -198,7 +177,6 @@ namespace vc {
 		float edgekeyXmin, edgekeyXmax, edgekeyYmin, edgekeyYmax;
 
 		//Use a paint buffer for storing primitives?
-	protected:
 		virtual void RegisterMFDContext(int id);
 		//void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
@@ -206,6 +184,11 @@ namespace vc {
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);
 		virtual ~MDU();
+
+		virtual bool OnReadState( FILEHANDLE scn );
+		virtual void OnSaveState( FILEHANDLE scn ) const;
+		virtual bool IsMultiLineSaveState() const { return true; };
+
 		//bool PrintChar(unsigned short x, unsigned short y, DEUCHAR c);
 		//bool PrintString(unsigned short x, unsigned short y, char* pText, short sLength, char cAttr = DEUATT_NORMAL);
 		//DEUCHAR GetTextBuffer(unsigned short x, unsigned short y) const;
@@ -519,13 +502,6 @@ namespace vc {
 		virtual unsigned short GetDrivingIDP() const;
 
 		/**
-		 * Called by CRTMFD or compatible, when registering special functions.
-		 * Disables the old MFD menu and replaces it by the MDU menus.
-		 * Gets disabled when the MDU gets reset.
-		 */
-		virtual void ConnectToCRTMFD();
-
-		/**
 		 * Display functions
 		 * Update text buffer with appropriate data for display
 		 */
@@ -543,15 +519,10 @@ namespace vc {
 		virtual void APUHYD( HDC hDC );
 		virtual void SPI( HDC hDC );
 
-		virtual void Set_display( int display )
-		{
-			this->display = display;
-		}
-
-		virtual void Set_menu( int menu )
-		{
-			this->menu = menu;
-		}
+		virtual void PaintDisplay( HDC hDC );
+		virtual int NavigateMenu( DWORD key );
+		virtual char* ButtonLabel( int bt );
+		virtual int ButtonMenu( const MFDBUTTONMENU **menu ) const;
 	};
 
 };

@@ -235,7 +235,6 @@ Modules\SSU_SRB.dll
 Modules\SSU_Tank.dll
 Modules\SSU_VAB.dll
 Modules\SSU_Xenon_Lights.dll
-Modules\Plugin\CRT.dll
 Scenarios\Space Shuttle Ultra\Launch test.scn
 Scenarios\Space Shuttle Ultra\Description.txt
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
