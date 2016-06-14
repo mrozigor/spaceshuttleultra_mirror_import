@@ -604,9 +604,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pshSlag2[0] = pshSlag2[1] = NULL;
 	pshSlag3[0] = pshSlag3[1] = NULL;
 
-	for (i = 0; i < 11; i++) {
-		mfds[i] = -1;
-	}
 	for (i = 0; i < 11; i++)
 		mfdbright[i] = 1.0;
 	huds.ngroup = GRP_VIRTUALHUD_VC;
@@ -761,8 +758,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	bLastCamInternal = false;
 
 	pl_mass = 0.0;
-
-	newmfd = NULL;
 
 	// gpc
 	firstStep = true;
@@ -5041,14 +5036,7 @@ void Atlantis::clbkAnimate(double simt)
 // --------------------------------------------------------------
 void Atlantis::clbkMFDMode(int mfd, int mode)
 {
-	oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + mfds[mfd]);
-
-	//get pointer to CRT MFD as required
-	if (newmfd != NULL && mode != MFD_REFRESHBUTTONS) {
-		newmfd->MDUID = mfds[mfd]; //index of MDU associated with MFD
-		newmfd->UpdateStatus = true;
-		newmfd = NULL; //reset newmfd so it can be used by next new instance of CRT MFD
-	}
+	oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + mfd);
 }
 
 // --------------------------------------------------------------
@@ -5494,7 +5482,6 @@ bool Atlantis::clbkLoadVC(int id)
 		for (int i = 0; i < 11; i++)
 		{
 			mdus[i]->RealizeMFD(i);
-			mfds[i] = i;
 			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + i);
 		}
 	}

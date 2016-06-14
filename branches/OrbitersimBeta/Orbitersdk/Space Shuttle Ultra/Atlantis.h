@@ -1163,14 +1163,11 @@ private:
 	PIDControl PitchControl;
 
 	bool firstStep; //call functions in first timestep
-	//Data Input
-	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
 	dps::ShuttleBusManager* busManager;
 	
 	vc::MDU* mdus[11];
-	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	bool SERCstop;
 
