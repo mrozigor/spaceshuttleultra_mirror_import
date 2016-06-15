@@ -28,64 +28,46 @@ END_HUD
 BEGIN_MFD Left
   TYPE User
   MODE CRT
-  Mode2 2
-  Display 4
 END_MFD
 
 BEGIN_MFD Right
   TYPE User
   MODE CRT
-  Mode2 1
-  Display 1
 END_MFD
 
 BEGIN_MFD 3
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 1
 END_MFD
 
 BEGIN_MFD 4
   TYPE User
   MODE CRT
-  Mode2 0
-  Display 1
 END_MFD
 
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 3
-  Display 0
 END_MFD
 
 BEGIN_MFD 6
   TYPE User
   MODE CRT
-  Mode2 3
-  Display 0
 END_MFD
 
 BEGIN_MFD 7
   TYPE User
   MODE CRT
-  Mode2 2
-  Display 3
 END_MFD
 
 BEGIN_MFD 9
   TYPE User
   MODE CRT
-  Mode2 2
-  Display 1
 END_MFD
 
 BEGIN_MFD 10
   TYPE User
   MODE CRT
-  Mode2 3
-  Display 0
 END_MFD
 
 BEGIN_VC
@@ -394,14 +376,50 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "F4_RY_CSS" 0
   @ENDPANEL 
   @PANEL F6
+  @OBJECT "CDR1"
+  DISPLAY 4
+  MENU 2
+  @ENDOBJECT
+  @OBJECT "CDR2"
+  DISPLAY 1
+  MENU 1
+  @ENDOBJECT
   "Cdr Flt Cntlr Pwr" OFF
   "ADI Attitude" LVLH
   "ADI Error" MED
   "ADI Rate" MED
   @ENDPANEL 
   @PANEL F7
+  @OBJECT "CRT1"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
+  @OBJECT "CRT2"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
+  @OBJECT "CRT3"
+  DISPLAY 3
+  MENU 2
+  @ENDOBJECT
+  @OBJECT "MFD1"
+  DISPLAY 1
+  MENU 2
+  @ENDOBJECT
+  @OBJECT "MFD2"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
   @ENDPANEL 
   @PANEL F8
+  @OBJECT "PLT1"
+  DISPLAY 1
+  MENU 0
+  @ENDOBJECT
+  @OBJECT "PLT2"
+  DISPLAY 1
+  MENU 0
+  @ENDOBJECT
   "Plt Flt Cntlr Pwr" OFF
   "ADI Attitude" LVLH
   "ADI Error" MED

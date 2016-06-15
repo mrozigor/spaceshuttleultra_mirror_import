@@ -23,15 +23,11 @@ END_CAMERA
 BEGIN_MFD Right
   TYPE User
   MODE CRT
-  Mode2 1
-  Display 2
 END_MFD
 
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 3
-  Display 0
 END_MFD
 
 BEGIN_VC
@@ -359,6 +355,10 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Drag Chute JETT" 0
   @ENDPANEL 
   @PANEL F6
+  @OBJECT "CDR2"
+  DISPLAY 2
+  MENU 1
+  @ENDOBJECT
   "Cdr Flt Cntlr Pwr" ON
   "ADI Attitude" LVLH
   "ADI Error" MED
@@ -369,6 +369,10 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Landing Gear DN" 0
   @ENDPANEL 
   @PANEL F7
+  @OBJECT "CRT1"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
   @ENDPANEL 
   @PANEL F8
   "Plt Flt Cntlr Pwr" ON
