@@ -401,11 +401,11 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgOverheadAft.AddPanel(new vc::PanelO17(this));
 
 	pgAft.AddPanel(new vc::PanelA6(this));
-	pgAft.AddPanel(new vc::AftMDU(this));
 	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::PanelA4(this));
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
 	pgAft.AddPanel( new vc::PanelA2( this ) );
+	pgAft.AddPanel(new vc::AftMDU(this));
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	pgAftStbd.AddPanel(new vc::PanelR13L(this));
