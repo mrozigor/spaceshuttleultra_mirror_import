@@ -355,6 +355,11 @@
     <ClCompile Include="MPMSystems.cpp" />
     <ClCompile Include="mps\MPS.cpp" />
     <ClCompile Include="eva_docking\ODS.cpp" />
+    <ClCompile Include="vc\MDU_AEPFD_Display.cpp" />
+    <ClCompile Include="vc\MDU_DPS_Display.cpp" />
+    <ClCompile Include="vc\MDU_Maintenance_Displays.cpp" />
+    <ClCompile Include="vc\MDU_OrbitPFD_Display.cpp" />
+    <ClCompile Include="vc\MDU_Subsystem_Displays.cpp" />
     <ClCompile Include="vc\PanelA1U.cpp" />
     <ClCompile Include="vc\PanelA2.cpp" />
     <ClCompile Include="vc\PanelA4.cpp" />

@@ -46,7 +46,6 @@
 //#define CR_PINK RGB( 220, 150, 220 )
 //#define CR_BROWN RGB( 190, 50, 30 )
 
-#define CR_MENU_COLOR RGB( 0, 255, 216 )
 #define CR_DPS_NORMAL RGB( 128, 255, 0 )
 #define CR_DPS_OVERBRIGHT RGB( 255, 255, 0 )
 
@@ -59,43 +58,76 @@ namespace vc {
 		double t0;
 		bool counting;
 
-		HBRUSH BlackBrush;
-		HBRUSH DarkGrayBrush;
-		HBRUSH LightGrayBrush;
-		HBRUSH WhiteBrush;
-		HBRUSH RedBrush;
-		HBRUSH YellowBrush;
-		HBRUSH CyanBrush;
-		HBRUSH MagentaBrush;
-		HBRUSH LightGreenBrush;
-		HBRUSH BlueBrush;
-		
-		HPEN BlackPen;
-		HPEN DarkGrayPen;
-		HPEN DarkGrayThickPen;
-		HPEN LightGrayPen;
-		HPEN WhitePen;
-		HPEN RedPen;
-		HPEN YellowPen;
-		HPEN CyanPen;
-		HPEN MagentaPen;
-		HPEN LightGreenPen;
-		HPEN DarkGreenPen;
-		HPEN LightGreenThickPen;
-		
-		HPEN hOverbrightPen;
-		HPEN hNormalPen;
-		HPEN hDashedNormalPen;
-		HPEN MenuPen;
+		// MEDS pens and brushes
+		HBRUSH gdiBlackBrush;
+		HBRUSH gdiDarkGrayBrush;
+		HBRUSH gdiLightGrayBrush;
+		HBRUSH gdiWhiteBrush;
+		HBRUSH gdiRedBrush;
+		HBRUSH gdiYellowBrush;
+		HBRUSH gdiMagentaBrush;
+		HBRUSH gdiLightGreenBrush;
 
-		HFONT TahomaFont_h10w4;
-		HFONT TahomaFont_h7w3;
-		HFONT TahomaFont_h17w6;
-		HFONT ArialFont_h15w5;
-		HFONT ArialFont_h13w6;
+		oapi::Brush* skpBlackBrush;
+		oapi::Brush* skpDarkGrayBrush;
+		oapi::Brush* skpLightGrayBrush;
+		oapi::Brush* skpWhiteBrush;
+		oapi::Brush* skpRedBrush;
+		oapi::Brush* skpYellowBrush;
+		oapi::Brush* skpCyanBrush;
+		oapi::Brush* skpMagentaBrush;
+		oapi::Brush* skpLightGreenBrush;
+		oapi::Brush* skpBlueBrush;
+		
+		HPEN gdiBlackPen;
+		HPEN gdiDarkGrayPen;
+		HPEN gdiDarkGrayThickPen;
+		HPEN gdiLightGrayPen;
+		HPEN gdiWhitePen;
+		HPEN gdiRedPen;
+		HPEN gdiYellowPen;
+		HPEN gdiCyanPen;
+		HPEN gdiMagentaPen;
+		HPEN gdiLightGreenPen;
+		HPEN gdiLightGreenThickPen;
+
+		oapi::Pen* skpBlackPen;
+		oapi::Pen* skpDarkGrayPen;
+		oapi::Pen* skpDarkGrayThickPen;
+		oapi::Pen* skpLightGrayPen;
+		oapi::Pen* skpWhitePen;
+		oapi::Pen* skpRedPen;
+		oapi::Pen* skpYellowPen;
+		oapi::Pen* skpCyanPen;
+		oapi::Pen* skpMagentaPen;
+		oapi::Pen* skpLightGreenPen;
+		oapi::Pen* skpDarkGreenPen;
+		oapi::Pen* skpLightGreenThickPen;
+
+		// DPS pens
+		HPEN gdiOverbrightPen;
+		HPEN gdiNormalPen;
+		HPEN gdiDashedNormalPen;
+
+		oapi::Pen* skpOverbrightPen;
+		oapi::Pen* skpNormalPen;
+		oapi::Pen* skpDashedNormalPen;
+
+		// fonts
+		HFONT gdiTahomaFont_h10w4;
+		HFONT gdiTahomaFont_h7w3;
+		HFONT gdiTahomaFont_h17w6;
+
+		oapi::Font* skpTahomaFont_h10w4;
+		oapi::Font* skpTahomaFont_h7w3;
+		oapi::Font* skpTahomaFont_h17w6;
+		oapi::Font* skpArialFont_h15w5;
+		oapi::Font* skpArialFont_h13w6;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();
+		void CreateSketchpadObjects();
+		void DestroySketchpadObjects();
 
 		HDC hDC_Tapes;
 		HDC hDC_ADI;
@@ -106,6 +138,25 @@ namespace vc {
 		void Tape_Create( void );
 		void ADI_Create( void );
 
+		/** 
+		 * Paints the DPS display.
+		 */
+		void DPS( HDC hDC );
+		void DPS( oapi::Sketchpad* skp );
+
+		/**
+		 * MEDS Display functions
+		 */
+		void SystemStatusDisplay_CSTMenu( oapi::Sketchpad* skp );
+		void SystemStatusDisplay_IDPInteractiveCST( oapi::Sketchpad* skp );
+		void AEPFD( HDC hDC );
+		void AEPFD( oapi::Sketchpad* skp );
+		void ORBITPFD( HDC hDC );
+		void ORBITPFD( oapi::Sketchpad* skp );
+		void OMSMPS( oapi::Sketchpad* skp );
+		void APUHYD( oapi::Sketchpad* skp );
+		void SPI( oapi::Sketchpad* skp );
+
 		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
@@ -113,40 +164,64 @@ namespace vc {
 		void Tape_MVI_KEAS( HDC hDC, double MachNumber );
 		void Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot );
 		void Tapes_Invalid( HDC hDC );
+		void Tapes_Invalid( oapi::Sketchpad* skp );
 
 		void ADI_STATIC( HDC hDC );
+		void ADI_STATIC( oapi::Sketchpad* skp );
 		void ADI_STATIC_ORBIT( HDC hDC );
+		void ADI_STATIC_ORBIT( oapi::Sketchpad* skp );
 		void ADI( HDC hDC, double pitch, double roll, double yaw );
 		void ADI_ORBIT( HDC hDC, double pitch, double roll, double yaw );
+		void ADI_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw );
 		void ADI_RATE_A( HDC hDC, double pitch, double roll, double yaw, int adirate );// 10/5/1
+		void ADI_RATE_A( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate );// 10/5/1
 		void ADI_RATE_B( HDC hDC, double pitch, double roll, double yaw, int adirate, double Altitude_ft );// 5/(5/etc)/5
+		void ADI_RATE_B( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate, double Altitude_ft );// 5/(5/etc)/5
 		void ADI_RATE_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adirate );// 10/5/1
+		void ADI_RATE_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate );// 10/5/1
 		void ADI_ERROR_A( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
 		void ADI_ERROR_B( HDC hDC, double pitch, double roll, double yaw, int adierr );// 25/25/10 5/2/1 2.5/2.5/2.5
 		void ADI_ERROR_C( HDC hDC, double pitch, double roll, double yaw, int adierr );// 25/25/10 1.25/1.25/0.5 2.5/2.5/2.5
 		void ADI_ERROR_D( HDC hDC, double pitch, double roll, double yaw, int adierr );// 20/5/1 10/5/1 2.5/2.5/2.5
 		void ADI_ERROR_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
+		void ADI_ERROR_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adierr );// 10/5/1
 
 		void HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading );
 		void HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading );
 		void HSI_Arrow( HDC hDC, double heading );
 
 		void AEPFD_Header_AscentDAP( HDC hDC, int MM, int adiatt );
+		void AEPFD_Header_AscentDAP( oapi::Sketchpad* skp, int MM, int adiatt );
 		void AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt );
+		void AEPFD_Header_TransDAP( oapi::Sketchpad* skp, int MM, int adiatt );
 		void AEPFD_Header_AerojetDAP( HDC hDC, int MM, double MachNumber );
+		void AEPFD_Header_AerojetDAP( oapi::Sketchpad* skp, int MM, double MachNumber );
 		void AEPFD_BETA( HDC hDC );
+		void AEPFD_BETA( oapi::Sketchpad* skp );
 		void AEPFD_GMETER_STATIC( HDC hDC );
+		void AEPFD_GMETER_STATIC( oapi::Sketchpad* skp );
 		void AEPFD_GMETER_ACCEL( HDC hDC );
+		void AEPFD_GMETER_ACCEL( oapi::Sketchpad* skp );
 		void AEPFD_GMETER_NZ( HDC hDC );
+		void AEPFD_GMETER_NZ( oapi::Sketchpad* skp );
 		void AEPFD_HACCEL( HDC hDC );
-		void AEPFD_dAZ_HTA( HDC hDC, double MachNumber );
+		void AEPFD_HACCEL( oapi::Sketchpad* skp );
 		void AEPFD_RANGERW( HDC hDC );
+		void AEPFD_RANGERW( oapi::Sketchpad* skp );
 		void AEPFD_RANGEHACC( HDC hDC );
+		void AEPFD_RANGEHACC( oapi::Sketchpad* skp );
+		void AEPFD_dAZ_HTA( HDC hDC, double MachNumber );
+		void AEPFD_dAZ_HTA( oapi::Sketchpad* skp, double MachNumber );
 		void AEPFD_dXTRK( HDC hDC );
+		void AEPFD_dXTRK( oapi::Sketchpad* skp );
 		void AEPFD_XTRK( HDC hDC );
+		void AEPFD_XTRK( oapi::Sketchpad* skp );
 		void AEPFD_dINC( HDC hDC );
+		void AEPFD_dINC( oapi::Sketchpad* skp );
 		void AEPFD_TGTINC( HDC hDC );
+		void AEPFD_TGTINC( oapi::Sketchpad* skp );
 		void AEPFD_GSI( HDC hDC, double Altitude_ft );
+		void AEPFD_GSI( oapi::Sketchpad* skp, double Altitude_ft );
 
 		inline bool GetFlash( void ) const
 		{
@@ -181,6 +256,8 @@ namespace vc {
 		//void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 
+		void DrawMenuButton( oapi::Sketchpad* skp, int x );
+
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);
 		virtual ~MDU();
@@ -192,7 +269,6 @@ namespace vc {
 		//bool PrintChar(unsigned short x, unsigned short y, DEUCHAR c);
 		//bool PrintString(unsigned short x, unsigned short y, char* pText, short sLength, char cAttr = DEUATT_NORMAL);
 		//DEUCHAR GetTextBuffer(unsigned short x, unsigned short y) const;
-		//virtual char* GetEdgeKeyMenuLabel(int iButton);
 		bool SetPrimaryIDP(dps::IDP* idp);
 		bool SetSecondaryIDP(dps::IDP* idp);
 		inline dps::IDP* GetIDP() const {
@@ -212,15 +288,10 @@ namespace vc {
 		 */
 		virtual bool OnMouseEvent(int _event, float x, float y);
 
-		//virtual bool OnMFDModeChange(...);
 		/** 
-		 * Paint the contents of the MDU on a device context.
+		 * Paint the edge menu area on this Sketchpad.
 		 */
-		virtual bool Paint(HDC hdc);
-		/** 
-		 * Paint the edge menu area on this DC.
-		 */
-		virtual bool PaintEdgeMenu(HDC hdc);
+		virtual bool PaintEdgeMenu( oapi::Sketchpad* skp );
 		/**
 		 * Register the MFD area for Orbiter. Does nothing when MFD rendering 
 		 * is bypassed.
@@ -490,7 +561,6 @@ namespace vc {
 		}
 
 		virtual bool GetViewAngle() const;
-		//virtual const string& GetEdgekeyMenu() const;
 		virtual short GetPortConfig() const;
 		virtual bool GetSelectedPort() const;
 
@@ -501,28 +571,9 @@ namespace vc {
 		 */
 		virtual unsigned short GetDrivingIDP() const;
 
-		/**
-		 * Display functions
-		 * Update text buffer with appropriate data for display
-		 */
-		//void GPCMEMORY();
-
-		/**
-		 * MEDS Display functions
-		 * Still called from CRTMFD until its "retirement".
-		 */
-		virtual void SystemStatusDisplay_CSTMenu( HDC hDC );
-		virtual void SystemStatusDisplay_IDPInteractiveCST( HDC hDC );
-		virtual void AEPFD( HDC hDC );
-		virtual void ORBITPFD( HDC hDC );
-		virtual void OMSMPS( HDC hDC );
-		virtual void APUHYD( HDC hDC );
-		virtual void SPI( HDC hDC );
-
-		virtual void PaintDisplay( HDC hDC );
+		virtual void PaintDisplay( oapi::Sketchpad* skp );
 		virtual int NavigateMenu( DWORD key );
 		virtual char* ButtonLabel( int bt );
 		virtual int ButtonMenu( const MFDBUTTONMENU **menu ) const;
 	};
-
 };
