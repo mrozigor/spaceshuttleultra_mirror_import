@@ -41,6 +41,7 @@ pStateVector(NULL)
 	degReqdRates = _V(0.0, 0.0, 0.0);
 	TransPulseDV = _V(0.0, 0.0, 0.0);
 	ATT_ERR = _V(0.0, 0.0, 0.0);
+	REQD_ATT = _V(0.0, 0.0, 0.0);
 
 	for(unsigned int i=0;i<4;i++) START_TIME[i] = 0;
 	MNVR_OPTION = _V(0.0, 0.0, 0.0);
