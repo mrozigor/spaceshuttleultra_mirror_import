@@ -7,7 +7,7 @@
 
 
 CRT::CRT (DWORD w, DWORD h, VESSEL *v, int MDUID)
-: MFD (w, h, v)
+: MFD2 (w, h, v)
 {
 	char cbuf[200];
 
@@ -27,10 +27,10 @@ CRT::~CRT ()
 	return;
 }
 
-void CRT::Update (HDC hDC)
+bool CRT::Update( oapi::Sketchpad* skp )
 {
-	if (mdu) mdu->PaintDisplay( hDC );
-	return;
+	if (mdu) mdu->PaintDisplay( skp );
+	return true;
 }
 
 char *CRT::ButtonLabel (int bt)
