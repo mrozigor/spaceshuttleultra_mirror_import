@@ -799,7 +799,7 @@ namespace vc
 		
 		VECTOR3 xdir = _V( cyaw * croll, sroll, -croll * syaw );
 		VECTOR3 zdir = _V( syaw * cpitch + sroll * cyaw * spitch, -croll * spitch, cpitch * cyaw - syaw * sroll * spitch );
-		gcWorldMatrix( &mat, _V(float(W/2 - 1), float(H/2 - 1), float(W + 53)), xdir, zdir, 0.7778f );
+		gcWorldMatrix( &mat, _V(float(W/2), float(H/2), float(W + 55)), xdir, zdir, 0.7778f );
 
 		skp->SetWorldTransform( &mat );
 		skp->SetPen( skpWhitePen );

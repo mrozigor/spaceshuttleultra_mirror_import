@@ -271,7 +271,7 @@ namespace vc
 		switch (display)
 		{
 			case 0:// "DPS display"
-				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) DPS( skp );
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball) DPS( skp );
 				else
 				{
 					HDC hDC = skp->GetDC();
@@ -279,7 +279,7 @@ namespace vc
 				}
 				break;
 			case 1:// A/E PFD
-				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) AEPFD( skp );
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball) AEPFD( (oapi::Sketchpad2*)skp );
 				else
 				{
 					HDC hDC = skp->GetDC();
@@ -287,7 +287,7 @@ namespace vc
 				}
 				break;
 			case 2:// ORBIT PFD
-				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) ORBITPFD( (oapi::Sketchpad2*)skp );
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball) ORBITPFD( (oapi::Sketchpad2*)skp );
 				else
 				{
 					HDC hDC = skp->GetDC();
