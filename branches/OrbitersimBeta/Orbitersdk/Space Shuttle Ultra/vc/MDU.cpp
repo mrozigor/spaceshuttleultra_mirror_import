@@ -28,6 +28,8 @@ namespace vc
 		CreateGDIObjects();
 		CreateSketchpadObjects();
 
+		hADIball = gcLoadSketchMesh( "SSU\\ADI_MEDS" );
+
 		Tape_Create();
 		ADI_Create();
 		//HSI_Create();
@@ -40,6 +42,8 @@ namespace vc
 	{
 		DestroyGDIObjects();
 		DestroySketchpadObjects();
+
+		if (hADIball) gcDeleteSketchMesh( hADIball );
 	}
 
 	bool MDU::OnReadState( FILEHANDLE scn )
@@ -267,27 +271,27 @@ namespace vc
 		switch (display)
 		{
 			case 0:// "DPS display"
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) DPS( skp );
+				else
 				{
 					HDC hDC = skp->GetDC();
-					
 					if (hDC) DPS( hDC );
-					else DPS( skp );
 				}
 				break;
 			case 1:// A/E PFD
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) AEPFD( skp );
+				else
 				{
 					HDC hDC = skp->GetDC();
-					
 					if (hDC) AEPFD( hDC );
-					else AEPFD( skp );
 				}
 				break;
 			case 2:// ORBIT PFD
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2)) ORBITPFD( (oapi::Sketchpad2*)skp );
+				else
 				{
 					HDC hDC = skp->GetDC();
-					
 					if (hDC) ORBITPFD( hDC );
-					else ORBITPFD( skp );
 				}
 				break;
 			case 3:// OMS/MPS
