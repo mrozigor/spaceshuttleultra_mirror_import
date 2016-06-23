@@ -95,7 +95,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -145,7 +145,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -196,7 +196,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

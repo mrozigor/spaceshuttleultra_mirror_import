@@ -83,6 +83,7 @@
 #include "comm\ElectronicsAssembly2.h"
 #include <UltraMath.h>
 #include <cassert>
+#include "gcAPI.h"
 
 
 
@@ -370,6 +371,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	GrowStack();
 #endif
 	int i;
+
+	// init D3D9
+	gcInitialize();
 
 	//----------------------------------------------------
 	// Make these first, for avoiding CTDs

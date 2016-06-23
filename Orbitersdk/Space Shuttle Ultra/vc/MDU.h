@@ -29,6 +29,8 @@
 #include "vc_defs.h"
 #include "AtlantisVCComponent.h"
 #include <UltraMath.h>
+#include "gcAPI.h"
+#include "Sketchpad2.h"
 
 
 #define CR_BLACK RGB( 0, 0, 0 )//RGB( 0, 0, 25 )
@@ -135,6 +137,8 @@ namespace vc {
 		HDC hDC_ADIMASK;
 		HDC hDC_ADIMASK_ORBIT;
 
+		SKETCHMESH hADIball;
+
 		void Tape_Create( void );
 		void ADI_Create( void );
 
@@ -152,7 +156,7 @@ namespace vc {
 		void AEPFD( HDC hDC );
 		void AEPFD( oapi::Sketchpad* skp );
 		void ORBITPFD( HDC hDC );
-		void ORBITPFD( oapi::Sketchpad* skp );
+		void ORBITPFD( oapi::Sketchpad2* skp );
 		void OMSMPS( oapi::Sketchpad* skp );
 		void APUHYD( oapi::Sketchpad* skp );
 		void SPI( oapi::Sketchpad* skp );
@@ -169,22 +173,22 @@ namespace vc {
 		void ADI_STATIC( HDC hDC );
 		void ADI_STATIC( oapi::Sketchpad* skp );
 		void ADI_STATIC_ORBIT( HDC hDC );
-		void ADI_STATIC_ORBIT( oapi::Sketchpad* skp );
+		void ADI_STATIC_ORBIT( oapi::Sketchpad2* skp );
 		void ADI( HDC hDC, double pitch, double roll, double yaw );
 		void ADI_ORBIT( HDC hDC, double pitch, double roll, double yaw );
-		void ADI_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw );
+		void ADI_ORBIT( oapi::Sketchpad2* skp, double pitch, double roll, double yaw );
 		void ADI_RATE_A( HDC hDC, double pitch, double roll, double yaw, int adirate );// 10/5/1
 		void ADI_RATE_A( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate );// 10/5/1
 		void ADI_RATE_B( HDC hDC, double pitch, double roll, double yaw, int adirate, double Altitude_ft );// 5/(5/etc)/5
 		void ADI_RATE_B( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate, double Altitude_ft );// 5/(5/etc)/5
 		void ADI_RATE_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adirate );// 10/5/1
-		void ADI_RATE_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate );// 10/5/1
+		void ADI_RATE_ORBIT( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adirate );// 10/5/1
 		void ADI_ERROR_A( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
 		void ADI_ERROR_B( HDC hDC, double pitch, double roll, double yaw, int adierr );// 25/25/10 5/2/1 2.5/2.5/2.5
 		void ADI_ERROR_C( HDC hDC, double pitch, double roll, double yaw, int adierr );// 25/25/10 1.25/1.25/0.5 2.5/2.5/2.5
 		void ADI_ERROR_D( HDC hDC, double pitch, double roll, double yaw, int adierr );// 20/5/1 10/5/1 2.5/2.5/2.5
 		void ADI_ERROR_ORBIT( HDC hDC, double pitch, double roll, double yaw, int adierr );// 10/5/1
-		void ADI_ERROR_ORBIT( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adierr );// 10/5/1
+		void ADI_ERROR_ORBIT( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr );// 10/5/1
 
 		void HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading );
 		void HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading );
