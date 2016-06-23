@@ -289,7 +289,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD( oapi::Sketchpad* skp )
+	void MDU::AEPFD( oapi::Sketchpad2* skp )
 	{
 		int MM = STS()->pSimpleGPC->GetMajorMode();
 		double MachNumber = STS()->GetMachNumber();
@@ -322,9 +322,9 @@ namespace vc
 				AEPFD_Header_AscentDAP( skp, 101, adiatt );
 				Tapes_Invalid( skp );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				ADI_ERROR_A( hDC, 0, 0, 0, adierr );
+				ADI_ERROR_A( skp, 0, 0, 0, adierr );
 				HSI_E( hDC, 0, true, 0 );
 				break;
 			case 102:
@@ -334,10 +334,10 @@ namespace vc
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
 				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
@@ -358,10 +358,10 @@ namespace vc
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
 				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
@@ -402,9 +402,9 @@ namespace vc
 				Tape_MVI_KEAS( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
+				ADI_ERROR_A( skp, 0, 0, 0, adierr );// TODO
 				HSI_E( hDC, STS()->GetYaw(), true, 0 );
 				AEPFD_XTRK( skp );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( skp );
@@ -412,48 +412,48 @@ namespace vc
 			case 105:
 				AEPFD_Header_TransDAP( skp, 105, adiatt );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
+				ADI_ERROR_A( skp, 0, 0, 0, adierr );// TODO
 				break;
 			case 106:
 				AEPFD_Header_TransDAP( skp, 106, adiatt );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				ADI_ERROR_A( hDC, 0, 0, 0, adierr );// TODO
+				ADI_ERROR_A( skp, 0, 0, 0, adierr );// TODO
 				break;
 			case 201:
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				break;
 			case 202:
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				break;
 			case 301:
 				AEPFD_Header_TransDAP( skp, 301, adiatt );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				break;
 			case 302:
 				AEPFD_Header_TransDAP( skp, 302, adiatt );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				break;
 			case 303:
 				AEPFD_Header_TransDAP( skp, 303, adiatt );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				break;
 			case 304:
 				AEPFD_Header_AerojetDAP( skp, 304, MachNumber );
@@ -461,10 +461,10 @@ namespace vc
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_B( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
 				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
@@ -479,11 +479,11 @@ namespace vc
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_B( skp, av.x, av.z, av.y, adirate, Altitude_ft );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				if (GetIDP()->GetWOW() == false) ADI_ERROR_C( hDC, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );
-				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				if (GetIDP()->GetWOW() == false) ADI_ERROR_C( skp, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );
+				else ADI_ERROR_D( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
 				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
@@ -503,10 +503,10 @@ namespace vc
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				AEPFD_BETA( skp );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
-				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
 				HSI_E( hDC, STS()->GetYaw(), true, 0 );
@@ -519,11 +519,11 @@ namespace vc
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				if (0) ADI_ERROR_C( hDC, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );// TODO Nz hold
-				else ADI_ERROR_B( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				if (0) ADI_ERROR_C( skp, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );// TODO Nz hold
+				else ADI_ERROR_B( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
 				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
@@ -538,11 +538,11 @@ namespace vc
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_B( skp, av.x, av.z, av.y, adirate, Altitude_ft );
 				atterr = GetIDP()->GetAttitudeErrors_AerojetDAP();
-				if (GetIDP()->GetWOW() == false) ADI_ERROR_C( hDC, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );
-				else ADI_ERROR_D( hDC, atterr.x, atterr.z, atterr.y, adierr );
+				if (GetIDP()->GetWOW() == false) ADI_ERROR_C( skp, GetIDP()->GetNZError(), atterr.z, atterr.y, adierr );
+				else ADI_ERROR_D( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
 				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
@@ -556,11 +556,11 @@ namespace vc
 				break;
 			case 801:
 				ADI_STATIC( skp );
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				break;
 			case 901:
 				ADI_STATIC( skp );// TODO no rate and error scales
-				ADI( hDC, attPitch, attRoll, attYaw );
+				ADI( skp, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( skp );
 				HSI_E( hDC, 0, true, 0 );
 				break;
@@ -1261,7 +1261,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::Tapes_Invalid( oapi::Sketchpad* skp )
+	void MDU::Tapes_Invalid( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpRedPen );
 		skp->SetBrush( skpBlackBrush );
@@ -1561,7 +1561,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::ADI_STATIC( oapi::Sketchpad* skp )
+	void MDU::ADI_STATIC( oapi::Sketchpad2* skp )
 	{
 		skp->SetTextColor( CR_LIGHT_GRAY );
 		skp->Text( 174, 25, "R", 1 );
@@ -2001,6 +2001,69 @@ namespace vc
 		return;
 	}
 
+	void MDU::ADI( oapi::Sketchpad2* skp, double pitch, double roll, double yaw )
+	{
+		// center (122,94) r = 57
+		// view r = 49, ball r = 49 * sqrt( 2 )
+		// 90º pitch/yaw "FOV"
+
+		if (pitch > 180) pitch -= 360;// TODO get rid of this
+
+		// draw ball mesh
+		FMATRIX4 mat;
+		int H = 188;
+		int W = 244;
+	
+		double croll = cos( roll * RAD );
+		double sroll = sin( -roll * RAD );
+		double cyaw = cos( yaw * RAD );
+		double syaw = sin( yaw * RAD );
+		double cpitch = cos( pitch * RAD );
+		double spitch = sin( pitch * RAD );
+		
+		VECTOR3 xdir = _V( cyaw * croll, sroll, -croll * syaw );
+		VECTOR3 zdir = _V( syaw * cpitch + sroll * cyaw * spitch, -croll * spitch, cpitch * cyaw - syaw * sroll * spitch );
+		gcWorldMatrix( &mat, _V(float(W/2 - 1), float(H/2 - 1), float(W + 60)), xdir, zdir, 0.69296f );
+
+		skp->SetWorldTransform( &mat );
+		skp->SetPen( skpWhitePen );
+		skp->DrawSketchMesh( hADIball, 0, oapi::Sketchpad2::CULL_NONE );
+		skp->SetWorldTransform();
+		
+		// roll triangle
+		skp->SetPen( skpLightGreenPen );
+		skp->SetBrush( skpLightGreenBrush );
+		oapi::IVECTOR2 tri[3];
+		tri[0].x = (long)(122 + 49 * sroll);
+		tri[0].y = (long)(94 - 49 * croll);
+		tri[1].x = (long)(122 - 4 * croll + 41 * sroll);
+		tri[1].y = (long)(94 - 4 * sroll - 41 * croll);
+		tri[2].x = (long)(122 + 4 * croll + 41 * sroll);
+		tri[2].y = (long)(94 + 4 * sroll - 41 * croll);
+		skp->Polygon( tri, 3 );
+	
+
+		// flight director
+		skp->SetPen( skpLightGreenThickPen );
+		//Arc( hDC_ADI, 44, 44, 56, 57, 44, 50, 56, 50 );
+		skp->SetPen( skpLightGreenPen );
+		skp->SetBrush( skpLightGreenBrush );
+		skp->Rectangle( 121, 77, 123, 111 );
+		skp->Rectangle( 105, 93, 139, 95 );
+
+		// digital RPY
+		if (pitch < 0) pitch += 360;// TODO get rid of this
+		skp->SetTextColor( CR_WHITE );
+		char cbuf[8];
+		sprintf_s( cbuf, 8, "%03.0f", roll );
+		skp->Text( 180, 25, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%03.0f", pitch );
+		skp->Text( 180, 32, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%03.0f", yaw );
+		skp->Text( 180, 39, cbuf, strlen( cbuf ) );
+		return;
+	}
+
 	void MDU::ADI_RATE_A( HDC hDC, double pitch, double roll, double yaw, int adirate )
 	{
 		int pos_roll;
@@ -2117,7 +2180,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::ADI_RATE_A( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate )
+	void MDU::ADI_RATE_A( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adirate )
 	{
 		int pos_roll;
 		int pos_pitch;
@@ -2462,7 +2525,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::ADI_RATE_B( oapi::Sketchpad* skp, double pitch, double roll, double yaw, int adirate, double Altitude_ft )
+	void MDU::ADI_RATE_B( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adirate, double Altitude_ft )
 	{
 		int pos_roll;
 		int pos_pitch;
@@ -2767,6 +2830,82 @@ namespace vc
 		return;
 	}
 
+	void MDU::ADI_ERROR_A( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr )
+	{
+		double pos_pitch;
+		double pos_roll;
+		double pos_yaw;
+
+		skp->SetTextColor( CR_MAGENTA );
+		skp->SetFont( skpTahomaFont_h7w3 );
+		if (adierr == 1)
+		{
+			// ADI ERROR MED
+			// 5/5/5
+			skp->Text( 173, 64, "5", 1 );
+			skp->Text( 173, 118, "5", 1 );
+
+			if (roll > 5) pos_roll = 25;
+			else if (roll < -5) pos_roll = -25;
+			else pos_roll = roll * 5;
+
+			if (pitch > 5) pos_pitch = 25;
+			else if (pitch < -5) pos_pitch = -25;
+			else pos_pitch = pitch * 5;
+
+			if (yaw > 5) pos_yaw = 25;
+			else if (yaw < -5) pos_yaw = -25;
+			else pos_yaw = yaw * 5;
+		}
+		else if (adierr == 2)
+		{
+			// ADI ERROR HIGH
+			// 10/10/10
+			skp->Text( 173, 64, "10", 2 );
+			skp->Text( 173, 118, "10", 2 );
+
+			if (roll > 10) pos_roll = 25;
+			else if (roll < -10) pos_roll = -25;
+			else pos_roll = roll * 2.5;
+
+			if (pitch > 10) pos_pitch = 25;
+			else if (pitch < -10) pos_pitch = -25;
+			else pos_pitch = pitch * 2.5;
+
+			if (yaw > 10) pos_yaw = 25;
+			else if (yaw < -10) pos_yaw = -25;
+			else pos_yaw = yaw * 2.5;
+		}
+		else
+		{
+			// ADI ERROR LOW
+			// 1/1/1
+			skp->Text( 173, 64, "1", 1 );
+			skp->Text( 173, 118, "1", 1 );
+
+			if (roll > 1) pos_roll = 25;
+			else if (roll < -1) pos_roll = -25;
+			else pos_roll = roll * 25;
+
+			if (pitch > 1) pos_pitch = 25;
+			else if (pitch < -1) pos_pitch = -25;
+			else pos_pitch = pitch * 25;
+
+			if (yaw > 1) pos_yaw = 25;
+			else if (yaw < -1) pos_yaw = -25;
+			else pos_yaw = yaw * 25;
+		}
+		skp->SetFont( skpTahomaFont_h10w4 );
+
+		// draw needles
+		skp->SetPen( skpMagentaPen );
+		skp->SetBrush( skpMagentaBrush );
+		skp->Rectangle( 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
+		skp->Rectangle( 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
+		return;
+	}
+
 	void MDU::ADI_ERROR_B( HDC hDC, double pitch, double roll, double yaw, int adierr )
 	{
 		double pos_pitch;
@@ -2833,7 +2972,74 @@ namespace vc
 		Rectangle( hDC, 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;// 25/25/10 5/2/1 2.5/2.5/2.5
 	}
-	
+
+	void MDU::ADI_ERROR_B( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr )
+	{
+		double pos_pitch;
+		double pos_roll;
+		double pos_yaw;
+
+		skp->SetTextColor( CR_MAGENTA );
+		skp->SetFont( skpTahomaFont_h7w3 );
+		if (adierr == 1)
+		{
+			// ADI ERROR MED
+			// 25/2/2.5
+			skp->Text( 173, 64, "2", 1 );
+			skp->Text( 173, 118, "2", 1 );
+
+			if (roll > 25) pos_roll = 25;
+			else if (roll < -25) pos_roll = -25;
+			else pos_roll = roll;
+
+			if (pitch > 2) pos_pitch = 25;
+			else if (pitch < -2) pos_pitch = -25;
+			else pos_pitch = pitch * 12.5;
+		}
+		else if (adierr == 2)
+		{
+			// ADI ERROR HIGH
+			// 25/5/2.5
+			skp->Text( 173, 64, "5", 1 );
+			skp->Text( 173, 118, "5", 1 );
+
+			if (roll > 25) pos_roll = 25;
+			else if (roll < -25) pos_roll = -25;
+			else pos_roll = roll;
+
+			if (pitch > 5) pos_pitch = 25;
+			else if (pitch < -5) pos_pitch = -25;
+			else pos_pitch = pitch * 5;
+		}
+		else
+		{
+			// ADI ERROR LOW
+			// 10/1/2.5
+			skp->Text( 173, 64, "1", 1 );
+			skp->Text( 173, 118, "1", 1 );
+
+			if (roll > 10) pos_roll = 25;
+			else if (roll < -10) pos_roll = -25;
+			else pos_roll = roll * 2.5;
+
+			if (pitch > 1) pos_pitch = 25;
+			else if (pitch < -1) pos_pitch = -25;
+			else pos_pitch = pitch * 25;
+		}
+		if (yaw > 2.5) pos_yaw = 25;
+		else if (yaw < -2.5) pos_yaw = -25;
+		else pos_yaw = yaw * 10;
+		skp->SetFont( skpTahomaFont_h10w4 );
+
+		// draw needles
+		skp->SetPen( skpMagentaPen );
+		skp->SetBrush( skpMagentaBrush );
+		skp->Rectangle( 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
+		skp->Rectangle( 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
+		return;// 25/25/10 5/2/1 2.5/2.5/2.5
+	}
+
 	void MDU::ADI_ERROR_C( HDC hDC, double pitch, double roll, double yaw, int adierr )
 	{
 		double pos_pitch;
@@ -2883,6 +3089,58 @@ namespace vc
 		Rectangle( hDC, 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
 		Rectangle( hDC, 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
 		Rectangle( hDC, 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
+		return;// 25/25/10 1.25/1.25/0.5 2.5/2.5/2.5
+	}
+
+	void MDU::ADI_ERROR_C( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr )
+	{
+		double pos_pitch;
+		double pos_roll;
+		double pos_yaw;
+
+		skp->SetTextColor( CR_MAGENTA );
+		skp->SetFont( skpTahomaFont_h7w3 );
+		if (adierr == 0)
+		{
+			// ADI ERROR LOW
+			// 10/0.5g/2.5
+			skp->Text( 173, 64, "0.5g", 4 );
+			skp->Text( 173, 118, "0.5g", 4 );
+
+			if (roll > 10) pos_roll = 25;
+			else if (roll < -10) pos_roll = -25;
+			else pos_roll = roll * 2.5;
+
+			if (pitch > 0.5) pos_pitch = 25;
+			else if (pitch < -0.5) pos_pitch = -25;
+			else pos_pitch = pitch * 50;
+		}
+		else
+		{
+			// ADI ERROR MED/HIGH
+			// 25/1.25g/2.5
+			skp->Text( 173, 64, "1.2g", 4 );
+			skp->Text( 173, 118, "1.2g", 4 );
+
+			if (roll > 25) pos_roll = 25;
+			else if (roll < -25) pos_roll = -25;
+			else pos_roll = roll;
+
+			if (pitch > 1.25) pos_pitch = 25;
+			else if (pitch < -1.25) pos_pitch = -25;
+			else pos_pitch = pitch * 20;
+		}
+		if (yaw > 2.5) pos_yaw = 25;
+		else if (yaw < -2.5) pos_yaw = -25;
+		else pos_yaw = yaw * 10;
+		skp->SetFont( skpTahomaFont_h10w4 );
+
+		// draw needles
+		skp->SetPen( skpMagentaPen );
+		skp->SetBrush( skpMagentaBrush );
+		skp->Rectangle( 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
+		skp->Rectangle( 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;// 25/25/10 1.25/1.25/0.5 2.5/2.5/2.5
 	}
 
@@ -2950,6 +3208,73 @@ namespace vc
 		Rectangle( hDC, 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
 		Rectangle( hDC, 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
 		Rectangle( hDC, 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
+		return;// 20/5/1 10/5/1 2.5/2.5/2.5
+	}
+
+	void MDU::ADI_ERROR_D( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr )
+	{
+		double pos_pitch;
+		double pos_roll;
+		double pos_yaw;
+
+		skp->SetTextColor( CR_MAGENTA );
+		skp->SetFont( skpTahomaFont_h7w3 );
+		if (adierr == 1)
+		{
+			// ADI ERROR MED
+			// 5/5/2.5
+			skp->Text( 173, 64, "5", 1 );
+			skp->Text( 173, 118, "5", 1 );
+
+			if (roll > 5) pos_roll = 25;
+			else if (roll < -5) pos_roll = -25;
+			else pos_roll = roll * 5;
+
+			if (pitch > 5) pos_pitch = 25;
+			else if (pitch < -5) pos_pitch = -25;
+			else pos_pitch = pitch * 5;
+		}
+		else if (adierr == 2)
+		{
+			// ADI ERROR HIGH
+			// 20/10/2.5
+			skp->Text( 173, 64, "10", 2 );
+			skp->Text( 173, 118, "10", 2 );
+
+			if (roll > 20) pos_roll = 25;
+			else if (roll < -20) pos_roll = -25;
+			else pos_roll = roll * 1.25;
+
+			if (pitch > 10) pos_pitch = 25;
+			else if (pitch < -10) pos_pitch = -25;
+			else pos_pitch = pitch * 2.5;
+		}
+		else
+		{
+			// ADI ERROR LOW
+			// 1/1/2.5
+			skp->Text( 173, 64, "1", 1 );
+			skp->Text( 173, 118, "1", 1 );
+
+			if (roll > 1) pos_roll = 25;
+			else if (roll < -1) pos_roll = -25;
+			else pos_roll = roll * 25;
+
+			if (pitch > 1) pos_pitch = 25;
+			else if (pitch < -1) pos_pitch = -25;
+			else pos_pitch = pitch * 25;
+		}
+		if (yaw > 2.5) pos_yaw = 25;
+		else if (yaw < -2.5) pos_yaw = -25;
+		else pos_yaw = yaw * 10;
+		skp->SetFont( skpTahomaFont_h10w4 );
+
+		// draw needles
+		skp->SetPen( skpMagentaPen );
+		skp->SetBrush( skpMagentaBrush );
+		skp->Rectangle( 121 + Round( pos_roll ), 94 - Round( sqrt( 3156 - (pos_roll * pos_roll) ) ), 123 + Round( pos_roll ), 77 );// roll
+		skp->Rectangle( 139, 93 + Round( pos_pitch ), 122 + Round( sqrt( 3156 - (pos_pitch * pos_pitch) ) ), 95 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 121 + Round( pos_yaw ), 111, 123 + Round( pos_yaw ), 94 + Round( sqrt( 3156 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;// 20/5/1 10/5/1 2.5/2.5/2.5
 	}
 
@@ -3311,7 +3636,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_Header_AscentDAP( oapi::Sketchpad* skp, int MM, int adiatt )
+	void MDU::AEPFD_Header_AscentDAP( oapi::Sketchpad2* skp, int MM, int adiatt )
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
@@ -3379,7 +3704,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_Header_TransDAP( oapi::Sketchpad* skp, int MM, int adiatt )
+	void MDU::AEPFD_Header_TransDAP( oapi::Sketchpad2* skp, int MM, int adiatt )
 	{
 		char cbuf[4];
 		skp->SetTextColor( CR_LIGHT_GRAY );
@@ -3458,7 +3783,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_Header_AerojetDAP( oapi::Sketchpad* skp, int MM, double MachNumber )
+	void MDU::AEPFD_Header_AerojetDAP( oapi::Sketchpad2* skp, int MM, double MachNumber )
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
@@ -3532,7 +3857,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_BETA( oapi::Sketchpad* skp )
+	void MDU::AEPFD_BETA( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -3581,7 +3906,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_GMETER_STATIC( oapi::Sketchpad* skp )
+	void MDU::AEPFD_GMETER_STATIC( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -3647,7 +3972,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_GMETER_ACCEL( oapi::Sketchpad* skp )
+	void MDU::AEPFD_GMETER_ACCEL( oapi::Sketchpad2* skp )
 	{
 		skp->SetTextColor( CR_LIGHT_GRAY );
 		skp->Text( 43, 212, "Accel", 5 );
@@ -3720,7 +4045,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_GMETER_NZ( oapi::Sketchpad* skp )
+	void MDU::AEPFD_GMETER_NZ( oapi::Sketchpad2* skp )
 	{
 		skp->SetTextColor( CR_LIGHT_GRAY );
 		skp->Text( 43, 212, "Nz", 2 );
@@ -3815,7 +4140,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_HACCEL( oapi::Sketchpad* skp )
+	void MDU::AEPFD_HACCEL( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->Rectangle( 234, 168, 241, 240 );
@@ -3880,7 +4205,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_RANGERW( oapi::Sketchpad* skp )
+	void MDU::AEPFD_RANGERW( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -3910,7 +4235,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_RANGEHACC( oapi::Sketchpad* skp )
+	void MDU::AEPFD_RANGEHACC( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -3962,7 +4287,7 @@ namespace vc
 		return;
 	}
 	
-	void MDU::AEPFD_dAZ_HTA( oapi::Sketchpad* skp, double MachNumber )
+	void MDU::AEPFD_dAZ_HTA( oapi::Sketchpad2* skp, double MachNumber )
 	{
 		double dtmp;
 		char cbuf[8];
@@ -4017,7 +4342,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_dXTRK( oapi::Sketchpad* skp )
+	void MDU::AEPFD_dXTRK( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -4049,7 +4374,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_XTRK( oapi::Sketchpad* skp )
+	void MDU::AEPFD_XTRK( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -4083,7 +4408,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_dINC( oapi::Sketchpad* skp )
+	void MDU::AEPFD_dINC( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -4117,7 +4442,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_TGTINC( oapi::Sketchpad* skp )
+	void MDU::AEPFD_TGTINC( oapi::Sketchpad2* skp )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -4210,7 +4535,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_GSI( oapi::Sketchpad* skp, double Altitude_ft )
+	void MDU::AEPFD_GSI( oapi::Sketchpad2* skp, double Altitude_ft )
 	{
 		skp->SetPen( skpDarkGrayPen );
 		skp->SetBrush( skpBlackBrush );
