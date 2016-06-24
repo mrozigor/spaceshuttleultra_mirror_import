@@ -196,8 +196,11 @@ namespace vc {
 		void ADI_ERROR_ORBIT( oapi::Sketchpad2* skp, double pitch, double roll, double yaw, int adierr );// 10/5/1
 
 		void HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading );
+		void HSI_A( oapi::Sketchpad2* skp, double heading, double roll, bool arrowon, double arrowheading );
 		void HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading );
+		void HSI_E( oapi::Sketchpad2* skp, double heading, bool arrowon, double arrowheading );
 		void HSI_Arrow( HDC hDC, double heading );
+		void HSI_Arrow( oapi::Sketchpad2* skp, double heading );
 
 		void AEPFD_Header_AscentDAP( HDC hDC, int MM, int adiatt );
 		void AEPFD_Header_AscentDAP( oapi::Sketchpad2* skp, int MM, int adiatt );

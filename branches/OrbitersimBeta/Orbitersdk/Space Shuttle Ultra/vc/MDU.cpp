@@ -32,7 +32,6 @@ namespace vc
 
 		Tape_Create();
 		ADI_Create();
-		//HSI_Create();
 
 		display = 0;
 		menu = 3;
