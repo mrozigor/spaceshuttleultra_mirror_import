@@ -5,38 +5,6 @@
 
 namespace vc
 {
-	void MDU::ORBITPFD( oapi::Sketchpad2* skp )
-	{
-		int MM = STS()->pSimpleGPC->GetMajorMode();
-		//int adiatt = GetIDP()->GetADIAttitude();
-		int adierr = GetIDP()->GetADIError();
-		int adirate = GetIDP()->GetADIRate();
-		VECTOR3 av;// x = pitch, y = yaw, z = roll
-		STS()->GetAngularVel( av );
-		av *= DEG;
-		av.z = -av.z;
-		av.x = -av.x;
-		VECTOR3 atterr = GetIDP()->GetAttitudeCommandErrors();
-		double attRoll = -STS()->GetBank() * DEG;
-		if (attRoll <= 0) attRoll += 360;
-		double attPitch = STS()->GetPitch() * DEG;
-		if (attPitch <= 0) attPitch += 360;
-		double attYaw = STS()->GetSlipAngle() * DEG;
-		if (attYaw <= 0) attYaw += 360;
-
-		skp->SetFont( skpTahomaFont_h10w4 );
-
-		ADI_STATIC_ORBIT( skp );
-		if ((MM == 201) || (MM == 202) || (MM == 801))
-		{
-			ADI_ORBIT( skp, attPitch, attRoll, attYaw );
-			ADI_RATE_ORBIT( skp, av.x, av.z, av.y, adirate );
-			ADI_ERROR_ORBIT( skp, atterr.x, atterr.z, atterr.y, adierr );
-		}
-		else ADI_ORBIT( skp, 129, 77, 14 );
-		return;
-	}
-
 	void MDU::ORBITPFD( HDC hDC )
 	{
 		int MM = STS()->pSimpleGPC->GetMajorMode();
@@ -71,6 +39,38 @@ namespace vc
 
 
 		RestoreDC( hDC, save );
+		return;
+	}
+
+	void MDU::ORBITPFD( oapi::Sketchpad2* skp )
+	{
+		int MM = STS()->pSimpleGPC->GetMajorMode();
+		//int adiatt = GetIDP()->GetADIAttitude();
+		int adierr = GetIDP()->GetADIError();
+		int adirate = GetIDP()->GetADIRate();
+		VECTOR3 av;// x = pitch, y = yaw, z = roll
+		STS()->GetAngularVel( av );
+		av *= DEG;
+		av.z = -av.z;
+		av.x = -av.x;
+		VECTOR3 atterr = GetIDP()->GetAttitudeCommandErrors();
+		double attRoll = -STS()->GetBank() * DEG;
+		if (attRoll <= 0) attRoll += 360;
+		double attPitch = STS()->GetPitch() * DEG;
+		if (attPitch <= 0) attPitch += 360;
+		double attYaw = STS()->GetSlipAngle() * DEG;
+		if (attYaw <= 0) attYaw += 360;
+
+		skp->SetFont( skpTahomaFont_h10w4 );
+
+		ADI_STATIC_ORBIT( skp );
+		if ((MM == 201) || (MM == 202) || (MM == 801))
+		{
+			ADI_ORBIT( skp, attPitch, attRoll, attYaw );
+			ADI_RATE_ORBIT( skp, av.x, av.z, av.y, adirate );
+			ADI_ERROR_ORBIT( skp, atterr.x, atterr.z, atterr.y, adierr );
+		}
+		else ADI_ORBIT( skp, 129, 77, 14 );
 		return;
 	}
 	
@@ -803,7 +803,7 @@ namespace vc
 
 		skp->SetWorldTransform( &mat );
 		skp->SetPen( skpWhitePen );
-		skp->DrawSketchMesh( hADIball, 0, oapi::Sketchpad2::CULL_NONE );
+		skp->DrawSketchMesh( hADIball, 0, /*oapi::Sketchpad2::CULL_NONE*/(Sketchpad2::SkpMeshFlags)0 );
 		skp->SetWorldTransform();
 
 		// roll triangle

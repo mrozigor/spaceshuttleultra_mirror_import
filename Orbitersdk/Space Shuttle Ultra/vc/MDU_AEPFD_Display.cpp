@@ -325,7 +325,7 @@ namespace vc
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( skp, 0, 0, 0, adierr );
-				HSI_E( hDC, 0, true, 0 );
+				HSI_E( skp, 0, true, 0 );
 				break;
 			case 102:
 				AEPFD_Header_AscentDAP( skp, 102, adiatt );
@@ -341,7 +341,7 @@ namespace vc
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
 				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
-				HSI_A( hDC, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
+				HSI_A( skp, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
 				AEPFD_XTRK( skp );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( skp );
 				break;
@@ -365,7 +365,7 @@ namespace vc
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
 				hsiheading = STS()->GetYaw() - GetIDP()->GetTargetHeading();
-				HSI_A( hDC, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
+				HSI_A( skp, hsiheading, STS()->GetBank(), true, hsiheading * DEG );
 				if (0)// TODO TAL
 				{
 					AEPFD_dXTRK( skp );
@@ -405,7 +405,7 @@ namespace vc
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
 				ADI_ERROR_A( skp, 0, 0, 0, adierr );// TODO
-				HSI_E( hDC, STS()->GetYaw(), true, 0 );
+				HSI_E( skp, STS()->GetYaw(), true, 0 );
 				AEPFD_XTRK( skp );// TODO only NOM, TAL and ATO
 				AEPFD_dINC( skp );
 				break;
@@ -467,7 +467,7 @@ namespace vc
 				ADI_ERROR_B( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
-				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
+				HSI_E( skp, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
 				AEPFD_dAZ_HTA( skp, MachNumber );
 				AEPFD_RANGERW( skp );
 				AEPFD_HACCEL( skp );
@@ -486,7 +486,7 @@ namespace vc
 				else ADI_ERROR_D( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
-				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
+				HSI_E( skp, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( skp, MachNumber );
@@ -509,7 +509,7 @@ namespace vc
 				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
-				HSI_E( hDC, STS()->GetYaw(), true, 0 );
+				HSI_E( skp, STS()->GetYaw(), true, 0 );
 				AEPFD_dAZ_HTA( skp, MachNumber );
 				AEPFD_RANGERW( skp );
 				break;
@@ -526,7 +526,7 @@ namespace vc
 				else ADI_ERROR_B( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
-				HSI_E( hDC, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
+				HSI_E( skp, atan2( vel.x, vel.z ), true, GetIDP()->GetSelectedRunwayHeading() );
 				AEPFD_dAZ_HTA( skp, MachNumber );
 				AEPFD_RANGERW( skp );
 				AEPFD_HACCEL( skp );
@@ -545,7 +545,7 @@ namespace vc
 				else ADI_ERROR_D( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_NZ( skp );
-				HSI_E( hDC, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
+				HSI_E( skp, STS()->GetYaw(), true, GetIDP()->GetSelectedRunwayHeading() );
 				if (GetIDP()->GetPrefinalState() == false)
 				{
 					AEPFD_dAZ_HTA( skp, MachNumber );
@@ -562,7 +562,7 @@ namespace vc
 				ADI_STATIC( skp );// TODO no rate and error scales
 				ADI( skp, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( skp );
-				HSI_E( hDC, 0, true, 0 );
+				HSI_E( skp, 0, true, 0 );
 				break;
 			default:
 				break;
@@ -2027,7 +2027,7 @@ namespace vc
 
 		skp->SetWorldTransform( &mat );
 		skp->SetPen( skpWhitePen );
-		skp->DrawSketchMesh( hADIball, 0, oapi::Sketchpad2::CULL_NONE );
+		skp->DrawSketchMesh( hADIball, 0, /*oapi::Sketchpad2::CULL_NONE*/(Sketchpad2::SkpMeshFlags)0 );
 		skp->SetWorldTransform();
 		
 		// roll triangle
@@ -3400,6 +3400,109 @@ namespace vc
 		return;
 	}
 
+	void MDU::HSI_A( oapi::Sketchpad2* skp, double heading, double roll, bool arrowon, double arrowheading )
+	{
+		double sgn = sign( (90 * RAD) - fabs( roll ) );
+		// center (122,238) r = 57
+		skp->SetPen( skpCyanPen );
+		skp->Line( 65, 238, 61, 238 );
+		skp->Line( 82, 198, 79, 195 );
+		skp->Line( 122, 186, 122, 177 );
+		skp->Line( 162, 198, 165, 195 );
+		skp->Line( 179, 238, 183, 238 );
+
+		skp->SetPen( skpWhitePen );
+		skp->SetBrush( skpLightGrayBrush );
+		skp->Ellipse( 70, 186, 175, 291 );
+
+		skp->SetBrush( skpBlackBrush );
+		skp->Ellipse( 89, 205, 156, 272 );
+
+		//Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+
+		int x1;
+		int y1;
+		int x2;
+		int y2;
+		double cosi;
+		double sini;
+		skp->SetTextColor( CR_WHITE );
+		for (int i = 90; i != 0; i -= 10)// big lines
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 46 * cosi );
+			y2 = Round( 46 * sini );
+
+			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
+
+			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
+
+			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
+
+			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 48 * cosi );
+			y2 = Round( 48 * sini );
+
+			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
+
+			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
+
+			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
+
+			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
+		}
+
+		char cbuf[4];
+		oapi::IVECTOR2 cntr;
+		cntr.x = 122;
+		cntr.y = 238;
+		for (int i = 0; i <= 33; i += 3)
+		{
+			// rotate
+			skp->SetWorldTransform2D( 1.0f, (float)(i * 10 * RAD * sgn - (heading * sgn)), &cntr );
+
+			// paint
+			sprintf_s( cbuf, 4, "%d", i );// number
+			skp->Text( 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+
+			// de-rotate
+			skp->SetWorldTransform();
+		}
+
+		if (arrowon) HSI_Arrow( skp, arrowheading * sgn );
+
+		oapi::IVECTOR2 ov_symbol[6];
+		ov_symbol[0].x = 122;
+		ov_symbol[0].y = 229;
+		ov_symbol[1].x = 120;
+		ov_symbol[1].y = 244;
+		ov_symbol[2].x = 117;
+		ov_symbol[2].y = 247;
+		ov_symbol[3].x = 122;
+		ov_symbol[3].y = 252;
+		ov_symbol[4].x = 127;
+		ov_symbol[4].y = 247;
+		ov_symbol[5].x = 124;
+		ov_symbol[5].y = 244;
+		skp->SetBrush( skpLightGrayBrush );
+		skp->SetPen( skpLightGrayPen );
+		skp->Polygon( ov_symbol, 6 );
+		return;
+	}
+
 	void MDU::HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading )
 	{
 		// center (122,238) r = 57
@@ -3525,6 +3628,112 @@ namespace vc
 		return;
 	}
 
+	void MDU::HSI_E( oapi::Sketchpad2* skp, double heading, bool arrowon, double arrowheading )
+	{
+		// center (122,238) r = 57
+		skp->SetPen( skpCyanPen );
+		skp->Line( 65, 238, 61, 238 );
+		skp->Line( 82, 198, 79, 195 );
+		skp->Line( 122, 186, 122, 177 );
+		skp->Line( 162, 198, 165, 195 );
+		skp->Line( 179, 238, 183, 238 );
+
+		skp->SetPen( skpWhitePen );
+		skp->SetBrush( skpLightGrayBrush );
+		skp->Ellipse( 70, 186, 175, 291 );
+
+		skp->SetBrush( skpBlackBrush );
+		skp->Ellipse( 89, 205, 156, 272 );
+
+		//Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+
+		int x1;
+		int y1;
+		int x2;
+		int y2;
+		double cosi;
+		double sini;
+		skp->SetTextColor( CR_WHITE );
+		for (int i = 90; i != 0; i -= 10)// big lines
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 46 * cosi );
+			y2 = Round( 46 * sini );
+
+			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
+
+			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
+
+			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
+
+			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 51 * cosi );
+			y1 = Round( 51 * sini );
+
+			x2 = Round( 48 * cosi );
+			y2 = Round( 48 * sini );
+
+			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
+
+			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
+
+			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
+
+			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
+		}
+
+		char cbuf[4];
+		oapi::IVECTOR2 cntr;
+		cntr.x = 122;
+		cntr.y = 238;
+		for (int i = 0; i <= 33; i += 3)
+		{
+			// rotate
+			skp->SetWorldTransform2D( 1.0f, (float)(i * 10 * RAD - heading), &cntr );
+
+			// paint
+			if ((i % 9) != 0) sprintf_s( cbuf, 4, "%d", i );// number
+			else if (i == 0) sprintf_s( cbuf, 4, "N" );// letter
+			else if (i == 9) sprintf_s( cbuf, 4, "E" );// letter
+			else if (i == 18) sprintf_s( cbuf, 4, "S" );// letter
+			else sprintf_s( cbuf, 4, "W" );// letter
+			skp->Text( 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+
+			// de-rotate
+			skp->SetWorldTransform();
+		}
+
+		if (arrowon) HSI_Arrow( skp, (heading * DEG) - arrowheading );
+
+		oapi::IVECTOR2 ov_symbol[6];
+		ov_symbol[0].x = 122;
+		ov_symbol[0].y = 229;
+		ov_symbol[1].x = 120;
+		ov_symbol[1].y = 244;
+		ov_symbol[2].x = 117;
+		ov_symbol[2].y = 247;
+		ov_symbol[3].x = 122;
+		ov_symbol[3].y = 252;
+		ov_symbol[4].x = 127;
+		ov_symbol[4].y = 247;
+		ov_symbol[5].x = 124;
+		ov_symbol[5].y = 244;
+		skp->SetBrush( skpLightGrayBrush );
+		skp->SetPen( skpLightGrayPen );
+		skp->Polygon( ov_symbol, 6 );
+		return;
+	}
+
 	void MDU::HSI_Arrow( HDC hDC, double heading )
 	{
 		SelectObject( hDC, gdiWhiteBrush );
@@ -3588,6 +3797,72 @@ namespace vc
 		arrow[3].x = 122 + Round( 2 * cosH - 20 * sinH );
 		arrow[3].y = 238 + Round( 2 * sinH + 20 * cosH );
 		Polygon( hDC, arrow, 4 );
+		return;
+	}
+
+	void MDU::HSI_Arrow( oapi::Sketchpad2* skp, double heading )
+	{
+		skp->SetBrush( skpWhiteBrush );
+		double cosH = cos( -heading * RAD );
+		double sinH = sin( -heading * RAD );
+		int dotLL_X;
+		int dotLL_Y;
+		int dotL_X;
+		int dotL_Y;
+		int dotR_X;
+		int dotR_Y;
+		int dotRR_X;
+		int dotRR_Y;
+		oapi::IVECTOR2 arrow[10];
+
+		dotLL_X = 122 - Round( 24 * cosH );
+		dotLL_Y = 238 - Round( 24 * sinH );
+		dotL_X = 122 - Round( 12 * cosH );
+		dotL_Y = 238 - Round( 12 * sinH );
+		dotR_X = 122 + Round( 12 * cosH );
+		dotR_Y = 238 + Round( 12 * sinH );
+		dotRR_X = 122 + Round( 24 * cosH );
+		dotRR_Y = 238 + Round( 24 * sinH );
+
+		arrow[0].x = 122 + Round( 49 * sinH );
+		arrow[0].y = 238 - Round( 49 * cosH );
+		arrow[1].x = 122 - Round( 3 * cosH - 30 * sinH );
+		arrow[1].y = 238 - Round( 3 * sinH + 30 * cosH );
+		arrow[2].x = 122 - Round( 8 * cosH - 28 * sinH );
+		arrow[2].y = 238 - Round( 8 * sinH + 28 * cosH );
+		arrow[3].x = 122 - Round( 8 * cosH - 23 * sinH );
+		arrow[3].y = 238 - Round( 8 * sinH + 23 * cosH );
+		arrow[4].x = 122 - Round( 4 * cosH - 25 * sinH );
+		arrow[4].y = 238 - Round( 4 * sinH + 25 * cosH );
+		arrow[5].x = 122 + Round( 20 * sinH );
+		arrow[5].y = 238 - Round( 20 * cosH );
+		arrow[6].x = 122 + Round( 4 * cosH + 25 * sinH );
+		arrow[6].y = 238 + Round( 4 * sinH - 25 * cosH );
+		arrow[7].x = 122 + Round( 8 * cosH + 23 * sinH );
+		arrow[7].y = 238 + Round( 8 * sinH - 23 * cosH );
+		arrow[8].x = 122 + Round( 8 * cosH + 28 * sinH );
+		arrow[8].y = 238 + Round( 8 * sinH - 28 * cosH );
+		arrow[9].x = 122 + Round( 3 * cosH + 30 * sinH );
+		arrow[9].y = 238 + Round( 3 * sinH - 30 * cosH );
+
+		skp->Ellipse( dotLL_X - 2, dotLL_Y - 2, dotLL_X + 2, dotLL_Y + 2 );
+		skp->Ellipse( dotL_X - 2, dotL_Y - 2, dotL_X + 2, dotL_Y + 2 );
+		skp->Ellipse( dotR_X - 2, dotR_Y - 2, dotR_X + 2, dotR_Y + 2 );
+		skp->Ellipse( dotRR_X - 2, dotRR_Y - 2, dotRR_X + 2, dotRR_Y + 2 );
+
+		skp->SetBrush( skpMagentaBrush );
+		skp->SetPen( skpBlackPen );
+		skp->Polygon( arrow, 10 );
+
+		arrow[0].x = 122 - Round( 2 * cosH + 20 * sinH );
+		arrow[0].y = 238 - Round( 2 * sinH - 20 * cosH );
+		arrow[1].x = 122 - Round( 2 * cosH + 40 * sinH );
+		arrow[1].y = 238 - Round( 2 * sinH - 40 * cosH );
+		arrow[2].x = 122 + Round( 2 * cosH - 40 * sinH );
+		arrow[2].y = 238 + Round( 2 * sinH + 40 * cosH );
+		arrow[3].x = 122 + Round( 2 * cosH - 20 * sinH );
+		arrow[3].y = 238 + Round( 2 * sinH + 20 * cosH );
+		skp->Polygon( arrow, 4 );
 		return;
 	}
 
