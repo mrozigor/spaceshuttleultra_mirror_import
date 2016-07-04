@@ -2027,7 +2027,7 @@ namespace vc
 
 		skp->SetWorldTransform( &mat );
 		skp->SetPen( skpWhitePen );
-		skp->DrawSketchMesh( hADIball, 0, /*oapi::Sketchpad2::CULL_NONE*/(Sketchpad2::SkpMeshFlags)0 );
+		skp->DrawSketchMesh( hADIball, 0, 0 );
 		skp->SetWorldTransform();
 		
 		// roll triangle
