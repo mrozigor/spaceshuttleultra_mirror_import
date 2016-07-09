@@ -198,8 +198,8 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 
 	// vents (initially with very high ISP so it uses little prop)
 	// LOX
-	thGOXventNE = CreateThruster( _V( 0, 0, 30.4 ), _V( -0.735112, 0.677946, 0 ), 600, phET, 99999999, 99999999 );
-	thGOXventSW = CreateThruster( _V( 0, 0, 30.4 ), _V( 0.973112, -0.230333, 0 ), 600, phET, 99999999, 99999999 );
+	thGOXventNE = CreateThruster( _V( -0.4956, 0.0939, 29.5129 ), _V( -0.724098, 0.224951, 0.651981 ), 600, phET, 99999999, 99999999 );
+	thGOXventSW = CreateThruster( _V( 0.3767, 0.3645, 29.5129 ), _V( 0.494864, -0.574482, 0.651981 ), 600, phET, 99999999, 99999999 );
 	PARTICLESTREAMSPEC psGOXvent = {
 		0,
 		0.1,
@@ -219,7 +219,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	AddExhaustStream( thGOXventSW, &psGOXvent );
 
 	// LH2
-	thGH2vent = CreateThruster( _V( -3.12321, -2.36732, 13.4955 ), _V( 0.788011, 0.615661, 0 ), 600, phET, 99999999, 99999999 );
+	thGH2vent = CreateThruster( _V( -3.6378, -2.1712, 12.1898 ), _V( 0.866025, 0.5, 0.0 ), 600, phET, 99999999, 99999999 );
 	PARTICLESTREAMSPEC psGH2vent = {
 		0,
 		0.1,

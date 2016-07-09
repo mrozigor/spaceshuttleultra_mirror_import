@@ -2327,7 +2327,7 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 {
-	ahET = CreateAttachment(false, ET_OFFSET + ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
+	ahET = CreateAttachment(false, ET_OFFSET + ofs, _V(0, 1, 0), _V(0, 0, 1) , "SSU_ET"); // DaveS note: DIR and ROT vectors should be V(0.0, 0.999997,  0.00261802), _V(0.0, 0.00261802, 0.999997) but this causes the ET to move during 2nd stage and I'm not sure what to do about that. It's most likely related to CG calcs.
 	ahLeftSRB = CreateAttachment(false, LSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	ahRightSRB = CreateAttachment(false, RSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	char pszBuf[255];
