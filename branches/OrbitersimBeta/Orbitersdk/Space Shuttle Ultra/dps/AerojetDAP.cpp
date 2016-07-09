@@ -1142,8 +1142,8 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint( 41, 23, "49" );
 	if (0) pMDU->mvprint( 29, 15, "MLS", dps::DEUATT_OVERBRIGHT );// TODO
 
-	const int BUG_POINT_X = 132;
-	const int BUG_POINT_Y = 135;
+	const int BUG_POINT_X = 264;
+	const int BUG_POINT_Y = 210;
 
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
@@ -1162,12 +1162,12 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	// calculate scale factor for display
 	double scale_distance = max(length(TouchdownPos), length(HACExitPos)+HAC_TurnRadius); // make sure HAC circle and touchdown point are visible
 	scale_distance = range(20e3, scale_distance, 500e3); // limit distance covered by display to between 20km and 500km
-	double scale = scale_distance/128; // screen area is 256 pixels by 256 pixels
+	double scale = scale_distance/182; // screen area is 512 pixels by 364 pixels (using 364 as limit)
 	int touchdown_x = BUG_POINT_X - Round(TouchdownPos.y/scale);
 	int touchdown_y = Round(TouchdownPos.x/scale) + BUG_POINT_Y;
 	int hac_exit_x = BUG_POINT_X - Round(HACExitPos.y/scale);
 	int hac_exit_y = Round(HACExitPos.x/scale) + BUG_POINT_Y;
-	pMDU->Circle(touchdown_x, touchdown_y, 4);
+	pMDU->Circle(touchdown_x, touchdown_y, 5);
 	pMDU->Line(hac_exit_x, hac_exit_y, touchdown_x, touchdown_y);
 
 	if (GetApproachAndLandState() == false)
@@ -1204,7 +1204,7 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 		if(Eq(time, 20, 0.01) || Eq(time, 40, 0.01) || Eq(time, 60, 0.01)) {
 			int pos_x = BUG_POINT_X - Round(pos.y/scale);
 			int pos_y = BUG_POINT_Y + Round(pos.x/scale);
-			pMDU->Circle(pos_x, pos_y, 4, dps::DEUATT_OVERBRIGHT);
+			pMDU->Circle(pos_x, pos_y, 5, dps::DEUATT_OVERBRIGHT);
 		}
 	}
 
@@ -1222,14 +1222,14 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	if (((GetMajorMode() == 305) || (GetMajorMode() == 603)) && (STS()->GetAltitude() > 2133.6))// blank under 7kft
 	{
 		// top scale
-		pMDU->Line( 111, 32, 201, 32 );
+		pMDU->Line( 222, 50, 402, 50 );
 		// side scale
-		pMDU->Line( 209, 47, 209, 125 );
-		pMDU->Line( 208, 47, 211, 47 );
-		pMDU->Line( 208, 125, 211, 125 );
-		pMDU->Line( 208, 67, 211, 67 );
-		pMDU->Line( 208, 86, 211, 86 );
-		pMDU->Line( 208, 106, 211, 106 );
+		pMDU->Line( 418, 73, 418, 195 );
+		pMDU->Line( 415, 73, 421, 73 );
+		pMDU->Line( 415, 195, 421, 195 );
+		pMDU->Line( 415, 104, 421, 104 );
+		pMDU->Line( 415, 134, 421, 134 );
+		pMDU->Line( 415, 165, 421, 165 );
 
 		if (GetOnHACState() == false)
 		{
@@ -1238,23 +1238,21 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			char att = 0;
 			int pos;
 			double t2h = fabs( TimeToHAC );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			if (TimeToHAC < 0)
 			{
-				pMDU->Line( 111, 31, 111, 35 );
-				pMDU->Line( 201, 31, 201, 35 );
 				pMDU->mvprint( 21, 4, "0 1 2 3" );
-				pMDU->Line( 120, 31, 120, 35 );
-				pMDU->Line( 129, 31, 129, 35 );
-				pMDU->Line( 138, 31, 138, 35 );
+				pMDU->Line( 240, 47, 240, 53 );
+				pMDU->Line( 258, 47, 258, 53 );
+				pMDU->Line( 276, 47, 276, 53 );
 			}
 			else
 			{
-				pMDU->Line( 111, 31, 111, 35 );
-				pMDU->Line( 201, 31, 201, 35 );
 				pMDU->mvprint( 34, 4, "3 2 1 0" );
-				pMDU->Line( 174, 31, 174, 35 );
-				pMDU->Line( 183, 31, 183, 35 );
-				pMDU->Line( 192, 31, 192, 35 );
+				pMDU->Line( 348, 47, 348, 53 );
+				pMDU->Line( 366, 47, 366, 53 );
+				pMDU->Line( 384, 47, 384, 53 );
 			}
 			
 			if (t2h < 20)
@@ -1268,11 +1266,11 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 
 				if (t2h == 0) att = dps::DEUATT_FLASHING;
 
-				if (TimeToHAC < 0) pos = 111 + Round( t2h * 9 );
-				else pos = 201 - Round( t2h * 9 );
-				pMDU->Line( pos, 31, pos - 3, 27, att );
-				pMDU->Line( pos - 3, 27, pos + 3, 27, att );
-				pMDU->Line( pos + 3, 27, pos, 31, att );
+				if (TimeToHAC < 0) pos = 222 + Round( t2h * 18 );
+				else pos = 402 - Round( t2h * 18 );
+				pMDU->Line( pos, 48, pos - 6, 40, att );
+				pMDU->Line( pos - 6, 40, pos + 6, 40, att );
+				pMDU->Line( pos + 6, 40, pos, 48, att );
 			}
 
 			// side scale
@@ -1281,34 +1279,34 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			att = 0;
 			double err = 0;// TODO
 
-			if (err > 1000)
+			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
-			else if (err < -1000)
+			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.0078 ) + 86;
+			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->Line( 424, pos - 4, 424, pos + 4, att );
+			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
+			pMDU->Line( 420, pos, 432, pos, att );
+			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
 		}
 		else if (GetPrefinalState() == false)
 		{
 			// HDG
 			// top scale
-			pMDU->Line( 111, 31, 111, 34 );
-			pMDU->Line( 201, 31, 201, 34 );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			pMDU->mvprint( 20, 4, "5.0K" );
 			pMDU->mvprint( 38, 4, "5.0K" );
-			pMDU->Line( 134, 31, 134, 34 );
-			pMDU->Line( 156, 31, 156, 34 );
-			pMDU->Line( 179, 31, 179, 34 );
+			pMDU->Line( 268, 47, 268, 53 );
+			pMDU->Line( 312, 47, 312, 53 );
+			pMDU->Line( 358, 47, 358, 53 );
 			char att = 0;
 			int pos;
 			double err = -GetHACRadialError();
@@ -1316,16 +1314,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 201;
+				pos = 402;
 			}
 			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 111;
+				pos = 222;
 			}
-			else pos = Round( err * 0.009 ) + 156;
+			else pos = Round( err * 0.018 ) + 312;
 
-			pMDU->OrbiterSymbolTop( pos, 23, att );
+			pMDU->OrbiterSymbolTop( pos, 36, att );
 
 			// side scale
 			pMDU->mvprint( 37, 5, "5.0K" );
@@ -1333,34 +1331,34 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			att = 0;
 			err = 0;// TODO
 
-			if (err > 1000)
+			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
-			else if (err < -1000)
+			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.0078 ) + 86;
+			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->Line( 424, pos - 3, 424, pos + 5, att );
+			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
+			pMDU->Line( 420, pos, 432, pos, att );
+			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
 		}
 		else
 		{
 			// PRFNL and A/L
 			// top scale
-			pMDU->Line( 111, 31, 111, 34 );
-			pMDU->Line( 201, 31, 201, 34 );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			pMDU->mvprint( 20, 4, "2.5K" );
 			pMDU->mvprint( 38, 4, "2.5K" );
-			pMDU->Line( 134, 31, 134, 34 );
-			pMDU->Line( 156, 31, 156, 34 );
-			pMDU->Line( 179, 31, 179, 34 );
+			pMDU->Line( 268, 47, 268, 53 );
+			pMDU->Line( 312, 47, 312, 53 );
+			pMDU->Line( 358, 47, 358, 53 );
 			char att = 0;
 			int pos;
 			double err = GetYRunwayPositionError();
@@ -1368,16 +1366,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 2500)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 201;
+				pos = 402;
 			}
 			else if (err < -2500)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 111;
+				pos = 222;
 			}
-			else pos = Round( err * 0.018 ) + 156;
+			else pos = Round( err * 0.036 ) + 312;
 
-			pMDU->OrbiterSymbolTop( pos, 23, att );
+			pMDU->OrbiterSymbolTop( pos, 36, att );
 
 			// side scale
 			pMDU->mvprint( 37, 5, "1.0K" );
@@ -1388,43 +1386,43 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 1000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
 			else if (err < -1000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.039 ) + 86;
+			else pos = Round( err * 0.061 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->Line( 424, pos - 3, 424, pos + 5, att );
+			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
+			pMDU->Line( 420, pos, 432, pos, att );
+			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
 		}
 	}
 
 	// lines
-	pMDU->Line( 0, 9, 55, 9 );
-	pMDU->Line( 55, 9, 55, 36 );
-	pMDU->Line( 0, 36, 55, 36 );
+	pMDU->Line( 0, 14, 110, 14 );
+	pMDU->Line( 110, 14, 110, 56 );
+	pMDU->Line( 0, 56, 110, 56 );
 
-	pMDU->Line( 0, 99, 75, 99 );
+	pMDU->Line( 0, 154, 150, 154 );
 
-	pMDU->Line( 0, 153, 255, 153 );
-	pMDU->Line( 130, 189, 225, 189 );
-	pMDU->Line( 130, 198, 255, 198 );
-	pMDU->Line( 0, 207, 130, 207 );
+	pMDU->Line( 0, 238, 512, 238 );
+	pMDU->Line( 260, 294, 450, 294 );
+	pMDU->Line( 260, 308, 510, 308 );
+	pMDU->Line( 0, 322, 260, 322 );
 
-	pMDU->Line( 30, 153, 30, 207 );
-	pMDU->Line( 60, 153, 60, 207 );
-	pMDU->Line( 85, 153, 85, 216 );
-	pMDU->Line( 100, 153, 100, 216 );
-	pMDU->Line( 115, 153, 115, 216 );
-	pMDU->Line( 130, 153, 130, 216 );
-	pMDU->Line( 175, 153, 175, 180 );
-	pMDU->Line( 215, 153, 215, 180 );
-	pMDU->Line( 225, 189, 225, 198 );
+	pMDU->Line( 60, 238, 60, 322 );
+	pMDU->Line( 120, 238, 120, 322 );
+	pMDU->Line( 170, 238, 170, 336 );
+	pMDU->Line( 200, 238, 200, 336 );
+	pMDU->Line( 230, 238, 230, 336 );
+	pMDU->Line( 260, 238, 260, 336 );
+	pMDU->Line( 350, 238, 350, 280 );
+	pMDU->Line( 430, 238, 430, 280 );
+	pMDU->Line( 450, 294, 450, 308 );
 }
 
 void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
@@ -1454,27 +1452,27 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
 	//pMDU->mvprint( 7, 10, "3" );
-	pMDU->mvprint( 38, 16, "NY" );
-	pMDU->mvprint( 38, 17, "NY TRIM" );
-	pMDU->mvprint( 38, 18, "AIL" );
-	pMDU->mvprint( 38, 19, "RUD" );
-	pMDU->mvprint( 37, 20, "ZERO H BIAS 2" );
-	pMDU->DotCharacter( 42, 20 );
-	pMDU->mvprint( 38, 21, "H BIAS" );
-	pMDU->DotCharacter( 38, 21 );
-	pMDU->mvprint( 41, 22, "REF" );
-	pMDU->mvprint( 36, 23, "ROLL REF" );
-	pMDU->mvprint( 41, 24, "CMD" );
+	pMDU->mvprint( 38, 15, "NY" );
+	pMDU->mvprint( 38, 16, "NY TRIM" );
+	pMDU->mvprint( 38, 17, "AIL" );
+	pMDU->mvprint( 38, 18, "RUD" );
+	pMDU->mvprint( 37, 19, "ZERO H BIAS 2" );
+	pMDU->DotCharacter( 42, 19 );
+	pMDU->mvprint( 38, 20, "H BIAS" );
+	pMDU->DotCharacter( 38, 20 );
+	pMDU->mvprint( 41, 21, "REF" );
+	pMDU->mvprint( 36, 22, "ROLL REF" );
+	pMDU->mvprint( 41, 23, "CMD" );
 	pMDU->mvprint( 34, 2, "10D" );
 	pMDU->mvprint( 40, 2, "8D" );
 	pMDU->mvprint( 46, 2, "6D" );
 	pMDU->mvprint( 23, 6, "15D" );
 	pMDU->mvprint( 16, 9, "20D" );
 	pMDU->mvprint( 10, 14, "25D" );
-	pMDU->mvprint( 41, 14, "-40" );
-	pMDU->mvprint( 30, 19, "-70" );
-	pMDU->mvprint( 4, 24, "-180" );
-	pMDU->mvprint( 19, 24, "-100" );
+	pMDU->mvprint( 41, 13, "-40" );
+	pMDU->mvprint( 30, 18, "-70" );
+	pMDU->mvprint( 4, 23, "-180" );
+	pMDU->mvprint( 19, 23, "-100" );
 
 	// phugoid scale lines
 	pMDU->Line( 35, 19, 125, 19 );

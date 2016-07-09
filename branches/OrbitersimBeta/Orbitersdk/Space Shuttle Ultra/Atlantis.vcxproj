@@ -224,6 +224,7 @@
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\A8lights.bmp" />
+    <None Include="Bitmaps\DEU_Raw_fault.bmp" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <None Include="Bitmaps\SSME_lights.bmp" />
     <None Include="ClassDiagram1.cd" />

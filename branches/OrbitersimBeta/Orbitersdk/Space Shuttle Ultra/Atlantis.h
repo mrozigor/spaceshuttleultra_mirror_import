@@ -158,10 +158,13 @@ typedef struct {
 	SURFHANDLE a8_lights;
 	HBITMAP deu_characters;
 	HBITMAP deu_characters_overbright;
+	HBITMAP deu_characters_fault;
 	HDC DeuCharBitmapDC;
 	HDC DeuCharOvrBrgtBitmapDC;
+	HDC DeuCharFaultBitmapDC;
 	SURFHANDLE deu_charactersSH;
 	SURFHANDLE deu_characters_overbrightSH;
+	SURFHANDLE deu_characters_faultSH;
 } GDIParams;
 
 
@@ -471,7 +474,6 @@ public:
 	bool clbkLoadGenericCockpit ();
 	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
 	bool clbkLoadVC (int id);
-	void clbkMFDMode (int mfd, int mode);
 	bool clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event);
 	void clbkPostCreation ();
 	void clbkPostStep (double simt, double simdt, double mjd);

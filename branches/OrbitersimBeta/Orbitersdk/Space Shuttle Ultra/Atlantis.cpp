@@ -5036,14 +5036,6 @@ void Atlantis::clbkAnimate(double simt)
 }
 
 // --------------------------------------------------------------
-// Respond to MFD mode change
-// --------------------------------------------------------------
-void Atlantis::clbkMFDMode(int mfd, int mode)
-{
-	oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + mfd);
-}
-
-// --------------------------------------------------------------
 // Load generic glass cockpit mode
 // --------------------------------------------------------------
 bool Atlantis::clbkLoadGenericCockpit()
@@ -5976,35 +5968,34 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 	}
 
 	g_Param.deu_characters = LOADBMP(IDB_DEUCHARACTERS);
-
-	HDC Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	g_Param.DeuCharBitmapDC = CreateCompatibleDC(Temp1DC);
-	SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
-	SetStretchBltMode(g_Param.DeuCharBitmapDC, HALFTONE);
-	StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528, SRCCOPY);
-	//DeleteDC(Temp1DC);
+	HDC Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharBitmapDC, g_Param.deu_characters );
+	SetStretchBltMode( g_Param.DeuCharBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharBitmapDC, 0, 0, 284, 256, g_Param.DeuCharBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
 	g_Param.deu_characters_overbright = LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharOvrBrgtBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 284, 256, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
-	//Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	g_Param.DeuCharOvrBrgtBitmapDC = CreateCompatibleDC(Temp1DC);
-	SelectObject(g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright);
-	SetStretchBltMode(g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE);
-	StretchBlt(g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 80, 144, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 288, 528, SRCCOPY);
-	DeleteDC(Temp1DC);
+	g_Param.deu_characters_fault = LOADBMP(IDB_DEUCHARACTERSFAULT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharFaultBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharFaultBitmapDC, g_Param.deu_characters_fault );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharFaultBitmapDC, 0, 0, 284, 256, g_Param.DeuCharFaultBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	DeleteDC( Temp1DC );
 
+	g_Param.deu_charactersSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERS) );
 
-	RECT tgt = _R( 0, 0, 80, 144 );
-	RECT src = _R( 0, 0, 288, 528 );
-	SURFHANDLE tmp = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERS) );
-	g_Param.deu_charactersSH = oapiCreateSurface( 80, 144 );
-	oapiBlt( g_Param.deu_charactersSH, tmp, &tgt, &src );
-	oapiDestroySurface( tmp );
+	g_Param.deu_characters_overbrightSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT) );
 
-	tmp = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT) );
-	g_Param.deu_characters_overbrightSH = oapiCreateSurface( 80, 144 );
-	oapiBlt( g_Param.deu_characters_overbrightSH, tmp, &tgt, &src );
-	oapiDestroySurface( tmp );
+	g_Param.deu_characters_faultSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSFAULT) );
 }
 
 DLLCLBK void ExitModule(HINSTANCE hModule)
@@ -6041,16 +6032,22 @@ DLLCLBK void ExitModule(HINSTANCE hModule)
 		oapiDestroySurface(g_Param.a8_lights);
 	}
 
-	DeleteDC(g_Param.DeuCharBitmapDC);
+	DeleteDC( g_Param.DeuCharBitmapDC );
 	if (g_Param.deu_characters)
 	{
-		DeleteObject(g_Param.deu_characters);
+		DeleteObject( g_Param.deu_characters );
 	}
 
-	DeleteDC(g_Param.DeuCharOvrBrgtBitmapDC);
+	DeleteDC( g_Param.DeuCharOvrBrgtBitmapDC );
 	if (g_Param.deu_characters_overbright)
 	{
-		DeleteObject(g_Param.deu_characters_overbright);
+		DeleteObject( g_Param.deu_characters_overbright );
+	}
+
+	DeleteDC( g_Param.DeuCharFaultBitmapDC );
+	if (g_Param.deu_characters_fault)
+	{
+		DeleteObject( g_Param.deu_characters_fault );
 	}
 
 	if (g_Param.deu_charactersSH)
@@ -6061,6 +6058,11 @@ DLLCLBK void ExitModule(HINSTANCE hModule)
 	if (g_Param.deu_characters_overbrightSH)
 	{
 		oapiDestroySurface( g_Param.deu_characters_overbrightSH );
+	}
+
+	if (g_Param.deu_characters_faultSH)
+	{
+		oapiDestroySurface( g_Param.deu_characters_faultSH );
 	}
 }
 

@@ -33,7 +33,7 @@
 #include "Sketchpad2.h"
 
 
-#define CR_BLACK RGB( 0, 0, 0 )//RGB( 0, 0, 25 )
+#define CR_BLACK RGB( 0, 0, 0 )//10, 18, 61
 #define CR_DARK_GRAY RGB( 60, 60, 80 )
 #define CR_LIGHT_GRAY RGB( 180, 180, 200 )
 #define CR_WHITE RGB( 255, 255, 255 )
@@ -51,6 +51,8 @@
 #define CR_DPS_NORMAL RGB( 128, 255, 0 )
 #define CR_DPS_OVERBRIGHT RGB( 255, 255, 0 )
 
+const int DPS_DISPLAY_VERTICAL_OFFSET = 32;
+
 
 namespace vc {
 
@@ -67,8 +69,10 @@ namespace vc {
 		HBRUSH gdiWhiteBrush;
 		HBRUSH gdiRedBrush;
 		HBRUSH gdiYellowBrush;
+		HBRUSH gdiCyanBrush;
 		HBRUSH gdiMagentaBrush;
 		HBRUSH gdiLightGreenBrush;
+		HBRUSH gdiBlueBrush;
 
 		oapi::Brush* skpBlackBrush;
 		oapi::Brush* skpDarkGrayBrush;
@@ -91,6 +95,7 @@ namespace vc {
 		HPEN gdiCyanPen;
 		HPEN gdiMagentaPen;
 		HPEN gdiLightGreenPen;
+		HPEN gdiDarkGreenPen;
 		HPEN gdiLightGreenThickPen;
 
 		oapi::Pen* skpBlackPen;
@@ -118,13 +123,16 @@ namespace vc {
 		// fonts
 		HFONT gdiTahomaFont_h10w4;
 		HFONT gdiTahomaFont_h7w3;
-		HFONT gdiTahomaFont_h17w6;
-
+		HFONT gdiSSUAFont_h20w17;
+		HFONT gdiSSUAFont_h10w10bold;
+		HFONT gdiSSUAFont_h15w10;// TODO SSU_B
+		HFONT gdiSSUAFont_h11w9;
+		
 		oapi::Font* skpTahomaFont_h10w4;
 		oapi::Font* skpTahomaFont_h7w3;
-		oapi::Font* skpTahomaFont_h17w6;
-		oapi::Font* skpArialFont_h15w5;
-		oapi::Font* skpArialFont_h13w6;
+		oapi::Font* skpSSUAFont_h20;
+		oapi::Font* skpSSUAFont_h10bold;
+		oapi::Font* skpSSUAFont_h11;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();
@@ -146,20 +154,25 @@ namespace vc {
 		 * Paints the DPS display.
 		 */
 		void DPS( HDC hDC );
-		void DPS( oapi::Sketchpad* skp );
+		void DPS( oapi::Sketchpad2* skp );
 
 		/**
 		 * MEDS Display functions
 		 */
-		void SystemStatusDisplay_CSTMenu( oapi::Sketchpad* skp );
-		void SystemStatusDisplay_IDPInteractiveCST( oapi::Sketchpad* skp );
+		void SystemStatusDisplay_CSTMenu( HDC hDC );
+		void SystemStatusDisplay_CSTMenu( oapi::Sketchpad2* skp );
+		void SystemStatusDisplay_IDPInteractiveCST( HDC hDC );
+		void SystemStatusDisplay_IDPInteractiveCST( oapi::Sketchpad2* skp );
 		void AEPFD( HDC hDC );
 		void AEPFD( oapi::Sketchpad2* skp );
 		void ORBITPFD( HDC hDC );
 		void ORBITPFD( oapi::Sketchpad2* skp );
-		void OMSMPS( oapi::Sketchpad* skp );
-		void APUHYD( oapi::Sketchpad* skp );
-		void SPI( oapi::Sketchpad* skp );
+		void OMSMPS( HDC hDC );
+		void OMSMPS( oapi::Sketchpad2* skp );
+		void APUHYD( HDC hDC );
+		void APUHYD( oapi::Sketchpad2* skp );
+		void SPI( HDC hDC );
+		void SPI( oapi::Sketchpad2* skp );
 
 		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
@@ -268,6 +281,7 @@ namespace vc {
 		//void DrawCommonHeader(const char* cDispTitle);
 		virtual void PrintToBuffer(const char* string, int length, int col, int row, char attributes);
 
+		void DrawMenuButton( HDC hDC, int x );
 		void DrawMenuButton( oapi::Sketchpad* skp, int x );
 
 	public:
@@ -301,31 +315,25 @@ namespace vc {
 		virtual bool OnMouseEvent(int _event, float x, float y);
 
 		/** 
+		 * Paint the edge menu area on this HDC.
+		 */
+		virtual void PaintEdgeMenu( HDC hDC );
+		/** 
 		 * Paint the edge menu area on this Sketchpad.
 		 */
-		virtual bool PaintEdgeMenu( oapi::Sketchpad* skp );
+		virtual void PaintEdgeMenu( oapi::Sketchpad* skp );
 		/**
 		 * Register the MFD area for Orbiter. Does nothing when MFD rendering 
 		 * is bypassed.
 		 */
 		virtual bool RealizeMFD(int id);
 
-		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
-
-		virtual void RegisterVC();
 		/**
 		 * define the Area ID of the MDU screen inside the VC. when in 
 		 * CRTMFD mode, it paints only the edge key menu area. 
 		 */
 		virtual bool DefineRegionAID(UINT aid);
 		virtual bool DefineVCGroup(UINT mgrp);
-		/**
-		 * Links to label texture, when used in conjunction with CRTMFD, expects texture 
-		 * for drawing full MDU when not.
-		 * @return false, if failed.
-		 */
-		virtual bool DefineVCTexture(SURFHANDLE tex);
-		virtual bool IsCRTBufferEnabled() const;
 
 		/**
 		 * Sets location of power button.
@@ -365,9 +373,9 @@ namespace vc {
 		{
 			dps::DEU_LINE line;
 			line.x0 = x1;
-			line.y0 = y1;
+			line.y0 = y1 + DPS_DISPLAY_VERTICAL_OFFSET;
 			line.x1 = x2;
-			line.y1 = y2;
+			line.y1 = y2 + DPS_DISPLAY_VERTICAL_OFFSET;
 			line.cAttr = attributes;
 			lines.push_back(line);
 		}
@@ -380,9 +388,9 @@ namespace vc {
 		{
 			dps::DEU_ELLIPSE ellipse;
 			ellipse.xLeft = xLeft;
-			ellipse.yTop = yTop;
+			ellipse.yTop = yTop + DPS_DISPLAY_VERTICAL_OFFSET;
 			ellipse.xRight = xRight;
-			ellipse.yBottom = yBottom;
+			ellipse.yBottom = yBottom + DPS_DISPLAY_VERTICAL_OFFSET;
 			ellipse.cAttr = attributes;
 			ellipses.push_back(ellipse);
 		}
@@ -401,10 +409,8 @@ namespace vc {
 		 */
 		inline void Delta(int x, int y, char attributes = 0)
 		{
-			// each DEU character is 5 pixels wide and 9 pixels high
-			Line(5*x, 9*y + 6, 5*x+4, 9*y + 6, attributes);
-			Line(5*x, 9*y + 6, 5*x + 2, 9*y, attributes);
-			Line(5*x+4, 9*y + 6, 5*x + 2, 9*y, attributes);
+			textBuffer[x][y].cSymbol = 255;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -412,8 +418,8 @@ namespace vc {
 		 */
 		inline void Theta(int x, int y, char attributes = 0)
 		{
-			Ellipse(5*x, 9*y+1, 5*x+4, 9*y+8, attributes);
-			Line(5*x, 9*y+4, 5*x+4, 9*y+4, attributes);
+			textBuffer[x][y].cSymbol = 253;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -422,7 +428,7 @@ namespace vc {
 		 */
 		inline void DotCharacter(int x, int y, char attributes = 0)
 		{
-			Circle(5*x+3, 9*y, 1, attributes);
+			Circle( 10 * x + 5, 14 * y, 1, attributes );
 		}
 
 		/**
@@ -430,9 +436,8 @@ namespace vc {
 		 */
 		inline void Alpha(int x, int y, char attributes = 0)
 		{
-			Circle(5*x+2, 9*y+5, 2, attributes);
-			Line(5*x+4, 9*y+3, 5*x+3, 9*y+3, attributes);
-			Line(5*x+4, 9*y+6, 5*x+3, 9*y+6, attributes);
+			textBuffer[x][y].cSymbol = 254;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -440,8 +445,8 @@ namespace vc {
 		 */
 		inline void Sigma(int x, int y, char attributes = 0)
 		{
-			Line(5*x+4, 9*y+3, 5*x+2, 9*y+3, attributes);
-			Circle(5*x+2, 9*y+5, 2, attributes);
+			textBuffer[x][y].cSymbol = 252;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -449,9 +454,8 @@ namespace vc {
 		 */
 		inline void UpArrow(int x, int y, char attributes = 0)
 		{
-			Line(5*x+2, 9*y+7, 5*x+2, 9*y, attributes);
-			Line(5*x, 9*y+3, 5*x+2, 9*y+1, attributes);
-			Line(5*x+4, 9*y+3, 5*x+2, 9*y+1, attributes);
+			textBuffer[x][y].cSymbol = 247;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -459,9 +463,8 @@ namespace vc {
 		 */
 		inline void DownArrow(int x, int y, char attributes = 0)
 		{
-			Line(5*x+2, 9*y+1, 5*x+2, 9*y+8, attributes);
-			Line(5*x, 9*y+5, 5*x+2, 9*y+7, attributes);
-			Line(5*x+4, 9*y+5, 5*x+2, 9*y+7, attributes);
+			textBuffer[x][y].cSymbol = 248;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -469,9 +472,8 @@ namespace vc {
 		 */
 		inline void LeftArrow( int x, int y, char attributes = 0 )
 		{
-			Line( (5 * x) + 4, (9 * y) + 4, (5 * x) - 1, (9 * y) + 4, attributes );
-			Line( (5 * x) + 2, (9 * y) + 2, 5 * x, (9 * y) + 4, attributes );
-			Line( (5 * x) + 2, (9 * y) + 6, 5 * x, (9 * y) + 4, attributes );
+			textBuffer[x][y].cSymbol = 246;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -479,9 +481,8 @@ namespace vc {
 		 */
 		inline void RightArrow( int x, int y, char attributes = 0 )
 		{
-			Line( 5 * x, (9 * y) + 4, (5 * x) + 5, (9 * y) + 4, attributes );
-			Line( (5 * x) + 2, (9 * y) + 2, (5 * x) + 4, (9 * y) + 4, attributes );
-			Line( (5 * x) + 2, (9 * y) + 6, (5 * x) + 4, (9 * y) + 4, attributes );
+			textBuffer[x][y].cSymbol = 245;
+			textBuffer[x][y].cAttr = attributes;
 		}
 
 		/**
@@ -489,14 +490,21 @@ namespace vc {
 		 */
 		inline void OrbiterSymbolTop( int x, int y, char attributes = 0 )
 		{
-			Line( x, y, x, y + 2, attributes );
+			Ellipse( x, y, x + 1, y + 1, attributes );
+			Ellipse( x + 1, y, x + 2, y + 1, attributes );
+			Ellipse( x, y + 1, x + 1, y + 2, attributes );
+			Ellipse( x + 1, y + 1, x + 2, y + 2, attributes );
+
+
+			/*
+			Line( x    , y    , x    , y + 2, attributes );
 			Line( x + 1, y + 2, x + 1, y + 5, attributes );
 			Line( x - 1, y + 2, x - 1, y + 5, attributes );
 			Line( x + 1, y + 4, x + 4, y + 7, attributes );
 			Line( x - 1, y + 4, x - 4, y + 7, attributes );
-			Line( x + 3, y + 7, x, y + 7, attributes );
-			Line( x - 3, y + 7, x, y + 7, attributes );
-			Line( x, y + 8,  x - 1, y + 7, attributes );
+			Line( x + 3, y + 7, x    , y + 7, attributes );
+			Line( x - 3, y + 7, x    , y + 7, attributes );
+			Line( x    , y + 8, x - 1, y + 7, attributes );*/
 		}
 
 		inline void OrbiterSymbolSide( int x, int y, double rotation, char attributes = 0 )
@@ -525,14 +533,6 @@ namespace vc {
 			Line( x + 8, y, x + 7, y + 1, attributes );
 			Line( x + 7, y + 1, x + 1, y + 1, attributes );
 			Line( x + 1, y + 1, x, y, attributes );*/
-			// no rotation minimal
-			/*Line( x, y, x + 2, y - 2, attributes );
-			Line( x + 2, y - 2, x + 5, y - 2, attributes );
-			Line( x + 5, y - 2, x + 7, y - 5, attributes );
-			Line( x + 7, y - 5, x + 9, y - 5, attributes );
-			Line( x + 8, y - 4, x + 6, y - 1, attributes );
-			Line( x + 7, y + 1, x + 9, y - 2, attributes );
-			Line( x + 7, y + 1, x, y + 1, attributes );*/
 		}
 
 		/**
@@ -554,14 +554,14 @@ namespace vc {
 			else if (number < 0) mvprint( x, y, "-", attributes );
 			else mvprint( x, y, " ", attributes );
 
-			Line( x * 5, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
-			Line( x * 5, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+			Line( x * 10, (y * 14) + 1, (x * 10) + 3, (y * 14) + 1, attributes );
+			Line( x * 10, (y * 14) + 12, (x * 10) + 3, (y * 14) + 12, attributes );
 
-			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 2, (y * 9) + 1, attributes );
-			Line( (x * 5) + 4, (y * 9) + 7, (x * 5) + 2, (y * 9) + 7, attributes );
+			Line( (x * 10) + 9, (y * 14) + 1, (x * 10) + 6, (y * 14) + 1, attributes );
+			Line( (x * 10) + 9, (y * 14) + 12, (x * 10) + 6, (y * 14) + 12, attributes );
 
-			Line( x * 5, (y * 9) + 1, x * 5, (y * 9) + 7, attributes );
-			Line( (x * 5) + 4, (y * 9) + 1, (x * 5) + 4, (y * 9) + 7, attributes );
+			Line( x * 10, y * 14, x * 10, (y * 14) + 12, attributes );
+			Line( (x * 10) + 9, y * 14, (x * 10) + 9, (y * 14) + 12, attributes );
 		}
 
 		/**
@@ -569,7 +569,7 @@ namespace vc {
 		 */
 		inline void Underline( int x, int y, char attributes = 0 )
 		{
-			Line( (x * 5) + 1, (y * 9) + 7, (x * 5) + 4, (y * 9) + 7, attributes );
+			Line( (x * 10) + 1, (y * 14) + 14, (x * 10) + 9, (y * 14) + 14, attributes );
 		}
 
 		virtual bool GetViewAngle() const;
@@ -584,7 +584,7 @@ namespace vc {
 		virtual unsigned short GetDrivingIDP() const;
 
 		virtual void PaintDisplay( oapi::Sketchpad* skp );
-		virtual int NavigateMenu( DWORD key );
+		virtual bool NavigateMenu( DWORD key );
 		virtual char* ButtonLabel( int bt );
 		virtual int ButtonMenu( const MFDBUTTONMENU **menu ) const;
 	};
