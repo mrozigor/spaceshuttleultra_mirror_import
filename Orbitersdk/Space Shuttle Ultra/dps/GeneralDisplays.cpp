@@ -449,26 +449,26 @@ namespace dps
 
 		// static parts (lines)
 		// RCS
-		pMDU->Line( 20, 18, 20, 171 );
-		pMDU->Line( 40, 18, 40, 171 );
-		pMDU->Line( 0, 35, 60, 35 );
-		pMDU->Line( 0, 80, 60, 80 );
-		pMDU->Line( 0, 125, 60, 125 );
+		pMDU->Line( 40, 14, 40, 266 );
+		pMDU->Line( 80, 14, 80, 266 );
+		pMDU->Line( 0, 56, 120, 56 );
+		pMDU->Line( 0, 126, 120, 126 );
+		pMDU->Line( 0, 196, 120, 196 );
 
 		// SURF
-		pMDU->Line( 70, 35, 160, 35 );
+		pMDU->Line( 140, 56, 320, 56 );
 
 		// DPS
-		pMDU->Line( 170, 35, 250, 35 );
+		pMDU->Line( 340, 56, 500, 56 );
 
 		// FCS
-		pMDU->Line( 170, 89, 240, 89 );
+		pMDU->Line( 340, 140, 480, 140 );
 
 		// NAV
-		pMDU->Line( 170, 125, 240, 125 );
+		pMDU->Line( 340, 196, 480, 196 );
 
 		// CNTRL
-		pMDU->Line( 80, 143, 140, 143 );
+		pMDU->Line( 160, 224, 280, 224 );
 
 
 		// dynamic parts
@@ -590,22 +590,22 @@ namespace dps
 
 
 		// static parts (lines)
-		pMDU->Line( 45, 54, 45, 216 );
-		pMDU->Line( 70, 54, 70, 216 );
-		pMDU->Line( 95, 54, 95, 216 );
-		pMDU->Line( 115, 54, 115, 216 );
-		pMDU->Line( 135, 54, 135, 216 );
-		pMDU->Line( 165, 126, 165, 216 );
-		pMDU->Line( 190, 126, 190, 216 );
-		pMDU->Line( 215, 126, 215, 216 );
-		pMDU->Line( 235, 126, 235, 216 );
-		pMDU->Line( 0, 53, 135, 53 );
-		pMDU->Line( 0, 71, 135, 71 );
-		pMDU->Line( 30, 98, 95, 98 );
-		pMDU->Line( 135, 125, 255, 125 );
-		pMDU->Line( 0, 143, 255, 143 );
-		pMDU->Line( 30, 170, 95, 170 );
-		pMDU->Line( 150, 170, 215, 170 );
+		pMDU->Line( 90, 84, 90, 336 );
+		pMDU->Line( 140, 84, 140, 336 );
+		pMDU->Line( 190, 84, 190, 336 );
+		pMDU->Line( 230, 84, 230, 336 );
+		pMDU->Line( 270, 84, 270, 336 );
+		pMDU->Line( 330, 196, 330, 336 );
+		pMDU->Line( 380, 196, 380, 336 );
+		pMDU->Line( 430, 196, 430, 336 );
+		pMDU->Line( 470, 196, 470, 336 );
+		pMDU->Line( 0, 84, 270, 84 );
+		pMDU->Line( 0, 112, 270, 112 );
+		pMDU->Line( 60, 154, 190, 154 );
+		pMDU->Line( 270, 196, 510, 196 );
+		pMDU->Line( 0, 224, 510, 224 );
+		pMDU->Line( 60, 266, 190, 266 );
+		pMDU->Line( 300, 266, 430, 266 );
 
 
 		// TODO dynamic parts
@@ -708,10 +708,10 @@ namespace dps
 
 
 		// static parts (lines)
-		pMDU->Line( 85, 63, 85, 216 );
-		pMDU->Line( 85, 62, 255, 62 );
-		pMDU->Line( 85, 107, 255, 107 );
-		pMDU->Line( 85, 152, 255, 152 );
+		pMDU->Line( 170, 98, 170, 336 );
+		pMDU->Line( 170, 98, 510, 98 );
+		pMDU->Line( 170, 168, 510, 168 );
+		pMDU->Line( 170, 238, 510, 238 );
 
 
 		// TODO dynamic parts
@@ -856,12 +856,12 @@ namespace dps
 
 		
 		// static parts (lines)
-		pMDU->Line( 70, 9, 70, 207 );
-		pMDU->Line( 100, 9, 100, 207 );
-		pMDU->Line( 130, 9, 130, 207 );
-		pMDU->Line( 0, 98, 255, 98 );
-		pMDU->Line( 130, 143, 255, 143 );
-		pMDU->Line( 0, 179, 130, 179 );
+		pMDU->Line( 140, 14, 140, 322 );
+		pMDU->Line( 200, 14, 200, 322 );
+		pMDU->Line( 260, 14, 260, 322 );
+		pMDU->Line( 0, 154, 510, 154 );
+		pMDU->Line( 260, 224, 510, 224 );
+		pMDU->Line( 0, 280, 260, 280 );
 
 
 		// TODO dynamic parts
@@ -1118,28 +1118,22 @@ namespace dps
 
 		// static parts (lines)
 		// ACTUATOR GIMBALING
-		pMDU->Line( 160, 26, 250, 26 );
+		pMDU->Line( 320, 42, 500, 42 );
 
-		pMDU->Line( 190, 35, 200, 35 );
-		pMDU->Line( 205, 35, 215, 35 );
-
-		pMDU->Line( 211, 44, 214, 44 );
-		pMDU->Line( 216, 44, 219, 44 );
-		pMDU->Line( 222, 44, 224, 44 );
-		pMDU->Line( 226, 44, 229, 44 );
-		pMDU->Line( 231, 44, 234, 44 );
+		pMDU->Line( 380, 56, 400, 56 );
+		pMDU->Line( 410, 56, 430, 56 );
 		
 		// HYD PR
-		pMDU->Line( 160, 71, 190, 71 );
+		pMDU->Line( 320, 112, 380, 112 );
 		
 		// ME ISO V
-		pMDU->Line( 150, 116, 190, 116 );
+		pMDU->Line( 300, 182, 380, 182 );
 		
 		// FC LIM CHNG
-		pMDU->Line( 200, 125, 255, 125 );
+		pMDU->Line( 400, 196, 510, 196 );
 		
 		// AI MODES
-		pMDU->Line( 120, 152, 160, 152 );
+		pMDU->Line( 240, 238, 320, 238 );
 
 
 		// dynamic parts
@@ -1504,17 +1498,17 @@ namespace dps
 
 
 		// static parts (lines)
-		pMDU->Line( 25, 35, 115, 35 );
+		pMDU->Line( 50, 56, 230, 56 );
 
-		pMDU->Line( 150, 35, 220, 35 );
+		pMDU->Line( 300, 56, 440, 56 );
 
-		pMDU->Line( 150, 89, 220, 89 );
+		pMDU->Line( 300, 140, 440, 140 );
 
-		pMDU->Line( 150, 125, 210, 125 );
+		pMDU->Line( 300, 196, 420, 196 );
 
-		pMDU->Line( 10, 125, 145, 125 );
-		pMDU->Line( 145, 126, 145, 153 );
-		pMDU->Line( 145, 152, 225, 152 );
+		pMDU->Line( 20, 196, 290, 196 );
+		pMDU->Line( 290, 196, 290, 238 );
+		pMDU->Line( 290, 238, 450, 238 );
 
 
 		// dynamic parts
@@ -1763,22 +1757,22 @@ namespace dps
 
 
 		// static parts (lines)
-		pMDU->Line( 45, 54, 45, 216 );
-		pMDU->Line( 70, 54, 70, 216 );
-		pMDU->Line( 95, 54, 95, 216 );
-		pMDU->Line( 115, 54, 115, 216 );
-		pMDU->Line( 135, 54, 135, 216 );
-		pMDU->Line( 165, 126, 165, 216 );
-		pMDU->Line( 190, 126, 190, 216 );
-		pMDU->Line( 215, 126, 215, 216 );
-		pMDU->Line( 235, 126, 235, 216 );
-		pMDU->Line( 0, 53, 135, 53 );
-		pMDU->Line( 0, 71, 135, 71 );
-		pMDU->Line( 30, 98, 95, 98 );
-		pMDU->Line( 135, 125, 255, 125 );
-		pMDU->Line( 0, 143, 255, 143 );
-		pMDU->Line( 30, 170, 95, 170 );
-		pMDU->Line( 150, 170, 215, 170 );
+		pMDU->Line( 90, 84, 90, 336 );
+		pMDU->Line( 140, 84, 140, 336 );
+		pMDU->Line( 190, 84, 190, 336 );
+		pMDU->Line( 230, 84, 230, 336 );
+		pMDU->Line( 270, 84, 270, 336 );
+		pMDU->Line( 330, 196, 330, 336 );
+		pMDU->Line( 380, 196, 380, 336 );
+		pMDU->Line( 430, 196, 430, 336 );
+		pMDU->Line( 470, 196, 470, 336 );
+		pMDU->Line( 0, 84, 270, 84 );
+		pMDU->Line( 0, 112, 270, 112 );
+		pMDU->Line( 60, 154, 190, 154 );
+		pMDU->Line( 270, 196, 510, 196 );
+		pMDU->Line( 0, 224, 510, 224 );
+		pMDU->Line( 60, 266, 190, 266 );
+		pMDU->Line( 300, 266, 430, 266 );
 
 
 		// TODO dynamic parts
@@ -1927,12 +1921,12 @@ namespace dps
 
 		
 		// static parts (lines)
-		pMDU->Line( 70, 9, 70, 207 );
-		pMDU->Line( 100, 9, 100, 207 );
-		pMDU->Line( 130, 9, 130, 207 );
-		pMDU->Line( 0, 98, 255, 98 );
-		pMDU->Line( 130, 143, 255, 143 );
-		pMDU->Line( 0, 179, 130, 179 );
+		pMDU->Line( 140, 28, 140, 336 );
+		pMDU->Line( 200, 28, 200, 336 );
+		pMDU->Line( 260, 28, 260, 336 );
+		pMDU->Line( 0, 154, 510, 154 );
+		pMDU->Line( 260, 224, 510, 224 );
+		pMDU->Line( 0, 280, 260, 280 );
 
 
 		// TODO dynamic parts
@@ -1971,18 +1965,18 @@ namespace dps
 		pMDU->mvprint( 11, 23, "70" );
 
 		// static parts (lines)
-		pMDU->Line( 39, 208, 58, 205 );
-		pMDU->Line( 58, 205, 77, 195 );
-		pMDU->Line( 77, 195, 104, 170 );
-		pMDU->Line( 104, 170, 177, 114 );
-		pMDU->Line( 177, 114, 214, 82 );
-		pMDU->Line( 214, 82, 222, 70 );
-		pMDU->Line( 222, 70, 230, 45 );
+		pMDU->Line( 78, 324, 116, 317 );
+		pMDU->Line( 116, 317, 159, 302 );
+		pMDU->Line( 159, 302, 217, 257 );
+		pMDU->Line( 217, 257, 355, 174 );
+		pMDU->Line( 355, 174, 438, 119 );
+		pMDU->Line( 438, 119, 455, 97 );
+		pMDU->Line( 455, 97, 471, 58 );
 
-		pMDU->Line( 157, 124, 157, 131 );
-		pMDU->Line( 123, 151, 123, 158 );
-		pMDU->Line( 95, 173, 95, 180 );
-		pMDU->Line( 55, 203, 55, 210 );
+		pMDU->Line( 322, 189, 322, 200 );
+		pMDU->Line( 254, 230, 254, 241 );
+		pMDU->Line( 196, 267, 196, 278 );
+		pMDU->Line( 116, 313, 116, 324 );
 		return;
 	}
 	
@@ -2006,18 +2000,18 @@ namespace dps
 		pMDU->mvprint( 11, 23, "70" );
 
 		// static parts (lines)
-		pMDU->Line( 39, 208, 58, 205 );
-		pMDU->Line( 58, 205, 77, 195 );
-		pMDU->Line( 77, 195, 104, 170 );
-		pMDU->Line( 104, 170, 177, 114 );
-		pMDU->Line( 177, 114, 214, 82 );
-		pMDU->Line( 214, 82, 222, 70 );
-		pMDU->Line( 222, 70, 230, 45 );
+		pMDU->Line( 78, 324, 116, 317 );
+		pMDU->Line( 116, 317, 159, 302 );
+		pMDU->Line( 159, 302, 217, 257 );
+		pMDU->Line( 217, 257, 355, 174 );
+		pMDU->Line( 355, 174, 438, 119 );
+		pMDU->Line( 438, 119, 455, 97 );
+		pMDU->Line( 455, 97, 471, 58 );
 
-		pMDU->Line( 157, 124, 157, 131 );
-		pMDU->Line( 123, 151, 123, 158 );
-		pMDU->Line( 95, 173, 95, 180 );
-		pMDU->Line( 55, 203, 55, 210 );
+		pMDU->Line( 322, 189, 322, 200 );
+		pMDU->Line( 254, 230, 254, 241 );
+		pMDU->Line( 196, 267, 196, 278 );
+		pMDU->Line( 116, 313, 116, 324 );
 
 		// dynamic parts
 		char cbuf[64];
@@ -2046,11 +2040,11 @@ namespace dps
 		double Altitude = STS()->GetAltitude() * MPS2FPS;
 
 		//Draw triangle for state vector
-		short stY = static_cast<short>(208 - (Altitude * 0.00105556));
-		short stX = static_cast<short>(27 + (VR * 0.0506667));
-		pMDU->Line( stX, stY - 3, stX - 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( stX + 3, stY + 3, stX, stY - 3, dps::DEUATT_OVERBRIGHT );
+		short stY = static_cast<short>(324 - (Altitude * 0.00164198));
+		short stX = static_cast<short>(78 + (VR * 0.0930909));
+		pMDU->Line( stX, stY - 6, stX - 6, stY + 6, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( stX - 6, stY + 6, stX + 6, stY + 6, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( stX + 6, stY + 6, stX, stY - 6, dps::DEUATT_OVERBRIGHT );
 
 		VECTOR3 thr;
 		STS()->GetThrustVector( thr );
@@ -2064,9 +2058,9 @@ namespace dps
 		Altitude += -LVLH_Vel.z * 20 + ((length( thr ) * sin( Pitch + atan( thr.y / thr.z ) ) - G) * 400) * MPS2FPS;
 		if (VR < 0) VR = 0;
 		if (Altitude < 0) Altitude = 0;
-		stY = static_cast<short>(208 - (Altitude * 0.00105556));
-		stX = static_cast<short>(27 + (VR * 0.0506667));
-		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
+		stY = static_cast<short>(324 - (Altitude * 0.00164198));
+		stX = static_cast<short>(78 + (VR * 0.0930909));
+		pMDU->Ellipse( stX - 6, stY - 6, stX + 6, stY + 6, dps::DEUATT_OVERBRIGHT );
 		return;
 	}
 
@@ -2093,28 +2087,28 @@ namespace dps
 
 		// static parts (lines)
 		//Nominal ascent line
-		pMDU->Line( 58, 186, 63, 165 );
-		pMDU->Line( 63, 165, 68, 152 );
-		pMDU->Line( 68, 152, 73, 140 );
-		pMDU->Line( 73, 140, 83, 126 );
-		pMDU->Line( 83, 126, 98, 115 );
-		pMDU->Line( 98, 115, 106, 111 );
-		pMDU->Line( 106, 111, 121, 108 );
-		pMDU->Line( 121, 108, 136, 108 );
-		pMDU->Line( 136, 108, 188, 114 );
-		pMDU->Line( 188, 114, 225, 116 );
-		pMDU->Line( 225, 116, 248, 115 );
+		pMDU->Line( 116, 289, 126, 257 );
+		pMDU->Line( 126, 257, 136, 236 );
+		pMDU->Line( 136, 236, 146, 218 );
+		pMDU->Line( 146, 218, 166, 196 );
+		pMDU->Line( 166, 196, 196, 179 );
+		pMDU->Line( 196, 179, 212, 173 );
+		pMDU->Line( 212, 173, 242, 168 );
+		pMDU->Line( 242, 168, 272, 168 );
+		pMDU->Line( 272, 168, 376, 177 );
+		pMDU->Line( 376, 177, 450, 180 );
+		pMDU->Line( 450, 180, 496, 179 );
 
-		pMDU->Line( 135, 97, 161, 102 );
-		pMDU->Line( 161, 102, 194, 107 );
-		pMDU->Line( 194, 107, 234, 107 );
+		pMDU->Line( 270, 151, 322, 159 );
+		pMDU->Line( 322, 159, 388, 166 );
+		pMDU->Line( 388, 166, 468, 166 );
 
 		// Vr line
-		pMDU->Line( 50, 31, 249, 31 );
+		pMDU->Line( 100, 48, 498, 48 );
 		// 25K mark
-		pMDU->Line( 50, 31, 50, 36 );
+		pMDU->Line( 100, 48, 100, 56 );
 		// 26K mark
-		pMDU->Line( 249, 31, 249, 36 );
+		pMDU->Line( 498, 48, 498, 56 );
 
 		// dynamic parts
 		char cbuf[64];
@@ -2123,20 +2117,20 @@ namespace dps
 		double inertialVelocity = pAscentGuidance->GetInertialVelocity();
 
 		// Vr scale
-		if (((TgtSpd * MPS2FPS) > 25000) && ((TgtSpd * MPS2FPS) < 26000))// TODO update for MECO speeds > 25K???
+		if (((TgtSpd * MPS2FPS) > 25000) && ((TgtSpd * MPS2FPS) < 26000))// TODO update for MECO speeds > 26K???
 		{
 			// CO mark
-			tmp = Round( ((((TgtSpd * MPS2FPS) - 25000)) * 0.199) ) + 50;
-			pMDU->Line( tmp, 31, tmp, 36 );
-			tmp = Round( tmp * 0.2 ) - 1;
+			tmp = Round( ((((TgtSpd * MPS2FPS) - 25000)) * 0.398) ) + 100;
+			pMDU->Line( tmp, 48, tmp, 56 );
+			tmp = Round( tmp * 0.1 ) - 1;
 			pMDU->mvprint( tmp, 4, "CO" );
 		}
-		if ((inertialVelocity * MPS2FPS) < 25000) tmp = 50;
-		else if ((inertialVelocity * MPS2FPS) > 26000) tmp = 249;
-		else tmp = Round( ((((inertialVelocity * MPS2FPS) - 25000)) * 0.199) ) + 50;
-		pMDU->Line( tmp, 30, tmp - 3, 26, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( tmp - 3, 26, tmp + 3, 26, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( tmp + 3, 26, tmp, 30, dps::DEUATT_OVERBRIGHT );
+		if ((inertialVelocity * MPS2FPS) < 25000) tmp = 100;
+		else if ((inertialVelocity * MPS2FPS) > 26000) tmp = 498;
+		else tmp = Round( ((((inertialVelocity * MPS2FPS) - 25000)) * 0.398) ) + 100;
+		pMDU->Line( tmp, 47, tmp - 6, 39, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( tmp - 6, 39, tmp + 6, 39, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( tmp + 6, 39, tmp, 47, dps::DEUATT_OVERBRIGHT );
 
 		sprintf_s( cbuf, 64, "%3d", (int)pAscentGuidance->GetThrottleCommand() );
 		pMDU->mvprint( 44, 17, cbuf );
@@ -2204,11 +2198,11 @@ namespace dps
 		double VHI = LVLH_Vel.x;
 		double Altitude = STS()->GetAltitude() * MPS2FPS;
 		//Draw triangle for state vector
-		short stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-		short stX = static_cast<short>(VHI * 0.0102);
-		pMDU->Line( stX, stY - 3, stX - 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( stX - 3, stY + 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
-		pMDU->Line( stX + 3, stY + 3, stX, stY - 3, dps::DEUATT_OVERBRIGHT );
+		short stY = static_cast<short>(490.558404 - (Altitude * 0.000997152));
+		short stX = static_cast<short>(VHI * 0.0204);
+		pMDU->Line( stX, stY - 6, stX - 6, stY + 6, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( stX - 6, stY + 6, stX + 6, stY + 6, dps::DEUATT_OVERBRIGHT );
+		pMDU->Line( stX + 6, stY + 6, stX, stY - 6, dps::DEUATT_OVERBRIGHT );
 		
 		// HACK using constant 12º for SSME offset
 		// 30s predictor
@@ -2219,18 +2213,18 @@ namespace dps
 		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);
 		//Draw circle for 30s predictor
 		//stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-		stY = static_cast<short>(315.358974 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 900) - earthR) * 0.000641026));
-		stX = static_cast<short>(VHI * 0.0102);
-		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
+		stY = static_cast<short>(490.558404 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 900) - earthR) * 0.000997152));
+		stX = static_cast<short>(VHI * 0.0204);
+		pMDU->Ellipse( stX - 6, stY - 6, stX + 6, stY + 6, dps::DEUATT_OVERBRIGHT );
 
 		// 60s predictor
 		VHI += dv30;
 		Altitude = (STS()->GetAltitude() * MPS2FPS) - (LVLH_Vel.z * 60) + ((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 1800 * MPS2FPS;
 		//Draw circle for 60s predictor
 		//stY = static_cast<short>(315.358974 - (Altitude * 0.000641026));
-		stY = static_cast<short>(315.358974 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 3600) - earthR) * 0.000641026));
-		stX = static_cast<short>(VHI * 0.0102);
-		pMDU->Ellipse( stX - 3, stY - 3, stX + 3, stY + 3, dps::DEUATT_OVERBRIGHT );
+		stY = static_cast<short>(490.558404 - ((Altitude + sqrt(earthR * earthR + VHI * VHI * 3600) - earthR) * 0.000997152));
+		stX = static_cast<short>(VHI * 0.0204);
+		pMDU->Ellipse( stX - 6, stY - 6, stX + 6, stY + 6, dps::DEUATT_OVERBRIGHT );
 		return;
 	}
 

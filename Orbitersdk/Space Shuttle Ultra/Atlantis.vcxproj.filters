@@ -50,6 +50,7 @@
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <None Include="Bitmaps\A8lights.bmp" />
     <None Include="Bitmaps\SSME_lights.bmp" />
+    <None Include="Bitmaps\DEU_Raw_fault.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">

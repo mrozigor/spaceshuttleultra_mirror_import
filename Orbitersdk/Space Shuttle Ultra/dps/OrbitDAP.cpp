@@ -978,18 +978,36 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 		START_TIME[0], START_TIME[1], START_TIME[2], START_TIME[3]);
 	pMDU->mvprint(1, 2, cbuf);
+	pMDU->Underline( 14, 2 );
+	pMDU->Underline( 15, 2 );
+	pMDU->Underline( 16, 2 );
+	pMDU->Underline( 18, 2 );
+	pMDU->Underline( 19, 2 );
+	pMDU->Underline( 21, 2 );
+	pMDU->Underline( 22, 2 );
+	pMDU->Underline( 24, 2 );
+	pMDU->Underline( 25, 2 );
 
 	pMDU->mvprint(0, 4, "MNVR OPTION");
 	sprintf_s(cbuf, 255, "5 R %6.2f", MNVR_OPTION.data[ROLL]);
 	pMDU->mvprint(1, 5, cbuf);
+	pMDU->Underline( 5, 5 );
+	pMDU->Underline( 6, 5 );
+	pMDU->Underline( 7, 5 );
+	pMDU->Underline( 8, 5 );
+	pMDU->Underline( 9, 5 );
+	pMDU->Underline( 10, 5 );
 	sprintf_s(cbuf, 255, "6 P %6.2f", MNVR_OPTION.data[PITCH]);
 	pMDU->mvprint(1, 6, cbuf);
 	sprintf_s(cbuf, 255, "7 Y %6.2f", MNVR_OPTION.data[YAW]);
 	pMDU->mvprint(1, 7, cbuf);
 
 	pMDU->mvprint(0, 9, "TRK/ROT OPTIONS");
-	sprintf_s(cbuf, 255, "8 TGT ID %03d", TGT_ID);
+	sprintf_s(cbuf, 255, "8 TGT ID %3d", TGT_ID);
 	pMDU->mvprint(1, 10, cbuf);
+	pMDU->Underline( 10, 10 );
+	pMDU->Underline( 11, 10 );
+	pMDU->Underline( 12, 10 );
 
 	pMDU->mvprint(1, 12, "9  RA");
 	pMDU->mvprint(1, 13, "10 DEC");
@@ -1001,6 +1019,12 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(1, 18, cbuf);
 	sprintf_s(cbuf, 255, "15 P  %6.2f", P);
 	pMDU->mvprint(1, 20, cbuf);
+	pMDU->Underline( 7, 20 );
+	pMDU->Underline( 8, 20 );
+	pMDU->Underline( 9, 20 );
+	pMDU->Underline( 10, 20 );
+	pMDU->Underline( 11, 20 );
+	pMDU->Underline( 12, 20 );
 	sprintf_s(cbuf, 255, "16 Y  %6.2f", Y);
 	pMDU->mvprint(1, 21, cbuf);
 	if(OM>=0.0) {
@@ -1042,18 +1066,24 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(20, 10, "22 MON AXIS");
 	pMDU->mvprint(20, 11, "ERR TOT 23");
 	pMDU->mvprint(20, 12, "ERR DAP 24");
-	if (ERRTOT == true) pMDU->mvprint( 30, 11, "*" );// ERR TOT
-	else pMDU->mvprint( 30, 12, "*" );// ERR DAP
+	if (ERRTOT == true) pMDU->mvprint( 31, 11, "*" );// ERR TOT
+	else pMDU->mvprint( 31, 12, "*" );// ERR DAP
 
-	pMDU->mvprint(26, 14, "ROLL    PITCH    YAW");
+	pMDU->mvprint(26, 14, "ROLL   PITCH    YAW");
 	sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", CUR_ATT.data[ROLL], CUR_ATT.data[PITCH], CUR_ATT.data[YAW]);
 	pMDU->mvprint(19, 15, cbuf);
 	sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", REQD_ATT.data[ROLL], REQD_ATT.data[PITCH], REQD_ATT.data[YAW]);
 	pMDU->mvprint(19, 16, cbuf);
-	sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", ATT_ERR.data[ROLL], ATT_ERR.data[PITCH], ATT_ERR.data[YAW]);
+	sprintf_s(cbuf, 255, "ERR   %6.2f  %6.2f  %6.2f", fabs( ATT_ERR.data[ROLL] ), fabs( ATT_ERR.data[PITCH] ), fabs( ATT_ERR.data[YAW] ));
 	pMDU->mvprint(19, 17, cbuf);
-	sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", degAngularVelocity.data[ROLL], degAngularVelocity.data[PITCH], degAngularVelocity.data[YAW]);
+	pMDU->NumberSign( 24, 17, ATT_ERR.data[ROLL] );
+	pMDU->NumberSign( 32, 17, ATT_ERR.data[PITCH] );
+	pMDU->NumberSign( 40, 17, ATT_ERR.data[YAW] );
+	sprintf_s(cbuf, 255, "RATE  %6.3f  %6.3f  %6.3f", fabs( degAngularVelocity.data[ROLL] ), fabs( degAngularVelocity.data[PITCH] ), fabs( degAngularVelocity.data[YAW] ));
 	pMDU->mvprint(19, 18, cbuf);
+	pMDU->NumberSign( 24, 18, degAngularVelocity.data[ROLL] );
+	pMDU->NumberSign( 32, 18, degAngularVelocity.data[PITCH] );
+	pMDU->NumberSign( 40, 18, degAngularVelocity.data[YAW] );
 }
 
 void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
@@ -1095,54 +1125,149 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(0, 22, "COMP");
 	pMDU->mvprint(0, 23, "CNTL ACC");
 
+	pMDU->mvprint( 16, 2, "01" );
+	pMDU->Underline( 16, 2 );
+	pMDU->Underline( 17, 2 );
+	pMDU->mvprint( 27, 2, "02" );
+	pMDU->Underline( 27, 2 );
+	pMDU->Underline( 28, 2 );
+
 	int edit=2; //temporary
 	for(n=1, i=0;n<=lim[edit];n+=2, i++) {
 		sprintf_s(cbuf, 255, "%d %.4f", 10*n, DAPConfiguration[i].PRI_ROT_RATE);
 		pMDU->mvprint(9+11*i, 3, cbuf);
+		pMDU->Underline( 12 + 11 * i, 3 );
+		pMDU->Underline( 13 + 11 * i, 3 );
+		pMDU->Underline( 14 + 11 * i, 3 );
+		pMDU->Underline( 15 + 11 * i, 3 );
+		pMDU->Underline( 16 + 11 * i, 3 );
+		pMDU->Underline( 17 + 11 * i, 3 );
 		sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+1, DAPConfiguration[i].PRI_ATT_DB);
 		pMDU->mvprint(9+11*i, 4, cbuf);
+		pMDU->Underline( 13 + 11 * i, 4 );
+		pMDU->Underline( 14 + 11 * i, 4 );
+		pMDU->Underline( 15 + 11 * i, 4 );
+		pMDU->Underline( 16 + 11 * i, 4 );
+		pMDU->Underline( 17 + 11 * i, 4 );
 		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+2, DAPConfiguration[i].PRI_RATE_DB);
 		pMDU->mvprint(9+11*i, 5, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+3, DAPConfiguration[i].PRI_ROT_PLS);
+		pMDU->Underline( 14 + 11 * i, 5 );
+		pMDU->Underline( 15 + 11 * i, 5 );
+		pMDU->Underline( 16 + 11 * i, 5 );
+		pMDU->Underline( 17 + 11 * i, 5 );
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+3, DAPConfiguration[i].PRI_ROT_PLS);
 		pMDU->mvprint(9+11*i, 6, cbuf);
+		pMDU->Underline( 13 + 11 * i, 6 );
+		pMDU->Underline( 14 + 11 * i, 6 );
+		pMDU->Underline( 15 + 11 * i, 6 );
+		pMDU->Underline( 16 + 11 * i, 6 );
+		pMDU->Underline( 17 + 11 * i, 6 );
 		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+4, DAPConfiguration[i].PRI_COMP);
 		pMDU->mvprint(9+11*i, 7, cbuf);
+		pMDU->mvprint( 13 + 11 * i, 7, " " );
+		pMDU->Underline( 14 + 11 * i, 7 );
+		pMDU->Underline( 15 + 11 * i, 7 );
+		pMDU->Underline( 16 + 11 * i, 7 );
+		pMDU->Underline( 17 + 11 * i, 7 );
 		sprintf_s(cbuf, 255, "%d   %s", 10*n+5, strings[DAPConfiguration[i].PRI_P_OPTION]);
 		pMDU->mvprint(9+11*i, 8, cbuf);
 		sprintf_s(cbuf, 255, "%d   %s", 10*n+6, strings[DAPConfiguration[i].PRI_Y_OPTION]);
 		pMDU->mvprint(9+11*i, 9, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
 		pMDU->mvprint(9+11*i, 10, cbuf);
+		pMDU->Underline( 13 + 11 * i, 10 );
+		pMDU->Underline( 14 + 11 * i, 10 );
+		pMDU->Underline( 15 + 11 * i, 10 );
+		pMDU->Underline( 16 + 11 * i, 10 );
+		pMDU->Underline( 17 + 11 * i, 10 );
 
 		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
 		pMDU->mvprint(9+11*i, 12, cbuf);
+		pMDU->Underline( 13 + 11 * i, 12 );
+		pMDU->Underline( 14 + 11 * i, 12 );
+		pMDU->Underline( 15 + 11 * i, 12 );
+		pMDU->Underline( 16 + 11 * i, 12 );
+		pMDU->Underline( 17 + 11 * i, 12 );
 		sprintf_s(cbuf, 255, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
 		pMDU->mvprint(9+11*i, 13, cbuf);
 		sprintf_s(cbuf, 255, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
 		pMDU->mvprint(9+11*i, 14, cbuf);
+		pMDU->Underline( 17 + 11 * i, 14 );
 		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
 		pMDU->mvprint(9+11*i, 15, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
+		pMDU->Underline( 14 + 11 * i, 15 );
+		pMDU->Underline( 15 + 11 * i, 15 );
+		pMDU->Underline( 16 + 11 * i, 15 );
+		pMDU->Underline( 17 + 11 * i, 15 );
+		sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
 		pMDU->mvprint(9+11*i, 16, cbuf);
+		pMDU->Underline( 13 + 11 * i, 16 );
+		pMDU->Underline( 14 + 11 * i, 16 );
+		pMDU->Underline( 15 + 11 * i, 16 );
+		pMDU->Underline( 16 + 11 * i, 16 );
+		pMDU->Underline( 17 + 11 * i, 16 );
 
 		sprintf_s(cbuf, 255, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
 		pMDU->mvprint(9+11*i, 18, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
+		pMDU->Underline( 12 + 11 * i, 18 );
+		pMDU->Underline( 13 + 11 * i, 18 );
+		pMDU->Underline( 14 + 11 * i, 18 );
+		pMDU->Underline( 15 + 11 * i, 18 );
+		pMDU->Underline( 16 + 11 * i, 18 );
+		pMDU->Underline( 17 + 11 * i, 18 );
+		sprintf_s(cbuf, 255, "%d %06.3f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
 		pMDU->mvprint(9+11*i, 19, cbuf);
+		pMDU->Underline( 12 + 11 * i, 19 );
+		pMDU->Underline( 13 + 11 * i, 19 );
+		pMDU->Underline( 14 + 11 * i, 19 );
+		pMDU->Underline( 15 + 11 * i, 19 );
+		pMDU->Underline( 16 + 11 * i, 19 );
+		pMDU->Underline( 17 + 11 * i, 19 );
 		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
 		pMDU->mvprint(9+11*i, 20, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
+		pMDU->mvprint( 13 + 11 * i, 20, " " );
+		pMDU->Underline( 14 + 11 * i, 20 );
+		pMDU->Underline( 15 + 11 * i, 20 );
+		pMDU->Underline( 16 + 11 * i, 20 );
+		pMDU->Underline( 17 + 11 * i, 20 );
+		sprintf_s(cbuf, 255, "%d  %05.3f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
 		pMDU->mvprint(9+11*i, 21, cbuf);
+		pMDU->Underline( 13 + 11 * i, 21 );
+		pMDU->Underline( 14 + 11 * i, 21 );
+		pMDU->Underline( 15 + 11 * i, 21 );
+		pMDU->Underline( 16 + 11 * i, 21 );
+		pMDU->Underline( 17 + 11 * i, 21 );
 		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
 		pMDU->mvprint(9+11*i, 22, cbuf);
+		pMDU->mvprint( 13 + 11 * i, 22, " " );
+		pMDU->Underline( 14 + 11 * i, 22 );
+		pMDU->Underline( 15 + 11 * i, 22 );
+		pMDU->Underline( 16 + 11 * i, 22 );
+		pMDU->Underline( 17 + 11 * i, 22 );
 		sprintf_s(cbuf, 255, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
 		pMDU->mvprint(9+11*i, 23, cbuf);
+		pMDU->Underline( 17 + 11 * i, 23 );
 	}
 
-	pMDU->Line( 95, 18, 95, 225 );
-	pMDU->Line( 150, 18, 150, 225 );
-	pMDU->Line( 205, 72, 205, 225 );
-	pMDU->Line( 205, 72, 255, 72 );
+	pMDU->mvprint( 41, 2, "DAP EDIT" );
+	pMDU->mvprint( 41, 3, "3 DAP A" );
+	pMDU->mvprint( 41, 4, "4 DAP B" );
+	pMDU->mvprint( 41, 5, "5" );
+
+	pMDU->Line( 190, 28, 190, 336 );
+	pMDU->Line( 300, 28, 300, 336 );
+	pMDU->Line( 410, 112, 410, 336 );
+	pMDU->Line( 410, 112, 510, 112 );
+
+	pMDU->mvprint( 41, 9, "NOTCH FLTR" );
+	pMDU->mvprint( 43, 10, "ENA  6" );
+
+	pMDU->mvprint( 42, 12, "XJETS ROT" );
+	pMDU->mvprint( 44, 13, "ENA  7" );
+
+	pMDU->mvprint( 42, 15, "REBOOST" );
+	pMDU->mvprint( 43, 16, "8 CFG" );
+	pMDU->mvprint( 43, 17, "9 INTVL" );
 }
 
 bool OrbitDAP::OnParseLine(const char* keyword, const char* value)

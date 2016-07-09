@@ -50,20 +50,10 @@ bool CRT::ConsumeKeyBuffered (DWORD key)
 {
 	if (mdu)
 	{
-		switch (mdu->NavigateMenu( key ))
+		if (mdu->NavigateMenu( key ))
 		{
-			case 0:
-				return false;
-			case 1:
-				InvalidateButtons();
-				return true;
-			/*case 2:
-				InvalidateDisplay();
-				return true;*/
-			case 3:
-				InvalidateDisplay();
-				InvalidateButtons();
-				return true;
+			InvalidateDisplay();
+			return true;
 		}
 	}
 	return false;

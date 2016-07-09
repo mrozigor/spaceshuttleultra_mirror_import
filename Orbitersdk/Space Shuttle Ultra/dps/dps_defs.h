@@ -115,7 +115,7 @@ namespace dps {
 	} MAJORFUNCTION;
 
 	struct DEUCHAR {
-		char cSymbol;
+		unsigned char cSymbol;
 		char cAttr;
 	};
 
