@@ -1033,8 +1033,13 @@ namespace vc
 		}
 		
 		//print Scratch Pad line
-		const char* scratch_pad=prim_idp->GetScratchPadLineString();
-		PrintToBuffer(scratch_pad, strlen(scratch_pad), 1, 25, 0);
+		const char* scratch_pad = prim_idp->GetScratchPadLineString_B();
+		int flashingentry = prim_idp->GetFlashingEntry();
+		if (flashingentry != 0)
+		{
+			PrintToBuffer( scratch_pad, flashingentry, 1, 25, dps::DEUATT_FLASHING );
+		}
+		PrintToBuffer( scratch_pad + flashingentry, strlen( scratch_pad + flashingentry ), 1 + flashingentry, 25, 0 );
 	}
 
 	void MDU::PrintToBuffer(const char* string, int length, int col, int row, char attributes)
