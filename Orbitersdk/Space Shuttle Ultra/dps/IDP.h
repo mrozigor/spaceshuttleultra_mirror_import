@@ -143,13 +143,15 @@ namespace dps {
 		bool IsKeyboardSelected( unsigned short usKeyboardID ) const;
 		virtual MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
+		virtual const char* GetScratchPadLineString_B( void ) const;
 		virtual const char* GetScratchPadLineScan() const;
+		virtual int GetFlashingEntry( void ) const;
+
 		/**
 		 * Perform a initial program load.
 		 * Basically just reset software configuration to basic and 
 		 * request critical format data from assigned GPC.
 		 */
-		
 		virtual void IPL();
 		bool IsBFS() const;
 		virtual bool PutKey(unsigned short usKeyboardID, char cKey);
@@ -163,7 +165,7 @@ namespace dps {
 		inline bool IsOPSLine() const {return (cScratchPadLine[0] == SSU_KEY_OPS);};
 		inline bool IsSPECLine() const {return (cScratchPadLine[0] == SSU_KEY_SPEC);};
 		inline bool IsITEMLine() const {return (cScratchPadLine[0] == SSU_KEY_ITEM);};
-		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCIDP);};
+		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCCRT);};
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
 

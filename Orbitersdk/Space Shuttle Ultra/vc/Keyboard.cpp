@@ -41,8 +41,8 @@ namespace vc
 			}
 			else if (y >= 0.125 && y < 0.25)// GPC/CRT
 			{
-				if (pIDP[0] != NULL) pIDP[0]->PutKey( ID, SSU_KEY_GPCIDP );
-				if (pIDP[1] != NULL) pIDP[1]->PutKey( ID, SSU_KEY_GPCIDP );
+				if (pIDP[0] != NULL) pIDP[0]->PutKey( ID, SSU_KEY_GPCCRT );
+				if (pIDP[1] != NULL) pIDP[1]->PutKey( ID, SSU_KEY_GPCCRT );
 				PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 				return true;
 			}
