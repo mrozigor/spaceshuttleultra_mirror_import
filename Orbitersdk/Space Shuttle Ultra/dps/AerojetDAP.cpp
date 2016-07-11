@@ -2574,28 +2574,28 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	//pMDU->mvprint( 20, 21, "TGT NZ" );// OPS 6 only
 
 	// alt/rng lines
-	pMDU->Line( 202, 58, 90, 103 );
-	pMDU->Line( 90, 103, 37, 148 );
-	pMDU->Line( 37, 148, 12, 198 );
+	pMDU->Line( 404, 90, 180, 160 );
+	pMDU->Line( 180, 160, 74, 230 );
+	pMDU->Line( 74, 230, 24, 308 );
 
-	pMDU->Line( 200, 72, 108, 104 );
-	pMDU->Line( 108, 104, 30, 200 );
+	pMDU->Line( 400, 112, 216, 162 );
+	pMDU->Line( 216, 162, 60, 311 );
 
-	pMDU->Line( 202, 78, 119, 121 );
-	pMDU->Line( 119, 121, 52, 193 );
+	pMDU->Line( 404, 121, 238, 188 );
+	pMDU->Line( 238, 188, 104, 300 );
 
 	// RTLS alpha/mach transition
-	pMDU->Line( 107, 59, 21, 72 );
-	pMDU->Line( 21, 72, 5, 81 );
-	pMDU->Line( 105, 40, 5, 63, dps::DEUATT_DASHED );
+	pMDU->Line( 214, 92, 42, 112 );
+	pMDU->Line( 42, 112, 10, 126 );
+	pMDU->Line( 210, 62, 10, 98, dps::DEUATT_DASHED );
 
 	// theta / E/W scale
-	pMDU->Line( 232, 74, 232, 218 );
-	pMDU->Line( 230, 115, 235, 115 );
-	pMDU->Line( 231, 135, 238, 135, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 137, 235, 137, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 231, 139, 238, 139, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 188, 235, 188 );
+	pMDU->Line( 464, 115, 464, 339 );
+	pMDU->Line( 460, 179, 470, 179 );
+	pMDU->Line( 462, 210, 476, 210, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 213, 470, 213, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 462, 216, 476, 216, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 292, 470, 292 );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
@@ -2615,8 +2615,8 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 28, 17, cbuf );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range - 10) * 4.25 );
-	int y = Round( 300.8571428571 - (ETVS_Altitude * 0.0028285714) );
+	int x = Round( (ETVS_Range - 10) * 8.5 );
+	int y = Round( 467.999999999933 - (ETVS_Altitude * 0.004399999956) );
 	VECTOR3 vel;
 	STS()->GetHorizonAirspeedVector( vel );
 	double rot = atan( vel.y / (0.192 * sqrt( vel.x * vel.x + vel.z * vel.z )) );
@@ -2658,22 +2658,22 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 	if (GetApproachAndLandState() == true) pMDU->mvprint( 38, 17, "A/L", dps::DEUATT_FLASHING );
 
 	// alt/rng lines
-	pMDU->Line( 94, 29, 36, 173 );
+	pMDU->Line( 188, 45, 72, 269 );
 
-	pMDU->Line( 133, 27, 36, 178 );
+	pMDU->Line( 266, 42, 72, 277 );
 	
-	pMDU->Line( 211, 35, 66, 146 );
-	pMDU->Line( 66, 146, 36, 188 );
+	pMDU->Line( 422, 54, 132, 227 );
+	pMDU->Line( 132, 227, 72, 292 );
 
-	pMDU->Line( 36, 173, 36, 188 );
+	pMDU->Line( 72, 269, 72, 292 );
 
 	// theta / E/W scale
-	pMDU->Line( 232, 53, 232, 218 );
-	pMDU->Line( 230, 103, 235, 103 );
-	pMDU->Line( 231, 133, 238, 133, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 139, 235, 139, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 231, 142, 238, 142, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 184, 235, 184 );
+	pMDU->Line( 464, 82, 464, 339 );
+	pMDU->Line( 460, 160, 470, 160 );
+	pMDU->Line( 462, 207, 476, 207, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 216, 470, 216, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 462, 221, 476, 221, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 286, 470, 286 );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
@@ -2693,8 +2693,8 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 29, 17, cbuf );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range - 5) * 12.75 );
-	int y = 288 - Round( ETVS_Altitude * 0.009 );
+	int x = Round( (ETVS_Range - 5) * 25.5 );
+	int y = 448 - Round( ETVS_Altitude * 0.014 );
 	VECTOR3 vel;
 	STS()->GetHorizonAirspeedVector( vel );
 	double rot = atan( vel.y / (0.181 * sqrt( vel.x * vel.x + vel.z * vel.z )) );

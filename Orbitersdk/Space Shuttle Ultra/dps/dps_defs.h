@@ -130,6 +130,12 @@ namespace dps {
 		char cAttr;
 	};
 
+	struct DEU_PIXEL
+	{
+		int x, y;
+		char cAttr;
+	};
+
 	struct DEU_STATUS {
 		word16 bite1;
 		word16 bite2;

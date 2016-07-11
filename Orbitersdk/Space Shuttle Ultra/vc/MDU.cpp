@@ -1023,6 +1023,7 @@ namespace vc
 
 		lines.clear();
 		ellipses.clear();
+		pixels.clear();
 
 		if(prim_idp) {
 			prim_idp->OnPaint(this);
@@ -1140,8 +1141,8 @@ namespace vc
 		gdiOverbrightPen = CreatePen( PS_SOLID, 2, CR_DPS_OVERBRIGHT );
 		gdiNormalPen = CreatePen( PS_SOLID, 2, CR_DPS_NORMAL );
 		LOGBRUSH lb = {BS_SOLID, CR_DPS_NORMAL, 0};
-		DWORD pstyle[2] = {2, 1};
-		gdiDashedNormalPen = ExtCreatePen( PS_COSMETIC | PS_USERSTYLE, 1, &lb, 2, pstyle );
+		DWORD pstyle[2] = {16, 8};
+		gdiDashedNormalPen = ExtCreatePen( PS_GEOMETRIC | PS_USERSTYLE, 2, &lb, 2, pstyle );
 
 		gdiTahomaFont_h10w4 = CreateFont( 10, 4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
 		gdiTahomaFont_h7w3 = CreateFont( 7, 3, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
