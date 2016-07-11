@@ -113,6 +113,14 @@ namespace vc
 				::Ellipse( hDC, ellipses[i].xLeft, ellipses[i].yTop, ellipses[i].xRight, ellipses[i].yBottom );
 			}
 		}
+		for (unsigned int i = 0; i < pixels.size(); i++)
+		{
+			if (((pixels[i].cAttr & dps::DEUATT_FLASHING) == 0) || flash)
+			{
+				if ((pixels[i].cAttr & dps::DEUATT_OVERBRIGHT) != 0) SetPixel( hDC, pixels[i].x, pixels[i].y, CR_DPS_OVERBRIGHT );
+				else SetPixel( hDC, pixels[i].x, pixels[i].y, CR_DPS_NORMAL );
+			}
+		}
 
 		// driving IDP and active keyboards display
 		SelectObject( hDC, gdiNormalPen );
@@ -255,6 +263,14 @@ namespace vc
 				if (ellipses[i].cAttr == dps::DEUATT_OVERBRIGHT) skp->SetPen( skpOverbrightPen );
 				else skp->SetPen( skpNormalPen );
 				skp->Ellipse( ellipses[i].xLeft, ellipses[i].yTop, ellipses[i].xRight, ellipses[i].yBottom );
+			}
+		}
+		for (unsigned int i = 0; i < pixels.size(); i++)
+		{
+			if (((pixels[i].cAttr & dps::DEUATT_FLASHING) == 0) || flash)
+			{
+				if ((pixels[i].cAttr & dps::DEUATT_OVERBRIGHT) != 0) skp->Pixel( pixels[i].x, pixels[i].y, CR_DPS_OVERBRIGHT );
+				else skp->Pixel( pixels[i].x, pixels[i].y, CR_DPS_NORMAL );
 			}
 		}
 
