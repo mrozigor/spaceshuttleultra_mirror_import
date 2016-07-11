@@ -53,6 +53,82 @@
 
 const int DPS_DISPLAY_VERTICAL_OFFSET = 32;
 
+const int ORBITER_TOP_COUNT = 66;
+// horizontal "slices" left to right, nose to tail
+const int ORBITER_TOP_X[ORBITER_TOP_COUNT] = {
+	0, 1,
+	-1, 0, 1, 2,
+	-1, 0, 1, 2,
+	-1, 2,
+	-2, -1, 2, 3,
+	-2, -1, 2, 3,
+	-2, -1, 2, 3,
+	-2, -1, 2, 3,
+	-3, -2, 3, 4,
+	-4, -3, 4, 5,
+	-5, -4, 5, 6,
+	-5, -4, 5, 6,
+	-5, -4, -3, -2, -1, 2, 3, 4, 5, 6,
+	-4, -3, -2, -1, 0, 1, 2, 3, 4, 5,
+	0, 1
+	};
+const int ORBITER_TOP_Y[ORBITER_TOP_COUNT] = {
+	0, 0,
+	1, 1, 1, 1,
+	2, 2, 2, 2,
+	3, 3,
+	4, 4, 4, 4,
+	5, 5, 5, 5,
+	6, 6, 6, 6,
+	7, 7, 7, 7,
+	8, 8, 8, 8,
+	9, 9, 9, 9,
+	10, 10, 10, 10,
+	11, 11, 11, 11,
+	12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+	13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+	14, 14
+	};
+
+const int ORBITER_SIDE_COUNT = 66;
+// vertical "slices" top down, nose to tail
+const int ORBITER_SIDE_X[ORBITER_SIDE_COUNT] = {
+	-7, -7,
+	-6, -6, -6, -6,
+	-5, -5, -5, -5,
+	-4, -4, -4, -4,
+	-3, -3, -3, -3,
+	-2, -2, -2, -2,
+	-1, -1, -1, -1,
+	0, 0, 0, 0,
+	1, 1, 1, 1,
+	2, 2, 2, 2,
+	3, 3, 3, 3,
+	4, 4, 4, 4,
+	5, 5, 5, 5, 5, 5,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	7, 7, 7, 7, 7,
+	8
+	};
+const int ORBITER_SIDE_Y[ORBITER_SIDE_COUNT] = {
+	-3, -2,
+	-4, -3, -2, -1,
+	-5, -4, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-6, -5, -1, 0,
+	-7, -6, -1, 0,
+	-8, -7, -1, 0,
+	-9, -8, -6, -5, -1, 0,
+	-9, -8, -7, -6, -5, -4, -2, -1,
+	-9, -8, -4, -3, -2,
+	-3
+	};
+
 
 namespace vc {
 
@@ -509,125 +585,13 @@ namespace vc {
 		{
 			dps::DEU_PIXEL pixel;
 			pixel.cAttr = attributes;
-			pixel.x = x;
-			pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
 
-			pixel.x = x + 1;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 1;
-			pixel.y = y + 1 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 2;
-			pixel.y = y + 2 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 2;
-			pixel.y = y + 3 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 2;
-			pixel.y = y + 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 2;
-			pixel.y = y + 5 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 3;
-			pixel.y = y + 6 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 3;
-			pixel.y = y + 7 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 4;
-			pixel.y = y + 8 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 5;
-			pixel.y = y + 9 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 5;
-			pixel.y = y + 10 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 4;
-			pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 3;
-			//pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 2;
-			//pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 1;
-			pixel.y = y + 12 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x;
-			//pixel.y = y + 12 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 1;
-			pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 2;
-			//pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 3;
-			//pixel.y = y + 11 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 4;
-			pixel.y = y + 10 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x - 4;
-			pixel.y = y + 9 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 3;
-			pixel.y = y + 8 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 2;
-			pixel.y = y + 7 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x - 2;
-			pixel.y = y + 6 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 1;
-			pixel.y = y + 5 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x - 1;
-			pixel.y = y + 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x - 1;
-			pixel.y = y + 3 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x - 1;
-			pixel.y = y + 2 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x;
-			pixel.y = y + 1 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
+			for (int i = 0; i < ORBITER_TOP_COUNT; i++)
+			{
+				pixel.x = ORBITER_TOP_X[i] + x;
+				pixel.y = ORBITER_TOP_Y[i] + y + DPS_DISPLAY_VERTICAL_OFFSET;
+				pixels.push_back( pixel );
+			}
 		}
 
 		inline void OrbiterSymbolSide( int x, int y, double rotation, char attributes = 0 )
@@ -637,159 +601,13 @@ namespace vc {
 
 			dps::DEU_PIXEL pixel;
 			pixel.cAttr = attributes;
-			pixel.x = x - 6;
-			pixel.y = y - 1 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
 
-			pixel.x = x - 5;
-			pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 4;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 3;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 2;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 1;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 1;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 2;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 3;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 4;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 5;
-			//pixel.y = y + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 6;
-			pixel.y = y - 1 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 7;
-			pixel.y = y - 2 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 6;
-			pixel.y = y - 3 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 5;
-			pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 6;
-			pixel.y = y - 5 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 6;
-			pixel.y = y - 6 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 7;
-			pixel.y = y - 7 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			//pixel.x = x + 7;
-			pixel.y = y - 8 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 6;
-			//pixel.y = y - 8 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 5;
-			pixel.y = y - 7 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 4;
-			pixel.y = y - 6 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 3;
-			pixel.y = y - 5 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 2;
-			pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x + 1;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 1;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 2;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 3;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 4;
-			//pixel.y = y - 4 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 5;
-			pixel.y = y - 3 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			pixel.x = x - 6;
-			pixel.y = y - 2 + DPS_DISPLAY_VERTICAL_OFFSET;
-			pixels.push_back( pixel );
-
-			/*Line( x, y, x + Round( 2 * (cosrot + sinrot) ), y + Round( 2 * (sinrot - cosrot) ), attributes );
-			Line( x + Round( 2 * (cosrot + sinrot) ), y + Round( 2 * (sinrot - cosrot) ), x + Round( 5 * cosrot + 2 * sinrot ), y + Round( 5 * sinrot - 2 * cosrot ), attributes );
-			Line( x + Round( 5 * cosrot + 2 * sinrot ), y + Round( 5 * sinrot - 2 * cosrot ), x + Round( 7 * cosrot + 5 * sinrot ), y + Round( 7 * sinrot - 5 * cosrot ), attributes );
-			Line( x + Round( 7 * cosrot + 5 * sinrot ), y + Round( 7 * sinrot - 5 * cosrot ), x + Round( 8 * cosrot + 5 * sinrot ), y + Round( 8 * sinrot - 5 * cosrot ), attributes );
-			Line( x + Round( 8 * cosrot + 5 * sinrot ), y + Round( 8 * sinrot - 5 * cosrot ), x + Round( 7 * cosrot + 2 * sinrot ), y + Round( 7 * sinrot - 2 * cosrot ), attributes );
-			Line( x + Round( 7 * cosrot + 2 * sinrot ), y + Round( 7 * sinrot - 2 * cosrot ), x + Round( 8 * cosrot + sinrot ), y + Round( 8 * sinrot - cosrot ), attributes );
-			Line( x + Round( 8 * cosrot + sinrot ), y + Round( 8 * sinrot - cosrot ), x + Round( 8 * cosrot ), y + Round( 8 * sinrot ), attributes );
-			Line( x + Round( 8 * cosrot ), y + Round( 8 * sinrot ), x + Round( 7 * cosrot - sinrot ), y + Round( 7 * sinrot + cosrot ), attributes );
-			Line( x + Round( 7 * cosrot - sinrot ), y + Round( 7 * sinrot + cosrot ), x + Round( cosrot - sinrot ), y + Round( sinrot + cosrot ), attributes );
-			Line( x + Round( cosrot - sinrot ), y + Round( sinrot + cosrot ), x, y, attributes );*/
-			// no rotation normal
-			/*Line( x, y, x + 2, y - 2, attributes );
-			Line( x + 2, y - 2, x + 5, y - 2, attributes );
-			Line( x + 5, y - 2, x + 7, y - 5, attributes );
-			Line( x + 7, y - 5, x + 8, y - 5, attributes );
-			Line( x + 8, y - 5, x + 7, y - 2, attributes );
-			Line( x + 7, y - 2, x + 8, y - 1, attributes );
-			Line( x + 8, y - 1, x + 8, y, attributes );
-			Line( x + 8, y, x + 7, y + 1, attributes );
-			Line( x + 7, y + 1, x + 1, y + 1, attributes );
-			Line( x + 1, y + 1, x, y, attributes );*/
+			for (int i = 0; i < ORBITER_SIDE_COUNT; i++)
+			{
+				pixel.x = Round( (ORBITER_SIDE_X[i] * cosrot) - (ORBITER_SIDE_Y[i] * sinrot) ) + x ;
+				pixel.y = Round( (ORBITER_SIDE_X[i] * sinrot) + (ORBITER_SIDE_Y[i] * cosrot) ) + y + DPS_DISPLAY_VERTICAL_OFFSET;
+				pixels.push_back( pixel );
+			}
 		}
 
 		/**
