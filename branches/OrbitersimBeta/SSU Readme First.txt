@@ -7,7 +7,7 @@ Installation:
 	Vandenberg AFB (http://www.orbithangar.com/searchid.php?ID=2380)
 2. Extract files into Orbiter folder, overwriting any existing files.
 
-3. Install the "SSU_Font_A" font, located in the Orbiter base directory, by opening it and selecting install. After installation the file can be deleted.
+3. Install the "SSU_Font_A" and "SSU_Font_B" fonts, located in the Orbiter base directory, by opening it and selecting install. After installation the files can be deleted.
 
 4. The following lines need to be added to the list of textures of the <orbiter_installation\Config\Base.cfg> file:
 NOR1735tex

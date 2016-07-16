@@ -10,16 +10,15 @@ namespace vc
 		int nPos;
 		double dNum;
 		char cbuf[16];
-		char num[10] = {79, 49, 50, 51, 52, 53, 54, 55, 56, 57};// HACK to replace the '0' with an 'O'
 
 		int save = SaveDC( hDC );
 		SetTextColor( hDC, CR_DARK_GREEN );
-		SelectObject( hDC, gdiSSUAFont_h10w10bold );// TODO SSU_B
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SelectObject( hDC, gdiDarkGreenPen );
 		SelectObject( hDC, gdiBlackBrush );
 
-		TextOut( hDC, 75, 5, "OMS", 3 );
-		TextOut( hDC, 300, 5, "MPS", 3 );
+		TextOut( hDC, 76, 1, "OMS", 3 );
+		TextOut( hDC, 301, 1, "MPS", 3 );
 		MoveToEx( hDC, 163, 12, NULL );
 		LineTo( hDC, 163, 396 );
 		MoveToEx( hDC, 29, 12, NULL );
@@ -403,15 +402,12 @@ namespace vc
 		}
 		Rectangle( hDC, 237, Round( 385 - (0.57 * dNum) ), 252, 385 );
 
-		SelectObject( hDC, gdiSSUAFont_h15w10 );
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 
 		// L OMS
 		dNum = 100.0 * STS()->GetThrusterLevel( STS()->th_oms[0] ) + (STS()->GetAtmPressure() * 0.00011603);// HACK should have this in the sensor
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		TextOut( hDC, 59, 279, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 60, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 80)
 		{
 			SelectObject( hDC, gdiWhiteBrush );
@@ -434,10 +430,7 @@ namespace vc
 		// R OMS
 		dNum = 100.0 * STS()->GetThrusterLevel( STS()->th_oms[1] ) + (STS()->GetAtmPressure() * 0.00011603);// HACK should have this in the sensor
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		TextOut( hDC, 113, 279, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 114, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 80)
 		{
 			SelectObject( hDC, gdiWhiteBrush );
@@ -461,10 +454,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		TextOut( hDC, 313, 279, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 314, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			SelectObject( hDC, gdiWhiteBrush );
@@ -483,10 +473,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 1 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		TextOut( hDC, 365, 264, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 366, 261, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			SelectObject( hDC, gdiWhiteBrush );
@@ -505,10 +492,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 3 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		TextOut( hDC, 423, 279, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 424, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			SelectObject( hDC, gdiWhiteBrush );
@@ -532,15 +516,14 @@ namespace vc
 		int nPos;
 		double dNum;
 		char cbuf[16];
-		char num[10] = {79, 49, 50, 51, 52, 53, 54, 55, 56, 57};// HACK to replace the '0' with an 'O'
 
 		skp->SetTextColor( CR_DARK_GREEN );
-		skp->SetFont( skpSSUAFont_h10bold );// TODO SSU_B
+		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetPen( skpDarkGreenPen );
 		skp->SetBrush( skpBlackBrush );
 
-		skp->Text( 75, 5, "OMS", 3);
-		skp->Text( 300, 5, "MPS", 3);
+		skp->Text( 76, 1, "OMS", 3);
+		skp->Text( 301, 1, "MPS", 3);
 		skp->Line( 163, 12, 163, 396 );
 		skp->Line( 29, 12, 56, 12 ); 
 		skp->Line( 115, 12, 292, 12 );
@@ -892,15 +875,12 @@ namespace vc
 		}
 		skp->Rectangle( 237, Round( 385 - (0.57 * dNum) ), 252, 385 );
 
-		skp->SetFont( skpSSUAFont_h10bold );// TODO
+		skp->SetFont( skpSSUBFont_h18 );
 
 		// L OMS
 		dNum = 100.0 * STS()->GetThrusterLevel( STS()->th_oms[0] ) + (STS()->GetAtmPressure() * 0.00011603);// HACK should have this in the sensor
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		skp->Text( 59, 279, cbuf, strlen(cbuf) );
+		skp->Text( 60, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 80)
 		{
 			skp->SetBrush( skpWhiteBrush );
@@ -923,10 +903,7 @@ namespace vc
 		// R OMS
 		dNum = 100.0 * STS()->GetThrusterLevel( STS()->th_oms[1] ) + (STS()->GetAtmPressure() * 0.00011603);// HACK should have this in the sensor
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		skp->Text( 113, 279, cbuf, strlen(cbuf) );
+		skp->Text( 114, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 80)
 		{
 			skp->SetBrush( skpWhiteBrush );
@@ -950,10 +927,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		skp->Text( 313, 279, cbuf, strlen(cbuf) );
+		skp->Text( 314, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			skp->SetBrush( skpWhiteBrush );
@@ -972,10 +946,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		skp->Text( 365, 264, cbuf, strlen(cbuf) );
+		skp->Text( 366, 261, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			skp->SetBrush( skpWhiteBrush );
@@ -994,10 +965,7 @@ namespace vc
 		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
-		cbuf[0] = num[cbuf[0] - 48];
-		cbuf[1] = num[cbuf[1] - 48];
-		cbuf[2] = num[cbuf[2] - 48];
-		skp->Text( 423, 279, cbuf, strlen(cbuf) );
+		skp->Text( 424, 276, cbuf, strlen( cbuf ) );
 		if (dNum >= 65)
 		{
 			skp->SetBrush( skpWhiteBrush );
@@ -1020,12 +988,12 @@ namespace vc
 		char cbuf[16];
 
 		int save = SaveDC( hDC );
-		SelectObject( hDC, gdiSSUAFont_h10w10bold );// TODO SSU_B
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SelectObject( hDC, gdiDarkGreenPen );
 		SelectObject( hDC, gdiBlackBrush );
 
 		SetTextColor( hDC, CR_DARK_GREEN );
-		TextOut( hDC, 239, 7, "APU", 3 );
+		TextOut( hDC, 239, 6, "APU", 3 );
 		MoveToEx( hDC, 38, 15, NULL );
 		LineTo( hDC, 235, 15 );
 		MoveToEx( hDC, 274, 15, NULL );
@@ -1035,7 +1003,7 @@ namespace vc
 		MoveToEx( hDC, 472, 15, NULL );
 		LineTo( hDC, 472, 33 );
 
-		TextOut( hDC, 216, 264, "HYDRAULIC", 9 );
+		TextOut( hDC, 216, 261, "HYDRAULIC", 9 );
 		MoveToEx( hDC, 20, 268, NULL );
 		LineTo( hDC, 208, 268 );
 		MoveToEx( hDC, 303, 268, NULL );
@@ -1324,18 +1292,18 @@ namespace vc
 		double dNum;
 		char cbuf[255];
 
-		skp->SetFont( skpSSUAFont_h10bold );// TODO SSU_B
+		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetPen( skpDarkGreenPen );
 		skp->SetBrush( skpBlackBrush );
 
 		skp->SetTextColor( CR_DARK_GREEN );
-		skp->Text( 239, 7, "APU", 3 );
+		skp->Text( 239, 6, "APU", 3 );
 		skp->Line( 38, 15, 235, 15 );
 		skp->Line( 274, 15, 472, 15 );
 		skp->Line( 38, 15, 38, 33 );
 		skp->Line( 472, 15, 472, 33 );
 
-		skp->Text( 216, 264, "HYDRAULIC", 9 );
+		skp->Text( 216, 261, "HYDRAULIC", 9 );
 		skp->Line( 20, 268, 208, 268 );
 		skp->Line( 303, 268, 472, 268 );
 		skp->Line( 20, 268, 20, 286 );
