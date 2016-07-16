@@ -1291,10 +1291,7 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			}
 			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 424, pos - 4, 424, pos + 4, att );
-			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
-			pMDU->Line( 420, pos, 432, pos, att );
-			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 		else if (GetPrefinalState() == false)
 		{
@@ -1343,10 +1340,7 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			}
 			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 424, pos - 3, 424, pos + 5, att );
-			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
-			pMDU->Line( 420, pos, 432, pos, att );
-			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 		else
 		{
@@ -1395,10 +1389,7 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			}
 			else pos = Round( err * 0.061 ) + 134;
 
-			pMDU->Line( 424, pos - 3, 424, pos + 5, att );
-			pMDU->Line( 422, pos - 2, 432, pos - 2, att );
-			pMDU->Line( 420, pos, 432, pos, att );
-			pMDU->Line( 422, pos + 2, 432, pos + 2, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 	}
 

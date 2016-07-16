@@ -253,7 +253,7 @@ namespace vc
 				if ((lines[i].cAttr & dps::DEUATT_OVERBRIGHT) != 0) skp->SetPen( skpOverbrightPen );
 				else if ((lines[i].cAttr & dps::DEUATT_DASHED) != 0) skp->SetPen( skpDashedNormalPen );
 				else skp->SetPen( skpNormalPen );
-				skp->Line( lines[i].x0, lines[i].y0, lines[i].x1, lines[i].y1 );
+				skp->Line( lines[i].x0, lines[i].y0 - 1, lines[i].x1, lines[i].y1 - 1 );// 1px up to match GDI
 			}
 		}
 		for (unsigned int i = 0; i < ellipses.size(); i++)
