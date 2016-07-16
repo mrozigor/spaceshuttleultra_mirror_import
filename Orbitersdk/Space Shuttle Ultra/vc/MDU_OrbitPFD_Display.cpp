@@ -26,7 +26,7 @@ namespace vc
 
 		int save = SaveDC( hDC );
 
-		SelectObject( hDC, gdiTahomaFont_h10w4 );
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 
 		ADI_STATIC_ORBIT( hDC );
 		if ((MM == 201) || (MM == 202) || (MM == 801))
@@ -36,7 +36,6 @@ namespace vc
 			ADI_ERROR_ORBIT( hDC, atterr.x, atterr.z, atterr.y, adierr );
 		}
 		else ADI_ORBIT( hDC, 129, 77, 14 );
-
 
 		RestoreDC( hDC, save );
 		return;
@@ -61,7 +60,7 @@ namespace vc
 		double attYaw = STS()->GetSlipAngle() * DEG;
 		if (attYaw <= 0) attYaw += 360;
 
-		skp->SetFont( skpTahomaFont_h10w4 );
+		skp->SetFont( skpSSUBFont_h12 );
 
 		ADI_STATIC_ORBIT( skp );
 		if ((MM == 201) || (MM == 202) || (MM == 801))
@@ -77,459 +76,509 @@ namespace vc
 	void MDU::ADI_STATIC_ORBIT( HDC hDC )
 	{
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 186, 42, "R", 1 );
-		TextOut( hDC, 186, 50, "P", 1 );
-		TextOut( hDC, 186, 58, "Y", 1 );
+		TextOut( hDC, 379, 56, "R", 1 );
+		TextOut( hDC, 379, 70, "P", 1 );
+		TextOut( hDC, 379, 84, "Y", 1 );
+		
+		TextOut( hDC, 253, 61, "0", 1 );
+		TextOut( hDC, 409, 216, "0", 1 );
+		TextOut( hDC, 253, 371, "0", 1 );
 
 		SelectObject( hDC, gdiWhitePen );
-		::Ellipse( hDC, 64, 64, 192, 192 );
+		::Ellipse( hDC, 124, 91, 388, 355 );
 
 		// rate scales
 		// top scale
 		SelectObject( hDC, gdiDarkGrayPen );
-		MoveToEx( hDC, 89, 53, NULL );
-		LineTo( hDC, 167, 53 );
-		MoveToEx( hDC, 89, 53, NULL );
-		LineTo( hDC, 89, 61 );
-		MoveToEx( hDC, 97, 53, NULL );
-		LineTo( hDC, 97, 58 );
-		MoveToEx( hDC, 104, 53, NULL );
-		LineTo( hDC, 104, 58 );
-		MoveToEx( hDC, 112, 53, NULL );
-		LineTo( hDC, 112, 58 );
-		MoveToEx( hDC, 120, 53, NULL );
-		LineTo( hDC, 120, 58 );
-		MoveToEx( hDC, 128, 53, NULL );
-		LineTo( hDC, 128, 61 );
-		MoveToEx( hDC, 136, 53, NULL );
-		LineTo( hDC, 136, 58 );
-		MoveToEx( hDC, 144, 53, NULL );
-		LineTo( hDC, 144, 58 );
-		MoveToEx( hDC, 152, 53, NULL );
-		LineTo( hDC, 152, 58 );
-		MoveToEx( hDC, 159, 53, NULL );
-		LineTo( hDC, 159, 58 );
-		MoveToEx( hDC, 167, 53, NULL );
-		LineTo( hDC, 167, 61 );
+		MoveToEx( hDC, 167, 76, NULL );
+		LineTo( hDC, 345, 76 );
+		MoveToEx( hDC, 167, 76, NULL );
+		LineTo( hDC, 167, 86 );
+		MoveToEx( hDC, 185, 76, NULL );
+		LineTo( hDC, 185, 81 );
+		MoveToEx( hDC, 203, 76, NULL );
+		LineTo( hDC, 203, 81 );
+		MoveToEx( hDC, 220, 76, NULL );
+		LineTo( hDC, 220, 81 );
+		MoveToEx( hDC, 238, 76, NULL );
+		LineTo( hDC, 238, 81 );
+		MoveToEx( hDC, 256, 76, NULL );
+		LineTo( hDC, 256, 86 );
+		MoveToEx( hDC, 274, 76, NULL );
+		LineTo( hDC, 274, 81 );
+		MoveToEx( hDC, 292, 76, NULL );
+		LineTo( hDC, 292, 81 );
+		MoveToEx( hDC, 309, 76, NULL );
+		LineTo( hDC, 309, 81 );
+		MoveToEx( hDC, 327, 76, NULL );
+		LineTo( hDC, 327, 81 );
+		MoveToEx( hDC, 345, 76, NULL );
+		LineTo( hDC, 345, 86 );
 
 		// side scale
-		MoveToEx( hDC, 204, 89, NULL );
-		LineTo( hDC, 204, 167 );
-		MoveToEx( hDC, 204, 89, NULL );
-		LineTo( hDC, 196, 89 );
-		MoveToEx( hDC, 204, 97, NULL );
-		LineTo( hDC, 199, 97 );
-		MoveToEx( hDC, 204, 104, NULL );
-		LineTo( hDC, 199, 104 );
-		MoveToEx( hDC, 204, 112, NULL );
-		LineTo( hDC, 199, 112 );
-		MoveToEx( hDC, 204, 120, NULL );
-		LineTo( hDC, 199, 120 );
-		MoveToEx( hDC, 204, 128, NULL );
-		LineTo( hDC, 196, 128 );
-		MoveToEx( hDC, 204, 136, NULL );
-		LineTo( hDC, 199, 136 );
-		MoveToEx( hDC, 204, 144, NULL );
-		LineTo( hDC, 199, 144 );
-		MoveToEx( hDC, 204, 152, NULL );
-		LineTo( hDC, 199, 152 );
-		MoveToEx( hDC, 204, 159, NULL );
-		LineTo( hDC, 199, 159 );
-		MoveToEx( hDC, 204, 167, NULL );
-		LineTo( hDC, 196, 167 );////////
+		MoveToEx( hDC, 403, 134, NULL );
+		LineTo( hDC, 403, 312 );
+		MoveToEx( hDC, 403, 134, NULL );
+		LineTo( hDC, 393, 134 );
+		MoveToEx( hDC, 403, 152, NULL );
+		LineTo( hDC, 398, 152 );
+		MoveToEx( hDC, 403, 170, NULL );
+		LineTo( hDC, 398, 170 );
+		MoveToEx( hDC, 403, 187, NULL );
+		LineTo( hDC, 398, 187 );
+		MoveToEx( hDC, 403, 205, NULL );
+		LineTo( hDC, 398, 205 );
+		MoveToEx( hDC, 403, 223, NULL );
+		LineTo( hDC, 393, 223 );
+		MoveToEx( hDC, 403, 241, NULL );
+		LineTo( hDC, 398, 241 );
+		MoveToEx( hDC, 403, 259, NULL );
+		LineTo( hDC, 398, 259 );
+		MoveToEx( hDC, 403, 276, NULL );
+		LineTo( hDC, 398, 276 );
+		MoveToEx( hDC, 403, 294, NULL );
+		LineTo( hDC, 398, 294 );
+		MoveToEx( hDC, 403, 312, NULL );
+		LineTo( hDC, 393, 312 );
 
 		// bottom scale
-		MoveToEx( hDC, 89, 205, NULL );
-		LineTo( hDC, 167, 205 );
-		MoveToEx( hDC, 89, 205, NULL );
-		LineTo( hDC, 89, 198 );
-		MoveToEx( hDC, 97, 205, NULL );
-		LineTo( hDC, 97, 200 );
-		MoveToEx( hDC, 104, 205, NULL );
-		LineTo( hDC, 104, 200 );
-		MoveToEx( hDC, 112, 205, NULL );
-		LineTo( hDC, 112, 200 );
-		MoveToEx( hDC, 120, 205, NULL );
-		LineTo( hDC, 120, 200 );
-		MoveToEx( hDC, 128, 205, NULL );
-		LineTo( hDC, 128, 198 );
-		MoveToEx( hDC, 136, 205, NULL );
-		LineTo( hDC, 136, 200 );
-		MoveToEx( hDC, 144, 205, NULL );
-		LineTo( hDC, 144, 200 );
-		MoveToEx( hDC, 152, 205, NULL );
-		LineTo( hDC, 152, 200 );
-		MoveToEx( hDC, 159, 205, NULL );
-		LineTo( hDC, 159, 200 );
-		MoveToEx( hDC, 167, 205, NULL );
-		LineTo( hDC, 167, 198 );
+		MoveToEx( hDC, 167, 370, NULL );
+		LineTo( hDC, 345, 370 );
+		MoveToEx( hDC, 167, 370, NULL );
+		LineTo( hDC, 167, 360 );
+		MoveToEx( hDC, 185, 370, NULL );
+		LineTo( hDC, 185, 365 );
+		MoveToEx( hDC, 203, 370, NULL );
+		LineTo( hDC, 203, 365 );
+		MoveToEx( hDC, 220, 370, NULL );
+		LineTo( hDC, 220, 365 );
+		MoveToEx( hDC, 238, 370, NULL );
+		LineTo( hDC, 238, 365 );
+		MoveToEx( hDC, 256, 370, NULL );
+		LineTo( hDC, 256, 360 );
+		MoveToEx( hDC, 274, 370, NULL );
+		LineTo( hDC, 274, 365 );
+		MoveToEx( hDC, 292, 370, NULL );
+		LineTo( hDC, 292, 365 );
+		MoveToEx( hDC, 309, 370, NULL );
+		LineTo( hDC, 309, 365 );
+		MoveToEx( hDC, 327, 370, NULL );
+		LineTo( hDC, 327, 365 );
+		MoveToEx( hDC, 345, 370, NULL );
+		LineTo( hDC, 345, 360 );
 
 		// roll lines
-		// 10º/190º
-		MoveToEx( hDC, 118, 71, NULL );
-		LineTo( hDC, 138, 185 );
-		// 20º/200º
-		MoveToEx( hDC, 108, 73, NULL );
-		LineTo( hDC, 148, 183 );
-		// 40º/220º
-		MoveToEx( hDC, 91, 83, NULL );
-		LineTo( hDC, 165, 173 );
-		// 50º/230º
-		MoveToEx( hDC, 83, 91, NULL );
-		LineTo( hDC, 173, 165 );
-		// 70º/250º
-		MoveToEx( hDC, 73, 108, NULL );
-		LineTo( hDC, 183, 148 );
-		// 80º/260º
-		MoveToEx( hDC, 71, 118, NULL );
-		LineTo( hDC, 185, 138 );
-		// 100º/280º
-		MoveToEx( hDC, 71, 138, NULL );
-		LineTo( hDC, 185, 118 );
-		// 110º/290º
-		MoveToEx( hDC, 73, 148, NULL );
-		LineTo( hDC, 183, 108 );
-		// 130º/310º
-		MoveToEx( hDC, 83, 165, NULL );
-		LineTo( hDC, 173, 91 );
-		// 140º/320º
-		MoveToEx( hDC, 91, 173, NULL );
-		LineTo( hDC, 165, 83 );
-		// 160º/340º
-		MoveToEx( hDC, 108, 183, NULL );
-		LineTo( hDC, 148, 73 );
-		// 170º/350º
-		MoveToEx( hDC, 118, 185, NULL );
-		LineTo( hDC, 138, 71 );
+		MoveToEx( hDC, 246, 109, NULL );// 5º/185º
+		LineTo( hDC, 266, 337 );
+		MoveToEx( hDC, 236, 111, NULL );// 10º/190º
+		LineTo( hDC, 276, 335 );
+		MoveToEx( hDC, 226, 113, NULL );// 15º/195º
+		LineTo( hDC, 286, 333 );
+		MoveToEx( hDC, 217, 116, NULL );// 20º/200º
+		LineTo( hDC, 295, 330 );
+		MoveToEx( hDC, 208, 120, NULL );// 25º/205º
+		LineTo( hDC, 304, 326 );
+		
+		MoveToEx( hDC, 191, 130, NULL );// 35º/215º
+		LineTo( hDC, 321, 316 );
+		MoveToEx( hDC, 183, 136, NULL );// 40º/220º
+		LineTo( hDC, 329, 310 );
+		MoveToEx( hDC, 175, 142, NULL );// 45º/225º
+		LineTo( hDC, 337, 304 );
+		MoveToEx( hDC, 169, 150, NULL );// 50º/230º
+		LineTo( hDC, 343, 296 );
+		MoveToEx( hDC, 163, 158, NULL );// 55º/235º
+		LineTo( hDC, 349, 288 );
+		
+		MoveToEx( hDC, 153, 175, NULL );// 65º/245º
+		LineTo( hDC, 359, 271 );
+		MoveToEx( hDC, 149, 184, NULL );// 70º/250º
+		LineTo( hDC, 363, 262 );
+		MoveToEx( hDC, 146, 193, NULL );// 75º/255º
+		LineTo( hDC, 366, 253 );
+		MoveToEx( hDC, 144, 203, NULL );// 80º/260º
+		LineTo( hDC, 368, 243 );
+		MoveToEx( hDC, 142, 213, NULL );// 85º/265º
+		LineTo( hDC, 370, 233 );
+		
+		MoveToEx( hDC, 142, 233, NULL );// 95º/275º
+		LineTo( hDC, 370, 213 );
+		MoveToEx( hDC, 144, 243, NULL );// 100º/280º
+		LineTo( hDC, 368, 203 );
+		MoveToEx( hDC, 146, 253, NULL );// 105º/285º
+		LineTo( hDC, 366, 193 );
+		MoveToEx( hDC, 149, 262, NULL );// 110º/290º
+		LineTo( hDC, 363, 184 );
+		MoveToEx( hDC, 153, 271, NULL );// 115º/295º
+		LineTo( hDC, 359, 175 );
+		
+		MoveToEx( hDC, 163, 288, NULL );// 125º/305º
+		LineTo( hDC, 349, 158 );
+		MoveToEx( hDC, 169, 296, NULL );// 130º/310º
+		LineTo( hDC, 343, 150 );
+		MoveToEx( hDC, 175, 304, NULL );// 135º/315º
+		LineTo( hDC, 337, 142 );
+		MoveToEx( hDC, 183, 310, NULL );// 140º/320º
+		LineTo( hDC, 329, 136 );
+		MoveToEx( hDC, 191, 316, NULL );// 145º/325º
+		LineTo( hDC, 321, 130 );
+		
+		MoveToEx( hDC, 208, 326, NULL );// 155º/335º
+		LineTo( hDC, 304, 120 );
+		MoveToEx( hDC, 217, 330, NULL );// 160º/340º
+		LineTo( hDC, 295, 116 );
+		MoveToEx( hDC, 226, 333, NULL );// 165º/345º
+		LineTo( hDC, 286, 113 );
+		MoveToEx( hDC, 236, 335, NULL );// 170º/350º
+		LineTo( hDC, 276, 111 );
+		MoveToEx( hDC, 246, 337, NULL );// 175º/355º
+		LineTo( hDC, 266, 109 );
 		SelectObject( hDC, gdiDarkGrayThickPen );
-		// 30º/210º
-		MoveToEx( hDC, 99, 77, NULL );
-		LineTo( hDC, 157, 179 );
-		// 60º/240º
-		MoveToEx( hDC, 77, 99, NULL );
-		LineTo( hDC, 179, 157 );
-		// 120º/300º
-		MoveToEx( hDC, 77, 157, NULL );
-		LineTo( hDC, 179, 99 );
-		// 150º/330º
-		MoveToEx( hDC, 99, 179, NULL );
-		LineTo( hDC, 157, 77 );
+		MoveToEx( hDC, 197, 121, NULL );// 30º/210º
+		LineTo( hDC, 315, 325 );
+		MoveToEx( hDC, 154, 164, NULL );// 60º/240º
+		LineTo( hDC, 358, 282 );
+		MoveToEx( hDC, 154, 282, NULL );// 120º/300º
+		LineTo( hDC, 358, 164 );
+		MoveToEx( hDC, 197, 325, NULL );// 150º/330º
+		LineTo( hDC, 315, 121 );
 		// cover center for ADI SRCPAINT
 		SelectObject( hDC, gdiBlackBrush );
 		SelectObject( hDC, gdiBlackPen );
-		::Ellipse( hDC, 73, 73, 183, 183 );
+		::Ellipse( hDC, 146, 113, 366, 333 );
 
-		TextOut( hDC, 158, 75, "33", 2 );
-		TextOut( hDC, 173, 91, "30", 2 );
-		TextOut( hDC, 173, 156, "24", 2 );
-		TextOut( hDC, 157, 173, "21", 2 );
-		TextOut( hDC, 91, 173, "15", 2 );
-		TextOut( hDC, 75, 156, "12", 2 );
-		TextOut( hDC, 75, 90, "06", 2 );
-		TextOut( hDC, 91, 75, "03", 2 );
+		TextOut( hDC, 317, 115, "33", 2 );
+		TextOut( hDC, 351, 150, "30", 2 );
+		TextOut( hDC, 351, 283, "24", 2 );
+		TextOut( hDC, 317, 318, "21", 2 );
+		TextOut( hDC, 181, 318, "15", 2 );
+		TextOut( hDC, 148, 282, "12", 2 );
+		TextOut( hDC, 148, 149, "06", 2 );
+		TextOut( hDC, 181, 115, "03", 2 );
 		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiLightGrayBrush );
 		POINT diamond[4];
-		diamond[0].x = 128;
-		diamond[0].y = 66;
-		diamond[1].x = 131;
-		diamond[1].y = 69;
-		diamond[2].x = 128;
-		diamond[2].y = 72;
-		diamond[3].x = 125;
-		diamond[3].y = 69;
+		diamond[0].x = 256;
+		diamond[0].y = 99;
+		diamond[1].x = 261;
+		diamond[1].y = 106;
+		diamond[2].x = 256;
+		diamond[2].y = 113;
+		diamond[3].x = 251;
+		diamond[3].y = 106;
 		Polygon( hDC, diamond, 4 );// top
-		//diamond[0].x = 128;
-		diamond[0].y = 183;
-		//diamond[1].x = 131;
-		diamond[1].y = 186;
-		//diamond[2].x = 128;
-		diamond[2].y = 189;
-		//diamond[3].x = 125;
-		diamond[3].y = 186;
+		//diamond[0].x = 256;
+		diamond[0].y = 333;
+		//diamond[1].x = 261;
+		diamond[1].y = 340;
+		//diamond[2].x = 256;
+		diamond[2].y = 347;
+		//diamond[3].x = 251;
+		diamond[3].y = 340;
 		Polygon( hDC, diamond, 4 );// bottom
-		diamond[0].x = 186;
-		diamond[0].y = 125;
-		diamond[1].x = 189;
-		diamond[1].y = 128;
-		diamond[2].x = 186;
-		diamond[2].y = 131;
-		diamond[3].x = 183;
-		diamond[3].y = 128;
+		diamond[0].x = 373;
+		diamond[0].y = 218;
+		diamond[1].x = 380;
+		diamond[1].y = 223;
+		diamond[2].x = 373;
+		diamond[2].y = 228;
+		diamond[3].x = 366;
+		diamond[3].y = 223;
 		Polygon( hDC, diamond, 4 );// right
-		diamond[0].x = 69;
-		//diamond[0].y = 125;
-		diamond[1].x = 72;
-		//diamond[1].y = 128;
-		diamond[2].x = 69;
-		//diamond[2].y = 131;
-		diamond[3].x = 66;
-		//diamond[3].y = 128;
+		diamond[0].x = 139;
+		//diamond[0].y = 218;
+		diamond[1].x = 146;
+		//diamond[1].y = 223;
+		diamond[2].x = 139;
+		//diamond[2].y = 228;
+		diamond[3].x = 132;
+		//diamond[3].y = 223;
 		Polygon( hDC, diamond, 4 );// left
 
 		// att needles
 		// top scale
 		SelectObject( hDC, gdiMagentaPen );
 		SelectObject( hDC, gdiMagentaBrush );
-		Arc( hDC, 66, 66, 190, 190, 156, 73, 100, 73 );
-		MoveToEx( hDC, 100, 73, NULL );
-		LineTo( hDC, 100, 76 );
-		MoveToEx( hDC, 106, 71, NULL );
-		LineTo( hDC, 106, 74 );
-		MoveToEx( hDC, 111, 68, NULL );
-		LineTo( hDC, 111, 72 );
-		MoveToEx( hDC, 117, 67, NULL );
-		LineTo( hDC, 117, 71 );
-		MoveToEx( hDC, 122, 66, NULL );
-		LineTo( hDC, 122, 70 );
-		MoveToEx( hDC, 134, 66, NULL );
-		LineTo( hDC, 134, 70 );
-		MoveToEx( hDC, 139, 67, NULL );
-		LineTo( hDC, 139, 71 );
-		MoveToEx( hDC, 145, 68, NULL );
-		LineTo( hDC, 145, 72 );
-		MoveToEx( hDC, 150, 71, NULL );
-		LineTo( hDC, 150, 74 );
-		MoveToEx( hDC, 156, 73, NULL );
-		LineTo( hDC, 156, 76 );
+		Arc( hDC, 131, 98, 381, 348, 306, 108, 206, 108 );
+		MoveToEx( hDC, 206, 109, NULL );
+		LineTo( hDC, 206, 114 );
+		MoveToEx( hDC, 216, 106, NULL );
+		LineTo( hDC, 216, 111 );
+		MoveToEx( hDC, 226, 103, NULL );
+		LineTo( hDC, 226, 108 );
+		MoveToEx( hDC, 236, 101, NULL );
+		LineTo( hDC, 236, 106 );
+		MoveToEx( hDC, 246, 100, NULL );
+		LineTo( hDC, 246, 105 );
+		MoveToEx( hDC, 256, 99, NULL );
+		LineTo( hDC, 256, 104 );
+		MoveToEx( hDC, 266, 100, NULL );
+		LineTo( hDC, 266, 105 );
+		MoveToEx( hDC, 276, 101, NULL );
+		LineTo( hDC, 276, 106 );
+		MoveToEx( hDC, 286, 103, NULL );
+		LineTo( hDC, 286, 109 );
+		MoveToEx( hDC, 296, 106, NULL );
+		LineTo( hDC, 296, 111 );
+		MoveToEx( hDC, 306, 109, NULL );
+		LineTo( hDC, 306, 114 );
 
 		// side scale
-		Arc( hDC, 66, 66, 190, 190, 183, 156, 183, 100 );
-		MoveToEx( hDC, 183, 100, NULL );
-		LineTo( hDC, 180, 100 );
-		MoveToEx( hDC, 184, 106, NULL );
-		LineTo( hDC, 181, 106 );
-		MoveToEx( hDC, 186, 111, NULL );
-		LineTo( hDC, 183, 111 );
-		MoveToEx( hDC, 188, 117, NULL );
-		LineTo( hDC, 184, 117 );
-		MoveToEx( hDC, 189, 122, NULL );
-		LineTo( hDC, 185, 122 );
-		MoveToEx( hDC, 189, 134, NULL );
-		LineTo( hDC, 185, 134 );
-		MoveToEx( hDC, 188, 139, NULL );
-		LineTo( hDC, 184, 139 );
-		MoveToEx( hDC, 186, 145, NULL );
-		LineTo( hDC, 183, 145 );
-		MoveToEx( hDC, 184, 150, NULL );
-		LineTo( hDC, 181, 150 );
-		MoveToEx( hDC, 183, 156, NULL );
-		LineTo( hDC, 180, 156 );
+		Arc( hDC, 131, 98, 381, 348, 371, 273, 371, 173 );
+		MoveToEx( hDC, 370, 173, NULL );
+		LineTo( hDC, 365, 173 );
+		MoveToEx( hDC, 373, 183, NULL );
+		LineTo( hDC, 368, 183 );
+		MoveToEx( hDC, 376, 193, NULL );
+		LineTo( hDC, 371, 193 );
+		MoveToEx( hDC, 378, 203, NULL );
+		LineTo( hDC, 373, 203 );
+		MoveToEx( hDC, 379, 213, NULL );
+		LineTo( hDC, 374, 213 );
+		MoveToEx( hDC, 380, 223, NULL );
+		LineTo( hDC, 375, 223 );
+		MoveToEx( hDC, 379, 233, NULL );
+		LineTo( hDC, 374, 233 );
+		MoveToEx( hDC, 378, 243, NULL );
+		LineTo( hDC, 373, 243 );
+		MoveToEx( hDC, 376, 253, NULL );
+		LineTo( hDC, 371, 253 );
+		MoveToEx( hDC, 373, 263, NULL );
+		LineTo( hDC, 368, 263 );
+		MoveToEx( hDC, 370, 273, NULL );
+		LineTo( hDC, 365, 273 );
 
 		// bottom scale
-		Arc( hDC, 66, 66, 190, 190, 100, 183, 156, 183 );
-		MoveToEx( hDC, 100, 183, NULL );
-		LineTo( hDC, 100, 180 );
-		MoveToEx( hDC, 106, 184, NULL );
-		LineTo( hDC, 106, 181 );
-		MoveToEx( hDC, 111, 186, NULL );
-		LineTo( hDC, 111, 183 );
-		MoveToEx( hDC, 117, 188, NULL );
-		LineTo( hDC, 117, 184 );
-		MoveToEx( hDC, 122, 189, NULL );
-		LineTo( hDC, 122, 185 );
-		MoveToEx( hDC, 134, 189, NULL );
-		LineTo( hDC, 134, 185 );
-		MoveToEx( hDC, 139, 188, NULL );
-		LineTo( hDC, 139, 184 );
-		MoveToEx( hDC, 145, 186, NULL );
-		LineTo( hDC, 145, 183 );
-		MoveToEx( hDC, 151, 184, NULL );
-		LineTo( hDC, 151, 181 );
-		MoveToEx( hDC, 156, 183, NULL );
-		LineTo( hDC, 156, 180 );
+		Arc( hDC, 131, 98, 381, 348, 206, 338, 306, 338 );
+		MoveToEx( hDC, 206, 336, NULL );
+		LineTo( hDC, 206, 331 );
+		MoveToEx( hDC, 216, 339, NULL );
+		LineTo( hDC, 216, 334 );
+		MoveToEx( hDC, 226, 342, NULL );
+		LineTo( hDC, 226, 337 );
+		MoveToEx( hDC, 236, 344, NULL );
+		LineTo( hDC, 236, 339 );
+		MoveToEx( hDC, 246, 345, NULL );
+		LineTo( hDC, 246, 340 );
+		MoveToEx( hDC, 256, 346, NULL );
+		LineTo( hDC, 256, 341 );
+		MoveToEx( hDC, 266, 345, NULL );
+		LineTo( hDC, 266, 340 );
+		MoveToEx( hDC, 276, 344, NULL );
+		LineTo( hDC, 276, 339 );
+		MoveToEx( hDC, 286, 342, NULL );
+		LineTo( hDC, 286, 337 );
+		MoveToEx( hDC, 296, 339, NULL );
+		LineTo( hDC, 296, 334 );
+		MoveToEx( hDC, 306, 336, NULL );
+		LineTo( hDC, 306, 331 );
 		return;
 	}
 
 	void MDU::ADI_STATIC_ORBIT( oapi::Sketchpad2* skp )
 	{
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 186, 42, "R", 1 );
-		skp->Text( 186, 50, "P", 1 );
-		skp->Text( 186, 58, "Y", 1 );
+		skp->Text( 379, 56, "R", 1 );
+		skp->Text( 379, 70, "P", 1 );
+		skp->Text( 379, 84, "Y", 1 );
+
+		skp->Text( 253, 61, "0", 1 );
+		skp->Text( 409, 216, "0", 1 );
+		skp->Text( 253, 371, "0", 1 );
 
 		skp->SetPen( skpWhitePen );
-		skp->Ellipse( 64, 64, 192, 192 );
-
+		skp->Ellipse( 124, 91, 388, 355 );
+		
 		// rate scales
 		// top scale
 		skp->SetPen( skpDarkGrayPen );
-		skp->Line( 89, 53, 167, 53 );
-		skp->Line( 89, 53, 89, 61 );
-		skp->Line( 97, 53, 97, 58 );
-		skp->Line( 104, 53, 104, 58 );
-		skp->Line( 112, 53, 112, 58 );
-		skp->Line( 120, 53, 120, 58 );
-		skp->Line( 128, 53, 128, 61 );
-		skp->Line( 136, 53, 136, 58 );
-		skp->Line( 144, 53, 144, 58 );
-		skp->Line( 152, 53, 152, 58 );
-		skp->Line( 159, 53, 159, 58 );
-		skp->Line( 167, 53, 167, 61 );
+		skp->Line( 167, 76, 345, 76 );
+		skp->Line( 167, 76, 167, 86 );
+		skp->Line( 185, 76, 185, 81 );
+		skp->Line( 203, 76, 203, 81 );
+		skp->Line( 220, 76, 220, 81 );
+		skp->Line( 238, 76, 238, 81 );
+		skp->Line( 256, 76, 256, 86 );
+		skp->Line( 274, 76, 274, 81 );
+		skp->Line( 292, 76, 292, 81 );
+		skp->Line( 309, 76, 309, 81 );
+		skp->Line( 327, 76, 327, 81 );
+		skp->Line( 345, 76, 345, 86 );
 
 		// side scale
-		skp->Line( 204, 89, 204, 167 );
-		skp->Line( 204, 89, 196, 89 );
-		skp->Line( 204, 97, 199, 97 );
-		skp->Line( 204, 104, 199, 104 );
-		skp->Line( 204, 112, 199, 112 );
-		skp->Line( 204, 120, 199, 120 );
-		skp->Line( 204, 128, 196, 128 );
-		skp->Line( 204, 136, 199, 136 );
-		skp->Line( 204, 144, 199, 144 );
-		skp->Line( 204, 152, 199, 152 );
-		skp->Line( 204, 159, 199, 159 );
-		skp->Line( 204, 167, 196, 167 );
+		skp->Line( 403, 134, 403, 312 );
+		skp->Line( 403, 134, 393, 134 );
+		skp->Line( 403, 152, 398, 152 );
+		skp->Line( 403, 170, 398, 170 );
+		skp->Line( 403, 187, 398, 187 );
+		skp->Line( 403, 205, 398, 205 );
+		skp->Line( 403, 223, 393, 223 );
+		skp->Line( 403, 241, 398, 241 );
+		skp->Line( 403, 259, 398, 259 );
+		skp->Line( 403, 276, 398, 276 );
+		skp->Line( 403, 294, 398, 294 );
+		skp->Line( 403, 312, 393, 312 );
 
 		// bottom scale
-		skp->Line( 89, 205, 167, 205 );
-		skp->Line( 89, 205, 89, 198 );
-		skp->Line( 97, 205, 97, 200 );
-		skp->Line( 104, 205, 104, 200 );
-		skp->Line( 112, 205, 112, 200 );
-		skp->Line( 120, 205, 120, 200 );
-		skp->Line( 128, 205, 128, 198 );
-		skp->Line( 136, 205, 136, 200 );
-		skp->Line( 144, 205, 144, 200 );
-		skp->Line( 152, 205, 152, 200 );
-		skp->Line( 159, 205, 159, 200 );
-		skp->Line( 167, 205, 167, 198 );
+		skp->Line( 167, 370, 345, 370 );
+		skp->Line( 167, 370, 167, 360 );
+		skp->Line( 185, 370, 185, 365 );
+		skp->Line( 203, 370, 203, 365 );
+		skp->Line( 220, 370, 220, 365 );
+		skp->Line( 238, 370, 238, 365 );
+		skp->Line( 256, 370, 256, 360 );
+		skp->Line( 274, 370, 274, 365 );
+		skp->Line( 292, 370, 292, 365 );
+		skp->Line( 309, 370, 309, 365 );
+		skp->Line( 327, 370, 327, 365 );
+		skp->Line( 345, 370, 345, 360 );
 
 		// roll lines
-		// 10º/190º
-		skp->Line( 118, 71, 138, 185 );
-		// 20º/200º
-		skp->Line( 108, 73, 148, 183 );
-		// 40º/220º
-		skp->Line( 91, 83, 165, 173 );
-		// 50º/230º
-		skp->Line( 83, 91, 173, 165 );
-		// 70º/250º
-		skp->Line( 73, 108, 183, 148 );
-		// 80º/260º
-		skp->Line( 71, 118, 185, 138 );
-		// 100º/280º
-		skp->Line( 71, 138, 185, 118 );
-		// 110º/290º
-		skp->Line( 73, 148, 183, 108 );
-		// 130º/310º
-		skp->Line( 83, 165, 173, 91 );
-		// 140º/320º
-		skp->Line( 91, 173, 165, 83 );
-		// 160º/340º
-		skp->Line( 108, 183, 148, 73 );
-		// 170º/350º
-		skp->Line( 118, 185, 138, 71 );
+		skp->Line( 246, 109, 266, 337 );// 5º/185º
+		skp->Line( 236, 111, 276, 335 );// 10º/190º
+		skp->Line( 226, 113, 286, 333 );// 15º/195º
+		skp->Line( 217, 116, 295, 330 );// 20º/200º
+		skp->Line( 208, 120, 304, 326 );// 25º/205º
+
+		skp->Line( 191, 130, 321, 316 );// 35º/215º
+		skp->Line( 183, 136, 329, 310 );// 40º/220º
+		skp->Line( 175, 142, 337, 304 );// 45º/225º
+		skp->Line( 169, 150, 343, 296 );// 50º/230º
+		skp->Line( 163, 158, 349, 288 );// 55º/235º
+		
+		skp->Line( 153, 175, 359, 271 );// 65º/245º
+		skp->Line( 149, 184, 363, 262 );// 70º/250º
+		skp->Line( 146, 193, 366, 253 );// 75º/255º
+		skp->Line( 144, 203, 368, 243 );// 80º/260º
+		skp->Line( 142, 213, 370, 233 );// 85º/265º
+
+		skp->Line( 142, 233, 370, 213 );// 95º/275º
+		skp->Line( 144, 243, 368, 203 );// 100º/280º
+		skp->Line( 146, 253, 366, 193 );// 105º/285º
+		skp->Line( 149, 262, 363, 184 );// 110º/290º
+		skp->Line( 153, 271, 359, 175 );// 115º/295º
+		
+		skp->Line( 163, 288, 349, 158 );// 125º/305º
+		skp->Line( 169, 296, 343, 150 );// 130º/310º
+		skp->Line( 175, 304, 337, 142 );// 135º/315º
+		skp->Line( 183, 310, 329, 136 );// 140º/320º
+		skp->Line( 191, 316, 321, 130 );// 145º/325º
+		
+		skp->Line( 208, 326, 304, 120 );// 155º/335º
+		skp->Line( 217, 330, 295, 116 );// 160º/340º
+		skp->Line( 226, 333, 286, 113 );// 165º/345º
+		skp->Line( 236, 335, 276, 111 );// 170º/350º
+		skp->Line( 246, 337, 266, 109 );// 175º/355º
+
 		skp->SetPen( skpDarkGrayThickPen );
-		// 30º/210º
-		skp->Line( 99, 77, 157, 179 );
-		// 60º/240º
-		skp->Line( 77, 99, 179, 157 );
-		// 120º/300º
-		skp->Line( 77, 157, 179, 99 );
-		// 150º/330º
-		skp->Line( 99, 179, 157, 77 );
+		skp->Line( 197, 121, 315, 325 );// 30º/210º
+		skp->Line( 154, 164, 358, 282 );// 60º/240º
+		skp->Line( 154, 282, 358, 164 );// 120º/300º
+		skp->Line( 197, 325, 315, 121 );// 150º/330º
 		// cover center for ADI SRCPAINT
 		skp->SetBrush( skpBlackBrush );
 		skp->SetPen( skpBlackPen );
-		skp->Ellipse( 73, 73, 183, 183 );
+		skp->Ellipse( 146, 113, 366, 333 );
 
-		skp->Text( 158, 75, "33", 2 );
-		skp->Text( 173, 91, "30", 2 );
-		skp->Text( 173, 156, "24", 2 );
-		skp->Text( 157, 173, "21", 2 );
-		skp->Text( 91, 173, "15", 2 );
-		skp->Text( 75, 156, "12", 2 );
-		skp->Text( 75, 90, "06", 2 );
-		skp->Text( 91, 75, "03", 2 );
+		skp->Text( 317, 115, "33", 2 );
+		skp->Text( 351, 150, "30", 2 );
+		skp->Text( 351, 283, "24", 2 );
+		skp->Text( 317, 318, "21", 2 );
+		skp->Text( 181, 318, "15", 2 );
+		skp->Text( 148, 282, "12", 2 );
+		skp->Text( 148, 149, "06", 2 );
+		skp->Text( 181, 115, "03", 2 );
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpLightGrayBrush );
 		oapi::IVECTOR2 diamond[4];
-		diamond[0].x = 128;
-		diamond[0].y = 66;
-		diamond[1].x = 131;
-		diamond[1].y = 69;
-		diamond[2].x = 128;
-		diamond[2].y = 72;
-		diamond[3].x = 125;
-		diamond[3].y = 69;
+		diamond[0].x = 256;
+		diamond[0].y = 99;
+		diamond[1].x = 261;
+		diamond[1].y = 106;
+		diamond[2].x = 256;
+		diamond[2].y = 113;
+		diamond[3].x = 251;
+		diamond[3].y = 106;
 		skp->Polygon( diamond, 4 );// top
-		//diamond[0].x = 128;
-		diamond[0].y = 183;
-		//diamond[1].x = 131;
-		diamond[1].y = 186;
-		//diamond[2].x = 128;
-		diamond[2].y = 189;
-		//diamond[3].x = 125;
-		diamond[3].y = 186;
+		//diamond[0].x = 256;
+		diamond[0].y = 333;
+		//diamond[1].x = 261;
+		diamond[1].y = 340;
+		//diamond[2].x = 256;
+		diamond[2].y = 347;
+		//diamond[3].x = 251;
+		diamond[3].y = 340;
 		skp->Polygon( diamond, 4 );// bottom
-		diamond[0].x = 186;
-		diamond[0].y = 125;
-		diamond[1].x = 189;
-		diamond[1].y = 128;
-		diamond[2].x = 186;
-		diamond[2].y = 131;
-		diamond[3].x = 183;
-		diamond[3].y = 128;
+		diamond[0].x = 373;
+		diamond[0].y = 218;
+		diamond[1].x = 380;
+		diamond[1].y = 223;
+		diamond[2].x = 373;
+		diamond[2].y = 228;
+		diamond[3].x = 366;
+		diamond[3].y = 223;
 		skp->Polygon( diamond, 4 );// right
-		diamond[0].x = 69;
-		//diamond[0].y = 125;
-		diamond[1].x = 72;
-		//diamond[1].y = 128;
-		diamond[2].x = 69;
-		//diamond[2].y = 131;
-		diamond[3].x = 66;
-		//diamond[3].y = 128;
+		diamond[0].x = 139;
+		//diamond[0].y = 218;
+		diamond[1].x = 146;
+		//diamond[1].y = 223;
+		diamond[2].x = 139;
+		//diamond[2].y = 228;
+		diamond[3].x = 132;
+		//diamond[3].y = 223;
 		skp->Polygon( diamond, 4 );// left
 
 		// att needles
 		// top scale
 		skp->SetPen( skpMagentaPen );
 		skp->SetBrush( skpMagentaBrush );
-		//Arc( hDC, 66, 66, 190, 190, 156, 73, 100, 73 );
-		skp->Line( 100, 73, 100, 76 );
-		skp->Line( 106, 71, 106, 74 );
-		skp->Line( 111, 68, 111, 72 );
-		skp->Line( 117, 67, 117, 71 );
-		skp->Line( 122, 66, 122, 70 );
-		skp->Line( 134, 66, 134, 70 );
-		skp->Line( 139, 67, 139, 71 );
-		skp->Line( 145, 68, 145, 72 );
-		skp->Line( 150, 71, 150, 74 );
-		skp->Line( 156, 73, 156, 76 );
+		//Arc( hDC, 131, 98, 381, 348, 306, 108, 206, 108 );
+		skp->Line( 206, 109, 206, 114 );
+		skp->Line( 216, 106, 216, 111 );
+		skp->Line( 226, 103, 226, 108 );
+		skp->Line( 236, 101, 236, 106 );
+		skp->Line( 246, 100, 246, 105 );
+		skp->Line( 256, 99, 256, 104 );
+		skp->Line( 266, 100, 266, 105 );
+		skp->Line( 276, 101, 276, 106 );
+		skp->Line( 286, 103, 286, 109 );
+		skp->Line( 296, 106, 296, 111 );
+		skp->Line( 306, 109, 306, 114 );
 
 		// side scale
-		//Arc( hDC, 66, 66, 190, 190, 183, 156, 183, 100 );
-		skp->Line( 183, 100, 180, 100 );
-		skp->Line( 184, 106, 181, 106 );
-		skp->Line( 186, 111, 183, 111 );
-		skp->Line( 188, 117, 184, 117 );
-		skp->Line( 189, 122, 185, 122 );
-		skp->Line( 189, 134, 185, 134 );
-		skp->Line( 188, 139, 184, 139 );
-		skp->Line( 186, 145, 183, 145 );
-		skp->Line( 184, 150, 181, 150 );
-		skp->Line( 183, 156, 180, 156 );
+		//Arc( hDC, 131, 98, 381, 348, 371, 273, 371, 173 );
+		skp->Line( 370, 173, 365, 173 );
+		skp->Line( 373, 183, 368, 183 );
+		skp->Line( 376, 193, 371, 193 );
+		skp->Line( 378, 203, 373, 203 );
+		skp->Line( 379, 213, 374, 213 );
+		skp->Line( 380, 223, 375, 223 );
+		skp->Line( 379, 233, 374, 233 );
+		skp->Line( 378, 243, 373, 243 );
+		skp->Line( 376, 253, 371, 253 );
+		skp->Line( 373, 263, 368, 263 );
+		skp->Line( 370, 273, 365, 273 );
 
 		// bottom scale
-		//Arc( hDC, 66, 66, 190, 190, 100, 183, 156, 183 );
-		skp->Line( 100, 183, 100, 180 );
-		skp->Line( 106, 184, 106, 181 );
-		skp->Line( 111, 186, 111, 183 );
-		skp->Line( 117, 188, 117, 184 );
-		skp->Line( 122, 189, 122, 185 );
-		skp->Line( 134, 189, 134, 185 );
-		skp->Line( 139, 188, 139, 184 );
-		skp->Line( 145, 186, 145, 183 );
-		skp->Line( 151, 184, 151, 181 );
-		skp->Line( 156, 183, 156, 180 );
+		//Arc( hDC, 131, 98, 381, 348, 206, 338, 306, 338 );
+		skp->Line( 206, 336, 206, 331 );
+		skp->Line( 216, 339, 216, 334 );
+		skp->Line( 226, 342, 226, 337 );
+		skp->Line( 236, 344, 236, 339 );
+		skp->Line( 246, 345, 246, 340 );
+		skp->Line( 256, 346, 256, 341 );
+		skp->Line( 266, 345, 266, 340 );
+		skp->Line( 276, 344, 276, 339 );
+		skp->Line( 286, 342, 286, 337 );
+		skp->Line( 296, 339, 296, 334 );
+		skp->Line( 306, 336, 306, 331 );
 		return;
 	}
 
 	void MDU::ADI_ORBIT( HDC hDC, double pitch, double roll, double yaw )
 	{
-		// center (128,128) r = 64
-		// view r = 55, ball r = 55 * sqrt( 2 )
+		// center (256,223) r = 132
+		// view r = 110, ball r = 110 * sqrt( 2 )
 		// 90º pitch/yaw "FOV"
 
 		// apply roll
@@ -538,8 +587,8 @@ namespace vc
 		WTroll.eM12 = (FLOAT)(-sin( roll * RAD ));
 		WTroll.eM21 = -WTroll.eM12;
 		WTroll.eM22 = WTroll.eM11;
-		WTroll.eDx = (FLOAT)(56 * (1 - WTroll.eM11 - WTroll.eM21));
-		WTroll.eDy = (FLOAT)(56 * (1 - WTroll.eM11 + WTroll.eM21));
+		WTroll.eDx = (FLOAT)(111 * (1 - WTroll.eM11 - WTroll.eM21));
+		WTroll.eDy = (FLOAT)(111 * (1 - WTroll.eM11 + WTroll.eM21));
 		SetGraphicsMode( hDC_ADI_ORBIT, GM_ADVANCED );
 		SetWorldTransform( hDC_ADI_ORBIT, &WTroll );
 
@@ -554,102 +603,102 @@ namespace vc
 		SetBkColor( hDC_ADI_ORBIT, CR_WHITE );
 		if (fabs( pitch ) <= 45)
 		{
-			hP = Round( 77.7817 * sinpitch );
+			hP = Round( 155.5635 * sinpitch );
 			if (pitch < 0)
 			{
 				SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
-				Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 56 );
+				Rectangle( hDC_ADI_ORBIT, 0, 0, 224, 112 );
 				SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiLightGrayPen );
-				Chord( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-				Rectangle( hDC_ADI_ORBIT, 0, 56, 112, 112 );
+				Chord( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+				Rectangle( hDC_ADI_ORBIT, 0, 112, 224, 224 );
 				SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-				Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
+				Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
 			}
 			else
 			{
 				SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiLightGrayPen );
-				Rectangle( hDC_ADI_ORBIT, 0, 56, 112, 112 );
+				Rectangle( hDC_ADI_ORBIT, 0, 112, 224, 224 );
 				SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
-				Chord( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-				Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 56 );
+				Chord( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+				Rectangle( hDC_ADI_ORBIT, 0, 0, 224, 112 );
 				SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-				Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
+				Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
 			}
-			hP = 51 + Round( 75.131397 * sinpitch );
-			TextOut( hDC_ADI_ORBIT, 35, hP, "0", 1 );
-			TextOut( hDC_ADI_ORBIT, 75, hP, "0", 1 );
+			hP = 105 + Round( 150.262794 * sinpitch );
+			TextOut( hDC_ADI_ORBIT, 70, hP, "0", 1 );
+			TextOut( hDC_ADI_ORBIT, 150, hP, "0", 1 );
 		}
 		else if (pitch > 0)
 		{
 			SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
-			Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 112 );
+			Rectangle( hDC_ADI_ORBIT, 0, 0, 222, 222 );
 		}
 		else
 		{
 			SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
-			Rectangle( hDC_ADI_ORBIT, 0, 0, 112, 112 );
+			Rectangle( hDC_ADI_ORBIT, 0, 0, 222, 222 );
 		}
-
+		
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
 		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 		// +30º
 		if (fabs( pitch - 30 ) <= 45)
 		{
-			hP2 = sinpitch * 67.360968 - cospitch * 38.890873;//hP = 69.296 * sin( (pitch - 30) * RAD );
+			hP2 = sinpitch * 134.721936 - cospitch * 77.781746;//hP = 138.592 * sin( (pitch - 30) * RAD );
 			hP = Round( hP2 );
-			if (pitch < 30) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 35, hP, "3", 1 );
-			TextOut( hDC_ADI_ORBIT, 75, hP, "3", 1 );
+			if (pitch < 30) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 70, hP, "3", 1 );
+			TextOut( hDC_ADI_ORBIT, 150, hP, "3", 1 );
 		}
 		// +60º
 		if (fabs( pitch - 60 ) <= 45)
 		{
-			hP2 = sinpitch * 38.890873 - cospitch * 67.360968;
+			hP2 = sinpitch * 77.781746 - cospitch * 134.721936;
 			hP = Round( hP2 );
-			if (pitch < 60) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 35, hP, "6", 1 );
-			TextOut( hDC_ADI_ORBIT, 75, hP, "6", 1 );
+			if (pitch < 60) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 70, hP, "6", 1 );
+			TextOut( hDC_ADI_ORBIT, 150, hP, "6", 1 );
 		}
 		// +90º
 		if (fabs( pitch - 90 ) <= 45)
 		{
-			hP2 = 77.7817 * (-cospitch);
+			hP2 = 155.5634 * (-cospitch);
 			hP = Round( hP2 );
-			if (pitch < 90) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 35, hP, "9", 1 );
-			TextOut( hDC_ADI_ORBIT, 75, hP, "9", 1 );
+			if (pitch < 90) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 70, hP, "9", 1 );
+			TextOut( hDC_ADI_ORBIT, 150, hP, "9", 1 );
 		}
 		// +120º
 		if (fabs( pitch - 120 ) <= 45)
 		{
-			hP2 = (-sinpitch) * 38.890873 - cospitch * 67.360968;
+			hP2 = (-sinpitch) * 77.781746 - cospitch * 134.721936;
 			hP = Round( hP2 );
-			if (pitch < 120) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "12", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "12", 2 );
+			if (pitch < 120) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "12", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "12", 2 );
 		}
 		// +150º
 		if (fabs( pitch - 150 ) <= 45)
 		{
-			hP2 = (-sinpitch) * 67.360968 - cospitch * 38.890873;
+			hP2 = (-sinpitch) * 134.721936 - cospitch * 77.781746;
 			hP = Round( hP2 );
-			if (pitch < 150) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "15", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "15", 2 );
+			if (pitch < 150) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "15", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "15", 2 );
 		}
 
 		// pitch lines/labels for -30º/-60º/-90º/-120º/-150º
@@ -659,57 +708,57 @@ namespace vc
 		// -30º
 		if (fabs( pitch + 30 ) <= 45)
 		{
-			hP2 = sinpitch * 67.360968 + cospitch * 38.890873;
+			hP2 = sinpitch * 134.721936 + cospitch * 77.781746;
 			hP = Round( hP2 );
-			if (pitch < -30) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "33", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "33", 2 );
+			if (pitch < -30) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "33", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "33", 2 );
 		}
 		// -60º
 		if (fabs( pitch + 60 ) <= 45)
 		{
-			hP2 = sinpitch * 38.890873 + cospitch * 67.360968;
+			hP2 = sinpitch * 77.781746 + cospitch * 134.721936;
 			hP = Round( hP2 );
-			if (pitch < -60) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "30", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "30", 2 );
+			if (pitch < -60) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "30", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "30", 2 );
 		}
 		// -90º
 		if (fabs( pitch + 90 ) <= 45)
 		{
-			hP2 = 77.7817 * cospitch;
+			hP2 = 155.5634 * cospitch;
 			hP = Round( hP2 );
-			if (pitch < -90) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "27", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "27", 2 );
+			if (pitch < -90) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "27", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "27", 2 );
 		}
 		// -120º
 		if (fabs( pitch + 120 ) <= 45)
 		{
-			hP2 = (-sinpitch) * 38.890873 + cospitch * 67.360968;
+			hP2 = (-sinpitch) * 77.781746 + cospitch * 134.721936;
 			hP = Round( hP2 );
-			if (pitch < -120) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "24", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "24", 2 );
+			if (pitch < -120) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "24", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "24", 2 );
 		}
 		// -150º
 		if (fabs( pitch + 150 ) <= 45)
 		{
-			hP2 = (-sinpitch) * 67.360968 + cospitch * 38.890873;
+			hP2 = (-sinpitch) * 134.721936 + cospitch * 77.781746;
 			hP = Round( hP2 );
-			if (pitch < -150) Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, 134, 56, -22, 56 );
-			else Arc( hDC_ADI_ORBIT, -22, 56 - hP, 134, 56 + hP, -22, 56, 134, 56 );
-			hP = 51 + Round( hP2 * 0.965926 );
-			TextOut( hDC_ADI_ORBIT, 33, hP, "21", 2 );
-			TextOut( hDC_ADI_ORBIT, 73, hP, "21", 2 );
+			if (pitch < -150) Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
+			else Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
+			hP = 105 + Round( hP2 * 0.965926 );
+			TextOut( hDC_ADI_ORBIT, 66, hP, "21", 2 );
+			TextOut( hDC_ADI_ORBIT, 146, hP, "21", 2 );
 		}
 
 		// TODO yaw
@@ -717,25 +766,25 @@ namespace vc
 		// "central plane"
 		SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-		Rectangle( hDC_ADI_ORBIT, 54, 0, 58, 112 );
+		Rectangle( hDC_ADI_ORBIT, 108, 0, 116, 222 );
 		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
-		MoveToEx( hDC_ADI_ORBIT, 56, 0, NULL );
-		LineTo( hDC_ADI_ORBIT, 56, 112 );
+		MoveToEx( hDC_ADI_ORBIT, 112, 0, NULL );
+		LineTo( hDC_ADI_ORBIT, 112, 222 );
 
 		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 		// yaw line 30º (above horizon)
-		MoveToEx( hDC_ADI_ORBIT, 95, 0, NULL );
-		LineTo( hDC_ADI_ORBIT, 95, 56 + Round( 67.360968 * sinpitch ) );
+		MoveToEx( hDC_ADI_ORBIT, 190, 0, NULL );
+		LineTo( hDC_ADI_ORBIT, 190, 112 + Round( 134.721936 * sinpitch ) );
 		// yaw line 330º (above horizon)
-		MoveToEx( hDC_ADI_ORBIT, 17, 0, NULL );
-		LineTo( hDC_ADI_ORBIT, 17, 56 + Round( 67.360968 * sinpitch ) );
+		MoveToEx( hDC_ADI_ORBIT, 34, 0, NULL );
+		LineTo( hDC_ADI_ORBIT, 34, 112 + Round( 134.721936 * sinpitch ) );
 		SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
 		// yaw line 30º (below horizon)
-		MoveToEx( hDC_ADI_ORBIT, 95, 112, NULL );
-		LineTo( hDC_ADI_ORBIT, 95, 56 + Round( 67.360968 * sinpitch ) );
+		MoveToEx( hDC_ADI_ORBIT, 190, 222, NULL );
+		LineTo( hDC_ADI_ORBIT, 190, 112 + Round( 134.721936 * sinpitch ) );
 		// yaw line 330º (below horizon)
-		MoveToEx( hDC_ADI_ORBIT, 17, 112, NULL );
-		LineTo( hDC_ADI_ORBIT, 17, 56 + Round( 67.360968 * sinpitch ) );
+		MoveToEx( hDC_ADI_ORBIT, 34, 222, NULL );
+		LineTo( hDC_ADI_ORBIT, 34, 112 + Round( 134.721936 * sinpitch ) );
 
 		// TODO yaw labels
 
@@ -743,12 +792,12 @@ namespace vc
 		SelectObject( hDC_ADI_ORBIT, gdiLightGreenPen );
 		SelectObject( hDC_ADI_ORBIT, gdiLightGreenBrush );
 		POINT tri[3];
-		tri[0].x = 56;
+		tri[0].x = 112;
 		tri[0].y = 1;
-		tri[1].x = 52;
-		tri[1].y = 9;
-		tri[2].x = 60;
-		tri[2].y = 9;
+		tri[1].x = 104;
+		tri[1].y = 18;
+		tri[2].x = 120;
+		tri[2].y = 18;
 		Polygon( hDC_ADI_ORBIT, tri, 3 );
 		
 		// clean up
@@ -756,39 +805,40 @@ namespace vc
 		SetGraphicsMode( hDC_ADI_ORBIT, GM_COMPATIBLE );
 
 		// flight director
-		SelectObject( hDC_ADI_ORBIT, gdiLightGreenThickPen );
-		Arc( hDC_ADI_ORBIT, 49, 49, 63, 64, 49, 56, 63, 56 );
+		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
+		POINT fd[18] = {{70,110},{70,114},{94,114},{99,124},{108,130},{116,130},{125,124},{130,114},{154,114},{154,110},{126,110},{126,114},{122,121},{115,126},{109,126},{102,121},{98,114},{98,110}};
+		Polygon( hDC_ADI_ORBIT, fd, 18 );
+		// center marker
 		SelectObject( hDC_ADI_ORBIT, gdiLightGreenPen );
-		SelectObject( hDC_ADI_ORBIT, gdiLightGreenBrush );
-		Rectangle( hDC_ADI_ORBIT, 55, 37, 57, 75 );
-		Rectangle( hDC_ADI_ORBIT, 37, 55, 75, 57 );
+		Rectangle( hDC_ADI_ORBIT, 111, 80, 113, 144 );
+		Rectangle( hDC_ADI_ORBIT, 80, 111, 144, 113 );
 
 		// digital RPY
 		if (pitch < 0) pitch += 360;// TODO get rid of this
 		SetTextColor( hDC, CR_WHITE );
 		char cbuf[8];
 		sprintf_s( cbuf, 8, "%03.0f", roll );
-		TextOut( hDC, 193, 42, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 393, 56, cbuf, strlen( cbuf ) );
 		sprintf_s( cbuf, 8, "%03.0f", pitch );
-		TextOut( hDC, 193, 50, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 393, 70, cbuf, strlen( cbuf ) );
 		sprintf_s( cbuf, 8, "%03.0f", yaw );
-		TextOut( hDC, 193, 58, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 393, 84, cbuf, strlen( cbuf ) );
 
-		BitBlt( hDC_ADI_ORBIT, 0, 0, 112, 112, hDC_ADIMASK_ORBIT, 0, 0, SRCAND );
-		BitBlt( hDC, 72, 72, 112, 112, hDC_ADI_ORBIT, 0, 0, SRCPAINT );
+		BitBlt( hDC_ADI_ORBIT, 0, 0, 222, 222, hDC_ADIMASK_ORBIT, 0, 0, SRCAND );
+		BitBlt( hDC, 145/*146*/, 112/*113*/, 365/*366*/, 332/*333*/, hDC_ADI_ORBIT, 0, 0, SRCPAINT );
 		return;
 	}
 
 	void MDU::ADI_ORBIT( oapi::Sketchpad2* skp, double pitch, double roll, double yaw )
 	{
-		// center (128,128) r = 64
-		// view r = 55, ball r = 55 * sqrt( 2 )
+		// center (256,223) r = 132
+		// view r = 110, ball r = 110 * sqrt( 2 )
 		// 90º pitch/yaw "FOV"
 
 		// draw ball mesh
 		FMATRIX4 mat;
-		int H = 256;
-		int W = 256;
+		int H = 446;
+		int W = 512;
 	
 		double croll = cos( roll * RAD );
 		double sroll = sin( -roll * RAD );
@@ -799,7 +849,7 @@ namespace vc
 		
 		VECTOR3 xdir = _V( cyaw * croll, sroll, -croll * syaw );
 		VECTOR3 zdir = _V( syaw * cpitch + sroll * cyaw * spitch, -croll * spitch, cpitch * cyaw - syaw * sroll * spitch );
-		gcWorldMatrix( &mat, _V(float(W/2), float(H/2), float(W + 55)), xdir, zdir, 0.7778f );
+		gcWorldMatrix( &mat, _V(float(W/2), float(H/2), float(W + 110)), xdir, zdir, 1.5556f );
 
 		skp->SetWorldTransform( &mat );
 		skp->SetPen( skpWhitePen );
@@ -810,32 +860,33 @@ namespace vc
 		skp->SetPen( skpLightGreenPen );
 		skp->SetBrush( skpLightGreenBrush );
 		oapi::IVECTOR2 tri[3];
-		tri[0].x = (long)(128 + 55 * sroll);
-		tri[0].y = (long)(128 - 55 * croll);
-		tri[1].x = (long)(128 - 4 * croll + 47 * sroll);
-		tri[1].y = (long)(128 - 4 * sroll - 47 * croll);
-		tri[2].x = (long)(128 + 4 * croll + 47 * sroll);
-		tri[2].y = (long)(128 + 4 * sroll - 47 * croll);
+		tri[0].x = (long)(256 + 110 * sroll);
+		tri[0].y = (long)(223 - 110 * croll);
+		tri[1].x = (long)(256 - 6 * croll + 102 * sroll);
+		tri[1].y = (long)(223 - 6 * sroll - 102 * croll);
+		tri[2].x = (long)(256 + 6 * croll + 102 * sroll);
+		tri[2].y = (long)(223 + 6 * sroll - 102 * croll);
 		skp->Polygon( tri, 3 );
 
 		// flight director
-		skp->SetPen( skpLightGreenThickPen );
-		//Arc( hDC_ADI_ORBIT, 49, 49, 63, 64, 49, 56, 63, 56 );
+		skp->SetPen( skpBlackPen );
+		oapi::IVECTOR2 fd[18] = {{214,221},{214,225},{238,225},{243,235},{252,241},{260,241},{269,235},{274,225},{298,225},{298,221},{270,221},{270,225},{266,232},{259,237},{253,237},{246,232},{242,225},{242,221}};
+		skp->Polygon( fd, 18 );
+		// center marker
 		skp->SetPen( skpLightGreenPen );
-		skp->SetBrush( skpLightGreenBrush );
-		skp->Rectangle( 127, 109, 129, 147 );
-		skp->Rectangle( 109, 127, 147, 129 );
+		skp->Rectangle( 255, 191, 257, 255 );
+		skp->Rectangle( 224, 222, 288, 224 );
 
 		// digital RPY
 		if (pitch < 0) pitch += 360;// TODO get rid of this
 		skp->SetTextColor( CR_WHITE );
 		char cbuf[8];
 		sprintf_s( cbuf, 8, "%03.0f", roll );
-		skp->Text( 193, 42, cbuf, strlen( cbuf ) );
+		skp->Text( 393, 56, cbuf, strlen( cbuf ) );
 		sprintf_s( cbuf, 8, "%03.0f", pitch );
-		skp->Text( 193, 50, cbuf, strlen( cbuf ) );
+		skp->Text( 393, 70, cbuf, strlen( cbuf ) );
 		sprintf_s( cbuf, 8, "%03.0f", yaw );
-		skp->Text( 193, 58, cbuf, strlen( cbuf ) );
+		skp->Text( 393, 84, cbuf, strlen( cbuf ) );
 		return;
 	}
 
@@ -845,82 +896,50 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
-		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 126, 43, "0", 1 );
-		TextOut( hDC, 207, 124, "0", 1 );
-		TextOut( hDC, 126, 206, "0", 1 );
-		SetTextColor( hDC, CR_WHITE );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
-			TextOut( hDC, 82, 48, "5", 1 );
-			TextOut( hDC, 170, 48, "5", 1 );
+			if (roll > 5) pos_roll = 345;
+			else if (roll < -5) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 17.8 );
 
-			TextOut( hDC, 201, 79, "5", 1 );
-			TextOut( hDC, 201, 167, "5", 1 );
+			if (pitch > 5) pos_pitch = 312;
+			else if (pitch < -5) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 17.8 );
 
-			TextOut( hDC, 82, 201, "5", 1 );
-			TextOut( hDC, 170, 201, "5", 1 );
-
-			if (roll > 5) pos_roll = 167;
-			else if (roll < -5) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 7.8 );
-
-			if (pitch > 5) pos_pitch = 167;
-			else if (pitch < -5) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 7.8 );
-
-			if (yaw > 5) pos_yaw = 167;
-			else if (yaw < -5) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 7.8 );
+			if (yaw > 5) pos_yaw = 345;
+			else if (yaw < -5) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 17.8 );
 		}
 		else if (adirate == 2)
 		{
 			// ADI RATE HIGH
-			TextOut( hDC, 79, 48, "10", 2 );
-			TextOut( hDC, 168, 48, "10", 2 );
+			if (roll > 10) pos_roll = 345;
+			else if (roll < -10) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 8.9 );
 
-			TextOut( hDC, 201, 79, "10", 2 );
-			TextOut( hDC, 201, 167, "10", 2 );
+			if (pitch > 10) pos_pitch = 312;
+			else if (pitch < -10) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 8.9 );
 
-			TextOut( hDC, 79, 201, "10", 2 );
-			TextOut( hDC, 168, 201, "10", 2 );
-
-			if (roll > 10) pos_roll = 167;
-			else if (roll < -10) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 3.9 );
-
-			if (pitch > 10) pos_pitch = 167;
-			else if (pitch < -10) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 3.9 );
-
-			if (yaw > 10) pos_yaw = 167;
-			else if (yaw < -10) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 3.9 );
+			if (yaw > 10) pos_yaw = 345;
+			else if (yaw < -10) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 8.9 );
 		}
 		else
 		{
 			// ADI RATE LOW
-			TextOut( hDC, 82, 48, "1", 1 );
-			TextOut( hDC, 170, 48, "1", 1 );
+			if (roll > 1) pos_roll = 345;
+			else if (roll < -1) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 89 );
 
-			TextOut( hDC, 201, 79, "1", 1 );
-			TextOut( hDC, 201, 167, "1", 1 );
+			if (pitch > 1) pos_pitch = 312;
+			else if (pitch < -1) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 89 );
 
-			TextOut( hDC, 82, 201, "1", 1 );
-			TextOut( hDC, 170, 201, "1", 1 );
-
-			if (roll > 1) pos_roll = 167;
-			else if (roll < -1) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 39 );
-
-			if (pitch > 1) pos_pitch = 167;
-			else if (pitch < -1) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 39 );
-
-			if (yaw > 1) pos_yaw = 167;
-			else if (yaw < -1) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 39 );
+			if (yaw > 1) pos_yaw = 345;
+			else if (yaw < -1) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 89 );
 		}
 
 		// draw triangles
@@ -928,27 +947,27 @@ namespace vc
 		SelectObject( hDC, gdiLightGreenBrush );
 		POINT tri[3];
 		tri[0].x = pos_roll;
-		tri[0].y = 53;
-		tri[1].x = tri[0].x + 5;
-		tri[1].y = 44;
-		tri[2].x = tri[0].x - 5;
-		tri[2].y = 44;
+		tri[0].y = 76;
+		tri[1].x = tri[0].x + 10;
+		tri[1].y = 58;
+		tri[2].x = tri[0].x - 10;
+		tri[2].y = 58;
 		Polygon( hDC, tri, 3 );
 
-		tri[0].x = 204;
+		tri[0].x = 403;
 		tri[0].y = pos_pitch;
-		tri[1].x = 213;
-		tri[1].y = tri[0].y - 5;
-		tri[2].x = 213;
-		tri[2].y = tri[0].y + 5;
+		tri[1].x = 421;
+		tri[1].y = tri[0].y - 10;
+		tri[2].x = 421;
+		tri[2].y = tri[0].y + 10;
 		Polygon( hDC, tri, 3 );
 
 		tri[0].x = pos_yaw;
-		tri[0].y = 205;
-		tri[1].x = tri[0].x - 5;
-		tri[1].y = 214;
-		tri[2].x = tri[0].x + 5;
-		tri[2].y = 214;
+		tri[0].y = 370;
+		tri[1].x = tri[0].x - 10;
+		tri[1].y = 388;
+		tri[2].x = tri[0].x + 10;
+		tri[2].y = 388;
 		Polygon( hDC, tri, 3 );
 		return;
 	}
@@ -959,82 +978,50 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
-		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 126, 43, "0", 1 );
-		skp->Text( 207, 124, "0", 1 );
-		skp->Text( 126, 206, "0", 1 );
-		skp->SetTextColor( CR_WHITE );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
-			skp->Text( 82, 48, "5", 1 );
-			skp->Text( 170, 48, "5", 1 );
+			if (roll > 5) pos_roll = 345;
+			else if (roll < -5) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 17.8 );
 
-			skp->Text( 201, 79, "5", 1 );
-			skp->Text( 201, 167, "5", 1 );
+			if (pitch > 5) pos_pitch = 312;
+			else if (pitch < -5) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 17.8 );
 
-			skp->Text( 82, 201, "5", 1 );
-			skp->Text( 170, 201, "5", 1 );
-
-			if (roll > 5) pos_roll = 167;
-			else if (roll < -5) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 7.8 );
-
-			if (pitch > 5) pos_pitch = 167;
-			else if (pitch < -5) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 7.8 );
-
-			if (yaw > 5) pos_yaw = 167;
-			else if (yaw < -5) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 7.8 );
+			if (yaw > 5) pos_yaw = 345;
+			else if (yaw < -5) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 17.8 );
 		}
 		else if (adirate == 2)
 		{
 			// ADI RATE HIGH
-			skp->Text( 79, 48, "10", 2 );
-			skp->Text( 168, 48, "10", 2 );
+			if (roll > 10) pos_roll = 345;
+			else if (roll < -10) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 8.9 );
 
-			skp->Text( 201, 79, "10", 2 );
-			skp->Text( 201, 167, "10", 2 );
+			if (pitch > 10) pos_pitch = 312;
+			else if (pitch < -10) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 8.9 );
 
-			skp->Text( 79, 201, "10", 2 );
-			skp->Text( 168, 201, "10", 2 );
-
-			if (roll > 10) pos_roll = 167;
-			else if (roll < -10) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 3.9 );
-
-			if (pitch > 10) pos_pitch = 167;
-			else if (pitch < -10) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 3.9 );
-
-			if (yaw > 10) pos_yaw = 167;
-			else if (yaw < -10) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 3.9 );
+			if (yaw > 10) pos_yaw = 345;
+			else if (yaw < -10) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 8.9 );
 		}
 		else
 		{
 			// ADI RATE LOW
-			skp->Text( 82, 48, "1", 1 );
-			skp->Text( 170, 48, "1", 1 );
+			if (roll > 1) pos_roll = 345;
+			else if (roll < -1) pos_roll = 167;
+			else pos_roll = 256 + Round( roll * 89 );
 
-			skp->Text( 201, 79, "1", 1 );
-			skp->Text( 201, 167, "1", 1 );
+			if (pitch > 1) pos_pitch = 312;
+			else if (pitch < -1) pos_pitch = 134;
+			else pos_pitch = 223 + Round( pitch * 89 );
 
-			skp->Text( 82, 201, "1", 1 );
-			skp->Text( 170, 201, "1", 1 );
-
-			if (roll > 1) pos_roll = 167;
-			else if (roll < -1) pos_roll = 89;
-			else pos_roll = 128 + Round( roll * 39 );
-
-			if (pitch > 1) pos_pitch = 167;
-			else if (pitch < -1) pos_pitch = 89;
-			else pos_pitch = 128 + Round( pitch * 39 );
-
-			if (yaw > 1) pos_yaw = 167;
-			else if (yaw < -1) pos_yaw = 89;
-			else pos_yaw = 128 + Round( yaw * 39 );
+			if (yaw > 1) pos_yaw = 345;
+			else if (yaw < -1) pos_yaw = 167;
+			else pos_yaw = 256 + Round( yaw * 89 );
 		}
 
 		// draw triangles
@@ -1042,27 +1029,27 @@ namespace vc
 		skp->SetBrush( skpLightGreenBrush );
 		oapi::IVECTOR2 tri[3];
 		tri[0].x = pos_roll;
-		tri[0].y = 53;
-		tri[1].x = tri[0].x + 5;
-		tri[1].y = 44;
-		tri[2].x = tri[0].x - 5;
-		tri[2].y = 44;
+		tri[0].y = 76;
+		tri[1].x = tri[0].x + 10;
+		tri[1].y = 58;
+		tri[2].x = tri[0].x - 10;
+		tri[2].y = 58;
 		skp->Polygon( tri, 3 );
 
-		tri[0].x = 204;
+		tri[0].x = 403;
 		tri[0].y = pos_pitch;
-		tri[1].x = 213;
-		tri[1].y = tri[0].y - 5;
-		tri[2].x = 213;
-		tri[2].y = tri[0].y + 5;
+		tri[1].x = 421;
+		tri[1].y = tri[0].y - 10;
+		tri[2].x = 421;
+		tri[2].y = tri[0].y + 10;
 		skp->Polygon( tri, 3 );
 
 		tri[0].x = pos_yaw;
-		tri[0].y = 205;
-		tri[1].x = tri[0].x - 5;
-		tri[1].y = 214;
-		tri[2].x = tri[0].x + 5;
-		tri[2].y = 214;
+		tri[0].y = 370;
+		tri[1].x = tri[0].x - 10;
+		tri[1].y = 388;
+		tri[2].x = tri[0].x + 10;
+		tri[2].y = 388;
 		skp->Polygon( tri, 3 );
 		return;
 	}
@@ -1078,66 +1065,57 @@ namespace vc
 		{
 			// ADI ERROR MED
 			// 5/5/5
-			TextOut( hDC, 185, 94, "5", 1 );
-			TextOut( hDC, 185, 155, "5", 1 );
+			if (roll > 5) pos_roll = 50;
+			else if (roll < -5) pos_roll = -50;
+			else pos_roll = roll * 10;
 
-			if (roll > 5) pos_roll = 28;
-			else if (roll < -5) pos_roll = -28;
-			else pos_roll = roll * 5.6;
+			if (pitch > 5) pos_pitch = 50;
+			else if (pitch < -5) pos_pitch = -50;
+			else pos_pitch = pitch * 10;
 
-			if (pitch > 5) pos_pitch = 28;
-			else if (pitch < -5) pos_pitch = -28;
-			else pos_pitch = pitch * 5.6;
-
-			if (yaw > 5) pos_yaw = 28;
-			else if (yaw < -5) pos_yaw = -28;
-			else pos_yaw = yaw * 5.6;
+			if (yaw > 5) pos_yaw = 50;
+			else if (yaw < -5) pos_yaw = -50;
+			else pos_yaw = yaw * 10;
 		}
 		else if (adierr == 2)
 		{
 			// ADI ERROR HIGH
 			// 10/10/10
-			TextOut( hDC, 185, 94, "10", 2 );
-			TextOut( hDC, 185, 155, "10", 2 );
+			if (roll > 10) pos_roll = 50;
+			else if (roll < -10) pos_roll = -50;
+			else pos_roll = roll * 5;
 
-			if (roll > 10) pos_roll = 28;
-			else if (roll < -10) pos_roll = -28;
-			else pos_roll = roll * 2.8;
+			if (pitch > 10) pos_pitch = 50;
+			else if (pitch < -10) pos_pitch = -50;
+			else pos_pitch = pitch * 5;
 
-			if (pitch > 10) pos_pitch = 28;
-			else if (pitch < -10) pos_pitch = -28;
-			else pos_pitch = pitch * 2.8;
-
-			if (yaw > 10) pos_yaw = 28;
-			else if (yaw < -10) pos_yaw = -28;
-			else pos_yaw = yaw * 2.8;
+			if (yaw > 10) pos_yaw = 50;
+			else if (yaw < -10) pos_yaw = -50;
+			else pos_yaw = yaw * 5;
 		}
 		else
 		{
 			// ADI ERROR LOW
 			// 1/1/1
-			TextOut( hDC, 185, 94, "1", 1 );
-			TextOut( hDC, 185, 155, "1", 1 );
+			if (roll > 1) pos_roll = 50;
+			else if (roll < -1) pos_roll = -50;
+			else pos_roll = roll * 50;
 
-			if (roll > 1) pos_roll = 28;
-			else if (roll < -1) pos_roll = -28;
-			else pos_roll = roll * 28;
+			if (pitch > 1) pos_pitch = 50;
+			else if (pitch < -1) pos_pitch = -50;
+			else pos_pitch = pitch * 50;
 
-			if (pitch > 1) pos_pitch = 28;
-			else if (pitch < -1) pos_pitch = -28;
-			else pos_pitch = pitch * 28;
-
-			if (yaw > 1) pos_yaw = 28;
-			else if (yaw < -1) pos_yaw = -28;
-			else pos_yaw = yaw * 28;
+			if (yaw > 1) pos_yaw = 50;
+			else if (yaw < -1) pos_yaw = -50;
+			else pos_yaw = yaw * 50;
 		}
 
 		// draw needles
 		SelectObject( hDC, gdiMagentaPen );
 		SelectObject( hDC, gdiMagentaBrush );
-		Rectangle( hDC, 127 + Round( pos_roll ), 128 - Round( sqrt( 3969 - (pos_roll * pos_roll) ) ), 129 + Round( pos_roll ), 109 );// roll
-		Rectangle( hDC, 147, 127 + Round( pos_pitch ), 128 + Round( sqrt( 3969 - (pos_pitch * pos_pitch) ) ), 129 + Round( pos_pitch ) );// pitch
-		Rectangle( hDC, 127 + Round( pos_yaw ), 147, 129 + Round( pos_yaw ), 128 + Round( sqrt( 3969 - (pos_yaw * pos_yaw) ) ) );// yaw
+		Rectangle( hDC, 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 191 );// roll
+		Rectangle( hDC, 290, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
+		Rectangle( hDC, 255 + Round( pos_yaw ), 257, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;
 	}
 
@@ -1152,66 +1130,57 @@ namespace vc
 		{
 			// ADI ERROR MED
 			// 5/5/5
-			skp->Text( 185, 94, "5", 1 );
-			skp->Text( 185, 155, "5", 1 );
+			if (roll > 5) pos_roll = 50;
+			else if (roll < -5) pos_roll = -50;
+			else pos_roll = roll * 10;
 
-			if (roll > 5) pos_roll = 28;
-			else if (roll < -5) pos_roll = -28;
-			else pos_roll = roll * 5.6;
+			if (pitch > 5) pos_pitch = 50;
+			else if (pitch < -5) pos_pitch = -50;
+			else pos_pitch = pitch * 10;
 
-			if (pitch > 5) pos_pitch = 28;
-			else if (pitch < -5) pos_pitch = -28;
-			else pos_pitch = pitch * 5.6;
-
-			if (yaw > 5) pos_yaw = 28;
-			else if (yaw < -5) pos_yaw = -28;
-			else pos_yaw = yaw * 5.6;
+			if (yaw > 5) pos_yaw = 50;
+			else if (yaw < -5) pos_yaw = -50;
+			else pos_yaw = yaw * 10;
 		}
 		else if (adierr == 2)
 		{
 			// ADI ERROR HIGH
 			// 10/10/10
-			skp->Text( 185, 94, "10", 2 );
-			skp->Text( 185, 155, "10", 2 );
+			if (roll > 10) pos_roll = 50;
+			else if (roll < -10) pos_roll = -50;
+			else pos_roll = roll * 5;
 
-			if (roll > 10) pos_roll = 28;
-			else if (roll < -10) pos_roll = -28;
-			else pos_roll = roll * 2.8;
+			if (pitch > 10) pos_pitch = 50;
+			else if (pitch < -10) pos_pitch = -50;
+			else pos_pitch = pitch * 5;
 
-			if (pitch > 10) pos_pitch = 28;
-			else if (pitch < -10) pos_pitch = -28;
-			else pos_pitch = pitch * 2.8;
-
-			if (yaw > 10) pos_yaw = 28;
-			else if (yaw < -10) pos_yaw = -28;
-			else pos_yaw = yaw * 2.8;
+			if (yaw > 10) pos_yaw = 50;
+			else if (yaw < -10) pos_yaw = -50;
+			else pos_yaw = yaw * 5;
 		}
 		else
 		{
 			// ADI ERROR LOW
 			// 1/1/1
-			skp->Text( 185, 94, "1", 1 );
-			skp->Text( 185, 155, "1", 1 );
+			if (roll > 1) pos_roll = 50;
+			else if (roll < -1) pos_roll = -50;
+			else pos_roll = roll * 50;
 
-			if (roll > 1) pos_roll = 28;
-			else if (roll < -1) pos_roll = -28;
-			else pos_roll = roll * 28;
+			if (pitch > 1) pos_pitch = 50;
+			else if (pitch < -1) pos_pitch = -50;
+			else pos_pitch = pitch * 50;
 
-			if (pitch > 1) pos_pitch = 28;
-			else if (pitch < -1) pos_pitch = -28;
-			else pos_pitch = pitch * 28;
-
-			if (yaw > 1) pos_yaw = 28;
-			else if (yaw < -1) pos_yaw = -28;
-			else pos_yaw = yaw * 28;
+			if (yaw > 1) pos_yaw = 50;
+			else if (yaw < -1) pos_yaw = -50;
+			else pos_yaw = yaw * 50;
 		}
 
 		// draw needles
 		skp->SetPen( skpMagentaPen );
 		skp->SetBrush( skpMagentaBrush );
-		skp->Rectangle( 127 + Round( pos_roll ), 128 - Round( sqrt( 3969 - (pos_roll * pos_roll) ) ), 129 + Round( pos_roll ), 109 );// roll
-		skp->Rectangle( 147, 127 + Round( pos_pitch ), 128 + Round( sqrt( 3969 - (pos_pitch * pos_pitch) ) ), 129 + Round( pos_pitch ) );// pitch
-		skp->Rectangle( 127 + Round( pos_yaw ), 147, 129 + Round( pos_yaw ), 128 + Round( sqrt( 3969 - (pos_yaw * pos_yaw) ) ) );// yaw
+		skp->Rectangle( 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 191 );// roll
+		skp->Rectangle( 290, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 255 + Round( pos_yaw ), 257, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;
 	}
 };

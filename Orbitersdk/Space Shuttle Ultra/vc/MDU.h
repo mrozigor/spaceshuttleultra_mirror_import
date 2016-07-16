@@ -201,14 +201,17 @@ namespace vc {
 		HFONT gdiTahomaFont_h7w3;
 		HFONT gdiSSUAFont_h20w17;
 		HFONT gdiSSUAFont_h10w10bold;
-		HFONT gdiSSUAFont_h15w10;// TODO SSU_B
 		HFONT gdiSSUAFont_h11w9;
+		HFONT gdiSSUBFont_h18w9;
+		HFONT gdiSSUBFont_h12w7;
 		
 		oapi::Font* skpTahomaFont_h10w4;
 		oapi::Font* skpTahomaFont_h7w3;
 		oapi::Font* skpSSUAFont_h20;
 		oapi::Font* skpSSUAFont_h10bold;
 		oapi::Font* skpSSUAFont_h11;
+		oapi::Font* skpSSUBFont_h18;
+		oapi::Font* skpSSUBFont_h12;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();

@@ -932,16 +932,16 @@ namespace vc
 		::Ellipse( hDC_ADIMASK, 1, 1, 99, 99 );
 
 		hDC_ADI_ORBIT = CreateCompatibleDC( hDC_ADI );
-		hBM = CreateCompatibleBitmap( hDC_ADI, 112, 112 );
+		hBM = CreateCompatibleBitmap( hDC_ADI, 222, 222 );
 		SelectObject( hDC_ADI_ORBIT, hBM );
-		SelectObject( hDC_ADI_ORBIT, gdiTahomaFont_h10w4 );
+		SelectObject( hDC_ADI_ORBIT, gdiSSUBFont_h12w7 );
 
 		hDC_ADIMASK_ORBIT = CreateCompatibleDC( hDC_ADI );
-		hBM = CreateCompatibleBitmap( hDC_ADI, 112, 112 );
+		hBM = CreateCompatibleBitmap( hDC_ADI, 222, 222 );
 		SelectObject( hDC_ADIMASK_ORBIT, hBM );
 		SelectObject( hDC_ADIMASK_ORBIT, gdiWhitePen );
 		SelectObject( hDC_ADIMASK_ORBIT, gdiWhiteBrush );
-		::Ellipse( hDC_ADIMASK_ORBIT, 1, 1, 111, 111 );
+		::Ellipse( hDC_ADIMASK_ORBIT, 1, 1, 221, 221 );
 		return;
 	}
 

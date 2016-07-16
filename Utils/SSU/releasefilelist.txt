@@ -1,5 +1,6 @@
 SSU Readme First.txt
 SSU_Font_A.otf
+SSU_Font_B.otf
 Config\Earth.cfg
 Config\SSU_Aero.csv
 Config\SSU_Aileron.csv
