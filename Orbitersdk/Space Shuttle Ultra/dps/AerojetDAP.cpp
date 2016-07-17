@@ -1428,17 +1428,17 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "35" );
 	pMDU->mvprint( 0, 18, "30" );
 	pMDU->mvprint( 0, 22, "25" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -1466,74 +1466,74 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 19, 23, "-100" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 174, 31, 87, 113 );
-	pMDU->Line( 87, 113, 25, 198 );
+	// vel/rng lines
+	pMDU->Line( 348, 48, 174, 176 );
+	pMDU->Line( 174, 176, 50, 308 );
 
-	pMDU->Line( 197, 29, 96, 122 );
-	pMDU->Line( 96, 122, 25, 198 );
+	pMDU->Line( 394, 45, 192, 190 );
+	pMDU->Line( 192, 190, 50, 308 );
 
-	pMDU->Line( 222, 32, 102, 130 );
-	pMDU->Line( 102, 130, 37, 200 );
+	pMDU->Line( 444, 50, 204, 202 );
+	pMDU->Line( 204, 202, 74, 311 );
 
-	pMDU->Line( 244, 35, 89, 158 );
-	pMDU->Line( 89, 158, 55, 198 );
+	pMDU->Line( 488, 54, 178, 246 );
+	pMDU->Line( 178, 246, 110, 308 );
 
-	pMDU->Line( 254, 77, 141, 132 );
-	pMDU->Line( 141, 132, 88, 178 );
-	pMDU->Line( 88, 178, 75, 198 );
+	pMDU->Line( 508, 120, 282, 205 );
+	pMDU->Line( 282, 205, 176, 277 );
+	pMDU->Line( 176, 277, 150, 308 );
 
 	// drag lines
-	pMDU->Line( 55, 135, 35, 201, dps::DEUATT_DASHED );
+	pMDU->Line( 110, 210, 70, 313, dps::DEUATT_DASHED );
 
-	pMDU->Line( 85, 91, 59, 173, dps::DEUATT_DASHED );
-	pMDU->Line( 59, 173, 45, 196, dps::DEUATT_DASHED );
+	pMDU->Line( 170, 142, 118, 269, dps::DEUATT_DASHED );
+	pMDU->Line( 118, 269, 90, 305, dps::DEUATT_DASHED );
 
-	pMDU->Line( 122, 64, 91, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 244, 100, 182, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 175, 26, 149, 91, dps::DEUATT_DASHED );
-	pMDU->Line( 149, 91, 149, 153, dps::DEUATT_DASHED );
+	pMDU->Line( 350, 40, 298, 142, dps::DEUATT_DASHED );
+	pMDU->Line( 298, 142, 298, 238, dps::DEUATT_DASHED );
 
-	pMDU->Line( 206, 29, 203, 48, dps::DEUATT_DASHED );
-	pMDU->Line( 203, 48, 186, 92, dps::DEUATT_DASHED );
-	pMDU->Line( 186, 92, 187, 128, dps::DEUATT_DASHED );
+	pMDU->Line( 412, 45, 406, 75, dps::DEUATT_DASHED );
+	pMDU->Line( 406, 75, 372, 143, dps::DEUATT_DASHED );
+	pMDU->Line( 372, 143, 374, 199, dps::DEUATT_DASHED );
 
-	pMDU->Line( 238, 25, 212, 90, dps::DEUATT_DASHED );
-	pMDU->Line( 212, 90, 212, 113, dps::DEUATT_DASHED );
+	pMDU->Line( 476, 39, 424, 140, dps::DEUATT_DASHED );
+	pMDU->Line( 424, 140, 424, 176, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -1561,80 +1561,80 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 0.215333) - 154.133333 - (ETVS_Range * ETVS_Range * 0.0000283333) );
-	int y = Round( 664.8 - (ET_Mach * 26.4) );
+	int x = Round( (ETVS_Range * 0.430666) - 308.266666 - (ETVS_Range * ETVS_Range * 0.0000566666) );
+	int y = Round( 1034.1333 - (ET_Mach * 41.06667) );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1644,11 +1644,11 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.215333) - 154.133333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.0000283333) );
-			y = Round( 664.8 - (ET_MachHistory[i] * 26.4) );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 0.430666) - 308.266666 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.0000566666) );
+			y = Round( 1034.1333 - (ET_MachHistory[i] * 41.06667) );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -1666,17 +1666,17 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "35" );
 	pMDU->mvprint( 0, 18, "30" );
 	pMDU->mvprint( 0, 22, "25" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -1701,59 +1701,59 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 31, 23, "-190" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 169, 27, 54, 171 );
-	pMDU->Line( 54, 171, 41, 198 );
+	// vel/rng lines
+	pMDU->Line( 338, 42, 108, 266 );
+	pMDU->Line( 108, 266, 82, 308 );
 
-	pMDU->Line( 178, 27, 103, 198 );
+	pMDU->Line( 356, 42, 206, 308 );
 
-	pMDU->Line( 198, 27, 109, 198 );
+	pMDU->Line( 396, 42, 218, 308 );
 
-	pMDU->Line( 239, 34, 184, 147 );
-	pMDU->Line( 184, 147, 160, 191 );
+	pMDU->Line( 478, 53, 368, 229 );
+	pMDU->Line( 368, 229, 320, 297 );
 
 	// drag lines
-	pMDU->Line( 79, 124, 55, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 158, 193, 110, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 163, 27, 96, 201, dps::DEUATT_DASHED );
+	pMDU->Line( 326, 42, 192, 313, dps::DEUATT_DASHED );
 
-	pMDU->Line( 183, 28, 114, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 366, 44, 228, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 203, 28, 149, 195, dps::DEUATT_DASHED );
+	pMDU->Line( 406, 44, 298, 303, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -1781,80 +1781,80 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = x = Round( (ETVS_Range * 0.865959) - 307.873469 - (ETVS_Range * ETVS_Range * 0.000333061) );
-	int y = 1140 - Round( ET_Mach * 66 );
+	int x = x = Round( (ETVS_Range * 1.731918) - 615.746938 - (ETVS_Range * ETVS_Range * 0.000666122) );
+	int y = Round( 1773.3333 - ET_Mach * 102.6667 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1864,11 +1864,11 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.865959) - 307.873469 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.000333061) );
-			y = 1140 - Round( ET_MachHistory[i] * 66 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 1.731918) - 615.746938 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.000666122) );
+			y = Round( 1773.3333 - ET_MachHistory[i] * 102.6667 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -1886,18 +1886,17 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "30" );
 	pMDU->mvprint( 0, 18, "25" );
 	pMDU->mvprint( 0, 22, "20" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
-
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -1920,54 +1919,54 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 31, 23, "-130" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 122, 26, 28, 193 );
+	// vel/rng lines
+	pMDU->Line( 244, 40, 56, 300 );
 
-	pMDU->Line( 198, 26, 96, 192 );
+	pMDU->Line( 396, 40, 192, 299 );
 
-	pMDU->Line( 249, 28, 194, 122 );
-	pMDU->Line( 194, 122, 148, 193 );
+	pMDU->Line( 498, 44, 388, 190 );
+	pMDU->Line( 388, 190, 296, 300 );
 
 	// drag lines
-	pMDU->Line( 146, 28, 42, 205, dps::DEUATT_DASHED );
+	pMDU->Line( 292, 44, 84, 319, dps::DEUATT_DASHED );
 
-	pMDU->Line( 190, 26, 87, 200, dps::DEUATT_DASHED );
+	pMDU->Line( 380, 40, 174, 311, dps::DEUATT_DASHED );
 
-	pMDU->Line( 220, 26, 116, 200, dps::DEUATT_DASHED );
+	pMDU->Line( 440, 40, 232, 311, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -1995,80 +1994,80 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 1.73451) - 438.803805 - (ETVS_Range * ETVS_Range * 0.00108407) );
-	int y = 810 - Round( ET_Mach * 56.571429 );
+	int x = Round( (ETVS_Range * 3.46902) - 877.60761 - (ETVS_Range * ETVS_Range * 0.00216814) );
+	int y = 1260 - Round( ET_Mach * 88 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2078,11 +2077,11 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 1.73451) - 438.803805 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00108407) );
-			y = 810 - Round( ET_MachHistory[i] * 56.571429 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 3.46902) - 877.60761 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00216814) );
+			y = 1260 - Round( ET_MachHistory[i] * 88 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -2100,18 +2099,17 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "30" );
 	pMDU->mvprint( 0, 18, "25" );
 	pMDU->mvprint( 0, 22, "20" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
-
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -2135,62 +2133,62 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 30, 23, "-250" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 179, 33, 96, 134 );
-	pMDU->Line( 96, 134, 18, 205 );
+	// alt*vel/rng lines
+	pMDU->Line( 358, 51, 192, 208 );
+	pMDU->Line( 192, 208, 36, 319 );
 
-	pMDU->Line( 219, 41, 175, 110 );
-	pMDU->Line( 175, 110, 82, 194 );
+	pMDU->Line( 438, 64, 350, 171 );
+	pMDU->Line( 350, 171, 164, 302 );
 
-	pMDU->Line( 243, 41, 226, 82 );
-	pMDU->Line( 226, 82, 178, 144 );
-	pMDU->Line( 178, 144, 96, 206 );
+	pMDU->Line( 486, 64, 452, 128 );
+	pMDU->Line( 452, 128, 356, 224 );
+	pMDU->Line( 356, 224, 192, 320 );
 
 	// drag lines
-	pMDU->Line( 211, 24, 129, 116, dps::DEUATT_DASHED );
-	pMDU->Line( 129, 116, 106, 139, dps::DEUATT_DASHED );
-	pMDU->Line( 106, 139, 12, 212, dps::DEUATT_DASHED );
+	pMDU->Line( 422, 37, 258, 180, dps::DEUATT_DASHED );
+	pMDU->Line( 258, 180, 212, 216, dps::DEUATT_DASHED );
+	pMDU->Line( 212, 216, 24, 330, dps::DEUATT_DASHED );
 
-	pMDU->Line( 242, 28, 179, 97, dps::DEUATT_DASHED );
-	pMDU->Line( 179, 97, 136, 134, dps::DEUATT_DASHED );
-	pMDU->Line( 136, 134, 33, 212, dps::DEUATT_DASHED );
+	pMDU->Line( 484, 44, 358, 151, dps::DEUATT_DASHED );
+	pMDU->Line( 358, 151, 272, 208, dps::DEUATT_DASHED );
+	pMDU->Line( 272, 208, 66, 330, dps::DEUATT_DASHED );
 
-	pMDU->Line( 232, 93, 146, 162, dps::DEUATT_DASHED );
-	pMDU->Line( 146, 162, 84, 205, dps::DEUATT_DASHED );
+	pMDU->Line( 464, 145, 292, 252, dps::DEUATT_DASHED );
+	pMDU->Line( 292, 252, 168, 319, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -2218,80 +2216,80 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 2.181332) - 268.519715 - (ETVS_Range * ETVS_Range * 0.00227222) );
-	int y = Round( 357.428571 - (ET_Mach * ETVS_Altitude * 0.000188571) );
+	int x = Round( (ETVS_Range * 4.362664) - 537.03943 - (ETVS_Range * ETVS_Range * 0.00454444) );
+	int y = Round( 555.9999 - (ET_Mach * ETVS_Altitude * 0.000293333) );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2301,11 +2299,11 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 2.181332) - 268.519715 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00227222) );
-			y = Round( 357.428571 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000188571) );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 4.362664) - 537.03943 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00454444) );
+			y = Round( 555.9999 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000293333) );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -2322,18 +2320,18 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 10, "20" );
 	pMDU->mvprint( 0, 14, "15" );
 	pMDU->mvprint( 0, 18, "10" );
-	pMDU->mvprint( 1, 22, "5" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 0, 22, "5" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -2356,64 +2354,64 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 30, 23, "-275" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 189, 29, 111, 126 );
-	pMDU->Line( 111, 126, 36, 198 );
+	// alt*vel/rng lines
+	pMDU->Line( 378, 45, 222, 196 );
+	pMDU->Line( 222, 196, 72, 308 );
 
-	pMDU->Line( 225, 35, 179, 94 );
-	pMDU->Line( 179, 94, 101, 162 );
-	pMDU->Line( 101, 162, 46, 198 );
+	pMDU->Line( 450, 54, 358, 146 );
+	pMDU->Line( 358, 146, 202, 252 );
+	pMDU->Line( 202, 252, 92, 308 );
 
-	pMDU->Line( 246, 32, 207, 92 );
-	pMDU->Line( 207, 92, 149, 139 );
-	pMDU->Line( 149, 139, 58, 198 );
+	pMDU->Line( 492, 50, 414, 143 );
+	pMDU->Line( 414, 143, 298, 216 );
+	pMDU->Line( 298, 216, 116, 308 );
 
-	pMDU->Line( 255, 47, 230, 92 );
-	pMDU->Line( 230, 92, 177, 140 );
-	pMDU->Line( 177, 140, 80, 198 );
+	pMDU->Line( 510, 73, 460, 143 );
+	pMDU->Line( 460, 143, 354, 218 );
+	pMDU->Line( 354, 218, 160, 308 );
 
 	// drag lines
-	pMDU->Line( 210, 24, 130, 118, dps::DEUATT_DASHED );
-	pMDU->Line( 130, 118, 85, 162, dps::DEUATT_DASHED );
-	pMDU->Line( 85, 162, 13, 211, dps::DEUATT_DASHED );
+	pMDU->Line( 420, 37, 260, 184, dps::DEUATT_DASHED );
+	pMDU->Line( 260, 184, 170, 252, dps::DEUATT_DASHED );
+	pMDU->Line( 170, 252, 26, 328, dps::DEUATT_DASHED );
 
-	pMDU->Line( 242, 27, 179, 99, dps::DEUATT_DASHED );
-	pMDU->Line( 179, 99, 137, 135, dps::DEUATT_DASHED );
-	pMDU->Line( 137, 135, 34, 211, dps::DEUATT_DASHED );
+	pMDU->Line( 484, 42, 358, 154, dps::DEUATT_DASHED );
+	pMDU->Line( 358, 154, 274, 210, dps::DEUATT_DASHED );
+	pMDU->Line( 274, 210, 68, 328, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -2441,80 +2439,80 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 30)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 5)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 238 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 370 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 30)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 5)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 238 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 370 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 4.121212) - 198.333333 - (ETVS_Range * ETVS_Range * 0.00936639) );
-	int y = 288 - Round( ET_Mach * ETVS_Altitude * 0.00036 );
+	int x = Round( (ETVS_Range * 8.242424) - 396.666666 - (ETVS_Range * ETVS_Range * 0.01873278) );
+	int y = 448 - Round( ET_Mach * ETVS_Altitude * 0.00056 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2524,11 +2522,11 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 4.121212) - 198.333333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00936639) );
-			y = 288 - Round( ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.00036 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 8.242424) - 396.666666 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.01873278) );
+			y = 448 - Round( ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.00056 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
