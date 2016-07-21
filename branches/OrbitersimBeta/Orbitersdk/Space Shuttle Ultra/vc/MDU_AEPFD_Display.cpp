@@ -32,7 +32,7 @@ namespace vc
 
 		int save = SaveDC( hDC );
 
-		SelectObject( hDC, gdiTahomaFont_h10w4 );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 
 		switch (MM)
 		{
@@ -113,9 +113,9 @@ namespace vc
 				SetTextColor( hDC, CR_LIGHT_GRAY );
 				TextOut( hDC, 208, 13, "ATT:", 4 );
 				SetTextColor( hDC, CR_WHITE );
-				if (adiatt == 2) TextOut( hDC, 228, 13, "INRTL", 5 );
+				if (adiatt == 2) TextOut( hDC, 228, 13, "Inrtl", 5 );
 				else if (adiatt == 1) TextOut( hDC, 228, 13, "LVLH", 4 );
-				else TextOut( hDC, 228, 13, "REF", 3 );
+				else TextOut( hDC, 228, 13, "Ref", 3 );
 
 				Tape_MVI_KEAS( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
@@ -314,7 +314,7 @@ namespace vc
 		//if (attYaw <= 0) attYaw += 360;
 		double hsiheading;
 
-		skp->SetFont( skpTahomaFont_h10w4 );
+		skp->SetFont( skpSSUAFont_h11 );
 		HDC hDC = NULL;////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		switch (MM)
 		{
@@ -395,9 +395,9 @@ namespace vc
 				skp->SetTextColor( CR_LIGHT_GRAY );
 				skp->Text( 208, 13, "ATT:", 4 );
 				skp->SetTextColor( CR_WHITE );
-				if (adiatt == 2) skp->Text( 228, 13, "INRTL", 5 );
+				if (adiatt == 2) skp->Text( 228, 13, "Inrtl", 5 );
 				else if (adiatt == 1) skp->Text( 228, 13, "LVLH", 4 );
-				else skp->Text( 228, 13, "REF", 3 );
+				else skp->Text( 228, 13, "Ref", 3 );
 
 				Tape_MVI_KEAS( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
@@ -1234,30 +1234,31 @@ namespace vc
 	{
 		SelectObject( hDC, gdiRedPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 9, 39, 33, 155 );
-		Rectangle( hDC, 9, 91, 33, 105 );
-		Rectangle( hDC, 9, 159, 33, 171 );
-		Rectangle( hDC, 37, 39, 60, 155 );
-		POINT poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
+		Rectangle( hDC, 13, 55, 59, 269 );
+		Rectangle( hDC, 13, 151, 59, 176 );
+		Rectangle( hDC, 13, 279, 59, 304 );
+
+		Rectangle( hDC, 68, 55, 114, 269 );
+		POINT poly[5] = {{111,163},{104,176},{64,176},{64,151},{104,151}};// start at tip moving cw
 		Polygon( hDC, poly, 5 );
 
-		Rectangle( hDC, 203, 39, 227, 155 );
-		Rectangle( hDC, 203, 91, 227, 105 );
-		Rectangle( hDC, 230, 39, 254, 155 );
-		Rectangle( hDC, 230, 91, 254, 105 );
+		Rectangle( hDC, 394, 55, 440, 269 );
+		Rectangle( hDC, 394, 151, 440, 176 );
+
+		Rectangle( hDC, 459, 55, 505, 269 );
+		Rectangle( hDC, 459, 151, 505, 176 );
 
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 12, 30, "M/V", 3 );
-		TextOut( hDC, 12, 172, "KEAS", 4 );
+		TextOut( hDC, 17, 40, "M/V", 3 );
+		TextOut( hDC, 17, 310, "KEAS", 4 );
 
-		SelectObject( hDC, gdiLightGrayPen );
-		::Ellipse( hDC, 46, 34, 50, 38 );
-		SetPixel( hDC, 50, 34, CR_LIGHT_GRAY );
-		SetPixel( hDC, 50, 37, CR_LIGHT_GRAY );
+		char alpha[4];
+		sprintf_s( alpha, 4, "%c", 255 );
+		TextOut( hDC, 82, 40, alpha, 1 );
 
-		TextOut( hDC, 212, 30, "H", 1 );
-		SetPixel( hDC, 241, 29, CR_LIGHT_GRAY );
-		TextOut( hDC, 239, 30, "H", 1 );
+		TextOut( hDC, 411, 40, "H", 1 );
+		SetPixel( hDC, 482, 37, CR_LIGHT_GRAY );
+		TextOut( hDC, 477, 40, "H", 1 );
 		return;
 	}
 
@@ -1265,30 +1266,31 @@ namespace vc
 	{
 		skp->SetPen( skpRedPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 9, 39, 33, 155 );
-		skp->Rectangle( 9, 91, 33, 105 );
-		skp->Rectangle( 9, 159, 33, 171 );
-		skp->Rectangle( 37, 39, 60, 155 );
-		oapi::IVECTOR2 poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
+		skp->Rectangle( 13, 55, 59, 269 );
+		skp->Rectangle( 13, 151, 59, 176 );
+		skp->Rectangle( 13, 279, 59, 304 );
+
+		skp->Rectangle( 68, 55, 114, 269 );
+		oapi::IVECTOR2 poly[5] = {{111,163},{104,176},{64,176},{64,151},{104,151}};// start at tip moving cw
 		skp->Polygon( poly, 5 );
 
-		skp->Rectangle( 203, 39, 227, 155 );
-		skp->Rectangle( 203, 91, 227, 105 );
-		skp->Rectangle( 230, 39, 254, 155 );
-		skp->Rectangle( 230, 91, 254, 105 );
+		skp->Rectangle( 394, 55, 440, 269 );
+		skp->Rectangle( 394, 151, 440, 176 );
+
+		skp->Rectangle( 459, 55, 505, 269 );
+		skp->Rectangle( 459, 151, 505, 176 );
 
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 12, 30, "M/V", 3 );
-		skp->Text( 12, 172, "KEAS", 4 );
+		skp->Text( 17, 40, "M/V", 3 );
+		skp->Text( 17, 310, "KEAS", 4 );
 
-		skp->SetPen( skpLightGrayPen );
-		skp->Ellipse( 46, 34, 50, 38 );
-		skp->Pixel( 50, 34, CR_LIGHT_GRAY );
-		skp->Pixel( 50, 37, CR_LIGHT_GRAY );
+		char alpha[4];
+		sprintf_s( alpha, 4, "%c", 255 );
+		skp->Text( 82, 40, alpha, 1 );
 
-		skp->Text( 212, 30, "H", 1 );
-		skp->Pixel( 241, 29, CR_LIGHT_GRAY );
-		skp->Text( 239, 30, "H", 1 );
+		skp->Text( 411, 40, "H", 1 );
+		skp->Pixel( 482, 37, CR_LIGHT_GRAY );
+		skp->Text( 477, 40, "H", 1 );
 		return;
 	}
 
@@ -3281,27 +3283,29 @@ namespace vc
 	void MDU::HSI_A( HDC hDC, double heading, double roll, bool arrowon, double arrowheading )
 	{
 		double sgn = sign( (90 * RAD) - fabs( roll ) );
-		// center (122,238) r = 57
+		// center (239,436) r = 95
+		SelectObject( hDC, gdiLightGrayPen );
+		SelectObject( hDC, gdiBlackBrush );
+		::Ellipse( hDC, 134, 331, 344, 541 );// r = 105
+
 		SelectObject( hDC, gdiCyanPen );
-		MoveToEx( hDC, 65, 238, NULL );
-		LineTo( hDC, 61, 238 );
-		MoveToEx( hDC, 82, 198, NULL );
-		LineTo( hDC, 79, 195 );
-		MoveToEx( hDC, 122, 186, NULL );
-		LineTo( hDC, 122, 177 );
-		MoveToEx( hDC, 162, 198, NULL );
-		LineTo( hDC, 165, 195 );
-		MoveToEx( hDC, 179, 238, NULL );
-		LineTo( hDC, 183, 238 );
+		MoveToEx( hDC, 134, 436, NULL );
+		LineTo( hDC, 128, 436 );
+		MoveToEx( hDC, 165, 362, NULL );
+		LineTo( hDC, 159, 356 );
+		MoveToEx( hDC, 239, 341, NULL );
+		LineTo( hDC, 239, 325 );
+		MoveToEx( hDC, 313, 362, NULL );
+		LineTo( hDC, 319, 356 );
+		MoveToEx( hDC, 344, 436, NULL );
+		LineTo( hDC, 350, 436 );
 
 		SelectObject( hDC, gdiWhitePen );
-		SelectObject( hDC, gdiLightGrayBrush );
-		::Ellipse( hDC, 70, 186, 175, 291 );
+		SelectObject( hDC, gdiDarkGrayBrush );
+		::Ellipse( hDC, 144, 341, 334, 531 );// r = 95
 
 		SelectObject( hDC, gdiBlackBrush );
-		::Ellipse( hDC, 89, 205, 156, 272 );
-
-		Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+		::Ellipse( hDC, 177, 374, 301, 498 );// r = 62
 
 		int x1;
 		int y1;
@@ -3309,53 +3313,54 @@ namespace vc
 		int y2;
 		double cosi;
 		double sini;
+		for (int i = 90; i != 0; i -= 10)// big lines (10px)
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 85 * cosi );
+			y2 = Round( 85 * sini );
+
+			MoveToEx( hDC, 239 + x1, 436 - y1, NULL );
+			LineTo( hDC, 239 + x2, 436 - y2 );
+
+			MoveToEx( hDC, 239 + y1, 436 + x1, NULL );
+			LineTo( hDC, 239 + y2, 436 + x2 );
+
+			MoveToEx( hDC, 239 - x1, 436 + y1, NULL );
+			LineTo( hDC, 239 - x2, 436 + y2 );
+
+			MoveToEx( hDC, 239 - y1, 436 - x1, NULL );
+			LineTo( hDC, 239 - y2, 436 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines (5px)
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 90 * cosi );
+			y2 = Round( 90 * sini );
+
+			MoveToEx( hDC, 239 + x1, 436 - y1, NULL );
+			LineTo( hDC, 239 + x2, 436 - y2 );
+
+			MoveToEx( hDC, 239 + y1, 436 + x1, NULL );
+			LineTo( hDC, 239 + y2, 436 + x2 );
+
+			MoveToEx( hDC, 239 - x1, 436 + y1, NULL );
+			LineTo( hDC, 239 - x2, 436 + y2 );
+
+			MoveToEx( hDC, 239 - y1, 436 - x1, NULL );
+			LineTo( hDC, 239 - y2, 436 - x2 );
+		}
+
 		SetTextColor( hDC, CR_WHITE );
-		for (int i = 90; i != 0; i -= 10)// big lines
-		{
-			cosi = cos( (i * RAD) + (heading * sgn) );
-			sini = sin( (i * RAD) + (heading * sgn) );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 46 * cosi );
-			y2 = Round( 46 * sini );
-
-			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
-			LineTo( hDC, 122 + x2, 238 - y2 );
-
-			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
-			LineTo( hDC, 122 + y2, 238 + x2 );
-
-			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
-			LineTo( hDC, 122 - x2, 238 + y2 );
-
-			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
-			LineTo( hDC, 122 - y2, 238 - x2 );
-		}
-
-		for (int i = 85; i > 0; i -= 10)// small lines
-		{
-			cosi = cos( (i * RAD) + (heading * sgn) );
-			sini = sin( (i * RAD) + (heading * sgn) );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 48 * cosi );
-			y2 = Round( 48 * sini );
-
-			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
-			LineTo( hDC, 122 + x2, 238 - y2 );
-
-			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
-			LineTo( hDC, 122 + y2, 238 + x2 );
-
-			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
-			LineTo( hDC, 122 - x2, 238 + y2 );
-
-			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
-			LineTo( hDC, 122 - y2, 238 - x2 );
-		}
-
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		XFORM WTroll;
 		char cbuf[4];
 		SetGraphicsMode( hDC, GM_ADVANCED );
@@ -3366,13 +3371,13 @@ namespace vc
 			WTroll.eM12 = (FLOAT)(-sin( (heading * sgn) - i * 10 * RAD * sgn ));
 			WTroll.eM21 = -WTroll.eM12;
 			WTroll.eM22 = WTroll.eM11;
-			WTroll.eDx = (FLOAT)(122 - (122 * WTroll.eM11) - (238 * WTroll.eM21));
-			WTroll.eDy = (FLOAT)(238 - (238 * WTroll.eM11) + (122 * WTroll.eM21));
+			WTroll.eDx = (FLOAT)(239 - (239 * WTroll.eM11) - (436 * WTroll.eM21));
+			WTroll.eDy = (FLOAT)(436 - (436 * WTroll.eM11) + (239 * WTroll.eM21));
 			SetWorldTransform( hDC, &WTroll );
 
 			// paint
 			sprintf_s( cbuf, 4, "%d", i );// number
-			TextOut( hDC, 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+			TextOut( hDC, 239 - strlen( cbuf ) * 4, 359, cbuf, strlen( cbuf ) );
 
 			// de-rotate
 			ModifyWorldTransform( hDC, &WTroll, MWT_IDENTITY );
@@ -3381,44 +3386,39 @@ namespace vc
 
 		if (arrowon) HSI_Arrow( hDC, arrowheading * sgn );
 
-		POINT ov_symbol[6];
-		ov_symbol[0].x = 122;
-		ov_symbol[0].y = 229;
-		ov_symbol[1].x = 120;
-		ov_symbol[1].y = 244;
-		ov_symbol[2].x = 117;
-		ov_symbol[2].y = 247;
-		ov_symbol[3].x = 122;
-		ov_symbol[3].y = 252;
-		ov_symbol[4].x = 127;
-		ov_symbol[4].y = 247;
-		ov_symbol[5].x = 124;
-		ov_symbol[5].y = 244;
+		POINT ov_symbol[6] = {{239,419},{242,437},{246,442},{239,449},{232,442},{236,437}};
 		SelectObject( hDC, gdiLightGrayBrush );
 		SelectObject( hDC, gdiLightGrayPen );
 		Polygon( hDC, ov_symbol, 6 );
+
+		// "delete" bottom area where the menu will be
+		SelectObject( hDC, gdiBlackBrush );
+		SelectObject( hDC, gdiBlackPen );
+		Rectangle( hDC, 134, 452, 344, 512 );
 		return;
 	}
 
 	void MDU::HSI_A( oapi::Sketchpad2* skp, double heading, double roll, bool arrowon, double arrowheading )
 	{
 		double sgn = sign( (90 * RAD) - fabs( roll ) );
-		// center (122,238) r = 57
+		// center (239,436)
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpBlackBrush );
+		skp->Ellipse( 134, 331, 344, 541 );// r = 105
+
 		skp->SetPen( skpCyanPen );
-		skp->Line( 65, 238, 61, 238 );
-		skp->Line( 82, 198, 79, 195 );
-		skp->Line( 122, 186, 122, 177 );
-		skp->Line( 162, 198, 165, 195 );
-		skp->Line( 179, 238, 183, 238 );
+		skp->Line( 134, 436, 128, 436 );
+		skp->Line( 165, 362, 159, 356 );
+		skp->Line( 239, 341, 239, 325 );
+		skp->Line( 313, 362, 319, 356 );
+		skp->Line( 344, 436, 350, 436 );
 
 		skp->SetPen( skpWhitePen );
-		skp->SetBrush( skpLightGrayBrush );
-		skp->Ellipse( 70, 186, 175, 291 );
+		skp->SetBrush( skpDarkGrayBrush );
+		skp->Ellipse( 144, 341, 334, 531 );// r = 95
 
 		skp->SetBrush( skpBlackBrush );
-		skp->Ellipse( 89, 205, 156, 272 );
-
-		//Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+		skp->Ellipse( 177, 374, 301, 498 );// r = 62
 
 		int x1;
 		int y1;
@@ -3426,49 +3426,50 @@ namespace vc
 		int y2;
 		double cosi;
 		double sini;
+		for (int i = 90; i != 0; i -= 10)// big lines (10px)
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 85 * cosi );
+			y2 = Round( 85 * sini );
+
+			skp->Line( 239 + x1, 436 - y1, 239 + x2, 436 - y2 );
+
+			skp->Line( 239 + y1, 436 + x1, 239 + y2, 436 + x2 );
+
+			skp->Line( 239 - x1, 436 + y1, 239 - x2, 436 + y2 );
+
+			skp->Line( 239 - y1, 436 - x1, 239 - y2, 436 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines (5px)
+		{
+			cosi = cos( (i * RAD) + (heading * sgn) );
+			sini = sin( (i * RAD) + (heading * sgn) );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 90 * cosi );
+			y2 = Round( 90 * sini );
+
+			skp->Line( 239 + x1, 436 - y1, 239 + x2, 436 - y2 );
+
+			skp->Line( 239 + y1, 436 + x1, 239 + y2, 436 + x2 );
+
+			skp->Line( 239 - x1, 436 + y1, 239 - x2, 436 + y2 );
+
+			skp->Line( 239 - y1, 436 - x1, 239 - y2, 436 - x2 );
+		}
+
 		skp->SetTextColor( CR_WHITE );
-		for (int i = 90; i != 0; i -= 10)// big lines
-		{
-			cosi = cos( (i * RAD) + (heading * sgn) );
-			sini = sin( (i * RAD) + (heading * sgn) );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 46 * cosi );
-			y2 = Round( 46 * sini );
-
-			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
-
-			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
-
-			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
-
-			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
-		}
-
-		for (int i = 85; i > 0; i -= 10)// small lines
-		{
-			cosi = cos( (i * RAD) + (heading * sgn) );
-			sini = sin( (i * RAD) + (heading * sgn) );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 48 * cosi );
-			y2 = Round( 48 * sini );
-
-			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
-
-			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
-
-			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
-
-			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
-		}
-
+		skp->SetFont( skpSSUBFont_h12 );
 		char cbuf[4];
 		oapi::IVECTOR2 cntr;
-		cntr.x = 122;
-		cntr.y = 238;
+		cntr.x = 239;
+		cntr.y = 436;
 		for (int i = 0; i <= 33; i += 3)
 		{
 			// rotate
@@ -3476,7 +3477,7 @@ namespace vc
 
 			// paint
 			sprintf_s( cbuf, 4, "%d", i );// number
-			skp->Text( 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+			skp->Text( 239 - strlen( cbuf ) * 4, 359, cbuf, strlen( cbuf ) );
 
 			// de-rotate
 			skp->SetWorldTransform();
@@ -3484,48 +3485,43 @@ namespace vc
 
 		if (arrowon) HSI_Arrow( skp, arrowheading * sgn );
 
-		oapi::IVECTOR2 ov_symbol[6];
-		ov_symbol[0].x = 122;
-		ov_symbol[0].y = 229;
-		ov_symbol[1].x = 120;
-		ov_symbol[1].y = 244;
-		ov_symbol[2].x = 117;
-		ov_symbol[2].y = 247;
-		ov_symbol[3].x = 122;
-		ov_symbol[3].y = 252;
-		ov_symbol[4].x = 127;
-		ov_symbol[4].y = 247;
-		ov_symbol[5].x = 124;
-		ov_symbol[5].y = 244;
+		oapi::IVECTOR2 ov_symbol[6] = {{239,419},{242,437},{246,442},{239,449},{232,442},{236,437}};
 		skp->SetBrush( skpLightGrayBrush );
 		skp->SetPen( skpLightGrayPen );
 		skp->Polygon( ov_symbol, 6 );
+
+		// "delete" bottom area where the menu will be
+		skp->SetBrush( skpBlackBrush );
+		skp->SetPen( skpBlackPen );
+		skp->Rectangle( 134, 452, 344, 512 );
 		return;
 	}
 
 	void MDU::HSI_E( HDC hDC, double heading, bool arrowon, double arrowheading )
 	{
-		// center (122,238) r = 57
+		// center (239,436) r = 95
+		SelectObject( hDC, gdiLightGrayPen );
+		SelectObject( hDC, gdiBlackBrush );
+		::Ellipse( hDC, 134, 331, 344, 541 );// r = 105
+
 		SelectObject( hDC, gdiCyanPen );
-		MoveToEx( hDC, 65, 238, NULL );
-		LineTo( hDC, 61, 238 );
-		MoveToEx( hDC, 82, 198, NULL );
-		LineTo( hDC, 79, 195 );
-		MoveToEx( hDC, 122, 186, NULL );
-		LineTo( hDC, 122, 177 );
-		MoveToEx( hDC, 162, 198, NULL );
-		LineTo( hDC, 165, 195 );
-		MoveToEx( hDC, 179, 238, NULL );
-		LineTo( hDC, 183, 238 );
+		MoveToEx( hDC, 134, 436, NULL );
+		LineTo( hDC, 128, 436 );
+		MoveToEx( hDC, 165, 362, NULL );
+		LineTo( hDC, 159, 356 );
+		MoveToEx( hDC, 239, 341, NULL );
+		LineTo( hDC, 239, 325 );
+		MoveToEx( hDC, 313, 362, NULL );
+		LineTo( hDC, 319, 356 );
+		MoveToEx( hDC, 344, 436, NULL );
+		LineTo( hDC, 350, 436 );
 
 		SelectObject( hDC, gdiWhitePen );
-		SelectObject( hDC, gdiLightGrayBrush );
-		::Ellipse( hDC, 70, 186, 175, 291 );
+		SelectObject( hDC, gdiDarkGrayBrush );
+		::Ellipse( hDC, 144, 341, 334, 531 );// r = 95
 
 		SelectObject( hDC, gdiBlackBrush );
-		::Ellipse( hDC, 89, 205, 156, 272 );
-
-		Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+		::Ellipse( hDC, 177, 374, 301, 498 );// r = 62
 
 		int x1;
 		int y1;
@@ -3533,53 +3529,53 @@ namespace vc
 		int y2;
 		double cosi;
 		double sini;
+		for (int i = 90; i != 0; i -= 10)// big lines (10px)
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 85 * cosi );
+			y2 = Round( 85 * sini );
+
+			MoveToEx( hDC, 239 + x1, 436 - y1, NULL );
+			LineTo( hDC, 239 + x2, 436 - y2 );
+
+			MoveToEx( hDC, 239 + y1, 436 + x1, NULL );
+			LineTo( hDC, 239 + y2, 436 + x2 );
+
+			MoveToEx( hDC, 239 - x1, 436 + y1, NULL );
+			LineTo( hDC, 239 - x2, 436 + y2 );
+
+			MoveToEx( hDC, 239 - y1, 436 - x1, NULL );
+			LineTo( hDC, 239 - y2, 436 - x2 );
+		}
+		for (int i = 85; i > 0; i -= 10)// small lines (5px)
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 90 * cosi );
+			y2 = Round( 90 * sini );
+
+			MoveToEx( hDC, 239 + x1, 436 - y1, NULL );
+			LineTo( hDC, 239 + x2, 436 - y2 );
+
+			MoveToEx( hDC, 239 + y1, 436 + x1, NULL );
+			LineTo( hDC, 239 + y2, 436 + x2 );
+
+			MoveToEx( hDC, 239 - x1, 436 + y1, NULL );
+			LineTo( hDC, 239 - x2, 436 + y2 );
+
+			MoveToEx( hDC, 239 - y1, 436 - x1, NULL );
+			LineTo( hDC, 239 - y2, 436 - x2 );
+		}
+
 		SetTextColor( hDC, CR_WHITE );
-		for (int i = 90; i != 0; i -= 10)// big lines
-		{
-			cosi = cos( (i * RAD) + heading );
-			sini = sin( (i * RAD) + heading );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 46 * cosi );
-			y2 = Round( 46 * sini );
-
-			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
-			LineTo( hDC, 122 + x2, 238 - y2 );
-
-			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
-			LineTo( hDC, 122 + y2, 238 + x2 );
-
-			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
-			LineTo( hDC, 122 - x2, 238 + y2 );
-
-			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
-			LineTo( hDC, 122 - y2, 238 - x2 );
-		}
-
-		for (int i = 85; i > 0; i -= 10)// small lines
-		{
-			cosi = cos( (i * RAD) + heading );
-			sini = sin( (i * RAD) + heading );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 48 * cosi );
-			y2 = Round( 48 * sini );
-
-			MoveToEx( hDC, 122 + x1, 238 - y1, NULL );
-			LineTo( hDC, 122 + x2, 238 - y2 );
-
-			MoveToEx( hDC, 122 + y1, 238 + x1, NULL );
-			LineTo( hDC, 122 + y2, 238 + x2 );
-
-			MoveToEx( hDC, 122 - x1, 238 + y1, NULL );
-			LineTo( hDC, 122 - x2, 238 + y2 );
-
-			MoveToEx( hDC, 122 - y1, 238 - x1, NULL );
-			LineTo( hDC, 122 - y2, 238 - x2 );
-		}
-
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		XFORM WTroll;
 		char cbuf[4];
 		SetGraphicsMode( hDC, GM_ADVANCED );
@@ -3590,17 +3586,25 @@ namespace vc
 			WTroll.eM12 = (FLOAT)(-sin( heading - i * 10 * RAD ));
 			WTroll.eM21 = -WTroll.eM12;
 			WTroll.eM22 = WTroll.eM11;
-			WTroll.eDx = (FLOAT)(122 - (122 * WTroll.eM11) - (238 * WTroll.eM21));
-			WTroll.eDy = (FLOAT)(238 - (238 * WTroll.eM11) + (122 * WTroll.eM21));
+			WTroll.eDx = (FLOAT)(239 - (239 * WTroll.eM11) - (436 * WTroll.eM21));
+			WTroll.eDy = (FLOAT)(436 - (436 * WTroll.eM11) + (239 * WTroll.eM21));
 			SetWorldTransform( hDC, &WTroll );
 
 			// paint
-			if ((i % 9) != 0) sprintf_s( cbuf, 4, "%d", i );// number
-			else if (i == 0) sprintf_s( cbuf, 4, "N" );// letter
-			else if (i == 9) sprintf_s( cbuf, 4, "E" );// letter
-			else if (i == 18) sprintf_s( cbuf, 4, "S" );// letter
-			else sprintf_s( cbuf, 4, "W" );// letter
-			TextOut( hDC, 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+			if ((i % 9) != 0)// number
+			{
+				sprintf_s( cbuf, 4, "%d", i );
+				TextOut( hDC, 239 - strlen( cbuf ) * 4, 359, cbuf, strlen( cbuf ) );
+			}
+			else// letter
+			{
+				SelectObject( hDC, gdiSSUBFont_h16w9 );
+				if (i == 0) TextOut( hDC, 235, 354, "N", 1 );
+				else if (i == 9) TextOut( hDC, 235, 354, "E", 1 );
+				else if (i == 18) TextOut( hDC, 235, 354, "S", 1 );
+				else TextOut( hDC, 235, 354, "W", 1 );
+				SelectObject( hDC, gdiSSUBFont_h12w7 );
+			}
 
 			// de-rotate
 			ModifyWorldTransform( hDC, &WTroll, MWT_IDENTITY );
@@ -3609,43 +3613,38 @@ namespace vc
 
 		if (arrowon) HSI_Arrow( hDC, (heading * DEG) - arrowheading );
 
-		POINT ov_symbol[6];
-		ov_symbol[0].x = 122;
-		ov_symbol[0].y = 229;
-		ov_symbol[1].x = 120;
-		ov_symbol[1].y = 244;
-		ov_symbol[2].x = 117;
-		ov_symbol[2].y = 247;
-		ov_symbol[3].x = 122;
-		ov_symbol[3].y = 252;
-		ov_symbol[4].x = 127;
-		ov_symbol[4].y = 247;
-		ov_symbol[5].x = 124;
-		ov_symbol[5].y = 244;
+		POINT ov_symbol[6] = {{239,419},{242,437},{246,442},{239,449},{232,442},{236,437}};
 		SelectObject( hDC, gdiLightGrayBrush );
 		SelectObject( hDC, gdiLightGrayPen );
 		Polygon( hDC, ov_symbol, 6 );
+
+		// "delete" bottom area where the menu will be
+		SelectObject( hDC, gdiBlackBrush );
+		SelectObject( hDC, gdiBlackPen );
+		Rectangle( hDC, 134, 452, 344, 512 );
 		return;
 	}
 
 	void MDU::HSI_E( oapi::Sketchpad2* skp, double heading, bool arrowon, double arrowheading )
 	{
-		// center (122,238) r = 57
+		// center (239,436)
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpBlackBrush );
+		skp->Ellipse( 134, 331, 344, 541 );// r = 105
+
 		skp->SetPen( skpCyanPen );
-		skp->Line( 65, 238, 61, 238 );
-		skp->Line( 82, 198, 79, 195 );
-		skp->Line( 122, 186, 122, 177 );
-		skp->Line( 162, 198, 165, 195 );
-		skp->Line( 179, 238, 183, 238 );
+		skp->Line( 134, 436, 128, 436 );
+		skp->Line( 165, 362, 159, 356 );
+		skp->Line( 239, 341, 239, 325 );
+		skp->Line( 313, 362, 319, 356 );
+		skp->Line( 344, 436, 350, 436 );
 
 		skp->SetPen( skpWhitePen );
-		skp->SetBrush( skpLightGrayBrush );
-		skp->Ellipse( 70, 186, 175, 291 );
+		skp->SetBrush( skpDarkGrayBrush );
+		skp->Ellipse( 144, 341, 334, 531 );// r = 95
 
 		skp->SetBrush( skpBlackBrush );
-		skp->Ellipse( 89, 205, 156, 272 );
-
-		//Arc( hDC, 65, 181, 180, 296, 176, 256, 69, 257 );
+		skp->Ellipse( 177, 374, 301, 498 );// r = 62
 
 		int x1;
 		int y1;
@@ -3653,61 +3652,70 @@ namespace vc
 		int y2;
 		double cosi;
 		double sini;
+		for (int i = 90; i != 0; i -= 10)// big lines (10px)
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 85 * cosi );
+			y2 = Round( 85 * sini );
+
+			skp->Line( 239 + x1, 436 - y1, 239 + x2, 436 - y2 );
+
+			skp->Line( 239 + y1, 436 + x1, 239 + y2, 436 + x2 );
+
+			skp->Line( 239 - x1, 436 + y1, 239 - x2, 436 + y2 );
+
+			skp->Line( 239 - y1, 436 - x1, 239 - y2, 436 - x2 );
+		}
+
+		for (int i = 85; i > 0; i -= 10)// small lines (5px)
+		{
+			cosi = cos( (i * RAD) + heading );
+			sini = sin( (i * RAD) + heading );
+			x1 = Round( 95 * cosi );
+			y1 = Round( 95 * sini );
+
+			x2 = Round( 90 * cosi );
+			y2 = Round( 90 * sini );
+
+			skp->Line( 239 + x1, 436 - y1, 239 + x2, 436 - y2 );
+
+			skp->Line( 239 + y1, 436 + x1, 239 + y2, 436 + x2 );
+
+			skp->Line( 239 - x1, 436 + y1, 239 - x2, 436 + y2 );
+
+			skp->Line( 239 - y1, 436 - x1, 239 - y2, 436 - x2 );
+		}
+
 		skp->SetTextColor( CR_WHITE );
-		for (int i = 90; i != 0; i -= 10)// big lines
-		{
-			cosi = cos( (i * RAD) + heading );
-			sini = sin( (i * RAD) + heading );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 46 * cosi );
-			y2 = Round( 46 * sini );
-
-			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
-
-			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
-
-			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
-
-			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
-		}
-
-		for (int i = 85; i > 0; i -= 10)// small lines
-		{
-			cosi = cos( (i * RAD) + heading );
-			sini = sin( (i * RAD) + heading );
-			x1 = Round( 51 * cosi );
-			y1 = Round( 51 * sini );
-
-			x2 = Round( 48 * cosi );
-			y2 = Round( 48 * sini );
-
-			skp->Line( 122 + x1, 238 - y1, 122 + x2, 238 - y2 );
-
-			skp->Line( 122 + y1, 238 + x1, 122 + y2, 238 + x2 );
-
-			skp->Line( 122 - x1, 238 + y1, 122 - x2, 238 + y2 );
-
-			skp->Line( 122 - y1, 238 - x1, 122 - y2, 238 - x2 );
-		}
-
+		skp->SetFont( skpSSUBFont_h12 );
 		char cbuf[4];
 		oapi::IVECTOR2 cntr;
-		cntr.x = 122;
-		cntr.y = 238;
+		cntr.x = 239;
+		cntr.y = 436;
 		for (int i = 0; i <= 33; i += 3)
 		{
 			// rotate
 			skp->SetWorldTransform2D( 1.0f, (float)(i * 10 * RAD - heading), &cntr );
 
 			// paint
-			if ((i % 9) != 0) sprintf_s( cbuf, 4, "%d", i );// number
-			else if (i == 0) sprintf_s( cbuf, 4, "N" );// letter
-			else if (i == 9) sprintf_s( cbuf, 4, "E" );// letter
-			else if (i == 18) sprintf_s( cbuf, 4, "S" );// letter
-			else sprintf_s( cbuf, 4, "W" );// letter
-			skp->Text( 122 - strlen( cbuf ) * 2, 193, cbuf, strlen( cbuf ) );
+			if ((i % 9) != 0)// number
+			{
+				sprintf_s( cbuf, 4, "%d", i );
+				skp->Text( 239 - strlen( cbuf ) * 4, 359, cbuf, strlen( cbuf ) );
+			}
+			else// letter
+			{
+				skp->SetFont( skpSSUBFont_h16 );
+				if (i == 0) skp->Text( 235, 354, "N", 1 );
+				else if (i == 9) skp->Text( 235, 354, "E", 1 );
+				else if (i == 18) skp->Text( 235, 354, "S", 1 );
+				else skp->Text( 235, 354, "W", 1 );
+				skp->SetFont( skpSSUBFont_h12 );
+			}
 
 			// de-rotate
 			skp->SetWorldTransform();
@@ -3715,28 +3723,20 @@ namespace vc
 
 		if (arrowon) HSI_Arrow( skp, (heading * DEG) - arrowheading );
 
-		oapi::IVECTOR2 ov_symbol[6];
-		ov_symbol[0].x = 122;
-		ov_symbol[0].y = 229;
-		ov_symbol[1].x = 120;
-		ov_symbol[1].y = 244;
-		ov_symbol[2].x = 117;
-		ov_symbol[2].y = 247;
-		ov_symbol[3].x = 122;
-		ov_symbol[3].y = 252;
-		ov_symbol[4].x = 127;
-		ov_symbol[4].y = 247;
-		ov_symbol[5].x = 124;
-		ov_symbol[5].y = 244;
+		oapi::IVECTOR2 ov_symbol[6] = {{239,419},{242,437},{246,442},{239,449},{232,442},{236,437}};
 		skp->SetBrush( skpLightGrayBrush );
 		skp->SetPen( skpLightGrayPen );
 		skp->Polygon( ov_symbol, 6 );
+
+		// "delete" bottom area where the menu will be
+		skp->SetBrush( skpBlackBrush );
+		skp->SetPen( skpBlackPen );
+		skp->Rectangle( 134, 452, 344, 512 );
 		return;
 	}
 
 	void MDU::HSI_Arrow( HDC hDC, double heading )
 	{
-		SelectObject( hDC, gdiWhiteBrush );
 		double cosH = cos( -heading * RAD );
 		double sinH = sin( -heading * RAD );
 		int dotLL_X;
@@ -3749,60 +3749,60 @@ namespace vc
 		int dotRR_Y;
 		POINT arrow[10];
 
-		dotLL_X = 122 - Round( 24 * cosH );
-		dotLL_Y = 238 - Round( 24 * sinH );
-		dotL_X = 122 - Round( 12 * cosH );
-		dotL_Y = 238 - Round( 12 * sinH );
-		dotR_X = 122 + Round( 12 * cosH );
-		dotR_Y = 238 + Round( 12 * sinH );
-		dotRR_X = 122 + Round( 24 * cosH );
-		dotRR_Y = 238 + Round( 24 * sinH );
-
-		arrow[0].x = 122 + Round( 49 * sinH );
-		arrow[0].y = 238 - Round( 49 * cosH );
-		arrow[1].x = 122 - Round( 3 * cosH - 30 * sinH );
-		arrow[1].y = 238 - Round( 3 * sinH + 30 * cosH );
-		arrow[2].x = 122 - Round( 8 * cosH - 28 * sinH );
-		arrow[2].y = 238 - Round( 8 * sinH + 28 * cosH );
-		arrow[3].x = 122 - Round( 8 * cosH - 23 * sinH );
-		arrow[3].y = 238 - Round( 8 * sinH + 23 * cosH );
-		arrow[4].x = 122 - Round( 4 * cosH - 25 * sinH );
-		arrow[4].y = 238 - Round( 4 * sinH + 25 * cosH );
-		arrow[5].x = 122 + Round( 20 * sinH );
-		arrow[5].y = 238 - Round( 20 * cosH );
-		arrow[6].x = 122 + Round( 4 * cosH + 25 * sinH );
-		arrow[6].y = 238 + Round( 4 * sinH - 25 * cosH );
-		arrow[7].x = 122 + Round( 8 * cosH + 23 * sinH );
-		arrow[7].y = 238 + Round( 8 * sinH - 23 * cosH );
-		arrow[8].x = 122 + Round( 8 * cosH + 28 * sinH );
-		arrow[8].y = 238 + Round( 8 * sinH - 28 * cosH );
-		arrow[9].x = 122 + Round( 3 * cosH + 30 * sinH );
-		arrow[9].y = 238 + Round( 3 * sinH - 30 * cosH );
-
-		::Ellipse( hDC, dotLL_X - 2, dotLL_Y - 2, dotLL_X + 2, dotLL_Y + 2 );
-		::Ellipse( hDC, dotL_X - 2, dotL_Y - 2, dotL_X + 2, dotL_Y + 2 );
-		::Ellipse( hDC, dotR_X - 2, dotR_Y - 2, dotR_X + 2, dotR_Y + 2 );
-		::Ellipse( hDC, dotRR_X - 2, dotRR_Y - 2, dotRR_X + 2, dotRR_Y + 2 );
+		SelectObject( hDC, gdiWhiteBrush );
+		dotLL_X = 239 - Round( 40 * cosH );
+		dotLL_Y = 436 - Round( 40 * sinH );
+		dotL_X = 239 - Round( 20 * cosH );
+		dotL_Y = 436 - Round( 20 * sinH );
+		dotR_X = 239 + Round( 20 * cosH );
+		dotR_Y = 436 + Round( 20 * sinH );
+		dotRR_X = 239 + Round( 40 * cosH );
+		dotRR_Y = 436 + Round( 40 * sinH );
+		::Ellipse( hDC, dotLL_X - 5, dotLL_Y - 5, dotLL_X + 5, dotLL_Y + 5 );
+		::Ellipse( hDC, dotL_X - 5, dotL_Y - 5, dotL_X + 5, dotL_Y + 5 );
+		::Ellipse( hDC, dotR_X - 5, dotR_Y - 5, dotR_X + 5, dotR_Y + 5 );
+		::Ellipse( hDC, dotRR_X - 5, dotRR_Y - 5, dotRR_X + 5, dotRR_Y + 5 );
 
 		SelectObject( hDC, gdiMagentaBrush );
 		SelectObject( hDC, gdiBlackPen );
+		arrow[0].x = 239 + Round( 87 * sinH );
+		arrow[0].y = 436 - Round( 87 * cosH );
+		arrow[1].x = 239 - Round( 5 * cosH - 55 * sinH );
+		arrow[1].y = 436 - Round( 5 * sinH + 55 * cosH );
+		arrow[2].x = 239 - Round( 11 * cosH - 51 * sinH );
+		arrow[2].y = 436 - Round( 11 * sinH + 51 * cosH );
+		arrow[3].x = 239 - Round( 12 * cosH - 46 * sinH );
+		arrow[3].y = 436 - Round( 12 * sinH + 46 * cosH );
+		arrow[4].x = 239 - Round( 6 * cosH - 48 * sinH );
+		arrow[4].y = 436 - Round( 6 * sinH + 48 * cosH );
+		arrow[5].x = 239 + Round( 41 * sinH );
+		arrow[5].y = 436 - Round( 41 * cosH );
+		arrow[6].x = 239 + Round( 6 * cosH + 48 * sinH );
+		arrow[6].y = 436 + Round( 6 * sinH - 48 * cosH );
+		arrow[7].x = 239 + Round( 12 * cosH + 46 * sinH );
+		arrow[7].y = 436 + Round( 12 * sinH - 46 * cosH );
+		arrow[8].x = 239 + Round( 11 * cosH + 51 * sinH );
+		arrow[8].y = 436 + Round( 11 * sinH - 51 * cosH );
+		arrow[9].x = 239 + Round( 5 * cosH + 55 * sinH );
+		arrow[9].y = 436 + Round( 5 * sinH - 55 * cosH );
 		Polygon( hDC, arrow, 10 );
+		MoveToEx( hDC, arrow[0].x, arrow[0].y, NULL );
+		LineTo( hDC, arrow[5].x, arrow[5].y );
 
-		arrow[0].x = 122 - Round( 2 * cosH + 20 * sinH );
-		arrow[0].y = 238 - Round( 2 * sinH - 20 * cosH );
-		arrow[1].x = 122 - Round( 2 * cosH + 40 * sinH );
-		arrow[1].y = 238 - Round( 2 * sinH - 40 * cosH );
-		arrow[2].x = 122 + Round( 2 * cosH - 40 * sinH );
-		arrow[2].y = 238 + Round( 2 * sinH + 40 * cosH );
-		arrow[3].x = 122 + Round( 2 * cosH - 20 * sinH );
-		arrow[3].y = 238 + Round( 2 * sinH + 20 * cosH );
+		arrow[0].x = 239 - Round( 3 * cosH + 40 * sinH );
+		arrow[0].y = 436 - Round( 3 * sinH - 40 * cosH );
+		arrow[1].x = 239 - Round( 3 * cosH + 77 * sinH );
+		arrow[1].y = 436 - Round( 3 * sinH - 77 * cosH );
+		arrow[2].x = 239 + Round( 3 * cosH - 77 * sinH );
+		arrow[2].y = 436 + Round( 3 * sinH + 77 * cosH );
+		arrow[3].x = 239 + Round( 3 * cosH - 40 * sinH );
+		arrow[3].y = 436 + Round( 3 * sinH + 40 * cosH );
 		Polygon( hDC, arrow, 4 );
 		return;
 	}
 
 	void MDU::HSI_Arrow( oapi::Sketchpad2* skp, double heading )
 	{
-		skp->SetBrush( skpWhiteBrush );
 		double cosH = cos( -heading * RAD );
 		double sinH = sin( -heading * RAD );
 		int dotLL_X;
@@ -3815,36 +3815,15 @@ namespace vc
 		int dotRR_Y;
 		oapi::IVECTOR2 arrow[10];
 
-		dotLL_X = 122 - Round( 24 * cosH );
-		dotLL_Y = 238 - Round( 24 * sinH );
-		dotL_X = 122 - Round( 12 * cosH );
-		dotL_Y = 238 - Round( 12 * sinH );
-		dotR_X = 122 + Round( 12 * cosH );
-		dotR_Y = 238 + Round( 12 * sinH );
-		dotRR_X = 122 + Round( 24 * cosH );
-		dotRR_Y = 238 + Round( 24 * sinH );
-
-		arrow[0].x = 122 + Round( 49 * sinH );
-		arrow[0].y = 238 - Round( 49 * cosH );
-		arrow[1].x = 122 - Round( 3 * cosH - 30 * sinH );
-		arrow[1].y = 238 - Round( 3 * sinH + 30 * cosH );
-		arrow[2].x = 122 - Round( 8 * cosH - 28 * sinH );
-		arrow[2].y = 238 - Round( 8 * sinH + 28 * cosH );
-		arrow[3].x = 122 - Round( 8 * cosH - 23 * sinH );
-		arrow[3].y = 238 - Round( 8 * sinH + 23 * cosH );
-		arrow[4].x = 122 - Round( 4 * cosH - 25 * sinH );
-		arrow[4].y = 238 - Round( 4 * sinH + 25 * cosH );
-		arrow[5].x = 122 + Round( 20 * sinH );
-		arrow[5].y = 238 - Round( 20 * cosH );
-		arrow[6].x = 122 + Round( 4 * cosH + 25 * sinH );
-		arrow[6].y = 238 + Round( 4 * sinH - 25 * cosH );
-		arrow[7].x = 122 + Round( 8 * cosH + 23 * sinH );
-		arrow[7].y = 238 + Round( 8 * sinH - 23 * cosH );
-		arrow[8].x = 122 + Round( 8 * cosH + 28 * sinH );
-		arrow[8].y = 238 + Round( 8 * sinH - 28 * cosH );
-		arrow[9].x = 122 + Round( 3 * cosH + 30 * sinH );
-		arrow[9].y = 238 + Round( 3 * sinH - 30 * cosH );
-
+		skp->SetBrush( skpWhiteBrush );
+		dotLL_X = 239 - Round( 40 * cosH );
+		dotLL_Y = 436 - Round( 40 * sinH );
+		dotL_X = 239 - Round( 20 * cosH );
+		dotL_Y = 436 - Round( 20 * sinH );
+		dotR_X = 239 + Round( 20 * cosH );
+		dotR_Y = 436 + Round( 20 * sinH );
+		dotRR_X = 239 + Round( 40 * cosH );
+		dotRR_Y = 436 + Round( 40 * sinH );
 		skp->Ellipse( dotLL_X - 2, dotLL_Y - 2, dotLL_X + 2, dotLL_Y + 2 );
 		skp->Ellipse( dotL_X - 2, dotL_Y - 2, dotL_X + 2, dotL_Y + 2 );
 		skp->Ellipse( dotR_X - 2, dotR_Y - 2, dotR_X + 2, dotR_Y + 2 );
@@ -3852,16 +3831,37 @@ namespace vc
 
 		skp->SetBrush( skpMagentaBrush );
 		skp->SetPen( skpBlackPen );
+		arrow[0].x = 239 + Round( 87 * sinH );
+		arrow[0].y = 436 - Round( 87 * cosH );
+		arrow[1].x = 239 - Round( 5 * cosH - 55 * sinH );
+		arrow[1].y = 436 - Round( 5 * sinH + 55 * cosH );
+		arrow[2].x = 239 - Round( 11 * cosH - 51 * sinH );
+		arrow[2].y = 436 - Round( 11 * sinH + 51 * cosH );
+		arrow[3].x = 239 - Round( 12 * cosH - 46 * sinH );
+		arrow[3].y = 436 - Round( 12 * sinH + 46 * cosH );
+		arrow[4].x = 239 - Round( 6 * cosH - 48 * sinH );
+		arrow[4].y = 436 - Round( 6 * sinH + 48 * cosH );
+		arrow[5].x = 239 + Round( 41 * sinH );
+		arrow[5].y = 436 - Round( 41 * cosH );
+		arrow[6].x = 239 + Round( 6 * cosH + 48 * sinH );
+		arrow[6].y = 436 + Round( 6 * sinH - 48 * cosH );
+		arrow[7].x = 239 + Round( 12 * cosH + 46 * sinH );
+		arrow[7].y = 436 + Round( 12 * sinH - 46 * cosH );
+		arrow[8].x = 239 + Round( 11 * cosH + 51 * sinH );
+		arrow[8].y = 436 + Round( 11 * sinH - 51 * cosH );
+		arrow[9].x = 239 + Round( 5 * cosH + 55 * sinH );
+		arrow[9].y = 436 + Round( 5 * sinH - 55 * cosH );
 		skp->Polygon( arrow, 10 );
+		skp->Line( arrow[0].x, arrow[0].y, arrow[5].x, arrow[5].y );
 
-		arrow[0].x = 122 - Round( 2 * cosH + 20 * sinH );
-		arrow[0].y = 238 - Round( 2 * sinH - 20 * cosH );
-		arrow[1].x = 122 - Round( 2 * cosH + 40 * sinH );
-		arrow[1].y = 238 - Round( 2 * sinH - 40 * cosH );
-		arrow[2].x = 122 + Round( 2 * cosH - 40 * sinH );
-		arrow[2].y = 238 + Round( 2 * sinH + 40 * cosH );
-		arrow[3].x = 122 + Round( 2 * cosH - 20 * sinH );
-		arrow[3].y = 238 + Round( 2 * sinH + 20 * cosH );
+		arrow[0].x = 239 - Round( 3 * cosH + 40 * sinH );
+		arrow[0].y = 436 - Round( 3 * sinH - 40 * cosH );
+		arrow[1].x = 239 - Round( 3 * cosH + 77 * sinH );
+		arrow[1].y = 436 - Round( 3 * sinH - 77 * cosH );
+		arrow[2].x = 239 + Round( 3 * cosH - 77 * sinH );
+		arrow[2].y = 436 + Round( 3 * sinH + 77 * cosH );
+		arrow[3].x = 239 + Round( 3 * cosH - 40 * sinH );
+		arrow[3].y = 436 + Round( 3 * sinH + 40 * cosH );
 		skp->Polygon( arrow, 4 );
 		return;
 	}
@@ -3870,22 +3870,22 @@ namespace vc
 	{
 		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 21, 4, "DAP:", 4 );
+		TextOut( hDC, 40, 6, "DAP:", 4 );
 
-		TextOut( hDC, 209, 4, "MM:", 3 );
+		TextOut( hDC, 413, 6, "MM:", 3 );
 		
-		TextOut( hDC, 9, 13, "THROT:", 6 );
+		TextOut( hDC, 22, 21, "Throt:", 6 );
 
-		TextOut( hDC, 208, 13, "ATT:", 4 );
+		TextOut( hDC, 404, 21, "ATT:", 4 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get AscentDAP state
+		if (1) TextOut( hDC, 85, 6, "Auto", 4 );// TODO get AscentDAP state
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 6, 4, 60, 14 );
-			TextOut( hDC, 40, 4, "CSS", 3 );
+			Rectangle( hDC, 16, 4, 132, 20 );
+			TextOut( hDC, 85, 6, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -3894,20 +3894,20 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 40, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 85, 21, "Auto", 4 );
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 6, 13, 60, 23 );
-			TextOut( hDC, 40, 13, "MAN", 3 );
+			Rectangle( hDC, 16, 19, 132, 35 );
+			TextOut( hDC, 85, 21, "MAN", 3 );
 		}
 
-		if (adiatt == 2) TextOut( hDC, 228, 13, "INRTL", 5 );
-		else if (adiatt == 1) TextOut( hDC, 228, 13, "LVLH", 4 );
-		else TextOut( hDC, 228, 13, "REF", 3 );
+		if (adiatt == 2) TextOut( hDC, 449, 21, "Inrtl", 5 );
+		else if (adiatt == 1) TextOut( hDC, 449, 21, "LVLH", 4 );
+		else TextOut( hDC, 449, 21, "Ref", 3 );
 		return;
 	}
 
@@ -3915,22 +3915,22 @@ namespace vc
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 21, 4, "DAP:", 4 );
+		skp->Text( 40, 6, "DAP:", 4 );
 
-		skp->Text( 209, 4, "MM:", 3 );
+		skp->Text( 413, 6, "MM:", 3 );
 		
-		skp->Text( 9, 13, "THROT:", 6 );
+		skp->Text( 22, 21, "Throt:", 6 );
 
-		skp->Text( 208, 13, "ATT:", 4 );
+		skp->Text( 404, 21, "ATT:", 4 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (1) skp->Text( 40, 4, "Auto", 4 );// TODO get AscentDAP state
+		if (1) skp->Text( 85, 6, "Auto", 4 );// TODO get AscentDAP state
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
-			skp->Rectangle( 6, 4, 60, 14 );
-			skp->Text( 40, 4, "CSS", 3 );
+			skp->Rectangle( 16, 4, 132, 20 );
+			skp->Text( 85, 6, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -3939,20 +3939,20 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		skp->Text( 225, 4, cbuf, strlen( cbuf ) );
+		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 40, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 85, 21, "Auto", 4 );
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
-			skp->Rectangle( 6, 13, 60, 23 );
-			skp->Text( 40, 13, "MAN", 3 );
+			skp->Rectangle( 16, 19, 132, 35 );
+			skp->Text( 85, 21, "MAN", 3 );
 		}
 
-		if (adiatt == 2) skp->Text( 228, 13, "INRTL", 5 );
-		else if (adiatt == 1) skp->Text( 228, 13, "LVLH", 4 );
-		else skp->Text( 228, 13, "REF", 3 );
+		if (adiatt == 2) skp->Text( 449, 21, "Inrtl", 5 );
+		else if (adiatt == 1) skp->Text( 449, 21, "LVLH", 4 );
+		else skp->Text( 449, 21, "Ref", 3 );
 		return;
 	}
 
@@ -3960,22 +3960,22 @@ namespace vc
 	{
 		char cbuf[4];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 21, 4, "DAP:", 4 );
+		TextOut( hDC, 40, 6, "DAP:", 4 );
 
-		TextOut( hDC, 209, 4, "MM:", 3 );
+		TextOut( hDC, 413, 6, "MM:", 3 );
 
-		TextOut( hDC, 208, 13, "ATT:", 4 );
+		TextOut( hDC, 404, 21, "ATT:", 4 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get TransDAP state
-		else TextOut( hDC, 40, 4, "INRTL", 5 );
+		if (1) TextOut( hDC, 85, 6, "Auto", 4 );// TODO get TransDAP state
+		else TextOut( hDC, 85, 6, "INRTL", 5 );
 
 		sprintf_s( cbuf, 4, "%d", MM );
-		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
 
-		if (adiatt == 2) TextOut( hDC, 228, 13, "INRTL", 5 );
-		else if (adiatt == 1) TextOut( hDC, 228, 13, "LVLH", 4 );
-		else TextOut( hDC, 228, 13, "REF", 3 );
+		if (adiatt == 2) TextOut( hDC, 449, 21, "Inrtl", 5 );
+		else if (adiatt == 1) TextOut( hDC, 449, 21, "LVLH", 4 );
+		else TextOut( hDC, 449, 21, "Ref", 3 );
 		return;
 	}
 
@@ -3983,22 +3983,22 @@ namespace vc
 	{
 		char cbuf[4];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 21, 4, "DAP:", 4 );
+		skp->Text( 40, 6, "DAP:", 4 );
 
-		skp->Text( 209, 4, "MM:", 3 );
+		skp->Text( 413, 6, "MM:", 3 );
 
-		skp->Text( 208, 13, "ATT:", 4 );
+		skp->Text( 404, 21, "ATT:", 4 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (1) skp->Text( 40, 4, "Auto", 4 );// TODO get TransDAP state
-		else skp->Text( 40, 4, "INRTL", 5 );
+		if (1) skp->Text( 85, 6, "Auto", 4 );// TODO get TransDAP state
+		else skp->Text( 85, 6, "INRTL", 5 );
 
 		sprintf_s( cbuf, 4, "%d", MM );
-		skp->Text( 225, 4, cbuf, strlen( cbuf ) );
+		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
 
-		if (adiatt == 2) skp->Text( 228, 13, "INRTL", 5 );
-		else if (adiatt == 1) skp->Text( 228, 13, "LVLH", 4 );
-		else skp->Text( 228, 13, "REF", 3 );
+		if (adiatt == 2) skp->Text( 449, 21, "Inrtl", 5 );
+		else if (adiatt == 1) skp->Text( 449, 21, "LVLH", 4 );
+		else skp->Text( 449, 21, "Ref", 3 );
 		return;
 	}
 
@@ -4006,37 +4006,37 @@ namespace vc
 	{
 		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 16, 4, "Pitch:", 6 );
+		TextOut( hDC, 30, 6, "Pitch:", 6 );
 
-		TextOut( hDC, 21, 13, "R/Y:", 4 );
+		TextOut( hDC, 42, 21, "R/Y:", 4 );
 
-		TextOut( hDC, 209, 4, "MM:", 3 );
+		TextOut( hDC, 413, 6, "MM:", 3 );
 
-		TextOut( hDC, 210, 13, "SB:", 3 );
+		TextOut( hDC, 413, 21, "SB:", 3 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (GetIDP()->GetAutoPitchState() == true) TextOut( hDC, 40, 4, "Auto", 4 );
+		if (GetIDP()->GetAutoPitchState() == true) TextOut( hDC, 85, 6, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-				Rectangle( hDC, 6, 4, 60, 14 );
+				Rectangle( hDC, 16, 4, 132, 20 );
 			}
-			TextOut( hDC, 40, 4, "CSS", 3 );
+			TextOut( hDC, 85, 6, "CSS", 3 );
 		}
 
-		if (GetIDP()->GetAutoRollYawState() == true) TextOut( hDC, 40, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoRollYawState() == true) TextOut( hDC, 85, 21, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-				Rectangle( hDC, 6, 13, 60, 23 );
+				Rectangle( hDC, 16, 19, 132, 35 );
 			}
-			TextOut( hDC, 40, 13, "CSS", 3 );
+			TextOut( hDC, 85, 21, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -4045,15 +4045,15 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		TextOut( hDC, 225, 4, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoSpeedbrakeState() == true) TextOut( hDC, 225, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoSpeedbrakeState() == true) TextOut( hDC, 449, 21, "Auto", 4 );
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 207, 13, 245, 23 );
-			TextOut( hDC, 225, 13, "MAN", 3 );
+			Rectangle( hDC, 400, 19, 500, 35 );
+			TextOut( hDC, 449, 21, "MAN", 3 );
 		}
 		return;
 	}
@@ -4062,37 +4062,37 @@ namespace vc
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 16, 4, "Pitch:", 6 );
+		skp->Text( 30, 6, "Pitch:", 6 );
 
-		skp->Text( 21, 13, "R/Y:", 4 );
+		skp->Text( 42, 21, "R/Y:", 4 );
 
-		skp->Text( 209, 4, "MM:", 3 );
+		skp->Text( 413, 6, "MM:", 3 );
 
-		skp->Text( 210, 13, "SB:", 3 );
+		skp->Text( 413, 21, "SB:", 3 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (GetIDP()->GetAutoPitchState() == true) skp->Text( 40, 4, "Auto", 4 );
+		if (GetIDP()->GetAutoPitchState() == true) skp->Text( 85, 6, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );
-				skp->Rectangle( 6, 4, 60, 14 );
+				skp->Rectangle( 16, 4, 132, 20 );
 			}
-			skp->Text( 40, 4, "CSS", 3 );
+			skp->Text( 85, 6, "CSS", 3 );
 		}
 
-		if (GetIDP()->GetAutoRollYawState() == true) skp->Text( 40, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoRollYawState() == true) skp->Text( 85, 21, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );
-				skp->Rectangle( 6, 13, 60, 23 );
+				skp->Rectangle( 16, 19, 132, 35 );
 			}
-			skp->Text( 40, 13, "CSS", 3 );
+			skp->Text( 85, 21, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -4101,15 +4101,15 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		skp->Text( 225, 4, cbuf, strlen( cbuf ) );
+		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoSpeedbrakeState() == true) skp->Text( 225, 13, "Auto", 4 );
+		if (GetIDP()->GetAutoSpeedbrakeState() == true) skp->Text( 449, 21, "Auto", 4 );
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
-			skp->Rectangle( 207, 13, 245, 23 );
-			skp->Text( 225, 13, "MAN", 3 );
+			skp->Rectangle( 400, 19, 500, 35 );
+			skp->Text( 449, 21, "MAN", 3 );
 		}
 		return;
 	}
@@ -4152,32 +4152,32 @@ namespace vc
 
 	void MDU::AEPFD_GMETER_STATIC( HDC hDC )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
-		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 40, 198, 66, 211 );
-
 		SelectObject( hDC, gdiLightGrayPen );
-		Arc( hDC, 10, 193, 58, 241, 34, 193, 41, 224 );
-		
-		MoveToEx( hDC, 34, 193, NULL );
-		LineTo( hDC, 34, 189 );
-		MoveToEx( hDC, 17, 200, NULL );
-		LineTo( hDC, 14, 197 );
-		MoveToEx( hDC, 10, 217, NULL );
-		LineTo( hDC, 6, 217 );
-		MoveToEx( hDC, 17, 234, NULL );
-		LineTo( hDC, 14, 237 );
-		MoveToEx( hDC, 34, 241, NULL );
-		LineTo( hDC, 34, 245 );
-		MoveToEx( hDC, 50, 234, NULL );
-		LineTo( hDC, 54, 237 );
+		SelectObject( hDC, gdiBlackBrush );
+		Rectangle( hDC, 75, 366, 123, 390 );
 
+		Arc( hDC, 31, 356, 107, 432, 69, 356, 96, 421 );
+		
+		MoveToEx( hDC, 69, 356, NULL );
+		LineTo( hDC, 69, 351 );
+		MoveToEx( hDC, 42, 367, NULL );
+		LineTo( hDC, 37, 362 );
+		MoveToEx( hDC, 31, 394, NULL );
+		LineTo( hDC, 26, 394 );
+		MoveToEx( hDC, 42, 420, NULL );
+		LineTo( hDC, 37, 425 );
+		MoveToEx( hDC, 69, 432, NULL );
+		LineTo( hDC, 69, 437 );
+		MoveToEx( hDC, 95, 420, NULL );
+		LineTo( hDC, 100, 425 );
+
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 10, 193, "3", 1 );
-		TextOut( hDC, 2, 213, "2", 1 );
-		TextOut( hDC, 10, 231, "1", 1 );
-		TextOut( hDC, 32, 244, "0", 1 );
-		TextOut( hDC, 52, 234, "-1", 2 );
+		TextOut( hDC, 27, 346, "3", 1 );
+		TextOut( hDC, 12, 387, "2", 1 );
+		TextOut( hDC, 27, 424, "1", 1 );
+		TextOut( hDC, 66, 438, "0", 1 );
+		TextOut( hDC, 100, 427, "-1", 2 );
 		return;
 	}
 
@@ -4185,42 +4185,43 @@ namespace vc
 	{
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Ellipse( 10, 193, 58, 241 );
+		skp->Ellipse( 31, 356, 107, 432 );
 		skp->SetPen( skpBlackPen );
-		skp->Rectangle( 34, 193, 58, 234 );// cover part of the circle to get an arc because sketchpad doesn't have Arc()
+		skp->Rectangle( 69, 356, 107, 421 );// cover part of the circle to get an arc because sketchpad doesn't have Arc()
 
-		skp->SetPen( skpDarkGrayPen );
-		skp->Rectangle( 40, 198, 66, 211 );
+		skp->Rectangle( 75, 366, 123, 390 );
 		
-		skp->SetPen( skpLightGrayPen );
-		skp->Line( 34, 193, 34, 189 );
-		skp->Line( 17, 200, 14, 197 );
-		skp->Line( 10, 217, 6, 217 );
-		skp->Line( 17, 234, 14, 237 );
-		skp->Line( 34, 241, 34, 245 );
-		skp->Line( 50, 234, 54, 237 );
+		skp->Line( 69, 356, 69, 351 );
+		skp->Line( 42, 367, 37, 362 );
+		skp->Line( 31, 394, 26, 394 );
+		skp->Line( 42, 420, 37, 425 );
+		skp->Line( 69, 432, 69, 437 );
+		skp->Line( 95, 420, 100, 425 );
 
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 10, 193, "3", 1 );
-		skp->Text( 2, 213, "2", 1 );
-		skp->Text( 10, 231, "1", 1 );
-		skp->Text( 32, 244, "0", 1 );
-		skp->Text( 52, 234, "-1", 2 );
+		skp->Text( 27, 346, "3", 1 );
+		skp->Text( 12, 387, "2", 1 );
+		skp->Text( 27, 424, "1", 1 );
+		skp->Text( 66, 438, "0", 1 );
+		skp->Text( 100, 427, "-1", 2 );
 		return;
 	}
 
 	void MDU::AEPFD_GMETER_ACCEL( HDC hDC )
 	{
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 43, 212, "Accel", 5 );
+		TextOut( hDC, 83, 395, "Accel", 5 );
 		VECTOR3 f;
 		STS()->GetForceVector( f );
 		double dtmp = (f.z / (STS()->GetMass() * G)) + sin( STS()->GetPitch() );
 
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		char cbuf[8];
 		sprintf_s( cbuf, 8, "%4.1f g", dtmp );
-		TextOut( hDC, 43, 200, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 85, 367, cbuf, strlen( cbuf ) );
 
 		if (dtmp > 4) dtmp = 4;
 		else if (dtmp < -1) dtmp = -1;
@@ -4228,22 +4229,22 @@ namespace vc
 
 		double cosdtmp = cos( dtmp );
 		double sindtmp = sin( dtmp );
-		// center (34.217)
+		// center (69,394)
 		POINT arrow[3];
-		arrow[0].x = 34 - Round( 23 * cosdtmp );
-		arrow[0].y = 217 - Round( 23 * sindtmp );
-		arrow[1].x = 34 - Round( (17 * cosdtmp) + (4 * sindtmp) );
-		arrow[1].y = 217 - Round( (17 * sindtmp) - (4 * cosdtmp) );
-		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
-		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
+		arrow[0].x = 69 - Round( 33 * cosdtmp );
+		arrow[0].y = 394 - Round( 33 * sindtmp );
+		arrow[1].x = 69 - Round( (22 * cosdtmp) + (6 * sindtmp) );
+		arrow[1].y = 394 - Round( (22 * sindtmp) - (6 * cosdtmp) );
+		arrow[2].x = 69 - Round( (22 * cosdtmp) - (6 * sindtmp) );
+		arrow[2].y = 394 - Round( (22 * sindtmp) + (6 * cosdtmp) );
 
 		SelectObject( hDC, gdiLightGreenPen );
 		SelectObject( hDC, gdiLightGreenBrush );
 		Polygon( hDC, arrow, 3 );
 
 		SelectObject( hDC, gdiLightGreenThickPen );
-		MoveToEx( hDC, 34, 217, NULL );
-		LineTo( hDC, arrow[0].x, arrow[0].y );
+		MoveToEx( hDC, 69, 394, NULL );
+		LineTo( hDC, 69 - Round( 31 * cosdtmp ), 394 - Round( 31 * sindtmp ) );
 		return;
 	}
 
