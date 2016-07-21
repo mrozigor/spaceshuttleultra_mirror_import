@@ -1156,6 +1156,7 @@ namespace vc
 		gdiSSUAFont_h11w9 = CreateFont( 11, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
 		gdiSSUBFont_h18w9 = CreateFont( 18, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
 		gdiSSUBFont_h12w7 = CreateFont( 12, 7, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
+		gdiSSUBFont_h16w9 = CreateFont( 16, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
 		return;
 	}
 
@@ -1196,6 +1197,7 @@ namespace vc
 		DeleteObject( gdiSSUAFont_h11w9 );
 		DeleteObject( gdiSSUBFont_h18w9 );
 		DeleteObject( gdiSSUBFont_h12w7 );
+		DeleteObject( gdiSSUBFont_h16w9 );
 		return;
 	}
 
@@ -1236,6 +1238,7 @@ namespace vc
 		skpSSUAFont_h11 = oapiCreateFont( 11, true, "*SSU_Font_A" );
 		skpSSUBFont_h18 = oapiCreateFont( 18, true, "*SSU_Font_B" );
 		skpSSUBFont_h12 = oapiCreateFont( 12, true, "*SSU_Font_B" );
+		skpSSUBFont_h16 = oapiCreateFont( 16, true, "*SSU_Font_B" );
 		return;
 	}
 
@@ -1276,6 +1279,7 @@ namespace vc
 		oapiReleaseFont( skpSSUAFont_h11 );
 		oapiReleaseFont( skpSSUBFont_h18 );
 		oapiReleaseFont( skpSSUBFont_h12 );
+		oapiReleaseFont( skpSSUBFont_h16 );
 		return;
 	}
 };
