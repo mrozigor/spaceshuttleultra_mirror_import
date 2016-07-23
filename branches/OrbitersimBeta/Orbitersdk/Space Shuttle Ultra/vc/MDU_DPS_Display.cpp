@@ -124,24 +124,24 @@ namespace vc
 
 		// driving IDP and active keyboards display
 		SelectObject( hDC, gdiNormalPen );
-		Rectangle( hDC, 236, 412, 276, 450 );
+		Rectangle( hDC, 236, 415, 276, 453 );
 		SelectObject( hDC, gdiSSUAFont_h20w17 );
 		SetTextColor( hDC, CR_DPS_NORMAL );
 		char cbuf[2];
 		sprintf_s( cbuf, 2, "%d", GetDrivingIDP() );
-		TextOut( hDC, 247, 420, cbuf, 1 );
+		TextOut( hDC, 247, 423, cbuf, 1 );
 		int kb = GetIDP()->GetActiveKeyboard();
 		if ((kb & 1) == 1)// CDR
 		{
 			SelectObject( hDC, gdiRedPen );
 			SelectObject( hDC, gdiRedBrush );
-			Rectangle( hDC, 110, 435, 235, 440 );
+			Rectangle( hDC, 110, 438, 235, 443 );
 		}
 		if ((kb & 2) == 2)// PLT
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, gdiYellowBrush );
-			Rectangle( hDC, 277, 435, 402, 440 );
+			Rectangle( hDC, 277, 438, 402, 443 );
 		}
 
 		RestoreDC(hDC, Save);
@@ -276,24 +276,24 @@ namespace vc
 
 		// driving IDP and active keyboards display
 		skp->SetPen( skpNormalPen );
-		skp->Rectangle( 236, 412, 276, 450 );
+		skp->Rectangle( 236, 415, 276, 453 );
 		skp->SetFont( skpSSUAFont_h20 );
 		skp->SetTextColor( CR_DPS_NORMAL );
 		char cbuf[2];
 		sprintf_s( cbuf, 2, "%d", GetDrivingIDP() );
-		skp->Text( 247, 420, cbuf, 1 );
+		skp->Text( 247, 423, cbuf, 1 );
 		int kb = GetIDP()->GetActiveKeyboard();
 		if ((kb & 1) == 1)// CDR
 		{
 			skp->SetPen( skpRedPen );
 			skp->SetBrush( skpRedBrush );
-			skp->Rectangle( 110, 435, 235, 440 );
+			skp->Rectangle( 110, 438, 235, 443 );
 		}
 		if ((kb & 2) == 2)// PLT
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( skpYellowBrush );
-			skp->Rectangle( 277, 435, 402, 440 );
+			skp->Rectangle( 277, 438, 402, 443 );
 		}
 		return;
 	}
