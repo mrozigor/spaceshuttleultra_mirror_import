@@ -531,8 +531,8 @@ namespace vc
 	void MDU::PaintEdgeMenu( HDC hDC )
 	{
 		SelectObject( hDC, gdiCyanPen );
-		MoveToEx( hDC, 0, 452, NULL );
-		LineTo( hDC, 511, 452 );
+		MoveToEx( hDC, 0, 456, NULL );
+		LineTo( hDC, 511, 456 );
 		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_CYAN );
 		SetTextAlign( hDC, TA_CENTER );
@@ -545,21 +545,21 @@ namespace vc
 		{
 			// draw up arrow
 			MoveToEx( hDC, 54, 510, NULL );
-			LineTo( hDC, 54, 499 );
-			LineTo( hDC, 40, 499 );
-			LineTo( hDC, 66, 484 );
-			LineTo( hDC, 92, 499 );
-			LineTo( hDC, 78, 499 );
+			LineTo( hDC, 54, 500 );
+			LineTo( hDC, 40, 500 );
+			LineTo( hDC, 66, 486 );
+			LineTo( hDC, 92, 500 );
+			LineTo( hDC, 78, 500 );
 			LineTo( hDC, 78, 510 );
-			TextOut( hDC, x, 492, "UP", 2);
+			TextOut( hDC, x, 493, "UP", 2);
 		}
 
 		// button 2
 		x += 76;
 		if (menu == 0)
 		{
-			TextOut( hDC, x, 484, "FLT", 3 );
-			TextOut( hDC, x, 498, " INST", 5 );
+			TextOut( hDC, x, 486, "FLT", 3 );
+			TextOut( hDC, x, 499, " INST", 5 );
 			DrawMenuButton( hDC, x );
 		}
 		else if (menu == 1)
@@ -567,8 +567,8 @@ namespace vc
 			if (display == 1)
 			{
 				SetTextColor( hDC, CR_WHITE );
-				TextOut( hDC, x, 484, "A/E", 3 );
-				TextOut( hDC, x, 498, "PFD", 3 );
+				TextOut( hDC, x, 486, "A/E", 3 );
+				TextOut( hDC, x, 499, "PFD", 3 );
 				SetTextColor( hDC, CR_CYAN );
 				SelectObject( hDC, gdiWhitePen );
 				DrawMenuButton( hDC, x );
@@ -576,8 +576,8 @@ namespace vc
 			}
 			else
 			{
-				TextOut( hDC, x, 484, "A/E", 3 );
-				TextOut( hDC, x, 498, "PFD", 3 );
+				TextOut( hDC, x, 486, "A/E", 3 );
+				TextOut( hDC, x, 499, "PFD", 3 );
 				DrawMenuButton( hDC, x );
 			}
 		}
@@ -586,8 +586,8 @@ namespace vc
 			if (display == 3)
 			{
 				SetTextColor( hDC, CR_WHITE );
-				TextOut( hDC, x, 484, "OMS/ ", 5 );
-				TextOut( hDC, x, 498, "MPS", 3 );
+				TextOut( hDC, x, 486, "OMS/ ", 5 );
+				TextOut( hDC, x, 499, "MPS", 3 );
 				SetTextColor( hDC, CR_CYAN );
 				SelectObject( hDC, gdiWhitePen );
 				DrawMenuButton( hDC, x );
@@ -595,8 +595,8 @@ namespace vc
 			}
 			else
 			{
-				TextOut( hDC, x, 484, "OMS/ ", 5 );
-				TextOut( hDC, x, 498, "MPS", 3 );
+				TextOut( hDC, x, 486, "OMS/ ", 5 );
+				TextOut( hDC, x, 499, "MPS", 3 );
 				DrawMenuButton( hDC, x );
 			}
 		}
@@ -606,8 +606,8 @@ namespace vc
 		x += 76;
 		if (menu == 0)
 		{
-			TextOut( hDC, x, 484, "SUBSYS ", 7 );
-			TextOut( hDC, x, 498, "STATUS ", 7 );
+			TextOut( hDC, x, 486, "SUBSYS ", 7 );
+			TextOut( hDC, x, 499, "STATUS ", 7 );
 			DrawMenuButton( hDC, x );
 		}
 		else if (menu == 1)
@@ -615,8 +615,8 @@ namespace vc
 			if (display == 2)
 			{
 				SetTextColor( hDC, CR_WHITE );
-				TextOut( hDC, x, 484, "ORBIT", 5 );
-				TextOut( hDC, x, 498, "PFD", 3 );
+				TextOut( hDC, x, 486, "ORBIT", 5 );
+				TextOut( hDC, x, 499, "PFD", 3 );
 				SetTextColor( hDC, CR_CYAN );
 				SelectObject( hDC, gdiWhitePen );
 				DrawMenuButton( hDC, x );
@@ -624,8 +624,8 @@ namespace vc
 			}
 			else
 			{
-				TextOut( hDC, x, 484, "ORBIT", 5 );
-				TextOut( hDC, x, 498, "PFD", 3 );
+				TextOut( hDC, x, 486, "ORBIT", 5 );
+				TextOut( hDC, x, 499, "PFD", 3 );
 				DrawMenuButton( hDC, x );
 			}
 		}
@@ -634,8 +634,8 @@ namespace vc
 			if (display == 4)
 			{
 				SetTextColor( hDC, CR_WHITE );
-				TextOut( hDC, x, 484, "HYD/ ", 5 );
-				TextOut( hDC, x, 498, "APU", 3 );
+				TextOut( hDC, x, 486, "HYD/ ", 5 );
+				TextOut( hDC, x, 499, "APU", 3 );
 				SetTextColor( hDC, CR_CYAN );
 				SelectObject( hDC, gdiWhitePen );
 				DrawMenuButton( hDC, x );
@@ -643,15 +643,15 @@ namespace vc
 			}
 			else
 			{
-				TextOut( hDC, x, 484, "HYD/ ", 5 );
-				TextOut( hDC, x, 498, "APU", 3 );
+				TextOut( hDC, x, 486, "HYD/ ", 5 );
+				TextOut( hDC, x, 499, "APU", 3 );
 				DrawMenuButton( hDC, x );
 			}
 		}
 		else if (menu == 5)
 		{
-			TextOut( hDC, x, 484, "START", 5 );
-			TextOut( hDC, x, 498, "IDP", 3 );
+			TextOut( hDC, x, 486, "START", 5 );
+			TextOut( hDC, x, 499, "IDP", 3 );
 			DrawMenuButton( hDC, x );
 		}
 		else DrawMenuButton( hDC, x );
@@ -660,7 +660,7 @@ namespace vc
 		x += 76;
 		if (menu == 0)
 		{
-			TextOut( hDC, x, 484, "DPS", 3 );
+			TextOut( hDC, x, 486, "DPS", 3 );
 			DrawMenuButton( hDC, x );
 		}
 		else if (menu == 2)
@@ -668,7 +668,7 @@ namespace vc
 			if (display == 5)
 			{
 				SetTextColor( hDC, CR_WHITE );
-				TextOut( hDC, x, 484, "SPI", 3 );
+				TextOut( hDC, x, 486, "SPI", 3 );
 				SetTextColor( hDC, CR_CYAN );
 				SelectObject( hDC, gdiWhitePen );
 				DrawMenuButton( hDC, x );
@@ -676,13 +676,13 @@ namespace vc
 			}
 			else
 			{
-				TextOut( hDC, x, 484, "SPI", 3 );
+				TextOut( hDC, x, 486, "SPI", 3 );
 				DrawMenuButton( hDC, x );
 			}
 		}
 		else if (menu == 4)
 		{
-			TextOut( hDC, x, 484, "CST", 3 );
+			TextOut( hDC, x, 486, "CST", 3 );
 			DrawMenuButton( hDC, x );
 		}
 		else DrawMenuButton( hDC, x );
@@ -692,8 +692,8 @@ namespace vc
 		DrawMenuButton( hDC, x );
 		if (menu == 0)
 		{
-			TextOut( hDC, x, 484, "MEDS ", 5 );
-			TextOut( hDC, x, 498, "MAINT", 5 );
+			TextOut( hDC, x, 486, "MEDS ", 5 );
+			TextOut( hDC, x, 499, "MAINT", 5 );
 		}
 
 		// button 6
@@ -705,28 +705,28 @@ namespace vc
 		switch (menu)
 		{
 			case 0:
-				TextOut( hDC, 226, 468, "MAIN MENU", 9 );
+				TextOut( hDC, 226, 471, "MAIN MENU", 9 );
 				break;
 			case 1:
-				TextOut( hDC, 226, 468, " FLIGHT INSTRUMENT MENU", 23 );
+				TextOut( hDC, 226, 471, " FLIGHT INSTRUMENT MENU", 23 );
 				break;
 			case 2:
-				TextOut( hDC, 226, 468, "SUBSYSTEM MENU ", 15 );
+				TextOut( hDC, 226, 471, "SUBSYSTEM MENU ", 15 );
 				break;
 			case 3:
-				TextOut( hDC, 226, 468, "DPS MENU ", 9 );
+				TextOut( hDC, 226, 471, "DPS MENU ", 9 );
 				break;
 			case 4:
-				TextOut( hDC, 226, 468, " MAINTENANCE MENU", 17 );
+				TextOut( hDC, 226, 471, " MAINTENANCE MENU", 17 );
 				break;
 			case 5:
-				TextOut( hDC, 226, 468, " CST MENU SELECTION", 19 );
+				TextOut( hDC, 226, 471, " CST MENU SELECTION", 19 );
 				break;
 			case 6:
 				{
 					char buf[32];
 					sprintf_s( buf, 32, " IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
-					TextOut( hDC, 226, 468, buf, strlen( buf ) );
+					TextOut( hDC, 226, 471, buf, strlen( buf ) );
 				}
 				break;
 			default:
@@ -735,16 +735,16 @@ namespace vc
 		}
 
 		// printf configuration info
-		/*TextOut( hDC, 15, 481, "P1*", 3 );
-		TextOut( hDC, 15, 495, "S3 ", 3 );
-		TextOut( hDC, 497, 481, "FC2", 3 );
-		TextOut( hDC, 497, 495, "AUT", 3 );
+		/*TextOut( hDC, 15, 486, "P1*", 3 );
+		TextOut( hDC, 15, 499, "S3 ", 3 );
+		TextOut( hDC, 497, 486, "FC2", 3 );
+		TextOut( hDC, 497, 499, "AUT", 3 );
 
 		// printf MEDS fault line
 		if (!GetFlash())
 		{
 			SetTextColor( hDC, CR_WHITE );
-			TextOut( hDC, 226, 455, "IDP 1 2 3 4 STILL WIP", 21 );
+			TextOut( hDC, 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
 		}*/
 		return;
 	}
@@ -752,7 +752,7 @@ namespace vc
 	void MDU::PaintEdgeMenu( oapi::Sketchpad* skp )
 	{
 		skp->SetPen( skpCyanPen );
-		skp->Line( 0, 452, 511, 452 );
+		skp->Line( 0, 456, 511, 456 );
 		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_CYAN );
 		skp->SetTextAlign( oapi::Sketchpad::CENTER );
@@ -765,21 +765,21 @@ namespace vc
 		{
 			// draw up arrow
 			skp->MoveTo( 54, 510 );
-			skp->LineTo( 54, 499 );
-			skp->LineTo( 40, 499 );
-			skp->LineTo( 66, 484 );
-			skp->LineTo( 92, 499 );
-			skp->LineTo( 78, 499 );
+			skp->LineTo( 54, 500 );
+			skp->LineTo( 40, 500 );
+			skp->LineTo( 66, 486 );
+			skp->LineTo( 92, 500 );
+			skp->LineTo( 78, 500 );
 			skp->LineTo( 78, 510 );
-			skp->Text( x, 492, "UP", 2);
+			skp->Text( x, 493, "UP", 2);
 		}
 
 		// button 2
 		x += 76;
 		if (menu == 0)
 		{
-			skp->Text( x, 484, "FLT", 3 );
-			skp->Text( x, 498, " INST", 5 );
+			skp->Text( x, 486, "FLT", 3 );
+			skp->Text( x, 499, " INST", 5 );
 			DrawMenuButton( skp, x );
 		}
 		else if (menu == 1)
@@ -787,8 +787,8 @@ namespace vc
 			if (display == 1)
 			{
 				skp->SetTextColor( CR_WHITE );
-				skp->Text( x, 484, "A/E", 3 );
-				skp->Text( x, 498, "PFD", 3 );
+				skp->Text( x, 486, "A/E", 3 );
+				skp->Text( x, 499, "PFD", 3 );
 				skp->SetTextColor( CR_CYAN );
 				skp->SetPen( skpWhitePen );
 				DrawMenuButton( skp, x );
@@ -796,8 +796,8 @@ namespace vc
 			}
 			else
 			{
-				skp->Text( x, 484, "A/E", 3 );
-				skp->Text( x, 498, "PFD", 3 );
+				skp->Text( x, 486, "A/E", 3 );
+				skp->Text( x, 499, "PFD", 3 );
 				DrawMenuButton( skp, x );
 			}
 		}
@@ -806,8 +806,8 @@ namespace vc
 			if (display == 3)
 			{
 				skp->SetTextColor( CR_WHITE );
-				skp->Text( x, 484, "OMS/ ", 5 );
-				skp->Text( x, 498, "MPS", 3 );
+				skp->Text( x, 486, "OMS/ ", 5 );
+				skp->Text( x, 499, "MPS", 3 );
 				skp->SetTextColor( CR_CYAN );
 				skp->SetPen( skpWhitePen );
 				DrawMenuButton( skp, x );
@@ -815,8 +815,8 @@ namespace vc
 			}
 			else
 			{
-				skp->Text( x, 484, "OMS/ ", 5 );
-				skp->Text( x, 498, "MPS", 3 );
+				skp->Text( x, 486, "OMS/ ", 5 );
+				skp->Text( x, 499, "MPS", 3 );
 				DrawMenuButton( skp, x );
 			}
 		}
@@ -826,8 +826,8 @@ namespace vc
 		x += 76;
 		if (menu == 0)
 		{
-			skp->Text( x, 484, "SUBSYS ", 7 );
-			skp->Text( x, 498, "STATUS ", 7 );
+			skp->Text( x, 486, "SUBSYS ", 7 );
+			skp->Text( x, 499, "STATUS ", 7 );
 			DrawMenuButton( skp, x );
 		}
 		else if (menu == 1)
@@ -835,8 +835,8 @@ namespace vc
 			if (display == 2)
 			{
 				skp->SetTextColor( CR_WHITE );
-				skp->Text( x, 484, "ORBIT", 5 );
-				skp->Text( x, 498, "PFD", 3 );
+				skp->Text( x, 486, "ORBIT", 5 );
+				skp->Text( x, 499, "PFD", 3 );
 				skp->SetTextColor( CR_CYAN );
 				skp->SetPen( skpWhitePen );
 				DrawMenuButton( skp, x );
@@ -844,8 +844,8 @@ namespace vc
 			}
 			else
 			{
-				skp->Text( x, 484, "ORBIT", 5 );
-				skp->Text( x, 498, "PFD", 3 );
+				skp->Text( x, 486, "ORBIT", 5 );
+				skp->Text( x, 499, "PFD", 3 );
 				DrawMenuButton( skp, x );
 			}
 		}
@@ -854,8 +854,8 @@ namespace vc
 			if (display == 4)
 			{
 				skp->SetTextColor( CR_WHITE );
-				skp->Text( x, 484, "HYD/ ", 5 );
-				skp->Text( x, 498, "APU", 3 );
+				skp->Text( x, 486, "HYD/ ", 5 );
+				skp->Text( x, 499, "APU", 3 );
 				skp->SetTextColor( CR_CYAN );
 				skp->SetPen( skpWhitePen );
 				DrawMenuButton( skp, x );
@@ -863,15 +863,15 @@ namespace vc
 			}
 			else
 			{
-				skp->Text( x, 484, "HYD/ ", 5 );
-				skp->Text( x, 498, "APU", 3 );
+				skp->Text( x, 486, "HYD/ ", 5 );
+				skp->Text( x, 499, "APU", 3 );
 				DrawMenuButton( skp, x );
 			}
 		}
 		else if (menu == 5)
 		{
-			skp->Text( x, 484, "START", 5 );
-			skp->Text( x, 498, "IDP", 3 );
+			skp->Text( x, 486, "START", 5 );
+			skp->Text( x, 499, "IDP", 3 );
 			DrawMenuButton( skp, x );
 		}
 		else DrawMenuButton( skp, x );
@@ -880,7 +880,7 @@ namespace vc
 		x += 76;
 		if (menu == 0)
 		{
-			skp->Text( x, 484, "DPS", 3 );
+			skp->Text( x, 486, "DPS", 3 );
 			DrawMenuButton( skp, x );
 		}
 		else if (menu == 2)
@@ -888,7 +888,7 @@ namespace vc
 			if (display == 5)
 			{
 				skp->SetTextColor( CR_WHITE );
-				skp->Text( x, 484, "SPI", 3 );
+				skp->Text( x, 486, "SPI", 3 );
 				skp->SetTextColor( CR_CYAN );
 				skp->SetPen( skpWhitePen );
 				DrawMenuButton( skp, x );
@@ -896,13 +896,13 @@ namespace vc
 			}
 			else
 			{
-				skp->Text( x, 484, "SPI", 3 );
+				skp->Text( x, 486, "SPI", 3 );
 				DrawMenuButton( skp, x );
 			}
 		}
 		else if (menu == 4)
 		{
-			skp->Text( x, 484, "CST", 3 );
+			skp->Text( x, 486, "CST", 3 );
 			DrawMenuButton( skp, x );
 		}
 		else DrawMenuButton( skp, x );
@@ -912,8 +912,8 @@ namespace vc
 		DrawMenuButton( skp, x );
 		if (menu == 0)
 		{
-			skp->Text( x, 484, "MEDS ", 5 );
-			skp->Text( x, 498, "MAINT", 5 );
+			skp->Text( x, 486, "MEDS ", 5 );
+			skp->Text( x, 499, "MAINT", 5 );
 		}
 
 		// button 6
@@ -925,28 +925,28 @@ namespace vc
 		switch (menu)
 		{
 			case 0:
-				skp->Text( 226, 468, "MAIN MENU", 9 );
+				skp->Text( 226, 471, "MAIN MENU", 9 );
 				break;
 			case 1:
-				skp->Text( 226, 468, " FLIGHT INSTRUMENT MENU", 23 );
+				skp->Text( 226, 471, " FLIGHT INSTRUMENT MENU", 23 );
 				break;
 			case 2:
-				skp->Text( 226, 468, "SUBSYSTEM MENU ", 15 );
+				skp->Text( 226, 471, "SUBSYSTEM MENU ", 15 );
 				break;
 			case 3:
-				skp->Text( 226, 468, "DPS MENU ", 9 );
+				skp->Text( 226, 471, "DPS MENU ", 9 );
 				break;
 			case 4:
-				skp->Text( 226, 468, " MAINTENANCE MENU", 17 );
+				skp->Text( 226, 471, " MAINTENANCE MENU", 17 );
 				break;
 			case 5:
-				skp->Text( 226, 468, " CST MENU SELECTION", 19 );
+				skp->Text( 226, 471, " CST MENU SELECTION", 19 );
 				break;
 			case 6:
 				{
 					char buf[32];
 					sprintf_s( buf, 32, " IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
-					skp->Text( 226, 468, buf, strlen( buf ) );
+					skp->Text( 226, 471, buf, strlen( buf ) );
 				}
 				break;
 			default:
@@ -955,16 +955,16 @@ namespace vc
 		}
 
 		// printf configuration info
-		/*skp->Text( 15, 481, "P1*", 3 );
-		skp->Text( 15, 495, "S3 ", 3 );
-		skp->Text( 497, 481, "FC2", 3 );
-		skp->Text( 497, 495, "AUT", 3 );
+		/*skp->Text( 15, 486, "P1*", 3 );
+		skp->Text( 15, 499, "S3 ", 3 );
+		skp->Text( 497, 486, "FC2", 3 );
+		skp->Text( 497, 499, "AUT", 3 );
 
 		// printf MEDS fault line
 		if (!GetFlash())
 		{
 			skp->SetTextColor( CR_WHITE );
-			skp->Text( 226, 455, "IDP 1 2 3 4 STILL WIP", 21 );
+			skp->Text( 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
 		}*/
 		return;
 	}
@@ -972,19 +972,19 @@ namespace vc
 	void MDU::DrawMenuButton( HDC hDC, int x )
 	{
 		MoveToEx( hDC, x - 36, 510, NULL );
-		LineTo( hDC, x - 36, 481 );
-		MoveToEx( hDC, x - 36, 482, NULL );
-		LineTo( hDC, x + 36, 482 );
-		MoveToEx( hDC, x + 36, 481, NULL );
+		LineTo( hDC, x - 36, 483 );
+		MoveToEx( hDC, x - 36, 484, NULL );
+		LineTo( hDC, x + 36, 484 );
+		MoveToEx( hDC, x + 36, 483, NULL );
 		LineTo( hDC, x + 36, 510 );
 		return;
 	}
 
 	void MDU::DrawMenuButton( oapi::Sketchpad* skp, int x )
 	{
-		skp->Line( x - 36, 510, x - 36, 481 );
-		skp->Line( x - 36, 482, x + 36, 482 );
-		skp->Line( x + 36, 481, x + 36, 510 );
+		skp->Line( x - 36, 510, x - 36, 483 );
+		skp->Line( x - 36, 484, x + 36, 484 );
+		skp->Line( x + 36, 483, x + 36, 510 );
 		return;
 	}
 
@@ -1132,8 +1132,8 @@ namespace vc
 
 		gdiBlackPen = CreatePen( PS_SOLID, 2, CR_BLACK );
 		gdiDarkGrayPen = CreatePen( PS_SOLID, 2, CR_DARK_GRAY );
-		gdiDarkGrayThickPen = CreatePen( PS_SOLID, 4, CR_DARK_GRAY );
 		gdiLightGrayPen = CreatePen( PS_SOLID, 2, CR_LIGHT_GRAY );
+		gdiLightGrayThickPen = CreatePen( PS_SOLID, 4, CR_LIGHT_GRAY );
 		gdiWhitePen = CreatePen( PS_SOLID, 2, CR_WHITE );
 		gdiRedPen = CreatePen( PS_SOLID, 2, CR_RED );
 		gdiYellowPen = CreatePen( PS_SOLID, 2, CR_YELLOW );
@@ -1175,8 +1175,8 @@ namespace vc
 
 		DeleteObject( gdiBlackPen );
 		DeleteObject( gdiDarkGrayPen );
-		DeleteObject( gdiDarkGrayThickPen );
 		DeleteObject( gdiLightGrayPen );
+		DeleteObject( gdiLightGrayThickPen );
 		DeleteObject( gdiWhitePen );
 		DeleteObject( gdiRedPen );
 		DeleteObject( gdiYellowPen );
@@ -1216,8 +1216,8 @@ namespace vc
 
 		skpBlackPen = oapiCreatePen( 1, 2, CR_BLACK );
 		skpDarkGrayPen = oapiCreatePen( 1, 2, CR_DARK_GRAY );
-		skpDarkGrayThickPen = oapiCreatePen( 1, 4, CR_DARK_GRAY );
 		skpLightGrayPen = oapiCreatePen( 1, 2, CR_LIGHT_GRAY );
+		skpLightGrayThickPen = oapiCreatePen( 1, 4, CR_LIGHT_GRAY );
 		skpWhitePen = oapiCreatePen( 1, 2, CR_WHITE );
 		skpRedPen = oapiCreatePen( 1, 2, CR_RED );
 		skpYellowPen = oapiCreatePen( 1, 2, CR_YELLOW );
@@ -1257,8 +1257,8 @@ namespace vc
 
 		oapiReleasePen( skpBlackPen );
 		oapiReleasePen( skpDarkGrayPen );
-		oapiReleasePen( skpDarkGrayThickPen );
 		oapiReleasePen( skpLightGrayPen );
+		oapiReleasePen( skpLightGrayThickPen );
 		oapiReleasePen( skpWhitePen );
 		oapiReleasePen( skpRedPen );
 		oapiReleasePen( skpYellowPen );

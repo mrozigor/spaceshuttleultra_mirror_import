@@ -89,7 +89,7 @@ namespace vc
 
 		// rate scales
 		// top scale
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		MoveToEx( hDC, 167, 76, NULL );
 		LineTo( hDC, 345, 76 );
 		MoveToEx( hDC, 167, 76, NULL );
@@ -233,7 +233,7 @@ namespace vc
 		LineTo( hDC, 276, 111 );
 		MoveToEx( hDC, 246, 337, NULL );// 175º/355º
 		LineTo( hDC, 266, 109 );
-		SelectObject( hDC, gdiDarkGrayThickPen );
+		SelectObject( hDC, gdiLightGrayThickPen );
 		MoveToEx( hDC, 197, 121, NULL );// 30º/210º
 		LineTo( hDC, 315, 325 );
 		MoveToEx( hDC, 154, 164, NULL );// 60º/240º
@@ -391,7 +391,7 @@ namespace vc
 		
 		// rate scales
 		// top scale
-		skp->SetPen( skpDarkGrayPen );
+		skp->SetPen( skpLightGrayPen );
 		skp->Line( 167, 76, 345, 76 );
 		skp->Line( 167, 76, 167, 86 );
 		skp->Line( 185, 76, 185, 81 );
@@ -470,7 +470,7 @@ namespace vc
 		skp->Line( 236, 335, 276, 111 );// 170º/350º
 		skp->Line( 246, 337, 266, 109 );// 175º/355º
 
-		skp->SetPen( skpDarkGrayThickPen );
+		skp->SetPen( skpLightGrayThickPen );
 		skp->Line( 197, 121, 315, 325 );// 30º/210º
 		skp->Line( 154, 164, 358, 282 );// 60º/240º
 		skp->Line( 154, 282, 358, 164 );// 120º/300º
@@ -609,8 +609,8 @@ namespace vc
 				SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
 				Rectangle( hDC_ADI_ORBIT, 0, 0, 224, 112 );
-				SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
-				SelectObject( hDC_ADI_ORBIT, gdiLightGrayPen );
+				SelectObject( hDC_ADI_ORBIT, gdiDarkGrayBrush );
+				SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 				Chord( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
 				Rectangle( hDC_ADI_ORBIT, 0, 112, 224, 224 );
 				SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
@@ -618,8 +618,8 @@ namespace vc
 			}
 			else
 			{
-				SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
-				SelectObject( hDC_ADI_ORBIT, gdiLightGrayPen );
+				SelectObject( hDC_ADI_ORBIT, gdiDarkGrayBrush );
+				SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 				Rectangle( hDC_ADI_ORBIT, 0, 112, 224, 224 );
 				SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 				SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
@@ -639,7 +639,7 @@ namespace vc
 		}
 		else
 		{
-			SelectObject( hDC_ADI_ORBIT, gdiLightGrayBrush );
+			SelectObject( hDC_ADI_ORBIT, gdiDarkGrayBrush );
 			Rectangle( hDC_ADI_ORBIT, 0, 0, 222, 222 );
 		}
 		
@@ -704,7 +704,7 @@ namespace vc
 		// pitch lines/labels for -30º/-60º/-90º/-120º/-150º
 		SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
 		SetTextColor( hDC_ADI_ORBIT, CR_WHITE );
-		SetBkColor( hDC_ADI_ORBIT, CR_LIGHT_GRAY );
+		SetBkColor( hDC_ADI_ORBIT, CR_DARK_GRAY );
 		// -30º
 		if (fabs( pitch + 30 ) <= 45)
 		{

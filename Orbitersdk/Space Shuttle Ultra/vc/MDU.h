@@ -163,8 +163,8 @@ namespace vc {
 		
 		HPEN gdiBlackPen;
 		HPEN gdiDarkGrayPen;
-		HPEN gdiDarkGrayThickPen;
 		HPEN gdiLightGrayPen;
+		HPEN gdiLightGrayThickPen;
 		HPEN gdiWhitePen;
 		HPEN gdiRedPen;
 		HPEN gdiYellowPen;
@@ -176,7 +176,7 @@ namespace vc {
 
 		oapi::Pen* skpBlackPen;
 		oapi::Pen* skpDarkGrayPen;
-		oapi::Pen* skpDarkGrayThickPen;
+		oapi::Pen* skpLightGrayThickPen;
 		oapi::Pen* skpLightGrayPen;
 		oapi::Pen* skpWhitePen;
 		oapi::Pen* skpRedPen;
@@ -257,10 +257,12 @@ namespace vc {
 
 		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
+		void Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
 		void Tape_MVR_KEAS( HDC hDC, double MachNumber );
 		void Tape_MVI_KEAS( HDC hDC, double MachNumber );
 		void Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot );
+		void Tape_H_Hdot( oapi::Sketchpad2* skp, double Altitude_ft, double Hdot );
 		void Tapes_Invalid( HDC hDC );
 		void Tapes_Invalid( oapi::Sketchpad2* skp );
 

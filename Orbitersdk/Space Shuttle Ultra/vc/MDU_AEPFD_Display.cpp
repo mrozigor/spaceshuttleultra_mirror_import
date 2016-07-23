@@ -69,7 +69,7 @@ namespace vc
 				{
 					SelectObject( hDC, gdiBlackPen );
 					SelectObject( hDC, gdiBlackBrush );
-					Rectangle( hDC, 6, 13, 60, 23 );// "hide" throttle
+					Rectangle( hDC, 22, 18, 132, 32 );// "hide" throttle
 				}
 				Tape_MVI_KEAS( hDC, MachNumber );
 				Tape_Alpha( hDC, 0 );
@@ -95,28 +95,7 @@ namespace vc
 				if (0) AEPFD_TGTINC( hDC );// TODO ATO
 				break;
 			case 104:
-				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 21, 4, "DAP:", 4 );
-				SetTextColor( hDC, CR_WHITE );
-				if (1) TextOut( hDC, 40, 4, "Auto", 4 );// TODO get TransDAP state
-				else TextOut( hDC, 40, 4, "INRTL", 5 );
-
-				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 209, 4, "MM:", 3 );
-				SetTextColor( hDC, CR_WHITE );
-				if (0) TextOut( hDC, 225, 4, "104T", 4 );// TAL
-				else if (0) TextOut( hDC, 225, 4, "104ATO", 6 );// ATO
-				else if (0) TextOut( hDC, 225, 4, "104AOA", 6 );// AOA
-				else if (0) TextOut( hDC, 225, 4, "104CA", 5 );// CA
-				else TextOut( hDC, 225, 4, "104", 3 );// NOM
-
-				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 208, 13, "ATT:", 4 );
-				SetTextColor( hDC, CR_WHITE );
-				if (adiatt == 2) TextOut( hDC, 228, 13, "Inrtl", 5 );
-				else if (adiatt == 1) TextOut( hDC, 228, 13, "LVLH", 4 );
-				else TextOut( hDC, 228, 13, "Ref", 3 );
-
+				AEPFD_Header_TransDAP( hDC, 104, adiatt );
 				Tape_MVI_KEAS( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
@@ -277,6 +256,7 @@ namespace vc
 				ADI( hDC, attPitch, attRoll, attYaw );
 				break;
 			case 901:
+				Tapes_Invalid( hDC );
 				ADI_STATIC( hDC );// TODO no rate and error scales
 				ADI( hDC, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( hDC );
@@ -330,8 +310,8 @@ namespace vc
 			case 102:
 				AEPFD_Header_AscentDAP( skp, 102, adiatt );
 				Tape_MVR_KEAS( hDC, MachNumber );
-				Tape_Alpha( hDC, 0 );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, 0 );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -351,11 +331,11 @@ namespace vc
 				{
 					skp->SetPen( skpBlackPen );
 					skp->SetBrush( skpBlackBrush );
-					Rectangle( hDC, 6, 13, 60, 23 );// "hide" throttle
+					skp->Rectangle( 22, 18, 132, 32 );// "hide" throttle
 				}
 				Tape_MVI_KEAS( hDC, MachNumber );
-				Tape_Alpha( hDC, 0 );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, 0 );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -377,30 +357,9 @@ namespace vc
 				if (0) AEPFD_TGTINC( skp );// TODO ATO
 				break;
 			case 104:
-				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 21, 4, "DAP:", 4 );
-				skp->SetTextColor( CR_WHITE );
-				if (1) skp->Text( 40, 4, "Auto", 4 );// TODO get TransDAP state
-				else skp->Text( 40, 4, "INRTL", 5 );
-
-				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 209, 4, "MM:", 3 );
-				skp->SetTextColor( CR_WHITE );
-				if (0) skp->Text( 225, 4, "104T", 4 );// TAL
-				else if (0) skp->Text( 225, 4, "104ATO", 6 );// ATO
-				else if (0) skp->Text( 225, 4, "104AOA", 6 );// AOA
-				else if (0) skp->Text( 225, 4, "104CA", 5 );// CA
-				else skp->Text( 225, 4, "104", 3 );// NOM
-
-				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 208, 13, "ATT:", 4 );
-				skp->SetTextColor( CR_WHITE );
-				if (adiatt == 2) skp->Text( 228, 13, "Inrtl", 5 );
-				else if (adiatt == 1) skp->Text( 228, 13, "LVLH", 4 );
-				else skp->Text( 228, 13, "Ref", 3 );
-
+				AEPFD_Header_TransDAP( skp, 104, adiatt );
 				Tape_MVI_KEAS( hDC, MachNumber );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
@@ -458,8 +417,8 @@ namespace vc
 			case 304:
 				AEPFD_Header_AerojetDAP( skp, 304, MachNumber );
 				Tape_MVR_KEAS( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, MachNumber );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
@@ -476,8 +435,8 @@ namespace vc
 				AEPFD_Header_AerojetDAP( skp, 305, MachNumber );
 				if (MachNumber >= 0.9) Tape_MVR_KEAS( hDC, MachNumber );
 				else Tape_KEAS_MVR( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, MachNumber );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_B( skp, av.x, av.z, av.y, adirate, Altitude_ft );
@@ -499,8 +458,8 @@ namespace vc
 				AEPFD_Header_AscentDAP( skp, 601, adiatt );
 				if (0) Tape_MVR_KEAS( hDC, MachNumber );// TODO PPA
 				Tape_MVI_KEAS( hDC, MachNumber );
-				Tape_Alpha( hDC, 0 );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, 0 );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				AEPFD_BETA( skp );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -516,8 +475,8 @@ namespace vc
 			case 602:
 				AEPFD_Header_AerojetDAP( skp, 602, MachNumber );
 				Tape_MVR_KEAS( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, MachNumber );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
@@ -535,8 +494,8 @@ namespace vc
 				AEPFD_Header_AerojetDAP( skp, 603, MachNumber );
 				if (MachNumber >= 0.9) Tape_MVR_KEAS( hDC, MachNumber );
 				else Tape_KEAS_MVR( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
-				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
+				Tape_Alpha( skp, MachNumber );
+				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_B( skp, av.x, av.z, av.y, adirate, Altitude_ft );
@@ -559,6 +518,7 @@ namespace vc
 				ADI( skp, attPitch, attRoll, attYaw );
 				break;
 			case 901:
+				Tapes_Invalid( skp );
 				ADI_STATIC( skp );// TODO no rate and error scales
 				ADI( skp, attPitch, attRoll, attYaw );
 				AEPFD_GMETER_STATIC( skp );
@@ -1053,17 +1013,18 @@ namespace vc
 
 	void MDU::Tape_Alpha( HDC hDC, double MachNumber )
 	{
-		SelectObject( hDC, gdiLightGrayPen );
-		SelectObject( hDC, gdiBlackBrush );
-		::Ellipse( hDC, 46, 34, 50, 38 );
-		SetPixel( hDC, 50, 34, CR_LIGHT_GRAY );
-		SetPixel( hDC, 50, 37, CR_LIGHT_GRAY );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
+		char cbuf[8];
+		sprintf_s( cbuf, 8, "%c", 254 );
+		TextOut( hDC, 82, 39, cbuf, 1 );
+
 		SelectObject( hDC, gdiWhitePen );
-		Rectangle( hDC, 37, 39, 60, 155 );
+		SelectObject( hDC, gdiBlackBrush );
+		Rectangle( hDC, 68, 54, 114, 274 );
 
 		double alpha = STS()->GetAOA() * DEG;
 
-		BitBlt( hDC, 38, 40, 21, 114, hDC_Tapes, 45, 1026 - Round( alpha * 5.7 ), SRCCOPY );
+		//BitBlt( hDC, 38, 40, 21, 114, hDC_Tapes, 45, 1026 - Round( alpha * 5.7 ), SRCCOPY );
 
 		if ((MachNumber > 0) && (MachNumber < 3))
 		{
@@ -1089,33 +1050,102 @@ namespace vc
 				diamond[3].y = 98 - pos;
 				SelectObject( hDC, gdiMagentaBrush );
 				SelectObject( hDC, gdiBlackPen );
-				Polygon( hDC, diamond, 4 );
+				//Polygon( hDC, diamond, 4 );
 
 				diamond[0].y += 3;
 				diamond[1].x = 57;
 				diamond[2].y -= 3;
 				diamond[3].x = 55;
 				SelectObject( hDC, gdiBlackBrush );
-				Polygon( hDC, diamond, 4 );
+				//Polygon( hDC, diamond, 4 );
 			}
 		}
 
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		POINT poly[5] = {{59,98},{53,105},{35,105},{35,91},{53,91}};// start at tip moving cw
+		POINT poly[5] = {{111,163},{104,175},{64,175},{64,150},{104,150}};// start at tip moving cw
 		Polygon( hDC, poly, 5 );
-		char cbuf[8];
+		
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
+		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		sprintf_s( cbuf, 8, "%6.1f", alpha );
-		TextOut( hDC, 36, 93, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 108, 151, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
+		return;
+	}
+	
+	void MDU::Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber )
+	{
+		skp->SetTextColor( CR_LIGHT_GRAY );
+		char cbuf[8];
+		sprintf_s( cbuf, 8, "%c", 254 );
+		skp->Text( 82, 39, cbuf, 1 );
+
+		skp->SetPen( skpWhitePen );
+		skp->SetBrush( skpBlackBrush );
+		skp->Rectangle( 68, 54, 114, 274 );
+
+		double alpha = STS()->GetAOA() * DEG;
+
+		//BitBlt( hDC, 38, 40, 21, 114, hDC_Tapes, 45, 1026 - Round( alpha * 5.7 ), SRCCOPY );
+
+		if ((MachNumber > 0) && (MachNumber < 3))
+		{
+			// max L/D (linear aprox)
+			double maxLD;
+			if (MachNumber < 0.9) maxLD = 10.5;
+			else if (MachNumber < 1.1) maxLD = (MachNumber * 15) - 3;
+			else if (MachNumber < 2) maxLD = (MachNumber * 1.6667) + 11.6667;
+			else maxLD = (MachNumber * 2) + 11;
+
+			maxLD -= alpha;
+			if (fabs( maxLD ) < 10)
+			{
+				int pos = Round( maxLD * 5.7 );
+				oapi::IVECTOR2 diamond[4];
+				diamond[0].x = 56;// start at top moving cw
+				diamond[0].y = 94 - pos;
+				diamond[1].x = 60;
+				diamond[1].y = 98 - pos;
+				diamond[2].x = 56;
+				diamond[2].y = 102 - pos;
+				diamond[3].x = 52;
+				diamond[3].y = 98 - pos;
+				skp->SetBrush( skpMagentaBrush );
+				skp->SetPen( skpBlackPen );
+				//skp->Polygon( diamond, 4 );
+
+				diamond[0].y += 3;
+				diamond[1].x = 57;
+				diamond[2].y -= 3;
+				diamond[3].x = 55;
+				skp->SetBrush( skpBlackBrush );
+				//skp->Polygon( diamond, 4 );
+			}
+		}
+
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpBlackBrush );
+		oapi::IVECTOR2 poly[5] = {{111,163},{104,175},{64,175},{64,150},{104,150}};// start at tip moving cw
+		skp->Polygon( poly, 5 );
+		
+		skp->SetFont( skpSSUBFont_h18 );
+		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+		sprintf_s( cbuf, 8, "%6.1f", alpha );
+		skp->Text( 108, 151, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
 	void MDU::Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot )
 	{
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 212, 30, "H", 1 );
+		TextOut( hDC, 411, 39, "H", 1 );
 		SelectObject( hDC, gdiWhitePen );
-		Rectangle( hDC, 203, 39, 227, 155 );
+		Rectangle( hDC, 394, 54, 440, 274 );
 		int pos;
 		double Altitude_NM = 0;
 		if (Altitude_ft > 400000)
@@ -1157,38 +1187,44 @@ namespace vc
 			if (Altitude_ft < -1100) Altitude_ft = -1100;
 			pos = 0;// TODO
 		}*/
-		BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
+		//BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
 
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 203, 91, 227, 105 );
+		Rectangle( hDC, 394, 150, 440, 175 );
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		char cbuf[8];
 		if (Altitude_ft < 10000)
 		{
 			sprintf_s( cbuf, 8, "%4d", (int)Altitude_ft );
-			TextOut( hDC, 207, 93, cbuf, strlen( cbuf ) );
+			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
 		}
 		else if (Altitude_ft < 400000)
 		{
 			sprintf_s( cbuf, 8, "%3d", (int)Altitude_ft / 1000 );
-			TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
+			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
+			SelectObject( hDC, gdiSSUBFont_h12w7 );
 			SetTextColor( hDC, CR_LIGHT_GRAY );
-			TextOut( hDC, 220, 93, "K", 1 );
+			TextOut( hDC, 439, 155, "K", 1 );
 		}
 		else
 		{
 			sprintf_s( cbuf, 8, "%3.0f", Altitude_NM );
-			TextOut( hDC, 206, 93, cbuf, strlen( cbuf ) );
+			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
+			SelectObject( hDC, gdiSSUBFont_h12w7 );
 			SetTextColor( hDC, CR_LIGHT_GRAY );
-			TextOut( hDC, 220, 93, "M", 1 );
+			TextOut( hDC, 439, 155, "M", 1 );
 		}
+		SetTextAlign( hDC, TA_LEFT );
 
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		SetPixel( hDC, 241, 29, CR_LIGHT_GRAY );
-		TextOut( hDC, 239, 30, "H", 1 );
+		SetPixel( hDC, 481, 37, CR_LIGHT_GRAY );
+		TextOut( hDC, 477, 39, "H", 1 );
 		SelectObject( hDC, gdiWhitePen );
-		Rectangle( hDC, 230, 39, 254, 155 );
+		Rectangle( hDC, 459, 54, 505, 274 );
 		if (Hdot > 800)
 		{
 			if (Hdot > 3000) Hdot = 3000;
@@ -1203,30 +1239,131 @@ namespace vc
 			if (Hdot < -3000) Hdot = -3000;
 			pos = Round( 1339.5 - (Hdot * 0.1425) );
 		}
-		BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
+		//BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
 
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 230, 91, 254, 105 );
-
+		Rectangle( hDC, 459, 150, 505, 175 );
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
-		if ((Hdot < 1000) && (Hdot > -1000))
+		SetTextAlign( hDC, TA_RIGHT );
+		sprintf_s( cbuf, 8, "%4.0f", Hdot );
+		TextOut( hDC, 503, 151, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
+		return;
+	}
+
+	void MDU::Tape_H_Hdot( oapi::Sketchpad2* skp, double Altitude_ft, double Hdot )
+	{
+		skp->SetFont( skpSSUAFont_h11 );
+		skp->SetTextColor( CR_LIGHT_GRAY );
+		skp->Text( 411, 39, "H", 1 );
+		skp->SetPen( skpWhitePen );
+		skp->Rectangle( 394, 54, 440, 274 );
+		int pos;
+		double Altitude_NM = 0;
+		if (Altitude_ft > 400000)
 		{
-			sprintf_s( cbuf, 8, "%4.0f", Hdot );
-			TextOut( hDC, 233, 93, cbuf, strlen( cbuf ) );
+			Altitude_NM = Altitude_ft * F2NM;
+			if (Altitude_NM > 165) pos = 1881;
+			else pos = 1881 - Round( Altitude_NM * 11.4 );
+		}
+		else if (Altitude_ft > 100000)
+		{
+			pos = 1587 - Round( Altitude_ft * 0.00114 );
+		}
+		else if (Altitude_ft > 30000)
+		{
+			pos = 2464 - Round( Altitude_ft * 0.00991 );
+		}
+		else if (Altitude_ft > 2000)
+		{
+			pos = 2737 - Round( Altitude_ft * 0.019 );
+		}
+		else if (Altitude_ft > 200)
+		{
+			pos = 2927 - Round( Altitude_ft * 0.114 );
+		}// HACK below 0
+		else// if (Altitude_ft > 0)
+		{
+			pos = 3056 - Round( Altitude_ft * 0.76 );
+		}
+		/*else if (Altitude_ft > -100)
+		{
+			pos = 0;// TODO
+		}
+		else if (Altitude_ft > -1100)
+		{
+			pos = 0;// TODO
 		}
 		else
 		{
-			int itmp = (int)Hdot;
-			Hdot = itmp % 100;
-			if (Hdot == 0) Hdot = (double)itmp / 1000;
-			else Hdot = ((itmp - Hdot) / 1000);
-			sprintf_s( cbuf, 8, "%4.1f", Hdot );
-			TextOut( hDC, 231, 93, cbuf, strlen( cbuf ) );
+			if (Altitude_ft < -1100) Altitude_ft = -1100;
+			pos = 0;// TODO
+		}*/
+		//BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
 
-			SetTextColor( hDC, CR_LIGHT_GRAY );
-			TextOut( hDC, 245, 93, "K", 1 );
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpBlackBrush );
+		skp->Rectangle( 394, 150, 440, 175 );
+		skp->SetFont( skpSSUBFont_h18 );
+		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+		char cbuf[8];
+		if (Altitude_ft < 10000)
+		{
+			sprintf_s( cbuf, 8, "%4d", (int)Altitude_ft );
+			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
 		}
+		else if (Altitude_ft < 400000)
+		{
+			sprintf_s( cbuf, 8, "%3d", (int)Altitude_ft / 1000 );
+			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
+			skp->SetFont( skpSSUBFont_h12 );
+			skp->SetTextColor( CR_LIGHT_GRAY );
+			skp->Text( 439, 155, "K", 1 );
+		}
+		else
+		{
+			sprintf_s( cbuf, 8, "%3.0f", Altitude_NM );
+			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
+			skp->SetFont( skpSSUBFont_h12 );
+			skp->SetTextColor( CR_LIGHT_GRAY );
+			skp->Text( 439, 155, "M", 1 );
+		}
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
+
+		skp->SetFont( skpSSUAFont_h11 );
+		skp->SetTextColor( CR_LIGHT_GRAY );
+		skp->Pixel( 481, 37, CR_LIGHT_GRAY );
+		skp->Text( 477, 39, "H", 1 );
+		skp->SetPen( skpWhitePen );
+		skp->Rectangle( 459, 54, 505, 274 );
+		if (Hdot > 800)
+		{
+			if (Hdot > 3000) Hdot = 3000;
+			pos = Round( (3000 - Hdot) * 0.1425 );
+		}
+		else if (Hdot > -800)
+		{
+			pos = Round( 883.5 - (Hdot * 0.7125) );
+		}
+		else
+		{
+			if (Hdot < -3000) Hdot = -3000;
+			pos = Round( 1339.5 - (Hdot * 0.1425) );
+		}
+		//BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
+
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpBlackBrush );
+		skp->Rectangle( 459, 150, 505, 175 );
+		skp->SetFont( skpSSUBFont_h18 );
+		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+		sprintf_s( cbuf, 8, "%4.0f", Hdot );
+		skp->Text( 503, 151, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
@@ -1234,36 +1371,38 @@ namespace vc
 	{
 		SelectObject( hDC, gdiRedPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 13, 55, 59, 269 );
-		Rectangle( hDC, 13, 151, 59, 176 );
-		Rectangle( hDC, 13, 279, 59, 304 );
+		Rectangle( hDC, 13, 54, 59, 274 );
+		Rectangle( hDC, 13, 150, 59, 175 );
+		Rectangle( hDC, 13, 285, 59, 309 );
 
-		Rectangle( hDC, 68, 55, 114, 269 );
-		POINT poly[5] = {{111,163},{104,176},{64,176},{64,151},{104,151}};// start at tip moving cw
+		Rectangle( hDC, 68, 54, 114, 274 );
+		POINT poly[5] = {{111,163},{104,175},{64,175},{64,150},{104,150}};// start at tip moving cw
 		Polygon( hDC, poly, 5 );
 
-		Rectangle( hDC, 394, 55, 440, 269 );
-		Rectangle( hDC, 394, 151, 440, 176 );
+		Rectangle( hDC, 394, 54, 440, 274 );
+		Rectangle( hDC, 394, 150, 440, 175 );
 
-		Rectangle( hDC, 459, 55, 505, 269 );
-		Rectangle( hDC, 459, 151, 505, 176 );
+		Rectangle( hDC, 459, 54, 505, 274 );
+		Rectangle( hDC, 459, 150, 505, 175 );
 
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 17, 40, "M/V", 3 );
-		TextOut( hDC, 17, 310, "KEAS", 4 );
+		TextOut( hDC, 17, 39, "M/V", 3 );
+		TextOut( hDC, 17, 315, "KEAS", 4 );
 
 		char alpha[4];
-		sprintf_s( alpha, 4, "%c", 255 );
-		TextOut( hDC, 82, 40, alpha, 1 );
+		sprintf_s( alpha, 4, "%c", 254 );
+		TextOut( hDC, 82, 39, alpha, 1 );
 
-		TextOut( hDC, 411, 40, "H", 1 );
-		SetPixel( hDC, 482, 37, CR_LIGHT_GRAY );
-		TextOut( hDC, 477, 40, "H", 1 );
+		TextOut( hDC, 411, 39, "H", 1 );
+		SetPixel( hDC, 481, 37, CR_LIGHT_GRAY );
+		TextOut( hDC, 477, 39, "H", 1 );
 		return;
 	}
 
 	void MDU::Tapes_Invalid( oapi::Sketchpad2* skp )
 	{
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetPen( skpRedPen );
 		skp->SetBrush( skpBlackBrush );
 		skp->Rectangle( 13, 55, 59, 269 );
@@ -1285,104 +1424,105 @@ namespace vc
 		skp->Text( 17, 310, "KEAS", 4 );
 
 		char alpha[4];
-		sprintf_s( alpha, 4, "%c", 255 );
+		sprintf_s( alpha, 4, "%c", 254 );
 		skp->Text( 82, 40, alpha, 1 );
 
 		skp->Text( 411, 40, "H", 1 );
-		skp->Pixel( 482, 37, CR_LIGHT_GRAY );
+		skp->Pixel( 481, 37, CR_LIGHT_GRAY );
 		skp->Text( 477, 40, "H", 1 );
 		return;
 	}
 
 	void MDU::ADI_STATIC( HDC hDC )
 	{
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
 		TextOut( hDC, 174, 25, "R", 1 );
 		TextOut( hDC, 174, 32, "P", 1 );
 		TextOut( hDC, 174, 39, "Y", 1 );
 
 		SelectObject( hDC, gdiWhitePen );
-		::Ellipse( hDC, 65, 37, 179, 151 );
-
+		::Ellipse( hDC, 122, 48, 356, 282 );
+		
 		// rate scales
 		// top scale
-		SelectObject( hDC, gdiDarkGrayPen );
-		MoveToEx( hDC, 87, 27, NULL );
-		LineTo( hDC, 157, 27 );
-		MoveToEx( hDC, 87, 27, NULL );
-		LineTo( hDC, 87, 34 );
-		MoveToEx( hDC, 94, 27, NULL );
-		LineTo( hDC, 94, 32 );
-		MoveToEx( hDC, 101, 27, NULL );
-		LineTo( hDC, 101, 32 );
-		MoveToEx( hDC, 108, 27, NULL );
-		LineTo( hDC, 108, 32 );
-		MoveToEx( hDC, 115, 27, NULL );
-		LineTo( hDC, 115, 32 );
-		MoveToEx( hDC, 122, 27, NULL );
-		LineTo( hDC, 122, 34 );
-		MoveToEx( hDC, 129, 27, NULL );
-		LineTo( hDC, 129, 32 );
-		MoveToEx( hDC, 136, 27, NULL );
-		LineTo( hDC, 136, 32 );
-		MoveToEx( hDC, 143, 27, NULL );
-		LineTo( hDC, 143, 32 );
-		MoveToEx( hDC, 150, 27, NULL );
-		LineTo( hDC, 150, 32 );
-		MoveToEx( hDC, 157, 27, NULL );
-		LineTo( hDC, 157, 34 );
+		SelectObject( hDC, gdiLightGrayPen );
+		MoveToEx( hDC, 154, 34, NULL );
+		LineTo( hDC, 324, 34 );
+		MoveToEx( hDC, 154, 33, NULL );
+		LineTo( hDC, 154, 44 );
+		MoveToEx( hDC, 171, 33, NULL );
+		LineTo( hDC, 171, 41 );
+		MoveToEx( hDC, 188, 33, NULL );
+		LineTo( hDC, 188, 41 );
+		MoveToEx( hDC, 205, 33, NULL );
+		LineTo( hDC, 205, 41 );
+		MoveToEx( hDC, 222, 33, NULL );
+		LineTo( hDC, 222, 41 );
+		MoveToEx( hDC, 239, 33, NULL );
+		LineTo( hDC, 239, 44 );
+		MoveToEx( hDC, 256, 33, NULL );
+		LineTo( hDC, 256, 41 );
+		MoveToEx( hDC, 273, 33, NULL );
+		LineTo( hDC, 273, 41 );
+		MoveToEx( hDC, 290, 33, NULL );
+		LineTo( hDC, 290, 41 );
+		MoveToEx( hDC, 307, 33, NULL );
+		LineTo( hDC, 307, 41 );
+		MoveToEx( hDC, 324, 33, NULL );
+		LineTo( hDC, 324, 44 );
 
 		// side scale
-		MoveToEx( hDC, 190, 59, NULL );
-		LineTo( hDC, 190, 129 );
-		MoveToEx( hDC, 190, 59, NULL );
-		LineTo( hDC, 183, 59 );
-		MoveToEx( hDC, 190, 66, NULL );
-		LineTo( hDC, 185, 66 );
-		MoveToEx( hDC, 190, 73, NULL );
-		LineTo( hDC, 185, 73 );
-		MoveToEx( hDC, 190, 80, NULL );
-		LineTo( hDC, 185, 80 );
-		MoveToEx( hDC, 190, 87, NULL );
-		LineTo( hDC, 185, 87 );
-		MoveToEx( hDC, 190, 94, NULL );
-		LineTo( hDC, 183, 94 );
-		MoveToEx( hDC, 190, 101, NULL );
-		LineTo( hDC, 185, 101 );
-		MoveToEx( hDC, 190, 108, NULL );
-		LineTo( hDC, 185, 108 );
-		MoveToEx( hDC, 190, 115, NULL );
-		LineTo( hDC, 185, 115 );
-		MoveToEx( hDC, 190, 122, NULL );
-		LineTo( hDC, 185, 122 );
-		MoveToEx( hDC, 190, 129, NULL );
-		LineTo( hDC, 183, 129 );
+		MoveToEx( hDC, 370, 80, NULL );
+		LineTo( hDC, 370, 250 );
+		MoveToEx( hDC, 370, 80, NULL );
+		LineTo( hDC, 359, 80 );
+		MoveToEx( hDC, 370, 97, NULL );
+		LineTo( hDC, 362, 97 );
+		MoveToEx( hDC, 370, 114, NULL );
+		LineTo( hDC, 362, 114 );
+		MoveToEx( hDC, 370, 131, NULL );
+		LineTo( hDC, 362, 131 );
+		MoveToEx( hDC, 370, 148, NULL );
+		LineTo( hDC, 362, 148 );
+		MoveToEx( hDC, 370, 165, NULL );
+		LineTo( hDC, 359, 165 );
+		MoveToEx( hDC, 370, 182, NULL );
+		LineTo( hDC, 362, 182 );
+		MoveToEx( hDC, 370, 199, NULL );
+		LineTo( hDC, 362, 199 );
+		MoveToEx( hDC, 370, 216, NULL );
+		LineTo( hDC, 362, 216 );
+		MoveToEx( hDC, 370, 233, NULL );
+		LineTo( hDC, 362, 233 );
+		MoveToEx( hDC, 370, 250, NULL );
+		LineTo( hDC, 359, 250 );
 
 		// bottom scale
-		MoveToEx( hDC, 87, 163, NULL );
-		LineTo( hDC, 157, 163 );
-		MoveToEx( hDC, 87, 163, NULL );
-		LineTo( hDC, 87, 156 );
-		MoveToEx( hDC, 94, 163, NULL );
-		LineTo( hDC, 94, 158 );
-		MoveToEx( hDC, 101, 163, NULL );
-		LineTo( hDC, 101, 158 );
-		MoveToEx( hDC, 108, 163, NULL );
-		LineTo( hDC, 108, 158 );
-		MoveToEx( hDC, 115, 163, NULL );
-		LineTo( hDC, 115, 158 );
-		MoveToEx( hDC, 122, 163, NULL );
-		LineTo( hDC, 122, 156 );
-		MoveToEx( hDC, 129, 163, NULL );
-		LineTo( hDC, 129, 158 );
-		MoveToEx( hDC, 136, 163, NULL );
-		LineTo( hDC, 136, 158 );
-		MoveToEx( hDC, 143, 163, NULL );
-		LineTo( hDC, 143, 158 );
-		MoveToEx( hDC, 150, 163, NULL );
-		LineTo( hDC, 150, 158 );
-		MoveToEx( hDC, 157, 163, NULL );
-		LineTo( hDC, 157, 156 );
+		MoveToEx( hDC, 154, 296, NULL );
+		LineTo( hDC, 324, 296 );
+		MoveToEx( hDC, 154, 296, NULL );
+		LineTo( hDC, 154, 285 );
+		MoveToEx( hDC, 171, 296, NULL );
+		LineTo( hDC, 171, 288 );
+		MoveToEx( hDC, 188, 296, NULL );
+		LineTo( hDC, 188, 288 );
+		MoveToEx( hDC, 205, 296, NULL );
+		LineTo( hDC, 205, 288 );
+		MoveToEx( hDC, 222, 296, NULL );
+		LineTo( hDC, 222, 288 );
+		MoveToEx( hDC, 239, 296, NULL );
+		LineTo( hDC, 239, 285 );
+		MoveToEx( hDC, 256, 296, NULL );
+		LineTo( hDC, 256, 288 );
+		MoveToEx( hDC, 273, 296, NULL );
+		LineTo( hDC, 273, 288 );
+		MoveToEx( hDC, 290, 296, NULL );
+		LineTo( hDC, 290, 288 );
+		MoveToEx( hDC, 307, 296, NULL );
+		LineTo( hDC, 307, 288 );
+		MoveToEx( hDC, 324, 296, NULL );
+		LineTo( hDC, 324, 285 );
 
 		// roll lines
 		// 10º/190º
@@ -1421,7 +1561,7 @@ namespace vc
 		// 170º/350º
 		MoveToEx( hDC, 113, 145, NULL );
 		LineTo( hDC, 131, 43 );
-		SelectObject( hDC, gdiDarkGrayThickPen );
+		SelectObject( hDC, gdiLightGrayThickPen );
 		// 30º/210º
 		MoveToEx( hDC, 96, 49, NULL );
 		LineTo( hDC, 148, 139 );
@@ -1439,7 +1579,6 @@ namespace vc
 		SelectObject( hDC, gdiBlackPen );
 		::Ellipse( hDC, 73, 45, 171, 143 );
 
-		SelectObject( hDC, gdiTahomaFont_h7w3 );
 		TextOut( hDC, 149, 48, "33", 2 );
 		TextOut( hDC, 162, 61, "30", 2 );
 		TextOut( hDC, 162, 120, "24", 2 );
@@ -1448,7 +1587,7 @@ namespace vc
 		TextOut( hDC, 77, 121, "12", 2 );
 		TextOut( hDC, 76, 61, "06", 2 );
 		TextOut( hDC, 89, 47, "03", 2 );
-		SelectObject( hDC, gdiTahomaFont_h10w4 );
+
 		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiLightGrayBrush );
 		POINT diamond[4];
@@ -1565,57 +1704,58 @@ namespace vc
 
 	void MDU::ADI_STATIC( oapi::Sketchpad2* skp )
 	{
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
 		skp->Text( 174, 25, "R", 1 );
 		skp->Text( 174, 32, "P", 1 );
 		skp->Text( 174, 39, "Y", 1 );
 
 		skp->SetPen( skpWhitePen );
-		skp->Ellipse( 65, 37, 179, 151 );
+		skp->Ellipse( 122, 48, 356, 282 );
 
 		// rate scales
 		// top scale
-		skp->SetPen( skpDarkGrayPen );
-		skp->Line( 87, 27, 157, 27 );
-		skp->Line( 87, 27, 87, 34 );
-		skp->Line( 94, 27, 94, 32 );
-		skp->Line( 101, 27, 101, 32 );
-		skp->Line( 108, 27, 108, 32 );
-		skp->Line( 115, 27, 115, 32 );
-		skp->Line( 122, 27, 122, 34 );
-		skp->Line( 129, 27, 129, 32 );
-		skp->Line( 136, 27, 136, 32 );
-		skp->Line( 143, 27, 143, 32 );
-		skp->Line( 150, 27, 150, 32 );
-		skp->Line( 157, 27, 157, 34 );
+		skp->SetPen( skpLightGrayPen );
+		skp->Line( 154, 34, 324, 34 );
+		skp->Line( 154, 33, 154, 44 );
+		skp->Line( 171, 33, 171, 41 );
+		skp->Line( 188, 33, 188, 41 );
+		skp->Line( 205, 33, 205, 41 );
+		skp->Line( 222, 33, 222, 41 );
+		skp->Line( 239, 33, 239, 44 );
+		skp->Line( 256, 33, 256, 41 );
+		skp->Line( 273, 33, 273, 41 );
+		skp->Line( 290, 33, 290, 41 );
+		skp->Line( 307, 33, 307, 41 );
+		skp->Line( 324, 33, 324, 44 );
 
 		// side scale
-		skp->Line( 190, 59, 190, 129 );
-		skp->Line( 190, 59, 183, 59 );
-		skp->Line( 190, 66, 185, 66 );
-		skp->Line( 190, 73, 185, 73 );
-		skp->Line( 190, 80, 185, 80 );
-		skp->Line( 190, 87, 185, 87 );
-		skp->Line( 190, 94, 183, 94 );
-		skp->Line( 190, 101, 185, 101 );
-		skp->Line( 190, 108, 185, 108 );
-		skp->Line( 190, 115, 185, 115 );
-		skp->Line( 190, 122, 185, 122 );
-		skp->Line( 190, 129, 183, 129 );
+		skp->Line( 370, 80, 370, 250 );
+		skp->Line( 370, 80, 359, 80 );
+		skp->Line( 370, 97, 362, 97 );
+		skp->Line( 370, 114, 362, 114 );
+		skp->Line( 370, 131, 362, 131 );
+		skp->Line( 370, 148, 362, 148 );
+		skp->Line( 370, 165, 359, 165 );
+		skp->Line( 370, 182, 362, 182 );
+		skp->Line( 370, 199, 362, 199 );
+		skp->Line( 370, 216, 362, 216 );
+		skp->Line( 370, 233, 362, 233 );
+		skp->Line( 370, 250, 359, 250 );
 
 		// bottom scale
-		skp->Line( 87, 163, 157, 163 );
-		skp->Line( 87, 163, 87, 156 );
-		skp->Line( 94, 163, 94, 158 );
-		skp->Line( 101, 163, 101, 158 );
-		skp->Line( 108, 163, 108, 158 );
-		skp->Line( 115, 163, 115, 158 );
-		skp->Line( 122, 163, 122, 156 );
-		skp->Line( 129, 163, 129, 158 );
-		skp->Line( 136, 163, 136, 158 );
-		skp->Line( 143, 163, 143, 158 );
-		skp->Line( 150, 163, 150, 158 );
-		skp->Line( 157, 163, 157, 156 );
+		skp->Line( 154, 296, 324, 296 );
+		skp->Line( 154, 296, 154, 285 );
+		skp->Line( 171, 296, 171, 288 );
+		skp->Line( 188, 296, 188, 288 );
+		skp->Line( 205, 296, 205, 288 );
+		skp->Line( 222, 296, 222, 288 );
+		skp->Line( 239, 296, 239, 285 );
+		skp->Line( 256, 296, 256, 288 );
+		skp->Line( 273, 296, 273, 288 );
+		skp->Line( 290, 296, 290, 288 );
+		skp->Line( 307, 296, 307, 288 );
+		skp->Line( 324, 296, 324, 285 );
 
 		// roll lines
 		// 10º/190º
@@ -1642,7 +1782,7 @@ namespace vc
 		skp->Line( 104, 143, 140, 45 );
 		// 170º/350º
 		skp->Line( 113, 145, 131, 43 );
-		skp->SetPen( skpDarkGrayThickPen );
+		skp->SetPen( skpLightGrayThickPen );
 		// 30º/210º
 		skp->Line( 96, 49, 148, 139 );
 		// 60º/240º
@@ -1665,7 +1805,7 @@ namespace vc
 		skp->Text( 77, 121, "12", 2 );
 		skp->Text( 76, 61, "06", 2 );
 		skp->Text( 89, 47, "03", 2 );
-		skp->SetFont( skpTahomaFont_h10w4 );
+
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpLightGrayBrush );
 		oapi::IVECTOR2 diamond[4];
@@ -2072,84 +2212,97 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
-		SelectObject( hDC, gdiTahomaFont_h7w3 );
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 121, 19, "0", 1 );
-		TextOut( hDC, 192, 91, "0", 1 );
-		TextOut( hDC, 121, 164, "0", 1 );
-		SelectObject( hDC, gdiTahomaFont_h10w4 );
+		TextOut( hDC, 236, 18, "0", 1 );
+		TextOut( hDC, 375, 159, "0", 1 );
+		TextOut( hDC, 236, 298, "0", 1 );
+
 		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
-			TextOut( hDC, 81, 23, "5", 1 );
-			TextOut( hDC, 159, 23, "5", 1 );
+			TextOut( hDC, 151, 31, "5", 1 );
+			TextOut( hDC, 151, 283, "5", 1 );
 
-			TextOut( hDC, 187, 50, "5", 1 );
-			TextOut( hDC, 187, 129, "5", 1 );
+			SetTextAlign( hDC, TA_LEFT );
+			//TextOut( hDC, 151, 31, "5", 1 );
+			TextOut( hDC, 327, 31, "5", 1 );
 
-			TextOut( hDC, 81, 159, "5", 1 );
-			TextOut( hDC, 159, 159, "5", 1 );
+			TextOut( hDC, 356, 65, "5", 1 );
+			TextOut( hDC, 356, 251, "5", 1 );
 
-			if (roll > 5) pos_roll = 157;
-			else if (roll < -5) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 7 );
+			//TextOut( hDC, 151, 283, "5", 1 );
+			TextOut( hDC, 327, 283, "5", 1 );
 
-			if (pitch > 5) pos_pitch = 129;
-			else if (pitch < -5) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 7 );
+			if (roll > 5) pos_roll = 324;
+			else if (roll < -5) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 17 );
 
-			if (yaw > 5) pos_yaw = 157;
-			else if (yaw < -5) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 7 );
+			if (pitch > 5) pos_pitch = 250;
+			else if (pitch < -5) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 17 );
+
+			if (yaw > 5) pos_yaw = 324;
+			else if (yaw < -5) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 17 );
 		}
 		else if (adirate == 2)
 		{
 			// ADI RATE HIGH
-			TextOut( hDC, 78, 23, "10", 2 );
-			TextOut( hDC, 158, 23, "10", 2 );
+			TextOut( hDC, 151, 31, "10", 2 );
+			TextOut( hDC, 151, 283, "10", 2 );
 
-			TextOut( hDC, 187, 50, "10", 2 );
-			TextOut( hDC, 187, 129, "10", 2 );
+			SetTextAlign( hDC, TA_LEFT );
+			//TextOut( hDC, 151, 31, "10", 2 );
+			TextOut( hDC, 327, 31, "10", 2 );
 
-			TextOut( hDC, 78, 159, "10", 2 );
-			TextOut( hDC, 158, 159, "10", 2 );
+			TextOut( hDC, 356, 65, "10", 2 );
+			TextOut( hDC, 356, 251, "10", 2 );
 
-			if (roll > 10) pos_roll = 157;
-			else if (roll < -10) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 3.5 );
+			//TextOut( hDC, 151, 283, "10", 2 );
+			TextOut( hDC, 327, 283, "10", 2 );
 
-			if (pitch > 10) pos_pitch = 129;
-			else if (pitch < -10) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 3.5 );
+			if (roll > 10) pos_roll = 324;
+			else if (roll < -10) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 8.5 );
 
-			if (yaw > 10) pos_yaw = 157;
-			else if (yaw < -10) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 3.5 );
+			if (pitch > 10) pos_pitch = 250;
+			else if (pitch < -10) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 8.5 );
+
+			if (yaw > 10) pos_yaw = 324;
+			else if (yaw < -10) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 8.5 );
 		}
 		else
 		{
 			// ADI RATE LOW
-			TextOut( hDC, 81, 23, "1", 1 );
-			TextOut( hDC, 159, 23, "1", 1 );
+			TextOut( hDC, 151, 31, "1", 1 );
+			TextOut( hDC, 151, 283, "1", 1 );
 
-			TextOut( hDC, 187, 50, "1", 1 );
-			TextOut( hDC, 187, 129, "1", 1 );
+			SetTextAlign( hDC, TA_LEFT );
+			//TextOut( hDC, 151, 31, "1", 1 );
+			TextOut( hDC, 327, 31, "1", 1 );
 
-			TextOut( hDC, 81, 159, "1", 1 );
-			TextOut( hDC, 159, 159, "1", 1 );
+			TextOut( hDC, 356, 65, "1", 1 );
+			TextOut( hDC, 356, 251, "1", 1 );
 
-			if (roll > 1) pos_roll = 157;
-			else if (roll < -1) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 35 );
+			//TextOut( hDC, 151, 283, "1", 1 );
+			TextOut( hDC, 327, 283, "1", 1 );
 
-			if (pitch > 1) pos_pitch = 129;
-			else if (pitch < -1) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 35 );
+			if (roll > 1) pos_roll = 324;
+			else if (roll < -1) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 85 );
 
-			if (yaw > 1) pos_yaw = 157;
-			else if (yaw < -1) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 35 );
+			if (pitch > 1) pos_pitch = 250;
+			else if (pitch < -1) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 85 );
+
+			if (yaw > 1) pos_yaw = 324;
+			else if (yaw < -1) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 85 );
 		}
 
 		// draw triangles
@@ -2157,27 +2310,27 @@ namespace vc
 		SelectObject( hDC, gdiLightGreenBrush );
 		POINT tri[3];
 		tri[0].x = pos_roll;
-		tri[0].y = 27;
-		tri[1].x = tri[0].x + 5;
-		tri[1].y = 19;
-		tri[2].x = tri[0].x - 5;
-		tri[2].y = 19;
+		tri[0].y = 34;
+		tri[1].x = tri[0].x + 10;
+		tri[1].y = 18;
+		tri[2].x = tri[0].x - 10;
+		tri[2].y = 18;
 		Polygon( hDC, tri, 3 );
 
-		tri[0].x = 190;
+		tri[0].x = 370;
 		tri[0].y = pos_pitch;
-		tri[1].x = 198;
-		tri[1].y = tri[0].y - 5;
-		tri[2].x = 198;
-		tri[2].y = tri[0].y + 5;
+		tri[1].x = 386;
+		tri[1].y = tri[0].y - 10;
+		tri[2].x = 386;
+		tri[2].y = tri[0].y + 10;
 		Polygon( hDC, tri, 3 );
 
 		tri[0].x = pos_yaw;
-		tri[0].y = 163;
-		tri[1].x = tri[0].x - 5;
-		tri[1].y = 171;
-		tri[2].x = tri[0].x + 5;
-		tri[2].y = 171;
+		tri[0].y = 296;
+		tri[1].x = tri[0].x - 10;
+		tri[1].y = 312;
+		tri[2].x = tri[0].x + 10;
+		tri[2].y = 312;
 		Polygon( hDC, tri, 3 );
 		return;
 	}
@@ -2188,84 +2341,97 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
-		skp->SetFont( skpTahomaFont_h7w3 );
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 121, 19, "0", 1 );
-		skp->Text( 192, 91, "0", 1 );
-		skp->Text( 121, 164, "0", 1 );
-		skp->SetFont( skpTahomaFont_h10w4 );
+		skp->Text( 236, 18, "0", 1 );
+		skp->Text( 375, 159, "0", 1 );
+		skp->Text( 236, 298, "0", 1 );
+
 		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
-			skp->Text( 81, 23, "5", 1 );
-			skp->Text( 159, 23, "5", 1 );
+			skp->Text( 151, 31, "5", 1 );
+			skp->Text( 151, 283, "5", 1 );
+			
+			skp->SetTextAlign( oapi::Sketchpad::LEFT );
+			//skp->Text( 151, 31, "5", 1 );
+			skp->Text( 327, 31, "5", 1 );
 
-			skp->Text( 187, 50, "5", 1 );
-			skp->Text( 187, 129, "5", 1 );
+			skp->Text( 356, 65, "5", 1 );
+			skp->Text( 356, 251, "5", 1 );
 
-			skp->Text( 81, 159, "5", 1 );
-			skp->Text( 159, 159, "5", 1 );
+			//skp->Text( 151, 283, "5", 1 );
+			skp->Text( 327, 283, "5", 1 );
 
-			if (roll > 5) pos_roll = 157;
-			else if (roll < -5) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 7 );
+			if (roll > 5) pos_roll = 324;
+			else if (roll < -5) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 17 );
 
-			if (pitch > 5) pos_pitch = 129;
-			else if (pitch < -5) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 7 );
+			if (pitch > 5) pos_pitch = 250;
+			else if (pitch < -5) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 17 );
 
-			if (yaw > 5) pos_yaw = 157;
-			else if (yaw < -5) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 7 );
+			if (yaw > 5) pos_yaw = 324;
+			else if (yaw < -5) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 17 );
 		}
 		else if (adirate == 2)
 		{
 			// ADI RATE HIGH
-			skp->Text( 78, 23, "10", 2 );
-			skp->Text( 158, 23, "10", 2 );
+			skp->Text( 151, 31, "10", 2 );
+			skp->Text( 151, 283, "10", 2 );
 
-			skp->Text( 187, 50, "10", 2 );
-			skp->Text( 187, 129, "10", 2 );
+			skp->SetTextAlign( oapi::Sketchpad::LEFT );
+			//skp->Text( 151, 31, "10", 2 );
+			skp->Text( 327, 31, "10", 2 );
 
-			skp->Text( 78, 159, "10", 2 );
-			skp->Text( 158, 159, "10", 2 );
+			skp->Text( 356, 65, "10", 2 );
+			skp->Text( 356, 251, "10", 2 );
 
-			if (roll > 10) pos_roll = 157;
-			else if (roll < -10) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 3.5 );
+			//skp->Text( 151, 283, "10", 2 );
+			skp->Text( 327, 283, "10", 2 );
 
-			if (pitch > 10) pos_pitch = 129;
-			else if (pitch < -10) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 3.5 );
+			if (roll > 10) pos_roll = 324;
+			else if (roll < -10) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 8.5 );
 
-			if (yaw > 10) pos_yaw = 157;
-			else if (yaw < -10) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 3.5 );
+			if (pitch > 10) pos_pitch = 250;
+			else if (pitch < -10) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 8.5 );
+
+			if (yaw > 10) pos_yaw = 324;
+			else if (yaw < -10) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 8.5 );
 		}
 		else
 		{
 			// ADI RATE LOW
-			skp->Text( 81, 23, "1", 1 );
-			skp->Text( 159, 23, "1", 1 );
+			skp->Text( 151, 31, "1", 1 );
+			skp->Text( 151, 283, "1", 1 );
 
-			skp->Text( 187, 50, "1", 1 );
-			skp->Text( 187, 129, "1", 1 );
+			skp->SetTextAlign( oapi::Sketchpad::LEFT );
+			//skp->Text( 151, 31, "1", 1 );
+			skp->Text( 327, 31, "1", 1 );
 
-			skp->Text( 81, 159, "1", 1 );
-			skp->Text( 159, 159, "1", 1 );
+			skp->Text( 356, 65, "1", 1 );
+			skp->Text( 356, 251, "1", 1 );
 
-			if (roll > 1) pos_roll = 157;
-			else if (roll < -1) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 35 );
+			//skp->Text( 151, 283, "1", 1 );
+			skp->Text( 327, 283, "1", 1 );
 
-			if (pitch > 1) pos_pitch = 129;
-			else if (pitch < -1) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 35 );
+			if (roll > 1) pos_roll = 324;
+			else if (roll < -1) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 85 );
 
-			if (yaw > 1) pos_yaw = 157;
-			else if (yaw < -1) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 35 );
+			if (pitch > 1) pos_pitch = 250;
+			else if (pitch < -1) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 85 );
+
+			if (yaw > 1) pos_yaw = 324;
+			else if (yaw < -1) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 85 );
 		}
 
 		// draw triangles
@@ -2273,27 +2439,27 @@ namespace vc
 		skp->SetBrush( skpLightGreenBrush );
 		oapi::IVECTOR2 tri[3];
 		tri[0].x = pos_roll;
-		tri[0].y = 27;
-		tri[1].x = tri[0].x + 5;
-		tri[1].y = 19;
-		tri[2].x = tri[0].x - 5;
-		tri[2].y = 19;
+		tri[0].y = 34;
+		tri[1].x = tri[0].x + 10;
+		tri[1].y = 18;
+		tri[2].x = tri[0].x - 10;
+		tri[2].y = 18;
 		skp->Polygon( tri, 3 );
 
-		tri[0].x = 190;
+		tri[0].x = 370;
 		tri[0].y = pos_pitch;
-		tri[1].x = 198;
-		tri[1].y = tri[0].y - 5;
-		tri[2].x = 198;
-		tri[2].y = tri[0].y + 5;
+		tri[1].x = 386;
+		tri[1].y = tri[0].y - 10;
+		tri[2].x = 386;
+		tri[2].y = tri[0].y + 10;
 		skp->Polygon( tri, 3 );
 
 		tri[0].x = pos_yaw;
-		tri[0].y = 163;
-		tri[1].x = tri[0].x - 5;
-		tri[1].y = 171;
-		tri[2].x = tri[0].x + 5;
-		tri[2].y = 171;
+		tri[0].y = 296;
+		tri[1].x = tri[0].x - 10;
+		tri[1].y = 312;
+		tri[2].x = tri[0].x + 10;
+		tri[2].y = 312;
 		skp->Polygon( tri, 3 );
 		return;
 	}
@@ -2304,40 +2470,44 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
 			if (Altitude_ft < 6400)// HACK should use a 3sec timer starting at 7Kft, which expires about 6.4Kft 
 			{
 				// <7k + 3s
-				TextOut( hDC, 81, 23, "5", 1 );
-				TextOut( hDC, 159, 23, "5", 1 );
+				TextOut( hDC, 151, 31, "5", 1 );
+				TextOut( hDC, 151, 283, "5", 1 );
 
-				TextOut( hDC, 187, 50, "5", 1 );
-				TextOut( hDC, 187, 129, "5", 1 );
+				SetTextAlign( hDC, TA_LEFT );
+				//TextOut( hDC, 151, 31, "5", 1 );
+				TextOut( hDC, 327, 31, "5", 1 );
 
-				TextOut( hDC, 81, 159, "5", 1 );
-				TextOut( hDC, 159, 159, "5", 1 );
+				TextOut( hDC, 356, 65, "5", 1 );
+				TextOut( hDC, 356, 251, "5", 1 );
 
-				SelectObject( hDC, gdiTahomaFont_h7w3 );
+				//TextOut( hDC, 151, 283, "5", 1 );
+				TextOut( hDC, 327, 283, "5", 1 );
+
 				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 121, 19, "0", 1 );
-				TextOut( hDC, 192, 91, "0", 1 );
-				TextOut( hDC, 121, 164, "0", 1 );
-				SelectObject( hDC, gdiTahomaFont_h10w4 );
+				TextOut( hDC, 236, 18, "0", 1 );
+				TextOut( hDC, 375, 159, "0", 1 );
+				TextOut( hDC, 236, 298, "0", 1 );
 
-				if (roll > 5) pos_roll = 157;
-				else if (roll < -5) pos_roll = 87;
-				else pos_roll = 122 + Round( roll * 7 );
+				if (roll > 5) pos_roll = 324;
+				else if (roll < -5) pos_roll = 154;
+				else pos_roll = 239 + Round( roll * 17 );
 
-				if (pitch > 5) pos_pitch = 129;
-				else if (pitch < -5) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 7 );
+				if (pitch > 5) pos_pitch = 250;
+				else if (pitch < -5) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 17 );
 
-				if (yaw > 5) pos_yaw = 157;
-				else if (yaw < -5) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 7 );
+				if (yaw > 5) pos_yaw = 324;
+				else if (yaw < -5) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 17 );
 			}
 			else if (Altitude_ft < 7000)
 			{
@@ -2355,29 +2525,30 @@ namespace vc
 				// blank
 				// alt err +/-1k
 				// y-runway position err +/-1k
-				TextOut( hDC, 187, 50, "1K", 2 );
-				TextOut( hDC, 187, 129, "1K", 2 );
+				TextOut( hDC, 151, 283, "1K", 2 );
 
-				TextOut( hDC, 78, 159, "1K", 2 );
-				TextOut( hDC, 158, 159, "1K", 2 );
+				SetTextAlign( hDC, TA_LEFT );
+				TextOut( hDC, 356, 65, "1K", 2 );
+				TextOut( hDC, 356, 251, "1K", 2 );
 
-				SelectObject( hDC, gdiTahomaFont_h7w3 );
+				//TextOut( hDC, 151, 283, "1K", 2 );
+				TextOut( hDC, 327, 283, "1K", 2 );
+
 				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 192, 91, "0", 1 );
-				TextOut( hDC, 121, 164, "0", 1 );
-				SelectObject( hDC, gdiTahomaFont_h10w4 );
+				TextOut( hDC, 375, 159, "0", 1 );
+				TextOut( hDC, 236, 298, "0", 1 );
 
 				pos_roll = 0;
 				pitch = GetIDP()->GetGlideSlopeDistance();
 				yaw = -GetIDP()->GetYRunwayPositionError();
 
-				if (pitch > 1000) pos_pitch = 129;
-				else if (pitch < -1000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.035 );
+				if (pitch > 1000) pos_pitch = 250;
+				else if (pitch < -1000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.085 );
 
-				if (yaw > 1000) pos_yaw = 157;
-				else if (yaw < -1000) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 0.035 );
+				if (yaw > 1000) pos_yaw = 324;
+				else if (yaw < -1000) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 0.085 );
 			}
 			else if (GetIDP()->GetOnHACState() == true)
 			{
@@ -2385,29 +2556,30 @@ namespace vc
 				// blank
 				// alt err +/-5k
 				// HAC x-range err +/-5k
-				TextOut( hDC, 187, 50, "5K", 2 );
-				TextOut( hDC, 187, 129, "5K", 2 );
+				TextOut( hDC, 151, 283, "5K", 2 );
 
-				TextOut( hDC, 78, 159, "5K", 2 );
-				TextOut( hDC, 158, 159, "5K", 2 );
+				SetTextAlign( hDC, TA_LEFT );
+				TextOut( hDC, 356, 65, "5K", 2 );
+				TextOut( hDC, 356, 251, "5K", 2 );
 
-				SelectObject( hDC, gdiTahomaFont_h7w3 );
+				//TextOut( hDC, 151, 283, "5K", 2 );
+				TextOut( hDC, 327, 283, "5K", 2 );
+
 				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 192, 91, "0", 1 );
-				TextOut( hDC, 121, 164, "0", 1 );
-				SelectObject( hDC, gdiTahomaFont_h10w4 );
+				TextOut( hDC, 375, 159, "0", 1 );
+				TextOut( hDC, 236, 298, "0", 1 );
 
 				pos_roll = 0;
 				pitch = 0;// TODO get alt error (ft)
 				yaw = GetIDP()->GetHACRadialError();
 
-				if (pitch > 5000) pos_pitch = 129;
-				else if (pitch < -5000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.007 );
+				if (pitch > 5000) pos_pitch = 250;
+				else if (pitch < -5000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.017 );
 
-				if (yaw > 5000) pos_yaw = 157;
-				else if (yaw < -5000) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 0.007 );
+				if (yaw > 5000) pos_yaw = 324;
+				else if (yaw < -5000) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 0.017 );
 			}
 			else
 			{
@@ -2416,78 +2588,85 @@ namespace vc
 				// alt err +/-5k
 				// heading err +/-5º
 				// (roll scale output is below)
+				TextOut( hDC, 151, 283, "5", 1 );
 
-				TextOut( hDC, 187, 50, "5K", 2 );
-				TextOut( hDC, 187, 129, "5K", 2 );
+				SetTextAlign( hDC, TA_LEFT );
+				TextOut( hDC, 356, 65, "5K", 2 );
+				TextOut( hDC, 356, 251, "5K", 2 );
 
-				TextOut( hDC, 81, 159, "5", 1 );
-				TextOut( hDC, 159, 159, "5", 1 );
+				//TextOut( hDC, 151, 283, "5", 1 );
+				TextOut( hDC, 327, 283, "5", 1 );
 
-				SelectObject( hDC, gdiTahomaFont_h7w3 );
 				SetTextColor( hDC, CR_LIGHT_GRAY );
-				TextOut( hDC, 192, 91, "0", 1 );
-				TextOut( hDC, 121, 164, "0", 1 );
-				SelectObject( hDC, gdiTahomaFont_h10w4 );
+				TextOut( hDC, 375, 159, "0", 1 );
+				TextOut( hDC, 236, 298, "0", 1 );
 
 				roll = ceil( GetIDP()->GetTimeToHAC() );
 				pitch = 0;// TODO get alt error (ft)
 				yaw = 0;// TODO get heading error (deg)
 
+				SetTextColor( hDC, CR_WHITE );
 				if (roll > 0)
 				{
-					TextOut( hDC, 74, 23, "10s", 3 );
-					TextOut( hDC, 159, 23, "0", 1 );
-					if (roll >= 10) pos_roll = 87;
-					else pos_roll = 157 - Round( roll * 7 );
+					SetTextAlign( hDC, TA_RIGHT );
+					TextOut( hDC, 151, 31, "10s", 3 );
+					SetTextAlign( hDC, TA_LEFT );
+					TextOut( hDC, 327, 31, "0", 1 );
+					if (roll >= 10) pos_roll = 154;
+					else pos_roll = 324 - Round( roll * 17 );
 				}
 				else if (roll < 0)
 				{
-					TextOut( hDC, 81, 23, "0", 1 );
-					TextOut( hDC, 159, 23, "10s", 3 );
-					if (roll <= -10) pos_roll = 157;
-					else pos_roll = 87 - Round( roll * 7 );
+					SetTextAlign( hDC, TA_RIGHT );
+					TextOut( hDC, 151, 31, "0", 1 );
+					SetTextAlign( hDC, TA_LEFT );
+					TextOut( hDC, 327, 31, "10s", 3 );
+					if (roll <= -10) pos_roll = 324;
+					else pos_roll = 154 - Round( roll * 17 );
 				}
 				else pos_roll = 0;
 
-				if (pitch > 5000) pos_pitch = 129;
-				else if (pitch < -5000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.007 );
+				if (pitch > 5000) pos_pitch = 250;
+				else if (pitch < -5000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.017 );
 
-				if (yaw > 5) pos_yaw = 157;
-				else if (yaw < -5) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 7 );
+				if (yaw > 5) pos_yaw = 324;
+				else if (yaw < -5) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 17 );
 			}
 		}
 		else
 		{
 			// ADI RATE HIGH/LOW
-			TextOut( hDC, 81, 23, "5", 1 );
-			TextOut( hDC, 159, 23, "5", 1 );
+			TextOut( hDC, 151, 31, "5", 1 );
+			TextOut( hDC, 151, 283, "5", 1 );
 
-			TextOut( hDC, 187, 50, "5", 1 );
-			TextOut( hDC, 187, 129, "5", 1 );
+			SetTextAlign( hDC, TA_LEFT );
+			//TextOut( hDC, 151, 31, "5", 1 );
+			TextOut( hDC, 327, 31, "5", 1 );
 
-			TextOut( hDC, 81, 159, "5", 1 );
-			TextOut( hDC, 159, 159, "5", 1 );
+			TextOut( hDC, 356, 65, "5", 1 );
+			TextOut( hDC, 356, 251, "5", 1 );
 
-			SelectObject( hDC, gdiTahomaFont_h7w3 );
+			//TextOut( hDC, 151, 283, "5", 1 );
+			TextOut( hDC, 327, 283, "5", 1 );
+
 			SetTextColor( hDC, CR_LIGHT_GRAY );
-			TextOut( hDC, 121, 19, "0", 1 );
-			TextOut( hDC, 192, 91, "0", 1 );
-			TextOut( hDC, 121, 164, "0", 1 );
-			SelectObject( hDC, gdiTahomaFont_h10w4 );
+			TextOut( hDC, 236, 18, "0", 1 );
+			TextOut( hDC, 375, 159, "0", 1 );
+			TextOut( hDC, 236, 298, "0", 1 );
 
-			if (roll > 5) pos_roll = 157;
-			else if (roll < -5) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 7 );
+			if (roll > 5) pos_roll = 324;
+			else if (roll < -5) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 17 );
 
-			if (pitch > 5) pos_pitch = 129;
-			else if (pitch < -5) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 7 );
+			if (pitch > 5) pos_pitch = 250;
+			else if (pitch < -5) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 17 );
 
-			if (yaw > 5) pos_yaw = 157;
-			else if (yaw < -5) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 7 );
+			if (yaw > 5) pos_yaw = 324;
+			else if (yaw < -5) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 17 );
 		}
 		
 		// draw triangles
@@ -2497,31 +2676,31 @@ namespace vc
 		if (pos_roll != 0)
 		{
 			tri[0].x = pos_roll;
-			tri[0].y = 27;
-			tri[1].x = tri[0].x + 5;
-			tri[1].y = 19;
-			tri[2].x = tri[0].x - 5;
-			tri[2].y = 19;
+			tri[0].y = 34;
+			tri[1].x = tri[0].x + 10;
+			tri[1].y = 18;
+			tri[2].x = tri[0].x - 10;
+			tri[2].y = 18;
 			Polygon( hDC, tri, 3 );
 		}
 		if (pos_pitch != 0)
 		{
-			tri[0].x = 190;
+			tri[0].x = 370;
 			tri[0].y = pos_pitch;
-			tri[1].x = 198;
-			tri[1].y = tri[0].y - 5;
-			tri[2].x = 198;
-			tri[2].y = tri[0].y + 5;
+			tri[1].x = 386;
+			tri[1].y = tri[0].y - 10;
+			tri[2].x = 386;
+			tri[2].y = tri[0].y + 10;
 			Polygon( hDC, tri, 3 );
 		}
 		if (pos_yaw != 0)
 		{
 			tri[0].x = pos_yaw;
-			tri[0].y = 163;
-			tri[1].x = tri[0].x - 5;
-			tri[1].y = 171;
-			tri[2].x = tri[0].x + 5;
-			tri[2].y = 171;
+			tri[0].y = 296;
+			tri[1].x = tri[0].x - 10;
+			tri[1].y = 312;
+			tri[2].x = tri[0].x + 10;
+			tri[2].y = 312;
 			Polygon( hDC, tri, 3 );
 		}
 		return;
@@ -2533,40 +2712,44 @@ namespace vc
 		int pos_pitch;
 		int pos_yaw;
 
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		if (adirate == 1)
 		{
 			// ADI RATE MED
 			if (Altitude_ft < 6400)// HACK should use a 3sec timer starting at 7Kft, which expires about 6.4Kft 
 			{
 				// <7k + 3s
-				skp->Text( 81, 23, "5", 1 );
-				skp->Text( 159, 23, "5", 1 );
+				skp->Text( 151, 31, "5", 1 );
+				skp->Text( 151, 283, "5", 1 );
 
-				skp->Text( 187, 50, "5", 1 );
-				skp->Text( 187, 129, "5", 1 );
+				skp->SetTextAlign( oapi::Sketchpad::LEFT );
+				//skp->Text( 151, 31, "5", 1 );
+				skp->Text( 327, 31, "5", 1 );
 
-				skp->Text( 81, 159, "5", 1 );
-				skp->Text( 159, 159, "5", 1 );
+				skp->Text( 356, 65, "5", 1 );
+				skp->Text( 356, 251, "5", 1 );
 
-				skp->SetFont( skpTahomaFont_h7w3 );
+				//skp->Text( 151, 283, "5", 1 );
+				skp->Text( 327, 283, "5", 1 );
+
 				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 121, 19, "0", 1 );
-				skp->Text( 192, 91, "0", 1 );
-				skp->Text( 121, 164, "0", 1 );
-				skp->SetFont( skpTahomaFont_h10w4 );
+				skp->Text( 236, 18, "0", 1 );
+				skp->Text( 375, 159, "0", 1 );
+				skp->Text( 236, 298, "0", 1 );
 
-				if (roll > 5) pos_roll = 157;
-				else if (roll < -5) pos_roll = 87;
-				else pos_roll = 122 + Round( roll * 7 );
+				if (roll > 5) pos_roll = 324;
+				else if (roll < -5) pos_roll = 154;
+				else pos_roll = 239 + Round( roll * 17 );
 
-				if (pitch > 5) pos_pitch = 129;
-				else if (pitch < -5) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 7 );
+				if (pitch > 5) pos_pitch = 250;
+				else if (pitch < -5) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 17 );
 
-				if (yaw > 5) pos_yaw = 157;
-				else if (yaw < -5) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 7 );
+				if (yaw > 5) pos_yaw = 324;
+				else if (yaw < -5) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 17 );
 			}
 			else if (Altitude_ft < 7000)
 			{
@@ -2584,29 +2767,30 @@ namespace vc
 				// blank
 				// alt err +/-1k
 				// y-runway position err +/-1k
-				skp->Text( 187, 50, "1K", 2 );
-				skp->Text( 187, 129, "1K", 2 );
+				skp->Text( 151, 283, "1K", 2 );
 
-				skp->Text( 78, 159, "1K", 2 );
-				skp->Text( 158, 159, "1K", 2 );
+				skp->SetTextAlign( oapi::Sketchpad::LEFT );
+				skp->Text( 356, 65, "1K", 2 );
+				skp->Text( 356, 251, "1K", 2 );
 
-				skp->SetFont( skpTahomaFont_h7w3 );
+				//skp->Text( 151, 283, "1K", 2 );
+				skp->Text( 327, 283, "1K", 2 );
+
 				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 192, 91, "0", 1 );
-				skp->Text( 121, 164, "0", 1 );
-				skp->SetFont( skpTahomaFont_h10w4 );
+				skp->Text( 375, 159, "0", 1 );
+				skp->Text( 236, 298, "0", 1 );
 
 				pos_roll = 0;
 				pitch = GetIDP()->GetGlideSlopeDistance();
 				yaw = -GetIDP()->GetYRunwayPositionError();
 
-				if (pitch > 1000) pos_pitch = 129;
-				else if (pitch < -1000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.035 );
+				if (pitch > 1000) pos_pitch = 250;
+				else if (pitch < -1000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.085 );
 
-				if (yaw > 1000) pos_yaw = 157;
-				else if (yaw < -1000) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 0.035 );
+				if (yaw > 1000) pos_yaw = 324;
+				else if (yaw < -1000) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 0.085 );
 			}
 			else if (GetIDP()->GetOnHACState() == true)
 			{
@@ -2614,29 +2798,30 @@ namespace vc
 				// blank
 				// alt err +/-5k
 				// HAC x-range err +/-5k
-				skp->Text( 187, 50, "5K", 2 );
-				skp->Text( 187, 129, "5K", 2 );
+				skp->Text( 151, 283, "5K", 2 );
 
-				skp->Text( 78, 159, "5K", 2 );
-				skp->Text( 158, 159, "5K", 2 );
+				skp->SetTextAlign( oapi::Sketchpad::LEFT );
+				skp->Text( 356, 65, "5K", 2 );
+				skp->Text( 356, 251, "5K", 2 );
 
-				skp->SetFont( skpTahomaFont_h7w3 );
+				//skp->Text( 151, 283, "5K", 2 );
+				skp->Text( 327, 283, "5K", 2 );
+
 				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 192, 91, "0", 1 );
-				skp->Text( 121, 164, "0", 1 );
-				skp->SetFont( skpTahomaFont_h10w4 );
+				skp->Text( 375, 159, "0", 1 );
+				skp->Text( 236, 298, "0", 1 );
 
 				pos_roll = 0;
 				pitch = 0;// TODO get alt error (ft)
 				yaw = GetIDP()->GetHACRadialError();
 
-				if (pitch > 5000) pos_pitch = 129;
-				else if (pitch < -5000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.007 );
+				if (pitch > 5000) pos_pitch = 250;
+				else if (pitch < -5000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.017 );
 
-				if (yaw > 5000) pos_yaw = 157;
-				else if (yaw < -5000) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 0.007 );
+				if (yaw > 5000) pos_yaw = 324;
+				else if (yaw < -5000) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 0.017 );
 			}
 			else
 			{
@@ -2645,78 +2830,85 @@ namespace vc
 				// alt err +/-5k
 				// heading err +/-5º
 				// (roll scale output is below)
+				skp->Text( 151, 283, "5", 1 );
 
-				skp->Text( 187, 50, "5K", 2 );
-				skp->Text( 187, 129, "5K", 2 );
+				skp->SetTextAlign( oapi::Sketchpad::LEFT );
+				skp->Text( 356, 65, "5K", 2 );
+				skp->Text( 356, 251, "5K", 2 );
 
-				skp->Text( 81, 159, "5", 1 );
-				skp->Text( 159, 159, "5", 1 );
+				//skp->Text( 151, 283, "5", 1 );
+				skp->Text( 327, 283, "5", 1 );
 
-				skp->SetFont( skpTahomaFont_h7w3 );
 				skp->SetTextColor( CR_LIGHT_GRAY );
-				skp->Text( 192, 91, "0", 1 );
-				skp->Text( 121, 164, "0", 1 );
-				skp->SetFont( skpTahomaFont_h10w4 );
+				skp->Text( 375, 159, "0", 1 );
+				skp->Text( 236, 298, "0", 1 );
 
 				roll = ceil( GetIDP()->GetTimeToHAC() );
 				pitch = 0;// TODO get alt error (ft)
 				yaw = 0;// TODO get heading error (deg)
 
+				skp->SetTextColor( CR_WHITE );
 				if (roll > 0)
 				{
-					skp->Text( 74, 23, "10s", 3 );
-					skp->Text( 159, 23, "0", 1 );
-					if (roll >= 10) pos_roll = 87;
-					else pos_roll = 157 - Round( roll * 7 );
+					skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+					skp->Text( 151, 31, "10s", 3 );
+					skp->SetTextAlign( oapi::Sketchpad::LEFT );
+					skp->Text( 327, 31, "0", 1 );
+					if (roll >= 10) pos_roll = 154;
+					else pos_roll = 324 - Round( roll * 17 );
 				}
 				else if (roll < 0)
 				{
-					skp->Text( 81, 23, "0", 1 );
-					skp->Text( 159, 23, "10s", 3 );
-					if (roll <= -10) pos_roll = 157;
-					else pos_roll = 87 - Round( roll * 7 );
+					skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+					skp->Text( 151, 31, "0", 1 );
+					skp->SetTextAlign( oapi::Sketchpad::LEFT );
+					skp->Text( 327, 31, "10s", 3 );
+					if (roll <= -10) pos_roll = 324;
+					else pos_roll = 154 - Round( roll * 17 );
 				}
 				else pos_roll = 0;
 
-				if (pitch > 5000) pos_pitch = 129;
-				else if (pitch < -5000) pos_pitch = 59;
-				else pos_pitch = 94 + Round( pitch * 0.007 );
+				if (pitch > 5000) pos_pitch = 250;
+				else if (pitch < -5000) pos_pitch = 80;
+				else pos_pitch = 165 + Round( pitch * 0.017 );
 
-				if (yaw > 5) pos_yaw = 157;
-				else if (yaw < -5) pos_yaw = 87;
-				else pos_yaw = 122 + Round( yaw * 7 );
+				if (yaw > 5) pos_yaw = 324;
+				else if (yaw < -5) pos_yaw = 154;
+				else pos_yaw = 239 + Round( yaw * 17 );
 			}
 		}
 		else
 		{
 			// ADI RATE HIGH/LOW
-			skp->Text( 81, 23, "5", 1 );
-			skp->Text( 159, 23, "5", 1 );
+			skp->Text( 151, 31, "5", 1 );
+			skp->Text( 151, 283, "5", 1 );
 
-			skp->Text( 187, 50, "5", 1 );
-			skp->Text( 187, 129, "5", 1 );
+			skp->SetTextAlign( oapi::Sketchpad::LEFT );
+			//skp->Text( 151, 31, "5", 1 );
+			skp->Text( 327, 31, "5", 1 );
 
-			skp->Text( 81, 159, "5", 1 );
-			skp->Text( 159, 159, "5", 1 );
+			skp->Text( 356, 65, "5", 1 );
+			skp->Text( 356, 251, "5", 1 );
 
-			skp->SetFont( skpTahomaFont_h7w3 );
+			//skp->Text( 151, 283, "5", 1 );
+			skp->Text( 327, 283, "5", 1 );
+
 			skp->SetTextColor( CR_LIGHT_GRAY );
-			skp->Text( 121, 19, "0", 1 );
-			skp->Text( 192, 91, "0", 1 );
-			skp->Text( 121, 164, "0", 1 );
-			skp->SetFont( skpTahomaFont_h10w4 );
+			skp->Text( 236, 18, "0", 1 );
+			skp->Text( 375, 159, "0", 1 );
+			skp->Text( 236, 298, "0", 1 );
 
-			if (roll > 5) pos_roll = 157;
-			else if (roll < -5) pos_roll = 87;
-			else pos_roll = 122 + Round( roll * 7 );
+			if (roll > 5) pos_roll = 324;
+			else if (roll < -5) pos_roll = 154;
+			else pos_roll = 239 + Round( roll * 17 );
 
-			if (pitch > 5) pos_pitch = 129;
-			else if (pitch < -5) pos_pitch = 59;
-			else pos_pitch = 94 + Round( pitch * 7 );
+			if (pitch > 5) pos_pitch = 250;
+			else if (pitch < -5) pos_pitch = 80;
+			else pos_pitch = 165 + Round( pitch * 17 );
 
-			if (yaw > 5) pos_yaw = 157;
-			else if (yaw < -5) pos_yaw = 87;
-			else pos_yaw = 122 + Round( yaw * 7 );
+			if (yaw > 5) pos_yaw = 324;
+			else if (yaw < -5) pos_yaw = 154;
+			else pos_yaw = 239 + Round( yaw * 17 );
 		}
 		
 		// draw triangles
@@ -2726,31 +2918,31 @@ namespace vc
 		if (pos_roll != 0)
 		{
 			tri[0].x = pos_roll;
-			tri[0].y = 27;
-			tri[1].x = tri[0].x + 5;
-			tri[1].y = 19;
-			tri[2].x = tri[0].x - 5;
-			tri[2].y = 19;
+			tri[0].y = 34;
+			tri[1].x = tri[0].x + 10;
+			tri[1].y = 18;
+			tri[2].x = tri[0].x - 10;
+			tri[2].y = 18;
 			skp->Polygon( tri, 3 );
 		}
 		if (pos_pitch != 0)
 		{
-			tri[0].x = 190;
+			tri[0].x = 370;
 			tri[0].y = pos_pitch;
-			tri[1].x = 198;
-			tri[1].y = tri[0].y - 5;
-			tri[2].x = 198;
-			tri[2].y = tri[0].y + 5;
+			tri[1].x = 386;
+			tri[1].y = tri[0].y - 10;
+			tri[2].x = 386;
+			tri[2].y = tri[0].y + 10;
 			skp->Polygon( tri, 3 );
 		}
 		if (pos_yaw != 0)
 		{
 			tri[0].x = pos_yaw;
-			tri[0].y = 163;
-			tri[1].x = tri[0].x - 5;
-			tri[1].y = 171;
-			tri[2].x = tri[0].x + 5;
-			tri[2].y = 171;
+			tri[0].y = 296;
+			tri[1].x = tri[0].x - 10;
+			tri[1].y = 312;
+			tri[2].x = tri[0].x + 10;
+			tri[2].y = 312;
 			skp->Polygon( tri, 3 );
 		}
 		return;
@@ -3288,13 +3480,14 @@ namespace vc
 		SelectObject( hDC, gdiBlackBrush );
 		::Ellipse( hDC, 134, 331, 344, 541 );// r = 105
 
-		SelectObject( hDC, gdiCyanPen );
 		MoveToEx( hDC, 134, 436, NULL );
 		LineTo( hDC, 128, 436 );
 		MoveToEx( hDC, 165, 362, NULL );
 		LineTo( hDC, 159, 356 );
-		MoveToEx( hDC, 239, 341, NULL );
-		LineTo( hDC, 239, 325 );
+		MoveToEx( hDC, 238, 341, NULL );
+		LineTo( hDC, 238, 325 );
+		MoveToEx( hDC, 240, 341, NULL );
+		LineTo( hDC, 240, 325 );
 		MoveToEx( hDC, 313, 362, NULL );
 		LineTo( hDC, 319, 356 );
 		MoveToEx( hDC, 344, 436, NULL );
@@ -3394,7 +3587,7 @@ namespace vc
 		// "delete" bottom area where the menu will be
 		SelectObject( hDC, gdiBlackBrush );
 		SelectObject( hDC, gdiBlackPen );
-		Rectangle( hDC, 134, 452, 344, 512 );
+		Rectangle( hDC, 134, 456, 344, 512 );
 		return;
 	}
 
@@ -3406,10 +3599,10 @@ namespace vc
 		skp->SetBrush( skpBlackBrush );
 		skp->Ellipse( 134, 331, 344, 541 );// r = 105
 
-		skp->SetPen( skpCyanPen );
 		skp->Line( 134, 436, 128, 436 );
 		skp->Line( 165, 362, 159, 356 );
-		skp->Line( 239, 341, 239, 325 );
+		skp->Line( 238, 341, 238, 325 );
+		skp->Line( 240, 341, 240, 325 );
 		skp->Line( 313, 362, 319, 356 );
 		skp->Line( 344, 436, 350, 436 );
 
@@ -3493,7 +3686,7 @@ namespace vc
 		// "delete" bottom area where the menu will be
 		skp->SetBrush( skpBlackBrush );
 		skp->SetPen( skpBlackPen );
-		skp->Rectangle( 134, 452, 344, 512 );
+		skp->Rectangle( 134, 456, 344, 512 );
 		return;
 	}
 
@@ -3504,13 +3697,14 @@ namespace vc
 		SelectObject( hDC, gdiBlackBrush );
 		::Ellipse( hDC, 134, 331, 344, 541 );// r = 105
 
-		SelectObject( hDC, gdiCyanPen );
 		MoveToEx( hDC, 134, 436, NULL );
 		LineTo( hDC, 128, 436 );
 		MoveToEx( hDC, 165, 362, NULL );
 		LineTo( hDC, 159, 356 );
-		MoveToEx( hDC, 239, 341, NULL );
-		LineTo( hDC, 239, 325 );
+		MoveToEx( hDC, 238, 341, NULL );
+		LineTo( hDC, 238, 325 );
+		MoveToEx( hDC, 240, 341, NULL );
+		LineTo( hDC, 240, 325 );
 		MoveToEx( hDC, 313, 362, NULL );
 		LineTo( hDC, 319, 356 );
 		MoveToEx( hDC, 344, 436, NULL );
@@ -3621,7 +3815,7 @@ namespace vc
 		// "delete" bottom area where the menu will be
 		SelectObject( hDC, gdiBlackBrush );
 		SelectObject( hDC, gdiBlackPen );
-		Rectangle( hDC, 134, 452, 344, 512 );
+		Rectangle( hDC, 134, 456, 344, 512 );
 		return;
 	}
 
@@ -3632,10 +3826,10 @@ namespace vc
 		skp->SetBrush( skpBlackBrush );
 		skp->Ellipse( 134, 331, 344, 541 );// r = 105
 
-		skp->SetPen( skpCyanPen );
 		skp->Line( 134, 436, 128, 436 );
 		skp->Line( 165, 362, 159, 356 );
-		skp->Line( 239, 341, 239, 325 );
+		skp->Line( 238, 341, 238, 325 );
+		skp->Line( 240, 341, 240, 325 );
 		skp->Line( 313, 362, 319, 356 );
 		skp->Line( 344, 436, 350, 436 );
 
@@ -3731,7 +3925,7 @@ namespace vc
 		// "delete" bottom area where the menu will be
 		skp->SetBrush( skpBlackBrush );
 		skp->SetPen( skpBlackPen );
-		skp->Rectangle( 134, 452, 344, 512 );
+		skp->Rectangle( 134, 456, 344, 512 );
 		return;
 	}
 
@@ -3824,10 +4018,10 @@ namespace vc
 		dotR_Y = 436 + Round( 20 * sinH );
 		dotRR_X = 239 + Round( 40 * cosH );
 		dotRR_Y = 436 + Round( 40 * sinH );
-		skp->Ellipse( dotLL_X - 2, dotLL_Y - 2, dotLL_X + 2, dotLL_Y + 2 );
-		skp->Ellipse( dotL_X - 2, dotL_Y - 2, dotL_X + 2, dotL_Y + 2 );
-		skp->Ellipse( dotR_X - 2, dotR_Y - 2, dotR_X + 2, dotR_Y + 2 );
-		skp->Ellipse( dotRR_X - 2, dotRR_Y - 2, dotRR_X + 2, dotRR_Y + 2 );
+		skp->Ellipse( dotLL_X - 5, dotLL_Y - 5, dotLL_X + 5, dotLL_Y + 5 );
+		skp->Ellipse( dotL_X - 5, dotL_Y - 5, dotL_X + 5, dotL_Y + 5 );
+		skp->Ellipse( dotR_X - 5, dotR_Y - 5, dotR_X + 5, dotR_Y + 5 );
+		skp->Ellipse( dotRR_X - 5, dotRR_Y - 5, dotRR_X + 5, dotRR_Y + 5 );
 
 		skp->SetBrush( skpMagentaBrush );
 		skp->SetPen( skpBlackPen );
@@ -3870,22 +4064,22 @@ namespace vc
 	{
 		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 40, 6, "DAP:", 4 );
+		TextOut( hDC, 40, 3, "DAP:", 4 );
 
-		TextOut( hDC, 413, 6, "MM:", 3 );
+		TextOut( hDC, 413, 3, "MM:", 3 );
 		
-		TextOut( hDC, 22, 21, "Throt:", 6 );
+		TextOut( hDC, 22, 18, "Throt:", 6 );
 
-		TextOut( hDC, 404, 21, "ATT:", 4 );
+		TextOut( hDC, 404, 18, "ATT:", 4 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (1) TextOut( hDC, 85, 6, "Auto", 4 );// TODO get AscentDAP state
+		if (1) TextOut( hDC, 85, 3, "Auto", 4 );// TODO get AscentDAP state
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
 			Rectangle( hDC, 16, 4, 132, 20 );
-			TextOut( hDC, 85, 6, "CSS", 3 );
+			TextOut( hDC, 85, 3, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -3894,20 +4088,20 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 85, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 85, 18, "Auto", 4 );
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 16, 19, 132, 35 );
-			TextOut( hDC, 85, 21, "MAN", 3 );
+			Rectangle( hDC, 16, 16, 132, 32 );
+			TextOut( hDC, 85, 18, "MAN", 3 );
 		}
 
-		if (adiatt == 2) TextOut( hDC, 449, 21, "Inrtl", 5 );
-		else if (adiatt == 1) TextOut( hDC, 449, 21, "LVLH", 4 );
-		else TextOut( hDC, 449, 21, "Ref", 3 );
+		if (adiatt == 2) TextOut( hDC, 449, 18, "Inrtl", 5 );
+		else if (adiatt == 1) TextOut( hDC, 449, 18, "LVLH", 4 );
+		else TextOut( hDC, 449, 18, "Ref", 3 );
 		return;
 	}
 
@@ -3915,22 +4109,22 @@ namespace vc
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 40, 6, "DAP:", 4 );
+		skp->Text( 40, 3, "DAP:", 4 );
 
-		skp->Text( 413, 6, "MM:", 3 );
+		skp->Text( 413, 3, "MM:", 3 );
 		
-		skp->Text( 22, 21, "Throt:", 6 );
+		skp->Text( 22, 18, "Throt:", 6 );
 
-		skp->Text( 404, 21, "ATT:", 4 );
+		skp->Text( 404, 18, "ATT:", 4 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (1) skp->Text( 85, 6, "Auto", 4 );// TODO get AscentDAP state
+		if (1) skp->Text( 85, 3, "Auto", 4 );// TODO get AscentDAP state
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
 			skp->Rectangle( 16, 4, 132, 20 );
-			skp->Text( 85, 6, "CSS", 3 );
+			skp->Text( 85, 3, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -3939,9 +4133,9 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
+		skp->Text( 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 85, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 85, 18, "Auto", 4 );
 		else
 		{
 			skp->SetPen( skpYellowPen );
@@ -3950,55 +4144,65 @@ namespace vc
 			skp->Text( 85, 21, "MAN", 3 );
 		}
 
-		if (adiatt == 2) skp->Text( 449, 21, "Inrtl", 5 );
-		else if (adiatt == 1) skp->Text( 449, 21, "LVLH", 4 );
-		else skp->Text( 449, 21, "Ref", 3 );
+		if (adiatt == 2) skp->Text( 449, 18, "Inrtl", 5 );
+		else if (adiatt == 1) skp->Text( 449, 18, "LVLH", 4 );
+		else skp->Text( 449, 18, "Ref", 3 );
 		return;
 	}
 
 	void MDU::AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt )
 	{
-		char cbuf[4];
+		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 40, 6, "DAP:", 4 );
+		TextOut( hDC, 40, 3, "DAP:", 4 );
 
-		TextOut( hDC, 413, 6, "MM:", 3 );
+		TextOut( hDC, 413, 3, "MM:", 3 );
 
-		TextOut( hDC, 404, 21, "ATT:", 4 );
+		TextOut( hDC, 404, 18, "ATT:", 4 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (1) TextOut( hDC, 85, 6, "Auto", 4 );// TODO get TransDAP state
-		else TextOut( hDC, 85, 6, "INRTL", 5 );
+		if (1) TextOut( hDC, 85, 3, "Auto", 4 );// TODO get TransDAP state
+		else TextOut( hDC, 85, 3, "INRTL", 5 );
 
-		sprintf_s( cbuf, 4, "%d", MM );
-		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
+		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
+		else if (0) sprintf_s( cbuf, 8, "%dT", MM );// TAL
+		else if (0) sprintf_s( cbuf, 8, "%dATO", MM );// ATO
+		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
+		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
+		else sprintf_s( cbuf, 8, "%d", MM );// NOM
+		TextOut( hDC, 449, 3, cbuf, strlen( cbuf ) );
 
-		if (adiatt == 2) TextOut( hDC, 449, 21, "Inrtl", 5 );
-		else if (adiatt == 1) TextOut( hDC, 449, 21, "LVLH", 4 );
-		else TextOut( hDC, 449, 21, "Ref", 3 );
+		if (adiatt == 2) TextOut( hDC, 449, 18, "Inrtl", 5 );
+		else if (adiatt == 1) TextOut( hDC, 449, 18, "LVLH", 4 );
+		else TextOut( hDC, 449, 18, "Ref", 3 );
 		return;
 	}
 
 	void MDU::AEPFD_Header_TransDAP( oapi::Sketchpad2* skp, int MM, int adiatt )
 	{
-		char cbuf[4];
+		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 40, 6, "DAP:", 4 );
+		skp->Text( 40, 3, "DAP:", 4 );
 
-		skp->Text( 413, 6, "MM:", 3 );
+		skp->Text( 413, 3, "MM:", 3 );
 
-		skp->Text( 404, 21, "ATT:", 4 );
+		skp->Text( 404, 18, "ATT:", 4 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (1) skp->Text( 85, 6, "Auto", 4 );// TODO get TransDAP state
-		else skp->Text( 85, 6, "INRTL", 5 );
+		if (1) skp->Text( 85, 3, "Auto", 4 );// TODO get TransDAP state
+		else skp->Text( 85, 3, "INRTL", 5 );
 
-		sprintf_s( cbuf, 4, "%d", MM );
-		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
+		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
+		else if (0) sprintf_s( cbuf, 8, "%dT", MM );// TAL
+		else if (0) sprintf_s( cbuf, 8, "%dATO", MM );// ATO
+		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
+		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
+		else sprintf_s( cbuf, 8, "%d", MM );// NOM
+		skp->Text( 449, 3, cbuf, strlen( cbuf ) );
 
-		if (adiatt == 2) skp->Text( 449, 21, "Inrtl", 5 );
-		else if (adiatt == 1) skp->Text( 449, 21, "LVLH", 4 );
-		else skp->Text( 449, 21, "Ref", 3 );
+		if (adiatt == 2) skp->Text( 449, 18, "Inrtl", 5 );
+		else if (adiatt == 1) skp->Text( 449, 18, "LVLH", 4 );
+		else skp->Text( 449, 18, "Ref", 3 );
 		return;
 	}
 
@@ -4006,37 +4210,37 @@ namespace vc
 	{
 		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 30, 6, "Pitch:", 6 );
+		TextOut( hDC, 22, 3, "Pitch:", 6 );
 
-		TextOut( hDC, 42, 21, "R/Y:", 4 );
+		TextOut( hDC, 40, 18, "R/Y:", 4 );
 
-		TextOut( hDC, 413, 6, "MM:", 3 );
+		TextOut( hDC, 413, 3, "MM:", 3 );
 
-		TextOut( hDC, 413, 21, "SB:", 3 );
+		TextOut( hDC, 413, 18, "SB:", 3 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (GetIDP()->GetAutoPitchState() == true) TextOut( hDC, 85, 6, "Auto", 4 );
+		if (GetIDP()->GetAutoPitchState() == true) TextOut( hDC, 85, 3, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-				Rectangle( hDC, 16, 4, 132, 20 );
+				Rectangle( hDC, 16, 1, 132, 17 );
 			}
-			TextOut( hDC, 85, 6, "CSS", 3 );
+			TextOut( hDC, 85, 3, "CSS", 3 );
 		}
 
-		if (GetIDP()->GetAutoRollYawState() == true) TextOut( hDC, 85, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoRollYawState() == true) TextOut( hDC, 85, 18, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-				Rectangle( hDC, 16, 19, 132, 35 );
+				Rectangle( hDC, 16, 16, 132, 32 );
 			}
-			TextOut( hDC, 85, 21, "CSS", 3 );
+			TextOut( hDC, 85, 18, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -4045,15 +4249,15 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		TextOut( hDC, 449, 6, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoSpeedbrakeState() == true) TextOut( hDC, 449, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoSpeedbrakeState() == true) TextOut( hDC, 449, 18, "Auto", 4 );
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 400, 19, 500, 35 );
-			TextOut( hDC, 449, 21, "MAN", 3 );
+			Rectangle( hDC, 400, 16, 500, 32 );
+			TextOut( hDC, 449, 18, "MAN", 3 );
 		}
 		return;
 	}
@@ -4062,37 +4266,37 @@ namespace vc
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 30, 6, "Pitch:", 6 );
+		skp->Text( 22, 3, "Pitch:", 6 );
 
-		skp->Text( 42, 21, "R/Y:", 4 );
+		skp->Text( 40, 18, "R/Y:", 4 );
 
-		skp->Text( 413, 6, "MM:", 3 );
+		skp->Text( 413, 3, "MM:", 3 );
 
-		skp->Text( 413, 21, "SB:", 3 );
+		skp->Text( 413, 18, "SB:", 3 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (GetIDP()->GetAutoPitchState() == true) skp->Text( 85, 6, "Auto", 4 );
+		if (GetIDP()->GetAutoPitchState() == true) skp->Text( 85, 3, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );
-				skp->Rectangle( 16, 4, 132, 20 );
+				skp->Rectangle( 16, 1, 132, 17 );
 			}
-			skp->Text( 85, 6, "CSS", 3 );
+			skp->Text( 85, 3, "CSS", 3 );
 		}
 
-		if (GetIDP()->GetAutoRollYawState() == true) skp->Text( 85, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoRollYawState() == true) skp->Text( 85, 18, "Auto", 4 );
 		else
 		{
 			if (MachNumber > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );
-				skp->Rectangle( 16, 19, 132, 35 );
+				skp->Rectangle( 16, 16, 132, 32 );
 			}
-			skp->Text( 85, 21, "CSS", 3 );
+			skp->Text( 85, 18, "CSS", 3 );
 		}
 
 		if (0) sprintf_s( cbuf, 8, "%dR", MM );// RTLS
@@ -4101,52 +4305,66 @@ namespace vc
 		else if (0) sprintf_s( cbuf, 8, "%dAOA", MM );// AOA
 		else if (0) sprintf_s( cbuf, 8, "%dCA", MM );// CA
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
-		skp->Text( 449, 6, cbuf, strlen( cbuf ) );
+		skp->Text( 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoSpeedbrakeState() == true) skp->Text( 449, 21, "Auto", 4 );
+		if (GetIDP()->GetAutoSpeedbrakeState() == true) skp->Text( 449, 18, "Auto", 4 );
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
-			skp->Rectangle( 400, 19, 500, 35 );
-			skp->Text( 449, 21, "MAN", 3 );
+			skp->Rectangle( 400, 16, 500, 32 );
+			skp->Text( 449, 18, "MAN", 3 );
 		}
 		return;
 	}
 
 	void MDU::AEPFD_BETA( HDC hDC )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 37, 159, 60, 171 );
-		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 41, 172, "Beta", 4 );
+		Rectangle( hDC, 68, 285, 118, 309 );
 
-		double beta = STS()->GetSlipAngle() * DEG;
-		char side = 'R';
-		if (beta < 0) side = 'L';
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
+		SetTextColor( hDC, CR_LIGHT_GRAY );
+		TextOut( hDC, 74, 315, "Beta", 4 );
+
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_WHITE );
+		double beta = STS()->GetSlipAngle() * DEG;
+		if (beta < 0) TextOut( hDC, 70, 290, "L", 1 );
+		else TextOut( hDC, 70, 290, "R", 1 );
+		
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
+		SetTextAlign( hDC, TA_RIGHT );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%c%04.1f", side, fabs( beta ) );
-		TextOut( hDC, 39, 160, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%4.1f", fabs( beta ) );
+		TextOut( hDC, 115, 286, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
 
 	void MDU::AEPFD_BETA( oapi::Sketchpad2* skp )
 	{
-		skp->SetPen( skpDarkGrayPen );
+		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 37, 159, 60, 171 );
-		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 41, 172, "Beta", 4 );
+		skp->Rectangle( 68, 285, 118, 309 );
 
-		double beta = STS()->GetSlipAngle() * DEG;
-		char side = 'R';
-		if (beta < 0) side = 'L';
+		skp->SetFont( skpSSUAFont_h11 );
+		skp->SetTextColor( CR_LIGHT_GRAY );
+		skp->Text( 74, 315, "Beta", 4 );
+
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_WHITE );
+		double beta = STS()->GetSlipAngle() * DEG;
+		if (beta < 0) skp->Text( 70, 290, "L", 1 );
+		else skp->Text( 70, 290, "R", 1 );
+		
+		skp->SetFont( skpSSUBFont_h18 );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%c%04.1f", side, fabs( beta ) );
-		skp->Text( 39, 160, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%4.1f", fabs( beta ) );
+		skp->Text( 115, 286, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
@@ -4171,12 +4389,15 @@ namespace vc
 		MoveToEx( hDC, 95, 420, NULL );
 		LineTo( hDC, 100, 425 );
 
-		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
+		TextOut( hDC, 112, 373, "g", 1 );
+
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		TextOut( hDC, 27, 346, "3", 1 );
 		TextOut( hDC, 12, 387, "2", 1 );
 		TextOut( hDC, 27, 424, "1", 1 );
-		TextOut( hDC, 66, 438, "0", 1 );
+		TextOut( hDC, 66, 439, "0", 1 );
 		TextOut( hDC, 100, 427, "-1", 2 );
 		return;
 	}
@@ -4187,8 +4408,9 @@ namespace vc
 		skp->SetBrush( skpBlackBrush );
 		skp->Ellipse( 31, 356, 107, 432 );
 		skp->SetPen( skpBlackPen );
-		skp->Rectangle( 69, 356, 107, 421 );// cover part of the circle to get an arc because sketchpad doesn't have Arc()
+		skp->Rectangle( 69, 356, 108, 421 );// cover part of the circle to get an arc because sketchpad doesn't have Arc()
 
+		skp->SetPen( skpLightGrayPen );
 		skp->Rectangle( 75, 366, 123, 390 );
 		
 		skp->Line( 69, 356, 69, 351 );
@@ -4198,12 +4420,15 @@ namespace vc
 		skp->Line( 69, 432, 69, 437 );
 		skp->Line( 95, 420, 100, 425 );
 
-		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
+		skp->SetFont( skpSSUAFont_h11 );
+		skp->Text( 112, 373, "g", 1 );
+
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->Text( 27, 346, "3", 1 );
 		skp->Text( 12, 387, "2", 1 );
 		skp->Text( 27, 424, "1", 1 );
-		skp->Text( 66, 438, "0", 1 );
+		skp->Text( 66, 439, "0", 1 );
 		skp->Text( 100, 427, "-1", 2 );
 		return;
 	}
@@ -4220,8 +4445,10 @@ namespace vc
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%4.1f g", dtmp );
-		TextOut( hDC, 85, 367, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_RIGHT );
+		sprintf_s( cbuf, 8, "%.1f", dtmp );
+		TextOut( hDC, 111, 367, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
 
 		if (dtmp > 4) dtmp = 4;
 		else if (dtmp < -1) dtmp = -1;
@@ -4250,16 +4477,20 @@ namespace vc
 
 	void MDU::AEPFD_GMETER_ACCEL( oapi::Sketchpad2* skp )
 	{
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 43, 212, "Accel", 5 );
+		skp->Text( 83, 395, "Accel", 5 );
 		VECTOR3 f;
 		STS()->GetForceVector( f );
 		double dtmp = (f.z / (STS()->GetMass() * G)) + sin( STS()->GetPitch() );
 
+		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%4.1f g", dtmp );
-		skp->Text( 43, 200, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+		sprintf_s( cbuf, 8, "%.1f", dtmp );
+		skp->Text( 111, 367, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 
 		if (dtmp > 4) dtmp = 4;
 		else if (dtmp < -1) dtmp = -1;
@@ -4267,34 +4498,38 @@ namespace vc
 
 		double cosdtmp = cos( dtmp );
 		double sindtmp = sin( dtmp );
-		// center (34.217)
+		// center (69,394)
 		oapi::IVECTOR2 arrow[3];
-		arrow[0].x = 34 - Round( 23 * cosdtmp );
-		arrow[0].y = 217 - Round( 23 * sindtmp );
-		arrow[1].x = 34 - Round( (17 * cosdtmp) + (4 * sindtmp) );
-		arrow[1].y = 217 - Round( (17 * sindtmp) - (4 * cosdtmp) );
-		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
-		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
+		arrow[0].x = 69 - Round( 33 * cosdtmp );
+		arrow[0].y = 394 - Round( 33 * sindtmp );
+		arrow[1].x = 69 - Round( (22 * cosdtmp) + (6 * sindtmp) );
+		arrow[1].y = 394 - Round( (22 * sindtmp) - (6 * cosdtmp) );
+		arrow[2].x = 69 - Round( (22 * cosdtmp) - (6 * sindtmp) );
+		arrow[2].y = 394 - Round( (22 * sindtmp) + (6 * cosdtmp) );
 
 		skp->SetPen( skpLightGreenPen );
 		skp->SetBrush( skpLightGreenBrush );
 		skp->Polygon( arrow, 3 );
 
 		skp->SetPen( skpLightGreenThickPen );
-		skp->Line( 34, 217, arrow[0].x, arrow[0].y );
+		skp->Line( 69, 394, 69 - Round( 31 * cosdtmp ), 394 - Round( 31 * sindtmp ) );
 		return;
 	}
 
 	void MDU::AEPFD_GMETER_NZ( HDC hDC )
 	{
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 43, 212, "Nz", 2 );
+		TextOut( hDC, 91, 395, "Nz", 2 );
 		double dtmp = GetIDP()->GetNZ();
 
+		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%4.1f g", dtmp );
-		TextOut( hDC, 43, 200, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_RIGHT );
+		sprintf_s( cbuf, 8, "%.1f", dtmp );
+		TextOut( hDC, 111, 367, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
 
 		if (dtmp > 4) dtmp = 4;
 		else if (dtmp < -1) dtmp = -1;
@@ -4302,35 +4537,39 @@ namespace vc
 
 		double cosdtmp = cos( dtmp );
 		double sindtmp = sin( dtmp );
-		// center (34.217)
+		// center (69,394)
 		POINT arrow[3];
-		arrow[0].x = 34 - Round( 23 * cosdtmp );
-		arrow[0].y = 217 - Round( 23 * sindtmp );
-		arrow[1].x = 34 - Round( (17 * cosdtmp) + (4 * sindtmp) );
-		arrow[1].y = 217 - Round( (17 * sindtmp) - (4 * cosdtmp) );
-		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
-		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
+		arrow[0].x = 69 - Round( 33 * cosdtmp );
+		arrow[0].y = 394 - Round( 33 * sindtmp );
+		arrow[1].x = 69 - Round( (22 * cosdtmp) + (6 * sindtmp) );
+		arrow[1].y = 394 - Round( (22 * sindtmp) - (6 * cosdtmp) );
+		arrow[2].x = 69 - Round( (22 * cosdtmp) - (6 * sindtmp) );
+		arrow[2].y = 394 - Round( (22 * sindtmp) + (6 * cosdtmp) );
 
 		SelectObject( hDC, gdiLightGreenPen );
 		SelectObject( hDC, gdiLightGreenBrush );
 		Polygon( hDC, arrow, 3 );
 
 		SelectObject( hDC, gdiLightGreenThickPen );
-		MoveToEx( hDC, 34, 217, NULL );
-		LineTo( hDC, arrow[0].x, arrow[0].y );
+		MoveToEx( hDC, 69, 394, NULL );
+		LineTo( hDC, 69 - Round( 31 * cosdtmp ), 394 - Round( 31 * sindtmp ) );
 		return;
 	}
 
 	void MDU::AEPFD_GMETER_NZ( oapi::Sketchpad2* skp )
 	{
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 43, 212, "Nz", 2 );
+		skp->Text( 91, 395, "Nz", 2 );
 		double dtmp = GetIDP()->GetNZ();
 
+		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		char cbuf[8];
-		sprintf_s( cbuf, 8, "%4.1f g", dtmp );
-		skp->Text( 43, 200, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
+		sprintf_s( cbuf, 8, "%.1f", dtmp );
+		skp->Text( 111, 367, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 
 		if (dtmp > 4) dtmp = 4;
 		else if (dtmp < -1) dtmp = -1;
@@ -4340,75 +4579,76 @@ namespace vc
 		double sindtmp = sin( dtmp );
 		// center (34.217)
 		oapi::IVECTOR2 arrow[3];
-		arrow[0].x = 34 - Round( 23 * cosdtmp );
-		arrow[0].y = 217 - Round( 23 * sindtmp );
-		arrow[1].x = 34 - Round( (17 * cosdtmp) + (4 * sindtmp) );
-		arrow[1].y = 217 - Round( (17 * sindtmp) - (4 * cosdtmp) );
-		arrow[2].x = 34 - Round( (17 * cosdtmp) - (4 * sindtmp) );
-		arrow[2].y = 217 - Round( (17 * sindtmp) + (4 * cosdtmp) );
+		arrow[0].x = 69 - Round( 33 * cosdtmp );
+		arrow[0].y = 394 - Round( 33 * sindtmp );
+		arrow[1].x = 69 - Round( (22 * cosdtmp) + (6 * sindtmp) );
+		arrow[1].y = 394 - Round( (22 * sindtmp) - (6 * cosdtmp) );
+		arrow[2].x = 69 - Round( (22 * cosdtmp) - (6 * sindtmp) );
+		arrow[2].y = 394 - Round( (22 * sindtmp) + (6 * cosdtmp) );
 
 		skp->SetPen( skpLightGreenPen );
 		skp->SetBrush( skpLightGreenBrush );
 		skp->Polygon( arrow, 3 );
 
 		skp->SetPen( skpLightGreenThickPen );
-		skp->Line( 34, 217, arrow[0].x, arrow[0].y );
+		skp->Line( 69, 394, 69 - Round( 31 * cosdtmp ), 394 - Round( 31 * sindtmp ) );
 		return;
 	}
 
 	void MDU::AEPFD_HACCEL( HDC hDC )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
-		Rectangle( hDC, 234, 168, 241, 240 );
-		SelectObject( hDC, gdiWhiteBrush );
-		Rectangle( hDC, 234, 168, 241, 205 );
-		SelectObject( hDC, gdiLightGrayBrush );
 		SelectObject( hDC, gdiLightGrayPen );
-		Rectangle( hDC, 235, 204, 240, 239 );
-		SelectObject( hDC, gdiDarkGrayPen );
-		SelectObject( hDC, gdiBlackBrush );
-		MoveToEx( hDC, 241, 169, NULL );
-		LineTo( hDC, 244, 169 );
-		MoveToEx( hDC, 241, 176, NULL );
-		LineTo( hDC, 244, 176 );
-		MoveToEx( hDC, 241, 183, NULL );
-		LineTo( hDC, 244, 183 );
-		MoveToEx( hDC, 241, 190, NULL );
-		LineTo( hDC, 244, 190 );
-		MoveToEx( hDC, 241, 197, NULL );
-		LineTo( hDC, 244, 197 );
-		MoveToEx( hDC, 241, 204, NULL );
-		LineTo( hDC, 244, 204 );
-		MoveToEx( hDC, 241, 211, NULL );
-		LineTo( hDC, 244, 211 );
-		MoveToEx( hDC, 241, 218, NULL );
-		LineTo( hDC, 244, 218 );
-		MoveToEx( hDC, 241, 225, NULL );
-		LineTo( hDC, 244, 225 );
-		MoveToEx( hDC, 241, 232, NULL );
-		LineTo( hDC, 244, 232 );
-		MoveToEx( hDC, 241, 239, NULL );
-		LineTo( hDC, 244, 239 );
-		SetPixel( hDC, 236, 158, CR_LIGHT_GRAY );
-		SetPixel( hDC, 238, 158, CR_LIGHT_GRAY );
+		SelectObject( hDC, gdiWhiteBrush );
+		Rectangle( hDC, 467, 300, 479, 452 );
+		
+		MoveToEx( hDC, 479, 306, NULL );
+		LineTo( hDC, 485, 306 );
+		MoveToEx( hDC, 479, 320, NULL );
+		LineTo( hDC, 485, 320 );
+		MoveToEx( hDC, 479, 334, NULL );
+		LineTo( hDC, 485, 334 );
+		MoveToEx( hDC, 479, 348, NULL );
+		LineTo( hDC, 485, 348 );
+		MoveToEx( hDC, 479, 362, NULL );
+		LineTo( hDC, 485, 362 );
+		MoveToEx( hDC, 479, 376, NULL );
+		LineTo( hDC, 485, 376 );
+		MoveToEx( hDC, 479, 390, NULL );
+		LineTo( hDC, 485, 390 );
+		MoveToEx( hDC, 479, 404, NULL );
+		LineTo( hDC, 485, 404 );
+		MoveToEx( hDC, 479, 418, NULL );
+		LineTo( hDC, 485, 418 );
+		MoveToEx( hDC, 479, 432, NULL );
+		LineTo( hDC, 485, 432 );
+		MoveToEx( hDC, 479, 446, NULL );
+		LineTo( hDC, 485, 446 );
+		
+		SelectObject( hDC, gdiDarkGrayBrush );
+		Rectangle( hDC, 467, 376, 479, 452 );
+
+		SetPixel( hDC, 471, 283, CR_LIGHT_GRAY );
+		SetPixel( hDC, 473, 283, CR_LIGHT_GRAY );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 235, 159, "H", 1 );
+		TextOut( hDC, 468, 286, "H", 1 );
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_WHITE );
-		TextOut( hDC, 244, 165, "10", 2 );
-		TextOut( hDC, 245, 200, "0", 1 );
-		TextOut( hDC, 244, 235, "-10", 3 );
+		TextOut( hDC, 489, 299, "10", 2 );
+		TextOut( hDC, 489, 369, "0", 1 );
+		TextOut( hDC, 489, 439, "-10", 3 );
 
 		double dtmp = GetIDP()->GetVacc();
 		if (dtmp > 10) dtmp = 10;
 		else if (dtmp < -10) dtmp = -10;
 
 		POINT tri[3];// starts at tip moving cw
-		tri[0].x = 237;
-		tri[0].y = 204 - Round( dtmp * 3.5 );
-		tri[1].x = 229;
-		tri[1].y = tri[0].y + 5;
-		tri[2].x = 229;
-		tri[2].y = tri[0].y - 5;
+		tri[0].x = 475;
+		tri[0].y = 376 - Round( dtmp * 7 );
+		tri[1].x = 461;
+		tri[1].y = tri[0].y + 8;
+		tri[2].x = 461;
+		tri[2].y = tri[0].y - 8;
 
 		SelectObject( hDC, gdiLightGreenPen );
 		SelectObject( hDC, gdiLightGreenBrush );
@@ -4418,46 +4658,47 @@ namespace vc
 
 	void MDU::AEPFD_HACCEL( oapi::Sketchpad2* skp )
 	{
-		skp->SetPen( skpDarkGrayPen );
-		skp->Rectangle( 234, 168, 241, 240 );
-		skp->SetBrush( skpWhiteBrush );
-		skp->Rectangle( 234, 168, 241, 205 );
-		skp->SetBrush( skpLightGrayBrush );
 		skp->SetPen( skpLightGrayPen );
-		skp->Rectangle( 235, 204, 240, 239 );
-		skp->SetPen( skpDarkGrayPen );
-		skp->SetBrush( skpBlackBrush );
-		skp->Line( 241, 169, 244, 169 );
-		skp->Line( 241, 176, 244, 176 );
-		skp->Line( 241, 183, 244, 183 );
-		skp->Line( 241, 190, 244, 190 );
-		skp->Line( 241, 197, 244, 197 );
-		skp->Line( 241, 204, 244, 204 );
-		skp->Line( 241, 211, 244, 211 );
-		skp->Line( 241, 218, 244, 218 );
-		skp->Line( 241, 225, 244, 225 );
-		skp->Line( 241, 232, 244, 232 );
-		skp->Line( 241, 239, 244, 239 );
-		skp->Pixel( 236, 158, CR_LIGHT_GRAY );
-		skp->Pixel( 238, 158, CR_LIGHT_GRAY );
+		skp->SetBrush( skpWhiteBrush );
+		skp->Rectangle( 467, 300, 479, 452 );
+		
+		skp->Line( 479, 306, 485, 306 );
+		skp->Line( 479, 320, 485, 320 );
+		skp->Line( 479, 334, 485, 334 );
+		skp->Line( 479, 348, 485, 348 );
+		skp->Line( 479, 362, 485, 362 );
+		skp->Line( 479, 376, 485, 376 );
+		skp->Line( 479, 390, 485, 390 );
+		skp->Line( 479, 404, 485, 404 );
+		skp->Line( 479, 418, 485, 418 );
+		skp->Line( 479, 432, 485, 432 );
+		skp->Line( 479, 446, 485, 446 );
+
+		skp->SetBrush( skpDarkGrayBrush );
+		skp->Rectangle( 467, 376, 479, 452 );
+
+		skp->Pixel( 471, 284, CR_LIGHT_GRAY );
+		skp->Pixel( 473, 284, CR_LIGHT_GRAY );
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 235, 159, "H", 1 );
+		skp->Text( 468, 286, "H", 1 );
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_WHITE );
-		skp->Text( 244, 165, "10", 2 );
-		skp->Text( 245, 200, "0", 1 );
-		skp->Text( 244, 235, "-10", 3 );
+		skp->Text( 489, 299, "10", 2 );
+		skp->Text( 489, 369, "0", 1 );
+		skp->Text( 489, 439, "-10", 3 );
 
 		double dtmp = GetIDP()->GetVacc();
 		if (dtmp > 10) dtmp = 10;
 		else if (dtmp < -10) dtmp = -10;
 
 		oapi::IVECTOR2 tri[3];// starts at tip moving cw
-		tri[0].x = 237;
-		tri[0].y = 204 - Round( dtmp * 3.5 );
-		tri[1].x = 229;
-		tri[1].y = tri[0].y + 5;
-		tri[2].x = 229;
-		tri[2].y = tri[0].y - 5;
+		tri[0].x = 475;
+		tri[0].y = 376 - Round( dtmp * 7 );
+		tri[1].x = 461;
+		tri[1].y = tri[0].y + 8;
+		tri[2].x = 461;
+		tri[2].y = tri[0].y - 8;
 
 		skp->SetPen( skpLightGreenPen );
 		skp->SetBrush( skpLightGreenBrush );
@@ -4467,61 +4708,77 @@ namespace vc
 
 	void MDU::AEPFD_RANGERW( HDC hDC )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 190, 206, 213, 219 );
+		Rectangle( hDC, 367, 384, 408, 401 );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 189, 196, GetIDP()->GetSelectedRunway().c_str(), 5 );
+		TextOut( hDC, 367, 371, GetIDP()->GetSelectedRunway().c_str(), 5 );
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		double dtmp = GetIDP()->GetRangeToRunway();
 		char cbuf[8];
 		if (dtmp > 1000) sprintf_s( cbuf, 8, "%4.0f", dtmp );// HACK max should be 999.9, but this way is better for testing
 		else sprintf_s( cbuf, 8, "%5.1f", dtmp );
-		TextOut( hDC, 193, 207, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 405, 385, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
 
 	void MDU::AEPFD_RANGERW( oapi::Sketchpad2* skp )
 	{
-		skp->SetPen( skpDarkGrayPen );
+		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 190, 206, 213, 219 );
+		skp->Rectangle( 367, 384, 408, 401 );
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 189, 196, GetIDP()->GetSelectedRunway().c_str(), 5 );
+		skp->Text( 367, 371, GetIDP()->GetSelectedRunway().c_str(), 5 );
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		double dtmp = GetIDP()->GetRangeToRunway();
 		char cbuf[8];
 		if (dtmp > 1000) sprintf_s( cbuf, 8, "%4.0f", dtmp );// HACK max should be 999.9, but this way is better for testing
 		else sprintf_s( cbuf, 8, "%5.1f", dtmp );
-		skp->Text( 193, 207, cbuf, strlen( cbuf ) );
+		skp->Text( 405, 385, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
 	void MDU::AEPFD_RANGEHACC( HDC hDC )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 190, 231, 213, 244 );
+		Rectangle( hDC, 367, 425, 408, 442 );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 190, 221, "HAC-C", 5 );
+		TextOut( hDC, 367, 412, "HAC-C", 5 );
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 		SetTextColor( hDC, CR_WHITE );
+		SetTextAlign( hDC, TA_RIGHT );
 		char cbuf[8];
 		sprintf_s( cbuf, 8, "%5.1f", GetIDP()->GetDistanceToHACCenter() );
-		TextOut( hDC, 193, 233, cbuf, strlen( cbuf ) );
+		TextOut( hDC, 405, 426, cbuf, strlen( cbuf ) );
+		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
 
 	void MDU::AEPFD_RANGEHACC( oapi::Sketchpad2* skp )
 	{
-		skp->SetPen( skpDarkGrayPen );
+		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 190, 231, 213, 244 );
+		skp->Rectangle( 367, 425, 408, 442 );
+		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 190, 221, "HAC-C", 5 );
+		skp->Text( 367, 412, "HAC-C", 5 );
+		skp->SetFont( skpSSUBFont_h12 );
 		skp->SetTextColor( CR_WHITE );
+		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		char cbuf[8];
 		sprintf_s( cbuf, 8, "%5.1f", GetIDP()->GetDistanceToHACCenter() );
-		skp->Text( 193, 233, cbuf, strlen( cbuf ) );
+		skp->Text( 405, 426, cbuf, strlen( cbuf ) );
+		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
@@ -4735,75 +4992,77 @@ namespace vc
 
 	void MDU::AEPFD_GSI( HDC hDC, double Altitude_ft )
 	{
-		SelectObject( hDC, gdiDarkGrayPen );
+		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 217, 165, 224, 235 );
-		SelectObject( hDC, gdiDarkGrayBrush );
-		::Ellipse( hDC, 219, 166, 222, 169 );
-		::Ellipse( hDC, 219, 183, 222, 186 );
-		::Ellipse( hDC, 219, 215, 222, 218 );
-		::Ellipse( hDC, 219, 231, 222, 234 );
-		MoveToEx( hDC, 217, 200, NULL );
-		LineTo( hDC, 224, 200 );
+		Rectangle( hDC, 434, 290, 448, 442 );
+		SelectObject( hDC, gdiLightGrayBrush );
+		::Ellipse( hDC, 437, 297, 445, 305 );
+		::Ellipse( hDC, 437, 329, 445, 337 );
+		::Ellipse( hDC, 437, 395, 445, 403 );
+		::Ellipse( hDC, 437, 427, 445, 435 );
+		MoveToEx( hDC, 434, 366, NULL );
+		LineTo( hDC, 448, 366 );
+
+		SelectObject( hDC, gdiSSUBFont_h12w7 );
 
 		if (Altitude_ft < 1500)
 		{
-			TextOut( hDC, 216, 156, "1K", 2 );
-			TextOut( hDC, 216, 234, "1K", 2 );
+			TextOut( hDC, 434, 276, "1K", 2 );
+			TextOut( hDC, 434, 442, "1K", 2 );
 			// no tracking -> print GS label
 			SelectObject( hDC, gdiRedPen );
 			SelectObject( hDC, gdiRedBrush );
-			Rectangle( hDC, 215, 196, 226, 204 );
+			Rectangle( hDC, 427, 357, 455, 374 );
 			SetTextColor( hDC, CR_BLACK );
-			TextOut( hDC, 216, 195, "GS", 2 );
+			TextOut( hDC, 434, 359, "GS", 2 );
 		}
 		else
 		{
 			POINT tri[3];
-			tri[0].x = 220;// starts at tip moving cw
-			tri[1].x = 228;
-			tri[2].x = 228;
+			tri[0].x = 441;// starts at tip moving cw
+			tri[1].x = 457;
+			tri[2].x = 457;
 			double dtmp = GetIDP()->GetGlideSlopeDistance();// get dist ABOVE glide path
 
 			if (GetIDP()->GetApproachAndLandState() == false)
 			{
 				// TAEM
-				TextOut( hDC, 216, 156, "5K", 2 );
-				TextOut( hDC, 216, 234, "5K", 2 );
+				TextOut( hDC, 434, 276, "5K", 2 );
+				TextOut( hDC, 434, 442, "5K", 2 );
 
 				if (dtmp > 5000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 235;
+					tri[0].y = 431;
 				}
 				else if (dtmp < -5000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 165;
+					tri[0].y = 301;
 				}
-				else tri[0].y = 200 + Round( dtmp * 0.007 );
+				else tri[0].y = 366 + Round( dtmp * 0.013 );
 			}
 			else
 			{
 				// A/L
-				TextOut( hDC, 216, 156, "1K", 2 );
-				TextOut( hDC, 216, 234, "1K", 2 );
+				TextOut( hDC, 434, 276, "1K", 2 );
+				TextOut( hDC, 434, 442, "1K", 2 );
 
 				if (dtmp > 1000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 235;
+					tri[0].y = 431;
 				}
 				else if (dtmp < -1000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 165;
+					tri[0].y = 301;
 				}
-				else tri[0].y = 200 + Round( dtmp * 0.035 );
+				else tri[0].y = 366 + Round( dtmp * 0.065 );
 			}
 
-			tri[1].y = tri[0].y - 5;
-			tri[2].y = tri[0].y + 5;
+			tri[1].y = tri[0].y - 10;
+			tri[2].y = tri[0].y + 10;
 			SelectObject( hDC, gdiLightGreenPen );
 			SelectObject( hDC, gdiLightGreenBrush );
 			Polygon( hDC, tri, 3 );
@@ -4813,74 +5072,76 @@ namespace vc
 
 	void MDU::AEPFD_GSI( oapi::Sketchpad2* skp, double Altitude_ft )
 	{
-		skp->SetPen( skpDarkGrayPen );
+		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 217, 165, 224, 235 );
-		skp->SetBrush( skpDarkGrayBrush );
-		skp->Ellipse(  219, 166, 222, 169 );
-		skp->Ellipse( 219, 183, 222, 186 );
-		skp->Ellipse( 219, 215, 222, 218 );
-		skp->Ellipse( 219, 231, 222, 234 );
-		skp->Line( 217, 200, 224, 200 );
+		skp->Rectangle( 434, 290, 448, 442 );
+		skp->SetBrush( skpLightGrayBrush );
+		skp->Ellipse( 437, 297, 445, 305 );
+		skp->Ellipse( 437, 329, 445, 337 );
+		skp->Ellipse( 437, 395, 445, 403 );
+		skp->Ellipse( 437, 427, 445, 435 );
+		skp->Line( 434, 366, 448, 366 );
+
+		skp->SetFont( skpSSUBFont_h12 );
 
 		if (Altitude_ft < 1500)
 		{
-			skp->Text( 216, 156, "1K", 2 );
-			skp->Text( 216, 234, "1K", 2 );
+			skp->Text( 434, 276, "1K", 2 );
+			skp->Text( 434, 442, "1K", 2 );
 			// no tracking -> print GS label
 			skp->SetPen( skpRedPen );
 			skp->SetBrush( skpRedBrush );
-			skp->Rectangle( 215, 196, 226, 204 );
+			skp->Rectangle( 427, 357, 455, 374 );
 			skp->SetTextColor( CR_BLACK );
-			skp->Text( 216, 195, "GS", 2 );
+			skp->Text( 434, 359, "GS", 2 );
 		}
 		else
 		{
 			oapi::IVECTOR2 tri[3];
-			tri[0].x = 220;// starts at tip moving cw
-			tri[1].x = 228;
-			tri[2].x = 228;
+			tri[0].x = 441;// starts at tip moving cw
+			tri[1].x = 457;
+			tri[2].x = 457;
 			double dtmp = GetIDP()->GetGlideSlopeDistance();// get dist ABOVE glide path
 
 			if (GetIDP()->GetApproachAndLandState() == false)
 			{
 				// TAEM
-				skp->Text( 216, 156, "5K", 2 );
-				skp->Text( 216, 234, "5K", 2 );
+				skp->Text( 434, 276, "5K", 2 );
+				skp->Text( 434, 442, "5K", 2 );
 
 				if (dtmp > 5000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 235;
+					tri[0].y = 431;
 				}
 				else if (dtmp < -5000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 165;
+					tri[0].y = 301;
 				}
-				else tri[0].y = 200 + Round( dtmp * 0.007 );
+				else tri[0].y = 366 + Round( dtmp * 0.013 );
 			}
 			else
 			{
 				// A/L
-				skp->Text( 216, 156, "1K", 2 );
-				skp->Text( 216, 234, "1K", 2 );
+				skp->Text( 434, 276, "1K", 2 );
+				skp->Text( 434, 442, "1K", 2 );
 
 				if (dtmp > 1000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 235;
+					tri[0].y = 431;
 				}
 				else if (dtmp < -1000)
 				{
 					if (GetFlash() == false) return;
-					tri[0].y = 165;
+					tri[0].y = 301;
 				}
-				else tri[0].y = 200 + Round( dtmp * 0.035 );
+				else tri[0].y = 366 + Round( dtmp * 0.065 );
 			}
 
-			tri[1].y = tri[0].y - 5;
-			tri[2].y = tri[0].y + 5;
+			tri[1].y = tri[0].y - 10;
+			tri[2].y = tri[0].y + 10;
 			skp->SetPen( skpLightGreenPen );
 			skp->SetBrush( skpLightGreenBrush );
 			skp->Polygon( tri, 3 );
