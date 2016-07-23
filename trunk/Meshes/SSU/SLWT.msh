@@ -74070,5 +74070,5 @@ MATERIAL Main ET material, shiny
 0.9 0.9 0.9 1.0 100.0
 0.0 0.0 0.0 1.0
 TEXTURES 2
-SLWT_ETtex.dds
-Cabletray_tex.dds
+SSU\SLWT_ETtex.dds
+SSU\Cabletray_tex.dds
