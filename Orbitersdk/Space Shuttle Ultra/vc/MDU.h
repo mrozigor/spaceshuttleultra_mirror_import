@@ -206,8 +206,6 @@ namespace vc {
 		HFONT gdiSSUBFont_h12w7;
 		HFONT gdiSSUBFont_h16w9;
 
-		oapi::Font* skpTahomaFont_h10w4;
-		oapi::Font* skpTahomaFont_h7w3;
 		oapi::Font* skpSSUAFont_h20;
 		oapi::Font* skpSSUAFont_h10bold;
 		oapi::Font* skpSSUAFont_h11;
@@ -255,12 +253,14 @@ namespace vc {
 		void SPI( HDC hDC );
 		void SPI( oapi::Sketchpad2* skp );
 
-		// TODO correct position and size of tapes
 		void Tape_Alpha( HDC hDC, double MachNumber );
 		void Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
+		void Tape_KEAS_MVR( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_MVR_KEAS( HDC hDC, double MachNumber );
+		void Tape_MVR_KEAS( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_MVI_KEAS( HDC hDC, double MachNumber );
+		void Tape_MVI_KEAS( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot );
 		void Tape_H_Hdot( oapi::Sketchpad2* skp, double Altitude_ft, double Hdot );
 		void Tapes_Invalid( HDC hDC );
