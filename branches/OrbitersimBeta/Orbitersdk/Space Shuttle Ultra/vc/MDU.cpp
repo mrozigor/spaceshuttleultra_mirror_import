@@ -1133,7 +1133,7 @@ namespace vc
 		gdiBlackPen = CreatePen( PS_SOLID, 2, CR_BLACK );
 		gdiDarkGrayPen = CreatePen( PS_SOLID, 2, CR_DARK_GRAY );
 		gdiLightGrayPen = CreatePen( PS_SOLID, 2, CR_LIGHT_GRAY );
-		gdiLightGrayThickPen = CreatePen( PS_SOLID, 4, CR_LIGHT_GRAY );
+		gdiLightGrayThickPen = CreatePen( PS_SOLID, 3, CR_LIGHT_GRAY );
 		gdiWhitePen = CreatePen( PS_SOLID, 2, CR_WHITE );
 		gdiRedPen = CreatePen( PS_SOLID, 2, CR_RED );
 		gdiYellowPen = CreatePen( PS_SOLID, 2, CR_YELLOW );
@@ -1217,7 +1217,7 @@ namespace vc
 		skpBlackPen = oapiCreatePen( 1, 2, CR_BLACK );
 		skpDarkGrayPen = oapiCreatePen( 1, 2, CR_DARK_GRAY );
 		skpLightGrayPen = oapiCreatePen( 1, 2, CR_LIGHT_GRAY );
-		skpLightGrayThickPen = oapiCreatePen( 1, 4, CR_LIGHT_GRAY );
+		skpLightGrayThickPen = oapiCreatePen( 1, 3, CR_LIGHT_GRAY );
 		skpWhitePen = oapiCreatePen( 1, 2, CR_WHITE );
 		skpRedPen = oapiCreatePen( 1, 2, CR_RED );
 		skpYellowPen = oapiCreatePen( 1, 2, CR_YELLOW );
@@ -1231,8 +1231,6 @@ namespace vc
 		skpNormalPen = oapiCreatePen( 1, 2, CR_DPS_NORMAL );
 		skpDashedNormalPen = oapiCreatePen( 2, 2, CR_DPS_NORMAL );
 
-		skpTahomaFont_h10w4 = oapiCreateFont( 10, true, "Tahoma" );
-		skpTahomaFont_h7w3 = oapiCreateFont( 7, true, "Tahoma" );
 		skpSSUAFont_h20 = oapiCreateFont( 20, true, "*SSU_Font_A" );
 		skpSSUAFont_h10bold = oapiCreateFont( 10, false, "*SSU_Font_A", FONT_BOLD );
 		skpSSUAFont_h11 = oapiCreateFont( 11, true, "*SSU_Font_A" );
@@ -1272,8 +1270,6 @@ namespace vc
 		oapiReleasePen( skpNormalPen );
 		oapiReleasePen( skpDashedNormalPen );
 
-		oapiReleaseFont( skpTahomaFont_h10w4 );
-		oapiReleaseFont( skpTahomaFont_h7w3 );
 		oapiReleaseFont( skpSSUAFont_h20 );
 		oapiReleaseFont( skpSSUAFont_h10bold );
 		oapiReleaseFont( skpSSUAFont_h11 );

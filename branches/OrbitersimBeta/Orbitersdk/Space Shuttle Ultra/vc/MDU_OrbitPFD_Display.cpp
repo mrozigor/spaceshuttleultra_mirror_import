@@ -87,9 +87,48 @@ namespace vc
 		SelectObject( hDC, gdiWhitePen );
 		::Ellipse( hDC, 124, 91, 388, 355 );
 
+		SelectObject( hDC, gdiLightGrayPen );
+		SelectObject( hDC, gdiLightGrayBrush );
+		POINT diamond[4];
+		diamond[0].x = 256;
+		diamond[0].y = 99;
+		diamond[1].x = 261;
+		diamond[1].y = 106;
+		diamond[2].x = 256;
+		diamond[2].y = 113;
+		diamond[3].x = 251;
+		diamond[3].y = 106;
+		Polygon( hDC, diamond, 4 );// top
+		//diamond[0].x = 256;
+		diamond[0].y = 333;
+		//diamond[1].x = 261;
+		diamond[1].y = 340;
+		//diamond[2].x = 256;
+		diamond[2].y = 347;
+		//diamond[3].x = 251;
+		diamond[3].y = 340;
+		Polygon( hDC, diamond, 4 );// bottom
+		diamond[0].x = 373;
+		diamond[0].y = 218;
+		diamond[1].x = 380;
+		diamond[1].y = 223;
+		diamond[2].x = 373;
+		diamond[2].y = 228;
+		diamond[3].x = 366;
+		diamond[3].y = 223;
+		Polygon( hDC, diamond, 4 );// right
+		diamond[0].x = 139;
+		//diamond[0].y = 218;
+		diamond[1].x = 146;
+		//diamond[1].y = 223;
+		diamond[2].x = 139;
+		//diamond[2].y = 228;
+		diamond[3].x = 132;
+		//diamond[3].y = 223;
+		Polygon( hDC, diamond, 4 );// left
+
 		// rate scales
 		// top scale
-		SelectObject( hDC, gdiLightGrayPen );
 		MoveToEx( hDC, 167, 76, NULL );
 		LineTo( hDC, 345, 76 );
 		MoveToEx( hDC, 167, 76, NULL );
@@ -242,6 +281,7 @@ namespace vc
 		LineTo( hDC, 358, 164 );
 		MoveToEx( hDC, 197, 325, NULL );// 150º/330º
 		LineTo( hDC, 315, 121 );
+		
 		// cover center for ADI SRCPAINT
 		SelectObject( hDC, gdiBlackBrush );
 		SelectObject( hDC, gdiBlackPen );
@@ -255,45 +295,6 @@ namespace vc
 		TextOut( hDC, 148, 282, "12", 2 );
 		TextOut( hDC, 148, 149, "06", 2 );
 		TextOut( hDC, 181, 115, "03", 2 );
-		SelectObject( hDC, gdiLightGrayPen );
-		SelectObject( hDC, gdiLightGrayBrush );
-		POINT diamond[4];
-		diamond[0].x = 256;
-		diamond[0].y = 99;
-		diamond[1].x = 261;
-		diamond[1].y = 106;
-		diamond[2].x = 256;
-		diamond[2].y = 113;
-		diamond[3].x = 251;
-		diamond[3].y = 106;
-		Polygon( hDC, diamond, 4 );// top
-		//diamond[0].x = 256;
-		diamond[0].y = 333;
-		//diamond[1].x = 261;
-		diamond[1].y = 340;
-		//diamond[2].x = 256;
-		diamond[2].y = 347;
-		//diamond[3].x = 251;
-		diamond[3].y = 340;
-		Polygon( hDC, diamond, 4 );// bottom
-		diamond[0].x = 373;
-		diamond[0].y = 218;
-		diamond[1].x = 380;
-		diamond[1].y = 223;
-		diamond[2].x = 373;
-		diamond[2].y = 228;
-		diamond[3].x = 366;
-		diamond[3].y = 223;
-		Polygon( hDC, diamond, 4 );// right
-		diamond[0].x = 139;
-		//diamond[0].y = 218;
-		diamond[1].x = 146;
-		//diamond[1].y = 223;
-		diamond[2].x = 139;
-		//diamond[2].y = 228;
-		diamond[3].x = 132;
-		//diamond[3].y = 223;
-		Polygon( hDC, diamond, 4 );// left
 
 		// att needles
 		// top scale
@@ -388,10 +389,49 @@ namespace vc
 
 		skp->SetPen( skpWhitePen );
 		skp->Ellipse( 124, 91, 388, 355 );
+
+		skp->SetPen( skpLightGrayPen );
+		skp->SetBrush( skpLightGrayBrush );
+		oapi::IVECTOR2 diamond[4];
+		diamond[0].x = 256;
+		diamond[0].y = 99;
+		diamond[1].x = 261;
+		diamond[1].y = 106;
+		diamond[2].x = 256;
+		diamond[2].y = 113;
+		diamond[3].x = 251;
+		diamond[3].y = 106;
+		skp->Polygon( diamond, 4 );// top
+		//diamond[0].x = 256;
+		diamond[0].y = 333;
+		//diamond[1].x = 261;
+		diamond[1].y = 340;
+		//diamond[2].x = 256;
+		diamond[2].y = 347;
+		//diamond[3].x = 251;
+		diamond[3].y = 340;
+		skp->Polygon( diamond, 4 );// bottom
+		diamond[0].x = 373;
+		diamond[0].y = 218;
+		diamond[1].x = 380;
+		diamond[1].y = 223;
+		diamond[2].x = 373;
+		diamond[2].y = 228;
+		diamond[3].x = 366;
+		diamond[3].y = 223;
+		skp->Polygon( diamond, 4 );// right
+		diamond[0].x = 139;
+		//diamond[0].y = 218;
+		diamond[1].x = 146;
+		//diamond[1].y = 223;
+		diamond[2].x = 139;
+		//diamond[2].y = 228;
+		diamond[3].x = 132;
+		//diamond[3].y = 223;
+		skp->Polygon( diamond, 4 );// left
 		
 		// rate scales
 		// top scale
-		skp->SetPen( skpLightGrayPen );
 		skp->Line( 167, 76, 345, 76 );
 		skp->Line( 167, 76, 167, 86 );
 		skp->Line( 185, 76, 185, 81 );
@@ -475,6 +515,7 @@ namespace vc
 		skp->Line( 154, 164, 358, 282 );// 60º/240º
 		skp->Line( 154, 282, 358, 164 );// 120º/300º
 		skp->Line( 197, 325, 315, 121 );// 150º/330º
+
 		// cover center for ADI SRCPAINT
 		skp->SetBrush( skpBlackBrush );
 		skp->SetPen( skpBlackPen );
@@ -488,45 +529,6 @@ namespace vc
 		skp->Text( 148, 282, "12", 2 );
 		skp->Text( 148, 149, "06", 2 );
 		skp->Text( 181, 115, "03", 2 );
-		skp->SetPen( skpLightGrayPen );
-		skp->SetBrush( skpLightGrayBrush );
-		oapi::IVECTOR2 diamond[4];
-		diamond[0].x = 256;
-		diamond[0].y = 99;
-		diamond[1].x = 261;
-		diamond[1].y = 106;
-		diamond[2].x = 256;
-		diamond[2].y = 113;
-		diamond[3].x = 251;
-		diamond[3].y = 106;
-		skp->Polygon( diamond, 4 );// top
-		//diamond[0].x = 256;
-		diamond[0].y = 333;
-		//diamond[1].x = 261;
-		diamond[1].y = 340;
-		//diamond[2].x = 256;
-		diamond[2].y = 347;
-		//diamond[3].x = 251;
-		diamond[3].y = 340;
-		skp->Polygon( diamond, 4 );// bottom
-		diamond[0].x = 373;
-		diamond[0].y = 218;
-		diamond[1].x = 380;
-		diamond[1].y = 223;
-		diamond[2].x = 373;
-		diamond[2].y = 228;
-		diamond[3].x = 366;
-		diamond[3].y = 223;
-		skp->Polygon( diamond, 4 );// right
-		diamond[0].x = 139;
-		//diamond[0].y = 218;
-		diamond[1].x = 146;
-		//diamond[1].y = 223;
-		diamond[2].x = 139;
-		//diamond[2].y = 228;
-		diamond[3].x = 132;
-		//diamond[3].y = 223;
-		skp->Polygon( diamond, 4 );// left
 
 		// att needles
 		// top scale
