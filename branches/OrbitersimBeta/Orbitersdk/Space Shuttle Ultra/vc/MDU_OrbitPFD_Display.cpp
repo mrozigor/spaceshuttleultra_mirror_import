@@ -637,12 +637,12 @@ namespace vc
 		else if (pitch > 0)
 		{
 			SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
-			Rectangle( hDC_ADI_ORBIT, 0, 0, 222, 222 );
+			Rectangle( hDC_ADI_ORBIT, -2, -2, 224, 224 );
 		}
 		else
 		{
 			SelectObject( hDC_ADI_ORBIT, gdiDarkGrayBrush );
-			Rectangle( hDC_ADI_ORBIT, 0, 0, 222, 222 );
+			Rectangle( hDC_ADI_ORBIT, -2, -2, 224, 224 );
 		}
 		
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
@@ -769,7 +769,6 @@ namespace vc
 		SelectObject( hDC_ADI_ORBIT, gdiWhiteBrush );
 		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
 		Rectangle( hDC_ADI_ORBIT, 108, 0, 116, 222 );
-		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 		MoveToEx( hDC_ADI_ORBIT, 112, 0, NULL );
 		LineTo( hDC_ADI_ORBIT, 112, 222 );
 
@@ -794,26 +793,17 @@ namespace vc
 		SelectObject( hDC_ADI_ORBIT, gdiLightGreenPen );
 		SelectObject( hDC_ADI_ORBIT, gdiLightGreenBrush );
 		POINT tri[3];
-		tri[0].x = 112;
+		tri[0].x = 111;
 		tri[0].y = 1;
-		tri[1].x = 104;
-		tri[1].y = 18;
-		tri[2].x = 120;
-		tri[2].y = 18;
+		tri[1].x = 105;
+		tri[1].y = 12;
+		tri[2].x = 117;
+		tri[2].y = 12;
 		Polygon( hDC_ADI_ORBIT, tri, 3 );
 		
 		// clean up
 		ModifyWorldTransform( hDC_ADI_ORBIT, &WTroll, MWT_IDENTITY );
 		SetGraphicsMode( hDC_ADI_ORBIT, GM_COMPATIBLE );
-
-		// flight director
-		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-		POINT fd[18] = {{70,110},{70,114},{94,114},{99,124},{108,130},{116,130},{125,124},{130,114},{154,114},{154,110},{126,110},{126,114},{122,121},{115,126},{109,126},{102,121},{98,114},{98,110}};
-		Polygon( hDC_ADI_ORBIT, fd, 18 );
-		// center marker
-		SelectObject( hDC_ADI_ORBIT, gdiLightGreenPen );
-		Rectangle( hDC_ADI_ORBIT, 111, 80, 113, 144 );
-		Rectangle( hDC_ADI_ORBIT, 80, 111, 144, 113 );
 
 		// digital RPY
 		if (pitch < 0) pitch += 360;// TODO get rid of this
@@ -826,8 +816,19 @@ namespace vc
 		sprintf_s( cbuf, 8, "%03.0f", yaw );
 		TextOut( hDC, 393, 84, cbuf, strlen( cbuf ) );
 
+		// copy ball
 		BitBlt( hDC_ADI_ORBIT, 0, 0, 222, 222, hDC_ADIMASK_ORBIT, 0, 0, SRCAND );
-		BitBlt( hDC, 145/*146*/, 112/*113*/, 365/*366*/, 332/*333*/, hDC_ADI_ORBIT, 0, 0, SRCPAINT );
+		BitBlt( hDC, 146, 113, 220, 220, hDC_ADI_ORBIT, 1, 1, SRCPAINT );
+
+		// flight director
+		SelectObject( hDC, gdiBlackPen );
+		SelectObject( hDC, gdiLightGreenBrush );
+		POINT fd[18] = {{214,221},{214,225},{238,225},{243,235},{252,241},{260,241},{269,235},{274,225},{298,225},{298,221},{270,221},{270,225},{266,232},{259,237},{253,237},{246,232},{242,225},{242,221}};
+		Polygon( hDC, fd, 18 );
+		// center marker
+		SelectObject( hDC, gdiLightGreenPen );
+		Rectangle( hDC, 255, 191, 257, 255 );
+		Rectangle( hDC, 224, 222, 288, 224 );
 		return;
 	}
 
@@ -864,20 +865,11 @@ namespace vc
 		oapi::IVECTOR2 tri[3];
 		tri[0].x = (long)(256 + 110 * sroll);
 		tri[0].y = (long)(223 - 110 * croll);
-		tri[1].x = (long)(256 - 6 * croll + 102 * sroll);
-		tri[1].y = (long)(223 - 6 * sroll - 102 * croll);
-		tri[2].x = (long)(256 + 6 * croll + 102 * sroll);
-		tri[2].y = (long)(223 + 6 * sroll - 102 * croll);
+		tri[1].x = (long)(256 - 6 * croll + 99 * sroll);
+		tri[1].y = (long)(223 - 6 * sroll - 99 * croll);
+		tri[2].x = (long)(256 + 6 * croll + 99 * sroll);
+		tri[2].y = (long)(223 + 6 * sroll - 99 * croll);
 		skp->Polygon( tri, 3 );
-
-		// flight director
-		skp->SetPen( skpBlackPen );
-		oapi::IVECTOR2 fd[18] = {{214,221},{214,225},{238,225},{243,235},{252,241},{260,241},{269,235},{274,225},{298,225},{298,221},{270,221},{270,225},{266,232},{259,237},{253,237},{246,232},{242,225},{242,221}};
-		skp->Polygon( fd, 18 );
-		// center marker
-		skp->SetPen( skpLightGreenPen );
-		skp->Rectangle( 255, 191, 257, 255 );
-		skp->Rectangle( 224, 222, 288, 224 );
 
 		// digital RPY
 		if (pitch < 0) pitch += 360;// TODO get rid of this
@@ -889,6 +881,15 @@ namespace vc
 		skp->Text( 393, 70, cbuf, strlen( cbuf ) );
 		sprintf_s( cbuf, 8, "%03.0f", yaw );
 		skp->Text( 393, 84, cbuf, strlen( cbuf ) );
+
+		// flight director
+		skp->SetPen( skpBlackPen );
+		oapi::IVECTOR2 fd[18] = {{214,221},{214,225},{238,225},{243,235},{252,241},{260,241},{269,235},{274,225},{298,225},{298,221},{270,221},{270,225},{266,232},{259,237},{253,237},{246,232},{242,225},{242,221}};
+		skp->Polygon( fd, 18 );
+		// center marker
+		skp->SetPen( skpLightGreenPen );
+		skp->Rectangle( 255, 191, 257, 255 );
+		skp->Rectangle( 224, 222, 288, 224 );
 		return;
 	}
 
@@ -1115,9 +1116,9 @@ namespace vc
 		// draw needles
 		SelectObject( hDC, gdiMagentaPen );
 		SelectObject( hDC, gdiMagentaBrush );
-		Rectangle( hDC, 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 191 );// roll
-		Rectangle( hDC, 290, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
-		Rectangle( hDC, 255 + Round( pos_yaw ), 257, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
+		Rectangle( hDC, 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 188 );// roll
+		Rectangle( hDC, 291, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
+		Rectangle( hDC, 255 + Round( pos_yaw ), 258, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;
 	}
 
@@ -1180,9 +1181,9 @@ namespace vc
 		// draw needles
 		skp->SetPen( skpMagentaPen );
 		skp->SetBrush( skpMagentaBrush );
-		skp->Rectangle( 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 191 );// roll
-		skp->Rectangle( 290, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
-		skp->Rectangle( 255 + Round( pos_yaw ), 257, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
+		skp->Rectangle( 255 + Round( pos_roll ), 224 - Round( sqrt( 15625 - (pos_roll * pos_roll) ) ), 257 + Round( pos_roll ), 188 );// roll
+		skp->Rectangle( 291, 222 + Round( pos_pitch ), 256 + Round( sqrt( 15625 - (pos_pitch * pos_pitch) ) ), 224 + Round( pos_pitch ) );// pitch
+		skp->Rectangle( 255 + Round( pos_yaw ), 258, 257 + Round( pos_yaw ), 223 + Round( sqrt( 15625 - (pos_yaw * pos_yaw) ) ) );// yaw
 		return;
 	}
 };
