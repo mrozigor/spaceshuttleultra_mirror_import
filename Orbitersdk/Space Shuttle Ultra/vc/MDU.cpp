@@ -1149,8 +1149,6 @@ namespace vc
 		DWORD pstyle[2] = {16, 8};
 		gdiDashedNormalPen = ExtCreatePen( PS_GEOMETRIC | PS_USERSTYLE, 2, &lb, 2, pstyle );
 
-		gdiTahomaFont_h10w4 = CreateFont( 10, 4, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
-		gdiTahomaFont_h7w3 = CreateFont( 7, 3, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, OEM_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "Tahoma" );
 		gdiSSUAFont_h20w17 = CreateFont( 20, 17, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
 		gdiSSUAFont_h10w10bold = CreateFont( 10, 10, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
 		gdiSSUAFont_h11w9 = CreateFont( 11, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
@@ -1190,8 +1188,6 @@ namespace vc
 		DeleteObject( gdiNormalPen );
 		DeleteObject( gdiDashedNormalPen );
 
-		DeleteObject( gdiTahomaFont_h10w4 );
-		DeleteObject( gdiTahomaFont_h7w3 );
 		DeleteObject( gdiSSUAFont_h20w17 );
 		DeleteObject( gdiSSUAFont_h10w10bold );
 		DeleteObject( gdiSSUAFont_h11w9 );

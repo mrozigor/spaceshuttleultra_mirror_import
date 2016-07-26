@@ -197,8 +197,6 @@ namespace vc {
 		oapi::Pen* skpDashedNormalPen;
 
 		// fonts
-		HFONT gdiTahomaFont_h10w4;
-		HFONT gdiTahomaFont_h7w3;
 		HFONT gdiSSUAFont_h20w17;
 		HFONT gdiSSUAFont_h10w10bold;
 		HFONT gdiSSUAFont_h11w9;
@@ -219,10 +217,13 @@ namespace vc {
 		void DestroySketchpadObjects();
 
 		HDC hDC_Tapes;
+		HDC hDC_Tape_Alpha;
 		HDC hDC_ADI;
 		HDC hDC_ADI_ORBIT;
 		HDC hDC_ADIMASK;
 		HDC hDC_ADIMASK_ORBIT;
+
+		SURFHANDLE sfh_Tape_Alpha;
 
 		SKETCHMESH hADIball;
 
