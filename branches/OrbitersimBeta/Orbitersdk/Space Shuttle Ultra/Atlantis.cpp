@@ -587,6 +587,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	vis = NULL;
 
+	hOVTexture = NULL;
+
 	reset_mmu = false;
 	jettison_time = 0.0;
 	render_cockpit = false;
@@ -926,6 +928,8 @@ Atlantis::~Atlantis() {
 	delete bundleManager;
 
 	UnregisterMFDMode( mfdID );
+
+	if (hOVTexture) oapiReleaseTexture( hOVTexture );
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -7277,8 +7281,8 @@ double Atlantis::GetLH2ManifPress(void) const
 
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
-	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 3, hTexture);
+	hOVTexture = oapiLoadTexture(strTextureName.c_str());
+	oapiSetTexture(hDevOrbiterMesh, 3, hOVTexture);
 }
 
 int Atlantis::GetSoundID() const {
