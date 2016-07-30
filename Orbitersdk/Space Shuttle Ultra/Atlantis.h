@@ -696,6 +696,9 @@ public:
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
+
+	SURFHANDLE hOVTexture;
+
 	char cargo_static_mesh_name[256];
 
 	//C-P attachments
